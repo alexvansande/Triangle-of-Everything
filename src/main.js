@@ -533,7 +533,7 @@ function drawRegionLabels() {
 // =============================================================
 
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
-const CLUSTER_THRESHOLD = 42; // px — objects within this form a cluster; show category label instead of individual
+const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
 let _lastProjected = [];
 
@@ -546,6 +546,7 @@ function drawObjects() {
   const projected = OBJECTS
     .map(o => ({
       ...o,
+      catKey: o.cat,
       sx: px(o.logR),
       sy: py(o.logM),
       cat: CATEGORIES[o.cat],
@@ -585,14 +586,24 @@ function drawObjects() {
     if (visited.size >= 2) {
       const members = [...visited];
       members.forEach(p => assigned.add(p));
-      const cx = members.reduce((s, p) => s + p.sx, 0) / members.length;
-      const cy = members.reduce((s, p) => s + p.sy, 0) / members.length;
-      const subcats = [...new Set(members.map(p => p.subcat).filter(Boolean))];
-      const catKey = Object.keys(CATEGORIES).find(k => CATEGORIES[k] === members[0].cat);
-      const label = subcats.length === 1 && SUBCAT_LABELS[subcats[0]]
-        ? SUBCAT_LABELS[subcats[0]]
-        : (CAT_DISPLAY[catKey] || catKey || "Objects");
-      clusters.push({ members, cx, cy, label, cat: members[0].cat });
+      // Clusters of 2: show individual labels instead of cluster label
+      if (visited.size > 2) {
+        const cx = members.reduce((s, p) => s + p.sx, 0) / members.length;
+        const cy = members.reduce((s, p) => s + p.sy, 0) / members.length;
+        const subcats = [...new Set(members.map(p => p.subcat).filter(Boolean))];
+        const catKey = Object.keys(CATEGORIES).find(k => CATEGORIES[k] === members[0].cat);
+        let label;
+        if (subcats.length === 1 && SUBCAT_LABELS[subcats[0]]) {
+          label = SUBCAT_LABELS[subcats[0]];
+        } else if (subcats.length >= 2 && subcats.length <= 4) {
+          // Show specific subcats: "Dwarf Planets & Moons" instead of generic "Planets"
+          const parts = subcats.map(s => SUBCAT_LABELS[s]).filter(Boolean);
+          label = parts.length >= 2 ? parts.slice(0, -1).join(", ") + " & " + parts[parts.length - 1] : (CAT_DISPLAY[catKey] || catKey || "Objects");
+        } else {
+          label = CAT_DISPLAY[catKey] || catKey || "Objects";
+        }
+        clusters.push({ members, cx, cy, label, cat: members[0].cat });
+      }
     }
   });
 
@@ -613,12 +624,15 @@ function drawObjects() {
     { dx: 0, dy: 16, anchor: "middle" },
   ];
 
-  // Place cluster labels first
+  // Place cluster labels first — never show the same label twice
+  const usedLabels = new Set();
   clusters.forEach(cl => {
-    const subcats = [...new Set(cl.members.map(p => p.subcat).filter(Boolean))];
-    const labelText = subcats.length === 1 && SUBCAT_LABELS[subcats[0]]
-      ? SUBCAT_LABELS[subcats[0]]
-      : cl.label;
+    const labelText = cl.label;
+    if (usedLabels.has(labelText.toUpperCase())) {
+      cl._showLabel = false;
+      cl._labelPos = labelPositions[0];
+      return;
+    }
     const labelW = labelText.length * 5.5 + 12;
     const labelH = 12;
 
@@ -638,6 +652,7 @@ function drawObjects() {
         cl._labelPos = pos;
         cl._labelRect = rect;
         cl._showLabel = true;
+        usedLabels.add(labelText.toUpperCase());
         placedLabels.push(rect);
         break;
       }
@@ -695,9 +710,10 @@ function drawObjects() {
   const categoryLabels = [];
   bySubcat.forEach((members, subcat) => {
     if (members.length < 2 || !SUBCAT_LABELS[subcat]) return;
+    const labelText = SUBCAT_LABELS[subcat];
+    if (usedLabels.has(labelText.toUpperCase())) return; // never show same label twice
     const cx = members.reduce((s, p) => s + p.sx, 0) / members.length;
     const cy = members.reduce((s, p) => s + p.sy, 0) / members.length;
-    const labelText = SUBCAT_LABELS[subcat];
     const labelW = labelText.length * (CATEGORY_LABEL_FONT * 0.55) + 20;
     const labelH = CATEGORY_LABEL_FONT + 4;
     const rect = { x: cx - labelW / 2, y: cy - labelH / 2, w: labelW, h: labelH };
@@ -709,6 +725,7 @@ function drawObjects() {
       rect.y + rect.h + 8 > p.y
     );
     if (!collides) {
+      usedLabels.add(labelText.toUpperCase());
       categoryLabels.push({ cx, cy, labelText, cat: members[0].cat });
     }
   });
@@ -1031,16 +1048,17 @@ function openSidebar(obj) {
   }
 
   sidebarObject.classList.remove("info-panel");
-  const cat = CATEGORIES[obj.cat];
+  const catKey = obj.catKey || obj.cat;
+  const cat = typeof obj.cat === "string" ? CATEGORIES[obj.cat] : obj.cat;
 
   sbName.textContent = obj.name;
   sbName.style.color = cat.color;
   sbDot.style.background = cat.color;
   sbDot.style.color = cat.color;
-  sbCategory.textContent = obj.cat;
+  sbCategory.textContent = catKey;
 
   const photon = isPhoton(obj);
-  const c = obj.cat;
+  const c = catKey;
   const isEveryday = c === "macro" || c === "micro";
   const isPlanet = c === "planet";
   const isStar = c === "star";
