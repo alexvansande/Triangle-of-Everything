@@ -1,3 +1,9 @@
+---
+zoom: 0.8, 3.0, 10
+navigate: whats-this
+button: "What's this?"
+---
+
 Anything that ever existed can be plotted in this chart.
 
 Featuring mass on the vertical axis and width on the horizontal axis, it is, in effect, a density scatter plot. But it's much more than that: due to the expansion of the universe, density correlates with time; due to relativity, mass is equivalent to energy; and due to quantum effects, energy is related to wavelength.

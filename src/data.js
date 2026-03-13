@@ -194,11 +194,12 @@ export const ENERGY_UNITS = [
   { logM: -36.81 + Math.log10(77),        label: "77 K (liq. N₂)", slug: "energy-units" },
   { logM: -36.81 + Math.log10(273.15),    label: "0°C", slug: "energy-units" },
   { logM: -36.81 + Math.log10(293.15),    label: "20°C (room)", slug: "energy-units" },
-  { logM: -36.81 + Math.log10(310.15),    label: "37°C (body)", slug: "energy-units" },
   { logM: -36.81 + Math.log10(373.15),    label: "100°C", slug: "energy-units" },
   { logM: -36.81 + 3,                     label: "1000 K", slug: "energy-units" },
+  { logM: -36.81 + Math.log10(1273.15),   label: "1000°C", slug: "energy-units" },
   { logM: -36.81 + Math.log10(5778),      label: "5778 K (Sun surface)", slug: "energy-units" },
-  { logM: -36.81 + 6,                     label: "1 M K", slug: "energy-units" },
+  { logM: -36.81 + 6,                     label: "1M K", slug: "energy-units" },
+  { logM: -36.81 + Math.log10(1e6 + 273.15), label: "1M°C", slug: "energy-units" },
   { logM: -36.81 + 9,                     label: "1 B K", slug: "energy-units" },
   { logM: -36.81 + Math.log10(255.37),    label: "0°F", slug: "energy-units" },
   { logM: -36.81 + Math.log10(310.93),    label: "100°F", slug: "energy-units" },
@@ -244,6 +245,16 @@ export const REFERENCE_LINES = [
     color: "rgba(255,130,50,0.12)", width: 1, dash: "4 3",
   },
   {
+    label: "Chandrasekhar Limit (1.44 M☉)",
+    points: [{ logR: 5.5, logM: 33.46 }, { logR: 9.5, logM: 33.46 }],
+    color: "rgba(180,180,255,0.2)", width: 0.8, dash: "6 4",
+  },
+  {
+    label: "TOV Limit (~2.1 M☉)",
+    points: [{ logR: 5.5, logM: 33.62 }, { logR: 9.5, logM: 33.62 }],
+    color: "rgba(255,100,100,0.2)", width: 0.8, dash: "6 4",
+  },
+  {
     label: "Schwarzschild Radius",
     points: [{ logR: -32.5, logM: -4.7 }, { logR: 28.5, logM: 56.3 }],
     color: "rgba(255,51,85,0)", width: 0, dash: "",
@@ -252,7 +263,257 @@ export const REFERENCE_LINES = [
 
 export const ARROWS = [];
 
+// =============================================================
+// Connection Paths — animated relationships between objects
+// =============================================================
+// Each path defines a visual connection with moving dots.
+// family: "spectrum" | "evolution" | "decay" | "combines"
+// Dots flow forward along the path (from first point to last).
+
+export const CONNECTION_PATHS = [
+  {
+    id: "em-spectrum",
+    family: "spectrum",
+    points: [
+      { logR: -10.0, logM: -26.66 },
+      { logR: -8.0,  logM: -28.66 },
+      { logR: -5.0,  logM: -31.66 },
+      { logR: -4.26, logM: -32.40 },
+      { logR: -3.0,  logM: -33.66 },
+      { logR: -1.0,  logM: -35.66 },
+      { logR: 0.0,   logM: -36.66 },
+      { logR: 2.48,  logM: -39.14 },
+      { logR: 4.48,  logM: -41.14 },
+    ],
+    zoomRange: [0.8, 800],
+    style: {
+      lineOpacity: 0.10,
+      lineWidth: 1.8,
+      dotCount: 30,
+      dotSize: 1.2,
+      dotSpeed: 1.0,
+    },
+  },
+  {
+    id: "stellar-low-mass",
+    family: "evolution",
+    points: [
+      { logR: 19.0,  logM: 35.5 },
+      { logR: 14.5,  logM: 34.5 },
+      { logR: 11.14, logM: 33.0 },
+      { logR: 10.84, logM: 33.3 },
+      { logR: 12.85, logM: 33.3 },
+      { logR: 13.14, logM: 33.6 },
+      { logR: 16.97, logM: 33.35 },
+      { logR: 17.5,  logM: 33.3 },
+      { logR: 14.0,  logM: 33.0 },
+      { logR: 11.0,  logM: 33.0 },
+      { logR: 8.85,  logM: 33.15 },
+    ],
+    zoomRange: [1.5, 800],
+    neighborhood: { x: [5, 22], y: [30, 38] },
+    style: {
+      lineOpacity: 0.10,
+      lineWidth: 1.4,
+      dotCount: 20,
+      dotSize: 1.0,
+      dotSpeed: 0.9,
+      color: "rgba(255,215,64,0.6)",
+    },
+  },
+  {
+    id: "stellar-high-mass",
+    family: "evolution",
+    points: [
+      { logR: 19.0,  logM: 35.5 },
+      { logR: 14.5,  logM: 34.5 },
+      { logR: 11.4,  logM: 34.8 },
+      { logR: 12.24, logM: 34.7 },
+      { logR: 13.6,  logM: 34.1 },
+      { logR: 17.8,  logM: 33.8 },
+      { logR: 14.0,  logM: 33.6 },
+      { logR: 10.0,  logM: 33.5 },
+      { logR: 6.0,   logM: 33.45 },
+    ],
+    zoomRange: [1.5, 800],
+    neighborhood: { x: [3, 22], y: [30, 38] },
+    style: {
+      lineOpacity: 0.10,
+      lineWidth: 1.4,
+      dotCount: 20,
+      dotSize: 1.0,
+      dotSpeed: 0.9,
+      color: "rgba(224,224,224,0.5)",
+    },
+  },
+  {
+    id: "quark-cascade",
+    family: "decay",
+    points: [
+      { logR: -15.94, logM: -21.51 },
+      { logR: -14.5,  logM: -21.5 },
+      { logR: -14.33, logM: -23.13 },
+      { logR: -13.5,  logM: -22.8 },
+      { logR: -13.81, logM: -23.65 },
+      { logR: -12.8,  logM: -23.5 },
+      { logR: -12.68, logM: -24.77 },
+      { logR: -11.5,  logM: -24.6 },
+      { logR: -11.37, logM: -26.08 },
+      { logR: -10.8,  logM: -25.9 },
+      { logR: -11.04, logM: -26.41 },
+    ],
+    zoomRange: [3, 800],
+    neighborhood: { x: [-18, -8], y: [-29, -19] },
+    style: {
+      lineOpacity: 0.08,
+      lineWidth: 1.2,
+      dotCount: 16,
+      dotSize: 0.9,
+      dotSpeed: 0.8,
+      color: "rgba(0,229,255,0.5)",
+    },
+  },
+  {
+    id: "lepton-cascade",
+    family: "decay",
+    points: [
+      { logR: -13.95, logM: -23.50 },
+      { logR: -13.0,  logM: -23.5 },
+      { logR: -12.72, logM: -24.73 },
+      { logR: -11.2,  logM: -24.8 },
+      { logR: -10.41, logM: -27.04 },
+    ],
+    zoomRange: [3, 800],
+    neighborhood: { x: [-18, -8], y: [-29, -19] },
+    style: {
+      lineOpacity: 0.08,
+      lineWidth: 1.2,
+      dotCount: 10,
+      dotSize: 0.9,
+      dotSpeed: 0.8,
+      color: "rgba(0,229,255,0.5)",
+    },
+  },
+  {
+    id: "up-to-proton",
+    family: "combines",
+    points: [
+      { logR: -11.04, logM: -26.41 },
+      { logR: -10.0,  logM: -25.0 },
+      { logR: -11.5,  logM: -24.2 },
+      { logR: -13.06, logM: -23.78 },
+    ],
+    zoomRange: [4, 800],
+    neighborhood: { x: [-16, -7], y: [-29, -21] },
+    style: {
+      lineOpacity: 0.05,
+      lineWidth: 1.0,
+      dotCount: 8,
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      color: "rgba(255,152,0,0.5)",
+      dash: "4 3",
+    },
+  },
+  {
+    id: "down-to-proton",
+    family: "combines",
+    points: [
+      { logR: -11.37, logM: -26.08 },
+      { logR: -10.5,  logM: -24.8 },
+      { logR: -11.8,  logM: -24.0 },
+      { logR: -13.06, logM: -23.78 },
+    ],
+    zoomRange: [4, 800],
+    neighborhood: { x: [-16, -7], y: [-29, -21] },
+    style: {
+      lineOpacity: 0.05,
+      lineWidth: 1.0,
+      dotCount: 8,
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      color: "rgba(255,152,0,0.5)",
+      dash: "4 3",
+    },
+  },
+  {
+    id: "proton-to-hydrogen",
+    family: "combines",
+    points: [
+      { logR: -13.06, logM: -23.78 },
+      { logR: -11.5,  logM: -23.2 },
+      { logR: -10.0,  logM: -23.3 },
+      { logR: -8.28,  logM: -23.78 },
+    ],
+    zoomRange: [4, 800],
+    neighborhood: { x: [-16, -6], y: [-27, -21] },
+    style: {
+      lineOpacity: 0.05,
+      lineWidth: 1.0,
+      dotCount: 8,
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      color: "rgba(255,152,0,0.5)",
+      dash: "4 3",
+    },
+  },
+  {
+    id: "electron-to-hydrogen",
+    family: "combines",
+    points: [
+      { logR: -10.41, logM: -27.04 },
+      { logR: -9.0,   logM: -26.0 },
+      { logR: -8.5,   logM: -25.0 },
+      { logR: -8.28,  logM: -23.78 },
+    ],
+    zoomRange: [4, 800],
+    neighborhood: { x: [-14, -6], y: [-29, -21] },
+    style: {
+      lineOpacity: 0.05,
+      lineWidth: 1.0,
+      dotCount: 8,
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      color: "rgba(255,152,0,0.5)",
+      dash: "4 3",
+    },
+  },
+  {
+    id: "stellar-to-bh",
+    family: "evolution",
+    points: [
+      { logR: 17.8,  logM: 33.8 },
+      { logR: 14.0,  logM: 34.0 },
+      { logR: 10.0,  logM: 34.2 },
+      { logR: 6.47,  logM: 34.3 },
+    ],
+    zoomRange: [1.5, 800],
+    neighborhood: { x: [3, 22], y: [30, 38] },
+    style: {
+      lineOpacity: 0.08,
+      lineWidth: 1.2,
+      dotCount: 12,
+      dotSize: 0.9,
+      dotSpeed: 0.8,
+      color: "rgba(255,23,68,0.5)",
+    },
+  },
+];
+
 export const CATEGORIES = CAT;
+
+// Subtle color shading per subcategory — helps distinguish overlapping groups
+// (e.g. moons vs dwarf planets vs asteroids in the same mass-radius region)
+// Only subcats that differ from their parent category color need entries.
+export const SUBCAT_COLORS = {
+  asteroid:          "#7a9cc0",   // desaturated grey-blue — rocky debris
+  comet:             "#60a8d8",   // cyan-tinged — icy bodies
+  moon:              "#6fa0f0",   // lighter periwinkle — reflected light
+  dwarf_planet:      "#7080dd",   // lavender-blue — in-between status
+  terrestrial_planet:"#448aff",   // canonical planet blue (same as cat)
+  gas_giant:         "#2e74ff",   // deeper vivid blue — massive worlds
+  exoplanet:         "#5590dd",   // muted blue — distant / uncertain
+};
 
 // Subcategories for cluster labels — when objects are too close, show one label
 // Key: subcat value in objects.json. Value: display label for the cluster.

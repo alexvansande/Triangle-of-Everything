@@ -1,1 +1,6 @@
-Our home galaxy — a barred spiral containing 100–400 billion stars and spanning about 100,000 light-years. The Solar System orbits roughly 26,000 light-years from the galactic center, completing one revolution every 230 million years. The Milky Way is on a collision course with the Andromeda Galaxy, due to merge in about 4.5 billion years.
+---
+navigate: Observable Universe
+button: "See the Observable Universe"
+---
+
+Our home galaxy — a barred spiral containing 100–400 billion stars, including our [[Sun]], and spanning about 100,000 light-years. The Solar System orbits roughly 26,000 light-years from [[Sgr A*]], the supermassive black hole at the galactic center. On a collision course with [[Andromeda (M31)|Andromeda]], due to merge in about 4.5 billion years.

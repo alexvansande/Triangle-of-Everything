@@ -10,6 +10,7 @@
 </head>
 <body>
   <div id="chart"></div>
+  <canvas id="cloud-canvas"></canvas>
   <div id="search-box">
     <button id="search-btn" title="Search objects (/)">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
@@ -19,11 +20,13 @@
   </div>
   <div id="preset-bar">
     <button data-preset="all" class="active" title="Full view">All</button>
-    <button data-preset="particles" title="Subatomic particles">Particles</button>
-    <button data-preset="solar" title="Solar system">Solar System</button>
-    <button data-preset="engineering" title="Man-made: coins, planes, ships, pyramids">Engineering</button>
-    <button data-preset="stars" title="Stars & remnants">Stars</button>
-    <button data-preset="cosmos" title="Galaxies & universe">Cosmos</button>
+    <button data-preset="particle-physics" title="Quarks, leptons, bosons &amp; hadrons">Particle Physics</button>
+    <button data-preset="chemistry" title="Atoms, molecules &amp; compounds">Chemistry</button>
+    <button data-preset="biology" title="Cells, organisms &amp; ecosystems">Biology</button>
+    <button data-preset="engineering" title="Human-built: chips to pyramids">Engineering</button>
+    <button data-preset="geology" title="Moons, planets &amp; solar systems">Geology</button>
+    <button data-preset="astrophysics" title="Stars, remnants &amp; nebulae">Astrophysics</button>
+    <button data-preset="cosmology" title="Galaxies, clusters &amp; the observable universe">Cosmology</button>
   </div>
   <button id="sidebar-expand" title="Expand panel">&gt;&gt;</button>
   <div id="sidebar" class="open">
@@ -59,6 +62,8 @@
     <button id="zoom-in" title="Zoom in">+</button>
     <button id="zoom-out" title="Zoom out">&minus;</button>
     <button id="zoom-reset" title="Reset view">&#x2299;</button>
+    <button id="anim-toggle" title="Animations on">&#x25B6;</button>
+    <button id="bg-toggle" title="Background image on">&#x1F5BC;</button>
   </div>
   <div id="scale-bar"></div>
   <div id="keyhint">scroll to zoom &middot; drag to pan &middot; click object to focus &middot; / to search</div>

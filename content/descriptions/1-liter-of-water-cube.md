@@ -1,0 +1,1 @@
+A perfect cube of water, 10 cm on each side. Compare it with the [[1 Liter of Water (sphere)|sphere version]]: despite being different shapes, they land almost on top of each other on this chart. On a logarithmic scale spanning 60 orders of magnitude, the 24% difference in radius between a cube and a sphere is invisible. Shape doesn't matter here — only scale.
