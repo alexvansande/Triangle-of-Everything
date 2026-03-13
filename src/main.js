@@ -1,3 +1,81 @@
+// =============================================================
+// THE TRIANGLE OF EVERYTHING — main.js
+// =============================================================
+//
+// ARCHITECTURE OVERVIEW
+// ---------------------
+// This is a single-file D3.js application that renders an interactive
+// log-log scatter plot of EVERY known object in the universe, from
+// subatomic particles to the observable universe itself.
+//
+// COORDINATE SYSTEM
+//   X-axis: log₁₀(radius / cm)     — ranges from ~-38 (Planck) to ~32 (Hubble)
+//   Y-axis: log₁₀(mass / g)        — ranges from ~-48 to ~65
+//   Both axes use EQUAL scale (1 data unit = same pixel count in X and Y),
+//   which means physics lines at 45° slope appear at 45° on screen.
+//
+// THE TRIANGLE
+//   All known objects are bounded by three lines forming an isosceles
+//   right triangle:
+//   1. Schwarzschild radius (slope +1): logR = logM + C_schwarz
+//      → too dense = black hole
+//   2. Compton wavelength (slope -1):   logR = -logM + C_compton
+//      → too light/small = quantum particle
+//   3. Hubble radius (vertical):        logR = 28.14
+//      → beyond the observable universe
+//   The three lines meet at the Planck scale (top vertex).
+//
+// DENSITY LINES (diagonal, slope 3)
+//   Since density ρ = M / (4π/3 · R³), lines of constant density
+//   have slope 3 on this chart: logM = 3·logR + const.
+//   Because the universe expands, density also maps to TIME —
+//   earlier epochs had higher density. So these diagonals are
+//   simultaneously density lines and epoch markers.
+//
+// AXES
+//   - Left axis:   ENERGY (10ⁿ eV) — via E = mc²
+//   - Right axis:  MASS (10ⁿ kg)
+//   - Bottom axis: WIDTH (10ⁿ cm) — with metric + imperial unit markers
+//   - Top axis:    DENSITY / TIME — diagonal labels following density lines
+//
+// RENDERING PIPELINE
+//   All drawing is done in SVG via D3. The `redraw()` function clears
+//   and redraws every layer on each zoom/pan frame:
+//     1. drawRegions()        — subtle red/purple forbidden-zone tints
+//     2. drawGrid()           — adaptive multi-level grid lines
+//     3. drawDensityLines()   — diagonal constant-density lines
+//     4. drawTriangleOverlay()— 50% black mask outside the triangle
+//     5. drawBoundaries()     — white triangle outline + reference lines
+//     6. drawArrows()         — directional annotation arrows (currently empty)
+//     7. drawRegionLabels()   — "SCHWARZSCHILD RADIUS" etc. watermarks
+//     8. drawObjects()        — dots + labels for all 130+ objects
+//     9. drawAxes()           — tick marks, numbers, unit labels
+//    10. updateMinimap()      — small overview triangle in corner
+//    11. updateScaleBar()     — bottom-left scale indicator
+//
+// ZOOM & EVENT HANDLING
+//   D3's zoom behavior handles scroll-to-zoom and drag-to-pan.
+//   A critical subtlety: D3 zoom suppresses click events via
+//   pointer capture. To allow clicking on objects, we use
+//   document-level capture-phase event listeners that fire BEFORE
+//   D3's handlers, performing manual hit-testing against projected
+//   object coordinates.
+//
+// SIDEBAR
+//   The left sidebar has two modes:
+//   - INTRO mode (default): shows project title + description
+//   - OBJECT mode: shows details when an object is clicked
+//   Closing from object mode returns to intro; closing from intro
+//   collapses the sidebar entirely.
+//
+// DATA LOADING
+//   - Object coordinates: src/objects.json
+//   - Object descriptions: src/descriptions/<slug>.md (one file each)
+//   - Intro text: src/texts/intro.md
+//   All loaded at build time via Vite's ?raw import and import.meta.glob.
+//
+// =============================================================
+
 import * as d3 from "d3";
 import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
@@ -10,7 +88,11 @@ import objectsData from "./objects.json";
 import introRaw from "./texts/intro.md?raw";
 import "./style.css";
 
-// Load descriptions from markdown files (eager, at build time)
+// ------------------------------------
+// Load all per-object markdown descriptions at build time.
+// Vite's import.meta.glob with eager:true bundles them into the JS.
+// Each file is keyed by its slug (filename minus extension).
+// ------------------------------------
 const descFiles = import.meta.glob("./descriptions/*.md", { query: "?raw", import: "default", eager: true });
 const DESC_BY_SLUG = {};
 for (const [path, content] of Object.entries(descFiles)) {
@@ -18,6 +100,8 @@ for (const [path, content] of Object.entries(descFiles)) {
   DESC_BY_SLUG[slug] = content.trim();
 }
 
+// Convert an object's display name to a filename-safe slug.
+// Handles Greek letters (γ→gamma, τ→tau, μ→mu) and special chars.
 function nameToSlug(name) {
   return name
     .toLowerCase()
@@ -26,16 +110,27 @@ function nameToSlug(name) {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
+// Enrich raw JSON objects with computed slugs for description lookup
 const OBJECTS = objectsData.map(o => ({ ...o, slug: nameToSlug(o.name) }));
 
 // =============================================================
-// Layout
+// Layout — margins and equal-scale viewport computation
 // =============================================================
+//
+// Margins are generous to fit multi-row axis labels:
+//   top: 90px    — density/epoch diagonal labels + "TIME" title
+//   bottom: 80px — log numbers + two rows of unit markers
+//   left: 145px  — energy log numbers + unit markers (eV, K, °C, etc.)
+//   right: 95px  — mass log numbers + unit markers (kg, M☉, etc.)
+//
+// CRITICAL: both axes must have the SAME pixels-per-log-unit (ppu)
+// so that the 45° physics lines (Schwarzschild slope=1, Compton slope=-1)
+// actually render at 45° on screen. We compute which axis is the
+// constraining one and expand the other to fill remaining space.
 
 const margin = { top: 90, right: 95, bottom: 80, left: 145 };
-let W, H, cw, ch;
+let W, H, cw, ch; // window size and chart (content) width/height
 
-// Equal-scale view bounds — computed so 1 data unit = same px in both axes
 let viewXMin, viewXMax, viewYMin, viewYMax;
 
 function measure() {
@@ -44,12 +139,14 @@ function measure() {
   cw = W - margin.left - margin.right;
   ch = H - margin.top - margin.bottom;
 
+  // Determine which axis constrains the equal-scale requirement
   const origXRange = BOUNDS.x.max - BOUNDS.x.min;
   const origYRange = BOUNDS.y.max - BOUNDS.y.min;
   const ppuX = cw / origXRange;
   const ppuY = ch / origYRange;
 
   if (ppuX > ppuY) {
+    // Y-axis is tighter — use its ppu, widen X to fill horizontal space
     const ppu = ppuY;
     const xRange = cw / ppu;
     const xCenter = (BOUNDS.x.min + BOUNDS.x.max) / 2;
@@ -58,6 +155,7 @@ function measure() {
     viewYMin = BOUNDS.y.min;
     viewYMax = BOUNDS.y.max;
   } else {
+    // X-axis is tighter — use its ppu, expand Y to fill vertical space
     const ppu = ppuX;
     const yRange = ch / ppu;
     const yCenter = (BOUNDS.y.min + BOUNDS.y.max) / 2;
@@ -70,29 +168,43 @@ function measure() {
 measure();
 
 // =============================================================
-// Scales  (equal px-per-unit for both axes)
+// D3 Scales — two scale objects, base (un-zoomed) and current (zoomed)
 // =============================================================
+// xBase/yBase define the identity (zoom=1) mapping.
+// xS/yS are the "live" scales updated by D3's zoom transform.
+// px()/py() are shorthand to convert data coords → screen pixels.
 
 const xBase = d3.scaleLinear().domain([viewXMin, viewXMax]).range([0, cw]);
 const yBase = d3.scaleLinear().domain([viewYMin, viewYMax]).range([ch, 0]);
 let xS = xBase.copy();
 let yS = yBase.copy();
 
-const px = v => xS(v);
-const py = v => yS(v);
+const px = v => xS(v); // data logR → screen x
+const py = v => yS(v); // data logM → screen y
 
 // =============================================================
-// SVG scaffolding
+// SVG scaffolding — element hierarchy and layer order
 // =============================================================
+//
+// SVG LAYER STACK (bottom to top within the clipped chart area):
+//   lRegion     — subtle forbidden-zone background tints
+//   lGrid       — grid lines (×1000, ×10, log subdivisions)
+//   lDensity    — diagonal density/epoch lines and bands
+//   lTriOverlay — 50% black mask outside the Triangle of Everything
+//   lBound      — white triangle outline + Planck point + reference lines
+//   lArrows     — directional annotations (currently unused)
+//   lRegLabel   — large watermark text ("SCHWARZSCHILD RADIUS", etc.)
+//   lObj        — object dots and labels (topmost interactive layer)
+//
+// Axes (axT, axB, axL, axR) are OUTSIDE the clip, drawn in the margins.
 
 const svg = d3.select("#chart").append("svg").attr("width", W).attr("height", H);
 const defs = svg.append("defs");
 
-// Clip
 defs.append("clipPath").attr("id", "clip")
   .append("rect").attr("width", cw).attr("height", ch);
 
-// --- gradients ---
+// --- SVG gradients for forbidden-zone tints ---
 
 function makeLinGrad(id, x1, y1, x2, y2, stops) {
   const g = defs.append("linearGradient").attr("id", id)
@@ -106,12 +218,13 @@ makeLinGrad("grad-grav", "1", "1", "0", "0", [
 makeLinGrad("grad-quant", "1", "0", "0", "1", [
   ["0%", "#1a0044", 0], ["30%", "#2a0055", 0.4], ["100%", "#120028", 0.9]]);
 
+// Subtle radial glow centered inside the triangle
 const triGlow = defs.append("radialGradient").attr("id", "grad-tri")
   .attr("cx", "0.4").attr("cy", "0.45").attr("r", "0.6");
 triGlow.append("stop").attr("offset", "0%").attr("stop-color", "#181852").attr("stop-opacity", 0.18);
 triGlow.append("stop").attr("offset", "100%").attr("stop-color", "#06061a").attr("stop-opacity", 0);
 
-// --- glow filter for boundary lines ---
+// Gaussian blur filter for the triangle boundary glow effect
 const blurF = defs.append("filter").attr("id", "line-glow")
   .attr("x", "-40%").attr("y", "-40%").attr("width", "180%").attr("height", "180%");
 blurF.append("feGaussianBlur").attr("in", "SourceGraphic").attr("stdDeviation", "3")
@@ -120,15 +233,15 @@ const m = blurF.append("feMerge");
 m.append("feMergeNode").attr("in", "b");
 m.append("feMergeNode").attr("in", "SourceGraphic");
 
-// --- Background rect ---
+// Full-window dark background
 svg.append("rect").attr("width", W).attr("height", H).attr("fill", "#06061a");
 
-// --- Chart container ---
+// Main chart group, offset by margins
 const chart = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 const clip = chart.append("g").attr("clip-path", "url(#clip)");
 clip.append("rect").attr("width", cw).attr("height", ch).attr("fill", "url(#grad-tri)");
 
-// Layers
+// Rendering layers — order matters for visual stacking
 const lRegion     = clip.append("g");
 const lGrid       = clip.append("g");
 const lDensity    = clip.append("g");
@@ -138,19 +251,21 @@ const lArrows     = clip.append("g");
 const lRegLabel   = clip.append("g");
 const lObj        = clip.append("g");
 
-// Axes outside clip
-const axB = chart.append("g");
-const axT = chart.append("g");
-const axL = chart.append("g");
-const axR = chart.append("g");
+// Axis groups live outside the clip, in the margin areas
+const axB = chart.append("g"); // bottom
+const axT = chart.append("g"); // top
+const axL = chart.append("g"); // left
+const axR = chart.append("g"); // right
 
-// Border on top
+// Thin border around the chart area
 chart.append("rect").attr("width", cw).attr("height", ch)
   .attr("fill", "none").attr("stroke", "rgba(255,255,255,0.15)").attr("stroke-width", 1);
 
 // =============================================================
-// Utility: visible domain
+// Utility: get the currently visible data-coordinate rectangle
 // =============================================================
+// Returns {x0, x1, y0, y1} in log-units (logR and logM).
+// Called by every draw function to know what's on screen.
 
 function vd() {
   return { x0: xS.domain()[0], x1: xS.domain()[1], y0: yS.domain()[0], y1: yS.domain()[1] };
@@ -215,8 +330,20 @@ function drawTriangleOverlay() {
 }
 
 // =============================================================
-// Draw: Multi-level adaptive grid (×10 thin, ×1000 bright)
+// Draw: Multi-level adaptive grid
 // =============================================================
+//
+// GRID HIERARCHY (from thickest/most prominent to thinnest):
+//   ×10³⁰ (step 30) — visible only when very zoomed out
+//   ×10⁹  (step 9)  — aligns with density line intervals
+//   ×10³  (step 3)  — the "major" grid at moderate zoom
+//   ×10   (step 1)  — the "minor" grid at closer zoom
+//   log subdivisions (2,3,4…9) — visible only when deeply zoomed
+//
+// Each level only renders if its pixel spacing exceeds a minimum
+// threshold, and each line skips positions already drawn by a
+// higher-level grid. Opacity and width scale with pixel spacing
+// for smooth transitions between zoom levels.
 
 const LOG_SUBS = [
   Math.log10(2), Math.log10(3), Math.log10(4), Math.log10(5),
@@ -386,8 +513,24 @@ function drawBoundaries() {
 }
 
 // =============================================================
-// Draw: Isodensity / epoch lines
+// Draw: Isodensity / epoch lines (diagonal, slope 3)
 // =============================================================
+//
+// PHYSICS: For a sphere, ρ = M / (4π/3 · R³)
+//   → logM = 3·logR + log(4π/3) + logρ
+// So constant-density lines have slope 3 in log-log space.
+//
+// COSMOLOGICAL CONNECTION: Because the universe expands,
+// its mean density decreases over time. So each density line
+// also corresponds to a moment in cosmic history (an "epoch").
+//
+// Lines are drawn every 3 orders of density, with every 9th
+// being "major" (thicker). The special logρ=0 line (water density)
+// is highlighted in light blue.
+//
+// Epoch bands are semi-transparent colored regions between
+// consecutive density lines, showing different cosmic eras
+// (radiation dominated, matter dominated, etc.).
 
 function clipDensityLine(d, b) {
   // logM = 3·logR + b — clip to visible domain d
@@ -525,8 +668,19 @@ function drawRegionLabels() {
 }
 
 // =============================================================
-// Draw: Objects (always-visible dots, smart labels)
+// Draw: Objects — dot clustering + smart label placement
 // =============================================================
+//
+// VISIBILITY RULES:
+//   - Dots are ALWAYS visible unless they physically overlap another dot
+//     (Euclidean distance < DOT_MIN_DIST). Sorted by z-priority, so
+//     important objects (low z value) claim space first.
+//   - Labels try 4 positions around each dot (right, left, above, below).
+//     A label is placed only if it doesn't collide with already-placed labels.
+//     On hover, hidden labels temporarily appear.
+//
+// _lastProjected stores the most recent on-screen objects with their
+// screen coordinates, used for click hit-testing (see click handler below).
 
 const DOT_MIN_DIST = 6;    // px — hide dot only when circles overlap
 const LABEL_MIN_DX  = 80;  // px — minimum horizontal gap between labels
@@ -669,7 +823,7 @@ function drawObjects() {
 }
 
 // =============================================================
-// Tooltip
+// Tooltip — hover info card that follows the mouse
 // =============================================================
 
 const tooltipEl = document.getElementById("tooltip");
@@ -681,6 +835,7 @@ function formatSci(logVal, unit) {
   return `${mantissa.toFixed(1)} × 10<sup>${exp}</sup> ${unit}`;
 }
 
+// Convert log₁₀(radius/cm) to a human-friendly string with appropriate units
 function friendlyRadius(logR) {
   if (logR >= 24.49) return `${Math.pow(10, logR - 24.49).toFixed(1)} Mpc`;
   if (logR >= 17.98) return `${Math.pow(10, logR - 17.98).toFixed(1)} ly`;
@@ -706,6 +861,8 @@ function friendlyMass(logM) {
   return `${Math.pow(10, logM - gevOff + 9).toPrecision(3)} eV`;
 }
 
+// Convert log₁₀(mass/g) to energy units via E = mc²
+// The offset 32.75 converts log(g) to log(eV): log(c²/eV_in_erg) ≈ 32.75
 function friendlyEnergy(logM) {
   const logE_eV = logM + 32.75;
   if (logE_eV >= 9) return `${Math.pow(10, logE_eV - 9).toPrecision(3)} GeV`;
@@ -716,6 +873,9 @@ function friendlyEnergy(logM) {
   return `${Math.pow(10, logE_eV + 6).toPrecision(3)} μeV`;
 }
 
+// Detect photons/EM radiation: for massless particles, E = hc/λ,
+// so logM + logR ≈ -36.656 (the log of h/(2π·c) in CGS).
+// We use a tolerance of 0.5 to catch all EM spectrum entries.
 function isPhoton(obj) {
   return Math.abs(obj.logM + obj.logR + 36.656) < 0.5;
 }
@@ -772,8 +932,28 @@ svg.on("mousemove.tooltip", (e) => {
 });
 
 // =============================================================
-// Sidebar
+// Sidebar — two-mode info panel (intro / object detail)
 // =============================================================
+//
+// MODE 1 — INTRO (default on load):
+//   Shows the project title and introductory text from intro.md.
+//
+// MODE 2 — OBJECT DETAIL:
+//   When any object is clicked, shows its name, stats, description,
+//   and links to Wikipedia/Google Scholar. Stats are customized by
+//   object category:
+//     - Photons:   wavelength, energy, mass-equivalent (with footnote)
+//     - Everyday:  "Width"/"Weight" instead of "Radius"/"Mass"
+//     - Particles: size, mass, zone (accessible/forbidden)
+//     - Black holes: event horizon, mass, density, zone
+//     - Others:    radius, mass, density, zone
+//
+// NAVIGATION:
+//   - Click object → opens object detail
+//   - Close button from object detail → returns to intro
+//   - Close button from intro → collapses sidebar entirely
+//   - Escape key follows the same cascade
+//   - Click empty chart space → returns to intro (if object is showing)
 
 const sidebarEl = document.getElementById("sidebar");
 const sidebarIntro = document.getElementById("sidebar-intro");
@@ -785,7 +965,8 @@ const sbStats = document.getElementById("sb-stats");
 const sbDesc = document.getElementById("sb-desc");
 const sbLinks = document.getElementById("sb-links");
 
-// Populate intro
+// Minimal markdown parser for intro.md — handles bold, italic, links,
+// paragraphs, and passes through raw <div> blocks for custom formatting.
 function simpleMarkdown(md) {
   return md
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
@@ -939,9 +1120,28 @@ document.getElementById("sidebar-close").addEventListener("click", () => {
   }
 });
 
-// Click detection: use a document-level click listener registered BEFORE D3 zoom
-// D3 zoom suppresses clicks via a capture-phase handler added dynamically,
-// so we register ours in capture phase first, tracking mousedown position.
+// =============================================================
+// Click detection — bypassing D3 zoom's event suppression
+// =============================================================
+//
+// PROBLEM: D3's zoom behavior uses setPointerCapture() and
+// stopImmediatePropagation() internally, which swallows click
+// events before they reach our SVG object elements.
+//
+// SOLUTION: Register document-level listeners in the CAPTURE phase
+// (third argument = true), which fire BEFORE D3's handlers.
+// We track pointerdown position and time, then on click we:
+//   1. Reject if the pointer moved (drag) or was held too long
+//   2. Convert click coordinates to chart-space pixels
+//   3. Hit-test against _lastProjected (the on-screen objects)
+//   4. If a hit: stopImmediatePropagation + open sidebar
+//   5. If no hit: return to intro view
+//
+// This approach was chosen after trying (and failing) with:
+//   - g.on("click") — swallowed by zoom
+//   - g.on("pointerup") — unreliable with pointer capture
+//   - Invisible HTML overlay — worked but added DOM complexity
+
 let _clickDown = null;
 
 document.addEventListener("pointerdown", (e) => {
@@ -956,12 +1156,16 @@ document.addEventListener("click", (e) => {
   const dist2 = ddx * ddx + ddy * ddy;
   const elapsed = Date.now() - _clickDown.t;
   _clickDown = null;
+
+  // Reject drags (>6px movement) and long presses (>600ms)
   if (dist2 > 36 || elapsed > 600) return;
 
+  // Convert click to chart-local coordinates
   const svgRect = svg.node().getBoundingClientRect();
   const mx = e.clientX - svgRect.left - margin.left;
   const my = e.clientY - svgRect.top - margin.top;
 
+  // Find closest object within HIT_RADIUS pixels
   const HIT_RADIUS = 18;
   let closest = null, closestDist = HIT_RADIUS * HIT_RADIUS;
   for (const o of _lastProjected) {
@@ -979,14 +1183,36 @@ document.addEventListener("click", (e) => {
 }, true);
 
 // =============================================================
-// Draw: Axes
+// Draw: Axes — four margin areas with adaptive tick density
 // =============================================================
+//
+// TICK HIERARCHY (adapts to zoom level via ppu = pixels per log unit):
+//   axisStep=30 — ticks every 30 orders (very zoomed out)
+//   axisStep=9  — every 9 orders (matches density line spacing)
+//   axisStep=3  — every 3 orders (moderate zoom)
+//   axisStep=1  — every order of magnitude (close zoom)
+//
+//   minorStep — smaller ticks between major ones:
+//     9 → shows ticks at 9-unit intervals between 30s
+//     3 → shows ticks at 3-unit intervals between 9s
+//     1 → shows ticks at 1-unit intervals between 3s
+//     0 → shows log subdivisions (2,3,4…9) between integers
+//         (only at deep zoom, threshold: 0.301*ppu ≥ 22px)
+//
+// AXIS DETAILS:
+//   Bottom: WIDTH · 10ⁿ cm — big log numbers + two rows of unit
+//           markers (row 1: metric, row 2: imperial/astronomical)
+//   Left:   ENERGY · 10ⁿ eV — capped at Planck energy; shows
+//           temperature and energy unit markers (eV, K, °C, °F)
+//   Right:  MASS · 10ⁿ Kg — shows mass unit markers (g, kg, M☉)
+//   Top:    DENSITY · TIME — diagonal labels at 1:3 angle following
+//           density lines, with density values (g/L) and epoch names
 
 function drawAxes() {
   [axB, axT, axL, axR].forEach(g => g.selectAll("*").remove());
   const d = vd();
   const ppu = cw / (d.x1 - d.x0);
-  const LOG_EV_OFFSET = 32.75;
+  const LOG_EV_OFFSET = 32.75; // log₁₀(c² / eV_in_erg)
 
   const minLabelPx = 45;
   let axisStep;
@@ -1005,6 +1231,9 @@ function drawAxes() {
   const minUnitPx = 12;
 
   // ─── TOP: Diagonal density labels ──────────────────────────
+  // These labels sit in the top margin and extend UPWARD along
+  // connector lines that follow the density slope (1:3 ratio).
+  // diagDx=1, diagDy=-3 points up-right in SVG coords (y-inverted).
   const densityAngle = screenAngle(3);
   const diagDx = 1;
   const diagDy = -3;
@@ -1345,8 +1574,11 @@ function drawArrows() {
 }
 
 // =============================================================
-// Minimap
+// Minimap — small overview in top-right corner
 // =============================================================
+// Shows the Triangle of Everything outline and a viewport indicator
+// rectangle. Only visible when zoomed in (currentK > 1.3).
+// Clicking the minimap pans the main view to that location.
 
 const MINIMAP_SIZE = 120;
 const MINIMAP_PAD = 10;
@@ -1431,10 +1663,13 @@ function redraw() {
 }
 
 // =============================================================
-// Zoom with rAF throttle
+// Zoom — D3 zoom behavior with requestAnimationFrame throttle
 // =============================================================
+// On each zoom event, we update xS/yS from D3's transform,
+// then schedule a single redraw via rAF to avoid redundant
+// repaints during fast scroll/pinch gestures.
 
-let currentK = 1;
+let currentK = 1;    // current zoom scale factor (1 = identity)
 let rafPending = false;
 
 const zoomBehavior = d3.zoom()
@@ -1725,8 +1960,10 @@ document.querySelectorAll("#preset-bar button").forEach(btn => {
 });
 
 // =============================================================
-// Procedural star background (fixed, doesn't zoom)
+// Procedural star background — cosmetic, doesn't zoom
 // =============================================================
+// 300 tiny circles with a seeded PRNG for deterministic placement.
+// Some stars are tinted blue or amber for visual variety.
 
 function drawStarfield() {
   // Insert behind everything else in the chart group but after the clip background
@@ -1751,8 +1988,12 @@ function drawStarfield() {
 drawStarfield();
 
 // =============================================================
-// URL hash state for bookmarkable zoom positions
+// URL hash state — bookmarkable zoom positions
 // =============================================================
+// Format: #centerX,centerY,zoomScale  (e.g., #10.8,33.3,12.00)
+// Saved on a 500ms debounce after zoom events.
+// On page load, if a hash exists, the view jumps there instead
+// of playing the intro animation.
 
 function saveHash() {
   const d = vd();
@@ -1785,11 +2026,12 @@ zoomBehavior.on("zoom", (event) => {
 svg.call(zoomBehavior);
 
 // =============================================================
-// Boot
+// Boot — intro animation or hash restore
 // =============================================================
 
 if (!loadHash()) {
-  // Intro animation: start zoomed on the Sun, then zoom out to full view
+  // Intro animation: start zoomed on the Sun (logR≈10.84, logM≈33.30),
+  // then after 800ms, smoothly zoom out to the full chart view.
   const introK = 12;
   const introTx = cw / 2 - xBase(10.84) * introK;
   const introTy = ch / 2 - yBase(33.30) * introK;

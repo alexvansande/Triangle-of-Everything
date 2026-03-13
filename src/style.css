@@ -1,3 +1,28 @@
+/*
+ * STYLE.CSS — The Triangle of Everything
+ *
+ * UI LAYOUT:
+ *   - Full-viewport SVG chart (no scroll)
+ *   - Sidebar (left, slides in/out): intro text OR object detail
+ *   - Search box (top-right, collapsible)
+ *   - Preset buttons (bottom, between controls and readout)
+ *   - Zoom controls (bottom-left stack)
+ *   - Scale bar (bottom-left, above controls)
+ *   - Readout/coordinates (bottom-right)
+ *   - Tooltip (follows mouse on hover)
+ *   - Key hints (top-right, fades after 6s)
+ *
+ * DESIGN LANGUAGE:
+ *   Dark space theme with glassmorphism (backdrop-filter: blur).
+ *   Red accent (#ff3355) for axis titles, active states, triangle highlight.
+ *   All UI panels use semi-transparent dark backgrounds.
+ *
+ * FONTS:
+ *   'Inter' — UI text, labels, titles
+ *   'Space Mono' — monospaced numbers, coordinates, stats
+ *   Both loaded from Google Fonts in index.html.
+ */
+
 :root {
   --bg-dark: #06061a;
   --bg-chart: #0a0a2e;
@@ -215,7 +240,10 @@ body:active { cursor: grabbing; }
   background: rgba(255,51,85,0.1);
 }
 
-/* ---------- sidebar ---------- */
+/* ---------- sidebar (left-side slide panel) ---------- */
+/* Two content sections inside: #sidebar-intro and #sidebar-object.
+   Only one is visible at a time (toggled via display:none in JS).
+   Slides from left: transform translateX(-100%) → translateX(0). */
 
 #sidebar {
   position: fixed; top: 0; left: 0;
@@ -407,7 +435,7 @@ body:active { cursor: grabbing; }
   background: rgba(255,255,255,0.08); border-radius: 2px;
 }
 
-/* ---------- SVG text classes ---------- */
+/* ---------- SVG text classes (used by D3 in drawAxes) ---------- */
 
 .axis-label {
   font-family: 'Space Mono', monospace; font-size: 10px;

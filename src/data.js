@@ -1,49 +1,82 @@
 // =============================================================
-// Physics constants (CGS) and derived values
+// DATA.JS — Physics constants, boundary equations, and reference data
+// =============================================================
+//
+// This file contains all the scientific constants, line equations,
+// unit definitions, and category styles used by the visualization.
+// Everything is in CGS units (centimeters, grams, seconds) because
+// that's the natural system for a chart spanning subatomic to cosmic scales.
+//
+// THE THREE BOUNDARIES (forming the Triangle of Everything):
+//
+// 1. SCHWARZSCHILD RADIUS (slope +1 in log-log)
+//    r_s = 2GM/c² → logR = logM + log(2G/c²)
+//    Objects above this line would be black holes.
+//
+// 2. COMPTON WAVELENGTH (slope -1 in log-log)
+//    λ_c = ħ/(Mc) → logR = -logM + log(ħ/c)
+//    Objects below this line enter quantum territory.
+//
+// 3. HUBBLE RADIUS (vertical line)
+//    R_H = c/H₀ ≈ 1.37 × 10²⁸ cm
+//    The edge of the observable universe.
+//
+// These three lines intersect at the PLANCK SCALE, forming the
+// apex of the triangle. All known objects live inside.
+//
 // =============================================================
 
-export const G = 6.674e-8;          // cm³ g⁻¹ s⁻²
-export const c = 2.998e10;          // cm/s
-export const hbar = 1.055e-27;      // g cm² s⁻¹
-export const M_SUN = 1.989e33;      // g
-export const M_EARTH = 5.972e27;    // g
+// --- Fundamental constants in CGS ---
+export const G = 6.674e-8;          // gravitational constant (cm³ g⁻¹ s⁻²)
+export const c = 2.998e10;          // speed of light (cm/s)
+export const hbar = 1.055e-27;      // reduced Planck constant (g cm² s⁻¹)
+export const M_SUN = 1.989e33;      // solar mass (g)
+export const M_EARTH = 5.972e27;    // Earth mass (g)
 
-// Key log₁₀ offsets
+// --- Boundary line constants (log₁₀ offsets) ---
 export const SCHWARZSCHILD_C = Math.log10(2 * G / (c * c));  // ≈ -27.828
 export const COMPTON_C = Math.log10(hbar / c);                // ≈ -37.454
 
-// Schwarzschild radius: log(r) = log(M) + SCHWARZSCHILD_C
+// Schwarzschild: given mass → radius, or radius → mass
 export const schwarzschildR = (logM) => logM + SCHWARZSCHILD_C;
 export const schwarzschildM = (logR) => logR - SCHWARZSCHILD_C;
 
-// Compton wavelength: log(r) = -log(M) + COMPTON_C
+// Compton: given mass → wavelength, or wavelength → mass
 export const comptonR = (logM) => -logM + COMPTON_C;
 export const comptonM = (logR) => -logR + COMPTON_C;
 
-// Planck intersection
+// Planck scale — where Schwarzschild and Compton lines cross
 export const PLANCK_LOG_R = (SCHWARZSCHILD_C + COMPTON_C) / 2; // ≈ -32.64
 export const PLANCK_LOG_M = PLANCK_LOG_R - SCHWARZSCHILD_C;    // ≈ -4.81
 
-// Hubble radius (c / H₀) — right edge of the Triangle
+// Hubble radius — the rightmost vertical boundary
 export const HUBBLE_LOG_R = 28.14;   // log₁₀(1.37 × 10²⁸ cm)
 
-// Isodensity: log(M) = 3·log(R) + log(4π/3) + log(ρ)
+// --- Isodensity line equation ---
+// For a uniform sphere: ρ = M / (4π/3 · R³)
+// → logM = 3·logR + log(4π/3) + logρ
+// These diagonal lines (slope 3) are both density AND time markers.
 export const DENSITY_SPHERE_C = Math.log10(4 * Math.PI / 3);   // ≈ 0.622
 export const densityLineM = (logR, logDensity) => 3 * logR + DENSITY_SPHERE_C + logDensity;
 export const densityLineR = (logM, logDensity) => (logM - DENSITY_SPHERE_C - logDensity) / 3;
 
 // =============================================================
-// Chart bounds (log₁₀ cm for R, log₁₀ g for M)
+// Chart bounds — the full data range shown at zoom=1
 // =============================================================
+// x: log₁₀(radius / cm),  y: log₁₀(mass / g)
+// Slightly wider than the triangle to show labels and context.
 
 export const BOUNDS = {
-  x: { min: -38, max: 32 },
-  y: { min: -48, max: 65 },
+  x: { min: -38, max: 32 },  // Planck length to beyond Hubble radius
+  y: { min: -48, max: 65 },  // lightest neutrinos to above observable universe mass
 };
 
 // =============================================================
-// Isodensity / epoch lines
+// Isodensity / epoch line definitions
 // =============================================================
+// Each entry defines a diagonal line of constant density.
+// logDensity is log₁₀(ρ / g·cm⁻³).
+// epoch:true means it also marks a cosmological era boundary.
 
 export const DENSITY_LINES = [
   { logDensity: 93.7,  label: "Planck 10⁻⁴³ s",        color: "#ffffff", epoch: true },
@@ -60,7 +93,8 @@ export const DENSITY_LINES = [
   { logDensity: -29.5, label: "now (current matter)",     color: "#ef9a9a", epoch: true },
 ];
 
-// Background epoch bands — between density lines, the universe was in a different phase
+// Epoch bands — semi-transparent fills between consecutive density lines,
+// representing different phases of the universe's evolution.
 export const EPOCH_BANDS = [
   { logDensityMin: 93.7,  logDensityMax: 200,   label: "Planck era",         color: "rgba(255,255,255,0.02)" },
   { logDensityMin: 25,    logDensityMax: 93.7,   label: "Radiation dominated", color: "rgba(255,100,100,0.015)" },
@@ -70,10 +104,15 @@ export const EPOCH_BANDS = [
 ];
 
 // =============================================================
-// Unit reference markers for axes
+// Unit reference markers — small red dashes on the axes
 // =============================================================
+// These appear as labeled tick marks at specific physical scales.
+// logR/logM values are in CGS (cm for radius, g for mass).
+//
+// RADIUS_UNITS: two rows on the bottom axis
+//   Row 1: metric/SI units (fm, nm, μm, mm, cm, m, km)
+//   Row 2: imperial + astronomical (inch, foot, mile, AU, ly, pc)
 
-// Row 1 = metric/SI, Row 2 = imperial/astronomical/other
 export const RADIUS_UNITS = [
   // ── Row 1: metric / SI ──
   { logR: -32.79, label: "1 Planck length", row: 1 },
@@ -106,8 +145,8 @@ export const RADIUS_UNITS = [
   { logR: 28.14,  label: "Hubble R",        row: 2 },
 ];
 
+// MASS_UNITS: right axis — from eV/c² up to 10¹⁵ M☉
 export const MASS_UNITS = [
-  // Particle physics mass-equivalents
   { logM: -32.75, label: "1 eV/c²" },
   { logM: -29.75, label: "1 keV/c²" },
   { logM: -27.04, label: "mₑ (electron)" },
@@ -146,10 +185,12 @@ export const MASS_UNITS = [
   { logM: 48.30,  label: "10¹⁵ M☉" },
 ];
 
-// Mass → Energy via E = mc²:  log(E/eV) = logM + 32.75
-// Mass → Temperature via T = mc²/kB:  log(T/K) = logM + 36.81
-const LOG_EV_OFFSET = 32.75;   // log(c² / (eV_in_erg))
-const LOG_K_OFFSET  = 36.81;   // log(c² / kB)
+// ENERGY_UNITS: left axis — shows both energy and temperature scales.
+// Mass ↔ Energy:      E = mc²  → log(E/eV) = logM + 32.75
+// Mass ↔ Temperature: T = mc²/kB → log(T/K) = logM + 36.81
+// This dual-mapping lets us show eV, keV, GeV alongside K, °C, °F.
+const LOG_EV_OFFSET = 32.75;
+const LOG_K_OFFSET  = 36.81;
 
 export const ENERGY_UNITS = [
   // Energy scale
@@ -180,8 +221,10 @@ export const ENERGY_UNITS = [
 ];
 
 // =============================================================
-// Category colors (objects loaded from objects.json)
+// Object categories — color coding and visual style
 // =============================================================
+// Each object in objects.json has a "cat" field matching one of
+// these keys. The color determines dot, label, and sidebar accent.
 
 const CAT = {
   particle:  { color: "#00e5ff", shape: "diamond" },
@@ -198,13 +241,16 @@ const CAT = {
 };
 
 // =============================================================
-// Notable reference lines (non-density diagonals)
+// Reference lines — non-density diagonals drawn on the chart
 // =============================================================
+// These are empirical trend lines (not physics boundaries).
+// "Main Sequence" and "Red Giants" show where stars cluster
+// on the mass-radius plane. Width=0 hides the Schwarzschild
+// entry (its boundary is drawn separately by drawBoundaries).
 
 export const REFERENCE_LINES = [
   {
     label: "Main Sequence",
-    // Rough: logR ≈ 0.8 * (logM - 33.3) + 10.84 for main sequence stars
     points: [{ logR: 9.6, logM: 31.8 }, { logR: 12.4, logM: 35.3 }],
     color: "rgba(255,215,64,0.15)", width: 1, dash: "4 3",
   },
