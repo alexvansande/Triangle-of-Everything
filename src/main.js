@@ -2171,14 +2171,17 @@ function drawTiles() {
   if (!_bgTilesEnabled || !tileMeta) return;
 
   const { logRmin, logRmax, logMmin, logMmax, tileSize, levels } = tileMeta;
-  const logROff = tileMeta.logROffset ?? 0;
-  const logMOff = tileMeta.logMOffset ?? 0;
-  const imgLogRmin = logRmin + logROff;
-  const imgLogRmax = logRmax + logROff;
-  const imgLogMmin = logMmin + logMOff;
-  const imgLogMmax = logMmax + logMOff;
   const imgDataW = logRmax - logRmin;
   const imgDataH = logMmax - logMmin;
+
+  // Anchor image to chart's Planck point so alignment holds at all zoom levels.
+  // Planck pixel is at (2114/8192, 5960/10752) = 25.8% from left, 55.4% from top.
+  const PLANCK_FRAC_X = 2114 / tileMeta.imgW;
+  const PLANCK_FRAC_Y = 5960 / tileMeta.imgH;
+  const imgLogRmin = PLANCK_LOG_R - PLANCK_FRAC_X * imgDataW;
+  const imgLogRmax = imgLogRmin + imgDataW;
+  const imgLogMmax = PLANCK_LOG_M + PLANCK_FRAC_Y * imgDataH;
+  const imgLogMmin = imgLogMmax - imgDataH;
 
   const screenPPU = Math.abs(px(1) - px(0));
   const imgBasePPU = tileMeta.imgW / imgDataW;
@@ -2261,6 +2264,11 @@ let rafPending = false;
 
 const zoomBehavior = d3.zoom()
   .scaleExtent([0.3, 800])
+  .filter((event) => {
+    if (event.button && event.button !== 0) return false;
+    if (event.target.closest?.("button, input, a")) return false;
+    return svg.node().contains(event.target);
+  })
   .on("zoom", (event) => {
     const t = event.transform;
     currentK = t.k;

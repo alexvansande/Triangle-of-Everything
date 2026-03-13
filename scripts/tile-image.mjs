@@ -12,9 +12,9 @@ const WEBP_QUALITY = 80;
 const ORIGIN_PX = 3600.0;
 const ORIGIN_PY = 5756.3;
 const PX_PER_UNIT_X = 46.10;
-const PX_PER_UNIT_Y = 46.20;
+const PX_PER_UNIT_Y = 43.5;  // Lower = image covers more logM range; fixes vertical drift when zoomed out
 const LOG_R_OFFSET = -0.3;
-const LOG_M_OFFSET = -0.4;
+const LOG_M_OFFSET = 0.1;  // Planck at -4.68 with new scale; +0.1 → -4.58 ≈ -4.6
 
 const SRC = process.argv[2] || "background/large.png";
 const OUT = process.argv[3] || "public/tiles";

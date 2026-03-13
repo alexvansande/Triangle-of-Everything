@@ -37,8 +37,11 @@ body:active { cursor: grabbing; }
   mix-blend-mode: screen;
 }
 
-#chart { width: 100%; height: 100%; position: absolute; inset: 0; }
-#chart svg { display: block; }
+#chart {
+  width: 100%; height: 100%; position: absolute; inset: 0;
+  touch-action: none; /* let D3 zoom handle pinch; prevent browser page zoom */
+}
+#chart svg { display: block; touch-action: none; }
 
 /* ---------- title ---------- */
 

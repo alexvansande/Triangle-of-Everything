@@ -1,17 +1,17 @@
 {
   "tileSize": 512,
   "logROffset": -0.3,
-  "logMOffset": -0.4,
+  "logMOffset": 0.1,
   "originPx": 3600,
   "originPy": 5756.3,
   "pxPerUnitX": 46.1,
-  "pxPerUnitY": 46.2,
+  "pxPerUnitY": 43.5,
   "imgW": 8192,
   "imgH": 10752,
   "logRmin": -78.09110629067244,
   "logRmax": 99.60954446854663,
-  "logMmin": -108.13203463203462,
-  "logMmax": 124.59523809523809,
+  "logMmin": -114.84367816091954,
+  "logMmax": 132.3287356321839,
   "levels": [
     {
       "z": 0,
