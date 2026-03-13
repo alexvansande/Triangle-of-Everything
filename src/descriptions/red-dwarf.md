@@ -1,0 +1,1 @@
+Red dwarf: the most common type of star in the Milky Way, making up about 75% of all stars. They burn so slowly that they can shine for trillions of years — far longer than the current age of the universe.

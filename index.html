@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Triangle of Everything</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="chart"></div>
+  <div id="search-box">
+    <button id="search-btn" title="Search objects (/)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+    </button>
+    <input type="text" id="search-input" placeholder="Search objects…" autocomplete="off" spellcheck="false">
+    <div id="search-results"></div>
+  </div>
+  <div id="preset-bar">
+    <button data-preset="all" class="active" title="Full view">All</button>
+    <button data-preset="particles" title="Subatomic particles">Particles</button>
+    <button data-preset="solar" title="Solar system">Solar System</button>
+    <button data-preset="stars" title="Stars & remnants">Stars</button>
+    <button data-preset="cosmos" title="Galaxies & universe">Cosmos</button>
+  </div>
+  <div id="sidebar" class="open">
+    <button id="sidebar-close">&times;</button>
+    <div id="sidebar-intro">
+      <h1 id="intro-title">THE TRIANGLE OF <span class="accent">EVERYTHING</span></h1>
+      <div id="intro-body"></div>
+    </div>
+    <div id="sidebar-object" style="display:none">
+      <div id="sb-header">
+        <span id="sb-dot"></span>
+        <div>
+          <h2 id="sb-name"></h2>
+          <span id="sb-category"></span>
+        </div>
+      </div>
+      <div id="sb-image">
+        <svg viewBox="0 0 48 48" width="48" height="48" opacity="0.15">
+          <rect x="4" y="8" width="40" height="32" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="16" cy="20" r="4" fill="currentColor"/>
+          <polyline points="4,36 16,26 24,32 32,22 44,34" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>Image coming soon</span>
+      </div>
+      <div id="sb-stats"></div>
+      <div id="sb-desc"></div>
+      <div id="sb-links"></div>
+    </div>
+  </div>
+  <div id="readout"></div>
+  <div id="tooltip"></div>
+  <div id="controls">
+    <button id="zoom-in" title="Zoom in">+</button>
+    <button id="zoom-out" title="Zoom out">&minus;</button>
+    <button id="zoom-reset" title="Reset view">&#x2299;</button>
+  </div>
+  <div id="scale-bar"></div>
+  <div id="keyhint">scroll to zoom &middot; drag to pan &middot; click object to focus &middot; / to search</div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

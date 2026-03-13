@@ -1,0 +1,1 @@
+Planetary nebula: a glowing shell of gas ejected by a dying low-mass star as it becomes a white dwarf. Despite the name, they have nothing to do with planets — William Herschel named them for their round appearance.

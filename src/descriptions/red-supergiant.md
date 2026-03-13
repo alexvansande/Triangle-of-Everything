@@ -1,0 +1,1 @@
+Red supergiant: the largest stars by volume in the universe. UY Scuti, one of the biggest known, has a radius about 1,700 times that of the Sun — if placed at the Sun's position, its surface would extend past Jupiter's orbit.

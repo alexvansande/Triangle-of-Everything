@@ -1,0 +1,1 @@
+Supernova remnant: the expanding cloud of gas and heavy elements left behind after a massive star explodes. The Crab Nebula, one of the most famous, was created by a supernova observed by Chinese astronomers in 1054 CE.

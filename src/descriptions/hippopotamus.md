@@ -1,0 +1,1 @@
+Hippopotamus: the third-largest living land mammal, spending most of its day submerged in rivers. Despite their bulk, hippos can run at 30 km/h and are considered one of Africa's most dangerous animals.

@@ -1,0 +1,1 @@
+Gamma rays: the highest-energy photons in the electromagnetic spectrum, produced by nuclear reactions and the most violent events in the universe. A single gamma-ray photon carries more energy than a million visible light photons.

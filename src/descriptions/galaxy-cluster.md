@@ -1,0 +1,1 @@
+Galaxy cluster: a gravitationally bound collection of hundreds to thousands of galaxies, the largest structures held together by gravity. The space between galaxies is filled with hot X-ray-emitting gas.

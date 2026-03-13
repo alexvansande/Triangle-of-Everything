@@ -1,0 +1,1 @@
+Stellar nursery (star-forming region): a dense cloud of gas and dust where new stars are born. The Orion Nebula, visible to the naked eye, is one of the nearest stellar nurseries at about 1,350 light-years.
