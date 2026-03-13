@@ -1,0 +1,1 @@
+Metric (SI) length units use powers of 10: femtometer (fm), picometer (pm), nanometer (nm), micrometer (μm), millimeter (mm), centimeter (cm), meter (m), kilometer (km). The chart's horizontal axis is in log₁₀(radius/cm), so each unit appears at its corresponding order of magnitude. These units span from subatomic (fm) to planetary (1000 km) scales.

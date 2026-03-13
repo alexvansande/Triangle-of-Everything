@@ -1,0 +1,1 @@
+Procyon A is the brightest star in the constellation Canis Minor and the eighth-brightest star in the night sky. It is a subgiant star that has exhausted the hydrogen in its core and is beginning to expand as it evolves toward the red giant phase. Procyon forms a binary system with Procyon B, a faint white dwarf companion.

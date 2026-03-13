@@ -1,0 +1,1 @@
+Influenza is an RNA virus causing seasonal flu that constantly mutates to evade immunity. Its segmented genome allows for genetic reassortment, which can produce entirely new strains and trigger pandemics.

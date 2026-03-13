@@ -1,0 +1,1 @@
+A proto-planetary nebula is a brief transitional phase between an asymptotic giant branch (AGB) star and a planetary nebula. This phase lasts only a few thousand years—a blink of an eye in stellar evolution—as the star rapidly loses mass and its exposed core begins to ionize the surrounding gas. Famous examples include the Egg Nebula and the Red Rectangle.

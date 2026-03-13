@@ -1,0 +1,1 @@
+A stable subatomic particle and the nucleus of hydrogen. The proton is composed of two up quarks and one down quark bound by the strong force. It carries a positive charge and, along with neutrons, makes up every atomic nucleus. Protons are thought to be stable for at least 10³⁴ years.

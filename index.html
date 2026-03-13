@@ -1,26 +1,3 @@
-<!--
-  THE TRIANGLE OF EVERYTHING
-  ==========================
-
-  Interactive log-log visualization of mass vs. width for every
-  known object in the universe.
-
-  DOM STRUCTURE:
-    #chart          — container for the full-viewport D3 SVG
-    #search-box     — collapsible search (top-right, toggle with /)
-    #preset-bar     — quick-nav buttons (All, Particles, Solar System, Stars, Cosmos)
-    #sidebar        — left slide-in panel with two modes:
-      #sidebar-intro    — default: title + intro text (from intro.md)
-      #sidebar-object   — shown on object click: name, stats, description, links
-    #readout        — bottom-right coordinates + zoom info
-    #tooltip        — hover info card (follows mouse)
-    #controls       — zoom in/out/reset buttons (bottom-left)
-    #scale-bar      — visual scale reference (bottom-left)
-    #keyhint        — keyboard shortcut hints (fades after 6s)
-
-  FONTS: Inter (UI) + Space Mono (numbers) from Google Fonts.
-  All JS logic is in src/main.js (loaded as ES module).
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,10 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- D3 appends an <svg> inside this div -->
   <div id="chart"></div>
-
-  <!-- Search: collapses to a button, expands to input + dropdown -->
   <div id="search-box">
     <button id="search-btn" title="Search objects (/)">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
@@ -43,25 +17,21 @@
     <input type="text" id="search-input" placeholder="Search objects…" autocomplete="off" spellcheck="false">
     <div id="search-results"></div>
   </div>
-
-  <!-- Quick-zoom preset buttons -->
   <div id="preset-bar">
     <button data-preset="all" class="active" title="Full view">All</button>
     <button data-preset="particles" title="Subatomic particles">Particles</button>
     <button data-preset="solar" title="Solar system">Solar System</button>
+    <button data-preset="engineering" title="Man-made: coins, planes, ships, pyramids">Engineering</button>
     <button data-preset="stars" title="Stars & remnants">Stars</button>
     <button data-preset="cosmos" title="Galaxies & universe">Cosmos</button>
   </div>
-
-  <!-- Sidebar: starts open showing intro; switches to object detail on click -->
+  <button id="sidebar-expand" title="Expand panel">&gt;&gt;</button>
   <div id="sidebar" class="open">
-    <button id="sidebar-close">&times;</button>
-    <!-- Mode 1: Intro text (populated from src/texts/intro.md by JS) -->
+    <button id="sidebar-close" title="Collapse panel">&lt;&lt;</button>
     <div id="sidebar-intro">
       <h1 id="intro-title">THE TRIANGLE OF <span class="accent">EVERYTHING</span></h1>
       <div id="intro-body"></div>
     </div>
-    <!-- Mode 2: Object detail (populated dynamically by openSidebar()) -->
     <div id="sidebar-object" style="display:none">
       <div id="sb-header">
         <span id="sb-dot"></span>
@@ -83,8 +53,6 @@
       <div id="sb-links"></div>
     </div>
   </div>
-
-  <!-- HUD elements -->
   <div id="readout"></div>
   <div id="tooltip"></div>
   <div id="controls">
@@ -94,7 +62,6 @@
   </div>
   <div id="scale-bar"></div>
   <div id="keyhint">scroll to zoom &middot; drag to pan &middot; click object to focus &middot; / to search</div>
-
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

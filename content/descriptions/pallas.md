@@ -1,0 +1,1 @@
+Pallas is the third largest asteroid in the solar system and was the second asteroid ever discovered, in 1802. It has a highly inclined orbit of about 34 degrees relative to the ecliptic, unusual for main-belt asteroids. Pallas is massive enough that it was once considered for dwarf planet status and may have a differentiated interior.

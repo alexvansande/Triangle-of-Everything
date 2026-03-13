@@ -1,0 +1,1 @@
+A horizontal-branch star is an evolved star burning helium in its core while hydrogen fusion continues in a shell. This phase includes the pulsating RR Lyrae variables, which serve as important standard candles for measuring distances in the universe. Stars spend roughly 100 million years on the horizontal branch before evolving further.

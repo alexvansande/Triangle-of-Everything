@@ -1,0 +1,1 @@
+Bennu is a near-Earth asteroid visited by NASA's OSIRIS-REx spacecraft in 2020. The mission successfully collected samples from its surface and returned them to Earth in September 2023, marking the first U.S. asteroid sample return. Bennu is considered a potentially hazardous asteroid with a small chance of impacting Earth in the late 22nd century.

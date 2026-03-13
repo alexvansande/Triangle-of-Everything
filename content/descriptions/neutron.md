@@ -1,0 +1,1 @@
+A neutral hadron made of one up and two down quarks. Neutrons are nearly identical in mass to protons but carry no electric charge. Together with protons, they make up atomic nuclei; without neutrons, only hydrogen could exist.

@@ -1,0 +1,1 @@
+The down quark has a charge of −1/3 and is the second-lightest quark. It combines with up quarks to form protons (uud) and neutrons (udd) — the building blocks of all atomic nuclei. Down quarks are slightly heavier than up quarks, which explains why neutrons are marginally heavier than protons.

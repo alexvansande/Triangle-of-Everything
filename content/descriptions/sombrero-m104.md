@@ -1,0 +1,1 @@
+The Sombrero Galaxy (M104) is an unbarred spiral galaxy notable for its bright nucleus and large central bulge. A prominent dust lane encircles the galaxy's disk, giving it the appearance of a sombrero hat when viewed edge-on. The Sombrero contains roughly 2,000 globular clusters—about 10 times more than the Milky Way—suggesting a complex formation history.

@@ -1,0 +1,1 @@
+Juno was the third asteroid ever discovered, found by German astronomer Karl Harding in 1804. It is one of the largest asteroids in the main belt, with a diameter of about 257 km. Juno was the first asteroid discovered after Ceres and Pallas, and its name honors the Roman goddess and wife of Jupiter.

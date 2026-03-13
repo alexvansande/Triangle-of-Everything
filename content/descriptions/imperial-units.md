@@ -1,0 +1,1 @@
+Imperial and astronomical length units: inch, foot, mile, light-second, AU (astronomical unit), light-year, parsec. These units are familiar for human-scale and cosmic distances. The AU (~1.5×10¹³ cm) is the Earth–Sun distance; the parsec (~3.09×10¹⁸ cm) is defined by parallax. Hubble radius marks the observable universe's scale.

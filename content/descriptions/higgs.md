@@ -1,0 +1,1 @@
+The Higgs boson was discovered at CERN's Large Hadron Collider in 2012, confirming a prediction from 1964. It is the quantum of the Higgs field, which permeates space and gives mass to fundamental particles through the Higgs mechanism. Without it, electrons would be massless and atoms could not form.

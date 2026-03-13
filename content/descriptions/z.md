@@ -1,0 +1,1 @@
+The Z boson is the neutral carrier of the weak nuclear force, with a mass of about 91 GeV. Discovered at CERN in 1983, it mediates neutral-current interactions — the kind that don't change particle type. Its precisely measured mass helped constrain and predict the Higgs boson before its 2012 discovery.

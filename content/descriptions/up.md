@@ -1,0 +1,1 @@
+The up quark is the lightest of the six quarks, with a charge of +2/3. Two ups and a down make a proton — the most abundant quark combination in the universe. Up quarks are stable within protons and neutrons, which is why ordinary matter persists.

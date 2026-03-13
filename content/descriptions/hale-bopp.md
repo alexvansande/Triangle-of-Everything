@@ -1,0 +1,1 @@
+Hale-Bopp was the Great Comet of 1997, visible to the naked eye for an extraordinary 18 months. Its nucleus is approximately 30 km across—one of the largest ever observed—and it sported two distinct tails: a blue ion tail and a yellowish dust tail. The comet's exceptional brightness and long visibility made it one of the most widely observed comets in history.

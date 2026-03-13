@@ -1,0 +1,1 @@
+Hippopotamus: the third-largest living land mammal, spending most of its day submerged in rivers. Denser than water (about 1.05 g/cm³), hippos cannot truly swim — instead they walk or bounce along the river bottom. Despite their bulk, they can run at 30 km/h and are considered one of Africa's most dangerous animals.

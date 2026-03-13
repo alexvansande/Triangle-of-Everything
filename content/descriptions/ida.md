@@ -1,0 +1,1 @@
+Ida was the first asteroid discovered to have its own moon, a tiny companion named Dactyl discovered in 1993. The Galileo spacecraft flew past Ida in 1993 on its way to Jupiter, capturing the first close-up images of an asteroid with a satellite. Dactyl is only about 1.4 km across, orbiting Ida at a distance of about 90 km.

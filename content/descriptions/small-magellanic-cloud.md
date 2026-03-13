@@ -1,0 +1,1 @@
+The Small Magellanic Cloud is a satellite galaxy of the Milky Way visible from the Southern Hemisphere. In 1912, Henrietta Leavitt studied its Cepheid variable stars and discovered the period-luminosity relation, which became the key to measuring distances across the universe. This discovery enabled Edwin Hubble to prove that galaxies exist beyond the Milky Way.

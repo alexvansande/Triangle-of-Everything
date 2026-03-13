@@ -1,0 +1,1 @@
+The Large Magellanic Cloud is the largest satellite galaxy of the Milky Way and the fourth-largest galaxy in the Local Group. It is home to the Tarantula Nebula (30 Doradus), the most active star-forming region in the Local Group and one of the largest known. The LMC is visible as a faint cloud in the southern sky and is being slowly distorted by the Milky Way's gravity.

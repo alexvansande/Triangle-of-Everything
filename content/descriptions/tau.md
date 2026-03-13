@@ -1,0 +1,1 @@
+The tau is the heaviest charged lepton, about 3,500 times the mass of an electron. Discovered by Martin Perl at SLAC in 1975, it earned a Nobel Prize. Unlike the electron and muon, the tau is heavy enough to decay into hadrons, making it a bridge between leptons and quarks.

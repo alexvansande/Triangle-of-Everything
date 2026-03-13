@@ -1,0 +1,1 @@
+The KBC Void (Keenan-Barger-Cowie void) is a local underdensity in which our galaxy resides, with a diameter of approximately 2 billion light-years. It is one of the largest known voids in the universe, and we sit near its center. The KBC Void's low matter density may affect local measurements of the Hubble constant and our understanding of cosmic expansion.

@@ -1,0 +1,1 @@
+Omicron Ceti, better known as Mira, is the prototype of a class of pulsating red giant stars. Its brightness varies by a factor of up to 1000 over a period of approximately 332 days, from barely visible to one of the brightest stars in its constellation. Mira variables are asymptotic giant branch stars that pulsate due to their extended, unstable atmospheres.

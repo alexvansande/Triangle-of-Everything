@@ -1,0 +1,1 @@
+The tardigrade, or water bear, is a microscopic animal that can survive extreme radiation, the vacuum of space, and temperatures near absolute zero. When conditions turn hostile, it enters a cryptobiotic state and can revive years later.

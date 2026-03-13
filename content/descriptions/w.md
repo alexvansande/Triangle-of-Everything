@@ -1,0 +1,1 @@
+The W boson is the charged carrier of the weak nuclear force, responsible for radioactive beta decay. It comes in W⁺ and W⁻ varieties and has a mass of about 80 GeV — one of the heaviest known elementary particles. Its discovery in 1983 at CERN confirmed the electroweak theory.

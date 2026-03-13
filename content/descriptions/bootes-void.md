@@ -1,0 +1,1 @@
+The Boötes Void is one of the largest known voids in the universe, spanning approximately 330 million light-years across. Where roughly 2,000 galaxies would be expected in such a volume, only about 60 have been found, making it remarkably empty. The void was discovered in 1981 and its existence has prompted questions about the large-scale structure of the cosmos.

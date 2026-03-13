@@ -1,0 +1,1 @@
+Pollen grains are microscopic structures carrying plant male genetic material for fertilization. Their shapes are incredibly varied—spiky, smooth, grooved—and so distinctive that they can identify plant species like fingerprints.

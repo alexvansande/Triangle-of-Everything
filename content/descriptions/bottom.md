@@ -1,0 +1,1 @@
+The bottom quark is a third-generation quark with charge −1/3 and mass about 4.2 GeV. Its relatively long lifetime makes it crucial for studying CP violation and matter-antimatter asymmetry — key to understanding why the universe is made of matter rather than antimatter. B mesons, containing bottom quarks, are produced in abundance at particle colliders.

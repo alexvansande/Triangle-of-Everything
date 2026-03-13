@@ -1,0 +1,1 @@
+951 Gaspra is an S-type asteroid in the main belt, about 12 km in diameter. It was the first asteroid to be imaged up close when the Galileo spacecraft flew by in 1991.

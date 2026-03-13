@@ -1,0 +1,1 @@
+Paramecium is a single-celled ciliate and one of the most complex single-celled organisms. It has specialized organelles including a mouth, digestive vacuoles, and two types of nuclei—one for everyday functions and one for reproduction.

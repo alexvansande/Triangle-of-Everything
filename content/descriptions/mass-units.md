@@ -1,0 +1,1 @@
+Mass units on the chart span from eV/c² (particle physics) through grams and kilograms to solar masses (M☉). The vertical axis is log₁₀(mass/g). Electron and proton masses (mₑ, mₚ) anchor the particle scale; M⊕ (Earth), Mⱼ (Jupiter), and M☉ mark planetary and stellar masses. The same axis also encodes energy via E = mc².

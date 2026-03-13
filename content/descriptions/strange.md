@@ -1,0 +1,1 @@
+The strange quark is the third-lightest quark, with a charge of −1/3. It earned its name from the unexpectedly long lifetime of particles containing it — strange particles decay more slowly than expected. First observed in cosmic ray experiments in the 1940s, it helped establish the quark model.

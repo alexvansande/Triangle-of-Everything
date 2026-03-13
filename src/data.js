@@ -114,75 +114,64 @@ export const EPOCH_BANDS = [
 //   Row 2: imperial + astronomical (inch, foot, mile, AU, ly, pc)
 
 export const RADIUS_UNITS = [
-  // ── Row 1: metric / SI ──
-  { logR: -32.79, label: "1 Planck length", row: 1 },
-  { logR: -13,    label: "1 fm",            row: 1 },
-  { logR: -9,     label: "10 pm",           row: 1 },
-  { logR: -8,     label: "1 Å",             row: 1 },
-  { logR: -7,     label: "1 nm",            row: 1 },
-  { logR: -4,     label: "1 μm",            row: 1 },
-  { logR: -1,     label: "1 mm",            row: 1 },
-  { logR: 0,      label: "1 cm",            row: 1 },
-  { logR: 2,      label: "1 meter",         row: 1 },
-  { logR: 5,      label: "1 km",            row: 1 },
-  { logR: 8,      label: "1000 km",         row: 1 },
-  { logR: 11,     label: "1M km",           row: 1 },
-
-  // ── Row 2: imperial / astronomical ──
-  { logR: 0.405,  label: "1 inch",          row: 2 },
-  { logR: 1.484,  label: "1 foot",          row: 2 },
-  { logR: 5.207,  label: "1 mile",          row: 2 },
-  { logR: 10.477, label: "1 light-second",  row: 2 },
-  { logR: 13.175, label: "1 AU",            row: 2 },
-  { logR: 17.976, label: "1 light-year",    row: 2 },
-  { logR: 18.489, label: "1 parsec",        row: 2 },
-  { logR: 20.976, label: "1,000 ly",        row: 2 },
-  { logR: 21.489, label: "1 kpc",           row: 2 },
-  { logR: 23.976, label: "1M ly",           row: 2 },
-  { logR: 24.489, label: "1 Mpc",           row: 2 },
-  { logR: 26.976, label: "1B ly",           row: 2 },
-  { logR: 27.489, label: "1 Gpc",           row: 2 },
-  { logR: 28.14,  label: "Hubble R",        row: 2 },
+  { logR: -32.79, label: "1 Planck length", row: 1, slug: "planck-length" },
+  { logR: -13,    label: "1 fm",            row: 1, slug: "metric-units" },
+  { logR: -9,     label: "10 pm",           row: 1, slug: "metric-units" },
+  { logR: -8,     label: "1 Å",             row: 1, slug: "metric-units" },
+  { logR: -7,     label: "1 nm",            row: 1, slug: "metric-units" },
+  { logR: -4,     label: "1 μm",            row: 1, slug: "metric-units" },
+  { logR: -1,     label: "1 mm",            row: 1, slug: "metric-units" },
+  { logR: 0,      label: "1 cm",            row: 1, slug: "metric-units" },
+  { logR: 2,      label: "1 meter",         row: 1, slug: "metric-units" },
+  { logR: 5,      label: "1 km",            row: 1, slug: "metric-units" },
+  { logR: 8,      label: "1000 km",         row: 1, slug: "metric-units" },
+  { logR: 11,     label: "1M km",           row: 1, slug: "metric-units" },
+  { logR: 0.405,  label: "1 inch",          row: 2, slug: "imperial-units" },
+  { logR: 1.484,  label: "1 foot",          row: 2, slug: "imperial-units" },
+  { logR: 5.207,  label: "1 mile",          row: 2, slug: "imperial-units" },
+  { logR: 10.477, label: "1 light-second",  row: 2, slug: "imperial-units" },
+  { logR: 13.175, label: "1 AU",            row: 2, slug: "imperial-units" },
+  { logR: 17.976, label: "1 light-year",    row: 2, slug: "imperial-units" },
+  { logR: 18.489, label: "1 parsec",        row: 2, slug: "imperial-units" },
+  { logR: 20.976, label: "1,000 ly",        row: 2, slug: "imperial-units" },
+  { logR: 21.489, label: "1 kpc",           row: 2, slug: "imperial-units" },
+  { logR: 23.976, label: "1M ly",           row: 2, slug: "imperial-units" },
+  { logR: 24.489, label: "1 Mpc",           row: 2, slug: "imperial-units" },
+  { logR: 26.976, label: "1B ly",           row: 2, slug: "imperial-units" },
+  { logR: 27.489, label: "1 Gpc",           row: 2, slug: "imperial-units" },
+  { logR: 28.14,  label: "Hubble R",        row: 2, slug: "imperial-units" },
 ];
 
 // MASS_UNITS: right axis — from eV/c² up to 10¹⁵ M☉
 export const MASS_UNITS = [
-  { logM: -32.75, label: "1 eV/c²" },
-  { logM: -29.75, label: "1 keV/c²" },
-  { logM: -27.04, label: "mₑ (electron)" },
-  { logM: -26.75, label: "1 MeV/c²" },
-  { logM: -23.78, label: "mₚ (proton)" },
-  { logM: -23.75, label: "1 GeV/c²" },
-  { logM: -20.75, label: "1 TeV/c²" },
-
-  // Sub-gram
-  { logM: -15,    label: "1 pg" },
-  { logM: -12,    label: "1 ng" },
-  { logM: -9,     label: "1 μg" },
-  { logM: -6,     label: "1 mg" },
-
-  // Special
-  { logM: -4.66,  label: "PLANCK MASS" },
-
-  // Everyday
-  { logM: 0,      label: "1 gram" },
-  { logM: 1.45,   label: "1 oz" },
-  { logM: 2.66,   label: "1 lb" },
-  { logM: 3,      label: "1 kg" },
-  { logM: 6,      label: "1 tonne" },
-  { logM: 9,      label: "1 kilotonne" },
-  { logM: 12,     label: "1 megatonne" },
-  { logM: 15,     label: "1 gigatonne" },
-
-  // Astronomical
-  { logM: 27.78,  label: "M⊕ (Earth)" },
-  { logM: 30.28,  label: "Mⱼ (Jupiter)" },
-  { logM: 33.30,  label: "1 M☉" },
-  { logM: 36.30,  label: "1000 M☉" },
-  { logM: 39.30,  label: "1 M M☉" },
-  { logM: 42.30,  label: "1 B M☉" },
-  { logM: 45.30,  label: "1 T M☉" },
-  { logM: 48.30,  label: "10¹⁵ M☉" },
+  { logM: -32.75, label: "1 eV/c²", slug: "mass-units" },
+  { logM: -29.75, label: "1 keV/c²", slug: "mass-units" },
+  { logM: -27.04, label: "mₑ (electron)", slug: "mass-units" },
+  { logM: -26.75, label: "1 MeV/c²", slug: "mass-units" },
+  { logM: -23.78, label: "mₚ (proton)", slug: "mass-units" },
+  { logM: -23.75, label: "1 GeV/c²", slug: "mass-units" },
+  { logM: -20.75, label: "1 TeV/c²", slug: "mass-units" },
+  { logM: -15,    label: "1 pg", slug: "mass-units" },
+  { logM: -12,    label: "1 ng", slug: "mass-units" },
+  { logM: -9,     label: "1 μg", slug: "mass-units" },
+  { logM: -6,     label: "1 mg", slug: "mass-units" },
+  { logM: -4.66,  label: "PLANCK MASS", slug: "planck-mass" },
+  { logM: 0,      label: "1 gram", slug: "mass-units" },
+  { logM: 1.45,   label: "1 oz", slug: "mass-units" },
+  { logM: 2.66,   label: "1 lb", slug: "mass-units" },
+  { logM: 3,      label: "1 kg", slug: "mass-units" },
+  { logM: 6,      label: "1 tonne", slug: "mass-units" },
+  { logM: 9,      label: "1 kilotonne", slug: "mass-units" },
+  { logM: 12,     label: "1 megatonne", slug: "mass-units" },
+  { logM: 15,     label: "1 gigatonne", slug: "mass-units" },
+  { logM: 27.78,  label: "M⊕ (Earth)", slug: "mass-units" },
+  { logM: 30.28,  label: "Mⱼ (Jupiter)", slug: "mass-units" },
+  { logM: 33.30,  label: "1 M☉", slug: "mass-units" },
+  { logM: 36.30,  label: "1000 M☉", slug: "mass-units" },
+  { logM: 39.30,  label: "1 M M☉", slug: "mass-units" },
+  { logM: 42.30,  label: "1 B M☉", slug: "mass-units" },
+  { logM: 45.30,  label: "1 T M☉", slug: "mass-units" },
+  { logM: 48.30,  label: "10¹⁵ M☉", slug: "mass-units" },
 ];
 
 // ENERGY_UNITS: left axis — shows both energy and temperature scales.
@@ -193,31 +182,26 @@ const LOG_EV_OFFSET = 32.75;
 const LOG_K_OFFSET  = 36.81;
 
 export const ENERGY_UNITS = [
-  // Energy scale
-  { logM: -35.75, label: "1 meV" },
-  { logM: -32.75, label: "1 eV" },
-  { logM: -29.75, label: "1 keV" },
-  { logM: -26.75, label: "1 MeV" },
-  { logM: -23.75, label: "1 GeV" },
-  { logM: -20.75, label: "1 TeV" },
-  { logM: -4.66,  label: "PLANCK ENERGY" },
-
-  // Temperature scale
-  { logM: -36.81,                          label: "1 K" },
-  { logM: -36.81 + Math.log10(2.725),     label: "2.7 K (CMB)" },
-  { logM: -36.81 + Math.log10(77),        label: "77 K (liq. N₂)" },
-  { logM: -36.81 + Math.log10(273.15),    label: "0°C" },
-  { logM: -36.81 + Math.log10(293.15),    label: "20°C (room)" },
-  { logM: -36.81 + Math.log10(310.15),    label: "37°C (body)" },
-  { logM: -36.81 + Math.log10(373.15),    label: "100°C" },
-  { logM: -36.81 + 3,                     label: "1000 K" },
-  { logM: -36.81 + Math.log10(5778),      label: "5778 K (Sun surface)" },
-  { logM: -36.81 + 6,                     label: "1 M K" },
-  { logM: -36.81 + 9,                     label: "1 B K" },
-
-  // Fahrenheit reference
-  { logM: -36.81 + Math.log10(255.37),    label: "0°F" },
-  { logM: -36.81 + Math.log10(310.93),    label: "100°F" },
+  { logM: -35.75, label: "1 meV", slug: "energy-units" },
+  { logM: -32.75, label: "1 eV", slug: "energy-units" },
+  { logM: -29.75, label: "1 keV", slug: "energy-units" },
+  { logM: -26.75, label: "1 MeV", slug: "energy-units" },
+  { logM: -23.75, label: "1 GeV", slug: "energy-units" },
+  { logM: -20.75, label: "1 TeV", slug: "energy-units" },
+  { logM: -4.66,  label: "PLANCK ENERGY", slug: "planck-energy" },
+  { logM: -36.81,                          label: "1 K", slug: "energy-units" },
+  { logM: -36.81 + Math.log10(2.725),     label: "2.7 K (CMB)", slug: "energy-units" },
+  { logM: -36.81 + Math.log10(77),        label: "77 K (liq. N₂)", slug: "energy-units" },
+  { logM: -36.81 + Math.log10(273.15),    label: "0°C", slug: "energy-units" },
+  { logM: -36.81 + Math.log10(293.15),    label: "20°C (room)", slug: "energy-units" },
+  { logM: -36.81 + Math.log10(310.15),    label: "37°C (body)", slug: "energy-units" },
+  { logM: -36.81 + Math.log10(373.15),    label: "100°C", slug: "energy-units" },
+  { logM: -36.81 + 3,                     label: "1000 K", slug: "energy-units" },
+  { logM: -36.81 + Math.log10(5778),      label: "5778 K (Sun surface)", slug: "energy-units" },
+  { logM: -36.81 + 6,                     label: "1 M K", slug: "energy-units" },
+  { logM: -36.81 + 9,                     label: "1 B K", slug: "energy-units" },
+  { logM: -36.81 + Math.log10(255.37),    label: "0°F", slug: "energy-units" },
+  { logM: -36.81 + Math.log10(310.93),    label: "100°F", slug: "energy-units" },
 ];
 
 // =============================================================
@@ -269,3 +253,35 @@ export const REFERENCE_LINES = [
 export const ARROWS = [];
 
 export const CATEGORIES = CAT;
+
+// Subcategories for cluster labels — when objects are too close, show one label
+// Key: subcat value in objects.json. Value: display label for the cluster.
+// Fallback when cluster has mixed subcats
+export const CAT_DISPLAY = {
+  particle: "Particles", composite: "Nucleons", atomic: "Atoms & Molecules",
+  micro: "Microscopic", macro: "Macro", planet: "Planets",
+  star: "Stars", remnant: "Remnants", blackhole: "Black Holes",
+  galaxy: "Galaxies", largescale: "Large Scale",
+};
+
+export const SUBCAT_LABELS = {
+  nucleon: "Proton & Neutron",
+  atom: "Atoms",
+  molecule: "Molecules",
+  virus: "Viruses",
+  bacterium: "Bacteria",
+  moon: "Moons",
+  dwarf_planet: "Dwarf Planets",
+  asteroid: "Asteroids",
+  comet: "Comets",
+  terrestrial_planet: "Terrestrial Planets",
+  gas_giant: "Gas Giants",
+  exoplanet: "Exoplanets",
+  brown_dwarf: "Brown Dwarfs",
+  red_dwarf: "Red Dwarfs",
+  white_dwarf: "White Dwarfs",
+  neutron_star: "Neutron Stars",
+  quark: "Quarks",
+  lepton: "Leptons",
+  boson: "Bosons",
+};

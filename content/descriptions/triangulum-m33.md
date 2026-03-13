@@ -1,0 +1,1 @@
+The Triangulum Galaxy (M33) is the third largest galaxy in the Local Group, after Andromeda and the Milky Way. It is an unbarred spiral galaxy that may be gravitationally bound to the Andromeda Galaxy and could eventually merge with it. M33 is one of the most distant objects visible to the naked eye under dark skies.

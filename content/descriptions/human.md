@@ -1,0 +1,1 @@
+Homo sapiens — anatomically modern humans. Average mass ~70 kg, height ~1.7 m. Our species emerged in Africa roughly 300,000 years ago and has since spread across every continent, developing language, culture, and technology that have reshaped the planet.

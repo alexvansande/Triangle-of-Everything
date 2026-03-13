@@ -1,0 +1,1 @@
+Energy units (eV, keV, MeV, GeV, TeV) and temperature (K, °C, °F) share the left axis via E = mc² and T = E/k_B. The chart maps mass to energy: log(E/eV) = logM + 32.75. Temperature references include CMB (2.7 K), liquid nitrogen (77 K), room temperature (20°C), and the Sun's surface (5778 K).

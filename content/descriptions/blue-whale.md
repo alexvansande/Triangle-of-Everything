@@ -1,0 +1,1 @@
+The largest animal known to have ever existed on Earth. Blue whales can reach lengths over 30 meters and masses exceeding 150 tonnes — heavier than the largest dinosaurs. Their heart alone weighs as much as a small car, and their tongue can weigh as much as an elephant.

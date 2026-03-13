@@ -1,0 +1,1 @@
+The ribosome is a molecular machine in all living cells that reads mRNA and builds proteins. Remarkably, ribosomes are found in every organism from bacteria to humans, suggesting a common ancestor billions of years ago.

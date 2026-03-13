@@ -1,28 +1,3 @@
-/*
- * STYLE.CSS — The Triangle of Everything
- *
- * UI LAYOUT:
- *   - Full-viewport SVG chart (no scroll)
- *   - Sidebar (left, slides in/out): intro text OR object detail
- *   - Search box (top-right, collapsible)
- *   - Preset buttons (bottom, between controls and readout)
- *   - Zoom controls (bottom-left stack)
- *   - Scale bar (bottom-left, above controls)
- *   - Readout/coordinates (bottom-right)
- *   - Tooltip (follows mouse on hover)
- *   - Key hints (top-right, fades after 6s)
- *
- * DESIGN LANGUAGE:
- *   Dark space theme with glassmorphism (backdrop-filter: blur).
- *   Red accent (#ff3355) for axis titles, active states, triangle highlight.
- *   All UI panels use semi-transparent dark backgrounds.
- *
- * FONTS:
- *   'Inter' — UI text, labels, titles
- *   'Space Mono' — monospaced numbers, coordinates, stats
- *   Both loaded from Google Fonts in index.html.
- */
-
 :root {
   --bg-dark: #06061a;
   --bg-chart: #0a0a2e;
@@ -240,10 +215,7 @@ body:active { cursor: grabbing; }
   background: rgba(255,51,85,0.1);
 }
 
-/* ---------- sidebar (left-side slide panel) ---------- */
-/* Two content sections inside: #sidebar-intro and #sidebar-object.
-   Only one is visible at a time (toggled via display:none in JS).
-   Slides from left: transform translateX(-100%) → translateX(0). */
+/* ---------- sidebar ---------- */
 
 #sidebar {
   position: fixed; top: 0; left: 0;
@@ -258,6 +230,24 @@ body:active { cursor: grabbing; }
   box-shadow: 8px 0 40px rgba(0,0,0,0.5);
 }
 #sidebar.open { transform: translateX(0); }
+
+#sidebar-expand {
+  position: fixed; top: 12px; left: 12px;
+  width: 32px; height: 32px;
+  background: rgba(8,8,30,0.96);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px; color: rgba(255,255,255,0.5);
+  font-size: 14px; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
+  z-index: 26; transition: all 0.15s;
+  backdrop-filter: blur(24px);
+}
+#sidebar-expand:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+body.sidebar-open #sidebar-expand { display: none; }
+body:not(.sidebar-open) #sidebar-expand { display: flex; }
 
 #sidebar-close {
   position: absolute; top: 12px; left: 12px;
@@ -276,6 +266,10 @@ body:active { cursor: grabbing; }
 
 #sidebar-intro, #sidebar-object {
   padding: 20px 24px 32px;
+}
+#sidebar-object.info-panel #sb-image,
+#sidebar-object.info-panel #sb-stats {
+  display: none;
 }
 #intro-title {
   font-family: 'Inter', sans-serif;
@@ -398,6 +392,10 @@ body:active { cursor: grabbing; }
   color: rgba(255,255,255,0.55);
   margin-bottom: 24px;
 }
+#sb-desc p { margin-bottom: 10px; }
+#sb-desc p:last-child { margin-bottom: 0; }
+#sb-desc a { color: rgba(255,200,200,0.8); text-decoration: none; }
+#sb-desc a:hover { text-decoration: underline; }
 #sb-desc:empty { display: none; }
 
 #sb-links {
@@ -435,7 +433,7 @@ body:active { cursor: grabbing; }
   background: rgba(255,255,255,0.08); border-radius: 2px;
 }
 
-/* ---------- SVG text classes (used by D3 in drawAxes) ---------- */
+/* ---------- SVG text classes ---------- */
 
 .axis-label {
   font-family: 'Space Mono', monospace; font-size: 10px;
@@ -444,6 +442,9 @@ body:active { cursor: grabbing; }
 .axis-unit-label {
   font-family: 'Inter', sans-serif; font-size: 9px;
   fill: rgba(255,255,255,0.22); font-style: italic;
+}
+.axis-unit-link {
+  cursor: pointer;
 }
 .axis-title {
   font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px;

@@ -1,0 +1,1 @@
+Mesons are composite particles made of one quark and one antiquark bound by the strong force. The pion (π), the lightest meson, mediates the strong force between nucleons — it's what holds protons and neutrons together in atomic nuclei. Hundreds of meson types exist, from the light pion to heavy B mesons.

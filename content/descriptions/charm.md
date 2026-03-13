@@ -1,0 +1,1 @@
+The charm quark is the third-heaviest quark, with a mass about 1.3 GeV. Its 1974 discovery (the "November Revolution") confirmed the quark model and earned a Nobel Prize. Charm quarks are produced in high-energy collisions and decay rapidly into lighter particles.

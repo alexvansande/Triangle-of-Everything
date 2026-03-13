@@ -1,0 +1,1 @@
+The initial singularity from which the observable universe expanded roughly 13.8 billion years ago. At this point, all mass-energy was concentrated at the Planck scale — the earliest moment we can meaningfully describe with current physics. The cosmic microwave background is the cooled remnant of the hot, dense early universe.

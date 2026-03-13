@@ -1,0 +1,1 @@
+The top quark is the heaviest known fundamental particle at ~173 GeV — almost as massive as a gold atom. Discovered at Fermilab in 1995, it decays so quickly (before hadronizing) that it provides a unique window into bare quark properties. Its large mass makes it especially sensitive to the Higgs field.

@@ -1,0 +1,1 @@
+The third planet from the Sun and the only known astronomical object to harbor life. Earth's surface is 71% water, with a substantial atmosphere (78% nitrogen, 21% oxygen) and a magnetic field that deflects solar wind. Its distance from the Sun places it in the habitable zone where liquid water can exist.
