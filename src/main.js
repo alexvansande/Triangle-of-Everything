@@ -8,7 +8,6 @@ import {
 } from "./data.js";
 import objectsData from "./objects.json";
 import { fbm } from "./simplex.js";
-import tileMeta from "../public/tiles/meta.json";
 import introRaw from "./texts/intro.md?raw";
 import "./style.css";
 
@@ -54,6 +53,7 @@ function nameToSlug(name) {
 }
 
 const OBJECTS = objectsData.map(o => ({ ...o, slug: nameToSlug(o.name) }));
+let tileMeta = null;
 
 // =============================================================
 // Layout
@@ -2170,12 +2170,16 @@ function drawTiles() {
   lTiles.selectAll("*").remove();
   if (!_bgTilesEnabled || !tileMeta) return;
 
-  const { logRmin, logRmax, logMmin, logMmax, tileSize, levels } = tileMeta;
-  const imgDataW = logRmax - logRmin;
-  const imgDataH = logMmax - logMmin;
+  const { tileSize, levels } = tileMeta;
+  // Use a single px/unit for both axes so image pixels render isotropically
+  // (source image has pxPerUnitX=46.1 vs pxPerUnitY=43.5 — using X for both
+  //  eliminates the ~6% vertical stretch and aligns the background triangle)
+  const ppu = tileMeta.pxPerUnitX;
+  const imgDataW = tileMeta.imgW / ppu;
+  const imgDataH = tileMeta.imgH / ppu;
 
   // Anchor image to chart's Planck point so alignment holds at all zoom levels.
-  // Planck pixel is at (2114/8192, 5960/10752) = 25.8% from left, 55.4% from top.
+  // Pixel position measured from the source image's triangle vertex.
   const PLANCK_FRAC_X = 2114 / tileMeta.imgW;
   const PLANCK_FRAC_Y = 5960 / tileMeta.imgH;
   const imgLogRmin = PLANCK_LOG_R - PLANCK_FRAC_X * imgDataW;
@@ -2194,15 +2198,19 @@ function drawTiles() {
   }
 
   const { x0, x1, y0, y1 } = vd();
-  const tileDataW = imgDataW / best.cols;
-  const tileDataH = imgDataH / best.rows;
+  // Data units per pixel at this zoom level (correct for partial edge tiles)
+  const dppX = imgDataW / best.w;
+  const dppY = imgDataH / best.h;
 
   for (let r = 0; r < best.rows; r++) {
     for (let c = 0; c < best.cols; c++) {
-      const tLogRmin = imgLogRmin + c * tileDataW;
-      const tLogRmax = tLogRmin + tileDataW;
-      const tLogMmax = imgLogMmax - r * tileDataH;
-      const tLogMmin = tLogMmax - tileDataH;
+      const tileW = (c === best.cols - 1) ? (best.w - c * tileSize) : tileSize;
+      const tileH = (r === best.rows - 1) ? (best.h - r * tileSize) : tileSize;
+
+      const tLogRmin = imgLogRmin + c * tileSize * dppX;
+      const tLogRmax = tLogRmin + tileW * dppX;
+      const tLogMmax = imgLogMmax - r * tileSize * dppY;
+      const tLogMmin = tLogMmax - tileH * dppY;
 
       if (tLogRmax < x0 || tLogRmin > x1 || tLogMmax < y0 || tLogMmin > y1) continue;
 
@@ -2212,9 +2220,6 @@ function drawTiles() {
       const sh = py(tLogMmin) - sy;
 
       if (sw < 1 || sh < 1) continue;
-
-      const tileW = (c === best.cols - 1) ? (best.w - c * tileSize) : tileSize;
-      const tileH = (r === best.rows - 1) ? (best.h - r * tileSize) : tileSize;
 
       const href = `/tiles/z${best.z}/tile_${c}_${r}.webp`;
 
@@ -2232,6 +2237,17 @@ function drawTiles() {
         .attr("preserveAspectRatio", "none")
         .attr("image-rendering", "auto");
     }
+  }
+}
+
+async function loadTileMeta() {
+  try {
+    const response = await fetch("/tiles/meta.json");
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    tileMeta = await response.json();
+    redraw();
+  } catch (error) {
+    console.warn("Failed to load tile metadata:", error);
   }
 }
 
@@ -2709,6 +2725,7 @@ svg.call(zoomBehavior);
 
 _booted = true;
 initConnections();
+loadTileMeta();
 
 if (!loadHash()) {
   // Intro animation: start zoomed on the Sun, then zoom out to full view
