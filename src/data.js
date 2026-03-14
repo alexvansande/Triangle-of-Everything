@@ -274,6 +274,7 @@ export const CONNECTION_PATHS = [
   {
     id: "em-spectrum",
     family: "spectrum",
+    description: "The electromagnetic spectrum — from gamma rays to radio waves, all photons travel at the speed of light",
     points: [
       { logR: -10.0, logM: -26.66 },
       { logR: -8.0,  logM: -28.66 },
@@ -297,6 +298,7 @@ export const CONNECTION_PATHS = [
   {
     id: "stellar-low-mass",
     family: "evolution",
+    description: "Stars are born in nurseries, live on the main sequence, swell into red giants, and die as white dwarfs",
     points: [
       { logR: 19.0,  logM: 35.5 },
       { logR: 14.5,  logM: 34.5 },
@@ -315,8 +317,8 @@ export const CONNECTION_PATHS = [
     style: {
       lineOpacity: 0.10,
       lineWidth: 1.4,
-      dotCount: 20,
-      dotSize: 1.0,
+      dotCount: 14,
+      dotSize: 1.6,
       dotSpeed: 0.9,
       color: "rgba(255,215,64,0.6)",
     },
@@ -324,6 +326,7 @@ export const CONNECTION_PATHS = [
   {
     id: "stellar-high-mass",
     family: "evolution",
+    description: "Massive stars burn fast — born in nurseries, they become supergiants and die in supernovae",
     points: [
       { logR: 19.0,  logM: 35.5 },
       { logR: 14.5,  logM: 34.5 },
@@ -340,8 +343,8 @@ export const CONNECTION_PATHS = [
     style: {
       lineOpacity: 0.10,
       lineWidth: 1.4,
-      dotCount: 20,
-      dotSize: 1.0,
+      dotCount: 14,
+      dotSize: 1.6,
       dotSpeed: 0.9,
       color: "rgba(224,224,224,0.5)",
     },
@@ -349,17 +352,18 @@ export const CONNECTION_PATHS = [
   {
     id: "quark-cascade",
     family: "decay",
+    description: "Heavy quarks decay through the weak force — top → bottom → charm → strange → down → up",
     points: [
       { logR: -15.94, logM: -21.51 },
-      { logR: -14.5,  logM: -21.5 },
+      { logR: -13.0,  logM: -22.0 },
       { logR: -14.33, logM: -23.13 },
-      { logR: -13.5,  logM: -22.8 },
+      { logR: -11.5,  logM: -23.2 },
       { logR: -13.81, logM: -23.65 },
-      { logR: -12.8,  logM: -23.5 },
+      { logR: -10.5,  logM: -24.0 },
       { logR: -12.68, logM: -24.77 },
-      { logR: -11.5,  logM: -24.6 },
+      { logR: -9.5,   logM: -25.2 },
       { logR: -11.37, logM: -26.08 },
-      { logR: -10.8,  logM: -25.9 },
+      { logR: -9.5,   logM: -26.0 },
       { logR: -11.04, logM: -26.41 },
     ],
     zoomRange: [3, 800],
@@ -376,11 +380,12 @@ export const CONNECTION_PATHS = [
   {
     id: "lepton-cascade",
     family: "decay",
+    description: "Heavy leptons decay through the weak force — tau → muon → electron",
     points: [
       { logR: -13.95, logM: -23.50 },
-      { logR: -13.0,  logM: -23.5 },
+      { logR: -11.0,  logM: -23.8 },
       { logR: -12.72, logM: -24.73 },
-      { logR: -11.2,  logM: -24.8 },
+      { logR: -9.0,   logM: -25.5 },
       { logR: -10.41, logM: -27.04 },
     ],
     zoomRange: [3, 800],
@@ -397,6 +402,7 @@ export const CONNECTION_PATHS = [
   {
     id: "up-to-proton",
     family: "combines",
+    description: "Two up quarks combine inside a proton (uud)",
     points: [
       { logR: -11.04, logM: -26.41 },
       { logR: -10.0,  logM: -25.0 },
@@ -418,6 +424,7 @@ export const CONNECTION_PATHS = [
   {
     id: "down-to-proton",
     family: "combines",
+    description: "A down quark joins two up quarks to form a proton (uud)",
     points: [
       { logR: -11.37, logM: -26.08 },
       { logR: -10.5,  logM: -24.8 },
@@ -439,6 +446,7 @@ export const CONNECTION_PATHS = [
   {
     id: "proton-to-hydrogen",
     family: "combines",
+    description: "A proton captures an electron to form a hydrogen atom",
     points: [
       { logR: -13.06, logM: -23.78 },
       { logR: -11.5,  logM: -23.2 },
@@ -460,6 +468,7 @@ export const CONNECTION_PATHS = [
   {
     id: "electron-to-hydrogen",
     family: "combines",
+    description: "An electron binds to a proton to form hydrogen",
     points: [
       { logR: -10.41, logM: -27.04 },
       { logR: -9.0,   logM: -26.0 },
@@ -481,6 +490,7 @@ export const CONNECTION_PATHS = [
   {
     id: "stellar-to-bh",
     family: "evolution",
+    description: "After a supernova, the core collapses into a stellar black hole",
     points: [
       { logR: 17.8,  logM: 33.8 },
       { logR: 14.0,  logM: 34.0 },
@@ -492,10 +502,207 @@ export const CONNECTION_PATHS = [
     style: {
       lineOpacity: 0.08,
       lineWidth: 1.2,
-      dotCount: 12,
-      dotSize: 0.9,
+      dotCount: 10,
+      dotSize: 1.4,
       dotSpeed: 0.8,
       color: "rgba(255,23,68,0.5)",
+    },
+  },
+  {
+    id: "hydrogen-to-water",
+    family: "combines",
+    description: "Two hydrogen atoms bond with oxygen to form water (H₂O)",
+    points: [
+      { logR: -8.28, logM: -23.78 },
+      { logR: -8.8,  logM: -23.3 },
+      { logR: -8.5,  logM: -22.8 },
+      { logR: -7.85, logM: -22.52 },
+    ],
+    zoomRange: [6, 800],
+    neighborhood: { x: [-10, -6], y: [-25, -21] },
+    style: {
+      lineOpacity: 0.05,
+      lineWidth: 1.0,
+      dotCount: 6,
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      color: "rgba(128,222,234,0.5)",
+      dash: "4 3",
+    },
+  },
+  {
+    id: "oxygen-to-water",
+    family: "combines",
+    description: "Oxygen bonds with two hydrogen atoms to form water (H₂O)",
+    points: [
+      { logR: -8.22, logM: -22.58 },
+      { logR: -8.3,  logM: -22.4 },
+      { logR: -7.85, logM: -22.52 },
+    ],
+    zoomRange: [6, 800],
+    neighborhood: { x: [-10, -6], y: [-25, -21] },
+    style: {
+      lineOpacity: 0.05,
+      lineWidth: 1.0,
+      dotCount: 4,
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      color: "rgba(128,222,234,0.5)",
+      dash: "4 3",
+    },
+  },
+  {
+    id: "remnant-to-nursery",
+    family: "evolution",
+    description: "Supernova remnants and planetary nebulae seed new stellar nurseries — stars are recycled",
+    points: [
+      { logR: 17.80, logM: 33.80 },
+      { logR: 18.5,  logM: 34.2 },
+      { logR: 19.5,  logM: 34.8 },
+      { logR: 19.00, logM: 35.50 },
+    ],
+    zoomRange: [1.5, 800],
+    neighborhood: { x: [14, 22], y: [30, 38] },
+    style: {
+      lineOpacity: 0.10,
+      lineWidth: 1.2,
+      dotCount: 8,
+      dotSize: 1.4,
+      dotSpeed: 0.7,
+      color: "rgba(176,130,255,0.5)",
+    },
+  },
+  {
+    id: "nebula-to-nursery",
+    family: "evolution",
+    description: "Planetary nebulae enrich the interstellar medium, fueling the next generation of stars",
+    points: [
+      { logR: 17.50, logM: 33.30 },
+      { logR: 18.2,  logM: 33.8 },
+      { logR: 19.2,  logM: 34.6 },
+      { logR: 19.00, logM: 35.50 },
+    ],
+    zoomRange: [1.5, 800],
+    neighborhood: { x: [14, 22], y: [30, 38] },
+    style: {
+      lineOpacity: 0.10,
+      lineWidth: 1.2,
+      dotCount: 8,
+      dotSize: 1.4,
+      dotSpeed: 0.7,
+      color: "rgba(176,130,255,0.5)",
+    },
+  },
+  {
+    id: "bh-mergers",
+    family: "evolution",
+    description: "Black holes can merge into larger ones — from stellar black holes to supermassive giants",
+    points: [
+      { logR: 6.47,  logM: 34.30 },
+      { logR: 8.0,   logM: 36.0 },
+      { logR: 10.0,  logM: 38.0 },
+      { logR: 12.07, logM: 39.90 },
+      { logR: 13.5,  logM: 41.5 },
+      { logR: 14.78, logM: 42.61 },
+      { logR: 15.29, logM: 43.12 },
+    ],
+    zoomRange: [1.0, 800],
+    neighborhood: { x: [3, 18], y: [32, 46] },
+    style: {
+      lineOpacity: 0.08,
+      lineWidth: 1.2,
+      dotCount: 10,
+      dotSize: 1.4,
+      dotSpeed: 0.6,
+      color: "rgba(255,23,68,0.5)",
+    },
+  },
+  {
+    id: "adenine-to-dna",
+    family: "combines",
+    description: "Adenine pairs with Thymine (A-T) in the DNA double helix",
+    points: [
+      { logR: -7.52, logM: -21.65 },
+      { logR: -7.8,  logM: -20.5 },
+      { logR: -7.2,  logM: -19.5 },
+      { logR: -6.7,  logM: -18.5 },
+    ],
+    zoomRange: [5, 800],
+    neighborhood: { x: [-9, -5], y: [-23, -17] },
+    style: {
+      lineOpacity: 0.05,
+      lineWidth: 1.0,
+      dotCount: 6,
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      color: "rgba(76,175,80,0.5)",
+      dash: "4 3",
+    },
+  },
+  {
+    id: "guanine-to-dna",
+    family: "combines",
+    description: "Guanine pairs with Cytosine (G-C) in the DNA double helix",
+    points: [
+      { logR: -7.50, logM: -21.60 },
+      { logR: -7.0,  logM: -20.8 },
+      { logR: -6.5,  logM: -19.8 },
+      { logR: -6.7,  logM: -18.5 },
+    ],
+    zoomRange: [5, 800],
+    neighborhood: { x: [-9, -5], y: [-23, -17] },
+    style: {
+      lineOpacity: 0.05,
+      lineWidth: 1.0,
+      dotCount: 6,
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      color: "rgba(76,175,80,0.5)",
+      dash: "4 3",
+    },
+  },
+  {
+    id: "cytosine-to-dna",
+    family: "combines",
+    description: "Cytosine pairs with Guanine (C-G) in the DNA double helix",
+    points: [
+      { logR: -7.56, logM: -21.73 },
+      { logR: -8.0,  logM: -20.8 },
+      { logR: -7.5,  logM: -19.6 },
+      { logR: -6.7,  logM: -18.5 },
+    ],
+    zoomRange: [5, 800],
+    neighborhood: { x: [-9, -5], y: [-23, -17] },
+    style: {
+      lineOpacity: 0.05,
+      lineWidth: 1.0,
+      dotCount: 6,
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      color: "rgba(76,175,80,0.5)",
+      dash: "4 3",
+    },
+  },
+  {
+    id: "thymine-to-dna",
+    family: "combines",
+    description: "Thymine pairs with Adenine (T-A) in the DNA double helix",
+    points: [
+      { logR: -7.54, logM: -21.68 },
+      { logR: -7.3,  logM: -20.3 },
+      { logR: -6.9,  logM: -19.3 },
+      { logR: -6.7,  logM: -18.5 },
+    ],
+    zoomRange: [5, 800],
+    neighborhood: { x: [-9, -5], y: [-23, -17] },
+    style: {
+      lineOpacity: 0.05,
+      lineWidth: 1.0,
+      dotCount: 6,
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      color: "rgba(76,175,80,0.5)",
+      dash: "4 3",
     },
   },
 ];
@@ -520,7 +727,7 @@ export const SUBCAT_COLORS = {
 // Fallback when cluster has mixed subcats
 export const CAT_DISPLAY = {
   particle: "Particles", composite: "Nucleons", atomic: "Atoms & Molecules",
-  micro: "Microscopic", macro: "Macro", planet: "Planets",
+  micro: "Microscopic", macro: "", planet: "Planets",
   star: "Stars", remnant: "Remnants", blackhole: "Black Holes",
   galaxy: "Galaxies", largescale: "Large Scale",
 };

@@ -98,7 +98,7 @@ body.sidebar-open #controls { left: 454px; }
 #tooltip.visible { opacity: 1; }
 #tooltip .tt-name {
   font-weight: 700; font-size: 12px; letter-spacing: 1px;
-  text-transform: uppercase; margin-bottom: 3px;
+  margin-bottom: 3px;
 }
 #tooltip .tt-row {
   color: rgba(255,255,255,0.5); font-family: 'Space Mono', monospace;
@@ -348,7 +348,7 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
 }
 #sb-name {
   font-weight: 700; font-size: 18px;
-  letter-spacing: 1.5px; text-transform: uppercase;
+  letter-spacing: 1.5px;
   line-height: 1.2; margin: 0;
 }
 #sb-category {

@@ -188,8 +188,8 @@ const lGrid       = clip.append("g");
 const lDensity    = clip.append("g");
 const lTriOverlay = clip.append("g");
 const lBound      = clip.append("g");
-const lArrows     = clip.append("g");
-const lConnDots   = clip.append("g").style("pointer-events", "none");
+const lArrows     = clip.append("g").style("mix-blend-mode", "screen");
+const lConnDots   = clip.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
 const lRegLabel   = clip.append("g");
 const lObj        = clip.append("g");
 const lHighlight  = clip.append("g").style("pointer-events", "none");
@@ -451,7 +451,7 @@ function drawBoundaries() {
       .attr("fill", rl.color.replace(/[\d.]+\)$/, "0.4)"))
       .attr("font-style", "italic").attr("letter-spacing", "1px")
       .attr("transform", `rotate(${ang},${px(mx)},${py(my) - 5})`)
-      .text(rl.label.toUpperCase());
+      .text(rl.label);
   });
 }
 
@@ -561,11 +561,11 @@ function drawRegionLabels() {
   const centY = (plkY + hubSchwY + hubCompY) / 3;
 
   const boundaryLabels = [
-    { text: "SCHWARZSCHILD RADIUS", angle: schwAng,
+    { text: "Schwarzschild Radius", angle: schwAng,
       x1: plkX, y1: plkY, x2: hubSchwX, y2: hubSchwY },
-    { text: "COMPTON LIMIT", angle: compAng,
+    { text: "Compton Limit", angle: compAng,
       x1: plkX, y1: plkY, x2: hubCompX, y2: hubCompY },
-    { text: "HUBBLE RADIUS", angle: -90,
+    { text: "Hubble Radius", angle: -90,
       x1: hubSchwX, y1: hubSchwY, x2: hubCompX, y2: hubCompY },
   ];
 
@@ -831,7 +831,7 @@ function drawObjects() {
       .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
       .attr("class", "obj-label obj-cluster-label")
-      .text(labelText.toUpperCase());
+      .text(labelText);
     g.append("text")
       .attr("x", cl.cx + pos.dx).attr("y", cl.cy + pos.dy)
       .attr("text-anchor", pos.anchor)
@@ -839,7 +839,7 @@ function drawObjects() {
       .attr("font-size", 9).attr("letter-spacing", "0.5px")
       .attr("fill", cl.cat.color)
       .attr("class", "obj-label obj-cluster-label")
-      .text(labelText.toUpperCase());
+      .text(labelText);
   });
 
   // --- Render category labels (spread-out groups, center of mass) ---
@@ -854,7 +854,7 @@ function drawObjects() {
       .attr("stroke-width", 2).attr("stroke-linejoin", "round")
       .attr("class", "obj-category-label")
       .attr("opacity", CATEGORY_LABEL_OPACITY)
-      .text(cl.labelText.toUpperCase());
+      .text(cl.labelText);
     g.append("text")
       .attr("x", cl.cx).attr("y", cl.cy)
       .attr("text-anchor", "middle")
@@ -863,7 +863,7 @@ function drawObjects() {
       .attr("fill", cl.cat.color)
       .attr("class", "obj-category-label")
       .attr("opacity", CATEGORY_LABEL_OPACITY)
-      .text(cl.labelText.toUpperCase());
+      .text(cl.labelText);
   });
 
   // --- Render object dots and labels ---
@@ -898,7 +898,7 @@ function drawObjects() {
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
       .attr("class", "obj-label")
       .attr("display", o._showLabel ? null : "none")
-      .text(o.name.toUpperCase());
+      .text(o.name);
 
     const label = g.append("text")
       .attr("x", o.sx + pos.dx).attr("y", o.sy + pos.dy)
@@ -908,7 +908,7 @@ function drawObjects() {
       .attr("fill", o.color)
       .attr("class", "obj-label")
       .attr("display", o._showLabel ? null : "none")
-      .text(o.name.toUpperCase());
+      .text(o.name);
 
     g.on("click", function(e) {
       e.stopPropagation();
@@ -1000,7 +1000,7 @@ function friendlyDensity(logR, logM, logDensityOverride) {
   const logRho = logDensityOverride != null ? logDensityOverride : logM - 3 * logR - DENSITY_SPHERE_C;
   if (logRho > 14) return `${Math.pow(10, logRho - 14).toPrecision(2)} × nuclear density`;
   if (logRho > 3) return `${Math.pow(10, logRho - 3).toPrecision(2)} × 10³ kg/m³`;
-  if (logRho > 0) return `${Math.pow(10, logRho).toPrecision(2)} g/cm³`;
+  if (logRho >= 0) return `${Math.pow(10, logRho).toPrecision(2)} g/cm³`;
   if (logRho > -3) return `${Math.pow(10, logRho + 3).toPrecision(2)} mg/cm³`;
   return `10^${logRho.toFixed(0)} g/cm³`;
 }
@@ -1008,7 +1008,7 @@ function friendlyDensity(logR, logM, logDensityOverride) {
 function showTooltip(event, obj, cat) {
   const photon = isPhoton(obj);
   const r = photon ? friendlyWavelength(obj.logR) : friendlyRadius(obj.logR);
-  const rLabel = photon ? "wavelength" : "radius";
+  const rLabel = photon ? "wavelength" : "width";
   const mLabel = photon ? "energy" : "mass";
   const mVal = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
   const ttColor = obj.color || cat.color;
@@ -1300,7 +1300,7 @@ function openSidebar(obj) {
       <tr><td>Zone</td><td><span class="sb-zone ${zoneClass}">${zone}</span></td></tr>
       <tr><td colspan="2" class="sb-log-note">${logNote}</td></tr>`;
   } else {
-    const sizeLabel = isPlanet || isStar || isRemnant ? "Radius" : "Size";
+    const sizeLabel = isPlanet || isStar || isRemnant ? "Diameter" : "Size";
     rows = `
       <tr><td>${sizeLabel}</td><td>${r}</td></tr>
       <tr><td>Mass</td><td>${m}</td></tr>
@@ -1891,14 +1891,25 @@ function screenPathLength(cp) {
 }
 
 function initConnections() {
-  _connPaths = CONNECTION_PATHS.map(cp => ({
-    ...cp,
-    dists: computePathDists(cp.points),
-    dotTs: Array.from({ length: cp.style.dotCount }, (_, i) => i / cp.style.dotCount),
-    _screenLen: 1,
-    _visible: false,
-    _opacity: 0,
-  }));
+  _connPaths = CONNECTION_PATHS.map(cp => {
+    const isMeteor = cp.family === "evolution";
+    // Evolution paths: random positions and speeds for meteor shower effect
+    const dotTs = isMeteor
+      ? Array.from({ length: cp.style.dotCount }, () => Math.random())
+      : Array.from({ length: cp.style.dotCount }, (_, i) => i / cp.style.dotCount);
+    const dotSpeeds = isMeteor
+      ? Array.from({ length: cp.style.dotCount }, () => 0.6 + Math.random() * 0.8)
+      : Array.from({ length: cp.style.dotCount }, () => 1);
+    return {
+      ...cp,
+      dists: computePathDists(cp.points),
+      dotTs,
+      dotSpeeds,
+      _screenLen: 1,
+      _visible: false,
+      _opacity: 0,
+    };
+  });
   _connLastTime = performance.now();
   _connAnimId = requestAnimationFrame(animateConnections);
 }
@@ -1923,6 +1934,13 @@ function drawConnections() {
 
     if (!cp._visible) return;
 
+    // Draw visible line (hidden by default, revealed on hover)
+    const lineGroup = lArrows.append("g")
+      .attr("opacity", 0)
+      .style("transition", "opacity 0.3s")
+      .style("pointer-events", "none");
+    cp._lineGroup = lineGroup;
+
     if (cp.family === "spectrum") {
       const SEG_COUNT = 40;
       for (let i = 0; i < SEG_COUNT; i++) {
@@ -1943,24 +1961,43 @@ function drawConnections() {
         sy0 += (dx0 / l0) * Math.sin(t0 * freq0 * Math.PI * 2) * amp0;
         sx1 += (-dy1 / l1) * Math.sin(t1 * freq1 * Math.PI * 2) * amp1;
         sy1 += (dx1 / l1) * Math.sin(t1 * freq1 * Math.PI * 2) * amp1;
-        lArrows.append("line")
+        lineGroup.append("line")
           .attr("x1", sx0).attr("y1", sy0).attr("x2", sx1).attr("y2", sy1)
           .attr("stroke", emSpectrumColor(t0))
           .attr("stroke-width", cp.style.lineWidth * 0.6)
           .attr("opacity", cp.style.lineOpacity * cp._opacity * 0.7)
-          .attr("stroke-linecap", "round")
-          .style("pointer-events", "none");
+          .attr("stroke-linecap", "round");
       }
     } else {
-      const pathEl = lArrows.append("path")
+      const pathEl = lineGroup.append("path")
         .attr("d", curveLineGen(cp.points))
         .attr("fill", "none")
         .attr("stroke", cp.style.color || "rgba(255,255,255,0.3)")
         .attr("stroke-width", cp.style.lineWidth)
-        .attr("opacity", cp.style.lineOpacity * cp._opacity)
-        .style("pointer-events", "none");
+        .attr("opacity", cp.style.lineOpacity * cp._opacity);
       if (cp.style.dash) pathEl.attr("stroke-dasharray", cp.style.dash);
     }
+
+    // Hit area for hover — shows line and tooltip
+    lArrows.append("path")
+      .attr("d", curveLineGen(cp.points))
+      .attr("fill", "none")
+      .attr("stroke", "transparent")
+      .attr("stroke-width", 18)
+      .style("cursor", "pointer")
+      .on("mouseenter", function(e) {
+        lineGroup.attr("opacity", 1);
+        if (cp.description) {
+          const color = cp.style.color || "rgba(255,255,255,0.6)";
+          tooltipEl.innerHTML = `<div class="tt-name" style="color:${color}">${cp.description}</div>`;
+          tooltipEl.classList.add("visible");
+          positionTooltip(e);
+        }
+      })
+      .on("mouseleave", function() {
+        lineGroup.attr("opacity", 0);
+        hideTooltip();
+      });
   });
 }
 
@@ -2015,7 +2052,7 @@ function animateConnections(timestamp) {
         const group = [];
         for (let c = 0; c < CLUSTER_DOTS; c++) {
           const el = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-          if (c === 0 && cp.family === "spectrum") el.setAttribute("filter", "url(#conn-glow)");
+          if (c === 0 && (cp.family === "spectrum" || cp.family === "evolution")) el.setAttribute("filter", "url(#conn-glow)");
           container.appendChild(el);
           group.push({ el, idx: c });
         }
@@ -2030,9 +2067,9 @@ function animateConnections(timestamp) {
       if (!cp._visible) return;
       cp._screenLen = screenPathLength(cp);
       const pxSpeed = (cp.style.dotSpeed || 1) * BASE_PX_PER_SEC;
-      const dtFrac = pxSpeed / cp._screenLen * dt;
+      const baseDtFrac = pxSpeed / cp._screenLen * dt;
       for (let i = 0; i < cp.dotTs.length; i++) {
-        cp.dotTs[i] = (cp.dotTs[i] + dtFrac) % 1;
+        cp.dotTs[i] = (cp.dotTs[i] + baseDtFrac * cp.dotSpeeds[i]) % 1;
       }
     });
   }
@@ -2042,12 +2079,18 @@ function animateConnections(timestamp) {
     const baseT = cp.dotTs[di];
 
     group.forEach(({ el, idx }) => {
-      const tailOffset = idx * CLUSTER_SPREAD;
+      const isMeteor = cp.family === "evolution";
+      const spread = isMeteor ? CLUSTER_SPREAD * 3 : CLUSTER_SPREAD;
+      const tailOffset = idx * spread;
       let t = (baseT - tailOffset + 1) % 1;
 
       const headFactor = 1 - idx / CLUSTER_DOTS;
-      const sizeFactor = 0.5 + 0.5 * headFactor;
-      const opacityMult = 0.3 + 0.7 * headFactor;
+      const sizeFactor = isMeteor
+        ? (0.15 + 0.85 * headFactor * headFactor)  // sharper falloff for comet tail
+        : (0.5 + 0.5 * headFactor);
+      const opacityMult = isMeteor
+        ? (0.05 + 0.95 * headFactor * headFactor)   // brighter head, dimmer tail
+        : (0.3 + 0.7 * headFactor);
 
       let [sx, sy] = getPathScreenPos(cp, t);
       [sx, sy] = applyEmWave(cp, t, sx, sy, timestamp);
