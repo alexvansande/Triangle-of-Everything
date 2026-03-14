@@ -537,7 +537,6 @@ export const SUBCAT_LABELS = {
   comet: "Comets",
   terrestrial_planet: "Terrestrial Planets",
   gas_giant: "Gas Giants",
-  exoplanet: "Exoplanets",
   brown_dwarf: "Brown Dwarfs",
   red_dwarf: "Red Dwarfs",
   white_dwarf: "White Dwarfs",

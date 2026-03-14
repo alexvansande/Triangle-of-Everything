@@ -194,11 +194,12 @@ const lRegLabel   = clip.append("g");
 const lObj        = clip.append("g");
 const lHighlight  = clip.append("g").style("pointer-events", "none");
 
-// Film grain noise overlay
+// Film grain noise overlay (adds subtle texture)
 clip.append("rect")
   .attr("width", cw).attr("height", ch)
-  .attr("fill", "white").attr("opacity", 0.03)
+  .attr("fill", "white").attr("opacity", 0.18)
   .attr("filter", "url(#film-grain)")
+  .style("mix-blend-mode", "overlay")
   .style("pointer-events", "none");
 
 // Axes outside clip
@@ -423,6 +424,12 @@ function drawBoundaries() {
     );
     if (pts.length < 2) return;
 
+    // Hide reference lines whose screen length is too small to be meaningful
+    const screenLen = Math.hypot(
+      px(rl.points[1].logR) - px(rl.points[0].logR),
+      py(rl.points[1].logM) - py(rl.points[0].logM));
+    if (screenLen < 60) return;
+
     lBound.append("line")
       .attr("x1", px(rl.points[0].logR)).attr("y1", py(rl.points[0].logM))
       .attr("x2", px(rl.points[1].logR)).attr("y2", py(rl.points[1].logM))
@@ -537,50 +544,54 @@ function clampLineToChart(x1, y1, x2, y2) {
 
 function drawRegionLabels() {
   lRegLabel.selectAll("*").remove();
-  const d = vd();
   const schwAng = screenAngle(1);
   const compAng = screenAngle(-1);
 
   const LABEL_SIZE = 22;
   const LABEL_SPACING = `${LABEL_SIZE * 0.25}px`;
-  const OFFSET_PX = 18;
+  const OFFSET_PX = 28;
+  const PAD = 60;
+
+  // Triangle vertices in screen coords
+  const plkX = px(PLANCK_LOG_R), plkY = py(PLANCK_LOG_M);
+  const hubSchwX = px(HUBBLE_LOG_R), hubSchwY = py(schwarzschildM(HUBBLE_LOG_R));
+  const hubCompX = px(HUBBLE_LOG_R), hubCompY = py(comptonM(HUBBLE_LOG_R));
+  // Centroid — used to determine "outward" direction from each edge
+  const centX = (plkX + hubSchwX + hubCompX) / 3;
+  const centY = (plkY + hubSchwY + hubCompY) / 3;
 
   const boundaryLabels = [
     { text: "SCHWARZSCHILD RADIUS", angle: schwAng,
-      lineDataFn: () => {
-        const seg = clampLineToChart(
-          px(d.x0), py(schwarzschildM(d.x0)),
-          px(d.x1), py(schwarzschildM(d.x1)));
-        if (!seg) return null;
-        const mx = (seg.x1 + seg.x2) / 2, my = (seg.y1 + seg.y2) / 2;
-        const dx = seg.x2 - seg.x1, dy = seg.y2 - seg.y1;
-        const len = Math.sqrt(dx * dx + dy * dy) || 1;
-        return { mx: mx + (-dy / len) * OFFSET_PX, my: my + (dx / len) * OFFSET_PX };
-      }},
+      x1: plkX, y1: plkY, x2: hubSchwX, y2: hubSchwY },
     { text: "COMPTON LIMIT", angle: compAng,
-      lineDataFn: () => {
-        const seg = clampLineToChart(
-          px(d.x0), py(comptonM(d.x0)),
-          px(d.x1), py(comptonM(d.x1)));
-        if (!seg) return null;
-        const mx = (seg.x1 + seg.x2) / 2, my = (seg.y1 + seg.y2) / 2;
-        const dx = seg.x2 - seg.x1, dy = seg.y2 - seg.y1;
-        const len = Math.sqrt(dx * dx + dy * dy) || 1;
-        return { mx: mx + (dy / len) * OFFSET_PX, my: my + (-dx / len) * OFFSET_PX };
-      }},
+      x1: plkX, y1: plkY, x2: hubCompX, y2: hubCompY },
     { text: "HUBBLE RADIUS", angle: -90,
-      lineDataFn: () => {
-        const sx = px(HUBBLE_LOG_R);
-        if (sx < 0 || sx > cw) return null;
-        return { mx: sx + OFFSET_PX, my: ch / 2 };
-      }},
+      x1: hubSchwX, y1: hubSchwY, x2: hubCompX, y2: hubCompY },
   ];
 
   boundaryLabels.forEach(l => {
-    const pos = l.lineDataFn();
-    if (!pos) return;
-    const { mx, my } = pos;
-    if (mx < -40 || mx > cw + 40 || my < -40 || my > ch + 40) return;
+    const seg = clampLineToChart(l.x1, l.y1, l.x2, l.y2);
+    if (!seg) return;
+    const len = Math.hypot(seg.x2 - seg.x1, seg.y2 - seg.y1);
+    if (len < 80) return;
+
+    const edgeMx = (seg.x1 + seg.x2) / 2;
+    const edgeMy = (seg.y1 + seg.y2) / 2;
+
+    // Two perpendicular candidates
+    const edx = seg.x2 - seg.x1, edy = seg.y2 - seg.y1;
+    const n1x = -edy / len, n1y = edx / len;
+    const n2x = edy / len, n2y = -edx / len;
+    // Pick the one pointing AWAY from triangle centroid (= outside)
+    const d1 = (edgeMx + n1x - centX) ** 2 + (edgeMy + n1y - centY) ** 2;
+    const d2 = (edgeMx + n2x - centX) ** 2 + (edgeMy + n2y - centY) ** 2;
+    const nx = d1 > d2 ? n1x : n2x;
+    const ny = d1 > d2 ? n1y : n2y;
+
+    let mx = edgeMx + nx * OFFSET_PX;
+    let my = edgeMy + ny * OFFSET_PX;
+    mx = Math.max(PAD, Math.min(cw - PAD, mx));
+    my = Math.max(PAD, Math.min(ch - PAD, my));
 
     lRegLabel.append("text")
       .attr("x", mx).attr("y", my)
@@ -588,36 +599,6 @@ function drawRegionLabels() {
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 800)
       .attr("font-size", LABEL_SIZE).attr("letter-spacing", LABEL_SPACING)
       .attr("fill", "white").attr("opacity", 0.10)
-      .attr("transform", `rotate(${l.angle},${mx},${my})`)
-      .text(l.text);
-  });
-
-  const SMALL_SIZE = 14;
-  const otherLabels = [
-    { text: "BLACK HOLES", angle: schwAng, opacity: 0.06,
-      posFn: () => {
-        const seg = clampLineToChart(
-          px(d.x0), py(schwarzschildM(d.x0)),
-          px(d.x1), py(schwarzschildM(d.x1)));
-        if (!seg) return null;
-        const mx = (seg.x1 + seg.x2) / 2, my = (seg.y1 + seg.y2) / 2;
-        const dx = seg.x2 - seg.x1, dy = seg.y2 - seg.y1;
-        const len = Math.sqrt(dx * dx + dy * dy) || 1;
-        return { mx: mx - (-dy / len) * 36, my: my - (dx / len) * 36 };
-      }},
-  ];
-
-  otherLabels.forEach(l => {
-    const pos = l.posFn();
-    if (!pos) return;
-    const { mx, my } = pos;
-    if (mx < -20 || mx > cw + 20 || my < -20 || my > ch + 20) return;
-    lRegLabel.append("text")
-      .attr("x", mx).attr("y", my)
-      .attr("text-anchor", "middle")
-      .attr("font-family", "Inter, sans-serif").attr("font-weight", 700)
-      .attr("font-size", SMALL_SIZE).attr("letter-spacing", "4px")
-      .attr("fill", "white").attr("opacity", l.opacity)
       .attr("transform", `rotate(${l.angle},${mx},${my})`)
       .text(l.text);
   });
@@ -1199,6 +1180,7 @@ function relayout() {
 
   miniSvg.attr("transform",
     `translate(${W - MINIMAP_SIZE - MINIMAP_PAD - margin.right}, ${margin.top + MINIMAP_PAD})`);
+  resizeCloudCanvas();
 }
 
 function wikiUrl(obj) {
@@ -2101,18 +2083,22 @@ const MINIMAP_PAD = 10;
 const miniSvg = svg.append("g")
   .attr("transform", `translate(${W - MINIMAP_SIZE - MINIMAP_PAD - margin.right}, ${margin.top + MINIMAP_PAD})`);
 
-// Minimap background
+// Minimap background — transparent, blends with chart
 miniSvg.append("rect")
   .attr("width", MINIMAP_SIZE).attr("height", MINIMAP_SIZE)
-  .attr("rx", 4).attr("fill", "rgba(6,6,26,0.85)")
-  .attr("stroke", "rgba(255,255,255,0.08)").attr("stroke-width", 1);
+  .attr("rx", 4).attr("fill", "none");
 
-// Mini scales
-const miniX = d3.scaleLinear().domain([BOUNDS.x.min, BOUNDS.x.max]).range([2, MINIMAP_SIZE - 2]);
-const miniY = d3.scaleLinear().domain([BOUNDS.y.min, BOUNDS.y.max]).range([MINIMAP_SIZE - 2, 2]);
+// Mini scales — equal px/unit so the right triangle isn't distorted
+const _xRange = BOUNDS.x.max - BOUNDS.x.min;
+const _yRange = BOUNDS.y.max - BOUNDS.y.min;
+const _usable = MINIMAP_SIZE - 4;
+const _ppu = _usable / Math.max(_xRange, _yRange);
+const _xPad = (MINIMAP_SIZE - _xRange * _ppu) / 2;
+const _yPad = (MINIMAP_SIZE - _yRange * _ppu) / 2;
+const miniX = d3.scaleLinear().domain([BOUNDS.x.min, BOUNDS.x.max]).range([_xPad, MINIMAP_SIZE - _xPad]);
+const miniY = d3.scaleLinear().domain([BOUNDS.y.min, BOUNDS.y.max]).range([MINIMAP_SIZE - _yPad, _yPad]);
 
 // Draw the Triangle of Everything in minimap
-const B = BOUNDS;
 const triPlanckX = miniX(PLANCK_LOG_R);
 const triPlanckY = miniY(PLANCK_LOG_M);
 const triHubbleSchw = miniX(HUBBLE_LOG_R);
@@ -2128,6 +2114,26 @@ miniSvg.append("polygon")
   .attr("fill", "none")
   .attr("stroke", "rgba(255,255,255,0.5)")
   .attr("stroke-width", 1);
+
+// Water density reference line (logRho = 0, slope 3 in logM vs logR)
+{
+  const waterB = DENSITY_SPHERE_C; // logM = 3*logR + DENSITY_SPHERE_C for water
+  // Clip to minimap data bounds
+  const xMin = BOUNDS.x.min, xMax = BOUNDS.x.max;
+  const yAtXmin = 3 * xMin + waterB, yAtXmax = 3 * xMax + waterB;
+  // Clip line to visible Y range
+  const yMin = BOUNDS.y.min, yMax = BOUNDS.y.max;
+  let x1 = xMin, y1 = yAtXmin, x2 = xMax, y2 = yAtXmax;
+  if (y1 < yMin) { y1 = yMin; x1 = (yMin - waterB) / 3; }
+  if (y2 > yMax) { y2 = yMax; x2 = (yMax - waterB) / 3; }
+  if (y1 > yMax) { y1 = yMax; x1 = (yMax - waterB) / 3; }
+  if (y2 < yMin) { y2 = yMin; x2 = (yMin - waterB) / 3; }
+  miniSvg.append("line")
+    .attr("x1", miniX(x1)).attr("y1", miniY(y1))
+    .attr("x2", miniX(x2)).attr("y2", miniY(y2))
+    .attr("stroke", "#80deea").attr("stroke-width", 0.8)
+    .attr("stroke-dasharray", "2,2").attr("opacity", 0.5);
+}
 
 // Viewport indicator rect (updated on zoom)
 const miniViewport = miniSvg.append("rect")
@@ -2197,6 +2203,11 @@ function drawTiles() {
     if (lvPPU >= screenPPU) break;
   }
 
+  // Detect over-zoom: when screen resolution exceeds the best tile level
+  const bestPPU = best.w / imgDataW;
+  const overZoom = screenPPU / bestPPU;
+  const blurPx = overZoom > 1.5 ? Math.min(4, (overZoom - 1) * 0.7) : 0;
+
   const { x0, x1, y0, y1 } = vd();
   // Data units per pixel at this zoom level (correct for partial edge tiles)
   const dppX = imgDataW / best.w;
@@ -2230,12 +2241,17 @@ function drawTiles() {
         _tileCache.set(key, img);
       }
 
-      lTiles.append("image")
+      const tileImg = lTiles.append("image")
         .attr("href", href)
         .attr("x", sx).attr("y", sy)
         .attr("width", sw).attr("height", sh)
         .attr("preserveAspectRatio", "none")
         .attr("image-rendering", "auto");
+
+      // Apply blur when zoomed past tile resolution to hide pixelation
+      if (blurPx > 0) {
+        tileImg.style("filter", `blur(${blurPx.toFixed(1)}px)`);
+      }
     }
   }
 }
@@ -2472,6 +2488,7 @@ window.addEventListener("resize", () => {
   chart.select("rect:last-of-type").attr("width", cw).attr("height", ch);
   miniSvg.attr("transform",
     `translate(${W - MINIMAP_SIZE - MINIMAP_PAD - margin.right}, ${margin.top + MINIMAP_PAD})`);
+  resizeCloudCanvas();
   redraw();
 });
 
@@ -2606,17 +2623,18 @@ document.querySelectorAll("#preset-bar button").forEach(btn => {
 
 const cloudCanvas = document.getElementById("cloud-canvas");
 const cloudCtx = cloudCanvas.getContext("2d");
-const CLOUD_DOWNSAMPLE = 6;
-const CLOUD_SCALE = 0.035;
-const CLOUD_DRIFT = 0.00003;
-let _cloudTime = 0;
-let _cloudLastDomain = null;
+const CLOUD_DOWNSAMPLE = 4;
+const CLOUD_PX_SCALE = 0.007;   // Pixel-based: cloud feature size ~140 screen px
+const CLOUD_MORPH_SPEED = 0.00008;  // Very slow morphing
 
 function resizeCloudCanvas() {
-  cloudCanvas.width = Math.ceil(W / CLOUD_DOWNSAMPLE);
-  cloudCanvas.height = Math.ceil(H / CLOUD_DOWNSAMPLE);
-  cloudCanvas.style.width = W + "px";
-  cloudCanvas.style.height = H + "px";
+  // Position canvas exactly over the chart plotting area
+  cloudCanvas.width = Math.ceil(cw / CLOUD_DOWNSAMPLE);
+  cloudCanvas.height = Math.ceil(ch / CLOUD_DOWNSAMPLE);
+  cloudCanvas.style.width = cw + "px";
+  cloudCanvas.style.height = ch + "px";
+  cloudCanvas.style.left = margin.left + "px";
+  cloudCanvas.style.top = margin.top + "px";
 }
 resizeCloudCanvas();
 
@@ -2627,35 +2645,34 @@ function drawClouds(timestamp) {
   }
   cloudCanvas.style.display = "";
 
-  _cloudTime = (timestamp || 0) * CLOUD_DRIFT;
+  const t = (timestamp || 0) * CLOUD_MORPH_SPEED;
 
   const cw2 = cloudCanvas.width, ch2 = cloudCanvas.height;
   const imgData = cloudCtx.createImageData(cw2, ch2);
   const data = imgData.data;
 
-  const dom = vd();
-  const scaleX = (dom.x1 - dom.x0) / cw2;
-  const scaleY = (dom.y1 - dom.y0) / ch2;
-  const mleft = margin.left / CLOUD_DOWNSAMPLE;
-  const mtop = margin.top / CLOUD_DOWNSAMPLE;
+  // Slow circular morphing: coordinates wander in a Lissajous pattern
+  // instead of drifting in one direction, so clouds transform in place
+  const ox = Math.sin(t * 0.7) * 4;
+  const oy = Math.cos(t * 0.5) * 4;
 
   for (let py2 = 0; py2 < ch2; py2++) {
     for (let px2 = 0; px2 < cw2; px2++) {
-      const dataX = dom.x0 + (px2 - mleft) * scaleX;
-      const dataY = dom.y1 - (py2 - mtop) * scaleY;
-
+      // Pixel-based noise: same visual scale at any zoom level
       const n = fbm(
-        dataX * CLOUD_SCALE + _cloudTime,
-        dataY * CLOUD_SCALE + _cloudTime * 0.7,
-        3, 2.0, 0.5
+        px2 * CLOUD_PX_SCALE + ox,
+        py2 * CLOUD_PX_SCALE + oy,
+        4, 2.0, 0.5
       );
-      const val = Math.max(0, Math.min(255, (n * 0.5 + 0.5) * 255));
+      const v = n * 0.5 + 0.5;
+      // Soft cloud shapes with gradual falloff
+      const alpha = Math.max(0, Math.min(255, (v - 0.25) * 2.0 * 255));
 
       const idx = (py2 * cw2 + px2) * 4;
-      data[idx] = val * 0.7;
-      data[idx + 1] = val * 0.6;
-      data[idx + 2] = val;
-      data[idx + 3] = 255;
+      data[idx] = 180;      // R - warm blue-white
+      data[idx + 1] = 175;
+      data[idx + 2] = 210;  // B
+      data[idx + 3] = alpha;
     }
   }
 
@@ -2664,7 +2681,7 @@ function drawClouds(timestamp) {
 
 let _cloudAnimId = null;
 let _cloudLastRedraw = 0;
-const CLOUD_FRAME_INTERVAL = 200;
+const CLOUD_FRAME_INTERVAL = 150;
 
 function cloudLoop(ts) {
   if (ts - _cloudLastRedraw > CLOUD_FRAME_INTERVAL) {
