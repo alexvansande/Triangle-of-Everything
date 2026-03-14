@@ -98,6 +98,10 @@ body.sidebar-open #controls { left: 454px; }
 #tooltip.visible { opacity: 1; }
 #tooltip .tt-name {
   font-weight: 700; font-size: 12px; letter-spacing: 1px;
+  margin-bottom: 3px; text-transform: uppercase;
+}
+#tooltip .tt-desc {
+  font-weight: 500; font-size: 11px; letter-spacing: 0.5px;
   margin-bottom: 3px;
 }
 #tooltip .tt-row {
@@ -275,7 +279,7 @@ body.sidebar-open #sidebar-expand { display: none; }
 body:not(.sidebar-open) #sidebar-expand { display: flex; }
 
 #sidebar-close {
-  position: absolute; top: 12px; left: 12px;
+  position: absolute; top: 12px; right: 12px;
   width: 32px; height: 32px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
@@ -297,12 +301,21 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
   display: none;
 }
 #intro-title {
-  font-family: 'Inter', sans-serif;
-  font-weight: 800; font-size: 28px;
-  letter-spacing: 2px; line-height: 1.2;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  letter-spacing: 3px; line-height: 1.05;
   color: white; margin: 20px 0 16px 0;
+  text-transform: uppercase;
 }
-#intro-title .accent { color: var(--red-accent); }
+#intro-title .title-line1 {
+  display: block;
+  font-weight: 300;
+  font-size: 20px;
+}
+#intro-title .title-line2 {
+  display: block;
+  font-weight: 700;
+  font-size: 36px;
+}
 #intro-body {
   font-family: 'Inter', sans-serif;
   font-size: 14px; line-height: 1.7;
@@ -350,6 +363,7 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
   font-weight: 700; font-size: 18px;
   letter-spacing: 1.5px;
   line-height: 1.2; margin: 0;
+  text-transform: uppercase;
 }
 #sb-category {
   font-size: 10px; text-transform: uppercase;
@@ -443,6 +457,18 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
 }
 #sb-desc p { margin-bottom: 10px; }
 #sb-desc p:last-child { margin-bottom: 0; }
+#sb-desc .equation {
+  font-family: 'Space Mono', monospace; font-size: 15px;
+  color: rgba(255,255,255,0.7); text-align: center;
+  padding: 12px 0; letter-spacing: 0.5px;
+  font-style: normal;
+}
+#sb-desc .katex-display {
+  text-align: center; padding: 14px 0; margin: 4px 0;
+  overflow-x: auto; overflow-y: hidden;
+}
+#sb-desc .katex { color: rgba(255,255,255,0.85); font-size: 1.15em; }
+#sb-desc .katex-display > .katex { font-size: 1.25em; }
 #sb-desc a { color: rgba(255,200,200,0.8); text-decoration: none; }
 #sb-desc a:hover { text-decoration: underline; }
 #sb-desc:empty { display: none; }
@@ -531,4 +557,8 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
 .axis-title {
   font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px;
   fill: var(--red-accent); text-transform: uppercase; letter-spacing: 2px;
+}
+.axis-subtitle {
+  font-family: 'Space Mono', monospace; font-weight: 400; font-size: 9px;
+  fill: rgba(255,100,100,0.4); letter-spacing: 1px;
 }

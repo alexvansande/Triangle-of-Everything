@@ -114,7 +114,7 @@ export const EPOCH_BANDS = [
 //   Row 2: imperial + astronomical (inch, foot, mile, AU, ly, pc)
 
 export const RADIUS_UNITS = [
-  { logR: -32.79, label: "1 Planck length", row: 1, slug: "planck-length" },
+  { logR: PLANCK_LOG_R, label: "1 Planck length", row: 1, slug: "planck-length" },
   { logR: -13,    label: "1 fm",            row: 1, slug: "metric-units" },
   { logR: -9,     label: "10 pm",           row: 1, slug: "metric-units" },
   { logR: -8,     label: "1 Å",             row: 1, slug: "metric-units" },
@@ -155,7 +155,7 @@ export const MASS_UNITS = [
   { logM: -12,    label: "1 ng", slug: "mass-units" },
   { logM: -9,     label: "1 μg", slug: "mass-units" },
   { logM: -6,     label: "1 mg", slug: "mass-units" },
-  { logM: -4.66,  label: "PLANCK MASS", slug: "planck-mass" },
+  { logM: PLANCK_LOG_M, label: "PLANCK MASS", slug: "planck-mass" },
   { logM: 0,      label: "1 gram", slug: "mass-units" },
   { logM: 1.45,   label: "1 oz", slug: "mass-units" },
   { logM: 2.66,   label: "1 lb", slug: "mass-units" },
@@ -188,7 +188,7 @@ export const ENERGY_UNITS = [
   { logM: -26.75, label: "1 MeV", slug: "energy-units" },
   { logM: -23.75, label: "1 GeV", slug: "energy-units" },
   { logM: -20.75, label: "1 TeV", slug: "energy-units" },
-  { logM: -4.66,  label: "PLANCK ENERGY", slug: "planck-energy" },
+  { logM: PLANCK_LOG_M, label: "PLANCK ENERGY", slug: "planck-energy" },
   { logM: -36.81,                          label: "1 K", slug: "energy-units" },
   { logM: -36.81 + Math.log10(2.725),     label: "2.7 K (CMB)", slug: "energy-units" },
   { logM: -36.81 + Math.log10(77),        label: "77 K (liq. N₂)", slug: "energy-units" },
@@ -596,15 +596,10 @@ export const CONNECTION_PATHS = [
   {
     id: "bh-mergers",
     family: "evolution",
-    description: "Black holes can merge into larger ones — from stellar black holes to supermassive giants",
+    description: "Black holes grow along the Schwarzschild radius — from stellar black holes to supermassive giants",
     points: [
-      { logR: 6.47,  logM: 34.30 },
-      { logR: 8.0,   logM: 36.0 },
-      { logR: 10.0,  logM: 38.0 },
-      { logR: 12.07, logM: 39.90 },
-      { logR: 13.5,  logM: 41.5 },
-      { logR: 14.78, logM: 42.61 },
-      { logR: 15.29, logM: 43.12 },
+      { logR: schwarzschildR(34.30) + 0.4, logM: 34.30 },
+      { logR: schwarzschildR(43.12) + 0.4, logM: 43.12 },
     ],
     zoomRange: [1.0, 800],
     neighborhood: { x: [3, 18], y: [32, 46] },
@@ -751,4 +746,60 @@ export const SUBCAT_LABELS = {
   quark: "Quarks",
   lepton: "Leptons",
   boson: "Bosons",
+  primordial_bh: "Primordial Black Holes",
+  stellar_bh: "Stellar Black Holes",
+  supermassive_bh: "Supermassive Black Holes",
 };
+
+// =============================================================
+// Dark Matter Search Regions
+// =============================================================
+// Polygonal areas near the Schwarzschild line where macro dark matter
+// has not been excluded by current observations (Jacobs, Starkman & Lynn 2015).
+// Coordinates in CGS (logR, logM). Each region hugs the Schwarzschild
+// line and extends outward 2-3 log units in radius.
+// Mass windows: 55g–10^17 g and 2×10^20 g – 4×10^24 g.
+
+export const DARK_MATTER_REGIONS = [
+  {
+    id: "dm-window-1",
+    label: "Macro DM Window I",
+    // logM from ~1.74 (55g) to ~17 (10^17 g)
+    // Extends from Schwarzschild line outward ~2–3 log units in R
+    polygon: [
+      { logR: schwarzschildR(1.74),       logM: 1.74 },
+      { logR: schwarzschildR(17),         logM: 17 },
+      { logR: schwarzschildR(17) + 3,     logM: 17 },
+      { logR: schwarzschildR(1.74) + 3,   logM: 1.74 },
+    ],
+  },
+  {
+    id: "dm-window-2",
+    label: "Macro DM Window II",
+    // logM from ~20.3 (2×10^20 g) to ~24.6 (4×10^24 g)
+    polygon: [
+      { logR: schwarzschildR(20.3),       logM: 20.3 },
+      { logR: schwarzschildR(24.6),       logM: 24.6 },
+      { logR: schwarzschildR(24.6) + 3,   logM: 24.6 },
+      { logR: schwarzschildR(20.3) + 3,   logM: 20.3 },
+    ],
+  },
+];
+
+// =============================================================
+// Energy Level Bands (left side of triangle)
+// =============================================================
+// Horizontal lines marking energy thresholds, with labels floating
+// between them. logM values derived from: log(E_eV) = logM + 32.75
+// (converting CGS mass to eV energy for the left axis).
+
+export const ENERGY_BANDS = [
+  { label: "PLANCK ENERGY",      logM: -4.81,  slug: "planck-energy" },
+  { label: "GRAND UNIFICATION*", logM: -7.75,  slug: "grand-unification-theory" },
+  { label: "ELECTROWEAK",        logM: -21.75, slug: "electroweak" },
+  { label: "LHC MAX ENERGY",     logM: -19.75, slug: "large-hadron-collider" },
+  { label: "FUNDAMENTAL PARTICLES", logM: -23.75, slug: "fundamental-particles" },
+  { label: "SUPERCONDUCTIVITY",  logM: -35.75, slug: "superconductivity" },
+  { label: "BOSE-EINSTEIN CONDENSATE", logM: -41.75, slug: "bose-einstein-condensate" },
+  { label: "QUANTUM TUNNELING*", logM: -44.75, slug: "quantum-tunneling" },
+];

@@ -1,5 +1,5 @@
-The Planck mass is the natural unit of mass when h, c, G, and τ are normalized. It is roughly the mass of a grain of dust (~22 μg) and represents the scale where quantum and gravitational effects are equally important.
+The Planck mass is the natural unit of mass when $\hbar$, $c$, and $G$ are normalized. It is roughly the mass of a grain of dust (~22 μg) and represents the scale where quantum and gravitational effects are equally important.
 
-Formula (using h and τ): m_P = √(hc/(τG))
+$$m_P = \sqrt{\frac{\hbar c}{G}} \approx 2.18 \times 10^{-8} \text{ kg}$$
 
-With τ = 2π, this gives the same value as the standard definition using ℏ, but the expression is more elegant without the factor of 2π hidden in ℏ.
+This is the unique mass at which an object's Compton wavelength equals its Schwarzschild radius — the very apex of the Triangle.

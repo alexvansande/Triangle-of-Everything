@@ -24,9 +24,11 @@
   { "name": "Neutrino (τ)",     "logR": -5.5,   "logM": -31.9,  "cat": "particle", "subcat": "lepton", "z": 4 },
   { "name": "Neutrino (μ)",     "logR": -6.5,   "logM": -30.9,  "cat": "particle", "subcat": "lepton", "z": 4 },
   { "name": "Neutrino (e)",     "logR": -4.5,   "logM": -32.9,  "cat": "particle", "subcat": "lepton", "z": 4 },
+  { "name": "X & Y Bosons*",   "logR": -29.7,  "logM": -7.75,  "cat": "particle", "subcat": "boson", "z": 2, "wiki": "X_and_Y_bosons" },
 
   { "name": "Proton",           "logR": -13.06, "logM": -23.78, "cat": "composite", "subcat": "nucleon", "z": 1 },
   { "name": "Neutron",          "logR": -13.06, "logM": -23.77, "cat": "composite", "subcat": "nucleon", "z": 2 },
+  { "name": "Quark-Gluon Plasma*", "logR": -12.0, "logM": -23.0, "cat": "composite", "z": 2, "wiki": "Quark%E2%80%93gluon_plasma" },
 
   { "name": "Hydrogen",         "logR": -8.28,  "logM": -23.78, "cat": "atomic", "subcat": "atom", "z": 2, "wiki": "Hydrogen" },
   { "name": "Helium",           "logR": -8.51,  "logM": -23.18, "cat": "atomic", "subcat": "atom", "z": 4, "wiki": "Helium" },
@@ -122,6 +124,7 @@
   { "name": "Saturn",           "logR": 9.77,   "logM": 29.75,  "cat": "planet", "subcat": "gas_giant", "z": 1.5, "wiki": "Saturn" },
   { "name": "Jupiter",          "logR": 9.84,   "logM": 30.28,  "cat": "planet", "subcat": "gas_giant", "z": 0.5, "wiki": "Jupiter" },
   { "name": "Beta Pictoris b",  "logR": 10.0,   "logM": 30.6,   "cat": "planet", "subcat": "exoplanet", "z": 4, "wiki": "Beta_Pictoris_b" },
+  { "name": "Dark Exoplanet*",  "logR": 10.0,   "logM": 30.3,   "cat": "planet", "subcat": "exoplanet", "z": 3, "wiki": "Rogue_planet" },
 
   { "name": "Y Brown Dwarf",    "logR": 9.84,   "logM": 31.18,  "cat": "star", "subcat": "brown_dwarf", "z": 5, "wiki": "Brown_dwarf#Y_dwarf" },
   { "name": "T Brown Dwarf",    "logR": 9.80,   "logM": 31.48,  "cat": "star", "subcat": "brown_dwarf", "z": 4, "wiki": "Brown_dwarf#T_dwarf" },
@@ -156,13 +159,13 @@
   { "name": "Heaviest NS",      "logR": 6.02,   "logM": 33.61,  "cat": "remnant", "subcat": "neutron_star", "z": 5, "wiki": "Neutron_star#Properties" },
   { "name": "Proto-PN",         "logR": 16.97,  "logM": 33.35,  "cat": "remnant", "z": 4, "wiki": "Protoplanetary_nebula" },
 
-  { "name": "Big Bang",         "logR": -32.49, "logM": -4.66,  "cat": "blackhole", "z": 1, "wiki": "Big_Bang" },
-  { "name": "Primordial BH",    "logR": -13.13, "logM": 14.70,  "cat": "blackhole", "z": 3, "wiki": "Primordial_black_hole" },
-  { "name": "3K BH",            "logR": 8.95,   "logM": 36.78,  "cat": "blackhole", "z": 4, "wiki": "Black_hole#Micro_black_holes" },
-  { "name": "Stellar BH",       "logR": 6.47,   "logM": 34.30,  "cat": "blackhole", "z": 2, "wiki": "Stellar_black_hole" },
-  { "name": "Sgr A*",           "logR": 12.07,  "logM": 39.90,  "cat": "blackhole", "z": 1.5, "wiki": "Sagittarius_A*" },
-  { "name": "M87*",             "logR": 14.78,  "logM": 42.61,  "cat": "blackhole", "z": 3, "wiki": "Messier_87#Supermassive_black_hole" },
-  { "name": "Ton 618",          "logR": 15.29,  "logM": 43.12,  "cat": "blackhole", "z": 3, "wiki": "TON_618" },
+  { "name": "Big Bang",         "logR": -32.641,"logM": -4.813, "cat": "blackhole", "z": 1, "wiki": "Big_Bang" },
+  { "name": "Primordial BH",    "logR": -13.13, "logM": 14.70,  "cat": "blackhole", "subcat": "primordial_bh", "z": 3, "wiki": "Primordial_black_hole" },
+  { "name": "3K BH",            "logR": 8.95,   "logM": 36.78,  "cat": "blackhole", "subcat": "stellar_bh", "z": 4, "wiki": "Black_hole#Micro_black_holes" },
+  { "name": "Stellar BH",       "logR": 6.47,   "logM": 34.30,  "cat": "blackhole", "subcat": "stellar_bh", "z": 2, "wiki": "Stellar_black_hole" },
+  { "name": "Sgr A*",           "logR": 12.07,  "logM": 39.90,  "cat": "blackhole", "subcat": "supermassive_bh", "z": 1.5, "wiki": "Sagittarius_A*" },
+  { "name": "M87*",             "logR": 14.78,  "logM": 42.61,  "cat": "blackhole", "subcat": "supermassive_bh", "z": 3, "wiki": "Messier_87#Supermassive_black_hole" },
+  { "name": "Ton 618",          "logR": 15.29,  "logM": 43.12,  "cat": "blackhole", "subcat": "supermassive_bh", "z": 3, "wiki": "TON_618" },
 
   { "name": "Globular Cluster", "logR": 19.78,  "logM": 38.30,  "cat": "galaxy", "z": 2, "wiki": "Globular_cluster" },
   { "name": "Dwarf Galaxy",     "logR": 21.0,   "logM": 40.5,   "cat": "galaxy", "z": 3, "wiki": "Dwarf_galaxy" },

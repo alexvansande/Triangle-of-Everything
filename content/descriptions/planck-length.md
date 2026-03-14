@@ -1,5 +1,5 @@
-The Planck length is the natural unit of length in a system where h (Planck's constant), c (speed of light), G (gravitational constant), and τ (tau = 2π) are set to 1. It marks the scale where quantum gravitational effects become significant.
+The Planck length is the natural unit of length where quantum gravitational effects become significant. It is the smallest meaningful distance in physics (~1.62 × 10⁻³⁵ m).
 
-Formula (using h and τ): ℓ_P = √(hG/(τc³))
+$$\ell_P = \sqrt{\frac{\hbar G}{c^3}} \approx 1.62 \times 10^{-35} \text{ m}$$
 
-Here τ = 2π, so ℏ = h/τ. This formulation avoids the reduced constant and keeps the equations more symmetric.
+Below this scale, the smooth fabric of spacetime is thought to break down into quantum foam. It defines the leftmost point of the Triangle.

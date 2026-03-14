@@ -5,11 +5,14 @@ import {
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
   CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, CAT_DISPLAY, DENSITY_SPHERE_C, ARROWS, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, CONNECTION_PATHS,
+  DARK_MATTER_REGIONS, ENERGY_BANDS,
 } from "./data.js";
 import objectsData from "./objects.json";
 import { fbm } from "./simplex.js";
 import introRaw from "./texts/intro.md?raw";
 import "./style.css";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 
 // Load descriptions from markdown files (eager, at build time)
 const descFiles = import.meta.glob("../content/descriptions/*.md", { query: "?raw", import: "default", eager: true });
@@ -181,11 +184,12 @@ grainF.append("feColorMatrix").attr("type", "saturate").attr("values", "0").attr
 grainF.append("feBlend").attr("in", "SourceGraphic").attr("in2", "mono").attr("mode", "multiply");
 
 // --- Background rect ---
-svg.append("rect").attr("width", W).attr("height", H).attr("fill", "#06061a");
+svg.append("rect").attr("width", W).attr("height", H).attr("fill", "#000000");
 
 // --- Chart container ---
 const chart = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 const clip = chart.append("g").attr("clip-path", "url(#clip)");
+clip.append("rect").attr("width", cw).attr("height", ch).attr("fill", "#000000");
 clip.append("rect").attr("width", cw).attr("height", ch).attr("fill", "url(#grad-tri)");
 
 // Background tile layer (on top of gradient, below chart content)
@@ -197,6 +201,7 @@ const lGrid       = clip.append("g");
 const lDensity    = clip.append("g");
 const lTriOverlay = clip.append("g");
 const lBound      = clip.append("g");
+const lDarkMatter = clip.append("g");
 const lArrows     = clip.append("g").style("mix-blend-mode", "screen");
 const lConnDots   = clip.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
 const lRegLabel   = clip.append("g");
@@ -423,6 +428,43 @@ function drawBoundaries() {
     .attr("cx", planckX).attr("cy", planckY)
     .attr("r", 3).attr("fill", "#ffffff").attr("opacity", 0.8);
 
+  // Planck guide lines — red dashed lines from Planck point to axes
+  const planckGuideStyle = { stroke: "rgba(255,100,100,0.15)", width: 0.8, dash: "4 4" };
+
+  // Vertical: Planck point → bottom axis (Planck length guide)
+  lBound.append("line")
+    .attr("x1", planckX).attr("y1", planckY).attr("x2", planckX).attr("y2", ch)
+    .attr("stroke", planckGuideStyle.stroke).attr("stroke-width", planckGuideStyle.width)
+    .attr("stroke-dasharray", planckGuideStyle.dash);
+
+  // Horizontal: Planck point → left axis (Planck energy guide)
+  lBound.append("line")
+    .attr("x1", 0).attr("y1", planckY).attr("x2", planckX).attr("y2", planckY)
+    .attr("stroke", planckGuideStyle.stroke).attr("stroke-width", planckGuideStyle.width)
+    .attr("stroke-dasharray", planckGuideStyle.dash);
+
+  // Horizontal: Planck point → right axis (Planck mass guide)
+  lBound.append("line")
+    .attr("x1", planckX).attr("y1", planckY).attr("x2", cw).attr("y2", planckY)
+    .attr("stroke", planckGuideStyle.stroke).attr("stroke-width", planckGuideStyle.width)
+    .attr("stroke-dasharray", planckGuideStyle.dash);
+
+  // Diagonal: Planck density / Planck time line (slope 3, logDensity ≈ 93.7)
+  // This is the isodensity line through the Planck point
+  const planckDensityB = DENSITY_SPHERE_C + 93.7;
+  // logM = 3*logR + b → extend line in both directions from Planck point
+  // Toward top axis (higher R, higher M)
+  const diagR1 = PLANCK_LOG_R - 5, diagM1 = 3 * diagR1 + planckDensityB;
+  const diagR2 = PLANCK_LOG_R + 5, diagM2 = 3 * diagR2 + planckDensityB;
+  const diagSeg = clampLineToChart(px(diagR1), py(diagM1), px(diagR2), py(diagM2));
+  if (diagSeg) {
+    lBound.append("line")
+      .attr("x1", diagSeg.x1).attr("y1", diagSeg.y1)
+      .attr("x2", diagSeg.x2).attr("y2", diagSeg.y2)
+      .attr("stroke", "rgba(255,100,100,0.15)").attr("stroke-width", 0.8)
+      .attr("stroke-dasharray", "4 4");
+  }
+
   // Reference lines (main sequence, red giants, etc.)
   const d = vd();
   REFERENCE_LINES.forEach(rl => {
@@ -460,8 +502,111 @@ function drawBoundaries() {
       .attr("fill", rl.color.replace(/[\d.]+\)$/, "0.4)"))
       .attr("font-style", "italic").attr("letter-spacing", "1px")
       .attr("transform", `rotate(${ang},${px(mx)},${py(my) - 5})`)
-      .text(rl.label);
+      .text(rl.label.toUpperCase());
   });
+}
+
+// =============================================================
+// Draw: Dark Matter Search Regions
+// =============================================================
+
+let _dmHovered = false;
+
+function drawDarkMatterRegions() {
+  lDarkMatter.selectAll("*").remove();
+
+  const baseOpacity = currentK > 3 ? 0.2 : 0.1;
+  const opacity = _dmHovered ? 0.3 : baseOpacity;
+
+  DARK_MATTER_REGIONS.forEach(region => {
+    const pts = region.polygon.map(p => `${px(p.logR)},${py(p.logM)}`).join(" ");
+    lDarkMatter.append("polygon")
+      .attr("points", pts)
+      .attr("fill", "#ffffff")
+      .attr("opacity", opacity)
+      .attr("class", "dm-region")
+      .style("cursor", "pointer")
+      .on("mouseover", () => { _dmHovered = true; drawDarkMatterRegions(); })
+      .on("mouseout", () => { _dmHovered = false; drawDarkMatterRegions(); })
+      .on("click", (e) => {
+        e.stopPropagation();
+        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+      });
+  });
+
+  // Label — positioned between the two windows, rotated along Schwarzschild line
+  const schwAng = screenAngle(1);
+  const labelM = 19;
+  const labelR = schwarzschildR(labelM) + 1.5;
+  const lx = px(labelR), ly = py(labelM);
+  if (lx > -50 && lx < cw + 50 && ly > -50 && ly < ch + 50) {
+    const g = lDarkMatter.append("g").style("cursor", "pointer")
+      .on("click", (e) => {
+        e.stopPropagation();
+        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+      })
+      .on("mouseover", () => { _dmHovered = true; drawDarkMatterRegions(); })
+      .on("mouseout", () => { _dmHovered = false; drawDarkMatterRegions(); });
+    // Background stroke for readability
+    g.append("text")
+      .attr("x", lx).attr("y", ly)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "Inter, sans-serif")
+      .attr("font-size", 10).attr("font-weight", 600)
+      .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
+      .attr("stroke-width", 3).attr("stroke-linejoin", "round")
+      .attr("letter-spacing", "1px")
+      .attr("transform", `rotate(${schwAng},${lx},${ly})`)
+      .text("POSSIBLE AREAS FOR DARK MATTER");
+    // Foreground text
+    g.append("text")
+      .attr("x", lx).attr("y", ly)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "Inter, sans-serif")
+      .attr("font-size", 10).attr("font-weight", 600)
+      .attr("fill", `rgba(255,255,255,${opacity + 0.2})`)
+      .attr("letter-spacing", "1px")
+      .attr("transform", `rotate(${schwAng},${lx},${ly})`)
+      .text("POSSIBLE AREAS FOR DARK MATTER");
+  }
+
+  // WIMP label — near Compton line in particle region
+  const wimpR = -16, wimpM = -22;
+  const wx = px(wimpR), wy = py(wimpM);
+  if (wx > -50 && wx < cw + 50 && wy > -50 && wy < ch + 50) {
+    lDarkMatter.append("text")
+      .attr("x", wx).attr("y", wy)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "Inter, sans-serif")
+      .attr("font-size", 7).attr("font-weight", 500)
+      .attr("fill", "rgba(255,255,255,0.3)")
+      .attr("letter-spacing", "1.5px")
+      .style("cursor", "pointer")
+      .text("WIMP")
+      .on("click", (e) => {
+        e.stopPropagation();
+        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+      });
+  }
+
+  // MACHO label — near stellar BH / brown dwarf area
+  const machoR = 10, machoM = 32;
+  const mx = px(machoR), my = py(machoM);
+  if (mx > -50 && mx < cw + 50 && my > -50 && my < ch + 50) {
+    lDarkMatter.append("text")
+      .attr("x", mx).attr("y", my)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "Inter, sans-serif")
+      .attr("font-size", 7).attr("font-weight", 500)
+      .attr("fill", "rgba(255,255,255,0.3)")
+      .attr("letter-spacing", "1.5px")
+      .style("cursor", "pointer")
+      .text("MACHO")
+      .on("click", (e) => {
+        e.stopPropagation();
+        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+      });
+  }
 }
 
 // =============================================================
@@ -609,7 +754,7 @@ function drawRegionLabels() {
       .attr("font-size", LABEL_SIZE).attr("letter-spacing", LABEL_SPACING)
       .attr("fill", "white").attr("opacity", 0.10)
       .attr("transform", `rotate(${l.angle},${mx},${my})`)
-      .text(l.text);
+      .text(l.text.toUpperCase());
   });
 }
 
@@ -683,18 +828,29 @@ function drawObjects() {
         if (hasSharedGroup) {
           label = groups[0];
         } else {
+          const BH_SC = new Set(["primordial_bh", "stellar_bh", "supermassive_bh"]);
           const subcats = [...new Set(members.map(p => p.subcat).filter(Boolean))];
+          // Exclude BH subcats — they get dedicated rotated labels along S line
+          const nonBH = subcats.filter(s => !BH_SC.has(s));
           const catKey = Object.keys(CATEGORIES).find(k => CATEGORIES[k] === members[0].cat);
-          if (subcats.length === 1 && SUBCAT_LABELS[subcats[0]]) {
-            label = SUBCAT_LABELS[subcats[0]];
-          } else if (subcats.length >= 2 && subcats.length <= 4) {
-            const parts = subcats.map(s => SUBCAT_LABELS[s]).filter(Boolean);
+          if (nonBH.length === 1 && SUBCAT_LABELS[nonBH[0]]) {
+            label = SUBCAT_LABELS[nonBH[0]];
+          } else if (nonBH.length >= 2 && nonBH.length <= 4) {
+            const parts = nonBH.map(s => SUBCAT_LABELS[s]).filter(Boolean);
             label = parts.length >= 2 ? parts.slice(0, -1).join(", ") + " & " + parts[parts.length - 1] : (CAT_DISPLAY[catKey] || catKey || "Objects");
+          } else if (nonBH.length === 0 && subcats.length > 0) {
+            // All subcats are BH — skip this cluster label (dedicated labels handle it)
+            label = null;
           } else {
             label = CAT_DISPLAY[catKey] || catKey || "Objects";
           }
         }
-        clusters.push({ members, cx, cy, label, cat: members[0].cat });
+        if (label !== null) {
+          clusters.push({ members, cx, cy, label, cat: members[0].cat });
+        } else {
+          // BH-only cluster: still suppress individual labels but no cluster label
+          members.forEach(o => { o._inCluster = true; o._clusterLabel = ""; });
+        }
       }
     }
   });
@@ -799,8 +955,10 @@ function drawObjects() {
     bySubcat.get(o.subcat).push(o);
   });
 
+  const BH_SUBCATS = new Set(["primordial_bh", "stellar_bh", "supermassive_bh"]);
   const categoryLabels = [];
   bySubcat.forEach((members, subcat) => {
+    if (BH_SUBCATS.has(subcat)) return; // BH subcats rendered separately along S line
     if (members.length < 2 || !SUBCAT_LABELS[subcat]) return;
     const labelText = SUBCAT_LABELS[subcat];
     if (usedLabels.has(labelText.toUpperCase())) return; // never show same label twice
@@ -830,25 +988,26 @@ function drawObjects() {
     const labelText = subcats.length === 1 && SUBCAT_LABELS[subcats[0]]
       ? SUBCAT_LABELS[subcats[0]]
       : cl.label;
+    const lx = cl.cx + pos.dx, ly = cl.cy + pos.dy;
 
     const g = lObj.append("g");
     g.append("text")
-      .attr("x", cl.cx + pos.dx).attr("y", cl.cy + pos.dy)
+      .attr("x", lx).attr("y", ly)
       .attr("text-anchor", pos.anchor)
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
       .attr("font-size", 9).attr("letter-spacing", "0.5px")
       .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
       .attr("class", "obj-label obj-cluster-label")
-      .text(labelText);
+      .text(labelText.toUpperCase());
     g.append("text")
-      .attr("x", cl.cx + pos.dx).attr("y", cl.cy + pos.dy)
+      .attr("x", lx).attr("y", ly)
       .attr("text-anchor", pos.anchor)
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
       .attr("font-size", 9).attr("letter-spacing", "0.5px")
       .attr("fill", cl.cat.color)
       .attr("class", "obj-label obj-cluster-label")
-      .text(labelText);
+      .text(labelText.toUpperCase());
   });
 
   // --- Render category labels (spread-out groups, center of mass) ---
@@ -863,7 +1022,7 @@ function drawObjects() {
       .attr("stroke-width", 2).attr("stroke-linejoin", "round")
       .attr("class", "obj-category-label")
       .attr("opacity", CATEGORY_LABEL_OPACITY)
-      .text(cl.labelText);
+      .text(cl.labelText.toUpperCase());
     g.append("text")
       .attr("x", cl.cx).attr("y", cl.cy)
       .attr("text-anchor", "middle")
@@ -872,8 +1031,71 @@ function drawObjects() {
       .attr("fill", cl.cat.color)
       .attr("class", "obj-category-label")
       .attr("opacity", CATEGORY_LABEL_OPACITY)
-      .text(cl.labelText);
+      .text(cl.labelText.toUpperCase());
   });
+
+  // --- Render BH subcategory labels along the Schwarzschild line ---
+  const BH_SUBCAT_POSITIONS = [
+    { label: "Primordial Black Holes", logM: 14.7 },
+    { label: "Stellar Black Holes", logM: 35.5 },
+    { label: "Supermassive Black Holes", logM: 41.5 },
+  ];
+  const schwAngBH = screenAngle(1);
+  const bhColor = CATEGORIES.blackhole?.color || "#ff6e40";
+
+  // Helper: render one rotated BH label just outside the S line
+  // Offset by pixels perpendicular to the S line (outward from triangle)
+  const schwAngRad = schwAngBH * Math.PI / 180;
+  const perpX = Math.sin(schwAngRad);  // perpendicular outward (away from triangle interior)
+  const perpY = -Math.cos(schwAngRad);
+  const BH_PX_OFFSET = 12; // pixels outside S line (SCHWARZSCHILD RADIUS label is at ~28px)
+
+  function renderBHLabel(text, logM) {
+    const sR = schwarzschildR(logM);
+    const sx = px(sR) + perpX * BH_PX_OFFSET;
+    const sy = py(logM) + perpY * BH_PX_OFFSET;
+    if (sx < -100 || sx > cw + 100 || sy < -100 || sy > ch + 100) return;
+    const g = lObj.append("g").style("pointer-events", "none");
+    g.append("text")
+      .attr("x", sx).attr("y", sy)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "Inter, sans-serif")
+      .attr("font-size", CATEGORY_LABEL_FONT).attr("font-weight", 600)
+      .attr("letter-spacing", "1px")
+      .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
+      .attr("stroke-width", 2).attr("stroke-linejoin", "round")
+      .attr("opacity", CATEGORY_LABEL_OPACITY)
+      .attr("transform", `rotate(${schwAngBH},${sx},${sy})`)
+      .text(text);
+    g.append("text")
+      .attr("x", sx).attr("y", sy)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "Inter, sans-serif")
+      .attr("font-size", CATEGORY_LABEL_FONT).attr("font-weight", 600)
+      .attr("letter-spacing", "1px")
+      .attr("fill", bhColor)
+      .attr("opacity", CATEGORY_LABEL_OPACITY)
+      .attr("transform", `rotate(${schwAngBH},${sx},${sy})`)
+      .text(text);
+  }
+
+  if (currentK > 1.5) {
+    // Measure screen distances between labels along the S line
+    const bhScreenPts = BH_SUBCAT_POSITIONS.map(bh => ({
+      x: px(schwarzschildR(bh.logM)), y: py(bh.logM), label: bh.label, logM: bh.logM,
+    }));
+    const dist01 = Math.hypot(bhScreenPts[1].x - bhScreenPts[0].x, bhScreenPts[1].y - bhScreenPts[0].y);
+    const dist12 = Math.hypot(bhScreenPts[2].x - bhScreenPts[1].x, bhScreenPts[2].y - bhScreenPts[1].y);
+    const minDist = Math.min(dist01, dist12);
+
+    if (minDist < 200) {
+      // Labels would overlap — show single consolidated "BLACK HOLES"
+      const midM = (BH_SUBCAT_POSITIONS[0].logM + BH_SUBCAT_POSITIONS[2].logM) / 2;
+      renderBHLabel("BLACK HOLES", midM);
+    } else {
+      BH_SUBCAT_POSITIONS.forEach(bh => renderBHLabel(bh.label.toUpperCase(), bh.logM));
+    }
+  }
 
   // --- Render object dots and labels ---
   projected.forEach(o => {
@@ -907,7 +1129,7 @@ function drawObjects() {
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
       .attr("class", "obj-label")
       .attr("display", o._showLabel ? null : "none")
-      .text(o.name);
+      .text(o.name.toUpperCase());
 
     const label = g.append("text")
       .attr("x", o.sx + pos.dx).attr("y", o.sy + pos.dy)
@@ -917,7 +1139,7 @@ function drawObjects() {
       .attr("fill", o.color)
       .attr("class", "obj-label")
       .attr("display", o._showLabel ? null : "none")
-      .text(o.name);
+      .text(o.name.toUpperCase());
 
     g.on("click", function(e) {
       e.stopPropagation();
@@ -1067,6 +1289,16 @@ function simpleMarkdown(md) {
   const { meta, body } = parseFrontmatter(md);
 
   let html = body
+    // KaTeX: display math $$...$$ → centered block
+    .replace(/\$\$(.+?)\$\$/gs, (_, tex) => {
+      try { return `<div class="katex-display">${katex.renderToString(tex.trim(), { displayMode: true, throwOnError: false })}</div>`; }
+      catch { return tex; }
+    })
+    // KaTeX: inline math $...$
+    .replace(/\$(.+?)\$/g, (_, tex) => {
+      try { return katex.renderToString(tex.trim(), { throwOnError: false }); }
+      catch { return tex; }
+    })
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
@@ -1087,9 +1319,9 @@ function simpleMarkdown(md) {
     .replace(/<div/g, "<div").replace(/<\/div>/g, "</div>")
     .split(/\n\n+/)
     .map(p => {
-      if (p.trim().startsWith("<div")) return p;
-      if (p.trim().startsWith("</div>")) return p;
-      return `<p>${p.trim()}</p>`;
+      const t = p.trim();
+      if (t.startsWith("<div") || t.startsWith("</div>") || t.startsWith("<p ") || t.startsWith("<p>")) return t;
+      return `<p>${t}</p>`;
     })
     .join("\n");
 
@@ -1450,11 +1682,16 @@ document.addEventListener("click", (e) => {
     _sidebarManuallyExpanded = false;
     openSidebar(closest);
     setSidebarOpen(true);
-  } else if (sidebarEl.classList.contains("open")) {
-    if (_sidebarManuallyExpanded) {
-      closeSidebar(); // revert to intro, stay expanded
-    } else {
-      setSidebarOpen(false); // auto-collapse
+  } else {
+    // Click on empty space — deselect object and remove highlight
+    selectedObj = null;
+    drawHighlight();
+    if (sidebarEl.classList.contains("open")) {
+      if (_sidebarManuallyExpanded) {
+        closeSidebar(); // revert to intro, stay expanded
+      } else {
+        setSidebarOpen(false); // auto-collapse
+      }
     }
   }
 }, true);
@@ -1585,10 +1822,14 @@ function drawAxes() {
     }
   });
 
-  axT.append("text").attr("x", cw - 5).attr("y", -72).attr("text-anchor", "end")
-    .attr("class", "axis-title").text("DENSITY · 10ⁿ g/L");
-  axT.append("text").attr("x", 5).attr("y", -20).attr("text-anchor", "start")
+  axT.append("text").attr("x", cw - 5).attr("y", -78).attr("text-anchor", "end")
+    .attr("class", "axis-title").text("DENSITY");
+  axT.append("text").attr("x", cw - 5).attr("y", -65).attr("text-anchor", "end")
+    .attr("class", "axis-subtitle").text("10ⁿ g/L");
+  axT.append("text").attr("x", 5).attr("y", -26).attr("text-anchor", "start")
     .attr("class", "axis-title").attr("letter-spacing", "3px").text("TIME");
+  axT.append("text").attr("x", 5).attr("y", -14).attr("text-anchor", "start")
+    .attr("class", "axis-subtitle").text("10ⁿ s since Big Bang");
 
   // ─── BOTTOM: Big log numbers + two rows of width units ────
   axB.attr("transform", `translate(0,${ch})`);
@@ -1639,7 +1880,7 @@ function drawAxes() {
     if (u.logR < d.x0 || u.logR > d.x1) return;
     const p = px(u.logR);
     if (p < -1 || p > cw + 1) return;
-    axB.append("line").attr("x1", p).attr("y1", 20).attr("x2", p).attr("y2", 28)
+    axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 28)
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
     if (Math.abs(p - lastRow1Px) >= 40 && u.slug) {
       axB.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
@@ -1656,7 +1897,7 @@ function drawAxes() {
     if (u.logR < d.x0 || u.logR > d.x1) return;
     const p = px(u.logR);
     if (p < -1 || p > cw + 1) return;
-    axB.append("line").attr("x1", p).attr("y1", 38).attr("x2", p).attr("y2", 48)
+    axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 48)
       .attr("stroke", "rgba(255,100,100,0.25)").attr("stroke-dasharray", "2 2");
     if (Math.abs(p - lastRow2Px) >= 35 && u.slug) {
       axB.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
@@ -1670,8 +1911,10 @@ function drawAxes() {
     }
   });
 
-  axB.append("text").attr("x", cw / 2).attr("y", 70).attr("text-anchor", "middle")
-    .attr("class", "axis-title").text("WIDTH  ·  10ⁿ cm");
+  axB.append("text").attr("x", cw / 2).attr("y", 65).attr("text-anchor", "middle")
+    .attr("class", "axis-title").text("WIDTH");
+  axB.append("text").attr("x", cw / 2).attr("y", 78).attr("text-anchor", "middle")
+    .attr("class", "axis-subtitle").text("10ⁿ meters");
 
   // ─── LEFT: Energy / Temperature (capped at Planck energy) ─
   const leftMax = PLANCK_LOG_M;
@@ -1728,7 +1971,7 @@ function drawAxes() {
     if (u.logM < d.y0 || u.logM > Math.min(d.y1, leftMax)) return;
     const p = py(u.logM);
     if (p < 2 || p > ch - 2) return;
-    axL.append("line").attr("x1", -3).attr("y1", p).attr("x2", 6).attr("y2", p)
+    axL.append("line").attr("x1", -3).attr("y1", p).attr("x2", 0).attr("y2", p)
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
     if (Math.abs(p - lastEnergyPy) >= minUnitPx && u.slug) {
       axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
@@ -1740,8 +1983,54 @@ function drawAxes() {
     }
   });
 
+  // Energy level bands — bracket-style labels between energy thresholds
+  // Only show when sidebar is closed (more horizontal space)
+  if (!leftCompact) {
+    const bandLabelX = unitX - 30;
+    const sortedBands = ENERGY_BANDS.slice().sort((a, b) => b.logM - a.logM);
+    for (let i = 0; i < sortedBands.length; i++) {
+      const band = sortedBands[i];
+      if (band.logM < d.y0 || band.logM > Math.min(d.y1, leftMax)) continue;
+      const p = py(band.logM);
+      if (p < 2 || p > ch - 2) continue;
+
+      // Small bracket tick at energy level
+      axL.append("line")
+        .attr("x1", bandLabelX + 20).attr("y1", p).attr("x2", bandLabelX + 25).attr("y2", p)
+        .attr("stroke", "rgba(255,180,100,0.25)").attr("stroke-width", 0.5);
+
+      // Label between this band and the next one below it
+      if (i < sortedBands.length - 1) {
+        const nextBand = sortedBands[i + 1];
+        if (nextBand.logM < d.y0) continue;
+        const nextP = py(nextBand.logM);
+        if (nextP > ch - 2) continue;
+        const midP = (p + nextP) / 2;
+        const gap = Math.abs(nextP - p);
+        if (gap < 12) continue;
+
+        const txt = axL.append("text")
+          .attr("x", bandLabelX).attr("y", midP + 3)
+          .attr("text-anchor", "end")
+          .attr("font-family", "Inter, sans-serif")
+          .attr("font-size", Math.min(6.5, gap * 0.35))
+          .attr("font-weight", 500)
+          .attr("fill", "rgba(255,180,120,0.35)")
+          .attr("letter-spacing", "0.5px")
+          .style("cursor", "pointer")
+          .text(band.label);
+        if (band.slug) {
+          txt.attr("class", "axis-unit-link")
+            .attr("data-slug", band.slug).attr("data-name", band.label);
+        }
+      }
+    }
+  }
+
   axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", titleY)
-    .attr("text-anchor", "middle").attr("class", "axis-title").text("ENERGY · 10ⁿ eV");
+    .attr("text-anchor", "middle").attr("class", "axis-title").text("ENERGY");
+  axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", titleY + 14)
+    .attr("text-anchor", "middle").attr("class", "axis-subtitle").text("10ⁿ eV");
 
   // ─── RIGHT: Mass ──────────────────────────────────────────
   axR.attr("transform", `translate(${cw},0)`);
@@ -1794,7 +2083,7 @@ function drawAxes() {
     if (u.logM < d.y0 || u.logM > d.y1) return;
     const p = py(u.logM);
     if (p < 2 || p > ch - 2) return;
-    axR.append("line").attr("x1", -6).attr("y1", p).attr("x2", 3).attr("y2", p)
+    axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 3).attr("y2", p)
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
     if (Math.abs(p - lastMassUnitPy) >= minUnitPx && u.slug) {
       axR.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
@@ -1806,8 +2095,10 @@ function drawAxes() {
     }
   });
 
-  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -65)
-    .attr("text-anchor", "middle").attr("class", "axis-title").text("MASS · 10ⁿ Kg");
+  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -68)
+    .attr("text-anchor", "middle").attr("class", "axis-title").text("MASS");
+  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -55)
+    .attr("text-anchor", "middle").attr("class", "axis-subtitle").text("10ⁿ kg");
 }
 
 function fmtTick(v) {
@@ -2028,7 +2319,7 @@ function drawConnections() {
         lineGroup.attr("opacity", 1);
         if (cp.description) {
           const color = cp.style.color || "rgba(255,255,255,0.6)";
-          tooltipEl.innerHTML = `<div class="tt-name" style="color:${color}">${cp.description}</div>`;
+          tooltipEl.innerHTML = `<div class="tt-desc" style="color:${color}">${cp.description}</div>`;
           tooltipEl.classList.add("visible");
           positionTooltip(e);
         }
@@ -2360,6 +2651,7 @@ function redraw() {
   drawDensityLines();
   drawTriangleOverlay();
   drawBoundaries();
+  drawDarkMatterRegions();
   drawConnections();
   drawRegionLabels();
   drawObjects();

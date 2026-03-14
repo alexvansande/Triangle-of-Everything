@@ -1,0 +1,7 @@
+Roughly 85% of the universe's mass is dark matter, yet its fundamental nature remains one of the deepest open questions in physics. Three major classes of candidates span vastly different regions of the Triangle:
+
+**WIMPs** (Weakly Interacting Massive Particles) sit at the [[Electroweak]] scale ($10^{1}$–$10^{3}$ GeV), near the Compton line among the [[Fundamental Particles]]. They were long considered the leading candidates because the weak-scale annihilation cross section naturally yields the observed relic abundance (the "WIMP miracle"), but decades of direct detection experiments — including XENON, LUX, and PandaX — have found no confirmed signal, pushing limits deep into the predicted parameter space.
+
+**MACHOs** (Massive Astrophysical Compact Halo Objects) — including primordial black holes and brown dwarfs — occupy the stellar mass range along the Schwarzschild line. Microlensing surveys such as EROS and OGLE have ruled out MACHOs as the dominant dark matter component for most of the stellar mass window, though a subpopulation of primordial black holes in certain mass ranges remains viable.
+
+**Macro Dark Matter** occupies the vast and largely unexplored region between atomic and nuclear density near the Schwarzschild line. Two mass windows remain open to macroscopic dark matter candidates: from $\sim 55$ g to $\sim 10^{17}$ g, and from $\sim 2 \times 10^{20}$ g to $\sim 4 \times 10^{24}$ g, having evaded constraints from gravitational lensing, ancient mica track searches, and other detection methods.
