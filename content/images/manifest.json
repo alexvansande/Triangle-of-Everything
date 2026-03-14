@@ -1,0 +1,446 @@
+{
+  "tobacco-mosaic": {
+    "file": "tobacco-mosaic.webp",
+    "credit": "Unknown authorUnknown author",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:TobaccoMosaicVirus.jpg"
+  },
+  "influenza": {
+    "file": "influenza.webp",
+    "credit": "Photo Credit: Cynthia Goldsmith\nContent Providers(s): CDC/ Dr. Terrence Tumpey",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:EM_of_influenza_virus.jpg"
+  },
+  "hiv": {
+    "file": "hiv.webp",
+    "credit": "Dr. Victor Padilla-Sanchez, PhD",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:HIV_Infection_at_Atomic_Resolution.jpg"
+  },
+  "mimivirus": {
+    "file": "mimivirus.webp",
+    "credit": "Sarah Duponchel and Matthias G. Fischer",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Giant_Mimivirus_with_satellite_Sputnik_virophages.png"
+  },
+  "red-blood-cell": {
+    "file": "red-blood-cell.webp",
+    "credit": "BruceBlaus. When using this image in external sources it can be cited as:\n\nBlausen.com staff (2014). \"Medical gallery of Blausen Medical 2014\". WikiJournal of Medicine 1 (2). DOI:10.15347/wjm/2014.010. ISSN 2002-4436.",
+    "license": "CC BY 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Blausen_0761_RedBloodCells.png"
+  },
+  "covid-virus": {
+    "file": "covid-virus.webp",
+    "credit": "NIAID-RML (https://www.niaid.nih.gov/ &amp; https://www.niaid.nih.gov/about/rocky-mountain-laboratories)",
+    "license": "CC BY 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Novel_Coronavirus_SARS-CoV-2.jpg"
+  },
+  "bacteriophage-t4": {
+    "file": "bacteriophage-t4.webp",
+    "credit": "7USSR7",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:T4_phage_EM.jpg"
+  },
+  "ebola-virus": {
+    "file": "ebola-virus.webp",
+    "credit": "BernbaumJG",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ebola_Virus_-_Electron_Micrograph.tiff"
+  },
+  "bacterium": {
+    "file": "bacterium.webp",
+    "credit": "NIAID",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:E._coli_Bacteria_(7316101966).jpg"
+  },
+  "pollen-grain": {
+    "file": "pollen-grain.webp",
+    "credit": "Dartmouth Electron Microscope Facility, Dartmouth College",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Misc_pollen_colorized.jpg"
+  },
+  "amoeba": {
+    "file": "amoeba.webp",
+    "credit": "Respectively: NIAID, Cymothoa exigua, ja:User:NEON / User:NEON_ja, Jacob Lorenzo-Morales, Naveed A. Khan and Julia Walochnik, ja:User:NEON / User:NEON_ja, ja:User:NEON / User:NEON_ja",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Amoeba_collage.jpg"
+  },
+  "paramecium": {
+    "file": "paramecium.webp",
+    "credit": "Barfooz at the English Wikipedia.",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Paramecium.jpg"
+  },
+  "ant": {
+    "file": "ant.webp",
+    "credit": "Samantha Henneke from Seagrove, North Carolina, USA",
+    "license": "CC BY 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Red_Ant_-_March_2025.jpg"
+  },
+  "flea": {
+    "file": "flea.webp",
+    "credit": "CDC/Janice Haney Carr",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Flea_Scanning_Electron_Micrograph_False_Color.jpg"
+  },
+  "nickel": {
+    "file": "nickel.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/en/c/ce/US_Nickel_Obverse.jpeg"
+  },
+  "hippopotamus": {
+    "file": "hippopotamus.webp",
+    "credit": "Muhammad Mahdi Karim",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Portrait_Hippopotamus_in_the_water.jpg"
+  },
+  "elephant": {
+    "file": "elephant.webp",
+    "credit": "Bernard DUPONT from FRANCE",
+    "license": "CC BY-SA 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:African_Elephant_(Loxodonta_africana)_male_(17289351322).jpg"
+  },
+  "blue-whale": {
+    "file": "blue-whale.webp",
+    "credit": "NOAA Photo Library",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Anim1754_-_Flickr_-_NOAA_Photo_Library.jpg"
+  },
+  "boeing-747": {
+    "file": "boeing-747.webp",
+    "credit": "Iberia Airlines",
+    "license": "CC BY 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:B-747_Iberia.jpg"
+  },
+  "great-pyramid": {
+    "file": "great-pyramid.webp",
+    "credit": "Douwe C. van der Zee",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Great_Pyramid_of_Giza_-_Pyramid_of_Khufu.jpg"
+  },
+  "supertanker": {
+    "file": "supertanker.webp",
+    "credit": "Unknown",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Supertanker_AbQaiq.jpg"
+  },
+  "deimos": {
+    "file": "deimos.webp",
+    "credit": "NASA/JPL/University of Arizona",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:NASA-Deimos-MarsMoon-20090221.jpg"
+  },
+  "juno": {
+    "file": "juno.webp",
+    "credit": "VSO Very Large Telescope SPHERE/ZIMPOL team",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:3_Juno_VLT_(2021).png"
+  },
+  "europa": {
+    "file": "europa.webp",
+    "credit": "NASA/JPL-Caltech/SwRI/MSSS/Kevin M. Gill",
+    "license": "CC BY 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Europa_-_Perijove_45_(cropped).png"
+  },
+  "io": {
+    "file": "io.webp",
+    "credit": "NASA / JPL / University of Arizona",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Io_highest_resolution_true_color.jpg"
+  },
+  "callisto": {
+    "file": "callisto.webp",
+    "credit": "zelario12",
+    "license": "CC BY-SA 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Callisto_VGR2_C2060635_OGB.png"
+  },
+  "mars": {
+    "file": "mars.webp",
+    "credit": "Kevin Gill from Los Angeles, CA, United States",
+    "license": "CC BY 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Mars_-_August_30_2021_-_Flickr_-_Kevin_M._Gill.png"
+  },
+  "uranus": {
+    "file": "uranus.webp",
+    "credit": "Ardenau4",
+    "license": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Uranus_Voyager2_color_calibrated.png"
+  },
+  "saturn": {
+    "file": "saturn.webp",
+    "credit": "NASA / JPL / Space Science Institute",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Saturn_during_Equinox.jpg"
+  },
+  "jupiter": {
+    "file": "jupiter.webp",
+    "credit": "NASA/STSCI (S.T.A.R.S)",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Jupiter_OPAL_2024.png"
+  },
+  "sun": {
+    "file": "sun.webp",
+    "credit": "Matúš Motlo",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:The_Sun_in_white_light.jpg"
+  },
+  "milky-way": {
+    "file": "milky-way.webp",
+    "credit": "ESO/Y. Beletsky",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:ESO-VLT-Laser-phot-33a-07.jpg"
+  },
+  "sombrero-m104": {
+    "file": "sombrero-m104.webp",
+    "credit": "ESA/Hubble &amp; NASA, K. Noll",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Sombrero_Galaxy_(heic2506a).jpg"
+  },
+  "supernova-remnant": {
+    "file": "supernova-remnant.webp",
+    "credit": "NASA, ESA, J. Hester and A. Loll (Arizona State University)",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Crab_Nebula.jpg"
+  },
+  "nebulae": {
+    "file": "nebulae.webp",
+    "credit": "David (Deddy) Dayag",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Trifid_Nebula_by_Deddy_Dayag.jpg"
+  },
+  "dust-mite": {
+    "file": "dust-mite.webp",
+    "credit": "Gilles San Martin from Namur, Belgium",
+    "license": "CC BY-SA 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:House_dust_mites_(5247397771).jpg"
+  },
+  "tardigrade": {
+    "file": "tardigrade.webp",
+    "credit": "Schokraie E, Warnken U, Hotz-Wagenblatt A, Grohme MA, Hengherr S, et al. (2012)",
+    "license": "CC BY 2.5",
+    "source": "https://commons.wikimedia.org/wiki/File:SEM_image_of_Milnesium_tardigradum_in_active_state_-_journal.pone.0045682.g001-2_(white_background).png"
+  },
+  "microchip": {
+    "file": "microchip.webp",
+    "credit": "cole8888, https://flickr.com/photos/187597251@N05/ (aka Cole L)",
+    "license": "CC BY-SA 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:NXP_PCF8577C_LCD_driver_with_I%C2%B2C_(Colour_Corrected).jpg"
+  },
+  "grain-of-sand": {
+    "file": "grain-of-sand.webp",
+    "credit": "Luca Galuzzi (Lucag)",
+    "license": "CC BY-SA 2.5",
+    "source": "https://commons.wikimedia.org/wiki/File:Libya_4608_Idehan_Ubari_Dunes_Luca_Galuzzi_2007.jpg"
+  },
+  "ladybug": {
+    "file": "ladybug.webp",
+    "credit": "Francisco Welter-Schultes",
+    "license": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Coccinella-septempunctata-15-fws.jpg"
+  },
+  "mouse": {
+    "file": "mouse.webp",
+    "credit": "George Shuklin (talk)",
+    "license": "CC BY-SA 1.0",
+    "source": "https://commons.wikimedia.org/wiki/File:%D0%9C%D1%8B%D1%88%D1%8C_2.jpg"
+  },
+  "human": {
+    "file": "human.webp",
+    "credit": "Weltenbummler84",
+    "license": "CC BY-SA 2.0 de",
+    "source": "https://commons.wikimedia.org/wiki/File:Akha_cropped_hires.JPG"
+  },
+  "sequoia": {
+    "file": "sequoia.webp",
+    "credit": "Mike Murphy (talk · contribs)",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Grizzly_Giant_Mariposa_Grove.jpg"
+  },
+  "iceberg-a-23a": {
+    "file": "iceberg-a-23a.webp",
+    "credit": "Hannes Grobe",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:A23a-PS96_hg.jpg"
+  },
+  "mt-everest": {
+    "file": "mt-everest.webp",
+    "credit": "Rdevany",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Mt._Everest_from_Gokyo_Ri_November_5,_2012.jpg"
+  },
+  "halleys-comet": {
+    "file": "halleys-comet.webp",
+    "credit": "NASA/W. Liller",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Lspn_comet_halley.jpg"
+  },
+  "bennu": {
+    "file": "bennu.webp",
+    "credit": "NASA/Goddard/University of Arizona",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Bennu_mosaic_OSIRIS-REx_(square).png"
+  },
+  "eros": {
+    "file": "eros.webp",
+    "credit": "NASA/JPL/JHUAPL",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Eros_-_PIA02923_(color).jpg"
+  },
+  "phobos": {
+    "file": "phobos.webp",
+    "credit": "NASA / JPL-Caltech / University of Arizona",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Phobos_colour_2008.jpg"
+  },
+  "ida": {
+    "file": "ida.webp",
+    "credit": "243_ida.jpg: NASA/JPL derivative work: Chzz ►",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:243_ida_crop.jpg"
+  },
+  "gaspra": {
+    "file": "gaspra.webp",
+    "credit": "NASA",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:951_Gaspra.jpg"
+  },
+  "hale-bopp": {
+    "file": "hale-bopp.webp",
+    "credit": "E. Kolmhofer, H. Raab; Johannes-Kepler-Observatory, Linz, Austria (https://sternwarte.at)",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Comet_Hale-Bopp_1995O1.jpg"
+  },
+  "hyperion": {
+    "file": "hyperion.webp",
+    "credit": "NASA / JPL / SSI / Gordan Ugarkovic",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Hyperion_true.jpg"
+  },
+  "pallas": {
+    "file": "pallas.webp",
+    "credit": "Credit: ESO/Vernazza et al.",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Potw1749a_Pallas_crop.png"
+  },
+  "mimas": {
+    "file": "mimas.webp",
+    "credit": "NASA / JPL-Caltech / Space Science Institute",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Mimas_Cassini.jpg"
+  },
+  "enceladus": {
+    "file": "enceladus.webp",
+    "credit": "National Aeronautics and Space Administration (NASA) / Jet Propulsion Laboratory (JPL)",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:PIA17202_-_Approaching_Enceladus.jpg"
+  },
+  "vesta": {
+    "file": "vesta.webp",
+    "credit": "NASA / JPL / MPS / DLR / IDA / Björn Jónsson",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Vesta_in_natural_color.jpg"
+  },
+  "ceres": {
+    "file": "ceres.webp",
+    "credit": "Justin Cowart",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Ceres_-_RC3_-_Haulani_Crater_(22381131691)_(cropped).jpg"
+  },
+  "pluto": {
+    "file": "pluto.webp",
+    "credit": "NASA/Johns Hopkins University Applied Physics Laboratory/Southwest Research Institute/Alex Parker",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Pluto_in_True_Color_-_High-Res.png"
+  },
+  "triton": {
+    "file": "triton.webp",
+    "credit": "Michael T. Bland, U.S. Geological Survey (USGS)",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Triton-usgs23-with-frame.jpg"
+  },
+  "moon": {
+    "file": "moon.webp",
+    "credit": "Gregory H. Revera",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:FullMoon2010.jpg"
+  },
+  "titan": {
+    "file": "titan.webp",
+    "credit": "NASA/JPL-Caltech/SSI/Kevin M. Gill",
+    "license": "CC BY 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Titan_in_true_color_by_Kevin_M._Gill.jpg"
+  },
+  "ganymede": {
+    "file": "ganymede.webp",
+    "credit": "NASA/JPL-Caltech/SwRI/MSSS/Kevin M. Gill",
+    "license": "CC BY 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ganymede_-_Perijove_34_Composite.png"
+  },
+  "mercury": {
+    "file": "mercury.webp",
+    "credit": "NASA/Johns Hopkins University Applied Physics Laboratory/Arizona State University/Carnegie Institution of Washington",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Mercury_in_true_color.jpg"
+  },
+  "venus": {
+    "file": "venus.webp",
+    "credit": "NASA/Johns Hopkins University Applied Physics Laboratory/Carnegie Institution of Washington",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Venus_2_Approach_Image.jpg"
+  },
+  "earth": {
+    "file": "earth.webp",
+    "credit": "EUMETSAT",
+    "license": "Attribution",
+    "source": "https://commons.wikimedia.org/wiki/File:Meteosat-12-after-eqnx_04-b.jpg"
+  },
+  "neptune": {
+    "file": "neptune.webp",
+    "credit": "NASA / Voyager 2 / PDS / OPUS / Ardenau4",
+    "license": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Neptune_Voyager2_color_calibrated.png"
+  },
+  "globular-cluster": {
+    "file": "globular-cluster.webp",
+    "credit": "NASA Hubble",
+    "license": "CC BY 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Globular_Cluster_M2.jpg"
+  },
+  "small-magellanic-cloud": {
+    "file": "small-magellanic-cloud.webp",
+    "credit": "ESA/Hubble and Digitized Sky Survey 2",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Small_Magellanic_Cloud_(Digitized_Sky_Survey_2).jpg"
+  },
+  "large-magellanic-cloud": {
+    "file": "large-magellanic-cloud.webp",
+    "credit": "Robert Gendler/ESO",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Eso1021d.jpg"
+  },
+  "triangulum-m33": {
+    "file": "triangulum-m33.webp",
+    "credit": "ESO",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:VST_snaps_a_very_detailed_view_of_the_Triangulum_Galaxy.jpg"
+  },
+  "andromeda-m31": {
+    "file": "andromeda-m31.webp",
+    "credit": "Brody Wesner",
+    "license": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Andromeda_Galaxy_2025.png"
+  },
+  "planetary-nebula": {
+    "file": "planetary-nebula.webp",
+    "credit": "Credit Line and Copyright Adam Block/Mount Lemmon SkyCenter/University of Arizona",
+    "license": "CC BY-SA 3.0 us",
+    "source": "https://commons.wikimedia.org/wiki/File:N1535s.jpg"
+  },
+  "stellar-nursery": {
+    "file": "stellar-nursery.webp",
+    "credit": "NASA/JPL-Caltech",
+    "license": "Attribution",
+    "source": "https://commons.wikimedia.org/wiki/File:PIA23865-W51Nebula-StarFactory-20200825.jpg"
+  }
+}

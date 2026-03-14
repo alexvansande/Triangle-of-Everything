@@ -15,6 +15,15 @@ import "./style.css";
 const descFiles = import.meta.glob("../content/descriptions/*.md", { query: "?raw", import: "default", eager: true });
 const DESC_BY_SLUG = {};
 
+// Load object images (eager, at build time — Vite hashes for cache-busting)
+const imgFiles = import.meta.glob("../content/images/*.webp", { eager: true });
+const IMG_BY_SLUG = {};
+for (const [path, mod] of Object.entries(imgFiles)) {
+  const slug = path.replace("../content/images/", "").replace(".webp", "");
+  IMG_BY_SLUG[slug] = mod.default;
+}
+import imageManifest from "../content/images/manifest.json";
+
 function parseFrontmatter(raw) {
   const trimmed = raw.trim();
   if (!trimmed.startsWith("---")) return { meta: {}, body: trimmed };
@@ -1051,6 +1060,7 @@ const sbCategory = document.getElementById("sb-category");
 const sbStats = document.getElementById("sb-stats");
 const sbDesc = document.getElementById("sb-desc");
 const sbLinks = document.getElementById("sb-links");
+const sbImage = document.getElementById("sb-image");
 
 // Populate intro
 function simpleMarkdown(md) {
@@ -1238,6 +1248,35 @@ function openSidebar(obj) {
   sbDot.style.background = objColor;
   sbDot.style.color = objColor;
   sbCategory.textContent = catKey;
+
+  // Display object image or placeholder
+  const slug = obj.slug || nameToSlug(obj.name);
+  const imgSrc = IMG_BY_SLUG[slug];
+  const imgMeta = imageManifest[slug];
+  if (imgSrc) {
+    sbImage.innerHTML = "";
+    const img = document.createElement("img");
+    img.src = imgSrc;
+    img.alt = obj.name;
+    sbImage.appendChild(img);
+    if (imgMeta) {
+      const credit = document.createElement("a");
+      credit.className = "sb-image-credit";
+      credit.href = imgMeta.source;
+      credit.target = "_blank";
+      credit.rel = "noopener";
+      credit.textContent = `${imgMeta.credit} · ${imgMeta.license}`;
+      sbImage.appendChild(credit);
+    }
+  } else {
+    sbImage.innerHTML = `
+      <svg viewBox="0 0 48 48" width="48" height="48" opacity="0.15">
+        <rect x="4" y="8" width="40" height="32" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+        <circle cx="16" cy="20" r="4" fill="currentColor"/>
+        <polyline points="4,36 16,26 24,32 32,22 44,34" fill="none" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span>Image coming soon</span>`;
+  }
 
   const photon = isPhoton(obj);
   const c = catKey;
