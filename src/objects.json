@@ -159,7 +159,7 @@
   { "name": "Proto-PN",         "logR": 16.97,  "logM": 33.35,  "cat": "remnant", "z": 4, "wiki": "Protoplanetary_nebula" },
 
   { "name": "Big Bang",         "logR": -32.641,"logM": -4.813, "cat": "blackhole", "z": 1, "wiki": "Big_Bang" },
-  { "name": "Smallest Primordial BH", "logR": -13.13, "logM": 14.70, "cat": "blackhole", "subcat": "primordial_bh", "z": 3, "slug": "primordial-black-hole", "wiki": "Primordial_black_hole" },
+  { "name": "Smallest Primordial BH", "logR": -13.13, "logM": 14.70, "cat": "blackhole", "subcat": "primordial_bh", "z": 5, "slug": "primordial-black-hole", "wiki": "Primordial_black_hole" },
   { "name": "3K BH",            "logR": 8.95,   "logM": 36.78,  "cat": "blackhole", "subcat": "stellar_bh", "z": 4, "wiki": "Black_hole#Micro_black_holes" },
   { "name": "Stellar BH",       "logR": 6.47,   "logM": 34.30,  "cat": "blackhole", "subcat": "stellar_bh", "z": 2, "wiki": "Stellar_black_hole" },
   { "name": "Sgr A*",           "logR": 12.07,  "logM": 39.90,  "cat": "blackhole", "subcat": "supermassive_bh", "z": 1.5, "wiki": "Sagittarius_A*" },

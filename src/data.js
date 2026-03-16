@@ -295,7 +295,7 @@ export const CONNECTION_PATHS = [
     ],
     zoomRange: [0.8, 800],
     style: {
-      lineOpacity: 0.10,
+      lineOpacity: 0.20,
       lineWidth: 1.8,
       dotCount: 30,
       dotSize: 1.2,
@@ -322,7 +322,7 @@ export const CONNECTION_PATHS = [
     zoomRange: [1.5, 800],
     neighborhood: { x: [5, 22], y: [30, 38] },
     style: {
-      lineOpacity: 0.10,
+      lineOpacity: 0.20,
       lineWidth: 1.4,
       dotCount: 14,
       dotSize: 1.6,
@@ -348,7 +348,7 @@ export const CONNECTION_PATHS = [
     zoomRange: [1.5, 800],
     neighborhood: { x: [3, 22], y: [30, 38] },
     style: {
-      lineOpacity: 0.10,
+      lineOpacity: 0.20,
       lineWidth: 1.4,
       dotCount: 14,
       dotSize: 1.6,
@@ -371,7 +371,7 @@ export const CONNECTION_PATHS = [
     zoomRange: [3, 800],
     neighborhood: { x: [-18, -8], y: [-29, -19] },
     style: {
-      lineOpacity: 0.08,
+      lineOpacity: 0.18,
       lineWidth: 1.2,
       dotCount: 16,
       dotSize: 0.9,
@@ -391,7 +391,7 @@ export const CONNECTION_PATHS = [
     zoomRange: [3, 800],
     neighborhood: { x: [-18, -8], y: [-29, -19] },
     style: {
-      lineOpacity: 0.08,
+      lineOpacity: 0.18,
       lineWidth: 1.2,
       dotCount: 10,
       dotSize: 0.9,
@@ -410,8 +410,8 @@ export const CONNECTION_PATHS = [
     zoomRange: [4, 800],
     neighborhood: { x: [-16, -7], y: [-29, -21] },
     style: {
-      lineOpacity: 0.05,
-      lineWidth: 1.0,
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
       dotCount: 8,
       dotSize: 0.8,
       dotSpeed: 0.7,
@@ -430,8 +430,8 @@ export const CONNECTION_PATHS = [
     zoomRange: [4, 800],
     neighborhood: { x: [-16, -7], y: [-29, -21] },
     style: {
-      lineOpacity: 0.05,
-      lineWidth: 1.0,
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
       dotCount: 8,
       dotSize: 0.8,
       dotSpeed: 0.7,
@@ -450,8 +450,8 @@ export const CONNECTION_PATHS = [
     zoomRange: [4, 800],
     neighborhood: { x: [-16, -6], y: [-27, -21] },
     style: {
-      lineOpacity: 0.05,
-      lineWidth: 1.0,
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
       dotCount: 8,
       dotSize: 0.8,
       dotSpeed: 0.7,
@@ -470,8 +470,8 @@ export const CONNECTION_PATHS = [
     zoomRange: [4, 800],
     neighborhood: { x: [-14, -6], y: [-29, -21] },
     style: {
-      lineOpacity: 0.05,
-      lineWidth: 1.0,
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
       dotCount: 8,
       dotSize: 0.8,
       dotSpeed: 0.7,
@@ -492,7 +492,7 @@ export const CONNECTION_PATHS = [
     zoomRange: [1.5, 800],
     neighborhood: { x: [3, 22], y: [30, 38] },
     style: {
-      lineOpacity: 0.08,
+      lineOpacity: 0.18,
       lineWidth: 1.2,
       dotCount: 10,
       dotSize: 1.4,
@@ -513,8 +513,8 @@ export const CONNECTION_PATHS = [
     zoomRange: [6, 800],
     neighborhood: { x: [-10, -6], y: [-25, -21] },
     style: {
-      lineOpacity: 0.05,
-      lineWidth: 1.0,
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
       dotCount: 6,
       dotSize: 0.8,
       dotSpeed: 0.7,
@@ -534,8 +534,8 @@ export const CONNECTION_PATHS = [
     zoomRange: [6, 800],
     neighborhood: { x: [-10, -6], y: [-25, -21] },
     style: {
-      lineOpacity: 0.05,
-      lineWidth: 1.0,
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
       dotCount: 4,
       dotSize: 0.8,
       dotSpeed: 0.7,
@@ -556,7 +556,7 @@ export const CONNECTION_PATHS = [
     zoomRange: [1.5, 800],
     neighborhood: { x: [14, 22], y: [30, 38] },
     style: {
-      lineOpacity: 0.10,
+      lineOpacity: 0.20,
       lineWidth: 1.2,
       dotCount: 8,
       dotSize: 1.4,
@@ -577,7 +577,7 @@ export const CONNECTION_PATHS = [
     zoomRange: [1.5, 800],
     neighborhood: { x: [14, 22], y: [30, 38] },
     style: {
-      lineOpacity: 0.10,
+      lineOpacity: 0.20,
       lineWidth: 1.2,
       dotCount: 8,
       dotSize: 1.4,
@@ -596,7 +596,7 @@ export const CONNECTION_PATHS = [
     zoomRange: [1.0, 800],
     neighborhood: { x: [3, 18], y: [32, 46] },
     style: {
-      lineOpacity: 0.08,
+      lineOpacity: 0.18,
       lineWidth: 1.2,
       dotCount: 10,
       dotSize: 1.4,
@@ -617,8 +617,8 @@ export const CONNECTION_PATHS = [
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
     style: {
-      lineOpacity: 0.05,
-      lineWidth: 1.0,
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
       dotCount: 6,
       dotSize: 0.8,
       dotSpeed: 0.7,
@@ -639,8 +639,8 @@ export const CONNECTION_PATHS = [
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
     style: {
-      lineOpacity: 0.05,
-      lineWidth: 1.0,
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
       dotCount: 6,
       dotSize: 0.8,
       dotSpeed: 0.7,
@@ -661,8 +661,8 @@ export const CONNECTION_PATHS = [
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
     style: {
-      lineOpacity: 0.05,
-      lineWidth: 1.0,
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
       dotCount: 6,
       dotSize: 0.8,
       dotSpeed: 0.7,
@@ -683,8 +683,8 @@ export const CONNECTION_PATHS = [
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
     style: {
-      lineOpacity: 0.05,
-      lineWidth: 1.0,
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
       dotCount: 6,
       dotSize: 0.8,
       dotSpeed: 0.7,
@@ -807,6 +807,19 @@ export const TEMPERATURE_ARROWS = [
   { label: "Surface of the Sun",    logM: -36.81 + Math.log10(5778),   slug: null },
   { label: "Boiling Point of\nTungsten", logM: -36.81 + Math.log10(5828), slug: null },
   { label: "Lowest Temperature\nReached in a Lab", logM: -36.81 + Math.log10(3.8e-11), slug: null },
+];
+
+// Density arrows — cosmic events marked along the logM=56 timeline
+// Past events: logRho = log₁₀(average cosmic density in g/cm³) at the time of each event
+// Future events: logYearsFromNow = log₁₀(years from now), positioned between Now and Heat Death
+export const DENSITY_ARROWS = [
+  { label: "First Stars Form",            logRho: -25,    slug: null, priority: 1 },
+  { label: "Life Evolves\non Earth",      logRho: -28.5,  slug: null, priority: 0 },
+  { label: "Now",                         logRho: -29,    slug: null, priority: 2 },
+  { label: "Sun Goes\nSupernova",         logYearsFromNow: 9.7,   slug: null, priority: 0 },
+  { label: "Star Formation\nStops",       logYearsFromNow: 14,    slug: null, priority: 0 },
+  { label: "Last Star Goes\nSupernova",   logYearsFromNow: 15,    slug: null, priority: 1 },
+  { label: "Heat Death of\nthe Universe", logYearsFromNow: 100,   slug: "heat-death", priority: 2 },
 ];
 
 // Liquid water range (blue highlight)

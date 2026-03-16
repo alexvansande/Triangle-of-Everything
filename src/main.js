@@ -5,7 +5,7 @@ import {
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
   CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, CAT_DISPLAY, DENSITY_SPHERE_C, ARROWS, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, CONNECTION_PATHS,
-  DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE,
+  DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
 } from "./data.js";
 import objectsData from "./objects.json";
 import introRaw from "./texts/intro.md?raw";
@@ -208,6 +208,7 @@ const lConnDots   = clip.append("g").style("pointer-events", "none").style("mix-
 const lRegLabel   = clip.append("g");
 const lObj        = clip.append("g");
 const lHighlight  = clip.append("g").style("pointer-events", "none");
+const lAxisRef    = clip.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
 
 // Film grain noise overlay (paper texture, controlled by Noise slider)
 const grainRect = clip.append("rect")
@@ -221,6 +222,7 @@ const grainRect = clip.append("rect")
 // Axes outside clip
 const axB = chart.append("g");
 const axT = chart.append("g");
+const lDensityArrows = chart.append("g");  // non-clipped, for density arrows & era labels on logM=56 line
 const axL = chart.append("g");
 const axR = chart.append("g");
 
@@ -544,6 +546,9 @@ function drawEnergyBands() {
         .on("click", (e) => { e.stopPropagation(); openInfoPanel(slug, text); setSidebarOpen(true); });
     }
   }
+
+  // Dashed lines, band labels, and temperature arrows only when zoomed in enough
+  if (ppuY < 6) return;
 
   // First pass: compute yPx for all bands and draw dashed lines
   const bandYPx = sorted.map(b => {
@@ -948,8 +953,9 @@ const BIG_BANG_ERAS = [
 
 function drawBigBangEras() {
   lBigBangEras.selectAll("*").remove();
-  if (currentK < 1.3) return; // hide when zoomed out too much
   const d = vd();
+  const ppuY = ch / (d.y1 - d.y0);
+  if (ppuY < 6) return;  // match energy band zoom threshold
   const densAngle = screenAngle(3);
 
   // Precompute Schwarzschild intersection points for each era
@@ -963,6 +969,9 @@ function drawBigBangEras() {
   // Special case: the heat death line (last entry, no label) starts from the
   // Hubble-Compton corner instead of the Schwarzschild intersection.
   eras.forEach((era, idx) => {
+    // Skip the "Now" boundary line (Dark Energy Era at logRho=-29.5)
+    if (era.logRho === -29.5) return;
+
     const b = DENSITY_SPHERE_C + era.logRho;
 
     let startR, startM;
@@ -995,82 +1004,220 @@ function drawBigBangEras() {
       .attr("stroke-dasharray", "4 3");
   });
 
-  // Draw labels between consecutive era lines.
-  // Place each label along the mid-density line, offset past the Schwarzschild
-  // intersection so the text stays fully above the Schwarzschild boundary.
-  for (let i = 1; i < eras.length; i++) {
-    if (!eras[i].label) continue;
+  // Era labels are now drawn by drawDensityArrows() along the logM=56 line
+}
 
-    const prev = eras[i - 1];
-    const curr = eras[i];
+// =============================================================
+// Draw: Density arrows & era labels along the logM=56 timeline
+// =============================================================
 
-    // Skip label if the two intersection points are too close on screen
-    const dist = Math.hypot(px(curr.logR_int) - px(prev.logR_int),
-                            py(curr.logM_int) - py(prev.logM_int));
-    if (dist < 30) continue;
+function drawDensityArrows() {
+  lDensityArrows.selectAll("*").remove();
+  const d = vd();
+  const ppuY = ch / (d.y1 - d.y0);
+  if (ppuY < 6) return;  // match energy band zoom threshold
 
-    // Use mid-density between the two bounding era lines
-    const midLogRho = (prev.logRho + curr.logRho) / 2;
-    const midB = DENSITY_SPHERE_C + midLogRho;
+  const OBS_LOGM = 56;          // Observable Universe logM — the invisible timeline
+  const ARROW_LEN = 50;         // arrow length in pixels (event arrows)
+  const densAngle = screenAngle(3);
 
-    const pxPerUnitR = Math.abs(px(1) - px(0));
-    const labelOffsetPx = 8;
-    const dR = labelOffsetPx / (pxPerUnitR || 1);
+  // Screen-space direction along density line (upper-right in screen coords)
+  const pxPerR = Math.abs(px(1) - px(0));
+  const pxPerM = Math.abs(py(1) - py(0));
+  const rawDx = pxPerR;          // positive = right
+  const rawDy = -3 * pxPerM;     // negative = up (SVG y inverted)
+  const lineLen = Math.hypot(rawDx, rawDy);
+  if (lineLen < 1) return;
+  const ndx = rawDx / lineLen;   // unit vector along density line (upper-right)
+  const ndy = rawDy / lineLen;
 
-    let labelLogR, labelLogM;
+  // Arrow direction: from tail to tip = lower-left = (-ndx, -ndy)
+  const adx = -ndx, ady = -ndy;
+  // Perpendicular (pointing "above" the line in screen space)
+  const perpX = -ady, perpY = adx;
 
-    // Special case: heat death label — position it just above the Observable
-    // Universe object, horizontally centered between the two bounding density lines.
-    if (curr.logRho < -100) {
-      // Observable Universe is at logM ≈ 55.97; place label a bit above
-      labelLogM = 57;
-      // At this logM, find logR on each bounding density line:
-      // logM = 3*logR + DENSITY_SPHERE_C + logRho  =>  logR = (logM - DENSITY_SPHERE_C - logRho) / 3
-      const logR_prev = (labelLogM - DENSITY_SPHERE_C - prev.logRho) / 3;
-      const logR_curr = (labelLogM - DENSITY_SPHERE_C - curr.logRho) / 3;
-      labelLogR = (logR_prev + logR_curr) / 2;
-    } else {
-      // Find where mid-density line meets Schwarzschild
-      const schwLogR = (-SCHWARZSCHILD_C - DENSITY_SPHERE_C - midLogRho) / 2;
-      labelLogR = schwLogR + dR;
-      labelLogM = 3 * labelLogR + midB;
-    }
+  const tipYpx = py(OBS_LOGM);
 
-    const labelX = px(labelLogR);
-    const labelY = py(labelLogM);
-    const anchor = curr.logRho < -100 ? "middle" : "start";
+  // Compute tip X for past events using their density (logRho)
+  function computeTipX(logRho) {
+    const logR = (OBS_LOGM - DENSITY_SPHERE_C - logRho) / 3;
+    return px(logR);
+  }
 
-    // Skip if label is far outside viewport
-    if (labelX < -100 || labelX > cw + 100 || labelY < -100 || labelY > ch + 100) continue;
+  // "Now" position on the logM=56 line
+  const nowX = computeTipX(-29);
+  // Heat Death diagonal intersection with logM=56
+  const heatDeathLogR = (OBS_LOGM - DENSITY_SPHERE_C + 150.6) / 3;
+  const heatDeathX = px(heatDeathLogR);
+  // Max logYearsFromNow (Heat Death = 10^100 years)
+  const maxLogYears = 100;
 
-    // Dark outline for readability (matches energy band style)
-    lBigBangEras.append("text")
+  // Compute tip X for future events using log-time interpolation
+  // between Now's position and the Heat Death diagonal's intersection with logM=56
+  function computeFutureTipX(logYearsFromNow) {
+    const t = logYearsFromNow / maxLogYears;
+    return nowX + t * (heatDeathX - nowX);
+  }
+
+  // Draw an event arrow (small, white, with dashed line + arrowhead — like temperature arrows)
+  function drawEventArrow(tipXpx, label, slug) {
+    const color = "rgba(255,255,255,0.5)";
+    const fontSize = 10;
+    const lineHeight = fontSize * 1.3;
+    const lines = label.split("\n");
+
+    // Tail position (upper-right from tip along density line)
+    const tailX = tipXpx + ndx * ARROW_LEN;
+    const tailY = tipYpx + ndy * ARROW_LEN;
+
+    // Dashed line
+    lDensityArrows.append("line")
+      .attr("x1", tailX).attr("y1", tailY)
+      .attr("x2", tipXpx).attr("y2", tipYpx)
+      .attr("stroke", color)
+      .attr("stroke-width", 0.7)
+      .attr("stroke-dasharray", "2 3");
+
+    // Arrowhead at tip
+    lDensityArrows.append("path")
+      .attr("d", `M${tipXpx},${tipYpx} L${tipXpx - adx * 4 + perpX * 2.4},${tipYpx - ady * 4 + perpY * 2.4} L${tipXpx - adx * 4 - perpX * 2.4},${tipYpx - ady * 4 - perpY * 2.4}Z`)
+      .attr("fill", color);
+
+    // Label at the tail, start-aligned so text extends up-right from the line
+    // Position label so bottom of first line sits at tail
+    const labelX = tailX + perpX * 3;
+    const labelY = tailY + perpY * 3;
+
+    lines.forEach((line, li) => {
+      const yOff = li * lineHeight;
+
+      // Dark outline
+      lDensityArrows.append("text")
+        .attr("x", labelX).attr("y", labelY + yOff)
+        .attr("text-anchor", "start")
+        .attr("dominant-baseline", "auto")
+        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+        .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+        .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
+        .attr("stroke-width", 3).attr("stroke-linejoin", "round")
+        .attr("transform", `rotate(${densAngle},${labelX},${labelY})`)
+        .text(line);
+
+      // Colored text
+      const el = lDensityArrows.append("text")
+        .attr("x", labelX).attr("y", labelY + yOff)
+        .attr("text-anchor", "start")
+        .attr("dominant-baseline", "auto")
+        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+        .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+        .attr("fill", color)
+        .attr("transform", `rotate(${densAngle},${labelX},${labelY})`)
+        .text(line);
+
+      if (slug && li === 0) {
+        el.style("cursor", "pointer")
+          .on("click", (e) => { e.stopPropagation(); openInfoPanel(slug, label.replace("\n", " ")); setSidebarOpen(true); });
+      }
+    });
+  }
+
+  // Draw an era label (big, red, no arrow — like energy band labels)
+  function drawEraLabel(tipXpx, label, slug) {
+    const color = "rgba(255,130,130,0.8)";
+    const fontSize = 12;
+
+    // Label positioned at the invisible logM=56 line, start-aligned
+    const labelX = tipXpx;
+    const labelY = tipYpx;
+
+    // Dark outline
+    lDensityArrows.append("text")
       .attr("x", labelX).attr("y", labelY)
-      .attr("text-anchor", anchor)
-      .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", 12).attr("font-weight", 600)
-      .attr("letter-spacing", "1px")
+      .attr("text-anchor", "start")
+      .attr("dominant-baseline", "auto")
+      .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+      .attr("font-size", fontSize).attr("letter-spacing", "1px")
       .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
       .attr("stroke-width", 2).attr("stroke-linejoin", "round")
       .attr("opacity", 0.5)
       .attr("transform", `rotate(${densAngle},${labelX},${labelY})`)
-      .text(curr.label);
+      .text(label);
 
-    const txt = lBigBangEras.append("text")
+    // Colored text
+    const el = lDensityArrows.append("text")
       .attr("x", labelX).attr("y", labelY)
-      .attr("text-anchor", anchor)
-      .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", 12).attr("font-weight", 600)
-      .attr("letter-spacing", "1px")
-      .attr("fill", "rgba(255,130,130,0.8)")
+      .attr("text-anchor", "start")
+      .attr("dominant-baseline", "auto")
+      .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+      .attr("font-size", fontSize).attr("letter-spacing", "1px")
+      .attr("fill", color)
       .attr("opacity", 0.5)
       .attr("transform", `rotate(${densAngle},${labelX},${labelY})`)
-      .text(curr.label);
-    if (curr.slug) {
-      txt.style("cursor", "pointer")
-        .on("click", (e) => { e.stopPropagation(); openInfoPanel(curr.slug, curr.label); setSidebarOpen(true); });
+      .text(label);
+
+    if (slug) {
+      el.style("cursor", "pointer")
+        .on("click", (e) => { e.stopPropagation(); openInfoPanel(slug, label); setSidebarOpen(true); });
     }
   }
+
+  // Collect all items to draw: era labels + event arrows
+  const allItems = [];
+
+  // Era labels from BIG_BANG_ERAS (positioned at midpoint between bounding lines)
+  for (let i = 1; i < BIG_BANG_ERAS.length; i++) {
+    if (!BIG_BANG_ERAS[i].label) continue;
+    const midLogRho = (BIG_BANG_ERAS[i - 1].logRho + BIG_BANG_ERAS[i].logRho) / 2;
+    const tipX = computeTipX(midLogRho);
+    allItems.push({
+      tipX,
+      label: BIG_BANG_ERAS[i].label,
+      slug: BIG_BANG_ERAS[i].slug,
+      logRho: midLogRho,
+      type: "era",
+      priority: 1,
+    });
+  }
+
+  // Event arrows from DENSITY_ARROWS
+  DENSITY_ARROWS.forEach(arr => {
+    let tipX;
+    if (arr.logYearsFromNow != null) {
+      // Future event: log-time interpolation between Now and Heat Death
+      tipX = computeFutureTipX(arr.logYearsFromNow);
+    } else {
+      // Past event or Now: density-based positioning
+      tipX = computeTipX(arr.logRho);
+    }
+    allItems.push({
+      tipX,
+      label: arr.label,
+      slug: arr.slug,
+      type: "event",
+      priority: arr.priority || 0,
+    });
+  });
+
+  // Sort by priority (high first), then by tipX for stable ordering
+  allItems.sort((a, b) => b.priority - a.priority || a.tipX - b.tipX);
+
+  // Collision detection: minimum spacing between arrow tips
+  const placed = [];  // array of tipX values
+  const MIN_SPACING = 20;  // minimum pixels between arrow tips
+
+  allItems.forEach(item => {
+    if (item.tipX < -200 || item.tipX > cw + 200) return;
+
+    const collides = placed.some(p => Math.abs(item.tipX - p) < MIN_SPACING);
+    if (collides) return;
+
+    placed.push(item.tipX);
+    if (item.type === "era") {
+      drawEraLabel(item.tipX, item.label, item.slug);
+    } else {
+      drawEventArrow(item.tipX, item.label, item.slug);
+    }
+  });
 }
 
 // =============================================================
@@ -2030,6 +2177,58 @@ function positionAxisTooltip(region) {
 
 function hideAxisTooltip() {
   axisTooltipEl.className = "";
+  hideAxisRefLine();
+}
+
+// ── Axis reference line ──
+
+const axisRefLine = lAxisRef.append("line")
+  .attr("stroke", "rgba(255,255,255,0.18)")
+  .attr("stroke-width", 1)
+  .attr("stroke-dasharray", "4,4")
+  .style("display", "none");
+
+function showAxisRefLine(region) {
+  const d = vd();
+  let x1, y1, x2, y2;
+
+  switch (region.axis) {
+    case "right":
+    case "left": {
+      // Horizontal line at the hovered mass/energy
+      const logM = yS.invert(region.chartY);
+      x1 = xS(d.x0); y1 = yS(logM);
+      x2 = xS(d.x1); y2 = yS(logM);
+      break;
+    }
+    case "bottom": {
+      // Vertical line at the hovered size
+      const logR = xS.invert(region.chartX);
+      x1 = xS(logR); y1 = yS(d.y1);
+      x2 = xS(logR); y2 = yS(d.y0);
+      break;
+    }
+    case "top": {
+      // Diagonal line along constant-density (slope 3: logM = 3·logR + b)
+      const logR = xS.invert(region.chartX);
+      const logRho = d.y1 - 3 * logR - DENSITY_SPHERE_C;
+      const b = DENSITY_SPHERE_C + logRho;
+      const seg = clipDensityLine(d, b);
+      if (!seg) { hideAxisRefLine(); return; }
+      x1 = xS(seg.x1); y1 = yS(seg.y1);
+      x2 = xS(seg.x2); y2 = yS(seg.y2);
+      break;
+    }
+  }
+
+  axisRefLine
+    .attr("x1", x1).attr("y1", y1)
+    .attr("x2", x2).attr("y2", y2)
+    .style("display", null);
+}
+
+function hideAxisRefLine() {
+  axisRefLine.style("display", "none");
 }
 
 // ── Event binding ──
@@ -2049,6 +2248,7 @@ svg.on("mousemove.axisTooltip", (e) => {
     `<div class="at-line3">${content.line3}</div>`;
   axisTooltipEl.className = `visible at-${region.axis}`;
   positionAxisTooltip(region);
+  showAxisRefLine(region);
 });
 
 svg.on("mouseleave.axisTooltip", () => hideAxisTooltip());
@@ -3380,6 +3580,7 @@ function redrawVectors() {
   drawTriangleOverlay();
   drawBoundaries();
   drawBigBangEras();
+  drawDensityArrows();
   drawEnergyBands();
   drawDarkMatterRegions();
   drawConnections();
