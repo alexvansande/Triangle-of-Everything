@@ -5,10 +5,9 @@ import {
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
   CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, CAT_DISPLAY, DENSITY_SPHERE_C, ARROWS, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, CONNECTION_PATHS,
-  DARK_MATTER_REGIONS, ENERGY_BANDS,
+  DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE,
 } from "./data.js";
 import objectsData from "./objects.json";
-import { fbm } from "./simplex.js";
 import introRaw from "./texts/intro.md?raw";
 import "./style.css";
 import katex from "katex";
@@ -64,7 +63,7 @@ function nameToSlug(name) {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-const OBJECTS = objectsData.map(o => ({ ...o, slug: nameToSlug(o.name) }));
+const OBJECTS = objectsData.map(o => ({ ...o, slug: o.slug || nameToSlug(o.name) }));
 let tileMeta = null;
 
 // =============================================================
@@ -178,7 +177,7 @@ cg.append("feMergeNode").attr("in", "SourceGraphic");
 const grainF = defs.append("filter").attr("id", "film-grain")
   .attr("x", "0%").attr("y", "0%").attr("width", "100%").attr("height", "100%");
 grainF.append("feTurbulence")
-  .attr("type", "fractalNoise").attr("baseFrequency", "0.65")
+  .attr("type", "fractalNoise").attr("baseFrequency", "1.2")
   .attr("numOctaves", "3").attr("stitchTiles", "stitch").attr("result", "noise");
 grainF.append("feColorMatrix").attr("type", "saturate").attr("values", "0").attr("in", "noise").attr("result", "mono");
 grainF.append("feBlend").attr("in", "SourceGraphic").attr("in2", "mono").attr("mode", "multiply");
@@ -201,6 +200,7 @@ const lGrid       = clip.append("g");
 const lDensity    = clip.append("g");
 const lTriOverlay = clip.append("g");
 const lBound      = clip.append("g");
+const lEnergyBands = clip.append("g");
 const lDarkMatter = clip.append("g");
 const lArrows     = clip.append("g").style("mix-blend-mode", "screen");
 const lConnDots   = clip.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
@@ -208,10 +208,11 @@ const lRegLabel   = clip.append("g");
 const lObj        = clip.append("g");
 const lHighlight  = clip.append("g").style("pointer-events", "none");
 
-// Film grain noise overlay (adds subtle texture)
-clip.append("rect")
+// Film grain noise overlay (paper texture, controlled by Noise slider)
+const grainRect = clip.append("rect")
+  .attr("id", "grain-overlay")
   .attr("width", cw).attr("height", ch)
-  .attr("fill", "white").attr("opacity", 0.18)
+  .attr("fill", "white").attr("opacity", 1.05)
   .attr("filter", "url(#film-grain)")
   .style("mix-blend-mode", "overlay")
   .style("pointer-events", "none");
@@ -465,45 +466,303 @@ function drawBoundaries() {
       .attr("stroke-dasharray", "4 4");
   }
 
-  // Reference lines (main sequence, red giants, etc.)
+  // Reference lines (main sequence, red giants, TOV, QGP, etc.)
   const d = vd();
   REFERENCE_LINES.forEach(rl => {
     if (rl.width <= 0) return;
-    const pts = rl.points.filter(p =>
-      p.logR >= d.x0 - 5 && p.logR <= d.x1 + 5 &&
-      p.logM >= d.y0 - 5 && p.logM <= d.y1 + 5
-    );
-    if (pts.length < 2) return;
+    const p0 = rl.points[0], p1 = rl.points[1];
 
-    // Hide reference lines whose screen length is too small to be meaningful
-    const screenLen = Math.hypot(
-      px(rl.points[1].logR) - px(rl.points[0].logR),
-      py(rl.points[1].logM) - py(rl.points[0].logM));
+    // Clip line segment to the viewport (handles diagonal lines that cross without
+    // having endpoints inside the view)
+    const clipped = clampLineToChart(px(p0.logR), py(p0.logM), px(p1.logR), py(p1.logM));
+    if (!clipped) return; // fully outside viewport
+
+    const screenLen = Math.hypot(clipped.x2 - clipped.x1, clipped.y2 - clipped.y1);
     if (screenLen < 60) return;
 
+    // Draw the full line (SVG clip-path handles visual clipping)
     lBound.append("line")
-      .attr("x1", px(rl.points[0].logR)).attr("y1", py(rl.points[0].logM))
-      .attr("x2", px(rl.points[1].logR)).attr("y2", py(rl.points[1].logM))
+      .attr("x1", px(p0.logR)).attr("y1", py(p0.logM))
+      .attr("x2", px(p1.logR)).attr("y2", py(p1.logM))
       .attr("stroke", rl.color).attr("stroke-width", rl.width)
       .attr("stroke-dasharray", rl.dash);
 
-    // Label
-    const mx = (rl.points[0].logR + rl.points[1].logR) / 2;
-    const my = (rl.points[0].logM + rl.points[1].logM) / 2;
-    const ang = Math.atan2(
-      py(rl.points[1].logM) - py(rl.points[0].logM),
-      px(rl.points[1].logR) - px(rl.points[0].logR)
-    ) * 180 / Math.PI;
+    // Label at midpoint of the VISIBLE segment
+    const midSx = (clipped.x1 + clipped.x2) / 2;
+    const midSy = (clipped.y1 + clipped.y2) / 2;
+    const ang = Math.atan2(clipped.y2 - clipped.y1, clipped.x2 - clipped.x1) * 180 / Math.PI;
 
     lBound.append("text")
-      .attr("x", px(mx)).attr("y", py(my) - 5)
+      .attr("x", midSx).attr("y", midSy - 5)
       .attr("text-anchor", "middle")
       .attr("font-family", "Inter, sans-serif").attr("font-size", 8)
       .attr("fill", rl.color.replace(/[\d.]+\)$/, "0.4)"))
       .attr("font-style", "italic").attr("letter-spacing", "1px")
-      .attr("transform", `rotate(${ang},${px(mx)},${py(my) - 5})`)
+      .attr("transform", `rotate(${ang},${midSx},${midSy - 5})`)
       .text(rl.label.toUpperCase());
   });
+}
+
+// =============================================================
+// Draw: Energy Band Labels & Temperature Arrows
+// =============================================================
+
+function drawEnergyBands() {
+  lEnergyBands.selectAll("*").remove();
+  const d = vd();
+  const ppuY = ch / (d.y1 - d.y0);
+
+  // Sort bands by logM descending (highest energy first)
+  const sorted = ENERGY_BANDS.slice().sort((a, b) => b.logM - a.logM);
+  const planckX = px(PLANCK_LOG_R);
+
+  // --- Range labels (dashed lines from Compton line to Planck length + labels) ---
+  const fontSize = 12;
+
+  // Helper to render a band label (outline + colored fill)
+  function renderBandLabel(labelX, labelY, text, slug) {
+    lEnergyBands.append("text")
+      .attr("x", labelX).attr("y", labelY)
+      .attr("text-anchor", "end")
+      .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+      .attr("font-size", fontSize).attr("letter-spacing", "1px")
+      .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
+      .attr("stroke-width", 2).attr("stroke-linejoin", "round")
+      .attr("opacity", 0.5)
+      .text(text);
+    const txt = lEnergyBands.append("text")
+      .attr("x", labelX).attr("y", labelY)
+      .attr("text-anchor", "end")
+      .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+      .attr("font-size", fontSize).attr("letter-spacing", "1px")
+      .attr("fill", "rgba(255,130,130,0.8)")
+      .attr("opacity", 0.5)
+      .text(text);
+    if (slug) {
+      txt.style("cursor", "pointer")
+        .on("click", (e) => { e.stopPropagation(); openInfoPanel(slug, text); setSidebarOpen(true); });
+    }
+  }
+
+  // First pass: compute yPx for all bands and draw dashed lines
+  const bandYPx = sorted.map(b => {
+    if (b.logM < d.y0 - 5 || b.logM > d.y1 + 5) return null;
+    return py(b.logM);
+  });
+
+  for (let i = 0; i < sorted.length; i++) {
+    if (bandYPx[i] === null) continue;
+    const yPx = bandYPx[i];
+    if (yPx < -50 || yPx > ch + 50) continue;
+
+    const compX = px(comptonR(sorted[i].logM));
+    if (Math.min(compX, planckX) > cw + 50 || Math.max(compX, planckX) < -50) continue;
+
+    lEnergyBands.append("line")
+      .attr("x1", compX).attr("y1", yPx)
+      .attr("x2", planckX).attr("y2", yPx)
+      .attr("stroke", "rgba(255,100,100,0.4)")
+      .attr("stroke-width", 0.7)
+      .attr("stroke-dasharray", "4 3");
+  }
+
+  // Second pass: draw labels between visible band pairs
+  const labelX = planckX - 5;
+  let firstVisibleDrawn = false;
+
+  for (let i = 0; i < sorted.length; i++) {
+    const yPx = bandYPx[i] !== null ? bandYPx[i] : null;
+    const inView = yPx !== null && yPx >= -50 && yPx <= ch + 50;
+
+    if (!inView) continue;
+
+    // For the first visible band, show its own label above its line
+    // (handles the case where PLANCK ENERGY is above the viewport)
+    if (!firstVisibleDrawn) {
+      firstVisibleDrawn = true;
+      if (i > 0) {
+        // A band above is out of view — show this band's label above its line
+        const ly = yPx - 6;
+        if (ly > -2) renderBandLabel(labelX, ly, sorted[i].label, sorted[i].slug);
+      } else {
+        // This IS the topmost band — show PLANCK ENERGY above its line
+        const ly = yPx - 6;
+        if (ly > -2) renderBandLabel(labelX, ly, sorted[i].label, sorted[i].slug);
+      }
+    }
+
+    // Region label between this band and the next visible one
+    if (i < sorted.length - 1) {
+      const nextYPx = bandYPx[i + 1];
+      if (nextYPx === null) continue;
+      if (nextYPx < -50 || nextYPx > ch + 50) continue;
+      const gap = Math.abs(nextYPx - yPx);
+      if (gap < fontSize + 4) continue;
+
+      const midY = (yPx + nextYPx) / 2;
+      renderBandLabel(labelX, midY + fontSize * 0.35, sorted[i + 1].label, sorted[i + 1].slug);
+    }
+  }
+
+  // --- Helper: compute arrow X positions relative to Compton line ---
+  // Arrow tip touches the Compton line; tail and label are a fixed
+  // pixel distance to the left so they stay visible at any zoom.
+  const ARROW_PX_LEN = 60;   // arrow length in pixels
+  const LABEL_PX_GAP = 5;    // gap between label and arrow tail
+
+  function drawArrow(logM, label, color, slug) {
+    const yPx = py(logM);
+    if (yPx < -20 || yPx > ch + 20) return;
+
+    const compR = comptonR(logM);
+    const tipX = px(compR);
+    if (tipX > cw + 50) return;   // Compton line off-screen right
+
+    const tailX = tipX - ARROW_PX_LEN;
+    const labelX = tailX - LABEL_PX_GAP;
+
+    // Dotted line
+    lEnergyBands.append("line")
+      .attr("x1", tailX).attr("y1", yPx)
+      .attr("x2", tipX).attr("y2", yPx)
+      .attr("stroke", color)
+      .attr("stroke-width", 0.7)
+      .attr("stroke-dasharray", "2 3");
+
+    // Arrowhead
+    lEnergyBands.append("path")
+      .attr("d", `M${tipX},${yPx} L${tipX - 4},${yPx - 2.4} L${tipX - 4},${yPx + 2.4}Z`)
+      .attr("fill", color);
+
+    // Label — match object label style: Inter 600, 10px, letter-spacing 0.5px
+    const lines = label.split("\n");
+    const fontSize = 10;
+    const lineHeight = fontSize * 1.3;
+    const startY = yPx - ((lines.length - 1) * lineHeight) / 2;
+
+    lines.forEach((line, li) => {
+      // Dark outline (same as obj-label)
+      lEnergyBands.append("text")
+        .attr("x", labelX).attr("y", startY + li * lineHeight + fontSize * 0.35)
+        .attr("text-anchor", "end")
+        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+        .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+        .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
+        .attr("stroke-width", 3).attr("stroke-linejoin", "round")
+        .text(line);
+
+      // Colored text (same as obj-label)
+      const el = lEnergyBands.append("text")
+        .attr("x", labelX).attr("y", startY + li * lineHeight + fontSize * 0.35)
+        .attr("text-anchor", "end")
+        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+        .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+        .attr("fill", color);
+      el.text(line);
+
+      if (slug && li === 0) {
+        el.style("cursor", "pointer")
+          .on("click", (e) => {
+            e.stopPropagation();
+            openInfoPanel(slug, label.replace("\n", " "));
+            setSidebarOpen(true);
+          });
+      }
+    });
+  }
+
+  // Temperature arrows — only when zoomed enough, skip overlapping
+  if (ppuY >= 6) {
+    const arrowFontSize = 10;
+    const arrowLineH = arrowFontSize * 1.3;
+    const placedArrows = [];  // array of { yMin, yMax } in px
+
+    // Sort by logM descending so highest energy (top of screen) first
+    const sortedArrows = TEMPERATURE_ARROWS.slice()
+      .filter(a => a.logM >= d.y0 && a.logM <= d.y1)
+      .sort((a, b) => b.logM - a.logM);
+
+    sortedArrows.forEach(arr => {
+      const yPx = py(arr.logM);
+      const lines = arr.label.split("\n");
+      const totalH = lines.length * arrowLineH;
+      const yMin = yPx - totalH / 2 - 2;
+      const yMax = yPx + totalH / 2 + 2;
+
+      // Check collision with already placed arrows
+      const collides = placedArrows.some(p => yMin < p.yMax && yMax > p.yMin);
+      if (collides) return;
+
+      placedArrows.push({ yMin, yMax });
+      drawArrow(arr.logM, arr.label, "rgba(255,255,255,0.5)", arr.slug);
+    });
+  }
+
+  // --- Water range (blue highlight) ---
+  if (WATER_RANGE.logMTop >= d.y0 && WATER_RANGE.logMBottom <= d.y1 && ppuY >= 6) {
+    const topY = py(WATER_RANGE.logMTop);
+    const botY = py(WATER_RANGE.logMBottom);
+    const gap = Math.abs(botY - topY);
+    const waterBlue = "rgba(128,222,234,0.5)";
+
+    if (gap >= 2) {
+      const compRTop = comptonR(WATER_RANGE.logMTop);
+      const compRBot = comptonR(WATER_RANGE.logMBottom);
+      const tipXTop = px(compRTop);
+      const tipXBot = px(compRBot);
+
+      if (tipXTop > -50 && tipXBot > -50) {
+        const tailXTop = tipXTop - ARROW_PX_LEN;
+        const tailXBot = tipXBot - ARROW_PX_LEN;
+        const midY = (topY + botY) / 2;
+        const labelX = Math.min(tailXTop, tailXBot) - LABEL_PX_GAP;
+
+        // Top arrow (100°C)
+        lEnergyBands.append("line")
+          .attr("x1", tailXTop).attr("y1", topY)
+          .attr("x2", tipXTop).attr("y2", topY)
+          .attr("stroke", waterBlue).attr("stroke-width", 0.7)
+          .attr("stroke-dasharray", "2 3");
+        lEnergyBands.append("path")
+          .attr("d", `M${tipXTop},${topY} L${tipXTop - 4},${topY - 2.4} L${tipXTop - 4},${topY + 2.4}Z`)
+          .attr("fill", waterBlue);
+
+        // Bottom arrow (0°C)
+        lEnergyBands.append("line")
+          .attr("x1", tailXBot).attr("y1", botY)
+          .attr("x2", tipXBot).attr("y2", botY)
+          .attr("stroke", waterBlue).attr("stroke-width", 0.7)
+          .attr("stroke-dasharray", "2 3");
+        lEnergyBands.append("path")
+          .attr("d", `M${tipXBot},${botY} L${tipXBot - 4},${botY - 2.4} L${tipXBot - 4},${botY + 2.4}Z`)
+          .attr("fill", waterBlue);
+
+        // Vertical bracket
+        lEnergyBands.append("line")
+          .attr("x1", tailXTop).attr("y1", topY)
+          .attr("x2", tailXBot).attr("y2", botY)
+          .attr("stroke", waterBlue).attr("stroke-width", 0.7);
+
+        // Label — match object label style
+        const fontSize = 10;
+        lEnergyBands.append("text")
+          .attr("x", labelX).attr("y", midY + fontSize * 0.35)
+          .attr("text-anchor", "end")
+          .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
+          .attr("stroke-width", 3).attr("stroke-linejoin", "round")
+          .text(WATER_RANGE.label);
+        lEnergyBands.append("text")
+          .attr("x", labelX).attr("y", midY + fontSize * 0.35)
+          .attr("text-anchor", "end")
+          .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("fill", waterBlue)
+          .text(WATER_RANGE.label);
+      }
+    }
+  }
 }
 
 // =============================================================
@@ -944,7 +1203,7 @@ function drawObjects() {
   });
 
   // --- Category labels for spread-out groups: when zoomed in, show subcat label in center ---
-  const CATEGORY_LABEL_FONT = 14;
+  const CATEGORY_LABEL_FONT = 12;
   const CATEGORY_LABEL_OPACITY = 0.5;
   const CATEGORY_LABEL_MIN_CLEAR = 60; // px — min clearance from individual labels
 
@@ -995,19 +1254,19 @@ function drawObjects() {
       .attr("x", lx).attr("y", ly)
       .attr("text-anchor", pos.anchor)
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", 9).attr("letter-spacing", "0.5px")
+      .attr("font-size", 10).attr("letter-spacing", "0.5px")
       .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
       .attr("class", "obj-label obj-cluster-label")
-      .text(labelText.toUpperCase());
+      .text(labelText);
     g.append("text")
       .attr("x", lx).attr("y", ly)
       .attr("text-anchor", pos.anchor)
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", 9).attr("letter-spacing", "0.5px")
+      .attr("font-size", 10).attr("letter-spacing", "0.5px")
       .attr("fill", cl.cat.color)
       .attr("class", "obj-label obj-cluster-label")
-      .text(labelText.toUpperCase());
+      .text(labelText);
   });
 
   // --- Render category labels (spread-out groups, center of mass) ---
@@ -1036,7 +1295,7 @@ function drawObjects() {
 
   // --- Render BH subcategory labels along the Schwarzschild line ---
   const BH_SUBCAT_POSITIONS = [
-    { label: "Primordial Black Holes", logM: 14.7 },
+    { label: "Primordial Black Holes", logM: 25.0, slug: "primordial-black-hole" },
     { label: "Stellar Black Holes", logM: 35.5 },
     { label: "Supermassive Black Holes", logM: 41.5 },
   ];
@@ -1050,12 +1309,18 @@ function drawObjects() {
   const perpY = -Math.cos(schwAngRad);
   const BH_PX_OFFSET = 12; // pixels outside S line (SCHWARZSCHILD RADIUS label is at ~28px)
 
-  function renderBHLabel(text, logM) {
+  function renderBHLabel(text, logM, slug) {
     const sR = schwarzschildR(logM);
     const sx = px(sR) + perpX * BH_PX_OFFSET;
     const sy = py(logM) + perpY * BH_PX_OFFSET;
     if (sx < -100 || sx > cw + 100 || sy < -100 || sy > ch + 100) return;
-    const g = lObj.append("g").style("pointer-events", "none");
+    const g = lObj.append("g");
+    if (slug) {
+      g.style("cursor", "pointer")
+       .on("click", () => openInfoPanel(slug, text));
+    } else {
+      g.style("pointer-events", "none");
+    }
     g.append("text")
       .attr("x", sx).attr("y", sy)
       .attr("text-anchor", "middle")
@@ -1093,7 +1358,7 @@ function drawObjects() {
       const midM = (BH_SUBCAT_POSITIONS[0].logM + BH_SUBCAT_POSITIONS[2].logM) / 2;
       renderBHLabel("BLACK HOLES", midM);
     } else {
-      BH_SUBCAT_POSITIONS.forEach(bh => renderBHLabel(bh.label.toUpperCase(), bh.logM));
+      BH_SUBCAT_POSITIONS.forEach(bh => renderBHLabel(bh.label.toUpperCase(), bh.logM, bh.slug));
     }
   }
 
@@ -1129,7 +1394,7 @@ function drawObjects() {
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
       .attr("class", "obj-label")
       .attr("display", o._showLabel ? null : "none")
-      .text(o.name.toUpperCase());
+      .text(o.name);
 
     const label = g.append("text")
       .attr("x", o.sx + pos.dx).attr("y", o.sy + pos.dy)
@@ -1139,7 +1404,7 @@ function drawObjects() {
       .attr("fill", o.color)
       .attr("class", "obj-label")
       .attr("display", o._showLabel ? null : "none")
-      .text(o.name.toUpperCase());
+      .text(o.name);
 
     g.on("click", function(e) {
       e.stopPropagation();
@@ -1963,8 +2228,8 @@ function drawAxes() {
   }
 
   const leftCompact = _isSidebarOpen;
-  const unitX = leftCompact ? -50 : -60;
-  const titleY = leftCompact ? -68 : -125;
+  const unitX = leftCompact ? -12 : -20;
+  const titleY = leftCompact ? -45 : -60;
 
   let lastEnergyPy = -Infinity;
   ENERGY_UNITS.forEach(u => {
@@ -1982,50 +2247,6 @@ function drawAxes() {
       lastEnergyPy = p;
     }
   });
-
-  // Energy level bands — bracket-style labels between energy thresholds
-  // Only show when sidebar is closed (more horizontal space)
-  if (!leftCompact) {
-    const bandLabelX = unitX - 30;
-    const sortedBands = ENERGY_BANDS.slice().sort((a, b) => b.logM - a.logM);
-    for (let i = 0; i < sortedBands.length; i++) {
-      const band = sortedBands[i];
-      if (band.logM < d.y0 || band.logM > Math.min(d.y1, leftMax)) continue;
-      const p = py(band.logM);
-      if (p < 2 || p > ch - 2) continue;
-
-      // Small bracket tick at energy level
-      axL.append("line")
-        .attr("x1", bandLabelX + 20).attr("y1", p).attr("x2", bandLabelX + 25).attr("y2", p)
-        .attr("stroke", "rgba(255,180,100,0.25)").attr("stroke-width", 0.5);
-
-      // Label between this band and the next one below it
-      if (i < sortedBands.length - 1) {
-        const nextBand = sortedBands[i + 1];
-        if (nextBand.logM < d.y0) continue;
-        const nextP = py(nextBand.logM);
-        if (nextP > ch - 2) continue;
-        const midP = (p + nextP) / 2;
-        const gap = Math.abs(nextP - p);
-        if (gap < 12) continue;
-
-        const txt = axL.append("text")
-          .attr("x", bandLabelX).attr("y", midP + 3)
-          .attr("text-anchor", "end")
-          .attr("font-family", "Inter, sans-serif")
-          .attr("font-size", Math.min(6.5, gap * 0.35))
-          .attr("font-weight", 500)
-          .attr("fill", "rgba(255,180,120,0.35)")
-          .attr("letter-spacing", "0.5px")
-          .style("cursor", "pointer")
-          .text(band.label);
-        if (band.slug) {
-          txt.attr("class", "axis-unit-link")
-            .attr("data-slug", band.slug).attr("data-name", band.label);
-        }
-      }
-    }
-  }
 
   axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", titleY)
     .attr("text-anchor", "middle").attr("class", "axis-title").text("ENERGY");
@@ -2087,7 +2308,7 @@ function drawAxes() {
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
     if (Math.abs(p - lastMassUnitPy) >= minUnitPx && u.slug) {
       axR.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-        .attr("x", 42).attr("y", p + 3).attr("text-anchor", "start")
+        .attr("x", 12).attr("y", p + 3).attr("text-anchor", "start")
         .attr("font-family", "'Space Mono', monospace").attr("font-size", 8)
         .attr("fill", "rgba(255,130,130,0.6)")
         .text(u.label);
@@ -2095,9 +2316,9 @@ function drawAxes() {
     }
   });
 
-  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -68)
+  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -45)
     .attr("text-anchor", "middle").attr("class", "axis-title").text("MASS");
-  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -55)
+  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -33)
     .attr("text-anchor", "middle").attr("class", "axis-subtitle").text("10ⁿ kg");
 }
 
@@ -2252,13 +2473,19 @@ function drawConnections() {
   const curveLineGen = d3.line()
     .x(p => px(p.logR)).y(p => py(p.logM))
     .curve(d3.curveCatmullRom.alpha(0.5));
+  const linearLineGen = d3.line()
+    .x(p => px(p.logR)).y(p => py(p.logM))
+    .curve(d3.curveLinear);
 
   _connPaths.forEach(cp => {
     cp._opacity = connectionOpacity(cp);
     cp._visible = cp._opacity > 0.01;
 
+    // Decay and combines paths use linear interpolation to avoid overshooting
+    const gen = (cp.family === "decay" || cp.family === "combines")
+      ? linearLineGen : curveLineGen;
     const hiddenPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    hiddenPath.setAttribute("d", curveLineGen(cp.points));
+    hiddenPath.setAttribute("d", gen(cp.points));
     cp._pathEl = hiddenPath;
     cp._pathLen = hiddenPath.getTotalLength();
 
@@ -2567,7 +2794,6 @@ function drawTiles() {
   const imgLogMmin = imgLogMmax - imgDataH;
 
   const screenPPU = Math.abs(px(1) - px(0));
-  const imgBasePPU = tileMeta.imgW / imgDataW;
 
   let best = levels[0];
   for (const lv of levels) {
@@ -2646,11 +2872,16 @@ async function loadTileMeta() {
 
 function redraw() {
   drawTiles();
+  redrawVectors();
+}
+
+function redrawVectors() {
   drawRegions();
   drawGrid();
   drawDensityLines();
   drawTriangleOverlay();
   drawBoundaries();
+  drawEnergyBands();
   drawDarkMatterRegions();
   drawConnections();
   drawRegionLabels();
@@ -2667,6 +2898,8 @@ function redraw() {
 
 let currentK = 1;
 let rafPending = false;
+let _zoomPrevTransform = null;  // track previous transform for CSS offset
+let _zooming = false;
 
 const zoomBehavior = d3.zoom()
   .scaleExtent([0.3, 800])
@@ -2674,6 +2907,10 @@ const zoomBehavior = d3.zoom()
     if (event.button && event.button !== 0) return false;
     if (event.target.closest?.("button, input, a")) return false;
     return svg.node().contains(event.target);
+  })
+  .on("start", () => {
+    _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
+    _zooming = true;
   })
   .on("zoom", (event) => {
     const t = event.transform;
@@ -2684,11 +2921,24 @@ const zoomBehavior = d3.zoom()
     if (!rafPending) {
       rafPending = true;
       requestAnimationFrame(() => {
-        redraw();
+        // During drag: CSS-translate tiles for instant feedback, redraw vectors only
+        if (_zooming && _zoomPrevTransform) {
+          const dx = xS(0) - _zoomPrevTransform.xS(0);
+          const dy = yS(0) - _zoomPrevTransform.yS(0);
+          const sk = currentK / _zoomPrevTransform.k;
+          lTiles.attr("transform", `translate(${dx},${dy}) scale(${sk})`);
+        }
+        redrawVectors();
         updateReadout(null);
         rafPending = false;
       });
     }
+  })
+  .on("end", () => {
+    _zooming = false;
+    _zoomPrevTransform = null;
+    lTiles.attr("transform", null);
+    drawTiles();
   });
 
 svg.call(zoomBehavior);
@@ -2801,21 +3051,50 @@ document.getElementById("zoom-out").addEventListener("click", () =>
 document.getElementById("zoom-reset").addEventListener("click", () =>
   svg.transition().duration(500).call(zoomBehavior.transform, d3.zoomIdentity));
 
-const animToggle = document.getElementById("anim-toggle");
-animToggle.addEventListener("click", () => {
-  _animDisabled = !_animDisabled;
-  animToggle.classList.toggle("off", _animDisabled);
-  animToggle.title = _animDisabled ? "Animations off" : "Animations on";
-  document.body.classList.toggle("anim-off", _animDisabled);
+// ---------- settings panel ----------
+const settingsBtn = document.getElementById("settings-btn");
+const settingsPanel = document.getElementById("settings-panel");
+settingsBtn.addEventListener("click", () => {
+  const open = settingsPanel.classList.toggle("open");
+  settingsBtn.classList.toggle("active", open);
+});
+// close when clicking outside
+document.addEventListener("pointerdown", (e) => {
+  if (settingsPanel.classList.contains("open") &&
+      !settingsPanel.contains(e.target) && e.target !== settingsBtn && !settingsBtn.contains(e.target)) {
+    settingsPanel.classList.remove("open");
+    settingsBtn.classList.remove("active");
+  }
 });
 
-const bgToggle = document.getElementById("bg-toggle");
-bgToggle.addEventListener("click", () => {
-  _bgTilesEnabled = !_bgTilesEnabled;
-  bgToggle.classList.toggle("off", !_bgTilesEnabled);
-  bgToggle.title = _bgTilesEnabled ? "Background image on" : "Background image off";
+function saveSettings() {
+  localStorage.setItem("tri-settings", JSON.stringify({
+    bg: setBg.checked, anim: setAnim.checked,
+    noise: +setNoise.value
+  }));
+}
+
+const setBg = document.getElementById("set-bg");
+setBg.addEventListener("change", () => {
+  _bgTilesEnabled = setBg.checked;
   redraw();
+  saveSettings();
 });
+
+const setAnim = document.getElementById("set-anim");
+setAnim.addEventListener("change", () => {
+  _animDisabled = !setAnim.checked;
+  document.body.classList.toggle("anim-off", _animDisabled);
+  saveSettings();
+});
+
+const setNoise = document.getElementById("set-noise");
+setNoise.addEventListener("input", () => {
+  grainRect.attr("opacity", (setNoise.value / 100) * 3);  // 0→0, 100→3.0
+  saveSettings();
+});
+
+
 
 // =============================================================
 // Keyboard shortcuts
@@ -2991,80 +3270,18 @@ document.querySelectorAll("#preset-bar button").forEach(btn => {
 
 // (starfield removed — replaced by background image tiles)
 
-// =============================================================
-// Procedural cloud layer (slow-moving nebula noise)
-// =============================================================
-
-const cloudCanvas = document.getElementById("cloud-canvas");
-const cloudCtx = cloudCanvas.getContext("2d");
-const CLOUD_DOWNSAMPLE = 4;
-const CLOUD_PX_SCALE = 0.007;   // Pixel-based: cloud feature size ~140 screen px
-const CLOUD_MORPH_SPEED = 0.00008;  // Very slow morphing
-
-function resizeCloudCanvas() {
-  // Position canvas exactly over the chart plotting area
-  cloudCanvas.width = Math.ceil(cw / CLOUD_DOWNSAMPLE);
-  cloudCanvas.height = Math.ceil(ch / CLOUD_DOWNSAMPLE);
-  cloudCanvas.style.width = cw + "px";
-  cloudCanvas.style.height = ch + "px";
-  cloudCanvas.style.left = margin.left + "px";
-  cloudCanvas.style.top = margin.top + "px";
-}
-resizeCloudCanvas();
-
-function drawClouds(timestamp) {
-  if (_animDisabled || !_bgTilesEnabled) {
-    cloudCanvas.style.display = "none";
-    return;
-  }
-  cloudCanvas.style.display = "";
-
-  const t = (timestamp || 0) * CLOUD_MORPH_SPEED;
-
-  const cw2 = cloudCanvas.width, ch2 = cloudCanvas.height;
-  const imgData = cloudCtx.createImageData(cw2, ch2);
-  const data = imgData.data;
-
-  // Slow circular morphing: coordinates wander in a Lissajous pattern
-  // instead of drifting in one direction, so clouds transform in place
-  const ox = Math.sin(t * 0.7) * 4;
-  const oy = Math.cos(t * 0.5) * 4;
-
-  for (let py2 = 0; py2 < ch2; py2++) {
-    for (let px2 = 0; px2 < cw2; px2++) {
-      // Pixel-based noise: same visual scale at any zoom level
-      const n = fbm(
-        px2 * CLOUD_PX_SCALE + ox,
-        py2 * CLOUD_PX_SCALE + oy,
-        4, 2.0, 0.5
-      );
-      const v = n * 0.5 + 0.5;
-      // Soft cloud shapes with gradual falloff
-      const alpha = Math.max(0, Math.min(255, (v - 0.25) * 2.0 * 255));
-
-      const idx = (py2 * cw2 + px2) * 4;
-      data[idx] = 180;      // R - warm blue-white
-      data[idx + 1] = 175;
-      data[idx + 2] = 210;  // B
-      data[idx + 3] = alpha;
+// Restore saved settings
+try {
+  const saved = JSON.parse(localStorage.getItem("tri-settings"));
+  if (saved) {
+    if (saved.bg === false) { setBg.checked = false; _bgTilesEnabled = false; redraw(); }
+    if (saved.anim === false) { setAnim.checked = false; _animDisabled = true; document.body.classList.add("anim-off"); }
+    if (saved.noise > 0) {
+      setNoise.value = saved.noise;
+      grainRect.attr("opacity", (saved.noise / 100) * 3);
     }
   }
-
-  cloudCtx.putImageData(imgData, 0, 0);
-}
-
-let _cloudAnimId = null;
-let _cloudLastRedraw = 0;
-const CLOUD_FRAME_INTERVAL = 150;
-
-function cloudLoop(ts) {
-  if (ts - _cloudLastRedraw > CLOUD_FRAME_INTERVAL) {
-    drawClouds(ts);
-    _cloudLastRedraw = ts;
-  }
-  _cloudAnimId = requestAnimationFrame(cloudLoop);
-}
-_cloudAnimId = requestAnimationFrame(cloudLoop);
+} catch (e) { /* ignore corrupt data */ }
 
 // =============================================================
 // URL hash state for bookmarkable zoom positions

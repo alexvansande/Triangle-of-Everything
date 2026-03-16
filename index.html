@@ -10,7 +10,6 @@
 </head>
 <body>
   <div id="chart"></div>
-  <canvas id="cloud-canvas"></canvas>
   <div id="search-box">
     <button id="search-btn" title="Search objects (/)">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
@@ -65,11 +64,32 @@
     <button id="zoom-in" title="Zoom in">+</button>
     <button id="zoom-out" title="Zoom out">&minus;</button>
     <button id="zoom-reset" title="Reset view">&#x2299;</button>
-    <button id="anim-toggle" title="Animations on">&#x25B6;</button>
-    <button id="bg-toggle" title="Background image on">&#x1F5BC;</button>
   </div>
   <div id="scale-bar"></div>
   <div id="keyhint">scroll to zoom &middot; drag to pan &middot; click object to focus &middot; / to search</div>
+  <button id="settings-btn" title="Settings">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  </button>
+  <div id="settings-panel">
+    <label class="setting-check">
+      <input type="checkbox" id="set-bg" checked>
+      <span class="checkmark"></span>
+      Show background image
+    </label>
+    <label class="setting-check">
+      <input type="checkbox" id="set-anim" checked>
+      <span class="checkmark"></span>
+      Show animations
+    </label>
+    <hr class="setting-divider">
+    <label class="setting-range">
+      <span class="setting-range-label">Noise</span>
+      <input type="range" id="set-noise" min="0" max="100" value="35">
+    </label>
+  </div>
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

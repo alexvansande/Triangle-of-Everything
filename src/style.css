@@ -29,13 +29,7 @@ body:active { cursor: grabbing; }
 }
 #chart svg { animation: fadeIn 0.8s ease-out; }
 
-#cloud-canvas {
-  position: fixed;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0.18;
-  mix-blend-mode: overlay;
-}
+
 
 #chart {
   width: 100%; height: 100%; position: absolute; inset: 0;
@@ -79,10 +73,103 @@ body.sidebar-open #controls { left: 454px; }
   background: rgba(255,255,255,0.08);
   color: white; border-color: rgba(255,255,255,0.25);
 }
-#anim-toggle, #bg-toggle { font-size: 11px; margin-top: 4px; }
-#anim-toggle.off, #bg-toggle.off {
-  color: rgba(255,255,255,0.25);
-  border-color: rgba(255,255,255,0.06);
+/* ---------- settings panel ---------- */
+
+#settings-btn {
+  position: fixed; bottom: 100px; right: 14px;
+  width: 34px; height: 34px; z-index: 10;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(6,6,26,0.88); color: rgba(255,255,255,0.6);
+  cursor: pointer; border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; backdrop-filter: blur(10px);
+}
+#settings-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: white; border-color: rgba(255,255,255,0.25);
+}
+#settings-btn.active {
+  color: white; border-color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.1);
+}
+
+#settings-panel {
+  position: fixed; bottom: 140px; right: 14px;
+  width: 220px; z-index: 10;
+  background: rgba(6,6,26,0.92);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 14px 16px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  transform-origin: bottom right;
+  opacity: 0; transform: scale(0.95) translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+}
+#settings-panel.open {
+  opacity: 1; transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+.setting-check {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: rgba(255,255,255,0.7);
+  cursor: pointer; padding: 4px 0;
+  user-select: none;
+}
+.setting-check input { display: none; }
+.setting-check .checkmark {
+  width: 14px; height: 14px; flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  border-radius: 3px; position: relative;
+  transition: all 0.15s;
+}
+.setting-check input:checked + .checkmark {
+  background: rgba(255,51,85,0.5);
+  border-color: rgba(255,51,85,0.7);
+}
+.setting-check input:checked + .checkmark::after {
+  content: '';
+  position: absolute; left: 3.5px; top: 1px;
+  width: 4px; height: 7px;
+  border: solid white; border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+.setting-check:hover { color: rgba(255,255,255,0.9); }
+
+.setting-divider {
+  border: none; border-top: 1px solid rgba(255,255,255,0.08);
+  margin: 10px 0;
+}
+
+.setting-range {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 0; cursor: default;
+}
+.setting-range-label {
+  font-size: 11px; color: rgba(255,255,255,0.5);
+  width: 48px; flex-shrink: 0;
+  font-family: 'Space Mono', monospace;
+}
+.setting-range input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  flex: 1; height: 3px; background: rgba(255,255,255,0.12);
+  border-radius: 2px; outline: none;
+}
+.setting-range input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  border: none; cursor: pointer;
+  transition: background 0.15s;
+}
+.setting-range input[type="range"]::-webkit-slider-thumb:hover {
+  background: white;
+}
+.setting-range input[type="range"]::-moz-range-thumb {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  border: none; cursor: pointer;
 }
 
 /* ---------- tooltip ---------- */

@@ -255,6 +255,13 @@ export const REFERENCE_LINES = [
     color: "rgba(255,100,100,0.2)", width: 0.8, dash: "6 4",
   },
   {
+    // Quark-Gluon Plasma transition: ~1 GeV/fm³ ≈ 1.7×10¹⁵ g/cm³, logρ ≈ 15.25
+    // Diagonal density line: logM = 3·logR + log(4π/3) + 15.25
+    label: "Quark-Gluon Plasma",
+    points: [{ logR: -20, logM: 3 * -20 + 15.87 }, { logR: 5, logM: 3 * 5 + 15.87 }],
+    color: "rgba(0,229,255,0.2)", width: 0.8, dash: "6 4",
+  },
+  {
     label: "Schwarzschild Radius",
     points: [{ logR: -32.5, logM: -4.7 }, { logR: 28.5, logM: 56.3 }],
     color: "rgba(255,51,85,0)", width: 0, dash: "",
@@ -793,13 +800,33 @@ export const DARK_MATTER_REGIONS = [
 // between them. logM values derived from: log(E_eV) = logM + 32.75
 // (converting CGS mass to eV energy for the left axis).
 
+// Energy bands — each entry is a threshold LINE; the label names the region
+// BELOW that line (between it and the next lower threshold).
+// Sorted highest energy first. The topmost entry (PLANCK ENERGY) gets a
+// standalone label above its line; all others label the region between pairs.
 export const ENERGY_BANDS = [
-  { label: "PLANCK ENERGY",      logM: -4.81,  slug: "planck-energy" },
-  { label: "GRAND UNIFICATION*", logM: -7.75,  slug: "grand-unification-theory" },
-  { label: "ELECTROWEAK",        logM: -21.75, slug: "electroweak" },
-  { label: "LHC MAX ENERGY",     logM: -19.75, slug: "large-hadron-collider" },
-  { label: "FUNDAMENTAL PARTICLES", logM: -23.75, slug: "fundamental-particles" },
-  { label: "SUPERCONDUCTIVITY",  logM: -35.75, slug: "superconductivity" },
+  { label: "PLANCK ENERGY",            logM: -4.81,  slug: "planck-energy" },
+  { label: "GRAND UNIFICATION*",       logM: -7.75,  slug: "grand-unification-theory" },
+  { label: "ELECTROWEAK",              logM: -21.75, slug: "electroweak" },
+  { label: "FUNDAMENTAL PARTICLES",    logM: -23.75, slug: "fundamental-particles" },
+  { label: "SUPERCONDUCTIVITY",        logM: -35.75, slug: "superconductivity" },
   { label: "BOSE-EINSTEIN CONDENSATE", logM: -41.75, slug: "bose-einstein-condensate" },
-  { label: "QUANTUM TUNNELING*", logM: -44.75, slug: "quantum-tunneling" },
+  { label: "QUANTUM TUNNELING*",       logM: -44.75, slug: "quantum-tunneling" },
 ];
+
+// Temperature arrows — specific interesting temperatures shown to the left of the triangle
+// logM = -LOG_K_OFFSET + log10(T_kelvin)
+export const TEMPERATURE_ARROWS = [
+  { label: "Highest Temperature\nReached in a Lab (LHC)", logM: -36.81 + Math.log10(1.5e17), slug: "large-hadron-collider" },
+  { label: "Core of the Sun",       logM: -36.81 + Math.log10(1.57e7), slug: null },
+  { label: "Surface of the Sun",    logM: -36.81 + Math.log10(5778),   slug: null },
+  { label: "Boiling Point of\nTungsten", logM: -36.81 + Math.log10(5828), slug: null },
+  { label: "Lowest Temperature\nReached in a Lab", logM: -36.81 + Math.log10(3.8e-11), slug: null },
+];
+
+// Liquid water range (blue highlight)
+export const WATER_RANGE = {
+  label: "Liquid Water",
+  logMTop:    -36.81 + Math.log10(373.15),  // 100°C
+  logMBottom: -36.81 + Math.log10(273.15),  // 0°C
+};
