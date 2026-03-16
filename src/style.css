@@ -196,6 +196,51 @@ body.sidebar-open #controls { left: 454px; }
   font-size: 10px;
 }
 
+/* ---------- axis tooltip ---------- */
+
+#axis-tooltip {
+  position: fixed; pointer-events: none; z-index: 21;
+  background: rgba(10,10,40,0.92); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px; padding: 6px 10px; backdrop-filter: blur(12px);
+  font-size: 10px; line-height: 1.5; white-space: nowrap;
+  opacity: 0; transition: opacity 0.12s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+#axis-tooltip.visible { opacity: 1; }
+#axis-tooltip .at-line1 {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  color: rgba(255,255,255,0.4);
+}
+#axis-tooltip .at-line2 {
+  font-weight: 600; font-size: 11px;
+  color: rgba(255,200,150,0.9);
+}
+#axis-tooltip .at-line3 {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: rgba(255,255,255,0.35);
+}
+/* CSS triangle pointers */
+#axis-tooltip.at-right::after {
+  content: ''; position: absolute; right: -6px; top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent; border-left-color: rgba(10,10,40,0.92);
+}
+#axis-tooltip.at-left::before {
+  content: ''; position: absolute; left: -6px; top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent; border-right-color: rgba(10,10,40,0.92);
+}
+#axis-tooltip.at-bottom::after {
+  content: ''; position: absolute; bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: rgba(10,10,40,0.92);
+}
+#axis-tooltip.at-top::before {
+  content: ''; position: absolute; top: -6px; left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent; border-bottom-color: rgba(10,10,40,0.92);
+}
+
 /* ---------- scale bar ---------- */
 
 #scale-bar {

@@ -361,17 +361,12 @@ export const CONNECTION_PATHS = [
     family: "decay",
     description: "Heavy quarks decay through the weak force — top → bottom → charm → strange → down → up",
     points: [
-      { logR: -15.94, logM: -21.51 },
-      { logR: -13.0,  logM: -22.0 },
-      { logR: -14.33, logM: -23.13 },
-      { logR: -11.5,  logM: -23.2 },
-      { logR: -13.81, logM: -23.65 },
-      { logR: -10.5,  logM: -24.0 },
-      { logR: -12.68, logM: -24.77 },
-      { logR: -9.5,   logM: -25.2 },
-      { logR: -11.37, logM: -26.08 },
-      { logR: -9.5,   logM: -26.0 },
-      { logR: -11.04, logM: -26.41 },
+      { logR: -15.94, logM: -21.51 },  // Top
+      { logR: -14.33, logM: -23.13 },  // Bottom
+      { logR: -13.81, logM: -23.65 },  // Charm
+      { logR: -12.68, logM: -24.77 },  // Strange
+      { logR: -11.37, logM: -26.08 },  // Down
+      { logR: -11.04, logM: -26.41 },  // Up
     ],
     zoomRange: [3, 800],
     neighborhood: { x: [-18, -8], y: [-29, -19] },
@@ -389,11 +384,9 @@ export const CONNECTION_PATHS = [
     family: "decay",
     description: "Heavy leptons decay through the weak force — tau → muon → electron",
     points: [
-      { logR: -13.95, logM: -23.50 },
-      { logR: -11.0,  logM: -23.8 },
-      { logR: -12.72, logM: -24.73 },
-      { logR: -9.0,   logM: -25.5 },
-      { logR: -10.41, logM: -27.04 },
+      { logR: -13.95, logM: -23.50 },  // Tau
+      { logR: -12.72, logM: -24.73 },  // Muon
+      { logR: -10.41, logM: -27.04 },  // Electron
     ],
     zoomRange: [3, 800],
     neighborhood: { x: [-18, -8], y: [-29, -19] },
@@ -411,10 +404,8 @@ export const CONNECTION_PATHS = [
     family: "combines",
     description: "Two up quarks combine inside a proton (uud)",
     points: [
-      { logR: -11.04, logM: -26.41 },
-      { logR: -10.0,  logM: -25.0 },
-      { logR: -11.5,  logM: -24.2 },
-      { logR: -13.06, logM: -23.78 },
+      { logR: -11.04, logM: -26.41 },  // Up quark
+      { logR: -13.06, logM: -23.78 },  // Proton
     ],
     zoomRange: [4, 800],
     neighborhood: { x: [-16, -7], y: [-29, -21] },
@@ -433,10 +424,8 @@ export const CONNECTION_PATHS = [
     family: "combines",
     description: "A down quark joins two up quarks to form a proton (uud)",
     points: [
-      { logR: -11.37, logM: -26.08 },
-      { logR: -10.5,  logM: -24.8 },
-      { logR: -11.8,  logM: -24.0 },
-      { logR: -13.06, logM: -23.78 },
+      { logR: -11.37, logM: -26.08 },  // Down quark
+      { logR: -13.06, logM: -23.78 },  // Proton
     ],
     zoomRange: [4, 800],
     neighborhood: { x: [-16, -7], y: [-29, -21] },
@@ -455,10 +444,8 @@ export const CONNECTION_PATHS = [
     family: "combines",
     description: "A proton captures an electron to form a hydrogen atom",
     points: [
-      { logR: -13.06, logM: -23.78 },
-      { logR: -11.5,  logM: -23.2 },
-      { logR: -10.0,  logM: -23.3 },
-      { logR: -8.28,  logM: -23.78 },
+      { logR: -13.06, logM: -23.78 },  // Proton
+      { logR: -8.28,  logM: -23.78 },  // Hydrogen
     ],
     zoomRange: [4, 800],
     neighborhood: { x: [-16, -6], y: [-27, -21] },
@@ -477,10 +464,8 @@ export const CONNECTION_PATHS = [
     family: "combines",
     description: "An electron binds to a proton to form hydrogen",
     points: [
-      { logR: -10.41, logM: -27.04 },
-      { logR: -9.0,   logM: -26.0 },
-      { logR: -8.5,   logM: -25.0 },
-      { logR: -8.28,  logM: -23.78 },
+      { logR: -10.41, logM: -27.04 },  // Electron
+      { logR: -8.28,  logM: -23.78 },  // Hydrogen
     ],
     zoomRange: [4, 800],
     neighborhood: { x: [-14, -6], y: [-29, -21] },

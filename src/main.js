@@ -1535,6 +1535,316 @@ svg.on("mousemove.tooltip", (e) => {
 });
 
 // =============================================================
+// Axis hover tooltip
+// =============================================================
+
+const axisTooltipEl = document.getElementById("axis-tooltip");
+
+// ── Unit tables for the axis tooltip picker ──
+
+const MASS_HOVER_UNITS = [
+  { logOff: -32.75, name: "eV/c²",  sys: "particle" },
+  { logOff: -29.75, name: "keV/c²", sys: "particle" },
+  { logOff: -26.75, name: "MeV/c²", sys: "particle" },
+  { logOff: -23.75, name: "GeV/c²", sys: "particle" },
+  { logOff: -20.75, name: "TeV/c²", sys: "particle" },
+  { logOff: -15,    name: "pg",      sys: "metric" },
+  { logOff: -12,    name: "ng",      sys: "metric" },
+  { logOff: -9,     name: "μg",      sys: "metric" },
+  { logOff: -6,     name: "mg",      sys: "metric" },
+  { logOff: 0,      name: "g",       sys: "metric" },
+  { logOff: 3,      name: "kg",      sys: "metric" },
+  { logOff: 6,      name: "tonnes",  sys: "metric" },
+  { logOff: 9,      name: "kilotonnes", sys: "metric" },
+  { logOff: 12,     name: "megatonnes", sys: "metric" },
+  { logOff: 15,     name: "gigatonnes", sys: "metric" },
+  { logOff: 1.45,   name: "oz",      sys: "imperial" },
+  { logOff: 2.66,   name: "lbs",     sys: "imperial" },
+  { logOff: 5.95,   name: "US tons", sys: "imperial" },
+  { logOff: 27.78,  name: "M\u2295", sys: "astro" },  // Earth mass
+  { logOff: 30.28,  name: "M\u2C7C", sys: "astro" },  // Jupiter mass
+  { logOff: 33.30,  name: "M\u2609", sys: "astro" },  // Solar mass
+];
+
+const RADIUS_HOVER_UNITS = [
+  { logOff: -13,    name: "fm",   sys: "metric" },
+  { logOff: -10,    name: "pm",   sys: "metric" },
+  { logOff: -8,     name: "\u00C5", sys: "metric" },  // Angstrom
+  { logOff: -7,     name: "nm",   sys: "metric" },
+  { logOff: -4,     name: "μm",   sys: "metric" },
+  { logOff: -1,     name: "mm",   sys: "metric" },
+  { logOff: 0,      name: "cm",   sys: "metric" },
+  { logOff: 2,      name: "m",    sys: "metric" },
+  { logOff: 5,      name: "km",   sys: "metric" },
+  { logOff: 0.405,  name: "inches",  sys: "imperial" },
+  { logOff: 1.484,  name: "feet",    sys: "imperial" },
+  { logOff: 5.207,  name: "miles",   sys: "imperial" },
+  { logOff: 13.175, name: "AU",   sys: "astro" },
+  { logOff: 17.976, name: "ly",   sys: "astro" },
+  { logOff: 18.489, name: "pc",   sys: "astro" },
+  { logOff: 20.976, name: "kly",  sys: "astro" },
+  { logOff: 24.489, name: "Mpc",  sys: "astro" },
+];
+
+const ENERGY_HOVER_UNITS = [
+  { logOff: -38.75, name: "μeV",  sys: "energy" },
+  { logOff: -35.75, name: "meV",  sys: "energy" },
+  { logOff: -32.75, name: "eV",   sys: "energy" },
+  { logOff: -29.75, name: "keV",  sys: "energy" },
+  { logOff: -26.75, name: "MeV",  sys: "energy" },
+  { logOff: -23.75, name: "GeV",  sys: "energy" },
+  { logOff: -20.75, name: "TeV",  sys: "energy" },
+  { logOff: -36.81, name: "K",    sys: "temperature" },
+];
+
+// Density→cosmic-time lookup (piecewise linear interpolation in log-log)
+const DENSITY_TIME_TABLE = [
+  { logRho: 93.7,  logT: -43 },
+  { logRho: 76,    logT: -36 },
+  { logRho: 25,    logT: -11 },
+  { logRho: 14.4,  logT: -6 },
+  { logRho: 4,     logT: 0 },
+  { logRho: -21,   logT: 13 },
+  { logRho: -29.5, logT: 17.64 },  // now ≈ 4.35×10¹⁷ s
+];
+
+// ── Picker: choose best human-readable unit ──
+
+function pickBestUnit(logVal, table, preferSys) {
+  let best = null, bestScore = Infinity;
+  for (const u of table) {
+    const mLog = logVal - u.logOff;
+    if (mLog < -2 || mLog > 8) continue;  // mantissa 0.01 to ~100M
+    const score = Math.abs(mLog) + (mLog < 0 ? 0.3 : 0) // slight preference for mantissa ≥ 1
+      + (preferSys && u.sys === preferSys ? -0.5 : 0);
+    if (score < bestScore) { bestScore = score; best = u; }
+  }
+  if (!best) best = table.reduce((a, b) =>
+    Math.abs(logVal - a.logOff) < Math.abs(logVal - b.logOff) ? a : b);
+  return { value: Math.pow(10, logVal - best.logOff), unit: best.name, sys: best.sys };
+}
+
+function pickAltUnit(logVal, table, primaryUnit) {
+  // Try contrasting system first
+  const altMap = { metric: "imperial", imperial: "metric", particle: "metric",
+    astro: "metric", energy: "temperature", temperature: "energy" };
+  const altSys = altMap[primaryUnit.sys] || null;
+  const filtered = table.filter(u => u.sys !== primaryUnit.sys);
+  if (filtered.length) {
+    const alt = pickBestUnit(logVal, filtered, altSys);
+    const mLog = Math.abs(Math.log10(Math.abs(alt.value) || 1));
+    if (mLog < 6) return alt; // mantissa is reasonable
+  }
+  // Fallback: pick any unit that isn't the exact same one
+  const any = table.filter(u => u.name !== primaryUnit.unit);
+  return pickBestUnit(logVal, any, null);
+}
+
+// ── Formatting helpers ──
+
+function formatHumanNum(value, unit) {
+  const a = Math.abs(value);
+  if (a === 0) return `0 ${unit}`;
+  if (a >= 1e15 || a < 0.001) {
+    // Use superscript scientific notation for extreme values
+    const exp = Math.floor(Math.log10(a));
+    const mant = value / Math.pow(10, exp);
+    const supExp = String(exp).replace(/./g, c => SUP[c] || c);
+    return `${mant.toFixed(1)}×10${supExp} ${unit}`;
+  }
+  if (a < 0.01) return `${value.toPrecision(2)} ${unit}`;
+  if (a < 10)   return `${value.toPrecision(3)} ${unit}`;
+  if (a < 1000) return `${value.toPrecision(4)} ${unit}`;
+  if (a < 1e6)  return `${Number(value.toPrecision(4)).toLocaleString()} ${unit}`;
+  if (a < 1e9)  return `${(value / 1e6).toPrecision(3)} million ${unit}`;
+  if (a < 1e12) return `${(value / 1e9).toPrecision(3)} billion ${unit}`;
+  return `${(value / 1e12).toPrecision(3)} trillion ${unit}`;
+}
+
+const SUP = { "0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵",
+  "6":"⁶","7":"⁷","8":"⁸","9":"⁹","-":"⁻",".":"·" };
+
+function formatLogSuper(logVal, unit) {
+  let s = logVal.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+  const sup = s.replace(/./g, c => SUP[c] || c);
+  return `10${sup} ${unit}`;
+}
+
+// Density → cosmic time via interpolation
+function densityToLogTime(logRho) {
+  const t = DENSITY_TIME_TABLE;
+  if (logRho >= t[0].logRho) return t[0].logT;
+  if (logRho <= t[t.length - 1].logRho) return t[t.length - 1].logT;
+  for (let i = 0; i < t.length - 1; i++) {
+    if (logRho <= t[i].logRho && logRho >= t[i + 1].logRho) {
+      const frac = (logRho - t[i].logRho) / (t[i + 1].logRho - t[i].logRho);
+      return t[i].logT + frac * (t[i + 1].logT - t[i].logT);
+    }
+  }
+  return 0;
+}
+
+function friendlyTime(logT) {
+  // logT is log₁₀(seconds)
+  const logYr = logT - 7.494; // 1 year ≈ 3.156×10⁷ s → log₁₀ ≈ 7.494
+  if (logT < -15) return `${Math.pow(10, logT + 15).toPrecision(2)} fs`;
+  if (logT < -12) return `${Math.pow(10, logT + 12).toPrecision(2)} ps`;
+  if (logT < -9)  return `${Math.pow(10, logT + 9).toPrecision(2)} ns`;
+  if (logT < -6)  return `${Math.pow(10, logT + 6).toPrecision(2)} μs`;
+  if (logT < -3)  return `${Math.pow(10, logT + 3).toPrecision(2)} ms`;
+  if (logT < 0)   return `${Math.pow(10, logT).toPrecision(2)} s`;
+  if (logT < 2)   return `${Math.pow(10, logT).toPrecision(2)} seconds`;
+  if (logT < 3.56) return `${Math.pow(10, logT - 1.778).toPrecision(2)} minutes`; // 60s
+  if (logT < 4.94) return `${Math.pow(10, logT - 3.556).toPrecision(2)} hours`;   // 3600s
+  if (logT < 6.45) return `${Math.pow(10, logT - 4.937).toPrecision(2)} days`;    // 86400s
+  if (logYr < 3)   return `${Math.pow(10, logYr).toPrecision(3)} years`;
+  if (logYr < 6)   return `${Math.pow(10, logYr - 3).toPrecision(3)} thousand years`;
+  if (logYr < 9)   return `${Math.pow(10, logYr - 6).toPrecision(3)} million years`;
+  return `${Math.pow(10, logYr - 9).toPrecision(3)} billion years`;
+}
+
+// ── Axis region detection ──
+
+function detectAxisRegion(clientX, clientY) {
+  const cx = clientX - margin.left;
+  const cy = clientY - margin.top;
+  const inX = cx >= 0 && cx <= cw;
+  const inY = cy >= 0 && cy <= ch;
+
+  if (inX && cy > ch && cy <= ch + margin.bottom)
+    return { axis: "bottom", chartX: cx };
+  if (inX && cy < 0 && cy >= -margin.top)
+    return { axis: "top", chartX: cx };
+  if (inY && cx > cw && cx <= cw + margin.right)
+    return { axis: "right", chartY: cy };
+  if (inY && cx < 0 && cx >= -margin.left)
+    return { axis: "left", chartY: cy };
+  return null;
+}
+
+// ── Tooltip content builders ──
+
+function buildAxisContent(region) {
+  const d = vd();
+  switch (region.axis) {
+    case "right": {
+      const logM = yS.invert(region.chartY);
+      const logKg = logM - 3;
+      const primary = pickBestUnit(logM, MASS_HOVER_UNITS, "metric");
+      const alt = pickAltUnit(logM, MASS_HOVER_UNITS, primary);
+      return {
+        line1: formatLogSuper(logKg, "kg"),
+        line2: formatHumanNum(primary.value, primary.unit),
+        line3: formatHumanNum(alt.value, alt.unit),
+      };
+    }
+    case "left": {
+      const logM = yS.invert(region.chartY);
+      const logEv = logM + 32.75;
+      const logK = logM + 36.81;
+      const primary = pickBestUnit(logM, ENERGY_HOVER_UNITS, "energy");
+      // Always show temperature as alt for energy axis
+      const tempStr = logK >= 15 ? formatLogSuper(logK, "K")
+        : logK >= 9 ? `${(Math.pow(10, logK - 9)).toPrecision(3)} billion K`
+        : logK >= 6 ? `${(Math.pow(10, logK - 6)).toPrecision(3)} million K`
+        : logK >= 3 ? `${(Math.pow(10, logK - 3)).toPrecision(3)} thousand K`
+        : logK >= 0 ? `${Math.pow(10, logK).toPrecision(3)} K`
+        : formatLogSuper(logK, "K");
+      return {
+        line1: formatLogSuper(logEv, "eV"),
+        line2: formatHumanNum(primary.value, primary.unit),
+        line3: tempStr,
+      };
+    }
+    case "bottom": {
+      const logR = xS.invert(region.chartX);
+      const logM = logR - 2; // cm → m
+      const primary = pickBestUnit(logR, RADIUS_HOVER_UNITS, "metric");
+      const alt = pickAltUnit(logR, RADIUS_HOVER_UNITS, primary);
+      return {
+        line1: formatLogSuper(logM, "m"),
+        line2: formatHumanNum(primary.value, primary.unit),
+        line3: formatHumanNum(alt.value, alt.unit),
+      };
+    }
+    case "top": {
+      const logR = xS.invert(region.chartX);
+      const logRho = d.y1 - 3 * logR - DENSITY_SPHERE_C;
+      const logT = densityToLogTime(logRho);
+      const logRho_kgm3 = logRho + 3; // g/cm³ → kg/m³
+      // Friendly density string
+      let densStr;
+      if (logRho > 14) densStr = `${Math.pow(10, logRho - 14).toPrecision(2)}× nuclear density`;
+      else if (logRho_kgm3 > 6) densStr = formatLogSuper(logRho_kgm3, "kg/m³");
+      else if (logRho_kgm3 > 3) densStr = `${Math.pow(10, logRho_kgm3 - 3).toPrecision(3)} thousand kg/m³`;
+      else if (logRho_kgm3 > 0) densStr = `${Math.pow(10, logRho_kgm3).toPrecision(3)} kg/m³`;
+      else if (logRho_kgm3 > -3) densStr = `${Math.pow(10, logRho_kgm3 + 3).toPrecision(3)} g/m³`;
+      else densStr = formatLogSuper(logRho_kgm3, "kg/m³");
+      return {
+        line1: `Age of the Universe: ${friendlyTime(logT)}`,
+        line2: `Average Density: ${densStr}`,
+        line3: `${formatLogSuper(logT, "s")}  |  ${formatLogSuper(logRho_kgm3, "kg/m³")}`,
+      };
+    }
+  }
+}
+
+// ── Positioning (anchored to axis edge) ──
+
+function positionAxisTooltip(region) {
+  const el = axisTooltipEl;
+  const tw = el.offsetWidth || 160;
+  const th = el.offsetHeight || 50;
+  let left, top;
+
+  switch (region.axis) {
+    case "right":
+      left = margin.left + cw - tw - 4;
+      top = margin.top + region.chartY - th / 2;
+      break;
+    case "left":
+      left = margin.left + 4;
+      top = margin.top + region.chartY - th / 2;
+      break;
+    case "bottom":
+      left = margin.left + region.chartX - tw / 2;
+      top = margin.top + ch - th - 4;
+      break;
+    case "top":
+      left = margin.left + region.chartX - tw / 2;
+      top = margin.top + 4;
+      break;
+  }
+  left = Math.max(4, Math.min(left, W - tw - 4));
+  top = Math.max(4, Math.min(top, H - th - 4));
+  el.style.left = left + "px";
+  el.style.top = top + "px";
+}
+
+function hideAxisTooltip() {
+  axisTooltipEl.className = "";
+}
+
+// ── Event binding ──
+
+svg.on("mousemove.axisTooltip", (e) => {
+  if (_zooming) { hideAxisTooltip(); return; }
+  const region = detectAxisRegion(e.clientX, e.clientY);
+  if (!region) { hideAxisTooltip(); return; }
+  const content = buildAxisContent(region);
+  if (!content) { hideAxisTooltip(); return; }
+  hideTooltip();  // hide object tooltip when on axis
+  axisTooltipEl.innerHTML =
+    `<div class="at-line1">${content.line1}</div>` +
+    `<div class="at-line2">${content.line2}</div>` +
+    `<div class="at-line3">${content.line3}</div>`;
+  axisTooltipEl.className = `visible at-${region.axis}`;
+  positionAxisTooltip(region);
+});
+
+svg.on("mouseleave.axisTooltip", () => hideAxisTooltip());
+
+// =============================================================
 // Sidebar
 // =============================================================
 
@@ -2473,19 +2783,35 @@ function drawConnections() {
   const curveLineGen = d3.line()
     .x(p => px(p.logR)).y(p => py(p.logM))
     .curve(d3.curveCatmullRom.alpha(0.5));
-  const linearLineGen = d3.line()
-    .x(p => px(p.logR)).y(p => py(p.logM))
-    .curve(d3.curveLinear);
+
+  // Bezier path generator for decay/combines paths:
+  // All points are anchors. Between each consecutive pair (A → B),
+  // auto-compute cubic bezier control points using the "1:2 rectangle at 45°" formula:
+  //   H = (B.logR - A.logR) / 2,  V = (A.logM - B.logM) / 2
+  //   CP1 = (A.logR + H, A.logM + V)   — from A: right H, up V
+  //   CP2 = (B.logR + H, A.logM - V)   — from furthest: down V, right H
+  function bezierPathGen(pts) {
+    if (pts.length < 2) return "";
+    let d = `M ${px(pts[0].logR)},${py(pts[0].logM)}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const A = pts[i], B = pts[i + 1];
+      const H = (B.logR - A.logR) / 2;
+      const V = (A.logM - B.logM) / 2;
+      const cp1r = A.logR + H, cp1m = A.logM + V;
+      const cp2r = B.logR + H, cp2m = A.logM - V;
+      d += ` C ${px(cp1r)},${py(cp1m)} ${px(cp2r)},${py(cp2m)} ${px(B.logR)},${py(B.logM)}`;
+    }
+    return d;
+  }
 
   _connPaths.forEach(cp => {
     cp._opacity = connectionOpacity(cp);
     cp._visible = cp._opacity > 0.01;
 
-    // Decay and combines paths use linear interpolation to avoid overshooting
-    const gen = (cp.family === "decay" || cp.family === "combines")
-      ? linearLineGen : curveLineGen;
+    // Decay and combines paths use bezier curves (alternating anchor/control points)
+    const isBezier = cp.family === "decay" || cp.family === "combines";
     const hiddenPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    hiddenPath.setAttribute("d", gen(cp.points));
+    hiddenPath.setAttribute("d", isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points));
     cp._pathEl = hiddenPath;
     cp._pathLen = hiddenPath.getTotalLength();
 
@@ -2526,8 +2852,9 @@ function drawConnections() {
           .attr("stroke-linecap", "round");
       }
     } else {
+      const visD = isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);
       const pathEl = lineGroup.append("path")
-        .attr("d", curveLineGen(cp.points))
+        .attr("d", visD)
         .attr("fill", "none")
         .attr("stroke", cp.style.color || "rgba(255,255,255,0.3)")
         .attr("stroke-width", cp.style.lineWidth)
@@ -2536,8 +2863,9 @@ function drawConnections() {
     }
 
     // Hit area for hover — shows line and tooltip
+    const hitD = isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);
     lArrows.append("path")
-      .attr("d", curveLineGen(cp.points))
+      .attr("d", hitD)
       .attr("fill", "none")
       .attr("stroke", "transparent")
       .attr("stroke-width", 18)
