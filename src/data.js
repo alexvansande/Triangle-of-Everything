@@ -815,6 +815,7 @@ export const TEMPERATURE_ARROWS = [
 export const DENSITY_ARROWS = [
   { label: "First Stars Form",            logRho: -25,    slug: null, priority: 1 },
   { label: "Life Evolves\non Earth",      logRho: -28.5,  slug: null, priority: 0 },
+  // TODO in 1 million years, update this position
   { label: "Now",                         logRho: -29,    slug: null, priority: 2 },
   { label: "Sun Goes\nSupernova",         logYearsFromNow: 9.7,   slug: null, priority: 0 },
   { label: "Star Formation\nStops",       logYearsFromNow: 14,    slug: null, priority: 0 },

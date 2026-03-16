@@ -24,9 +24,15 @@ Objects, however, are bounded by an isosceles right triangle: too massive and gr
 
 </div>
 
+<div class="support">
+
+To support this work, [buy a poster](https://vandesande.design/products/poster), or [donate to Wikipedia](https://donate.wikimedia.org). Found a bug or want to contribute? Visit us on [GitHub](https://github.com/alexvansande/Triangle-of-Everything).
+
+</div>
+
 <div class="credit">
 
-Visual Design by Alex Van de Sande
+Visual Design by [Alex Van de Sande](https://vandesande.design)
 
 Creative Commons CC-BY 3.0
 

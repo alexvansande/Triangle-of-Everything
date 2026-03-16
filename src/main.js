@@ -72,11 +72,28 @@ let tileMeta = null;
 
 const SIDEBAR_W = 360;
 const BASE_MARGIN_LEFT = 145;
+const MOBILE_BREAKPOINT = 768;
 let _isSidebarOpen = true;
+let _isMobile = window.innerWidth < MOBILE_BREAKPOINT;
 let _booted = false;
 
 const margin = { top: 55, right: 95, bottom: 80, left: SIDEBAR_W };
 let W, H, cw, ch;
+
+function updateMobileState() {
+  const wasMobile = _isMobile;
+  _isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+  if (_isMobile) {
+    document.body.classList.add("is-mobile");
+  } else {
+    document.body.classList.remove("is-mobile");
+  }
+  const closeBtn = document.getElementById("sidebar-close");
+  if (closeBtn) {
+    closeBtn.innerHTML = _isMobile ? "\u2715" : "&lt;&lt;";
+  }
+  return wasMobile !== _isMobile;
+}
 
 // Equal-scale view bounds — computed so 1 data unit = same px in both axes
 let viewXMin, viewXMax, viewYMin, viewYMax;
@@ -84,7 +101,15 @@ let viewXMin, viewXMax, viewYMin, viewYMax;
 function measure() {
   W = window.innerWidth;
   H = window.innerHeight;
-  margin.left = _isSidebarOpen ? SIDEBAR_W + 80 : BASE_MARGIN_LEFT;
+  if (_isMobile) {
+    margin.left = 20;
+    margin.right = 20;
+    margin.bottom = 60;
+  } else {
+    margin.left = _isSidebarOpen ? SIDEBAR_W + 80 : BASE_MARGIN_LEFT;
+    margin.right = 95;
+    margin.bottom = 80;
+  }
   cw = W - margin.left - margin.right;
   ch = H - margin.top - margin.bottom;
 
@@ -1891,13 +1916,16 @@ const ENERGY_HOVER_UNITS = [
 
 // Density→cosmic-time lookup (piecewise linear interpolation in log-log)
 const DENSITY_TIME_TABLE = [
-  { logRho: 93.7,  logT: -43 },
-  { logRho: 76,    logT: -36 },
-  { logRho: 25,    logT: -11 },
-  { logRho: 14.4,  logT: -6 },
-  { logRho: 4,     logT: 0 },
-  { logRho: -21,   logT: 13 },
-  { logRho: -29.5, logT: 17.64 },  // now ≈ 4.35×10¹⁷ s
+  { logRho: 93.7,   logT: -43 },
+  { logRho: 76,     logT: -36 },
+  { logRho: 25,     logT: -11 },
+  { logRho: 14.4,   logT: -6 },
+  { logRho: 4,      logT: 0 },
+  { logRho: -21,    logT: 13 },
+  { logRho: -29.5,  logT: 17.64 },   // now ≈ 4.35×10¹⁷ s ≈ 13.8 Gyr
+  // Future: density ruler positions are arbitrary beyond "now", but we
+  // extrapolate so the hover tooltip keeps showing increasing cosmic time
+  { logRho: -150.6, logT: 107.5 },   // heat death ≈ 10¹⁰⁰ years → 10^107.5 s
 ];
 
 // ── Picker: choose best human-readable unit ──
@@ -2024,7 +2052,11 @@ function friendlyTime(logT) {
   if (logYr < 3)   return `${Number(Math.pow(10, logYr).toPrecision(3))} Years`;
   if (logYr < 6)   return `${Number(Math.pow(10, logYr - 3).toPrecision(3))} Thousand Years`;
   if (logYr < 9)   return `${Number(Math.pow(10, logYr - 6).toPrecision(3))} Million Years`;
-  return `${Number(Math.pow(10, logYr - 9).toPrecision(3))} Billion Years`;
+  if (logYr < 12)  return `${Number(Math.pow(10, logYr - 9).toPrecision(3))} Billion Years`;
+  if (logYr < 15)  return `${Number(Math.pow(10, logYr - 12).toPrecision(3))} Trillion Years`;
+  if (logYr < 18)  return `${Number(Math.pow(10, logYr - 15).toPrecision(3))} Quadrillion Years`;
+  // Extreme future: use 10^n years notation
+  return `10<sup>${Math.round(logYr)}</sup> Years`;
 }
 
 // ── Axis region detection ──
@@ -2380,7 +2412,7 @@ function setSidebarOpen(open) {
     sidebarEl.classList.remove("open");
     document.body.classList.remove("sidebar-open");
   }
-  if (changed) relayout();
+  if (changed && !_isMobile) relayout();
 }
 
 function relayout() {
@@ -3379,6 +3411,7 @@ const MINIMAP_SIZE = 120;
 const MINIMAP_PAD = 10;
 
 const miniSvg = svg.append("g")
+  .attr("class", "minimap-group")
   .attr("transform", `translate(${W - MINIMAP_SIZE - MINIMAP_PAD - margin.right}, ${margin.top + MINIMAP_PAD})`);
 
 // Minimap background — transparent, blends with chart
@@ -3650,6 +3683,7 @@ svg.on("wheel.animPause", pauseAnimOnInteract);
 svg.on("dblclick.zoom", null);
 svg.on("dblclick", (event) => {
   event.preventDefault();
+  if (_isMobile) return;
   const [mx, my] = d3.pointer(event, chart.node());
   const targetK = currentK * 2.5;
   const logR = xS.invert(mx), logM = yS.invert(my);
@@ -3826,6 +3860,7 @@ document.addEventListener("keydown", (e) => {
 // =============================================================
 
 window.addEventListener("resize", () => {
+  const modeChanged = updateMobileState();
   measure();
   svg.attr("width", W).attr("height", H);
   svg.select("rect").attr("width", W).attr("height", H);
@@ -3843,6 +3878,9 @@ window.addEventListener("resize", () => {
     `translate(${W - MINIMAP_SIZE - MINIMAP_PAD - margin.right}, ${margin.top + MINIMAP_PAD})`);
   resizeCloudCanvas();
   redraw();
+  if (modeChanged && _isMobile && _isSidebarOpen) {
+    setSidebarOpen(false);
+  }
 });
 
 // =============================================================
@@ -4031,9 +4069,11 @@ svg.call(zoomBehavior);
 // Boot
 // =============================================================
 
+updateMobileState();
 _booted = true;
 initConnections();
 loadTileMeta();
+if (_isMobile) setSidebarOpen(false);
 
 if (!loadHash()) {
   // Intro animation: start zoomed on the Sun, then zoom out to full view

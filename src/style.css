@@ -467,11 +467,32 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
   color: rgba(255,255,255,0.8);
   text-decoration: underline;
 }
+#intro-body .support {
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 12px; line-height: 1.6;
+  color: rgba(255,255,255,0.5);
+}
+#intro-body .support a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+#intro-body .support a:hover {
+  text-decoration: underline;
+}
 #intro-body .credit {
   margin-top: 12px;
   font-size: 11px;
   color: rgba(255,255,255,0.3);
   font-style: italic;
+}
+#intro-body .credit a {
+  color: rgba(255,255,255,0.4);
+  text-decoration: none;
+}
+#intro-body .credit a:hover {
+  color: rgba(255,255,255,0.7);
+  text-decoration: underline;
 }
 #intro-body .internal-nav {
   font-size: 15px; padding: 14px 20px;
@@ -692,4 +713,96 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
 .axis-subtitle {
   font-family: 'Space Mono', monospace; font-weight: 400; font-size: 9px;
   fill: rgba(255,100,100,0.4); letter-spacing: 1px;
+}
+
+/* ==========================================================
+   Touch & mobile
+   ========================================================== */
+
+/* --- global touch optimizations (all screen sizes) --- */
+
+html, body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#sidebar {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+#preset-bar, #controls, #sidebar, #search-box,
+#settings-btn, #settings-panel,
+#sidebar-expand, #sidebar-close {
+  touch-action: manipulation;
+}
+
+/* --- iOS safe areas --- */
+
+#sidebar { padding-top: env(safe-area-inset-top, 0px); }
+#controls { padding-bottom: env(safe-area-inset-bottom, 0px); }
+#preset-bar { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* --- mobile overrides (body.is-mobile set by JS) --- */
+
+body.is-mobile #sidebar {
+  width: 100%;
+  max-width: 100vw;
+  border-right: none;
+}
+
+body.is-mobile #sidebar-close {
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+}
+
+body.is-mobile #sidebar-expand {
+  width: 44px;
+  height: 44px;
+  font-size: 16px;
+}
+
+body.is-mobile #controls button {
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+}
+
+body.is-mobile #search-btn {
+  width: 44px;
+  height: 44px;
+}
+
+body.is-mobile #keyhint { display: none; }
+body.is-mobile #readout { display: none; }
+body.is-mobile .minimap-group { display: none; }
+
+/* On mobile, controls don't shift when sidebar opens (it's an overlay) */
+body.is-mobile.sidebar-open #controls { left: 14px; }
+body.is-mobile.sidebar-open #scale-bar { left: 16px; }
+body.is-mobile.sidebar-open #preset-bar { left: 60px; max-width: calc(100vw - 80px); }
+
+/* Preset bar: horizontal scroll on mobile */
+body.is-mobile #preset-bar {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+body.is-mobile #preset-bar::-webkit-scrollbar { display: none; }
+body.is-mobile #preset-bar button {
+  padding: 6px 10px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+body.is-mobile #settings-btn {
+  width: 44px;
+  height: 44px;
+}
+
+body.is-mobile #search-box.expanded #search-input {
+  width: calc(100vw - 100px);
+  max-width: 300px;
 }
