@@ -16,11 +16,11 @@ Objects, however, are bounded by an isosceles right triangle: too massive and gr
 
 **References:**
 
-"All objects and some questions" by Charles H. Lineweaver and Vihan M. Patel (*Am. J. Phys.* 91, 819–825, 2023)
+["All objects and some questions"](https://pubs.aip.org/aapt/ajp/article/91/10/819/2911822/All-objects-and-some-questions) by Charles H. Lineweaver and Vihan M. Patel (*Am. J. Phys.* 91, 819–825, 2023)
 
 "Macro Dark Matter" by David M. Jacobs, Glenn D. Starkman, Bryan W. Lynn ([arXiv:1410.2236](https://arxiv.org/abs/1410.2236))
 
-"Dark Exoplanets" by Yang Bai, Sida Lu, Nicholas Orlofsky (*Phys. Rev. D* 108, 103026, 2023)
+["Dark Exoplanets"](https://arxiv.org/abs/2303.12129) by Yang Bai, Sida Lu, Nicholas Orlofsky (*Phys. Rev. D* 108, 103026, 2023)
 
 </div>
 
