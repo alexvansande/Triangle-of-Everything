@@ -207,6 +207,9 @@ body.sidebar-open #controls { left: 454px; }
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 #axis-tooltip.visible { opacity: 1; }
+#axis-tooltip sup {
+  font-size: 0.75em; vertical-align: super; line-height: 0;
+}
 #axis-tooltip .at-line1 {
   font-family: 'Space Mono', monospace; font-size: 10px;
   color: rgba(255,255,255,0.4);
@@ -219,26 +222,22 @@ body.sidebar-open #controls { left: 454px; }
   font-family: 'Space Mono', monospace; font-size: 9px;
   color: rgba(255,255,255,0.35);
 }
-/* CSS triangle pointers */
-#axis-tooltip.at-right::after {
-  content: ''; position: absolute; right: -6px; top: 50%;
-  transform: translateY(-50%);
-  border: 5px solid transparent; border-left-color: rgba(10,10,40,0.92);
+/* Arrow indicator — positioned on the edge closest to the axis */
+#axis-tooltip .at-arrow {
+  position: absolute; color: rgba(255,255,255,0.3);
+  font-size: 10px; line-height: 1;
 }
-#axis-tooltip.at-left::before {
-  content: ''; position: absolute; left: -6px; top: 50%;
-  transform: translateY(-50%);
-  border: 5px solid transparent; border-right-color: rgba(10,10,40,0.92);
+#axis-tooltip.at-right .at-arrow {
+  right: -12px; top: 50%; transform: translateY(-50%);
 }
-#axis-tooltip.at-bottom::after {
-  content: ''; position: absolute; bottom: -6px; left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent; border-top-color: rgba(10,10,40,0.92);
+#axis-tooltip.at-left .at-arrow {
+  left: -12px; top: 50%; transform: translateY(-50%);
 }
-#axis-tooltip.at-top::before {
-  content: ''; position: absolute; top: -6px; left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent; border-bottom-color: rgba(10,10,40,0.92);
+#axis-tooltip.at-bottom .at-arrow {
+  bottom: -14px; left: 50%; transform: translateX(-50%);
+}
+#axis-tooltip.at-top .at-arrow {
+  top: -14px; left: 50%; transform: translateX(-50%);
 }
 
 /* ---------- scale bar ---------- */

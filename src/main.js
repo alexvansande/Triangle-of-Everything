@@ -75,7 +75,7 @@ const BASE_MARGIN_LEFT = 145;
 let _isSidebarOpen = true;
 let _booted = false;
 
-const margin = { top: 90, right: 95, bottom: 80, left: SIDEBAR_W };
+const margin = { top: 55, right: 95, bottom: 80, left: SIDEBAR_W };
 let W, H, cw, ch;
 
 // Equal-scale view bounds — computed so 1 data unit = same px in both axes
@@ -200,6 +200,7 @@ const lGrid       = clip.append("g");
 const lDensity    = clip.append("g");
 const lTriOverlay = clip.append("g");
 const lBound      = clip.append("g");
+const lBigBangEras = clip.append("g");
 const lEnergyBands = clip.append("g");
 const lDarkMatter = clip.append("g");
 const lArrows     = clip.append("g").style("mix-blend-mode", "screen");
@@ -773,6 +774,7 @@ let _dmHovered = false;
 
 function drawDarkMatterRegions() {
   lDarkMatter.selectAll("*").remove();
+  if (currentK < 2) return; // only show when zoomed in enough
 
   const baseOpacity = currentK > 3 ? 0.2 : 0.1;
   const opacity = _dmHovered ? 0.3 : baseOpacity;
@@ -925,6 +927,149 @@ function drawDensityLines() {
       .attr("stroke", isWater ? "#80deea" : "#ffffff")
       .attr("stroke-width", isWater ? 0.9 : (isMajor ? 0.6 : 0.3))
       .attr("opacity", isWater ? 0.35 : (isMajor ? 0.22 : 0.10));
+  }
+}
+
+// =============================================================
+// Draw: Big Bang era lines along Schwarzschild boundary
+// =============================================================
+
+const BIG_BANG_ERAS = [
+  { logRho: 93.7 },
+  { logRho: 76,     label: "PLANCK EPOCH",                    slug: "planck-era" },
+  { logRho: 50,     label: "GRAND UNIFIED THEORY EPOCH",      slug: "grand-unified-theory-era" },
+  { logRho: 25,     label: "INFLATION EPOCH",                 slug: "inflation-era" },
+  { logRho: 14.4,   label: "ELECTROWEAK EPOCH",               slug: "electroweak-era" },
+  { logRho: 4,      label: "QUARK EPOCH",                     slug: "quantum-chromodynamics-era" },
+  { logRho: 0,      label: "NUCLEOSYNTHESIS ERA",             slug: "big-bang-nucleosynthesis" },
+  { logRho: -29.5,  label: "DARK ENERGY ERA",                 slug: "dark-energy-era" },
+  { logRho: -150.6,  label: "HEAT DEATH OF THE UNIVERSE",    slug: "heat-death" },
+];
+
+function drawBigBangEras() {
+  lBigBangEras.selectAll("*").remove();
+  if (currentK < 1.3) return; // hide when zoomed out too much
+  const d = vd();
+  const densAngle = screenAngle(3);
+
+  // Precompute Schwarzschild intersection points for each era
+  const eras = BIG_BANG_ERAS.map(era => {
+    const logR_int = (-SCHWARZSCHILD_C - DENSITY_SPHERE_C - era.logRho) / 2;
+    const logM_int = logR_int - SCHWARZSCHILD_C;
+    return { ...era, logR_int, logM_int };
+  });
+
+  // Draw diagonal lines (slope 3) from Schwarzschild intersection extending right.
+  // Special case: the heat death line (last entry, no label) starts from the
+  // Hubble-Compton corner instead of the Schwarzschild intersection.
+  eras.forEach((era, idx) => {
+    const b = DENSITY_SPHERE_C + era.logRho;
+
+    let startR, startM;
+    if (era.logRho <= -150) {
+      // Heat death line: start from bottom of Hubble radius (Compton-Hubble corner)
+      startR = HUBBLE_LOG_R;
+      startM = comptonM(HUBBLE_LOG_R);
+    } else {
+      startR = era.logR_int;
+      startM = era.logM_int;
+    }
+
+    // Extend along density line (slope 3) to the right
+    const farR = startR + 200;
+    const farM = 3 * farR + b;
+    const clipped = clampLineToChart(
+      px(startR), py(startM),
+      px(farR), py(farM)
+    );
+    if (!clipped) return;
+
+    const screenLen = Math.hypot(clipped.x2 - clipped.x1, clipped.y2 - clipped.y1);
+    if (screenLen < 5) return;
+
+    lBigBangEras.append("line")
+      .attr("x1", clipped.x1).attr("y1", clipped.y1)
+      .attr("x2", clipped.x2).attr("y2", clipped.y2)
+      .attr("stroke", "rgba(255,100,100,0.4)")
+      .attr("stroke-width", 0.7)
+      .attr("stroke-dasharray", "4 3");
+  });
+
+  // Draw labels between consecutive era lines.
+  // Place each label along the mid-density line, offset past the Schwarzschild
+  // intersection so the text stays fully above the Schwarzschild boundary.
+  for (let i = 1; i < eras.length; i++) {
+    if (!eras[i].label) continue;
+
+    const prev = eras[i - 1];
+    const curr = eras[i];
+
+    // Skip label if the two intersection points are too close on screen
+    const dist = Math.hypot(px(curr.logR_int) - px(prev.logR_int),
+                            py(curr.logM_int) - py(prev.logM_int));
+    if (dist < 30) continue;
+
+    // Use mid-density between the two bounding era lines
+    const midLogRho = (prev.logRho + curr.logRho) / 2;
+    const midB = DENSITY_SPHERE_C + midLogRho;
+
+    const pxPerUnitR = Math.abs(px(1) - px(0));
+    const labelOffsetPx = 8;
+    const dR = labelOffsetPx / (pxPerUnitR || 1);
+
+    let labelLogR, labelLogM;
+
+    // Special case: heat death label — position it just above the Observable
+    // Universe object, horizontally centered between the two bounding density lines.
+    if (curr.logRho < -100) {
+      // Observable Universe is at logM ≈ 55.97; place label a bit above
+      labelLogM = 57;
+      // At this logM, find logR on each bounding density line:
+      // logM = 3*logR + DENSITY_SPHERE_C + logRho  =>  logR = (logM - DENSITY_SPHERE_C - logRho) / 3
+      const logR_prev = (labelLogM - DENSITY_SPHERE_C - prev.logRho) / 3;
+      const logR_curr = (labelLogM - DENSITY_SPHERE_C - curr.logRho) / 3;
+      labelLogR = (logR_prev + logR_curr) / 2;
+    } else {
+      // Find where mid-density line meets Schwarzschild
+      const schwLogR = (-SCHWARZSCHILD_C - DENSITY_SPHERE_C - midLogRho) / 2;
+      labelLogR = schwLogR + dR;
+      labelLogM = 3 * labelLogR + midB;
+    }
+
+    const labelX = px(labelLogR);
+    const labelY = py(labelLogM);
+    const anchor = curr.logRho < -100 ? "middle" : "start";
+
+    // Skip if label is far outside viewport
+    if (labelX < -100 || labelX > cw + 100 || labelY < -100 || labelY > ch + 100) continue;
+
+    // Dark outline for readability (matches energy band style)
+    lBigBangEras.append("text")
+      .attr("x", labelX).attr("y", labelY)
+      .attr("text-anchor", anchor)
+      .attr("font-family", "Inter, sans-serif")
+      .attr("font-size", 12).attr("font-weight", 600)
+      .attr("letter-spacing", "1px")
+      .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
+      .attr("stroke-width", 2).attr("stroke-linejoin", "round")
+      .attr("opacity", 0.5)
+      .attr("transform", `rotate(${densAngle},${labelX},${labelY})`)
+      .text(curr.label);
+
+    const txt = lBigBangEras.append("text")
+      .attr("x", labelX).attr("y", labelY)
+      .attr("text-anchor", anchor)
+      .attr("font-family", "Inter, sans-serif")
+      .attr("font-size", 12).attr("font-weight", 600)
+      .attr("letter-spacing", "1px")
+      .attr("fill", "rgba(255,130,130,0.8)")
+      .attr("opacity", 0.5)
+      .attr("transform", `rotate(${densAngle},${labelX},${labelY})`)
+      .text(curr.label);
+    if (curr.slug) {
+      txt.style("cursor", "pointer")
+        .on("click", (e) => { e.stopPropagation(); openInfoPanel(curr.slug, curr.label); setSidebarOpen(true); });
+    }
   }
 }
 
@@ -1543,58 +1688,58 @@ const axisTooltipEl = document.getElementById("axis-tooltip");
 // ── Unit tables for the axis tooltip picker ──
 
 const MASS_HOVER_UNITS = [
-  { logOff: -32.75, name: "eV/c²",  sys: "particle" },
-  { logOff: -29.75, name: "keV/c²", sys: "particle" },
-  { logOff: -26.75, name: "MeV/c²", sys: "particle" },
-  { logOff: -23.75, name: "GeV/c²", sys: "particle" },
-  { logOff: -20.75, name: "TeV/c²", sys: "particle" },
-  { logOff: -15,    name: "pg",      sys: "metric" },
-  { logOff: -12,    name: "ng",      sys: "metric" },
-  { logOff: -9,     name: "μg",      sys: "metric" },
-  { logOff: -6,     name: "mg",      sys: "metric" },
-  { logOff: 0,      name: "g",       sys: "metric" },
-  { logOff: 3,      name: "kg",      sys: "metric" },
-  { logOff: 6,      name: "tonnes",  sys: "metric" },
-  { logOff: 9,      name: "kilotonnes", sys: "metric" },
-  { logOff: 12,     name: "megatonnes", sys: "metric" },
-  { logOff: 15,     name: "gigatonnes", sys: "metric" },
-  { logOff: 1.45,   name: "oz",      sys: "imperial" },
-  { logOff: 2.66,   name: "lbs",     sys: "imperial" },
-  { logOff: 5.95,   name: "US tons", sys: "imperial" },
-  { logOff: 27.78,  name: "M\u2295", sys: "astro" },  // Earth mass
-  { logOff: 30.28,  name: "M\u2C7C", sys: "astro" },  // Jupiter mass
-  { logOff: 33.30,  name: "M\u2609", sys: "astro" },  // Solar mass
+  { logOff: -32.75, name: "Electron Volts/c²",  sys: "particle" },
+  { logOff: -29.75, name: "Kilo Electron Volts/c²", sys: "particle" },
+  { logOff: -26.75, name: "Mega Electron Volts/c²", sys: "particle" },
+  { logOff: -23.75, name: "Giga Electron Volts/c²", sys: "particle" },
+  { logOff: -20.75, name: "Tera Electron Volts/c²", sys: "particle" },
+  { logOff: -15,    name: "Picograms",   sys: "metric" },
+  { logOff: -12,    name: "Nanograms",   sys: "metric" },
+  { logOff: -9,     name: "Micrograms",  sys: "metric" },
+  { logOff: -6,     name: "Milligrams",  sys: "metric" },
+  { logOff: 0,      name: "Grams",       sys: "metric" },
+  { logOff: 3,      name: "Kilograms",   sys: "metric" },
+  { logOff: 6,      name: "Tonnes",      sys: "metric" },
+  { logOff: 9,      name: "Kilotonnes",  sys: "metric" },
+  { logOff: 12,     name: "Megatonnes",  sys: "metric" },
+  { logOff: 15,     name: "Gigatonnes",  sys: "metric" },
+  { logOff: 1.45,   name: "Ounces",      sys: "imperial" },
+  { logOff: 2.66,   name: "Pounds",      sys: "imperial" },
+  { logOff: 5.95,   name: "US Tons",     sys: "imperial" },
+  { logOff: 27.78,  name: "Earth Masses",   sys: "astro" },
+  { logOff: 30.28,  name: "Jupiter Masses", sys: "astro" },
+  { logOff: 33.30,  name: "Solar Masses",   sys: "astro" },
 ];
 
 const RADIUS_HOVER_UNITS = [
-  { logOff: -13,    name: "fm",   sys: "metric" },
-  { logOff: -10,    name: "pm",   sys: "metric" },
-  { logOff: -8,     name: "\u00C5", sys: "metric" },  // Angstrom
-  { logOff: -7,     name: "nm",   sys: "metric" },
-  { logOff: -4,     name: "μm",   sys: "metric" },
-  { logOff: -1,     name: "mm",   sys: "metric" },
-  { logOff: 0,      name: "cm",   sys: "metric" },
-  { logOff: 2,      name: "m",    sys: "metric" },
-  { logOff: 5,      name: "km",   sys: "metric" },
-  { logOff: 0.405,  name: "inches",  sys: "imperial" },
-  { logOff: 1.484,  name: "feet",    sys: "imperial" },
-  { logOff: 5.207,  name: "miles",   sys: "imperial" },
-  { logOff: 13.175, name: "AU",   sys: "astro" },
-  { logOff: 17.976, name: "ly",   sys: "astro" },
-  { logOff: 18.489, name: "pc",   sys: "astro" },
-  { logOff: 20.976, name: "kly",  sys: "astro" },
-  { logOff: 24.489, name: "Mpc",  sys: "astro" },
+  { logOff: -13,    name: "Femtometers",    sys: "metric" },
+  { logOff: -10,    name: "Picometers",     sys: "metric" },
+  { logOff: -8,     name: "Angstroms",      sys: "metric" },
+  { logOff: -7,     name: "Nanometers",     sys: "metric" },
+  { logOff: -4,     name: "Micrometers",    sys: "metric" },
+  { logOff: -1,     name: "Millimeters",    sys: "metric" },
+  { logOff: 0,      name: "Centimeters",    sys: "metric" },
+  { logOff: 2,      name: "Meters",         sys: "metric" },
+  { logOff: 5,      name: "Kilometers",     sys: "metric" },
+  { logOff: 0.405,  name: "Inches",         sys: "imperial" },
+  { logOff: 1.484,  name: "Feet",           sys: "imperial" },
+  { logOff: 5.207,  name: "Miles",          sys: "imperial" },
+  { logOff: 13.175, name: "Astronomical Units", sys: "astro" },
+  { logOff: 17.976, name: "Light Years",    sys: "astro" },
+  { logOff: 18.489, name: "Parsecs",        sys: "astro" },
+  { logOff: 20.976, name: "Thousand Light Years", sys: "astro" },
+  { logOff: 24.489, name: "Megaparsecs",    sys: "astro" },
 ];
 
 const ENERGY_HOVER_UNITS = [
-  { logOff: -38.75, name: "μeV",  sys: "energy" },
-  { logOff: -35.75, name: "meV",  sys: "energy" },
-  { logOff: -32.75, name: "eV",   sys: "energy" },
-  { logOff: -29.75, name: "keV",  sys: "energy" },
-  { logOff: -26.75, name: "MeV",  sys: "energy" },
-  { logOff: -23.75, name: "GeV",  sys: "energy" },
-  { logOff: -20.75, name: "TeV",  sys: "energy" },
-  { logOff: -36.81, name: "K",    sys: "temperature" },
+  { logOff: -38.75, name: "Micro Electron Volts",  sys: "energy" },
+  { logOff: -35.75, name: "Milli Electron Volts",  sys: "energy" },
+  { logOff: -32.75, name: "Electron Volts",        sys: "energy" },
+  { logOff: -29.75, name: "Kilo Electron Volts",   sys: "energy" },
+  { logOff: -26.75, name: "Mega Electron Volts",   sys: "energy" },
+  { logOff: -23.75, name: "Giga Electron Volts",   sys: "energy" },
+  { logOff: -20.75, name: "Tera Electron Volts",   sys: "energy" },
+  { logOff: -36.81, name: "Kelvin",                sys: "temperature" },
 ];
 
 // Density→cosmic-time lookup (piecewise linear interpolation in log-log)
@@ -1646,11 +1791,10 @@ function formatHumanNum(value, unit) {
   const a = Math.abs(value);
   if (a === 0) return `0 ${unit}`;
   if (a >= 1e15 || a < 0.001) {
-    // Use superscript scientific notation for extreme values
+    // Use HTML sup for extreme values
     const exp = Math.floor(Math.log10(a));
     const mant = value / Math.pow(10, exp);
-    const supExp = String(exp).replace(/./g, c => SUP[c] || c);
-    return `${mant.toFixed(1)}×10${supExp} ${unit}`;
+    return `${mant.toFixed(1)}×10<sup>${exp}</sup> ${unit}`;
   }
   if (a < 0.01) return `${value.toPrecision(2)} ${unit}`;
   if (a < 10)   return `${value.toPrecision(3)} ${unit}`;
@@ -1661,13 +1805,9 @@ function formatHumanNum(value, unit) {
   return `${(value / 1e12).toPrecision(3)} trillion ${unit}`;
 }
 
-const SUP = { "0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵",
-  "6":"⁶","7":"⁷","8":"⁸","9":"⁹","-":"⁻",".":"·" };
-
 function formatLogSuper(logVal, unit) {
-  let s = logVal.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
-  const sup = s.replace(/./g, c => SUP[c] || c);
-  return `10${sup} ${unit}`;
+  const s = logVal.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+  return `10<sup>${s}</sup> ${unit}`;
 }
 
 // Density → cosmic time via interpolation
@@ -1687,20 +1827,57 @@ function densityToLogTime(logRho) {
 function friendlyTime(logT) {
   // logT is log₁₀(seconds)
   const logYr = logT - 7.494; // 1 year ≈ 3.156×10⁷ s → log₁₀ ≈ 7.494
-  if (logT < -15) return `${Math.pow(10, logT + 15).toPrecision(2)} fs`;
-  if (logT < -12) return `${Math.pow(10, logT + 12).toPrecision(2)} ps`;
-  if (logT < -9)  return `${Math.pow(10, logT + 9).toPrecision(2)} ns`;
-  if (logT < -6)  return `${Math.pow(10, logT + 6).toPrecision(2)} μs`;
-  if (logT < -3)  return `${Math.pow(10, logT + 3).toPrecision(2)} ms`;
-  if (logT < 0)   return `${Math.pow(10, logT).toPrecision(2)} s`;
-  if (logT < 2)   return `${Math.pow(10, logT).toPrecision(2)} seconds`;
-  if (logT < 3.56) return `${Math.pow(10, logT - 1.778).toPrecision(2)} minutes`; // 60s
-  if (logT < 4.94) return `${Math.pow(10, logT - 3.556).toPrecision(2)} hours`;   // 3600s
-  if (logT < 6.45) return `${Math.pow(10, logT - 4.937).toPrecision(2)} days`;    // 86400s
-  if (logYr < 3)   return `${Math.pow(10, logYr).toPrecision(3)} years`;
-  if (logYr < 6)   return `${Math.pow(10, logYr - 3).toPrecision(3)} thousand years`;
-  if (logYr < 9)   return `${Math.pow(10, logYr - 6).toPrecision(3)} million years`;
-  return `${Math.pow(10, logYr - 9).toPrecision(3)} billion years`;
+
+  // Turn a small fractional value into natural language: 3.1e-19 → "3.1 ten-billionths of a"
+  function humanFrac(val, unitSingular) {
+    const a = Math.abs(val);
+    if (a >= 0.5) return `${Number(val.toPrecision(2))} ${unitSingular}s`;
+    const fracs = [
+      [1e-3,  "Thousandth"],  [1e-6,  "Millionth"],  [1e-9,  "Billionth"],
+      [1e-12, "Trillionth"], [1e-15, "Quadrillionth"], [1e-18, "Quintillionth"],
+      [1e-21, "Sextillionth"], [1e-24, "Septillionth"],
+    ];
+    for (const [thresh, word] of fracs) {
+      const scaled = val / thresh;
+      if (Math.abs(scaled) >= 0.5) {
+        const n = Number(scaled.toPrecision(2));
+        const pl = Math.abs(n) === 1 ? "" : "s";
+        return `${n} ${word}${pl} of a ${unitSingular}`;
+      }
+    }
+    // fallback for extremely small values
+    const exp = Math.floor(Math.log10(a));
+    const mant = val / Math.pow(10, exp);
+    return `${mant.toFixed(1)}×10<sup>${exp}</sup> ${unitSingular}s`;
+  }
+
+  // Planck time ≈ 5.4×10⁻⁴⁴ s → log₁₀ ≈ -43.27
+  if (logT < -36) {
+    const logPlanck = -43.27;
+    const mult = logT - logPlanck;
+    if (mult < 15) {
+      const v = Math.pow(10, mult);
+      if (v < 1e3) return `${Number(v.toPrecision(2))} Planck Times`;
+      if (v < 1e6) return `${Number((v/1e3).toPrecision(2))} Thousand Planck Times`;
+      if (v < 1e9) return `${Number((v/1e6).toPrecision(2))} Million Planck Times`;
+      if (v < 1e12) return `${Number((v/1e9).toPrecision(2))} Billion Planck Times`;
+      return `${Number((v/1e12).toPrecision(2))} Trillion Planck Times`;
+    }
+    return formatLogSuper(mult, "× Planck Time");
+  }
+  // Small times: use fractional natural language
+  if (logT < -12) { return humanFrac(Math.pow(10, logT + 12), "Picosecond"); }
+  if (logT < -9)  { return humanFrac(Math.pow(10, logT + 9),  "Nanosecond"); }
+  if (logT < -6)  { return humanFrac(Math.pow(10, logT + 6),  "Microsecond"); }
+  if (logT < 0)   { return humanFrac(Math.pow(10, logT + 3),  "Millisecond"); }
+  if (logT < 2)   return `${Number(Math.pow(10, logT).toPrecision(2))} Seconds`;
+  if (logT < 3.56) return `${Number(Math.pow(10, logT - 1.778).toPrecision(2))} Minutes`;
+  if (logT < 4.94) return `${Number(Math.pow(10, logT - 3.556).toPrecision(2))} Hours`;
+  if (logT < 6.45) return `${Number(Math.pow(10, logT - 4.937).toPrecision(2))} Days`;
+  if (logYr < 3)   return `${Number(Math.pow(10, logYr).toPrecision(3))} Years`;
+  if (logYr < 6)   return `${Number(Math.pow(10, logYr - 3).toPrecision(3))} Thousand Years`;
+  if (logYr < 9)   return `${Number(Math.pow(10, logYr - 6).toPrecision(3))} Million Years`;
+  return `${Number(Math.pow(10, logYr - 9).toPrecision(3))} Billion Years`;
 }
 
 // ── Axis region detection ──
@@ -1724,11 +1901,18 @@ function detectAxisRegion(clientX, clientY) {
 
 // ── Tooltip content builders ──
 
+// Physical bounds for clamping (in CGS log units)
+const AX_MIN_LOGR = PLANCK_LOG_R;   // ≈ -32.64 cm (Planck length)
+const AX_MAX_LOGR = HUBBLE_LOG_R;   // 28.14 cm (Hubble radius)
+const AX_MIN_LOGM = -67;            // lightest meaningful mass
+const AX_MAX_LOGM = 56;             // ~observable universe mass
+
 function buildAxisContent(region) {
   const d = vd();
   switch (region.axis) {
     case "right": {
       const logM = yS.invert(region.chartY);
+      if (logM < AX_MIN_LOGM || logM > AX_MAX_LOGM) return null;
       const logKg = logM - 3;
       const primary = pickBestUnit(logM, MASS_HOVER_UNITS, "metric");
       const alt = pickAltUnit(logM, MASS_HOVER_UNITS, primary);
@@ -1740,16 +1924,17 @@ function buildAxisContent(region) {
     }
     case "left": {
       const logM = yS.invert(region.chartY);
+      if (logM < AX_MIN_LOGM || logM > AX_MAX_LOGM) return null;
       const logEv = logM + 32.75;
       const logK = logM + 36.81;
       const primary = pickBestUnit(logM, ENERGY_HOVER_UNITS, "energy");
       // Always show temperature as alt for energy axis
-      const tempStr = logK >= 15 ? formatLogSuper(logK, "K")
-        : logK >= 9 ? `${(Math.pow(10, logK - 9)).toPrecision(3)} billion K`
-        : logK >= 6 ? `${(Math.pow(10, logK - 6)).toPrecision(3)} million K`
-        : logK >= 3 ? `${(Math.pow(10, logK - 3)).toPrecision(3)} thousand K`
-        : logK >= 0 ? `${Math.pow(10, logK).toPrecision(3)} K`
-        : formatLogSuper(logK, "K");
+      const tempStr = logK >= 15 ? formatLogSuper(logK, "Kelvin")
+        : logK >= 9 ? `${(Math.pow(10, logK - 9)).toPrecision(3)} billion Kelvin`
+        : logK >= 6 ? `${(Math.pow(10, logK - 6)).toPrecision(3)} million Kelvin`
+        : logK >= 3 ? `${(Math.pow(10, logK - 3)).toPrecision(3)} thousand Kelvin`
+        : logK >= 0 ? `${Math.pow(10, logK).toPrecision(3)} Kelvin`
+        : formatLogSuper(logK, "Kelvin");
       return {
         line1: formatLogSuper(logEv, "eV"),
         line2: formatHumanNum(primary.value, primary.unit),
@@ -1758,6 +1943,7 @@ function buildAxisContent(region) {
     }
     case "bottom": {
       const logR = xS.invert(region.chartX);
+      if (logR < AX_MIN_LOGR || logR > AX_MAX_LOGR) return null;
       const logM = logR - 2; // cm → m
       const primary = pickBestUnit(logR, RADIUS_HOVER_UNITS, "metric");
       const alt = pickAltUnit(logR, RADIUS_HOVER_UNITS, primary);
@@ -1772,18 +1958,39 @@ function buildAxisContent(region) {
       const logRho = d.y1 - 3 * logR - DENSITY_SPHERE_C;
       const logT = densityToLogTime(logRho);
       const logRho_kgm3 = logRho + 3; // g/cm³ → kg/m³
-      // Friendly density string
+      // Friendly density string using relatable comparisons
       let densStr;
-      if (logRho > 14) densStr = `${Math.pow(10, logRho - 14).toPrecision(2)}× nuclear density`;
-      else if (logRho_kgm3 > 6) densStr = formatLogSuper(logRho_kgm3, "kg/m³");
-      else if (logRho_kgm3 > 3) densStr = `${Math.pow(10, logRho_kgm3 - 3).toPrecision(3)} thousand kg/m³`;
-      else if (logRho_kgm3 > 0) densStr = `${Math.pow(10, logRho_kgm3).toPrecision(3)} kg/m³`;
-      else if (logRho_kgm3 > -3) densStr = `${Math.pow(10, logRho_kgm3 + 3).toPrecision(3)} g/m³`;
+      // logRho is in g/cm³; water=0, air≈-3.1, nuclear≈14.4
+      // Helper to format a multiplier with words
+      function fmtMult(logDiff, ref) {
+        if (logDiff > 15) return formatLogSuper(logDiff, `× ${ref}`);
+        const v = Math.pow(10, logDiff);
+        if (v >= 1e12) return `${Number((v/1e12).toPrecision(2))} Trillion× ${ref}`;
+        if (v >= 1e9) return `${Number((v/1e9).toPrecision(2))} Billion× ${ref}`;
+        if (v >= 1e6) return `${Number((v/1e6).toPrecision(2))} Million× ${ref}`;
+        if (v >= 1e3) return `${Number((v/1e3).toPrecision(2))} Thousand× ${ref}`;
+        return `${Number(v.toPrecision(2))}× ${ref}`;
+      }
+      function fmtFrac(logDiff, ref) {
+        if (logDiff < -15) return formatLogSuper(logDiff, `× ${ref}`);
+        const v = Math.pow(10, logDiff);
+        if (v >= 0.5) return `${Number(v.toPrecision(2))}× ${ref}`;
+        if (v >= 1e-3) return `${Number((v*1e3).toPrecision(2))} Thousandths of ${ref}`;
+        if (v >= 1e-6) return `${Number((v*1e6).toPrecision(2))} Millionths of ${ref}`;
+        if (v >= 1e-9) return `${Number((v*1e9).toPrecision(2))} Billionths of ${ref}`;
+        if (v >= 1e-12) return `${Number((v*1e12).toPrecision(2))} Trillionths of ${ref}`;
+        return formatLogSuper(logDiff, `× ${ref}`);
+      }
+      if (logRho > 14) densStr = fmtMult(logRho - 14, "Nuclear Density");
+      else if (logRho > 0) densStr = fmtMult(logRho, "Water Density");
+      else if (logRho > -3.1) densStr = fmtMult(logRho + 3.1, "Air Density");
+      else if (logRho > -20) densStr = fmtFrac(logRho + 3.1, "Air Density");
+      else if (logRho > -30) densStr = fmtFrac(logRho + 28, "Interstellar Medium");
       else densStr = formatLogSuper(logRho_kgm3, "kg/m³");
       return {
-        line1: `Age of the Universe: ${friendlyTime(logT)}`,
-        line2: `Average Density: ${densStr}`,
-        line3: `${formatLogSuper(logT, "s")}  |  ${formatLogSuper(logRho_kgm3, "kg/m³")}`,
+        line1: `${formatLogSuper(logT, "s")}  |  ${formatLogSuper(logRho_kgm3, "kg/m³")}`,
+        line2: `Age of the Universe: ${friendlyTime(logT)}`,
+        line3: `Average Density: ${densStr}`,
       };
     }
   }
@@ -1834,7 +2041,9 @@ svg.on("mousemove.axisTooltip", (e) => {
   const content = buildAxisContent(region);
   if (!content) { hideAxisTooltip(); return; }
   hideTooltip();  // hide object tooltip when on axis
+  const arrowChar = { right: "▶", left: "◀", bottom: "▼", top: "▲" }[region.axis];
   axisTooltipEl.innerHTML =
+    `<div class="at-arrow">${arrowChar}</div>` +
     `<div class="at-line1">${content.line1}</div>` +
     `<div class="at-line2">${content.line2}</div>` +
     `<div class="at-line3">${content.line3}</div>`;
@@ -2327,7 +2536,7 @@ function drawAxes() {
   const diagDx = 1;
   const diagDy = 3;
   const diagNorm = Math.sqrt(diagDx * diagDx + diagDy * diagDy);
-  const diagLen = 35;
+  const diagLen = 15;
 
   for (let logRho = -54; logRho <= 108; logRho += 9) {
     const b = DENSITY_SPHERE_C + logRho;
@@ -2358,52 +2567,13 @@ function drawAxes() {
       .text(gL);
   }
 
-  const EPOCH_TOP = [
-    { logRho: 93.7, label: "PLANCK TIME", slug: "planck-time" },
-    { logRho: 76, label: "GUT ERA", slug: "gut-era" },
-    { logRho: 50, label: "INFLATION", slug: "inflation" },
-    { logRho: 25, label: "ELECTROWEAK", slug: "electroweak" },
-    { logRho: 14.4, label: "QCD", slug: "qcd" },
-    { logRho: 4, label: "BBN", slug: "bbn" },
-    { logRho: 0, label: "ρ WATER", slug: "density-water" },
-    { logRho: -21, label: "CMB", slug: "cmb" },
-    { logRho: -29.5, label: "NOW", slug: "now" },
-  ];
-
-  const epochLen = 55;
-  EPOCH_TOP.forEach(ep => {
-    const b = DENSITY_SPHERE_C + ep.logRho;
-    const logR_top = (d.y1 - b) / 3;
-    if (logR_top < d.x0 - 3 || logR_top > d.x1 + 3) return;
-    const p = px(logR_top);
-    if (p < -20 || p > cw + 20) return;
-
-    const ex = p + (diagDx / diagNorm) * epochLen;
-    const ey = -(diagDy / diagNorm) * epochLen;
-    const tx = ex + (diagDx / diagNorm) * 3;
-    const ty = ey - (diagDy / diagNorm) * 3;
-
-    const txt = axT.append("text")
-      .attr("x", tx).attr("y", ty)
-      .attr("text-anchor", "start")
-      .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", 7.5).attr("font-weight", 500)
-      .attr("fill", "rgba(255,180,120,0.4)")
-      .attr("letter-spacing", "1px")
-      .attr("transform", `rotate(${densityAngle},${tx},${ty})`)
-      .text(ep.label);
-    if (ep.slug) {
-      txt.attr("class", "axis-unit-link").attr("data-slug", ep.slug).attr("data-name", ep.label);
-    }
-  });
-
-  axT.append("text").attr("x", cw - 5).attr("y", -78).attr("text-anchor", "end")
+  axT.append("text").attr("x", cw - 5).attr("y", -38).attr("text-anchor", "end")
     .attr("class", "axis-title").text("DENSITY");
-  axT.append("text").attr("x", cw - 5).attr("y", -65).attr("text-anchor", "end")
+  axT.append("text").attr("x", cw - 5).attr("y", -26).attr("text-anchor", "end")
     .attr("class", "axis-subtitle").text("10ⁿ g/L");
-  axT.append("text").attr("x", 5).attr("y", -26).attr("text-anchor", "start")
+  axT.append("text").attr("x", 5).attr("y", -38).attr("text-anchor", "start")
     .attr("class", "axis-title").attr("letter-spacing", "3px").text("TIME");
-  axT.append("text").attr("x", 5).attr("y", -14).attr("text-anchor", "start")
+  axT.append("text").attr("x", 5).attr("y", -26).attr("text-anchor", "start")
     .attr("class", "axis-subtitle").text("10ⁿ s since Big Bang");
 
   // ─── BOTTOM: Big log numbers + two rows of width units ────
@@ -3209,6 +3379,7 @@ function redrawVectors() {
   drawDensityLines();
   drawTriangleOverlay();
   drawBoundaries();
+  drawBigBangEras();
   drawEnergyBands();
   drawDarkMatterRegions();
   drawConnections();
