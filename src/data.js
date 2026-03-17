@@ -197,7 +197,6 @@ export const ENERGY_UNITS = [
   { logM: -36.81 + Math.log10(373.15),    label: "100°C", slug: "energy-units" },
   { logM: -36.81 + 3,                     label: "1000 K", slug: "energy-units" },
   { logM: -36.81 + Math.log10(1273.15),   label: "1000°C", slug: "energy-units" },
-  { logM: -36.81 + Math.log10(5778),      label: "5778 K (Sun surface)", slug: "energy-units" },
   { logM: -36.81 + 6,                     label: "1M K", slug: "energy-units" },
   { logM: -36.81 + Math.log10(1e6 + 273.15), label: "1M°C", slug: "energy-units" },
   { logM: -36.81 + 9,                     label: "1 B K", slug: "energy-units" },

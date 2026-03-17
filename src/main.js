@@ -10,19 +10,29 @@ import {
 import objectsData from "./objects.json";
 import introRaw from "./texts/intro.md?raw";
 import "./style.css";
-import katex from "katex";
-import "katex/dist/katex.min.css";
+// KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
+let _katex = null;
+async function loadKatex() {
+  if (!_katex) {
+    const [mod] = await Promise.all([
+      import("katex"),
+      import("katex/dist/katex.min.css"),
+    ]);
+    _katex = mod.default;
+  }
+  return _katex;
+}
 
 // Load descriptions from markdown files (eager, at build time)
 const descFiles = import.meta.glob("../content/descriptions/*.md", { query: "?raw", import: "default", eager: true });
 const DESC_BY_SLUG = {};
 
-// Load object images (eager, at build time — Vite hashes for cache-busting)
-const imgFiles = import.meta.glob("../content/images/*.webp", { eager: true });
+// Load object images (lazy — each image fetched on demand when sidebar opens)
+const imgLoaders = import.meta.glob("../content/images/*.webp");
 const IMG_BY_SLUG = {};
-for (const [path, mod] of Object.entries(imgFiles)) {
+for (const [path, loader] of Object.entries(imgLoaders)) {
   const slug = path.replace("../content/images/", "").replace(".webp", "");
-  IMG_BY_SLUG[slug] = mod.default;
+  IMG_BY_SLUG[slug] = loader;
 }
 import imageManifest from "../content/images/manifest.json";
 
@@ -804,9 +814,8 @@ let _dmHovered = false;
 
 function drawDarkMatterRegions() {
   lDarkMatter.selectAll("*").remove();
-  if (currentK < 2) return; // only show when zoomed in enough
 
-  const baseOpacity = currentK > 3 ? 0.2 : 0.1;
+  const baseOpacity = currentK > 3 ? 0.2 : (currentK > 1.5 ? 0.1 : 0.06);
   const opacity = _dmHovered ? 0.3 : baseOpacity;
 
   DARK_MATTER_REGIONS.forEach(region => {
@@ -965,15 +974,15 @@ function drawDensityLines() {
 // =============================================================
 
 const BIG_BANG_ERAS = [
-  { logRho: 93.7 },
-  { logRho: 76,     label: "PLANCK EPOCH",                    slug: "planck-era" },
-  { logRho: 50,     label: "GRAND UNIFIED THEORY EPOCH",      slug: "grand-unified-theory-era" },
-  { logRho: 25,     label: "INFLATION EPOCH",                 slug: "inflation-era" },
-  { logRho: 14.4,   label: "ELECTROWEAK EPOCH",               slug: "electroweak-era" },
-  { logRho: 4,      label: "QUARK EPOCH",                     slug: "quantum-chromodynamics-era" },
+  { logRho: 120 },
+  { logRho: 93.7,   label: "PLANCK EPOCH",                    slug: "planck-era" },
+  { logRho: 60,     label: "GRAND UNIFIED THEORY EPOCH",      slug: "grand-unified-theory-era" },
+  { logRho: 30,     label: "INFLATION EPOCH",                 slug: "inflation-era" },
+  { logRho: 18,     label: "ELECTROWEAK EPOCH",               slug: "electroweak-era" },
+  { logRho: 6,      label: "QUARK EPOCH",                     slug: "quantum-chromodynamics-era" },
   { logRho: 0,      label: "NUCLEOSYNTHESIS ERA",             slug: "big-bang-nucleosynthesis" },
   { logRho: -29.5,  label: "DARK ENERGY ERA",                 slug: "dark-energy-era" },
-  { logRho: -150.6,  label: "HEAT DEATH OF THE UNIVERSE",    slug: "heat-death" },
+  { logRho: -150.6 },
 ];
 
 function drawBigBangEras() {
@@ -994,6 +1003,8 @@ function drawBigBangEras() {
   // Special case: the heat death line (last entry, no label) starts from the
   // Hubble-Compton corner instead of the Schwarzschild intersection.
   eras.forEach((era, idx) => {
+    // Skip boundary-only entries (no label = just a positioning boundary)
+    if (!era.label) return;
     // Skip the "Now" boundary line (Dark Energy Era at logRho=-29.5)
     if (era.logRho === -29.5) return;
 
@@ -1360,7 +1371,8 @@ function drawObjects() {
     }))
     .filter(o =>
       o.sx >= -pad && o.sx <= cw + pad &&
-      o.sy >= -pad && o.sy <= ch + pad
+      o.sy >= -pad && o.sy <= ch + pad &&
+      (!o.minK || currentK >= o.minK)
     )
     .sort((a, b) => a.z - b.z);
 
@@ -2305,16 +2317,12 @@ function simpleMarkdown(md) {
   const { meta, body } = parseFrontmatter(md);
 
   let html = body
-    // KaTeX: display math $$...$$ → centered block
-    .replace(/\$\$(.+?)\$\$/gs, (_, tex) => {
-      try { return `<div class="katex-display">${katex.renderToString(tex.trim(), { displayMode: true, throwOnError: false })}</div>`; }
-      catch { return tex; }
-    })
-    // KaTeX: inline math $...$
-    .replace(/\$(.+?)\$/g, (_, tex) => {
-      try { return katex.renderToString(tex.trim(), { throwOnError: false }); }
-      catch { return tex; }
-    })
+    // KaTeX: display math $$...$$ → placeholder (rendered async)
+    .replace(/\$\$(.+?)\$\$/gs, (_, tex) =>
+      `<span class="math-pending math-display" data-tex="${tex.trim().replace(/"/g, '&quot;')}">$$${tex}$$</span>`)
+    // KaTeX: inline math $...$  → placeholder (rendered async)
+    .replace(/\$(.+?)\$/g, (_, tex) =>
+      `<span class="math-pending" data-tex="${tex.trim().replace(/"/g, '&quot;')}">$${tex}$</span>`)
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
@@ -2355,7 +2363,34 @@ function simpleMarkdown(md) {
 
   return html;
 }
-document.getElementById("intro-body").innerHTML = simpleMarkdown(introRaw);
+
+// Render math placeholders in a container (lazy-loads KaTeX on first call)
+async function renderMath(container) {
+  const pending = container.querySelectorAll(".math-pending");
+  if (pending.length === 0) return;
+  const k = await loadKatex();
+  pending.forEach(el => {
+    const tex = el.getAttribute("data-tex");
+    const isDisplay = el.classList.contains("math-display");
+    try {
+      const html = k.renderToString(tex, { displayMode: isDisplay, throwOnError: false });
+      if (isDisplay) {
+        const div = document.createElement("div");
+        div.className = "katex-display";
+        div.innerHTML = html;
+        el.replaceWith(div);
+      } else {
+        const span = document.createElement("span");
+        span.innerHTML = html;
+        el.replaceWith(span);
+      }
+    } catch { /* leave as-is */ }
+  });
+}
+
+const introBody = document.getElementById("intro-body");
+introBody.innerHTML = simpleMarkdown(introRaw);
+renderMath(introBody);
 
 function navigateToObject(slug, name) {
   const obj = OBJECTS.find(o => o.slug === slug);
@@ -2474,6 +2509,7 @@ function openSidebar(obj) {
     sbCategory.textContent = "Unit reference";
     sbStats.innerHTML = "";
     sbDesc.innerHTML = simpleMarkdown(DESC_BY_SLUG[obj.slug] || "");
+    renderMath(sbDesc);
     const wiki = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(obj.name)}`;
     sbLinks.innerHTML = `
       <a href="${wiki}" target="_blank" rel="noopener">
@@ -2497,16 +2533,16 @@ function openSidebar(obj) {
   sbDot.style.color = objColor;
   sbCategory.textContent = catKey;
 
-  // Display object image or placeholder
+  // Display object image or placeholder (lazy-loaded)
   const slug = obj.slug || nameToSlug(obj.name);
-  const imgSrc = IMG_BY_SLUG[slug];
+  const imgLoader = IMG_BY_SLUG[slug];
   const imgMeta = imageManifest[slug];
-  if (imgSrc) {
+  if (imgLoader) {
     sbImage.innerHTML = "";
     const img = document.createElement("img");
-    img.src = imgSrc;
     img.alt = obj.name;
     sbImage.appendChild(img);
+    imgLoader().then(mod => { img.src = mod.default; });
     if (imgMeta) {
       const credit = document.createElement("a");
       credit.className = "sb-image-credit";
@@ -2599,6 +2635,7 @@ function openSidebar(obj) {
   sbStats.innerHTML = `<table>${rows}</table>`;
 
   sbDesc.innerHTML = simpleMarkdown(DESC_BY_SLUG[obj.slug] || "");
+  renderMath(sbDesc);
 
   const wiki = wikiUrl(obj);
   const scholar = scholarUrl(obj.name);
