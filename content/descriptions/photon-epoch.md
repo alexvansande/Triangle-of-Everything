@@ -1,0 +1,5 @@
+The longest era of the early universe, spanning from the end of [[Big Bang Nucleosynthesis|nucleosynthesis]] ($\sim 20$ minutes) to [[Cosmic Microwave Background|recombination]] ($\sim 380{,}000$ years). During this epoch the universe is a hot, opaque plasma of photons, electrons, and atomic nuclei, with photons constantly scattering off free electrons. Radiation dominates the energy budget ($\Omega_r > \Omega_m$), keeping the plasma in thermal equilibrium.
+
+As expansion cools the plasma below $\sim 3{,}000$ K, electrons combine with nuclei to form neutral atoms — an event called recombination. Photons suddenly travel freely, and the universe becomes transparent. The afterglow of this moment is the cosmic microwave background (CMB), redshifted today to $2.725$ K and observable in every direction. The CMB provides a snapshot of the universe at age $380{,}000$ years and is the oldest light we can see.
+
+Partway through the Photon Epoch, at around $47{,}000$ years, matter-radiation equality occurs: the energy density of matter overtakes that of radiation, setting the stage for gravitational collapse and the formation of cosmic structure.

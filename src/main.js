@@ -831,10 +831,13 @@ function drawDarkMatterRegions() {
       .on("click", (e) => {
         e.stopPropagation();
         openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+        setSidebarOpen(true);
       });
   });
 
   // Label — positioned between the two windows, rotated along Schwarzschild line
+  // Only show labels at higher zoom; polygons are visible earlier
+  if (currentK < 2) return;
   const schwAng = screenAngle(1);
   const labelM = 19;
   const labelR = schwarzschildR(labelM) + 1.5;
@@ -844,6 +847,7 @@ function drawDarkMatterRegions() {
       .on("click", (e) => {
         e.stopPropagation();
         openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+        setSidebarOpen(true);
       })
       .on("mouseover", () => { _dmHovered = true; drawDarkMatterRegions(); })
       .on("mouseout", () => { _dmHovered = false; drawDarkMatterRegions(); });
@@ -886,6 +890,7 @@ function drawDarkMatterRegions() {
       .on("click", (e) => {
         e.stopPropagation();
         openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+        setSidebarOpen(true);
       });
   }
 
@@ -905,6 +910,7 @@ function drawDarkMatterRegions() {
       .on("click", (e) => {
         e.stopPropagation();
         openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+        setSidebarOpen(true);
       });
   }
 }
@@ -981,7 +987,8 @@ const BIG_BANG_ERAS = [
   { logRho: 18,     label: "ELECTROWEAK EPOCH",               slug: "electroweak-era" },
   { logRho: 6,      label: "QUARK EPOCH",                     slug: "quantum-chromodynamics-era" },
   { logRho: 0,      label: "NUCLEOSYNTHESIS ERA",             slug: "big-bang-nucleosynthesis" },
-  { logRho: -29.5,  label: "DARK ENERGY ERA",                 slug: "dark-energy-era" },
+  { logRho: -21,    label: "PHOTON EPOCH",                    slug: "photon-epoch" },
+  { logRho: -29.5,  label: "MATTER ERA",                      slug: "matter-era" },
   { logRho: -150.6 },
 ];
 
@@ -1211,7 +1218,7 @@ function drawDensityArrows() {
       slug: BIG_BANG_ERAS[i].slug,
       logRho: midLogRho,
       type: "era",
-      priority: 1,
+      priority: 3,
     });
   }
 
