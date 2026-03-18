@@ -86,6 +86,7 @@ const BASE_MARGIN_LEFT = 80;
 const MOBILE_BREAKPOINT = 768;
 let _isSidebarOpen = false;
 let _isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+const _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 let _booted = false;
 
 const margin = { top: 55, right: 95, bottom: 80, left: SIDEBAR_W };
@@ -186,10 +187,56 @@ makeLinGrad("grad-grav", "1", "1", "0", "0", [
 makeLinGrad("grad-quant", "1", "0", "0", "1", [
   ["0%", "#1a0044", 0], ["30%", "#2a0055", 0.4], ["100%", "#120028", 0.9]]);
 
-const triGlow = defs.append("radialGradient").attr("id", "grad-tri")
-  .attr("cx", "0.4").attr("cy", "0.45").attr("r", "0.6");
-triGlow.append("stop").attr("offset", "0%").attr("stop-color", "#181852").attr("stop-opacity", 0.18);
-triGlow.append("stop").attr("offset", "100%").attr("stop-color", "#06061a").attr("stop-opacity", 0);
+// --- Background gradient (approximates tile background colors) ---
+// The gradient follows the orthogonal to density lines (1:3 slope in chart space).
+// Bright/warm near the Planck hot spot, fading to dark toward the cosmic corner.
+
+// Layer 1: Linear gradient along density-orthogonal direction
+const gradBg = defs.append("linearGradient").attr("id", "grad-bg")
+  .attr("gradientUnits", "userSpaceOnUse");
+gradBg.append("stop").attr("offset", "0%")
+  .attr("stop-color", "#4a2860").attr("stop-opacity", 0.9);
+gradBg.append("stop").attr("offset", "25%")
+  .attr("stop-color", "#3a1d4a").attr("stop-opacity", 0.65);
+gradBg.append("stop").attr("offset", "55%")
+  .attr("stop-color", "#241035").attr("stop-opacity", 0.4);
+gradBg.append("stop").attr("offset", "100%")
+  .attr("stop-color", "#0a0518").attr("stop-opacity", 0);
+
+// Layer 2: Radial glow for the warm hot spot (magenta / violet concentration)
+const gradHot = defs.append("radialGradient").attr("id", "grad-hot")
+  .attr("gradientUnits", "userSpaceOnUse");
+gradHot.append("stop").attr("offset", "0%")
+  .attr("stop-color", "#6a2055").attr("stop-opacity", 0.55);
+gradHot.append("stop").attr("offset", "35%")
+  .attr("stop-color", "#451038").attr("stop-opacity", 0.3);
+gradHot.append("stop").attr("offset", "100%")
+  .attr("stop-color", "#100118").attr("stop-opacity", 0);
+
+// Layer 3: Subtle blue zone (right side of triangle)
+const gradBlue = defs.append("radialGradient").attr("id", "grad-blue")
+  .attr("gradientUnits", "userSpaceOnUse");
+gradBlue.append("stop").attr("offset", "0%")
+  .attr("stop-color", "#202060").attr("stop-opacity", 0.4);
+gradBlue.append("stop").attr("offset", "100%")
+  .attr("stop-color", "#0a0a20").attr("stop-opacity", 0);
+
+function updateBgGradients() {
+  // Linear gradient: from Planck hot region → cosmic cool region
+  // Direction: (3, 1) in chart coords = 1:3 slope, orthogonal to density lines
+  gradBg
+    .attr("x1", xBase(-28)).attr("y1", yBase(-8))
+    .attr("x2", xBase(20)).attr("y2", yBase(8));
+  // Hot spot radial: centered near the brightest tile area (~logR=-15, logM=-2)
+  const hx = xBase(-15), hy = yBase(-2);
+  const hr = Math.abs(xBase(15) - xBase(-15)); // ~30 data-units radius in px
+  gradHot.attr("cx", hx).attr("cy", hy).attr("r", hr);
+  // Blue zone: centered around (logR=0, logM=15)
+  const bx = xBase(0), by = yBase(15);
+  const br = Math.abs(xBase(12) - xBase(-12));
+  gradBlue.attr("cx", bx).attr("cy", by).attr("r", br);
+}
+updateBgGradients();
 
 // --- glow filter for boundary lines ---
 const blurF = defs.append("filter").attr("id", "line-glow")
@@ -224,8 +271,10 @@ svg.append("rect").attr("width", W).attr("height", H).attr("fill", "#000000");
 // --- Chart container ---
 const chart = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 const clip = chart.append("g").attr("clip-path", "url(#clip)");
-clip.append("rect").attr("width", cw).attr("height", ch).attr("fill", "#000000");
-clip.append("rect").attr("width", cw).attr("height", ch).attr("fill", "url(#grad-tri)");
+clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch).attr("fill", "#100118");
+clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch).attr("fill", "url(#grad-bg)");
+clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch).attr("fill", "url(#grad-hot)");
+clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch).attr("fill", "url(#grad-blue)");
 
 // Background tile layer (on top of gradient, below chart content)
 const lTiles = clip.append("g").style("pointer-events", "none");
@@ -2522,12 +2571,13 @@ function relayout() {
   measure();
 
   defs.select("#clip rect").attr("width", cw).attr("height", ch);
-  clip.select("rect").attr("width", cw).attr("height", ch);
+  clip.selectAll("rect.bg-rect").attr("width", cw).attr("height", ch);
   chart.attr("transform", `translate(${margin.left},${margin.top})`);
   chart.select("rect:last-of-type").attr("width", cw).attr("height", ch);
 
   xBase.domain([viewXMin, viewXMax]).range([0, cw]);
   yBase.domain([viewYMin, viewYMax]).range([ch, 0]);
+  updateBgGradients();
 
   const tx = cw / 2 - xBase(centerLogR) * savedK;
   const ty = ch / 2 - yBase(centerLogM) * savedK;
@@ -3757,6 +3807,8 @@ const zoomBehavior = d3.zoom()
   .on("start", () => {
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
     _zooming = true;
+    // Hide expensive feTurbulence filter during zoom on Safari for smoother animation
+    if (_isSafari) grainRect.style("display", "none");
   })
   .on("zoom", (event) => {
     const t = event.transform;
@@ -3784,6 +3836,7 @@ const zoomBehavior = d3.zoom()
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
     drawTiles();
+    if (_isSafari) grainRect.style("display", null);
     updateStartButtonLabel();
   });
 
@@ -3838,13 +3891,30 @@ function zoomToRegion(region) {
       .call(zoomBehavior.transform, target);
     return;
   }
+
+  // On mobile, account for tour box covering the bottom of the chart.
+  // Fit the region into the visible area above the tour box and center there.
+  let usableH = ch;
+  let centerOffsetY = 0;
+  const tourBox = document.getElementById('tour-box');
+  if (tourBox && !tourBox.classList.contains('tour-hidden')) {
+    const boxH = tourBox.offsetHeight + 20; // include gap
+    if (_isMobile) {
+      usableH = ch - boxH;
+      centerOffsetY = boxH / 2;
+    } else {
+      // Desktop: box is small in lower-left, nudge up slightly
+      centerOffsetY = boxH * 0.15;
+    }
+  }
+
   const kx = cw / (xBase(region.x[1]) - xBase(region.x[0]));
-  const ky = ch / (yBase(region.y[0]) - yBase(region.y[1]));
+  const ky = usableH / (yBase(region.y[0]) - yBase(region.y[1]));
   const k = Math.min(kx, ky) * 0.9;
   const cx = (xBase(region.x[0]) + xBase(region.x[1])) / 2;
   const cy = (yBase(region.y[0]) + yBase(region.y[1])) / 2;
   const tx = cw / 2 - cx * k;
-  const ty = ch / 2 - cy * k;
+  const ty = ch / 2 - cy * k - centerOffsetY;
   const target = d3.zoomIdentity.translate(tx, ty).scale(k);
   const dur = _calcZoomDuration(cur, target);
   svg.transition().duration(dur).ease(d3.easeCubicInOut)
@@ -4017,10 +4087,11 @@ window.addEventListener("resize", () => {
   svg.attr("width", W).attr("height", H);
   svg.select("rect").attr("width", W).attr("height", H);
   defs.select("#clip rect").attr("width", cw).attr("height", ch);
-  clip.select("rect").attr("width", cw).attr("height", ch);
+  clip.selectAll("rect.bg-rect").attr("width", cw).attr("height", ch);
   chart.attr("transform", `translate(${margin.left},${margin.top})`);
   xBase.domain([viewXMin, viewXMax]).range([0, cw]);
   yBase.domain([viewYMin, viewYMax]).range([ch, 0]);
+  updateBgGradients();
   svg.call(zoomBehavior.transform, d3.zoomIdentity);
   xS = xBase.copy();
   yS = yBase.copy();

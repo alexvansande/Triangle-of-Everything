@@ -48,9 +48,10 @@
 
 .tour-title-line2 {
   font-weight: 700;
-  font-size: 42px;
+  font-size: 38px;
   letter-spacing: 2px;
   display: block;
+  white-space: nowrap;
 }
 
 #tour-header p {
@@ -370,13 +371,14 @@ body.is-mobile #tour-header.tour-hidden {
 }
 
 body.is-mobile .tour-title-line1 {
-  font-size: 22px;
+  font-size: 20px;
   letter-spacing: 2px;
 }
 
 body.is-mobile .tour-title-line2 {
-  font-size: 30px;
+  font-size: 28px;
   letter-spacing: 1.5px;
+  white-space: nowrap;
 }
 
 body.is-mobile #tour-header p {
