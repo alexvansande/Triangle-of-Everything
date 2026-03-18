@@ -30,7 +30,7 @@
     <button data-preset="cosmology" title="Galaxies, clusters &amp; the observable universe">Cosmology</button>
   </div>
   <button id="sidebar-expand" title="Expand panel">&gt;&gt;</button>
-  <div id="sidebar" class="open">
+  <div id="sidebar">
     <button id="sidebar-close" title="Collapse panel">&lt;&lt;</button>
     <div id="sidebar-intro">
       <h1 id="intro-title">
@@ -93,6 +93,27 @@
       <input type="range" id="set-noise" min="0" max="100" value="35">
     </label>
   </div>
+  <!-- Tour Guide -->
+  <div id="tour-header" class="tour-hidden">
+    <h2><span class="tour-title-line1">THE TRIANGLE OF</span><span class="tour-title-line2">EVERYTHING</span></h2>
+    <p>Design and texts by Alex Van de Sande, based on a paper by Charles Lineweaver and Vihan Patel</p>
+  </div>
+  <div id="tour-box" class="tour-hidden">
+    <button id="tour-close" title="Close tour">&times;</button>
+    <div id="tour-content">
+      <h3 id="tour-title"></h3>
+      <p id="tour-text"></p>
+    </div>
+    <div id="tour-nav">
+      <button id="tour-prev">&lt;</button>
+      <button id="tour-next-label"></button>
+    </div>
+    <div id="tour-dots"></div>
+  </div>
+  <button id="tour-start-btn" class="tour-hidden">
+    <span id="tour-start-label">Start the tour</span>
+  </button>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

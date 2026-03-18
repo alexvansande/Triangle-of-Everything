@@ -188,10 +188,9 @@ export const ENERGY_UNITS = [
   { logM: -26.75, label: "1 MeV", slug: "energy-units" },
   { logM: -23.75, label: "1 GeV", slug: "energy-units" },
   { logM: -20.75, label: "1 TeV", slug: "energy-units" },
-  { logM: PLANCK_LOG_M, label: "PLANCK ENERGY", slug: "planck-energy" },
+  { logM: PLANCK_LOG_M, label: "PLANCK\nENERGY", slug: "planck-energy" },
   { logM: -36.81,                          label: "1 K", slug: "energy-units" },
   { logM: -36.81 + Math.log10(2.725),     label: "2.7 K (CMB)", slug: "energy-units" },
-  { logM: -36.81 + Math.log10(77),        label: "77 K (liq. N₂)", slug: "energy-units" },
   { logM: -36.81 + Math.log10(273.15),    label: "0°C", slug: "energy-units" },
   { logM: -36.81 + Math.log10(293.15),    label: "20°C (room)", slug: "energy-units" },
   { logM: -36.81 + Math.log10(373.15),    label: "100°C", slug: "energy-units" },
@@ -803,7 +802,6 @@ export const ENERGY_BANDS = [
 export const TEMPERATURE_ARROWS = [
   { label: "Highest Temperature\nReached in a Lab (LHC)", logM: -36.81 + Math.log10(1.5e17), slug: "large-hadron-collider" },
   { label: "Core of the Sun",       logM: -36.81 + Math.log10(1.57e7), slug: null },
-  { label: "Surface of the Sun",    logM: -36.81 + Math.log10(5778),   slug: null },
   { label: "Boiling Point of\nTungsten", logM: -36.81 + Math.log10(5828), slug: null },
   { label: "Lowest Temperature\nReached in a Lab", logM: -36.81 + Math.log10(3.8e-11), slug: null },
 ];

@@ -10,6 +10,7 @@ import {
 import objectsData from "./objects.json";
 import introRaw from "./texts/intro.md?raw";
 import "./style.css";
+import { initTour, onObjectClick, updateStartButtonLabel } from "./tour.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -81,9 +82,9 @@ let tileMeta = null;
 // =============================================================
 
 const SIDEBAR_W = 360;
-const BASE_MARGIN_LEFT = 145;
+const BASE_MARGIN_LEFT = 80;
 const MOBILE_BREAKPOINT = 768;
-let _isSidebarOpen = true;
+let _isSidebarOpen = false;
 let _isMobile = window.innerWidth < MOBILE_BREAKPOINT;
 let _booted = false;
 
@@ -583,7 +584,7 @@ function drawEnergyBands() {
   }
 
   // Dashed lines, band labels, and temperature arrows only when zoomed in enough
-  if (ppuY < 6) return;
+  if (ppuY < 10) return;
 
   // First pass: compute yPx for all bands and draw dashed lines
   const bandYPx = sorted.map(b => {
@@ -713,7 +714,7 @@ function drawEnergyBands() {
   }
 
   // Temperature arrows — only when zoomed enough, skip overlapping
-  if (ppuY >= 6) {
+  if (ppuY >= 10) {
     const arrowFontSize = 10;
     const arrowLineH = arrowFontSize * 1.3;
     const placedArrows = [];  // array of { yMin, yMax } in px
@@ -739,68 +740,123 @@ function drawEnergyBands() {
     });
   }
 
-  // --- Water range (blue highlight) ---
-  if (WATER_RANGE.logMTop >= d.y0 && WATER_RANGE.logMBottom <= d.y1 && ppuY >= 6) {
-    const topY = py(WATER_RANGE.logMTop);
-    const botY = py(WATER_RANGE.logMBottom);
-    const gap = Math.abs(botY - topY);
-    const waterBlue = "rgba(128,222,234,0.5)";
+  // --- Water range: 100°C and 0°C arrows with "Liquid Water" label ---
+  if (ppuY >= 10) {
+    const topLogM = WATER_RANGE.logMTop;     // 100°C
+    const botLogM = WATER_RANGE.logMBottom;  // 0°C
+    const topY = py(topLogM);
+    const botY = py(botLogM);
 
-    if (gap >= 2) {
-      const compRTop = comptonR(WATER_RANGE.logMTop);
-      const compRBot = comptonR(WATER_RANGE.logMBottom);
+    // Only draw if the range is at least partially on-screen
+    if (topY < ch + 20 && botY > -20) {
+      const compRTop = comptonR(topLogM);
       const tipXTop = px(compRTop);
+      const compRBot = comptonR(botLogM);
       const tipXBot = px(compRBot);
 
-      if (tipXTop > -50 && tipXBot > -50) {
+      if (tipXTop < cw + 50 && tipXBot < cw + 50) {
+        const waterColor = "rgba(100,200,255,0.5)";
         const tailXTop = tipXTop - ARROW_PX_LEN;
         const tailXBot = tipXBot - ARROW_PX_LEN;
-        const midY = (topY + botY) / 2;
-        const labelX = Math.min(tailXTop, tailXBot) - LABEL_PX_GAP;
 
-        // Top arrow (100°C)
+        // 100°C arrow (dotted line + arrowhead)
         lEnergyBands.append("line")
           .attr("x1", tailXTop).attr("y1", topY)
           .attr("x2", tipXTop).attr("y2", topY)
-          .attr("stroke", waterBlue).attr("stroke-width", 0.7)
+          .attr("stroke", waterColor).attr("stroke-width", 0.7)
           .attr("stroke-dasharray", "2 3");
         lEnergyBands.append("path")
           .attr("d", `M${tipXTop},${topY} L${tipXTop - 4},${topY - 2.4} L${tipXTop - 4},${topY + 2.4}Z`)
-          .attr("fill", waterBlue);
+          .attr("fill", waterColor);
 
-        // Bottom arrow (0°C)
+        // 0°C arrow (dotted line + arrowhead)
         lEnergyBands.append("line")
           .attr("x1", tailXBot).attr("y1", botY)
           .attr("x2", tipXBot).attr("y2", botY)
-          .attr("stroke", waterBlue).attr("stroke-width", 0.7)
+          .attr("stroke", waterColor).attr("stroke-width", 0.7)
           .attr("stroke-dasharray", "2 3");
         lEnergyBands.append("path")
           .attr("d", `M${tipXBot},${botY} L${tipXBot - 4},${botY - 2.4} L${tipXBot - 4},${botY + 2.4}Z`)
-          .attr("fill", waterBlue);
+          .attr("fill", waterColor);
 
-        // Vertical bracket
-        lEnergyBands.append("line")
-          .attr("x1", tailXTop).attr("y1", topY)
-          .attr("x2", tailXBot).attr("y2", botY)
-          .attr("stroke", waterBlue).attr("stroke-width", 0.7);
-
-        // Label — match object label style
+        // Labels for 100°C and 0°C
+        const labelXTop = tailXTop - LABEL_PX_GAP;
+        const labelXBot = tailXBot - LABEL_PX_GAP;
         const fontSize = 10;
+
+        // 100°C label
         lEnergyBands.append("text")
-          .attr("x", labelX).attr("y", midY + fontSize * 0.35)
+          .attr("x", labelXTop).attr("y", topY + fontSize * 0.35)
           .attr("text-anchor", "end")
           .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
           .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
           .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
           .attr("stroke-width", 3).attr("stroke-linejoin", "round")
-          .text(WATER_RANGE.label);
+          .text("100°C");
         lEnergyBands.append("text")
-          .attr("x", labelX).attr("y", midY + fontSize * 0.35)
+          .attr("x", labelXTop).attr("y", topY + fontSize * 0.35)
           .attr("text-anchor", "end")
           .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
           .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
-          .attr("fill", waterBlue)
-          .text(WATER_RANGE.label);
+          .attr("fill", waterColor)
+          .text("100°C");
+
+        // 0°C label
+        lEnergyBands.append("text")
+          .attr("x", labelXBot).attr("y", botY + fontSize * 0.35)
+          .attr("text-anchor", "end")
+          .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
+          .attr("stroke-width", 3).attr("stroke-linejoin", "round")
+          .text("0°C");
+        lEnergyBands.append("text")
+          .attr("x", labelXBot).attr("y", botY + fontSize * 0.35)
+          .attr("text-anchor", "end")
+          .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("fill", waterColor)
+          .text("0°C");
+
+        // Bracket connecting the two arrows with "Liquid Water" label
+        // Push bracket left enough to clear the "100°C" label (~40px wide)
+        const bracketX = Math.min(tailXTop, tailXBot) - LABEL_PX_GAP - 38;
+
+        // Vertical bracket line
+        lEnergyBands.append("line")
+          .attr("x1", bracketX).attr("y1", topY)
+          .attr("x2", bracketX).attr("y2", botY)
+          .attr("stroke", waterColor).attr("stroke-width", 1);
+        // Top cap
+        lEnergyBands.append("line")
+          .attr("x1", bracketX).attr("y1", topY)
+          .attr("x2", bracketX + 4).attr("y2", topY)
+          .attr("stroke", waterColor).attr("stroke-width", 1);
+        // Bottom cap
+        lEnergyBands.append("line")
+          .attr("x1", bracketX).attr("y1", botY)
+          .attr("x2", bracketX + 4).attr("y2", botY)
+          .attr("stroke", waterColor).attr("stroke-width", 1);
+
+        // "Liquid Water" label — centered between the two arrows
+        const midY = (topY + botY) / 2;
+        const bracketLabelX = bracketX - 4;
+
+        lEnergyBands.append("text")
+          .attr("x", bracketLabelX).attr("y", midY + fontSize * 0.35)
+          .attr("text-anchor", "end")
+          .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
+          .attr("stroke-width", 3).attr("stroke-linejoin", "round")
+          .text("Liquid Water");
+        lEnergyBands.append("text")
+          .attr("x", bracketLabelX).attr("y", midY + fontSize * 0.35)
+          .attr("text-anchor", "end")
+          .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("fill", waterColor)
+          .text("Liquid Water");
       }
     }
   }
@@ -996,7 +1052,7 @@ function drawBigBangEras() {
   lBigBangEras.selectAll("*").remove();
   const d = vd();
   const ppuY = ch / (d.y1 - d.y0);
-  if (ppuY < 6) return;  // match energy band zoom threshold
+  if (ppuY < 10) return;  // match energy band zoom threshold
   const densAngle = screenAngle(3);
 
   // Precompute Schwarzschild intersection points for each era
@@ -1058,7 +1114,7 @@ function drawDensityArrows() {
   lDensityArrows.selectAll("*").remove();
   const d = vd();
   const ppuY = ch / (d.y1 - d.y0);
-  if (ppuY < 6) return;  // match energy band zoom threshold
+  if (ppuY < 10) return;  // match energy band zoom threshold
 
   const OBS_LOGM = 56;          // Observable Universe logM — the invisible timeline
   const ARROW_LEN = 50;         // arrow length in pixels (event arrows)
@@ -2440,7 +2496,6 @@ sidebarEl.addEventListener("click", (e) => {
 function showIntro() {
   sidebarIntro.style.display = "";
   sidebarObject.style.display = "none";
-  setSidebarOpen(true);
 }
 showIntro();
 
@@ -2711,6 +2766,7 @@ document.addEventListener("click", (e) => {
     const obj = _lastProjected.find(o => o.slug === slug);
     if (obj) {
       e.stopImmediatePropagation();
+      onObjectClick();
       openSidebar(obj);
       return;
     }
@@ -2730,6 +2786,7 @@ document.addEventListener("click", (e) => {
     const name = labelEl.getAttribute("data-name");
     if (slug && name) {
       e.stopImmediatePropagation();
+      onObjectClick();
       _sidebarManuallyExpanded = false;
       openInfoPanel(slug, name);
       setSidebarOpen(true);
@@ -2739,6 +2796,7 @@ document.addEventListener("click", (e) => {
 
   if (closest) {
     e.stopImmediatePropagation();
+    onObjectClick();
     _sidebarManuallyExpanded = false;
     openSidebar(closest);
     setSidebarOpen(true);
@@ -2964,7 +3022,7 @@ function drawAxes() {
         if (p < -1 || p > ch + 1) continue;
         axL.append("line").attr("x1", -3).attr("y1", p).attr("x2", 0).attr("y2", p)
           .attr("stroke", "rgba(255,255,255,0.10)");
-        axL.append("text").attr("x", -14).attr("y", p + 3.5).attr("text-anchor", "middle")
+        axL.append("text").attr("x", -10).attr("y", p + 3.5).attr("text-anchor", "middle")
           .attr("class", "axis-label").attr("font-size", 9).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.35)")
           .text(n);
@@ -2978,14 +3036,14 @@ function drawAxes() {
     axL.append("line").attr("x1", -5).attr("y1", p).attr("x2", 0).attr("y2", p)
       .attr("stroke", "rgba(255,255,255,0.25)");
     const evVal = Math.round(v + LOG_EV_OFFSET);
-    axL.append("text").attr("x", -35).attr("y", p + 4.5).attr("text-anchor", "middle")
-      .attr("class", "axis-label").attr("font-size", 13).attr("font-weight", 700)
+    axL.append("text").attr("x", -25).attr("y", p + 4.5).attr("text-anchor", "middle")
+      .attr("class", "axis-label").attr("font-size", 11).attr("font-weight", 700)
       .text(evVal);
   }
 
   const leftCompact = _isSidebarOpen;
-  const unitX = leftCompact ? -12 : -20;
-  const titleY = leftCompact ? -45 : -60;
+  const unitX = leftCompact ? -12 : -14;
+  const titleY = leftCompact ? -45 : -40;
 
   let lastEnergyPy = -Infinity;
   ENERGY_UNITS.forEach(u => {
@@ -2995,11 +3053,22 @@ function drawAxes() {
     axL.append("line").attr("x1", -3).attr("y1", p).attr("x2", 0).attr("y2", p)
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
     if (Math.abs(p - lastEnergyPy) >= minUnitPx && u.slug) {
-      axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-        .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
-        .attr("font-family", "'Space Mono', monospace").attr("font-size", leftCompact ? 8 : 9)
-        .attr("fill", "rgba(255,130,130,0.6)")
-        .text(u.label);
+      const lines = u.label.split("\n");
+      if (lines.length > 1) {
+        const txt = axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
+          .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
+          .attr("font-family", "'Space Mono', monospace").attr("font-size", leftCompact ? 8 : 9)
+          .attr("fill", "rgba(255,130,130,0.6)");
+        lines.forEach((line, li) => {
+          txt.append("tspan").attr("x", unitX).attr("dy", li === 0 ? 0 : "1.1em").text(line);
+        });
+      } else {
+        axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
+          .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
+          .attr("font-family", "'Space Mono', monospace").attr("font-size", leftCompact ? 8 : 9)
+          .attr("fill", "rgba(255,130,130,0.6)")
+          .text(u.label);
+      }
       lastEnergyPy = p;
     }
   });
@@ -3698,11 +3767,10 @@ const zoomBehavior = d3.zoom()
     if (!rafPending) {
       rafPending = true;
       requestAnimationFrame(() => {
-        // During drag: CSS-translate tiles for instant feedback, redraw vectors only
         if (_zooming && _zoomPrevTransform) {
-          const dx = xS(0) - _zoomPrevTransform.xS(0);
-          const dy = yS(0) - _zoomPrevTransform.yS(0);
           const sk = currentK / _zoomPrevTransform.k;
+          const dx = xS(0) - sk * _zoomPrevTransform.xS(0);
+          const dy = yS(0) - sk * _zoomPrevTransform.yS(0);
           lTiles.attr("transform", `translate(${dx},${dy}) scale(${sk})`);
         }
         redrawVectors();
@@ -3716,6 +3784,7 @@ const zoomBehavior = d3.zoom()
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
     drawTiles();
+    updateStartButtonLabel();
   });
 
 svg.call(zoomBehavior);
@@ -3756,6 +3825,45 @@ function panToCoord(logR, logM) {
   svg.transition().duration(500).ease(d3.easeCubicOut)
     .call(zoomBehavior.transform,
       d3.zoomIdentity.translate(tx, ty).scale(currentK));
+}
+
+function zoomToRegion(region) {
+  // Get current transform to calculate travel distance
+  const cur = d3.zoomTransform(svg.node());
+
+  if (!region) {
+    const target = d3.zoomIdentity;
+    const dur = _calcZoomDuration(cur, target);
+    svg.transition().duration(dur).ease(d3.easeCubicInOut)
+      .call(zoomBehavior.transform, target);
+    return;
+  }
+  const kx = cw / (xBase(region.x[1]) - xBase(region.x[0]));
+  const ky = ch / (yBase(region.y[0]) - yBase(region.y[1]));
+  const k = Math.min(kx, ky) * 0.9;
+  const cx = (xBase(region.x[0]) + xBase(region.x[1])) / 2;
+  const cy = (yBase(region.y[0]) + yBase(region.y[1])) / 2;
+  const tx = cw / 2 - cx * k;
+  const ty = ch / 2 - cy * k;
+  const target = d3.zoomIdentity.translate(tx, ty).scale(k);
+  const dur = _calcZoomDuration(cur, target);
+  svg.transition().duration(dur).ease(d3.easeCubicInOut)
+    .call(zoomBehavior.transform, target);
+}
+
+/** Duration scales with how far the camera travels (pan + zoom change). */
+function _calcZoomDuration(from, to) {
+  // Normalise translation distance relative to viewport size
+  const panDist = Math.hypot(
+    (to.x - from.x) / cw,
+    (to.y - from.y) / ch
+  );
+  // Zoom ratio (log-scale so zooming in 10× ≈ zooming out 10×)
+  const zoomRatio = Math.abs(Math.log(to.k / from.k));
+  // Combined "effort" — higher means bigger jump
+  const effort = panDist + zoomRatio;
+  // Clamp between 2000ms and 3000ms for a relaxed, natural feel
+  return Math.round(Math.min(3000, Math.max(2000, 1500 + effort * 500)));
 }
 
 // =============================================================
@@ -4117,22 +4225,22 @@ updateMobileState();
 _booted = true;
 initConnections();
 loadTileMeta();
-if (_isMobile) setSidebarOpen(false);
+initTour({ zoomToRegion, vd });
 
 if (!loadHash()) {
-  // Intro animation: start zoomed on the Sun, then zoom out to full view
-  const introK = 12;
-  const introTx = cw / 2 - xBase(10.84) * introK;
-  const introTy = ch / 2 - yBase(33.30) * introK;
+  // Intro animation: start zoomed on Human, then zoom out to full view
+  const introK = 14;
+  const introTx = cw / 2 - xBase(1.7) * introK;
+  const introTy = ch / 2 - yBase(4.9) * introK;
   svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(introTx, introTy).scale(introK));
 
-  // After a beat, zoom out to the full chart
+  // After a beat, smoothly zoom out to the full chart
   setTimeout(() => {
     svg.transition()
-      .duration(2500)
+      .duration(3000)
       .ease(d3.easeCubicInOut)
       .call(zoomBehavior.transform, d3.zoomIdentity);
-  }, 800);
+  }, 1000);
 }
 
 // Fade out the key hint after 6 seconds

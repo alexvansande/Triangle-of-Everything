@@ -123,7 +123,6 @@
   { "name": "Saturn",           "logR": 9.77,   "logM": 29.75,  "cat": "planet", "subcat": "gas_giant", "z": 1.5, "wiki": "Saturn" },
   { "name": "Jupiter",          "logR": 9.84,   "logM": 30.28,  "cat": "planet", "subcat": "gas_giant", "z": 0.5, "wiki": "Jupiter" },
   { "name": "Beta Pictoris b",  "logR": 10.0,   "logM": 30.6,   "cat": "planet", "subcat": "exoplanet", "z": 4, "wiki": "Beta_Pictoris_b" },
-  { "name": "Dark Exoplanet*",  "logR": 10.0,   "logM": 30.3,   "cat": "planet", "subcat": "exoplanet", "z": 3, "wiki": "Rogue_planet" },
 
   { "name": "Y Brown Dwarf",    "logR": 9.84,   "logM": 31.18,  "cat": "star", "subcat": "brown_dwarf", "z": 5, "wiki": "Brown_dwarf#Y_dwarf" },
   { "name": "T Brown Dwarf",    "logR": 9.80,   "logM": 31.48,  "cat": "star", "subcat": "brown_dwarf", "z": 4, "wiki": "Brown_dwarf#T_dwarf" },
