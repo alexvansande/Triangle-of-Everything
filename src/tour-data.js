@@ -1,7 +1,7 @@
 // src/tour-data.js
-// Tour step definitions. Content lives in tour-content.md; metadata (zoom, labels) here.
+// Tour step definitions. Content lives in content/tour-content.md; metadata (zoom, labels) here.
 
-import rawContent from "./tour-content.md?raw";
+import rawContent from "../content/tour-content.md?raw";
 
 // ---- Parse markdown into sections keyed by ## heading ----
 function parseTourMarkdown(raw) {
@@ -22,6 +22,46 @@ function parseTourMarkdown(raw) {
 }
 
 const CONTENT = parseTourMarkdown(rawContent);
+
+// ---- Big Bang era configuration ----
+// Each era defines which objects are visible (by category/slug) and the Hubble radius.
+// hubbleLogR: log₁₀(c × t) ≈ 10.48 + log₁₀(t_seconds)
+// Objects appear cumulatively — each era adds to what's already visible.
+
+export const BIG_BANG_ERAS = {
+  planck:        { hubbleLogR: -32.8, whiteOverlay: 0,
+                   showSlugs: ["big-bang"] },
+  gut:           { hubbleLogR: -25.5, whiteOverlay: 0,
+                   showSlugs: ["big-bang", "x-y-bosons"] },
+  electroweak:   { hubbleLogR: -1.5,  whiteOverlay: 0,
+                   showCats: ["particle", "composite"] },
+  nuclear:       { hubbleLogR: 4.5,   whiteOverlay: 0,
+                   showCats: ["particle", "composite"],
+                   showSlugs: ["hydrogen", "helium"] },
+  recombination: { hubbleLogR: 23.6,  whiteOverlay: 0,
+                   showCats: ["particle", "composite", "atomic"],
+                   showSlugs: ["cmb-photon", "gamma-ray", "x-ray",
+                               "ultraviolet", "visible-light",
+                               "infrared", "microwave", "am-radio", "fm-radio"] },
+  stellar:       { hubbleLogR: 26.5,  whiteOverlay: 0,
+                   showAll: true,
+                   hideCats: ["micro", "macro"] },
+  now:           { hubbleLogR: 28.14, whiteOverlay: 0,
+                   showAll: true },
+  future:        { hubbleLogR: 28.14, whiteOverlay: 0,
+                   showAll: true,
+                   hideCats: ["macro"],
+                   hideSlugs: ["earth", "mars", "venus", "mercury",
+                               "moon", "io", "europa", "ganymede", "callisto",
+                               "enceladus", "mimas", "deimos", "phobos"],
+                   moveObjects: { sun: { logR: 13.0, logM: 33.30 } } },
+  "far-future":  { hubbleLogR: 28.2,  whiteOverlay: 0,
+                   showCats: ["remnant", "blackhole", "particle"],
+                   showSlugs: ["big-bang"] },
+  death:         { hubbleLogR: 28.2,  whiteOverlay: 0,
+                   showCats: ["blackhole"],
+                   fadeBlackHoles: true },
+};
 
 // ---- Step metadata (zoom regions, IDs, labels) ----
 const TOUR_META = [
@@ -154,21 +194,107 @@ const TOUR_META = [
     highlightObjects: [],
     contextLabel: "Learn about theoretical limits",
   },
+  // ======== BIG BANG ANIMATED TIMELINE ========
+  // Steps below have `bigBang` config — activates cinematic animation mode:
+  // dynamic Hubble radius, white overlay, object fade-in/out by era.
   {
-    id: "beginning",
+    id: "the-beginning",
     title: "The Beginning",
-    nextLabel: "Condensation",
-    view: { x: [-34, -28], y: [-10, 2] },
+    nextLabel: "Grand Unification",
+    view: null, // auto-fit to triangle at era's Hubble radius
     highlightObjects: [],
     contextLabel: "Learn about the Big Bang",
+    bigBang: { era: "planck", enterWhite: true, duration: 3000 },
   },
   {
-    id: "condensation",
-    title: "Condensation of the Universe",
-    nextLabel: null, // last step
-    view: { x: [-26, -8], y: [-10, 10] },
+    id: "gut",
+    title: "Grand Unification",
+    nextLabel: "The Electroweak Era",
+    view: null,
     highlightObjects: [],
-    contextLabel: "Learn about condensation",
+    contextLabel: null,
+    bigBang: { era: "gut", duration: 5000 },
+  },
+  {
+    id: "electroweak",
+    title: "The Electroweak Era",
+    nextLabel: "The Nuclear Era",
+    view: null,
+    highlightObjects: [],
+    contextLabel: null,
+    bigBang: { era: "electroweak", duration: 5000 },
+  },
+  {
+    id: "nuclear",
+    title: "The Nuclear Era",
+    nextLabel: "Recombination",
+    view: null,
+    highlightObjects: [],
+    contextLabel: null,
+    bigBang: { era: "nuclear", duration: 4000 },
+  },
+  {
+    id: "recombination",
+    title: "Recombination",
+    nextLabel: "The First Stars",
+    view: null,
+    highlightObjects: [],
+    contextLabel: null,
+    bigBang: { era: "recombination", duration: 5000 },
+  },
+  {
+    id: "atomic-era",
+    title: "Stars and Galaxies",
+    nextLabel: "The Present",
+    view: null,
+    highlightObjects: [],
+    contextLabel: null,
+    bigBang: { era: "stellar", duration: 4000 },
+  },
+  {
+    id: "now",
+    title: "The Present",
+    nextLabel: "The Future",
+    view: null,
+    highlightObjects: [],
+    contextLabel: null,
+    bigBang: { era: "now", duration: 4000 },
+  },
+  {
+    id: "future",
+    title: "The Future",
+    nextLabel: "The Far Future",
+    view: null,
+    highlightObjects: [],
+    contextLabel: null,
+    bigBang: { era: "future", duration: 5000 },
+  },
+  {
+    id: "far-future",
+    title: "The Far Future",
+    nextLabel: "Heat Death",
+    view: null,
+    highlightObjects: [],
+    contextLabel: null,
+    bigBang: { era: "far-future", duration: 5000 },
+  },
+  {
+    id: "heat-death",
+    title: "The Heat Death of the Universe",
+    nextLabel: "Credits",
+    view: null,
+    highlightObjects: [],
+    contextLabel: null,
+    bigBang: { era: "death", duration: 6000 },
+  },
+  {
+    id: "credits",
+    title: "Credits",
+    nextLabel: null, // last step
+    view: null, // full view
+    highlightObjects: [],
+    contextLabel: null,
+    // No bigBang — exits Big Bang mode, restores everything
   },
 ];
 

@@ -1,7 +1,8 @@
 // src/tour.js
 // Tour Guide controller — manages tour state, UI, and zoom navigation.
 
-import { TOUR_STEPS, TOUR_REGIONS } from "./tour-data.js";
+import { TOUR_STEPS, TOUR_REGIONS, BIG_BANG_ERAS } from "./tour-data.js";
+import { PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM } from "./data.js";
 import "./tour.css";
 
 // ---- Helpers ----
@@ -10,21 +11,58 @@ function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-/** Convert simple markdown text to HTML (paragraphs + blockquotes). */
+/** Process inline markdown: *italic* and [links](url) */
+function processInline(html) {
+  html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+  // Links: [text](url) — URL has been HTML-escaped but browser decodes &amp; in href
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  return html;
+}
+
+/** Convert simple markdown text to HTML (paragraphs + blockquotes + inline). */
 function markdownToHtml(raw) {
   if (!raw) return "";
-  const blocks = raw.split(/\n\n+/);
+  // Filter out CLAUDE: editorial comments
+  const filtered = raw.split("\n").filter(l => !l.startsWith("CLAUDE:")).join("\n");
+  const blocks = filtered.split(/\n\n+/);
   return blocks.map(block => {
     const trimmed = block.trim();
     if (!trimmed) return "";
     // Blockquote
     if (trimmed.startsWith("> ")) {
       const quoteText = trimmed.replace(/^> ?/gm, "");
-      return `<blockquote>${escapeHtml(quoteText)}</blockquote>`;
+      return `<blockquote>${processInline(escapeHtml(quoteText))}</blockquote>`;
+    }
+    // Italic block (entire paragraph wrapped in *..*)
+    if (trimmed.startsWith("*") && trimmed.endsWith("*") && !trimmed.startsWith("**")) {
+      const inner = trimmed.slice(1, -1);
+      return `<p><em>${processInline(escapeHtml(inner))}</em></p>`;
     }
     // Regular paragraph — convert single newlines to <br>
-    return `<p>${escapeHtml(trimmed).replace(/\n/g, "<br>")}</p>`;
+    let html = escapeHtml(trimmed).replace(/\n/g, "<br>");
+    html = processInline(html);
+    return `<p>${html}</p>`;
   }).join("");
+}
+
+/**
+ * Compute view region that fits the full triangle for a given Hubble radius.
+ * As the universe expands through eras, the camera pulls back to show the growing triangle.
+ */
+function computeTriangleFitView(hubbleLogR) {
+  // Degenerate case: Planck/GUT-scale triangle is too small to show meaningfully
+  if (hubbleLogR <= PLANCK_LOG_R + 2) {
+    return { x: [-35, -30], y: [-7, -2] };
+  }
+  const schwAtHubble = schwarzschildM(hubbleLogR); // top-right vertex mass
+  const compAtHubble = comptonM(hubbleLogR);        // bottom-right vertex mass
+  const xPad = (hubbleLogR - PLANCK_LOG_R) * 0.08;
+  const yPad = (schwAtHubble - compAtHubble) * 0.08;
+  return {
+    x: [PLANCK_LOG_R - xPad, hubbleLogR + xPad],
+    y: [compAtHubble - yPad, schwAtHubble + yPad],
+  };
 }
 
 // ---- Constants ----
@@ -35,14 +73,20 @@ let _tourActive = false;
 let _tourStep = 0;
 let _zoomToRegion = null;     // injected from main.js
 let _getViewDomain = null;    // injected from main.js
+let _animateBigBang = null;   // injected from main.js
+let _exitBigBang = null;      // injected from main.js
+let _isBigBangActive = null;  // injected from main.js
 let _contextualStepIndex = -1; // which step the contextual label refers to
 
 // ---- DOM refs ----
 let els = {};
 
-export function initTour({ zoomToRegion, vd }) {
+export function initTour({ zoomToRegion, vd, animateBigBang, exitBigBang, isBigBangActive }) {
   _zoomToRegion = zoomToRegion;
   _getViewDomain = vd;
+  _animateBigBang = animateBigBang;
+  _exitBigBang = exitBigBang;
+  _isBigBangActive = isBigBangActive;
 
   els = {
     header:      document.getElementById("tour-header"),
@@ -145,6 +189,10 @@ function closeTour() {
   els.header.classList.add("tour-hidden");
   els.box.classList.remove("tour-intro");
   localStorage.setItem("tri-tour-seen", "1");
+  // Exit Big Bang mode if active (restore everything to normal)
+  if (_isBigBangActive && _isBigBangActive()) {
+    _exitBigBang(2000);
+  }
   showStartButton();
 }
 
@@ -298,7 +346,26 @@ function updateDots() {
 
 function navigateToStep(index) {
   const step = TOUR_STEPS[index];
-  if (_zoomToRegion) _zoomToRegion(step.view);
+  if (!_zoomToRegion) return;
+
+  if (step.bigBang) {
+    // Big Bang step: use cinematic duration for both zoom and Big Bang animation
+    const duration = step.bigBang.duration || 4000;
+    // Auto-compute view to fit the triangle at this era's Hubble radius
+    let view = step.view;
+    if (!view && step.bigBang.era) {
+      const era = BIG_BANG_ERAS[step.bigBang.era];
+      if (era) view = computeTriangleFitView(era.hubbleLogR);
+    }
+    _zoomToRegion(view, duration);
+    if (_animateBigBang) _animateBigBang(step.bigBang, duration);
+  } else {
+    // Normal step: standard zoom, exit Big Bang mode if needed
+    _zoomToRegion(step.view);
+    if (_isBigBangActive && _isBigBangActive() && _exitBigBang) {
+      _exitBigBang(2000);
+    }
+  }
 }
 
 // ---- Mobile swipe ----

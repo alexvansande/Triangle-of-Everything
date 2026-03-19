@@ -51,6 +51,7 @@ export const PLANCK_LOG_M = PLANCK_LOG_R - SCHWARZSCHILD_C;    // ≈ -4.81
 
 // Hubble radius — the rightmost vertical boundary
 export const HUBBLE_LOG_R = 28.14;   // log₁₀(1.37 × 10²⁸ cm)
+export const DE_SITTER_LOG_R = 28.2; // log₁₀(c/H∞) — asymptotic Hubble radius in dark-energy-dominated future
 
 // --- Isodensity line equation ---
 // For a uniform sphere: ρ = M / (4π/3 · R³)
@@ -81,7 +82,7 @@ export const BOUNDS = {
 export const DENSITY_LINES = [
   { logDensity: 93.7,  label: "Planck 10⁻⁴³ s",        color: "#ffffff", epoch: true },
   { logDensity: 76,    label: "GUT 10⁻³⁶ s",            color: "#ffffff", epoch: true },
-  { logDensity: 50,    label: "inflation ends",          color: "#ffab91", epoch: true },
+
   { logDensity: 25,    label: "EW 10⁻¹¹ s",             color: "#ffffff", epoch: true },
   { logDensity: 14.4,  label: "nuclear 10⁻⁶ s",         color: "#ffcc80", epoch: true },
   { logDensity: 4,     label: "BBN ~1 s",                color: "#ffe082", epoch: true },
@@ -814,9 +815,7 @@ export const DENSITY_ARROWS = [
   { label: "Life Evolves\non Earth",      logRho: -28.5,  slug: null, priority: 0 },
   // TODO in 1 million years, update this position
   { label: "Now",                         logRho: -29,    slug: null, priority: 2 },
-  { label: "Sun Goes\nSupernova",         logYearsFromNow: 9.7,   slug: null, priority: 0 },
-  { label: "Star Formation\nStops",       logYearsFromNow: 14,    slug: null, priority: 0 },
-  { label: "Last Star Goes\nSupernova",   logYearsFromNow: 15,    slug: null, priority: 1 },
+  { label: "Last Star\nDies",              logYearsFromNow: 15,    slug: null, priority: 1 },
   { label: "Heat Death of\nthe Universe", logYearsFromNow: 100,   slug: "heat-death", priority: 2 },
 ];
 

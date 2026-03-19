@@ -4,7 +4,7 @@ import {
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
   CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, CAT_DISPLAY, DENSITY_SPHERE_C, ARROWS, EPOCH_BANDS,
-  REFERENCE_LINES, HUBBLE_LOG_R, CONNECTION_PATHS,
+  REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
 } from "./data.js";
 import objectsData from "./objects.json";
@@ -76,6 +76,68 @@ function nameToSlug(name) {
 
 const OBJECTS = objectsData.map(o => ({ ...o, slug: o.slug || nameToSlug(o.name) }));
 let tileMeta = null;
+
+// =============================================================
+// Big Bang animated timeline — state
+// =============================================================
+import { BIG_BANG_ERAS } from "./tour-data.js";
+
+let _bigBangMode = false;
+let _bigBangHubbleLogR = HUBBLE_LOG_R;
+let _bigBangWhiteOverlay = 0;
+let _bigBangObjectOpacity = {};       // slug → target opacity (0–1)
+let _bigBangObjectOverrides = {};     // slug → {logR, logM} position overrides
+let _bigBangFadeBlackHoles = false;
+let _bigBangTransition = null;        // phase-1 d3.timer: Hubble radius + white overlay
+let _bigBangTransition2 = null;       // phase-2 d3.timer: object opacities + position overrides
+let _bigBangPhase2Timer = null;       // setTimeout ID for phase-2 delay
+
+/** Dynamic Hubble radius: normal or animated during Big Bang mode. */
+function getHubbleLogR() {
+  return _bigBangMode ? _bigBangHubbleLogR : HUBBLE_LOG_R;
+}
+
+/**
+ * Compute target opacities for all objects given a Big Bang era key.
+ * Returns a map of slug → opacity (0 or 1).
+ */
+function computeEraOpacities(eraKey) {
+  const era = BIG_BANG_ERAS[eraKey];
+  if (!era) return {};
+  const opacities = {};
+
+  OBJECTS.forEach(o => {
+    let visible = false;
+
+    if (era.showAll) {
+      visible = true;
+    }
+
+    // Show by category
+    if (era.showCats && era.showCats.includes(o.cat)) {
+      visible = true;
+    }
+
+    // Show by slug
+    if (era.showSlugs && era.showSlugs.includes(o.slug)) {
+      visible = true;
+    }
+
+    // Hide by category (overrides showAll)
+    if (era.hideCats && era.hideCats.includes(o.cat)) {
+      visible = false;
+    }
+
+    // Hide by slug (overrides showAll)
+    if (era.hideSlugs && era.hideSlugs.includes(o.slug)) {
+      visible = false;
+    }
+
+    opacities[o.slug] = visible ? 1 : 0;
+  });
+
+  return opacities;
+}
 
 // =============================================================
 // Layout
@@ -279,21 +341,25 @@ clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch
 // Background tile layer (on top of gradient, below chart content)
 const lTiles = clip.append("g").style("pointer-events", "none");
 
-// Layers
-const lRegion     = clip.append("g");
-const lGrid       = clip.append("g");
-const lDensity    = clip.append("g");
-const lTriOverlay = clip.append("g");
-const lBound      = clip.append("g");
-const lBigBangEras = clip.append("g");
-const lEnergyBands = clip.append("g");
-const lDarkMatter = clip.append("g");
-const lArrows     = clip.append("g").style("mix-blend-mode", "screen");
-const lConnDots   = clip.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
-const lRegLabel   = clip.append("g");
-const lObj        = clip.append("g");
-const lHighlight  = clip.append("g").style("pointer-events", "none");
-const lAxisRef    = clip.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
+// Content wrapper: CSS-transformed during zoom for smooth panning
+// (instead of tearing down & rebuilding all DOM elements each frame)
+const lContent = clip.append("g");
+
+// Layers (all inside lContent so they can be batch-transformed during zoom)
+const lRegion     = lContent.append("g");
+const lGrid       = lContent.append("g");
+const lDensity    = lContent.append("g");
+const lTriOverlay = lContent.append("g");
+const lBound      = lContent.append("g");
+const lBigBangEras = lContent.append("g");
+const lEnergyBands = lContent.append("g");
+const lDarkMatter = lContent.append("g");
+const lArrows     = lContent.append("g").style("mix-blend-mode", "screen");
+const lConnDots   = lContent.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
+const lRegLabel   = lContent.append("g");
+const lObj        = lContent.append("g");
+const lHighlight  = lContent.append("g").style("pointer-events", "none");
+const lAxisRef    = lContent.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
 
 // Film grain noise overlay (paper texture, controlled by Noise slider)
 const grainRect = clip.append("rect")
@@ -304,12 +370,21 @@ const grainRect = clip.append("rect")
   .style("mix-blend-mode", "overlay")
   .style("pointer-events", "none");
 
-// Axes outside clip
-const axB = chart.append("g");
-const axT = chart.append("g");
-const lDensityArrows = chart.append("g");  // non-clipped, for density arrows & era labels on logM=56 line
-const axL = chart.append("g");
-const axR = chart.append("g");
+// Big Bang white overlay — sits above everything for the "screen goes white" effect
+const whiteOverlay = clip.append("rect")
+  .attr("class", "bg-rect")
+  .attr("width", cw).attr("height", ch)
+  .attr("fill", "#ffffff")
+  .attr("opacity", 0)
+  .style("pointer-events", "none");
+
+// Axes outside clip (also wrapped for batch CSS-transform during zoom)
+const lAxesWrap = chart.append("g");
+const axB = lAxesWrap.append("g");
+const axT = lAxesWrap.append("g");
+const lDensityArrows = lAxesWrap.append("g");  // non-clipped, for density arrows & era labels on logM=56 line
+const axL = lAxesWrap.append("g");
+const axR = lAxesWrap.append("g");
 
 // Border on top
 chart.append("rect").attr("width", cw).attr("height", ch)
@@ -363,9 +438,10 @@ function drawTriangleOverlay() {
   lTriOverlay.selectAll("*").remove();
 
   // The Triangle of Everything: Schwarzschild + Compton + Hubble radius
+  const hLogR = getHubbleLogR();
   const planckX = px(PLANCK_LOG_R),  planckY = py(PLANCK_LOG_M);
-  const schwX   = px(HUBBLE_LOG_R),  schwY  = py(schwarzschildM(HUBBLE_LOG_R));
-  const compX   = px(HUBBLE_LOG_R),  compY  = py(comptonM(HUBBLE_LOG_R));
+  const schwX   = px(hLogR),  schwY  = py(schwarzschildM(hLogR));
+  const compX   = px(hLogR),  compY  = py(comptonM(hLogR));
 
   // Viewport rectangle with triangular hole (even-odd fill)
   const pad = 100;
@@ -492,9 +568,10 @@ function drawGrid() {
 function drawBoundaries() {
   lBound.selectAll("*").remove();
 
+  const hLogR = getHubbleLogR();
   const planckX = px(PLANCK_LOG_R), planckY = py(PLANCK_LOG_M);
-  const schwX = px(HUBBLE_LOG_R), schwY = py(schwarzschildM(HUBBLE_LOG_R));
-  const compX = px(HUBBLE_LOG_R), compY = py(comptonM(HUBBLE_LOG_R));
+  const schwX = px(hLogR), schwY = py(schwarzschildM(hLogR));
+  const compX = px(hLogR), compY = py(comptonM(hLogR));
 
   // White glow behind the triangle
   const triPath = `M ${planckX} ${planckY} L ${schwX} ${schwY} L ${compX} ${compY} Z`;
@@ -552,6 +629,51 @@ function drawBoundaries() {
       .attr("x2", diagSeg.x2).attr("y2", diagSeg.y2)
       .attr("stroke", "rgba(255,100,100,0.15)").attr("stroke-width", 0.8)
       .attr("stroke-dasharray", "4 4");
+  }
+
+  // De Sitter radius — dotted vertical line showing the asymptotic future Hubble radius
+  // Only visible when zoomed in enough to distinguish it from the current Hubble radius
+  {
+    const deSitterPx = px(DE_SITTER_LOG_R);
+    const hubblePx = px(HUBBLE_LOG_R);
+    const separation = Math.abs(deSitterPx - hubblePx);
+    if (separation > 1) {
+      const dsSchwY = py(schwarzschildM(DE_SITTER_LOG_R));
+      const dsCompY = py(comptonM(DE_SITTER_LOG_R));
+      const dsSeg = clampLineToChart(deSitterPx, dsSchwY, deSitterPx, dsCompY);
+      if (dsSeg) {
+        lBound.append("line")
+          .attr("x1", dsSeg.x1).attr("y1", dsSeg.y1)
+          .attr("x2", dsSeg.x2).attr("y2", dsSeg.y2)
+          .attr("stroke", "rgba(255,255,255,0.3)")
+          .attr("stroke-width", 0.8)
+          .attr("stroke-dasharray", "3 3")
+          .style("cursor", "pointer")
+          .on("click", (e) => { e.stopPropagation(); openInfoPanel("de-sitter-radius", "De Sitter Radius"); setSidebarOpen(true); });
+
+        // Label — appears when there's enough space
+        if (separation > 8) {
+          const labelY = Math.max(dsSeg.y1 + 16, 16);
+          // Outline
+          lBound.append("text")
+            .attr("x", deSitterPx + 5).attr("y", labelY)
+            .attr("font-family", "var(--font-mono, monospace)")
+            .attr("font-size", 9).attr("letter-spacing", "0.5px")
+            .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.8)")
+            .attr("stroke-width", 2.5).attr("stroke-linejoin", "round")
+            .text("de Sitter R\u221E");
+          // Visible text
+          lBound.append("text")
+            .attr("x", deSitterPx + 5).attr("y", labelY)
+            .attr("font-family", "var(--font-mono, monospace)")
+            .attr("font-size", 9).attr("letter-spacing", "0.5px")
+            .attr("fill", "rgba(255,255,255,0.4)")
+            .style("cursor", "pointer")
+            .on("click", (e) => { e.stopPropagation(); openInfoPanel("de-sitter-radius", "De Sitter Radius"); setSidebarOpen(true); })
+            .text("de Sitter R\u221E");
+        }
+      }
+    }
   }
 
   // Reference lines (main sequence, red giants, TOV, QGP, etc.)
@@ -1084,11 +1206,10 @@ function drawDensityLines() {
 // Draw: Big Bang era lines along Schwarzschild boundary
 // =============================================================
 
-const BIG_BANG_ERAS = [
+const ERA_LINES = [
   { logRho: 120 },
   { logRho: 93.7,   label: "PLANCK EPOCH",                    slug: "planck-era" },
   { logRho: 60,     label: "GRAND UNIFIED THEORY EPOCH",      slug: "grand-unified-theory-era" },
-  { logRho: 30,     label: "INFLATION EPOCH",                 slug: "inflation-era" },
   { logRho: 18,     label: "ELECTROWEAK EPOCH",               slug: "electroweak-era" },
   { logRho: 6,      label: "QUARK EPOCH",                     slug: "quantum-chromodynamics-era" },
   { logRho: 0,      label: "NUCLEOSYNTHESIS ERA",             slug: "big-bang-nucleosynthesis" },
@@ -1105,7 +1226,7 @@ function drawBigBangEras() {
   const densAngle = screenAngle(3);
 
   // Precompute Schwarzschild intersection points for each era
-  const eras = BIG_BANG_ERAS.map(era => {
+  const eras = ERA_LINES.map(era => {
     const logR_int = (-SCHWARZSCHILD_C - DENSITY_SPHERE_C - era.logRho) / 2;
     const logM_int = logR_int - SCHWARZSCHILD_C;
     return { ...era, logR_int, logM_int };
@@ -1125,8 +1246,8 @@ function drawBigBangEras() {
     let startR, startM;
     if (era.logRho <= -150) {
       // Heat death line: start from bottom of Hubble radius (Compton-Hubble corner)
-      startR = HUBBLE_LOG_R;
-      startM = comptonM(HUBBLE_LOG_R);
+      startR = getHubbleLogR();
+      startM = comptonM(getHubbleLogR());
     } else {
       startR = era.logR_int;
       startM = era.logM_int;
@@ -1312,15 +1433,15 @@ function drawDensityArrows() {
   // Collect all items to draw: era labels + event arrows
   const allItems = [];
 
-  // Era labels from BIG_BANG_ERAS (positioned at midpoint between bounding lines)
-  for (let i = 1; i < BIG_BANG_ERAS.length; i++) {
-    if (!BIG_BANG_ERAS[i].label) continue;
-    const midLogRho = (BIG_BANG_ERAS[i - 1].logRho + BIG_BANG_ERAS[i].logRho) / 2;
+  // Era labels from ERA_LINES (positioned at midpoint between bounding lines)
+  for (let i = 1; i < ERA_LINES.length; i++) {
+    if (!ERA_LINES[i].label) continue;
+    const midLogRho = (ERA_LINES[i - 1].logRho + ERA_LINES[i].logRho) / 2;
     const tipX = computeTipX(midLogRho);
     allItems.push({
       tipX,
-      label: BIG_BANG_ERAS[i].label,
-      slug: BIG_BANG_ERAS[i].slug,
+      label: ERA_LINES[i].label,
+      slug: ERA_LINES[i].slug,
       logRho: midLogRho,
       type: "era",
       priority: 3,
@@ -1406,9 +1527,10 @@ function drawRegionLabels() {
   const PAD = 60;
 
   // Triangle vertices in screen coords
+  const hLogR = getHubbleLogR();
   const plkX = px(PLANCK_LOG_R), plkY = py(PLANCK_LOG_M);
-  const hubSchwX = px(HUBBLE_LOG_R), hubSchwY = py(schwarzschildM(HUBBLE_LOG_R));
-  const hubCompX = px(HUBBLE_LOG_R), hubCompY = py(comptonM(HUBBLE_LOG_R));
+  const hubSchwX = px(hLogR), hubSchwY = py(schwarzschildM(hLogR));
+  const hubCompX = px(hLogR), hubCompY = py(comptonM(hLogR));
   // Centroid — used to determine "outward" direction from each edge
   const centX = (plkX + hubSchwX + hubCompX) / 3;
   const centY = (plkY + hubSchwY + hubCompY) / 3;
@@ -1473,15 +1595,32 @@ function drawObjects() {
 
   // Project all objects to screen, sorted by priority (low z = important)
   const projected = OBJECTS
-    .map(o => ({
-      ...o,
-      catKey: o.cat,
-      sx: px(o.logR),
-      sy: py(o.logM),
-      cat: CATEGORIES[o.cat],
-      color: SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff",
-    }))
+    .map(o => {
+      // Big Bang mode: apply position overrides (e.g. Sun → red giant)
+      let logR = o.logR, logM = o.logM;
+      if (_bigBangMode && _bigBangObjectOverrides[o.slug]) {
+        logR = _bigBangObjectOverrides[o.slug].logR;
+        logM = _bigBangObjectOverrides[o.slug].logM;
+      }
+      // Big Bang mode: compute effective opacity
+      let bbOpacity = 1;
+      if (_bigBangMode) {
+        bbOpacity = _bigBangObjectOpacity[o.slug] ?? 0;
+        if (bbOpacity <= 0.01) return null;  // skip invisible objects entirely
+      }
+      return {
+        ...o,
+        logR, logM,
+        catKey: o.cat,
+        sx: px(logR),
+        sy: py(logM),
+        cat: CATEGORIES[o.cat],
+        color: SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff",
+        bbOpacity,
+      };
+    })
     .filter(o =>
+      o &&
       o.sx >= -pad && o.sx <= cw + pad &&
       o.sy >= -pad && o.sy <= ch + pad &&
       (!o.minK || currentK >= o.minK)
@@ -1808,6 +1947,8 @@ function drawObjects() {
     if (!o._showDot) return;
 
     const g = lObj.append("g").style("cursor", "pointer").attr("data-obj-slug", o.slug);
+    // Big Bang mode: apply era-based opacity to entire group
+    if (_bigBangMode && o.bbOpacity < 1) g.attr("opacity", o.bbOpacity);
 
     // Hit area (invisible circle for dot clicks)
     g.append("circle").attr("cx", o.sx).attr("cy", o.sy)
@@ -3788,6 +3929,57 @@ function redrawVectors() {
   updateScaleBar();
 }
 
+/** Fast dot-only renderer: projects objects to screen and draws coloured
+ *  dots at correct positions. Skips clustering, collision detection, and
+ *  text labels entirely — roughly O(n) instead of O(n²). */
+function drawObjectsFast() {
+  lObj.selectAll("*").remove();
+  const pad = 5;
+  OBJECTS.forEach(o => {
+    if (o.minK && currentK < o.minK) return;
+    // Big Bang mode: skip invisible objects, apply position overrides
+    let logR = o.logR, logM = o.logM;
+    let opacity = 0.8;
+    if (_bigBangMode) {
+      const bbOp = _bigBangObjectOpacity[o.slug] ?? 0;
+      if (bbOp <= 0.01) return;
+      opacity = 0.8 * bbOp;
+      if (_bigBangObjectOverrides[o.slug]) {
+        logR = _bigBangObjectOverrides[o.slug].logR;
+        logM = _bigBangObjectOverrides[o.slug].logM;
+      }
+    }
+    const sx = px(logR), sy = py(logM);
+    if (sx < -pad || sx > cw + pad || sy < -pad || sy > ch + pad) return;
+    lObj.append("circle")
+      .attr("cx", sx).attr("cy", sy).attr("r", 3)
+      .attr("fill", SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff")
+      .attr("opacity", opacity);
+  });
+}
+
+/** Light redraw: replaces drawObjects() with drawObjectsFast() (dots only,
+ *  no labels/clustering). Used during zoom for smooth animation.
+ *  In Big Bang mode, uses full drawObjects() since few objects are visible. */
+function redrawVectorsLight() {
+  drawRegions();
+  drawGrid();
+  drawDensityLines();
+  drawTriangleOverlay();
+  drawBoundaries();
+  drawBigBangEras();
+  drawDensityArrows();
+  drawEnergyBands();
+  drawDarkMatterRegions();
+  drawConnections();
+  drawRegionLabels();
+  if (_bigBangMode) drawObjects(); else drawObjectsFast();
+  drawHighlight();
+  drawAxes();
+  updateMinimap();
+  updateScaleBar();
+}
+
 // =============================================================
 // Zoom with rAF throttle
 // =============================================================
@@ -3819,13 +4011,19 @@ const zoomBehavior = d3.zoom()
     if (!rafPending) {
       rafPending = true;
       requestAnimationFrame(() => {
-        if (_zooming && _zoomPrevTransform) {
+        // Guard: if zoom ended before this rAF fired, skip the light redraw
+        // (the end handler already did a full redraw).
+        if (!_zooming) { rafPending = false; return; }
+
+        if (_zoomPrevTransform) {
+          // CSS-transform tiles (images stretch fine during zoom)
           const sk = currentK / _zoomPrevTransform.k;
           const dx = xS(0) - sk * _zoomPrevTransform.xS(0);
           const dy = yS(0) - sk * _zoomPrevTransform.yS(0);
           lTiles.attr("transform", `translate(${dx},${dy}) scale(${sk})`);
         }
-        redrawVectors();
+        // Light redraw: dots move, labels skip (O(n) vs O(n²))
+        redrawVectorsLight();
         updateReadout(null);
         rafPending = false;
       });
@@ -3835,7 +4033,7 @@ const zoomBehavior = d3.zoom()
     _zooming = false;
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
-    drawTiles();
+    redraw();
     if (_isSafari) grainRect.style("display", null);
     updateStartButtonLabel();
   });
@@ -3880,16 +4078,16 @@ function panToCoord(logR, logM) {
       d3.zoomIdentity.translate(tx, ty).scale(currentK));
 }
 
-function zoomToRegion(region) {
+function zoomToRegion(region, overrideDuration) {
   // Get current transform to calculate travel distance
   const cur = d3.zoomTransform(svg.node());
 
   if (!region) {
     const target = d3.zoomIdentity;
-    const dur = _calcZoomDuration(cur, target);
+    const dur = overrideDuration || _calcZoomDuration(cur, target);
     svg.transition().duration(dur).ease(d3.easeCubicInOut)
       .call(zoomBehavior.transform, target);
-    return;
+    return dur;
   }
 
   // On mobile, account for tour box covering the bottom of the chart.
@@ -3916,9 +4114,10 @@ function zoomToRegion(region) {
   const tx = cw / 2 - cx * k;
   const ty = ch / 2 - cy * k - centerOffsetY;
   const target = d3.zoomIdentity.translate(tx, ty).scale(k);
-  const dur = _calcZoomDuration(cur, target);
+  const dur = overrideDuration || _calcZoomDuration(cur, target);
   svg.transition().duration(dur).ease(d3.easeCubicInOut)
     .call(zoomBehavior.transform, target);
+  return dur;
 }
 
 /** Duration scales with how far the camera travels (pan + zoom change). */
@@ -3935,6 +4134,217 @@ function _calcZoomDuration(from, to) {
   // Clamp between 2000ms and 3000ms for a relaxed, natural feel
   return Math.round(Math.min(3000, Math.max(2000, 1500 + effort * 500)));
 }
+
+// =============================================================
+// Big Bang animated timeline — animation engine
+// =============================================================
+
+/** Helper: run a Big Bang animation using d3.timer for reliable execution.
+ *  The tick function receives eased t ∈ [0,1]. Returns the timer for cancellation.
+ *  d3.timer fires on each rAF frame — the tick updates state, then we redraw.
+ *  If a zoom transition is also running (_zooming), it handles redraws; otherwise
+ *  the Big Bang timer does its own redraws. */
+function _bigBangAnimate(duration, tick, onEnd) {
+  const timer = d3.timer(elapsed => {
+    const raw = Math.min(1, elapsed / duration);
+    const t = d3.easeCubicInOut(raw);
+    tick(t);
+    // Redraw: skip if zoom is concurrently redrawing (it picks up our state)
+    if (!_zooming) {
+      redrawVectors();
+    }
+    if (raw >= 1) {
+      timer.stop();
+      // Clear whichever transition reference points to this timer
+      if (_bigBangTransition === timer) _bigBangTransition = null;
+      if (_bigBangTransition2 === timer) _bigBangTransition2 = null;
+      redrawVectors(); // final redraw with exact target values
+      if (onEnd) onEnd();
+    }
+  });
+  return timer;
+}
+
+/** Cancel all Big Bang transitions and pending timers. */
+function _cancelBigBangTransitions() {
+  if (_bigBangTransition) { _bigBangTransition.stop(); _bigBangTransition = null; }
+  if (_bigBangPhase2Timer) { clearTimeout(_bigBangPhase2Timer); _bigBangPhase2Timer = null; }
+  if (_bigBangTransition2) { _bigBangTransition2.stop(); _bigBangTransition2 = null; }
+}
+
+/**
+ * Animate the Big Bang state to a target era (two-phase):
+ * Phase 1 (concurrent with zoom): Hubble radius + white overlay.
+ * Phase 2 (delayed after zoom): Object opacities + position overrides.
+ */
+function animateBigBangTransition(bigBangConfig, duration) {
+  const eraKey = bigBangConfig.era;
+  const era = BIG_BANG_ERAS[eraKey];
+  if (!era) return;
+
+  _cancelBigBangTransitions();
+  _bigBangMode = true;
+
+  // Target values
+  const targetHubble = era.hubbleLogR;
+  const targetWhite = bigBangConfig.enterWhite ? 1.0 : (era.whiteOverlay || 0);
+  const targetOpacities = computeEraOpacities(eraKey);
+  const targetOverrides = era.moveObjects || {};
+  const targetFadeBlackHoles = !!era.fadeBlackHoles;
+
+  // Starting values (snapshot current state)
+  const startHubble = _bigBangHubbleLogR;
+  const startWhite = _bigBangWhiteOverlay;
+
+  // Phase 1: Hubble radius + white overlay (runs alongside zoom)
+  _bigBangTransition = _bigBangAnimate(duration, (t) => {
+    _bigBangHubbleLogR = startHubble + (targetHubble - startHubble) * t;
+    _bigBangWhiteOverlay = startWhite + (targetWhite - startWhite) * t;
+    whiteOverlay.attr("opacity", _bigBangWhiteOverlay);
+  });
+
+  // Phase 2: Object opacities + position overrides (after zoom + delay)
+  const objectDelay = bigBangConfig.objectDelay ?? 1000;
+  const objectDuration = bigBangConfig.objectDuration ?? 2500;
+
+  _bigBangPhase2Timer = setTimeout(() => {
+    _bigBangPhase2Timer = null;
+
+    // Snapshot current state at the moment phase 2 begins
+    const p2StartOpacities = { ..._bigBangObjectOpacity };
+    const p2StartOverrides = {};
+    for (const slug in targetOverrides) {
+      const orig = OBJECTS.find(o => o.slug === slug);
+      if (!orig) continue;
+      p2StartOverrides[slug] = {
+        logR: _bigBangObjectOverrides[slug]?.logR ?? orig.logR,
+        logM: _bigBangObjectOverrides[slug]?.logM ?? orig.logM,
+      };
+    }
+    const allSlugs = new Set([...Object.keys(p2StartOpacities), ...Object.keys(targetOpacities)]);
+
+    _bigBangTransition2 = _bigBangAnimate(objectDuration, (t) => {
+      // Each object opacity interpolates independently
+      for (const slug of allSlugs) {
+        const from = p2StartOpacities[slug] ?? 0;
+        const to = targetOpacities[slug] ?? 0;
+        _bigBangObjectOpacity[slug] = from + (to - from) * t;
+      }
+      // Position overrides (e.g. Sun → red giant) interpolate smoothly
+      for (const slug in targetOverrides) {
+        const from = p2StartOverrides[slug];
+        if (!from) continue;
+        _bigBangObjectOverrides[slug] = {
+          logR: from.logR + (targetOverrides[slug].logR - from.logR) * t,
+          logM: from.logM + (targetOverrides[slug].logM - from.logM) * t,
+        };
+      }
+      _bigBangFadeBlackHoles = targetFadeBlackHoles;
+    }, () => {
+      // On end: clear overrides for objects that are back to original position
+      for (const slug in _bigBangObjectOverrides) {
+        if (!targetOverrides[slug]) delete _bigBangObjectOverrides[slug];
+      }
+    });
+  }, duration + objectDelay);
+}
+
+/**
+ * Exit Big Bang mode — restore everything to normal.
+ */
+function exitBigBangMode(duration) {
+  if (!_bigBangMode) return;
+
+  // Cancel any in-progress Big Bang transitions (both phases)
+  _cancelBigBangTransitions();
+
+  const startHubble = _bigBangHubbleLogR;
+  const startWhite = _bigBangWhiteOverlay;
+  const startOpacities = { ..._bigBangObjectOpacity };
+  const startOverrides = { ..._bigBangObjectOverrides };
+
+  _bigBangTransition = _bigBangAnimate(duration || 2000, (t) => {
+    _bigBangHubbleLogR = startHubble + (HUBBLE_LOG_R - startHubble) * t;
+    _bigBangWhiteOverlay = startWhite * (1 - t);
+    whiteOverlay.attr("opacity", _bigBangWhiteOverlay);
+
+    // Fade all objects back to full opacity
+    for (const slug in startOpacities) {
+      _bigBangObjectOpacity[slug] = startOpacities[slug] + (1 - startOpacities[slug]) * t;
+    }
+
+    // Interpolate position overrides back to original
+    for (const slug in startOverrides) {
+      const orig = OBJECTS.find(o => o.slug === slug);
+      if (!orig) continue;
+      _bigBangObjectOverrides[slug] = {
+        logR: startOverrides[slug].logR + (orig.logR - startOverrides[slug].logR) * t,
+        logM: startOverrides[slug].logM + (orig.logM - startOverrides[slug].logM) * t,
+      };
+    }
+  }, () => {
+    // On end: fully reset Big Bang state
+    _bigBangMode = false;
+    _bigBangHubbleLogR = HUBBLE_LOG_R;
+    _bigBangWhiteOverlay = 0;
+    _bigBangObjectOpacity = {};
+    _bigBangObjectOverrides = {};
+    _bigBangFadeBlackHoles = false;
+    whiteOverlay.attr("opacity", 0);
+    redraw();
+  });
+}
+
+/** Check if Big Bang mode is currently active */
+function isBigBangActive() {
+  return _bigBangMode;
+}
+
+// Debug API: force Big Bang state for testing in environments without rAF
+window.__debugBigBang = {
+  setEra(eraKey) {
+    const era = BIG_BANG_ERAS[eraKey];
+    if (!era) return 'unknown era: ' + eraKey;
+    _cancelBigBangTransitions();
+    _bigBangMode = true;
+    _bigBangHubbleLogR = era.hubbleLogR;
+    _bigBangWhiteOverlay = era.whiteOverlay || 0;
+    _bigBangObjectOpacity = computeEraOpacities(eraKey);
+    _bigBangObjectOverrides = {};
+    _bigBangFadeBlackHoles = !!era.fadeBlackHoles;
+    if (era.moveObjects) {
+      for (const slug in era.moveObjects) {
+        _bigBangObjectOverrides[slug] = { ...era.moveObjects[slug] };
+      }
+    }
+    whiteOverlay.attr("opacity", _bigBangWhiteOverlay);
+    redrawVectors();
+    return 'set to era: ' + eraKey + ', hubbleLogR=' + era.hubbleLogR;
+  },
+  setWhite(opacity) {
+    _bigBangWhiteOverlay = opacity;
+    whiteOverlay.attr("opacity", opacity);
+    return 'white overlay set to ' + opacity;
+  },
+  reset() {
+    _cancelBigBangTransitions();
+    _bigBangMode = false;
+    _bigBangHubbleLogR = HUBBLE_LOG_R;
+    _bigBangWhiteOverlay = 0;
+    _bigBangObjectOpacity = {};
+    _bigBangObjectOverrides = {};
+    _bigBangFadeBlackHoles = false;
+    whiteOverlay.attr("opacity", 0);
+    redrawVectors();
+    return 'reset';
+  },
+  getState() {
+    return { mode: _bigBangMode, hubbleLogR: _bigBangHubbleLogR, white: _bigBangWhiteOverlay,
+             visibleObjects: Object.keys(_bigBangObjectOpacity).filter(s => _bigBangObjectOpacity[s] > 0.5).length,
+             overrides: { ..._bigBangObjectOverrides },
+             fadeBlackHoles: _bigBangFadeBlackHoles };
+  },
+};
 
 // =============================================================
 // Readout
@@ -4296,7 +4706,13 @@ updateMobileState();
 _booted = true;
 initConnections();
 loadTileMeta();
-initTour({ zoomToRegion, vd });
+initTour({
+  zoomToRegion,
+  vd,
+  animateBigBang: animateBigBangTransition,
+  exitBigBang: exitBigBangMode,
+  isBigBangActive: () => _bigBangMode,
+});
 
 if (!loadHash()) {
   // Intro animation: start zoomed on Human, then zoom out to full view

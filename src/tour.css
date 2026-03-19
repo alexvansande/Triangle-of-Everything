@@ -194,6 +194,18 @@
   margin-bottom: 0;
 }
 
+/* Link styling */
+#tour-text a {
+  color: #80cbc4;
+  text-decoration: underline;
+  text-decoration-color: rgba(128, 203, 196, 0.4);
+  text-underline-offset: 2px;
+}
+#tour-text a:hover {
+  color: #b2dfdb;
+  text-decoration-color: rgba(178, 223, 219, 0.7);
+}
+
 /* Blockquote styling for quotes */
 #tour-text blockquote {
   font-style: italic;
