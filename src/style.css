@@ -282,6 +282,9 @@ body.sidebar-open #scale-bar { left: 456px; }
 .obj-dot {
   transition: r 0.15s;
 }
+.obj-icon {
+  transition: width 0.15s, height 0.15s, x 0.15s, y 0.15s;
+}
 
 /* ---------- Planck point pulse ---------- */
 @keyframes planckPulse {
@@ -510,6 +513,8 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
   width: 14px; height: 14px; border-radius: 50%;
   flex-shrink: 0;
   box-shadow: 0 0 10px currentColor;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
 }
 #sb-name {
   font-weight: 700; font-size: 18px;

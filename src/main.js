@@ -37,6 +37,59 @@ for (const [path, loader] of Object.entries(imgLoaders)) {
 }
 import imageManifest from "../content/images/manifest.json";
 
+// Load object icons (small WebP, preloaded eagerly)
+const ICON_SLUG_MAP = {
+  "bacteria":       "bacterium",
+  "covid":          "covid-virus",
+  "grain-of-salt":  "grain-of-sand",
+  "hippo":          "hippopotamus",
+  "pyramid-giza":   "great-pyramid",
+  "ngc7538s-bubble-nebula": "ngc-7538",
+  "ngc7635bubble-nebula": "bubble-nebula",
+  "observable-universe": "observable-universe",
+};
+// Icons that map to multiple objects (same icon, different slugs)
+const ICON_MULTI_MAP = {
+  "void": ["bo-tes-void", "eridanus-supervoid", "kbc-void"],
+};
+const iconLoaders = import.meta.glob("../content/icons/*.webp");
+const ICON_BY_SLUG = {};
+for (const [path, loader] of Object.entries(iconLoaders)) {
+  const iconFile = path.replace("../content/icons/", "").replace(".webp", "");
+  if (ICON_MULTI_MAP[iconFile]) {
+    ICON_MULTI_MAP[iconFile].forEach(s => { ICON_BY_SLUG[s] = loader; });
+  } else {
+    const slug = ICON_SLUG_MAP[iconFile] || iconFile;
+    ICON_BY_SLUG[slug] = loader;
+  }
+}
+const _iconUrlCache = {};
+async function getIconUrl(slug) {
+  if (_iconUrlCache[slug]) return _iconUrlCache[slug];
+  const loader = ICON_BY_SLUG[slug];
+  if (!loader) return null;
+  const mod = await loader();
+  _iconUrlCache[slug] = mod.default;
+  return mod.default;
+}
+// Preload all icons eagerly (~70KB total), redraw once all loaded
+Promise.all(Object.keys(ICON_BY_SLUG).map(s => getIconUrl(s))).then(() => {
+  if (typeof redraw === "function") redraw();
+});
+let _iconsEnabled = true;
+let _iconSize = 48;
+let _labelsEnabled = true;
+
+// Icon size scales with zoom: 16px at k=0.3 (fully out), up to 128px at k=800 (fully in).
+// Uses log interpolation for a natural "approaching distant object" feel.
+function effectiveIconSize() {
+  const minK = 0.3, maxK = 800;
+  const minSize = 16, maxSize = 128;
+  const t = Math.log(Math.max(minK, Math.min(maxK, currentK)) / minK)
+          / Math.log(maxK / minK);
+  return minSize + (maxSize - minSize) * t;
+}
+
 function parseFrontmatter(raw) {
   const trimmed = raw.trim();
   if (!trimmed.startsWith("---")) return { meta: {}, body: trimmed };
@@ -172,6 +225,7 @@ function updateMobileState() {
 // Equal-scale view bounds — computed so 1 data unit = same px in both axes
 let viewXMin, viewXMax, viewYMin, viewYMax;
 
+function resizeCloudCanvas() {} // stub — cloud canvas was removed
 function measure() {
   W = window.innerWidth;
   H = window.innerHeight;
@@ -236,6 +290,12 @@ defs.append("clipPath").attr("id", "clip")
   .append("rect").attr("width", cw).attr("height", ch);
 
 // --- gradients ---
+
+// Soft black disc for screen-blend icon backgrounds
+const iconBgGrad = defs.append("radialGradient").attr("id", "icon-bg-grad");
+iconBgGrad.append("stop").attr("offset", "0%").attr("stop-color", "#000").attr("stop-opacity", 0.8);
+iconBgGrad.append("stop").attr("offset", "50%").attr("stop-color", "#000").attr("stop-opacity", 0.5);
+iconBgGrad.append("stop").attr("offset", "100%").attr("stop-color", "#000").attr("stop-opacity", 0);
 
 function makeLinGrad(id, x1, y1, x2, y2, stops) {
   const g = defs.append("linearGradient").attr("id", id)
@@ -369,6 +429,9 @@ const grainRect = clip.append("rect")
   .attr("filter", "url(#film-grain)")
   .style("mix-blend-mode", "overlay")
   .style("pointer-events", "none");
+
+// Icon layer: rendered above noise for cleaner visibility
+const lIcons = clip.append("g").style("pointer-events", "none");
 
 // Big Bang white overlay — sits above everything for the "screen goes white" effect
 const whiteOverlay = clip.append("rect")
@@ -1590,7 +1653,9 @@ let _lastProjected = [];
 
 function drawObjects() {
   lObj.selectAll("*").remove();
+  lIcons.selectAll("*").remove();
   const d = vd();
+  const icoSize = effectiveIconSize();
   const pad = 5;
 
   // Project all objects to screen, sorted by priority (low z = important)
@@ -1625,7 +1690,12 @@ function drawObjects() {
       o.sy >= -pad && o.sy <= ch + pad &&
       (!o.minK || currentK >= o.minK)
     )
-    .sort((a, b) => a.z - b.z);
+    .sort((a, b) => {
+      // Icon objects get a slight priority boost (lower z = shown first)
+      const aZ = (_iconsEnabled && ICON_BY_SLUG[a.slug]) ? a.z - 0.5 : a.z;
+      const bZ = (_iconsEnabled && ICON_BY_SLUG[b.slug]) ? b.z - 0.5 : b.z;
+      return aZ - bZ;
+    });
 
   // --- Dot clustering: hide dots only when circles truly overlap ---
   const visibleDots = [];
@@ -1950,19 +2020,49 @@ function drawObjects() {
     // Big Bang mode: apply era-based opacity to entire group
     if (_bigBangMode && o.bbOpacity < 1) g.attr("opacity", o.bbOpacity);
 
-    // Hit area (invisible circle for dot clicks)
+    const hasIcon = _iconsEnabled && _iconUrlCache[o.slug];
+
+    // Hit area (invisible circle for clicks)
     g.append("circle").attr("cx", o.sx).attr("cy", o.sy)
       .attr("r", 14).attr("fill", "transparent");
 
-    // Glow
-    g.append("circle").attr("cx", o.sx).attr("cy", o.sy)
-      .attr("class", "obj-glow")
-      .attr("r", 6).attr("fill", o.color).attr("opacity", 0.1);
+    if (hasIcon) {
+      // Icon rendered in lIcons layer (above noise overlay)
+      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star"]);
+      const isVoid = o.slug.includes("void");
+      const useScreen = SCREEN_CATS.has(o.catKey) && !isVoid;
+      const bbOp = (_bigBangMode && o.bbOpacity < 1) ? o.bbOpacity : null;
 
-    // Dot
-    g.append("circle").attr("cx", o.sx).attr("cy", o.sy)
-      .attr("class", "obj-dot")
-      .attr("r", 2.8).attr("fill", o.color).attr("opacity", 0.85);
+      // For screen-blended icons, render a soft black disc behind them
+      if (useScreen) {
+        lIcons.append("circle")
+          .attr("cx", o.sx).attr("cy", o.sy)
+          .attr("r", icoSize * 0.52)
+          .attr("fill", "url(#icon-bg-grad)")
+          .attr("opacity", bbOp);
+      }
+
+      lIcons.append("image")
+        .attr("class", "obj-icon")
+        .attr("data-slug", o.slug)
+        .attr("href", _iconUrlCache[o.slug])
+        .attr("x", o.sx - icoSize / 2)
+        .attr("y", o.sy - icoSize / 2)
+        .attr("width", icoSize)
+        .attr("height", icoSize)
+        .attr("opacity", bbOp)
+        .style("mix-blend-mode", useScreen ? "screen" : null);
+    } else {
+      // Glow
+      g.append("circle").attr("cx", o.sx).attr("cy", o.sy)
+        .attr("class", "obj-glow")
+        .attr("r", 6).attr("fill", o.color).attr("opacity", 0.1);
+
+      // Dot
+      g.append("circle").attr("cx", o.sx).attr("cy", o.sy)
+        .attr("class", "obj-dot")
+        .attr("r", 2.8).attr("fill", o.color).attr("opacity", 0.85);
+    }
 
     const pos = o._labelPos;
 
@@ -1975,7 +2075,7 @@ function drawObjects() {
       .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
       .attr("class", "obj-label")
-      .attr("display", o._showLabel ? null : "none")
+      .attr("display", (_labelsEnabled && o._showLabel) ? null : "none")
       .text(o.name);
 
     const label = g.append("text")
@@ -1985,7 +2085,7 @@ function drawObjects() {
       .attr("font-size", 10).attr("letter-spacing", "0.5px")
       .attr("fill", o.color)
       .attr("class", "obj-label")
-      .attr("display", o._showLabel ? null : "none")
+      .attr("display", (_labelsEnabled && o._showLabel) ? null : "none")
       .text(o.name);
 
     g.on("click", function(e) {
@@ -1996,15 +2096,28 @@ function drawObjects() {
       setSidebarOpen(true);
     });
     g.on("mouseenter", function(e) {
-      d3.select(this).select(".obj-glow").attr("r", 10).attr("opacity", 0.25);
-      d3.select(this).select(".obj-dot").attr("r", 4);
+      const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
+      if (iconEl.size()) {
+        const hoverSize = Math.max(64, icoSize * 1.5);
+        iconEl.attr("width", hoverSize).attr("height", hoverSize)
+          .attr("x", o.sx - hoverSize / 2).attr("y", o.sy - hoverSize / 2);
+      } else {
+        d3.select(this).select(".obj-glow").attr("r", 10).attr("opacity", 0.25);
+        d3.select(this).select(".obj-dot").attr("r", 4);
+      }
       d3.select(this).selectAll(".obj-label").attr("display", null);
       showTooltip(e, o, o.cat);
     });
     g.on("mouseleave", function() {
-      d3.select(this).select(".obj-glow").attr("r", 6).attr("opacity", 0.1);
-      d3.select(this).select(".obj-dot").attr("r", 2.8);
-      if (!o._showLabel) {
+      const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
+      if (iconEl.size()) {
+        iconEl.attr("width", icoSize).attr("height", icoSize)
+          .attr("x", o.sx - icoSize / 2).attr("y", o.sy - icoSize / 2);
+      } else {
+        d3.select(this).select(".obj-glow").attr("r", 6).attr("opacity", 0.1);
+        d3.select(this).select(".obj-dot").attr("r", 2.8);
+      }
+      if (!_labelsEnabled || !o._showLabel) {
         d3.select(this).selectAll(".obj-label").attr("display", "none");
       }
       hideTooltip();
@@ -2782,12 +2895,23 @@ function openSidebar(obj) {
   const objColor = obj.color || cat.color;
   sbName.textContent = obj.name;
   sbName.style.color = objColor;
-  sbDot.style.background = objColor;
+
+  // Show icon in sidebar header if available, otherwise colored dot
+  const slug = obj.slug || nameToSlug(obj.name);
+  const iconUrl = _iconsEnabled && _iconUrlCache[slug];
+  if (iconUrl) {
+    sbDot.style.background = "none";
+    sbDot.style.boxShadow = "none";
+    sbDot.innerHTML = `<img src="${iconUrl}" alt="" style="width:14px;height:14px;display:block;">`;
+  } else {
+    sbDot.style.background = objColor;
+    sbDot.style.boxShadow = "";
+    sbDot.innerHTML = "";
+  }
   sbDot.style.color = objColor;
   sbCategory.textContent = catKey;
 
   // Display object image or placeholder (lazy-loaded)
-  const slug = obj.slug || nameToSlug(obj.name);
   const imgLoader = IMG_BY_SLUG[slug];
   const imgMeta = imageManifest[slug];
   if (imgLoader) {
@@ -2929,13 +3053,48 @@ document.getElementById("sidebar-expand").addEventListener("click", () => {
 // so we register ours in capture phase first, tracking mousedown position.
 let _clickDown = null;
 
+// ─── WHY CLICKING IS FRAGILE (documentation for future maintainers) ───
+// D3-zoom registers a capture-phase pointerdown handler that calls
+// pointer.capture() on the SVG. Once captured, D3 suppresses the
+// subsequent "click" event entirely. Our workaround: we register our
+// OWN capture-phase pointerdown BEFORE D3-zoom is initialised, and
+// call stopImmediatePropagation() when the pointer is on/near an
+// interactive element. This prevents D3 from ever seeing the event,
+// so the normal click fires.
+//
+// The tricky part: icon images live in lIcons (pointer-events:none,
+// rendered above lObj for visual reasons). Clicks pass through icons
+// to whatever is underneath — often the SVG background rect, NOT the
+// object's invisible hit circle (r=14). If we only check e.target for
+// [data-obj-slug], we miss these "near-icon" clicks and D3 eats them.
+//
+// Fix: also do a coordinate-based proximity check against _lastProjected
+// in the pointerdown handler, using the effective icon hit radius.
+// ──────────────────────────────────────────────────────────────────────
 document.addEventListener("pointerdown", (e) => {
   const chartEl = document.getElementById("chart");
   if (!chartEl?.contains(e.target)) return;
-  // If pointerdown is on an object or axis label, stop zoom from capturing (so click can fire)
+
+  let shouldStop = false;
+
+  // Direct hit on an object group or axis label
   if (e.target.closest?.("[data-obj-slug], .axis-unit-link")) {
-    e.stopImmediatePropagation();
+    shouldStop = true;
   }
+
+  // Proximity check: is the pointer near an icon object?
+  // (icons are visually large but their hit circles are small)
+  if (!shouldStop && _lastProjected.length) {
+    const [mx, my] = d3.pointer(e, chart.node());
+    const icoR = _iconsEnabled ? effectiveIconSize() / 2 : 0;
+    for (const o of _lastProjected) {
+      const dx = o.sx - mx, dy = o.sy - my;
+      const r = (_iconsEnabled && _iconUrlCache[o.slug]) ? icoR : 14;
+      if (dx * dx + dy * dy < r * r) { shouldStop = true; break; }
+    }
+  }
+
+  if (shouldStop) e.stopImmediatePropagation();
   _clickDown = { x: e.clientX, y: e.clientY, t: Date.now() };
 }, true);
 
@@ -2964,11 +3123,13 @@ document.addEventListener("click", (e) => {
   }
 
   const HIT_RADIUS = 18;
-  let closest = null, closestDist = HIT_RADIUS * HIT_RADIUS;
+  const ICON_HIT_RADIUS = _iconsEnabled ? effectiveIconSize() / 2 : HIT_RADIUS;
+  let closest = null, closestDist = Infinity;
   for (const o of _lastProjected) {
     const dx = o.sx - mx, dy = o.sy - my;
     const d2 = dx * dx + dy * dy;
-    if (d2 < closestDist) { closest = o; closestDist = d2; }
+    const r = (_iconsEnabled && _iconUrlCache[o.slug]) ? ICON_HIT_RADIUS : HIT_RADIUS;
+    if (d2 < r * r && d2 < closestDist) { closest = o; closestDist = d2; }
   }
 
   const labelEl = e.target.closest?.(".axis-unit-link");
@@ -3934,7 +4095,10 @@ function redrawVectors() {
  *  text labels entirely — roughly O(n) instead of O(n²). */
 function drawObjectsFast() {
   lObj.selectAll("*").remove();
+  lIcons.selectAll("*").remove();
   const pad = 5;
+  const fastProjected = [];
+  const icoSize = effectiveIconSize();
   OBJECTS.forEach(o => {
     if (o.minK && currentK < o.minK) return;
     // Big Bang mode: skip invisible objects, apply position overrides
@@ -3951,11 +4115,32 @@ function drawObjectsFast() {
     }
     const sx = px(logR), sy = py(logM);
     if (sx < -pad || sx > cw + pad || sy < -pad || sy > ch + pad) return;
-    lObj.append("circle")
-      .attr("cx", sx).attr("cy", sy).attr("r", 3)
-      .attr("fill", SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff")
-      .attr("opacity", opacity);
+    fastProjected.push({ ...o, sx, sy, _showDot: true });
+
+    const hasIcon = _iconsEnabled && _iconUrlCache[o.slug];
+    if (hasIcon) {
+      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star"]);
+      const isVoid = o.slug.includes("void");
+      const useScreen = SCREEN_CATS.has(o.cat) && !isVoid;
+      if (useScreen) {
+        lIcons.append("circle").attr("cx", sx).attr("cy", sy)
+          .attr("r", icoSize * 0.52).attr("fill", "url(#icon-bg-grad)").attr("opacity", opacity);
+      }
+      lIcons.append("image")
+        .attr("class", "obj-icon").attr("data-slug", o.slug)
+        .attr("href", _iconUrlCache[o.slug])
+        .attr("x", sx - icoSize / 2).attr("y", sy - icoSize / 2)
+        .attr("width", icoSize).attr("height", icoSize)
+        .attr("opacity", opacity)
+        .style("mix-blend-mode", useScreen ? "screen" : null);
+    } else {
+      lObj.append("circle")
+        .attr("cx", sx).attr("cy", sy).attr("r", 3)
+        .attr("fill", SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff")
+        .attr("opacity", opacity);
+    }
   });
+  _lastProjected = fastProjected;
 }
 
 /** Light redraw: replaces drawObjects() with drawObjectsFast() (dots only,
@@ -4016,7 +4201,7 @@ const zoomBehavior = d3.zoom()
         if (!_zooming) { rafPending = false; return; }
 
         if (_zoomPrevTransform) {
-          // CSS-transform tiles (images stretch fine during zoom)
+          // CSS-transform tiles and icons (images stretch fine during zoom)
           const sk = currentK / _zoomPrevTransform.k;
           const dx = xS(0) - sk * _zoomPrevTransform.xS(0);
           const dy = yS(0) - sk * _zoomPrevTransform.yS(0);
@@ -4436,7 +4621,7 @@ document.addEventListener("pointerdown", (e) => {
 function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked,
-    noise: +setNoise.value
+    noise: +setNoise.value, labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value
   }));
 }
 
@@ -4451,6 +4636,27 @@ const setAnim = document.getElementById("set-anim");
 setAnim.addEventListener("change", () => {
   _animDisabled = !setAnim.checked;
   document.body.classList.toggle("anim-off", _animDisabled);
+  saveSettings();
+});
+
+const setLabels = document.getElementById("set-labels");
+setLabels.addEventListener("change", () => {
+  _labelsEnabled = setLabels.checked;
+  redraw();
+  saveSettings();
+});
+
+const setIcons = document.getElementById("set-icons");
+setIcons.addEventListener("change", () => {
+  _iconsEnabled = setIcons.checked;
+  redraw();
+  saveSettings();
+});
+
+const setIconSize = document.getElementById("set-icon-size");
+setIconSize.addEventListener("input", () => {
+  _iconSize = +setIconSize.value;
+  redraw();
   saveSettings();
 });
 
@@ -4647,6 +4853,9 @@ try {
   if (saved) {
     if (saved.bg === false) { setBg.checked = false; _bgTilesEnabled = false; redraw(); }
     if (saved.anim === false) { setAnim.checked = false; _animDisabled = true; document.body.classList.add("anim-off"); }
+    if (saved.labels === false) { setLabels.checked = false; _labelsEnabled = false; }
+    if (saved.icons === false) { setIcons.checked = false; _iconsEnabled = false; }
+    if (saved.iconSize > 0) { setIconSize.value = saved.iconSize; _iconSize = saved.iconSize; }
     if (saved.noise > 0) {
       setNoise.value = saved.noise;
       grainRect.attr("opacity", (saved.noise / 100) * 3);
@@ -4735,3 +4944,6 @@ setTimeout(() => {
   const hint = document.getElementById("keyhint");
   if (hint) hint.classList.add("faded");
 }, 6000);
+
+// Reveal page now that CSS and JS are loaded (prevents FOUC)
+document.body.classList.add("ready");

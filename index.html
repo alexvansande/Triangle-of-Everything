@@ -9,6 +9,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Critical inline CSS: hide body until stylesheets load to prevent FOUC */
+    body:not(.ready) { opacity: 0 !important; }
+    body.ready { opacity: 1 !important; transition: opacity 0.15s ease-in; }
+  </style>
 </head>
 <body>
   <div id="chart"></div>
@@ -86,6 +91,20 @@
       <input type="checkbox" id="set-anim" checked>
       <span class="checkmark"></span>
       Show animations
+    </label>
+    <label class="setting-check">
+      <input type="checkbox" id="set-labels" checked>
+      <span class="checkmark"></span>
+      Show labels
+    </label>
+    <label class="setting-check">
+      <input type="checkbox" id="set-icons" checked>
+      <span class="checkmark"></span>
+      Show object icons
+    </label>
+    <label class="setting-range">
+      <span class="setting-range-label">Icon size</span>
+      <input type="range" id="set-icon-size" min="8" max="64" value="48">
     </label>
     <hr class="setting-divider">
     <label class="setting-range">

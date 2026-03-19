@@ -186,5 +186,7 @@
   { "name": "Planetary Nebula", "logR": 17.50,  "logM": 33.30,  "cat": "remnant", "z": 3, "wiki": "Planetary_nebula" },
   { "name": "Supernova Remnant","logR": 17.80,  "logM": 33.80,  "cat": "remnant", "z": 3, "wiki": "Supernova_remnant" },
   { "name": "Stellar Nursery",  "logR": 19.00,  "logM": 35.50,  "cat": "star", "z": 3, "wiki": "Star-forming_region" },
-  { "name": "Nebulae",          "logR": 18.5,   "logM": 34.0,   "cat": "remnant", "z": 4, "wiki": "Nebula" }
+  { "name": "Nebulae",          "logR": 18.5,   "logM": 34.0,   "cat": "remnant", "z": 4, "wiki": "Nebula" },
+  { "name": "NGC 7538",         "logR": 18.0,   "logM": 34.5,   "cat": "remnant", "z": 3.5, "wiki": "NGC_7538" },
+  { "name": "Bubble Nebula",    "logR": 17.7,   "logM": 33.6,   "cat": "remnant", "z": 3.5, "wiki": "NGC_7635" }
 ]
