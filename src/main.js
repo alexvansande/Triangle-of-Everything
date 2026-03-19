@@ -422,6 +422,7 @@ clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch
 clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch).attr("fill", "url(#grad-blue)");
 
 // Background tile layer (on top of gradient, below chart content)
+const lTilesBase = clip.append("g").style("pointer-events", "none"); // permanent low-res background
 const lTiles = clip.append("g").style("pointer-events", "none");
 
 // Content wrapper: CSS-transformed during zoom for smooth panning
@@ -4140,11 +4141,66 @@ function drawTiles() {
   }
 }
 
+/** Draw a permanent low-res background from the smallest tile level (z0).
+ *  This ensures the background image is always visible, even before
+ *  higher-res tiles load. Redrawn on zoom like regular tiles. */
+function drawBaseTiles() {
+  lTilesBase.selectAll("*").remove();
+  if (!_bgTilesEnabled || !tileMeta) return;
+
+  const { tileSize, levels } = tileMeta;
+  const base = levels[0]; // lowest resolution level
+  const ppu = tileMeta.pxPerUnitX;
+  const imgDataW = tileMeta.imgW / ppu;
+  const imgDataH = tileMeta.imgH / ppu;
+
+  const PLANCK_FRAC_X = 2114 / tileMeta.imgW;
+  const PLANCK_FRAC_Y = 5960 / tileMeta.imgH;
+  const imgLogRmin = PLANCK_LOG_R - PLANCK_FRAC_X * imgDataW;
+  const imgLogMmax = PLANCK_LOG_M + PLANCK_FRAC_Y * imgDataH;
+
+  const dppX = imgDataW / base.w;
+  const dppY = imgDataH / base.h;
+
+  for (let r = 0; r < base.rows; r++) {
+    for (let c = 0; c < base.cols; c++) {
+      const tileW = (c === base.cols - 1) ? (base.w - c * tileSize) : tileSize;
+      const tileH = (r === base.rows - 1) ? (base.h - r * tileSize) : tileSize;
+      const tLogRmin = imgLogRmin + c * tileSize * dppX;
+      const tLogRmax = tLogRmin + tileW * dppX;
+      const tLogMmax = imgLogMmax - r * tileSize * dppY;
+      const tLogMmin = tLogMmax - tileH * dppY;
+
+      const sx = px(tLogRmin);
+      const sy = py(tLogMmax);
+      const sw = px(tLogRmax) - sx;
+      const sh = py(tLogMmin) - sy;
+
+      if (sw < 1 || sh < 1) continue;
+
+      const href = `/tiles/z${base.z}/tile_${c}_${r}.webp`;
+      if (!_tileCache.has(href)) {
+        const img = new Image();
+        img.src = href;
+        _tileCache.set(href, img);
+      }
+
+      lTilesBase.append("image")
+        .attr("href", href)
+        .attr("x", sx).attr("y", sy)
+        .attr("width", sw).attr("height", sh)
+        .attr("preserveAspectRatio", "none")
+        .attr("image-rendering", "auto");
+    }
+  }
+}
+
 async function loadTileMeta() {
   try {
     const response = await fetch("/tiles/meta.json");
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     tileMeta = await response.json();
+    drawBaseTiles(); // draw low-res background immediately
     redraw();
   } catch (error) {
     console.warn("Failed to load tile metadata:", error);
@@ -4156,6 +4212,7 @@ async function loadTileMeta() {
 // =============================================================
 
 function redraw() {
+  drawBaseTiles();
   drawTiles();
   redrawVectors();
 }
@@ -4313,10 +4370,12 @@ const zoomBehavior = d3.zoom()
           const sk = currentK / _zoomPrevTransform.k;
           const dx = xS(0) - sk * _zoomPrevTransform.xS(0);
           const dy = yS(0) - sk * _zoomPrevTransform.yS(0);
-          lTiles.attr("transform", `translate(${dx},${dy}) scale(${sk})`);
+          const tf = `translate(${dx},${dy}) scale(${sk})`;
+          lTiles.attr("transform", tf);
+          lTilesBase.attr("transform", tf);
+          lContent.attr("transform", tf);
         }
-        // Light redraw: dots move, labels skip (O(n) vs O(n²))
-        redrawVectorsLight();
+        // CSS transform handles visual update — skip expensive redraw during zoom
         updateReadout(null);
         rafPending = false;
       });
@@ -4326,6 +4385,8 @@ const zoomBehavior = d3.zoom()
     _zooming = false;
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
+    lTilesBase.attr("transform", null);
+    lContent.attr("transform", null);
     redraw();
     if (_isSafari) grainRect.style("display", null);
     updateStartButtonLabel();
@@ -4371,6 +4432,63 @@ function panToCoord(logR, logM) {
       d3.zoomIdentity.translate(tx, ty).scale(currentK));
 }
 
+/** Preload tiles that will be visible at a target zoom transform */
+function preloadTilesForTransform(targetTransform) {
+  if (!_bgTilesEnabled || !tileMeta) return Promise.resolve();
+
+  const { tileSize, levels } = tileMeta;
+  const ppu = tileMeta.pxPerUnitX;
+  const imgDataW = tileMeta.imgW / ppu;
+  const imgDataH = tileMeta.imgH / ppu;
+
+  const PLANCK_FRAC_X = 2114 / tileMeta.imgW;
+  const PLANCK_FRAC_Y = 5960 / tileMeta.imgH;
+  const imgLogRmin = PLANCK_LOG_R - PLANCK_FRAC_X * imgDataW;
+  const imgLogMmax = PLANCK_LOG_M + PLANCK_FRAC_Y * imgDataH;
+
+  // Compute target scales
+  const tXS = targetTransform.rescaleX(xBase);
+  const tYS = targetTransform.rescaleY(yBase);
+  const screenPPU = Math.abs(tXS(1) - tXS(0));
+
+  let best = levels[0];
+  for (const lv of levels) {
+    best = lv;
+    if ((lv.w / imgDataW) >= screenPPU) break;
+  }
+
+  // Compute visible data range at target
+  const x0 = tXS.invert(0), x1 = tXS.invert(cw);
+  const y1 = tYS.invert(0), y0 = tYS.invert(ch);
+
+  const dppX = imgDataW / best.w;
+  const dppY = imgDataH / best.h;
+
+  const promises = [];
+  for (let r = 0; r < best.rows; r++) {
+    for (let c = 0; c < best.cols; c++) {
+      const tileW = (c === best.cols - 1) ? (best.w - c * tileSize) : tileSize;
+      const tileH = (r === best.rows - 1) ? (best.h - r * tileSize) : tileSize;
+      const tLogRmin = imgLogRmin + c * tileSize * dppX;
+      const tLogRmax = tLogRmin + tileW * dppX;
+      const tLogMmax = imgLogMmax - r * tileSize * dppY;
+      const tLogMmin = tLogMmax - tileH * dppY;
+
+      if (tLogRmax < x0 || tLogRmin > x1 || tLogMmax < y0 || tLogMmin > y1) continue;
+
+      const href = `/tiles/z${best.z}/tile_${c}_${r}.webp`;
+      if (!_tileCache.has(href)) {
+        const img = new Image();
+        const p = new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+        img.src = href;
+        _tileCache.set(href, img);
+        promises.push(p);
+      }
+    }
+  }
+  return promises.length ? Promise.all(promises) : Promise.resolve();
+}
+
 function zoomToRegion(region, overrideDuration) {
   // Get current transform to calculate travel distance
   const cur = d3.zoomTransform(svg.node());
@@ -4408,8 +4526,12 @@ function zoomToRegion(region, overrideDuration) {
   const ty = ch / 2 - cy * k - centerOffsetY;
   const target = d3.zoomIdentity.translate(tx, ty).scale(k);
   const dur = overrideDuration || _calcZoomDuration(cur, target);
-  svg.transition().duration(dur).ease(d3.easeCubicInOut)
-    .call(zoomBehavior.transform, target);
+
+  // Preload tiles for destination, then zoom
+  preloadTilesForTransform(target).then(() => {
+    svg.transition().duration(dur).ease(d3.easeCubicInOut)
+      .call(zoomBehavior.transform, target);
+  });
   return dur;
 }
 
