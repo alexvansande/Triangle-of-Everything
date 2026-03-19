@@ -416,10 +416,7 @@ svg.append("rect").attr("width", W).attr("height", H).attr("fill", "#000000");
 // --- Chart container ---
 const chart = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 const clip = chart.append("g").attr("clip-path", "url(#clip)");
-clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch).attr("fill", "#100118");
-clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch).attr("fill", "url(#grad-bg)");
-clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch).attr("fill", "url(#grad-hot)");
-clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch).attr("fill", "url(#grad-blue)");
+clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch).attr("fill", "#000000");
 
 // Background tile layer (on top of gradient, below chart content)
 const lTilesBase = clip.append("g").style("pointer-events", "none"); // permanent low-res background
@@ -4374,6 +4371,8 @@ const zoomBehavior = d3.zoom()
           lTiles.attr("transform", tf);
           lTilesBase.attr("transform", tf);
           lContent.attr("transform", tf);
+          lIcons.attr("transform", tf);
+          lClickCapture.attr("transform", tf);
         }
         // CSS transform handles visual update — skip expensive redraw during zoom
         updateReadout(null);
@@ -4387,6 +4386,8 @@ const zoomBehavior = d3.zoom()
     lTiles.attr("transform", null);
     lTilesBase.attr("transform", null);
     lContent.attr("transform", null);
+    lIcons.attr("transform", null);
+    lClickCapture.attr("transform", null);
     redraw();
     if (_isSafari) grainRect.style("display", null);
     updateStartButtonLabel();
