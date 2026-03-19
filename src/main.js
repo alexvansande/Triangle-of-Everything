@@ -445,13 +445,15 @@ const lAxisRef    = lContent.append("g").style("pointer-events", "none").attr("c
 const lLabels     = lContent.append("g").style("pointer-events", "none");
 
 // Film grain noise overlay (paper texture, controlled by Noise slider)
-const grainRect = clip.append("rect")
-  .attr("id", "grain-overlay")
-  .attr("width", cw).attr("height", ch)
-  .attr("fill", "white").attr("opacity", 1.05)
-  .attr("filter", "url(#film-grain)")
-  .style("mix-blend-mode", "overlay")
-  .style("pointer-events", "none");
+// TEMPORARILY DISABLED for testing — uncomment to restore
+// const grainRect = clip.append("rect")
+//   .attr("id", "grain-overlay")
+//   .attr("width", cw).attr("height", ch)
+//   .attr("fill", "white").attr("opacity", 1.05)
+//   .attr("filter", "url(#film-grain)")
+//   .style("mix-blend-mode", "overlay")
+//   .style("pointer-events", "none");
+const grainRect = { attr: () => grainRect, style: () => grainRect }; // stub
 
 // Icon layer: rendered above noise for cleaner visibility
 const lIcons = clip.append("g").style("pointer-events", "none");
@@ -4320,7 +4322,7 @@ function redrawVectorsLight() {
   drawDarkMatterRegions();
   drawConnections();
   drawRegionLabels();
-  if (_bigBangMode) drawObjects(); else drawObjectsFast();
+  drawObjects();
   drawHighlight();
   drawAxes();
   updateMinimap();
@@ -4363,18 +4365,16 @@ const zoomBehavior = d3.zoom()
         if (!_zooming) { rafPending = false; return; }
 
         if (_zoomPrevTransform) {
-          // CSS-transform tiles and icons (images stretch fine during zoom)
+          // CSS-transform background tiles only (images stretch fine during zoom)
           const sk = currentK / _zoomPrevTransform.k;
           const dx = xS(0) - sk * _zoomPrevTransform.xS(0);
           const dy = yS(0) - sk * _zoomPrevTransform.yS(0);
           const tf = `translate(${dx},${dy}) scale(${sk})`;
           lTiles.attr("transform", tf);
           lTilesBase.attr("transform", tf);
-          lContent.attr("transform", tf);
-          lIcons.attr("transform", tf);
-          lClickCapture.attr("transform", tf);
         }
-        // CSS transform handles visual update — skip expensive redraw during zoom
+        // Full SVG redraw every frame for smooth icon/label/grid transitions
+        redrawVectorsLight();
         updateReadout(null);
         rafPending = false;
       });
@@ -4385,9 +4385,6 @@ const zoomBehavior = d3.zoom()
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
     lTilesBase.attr("transform", null);
-    lContent.attr("transform", null);
-    lIcons.attr("transform", null);
-    lClickCapture.attr("transform", null);
     redraw();
     if (_isSafari) grainRect.style("display", null);
     updateStartButtonLabel();
