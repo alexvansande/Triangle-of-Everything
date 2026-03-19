@@ -815,8 +815,6 @@ export const DENSITY_ARROWS = [
   { label: "Life Evolves\non Earth",      logRho: -28.5,  slug: null, priority: 0 },
   // TODO in 1 million years, update this position
   { label: "Now",                         logRho: -29,    slug: null, priority: 2 },
-  { label: "Last Star\nDies",              logYearsFromNow: 15,    slug: null, priority: 1 },
-  { label: "Heat Death of\nthe Universe", logYearsFromNow: 100,   slug: "heat-death", priority: 2 },
 ];
 
 // Liquid water range (blue highlight)

@@ -375,7 +375,7 @@ body.is-mobile #tour-header {
   text-align: center;
   max-width: calc(100vw - 48px);
   bottom: auto;
-  top: 50px;
+  top: 80px;
 }
 
 body.is-mobile #tour-header.tour-hidden {

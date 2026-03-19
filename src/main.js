@@ -52,6 +52,8 @@ const ICON_SLUG_MAP = {
   "w-boson":            "w",
   "z-boson":            "z",
   "laniakea-galaxy-supercluster": "laniakea",
+  "x-and-y-bosons": "x--y-bosons",
+  "water-h2o": "water-h-o",
 };
 // Icons that map to multiple objects (same icon, different slugs)
 const ICON_MULTI_MAP = {
@@ -441,6 +443,8 @@ const lRegLabel   = lContent.append("g");
 const lObj        = lContent.append("g");
 const lHighlight  = lContent.append("g").style("pointer-events", "none");
 const lAxisRef    = lContent.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
+// Label layer inside lContent (so it pans/zooms) but above dots
+const lLabels     = lContent.append("g").style("pointer-events", "none");
 
 // Film grain noise overlay (paper texture, controlled by Noise slider)
 const grainRect = clip.append("rect")
@@ -454,8 +458,9 @@ const grainRect = clip.append("rect")
 // Icon layer: rendered above noise for cleaner visibility
 const lIcons = clip.append("g").style("pointer-events", "none");
 
-// Label layer: rendered above icons so text is always readable
-const lLabels = clip.append("g").style("pointer-events", "none");
+// Click capture layer: transparent rects over icons that intercept clicks
+// before D3-zoom can suppress them. This fixes the persistent click bug.
+const lClickCapture = clip.append("g");
 
 // Big Bang white overlay — sits above everything for the "screen goes white" effect
 const whiteOverlay = clip.append("rect")
@@ -1679,6 +1684,7 @@ function drawObjects() {
   lObj.selectAll("*").remove();
   lIcons.selectAll("*").remove();
   lLabels.selectAll("*").remove();
+  lClickCapture.selectAll("*").remove();
   const d = vd();
   const icoSize = effectiveIconSize();
   const pad = 5;
@@ -2102,6 +2108,46 @@ function drawObjects() {
       g.append("circle").attr("cx", o.sx).attr("cy", o.sy)
         .attr("class", "obj-dot")
         .attr("r", 2.8).attr("fill", o.color).attr("opacity", 0.85);
+    }
+
+    // Click capture: transparent rect over the icon/dot area, above everything
+    if (o._showIcon) {
+      const objIcoSizeCapture = icoSize * (iconSizeMult(o));
+      lClickCapture.append("rect")
+        .attr("x", o.sx - objIcoSizeCapture / 2).attr("y", o.sy - objIcoSizeCapture / 2)
+        .attr("width", objIcoSizeCapture).attr("height", objIcoSizeCapture)
+        .attr("fill", "transparent")
+        .style("cursor", "pointer")
+        .attr("data-obj-slug", o.slug)
+        .on("click", function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          _sidebarManuallyExpanded = false;
+          openSidebar(o);
+          setSidebarOpen(true);
+        })
+        .on("mouseenter", function(e) {
+          const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
+          if (iconEl.size()) {
+            const hoverSize = Math.max(64, icoSize * iconSizeMult(o) * 1.5);
+            iconEl.attr("width", hoverSize).attr("height", hoverSize)
+              .attr("x", o.sx - hoverSize / 2).attr("y", o.sy - hoverSize / 2);
+          }
+          lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", null);
+          showTooltip(e, o, o.cat);
+        })
+        .on("mouseleave", function() {
+          const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
+          if (iconEl.size()) {
+            const objS = icoSize * iconSizeMult(o);
+            iconEl.attr("width", objS).attr("height", objS)
+              .attr("x", o.sx - objS / 2).attr("y", o.sy - objS / 2);
+          }
+          if (!_labelsEnabled || !o._showLabel) {
+            lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", "none");
+          }
+          hideTooltip();
+        });
     }
 
     const pos = o._labelPos;
@@ -3034,7 +3080,7 @@ function openSidebar(obj) {
       <tr><td>Size</td><td>${r}</td></tr>
       <tr><td>Mass</td><td>${m}</td></tr>
       <tr><td>Zone</td><td><span class="sb-zone ${zoneClass}">${zone}</span></td></tr>
-      <tr><td colspan="2" class="sb-log-note">(10<sup>${obj.logR.toFixed(1)}</sup> cm · 10<sup>${obj.logM.toFixed(1)}</sup> g)</td></tr>`;
+      <tr><td colspan="2" class="sb-log-note">(10<sup>${(obj.logR - 2).toFixed(1)}</sup> m · 10<sup>${(obj.logM - 3).toFixed(1)}</sup> kg)</td></tr>`;
   } else if (isBH) {
     rows = `
       <tr><td>Event horizon</td><td>${r}</td></tr>
@@ -4619,9 +4665,9 @@ function updateReadout(event) {
       else if (logM < comptonM(logR)) zone = `<span style="color:#9944ff">quantum forbidden</span>`;
       else zone = `<span style="color:#64ffda">accessible</span>`;
 
-      html = `<div>R ≈ ${rFriendly} &nbsp;(10<sup>${logR.toFixed(1)}</sup> cm)</div>`
-        + `<div>M ≈ ${mFriendly} &nbsp;(10<sup>${logM.toFixed(1)}</sup> g)</div>`
-        + `<div>ρ ≈ 10<sup>${logRho.toFixed(0)}</sup> g/cm³ &nbsp;${zone}</div>`
+      html = `<div>R ≈ ${rFriendly} &nbsp;(10<sup>${(logR - 2).toFixed(1)}</sup> m)</div>`
+        + `<div>M ≈ ${mFriendly} &nbsp;(10<sup>${(logM - 3).toFixed(1)}</sup> kg)</div>`
+        + `<div>ρ ≈ 10<sup>${(logRho + 3).toFixed(0)}</sup> kg/m³ &nbsp;${zone}</div>`
         + `<div style="opacity:0.3; margin-top:3px">${xR}×${yR} decades</div>`;
     }
   }

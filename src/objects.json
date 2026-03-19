@@ -75,7 +75,8 @@
   { "name": "Ladybug",          "logR": -0.46,  "logM": -1.70,  "cat": "macro", "z": 5, "wiki": "Coccinellidae" },
   { "name": "Ant",              "logR": -0.7,   "logM": -3,     "cat": "macro", "z": 5, "wiki": "Ant" },
   { "name": "Flea",             "logR": -1,     "logM": -3.5,   "cat": "macro", "z": 4, "wiki": "Flea" },
-  { "name": "Nickel",           "logR": 0.02,   "logM": 0.70,   "cat": "macro", "z": 5, "wiki": "Nickel_(United_States_coin)" },
+  { "name": "Penny",            "logR": -0.02,  "logM": 0.40,   "cat": "macro", "z": 5, "wiki": "Penny_(United_States_coin)" },
+  { "name": "Soccer Ball",     "logR": 1.04,   "logM": 2.63,   "cat": "macro", "z": 5, "wiki": "Association_football" },
   { "name": "Mouse",            "logR": 0.5,    "logM": 1.3,    "cat": "macro", "z": 5, "wiki": "House_mouse" },
   { "name": "Human",            "logR": 1.7,    "logM": 4.9,    "cat": "macro", "z": 1.5, "wiki": "Human" },
   { "name": "Hippopotamus",     "logR": 1.95,   "logM": 6.50,   "cat": "macro", "z": 4, "_note": "Hippos sink! Placed denser than water (logRho≈0.03) as easter egg", "wiki": "Hippopotamus" },
@@ -189,5 +190,6 @@
   { "name": "Nebulae",          "logR": 18.5,   "logM": 34.0,   "cat": "remnant", "z": 4, "wiki": "Nebula" },
   { "name": "NGC 7538",         "logR": 18.0,   "logM": 34.5,   "cat": "remnant", "z": 3.5, "wiki": "NGC_7538" },
   { "name": "Bubble Nebula",    "logR": 17.7,   "logM": 33.6,   "cat": "remnant", "z": 3.5, "wiki": "NGC_7635" },
-  { "name": "Barnard 68",       "logR": 16.3,   "logM": 33.6,   "cat": "remnant", "z": 3, "wiki": "Barnard_68" }
+  { "name": "Barnard 68",       "logR": 16.3,   "logM": 33.6,   "cat": "remnant", "z": 3, "wiki": "Barnard_68" },
+  { "name": "Heat Death",       "logR": 28.2,   "logM": -65.6,  "cat": "largescale", "z": 1, "wiki": "Heat_death_of_the_universe" }
 ]
