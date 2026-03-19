@@ -47,10 +47,16 @@ const ICON_SLUG_MAP = {
   "ngc7538s-bubble-nebula": "ngc-7538",
   "ngc7635bubble-nebula": "bubble-nebula",
   "observable-universe": "observable-universe",
+  "up-quark":           "up",
+  "smallest-primordial-bh": "primordial-black-hole",
+  "w-boson":            "w",
+  "z-boson":            "z",
+  "laniakea-galaxy-supercluster": "laniakea",
 };
 // Icons that map to multiple objects (same icon, different slugs)
 const ICON_MULTI_MAP = {
   "void": ["bo-tes-void", "eridanus-supervoid", "kbc-void"],
+  "neutrino-tau": ["neutrino"],  // Neutrino (τ) — shares slug with μ
 };
 const iconLoaders = import.meta.glob("../content/icons/*.webp");
 const ICON_BY_SLUG = {};
@@ -84,10 +90,25 @@ let _labelsEnabled = true;
 // Uses log interpolation for a natural "approaching distant object" feel.
 function effectiveIconSize() {
   const minK = 0.3, maxK = 800;
-  const minSize = 16, maxSize = 128;
+  const minSize = 14, maxSize = 115;
   const t = Math.log(Math.max(minK, Math.min(maxK, currentK)) / minK)
           / Math.log(maxK / minK);
   return minSize + (maxSize - minSize) * t;
+}
+// Some objects need a larger icon (e.g. Saturn's rings extend beyond the sphere)
+const ICON_SIZE_MULT = {
+  "saturn": 2,
+  "primordial-black-hole": 2, "3k-bh": 2, "stellar-bh": 2,
+  "sgr-a": 2, "m87": 2, "ton-618": 2,
+};
+
+// Physical size scaling: for every 6 orders of magnitude in real radius,
+// icon grows 10%. Observable universe icons are ~2.5x larger than instanton icons.
+// Centered around logR ≈ -3.5 (midpoint of the full range).
+function iconSizeMult(o) {
+  const logR = o.logR ?? 0;
+  const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
+  return sizeScale * (ICON_SIZE_MULT[o.slug] || 1);
 }
 
 function parseFrontmatter(raw) {
@@ -432,6 +453,9 @@ const grainRect = clip.append("rect")
 
 // Icon layer: rendered above noise for cleaner visibility
 const lIcons = clip.append("g").style("pointer-events", "none");
+
+// Label layer: rendered above icons so text is always readable
+const lLabels = clip.append("g").style("pointer-events", "none");
 
 // Big Bang white overlay — sits above everything for the "screen goes white" effect
 const whiteOverlay = clip.append("rect")
@@ -1654,6 +1678,7 @@ let _lastProjected = [];
 function drawObjects() {
   lObj.selectAll("*").remove();
   lIcons.selectAll("*").remove();
+  lLabels.selectAll("*").remove();
   const d = vd();
   const icoSize = effectiveIconSize();
   const pad = 5;
@@ -1704,6 +1729,21 @@ function drawObjects() {
     const tooClose = visibleDots.some(s => dx2(s) < DOT_MIN_DIST * DOT_MIN_DIST);
     o._showDot = !tooClose;
     if (o._showDot) visibleDots.push(o);
+  });
+
+  // --- Icon overlap: when icons touch, only the highest-priority keeps its icon ---
+  const icoOverlap = icoSize * 1.0; // icons overlap when closer than 70% of icon size
+  const icoOverlap2 = icoOverlap * icoOverlap;
+  const shownIcons = [];
+  projected.forEach(o => {
+    const hasIcon = _iconsEnabled && _iconUrlCache[o.slug];
+    if (!hasIcon || !o._showDot) { o._showIcon = false; return; }
+    const tooClose = shownIcons.some(s => {
+      const dx = s.sx - o.sx, dy = s.sy - o.sy;
+      return dx * dx + dy * dy < icoOverlap2;
+    });
+    o._showIcon = !tooClose;
+    if (o._showIcon) shownIcons.push(o);
   });
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
@@ -2020,24 +2060,24 @@ function drawObjects() {
     // Big Bang mode: apply era-based opacity to entire group
     if (_bigBangMode && o.bbOpacity < 1) g.attr("opacity", o.bbOpacity);
 
-    const hasIcon = _iconsEnabled && _iconUrlCache[o.slug];
-
     // Hit area (invisible circle for clicks)
     g.append("circle").attr("cx", o.sx).attr("cy", o.sy)
       .attr("r", 14).attr("fill", "transparent");
 
-    if (hasIcon) {
+    if (o._showIcon) {
       // Icon rendered in lIcons layer (above noise overlay)
-      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star"]);
+      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole"]);
+      const SCREEN_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
       const isVoid = o.slug.includes("void");
-      const useScreen = SCREEN_CATS.has(o.catKey) && !isVoid;
+      const useScreen = (SCREEN_CATS.has(o.catKey || o.cat) || SCREEN_SLUGS.has(o.slug)) && !isVoid;
       const bbOp = (_bigBangMode && o.bbOpacity < 1) ? o.bbOpacity : null;
+      const objIcoSize = icoSize * (iconSizeMult(o));
 
       // For screen-blended icons, render a soft black disc behind them
       if (useScreen) {
         lIcons.append("circle")
           .attr("cx", o.sx).attr("cy", o.sy)
-          .attr("r", icoSize * 0.52)
+          .attr("r", objIcoSize * 0.52)
           .attr("fill", "url(#icon-bg-grad)")
           .attr("opacity", bbOp);
       }
@@ -2046,10 +2086,10 @@ function drawObjects() {
         .attr("class", "obj-icon")
         .attr("data-slug", o.slug)
         .attr("href", _iconUrlCache[o.slug])
-        .attr("x", o.sx - icoSize / 2)
-        .attr("y", o.sy - icoSize / 2)
-        .attr("width", icoSize)
-        .attr("height", icoSize)
+        .attr("x", o.sx - objIcoSize / 2)
+        .attr("y", o.sy - objIcoSize / 2)
+        .attr("width", objIcoSize)
+        .attr("height", objIcoSize)
         .attr("opacity", bbOp)
         .style("mix-blend-mode", useScreen ? "screen" : null);
     } else {
@@ -2066,26 +2106,27 @@ function drawObjects() {
 
     const pos = o._labelPos;
 
-    // Shadow + Label (always present, but hidden if no space; on hover shows individual name)
-    const shadow = g.append("text")
+    // Shadow + Label rendered in lLabels layer (above icons) so text is always readable
+    const labelDisplay = (_labelsEnabled && o._showLabel) ? null : "none";
+    lLabels.append("text")
       .attr("x", o.sx + pos.dx).attr("y", o.sy + pos.dy)
       .attr("text-anchor", pos.anchor)
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
       .attr("font-size", 10).attr("letter-spacing", "0.5px")
       .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
-      .attr("class", "obj-label")
-      .attr("display", (_labelsEnabled && o._showLabel) ? null : "none")
+      .attr("class", "obj-label").attr("data-label-slug", o.slug)
+      .attr("display", labelDisplay)
       .text(o.name);
 
-    const label = g.append("text")
+    lLabels.append("text")
       .attr("x", o.sx + pos.dx).attr("y", o.sy + pos.dy)
       .attr("text-anchor", pos.anchor)
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
       .attr("font-size", 10).attr("letter-spacing", "0.5px")
       .attr("fill", o.color)
-      .attr("class", "obj-label")
-      .attr("display", (_labelsEnabled && o._showLabel) ? null : "none")
+      .attr("class", "obj-label").attr("data-label-slug", o.slug)
+      .attr("display", labelDisplay)
       .text(o.name);
 
     g.on("click", function(e) {
@@ -2098,27 +2139,29 @@ function drawObjects() {
     g.on("mouseenter", function(e) {
       const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
       if (iconEl.size()) {
-        const hoverSize = Math.max(64, icoSize * 1.5);
+        const objMult = iconSizeMult(o);
+        const hoverSize = Math.max(64, icoSize * objMult * 1.5);
         iconEl.attr("width", hoverSize).attr("height", hoverSize)
           .attr("x", o.sx - hoverSize / 2).attr("y", o.sy - hoverSize / 2);
       } else {
         d3.select(this).select(".obj-glow").attr("r", 10).attr("opacity", 0.25);
         d3.select(this).select(".obj-dot").attr("r", 4);
       }
-      d3.select(this).selectAll(".obj-label").attr("display", null);
+      lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", null);
       showTooltip(e, o, o.cat);
     });
     g.on("mouseleave", function() {
       const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
       if (iconEl.size()) {
-        iconEl.attr("width", icoSize).attr("height", icoSize)
-          .attr("x", o.sx - icoSize / 2).attr("y", o.sy - icoSize / 2);
+        const objIcoSize = icoSize * (iconSizeMult(o));
+        iconEl.attr("width", objIcoSize).attr("height", objIcoSize)
+          .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2);
       } else {
         d3.select(this).select(".obj-glow").attr("r", 6).attr("opacity", 0.1);
         d3.select(this).select(".obj-dot").attr("r", 2.8);
       }
       if (!_labelsEnabled || !o._showLabel) {
-        d3.select(this).selectAll(".obj-label").attr("display", "none");
+        lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", "none");
       }
       hideTooltip();
     });
@@ -4098,6 +4141,7 @@ function drawObjectsFast() {
   lIcons.selectAll("*").remove();
   const pad = 5;
   const fastProjected = [];
+  const shownIconsFast = [];
   const icoSize = effectiveIconSize();
   OBJECTS.forEach(o => {
     if (o.minK && currentK < o.minK) return;
@@ -4118,19 +4162,37 @@ function drawObjectsFast() {
     fastProjected.push({ ...o, sx, sy, _showDot: true });
 
     const hasIcon = _iconsEnabled && _iconUrlCache[o.slug];
+    // Icon overlap check: skip if too close to an already-shown icon
     if (hasIcon) {
-      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star"]);
+      const icoOverlap = icoSize * 1.0;
+      const icoOverlap2 = icoOverlap * icoOverlap;
+      const tooClose = shownIconsFast.some(s => {
+        const dx = s.sx - sx, dy = s.sy - sy;
+        return dx * dx + dy * dy < icoOverlap2;
+      });
+      if (tooClose) { // demote to dot
+        lObj.append("circle").attr("cx", sx).attr("cy", sy).attr("r", 3)
+          .attr("fill", SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff")
+          .attr("opacity", opacity);
+        return;
+      }
+      shownIconsFast.push({ sx, sy });
+    }
+    if (hasIcon) {
+      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole"]);
+      const SCREEN_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
       const isVoid = o.slug.includes("void");
-      const useScreen = SCREEN_CATS.has(o.cat) && !isVoid;
+      const useScreen = (SCREEN_CATS.has(o.cat) || SCREEN_SLUGS.has(o.slug)) && !isVoid;
+      const objIcoSize = icoSize * (iconSizeMult(o));
       if (useScreen) {
         lIcons.append("circle").attr("cx", sx).attr("cy", sy)
-          .attr("r", icoSize * 0.52).attr("fill", "url(#icon-bg-grad)").attr("opacity", opacity);
+          .attr("r", objIcoSize * 0.52).attr("fill", "url(#icon-bg-grad)").attr("opacity", opacity);
       }
       lIcons.append("image")
         .attr("class", "obj-icon").attr("data-slug", o.slug)
         .attr("href", _iconUrlCache[o.slug])
-        .attr("x", sx - icoSize / 2).attr("y", sy - icoSize / 2)
-        .attr("width", icoSize).attr("height", icoSize)
+        .attr("x", sx - objIcoSize / 2).attr("y", sy - objIcoSize / 2)
+        .attr("width", objIcoSize).attr("height", objIcoSize)
         .attr("opacity", opacity)
         .style("mix-blend-mode", useScreen ? "screen" : null);
     } else {

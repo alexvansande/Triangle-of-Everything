@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "tile": "node scripts/tile-image.mjs",
     "fetch-images": "node scripts/fetch-images.mjs",
-    "process-icons": "node scripts/process-icons.mjs"
+    "process-icons": "node scripts/process-icons.mjs",
+    "generate-icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "d3": "^7",
