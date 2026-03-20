@@ -21,7 +21,7 @@
 
 #tour-header {
   position: fixed;
-  bottom: 500px;
+  bottom: 590px;
   left: 120px;
   z-index: 31;
   max-width: 380px;
@@ -222,6 +222,28 @@
   gap: 8px;
   margin-bottom: 10px;
   flex-shrink: 0;
+}
+
+.tour-skip-links {
+  text-align: center;
+  padding: 8px 0 4px;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.tour-skip-links span {
+  display: block;
+  color: rgba(255, 255, 255, 0.35);
+  margin-bottom: 2px;
+}
+.tour-skip-links a {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  cursor: pointer;
+  margin: 0 6px;
+}
+.tour-skip-links a:hover {
+  color: #64ffda;
+  text-decoration: underline;
 }
 
 #tour-prev {

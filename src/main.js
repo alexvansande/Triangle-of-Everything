@@ -53,7 +53,6 @@ const ICON_SLUG_MAP = {
   "z-boson":            "z",
   "laniakea-galaxy-supercluster": "laniakea",
   "x-and-y-bosons": "x--y-bosons",
-  "water-h2o": "water-h-o",
 };
 // Icons that map to multiple objects (same icon, different slugs)
 const ICON_MULTI_MAP = {
@@ -191,6 +190,11 @@ function computeEraOpacities(eraKey) {
 
     // Show by category
     if (era.showCats && era.showCats.includes(o.cat)) {
+      visible = true;
+    }
+
+    // Show by subcategory
+    if (era.showSubcats && era.showSubcats.includes(o.subcat)) {
       visible = true;
     }
 
@@ -2803,7 +2807,7 @@ renderMath(introBody);
 // Retro visitor counter via GoatCounter API
 fetch("https://triangleofeverything.goatcounter.com/counter/TOTAL.json")
   .then(r => r.json())
-  .then(d => { const el = document.getElementById("visitor-count"); if (el) el.textContent = d.count; })
+  .then(d => { document.querySelectorAll("#visitor-count, #visitor-count-tour").forEach(el => { el.textContent = d.count; }); })
   .catch(() => {});
 
 function navigateToObject(slug, name) {

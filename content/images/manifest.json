@@ -502,5 +502,119 @@
     "credit": "NASA, ESA, and the Hubble Heritage Team (STScI/AURA)-ESA/Hubble Collaboration",
     "license": "Public domain",
     "source": "https://commons.wikimedia.org/wiki/File:LH_95.jpg"
+  },
+  "higgs": {
+    "file": "higgs.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/7/79/Candidate_Higgs_Events_in_ATLAS_and_CMS.png"
+  },
+  "top": {
+    "file": "top.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Top_antitop_quark_event.svg/960px-Top_antitop_quark_event.svg.png"
+  },
+  "electron": {
+    "file": "electron.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/3/35/Atomic-orbital-clouds_spd_m0.png"
+  },
+  "gamma-ray": {
+    "file": "gamma-ray.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Gamma_radiation_%28alternative%29.svg/250px-Gamma_radiation_%28alternative%29.svg.png"
+  },
+  "x-ray": {
+    "file": "x-ray.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Color_X-ray_photogram.jpg"
+  },
+  "ultraviolet": {
+    "file": "ultraviolet.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/6/67/Pipefitter_welder_kutzo.jpg"
+  },
+  "visible-light": {
+    "file": "visible-light.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Light_dispersion_of_a_mercury-vapor_lamp_with_a_flint_glass_prism_IPNr%C2%B00125.jpg"
+  },
+  "infrared": {
+    "file": "infrared.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Ir_girl.png"
+  },
+  "microwave": {
+    "file": "microwave.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Frazier_Peak%2C_tower_and_Honda_Element.jpg"
+  },
+  "fm-radio": {
+    "file": "fm-radio.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Amfm3-en-de.gif"
+  },
+  "am-radio": {
+    "file": "am-radio.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Amfm3-en-de.gif/250px-Amfm3-en-de.gif"
+  },
+  "proton": {
+    "file": "proton.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Quark_structure_proton.svg/960px-Quark_structure_proton.svg.png"
+  },
+  "neutron": {
+    "file": "neutron.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Quark_structure_neutron.svg/960px-Quark_structure_neutron.svg.png"
+  },
+  "neutrino-mu": {
+    "file": "neutrino-mu.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/FirstNeutrinoEventAnnotated.jpg/500px-FirstNeutrinoEventAnnotated.jpg"
+  },
+  "z": {
+    "file": "z.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Beta-minus_Decay.svg/250px-Beta-minus_Decay.svg.png"
+  },
+  "w": {
+    "file": "w.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Beta-minus_Decay.svg/250px-Beta-minus_Decay.svg.png"
+  },
+  "tau": {
+    "file": "tau.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Tau_lepton.svg/120px-Tau_lepton.svg.png"
+  },
+  "charm": {
+    "file": "charm.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Charm_quark.svg/120px-Charm_quark.svg.png"
+  },
+  "meson": {
+    "file": "meson.webp",
+    "credit": "Unknown",
+    "license": "Unknown",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Meson_nonet_-_spin_0.svg/960px-Meson_nonet_-_spin_0.svg.png"
   }
 }

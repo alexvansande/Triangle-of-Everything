@@ -257,14 +257,37 @@ function renderStep() {
     els.text.innerHTML = markdownToHtml(step.text);
     els.text.scrollTop = 0;
 
-    // Intro step: taller box, hide prev + dots, CTA style
+    // Intro step: taller box, hide prev + dots, CTA style + skip links
     if (step.isIntro) {
       els.box.classList.add("tour-intro");
       els.prev.style.display = "none";
       els.dots.style.display = "none";
       els.nextLabel.textContent = step.nextLabel || "Start Tour";
       els.nextLabel.classList.add("tour-cta");
+
+      // Add "skip to" links below CTA
+      let skipEl = els.box.querySelector(".tour-skip-links");
+      if (!skipEl) {
+        skipEl = document.createElement("div");
+        skipEl.className = "tour-skip-links";
+        skipEl.innerHTML = `<span>Or skip to</span>
+          <a data-step="3">Planets & Stars</a>
+          <a data-step="10">Microscopic World</a>
+          <a data-step="16">The Big Bang</a>
+          <a data-step="24">Credits</a>`;
+        skipEl.querySelectorAll("a[data-step]").forEach(a => {
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            goToStep(parseInt(a.dataset.step));
+          });
+        });
+        els.nextLabel.parentElement.insertAdjacentElement("afterend", skipEl);
+      }
+      skipEl.style.display = "";
     } else {
+      // Hide skip links on non-intro steps
+      const skipEl = els.box.querySelector(".tour-skip-links");
+      if (skipEl) skipEl.style.display = "none";
       els.box.classList.remove("tour-intro");
       els.prev.style.display = "";
       els.dots.style.display = "";

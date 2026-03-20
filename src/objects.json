@@ -38,7 +38,7 @@
   { "name": "Uranium",          "logR": -7.81,  "logM": -21.40, "cat": "atomic", "subcat": "atom", "z": 3, "wiki": "Uranium" },
   { "name": "Oganesson",        "logR": -7.82,  "logM": -21.31, "cat": "atomic", "subcat": "atom", "z": 5, "wiki": "Oganesson" },
 
-  { "name": "Water (H₂O)",     "logR": -7.85,  "logM": -22.52, "cat": "atomic", "subcat": "molecule", "z": 1, "wiki": "Water" },
+  { "name": "Water (H₂O)",     "logR": -7.85,  "logM": -22.52, "cat": "atomic", "subcat": "molecule", "z": 1, "wiki": "Water", "slug": "water-h2o" },
   { "name": "Glucose",          "logR": -7.43,  "logM": -21.52, "cat": "atomic", "subcat": "molecule", "z": 5, "wiki": "Glucose" },
   { "name": "Fullerene C₆₀",   "logR": -7.30,  "logM": -20.92, "cat": "atomic", "subcat": "molecule", "z": 5, "wiki": "Buckminsterfullerene" },
   { "name": "ATP",              "logR": -7.10,  "logM": -21.07, "cat": "atomic", "subcat": "molecule", "z": 5, "wiki": "Adenosine_triphosphate" },
@@ -122,7 +122,7 @@
   { "name": "Uranus",           "logR": 9.41,   "logM": 28.94,  "cat": "planet", "subcat": "gas_giant", "z": 3, "wiki": "Uranus" },
   { "name": "Neptune",          "logR": 9.39,   "logM": 29.01,  "cat": "planet", "subcat": "gas_giant", "z": 3, "wiki": "Neptune" },
   { "name": "Saturn",           "logR": 9.77,   "logM": 29.75,  "cat": "planet", "subcat": "gas_giant", "z": 1.5, "wiki": "Saturn" },
-  { "name": "Jupiter",          "logR": 9.84,   "logM": 30.28,  "cat": "planet", "subcat": "gas_giant", "z": 0.5, "wiki": "Jupiter" },
+  { "name": "Jupiter",          "logR": 9.84,   "logM": 30.28,  "cat": "planet", "subcat": "gas_giant", "z": 0.8, "wiki": "Jupiter" },
   { "name": "Beta Pictoris b",  "logR": 10.0,   "logM": 30.6,   "cat": "planet", "subcat": "exoplanet", "z": 4, "wiki": "Beta_Pictoris_b" },
 
   { "name": "Y Brown Dwarf",    "logR": 9.84,   "logM": 31.18,  "cat": "star", "subcat": "brown_dwarf", "z": 5, "wiki": "Brown_dwarf#Y_dwarf" },
@@ -132,7 +132,7 @@
   { "name": "Proxima Cen",      "logR": 10.01,  "logM": 32.39,  "cat": "star", "subcat": "red_dwarf", "z": 3, "wiki": "Proxima_Centauri" },
   { "name": "Red Dwarf",        "logR": 9.95,   "logM": 32.10,  "cat": "star", "subcat": "red_dwarf", "z": 2, "wiki": "Red_dwarf" },
   { "name": "T Tauri",          "logR": 11.14,  "logM": 33.00,  "cat": "star", "z": 4, "wiki": "T_Tauri" },
-  { "name": "Sun",              "logR": 10.84,  "logM": 33.30,  "cat": "star", "z": 0.5, "wiki": "Sun" },
+  { "name": "Sun",              "logR": 10.84,  "logM": 33.30,  "cat": "star", "z": 0.1, "wiki": "Sun" },
   { "name": "Alpha Centauri A", "logR": 10.94,  "logM": 33.34,  "cat": "star", "z": 4, "wiki": "Alpha_Centauri" },
   { "name": "Subgiant (Procyon A)", "logR": 11.15, "logM": 33.47, "cat": "star", "z": 4, "wiki": "Procyon" },
   { "name": "Sirius A",         "logR": 11.07,  "logM": 33.61,  "cat": "star", "z": 3, "wiki": "Sirius" },
