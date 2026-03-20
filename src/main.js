@@ -2998,7 +2998,9 @@ function openSidebar(obj) {
   const logNote = `(10<sup>${logR_m >= 0 ? logR_m.toFixed(1) : logR_m.toFixed(1)}</sup> m · 10<sup>${logM_kg >= 0 ? logM_kg.toFixed(1) : logM_kg.toFixed(1)}</sup> kg)`;
 
   let zone, zoneClass;
-  if (obj.logM > schwarzschildM(obj.logR)) {
+  if (obj.logR > DE_SITTER_LOG_R) {
+    zone = "Beyond cosmic horizon"; zoneClass = "desitter";
+  } else if (obj.logM > schwarzschildM(obj.logR)) {
     zone = "Gravity forbidden"; zoneClass = "gravity";
   } else if (obj.logM < comptonM(obj.logR)) {
     zone = "Quantum forbidden"; zoneClass = "quantum";
@@ -4257,6 +4259,29 @@ function updateClickTargets() {
       clickTargetContainer.appendChild(div);
     } catch(e) { /* getBBox can fail on hidden elements */ }
   });
+
+  // Dark matter region click targets: overlay on the "POSSIBLE AREAS" label and region polygons
+  lDarkMatter.selectAll("text, polygon.dm-region").each(function() {
+    try {
+      const bbox = this.getBBox();
+      if (bbox.width < 2 || bbox.height < 2) return;
+      const div = document.createElement("div");
+      div.className = "click-target";
+      div.style.left = (bbox.x + margin.left - 2) + "px";
+      div.style.top = (bbox.y + margin.top - 2) + "px";
+      div.style.width = (bbox.width + 4) + "px";
+      div.style.height = (bbox.height + 4) + "px";
+      div.style.cursor = "pointer";
+
+      div.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+        setSidebarOpen(true);
+      });
+
+      clickTargetContainer.appendChild(div);
+    } catch(e) {}
+  });
 }
 
 function redrawVectors() {
@@ -4826,7 +4851,8 @@ function updateReadout(event) {
 
       // Zone indicator
       let zone = "";
-      if (logM > schwarzschildM(logR)) zone = `<span style="color:#ff3355">gravity forbidden</span>`;
+      if (logR > DE_SITTER_LOG_R) zone = `<span style="color:#ff9900">unreachable</span>`;
+      else if (logM > schwarzschildM(logR)) zone = `<span style="color:#ff3355">gravity forbidden</span>`;
       else if (logM < comptonM(logR)) zone = `<span style="color:#9944ff">quantum forbidden</span>`;
       else zone = `<span style="color:#64ffda">accessible</span>`;
 

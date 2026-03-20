@@ -38,7 +38,7 @@
   { "name": "Uranium",          "logR": -7.81,  "logM": -21.40, "cat": "atomic", "subcat": "atom", "z": 3, "wiki": "Uranium" },
   { "name": "Oganesson",        "logR": -7.82,  "logM": -21.31, "cat": "atomic", "subcat": "atom", "z": 5, "wiki": "Oganesson" },
 
-  { "name": "Water (H₂O)",     "logR": -7.85,  "logM": -22.52, "cat": "atomic", "subcat": "molecule", "z": 5, "wiki": "Water" },
+  { "name": "Water (H₂O)",     "logR": -7.85,  "logM": -22.52, "cat": "atomic", "subcat": "molecule", "z": 1, "wiki": "Water" },
   { "name": "Glucose",          "logR": -7.43,  "logM": -21.52, "cat": "atomic", "subcat": "molecule", "z": 5, "wiki": "Glucose" },
   { "name": "Fullerene C₆₀",   "logR": -7.30,  "logM": -20.92, "cat": "atomic", "subcat": "molecule", "z": 5, "wiki": "Buckminsterfullerene" },
   { "name": "ATP",              "logR": -7.10,  "logM": -21.07, "cat": "atomic", "subcat": "molecule", "z": 5, "wiki": "Adenosine_triphosphate" },

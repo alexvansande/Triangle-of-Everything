@@ -5,3 +5,5 @@ Roughly 85% of the universe's mass is dark matter, yet its fundamental nature re
 **MACHOs** (Massive Astrophysical Compact Halo Objects) — including primordial black holes and brown dwarfs — occupy the stellar mass range along the Schwarzschild line. Microlensing surveys such as EROS and OGLE have ruled out MACHOs as the dominant dark matter component for most of the stellar mass window, though a subpopulation of primordial black holes in certain mass ranges remains viable.
 
 **Macro Dark Matter** occupies the vast and largely unexplored region between atomic and nuclear density near the Schwarzschild line. Two mass windows remain open to macroscopic dark matter candidates: from $\sim 55$ g to $\sim 10^{17}$ g, and from $\sim 2 \times 10^{20}$ g to $\sim 4 \times 10^{24}$ g, having evaded constraints from gravitational lensing, ancient mica track searches, and other detection methods.
+
+Based on ["Macro Dark Matter"](https://doi.org/10.1093/mnras/stv774) by David M. Jacobs, Glenn D. Starkman, and Bryan W. Lynn (2015), which mapped these exclusion windows on a mass–radius diagram — the same coordinate space used in this chart.

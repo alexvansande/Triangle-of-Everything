@@ -66,7 +66,7 @@ function computeTriangleFitView(hubbleLogR) {
 }
 
 // ---- Constants ----
-const MAX_VISIBLE_DOTS = 7;
+const MAX_VISIBLE_DOTS = 13;
 
 // ---- State ----
 let _tourActive = false;
@@ -102,10 +102,11 @@ export function initTour({ zoomToRegion, vd, animateBigBang, exitBigBang, isBigB
     startLabel:  document.getElementById("tour-start-label"),
   };
 
-  // Build progress dots
-  TOUR_STEPS.forEach((_, i) => {
+  // Build progress dots with hover tooltips
+  TOUR_STEPS.forEach((step, i) => {
     const dot = document.createElement("span");
     dot.className = "tour-dot";
+    dot.title = step.title || step.id;
     dot.addEventListener("click", () => goToStep(i));
     els.dots.appendChild(dot);
   });

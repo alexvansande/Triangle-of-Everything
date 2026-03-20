@@ -264,7 +264,7 @@ const TOUR_META = [
     id: "future",
     title: "The Future",
     nextLabel: "The Far Future",
-    view: null,
+    view: { x: [0, 30], y: [0, 58] },  // humans to observable universe
     highlightObjects: [],
     contextLabel: null,
     bigBang: { era: "future", duration: 5000 },
@@ -273,7 +273,7 @@ const TOUR_META = [
     id: "far-future",
     title: "The Far Future",
     nextLabel: "Heat Death",
-    view: null,
+    view: { x: [5, 30], y: [25, 58] },  // stars to de Sitter line, galaxies fading
     highlightObjects: [],
     contextLabel: null,
     bigBang: { era: "far-future", duration: 5000 },
