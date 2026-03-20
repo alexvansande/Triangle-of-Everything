@@ -120,6 +120,16 @@ export function initTour({ zoomToRegion, vd, animateBigBang, exitBigBang, isBigB
   // Mobile swipe on tour box
   setupSwipe(els.box);
 
+  // Check for #tour= hash to jump to a specific step
+  const tourHash = window.location.hash.match(/tour=([a-z-]+)/);
+  if (tourHash) {
+    const stepIndex = TOUR_STEPS.findIndex(s => s.id === tourHash[1]);
+    if (stepIndex >= 0) {
+      setTimeout(() => startTour(stepIndex), 1000);
+      return;
+    }
+  }
+
   // Always auto-show tour after intro animation
   setTimeout(() => {
     if (!_tourActive) startTour(0, true);
@@ -212,6 +222,13 @@ function onStartButtonClick() {
   }
 }
 
+function saveTourHash() {
+  const step = TOUR_STEPS[_tourStep];
+  if (step && step.id && step.id !== "intro") {
+    history.replaceState(null, "", "#tour=" + step.id);
+  }
+}
+
 function nextStep() {
   if (_tourStep >= TOUR_STEPS.length - 1) {
     closeTour();
@@ -220,6 +237,7 @@ function nextStep() {
   _tourStep++;
   renderStep();
   navigateToStep(_tourStep);
+  saveTourHash();
 }
 
 function prevStep() {
@@ -227,6 +245,7 @@ function prevStep() {
     _tourStep--;
     renderStep();
     navigateToStep(_tourStep);
+    saveTourHash();
   }
 }
 
@@ -235,6 +254,7 @@ function goToStep(index) {
     _tourStep = index;
     renderStep();
     navigateToStep(_tourStep);
+    saveTourHash();
   }
 }
 
@@ -271,10 +291,10 @@ function renderStep() {
         skipEl = document.createElement("div");
         skipEl.className = "tour-skip-links";
         skipEl.innerHTML = `<span>Or skip to</span>
-          <a data-step="3">Planets & Stars</a>
-          <a data-step="10">Microscopic World</a>
-          <a data-step="16">The Big Bang</a>
-          <a data-step="24">Credits</a>`;
+          <a data-step="4">Planets & Stars</a>
+          <a data-step="11">Microscopic World</a>
+          <a data-step="17">The Big Bang</a>
+          <a data-step="27">Credits</a>`;
         skipEl.querySelectorAll("a[data-step]").forEach(a => {
           a.addEventListener("click", (e) => {
             e.preventDefault();
