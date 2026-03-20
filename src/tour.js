@@ -164,7 +164,7 @@ export function updateStartButtonLabel() {
 
 // ---- Internal ----
 
-function startTour(stepIndex, skipNav) {
+export function startTour(stepIndex, skipNav) {
   _tourActive = true;
   _tourStep = stepIndex;
 

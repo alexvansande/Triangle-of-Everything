@@ -159,4 +159,4 @@ Additional references: ["Macro Dark Matter"](https://doi.org/10.1093/mnras/stv77
 
 All work is licensed under Creative Commons 3.0 unless otherwise specified.
 
-To support this project you can buy a [physical poster](https://vandesande.design/products/poster) or donate to [Wikipedia](https://donate.wikimedia.org/). You can also help improve it by enhancing the text, reporting issues, or contributing code on [GitHub](https://github.com/alexvansande/Triangle-of-Everything).
+To support this project you can buy a [physical poster](https://vandesande.design/products/poster) or donate to [Wikipedia](https://donate.wikimedia.org/). You can also help improve it by enhancing the text, reporting issues, or contributing code on [GitHub](https://github.com/alexvansande/Triangle-of-Everything). Analytics by [GoatCounter](https://triangleofeverything.goatcounter.com).

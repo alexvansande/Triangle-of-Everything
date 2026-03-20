@@ -10,7 +10,7 @@ import {
 import objectsData from "./objects.json";
 import introRaw from "./texts/intro.md?raw";
 import "./style.css";
-import { initTour, onObjectClick, updateStartButtonLabel } from "./tour.js";
+import { initTour, onObjectClick, updateStartButtonLabel, startTour } from "./tour.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -2755,7 +2755,9 @@ function simpleMarkdown(md) {
     })
     .join("\n");
 
-  if (meta.navigate && meta.button) {
+  if (meta.action === "start-tour" && meta.button) {
+    html += `\n<a class="internal-nav" data-action="start-tour">${meta.button.trim()} →</a>`;
+  } else if (meta.navigate && meta.button) {
     const nav = meta.navigate.trim();
     const label = meta.button.trim();
     if (meta.zoom) {
@@ -2798,6 +2800,12 @@ const introBody = document.getElementById("intro-body");
 introBody.innerHTML = simpleMarkdown(introRaw);
 renderMath(introBody);
 
+// Retro visitor counter via GoatCounter API
+fetch("https://triangleofeverything.goatcounter.com/counter/TOTAL.json")
+  .then(r => r.json())
+  .then(d => { const el = document.getElementById("visitor-count"); if (el) el.textContent = d.count; })
+  .catch(() => {});
+
 function navigateToObject(slug, name) {
   const obj = OBJECTS.find(o => o.slug === slug);
   if (obj) {
@@ -2820,6 +2828,11 @@ sidebarEl.addEventListener("click", (e) => {
   const link = e.target.closest(".internal-link, .internal-nav");
   if (!link) return;
   e.preventDefault();
+  if (link.dataset.action === "start-tour") {
+    setSidebarOpen(false);
+    startTour(0);
+    return;
+  }
   const slug = link.dataset.slug;
   const name = link.dataset.name;
   const zoom = link.dataset.zoom;

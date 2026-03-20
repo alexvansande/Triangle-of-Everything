@@ -1,7 +1,7 @@
 ---
 zoom: 0.8, 3.0, 10
-navigate: whats-this
-button: "What's this?"
+action: start-tour
+button: "Start the tour"
 ---
 
 Anything that ever existed can be plotted in this chart.
@@ -35,5 +35,7 @@ To support this work, [buy a poster](https://vandesande.design/products/poster),
 Visual Design by [Alex Van de Sande](https://vandesande.design)
 
 Creative Commons CC-BY 3.0
+
+<span class="visitor-counter">You are visitor #<span id="visitor-count">...</span> · <a href="https://triangleofeverything.goatcounter.com" target="_blank" rel="noopener">Full stats</a></span>
 
 </div>

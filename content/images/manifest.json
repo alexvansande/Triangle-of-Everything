@@ -449,12 +449,6 @@
     "license": "Fair use",
     "source": "https://en.wikipedia.org/wiki/File:Moon%27s_shadow_in_muons.gif"
   },
-  "cmb-photon": {
-    "file": "cmb-photon.webp",
-    "credit": "NASA, ESA, J. Hester and A. Loll (Arizona State University)",
-    "license": "Public domain",
-    "source": "https://commons.wikimedia.org/wiki/File:Crab_Nebula.jpg"
-  },
   "helium": {
     "file": "helium.webp",
     "credit": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
@@ -484,5 +478,29 @@
     "credit": "Unknown",
     "license": "Public domain",
     "source": "https://commons.wikimedia.org/wiki/File:Square-planar-3D-balls.png"
+  },
+  "dna": {
+    "file": "dna.webp",
+    "credit": "Zephyris",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:DNA_Structure%2BKey%2BLabelled.pn_NoBB.png"
+  },
+  "big-bang": {
+    "file": "big-bang.webp",
+    "credit": "NASA/WMAP Science Team",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:CMB_Timeline300_no_WMAP.jpg"
+  },
+  "sgr-a": {
+    "file": "sgr-a.webp",
+    "credit": "EHT Collaboration",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:EHT_Saggitarius_A_black_hole.tif"
+  },
+  "protostar": {
+    "file": "protostar.webp",
+    "credit": "NASA, ESA, and the Hubble Heritage Team (STScI/AURA)-ESA/Hubble Collaboration",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:LH_95.jpg"
   }
 }
