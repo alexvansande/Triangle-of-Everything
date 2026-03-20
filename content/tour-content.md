@@ -14,23 +14,23 @@ One liter of water is, by its own metric definition, a cube 10cm wide and weighs
 
 ## density
 
-Objects with constant density fall along diagonal lines, and these increase by 1000x at every square, so it shouldn't be surprising that most objects fall near the diagonal water line. This line also tells a simple story: objects to its left will sink, and objects to the right will float. Notice that the Hippo is slightly to the left of the line: they can't actually swim, but rather they just walk along the bottom of rivers.
+Objects with constant density fall along diagonal lines, and these increase by 1000x at every square, so it shouldn't be surprising that most objects fall near the diagonal water line. This line also tells a simple story: objects to its left will sink, and objects to its right will float. Notice that the hippo is slightly to the left of the line: they can't actually swim, but rather just walk along the bottom of rivers.
 
 ## human-to-planets
 
 Moving upward, we leave human-made objects and encounter mountains, icebergs, and asteroids. As objects grow, gravity becomes stronger than molecular bonds and larger bodies become round. Beyond a certain size, objects behave like fluids and naturally form spheres — this is one of the conditions for being a planet!
 
-Notice that in this area we see a mix of asteroids, moons and dwarf planets and some asteroids. Their only difference is where they orbit, not what they are. As mass increases further, objects begin to retain atmospheres. With more mass, atmospheres thicken, until there is no solid surface — only gas giants.
+Notice that in this area we see a mix of asteroids, moons and dwarf planets. Their only difference is where they orbit, not what they are. As mass increases further, objects begin to retain atmospheres. With more mass, atmospheres thicken, until there is no solid surface — only gas giants.
 
 Earth sits in a narrow range: enough gravity to hold an atmosphere, but not enough to crush everything under extreme pressure.
 
 ## planets-to-stars
 
-As mass increases further, the pressures start turning ordinary matter into degenerate matter and objects swerve left from the water line. Eventually the pressure is so large atoms themselves break, releasing an enormous amount of energy and expanding the object again — it's now a star!
+As mass increases further, the pressures start turning ordinary matter into degenerate matter and objects swerve left from the water line. Eventually the pressure is so large that atoms themselves break, releasing an enormous amount of energy and expanding the object again — it's now a star!
 
 ## stellar-evolution
 
-Stars spend most of their lives in the Main Sequence line. When fusion fuel runs out, gravity takes over. Stars expand and contract, becoming red giants. Many end in supernovae, leaving a remnant behind, depending on their size: from White dwarfs to Neutron stars to Black holes.
+Stars spend most of their lives on the main sequence. When fusion fuel runs out, gravity takes over. Stars expand and contract, becoming red giants. Many end in supernovae, leaving a remnant behind, depending on their size: from white dwarfs to neutron stars to black holes.
 
 ## stellar-cycle
 
@@ -38,9 +38,9 @@ Supernovae spread material into space, forming nebulae. These clouds mix, collap
 
 ## black-holes
 
-There is a limit to how large stable objects can be. Beyond a certain point, gravity overwhelms all forces. This defines the Schwarzschild radius. Any object crossing this boundary becomes a black hole. Black holes can be of any size although the conditions to make one are very specific. A large star can collapse into one, and black holes can merge into larger and larger ones.
+There is a limit to how large stable objects can be. Beyond a certain point, gravity overwhelms all forces. This defines the Schwarzschild radius. Any object crossing this boundary becomes a black hole. Black holes can be of any size, although the conditions to make one are very specific. A large star can collapse into one, and black holes can merge into larger and larger ones.
 
-In the early moments of the big bang the conditions were right to create black holes smaller than a star. If those have indeed formed, most would have evaporated by now, but a few could still be around. Those extraordinary objects would have the mass of a small asteroid compressed to the size of an atom — they would be nearly impossible to detect but their gravity could still be felt. Which is why they make some interesting candidates for explaining Dark Matter.
+In the early moments of the Big Bang, the conditions were right to create black holes smaller than a star. If those have indeed formed, most would have evaporated by now, but a few could still be around. Those extraordinary objects would have the mass of a small asteroid compressed to the size of an atom — they would be nearly impossible to detect but their gravity could still be felt. Which is why they make some interesting candidates for explaining Dark Matter.
 
 ## dark-matter
 
@@ -48,9 +48,10 @@ At larger scales, structures shift dramatically. Galaxies and clusters are shape
 
 ## largest
 
-Superclusters, like the Laniakea are among the largest structures we can detect. These are giant strands made of groups of galaxies. The gaps they enclose around could be considered even larger structures — except for the fact they're mostly interesting for the fact they have nothing in them.
+Superclusters, like Laniakea, are among the largest structures we can detect. These are giant strands made of groups of galaxies. The gaps they enclose could be considered even larger structures — except they're mostly interesting for the fact that they have nothing in them.
 
-And of course the largest thing we can see is the universe itself. Our observable universe is a sphere of everything that can affect us in any way. There is most certainly more universe outside of it, but anything beyond this little bubble is just unknowable forever. Interestingly, the total mass of the universe puts it right on the Schwarzschild Line — is it a black hole? It might be a coincidence (after all it wasn't always there) but it might tell us something interesting also.
+And of course the largest thing we can see is the universe itself. Our observable universe is a sphere of everything that can affect us in any way. There is most certainly more universe outside of it, but anything beyond this little bubble is just unknowable forever. Interestingly, the total mass of the universe puts it right on the Schwarzschild line — is it a black hole? It might be a coincidence (after all it wasn't always there) but it might tell us something interesting also.
+
 
 ## microscopic
 
@@ -64,23 +65,28 @@ The Compton wavelength sets a limit: below this, attempts to localize an object 
 
 ## em-spectrum
 
-Going down the Compton line we will find the Electromagnetic Spectrum. It starts at the Gamma Rays, the energy generated by matter decaying, and as it gets less energetic it becomes X-rays, ultraviolets, visible light, infrared, microwave and radios.
+Going down the Compton line we find the electromagnetic spectrum. It starts at gamma rays, the energy generated by matter decaying, and as it gets less energetic it becomes X-rays, ultraviolet, visible light, infrared, microwave and radio waves.
 
 The temperature range where water can be liquid is the range where most everyday phenomena can be seen. This is why fire emits warmth (infrared) and light.
 
 ## particle-physics
 
-As we increase the energy of any system, matter transforms, like an ice cube melting or water becoming vapor. The same happens to particles. As the energy increases, some particles stop existing and shift into other states of energy. The highest temperature ever matched in a lab was at the LHC where we were able to recreate the conditions of the Higgs boson and confirm that at these ranges, the electromagnetic and weak forces merge into a single, "electroweak" force.
+As we increase the energy of any system, matter transforms, like an ice cube melting or water becoming vapor. Liquid water can only exist in a small range of temperature and pressure - yet it works as the solvent of many chemical reactions, and is the medium that allowed life (as we know it!) to be possible. Water mediates life even thou it doesn't participate on it, and it allows the existence of forces – like buoyancy or hidrodynamics – that simply don't exist without it. 
+
+Likewise, Bosons mediate other fundamental forces, and allow quarks and leptons to interact and form larger particles like Protons and Neutrons (Hadrons). Yet these particles can only also exist in a specific energetic range – too hot and they "melt" away, too cold and they "freeze" and stop mediating other forces. As we increase the energy in our system, these particles and the forces they mediate will change. 
+
 
 ## lab-limits
 
-At even higher temperatures, we are way beyond our capability, so we only have theory. It is believed that all forces except gravity unify. Hypothetical particles like X and Y bosons might appear in this regime. Beyond that, not even our theories can reach.
+Unless there are some alien physicists in the stars, then the hottest and coldest spots in the universe in recent years happened right here on Earth — in a lab. These are extreme conditions of temperature and pressure and have allowed us to recreate the early moments of the universe and to synthetize particles like the Higgs Boson, confirming some of our theories about how these particles interact and decay. At these temperatures, the eletromagnetic force and the weak force are not separate forces, but one unified force, we called the "eletroweak" force. 
 
 ## theoretical
 
-Unless there are some alien scientists somewhere, then the hottest and coldest spots in the universe in recent years happened right here on Earth — in a lab. These conditions do not occur naturally anywhere in the universe right now. Many of them are beyond anything we could even build.
+These high temperatures are many orders of magnitudes beyond our engineering capability, so we can't confirm what happens yet – but we still have some solid theories on what we expect. At the very top, it is believed that even high energy particles like the Top Quark and the Higgs Boson just "evaporate" and can't exist, taking with them many of the properties they allow. When energy levels reach ten trillion trillion Kelvin, a new particle is believed to emerge, called the X & Y Boson, that would unify all the remaining forces except gravity into one.
 
-But these conditions once filled the entire universe, right at the beginning... and it's there we will go now.
+At even higher levels of that we reach the Planck Temperature at which even our theory breaks down. It's a pressure level so large that we see the emergence of Instantons, a theoretical particle so dense and heavy that their compton wavelength reaches the schwarzchild radius, meaning both quantum physics and special relativity forbids it from existing. We have no idea what would happen – literally our understanding of the very concept of energy, time and space breaks down and becomes meaningless. But it's possible that gravity itself is unified with the other forces, that the very distinction between force and particle becomes meaningless and even spacetime ceases to exist.
+
+These conditions do not occur naturally anywhere in the universe right now. But these conditions once filled the entire universe, right at the beginning... and it's there we will go now.
 
 *What happens in the very beginning of the universe is beyond what any model can fully describe. What follows is necessarily speculative.*
 
@@ -94,6 +100,8 @@ Gravity separates from the others, and the universe starts creating space betwee
 
 The very first force to separate at the Big Bang was gravity, leading to the very emergence of time. For a very brief period, all remaining forces were one. For a fraction of a fraction of a second, a few billion Planck time units, it was still incomprehensibly hot and dense. As it expanded and cooled down, one first particle condenses from that hot mess: the XY Boson. For some reason, its own internal forces are stronger than the forces pushing all the universe into the new spaces being formed all around it.
 
+“The whole history of the universe can be understood as a sequence of condensations” – Charles Lineweaver, physicist
+
 ## electroweak
 
 The universe is now a dense hot plasma of relativistic particles, a soup of quarks and gluons. It's a period of rapid expansion and cooling. Out of the plasma condense new particles like the top quarks and the Higgs boson and the W and Z bosons, and they contribute to creating entirely new fundamental forces.
@@ -102,7 +110,9 @@ The unified electroweak force splits into electromagnetism and the weak nuclear 
 
 ## nuclear
 
-As the universe cools even more it starts behaving more like a liquid. As the binding energy of the strong force overcomes the background energy, protons and neutrons remain behind as the universe around them becomes less and less dense. These then mix together to combine into the first nuclei of hydrogen, helium and lithium.
+As the universe cools even more it starts behaving more like a liquid. As the binding energy of the strong force overcomes the background energy, quarks remain together as the universe around it becomes less dense, forming the first hadrons – protons and neutrons. 
+
+In just a few minutes, the universe becomes as dense as gas and these protons and neutrons will stay together as the first atoms of hidrogen, helium and some traces of tritium.
 
 ## recombination
 
@@ -111,8 +121,6 @@ As the density decreases further, photons start being able to freely flow for th
 ## atomic-era
 
 The universe is becoming ever more tenuous. Chemical bonds become stronger than the kinetic energy of atoms and they stabilize into the first molecules. These molecules become clouds, which then eventually collapse into stars and galaxies. This is the beginning of the universe as we know it.
-
-CLAUDE: I rephrased "New forces appear" since chemical bonds are electromagnetic (a force that already existed) — it's really that conditions are now cool enough for bonds to be stable. Please check if the new phrasing works for your tone.
 
 ## now
 
@@ -124,13 +132,12 @@ Everything you see around you — every person, every building, every blade of g
 
 In about 5 billion years the Sun will exhaust its hydrogen fuel, swell into a red giant and engulf the inner planets. The Earth and everything on it will be gone. But the gas giants will survive, drifting silently around a fading white dwarf.
 
-CLAUDE: The Sun won't go supernova — it's too small. It will become a red giant, shed its outer layers as a planetary nebula, and leave a white dwarf behind. I've rewritten this section accordingly. Please verify the tone works for you.
-
 ## far-future
 
 The last star will be born in about 100 trillion years. After that, no new stars will ever form. The existing ones will slowly exhaust their fuel — the last red dwarfs flickering out after trillions of years. Galaxies will dissolve as their stars are gradually ejected through gravitational encounters or swallowed by the supermassive black holes at their centers.
 
-What remains is a universe of stellar remnants: white dwarfs slowly cooling to black, neutron stars spinning down to silence, and black holes patiently gathering what little matter drifts their way. The universe reaches beyond its de Sitter radius — the asymptotic horizon beyond which light will never reach us again.
+What remains is a universe of stellar remnants: white dwarfs slowly cooling to black, neutron stars spinning down to silence, and black holes patiently gathering what little matter drifts their way. The universe reaches the de Sitter radius — the asymptotic horizon beyond which light will never reach us again.
+
 
 ## heat-death
 
