@@ -513,6 +513,22 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
   color: rgba(255,255,255,0.7);
   text-decoration: underline;
 }
+.visitor-counter {
+  display: block;
+  margin-top: 8px;
+  font-family: monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+  font-style: normal;
+}
+.visitor-counter a {
+  color: rgba(255,255,255,0.3);
+  text-decoration: none;
+}
+.visitor-counter a:hover {
+  color: rgba(255,255,255,0.6);
+  text-decoration: underline;
+}
 #intro-body .internal-nav {
   font-size: 15px; padding: 14px 20px;
   margin: 16px 0;
