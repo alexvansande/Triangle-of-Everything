@@ -16,8 +16,23 @@ const PX_PER_UNIT_Y = 43.5;  // Lower = image covers more logM range; fixes vert
 const LOG_R_OFFSET = -0.3;
 const LOG_M_OFFSET = 0.1;  // Planck at -4.68 with new scale; +0.1 → -4.58 ≈ -4.6
 
-const SRC = process.argv[2] || "background/large.png";
+const SRC = process.argv[2] || "public/imgs/triangle of everything background.png";
 const OUT = process.argv[3] || "public/tiles";
+const NOISE_OPACITY = 0.10; // 10% noise overlay
+
+/** Generate a random noise buffer (grayscale → RGBA with screen-like blend) */
+function generateNoise(w, h) {
+  const buf = Buffer.alloc(w * h * 4);
+  for (let i = 0; i < w * h; i++) {
+    const v = Math.floor(Math.random() * 256);
+    const off = i * 4;
+    buf[off]     = v; // R
+    buf[off + 1] = v; // G
+    buf[off + 2] = v; // B
+    buf[off + 3] = Math.floor(NOISE_OPACITY * 255); // A (10% opacity)
+  }
+  return buf;
+}
 
 async function main() {
   const meta = await sharp(SRC).metadata();
@@ -34,6 +49,7 @@ async function main() {
 
   const maxLevel = Math.ceil(Math.log2(Math.max(imgW, imgH) / TILE_SIZE));
   console.log(`Levels: 0..${maxLevel}`);
+  console.log(`Noise: ${(NOISE_OPACITY * 100).toFixed(0)}% opacity screen overlay`);
 
   const levels = [];
 
@@ -61,8 +77,22 @@ async function main() {
         const tileW = Math.min(TILE_SIZE, w - left);
         const tileH = Math.min(TILE_SIZE, h - top);
 
-        await sharp(buf, { raw: { width: w, height: h, channels } })
+        // Extract tile
+        const tileBuf = await sharp(buf, { raw: { width: w, height: h, channels } })
           .extract({ left, top, width: tileW, height: tileH })
+          .ensureAlpha()
+          .raw()
+          .toBuffer();
+
+        // Generate noise and composite over tile (screen blend approximation via alpha)
+        const noiseBuf = generateNoise(tileW, tileH);
+
+        await sharp(tileBuf, { raw: { width: tileW, height: tileH, channels: 4 } })
+          .composite([{
+            input: noiseBuf,
+            raw: { width: tileW, height: tileH, channels: 4 },
+            blend: "screen",
+          }])
           .webp({ quality: WEBP_QUALITY })
           .toFile(join(dir, `tile_${c}_${r}.webp`));
       }
