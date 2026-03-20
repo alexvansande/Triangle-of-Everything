@@ -442,5 +442,47 @@
     "credit": "NASA/JPL-Caltech",
     "license": "Attribution",
     "source": "https://commons.wikimedia.org/wiki/File:PIA23865-W51Nebula-StarFactory-20200825.jpg"
+  },
+  "muon": {
+    "file": "muon.webp",
+    "credit": "http://hepweb.rl.ac.uk/ppUKpics/POW/pr_990602.html",
+    "license": "Fair use",
+    "source": "https://en.wikipedia.org/wiki/File:Moon%27s_shadow_in_muons.gif"
+  },
+  "cmb-photon": {
+    "file": "cmb-photon.webp",
+    "credit": "NASA, ESA, J. Hester and A. Loll (Arizona State University)",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Crab_Nebula.jpg"
+  },
+  "helium": {
+    "file": "helium.webp",
+    "credit": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+    "license": "GFDL 1.2",
+    "source": "https://commons.wikimedia.org/wiki/File:Helium_discharge_tube.jpg"
+  },
+  "oxygen": {
+    "file": "oxygen.webp",
+    "credit": "Oriel Joyce Flecker",
+    "license": "PD-US",
+    "source": "https://en.wikipedia.org/wiki/File:A_setup_for_preparation_of_Oxygen.jpg"
+  },
+  "iron": {
+    "file": "iron.webp",
+    "credit": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+    "license": "FAL",
+    "source": "https://commons.wikimedia.org/wiki/File:Iron_electrolytic_and_1cm3_cube.jpg"
+  },
+  "uranium": {
+    "file": "uranium.webp",
+    "credit": "Unspecified",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:HEUraniumC.jpg"
+  },
+  "oganesson": {
+    "file": "oganesson.webp",
+    "credit": "Unknown",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Square-planar-3D-balls.png"
   }
 }
