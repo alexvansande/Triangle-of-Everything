@@ -458,9 +458,7 @@ const grainRect = { attr: () => grainRect, style: () => grainRect }; // stub
 // Icon layer: rendered above noise for cleaner visibility
 const lIcons = clip.append("g").style("pointer-events", "none");
 
-// Click capture layer: transparent rects over icons that intercept clicks
-// before D3-zoom can suppress them. This fixes the persistent click bug.
-const lClickCapture = clip.append("g");
+// Click capture now uses HTML overlays (see updateClickTargets)
 
 // Big Bang white overlay — sits above everything for the "screen goes white" effect
 const whiteOverlay = clip.append("rect")
@@ -1684,7 +1682,6 @@ function drawObjects() {
   lObj.selectAll("*").remove();
   lIcons.selectAll("*").remove();
   lLabels.selectAll("*").remove();
-  lClickCapture.selectAll("*").remove();
   const d = vd();
   const icoSize = effectiveIconSize();
   const pad = 5;
@@ -2110,46 +2107,6 @@ function drawObjects() {
         .attr("r", 2.8).attr("fill", o.color).attr("opacity", 0.85);
     }
 
-    // Click capture: transparent rect over the icon/dot area, above everything
-    if (o._showIcon) {
-      const objIcoSizeCapture = icoSize * (iconSizeMult(o));
-      lClickCapture.append("rect")
-        .attr("x", o.sx - objIcoSizeCapture / 2).attr("y", o.sy - objIcoSizeCapture / 2)
-        .attr("width", objIcoSizeCapture).attr("height", objIcoSizeCapture)
-        .attr("fill", "transparent")
-        .style("cursor", "pointer")
-        .attr("data-obj-slug", o.slug)
-        .on("click", function(e) {
-          e.stopPropagation();
-          e.preventDefault();
-          _sidebarManuallyExpanded = false;
-          openSidebar(o);
-          setSidebarOpen(true);
-        })
-        .on("mouseenter", function(e) {
-          const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
-          if (iconEl.size()) {
-            const hoverSize = Math.max(64, icoSize * iconSizeMult(o) * 1.5);
-            iconEl.attr("width", hoverSize).attr("height", hoverSize)
-              .attr("x", o.sx - hoverSize / 2).attr("y", o.sy - hoverSize / 2);
-          }
-          lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", null);
-          showTooltip(e, o, o.cat);
-        })
-        .on("mouseleave", function() {
-          const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
-          if (iconEl.size()) {
-            const objS = icoSize * iconSizeMult(o);
-            iconEl.attr("width", objS).attr("height", objS)
-              .attr("x", o.sx - objS / 2).attr("y", o.sy - objS / 2);
-          }
-          if (!_labelsEnabled || !o._showLabel) {
-            lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", "none");
-          }
-          hideTooltip();
-        });
-    }
-
     const pos = o._labelPos;
 
     // Shadow + Label rendered in lLabels layer (above icons) so text is always readable
@@ -2175,13 +2132,7 @@ function drawObjects() {
       .attr("display", labelDisplay)
       .text(o.name);
 
-    g.on("click", function(e) {
-      e.stopPropagation();
-      e.preventDefault();
-      _sidebarManuallyExpanded = false;
-      openSidebar(o);
-      setSidebarOpen(true);
-    });
+    // Click handled by HTML overlay divs (see updateClickTargets)
     g.on("mouseenter", function(e) {
       const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
       if (iconEl.size()) {
@@ -3137,97 +3088,33 @@ document.getElementById("sidebar-expand").addEventListener("click", () => {
   setSidebarOpen(true);
 });
 
-// Click detection: use a document-level click listener registered BEFORE D3 zoom
-// D3 zoom suppresses clicks via a capture-phase handler added dynamically,
-// so we register ours in capture phase first, tracking mousedown position.
-let _clickDown = null;
+// ─── Click detection ───────────────────────────────────────────
+// Object/label clicks are handled by HTML overlay divs (see
+// updateClickTargets above). This approach replaced the old SVG
+// click handlers which were constantly broken by D3-zoom's pointer
+// capture. See the extensive comment block above updateClickTargets
+// for the full explanation.
+//
+// What remains here: axis-unit-link clicks (still SVG-based) and
+// click-on-empty-space to close the sidebar.
+// ───────────────────────────────────────────────────────────────
 
-// ─── WHY CLICKING IS FRAGILE (documentation for future maintainers) ───
-// D3-zoom registers a capture-phase pointerdown handler that calls
-// pointer.capture() on the SVG. Once captured, D3 suppresses the
-// subsequent "click" event entirely. Our workaround: we register our
-// OWN capture-phase pointerdown BEFORE D3-zoom is initialised, and
-// call stopImmediatePropagation() when the pointer is on/near an
-// interactive element. This prevents D3 from ever seeing the event,
-// so the normal click fires.
-//
-// The tricky part: icon images live in lIcons (pointer-events:none,
-// rendered above lObj for visual reasons). Clicks pass through icons
-// to whatever is underneath — often the SVG background rect, NOT the
-// object's invisible hit circle (r=14). If we only check e.target for
-// [data-obj-slug], we miss these "near-icon" clicks and D3 eats them.
-//
-// Fix: also do a coordinate-based proximity check against _lastProjected
-// in the pointerdown handler, using the effective icon hit radius.
-// ──────────────────────────────────────────────────────────────────────
 document.addEventListener("pointerdown", (e) => {
   const chartEl = document.getElementById("chart");
   if (!chartEl?.contains(e.target)) return;
-
-  let shouldStop = false;
-
-  // Direct hit on an object group or axis label
-  if (e.target.closest?.("[data-obj-slug], .axis-unit-link")) {
-    shouldStop = true;
+  // Axis unit links still live in SVG — let their clicks through
+  if (e.target.closest?.(".axis-unit-link")) {
+    e.stopImmediatePropagation();
   }
-
-  // Proximity check: is the pointer near an icon object?
-  // (icons are visually large but their hit circles are small)
-  if (!shouldStop && _lastProjected.length) {
-    const [mx, my] = d3.pointer(e, chart.node());
-    const icoR = _iconsEnabled ? effectiveIconSize() / 2 : 0;
-    for (const o of _lastProjected) {
-      const dx = o.sx - mx, dy = o.sy - my;
-      const r = (_iconsEnabled && _iconUrlCache[o.slug]) ? icoR : 14;
-      if (dx * dx + dy * dy < r * r) { shouldStop = true; break; }
-    }
-  }
-
-  if (shouldStop) e.stopImmediatePropagation();
-  _clickDown = { x: e.clientX, y: e.clientY, t: Date.now() };
 }, true);
 
 document.addEventListener("click", (e) => {
-  if (!_clickDown) return;
-  const ddx = e.clientX - _clickDown.x, ddy = e.clientY - _clickDown.y;
-  const dist2 = ddx * ddx + ddy * ddy;
-  const elapsed = Date.now() - _clickDown.t;
-  _clickDown = null;
-  if (dist2 > 36 || elapsed > 600) return;
-
-  // Use d3.pointer to get coordinates in chart space (accounts for zoom transform)
-  const [mx, my] = d3.pointer(e, chart.node());
-
-  // Click on object group (dot or label) — check before coordinate hit-test
-  const objGroup = e.target.closest?.("[data-obj-slug]");
-  if (objGroup) {
-    const slug = objGroup.getAttribute("data-obj-slug");
-    const obj = _lastProjected.find(o => o.slug === slug);
-    if (obj) {
-      e.stopImmediatePropagation();
-      onObjectClick();
-      openSidebar(obj);
-      return;
-    }
-  }
-
-  const HIT_RADIUS = 18;
-  const ICON_HIT_RADIUS = _iconsEnabled ? effectiveIconSize() / 2 : HIT_RADIUS;
-  let closest = null, closestDist = Infinity;
-  for (const o of _lastProjected) {
-    const dx = o.sx - mx, dy = o.sy - my;
-    const d2 = dx * dx + dy * dy;
-    const r = (_iconsEnabled && _iconUrlCache[o.slug]) ? ICON_HIT_RADIUS : HIT_RADIUS;
-    if (d2 < r * r && d2 < closestDist) { closest = o; closestDist = d2; }
-  }
-
+  // Axis unit link click
   const labelEl = e.target.closest?.(".axis-unit-link");
   if (labelEl) {
     const slug = labelEl.getAttribute("data-slug");
     const name = labelEl.getAttribute("data-name");
     if (slug && name) {
-      e.stopImmediatePropagation();
-      onObjectClick();
       _sidebarManuallyExpanded = false;
       openInfoPanel(slug, name);
       setSidebarOpen(true);
@@ -3235,21 +3122,16 @@ document.addEventListener("click", (e) => {
     }
   }
 
-  if (closest) {
-    e.stopImmediatePropagation();
-    onObjectClick();
-    _sidebarManuallyExpanded = false;
-    openSidebar(closest);
-    setSidebarOpen(true);
-  } else {
-    // Click on empty space — deselect object and remove highlight
+  // Click on empty chart space — close sidebar
+  const chartEl = document.getElementById("chart");
+  if (chartEl?.contains(e.target) && !e.target.closest?.("#click-targets")) {
     selectedObj = null;
     drawHighlight();
     if (sidebarEl.classList.contains("open")) {
       if (_sidebarManuallyExpanded) {
-        closeSidebar(); // revert to intro, stay expanded
+        closeSidebar();
       } else {
-        setSidebarOpen(false); // auto-collapse
+        setSidebarOpen(false);
       }
     }
   }
@@ -4214,6 +4096,167 @@ function redraw() {
   drawBaseTiles();
   drawTiles();
   redrawVectors();
+  scheduleClickTargets();
+}
+
+// =============================================================
+// HTML click targets overlay
+// =============================================================
+// ─── WHY THIS EXISTS (read before changing!) ───────────────────
+//
+// Clicking on SVG objects was EXTREMELY fragile and broke repeatedly.
+// The root cause: D3-zoom registers a capture-phase pointerdown handler
+// that calls setPointerCapture() on the SVG. Once captured, D3 suppresses
+// the subsequent "click" event entirely. This means:
+//
+//   1. If the user clicks on a transparent SVG circle (hit area), D3-zoom
+//      captures the pointer BEFORE the click fires, so g.on("click")
+//      never triggers.
+//   2. Workarounds like capture-phase pointerdown + distance tracking
+//      broke whenever the rendering changed (new layers, different
+//      stacking order, icons above noise, etc.)
+//   3. Every refactor of the icon/label layer structure broke clicks
+//      in a different way.
+//
+// THE SOLUTION: Don't fight D3-zoom at all. Instead, after zoom/pan
+// settles (500ms debounce), we overlay invisible HTML <div> elements
+// positioned over each visible object and label. These divs:
+//
+//   - Sit in a fixed-position container ABOVE the SVG (z-index: 5)
+//   - Have pointer-events: all, so they intercept clicks normally
+//   - Are completely invisible (no background, no border)
+//   - Are cleared instantly when zoom/pan starts (so they don't
+//     interfere with D3-zoom's drag/pan behavior)
+//   - Are re-created 500ms after zoom/pan ends
+//
+// This approach is robust because HTML click handling is completely
+// independent of SVG rendering. No matter how the SVG layers are
+// restructured, clicks will keep working.
+//
+// DO NOT: re-add click handlers to SVG elements. It will seem to
+// work at first but will break in subtle ways when D3-zoom is active.
+// ────────────────────────────────────────────────────────────────
+
+const clickTargetContainer = document.getElementById("click-targets");
+let _clickTargetTimer = null;
+
+function clearClickTargets() {
+  clickTargetContainer.innerHTML = "";
+}
+
+function scheduleClickTargets() {
+  clearTimeout(_clickTargetTimer);
+  clearClickTargets();
+  _clickTargetTimer = setTimeout(updateClickTargets, 500);
+}
+
+function updateClickTargets() {
+  clearClickTargets();
+  if (!_lastProjected) return;
+
+  _lastProjected.forEach(o => {
+    const hasIcon = _iconsEnabled && _iconUrlCache[o.slug];
+    const size = hasIcon
+      ? _iconSize * iconSizeMult(o)
+      : 14; // match hit area radius
+
+    // Convert SVG coords to page coords
+    const pageX = o.sx + margin.left;
+    const pageY = o.sy + margin.top;
+
+    const div = document.createElement("div");
+    div.className = "click-target";
+    div.style.left = (pageX - size / 2) + "px";
+    div.style.top = (pageY - size / 2) + "px";
+    div.style.width = size + "px";
+    div.style.height = size + "px";
+    div.dataset.slug = o.slug;
+
+    div.addEventListener("click", (e) => {
+      e.stopPropagation();
+      _sidebarManuallyExpanded = false;
+      openSidebar(o);
+      setSidebarOpen(true);
+    });
+
+    div.addEventListener("mouseenter", (e) => {
+      // Trigger SVG hover effects
+      const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
+      if (iconEl.size()) {
+        const hoverSize = Math.max(64, _iconSize * iconSizeMult(o) * 1.5);
+        iconEl.attr("width", hoverSize).attr("height", hoverSize)
+          .attr("x", o.sx - hoverSize / 2).attr("y", o.sy - hoverSize / 2);
+      }
+      lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", null);
+      showTooltip(e, o, o.cat);
+    });
+
+    div.addEventListener("mouseleave", () => {
+      const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
+      if (iconEl.size()) {
+        const objS = _iconSize * iconSizeMult(o);
+        iconEl.attr("width", objS).attr("height", objS)
+          .attr("x", o.sx - objS / 2).attr("y", o.sy - objS / 2);
+      }
+      if (!_labelsEnabled || !o._showLabel) {
+        lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", "none");
+      }
+      hideTooltip();
+    });
+
+    clickTargetContainer.appendChild(div);
+  });
+
+  // Label click targets: measure actual SVG text bounding boxes
+  lLabels.selectAll("text[data-label-slug]").each(function() {
+    const el = d3.select(this);
+    if (el.attr("display") === "none") return;
+    if (el.attr("fill") === "none") return; // skip shadow text (stroke-only)
+
+    const slug = el.attr("data-label-slug");
+    const obj = _lastProjected.find(o => o.slug === slug);
+    if (!obj) return;
+
+    try {
+      const bbox = this.getBBox();
+      const div = document.createElement("div");
+      div.className = "click-target click-target-label";
+      div.style.left = (bbox.x + margin.left - 2) + "px";
+      div.style.top = (bbox.y + margin.top - 2) + "px";
+      div.style.width = (bbox.width + 4) + "px";
+      div.style.height = (bbox.height + 4) + "px";
+      div.dataset.slug = slug;
+
+      div.addEventListener("click", (e) => {
+        e.stopPropagation();
+        _sidebarManuallyExpanded = false;
+        openSidebar(obj);
+        setSidebarOpen(true);
+      });
+
+      div.addEventListener("mouseenter", (e) => {
+        const iconEl = lIcons.select(`.obj-icon[data-slug="${slug}"]`);
+        if (iconEl.size()) {
+          const hoverSize = Math.max(64, _iconSize * iconSizeMult(obj) * 1.5);
+          iconEl.attr("width", hoverSize).attr("height", hoverSize)
+            .attr("x", obj.sx - hoverSize / 2).attr("y", obj.sy - hoverSize / 2);
+        }
+        showTooltip(e, obj, obj.cat);
+      });
+
+      div.addEventListener("mouseleave", () => {
+        const iconEl = lIcons.select(`.obj-icon[data-slug="${slug}"]`);
+        if (iconEl.size()) {
+          const objS = _iconSize * iconSizeMult(obj);
+          iconEl.attr("width", objS).attr("height", objS)
+            .attr("x", obj.sx - objS / 2).attr("y", obj.sy - objS / 2);
+        }
+        hideTooltip();
+      });
+
+      clickTargetContainer.appendChild(div);
+    } catch(e) { /* getBBox can fail on hidden elements */ }
+  });
 }
 
 function redrawVectors() {
@@ -4348,6 +4391,7 @@ const zoomBehavior = d3.zoom()
   .on("start", () => {
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
     _zooming = true;
+    clearClickTargets();
     // Hide expensive feTurbulence filter during zoom on Safari for smoother animation
     if (_isSafari) grainRect.style("display", "none");
   })
@@ -4388,6 +4432,7 @@ const zoomBehavior = d3.zoom()
     redraw();
     if (_isSafari) grainRect.style("display", null);
     updateStartButtonLabel();
+    scheduleClickTargets();
   });
 
 svg.call(zoomBehavior);

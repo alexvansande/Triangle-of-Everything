@@ -70,17 +70,22 @@ The temperature range where water can be liquid is the range where most everyday
 
 ## particle-physics
 
-As we increase the energy of any system, matter transforms, like an ice cube melting or water becoming vapor. The same happens to particles. As the energy increases, some particles stop existing and shift into other states of energy. The highest temperature ever matched in a lab was at the LHC where we were able to recreate the conditions of the Higgs boson and confirm that at these ranges, the electromagnetic and weak forces merge into a single, "electroweak" force.
+As we increase the energy of any system, matter transforms, like an ice cube melting or water becoming vapor. Liquid water can only exist in a small range of temperature and pressure - yet it works as the solvent of many chemical reactions, and is the medium that allowed life (as we know it!) to be possible. Water mediates life even thou it doesn't participate on it, and it allows the existence of forces – like buoyancy or hidrodynamics – that simply don't exist without it. 
+
+Likewise, Bosons mediate other fundamental forces, and allow quarks and leptons to interact and form larger particles like Protons and Neutrons (Hadrons). Yet these particles can only also exist in a specific energetic range – too hot and they "melt" away, too cold and they "freeze" and stop mediating other forces. As we increase the energy in our system, these particles and the forces they mediate will change. 
+
 
 ## lab-limits
 
-At even higher temperatures, we are way beyond our capability, so we only have theory. It is believed that all forces except gravity unify. Hypothetical particles like X and Y bosons might appear in this regime. Beyond that, not even our theories can reach.
+Unless there are some alien physicists in the stars, then the hottest and coldest spots in the universe in recent years happened right here on Earth — in a lab. These are extreme conditions of temperature and pressure and have allowed us to recreate the early moments of the universe and to synthetize particles like the Higgs Boson, confirming some of our theories about how these particles interact and decay. At these temperatures, the eletromagnetic force and the weak force are not separate forces, but one unified force, we called the "eletroweak" force. 
 
 ## theoretical
 
-Unless there are some alien scientists somewhere, then the hottest and coldest spots in the universe in recent years happened right here on Earth — in a lab. These conditions do not occur naturally anywhere in the universe right now. Many of them are beyond anything we could even build.
+These high temperatures are many orders of magnitudes beyond our engineering capability, so we can't confirm what happens yet – but we still have some solid theories on what we expect. At the very top, it is believed that even high energy particles like the Top Quark and the Higgs Boson just "evaporate" and can't exist, taking with them many of the properties they allow. When energy levels reach ten trillion trillion Kelvin, a new particle is believed to emerge, called the X & Y Boson, that would unify all the remaining forces except gravity into one.
 
-But these conditions once filled the entire universe, right at the beginning... and it's there we will go now.
+At even higher levels of that we reach the Planck Temperature at which even our theory breaks down. It's a pressure level so large that we see the emergence of Instantons, a theoretical particle so dense and heavy that their compton wavelength reaches the schwarzchild radius, meaning both quantum physics and special relativity forbids it from existing. We have no idea what would happen – literally our understanding of the very concept of energy, time and space breaks down and becomes meaningless. But it's possible that gravity itself is unified with the other forces, that the very distinction between force and particle becomes meaningless and even spacetime ceases to exist.
+
+These conditions do not occur naturally anywhere in the universe right now. But these conditions once filled the entire universe, right at the beginning... and it's there we will go now.
 
 *What happens in the very beginning of the universe is beyond what any model can fully describe. What follows is necessarily speculative.*
 
@@ -93,6 +98,8 @@ Gravity separates from the others, and the universe starts creating space betwee
 ## gut
 
 The very first force to separate at the Big Bang was gravity, leading to the very emergence of time. For a very brief period, all remaining forces were one. For a fraction of a fraction of a second, a few billion Planck time units, it was still incomprehensibly hot and dense. As it expanded and cooled down, one first particle condenses from that hot mess: the XY Boson. For some reason, its own internal forces are stronger than the forces pushing all the universe into the new spaces being formed all around it.
+
+“The whole history of the universe can be understood as a sequence of condensations” – Charles Lineweaver, physicist
 
 ## electroweak
 
