@@ -5184,6 +5184,8 @@ try {
 // =============================================================
 
 function saveHash() {
+  // Don't overwrite tour hashes — the tour manages its own URL state
+  if (location.hash.startsWith("#tour=")) return;
   const d = vd();
   const cx = ((d.x0 + d.x1) / 2).toFixed(1);
   const cy = ((d.y0 + d.y1) / 2).toFixed(1);
@@ -5195,7 +5197,7 @@ function saveHash() {
 
 function loadHash() {
   const h = location.hash.slice(1);
-  if (!h) return false;
+  if (!h || h.startsWith("tour=")) return false;
   const parts = h.split(",");
   const nums = parts.slice(0, 3).map(Number);
   if (nums.length !== 3 || nums.some(isNaN)) return false;
