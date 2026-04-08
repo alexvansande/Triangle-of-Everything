@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hyperspirograph</title>
+<title>Hiperspirograph</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -89,17 +89,27 @@
   <input type="range" id="loops" min="1" max="60" value="30">
   <span class="value" id="loopsv">30</span>
 
-  <div id="viewControls" style="display:contents">
-    <label for="viewTilt">View tilt</label>
-    <input type="range" id="viewTilt" min="0" max="90" value="30">
-    <span class="value" id="viewTiltv">30°</span>
+  <div id="view3d" style="display:contents">
+    <label for="spinXZ">Spin XZ</label>
+    <input type="range" id="spinXZ" min="0" max="360" value="0">
+    <span class="value" id="spinXZv">0°</span>
 
-    <label for="viewSpin">View spin</label>
-    <input type="range" id="viewSpin" min="0" max="360" value="0">
-    <span class="value" id="viewSpinv">0°</span>
+    <label for="spinYZ">Tilt YZ</label>
+    <input type="range" id="spinYZ" min="0" max="90" value="30">
+    <span class="value" id="spinYZv">30°</span>
   </div>
 
-  <div id="sliceControl" style="display:contents" class="hidden">
+  <div id="view4d" style="display:contents">
+    <label for="spinXW">Spin XW</label>
+    <input type="range" id="spinXW" min="0" max="360" value="0">
+    <span class="value" id="spinXWv">0°</span>
+  </div>
+
+  <div id="view5d" style="display:contents">
+    <label for="spinXV">Spin XV</label>
+    <input type="range" id="spinXV" min="0" max="360" value="0">
+    <span class="value" id="spinXVv">0°</span>
+
     <label for="sliceWidth">Slice width</label>
     <input type="range" id="sliceWidth" min="5" max="100" value="40">
     <span class="value" id="sliceWidthv">40</span>
@@ -165,13 +175,11 @@ function updateAxisVisibility() {
     innerAxesEl.querySelectorAll(`[data-axis="${i}"]`).forEach(el => el.classList.toggle('hidden', !show));
   }
 
-  // View controls: hide for 2D
-  const vc = document.getElementById('viewControls');
-  vc.querySelectorAll('label, input, span').forEach(el => el.style.display = dims < 3 ? 'none' : '');
-
-  // Slice control: only for 5D
-  const sc = document.getElementById('sliceControl');
-  sc.querySelectorAll('label, input, span').forEach(el => el.style.display = dims >= 5 ? '' : 'none');
+  // View controls: show based on dimension
+  const show = (id, vis) => document.getElementById(id).querySelectorAll('label, input, span').forEach(el => el.style.display = vis ? '' : 'none');
+  show('view3d', dims >= 3);
+  show('view4d', dims >= 4);
+  show('view5d', dims >= 5);
 }
 
 // --- Hypersphere point ---
@@ -247,8 +255,10 @@ function draw() {
   const numAxes = dims - 1;
   const rRatio = +document.getElementById('r').value / 100;
   const loops = +document.getElementById('loops').value;
-  const viewTiltDeg = +document.getElementById('viewTilt').value;
-  const viewSpinDeg = +document.getElementById('viewSpin').value;
+  const spinXZDeg = +document.getElementById('spinXZ').value;
+  const spinYZDeg = +document.getElementById('spinYZ').value;
+  const spinXWDeg = +document.getElementById('spinXW').value;
+  const spinXVDeg = +document.getElementById('spinXV').value;
   const sliceWidth = +document.getElementById('sliceWidth').value / 100;
 
   const outerFreqs = [], innerFreqs = [];
@@ -260,8 +270,10 @@ function draw() {
   // Update displays
   document.getElementById('rv').textContent = Math.round(rRatio * 100);
   document.getElementById('loopsv').textContent = loops;
-  document.getElementById('viewTiltv').textContent = viewTiltDeg + '\u00b0';
-  document.getElementById('viewSpinv').textContent = viewSpinDeg + '\u00b0';
+  document.getElementById('spinXZv').textContent = spinXZDeg + '\u00b0';
+  document.getElementById('spinYZv').textContent = spinYZDeg + '\u00b0';
+  document.getElementById('spinXWv').textContent = spinXWDeg + '\u00b0';
+  document.getElementById('spinXVv').textContent = spinXVDeg + '\u00b0';
   document.getElementById('sliceWidthv').textContent = Math.round(sliceWidth * 100);
   for (let i = 1; i <= numAxes; i++) {
     document.getElementById(`o${i}v`).textContent = outerFreqs[i-1];
@@ -269,8 +281,10 @@ function draw() {
   }
   updateResonanceDisplay();
 
-  const viewTilt = viewTiltDeg * Math.PI / 180;
-  const viewSpin = viewSpinDeg * Math.PI / 180;
+  const aXZ = spinXZDeg * Math.PI / 180;
+  const aYZ = spinYZDeg * Math.PI / 180;
+  const aXW = spinXWDeg * Math.PI / 180;
+  const aXV = spinXVDeg * Math.PI / 180;
   const R = 1 - rRatio;
   const r = rRatio;
 
@@ -284,8 +298,11 @@ function draw() {
   const steps = loops * Math.max(500, maxFreq * 80);
   const points = [];
 
-  const cosVT = Math.cos(viewTilt), sinVT = Math.sin(viewTilt);
-  const cosVS = Math.cos(viewSpin), sinVS = Math.sin(viewSpin);
+  // Precompute rotation trig
+  const cosXZ = Math.cos(aXZ), sinXZ = Math.sin(aXZ);
+  const cosYZ = Math.cos(aYZ), sinYZ = Math.sin(aYZ);
+  const cosXW = Math.cos(aXW), sinXW = Math.sin(aXW);
+  const cosXV = Math.cos(aXV), sinXV = Math.sin(aXV);
 
   for (let i = 0; i <= steps; i++) {
     const t = (i / steps) * loops * Math.PI * 2;
@@ -300,17 +317,31 @@ function draw() {
     let x = coords[0] || 0;
     let y = coords[1] || 0;
     let z = coords[2] || 0;
-    const w = coords[3] || 0; // hue
-    const v = coords[4] || 0; // slice
+    let w = coords[3] || 0; // hue
+    let v = coords[4] || 0; // slice
 
-    // View rotation (3D+)
+    // View rotations — applied in order: XV, XW, XZ, YZ
+    if (dims >= 5) {
+      // Rotate in XV plane (mixes x ↔ v)
+      const rx5 = x * cosXV + v * sinXV;
+      const rv5 = -x * sinXV + v * cosXV;
+      x = rx5; v = rv5;
+    }
+    if (dims >= 4) {
+      // Rotate in XW plane (mixes x ↔ w)
+      const rx4 = x * cosXW + w * sinXW;
+      const rw4 = -x * sinXW + w * cosXW;
+      x = rx4; w = rw4;
+    }
     if (dims >= 3) {
-      let rx = x * cosVS + z * sinVS;
-      let rz = -x * sinVS + z * cosVS;
+      // Rotate in XZ plane (spin)
+      let rx = x * cosXZ + z * sinXZ;
+      let rz = -x * sinXZ + z * cosXZ;
       x = rx; z = rz;
 
-      let ry = y * cosVT - z * sinVT;
-      rz = y * sinVT + z * cosVT;
+      // Rotate in YZ plane (tilt)
+      let ry = y * cosYZ - z * sinYZ;
+      rz = y * sinYZ + z * cosYZ;
       y = ry; z = rz;
     }
 
@@ -434,8 +465,10 @@ function applyPreset(p) {
   document.getElementById('dims').value = p.dims;
   document.getElementById('r').value = p.r;
   document.getElementById('loops').value = p.loops;
-  document.getElementById('viewTilt').value = p.vt;
-  document.getElementById('viewSpin').value = p.vs;
+  document.getElementById('spinYZ').value = p.vt || 30;
+  document.getElementById('spinXZ').value = p.vs || 0;
+  document.getElementById('spinXW').value = p.vw || 0;
+  document.getElementById('spinXV').value = p.vv || 0;
   for (let i = 0; i < MAX_AXES; i++) {
     const oEl = document.getElementById(`o${i+1}`);
     const iEl = document.getElementById(`i${i+1}`);
@@ -474,8 +507,10 @@ document.getElementById('randomize').addEventListener('click', () => {
     document.getElementById(`i${i}`).value = randInt(1, 25);
   }
   document.getElementById('loops').value = randInt(10, 50);
-  document.getElementById('viewTilt').value = randInt(10, 70);
-  document.getElementById('viewSpin').value = randInt(0, 360);
+  document.getElementById('spinYZ').value = randInt(10, 70);
+  document.getElementById('spinXZ').value = randInt(0, 360);
+  if (dims >= 4) document.getElementById('spinXW').value = randInt(0, 360);
+  if (dims >= 5) document.getElementById('spinXV').value = randInt(0, 360);
   draw();
 });
 
@@ -494,8 +529,10 @@ document.getElementById('randomNice').addEventListener('click', () => {
     document.getElementById(`i${i}`).value = pick(30);
   }
   document.getElementById('loops').value = randInt(15, 45);
-  document.getElementById('viewTilt').value = randInt(15, 65);
-  document.getElementById('viewSpin').value = randInt(0, 360);
+  document.getElementById('spinYZ').value = randInt(15, 65);
+  document.getElementById('spinXZ').value = randInt(0, 360);
+  if (dims >= 4) document.getElementById('spinXW').value = randInt(0, 360);
+  if (dims >= 5) document.getElementById('spinXV').value = randInt(0, 360);
   draw();
 });
 
