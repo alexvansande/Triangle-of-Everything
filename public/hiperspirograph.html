@@ -69,8 +69,8 @@
   <div class="sep"></div>
 
   <label for="dims">Dimensions</label>
-  <input type="range" id="dims" min="2" max="5" value="4" step="1">
-  <span class="value" id="dimsv">4D</span>
+  <input type="range" id="dims" min="2" max="5" value="4" step="0.1">
+  <span class="value" id="dimsv">4.0D</span>
 
   <label for="r">Inner r</label>
   <input type="range" id="r" min="5" max="90" value="40">
@@ -101,11 +101,11 @@
     <span></span><span></span>
 
     <label for="ribbonSpin">Spin</label>
-    <input type="range" id="ribbonSpin" min="1" max="40" value="5">
+    <input type="range" id="ribbonSpin" min="0.5" max="40" value="5" step="0.5">
     <span class="value" id="ribbonSpinv">5</span>
 
     <label for="ribbonWobble">Wobble</label>
-    <input type="range" id="ribbonWobble" min="0" max="40" value="3">
+    <input type="range" id="ribbonWobble" min="0" max="40" value="3" step="0.5">
     <span class="value" id="ribbonWobblev">3</span>
   </div>
 
@@ -193,35 +193,64 @@ defaultInner.forEach((v, i) => { const el = document.getElementById(`i${i+1}`); 
 
 function updateAxisVisibility() {
   const dims = +document.getElementById('dims').value;
-  const numAxes = dims - 1;
+  const numAxes = Math.ceil(dims) - 1; // e.g. 3.5 → needs 4 coords → 3 axes
 
-  document.getElementById('dimsv').textContent = dims + 'D';
+  document.getElementById('dimsv').textContent = dims.toFixed(1) + 'D';
 
-  // Show/hide axis sliders
+  // Show/hide axis sliders: show if this axis has any presence
   for (let i = 1; i <= MAX_AXES; i++) {
     const show = i <= numAxes;
     outerAxesEl.querySelectorAll(`[data-axis="${i}"]`).forEach(el => el.classList.toggle('hidden', !show));
     innerAxesEl.querySelectorAll(`[data-axis="${i}"]`).forEach(el => el.classList.toggle('hidden', !show));
   }
 
-  // View controls: show based on dimension
-  const show = (id, vis) => document.getElementById(id).querySelectorAll('label, input, span').forEach(el => el.style.display = vis ? '' : 'none');
-  show('view3d', dims >= 3);
-  show('view4d', dims >= 4);
-  show('view5d', dims >= 5);
+  // View controls: show when dimension has any presence
+  const showCtrl = (id, vis) => document.getElementById(id).querySelectorAll('label, input, span').forEach(el => el.style.display = vis ? '' : 'none');
+  showCtrl('view3d', true);
+  showCtrl('view4d', dims > 3);
+  showCtrl('view5d', dims > 4);
 }
 
 // --- Hypersphere point ---
-function hyperspherePoint(freqs, t, R) {
-  const N = freqs.length + 1;
+function hyperspherePointRaw(freqs, t, R) {
+  // Standard hyperspherical coords with N freqs → N+1 coordinates
   const coords = [];
   let sinProd = R;
   for (let i = 0; i < freqs.length; i++) {
-    coords.push(sinProd * Math.cos(freqs[i] * t));
-    sinProd *= Math.sin(freqs[i] * t);
+    const angle = freqs[i] * t;
+    coords.push(sinProd * Math.cos(angle));
+    sinProd *= Math.sin(angle);
   }
   coords.push(sinProd);
   return coords;
+}
+
+function hyperspherePoint(freqs, t, R, dims) {
+  // Compute at floor(dims) and ceil(dims), then lerp.
+  // This way 2.1D = 90% the 2D shape + 10% the 3D shape.
+  const lo = Math.floor(dims);
+  const hi = Math.ceil(dims);
+  const frac = dims - lo;
+  const loFreqs = freqs.slice(0, Math.max(1, lo - 1));
+  const hiFreqs = freqs.slice(0, Math.max(1, hi - 1));
+
+  const loCoords = hyperspherePointRaw(loFreqs, t, R);
+  if (frac < 0.001) {
+    // Pad to 5 coords
+    while (loCoords.length < 5) loCoords.push(0);
+    return loCoords;
+  }
+
+  const hiCoords = hyperspherePointRaw(hiFreqs, t, R);
+
+  // Lerp: pad both to 5 dimensions
+  const result = [];
+  for (let i = 0; i < 5; i++) {
+    const a = loCoords[i] || 0;
+    const b = hiCoords[i] || 0;
+    result.push(a * (1 - frac) + b * frac);
+  }
+  return result;
 }
 
 // --- Math helpers ---
@@ -281,7 +310,13 @@ function updateResonanceDisplay() {
 // --- Drawing ---
 function draw() {
   const dims = +document.getElementById('dims').value;
-  const numAxes = dims - 1;
+  const numAxes = Math.ceil(dims) - 1;
+  // Presence of each coordinate: how "inflated" each dimension is (0..1)
+  const presence = [1, 1, // x, y always full
+    Math.min(1, Math.max(0, dims - 2)), // z
+    Math.min(1, Math.max(0, dims - 3)), // w
+    Math.min(1, Math.max(0, dims - 4)), // v
+  ];
   const rRatio = +document.getElementById('r').value / 100;
   const tipSize = +document.getElementById('tipSize').value / 100; // 0..0.8
   const ribbonOn = document.getElementById('ribbon').checked;
@@ -347,13 +382,13 @@ function draw() {
   for (let i = 0; i <= steps; i++) {
     const t = (i / steps) * loops * Math.PI * 2;
 
-    const outerCoords = hyperspherePoint(outerFreqs, t, R);
-    const innerCoords = hyperspherePoint(innerFreqs, t, r);
+    const outerCoords = hyperspherePoint(outerFreqs, t, R, dims);
+    const innerCoords = hyperspherePoint(innerFreqs, t, r, dims);
 
     // Sum in N dimensions
     const coords = outerCoords.map((v, idx) => v + innerCoords[idx]);
 
-    // Extract dimensions: x, y always; z if 3D+; w if 4D+; v if 5D
+    // Extract dimensions
     let x = coords[0] || 0;
     let y = coords[1] || 0;
     let z = coords[2] || 0;
@@ -361,41 +396,38 @@ function draw() {
     let v = coords[4] || 0; // slice
 
     // View rotations — applied in order: XV, XW, XZ, YZ
-    if (dims >= 5) {
-      // Rotate in XV plane (mixes x ↔ v)
-      const rx5 = x * cosXV + v * sinXV;
-      const rv5 = -x * sinXV + v * cosXV;
+    // Scale rotation strength by dimension presence
+    if (presence[4] > 0) {
+      const s = presence[4]; // how much V is "real"
+      const cXV = Math.cos(aXV * s), sXV = Math.sin(aXV * s);
+      const rx5 = x * cXV + v * sXV;
+      const rv5 = -x * sXV + v * cXV;
       x = rx5; v = rv5;
     }
-    if (dims >= 4) {
-      // Rotate in XW plane (mixes x ↔ w)
-      const rx4 = x * cosXW + w * sinXW;
-      const rw4 = -x * sinXW + w * cosXW;
+    if (presence[3] > 0) {
+      const s = presence[3];
+      const cXW = Math.cos(aXW * s), sXW = Math.sin(aXW * s);
+      const rx4 = x * cXW + w * sXW;
+      const rw4 = -x * sXW + w * cXW;
       x = rx4; w = rw4;
     }
-    if (dims >= 3) {
-      // Rotate in XZ plane (spin)
+    // Always apply 3D rotation (lets you tilt even flat 2D shapes)
+    {
       let rx = x * cosXZ + z * sinXZ;
       let rz = -x * sinXZ + z * cosXZ;
       x = rx; z = rz;
 
-      // Rotate in YZ plane (tilt)
       let ry = y * cosYZ - z * sinYZ;
       rz = y * sinYZ + z * cosYZ;
       y = ry; z = rz;
     }
 
-    // Perspective (3D+)
+    // Perspective
     let px, py, pScale = 1;
-    if (dims >= 3) {
-      const perspD = 4;
-      pScale = perspD / (perspD - z);
-      px = cxc + x * scale * pScale;
-      py = cyc + y * scale * pScale;
-    } else {
-      px = cxc + x * scale;
-      py = cyc + y * scale;
-    }
+    const perspD = 4;
+    pScale = perspD / (perspD - z);
+    px = cxc + x * scale * pScale;
+    py = cyc + y * scale * pScale;
 
     // Ribbon orientation: two twist axes create a rotating diameter
     const t_val = (i / steps) * loops * Math.PI * 2;
@@ -430,15 +462,22 @@ function draw() {
     const avgW = (points[i - 1].w + points[i].w) / 2;
     const avgV = (points[i - 1].v + points[i].v) / 2;
 
-    const depth = dims >= 3 ? (avgZ - zMin) / zRange : 1;
-    const hue = dims >= 4 ? (((avgW - wMin) / wRange) * 360 + hueShift) % 360 : 0;
+    // Depth: blend from flat (1.0) to full depth based on Z presence
+    const rawDepth = zRange > 0.001 ? (avgZ - zMin) / zRange : 0.5;
+    const depth = 1 * (1 - presence[2]) + rawDepth * presence[2];
 
-    // 5D slice: triangle falloff centered at slicePos
+    // Hue: blend from 0 to full hue based on W presence
+    const rawHue = wRange > 0.001 ? ((avgW - wMin) / wRange) * 360 : 0;
+    const hue = (rawHue * presence[3] + hueShift) % 360;
+
+    // 5D slice: scale effect by V presence
     let slice = 1;
-    if (dims >= 5) {
-      const vNorm = (avgV - vMin) / vRange * 2 - 1; // -1..1
+    if (presence[4] > 0) {
+      const vNorm = vRange > 0.001 ? (avgV - vMin) / vRange * 2 - 1 : 0;
       const dist = Math.abs(vNorm - slicePos);
-      slice = Math.max(0, 1 - dist / Math.max(0.01, sliceWidth));
+      const rawSlice = Math.max(0, 1 - dist / Math.max(0.01, sliceWidth));
+      // Blend: at presence[4]=0 fully visible, at 1 full slice effect
+      slice = 1 * (1 - presence[4]) + rawSlice * presence[4];
     }
 
     const avgPScale = (points[i - 1].pScale + points[i].pScale) / 2;
@@ -453,7 +492,7 @@ function draw() {
     });
   }
 
-  if (dims >= 3) segments.sort((a, b) => a.depth - b.depth);
+  segments.sort((a, b) => a.depth - b.depth);
 
   // Draw to offscreen canvas
   const off = document.createElement('canvas');
@@ -471,16 +510,10 @@ function draw() {
     if (sl < 0.01) continue; // skip fully invisible
 
     let hueStr;
-    if (dims >= 4) {
-      const lightness = Math.round(15 + 70 * d * d);
-      const sat = 80 + 20 * d;
-      hueStr = `hsla(${seg.hue}, ${sat}%, ${lightness}%, ${sl})`;
-    } else if (dims >= 3) {
-      const brightness = Math.round(30 + 225 * d * d);
-      hueStr = `rgba(${brightness},${brightness},${brightness},${sl})`;
-    } else {
-      hueStr = `rgba(255,255,255,${sl})`;
-    }
+    const lightness = Math.round(15 + 70 * d * d);
+    // Saturation scales with W presence: 0 at 3D, full at 4D+
+    const sat = Math.round((80 + 20 * d) * presence[3]);
+    hueStr = `hsla(${seg.hue}, ${sat}%, ${lightness}%, ${sl})`;
 
     if (ribbonOn && tipSize > 0) {
       // Ribbon thickness = depth-based line width
@@ -526,21 +559,19 @@ function draw() {
 
 // --- Presets ---
 const PRESETS = [
-  // 2D classics
-  { name: 'Rosette', dims: 2, r: 30, axes: [[5], [13]], loops: 30, vt: 0, vs: 0 },
-  { name: 'Star', dims: 2, r: 20, axes: [[3], [8]], loops: 20, vt: 0, vs: 0 },
-  // 3D
-  { name: 'Knot', dims: 3, r: 75, axes: [[3, 2], [7, 5]], loops: 30, vt: 40, vs: 30 },
-  { name: 'Shell', dims: 3, r: 15, axes: [[2, 5], [10, 15]], loops: 35, vt: 35, vs: 60 },
-  // 4D
-  { name: 'Starfish', dims: 4, r: 15, axes: [[5, 5, 2], [10, 2, 10]], loops: 25, vt: 30, vs: 0 },
-  { name: 'Tangle', dims: 4, r: 80, axes: [[3, 2, 1], [12, 8, 4]], loops: 30, vt: 25, vs: 60 },
-  { name: 'Nebula', dims: 4, r: 85, axes: [[1, 2, 3], [5, 7, 11]], loops: 45, vt: 35, vs: 90 },
-  { name: 'Galaxy', dims: 4, r: 75, axes: [[2, 3, 5], [4, 6, 10]], loops: 40, vt: 50, vs: 120 },
-  // 5D
-  { name: 'Ghost', dims: 5, r: 80, axes: [[2, 3, 5, 7], [6, 9, 15, 3]], loops: 40, vt: 40, vs: 45 },
-  { name: 'Strands', dims: 5, r: 15, axes: [[3, 3, 3, 2], [9, 9, 9, 6]], loops: 30, vt: 35, vs: 0 },
-  { name: 'Vapor', dims: 5, r: 70, axes: [[2, 4, 6, 3], [8, 12, 4, 9]], loops: 45, vt: 50, vs: 90 },
+  // Classic shapes
+  { name: 'Rosette', group: 'shape', dims: 2, r: 30, axes: [[5], [13]], loops: 30, vt: 0, vs: 0, tip: 0 },
+  { name: 'Möbius', group: 'shape', dims: 3, r: 90, axes: [[1, 1], [1, 1]], loops: 1, vt: 0, vs: 359, tip: 50, ribbon: 1, rspin: 0.5, rwob: 0 },
+  { name: 'Vortex', group: 'shape', dims: 5, r: 5, axes: [[20, 1, 1, 3], [1, 1, 1, 5]], loops: 1, vt: 0, vs: 356, tip: 13, ribbon: 1, rspin: 0.5, rwob: 40, hue: 155, sw: 75, sp: 1 },
+  { name: 'Infinity', group: 'shape', dims: 4, r: 90, axes: [[1, 1, 1], [1, 1, 1]], loops: 1, vt: 0, vs: 0, tip: 63, ribbon: 1, rspin: 1, rwob: 0 },
+  // Explorations
+  { name: 'Tangle', group: 'shape', dims: 4, r: 80, axes: [[3, 2, 1], [12, 8, 4]], loops: 30, vt: 25, vs: 60, tip: 12, ribbon: 1, rspin: 5, rwob: 3 },
+  { name: 'Nebula', group: 'shape', dims: 4, r: 85, axes: [[1, 2, 3], [5, 7, 11]], loops: 45, vt: 35, vs: 90, tip: 0 },
+  { name: 'Galaxy', group: 'shape', dims: 4, r: 75, axes: [[2, 3, 5], [4, 6, 10]], loops: 40, vt: 50, vs: 120, tip: 0 },
+  { name: 'Ghost', group: 'shape', dims: 5, r: 80, axes: [[2, 3, 5, 7], [6, 9, 15, 3]], loops: 5, vt: 40, vs: 45, tip: 8, ribbon: 1, rspin: 3, rwob: 1, sw: 30 },
+  { name: 'Starfish', group: 'shape', dims: 4, r: 15, axes: [[5, 5, 2], [10, 2, 10]], loops: 25, vt: 30, vs: 0, tip: 0 },
+  { name: 'Chrysanth.', group: 'shape', dims: 4, r: 18, axes: [[6, 6, 6], [18, 12, 6]], loops: 20, vt: 20, vs: 180, tip: 0 },
+  { name: '5D Donut', group: 'shape', dims: 5, r: 5, axes: [[1, 10, 1, 1], [1, 1, 1, 1]], loops: 1, vt: 0, vs: 10, tip: 9, ribbon: 1, rspin: 5, rwob: 3, hue: 119, sw: 76, sp: 0 },
 ];
 
 function applyPreset(p) {
@@ -551,6 +582,13 @@ function applyPreset(p) {
   document.getElementById('spinXZ').value = p.vs || 0;
   document.getElementById('spinXW').value = p.vw || 0;
   document.getElementById('spinXV').value = p.vv || 0;
+  document.getElementById('tipSize').value = p.tip || 0;
+  document.getElementById('ribbon').checked = !!p.ribbon;
+  document.getElementById('ribbonSpin').value = p.rspin !== undefined ? p.rspin : 5;
+  document.getElementById('ribbonWobble').value = p.rwob !== undefined ? p.rwob : 3;
+  document.getElementById('hueShift').value = p.hue || 0;
+  document.getElementById('sliceWidth').value = p.sw || 40;
+  document.getElementById('slicePos').value = p.sp || 0;
   for (let i = 0; i < MAX_AXES; i++) {
     const oEl = document.getElementById(`o${i+1}`);
     const iEl = document.getElementById(`i${i+1}`);
@@ -565,7 +603,7 @@ const presetsEl = document.getElementById('presets');
 PRESETS.forEach(p => {
   const btn = document.createElement('button');
   btn.className = 'preset-btn';
-  btn.textContent = `${p.name} (${p.dims}D)`;
+  btn.textContent = p.group ? p.name : `${p.name} (${p.dims}D)`;
   btn.addEventListener('click', () => applyPreset(p));
   presetsEl.appendChild(btn);
 });
@@ -683,14 +721,12 @@ function moveDrag(x, y) {
   const dx = (x - dragState.startX) * SENSITIVITY;
   const dy = (y - dragState.startY) * SENSITIVITY;
 
-  if (dragState.ctrl && dims >= 5) {
-    // Ctrl+drag → Spin XV
+  if (dragState.ctrl && dims > 4) {
     document.getElementById('spinXV').value = wrapDeg(dragState.startXV + dx, 0, 360);
-  } else if (dragState.shift && dims >= 4) {
-    // Shift+drag → Spin XW
+  } else if (dragState.shift && dims > 3) {
     document.getElementById('spinXW').value = wrapDeg(dragState.startXW + dx, 0, 360);
-  } else if (dims >= 3) {
-    // Normal drag → Spin XZ + Tilt YZ
+  } else {
+    // Normal drag → always rotate in 3D (even for 2D shapes)
     document.getElementById('spinXZ').value = wrapDeg(dragState.startXZ + dx, 0, 360);
     document.getElementById('spinYZ').value = clampDeg(dragState.startYZ - dy, 0, 90);
   }
@@ -726,32 +762,99 @@ window.addEventListener('touchend', endDrag);
 
 // --- URL state encoding/decoding ---
 // Pack all params into a compact string: values joined by dots, base36 where helpful
+// --- URL encoding: shape (hex) - view (compact) ---
+// Intrinsic shape: dims, r, tipSize, ribbon, ribbonSpin, ribbonWobble,
+//   loops, slicePos, sliceWidth, hueShift, outer axes, inner axes
+// View: spinXZ, spinYZ, spinXW, spinXV (just for camera angle)
+
+function packHex(vals) {
+  return vals.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+}
+function unpackHex(hex) {
+  const vals = [];
+  for (let i = 0; i < hex.length; i += 2) vals.push(parseInt(hex.substr(i, 2), 16));
+  return vals;
+}
+
 function getState() {
   const dims = +document.getElementById('dims').value;
-  const numAxes = dims - 1;
-  const vals = [
-    dims,
+  const numAxes = Math.ceil(dims) - 1;
+
+  // Shape params packed as bytes (0-255)
+  const shape = [
+    Math.round(dims * 10),  // 20-50
     +document.getElementById('r').value,
     +document.getElementById('tipSize').value,
     document.getElementById('ribbon').checked ? 1 : 0,
-    +document.getElementById('ribbonSpin').value,
-    +document.getElementById('ribbonWobble').value,
+    Math.round(+document.getElementById('ribbonSpin').value * 2), // 0.5 steps → ints
+    Math.round(+document.getElementById('ribbonWobble').value * 2),
     +document.getElementById('loops').value,
+    +document.getElementById('slicePos').value + 100, // -100..100 → 0..200
+    +document.getElementById('sliceWidth').value,
+    Math.round(+document.getElementById('hueShift').value * 255 / 360),
+  ];
+  for (let i = 1; i <= numAxes; i++) shape.push(+document.getElementById(`o${i}`).value);
+  for (let i = 1; i <= numAxes; i++) shape.push(+document.getElementById(`i${i}`).value);
+
+  // View params as short decimals
+  const view = [
     +document.getElementById('spinXZ').value,
     +document.getElementById('spinYZ').value,
     +document.getElementById('spinXW').value,
     +document.getElementById('spinXV').value,
-    +document.getElementById('slicePos').value,
-    +document.getElementById('sliceWidth').value,
-    +document.getElementById('hueShift').value,
-  ];
-  for (let i = 1; i <= numAxes; i++) vals.push(+document.getElementById(`o${i}`).value);
-  for (let i = 1; i <= numAxes; i++) vals.push(+document.getElementById(`i${i}`).value);
-  return vals.join('.');
+  ].join('.');
+
+  return packHex(shape) + '-' + view;
 }
 
 function applyState(str) {
-  const v = str.split('.').map(Number);
+  // Legacy format: underscores or dots without dash
+  if (!str.includes('-')) return applyStateLegacy(str);
+
+  const [shapeHex, viewStr] = str.split('-');
+  const s = unpackHex(shapeHex);
+  if (s.length < 10) return false;
+
+  const dims = s[0] / 10;
+  if (dims < 2 || dims > 5) return false;
+  document.getElementById('dims').value = dims;
+  document.getElementById('r').value = s[1];
+  document.getElementById('tipSize').value = s[2];
+  document.getElementById('ribbon').checked = !!s[3];
+  document.getElementById('ribbonSpin').value = s[4] / 2;
+  document.getElementById('ribbonWobble').value = s[5] / 2;
+  document.getElementById('loops').value = s[6];
+  document.getElementById('slicePos').value = s[7] - 100;
+  document.getElementById('sliceWidth').value = s[8];
+  document.getElementById('hueShift').value = Math.round(s[9] * 360 / 255);
+
+  const numAxes = Math.ceil(dims) - 1;
+  let idx = 10;
+  for (let i = 1; i <= numAxes; i++) {
+    const el = document.getElementById(`o${i}`);
+    if (el && idx < s.length) el.value = s[idx++];
+  }
+  for (let i = 1; i <= numAxes; i++) {
+    const el = document.getElementById(`i${i}`);
+    if (el && idx < s.length) el.value = s[idx++];
+  }
+
+  if (viewStr) {
+    const v = viewStr.split('.').map(Number);
+    if (v[0] !== undefined) document.getElementById('spinXZ').value = v[0];
+    if (v[1] !== undefined) document.getElementById('spinYZ').value = v[1];
+    if (v[2] !== undefined) document.getElementById('spinXW').value = v[2];
+    if (v[3] !== undefined) document.getElementById('spinXV').value = v[3];
+  }
+
+  updateAxisVisibility();
+  return true;
+}
+
+// Legacy underscore/dot format
+function applyStateLegacy(str) {
+  const sep = str.includes('_') ? '_' : '.';
+  const v = str.split(sep).map(Number);
   if (v.length < 13) return false;
   const dims = v[0];
   if (dims < 2 || dims > 5) return false;
@@ -769,7 +872,7 @@ function applyState(str) {
   document.getElementById('slicePos').value = v[11];
   document.getElementById('sliceWidth').value = v[12];
   document.getElementById('hueShift').value = v[13] || 0;
-  const numAxes = dims - 1;
+  const numAxes = Math.ceil(dims) - 1;
   let idx = 14;
   for (let i = 1; i <= numAxes; i++) {
     const el = document.getElementById(`o${i}`);
