@@ -52,12 +52,30 @@
   }
   .axis-row { display: contents; }
   .axis-row.hidden { display: none; }
+  .about {
+    max-width: 512px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #999;
+  }
+  .about h2 { color: #ddd; margin: 0 0 8px; font-size: 18px; }
+  .left-col { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+  canvas { max-width: 100%; height: auto !important; }
+  @media (max-width: 919px) {
+    .about { order: -1; }
+  }
 </style>
 </head>
 <body>
 
 <div class="layout">
+<div class="left-col">
 <canvas id="c" width="512" height="512" style="width:512px;height:512px"></canvas>
+<div class="about">
+  <h2>A 5D Spirograph</h2>
+  <p>String theory states that all fundamental particles are just different foldings of a single multidimensional string. This toy allows you to play around and visualize a string in 5 dimensions. You might have played with a spirograph as a kid: some little gears that help you draw beautiful patterns on a paper. This app works exactly the same: two rotating discs on 2D create beautiful flower patterns. On 3D these shapes will go up and down creating dancing string that you can visualize in grayscale. A 4th dimension is added with color. A 5th dimension is opacity: our 4D string comes into and out of existence as it enters a 4D slice. We can even add another dimension by making the dot a ribbon that also spins and wobbles.</p>
+</div>
+</div>
 
 <div class="controls">
   <div id="resonance-display"></div>
@@ -68,9 +86,19 @@
 
   <div class="sep"></div>
 
+  <div class="heading" style="display:flex;gap:12px;align-items:center;justify-content:center">
+    <label style="cursor:pointer"><input type="radio" name="coupling" value="additive" checked> Additive</label>
+    <label style="cursor:pointer"><input type="radio" name="coupling" value="torus"> Torus</label>
+  </div>
+
   <label for="dims">Dimensions</label>
   <input type="range" id="dims" min="2" max="5" value="4" step="0.1">
   <span class="value" id="dimsv">4.0D</span>
+
+  <label for="timeDim" style="white-space:nowrap">
+    <input type="checkbox" id="timeDim"> Time as +1D
+  </label>
+  <span></span><span class="value" id="timeDimv"></span>
 
   <label for="r">Inner r</label>
   <input type="range" id="r" min="5" max="90" value="40">
@@ -86,9 +114,20 @@
 
   <div class="sep"></div>
 
-  <label for="hueShift">Hue shift</label>
-  <input type="range" id="hueShift" min="0" max="360" value="0">
-  <span class="value" id="hueShiftv">0°</span>
+  <label for="gradient">Color</label>
+  <select id="gradient" style="background:#333;color:#ccc;border:1px solid #555;border-radius:4px;padding:4px;width:100%">
+    <option value="0">Rainbow</option>
+    <option value="1">Inverted Rainbow</option>
+    <option value="2">Pastel Rainbow</option>
+    <option value="3">Gold & Blue</option>
+    <option value="4">Fire</option>
+    <option value="5">Ocean</option>
+    <option value="6">Neon</option>
+    <option value="7">Sunset</option>
+    <option value="8">Emerald</option>
+    <option value="9">Steel</option>
+  </select>
+  <span></span>
 
   <label for="tipSize">Tip size</label>
   <input type="range" id="tipSize" min="0" max="80" value="0">
@@ -161,7 +200,7 @@ const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 
 // --- Dynamic axis sliders ---
-const MAX_AXES = 4; // max N-1 for 5D
+const MAX_AXES = 5; // max N-1 for 6D (5D + time)
 const outerAxesEl = document.getElementById('outerAxes');
 const innerAxesEl = document.getElementById('innerAxes');
 
@@ -186,25 +225,31 @@ createAxisSliders(outerAxesEl, 'o', 20);
 createAxisSliders(innerAxesEl, 'i', 30);
 
 // Set nice defaults
-const defaultOuter = [3, 2, 5, 7];
-const defaultInner = [7, 5, 11, 3];
+const defaultOuter = [3, 2, 5, 7, 1];
+const defaultInner = [7, 5, 11, 3, 1];
 defaultOuter.forEach((v, i) => { const el = document.getElementById(`o${i+1}`); if (el) el.value = v; });
 defaultInner.forEach((v, i) => { const el = document.getElementById(`i${i+1}`); if (el) el.value = v; });
 
 function updateAxisVisibility() {
   const dims = +document.getElementById('dims').value;
-  const numAxes = Math.ceil(dims) - 1; // e.g. 3.5 → needs 4 coords → 3 axes
+  const timeOn = document.getElementById('timeDim').checked;
+  const effectiveDims = timeOn ? Math.min(dims + 1, 6) : dims;
+  const numAxes = Math.ceil(effectiveDims) - 1;
 
-  document.getElementById('dimsv').textContent = dims.toFixed(1) + 'D';
+  const dimsLabel = Number.isInteger(dims) ? dims.toString() : dims.toFixed(1);
+  document.getElementById('dimsv').textContent = timeOn ? dimsLabel + '+1' : dimsLabel + 'D';
 
-  // Show/hide axis sliders: show if this axis has any presence
+  const isTorus = document.querySelector('input[name="coupling"]:checked').value === 'torus';
+
+  // Show/hide axis sliders based on mode and effective dimensions
   for (let i = 1; i <= MAX_AXES; i++) {
-    const show = i <= numAxes;
-    outerAxesEl.querySelectorAll(`[data-axis="${i}"]`).forEach(el => el.classList.toggle('hidden', !show));
-    innerAxesEl.querySelectorAll(`[data-axis="${i}"]`).forEach(el => el.classList.toggle('hidden', !show));
+    const showOuter = isTorus ? (i === 1) : (i <= numAxes);
+    const showInner = isTorus ? (i <= numAxes - 1) : (i <= numAxes);
+    outerAxesEl.querySelectorAll(`[data-axis="${i}"]`).forEach(el => el.classList.toggle('hidden', !showOuter));
+    innerAxesEl.querySelectorAll(`[data-axis="${i}"]`).forEach(el => el.classList.toggle('hidden', !showInner));
   }
 
-  // View controls: show when dimension has any presence
+  // View controls: show when display dimension has presence (not time dim)
   const showCtrl = (id, vis) => document.getElementById(id).querySelectorAll('label, input, span').forEach(el => el.style.display = vis ? '' : 'none');
   showCtrl('view3d', true);
   showCtrl('view4d', dims > 3);
@@ -237,7 +282,7 @@ function hyperspherePoint(freqs, t, R, dims) {
   const loCoords = hyperspherePointRaw(loFreqs, t, R);
   if (frac < 0.001) {
     // Pad to 5 coords
-    while (loCoords.length < 5) loCoords.push(0);
+    while (loCoords.length < 6) loCoords.push(0);
     return loCoords;
   }
 
@@ -245,12 +290,114 @@ function hyperspherePoint(freqs, t, R, dims) {
 
   // Lerp: pad both to 5 dimensions
   const result = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 6; i++) {
     const a = loCoords[i] || 0;
     const b = hiCoords[i] || 0;
     result.push(a * (1 - frac) + b * frac);
   }
   return result;
+}
+
+// --- Torus (multiplicative) coupling ---
+// In torus mode, the inner orbit modulates the outer's radius.
+// For 3D: (R + r*cos(q*t)) * cos(p*t), (R + r*cos(q*t)) * sin(p*t), r*sin(q*t)
+// For 4D+: nested tori — each additional dim adds another tube-within-tube.
+function torusPoint(outerFreqs, innerFreqs, t, R, r, dims) {
+  // p = outer freq 1 (around the big circle)
+  // q = inner freq 1 (through the hole / tube cross-section)
+  // For 4D: the tube cross-section becomes a torus itself with freq from axis 2
+  // For 5D: another nesting level
+  const numAxes = Math.ceil(dims) - 1;
+  const p = outerFreqs[0] || 1;  // around the torus
+  const q = innerFreqs[0] || 1;  // through the hole
+
+  if (numAxes <= 1) {
+    // 2D: just two circles added (same as additive for 2D)
+    const x = R * Math.cos(p * t) + r * Math.cos(q * t);
+    const y = R * Math.sin(p * t) + r * Math.sin(q * t);
+    return [x, y, 0, 0, 0, 0];
+  }
+
+  // Torus knot: curve winds on the surface of a torus
+  // p = winding around the hole, q = winding through the hole
+  const tubeR = r;
+  const bigR = R;
+  const tubeAngle = q * t;  // angle in the tube cross-section
+
+  // Standard 3D torus knot
+  const modR = bigR + tubeR * Math.cos(tubeAngle);
+  let x = modR * Math.cos(p * t);
+  let y = modR * Math.sin(p * t);
+  let z = tubeR * Math.sin(tubeAngle);  // full Z range preserved
+  let w = 0, v = 0;
+
+  if (numAxes >= 3) {
+    // 4D: W is orthogonal to Z — uses cos(tubeAngle) so at crossings
+    // where Z differs (sin), W also differs (cos).
+    // Outer axis 2 adds a second winding that rotates W independently.
+    const p2 = outerFreqs[1] || 1;
+    const q2 = innerFreqs[1] || 1;
+    w = tubeR * Math.cos(tubeAngle) * Math.sin(q2 * t);
+  }
+
+  if (numAxes >= 4) {
+    // 5D: V adds another orthogonal component
+    const q3 = innerFreqs[2] || 1;
+    v = tubeR * Math.cos(tubeAngle) * Math.cos(q3 * t) * 0.5;
+  }
+
+  // Handle fractional dims via lerp with lower integer
+  const lo = Math.floor(dims);
+  const frac = dims - lo;
+  if (frac > 0.001 && lo >= 2) {
+    // Scale higher-dim coords by fractional presence
+    if (lo === 2) z *= frac;
+    if (lo === 3) w *= frac;
+    if (lo === 4) v *= frac;
+  }
+
+  return [x, y, z, w, v, 0];
+}
+
+// --- Color gradients ---
+// Each gradient is an array of [r, g, b] stops at evenly spaced positions
+const GRADIENTS = [
+  // 0: Rainbow
+  [[255,0,0],[255,127,0],[255,255,0],[0,255,0],[0,127,255],[75,0,200],[148,0,211]],
+  // 1: Inverted Rainbow
+  [[148,0,211],[75,0,200],[0,127,255],[0,255,0],[255,255,0],[255,127,0],[255,0,0]],
+  // 2: Pastel Rainbow
+  [[255,150,150],[255,200,150],[255,255,170],[170,255,180],[170,220,255],[200,170,255],[255,170,220]],
+  // 3: Gold & Blue
+  [[0,40,180],[0,80,220],[100,160,255],[255,220,100],[255,180,0],[200,140,0],[0,40,180]],
+  // 4: Fire
+  [[40,0,0],[180,0,0],[255,80,0],[255,180,0],[255,255,80],[255,255,200],[255,180,0]],
+  // 5: Ocean
+  [[0,10,60],[0,40,120],[0,100,180],[0,180,200],[80,220,220],[0,140,160],[0,10,60]],
+  // 6: Neon
+  [[255,0,100],[255,0,255],[100,0,255],[0,100,255],[0,255,200],[255,255,0],[255,0,100]],
+  // 7: Sunset
+  [[60,0,80],[180,0,120],[255,50,80],[255,120,0],[255,200,50],[255,100,60],[60,0,80]],
+  // 8: Emerald
+  [[0,80,30],[0,200,80],[80,255,120],[200,255,100],[255,255,80],[50,220,50],[0,80,30]],
+  // 9: Steel (cold grey to warm grey)
+  [[100,120,160],[140,150,175],[180,180,190],[210,200,190],[200,180,160],[160,150,150],[100,120,160]],
+];
+
+function gradientColor(gradIdx, t, depth) {
+  // t: 0..1 position in gradient, depth: 0..1 for brightness
+  const stops = GRADIENTS[gradIdx] || GRADIENTS[0];
+  const pos = ((t % 1) + 1) % 1; // ensure 0..1
+  const scaled = pos * (stops.length - 1);
+  const i0 = Math.floor(scaled);
+  const i1 = Math.min(i0 + 1, stops.length - 1);
+  const f = scaled - i0;
+  const r = Math.round(stops[i0][0] * (1 - f) + stops[i1][0] * f);
+  const g = Math.round(stops[i0][1] * (1 - f) + stops[i1][1] * f);
+  const b = Math.round(stops[i0][2] * (1 - f) + stops[i1][2] * f);
+  // Apply depth as brightness multiplier
+  const bright = 0.15 + 0.85 * depth * depth;
+  return [Math.round(r * bright), Math.round(g * bright), Math.round(b * bright)];
 }
 
 // --- Math helpers ---
@@ -308,15 +455,19 @@ function updateResonanceDisplay() {
 }
 
 // --- Drawing ---
-function draw() {
+function draw(timePhase) {
   const dims = +document.getElementById('dims').value;
-  const numAxes = Math.ceil(dims) - 1;
-  // Presence of each coordinate: how "inflated" each dimension is (0..1)
+  const timeOn = document.getElementById('timeDim').checked;
+  const effectiveDims = timeOn ? Math.min(dims + 1, 6) : dims;
+  const numAxes = Math.ceil(effectiveDims) - 1;
+  // Presence based on DISPLAY dims (not effective) — time dim doesn't add visual effects
   const presence = [1, 1, // x, y always full
     Math.min(1, Math.max(0, dims - 2)), // z
     Math.min(1, Math.max(0, dims - 3)), // w
     Math.min(1, Math.max(0, dims - 4)), // v
   ];
+  // Time dimension index: which coord is used for time gating
+  const timeDimIdx = timeOn ? Math.min(Math.ceil(effectiveDims) - 1, 5) : -1;
   const rRatio = +document.getElementById('r').value / 100;
   const tipSize = +document.getElementById('tipSize').value / 100; // 0..0.8
   const ribbonOn = document.getElementById('ribbon').checked;
@@ -327,7 +478,7 @@ function draw() {
   const spinYZDeg = +document.getElementById('spinYZ').value;
   const spinXWDeg = +document.getElementById('spinXW').value;
   const spinXVDeg = +document.getElementById('spinXV').value;
-  const hueShift = +document.getElementById('hueShift').value;
+  const gradIdx = +document.getElementById('gradient').value;
   const slicePos = +document.getElementById('slicePos').value / 100; // -1..1
   const sliceWidth = +document.getElementById('sliceWidth').value / 100; // 0.01..1
 
@@ -347,7 +498,6 @@ function draw() {
   document.getElementById('spinYZv').textContent = spinYZDeg + '\u00b0';
   document.getElementById('spinXWv').textContent = spinXWDeg + '\u00b0';
   document.getElementById('spinXVv').textContent = spinXVDeg + '\u00b0';
-  document.getElementById('hueShiftv').textContent = hueShift + '\u00b0';
   document.getElementById('slicePosv').textContent = Math.round(slicePos * 100);
   document.getElementById('sliceWidthv').textContent = Math.round(sliceWidth * 100);
   for (let i = 1; i <= numAxes; i++) {
@@ -379,14 +529,19 @@ function draw() {
   const cosXW = Math.cos(aXW), sinXW = Math.sin(aXW);
   const cosXV = Math.cos(aXV), sinXV = Math.sin(aXV);
 
+  const isTorus = document.querySelector('input[name="coupling"]:checked').value === 'torus';
+
   for (let i = 0; i <= steps; i++) {
     const t = (i / steps) * loops * Math.PI * 2;
 
-    const outerCoords = hyperspherePoint(outerFreqs, t, R, dims);
-    const innerCoords = hyperspherePoint(innerFreqs, t, r, dims);
-
-    // Sum in N dimensions
-    const coords = outerCoords.map((v, idx) => v + innerCoords[idx]);
+    let coords;
+    if (isTorus) {
+      coords = torusPoint(outerFreqs, innerFreqs, t, R, r, effectiveDims);
+    } else {
+      const outerCoords = hyperspherePoint(outerFreqs, t, R, effectiveDims);
+      const innerCoords = hyperspherePoint(innerFreqs, t, r, effectiveDims);
+      coords = outerCoords.map((v, idx) => v + innerCoords[idx]);
+    }
 
     // Extract dimensions
     let x = coords[0] || 0;
@@ -394,6 +549,7 @@ function draw() {
     let z = coords[2] || 0;
     let w = coords[3] || 0; // hue
     let v = coords[4] || 0; // slice
+    const timeDimVal = timeDimIdx >= 0 ? (coords[timeDimIdx] || 0) : 0;
 
     // View rotations — applied in order: XV, XW, XZ, YZ
     // Scale rotation strength by dimension presence
@@ -440,20 +596,22 @@ function draw() {
     const ribbonDx = tipR * Math.cos(rAngle);
     const ribbonDy = tipR * Math.sin(rAngle) * Math.cos(rTilt);
 
-    points.push({ px, py, z, w, v, pScale, ribbonDx, ribbonDy });
+    points.push({ px, py, z, w, v, timeDimVal, pScale, ribbonDx, ribbonDy });
   }
 
   // Normalize ranges
   let zMin = Infinity, zMax = -Infinity, wMin = Infinity, wMax = -Infinity;
-  let vMin = Infinity, vMax = -Infinity;
+  let vMin = Infinity, vMax = -Infinity, tMin = Infinity, tMax = -Infinity;
   for (const p of points) {
     zMin = Math.min(zMin, p.z); zMax = Math.max(zMax, p.z);
     wMin = Math.min(wMin, p.w); wMax = Math.max(wMax, p.w);
     vMin = Math.min(vMin, p.v); vMax = Math.max(vMax, p.v);
+    if (timeOn) { tMin = Math.min(tMin, p.timeDimVal); tMax = Math.max(tMax, p.timeDimVal); }
   }
   const zRange = zMax - zMin || 1;
   const wRange = wMax - wMin || 1;
   const vRange = vMax - vMin || 1;
+  const tRange = tMax - tMin || 1;
 
   // Build segments
   const segments = [];
@@ -466,9 +624,9 @@ function draw() {
     const rawDepth = zRange > 0.001 ? (avgZ - zMin) / zRange : 0.5;
     const depth = 1 * (1 - presence[2]) + rawDepth * presence[2];
 
-    // Hue: blend from 0 to full hue based on W presence
-    const rawHue = wRange > 0.001 ? ((avgW - wMin) / wRange) * 360 : 0;
-    const hue = (rawHue * presence[3] + hueShift) % 360;
+    // Color gradient position: W dimension when 4D+, depth when <4D
+    const wNorm = wRange > 0.001 ? (avgW - wMin) / wRange : 0;
+    const colorPos = wNorm * presence[3] + 0.5 * (1 - presence[3]);
 
     // 5D slice: scale effect by V presence
     let slice = 1;
@@ -480,6 +638,19 @@ function draw() {
       slice = 1 * (1 - presence[4]) + rawSlice * presence[4];
     }
 
+    // Time dimension visibility
+    let timeAlpha = 1;
+    if (timeOn && timePhase !== undefined) {
+      const avgT = (points[i - 1].timeDimVal + points[i].timeDimVal) / 2;
+      const tNorm = tRange > 0.001 ? (avgT - tMin) / tRange : 0.5; // 0..1
+      // Adaptive window: wider with fewer loops so shape stays full
+      // 1 loop → 0.5 (half visible), 30 loops → ~0.15
+      const timeWidth = 0.08 + 0.42 / Math.max(1, Math.sqrt(loops));
+      let dist = Math.abs(tNorm - timePhase);
+      dist = Math.min(dist, 1 - dist); // wrap distance
+      timeAlpha = Math.max(0, 1 - dist / timeWidth);
+    }
+
     const avgPScale = (points[i - 1].pScale + points[i].pScale) / 2;
     const p0 = points[i - 1], p1 = points[i];
     segments.push({
@@ -488,7 +659,7 @@ function draw() {
       // Ribbon quad corners
       rdx0: p0.ribbonDx, rdy0: p0.ribbonDy,
       rdx1: p1.ribbonDx, rdy1: p1.ribbonDy,
-      depth, hue, slice, pScale: avgPScale
+      depth, colorPos, slice, timeAlpha, pScale: avgPScale
     });
   }
 
@@ -505,22 +676,27 @@ function draw() {
 
   for (const seg of segments) {
     const d = seg.depth;
-    const sl = seg.slice * loopAlpha;
+    const sl = seg.slice * loopAlpha * seg.timeAlpha;
 
     if (sl < 0.01) continue; // skip fully invisible
 
-    let hueStr;
-    const lightness = Math.round(15 + 70 * d * d);
-    // Saturation scales with W presence: 0 at 3D, full at 4D+
-    const sat = Math.round((80 + 20 * d) * presence[3]);
-    hueStr = `hsla(${seg.hue}, ${sat}%, ${lightness}%, ${sl})`;
+    let [cr, cg, cb] = gradientColor(gradIdx, seg.colorPos, d);
+    // Desaturate toward grayscale when W dimension isn't present (3D or below)
+    if (presence[3] < 1) {
+      const gray = Math.round(cr * 0.299 + cg * 0.587 + cb * 0.114);
+      const s = presence[3];
+      cr = Math.round(cr * s + gray * (1 - s));
+      cg = Math.round(cg * s + gray * (1 - s));
+      cb = Math.round(cb * s + gray * (1 - s));
+    }
+    const colorStr = `rgba(${cr}, ${cg}, ${cb}, ${sl})`;
 
     if (ribbonOn && tipSize > 0) {
       // Ribbon thickness = depth-based line width
       const thickness = Math.max(1.2, 0.5 + 3.5 * d * d);
       // Draw ribbon quad with stroke for thickness
-      oc.fillStyle = hueStr;
-      oc.strokeStyle = hueStr;
+      oc.fillStyle = colorStr;
+      oc.strokeStyle = colorStr;
       oc.lineWidth = thickness;
       oc.lineJoin = 'round';
       oc.beginPath();
@@ -535,7 +711,7 @@ function draw() {
       // Round stroke mode
       const tipRadius = tipSize * scale * seg.pScale * 0.15;
       const lineW = Math.max(1.2, (0.5 + 3.5 * d * d) + tipRadius * 2);
-      oc.strokeStyle = hueStr;
+      oc.strokeStyle = colorStr;
       oc.lineWidth = lineW;
       oc.lineCap = 'round';
       oc.beginPath();
@@ -562,7 +738,7 @@ const PRESETS = [
   // Classic shapes
   { name: 'Rosette', group: 'shape', dims: 2, r: 30, axes: [[5], [13]], loops: 30, vt: 0, vs: 0, tip: 0 },
   { name: 'Möbius', group: 'shape', dims: 3, r: 90, axes: [[1, 1], [1, 1]], loops: 1, vt: 0, vs: 359, tip: 50, ribbon: 1, rspin: 0.5, rwob: 0 },
-  { name: 'Vortex', group: 'shape', dims: 5, r: 5, axes: [[20, 1, 1, 3], [1, 1, 1, 5]], loops: 1, vt: 0, vs: 356, tip: 13, ribbon: 1, rspin: 0.5, rwob: 40, hue: 155, sw: 75, sp: 1 },
+  { name: 'Vortex', group: 'shape', dims: 5, r: 5, axes: [[20, 1, 1, 3], [1, 1, 1, 5]], loops: 1, vt: 0, vs: 356, tip: 13, ribbon: 1, rspin: 0.5, rwob: 40, grad: 0, sw: 75, sp: 1 },
   { name: 'Infinity', group: 'shape', dims: 4, r: 90, axes: [[1, 1, 1], [1, 1, 1]], loops: 1, vt: 0, vs: 0, tip: 63, ribbon: 1, rspin: 1, rwob: 0 },
   // Explorations
   { name: 'Tangle', group: 'shape', dims: 4, r: 80, axes: [[3, 2, 1], [12, 8, 4]], loops: 30, vt: 25, vs: 60, tip: 12, ribbon: 1, rspin: 5, rwob: 3 },
@@ -571,7 +747,10 @@ const PRESETS = [
   { name: 'Ghost', group: 'shape', dims: 5, r: 80, axes: [[2, 3, 5, 7], [6, 9, 15, 3]], loops: 5, vt: 40, vs: 45, tip: 8, ribbon: 1, rspin: 3, rwob: 1, sw: 30 },
   { name: 'Starfish', group: 'shape', dims: 4, r: 15, axes: [[5, 5, 2], [10, 2, 10]], loops: 25, vt: 30, vs: 0, tip: 0 },
   { name: 'Chrysanth.', group: 'shape', dims: 4, r: 18, axes: [[6, 6, 6], [18, 12, 6]], loops: 20, vt: 20, vs: 180, tip: 0 },
-  { name: '5D Donut', group: 'shape', dims: 5, r: 5, axes: [[1, 10, 1, 1], [1, 1, 1, 1]], loops: 1, vt: 0, vs: 10, tip: 9, ribbon: 1, rspin: 5, rwob: 3, hue: 119, sw: 76, sp: 0 },
+  { name: '5D Donut', group: 'shape', dims: 5, r: 5, axes: [[1, 10, 1, 1], [1, 1, 1, 1]], loops: 1, vt: 0, vs: 10, tip: 9, ribbon: 1, rspin: 5, rwob: 3, grad: 0, sw: 76, sp: 0 },
+  // Torus knots
+  { name: 'Trefoil', group: 'shape', dims: 3, r: 40, axes: [[2, 1], [3, 1]], loops: 1, vt: 15, vs: 0, tip: 40, torus: 1 },
+  { name: 'Star Worm', group: 'shape', dims: 5, r: 37, axes: [[5, 5, 10, 5], [15, 20, 5, 5]], loops: 29, vt: 4, vs: 90, vw: 236, tip: 53, ribbon: 1, rspin: 21, rwob: 0, torus: 1, sw: 100, sp: 43 },
 ];
 
 function applyPreset(p) {
@@ -584,9 +763,11 @@ function applyPreset(p) {
   document.getElementById('spinXV').value = p.vv || 0;
   document.getElementById('tipSize').value = p.tip || 0;
   document.getElementById('ribbon').checked = !!p.ribbon;
+  document.querySelector(`input[name="coupling"][value="${p.torus ? 'torus' : 'additive'}"]`).checked = true;
+  document.getElementById('timeDim').checked = !!p.time;
   document.getElementById('ribbonSpin').value = p.rspin !== undefined ? p.rspin : 5;
   document.getElementById('ribbonWobble').value = p.rwob !== undefined ? p.rwob : 3;
-  document.getElementById('hueShift').value = p.hue || 0;
+  document.getElementById('gradient').value = p.grad || 0;
   document.getElementById('sliceWidth').value = p.sw || 40;
   document.getElementById('slicePos').value = p.sp || 0;
   for (let i = 0; i < MAX_AXES; i++) {
@@ -596,7 +777,12 @@ function applyPreset(p) {
     if (iEl) iEl.value = p.axes[1][i] || 5;
   }
   updateAxisVisibility();
-  draw();
+  if (document.getElementById('timeDim').checked) {
+    startTimeAnimation();
+  } else {
+    if (typeof timeAnimId !== 'undefined' && timeAnimId) { cancelAnimationFrame(timeAnimId); timeAnimId = null; }
+    draw();
+  }
 }
 
 const presetsEl = document.getElementById('presets');
@@ -616,6 +802,34 @@ document.querySelectorAll('.controls input[type="range"]').forEach(el =>
   })
 );
 document.getElementById('ribbon').addEventListener('change', draw);
+document.getElementById('gradient').addEventListener('change', draw);
+document.querySelectorAll('input[name="coupling"]').forEach(el => el.addEventListener('change', () => { updateAxisVisibility(); draw(); }));
+
+// --- Time dimension animation ---
+let timeAnimId = null;
+function startTimeAnimation() {
+  if (timeAnimId) return;
+  function tick() {
+    const phase = (performance.now() / 4000) % 1; // 4 second cycle
+    draw(phase);
+    if (document.getElementById('timeDim').checked) {
+      timeAnimId = requestAnimationFrame(tick);
+    } else {
+      timeAnimId = null;
+    }
+  }
+  tick();
+}
+
+document.getElementById('timeDim').addEventListener('change', () => {
+  updateAxisVisibility();
+  if (document.getElementById('timeDim').checked) {
+    startTimeAnimation();
+  } else {
+    if (timeAnimId) { cancelAnimationFrame(timeAnimId); timeAnimId = null; }
+    draw();
+  }
+});
 
 function randInt(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); }
 
@@ -689,9 +903,13 @@ document.getElementById('copyLink').addEventListener('click', () => {
   });
 });
 
-// --- Canvas drag-to-rotate ---
+// --- Canvas drag-to-rotate with inertia ---
 let dragState = null;
+let inertia = null;
+let inertiaRAF = null;
 const SENSITIVITY = 0.7;
+const FRICTION = 0.96;
+const MIN_VELOCITY = 0.05;
 
 function wrapDeg(v, min, max) {
   const range = max - min;
@@ -703,8 +921,15 @@ function clampDeg(v, min, max) {
 }
 
 function startDrag(x, y, e) {
+  // Stop any running inertia
+  if (inertiaRAF) { cancelAnimationFrame(inertiaRAF); inertiaRAF = null; }
+  inertia = null;
+
   dragState = {
     startX: x, startY: y,
+    lastX: x, lastY: y,
+    lastTime: performance.now(),
+    vx: 0, vy: 0,
     startXZ: +document.getElementById('spinXZ').value,
     startYZ: +document.getElementById('spinYZ').value,
     startXW: +document.getElementById('spinXW').value,
@@ -721,12 +946,22 @@ function moveDrag(x, y) {
   const dx = (x - dragState.startX) * SENSITIVITY;
   const dy = (y - dragState.startY) * SENSITIVITY;
 
+  // Track velocity (pixels per frame, smoothed)
+  const now = performance.now();
+  const dt = Math.max(1, now - dragState.lastTime);
+  const instantVx = (x - dragState.lastX) / dt * 16; // normalize to ~60fps
+  const instantVy = (y - dragState.lastY) / dt * 16;
+  dragState.vx = dragState.vx * 0.5 + instantVx * 0.5; // smooth
+  dragState.vy = dragState.vy * 0.5 + instantVy * 0.5;
+  dragState.lastX = x;
+  dragState.lastY = y;
+  dragState.lastTime = now;
+
   if (dragState.ctrl && dims > 4) {
     document.getElementById('spinXV').value = wrapDeg(dragState.startXV + dx, 0, 360);
   } else if (dragState.shift && dims > 3) {
     document.getElementById('spinXW').value = wrapDeg(dragState.startXW + dx, 0, 360);
   } else {
-    // Normal drag → always rotate in 3D (even for 2D shapes)
     document.getElementById('spinXZ').value = wrapDeg(dragState.startXZ + dx, 0, 360);
     document.getElementById('spinYZ').value = clampDeg(dragState.startYZ - dy, 0, 90);
   }
@@ -734,8 +969,43 @@ function moveDrag(x, y) {
 }
 
 function endDrag() {
+  if (!dragState) return;
+  const vx = dragState.vx * SENSITIVITY;
+  const vy = dragState.vy * SENSITIVITY;
+  const mode = dragState.ctrl ? 'xv' : dragState.shift ? 'xw' : 'normal';
   dragState = null;
   canvas.classList.remove('dragging');
+
+  // Start inertia if velocity is significant
+  if (Math.abs(vx) > MIN_VELOCITY || Math.abs(vy) > MIN_VELOCITY) {
+    inertia = { vx, vy, mode };
+    tickInertia();
+  }
+}
+
+function tickInertia() {
+  if (!inertia) return;
+  const { vx, vy, mode } = inertia;
+  const dims = +document.getElementById('dims').value;
+
+  if (mode === 'xv' && dims > 4) {
+    document.getElementById('spinXV').value = wrapDeg(+document.getElementById('spinXV').value + vx, 0, 360);
+  } else if (mode === 'xw' && dims > 3) {
+    document.getElementById('spinXW').value = wrapDeg(+document.getElementById('spinXW').value + vx, 0, 360);
+  } else {
+    document.getElementById('spinXZ').value = wrapDeg(+document.getElementById('spinXZ').value + vx, 0, 360);
+    document.getElementById('spinYZ').value = clampDeg(+document.getElementById('spinYZ').value - vy, 0, 90);
+  }
+  draw();
+
+  inertia.vx *= FRICTION;
+  inertia.vy *= FRICTION;
+
+  if (Math.abs(inertia.vx) < MIN_VELOCITY && Math.abs(inertia.vy) < MIN_VELOCITY) {
+    inertia = null;
+    return;
+  }
+  inertiaRAF = requestAnimationFrame(tickInertia);
 }
 
 // Mouse events
@@ -785,13 +1055,15 @@ function getState() {
     Math.round(dims * 10),  // 20-50
     +document.getElementById('r').value,
     +document.getElementById('tipSize').value,
-    document.getElementById('ribbon').checked ? 1 : 0,
+    (document.getElementById('ribbon').checked ? 1 : 0) |
+      (document.querySelector('input[name="coupling"]:checked').value === 'torus' ? 2 : 0) |
+      (document.getElementById('timeDim').checked ? 4 : 0),
     Math.round(+document.getElementById('ribbonSpin').value * 2), // 0.5 steps → ints
     Math.round(+document.getElementById('ribbonWobble').value * 2),
     +document.getElementById('loops').value,
     +document.getElementById('slicePos').value + 100, // -100..100 → 0..200
     +document.getElementById('sliceWidth').value,
-    Math.round(+document.getElementById('hueShift').value * 255 / 360),
+    +document.getElementById('gradient').value,
   ];
   for (let i = 1; i <= numAxes; i++) shape.push(+document.getElementById(`o${i}`).value);
   for (let i = 1; i <= numAxes; i++) shape.push(+document.getElementById(`i${i}`).value);
@@ -820,13 +1092,15 @@ function applyState(str) {
   document.getElementById('dims').value = dims;
   document.getElementById('r').value = s[1];
   document.getElementById('tipSize').value = s[2];
-  document.getElementById('ribbon').checked = !!s[3];
+  document.getElementById('ribbon').checked = !!(s[3] & 1);
+  document.querySelector(`input[name="coupling"][value="${s[3] & 2 ? 'torus' : 'additive'}"]`).checked = true;
+  document.getElementById('timeDim').checked = !!(s[3] & 4);
   document.getElementById('ribbonSpin').value = s[4] / 2;
   document.getElementById('ribbonWobble').value = s[5] / 2;
   document.getElementById('loops').value = s[6];
   document.getElementById('slicePos').value = s[7] - 100;
   document.getElementById('sliceWidth').value = s[8];
-  document.getElementById('hueShift').value = Math.round(s[9] * 360 / 255);
+  document.getElementById('gradient').value = s[9];
 
   const numAxes = Math.ceil(dims) - 1;
   let idx = 10;
@@ -871,7 +1145,7 @@ function applyStateLegacy(str) {
   document.getElementById('spinXV').value = v[10];
   document.getElementById('slicePos').value = v[11];
   document.getElementById('sliceWidth').value = v[12];
-  document.getElementById('hueShift').value = v[13] || 0;
+  document.getElementById('gradient').value = v[13] || 0;
   const numAxes = Math.ceil(dims) - 1;
   let idx = 14;
   for (let i = 1; i <= numAxes; i++) {
@@ -895,8 +1169,8 @@ function pushState() {
 
 // Update URL on every draw
 const origDraw = draw;
-draw = function() {
-  origDraw();
+draw = function(timePhase) {
+  origDraw(timePhase);
   pushState();
 };
 
@@ -904,7 +1178,12 @@ draw = function() {
 function loadFromHash() {
   const hash = location.hash.slice(1);
   if (hash && applyState(hash)) {
-    origDraw();
+    updateAxisVisibility();
+    if (document.getElementById('timeDim').checked) {
+      startTimeAnimation();
+    } else {
+      origDraw();
+    }
   }
 }
 
