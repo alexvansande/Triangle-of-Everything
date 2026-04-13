@@ -21,27 +21,59 @@
   @media (min-width: 920px) {
     .layout { flex-direction: row; align-items: flex-start; gap: 24px; }
   }
-  canvas { border: 1px solid #444; flex-shrink: 0; cursor: grab; }
+  canvas { border: 1px solid #444; flex-shrink: 0; cursor: grab; max-width: 100%; height: auto !important; }
   canvas.dragging { cursor: grabbing; }
   .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 360px;
+  }
+  .section {
+    border: 1px solid #333;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .section summary {
+    padding: 8px 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #888;
+    letter-spacing: 1px;
+    cursor: pointer;
+    background: #222;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section summary::-webkit-details-marker { display: none; }
+  .section summary::before {
+    content: '▶';
+    font-size: 8px;
+    transition: transform 0.2s;
+    display: inline-block;
+  }
+  .section[open] summary::before { transform: rotate(90deg); }
+  .section-body {
     display: grid;
     grid-template-columns: auto 1fr auto;
     gap: 6px 12px;
     align-items: center;
-    width: 360px;
+    padding: 8px 12px;
   }
-  .controls .sep { grid-column: 1 / -1; border-top: 1px solid #444; margin: 4px 0; }
-  .controls .heading { grid-column: 1 / -1; font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px; margin-top: 2px; }
+  .section-body .full-row { grid-column: 1 / -1; }
   input[type="range"] { width: 100%; }
   .value { text-align: right; font-variant-numeric: tabular-nums; min-width: 4ch; }
   .btn { padding: 8px; cursor: pointer; background: #333; color: #ccc; border: 1px solid #555; border-radius: 4px; font-size: 14px; }
   .btn:hover { background: #444; }
-  .btn-row { grid-column: 1 / -1; display: flex; gap: 8px; }
+  .btn-row { display: flex; gap: 8px; }
   .btn-row .btn { flex: 1; }
-  #resonance-display { grid-column: 1 / -1; padding: 8px 0; text-align: center; }
+  #resonance-display { padding: 8px 0; text-align: center; }
   .resonance-bar { height: 6px; background: #333; border-radius: 3px; margin-top: 6px; overflow: hidden; }
   .resonance-fill { height: 100%; border-radius: 3px; transition: width 0.2s, background 0.2s; }
-  .presets { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; }
   .preset-btn {
     padding: 4px 10px; cursor: pointer; background: #2a2a2a; color: #aaa;
     border: 1px solid #444; border-radius: 12px; font-size: 12px; white-space: nowrap;
@@ -52,6 +84,9 @@
   }
   .axis-row { display: contents; }
   .axis-row.hidden { display: none; }
+  .flatness-row { display: contents; }
+  .flatness-row.hidden { display: none; }
+  .flatness-row label { font-size: 12px; color: #999; padding-left: 8px; }
   .about {
     max-width: 512px;
     font-size: 14px;
@@ -60,7 +95,6 @@
   }
   .about h2 { color: #ddd; margin: 0 0 8px; font-size: 18px; }
   .left-col { display: flex; flex-direction: column; gap: 16px; align-items: center; }
-  canvas { max-width: 100%; height: auto !important; }
   @media (max-width: 919px) {
     .about { order: -1; }
   }
@@ -80,109 +114,180 @@
 <div class="controls">
   <div id="resonance-display"></div>
 
-  <div class="sep"></div>
-  <div class="heading">Presets</div>
-  <div class="presets" id="presets"></div>
+  <details class="section" open>
+    <summary>Presets</summary>
+    <div style="padding: 8px 12px;">
+      <div class="presets" id="presets"></div>
+    </div>
+  </details>
 
-  <div class="sep"></div>
+  <details class="section" open>
+    <summary>Shape</summary>
+    <div class="section-body">
+      <div class="full-row" style="display:flex;gap:12px;align-items:center;justify-content:center">
+        <label style="cursor:pointer"><input type="radio" name="coupling" value="additive" checked> Additive</label>
+        <label style="cursor:pointer"><input type="radio" name="coupling" value="torus"> Torus</label>
+      </div>
 
-  <div class="heading" style="display:flex;gap:12px;align-items:center;justify-content:center">
-    <label style="cursor:pointer"><input type="radio" name="coupling" value="additive" checked> Additive</label>
-    <label style="cursor:pointer"><input type="radio" name="coupling" value="torus"> Torus</label>
-  </div>
+      <label for="dims">Dimensions</label>
+      <input type="range" id="dims" min="2" max="5" value="4" step="1">
+      <span class="value" id="dimsv">4D</span>
 
-  <label for="dims">Dimensions</label>
-  <input type="range" id="dims" min="2" max="5" value="4" step="0.1">
-  <span class="value" id="dimsv">4.0D</span>
+      <div class="flatness-row" id="flatZ">
+        <label for="flatnessZ">Z depth</label>
+        <input type="range" id="flatnessZ" min="0" max="100" value="100">
+        <span class="value" id="flatnessZv">100%</span>
+      </div>
 
-  <label for="timeDim" style="white-space:nowrap">
-    <input type="checkbox" id="timeDim"> Time as +1D
-  </label>
-  <span></span><span class="value" id="timeDimv"></span>
+      <div class="flatness-row" id="flatW">
+        <label for="flatnessW">W color</label>
+        <input type="range" id="flatnessW" min="0" max="100" value="100">
+        <span class="value" id="flatnessWv">100%</span>
+      </div>
 
-  <label for="r">Inner r</label>
-  <input type="range" id="r" min="5" max="90" value="40">
-  <span class="value" id="rv">40</span>
+      <div class="flatness-row" id="flatV">
+        <label for="flatnessV">V opacity</label>
+        <input type="range" id="flatnessV" min="0" max="100" value="100">
+        <span class="value" id="flatnessVv">100%</span>
+      </div>
 
-  <div class="sep"></div>
-  <div class="heading">Outer hypersphere</div>
-  <div id="outerAxes"></div>
+      <label for="timeDim" style="white-space:nowrap">
+        <input type="checkbox" id="timeDim"> Time as +1D
+      </label>
+      <span></span><span class="value" id="timeDimv"></span>
 
-  <div class="sep"></div>
-  <div class="heading">Inner hypersphere</div>
-  <div id="innerAxes"></div>
+      <label for="r">Inner r</label>
+      <input type="range" id="r" min="5" max="90" value="40">
+      <span class="value" id="rv">40</span>
 
-  <div class="sep"></div>
+      <label for="loops">Loops</label>
+      <input type="range" id="loops" min="1" max="60" value="30">
+      <span class="value" id="loopsv">30</span>
+    </div>
+  </details>
 
-  <label for="gradient">Color</label>
-  <select id="gradient" style="background:#333;color:#ccc;border:1px solid #555;border-radius:4px;padding:4px;width:100%">
-    <option value="0">Rainbow</option>
-    <option value="1">Inverted Rainbow</option>
-    <option value="2">Pastel Rainbow</option>
-    <option value="3">Gold & Blue</option>
-    <option value="4">Fire</option>
-    <option value="5">Ocean</option>
-    <option value="6">Neon</option>
-    <option value="7">Sunset</option>
-    <option value="8">Emerald</option>
-    <option value="9">Steel</option>
-  </select>
-  <span></span>
+  <details class="section" open>
+    <summary>Outer hypersphere</summary>
+    <div class="section-body" id="outerAxes"></div>
+  </details>
 
-  <label for="tipSize">Tip size</label>
-  <input type="range" id="tipSize" min="0" max="80" value="0">
-  <span class="value" id="tipSizev">0</span>
+  <details class="section" open>
+    <summary>Inner hypersphere</summary>
+    <div class="section-body" id="innerAxes"></div>
+  </details>
 
-  <div id="ribbonControls" style="display:contents">
-    <label for="ribbon" style="white-space:nowrap">
-      <input type="checkbox" id="ribbon"> Ribbon
-    </label>
-    <span></span><span></span>
+  <details class="section" open>
+    <summary>Appearance</summary>
+    <div class="section-body">
+      <label for="gradient">Color</label>
+      <select id="gradient" style="background:#333;color:#ccc;border:1px solid #555;border-radius:4px;padding:4px;width:100%">
+        <option value="0">Rainbow</option>
+        <option value="1">Inverted Rainbow</option>
+        <option value="2">Pastel Rainbow</option>
+        <option value="3">Gold & Blue</option>
+        <option value="4">Fire</option>
+        <option value="5">Ocean</option>
+        <option value="6">Neon</option>
+        <option value="7">Sunset</option>
+        <option value="8">Emerald</option>
+        <option value="9">Steel</option>
+      </select>
+      <span></span>
 
-    <label for="ribbonSpin">Spin</label>
-    <input type="range" id="ribbonSpin" min="0.5" max="40" value="5" step="0.5">
-    <span class="value" id="ribbonSpinv">5</span>
+      <label for="tipSize">Tip size</label>
+      <input type="range" id="tipSize" min="0" max="80" value="0">
+      <span class="value" id="tipSizev">0</span>
 
-    <label for="ribbonWobble">Wobble</label>
-    <input type="range" id="ribbonWobble" min="0" max="40" value="3" step="0.5">
-    <span class="value" id="ribbonWobblev">3</span>
-  </div>
+      <div id="ribbonControls" style="display:contents">
+        <label for="ribbon" style="white-space:nowrap">
+          <input type="checkbox" id="ribbon"> Ribbon
+        </label>
+        <span></span><span></span>
 
-  <label for="loops">Loops</label>
-  <input type="range" id="loops" min="1" max="60" value="30">
-  <span class="value" id="loopsv">30</span>
+        <label for="ribbonSpin">Spin</label>
+        <input type="range" id="ribbonSpin" min="0.5" max="40" value="5" step="0.5">
+        <span class="value" id="ribbonSpinv">5</span>
 
-  <div id="view3d" style="display:contents">
-    <label for="spinXZ">Spin XZ</label>
-    <input type="range" id="spinXZ" min="0" max="360" value="0">
-    <span class="value" id="spinXZv">0°</span>
+        <label for="ribbonWobble">Wobble</label>
+        <input type="range" id="ribbonWobble" min="0" max="40" value="3" step="0.5">
+        <span class="value" id="ribbonWobblev">3</span>
+      </div>
+    </div>
+  </details>
 
-    <label for="spinYZ">Tilt YZ</label>
-    <input type="range" id="spinYZ" min="0" max="90" value="30">
-    <span class="value" id="spinYZv">30°</span>
-  </div>
+  <details class="section" open>
+    <summary>View</summary>
+    <div class="section-body">
+      <div id="view3d" style="display:contents">
+        <label for="spinXZ">Spin XZ</label>
+        <input type="range" id="spinXZ" min="0" max="360" value="0">
+        <span class="value" id="spinXZv">0°</span>
 
-  <div id="view4d" style="display:contents">
-    <label for="spinXW">Spin XW</label>
-    <input type="range" id="spinXW" min="0" max="360" value="0">
-    <span class="value" id="spinXWv">0°</span>
-  </div>
+        <label for="spinYZ">Tilt YZ</label>
+        <input type="range" id="spinYZ" min="0" max="90" value="30">
+        <span class="value" id="spinYZv">30°</span>
+      </div>
 
-  <div id="view5d" style="display:contents">
-    <label for="spinXV">Spin XV</label>
-    <input type="range" id="spinXV" min="0" max="360" value="0">
-    <span class="value" id="spinXVv">0°</span>
+      <div id="view4d" style="display:contents">
+        <label for="spinXW">Spin XW</label>
+        <input type="range" id="spinXW" min="0" max="360" value="0">
+        <span class="value" id="spinXWv">0°</span>
+      </div>
 
-    <label for="slicePos">Slice pos</label>
-    <input type="range" id="slicePos" min="-100" max="100" value="0">
-    <span class="value" id="slicePosv">0</span>
+      <div id="view5d" style="display:contents">
+        <label for="spinXV">Spin XV</label>
+        <input type="range" id="spinXV" min="0" max="360" value="0">
+        <span class="value" id="spinXVv">0°</span>
 
-    <label for="sliceWidth">Slice width</label>
-    <input type="range" id="sliceWidth" min="1" max="100" value="40">
-    <span class="value" id="sliceWidthv">40</span>
-  </div>
+        <label for="slicePos">Slice pos</label>
+        <input type="range" id="slicePos" min="-100" max="100" value="0">
+        <span class="value" id="slicePosv">0</span>
 
-  <div class="sep"></div>
+        <label for="sliceWidth">Slice width</label>
+        <input type="range" id="sliceWidth" min="1" max="100" value="40">
+        <span class="value" id="sliceWidthv">40</span>
+      </div>
+    </div>
+  </details>
+
+  <details class="section">
+    <summary>Effects</summary>
+    <div class="section-body">
+      <label for="variance">Roughness</label>
+      <input type="range" id="variance" min="0" max="10" value="0" step="0.1">
+      <span class="value" id="variancev">0%</span>
+
+      <label for="divergence">Divergence</label>
+      <input type="range" id="divergence" min="0" max="10" value="0" step="0.1">
+      <span class="value" id="divergencev">0%</span>
+
+      <label for="passes">Passes</label>
+      <input type="range" id="passes" min="1" max="20" value="1" step="1">
+      <span class="value" id="passesv">1</span>
+
+      <label for="brightness">Brightness</label>
+      <input type="range" id="brightness" min="0.5" max="10" value="1" step="0.1">
+      <span class="value" id="brightnessv">1.0×</span>
+
+      <label for="core">Core glow</label>
+      <input type="range" id="core" min="0" max="100" value="0" step="1">
+      <span class="value" id="corev">0%</span>
+
+      <label for="sparkle">Sparkle</label>
+      <input type="range" id="sparkle" min="0" max="100" value="0" step="1">
+      <span class="value" id="sparklev">0%</span>
+
+      <label for="bloom" style="white-space:nowrap">
+        <input type="checkbox" id="bloom"> Bloom
+      </label>
+      <span></span><span></span>
+
+      <label for="bloomBlur">Glow radius</label>
+      <input type="range" id="bloomBlur" min="2" max="40" value="12" step="1">
+      <span class="value" id="bloomBlurv">12</span>
+    </div>
+  </details>
+
   <div class="btn-row">
     <button class="btn" id="harmonize">✨ Harmonize</button>
     <button class="btn" id="randomize">🎲 Random</button>
@@ -206,7 +311,6 @@ const innerAxesEl = document.getElementById('innerAxes');
 
 function createAxisSliders(container, prefix, maxVal) {
   container.innerHTML = '';
-  container.style.display = 'contents';
   for (let i = 1; i <= MAX_AXES; i++) {
     const id = `${prefix}${i}`;
     const row = document.createElement('div');
@@ -236,8 +340,16 @@ function updateAxisVisibility() {
   const effectiveDims = timeOn ? Math.min(dims + 1, 6) : dims;
   const numAxes = Math.ceil(effectiveDims) - 1;
 
-  const dimsLabel = Number.isInteger(dims) ? dims.toString() : dims.toFixed(1);
-  document.getElementById('dimsv').textContent = timeOn ? dimsLabel + '+1' : dimsLabel + 'D';
+  document.getElementById('dimsv').textContent = timeOn ? dims + '+1' : dims + 'D';
+
+  // Show/hide flatness sliders based on dims
+  document.getElementById('flatZ').classList.toggle('hidden', dims < 3);
+  document.getElementById('flatW').classList.toggle('hidden', dims < 4);
+  document.getElementById('flatV').classList.toggle('hidden', dims < 5);
+  // Update flatness display values
+  document.getElementById('flatnessZv').textContent = document.getElementById('flatnessZ').value + '%';
+  document.getElementById('flatnessWv').textContent = document.getElementById('flatnessW').value + '%';
+  document.getElementById('flatnessVv').textContent = document.getElementById('flatnessV').value + '%';
 
   const isTorus = document.querySelector('input[name="coupling"]:checked').value === 'torus';
 
@@ -252,8 +364,8 @@ function updateAxisVisibility() {
   // View controls: show when display dimension has presence (not time dim)
   const showCtrl = (id, vis) => document.getElementById(id).querySelectorAll('label, input, span').forEach(el => el.style.display = vis ? '' : 'none');
   showCtrl('view3d', true);
-  showCtrl('view4d', dims > 3);
-  showCtrl('view5d', dims > 4);
+  showCtrl('view4d', dims >= 4);
+  showCtrl('view5d', dims >= 5);
 }
 
 // --- Hypersphere point ---
@@ -271,8 +383,7 @@ function hyperspherePointRaw(freqs, t, R) {
 }
 
 function hyperspherePoint(freqs, t, R, dims) {
-  // Compute at floor(dims) and ceil(dims), then lerp.
-  // This way 2.1D = 90% the 2D shape + 10% the 3D shape.
+  // With integer dims, compute at exact dimension count
   const lo = Math.floor(dims);
   const hi = Math.ceil(dims);
   const frac = dims - lo;
@@ -344,16 +455,6 @@ function torusPoint(outerFreqs, innerFreqs, t, R, r, dims) {
     // 5D: V adds another orthogonal component
     const q3 = innerFreqs[2] || 1;
     v = tubeR * Math.cos(tubeAngle) * Math.cos(q3 * t) * 0.5;
-  }
-
-  // Handle fractional dims via lerp with lower integer
-  const lo = Math.floor(dims);
-  const frac = dims - lo;
-  if (frac > 0.001 && lo >= 2) {
-    // Scale higher-dim coords by fractional presence
-    if (lo === 2) z *= frac;
-    if (lo === 3) w *= frac;
-    if (lo === 4) v *= frac;
   }
 
   return [x, y, z, w, v, 0];
@@ -433,6 +534,15 @@ function analyzeResonance(freqs) {
   return { score, period, category, emoji, ratioDescs };
 }
 
+// --- Seeded PRNG (LCG) ---
+function makePRNG(seed) {
+  let s = (seed ^ 0xdeadbeef) >>> 0;
+  return () => {
+    s = Math.imul(s, 1664525) + 1013904223 | 0;
+    return (s >>> 0) / 4294967296;
+  };
+}
+
 function updateResonanceDisplay() {
   const dims = +document.getElementById('dims').value;
   const numAxes = dims - 1;
@@ -460,14 +570,23 @@ function draw(timePhase) {
   const timeOn = document.getElementById('timeDim').checked;
   const effectiveDims = timeOn ? Math.min(dims + 1, 6) : dims;
   const numAxes = Math.ceil(effectiveDims) - 1;
-  // Presence based on DISPLAY dims (not effective) — time dim doesn't add visual effects
-  const presence = [1, 1, // x, y always full
-    Math.min(1, Math.max(0, dims - 2)), // z
-    Math.min(1, Math.max(0, dims - 3)), // w
-    Math.min(1, Math.max(0, dims - 4)), // v
-  ];
+  // Presence based on flatness sliders (0-1) — only for dims that exist
+  const flatZ = dims >= 3 ? +document.getElementById('flatnessZ').value / 100 : 0;
+  const flatW = dims >= 4 ? +document.getElementById('flatnessW').value / 100 : 0;
+  const flatV = dims >= 5 ? +document.getElementById('flatnessV').value / 100 : 0;
+  const presence = [1, 1, flatZ, flatW, flatV];
   // Time dimension index: which coord is used for time gating
   const timeDimIdx = timeOn ? Math.min(Math.ceil(effectiveDims) - 1, 5) : -1;
+  const variance = +document.getElementById('variance').value;
+  const divergence = +document.getElementById('divergence').value;
+  const bloomOn = document.getElementById('bloom').checked;
+  const numPasses = +document.getElementById('passes').value;
+  const brightnessMultiplier = +document.getElementById('brightness').value;
+  const bloomBlur = bloomOn ? +document.getElementById('bloomBlur').value : 0;
+  const coreGlow = +document.getElementById('core').value / 100; // 0..1
+  const sparkle = +document.getElementById('sparkle').value / 100; // 0..1
+  const noiseAmt = variance * 1.5;
+  const divAmt = divergence * 3; // divergence amplitude in pixels
   const rRatio = +document.getElementById('r').value / 100;
   const tipSize = +document.getElementById('tipSize').value / 100; // 0..0.8
   const ribbonOn = document.getElementById('ribbon').checked;
@@ -493,6 +612,16 @@ function draw(timePhase) {
   document.getElementById('tipSizev').textContent = Math.round(tipSize * 100);
   document.getElementById('ribbonSpinv').textContent = ribbonSpin;
   document.getElementById('ribbonWobblev').textContent = ribbonWobble;
+  document.getElementById('variancev').textContent = variance.toFixed(1) + '%';
+  document.getElementById('divergencev').textContent = divergence.toFixed(1) + '%';
+  document.getElementById('passesv').textContent = numPasses;
+  document.getElementById('brightnessv').textContent = brightnessMultiplier.toFixed(1) + '×';
+  document.getElementById('corev').textContent = Math.round(coreGlow * 100) + '%';
+  document.getElementById('sparklev').textContent = Math.round(sparkle * 100) + '%';
+  document.getElementById('bloomBlurv').textContent = bloomBlur;
+  document.getElementById('flatnessZv').textContent = Math.round(flatZ * 100) + '%';
+  document.getElementById('flatnessWv').textContent = Math.round(flatW * 100) + '%';
+  document.getElementById('flatnessVv').textContent = Math.round(flatV * 100) + '%';
   document.getElementById('loopsv').textContent = loops;
   document.getElementById('spinXZv').textContent = spinXZDeg + '\u00b0';
   document.getElementById('spinYZv').textContent = spinYZDeg + '\u00b0';
@@ -521,7 +650,7 @@ function draw(timePhase) {
 
   const maxFreq = Math.max(...outerFreqs, ...innerFreqs);
   const steps = loops * Math.max(500, maxFreq * 80);
-  const points = [];
+  const basePoints = [];
 
   // Precompute rotation trig
   const cosXZ = Math.cos(aXZ), sinXZ = Math.sin(aXZ);
@@ -543,12 +672,12 @@ function draw(timePhase) {
       coords = outerCoords.map((v, idx) => v + innerCoords[idx]);
     }
 
-    // Extract dimensions
+    // Extract dimensions, scale by flatness
     let x = coords[0] || 0;
     let y = coords[1] || 0;
-    let z = coords[2] || 0;
-    let w = coords[3] || 0; // hue
-    let v = coords[4] || 0; // slice
+    let z = (coords[2] || 0) * presence[2];
+    let w = (coords[3] || 0) * presence[3];
+    let v = (coords[4] || 0) * presence[4];
     const timeDimVal = timeDimIdx >= 0 ? (coords[timeDimIdx] || 0) : 0;
 
     // View rotations — applied in order: XV, XW, XZ, YZ
@@ -596,13 +725,13 @@ function draw(timePhase) {
     const ribbonDx = tipR * Math.cos(rAngle);
     const ribbonDy = tipR * Math.sin(rAngle) * Math.cos(rTilt);
 
-    points.push({ px, py, z, w, v, timeDimVal, pScale, ribbonDx, ribbonDy });
+    basePoints.push({ px, py, z, w, v, timeDimVal, pScale, ribbonDx, ribbonDy });
   }
 
   // Normalize ranges
   let zMin = Infinity, zMax = -Infinity, wMin = Infinity, wMax = -Infinity;
   let vMin = Infinity, vMax = -Infinity, tMin = Infinity, tMax = -Infinity;
-  for (const p of points) {
+  for (const p of basePoints) {
     zMin = Math.min(zMin, p.z); zMax = Math.max(zMax, p.z);
     wMin = Math.min(wMin, p.w); wMax = Math.max(wMax, p.w);
     vMin = Math.min(vMin, p.v); vMax = Math.max(vMax, p.v);
@@ -613,50 +742,43 @@ function draw(timePhase) {
   const vRange = vMax - vMin || 1;
   const tRange = tMax - tMin || 1;
 
-  // Build segments
+  // Build segments (base coords stored for per-pass noise)
   const segments = [];
-  for (let i = 1; i < points.length; i++) {
-    const avgZ = (points[i - 1].z + points[i].z) / 2;
-    const avgW = (points[i - 1].w + points[i].w) / 2;
-    const avgV = (points[i - 1].v + points[i].v) / 2;
+  for (let i = 1; i < basePoints.length; i++) {
+    const avgZ = (basePoints[i - 1].z + basePoints[i].z) / 2;
+    const avgW = (basePoints[i - 1].w + basePoints[i].w) / 2;
+    const avgV = (basePoints[i - 1].v + basePoints[i].v) / 2;
 
-    // Depth: blend from flat (1.0) to full depth based on Z presence
     const rawDepth = zRange > 0.001 ? (avgZ - zMin) / zRange : 0.5;
     const depth = 1 * (1 - presence[2]) + rawDepth * presence[2];
 
-    // Color gradient position: W dimension when 4D+, depth when <4D
     const wNorm = wRange > 0.001 ? (avgW - wMin) / wRange : 0;
     const colorPos = wNorm * presence[3] + 0.5 * (1 - presence[3]);
 
-    // 5D slice: scale effect by V presence
     let slice = 1;
     if (presence[4] > 0) {
       const vNorm = vRange > 0.001 ? (avgV - vMin) / vRange * 2 - 1 : 0;
       const dist = Math.abs(vNorm - slicePos);
       const rawSlice = Math.max(0, 1 - dist / Math.max(0.01, sliceWidth));
-      // Blend: at presence[4]=0 fully visible, at 1 full slice effect
       slice = 1 * (1 - presence[4]) + rawSlice * presence[4];
     }
 
-    // Time dimension visibility
     let timeAlpha = 1;
     if (timeOn && timePhase !== undefined) {
-      const avgT = (points[i - 1].timeDimVal + points[i].timeDimVal) / 2;
-      const tNorm = tRange > 0.001 ? (avgT - tMin) / tRange : 0.5; // 0..1
-      // Adaptive window: wider with fewer loops so shape stays full
-      // 1 loop → 0.5 (half visible), 30 loops → ~0.15
+      const avgT = (basePoints[i - 1].timeDimVal + basePoints[i].timeDimVal) / 2;
+      const tNorm = tRange > 0.001 ? (avgT - tMin) / tRange : 0.5;
       const timeWidth = 0.08 + 0.42 / Math.max(1, Math.sqrt(loops));
       let dist = Math.abs(tNorm - timePhase);
-      dist = Math.min(dist, 1 - dist); // wrap distance
+      dist = Math.min(dist, 1 - dist);
       timeAlpha = Math.max(0, 1 - dist / timeWidth);
     }
 
-    const avgPScale = (points[i - 1].pScale + points[i].pScale) / 2;
-    const p0 = points[i - 1], p1 = points[i];
+    const avgPScale = (basePoints[i - 1].pScale + basePoints[i].pScale) / 2;
+    const p0 = basePoints[i - 1], p1 = basePoints[i];
     segments.push({
-      x0: p0.px, y0: p0.py,
-      x1: p1.px, y1: p1.py,
-      // Ribbon quad corners
+      i0: i - 1, i1: i,
+      bx0: p0.px, by0: p0.py,
+      bx1: p1.px, by1: p1.py,
       rdx0: p0.ribbonDx, rdy0: p0.ribbonDy,
       rdx1: p1.ribbonDx, rdy1: p1.ribbonDy,
       depth, colorPos, slice, timeAlpha, pScale: avgPScale
@@ -665,72 +787,224 @@ function draw(timePhase) {
 
   segments.sort((a, b) => a.depth - b.depth);
 
-  // Draw to offscreen canvas
-  const off = document.createElement('canvas');
-  off.width = 512; off.height = 512;
-  const oc = off.getContext('2d');
-
-  // Scale opacity by loop density: fewer loops = full opacity, many loops = more transparent
-  // This prevents overdraw from washing out the depth/slice effects
   const loopAlpha = Math.min(1, 8 / loops);
+  // Brightness multiplier scales alpha per pass — with screen blend,
+  // overlapping passes accumulate toward white at high brightness
+  const passLoopAlpha = Math.min(1, loopAlpha * brightnessMultiplier / numPasses);
 
-  for (const seg of segments) {
-    const d = seg.depth;
-    const sl = seg.slice * loopAlpha * seg.timeAlpha;
+  // Combined canvas accumulates all passes
+  const combined = document.createElement('canvas');
+  combined.width = 512; combined.height = 512;
+  const cc = combined.getContext('2d');
+  cc.fillStyle = '#000';
+  cc.fillRect(0, 0, 512, 512);
 
-    if (sl < 0.01) continue; // skip fully invisible
+  for (let pass = 0; pass < numPasses; pass++) {
+    const rng = makePRNG(pass * 7919 + 42 + varianceSeed * 65537);
 
-    let [cr, cg, cb] = gradientColor(gradIdx, seg.colorPos, d);
-    // Desaturate toward grayscale when W dimension isn't present (3D or below)
-    if (presence[3] < 1) {
-      const gray = Math.round(cr * 0.299 + cg * 0.587 + cb * 0.114);
-      const s = presence[3];
-      cr = Math.round(cr * s + gray * (1 - s));
-      cg = Math.round(cg * s + gray * (1 - s));
-      cb = Math.round(cb * s + gray * (1 - s));
+    // Generate per-point roughness noise (independent per point)
+    let noiseX = null, noiseY = null;
+    if (noiseAmt > 0) {
+      noiseX = new Float32Array(basePoints.length);
+      noiseY = new Float32Array(basePoints.length);
+      for (let k = 0; k < basePoints.length; k++) {
+        noiseX[k] = (rng() - 0.5) * 2 * noiseAmt;
+        noiseY[k] = (rng() - 0.5) * 2 * noiseAmt;
+      }
     }
-    const colorStr = `rgba(${cr}, ${cg}, ${cb}, ${sl})`;
 
-    if (ribbonOn && tipSize > 0) {
-      // Ribbon thickness = depth-based line width
-      const thickness = Math.max(1.2, 0.5 + 3.5 * d * d);
-      // Draw ribbon quad with stroke for thickness
-      oc.fillStyle = colorStr;
-      oc.strokeStyle = colorStr;
-      oc.lineWidth = thickness;
-      oc.lineJoin = 'round';
-      oc.beginPath();
-      oc.moveTo(seg.x0 + seg.rdx0, seg.y0 + seg.rdy0);
-      oc.lineTo(seg.x1 + seg.rdx1, seg.y1 + seg.rdy1);
-      oc.lineTo(seg.x1 - seg.rdx1, seg.y1 - seg.rdy1);
-      oc.lineTo(seg.x0 - seg.rdx0, seg.y0 - seg.rdy0);
-      oc.closePath();
-      oc.fill();
-      oc.stroke();
-    } else {
-      // Round stroke mode
-      const tipRadius = tipSize * scale * seg.pScale * 0.15;
-      const lineW = Math.max(1.2, (0.5 + 3.5 * d * d) + tipRadius * 2);
-      oc.strokeStyle = colorStr;
-      oc.lineWidth = lineW;
-      oc.lineCap = 'round';
-      oc.beginPath();
-      oc.moveTo(seg.x0, seg.y0);
-      oc.lineTo(seg.x1, seg.y1);
-      oc.stroke();
+    // Generate smooth divergence offsets (correlated sine-wave drift)
+    let divX = null, divY = null;
+    if (divAmt > 0 && pass > 0) {
+      divX = new Float32Array(basePoints.length);
+      divY = new Float32Array(basePoints.length);
+      // Sum 4 sine waves at different low frequencies with random phases
+      const nWaves = 4;
+      const freqsX = [], freqsY = [], phaseX = [], phaseY = [], ampX = [], ampY = [];
+      for (let w = 0; w < nWaves; w++) {
+        // Frequencies: 1-7 cycles over the full path, random per pass
+        freqsX.push((1 + rng() * 6) * Math.PI * 2);
+        freqsY.push((1 + rng() * 6) * Math.PI * 2);
+        phaseX.push(rng() * Math.PI * 2);
+        phaseY.push(rng() * Math.PI * 2);
+        // Amplitude decreases for higher harmonics
+        const a = divAmt / (1 + w * 0.5);
+        ampX.push(a * (rng() * 0.5 + 0.5));
+        ampY.push(a * (rng() * 0.5 + 0.5));
+      }
+      for (let k = 0; k < basePoints.length; k++) {
+        const tNorm = k / basePoints.length; // 0..1 along the path
+        let dx = 0, dy = 0;
+        for (let w = 0; w < nWaves; w++) {
+          dx += ampX[w] * Math.sin(freqsX[w] * tNorm + phaseX[w]);
+          dy += ampY[w] * Math.sin(freqsY[w] * tNorm + phaseY[w]);
+        }
+        divX[k] = dx;
+        divY[k] = dy;
+      }
     }
+
+    const off = document.createElement('canvas');
+    off.width = 512; off.height = 512;
+    const oc = off.getContext('2d');
+
+    for (const seg of segments) {
+      const d = seg.depth;
+      const sl = seg.slice * passLoopAlpha * seg.timeAlpha;
+      if (sl < 0.01) continue;
+
+      let [cr, cg, cb] = gradientColor(gradIdx, seg.colorPos, d);
+      if (presence[3] < 1) {
+        const gray = Math.round(cr * 0.299 + cg * 0.587 + cb * 0.114);
+        const s = presence[3];
+        cr = Math.round(cr * s + gray * (1 - s));
+        cg = Math.round(cg * s + gray * (1 - s));
+        cb = Math.round(cb * s + gray * (1 - s));
+      }
+      const colorStr = `rgba(${cr}, ${cg}, ${cb}, ${sl})`;
+
+      const dx0 = (noiseX ? noiseX[seg.i0] : 0) + (divX ? divX[seg.i0] : 0);
+      const dy0 = (noiseY ? noiseY[seg.i0] : 0) + (divY ? divY[seg.i0] : 0);
+      const dx1 = (noiseX ? noiseX[seg.i1] : 0) + (divX ? divX[seg.i1] : 0);
+      const dy1 = (noiseY ? noiseY[seg.i1] : 0) + (divY ? divY[seg.i1] : 0);
+      const x0 = seg.bx0 + dx0, y0 = seg.by0 + dy0;
+      const x1 = seg.bx1 + dx1, y1 = seg.by1 + dy1;
+
+      if (ribbonOn && tipSize > 0) {
+        const thickness = Math.max(1.2, 0.5 + 3.5 * d * d);
+        // Outer colored ribbon
+        oc.fillStyle = colorStr;
+        oc.strokeStyle = colorStr;
+        oc.lineWidth = thickness;
+        oc.lineJoin = 'round';
+        oc.beginPath();
+        oc.moveTo(x0 + seg.rdx0, y0 + seg.rdy0);
+        oc.lineTo(x1 + seg.rdx1, y1 + seg.rdy1);
+        oc.lineTo(x1 - seg.rdx1, y1 - seg.rdy1);
+        oc.lineTo(x0 - seg.rdx0, y0 - seg.rdy0);
+        oc.closePath();
+        oc.fill();
+        oc.stroke();
+        // White-hot core center line
+        if (coreGlow > 0) {
+          const coreAlpha = sl * coreGlow;
+          oc.strokeStyle = `rgba(255, 255, 255, ${coreAlpha})`;
+          oc.lineWidth = Math.max(0.5, thickness * 0.3);
+          oc.lineCap = 'round';
+          oc.beginPath();
+          oc.moveTo((x0 + seg.rdx0 + x0 - seg.rdx0) / 2, (y0 + seg.rdy0 + y0 - seg.rdy0) / 2);
+          oc.lineTo((x1 + seg.rdx1 + x1 - seg.rdx1) / 2, (y1 + seg.rdy1 + y1 - seg.rdy1) / 2);
+          oc.stroke();
+        }
+      } else {
+        const tipRadius = tipSize * scale * seg.pScale * 0.15;
+        const lineW = Math.max(1.2, (0.5 + 3.5 * d * d) + tipRadius * 2);
+        // Outer colored line (wider when core is on to leave room for the halo)
+        const outerW = coreGlow > 0 ? lineW * (1 + coreGlow * 0.8) : lineW;
+        oc.strokeStyle = colorStr;
+        oc.lineWidth = outerW;
+        oc.lineCap = 'round';
+        oc.beginPath();
+        oc.moveTo(x0, y0);
+        oc.lineTo(x1, y1);
+        oc.stroke();
+        // White-hot core (thinner, brighter)
+        if (coreGlow > 0) {
+          const coreAlpha = Math.min(1, sl * (1 + coreGlow * 2));
+          const coreW = Math.max(0.5, lineW * 0.35 * (0.3 + 0.7 * coreGlow));
+          oc.strokeStyle = `rgba(255, 255, 255, ${coreAlpha})`;
+          oc.lineWidth = coreW;
+          oc.beginPath();
+          oc.moveTo(x0, y0);
+          oc.lineTo(x1, y1);
+          oc.stroke();
+        }
+      }
+    }
+
+    // Screen-blend this pass onto combined
+    cc.globalCompositeOperation = 'screen';
+    cc.globalAlpha = 1;
+    cc.drawImage(off, 0, 0);
+  }
+  cc.globalCompositeOperation = 'source-over';
+  cc.globalAlpha = 1;
+
+  // Sparkle: scatter bright dots near path segments
+  if (sparkle > 0) {
+    const sparkRng = makePRNG(varianceSeed * 131 + 77);
+    // Number of particles scales with sparkle amount and segment count
+    const numParticles = Math.round(segments.length * sparkle * 2);
+    const sparkCanvas = document.createElement('canvas');
+    sparkCanvas.width = 512; sparkCanvas.height = 512;
+    const sc = sparkCanvas.getContext('2d');
+
+    for (let i = 0; i < numParticles; i++) {
+      // Pick a random segment
+      const segIdx = Math.floor(sparkRng() * segments.length);
+      const seg = segments[segIdx];
+      if (seg.slice * seg.timeAlpha < 0.05) continue;
+
+      // Random position along and near the segment
+      const along = sparkRng();
+      const mx = seg.bx0 + (seg.bx1 - seg.bx0) * along;
+      const my = seg.by0 + (seg.by1 - seg.by0) * along;
+
+      // Scatter perpendicular to path — spread increases with sparkle
+      const spread = (8 + sparkle * 30) * (sparkRng() * sparkRng()); // quadratic falloff from center
+      const angle = sparkRng() * Math.PI * 2;
+      const px = mx + Math.cos(angle) * spread;
+      const py = my + Math.sin(angle) * spread;
+
+      // Color: mix between the segment's color and white
+      const [cr, cg, cb] = gradientColor(gradIdx, seg.colorPos, seg.depth);
+      const whiteness = 0.3 + sparkRng() * 0.7; // bias toward white
+      const pr = Math.round(cr + (255 - cr) * whiteness);
+      const pg = Math.round(cg + (255 - cg) * whiteness);
+      const pb = Math.round(cb + (255 - cb) * whiteness);
+
+      // Size and brightness vary
+      const size = 0.5 + sparkRng() * 1.5;
+      const alpha = (0.3 + sparkRng() * 0.7) * sparkle * seg.slice * seg.timeAlpha;
+
+      sc.fillStyle = `rgba(${pr}, ${pg}, ${pb}, ${alpha})`;
+      sc.beginPath();
+      sc.arc(px, py, size, 0, Math.PI * 2);
+      sc.fill();
+    }
+
+    // Screen-blend sparkles onto combined
+    cc.globalCompositeOperation = 'screen';
+    cc.drawImage(sparkCanvas, 0, 0);
+    cc.globalCompositeOperation = 'source-over';
+    cc.globalAlpha = 1;
+  }
+
+  // Post-processing bloom
+  if (bloomOn && bloomBlur > 0) {
+    const glow = document.createElement('canvas');
+    glow.width = 512; glow.height = 512;
+    const gc = glow.getContext('2d');
+    gc.filter = `blur(${bloomBlur}px) brightness(${1.2 + bloomBlur * 0.04})`;
+    gc.drawImage(combined, 0, 0);
+    gc.filter = 'none';
+    cc.globalCompositeOperation = 'screen';
+    cc.globalAlpha = 0.85;
+    cc.drawImage(glow, 0, 0);
+    cc.globalCompositeOperation = 'source-over';
+    cc.globalAlpha = 1;
   }
 
   // Glow + sharp
   ctx.filter = 'blur(6px) brightness(1.5)';
   ctx.globalAlpha = 0.5;
-  ctx.drawImage(off, 0, 0);
+  ctx.drawImage(combined, 0, 0);
   ctx.filter = 'blur(2px)';
   ctx.globalAlpha = 0.3;
-  ctx.drawImage(off, 0, 0);
+  ctx.drawImage(combined, 0, 0);
   ctx.filter = 'none';
   ctx.globalAlpha = 1;
-  ctx.drawImage(off, 0, 0);
+  ctx.drawImage(combined, 0, 0);
 }
 
 // --- Presets ---
@@ -770,6 +1044,10 @@ function applyPreset(p) {
   document.getElementById('gradient').value = p.grad || 0;
   document.getElementById('sliceWidth').value = p.sw || 40;
   document.getElementById('slicePos').value = p.sp || 0;
+  // Flatness: default to 100% unless preset specifies
+  document.getElementById('flatnessZ').value = p.fz !== undefined ? p.fz : 100;
+  document.getElementById('flatnessW').value = p.fw !== undefined ? p.fw : 100;
+  document.getElementById('flatnessV').value = p.fv !== undefined ? p.fv : 100;
   for (let i = 0; i < MAX_AXES; i++) {
     const oEl = document.getElementById(`o${i+1}`);
     const iEl = document.getElementById(`i${i+1}`);
@@ -798,11 +1076,13 @@ PRESETS.forEach(p => {
 document.querySelectorAll('.controls input[type="range"]').forEach(el =>
   el.addEventListener('input', () => {
     if (el.id === 'dims') updateAxisVisibility();
+    if (el.id.startsWith('flatness')) updateAxisVisibility();
     draw();
   })
 );
 document.getElementById('ribbon').addEventListener('change', draw);
 document.getElementById('gradient').addEventListener('change', draw);
+document.getElementById('bloom').addEventListener('change', draw);
 document.querySelectorAll('input[name="coupling"]').forEach(el => el.addEventListener('change', () => { updateAxisVisibility(); draw(); }));
 
 // --- Time dimension animation ---
@@ -903,6 +1183,9 @@ document.getElementById('copyLink').addEventListener('click', () => {
   });
 });
 
+// --- Variance seed (tap canvas to re-roll) ---
+let varianceSeed = 0;
+
 // --- Canvas drag-to-rotate with inertia ---
 let dragState = null;
 let inertia = null;
@@ -968,13 +1251,24 @@ function moveDrag(x, y) {
   draw();
 }
 
-function endDrag() {
+function endDrag(x, y) {
   if (!dragState) return;
+  const totalDx = x !== undefined ? Math.abs(x - dragState.startX) : 999;
+  const totalDy = y !== undefined ? Math.abs(y - dragState.startY) : 999;
+  const wasTap = totalDx < 4 && totalDy < 4;
+
   const vx = dragState.vx * SENSITIVITY;
   const vy = dragState.vy * SENSITIVITY;
   const mode = dragState.ctrl ? 'xv' : dragState.shift ? 'xw' : 'normal';
   dragState = null;
   canvas.classList.remove('dragging');
+
+  if (wasTap) {
+    // Tap on canvas → re-roll variance seed
+    varianceSeed = (varianceSeed + 1) % 1000;
+    draw();
+    return;
+  }
 
   // Start inertia if velocity is significant
   if (Math.abs(vx) > MIN_VELOCITY || Math.abs(vy) > MIN_VELOCITY) {
@@ -1014,7 +1308,7 @@ canvas.addEventListener('mousedown', (e) => {
   startDrag(e.clientX, e.clientY, e);
 });
 window.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
-window.addEventListener('mouseup', endDrag);
+window.addEventListener('mouseup', (e) => endDrag(e.clientX, e.clientY));
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
 // Touch events
@@ -1028,7 +1322,10 @@ window.addEventListener('touchmove', (e) => {
   const t = e.touches[0];
   moveDrag(t.clientX, t.clientY);
 }, { passive: false });
-window.addEventListener('touchend', endDrag);
+window.addEventListener('touchend', (e) => {
+  const t = e.changedTouches[0];
+  endDrag(t ? t.clientX : undefined, t ? t.clientY : undefined);
+});
 
 // --- URL state encoding/decoding ---
 // Pack all params into a compact string: values joined by dots, base36 where helpful
@@ -1064,6 +1361,10 @@ function getState() {
     +document.getElementById('slicePos').value + 100, // -100..100 → 0..200
     +document.getElementById('sliceWidth').value,
     +document.getElementById('gradient').value,
+    // Flatness values (0-100 each, packed as single byte)
+    Math.round(+document.getElementById('flatnessZ').value * 2.55), // 0-100 → 0-255
+    Math.round(+document.getElementById('flatnessW').value * 2.55),
+    Math.round(+document.getElementById('flatnessV').value * 2.55),
   ];
   for (let i = 1; i <= numAxes; i++) shape.push(+document.getElementById(`o${i}`).value);
   for (let i = 1; i <= numAxes; i++) shape.push(+document.getElementById(`i${i}`).value);
@@ -1102,8 +1403,20 @@ function applyState(str) {
   document.getElementById('sliceWidth').value = s[8];
   document.getElementById('gradient').value = s[9];
 
+  // Flatness values (bytes 10-12 if present)
+  if (s.length > 12) {
+    document.getElementById('flatnessZ').value = Math.round(s[10] / 2.55);
+    document.getElementById('flatnessW').value = Math.round(s[11] / 2.55);
+    document.getElementById('flatnessV').value = Math.round(s[12] / 2.55);
+  } else {
+    // Legacy URLs without flatness — default to 100%
+    document.getElementById('flatnessZ').value = 100;
+    document.getElementById('flatnessW').value = 100;
+    document.getElementById('flatnessV').value = 100;
+  }
+
   const numAxes = Math.ceil(dims) - 1;
-  let idx = 10;
+  let idx = s.length > 12 ? 13 : 10;
   for (let i = 1; i <= numAxes; i++) {
     const el = document.getElementById(`o${i}`);
     if (el && idx < s.length) el.value = s[idx++];
