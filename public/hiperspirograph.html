@@ -156,6 +156,12 @@
       </label>
       <span></span><span class="value" id="timeDimv"></span>
 
+      <div class="flatness-row" id="timeWidthRow">
+        <label for="timeWidth">Slice thickness</label>
+        <input type="range" id="timeWidth" min="1" max="50" value="15">
+        <span class="value" id="timeWidthv">15%</span>
+      </div>
+
       <label for="r">Inner r</label>
       <input type="range" id="r" min="5" max="90" value="40">
       <span class="value" id="rv">40</span>
@@ -341,6 +347,10 @@ function updateAxisVisibility() {
   const numAxes = Math.ceil(effectiveDims) - 1;
 
   document.getElementById('dimsv').textContent = timeOn ? dims + '+1' : dims + 'D';
+
+  // Show/hide time width slider
+  document.getElementById('timeWidthRow').classList.toggle('hidden', !timeOn);
+  document.getElementById('timeWidthv').textContent = document.getElementById('timeWidth').value + '%';
 
   // Show/hide flatness sliders based on dims
   document.getElementById('flatZ').classList.toggle('hidden', dims < 3);
@@ -678,7 +688,19 @@ function draw(timePhase) {
     let z = (coords[2] || 0) * presence[2];
     let w = (coords[3] || 0) * presence[3];
     let v = (coords[4] || 0) * presence[4];
-    const timeDimVal = timeDimIdx >= 0 ? (coords[timeDimIdx] || 0) : 0;
+    // Time dimension: use the actual spatial coordinate to "slice" through it
+    // (at 2+1: Z slices the trefoil, at 3+1: W slices the 4D shape, etc.)
+    // Exception: at 5+1 the 6th coord is a product of 5 sines (too oscillatory)
+    // or hardcoded 0 in torus — use a smooth sine substitute instead.
+    let timeDimVal = 0;
+    if (timeDimIdx >= 0) {
+      if (timeDimIdx <= 4) {
+        timeDimVal = coords[timeDimIdx] || 0;
+      } else {
+        const timeFreq = outerFreqs[Math.min(timeDimIdx, outerFreqs.length - 1)] || 1;
+        timeDimVal = Math.sin(timeFreq * t);
+      }
+    }
 
     // View rotations — applied in order: XV, XW, XZ, YZ
     // Scale rotation strength by dimension presence
@@ -767,7 +789,8 @@ function draw(timePhase) {
     if (timeOn && timePhase !== undefined) {
       const avgT = (basePoints[i - 1].timeDimVal + basePoints[i].timeDimVal) / 2;
       const tNorm = tRange > 0.001 ? (avgT - tMin) / tRange : 0.5;
-      const timeWidth = 0.08 + 0.42 / Math.max(1, Math.sqrt(loops));
+      // Time window: controlled by slider (1-50%)
+      const timeWidth = +document.getElementById('timeWidth').value / 100;
       let dist = Math.abs(tNorm - timePhase);
       dist = Math.min(dist, 1 - dist);
       timeAlpha = Math.max(0, 1 - dist / timeWidth);
@@ -1090,7 +1113,18 @@ let timeAnimId = null;
 function startTimeAnimation() {
   if (timeAnimId) return;
   function tick() {
-    const phase = (performance.now() / 4000) % 1; // 4 second cycle
+    const cycleDuration = 5000; // 4s animation + 1s black pause
+    const elapsed = performance.now() % cycleDuration;
+    if (elapsed > 4000) {
+      // Black frame during pause
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, 512, 512);
+      if (document.getElementById('timeDim').checked) {
+        timeAnimId = requestAnimationFrame(tick);
+      } else { timeAnimId = null; }
+      return;
+    }
+    const phase = (elapsed / 4000) % 1;
     draw(phase);
     if (document.getElementById('timeDim').checked) {
       timeAnimId = requestAnimationFrame(tick);
