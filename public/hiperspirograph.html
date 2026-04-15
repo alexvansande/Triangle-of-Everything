@@ -87,6 +87,20 @@
   .flatness-row { display: contents; }
   .flatness-row.hidden { display: none; }
   .flatness-row label { font-size: 12px; color: #999; padding-left: 8px; }
+  .stereo-grid {
+    display: flex;
+    gap: 2px;
+    width: 100%;
+    max-width: 100vw;
+    padding: 0 20px;
+  }
+  .stereo-grid canvas {
+    flex: 1;
+    min-width: 0;
+    height: auto;
+    border: 1px solid #333;
+  }
+  .stereo-grid.hidden { display: none; }
   .about {
     max-width: 512px;
     font-size: 14px;
@@ -95,6 +109,9 @@
   }
   .about h2 { color: #ddd; margin: 0 0 8px; font-size: 18px; }
   .left-col { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+  @media (min-width: 920px) {
+    .left-col { position: sticky; top: 20px; align-self: flex-start; }
+  }
   @media (max-width: 919px) {
     .about { order: -1; }
   }
@@ -102,6 +119,12 @@
 </head>
 <body>
 
+<div class="stereo-grid hidden" id="stereoGrid">
+  <canvas id="sc0" width="256" height="256"></canvas>
+  <canvas id="sc1" width="256" height="256"></canvas>
+  <canvas id="sc2" width="256" height="256"></canvas>
+  <canvas id="sc3" width="256" height="256"></canvas>
+</div>
 <div class="layout">
 <div class="left-col">
 <canvas id="c" width="512" height="512" style="width:512px;height:512px"></canvas>
@@ -253,6 +276,11 @@
         <input type="range" id="sliceWidth" min="1" max="100" value="40">
         <span class="value" id="sliceWidthv">40</span>
       </div>
+
+      <label for="stereo" style="white-space:nowrap">
+        <input type="checkbox" id="stereo"> Stereo (cross-eye)
+      </label>
+      <span></span><span></span>
     </div>
   </details>
 
@@ -653,10 +681,11 @@ function draw(timePhase) {
   const r = rRatio;
 
   ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, 512, 512);
+  const cSize = canvas.width;
+  ctx.fillRect(0, 0, cSize, cSize);
 
-  const cxc = 256, cyc = 256;
-  const scale = 512 * 0.43;
+  const cxc = cSize / 2, cyc = cSize / 2;
+  const scale = cSize * 0.43;
 
   const maxFreq = Math.max(...outerFreqs, ...innerFreqs);
   const steps = loops * Math.max(500, maxFreq * 80);
@@ -817,10 +846,10 @@ function draw(timePhase) {
 
   // Combined canvas accumulates all passes
   const combined = document.createElement('canvas');
-  combined.width = 512; combined.height = 512;
+  combined.width = cSize; combined.height = cSize;
   const cc = combined.getContext('2d');
   cc.fillStyle = '#000';
-  cc.fillRect(0, 0, 512, 512);
+  cc.fillRect(0, 0, cSize, cSize);
 
   for (let pass = 0; pass < numPasses; pass++) {
     const rng = makePRNG(pass * 7919 + 42 + varianceSeed * 65537);
@@ -868,7 +897,7 @@ function draw(timePhase) {
     }
 
     const off = document.createElement('canvas');
-    off.width = 512; off.height = 512;
+    off.width = cSize; off.height = cSize;
     const oc = off.getContext('2d');
 
     for (const seg of segments) {
@@ -893,8 +922,9 @@ function draw(timePhase) {
       const x0 = seg.bx0 + dx0, y0 = seg.by0 + dy0;
       const x1 = seg.bx1 + dx1, y1 = seg.by1 + dy1;
 
+      const lScale = cSize / 512; // line width scale factor
       if (ribbonOn && tipSize > 0) {
-        const thickness = Math.max(1.2, 0.5 + 3.5 * d * d);
+        const thickness = Math.max(1.2 * lScale, (0.5 + 3.5 * d * d) * lScale);
         // Outer colored ribbon
         oc.fillStyle = colorStr;
         oc.strokeStyle = colorStr;
@@ -912,7 +942,7 @@ function draw(timePhase) {
         if (coreGlow > 0) {
           const coreAlpha = sl * coreGlow;
           oc.strokeStyle = `rgba(255, 255, 255, ${coreAlpha})`;
-          oc.lineWidth = Math.max(0.5, thickness * 0.3);
+          oc.lineWidth = Math.max(0.5 * lScale, thickness * 0.3);
           oc.lineCap = 'round';
           oc.beginPath();
           oc.moveTo((x0 + seg.rdx0 + x0 - seg.rdx0) / 2, (y0 + seg.rdy0 + y0 - seg.rdy0) / 2);
@@ -921,7 +951,7 @@ function draw(timePhase) {
         }
       } else {
         const tipRadius = tipSize * scale * seg.pScale * 0.15;
-        const lineW = Math.max(1.2, (0.5 + 3.5 * d * d) + tipRadius * 2);
+        const lineW = Math.max(1.2 * lScale, (0.5 + 3.5 * d * d) * lScale + tipRadius * 2);
         // Outer colored line (wider when core is on to leave room for the halo)
         const outerW = coreGlow > 0 ? lineW * (1 + coreGlow * 0.8) : lineW;
         oc.strokeStyle = colorStr;
@@ -934,7 +964,7 @@ function draw(timePhase) {
         // White-hot core (thinner, brighter)
         if (coreGlow > 0) {
           const coreAlpha = Math.min(1, sl * (1 + coreGlow * 2));
-          const coreW = Math.max(0.5, lineW * 0.35 * (0.3 + 0.7 * coreGlow));
+          const coreW = Math.max(0.5 * lScale, lineW * 0.35 * (0.3 + 0.7 * coreGlow));
           oc.strokeStyle = `rgba(255, 255, 255, ${coreAlpha})`;
           oc.lineWidth = coreW;
           oc.beginPath();
@@ -959,7 +989,7 @@ function draw(timePhase) {
     // Number of particles scales with sparkle amount and segment count
     const numParticles = Math.round(segments.length * sparkle * 2);
     const sparkCanvas = document.createElement('canvas');
-    sparkCanvas.width = 512; sparkCanvas.height = 512;
+    sparkCanvas.width = cSize; sparkCanvas.height = cSize;
     const sc = sparkCanvas.getContext('2d');
 
     for (let i = 0; i < numParticles; i++) {
@@ -974,7 +1004,8 @@ function draw(timePhase) {
       const my = seg.by0 + (seg.by1 - seg.by0) * along;
 
       // Scatter perpendicular to path — spread increases with sparkle
-      const spread = (8 + sparkle * 30) * (sparkRng() * sparkRng()); // quadratic falloff from center
+      const sparkScale = cSize / 512;
+      const spread = (8 + sparkle * 30) * sparkScale * (sparkRng() * sparkRng()); // quadratic falloff from center
       const angle = sparkRng() * Math.PI * 2;
       const px = mx + Math.cos(angle) * spread;
       const py = my + Math.sin(angle) * spread;
@@ -987,7 +1018,7 @@ function draw(timePhase) {
       const pb = Math.round(cb + (255 - cb) * whiteness);
 
       // Size and brightness vary
-      const size = 0.5 + sparkRng() * 1.5;
+      const size = (0.5 + sparkRng() * 1.5) * sparkScale;
       const alpha = (0.3 + sparkRng() * 0.7) * sparkle * seg.slice * seg.timeAlpha;
 
       sc.fillStyle = `rgba(${pr}, ${pg}, ${pb}, ${alpha})`;
@@ -1006,9 +1037,10 @@ function draw(timePhase) {
   // Post-processing bloom
   if (bloomOn && bloomBlur > 0) {
     const glow = document.createElement('canvas');
-    glow.width = 512; glow.height = 512;
+    glow.width = cSize; glow.height = cSize;
     const gc = glow.getContext('2d');
-    gc.filter = `blur(${bloomBlur}px) brightness(${1.2 + bloomBlur * 0.04})`;
+    const blurScale = cSize / 512;
+    gc.filter = `blur(${bloomBlur * blurScale}px) brightness(${1.2 + bloomBlur * 0.04})`;
     gc.drawImage(combined, 0, 0);
     gc.filter = 'none';
     cc.globalCompositeOperation = 'screen';
@@ -1019,10 +1051,11 @@ function draw(timePhase) {
   }
 
   // Glow + sharp
-  ctx.filter = 'blur(6px) brightness(1.5)';
+  const finalBlurScale = cSize / 512;
+  ctx.filter = `blur(${6 * finalBlurScale}px) brightness(1.5)`;
   ctx.globalAlpha = 0.5;
   ctx.drawImage(combined, 0, 0);
-  ctx.filter = 'blur(2px)';
+  ctx.filter = `blur(${2 * finalBlurScale}px)`;
   ctx.globalAlpha = 0.3;
   ctx.drawImage(combined, 0, 0);
   ctx.filter = 'none';
@@ -1048,6 +1081,11 @@ const PRESETS = [
   // Torus knots
   { name: 'Trefoil', group: 'shape', dims: 3, r: 40, axes: [[2, 1], [3, 1]], loops: 1, vt: 15, vs: 0, tip: 40, torus: 1 },
   { name: 'Star Worm', group: 'shape', dims: 5, r: 37, axes: [[5, 5, 10, 5], [15, 20, 5, 5]], loops: 29, vt: 4, vs: 90, vw: 236, tip: 53, ribbon: 1, rspin: 21, rwob: 0, torus: 1, sw: 100, sp: 43 },
+  { name: 'Sunflower', group: 'shape', dims: 4, r: 90, axes: [[19, 1, 1], [6, 6, 1]], loops: 1, vt: 0, vs: 172, tip: 26, ribbon: 1, rspin: 10.5, rwob: 16.5, torus: 1, grad: 4, fz: 87, fw: 91 },
+  { name: 'Clover Seed', group: 'shape', dims: 4, r: 90, axes: [[20, 1, 1], [6, 6, 1]], loops: 1, vt: 0, vs: 194, tip: 26, ribbon: 1, rspin: 10.5, rwob: 16.5, torus: 1, grad: 5, fz: 87, fw: 91 },
+  { name: 'Cloud Ghosts', group: 'shape', dims: 5, r: 90, axes: [[20, 1, 1, 3], [13, 4, 19, 5]], loops: 1, vt: 0, vs: 149, tip: 20, ribbon: 1, rspin: 26, rwob: 15, torus: 1, grad: 5, fz: 87, fw: 91, sp: 65, sw: 16, roughness: 2.9, divergence: 2.6, passes: 20, brightness: 4.3, core: 100, sparkle: 66, bloom: true, bloomBlur: 9 },
+  { name: 'Color Star', group: 'shape', dims: 5, r: 19, axes: [[2, 1, 1, 3], [11, 1, 8, 5]], loops: 1, vt: 12, vs: 181, tip: 23, ribbon: 1, rspin: 0.5, rwob: 20, torus: 1, grad: 1, sp: 22, sw: 100, roughness: 0.5, divergence: 0.9, passes: 5, brightness: 5.2, core: 100, sparkle: 21, bloom: true, bloomBlur: 12 },
+  { name: 'Big Bang', group: 'shape', dims: 5, r: 72, axes: [[20, 1, 1, 3], [29, 24, 28, 5]], loops: 1, vt: 0, vs: 170, tip: 23, ribbon: 1, rspin: 0.5, rwob: 20, torus: 1, grad: 1, sp: 13, sw: 68, roughness: 2.1, divergence: 1.2, passes: 20, brightness: 5.2, core: 100, sparkle: 21, bloom: true, bloomBlur: 15 },
 ];
 
 function applyPreset(p) {
@@ -1071,6 +1109,16 @@ function applyPreset(p) {
   document.getElementById('flatnessZ').value = p.fz !== undefined ? p.fz : 100;
   document.getElementById('flatnessW').value = p.fw !== undefined ? p.fw : 100;
   document.getElementById('flatnessV').value = p.fv !== undefined ? p.fv : 100;
+  // Effects: default to off unless preset specifies
+  document.getElementById('variance').value = p.roughness || 0;
+  document.getElementById('divergence').value = p.divergence || 0;
+  document.getElementById('passes').value = p.passes || 1;
+  document.getElementById('brightness').value = p.brightness || 1;
+  document.getElementById('core').value = p.core || 0;
+  document.getElementById('sparkle').value = p.sparkle || 0;
+  document.getElementById('bloom').checked = !!p.bloom;
+  document.getElementById('bloomBlur').value = p.bloomBlur || 12;
+  document.getElementById('timeWidth').value = p.timeWidth || 15;
   for (let i = 0; i < MAX_AXES; i++) {
     const oEl = document.getElementById(`o${i+1}`);
     const iEl = document.getElementById(`i${i+1}`);
@@ -1078,6 +1126,7 @@ function applyPreset(p) {
     if (iEl) iEl.value = p.axes[1][i] || 5;
   }
   updateAxisVisibility();
+  updateDownloadLabel();
   if (document.getElementById('timeDim').checked) {
     startTimeAnimation();
   } else {
@@ -1118,7 +1167,7 @@ function startTimeAnimation() {
     if (elapsed > 4000) {
       // Black frame during pause
       ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, 512, 512);
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       if (document.getElementById('timeDim').checked) {
         timeAnimId = requestAnimationFrame(tick);
       } else { timeAnimId = null; }
@@ -1137,6 +1186,7 @@ function startTimeAnimation() {
 
 document.getElementById('timeDim').addEventListener('change', () => {
   updateAxisVisibility();
+  updateDownloadLabel();
   if (document.getElementById('timeDim').checked) {
     startTimeAnimation();
   } else {
@@ -1203,11 +1253,64 @@ document.getElementById('harmonize').addEventListener('click', () => {
 });
 
 document.getElementById('download').addEventListener('click', () => {
-  const link = document.createElement('a');
-  link.download = 'hyperspirograph.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+  if (document.getElementById('timeDim').checked) {
+    recordVideo();
+  } else {
+    // Render at 1024×1024 for high-res download
+    const origW = canvas.width, origH = canvas.height;
+    canvas.width = 1024; canvas.height = 1024;
+    draw();
+    const link = document.createElement('a');
+    link.download = (getState() || 'hyperspirograph') + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    // Restore display size
+    canvas.width = origW; canvas.height = origH;
+    draw();
+  }
 });
+
+function recordVideo() {
+  const btn = document.getElementById('download');
+  btn.textContent = '⏺ Recording...';
+  btn.disabled = true;
+
+  const stream = canvas.captureStream(30);
+  const chunks = [];
+  // Try VP9, fall back to default
+  let options = {};
+  if (MediaRecorder.isTypeSupported('video/webm; codecs=vp9')) {
+    options.mimeType = 'video/webm; codecs=vp9';
+  } else if (MediaRecorder.isTypeSupported('video/webm')) {
+    options.mimeType = 'video/webm';
+  }
+  const recorder = new MediaRecorder(stream, options);
+
+  recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: recorder.mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = (getState() || 'hyperspirograph') + '.webm';
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+    btn.textContent = '💾 Video';
+    btn.disabled = false;
+  };
+
+  recorder.start();
+  // Record one full cycle (5 seconds = 4s animation + 1s black)
+  setTimeout(() => recorder.stop(), 5000);
+}
+
+// Update download button label based on time checkbox
+function updateDownloadLabel() {
+  const btn = document.getElementById('download');
+  if (btn.disabled) return; // don't change during recording
+  btn.textContent = document.getElementById('timeDim').checked ? '💾 Video' : '💾 PNG';
+}
 
 document.getElementById('copyLink').addEventListener('click', () => {
   const btn = document.getElementById('copyLink');
@@ -1225,7 +1328,7 @@ let dragState = null;
 let inertia = null;
 let inertiaRAF = null;
 const SENSITIVITY = 0.7;
-const FRICTION = 0.96;
+const FRICTION = 0.992;
 const MIN_VELOCITY = 0.05;
 
 function wrapDeg(v, min, max) {
@@ -1337,20 +1440,21 @@ function tickInertia() {
 }
 
 // Mouse events
-canvas.addEventListener('mousedown', (e) => {
-  e.preventDefault();
-  startDrag(e.clientX, e.clientY, e);
+// Attach drag events to main canvas and all stereo canvases
+[canvas, ...document.querySelectorAll('.stereo-grid canvas')].forEach(el => {
+  el.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    startDrag(e.clientX, e.clientY, e);
+  });
+  el.addEventListener('contextmenu', (e) => e.preventDefault());
+  el.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const t = e.touches[0];
+    startDrag(t.clientX, t.clientY, e);
+  }, { passive: false });
 });
 window.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
 window.addEventListener('mouseup', (e) => endDrag(e.clientX, e.clientY));
-canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-
-// Touch events
-canvas.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  const t = e.touches[0];
-  startDrag(t.clientX, t.clientY, e);
-}, { passive: false });
 window.addEventListener('touchmove', (e) => {
   if (!dragState) return;
   const t = e.touches[0];
@@ -1411,14 +1515,34 @@ function getState() {
     +document.getElementById('spinXV').value,
   ].join('.');
 
-  return packHex(shape) + '-' + view;
+  // Effects params packed as bytes
+  const effects = [
+    Math.round(+document.getElementById('variance').value * 10),      // 0-100 (roughness 0-10 × 10)
+    Math.round(+document.getElementById('divergence').value * 10),    // 0-100 (divergence 0-10 × 10)
+    +document.getElementById('passes').value,                          // 1-20
+    Math.round(+document.getElementById('brightness').value * 10),    // 5-100 (0.5-10 × 10)
+    +document.getElementById('core').value,                            // 0-100
+    +document.getElementById('sparkle').value,                         // 0-100
+    (document.getElementById('bloom').checked ? 128 : 0) |
+      +document.getElementById('bloomBlur').value,                     // bit7=bloom, bits0-6=blur(2-40)
+    +document.getElementById('timeWidth').value,                       // 1-50
+  ];
+
+  // Only append effects section if any non-default
+  const hasEffects = effects[0] || effects[1] || effects[2] !== 1 ||
+    effects[3] !== 10 || effects[4] || effects[5] ||
+    (effects[6] !== 12) || effects[7] !== 15;
+
+  return packHex(shape) + '-' + view + (hasEffects ? '-' + packHex(effects) : '');
 }
 
 function applyState(str) {
   // Legacy format: underscores or dots without dash
   if (!str.includes('-')) return applyStateLegacy(str);
 
-  const [shapeHex, viewStr] = str.split('-');
+  const parts = str.split('-');
+  const [shapeHex, viewStr] = parts;
+  const effectsHex = parts[2] || null;
   const s = unpackHex(shapeHex);
   if (s.length < 10) return false;
 
@@ -1468,6 +1592,33 @@ function applyState(str) {
     if (v[3] !== undefined) document.getElementById('spinXV').value = v[3];
   }
 
+  // Effects params (third section after second dash)
+  if (effectsHex) {
+    const e = unpackHex(effectsHex);
+    if (e[0] !== undefined) document.getElementById('variance').value = e[0] / 10;
+    if (e[1] !== undefined) document.getElementById('divergence').value = e[1] / 10;
+    if (e[2] !== undefined) document.getElementById('passes').value = e[2];
+    if (e[3] !== undefined) document.getElementById('brightness').value = e[3] / 10;
+    if (e[4] !== undefined) document.getElementById('core').value = e[4];
+    if (e[5] !== undefined) document.getElementById('sparkle').value = e[5];
+    if (e[6] !== undefined) {
+      document.getElementById('bloom').checked = !!(e[6] & 128);
+      document.getElementById('bloomBlur').value = e[6] & 127;
+    }
+    if (e[7] !== undefined) document.getElementById('timeWidth').value = e[7];
+  } else {
+    // Reset effects to defaults for URLs without effects
+    document.getElementById('variance').value = 0;
+    document.getElementById('divergence').value = 0;
+    document.getElementById('passes').value = 1;
+    document.getElementById('brightness').value = 1;
+    document.getElementById('core').value = 0;
+    document.getElementById('sparkle').value = 0;
+    document.getElementById('bloom').checked = false;
+    document.getElementById('bloomBlur').value = 12;
+    document.getElementById('timeWidth').value = 15;
+  }
+
   updateAxisVisibility();
   return true;
 }
@@ -1514,10 +1665,39 @@ function pushState() {
   }
 }
 
+// Stereo rendering
+const stereoOffsets = [-3, -1, 1, 3]; // degrees offset for each view
+function updateStereoVisibility() {
+  const stereoOn = document.getElementById('stereo').checked;
+  document.getElementById('c').style.display = stereoOn ? 'none' : '';
+  document.getElementById('stereoGrid').classList.toggle('hidden', !stereoOn);
+}
+document.getElementById('stereo').addEventListener('change', () => {
+  updateStereoVisibility();
+  draw();
+});
+
 // Update URL on every draw
 const origDraw = draw;
 draw = function(timePhase) {
-  origDraw(timePhase);
+  const stereoOn = document.getElementById('stereo').checked;
+  if (stereoOn) {
+    const spinEl = document.getElementById('spinXZ');
+    const origSpin = +spinEl.value;
+    for (let i = 0; i < 4; i++) {
+      // Temporarily set rotation offset
+      spinEl.value = ((origSpin + stereoOffsets[i]) % 360 + 360) % 360;
+      origDraw(timePhase);
+      // Copy main canvas to stereo canvas (scaled down)
+      const sc = document.getElementById('sc' + i).getContext('2d');
+      sc.clearRect(0, 0, 256, 256);
+      sc.drawImage(canvas, 0, 0, 256, 256);
+    }
+    // Restore original rotation
+    spinEl.value = origSpin;
+  } else {
+    origDraw(timePhase);
+  }
   pushState();
 };
 
@@ -1538,6 +1718,7 @@ window.addEventListener('hashchange', loadFromHash);
 
 // Init
 updateAxisVisibility();
+updateDownloadLabel();
 if (location.hash.length > 1) {
   loadFromHash();
 } else {
