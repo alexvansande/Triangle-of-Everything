@@ -1247,6 +1247,13 @@ const TOUR_STEPS = [
     state: "282d28020a0601642800ffffff040103070505-351.7.0.0",
     title: "The fourth dimension",
     text: "Your screen is only two dimensional, but you no doubt had no issue 'seeing' in third dimension by simply varying the brightness of the dot, from black to white. We can similarly add a fourth dimension using color (or more technically 'hue'). Imagine that this isn't merely a rainbow 3D image but that regions on the path are only 'near' each other when they are not only close in 3D but also have a similar color. Change the axis 2 and the Inner Radius to see when paths would actually cross in 4D.",
+    nextLabel: "The fifth dimension →",
+  },
+  {
+    state: "321828020a0601541600ffffff0201030309050505-351.7.0.0",
+    title: "The fifth dimension",
+    text: "We can go one step further by playing with opacity. Now the path looks like disparate segments, but what's really happening is that the whole thread is going into and out of the fifth dimension, like a thread in a cross stitch that goes around the other side of the cloth. We are seeing but a small slice of the 5th-dimensional object in our 4D space. Play around with Slice Position and Width to see them “move”.",
+    panels: ["View"],
     nextLabel: "Next →",
   },
 ];
@@ -1265,6 +1272,16 @@ function loadStepShape(step) {
   } else if (step.preset) {
     const preset = PRESETS.find(p => p.name === step.preset);
     if (preset) applyPreset(preset);
+  }
+  // If the step specifies which panels to keep open, collapse the rest.
+  // Match by the trimmed text of each <details>'s <summary>.
+  if (Array.isArray(step.panels)) {
+    const wanted = new Set(step.panels.map(s => s.toLowerCase()));
+    document.querySelectorAll('.controls details.section').forEach(d => {
+      const sum = d.querySelector('summary');
+      const name = sum ? sum.textContent.trim().toLowerCase() : '';
+      d.open = wanted.has(name);
+    });
   }
 }
 
