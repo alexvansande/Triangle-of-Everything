@@ -5072,9 +5072,10 @@ document.addEventListener("keydown", (e) => {
 // Resize
 // =============================================================
 
-window.addEventListener("resize", () => {
-  const modeChanged = updateMobileState();
-  measure();
+// Shared layout sync — updates SVG, clip path, chart transform, and scale
+// bases to match the current margin / W / H. Used by both the window
+// resize listener and the chart-margin drag handles.
+function applyLayout({ resetZoom } = {}) {
   svg.attr("width", W).attr("height", H);
   svg.select("rect").attr("width", W).attr("height", H);
   defs.select("#clip rect").attr("width", cw).attr("height", ch);
@@ -5083,14 +5084,23 @@ window.addEventListener("resize", () => {
   xBase.domain([viewXMin, viewXMax]).range([0, cw]);
   yBase.domain([viewYMin, viewYMax]).range([ch, 0]);
   updateBgGradients();
-  svg.call(zoomBehavior.transform, d3.zoomIdentity);
-  xS = xBase.copy();
-  yS = yBase.copy();
-  currentK = 1;
+  if (resetZoom) {
+    svg.call(zoomBehavior.transform, d3.zoomIdentity);
+    xS = xBase.copy();
+    yS = yBase.copy();
+    currentK = 1;
+  }
   chart.select("rect:last-of-type").attr("width", cw).attr("height", ch);
   miniSvg.attr("transform",
     `translate(${W - MINIMAP_SIZE - MINIMAP_PAD - margin.right}, ${margin.top + MINIMAP_PAD})`);
   resizeCloudCanvas();
+}
+window.__applyLayout = applyLayout;
+
+window.addEventListener("resize", () => {
+  const modeChanged = updateMobileState();
+  measure();
+  applyLayout({ resetZoom: true });
   redraw();
   if (modeChanged && _isMobile && _isSidebarOpen) {
     setSidebarOpen(false);
@@ -5323,7 +5333,18 @@ try {
     const cfg = SIDES[dragSide];
     const cur = cfg.axis === "x" ? e.clientX : e.clientY;
     cfg.apply(cur - dragStart, dragStartMargin);
+    // Capture data-space center & zoom so we can re-apply the same view
+    // after the chart-area dimensions change.
+    const d = vd();
+    const cx = (d.x0 + d.x1) / 2;
+    const cy = (d.y0 + d.y1) / 2;
+    const k  = currentK;
     measure();
+    if (typeof window.__applyLayout === "function") window.__applyLayout({ resetZoom: true });
+    // Re-apply: zoom level k around the captured center
+    const tx = cw / 2 - xBase(cx) * k;
+    const ty = ch / 2 - yBase(cy) * k;
+    svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
     positionHandles();
     redraw();
   }
@@ -5335,7 +5356,15 @@ try {
   }
   function onDoubleClick(e) {
     SIDES[e.currentTarget.dataset.side].reset();
+    const d = vd();
+    const cx = (d.x0 + d.x1) / 2;
+    const cy = (d.y0 + d.y1) / 2;
+    const k  = currentK;
     measure();
+    if (typeof window.__applyLayout === "function") window.__applyLayout({ resetZoom: true });
+    const tx = cw / 2 - xBase(cx) * k;
+    const ty = ch / 2 - yBase(cy) * k;
+    svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
     positionHandles();
     redraw();
     saveSettings();
