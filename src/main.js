@@ -3296,6 +3296,7 @@ function drawAxes() {
     const tx = ex + (diagDx / diagNorm) * 3;
     const ty = ey - (diagDy / diagNorm) * 3;
     axT.append("text")
+      .attr("class", "axis-label")
       .attr("x", tx).attr("y", ty)
       .attr("text-anchor", "start")
       .attr("font-family", "'Space Mono', monospace")

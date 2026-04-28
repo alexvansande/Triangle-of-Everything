@@ -22,11 +22,13 @@
 #tour-header {
   position: fixed;
   bottom: 590px;
-  left: 120px;
+  /* Sit just inside the chart's left edge — follows margin.left when the
+     user resizes the energy column. */
+  left: calc(var(--left-axis-w, 80px) + 40px);
   z-index: 31;
   max-width: 380px;
   opacity: 1;
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease, left 0.1s ease;
 }
 
 #tour-header h2 {
@@ -73,7 +75,8 @@
 #tour-box {
   position: fixed;
   bottom: 100px;
-  left: 100px;
+  /* Tracks chart left edge like #tour-header */
+  left: calc(var(--left-axis-w, 80px) + 20px);
   z-index: 30;
   width: 340px;
   max-height: 50vh;
