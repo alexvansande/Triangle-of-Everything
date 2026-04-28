@@ -4,3 +4,6 @@ dist/
 *.local
 .vite/
 background/
+
+# Claude Code session workspaces (per-session git worktrees and tool state)
+.claude/
