@@ -86,7 +86,7 @@ Promise.all(Object.keys(ICON_BY_SLUG).map(s => getIconUrl(s))).then(() => {
   if (typeof redraw === "function") redraw();
 });
 let _iconsEnabled = true;
-let _iconSize = 48;
+let _iconSize = 100;  // percent multiplier on top of zoom-derived effective size
 let _labelsEnabled = true;
 
 // Icon size scales with zoom: 16px at k=0.3 (fully out), up to 128px at k=800 (fully in).
@@ -111,7 +111,7 @@ const ICON_SIZE_MULT = {
 function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
-  return sizeScale * (ICON_SIZE_MULT[o.slug] || 1);
+  return sizeScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
 }
 
 function parseFrontmatter(raw) {
@@ -4192,10 +4192,11 @@ function updateClickTargets() {
   clearClickTargets();
   if (!_lastProjected) return;
 
+  const baseIco = effectiveIconSize();
   _lastProjected.forEach(o => {
     const hasIcon = _iconsEnabled && _iconUrlCache[o.slug];
     const size = hasIcon
-      ? _iconSize * iconSizeMult(o)
+      ? baseIco * iconSizeMult(o)
       : 14; // match hit area radius
 
     // Convert SVG coords to page coords
@@ -4221,7 +4222,7 @@ function updateClickTargets() {
       // Trigger SVG hover effects
       const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
       if (iconEl.size()) {
-        const hoverSize = Math.max(64, _iconSize * iconSizeMult(o) * 1.5);
+        const hoverSize = Math.max(64, baseIco * iconSizeMult(o) * 1.5);
         iconEl.attr("width", hoverSize).attr("height", hoverSize)
           .attr("x", o.sx - hoverSize / 2).attr("y", o.sy - hoverSize / 2);
       }
@@ -4232,7 +4233,7 @@ function updateClickTargets() {
     div.addEventListener("mouseleave", () => {
       const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
       if (iconEl.size()) {
-        const objS = _iconSize * iconSizeMult(o);
+        const objS = baseIco * iconSizeMult(o);
         iconEl.attr("width", objS).attr("height", objS)
           .attr("x", o.sx - objS / 2).attr("y", o.sy - objS / 2);
       }
@@ -4275,7 +4276,7 @@ function updateClickTargets() {
       div.addEventListener("mouseenter", (e) => {
         const iconEl = lIcons.select(`.obj-icon[data-slug="${slug}"]`);
         if (iconEl.size()) {
-          const hoverSize = Math.max(64, _iconSize * iconSizeMult(obj) * 1.5);
+          const hoverSize = Math.max(64, baseIco * iconSizeMult(obj) * 1.5);
           iconEl.attr("width", hoverSize).attr("height", hoverSize)
             .attr("x", obj.sx - hoverSize / 2).attr("y", obj.sy - hoverSize / 2);
         }
@@ -4285,7 +4286,7 @@ function updateClickTargets() {
       div.addEventListener("mouseleave", () => {
         const iconEl = lIcons.select(`.obj-icon[data-slug="${slug}"]`);
         if (iconEl.size()) {
-          const objS = _iconSize * iconSizeMult(obj);
+          const objS = baseIco * iconSizeMult(obj);
           iconEl.attr("width", objS).attr("height", objS)
             .attr("x", obj.sx - objS / 2).attr("y", obj.sy - objS / 2);
         }
@@ -4956,7 +4957,7 @@ document.addEventListener("pointerdown", (e) => {
 function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked,
-    noise: +setNoise.value, labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value
+    labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value
   }));
 }
 
@@ -4992,12 +4993,6 @@ const setIconSize = document.getElementById("set-icon-size");
 setIconSize.addEventListener("input", () => {
   _iconSize = +setIconSize.value;
   redraw();
-  saveSettings();
-});
-
-const setNoise = document.getElementById("set-noise");
-setNoise.addEventListener("input", () => {
-  grainRect.attr("opacity", (setNoise.value / 100) * 3);  // 0→0, 100→3.0
   saveSettings();
 });
 
@@ -5190,10 +5185,14 @@ try {
     if (saved.anim === false) { setAnim.checked = false; _animDisabled = true; document.body.classList.add("anim-off"); }
     if (saved.labels === false) { setLabels.checked = false; _labelsEnabled = false; }
     if (saved.icons === false) { setIcons.checked = false; _iconsEnabled = false; }
-    if (saved.iconSize > 0) { setIconSize.value = saved.iconSize; _iconSize = saved.iconSize; }
-    if (saved.noise > 0) {
-      setNoise.value = saved.noise;
-      grainRect.attr("opacity", (saved.noise / 100) * 3);
+    if (saved.iconSize > 0) {
+      // Migration: old slider used 8-64 px range; new slider is 30-300 percent.
+      // If the saved value falls in the old range, convert by treating it as the
+      // old default (48) → 100%.
+      const v = +saved.iconSize;
+      const migrated = v <= 64 ? Math.round(v / 48 * 100) : v;
+      setIconSize.value = Math.max(30, Math.min(300, migrated));
+      _iconSize = +setIconSize.value;
     }
   }
 } catch (e) { /* ignore corrupt data */ }
