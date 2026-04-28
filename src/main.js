@@ -36,6 +36,8 @@ for (const [path, loader] of Object.entries(imgLoaders)) {
   IMG_BY_SLUG[slug] = loader;
 }
 import imageManifest from "../content/images/manifest.json";
+// Spirograph state hashes for particles that can be opened in the 5D spirograph
+import hiperspirographStates from "../content/icons/hiperspirograph-states.json";
 
 // Load object icons (small WebP, preloaded eagerly)
 const ICON_SLUG_MAP = {
@@ -2971,7 +2973,24 @@ function openSidebar(obj) {
   // Display object image or placeholder (lazy-loaded)
   const imgLoader = IMG_BY_SLUG[slug];
   const imgMeta = imageManifest[slug];
-  if (imgLoader) {
+  // For particles with a Hiperspirograph state, embed the live spirograph instead
+  const spiroState = hiperspirographStates[slug];
+  if (spiroState) {
+    sbImage.innerHTML = "";
+    const iframe = document.createElement("iframe");
+    iframe.src = `/hiperspirograph.html?embed=1#${spiroState}`;
+    iframe.style.cssText = "width:100%;aspect-ratio:1/1;border:0;display:block;background:#000;border-radius:8px;";
+    iframe.loading = "lazy";
+    iframe.title = `${obj.name} — interactive 5D spirograph`;
+    sbImage.appendChild(iframe);
+    const explore = document.createElement("a");
+    explore.className = "sb-spiro-explore";
+    explore.href = `/hiperspirograph.html#${spiroState}`;
+    explore.target = "_blank";
+    explore.rel = "noopener";
+    explore.textContent = "✨ Explore multidimensional strings →";
+    sbImage.appendChild(explore);
+  } else if (imgLoader) {
     sbImage.innerHTML = "";
     const img = document.createElement("img");
     img.alt = obj.name;
