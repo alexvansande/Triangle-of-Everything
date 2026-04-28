@@ -70,9 +70,6 @@
   .btn:hover { background: #444; }
   .btn-row { display: flex; gap: 8px; }
   .btn-row .btn { flex: 1; }
-  #resonance-display { padding: 8px 0; text-align: center; }
-  .resonance-bar { height: 6px; background: #333; border-radius: 3px; margin-top: 6px; overflow: hidden; }
-  .resonance-fill { height: 100%; border-radius: 3px; transition: width 0.2s, background 0.2s; }
   .presets { display: flex; flex-wrap: wrap; gap: 6px; }
   .preset-btn {
     padding: 4px 10px; cursor: pointer; background: #2a2a2a; color: #aaa;
@@ -150,8 +147,6 @@
 </div>
 
 <div class="controls">
-  <div id="resonance-display"></div>
-
   <details class="section" open>
     <summary>Presets</summary>
     <div style="padding: 8px 12px;">
@@ -632,27 +627,6 @@ function makePRNG(seed) {
   };
 }
 
-function updateResonanceDisplay() {
-  const dims = +document.getElementById('dims').value;
-  const numAxes = dims - 1;
-  const freqs = [];
-  for (let i = 1; i <= numAxes; i++) {
-    freqs.push(+document.getElementById(`o${i}`).value);
-    freqs.push(+document.getElementById(`i${i}`).value);
-  }
-  const res = analyzeResonance(freqs);
-  const pct = Math.round(res.score * 100);
-  const hue = res.score * 120;
-  const oRatios = Array.from({length: numAxes}, (_, i) => document.getElementById(`o${i+1}`).value).join(':');
-  const iRatios = Array.from({length: numAxes}, (_, i) => document.getElementById(`i${i+1}`).value).join(':');
-  const desc = res.ratioDescs.length ? ` · ${res.ratioDescs.join(', ')}` : '';
-
-  document.getElementById('resonance-display').innerHTML =
-    `<div style="font-size:13px">${res.emoji} <strong>${res.category}</strong> <span style="color:#888">(${pct}%)${desc}</span></div>` +
-    `<div style="font-size:11px;color:#666;margin-top:2px">Period: ${res.period.toLocaleString()} · ${oRatios} + ${iRatios}</div>` +
-    `<div class="resonance-bar"><div class="resonance-fill" style="width:${pct}%;background:hsl(${hue},70%,50%)"></div></div>`;
-}
-
 // --- Drawing ---
 function draw(timePhase) {
   const dims = +document.getElementById('dims').value;
@@ -724,7 +698,6 @@ function draw(timePhase) {
     document.getElementById(`o${i}v`).textContent = outerFreqs[i-1];
     document.getElementById(`i${i}v`).textContent = innerFreqs[i-1];
   }
-  updateResonanceDisplay();
 
   const aXZ = spinXZDeg * Math.PI / 180;
   const aYZ = spinYZDeg * Math.PI / 180;
