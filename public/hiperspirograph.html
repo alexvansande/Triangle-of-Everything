@@ -229,7 +229,10 @@
       <label for="timeDim" style="white-space:nowrap">
         <input type="checkbox" id="timeDim"> Time as +1D
       </label>
-      <span></span><span class="value" id="timeDimv"></span>
+      <label for="timeBounce" style="white-space:nowrap">
+        <input type="checkbox" id="timeBounce"> Bounce
+      </label>
+      <span></span>
 
       <div class="flatness-row" id="timeWidthRow">
         <label for="timeWidth">Slice thickness</label>
@@ -1254,6 +1257,14 @@ const TOUR_STEPS = [
     title: "The fifth dimension",
     text: "We can go one step further by playing with opacity. Now the path looks like disparate segments, but what's really happening is that the whole thread is going into and out of the fifth dimension, like a thread in a cross stitch that goes around the other side of the cloth. We are seeing but a small slice of the 5th-dimensional object in our 4D space. Play around with Slice Position and Width to see them “move”.",
     panels: ["View"],
+    nextLabel: "Time as a sixth dimension? →",
+  },
+  {
+    state: "321528060a0601644900ffffff0401030305040a16-103.0.0.0",
+    title: "Time as a sixth dimension?",
+    text: "You've heard that time is sometimes called the fourth dimension. We can play with that idea by adding time as another dimension in our visualization. Just like a 3D printer slices an object into a stack of 2D layers, this animation is a series of slices of a 5D object swept across time. Sometimes a particle seems to come out of nothing, drift forward, and then annihilate when it meets another. That's a lot like how real-world particles and antiparticles behave — which is what led Feynman to speculate that an antiparticle is just an ordinary particle going backwards in time, and the whole pair is a single closed loop in higher dimensions.",
+    bounce: true,
+    panels: ["Shape"],
     nextLabel: "Next →",
   },
 ];
@@ -1272,6 +1283,14 @@ function loadStepShape(step) {
   } else if (step.preset) {
     const preset = PRESETS.find(p => p.name === step.preset);
     if (preset) applyPreset(preset);
+  }
+  // Optional per-step animation tweaks
+  if (typeof step.bounce === "boolean") {
+    const bb = document.getElementById('timeBounce');
+    if (bb && bb.checked !== step.bounce) {
+      bb.checked = step.bounce;
+      bb.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   }
   // If the step specifies which panels to keep open, collapse the rest.
   // Match by the trimmed text of each <details>'s <summary>.
@@ -1341,19 +1360,30 @@ let timeAnimId = null;
 function startTimeAnimation() {
   if (timeAnimId) return;
   function tick() {
-    const cycleDuration = 5000; // 4s animation + 1s black pause
-    const elapsed = performance.now() % cycleDuration;
-    if (elapsed > 4000) {
-      // Black frame during pause
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      if (document.getElementById('timeDim').checked) {
-        timeAnimId = requestAnimationFrame(tick);
-      } else { timeAnimId = null; }
-      return;
+    const bounce = document.getElementById('timeBounce').checked;
+    if (bounce) {
+      // Triangle wave: 0 → 1 → 0 → 1 ..., 4s in each direction.
+      const period = 8000;
+      const elapsed = performance.now() % period;
+      const phase = elapsed < period / 2
+        ? elapsed / (period / 2)
+        : 2 - elapsed / (period / 2);
+      draw(phase);
+    } else {
+      const cycleDuration = 5000; // 4s animation + 1s black pause
+      const elapsed = performance.now() % cycleDuration;
+      if (elapsed > 4000) {
+        // Black frame during pause
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (document.getElementById('timeDim').checked) {
+          timeAnimId = requestAnimationFrame(tick);
+        } else { timeAnimId = null; }
+        return;
+      }
+      const phase = (elapsed / 4000) % 1;
+      draw(phase);
     }
-    const phase = (elapsed / 4000) % 1;
-    draw(phase);
     if (document.getElementById('timeDim').checked) {
       timeAnimId = requestAnimationFrame(tick);
     } else {
@@ -1363,6 +1393,10 @@ function startTimeAnimation() {
   tick();
 }
 
+document.getElementById('timeBounce').addEventListener('change', () => {
+  // Animation tick reads the checkbox directly each frame, so just nudge it.
+  if (document.getElementById('timeDim').checked && !timeAnimId) startTimeAnimation();
+});
 document.getElementById('timeDim').addEventListener('change', () => {
   updateAxisVisibility();
   updateDownloadLabel();
