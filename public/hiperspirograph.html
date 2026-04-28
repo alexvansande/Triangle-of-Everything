@@ -119,6 +119,30 @@
     background: rgba(80, 130, 220, 0.32);
     border-color: rgba(150, 195, 255, 0.6);
   }
+  .tour-back-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #aaa;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .tour-back-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #ddd;
+  }
+  .tour-back-btn:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+  }
   .left-col { display: flex; flex-direction: column; gap: 16px; align-items: center; }
 
   /* Embed mode: hide everything except canvas, fill viewport */
@@ -157,7 +181,10 @@
 <div class="about" id="tour-pane">
   <h2 id="tour-title">A 5D Spirograph</h2>
   <p id="tour-text">String theory states that all fundamental particles are just different foldings of a single multidimensional string. This toy allows you to play around and visualize a string in 5 dimensions. You might have played with a spirograph as a kid: some little gears that help you draw beautiful patterns on a paper. This app works exactly the same: two rotating discs on 2D create beautiful flower patterns. On 3D these shapes will go up and down creating dancing string that you can visualize in grayscale. A 4th dimension is added with color. A 5th dimension is opacity: our 4D string comes into and out of existence as it enters a 4D slice. We can even add another dimension by making the dot a ribbon that also spins and wobbles.</p>
-  <button class="btn tour-next-btn" id="tourNext" style="margin-top:10px"></button>
+  <div class="tour-nav" style="display:flex; gap:8px; margin-top:10px; align-items:center;">
+    <button class="tour-back-btn" id="tourBack" title="Previous step">←</button>
+    <button class="btn tour-next-btn" id="tourNext"></button>
+  </div>
 </div>
 </div>
 
@@ -1216,13 +1243,30 @@ const TOUR_STEPS = [
     text: "Now imagine the same idea but in three dimensions: instead of one disc rolling inside another, two orbits spin at the same time around different axes. The pen no longer traces a flat flower — it weaves a curve through space, looping over and under itself. This shape is a trefoil knot, the simplest non-trivial knot you can tie. Drag the canvas to spin it around and you'll see how the curve threads through itself.",
     nextLabel: "The fourth dimension →",
   },
+  {
+    state: "282d28020a0601642800ffffff040103070505-351.7.0.0",
+    title: "The fourth dimension",
+    text: "Your screen is only two dimensional, but you no doubt had no issue 'seeing' in third dimension by simply varying the brightness of the dot, from black to white. We can similarly add a fourth dimension using color (or more technically 'hue'). Imagine that this isn't merely a rainbow 3D image but that regions on the path are only 'near' each other when they are not only close in 3D but also have a similar color. Change the axis 2 and the Inner Radius to see when paths would actually cross in 4D.",
+    nextLabel: "Next →",
+  },
 ];
 
 const tourPane  = document.getElementById('tour-pane');
 const tourTitle = document.getElementById('tour-title');
 const tourText  = document.getElementById('tour-text');
 const tourNext  = document.getElementById('tourNext');
+const tourBack  = document.getElementById('tourBack');
 let _tourStep = 0;
+
+function loadStepShape(step) {
+  if (step.state) {
+    applyState(step.state);
+    draw();
+  } else if (step.preset) {
+    const preset = PRESETS.find(p => p.name === step.preset);
+    if (preset) applyPreset(preset);
+  }
+}
 
 function showTourStep(idx) {
   _tourStep = Math.max(0, Math.min(TOUR_STEPS.length - 1, idx));
@@ -1235,20 +1279,21 @@ function showTourStep(idx) {
   } else {
     tourNext.style.display = 'none';
   }
+  tourBack.disabled = _tourStep === 0;
 }
 
 tourNext.addEventListener('click', () => {
   const nextIdx = _tourStep + 1;
   if (nextIdx >= TOUR_STEPS.length) return;
-  const step = TOUR_STEPS[nextIdx];
-  if (step.state) {
-    applyState(step.state);
-    draw();
-  } else if (step.preset) {
-    const preset = PRESETS.find(p => p.name === step.preset);
-    if (preset) applyPreset(preset);
-  }
+  loadStepShape(TOUR_STEPS[nextIdx]);
   showTourStep(nextIdx);
+});
+
+tourBack.addEventListener('click', () => {
+  if (_tourStep === 0) return;
+  const prevIdx = _tourStep - 1;
+  loadStepShape(TOUR_STEPS[prevIdx]);
+  showTourStep(prevIdx);
 });
 
 showTourStep(0);
