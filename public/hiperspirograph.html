@@ -105,6 +105,20 @@
     color: #999;
   }
   .about h2 { color: #ddd; margin: 0 0 8px; font-size: 18px; }
+  .tour-next-btn {
+    background: rgba(80, 130, 220, 0.18);
+    border: 1px solid rgba(120, 170, 255, 0.35);
+    color: #cde0ff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .tour-next-btn:hover {
+    background: rgba(80, 130, 220, 0.32);
+    border-color: rgba(150, 195, 255, 0.6);
+  }
   .left-col { display: flex; flex-direction: column; gap: 16px; align-items: center; }
 
   /* Embed mode: hide everything except canvas, fill viewport */
@@ -140,9 +154,10 @@
 <div class="layout">
 <div class="left-col">
 <canvas id="c" width="512" height="512" style="width:512px;height:512px"></canvas>
-<div class="about">
-  <h2>A 5D Spirograph</h2>
-  <p>String theory states that all fundamental particles are just different foldings of a single multidimensional string. This toy allows you to play around and visualize a string in 5 dimensions. You might have played with a spirograph as a kid: some little gears that help you draw beautiful patterns on a paper. This app works exactly the same: two rotating discs on 2D create beautiful flower patterns. On 3D these shapes will go up and down creating dancing string that you can visualize in grayscale. A 4th dimension is added with color. A 5th dimension is opacity: our 4D string comes into and out of existence as it enters a 4D slice. We can even add another dimension by making the dot a ribbon that also spins and wobbles.</p>
+<div class="about" id="tour-pane">
+  <h2 id="tour-title">A 5D Spirograph</h2>
+  <p id="tour-text">String theory states that all fundamental particles are just different foldings of a single multidimensional string. This toy allows you to play around and visualize a string in 5 dimensions. You might have played with a spirograph as a kid: some little gears that help you draw beautiful patterns on a paper. This app works exactly the same: two rotating discs on 2D create beautiful flower patterns. On 3D these shapes will go up and down creating dancing string that you can visualize in grayscale. A 4th dimension is added with color. A 5th dimension is opacity: our 4D string comes into and out of existence as it enters a 4D slice. We can even add another dimension by making the dot a ribbon that also spins and wobbles.</p>
+  <button class="btn tour-next-btn" id="tourNext" style="margin-top:10px"></button>
 </div>
 </div>
 
@@ -1176,6 +1191,67 @@ PRESETS.forEach(p => {
   btn.addEventListener('click', () => applyPreset(p));
   presetsEl.appendChild(btn);
 });
+
+// =============================================================
+// Guided tour: each step replaces the description text and offers
+// a button that loads the relevant preset. The button label tells
+// the user what the next step will demonstrate.
+// =============================================================
+// Each step optionally loads a `preset` (by name) or a `state` URL hash.
+const TOUR_STEPS = [
+  {
+    title: "A 5D Spirograph",
+    text: "String theory states that all fundamental particles are just different foldings of a single multidimensional string. This toy allows you to play around and visualize a string in 5 dimensions. You might have played with a spirograph as a kid: some little gears that help you draw beautiful patterns on a paper. This app works exactly the same: two rotating discs on 2D create beautiful flower patterns. On 3D these shapes will go up and down creating dancing string that you can visualize in grayscale. A 4th dimension is added with color. A 5th dimension is opacity: our 4D string comes into and out of existence as it enters a 4D slice. We can even add another dimension by making the dot a ribbon that also spins and wobbles.",
+    nextLabel: "What's a spirograph? →",
+  },
+  {
+    preset: "Rosette",
+    title: "The classic spirograph",
+    text: "A spirograph is an old toy: a small gear that rolls around inside a bigger ring, with a pen poking through a hole. As the inner gear turns, the pen traces out impossibly intricate flower-like patterns — petals, stars, rosettes — depending on the gear sizes. The math is elegant: pick two whole numbers and you get a closed curve that returns exactly to where it started. Pick numbers that share no common factor and the pattern winds around for a long time before closing.",
+    nextLabel: "The third dimension →",
+  },
+  {
+    state: "1e2828020a0601642800ffffff02010301-348.7.0.0",
+    title: "A 3D Spirograph",
+    text: "Now imagine the same idea but in three dimensions: instead of one disc rolling inside another, two orbits spin at the same time around different axes. The pen no longer traces a flat flower — it weaves a curve through space, looping over and under itself. This shape is a trefoil knot, the simplest non-trivial knot you can tie. Drag the canvas to spin it around and you'll see how the curve threads through itself.",
+    nextLabel: "The fourth dimension →",
+  },
+];
+
+const tourPane  = document.getElementById('tour-pane');
+const tourTitle = document.getElementById('tour-title');
+const tourText  = document.getElementById('tour-text');
+const tourNext  = document.getElementById('tourNext');
+let _tourStep = 0;
+
+function showTourStep(idx) {
+  _tourStep = Math.max(0, Math.min(TOUR_STEPS.length - 1, idx));
+  const step = TOUR_STEPS[_tourStep];
+  tourTitle.textContent = step.title;
+  tourText.textContent  = step.text;
+  if (_tourStep < TOUR_STEPS.length - 1) {
+    tourNext.style.display = '';
+    tourNext.textContent   = step.nextLabel || 'Next →';
+  } else {
+    tourNext.style.display = 'none';
+  }
+}
+
+tourNext.addEventListener('click', () => {
+  const nextIdx = _tourStep + 1;
+  if (nextIdx >= TOUR_STEPS.length) return;
+  const step = TOUR_STEPS[nextIdx];
+  if (step.state) {
+    applyState(step.state);
+    draw();
+  } else if (step.preset) {
+    const preset = PRESETS.find(p => p.name === step.preset);
+    if (preset) applyPreset(preset);
+  }
+  showTourStep(nextIdx);
+});
+
+showTourStep(0);
 
 // --- Events ---
 document.querySelectorAll('.controls input[type="range"]').forEach(el =>
