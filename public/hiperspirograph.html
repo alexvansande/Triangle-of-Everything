@@ -143,6 +143,23 @@
     opacity: 0.25;
     cursor: not-allowed;
   }
+  .about a, .tour-link {
+    color: #88c0ff;
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(136, 192, 255, 0.4);
+    transition: color 0.12s, border-color 0.12s;
+  }
+  .about a:hover, .tour-link:hover {
+    color: #b8dbff;
+    border-bottom-color: rgba(184, 219, 255, 0.7);
+  }
+  .tour-disclaimer {
+    font-size: 12px;
+    color: #777;
+    font-style: italic;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
   .left-col { display: flex; flex-direction: column; gap: 16px; align-items: center; }
 
   /* Embed mode: hide everything except canvas, fill viewport */
@@ -1279,6 +1296,41 @@ const TOUR_STEPS = [
     title: "Why higher dimensions matter",
     text: "All of this is, of course, pure math — but there are reasons to think extra dimensions describe something fundamental about reality. String theorists have spent decades trying to unite the major forces of physics by treating each one as a different way an 11-dimensional \"string\" can fold, hoping to arrive at a single theory of everything (no such theory has yet emerged from the field). Some of the strangest features of quantum mechanics also dissolve when you add a hidden dimension. In 2013, two physicists — Juan Maldacena at the Institute for Advanced Study in Princeton and Leonard Susskind at Stanford — conjectured that a pair of quantum-entangled particles is the same thing as a microscopic wormhole: two faces of a single connection through a higher dimension (this is called the ER = EPR conjecture). The holographic principle goes even further: it suggests that gravity itself may be an emergent property of quantum behavior happening in fewer dimensions (the precise version is called the AdS/CFT correspondence).",
     panels: [],
+    nextLabel: "Photons →",
+  },
+  {
+    state: "32212b030a2801315700ffffff0201010313010905-176.0.0.0-1c0f0d10210f9c0f09",
+    title: "Photons & wave-particle duality",
+    html: `A creature living in a 2D world would have a hard time understanding something simple to us, like a cube — sometimes its slice is a square, sometimes a hexagon, sometimes a triangle. The true behaviour of light eludes us in a similar way: sometimes it's a wave, sometimes a particle. We know it isn't anything as simple as a 4D object whose 3D slices flicker between the two — that's been ruled out by experiments testing <a class="tour-link" href="https://en.wikipedia.org/wiki/Bell%27s_theorem" target="_blank" rel="noopener">Bell's theorem</a>. But maybe some of the secret <em>is</em> hidden in higher dimensions.<br><br>The same thing we call a photon shows up across the spectrum at very different energies: <a class="tour-link" href="/#gamma-ray" target="_blank">gamma rays</a>, <a class="tour-link" href="/#x-ray" target="_blank">x-rays</a>, <a class="tour-link" href="/#ultraviolet" target="_blank">ultraviolet</a>, <a class="tour-link" href="/#visible-light" target="_blank">visible light</a>, <a class="tour-link" href="/#infrared" target="_blank">infrared</a>, <a class="tour-link" href="/#microwave" target="_blank">microwaves</a>, <a class="tour-link" href="/#fm-radio" target="_blank">FM radio</a>, and <a class="tour-link" href="/#am-radio" target="_blank">AM radio</a>. They differ only in frequency.<div class="tour-disclaimer">A note on these icons: nothing about a fundamental particle is actually visible — they have no color, no shape, no surface. The visualizations on the chart are purely artistic, abstract attempts to evoke things that are invisible to our senses.</div>`,
+    panels: [],
+    nextLabel: "Quarks →",
+  },
+  {
+    state: "32283c03020001545904ffffff0201030302010105-160.39.0.0-100b04325b00860f09",
+    title: "Quarks: the building blocks",
+    html: `Quarks are the smallest constituents of ordinary matter. They never appear alone — they're always bound together in groups by the strong force, which only gets stronger the further you try to pull them apart. There are six "flavours", arranged in three generations of increasing mass: <a class="tour-link" href="/#up" target="_blank">up</a> & <a class="tour-link" href="/#down" target="_blank">down</a> (which make up everything around you), <a class="tour-link" href="/#charm" target="_blank">charm</a> & <a class="tour-link" href="/#strange" target="_blank">strange</a>, and <a class="tour-link" href="/#top" target="_blank">top</a> & <a class="tour-link" href="/#bottom" target="_blank">bottom</a>. Each pair is two ways of being the same kind of thing — one with charge +⅔, one with charge −⅓.`,
+    panels: [],
+    nextLabel: "Leptons →",
+  },
+  {
+    state: "32470b03371e0154120517ffeb1301010301011e05-176.47.0.0-081714346415880f",
+    title: "Leptons: the loners",
+    html: `Leptons are the other family of fundamental matter particles, but unlike quarks they happily exist alone. The most familiar one is the <a class="tour-link" href="/#electron" target="_blank">electron</a>: every atom in your body has them swirling around its nucleus. Heavier siblings — the <a class="tour-link" href="/#muon" target="_blank">muon</a> and the <a class="tour-link" href="/#tau" target="_blank">tau</a> — are essentially heavier electrons, but unstable. Each charged lepton also has a near-massless ghost partner that barely interacts with anything: the <a class="tour-link" href="/#neutrino-e" target="_blank">electron neutrino</a>, <a class="tour-link" href="/#neutrino-mu" target="_blank">muon neutrino</a>, and <a class="tour-link" href="/#neutrino-tau" target="_blank">tau neutrino</a>. Trillions of neutrinos pass through your body every second without you noticing.`,
+    panels: [],
+    nextLabel: "Bosons →",
+  },
+  {
+    state: "32171703012801714402ffffff020101031d090e05-180.42.0.0-190f1437641e940f",
+    title: "Bosons: the messengers",
+    html: `If quarks and leptons are matter, bosons are how matter <em>talks</em> to itself. The photons we just saw are bosons — they carry the electromagnetic force. The <a class="tour-link" href="/#w" target="_blank">W</a> and <a class="tour-link" href="/#z" target="_blank">Z bosons</a> carry the weak force responsible for some kinds of radioactive decay. The <a class="tour-link" href="/#higgs" target="_blank">Higgs boson</a>, discovered at the LHC in 2012, is the trace of an invisible field that gives other particles their mass. The hypothetical <a class="tour-link" href="/#x-y-bosons" target="_blank">X &amp; Y bosons</a> are predicted by some grand unified theories — at high enough energies, the strong, weak, and electromagnetic forces may be three faces of the same force, and these bosons would mediate the conversions between them.`,
+    panels: [],
+    nextLabel: "Composite particles →",
+  },
+  {
+    state: "32593c03010001545904fffff50b01030302010105-164.66.0.0-100b04325b00860f89",
+    title: "Composite particles",
+    html: `Quarks come bound together in larger objects called hadrons. Three quarks make a baryon: a <a class="tour-link" href="/#proton" target="_blank">proton</a> (two ups and a down) or a <a class="tour-link" href="/#neutron" target="_blank">neutron</a> (two downs and an up) — the things that make up every atomic nucleus you've ever met. A quark and an antiquark stuck together make a <a class="tour-link" href="/#meson" target="_blank">meson</a>, like the pion or kaon. Mesons are unstable; they decay almost as soon as they form. Together with the leptons orbiting outside, these composites are the recipe for everything you can pick up, drop, or stand on.`,
+    panels: [],
     nextLabel: "Next →",
   },
 ];
@@ -1322,7 +1374,13 @@ function showTourStep(idx) {
   _tourStep = Math.max(0, Math.min(TOUR_STEPS.length - 1, idx));
   const step = TOUR_STEPS[_tourStep];
   tourTitle.textContent = step.title;
-  tourText.textContent  = step.text;
+  // step.html allows inline links to the Triangle of Everything; step.text
+  // remains plain prose. Pick whichever is provided.
+  if (step.html) {
+    tourText.innerHTML = step.html;
+  } else {
+    tourText.textContent = step.text || '';
+  }
   if (_tourStep < TOUR_STEPS.length - 1) {
     tourNext.style.display = '';
     tourNext.textContent   = step.nextLabel || 'Next →';

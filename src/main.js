@@ -5405,7 +5405,17 @@ function loadHash() {
   if (!h || h.startsWith("tour=")) return false;
   const parts = h.split(",");
   const nums = parts.slice(0, 3).map(Number);
-  if (nums.length !== 3 || nums.some(isNaN)) return false;
+  // Slug-only hash like #electron — find the object and pan/zoom to it
+  if (nums.length !== 3 || nums.some(isNaN)) {
+    if (parts.length === 1 && /^[a-z][a-z0-9-]*$/i.test(h)) {
+      const obj = OBJECTS.find(o => o.slug === h);
+      if (obj) {
+        navigateToObject(obj.slug, obj.name);
+        return true;
+      }
+    }
+    return false;
+  }
   const [cx, cy, k] = nums;
   const slug = parts.length > 3 ? parts.slice(3).join(",") : null;
   const tx = cw / 2 - xBase(cx) * k;
