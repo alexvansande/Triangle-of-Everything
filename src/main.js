@@ -5403,6 +5403,13 @@ function saveHash() {
 function loadHash() {
   const h = location.hash.slice(1);
   if (!h || h.startsWith("tour=")) return false;
+  // Preset region hash like #preset=particle-physics — clicks the matching button.
+  if (h.startsWith("preset=")) {
+    const key = h.slice(7);
+    const btn = document.querySelector(`#preset-bar button[data-preset="${key}"]`);
+    if (btn) { btn.click(); return true; }
+    return false;
+  }
   const parts = h.split(",");
   const nums = parts.slice(0, 3).map(Number);
   // Slug-only hash like #electron — find the object and pan/zoom to it

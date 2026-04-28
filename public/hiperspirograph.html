@@ -160,6 +160,24 @@
     margin-top: 8px;
     line-height: 1.5;
   }
+  .tour-cta {
+    display: inline-block;
+    padding: 8px 14px;
+    background: rgba(80, 130, 220, 0.18);
+    border: 1px solid rgba(120, 170, 255, 0.35);
+    border-radius: 6px;
+    color: #cde0ff !important;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(120, 170, 255, 0.35) !important;
+    margin-top: 4px;
+    font-size: 13px;
+  }
+  .tour-cta:hover {
+    background: rgba(80, 130, 220, 0.32);
+    border-color: rgba(150, 195, 255, 0.6);
+    color: #ffffff !important;
+    border-bottom-color: rgba(150, 195, 255, 0.6) !important;
+  }
   .left-col { display: flex; flex-direction: column; gap: 16px; align-items: center; }
 
   /* Embed mode: hide everything except canvas, fill viewport */
@@ -1329,9 +1347,8 @@ const TOUR_STEPS = [
   {
     state: "32593c03010001545904fffff50b01030302010105-164.66.0.0-100b04325b00860f89",
     title: "Composite particles",
-    html: `Quarks come bound together in larger objects called hadrons. Three quarks make a baryon: a <a class="tour-link" href="/#proton" target="_blank">proton</a> (two ups and a down) or a <a class="tour-link" href="/#neutron" target="_blank">neutron</a> (two downs and an up) — the things that make up every atomic nucleus you've ever met. A quark and an antiquark stuck together make a <a class="tour-link" href="/#meson" target="_blank">meson</a>, like the pion or kaon. Mesons are unstable; they decay almost as soon as they form. Together with the leptons orbiting outside, these composites are the recipe for everything you can pick up, drop, or stand on.`,
+    html: `Quarks come bound together in larger objects called hadrons. Three quarks make a baryon: a <a class="tour-link" href="/#proton" target="_blank">proton</a> (two ups and a down) or a <a class="tour-link" href="/#neutron" target="_blank">neutron</a> (two downs and an up) — the things that make up every atomic nucleus you've ever met. A quark and an antiquark stuck together make a <a class="tour-link" href="/#meson" target="_blank">meson</a>, like the pion or kaon. Mesons are unstable; they decay almost as soon as they form. Together with the leptons orbiting outside, these composites are the recipe for everything you can pick up, drop, or stand on.<br><br><a class="tour-link tour-cta" href="/#preset=particle-physics" target="_blank">See all the fundamental particles in the Triangle of Everything →</a>`,
     panels: [],
-    nextLabel: "Next →",
   },
 ];
 
