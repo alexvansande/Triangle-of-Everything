@@ -255,15 +255,23 @@ function updateMobileState() {
 let viewXMin, viewXMax, viewYMin, viewYMax;
 
 function resizeCloudCanvas() {} // stub — cloud canvas was removed
-// User-overridable axis-column widths. null = use the default for the
-// current sidebar/mobile state. Set by dragging the axis resize handles.
+// User-overridable margins. null = use the default for the current
+// sidebar/mobile state. Set by dragging the axis resize handles.
 let _userMarginLeft = null;
 let _userMarginRight = null;
+let _userMarginTop = null;
+let _userMarginBottom = null;
 const RIGHT_MARGIN_DEFAULT = 95;
 const RIGHT_MARGIN_MIN = 50;
 const RIGHT_MARGIN_MAX = 220;
 const LEFT_MARGIN_MIN_EXTRA = 40;     // gap above sidebar / base
 const LEFT_MARGIN_MAX_EXTRA = 260;
+const TOP_MARGIN_DEFAULT = 55;
+const TOP_MARGIN_MIN = 35;
+const TOP_MARGIN_MAX = 150;
+const BOTTOM_MARGIN_DEFAULT = 80;
+const BOTTOM_MARGIN_MIN = 50;
+const BOTTOM_MARGIN_MAX = 200;
 
 function measure() {
   W = window.innerWidth;
@@ -271,6 +279,7 @@ function measure() {
   if (_isMobile) {
     margin.left = 20;
     margin.right = 20;
+    margin.top = TOP_MARGIN_DEFAULT;
     margin.bottom = 60;
   } else {
     const baseLeft = _isSidebarOpen ? SIDEBAR_W : BASE_MARGIN_LEFT - 80;
@@ -282,15 +291,24 @@ function measure() {
     margin.right = _userMarginRight != null
       ? Math.max(RIGHT_MARGIN_MIN, Math.min(RIGHT_MARGIN_MAX, _userMarginRight))
       : RIGHT_MARGIN_DEFAULT;
-    margin.bottom = 80;
+    margin.top = _userMarginTop != null
+      ? Math.max(TOP_MARGIN_MIN, Math.min(TOP_MARGIN_MAX, _userMarginTop))
+      : TOP_MARGIN_DEFAULT;
+    margin.bottom = _userMarginBottom != null
+      ? Math.max(BOTTOM_MARGIN_MIN, Math.min(BOTTOM_MARGIN_MAX, _userMarginBottom))
+      : BOTTOM_MARGIN_DEFAULT;
   }
   cw = W - margin.left - margin.right;
   ch = H - margin.top - margin.bottom;
   // Expose axis-column widths to CSS so .axis-l / .axis-r font-sizes scale.
   document.body.style.setProperty("--left-axis-w",  margin.left  + "px");
   document.body.style.setProperty("--right-axis-w", margin.right + "px");
+  document.body.style.setProperty("--top-axis-h",    margin.top    + "px");
+  document.body.style.setProperty("--bottom-axis-h", margin.bottom + "px");
   document.body.classList.toggle("axis-r-bold", margin.right >= 130);
   document.body.classList.toggle("axis-l-bold", (margin.left - (_isSidebarOpen ? SIDEBAR_W : BASE_MARGIN_LEFT - 80)) >= 160);
+  document.body.classList.toggle("axis-b-bold", margin.bottom >= 110);
+  document.body.classList.toggle("axis-t-bold", margin.top >= 90);
   if (typeof window.__repositionAxisHandles === "function") {
     window.__repositionAxisHandles();
   }
@@ -4983,7 +5001,8 @@ function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked,
     labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
-    marginLeft: _userMarginLeft, marginRight: _userMarginRight
+    marginLeft: _userMarginLeft, marginRight: _userMarginRight,
+    marginTop: _userMarginTop, marginBottom: _userMarginBottom,
   }));
 }
 
@@ -5220,84 +5239,109 @@ try {
       setIconSize.value = Math.max(30, Math.min(300, migrated));
       _iconSize = +setIconSize.value;
     }
-    if (typeof saved.marginLeft === "number")  _userMarginLeft  = saved.marginLeft;
-    if (typeof saved.marginRight === "number") _userMarginRight = saved.marginRight;
+    if (typeof saved.marginLeft === "number")   _userMarginLeft   = saved.marginLeft;
+    if (typeof saved.marginRight === "number")  _userMarginRight  = saved.marginRight;
+    if (typeof saved.marginTop === "number")    _userMarginTop    = saved.marginTop;
+    if (typeof saved.marginBottom === "number") _userMarginBottom = saved.marginBottom;
   }
 } catch (e) { /* ignore corrupt data */ }
 
 // =============================================================
-// Draggable axis-column borders (left/right unit columns)
+// Draggable margins on all four chart edges
 // =============================================================
 (function setupAxisResizeHandles() {
-  function makeHandle(side) {
+  // side → state-mapping helpers. Keep this declarative so each handle is
+  // self-contained and there's no chance of one side mutating another.
+  const SIDES = {
+    left: {
+      title: "Drag to resize the energy-axis column",
+      currentMargin: () => margin.left,
+      apply: (delta, start) => { _userMarginLeft = start + delta; },
+      reset: () => { _userMarginLeft = null; },
+      axis: "x",
+    },
+    right: {
+      title: "Drag to resize the mass-axis column",
+      currentMargin: () => margin.right,
+      apply: (delta, start) => { _userMarginRight = start - delta; },
+      reset: () => { _userMarginRight = null; },
+      axis: "x",
+    },
+    top: {
+      title: "Drag to resize the time-axis header",
+      currentMargin: () => margin.top,
+      apply: (delta, start) => { _userMarginTop = start + delta; },
+      reset: () => { _userMarginTop = null; },
+      axis: "y",
+    },
+    bottom: {
+      title: "Drag to resize the width-axis footer",
+      currentMargin: () => margin.bottom,
+      apply: (delta, start) => { _userMarginBottom = start - delta; },
+      reset: () => { _userMarginBottom = null; },
+      axis: "y",
+    },
+  };
+
+  const handles = {};
+  for (const side of Object.keys(SIDES)) {
     const el = document.createElement("div");
     el.className = "axis-resize-handle";
     el.dataset.side = side;
-    el.title = side === "right"
-      ? "Drag to resize the mass-axis column"
-      : "Drag to resize the energy-axis column";
+    el.title = SIDES[side].title;
     document.body.appendChild(el);
-    return el;
+    handles[side] = el;
   }
-  const rightHandle = makeHandle("right");
-  const leftHandle  = makeHandle("left");
 
   function positionHandles() {
     if (_isMobile) {
-      rightHandle.style.display = "none";
-      leftHandle.style.display = "none";
+      for (const el of Object.values(handles)) el.style.display = "none";
       return;
     }
-    rightHandle.style.display = "";
-    leftHandle.style.display = "";
-    // Right handle sits on the chart's right edge
-    rightHandle.style.left = (W - margin.right - 7) + "px";
-    // Left handle sits on the chart's left edge
-    leftHandle.style.left = (margin.left - 7) + "px";
+    for (const el of Object.values(handles)) el.style.display = "";
+    handles.left.style.left   = (margin.left - 7) + "px";
+    handles.right.style.left  = (W - margin.right - 7) + "px";
+    handles.top.style.top     = (margin.top - 7) + "px";
+    handles.bottom.style.top  = (H - margin.bottom - 7) + "px";
   }
 
-  let dragging = null;  // "left" | "right" | null
-  let dragStartX = 0;
+  let dragSide = null;
+  let dragStart = 0;
   let dragStartMargin = 0;
 
   function onPointerDown(e) {
-    dragging = e.currentTarget.dataset.side;
-    dragStartX = e.clientX;
-    dragStartMargin = dragging === "right" ? margin.right : margin.left;
+    dragSide = e.currentTarget.dataset.side;
+    const cfg = SIDES[dragSide];
+    dragStart = cfg.axis === "x" ? e.clientX : e.clientY;
+    dragStartMargin = cfg.currentMargin();
     e.currentTarget.classList.add("dragging");
     e.currentTarget.setPointerCapture(e.pointerId);
     e.preventDefault();
   }
   function onPointerMove(e) {
-    if (!dragging) return;
-    const dx = e.clientX - dragStartX;
-    if (dragging === "right") {
-      // Drag left → bigger right margin, drag right → smaller. Invert dx.
-      _userMarginRight = dragStartMargin - dx;
-    } else {
-      _userMarginLeft = dragStartMargin + dx;
-    }
+    if (!dragSide) return;
+    const cfg = SIDES[dragSide];
+    const cur = cfg.axis === "x" ? e.clientX : e.clientY;
+    cfg.apply(cur - dragStart, dragStartMargin);
     measure();
     positionHandles();
     redraw();
   }
   function onPointerUp(e) {
-    if (!dragging) return;
+    if (!dragSide) return;
     e.currentTarget.classList.remove("dragging");
-    dragging = null;
+    dragSide = null;
     saveSettings();
   }
-  // Double-click to reset to auto sizing
   function onDoubleClick(e) {
-    if (e.currentTarget.dataset.side === "right") _userMarginRight = null;
-    else _userMarginLeft = null;
+    SIDES[e.currentTarget.dataset.side].reset();
     measure();
     positionHandles();
     redraw();
     saveSettings();
   }
 
-  for (const h of [rightHandle, leftHandle]) {
+  for (const h of Object.values(handles)) {
     h.addEventListener("pointerdown", onPointerDown);
     h.addEventListener("pointermove", onPointerMove);
     h.addEventListener("pointerup", onPointerUp);
@@ -5307,8 +5351,6 @@ try {
 
   positionHandles();
   window.addEventListener("resize", positionHandles);
-  // Also reposition when sidebar toggles or mobile state changes — hook into
-  // the existing redraw flow by exposing a global call.
   window.__repositionAxisHandles = positionHandles;
 })();
 

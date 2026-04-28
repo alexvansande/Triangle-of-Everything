@@ -775,44 +775,94 @@ g.axis-l .axis-label,
 g.axis-l .axis-unit-link {
   font-size: clamp(7px, calc(var(--left-axis-w, 175px) * 0.07), 14px) !important;
 }
-/* Bold once the column is comfortably wide. Body classes are toggled in JS
-   based on margin width since CSS calc + var() can't cleanly produce a
+g.axis-b .axis-label,
+g.axis-b .axis-unit-link {
+  font-size: clamp(7px, calc(var(--bottom-axis-h, 80px) * 0.16), 16px) !important;
+}
+g.axis-t .axis-label,
+g.axis-t .axis-unit-link {
+  font-size: clamp(7px, calc(var(--top-axis-h, 55px) * 0.20), 16px) !important;
+}
+/* Bold once a margin is comfortably wide. Body classes are toggled in JS
+   based on margin size since CSS calc + var() can't cleanly produce a
    unitless font-weight via clamp. */
 body.axis-r-bold g.axis-r .axis-label,
-body.axis-r-bold g.axis-r .axis-unit-link {
-  font-weight: 600 !important;
-}
+body.axis-r-bold g.axis-r .axis-unit-link,
 body.axis-l-bold g.axis-l .axis-label,
-body.axis-l-bold g.axis-l .axis-unit-link {
+body.axis-l-bold g.axis-l .axis-unit-link,
+body.axis-b-bold g.axis-b .axis-label,
+body.axis-b-bold g.axis-b .axis-unit-link,
+body.axis-t-bold g.axis-t .axis-label,
+body.axis-t-bold g.axis-t .axis-unit-link {
   font-weight: 600 !important;
 }
 
-/* Vertical drag handles at the chart's left and right edges */
+/* Drag handles at the chart edges. Vertical handles for left/right (col-resize),
+   horizontal handles for top/bottom (row-resize). */
 .axis-resize-handle {
   position: fixed;
+  z-index: 50;
+  user-select: none;
+  /* Transparent strip; the visible "grip" is a centered ::before. */
+  background: transparent;
+  transition: background 0.12s;
+}
+.axis-resize-handle[data-side="left"],
+.axis-resize-handle[data-side="right"] {
   top: 0;
   width: 14px;
   height: 100%;
   cursor: col-resize;
-  z-index: 50;
-  user-select: none;
+}
+.axis-resize-handle[data-side="top"],
+.axis-resize-handle[data-side="bottom"] {
+  left: 0;
+  height: 14px;
+  width: 100%;
+  cursor: row-resize;
 }
 .axis-resize-handle::before {
   content: "";
   position: absolute;
+  background: rgba(255, 255, 255, 0);
+  border-radius: 2px;
+  transition: background 0.15s, opacity 0.15s, width 0.15s, height 0.15s;
+}
+.axis-resize-handle[data-side="left"]::before,
+.axis-resize-handle[data-side="right"]::before {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   width: 2px;
   height: 32px;
-  background: rgba(255, 255, 255, 0.0);
-  border-radius: 2px;
-  transition: background 0.15s, height 0.15s;
+}
+.axis-resize-handle[data-side="top"]::before,
+.axis-resize-handle[data-side="bottom"]::before {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 2px;
 }
 .axis-resize-handle:hover::before,
 .axis-resize-handle.dragging::before {
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.45);
+}
+.axis-resize-handle[data-side="left"]:hover::before,
+.axis-resize-handle[data-side="left"].dragging::before,
+.axis-resize-handle[data-side="right"]:hover::before,
+.axis-resize-handle[data-side="right"].dragging::before {
   height: 64px;
+}
+.axis-resize-handle[data-side="top"]:hover::before,
+.axis-resize-handle[data-side="top"].dragging::before,
+.axis-resize-handle[data-side="bottom"]:hover::before,
+.axis-resize-handle[data-side="bottom"].dragging::before {
+  width: 64px;
+}
+/* Solid backing while dragging so SVG underneath doesn't bleed through */
+.axis-resize-handle.dragging {
+  background: var(--bg, #06060a);
 }
 body.is-mobile .axis-resize-handle { display: none; }
 .axis-title {
