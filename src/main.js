@@ -255,6 +255,16 @@ function updateMobileState() {
 let viewXMin, viewXMax, viewYMin, viewYMax;
 
 function resizeCloudCanvas() {} // stub — cloud canvas was removed
+// User-overridable axis-column widths. null = use the default for the
+// current sidebar/mobile state. Set by dragging the axis resize handles.
+let _userMarginLeft = null;
+let _userMarginRight = null;
+const RIGHT_MARGIN_DEFAULT = 95;
+const RIGHT_MARGIN_MIN = 50;
+const RIGHT_MARGIN_MAX = 220;
+const LEFT_MARGIN_MIN_EXTRA = 40;     // gap above sidebar / base
+const LEFT_MARGIN_MAX_EXTRA = 260;
+
 function measure() {
   W = window.innerWidth;
   H = window.innerHeight;
@@ -263,12 +273,27 @@ function measure() {
     margin.right = 20;
     margin.bottom = 60;
   } else {
-    margin.left = _isSidebarOpen ? SIDEBAR_W + 80 : BASE_MARGIN_LEFT;
-    margin.right = 95;
+    const baseLeft = _isSidebarOpen ? SIDEBAR_W : BASE_MARGIN_LEFT - 80;
+    const defaultLeft = _isSidebarOpen ? SIDEBAR_W + 80 : BASE_MARGIN_LEFT;
+    margin.left = _userMarginLeft != null
+      ? Math.max(baseLeft + LEFT_MARGIN_MIN_EXTRA,
+                 Math.min(baseLeft + LEFT_MARGIN_MAX_EXTRA, _userMarginLeft))
+      : defaultLeft;
+    margin.right = _userMarginRight != null
+      ? Math.max(RIGHT_MARGIN_MIN, Math.min(RIGHT_MARGIN_MAX, _userMarginRight))
+      : RIGHT_MARGIN_DEFAULT;
     margin.bottom = 80;
   }
   cw = W - margin.left - margin.right;
   ch = H - margin.top - margin.bottom;
+  // Expose axis-column widths to CSS so .axis-l / .axis-r font-sizes scale.
+  document.body.style.setProperty("--left-axis-w",  margin.left  + "px");
+  document.body.style.setProperty("--right-axis-w", margin.right + "px");
+  document.body.classList.toggle("axis-r-bold", margin.right >= 130);
+  document.body.classList.toggle("axis-l-bold", (margin.left - (_isSidebarOpen ? SIDEBAR_W : BASE_MARGIN_LEFT - 80)) >= 160);
+  if (typeof window.__repositionAxisHandles === "function") {
+    window.__repositionAxisHandles();
+  }
 
   const origXRange = BOUNDS.x.max - BOUNDS.x.min;
   const origYRange = BOUNDS.y.max - BOUNDS.y.min;
@@ -476,11 +501,11 @@ const whiteOverlay = clip.append("rect")
 
 // Axes outside clip (also wrapped for batch CSS-transform during zoom)
 const lAxesWrap = chart.append("g");
-const axB = lAxesWrap.append("g");
-const axT = lAxesWrap.append("g");
+const axB = lAxesWrap.append("g").attr("class", "axis-b");
+const axT = lAxesWrap.append("g").attr("class", "axis-t");
 const lDensityArrows = lAxesWrap.append("g");  // non-clipped, for density arrows & era labels on logM=56 line
-const axL = lAxesWrap.append("g");
-const axR = lAxesWrap.append("g");
+const axL = lAxesWrap.append("g").attr("class", "axis-l");
+const axR = lAxesWrap.append("g").attr("class", "axis-r");
 
 // Border on top
 chart.append("rect").attr("width", cw).attr("height", ch)
@@ -4957,7 +4982,8 @@ document.addEventListener("pointerdown", (e) => {
 function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked,
-    labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value
+    labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
+    marginLeft: _userMarginLeft, marginRight: _userMarginRight
   }));
 }
 
@@ -5194,8 +5220,97 @@ try {
       setIconSize.value = Math.max(30, Math.min(300, migrated));
       _iconSize = +setIconSize.value;
     }
+    if (typeof saved.marginLeft === "number")  _userMarginLeft  = saved.marginLeft;
+    if (typeof saved.marginRight === "number") _userMarginRight = saved.marginRight;
   }
 } catch (e) { /* ignore corrupt data */ }
+
+// =============================================================
+// Draggable axis-column borders (left/right unit columns)
+// =============================================================
+(function setupAxisResizeHandles() {
+  function makeHandle(side) {
+    const el = document.createElement("div");
+    el.className = "axis-resize-handle";
+    el.dataset.side = side;
+    el.title = side === "right"
+      ? "Drag to resize the mass-axis column"
+      : "Drag to resize the energy-axis column";
+    document.body.appendChild(el);
+    return el;
+  }
+  const rightHandle = makeHandle("right");
+  const leftHandle  = makeHandle("left");
+
+  function positionHandles() {
+    if (_isMobile) {
+      rightHandle.style.display = "none";
+      leftHandle.style.display = "none";
+      return;
+    }
+    rightHandle.style.display = "";
+    leftHandle.style.display = "";
+    // Right handle sits on the chart's right edge
+    rightHandle.style.left = (W - margin.right - 7) + "px";
+    // Left handle sits on the chart's left edge
+    leftHandle.style.left = (margin.left - 7) + "px";
+  }
+
+  let dragging = null;  // "left" | "right" | null
+  let dragStartX = 0;
+  let dragStartMargin = 0;
+
+  function onPointerDown(e) {
+    dragging = e.currentTarget.dataset.side;
+    dragStartX = e.clientX;
+    dragStartMargin = dragging === "right" ? margin.right : margin.left;
+    e.currentTarget.classList.add("dragging");
+    e.currentTarget.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  }
+  function onPointerMove(e) {
+    if (!dragging) return;
+    const dx = e.clientX - dragStartX;
+    if (dragging === "right") {
+      // Drag left → bigger right margin, drag right → smaller. Invert dx.
+      _userMarginRight = dragStartMargin - dx;
+    } else {
+      _userMarginLeft = dragStartMargin + dx;
+    }
+    measure();
+    positionHandles();
+    redraw();
+  }
+  function onPointerUp(e) {
+    if (!dragging) return;
+    e.currentTarget.classList.remove("dragging");
+    dragging = null;
+    saveSettings();
+  }
+  // Double-click to reset to auto sizing
+  function onDoubleClick(e) {
+    if (e.currentTarget.dataset.side === "right") _userMarginRight = null;
+    else _userMarginLeft = null;
+    measure();
+    positionHandles();
+    redraw();
+    saveSettings();
+  }
+
+  for (const h of [rightHandle, leftHandle]) {
+    h.addEventListener("pointerdown", onPointerDown);
+    h.addEventListener("pointermove", onPointerMove);
+    h.addEventListener("pointerup", onPointerUp);
+    h.addEventListener("pointercancel", onPointerUp);
+    h.addEventListener("dblclick", onDoubleClick);
+  }
+
+  positionHandles();
+  window.addEventListener("resize", positionHandles);
+  // Also reposition when sidebar toggles or mobile state changes — hook into
+  // the existing redraw flow by exposing a global call.
+  window.__repositionAxisHandles = positionHandles;
+})();
 
 // =============================================================
 // URL hash state for bookmarkable zoom positions

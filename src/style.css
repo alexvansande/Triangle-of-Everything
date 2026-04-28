@@ -762,6 +762,59 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
 .axis-unit-link {
   cursor: pointer;
 }
+
+/* Margin-driven scaling: SVG font-size attributes are overridden by CSS,
+   so changing these vars rescales every label without touching the JS
+   that builds the axes. The drag handles update --right-axis-w and
+   --left-axis-w on <body>. */
+g.axis-r .axis-label,
+g.axis-r .axis-unit-link {
+  font-size: clamp(7px, calc(var(--right-axis-w, 95px) * 0.13), 16px) !important;
+}
+g.axis-l .axis-label,
+g.axis-l .axis-unit-link {
+  font-size: clamp(7px, calc(var(--left-axis-w, 175px) * 0.07), 14px) !important;
+}
+/* Bold once the column is comfortably wide. Body classes are toggled in JS
+   based on margin width since CSS calc + var() can't cleanly produce a
+   unitless font-weight via clamp. */
+body.axis-r-bold g.axis-r .axis-label,
+body.axis-r-bold g.axis-r .axis-unit-link {
+  font-weight: 600 !important;
+}
+body.axis-l-bold g.axis-l .axis-label,
+body.axis-l-bold g.axis-l .axis-unit-link {
+  font-weight: 600 !important;
+}
+
+/* Vertical drag handles at the chart's left and right edges */
+.axis-resize-handle {
+  position: fixed;
+  top: 0;
+  width: 14px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 50;
+  user-select: none;
+}
+.axis-resize-handle::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.0);
+  border-radius: 2px;
+  transition: background 0.15s, height 0.15s;
+}
+.axis-resize-handle:hover::before,
+.axis-resize-handle.dragging::before {
+  background: rgba(255, 255, 255, 0.35);
+  height: 64px;
+}
+body.is-mobile .axis-resize-handle { display: none; }
 .axis-title {
   font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px;
   fill: var(--red-accent); text-transform: uppercase; letter-spacing: 2px;
