@@ -18,7 +18,6 @@
   { "name": "Visible Light",    "logR": -4.26,  "logM": -32.40, "cat": "particle", "subcat": "boson", "z": 2, "wiki": "Visible_spectrum" },
   { "name": "Infrared",         "logR": -3.0,   "logM": -33.66, "cat": "particle", "subcat": "boson", "z": 3, "wiki": "Infrared" },
   { "name": "Microwave",        "logR": 0.0,    "logM": -36.66, "cat": "particle", "subcat": "boson", "z": 4, "wiki": "Microwave" },
-  { "name": "CMB Photon",       "logR": -1.0,   "logM": -35.66, "cat": "particle", "subcat": "boson", "z": 3, "wiki": "Cosmic_microwave_background" },
   { "name": "FM Radio",         "logR": 2.48,   "logM": -39.14, "cat": "particle", "subcat": "boson", "z": 4, "wiki": "FM_broadcasting" },
   { "name": "AM Radio",         "logR": 4.48,   "logM": -41.14, "cat": "particle", "subcat": "boson", "z": 5, "wiki": "AM_broadcasting" },
   { "name": "Neutrino (τ)",     "logR": -5.5,   "logM": -31.9,  "cat": "particle", "subcat": "lepton", "z": 4 },

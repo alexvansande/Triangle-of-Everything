@@ -804,6 +804,7 @@ export const TEMPERATURE_ARROWS = [
   { label: "Highest Temperature\nReached in a Lab (LHC)", logM: -36.81 + Math.log10(1.5e17), slug: "large-hadron-collider" },
   { label: "Core of the Sun",       logM: -36.81 + Math.log10(1.57e7), slug: null },
   { label: "Boiling Point of\nTungsten", logM: -36.81 + Math.log10(5828), slug: null },
+  { label: "Cosmic Microwave\nBackground", logM: -36.81 + Math.log10(2.725), slug: null },
   { label: "Lowest Temperature\nReached in a Lab", logM: -36.81 + Math.log10(3.8e-11), slug: null },
 ];
 
