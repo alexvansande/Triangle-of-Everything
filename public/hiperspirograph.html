@@ -1338,8 +1338,19 @@ function loadStepShape(step) {
   }
 }
 
+// Snapshot ?step= before any showTourStep() call clears it; markdown loader reads this.
+const _initialUrlStep = parseInt(new URLSearchParams(location.search).get('step') || '0', 10);
+
+function updateStepInUrl(idx) {
+  const url = new URL(location.href);
+  if (idx > 0) url.searchParams.set('step', String(idx));
+  else url.searchParams.delete('step');
+  if (url.toString() !== location.href) history.replaceState(null, '', url.toString());
+}
+
 function showTourStep(idx) {
   _tourStep = Math.max(0, Math.min(TOUR_STEPS.length - 1, idx));
+  updateStepInUrl(_tourStep);
   const step = TOUR_STEPS[_tourStep];
   tourTitle.textContent = step.title;
   // step.html allows inline links to the Triangle of Everything; step.text
@@ -1457,8 +1468,16 @@ function renderTourMarkdown(src) {
     if (parsed.length) {
       TOUR_STEPS = parsed;
       renderTourPresets();
-      // If we're still on the placeholder step 0, refresh.
-      if (_tourStep === 0) showTourStep(0);
+      // Restore tour step from ?step=N captured at load. If the URL also had a
+      // hash, keep that (user's customized object) and only refresh the tour
+      // text. Otherwise also load the step's shape.
+      const validStep = Number.isFinite(_initialUrlStep) && _initialUrlStep > 0 && _initialUrlStep < TOUR_STEPS.length;
+      if (validStep) {
+        if (location.hash.length <= 1) loadStepShape(TOUR_STEPS[_initialUrlStep]);
+        showTourStep(_initialUrlStep);
+      } else if (_tourStep === 0) {
+        showTourStep(0);
+      }
     }
   } catch (e) {
     console.warn('Could not load /spirograph-tour.md', e);
