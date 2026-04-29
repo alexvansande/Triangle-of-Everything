@@ -1264,86 +1264,25 @@ function draw(timePhase) {
   ctx.drawImage(combined, 0, 0);
 }
 
-// --- Presets ---
-const PRESETS = [
-  // Classic shapes
-  { name: 'Rosette', group: 'shape', dims: 2, r: 30, axes: [[5], [13]], loops: 30, vt: 0, vs: 0, tip: 0 },
-  { name: 'Möbius', group: 'shape', dims: 3, r: 90, axes: [[1, 1], [1, 1]], loops: 1, vt: 0, vs: 359, tip: 50, ribbon: 1, rspin: 0.5, rwob: 0 },
-  { name: 'Vortex', group: 'shape', dims: 5, r: 5, axes: [[20, 1, 1, 3], [1, 1, 1, 5]], loops: 1, vt: 0, vs: 356, tip: 13, ribbon: 1, rspin: 0.5, rwob: 40, grad: 0, sw: 75, sp: 1 },
-  { name: 'Infinity', group: 'shape', dims: 4, r: 90, axes: [[1, 1, 1], [1, 1, 1]], loops: 1, vt: 0, vs: 0, tip: 63, ribbon: 1, rspin: 1, rwob: 0 },
-  // Explorations
-  { name: 'Tangle', group: 'shape', dims: 4, r: 80, axes: [[3, 2, 1], [12, 8, 4]], loops: 30, vt: 25, vs: 60, tip: 12, ribbon: 1, rspin: 5, rwob: 3 },
-  { name: 'Nebula', group: 'shape', dims: 4, r: 85, axes: [[1, 2, 3], [5, 7, 11]], loops: 45, vt: 35, vs: 90, tip: 0 },
-  { name: 'Galaxy', group: 'shape', dims: 4, r: 75, axes: [[2, 3, 5], [4, 6, 10]], loops: 40, vt: 50, vs: 120, tip: 0 },
-  { name: 'Ghost', group: 'shape', dims: 5, r: 80, axes: [[2, 3, 5, 7], [6, 9, 15, 3]], loops: 5, vt: 40, vs: 45, tip: 8, ribbon: 1, rspin: 3, rwob: 1, sw: 30 },
-  { name: 'Starfish', group: 'shape', dims: 4, r: 15, axes: [[5, 5, 2], [10, 2, 10]], loops: 25, vt: 30, vs: 0, tip: 0 },
-  { name: 'Chrysanth.', group: 'shape', dims: 4, r: 18, axes: [[6, 6, 6], [18, 12, 6]], loops: 20, vt: 20, vs: 180, tip: 0 },
-  { name: '5D Donut', group: 'shape', dims: 5, r: 5, axes: [[1, 10, 1, 1], [1, 1, 1, 1]], loops: 1, vt: 0, vs: 10, tip: 9, ribbon: 1, rspin: 5, rwob: 3, grad: 0, sw: 76, sp: 0 },
-  // Torus knots
-  { name: 'Trefoil', group: 'shape', dims: 3, r: 40, axes: [[2, 1], [3, 1]], loops: 1, vt: 15, vs: 0, tip: 40, torus: 1 },
-  { name: 'Star Worm', group: 'shape', dims: 5, r: 37, axes: [[5, 5, 10, 5], [15, 20, 5, 5]], loops: 29, vt: 4, vs: 90, vw: 236, tip: 53, ribbon: 1, rspin: 21, rwob: 0, torus: 1, sw: 100, sp: 43 },
-  { name: 'Sunflower', group: 'shape', dims: 4, r: 90, axes: [[19, 1, 1], [6, 6, 1]], loops: 1, vt: 0, vs: 172, tip: 26, ribbon: 1, rspin: 10.5, rwob: 16.5, torus: 1, grad: 4, fz: 87, fw: 91 },
-  { name: 'Clover Seed', group: 'shape', dims: 4, r: 90, axes: [[20, 1, 1], [6, 6, 1]], loops: 1, vt: 0, vs: 194, tip: 26, ribbon: 1, rspin: 10.5, rwob: 16.5, torus: 1, grad: 5, fz: 87, fw: 91 },
-  { name: 'Cloud Ghosts', group: 'shape', dims: 5, r: 90, axes: [[20, 1, 1, 3], [13, 4, 19, 5]], loops: 1, vt: 0, vs: 149, tip: 20, ribbon: 1, rspin: 26, rwob: 15, torus: 1, grad: 5, fz: 87, fw: 91, sp: 65, sw: 16, roughness: 2.9, divergence: 2.6, passes: 20, brightness: 4.3, core: 100, sparkle: 66, bloom: true, bloomBlur: 9 },
-  { name: 'Color Star', group: 'shape', dims: 5, r: 19, axes: [[2, 1, 1, 3], [11, 1, 8, 5]], loops: 1, vt: 12, vs: 181, tip: 23, ribbon: 1, rspin: 0.5, rwob: 20, torus: 1, grad: 1, sp: 22, sw: 100, roughness: 0.5, divergence: 0.9, passes: 5, brightness: 5.2, core: 100, sparkle: 21, bloom: true, bloomBlur: 12 },
-  { name: 'Big Bang', group: 'shape', dims: 5, r: 72, axes: [[20, 1, 1, 3], [29, 24, 28, 5]], loops: 1, vt: 0, vs: 170, tip: 23, ribbon: 1, rspin: 0.5, rwob: 20, torus: 1, grad: 1, sp: 13, sw: 68, roughness: 2.1, divergence: 1.2, passes: 20, brightness: 5.2, core: 100, sparkle: 21, bloom: true, bloomBlur: 15 },
-];
-
-function applyPreset(p) {
-  document.getElementById('dims').value = p.dims;
-  document.getElementById('r').value = p.r;
-  document.getElementById('loops').value = p.loops;
-  document.getElementById('spinYZ').value = p.vt || 30;
-  document.getElementById('spinXZ').value = p.vs || 0;
-  document.getElementById('spinXW').value = p.vw || 0;
-  document.getElementById('spinXV').value = p.vv || 0;
-  document.getElementById('tipSize').value = p.tip || 0;
-  document.getElementById('ribbon').checked = !!p.ribbon;
-  document.querySelector(`input[name="coupling"][value="${p.torus ? 'torus' : 'additive'}"]`).checked = true;
-  document.getElementById('timeDim').checked = !!p.time;
-  document.getElementById('ribbonSpin').value = p.rspin !== undefined ? p.rspin : 5;
-  document.getElementById('ribbonWobble').value = p.rwob !== undefined ? p.rwob : 3;
-  document.getElementById('gradient').value = p.grad || 0;
-  document.getElementById('sliceWidth').value = p.sw || 40;
-  document.getElementById('slicePos').value = p.sp || 0;
-  // Flatness: default to 100% unless preset specifies
-  document.getElementById('flatnessZ').value = p.fz !== undefined ? p.fz : 100;
-  document.getElementById('flatnessW').value = p.fw !== undefined ? p.fw : 100;
-  document.getElementById('flatnessV').value = p.fv !== undefined ? p.fv : 100;
-  // Effects: default to off unless preset specifies
-  document.getElementById('variance').value = p.roughness || 0;
-  document.getElementById('divergence').value = p.divergence || 0;
-  document.getElementById('passes').value = p.passes || 1;
-  document.getElementById('brightness').value = p.brightness || 1;
-  document.getElementById('core').value = p.core || 0;
-  document.getElementById('sparkle').value = p.sparkle || 0;
-  document.getElementById('bloom').checked = !!p.bloom;
-  document.getElementById('bloomBlur').value = p.bloomBlur || 12;
-  document.getElementById('timeWidth').value = p.timeWidth || 15;
-  for (let i = 0; i < MAX_AXES; i++) {
-    const oEl = document.getElementById(`o${i+1}`);
-    const iEl = document.getElementById(`i${i+1}`);
-    if (oEl) oEl.value = p.axes[0][i] || 3;
-    if (iEl) iEl.value = p.axes[1][i] || 5;
-  }
-  updateAxisVisibility();
-  updateDownloadLabel();
-  if (document.getElementById('timeDim').checked) {
-    startTimeAnimation();
-  } else {
-    if (typeof timeAnimId !== 'undefined' && timeAnimId) { cancelAnimationFrame(timeAnimId); timeAnimId = null; }
-    draw();
-  }
-}
-
+// Preset buttons are now shortcuts into the guided tour. Rendered after
+// the tour markdown loads — see renderTourPresets() below. The function
+// is hoisted; the initial call happens after TOUR_STEPS is declared (see
+// further down) so it can read the placeholder array.
 const presetsEl = document.getElementById('presets');
-PRESETS.forEach(p => {
-  const btn = document.createElement('button');
-  btn.className = 'preset-btn';
-  btn.textContent = p.group ? p.name : `${p.name} (${p.dims}D)`;
-  btn.addEventListener('click', () => beginTransition(() => applyPreset(p)));
-  presetsEl.appendChild(btn);
-});
+function renderTourPresets() {
+  presetsEl.innerHTML = '';
+  TOUR_STEPS.forEach((step, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.textContent = step.button || step.title || `Step ${idx + 1}`;
+    btn.title = step.title || '';
+    btn.addEventListener('click', () => {
+      beginTransition(() => loadStepShape(step));
+      showTourStep(idx);
+    });
+    presetsEl.appendChild(btn);
+  });
+}
 
 // =============================================================
 // Guided tour
@@ -1353,7 +1292,7 @@ PRESETS.forEach(p => {
 // followed by its body text. Supported frontmatter keys:
 //   title        Step title
 //   state        Spirograph URL hash (loaded via applyState)
-//   preset       Preset name (Rosette, Möbius, …)
+//   button       Short label for the preset-bar shortcut
 //   panels       Comma-separated list of panels to keep open
 //   bounce       true|false (toggles the time-bounce checkbox)
 //   nextLabel    Text for the Next button (omit for last step)
@@ -1378,9 +1317,6 @@ function loadStepShape(step) {
   if (step.state) {
     applyState(step.state);
     draw();
-  } else if (step.preset) {
-    const preset = PRESETS.find(p => p.name === step.preset);
-    if (preset) applyPreset(preset);
   }
   // Optional per-step animation tweaks
   if (typeof step.bounce === "boolean") {
@@ -1437,6 +1373,7 @@ tourBack.addEventListener('click', () => {
 });
 
 showTourStep(0);
+renderTourPresets();
 
 // --- Tour markdown loader -----------------------------------------
 // Parses a multi-document YAML-frontmatter markdown file into TOUR_STEPS.
@@ -1519,6 +1456,7 @@ function renderTourMarkdown(src) {
     const parsed = parseTourMarkdown(md);
     if (parsed.length) {
       TOUR_STEPS = parsed;
+      renderTourPresets();
       // If we're still on the placeholder step 0, refresh.
       if (_tourStep === 0) showTourStep(0);
     }
