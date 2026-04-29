@@ -1258,100 +1258,27 @@ PRESETS.forEach(p => {
 });
 
 // =============================================================
-// Guided tour: each step replaces the description text and offers
-// a button that loads the relevant preset. The button label tells
-// the user what the next step will demonstrate.
+// Guided tour
+// Tour content lives in /spirograph-tour.md (sibling of this file in
+// public/) — fetched and parsed at runtime so editing the tour means
+// editing one markdown file. Each step is a YAML-frontmatter block
+// followed by its body text. Supported frontmatter keys:
+//   title        Step title
+//   state        Spirograph URL hash (loaded via applyState)
+//   preset       Preset name (Rosette, Möbius, …)
+//   panels       Comma-separated list of panels to keep open
+//   bounce       true|false (toggles the time-bounce checkbox)
+//   nextLabel    Text for the Next button (omit for last step)
+// The body is rendered as light markdown (links + emphasis + line
+// breaks) — anything else passes through as HTML.
 // =============================================================
-// Each step optionally loads a `preset` (by name) or a `state` URL hash.
-const TOUR_STEPS = [
+// One bare-bones step shown until /spirograph-tour.md finishes loading.
+let TOUR_STEPS = [
   {
     title: "A 5D Spirograph",
-    text: "String theory states that all fundamental particles are just different foldings of a single multidimensional string. This toy allows you to play around and visualize a string in 5 dimensions. You might have played with a spirograph as a kid: some little gears that help you draw beautiful patterns on a paper. This app works exactly the same: two rotating discs on 2D create beautiful flower patterns. On 3D these shapes will go up and down creating dancing string that you can visualize in grayscale. A 4th dimension is added with color. A 5th dimension is opacity: our 4D string comes into and out of existence as it enters a 4D slice. We can even add another dimension by making the dot a ribbon that also spins and wobbles.",
-    nextLabel: "What's a spirograph? →",
-  },
-  {
-    preset: "Rosette",
-    title: "The classic spirograph",
-    text: "A spirograph is an old toy: a small gear that rolls around inside a bigger ring, with a pen poking through a hole. As the inner gear turns, the pen traces out impossibly intricate flower-like patterns — petals, stars, rosettes — depending on the gear sizes. The math is elegant: pick two whole numbers and you get a closed curve that returns exactly to where it started. Pick numbers that share no common factor and the pattern winds around for a long time before closing.",
-    nextLabel: "The third dimension →",
-  },
-  {
-    state: "1e2828020a0601642800ffffff02010301-348.7.0.0",
-    title: "A 3D Spirograph",
-    text: "Now imagine the same idea but in three dimensions: instead of one disc rolling inside another, two orbits spin at the same time around different axes. The pen no longer traces a flat flower — it weaves a curve through space, looping over and under itself. This shape is a trefoil knot, the simplest non-trivial knot you can tie. Drag the canvas to spin it around and you'll see how the curve threads through itself.",
-    nextLabel: "The fourth dimension →",
-  },
-  {
-    state: "282d28020a0601642800ffffff040103070505-351.7.0.0",
-    title: "The fourth dimension",
-    text: "Your screen is only two dimensional, but you no doubt had no issue 'seeing' in third dimension by simply varying the brightness of the dot, from black to white. We can similarly add a fourth dimension using color (or more technically 'hue'). Imagine that this isn't merely a rainbow 3D image but that regions on the path are only 'near' each other when they are not only close in 3D but also have a similar color. Change the axis 2 and the Inner Radius to see when paths would actually cross in 4D.",
-    nextLabel: "The fifth dimension →",
-  },
-  {
-    state: "321828020a0601541600ffffff0201030309050505-351.7.0.0",
-    title: "The fifth dimension",
-    text: "We can go one step further by playing with opacity. Now the path looks like disparate segments, but what's really happening is that the whole thread is going into and out of the fifth dimension, like a thread in a cross stitch that goes around the other side of the cloth. We are seeing but a small slice of the 5th-dimensional object in our 4D space. Play around with Slice Position and Width to see them “move”.",
-    panels: ["View"],
-    nextLabel: "Time as a sixth dimension? →",
-  },
-  {
-    state: "281528060a0601644900ffffff03010305040a-121.0.0.0",
-    title: "Time as a sixth dimension?",
-    text: "You've heard that time is sometimes called the fourth dimension. We can play with that idea by adding time as another dimension in our visualization. Just like a 3D printer slices an object into a stack of 2D layers, this animation is a series of slices of a 5D object swept across time. Sometimes a particle seems to come out of nothing, drift forward, and then annihilate when it meets another. That's a lot like how real-world particles and antiparticles behave — which is what led Feynman to speculate that an antiparticle is just an ordinary particle going backwards in time, and the whole pair is a single closed loop in higher dimensions.",
-    bounce: true,
-    panels: ["Shape"],
-    nextLabel: "The Möbius strip →",
-  },
-  {
-    state: "28113203010001642808ffffff010101020105-111.77.0.0-0a00081f14218b0f09",
-    title: "The Möbius strip",
-    text: "There's no reason the color rainbow has to be a rainbow — we can replace it with any other gradient. Here we've used shades of green and emerald to encode the fourth dimension. We can also turn the path itself from a tube into a ribbon, and let that ribbon spin and wobble as it travels. Add half a twist to that ribbon and you get a Möbius strip: a surface with only one side. Play with the colors, the gradients, and the ribbon controls to see how the same path can wear very different clothes.",
-    panels: ["Appearance", "Effects"],
-    nextLabel: "Why does this matter? →",
-  },
-  {
-    state: "325a1503010001642806ffffe50301010306010505-201.34.0.0-0023101f3441910f09",
-    title: "Why higher dimensions matter",
-    text: "All of this is, of course, pure math — but there are reasons to think extra dimensions describe something fundamental about reality. String theorists have spent decades trying to unite the major forces of physics by treating each one as a different way an 11-dimensional \"string\" can fold, hoping to arrive at a single theory of everything (no such theory has yet emerged from the field). Some of the strangest features of quantum mechanics also dissolve when you add a hidden dimension. In 2013, two physicists — Juan Maldacena at the Institute for Advanced Study in Princeton and Leonard Susskind at Stanford — conjectured that a pair of quantum-entangled particles is the same thing as a microscopic wormhole: two faces of a single connection through a higher dimension (this is called the ER = EPR conjecture). The holographic principle goes even further: it suggests that gravity itself may be an emergent property of quantum behavior happening in fewer dimensions (the precise version is called the AdS/CFT correspondence).",
-    panels: [],
-    nextLabel: "Photons →",
-  },
-  {
-    state: "32212b030a2801315700ffffff0201010313010905-176.0.0.0-1c0f0d10210f9c0f09",
-    title: "Photons & wave-particle duality",
-    html: `A creature living in a 2D world would have a hard time understanding something simple to us, like a cube — sometimes its slice is a square, sometimes a hexagon, sometimes a triangle. The true behaviour of light eludes us in a similar way: sometimes it's a wave, sometimes a particle. We know it isn't anything as simple as a 4D object whose 3D slices flicker between the two — that's been ruled out by experiments testing <a class="tour-link" href="https://en.wikipedia.org/wiki/Bell%27s_theorem" target="_blank" rel="noopener">Bell's theorem</a>. But maybe some of the secret <em>is</em> hidden in higher dimensions.<br><br>The same thing we call a photon shows up across the spectrum at very different energies: <a class="tour-link" href="/#gamma-ray" target="_blank">gamma rays</a>, <a class="tour-link" href="/#x-ray" target="_blank">x-rays</a>, <a class="tour-link" href="/#ultraviolet" target="_blank">ultraviolet</a>, <a class="tour-link" href="/#visible-light" target="_blank">visible light</a>, <a class="tour-link" href="/#infrared" target="_blank">infrared</a>, <a class="tour-link" href="/#microwave" target="_blank">microwaves</a>, <a class="tour-link" href="/#fm-radio" target="_blank">FM radio</a>, and <a class="tour-link" href="/#am-radio" target="_blank">AM radio</a>. They differ only in frequency.<div class="tour-disclaimer">A note on these icons: nothing about a fundamental particle is actually visible — they have no color, no shape, no surface. The visualizations on the chart are purely artistic, abstract attempts to evoke things that are invisible to our senses.</div>`,
-    panels: [],
-    nextLabel: "Quarks →",
-  },
-  {
-    state: "32283c03020001545904ffffff0201030302010105-160.39.0.0-100b04325b00860f09",
-    title: "Quarks: the building blocks",
-    html: `Quarks are the smallest constituents of ordinary matter. They never appear alone — they're always bound together in groups by the strong force, which only gets stronger the further you try to pull them apart. There are six "flavours", arranged in three generations of increasing mass: <a class="tour-link" href="/#up" target="_blank">up</a> & <a class="tour-link" href="/#down" target="_blank">down</a> (which make up everything around you), <a class="tour-link" href="/#charm" target="_blank">charm</a> & <a class="tour-link" href="/#strange" target="_blank">strange</a>, and <a class="tour-link" href="/#top" target="_blank">top</a> & <a class="tour-link" href="/#bottom" target="_blank">bottom</a>. Each pair is two ways of being the same kind of thing — one with charge +⅔, one with charge −⅓.`,
-    panels: [],
-    nextLabel: "Leptons →",
-  },
-  {
-    state: "32470b03371e0154120517ffeb1301010301011e05-176.47.0.0-081714346415880f",
-    title: "Leptons: the loners",
-    html: `Leptons are the other family of fundamental matter particles, but unlike quarks they happily exist alone. The most familiar one is the <a class="tour-link" href="/#electron" target="_blank">electron</a>: every atom in your body has them swirling around its nucleus. Heavier siblings — the <a class="tour-link" href="/#muon" target="_blank">muon</a> and the <a class="tour-link" href="/#tau" target="_blank">tau</a> — are essentially heavier electrons, but unstable. Each charged lepton also has a near-massless ghost partner that barely interacts with anything: the <a class="tour-link" href="/#neutrino-e" target="_blank">electron neutrino</a>, <a class="tour-link" href="/#neutrino-mu" target="_blank">muon neutrino</a>, and <a class="tour-link" href="/#neutrino-tau" target="_blank">tau neutrino</a>. Trillions of neutrinos pass through your body every second without you noticing.`,
-    panels: [],
-    nextLabel: "Bosons →",
-  },
-  {
-    state: "32171703012801714402ffffff020101031d090e05-180.42.0.0-190f1437641e940f",
-    title: "Bosons: the messengers",
-    html: `If quarks and leptons are matter, bosons are how matter <em>talks</em> to itself. The photons we just saw are bosons — they carry the electromagnetic force. The <a class="tour-link" href="/#w" target="_blank">W</a> and <a class="tour-link" href="/#z" target="_blank">Z bosons</a> carry the weak force responsible for some kinds of radioactive decay. The <a class="tour-link" href="/#higgs" target="_blank">Higgs boson</a>, discovered at the LHC in 2012, is the trace of an invisible field that gives other particles their mass. The hypothetical <a class="tour-link" href="/#x-y-bosons" target="_blank">X &amp; Y bosons</a> are predicted by some grand unified theories — at high enough energies, the strong, weak, and electromagnetic forces may be three faces of the same force, and these bosons would mediate the conversions between them.`,
-    panels: [],
-    nextLabel: "Composite particles →",
-  },
-  {
-    state: "32593c03010001545904fffff50b01030302010105-164.66.0.0-100b04325b00860f89",
-    title: "Composite particles",
-    html: `Quarks come bound together in larger objects called hadrons. Three quarks make a baryon: a <a class="tour-link" href="/#proton" target="_blank">proton</a> (two ups and a down) or a <a class="tour-link" href="/#neutron" target="_blank">neutron</a> (two downs and an up) — the things that make up every atomic nucleus you've ever met. A quark and an antiquark stuck together make a <a class="tour-link" href="/#meson" target="_blank">meson</a>, like the pion or kaon. Mesons are unstable; they decay almost as soon as they form. Together with the leptons orbiting outside, these composites are the recipe for everything you can pick up, drop, or stand on.<br><br><a class="tour-link tour-cta" href="/#preset=particle-physics" target="_blank">See all the fundamental particles in the Triangle of Everything →</a>`,
-    panels: [],
+    text: "Loading tour…",
   },
 ];
-
 const tourPane  = document.getElementById('tour-pane');
 const tourTitle = document.getElementById('tour-title');
 const tourText  = document.getElementById('tour-text');
@@ -1422,6 +1349,95 @@ tourBack.addEventListener('click', () => {
 });
 
 showTourStep(0);
+
+// --- Tour markdown loader -----------------------------------------
+// Parses a multi-document YAML-frontmatter markdown file into TOUR_STEPS.
+// Each step looks like:
+//   ---
+//   title: ...
+//   state|preset|panels|bounce|nextLabel: ...
+//   ---
+//   markdown body, with [text](url) links and *emphasis*
+function parseTourMarkdown(src) {
+  const text = src.replace(/\r\n/g, '\n').trim();
+  // Split on lines that are exactly "---". Splits the file into alternating
+  // [empty?, frontmatter, body, frontmatter, body, ...] tokens.
+  const tokens = text.split(/^---\s*$/m).map(s => s.trim());
+  // Drop leading empties (file starts with ---)
+  while (tokens.length && tokens[0] === '') tokens.shift();
+  const steps = [];
+  for (let i = 0; i + 1 < tokens.length; i += 2) {
+    const fm = tokens[i];
+    const body = tokens[i + 1];
+    const step = {};
+    for (const line of fm.split('\n')) {
+      const m = line.match(/^([a-zA-Z]+):\s*(.*)$/);
+      if (!m) continue;
+      const [, key, rawVal] = m;
+      let val = rawVal.trim();
+      // Strip surrounding quotes, if present
+      if ((val.startsWith('"') && val.endsWith('"')) ||
+          (val.startsWith("'") && val.endsWith("'"))) {
+        val = val.slice(1, -1);
+      }
+      if (key === 'panels') {
+        step.panels = val.split(',').map(s => s.trim()).filter(Boolean);
+      } else if (key === 'bounce') {
+        step.bounce = /^(true|yes|1)$/i.test(val);
+      } else {
+        step[key] = val;
+      }
+    }
+    step.html = renderTourMarkdown(body);
+    steps.push(step);
+  }
+  return steps;
+}
+
+// Minimal markdown → HTML for tour bodies. Converts:
+//   [text](url)            → <a class="tour-link" ...>text</a>
+//   [text](url){.cls}      → <a class="tour-link cls" ...>text</a>
+//   *text* / _text_        → <em>text</em>
+//   **text**               → <strong>text</strong>
+//   blank lines            → paragraph breaks
+// Pre-existing HTML tags pass through verbatim.
+function renderTourMarkdown(src) {
+  let s = src.trim();
+  // Bold first to avoid clashing with single-* italic
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // Italic — match * or _ but not inside HTML attrs
+  s = s.replace(/(^|[\s(])\*([^\s*][^*]*?)\*(?=[\s.,;:!?)\[]|$)/g, '$1<em>$2</em>');
+  s = s.replace(/(^|[\s(])_([^\s_][^_]*?)_(?=[\s.,;:!?)\[]|$)/g, '$1<em>$2</em>');
+  // Links with optional {.classname}
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)(?:\{\.([\w- ]+)\})?/g,
+    (_, label, href, cls) => {
+      const isExternal = /^https?:/i.test(href);
+      const classes = ['tour-link', cls].filter(Boolean).join(' ');
+      const target  = ' target="_blank"' + (isExternal ? ' rel="noopener"' : '');
+      return `<a class="${classes}" href="${href}"${target}>${label}</a>`;
+    });
+  // Convert blank-line gaps into paragraph breaks
+  const paragraphs = s.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+  return paragraphs
+    .map(p => /^<(div|p|h\d|ul|ol|table)/i.test(p) ? p : '<p>' + p.replace(/\n/g, '<br>') + '</p>')
+    .join('\n');
+}
+
+(async () => {
+  try {
+    const res = await fetch('/spirograph-tour.md', { cache: 'no-cache' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const md = await res.text();
+    const parsed = parseTourMarkdown(md);
+    if (parsed.length) {
+      TOUR_STEPS = parsed;
+      // If we're still on the placeholder step 0, refresh.
+      if (_tourStep === 0) showTourStep(0);
+    }
+  } catch (e) {
+    console.warn('Could not load /spirograph-tour.md', e);
+  }
+})();
 
 // --- Events ---
 document.querySelectorAll('.controls input[type="range"]').forEach(el =>

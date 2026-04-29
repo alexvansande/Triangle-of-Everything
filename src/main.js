@@ -8,7 +8,7 @@ import {
   DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
 } from "./data.js";
 import objectsData from "./objects.json";
-import introRaw from "./texts/intro.md?raw";
+import introRaw from "../content/intro.md?raw";
 import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour } from "./tour.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
