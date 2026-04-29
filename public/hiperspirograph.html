@@ -1338,6 +1338,15 @@ function loadStepShape(step) {
   }
 }
 
+// Default landing state — used when a visitor arrives with no hash and no
+// ?step. Beats the bare-slider default; lands them on a polished example.
+const DEFAULT_HASH = '321b1503335001630c08ffffe5030101030e011105-183.7.0.0-0023101f6441910f87';
+if (location.hash.length <= 1 && !new URLSearchParams(location.search).get('step')) {
+  const url = new URL(location.href);
+  url.hash = DEFAULT_HASH;
+  history.replaceState(null, '', url.toString());
+}
+
 // Snapshot ?step= before any showTourStep() call clears it; markdown loader reads this.
 const _initialUrlStep = parseInt(new URLSearchParams(location.search).get('step') || '0', 10);
 
