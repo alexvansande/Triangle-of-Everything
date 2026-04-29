@@ -3,7 +3,7 @@ title: A 5D Spirograph
 nextLabel: What's a spirograph? →
 ---
 
-String theory states that all fundamental particles are just different foldings of a single multidimensional string. This toy allows you to play around and visualize a string in 5 dimensions. You might have played with a spirograph as a kid: some little gears that help you draw beautiful patterns on a paper. This app works exactly the same: two rotating discs on 2D create beautiful flower patterns. On 3D these shapes will go up and down creating dancing string that you can visualize in grayscale. A 4th dimension is added with color. A 5th dimension is opacity: our 4D string comes into and out of existence as it enters a 4D slice. We can even add another dimension by making the dot a ribbon that also spins and wobbles.
+String theory states that all fundamental particles are just different foldings of a single multidimensional string. But what exactly is a multidimensional string?? This toy allows you to play around and visualize a string up to 6 dimensions. You might have played with a spirograph as a kid: some little gears that help you draw beautiful patterns on a paper. This app works exactly the same: two rotating discs on 2D create beautiful flower patterns. On 3D these shapes will go up and down creating dancing string that you can visualize in grayscale. A 4th dimension is added with color. A 5th dimension is opacity: our 5D string comes into and out of existence as it enters a 4D slice. We can even add some extra dimensions using time or by making the dot a ribbon that also spins and wobbles.
 
 ---
 title: The classic spirograph
@@ -23,11 +23,13 @@ Now imagine the same idea but in three dimensions: instead of one disc rolling i
 
 ---
 title: The fourth dimension
-state: 282d28020a0601642800ffffff040103070505-351.7.0.0
+state: 282d280a0a0601642800ffffff040103070505-328.12.0.0
 nextLabel: The fifth dimension →
 ---
 
-Your screen is only two dimensional, but you no doubt had no issue 'seeing' in third dimension by simply varying the brightness of the dot, from black to white. We can similarly add a fourth dimension using color (or more technically 'hue'). Imagine that this isn't merely a rainbow 3D image but that regions on the path are only 'near' each other when they are not only close in 3D but also have a similar color. Change the axis 2 and the Inner Radius to see when paths would actually cross in 4D.
+Your screen is only two dimensional, but you no doubt had no issue 'seeing' in third dimension by simply varying the brightness of the dot, from black to white. But if you know the [cross eye technique](https://en.wikipedia.org/wiki/Autostereogram) you can see it in literal 3d!
+
+We can similarly add a fourth dimension using color (or more technically 'hue'). Imagine that this isn't merely a rainbow 3D image but that regions on the path are only 'near' each other when they are not only close in 3D but also have a similar color. Change the axis 2 and the Inner Radius to see when paths would actually cross in 4D. 
 
 ---
 title: The fifth dimension
@@ -73,7 +75,7 @@ panels:
 nextLabel: Quarks →
 ---
 
-A creature living in a 2D world would have a hard time understanding something simple to us, like a cube — sometimes its slice is a square, sometimes a hexagon, sometimes a triangle. The true behaviour of light eludes us in a similar way: sometimes it's a wave, sometimes a particle. We know it isn't anything as simple as a 4D object whose 3D slices flicker between the two — that's been ruled out by experiments testing [Bell's theorem](https://en.wikipedia.org/wiki/Bell%27s_theorem). But maybe some of the secret *is* hidden in higher dimensions.
+A creature living in a 2D world would have a hard time understanding something simple to us, like a cube — sometimes its slice is a square, sometimes a hexagon, sometimes a triangle. The true behaviour of light eludes us in a similar way: sometimes it's a wave, sometimes a particle. We know it isn't anything as simple as a 4D object whose 3D slices flicker between the two — [we tested it](https://en.wikipedia.org/wiki/Bell%27s_theorem)! But maybe some of the secret *is* hidden in higher dimensions.
 
 The same thing we call a photon shows up across the spectrum at very different energies: [gamma rays](/#gamma-ray), [x-rays](/#x-ray), [ultraviolet](/#ultraviolet), [visible light](/#visible-light), [infrared](/#infrared), [microwaves](/#microwave), [FM radio](/#fm-radio), and [AM radio](/#am-radio). They differ only in frequency.
 

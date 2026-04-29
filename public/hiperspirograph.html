@@ -1955,7 +1955,9 @@ function getState() {
     +document.getElementById('tipSize').value,
     (document.getElementById('ribbon').checked ? 1 : 0) |
       (document.querySelector('input[name="coupling"]:checked').value === 'torus' ? 2 : 0) |
-      (document.getElementById('timeDim').checked ? 4 : 0),
+      (document.getElementById('timeDim').checked ? 4 : 0) |
+      (document.getElementById('stereo').checked ? 8 : 0) |
+      (document.getElementById('timeBounce').checked ? 16 : 0),
     Math.round(+document.getElementById('ribbonSpin').value * 2), // 0.5 steps → ints
     Math.round(+document.getElementById('ribbonWobble').value * 2),
     +document.getElementById('loops').value,
@@ -2002,6 +2004,12 @@ function getState() {
 }
 
 function applyState(str) {
+  // Be lenient about URL-prefix junk: if a # is present (e.g. someone pasted
+  // a full URL with a cache-buster like "1777472085369#hash..."), keep only
+  // the part after the last #.
+  if (typeof str === 'string' && str.includes('#')) {
+    str = str.slice(str.lastIndexOf('#') + 1);
+  }
   // Legacy format: underscores or dots without dash
   if (!str.includes('-')) return applyStateLegacy(str);
 
@@ -2019,6 +2027,10 @@ function applyState(str) {
   document.getElementById('ribbon').checked = !!(s[3] & 1);
   document.querySelector(`input[name="coupling"][value="${s[3] & 2 ? 'torus' : 'additive'}"]`).checked = true;
   document.getElementById('timeDim').checked = !!(s[3] & 4);
+  document.getElementById('stereo').checked = !!(s[3] & 8);
+  document.getElementById('timeBounce').checked = !!(s[3] & 16);
+  // Refresh dependent UI bits so the stereo grid actually shows/hides
+  if (typeof updateStereoVisibility === 'function') updateStereoVisibility();
   document.getElementById('ribbonSpin').value = s[4] / 2;
   document.getElementById('ribbonWobble').value = s[5] / 2;
   document.getElementById('loops').value = s[6];
