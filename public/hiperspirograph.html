@@ -1610,9 +1610,11 @@ function randPick(arr) { return arr[randInt(0, arr.length - 1)]; }
 function randomizeAppearance({ tasteful = false } = {}) {
   // --- Appearance ---
   document.getElementById('gradient').value = randInt(0, 13);
-  document.getElementById('tipSize').value = tasteful ? randInt(2, 10) : randInt(0, 10);
+  // Ribbon decided first so tip size can use the wider range when ribbon is on.
   const ribbonOn = Math.random() < (tasteful ? 0.6 : 0.5);
   document.getElementById('ribbon').checked = ribbonOn;
+  const tipMax = ribbonOn ? 30 : 10;
+  document.getElementById('tipSize').value = tasteful ? randInt(2, tipMax) : randInt(0, tipMax);
   document.getElementById('ribbonSpin').value = (tasteful ? randInt(2, 12) : randInt(1, 30)) * (Math.random() < 0.5 ? 1 : 1) * 0.5 + randInt(2, 12);
   document.getElementById('ribbonWobble').value = tasteful ? randInt(0, 15) : randInt(0, 35);
   // 30% chance to enable dual-color back gradient
