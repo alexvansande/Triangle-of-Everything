@@ -707,6 +707,94 @@ function makePRNG(seed) {
   };
 }
 
+// =============================================================
+// Smooth state transitions
+// Wrap any function that mutates the input controls (preset/state/random
+// loaders, tour navigation) so the change visibly tweens from current
+// values to target values with a small bounce. Discrete inputs
+// (checkboxes, selects, dims) snap to the new value at frame 0; only
+// numeric continuous inputs are tweened.
+// =============================================================
+const TWEENABLE_INPUTS = [
+  'r', 'tipSize', 'ribbonSpin', 'ribbonWobble', 'loops',
+  'slicePos', 'sliceWidth',
+  'flatnessZ', 'flatnessW', 'flatnessV',
+  'o1', 'o2', 'o3', 'o4', 'i1', 'i2', 'i3', 'i4',
+  'spinXZ', 'spinYZ', 'spinXW', 'spinXV',
+  'variance', 'divergence', 'passes', 'brightness',
+  'core', 'sparkle', 'bloomBlur', 'timeWidth',
+];
+const ANGLE_INPUTS = new Set(['spinXZ', 'spinYZ', 'spinXW', 'spinXV']);
+let _tweenRAF = null;
+
+// easeOutBack: settle past the target a little, then back. c1 controls
+// how much overshoot (≈10% at this value). Standard tweening curve.
+function easeOutBack(t) {
+  const c1 = 1.4, c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+function beginTransition(applyTarget, opts = {}) {
+  const dur = opts.duration ?? 600;
+
+  // Snapshot current numeric values
+  const fromVals = {};
+  for (const id of TWEENABLE_INPUTS) {
+    const el = document.getElementById(id);
+    if (el) fromVals[id] = +el.value;
+  }
+
+  // Apply the target state — discrete inputs jump, numeric inputs land
+  // at the final value (which we'll animate towards).
+  applyTarget();
+
+  const toVals = {};
+  for (const id of TWEENABLE_INPUTS) {
+    const el = document.getElementById(id);
+    if (el) toVals[id] = +el.value;
+  }
+
+  // Make angle wraps take the shortest path (e.g. 350° → 10° as +20°).
+  for (const id of ANGLE_INPUTS) {
+    if (!(id in fromVals)) continue;
+    const from = fromVals[id], to = toVals[id];
+    const diff = ((to - from + 540) % 360) - 180;
+    toVals[id] = from + diff;
+  }
+
+  if (_tweenRAF) cancelAnimationFrame(_tweenRAF);
+  // Reset to the start values so the first frame doesn't flash the target
+  for (const id of TWEENABLE_INPUTS) {
+    const el = document.getElementById(id);
+    if (el) el.value = String(fromVals[id]);
+  }
+
+  const start = performance.now();
+  function step(now) {
+    const t = Math.min(1, (now - start) / dur);
+    const eased = easeOutBack(t);
+    for (const id of TWEENABLE_INPUTS) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      const v = fromVals[id] + (toVals[id] - fromVals[id]) * eased;
+      el.value = String(v);
+    }
+    draw();
+    if (t < 1) {
+      _tweenRAF = requestAnimationFrame(step);
+    } else {
+      // Final pass: normalize angles to 0..360 and clamp to integer where the
+      // input expects integers (no decimals visible after the tween settles)
+      for (const id of ANGLE_INPUTS) {
+        const el = document.getElementById(id);
+        if (el) el.value = String(((toVals[id] % 360) + 360) % 360);
+      }
+      _tweenRAF = null;
+    }
+  }
+  _tweenRAF = requestAnimationFrame(step);
+}
+
 // --- Drawing ---
 function draw(timePhase) {
   const dims = +document.getElementById('dims').value;
@@ -1253,7 +1341,7 @@ PRESETS.forEach(p => {
   const btn = document.createElement('button');
   btn.className = 'preset-btn';
   btn.textContent = p.group ? p.name : `${p.name} (${p.dims}D)`;
-  btn.addEventListener('click', () => applyPreset(p));
+  btn.addEventListener('click', () => beginTransition(() => applyPreset(p)));
   presetsEl.appendChild(btn);
 });
 
@@ -1337,14 +1425,14 @@ function showTourStep(idx) {
 tourNext.addEventListener('click', () => {
   const nextIdx = _tourStep + 1;
   if (nextIdx >= TOUR_STEPS.length) return;
-  loadStepShape(TOUR_STEPS[nextIdx]);
+  beginTransition(() => loadStepShape(TOUR_STEPS[nextIdx]));
   showTourStep(nextIdx);
 });
 
 tourBack.addEventListener('click', () => {
   if (_tourStep === 0) return;
   const prevIdx = _tourStep - 1;
-  loadStepShape(TOUR_STEPS[prevIdx]);
+  beginTransition(() => loadStepShape(TOUR_STEPS[prevIdx]));
   showTourStep(prevIdx);
 });
 
@@ -1514,43 +1602,81 @@ document.getElementById('timeDim').addEventListener('change', () => {
 });
 
 function randInt(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); }
+function randFloat(min, max) { return min + Math.random() * (max - min); }
+function randPick(arr) { return arr[randInt(0, arr.length - 1)]; }
 
-document.getElementById('randomize').addEventListener('click', () => {
-  const dims = +document.getElementById('dims').value;
-  const numAxes = dims - 1;
-  document.getElementById('r').value = randInt(10, 90);
-  for (let i = 1; i <= numAxes; i++) {
-    document.getElementById(`o${i}`).value = randInt(1, 15);
-    document.getElementById(`i${i}`).value = randInt(1, 25);
+// Randomize the visual side of the shape — gradient, ribbon, view angles,
+// effects. Used by both Random and Lucky after they pick the geometry.
+function randomizeAppearance({ tasteful = false } = {}) {
+  // --- Appearance ---
+  document.getElementById('gradient').value = randInt(0, 13);
+  document.getElementById('tipSize').value = tasteful ? randInt(15, 50) : randInt(0, 70);
+  const ribbonOn = Math.random() < (tasteful ? 0.6 : 0.5);
+  document.getElementById('ribbon').checked = ribbonOn;
+  document.getElementById('ribbonSpin').value = (tasteful ? randInt(2, 12) : randInt(1, 30)) * (Math.random() < 0.5 ? 1 : 1) * 0.5 + randInt(2, 12);
+  document.getElementById('ribbonWobble').value = tasteful ? randInt(0, 15) : randInt(0, 35);
+  // 30% chance to enable dual-color back gradient
+  if (Math.random() < (tasteful ? 0.25 : 0.4)) {
+    document.getElementById('dualColor').checked = true;
+    document.getElementById('gradient2').value = randInt(0, 13);
+  } else {
+    document.getElementById('dualColor').checked = false;
   }
-  document.getElementById('loops').value = randInt(10, 50);
-  document.getElementById('spinYZ').value = randInt(10, 70);
+
+  // --- View ---
+  document.getElementById('spinYZ').value = randInt(0, 75);
   document.getElementById('spinXZ').value = randInt(0, 360);
+  const dims = +document.getElementById('dims').value;
   if (dims >= 4) document.getElementById('spinXW').value = randInt(0, 360);
   if (dims >= 5) document.getElementById('spinXV').value = randInt(0, 360);
-  draw();
+  document.getElementById('slicePos').value = randInt(-40, 40);
+  document.getElementById('sliceWidth').value = tasteful ? randInt(40, 100) : randInt(15, 100);
+
+  // --- Effects ---
+  document.getElementById('variance').value = (tasteful ? randFloat(0, 2.5) : randFloat(0, 5)).toFixed(1);
+  document.getElementById('divergence').value = (tasteful ? randFloat(0, 1.5) : randFloat(0, 4)).toFixed(1);
+  document.getElementById('passes').value = tasteful ? randInt(8, 20) : randInt(1, 20);
+  document.getElementById('brightness').value = (tasteful ? randFloat(2.5, 5.5) : randFloat(1, 7)).toFixed(1);
+  document.getElementById('core').value = tasteful ? randInt(50, 100) : randInt(0, 100);
+  document.getElementById('sparkle').value = randInt(0, tasteful ? 50 : 80);
+  document.getElementById('bloom').checked = Math.random() < (tasteful ? 0.75 : 0.6);
+  document.getElementById('bloomBlur').value = tasteful ? randInt(6, 18) : randInt(2, 30);
+}
+
+document.getElementById('randomize').addEventListener('click', () => {
+  beginTransition(() => {
+    const dims = +document.getElementById('dims').value;
+    const numAxes = dims - 1;
+    document.getElementById('r').value = randInt(10, 90);
+    for (let i = 1; i <= numAxes; i++) {
+      document.getElementById(`o${i}`).value = randInt(1, 15);
+      document.getElementById(`i${i}`).value = randInt(1, 25);
+    }
+    document.getElementById('loops').value = randInt(1, 50);
+    randomizeAppearance({ tasteful: false });
+    updateAxisVisibility();
+  });
 });
 
 document.getElementById('randomNice').addEventListener('click', () => {
-  const dims = +document.getElementById('dims').value;
-  const numAxes = dims - 1;
-  const bases = [2, 3, 4, 5, 6];
-  const base = bases[randInt(0, bases.length - 1)];
-  const mults = [1, 2, 3, 4, 5, 6, 7, 8];
-  const pick = (max) => Math.min(max, Math.max(1, base * mults[randInt(0, mults.length - 1)]));
+  beginTransition(() => {
+    const dims = +document.getElementById('dims').value;
+    const numAxes = dims - 1;
+    const bases = [2, 3, 4, 5, 6];
+    const base = bases[randInt(0, bases.length - 1)];
+    const mults = [1, 2, 3, 4, 5, 6, 7, 8];
+    const pick = (max) => Math.min(max, Math.max(1, base * mults[randInt(0, mults.length - 1)]));
 
-  const rVal = Math.random() < 0.5 ? randInt(8, 25) : randInt(65, 88);
-  document.getElementById('r').value = rVal;
-  for (let i = 1; i <= numAxes; i++) {
-    document.getElementById(`o${i}`).value = pick(20);
-    document.getElementById(`i${i}`).value = pick(30);
-  }
-  document.getElementById('loops').value = randInt(15, 45);
-  document.getElementById('spinYZ').value = randInt(15, 65);
-  document.getElementById('spinXZ').value = randInt(0, 360);
-  if (dims >= 4) document.getElementById('spinXW').value = randInt(0, 360);
-  if (dims >= 5) document.getElementById('spinXV').value = randInt(0, 360);
-  draw();
+    const rVal = Math.random() < 0.5 ? randInt(8, 25) : randInt(65, 88);
+    document.getElementById('r').value = rVal;
+    for (let i = 1; i <= numAxes; i++) {
+      document.getElementById(`o${i}`).value = pick(20);
+      document.getElementById(`i${i}`).value = pick(30);
+    }
+    document.getElementById('loops').value = randInt(1, 45);
+    randomizeAppearance({ tasteful: true });
+    updateAxisVisibility();
+  });
 });
 
 document.getElementById('harmonize').addEventListener('click', () => {
