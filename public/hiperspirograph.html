@@ -2167,27 +2167,77 @@ if (location.hash.length > 1) {
   draw();
 }
 
-// --- Embed mode: ?embed=1 → headless rotating canvas for iframe usage ---
-if (new URLSearchParams(location.search).get('embed') === '1') {
-  document.body.classList.add('embed');
-  // Slow auto-rotation around XZ. Drag still works (existing handlers).
-  let lastTs = performance.now();
-  let manualUntil = 0;
-  // Pause auto-rotate briefly when the user drags
-  canvas.addEventListener('pointerdown', () => { manualUntil = performance.now() + 4000; });
-  function tick(ts) {
-    const dt = (ts - lastTs) / 1000;
-    lastTs = ts;
-    if (ts > manualUntil) {
-      const spinEl = document.getElementById('spinXZ');
-      const next = (parseFloat(spinEl.value) + dt * 8) % 360;
-      spinEl.value = next;
-      draw();
-    }
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
+// --- Slow auto-rotation -----------------------------------------------
+// The canvas idly rotates around XZ when the user isn't engaged. Stops as
+// soon as they touch the canvas, drag a slider, type, etc. Re-engages when
+// a new shape is loaded (preset / Random / Lucky / tour Next/Back) since
+// the user is being shown a fresh object.
+//
+// In embed mode (?embed=1) the rotation always resumes after a short
+// idle so the embedded iframe keeps spinning in the chart sidebar.
+const _embedMode = new URLSearchParams(location.search).get('embed') === '1';
+if (_embedMode) document.body.classList.add('embed');
+
+let _autoRotateOn = true;
+let _autoRotateRAF = null;
+let _autoRotateLastT = 0;
+let _resumeAutoRotateAt = 0;
+const AUTO_ROTATE_DPS = 8;          // degrees per second
+const EMBED_RESUME_AFTER = 4000;    // ms idle before embed mode auto-resumes
+
+function startAutoRotate() {
+  _autoRotateOn = true;
+  if (_autoRotateRAF) return;
+  _autoRotateLastT = performance.now();
+  _autoRotateRAF = requestAnimationFrame(_autoRotateTick);
 }
+function pauseAutoRotate({ resumeAfter = 0 } = {}) {
+  _autoRotateOn = false;
+  _resumeAutoRotateAt = resumeAfter ? performance.now() + resumeAfter : 0;
+}
+function _autoRotateTick(ts) {
+  _autoRotateRAF = requestAnimationFrame(_autoRotateTick);
+  const dt = (ts - _autoRotateLastT) / 1000;
+  _autoRotateLastT = ts;
+  // Resume after the embed idle if applicable
+  if (!_autoRotateOn && _resumeAutoRotateAt && ts > _resumeAutoRotateAt) {
+    _autoRotateOn = true;
+    _resumeAutoRotateAt = 0;
+  }
+  if (!_autoRotateOn) return;
+  // Don't fight the time animation or an in-flight tween — they own draw()
+  if (_tweenRAF) return;
+  if (document.getElementById('timeDim').checked) return;
+  const spinEl = document.getElementById('spinXZ');
+  spinEl.value = (((parseFloat(spinEl.value) + dt * AUTO_ROTATE_DPS) % 360) + 360) % 360;
+  draw();
+}
+
+// Stop auto-rotate on direct interaction with the canvas / controls.
+function _onInteract() {
+  pauseAutoRotate(_embedMode ? { resumeAfter: EMBED_RESUME_AFTER } : {});
+}
+canvas.addEventListener('pointerdown', _onInteract);
+document.querySelectorAll('.controls input, .controls select, .controls button')
+  .forEach(el => el.addEventListener('input', _onInteract));
+document.querySelectorAll('.controls input, .controls select, .controls button')
+  .forEach(el => el.addEventListener('change', _onInteract));
+
+// Tour navigation / Random / Lucky / preset bar all eventually call
+// beginTransition(); restart auto-rotate at the start of every transition
+// so a freshly-loaded shape spins on its own again.
+const _origBeginTransition = beginTransition;
+beginTransition = function (applyTarget, opts) {
+  _origBeginTransition(applyTarget, opts);
+  // After the tween settles, the new shape is ready to be admired.
+  setTimeout(() => startAutoRotate(), (opts?.duration ?? 600) + 50);
+};
+
+requestAnimationFrame((ts) => {
+  _autoRotateLastT = ts;
+  _autoRotateRAF = requestAnimationFrame(_autoRotateTick);
+});
+
 </script>
 </body>
 </html>
