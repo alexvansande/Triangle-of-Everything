@@ -1645,14 +1645,23 @@ function randomizeAppearance({ tasteful = false } = {}) {
 
 document.getElementById('randomize').addEventListener('click', () => {
   beginTransition(() => {
-    const dims = +document.getElementById('dims').value;
+    // Pick dimensions first — everything downstream depends on it
+    const dims = randInt(2, 5);
+    document.getElementById('dims').value = dims;
     const numAxes = dims - 1;
     document.getElementById('r').value = randInt(10, 90);
     for (let i = 1; i <= numAxes; i++) {
       document.getElementById(`o${i}`).value = randInt(1, 15);
       document.getElementById(`i${i}`).value = randInt(1, 25);
     }
-    document.getElementById('loops').value = randInt(1, 50);
+    // Random flatness per dimension (Z/W/V) — controls how "thick" the shape
+    // is in each axis. Full range for chaos.
+    document.getElementById('flatnessZ').value = randInt(20, 100);
+    document.getElementById('flatnessW').value = randInt(20, 100);
+    document.getElementById('flatnessV').value = randInt(20, 100);
+    document.getElementById('loops').value = randInt(1, 5);
+    // 50/50 between additive and torus coupling
+    document.querySelector(`input[name="coupling"][value="${Math.random() < 0.5 ? 'additive' : 'torus'}"]`).checked = true;
     randomizeAppearance({ tasteful: false });
     updateAxisVisibility();
   });
@@ -1660,7 +1669,9 @@ document.getElementById('randomize').addEventListener('click', () => {
 
 document.getElementById('randomNice').addEventListener('click', () => {
   beginTransition(() => {
-    const dims = +document.getElementById('dims').value;
+    // Lucky leans toward higher dimensions for richer shapes
+    const dims = randPick([3, 4, 4, 5, 5]);
+    document.getElementById('dims').value = dims;
     const numAxes = dims - 1;
     const bases = [2, 3, 4, 5, 6];
     const base = bases[randInt(0, bases.length - 1)];
@@ -1673,7 +1684,13 @@ document.getElementById('randomNice').addEventListener('click', () => {
       document.getElementById(`o${i}`).value = pick(20);
       document.getElementById(`i${i}`).value = pick(30);
     }
-    document.getElementById('loops').value = randInt(1, 45);
+    // Tasteful flatness keeps each dimension reasonably present
+    document.getElementById('flatnessZ').value = randInt(60, 100);
+    document.getElementById('flatnessW').value = randInt(60, 100);
+    document.getElementById('flatnessV').value = randInt(60, 100);
+    document.getElementById('loops').value = randInt(1, 5);
+    // Lucky favors torus (more coherent shapes)
+    document.querySelector(`input[name="coupling"][value="${Math.random() < 0.7 ? 'torus' : 'additive'}"]`).checked = true;
     randomizeAppearance({ tasteful: true });
     updateAxisVisibility();
   });
