@@ -1964,11 +1964,29 @@ function applyState(str) {
   document.getElementById('tipSize').value = s[2];
   document.getElementById('ribbon').checked = !!(s[3] & 1);
   document.querySelector(`input[name="coupling"][value="${s[3] & 2 ? 'torus' : 'additive'}"]`).checked = true;
-  document.getElementById('timeDim').checked = !!(s[3] & 4);
+  const wantTime = !!(s[3] & 4);
+  const timeEl = document.getElementById('timeDim');
+  const timeChanged = timeEl.checked !== wantTime;
+  timeEl.checked = wantTime;
   document.getElementById('stereo').checked = !!(s[3] & 8);
   document.getElementById('timeBounce').checked = !!(s[3] & 16);
-  // Refresh dependent UI bits so the stereo grid actually shows/hides
+  // Refresh dependent UI bits so the stereo grid actually shows/hides and the
+  // time animation kicks in / stops when the saved state has it on / off.
   if (typeof updateStereoVisibility === 'function') updateStereoVisibility();
+  if (timeChanged) {
+    if (wantTime) {
+      if (typeof startTimeAnimation === 'function') startTimeAnimation();
+    } else if (typeof timeAnimId !== 'undefined' && timeAnimId) {
+      cancelAnimationFrame(timeAnimId);
+      timeAnimId = null;
+    }
+    if (typeof updateAxisVisibility === 'function') updateAxisVisibility();
+    if (typeof updateDownloadLabel === 'function') updateDownloadLabel();
+  } else if (wantTime && (typeof timeAnimId === 'undefined' || !timeAnimId)) {
+    // Already checked but the loop wasn't running (e.g. previous state had
+    // it off and just re-enabled). Kick it off.
+    if (typeof startTimeAnimation === 'function') startTimeAnimation();
+  }
   document.getElementById('ribbonSpin').value = s[4] / 2;
   document.getElementById('ribbonWobble').value = s[5] / 2;
   document.getElementById('loops').value = s[6];
