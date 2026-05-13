@@ -1255,8 +1255,7 @@ function drawDarkMatterRegions() {
       .text("WIMP")
       .on("click", (e) => {
         e.stopPropagation();
-        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
-        setSidebarOpen(true);
+        navigateToObject("wimp", "WIMP*");
       });
   }
 

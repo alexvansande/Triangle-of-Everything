@@ -24,6 +24,8 @@
   { "name": "Neutrino (μ)",     "logR": -6.5,   "logM": -30.9,  "cat": "particle", "subcat": "lepton", "z": 4 },
   { "name": "Neutrino (e)",     "logR": -4.5,   "logM": -32.9,  "cat": "particle", "subcat": "lepton", "z": 4 },
   { "name": "X & Y Bosons*",   "logR": -29.7,  "logM": -7.75,  "cat": "particle", "subcat": "boson", "z": 2, "wiki": "X_and_Y_bosons" },
+  { "name": "Magnetic Monopole*", "logR": -31.20, "logM": -6.25, "cat": "particle", "subcat": "boson", "z": 2, "wiki": "Magnetic_monopole" },
+  { "name": "WIMP*",             "logR": -16.20, "logM": -21.25, "cat": "particle", "subcat": "boson", "z": 2, "wiki": "Weakly_interacting_massive_particle" },
 
   { "name": "Proton",           "logR": -13.06, "logM": -23.78, "cat": "composite", "subcat": "nucleon", "z": 1 },
   { "name": "Neutron",          "logR": -13.06, "logM": -23.77, "cat": "composite", "subcat": "nucleon", "z": 2 },
