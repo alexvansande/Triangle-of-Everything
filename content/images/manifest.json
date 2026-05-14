@@ -481,9 +481,8 @@
   },
   "dna": {
     "file": "dna.webp",
-    "credit": "Zephyris",
-    "license": "CC BY-SA 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:DNA_Structure%2BKey%2BLabelled.pn_NoBB.png"
+    "credit": "Generated Image",
+    "license": "Public Domain"
   },
   "big-bang": {
     "file": "big-bang.webp",
@@ -616,5 +615,40 @@
     "credit": "Unknown",
     "license": "Unknown",
     "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Meson_nonet_-_spin_0.svg/960px-Meson_nonet_-_spin_0.svg.png"
+  },
+  "glucose": {
+    "file": "glucose.webp",
+    "credit": "Generated Image",
+    "license": "Public Domain"
+  },
+  "adenine-a": {
+    "file": "adenine-a.webp",
+    "credit": "Generated Image",
+    "license": "Public Domain"
+  },
+  "guanine-g": {
+    "file": "guanine-g.webp",
+    "credit": "Generated Image",
+    "license": "Public Domain"
+  },
+  "cytosine-c": {
+    "file": "cytosine-c.webp",
+    "credit": "Generated Image",
+    "license": "Public Domain"
+  },
+  "thymine-t": {
+    "file": "thymine-t.webp",
+    "credit": "Generated Image",
+    "license": "Public Domain"
+  },
+  "atp": {
+    "file": "atp.webp",
+    "credit": "Generated Image",
+    "license": "Public Domain"
+  },
+  "fullerene-c60": {
+    "file": "fullerene-c60.webp",
+    "credit": "Generated Image",
+    "license": "Public Domain"
   }
 }

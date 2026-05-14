@@ -2125,7 +2125,7 @@ function drawObjects() {
 
     if (o._showIcon) {
       // Icon rendered in lIcons layer (above noise overlay)
-      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole"]);
+      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
       const SCREEN_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
       const isVoid = o.slug.includes("void");
       const useScreen = (SCREEN_CATS.has(o.catKey || o.cat) || SCREEN_SLUGS.has(o.slug)) && !isVoid;
@@ -4448,7 +4448,7 @@ function drawObjectsFast() {
       shownIconsFast.push({ sx, sy });
     }
     if (hasIcon) {
-      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole"]);
+      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
       const SCREEN_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
       const isVoid = o.slug.includes("void");
       const useScreen = (SCREEN_CATS.has(o.cat) || SCREEN_SLUGS.has(o.slug)) && !isVoid;
