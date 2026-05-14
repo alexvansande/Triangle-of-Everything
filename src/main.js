@@ -39,6 +39,14 @@ import imageManifest from "../content/images/manifest.json";
 // Spirograph state hashes for particles that can be opened in the 5D spirograph
 import hiperspirographStates from "../content/icons/hiperspirograph-states.json";
 
+// Atoms whose sidebar image is a sphere-packed spirograph composite (built
+// from the hyperspirograph itself). These get a "Explore multidimensional
+// strings" link pointing at the spirograph with no particular preset.
+const STRINGS_ATOM_SLUGS = new Set([
+  "hydrogen", "helium", "carbon", "oxygen", "iron", "gold", "uranium",
+  "water-h2o",
+]);
+
 // Load object icons (small WebP, preloaded eagerly)
 const ICON_SLUG_MAP = {
   "bacteria":       "bacterium",
@@ -3046,6 +3054,17 @@ function openSidebar(obj) {
       credit.rel = "noopener";
       credit.textContent = `${imgMeta.credit} · ${imgMeta.license}`;
       sbImage.appendChild(credit);
+    }
+    // Atoms whose sidebar image is a sphere-packed spirograph composite get an
+    // invite to open the spirograph itself. No preset — landing on the default.
+    if (STRINGS_ATOM_SLUGS.has(slug)) {
+      const explore = document.createElement("a");
+      explore.className = "sb-spiro-explore";
+      explore.href = "/hiperspirograph.html";
+      explore.target = "_blank";
+      explore.rel = "noopener";
+      explore.textContent = "✨ Explore multidimensional strings →";
+      sbImage.appendChild(explore);
     }
   } else {
     sbImage.innerHTML = `
