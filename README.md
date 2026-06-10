@@ -20,9 +20,10 @@ All objects are bounded by an isosceles right triangle:
 ## Features
 
 - Google Maps-like zoom and pan with smooth transitions
-- 130+ objects across all scales: particles, atoms, everyday objects, planets, stars, black holes, galaxies
+- 180+ objects across all scales: particles, atoms, everyday objects, planets, stars, black holes, galaxies
 - Adaptive grid system with three levels of detail (×1000, ×10, logarithmic subdivisions)
 - Diagonal density/time lines connecting the chart to the history of the universe
+- Cosmic **time scrubber** — drag from the Planck epoch (10⁻⁴³ s) to heat death (10¹⁰⁰ yr) and watch objects condense into and fade out of existence as the universe cools; press play to run the whole history
 - Click any object for detailed info (size, mass, density, description, Wikipedia link)
 - Keyboard shortcuts, search, preset views, URL-based state
 
@@ -45,10 +46,21 @@ npm run preview
 ## Data
 
 - **`src/objects.json`** — coordinates and metadata for all plotted objects
-- **`src/descriptions/`** — one Markdown file per object with a short description
-- **`src/texts/intro.md`** — introductory text shown in the sidebar
+- **`content/descriptions/`** — one Markdown file per object with a short description
+- **`content/intro.md`** — introductory text shown in the sidebar
 
-Adding a new object is as simple as adding a line to `objects.json` and optionally creating a `.md` file in `descriptions/`.
+Adding a new object is as simple as adding a line to `objects.json` and optionally creating a `.md` file in `content/descriptions/`.
+
+### Validating the data
+
+```bash
+npm run validate
+```
+
+Checks that every object sits inside the physical triangle (nothing is plotted
+below its own Schwarzschild radius or Compton wavelength, or beyond the Hubble
+radius) and flags any object whose density is wildly out of line with others of
+the same size. Use `npm run validate -- --strict` for a noisier review pass.
 
 ## Tech stack
 
