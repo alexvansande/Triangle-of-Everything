@@ -10,7 +10,7 @@ import {
 import objectsData from "./objects.json";
 import introRaw from "../content/intro.md?raw";
 import "./style.css";
-import { initTour, onObjectClick, updateStartButtonLabel, startTour } from "./tour.js";
+import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
@@ -3723,6 +3723,7 @@ let _connAnimId = null;
 let _animPaused = false;
 let _animDisabled = false;
 let _animResumeTimer = null;
+let _animSpeed = 1; // global animation-speed multiplier (Z slower / X faster)
 
 function pauseAnimOnInteract() {
   if (_animDisabled) return;
@@ -3910,7 +3911,7 @@ function animateConnections(timestamp) {
     return;
   }
 
-  const dt = Math.min((timestamp - _connLastTime) / 1000, 0.1);
+  const dt = Math.min((timestamp - _connLastTime) / 1000, 0.1) * _animSpeed;
   _connLastTime = timestamp;
 
   if (_animDisabled) {
@@ -5138,21 +5139,41 @@ setGridUnit.addEventListener("change", () => {
 const PAN_STEP = 80;
 document.addEventListener("keydown", (e) => {
   if (e.target.tagName === "INPUT") return;
+  // Arrow keys pan. Letter keys are recording shortcuts (see keyhint / docs):
+  //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations · H hide UI
   switch (e.key) {
     case "+": case "=":
       svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.4); break;
     case "-": case "_":
       svg.transition().duration(200).call(zoomBehavior.scaleBy, 1 / 1.4); break;
-    case "ArrowLeft": case "a":
+    case "ArrowLeft":
       svg.transition().duration(150).call(zoomBehavior.translateBy, PAN_STEP, 0); break;
-    case "ArrowRight": case "d":
+    case "ArrowRight":
       svg.transition().duration(150).call(zoomBehavior.translateBy, -PAN_STEP, 0); break;
-    case "ArrowUp": case "w":
+    case "ArrowUp":
       svg.transition().duration(150).call(zoomBehavior.translateBy, 0, PAN_STEP); break;
-    case "ArrowDown": case "s":
+    case "ArrowDown":
       svg.transition().duration(150).call(zoomBehavior.translateBy, 0, -PAN_STEP); break;
     case "Home": case "0":
       svg.transition().duration(500).call(zoomBehavior.transform, d3.zoomIdentity); break;
+
+    // ── Recording shortcuts ──────────────────────────────────────
+    case "w": case "W":
+      svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.4); break;
+    case "s": case "S":
+      svg.transition().duration(200).call(zoomBehavior.scaleBy, 1 / 1.4); break;
+    case "a": case "A":
+      tourStep(-1); break;
+    case "d": case "D":
+      tourStep(1); break;
+    case "z": case "Z":
+      _animSpeed = Math.max(0.1, +(_animSpeed / 1.4).toFixed(3));
+      console.log(`Animation speed: ${_animSpeed}×`); break;
+    case "x": case "X":
+      _animSpeed = Math.min(8, +(_animSpeed * 1.4).toFixed(3));
+      console.log(`Animation speed: ${_animSpeed}×`); break;
+    case "h": case "H":
+      document.body.classList.toggle("ui-hidden"); break;
   }
 });
 

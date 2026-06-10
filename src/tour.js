@@ -258,6 +258,27 @@ function goToStep(index) {
   }
 }
 
+/** Keyboard-driven tour navigation (A/D shortcuts). delta -1 = prev, +1 = next.
+ *  Starts the tour if it isn't running, clamps at the ends (never auto-closes),
+ *  and always logs the current step's text to the console — handy for narrating
+ *  a screen recording, especially when the tour box is hidden (H shortcut). */
+export function tourStep(delta) {
+  if (!_tourActive) {
+    startTour(_tourStep || 0);
+  } else {
+    const t = _tourStep + delta;
+    if (t >= 0 && t < TOUR_STEPS.length) goToStep(t);
+  }
+  const step = TOUR_STEPS[_tourStep];
+  const title = (step && (step.title || step.id)) || "";
+  const body = els.text ? els.text.textContent.trim() : "";
+  console.log(
+    `%c━━ Tour ${_tourStep + 1}/${TOUR_STEPS.length} · ${title} ━━`,
+    "color:#b388ff;font-weight:bold;font-size:13px"
+  );
+  if (body) console.log(body);
+}
+
 let _firstRender = true;
 
 function renderStep() {

@@ -38,6 +38,16 @@ html, body {
 }
 body:active { cursor: grabbing; }
 
+/* H shortcut: hide the text panels for a clean recording / screenshot.
+   Not persisted — a page refresh brings everything back. */
+body.ui-hidden #sidebar,
+body.ui-hidden #sidebar-expand,
+body.ui-hidden #tour-box,
+body.ui-hidden #tour-header,
+body.ui-hidden #tour-start-btn {
+  display: none !important;
+}
+
 /* ---------- intro animation ---------- */
 @keyframes fadeIn {
   from { opacity: 0; }
