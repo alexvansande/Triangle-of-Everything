@@ -3415,7 +3415,7 @@ function drawAxes() {
         axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 3)
           .attr("stroke", "rgba(255,255,255,0.10)");
         axB.append("text").attr("x", p).attr("y", 14).attr("text-anchor", "middle")
-          .attr("class", "axis-label").attr("font-size", 9).attr("font-weight", 400)
+          .attr("class", "axis-label axis-minor").attr("font-size", 9).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.35)")
           .text(n);
       }
@@ -3502,7 +3502,7 @@ function drawAxes() {
         axL.append("line").attr("x1", -3).attr("y1", p).attr("x2", 0).attr("y2", p)
           .attr("stroke", "rgba(255,255,255,0.10)");
         axL.append("text").attr("x", -10).attr("y", p + 3.5).attr("text-anchor", "middle")
-          .attr("class", "axis-label").attr("font-size", 9).attr("font-weight", 400)
+          .attr("class", "axis-label axis-minor").attr("font-size", 9).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.35)")
           .text(n);
       }
@@ -3587,7 +3587,7 @@ function drawAxes() {
         axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 3).attr("y2", p)
           .attr("stroke", "rgba(255,255,255,0.10)");
         axR.append("text").attr("x", 14).attr("y", p + 3.5).attr("text-anchor", "middle")
-          .attr("class", "axis-label").attr("font-size", 9).attr("font-weight", 400)
+          .attr("class", "axis-label axis-minor").attr("font-size", 9).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.35)")
           .text(n);
       }

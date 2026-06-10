@@ -853,16 +853,26 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
 
 /* ---------- SVG text classes ---------- */
 
+/* Pure grid numbers: white, Helvetica Neue Light. */
 .axis-label {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px;
-  fill: rgba(255,255,255,0.4);
+  font-weight: 300;
+  fill: rgba(255,255,255,0.88);
 }
 .axis-unit-label {
   font-family: 'Inter', sans-serif; font-size: 9px;
   fill: rgba(255,255,255,0.22); font-style: italic;
 }
+/* Minor sub-decade digits (the 2…9 between decades) stay dim so they read as
+   subordinate to the bright decade numbers. */
+.axis-label.axis-minor {
+  fill: rgba(255,255,255,0.4);
+}
+/* Reference labels (named units): white, Helvetica bold, smaller (set below). */
 .axis-unit-link {
   cursor: pointer;
+  font-weight: 700;
+  fill: rgba(255,255,255,0.92);
 }
 
 /* Margin-driven scaling: SVG font-size attributes are overridden by CSS,
@@ -885,18 +895,20 @@ g.axis-t .axis-label,
 g.axis-t .axis-unit-link {
   font-size: clamp(7px, calc(var(--top-axis-h, 55px) * 0.20), 16px) !important;
 }
-/* Bold once a margin is comfortably wide. Body classes are toggled in JS
-   based on margin size since CSS calc + var() can't cleanly produce a
-   unitless font-weight via clamp. */
-body.axis-r-bold g.axis-r .axis-label,
-body.axis-r-bold g.axis-r .axis-unit-link,
-body.axis-l-bold g.axis-l .axis-label,
-body.axis-l-bold g.axis-l .axis-unit-link,
-body.axis-b-bold g.axis-b .axis-label,
-body.axis-b-bold g.axis-b .axis-unit-link,
-body.axis-t-bold g.axis-t .axis-label,
-body.axis-t-bold g.axis-t .axis-unit-link {
-  font-weight: 600 !important;
+/* Reference labels render ~72% of the grid-number size on each axis, so the
+   bold named units read as secondary to the light numbers. (Must come after
+   the combined rules above to win the cascade.) */
+g.axis-r .axis-unit-link {
+  font-size: clamp(6px, calc(var(--right-axis-w, 95px) * 0.094), 12px) !important;
+}
+g.axis-l .axis-unit-link {
+  font-size: clamp(6px, calc(var(--left-axis-w, 175px) * 0.050), 10px) !important;
+}
+g.axis-b .axis-unit-link {
+  font-size: clamp(6px, calc(var(--bottom-axis-h, 80px) * 0.115), 12px) !important;
+}
+g.axis-t .axis-unit-link {
+  font-size: clamp(6px, calc(var(--top-axis-h, 55px) * 0.144), 12px) !important;
 }
 
 /* Drag handles at the chart edges. Vertical handles for left/right (col-resize),
