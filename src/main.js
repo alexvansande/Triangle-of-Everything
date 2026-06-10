@@ -4547,10 +4547,14 @@ function redrawVectorsLight() {
   drawDarkMatterRegions();
   drawConnections();
   drawRegionLabels();
-  // Full object render every frame so text labels stay visible and correctly
-  // positioned while zooming/panning. (A dots-only fast path exists in
-  // drawObjectsFast(), but dropping labels mid-drag is the wrong trade here.)
-  drawObjects();
+  // Manual zoom/pan keeps the full render so labels stay visible while you
+  // explore. But an AUTOMATED camera move (tour step, reset, intro) uses the
+  // O(n) dot renderer so the transition is smooth — the full labels snap back
+  // in at the destination via the zoom-end redraw. Big Bang mode always uses
+  // the full renderer (staged fades/positions must stay correct).
+  if (_bigBangMode) drawObjects();
+  else if (_programmaticZoom) drawObjectsFast();
+  else drawObjects();
   drawHighlight();
   drawAxes();
   updateMinimap();
@@ -4565,6 +4569,7 @@ let currentK = 1;
 let rafPending = false;
 let _zoomPrevTransform = null;  // track previous transform for CSS offset
 let _zooming = false;
+let _programmaticZoom = false;  // true during automated transitions (no sourceEvent)
 
 const zoomBehavior = d3.zoom()
   .scaleExtent([0.3, 800])
@@ -4573,7 +4578,10 @@ const zoomBehavior = d3.zoom()
     if (event.target.closest?.("button, input, a")) return false;
     return svg.node().contains(event.target);
   })
-  .on("start", () => {
+  .on("start", (event) => {
+    // A d3 transition (tour/reset/intro) fires zoom events with no sourceEvent;
+    // user gestures (wheel/drag) carry the originating DOM event.
+    _programmaticZoom = !event.sourceEvent;
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
     _zooming = true;
     clearClickTargets();
@@ -4581,6 +4589,7 @@ const zoomBehavior = d3.zoom()
     if (_isSafari) grainRect.style("display", "none");
   })
   .on("zoom", (event) => {
+    _programmaticZoom = !event.sourceEvent;
     const t = event.transform;
     currentK = t.k;
     xS = t.rescaleX(xBase);
@@ -4611,6 +4620,7 @@ const zoomBehavior = d3.zoom()
   })
   .on("end", () => {
     _zooming = false;
+    _programmaticZoom = false;
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
     lTilesBase.attr("transform", null);
