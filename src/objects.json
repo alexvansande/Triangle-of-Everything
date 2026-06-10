@@ -56,7 +56,7 @@
   { "name": "Tobacco Mosaic",   "logR": -4.82,  "logM": -16.18, "cat": "micro", "subcat": "virus", "z": 5, "wiki": "Tobacco_mosaic_virus" },
   { "name": "Influenza",        "logR": -5.30,  "logM": -15.22, "cat": "micro", "subcat": "virus", "z": 4, "wiki": "Influenza" },
   { "name": "HIV",              "logR": -5.22,  "logM": -14.78, "cat": "micro", "subcat": "virus", "z": 4, "wiki": "HIV" },
-  { "name": "COVID Virus",      "logR": -5.4,   "logM": -16,    "cat": "micro", "subcat": "virus", "z": 4, "wiki": "SARS-CoV-2" },
+  { "name": "COVID Virus",      "logR": -5.4,   "logM": -15.3,  "cat": "micro", "subcat": "virus", "z": 4, "wiki": "SARS-CoV-2" },
   { "name": "Bacteriophage T4", "logR": -4.95,  "logM": -15.35, "cat": "micro", "subcat": "virus", "z": 5, "wiki": "Enterobacteria_phage_T4" },
   { "name": "Ebola Virus",      "logR": -4.31,  "logM": -14.25, "cat": "micro", "subcat": "virus", "z": 4, "wiki": "Ebola_virus" },
   { "name": "Mimivirus",        "logR": -4.60,  "logM": -13.10, "cat": "micro", "subcat": "virus", "z": 5, "wiki": "Mimivirus" },

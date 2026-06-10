@@ -1,1 +1,1 @@
-African elephant: the largest living land animal, with a brain six times the size of a human's. They can recognize themselves in mirrors and are known to mourn their dead.
+African elephant: the largest living land animal, with the largest brain of any land animal — more than three times the size of a human's. They can recognize themselves in mirrors and are known to mourn their dead.

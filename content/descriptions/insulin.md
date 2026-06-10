@@ -1,1 +1,1 @@
-Insulin is a protein hormone that regulates blood sugar. It was the first protein whose complete structure was determined, earning Dorothy Hodgkin the Nobel Prize in 1964.
+Insulin is a protein hormone that regulates blood sugar. Its amino-acid sequence, worked out by Frederick Sanger, was the first ever determined for any protein (Nobel Prize, 1958); Dorothy Hodgkin later mapped its three-dimensional shape by X-ray crystallography.

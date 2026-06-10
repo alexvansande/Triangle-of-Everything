@@ -10,7 +10,8 @@
     "fetch-images": "node scripts/fetch-images.mjs",
     "process-icons": "node scripts/process-icons.mjs",
     "generate-icons": "node scripts/generate-icons.mjs",
-    "generate-molecule": "node scripts/generate-molecule.mjs"
+    "generate-molecule": "node scripts/generate-molecule.mjs",
+    "validate": "node scripts/validate-objects.mjs"
   },
   "dependencies": {
     "d3": "^7",
