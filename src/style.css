@@ -89,6 +89,89 @@ body.sidebar-open #controls { left: 454px; }
   background: rgba(255,255,255,0.08);
   color: white; border-color: rgba(255,255,255,0.25);
 }
+#controls button.active {
+  background: rgba(153,68,255,0.22);
+  color: white; border-color: var(--purple-accent);
+}
+
+/* ---------- cosmic time scrubber ---------- */
+#scrubber-panel {
+  position: fixed; bottom: 14px; left: 50%;
+  width: min(560px, calc(100vw - 120px));
+  transform: translate(-50%, 24px);
+  z-index: 11;
+  padding: 14px 18px 10px;
+  border: 1px solid rgba(153,68,255,0.35);
+  border-radius: 10px;
+  background: rgba(6,6,26,0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+#scrubber-panel.open { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+
+#scrubber-close {
+  position: absolute; top: 6px; right: 8px;
+  width: 22px; height: 22px; border: none; border-radius: 4px;
+  background: transparent; color: rgba(255,255,255,0.45);
+  font-size: 18px; line-height: 1; cursor: pointer; transition: color 0.15s;
+}
+#scrubber-close:hover { color: white; }
+
+#scrubber-readout {
+  text-align: center; margin-bottom: 8px; pointer-events: none;
+}
+#scrubber-era {
+  display: block; font-size: 15px; font-weight: 600; letter-spacing: 0.04em;
+  color: #d7c4ff;
+}
+#scrubber-time {
+  display: block; font-size: 11px; color: rgba(255,255,255,0.45);
+  font-variant-numeric: tabular-nums; margin-top: 1px;
+}
+
+#scrubber-track { display: flex; align-items: center; gap: 12px; }
+#scrubber-play {
+  flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid rgba(153,68,255,0.5); background: rgba(153,68,255,0.12);
+  color: #d7c4ff; font-size: 12px; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+#scrubber-play:hover { background: rgba(153,68,255,0.28); color: white; }
+
+#scrubber-range {
+  flex: 1 1 auto; -webkit-appearance: none; appearance: none; height: 4px;
+  border-radius: 2px; outline: none; cursor: pointer;
+  background: linear-gradient(90deg, var(--red-accent), var(--purple-accent) 35%, var(--cyan) 65%, var(--amber));
+}
+#scrubber-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; border: 2px solid var(--purple-accent);
+  box-shadow: 0 0 8px rgba(153,68,255,0.8); cursor: grab;
+}
+#scrubber-range::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; border: 2px solid var(--purple-accent);
+  box-shadow: 0 0 8px rgba(153,68,255,0.8); cursor: grab;
+}
+
+#scrubber-ticks {
+  position: relative; height: 14px; margin: 4px 42px 0;
+}
+.scrubber-tick {
+  position: absolute; top: 0; transform: translateX(-50%);
+  font-size: 9px; color: rgba(255,255,255,0.3); white-space: nowrap;
+}
+.scrubber-tick.major { color: rgba(255,255,255,0.55); }
+.scrubber-tick::before {
+  content: ""; position: absolute; top: -6px; left: 50%;
+  width: 1px; height: 4px; background: rgba(255,255,255,0.2);
+}
+
+body.sidebar-open #scrubber-panel { left: calc(50% + 220px); }
+
 /* ---------- settings panel ---------- */
 
 #settings-btn {

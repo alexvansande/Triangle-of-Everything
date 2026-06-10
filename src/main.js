@@ -11,6 +11,7 @@ import objectsData from "./objects.json";
 import introRaw from "../content/intro.md?raw";
 import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour } from "./tour.js";
+import { initTimeScrubber } from "./time-scrubber.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -5480,6 +5481,19 @@ initTour({
   animateBigBang: animateBigBangTransition,
   exitBigBang: exitBigBangMode,
   isBigBangActive: () => _bigBangMode,
+});
+
+// Standalone cosmic-time scrubber — drives the same Big Bang era engine
+// as the tour, but freely draggable. Quick fades (no camera move) so
+// scrubbing feels responsive.
+initTimeScrubber({
+  setEra: (eraKey) =>
+    animateBigBangTransition({ era: eraKey, objectDelay: 0, objectDuration: 600 }, 450),
+  exit: (duration) => exitBigBangMode(duration),
+  isActive: () => _bigBangMode,
+  // Snap to the full-chart view so objects across every scale are in frame
+  // while scrubbing (otherwise an early era looks empty if you're zoomed in).
+  resetView: () => svg.call(zoomBehavior.transform, d3.zoomIdentity),
 });
 
 if (!loadHash()) {
