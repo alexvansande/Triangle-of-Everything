@@ -4488,11 +4488,10 @@ function redrawVectorsLight() {
   drawDarkMatterRegions();
   drawConnections();
   drawRegionLabels();
-  // During an active zoom/pan, use the O(n) dot renderer for smooth frames.
-  // In Big Bang mode few objects are visible, so the full renderer is cheap
-  // and keeps the staged fades/positions correct.
-  if (_bigBangMode) drawObjects();
-  else drawObjectsFast();
+  // Full object render every frame so text labels stay visible and correctly
+  // positioned while zooming/panning. (A dots-only fast path exists in
+  // drawObjectsFast(), but dropping labels mid-drag is the wrong trade here.)
+  drawObjects();
   drawHighlight();
   drawAxes();
   updateMinimap();
