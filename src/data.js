@@ -267,8 +267,6 @@ export const REFERENCE_LINES = [
   },
 ];
 
-export const ARROWS = [];
-
 // =============================================================
 // Connection Paths — animated relationships between objects
 // =============================================================

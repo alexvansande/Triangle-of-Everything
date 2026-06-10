@@ -3,7 +3,7 @@ import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
-  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, CAT_DISPLAY, DENSITY_SPHERE_C, ARROWS, EPOCH_BANDS,
+  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
 } from "./data.js";
@@ -262,7 +262,6 @@ function updateMobileState() {
 // Equal-scale view bounds — computed so 1 data unit = same px in both axes
 let viewXMin, viewXMax, viewYMin, viewYMax;
 
-function resizeCloudCanvas() {} // stub — cloud canvas was removed
 // User-overridable margins. null = use the default for the current
 // sidebar/mobile state. Set by dragging the axis resize handles.
 let _userMarginLeft = null;
@@ -2948,7 +2947,6 @@ function relayout() {
 
   miniSvg.attr("transform",
     `translate(${W - MINIMAP_SIZE - MINIMAP_PAD - margin.right}, ${margin.top + MINIMAP_PAD})`);
-  resizeCloudCanvas();
 }
 
 function wikiUrl(obj) {
@@ -5116,7 +5114,6 @@ function applyLayout({ resetZoom } = {}) {
   chart.select("rect:last-of-type").attr("width", cw).attr("height", ch);
   miniSvg.attr("transform",
     `translate(${W - MINIMAP_SIZE - MINIMAP_PAD - margin.right}, ${margin.top + MINIMAP_PAD})`);
-  resizeCloudCanvas();
 }
 window.__applyLayout = applyLayout;
 
