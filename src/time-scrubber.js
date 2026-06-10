@@ -133,13 +133,13 @@ export function initTimeScrubber({ setEra, exit, isActive, resetView }) {
     else startPlaying();
   });
 
-  // Keyboard: ← / → step through eras while the panel is open.
+  // Esc closes the scrubber. We deliberately do NOT capture ← / → globally:
+  // the range slider already steps through eras with arrow keys when it's
+  // focused (firing 'input'), and the chart's own arrow-pan handler defers to
+  // a focused <input>. Capturing arrows here as well made them step the era
+  // AND pan the chart at the same time.
   document.addEventListener("keydown", (e) => {
-    if (!panel.classList.contains("open")) return;
-    if (e.target.tagName === "INPUT" && e.target !== range) return;
-    if (e.key === "ArrowRight") { stopPlaying(); goTo(current + 1); e.preventDefault(); }
-    else if (e.key === "ArrowLeft") { stopPlaying(); goTo(current - 1); e.preventDefault(); }
-    else if (e.key === "Escape") { close(); }
+    if (e.key === "Escape" && panel.classList.contains("open")) close();
   });
 
   updateReadout(NOW_INDEX);
