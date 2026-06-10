@@ -3001,7 +3001,10 @@ function openSidebar(obj) {
   const cat = typeof obj.cat === "string" ? CATEGORIES[obj.cat] : obj.cat;
 
   const objColor = obj.color || cat.color;
-  sbName.textContent = obj.name;
+  // sidebarName lets an object show a fuller title on click than its
+  // (shorter) graph label — e.g. "Singularity" on the chart, "Big Bang
+  // Singularity" in the panel.
+  sbName.textContent = obj.sidebarName || obj.name;
   sbName.style.color = objColor;
 
   // Show icon in sidebar header if available, otherwise colored dot
