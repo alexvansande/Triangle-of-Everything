@@ -242,7 +242,7 @@ let _isMobile = window.innerWidth < MOBILE_BREAKPOINT;
 const _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 let _booted = false;
 
-const margin = { top: 55, right: 95, bottom: 80, left: SIDEBAR_W };
+const margin = { top: 55, right: 125, bottom: 80, left: SIDEBAR_W };
 let W, H, cw, ch;
 
 function updateMobileState() {
@@ -269,7 +269,7 @@ let _userMarginLeft = null;
 let _userMarginRight = null;
 let _userMarginTop = null;
 let _userMarginBottom = null;
-const RIGHT_MARGIN_DEFAULT = 95;
+const RIGHT_MARGIN_DEFAULT = 125;
 const RIGHT_MARGIN_MIN = 50;
 const RIGHT_MARGIN_MAX = 220;
 const LEFT_MARGIN_MIN_EXTRA = 40;     // gap above sidebar / base
@@ -3467,7 +3467,9 @@ function drawAxes() {
   }
 
   const leftCompact = _isSidebarOpen;
-  const unitX = leftCompact ? -12 : -14;
+  // Unit labels sit OUTBOARD of the exponent-number column (which is at x=-25)
+  // so the two don't overlap. Energy/temperature names get their own column.
+  const unitX = leftCompact ? -34 : -42;
   const titleY = leftCompact ? -45 : -40;
 
   let lastEnergyPy = -Infinity;
@@ -3482,16 +3484,16 @@ function drawAxes() {
       if (lines.length > 1) {
         const txt = axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
           .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
-          .attr("font-family", "'Space Mono', monospace").attr("font-size", leftCompact ? 8 : 9)
-          .attr("fill", "rgba(255,130,130,0.6)");
+          .attr("font-family", "'Space Mono', monospace").attr("font-size", leftCompact ? 8.5 : 9.5)
+          .attr("fill", "rgba(255,150,150,0.92)");
         lines.forEach((line, li) => {
           txt.append("tspan").attr("x", unitX).attr("dy", li === 0 ? 0 : "1.1em").text(line);
         });
       } else {
         axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
           .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
-          .attr("font-family", "'Space Mono', monospace").attr("font-size", leftCompact ? 8 : 9)
-          .attr("fill", "rgba(255,130,130,0.6)")
+          .attr("font-family", "'Space Mono', monospace").attr("font-size", leftCompact ? 8.5 : 9.5)
+          .attr("fill", "rgba(255,150,150,0.92)")
           .text(u.label);
       }
       lastEnergyPy = p;
@@ -3558,17 +3560,17 @@ function drawAxes() {
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
     if (Math.abs(p - lastMassUnitPy) >= minUnitPx && u.slug) {
       axR.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-        .attr("x", 12).attr("y", p + 3).attr("text-anchor", "start")
-        .attr("font-family", "'Space Mono', monospace").attr("font-size", 8)
-        .attr("fill", "rgba(255,130,130,0.6)")
+        .attr("x", 44).attr("y", p + 3).attr("text-anchor", "start")
+        .attr("font-family", "'Space Mono', monospace").attr("font-size", 9.5)
+        .attr("fill", "rgba(255,150,150,0.92)")
         .text(u.label);
       lastMassUnitPy = p;
     }
   });
 
-  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -45)
+  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -114)
     .attr("text-anchor", "middle").attr("class", "axis-title").text("MASS");
-  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -33)
+  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -102)
     .attr("text-anchor", "middle").attr("class", "axis-subtitle").text("10ⁿ kg");
 }
 
