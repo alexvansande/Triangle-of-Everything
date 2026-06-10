@@ -613,10 +613,55 @@ const LOG_SUBS = [
   Math.log10(6), Math.log10(7), Math.log10(8), Math.log10(9),
 ];
 
+// =============================================================
+// Grid unit modes — SI / Planck / Planck-wavelength
+// =============================================================
+// The chart's internal coordinates are logR (cm) and logM (g); these never
+// change. A unit mode only changes (a) where the grid/axis decade lines are
+// anchored (xRef/yRef — so round unit values land on grid lines) and (b) how
+// the tick numbers and axis titles read. Planck modes anchor to the chart's
+// own apex (PLANCK_LOG_R/M), so the singularity sits exactly on (0,0).
+// "planck-wavelength" additionally shows the LEFT axis as the Compton
+// wavelength (inverse energy): 0 at the apex (= the Planck length), growing
+// downward — so a particle's left-axis value equals its width.
+let _gridUnit = "si";
+const _EV_OFFSET = 32.75; // logM(g) + this = log10(energy/eV)
+
+const GRID_UNITS = {
+  si: {
+    xRef: 0, yRef: 0,
+    xNum: (v) => fmtTick(v),
+    massNum: (v) => fmtTick(v - 3),
+    energyNum: (v) => Math.round(v + _EV_OFFSET),
+    bottomSub: "10ⁿ meters", rightSub: "10ⁿ kg",
+    leftTitle: "ENERGY", leftSub: "10ⁿ eV",
+  },
+  planck: {
+    xRef: PLANCK_LOG_R, yRef: PLANCK_LOG_M,
+    xNum: (v) => fmtTick(v - PLANCK_LOG_R),
+    massNum: (v) => fmtTick(v - PLANCK_LOG_M),
+    energyNum: (v) => fmtTick(v - PLANCK_LOG_M),
+    bottomSub: "Planck lengths", rightSub: "Planck masses",
+    leftTitle: "ENERGY", leftSub: "Planck energy",
+  },
+  "planck-wavelength": {
+    xRef: PLANCK_LOG_R, yRef: PLANCK_LOG_M,
+    xNum: (v) => fmtTick(v - PLANCK_LOG_R),
+    massNum: (v) => fmtTick(v - PLANCK_LOG_M),
+    energyNum: (v) => fmtTick(-(v - PLANCK_LOG_M)),
+    bottomSub: "Planck lengths", rightSub: "Planck masses",
+    leftTitle: "WAVELENGTH", leftSub: "Planck lengths",
+  },
+};
+function gridCfg() { return GRID_UNITS[_gridUnit] || GRID_UNITS.si; }
+// First grid line ≥ lo, anchored to ref + k·step (k integer).
+const firstAligned = (lo, step, ref) => ref + Math.ceil((lo - ref) / step) * step;
+
 function drawGrid() {
   lGrid.selectAll("*").remove();
   const d = vd();
   const ppu = cw / (d.x1 - d.x0);
+  const { xRef, yRef } = gridCfg();
 
   // Grid hierarchy:  ×1000 (step 3) is the major grid,
   //                  ×10   (step 1) is the minor grid,
@@ -656,11 +701,11 @@ function drawGrid() {
     const stroke = `rgba(255,255,255,${opacity})`;
 
     if (level.step === 0) {
-      const startX = Math.floor(d.x0), endX = Math.ceil(d.x1);
-      const startY = Math.floor(d.y0), endY = Math.ceil(d.y1);
+      const startX = Math.floor(d.x0 - xRef), endX = Math.ceil(d.x1 - xRef);
+      const startY = Math.floor(d.y0 - yRef), endY = Math.ceil(d.y1 - yRef);
       for (let i = startX; i <= endX; i++) {
         for (const sub of LOG_SUBS) {
-          const v = i + sub;
+          const v = xRef + i + sub;
           if (v < d.x0 || v > d.x1) continue;
           lGrid.append("line")
             .attr("x1", px(v)).attr("y1", py(d.y0))
@@ -670,7 +715,7 @@ function drawGrid() {
       }
       for (let i = startY; i <= endY; i++) {
         for (const sub of LOG_SUBS) {
-          const v = i + sub;
+          const v = yRef + i + sub;
           if (v < d.y0 || v > d.y1) continue;
           lGrid.append("line")
             .attr("x1", px(d.x0)).attr("y1", py(v))
@@ -680,23 +725,25 @@ function drawGrid() {
       }
     } else {
       const step = level.step;
-      const firstX = Math.ceil(d.x0 / step) * step;
+      const firstX = firstAligned(d.x0, step, xRef);
       for (let v = firstX; v <= d.x1; v += step) {
-        // Skip positions drawn by a higher-level grid
-        if (step === 1 && Math.abs(v % 3) < 0.01) continue;
-        if (step === 3 && Math.abs(v % 9) < 0.01) continue;
-        if (step === 9 && Math.abs(v % 30) < 0.01) continue;
+        // Skip positions drawn by a higher-level grid (relative to the anchor)
+        const kx = v - xRef;
+        if (step === 1 && Math.abs(kx % 3) < 0.01) continue;
+        if (step === 3 && Math.abs(kx % 9) < 0.01) continue;
+        if (step === 9 && Math.abs(kx % 30) < 0.01) continue;
         lGrid.append("line")
           .attr("x1", px(v)).attr("y1", py(d.y0))
           .attr("x2", px(v)).attr("y2", py(d.y1))
           .attr("stroke", stroke).attr("stroke-width", width)
           .attr("shape-rendering", "crispEdges");
       }
-      const firstY = Math.ceil(d.y0 / step) * step;
+      const firstY = firstAligned(d.y0, step, yRef);
       for (let v = firstY; v <= d.y1; v += step) {
-        if (step === 1 && Math.abs(v % 3) < 0.01) continue;
-        if (step === 3 && Math.abs(v % 9) < 0.01) continue;
-        if (step === 9 && Math.abs(v % 30) < 0.01) continue;
+        const ky = v - yRef;
+        if (step === 1 && Math.abs(ky % 3) < 0.01) continue;
+        if (step === 3 && Math.abs(ky % 9) < 0.01) continue;
+        if (step === 9 && Math.abs(ky % 30) < 0.01) continue;
         lGrid.append("line")
           .attr("x1", px(d.x0)).attr("y1", py(v))
           .attr("x2", px(d.x1)).attr("y2", py(v))
@@ -3289,6 +3336,11 @@ function drawAxes() {
   const first = (lo, s) => Math.ceil(lo / s) * s;
   const minUnitPx = 12;
 
+  // Grid-unit mode: where decade lines are anchored, and how numbers read.
+  const cfg = gridCfg();
+  const firstX = (lo, s) => firstAligned(lo, s, cfg.xRef);
+  const firstY = (lo, s) => firstAligned(lo, s, cfg.yRef);
+
   // ─── TOP: Diagonal density labels ──────────────────────────
   const densityAngle = screenAngle(3);
   const diagDx = 1;
@@ -3339,8 +3391,9 @@ function drawAxes() {
   axB.attr("transform", `translate(0,${ch})`);
 
   if (minorStep !== null && minorStep > 0) {
-    for (let v = first(d.x0, minorStep); v <= d.x1; v = +(v + minorStep).toFixed(6)) {
-      if (Math.abs(v % axisStep) < 0.01 || Math.abs(v % axisStep - axisStep) < 0.01) continue;
+    for (let v = firstX(d.x0, minorStep); v <= d.x1; v = +(v + minorStep).toFixed(6)) {
+      const kx = v - cfg.xRef;
+      if (Math.abs(kx % axisStep) < 0.01 || Math.abs(kx % axisStep - axisStep) < 0.01) continue;
       const p = px(v);
       if (p < -1 || p > cw + 1) continue;
       axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 3)
@@ -3352,10 +3405,10 @@ function drawAxes() {
     const logDigits = ppu >= 300 ? [2,3,4,5,6,7,8,9]
                     : ppu >= 140 ? [2,4,6,8]
                     :              [5];
-    const startX = Math.floor(d.x0), endX = Math.ceil(d.x1);
+    const startX = Math.floor(d.x0 - cfg.xRef), endX = Math.ceil(d.x1 - cfg.xRef);
     for (let i = startX; i <= endX; i++) {
       for (const n of logDigits) {
-        const v = i + Math.log10(n);
+        const v = cfg.xRef + i + Math.log10(n);
         if (v < d.x0 || v > d.x1) continue;
         const p = px(v);
         if (p < -1 || p > cw + 1) continue;
@@ -3369,14 +3422,14 @@ function drawAxes() {
     }
   }
 
-  for (let v = first(d.x0, axisStep); v <= d.x1; v += axisStep) {
+  for (let v = firstX(d.x0, axisStep); v <= d.x1; v += axisStep) {
     const p = px(v);
     if (p < -1 || p > cw + 1) continue;
     axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 5)
       .attr("stroke", "rgba(255,255,255,0.25)");
     axB.append("text").attr("x", p).attr("y", 16).attr("text-anchor", "middle")
       .attr("class", "axis-label").attr("font-size", 13).attr("font-weight", 700)
-      .text(fmtTick(v));
+      .text(cfg.xNum(v));
   }
 
   let lastRow1Px = -Infinity;
@@ -3418,14 +3471,15 @@ function drawAxes() {
   axB.append("text").attr("x", cw / 2).attr("y", 65).attr("text-anchor", "middle")
     .attr("class", "axis-title").text("WIDTH");
   axB.append("text").attr("x", cw / 2).attr("y", 78).attr("text-anchor", "middle")
-    .attr("class", "axis-subtitle").text("10ⁿ meters");
+    .attr("class", "axis-subtitle").text(cfg.bottomSub);
 
   // ─── LEFT: Energy / Temperature (capped at Planck energy) ─
   const leftMax = PLANCK_LOG_M;
 
   if (minorStep !== null && minorStep > 0) {
-    for (let v = first(d.y0, minorStep); v <= Math.min(d.y1, leftMax); v = +(v + minorStep).toFixed(6)) {
-      if (Math.abs(v % axisStep) < 0.01 || Math.abs(v % axisStep - axisStep) < 0.01) continue;
+    for (let v = firstY(d.y0, minorStep); v <= Math.min(d.y1, leftMax); v = +(v + minorStep).toFixed(6)) {
+      const ky = v - cfg.yRef;
+      if (Math.abs(ky % axisStep) < 0.01 || Math.abs(ky % axisStep - axisStep) < 0.01) continue;
       const p = py(v);
       if (p < -1 || p > ch + 1) continue;
       axL.append("line").attr("x1", -3).attr("y1", p).attr("x2", 0).attr("y2", p)
@@ -3438,10 +3492,10 @@ function drawAxes() {
     const logDigitsY = ppuY >= 300 ? [2,3,4,5,6,7,8,9]
                      : ppuY >= 140 ? [2,4,6,8]
                      :               [5];
-    const startY = Math.floor(d.y0), endY = Math.ceil(Math.min(d.y1, leftMax));
+    const startY = Math.floor(d.y0 - cfg.yRef), endY = Math.ceil(Math.min(d.y1, leftMax) - cfg.yRef);
     for (let i = startY; i <= endY; i++) {
       for (const n of logDigitsY) {
-        const v = i + Math.log10(n);
+        const v = cfg.yRef + i + Math.log10(n);
         if (v < d.y0 || v > leftMax) continue;
         const p = py(v);
         if (p < -1 || p > ch + 1) continue;
@@ -3455,15 +3509,14 @@ function drawAxes() {
     }
   }
 
-  for (let v = first(d.y0, axisStep); v <= Math.min(d.y1, leftMax); v += axisStep) {
+  for (let v = firstY(d.y0, axisStep); v <= Math.min(d.y1, leftMax); v += axisStep) {
     const p = py(v);
     if (p < -1 || p > ch + 1) continue;
     axL.append("line").attr("x1", -5).attr("y1", p).attr("x2", 0).attr("y2", p)
       .attr("stroke", "rgba(255,255,255,0.25)");
-    const evVal = Math.round(v + LOG_EV_OFFSET);
     axL.append("text").attr("x", -25).attr("y", p + 4.5).attr("text-anchor", "middle")
       .attr("class", "axis-label").attr("font-size", 11).attr("font-weight", 700)
-      .text(evVal);
+      .text(cfg.energyNum(v));
   }
 
   const leftCompact = _isSidebarOpen;
@@ -3501,16 +3554,17 @@ function drawAxes() {
   });
 
   axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", titleY)
-    .attr("text-anchor", "middle").attr("class", "axis-title").text("ENERGY");
+    .attr("text-anchor", "middle").attr("class", "axis-title").text(cfg.leftTitle);
   axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", titleY + 14)
-    .attr("text-anchor", "middle").attr("class", "axis-subtitle").text("10ⁿ eV");
+    .attr("text-anchor", "middle").attr("class", "axis-subtitle").text(cfg.leftSub);
 
   // ─── RIGHT: Mass ──────────────────────────────────────────
   axR.attr("transform", `translate(${cw},0)`);
 
   if (minorStep !== null && minorStep > 0) {
-    for (let v = first(d.y0, minorStep); v <= d.y1; v = +(v + minorStep).toFixed(6)) {
-      if (Math.abs(v % axisStep) < 0.01 || Math.abs(v % axisStep - axisStep) < 0.01) continue;
+    for (let v = firstY(d.y0, minorStep); v <= d.y1; v = +(v + minorStep).toFixed(6)) {
+      const ky = v - cfg.yRef;
+      if (Math.abs(ky % axisStep) < 0.01 || Math.abs(ky % axisStep - axisStep) < 0.01) continue;
       const p = py(v);
       if (p < -1 || p > ch + 1) continue;
       axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 3).attr("y2", p)
@@ -3523,10 +3577,10 @@ function drawAxes() {
     const logDigitsR = ppuY2 >= 300 ? [2,3,4,5,6,7,8,9]
                      : ppuY2 >= 140 ? [2,4,6,8]
                      :                [5];
-    const startY = Math.floor(d.y0), endY = Math.ceil(d.y1);
+    const startY = Math.floor(d.y0 - cfg.yRef), endY = Math.ceil(d.y1 - cfg.yRef);
     for (let i = startY; i <= endY; i++) {
       for (const n of logDigitsR) {
-        const v = i + Math.log10(n);
+        const v = cfg.yRef + i + Math.log10(n);
         if (v < d.y0 || v > d.y1) continue;
         const p = py(v);
         if (p < -1 || p > ch + 1) continue;
@@ -3540,15 +3594,14 @@ function drawAxes() {
     }
   }
 
-  for (let v = first(d.y0, axisStep); v <= d.y1; v += axisStep) {
+  for (let v = firstY(d.y0, axisStep); v <= d.y1; v += axisStep) {
     const p = py(v);
     if (p < -1 || p > ch + 1) continue;
     axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 5).attr("y2", p)
       .attr("stroke", "rgba(255,255,255,0.25)");
-    const kgVal = v - 3;
     axR.append("text").attr("x", 28).attr("y", p + 4.5).attr("text-anchor", "middle")
       .attr("class", "axis-label").attr("font-size", 13).attr("font-weight", 700)
-      .text(fmtTick(kgVal));
+      .text(cfg.massNum(v));
   }
 
   let lastMassUnitPy = -Infinity;
@@ -3571,7 +3624,7 @@ function drawAxes() {
   axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -114)
     .attr("text-anchor", "middle").attr("class", "axis-title").text("MASS");
   axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -102)
-    .attr("text-anchor", "middle").attr("class", "axis-subtitle").text("10ⁿ kg");
+    .attr("text-anchor", "middle").attr("class", "axis-subtitle").text(cfg.rightSub);
 }
 
 function fmtTick(v) {
@@ -5027,6 +5080,7 @@ function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked,
     labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
+    gridUnit: _gridUnit,
     marginLeft: _userMarginLeft, marginRight: _userMarginRight,
     marginTop: _userMarginTop, marginBottom: _userMarginBottom,
   }));
@@ -5064,6 +5118,14 @@ const setIconSize = document.getElementById("set-icon-size");
 setIconSize.addEventListener("input", () => {
   _iconSize = +setIconSize.value;
   redraw();
+  saveSettings();
+});
+
+const setGridUnit = document.getElementById("set-grid-unit");
+setGridUnit.addEventListener("change", () => {
+  _gridUnit = GRID_UNITS[setGridUnit.value] ? setGridUnit.value : "si";
+  drawGrid();
+  drawAxes();
   saveSettings();
 });
 
@@ -5265,6 +5327,7 @@ try {
     if (saved.anim === false) { setAnim.checked = false; _animDisabled = true; document.body.classList.add("anim-off"); }
     if (saved.labels === false) { setLabels.checked = false; _labelsEnabled = false; }
     if (saved.icons === false) { setIcons.checked = false; _iconsEnabled = false; }
+    if (saved.gridUnit && GRID_UNITS[saved.gridUnit]) { _gridUnit = saved.gridUnit; setGridUnit.value = saved.gridUnit; }
     if (saved.iconSize > 0) {
       // Migration: old slider used 8-64 px range; new slider is 30-300 percent.
       // If the saved value falls in the old range, convert by treating it as the

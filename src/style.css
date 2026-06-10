@@ -241,6 +241,25 @@ body.sidebar-open #scrubber-panel { left: calc(50% + 220px); }
   margin: 10px 0;
 }
 
+.setting-select {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 0; cursor: default;
+}
+.setting-select-label {
+  font-size: 11px; color: rgba(255,255,255,0.5);
+  width: 48px; flex-shrink: 0;
+  font-family: 'Space Mono', monospace;
+}
+.setting-select select {
+  flex: 1; font-size: 11px; font-family: 'Space Mono', monospace;
+  color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px; padding: 3px 6px; outline: none; cursor: pointer;
+}
+.setting-select select:hover { border-color: rgba(255,255,255,0.3); }
+.setting-select select option { background: #0a0a2e; color: #e0e0e0; }
+
 .setting-range {
   display: flex; align-items: center; gap: 10px;
   padding: 4px 0; cursor: default;
