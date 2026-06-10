@@ -96,7 +96,7 @@ body.sidebar-open #controls { left: 454px; }
 
 /* ---------- cosmic time scrubber ---------- */
 #scrubber-panel {
-  position: fixed; bottom: 14px; left: 50%;
+  position: fixed; bottom: 60px; left: 50%;
   width: min(560px, calc(100vw - 120px));
   transform: translate(-50%, 24px);
   z-index: 11;
