@@ -4395,7 +4395,11 @@ function redrawVectors() {
   drawDarkMatterRegions();
   drawConnections();
   drawRegionLabels();
-  drawObjects();
+  // During an active zoom/pan, use the O(n) dot renderer for smooth frames.
+  // In Big Bang mode few objects are visible, so the full renderer is cheap
+  // and keeps the staged fades/positions correct.
+  if (_bigBangMode) drawObjects();
+  else drawObjectsFast();
   drawHighlight();
   drawAxes();
   updateMinimap();
