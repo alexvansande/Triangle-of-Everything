@@ -854,7 +854,7 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
 /* ---------- SVG text classes ---------- */
 
 .axis-label {
-  font-family: 'Space Mono', monospace; font-size: 10px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px;
   fill: rgba(255,255,255,0.4);
 }
 .axis-unit-label {
@@ -972,7 +972,7 @@ body.is-mobile .axis-resize-handle { display: none; }
   fill: var(--red-accent); text-transform: uppercase; letter-spacing: 2px;
 }
 .axis-subtitle {
-  font-family: 'Space Mono', monospace; font-weight: 400; font-size: 9px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 400; font-size: 9px;
   fill: rgba(255,100,100,0.4); letter-spacing: 1px;
 }
 

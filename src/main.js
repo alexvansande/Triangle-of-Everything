@@ -3371,7 +3371,7 @@ function drawAxes() {
       .attr("class", "axis-label")
       .attr("x", tx).attr("y", ty)
       .attr("text-anchor", "start")
-      .attr("font-family", "'Space Mono', monospace")
+      .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
       .attr("font-size", 10).attr("font-weight", 700)
       .attr("fill", "rgba(255,255,255,0.3)")
       .attr("transform", `rotate(${densityAngle},${tx},${ty})`)
@@ -3442,7 +3442,7 @@ function drawAxes() {
     if (Math.abs(p - lastRow1Px) >= 40 && u.slug) {
       axB.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
         .attr("x", p).attr("y", 37).attr("text-anchor", "middle")
-        .attr("font-family", "'Space Mono', monospace").attr("font-size", 8)
+        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", 8)
         .attr("fill", "rgba(255,130,130,0.6)")
         .text(u.label);
       lastRow1Px = p;
@@ -3460,7 +3460,7 @@ function drawAxes() {
       axB.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
         .attr("x", p + 2).attr("y", 50)
         .attr("text-anchor", "start")
-        .attr("font-family", "'Space Mono', monospace").attr("font-size", 7.5)
+        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", 7.5)
         .attr("fill", "rgba(255,130,130,0.45)")
         .attr("transform", `rotate(45,${p + 2},50)`)
         .text(u.label);
@@ -3537,7 +3537,7 @@ function drawAxes() {
       if (lines.length > 1) {
         const txt = axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
           .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
-          .attr("font-family", "'Space Mono', monospace").attr("font-size", leftCompact ? 8.5 : 9.5)
+          .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", leftCompact ? 8.5 : 9.5)
           .attr("fill", "rgba(255,150,150,0.92)");
         lines.forEach((line, li) => {
           txt.append("tspan").attr("x", unitX).attr("dy", li === 0 ? 0 : "1.1em").text(line);
@@ -3545,7 +3545,7 @@ function drawAxes() {
       } else {
         axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
           .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
-          .attr("font-family", "'Space Mono', monospace").attr("font-size", leftCompact ? 8.5 : 9.5)
+          .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", leftCompact ? 8.5 : 9.5)
           .attr("fill", "rgba(255,150,150,0.92)")
           .text(u.label);
       }
@@ -3614,7 +3614,7 @@ function drawAxes() {
     if (Math.abs(p - lastMassUnitPy) >= minUnitPx && u.slug) {
       axR.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
         .attr("x", 44).attr("y", p + 3).attr("text-anchor", "start")
-        .attr("font-family", "'Space Mono', monospace").attr("font-size", 9.5)
+        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", 9.5)
         .attr("fill", "rgba(255,150,150,0.92)")
         .text(u.label);
       lastMassUnitPy = p;
