@@ -4462,7 +4462,14 @@ function redrawVectors() {
 
 /** Fast dot-only renderer: projects objects to screen and draws coloured
  *  dots at correct positions. Skips clustering, collision detection, and
- *  text labels entirely — roughly O(n) instead of O(n²). */
+ *  text labels entirely — roughly O(n) instead of O(n²).
+ *
+ *  ⚠️ CURRENTLY UNUSED — and must stay out of the zoom/pan path. It clears the
+ *  dot/icon layers but NOT lLabels, so the previous frame's text labels stay
+ *  frozen in place while the chart moves underneath. The user explicitly
+ *  dislikes text that lingers or scales during a zoom (see memory
+ *  feedback-zoom-keep-labels). Smoothness is handled by recording slow and
+ *  speeding up in post, NOT by dropping/stranding labels. Do not wire this in. */
 function drawObjectsFast() {
   lObj.selectAll("*").remove();
   lIcons.selectAll("*").remove();
@@ -4532,9 +4539,10 @@ function drawObjectsFast() {
   _lastProjected = fastProjected;
 }
 
-/** Light redraw: replaces drawObjects() with drawObjectsFast() (dots only,
- *  no labels/clustering). Used during zoom for smooth animation.
- *  In Big Bang mode, uses full drawObjects() since few objects are visible. */
+/** Per-frame redraw during an active zoom/pan. Identical to redrawVectors():
+ *  it full-renders objects (with text labels at correct positions) every
+ *  frame. It is NOT a dots-only fast path — labels must never strand or scale
+ *  mid-zoom (see drawObjectsFast's warning and memory feedback-zoom-keep-labels). */
 function redrawVectorsLight() {
   drawRegions();
   drawGrid();
@@ -4547,14 +4555,13 @@ function redrawVectorsLight() {
   drawDarkMatterRegions();
   drawConnections();
   drawRegionLabels();
-  // Manual zoom/pan keeps the full render so labels stay visible while you
-  // explore. But an AUTOMATED camera move (tour step, reset, intro) uses the
-  // O(n) dot renderer so the transition is smooth — the full labels snap back
-  // in at the destination via the zoom-end redraw. Big Bang mode always uses
-  // the full renderer (staged fades/positions must stay correct).
-  if (_bigBangMode) drawObjects();
-  else if (_programmaticZoom) drawObjectsFast();
-  else drawObjects();
+  // ALWAYS full-render objects every frame, including during automated tour
+  // transitions. Text labels must redraw at their correct positions on every
+  // frame — never linger in place and never scale with the chart. (Per the
+  // user; see memory feedback-zoom-keep-labels.) If a transition feels slow,
+  // the user records it slow and speeds it up in post — do NOT swap in the
+  // dots-only drawObjectsFast() here; it strands the label layer in place.
+  drawObjects();
   drawHighlight();
   drawAxes();
   updateMinimap();
@@ -4569,7 +4576,6 @@ let currentK = 1;
 let rafPending = false;
 let _zoomPrevTransform = null;  // track previous transform for CSS offset
 let _zooming = false;
-let _programmaticZoom = false;  // true during automated transitions (no sourceEvent)
 
 const zoomBehavior = d3.zoom()
   .scaleExtent([0.3, 800])
@@ -4578,10 +4584,7 @@ const zoomBehavior = d3.zoom()
     if (event.target.closest?.("button, input, a")) return false;
     return svg.node().contains(event.target);
   })
-  .on("start", (event) => {
-    // A d3 transition (tour/reset/intro) fires zoom events with no sourceEvent;
-    // user gestures (wheel/drag) carry the originating DOM event.
-    _programmaticZoom = !event.sourceEvent;
+  .on("start", () => {
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
     _zooming = true;
     clearClickTargets();
@@ -4589,7 +4592,6 @@ const zoomBehavior = d3.zoom()
     if (_isSafari) grainRect.style("display", "none");
   })
   .on("zoom", (event) => {
-    _programmaticZoom = !event.sourceEvent;
     const t = event.transform;
     currentK = t.k;
     xS = t.rescaleX(xBase);
@@ -4620,7 +4622,6 @@ const zoomBehavior = d3.zoom()
   })
   .on("end", () => {
     _zooming = false;
-    _programmaticZoom = false;
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
     lTilesBase.attr("transform", null);
