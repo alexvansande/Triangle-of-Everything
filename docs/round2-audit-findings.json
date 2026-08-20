@@ -1,0 +1,380 @@
+{
+  "when": "2026-08-20",
+  "method": "4-lens audit (ux-polish, code-health, accessibility, desktop-parity), each finding adversarially verified; desktop lens is the union of two independent verified passes",
+  "lenses": [
+    {
+      "dimension": "ux-polish",
+      "summary": "The mobile overhaul's bones are excellent — edge-to-edge map, coherent floating pills, a genuinely good bottom sheet and scrubber — but polish debt shows at the seams: a raw internal key (\"macro\") ships as a visible label in the default view, search fails silently on the most obvious queries, and the boot sequence lets labeled objects fly through the title for the first 2-3 seconds. The remaining issues are small, well-localized CSS/placement fixes (unanchored mobile settings popover, clipped tour text with no scroll cue, tick/label misalignments) rather than structural problems.",
+      "findings": [
+        {
+          "title": "Raw internal key \"macro\" renders as a chart label in the default view",
+          "where": "src/data.js:714 (CAT_DISPLAY.macro = \"\") + src/main.js:1940",
+          "severity": "high",
+          "evidence": "m03, m05, m07 and m08 all show a lowercase green label reading \"macro\" next to the Tonne-of-Water/Elephant cluster — dead center of the app's home view. CAT_DISPLAY maps macro to an empty string, and the cluster-label fallback `label = CAT_DISPLAY[catKey] || catKey || \"Objects\"` treats \"\" as falsy and prints the raw category key instead.",
+          "fix": "Give macro a real display name (e.g. \"Everyday Objects\") in CAT_DISPLAY, or make the fallback treat an empty string as \"suppress this cluster label\" (label = null) instead of leaking the key. One-line change either way.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "data.js:714 has macro:\"\" and main.js:1940's `CAT_DISPLAY[catKey] || catKey` treats \"\" as falsy, leaking the raw key. Lowercase green \"macro\" is visible in m03, m07, and m08 beside the Tonne-of-Water cluster, dead center of the home view. Not a deliberate suppression — the code's actual suppression path sets label=null (main.js:1936-1938); \"\" falls through to the leak."
+        },
+        {
+          "title": "Search is a silent dead end: no empty state and name-only matching",
+          "where": "m08-search-open.png + src/main.js:5686-5687",
+          "severity": "high",
+          "evidence": "m08: user typed \"black\" and absolutely nothing happened — no dropdown, no feedback. The filter is `OBJECTS.filter(o => o.name.toLowerCase().includes(q))` and on zero matches it just removes the .active class; no object name contains \"black\" (black holes only exist as subcat labels: TON 618, Sgr A*, M87*). Also .search-item rows are ~23px tall (style.css:503-507, no mobile override) versus the 44px standard every other mobile control received.",
+          "fix": "Add a \"No matches\" row so the UI always responds; index SUBCAT_LABELS/CAT_DISPLAY names as searchable entries that pan to the category region; bump .search-item padding to 44px-tall rows under body.is-mobile.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "main.js:5686-5687 filters on o.name only and silently removes .active on zero matches. No object name in objects.json contains \"black\" (BH entries are named Sgr A*, M87*, Ton 618, Stellar BH, etc.), and m08 shows \"black\" typed with no dropdown or feedback. .search-item rows (style.css:503-507, ~23-27px) have no body.is-mobile override — only the input font-size does (style.css:1241) — versus 44px mobile controls elsewhere (style.css:1217-1220, tour.css:459)."
+        },
+        {
+          "title": "Boot sequence: labeled objects fly through the title and intro card",
+          "where": "m01-boot-intro-early.png + src/main.js:6053-6058, src/tour.js:133-136",
+          "severity": "medium",
+          "evidence": "The intro card and title lockup fade in at t=1000ms (tour.js setTimeout) — the exact moment the 3s zoom-out starts (main.js). m01 captures the result: the \"Sequoia\" label sits inside \"THE TRIANGLE OF\", a soccer ball and \"1 Liter of Water\" label sit on top of the intro paragraph, and the still-translucent mid-fade card lets everything bleed through. First impression is 2-3 seconds of chaos on every fresh visit.",
+          "fix": "Start the intro (startTour(0, true)) on the zoom transition's end event (or ~4200ms) instead of a fixed 1000ms, so the card and title fade in over a settled chart. Leaves chart labels untouched, so the label-visibility rule is respected.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Both timers fire at 1000ms: tour.js:134-136 auto-shows the intro exactly when main.js:6053-6058 starts the 3s zoom-out. The tour.js:133 comment says \"after intro animation\", so the overlap is a timing bug, not a documented decision. m01 shows \"Sequoia\" inside \"THE TRIANGLE OF\", and the soccer ball + \"1 Liter of Water\" over the intro paragraph. Proposed fix touches only intro timing, not chart labels."
+        },
+        {
+          "title": "Label placement ignores icons — text routinely starts under a glyph",
+          "where": "m09-zoom-astrophysics.png + src/main.js:1961-1968, 1989-1992",
+          "severity": "medium",
+          "evidence": "Collision detection only tests candidate label rects against placedLabels (other labels), never against icon bounding boxes. m09: \"White Dwarfs\" reads \"hite Dwarfs\", \"Planets\" reads \"lanets\" behind Uranus, \"Sgr A*\" reads \"gr A*\"; m07: \"Microscopic\" reads \"icroscopic\"; m07/m08: \"Soccer Ball\" is clipped to \"Soccer Bal\" by the water-bottle icon.",
+          "fix": "Seed placedLabels with the screen rects of rendered icons (their size is known at projection time) before running the 4-position placement loop, so labels flip to a free side instead of starting under a neighbor's icon. Improves the always-visible-labels invariant rather than fighting it.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "placedLabels (main.js:1962) only ever receives label rects (pushes at 1999 and 2030); icon bounds are never seeded, so the 4-position loop can't avoid glyphs. m09 shows \"lanets\" behind Uranus, \"gr A*\" behind the Sgr A* glyph, and \"White Dwarfs\" occluded by star icons; m07/m08 show \"icroscopic\" and \"Soccer Bal\" clipped by neighboring icons. Fix strengthens label visibility rather than violating it."
+        },
+        {
+          "title": "Mobile settings popover floats unanchored, 130px above its gear, with off-brand red checkboxes",
+          "where": "m10-settings.png + src/style.css:238-239, 269-272, 1222-1226",
+          "severity": "medium",
+          "evidence": "#settings-panel is fixed at bottom:140px/right:14px for all viewports — tuned for the desktop gear at bottom:100px. Mobile moves the gear to bottom:10px but never the panel, so in m10 the popover hovers mid-screen with a ~130px dead gap to its trigger. Inside it, checked boxes use rgba(255,51,85,…) — the red the app reserves for physics-limit lines and axis titles — while every other interactive accent is blue #448aff (tour buttons) or purple #9944ff (active pills, scrubber); labels mix mono lowercase (\"Icon size\") with sans sentence case.",
+          "fix": "Add `body.is-mobile #settings-panel { bottom: calc(env(safe-area-inset-bottom, 0px) + 62px); right: 10px; }` and switch .setting-check checked state to the purple accent to match the other active controls.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "style.css:238-239 pins #settings-panel at bottom:140px with no mobile override anywhere (only lines 238/251/1051 mention it); desktop gear at bottom:100px (line 221) confirms the desktop tuning; mobile gear moves to bottom:10px+safe-area (1222-1226). m10 shows the panel hovering mid-screen far above the gear, red rgba(255,51,85) checked boxes (269-272) matching the physics-limit red (--red-accent #ff3355, line 53), and mono \"Icon size\"/\"Grid units\" mixed with sans checkbox labels. Minor: visual gap to the gear top is ~90px, not 130px (130 is the bottom-edge delta) — substance unaffected."
+        },
+        {
+          "title": "Tour/intro text clips mid-sentence with no scroll affordance",
+          "where": "m03-tour-step1.png + src/tour.css:439-445",
+          "severity": "medium",
+          "evidence": "m01/m02 cut the intro at \"Mass correlates to energy and therefore to\" and m03 cuts step 1 at \"if we increase the width\" — a hard chop through a text line. The content does scroll (#tour-content overflow-y:auto inside the 34vh cap) but nothing signals it: no visible scrollbar at rest, no fade gradient, so it reads as broken truncation rather than scrollable content.",
+          "fix": "Add a bottom fade on the scroll container (mask-image: linear-gradient(black calc(100% - 24px), transparent), removed at scroll end) and/or a persistent thin scrollbar on mobile, so the cut always looks intentional and scrollable.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "tour.css:439-445 confirms the 34vh cap with inner scroll; m02 cuts the intro mid-line (\"Mass correlates to energy and therefore to...\") and m03 chops step 1 mid-line — both read as broken truncation. One nuance: a thin 4px scrollbar IS already styled on #tour-text (tour.css:178-188), but iOS overlay scrollbars are invisible at rest, so no affordance shows in any screenshot; the fade-gradient part of the fix is the operative one."
+        },
+        {
+          "title": "Scrubber tick labels misaligned with the slider track",
+          "where": "m11-scrubber-open.png + src/style.css:203-204, src/time-scrubber.js:62-67",
+          "severity": "low",
+          "evidence": "#scrubber-ticks uses symmetric `margin: 4px 42px 0`, but only the left side has the 42px play-button+gap offset — the right side of the range has nothing. The tick row is therefore 42px shorter than the track: in m11 the thumb sits at Now (66.7% of the input) while the \"Now\" text sits visibly left of it, and \"Heat Death\" floats mid-air well before the yellow end of the gradient.",
+          "fix": "Change to `margin: 4px 8px 0 50px` (left = play 30px + gap 12px + half-thumb 8px; right = half-thumb 8px) so 0%/66.7%/100% ticks line up with the thumb's actual travel.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "style.css:204 uses symmetric margin 4px 42px 0, but only the left side has the 30px play button + 12px gap (style.css:177-179); the range runs to the panel's right edge, so the tick row is 42px short on the right. m11 shows the thumb at Now with the \"Now\" text visibly left of it and \"Heat Death\" floating well before the yellow end of the gradient. time-scrubber.js:62-67 confirms ticks are placed as percentages of the (shorter) row."
+        },
+        {
+          "title": "HUD text collides with SVG axis titles at screen corners (desktop + mobile ruler)",
+          "where": "d01-desktop-boot.png, d02-desktop-chemistry.png, m07-ruler-on.png + src/style.css:429-436, src/main.js:3568-3582",
+          "severity": "low",
+          "evidence": "d01: the keyhint (fixed top:14px right:14px) runs into the red DENSITY / \"10ⁿ g/L\" axis title and crowds the search button sharing the same corner. d02: the rotated \"30\" tick prints through \"10ⁿ s since Big Bang\" at top-left. m07: rotated row-2 unit labels drawn at y=50 (\"1 inch\") run through the centered WIDTH title at y=65.",
+          "fix": "Drop the keyhint below the top axis band (top: ~64px) since it already fades after 6s; in the bottom-axis renderer, skip row-2 rotated labels whose x falls within ~70px of cw/2 so the WIDTH title keeps a clear zone (also fixes m07).",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "All three collisions are visible: d01's keyhint (style.css:429-436, fixed top:14 right:14) runs through the red \"10ⁿ g/L\" DENSITY subtitle next to the search button; d02 shows a rotated tick printing through \"10ⁿ s since Big Bang\" (the colliding tick reads \"39\", not \"30\" as claimed — same defect); m07 shows the rotated \"1 inch\" label through WIDTH, matching main.js:3568-3576 (row-2 labels at y=50, rotate 45) vs the title at y=65 (3579-3580) with no exclusion zone. Note the cited main.js range covers the bottom axis (m07); the desktop top-corner collisions come from the keyhint CSS and the separate top-axis renderer."
+        }
+      ]
+    },
+    {
+      "dimension": "code-health",
+      "summary": "Code health is genuinely good for a project this dense: sections are banner-delimited and cohesive, comments explain the why (including the load-bearing label-invariant rule, now enforced by CI in scripts/mobile-perf.mjs), and mobile styling is centralized behind body classes. The dominant maintainability risk is structural: one 6,080-line module with 55 module-scope lets, window.__ bridges standing in for imports, and interaction sequences (fly-to, select, icon-hover) copy-pasted 3-7 times where helpers already exist. A staged extraction — pure formatters and asset maps first, then connections and the Big Bang engine behind a small shared-ctx object — is low-risk because the perf harness's label invariants act as the regression net. Housekeeping items (dead drawObjectsFast, four wiki-downloader variants, 19 committed perf reports, two unused CSS rules) are quick wins.",
+      "findings": [
+        {
+          "title": "main.js is a 6,080-line monolith; concrete low-risk split plan",
+          "where": "src/main.js:1-6080",
+          "severity": "medium",
+          "evidence": "Single module with 40+ banner-comment sections, 55 module-scope `let` variables, and functions up to 457 lines (drawObjects, 1822-2278). Several sections are already cohesive with private state clusters: connections (3750-4223, state at 3835-3843 touched nowhere else), Big Bang engine (state 179-245 + engine 5153-5363), axis hover tooltip (2421-2853), sidebar (2855-3385), click-targets/touch (4484-4794), axes (3414-3748), minimap+tiles (4224-4472), axis-resize-handles IIFE (5810-5933), pure formatters (2323-2386, 2499-2630, 3745), asset manifests (28-106).",
+          "fix": "Extract in this order, each a pure cut-paste plus imports: (1) src/format.js — lines 2323-2386 + 2499-2630 + fmtTick 3745; pure functions, imports only unit tables from data.js; exports formatSci, friendlyRadius/Mass/Energy/Wavelength/Density/Time, pickBestUnit, pickAltUnit, formatHumanNum, formatLogSuper, densityToLogTime, fmtTick. (2) src/assets.js — lines 28-106; exports DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, STRINGS_ATOM_SLUGS; zero chart deps. (3) src/chart-ctx.js — one mutable exported object {xS, yS, px, py, W, H, cw, ch, margin, currentK, isMobile, zooming, layers} built in the scaffolding section (388-572); prerequisite for the rest. (4) src/connections.js — 3750-4223; exports initConnections, drawConnections, updateConnectionOpacities, scheduleConnAnim, pauseAnimOnInteract, setAnimDisabled/setAnimSpeed (called from settings 5468-5473 and keyboard shortcuts). (5) src/bigbang.js — 179-245 + 1437-1510 + 5153-5363; exports animateBigBangTransition, exitBigBangMode, isBigBangActive, computeEraOpacities, getHubbleLogR plus read accessors for mode/opacity/overrides (read by drawObjects, drawBoundaries, boot wiring 6020-6045); inject redrawVectors and svg/zoomBehavior. (6) sidebar, axis-tooltip, axes, pointer, tiles in any order. After each step run npm run perf:mobile — its label invariants (mobile-perf.mjs:172-178) are the regression net for the zoom/label rule.",
+          "effort": "large",
+          "verdict": "confirmed",
+          "verdict_note": "Evidence checks out precisely: main.js is 6,080 lines; exactly 55 module-scope `let` declarations (grep -c '^let ' = 55); 41 banner sections (82 '// ====' lines); drawObjects spans 1822-~2274. Every section anchor verified against the actual banners: formatters at 2323+/2499+ (pure — friendlyRadius/Mass/Energy/Wavelength/Density, pickBestUnit/pickAltUnit, formatHumanNum, formatLogSuper, densityToLogTime all use only constants/unit tables), assets 28-106, SVG scaffolding 389-572, connections banner 3750 with state cluster at 3835-3843, minimap 4224/Full redraw 4473, click-targets 4484/touch 4665, Big Bang state 179-245 + era lines 1437 + engine 5153 (Readout at 5364), axis-resize IIFE 5810-5932, boot wiring 6020+. One overstatement: the connections state is NOT 'touched nowhere else' — _animDisabled is written at 5470/5787 and _animSpeed at 5542-5546 — but the plan itself accounts for exactly these sites via setAnimDisabled/setAnimSpeed exports, so it doesn't undermine the finding. The proposed extractions preserve the render path unchanged, so no label-rule conflict, and the plan correctly names mobile-perf.mjs's invariants (lines 172-178) as the regression net."
+        },
+        {
+          "title": "Duplicated interaction sequences: fly-to math x7, select-object x3, icon-hover x4",
+          "where": "src/main.js:2961, 4563, 2286",
+          "severity": "medium",
+          "evidence": "The 'tx = cw/2 - xBase(logR)*k; ty = ...; svg.transition().call(zoomBehavior.transform, translate.scale)' block appears 7 times (2961-2966 navigateToObject, 2988-2992 sidebar zoom-link, 5003-5010 dblclick, 5017-5024 zoomToObject, 5026-5033 panToCoord, 5975-5978 loadHash, 6048-6053 intro) even though panToCoord/zoomToObject exist. The '_sidebarManuallyExpanded = false; openSidebar(o); setSidebarOpen(true)' sequence is inlined at 4563-4565 and 4612-4614 although selectObject (4695) is exactly that. Icon hover grow/shrink + tooltip exists 4 times: objHoverEnter/Leave (2286-2315) and two near-copies inside updateClickTargets (4568-4591, 4617-4635) that can silently drift (they already differ: the label-target copy skips the label-display toggle).",
+          "fix": "Add one flyTo(logR, logM, k, {duration, ease}) helper and route all 7 call sites through it; replace the two inline click-target sequences with selectObject(o); factor icon hover into hoverIcon(o, entering) called from both objHoverEnter/Leave and the click-target listeners. Also drop the redundant second svg.call(zoomBehavior) at 6014 (already bound at 4994; d3 reads handlers off the behavior at event time).",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "All seven fly-to sites verified verbatim (2961-2966, 2988-2992, 5007-5010 dblclick, 5019-5023 zoomToObject, 5027-5031 panToCoord, 5975-5977 loadHash, 6048-6050 intro) — same 'cw/2 - xBase(...)*k' pattern despite panToCoord/zoomToObject existing. The inline '_sidebarManuallyExpanded=false; openSidebar; setSidebarOpen(true)' triples at 4563-4565 and 4612-4614 duplicate selectObject (4695-4699) exactly. Hover near-copies confirmed at 2286-2315, 4568-4591, 4617-4635 with real drift: the click-target copies lack objHoverEnter/Leave's dot glow/radius else-branch, and the label-target copy skips the label-display toggle ('x4' in the title is a slight miscount — it's three grow/shrink pairs). The svg.call(zoomBehavior) at 6014 duplicating 4994 is actually WORSE than 'redundant': re-applying the behavior re-binds d3's native dblclick.zoom listener that line 5000 explicitly nulled, so d3's built-in double-click zoom is silently re-enabled alongside the custom dblclick handler at 5001 — dropping it fixes a latent conflict, not just noise."
+        },
+        {
+          "title": "drawObjectsFast is dead code now guarded twice — delete it",
+          "where": "src/main.js:4796-4863",
+          "severity": "medium",
+          "evidence": "Zero call sites (only its own warning comments at 4790-4795 and 4886 reference it, plus docs/mobile-plan.md:146). Its risk (stranding the label layer) is now enforced mechanically: mobile-perf.mjs lines 172-178 and 427-477 fail CI on exactly the stranded/scaled/hidden label modes it could cause. It also carries its own duplicate SCREEN_CATS/SCREEN_SLUGS sets (4839-4840) that have already drifted in form from the canonical SCREEN_BLEND_CATS/SCREEN_BLEND_SLUGS + iconUsesScreenBlend (2277-2282), and it fights the retained keyed-join renderer (2188-2258) by clearing lObj/lIcons with selectAll('*').remove().",
+          "fix": "Delete lines 4786-4863, keep a two-line tombstone comment in redrawVectorsLight (4881-4886 already explains the rule), and update docs/mobile-plan.md:146. The CI invariant gate makes this safe; the comment-only guard is now the weaker of the two protections.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Zero call sites confirmed — grep across src/, scripts/, docs/ finds only its definition (4796), its own warning comments (4790-4795, 4886), and docs/mobile-plan.md:146. The mechanical guard is real: mobile-perf.mjs 172-178 documents the three banned modes and the invariant pass (measureInvariants at 428, reported/failed at 473-484) fails CI on stranded/scaled/hidden labels — exactly the failure drawObjectsFast would cause by clearing lObj/lIcons but not lLabels (4797-4798). The duplicate SCREEN_CATS/SCREEN_SLUGS at 4839-4840 have drifted in form from canonical iconUsesScreenBlend (2279-2282 checks o.catKey || o.cat; the copy checks only o.cat). It also destroys the retained keyed-join nodes (g.obj-g/g.icon-g, 2186-2258) if ever called. Deleting a banned-path implementation cannot violate the label rule — it enforces it. The function's retention is comment-guarded, not documented as a keep decision (comment says 'CURRENTLY UNUSED... Do not wire this in'), and the fix keeps a tombstone plus updates docs:146, matching the spirit of the memory note."
+        },
+        {
+          "title": "window.__ globals used as forward references within the same module",
+          "where": "src/main.js:347-348",
+          "severity": "medium",
+          "evidence": "measure() (line 347) calls window.__repositionAxisHandles, assigned at 5931 inside the setupAxisResizeHandles IIFE; the same IIFE calls window.__applyLayout (5891, 5912), assigned at 5578 — all callers and definitions live in the same file. window is being used purely as a forward-declaration mechanism, which hides the dependency graph, breaks jump-to-definition, and leaks mutable app internals globally (window.__debugBigBang at 5318 is the only intentionally-global one).",
+          "fix": "Function declarations hoist: have setupAxisResizeHandles return positionHandles into a module-level `let repositionAxisHandles`, and call applyLayout directly (it is defined at 5559, before the IIFE runs at 5810). Keep window.__debugBigBang but wrap it in `if (import.meta.env.DEV)`. This is also required pre-work for the module split — window bridges won't survive extraction.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Every anchor exact: measure() calls window.__repositionAxisHandles at 347-348, assigned at 5931 inside the setupAxisResizeHandles IIFE (5810); the IIFE guards-and-calls window.__applyLayout at 5891 and 5912, assigned at 5578 immediately after applyLayout's definition at 5559. Grep across src/, scripts/, public/, index.html, docs/ finds no reference outside main.js — these are purely intra-module forward references, and the 'typeof ... === function' guards exist only because of boot ordering. window.__debugBigBang (5318) is the sole intentionally-external one (comment: 'Debug API... for testing'). The proposed fix (module-level let + direct applyLayout call, which is defined before the IIFE runs) is sound and is indeed prerequisite work for any module split."
+        },
+        {
+          "title": "scripts/ hygiene: 4 wiki-download variants, 19 committed perf reports, recurring stray PDF",
+          "where": "scripts/download-wiki-images-v3.mjs:1",
+          "severity": "low",
+          "evidence": "Four overlapping one-off downloaders (download-wiki-images.mjs, -v3, -v4, -retry; ~55KB, ~400 lines each, >490 diff lines between any pair) — none referenced by package.json scripts (fetch-images.mjs is the wired one). scripts/perf-reports/ holds 19 git-tracked timestamped JSONs, and mobile-perf.mjs:444-447 writes a new one every run (plus optional trace-*.json at 330-332) with no gitignore entry, so the directory grows in every perf-touching commit. git status shows 'scripts/atoms/Mass ratio table · Δv vs engine.pdf' untracked — the same class of file commit fa3db62 already had to un-track, because nothing ignores it.",
+          "fix": "Move the three superseded wiki downloaders to scripts/archive/ (or delete; git history keeps them) and leave one with a header comment naming it canonical. Add 'scripts/perf-reports/' and 'scripts/**/*.pdf' to .gitignore; git rm --cached the 19 reports, keeping one checked-in baseline.json if perf-compare.mjs needs a reference.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "All verified: four downloaders exist (download-wiki-images.mjs 411 lines, -retry 323, -v3 326, -v4 354; ~55KB combined; diffs between adjacent variants 510/608 lines), none referenced anywhere — package.json wires only fetch-images.mjs. git ls-files counts exactly 19 tracked JSONs in scripts/perf-reports/; mobile-perf.mjs writes a fresh report every run (444-447) and optional trace-*.json (330-332); .gitignore has no entry for either. The stray PDF ('scripts/atoms/Mass ratio table · Δv vs engine.pdf') is untracked in git status and commit fa3db62 ('un-track reference PDF committed by accident') proves the recurrence. One refinement: CI (perf.yml) generates reports fresh and uploads scripts/perf-reports/ as a workflow artifact, and perf-compare.mjs just reads the two newest files in the dir — neither needs the committed history, so gitignoring is safe; the suggested checked-in baseline is optional, not required."
+        },
+        {
+          "title": "Stale 'INTERIM until Phase 2' comment on the gesture surface invites an unsafe deletion",
+          "where": "src/main.js:5994-6006",
+          "severity": "low",
+          "evidence": "The gesture-surface comment says it is 'INTERIM until Phase 2's retained rendering (docs/mobile-plan.md) removes the per-frame teardown', but docs/mobile-plan.md:253 declares the plan complete — while 15 draw layers still do selectAll('*').remove() every frame (lines 586, 618, 694, 798, 953, 1275, 1399, 1453, 1515, 1751, 3390, 3415, 3969, 4324, 4410); only the objects/labels layer got keyed joins (2188-2258). A maintainer reading 'plan complete' + 'interim' would delete the surface and re-break touch gestures that start on grid lines, boundaries, or region labels.",
+          "fix": "Rewrite the comment to state the surface is permanent while any layer rebuilds nodes mid-gesture, and list which layers are still immediate-mode. One sentence in docs/mobile-plan.md noting Phase 2 retained only the objects layer would keep doc and code in agreement.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "The comment at main.js:6000-6002 does say 'INTERIM until Phase 2's retained rendering (docs/mobile-plan.md) removes the per-frame teardown', while mobile-plan.md's Phase 4 block (~line 253) declares 'STATUS: DONE... the plan is complete.' The teardown the comment waits on still exists: all 15 cited selectAll('*').remove() lines are real, and at least 12 of them run every gesture frame via redrawVectorsLight (4869-4892: regions, grid, density, tri-overlay, boundaries, bigbang eras, density arrows, energy bands, dark matter, region labels, highlight, axes); only objects/icons/labels got keyed joins (2186-2258). Two nuances that don't change the verdict: (a) three cited lines (3969 connections, 4324/4410 tiles) rebuild on gesture end, not per frame, so '15 layers every frame' slightly overstates; (b) mobile-plan.md:132 already admits 'the safe subset sufficed: keyed data joins (items 1, 6)', so the doc is less misleading than claimed — but the CODE comment is genuinely stale and explicitly frames the surface as temporary, which is the actual deletion trap. Removing the surface would re-break touch gestures starting on rebuilt nodes, so the fix (rewrite the comment as permanent-while-any-layer-rebuilds) is correct and label-rule-safe."
+        },
+        {
+          "title": "34 scattered mobile/touch JS branches; tuning ternaries should collapse into one table",
+          "where": "src/main.js:3488",
+          "severity": "low",
+          "evidence": "25 _isMobile + 6 _touchMode + 3 _isCoarse sites in main.js. The CSS side is already well-centralized (body.is-mobile / touch-mode / mobile-axes-on classes drive 52 rules; only one @media in style.css:1137). But magic tuning ternaries hide in unrelated functions: line 121 (icon size halved on mobile), 3488 (timeTitleX 62 vs 5), 3666 (leftTitleY -44 vs titleY), 3737 (-46 vs -114), 3831 (clusterDots 2 vs 5) — the drawAxes ones are four separate ternaries expressing one idea (compact axis-title placement).",
+          "fix": "Add a single MOBILE_TUNING constant table next to updateMobileState (263) — e.g. {iconScale, clusterDotThreshold, axisTitle: {timeX, leftY, rightY}} — read via one accessor, so mobile layout tuning lives in one place instead of five. Behavior-only branches (sidebar sheet, pills) legitimately stay as-is.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Counts exact: 25 _isMobile + 6 _touchMode + 3 _isCoarse lines = 34. Every cited tuning site verified: main.js:121 (return _isMobile ? size/2 : size), 3488 (timeTitleX 62:5), 3666 (leftTitleY -44:titleY), 3737 (-46:-114), 3831 (clusterDots 2:5); style.css has exactly one @media (line 1137, pointer:coarse); updateMobileState is at 263. Two small corrections: drawAxes contains three tuning ternaries, not 'four' (the remaining _isMobile uses in 3414-3748 are boolean feature gates at 3491/3639/3669/3721/3739), and each ternary carries a local rationale comment, so this is organizational debt rather than hidden magic. The evidence is real and the proposal correctly exempts behavior-only branches; severity 'low' is right — this is the most optional item on the list."
+        },
+        {
+          "title": "Unused CSS rules: .axis-unit-label and .setting-divider",
+          "where": "src/style.css:905",
+          "severity": "low",
+          "evidence": "Grepping every selector class against src/*.js, index.html, content/*.md and public/: .axis-unit-label (style.css:905-908) and .setting-divider (style.css:282-285) have zero references — the axes use .axis-unit-link (main.js:3551 etc.), not -label. (Other suspects checked and cleared: .at-left/.at-bottom are set dynamically via `at-${region.axis}` at main.js:2848; .references/.support/.visitor-counter come from content/intro.md:15,27,39.)",
+          "fix": "Delete the two rules. Worth doing alongside any style.css edit rather than as its own commit.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Verified at the cited locations: .axis-unit-label at style.css:905-908 and .setting-divider at style.css:282-285. Grep across src/, index.html, content/, and public/ finds zero references to either class; no dynamic construction of the names exists (checked for partial 'axis-unit'/'setting-div' matches — the only hits are the .axis-unit-link handlers at main.js:3345/3358 and a prose comment at 4760). The finding's own negative checks also hold (at-${region.axis} at 2848 is real dynamic class construction, which the author correctly excluded). Safe, trivial deletion."
+        }
+      ]
+    },
+    {
+      "dimension": "accessibility",
+      "summary": "The app has effectively zero accessibility affordances: one focus style in ~1900 lines of CSS, a single aria-hidden attribute as the only ARIA in the codebase, no reduced-motion handling, and both object-selection paths (chart click-targets and search results) built from mouse-only divs — so a keyboard or screen-reader user can see the title and nothing else. The good news is the architecture cooperates: selection already flows through HTML click-targets and a DOM sidebar rather than SVG internals, so the highest-impact fixes (search keyboard nav, button semantics, focus rings, a live region) are localized attribute/handler changes that don't touch the zoom/label pipeline. Contrast is fine for the 0.5+ alpha text tier but the 0.2-0.35 tier (axis numbers, keyhint) fails AA outright.",
+      "findings": [
+        {
+          "title": "Keyboard users cannot select any object: search results are mouse-only divs",
+          "where": "src/main.js:5689-5708",
+          "severity": "high",
+          "evidence": "Search results are built as `<div class=\"search-item\">` strings (main.js:5691) with only a click listener (5700). #search-input has no keydown handler for ArrowDown/ArrowUp/Enter (the only input keydowns in the app are the global shortcut handlers at 5512 and 5718, both of which bail on `e.target.tagName === \"INPUT\"`). Typing in search shows results (screenshot m08) but pressing Enter or arrows does nothing, and Tab can't reach the divs. Since chart click-targets are also unfocusable (next finding), there is no keyboard path to select any object in the entire app.",
+          "fix": "Render each result as a `<button type=\"button\" class=\"search-item\" role=\"option\" id=\"sr-N\">` inside `#search-results` with `role=\"listbox\"`; add a keydown handler on #search-input: ArrowDown/ArrowUp move an active index (set `aria-activedescendant` + `.active` class), Enter activates the active (or first) result via the same panToCoord/openSidebar path, Escape closes. Buttons keep the existing click handler unchanged.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "Code checks out: results are `<div class=\"search-item\">` strings (main.js:5689-5696) wired with click listeners only (5700-5708); the app's only keydown listeners are main.js:5512 (bails on INPUT, arrows pan the map), main.js:5718 (only '/' and Escape), and time-scrubber.js:141 — no ArrowDown/ArrowUp/Enter handling for search anywhere, no form wrapping #search-input (index.html:41-47), and no tabindex on result divs. Chart click-targets are likewise unfocusable divs (main.js:4553-4566), so the 'no keyboard path to select any object' conclusion holds. Two evidence nits that don't change the verdict: the 5718 handler does not bail on INPUT (Escape actually works inside search), and screenshot m08 shows the search box open with 'black' typed but no results dropdown visible — the claim rests on code, which is decisive."
+        },
+        {
+          "title": "Chart is invisible to assistive tech: unlabeled SVG, div click-targets, silent selection",
+          "where": "src/main.js:392, 4552-4566, 3110",
+          "severity": "high",
+          "evidence": "The whole visualization is `d3.select(\"#chart\").append(\"svg\")` (main.js:392) with no role, aria-label, or <title> — screen readers announce nothing for the entire viewport. Object hit areas are `<div class=\"click-target\">` (4554) with click/mouseenter listeners but no tabindex, role, or accessible name. openSidebar (3110) swaps innerHTML in #sidebar but never announces or moves focus, so a SR user who somehow triggers a selection hears silence.",
+          "fix": "Three attributes/one element: (1) `svg.attr(\"role\",\"img\").attr(\"aria-label\",\"Map of every object in the universe plotted by mass versus width. Use search to find and select objects.\")`; (2) in updateClickTargets, create `<button>` instead of `<div>` with `aria-label = o.name` (style with `background:none;border:0` — existing .click-target CSS applies); (3) add `<div id=\"sr-status\" aria-live=\"polite\" class=\"sr-only\">` to index.html and set its textContent in openSidebar (e.g. \"Human. Biology. Mass 65 kg, width 1.7 m\"), and give #sb-name `tabindex=\"-1\"` + `.focus({preventScroll:true})` when the sidebar/sheet opens. Static DOM buttons keep chart labels untouched, so the zoom-label invariants are unaffected.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "All three legs verified. main.js:392 appends the svg with only width/height — grep finds zero role=, aria-*, or append(\"title\") anywhere in main.js. updateClickTargets (main.js:4541-4566) creates bare divs with click/mouseenter listeners, no tabindex/role/accessible name. openSidebar (main.js:3110) only swaps textContent/innerHTML — no focus move, and no aria-live region exists anywhere in index.html or CSS (the only ARIA in the whole app is one aria-label on the scrubber range input and aria-hidden on #sheet-grab). Proposed fix uses static DOM buttons and doesn't touch chart labels, so the zoom-label invariant is unaffected."
+        },
+        {
+          "title": "Zero visible focus indicators anywhere in the app",
+          "where": "src/style.css:188,301,318,483 (outline:none); no :focus-visible rule in any CSS file",
+          "severity": "high",
+          "evidence": "`grep -n focus-visible src/*.css` returns nothing; the only focus style in ~1900 lines of CSS is `#search-input:focus { border-color: rgba(255,255,255,0.3) }` (style.css:493) — a 1px border going from 0.12 to 0.3 alpha, itself near-invisible. Four rules set `outline: none` (style.css:188, 301, 318, 483). Tabbing through the preset bar, zoom controls, settings, or tour gives no visual indication of where focus is (WCAG 2.4.7).",
+          "fix": "Add a global rule: `:focus-visible { outline: 2px solid #7cc5ff; outline-offset: 2px; border-radius: inherit; }` in style.css and tour.css, and delete the four `outline: none` declarations (or scope them to `:focus:not(:focus-visible)`). Mouse/touch users see no change; keyboard users get a visible ring.",
+          "effort": "small",
+          "verdict": "uncertain",
+          "verdict_note": "Evidence lines are all real: outline:none at style.css:188 (#scrubber-range), 301 (settings select), 318 (settings range), 483 (#search-input), the only focus rule is the faint border shift at 493, and no :focus-visible rule exists in any CSS file. But the headline scope is overstated: nothing suppresses outlines on the app's many native <button>s (preset bar, zoom controls, tour nav, settings/search pills), so browsers' default focus-visible rings DO appear when tabbing those — 'tabbing through the preset bar, zoom controls, settings, or tour gives no visual indication' is factually wrong. The confirmed WCAG 2.4.7 gap is real but limited to the four form controls with outline:none plus the near-invisible search-input focus style. The proposed fix is still sensible."
+        },
+        {
+          "title": "Icon/glyph-only buttons have missing or garbage accessible names; no expanded/pressed state",
+          "where": "index.html:66,99-102; src/tour.js:106-112",
+          "severity": "medium",
+          "evidence": "#zoom-reset's name is its content \"⊙\" (U+2299, read as \"circled dot operator\" or skipped), #scrubber-btn is \"⧖\" (index.html:101-102), #sidebar-close is \"<<\" (line 66), #tour-prev is \"<\" (line 159). Icon-only pills (#search-btn, #sidebar-expand, #axes-toggle, #settings-btn, #tour-close) rely solely on `title`, which is fragile and unavailable on touch. Tour progress dots are non-focusable `<span>`s with click handlers (tour.js:107-112). Nothing exposes state: #search-btn, #settings-btn, and #sidebar-expand toggle panels with no aria-expanded/aria-controls; #axes-toggle has no aria-pressed.",
+          "fix": "Add `aria-label` to each button in index.html (\"Reset view\", \"Cosmic time scrubber\", \"Collapse panel\", \"Previous step\", \"Search\", \"Expand panel\", \"Toggle axis units\", \"Settings\", \"Close tour\") and `aria-hidden=\"true\"` on the inline SVGs/glyphs. In the toggle handlers set `aria-expanded` (#search-btn→#search-box, #settings-btn→#settings-panel, #sidebar-expand) and `aria-pressed` on #axes-toggle. In tour.js create dots as `<button class=\"tour-dot\" aria-label=\"Step N: {title}\">`.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "All cited evidence verified in index.html: #sidebar-close is '<<' (line 66), #zoom-reset is U+2299 and #scrubber-btn is U+29D6 (lines 101-102), #tour-prev is '<' (line 159); #search-btn/#sidebar-expand/#axes-toggle/#settings-btn are SVG-only with title attributes only. Tour dots are non-focusable <span>s with click handlers at exactly tour.js:106-112. A grep across all source files finds zero aria-expanded, aria-pressed, or aria-label except the scrubber's range input — so no state exposure exists anywhere."
+        },
+        {
+          "title": "Settings checkboxes are display:none — unreachable by keyboard and invisible to SR",
+          "where": "src/style.css:262 (.setting-check input { display: none; })",
+          "severity": "medium",
+          "evidence": "All four settings toggles (Show background, animations, labels, icons — index.html:114-133, visible in screenshot m10-settings.png) hide the real `<input type=\"checkbox\">` with `display:none`, which removes it from tab order and the accessibility tree. The custom `.checkmark` span is purely decorative. A keyboard user can focus the icon-size slider and unit select but cannot reach or toggle any checkbox.",
+          "fix": "Replace `display:none` with a visually-hidden pattern: `.setting-check input { position:absolute; opacity:0; width:1px; height:1px; }` and add `.setting-check input:focus-visible + .checkmark { outline: 2px solid #7cc5ff; outline-offset: 2px; }`. Label-wrapping already gives the inputs accessible names, so nothing else changes.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Exact: `.setting-check input { display: none; }` at style.css:262; the four checkboxes (index.html:114-133) are label-wrapped with a decorative .checkmark span driven by input:checked sibling selectors (style.css:269-278). display:none removes the inputs from tab order and the accessibility tree while the adjacent slider and select remain focusable, exactly as claimed. The visually-hidden replacement pattern preserves the existing :checked CSS, so the fix is low-risk."
+        },
+        {
+          "title": "No prefers-reduced-motion handling for intro zoom, tour fly-tos, or momentum",
+          "where": "src/main.js:6046-6059 (intro), grep 'prefers-reduced-motion' across src/ and index.html returns zero matches",
+          "severity": "medium",
+          "evidence": "Every visitor gets a forced 3-second animated zoom-out from Human to full view on boot (main.js:6053-6058), tour steps fly the camera on each advance, touch pans carry momentum (_panSamples, main.js:4902), and connection dots animate — with no `(prefers-reduced-motion: reduce)` query anywhere. The app already has a user-facing 'Show animations' checkbox (#set-anim), so the plumbing exists but the OS preference is ignored.",
+          "fix": "At boot: `const reduceMotion = window.matchMedia?.(\"(prefers-reduced-motion: reduce)\").matches;` — when true, (1) skip the intro transition and call `zoomBehavior.transform, d3.zoomIdentity` directly, (2) seed the #set-anim setting to unchecked unless the user saved a preference, (3) use duration 0 for tour/preset/search fly-tos, and (4) skip momentum. Jump-cuts land on a fully drawn frame, so the keep-labels-visible invariant is trivially satisfied.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "grep across src/, index.html, and public/ returns zero matches for prefers-reduced-motion. The forced 3s intro zoom is at main.js:6045-6059 (runs whenever there's no URL hash, before any settings check), momentum pan machinery at main.js:4902-4974, and the #set-anim checkbox exists (index.html:120) so the plumbing claim is accurate. Notably this is NOT a deliberate omission: docs/mobile-plan.md:180 explicitly planned to 'honor prefers-reduced-motion and shorten the intro' in Phase 2, and it was never implemented — the finding matches the project's own stated intent."
+        },
+        {
+          "title": "Functional text below 3:1 contrast: axis numbers, keyhint, scrubber ticks",
+          "where": "src/main.js:1345,1364,3478,3527,3614,3704; src/style.css:431,208; screenshot d01-desktop-boot.png",
+          "severity": "medium",
+          "evidence": "Axis tick numbers use fill rgba(255,255,255,0.3) and unit labels 0.35 (main.js lines above) — over the #06061a page these composite to ~2.5:1 and ~3.1:1, both failing WCAG AA 4.5:1 for their 9-11px sizes (visible in d01: the mass-axis numbers and top log ticks are barely legible even sighted). #keyhint is rgba(255,255,255,0.2) at 9px (style.css:429-431) ≈ 1.8:1 — the 'scroll to zoom' hint in d01's top-right corner is nearly invisible. .scrubber-tick is 0.3 at 9px (style.css:208). For comparison, the app's 0.5-0.55 alpha text (#readout, #tour-text) computes to ~5.3-6.2:1 and passes — so this is specifically the sub-0.4-alpha tier.",
+          "fix": "Raise the sub-0.4 alphas to the tier the app already uses: axis numbers and scrubber ticks to rgba(255,255,255,0.55) (~6:1), unit labels to 0.5, #keyhint to 0.5 (it still fades out after 6s, so ambience is preserved). Pure alpha changes — no layout or zoom-behavior risk.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "All cited values verified: rgba(255,255,255,0.3) at main.js:1345, 1364, 3478; 0.35 9px axis-minor tick numbers at 3527, 3614, 3704; #keyhint 0.2 at 9px (style.css:431); .scrubber-tick 0.3 (style.css:208, with .major at 0.55 matching the comparison tier). Contrast math over #06061a is right (~2.5:1, ~3.0:1, ~1.8:1). Screenshot d01 visibly supports it — the keyhint top-right is barely distinguishable and the top log ticks are dim. One mislabel: 1345/1364 are the 7px clickable WIMP/MACHO labels and 3478 a rotated density-line label, not axis tick numbers — but those are functional (clickable) text at the cited alphas, which if anything strengthens the finding. Alpha-only fix carries no zoom/label risk."
+        },
+        {
+          "title": "Pointer-and-timer-only affordances: sheet full state and the 8s ruler auto-hide",
+          "where": "src/main.js:3020-3061, 5658-5671; index.html:65",
+          "severity": "medium",
+          "evidence": "The bottom sheet's peek→full transition is only reachable via pointer drag/tap on #sheet-grab, a `<div aria-hidden=\"true\">` (index.html:65) with pointerdown/move/up handlers (main.js:3024-3061) — no keyboard or AT path to the full sheet on mobile (screenshots m05→m06). Separately, the mobile axes ruler self-dismisses on a fixed 8s timer (AXES_AUTO_HIDE_MS, main.js:5658; timer at 5665) with no way to pause or extend — WCAG 2.2.1: a slow reader loses the axis numbers mid-read (m07-ruler-on.png shows the state that silently vanishes).",
+          "fix": "Make #sheet-grab a `<button aria-label=\"Expand panel\">` (drop aria-hidden); its existing tap-toggles-full logic already fires on click for keyboard users — keep the drag handlers as-is. For the ruler: skip the auto-hide when the toggle was activated by keyboard (event.detail === 0), or simplest, drop the timer entirely and let the pill be a plain toggle — it already shows active state.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "The sheet half is airtight: sheet-full is toggled ONLY inside the pointer drag handlers on #sheet-grab (main.js:3027-3061; the class appears nowhere else except removal at 3015), and the grab is an aria-hidden div (index.html:65) — no keyboard or AT path to the full sheet exists (#sidebar-expand is hidden once the sheet is open, style.css:573). Two caveats: (1) the ruler half is weaker — the 8s auto-hide with re-arm on zoom/pan is a documented deliberate design (docs/mobile-plan.md:192, code comment main.js:5654-5657), so 'no way to pause or extend' is overstated (activity re-arms it and the pill re-shows it), though the fixed idle timeout with no warning is still a legitimate 2.2.1 concern; (2) the proposed fix's claim that the tap-toggle 'already fires on click' is wrong — the toggle lives in the pointerup handler (3050-3051), so a button conversion needs an explicit click/keyboard handler added."
+        }
+      ]
+    },
+    {
+      "dimension": "desktop-parity",
+      "summary": "Desktop survived the mobile overhaul largely intact: the full keyboard map, axis drag-handles, minimap, readout, scale bar, presets, settings controls, and wheel/trackpad zoom are all still wired and visible in d01-d03; double-click zoom is byte-identical to the pre-overhaul behavior, momentum pan is strictly touch-sampled, the coarse-gated resize guard cannot fire on mouse-primary desktops, and the touch/mouse modality state machine has no stuck states on hybrids. The real regressions are visual: the new icon fallback dot permanently glows through every screen-blend icon on desktop (confirmed in d02), and the mobile-only title-lockup fitter leaves the intro/tour title wrong after any resize across the 768px breakpoint. Remaining findings are hybrid-device papercuts (glass-diet flip, swallowed small resizes on coarse desktop-layout devices) and one pre-existing scale-bar/button overlap.",
+      "findings": [
+        {
+          "title": "Icon fallback dot permanently glows through screen-blend icons on desktop",
+          "where": "/Users/avsa/Dev/Triangle/src/main.js:2227",
+          "severity": "medium",
+          "evidence": "The keyed-join icon renderer (new in the mobile overhaul; pre-overhaul code at 82e4441 had no fallback dot) appends a .icon-fallback-dot circle (r=2.8, opacity 0.85) under every <image> and never hides it after the icon loads — no load listener, no CSS rule (grep confirms). Eight categories (SCREEN_BLEND_CATS at main.js:2277: remnant, galaxy, largescale, star, particle, composite, blackhole, atomic) draw the image with mix-blend-mode:screen, which only brightens what is beneath, so the colored dot stays visible through the icon forever. Visually confirmed in d02-desktop-chemistry.png: a pale dot sits dead-center on the loaded Hemoglobin and Insulin icons (both cat 'atomic' per src/objects.json), crops at scratchpad/crop-hemoglobin.png.",
+          "fix": "On the icon <image> element, hide the sibling .icon-fallback-dot once the image has loaded (e.g. .on('load', ...) set the dot display:none, or track loaded hrefs in a Set and set the dot's display in the per-frame .each() update). Keep the dot for cold-cache/not-yet-loaded icons — that is its purpose.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Fully verified. main.js:2227-2228 appends the dot at enter; the per-frame update (2244-2246) holds opacity at 0.85 and never hides it — grep finds only these two references, so no load listener and no CSS rule exists. objects.json confirms Hemoglobin and Insulin are cat 'atomic', which is in SCREEN_BLEND_CATS (main.js:2277), so their <image> renders with mix-blend-mode:screen (2233) and cannot cover the dot. git show 82e4441:src/main.js has zero 'icon-fallback-dot' hits, confirming it's new in the overhaul. crop-hemoglobin.png clearly shows pale dots dead-center on both loaded icons. Proposed fix keeps the dot for unloaded icons and doesn't touch labels."
+        },
+        {
+          "title": "Title lockup breaks when the window crosses the 768px breakpoint after boot",
+          "where": "/Users/avsa/Dev/Triangle/src/main.js:5648",
+          "severity": "medium",
+          "evidence": "fitTitleLockup runs only inside `if (_isMobile)` evaluated once at boot (main.js:5648-5652) and writes inline font-size/letter-spacing on .title-line2 / .tour-title-line2 (5643-5645) that are never cleared. Mobile boot then widen to desktop: the inline px size overrides the desktop 42px rule (style.css:609-613), so the intro and tour 'EVERYTHING' render at a phone-fitted size on desktop. Desktop boot (d01 is correct) then shrink below 768px: updateMobileState (main.js:263-276) toggles the class but never fits the lockup, so the mobile poster lockup (line 2 spanning line 1's width) never happens. The user's memory note flags this lockup as a deliberate design element.",
+          "fix": "On mode change in updateMobileState (or after the relayout in the resize handler), either re-run fitTitleLockup when entering mobile and clear the inline styles (l2.style.fontSize = '' , letterSpacing = '') when entering desktop.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Code evidence verified both directions: fitTitleLockup (main.js:5627-5646) writes inline font-size/letter-spacing on line 2; its only call site (5650) is gated by a boot-time `if (_isMobile)` (5648); the resize handler (5588-5601) calls updateMobileState/relayout but never re-fits or clears inline styles; titles are static DOM (index.html:68-70, 149) so inline styles persist and override the desktop rules (style.css ~608-612: 42px; tour.css:51: 45px vs mobile 28/34px). Realistic trigger: a large phone booting in landscape (>=768px, desktop mode) then rotating to portrait never gets the lockup. One inaccuracy: MEMORY.md contains no note about the title lockup (its entries cover wiki links and zoom labels) — that sub-claim is fabricated, but it's supporting color and doesn't affect the defect, which is real."
+        },
+        {
+          "title": "Height-only resizes under 160px are swallowed on coarse-pointer devices in desktop layout",
+          "where": "/Users/avsa/Dev/Triangle/src/main.js:5593",
+          "severity": "low",
+          "evidence": "The guard `if (_isCoarse && dw === 0 && dh < 160) return;` uses _isCoarse, a const captured at load (main.js:256) that is true whenever the PRIMARY pointer is coarse — including iPads in Stage Manager and detached-keyboard Surfaces whose resizable windows are >=768px wide and therefore run the full desktop layout (_isMobile false). Dragging such a window's bottom edge by <160px, or an external-display height change, never relayouts: the chart clips or leaves a dead strip until a larger resize accumulates past 160px against the stale _lastVh. Pure mouse desktops are unaffected (verified: _isCoarse false).",
+          "fix": "Tighten the guard to the case it was written for — mobile browser chrome — e.g. `if (_isCoarse && _isMobile && dw === 0 && dh < 160) return;`, or detect URL-bar wiggle via visualViewport instead of a blanket height threshold.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Verified at main.js:5593: the guard returns before _lastVh updates (5594), so a <160px height-only change on any coarse-primary device is swallowed indefinitely (only cumulative drift past 160px vs the stale baseline recovers). _isCoarse (main.js:256) is a boot-time const on the primary pointer and is true on iPads whose >=768px windows run the desktop layout (_isMobile false). Grep confirms this is the only resize path for chart layout (no visualViewport/orientationchange listener; the 5930 listener only repositions axis handles). docs/mobile-plan.md:115-116 scopes the guard's intent to 'URL bar, keyboard' — desktop-layout tablets are unintended collateral, so this is not a documented decision. Low severity is fair; the proposed fix doesn't affect labels."
+        },
+        {
+          "title": "One touch on a hybrid desktop strips backdrop-filter glass from the entire desktop UI",
+          "where": "/Users/avsa/Dev/Triangle/src/style.css:1132",
+          "severity": "low",
+          "evidence": "`body.touch-mode *` (style.css:1132-1136) plus the opaque sidebar/preset overrides (1144-1145) apply in the DESKTOP layout too: on a touchscreen laptop, the first touch anywhere flips body.touch-mode (main.js:4686-4689) and instantly de-glasses every surface (tooltip, search, settings, sidebar), then the next mousemove >1s later flips it all back — a visible whole-UI restyle pop on every input alternation, amplified by the universal `*` selector forcing a full-tree recalc each flip. The comment scopes the intent to 'Phones AND tablets', but touch-mode is broader than that. State-machine walk otherwise found no stuck state; only caveat: wheel input does not count as mouse activity (only mousemove does, main.js:4690-4693), so touch-then-scroll-wheel leaves hover dead until the mouse physically moves.",
+          "fix": "Scope the glass diet to coarse-primary or narrow layouts (keep `@media (pointer: coarse)` and `body.is-mobile`, drop the `body.touch-mode *` arm, or gate it as `body.touch-mode.is-mobile *`), and optionally treat wheel events as mouse-modality input alongside mousemove.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Verified: style.css:1132-1136 (`body.touch-mode *` strips backdrop-filter with !important) and 1144-1145 (opaque sidebar/preset overrides) apply regardless of layout width; main.js:4685-4693 confirms a touchscreen laptop boots with touch-mode off (fine primary pointer), the first touchstart flips it on, and only mousemove >1s later flips it back — wheel events indeed never restore mouse modality (only a mousemove listener exists, 4690). Not a deliberate decision: the CSS comment scopes intent to 'Phones AND tablets' and docs/mobile-plan.md:118-120 explicitly says 'Keep glass on desktop.' No mid-flip screenshot exists, but the visible restyle is a direct code-level consequence (blur removal plus sidebar background jumping to 0.97 opaque) rather than a subjective read."
+        },
+        {
+          "title": "Scale bar renders through the zoom-reset button on desktop (pre-existing)",
+          "where": "/Users/avsa/Dev/Triangle/src/style.css:406",
+          "severity": "low",
+          "evidence": "In d01-desktop-boot.png and d03-desktop-sidebar.png (crops: scratchpad/crop-controls-d01.png, crop-controls-d03.png), the #scale-bar ruler line (position fixed, bottom:50px, left:16px) runs horizontally straight through the circular zoom-reset button of the #controls stack (bottom:14px, four ~40px buttons), and its '12 decades'/'1.3 decades' caption sits on the button's lower edge. The button stays clickable (scale-bar is pointer-events:none) but is visually defaced. Verified pre-existing — neither rule changed in the overhaul diff — so this is desktop polish debt, not a regression.",
+          "fix": "Raise #scale-bar's bottom offset above the controls stack (or move the reset/scrubber buttons), so the ruler clears the four-button column at desktop sizes.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Visually confirmed in both crops (crop-controls-d01.png, crop-controls-d03.png): the ruler line runs horizontally through the circular zoom-reset button and the '12 decades'/'1.3 decades' caption sits on its lower edge. CSS geometry agrees: #scale-bar fixed at bottom:50px/left:16px (style.css:406-407) lands inside the #controls column (bottom:14px/left:14px, style.css:116-118). Pre-existing verified: git diff 82e4441..HEAD on style.css touches #scale-bar only to add the mobile display:none (style.css:1163); desktop positioning of both elements is unchanged by the overhaul. Minor nit: buttons are 34px, not ~40px — immaterial. Button remains clickable (pointer-events:none on the bar, style.css:410), so low severity is right."
+        },
+        {
+          "title": "Hovered connection line strands at stale coords during wheel zoom",
+          "where": "src/main.js:4879",
+          "severity": "medium",
+          "evidence": "redrawVectorsLight() now calls updateConnectionOpacities() instead of drawConnections() during gestures (main.js:4879), so the hover-revealed line geometry (built in screen space, main.js:4004-4046, revealed at opacity 1 on mouseenter at 4057) is never repositioned mid-gesture. Zoom start only disables pointer-events on lArrows (main.js:4918), which does not fire mouseleave while the mouse is stationary — so hovering a connection and wheel-zooming leaves a glowing curve frozen at pre-zoom coordinates while the map moves under it, until the gesture-end redraw. Pre-overhaul the light path rebuilt connections every frame.",
+          "fix": "In the zoom 'start' handler, alongside lArrows pointer-events none, set every cp._lineGroup opacity to 0 and hideTooltip() — the reveal state can't be meaningfully maintained mid-gesture anyway.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Code-verified (no screenshot possible for an interaction bug, but the code is decisive): line geometry is built in screen space and revealed at opacity 1 on mouseenter (main.js:4004-4008, 4057); redrawVectorsLight only calls updateConnectionOpacities (4879), which explicitly 'leaves the hover lines/hit paths alone' (4073-4076) and never repositions cp._lineGroup; during the gesture only lTiles/lTilesBase get CSS transforms (4947-4948), so lArrows content stays put while the map moves. The zoom-start handler only disables pointer-events (4918) — mouseleave is not reliably fired by that style change with a stationary mouse (never in Safari/Firefox). The dev's own comment assumes hover lines are 'invisible mid-gesture', which is false while one is hovered — a blind spot, not a documented decision. Pre-overhaul redrawVectorsLight called drawConnections() every frame (c933f15~1:4556), so this is a real regression. Fix targets connection lines, not text labels — no conflict with the label rule."
+        },
+        {
+          "title": "Object labels render under the icon layer, washing out label text",
+          "where": "src/main.js:549",
+          "severity": "medium",
+          "evidence": "lLabels lives inside lContent (main.js:535) while lIcons is appended to clip after it (main.js:549), so icons paint over labels. The new join's comment says labels are 'above icons' (main.js:2254-2255) — false. d02-desktop-chemistry.png: 'He' of Hemoglobin and 'LECULES' of MOLECULES are ghosted under the hemoglobin icon; 'In' of Insulin likewise. Layer order is unchanged from pre-overhaul (same in c933f15~1), so this is pre-existing, not a regression — but it contradicts the project rule that chart labels stay visible, and the new comment codifies the wrong belief.",
+          "fix": "Move the object-label layer above lIcons (e.g. append a clip-level label group after lIcons and point the keyed label join at it). Label click-targets use _labelRect, not getBBox, so the move is mechanical. Also correct the comment at main.js:2254.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "DOM order verified: lLabels is inside lContent (main.js:535) and lIcons is appended to clip afterwards (549), so icons paint over labels; the comment at 2254-2255 ('above icons') is false. Pixels verified in d02 crop: the 'H' of Hemoglobin, the middle of MOLECULES, and the 'In' of Insulin are visibly ghosted under the icons (Hydrogen's 'H' too). Pre-existing as the finding honestly states — same order and same wrong comment at c933f15~1:502/516/2215, where the old comment says labels are in lLabels 'above icons so text is always readable', proving the intent was labels-on-top; this is a defect vs. stated intent, not a deliberate decision. One framing caveat: the memory/project rule is about zoom/pan gesture behavior (no stranding/scaling/hiding), so citing it for static z-order is a stretch — but the finding itself is real. _labelRect is computed geometrically (main.js:2015-2029), not via getBBox, so the proposed layer move is indeed mechanical."
+        },
+        {
+          "title": "Desktop window resize no longer tracks live (150ms debounce)",
+          "where": "src/main.js:5588",
+          "severity": "low",
+          "evidence": "The rewritten resize handler debounces all relayouts by 150ms for every device (main.js:5588-5601); the old handler re-laid-out on every resize event. The svg has fixed width/height attrs, so during a continuous window-edge drag the chart freezes and shows a black gap/clipping until 150ms after the drag stops. The height-only chrome guard itself is correctly coarse-gated (`_isCoarse && dw === 0 && dh < 160`, main.js:5593), so that part does NOT affect desktop — only the unconditional debounce does.",
+          "fix": "Keep the debounce for coarse-pointer devices but run relayout immediately (or rAF-throttled) when _isCoarse is false, preserving the guard as-is.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Code verified: the handler clears and re-arms a 150ms timer on every resize event with no fine-pointer bypass (main.js:5588-5601), so a continuous window-edge drag does nothing until 150ms after it stops; the svg has fixed width/height attrs (392, 5560) and the body ground is dark (--bg-dark), so a gap/clipping during the drag is real. Old handler verified at c933f15~1:5219-5227 — it re-laid-out on every event. The coarse height-only guard is correctly characterized as not affecting desktop. docs/mobile-plan.md item 6 documents ignoring height-only wiggles, not an all-device debounce, so this isn't a documented tradeoff. Context note tempering severity (already rated low): the old 'live' handler also passed resetZoom:true, wiping the user's zoom on every desktop resize — the old behavior wasn't strictly better, and the proposed fix (immediate relayout when !_isCoarse via the new center-preserving relayout()) is the right shape."
+        },
+        {
+          "title": "Touch-to-mouse modality exit on hybrids relies solely on mousemove",
+          "where": "src/main.js:4690",
+          "severity": "low",
+          "evidence": "On a mouse+touchscreen desktop, touchstart flips touch-mode on (main.js:4686-4689) which inerts all click-target divs (style.css:1153) and drops backdrop-filter glass (style.css:1132-1136); the only exit is a mousemove arriving more than 1000ms after the last touch (main.js:4690-4693). Wheel, mousedown, and clicks never flip modality back, and any mouse activity in the first second after a touch is discarded — so a user who touches the map then immediately clicks with the mouse gets the click swallowed by the gesture surface (treated as empty-chart click → deselects/closes the sidebar) and sees the opaque no-glass sidebar until the mouse moves again later. No permanently stuck state found — the machine always recovers on the next qualifying mousemove.",
+          "fix": "Also exit touch mode on wheel and non-synthetic mousedown/pointerdown with pointerType 'mouse' (pointerType is reliable where mousemove timing is not), and shrink the synthetic-event window to ~500ms.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Code verified end to end: touchstart flips touch mode on (main.js:4686-4689); the only exit is a mousemove more than 1000ms after the last touch (4690-4693) — no wheel/mousedown/pointerdown/click path exists (grep confirms only these two setInputModality call sites). In touch mode the gesture surface gets pointer-events:all (4683; created for any-pointer:coarse hybrids at 6006-6011), click-target divs go inert (style.css:1153), and glass drops via body.touch-mode * (style.css:1132-1136 — the @media pointer:coarse block doesn't apply to hybrids whose primary pointer is fine). The touch-tap handler filters pointerType 'touch' (4708, 4713), so a mouse click landing on the topmost gesture surface bubbles as an empty-chart click into the document-level deselect (referenced at 4759-4764). The finding's own caveat (no permanent stuck state) is accurate. Hybrid-only, low severity — fairly rated."
+        },
+        {
+          "title": "Boot keyhint collides with DENSITY axis subtitle and search button",
+          "where": "src/main.js:3492",
+          "severity": "low",
+          "evidence": "d01-desktop-boot.png top-right: the DENSITY subtitle '10ⁿ g/L' (drawn at y=-26 from chart top ⇒ ~29px absolute, main.js:3483-3494) is stamped directly over 'click object to focus' in the #keyhint (fixed top:14px right:14px, style.css:429-436), and the trailing '/ to search' runs under the round search button. Positions are unchanged by the overhaul (pre-existing collision), but it is what every desktop visitor sees for the first 6 seconds.",
+          "fix": "Drop #keyhint below the axis strip (top: ~34px) or right-inset it past the density title block (right: 150px), and add right padding so it clears the search button.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Pixels verified: a crop of d01-desktop-boot.png top-right shows the red '10ⁿ g/L' subtitle stamped directly over 'click object to focus' in the keyhint line, and the trailing '/ to search' partially under the round search button. Math verified: subtitle at y=-26 from chart top (main.js:3492-3493) with TOP_MARGIN_DEFAULT=55 puts it at ~29px absolute; #keyhint is fixed top:14px right:14px (style.css:429-430). The subtitle is desktop-only (guarded by !_isMobile at 3491), matching the desktop-parity lens. Pre-existing, as the finding states — not a regression, but a real visible collision on every desktop boot."
+        },
+        {
+          "title": "Sidebar-open desktop: floating controls collide with bottom axis",
+          "where": "src/style.css:121",
+          "severity": "low",
+          "evidence": "d03-desktop-sidebar.png bottom-left (crop): with the sidebar open, #controls (left:454px, style.css:121) and #scale-bar (left:456px, style.css:413) sit 14px inside the chart (margin.left = SIDEBAR_W+80 = 440, main.js:320-321): the ⊙ button overlaps the scale-bar ruler, '1.3 decades' collides with the '-13' tick and '1 fm' unit label, and the shifted preset bar (left:500px, style.css:525) covers the 'WIDTH' axis title — only '10ⁿ meters' remains visible. Pre-existing CSS constants, aggravated whenever the sidebar is open.",
+          "fix": "Derive the sidebar-open offsets from the same SIDEBAR_W source (CSS var set in measure()) and clear the bottom axis strip, e.g. stack controls above margin.bottom or move the preset bar below the WIDTH title line.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "Pixels verified in a crop of d03-desktop-sidebar.png bottom-left: the scale-bar ruler runs straight through the ⊙ button, '1.3 decades' crowds/overlaps the '-13' tick region and sits pressed against '1 fm', and the shifted button bar covers the 'WIDTH' axis title — only '10ⁿ meters' is visible below the buttons. Constants verified: SIDEBAR_W=360 (main.js:250) gives margin.left = 440 when open (321), vs hardcoded left:454 for #controls (style.css:121), left:456 for #scale-bar (413), left:500 for #preset-bar (525). Also verified the colliding 'All/Particle Physics/...' bar IS #preset-bar (index.html:48-57), so the CSS citation is correct. Pre-existing constants, correctly rated low; the fix is pure chrome layout and doesn't touch chart labels."
+        }
+      ]
+    }
+  ]
+}
