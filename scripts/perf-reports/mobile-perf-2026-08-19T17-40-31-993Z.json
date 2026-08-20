@@ -1,0 +1,143 @@
+{
+  "when": "2026-08-19T17:40:31.993Z",
+  "target": "http://localhost:4199",
+  "conditions": {
+    "net": "4g",
+    "cpuThrottle": 4,
+    "viewport": "390x844@3x touch"
+  },
+  "wallLoadMs": 33729,
+  "load": {
+    "ttfbMs": 3,
+    "domContentLoadedMs": 616,
+    "fcpMs": 1032,
+    "lcpMs": 4888,
+    "requests": 189,
+    "totalTransferKB": 622,
+    "byType": {
+      "other": {
+        "count": 1,
+        "kb": 1
+      },
+      "css": {
+        "count": 1,
+        "kb": 6
+      },
+      "js": {
+        "count": 132,
+        "kb": 247
+      },
+      "data": {
+        "count": 2,
+        "kb": 1
+      },
+      "img": {
+        "count": 53,
+        "kb": 367
+      }
+    },
+    "biggest": [
+      {
+        "url": "/assets/index-DaavPvX1.js",
+        "kb": 111.8
+      },
+      {
+        "url": "/assets/proton-UY4aBWU2.webp",
+        "kb": 23.5
+      },
+      {
+        "url": "/assets/electron-D5YUmTsv.webp",
+        "kb": 18.2
+      },
+      {
+        "url": "/assets/visible-light-Deg2riTE.webp",
+        "kb": 16.7
+      },
+      {
+        "url": "/assets/favicon-Cqw0tBGm.png",
+        "kb": 15.1
+      },
+      {
+        "url": "/assets/ladybug-Blt2YQK7.webp",
+        "kb": 14.9
+      },
+      {
+        "url": "/assets/ton-618-n2seoi2k.webp",
+        "kb": 12.9
+      },
+      {
+        "url": "/assets/covid-BPu8LcUG.webp",
+        "kb": 12.8
+      },
+      {
+        "url": "/assets/higgs-DAfcB1An.webp",
+        "kb": 12.4
+      },
+      {
+        "url": "/assets/sequoia-BJya57AP.webp",
+        "kb": 8.8
+      }
+    ],
+    "longTaskCount": 108,
+    "longTaskTotalMs": 8173,
+    "longestTaskMs": 209,
+    "domNodes": 1883,
+    "svgNodes": 1611,
+    "heapMB": 4.9
+  },
+  "gestures": [
+    {
+      "label": "pinch zoom in (2.5x)",
+      "frames": 24,
+      "avgFps": 21.7,
+      "avgMs": 46.1,
+      "p50Ms": 45.7,
+      "p95Ms": 49.4,
+      "worstMs": 95.1,
+      "over33ms": 21,
+      "over100ms": 0
+    },
+    {
+      "label": "pinch zoom out (0.4x)",
+      "frames": 16,
+      "avgFps": 18,
+      "avgMs": 55.6,
+      "p50Ms": 45,
+      "p95Ms": 100,
+      "worstMs": 100,
+      "over33ms": 16,
+      "over100ms": 0
+    },
+    {
+      "label": "pan (drag across)",
+      "frames": 9,
+      "avgFps": 11.1,
+      "avgMs": 90.1,
+      "p50Ms": 84.8,
+      "p95Ms": 126.7,
+      "worstMs": 126.7,
+      "over33ms": 9,
+      "over100ms": 3
+    },
+    {
+      "label": "preset fly-to animation",
+      "frames": 14,
+      "avgFps": 5.7,
+      "avgMs": 175.8,
+      "p50Ms": 155.9,
+      "p95Ms": 312.6,
+      "worstMs": 312.6,
+      "over33ms": 14,
+      "over100ms": 12
+    }
+  ],
+  "budgets": {
+    "lcpMs": 2500,
+    "jsTransferKB": 350,
+    "totalTransferKB": 1200,
+    "requests": 60,
+    "startupLongTaskMs": 800,
+    "avgFps": 45,
+    "p95FrameMs": 40
+  }
+}

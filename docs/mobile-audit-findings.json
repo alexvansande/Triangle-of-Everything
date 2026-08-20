@@ -1,0 +1,612 @@
+{
+  "when": "2026-08-19",
+  "method": "5 parallel subsystem audits, each finding adversarially verified against the code by an independent agent",
+  "dimensions": [
+    {
+      "dimension": "render-pipeline",
+      "summary": "The render pipeline is immediate-mode on top of retained-mode SVG: every zoom/pan frame, tour transition, and Big Bang/scrubber tick calls a chain of 14 draw functions that each selectAll(\"*\").remove() and rebuild — roughly 1,000-2,000 SVG nodes recreated per frame, plus O(n²) clustering/label layout over 179 objects, 19 getTotalLength + ~160 getPointAtLength geometry calls, and a forced rebuild of up to 930 animated connection circles. On top of that, a never-idle 60fps rAF loop animates ~470 circles (many with per-dot feGaussianBlur on mix-blend-mode:screen layers) and a viewport-sized blur filter is repainted per frame, saturating a fill-rate-bound mobile GPU at DPR ~3 even when the user does nothing. Since the label-hiding fast renderer was deliberately reverted, the correct fix direction is making the full render cheap: retained keyed data-joins (update attributes, don't rebuild), cached cluster/label layout keyed on quantized zoom, cached connection geometry, batched path tiers, and killing per-frame SVG filters and backdrop-filter re-blurs — after which the existing full-label render can plausibly hold 30-60fps on a mid-range phone.",
+      "findings": [
+        {
+          "title": "Entire SVG scene torn down and rebuilt on every zoom/pan frame",
+          "file": "src/main.js",
+          "line": 4617,
+          "severity": "critical",
+          "evidence": "The d3.zoom 'zoom' handler (src/main.js:4594-4621) runs redrawVectorsLight() inside its rAF. redrawVectorsLight (4546-4569) calls 14 draw functions, each starting with selectAll(\"*\").remove() and re-appending fresh nodes: drawGrid (661), drawDensityLines (1361), drawBoundaries (763), drawEnergyBands (915), drawConnections (3775), drawObjects (1785-1787 clears 3 layers), drawAxes (3318), etc. Concrete node counts at the default overview on a 390px phone (BOUNDS = 70x113 decades, ppu ≈ 5px/decade): ~200-250 grid <line>s, ~40-55 density lines, ~179 of 180 objects projected (only 1 has minK) each producing 4-6 nodes (hit circle + glow/dot or bg-circle+image, plus 2 label <text>s with stroke-width:3 outlines), 4 axis groups with 100+ tick/text nodes. Total: roughly 1,000-2,000 SVG elements destroyed and recreated per frame. The lContent wrapper (484) exists explicitly \"so they can be batch-transformed during zoom\" but only the tile layers get the CSS transform (4607-4614); all vector content is rebuilt. The 3s intro zoom (5606-5611) and every 2000-3000ms tour transition (_calcZoomDuration clamps to 2000-3000ms, 4777-4790) run this loop for their full duration.",
+          "mobile_impact": "On a ~4x slower CPU, each frame costs 50-150ms of node creation, style resolution, text layout (letter-spacing text with stroke outlines, twice per label) and GC pressure from thousands of discarded nodes and D3 selections, so pinch-zoom and tour transitions run at 5-15fps. This is the single dominant cause of the 'slow janky animations' complaint, and it is sustained for 2-3s per tour step.",
+          "fix": "Keep labels fully rendered (per the reverted fast-renderer decision) but make the full render cheap: convert each layer from remove-and-rebuild to keyed d3 data joins that only update x/y/transform attributes on existing nodes (enter/exit only when the visible set changes). For layers whose geometry is a pure affine function of the transform (grid, density lines, boundaries, regions, connections), apply one group transform per frame and re-anchor on zoom end; labels/dots stay in a non-scaling layer whose positions are updated per frame via attribute writes only. Additionally throttle expensive layers (axes, energy bands, density arrows) to every 2nd-3rd frame or to k/domain-change thresholds.",
+          "effort": "large",
+          "verdict": "confirmed",
+          "verdict_note": "Verified the zoom handler (main.js:4594-4621) runs redrawVectorsLight() inside its rAF every frame; redrawVectorsLight (4546-4569) calls exactly 14 draw functions plus updateMinimap/updateScaleBar. Grepped all cited layers: every draw function begins with selectAll(\"*\").remove() (lRegion:553, lTriOverlay:585, lGrid:661, lBound:763, lEnergyBands:915, lDarkMatter:1237, lDensity:1361, lBigBangEras:1415, lDensityArrows:1477, lRegLabel:1713, lObj/lIcons/lLabels:1785-1787, lHighlight:3293, axes:3318, lArrows:3775). The lContent wrapper comment at 482-486 promises batch-transform but only lTiles/lTilesBase get the CSS transform (4607-4614). objects.json has 180 objects, exactly 1 with minK (primordial-black-hole), so ~179 participate at overview. BOUNDS is 70x113 decades as claimed; my independent grid-line count at phone overview (ppu≈5.6px/decade) came to ~226 lines, matching the 200-250 claim, and the ~1,000-2,000 total node estimate is the right order of magnitude. Intro zoom is 3000ms (5606-5611) and _calcZoomDuration clamps 2000-3000ms (4788-4789), both driving this loop for their full duration."
+        },
+        {
+          "title": "drawConnections runs per zoom frame: 19x getTotalLength, ~160 getPointAtLength calls, and forces a rebuild of the animated dot pool",
+          "file": "src/main.js",
+          "line": 3774,
+          "severity": "critical",
+          "evidence": "drawConnections is in the per-frame path (called from redrawVectorsLight:4555). Every call: (a) clears lArrows and sets _connDotsStale = true (3775-3776); (b) for all 19 CONNECTION_PATHS builds a detached <path> and calls getTotalLength() (3809-3812) — geometry computation per path per frame; (c) for the 'spectrum' path (visible from k=0.4, i.e. including the default view) builds 40 <line> segments each computed with 4 getPathScreenPos calls → ~160 getPointAtLength() calls per frame (3824-3849); (d) creates an 18px-wide invisible hover hit <path> per visible connection (3862-3868). Because _connDotsStale is set every frame, the separate animateConnections rAF loop deletes and recreates the whole dot pool each frame during zoom (3925-3944): sum(dotCount)=186 across 19 paths x CLUSTER_DOTS=5 = up to 930 <circle> elements churned per frame.",
+          "mobile_impact": "getTotalLength/getPointAtLength are pure-CPU path flattening — hundreds of calls per frame on a 4x slower CPU is milliseconds of waste, and the 470-930 circle create/destroy per frame doubles the DOM churn of finding 1. All of this is for decorative connection dots that are barely perceptible mid-gesture.",
+          "fix": "Compute connection geometry once per path in data space (the Catmull-Rom/bezier control points do not change), cache sampled points, and map them through px()/py() per frame instead of rebuilding SVG paths and measuring them. Never set _connDotsStale during an active zoom — keep the existing circle pool and only update cx/cy. Skip drawConnections entirely while _zooming (freeze or hide the dots layer via opacity) and rebuild once in the zoom 'end' handler.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "drawConnections is called from redrawVectorsLight (4556). It clears lArrows and sets _connDotsStale=true unconditionally (3775-3776); the _connPaths.forEach at 3803-3812 builds a detached path and calls getTotalLength() for ALL paths (the _visible early-return is at 3814, after the measurement). data.js CONNECTION_PATHS has exactly 19 entries; dotCounts sum to exactly 186; CLUSTER_DOTS=5 (3714), so up to 930 circles. em-spectrum has zoomRange [0.8,800] and no neighborhood, so it is visible from k=0.4 including the default view; its branch builds 40 segments with 4 getPathScreenPos calls each (3827, 3828, 3833, 3836) = 160 getPointAtLength calls (getPathScreenPos:3885-3888 uses getPointAtLength when _pathLen>0). 18px-wide hit path per visible connection at 3863-3868. animateConnections (3925-3944) removes all lConnDots children and recreates the pool whenever _connDotsStale is set, i.e. every frame during zoom. All claims verified."
+        },
+        {
+          "title": "Perpetual 60fps connection-dot animation with per-dot SVG blur filters on blend-moded layers",
+          "file": "src/main.js",
+          "line": 3908,
+          "severity": "high",
+          "evidence": "animateConnections self-schedules via requestAnimationFrame unconditionally (3997) from boot (initConnections at 5575). At the default k=1 view, 7 paths pass connectionOpacity (zoomRange mins 0.8-1.5, visible from zMin*0.5), totaling ~94 dots x 5 cluster circles = ~470 circles receiving 5 setAttribute calls each per frame (~2,350 attribute writes/frame at idle). Head dots of spectrum/evolution families get filter=\"url(#conn-glow)\" — an feGaussianBlur per circle (3936, filter def 453-459). Both lArrows and lConnDots layers have mix-blend-mode:screen (495-496), and object icons get per-image mix-blend-mode:screen (2200), which forces the SVG into expensive compositing paths.",
+          "mobile_impact": "A fill-rate-bound mobile GPU pays for each filtered circle as a separate blurred offscreen surface, re-composited through 'screen' blending at DPR ~3, on every frame — even when the user is doing nothing. This drains battery, keeps the phone thermally throttled, and steals frame budget from the zoom redraw whenever the user interacts.",
+          "fix": "Stop the rAF loop when no path is visible and when the page is idle/hidden; on mobile reduce CLUSTER_DOTS (5→2) and dotCount, and replace the per-dot feGaussianBlur with a pre-rendered radial-gradient sprite (<circle fill=url(#radialGradient)> or a tiny raster) which needs no filter pass. Consider dropping mix-blend-mode on the icon images on mobile.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "animateConnections re-schedules itself via requestAnimationFrame on every exit path (3910, 3921, 3997); initConnections starts it at boot (main.js:5575) and _animDisabled defaults to false, only changed by a user settings checkbox (5110, 5359). _animPaused only skips advancing dotTs (3946-3956) — the attribute-write loop (3958-3995) runs every frame regardless, writing cx/cy/r plus fill/opacity (4-5 setAttribute per circle). Counted paths passing the zoomRange gate at k=1: exactly 7 (em-spectrum 0.8, five evolution paths 1.5, bh-mergers 1.0), totaling 94 dots x 5 = 470 circles, matching the claim (~2,350 writes is the upper bound). Head dots of spectrum/evolution get filter=url(#conn-glow) (3936), an feGaussianBlur filter (453-459). lArrows/lConnDots have mix-blend-mode:screen (495-496) and icons get per-image screen blending (2200). Only caveat: two of the 7 paths (remnant/nebula-to-nursery) have small neighborhoods putting their opacity right at the 0.01 visibility threshold at full overview, so the idle pool could be ~390 circles instead of ~470 — does not change the substance."
+        },
+        {
+          "title": "drawObjects redoes O(n²) clustering, collision layout, and per-object listener closures for ~179 objects every frame",
+          "file": "src/main.js",
+          "line": 1784,
+          "severity": "high",
+          "evidence": "Per call (i.e., per zoom frame): dot-overlap check is O(n²) (1832-1838), icon-overlap O(n²) (1843-1853), cluster detection is a BFS that rescans the full projected array per queue pop — O(n²) per component, worst-case cubic (1860-1911), label placement tests 4 candidate positions against all placed rects (1967-1999), plus a subcat grouping pass (2007-2036). Then for each visible object it creates a fresh <g> with new mouseenter/mouseleave closures (2239-2267) and two <text> nodes per label — a stroke-width:3 outline copy plus a fill copy (2217-2236), both with letter-spacing. 179 of the 180 objects participate at overview zoom (only one has minK).",
+          "mobile_impact": "This is the part of the frame whose cost scales with object count: quadratic geometry work in JS plus ~700-1,000 node creations and hundreds of closure allocations per frame on a 4x slower CPU. Touch devices never fire the mouseenter/mouseleave handlers being rebuilt every frame, so a large share of the work is pure waste on mobile.",
+          "fix": "Cache the layout solution (cluster membership, label visibility, label positions) keyed on quantized zoom level and view rect — it changes smoothly, so recompute only when k changes by >5% or the view pans by > a threshold, and reuse positions in between (positions themselves are cheap px()/py() projections). Use event delegation (one listener on lObj resolving data-obj-slug) instead of per-node closures, and skip hover wiring entirely when a coarse-pointer media query matches. Render label outline via paint-order:stroke on a single <text> node to halve text nodes.",
+          "effort": "large",
+          "verdict": "confirmed",
+          "verdict_note": "drawObjects (in the per-frame path via redrawVectorsLight:4564) clears 3 layers (1785-1787). Dot-overlap check is O(n²) via visibleDots.some per object (1832-1838); icon overlap likewise (1843-1853); cluster detection BFS rescans the FULL projected array on every queue pop ('for (const q of projected)' at 1866) — worst case as claimed (1860-1911); label placement tests 4 candidate positions against all placedLabels (1974-1993); subcat grouping pass at 2006-2036. Each visible object gets a fresh <g> with new mouseenter/mouseleave closures (2239-2267) and two <text> nodes — a stroke-width:3 outline copy plus a fill copy, both with letter-spacing (2217-2236). objects.json: 180 objects, exactly 1 with minK, so 179 participate at overview. All evidence verified; _lastProjected at 2269 exists as the fix references."
+        },
+        {
+          "title": "Viewport-sized feGaussianBlur glow on the triangle outline repainted every frame",
+          "file": "src/main.js",
+          "line": 775,
+          "severity": "high",
+          "evidence": "drawBoundaries (in the per-frame path) recreates a 6px-wide white triangle path with filter=\"url(#line-glow)\" (772-775); the filter (444-450) is an feGaussianBlur stdDeviation 3 with a filter region of 180%x180% of the path bbox. At overview zoom the triangle spans nearly the whole chart, so the filter surface is larger than the full screen. The element is destroyed and recreated per frame, so no filter result caching applies.",
+          "mobile_impact": "At ~390x844 CSS px and DPR ~3, the blur pass allocates and processes a multi-megapixel offscreen surface per frame on a weak, fill-rate-bound GPU — one of the most expensive single primitives in the scene, spent on a subtle 0.08-opacity glow.",
+          "fix": "Replace the filter with a fake glow: 2-3 stacked strokes of increasing width and decreasing opacity (no filter), or a CSS drop-shadow applied to a persistent (not recreated) node so the browser can cache it; at minimum gate the filter off while _zooming or on mobile.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "drawBoundaries (called per frame from redrawVectorsLight:4551) starts with lBound.selectAll(\"*\").remove() (763), then appends a stroke-width:6 white triangle path with filter=url(#line-glow) (772-775). The filter (444-450) is feGaussianBlur stdDeviation 3 with region x/y -40%, width/height 180% of the path bbox. The triangle spans Planck point (logR ~-33) to Hubble-radius verticals against BOUNDS x[-38,32], so at overview its bbox covers nearly the whole chart and the 180% filter region exceeds the screen. Because the node is destroyed and recreated per frame, no browser filter-result caching can apply. All claims verified."
+        },
+        {
+          "title": "Big Bang engine and time scrubber trigger full-scene redrawVectors on every d3.timer tick",
+          "file": "src/main.js",
+          "line": 4808,
+          "severity": "medium",
+          "evidence": "_bigBangAnimate's d3.timer calls redrawVectors() on every rAF tick (4801-4820) — the same 14-function full teardown/rebuild as finding 1. The time scrubber maps every drag/play step to animateBigBangTransition with a 450ms camera fade plus a 600ms object fade (5588-5591), and 'Play' steps eras every 2.6s (time-scrubber.js:96-99), so scrubbing sustains full-scene rebuild at frame rate. During tour bigBang steps, tour.js:425-426 starts the zoom transition and the Big Bang timer concurrently; the timer skips its redraw while _zooming, but phase 2 (object fades, 4880-4896) typically runs after the zoom ends and does its own per-frame full redraws for another 2.5s.",
+          "mobile_impact": "The Big Bang tour chapter and the scrubber — the most cinematic parts of the app — stack a second full-redraw driver on top of the zoom redraw, keeping the phone at 100% main-thread for 4-7s per step. Object fades only need opacity changes, not scene rebuilds.",
+          "fix": "In the Big Bang tick, mutate only what changed: set opacity on existing object groups (they carry data-obj-slug), update the whiteOverlay attr (already done), and redraw only the triangle/boundary layers that depend on _bigBangHubbleLogR. This becomes nearly free once finding 1's retained nodes exist; as an interim fix, have the tick call a slimmed redraw that skips axes, grid, connections, energy bands, and dark-matter layers, none of which change during era fades.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "_bigBangAnimate (4801-4820) runs a d3.timer that calls redrawVectors() on every tick when !_zooming (4806-4808); redrawVectors (4444-4461) is the same 14-function teardown/rebuild. The scrubber wiring at 5588-5591 maps every era step to animateBigBangTransition({objectDelay:0, objectDuration:600}, 450) — with no zoom running, both the 450ms phase-1 and 600ms phase-2 timers do per-tick full redraws. time-scrubber.js startPlaying uses setInterval 2600ms (~line 96-99). tour.js navigateToStep starts _zoomToRegion(view, duration) and _animateBigBang(step.bigBang, duration) concurrently (425-426); phase 2 fires at duration+objectDelay (default 1000, main.js:4903), i.e. after the zoom ends, then redraws per frame for objectDuration (default 2500ms, 4880-4896). One minor nit: the 450ms is a Hubble-radius/white-overlay fade, not a 'camera fade' (the scrubber explicitly avoids camera moves) — the redraw mechanism claim is exact."
+        },
+        {
+          "title": "updateClickTargets performs a synchronous getBBox batch (forced layout per label) after every gesture",
+          "file": "src/main.js",
+          "line": 4380,
+          "severity": "medium",
+          "evidence": "500ms after every zoom/pan end, updateClickTargets iterates all rendered label <text> nodes calling this.getBBox() (4370-4418), plus getBBox on every dark-matter text/polygon (4421-4441), and creates 2 HTML divs with 3 listeners per object. With dozens of visible labels plus ~180 object divs, that is one synchronous burst of layout-forcing measurement and DOM insertion into a fixed overlay.",
+          "mobile_impact": "The burst lands exactly when the user has just lifted their finger and expects the map to be responsive — a visible input-latency hitch on a slow CPU, repeated after every single pan or pinch.",
+          "fix": "drawObjects already computes each label's rect analytically (_labelRect, o.name.length * 6 + 10 at 1971-1979) — reuse those rects instead of getBBox. Object hit targets don't need HTML divs sized per icon: one delegated pointerup handler on the container doing a nearest-object hit test against _lastProjected (already kept, 2269) removes all per-object DOM. At minimum, chunk the work through requestIdleCallback.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "The zoom 'end' handler calls scheduleClickTargets (4631) which debounces 500ms then runs updateClickTargets (4305-4309). updateClickTargets synchronously iterates every rendered label text calling this.getBBox() (4370-4418), then getBBox on every dark-matter text/polygon (4421-4441), interleaving each measurement with an appendChild into the fixed HTML overlay — a classic layout-thrash pattern. Each projected object gets a div with 3 listeners (4316-4367) and each visible label a second div with 3 more (4381-4416). The fix references are real: analytic _labelRect exists at 1971-1979 and _lastProjected at 2269. One quantitative nit: object divs are created only for _showDot survivors, so '~180 object divs' is an upper bound (overlap culling reduces it at phone overview) — the mechanism claim is exact."
+        },
+        {
+          "title": "Per-frame innerHTML rewrites of backdrop-filtered HTML overlays during zoom",
+          "file": "src/main.js",
+          "line": 4618,
+          "severity": "medium",
+          "evidence": "The zoom rAF calls updateReadout(null) every frame (4618), which rewrites readoutEl.innerHTML (5036); redrawVectorsLight also calls updateScaleBar every frame, which rewrites scaleBarEl.innerHTML (5059). #readout has backdrop-filter: blur(10px) with min-width 240px (style.css:77). The app also keeps several always-on backdrop-filter surfaces (controls buttons :95, minimap/panels :117, sidebar blur(12px)+blur(24px) :520,534) above an SVG that repaints fully every frame.",
+          "mobile_impact": "Each innerHTML swap forces style/layout on the overlay, and every backdrop-filtered element must re-blur its backdrop on every underlying SVG repaint — during zoom that is per frame, at DPR ~3, on a GPU already saturated by findings 3 and 5.",
+          "fix": "Skip updateReadout/updateScaleBar while _zooming (update once in the 'end' handler), or update textContent of stable child nodes only when the displayed value changes. Disable backdrop-filter on mobile via media query (solid rgba backgrounds already look correct — they are 0.88-0.92 opaque).",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "The zoom rAF calls updateReadout(null) every frame (4618), which unconditionally assigns readoutEl.innerHTML (5036); redrawVectorsLight calls updateScaleBar every frame (4568), which assigns scaleBarEl.innerHTML (5059). style.css:77 confirms #readout has backdrop-filter: blur(10px) with min-width 240px, and backdrop-filter appears on 14 always-on surfaces including controls buttons (:95), a panel (:117), sidebar blur(12px) (:520) and sidebar-expand blur(24px) (:534). style.css contains zero @media queries and no is-mobile rules, so nothing hides these overlays on mobile. Minor nit: :117 is an info panel, not the minimap (which is SVG), and :534 is the expand button rather than the sidebar itself — the substance stands."
+        },
+        {
+          "title": "Grid, density, and axis lines emitted as hundreds of individual <line> nodes per frame instead of batched paths",
+          "file": "src/main.js",
+          "line": 660,
+          "severity": "low",
+          "evidence": "drawGrid appends one <line> per grid line (706-753): at default mobile overview (ppu ≈ 5px/decade over a 70x146-decade view) roughly 200-250 lines across the 4 level tiers, each with 4-5 attributes; drawDensityLines adds up to ~55 more (1382-1395); drawAxes rebuilds 4 groups of tick lines/labels (3317-3628). All lines within a tier share identical stroke/width/opacity.",
+          "mobile_impact": "Node count is the multiplier behind finding 1: every extra element costs creation, style resolution, and per-frame rasterization. 300 single-segment elements that could be ~8 <path> nodes (one 'd' string per style tier) inflate both CPU and memory churn on a 4x slower device.",
+          "fix": "Concatenate all segments of one style tier into a single <path d=\"M...L...M...L...\"> (one node per tier: ~5 grid tiers + 3 density styles + tick tiers). This also makes the retained-mode conversion in finding 1 trivial for these layers — update one 'd' attribute per tier per frame.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "drawGrid appends one <line> per grid line inside per-level loops (706-753); stroke/width/opacity are computed once per level tier (680-701), so all lines in a tier share identical style as claimed. My independent count at a 390px phone overview (ppu ≈ 5.6px/decade, 4 active tiers) gives ~226 lines — inside the claimed 200-250. drawDensityLines loops logRho -54..108 step 3 = up to 55 individually-appended lines (1382-1395) plus epoch polygons. drawAxes clears and rebuilds all 4 axis groups per call (3318, function spans 3317-3628). All in the per-frame redrawVectorsLight path. The '70x146-decade view' figure is consistent with BOUNDS x = 70 decades and the y-domain expanded to preserve aspect on a portrait phone."
+        }
+      ]
+    },
+    {
+      "dimension": "assets-network",
+      "summary": "The asset story is better than the 68MB scare suggests — that weight is two unreferenced source PNGs shipping in public/, while the real runtime assets are well-chosen (2.3MB of 512px webp tiles with a z0 base layer, lazy per-object sidebar images, lazy-loaded KaTeX). The genuine mobile pain is concentrated at startup: the page is deliberately blanked until the entire 360KB/114KB-gz bundle executes, a render-blocking third-party Google Fonts chain sits on the critical path, and an eager icon preload fires ~260 requests for 1.26MB (18x what its comment claims) while tile metadata waits behind the JS. GitHub Pages' fixed 10-minute cache then makes every return visit re-pay hundreds of revalidations, which a small service worker would eliminate.",
+      "findings": [
+        {
+          "title": "First paint gated on full 360KB app bundle executing to completion",
+          "file": "src/main.js",
+          "line": 5621,
+          "severity": "high",
+          "evidence": "index.html:23 inlines `body:not(.ready){opacity:0!important}` and the `ready` class is only added at src/main.js:5621 — the literal last line of the 5,600-line module, after the entire SVG scene is built. The production entry chunk is dist/assets/index-DaavPvX1.js: 360,162 B raw / 114,212 B gzipped (it eagerly inlines all 208 markdown descriptions, 74,301 B, via the eager glob at src/main.js:29, plus objects.json 23KB and tree-shaken d3). Nothing paints until HTML -> JS fetch -> parse -> full init completes; there is no static splash, skeleton, or even the title visible in HTML.",
+          "mobile_impact": "On a ~4x slower CPU, parse+execute of 360KB JS plus building the full SVG scene (grid, ~180 objects, labels) is multi-second work, and on 4G the 114KB gz fetch adds 1-3s more. The user stares at a deliberately blanked page (opacity:0) the whole time — this is the single biggest contributor to the 'heavy loading' complaint.",
+          "fix": "Put a static splash/skeleton (title + z0 background tile as an <img>) directly in index.html so something paints immediately; add body.ready as soon as critical CSS is applied rather than after full init, or split init so the base scene renders before icons/labels/descriptions work. Consider moving the 74KB of descriptions out of the entry chunk (lazy glob like the images) since they are only needed when a sidebar opens.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "index.html:23 inlines `body:not(.ready){opacity:0!important}` and the only `document.body.classList.add(\"ready\")` is src/main.js:5621 — the literal last line of a 5621-line module (wc -l confirms), so nothing is visible until the whole module evaluates. dist/assets/index-DaavPvX1.js is exactly 360,162 B raw / 114,212 B gzipped. The eager raw-markdown glob is at src/main.js:29; 208 .md files totalling exactly 74,301 B, and the amoeba description text is literally present inside the entry chunk (grep hit). objects.json is 23,042 B and statically imported. index.html body has only empty app containers, all hidden by the opacity rule — no splash/skeleton renders before JS finishes."
+        },
+        {
+          "title": "Startup icon preload issues ~260 requests / 1.26MB; code comment claims 70KB",
+          "file": "src/main.js",
+          "line": 94,
+          "severity": "high",
+          "evidence": "src/main.js:93-96 (`Promise.all(Object.keys(ICON_BY_SLUG).map(s => getIconUrl(s)))`, comment: 'Preload all icons eagerly (~70KB total)') eagerly resolves all 130 icon loaders created by the non-eager `import.meta.glob` at line 73. Each loader fetches a separate 61-byte JS wrapper chunk (e.g. dist/assets/amoeba-C88CPxQe.js — dist/assets contains 246 such .js files), then the webp itself is fetched when redraw() draws icons. Actual icon payload: 130 webps totalling 1,264 KB, not 70KB. 30 of the icons are 512x512 (489,676 B total, e.g. content/icons/gluon.webp 35,794 B) while effectiveIconSize() (line 103) renders them at 14-115 CSS px.",
+          "mobile_impact": "~130 wrapper-JS round trips plus up to 130 image fetches fire during startup, competing with tiles and the main bundle on a 4G connection where per-request overhead dominates; 1.26MB of icons is ~3-5s of 4G bandwidth. Decoding thirty 512x512 sources to draw 14px dots also burns CPU/GPU memory (each is a 1MB RGBA decode) on a fill-rate-bound phone.",
+          "fix": "Replace the lazy glob with `import.meta.glob('../content/icons/*.webp', { eager: true, query: '?url', import: 'default' })` — this inlines the 130 URLs into the bundle and eliminates all 130 wrapper requests (same applies to the images glob at line 33). Downscale the 30 512px icons to 128px (or a 256px @2x variant) to match max rendered size, and pack icons into 1-2 sprite-sheet webps (or defer non-viewport icons until after first paint) to collapse the 130 image fetches.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "src/main.js:93-94 has the exact comment 'Preload all icons eagerly (~70KB total)' and `Promise.all(Object.keys(ICON_BY_SLUG).map(s => getIconUrl(s)))`; the glob at line 73 is non-eager, so each of the 130 content/icons/*.webp gets a separate dynamic-import wrapper chunk (dist/assets/amoeba-C88CPxQe.js is exactly 61 B; dist/assets holds 246 .js files). Actual icon payload: 130 webps, 1,264 KB total (du) — 18x the comment. Verified 30 icons are 512x512 totalling exactly 489,676 B (gluon.webp = 35,794 B), while effectiveIconSize() at line 103 caps rendering at 14-115 px. The webp bytes are fetched when redraw() draws icons (the preload resolves URLs then calls redraw), so on the intro's full-chart view the ~130 wrapper + ~130 image requests both land during startup — the ~260-request figure is fair."
+        },
+        {
+          "title": "GitHub Pages 10-minute cache lifetime with no service worker",
+          "file": "public/CNAME",
+          "line": 1,
+          "severity": "medium",
+          "evidence": "CNAME (triangleofeverything.com) indicates GitHub Pages hosting, which serves every asset — including the content-hashed files in dist/assets and the 457 immutable tiles in public/tiles — with `Cache-Control: max-age=600` and no way to override headers. There is no service worker or manifest anywhere in the project (grep for serviceWorker/sw.js: none). A session involves 260+ icon requests, tiles, fonts, and the bundle.",
+          "mobile_impact": "Any return visit more than 10 minutes later revalidates every one of those requests; even as 304s, hundreds of conditional requests on flaky 4G cost seconds and battery every single visit. Hashed filenames make this pure waste — the assets can never change under their URLs.",
+          "fix": "Add a small service worker with cache-first for /assets/* (hashed, immutable) and /tiles/* (stale-while-revalidate), giving instant repeat loads and offline pan/zoom — exactly what map apps do. Alternatively move hosting to Cloudflare Pages/Netlify where immutable Cache-Control headers can be set.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "public/CNAME:1 = triangleofeverything.com, and .github/workflows/deploy.yml deploys dist via actions/deploy-pages — the site is definitively on GitHub Pages, which serves a fixed `Cache-Control: max-age=600` with no header override mechanism (documented platform behavior). Grep across src/, index.html, public/ finds no serviceWorker/sw.js/workbox reference and no manifest. 457 tile webps confirmed in public/tiles. Combined with finding 2's request volume, repeat visits re-validate/re-fetch everything after 10 minutes."
+        },
+        {
+          "title": "Render-blocking third-party Google Fonts CSS with 7 font files on the critical path",
+          "file": "index.html",
+          "line": 20,
+          "severity": "medium",
+          "evidence": "index.html:20 loads fonts.googleapis.com CSS for Inter at 5 weights (300-700, all genuinely used in style.css) plus Space Mono 400/700 as a plain render-blocking <link rel=stylesheet>. That is a third-party DNS+TLS+CSS fetch, then ~7 latin woff2 files (~100KB) from a second origin (fonts.gstatic.com), before anything can render. display=swap only helps text substitution, not the blocking CSS request itself.",
+          "mobile_impact": "On flaky 4G, two extra third-party origins sit on the critical rendering path; if fonts.googleapis.com stalls, the page stays blank beyond even the JS-init delay. Extra connections are disproportionately expensive on high-RTT mobile radio.",
+          "fix": "Self-host the 7 woff2 subsets in /assets (they get hashed + preloadable), declare them with @font-face + font-display:swap in the bundled CSS, and add <link rel=preload as=font> for Inter 400/600 only. Removes both third-party origins from the critical path.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "index.html:20 is a plain `<link rel=stylesheet>` to fonts.googleapis.com/css2 requesting Inter 300;400;500;600;700 + Space Mono 400;700 — render-blocking by nature, third-party origin plus fonts.gstatic.com for the woff2s (7 weights requested = ~7 latin files). Verified all five Inter weights are genuinely used across src (font-weight tally: 300 x3, 400 x2, 500 x4, 600 x7, 700 x5, plus bold), so no weight can simply be dropped without CSS changes. The claim that display=swap does not unblock the CSS request itself is correct."
+        },
+        {
+          "title": "68MB of unreferenced source PNGs ship inside public/ on every deploy",
+          "file": "scripts/tile-image.mjs",
+          "line": 19,
+          "severity": "medium",
+          "evidence": "public/imgs contains 'triangle of everything background.png' (60,889,502 B, 8192x10752) and social.png (10,290,849 B). Neither is referenced by index.html or any src/*.js — the only reference is scripts/tile-image.mjs:19 which uses the PNG as build-time input for tile generation. Vite copies public/ verbatim, so dist/imgs is 68MB of the 80MB dist output.",
+          "mobile_impact": "Not fetched by the app today, but one stray link, crawler, or future code reference triggers a 60.9MB download onto someone's phone; it also makes every deploy 6x larger than necessary and slows CI/CDN propagation.",
+          "fix": "Move both files out of public/ (e.g. to content/source-art/ or scripts/assets/) and update the default path in scripts/tile-image.mjs:19. Deploy shrinks from ~80MB to ~12MB with zero runtime change.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "public/imgs contains 'triangle of everything background.png' at exactly 60,889,502 B (8192x10752 matches meta.json imgW/imgH) and social.png at exactly 10,290,849 B. Grep of index.html and all src/*.js|*.css finds zero references to imgs/; the only consumer is scripts/tile-image.mjs:19 (`const SRC = process.argv[2] || \"public/imgs/triangle of everything background.png\"`), a build-time tile generator. dist/ is 81M with dist/imgs at 69M — the deploy workflow uploads all of dist, so ~85% of the deployed payload is dead weight."
+        },
+        {
+          "title": "Tile metadata fetched post-JS and intro animation fetches soon-discarded z5 tiles",
+          "file": "src/main.js",
+          "line": 4239,
+          "severity": "medium",
+          "evidence": "tiles/meta.json is fetched at runtime (src/main.js:4239) only after the 360KB bundle downloads and executes, so the background waterfall is HTML -> JS -> meta.json -> z0 tile: three serialized round trips before any background pixel can appear. Additionally the intro starts at k=14 (src/main.js:5600-5603), which selects level z5 in drawTiles (line 4123-4128) and fetches several z5 tiles (z5 tiles run up to 59,558 B, e.g. tiles/z5/tile_9_7.webp) that become useless 4 seconds later when the scripted zoom-out (line 5606-5611) lands at k=1 where z0/z1 suffice.",
+          "mobile_impact": "On 4G each serialized round trip is 100-600ms, so the background appears noticeably late; meanwhile ~150-250KB of z5 tiles are fetched during the most bandwidth-contended moment of the load (competing with icons and fonts) and then discarded.",
+          "fix": "Add <link rel=preload href=\"/tiles/meta.json\" as=fetch crossorigin> and preload the single z0 tile (4KB) in index.html; during the scripted intro transition, skip drawTiles level selection above z2 (or defer high-z fetches until the intro zoom-out completes, mirroring what preloadTilesForTransform at line 4675 already does for tours).",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "fetch('/tiles/meta.json') is at src/main.js:4239 inside loadTileMeta(), called at line 5576 during module evaluation — no preload link exists in index.html, so the waterfall HTML→JS→meta.json→z0 tile is real. Intro is exactly at 5600-5603 (introK=14) with the 3s zoom-out to identity at 5606-5611 after a 1s delay. drawTiles' level loop (4123-4128) sets best = last level unless lvPPU >= screenPPU; z5's ppu is 8192/177.7 ≈ 46 px/logunit while k=14 yields screenPPU of ~90-290 px/unit even on a 390px screen, so z5 is selected; meta.json confirms z5 (16x21 grid) and tile_9_7.webp is exactly 59,558 B. preloadTilesForTransform exists at 4675 and is only used for tour transitions. Minor caveat: if meta.json arrives slower than the 4s intro, the z5 fetches are skipped — but the serialized-round-trip half of the finding holds regardless."
+        },
+        {
+          "title": "1MB og:image likely dropped by WhatsApp/Telegram link previews",
+          "file": "index.html",
+          "line": 12,
+          "severity": "low",
+          "evidence": "og:image and twitter:image point at /og-preview.jpg which is 1,024,916 B (public/og-preview.jpg). WhatsApp caps preview images around 300-600KB and mobile messengers time out large previews; a 1200x630 JPEG of this artwork compresses to ~150-250KB at q80.",
+          "mobile_impact": "Shares from phones — the primary viral channel for a visual poster site — can render with no thumbnail in WhatsApp/iMessage/Telegram, and crawlers on cellular-backed preview services fetch 1MB per unfurl.",
+          "fix": "Re-export og-preview.jpg at 1200x630, quality ~80 (target under 300KB); keep JPEG since og:image webp support is inconsistent.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "index.html:12 and :17 point og:image/twitter:image at /og-preview.jpg; public/og-preview.jpg is exactly 1,024,916 B and is 3042x1802 — oversized in both bytes and pixels versus the 1200x630 preview norm. WhatsApp's documented og:image handling caps around a few hundred KB, so a 1MB image is plausibly skipped; the byte evidence is exact and the interpretation is consistent with known messenger behavior."
+        }
+      ]
+    },
+    {
+      "dimension": "css-gpu",
+      "summary": "On a mid-range phone this app's compositing model is the core problem: a single full-viewport SVG that is fully re-rasterized every frame (attribute transforms + 13-layer vector redraws, no composited CSS transform anywhere), decorated with per-frame feGaussianBlur filters, mix-blend-mode isolation layers, and double-stroked labels, underneath 16 backdrop-filter glass surfaces that must re-blur whenever the chart repaints. A never-terminating rAF connection-dot animation keeps that chart repainting at 60fps even at idle, so the phone pays the full filter+blur+blend bill continuously, drains battery, and thermally throttles before the user even pinches. The two critical fixes (kill the idle animation loop, drop the full-screen mobile sidebar blur) are small; the structural fix — riding gestures on a composited transform while keeping labels full-rendered per the project's label requirement — is larger but is what will actually make pinch-zoom smooth.",
+      "findings": [
+        {
+          "title": "Perpetual rAF connection-dot animation keeps full-screen SVG repainting at 60fps forever",
+          "file": "src/main.js",
+          "line": 3997,
+          "severity": "critical",
+          "evidence": "animateConnections() self-schedules unconditionally (main.js:3908-3997), even when _animDisabled (3917-3922 still re-arms) and while _animPaused (per-dot attribute writes at 3958-3995 still run every frame). data.js defines 186 dots across 20 paths x CLUSTER_DOTS=5 = up to 930 <circle>s; at default zoom k=1 roughly 7 paths (zoomRange floors 0.8-1.5, data.js:293-593) are live, ~500 circles. Head dots of spectrum/evolution paths carry an feGaussianBlur filter (main.js:3936, filter def 453-459) and the whole group has mix-blend-mode:screen (main.js:496).",
+          "mobile_impact": "The chart layer is invalidated every single frame even at total idle, so the weak GPU re-rasters dot regions, re-runs Gaussian blurs, re-blends the screen group, AND every backdrop-filter control above the SVG re-snapshots and re-blurs its backdrop 60x/s. Constant CPU+GPU burn drains battery, heats the SoC, and thermal throttling makes the already-slow pinch/zoom even jankier.",
+          "fix": "Stop the loop (cancelAnimationFrame) when no path is visible, when _animDisabled, on document.hidden, and while the sidebar covers the chart; skip attribute writes when paused; cap the loop to 30fps on is-mobile; replace the per-dot feGaussianBlur with a radial-gradient fill or pre-blurred sprite.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "animateConnections (main.js:3908-3997) re-schedules rAF on every exit path (3910, 3921, 3997) and grep shows no cancelAnimationFrame or visibilitychange handler anywhere in main.js. The per-dot setAttribute block (3958-3995) is outside the !_animPaused guard at 3946, so cx/cy/r/opacity writes run every frame even while paused (and spectrum dots keep moving via timestamp in applyEmWave). data.js dotCounts sum to exactly 186; CLUSTER_DOTS=5 (3714) gives 930 max circles. connectionOpacity (3696-3711) shows paths when currentK >= zMin*0.5, so at k=1 the seven paths with floors 0.8/1.0/1.5 are live: 94 dots x 5 = 470 circles, matching the ~500 claim. conn-glow feGaussianBlur on head dots confirmed (3936, filter def 453-459) and lConnDots has mix-blend-mode:screen (496). Two trivial inaccuracies that don't change the verdict: there are 19 connection paths, not 20, and the _animDisabled branch (3917-3922) re-arms but performs no attribute writes, so that specific sub-case is nearly free."
+        },
+        {
+          "title": "Full-screen backdrop-filter blur on mobile sidebar over an always-animating chart",
+          "file": "src/style.css",
+          "line": 520,
+          "severity": "critical",
+          "evidence": "#sidebar has backdrop-filter: blur(12px) (style.css:520) and body.is-mobile #sidebar is width:100%/height:100% (style.css:1031-1035). Its background rgba(8,8,30,0.82) is already 82% opaque, so the blur is barely perceptible. The chart beneath keeps animating (connection-dot rAF loop never stops), so the backdrop changes every frame while the sidebar is open.",
+          "mobile_impact": "On a 390x844 @3x screen that is a ~2.96-megapixel backdrop snapshot + multi-pass 12px blur + composite, re-executed every frame the SVG beneath changes and on every frame of the sidebar's own translateX slide (style.css:517-518). This is the single largest fill-rate line item on the phone: roughly 10-12 Mpx of memory bandwidth per frame for an effect the 0.82-alpha background almost completely hides.",
+          "fix": "body.is-mobile #sidebar { backdrop-filter: none; background: rgba(8,8,30,0.97); } — keep the glass look on desktop only.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "style.css:520 has backdrop-filter: blur(12px) on #sidebar with background rgba(8,8,30,0.82) at 514. body.is-mobile #sidebar (1031-1035) sets width:100%/max-width:100vw; height:100% comes from the base rule at 513, so it is full-screen on mobile as claimed (minor citation imprecision only). The chart underneath keeps animating because the connection-dot rAF loop never stops (finding 1 confirmed), so the blurred backdrop is invalidated every frame while the sidebar is open."
+        },
+        {
+          "title": "Zoom/pan has no composited transform: SVG attr transform on tiles + full vector redraw per frame",
+          "file": "src/main.js",
+          "line": 4613,
+          "severity": "high",
+          "evidence": "During gestures only lTiles/lTilesBase get an SVG transform *attribute* (main.js:4612-4614) — the comment at 482-484 says lContent is \"CSS-transformed during zoom\" but no transform is ever applied to it; instead redrawVectorsLight() (4546-4569) rebuilds 13 layers of vectors every rAF (4617). SVG attribute transforms on inner <g> elements are repaint operations in Blink/WebKit, not compositor moves, so both full-viewport tile image layers are re-rastered at the new scale every frame.",
+          "mobile_impact": "Every pinch frame re-rasters ~2.96 Mpx of tile imagery (x2 layers) at DPR 3 plus all vectors on the main thread — the exact 'slow janky animation' users report, and it scales with DPR^2 so mid-range high-DPR phones fare worst. Nothing rides the compositor, so dropped frames are guaranteed whenever style/JS work exceeds ~16ms (it always does here).",
+          "fix": "During an active gesture, move the tile/region/decoration layers with a real CSS transform on a composited container (the <svg> element itself, an HTML wrapper div, or style.transform which Blink composites) and defer their re-render to gesture end. Keep the label/object layer full-rendering per frame as required (per project memory, labels must stay visible and not use the dots-only fast renderer) — it becomes affordable once tiles and filtered decorations stop re-rasterizing.",
+          "effort": "large",
+          "verdict": "confirmed",
+          "verdict_note": "In the zoom handler (main.js:4594-4621) only lTiles and lTilesBase receive the per-frame SVG transform attribute (4613-4614). Grep confirms lContent (created 484) never receives any transform anywhere in the file, despite the comment at 482-483 claiming it is 'CSS-transformed during zoom'. Instead redrawVectorsLight (4546-4569) is called every rAF (4617) and rebuilds 13 layers (regions, grid, density, triangle overlay, boundaries, eras, arrows, energy bands, dark matter, connections, region labels, objects, highlight) by remove-and-reappend. The claim that inner-<g> attribute transforms re-raster in Blink/WebKit is standard engine behavior; the code evidence is fully accurate."
+        },
+        {
+          "title": "feGaussianBlur 'line-glow' triangle is destroyed and re-filtered every zoom frame",
+          "file": "src/main.js",
+          "line": 775,
+          "severity": "high",
+          "evidence": "drawBoundaries() (called from redrawVectorsLight, main.js:4551) does lBound.selectAll('*').remove() then re-appends a stroke-width:6 triangle path spanning the whole chart with filter url(#line-glow) (main.js:772-775). The filter region is x/y -40%, w/h 180% (444-445) — 3.24x the path bbox — with feGaussianBlur stdDeviation 3 + feMerge (446-450). Because the node is recreated each frame, no filter result can be cached.",
+          "mobile_impact": "At default view the triangle bbox is the viewport, so the filter surface is up to ~9.6 Mpx at DPR 3, blurred in two passes plus a merge composite, every frame of every pinch/pan/tour transition. SVG filters on mobile GPUs (or CPU fallback in some browsers) make this one of the most expensive per-frame ops in the app for a static decorative glow.",
+          "fix": "Replace the filter with 2-3 stacked strokes of increasing width and decreasing opacity (visually identical glow, zero filter cost), or keep one persistent filtered node and only update its 'd' attribute on gesture end.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "drawBoundaries (main.js:762) starts with lBound.selectAll('*').remove() (763) and re-appends the full-chart triangle path with stroke-width 6 and filter url(#line-glow) (772-775). The filter def at 444-450 is x/y -40%, width/height 180% (1.8^2 = 3.24x bbox, arithmetic correct) with feGaussianBlur stdDeviation 3 plus feMerge. drawBoundaries is invoked from redrawVectorsLight (4551), which runs every gesture rAF (4617), so the filtered node is recreated per frame and no filter result can be reused."
+        },
+        {
+          "title": "16 backdrop-filter surfaces float over the constantly-repainting SVG, including one per preset button",
+          "file": "src/style.css",
+          "line": 498,
+          "severity": "high",
+          "evidence": "backdrop-filter appears 16 times: style.css:77, 95 (each of 4 #controls buttons), 117, 194, 211, 308, 332, 438, 451, 466, 498 (each of 8 #preset-bar buttons gets its own blur(10px) region), 520, 534 (blur(24px) on #sidebar-expand, always visible on mobile), 712; tour.css:87 (#tour-box blur(14px), ~368px x up-to-50vh, visible precisely during tour zoom animations) and 373 (#tour-start-btn). Only the tour.css pair has -webkit- prefixes, so most of these already silently no-op on pre-18 iOS Safari — proof the design survives without them.",
+          "mobile_impact": "Each element forces the engine to snapshot the backdrop, blur it, and composite — re-done whenever content beneath changes, which is every frame during zoom/pan and at idle (dot animation). On the mobile layout ~14 blur surfaces are live at once (8 preset buttons + 4 controls + expand + search); during the tour the near-full-width tour box re-blurs a ~1 Mpx device-pixel region every frame of the animated map transition.",
+          "fix": "On body.is-mobile, replace backdrop-filter with slightly more opaque solid backgrounds (the backgrounds are already 0.85-0.92 alpha). If glass is kept anywhere, put the blur on the single container (#preset-bar, #controls) instead of every button.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Grep finds exactly 16 backdrop-filter declarations at the cited lines: style.css 77, 95, 117, 194, 211, 308, 332, 438, 451, 466, 498, 520, 534, 712 plus tour.css 87 and 373. Line 95 is #controls button (4 buttons in index.html:82-85), line 498 is #preset-bar button (8 buttons in index.html:38-45), so per-button blur regions are real. 534 is #sidebar-expand blur(24px), shown whenever the sidebar is closed (541). tour.css:87 is #tour-box (width 340px + 40px padding, max-height 50vh — the ~368px figure is close). Only the tour.css pair has -webkit- prefixes; style.css has none, so those 14 indeed no-op on older WebKit."
+        },
+        {
+          "title": "Over-zoom applies CSS blur to every viewport-covering tile image during pinch",
+          "file": "src/main.js",
+          "line": 4177,
+          "severity": "high",
+          "evidence": "When overZoom > 1.5, every visible tile <image> gets style filter: blur(up to 4px) (main.js:4133, 4176-4178). During the next pinch these blurred images are additionally rescaled every frame via the SVG attr transform on lTiles (4613), forcing re-raster + re-blur of screen-covering images per frame.",
+          "mobile_impact": "A 4px CSS blur is a 12-device-pixel kernel at DPR 3 over ~2.96 Mpx of tile imagery, re-executed each gesture frame. Deep zoom is exactly where phone users pinch most, and it's where the frame budget is already blown by the full vector redraw — the blur is pure added fill-rate cost to hide pixelation that a 6-inch screen barely shows.",
+          "fix": "Skip the over-zoom blur when _isMobile (or when DPR >= 2), or pre-blur the deepest zoom level's tiles offline so the effect costs nothing at runtime.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "main.js:4133 computes blurPx = min(4, (overZoom-1)*0.7) when overZoom > 1.5, and 4176-4178 set style filter: blur(...) on every visible tile <image> appended in the loop. During gestures drawTiles is not re-run; instead lTiles gets the per-frame SVG attr transform (4613), so already-blurred screen-covering images are rescaled every frame, invalidating their raster (and filter output) at each new scale. With scaleExtent up to 800 and tile levels only z0-z5, the over-zoom branch is routinely reachable at deep zoom."
+        },
+        {
+          "title": "mix-blend-mode:screen on two SVG groups and inlined per icon image forces isolation layers every frame",
+          "file": "src/main.js",
+          "line": 496,
+          "severity": "medium",
+          "evidence": "lArrows and lConnDots groups get style mix-blend-mode:screen (main.js:495-496), and every icon <image> in 8 whole categories (SCREEN_CATS, 4516) gets it inline per element (2200, 4531). Icons are re-created from scratch each zoom frame by drawObjects(), so each frame the painter must allocate a transparency layer and read back the backdrop for each blended element.",
+          "mobile_impact": "Dozens of per-element blend isolations per frame during zoom on a fill-rate-bound GPU — each one is an offscreen texture + backdrop read + blend pass. Combined with the per-frame node churn, none of it is cacheable.",
+          "fix": "Bake the screen-blend look into the icon PNGs offline (screen over the near-black chart approximates additive lighten), keeping blend mode only on the two animated groups; or set the blend on the single lIcons group instead of per image.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "lArrows and lConnDots get .style('mix-blend-mode','screen') at main.js:495-496. Per-icon inline blend is set at 2200 (inside drawObjects) and 4531 (inside drawObjectsFast); SCREEN_CATS at 4516 lists exactly 8 categories. drawObjects wipes lIcons/lObj/lLabels (1785-1787) and re-creates every icon each call, and it runs every gesture frame via redrawVectorsLight (4564), so blended elements are fresh nodes each frame with no cacheable compositing state."
+        },
+        {
+          "title": "Permanent double full-screen tile layers plus two background rects guarantee 3-4x overdraw",
+          "file": "src/main.js",
+          "line": 479,
+          "severity": "medium",
+          "evidence": "lTilesBase permanently renders the z0 level under lTiles (main.js:479-480; drawBaseTiles 4186-4189 'permanent low-res background'), on top of a full-size black bg-rect inside the clip (476) and another full-W/H black rect on the svg root (471). All four cover the viewport at all times.",
+          "mobile_impact": "Every composite touches ~3-4x the viewport's ~2.96 Mpx (DPR 3) before any actual content, filters, or blends — pure wasted bandwidth on a fill-rate-bound GPU, paid on every frame of every animation.",
+          "fix": "Hide lTilesBase once the active level's visible tiles have decoded (img.decode() promise), and remove one of the two black rects (the svg-root rect already covers the clip area).",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "svg root gets a W x H black rect (main.js:471) and the clip group gets another cw x ch black bg-rect (476). lTilesBase is created at 479 as a 'permanent low-res background' and drawBaseTiles (4186-4188, comment at 4183-4185) always renders the z0 level under lTiles; grep shows lTilesBase is never hidden or pruned once higher-res tiles decode — its only togglable path is the user settings checkbox (_bgTilesEnabled, 5103). So over the tile-covered chart area there are two stacked full-coverage image layers over two black rects, as claimed."
+        },
+        {
+          "title": "Every object label painted twice with a 3px text stroke, rebuilt each zoom frame",
+          "file": "src/main.js",
+          "line": 2217,
+          "severity": "medium",
+          "evidence": "Each visible object gets two <text> nodes: a halo copy with stroke-width:3 stroke rgba(6,6,26,0.85) (main.js:2217-2226) plus a fill copy (2228-2236), each carrying 8+ presentation attributes. drawObjects() runs inside redrawVectorsLight() every gesture frame (4564), recreating up to ~360 text nodes (~180 objects) per frame, so glyph raster/stroke results are never cached.",
+          "mobile_impact": "SVG glyph-outline stroking is one of the slowest text paths; doubling every label and re-rasterizing all of them per frame at DPR 3 is a large share of the per-frame paint bill on a 4x-slower CPU, and it cannot be skipped because labels must stay visible during zoom (project requirement).",
+          "fix": "Use one <text> per label with paint-order: stroke (supported everywhere the app runs) to halve node count and raster passes, and move the shared font attributes into a CSS class to shrink per-frame style recalc.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "main.js:2217-2226 appends a halo <text> with stroke rgba(6,6,26,0.85), stroke-width 3, and 2228-2236 appends the fill copy — each with 8+ presentation attributes. drawObjects clears lLabels (1787) and re-appends per call, and both text nodes are created even when labels are hidden (display:none at 2216/2225/2235), which is worse than claimed. objects.json contains exactly 180 objects, so ~360 text nodes worst case. drawObjects runs every gesture frame via redrawVectorsLight (4564, comment at 4558-4563 mandates this per project memory)."
+        },
+        {
+          "title": "Body hidden until the last line of the 5600-line module, then double full-screen fade-in",
+          "file": "index.html",
+          "line": 23,
+          "severity": "medium",
+          "evidence": "body:not(.ready){opacity:0 !important} (index.html:23) and document.body.classList.add('ready') is literally main.js:5621, after all boot work. On reveal, body transitions opacity 0.15s (index.html:24) while #chart svg simultaneously runs a 0.8s fadeIn opacity animation (style.css:52-56).",
+          "mobile_impact": "On a 4x-slower CPU the user stares at a blank dark screen for the entire JS parse + execute + first render (plus the render-blocking Google Fonts CSS at index.html:20). Then the very first thing the GPU does is composite a full-viewport (~2.96 Mpx @3x) opacity animation for 0.8s while tiles and icons are still decoding — worst possible moment.",
+          "fix": "Add .ready as soon as the DOM shell exists (the page is dark-on-dark; there is no visible FOUC to hide), or drop the trick entirely; disable/shorten the #chart svg fadeIn under body.is-mobile.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "index.html:23 has body:not(.ready){opacity:0 !important} and 24 the 0.15s opacity transition on .ready. main.js is 5621 lines and document.body.classList.add('ready') is literally line 5621, after all synchronous boot work — so the page stays invisible until the entire JS bundle downloads, parses, and executes (the real mobile cost). On reveal, #chart svg simultaneously runs the fadeIn 0.8s animation (style.css keyframes 52-55, rule at 56), giving the claimed double fade."
+        },
+        {
+          "title": "Any resize (keyboard open, URL-bar collapse) resets zoom and triggers un-debounced full redraw",
+          "file": "src/main.js",
+          "line": 5222,
+          "severity": "medium",
+          "evidence": "window resize handler (main.js:5219-5227) calls applyLayout({resetZoom:true}) + redraw() on every event; sizing comes from window.innerWidth/innerHeight (285-286). On Android Chrome, focusing #search-input (keyboard) and URL-bar show/hide both change innerHeight and fire resize.",
+          "mobile_impact": "Opening search or a toolbar collapse silently throws away the user's zoom position (d3.zoomIdentity, 5208) and runs a full synchronous redraw of tiles + all vectors mid-interaction — both a jank spike and a rage-inducing UX bug unique to mobile viewport behavior.",
+          "fix": "Debounce the handler, ignore height-only changes below a threshold (or listen to visualViewport and only relayout on width/orientation change), and preserve the current zoom transform instead of resetting to identity.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "The resize listener (main.js:5219-5227) has no debounce and calls applyLayout({resetZoom:true}) plus redraw() on every event. The resetZoom branch (5207-5211) forces d3.zoomIdentity and currentK=1, discarding the user's zoom. measure() (284-286) reads window.innerWidth/innerHeight, both of which change on Android Chrome keyboard show (e.g. focusing #search-input) and URL-bar collapse, so a mid-exploration keyboard popup genuinely resets the view and forces a full redraw."
+        },
+        {
+          "title": "Layout-property transitions (left, width, padding) on fixed UI instead of transform",
+          "file": "src/style.css",
+          "line": 86,
+          "severity": "low",
+          "evidence": "#controls transitions left 0.3s (style.css:86-88), #scale-bar left (378-380), #preset-bar left (490-492), #search-input animates width and padding (452-453), #tour-header transitions left 0.1s (tour.css:31). Each runs main-thread layout + paint per frame; the sidebar itself correctly uses transform (517-518).",
+          "mobile_impact": "Mostly desktop-triggered (mobile overrides pin left at style.css:1065-1067), but the search-input width animation does run on mobile (1088-1091) and reflows during an already busy moment (keyboard opening). Main-thread animations stutter whenever the app is busy, which on this app is always.",
+          "fix": "Animate transform: translateX(...) on the containers instead of left; give #search-input a fixed width and reveal it with transform/clip-path.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "All cited rules exist: transition: left 0.3s on #controls (style.css:86), #scale-bar (378), #preset-bar (490); #search-input transitions width and padding (452, animated by #search-box.expanded at 455-458); tour.css:31 transitions left 0.1s on #tour-header; and #sidebar correctly uses transform (517-518). One mitigating caveat the finding misses: on mobile, body.is-mobile.sidebar-open (1065-1067) pins #controls/#scale-bar/#preset-bar left to their base values, so those three transitions rarely animate on phones — the mobile-relevant offender is mainly the #search-input width/padding animation. Evidence and interpretation are otherwise accurate; low severity is appropriate."
+        },
+        {
+          "title": "safe-area-inset handling missing on tour box, tour start button, scrubber and settings button",
+          "file": "src/tour.css",
+          "line": 430,
+          "severity": "low",
+          "evidence": "viewport-fit=cover is set (index.html:5) but only #sidebar/#controls/#preset-bar use env(safe-area-inset-*) (style.css:1025-1027). body.is-mobile #tour-box sits at bottom:54px (tour.css:430), #tour-start-btn bottom:54px (452), #scrubber-panel bottom:60px (style.css:109), #settings-btn bottom:100px (188) — all raw px.",
+          "mobile_impact": "On notched phones, especially landscape, the tour navigation buttons and scrubber can overlap the home-indicator/notch region, making the primary mobile CTA ('next' in the tour) harder to tap.",
+          "fix": "Add calc(54px + env(safe-area-inset-bottom, 0px)) to the bottom offsets of #tour-box, #tour-start-btn, #scrubber-panel and #settings-btn.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "viewport-fit=cover is set (index.html:5). env(safe-area-inset-*) appears only at style.css:1025-1027 (#sidebar padding-top, #controls and #preset-bar padding-bottom). The cited raw-px bottom offsets are all real: body.is-mobile #tour-box bottom:54px (tour.css:430), body.is-mobile #tour-start-btn bottom:54px (452), #scrubber-panel bottom:60px (style.css:109), #settings-btn bottom:100px (188). None of these composes in the bottom inset, so on notched/home-indicator phones they sit into the unsafe area as claimed."
+        }
+      ]
+    },
+    {
+      "dimension": "touch-ux",
+      "summary": "The app has a genuine JS-driven mobile layer (body.is-mobile below 768px) that enlarges the main chrome buttons to 44px, hides desktop-only widgets, and gives the tour swipe support — but the core interaction model is still mouse-first and breaks down on a phone. The worst offenders: any resize event (rotation, browser chrome, keyboard) hard-resets the zoom to the full-universe view, the iOS focus-zoom bug can leave the whole UI stuck scaled and misaligned with the invisible click-target overlay, objects are untappable for 500ms after every pan (with taps in that window deselecting instead), and map-content tap targets are 14-29px. A second tier of losses — no double-tap zoom or inertia, hover-only tooltips/axis units/density lines, and a full-screen detail panel that hides the map — makes the touch experience feel like a demoted port of the desktop poster rather than a mobile map in the Google Maps mold.",
+      "findings": [
+        {
+          "title": "Any window resize (rotation, browser chrome, keyboard) wipes the user's zoom position",
+          "file": "src/main.js",
+          "line": 5222,
+          "severity": "critical",
+          "evidence": "The window resize listener (src/main.js:5219-5227) calls applyLayout({ resetZoom: true }), and applyLayout (src/main.js:5207-5211) responds by calling svg.call(zoomBehavior.transform, d3.zoomIdentity) and resetting currentK = 1. This is unconditional — every resize event discards the current transform. A center/scale-preserving path already exists in the codebase: relayout() (src/main.js:2974-2998) saves centerLogR/centerLogM/savedK and re-applies them, but it is only used for desktop sidebar toggles and margin drags.",
+          "mobile_impact": "Mobile browsers fire resize constantly where desktops don't: device rotation (natural for a wide triangle-shaped map), iOS Safari toolbar collapse/expand, entering/leaving split screen, and on many Android browsers the soft keyboard opening (e.g. tapping the search button). A user who spent a minute pinch-navigating from the universe down to a proton rotates their phone and is thrown back to the full 60-decade overview with no way to return except redoing the whole navigation. This alone makes deep exploration on a phone feel futile.",
+          "fix": "In the resize handler, replace applyLayout({ resetZoom: true }) with the relayout() approach: capture xS.invert(cw/2), yS.invert(ch/2) and currentK before measure(), then re-apply the equivalent transform for the new cw/ch after layout. Only reset to identity when the map was already at identity.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "src/main.js:5219-5227 resize listener unconditionally calls applyLayout({resetZoom:true}); applyLayout at 5207-5211 does svg.call(zoomBehavior.transform, d3.zoomIdentity), resets xS/yS to base copies and currentK=1. relayout() at 2974-2998 does exactly the center/scale-preserving re-apply claimed, and grep shows it is invoked only from setSidebarOpen (2971, gated !_isMobile). One nit: margin drags actually use window.__applyLayout({resetZoom:true}) (5463, 5484), not relayout — but that only makes the finding's core claim stronger: no resize path preserves the transform."
+        },
+        {
+          "title": "12px search input triggers iOS Safari auto-zoom, and touch-action:none leaves the page stuck zoomed",
+          "file": "src/style.css",
+          "line": 449,
+          "severity": "high",
+          "evidence": "#search-input is font-size: 12px (src/style.css:449). iOS Safari zooms the page viewport when an input with computed font-size < 16px receives focus (the viewport meta at index.html:5 has no maximum-scale, so focus-zoom is active). Meanwhile #chart and its SVG — which cover the entire screen — declare touch-action: none (src/style.css:62-64), so once Safari has scaled the page there is no surface left on which the user can pinch the *page* back out: pinches over the chart are consumed by d3.zoom.",
+          "mobile_impact": "On any iPhone, tapping search zooms the whole UI ~1.33x. Fixed-position controls shift, part of the UI moves off-screen, and the #click-targets overlay divs (positioned in pre-zoom page coordinates, src/main.js:4323-4331) no longer line up with the rendered SVG objects, so taps select the wrong object or nothing. After closing search the page frequently stays zoomed with no recovery gesture available.",
+          "fix": "Set font-size: 16px on #search-input (at least within body.is-mobile). This is the standard, complete fix for iOS focus-zoom; keep the visual size with transform or padding if 16px looks large.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "#search-input font-size:12px at src/style.css:449 with no body.is-mobile font-size override (mobile block only widens it, 1088-1091). index.html:5 viewport meta has no maximum-scale, so iOS focus-zoom on <16px inputs is active. #chart (absolute inset:0, full screen) and its svg have touch-action:none (style.css:60-64). Only small fixed buttons get touch-action:manipulation (1017-1021), so there is no practical surface to pinch the page back out. Mechanism and evidence are real."
+        },
+        {
+          "title": "Objects are untappable for 500ms after every pan/zoom, and taps in that window deselect instead of select",
+          "file": "src/main.js",
+          "line": 4308,
+          "severity": "high",
+          "evidence": "Click handling exists ONLY on HTML overlay divs (per the design comment at src/main.js:4263-4296 — 'DO NOT re-add click handlers to SVG elements'). clearClickTargets() runs on zoom start (src/main.js:4590) and the overlay is rebuilt only via setTimeout(updateClickTargets, 500) after zoom end (src/main.js:4305-4309, 4631). During that gap a tap lands on the bare SVG, where the document-level click handler (src/main.js:3259-3280) interprets any click inside #chart that is not inside #click-targets as 'empty space' and closes the sidebar / clears the selection.",
+          "mobile_impact": "On touch, essentially every interaction is preceded by a pan or pinch, so the 500ms dead window is hit constantly. The observed behavior on a phone: pan a little to line an object up, immediately tap it — nothing selects, and if a panel was open it closes instead. This reads as 'taps randomly don't work', one of the most damaging perceptions possible for a touch app. Programmatic transitions (tour, presets, 2-3s durations per _calcZoomDuration at src/main.js:4778-4789) extend the dead time further.",
+          "fix": "Shorten the debounce to ~100ms on touch, and add a fallback: on click on the bare SVG, hit-test _lastProjected (already cached at src/main.js:2269) against the tap point with a generous radius and open the nearest object; only treat it as empty-space deselect when nothing is within range. This keeps the overlay architecture intact.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "clearClickTargets() runs in zoomBehavior 'start' (src/main.js:4590); 'end' calls scheduleClickTargets (4631) which clears and setTimeout(updateClickTargets, 500) (4305-4309). Click handling lives only on the overlay divs (design comment 4263-4296). Document-level click handler at 3259-3286: any click inside #chart not inside #click-targets clears selectedObj and closes the sidebar. d3-zoom only suppresses clicks after pointer movement, so a stationary tap in the 500ms gap fires a click on bare SVG and deselects, exactly as claimed."
+        },
+        {
+          "title": "Object tap targets are 14px for dots and ~29px for icons at default zoom — far below the 44pt minimum",
+          "file": "src/main.js",
+          "line": 4320,
+          "severity": "high",
+          "evidence": "updateClickTargets sizes each overlay div to baseIco * iconSizeMult(o) when an icon exists, else a hard-coded 14px (src/main.js:4316-4320). effectiveIconSize() (src/main.js:103-109) returns minSize 14 → ~29px at k=1, only reaching larger sizes when deeply zoomed. Label targets are the text bbox +4px of an 11px-ish SVG font (src/main.js:4383-4386). Only the chrome buttons get 44px via body.is-mobile rules (src/style.css:1037-1058); the map content — the actual point of the app — does not.",
+          "mobile_impact": "Apple HIG / Android guidance is 44pt / 48dp minimum. A 14px circle is roughly a third of a fingertip; on a 390px-wide screen showing 180 objects, selecting a specific dot without an icon is near-impossible, and mis-taps hit the empty-space deselect path (src/main.js:3273-3280). Users conclude objects simply aren't tappable.",
+          "fix": "In updateClickTargets, clamp the div size: size = Math.max(size, _isMobile ? 44 : size). Ties within overlapping 44px targets can be resolved by picking the nearest object center on click.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "updateClickTargets sizes divs to baseIco*iconSizeMult(o) if icon else hard-coded 14 (src/main.js:4315-4320). effectiveIconSize (103-109): minSize 14 at k=0.3; at k=1 computes to ~29.4px. Label targets are getBBox +4px of 10px SVG text (4380-4386, font-size 10 at 2221). No CSS min-size on .click-target (style.css:8-13). 44px mobile sizing exists only for chrome buttons (style.css:1037-1058, 1083-1086). All numbers verified."
+        },
+        {
+          "title": "No double-tap zoom and no inertial pan on touch — gesture parity with any mobile map is missing",
+          "file": "src/main.js",
+          "line": 4643,
+          "severity": "medium",
+          "evidence": "d3's built-in double-tap zoom is disabled (svg.on(\"dblclick.zoom\", null), src/main.js:4640 — d3-zoom's touchended dispatches double-taps through that exact listener name), and the replacement dblclick handler explicitly early-returns on mobile: if (_isMobile) return; (src/main.js:4643). d3.zoom provides no pan inertia, and none is added. The only zoom affordances on touch are two-finger pinch and the +/- buttons (src/main.js:5068-5071).",
+          "mobile_impact": "Google Maps muscle memory — double-tap to zoom in, two-finger tap to zoom out, double-tap-drag for one-handed zoom, flick to coast — all do nothing here. One-handed use (thumb only, phone in one hand) cannot zoom the map surface at all; traversing this map's 60+ orders of magnitude via repeated 1.4x button taps takes dozens of presses. Panning stops dead the instant the finger lifts, which reads as jank even when the frame rate is fine.",
+          "fix": "Remove the _isMobile early-return and implement touch double-tap (track last tap time/position on pointerup, pointerType 'touch') calling the existing 2.5x zoom transition; optionally add two-finger-tap zoom-out and a simple velocity-based inertia on zoom end.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "svg.on('dblclick.zoom', null) at src/main.js:4640; replacement dblclick handler early-returns if (_isMobile) at 4643 (_isMobile = width<768, line 239-241). Verified in node_modules/d3-zoom/src/zoom.js:386-390 that touch double-taps are rerouted to the 'dblclick.zoom' listener — nulling it kills touch double-tap zoom exactly as claimed. No inertia code exists; only pinch and the +/- buttons (5068-5073) zoom on touch."
+        },
+        {
+          "title": "Hover-only features (axis unit tooltip, density lines, dark-matter highlight, object tooltips) have no touch equivalent",
+          "file": "src/main.js",
+          "line": 2789,
+          "severity": "medium",
+          "evidence": "The axis tooltip with unit conversions and reference lines is driven solely by svg.on(\"mousemove.axisTooltip\") / mouseleave (src/main.js:2789-2807). Density lines are revealed only via .on(\"mouseenter\")/.on(\"mouseleave\") on their SVG hit areas (src/main.js:3861-3878). Dark-matter regions highlight on mouseover/mouseout (src/main.js:1249-1274). Object tooltips fire from mouseenter on click-target divs (src/main.js:4341-4351). None of these have a tap, long-press, or persistent-UI alternative; mouse events on these SVG elements are never emulated by taps that land on the overlay divs above them.",
+          "mobile_impact": "A meaningful slice of the app's content — reading a mass in Solar Masses off the axis, discovering the constant-density diagonals, previewing an object's stats without committing to the full-screen sidebar — is simply absent on every touchscreen. Touch users don't even know these features exist.",
+          "fix": "Gate on matchMedia('(hover: none)'): make a tap on the axis margins open the axis tooltip at that coordinate (dismiss on next map interaction), give density lines/dark-matter regions tap targets in the overlay layer, and accept that the object tooltip is superseded by the sidebar on touch.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "All four cited sites verified: axis tooltip driven solely by svg.on('mousemove.axisTooltip')/mouseleave (src/main.js:2789-2807); density-line hit paths have only mouseenter/mouseleave, no click (3861-3881); dark-matter highlight toggles on mouseover/mouseout (1250-1251, 1273-1274); object tooltips fire from overlay-div mouseenter (4341-4351). Minor caveat: dm regions do have a click handler opening the info panel (1252-1256), so the underlying info is tap-reachable — but the highlight itself, and the other three features, are hover-only as claimed."
+        },
+        {
+          "title": "Tapping an object leaves a stuck tooltip and a permanently inflated icon (emulated mouseenter without mouseleave)",
+          "file": "src/main.js",
+          "line": 4341,
+          "severity": "medium",
+          "evidence": "Mobile browsers synthesize mouseenter before click on tap. The click-target mouseenter handler (src/main.js:4341-4351) inflates the icon to Math.max(64, ...) px and calls showTooltip; the reversal lives only in mouseleave (src/main.js:4353-4364), which on touch does not fire until some other element receives a synthesized hover. The tooltip (#tooltip, z-index 20, src/style.css:305-313) sits below the mobile full-screen sidebar (z-index 25, src/style.css:511-516), so it is hidden while the sidebar is open and reappears, stranded at the old tap position, when the sidebar closes.",
+          "mobile_impact": "After every object tap on a phone, closing the detail panel reveals a stale floating tooltip and an oversized icon frozen at >=64px. It looks broken and the stale tooltip covers other objects until the user happens to tap something else that hosts hover handlers.",
+          "fix": "In the click-target handlers, skip the hover-grow and showTooltip when the triggering event is touch-derived (matchMedia('(hover: none)') or last pointerType === 'touch'); also call hideTooltip() inside the click handler and in setSidebarOpen(true).",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Click-target mouseenter (src/main.js:4341-4351) inflates icon to Math.max(64,...) and calls showTooltip; the only reversal is mouseleave (4353-4364); the click handler (4334-4339) never calls hideTooltip. #tooltip is z-index 20 (style.css:305-313), below #sidebar z-index 25 (516), which is 100% width on mobile (1031-1035); setSidebarOpen skips relayout/redraw on mobile (2971) so nothing clears the tooltip when the sidebar closes. 'Permanently' is slightly overstated — the next pan/zoom redraw resets icon size and removes the div — but until the user pans, the stuck state is real."
+        },
+        {
+          "title": "Full-screen sidebar completely hides the map on mobile — no bottom-sheet or peek state",
+          "file": "src/style.css",
+          "line": 1031,
+          "severity": "medium",
+          "evidence": "body.is-mobile #sidebar is width: 100%, height: 100% (src/style.css:1031-1035 with base rules at 511-521, z-index 25). Every object tap calls openSidebar + setSidebarOpen(true) (src/main.js:4334-4339), and loading a shared URL with a slug does the same at boot (loadHash, src/main.js:5549-5556). setSidebarOpen skips relayout on mobile (src/main.js:2971), so the chart neither resizes nor shows the selection.",
+          "mobile_impact": "Google Maps shows a place card as a partial bottom sheet so the map and the selection stay visible together. Here every tap teleports the user into a full-screen text page, severing the visual link between the object and its position on the triangle — which is the entire premise of the app. Users arriving from a shared link see a wall of text before ever seeing the map. Browsing several objects becomes an open/read/close/re-find loop.",
+          "fix": "On mobile, render the object panel as a draggable bottom sheet (~40% peek height, expandable to full) instead of a 100%x100% overlay, keeping the tapped object visible above it (the tour already offsets the camera for its bottom box — reuse that logic from zoomToRegion, src/main.js:4743-4757).",
+          "effort": "large",
+          "verdict": "confirmed",
+          "verdict_note": "body.is-mobile #sidebar { width:100%; max-width:100vw } (style.css:1031-1035) on top of base height:100%, z-index:25 (511-521). Every overlay-div click calls openSidebar+setSidebarOpen(true) (src/main.js:4334-4339); loadHash with a slug does the same at boot (5550-5556); setSidebarOpen gates relayout with !_isMobile (2971) so the chart neither resizes nor recenters. All evidence checks out."
+        },
+        {
+          "title": "viewport-fit=cover but the top-edge controls have no safe-area padding (notch/Dynamic Island overlap)",
+          "file": "src/style.css",
+          "line": 1025,
+          "severity": "medium",
+          "evidence": "index.html:5 opts into viewport-fit=cover, but only three elements compensate: #sidebar padding-top, #controls and #preset-bar padding-bottom (src/style.css:1025-1027). #search-box is fixed at top: 14px (src/style.css:430), #sidebar-expand at top: 12px (src/style.css:526), and the mobile tour header at top: 80px only by luck (tour.css:397-404). Nothing handles safe-area-inset-left/right, yet #controls sits at left: 14px (src/style.css:84).",
+          "mobile_impact": "On notched/Dynamic Island iPhones in portrait the safe top inset is 47-59px, so the search button and the sidebar-expand button render partially under the status bar/island — clipped visuals and taps swallowed by system UI. In landscape (the natural orientation for this wide map) the zoom controls sit inside the left notch inset.",
+          "fix": "Add top: calc(14px + env(safe-area-inset-top)) to #search-box and #sidebar-expand (and #settings-btn/#readout bottoms), plus left/right env() offsets on #controls and #preset-bar for landscape.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "index.html:5 has viewport-fit=cover. Grep over all CSS confirms exactly three safe-area rules: #sidebar padding-top, #controls and #preset-bar padding-bottom (style.css:1025-1027). #search-box top:14px (430), #sidebar-expand top:12px (526), mobile tour header top:80px (tour.css:397-404), #controls left:14px (84). No safe-area-inset-left/right anywhere in the codebase."
+        },
+        {
+          "title": "Preset bar overflows to ~2x screen width with hidden scrollbar and no overflow affordance; 27px-tall buttons",
+          "file": "src/style.css",
+          "line": 1070,
+          "severity": "low",
+          "evidence": "The 8 preset buttons (index.html:37-46, labels up to 'Particle Physics'/'Astrophysics') at 11px font + 6px/10px padding (src/style.css:1077-1081) total roughly 700px — nearly double a 390px viewport. Mobile CSS makes the bar overflow-x: auto but explicitly hides the scrollbar (scrollbar-width: none, ::-webkit-scrollbar display: none, src/style.css:1070-1076) and adds no fade/gradient edge hint. Button height computes to ~27px, below the 44pt guideline.",
+          "mobile_impact": "A phone user sees 3-4 category buttons ending cleanly at the screen edge and has no cue that Geology, Astrophysics and Cosmology exist — roughly half the app's curated entry points are undiscoverable. The short buttons are also fiddly to hit directly above the home-indicator area.",
+          "fix": "Add a right-edge fade gradient (mask-image or an overlay pseudo-element) signaling more content, let the last button peek half-cut at the viewport edge (padding-right trick), and bump mobile button padding to reach ~40px height.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "8 buttons incl. 'Particle Physics'/'Astrophysics' (index.html:37-46); mobile: flex-wrap:nowrap, overflow-x:auto, scrollbar-width:none and ::-webkit-scrollbar display:none (style.css:1070-1076), 11px font + 6px/10px padding (1077-1081), no fade/gradient hint. Estimated total width ~600-700px vs 390px viewport — '~2x' is at the generous end (~1.6-1.8x by my estimate) but materially correct. Height ≈ 13px text + 12px padding + 2px border ≈ 27px as claimed."
+        },
+        {
+          "title": "Secondary controls (time-scrubber thumb, scrubber close, settings sliders/checkboxes, tour dots) are sub-24px touch targets",
+          "file": "src/style.css",
+          "line": 158,
+          "severity": "low",
+          "evidence": "Time-scrubber range thumb is 16x16px on a 4px track (src/style.css:158-168) and #scrubber-close is 22x22px (src/style.css:124-127) — this is the primary drag control of the whole time-travel feature. Settings panel: 14px checkboxes (src/style.css:230-231), 12px range thumb on a 3px track (src/style.css:287-292), 11-12px labels — with no body.is-mobile overrides (only the button gets 44px at src/style.css:1083-1086). Tour step dots are 6x6px clickable buttons (tour.css:317-324; click handler tour.js:110) and #tour-close is 24x24px (tour.css:107-124). Search result rows are ~26px tall (6px padding, 11px font, src/style.css:470-472).",
+          "mobile_impact": "Dragging the cosmic-time slider — a flagship feature — requires landing a finger on a 16px thumb; misses either do nothing or start on the track. Settings toggles take multiple attempts. Tour dots are effectively decorative on touch (swipe and 44px prev/next do exist, tour.js:436-455, tour.css:439-447, which mitigates that one).",
+          "fix": "Under body.is-mobile: enlarge the scrubber thumb to 28px with a taller invisible hit area (input height 44px), make scrubber-close and tour-close 44px, give .setting-check rows 44px min-height with full-row tap, and pad .search-item to 44px.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "All cites verified: 16x16 scrubber thumb on 4px track (style.css:153-168), #scrubber-close 22x22 (124-127), 14x14 setting checkmarks (230-231), 12px settings range thumb on 3px track (282-292), only #settings-btn gets a mobile 44px override (1083-1086), tour dots 6x6 with click handler (tour.css:317-326, tour.js:110 — they are spans, not <button>, a trivial detail), #tour-close 24x24 (tour.css:107-124), .search-item 6px padding/11px font ≈ 26-28px rows (470-472)."
+        }
+      ]
+    },
+    {
+      "dimension": "startup-path",
+      "summary": "The startup path is desktop-shaped and hits a mid-range phone three times at once: nothing paints until the entire 360KB (114KB gz) bundle executes and builds the scene twice (body is opacity-gated until the module's last line), the boot then immediately plays a 3-second zoom animation that tears down and rebuilds the whole SVG DOM — including ~360 stroked text nodes — every frame, and module evaluation simultaneously fires ~260 network requests (130 icon chunks + ~1.2MB of webp, despite a comment claiming ~70KB). A permanent rAF loop with per-frame feGaussianBlur dots keeps the CPU/GPU busy forever afterward. KaTeX is already correctly code-split and the tile pyramid is small and well-leveled, so the fixes are mostly about deferral, batching icons, un-gating first paint, and adding a service worker for repeat visits — not re-architecting.",
+      "findings": [
+        {
+          "title": "First paint is gated on executing the entire 360KB main bundle (blank screen; blank forever on JS error)",
+          "file": "src/main.js",
+          "line": 5621,
+          "severity": "critical",
+          "evidence": "index.html:21-25 inlines `body:not(.ready){opacity:0!important}` and the only thing that adds `.ready` is `document.body.classList.add(\"ready\")` at the very last line (5621) of the 5,621-line module. Before that line runs, the module synchronously: parses/executes dist/assets/index-DaavPvX1.js (360,162 B raw / 114,212 B gzip), builds the full SVG scene, and fires the initial zoom transform at line 5603 (`svg.call(zoomBehavior.transform, ...)` at k=14), which synchronously invokes the zoom 'end' handler's full redraw() (line 4628) — a second complete scene build. dist/index.html has no preload hints beyond the fonts preconnect. If any exception is thrown mid-module, `.ready` never fires and the page is permanently invisible.",
+          "mobile_impact": "On a ~4x-slower CPU, 360KB of JS parse+execute plus two full D3 scene constructions is easily 1.5-3s of main-thread work stacked on top of the 4G fetch of a 114KB gzip bundle — during which the user sees literally nothing, not even the static HTML chrome (title, buttons, search box) that is already parsed. Older Android browsers that throw on any newer syntax get a permanent black page.",
+          "fix": "Gate only #chart behind `.ready` (or use a skeleton/splash), let the static HTML UI paint immediately, add a `setTimeout` fallback that adds `.ready` after ~3s, and move `document.body.classList.add(\"ready\")` before the boot section (or wrap boot in try/finally). Longer term, split the module so first paint needs only scaffolding + one render.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Verified: index.html:21-25 inlines body:not(.ready){opacity:0!important}; main.js is exactly 5,621 lines and document.body.classList.add(\"ready\") is the literal last line (5621) with no try/finally or timeout fallback, so any module-eval exception leaves the page permanently invisible. Bundle sizes are exact (dist/assets/index-DaavPvX1.js = 360,162 B raw, 114,212 B gzip). dist/index.html has only the two fonts preconnects — no preload/modulepreload. Line 5603 svg.call(zoomBehavior.transform, ...) synchronously emits start/zoom/end, and the end handler (main.js:4628) calls the full redraw(). One nit: I found no earlier top-level full scene build during module eval (only scaffolding/defs), so this transform-triggered redraw appears to be the FIRST full build, not a 'second' one — the zoom handler's rAF light-redraw is skipped because _zooming is false by then (main.js:4605). That detail overstates the work slightly but does not change the finding."
+        },
+        {
+          "title": "Boot intro animation runs 3 seconds of full SVG DOM teardown/rebuild every frame",
+          "file": "src/main.js",
+          "line": 5607,
+          "severity": "critical",
+          "evidence": "Lines 5598-5611: unconditionally (mobile included) the app starts at k=14 and runs a 3000ms d3 transition to k=1. Every rAF frame the zoom handler calls redrawVectorsLight() (line 4617), which invokes 15 draw functions that each do `selectAll(\"*\").remove()` + full rebuild (20+ teardown sites: lines 553, 661, 763, 915, 1237, 1361, 1477, 1713, 1785-1787, 3293, 3318, 3775...). drawObjects alone rebuilds ~180 objects with per-object closures (lines 2239-2267) and appends TWO stroked `<text>` nodes per object — halo stroke-width:3 + fill (lines 2217-2236) — even for labels that are `display:none`, i.e. ~360 text nodes per frame, plus O(n²) clustering BFS (1856-1871).",
+          "mobile_impact": "Rebuilding hundreds of SVG nodes (including stroked, letter-spaced text rasterized at DPR~3) per frame is 50-150ms/frame on a mid-range Android → the very first thing a mobile user experiences is a ~7-15fps janky 3-second animation, exactly matching the 'slow/janky animations' complaint. It also overlaps the icon/tile/font network burst.",
+          "fix": "On mobile (or always), skip the intro transition or run it as a CSS/attribute transform of the already-rendered `lContent` group (the code already does exactly this for tiles at lines 4607-4614), doing one full render at the end. Independently: don't append label text nodes whose display is 'none', and attach hover handlers only on non-touch devices.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "Verified: main.js:5598-5611 has no mobile guard — intro starts at k=14 and runs a 3000ms d3 transition to identity whenever there is no URL hash. The zoom handler (4600-4620) rAF-throttles to one redrawVectorsLight() per frame (4617), which calls 15 draw/update functions (4546-4569); all cited selectAll(\"*\").remove() teardown sites exist at 553, 661, 763, 915, 1237, 1361, 1477, 1713, 1785-1787, 3293, 3318, 3775. drawObjects appends TWO stroked <text> nodes per rendered object (halo stroke-width 3 at 2217-2226 + fill at 2228-2236) even when labelDisplay is \"none\" (2216), plus per-object mouseenter/mouseleave closures (2239-2267), and runs the O(n²) BFS clustering at 1856-1871. objects.json has exactly 180 objects. Nit: labels are appended only for on-viewport objects with _showDot=true (1818-1823, 2163), so '~360 text nodes per frame' is the end-of-zoom-out figure; early intro frames build fewer. The tiles-CSS-transform precedent at 4607-4614 is real. Note the comment at 4558-4563 (backed by user memory) forbids swapping in the dots-only fast renderer during zoom — any fix must keep labels rendered."
+        },
+        {
+          "title": "All 130 icons eagerly fetched at module load: ~260 requests / 1.2MB, not the claimed ~70KB",
+          "file": "src/main.js",
+          "line": 94,
+          "severity": "high",
+          "evidence": "Line 94: `Promise.all(Object.keys(ICON_BY_SLUG).map(s => getIconUrl(s)))` fires a dynamic import for every icon at module evaluation. The comment on line 93 says '~70KB total' but content/icons/*.webp is 1.2MB across 130 files. Each import.meta.glob entry is its own chunk: dist/assets holds 244 tiny non-index JS files totaling 169,441 B; 40 of them embed base64 data URIs (+33% size), the rest chain a second request for the .webp. When all resolve it triggers yet another full redraw() (line 95).",
+          "mobile_impact": "~130 module requests plus ~90 image requests and ~1.2MB on a 4G radio, launched at boot, competing with the render-critical bundle, fonts, tiles/meta.json and the intro animation's CPU work. Request-count overhead (radio wake, HTTP/2 stream scheduling) dominates on flaky mobile networks.",
+          "fix": "Pack icons into one spritesheet webp (or a few, by zoom tier) fetched as a single request; or preload only icons visible in the current viewport/zoom and fetch the rest via requestIdleCallback. Fix the stale '~70KB' comment.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "Verified: main.js:94 Promise.all over every ICON_BY_SLUG key fires all icon dynamic imports at module evaluation, then triggers another full redraw() (line 95); comment at line 93 says '~70KB total' while content/icons holds exactly 130 .webp files totaling 1.2MB (du). dist/assets has exactly 244 non-index, non-katex JS chunks totaling exactly 169,441 B; 40 of them embed data:image base64 URIs; a sample chunk is just `const e=\"/assets/...webp\";export{e as default}` confirming the chunk-then-webp two-request chain. Nit: startup request count is closer to ~220 (≈130 chunk fetches + ≈90 non-inlined webp fetches) than ~260 — same order of magnitude, and the 244-chunk total includes lazy sidebar-image loader chunks that do NOT fetch at startup. The core claim (all icon bytes ~1.2MB pulled eagerly at boot, stale ~70KB comment) is correct."
+        },
+        {
+          "title": "Connection-dot animation runs an unstoppable requestAnimationFrame loop from boot, with per-frame SVG blur filters",
+          "file": "src/main.js",
+          "line": 3771,
+          "severity": "high",
+          "evidence": "initConnections() (called at boot, line 5575) starts animateConnections at line 3771; the loop (3908-3997) unconditionally re-queues itself every frame forever — even when `_animPaused` or `_animDisabled` it still runs and re-queues (3917-3922, 3997). data.js defines 186 dots across 19 paths; each dot renders CLUSTER_DOTS=5 circles (up to 930 elements) with ~5 setAttribute calls per circle per frame, and head dots get `filter=\"url(#conn-glow)\"` (line 3936), an feGaussianBlur (lines 453-459) re-rasterized every frame.",
+          "mobile_impact": "The page never goes idle: continuous rAF work burns battery and steals frame budget from pinch-zoom/pan on a weak CPU, and per-frame feGaussianBlur rasterization is brutal on a fill-rate-bound mobile GPU. This runs even when zero connection paths are visible at the current zoom.",
+          "fix": "Cancel the rAF (don't re-queue) when no `cp._visible` path exists, when `_animDisabled`, or when document.hidden; restart it from drawConnections()/visibilitychange. Replace the feGaussianBlur on animated dots with a pre-blurred radial-gradient fill. Consider disabling the animation entirely below a viewport-width threshold.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Verified: initConnections() called at boot (main.js:5575) starts the rAF at 3771; animateConnections (3908-3997) re-queues itself unconditionally at 3910, 3921 and 3997 — including when _animDisabled (3917-3922). When _animPaused only dot advancement stops (3946); the per-dot setAttribute loop (3958-3995: cx, cy, r, fill, opacity per circle) still runs every frame, and applyEmWave uses the timestamp so positions keep changing. data.js has exactly 19 dotCount entries totaling 186 dots; CLUSTER_DOTS=5 (3714) → up to 930 circles. Head dots of spectrum/evolution paths get filter=url(#conn-glow) (3936), an feGaussianBlur stdDeviation 2 with 400% filter region defined at 453-459, re-rasterized as cx/cy change each frame. Paths with zoomRange [0.8,800] and [1.5,800] are visible at the default k=1 view (connectionOpacity, 3696-3712), so filtered dots are live from boot."
+        },
+        {
+          "title": "Render-blocking third-party Google Fonts CSS loading 7 font faces",
+          "file": "index.html",
+          "line": 20,
+          "severity": "medium",
+          "evidence": "Line 20 loads fonts.googleapis.com/css2 with Inter 300;400;500;600;700 + Space Mono 400;700 as a plain render-blocking stylesheet (same in dist/index.html:20). The SVG chart labels use only Inter 600 (main.js:2052, 2220); Space Mono is decorative UI. The blocking chain is DNS+TLS to fonts.googleapis.com, then separate fetches from fonts.gstatic.com for each face/unicode-range.",
+          "mobile_impact": "On flaky 4G the third-party CSS adds a full connection setup to the critical rendering path before anything paints (compounding the body-hidden gate), and 7 faces means several woff2 downloads competing with the 114KB bundle and 130 icon requests. Late-arriving Inter also causes label relayout/repaint of the SVG text.",
+          "fix": "Self-host the 2-3 actually-used woff2 files in /public, declare them via inline @font-face with font-display:swap, and add <link rel=\"preload\" as=\"font\"> for Inter 600. Delete the Google Fonts stylesheet link.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Verified: index.html:20 (and dist/index.html:20 identically) load fonts.googleapis.com/css2 with Inter 300;400;500;600;700 + Space Mono 400;700 (7 faces) as a plain render-blocking stylesheet; only preconnects, no font preloads. main.js:2052 and 2220/2231 do use Inter 600 for labels. One overstatement: 'SVG chart labels use only Inter 600' is wrong — main.js SVG text also sets font-weight 400 (x3), 500 (x2), 700 (x4) and 800 (x1), and style.css uses weights 300-700 plus Space Mono in 13 rules, so the used-face set is larger than 2-3. The core evidence (blocking third-party CSS chain on the critical path) stands; only the fix's face count is off."
+        },
+        {
+          "title": "No service worker: repeat visits re-fetch tiles, icons, and fonts",
+          "file": "index.html",
+          "line": 151,
+          "severity": "medium",
+          "evidence": "grep for serviceWorker/workbox/registerSW across src/, index.html, public/ returns zero hits; there is no manifest and no vite.config. Tile URLs are unhashed (/tiles/z{z}/tile_{c}_{r}.webp, main.js:4159, 4220) as is /tiles/meta.json (main.js:4239), so their caching depends entirely on server headers, and no headers config exists in the repo. Tile pyramid is small: z0=4KB, z1=12KB, z2=28KB, z3=108KB, z4=396KB, z5=1.8MB.",
+          "mobile_impact": "A map-style app is exactly the workload service workers were built for: a returning mobile user on 4G re-pays the ~1.5MB / ~280-request startup (bundle, 130 icon chunks, tiles, fonts) instead of an instant offline-first load; every deploy also invalidates the hashed main bundle.",
+          "fix": "Add vite-plugin-pwa: precache the app shell, fonts, all icons, meta.json and tile levels z0-z3 (~150KB total), with runtime cache-first for z4/z5 tiles and sidebar images.",
+          "effort": "medium",
+          "verdict": "confirmed",
+          "verdict_note": "Verified: grep for serviceWorker/workbox/registerSW across src/, index.html, public/ returns 0 hits; no vite.config.* exists; no web app manifest and no hosting headers config (public/ has only CNAME, imgs, og, tiles, two static files — CNAME implies GitHub Pages, whose cache headers the repo cannot configure). Tile URLs are unhashed template strings at main.js:4159 and 4220, meta.json fetched unhashed at 4239. Tile pyramid sizes match exactly: z0=4K, z1=12K, z2=28K, z3=108K, z4=396K, z5=1,844K (du -sk)."
+        },
+        {
+          "title": "Background tiles discovered only after full JS execution; no preload hint for meta.json or z0 tile",
+          "file": "src/main.js",
+          "line": 4239,
+          "severity": "medium",
+          "evidence": "loadTileMeta() fetches /tiles/meta.json (line 4239) only when boot reaches line 5576, i.e. after the entire 360KB bundle has downloaded, parsed, and executed; drawBaseTiles then requests the z-level images. dist/index.html contains zero <link rel=\"preload\"/modulepreload> hints. meta.json is ~1.2KB and the whole z0 level is one 4KB tile.",
+          "mobile_impact": "The signature background image appears seconds after the chart on 4G (JS fetch+parse, then meta.json RTT, then tile RTT — three serialized round trips), so mobile users stare at a black canvas with floating dots; it also adds a late layout/paint burst (extra redraw() at 4243) right when the intro animation is running.",
+          "fix": "Inline meta.json into the bundle (it is static build output) or add <link rel=\"preload\" href=\"/tiles/meta.json\" as=\"fetch\" crossorigin> plus a preload for the z0 tile; ideally set the z0 tile as a CSS background on #chart so it paints with first paint.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Verified: loadTileMeta() (main.js:4237-4247) fetches /tiles/meta.json at 4239 and is first called from the boot section at 5576, i.e. only after the entire 360KB module has downloaded, parsed and executed; it then calls drawBaseTiles() + redraw(), which kick off the tile image requests (4159/4220). dist/index.html contains zero <link rel=preload/modulepreload> hints (only the two fonts preconnects). meta.json is 1,024 B (claim said ~1.2KB — trivially off) and z0 is a single tile_0_0.webp totaling 4KB."
+        },
+        {
+          "title": "All 208 description markdown files (74KB) and tour code bundled eagerly into the startup JS",
+          "file": "src/main.js",
+          "line": 29,
+          "severity": "low",
+          "evidence": "Line 29: `import.meta.glob(\"../content/descriptions/*.md\", { ..., eager: true })` inlines all 208 files (74,301 B raw text) into index-DaavPvX1.js; lines 13-14 statically import tour.js (14,387 B), tour-data.js (9,828 B) and time-scrubber.js. objects.json (23,042 B) is also inlined. Together this is roughly 120KB raw (~25-30KB of the 114KB gzip bundle) that is only needed when a user clicks an object or starts the tour. KaTeX by contrast is already correctly split (katex-BkgLa5T_.js, 258,661 B / 76,581 B gz, dynamically imported at lines 17-26).",
+          "mobile_impact": "Every byte in the entry chunk is downloaded, parsed and held in memory before first paint on the slow CPU; descriptions text is pure dead weight for the startup path and grows linearly as content is added.",
+          "fix": "Drop `eager: true` and load a description on sidebar open (the file already uses this lazy pattern for images at line 33); dynamically import tour.js + tour-data.js on first tour start / first idle.",
+          "effort": "small",
+          "verdict": "confirmed",
+          "verdict_note": "Verified: main.js:29 uses import.meta.glob(..., eager: true) for content/descriptions/*.md; the directory holds exactly 208 files totaling exactly 74,301 B, and I confirmed a description's raw text is byte-present inside dist/assets/index-DaavPvX1.js. Line 13 statically imports tour.js (14,387 B) and line 14 time-scrubber.js (5,805 B); tour-data.js (9,828 B) is pulled in via tour.js rather than directly at lines 13-14 — minor imprecision, still eagerly bundled. objects.json is 23,042 B, inlined. KaTeX contrast is exact: katex-BkgLa5T_.js is 258,661 B raw / 76,581 B gzip, dynamically imported at main.js:17-26. Total eager-but-deferable ≈121KB raw as claimed. The lazy image-loader pattern at line 33 exists as the in-repo precedent."
+        }
+      ]
+    }
+  ]
+}
