@@ -304,10 +304,12 @@ function measure() {
     // above it. The axes pill (#axes-toggle) temporarily restores the unit
     // margins so the axis numbers can be read, map-app style.
     if (_showAxesMobile) {
-      margin.left = 20;
-      margin.right = 20;
-      margin.top = TOP_MARGIN_DEFAULT;
-      margin.bottom = 60;
+      // Compact ruler: exponent numbers + rotated axis titles fit; the
+      // outboard unit links and subtitles are skipped on mobile.
+      margin.left = 56;
+      margin.right = 58;
+      margin.top = 78;
+      margin.bottom = 92;
     } else {
       margin.left = 0;
       margin.right = 0;
@@ -3436,12 +3438,18 @@ function drawAxes() {
 
   axT.append("text").attr("x", cw - 5).attr("y", -38).attr("text-anchor", "end")
     .attr("class", "axis-title").text("DENSITY");
-  axT.append("text").attr("x", cw - 5).attr("y", -26).attr("text-anchor", "end")
-    .attr("class", "axis-subtitle").text("10ⁿ g/L");
-  axT.append("text").attr("x", 5).attr("y", -38).attr("text-anchor", "start")
+  // On mobile the pill stack occupies the top-left corner — shift TIME clear.
+  // The top subtitles collide with the rotated density numbers on a narrow
+  // screen, so they're desktop-only.
+  const timeTitleX = _isMobile ? 62 : 5;
+  axT.append("text").attr("x", timeTitleX).attr("y", -38).attr("text-anchor", "start")
     .attr("class", "axis-title").attr("letter-spacing", "3px").text("TIME");
-  axT.append("text").attr("x", 5).attr("y", -26).attr("text-anchor", "start")
-    .attr("class", "axis-subtitle").text("10ⁿ s since Big Bang");
+  if (!_isMobile) {
+    axT.append("text").attr("x", cw - 5).attr("y", -26).attr("text-anchor", "end")
+      .attr("class", "axis-subtitle").text("10ⁿ g/L");
+    axT.append("text").attr("x", timeTitleX).attr("y", -26).attr("text-anchor", "start")
+      .attr("class", "axis-subtitle").text("10ⁿ s since Big Bang");
+  }
 
   // ─── BOTTOM: Big log numbers + two rows of width units ────
   axB.attr("transform", `translate(0,${ch})`);
@@ -3581,8 +3589,10 @@ function drawAxes() {
   const unitX = leftCompact ? -34 : -42;
   const titleY = leftCompact ? -45 : -40;
 
+  // The outboard unit-link column and rotated titles need a wide margin —
+  // the compact mobile ruler shows exponent numbers only.
   let lastEnergyPy = -Infinity;
-  ENERGY_UNITS.forEach(u => {
+  if (!_isMobile) ENERGY_UNITS.forEach(u => {
     if (u.logM < d.y0 || u.logM > Math.min(d.y1, leftMax)) return;
     const p = py(u.logM);
     if (p < 2 || p > ch - 2) return;
@@ -3609,10 +3619,13 @@ function drawAxes() {
     }
   });
 
-  axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", titleY)
+  const leftTitleY = _isMobile ? -44 : titleY;
+  axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", leftTitleY)
     .attr("text-anchor", "middle").attr("class", "axis-title").text(cfg.leftTitle);
-  axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", titleY + 14)
-    .attr("text-anchor", "middle").attr("class", "axis-subtitle").text(cfg.leftSub);
+  if (!_isMobile) {
+    axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", titleY + 14)
+      .attr("text-anchor", "middle").attr("class", "axis-subtitle").text(cfg.leftSub);
+  }
 
   // ─── RIGHT: Mass ──────────────────────────────────────────
   axR.attr("transform", `translate(${cw},0)`);
@@ -3661,7 +3674,7 @@ function drawAxes() {
   }
 
   let lastMassUnitPy = -Infinity;
-  MASS_UNITS.forEach(u => {
+  if (!_isMobile) MASS_UNITS.forEach(u => {
     if (u.logM < d.y0 || u.logM > d.y1) return;
     const p = py(u.logM);
     if (p < 2 || p > ch - 2) return;
@@ -3677,10 +3690,12 @@ function drawAxes() {
     }
   });
 
-  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -114)
+  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", _isMobile ? -46 : -114)
     .attr("text-anchor", "middle").attr("class", "axis-title").text("MASS");
-  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -102)
-    .attr("text-anchor", "middle").attr("class", "axis-subtitle").text(cfg.rightSub);
+  if (!_isMobile) {
+    axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -102)
+      .attr("text-anchor", "middle").attr("class", "axis-subtitle").text(cfg.rightSub);
+  }
 }
 
 function fmtTick(v) {
@@ -4898,6 +4913,7 @@ const zoomBehavior = d3.zoom()
     if (_isSafari) grainRect.style("display", null);
     updateStartButtonLabel();
     scheduleClickTargets();
+    rearmAxesHideTimer(); // keep the mobile ruler up while actively zooming
   });
 
 svg.call(zoomBehavior);
@@ -5562,12 +5578,25 @@ if (_isMobile) {
 
 // Mobile axes pill: toggles the unit margins (and axis numbers) on and off
 // around the edge-to-edge map. relayout() keeps the view centered through
-// the margin change.
-document.getElementById("axes-toggle")?.addEventListener("click", () => {
-  _showAxesMobile = !_showAxesMobile;
-  document.body.classList.toggle("mobile-axes-on", _showAxesMobile);
-  document.getElementById("axes-toggle").classList.toggle("active", _showAxesMobile);
+// the margin change. The ruler auto-hides after a few idle seconds — the
+// timer re-arms on every zoom/pan end so it never vanishes mid-inspection.
+const AXES_AUTO_HIDE_MS = 8000;
+let _axesHideTimer = null;
+function setMobileAxes(on) {
+  _showAxesMobile = on;
+  document.body.classList.toggle("mobile-axes-on", on);
+  document.getElementById("axes-toggle")?.classList.toggle("active", on);
+  clearTimeout(_axesHideTimer);
+  if (on) _axesHideTimer = setTimeout(() => setMobileAxes(false), AXES_AUTO_HIDE_MS);
   relayout();
+}
+function rearmAxesHideTimer() {
+  if (!_showAxesMobile) return;
+  clearTimeout(_axesHideTimer);
+  _axesHideTimer = setTimeout(() => setMobileAxes(false), AXES_AUTO_HIDE_MS);
+}
+document.getElementById("axes-toggle")?.addEventListener("click", () => {
+  setMobileAxes(!_showAxesMobile);
 });
 
 searchBtn.addEventListener("click", () => {

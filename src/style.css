@@ -1224,3 +1224,14 @@ body.is-mobile #settings-btn {
   bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
   border-radius: 22px;
 }
+
+/* Mobile: pinch is the zoom control — the +/− buttons are desktop-only */
+body.is-mobile #zoom-in,
+body.is-mobile #zoom-out { display: none !important; }
+
+/* While the mobile ruler is up, the bottom-center CTA would sit on top of
+   the WIDTH axis title — hide it for the ruler's few seconds on screen */
+body.is-mobile.mobile-axes-on #tour-start-btn {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
