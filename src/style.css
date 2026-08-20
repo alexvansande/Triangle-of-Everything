@@ -1235,3 +1235,56 @@ body.is-mobile.mobile-axes-on #tour-start-btn {
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+/* 16px kills iOS Safari's focus auto-zoom (which got stuck with
+   touch-action:none). Desktop keeps the compact 12px. */
+body.is-mobile #search-input { font-size: 16px; }
+
+/* ── Bottom-sheet sidebar (mobile) ──────────────────────────────────
+   The map stays visible: the object panel is a draggable sheet with a
+   peek state (46vh) and a full state (90vh). The grabber strip at the
+   top drags between states; flinging down closes. */
+body.is-mobile #sidebar {
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 100vw;
+  height: 46vh;
+  border-right: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
+  transform: translateY(103%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.25s ease;
+  padding-top: 26px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+body.is-mobile #sidebar.open { transform: translateY(0); }
+body.is-mobile #sidebar.sheet-full { height: calc(96vh - env(safe-area-inset-top, 0px)); }
+body.is-mobile #sidebar::before {
+  content: "";
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.28);
+}
+/* Real grabber element: touch-action none keeps the browser from turning
+   sheet drags into content scrolls (a pseudo-element can't carry it). */
+#sheet-grab { display: none; }
+body.is-mobile #sheet-grab {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 34px;
+  touch-action: none;
+  cursor: grab;
+  z-index: 2;
+}

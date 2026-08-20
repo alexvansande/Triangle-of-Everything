@@ -3012,9 +3012,53 @@ function setSidebarOpen(open) {
   } else {
     sidebarEl.classList.remove("open");
     document.body.classList.remove("sidebar-open");
+    sidebarEl.classList.remove("sheet-full"); // next mobile open starts at peek
   }
   if (changed && !_isMobile) relayout();
 }
+
+// Bottom-sheet drag (mobile): the grabber strip at the top of the sheet
+// drags between peek and full; dragging or flinging down closes. A short
+// tap on the strip toggles peek/full.
+(function initSheetDrag() {
+  const grab = document.getElementById("sheet-grab");
+  if (!grab) return;
+  let dragging = false, startY = 0, startT = 0, dy = 0;
+  grab.addEventListener("pointerdown", (e) => {
+    if (!_isMobile) return;
+    dragging = true;
+    startY = e.clientY;
+    startT = performance.now();
+    dy = 0;
+    sidebarEl.style.transition = "none";
+    grab.setPointerCapture(e.pointerId);
+  });
+  grab.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    dy = e.clientY - startY;
+    // Follow the finger; resist upward drag past the top a little
+    const off = dy < 0 ? dy / 3 : dy;
+    sidebarEl.style.transform = `translateY(${off}px)`;
+  });
+  const endDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    sidebarEl.style.transition = "";
+    sidebarEl.style.transform = "";
+    const vel = dy / Math.max(1, performance.now() - startT); // px/ms, + = down
+    const isFull = sidebarEl.classList.contains("sheet-full");
+    if (Math.abs(dy) < 8) {
+      sidebarEl.classList.toggle("sheet-full");           // tap: toggle state
+    } else if (dy < -50) {
+      sidebarEl.classList.add("sheet-full");              // drag up: expand
+    } else if (dy > 70 || vel > 0.55) {
+      if (isFull) sidebarEl.classList.remove("sheet-full"); // full → peek
+      else setSidebarOpen(false);                           // peek → closed
+    }
+  };
+  grab.addEventListener("pointerup", endDrag);
+  grab.addEventListener("pointercancel", endDrag);
+})();
 
 function relayout() {
   if (!_booted) return;
@@ -4855,6 +4899,7 @@ let currentK = 1;
 let rafPending = false;
 let _zoomPrevTransform = null;  // track previous transform for CSS offset
 let _zooming = false;
+let _panSamples = [];           // recent touch-pan positions for momentum
 
 const zoomBehavior = d3.zoom()
   .scaleExtent([0.3, 800])
@@ -4879,6 +4924,12 @@ const zoomBehavior = d3.zoom()
     currentK = t.k;
     xS = t.rescaleX(xBase);
     yS = t.rescaleY(yBase);
+
+    // Momentum sampling: remember where a touch pan has been recently
+    if (event.sourceEvent?.type === "touchmove") {
+      _panSamples.push({ t: performance.now(), x: t.x, y: t.y, k: t.k });
+      if (_panSamples.length > 6) _panSamples.shift();
+    }
 
     if (!rafPending) {
       rafPending = true;
@@ -4914,6 +4965,30 @@ const zoomBehavior = d3.zoom()
     updateStartButtonLabel();
     scheduleClickTargets();
     rearmAxesHideTimer(); // keep the mobile ruler up while actively zooming
+
+    // Momentum pan: after a touch pan release, glide with decay (map-app
+    // inertia). Only fires for pure pans (k stable) with real release speed;
+    // the glide transition itself produces no touch samples, so it can't
+    // re-trigger.
+    const s = _panSamples;
+    _panSamples = [];
+    if (s.length >= 2) {
+      const last = s[s.length - 1];
+      const ref = [...s].reverse().find(p => last.t - p.t >= 40) || s[0];
+      const dt = last.t - ref.t;
+      const kStable = Math.abs(last.k - ref.k) < last.k * 0.001;
+      if (dt > 0 && kStable && performance.now() - last.t < 120) {
+        const vx = (last.x - ref.x) / dt, vy = (last.y - ref.y) / dt; // px/ms
+        const speed = Math.hypot(vx, vy);
+        if (speed > 0.35) {
+          const glide = Math.min(speed * 300, 700); // px of decay travel
+          svg.transition("inertia").duration(600).ease(d3.easeCubicOut)
+            .call(zoomBehavior.translateBy,
+              (vx / speed) * glide / last.k,
+              (vy / speed) * glide / last.k);
+        }
+      }
+    }
   });
 
 svg.call(zoomBehavior);
@@ -4925,7 +5000,7 @@ svg.on("wheel.animPause", pauseAnimOnInteract);
 svg.on("dblclick.zoom", null);
 svg.on("dblclick", (event) => {
   event.preventDefault();
-  if (_isMobile) return;
+  // Double-tap on touch fires dblclick too — map-app double-tap zoom
   const [mx, my] = d3.pointer(event, chart.node());
   const targetK = currentK * 2.5;
   const logR = xS.invert(mx), logM = yS.invert(my);
