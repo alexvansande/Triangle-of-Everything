@@ -250,6 +250,15 @@ skip tour fetch + controls build in embed mode; optional DPR sharpening.
 
 ## 6. Phase 4 — Map-app polish
 
+> **STATUS: DONE (2026-08-20) — the plan is complete.** Service worker with
+> offline-capable repeat visits (verified: full map renders with the network
+> cut) — registered late and without `clients.claim` because the harness
+> caught SW interception wrecking first-visit budgets on throttled phones.
+> PWA manifest. `perf.yml` gates every PR on the budgets + label invariants.
+> Deploys shrank ~78 MB → 10 MB (source PNGs out of public/), og-preview
+> 1 MB → 88 KB.
+
+
 1. **Service worker + manifest.** Precache app shell, z0–z3 tiles (~60 KB), icons;
    stale-while-revalidate the rest. Repeat visits become instant and offline-capable —
    this is most of what makes native map apps *feel* native. (GitHub Pages caps HTTP
