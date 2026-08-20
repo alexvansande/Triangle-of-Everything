@@ -127,6 +127,17 @@ Every item here is `effort: small/medium` and independent.
 
 ## 4. Phase 2 — Make the full render cheap (the big one)
 
+> **STATUS: DONE (2026-08-19). ALL harness budgets green** — pinch 50–60 fps,
+> pan 57 fps, fly-to 58 fps, p95 frame 34.6 ms, under 4G + 4× CPU throttle.
+> The safe subset sufficed: keyed data joins on persistent nodes (items 1, 6),
+> single `paint-order` label nodes (item 5), grid batched into one path per
+> tier (item 4), label click targets from the layout rects instead of getBBox
+> (item 7). Layout math still runs every frame (it was never the bottleneck —
+> DOM teardown was), so **visuals are frame-identical to before, and the
+> mid-gesture group-transform idea (item 3) was never needed** — labels and
+> every layer keep full per-frame rendering. Verified: mobile tap/tour/edge
+> smokes, desktop hover/click/wheel + DOM-node retention, Big Bang scrubber.
+
 > **Hard constraint (per project decision):** labels stay visible, correctly positioned,
 > and non-scaling on **every** frame of zoom/pan/tour. Three past "optimizations" made the
 > experience worse and are **banned** — the perf harness now fails the run if any returns:
@@ -251,6 +262,11 @@ long tasks ≤ 800 ms, every gesture ≥ 45 fps avg with p95 frame ≤ 40 ms, **
 label invariants passing** (no scale, no hide, no strand). Plus: rotation keeps your
 place, everything tappable is ≥ 44 px, the map stays visible while reading about an
 object, and a second visit loads instantly.
+
+> **2026-08-19: the harness is fully green** (LCP 0.88 s, 25 requests, 272 ms
+> long tasks, worst gesture 58.7 fps, p95 34.6 ms, invariants passing).
+> Remaining for full "done": bottom-sheet sidebar (map visible while reading),
+> service worker for instant repeat visits, and the CI gate.
 
 ## Appendix — audit trail
 
