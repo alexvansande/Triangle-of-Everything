@@ -6066,3 +6066,15 @@ setTimeout(() => {
 
 // Reveal page now that CSS and JS are loaded (prevents FOUC)
 document.body.classList.add("ready");
+
+// Service worker: instant repeat visits + offline map (see public/sw.js).
+// Registered late and without clients.claim so the FIRST visit never pays
+// for interception or cache writes — the SW only serves later navigations.
+// Skipped in dev — it would fight Vite's HMR.
+if ("serviceWorker" in navigator && !import.meta.env.DEV) {
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      navigator.serviceWorker.register("/sw.js").catch(() => { /* non-fatal */ });
+    }, 8000);
+  });
+}

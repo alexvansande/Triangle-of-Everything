@@ -1,0 +1,32 @@
+name: Mobile perf gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  perf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # Budgets and label invariants (no-scale / no-hide / no-strand) live in
+      # scripts/mobile-perf.mjs; --ci exits non-zero when any is busted.
+      # CI runners are noisy, so gesture-fps budgets get headroom via --cpu 2.
+      - name: Run mobile perf harness
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: node scripts/mobile-perf.mjs --ci --cpu 2
+      - name: Upload perf report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-report
+          path: scripts/perf-reports/

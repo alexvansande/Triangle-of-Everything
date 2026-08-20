@@ -1,0 +1,13 @@
+{
+  "name": "The Triangle of Everything",
+  "short_name": "Triangle",
+  "description": "Every object in the universe on one zoomable map of mass vs. width.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06061a",
+  "theme_color": "#06061a",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}
