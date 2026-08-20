@@ -1,0 +1,36 @@
+name: Mobile perf gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  perf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # Budgets and label invariants (no-scale / no-hide / no-strand) live in
+      # scripts/mobile-perf.mjs; --ci exits non-zero when any is busted.
+      # The ci profile keeps byte/request budgets strict but relaxes timing
+      # budgets for shared runners (slow cores, software rasterization) —
+      # CI catches regressions; absolute UX targets are certified locally.
+      - name: Run mobile perf harness
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        # --cpu 1: the shared runner is already phone-speed; extra throttle
+        # just adds variance on top of its 30Hz software rasterizer.
+        run: node scripts/mobile-perf.mjs --ci --cpu 1 --profile ci
+      - name: Upload perf report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-report
+          path: scripts/perf-reports/

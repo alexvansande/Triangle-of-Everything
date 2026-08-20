@@ -1530,6 +1530,7 @@ let timeAnimId = null;
 function startTimeAnimation() {
   if (timeAnimId) return;
   function tick() {
+    if (!_renderVisible) { timeAnimId = null; return; } // parked; resumes on visibility
     const bounce = document.getElementById('timeBounce').checked;
     if (bounce) {
       // Triangle wave: 0 → 1 → 0 → 1 ..., 4s in each direction.
@@ -2139,11 +2140,24 @@ function applyStateLegacy(str) {
   return true;
 }
 
+// Embed mode is decided here (rather than further down) because pushState
+// needs it: the sidebar iframe's URL is never read, and iOS Safari
+// rate-limits history.replaceState (older versions throw SecurityError).
+const _embedMode = new URLSearchParams(location.search).get('embed') === '1';
+if (_embedMode) document.body.classList.add('embed');
+
+let _pushStateTimer = null;
 function pushState() {
-  const hash = getState();
-  if (location.hash !== '#' + hash) {
-    history.replaceState(null, '', '#' + hash);
-  }
+  if (_embedMode) return;
+  // Debounced: auto-rotate used to call this every frame (~60 replaceState/s),
+  // tripping Safari's 100-calls-per-30s limit mid-tween.
+  clearTimeout(_pushStateTimer);
+  _pushStateTimer = setTimeout(() => {
+    const hash = getState();
+    if (location.hash !== '#' + hash) {
+      try { history.replaceState(null, '', '#' + hash); } catch (e) { /* rate-limited: skip */ }
+    }
+  }, 300);
 }
 
 // Stereo rendering
@@ -2214,8 +2228,7 @@ if (location.hash.length > 1) {
 //
 // In embed mode (?embed=1) the rotation always resumes after a short
 // idle so the embedded iframe keeps spinning in the chart sidebar.
-const _embedMode = new URLSearchParams(location.search).get('embed') === '1';
-if (_embedMode) document.body.classList.add('embed');
+// (_embedMode itself is declared above pushState.)
 
 let _autoRotateOn = true;
 let _autoRotateRAF = null;
@@ -2224,17 +2237,29 @@ let _resumeAutoRotateAt = 0;
 const AUTO_ROTATE_DPS = 8;          // degrees per second
 const EMBED_RESUME_AFTER = 4000;    // ms idle before embed mode auto-resumes
 
-function startAutoRotate() {
-  _autoRotateOn = true;
+function _ensureAutoRotateLoop() {
   if (_autoRotateRAF) return;
   _autoRotateLastT = performance.now();
   _autoRotateRAF = requestAnimationFrame(_autoRotateTick);
+}
+function startAutoRotate() {
+  _autoRotateOn = true;
+  _ensureAutoRotateLoop();
 }
 function pauseAutoRotate({ resumeAfter = 0 } = {}) {
   _autoRotateOn = false;
   _resumeAutoRotateAt = resumeAfter ? performance.now() + resumeAfter : 0;
 }
 function _autoRotateTick(ts) {
+  // Park (no re-queue) when nothing can happen: page hidden/offscreen — the
+  // chart sidebar closes by translating off-viewport, which used to leave
+  // this iframe running its full render pipeline forever — or rotation
+  // paused with no scheduled resume. _updateRenderVisible()/startAutoRotate()
+  // restart the loop.
+  if (!_renderVisible || (!_autoRotateOn && !_resumeAutoRotateAt)) {
+    _autoRotateRAF = null;
+    return;
+  }
   _autoRotateRAF = requestAnimationFrame(_autoRotateTick);
   const dt = (ts - _autoRotateLastT) / 1000;
   _autoRotateLastT = ts;
@@ -2250,6 +2275,29 @@ function _autoRotateTick(ts) {
   const spinEl = document.getElementById('spinXZ');
   spinEl.value = (((parseFloat(spinEl.value) + dt * AUTO_ROTATE_DPS) % 360) + 360) % 360;
   draw();
+}
+
+// Pause ALL rendering while the page is hidden or scrolled/translated out
+// of view (the chart sidebar hides this iframe by moving it off-viewport —
+// without this, the blur/bloom pipeline kept burning at 60fps behind a
+// closed sidebar). Loops park themselves; this restarts them on re-entry.
+let _renderVisible = !document.hidden;
+let _pageIntersecting = true;
+function _updateRenderVisible() {
+  const was = _renderVisible;
+  _renderVisible = _pageIntersecting && !document.hidden;
+  if (_renderVisible && !was) {
+    _ensureAutoRotateLoop();
+    if (document.getElementById('timeDim').checked) startTimeAnimation();
+    draw();
+  }
+}
+document.addEventListener('visibilitychange', _updateRenderVisible);
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver((entries) => {
+    _pageIntersecting = entries[0].isIntersecting;
+    _updateRenderVisible();
+  }).observe(document.body);
 }
 
 // Stop auto-rotate on direct interaction with the canvas / controls.

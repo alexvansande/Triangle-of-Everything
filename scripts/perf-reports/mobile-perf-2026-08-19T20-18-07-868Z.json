@@ -1,0 +1,167 @@
+{
+  "when": "2026-08-19T20:18:07.868Z",
+  "target": "http://localhost:4199",
+  "conditions": {
+    "net": "4g",
+    "cpuThrottle": 4,
+    "viewport": "390x844@3x touch"
+  },
+  "wallLoadMs": 1656,
+  "load": {
+    "ttfbMs": 4,
+    "domContentLoadedMs": 902,
+    "fcpMs": 1052,
+    "lcpMs": 1684,
+    "requests": 17,
+    "totalTransferKB": 347,
+    "byType": {
+      "font": {
+        "count": 2,
+        "kb": 57
+      },
+      "js": {
+        "count": 1,
+        "kb": 223
+      },
+      "css": {
+        "count": 1,
+        "kb": 7
+      },
+      "data": {
+        "count": 1,
+        "kb": 1
+      },
+      "img": {
+        "count": 12,
+        "kb": 59
+      }
+    },
+    "biggest": [
+      {
+        "url": "/assets/index-BJWHVZFv.js",
+        "kb": 223.4
+      },
+      {
+        "url": "/fonts/inter-var-latin.woff2",
+        "kb": 47.6
+      },
+      {
+        "url": "/fonts/space-mono-400-latin.woff2",
+        "kb": 9.5
+      },
+      {
+        "url": "/assets/sequoia-BJya57AP.webp",
+        "kb": 8.8
+      },
+      {
+        "url": "/assets/1-tonne-of-water-Cp438P0r.webp",
+        "kb": 8
+      },
+      {
+        "url": "/assets/mouse-DzD7iX1R.webp",
+        "kb": 7.5
+      },
+      {
+        "url": "/assets/index-D2ii4jfL.css",
+        "kb": 6.6
+      },
+      {
+        "url": "/assets/human-BS2druge.webp",
+        "kb": 5.9
+      },
+      {
+        "url": "/assets/boeing-747-DbYEUq89.webp",
+        "kb": 5.6
+      },
+      {
+        "url": "/assets/blue-whale-BdektpNg.webp",
+        "kb": 5.1
+      }
+    ],
+    "longTaskCount": 1,
+    "longTaskTotalMs": 546,
+    "longestTaskMs": 546,
+    "domNodes": 726,
+    "svgNodes": 524,
+    "heapMB": 3.8
+  },
+  "gestures": [
+    {
+      "label": "pinch zoom in (2.5x)",
+      "frames": 46,
+      "avgFps": 48,
+      "avgMs": 20.8,
+      "p50Ms": 16.7,
+      "p95Ms": 34.2,
+      "worstMs": 43,
+      "over33ms": 5,
+      "over100ms": 0
+    },
+    {
+      "label": "pinch zoom out (0.4x)",
+      "frames": 50,
+      "avgFps": 71.5,
+      "avgMs": 14,
+      "p50Ms": 12.6,
+      "p95Ms": 26,
+      "worstMs": 26.2,
+      "over33ms": 0,
+      "over100ms": 0
+    },
+    {
+      "label": "pan (drag across)",
+      "frames": 34,
+      "avgFps": 61.1,
+      "avgMs": 16.4,
+      "p50Ms": 14.8,
+      "p95Ms": 35.4,
+      "worstMs": 42.7,
+      "over33ms": 3,
+      "over100ms": 0
+    },
+    {
+      "label": "preset fly-to animation",
+      "frames": 148,
+      "avgFps": 56.7,
+      "avgMs": 17.6,
+      "p50Ms": 15.2,
+      "p95Ms": 42,
+      "worstMs": 70.2,
+      "over33ms": 10,
+      "over100ms": 0
+    }
+  ],
+  "labelInvariants": {
+    "pinch": {
+      "startTextCount": 97,
+      "minTextCountDuring": 90,
+      "matchedTexts": 11,
+      "matchedImages": 13,
+      "medianTextMovePx": 61.5,
+      "medianImageMovePx": 61.5,
+      "medianTextHeightRatio": 1
+    },
+    "pan": {
+      "startTextCount": 90,
+      "minTextCountDuring": 90,
+      "matchedTexts": 15,
+      "matchedImages": 13,
+      "medianTextMovePx": 10.332761841905352,
+      "medianImageMovePx": 12.3611629871049,
+      "medianTextHeightRatio": 1
+    },
+    "enoughData": true,
+    "textsScaled": false,
+    "textsHidden": false,
+    "textsStranded": false
+  },
+  "budgets": {
+    "lcpMs": 2500,
+    "jsTransferKB": 350,
+    "totalTransferKB": 1200,
+    "requests": 60,
+    "startupLongTaskMs": 800,
+    "avgFps": 45,
+    "p95FrameMs": 40
+  }
+}

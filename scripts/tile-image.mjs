@@ -16,7 +16,7 @@ const PX_PER_UNIT_Y = 43.5;  // Lower = image covers more logM range; fixes vert
 const LOG_R_OFFSET = -0.3;
 const LOG_M_OFFSET = 0.1;  // Planck at -4.68 with new scale; +0.1 → -4.58 ≈ -4.6
 
-const SRC = process.argv[2] || "public/imgs/triangle of everything background.png";
+const SRC = process.argv[2] || "content/source-art/triangle of everything background.png";
 const OUT = process.argv[3] || "public/tiles";
 const NOISE_OPACITY = 0.10; // 10% noise overlay
 
