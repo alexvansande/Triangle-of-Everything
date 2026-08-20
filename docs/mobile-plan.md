@@ -184,6 +184,15 @@ Expected: fly-to 5.7 → 30–60 fps; pan 11 → 45+; and recording tours no lon
 
 ## 5. Phase 3 — Touch & layout parity (parallel with Phase 2)
 
+> **STATUS: DONE (2026-08-20).** Bottom-sheet sidebar (tap → peek 46vh with
+> the map visible, grabber-drag → full, fling down → peek → closed; the
+> grabber is a real element with `touch-action: none` so drags never become
+> content scrolls). Momentum pan from touch release velocity. Double-tap
+> zoom. 16px search input. Plus the second field-test round: compact ruler
+> with readable margins/titles and 8s auto-hide (re-armed by zoom activity),
+> desktop-only +/− buttons, chevron pill icon. All smokes + perf budgets green.
+
+
 ### Field-test feedback (real iPhone, 2026-08-19) — ALL DONE same day
 
 - ✅ **F1. Tour panel flashed mid-screen at tour start** — root cause: the
