@@ -13,6 +13,7 @@
  *   node scripts/mobile-perf.mjs --net 3g --cpu 6 # meaner phone
  *   node scripts/mobile-perf.mjs --trace          # also save a DevTools-loadable trace
  *   node scripts/mobile-perf.mjs --ci             # exit 1 if any budget is busted
+ *   node scripts/mobile-perf.mjs --profile ci     # relaxed timing budgets for CI runners
  *
  * Reports to stdout and scripts/perf-reports/<timestamp>.json.
  */
@@ -27,14 +28,29 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 // ---------------------------------------------------------------- budgets --
 // What "as good as a mobile map app" means, in numbers. Tune as you improve.
-const BUDGETS = {
-  lcpMs: 2500,          // largest contentful paint on Fast 4G + 4x CPU
-  jsTransferKB: 350,    // compressed JS on the wire
-  totalTransferKB: 1200,// everything fetched before interactive
-  requests: 60,         // request count before interactive
-  startupLongTaskMs: 800, // sum of long tasks during load
-  avgFps: 45,           // during pinch/pan/preset animation
-  p95FrameMs: 40,       // 95th percentile frame time during interaction
+// The default profile is calibrated for a developer machine; `--profile ci`
+// relaxes the TIMING budgets for shared CI runners (slow cores, software
+// rasterization) while keeping the byte/request budgets identical — CI
+// exists to catch regressions, not to certify absolute UX targets.
+const PROFILES = {
+  default: {
+    lcpMs: 2500,          // largest contentful paint on Fast 4G + 4x CPU
+    jsTransferKB: 350,    // compressed JS on the wire
+    totalTransferKB: 1200,// everything fetched before interactive
+    requests: 60,         // request count before interactive
+    startupLongTaskMs: 800, // sum of long tasks during load
+    avgFps: 45,           // during pinch/pan/preset animation
+    p95FrameMs: 40,       // 95th percentile frame time during interaction
+  },
+  ci: {
+    lcpMs: 3500,
+    jsTransferKB: 350,
+    totalTransferKB: 1200,
+    requests: 60,
+    startupLongTaskMs: 1500,
+    avgFps: 25,
+    p95FrameMs: 70,
+  },
 };
 
 // ------------------------------------------------------------------ flags --
@@ -56,6 +72,12 @@ const netName = opt('net', '4g');
 const net = NET_PRESETS[netName];
 if (net === undefined) {
   console.error(`Unknown --net "${netName}" (use: ${Object.keys(NET_PRESETS).join(', ')})`);
+  process.exit(2);
+}
+const profileName = opt('profile', 'default');
+const BUDGETS = PROFILES[profileName];
+if (!BUDGETS) {
+  console.error(`Unknown --profile "${profileName}" (use: ${Object.keys(PROFILES).join(', ')})`);
   process.exit(2);
 }
 const cpuRate = Number(opt('cpu', '4'));
@@ -115,9 +137,9 @@ const COLLECTOR = `
     }).observe({ type: 'paint', buffered: true });
   } catch {}
   try {
+    window.__perf.lcpEntries = [];
     new PerformanceObserver((l) => {
-      const es = l.getEntries();
-      if (es.length) window.__perf.lcp = es[es.length - 1].startTime;
+      for (const e of l.getEntries()) window.__perf.lcpEntries.push(e.startTime);
     }).observe({ type: 'largest-contentful-paint', buffered: true });
   } catch {}
   try {
@@ -221,9 +243,16 @@ async function measureInvariants(page, cdp, cx, cy) {
   await cdp.send('Input.synthesizePinchGesture', { x: cx, y: cy, scaleFactor: 1 / 1.6, relativeSpeed: 300, gestureSourceType: 'touch' });
   await new Promise((r) => setTimeout(r, 400));
 
-  // Pan pass: do texts move with the images, and stay visible?
+  // Pan pass: do texts move with the images, and stay visible? Raw touch
+  // dispatch — deterministic on every Chrome build (the synthesized scroll
+  // gesture silently no-ops on some CI runners, leaving nothing to judge).
   await page.evaluate('window.__invStart()');
-  await cdp.send('Input.synthesizeScrollGesture', { x: cx, y: cy, xDistance: -120, yDistance: -120, speed: 600, gestureSourceType: 'touch' });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: cx, y: cy, id: 1 }] });
+  for (let i = 1; i <= 8; i++) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: cx - i * 18, y: cy - i * 18, id: 1 }] });
+    await new Promise((r) => setTimeout(r, 16));
+  }
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   await new Promise((r) => setTimeout(r, 150));
   const pan = await page.evaluate('window.__invStop()');
 
@@ -302,17 +331,23 @@ try {
   }
 
   // ------------------------------------------------------------- cold load --
+  // The measurement window is anchored to APP-READY (+1s), not network idle:
+  // on slow CI runners network-idle waits stretch past the app's t=4s icon
+  // warmup, which then pollutes the "startup" numbers with 130 background
+  // prefetches no user ever waits for.
   const t0 = Date.now();
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 120_000 });
+  await page.goto(url, { waitUntil: 'load', timeout: 120_000 });
   await page
     .waitForFunction('document.body.classList.contains("ready") && document.querySelector("#chart svg")', { timeout: 60_000 })
     .catch(() => console.warn('  (app never signalled ready — measuring anyway)'));
+  await page.evaluate('window.__readyAt = performance.now()');
   const wallLoadMs = Date.now() - t0;
-  await new Promise((r) => setTimeout(r, 1000)); // idle-period long tasks
+  await new Promise((r) => setTimeout(r, 1000)); // catch immediate post-ready work
 
   const load = await page.evaluate(() => {
+    const cutoff = (window.__readyAt ?? Infinity) + 1000;
     const nav = performance.getEntriesByType('navigation')[0];
-    const res = performance.getEntriesByType('resource');
+    const res = performance.getEntriesByType('resource').filter((r) => r.startTime <= cutoff);
     const byType = {};
     let total = 0;
     const biggest = [];
@@ -332,12 +367,13 @@ try {
     }
     for (const k of Object.keys(byType)) byType[k].kb = Math.round(byType[k].kb);
     biggest.sort((a, b) => b.kb - a.kb);
-    const lt = window.__perf.longTasks;
+    const lt = window.__perf.longTasks.filter((t) => t.start <= cutoff);
+    const lcpInWindow = (window.__perf.lcpEntries || []).filter((t) => t <= cutoff);
     return {
       ttfbMs: nav ? Math.round(nav.responseStart) : null,
       domContentLoadedMs: nav ? Math.round(nav.domContentLoadedEventEnd) : null,
       fcpMs: window.__perf.fcp ? Math.round(window.__perf.fcp) : null,
-      lcpMs: window.__perf.lcp ? Math.round(window.__perf.lcp) : null,
+      lcpMs: lcpInWindow.length ? Math.round(lcpInWindow[lcpInWindow.length - 1]) : null,
       requests: res.length,
       totalTransferKB: Math.round(total / 1024),
       byType,
@@ -392,7 +428,7 @@ try {
   const report = {
     when: new Date().toISOString(),
     target: url,
-    conditions: { net: netName, cpuThrottle: cpuRate, viewport: '390x844@3x touch' },
+    conditions: { net: netName, cpuThrottle: cpuRate, profile: profileName, viewport: '390x844@3x touch' },
     wallLoadMs,
     load,
     gestures,
