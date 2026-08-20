@@ -731,6 +731,13 @@ function drawGrid() {
 
     const stroke = `rgba(255,255,255,${opacity})`;
 
+    // All lines in a level share stroke/width — batch them into ONE <path>
+    // (a few nodes per frame instead of hundreds of <line> elements).
+    let dPath = "";
+    const y0 = py(d.y0), y1 = py(d.y1), x0 = px(d.x0), x1 = px(d.x1);
+    const addV = (v) => { const x = px(v); dPath += `M${x},${y0}L${x},${y1}`; };
+    const addH = (v) => { const y = py(v); dPath += `M${x0},${y}L${x1},${y}`; };
+
     if (level.step === 0) {
       const startX = Math.floor(d.x0 - xRef), endX = Math.ceil(d.x1 - xRef);
       const startY = Math.floor(d.y0 - yRef), endY = Math.ceil(d.y1 - yRef);
@@ -738,20 +745,14 @@ function drawGrid() {
         for (const sub of LOG_SUBS) {
           const v = xRef + i + sub;
           if (v < d.x0 || v > d.x1) continue;
-          lGrid.append("line")
-            .attr("x1", px(v)).attr("y1", py(d.y0))
-            .attr("x2", px(v)).attr("y2", py(d.y1))
-            .attr("stroke", stroke).attr("stroke-width", width);
+          addV(v);
         }
       }
       for (let i = startY; i <= endY; i++) {
         for (const sub of LOG_SUBS) {
           const v = yRef + i + sub;
           if (v < d.y0 || v > d.y1) continue;
-          lGrid.append("line")
-            .attr("x1", px(d.x0)).attr("y1", py(v))
-            .attr("x2", px(d.x1)).attr("y2", py(v))
-            .attr("stroke", stroke).attr("stroke-width", width);
+          addH(v);
         }
       }
     } else {
@@ -763,11 +764,7 @@ function drawGrid() {
         if (step === 1 && Math.abs(kx % 3) < 0.01) continue;
         if (step === 3 && Math.abs(kx % 9) < 0.01) continue;
         if (step === 9 && Math.abs(kx % 30) < 0.01) continue;
-        lGrid.append("line")
-          .attr("x1", px(v)).attr("y1", py(d.y0))
-          .attr("x2", px(v)).attr("y2", py(d.y1))
-          .attr("stroke", stroke).attr("stroke-width", width)
-          .attr("shape-rendering", "crispEdges");
+        addV(v);
       }
       const firstY = firstAligned(d.y0, step, yRef);
       for (let v = firstY; v <= d.y1; v += step) {
@@ -775,12 +772,17 @@ function drawGrid() {
         if (step === 1 && Math.abs(ky % 3) < 0.01) continue;
         if (step === 3 && Math.abs(ky % 9) < 0.01) continue;
         if (step === 9 && Math.abs(ky % 30) < 0.01) continue;
-        lGrid.append("line")
-          .attr("x1", px(d.x0)).attr("y1", py(v))
-          .attr("x2", px(d.x1)).attr("y2", py(v))
-          .attr("stroke", stroke).attr("stroke-width", width)
-          .attr("shape-rendering", "crispEdges");
+        addH(v);
       }
+    }
+
+    if (dPath) {
+      const p = lGrid.append("path")
+        .attr("d", dPath)
+        .attr("fill", "none")
+        .attr("stroke", stroke).attr("stroke-width", width);
+      // The log-subdivision tier never had crispEdges; keep that distinction
+      if (level.step !== 0) p.attr("shape-rendering", "crispEdges");
     }
   });
 }
@@ -1816,9 +1818,11 @@ const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smal
 let _lastProjected = [];
 
 function drawObjects() {
-  lObj.selectAll("*").remove();
-  lIcons.selectAll("*").remove();
-  lLabels.selectAll("*").remove();
+  // Retained rendering: object groups, icons, and labels are persistent
+  // nodes updated through keyed joins below — per frame this is attribute
+  // writes, not DOM teardown. Only the small extras layer (cluster/category/
+  // BH labels, ~20 nodes) rebuilds each call.
+  lObjExtras.selectAll("*").remove();
   const d = vd();
   const icoSize = effectiveIconSize();
   const pad = 5;
@@ -2079,21 +2083,16 @@ function drawObjects() {
       : cl.label;
     const lx = cl.cx + pos.dx, ly = cl.cy + pos.dy;
 
-    const g = lObj.append("g");
-    g.append("text")
+    // Single node: paint-order renders the outline behind the fill,
+    // replacing the old shadow-text + fill-text pair.
+    lObjExtras.append("text")
       .attr("x", lx).attr("y", ly)
       .attr("text-anchor", pos.anchor)
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
       .attr("font-size", 10).attr("letter-spacing", "0.5px")
-      .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
+      .attr("paint-order", "stroke")
+      .attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
-      .attr("class", "obj-label obj-cluster-label")
-      .text(labelText);
-    g.append("text")
-      .attr("x", lx).attr("y", ly)
-      .attr("text-anchor", pos.anchor)
-      .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", 10).attr("letter-spacing", "0.5px")
       .attr("fill", cl.cat.color)
       .attr("class", "obj-label obj-cluster-label")
       .text(labelText);
@@ -2101,25 +2100,18 @@ function drawObjects() {
 
   // --- Render category labels (spread-out groups, center of mass) ---
   categoryLabels.forEach(cl => {
-    const g = lObj.append("g").style("pointer-events", "none");
-    g.append("text")
+    lObjExtras.append("text")
       .attr("x", cl.cx).attr("y", cl.cy)
       .attr("text-anchor", "middle")
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
       .attr("font-size", CATEGORY_LABEL_FONT).attr("letter-spacing", "1px")
-      .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
+      .attr("paint-order", "stroke")
+      .attr("stroke", "rgba(6,6,26,0.6)")
       .attr("stroke-width", 2).attr("stroke-linejoin", "round")
-      .attr("class", "obj-category-label")
-      .attr("opacity", CATEGORY_LABEL_OPACITY)
-      .text(cl.labelText.toUpperCase());
-    g.append("text")
-      .attr("x", cl.cx).attr("y", cl.cy)
-      .attr("text-anchor", "middle")
-      .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", CATEGORY_LABEL_FONT).attr("letter-spacing", "1px")
       .attr("fill", cl.cat.color)
       .attr("class", "obj-category-label")
       .attr("opacity", CATEGORY_LABEL_OPACITY)
+      .style("pointer-events", "none")
       .text(cl.labelText.toUpperCase());
   });
 
@@ -2144,7 +2136,7 @@ function drawObjects() {
     const sx = px(sR) + perpX * BH_PX_OFFSET;
     const sy = py(logM) + perpY * BH_PX_OFFSET;
     if (sx < -100 || sx > cw + 100 || sy < -100 || sy > ch + 100) return;
-    const g = lObj.append("g");
+    const g = lObjExtras.append("g");
     if (slug) {
       g.style("cursor", "pointer")
        .on("click", () => openInfoPanel(slug, text));
@@ -2157,17 +2149,9 @@ function drawObjects() {
       .attr("font-family", "Inter, sans-serif")
       .attr("font-size", CATEGORY_LABEL_FONT).attr("font-weight", 600)
       .attr("letter-spacing", "1px")
-      .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
+      .attr("paint-order", "stroke")
+      .attr("stroke", "rgba(6,6,26,0.6)")
       .attr("stroke-width", 2).attr("stroke-linejoin", "round")
-      .attr("opacity", CATEGORY_LABEL_OPACITY)
-      .attr("transform", `rotate(${schwAngBH},${sx},${sy})`)
-      .text(text);
-    g.append("text")
-      .attr("x", sx).attr("y", sy)
-      .attr("text-anchor", "middle")
-      .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", CATEGORY_LABEL_FONT).attr("font-weight", 600)
-      .attr("letter-spacing", "1px")
       .attr("fill", bhColor)
       .attr("opacity", CATEGORY_LABEL_OPACITY)
       .attr("transform", `rotate(${schwAngBH},${sx},${sy})`)
@@ -2192,123 +2176,140 @@ function drawObjects() {
     }
   }
 
-  // --- Render object dots and labels ---
-  projected.forEach(o => {
-    if (!o._showDot) return;
+  // --- Render object dots, icons, and labels via keyed joins ---
+  const shownDots = projected.filter(o => o._showDot);
+  const iconObjs = shownDots.filter(o => o._showIcon);
 
-    const g = lObj.append("g").style("cursor", "pointer").attr("data-obj-slug", o.slug);
-    // Big Bang mode: apply era-based opacity to entire group
-    if (_bigBangMode && o.bbOpacity < 1) g.attr("opacity", o.bbOpacity);
+  // (1) Object groups: hit area + glow/dot, keyed by slug. Structure is
+  // created once per object; per frame only positions/visibility update.
+  lObjMain.selectAll("g.obj-g")
+    .data(shownDots, o => o.slug)
+    .join(enter => {
+      const g = enter.append("g")
+        .attr("class", "obj-g")
+        .style("cursor", "pointer")
+        .attr("data-obj-slug", o => o.slug);
+      g.append("circle").attr("class", "obj-hit").attr("r", 14).attr("fill", "transparent");
+      g.append("circle").attr("class", "obj-glow").attr("r", 6).attr("opacity", 0.1);
+      g.append("circle").attr("class", "obj-dot").attr("r", 2.8).attr("opacity", 0.85);
+      // Click handled by HTML overlay divs (see updateClickTargets)
+      g.on("mouseenter", objHoverEnter).on("mouseleave", objHoverLeave);
+      return g;
+    })
+    .attr("opacity", o => (_bigBangMode && o.bbOpacity < 1) ? o.bbOpacity : null)
+    .each(function(o) {
+      const g = d3.select(this);
+      const dotDisplay = o._showIcon ? "none" : null;
+      g.select(".obj-hit").attr("cx", o.sx).attr("cy", o.sy);
+      g.select(".obj-glow").attr("cx", o.sx).attr("cy", o.sy)
+        .attr("fill", o.color).attr("display", dotDisplay);
+      g.select(".obj-dot").attr("cx", o.sx).attr("cy", o.sy)
+        .attr("fill", o.color).attr("display", dotDisplay);
+    })
+    .order();
 
-    // Hit area (invisible circle for clicks)
-    g.append("circle").attr("cx", o.sx).attr("cy", o.sy)
-      .attr("r", 14).attr("fill", "transparent");
-
-    if (o._showIcon) {
-      // Icon rendered in lIcons layer (above noise overlay)
-      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
-      const SCREEN_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
-      const isVoid = o.slug.includes("void");
-      const useScreen = (SCREEN_CATS.has(o.catKey || o.cat) || SCREEN_SLUGS.has(o.slug)) && !isVoid;
+  // (2) Icons: bg disc (screen-blend cats) + fallback dot + image, keyed by
+  // slug in their own layer (above the noise overlay).
+  lIcons.selectAll("g.icon-g")
+    .data(iconObjs, o => o.slug)
+    .join(enter => {
+      const g = enter.append("g").attr("class", "icon-g");
+      g.each(function(o) {
+        const gg = d3.select(this);
+        if (iconUsesScreenBlend(o)) {
+          gg.append("circle").attr("class", "icon-bg").attr("fill", "url(#icon-bg-grad)");
+        }
+        // Fallback dot: icons fetch on demand, so on a cold cache the
+        // <image> is empty until its webp arrives — the dot keeps the
+        // object visible (the loaded icon covers it).
+        gg.append("circle").attr("class", "icon-fallback-dot")
+          .attr("r", 2.8).attr("fill", o.color);
+        gg.append("image")
+          .attr("class", "obj-icon")
+          .attr("data-slug", o.slug)
+          .attr("href", ICON_BY_SLUG[o.slug])
+          .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null);
+      });
+      return g;
+    })
+    .each(function(o) {
+      const gg = d3.select(this);
       const bbOp = (_bigBangMode && o.bbOpacity < 1) ? o.bbOpacity : null;
-      const objIcoSize = icoSize * (iconSizeMult(o));
-
-      // For screen-blended icons, render a soft black disc behind them
-      if (useScreen) {
-        lIcons.append("circle")
-          .attr("cx", o.sx).attr("cy", o.sy)
-          .attr("r", objIcoSize * 0.52)
-          .attr("fill", "url(#icon-bg-grad)")
-          .attr("opacity", bbOp);
-      }
-
-      // Small dot beneath the icon: icons now fetch on demand, so on a cold
-      // cache the <image> is empty until its webp arrives — the dot keeps the
-      // object visible in the meantime (the loaded icon covers it).
-      lIcons.append("circle")
+      const objIcoSize = icoSize * iconSizeMult(o);
+      gg.select(".icon-bg")
         .attr("cx", o.sx).attr("cy", o.sy)
-        .attr("r", 2.8).attr("fill", o.color)
+        .attr("r", objIcoSize * 0.52).attr("opacity", bbOp);
+      gg.select(".icon-fallback-dot")
+        .attr("cx", o.sx).attr("cy", o.sy)
         .attr("opacity", bbOp == null ? 0.85 : 0.85 * bbOp);
+      gg.select(".obj-icon")
+        .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2)
+        .attr("width", objIcoSize).attr("height", objIcoSize)
+        .attr("opacity", bbOp);
+    })
+    .order();
 
-      lIcons.append("image")
-        .attr("class", "obj-icon")
-        .attr("data-slug", o.slug)
-        .attr("href", ICON_BY_SLUG[o.slug])
-        .attr("x", o.sx - objIcoSize / 2)
-        .attr("y", o.sy - objIcoSize / 2)
-        .attr("width", objIcoSize)
-        .attr("height", objIcoSize)
-        .attr("opacity", bbOp)
-        .style("mix-blend-mode", useScreen ? "screen" : null);
-    } else {
-      // Glow
-      g.append("circle").attr("cx", o.sx).attr("cy", o.sy)
-        .attr("class", "obj-glow")
-        .attr("r", 6).attr("fill", o.color).attr("opacity", 0.1);
-
-      // Dot
-      g.append("circle").attr("cx", o.sx).attr("cy", o.sy)
-        .attr("class", "obj-dot")
-        .attr("r", 2.8).attr("fill", o.color).attr("opacity", 0.85);
-    }
-
-    const pos = o._labelPos;
-
-    // Shadow + Label rendered in lLabels layer (above icons) so text is always readable
-    const labelDisplay = (_labelsEnabled && o._showLabel) ? null : "none";
-    lLabels.append("text")
-      .attr("x", o.sx + pos.dx).attr("y", o.sy + pos.dy)
-      .attr("text-anchor", pos.anchor)
+  // (3) Labels: one text per object with paint-order (outline behind fill,
+  // replacing the shadow+fill pair), keyed by slug, above icons.
+  lLabels.selectAll("text.obj-label")
+    .data(shownDots, o => o.slug)
+    .join(enter => enter.append("text")
+      .attr("class", "obj-label")
+      .attr("data-label-slug", o => o.slug)
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
       .attr("font-size", 10).attr("letter-spacing", "0.5px")
-      .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
+      .attr("paint-order", "stroke")
+      .attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
-      .attr("class", "obj-label").attr("data-label-slug", o.slug)
-      .attr("display", labelDisplay)
-      .text(o.name);
+      .text(o => o.name))
+    .attr("x", o => o.sx + o._labelPos.dx)
+    .attr("y", o => o.sy + o._labelPos.dy)
+    .attr("text-anchor", o => o._labelPos.anchor)
+    .attr("fill", o => o.color)
+    .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
 
-    lLabels.append("text")
-      .attr("x", o.sx + pos.dx).attr("y", o.sy + pos.dy)
-      .attr("text-anchor", pos.anchor)
-      .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", 10).attr("letter-spacing", "0.5px")
-      .attr("fill", o.color)
-      .attr("class", "obj-label").attr("data-label-slug", o.slug)
-      .attr("display", labelDisplay)
-      .text(o.name);
+  _lastProjected = shownDots;
+}
 
-    // Click handled by HTML overlay divs (see updateClickTargets)
-    g.on("mouseenter", function(e) {
-      const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
-      if (iconEl.size()) {
-        const objMult = iconSizeMult(o);
-        const hoverSize = Math.max(64, icoSize * objMult * 1.5);
-        iconEl.attr("width", hoverSize).attr("height", hoverSize)
-          .attr("x", o.sx - hoverSize / 2).attr("y", o.sy - hoverSize / 2);
-      } else {
-        d3.select(this).select(".obj-glow").attr("r", 10).attr("opacity", 0.25);
-        d3.select(this).select(".obj-dot").attr("r", 4);
-      }
-      lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", null);
-      showTooltip(e, o, o.cat);
-    });
-    g.on("mouseleave", function() {
-      const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
-      if (iconEl.size()) {
-        const objIcoSize = icoSize * (iconSizeMult(o));
-        iconEl.attr("width", objIcoSize).attr("height", objIcoSize)
-          .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2);
-      } else {
-        d3.select(this).select(".obj-glow").attr("r", 6).attr("opacity", 0.1);
-        d3.select(this).select(".obj-dot").attr("r", 2.8);
-      }
-      if (!_labelsEnabled || !o._showLabel) {
-        lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", "none");
-      }
-      hideTooltip();
-    });
-  });
-  _lastProjected = projected.filter(o => o._showDot);
+// Screen-blend decision is static per object — shared by enter and update.
+const SCREEN_BLEND_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
+const SCREEN_BLEND_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
+function iconUsesScreenBlend(o) {
+  if (o.slug.includes("void")) return false;
+  return SCREEN_BLEND_CATS.has(o.catKey || o.cat) || SCREEN_BLEND_SLUGS.has(o.slug);
+}
+
+// Hover handlers for the persistent object groups (datum-based, attached
+// once at enter — the join rebinds fresh data to the same nodes each frame).
+function objHoverEnter(e, o) {
+  const icoSize = effectiveIconSize();
+  const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
+  if (iconEl.size()) {
+    const hoverSize = Math.max(64, icoSize * iconSizeMult(o) * 1.5);
+    iconEl.attr("width", hoverSize).attr("height", hoverSize)
+      .attr("x", o.sx - hoverSize / 2).attr("y", o.sy - hoverSize / 2);
+  } else {
+    d3.select(this).select(".obj-glow").attr("r", 10).attr("opacity", 0.25);
+    d3.select(this).select(".obj-dot").attr("r", 4);
+  }
+  lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", null);
+  showTooltip(e, o, o.cat);
+}
+function objHoverLeave(e, o) {
+  const icoSize = effectiveIconSize();
+  const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
+  if (iconEl.size()) {
+    const objIcoSize = icoSize * iconSizeMult(o);
+    iconEl.attr("width", objIcoSize).attr("height", objIcoSize)
+      .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2);
+  } else {
+    d3.select(this).select(".obj-glow").attr("r", 6).attr("opacity", 0.1);
+    d3.select(this).select(".obj-dot").attr("r", 2.8);
+  }
+  if (!_labelsEnabled || !o._showLabel) {
+    lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", "none");
+  }
+  hideTooltip();
 }
 
 // =============================================================
@@ -4533,55 +4534,48 @@ function updateClickTargets() {
     clickTargetContainer.appendChild(div);
   });
 
-  // Label click targets: measure actual SVG text bounding boxes
-  lLabels.selectAll("text[data-label-slug]").each(function() {
-    const el = d3.select(this);
-    if (el.attr("display") === "none") return;
-    if (el.attr("fill") === "none") return; // skip shadow text (stroke-only)
+  // Label click targets: use the layout solution's label rects (the same
+  // rects used for collision placement) — replaces a forced-layout getBBox
+  // per label after every gesture.
+  if (_labelsEnabled) _lastProjected.forEach(obj => {
+    if (!obj._showLabel || !obj._labelRect) return;
+    const r = obj._labelRect;
+    const div = document.createElement("div");
+    div.className = "click-target click-target-label";
+    div.style.left = (r.x + margin.left - 2) + "px";
+    div.style.top = (r.y + margin.top - 2) + "px";
+    div.style.width = (r.w + 4) + "px";
+    div.style.height = (r.h + 4) + "px";
+    div.dataset.slug = obj.slug;
 
-    const slug = el.attr("data-label-slug");
-    const obj = _lastProjected.find(o => o.slug === slug);
-    if (!obj) return;
+    div.addEventListener("click", (e) => {
+      e.stopPropagation();
+      _sidebarManuallyExpanded = false;
+      openSidebar(obj);
+      setSidebarOpen(true);
+    });
 
-    try {
-      const bbox = this.getBBox();
-      const div = document.createElement("div");
-      div.className = "click-target click-target-label";
-      div.style.left = (bbox.x + margin.left - 2) + "px";
-      div.style.top = (bbox.y + margin.top - 2) + "px";
-      div.style.width = (bbox.width + 4) + "px";
-      div.style.height = (bbox.height + 4) + "px";
-      div.dataset.slug = slug;
+    div.addEventListener("mouseenter", (e) => {
+      const iconEl = lIcons.select(`.obj-icon[data-slug="${obj.slug}"]`);
+      if (iconEl.size()) {
+        const hoverSize = Math.max(64, baseIco * iconSizeMult(obj) * 1.5);
+        iconEl.attr("width", hoverSize).attr("height", hoverSize)
+          .attr("x", obj.sx - hoverSize / 2).attr("y", obj.sy - hoverSize / 2);
+      }
+      showTooltip(e, obj, obj.cat);
+    });
 
-      div.addEventListener("click", (e) => {
-        e.stopPropagation();
-        _sidebarManuallyExpanded = false;
-        openSidebar(obj);
-        setSidebarOpen(true);
-      });
+    div.addEventListener("mouseleave", () => {
+      const iconEl = lIcons.select(`.obj-icon[data-slug="${obj.slug}"]`);
+      if (iconEl.size()) {
+        const objS = baseIco * iconSizeMult(obj);
+        iconEl.attr("width", objS).attr("height", objS)
+          .attr("x", obj.sx - objS / 2).attr("y", obj.sy - objS / 2);
+      }
+      hideTooltip();
+    });
 
-      div.addEventListener("mouseenter", (e) => {
-        const iconEl = lIcons.select(`.obj-icon[data-slug="${slug}"]`);
-        if (iconEl.size()) {
-          const hoverSize = Math.max(64, baseIco * iconSizeMult(obj) * 1.5);
-          iconEl.attr("width", hoverSize).attr("height", hoverSize)
-            .attr("x", obj.sx - hoverSize / 2).attr("y", obj.sy - hoverSize / 2);
-        }
-        showTooltip(e, obj, obj.cat);
-      });
-
-      div.addEventListener("mouseleave", () => {
-        const iconEl = lIcons.select(`.obj-icon[data-slug="${slug}"]`);
-        if (iconEl.size()) {
-          const objS = baseIco * iconSizeMult(obj);
-          iconEl.attr("width", objS).attr("height", objS)
-            .attr("x", obj.sx - objS / 2).attr("y", obj.sy - objS / 2);
-        }
-        hideTooltip();
-      });
-
-      clickTargetContainer.appendChild(div);
-    } catch(e) { /* getBBox can fail on hidden elements */ }
+    clickTargetContainer.appendChild(div);
   });
 
   // Dark matter region click targets: overlay on the "POSSIBLE AREAS" label and region polygons
