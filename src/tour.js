@@ -177,6 +177,8 @@ export function updateStartButtonLabel() {
 export function startTour(stepIndex, skipNav) {
   _tourActive = true;
   _tourStep = stepIndex;
+  // Lets CSS declutter the UI while the tour drives (see tour.css mobile rules)
+  document.body.classList.add("touring");
 
   els.box.classList.remove("tour-hidden");
   els.box.classList.add("tour-entering");
@@ -196,6 +198,7 @@ export function startTour(stepIndex, skipNav) {
 
 function closeTour() {
   _tourActive = false;
+  document.body.classList.remove("touring");
   els.box.classList.add("tour-hidden");
   els.header.classList.add("tour-hidden");
   els.box.classList.remove("tour-intro");

@@ -424,16 +424,34 @@ body.is-mobile #tour-header p {
 
 
 
+/* Bottom sheet, centered by insets — NOT by transform. The .tour-hidden
+   state and the tourFadeIn entering animation both overwrite `transform`,
+   which used to strip a translateX(-50%) centering and leave the panel
+   floating half off-screen mid-viewport during those moments. With
+   left/right insets there is no X-transform to lose. */
 body.is-mobile #tour-box {
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 54px;
-  width: calc(100vw - 32px);
-  max-width: 400px;
+  left: 12px;
+  right: 12px;
+  width: auto;
+  max-width: none;
+  transform: none;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  max-height: 34vh; /* tour text never covers more than ~1/3 of the screen */
+  padding: 12px 16px 10px;
 }
 
-body.is-mobile #tour-box.tour-hidden {
-  transform: translateX(-50%) translateY(12px);
+body.is-mobile #tour-content {
+  overflow-y: auto; /* long steps scroll inside the capped sheet */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Declutter while the tour drives: on a phone the bottom axis numbers, the
+   preset shortcuts, the readout and the sidebar-expand chevron are noise. */
+body.is-mobile.touring #preset-bar,
+body.is-mobile.touring #sidebar-expand,
+body.is-mobile.touring #readout,
+body.is-mobile.touring .axis-b {
+  display: none !important;
 }
 
 body.is-mobile #tour-prev,
@@ -446,13 +464,26 @@ body.is-mobile #tour-prev {
   width: 44px;
 }
 
+/* Same no-transform centering for the start button (its hide state also
+   overwrites transform) */
 body.is-mobile #tour-start-btn {
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 54px;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: fit-content;
+  transform: none;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
 }
 
-body.is-mobile #tour-start-btn.tour-hidden {
-  transform: translateX(-50%) translateY(12px);
-}
 
+/* F8: title lockup on phones — line 1 ("THE TRIANGLE OF") must never wrap;
+   line 2's exact width-match to line 1 is applied by fitTitleLockup() in
+   main.js once fonts are ready. */
+body.is-mobile .tour-title-line1 {
+  font-size: 18px;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+body.is-mobile .tour-title-line2 {
+  font-size: 34px;
+}

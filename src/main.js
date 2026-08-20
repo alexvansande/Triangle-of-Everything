@@ -29,12 +29,14 @@ async function loadKatex() {
 const descFiles = import.meta.glob("../content/descriptions/*.md", { query: "?raw", import: "default", eager: true });
 const DESC_BY_SLUG = {};
 
-// Load object images (lazy — each image fetched on demand when sidebar opens)
-const imgLoaders = import.meta.glob("../content/images/*.webp");
+// Object images: eager `?url` glob inlines just the URL strings (no per-file
+// JS wrapper chunk); the webp itself is fetched on demand when the sidebar
+// sets <img src>, same laziness as before with 114 fewer chunks.
+const imgUrls = import.meta.glob("../content/images/*.webp", { query: "?url", import: "default", eager: true });
 const IMG_BY_SLUG = {};
-for (const [path, loader] of Object.entries(imgLoaders)) {
+for (const [path, url] of Object.entries(imgUrls)) {
   const slug = path.replace("../content/images/", "").replace(".webp", "");
-  IMG_BY_SLUG[slug] = loader;
+  IMG_BY_SLUG[slug] = url;
 }
 import imageManifest from "../content/images/manifest.json";
 // Spirograph state hashes for particles that can be opened in the 5D spirograph
@@ -70,30 +72,38 @@ const ICON_MULTI_MAP = {
   "void": ["bo-tes-void", "eridanus-supervoid", "kbc-void"],
   "neutrino-tau": ["neutrino"],  // Neutrino (τ) — shares slug with μ
 };
-const iconLoaders = import.meta.glob("../content/icons/*.webp");
+// Eager `?url` glob inlines the 130 icon URLs into the bundle as plain
+// strings — no per-icon JS wrapper chunk, no upfront image fetches. The
+// browser fetches each webp on demand the first time its <image> renders
+// (map-tile-style pop-in); a gentle warmup prefetches the rest after boot.
+const iconUrls = import.meta.glob("../content/icons/*.webp", { query: "?url", import: "default", eager: true });
 const ICON_BY_SLUG = {};
-for (const [path, loader] of Object.entries(iconLoaders)) {
+for (const [path, url] of Object.entries(iconUrls)) {
   const iconFile = path.replace("../content/icons/", "").replace(".webp", "");
   if (ICON_MULTI_MAP[iconFile]) {
-    ICON_MULTI_MAP[iconFile].forEach(s => { ICON_BY_SLUG[s] = loader; });
+    ICON_MULTI_MAP[iconFile].forEach(s => { ICON_BY_SLUG[s] = url; });
   } else {
     const slug = ICON_SLUG_MAP[iconFile] || iconFile;
-    ICON_BY_SLUG[slug] = loader;
+    ICON_BY_SLUG[slug] = url;
   }
 }
-const _iconUrlCache = {};
-async function getIconUrl(slug) {
-  if (_iconUrlCache[slug]) return _iconUrlCache[slug];
-  const loader = ICON_BY_SLUG[slug];
-  if (!loader) return null;
-  const mod = await loader();
-  _iconUrlCache[slug] = mod.default;
-  return mod.default;
-}
-// Preload all icons eagerly (~70KB total), redraw once all loaded
-Promise.all(Object.keys(ICON_BY_SLUG).map(s => getIconUrl(s))).then(() => {
-  if (typeof redraw === "function") redraw();
-});
+// Warm the browser cache for off-screen icons once the app has settled —
+// idle-scheduled batches so it never competes with user interaction, skipped
+// on data-saver connections, paused while the tab is hidden.
+setTimeout(() => {
+  if (navigator.connection?.saveData) return;
+  const urls = [...new Set(Object.values(ICON_BY_SLUG))]; // multi-map slugs share URLs
+  let i = 0;
+  const batch = () => {
+    if (i >= urls.length) return;
+    if (document.hidden) { setTimeout(batch, 2000); return; }
+    urls.slice(i, i + 8).forEach(u => { const img = new Image(); img.src = u; });
+    i += 8;
+    if (typeof requestIdleCallback === "function") requestIdleCallback(batch, { timeout: 1500 });
+    else setTimeout(batch, 300);
+  };
+  batch();
+}, 4000);
 let _iconsEnabled = true;
 let _iconSize = 100;  // percent multiplier on top of zoom-derived effective size
 let _labelsEnabled = true;
@@ -105,7 +115,10 @@ function effectiveIconSize() {
   const minSize = 14, maxSize = 115;
   const t = Math.log(Math.max(minK, Math.min(maxK, currentK)) / minK)
           / Math.log(maxK / minK);
-  return minSize + (maxSize - minSize) * t;
+  const size = minSize + (maxSize - minSize) * t;
+  // Phones get half the desktop size across the board: full-size icons (×
+  // per-object multipliers) drown a 390px screen at stellar zooms.
+  return _isMobile ? size / 2 : size;
 }
 // Some objects need a larger icon (e.g. Saturn's rings extend beyond the sphere)
 const ICON_SIZE_MULT = {
@@ -239,6 +252,8 @@ const BASE_MARGIN_LEFT = 80;
 const MOBILE_BREAKPOINT = 768;
 let _isSidebarOpen = false;
 let _isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+let _showAxesMobile = false; // edge-to-edge by default; axes pill toggles unit margins
+const _isCoarse = !!window.matchMedia?.("(pointer: coarse)").matches;
 const _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 let _booted = false;
 
@@ -285,10 +300,20 @@ function measure() {
   W = window.innerWidth;
   H = window.innerHeight;
   if (_isMobile) {
-    margin.left = 20;
-    margin.right = 20;
-    margin.top = TOP_MARGIN_DEFAULT;
-    margin.bottom = 60;
+    // Edge-to-edge map on phones: the chart IS the screen and all UI floats
+    // above it. The axes pill (#axes-toggle) temporarily restores the unit
+    // margins so the axis numbers can be read, map-app style.
+    if (_showAxesMobile) {
+      margin.left = 20;
+      margin.right = 20;
+      margin.top = TOP_MARGIN_DEFAULT;
+      margin.bottom = 60;
+    } else {
+      margin.left = 0;
+      margin.right = 0;
+      margin.top = 0;
+      margin.bottom = 0;
+    }
   } else {
     const baseLeft = _isSidebarOpen ? SIDEBAR_W : BASE_MARGIN_LEFT - 80;
     const defaultLeft = _isSidebarOpen ? SIDEBAR_W + 80 : BASE_MARGIN_LEFT;
@@ -468,7 +493,9 @@ grainF.append("feColorMatrix").attr("type", "saturate").attr("values", "0").attr
 grainF.append("feBlend").attr("in", "SourceGraphic").attr("in2", "mono").attr("mode", "multiply");
 
 // --- Background rect ---
-svg.append("rect").attr("width", W).attr("height", H).attr("fill", "#000000");
+// Classed: a bare svg.select("rect") would match the clipPath rect in defs
+// (first rect in document order) and silently resize the wrong element.
+svg.append("rect").attr("class", "svg-bg").attr("width", W).attr("height", H).attr("fill", "#000000");
 
 // --- Chart container ---
 const chart = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
@@ -496,6 +523,10 @@ const lArrows     = lContent.append("g").style("mix-blend-mode", "screen");
 const lConnDots   = lContent.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
 const lRegLabel   = lContent.append("g");
 const lObj        = lContent.append("g");
+// Retained rendering split: extras (cluster/category/BH labels, ~20 nodes)
+// are rebuilt per frame; main object groups are persistent keyed joins.
+const lObjExtras  = lObj.append("g");
+const lObjMain    = lObj.append("g");
 const lHighlight  = lContent.append("g").style("pointer-events", "none");
 const lAxisRef    = lContent.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
 // Label layer inside lContent (so it pans/zooms) but above dots
@@ -767,12 +798,15 @@ function drawBoundaries() {
   const schwX = px(hLogR), schwY = py(schwarzschildM(hLogR));
   const compX = px(hLogR), compY = py(comptonM(hLogR));
 
-  // White glow behind the triangle
+  // White glow behind the triangle — stacked strokes instead of a
+  // viewport-sized feGaussianBlur (which forced a filter re-raster every frame)
   const triPath = `M ${planckX} ${planckY} L ${schwX} ${schwY} L ${compX} ${compY} Z`;
-  lBound.append("path").attr("d", triPath)
-    .attr("fill", "none").attr("stroke", "white")
-    .attr("stroke-width", 6).attr("opacity", 0.08)
-    .attr("filter", "url(#line-glow)");
+  [[11, 0.025], [6, 0.05], [3, 0.08]].forEach(([w, o]) => {
+    lBound.append("path").attr("d", triPath)
+      .attr("fill", "none").attr("stroke", "white")
+      .attr("stroke-width", w).attr("opacity", o)
+      .attr("stroke-linejoin", "round");
+  });
 
   // White triangle outline
   lBound.append("path").attr("d", triPath)
@@ -1842,7 +1876,7 @@ function drawObjects() {
   const icoOverlap2 = icoOverlap * icoOverlap;
   const shownIcons = [];
   projected.forEach(o => {
-    const hasIcon = _iconsEnabled && _iconUrlCache[o.slug];
+    const hasIcon = _iconsEnabled && ICON_BY_SLUG[o.slug];
     if (!hasIcon || !o._showDot) { o._showIcon = false; return; }
     const tooClose = shownIcons.some(s => {
       const dx = s.sx - o.sx, dy = s.sy - o.sy;
@@ -2188,10 +2222,18 @@ function drawObjects() {
           .attr("opacity", bbOp);
       }
 
+      // Small dot beneath the icon: icons now fetch on demand, so on a cold
+      // cache the <image> is empty until its webp arrives — the dot keeps the
+      // object visible in the meantime (the loaded icon covers it).
+      lIcons.append("circle")
+        .attr("cx", o.sx).attr("cy", o.sy)
+        .attr("r", 2.8).attr("fill", o.color)
+        .attr("opacity", bbOp == null ? 0.85 : 0.85 * bbOp);
+
       lIcons.append("image")
         .attr("class", "obj-icon")
         .attr("data-slug", o.slug)
-        .attr("href", _iconUrlCache[o.slug])
+        .attr("href", ICON_BY_SLUG[o.slug])
         .attr("x", o.sx - objIcoSize / 2)
         .attr("y", o.sy - objIcoSize / 2)
         .attr("width", objIcoSize)
@@ -2980,6 +3022,8 @@ function relayout() {
 
   measure();
 
+  svg.attr("width", W).attr("height", H);
+  svg.select("rect.svg-bg").attr("width", W).attr("height", H);
   defs.select("#clip rect").attr("width", cw).attr("height", ch);
   clip.selectAll("rect.bg-rect").attr("width", cw).attr("height", ch);
   chart.attr("transform", `translate(${margin.left},${margin.top})`);
@@ -3056,7 +3100,7 @@ function openSidebar(obj) {
 
   // Show icon in sidebar header if available, otherwise colored dot
   const slug = obj.slug || nameToSlug(obj.name);
-  const iconUrl = _iconsEnabled && _iconUrlCache[slug];
+  const iconUrl = _iconsEnabled && ICON_BY_SLUG[slug];
   if (iconUrl) {
     sbDot.style.background = "none";
     sbDot.style.boxShadow = "none";
@@ -3069,8 +3113,8 @@ function openSidebar(obj) {
   sbDot.style.color = objColor;
   sbCategory.textContent = catKey;
 
-  // Display object image or placeholder (lazy-loaded)
-  const imgLoader = IMG_BY_SLUG[slug];
+  // Display object image or placeholder (fetched on demand via <img src>)
+  const imgUrl = IMG_BY_SLUG[slug];
   const imgMeta = imageManifest[slug];
   // For particles with a Hiperspirograph state, embed the live spirograph instead
   const spiroState = hiperspirographStates[slug];
@@ -3089,12 +3133,12 @@ function openSidebar(obj) {
     explore.rel = "noopener";
     explore.textContent = "✨ Explore multidimensional strings →";
     sbImage.appendChild(explore);
-  } else if (imgLoader) {
+  } else if (imgUrl) {
     sbImage.innerHTML = "";
     const img = document.createElement("img");
     img.alt = obj.name;
     sbImage.appendChild(img);
-    imgLoader().then(mod => { img.src = mod.default; });
+    img.src = imgUrl;
     if (imgMeta) {
       const credit = document.createElement("a");
       credit.className = "sb-image-credit";
@@ -3257,6 +3301,12 @@ document.addEventListener("pointerdown", (e) => {
 }, true);
 
 document.addEventListener("click", (e) => {
+  // Ignore the touch compatibility click that follows a handled tap — it
+  // targets the gesture surface, and the tap handler has already acted.
+  // Without this, tapping an object would open the sidebar and this handler
+  // would immediately close it again.
+  if (e.target.classList?.contains("gesture-surface")) return;
+
   // Axis unit link click
   const labelEl = e.target.closest?.(".axis-unit-link");
   if (labelEl) {
@@ -3348,12 +3398,17 @@ function drawAxes() {
   const diagNorm = Math.sqrt(diagDx * diagDx + diagDy * diagDy);
   const diagLen = 15;
 
+  let lastDensityLabelP = Infinity;
   for (let logRho = -54; logRho <= 108; logRho += 9) {
     const b = DENSITY_SPHERE_C + logRho;
     const logR_top = (d.y1 - b) / 3;
     if (logR_top < d.x0 - 1 || logR_top > d.x1 + 1) continue;
     const p = px(logR_top);
     if (p < 0 || p > cw) continue;
+    // Zoomed out, consecutive 9-decade steps land a few px apart and the
+    // rotated numbers pile into an unreadable bundle — enforce min spacing.
+    if (Math.abs(lastDensityLabelP - p) < 34) continue;
+    lastDensityLabelP = p;
 
     const ex = p + (diagDx / diagNorm) * diagLen;
     const ey = -(diagDy / diagNorm) * diagLen;
@@ -3693,14 +3748,14 @@ function emSpectrumColor(t) {
   return `rgb(${Math.round(r0 + (r1 - r0) * f)},${Math.round(g0 + (g1 - g0) * f)},${Math.round(b0 + (b1 - b0) * f)})`;
 }
 
-function connectionOpacity(cp) {
+function connectionOpacity(cp, view = null) {
   const [zMin, zMax] = cp.zoomRange;
   if (currentK < zMin * 0.5) return 0;
   if (currentK > zMax) return 0;
   let fade = 1;
   if (currentK < zMin) fade = (currentK - zMin * 0.5) / (zMin * 0.5);
   if (cp.neighborhood) {
-    const d = vd();
+    const d = view || vd();
     const nb = cp.neighborhood;
     if (d.x1 < nb.x[0] || d.x0 > nb.x[1] || d.y1 < nb.y[0] || d.y0 > nb.y[1]) return 0;
     const ox = Math.max(0, Math.min(d.x1, nb.x[1]) - Math.max(d.x0, nb.x[0]));
@@ -3711,7 +3766,9 @@ function connectionOpacity(cp) {
   return Math.max(0, Math.min(1, fade));
 }
 
-const CLUSTER_DOTS = 5;
+// Shorter dot trails on phones. Read live at dot-pool rebuild time —
+// _isMobile changes on resize/rotation and the glow gate below reads it live.
+function clusterDots() { return _isMobile ? 2 : 5; }
 const CLUSTER_SPREAD = 0.008;
 const BASE_PX_PER_SEC = 12;
 
@@ -3732,8 +3789,11 @@ function pauseAnimOnInteract() {
   _animResumeTimer = setTimeout(() => { _animPaused = false; }, 1000);
 }
 
-function screenPathLength(cp) {
-  if (cp._pathLen > 0) return cp._pathLen;
+function screenPathLength(cp, ppu) {
+  ensureConnGeometry(cp);
+  // Data-space arc length × current px-per-unit (the view is equal-scale in
+  // both axes, so this equals the on-screen arc length). Pure math, no DOM.
+  if (cp._dataLen > 0) return Math.max(1, cp._dataLen * (ppu ?? Math.abs(px(1) - px(0))));
   const N = 40;
   let len = 0;
   for (let i = 0; i < N; i++) {
@@ -3746,6 +3806,72 @@ function screenPathLength(cp) {
   }
   return Math.max(len, 1);
 }
+
+// Data-space path generators (no px/py): Catmull-Rom and the bezier formula
+// are affine-invariant, so a curve built from log coordinates and mapped
+// through the scales per frame is identical to one rebuilt in screen space.
+// These are the single source of truth for connection curve shape — the
+// screen-space generators in drawConnections share connCurve/connBezierCtrl.
+const connCurve = d3.curveCatmullRom.alpha(0.5);
+const dataCurveGen = d3.line()
+  .x(p => p.logR).y(p => p.logM)
+  .curve(connCurve);
+
+// "1:2 rectangle at 45°" control points for decay/combines beziers,
+// in data space (see the comment in drawConnections).
+function connBezierCtrl(A, B) {
+  const H = (B.logR - A.logR) / 2;
+  const V = (A.logM - B.logM) / 2;
+  return { c1r: A.logR + H, c1m: A.logM + V, c2r: B.logR + H, c2m: A.logM - V };
+}
+
+function bezierDataPathGen(pts) {
+  if (pts.length < 2) return "";
+  let d = `M ${pts[0].logR},${pts[0].logM}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const c = connBezierCtrl(pts[i], pts[i + 1]);
+    d += ` C ${c.c1r},${c.c1m} ${c.c2r},${c.c2m} ${pts[i + 1].logR},${pts[i + 1].logM}`;
+  }
+  return d;
+}
+
+/** Build a path's curve geometry on first use: a detached data-space path
+ *  element plus arc-length samples for cheap per-frame positioning. Lazy so
+ *  boot pays nothing; sample count scales with curve length; getPathScreenPos
+ *  switches to the exact path element at deep zoom where sample chords would
+ *  visibly cut corners. */
+function ensureConnGeometry(cp) {
+  if (cp._samples) return;
+  const isBezier = cp.family === "decay" || cp.family === "combines";
+  const probe = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  probe.setAttribute("d", isBezier ? bezierDataPathGen(cp.points) : dataCurveGen(cp.points));
+  const dataLen = probe.getTotalLength();
+  const N = Math.min(128, Math.max(24, Math.ceil(dataLen * 4)));
+  const sx = new Float64Array(N + 1), sy = new Float64Array(N + 1);
+  for (let i = 0; i <= N; i++) {
+    const pt = probe.getPointAtLength(dataLen * i / N);
+    sx[i] = pt.x; sy[i] = pt.y;
+  }
+  cp._probe = probe;
+  cp._dataLen = dataLen;
+  cp._samples = { sx, sy };
+}
+
+// The dot animation loop parks itself (returns without re-queuing) whenever
+// nothing needs animating; these restart it when conditions change.
+function connAnimActive() {
+  return !_animDisabled && !document.hidden &&
+    _connPaths != null && _connPaths.some(cp => cp._visible);
+}
+function scheduleConnAnim() {
+  if (_connAnimId == null && connAnimActive()) {
+    _connLastTime = performance.now();
+    _connAnimId = requestAnimationFrame(animateConnections);
+  }
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) scheduleConnAnim();
+});
 
 function initConnections() {
   _connPaths = CONNECTION_PATHS.map(cp => {
@@ -3762,13 +3888,21 @@ function initConnections() {
       dists: computePathDists(cp.points),
       dotTs,
       dotSpeeds,
+      _samples: null,   // curve geometry built lazily by ensureConnGeometry()
+      _probe: null,
+      _dataLen: 0,
       _screenLen: 1,
       _visible: false,
       _opacity: 0,
     };
   });
-  _connLastTime = performance.now();
-  _connAnimId = requestAnimationFrame(animateConnections);
+  // Warm curve geometry off the boot critical path (~2,500 getPointAtLength
+  // calls if done eagerly); ensureConnGeometry() also builds on demand the
+  // moment a path is actually used.
+  const warm = () => _connPaths && _connPaths.forEach(ensureConnGeometry);
+  if (typeof requestIdleCallback === "function") requestIdleCallback(warm, { timeout: 3000 });
+  else setTimeout(warm, 1500);
+  scheduleConnAnim();
 }
 
 function drawConnections() {
@@ -3776,42 +3910,35 @@ function drawConnections() {
   _connDotsStale = true;
   if (!_connPaths) return;
 
+  // Screen-space serializers of the shared curve shape (connCurve /
+  // connBezierCtrl are the single source of truth — see their definitions).
   const curveLineGen = d3.line()
     .x(p => px(p.logR)).y(p => py(p.logM))
-    .curve(d3.curveCatmullRom.alpha(0.5));
+    .curve(connCurve);
 
   // Bezier path generator for decay/combines paths:
-  // All points are anchors. Between each consecutive pair (A → B),
-  // auto-compute cubic bezier control points using the "1:2 rectangle at 45°" formula:
-  //   H = (B.logR - A.logR) / 2,  V = (A.logM - B.logM) / 2
-  //   CP1 = (A.logR + H, A.logM + V)   — from A: right H, up V
-  //   CP2 = (B.logR + H, A.logM - V)   — from furthest: down V, right H
+  // All points are anchors; control points come from connBezierCtrl's
+  // "1:2 rectangle at 45°" formula, serialized through px()/py().
   function bezierPathGen(pts) {
     if (pts.length < 2) return "";
     let d = `M ${px(pts[0].logR)},${py(pts[0].logM)}`;
     for (let i = 0; i < pts.length - 1; i++) {
-      const A = pts[i], B = pts[i + 1];
-      const H = (B.logR - A.logR) / 2;
-      const V = (A.logM - B.logM) / 2;
-      const cp1r = A.logR + H, cp1m = A.logM + V;
-      const cp2r = B.logR + H, cp2m = A.logM - V;
-      d += ` C ${px(cp1r)},${py(cp1m)} ${px(cp2r)},${py(cp2m)} ${px(B.logR)},${py(B.logM)}`;
+      const B = pts[i + 1];
+      const c = connBezierCtrl(pts[i], B);
+      d += ` C ${px(c.c1r)},${py(c.c1m)} ${px(c.c2r)},${py(c.c2m)} ${px(B.logR)},${py(B.logM)}`;
     }
     return d;
   }
 
+  const view = vd(); // hoisted: identical for every path this draw
   _connPaths.forEach(cp => {
-    cp._opacity = connectionOpacity(cp);
+    cp._opacity = connectionOpacity(cp, view);
     cp._visible = cp._opacity > 0.01;
+
+    if (!cp._visible) return;
 
     // Decay and combines paths use bezier curves (alternating anchor/control points)
     const isBezier = cp.family === "decay" || cp.family === "combines";
-    const hiddenPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    hiddenPath.setAttribute("d", isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points));
-    cp._pathEl = hiddenPath;
-    cp._pathLen = hiddenPath.getTotalLength();
-
-    if (!cp._visible) return;
 
     // Draw visible line (hidden by default, revealed on hover)
     const lineGroup = lArrows.append("g")
@@ -3880,21 +4007,56 @@ function drawConnections() {
         hideTooltip();
       });
   });
+  scheduleConnAnim();
 }
 
-function getPathScreenPos(cp, t) {
-  if (cp._pathEl && cp._pathLen > 0) {
-    const pt = cp._pathEl.getPointAtLength(Math.max(0, Math.min(1, t)) * cp._pathLen);
-    return [pt.x, pt.y];
+/** Per-frame stand-in for drawConnections during an active zoom/pan: updates
+ *  visibility/opacity (cheap math) so the dots track the view correctly, but
+ *  leaves the hover lines/hit paths alone — they're invisible mid-gesture and
+ *  get rebuilt by the full drawConnections() on gesture end. */
+function updateConnectionOpacities() {
+  if (!_connPaths) return;
+  let changed = false;
+  const view = vd(); // hoisted: identical for every path this frame
+  _connPaths.forEach(cp => {
+    cp._opacity = connectionOpacity(cp, view);
+    const vis = cp._opacity > 0.01;
+    if (vis !== cp._visible) { cp._visible = vis; changed = true; }
+  });
+  if (changed) {
+    _connDotsStale = true;
+    scheduleConnAnim();
+  }
+}
+
+function getPathScreenPos(cp, t, ppu) {
+  ensureConnGeometry(cp);
+  const s = cp._samples;
+  if (s) {
+    const tt = Math.max(0, Math.min(1, t));
+    const perUnit = ppu ?? Math.abs(px(1) - px(0));
+    // At deep zoom a sample chord spans many screen px and linear
+    // interpolation would visibly cut curve corners — switch to the exact
+    // path element (few paths/dots are visible at those zoom levels).
+    if (cp._probe && (cp._dataLen * perUnit) / (s.sx.length - 1) > 24) {
+      const pt = cp._probe.getPointAtLength(tt * cp._dataLen);
+      return [px(pt.x), py(pt.y)];
+    }
+    // Interpolate the pre-sampled data-space curve, then map to screen —
+    // dots always follow the *current* transform (never stranded mid-gesture).
+    const u = tt * (s.sx.length - 1);
+    const i = Math.floor(u), f = u - i;
+    const j = Math.min(i + 1, s.sx.length - 1);
+    return [px(s.sx[i] + (s.sx[j] - s.sx[i]) * f), py(s.sy[i] + (s.sy[j] - s.sy[i]) * f)];
   }
   const pos = pathPosAt(cp.points, cp.dists, t);
   return [px(pos.logR), py(pos.logM)];
 }
 
-function applyEmWave(cp, t, sx, sy, timestamp) {
+function applyEmWave(cp, t, sx, sy, timestamp, ppu) {
   if (cp.family !== "spectrum") return [sx, sy];
   const tFwd = Math.min(1, t + 0.005);
-  const [fsx, fsy] = getPathScreenPos(cp, tFwd);
+  const [fsx, fsy] = getPathScreenPos(cp, tFwd, ppu);
   const tdx = fsx - sx, tdy = fsy - sy;
   const tlen = Math.sqrt(tdx * tdx + tdy * tdy) || 1;
   const perpX = -tdy / tlen, perpY = tdx / tlen;
@@ -3906,34 +4068,35 @@ function applyEmWave(cp, t, sx, sy, timestamp) {
 }
 
 function animateConnections(timestamp) {
-  if (!_connPaths) {
-    _connAnimId = requestAnimationFrame(animateConnections);
+  if (!connAnimActive()) {
+    // Park the loop — no re-queue. scheduleConnAnim() restarts it when a
+    // path becomes visible, the tab becomes visible, or animation re-enables.
+    lConnDots.selectAll("*").remove();
+    _connDotEls = [];
+    _connDotsStale = true;
+    _connAnimId = null;
     return;
   }
 
   const dt = Math.min((timestamp - _connLastTime) / 1000, 0.1) * _animSpeed;
   _connLastTime = timestamp;
-
-  if (_animDisabled) {
-    lConnDots.selectAll("*").remove();
-    _connDotEls = [];
-    _connDotsStale = true;
-    _connAnimId = requestAnimationFrame(animateConnections);
-    return;
-  }
+  // px-per-data-unit is constant within a frame — hoist it for every
+  // screenPathLength/getPathScreenPos call below.
+  const ppu = Math.abs(px(1) - px(0));
 
   if (_connDotsStale) {
     lConnDots.selectAll("*").remove();
     _connDotEls = [];
     const container = lConnDots.node();
+    const cd = clusterDots();
     _connPaths.forEach((cp, pi) => {
       if (!cp._visible) return;
-      cp._screenLen = screenPathLength(cp);
       for (let i = 0; i < cp.style.dotCount; i++) {
         const group = [];
-        for (let c = 0; c < CLUSTER_DOTS; c++) {
+        for (let c = 0; c < cd; c++) {
           const el = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-          if (c === 0 && (cp.family === "spectrum" || cp.family === "evolution")) el.setAttribute("filter", "url(#conn-glow)");
+          // Glow filter is a per-frame blur pass — desktop only; phones get crisp dots
+          if (c === 0 && !_isMobile && (cp.family === "spectrum" || cp.family === "evolution")) el.setAttribute("filter", "url(#conn-glow)");
           container.appendChild(el);
           group.push({ el, idx: c });
         }
@@ -3946,7 +4109,7 @@ function animateConnections(timestamp) {
   if (!_animPaused) {
     _connPaths.forEach(cp => {
       if (!cp._visible) return;
-      cp._screenLen = screenPathLength(cp);
+      cp._screenLen = screenPathLength(cp, ppu);
       const pxSpeed = (cp.style.dotSpeed || 1) * BASE_PX_PER_SEC;
       const baseDtFrac = pxSpeed / cp._screenLen * dt;
       for (let i = 0; i < cp.dotTs.length; i++) {
@@ -3965,7 +4128,7 @@ function animateConnections(timestamp) {
       const tailOffset = idx * spread;
       let t = (baseT - tailOffset + 1) % 1;
 
-      const headFactor = 1 - idx / CLUSTER_DOTS;
+      const headFactor = 1 - idx / group.length;
       const sizeFactor = isMeteor
         ? (0.15 + 0.85 * headFactor * headFactor)  // sharper falloff for comet tail
         : (0.5 + 0.5 * headFactor);
@@ -3973,8 +4136,8 @@ function animateConnections(timestamp) {
         ? (0.05 + 0.95 * headFactor * headFactor)   // brighter head, dimmer tail
         : (0.3 + 0.7 * headFactor);
 
-      let [sx, sy] = getPathScreenPos(cp, t);
-      [sx, sy] = applyEmWave(cp, t, sx, sy, timestamp);
+      let [sx, sy] = getPathScreenPos(cp, t, ppu);
+      [sx, sy] = applyEmWave(cp, t, sx, sy, timestamp, ppu);
 
       el.setAttribute("cx", String(sx));
       el.setAttribute("cy", String(sy));
@@ -4308,16 +4471,20 @@ function scheduleClickTargets() {
   _clickTargetTimer = setTimeout(updateClickTargets, 500);
 }
 
+// Hit-target size for an object, shared by the HTML click targets (mouse)
+// and the touch tap hit-test so the two input paths never drift.
+function objectHitSizePx(o, baseIco) {
+  const hasIcon = _iconsEnabled && ICON_BY_SLUG[o.slug];
+  return hasIcon ? baseIco * iconSizeMult(o) : 14; // 14 matches the dot hit-area radius
+}
+
 function updateClickTargets() {
   clearClickTargets();
   if (!_lastProjected) return;
 
   const baseIco = effectiveIconSize();
   _lastProjected.forEach(o => {
-    const hasIcon = _iconsEnabled && _iconUrlCache[o.slug];
-    const size = hasIcon
-      ? baseIco * iconSizeMult(o)
-      : 14; // match hit area radius
+    const size = objectHitSizePx(o, baseIco);
 
     // Convert SVG coords to page coords
     const pageX = o.sx + margin.left;
@@ -4441,6 +4608,109 @@ function updateClickTargets() {
   });
 }
 
+// =============================================================
+// Touch input: modality tracking + tap-to-select
+// =============================================================
+// Touch and mouse need different plumbing over the same chart:
+//  - mouse mode: the invisible HTML click-target divs handle hover + click,
+//    and the gesture-surface rect is transparent to events.
+//  - touch mode: the divs go inert (a pinch/pan starting on one never
+//    reaches d3-zoom — the div sits outside the SVG) and the gesture-surface
+//    rect becomes the stable touch target (see its creation for why).
+// body.touch-mode is the single source of truth, flipped by actual input, so
+// hybrid devices (touchscreen laptops, iPad + trackpad) get the right
+// behavior for whichever input is in use.
+let _gestureSurface = null; // assigned at boot where the rect is created
+let _touchMode = _isCoarse;
+let _lastTouchTs = 0;
+function setInputModality(touch) {
+  if (touch === _touchMode) return;
+  _touchMode = touch;
+  document.body.classList.toggle("touch-mode", touch);
+  if (_gestureSurface) _gestureSurface.style("pointer-events", touch ? "all" : "none");
+}
+document.body.classList.toggle("touch-mode", _touchMode);
+document.addEventListener("touchstart", () => {
+  _lastTouchTs = performance.now();
+  setInputModality(true);
+}, { capture: true, passive: true });
+document.addEventListener("mousemove", () => {
+  // Browsers fire synthetic mouse events right after taps — ignore those
+  if (performance.now() - _lastTouchTs > 1000) setInputModality(false);
+}, { capture: true, passive: true });
+
+function selectObject(o) {
+  _sidebarManuallyExpanded = false;
+  openSidebar(o);
+  setSidebarOpen(true);
+}
+
+// Tap detection: taps hit-test labels and projected objects directly
+// (working even during the 500ms window before click targets rebuild), and
+// anything else is forwarded as a click to the element under the finger so
+// in-SVG handlers (minimap, info-panel labels, axis links) keep working.
+let _touchTap = null;
+const _chartTapEl = document.getElementById("chart");
+_chartTapEl.addEventListener("pointerdown", (e) => {
+  if (e.pointerType !== "touch") return;
+  // A second finger means pinch, not tap
+  _touchTap = e.isPrimary ? { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId } : null;
+}, { passive: true });
+_chartTapEl.addEventListener("pointerup", (e) => {
+  if (e.pointerType !== "touch" || !_touchTap || e.pointerId !== _touchTap.id) return;
+  const dx = e.clientX - _touchTap.x, dy = e.clientY - _touchTap.y;
+  const dt = performance.now() - _touchTap.t;
+  _touchTap = null;
+  if (dx * dx + dy * dy > 20 * 20 || dt > 400) return; // drag or hold, not a tap
+
+  // Look through the gesture surface at what's under the finger
+  const surfEl = _gestureSurface?.node();
+  if (surfEl) surfEl.style.pointerEvents = "none";
+  const under = document.elementsFromPoint(e.clientX, e.clientY);
+  if (surfEl) surfEl.style.pointerEvents = _touchMode ? "all" : "none";
+
+  // 1. Tap on an object's text label
+  const labelEl = under.find(el => el.getAttribute?.("data-label-slug"));
+  if (labelEl) {
+    const o = (_lastProjected || []).find(p => p.slug === labelEl.getAttribute("data-label-slug"));
+    if (o) { selectObject(o); return; }
+  }
+
+  // 2. Tap on the minimap — forwarded before the object hit-test, or an
+  // object plotted beneath the minimap would hijack the tap
+  const miniEl = under.find(el => miniSvg.node().contains(el));
+  if (miniEl) {
+    miniEl.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: e.clientX, clientY: e.clientY }));
+    return;
+  }
+
+  // 3. Radial hit-test against projected objects (≥44px effective target)
+  const sx = e.clientX - margin.left, sy = e.clientY - margin.top;
+  const baseIco = effectiveIconSize();
+  let best = null, bestD2 = Infinity;
+  (_lastProjected || []).forEach(o => {
+    const r = Math.max(22, objectHitSizePx(o, baseIco) / 2 + 8);
+    const ddx = o.sx - sx, ddy = o.sy - sy;
+    const d2 = ddx * ddx + ddy * ddy;
+    if (d2 < r * r && d2 < bestD2) { best = o; bestD2 = d2; }
+  });
+  if (best) { selectObject(best); return; }
+
+  // 4. Dark-matter regions (their HTML click-targets are inert on touch)
+  if (under.some(el => el.classList?.contains("dm-region"))) {
+    openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+    setSidebarOpen(true);
+    return;
+  }
+
+  // 5. Anything else: forward the tap as a click to the top element under
+  // the finger — in-SVG handlers (info labels, axis-unit links) and the
+  // document-level empty-space deselect react exactly as they do for mouse.
+  if (under[0] && under[0] !== document.documentElement && under[0] !== document.body) {
+    under[0].dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: e.clientX, clientY: e.clientY }));
+  }
+}, { passive: true });
+
 function redrawVectors() {
   drawRegions();
   drawGrid();
@@ -4495,7 +4765,7 @@ function drawObjectsFast() {
     if (sx < -pad || sx > cw + pad || sy < -pad || sy > ch + pad) return;
     fastProjected.push({ ...o, sx, sy, _showDot: true });
 
-    const hasIcon = _iconsEnabled && _iconUrlCache[o.slug];
+    const hasIcon = _iconsEnabled && ICON_BY_SLUG[o.slug];
     // Icon overlap check: skip if too close to an already-shown icon
     if (hasIcon) {
       const icoOverlap = icoSize * 1.0;
@@ -4524,7 +4794,7 @@ function drawObjectsFast() {
       }
       lIcons.append("image")
         .attr("class", "obj-icon").attr("data-slug", o.slug)
-        .attr("href", _iconUrlCache[o.slug])
+        .attr("href", ICON_BY_SLUG[o.slug])
         .attr("x", sx - objIcoSize / 2).attr("y", sy - objIcoSize / 2)
         .attr("width", objIcoSize).attr("height", objIcoSize)
         .attr("opacity", opacity)
@@ -4553,7 +4823,7 @@ function redrawVectorsLight() {
   drawDensityArrows();
   drawEnergyBands();
   drawDarkMatterRegions();
-  drawConnections();
+  updateConnectionOpacities();  // dots keep tracking the view; hover lines rebuilt on gesture end
   drawRegionLabels();
   // ALWAYS full-render objects every frame, including during automated tour
   // transitions. Text labels must redraw at their correct positions on every
@@ -4588,6 +4858,10 @@ const zoomBehavior = d3.zoom()
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
     _zooming = true;
     clearClickTargets();
+    // The hover hit-paths aren't rebuilt during the gesture (see
+    // updateConnectionOpacities), so disable them — a mousemove mid-wheel-zoom
+    // would otherwise light a connection at stale, pre-zoom coordinates.
+    lArrows.style("pointer-events", "none");
     // Hide expensive feTurbulence filter during zoom on Safari for smoother animation
     if (_isSafari) grainRect.style("display", "none");
   })
@@ -4625,6 +4899,7 @@ const zoomBehavior = d3.zoom()
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
     lTilesBase.attr("transform", null);
+    lArrows.style("pointer-events", null); // drawConnections rebuilds fresh hit paths
     redraw();
     if (_isSafari) grainRect.style("display", null);
     updateStartButtonLabel();
@@ -5109,6 +5384,7 @@ const setAnim = document.getElementById("set-anim");
 setAnim.addEventListener("change", () => {
   _animDisabled = !setAnim.checked;
   document.body.classList.toggle("anim-off", _animDisabled);
+  scheduleConnAnim();  // restart the parked dot loop when re-enabled
   saveSettings();
 });
 
@@ -5197,7 +5473,7 @@ document.addEventListener("keydown", (e) => {
 // resize listener and the chart-margin drag handles.
 function applyLayout({ resetZoom } = {}) {
   svg.attr("width", W).attr("height", H);
-  svg.select("rect").attr("width", W).attr("height", H);
+  svg.select("rect.svg-bg").attr("width", W).attr("height", H);
   defs.select("#clip rect").attr("width", cw).attr("height", ch);
   clip.selectAll("rect.bg-rect").attr("width", cw).attr("height", ch);
   chart.attr("transform", `translate(${margin.left},${margin.top})`);
@@ -5216,14 +5492,27 @@ function applyLayout({ resetZoom } = {}) {
 }
 window.__applyLayout = applyLayout;
 
+// Resize must never wipe the user's zoom position: rotation, URL-bar
+// collapse, and the on-screen keyboard all fire this. On touch devices,
+// height-only wiggles (browser chrome showing/hiding) are ignored outright;
+// real resizes re-layout around the preserved center. relayout() owns all
+// sizing and triggers the full redraw via the zoom handlers — no extra
+// redraw() here.
+let _lastVw = window.innerWidth, _lastVh = window.innerHeight;
+let _resizeTimer = null;
 window.addEventListener("resize", () => {
-  const modeChanged = updateMobileState();
-  measure();
-  applyLayout({ resetZoom: true });
-  redraw();
-  if (modeChanged && _isMobile && _isSidebarOpen) {
-    setSidebarOpen(false);
-  }
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    const dw = Math.abs(window.innerWidth - _lastVw);
+    const dh = Math.abs(window.innerHeight - _lastVh);
+    if (_isCoarse && dw === 0 && dh < 160) return; // mobile browser chrome
+    _lastVw = window.innerWidth; _lastVh = window.innerHeight;
+    const modeChanged = updateMobileState();
+    relayout(); // preserves zoom center + scale through the new layout
+    if (modeChanged && _isMobile && _isSidebarOpen) {
+      setSidebarOpen(false);
+    }
+  }, 150);
 });
 
 // =============================================================
@@ -5245,6 +5534,47 @@ function closeSearch() {
   searchResults.classList.remove("active");
   searchInput.blur();
 }
+
+// Title lockup on phones: "THE TRIANGLE OF" stays one line (CSS nowrap) and
+// "EVERYTHING" is scaled so both lines span exactly the same width — the
+// classic poster lockup. Measured with canvas so it's exact for the loaded
+// font, then applied once per title.
+function fitTitleLockup(container) {
+  const l1 = container.querySelector(".title-line1, .tour-title-line1");
+  const l2 = container.querySelector(".title-line2, .tour-title-line2");
+  if (!l1 || !l2) return;
+  const ctx = document.createElement("canvas").getContext("2d");
+  const measure = (el) => {
+    const cs = getComputedStyle(el);
+    ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const ls = parseFloat(cs.letterSpacing) || 0;
+    const text = el.textContent.trim();
+    return ctx.measureText(text).width + ls * Math.max(0, text.length - 1);
+  };
+  const w1 = measure(l1), w2 = measure(l2);
+  if (w1 > 0 && w2 > 0) {
+    const scale = w1 / w2;
+    const cur = parseFloat(getComputedStyle(l2).fontSize);
+    l2.style.fontSize = `${(cur * scale).toFixed(2)}px`;
+    const ls2 = parseFloat(getComputedStyle(l2).letterSpacing) || 0;
+    if (ls2) l2.style.letterSpacing = `${(ls2 * scale).toFixed(2)}px`;
+  }
+}
+if (_isMobile) {
+  (document.fonts?.ready || Promise.resolve()).then(() => {
+    document.querySelectorAll("#intro-title, #tour-header h2").forEach(fitTitleLockup);
+  });
+}
+
+// Mobile axes pill: toggles the unit margins (and axis numbers) on and off
+// around the edge-to-edge map. relayout() keeps the view centered through
+// the margin change.
+document.getElementById("axes-toggle")?.addEventListener("click", () => {
+  _showAxesMobile = !_showAxesMobile;
+  document.body.classList.toggle("mobile-axes-on", _showAxesMobile);
+  document.getElementById("axes-toggle").classList.toggle("active", _showAxesMobile);
+  relayout();
+});
 
 searchBtn.addEventListener("click", () => {
   if (searchBox.classList.contains("expanded")) closeSearch();
@@ -5564,6 +5894,25 @@ zoomBehavior.on("zoom", (event) => {
   clearTimeout(hashTimer);
   hashTimer = setTimeout(saveHash, 500);
 });
+// Touch gesture surface: touch events stay bound to the element the finger
+// first landed on — and the per-frame redraw deletes and recreates chart
+// nodes, so a pinch/pan starting on a label or icon died after one frame
+// (the detached node stops bubbling to the SVG). This topmost, transparent,
+// never-rebuilt rect gives every touch a stable target.
+// INTERIM until Phase 2's retained rendering (docs/mobile-plan.md) removes
+// the per-frame teardown — though the click-target divs must stay
+// touch-inert regardless (they sit outside the SVG entirely).
+// Created for any device with a coarse pointer (hybrids included); its
+// pointer-events follow the input modality (see setInputModality) so mouse
+// hover on in-SVG elements keeps working whenever a mouse is in use.
+if (window.matchMedia?.("(any-pointer: coarse)").matches) {
+  _gestureSurface = svg.append("rect")
+    .attr("class", "gesture-surface")
+    .attr("width", "100%").attr("height", "100%")
+    .attr("fill", "none")
+    .style("pointer-events", _touchMode ? "all" : "none");
+}
+
 svg.call(zoomBehavior);
 
 // =============================================================

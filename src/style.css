@@ -1,3 +1,36 @@
+/* Self-hosted fonts — replaces the render-blocking Google Fonts chain
+   (third-party CSS → woff2) with two same-origin preloaded files. */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 300 700; /* variable font covers every weight we use */
+  font-display: swap;
+  src: url("/fonts/inter-var-latin.woff2") format("woff2");
+}
+@font-face {
+  /* Greek subset: object names and formulas use τ μ γ λ ρ π */
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("/fonts/inter-var-greek.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Space Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/space-mono-400-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/space-mono-700-latin.woff2") format("woff2");
+}
+
 #click-targets {
   position: fixed;
   top: 0; left: 0;
@@ -1088,4 +1121,106 @@ body.is-mobile #settings-btn {
 body.is-mobile #search-box.expanded #search-input {
   width: calc(100vw - 100px);
   max-width: 300px;
+}
+
+/* ── Mobile glass diet ─────────────────────────────────────────────
+   backdrop-filter makes the GPU re-blur whatever sits behind the surface
+   every time the chart repaints — with a full-screen SVG behind everything,
+   that's a per-frame blur pass per surface. Phones AND tablets (coarse
+   pointer, regardless of width — iPads are ≥768px) get opaque fills;
+   desktop keeps the glass. */
+body.is-mobile *,
+body.touch-mode * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+@media (pointer: coarse) {
+  * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+/* More opaque grounds so surfaces stay legible without the blur */
+body.is-mobile #sidebar, body.touch-mode #sidebar { background: rgba(8, 8, 30, 0.97); }
+body.is-mobile #preset-bar button, body.touch-mode #preset-bar button { background: rgba(6, 6, 26, 0.95); }
+
+/* While the user is touching (body.touch-mode, maintained by the input-
+   modality tracker in main.js), the invisible click-target divs must not
+   intercept pointers: a pinch or pan whose first finger lands on one never
+   reaches the d3-zoom surface (the div is outside the SVG). Taps are handled
+   by the touch tap handler in main.js instead. In mouse mode the divs stay
+   interactive for hover + click. */
+body.touch-mode #click-targets .click-target { pointer-events: none !important; }
+
+/* ── F6: edge-to-edge mobile chrome ─────────────────────────────────
+   On phones the map fills the screen and all UI floats above it. Axis
+   numbers live behind the axes pill (#axes-toggle), which temporarily
+   restores the unit margins. */
+#axes-toggle { display: none; } /* mobile-only control */
+
+body.is-mobile #preset-bar { display: none !important; } /* shortcuts: desktop only */
+body.is-mobile #readout { display: none !important; }    /* data readout: desktop only */
+body.is-mobile #scale-bar { display: none !important; }
+body.is-mobile:not(.mobile-axes-on) .axis-b,
+body.is-mobile:not(.mobile-axes-on) .axis-t,
+body.is-mobile:not(.mobile-axes-on) .axis-l,
+body.is-mobile:not(.mobile-axes-on) .axis-r { display: none; }
+
+/* Floating pill stack, top-left: >> (sidebar), search, axes toggle */
+body.is-mobile #sidebar-expand,
+body.is-mobile #search-btn,
+body.is-mobile #axes-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  background: rgba(8, 8, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 15px;
+}
+body.is-mobile #sidebar-expand {
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: 10px;
+}
+body.is-mobile #search-box {
+  top: calc(env(safe-area-inset-top, 0px) + 62px);
+  left: 10px;
+  right: auto;
+}
+body.is-mobile #axes-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 114px);
+  left: 10px;
+  z-index: 12;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+body.is-mobile #axes-toggle.active {
+  background: rgba(153, 68, 255, 0.25);
+  border-color: var(--purple-accent);
+  color: white;
+}
+body.is-mobile.touring #axes-toggle { display: none !important; }
+/* Search expands rightward from its pill on the left edge */
+body.is-mobile #search-box.expanded #search-input {
+  width: calc(100vw - 130px);
+  max-width: 320px;
+}
+/* Bottom clusters: hug the edges, respect the home indicator */
+body.is-mobile #controls {
+  left: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+}
+body.is-mobile #controls button {
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+}
+body.is-mobile #settings-btn {
+  right: 10px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  border-radius: 22px;
 }
