@@ -87,6 +87,9 @@ for (const [path, url] of Object.entries(iconUrls)) {
     ICON_BY_SLUG[slug] = url;
   }
 }
+// Icon webps whose bytes have actually arrived (SVG <image> load events) —
+// gates the fallback dot rendered beneath each icon.
+const _loadedIconUrls = new Set();
 // Warm the browser cache for off-screen icons once the app has settled —
 // idle-scheduled batches so it never competes with user interaction, skipped
 // on data-saver connections, paused while the tab is hidden.
@@ -531,8 +534,8 @@ const lObjExtras  = lObj.append("g");
 const lObjMain    = lObj.append("g");
 const lHighlight  = lContent.append("g").style("pointer-events", "none");
 const lAxisRef    = lContent.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
-// Label layer inside lContent (so it pans/zooms) but above dots
-const lLabels     = lContent.append("g").style("pointer-events", "none");
+// (Object labels live in lLabels, declared below lIcons so text always
+// paints ABOVE icons — a glyph must never wash out a label.)
 
 // Film grain noise overlay (paper texture, controlled by Noise slider)
 // TEMPORARILY DISABLED for testing — uncomment to restore
@@ -547,6 +550,8 @@ const grainRect = { attr: () => grainRect, style: () => grainRect }; // stub
 
 // Icon layer: rendered above noise for cleaner visibility
 const lIcons = clip.append("g").style("pointer-events", "none");
+// Object labels paint above the icons: readable text beats glyph art
+const lLabels = clip.append("g").style("pointer-events", "none");
 
 // Click capture now uses HTML overlays (see updateClickTargets)
 
@@ -1814,6 +1819,15 @@ function drawRegionLabels() {
 // Draw: Objects (always-visible dots, smart labels)
 // =============================================================
 
+/** Display label for a category cluster. An EMPTY string in CAT_DISPLAY
+ *  means "this category gets no cluster label" — it must suppress the label
+ *  (null), never fall through to the raw internal key (the "macro" leak). */
+function catDisplayLabel(catKey) {
+  const disp = CAT_DISPLAY[catKey];
+  if (disp === "") return null;
+  return disp || catKey || "Objects";
+}
+
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
 const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
@@ -1932,12 +1946,12 @@ function drawObjects() {
             label = SUBCAT_LABELS[nonBH[0]];
           } else if (nonBH.length >= 2 && nonBH.length <= 4) {
             const parts = nonBH.map(s => SUBCAT_LABELS[s]).filter(Boolean);
-            label = parts.length >= 2 ? parts.slice(0, -1).join(", ") + " & " + parts[parts.length - 1] : (CAT_DISPLAY[catKey] || catKey || "Objects");
+            label = parts.length >= 2 ? parts.slice(0, -1).join(", ") + " & " + parts[parts.length - 1] : catDisplayLabel(catKey);
           } else if (nonBH.length === 0 && subcats.length > 0) {
             // All subcats are BH — skip this cluster label (dedicated labels handle it)
             label = null;
           } else {
-            label = CAT_DISPLAY[catKey] || catKey || "Objects";
+            label = catDisplayLabel(catKey);
           }
         }
         if (label !== null) {
@@ -1967,6 +1981,21 @@ function drawObjects() {
     { dx: 0, dy: 16, anchor: "middle" },
   ];
 
+  // Icon bounds participate in collision testing (with a per-object owner
+  // exemption) so text flips to a free side instead of starting beneath a
+  // neighbor's glyph ("lanets", "gr A*", "Soccer Bal"...).
+  const iconRects = [];
+  projected.forEach(o => {
+    if (!o._showIcon) return;
+    const s = icoSize * iconSizeMult(o);
+    iconRects.push({ x: o.sx - s / 2, y: o.sy - s / 2, w: s, h: s, owner: o });
+  });
+  const hitsIcons = (rect, owner) => iconRects.some(r =>
+    r.owner !== owner &&
+    rect.x < r.x + r.w && rect.x + rect.w > r.x &&
+    rect.y < r.y + r.h && rect.y + rect.h > r.y
+  );
+
   // Place cluster labels first — never show the same label twice
   const usedLabels = new Set();
   clusters.forEach(cl => {
@@ -1989,7 +2018,7 @@ function drawObjects() {
       const collides = placedLabels.some(p =>
         rect.x < p.x + p.w + 6 && rect.x + rect.w + 6 > p.x &&
         rect.y < p.y + p.h + 2 && rect.y + rect.h + 2 > p.y
-      );
+      ) || hitsIcons(rect, null);
 
       if (!collides) {
         cl._labelPos = pos;
@@ -2000,7 +2029,13 @@ function drawObjects() {
         break;
       }
     }
-    if (!cl._labelPos) cl._labelPos = labelPositions[0];
+    if (!cl._labelPos) {
+      // No icon-free spot: fall back to the old side placement rather than
+      // dropping the label (labels stay visible; overlap beats absence).
+      cl._labelPos = labelPositions[0];
+      cl._showLabel = true;
+      usedLabels.add(labelText.toUpperCase());
+    }
   });
 
   // Place individual labels for non-clustered objects
@@ -2011,7 +2046,16 @@ function drawObjects() {
     const labelW = o.name.length * 6 + 10;
     const labelH = 13;
 
-    for (const pos of labelPositions) {
+    // Icon-bearing objects push their own label just outside the glyph
+    const ownR = o._showIcon ? (icoSize * iconSizeMult(o)) / 2 : 0;
+    const positions = ownR > 8 ? [
+      { dx: ownR + 4, dy: 3.5, anchor: "start" },
+      { dx: -(ownR + 4), dy: 3.5, anchor: "end" },
+      { dx: 0, dy: -(ownR + 4), anchor: "middle" },
+      { dx: 0, dy: ownR + 12, anchor: "middle" },
+    ] : labelPositions;
+
+    for (const pos of positions) {
       const lx = pos.anchor === "end" ? o.sx + pos.dx - labelW
                : pos.anchor === "middle" ? o.sx + pos.dx - labelW / 2
                : o.sx + pos.dx;
@@ -2021,7 +2065,7 @@ function drawObjects() {
       const collides = placedLabels.some(p =>
         rect.x < p.x + p.w + 6 && rect.x + rect.w + 6 > p.x &&
         rect.y < p.y + p.h + 2 && rect.y + rect.h + 2 > p.y
-      );
+      ) || hitsIcons(rect, o);
 
       if (!collides) {
         o._showLabel = true;
@@ -2032,6 +2076,30 @@ function drawObjects() {
       }
     }
 
+    if (!o._labelPos) {
+      // Nothing clears both labels AND icons — retry ignoring icons and
+      // accept glyph overlap rather than dropping the label (today's
+      // behavior; overlap beats absence). Only genuine label-vs-label
+      // clashes still suppress.
+      for (const pos of positions) {
+        const lx = pos.anchor === "end" ? o.sx + pos.dx - labelW
+                 : pos.anchor === "middle" ? o.sx + pos.dx - labelW / 2
+                 : o.sx + pos.dx;
+        const ly = o.sy + pos.dy - labelH;
+        const rect = { x: lx, y: ly, w: labelW, h: labelH };
+        const labelClash = placedLabels.some(p =>
+          rect.x < p.x + p.w + 6 && rect.x + rect.w + 6 > p.x &&
+          rect.y < p.y + p.h + 2 && rect.y + rect.h + 2 > p.y
+        );
+        if (!labelClash) {
+          o._showLabel = true;
+          o._labelPos = pos;
+          o._labelRect = rect;
+          placedLabels.push(rect);
+          break;
+        }
+      }
+    }
     if (!o._labelPos) {
       o._showLabel = false;
       o._labelPos = labelPositions[0];
@@ -2223,14 +2291,21 @@ function drawObjects() {
         }
         // Fallback dot: icons fetch on demand, so on a cold cache the
         // <image> is empty until its webp arrives — the dot keeps the
-        // object visible (the loaded icon covers it).
+        // object visible. It must HIDE once the image loads: screen-blend
+        // icons brighten what's beneath instead of covering it, so a
+        // still-visible dot glows through them permanently.
         gg.append("circle").attr("class", "icon-fallback-dot")
           .attr("r", 2.8).attr("fill", o.color);
-        gg.append("image")
+        const imgEl = gg.append("image")
           .attr("class", "obj-icon")
           .attr("data-slug", o.slug)
           .attr("href", ICON_BY_SLUG[o.slug])
-          .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null);
+          .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
+          .node();
+        imgEl.addEventListener("load", () => {
+          _loadedIconUrls.add(ICON_BY_SLUG[o.slug]);
+          gg.select(".icon-fallback-dot").attr("display", "none");
+        }, { once: true });
       });
       return g;
     })
@@ -2243,6 +2318,7 @@ function drawObjects() {
         .attr("r", objIcoSize * 0.52).attr("opacity", bbOp);
       gg.select(".icon-fallback-dot")
         .attr("cx", o.sx).attr("cy", o.sy)
+        .attr("display", _loadedIconUrls.has(ICON_BY_SLUG[o.slug]) ? "none" : null)
         .attr("opacity", bbOp == null ? 0.85 : 0.85 * bbOp);
       gg.select(".obj-icon")
         .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2)
@@ -3564,6 +3640,9 @@ function drawAxes() {
     if (p < -1 || p > cw + 1) return;
     axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 48)
       .attr("stroke", "rgba(255,100,100,0.25)").attr("stroke-dasharray", "2 2");
+    // On the compact mobile ruler the rotated row-2 labels run straight
+    // through the centered WIDTH title — keep a clear zone around it.
+    if (_isMobile && Math.abs(p - cw / 2) < 80) return;
     if (Math.abs(p - lastRow2Px) >= 35 && u.slug) {
       axB.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
         .attr("x", p + 2).attr("y", 50)
@@ -4691,6 +4770,10 @@ document.addEventListener("mousemove", () => {
   // Browsers fire synthetic mouse events right after taps — ignore those
   if (performance.now() - _lastTouchTs > 1000) setInputModality(false);
 }, { capture: true, passive: true });
+document.addEventListener("pointerdown", (e) => {
+  // A real mouse press also exits touch mode (some setups fire few moves)
+  if (e.pointerType === "mouse" && performance.now() - _lastTouchTs > 1000) setInputModality(false);
+}, { capture: true, passive: true });
 
 function selectObject(o) {
   _sidebarManuallyExpanded = false;
@@ -4915,7 +4998,11 @@ const zoomBehavior = d3.zoom()
     // The hover hit-paths aren't rebuilt during the gesture (see
     // updateConnectionOpacities), so disable them — a mousemove mid-wheel-zoom
     // would otherwise light a connection at stale, pre-zoom coordinates.
+    // A line ALREADY revealed by hover would also strand: no mouseleave fires
+    // while the cursor sits still, so hide any revealed line for the gesture.
     lArrows.style("pointer-events", "none");
+    if (_connPaths) _connPaths.forEach(cp => { if (cp._lineGroup) cp._lineGroup.attr("opacity", 0); });
+    hideTooltip();
     // Hide expensive feTurbulence filter during zoom on Safari for smoother animation
     if (_isSafari) grainRect.style("display", "none");
   })
@@ -5590,12 +5677,15 @@ window.addEventListener("resize", () => {
   _resizeTimer = setTimeout(() => {
     const dw = Math.abs(window.innerWidth - _lastVw);
     const dh = Math.abs(window.innerHeight - _lastVh);
-    if (_isCoarse && dw === 0 && dh < 160) return; // mobile browser chrome
+    // Browser-chrome height wiggle only matters in the phone layout; a
+    // desktop-layout tablet resizing its window deserves a real relayout.
+    if (_isCoarse && _isMobile && dw === 0 && dh < 160) return;
     _lastVw = window.innerWidth; _lastVh = window.innerHeight;
     const modeChanged = updateMobileState();
     relayout(); // preserves zoom center + scale through the new layout
-    if (modeChanged && _isMobile && _isSidebarOpen) {
-      setSidebarOpen(false);
+    if (modeChanged) {
+      applyTitleLockups(); // re-fit (mobile) or reset (desktop) the lockup
+      if (_isMobile && _isSidebarOpen) setSidebarOpen(false);
     }
   }, 150);
 });
@@ -5645,11 +5735,16 @@ function fitTitleLockup(container) {
     if (ls2) l2.style.letterSpacing = `${(ls2 * scale).toFixed(2)}px`;
   }
 }
-if (_isMobile) {
-  (document.fonts?.ready || Promise.resolve()).then(() => {
-    document.querySelectorAll("#intro-title, #tour-header h2").forEach(fitTitleLockup);
+function applyTitleLockups() {
+  document.querySelectorAll("#intro-title, #tour-header h2").forEach(h => {
+    // Clear any previous fit first — the fitter scales from current computed
+    // size, and desktop must return to its stylesheet sizes.
+    const l2 = h.querySelector(".title-line2, .tour-title-line2");
+    if (l2) { l2.style.fontSize = ""; l2.style.letterSpacing = ""; }
+    if (_isMobile) fitTitleLockup(h);
   });
 }
+(document.fonts?.ready || Promise.resolve()).then(applyTitleLockups);
 
 // Mobile axes pill: toggles the unit margins (and axis numbers) on and off
 // around the edge-to-edge map. relayout() keeps the view centered through
@@ -5679,12 +5774,43 @@ searchBtn.addEventListener("click", () => {
   else openSearch();
 });
 
+// Search covers object names AND category/subcategory names ("black" finds
+// no object — black holes are named Sgr A*, M87*, Ton 618 — but it should
+// land on the Black Holes region). Region entries fly to the group's bounds.
+let _searchRegions = null;
+function getSearchRegions() {
+  if (_searchRegions) return _searchRegions;
+  const groups = new Map();
+  const add = (label, o, color) => {
+    if (!label) return;
+    const key = label.toUpperCase();
+    if (!groups.has(key)) groups.set(key, { label, color, members: [] });
+    groups.get(key).members.push(o);
+  };
+  OBJECTS.forEach(o => {
+    add(SUBCAT_LABELS[o.subcat], o, SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff");
+    add(catDisplayLabel(o.cat), o, CATEGORIES[o.cat]?.color || "#fff");
+  });
+  _searchRegions = [...groups.values()].filter(g => g.members.length >= 2);
+  return _searchRegions;
+}
+
+const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
 searchInput.addEventListener("input", () => {
   const q = searchInput.value.trim().toLowerCase();
   if (q.length < 1) { searchResults.classList.remove("active"); return; }
 
-  const matches = OBJECTS.filter(o => o.name.toLowerCase().includes(q)).slice(0, 8);
-  if (matches.length === 0) { searchResults.classList.remove("active"); return; }
+  const matches = OBJECTS.filter(o => o.name.toLowerCase().includes(q)).slice(0, 6);
+  const regions = getSearchRegions().filter(g => g.label.toLowerCase().includes(q)).slice(0, 3);
+
+  // The UI must always respond — an empty dropdown reads as "search is broken"
+  if (matches.length === 0 && regions.length === 0) {
+    searchResults.innerHTML = `<div class="search-empty">No matches for “${escapeHtml(searchInput.value.trim())}”</div>`;
+    searchResults.classList.add("active");
+    return;
+  }
 
   searchResults.innerHTML = matches.map(o => {
     const dotColor = SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff";
@@ -5693,16 +5819,33 @@ searchInput.addEventListener("input", () => {
       <span class="search-name">${o.name}</span>
       <span class="search-cat">${o.cat}</span>
     </div>`;
-  }).join("");
+  }).join("") + regions.map((g, i) => `
+    <div class="search-item search-region" data-region="${i}">
+      <span class="search-dot" style="background:${g.color}"></span>
+      <span class="search-name">${escapeHtml(g.label)}</span>
+      <span class="search-cat">region</span>
+    </div>`).join("");
   searchResults.classList.add("active");
 
-  searchResults.querySelectorAll(".search-item").forEach(el => {
+  searchResults.querySelectorAll(".search-item:not(.search-region)").forEach(el => {
     el.addEventListener("click", () => {
       const logR = parseFloat(el.dataset.logr);
       const logM = parseFloat(el.dataset.logm);
       const obj = OBJECTS.find(o => o.logR === logR && o.logM === logM);
       panToCoord(logR, logM);
       if (obj) openSidebar(obj);
+      closeSearch();
+    });
+  });
+  searchResults.querySelectorAll(".search-region").forEach(el => {
+    el.addEventListener("click", () => {
+      const g = regions[+el.dataset.region];
+      const pad = 1.5;
+      const xs = g.members.map(m => m.logR), ys = g.members.map(m => m.logM);
+      zoomToRegion({
+        x: [Math.min(...xs) - pad, Math.max(...xs) + pad],
+        y: [Math.min(...ys) - pad, Math.max(...ys) + pad],
+      });
       closeSearch();
     });
   });

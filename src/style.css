@@ -201,7 +201,10 @@ body.sidebar-open #controls { left: 454px; }
 }
 
 #scrubber-ticks {
-  position: relative; height: 14px; margin: 4px 42px 0;
+  position: relative; height: 14px;
+  /* left = play button 30px + gap 12px + half-thumb 8px; right = half-thumb —
+     so the 0%/100% ticks line up with the thumb's actual travel */
+  margin: 4px 8px 0 50px;
 }
 .scrubber-tick {
   position: absolute; top: 0; transform: translateX(-50%);
@@ -267,8 +270,9 @@ body.sidebar-open #scrubber-panel { left: calc(50% + 220px); }
   transition: all 0.15s;
 }
 .setting-check input:checked + .checkmark {
-  background: rgba(255,51,85,0.5);
-  border-color: rgba(255,51,85,0.7);
+  /* Purple = interactive accent; red is reserved for physics-limit lines */
+  background: rgba(153,68,255,0.45);
+  border-color: rgba(153,68,255,0.8);
 }
 .setting-check input:checked + .checkmark::after {
   content: '';
@@ -404,7 +408,8 @@ body.sidebar-open #scrubber-panel { left: calc(50% + 220px); }
 /* ---------- scale bar ---------- */
 
 #scale-bar {
-  position: fixed; bottom: 50px; left: 16px;
+  /* Right of the zoom-control column, which is ~34px wide at left 14px */
+  position: fixed; bottom: 50px; left: 58px;
   font-family: 'Space Mono', monospace; font-size: 9px;
   color: rgba(255,255,255,0.3); z-index: 10;
   pointer-events: none;
@@ -427,7 +432,8 @@ body.sidebar-open #scale-bar { left: 456px; }
 /* ---------- keyboard hint ---------- */
 
 #keyhint {
-  position: fixed; top: 14px; right: 14px;
+  /* Below the top axis band — at 14px it collided with the DENSITY title */
+  position: fixed; top: 64px; right: 14px;
   font-size: 9px; color: rgba(255,255,255,0.2);
   pointer-events: none; z-index: 10;
   font-family: 'Space Mono', monospace;
@@ -1129,8 +1135,7 @@ body.is-mobile #search-box.expanded #search-input {
    that's a per-frame blur pass per surface. Phones AND tablets (coarse
    pointer, regardless of width — iPads are ≥768px) get opaque fills;
    desktop keeps the glass. */
-body.is-mobile *,
-body.touch-mode * {
+body.is-mobile * {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
@@ -1141,8 +1146,8 @@ body.touch-mode * {
   }
 }
 /* More opaque grounds so surfaces stay legible without the blur */
-body.is-mobile #sidebar, body.touch-mode #sidebar { background: rgba(8, 8, 30, 0.97); }
-body.is-mobile #preset-bar button, body.touch-mode #preset-bar button { background: rgba(6, 6, 26, 0.95); }
+body.is-mobile #sidebar { background: rgba(8, 8, 30, 0.97); }
+body.is-mobile #preset-bar button { background: rgba(6, 6, 26, 0.95); }
 
 /* While the user is touching (body.touch-mode, maintained by the input-
    modality tracker in main.js), the invisible click-target divs must not
@@ -1287,4 +1292,30 @@ body.is-mobile #sheet-grab {
   touch-action: none;
   cursor: grab;
   z-index: 2;
+}
+
+
+/* ── Round 2, wave 1 ──────────────────────────────────────────────── */
+
+/* Settings popover anchors to the mobile gear (desktop anchor is tuned
+   for the gear at bottom:100px; mobile moved it to the corner) */
+body.is-mobile #settings-panel {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 62px);
+  right: 10px;
+}
+
+/* Search always responds: empty state + comfortable mobile rows */
+.search-empty {
+  padding: 10px 12px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  color: rgba(255, 255, 255, 0.45);
+}
+body.is-mobile .search-item { padding: 13px 12px; font-size: 13px; }
+body.is-mobile .search-empty { padding: 14px 12px; font-size: 13px; }
+.search-region .search-cat {
+  color: rgba(153, 68, 255, 0.9);
+  border: 1px solid rgba(153, 68, 255, 0.4);
+  border-radius: 3px;
+  padding: 1px 4px;
 }

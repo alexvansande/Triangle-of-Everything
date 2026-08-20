@@ -487,3 +487,12 @@ body.is-mobile .tour-title-line1 {
 body.is-mobile .tour-title-line2 {
   font-size: 34px;
 }
+
+
+/* Scroll cue: while more text remains below the fold, fade the bottom edge
+   so the cut reads as scrollable, not broken. Lifts at scroll end (class
+   toggled by updateTextFadeCue in tour.js). */
+#tour-text.has-more {
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 26px), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - 26px), transparent);
+}
