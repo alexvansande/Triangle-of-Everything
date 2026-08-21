@@ -311,7 +311,7 @@ body.sidebar-open #scrubber-panel { left: calc(50% + 220px); }
   font-family: 'Space Mono', monospace;
 }
 .setting-select select {
-  flex: 1; font-size: 11px; font-family: 'Space Mono', monospace;
+  flex: 1; min-width: 0; font-size: 11px; font-family: 'Space Mono', monospace;
   color: rgba(255,255,255,0.85);
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.15);
@@ -319,6 +319,12 @@ body.sidebar-open #scrubber-panel { left: calc(50% + 220px); }
 }
 .setting-select select:hover { border-color: rgba(255,255,255,0.3); }
 .setting-select select option { background: #0a0a2e; color: #e0e0e0; }
+
+.setting-note {
+  margin: 2px 0 4px; padding-left: 58px;
+  font-size: 9.5px; line-height: 1.45;
+  color: rgba(255,255,255,0.4);
+}
 
 .setting-range {
   display: flex; align-items: center; gap: 10px;

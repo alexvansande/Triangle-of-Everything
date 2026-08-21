@@ -7,3 +7,5 @@ The Planck energy is the natural unit of energy at the Planck scale. It is enorm
 $$E_P = \sqrt{\frac{\hbar c^5}{G}} \approx 1.22 \times 10^{28} \text{ eV}$$
 
 Since $E = mc^2$, the Planck energy equals $m_P c^2$. This is the energy scale where spacetime itself may become quantized.
+
+In the chart's own units — built from $c$, $h/\tau$, and the black-hole coupling $2G$ (see [[Planck Mass]]) — the Planck energy is $E_\triangle = \sqrt{hc^5/2\tau G} \approx 8.6 \times 10^{27}$ eV, a factor $\sqrt{2}$ below the textbook value.

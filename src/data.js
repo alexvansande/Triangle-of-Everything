@@ -45,9 +45,18 @@ export const schwarzschildM = (logR) => logR - SCHWARZSCHILD_C;
 export const comptonR = (logM) => -logM + COMPTON_C;
 export const comptonM = (logR) => -logR + COMPTON_C;
 
-// Planck scale — where Schwarzschild and Compton lines cross
+// Planck scale — where Schwarzschild and Compton lines cross.
+// These are the chart's own Planck units, defined with the coupling 2G —
+// the combination nature uses on both dark edges of the triangle
+// (r_s = 2Gm/c² and R_H = 2GM/c²) — so the apex lands exactly at
+// (1 Planck length, 1 Planck mass) in Planck grid mode.
 export const PLANCK_LOG_R = (SCHWARZSCHILD_C + COMPTON_C) / 2; // ≈ -32.64
 export const PLANCK_LOG_M = PLANCK_LOG_R - SCHWARZSCHILD_C;    // ≈ -4.81
+
+// CODATA ("textbook") Planck scale — defined with bare G, √2 away from the
+// chart convention above. Used by the "planck-true" grid mode.
+export const PLANCK_TRUE_LOG_R = 0.5 * Math.log10(hbar * G / (c * c * c)); // ≈ -32.79
+export const PLANCK_TRUE_LOG_M = 0.5 * Math.log10(hbar * c / G);           // ≈ -4.66
 
 // Hubble radius — the rightmost vertical boundary
 export const HUBBLE_LOG_R = 28.14;   // log₁₀(1.37 × 10²⁸ cm)

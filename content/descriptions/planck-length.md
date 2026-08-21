@@ -7,3 +7,5 @@ The Planck length is the natural unit of length where quantum gravitational effe
 $$\ell_P = \sqrt{\frac{\hbar G}{c^3}} \approx 1.62 \times 10^{-35} \text{ m}$$
 
 Below this scale, the smooth fabric of spacetime is thought to break down into quantum foam. It defines the leftmost point of the Triangle.
+
+On this chart, Planck units are built from $c$, $h/\tau$, and the black-hole coupling $2G$ (see [[Planck Mass]] for why), so the grid's Planck length is $\ell_\triangle = \sqrt{2Gh/\tau c^3} \approx 2.29 \times 10^{-35}$ m — a factor $\sqrt{2}$ larger than the textbook value, and exactly the radius of the Triangle's apex.

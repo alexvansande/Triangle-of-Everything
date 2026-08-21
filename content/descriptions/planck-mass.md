@@ -6,4 +6,10 @@ The Planck mass is the natural unit of mass when $\hbar$, $c$, and $G$ are norma
 
 $$m_P = \sqrt{\frac{\hbar c}{G}} \approx 2.18 \times 10^{-8} \text{ kg}$$
 
-This is the unique mass at which an object's Compton wavelength equals its Schwarzschild radius — the very apex of the Triangle.
+Almost — but not quite — this is the mass at which an object's Compton wavelength equals its Schwarzschild radius. Do the math and the two boundaries actually cross at $\sqrt{\hbar c / 2G} \approx 15\ \mu\text{g}$: the textbook value divided by $\sqrt{2}$. The culprit is the 2 in the Schwarzschild radius $r_s = 2Gm/c^2$ — you can read it as the ½ from kinetic energy: escape velocity reaches the speed of light where $\tfrac{1}{2}c^2 = GM/r$, as John Michell noticed back in 1784 (general relativity derives the same 2 rigorously). Being a piece of physics rather than a circle constant, no amount of $\tau$ can absorb it.
+
+This chart takes the hint from nature instead: *both* dark edges of the Triangle couple through $2G$ — the black-hole line, and the Hubble radius, which obeys $R_H = 2GM/c^2$ exactly, taking $M$ as everything inside the Hubble sphere at the universe's critical density. So the Triangle measures in Planck units built from $c$, $h/\tau$, and $2G$:
+
+$$m_\triangle = \sqrt{\frac{hc}{2\tau G}} \approx 15.4\ \mu\text{g}$$
+
+which places the apex at exactly one Planck mass and one Planck length. (Lineweaver & Patel offer a second cure: the horizon of a *maximally spinning* black hole is half the Schwarzschild radius, and the factor vanishes entirely.) Prefer the CODATA numbers? Settings → Grid units → Planck units (textbook).

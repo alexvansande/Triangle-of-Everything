@@ -3,7 +3,7 @@
 // for the axis tooltip, and cosmic time conversion. No chart or DOM state —
 // everything here is a pure function of its inputs.
 
-import { DENSITY_SPHERE_C } from "./data.js";
+import { DENSITY_SPHERE_C, PLANCK_LOG_R, c } from "./data.js";
 
 export function formatSci(logVal, unit) {
   const exp = Math.floor(logVal);
@@ -237,9 +237,9 @@ export function friendlyTime(logT) {
     return `${mant.toFixed(1)}×10<sup>${exp}</sup> ${unitSingular}s`;
   }
 
-  // Planck time ≈ 5.4×10⁻⁴⁴ s → log₁₀ ≈ -43.27
+  // Chart Planck time (2G convention): t△ = ℓ△/c ≈ 7.6×10⁻⁴⁴ s → log₁₀ ≈ -43.12
   if (logT < -36) {
-    const logPlanck = -43.27;
+    const logPlanck = PLANCK_LOG_R - Math.log10(c);
     const mult = logT - logPlanck;
     if (mult < 15) {
       const v = Math.pow(10, mult);

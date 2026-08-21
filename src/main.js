@@ -12,6 +12,7 @@ import {
 } from "./assets.js";
 import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
+  PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
   CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
@@ -571,13 +572,17 @@ const LOG_SUBS = [
 ];
 
 // =============================================================
-// Grid unit modes — SI / Planck / Planck-wavelength
+// Grid unit modes — SI / Planck (2G) / Planck-wavelength / Planck (textbook)
 // =============================================================
 // The chart's internal coordinates are logR (cm) and logM (g); these never
 // change. A unit mode only changes (a) where the grid/axis decade lines are
 // anchored (xRef/yRef — so round unit values land on grid lines) and (b) how
-// the tick numbers and axis titles read. Planck modes anchor to the chart's
-// own apex (PLANCK_LOG_R/M), so the singularity sits exactly on (0,0).
+// the tick numbers and axis titles read. The main Planck modes anchor to the
+// chart's own apex (PLANCK_LOG_R/M — Planck units in the 2G convention, see
+// data.js), so the singularity sits exactly on (0,0). "planck-true" anchors
+// to the CODATA values instead; there the apex reads (√2, 1/√2) ≈ ±0.15
+// decades, which is physically accurate — the boundary lines genuinely do
+// not cross at the textbook Planck point.
 // "planck-wavelength" additionally shows the LEFT axis as the Compton
 // wavelength (inverse energy): 0 at the apex (= the Planck length), growing
 // downward — so a particle's left-axis value equals its width.
@@ -608,6 +613,14 @@ const GRID_UNITS = {
     energyNum: (v) => fmtTick(-(v - PLANCK_LOG_M)),
     bottomSub: "Planck lengths", rightSub: "Planck masses",
     leftTitle: "WAVELENGTH", leftSub: "Planck lengths",
+  },
+  "planck-true": {
+    xRef: PLANCK_TRUE_LOG_R, yRef: PLANCK_TRUE_LOG_M,
+    xNum: (v) => fmtTick(v - PLANCK_TRUE_LOG_R),
+    massNum: (v) => fmtTick(v - PLANCK_TRUE_LOG_M),
+    energyNum: (v) => fmtTick(v - PLANCK_TRUE_LOG_M),
+    bottomSub: "Planck lengths", rightSub: "Planck masses",
+    leftTitle: "ENERGY", leftSub: "Planck energy",
   },
 };
 function gridCfg() { return GRID_UNITS[_gridUnit] || GRID_UNITS.si; }
@@ -772,7 +785,8 @@ function drawBoundaries() {
     .attr("stroke-dasharray", planckGuideStyle.dash);
 
   // Diagonal: Planck density / Planck time line (slope 3, logDensity ≈ 93.7)
-  // This is the isodensity line through the Planck point
+  // Textbook Planck density (m_P/l_P³, no sphere factor) — it passes near,
+  // not through, the apex, whose own sphere-density is ≈ 10^92.5 g/cm³.
   const planckDensityB = DENSITY_SPHERE_C + 93.7;
   // logM = 3*logR + b → extend line in both directions from Planck point
   // Toward top axis (higher R, higher M)

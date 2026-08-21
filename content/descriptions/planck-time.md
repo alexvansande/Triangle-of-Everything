@@ -7,3 +7,5 @@ The Planck time is the natural unit of time — approximately 5.39 × 10⁻⁴�
 $$t_P = \sqrt{\frac{\hbar G}{c^5}} \approx 5.39 \times 10^{-44} \text{ s}$$
 
 Together with the Planck length, mass, and energy, it completes the set of fundamental Planck units that define the apex of the Triangle of Everything.
+
+In the chart's own units — built from $c$, $h/\tau$, and the black-hole coupling $2G$ (see [[Planck Mass]]) — the Planck time is $t_\triangle = \sqrt{2Gh/\tau c^5} \approx 7.6 \times 10^{-44}$ s: the time light takes to cross the apex.
