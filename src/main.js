@@ -1,5 +1,16 @@
 import * as d3 from "d3";
 import {
+  formatSci, friendlyRadius, friendlyMass, friendlyEnergy, isPhoton,
+  friendlyWavelength, friendlyDensity, MASS_HOVER_UNITS, RADIUS_HOVER_UNITS,
+  ENERGY_HOVER_UNITS, pickBestUnit, pickAltUnit, formatHumanNum,
+  formatLogSuper, densityToLogTime, friendlyTime, fmtTick,
+} from "./format.js";
+import {
+  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, STRINGS_ATOM_SLUGS,
+  imageManifest, hiperspirographStates, parseFrontmatter, _loadedIconUrls,
+  startIconWarmup,
+} from "./assets.js";
+import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
@@ -25,88 +36,6 @@ async function loadKatex() {
   return _katex;
 }
 
-// Load descriptions from markdown files (eager, at build time)
-const descFiles = import.meta.glob("../content/descriptions/*.md", { query: "?raw", import: "default", eager: true });
-const DESC_BY_SLUG = {};
-
-// Object images: eager `?url` glob inlines just the URL strings (no per-file
-// JS wrapper chunk); the webp itself is fetched on demand when the sidebar
-// sets <img src>, same laziness as before with 114 fewer chunks.
-const imgUrls = import.meta.glob("../content/images/*.webp", { query: "?url", import: "default", eager: true });
-const IMG_BY_SLUG = {};
-for (const [path, url] of Object.entries(imgUrls)) {
-  const slug = path.replace("../content/images/", "").replace(".webp", "");
-  IMG_BY_SLUG[slug] = url;
-}
-import imageManifest from "../content/images/manifest.json";
-// Spirograph state hashes for particles that can be opened in the 5D spirograph
-import hiperspirographStates from "../content/icons/hiperspirograph-states.json";
-
-// Atoms whose sidebar image is a sphere-packed spirograph composite (built
-// from the hyperspirograph itself). These get a "Explore multidimensional
-// strings" link pointing at the spirograph with no particular preset.
-const STRINGS_ATOM_SLUGS = new Set([
-  "hydrogen", "helium", "carbon", "oxygen", "iron", "gold", "uranium",
-  "water-h2o",
-]);
-
-// Load object icons (small WebP, preloaded eagerly)
-const ICON_SLUG_MAP = {
-  "bacteria":       "bacterium",
-  "covid":          "covid-virus",
-  "grain-of-salt":  "grain-of-sand",
-  "hippo":          "hippopotamus",
-  "pyramid-giza":   "great-pyramid",
-  "ngc7538s-bubble-nebula": "ngc-7538",
-  "ngc7635bubble-nebula": "bubble-nebula",
-  "observable-universe": "observable-universe",
-  "up-quark":           "up",
-  "smallest-primordial-bh": "primordial-black-hole",
-  "w-boson":            "w",
-  "z-boson":            "z",
-  "laniakea-galaxy-supercluster": "laniakea",
-  "x-and-y-bosons": "x--y-bosons",
-};
-// Icons that map to multiple objects (same icon, different slugs)
-const ICON_MULTI_MAP = {
-  "void": ["bo-tes-void", "eridanus-supervoid", "kbc-void"],
-  "neutrino-tau": ["neutrino"],  // Neutrino (τ) — shares slug with μ
-};
-// Eager `?url` glob inlines the 130 icon URLs into the bundle as plain
-// strings — no per-icon JS wrapper chunk, no upfront image fetches. The
-// browser fetches each webp on demand the first time its <image> renders
-// (map-tile-style pop-in); a gentle warmup prefetches the rest after boot.
-const iconUrls = import.meta.glob("../content/icons/*.webp", { query: "?url", import: "default", eager: true });
-const ICON_BY_SLUG = {};
-for (const [path, url] of Object.entries(iconUrls)) {
-  const iconFile = path.replace("../content/icons/", "").replace(".webp", "");
-  if (ICON_MULTI_MAP[iconFile]) {
-    ICON_MULTI_MAP[iconFile].forEach(s => { ICON_BY_SLUG[s] = url; });
-  } else {
-    const slug = ICON_SLUG_MAP[iconFile] || iconFile;
-    ICON_BY_SLUG[slug] = url;
-  }
-}
-// Icon webps whose bytes have actually arrived (SVG <image> load events) —
-// gates the fallback dot rendered beneath each icon.
-const _loadedIconUrls = new Set();
-// Warm the browser cache for off-screen icons once the app has settled —
-// idle-scheduled batches so it never competes with user interaction, skipped
-// on data-saver connections, paused while the tab is hidden.
-setTimeout(() => {
-  if (navigator.connection?.saveData) return;
-  const urls = [...new Set(Object.values(ICON_BY_SLUG))]; // multi-map slugs share URLs
-  let i = 0;
-  const batch = () => {
-    if (i >= urls.length) return;
-    if (document.hidden) { setTimeout(batch, 2000); return; }
-    urls.slice(i, i + 8).forEach(u => { const img = new Image(); img.src = u; });
-    i += 8;
-    if (typeof requestIdleCallback === "function") requestIdleCallback(batch, { timeout: 1500 });
-    else setTimeout(batch, 300);
-  };
-  batch();
-}, 4000);
 let _iconsEnabled = true;
 let _iconSize = 100;  // percent multiplier on top of zoom-derived effective size
 let _labelsEnabled = true;
@@ -137,31 +66,6 @@ function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
   return sizeScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
-}
-
-function parseFrontmatter(raw) {
-  const trimmed = raw.trim();
-  if (!trimmed.startsWith("---")) return { meta: {}, body: trimmed };
-  const end = trimmed.indexOf("---", 3);
-  if (end === -1) return { meta: {}, body: trimmed };
-  const yamlBlock = trimmed.slice(3, end).trim();
-  const body = trimmed.slice(end + 3).trim();
-  const meta = {};
-  yamlBlock.split("\n").forEach(line => {
-    const idx = line.indexOf(":");
-    if (idx === -1) return;
-    const key = line.slice(0, idx).trim();
-    let val = line.slice(idx + 1).trim();
-    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'")))
-      val = val.slice(1, -1);
-    meta[key] = val;
-  });
-  return { meta, body };
-}
-
-for (const [path, content] of Object.entries(descFiles)) {
-  const slug = path.replace("../content/descriptions/", "").replace(".md", "");
-  DESC_BY_SLUG[slug] = content.trim();
 }
 
 function nameToSlug(name) {
@@ -261,6 +165,9 @@ const _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 let _booted = false;
 
 const margin = { top: 55, right: 125, bottom: 80, left: SIDEBAR_W };
+// Assigned by the axis-resize-handles section at the bottom of the module;
+// measure() runs earlier during scaffolding, hence the late binding.
+let _repositionAxisHandles = null;
 let W, H, cw, ch;
 
 function updateMobileState() {
@@ -347,9 +254,7 @@ function measure() {
   document.body.classList.toggle("axis-l-bold", (margin.left - (_isSidebarOpen ? SIDEBAR_W : BASE_MARGIN_LEFT - 80)) >= 160);
   document.body.classList.toggle("axis-b-bold", margin.bottom >= 110);
   document.body.classList.toggle("axis-t-bold", margin.top >= 90);
-  if (typeof window.__repositionAxisHandles === "function") {
-    window.__repositionAxisHandles();
-  }
+  _repositionAxisHandles?.();
 
   const origXRange = BOUNDS.x.max - BOUNDS.x.min;
   const origYRange = BOUNDS.y.max - BOUNDS.y.min;
@@ -2373,14 +2278,21 @@ function iconUsesScreenBlend(o) {
 
 // Hover handlers for the persistent object groups (datum-based, attached
 // once at enter — the join rebinds fresh data to the same nodes each frame).
-function objHoverEnter(e, o) {
-  const icoSize = effectiveIconSize();
+/** Enlarge (on=true) or restore an object's icon on hover — shared by the
+ *  SVG group handlers and the HTML click-target handlers. Returns whether
+ *  the object currently renders an icon. */
+function setIconHover(o, on) {
   const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
-  if (iconEl.size()) {
-    const hoverSize = Math.max(64, icoSize * iconSizeMult(o) * 1.5);
-    iconEl.attr("width", hoverSize).attr("height", hoverSize)
-      .attr("x", o.sx - hoverSize / 2).attr("y", o.sy - hoverSize / 2);
-  } else {
+  if (!iconEl.size()) return false;
+  const base = effectiveIconSize() * iconSizeMult(o);
+  const s = on ? Math.max(64, base * 1.5) : base;
+  iconEl.attr("width", s).attr("height", s)
+    .attr("x", o.sx - s / 2).attr("y", o.sy - s / 2);
+  return true;
+}
+
+function objHoverEnter(e, o) {
+  if (!setIconHover(o, true)) {
     d3.select(this).select(".obj-glow").attr("r", 10).attr("opacity", 0.25);
     d3.select(this).select(".obj-dot").attr("r", 4);
   }
@@ -2388,13 +2300,7 @@ function objHoverEnter(e, o) {
   showTooltip(e, o, o.cat);
 }
 function objHoverLeave(e, o) {
-  const icoSize = effectiveIconSize();
-  const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
-  if (iconEl.size()) {
-    const objIcoSize = icoSize * iconSizeMult(o);
-    iconEl.attr("width", objIcoSize).attr("height", objIcoSize)
-      .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2);
-  } else {
+  if (!setIconHover(o, false)) {
     d3.select(this).select(".obj-glow").attr("r", 6).attr("opacity", 0.1);
     d3.select(this).select(".obj-dot").attr("r", 2.8);
   }
@@ -2409,70 +2315,6 @@ function objHoverLeave(e, o) {
 // =============================================================
 
 const tooltipEl = document.getElementById("tooltip");
-
-function formatSci(logVal, unit) {
-  const exp = Math.floor(logVal);
-  const mantissa = Math.pow(10, logVal - exp);
-  if (Math.abs(logVal) < 2) return `${Math.pow(10, logVal).toPrecision(3)} ${unit}`;
-  return `${mantissa.toFixed(1)} × 10<sup>${exp}</sup> ${unit}`;
-}
-
-function friendlyRadius(logR) {
-  if (logR >= 24.49) return `${Math.pow(10, logR - 24.49).toFixed(1)} Mpc`;
-  if (logR >= 17.98) return `${Math.pow(10, logR - 17.98).toFixed(1)} ly`;
-  if (logR >= 13.18) return `${Math.pow(10, logR - 13.18).toFixed(2)} AU`;
-  if (logR >= 5)     return `${Math.pow(10, logR - 5).toPrecision(3)} km`;
-  if (logR >= 2)     return `${Math.pow(10, logR - 2).toPrecision(3)} m`;
-  if (logR >= -1)    return `${Math.pow(10, logR).toPrecision(3)} cm`;
-  if (logR >= -7)    return `${Math.pow(10, logR + 7).toPrecision(3)} nm`;
-  if (logR >= -13)   return `${Math.pow(10, logR + 13).toPrecision(3)} fm`;
-  return `10^${logR.toFixed(1)} cm`;
-}
-
-function friendlyMass(logM) {
-  const solOff = Math.log10(1.989e33);
-  if (logM >= solOff + 1) return `${Math.pow(10, logM - solOff).toPrecision(3)} M☉`;
-  if (logM >= 6)   return `${Math.pow(10, logM - 6).toPrecision(3)} tonnes`;
-  if (logM >= 3)   return `${Math.pow(10, logM - 3).toPrecision(3)} kg`;
-  if (logM >= 0)   return `${Math.pow(10, logM).toPrecision(3)} g`;
-  const gevOff = Math.log10(1.783e-24);
-  if (logM >= gevOff - 3) return `${Math.pow(10, logM - gevOff).toPrecision(3)} GeV`;
-  if (logM >= gevOff - 6) return `${Math.pow(10, logM - gevOff + 3).toPrecision(3)} MeV`;
-  if (logM >= gevOff - 9) return `${Math.pow(10, logM - gevOff + 6).toPrecision(3)} keV`;
-  return `${Math.pow(10, logM - gevOff + 9).toPrecision(3)} eV`;
-}
-
-function friendlyEnergy(logM) {
-  const logE_eV = logM + 32.75;
-  if (logE_eV >= 9) return `${Math.pow(10, logE_eV - 9).toPrecision(3)} GeV`;
-  if (logE_eV >= 6) return `${Math.pow(10, logE_eV - 6).toPrecision(3)} MeV`;
-  if (logE_eV >= 3) return `${Math.pow(10, logE_eV - 3).toPrecision(3)} keV`;
-  if (logE_eV >= 0) return `${Math.pow(10, logE_eV).toPrecision(3)} eV`;
-  if (logE_eV >= -3) return `${Math.pow(10, logE_eV + 3).toPrecision(3)} meV`;
-  return `${Math.pow(10, logE_eV + 6).toPrecision(3)} μeV`;
-}
-
-function isPhoton(obj) {
-  return Math.abs(obj.logM + obj.logR + 36.656) < 0.5;
-}
-
-function friendlyWavelength(logR) {
-  if (logR >= 2)     return `${Math.pow(10, logR - 2).toPrecision(3)} m`;
-  if (logR >= -1)    return `${Math.pow(10, logR).toPrecision(3)} cm`;
-  if (logR >= -4)    return `${Math.pow(10, logR + 4).toPrecision(3)} μm`;
-  if (logR >= -7)    return `${Math.pow(10, logR + 7).toPrecision(3)} nm`;
-  if (logR >= -10)   return `${Math.pow(10, logR + 10).toPrecision(3)} pm`;
-  return `${Math.pow(10, logR + 13).toPrecision(3)} fm`;
-}
-
-function friendlyDensity(logR, logM, logDensityOverride) {
-  const logRho = logDensityOverride != null ? logDensityOverride : logM - 3 * logR - DENSITY_SPHERE_C;
-  if (logRho > 14) return `${Math.pow(10, logRho - 14).toPrecision(2)} × nuclear density`;
-  if (logRho > 3) return `${Math.pow(10, logRho - 3).toPrecision(2)} × 10³ kg/m³`;
-  if (logRho >= 0) return `${Math.pow(10, logRho).toPrecision(2)} g/cm³`;
-  if (logRho > -3) return `${Math.pow(10, logRho + 3).toPrecision(2)} mg/cm³`;
-  return `10^${logRho.toFixed(0)} g/cm³`;
-}
 
 function showTooltip(event, obj, cat) {
   const photon = isPhoton(obj);
@@ -2514,206 +2356,6 @@ svg.on("mousemove.tooltip", (e) => {
 const axisTooltipEl = document.getElementById("axis-tooltip");
 
 // ── Unit tables for the axis tooltip picker ──
-
-const MASS_HOVER_UNITS = [
-  { logOff: -32.75, name: "Electron Volts/c²",  sys: "particle" },
-  { logOff: -29.75, name: "Kilo Electron Volts/c²", sys: "particle" },
-  { logOff: -26.75, name: "Mega Electron Volts/c²", sys: "particle" },
-  { logOff: -23.75, name: "Giga Electron Volts/c²", sys: "particle" },
-  { logOff: -20.75, name: "Tera Electron Volts/c²", sys: "particle" },
-  { logOff: -15,    name: "Picograms",   sys: "metric" },
-  { logOff: -12,    name: "Nanograms",   sys: "metric" },
-  { logOff: -9,     name: "Micrograms",  sys: "metric" },
-  { logOff: -6,     name: "Milligrams",  sys: "metric" },
-  { logOff: 0,      name: "Grams",       sys: "metric" },
-  { logOff: 3,      name: "Kilograms",   sys: "metric" },
-  { logOff: 6,      name: "Tonnes",      sys: "metric" },
-  { logOff: 9,      name: "Kilotonnes",  sys: "metric" },
-  { logOff: 12,     name: "Megatonnes",  sys: "metric" },
-  { logOff: 15,     name: "Gigatonnes",  sys: "metric" },
-  { logOff: 1.45,   name: "Ounces",      sys: "imperial" },
-  { logOff: 2.66,   name: "Pounds",      sys: "imperial" },
-  { logOff: 5.95,   name: "US Tons",     sys: "imperial" },
-  { logOff: 27.78,  name: "Earth Masses",   sys: "astro" },
-  { logOff: 30.28,  name: "Jupiter Masses", sys: "astro" },
-  { logOff: 33.30,  name: "Solar Masses",   sys: "astro" },
-];
-
-const RADIUS_HOVER_UNITS = [
-  { logOff: -13,    name: "Femtometers",    sys: "metric" },
-  { logOff: -10,    name: "Picometers",     sys: "metric" },
-  { logOff: -8,     name: "Angstroms",      sys: "metric" },
-  { logOff: -7,     name: "Nanometers",     sys: "metric" },
-  { logOff: -4,     name: "Micrometers",    sys: "metric" },
-  { logOff: -1,     name: "Millimeters",    sys: "metric" },
-  { logOff: 0,      name: "Centimeters",    sys: "metric" },
-  { logOff: 2,      name: "Meters",         sys: "metric" },
-  { logOff: 5,      name: "Kilometers",     sys: "metric" },
-  { logOff: 0.405,  name: "Inches",         sys: "imperial" },
-  { logOff: 1.484,  name: "Feet",           sys: "imperial" },
-  { logOff: 5.207,  name: "Miles",          sys: "imperial" },
-  { logOff: 13.175, name: "Astronomical Units", sys: "astro" },
-  { logOff: 17.976, name: "Light Years",    sys: "astro" },
-  { logOff: 18.489, name: "Parsecs",        sys: "astro" },
-  { logOff: 20.976, name: "Thousand Light Years", sys: "astro" },
-  { logOff: 24.489, name: "Megaparsecs",    sys: "astro" },
-];
-
-const ENERGY_HOVER_UNITS = [
-  { logOff: -38.75, name: "Micro Electron Volts",  sys: "energy" },
-  { logOff: -35.75, name: "Milli Electron Volts",  sys: "energy" },
-  { logOff: -32.75, name: "Electron Volts",        sys: "energy" },
-  { logOff: -29.75, name: "Kilo Electron Volts",   sys: "energy" },
-  { logOff: -26.75, name: "Mega Electron Volts",   sys: "energy" },
-  { logOff: -23.75, name: "Giga Electron Volts",   sys: "energy" },
-  { logOff: -20.75, name: "Tera Electron Volts",   sys: "energy" },
-  { logOff: -36.81, name: "Kelvin",                sys: "temperature" },
-];
-
-// Density→cosmic-time lookup (piecewise linear interpolation in log-log)
-const DENSITY_TIME_TABLE = [
-  { logRho: 93.7,   logT: -43 },
-  { logRho: 76,     logT: -36 },
-  { logRho: 25,     logT: -11 },
-  { logRho: 14.4,   logT: -6 },
-  { logRho: 4,      logT: 0 },
-  { logRho: -21,    logT: 13 },
-  { logRho: -29.5,  logT: 17.64 },   // now ≈ 4.35×10¹⁷ s ≈ 13.8 Gyr
-  // Future: density ruler positions are arbitrary beyond "now", but we
-  // extrapolate so the hover tooltip keeps showing increasing cosmic time
-  { logRho: -150.6, logT: 107.5 },   // heat death ≈ 10¹⁰⁰ years → 10^107.5 s
-];
-
-// ── Picker: choose best human-readable unit ──
-
-function pickBestUnit(logVal, table, preferSys) {
-  let best = null, bestScore = Infinity;
-  for (const u of table) {
-    const mLog = logVal - u.logOff;
-    if (mLog < -2 || mLog > 8) continue;  // mantissa 0.01 to ~100M
-    const score = Math.abs(mLog) + (mLog < 0 ? 0.3 : 0) // slight preference for mantissa ≥ 1
-      + (preferSys && u.sys === preferSys ? -0.5 : 0);
-    if (score < bestScore) { bestScore = score; best = u; }
-  }
-  if (!best) best = table.reduce((a, b) =>
-    Math.abs(logVal - a.logOff) < Math.abs(logVal - b.logOff) ? a : b);
-  return { value: Math.pow(10, logVal - best.logOff), unit: best.name, sys: best.sys };
-}
-
-function pickAltUnit(logVal, table, primaryUnit) {
-  // Try contrasting system first
-  const altMap = { metric: "imperial", imperial: "metric", particle: "metric",
-    astro: "metric", energy: "temperature", temperature: "energy" };
-  const altSys = altMap[primaryUnit.sys] || null;
-  const filtered = table.filter(u => u.sys !== primaryUnit.sys);
-  if (filtered.length) {
-    const alt = pickBestUnit(logVal, filtered, altSys);
-    const mLog = Math.abs(Math.log10(Math.abs(alt.value) || 1));
-    if (mLog < 6) return alt; // mantissa is reasonable
-  }
-  // Fallback: pick any unit that isn't the exact same one
-  const any = table.filter(u => u.name !== primaryUnit.unit);
-  return pickBestUnit(logVal, any, null);
-}
-
-// ── Formatting helpers ──
-
-function formatHumanNum(value, unit) {
-  const a = Math.abs(value);
-  if (a === 0) return `0 ${unit}`;
-  if (a >= 1e15 || a < 0.001) {
-    // Use HTML sup for extreme values
-    const exp = Math.floor(Math.log10(a));
-    const mant = value / Math.pow(10, exp);
-    return `${mant.toFixed(1)}×10<sup>${exp}</sup> ${unit}`;
-  }
-  if (a < 0.01) return `${value.toPrecision(2)} ${unit}`;
-  if (a < 10)   return `${value.toPrecision(3)} ${unit}`;
-  if (a < 1000) return `${value.toPrecision(4)} ${unit}`;
-  if (a < 1e6)  return `${Number(value.toPrecision(4)).toLocaleString()} ${unit}`;
-  if (a < 1e9)  return `${(value / 1e6).toPrecision(3)} million ${unit}`;
-  if (a < 1e12) return `${(value / 1e9).toPrecision(3)} billion ${unit}`;
-  return `${(value / 1e12).toPrecision(3)} trillion ${unit}`;
-}
-
-function formatLogSuper(logVal, unit) {
-  const s = logVal.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
-  return `10<sup>${s}</sup> ${unit}`;
-}
-
-// Density → cosmic time via interpolation
-function densityToLogTime(logRho) {
-  const t = DENSITY_TIME_TABLE;
-  if (logRho >= t[0].logRho) return t[0].logT;
-  if (logRho <= t[t.length - 1].logRho) return t[t.length - 1].logT;
-  for (let i = 0; i < t.length - 1; i++) {
-    if (logRho <= t[i].logRho && logRho >= t[i + 1].logRho) {
-      const frac = (logRho - t[i].logRho) / (t[i + 1].logRho - t[i].logRho);
-      return t[i].logT + frac * (t[i + 1].logT - t[i].logT);
-    }
-  }
-  return 0;
-}
-
-function friendlyTime(logT) {
-  // logT is log₁₀(seconds)
-  const logYr = logT - 7.494; // 1 year ≈ 3.156×10⁷ s → log₁₀ ≈ 7.494
-
-  // Turn a small fractional value into natural language: 3.1e-19 → "3.1 ten-billionths of a"
-  function humanFrac(val, unitSingular) {
-    const a = Math.abs(val);
-    if (a >= 0.5) return `${Number(val.toPrecision(2))} ${unitSingular}s`;
-    const fracs = [
-      [1e-3,  "Thousandth"],  [1e-6,  "Millionth"],  [1e-9,  "Billionth"],
-      [1e-12, "Trillionth"], [1e-15, "Quadrillionth"], [1e-18, "Quintillionth"],
-      [1e-21, "Sextillionth"], [1e-24, "Septillionth"],
-    ];
-    for (const [thresh, word] of fracs) {
-      const scaled = val / thresh;
-      if (Math.abs(scaled) >= 0.5) {
-        const n = Number(scaled.toPrecision(2));
-        const pl = Math.abs(n) === 1 ? "" : "s";
-        return `${n} ${word}${pl} of a ${unitSingular}`;
-      }
-    }
-    // fallback for extremely small values
-    const exp = Math.floor(Math.log10(a));
-    const mant = val / Math.pow(10, exp);
-    return `${mant.toFixed(1)}×10<sup>${exp}</sup> ${unitSingular}s`;
-  }
-
-  // Planck time ≈ 5.4×10⁻⁴⁴ s → log₁₀ ≈ -43.27
-  if (logT < -36) {
-    const logPlanck = -43.27;
-    const mult = logT - logPlanck;
-    if (mult < 15) {
-      const v = Math.pow(10, mult);
-      if (v < 1e3) return `${Number(v.toPrecision(2))} Planck Times`;
-      if (v < 1e6) return `${Number((v/1e3).toPrecision(2))} Thousand Planck Times`;
-      if (v < 1e9) return `${Number((v/1e6).toPrecision(2))} Million Planck Times`;
-      if (v < 1e12) return `${Number((v/1e9).toPrecision(2))} Billion Planck Times`;
-      return `${Number((v/1e12).toPrecision(2))} Trillion Planck Times`;
-    }
-    return formatLogSuper(mult, "× Planck Time");
-  }
-  // Small times: use fractional natural language
-  if (logT < -12) { return humanFrac(Math.pow(10, logT + 12), "Picosecond"); }
-  if (logT < -9)  { return humanFrac(Math.pow(10, logT + 9),  "Nanosecond"); }
-  if (logT < -6)  { return humanFrac(Math.pow(10, logT + 6),  "Microsecond"); }
-  if (logT < 0)   { return humanFrac(Math.pow(10, logT + 3),  "Millisecond"); }
-  if (logT < 2)   return `${Number(Math.pow(10, logT).toPrecision(2))} Seconds`;
-  if (logT < 3.56) return `${Number(Math.pow(10, logT - 1.778).toPrecision(2))} Minutes`;
-  if (logT < 4.94) return `${Number(Math.pow(10, logT - 3.556).toPrecision(2))} Hours`;
-  if (logT < 6.45) return `${Number(Math.pow(10, logT - 4.937).toPrecision(2))} Days`;
-  if (logYr < 3)   return `${Number(Math.pow(10, logYr).toPrecision(3))} Years`;
-  if (logYr < 6)   return `${Number(Math.pow(10, logYr - 3).toPrecision(3))} Thousand Years`;
-  if (logYr < 9)   return `${Number(Math.pow(10, logYr - 6).toPrecision(3))} Million Years`;
-  if (logYr < 12)  return `${Number(Math.pow(10, logYr - 9).toPrecision(3))} Billion Years`;
-  if (logYr < 15)  return `${Number(Math.pow(10, logYr - 12).toPrecision(3))} Trillion Years`;
-  if (logYr < 18)  return `${Number(Math.pow(10, logYr - 15).toPrecision(3))} Quadrillion Years`;
-  // Extreme future: use 10^n years notation
-  return `10<sup>${Math.round(logYr)}</sup> Years`;
-}
 
 // ── Axis region detection ──
 
@@ -3044,16 +2686,26 @@ fetch("https://triangleofeverything.goatcounter.com/counter/TOTAL.json")
   .then(d => { document.querySelectorAll("#visitor-count, #visitor-count-tour").forEach(el => { el.textContent = d.count; }); })
   .catch(() => {});
 
+/** Center the view on a data-space point at scale k — THE home for the
+ *  cw/2 - xBase(logR)*k centering math (was inlined at ten call sites).
+ *  duration 0 (or OS reduced-motion) applies the transform instantly. */
+function flyTo(logR, logM, k, duration = 0, ease = d3.easeCubicInOut) {
+  const t = d3.zoomIdentity
+    .translate(cw / 2 - xBase(logR) * k, ch / 2 - yBase(logM) * k)
+    .scale(k);
+  if (duration > 0 && !_reduceMotion) {
+    svg.transition().duration(duration).ease(ease).call(zoomBehavior.transform, t);
+  } else {
+    svg.call(zoomBehavior.transform, t);
+  }
+}
+
 function navigateToObject(slug, name) {
   const obj = OBJECTS.find(o => o.slug === slug);
   if (obj) {
     _sidebarManuallyExpanded = false;
     const targetK = Math.max(currentK, 12);
-    const tx = cw / 2 - xBase(obj.logR) * targetK;
-    const ty = ch / 2 - yBase(obj.logM) * targetK;
-    svg.transition().duration(700).ease(d3.easeCubicInOut)
-      .call(zoomBehavior.transform,
-        d3.zoomIdentity.translate(tx, ty).scale(targetK));
+    flyTo(obj.logR, obj.logM, targetK, 700);
     openSidebar(obj);
     setSidebarOpen(true);
   } else if (name) {
@@ -3076,10 +2728,7 @@ sidebarEl.addEventListener("click", (e) => {
   const zoom = link.dataset.zoom;
   if (zoom) {
     const [logR, logM, k] = zoom.split(",").map(Number);
-    const tx = cw / 2 - xBase(logR) * k;
-    const ty = ch / 2 - yBase(logM) * k;
-    svg.transition().duration(700).ease(d3.easeCubicInOut)
-      .call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+    flyTo(logR, logM, k, 700);
     openInfoPanel(slug, name);
     setSidebarOpen(true);
   } else {
@@ -3185,9 +2834,7 @@ function relayout() {
   yBase.domain([viewYMin, viewYMax]).range([ch, 0]);
   updateBgGradients();
 
-  const tx = cw / 2 - xBase(centerLogR) * savedK;
-  const ty = ch / 2 - yBase(centerLogM) * savedK;
-  svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(savedK));
+  flyTo(centerLogR, centerLogM, savedK);
 
   miniSvg.attr("transform",
     `translate(${W - MINIMAP_SIZE - MINIMAP_PAD - margin.right}, ${margin.top + MINIMAP_PAD})`);
@@ -3851,9 +3498,6 @@ function drawAxes() {
   }
 }
 
-function fmtTick(v) {
-  return Number.isInteger(v) ? String(v) : v.toFixed(1);
-}
 
 // =============================================================
 // Connection Animation System
@@ -4416,10 +4060,7 @@ miniSvg.on("click", (event) => {
   const [mx, my] = d3.pointer(event, miniSvg.node());
   const logR = miniX.invert(mx);
   const logM = miniY.invert(my);
-  const tx = cw / 2 - xBase(logR) * currentK;
-  const ty = ch / 2 - yBase(logM) * currentK;
-  svg.transition().duration(_reduceMotion ? 0 : 400).ease(d3.easeCubicOut)
-    .call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(currentK));
+  flyTo(logR, logM, currentK, 400, d3.easeCubicOut);
 });
 
 // =============================================================
@@ -4671,30 +4312,17 @@ function updateClickTargets() {
 
     div.addEventListener("click", (e) => {
       e.stopPropagation();
-      _sidebarManuallyExpanded = false;
-      openSidebar(o);
-      setSidebarOpen(true);
+      selectObject(o);
     });
 
     div.addEventListener("mouseenter", (e) => {
-      // Trigger SVG hover effects
-      const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
-      if (iconEl.size()) {
-        const hoverSize = Math.max(64, baseIco * iconSizeMult(o) * 1.5);
-        iconEl.attr("width", hoverSize).attr("height", hoverSize)
-          .attr("x", o.sx - hoverSize / 2).attr("y", o.sy - hoverSize / 2);
-      }
+      setIconHover(o, true);
       lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", null);
       showTooltip(e, o, o.cat);
     });
 
     div.addEventListener("mouseleave", () => {
-      const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
-      if (iconEl.size()) {
-        const objS = baseIco * iconSizeMult(o);
-        iconEl.attr("width", objS).attr("height", objS)
-          .attr("x", o.sx - objS / 2).attr("y", o.sy - objS / 2);
-      }
+      setIconHover(o, false);
       if (!_labelsEnabled || !o._showLabel) {
         lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", "none");
       }
@@ -4722,28 +4350,16 @@ function updateClickTargets() {
 
     div.addEventListener("click", (e) => {
       e.stopPropagation();
-      _sidebarManuallyExpanded = false;
-      openSidebar(obj);
-      setSidebarOpen(true);
+      selectObject(obj);
     });
 
     div.addEventListener("mouseenter", (e) => {
-      const iconEl = lIcons.select(`.obj-icon[data-slug="${obj.slug}"]`);
-      if (iconEl.size()) {
-        const hoverSize = Math.max(64, baseIco * iconSizeMult(obj) * 1.5);
-        iconEl.attr("width", hoverSize).attr("height", hoverSize)
-          .attr("x", obj.sx - hoverSize / 2).attr("y", obj.sy - hoverSize / 2);
-      }
+      setIconHover(obj, true);
       showTooltip(e, obj, obj.cat);
     });
 
     div.addEventListener("mouseleave", () => {
-      const iconEl = lIcons.select(`.obj-icon[data-slug="${obj.slug}"]`);
-      if (iconEl.size()) {
-        const objS = baseIco * iconSizeMult(obj);
-        iconEl.attr("width", objS).attr("height", objS)
-          .attr("x", obj.sx - objS / 2).attr("y", obj.sy - objS / 2);
-      }
+      setIconHover(obj, false);
       hideTooltip();
     });
 
@@ -4902,89 +4518,18 @@ function redrawVectors() {
   updateScaleBar();
 }
 
-/** Fast dot-only renderer: projects objects to screen and draws coloured
- *  dots at correct positions. Skips clustering, collision detection, and
- *  text labels entirely — roughly O(n) instead of O(n²).
- *
- *  ⚠️ CURRENTLY UNUSED — and must stay out of the zoom/pan path. It clears the
- *  dot/icon layers but NOT lLabels, so the previous frame's text labels stay
- *  frozen in place while the chart moves underneath. The user explicitly
- *  dislikes text that lingers or scales during a zoom (see memory
- *  feedback-zoom-keep-labels). Smoothness is handled by recording slow and
- *  speeding up in post, NOT by dropping/stranding labels. Do not wire this in. */
-function drawObjectsFast() {
-  lObj.selectAll("*").remove();
-  lIcons.selectAll("*").remove();
-  const pad = 5;
-  const fastProjected = [];
-  const shownIconsFast = [];
-  const icoSize = effectiveIconSize();
-  OBJECTS.forEach(o => {
-    if (o.minK && currentK < o.minK) return;
-    // Big Bang mode: skip invisible objects, apply position overrides
-    let logR = o.logR, logM = o.logM;
-    let opacity = 0.8;
-    if (_bigBangMode) {
-      const bbOp = _bigBangObjectOpacity[o.slug] ?? 0;
-      if (bbOp <= 0.01) return;
-      opacity = 0.8 * bbOp;
-      if (_bigBangObjectOverrides[o.slug]) {
-        logR = _bigBangObjectOverrides[o.slug].logR;
-        logM = _bigBangObjectOverrides[o.slug].logM;
-      }
-    }
-    const sx = px(logR), sy = py(logM);
-    if (sx < -pad || sx > cw + pad || sy < -pad || sy > ch + pad) return;
-    fastProjected.push({ ...o, sx, sy, _showDot: true });
-
-    const hasIcon = _iconsEnabled && ICON_BY_SLUG[o.slug];
-    // Icon overlap check: skip if too close to an already-shown icon
-    if (hasIcon) {
-      const icoOverlap = icoSize * 1.0;
-      const icoOverlap2 = icoOverlap * icoOverlap;
-      const tooClose = shownIconsFast.some(s => {
-        const dx = s.sx - sx, dy = s.sy - sy;
-        return dx * dx + dy * dy < icoOverlap2;
-      });
-      if (tooClose) { // demote to dot
-        lObj.append("circle").attr("cx", sx).attr("cy", sy).attr("r", 3)
-          .attr("fill", SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff")
-          .attr("opacity", opacity);
-        return;
-      }
-      shownIconsFast.push({ sx, sy });
-    }
-    if (hasIcon) {
-      const SCREEN_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
-      const SCREEN_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
-      const isVoid = o.slug.includes("void");
-      const useScreen = (SCREEN_CATS.has(o.cat) || SCREEN_SLUGS.has(o.slug)) && !isVoid;
-      const objIcoSize = icoSize * (iconSizeMult(o));
-      if (useScreen) {
-        lIcons.append("circle").attr("cx", sx).attr("cy", sy)
-          .attr("r", objIcoSize * 0.52).attr("fill", "url(#icon-bg-grad)").attr("opacity", opacity);
-      }
-      lIcons.append("image")
-        .attr("class", "obj-icon").attr("data-slug", o.slug)
-        .attr("href", ICON_BY_SLUG[o.slug])
-        .attr("x", sx - objIcoSize / 2).attr("y", sy - objIcoSize / 2)
-        .attr("width", objIcoSize).attr("height", objIcoSize)
-        .attr("opacity", opacity)
-        .style("mix-blend-mode", useScreen ? "screen" : null);
-    } else {
-      lObj.append("circle")
-        .attr("cx", sx).attr("cy", sy).attr("r", 3)
-        .attr("fill", SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff")
-        .attr("opacity", opacity);
-    }
-  });
-  _lastProjected = fastProjected;
-}
+/* NOTE: a dots-only "fast renderer" (drawObjectsFast) used to live here and
+ * was twice wired into the zoom path by mistake. It is deleted for good:
+ * during ANY zoom/pan, labels must stay visible, correctly positioned, and
+ * non-scaling every frame (see memory feedback-zoom-keep-labels). The
+ * retained keyed-join renderer above satisfies that cheaply, and the perf
+ * harness's label invariants fail CI if a "fast path" ever strands, scales,
+ * or hides text again. */
 
 /** Per-frame redraw during an active zoom/pan. Identical to redrawVectors():
  *  it full-renders objects (with text labels at correct positions) every
  *  frame. It is NOT a dots-only fast path — labels must never strand or scale
- *  mid-zoom (see drawObjectsFast's warning and memory feedback-zoom-keep-labels). */
+ *  mid-zoom (see memory feedback-zoom-keep-labels). */
 function redrawVectorsLight() {
   drawRegions();
   drawGrid();
@@ -5002,7 +4547,7 @@ function redrawVectorsLight() {
   // frame — never linger in place and never scale with the chart. (Per the
   // user; see memory feedback-zoom-keep-labels.) If a transition feels slow,
   // the user records it slow and speeds it up in post — do NOT swap in the
-  // dots-only drawObjectsFast() here; it strands the label layer in place.
+  // dots-only renderer here; stranding the label layer is banned.
   drawObjects();
   drawHighlight();
   drawAxes();
@@ -5127,10 +4672,7 @@ svg.on("dblclick", (event) => {
   const [mx, my] = d3.pointer(event, chart.node());
   const targetK = currentK * 2.5;
   const logR = xS.invert(mx), logM = yS.invert(my);
-  const tx = cw / 2 - xBase(logR) * targetK;
-  const ty = ch / 2 - yBase(logM) * targetK;
-  svg.transition().duration(_reduceMotion ? 0 : 400).ease(d3.easeCubicOut)
-    .call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(targetK));
+  flyTo(logR, logM, targetK, 400, d3.easeCubicOut);
 });
 
 // =============================================================
@@ -5138,20 +4680,11 @@ svg.on("dblclick", (event) => {
 // =============================================================
 
 function zoomToObject(obj) {
-  const targetK = Math.max(currentK * 2, 12);
-  const tx = cw / 2 - xBase(obj.logR) * targetK;
-  const ty = ch / 2 - yBase(obj.logM) * targetK;
-  svg.transition().duration(700).ease(d3.easeCubicInOut)
-    .call(zoomBehavior.transform,
-      d3.zoomIdentity.translate(tx, ty).scale(targetK));
+  flyTo(obj.logR, obj.logM, Math.max(currentK * 2, 12), 700);
 }
 
 function panToCoord(logR, logM) {
-  const tx = cw / 2 - xBase(logR) * currentK;
-  const ty = ch / 2 - yBase(logM) * currentK;
-  svg.transition().duration(_reduceMotion ? 0 : 500).ease(d3.easeCubicOut)
-    .call(zoomBehavior.transform,
-      d3.zoomIdentity.translate(tx, ty).scale(currentK));
+  flyTo(logR, logM, currentK, 500, d3.easeCubicOut);
 }
 
 /** Preload tiles that will be visible at a target zoom transform */
@@ -5701,7 +5234,6 @@ function applyLayout({ resetZoom } = {}) {
   miniSvg.attr("transform",
     `translate(${W - MINIMAP_SIZE - MINIMAP_PAD - margin.right}, ${margin.top + MINIMAP_PAD})`);
 }
-window.__applyLayout = applyLayout;
 
 // Resize must never wipe the user's zoom position: rotation, URL-bar
 // collapse, and the on-screen keyboard all fire this. On touch devices,
@@ -6114,11 +5646,9 @@ if (_reduceMotion && !_animDisabled) {
     const cy = (d.y0 + d.y1) / 2;
     const k  = currentK;
     measure();
-    if (typeof window.__applyLayout === "function") window.__applyLayout({ resetZoom: true });
+    applyLayout({ resetZoom: true });
     // Re-apply: zoom level k around the captured center
-    const tx = cw / 2 - xBase(cx) * k;
-    const ty = ch / 2 - yBase(cy) * k;
-    svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+    flyTo(cx, cy, k);
     positionHandles();
     redraw();
   }
@@ -6135,10 +5665,8 @@ if (_reduceMotion && !_animDisabled) {
     const cy = (d.y0 + d.y1) / 2;
     const k  = currentK;
     measure();
-    if (typeof window.__applyLayout === "function") window.__applyLayout({ resetZoom: true });
-    const tx = cw / 2 - xBase(cx) * k;
-    const ty = ch / 2 - yBase(cy) * k;
-    svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+    applyLayout({ resetZoom: true });
+    flyTo(cx, cy, k);
     positionHandles();
     redraw();
     saveSettings();
@@ -6154,7 +5682,7 @@ if (_reduceMotion && !_animDisabled) {
 
   positionHandles();
   window.addEventListener("resize", positionHandles);
-  window.__repositionAxisHandles = positionHandles;
+  _repositionAxisHandles = positionHandles;
 })();
 
 // =============================================================
@@ -6198,9 +5726,7 @@ function loadHash() {
   }
   const [cx, cy, k] = nums;
   const slug = parts.length > 3 ? parts.slice(3).join(",") : null;
-  const tx = cw / 2 - xBase(cx) * k;
-  const ty = ch / 2 - yBase(cy) * k;
-  svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+  flyTo(cx, cy, k);
   if (slug) {
     const obj = OBJECTS.find(o => o.slug === slug);
     if (obj) {
@@ -6223,9 +5749,9 @@ zoomBehavior.on("zoom", (event) => {
 // nodes, so a pinch/pan starting on a label or icon died after one frame
 // (the detached node stops bubbling to the SVG). This topmost, transparent,
 // never-rebuilt rect gives every touch a stable target.
-// INTERIM until Phase 2's retained rendering (docs/mobile-plan.md) removes
-// the per-frame teardown — though the click-target divs must stay
-// touch-inert regardless (they sit outside the SVG entirely).
+// Still required after retained rendering: the click-target overlays sit
+// OUTSIDE the SVG, so a touch starting on one never reaches d3-zoom, and
+// enter/exit in the keyed joins can still recycle a touch's start node.
 // Created for any device with a coarse pointer (hybrids included); its
 // pointer-events follow the input modality (see setInputModality) so mouse
 // hover on in-SVG elements keeps working whenever a mouse is in use.
@@ -6271,9 +5797,7 @@ initTimeScrubber({
 if (!loadHash()) {
   // Intro animation: start zoomed on Human, then zoom out to full view
   const introK = 14;
-  const introTx = cw / 2 - xBase(1.7) * introK;
-  const introTy = ch / 2 - yBase(4.9) * introK;
-  svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(introTx, introTy).scale(introK));
+  flyTo(1.7, 4.9, introK); // start on Human
 
   // After a beat, smoothly zoom out to the full chart.
   // Reduced motion: land on the full view immediately, no cinematic zoom.
@@ -6297,6 +5821,10 @@ setTimeout(() => {
 
 // Reveal page now that CSS and JS are loaded (prevents FOUC)
 document.body.classList.add("ready");
+
+// Icon cache warmup, anchored to READY (not module import) so it can never
+// drift into the startup measurement window on a slow machine.
+setTimeout(startIconWarmup, 3000);
 
 // Service worker: instant repeat visits + offline map (see public/sw.js).
 // Registered late and without clients.claim so the FIRST visit never pays

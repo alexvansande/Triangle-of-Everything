@@ -301,11 +301,6 @@ body.sidebar-open #scrubber-panel { left: calc(50% + 220px); }
 }
 .setting-check:hover { color: rgba(255,255,255,0.9); }
 
-.setting-divider {
-  border: none; border-top: 1px solid rgba(255,255,255,0.08);
-  margin: 10px 0;
-}
-
 .setting-select {
   display: flex; align-items: center; gap: 10px;
   padding: 4px 0; cursor: default;
@@ -932,10 +927,6 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px;
   font-weight: 300;
   fill: rgba(255,255,255,0.88);
-}
-.axis-unit-label {
-  font-family: 'Inter', sans-serif; font-size: 9px;
-  fill: rgba(255,255,255,0.22); font-style: italic;
 }
 /* Minor sub-decade digits (the 2…9 between decades) stay dim so they read as
    subordinate to the bright decade numbers. */

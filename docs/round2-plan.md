@@ -14,6 +14,9 @@ audience win; desktop survived the overhaul with a handful of small nicks.
 
 ## Wave 1 — Bugs & visible embarrassments (a day; all verified against pixels)
 
+> **STATUS: SHIPPED 2026-08-20.** All 12 fixed, verified against fresh
+> screenshots; all suites + budgets green.
+
 1. **"macro" label leak** — `CAT_DISPLAY.macro = ""` falls through
    `|| catKey` and prints the raw key dead-center of the home view. Treat `""`
    as "suppress label". *(high, 1-liner)*
@@ -53,6 +56,9 @@ audience win; desktop survived the overhaul with a handful of small nicks.
 
 ## Wave 2 — Accessibility (the big new front; ~2 days)
 
+> **STATUS: SHIPPED 2026-08-21.** All 8 done; new 11-check a11y smoke suite
+> green (keyboard search → select → announce, focus rings, reduced motion).
+
 The app is currently invisible to assistive tech and inoperable by keyboard.
 Verified specifics, in priority order:
 
@@ -77,6 +83,23 @@ Verified specifics, in priority order:
    has focus or recent interaction.
 
 ## Wave 3 — Code health (structural; can trail the others)
+
+> **STATUS: SHIPPED 2026-08-21 (first slice).** Done: `drawObjectsFast`
+> deleted (the label-invariant CI gate is the guard now); stale INTERIM
+> comment rewritten; `window.__` forward-refs replaced with module bindings
+> (the `__debugBigBang` console hook stays); `flyTo()` replaces ten inlined
+> copies of the centering math; `selectObject()`/`setIconHover()` replace the
+> remaining copies; dead CSS rules dropped; wiki-download script variants
+> archived; perf-reports untracked except the baseline (CI uploads its own);
+> stray PDFs gitignored. Extracted modules: **src/format.js** (pure
+> formatters + unit tables, zero app state) and **src/assets.js** (content
+> manifests + icon warmup, now anchored to app-ready so it can never race
+> the startup measurement window). main.js: ~6,100 → 5,832 lines.
+> Deferred to a future slice: connections/axes/sidebar/bigbang/interactions
+> extractions (need a shared chart-context interface — the seams and an
+> injection sketch are mapped in round2-audit-findings.json), and the
+> MOBILE_TUNING table consolidation.
+
 
 1. **Split main.js** along the audit's verified seams, in dependency order:
    `format.js` (pure formatters) → `assets.js` (manifest globs) →
