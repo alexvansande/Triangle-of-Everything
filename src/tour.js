@@ -104,9 +104,11 @@ export function initTour({ zoomToRegion, vd, animateBigBang, exitBigBang, isBigB
 
   // Build progress dots with hover tooltips
   TOUR_STEPS.forEach((step, i) => {
-    const dot = document.createElement("span");
+    const dot = document.createElement("button");
+    dot.type = "button";
     dot.className = "tour-dot";
     dot.title = step.title || step.id;
+    dot.setAttribute("aria-label", `Step ${i + 1}: ${step.title || step.id}`);
     dot.addEventListener("click", () => goToStep(i));
     els.dots.appendChild(dot);
   });
@@ -335,9 +337,14 @@ function renderStep() {
           <a data-step="17">The Big Bang</a>
           <a data-step="27">Credits</a>`;
         skipEl.querySelectorAll("a[data-step]").forEach(a => {
+          a.setAttribute("role", "button");
+          a.setAttribute("tabindex", "0");
           a.addEventListener("click", (e) => {
             e.preventDefault();
             goToStep(parseInt(a.dataset.step));
+          });
+          a.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); a.click(); }
           });
         });
         els.nextLabel.parentElement.insertAdjacentElement("afterend", skipEl);

@@ -392,7 +392,21 @@ const py = v => yS(v);
 // SVG scaffolding
 // =============================================================
 
-const svg = d3.select("#chart").append("svg").attr("width", W).attr("height", H);
+const svg = d3.select("#chart").append("svg").attr("width", W).attr("height", H)
+  .attr("role", "img")
+  .attr("aria-label", "Map of every object in the universe, plotted by mass versus width. Use search to find and select objects.");
+
+// Screen-reader announcements (selection changes, etc.)
+const _srAnnounceEl = document.getElementById("sr-announce");
+function announce(text) {
+  if (!_srAnnounceEl) return;
+  _srAnnounceEl.textContent = "";           // retrigger even for repeats
+  requestAnimationFrame(() => { _srAnnounceEl.textContent = text; });
+}
+
+// OS-level reduced-motion preference: shorten/skip camera animation and
+// decorative motion. The in-app "Show animations" checkbox still overrides.
+const _reduceMotion = !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 const defs = svg.append("defs");
 
 // Clip
@@ -1347,7 +1361,7 @@ function drawDarkMatterRegions() {
       .attr("text-anchor", "middle")
       .attr("font-family", "Inter, sans-serif")
       .attr("font-size", 7).attr("font-weight", 500)
-      .attr("fill", "rgba(255,255,255,0.3)")
+      .attr("fill", "rgba(255,255,255,0.55)")
       .attr("letter-spacing", "1.5px")
       .style("cursor", "pointer")
       .text("WIMP")
@@ -1366,7 +1380,7 @@ function drawDarkMatterRegions() {
       .attr("text-anchor", "middle")
       .attr("font-family", "Inter, sans-serif")
       .attr("font-size", 7).attr("font-weight", 500)
-      .attr("fill", "rgba(255,255,255,0.3)")
+      .attr("fill", "rgba(255,255,255,0.55)")
       .attr("letter-spacing", "1.5px")
       .style("cursor", "pointer")
       .text("MACHO")
@@ -3089,6 +3103,7 @@ function setSidebarOpen(open) {
     sidebarEl.classList.remove("open");
     document.body.classList.remove("sidebar-open");
     sidebarEl.classList.remove("sheet-full"); // next mobile open starts at peek
+    syncSheetGrabAria();
   }
   if (changed && !_isMobile) relayout();
 }
@@ -3131,10 +3146,24 @@ function setSidebarOpen(open) {
       if (isFull) sidebarEl.classList.remove("sheet-full"); // full → peek
       else setSidebarOpen(false);                           // peek → closed
     }
+    syncSheetGrabAria();
   };
   grab.addEventListener("pointerup", endDrag);
   grab.addEventListener("pointercancel", endDrag);
+  // Keyboard: Enter/Space on the grabber button toggles peek <-> full
+  // (pointer taps are handled by endDrag; e.detail === 0 means keyboard)
+  grab.addEventListener("click", (e) => {
+    if (e.detail === 0) {
+      sidebarEl.classList.toggle("sheet-full");
+      syncSheetGrabAria();
+    }
+  });
 })();
+
+function syncSheetGrabAria() {
+  document.getElementById("sheet-grab")
+    ?.setAttribute("aria-expanded", String(sidebarEl.classList.contains("sheet-full")));
+}
 
 function relayout() {
   if (!_booted) return;
@@ -3187,6 +3216,7 @@ function openSidebar(obj) {
   selectedObj = obj;
   sidebarIntro.style.display = "none";
   sidebarObject.style.display = "";
+  announce(`${obj.name} selected. Details shown in the info panel.`);
 
   if (obj.isLabel) {
     sidebarObject.classList.add("info-panel");
@@ -3551,7 +3581,7 @@ function drawAxes() {
       .attr("text-anchor", "start")
       .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
       .attr("font-size", 10).attr("font-weight", 700)
-      .attr("fill", "rgba(255,255,255,0.3)")
+      .attr("fill", "rgba(255,255,255,0.55)")
       .attr("transform", `rotate(${densityAngle},${tx},${ty})`)
       .text(gL);
   }
@@ -3600,7 +3630,7 @@ function drawAxes() {
           .attr("stroke", "rgba(255,255,255,0.10)");
         axB.append("text").attr("x", p).attr("y", 14).attr("text-anchor", "middle")
           .attr("class", "axis-label axis-minor").attr("font-size", 9).attr("font-weight", 400)
-          .attr("fill", "rgba(255,255,255,0.35)")
+          .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
     }
@@ -3690,7 +3720,7 @@ function drawAxes() {
           .attr("stroke", "rgba(255,255,255,0.10)");
         axL.append("text").attr("x", -10).attr("y", p + 3.5).attr("text-anchor", "middle")
           .attr("class", "axis-label axis-minor").attr("font-size", 9).attr("font-weight", 400)
-          .attr("fill", "rgba(255,255,255,0.35)")
+          .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
     }
@@ -3780,7 +3810,7 @@ function drawAxes() {
           .attr("stroke", "rgba(255,255,255,0.10)");
         axR.append("text").attr("x", 14).attr("y", p + 3.5).attr("text-anchor", "middle")
           .attr("class", "axis-label axis-minor").attr("font-size", 9).attr("font-weight", 400)
-          .attr("fill", "rgba(255,255,255,0.35)")
+          .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
     }
@@ -4388,7 +4418,7 @@ miniSvg.on("click", (event) => {
   const logM = miniY.invert(my);
   const tx = cw / 2 - xBase(logR) * currentK;
   const ty = ch / 2 - yBase(logM) * currentK;
-  svg.transition().duration(400).ease(d3.easeCubicOut)
+  svg.transition().duration(_reduceMotion ? 0 : 400).ease(d3.easeCubicOut)
     .call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(currentK));
 });
 
@@ -4629,8 +4659,10 @@ function updateClickTargets() {
     const pageX = o.sx + margin.left;
     const pageY = o.sy + margin.top;
 
-    const div = document.createElement("div");
+    const div = document.createElement("button");
+    div.type = "button";
     div.className = "click-target";
+    div.setAttribute("aria-label", o.name);
     div.style.left = (pageX - size / 2) + "px";
     div.style.top = (pageY - size / 2) + "px";
     div.style.width = size + "px";
@@ -4678,8 +4710,10 @@ function updateClickTargets() {
   if (_labelsEnabled) _lastProjected.forEach(obj => {
     if (!obj._showLabel || !obj._labelRect) return;
     const r = obj._labelRect;
-    const div = document.createElement("div");
+    const div = document.createElement("button");
+    div.type = "button";
     div.className = "click-target click-target-label";
+    div.setAttribute("aria-label", obj.name);
     div.style.left = (r.x + margin.left - 2) + "px";
     div.style.top = (r.y + margin.top - 2) + "px";
     div.style.width = (r.w + 4) + "px";
@@ -4721,8 +4755,10 @@ function updateClickTargets() {
     try {
       const bbox = this.getBBox();
       if (bbox.width < 2 || bbox.height < 2) return;
-      const div = document.createElement("div");
+      const div = document.createElement("button");
+      div.type = "button";
       div.className = "click-target";
+      div.setAttribute("aria-label", "Dark matter regions — learn more");
       div.style.left = (bbox.x + margin.left - 2) + "px";
       div.style.top = (bbox.y + margin.top - 2) + "px";
       div.style.width = (bbox.width + 4) + "px";
@@ -5067,7 +5103,7 @@ const zoomBehavior = d3.zoom()
       if (dt > 0 && kStable && performance.now() - last.t < 120) {
         const vx = (last.x - ref.x) / dt, vy = (last.y - ref.y) / dt; // px/ms
         const speed = Math.hypot(vx, vy);
-        if (speed > 0.35) {
+        if (speed > 0.35 && !_reduceMotion) {
           const glide = Math.min(speed * 300, 700); // px of decay travel
           svg.transition("inertia").duration(600).ease(d3.easeCubicOut)
             .call(zoomBehavior.translateBy,
@@ -5093,7 +5129,7 @@ svg.on("dblclick", (event) => {
   const logR = xS.invert(mx), logM = yS.invert(my);
   const tx = cw / 2 - xBase(logR) * targetK;
   const ty = ch / 2 - yBase(logM) * targetK;
-  svg.transition().duration(400).ease(d3.easeCubicOut)
+  svg.transition().duration(_reduceMotion ? 0 : 400).ease(d3.easeCubicOut)
     .call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(targetK));
 });
 
@@ -5113,7 +5149,7 @@ function zoomToObject(obj) {
 function panToCoord(logR, logM) {
   const tx = cw / 2 - xBase(logR) * currentK;
   const ty = ch / 2 - yBase(logM) * currentK;
-  svg.transition().duration(500).ease(d3.easeCubicOut)
+  svg.transition().duration(_reduceMotion ? 0 : 500).ease(d3.easeCubicOut)
     .call(zoomBehavior.transform,
       d3.zoomIdentity.translate(tx, ty).scale(currentK));
 }
@@ -5233,6 +5269,7 @@ function _calcZoomDuration(from, to) {
   // Combined "effort" — higher means bigger jump
   const effort = panDist + zoomRatio;
   // Clamp between 2000ms and 3000ms for a relaxed, natural feel
+  if (_reduceMotion) return 0;
   return Math.round(Math.min(3000, Math.max(2000, 1500 + effort * 500)));
 }
 
@@ -5517,7 +5554,7 @@ document.getElementById("zoom-in").addEventListener("click", () =>
 document.getElementById("zoom-out").addEventListener("click", () =>
   svg.transition().duration(300).call(zoomBehavior.scaleBy, 1 / 1.5));
 document.getElementById("zoom-reset").addEventListener("click", () =>
-  svg.transition().duration(500).call(zoomBehavior.transform, d3.zoomIdentity));
+  svg.transition().duration(_reduceMotion ? 0 : 500).call(zoomBehavior.transform, d3.zoomIdentity));
 
 // ---------- settings panel ----------
 const settingsBtn = document.getElementById("settings-btn");
@@ -5525,6 +5562,7 @@ const settingsPanel = document.getElementById("settings-panel");
 settingsBtn.addEventListener("click", () => {
   const open = settingsPanel.classList.toggle("open");
   settingsBtn.classList.toggle("active", open);
+  settingsBtn.setAttribute("aria-expanded", String(open));
 });
 // close when clicking outside
 document.addEventListener("pointerdown", (e) => {
@@ -5532,6 +5570,7 @@ document.addEventListener("pointerdown", (e) => {
       !settingsPanel.contains(e.target) && e.target !== settingsBtn && !settingsBtn.contains(e.target)) {
     settingsPanel.classList.remove("open");
     settingsBtn.classList.remove("active");
+    settingsBtn.setAttribute("aria-expanded", "false");
   }
 });
 
@@ -5614,7 +5653,7 @@ document.addEventListener("keydown", (e) => {
     case "ArrowDown":
       svg.transition().duration(150).call(zoomBehavior.translateBy, 0, -PAN_STEP); break;
     case "Home": case "0":
-      svg.transition().duration(500).call(zoomBehavior.transform, d3.zoomIdentity); break;
+      svg.transition().duration(_reduceMotion ? 0 : 500).call(zoomBehavior.transform, d3.zoomIdentity); break;
 
     // ── Recording shortcuts ──────────────────────────────────────
     case "w": case "W":
@@ -5701,10 +5740,15 @@ const searchResults = document.getElementById("search-results");
 
 function openSearch() {
   searchBox.classList.add("expanded");
+  searchBtn.setAttribute("aria-expanded", "true");
+  searchInput.setAttribute("aria-expanded", "true");
   requestAnimationFrame(() => searchInput.focus());
 }
 function closeSearch() {
   searchBox.classList.remove("expanded");
+  searchBtn.setAttribute("aria-expanded", "false");
+  searchInput.setAttribute("aria-expanded", "false");
+  searchInput.removeAttribute("aria-activedescendant");
   searchInput.value = "";
   searchResults.classList.remove("active");
   searchInput.blur();
@@ -5752,12 +5796,14 @@ function applyTitleLockups() {
 // timer re-arms on every zoom/pan end so it never vanishes mid-inspection.
 const AXES_AUTO_HIDE_MS = 8000;
 let _axesHideTimer = null;
-function setMobileAxes(on) {
+function setMobileAxes(on, { autoHide = true } = {}) {
   _showAxesMobile = on;
   document.body.classList.toggle("mobile-axes-on", on);
-  document.getElementById("axes-toggle")?.classList.toggle("active", on);
+  const btn = document.getElementById("axes-toggle");
+  btn?.classList.toggle("active", on);
+  btn?.setAttribute("aria-pressed", String(on));
   clearTimeout(_axesHideTimer);
-  if (on) _axesHideTimer = setTimeout(() => setMobileAxes(false), AXES_AUTO_HIDE_MS);
+  if (on && autoHide) _axesHideTimer = setTimeout(() => setMobileAxes(false), AXES_AUTO_HIDE_MS);
   relayout();
 }
 function rearmAxesHideTimer() {
@@ -5765,8 +5811,11 @@ function rearmAxesHideTimer() {
   clearTimeout(_axesHideTimer);
   _axesHideTimer = setTimeout(() => setMobileAxes(false), AXES_AUTO_HIDE_MS);
 }
-document.getElementById("axes-toggle")?.addEventListener("click", () => {
-  setMobileAxes(!_showAxesMobile);
+document.getElementById("axes-toggle")?.addEventListener("click", (e) => {
+  // Keyboard activation (event.detail === 0) pins the ruler — a timer that
+  // yanks it away is hostile to keyboard and switch users. Pointer taps
+  // keep the 8s auto-hide.
+  setMobileAxes(!_showAxesMobile, { autoHide: e.detail !== 0 });
 });
 
 searchBtn.addEventListener("click", () => {
@@ -5814,17 +5863,20 @@ searchInput.addEventListener("input", () => {
 
   searchResults.innerHTML = matches.map(o => {
     const dotColor = SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff";
-    return `<div class="search-item" data-logr="${o.logR}" data-logm="${o.logM}">
+    return `<button type="button" role="option" class="search-item" data-logr="${o.logR}" data-logm="${o.logM}">
       <span class="search-dot" style="background:${dotColor}"></span>
       <span class="search-name">${o.name}</span>
       <span class="search-cat">${o.cat}</span>
-    </div>`;
+    </button>`;
   }).join("") + regions.map((g, i) => `
-    <div class="search-item search-region" data-region="${i}">
+    <button type="button" role="option" class="search-item search-region" data-region="${i}">
       <span class="search-dot" style="background:${g.color}"></span>
       <span class="search-name">${escapeHtml(g.label)}</span>
       <span class="search-cat">region</span>
-    </div>`).join("");
+    </button>`).join("");
+  searchResults.querySelectorAll(".search-item").forEach((el, i) => { el.id = "sr-opt-" + i; });
+  _searchActive = -1;
+  searchInput.removeAttribute("aria-activedescendant");
   searchResults.classList.add("active");
 
   searchResults.querySelectorAll(".search-item:not(.search-region)").forEach(el => {
@@ -5849,6 +5901,25 @@ searchInput.addEventListener("input", () => {
       closeSearch();
     });
   });
+});
+
+// Keyboard: ArrowUp/Down move the active option, Enter activates it,
+// Escape closes — search was mouse-only before.
+let _searchActive = -1;
+function setActiveSearchResult(i) {
+  const items = [...searchResults.querySelectorAll(".search-item")];
+  if (!items.length) return;
+  _searchActive = ((i % items.length) + items.length) % items.length;
+  items.forEach((el, j) => el.classList.toggle("kbd-active", j === _searchActive));
+  searchInput.setAttribute("aria-activedescendant", items[_searchActive].id);
+  items[_searchActive].scrollIntoView({ block: "nearest" });
+}
+searchInput.addEventListener("keydown", (e) => {
+  const items = searchResults.querySelectorAll(".search-item");
+  if (e.key === "ArrowDown") { e.preventDefault(); setActiveSearchResult(_searchActive + 1); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); setActiveSearchResult(_searchActive - 1); }
+  else if (e.key === "Enter" && items.length) { e.preventDefault(); items[Math.max(0, _searchActive)].click(); }
+  else if (e.key === "Escape") { e.stopPropagation(); closeSearch(); }
 });
 
 searchInput.addEventListener("blur", () => {
@@ -5898,7 +5969,7 @@ document.querySelectorAll("#preset-bar button").forEach(btn => {
     btn.classList.add("active");
 
     if (!p) {
-      svg.transition().duration(800).ease(d3.easeCubicInOut)
+      svg.transition().duration(_reduceMotion ? 0 : 800).ease(d3.easeCubicInOut)
         .call(zoomBehavior.transform, d3.zoomIdentity);
       return;
     }
@@ -5911,7 +5982,7 @@ document.querySelectorAll("#preset-bar button").forEach(btn => {
     const tx = cw / 2 - cx * k;
     const ty = ch / 2 - cy * k;
 
-    svg.transition().duration(800).ease(d3.easeCubicInOut)
+    svg.transition().duration(_reduceMotion ? 0 : 800).ease(d3.easeCubicInOut)
       .call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
   });
 });
@@ -5946,6 +6017,18 @@ try {
     if (typeof saved.marginBottom === "number") _userMarginBottom = saved.marginBottom;
   }
 } catch (e) { /* ignore corrupt data */ }
+
+// OS reduced-motion preference: decorative animation defaults OFF unless the
+// user explicitly saved it on (their in-app choice wins over the OS default).
+if (_reduceMotion && !_animDisabled) {
+  let savedAnimOn = false;
+  try { savedAnimOn = JSON.parse(localStorage.getItem("tri-settings"))?.anim === true; } catch (e) { /* ignore */ }
+  if (!savedAnimOn) {
+    setAnim.checked = false;
+    _animDisabled = true;
+    document.body.classList.add("anim-off");
+  }
+}
 
 // =============================================================
 // Draggable margins on all four chart edges
@@ -6192,13 +6275,18 @@ if (!loadHash()) {
   const introTy = ch / 2 - yBase(4.9) * introK;
   svg.call(zoomBehavior.transform, d3.zoomIdentity.translate(introTx, introTy).scale(introK));
 
-  // After a beat, smoothly zoom out to the full chart
-  setTimeout(() => {
-    svg.transition()
-      .duration(3000)
-      .ease(d3.easeCubicInOut)
-      .call(zoomBehavior.transform, d3.zoomIdentity);
-  }, 1000);
+  // After a beat, smoothly zoom out to the full chart.
+  // Reduced motion: land on the full view immediately, no cinematic zoom.
+  if (_reduceMotion) {
+    svg.call(zoomBehavior.transform, d3.zoomIdentity);
+  } else {
+    setTimeout(() => {
+      svg.transition()
+        .duration(3000)
+        .ease(d3.easeCubicInOut)
+        .call(zoomBehavior.transform, d3.zoomIdentity);
+    }, 1000);
+  }
 }
 
 // Fade out the key hint after 6 seconds

@@ -103,6 +103,7 @@ export function initTimeScrubber({ setEra, exit, isActive, resetView }) {
   function open() {
     panel.classList.add("open");
     toggleBtn.classList.add("active");
+    toggleBtn.setAttribute("aria-expanded", "true");
     if (resetView) resetView(); // frame the whole chart before scrubbing
     goTo(current, { animate: true });
   }
@@ -111,6 +112,7 @@ export function initTimeScrubber({ setEra, exit, isActive, resetView }) {
     stopPlaying();
     panel.classList.remove("open");
     toggleBtn.classList.remove("active");
+    toggleBtn.setAttribute("aria-expanded", "false");
     if (isActive && isActive()) exit(1600);
     current = NOW_INDEX;
     range.value = String(NOW_INDEX);
