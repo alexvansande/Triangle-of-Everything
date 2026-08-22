@@ -784,10 +784,11 @@ function drawBoundaries() {
     .attr("stroke", planckGuideStyle.stroke).attr("stroke-width", planckGuideStyle.width)
     .attr("stroke-dasharray", planckGuideStyle.dash);
 
-  // Diagonal: Planck density / Planck time line (slope 3, logDensity ≈ 93.7)
-  // Textbook Planck density (m_P/l_P³, no sphere factor) — it passes near,
-  // not through, the apex, whose own sphere-density is ≈ 10^92.5 g/cm³.
-  const planckDensityB = DENSITY_SPHERE_C + 93.7;
+  // Diagonal: the isodensity line through the apex (slope 3) — the third
+  // Planck guide. Anchored to the apex itself (sphere-density ≈ 10^92.49
+  // g/cm³ = m▲ in a sphere of radius ℓ▲); the textbook ρ_P = m_P/l_P³
+  // ≈ 10^93.7 has no sphere factor and would miss the apex by 1.2 dex.
+  const planckDensityB = PLANCK_LOG_M - 3 * PLANCK_LOG_R;
   // logM = 3*logR + b → extend line in both directions from Planck point
   // Toward top axis (higher R, higher M)
   const diagR1 = PLANCK_LOG_R - 5, diagM1 = 3 * diagR1 + planckDensityB;
