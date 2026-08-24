@@ -99,7 +99,7 @@ export const DENSITY_LINES = [
   { logDensity: -2.9,  label: "air",                      color: "#b0bec5", epoch: false },
   { logDensity: -19,   label: "matter=radiation",         color: "#ce93d8", epoch: true },
   { logDensity: -21,   label: "recomb. 10¹³ s (CMB)",    color: "#ffab91", epoch: true },
-  { logDensity: -24,   label: "atomic density line",      color: "#a5d6a7", epoch: false },
+  { logDensity: -24,   label: "interstellar gas (~1 atom/cm³)", color: "#a5d6a7", epoch: false },
   { logDensity: -29.5, label: "now (current matter)",     color: "#ef9a9a", epoch: true },
 ];
 
@@ -123,32 +123,40 @@ export const EPOCH_BANDS = [
 //   Row 1: metric/SI units (fm, nm, μm, mm, cm, m, km)
 //   Row 2: imperial + astronomical (inch, foot, mile, AU, ly, pc)
 
+// The horizontal axis READS width/diameter: an object's stored logR is its
+// radius, so every displayed size is logR + WIDTH_LOG_OFFSET (i.e. ×2).
+// Unit markers below sit where objects of that WIDTH sit (radius = width/2),
+// hence the −W on each. The Planck-length and Hubble-R labels name the
+// chart's radius-defined boundaries and stay anchored to them.
+export const WIDTH_LOG_OFFSET = Math.log10(2); // ≈ 0.301
+const W = WIDTH_LOG_OFFSET;
+
 export const RADIUS_UNITS = [
   { logR: PLANCK_LOG_R, label: "1 Planck length", row: 1, slug: "planck-length" },
-  { logR: -13,    label: "1 fm",            row: 1, slug: "metric-units" },
-  { logR: -9,     label: "10 pm",           row: 1, slug: "metric-units" },
-  { logR: -8,     label: "1 Å",             row: 1, slug: "metric-units" },
-  { logR: -7,     label: "1 nm",            row: 1, slug: "metric-units" },
-  { logR: -4,     label: "1 μm",            row: 1, slug: "metric-units" },
-  { logR: -1,     label: "1 mm",            row: 1, slug: "metric-units" },
-  { logR: 0,      label: "1 cm",            row: 1, slug: "metric-units" },
-  { logR: 2,      label: "1 meter",         row: 1, slug: "metric-units" },
-  { logR: 5,      label: "1 km",            row: 1, slug: "metric-units" },
-  { logR: 8,      label: "1000 km",         row: 1, slug: "metric-units" },
-  { logR: 11,     label: "1M km",           row: 1, slug: "metric-units" },
-  { logR: 0.405,  label: "1 inch",          row: 2, slug: "imperial-units" },
-  { logR: 1.484,  label: "1 foot",          row: 2, slug: "imperial-units" },
-  { logR: 5.207,  label: "1 mile",          row: 2, slug: "imperial-units" },
-  { logR: 10.477, label: "1 light-second",  row: 2, slug: "imperial-units" },
-  { logR: 13.175, label: "1 AU",            row: 2, slug: "imperial-units" },
-  { logR: 17.976, label: "1 light-year",    row: 2, slug: "imperial-units" },
-  { logR: 18.489, label: "1 parsec",        row: 2, slug: "imperial-units" },
-  { logR: 20.976, label: "1,000 ly",        row: 2, slug: "imperial-units" },
-  { logR: 21.489, label: "1 kpc",           row: 2, slug: "imperial-units" },
-  { logR: 23.976, label: "1M ly",           row: 2, slug: "imperial-units" },
-  { logR: 24.489, label: "1 Mpc",           row: 2, slug: "imperial-units" },
-  { logR: 26.976, label: "1B ly",           row: 2, slug: "imperial-units" },
-  { logR: 27.489, label: "1 Gpc",           row: 2, slug: "imperial-units" },
+  { logR: -13 - W,    label: "1 fm",            row: 1, slug: "metric-units" },
+  { logR: -9 - W,     label: "10 pm",           row: 1, slug: "metric-units" },
+  { logR: -8 - W,     label: "1 Å",             row: 1, slug: "metric-units" },
+  { logR: -7 - W,     label: "1 nm",            row: 1, slug: "metric-units" },
+  { logR: -4 - W,     label: "1 μm",            row: 1, slug: "metric-units" },
+  { logR: -1 - W,     label: "1 mm",            row: 1, slug: "metric-units" },
+  { logR: 0 - W,      label: "1 cm",            row: 1, slug: "metric-units" },
+  { logR: 2 - W,      label: "1 meter",         row: 1, slug: "metric-units" },
+  { logR: 5 - W,      label: "1 km",            row: 1, slug: "metric-units" },
+  { logR: 8 - W,      label: "1000 km",         row: 1, slug: "metric-units" },
+  { logR: 11 - W,     label: "1M km",           row: 1, slug: "metric-units" },
+  { logR: 0.405 - W,  label: "1 inch",          row: 2, slug: "imperial-units" },
+  { logR: 1.484 - W,  label: "1 foot",          row: 2, slug: "imperial-units" },
+  { logR: 5.207 - W,  label: "1 mile",          row: 2, slug: "imperial-units" },
+  { logR: 10.477 - W, label: "1 light-second",  row: 2, slug: "imperial-units" },
+  { logR: 13.175 - W, label: "1 AU",            row: 2, slug: "imperial-units" },
+  { logR: 17.976 - W, label: "1 light-year",    row: 2, slug: "imperial-units" },
+  { logR: 18.489 - W, label: "1 parsec",        row: 2, slug: "imperial-units" },
+  { logR: 20.976 - W, label: "1,000 ly",        row: 2, slug: "imperial-units" },
+  { logR: 21.489 - W, label: "1 kpc",           row: 2, slug: "imperial-units" },
+  { logR: 23.976 - W, label: "1M ly",           row: 2, slug: "imperial-units" },
+  { logR: 24.489 - W, label: "1 Mpc",           row: 2, slug: "imperial-units" },
+  { logR: 26.976 - W, label: "1B ly",           row: 2, slug: "imperial-units" },
+  { logR: 27.489 - W, label: "1 Gpc",           row: 2, slug: "imperial-units" },
   { logR: 28.14,  label: "Hubble R",        row: 2, slug: "imperial-units" },
 ];
 

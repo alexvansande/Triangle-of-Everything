@@ -18,6 +18,7 @@ import {
   CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
+  WIDTH_LOG_OFFSET,
 } from "./data.js";
 import objectsData from "./objects.json";
 import introRaw from "../content/intro.md?raw";
@@ -591,8 +592,10 @@ const _EV_OFFSET = 32.75; // logM(g) + this = log10(energy/eV)
 
 const GRID_UNITS = {
   si: {
-    xRef: 0, yRef: 0,
-    xNum: (v) => fmtTick(v),
+    // Anchored so ticks read the WIDTH of objects at that position
+    // (stored logR is a radius; width = radius × 2 = logR + WIDTH_LOG_OFFSET).
+    xRef: -WIDTH_LOG_OFFSET, yRef: 0,
+    xNum: (v) => fmtTick(v + WIDTH_LOG_OFFSET),
     massNum: (v) => fmtTick(v - 3),
     energyNum: (v) => Math.round(v + _EV_OFFSET),
     bottomSub: "10ⁿ meters", rightSub: "10ⁿ kg",
@@ -2333,7 +2336,7 @@ const tooltipEl = document.getElementById("tooltip");
 
 function showTooltip(event, obj, cat) {
   const photon = isPhoton(obj);
-  const r = photon ? friendlyWavelength(obj.logR) : friendlyRadius(obj.logR);
+  const r = photon ? friendlyWavelength(obj.logR) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
   const rLabel = photon ? "wavelength" : "width";
   const mLabel = photon ? "energy" : "mass";
   const mVal = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
@@ -2436,11 +2439,12 @@ function buildAxisContent(region) {
     case "bottom": {
       const logR = xS.invert(region.chartX);
       if (logR < AX_MIN_LOGR || logR > AX_MAX_LOGR) return null;
-      const logM = logR - 2; // cm → m
-      const primary = pickBestUnit(logR, RADIUS_HOVER_UNITS, "metric");
-      const alt = pickAltUnit(logR, RADIUS_HOVER_UNITS, primary);
+      const logW = logR + WIDTH_LOG_OFFSET;       // radius position → width reading
+      const logW_m = logW - 2;                    // cm → m
+      const primary = pickBestUnit(logW, RADIUS_HOVER_UNITS, "metric");
+      const alt = pickAltUnit(logW, RADIUS_HOVER_UNITS, primary);
       return {
-        line1: formatLogSuper(logM, "m"),
+        line1: formatLogSuper(logW_m, "m"),
         line2: formatHumanNum(primary.value, primary.unit),
         line3: formatHumanNum(alt.value, alt.unit),
       };
@@ -2994,11 +2998,11 @@ function openSidebar(obj) {
   const isParticle = c === "particle" || c === "composite" || c === "atomic";
   const isCosmicStructure = c === "galaxy" || c === "largescale";
 
-  const r = photon ? friendlyWavelength(obj.logR) : friendlyRadius(obj.logR);
+  const r = photon ? friendlyWavelength(obj.logR) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
   const m = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
   const rho = friendlyDensity(obj.logR, obj.logM, obj.logDensity);
 
-  const logR_m = obj.logR - 2;
+  const logR_m = obj.logR + WIDTH_LOG_OFFSET - 2;
   const logM_kg = obj.logM - 3;
   const logNote = `(10<sup>${logR_m >= 0 ? logR_m.toFixed(1) : logR_m.toFixed(1)}</sup> m · 10<sup>${logM_kg >= 0 ? logM_kg.toFixed(1) : logM_kg.toFixed(1)}</sup> kg)`;
 
@@ -3038,7 +3042,7 @@ function openSidebar(obj) {
       <tr><td>Size</td><td>${r}</td></tr>
       <tr><td>Mass</td><td>${m}</td></tr>
       <tr><td>Zone</td><td><span class="sb-zone ${zoneClass}">${zone}</span></td></tr>
-      <tr><td colspan="2" class="sb-log-note">(10<sup>${(obj.logR - 2).toFixed(1)}</sup> m · 10<sup>${(obj.logM - 3).toFixed(1)}</sup> kg)</td></tr>`;
+      <tr><td colspan="2" class="sb-log-note">(10<sup>${(obj.logR + WIDTH_LOG_OFFSET - 2).toFixed(1)}</sup> m · 10<sup>${(obj.logM - 3).toFixed(1)}</sup> kg)</td></tr>`;
   } else if (isBH) {
     rows = `
       <tr><td>Event horizon</td><td>${r}</td></tr>
@@ -5048,7 +5052,7 @@ function updateReadout(event) {
     const [mx, my] = d3.pointer(event, chart.node());
     if (mx >= 0 && mx <= cw && my >= 0 && my <= ch) {
       const logR = xS.invert(mx), logM = yS.invert(my);
-      const rFriendly = friendlyRadius(logR);
+      const rFriendly = friendlyRadius(logR + WIDTH_LOG_OFFSET);
       const mFriendly = friendlyMass(logM);
       const logRho = logM - 3 * logR - DENSITY_SPHERE_C;
 
