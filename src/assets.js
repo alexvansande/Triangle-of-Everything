@@ -43,7 +43,7 @@ export const ICON_SLUG_MAP = {
   "w-boson":            "w",
   "z-boson":            "z",
   "laniakea-galaxy-supercluster": "laniakea",
-  "x-and-y-bosons": "x--y-bosons",
+  "x-and-y-bosons": "x-y-bosons",
 };
 // Icons that map to multiple objects (same icon, different slugs)
 export const ICON_MULTI_MAP = {

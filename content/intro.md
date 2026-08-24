@@ -10,7 +10,7 @@ Featuring mass on the vertical axis and width on the horizontal axis, it is, in 
 
 So it's a unified timeline of the history of the universe, showing when each object emerged as the universe cooled down, as droplets of water condense into rain when water vapor cools.
 
-Objects, however, are bounded by an isosceles right triangle: too massive and gravity turns it into a black hole; too small and quantum effects turns it into a particle-antiparticle pair; and too big then the expansion of spacetime is faster than the speed of light, preventing us from ever knowing about it.
+Objects, however, are bounded by an isosceles right triangle: too massive and gravity turns it into a black hole; too small and quantum effects turn it into a particle-antiparticle pair; and too big and the expansion of spacetime is faster than the speed of light, preventing us from ever knowing about it.
 
 <div class="references">
 

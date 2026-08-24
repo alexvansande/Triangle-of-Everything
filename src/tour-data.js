@@ -240,7 +240,7 @@ const TOUR_META = [
   {
     id: "recombination",
     title: "Recombination",
-    nextLabel: "The First Stars",
+    nextLabel: "Stars and Galaxies",
     view: null,
     highlightObjects: [],
     contextLabel: null,
