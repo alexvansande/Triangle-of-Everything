@@ -1,7 +1,7 @@
 {
   "tobacco-mosaic": {
     "file": "tobacco-mosaic.webp",
-    "credit": "Unknown authorUnknown author",
+    "credit": "Unknown author",
     "license": "Public domain",
     "source": "https://commons.wikimedia.org/wiki/File:TobaccoMosaicVirus.jpg"
   },
@@ -82,12 +82,6 @@
     "credit": "CDC/Janice Haney Carr",
     "license": "Public domain",
     "source": "https://commons.wikimedia.org/wiki/File:Flea_Scanning_Electron_Micrograph_False_Color.jpg"
-  },
-  "nickel": {
-    "file": "nickel.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/en/c/ce/US_Nickel_Obverse.jpeg"
   },
   "hippopotamus": {
     "file": "hippopotamus.webp",
@@ -504,117 +498,117 @@
   },
   "higgs": {
     "file": "higgs.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/7/79/Candidate_Higgs_Events_in_ATLAS_and_CMS.png"
+    "credit": "CERN for the ATLAS and CMS Collaborations",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Candidate_Higgs_Events_in_ATLAS_and_CMS.png"
   },
   "top": {
     "file": "top.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Top_antitop_quark_event.svg/960px-Top_antitop_quark_event.svg.png"
+    "credit": "Raeky",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Top_antitop_quark_event.svg"
   },
   "electron": {
     "file": "electron.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/3/35/Atomic-orbital-clouds_spd_m0.png"
+    "credit": "Geek3",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Atomic-orbital-clouds_spd_m0.png"
   },
   "gamma-ray": {
     "file": "gamma-ray.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Gamma_radiation_%28alternative%29.svg/250px-Gamma_radiation_%28alternative%29.svg.png"
+    "credit": "Inductiveload, changes by Habitator terrae",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Gamma_radiation_(alternative).svg"
   },
   "x-ray": {
     "file": "x-ray.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Color_X-ray_photogram.jpg"
+    "credit": "NickSpiker",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Color_X-ray_photogram.jpg"
   },
   "ultraviolet": {
     "file": "ultraviolet.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/6/67/Pipefitter_welder_kutzo.jpg"
+    "credit": "Brainass",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Pipefitter_welder_kutzo.jpg"
   },
   "visible-light": {
     "file": "visible-light.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Light_dispersion_of_a_mercury-vapor_lamp_with_a_flint_glass_prism_IPNr%C2%B00125.jpg"
+    "credit": "D-Kuru",
+    "license": "CC BY-SA 3.0 at",
+    "source": "https://commons.wikimedia.org/wiki/File:Light_dispersion_of_a_mercury-vapor_lamp_with_a_flint_glass_prism_IPNr°0125.jpg"
   },
   "infrared": {
     "file": "infrared.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Ir_girl.png"
+    "credit": "Unknown author",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ir_girl.png"
   },
   "microwave": {
     "file": "microwave.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Frazier_Peak%2C_tower_and_Honda_Element.jpg"
+    "credit": "GeorgeLouis (talk) (Uploads)",
+    "license": "CC BY 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Frazier_Peak,_tower_and_Honda_Element.jpg"
   },
   "fm-radio": {
     "file": "fm-radio.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Amfm3-en-de.gif"
+    "credit": "Berserkerus",
+    "license": "CC BY-SA 2.5",
+    "source": "https://commons.wikimedia.org/wiki/File:Amfm3-en-de.gif"
   },
   "am-radio": {
     "file": "am-radio.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Amfm3-en-de.gif/250px-Amfm3-en-de.gif"
+    "credit": "Berserkerus",
+    "license": "CC BY-SA 2.5",
+    "source": "https://commons.wikimedia.org/wiki/File:Amfm3-en-de.gif"
   },
   "proton": {
     "file": "proton.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Quark_structure_proton.svg/960px-Quark_structure_proton.svg.png"
+    "credit": "Arpad Horvath",
+    "license": "CC BY-SA 2.5",
+    "source": "https://commons.wikimedia.org/wiki/File:Quark_structure_proton.svg"
   },
   "neutron": {
     "file": "neutron.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Quark_structure_neutron.svg/960px-Quark_structure_neutron.svg.png"
+    "credit": "No machine-readable author provided. Harp assumed (based on copyright claims).",
+    "license": "CC BY-SA 2.5",
+    "source": "https://commons.wikimedia.org/wiki/File:Quark_structure_neutron.svg"
   },
   "neutrino-mu": {
     "file": "neutrino-mu.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/FirstNeutrinoEventAnnotated.jpg/500px-FirstNeutrinoEventAnnotated.jpg"
+    "credit": "Argonne National Laboratory",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:FirstNeutrinoEventAnnotated.jpg"
   },
   "z": {
     "file": "z.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Beta-minus_Decay.svg/250px-Beta-minus_Decay.svg.png"
+    "credit": "Inductiveload",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Beta-minus_Decay.svg"
   },
   "w": {
     "file": "w.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Beta-minus_Decay.svg/250px-Beta-minus_Decay.svg.png"
+    "credit": "Inductiveload",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Beta-minus_Decay.svg"
   },
   "tau": {
     "file": "tau.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Tau_lepton.svg/120px-Tau_lepton.svg.png"
+    "credit": "user:MissMJ",
+    "license": "CC BY 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Tau_lepton.svg"
   },
   "charm": {
     "file": "charm.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Charm_quark.svg/120px-Charm_quark.svg.png"
+    "credit": "user:MissMJ",
+    "license": "CC BY 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Charm_quark.svg"
   },
   "meson": {
     "file": "meson.webp",
-    "credit": "Unknown",
-    "license": "Unknown",
-    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Meson_nonet_-_spin_0.svg/960px-Meson_nonet_-_spin_0.svg.png"
+    "credit": "User:E2m, User:Stannered",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Meson_nonet_-_spin_0.svg"
   },
   "glucose": {
     "file": "glucose.webp",
@@ -650,5 +644,131 @@
     "file": "fullerene-c60.webp",
     "credit": "Generated Image",
     "license": "Public Domain"
+  },
+  "m87": {
+    "file": "m87.webp",
+    "credit": "Event Horizon Telescope, uploader cropped and converted TIF to JPG",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Black_hole_-_Messier_87_crop_max_res.jpg"
+  },
+  "ton-618": {
+    "file": "ton-618.webp",
+    "credit": "Sloan Digital Sky Survey, Astrophysical Research Consortium at Apache Point Observatory",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:TON_618_SDSS9.jpg"
+  },
+  "betelgeuse": {
+    "file": "betelgeuse.webp",
+    "credit": "ALMA (ESO/NAOJ/NRAO)/E. O’Gorman/P. Kervella",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Betelgeuse_captured_by_ALMA.jpg"
+  },
+  "sirius-a": {
+    "file": "sirius-a.webp",
+    "credit": "NASA, ESA, H. Bond (STScI), and M. Barstow (University of Leicester); modified by Bokus",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Sirius_A_and_B_Hubble_photo.editted.PNG"
+  },
+  "sirius-b": {
+    "file": "sirius-b.webp",
+    "credit": "NASA, ESA, H. Bond (STScI), and M. Barstow (University of Leicester); modified by Bokus",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Sirius_A_and_B_Hubble_photo.editted.PNG"
+  },
+  "proxima-cen": {
+    "file": "proxima-cen.webp",
+    "credit": "ESA/Hubble &amp; NASA",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:New_shot_of_Proxima_Centauri,_our_nearest_neighbour.jpg"
+  },
+  "alpha-centauri-a": {
+    "file": "alpha-centauri-a.webp",
+    "credit": "ESA/Hubble &amp; NASA",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Best_image_of_Alpha_Centauri_A_and_B.jpg"
+  },
+  "trappist-1": {
+    "file": "trappist-1.webp",
+    "credit": "ESO/N. Bartmann/spaceengine.org",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Artist%E2%80%99s_impression_of_the_TRAPPIST-1_planetary_system.jpg"
+  },
+  "kepler-22b": {
+    "file": "kepler-22b.webp",
+    "credit": "NASA/Ames/JPL-Caltech",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Kepler22b-artwork.jpg"
+  },
+  "beta-pictoris-b": {
+    "file": "beta-pictoris-b.webp",
+    "credit": "ESO/L. Calçada",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Beta_Pictoris_b_(artist%E2%80%99s_impression).jpg"
+  },
+  "barnard-68": {
+    "file": "barnard-68.webp",
+    "credit": "ESO",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Barnard_68.jpg"
+  },
+  "hemoglobin": {
+    "file": "hemoglobin.webp",
+    "credit": "Zephyris at English Wikipedia",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:1GZX_Haemoglobin.png"
+  },
+  "bubble-nebula": {
+    "file": "bubble-nebula.webp",
+    "credit": "NASA, ESA, Hubble Heritage Team",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:The_Bubble_Nebula_-_NGC_7635_-_Heic1608a.jpg"
+  },
+  "wolf-rayet": {
+    "file": "wolf-rayet.webp",
+    "credit": "geckzilla",
+    "license": "CC BY 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:WR_124_(MIRI)_(52752549831).png"
+  },
+  "observable-universe": {
+    "file": "observable-universe.webp",
+    "credit": "Unmismoobjetivo",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Observable_universe_logarithmic_illustration.png"
+  },
+  "laniakea": {
+    "file": "laniakea.webp",
+    "credit": "Andrew Z. Colvin",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:07-Laniakea_(LofE07240).png"
+  },
+  "neutron-star": {
+    "file": "neutron-star.webp",
+    "credit": "Casey Reed - Penn State University",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Neutron_star_illustrated.jpg"
+  },
+  "insulin": {
+    "file": "insulin.webp",
+    "credit": "The original uploader was Takometer at English Wikipedia.",
+    "license": "CC BY 2.5",
+    "source": "https://commons.wikimedia.org/wiki/File:InsulinHexamer.jpg"
+  },
+  "antibody-igg": {
+    "file": "antibody-igg.webp",
+    "credit": "TimVickers at English Wikipedia",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Antibody_IgG2.png"
+  },
+  "magnetar": {
+    "file": "magnetar.webp",
+    "credit": "NASA/Goddard Space Flight Center Conceptual Image Lab",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:SGR_1806-20_108536main_NeutronStar-Print1.jpg"
+  },
+  "penny": {
+    "file": "penny.webp",
+    "credit": "United States Mint",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:US_One_Cent_Obv.png"
   }
 }
