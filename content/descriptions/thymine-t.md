@@ -1,0 +1,1 @@
+Thymine is one of the four nucleobases of [[DNA]], a pyrimidine (C₅H₆N₂O₂) of about 126 daltons. It pairs with [[Adenine (A)|adenine]] through two hydrogen bonds, and it is the base RNA does without — there, uracil takes its place. Ultraviolet light can fuse two neighboring thymines into a dimer that jams replication: the molecular event behind sunburned skin cells.

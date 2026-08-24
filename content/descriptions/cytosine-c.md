@@ -1,0 +1,1 @@
+Cytosine is one of the four nucleobases of [[DNA]], a pyrimidine (C₄H₅N₃O) and, at about 111 daltons, the lightest of the four. It pairs with [[Guanine (G)|guanine]] through three hydrogen bonds. Cytosine is also the least chemically stable base: it slowly deaminates into uracil, a steady source of mutations that cells must constantly patrol for and repair.

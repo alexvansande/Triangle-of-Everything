@@ -1,0 +1,1 @@
+Guanine is one of the four nucleobases of [[DNA]], a purine (C₅H₅N₅O) with a mass of about 151 daltons — the heaviest of the four. It always pairs with [[Cytosine (C)|cytosine]], bound by three hydrogen bonds, which makes G–C-rich DNA harder to pull apart than A–T-rich DNA. Crystalline guanine is also what makes fish scales and shark eyes shimmer — nature uses it as a mirror.
