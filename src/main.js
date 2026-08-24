@@ -2336,7 +2336,9 @@ const tooltipEl = document.getElementById("tooltip");
 
 function showTooltip(event, obj, cat) {
   const photon = isPhoton(obj);
-  const r = photon ? friendlyWavelength(obj.logR) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
+  // Photons are plotted at half a wavelength so the width ruler reads λ;
+  // the offset restores the true wavelength for display.
+  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
   const rLabel = photon ? "wavelength" : "width";
   const mLabel = photon ? "energy" : "mass";
   const mVal = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
@@ -2998,7 +3000,7 @@ function openSidebar(obj) {
   const isParticle = c === "particle" || c === "composite" || c === "atomic";
   const isCosmicStructure = c === "galaxy" || c === "largescale";
 
-  const r = photon ? friendlyWavelength(obj.logR) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
+  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
   const m = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
   const rho = friendlyDensity(obj.logR, obj.logM, obj.logDensity);
 
@@ -3027,7 +3029,7 @@ function openSidebar(obj) {
       <tr><td>Wavelength</td><td>${r}</td></tr>
       <tr><td>Energy</td><td>${m}</td></tr>
       <tr><td>Mass equiv.</td><td>${friendlyMass(obj.logM)} *</td></tr>
-      <tr><td colspan="2" class="sb-log-note">(10<sup>${obj.logR.toFixed(1)}</sup> cm · 10<sup>${(obj.logM + 32.75).toFixed(1)}</sup> eV)</td></tr>
+      <tr><td colspan="2" class="sb-log-note">(10<sup>${(obj.logR + WIDTH_LOG_OFFSET).toFixed(1)}</sup> cm · 10<sup>${(obj.logM + 32.75).toFixed(1)}</sup> eV)</td></tr>
       <tr><td colspan="2" class="sb-footnote">* Massless — vertical axis shows mass-equivalent energy E = hc/λ</td></tr>`;
   } else if (isEveryday) {
     const sizeLabel = obj.logR < -1 ? "Size" : "Width";
