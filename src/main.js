@@ -3815,31 +3815,47 @@ function drawConnections() {
     cp._lineGroup = lineGroup;
 
     if (cp.family === "spectrum") {
-      const SEG_COUNT = 40;
-      for (let i = 0; i < SEG_COUNT; i++) {
-        const t0 = i / SEG_COUNT, t1 = (i + 1) / SEG_COUNT;
-        let [sx0, sy0] = getPathScreenPos(cp, t0);
-        let [sx1, sy1] = getPathScreenPos(cp, t1);
-        const freq0 = 28 * Math.max(0.12, 1 - t0 * 0.88);
-        const amp0 = 6 + t0 * 10;
-        const freq1 = 28 * Math.max(0.12, 1 - t1 * 0.88);
-        const amp1 = 6 + t1 * 10;
-        const [fx0, fy0] = getPathScreenPos(cp, Math.min(1, t0 + 0.005));
-        const dx0 = fx0 - sx0, dy0 = fy0 - sy0;
-        const l0 = Math.sqrt(dx0 * dx0 + dy0 * dy0) || 1;
-        const [fx1, fy1] = getPathScreenPos(cp, Math.min(1, t1 + 0.005));
-        const dx1 = fx1 - sx1, dy1 = fy1 - sy1;
-        const l1 = Math.sqrt(dx1 * dx1 + dy1 * dy1) || 1;
-        sx0 += (-dy0 / l0) * Math.sin(t0 * freq0 * Math.PI * 2) * amp0;
-        sy0 += (dx0 / l0) * Math.sin(t0 * freq0 * Math.PI * 2) * amp0;
-        sx1 += (-dy1 / l1) * Math.sin(t1 * freq1 * Math.PI * 2) * amp1;
-        sy1 += (dx1 / l1) * Math.sin(t1 * freq1 * Math.PI * 2) * amp1;
-        lineGroup.append("line")
-          .attr("x1", sx0).attr("y1", sy0).attr("x2", sx1).attr("y2", sy1)
-          .attr("stroke", emSpectrumColor(t0))
-          .attr("stroke-width", cp.style.lineWidth * 0.6)
-          .attr("opacity", cp.style.lineOpacity * cp._opacity * 0.7)
-          .attr("stroke-linecap", "round");
+      // The line IS light: a clean sine wave whose wavelength grows toward
+      // the radio end. Segments cover only the visible slice of the path,
+      // dense enough per cycle that the wave stays smooth at any zoom —
+      // a fixed segment count turns jagged when zoomed into a narrow slice.
+      const CYCLES = 22;  // total cycles over the full path
+      const AMP = 8;      // px
+      // dφ/dt ∝ (1−t)^1.6 → wavelength increases monotonically, ~flat at the end
+      const phase = (t) => 2 * Math.PI * CYCLES * (1 - Math.pow(1 - t, 2.6));
+      let tMin = 1, tMax = 0;
+      const COARSE = 64, pad = 200;
+      for (let i = 0; i <= COARSE; i++) {
+        const t = i / COARSE;
+        const [sx, sy] = getPathScreenPos(cp, t);
+        if (sx > -pad && sx < cw + pad && sy > -pad && sy < ch + pad) {
+          if ((i - 1) / COARSE < tMin) tMin = Math.max(0, (i - 1) / COARSE);
+          if ((i + 1) / COARSE > tMax) tMax = Math.min(1, (i + 1) / COARSE);
+        }
+      }
+      if (tMax > tMin) {
+        const cyclesInSlice = (phase(tMax) - phase(tMin)) / (2 * Math.PI);
+        const SEG_COUNT = Math.max(40, Math.min(400, Math.ceil(cyclesInSlice * 16) + 8));
+        const wavePoint = (t) => {
+          const [sx, sy] = getPathScreenPos(cp, t);
+          const [fx, fy] = getPathScreenPos(cp, Math.min(1, t + 0.005));
+          const dx = fx - sx, dy = fy - sy;
+          const l = Math.hypot(dx, dy) || 1;
+          const off = Math.sin(phase(t)) * AMP;
+          return [sx + (-dy / l) * off, sy + (dx / l) * off];
+        };
+        for (let i = 0; i < SEG_COUNT; i++) {
+          const t0 = tMin + (tMax - tMin) * (i / SEG_COUNT);
+          const t1 = tMin + (tMax - tMin) * ((i + 1) / SEG_COUNT);
+          const [x0, y0] = wavePoint(t0);
+          const [x1, y1] = wavePoint(t1);
+          lineGroup.append("line")
+            .attr("x1", x0).attr("y1", y0).attr("x2", x1).attr("y2", y1)
+            .attr("stroke", emSpectrumColor(t0))
+            .attr("stroke-width", cp.style.lineWidth * 0.6)
+            .attr("opacity", cp.style.lineOpacity * cp._opacity * 0.7)
+            .attr("stroke-linecap", "round");
+        }
       }
     } else {
       const visD = isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);
@@ -5244,6 +5260,7 @@ document.addEventListener("keydown", (e) => {
   // Arrow keys pan. Letter keys are recording shortcuts (see keyhint / docs):
   //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations · H hide UI
   //   V lock the viewport to a 1920×1080 stage (screenshot/video framing)
+  //   R reset all settings (and presenter state) to defaults
   switch (e.key) {
     case "+": case "=":
       svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.4); break;
@@ -5279,8 +5296,37 @@ document.addEventListener("keydown", (e) => {
       document.body.classList.toggle("ui-hidden"); break;
     case "v": case "V":
       setViewportLock(!_viewportLock); break;
+    case "r": case "R":
+      resetAllSettings(); break;
   }
 });
+
+// R: one keystroke back to a clean default state — settings, presenter
+// modes, hidden UI, animation speed, custom margins. Each control is
+// reset through its own event so its handler applies the side effects.
+function resetAllSettings() {
+  const setChk = (el, val) => {
+    if (el.checked !== val) { el.checked = val; el.dispatchEvent(new Event("change", { bubbles: true })); }
+  };
+  const setRange = (el, val) => {
+    if (+el.value !== val) { el.value = val; el.dispatchEvent(new Event("input", { bubbles: true })); }
+  };
+  setChk(setBg, true); setChk(setAnim, true);
+  setChk(setLabels, true); setChk(setIcons, true);
+  setChk(setBoldHover, false);
+  setRange(setIconSize, 100); setRange(setFontSize, 100);
+  if (setGridUnit.value !== "si") {
+    setGridUnit.value = "si";
+    setGridUnit.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  _animSpeed = 1;
+  _userMarginLeft = _userMarginRight = _userMarginTop = _userMarginBottom = null;
+  document.body.classList.remove("ui-hidden");
+  if (_viewportLock) setViewportLock(false);
+  relayout();
+  saveSettings();
+  announce("Settings reset to defaults");
+}
 
 // Recording viewport toggle (V). The transformed <body> becomes the
 // containing block for its fixed-position children, so the whole UI —
