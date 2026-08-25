@@ -42,6 +42,7 @@ let _iconsEnabled = true;
 let _iconSize = 100;  // percent multiplier on top of zoom-derived effective size
 let _fontScale = 1;   // global text multiplier (settings "Font size" slider)
 const fscale = (px) => px * _fontScale;
+let _boldHover = false; // video mode: hovered lines render bold, no tooltips
 let _labelsEnabled = true;
 
 // Icon size scales with zoom: 16px at k=0.3 (fully out), up to 128px at k=800 (fully in).
@@ -876,11 +877,19 @@ function drawBoundaries() {
     if (screenLen < 60) return;
 
     // Draw the full line (SVG clip-path handles visual clipping)
-    lBound.append("line")
+    const refLn = lBound.append("line")
       .attr("x1", px(p0.logR)).attr("y1", py(p0.logM))
       .attr("x2", px(p1.logR)).attr("y2", py(p1.logM))
       .attr("stroke", rl.color).attr("stroke-width", rl.width)
       .attr("stroke-dasharray", rl.dash);
+
+    // Bold-hover mode hit stroke (see drawDensityLines)
+    lBound.append("line")
+      .attr("x1", px(p0.logR)).attr("y1", py(p0.logM))
+      .attr("x2", px(p1.logR)).attr("y2", py(p1.logM))
+      .attr("stroke", "transparent").attr("stroke-width", 14)
+      .on("mouseenter", () => { if (_boldHover) refLn.classed("line-hot", true); })
+      .on("mouseleave", () => refLn.classed("line-hot", false));
 
     // Label at midpoint of the VISIBLE segment
     const midSx = (clipped.x1 + clipped.x2) / 2;
@@ -1377,12 +1386,23 @@ function drawDensityLines() {
 
     const isWater = logRho === 0;
     const isMajor = logRho % 9 === 0;
-    lDensity.append("line")
+    const ln = lDensity.append("line")
       .attr("x1", px(seg.x1)).attr("y1", py(seg.y1))
       .attr("x2", px(seg.x2)).attr("y2", py(seg.y2))
       .attr("stroke", isWater ? "#80deea" : "#ffffff")
       .attr("stroke-width", isWater ? 0.9 : (isMajor ? 0.6 : 0.3))
       .attr("opacity", isWater ? 0.35 : (isMajor ? 0.22 : 0.10));
+
+    // Bold-hover mode: only the water line earns a hit stroke — the other
+    // density diagonals read as grid and should stay quiet.
+    if (isWater) {
+      lDensity.append("line")
+        .attr("x1", px(seg.x1)).attr("y1", py(seg.y1))
+        .attr("x2", px(seg.x2)).attr("y2", py(seg.y2))
+        .attr("stroke", "transparent").attr("stroke-width", 14)
+        .on("mouseenter", () => { if (_boldHover) ln.classed("line-hot", true); })
+        .on("mouseleave", () => ln.classed("line-hot", false));
+    }
   }
 }
 
@@ -2314,9 +2334,10 @@ function setIconHover(o, on) {
   const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
   if (!iconEl.size()) return false;
   const base = effectiveIconSize() * iconSizeMult(o);
-  const s = on ? Math.max(64, base * 1.5) : base;
-  iconEl.attr("width", s).attr("height", s)
-    .attr("x", o.sx - s / 2).attr("y", o.sy - s / 2);
+  // Grow around the icon's center via CSS transform; geometry attrs stay
+  // owned by the renderer (see .obj-icon in style.css for why).
+  const k = on ? Math.max(64, base * 1.5) / base : 1;
+  iconEl.style("transform", k === 1 ? null : `scale(${k})`);
   return true;
 }
 
@@ -3787,6 +3808,7 @@ function drawConnections() {
 
     // Draw visible line (hidden by default, revealed on hover)
     const lineGroup = lArrows.append("g")
+      .attr("class", "conn-line")
       .attr("opacity", 0)
       .style("transition", "opacity 0.3s")
       .style("pointer-events", "none");
@@ -3840,6 +3862,7 @@ function drawConnections() {
       .style("cursor", "pointer")
       .on("mouseenter", function(e) {
         lineGroup.attr("opacity", 1);
+        if (_boldHover) return; // video mode: bold line only, no hover menu
         if (cp.description) {
           const color = cp.style.color || "rgba(255,255,255,0.6)";
           tooltipEl.innerHTML = `<div class="tt-desc" style="color:${color}">${cp.description}</div>`;
@@ -5143,7 +5166,7 @@ function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked,
     labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
-    fontSize: +setFontSize.value,
+    fontSize: +setFontSize.value, boldHover: setBoldHover.checked,
     gridUnit: _gridUnit,
     marginLeft: _userMarginLeft, marginRight: _userMarginRight,
     marginTop: _userMarginTop, marginBottom: _userMarginBottom,
@@ -5183,6 +5206,13 @@ const setIconSize = document.getElementById("set-icon-size");
 setIconSize.addEventListener("input", () => {
   _iconSize = +setIconSize.value;
   redraw();
+  saveSettings();
+});
+
+const setBoldHover = document.getElementById("set-bold-hover");
+setBoldHover.addEventListener("change", () => {
+  _boldHover = setBoldHover.checked;
+  document.body.classList.toggle("bold-hover", _boldHover);
   saveSettings();
 });
 
@@ -5616,6 +5646,11 @@ try {
       setFontSize.value = Math.max(50, Math.min(250, +saved.fontSize));
       _fontScale = +setFontSize.value / 100;
       document.documentElement.style.setProperty("--font-scale", _fontScale);
+    }
+    if (saved.boldHover) {
+      setBoldHover.checked = true;
+      _boldHover = true;
+      document.body.classList.add("bold-hover");
     }
     if (typeof saved.marginLeft === "number")   _userMarginLeft   = saved.marginLeft;
     if (typeof saved.marginRight === "number")  _userMarginRight  = saved.marginRight;

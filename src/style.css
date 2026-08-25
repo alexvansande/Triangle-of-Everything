@@ -76,6 +76,18 @@ html, body {
 }
 body:active { cursor: grabbing; }
 
+/* Bold hover lines (settings toggle, for presenting): a hovered connection
+   or notable density/reference line renders thick, fully opaque, and glowing
+   — and its tooltip is suppressed. CSS properties override the SVG
+   presentation attributes set by the renderer. */
+body.bold-hover .conn-line path,
+body.bold-hover .conn-line line,
+body.bold-hover .line-hot {
+  stroke-width: 4.5px;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.45));
+}
+
 /* Font-size multiplier (settings slider): SVG chart text scales through
    fscale() in the renderer; these HTML reading surfaces follow via zoom.
    Controls (pills, settings, presets) stay fixed on purpose. */
