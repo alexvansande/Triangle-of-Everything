@@ -76,6 +76,14 @@ html, body {
 }
 body:active { cursor: grabbing; }
 
+/* Font-size multiplier (settings slider): SVG chart text scales through
+   fscale() in the renderer; these HTML reading surfaces follow via zoom.
+   Controls (pills, settings, presets) stay fixed on purpose. */
+#sidebar-intro, #sidebar-object, #tooltip, #axis-tooltip,
+#readout, #keyhint, #tour-content, #search-results {
+  zoom: var(--font-scale, 1);
+}
+
 /* Recording viewport (V): the app locks to a 1920×1080 dark-grey stage,
    scaled to fit and centered; everything beyond it is black so screen
    captures can crop to a stable, pixel-true 1080p frame. */

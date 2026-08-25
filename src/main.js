@@ -40,6 +40,8 @@ async function loadKatex() {
 
 let _iconsEnabled = true;
 let _iconSize = 100;  // percent multiplier on top of zoom-derived effective size
+let _fontScale = 1;   // global text multiplier (settings "Font size" slider)
+const fscale = (px) => px * _fontScale;
 let _labelsEnabled = true;
 
 // Icon size scales with zoom: 16px at k=0.3 (fully out), up to 128px at k=800 (fully in).
@@ -841,7 +843,7 @@ function drawBoundaries() {
           lBound.append("text")
             .attr("x", deSitterPx + 5).attr("y", labelY)
             .attr("font-family", "var(--font-mono, monospace)")
-            .attr("font-size", 9).attr("letter-spacing", "0.5px")
+            .attr("font-size", fscale(9)).attr("letter-spacing", "0.5px")
             .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.8)")
             .attr("stroke-width", 2.5).attr("stroke-linejoin", "round")
             .text("de Sitter R\u221E");
@@ -849,7 +851,7 @@ function drawBoundaries() {
           lBound.append("text")
             .attr("x", deSitterPx + 5).attr("y", labelY)
             .attr("font-family", "var(--font-mono, monospace)")
-            .attr("font-size", 9).attr("letter-spacing", "0.5px")
+            .attr("font-size", fscale(9)).attr("letter-spacing", "0.5px")
             .attr("fill", "rgba(255,255,255,0.4)")
             .style("cursor", "pointer")
             .on("click", (e) => { e.stopPropagation(); openInfoPanel("de-sitter-radius", "De Sitter Radius"); setSidebarOpen(true); })
@@ -888,7 +890,7 @@ function drawBoundaries() {
     lBound.append("text")
       .attr("x", midSx).attr("y", midSy - 5)
       .attr("text-anchor", "middle")
-      .attr("font-family", "Inter, sans-serif").attr("font-size", 8)
+      .attr("font-family", "Inter, sans-serif").attr("font-size", fscale(8))
       .attr("fill", rl.color.replace(/[\d.]+\)$/, "0.4)"))
       .attr("font-style", "italic").attr("letter-spacing", "1px")
       .attr("transform", `rotate(${ang},${midSx},${midSy - 5})`)
@@ -918,7 +920,7 @@ function drawEnergyBands() {
       .attr("x", labelX).attr("y", labelY)
       .attr("text-anchor", "end")
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", fontSize).attr("letter-spacing", "1px")
+      .attr("font-size", fscale(fontSize)).attr("letter-spacing", "1px")
       .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
       .attr("stroke-width", 2).attr("stroke-linejoin", "round")
       .attr("opacity", 0.5)
@@ -927,7 +929,7 @@ function drawEnergyBands() {
       .attr("x", labelX).attr("y", labelY)
       .attr("text-anchor", "end")
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", fontSize).attr("letter-spacing", "1px")
+      .attr("font-size", fscale(fontSize)).attr("letter-spacing", "1px")
       .attr("fill", "rgba(255,130,130,0.8)")
       .attr("opacity", 0.5)
       .text(text);
@@ -1042,7 +1044,7 @@ function drawEnergyBands() {
         .attr("x", labelX).attr("y", startY + li * lineHeight + fontSize * 0.35)
         .attr("text-anchor", "end")
         .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-        .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+        .attr("font-size", fscale(fontSize)).attr("letter-spacing", "0.5px")
         .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
         .attr("stroke-width", 3).attr("stroke-linejoin", "round")
         .text(line);
@@ -1052,7 +1054,7 @@ function drawEnergyBands() {
         .attr("x", labelX).attr("y", startY + li * lineHeight + fontSize * 0.35)
         .attr("text-anchor", "end")
         .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-        .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+        .attr("font-size", fscale(fontSize)).attr("letter-spacing", "0.5px")
         .attr("fill", color);
       el.text(line);
 
@@ -1143,7 +1145,7 @@ function drawEnergyBands() {
           .attr("x", labelXTop).attr("y", topY + fontSize * 0.35)
           .attr("text-anchor", "end")
           .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("font-size", fscale(fontSize)).attr("letter-spacing", "0.5px")
           .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
           .attr("stroke-width", 3).attr("stroke-linejoin", "round")
           .text("100°C");
@@ -1151,7 +1153,7 @@ function drawEnergyBands() {
           .attr("x", labelXTop).attr("y", topY + fontSize * 0.35)
           .attr("text-anchor", "end")
           .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("font-size", fscale(fontSize)).attr("letter-spacing", "0.5px")
           .attr("fill", waterColor)
           .text("100°C");
 
@@ -1160,7 +1162,7 @@ function drawEnergyBands() {
           .attr("x", labelXBot).attr("y", botY + fontSize * 0.35)
           .attr("text-anchor", "end")
           .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("font-size", fscale(fontSize)).attr("letter-spacing", "0.5px")
           .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
           .attr("stroke-width", 3).attr("stroke-linejoin", "round")
           .text("0°C");
@@ -1168,7 +1170,7 @@ function drawEnergyBands() {
           .attr("x", labelXBot).attr("y", botY + fontSize * 0.35)
           .attr("text-anchor", "end")
           .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("font-size", fscale(fontSize)).attr("letter-spacing", "0.5px")
           .attr("fill", waterColor)
           .text("0°C");
 
@@ -1200,7 +1202,7 @@ function drawEnergyBands() {
           .attr("x", bracketLabelX).attr("y", midY + fontSize * 0.35)
           .attr("text-anchor", "end")
           .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("font-size", fscale(fontSize)).attr("letter-spacing", "0.5px")
           .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
           .attr("stroke-width", 3).attr("stroke-linejoin", "round")
           .text("Liquid Water");
@@ -1208,7 +1210,7 @@ function drawEnergyBands() {
           .attr("x", bracketLabelX).attr("y", midY + fontSize * 0.35)
           .attr("text-anchor", "end")
           .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-          .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+          .attr("font-size", fscale(fontSize)).attr("letter-spacing", "0.5px")
           .attr("fill", waterColor)
           .text("Liquid Water");
       }
@@ -1266,7 +1268,7 @@ function drawDarkMatterRegions() {
       .attr("x", lx).attr("y", ly)
       .attr("text-anchor", "middle")
       .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", 10).attr("font-weight", 600)
+      .attr("font-size", fscale(10)).attr("font-weight", 600)
       .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
       .attr("letter-spacing", "1px")
@@ -1277,7 +1279,7 @@ function drawDarkMatterRegions() {
       .attr("x", lx).attr("y", ly)
       .attr("text-anchor", "middle")
       .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", 10).attr("font-weight", 600)
+      .attr("font-size", fscale(10)).attr("font-weight", 600)
       .attr("fill", `rgba(255,255,255,${opacity + 0.2})`)
       .attr("letter-spacing", "1px")
       .attr("transform", `rotate(${schwAng},${lx},${ly})`)
@@ -1292,7 +1294,7 @@ function drawDarkMatterRegions() {
       .attr("x", wx).attr("y", wy)
       .attr("text-anchor", "middle")
       .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", 7).attr("font-weight", 500)
+      .attr("font-size", fscale(7)).attr("font-weight", 500)
       .attr("fill", "rgba(255,255,255,0.55)")
       .attr("letter-spacing", "1.5px")
       .style("cursor", "pointer")
@@ -1311,7 +1313,7 @@ function drawDarkMatterRegions() {
       .attr("x", mx).attr("y", my)
       .attr("text-anchor", "middle")
       .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", 7).attr("font-weight", 500)
+      .attr("font-size", fscale(7)).attr("font-weight", 500)
       .attr("fill", "rgba(255,255,255,0.55)")
       .attr("letter-spacing", "1.5px")
       .style("cursor", "pointer")
@@ -1548,7 +1550,7 @@ function drawDensityArrows() {
         .attr("text-anchor", "start")
         .attr("dominant-baseline", "auto")
         .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-        .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+        .attr("font-size", fscale(fontSize)).attr("letter-spacing", "0.5px")
         .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)")
         .attr("stroke-width", 3).attr("stroke-linejoin", "round")
         .attr("transform", `rotate(${densAngle},${labelX},${labelY})`)
@@ -1560,7 +1562,7 @@ function drawDensityArrows() {
         .attr("text-anchor", "start")
         .attr("dominant-baseline", "auto")
         .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-        .attr("font-size", fontSize).attr("letter-spacing", "0.5px")
+        .attr("font-size", fscale(fontSize)).attr("letter-spacing", "0.5px")
         .attr("fill", color)
         .attr("transform", `rotate(${densAngle},${labelX},${labelY})`)
         .text(line);
@@ -1587,7 +1589,7 @@ function drawDensityArrows() {
       .attr("text-anchor", "start")
       .attr("dominant-baseline", "auto")
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", fontSize).attr("letter-spacing", "1px")
+      .attr("font-size", fscale(fontSize)).attr("letter-spacing", "1px")
       .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
       .attr("stroke-width", 2).attr("stroke-linejoin", "round")
       .attr("opacity", 0.5)
@@ -1600,7 +1602,7 @@ function drawDensityArrows() {
       .attr("text-anchor", "start")
       .attr("dominant-baseline", "auto")
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", fontSize).attr("letter-spacing", "1px")
+      .attr("font-size", fscale(fontSize)).attr("letter-spacing", "1px")
       .attr("fill", color)
       .attr("opacity", 0.5)
       .attr("transform", `rotate(${densAngle},${labelX},${labelY})`)
@@ -1754,7 +1756,7 @@ function drawRegionLabels() {
       .attr("x", mx).attr("y", my)
       .attr("text-anchor", "middle")
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 800)
-      .attr("font-size", LABEL_SIZE).attr("letter-spacing", LABEL_SPACING)
+      .attr("font-size", fscale(LABEL_SIZE)).attr("letter-spacing", LABEL_SPACING)
       .attr("fill", "white").attr("opacity", 0.10)
       .attr("transform", `rotate(${l.angle},${mx},${my})`)
       .text(l.text.toUpperCase());
@@ -2105,7 +2107,7 @@ function drawObjects() {
       .attr("x", lx).attr("y", ly)
       .attr("text-anchor", pos.anchor)
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", 10).attr("letter-spacing", "0.5px")
+      .attr("font-size", fscale(10)).attr("letter-spacing", "0.5px")
       .attr("paint-order", "stroke")
       .attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
@@ -2120,7 +2122,7 @@ function drawObjects() {
       .attr("x", cl.cx).attr("y", cl.cy)
       .attr("text-anchor", "middle")
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", CATEGORY_LABEL_FONT).attr("letter-spacing", "1px")
+      .attr("font-size", fscale(CATEGORY_LABEL_FONT)).attr("letter-spacing", "1px")
       .attr("paint-order", "stroke")
       .attr("stroke", "rgba(6,6,26,0.6)")
       .attr("stroke-width", 2).attr("stroke-linejoin", "round")
@@ -2163,7 +2165,7 @@ function drawObjects() {
       .attr("x", sx).attr("y", sy)
       .attr("text-anchor", "middle")
       .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", CATEGORY_LABEL_FONT).attr("font-weight", 600)
+      .attr("font-size", fscale(CATEGORY_LABEL_FONT)).attr("font-weight", 600)
       .attr("letter-spacing", "1px")
       .attr("paint-order", "stroke")
       .attr("stroke", "rgba(6,6,26,0.6)")
@@ -2281,7 +2283,7 @@ function drawObjects() {
       .attr("class", "obj-label")
       .attr("data-label-slug", o => o.slug)
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", 10).attr("letter-spacing", "0.5px")
+      .attr("font-size", fscale(10)).attr("letter-spacing", "0.5px")
       .attr("paint-order", "stroke")
       .attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
@@ -3257,7 +3259,7 @@ function drawAxes() {
       .attr("x", tx).attr("y", ty)
       .attr("text-anchor", "start")
       .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
-      .attr("font-size", 10).attr("font-weight", 700)
+      .attr("font-size", fscale(10)).attr("font-weight", 700)
       .attr("fill", "rgba(255,255,255,0.55)")
       .attr("transform", `rotate(${densityAngle},${tx},${ty})`)
       .text(gL);
@@ -3306,7 +3308,7 @@ function drawAxes() {
         axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 3)
           .attr("stroke", "rgba(255,255,255,0.10)");
         axB.append("text").attr("x", p).attr("y", 14).attr("text-anchor", "middle")
-          .attr("class", "axis-label axis-minor").attr("font-size", 9).attr("font-weight", 400)
+          .attr("class", "axis-label axis-minor").attr("font-size", fscale(9)).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
@@ -3319,7 +3321,7 @@ function drawAxes() {
     axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 5)
       .attr("stroke", "rgba(255,255,255,0.25)");
     axB.append("text").attr("x", p).attr("y", 16).attr("text-anchor", "middle")
-      .attr("class", "axis-label").attr("font-size", 13).attr("font-weight", 700)
+      .attr("class", "axis-label").attr("font-size", fscale(13)).attr("font-weight", 700)
       .text(cfg.xNum(v));
   }
 
@@ -3333,7 +3335,7 @@ function drawAxes() {
     if (Math.abs(p - lastRow1Px) >= 40 && u.slug) {
       axB.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
         .attr("x", p).attr("y", 37).attr("text-anchor", "middle")
-        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", 8)
+        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(8))
         .attr("fill", "rgba(255,130,130,0.6)")
         .text(u.label);
       lastRow1Px = p;
@@ -3354,7 +3356,7 @@ function drawAxes() {
       axB.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
         .attr("x", p + 2).attr("y", 50)
         .attr("text-anchor", "start")
-        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", 7.5)
+        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(7.5))
         .attr("fill", "rgba(255,130,130,0.45)")
         .attr("transform", `rotate(45,${p + 2},50)`)
         .text(u.label);
@@ -3396,7 +3398,7 @@ function drawAxes() {
         axL.append("line").attr("x1", -3).attr("y1", p).attr("x2", 0).attr("y2", p)
           .attr("stroke", "rgba(255,255,255,0.10)");
         axL.append("text").attr("x", -10).attr("y", p + 3.5).attr("text-anchor", "middle")
-          .attr("class", "axis-label axis-minor").attr("font-size", 9).attr("font-weight", 400)
+          .attr("class", "axis-label axis-minor").attr("font-size", fscale(9)).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
@@ -3409,7 +3411,7 @@ function drawAxes() {
     axL.append("line").attr("x1", -5).attr("y1", p).attr("x2", 0).attr("y2", p)
       .attr("stroke", "rgba(255,255,255,0.25)");
     axL.append("text").attr("x", -25).attr("y", p + 4.5).attr("text-anchor", "middle")
-      .attr("class", "axis-label").attr("font-size", 11).attr("font-weight", 700)
+      .attr("class", "axis-label").attr("font-size", fscale(11)).attr("font-weight", 700)
       .text(cfg.energyNum(v));
   }
 
@@ -3433,7 +3435,7 @@ function drawAxes() {
       if (lines.length > 1) {
         const txt = axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
           .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
-          .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", leftCompact ? 8.5 : 9.5)
+          .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(leftCompact ? 8.5 : 9.5))
           .attr("fill", "rgba(255,150,150,0.92)");
         lines.forEach((line, li) => {
           txt.append("tspan").attr("x", unitX).attr("dy", li === 0 ? 0 : "1.1em").text(line);
@@ -3441,7 +3443,7 @@ function drawAxes() {
       } else {
         axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
           .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
-          .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", leftCompact ? 8.5 : 9.5)
+          .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(leftCompact ? 8.5 : 9.5))
           .attr("fill", "rgba(255,150,150,0.92)")
           .text(u.label);
       }
@@ -3486,7 +3488,7 @@ function drawAxes() {
         axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 3).attr("y2", p)
           .attr("stroke", "rgba(255,255,255,0.10)");
         axR.append("text").attr("x", 14).attr("y", p + 3.5).attr("text-anchor", "middle")
-          .attr("class", "axis-label axis-minor").attr("font-size", 9).attr("font-weight", 400)
+          .attr("class", "axis-label axis-minor").attr("font-size", fscale(9)).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
@@ -3499,7 +3501,7 @@ function drawAxes() {
     axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 5).attr("y2", p)
       .attr("stroke", "rgba(255,255,255,0.25)");
     axR.append("text").attr("x", 28).attr("y", p + 4.5).attr("text-anchor", "middle")
-      .attr("class", "axis-label").attr("font-size", 13).attr("font-weight", 700)
+      .attr("class", "axis-label").attr("font-size", fscale(13)).attr("font-weight", 700)
       .text(cfg.massNum(v));
   }
 
@@ -3513,7 +3515,7 @@ function drawAxes() {
     if (Math.abs(p - lastMassUnitPy) >= minUnitPx && u.slug) {
       axR.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
         .attr("x", 44).attr("y", p + 3).attr("text-anchor", "start")
-        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", 9.5)
+        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(9.5))
         .attr("fill", "rgba(255,150,150,0.92)")
         .text(u.label);
       lastMassUnitPy = p;
@@ -5141,6 +5143,7 @@ function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked,
     labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
+    fontSize: +setFontSize.value,
     gridUnit: _gridUnit,
     marginLeft: _userMarginLeft, marginRight: _userMarginRight,
     marginTop: _userMarginTop, marginBottom: _userMarginBottom,
@@ -5180,6 +5183,14 @@ const setIconSize = document.getElementById("set-icon-size");
 setIconSize.addEventListener("input", () => {
   _iconSize = +setIconSize.value;
   redraw();
+  saveSettings();
+});
+
+const setFontSize = document.getElementById("set-font-size");
+setFontSize.addEventListener("input", () => {
+  _fontScale = +setFontSize.value / 100;
+  document.documentElement.style.setProperty("--font-scale", _fontScale);
+  relayout(); // fonts feed label metrics and static layers — full redraw
   saveSettings();
 });
 
@@ -5600,6 +5611,11 @@ try {
       const migrated = v <= 64 ? Math.round(v / 48 * 100) : v;
       setIconSize.value = Math.max(30, Math.min(300, migrated));
       _iconSize = +setIconSize.value;
+    }
+    if (saved.fontSize > 0) {
+      setFontSize.value = Math.max(50, Math.min(250, +saved.fontSize));
+      _fontScale = +setFontSize.value / 100;
+      document.documentElement.style.setProperty("--font-scale", _fontScale);
     }
     if (typeof saved.marginLeft === "number")   _userMarginLeft   = saved.marginLeft;
     if (typeof saved.marginRight === "number")  _userMarginRight  = saved.marginRight;
