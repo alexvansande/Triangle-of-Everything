@@ -76,6 +76,44 @@ html, body {
 }
 body:active { cursor: grabbing; }
 
+/* ---------- The states of water (map-space easter-egg inset) ---------- */
+/* PERF: drawEnergyBands rebuilds hundreds of SVG nodes per frame during
+   zooms, and CSS matches selectors right-to-left — so every rule here MUST
+   end in a panel-unique class (hash-filtered). Never end a rule in a bare
+   tag (path/line/text) or [attr]; shape styling is inlined in the markup. */
+.water-phase-g .wp-frame {
+  fill: rgba(12, 14, 40, 0.94);
+  stroke: rgba(61, 95, 119, 0.9);
+  stroke-width: 1.5;
+}
+.water-phase-g .wp-title {
+  font-family: 'Space Mono', monospace; font-size: 17px; letter-spacing: 3px;
+  font-weight: 700; fill: #9fc9e8;
+}
+.water-phase-g .wp-sub { font-family: Inter, sans-serif; font-size: 12px; fill: rgba(255,255,255,0.42); }
+.water-phase-g .wp-close-x { font-family: Inter, sans-serif; font-size: 22px; fill: rgba(255,255,255,0.5); }
+.water-phase-g .wp-close:hover .wp-close-x { fill: #fff; }
+.water-phase-g .wp-atm { stroke: rgba(159,201,232,0.5); stroke-width: 0.8; stroke-dasharray: 2 6; }
+.water-phase-g .wp-tick { font-family: Inter, sans-serif; font-size: 11px; fill: #5c5f86; }
+.water-phase-g .wp-tick.wp-hot { fill: #9fc9e8; font-weight: 600; }
+.water-phase-g .wp-axis-title { font-family: Inter, sans-serif; font-size: 10.5px; letter-spacing: 2px; fill: #5c5f86; }
+.water-phase-g .wp-label { font-family: Inter, sans-serif; font-size: 13px; font-weight: 600; }
+.water-phase-g .wp-dt { font-family: Inter, sans-serif; font-size: 11px; font-weight: 500; }
+.water-phase-g .wp-c-dim { fill: #7d81b0; }
+.water-phase-g .wp-c-teal { fill: #5dcaa5; }
+.water-phase-g .wp-c-blue { fill: #8fb8e4; }
+.water-phase-g .wp-c-violet { fill: #a98fd4; }
+.water-phase-g .wp-c-pink { fill: #d490cc; }
+.water-phase-g .wp-edge { font-size: 10.5px !important; font-weight: 500 !important; fill: rgba(255,255,255,0.35); }
+.water-phase-g .wp-i:hover { filter: brightness(1.5); }
+.water-phase-g .wp-edge:hover { fill: rgba(255,255,255,0.7); }
+.water-phase-g .wp-caption-rule { stroke: rgba(61, 95, 119, 0.5); stroke-width: 1; }
+.water-phase-g .wp-caption {
+  font-family: Inter, sans-serif; font-size: 13.5px; font-weight: 400;
+  fill: rgba(224,224,224,0.88);
+}
+.water-phase-pill:hover .wp-pill-rect { stroke: rgba(125,197,255,0.9); }
+
 /* Bold hover lines (settings toggle, for presenting): a hovered connection
    or notable density/reference line renders thick, fully opaque, and glowing
    — and its tooltip is suppressed. CSS properties override the SVG
