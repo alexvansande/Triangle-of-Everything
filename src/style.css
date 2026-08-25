@@ -76,6 +76,21 @@ html, body {
 }
 body:active { cursor: grabbing; }
 
+/* Recording viewport (V): the app locks to a 1920×1080 dark-grey stage,
+   scaled to fit and centered; everything beyond it is black so screen
+   captures can crop to a stable, pixel-true 1080p frame. */
+html.viewport-lock-page { background: #000; }
+body.viewport-lock {
+  position: fixed;
+  width: 1920px; height: 1080px;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(var(--vp-scale, 1));
+  transform-origin: center center;
+  overflow: hidden;
+  background: #232329;
+  outline: 2px solid #3c3c44;
+}
+
 /* H shortcut: hide the text panels for a clean recording / screenshot.
    Not persisted — a page refresh brings everything back. */
 body.ui-hidden #sidebar,

@@ -161,6 +161,15 @@ const BASE_MARGIN_LEFT = 80;
 const MOBILE_BREAKPOINT = 768;
 let _isSidebarOpen = false;
 let _isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+
+// Recording viewport (V): lock the app to a fixed 1920×1080 stage, scaled
+// to fit the window and centered on black — a stable crop target for
+// screenshots and screen recordings. While locked the app lays out (and
+// behaves) as a 1920×1080 desktop regardless of the real window.
+const VP_LOCK_W = 1920, VP_LOCK_H = 1080;
+let _viewportLock = false;
+const viewportLockScale = () =>
+  Math.min(1, window.innerWidth / VP_LOCK_W, window.innerHeight / VP_LOCK_H);
 let _showAxesMobile = false; // edge-to-edge by default; axes pill toggles unit margins
 const _isCoarse = !!window.matchMedia?.("(pointer: coarse)").matches;
 const _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -174,7 +183,7 @@ let W, H, cw, ch;
 
 function updateMobileState() {
   const wasMobile = _isMobile;
-  _isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+  _isMobile = !_viewportLock && window.innerWidth < MOBILE_BREAKPOINT;
   if (_isMobile) {
     document.body.classList.add("is-mobile");
   } else {
@@ -209,8 +218,8 @@ const BOTTOM_MARGIN_MIN = 50;
 const BOTTOM_MARGIN_MAX = 200;
 
 function measure() {
-  W = window.innerWidth;
-  H = window.innerHeight;
+  W = _viewportLock ? VP_LOCK_W : window.innerWidth;
+  H = _viewportLock ? VP_LOCK_H : window.innerHeight;
   if (_isMobile) {
     // Edge-to-edge map on phones: the chart IS the screen and all UI floats
     // above it. The axes pill (#axes-toggle) temporarily restores the unit
@@ -5193,6 +5202,7 @@ document.addEventListener("keydown", (e) => {
   if (e.target.tagName === "INPUT") return;
   // Arrow keys pan. Letter keys are recording shortcuts (see keyhint / docs):
   //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations · H hide UI
+  //   V lock the viewport to a 1920×1080 stage (screenshot/video framing)
   switch (e.key) {
     case "+": case "=":
       svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.4); break;
@@ -5226,8 +5236,30 @@ document.addEventListener("keydown", (e) => {
       console.log(`Animation speed: ${_animSpeed}×`); break;
     case "h": case "H":
       document.body.classList.toggle("ui-hidden"); break;
+    case "v": case "V":
+      setViewportLock(!_viewportLock); break;
   }
 });
+
+// Recording viewport toggle (V). The transformed <body> becomes the
+// containing block for its fixed-position children, so the whole UI —
+// pills, sidebar, tour — anchors inside the 1920×1080 stage.
+function setViewportLock(on) {
+  _viewportLock = on;
+  // Stop any in-flight zoom transition first: relayout reads the current
+  // transform, and reading it mid-transition can propagate NaN.
+  svg.interrupt();
+  document.documentElement.classList.toggle("viewport-lock-page", on);
+  document.body.classList.toggle("viewport-lock", on);
+  if (on) {
+    document.body.style.setProperty("--vp-scale", viewportLockScale());
+  } else {
+    document.body.style.removeProperty("--vp-scale");
+  }
+  const modeChanged = updateMobileState();
+  relayout(); // preserves zoom center + scale through the new layout
+  if (modeChanged) applyTitleLockups();
+}
 
 // =============================================================
 // Resize
@@ -5267,6 +5299,11 @@ let _resizeTimer = null;
 window.addEventListener("resize", () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(() => {
+    if (_viewportLock) {
+      // Stage dims are fixed; only the fit-to-window scale changes.
+      document.body.style.setProperty("--vp-scale", viewportLockScale());
+      return;
+    }
     const dw = Math.abs(window.innerWidth - _lastVw);
     const dh = Math.abs(window.innerHeight - _lastVh);
     // Browser-chrome height wiggle only matters in the phone layout; a
