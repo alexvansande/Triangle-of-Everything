@@ -10,7 +10,7 @@ Follow this tour, and by the end you will have a new understanding of how the un
 
 The horizontal scale measures the width (or diameter) of objects. It is logarithmic: each step represents a tenfold increase in size. The vertical axis measures mass, also logarithmic: each step represents a tenfold increase in mass.
 
-One liter of water is, by its own metric definition, a cube 10cm wide and weighs exactly 1 kilogram. Since these are three dimensions, if we increase the width by 10, we increase the volume (and therefore weight) by 1000x. So as we increase the size of any amount of water it will increase in weight following a 3:1 diagonal line.
+One liter of water fills a cube 10cm wide and, by the original metric definition, weighs one kilogram. Since these are three dimensions, if we increase the width by 10, we increase the volume (and therefore weight) by 1000x. So as we increase the size of any amount of water it will increase in weight following a 3:1 diagonal line.
 
 ## density
 
@@ -26,11 +26,11 @@ Earth sits in a narrow range: enough gravity to hold an atmosphere, but not enou
 
 ## planets-to-stars
 
-As mass increases further, the pressures start turning ordinary matter into degenerate matter and objects swerve left from the water line. Eventually the pressure is so large that atoms themselves break, releasing an enormous amount of energy and expanding the object again — it's now a star!
+As mass increases further, the pressures start turning ordinary matter into degenerate matter and objects swerve left from the water line. Eventually the pressure is so large that atomic nuclei begin to fuse, releasing an enormous amount of energy and expanding the object again — it's now a star!
 
 ## stellar-evolution
 
-Stars spend most of their lives on the main sequence. When fusion fuel runs out, gravity takes over. Stars expand and contract, becoming red giants. Many end in supernovae, leaving a remnant behind, depending on their size: from white dwarfs to neutron stars to black holes.
+Stars spend most of their lives on the main sequence. When fusion fuel runs out, gravity takes over. Stars expand and contract, becoming red giants. What remains depends on their mass: most stars leave white dwarfs behind, while the largest end in supernovae, leaving neutron stars or black holes.
 
 ## stellar-cycle
 
@@ -61,7 +61,7 @@ Going down in scale, we move from humans to microbes, to molecules, to atoms. Th
 
 At smaller scales, size loses meaning, and objects are better described by having a wavelength. Some of these are massless but we can place them on the chart by using the mass equivalent equation — the famous E=mc².
 
-The Compton wavelength sets a limit: below this, attempts to localize an object create particle–antiparticle pairs. This defines a lower boundary for "objects." The more energetic the element, the smaller the area it can occupy.
+The Compton wavelength sets a limit: below this, attempts to localize an object create particle–antiparticle pairs. This defines a lower boundary for "objects." The more energetic the particle, the smaller the area it can occupy.
 
 ## em-spectrum
 
@@ -82,9 +82,9 @@ Unless there are some alien physicists in the stars, the hottest and coldest spo
 
 ## theoretical
 
-These high temperatures are many orders of magnitude beyond our engineering capability, so we can't confirm what happens yet — but we still have some solid theories on what we expect. At the very top, it is believed that even high-energy particles like the top quark and the Higgs boson just "evaporate" and can't exist, taking with them many of the properties they allow. When energy levels reach ten trillion trillion kelvin, a new particle is believed to emerge, called the X & Y boson, that would unify all the remaining forces except gravity into one.
+These high temperatures are many orders of magnitude beyond our engineering capability, so we can't confirm what happens yet — but we still have some solid theories on what we expect. At the very top, it is believed that even high-energy particles like the top quark and the Higgs boson just "evaporate" and can't exist, taking with them many of the properties they allow. When energy levels reach ten trillion trillion electron-volts, a new particle is believed to emerge, called the X & Y boson, that would unify all the remaining forces except gravity into one.
 
-At even higher levels we reach the Planck temperature, at which even our theory breaks down. It's a pressure level so large that we see the emergence of instantons, a theoretical particle so dense and heavy that their Compton wavelength reaches the Schwarzschild radius, meaning both quantum physics and special relativity forbid it from existing. We have no idea what would happen — literally our understanding of the very concept of energy, time and space breaks down and becomes meaningless. But it's possible that gravity itself is unified with the other forces, that the very distinction between force and particle becomes meaningless, and even spacetime ceases to exist.
+At even higher levels we reach the Planck temperature, at which even our theory breaks down. It's a pressure level so large that we see the emergence of instantons, a theoretical particle so dense and heavy that its Compton wavelength reaches its Schwarzschild radius, meaning both quantum physics and general relativity forbid it from existing. We have no idea what would happen — literally our understanding of the very concept of energy, time and space breaks down and becomes meaningless. But it's possible that gravity itself is unified with the other forces, that the very distinction between force and particle becomes meaningless, and even spacetime ceases to exist.
 
 
 These conditions do not occur naturally anywhere in the universe right now. But these conditions once filled the entire universe, right at the beginning... and it's there we will go now.
@@ -99,7 +99,7 @@ Gravity separates from the others, and the universe starts creating space betwee
 
 ## gut
 
-The very first force to separate at the Big Bang was gravity, leading to the very emergence of time. For a very brief period, all remaining forces were one. For a fraction of a fraction of a second — a few billion Planck time units — it was still incomprehensibly hot and dense. As it expanded and cooled down, one first particle condensed from that hot mess: the X & Y boson. For some reason, its own internal forces are stronger than the forces pushing all the universe into the new spaces being formed all around it.
+With gravity gone its own way, all remaining forces were still one. For a fraction of a fraction of a second — a few tens of millions of Planck time units — it was still incomprehensibly hot and dense. As it expanded and cooled down, one first particle condensed from that hot mess: the X & Y boson. For some reason, its own internal forces are stronger than the forces pushing all the universe into the new spaces being formed all around it.
 
 “The whole history of the universe can be understood as a sequence of condensations” – Charles Lineweaver, physicist
 
@@ -118,7 +118,7 @@ In just a few minutes, the universe becomes as dense as gas and these protons an
 
 ## recombination
 
-As the density decreases further, photons start being able to freely flow for the first time and the first light appears — the universe is expanding so fast that some of that light is only now reaching us. The universe is no longer an opaque plasma but a semi-transparent gas. Left behind in this condensation are electrons that combine with nuclei to form the first true atoms.
+As the density decreases further, electrons combine with nuclei to form the first true atoms. With the free electrons gone, photons can flow freely for the first time and the first light appears — the universe is expanding so fast that some of that light is only now reaching us. The universe is no longer an opaque plasma but a semi-transparent gas.
 
 ## atomic-era
 
@@ -143,7 +143,7 @@ What remains is a universe of stellar remnants: white dwarfs slowly cooling to b
 
 ## heat-death
 
-Now even the black holes begin to die. Through Hawking radiation, they slowly evaporate — the smallest first, then the stellar remnants, and finally the supermassive giants. The last black hole will evaporate in roughly 10^100 years. It's possible that even protons will have decayed into pure radiation long before that.
+Now even the black holes begin to die. Through Hawking radiation, they slowly evaporate — the smallest first, then the stellar remnants, and finally the supermassive giants. The last black hole will evaporate in roughly 10¹⁰⁰ years. It's possible that even protons will have decayed into pure radiation long before that.
 
 All energy eventually dissipates, reaching higher and higher levels of entropy. When all energy is at the same level, no further reaction can occur and even the very concept of time is hard to define. After a long life, the very hands of the clock of time stop ticking.
 

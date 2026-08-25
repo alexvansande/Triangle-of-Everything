@@ -1,9 +1,15 @@
 Imperial units are based on human bodies (a foot, a stride, the temperature of the body), the metric system is based on our planet (the size of the planet, the temperature of liquid water on it), but the universe has one truly universal system of units that any sufficiently advanced alien civilization could also have found independently: the Planck scale. Their units are not practical for day-to-day use, as they often live at the very limits of our understanding of physics, but they are all based on four universal constants: the speed of light, the Planck constant, the gravitational constant, and the universal circle constant: tau.
 
-The Planck length and time represent the smallest amounts of such measurements in which it even makes sense to talk about time or space. The Planck energy represents an amount so large that it has only occurred once in our universe—the very beginning. The Planck mass is the only one that represents a mass that can be grasped at the human scale (about the mass of a grain of sand), but it's the boundary between gravity and quantum effects.
+The Planck length and time represent the smallest amounts of such measurements in which it even makes sense to talk about time or space. The Planck energy is, in everyday terms, about a tank of gasoline's worth — but concentrated into a single particle, it has occurred only once in our universe: the very beginning. The Planck mass is the only one that represents a mass that can be grasped at the human scale (about the mass of a grain of sand), but it's the boundary between gravity and quantum effects.
 
-The Planck mass is the natural unit of mass when $\hbar$, $c$, and $G$ are normalized. It is roughly the mass of a grain of dust (~22 μg) and represents the scale where quantum and gravitational effects are equally important.
+The Planck mass is the natural unit of mass when $\hbar$, $c$, and $G$ are normalized. It is roughly the mass of a fine grain of sand (~22 μg) and represents the scale where quantum and gravitational effects are equally important.
 
 $$m_P = \sqrt{\frac{\hbar c}{G}} \approx 2.18 \times 10^{-8} \text{ kg}$$
 
-This is the unique mass at which an object's Compton wavelength equals its Schwarzschild radius — the very apex of the Triangle.
+Almost — but not quite — this is the mass at which an object's Compton wavelength equals its Schwarzschild radius. Do the math and the two boundaries actually cross at $\sqrt{\hbar c / 2G} \approx 15\ \mu\text{g}$: the textbook value divided by $\sqrt{2}$. The culprit is the 2 in the Schwarzschild radius $r_s = 2Gm/c^2$ — you can read it as the ½ from kinetic energy: escape velocity reaches the speed of light where $\tfrac{1}{2}c^2 = GM/r$, as John Michell noticed back in 1784 (general relativity derives the same 2 rigorously). Being a piece of physics rather than a circle constant, no amount of $\tau$ can absorb it.
+
+This chart takes the hint from nature instead: *both* dark edges of the Triangle couple through $2G$ — the black-hole line, and the Hubble radius, which obeys $R_H = 2GM/c^2$ exactly, taking $M$ as everything inside the Hubble sphere at the universe's critical density. So the Triangle measures in Planck units built from $c$, $h/\tau$, and $2G$:
+
+$$m_\triangle = \sqrt{\frac{hc}{2\tau G}} \approx 15.4\ \mu\text{g}$$
+
+which places the apex at exactly one Planck mass and one Planck length. (Lineweaver & Patel offer a second cure: the horizon of a *maximally spinning* black hole is half the Schwarzschild radius, and the factor vanishes entirely.) Prefer the CODATA numbers? Settings → Grid units → Planck units (textbook).

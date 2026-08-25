@@ -1,1 +1,1 @@
-Iron: the heaviest element that can be produced by stellar fusion — beyond iron, stars must explode as supernovae to forge heavier elements. The Earth's core is mostly iron.
+Iron: the heaviest element that can be produced by stellar fusion — beyond iron, fusion stops paying — heavier elements are forged in supernovae, merging neutron stars, and the slow simmer of aging giant stars. The Earth's core is mostly iron.

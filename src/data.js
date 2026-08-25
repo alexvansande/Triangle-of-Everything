@@ -45,9 +45,18 @@ export const schwarzschildM = (logR) => logR - SCHWARZSCHILD_C;
 export const comptonR = (logM) => -logM + COMPTON_C;
 export const comptonM = (logR) => -logR + COMPTON_C;
 
-// Planck scale — where Schwarzschild and Compton lines cross
+// Planck scale — where Schwarzschild and Compton lines cross.
+// These are the chart's own Planck units, defined with the coupling 2G —
+// the combination nature uses on both dark edges of the triangle
+// (r_s = 2Gm/c² and R_H = 2GM/c²) — so the apex lands exactly at
+// (1 Planck length, 1 Planck mass) in Planck grid mode.
 export const PLANCK_LOG_R = (SCHWARZSCHILD_C + COMPTON_C) / 2; // ≈ -32.64
 export const PLANCK_LOG_M = PLANCK_LOG_R - SCHWARZSCHILD_C;    // ≈ -4.81
+
+// CODATA ("textbook") Planck scale — defined with bare G, √2 away from the
+// chart convention above. Used by the "planck-true" grid mode.
+export const PLANCK_TRUE_LOG_R = 0.5 * Math.log10(hbar * G / (c * c * c)); // ≈ -32.79
+export const PLANCK_TRUE_LOG_M = 0.5 * Math.log10(hbar * c / G);           // ≈ -4.66
 
 // Hubble radius — the rightmost vertical boundary
 export const HUBBLE_LOG_R = 28.14;   // log₁₀(1.37 × 10²⁸ cm)
@@ -90,7 +99,7 @@ export const DENSITY_LINES = [
   { logDensity: -2.9,  label: "air",                      color: "#b0bec5", epoch: false },
   { logDensity: -19,   label: "matter=radiation",         color: "#ce93d8", epoch: true },
   { logDensity: -21,   label: "recomb. 10¹³ s (CMB)",    color: "#ffab91", epoch: true },
-  { logDensity: -24,   label: "atomic density line",      color: "#a5d6a7", epoch: false },
+  { logDensity: -24,   label: "interstellar gas (~1 atom/cm³)", color: "#a5d6a7", epoch: false },
   { logDensity: -29.5, label: "now (current matter)",     color: "#ef9a9a", epoch: true },
 ];
 
@@ -114,32 +123,40 @@ export const EPOCH_BANDS = [
 //   Row 1: metric/SI units (fm, nm, μm, mm, cm, m, km)
 //   Row 2: imperial + astronomical (inch, foot, mile, AU, ly, pc)
 
+// The horizontal axis READS width/diameter: an object's stored logR is its
+// radius, so every displayed size is logR + WIDTH_LOG_OFFSET (i.e. ×2).
+// Unit markers below sit where objects of that WIDTH sit (radius = width/2),
+// hence the −W on each. The Planck-length and Hubble-R labels name the
+// chart's radius-defined boundaries and stay anchored to them.
+export const WIDTH_LOG_OFFSET = Math.log10(2); // ≈ 0.301
+const W = WIDTH_LOG_OFFSET;
+
 export const RADIUS_UNITS = [
   { logR: PLANCK_LOG_R, label: "1 Planck length", row: 1, slug: "planck-length" },
-  { logR: -13,    label: "1 fm",            row: 1, slug: "metric-units" },
-  { logR: -9,     label: "10 pm",           row: 1, slug: "metric-units" },
-  { logR: -8,     label: "1 Å",             row: 1, slug: "metric-units" },
-  { logR: -7,     label: "1 nm",            row: 1, slug: "metric-units" },
-  { logR: -4,     label: "1 μm",            row: 1, slug: "metric-units" },
-  { logR: -1,     label: "1 mm",            row: 1, slug: "metric-units" },
-  { logR: 0,      label: "1 cm",            row: 1, slug: "metric-units" },
-  { logR: 2,      label: "1 meter",         row: 1, slug: "metric-units" },
-  { logR: 5,      label: "1 km",            row: 1, slug: "metric-units" },
-  { logR: 8,      label: "1000 km",         row: 1, slug: "metric-units" },
-  { logR: 11,     label: "1M km",           row: 1, slug: "metric-units" },
-  { logR: 0.405,  label: "1 inch",          row: 2, slug: "imperial-units" },
-  { logR: 1.484,  label: "1 foot",          row: 2, slug: "imperial-units" },
-  { logR: 5.207,  label: "1 mile",          row: 2, slug: "imperial-units" },
-  { logR: 10.477, label: "1 light-second",  row: 2, slug: "imperial-units" },
-  { logR: 13.175, label: "1 AU",            row: 2, slug: "imperial-units" },
-  { logR: 17.976, label: "1 light-year",    row: 2, slug: "imperial-units" },
-  { logR: 18.489, label: "1 parsec",        row: 2, slug: "imperial-units" },
-  { logR: 20.976, label: "1,000 ly",        row: 2, slug: "imperial-units" },
-  { logR: 21.489, label: "1 kpc",           row: 2, slug: "imperial-units" },
-  { logR: 23.976, label: "1M ly",           row: 2, slug: "imperial-units" },
-  { logR: 24.489, label: "1 Mpc",           row: 2, slug: "imperial-units" },
-  { logR: 26.976, label: "1B ly",           row: 2, slug: "imperial-units" },
-  { logR: 27.489, label: "1 Gpc",           row: 2, slug: "imperial-units" },
+  { logR: -13 - W,    label: "1 fm",            row: 1, slug: "metric-units" },
+  { logR: -9 - W,     label: "10 pm",           row: 1, slug: "metric-units" },
+  { logR: -8 - W,     label: "1 Å",             row: 1, slug: "metric-units" },
+  { logR: -7 - W,     label: "1 nm",            row: 1, slug: "metric-units" },
+  { logR: -4 - W,     label: "1 μm",            row: 1, slug: "metric-units" },
+  { logR: -1 - W,     label: "1 mm",            row: 1, slug: "metric-units" },
+  { logR: 0 - W,      label: "1 cm",            row: 1, slug: "metric-units" },
+  { logR: 2 - W,      label: "1 meter",         row: 1, slug: "metric-units" },
+  { logR: 5 - W,      label: "1 km",            row: 1, slug: "metric-units" },
+  { logR: 8 - W,      label: "1000 km",         row: 1, slug: "metric-units" },
+  { logR: 11 - W,     label: "1M km",           row: 1, slug: "metric-units" },
+  { logR: 0.405 - W,  label: "1 inch",          row: 2, slug: "imperial-units" },
+  { logR: 1.484 - W,  label: "1 foot",          row: 2, slug: "imperial-units" },
+  { logR: 5.207 - W,  label: "1 mile",          row: 2, slug: "imperial-units" },
+  { logR: 10.477 - W, label: "1 light-second",  row: 2, slug: "imperial-units" },
+  { logR: 13.175 - W, label: "1 AU",            row: 2, slug: "imperial-units" },
+  { logR: 17.976 - W, label: "1 light-year",    row: 2, slug: "imperial-units" },
+  { logR: 18.489 - W, label: "1 parsec",        row: 2, slug: "imperial-units" },
+  { logR: 20.976 - W, label: "1,000 ly",        row: 2, slug: "imperial-units" },
+  { logR: 21.489 - W, label: "1 kpc",           row: 2, slug: "imperial-units" },
+  { logR: 23.976 - W, label: "1M ly",           row: 2, slug: "imperial-units" },
+  { logR: 24.489 - W, label: "1 Mpc",           row: 2, slug: "imperial-units" },
+  { logR: 26.976 - W, label: "1B ly",           row: 2, slug: "imperial-units" },
+  { logR: 27.489 - W, label: "1 Gpc",           row: 2, slug: "imperial-units" },
   { logR: 28.14,  label: "Hubble R",        row: 2, slug: "imperial-units" },
 ];
 
@@ -280,15 +297,15 @@ export const CONNECTION_PATHS = [
     family: "spectrum",
     description: "The electromagnetic spectrum — from gamma rays to radio waves, all photons travel at the speed of light",
     points: [
-      { logR: -10.0, logM: -26.66 },
-      { logR: -8.0,  logM: -28.66 },
-      { logR: -5.0,  logM: -31.66 },
-      { logR: -4.26, logM: -32.40 },
-      { logR: -3.0,  logM: -33.66 },
-      { logR: -1.0,  logM: -35.66 },
-      { logR: 0.0,   logM: -36.66 },
-      { logR: 2.48,  logM: -39.14 },
-      { logR: 4.48,  logM: -41.14 },
+      { logR: -10.3, logM: -26.66 },
+      { logR: -8.3,  logM: -28.66 },
+      { logR: -5.3,  logM: -31.66 },
+      { logR: -4.56, logM: -32.40 },
+      { logR: -3.3,  logM: -33.66 },
+      { logR: -1.3,  logM: -35.66 },
+      { logR: -0.3,  logM: -36.66 },
+      { logR: 2.18,  logM: -39.14 },
+      { logR: 4.18,  logM: -41.14 },
     ],
     zoomRange: [0.8, 800],
     style: {
@@ -334,10 +351,10 @@ export const CONNECTION_PATHS = [
     points: [
       { logR: 19.0,  logM: 35.5 },
       { logR: 14.5,  logM: 34.5 },
-      { logR: 11.4,  logM: 34.8 },
+      { logR: 11.84, logM: 34.8 },
       { logR: 12.24, logM: 34.7 },
       { logR: 13.6,  logM: 34.1 },
-      { logR: 17.8,  logM: 33.8 },
+      { logR: 18.72, logM: 33.8 },
       { logR: 14.0,  logM: 33.6 },
       { logR: 10.0,  logM: 33.5 },
       { logR: 6.0,   logM: 33.45 },
@@ -481,7 +498,7 @@ export const CONNECTION_PATHS = [
     family: "evolution",
     description: "After a supernova, the core collapses into a stellar black hole",
     points: [
-      { logR: 17.8,  logM: 33.8 },
+      { logR: 18.72, logM: 33.8 },
       { logR: 14.0,  logM: 34.0 },
       { logR: 10.0,  logM: 34.2 },
       { logR: 6.47,  logM: 34.3 },
@@ -545,8 +562,8 @@ export const CONNECTION_PATHS = [
     family: "evolution",
     description: "Supernova remnants and planetary nebulae seed new stellar nurseries — stars are recycled",
     points: [
-      { logR: 17.80, logM: 33.80 },
-      { logR: 18.5,  logM: 34.2 },
+      { logR: 18.72, logM: 33.80 },
+      { logR: 19.1,  logM: 34.2 },
       { logR: 19.5,  logM: 34.8 },
       { logR: 19.00, logM: 35.50 },
     ],

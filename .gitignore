@@ -10,3 +10,9 @@ background/
 
 # Claude Code session workspaces (per-session git worktrees and tool state)
 .claude/
+
+# Perf reports are run artifacts (CI uploads its own); only the baseline stays tracked
+scripts/perf-reports/*
+!scripts/perf-reports/mobile-perf-2026-08-19T17-40-31-993Z.json
+# Reference material dropped into scripts/ (e.g. stray PDFs)
+scripts/**/*.pdf

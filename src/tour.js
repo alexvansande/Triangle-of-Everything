@@ -104,15 +104,18 @@ export function initTour({ zoomToRegion, vd, animateBigBang, exitBigBang, isBigB
 
   // Build progress dots with hover tooltips
   TOUR_STEPS.forEach((step, i) => {
-    const dot = document.createElement("span");
+    const dot = document.createElement("button");
+    dot.type = "button";
     dot.className = "tour-dot";
     dot.title = step.title || step.id;
+    dot.setAttribute("aria-label", `Step ${i + 1}: ${step.title || step.id}`);
     dot.addEventListener("click", () => goToStep(i));
     els.dots.appendChild(dot);
   });
 
   // Wire up buttons
   els.close.addEventListener("click", closeTour);
+  els.text.addEventListener("scroll", updateTextFadeCue, { passive: true });
   els.prev.addEventListener("click", prevStep);
   els.nextLabel.addEventListener("click", nextStep);
   els.startBtn.addEventListener("click", onStartButtonClick);
@@ -130,10 +133,12 @@ export function initTour({ zoomToRegion, vd, animateBigBang, exitBigBang, isBigB
     }
   }
 
-  // Always auto-show tour after intro animation
+  // Always auto-show tour after intro animation — AFTER it, not during:
+  // the boot zoom-out runs 1000ms..4000ms, and fading the card in mid-zoom
+  // put flying labels through the title for the first seconds of every visit.
   setTimeout(() => {
     if (!_tourActive) startTour(0, true);
-  }, 1000);
+  }, 4200);
 }
 
 // ---- Public API ----
@@ -284,6 +289,16 @@ export function tourStep(delta) {
 
 let _firstRender = true;
 
+// Scroll cue: when tour text overflows its capped box, a bottom fade signals
+// "there's more" — without it, a mid-sentence cut reads as broken truncation.
+// The fade lifts once the reader reaches the end.
+function updateTextFadeCue() {
+  const t = els?.text;
+  if (!t) return;
+  const more = t.scrollHeight - t.scrollTop - t.clientHeight > 4;
+  t.classList.toggle("has-more", more);
+}
+
 function renderStep() {
   const step = TOUR_STEPS[_tourStep];
 
@@ -299,6 +314,8 @@ function renderStep() {
 
     // Text — render markdown as HTML
     els.text.innerHTML = markdownToHtml(step.text);
+    els.text.scrollTop = 0;
+    requestAnimationFrame(updateTextFadeCue);
     els.text.scrollTop = 0;
 
     // Intro step: taller box, hide prev + dots, CTA style + skip links
@@ -320,9 +337,14 @@ function renderStep() {
           <a data-step="17">The Big Bang</a>
           <a data-step="27">Credits</a>`;
         skipEl.querySelectorAll("a[data-step]").forEach(a => {
+          a.setAttribute("role", "button");
+          a.setAttribute("tabindex", "0");
           a.addEventListener("click", (e) => {
             e.preventDefault();
             goToStep(parseInt(a.dataset.step));
+          });
+          a.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); a.click(); }
           });
         });
         els.nextLabel.parentElement.insertAdjacentElement("afterend", skipEl);

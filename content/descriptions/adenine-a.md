@@ -1,0 +1,1 @@
+Adenine is one of the four nucleobases of [[DNA]], a purine (C₅H₅N₅) with a mass of about 135 daltons. In the double helix it always pairs with [[Thymine (T)|thymine]], held by two hydrogen bonds; in RNA it pairs with uracil instead. Beyond genetics it moonlights throughout biochemistry — it is the "A" in [[ATP]], the universal energy currency of the cell.

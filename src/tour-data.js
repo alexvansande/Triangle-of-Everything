@@ -2,6 +2,7 @@
 // Tour step definitions. Content lives in content/tour-content.md; metadata (zoom, labels) here.
 
 import rawContent from "../content/tour-content.md?raw";
+import { PLANCK_LOG_R } from "./data.js";
 
 // ---- Parse markdown into sections keyed by ## heading ----
 function parseTourMarkdown(raw) {
@@ -29,7 +30,9 @@ const CONTENT = parseTourMarkdown(rawContent);
 // Objects appear cumulatively — each era adds to what's already visible.
 
 export const BIG_BANG_ERAS = {
-  planck:        { hubbleLogR: -32.8, whiteOverlay: 0,
+  // Planck era: Hubble radius = the apex itself (chart Planck time, 2G
+  // convention) — the Big Bang Singularity sits exactly on its own horizon.
+  planck:        { hubbleLogR: PLANCK_LOG_R, whiteOverlay: 0,
                    showSlugs: ["big-bang"] },
   gut:           { hubbleLogR: -25.5, whiteOverlay: 0,
                    showSlugs: ["big-bang", "x-y-bosons"] },
@@ -237,7 +240,7 @@ const TOUR_META = [
   {
     id: "recombination",
     title: "Recombination",
-    nextLabel: "The First Stars",
+    nextLabel: "Stars and Galaxies",
     view: null,
     highlightObjects: [],
     contextLabel: null,

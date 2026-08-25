@@ -37,13 +37,12 @@
 </head>
 <body>
   <div id="chart"></div>
-  <div id="click-targets"></div>
   <div id="search-box">
-    <button id="search-btn" title="Search objects (/)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+    <button id="search-btn" title="Search objects (/)" aria-label="Search objects" aria-expanded="false" aria-controls="search-results">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
     </button>
-    <input type="text" id="search-input" placeholder="Search objects…" autocomplete="off" spellcheck="false">
-    <div id="search-results"></div>
+    <input type="text" id="search-input" placeholder="Search objects…" autocomplete="off" spellcheck="false" role="combobox" aria-label="Search objects" aria-autocomplete="list" aria-controls="search-results" aria-expanded="false">
+    <div id="search-results" role="listbox" aria-label="Search results"></div>
   </div>
   <div id="preset-bar">
     <button data-preset="all" class="active" title="Full view">All</button>
@@ -55,15 +54,15 @@
     <button data-preset="astrophysics" title="Stars, remnants &amp; nebulae">Astrophysics</button>
     <button data-preset="cosmology" title="Galaxies, clusters &amp; the observable universe">Cosmology</button>
   </div>
-  <button id="sidebar-expand" title="Expand panel">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 5 13 12 6 19"/><polyline points="13 5 20 12 13 19"/></svg>
+  <button id="sidebar-expand" title="Expand panel" aria-label="Open info panel">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 5 13 12 6 19"/><polyline points="13 5 20 12 13 19"/></svg>
   </button>
-  <button id="axes-toggle" title="Show axis units">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 20v-3M12 20v-2M16 20v-3M4 16h3M4 12h2M4 8h3"/></svg>
+  <button id="axes-toggle" title="Show axis units" aria-label="Show axis units" aria-pressed="false">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 20v-3M12 20v-2M16 20v-3M4 16h3M4 12h2M4 8h3"/></svg>
   </button>
   <div id="sidebar">
-    <div id="sheet-grab" aria-hidden="true"></div>
-    <button id="sidebar-close" title="Collapse panel">&lt;&lt;</button>
+    <button id="sheet-grab" type="button" aria-label="Expand or collapse panel" aria-expanded="false"></button>
+    <button id="sidebar-close" title="Collapse panel" aria-label="Close panel">&lt;&lt;</button>
     <div id="sidebar-intro">
       <h1 id="intro-title">
         <span class="title-line1">THE TRIANGLE OF</span>
@@ -92,24 +91,28 @@
       <div id="sb-links"></div>
     </div>
   </div>
+  <div id="sr-announce" class="visually-hidden" role="status" aria-live="polite"></div>
   <div id="readout"></div>
   <div id="tooltip"></div>
   <div id="axis-tooltip"></div>
   <div id="controls">
-    <button id="zoom-in" title="Zoom in">+</button>
-    <button id="zoom-out" title="Zoom out">&minus;</button>
-    <button id="zoom-reset" title="Reset view">&#x2299;</button>
-    <button id="scrubber-btn" title="Travel through cosmic time">&#x29D6;</button>
+    <button id="zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+    <button id="zoom-out" title="Zoom out" aria-label="Zoom out">&minus;</button>
+    <button id="zoom-reset" title="Reset view" aria-label="Reset view">&#x2299;</button>
+    <button id="scrubber-btn" title="Travel through cosmic time" aria-label="Cosmic time scrubber" aria-expanded="false">&#x29D6;</button>
   </div>
   <div id="scrubber-panel"></div>
   <div id="scale-bar"></div>
   <div id="keyhint">scroll to zoom &middot; drag to pan &middot; click object to focus &middot; / to search</div>
-  <button id="settings-btn" title="Settings">
+  <button id="settings-btn" aria-label="Settings" aria-expanded="false" title="Settings">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="3"/>
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
     </svg>
   </button>
+  <!-- Object hit targets: real buttons; placed last so keyboard users
+       reach app controls before the ~70 per-object stops -->
+  <div id="click-targets"></div>
   <div id="settings-panel">
     <label class="setting-check">
       <input type="checkbox" id="set-bg" checked>
@@ -131,18 +134,31 @@
       <span class="checkmark"></span>
       Show object icons
     </label>
+    <label class="setting-check">
+      <input type="checkbox" id="set-bold-hover">
+      <span class="checkmark"></span>
+      Bold hover lines
+    </label>
     <label class="setting-range">
       <span class="setting-range-label">Icon size</span>
       <input type="range" id="set-icon-size" min="30" max="300" value="100" step="5">
+    </label>
+    <label class="setting-range">
+      <span class="setting-range-label">Font size</span>
+      <input type="range" id="set-font-size" min="50" max="250" value="100" step="5">
     </label>
     <label class="setting-select">
       <span class="setting-select-label">Grid units</span>
       <select id="set-grid-unit">
         <option value="si">SI units</option>
-        <option value="planck">Planck units</option>
-        <option value="planck-wavelength">Planck units (wavelength)</option>
+        <option value="planck">Planck (2G)</option>
+        <option value="planck-wavelength">Planck (2G, wavelength)</option>
+        <option value="planck-true">Planck (textbook)</option>
       </select>
     </label>
+    <p class="setting-note">2G: Planck units measured with the black-hole
+      coupling 2G, so the Triangle's apex sits at exactly 1 Planck mass
+      &times; 1 Planck length. Textbook (CODATA) values are &radic;2 away.</p>
   </div>
   <!-- Tour Guide -->
   <div id="tour-header" class="tour-hidden">
@@ -150,13 +166,13 @@
     <p>Design and texts by Alex Van de Sande, based on<br>a paper by Charles Lineweaver and Vihan Patel</p>
   </div>
   <div id="tour-box" class="tour-hidden">
-    <button id="tour-close" title="Close tour">&times;</button>
+    <button id="tour-close" aria-label="Close tour" title="Close tour">&times;</button>
     <div id="tour-content">
       <h3 id="tour-title"></h3>
       <p id="tour-text"></p>
     </div>
     <div id="tour-nav">
-      <button id="tour-prev">&lt;</button>
+      <button id="tour-prev" aria-label="Previous step">&lt;</button>
       <button id="tour-next-label"></button>
     </div>
     <div id="tour-dots"></div>

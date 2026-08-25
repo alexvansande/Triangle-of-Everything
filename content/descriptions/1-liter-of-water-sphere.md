@@ -1,5 +1,5 @@
 ---
-navigate: Tonne of Water
+navigate: 1 Tonne of Water
 button: "Scale up: a tonne of water"
 ---
 

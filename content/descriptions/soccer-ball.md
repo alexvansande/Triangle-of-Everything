@@ -1,0 +1,1 @@
+A regulation soccer ball (FIFA size 5): about 22 cm across and ~430 grams at kickoff. The classic 1970 design stitches 20 white hexagons and 12 black pentagons into a truncated icosahedron — the same geometry as [[Fullerene C₆₀]], the carbon "buckyball" sitting some 22 orders of magnitude down this chart.

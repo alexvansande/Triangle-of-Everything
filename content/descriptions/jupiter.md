@@ -3,4 +3,4 @@ navigate: Saturn
 button: "Visit Saturn"
 ---
 
-The largest planet in the Solar System, with more mass than all other planets — including [[Saturn]] — combined. It contains enough hydrogen and helium that it nearly qualifies as a small companion to the [[Sun]]. Known for its Great Red Spot and 95 moons, including [[Ganymede]], the largest moon in the Solar System.
+The largest planet in the Solar System, with more mass than all other planets — including [[Saturn]] — combined. It is made of the same ingredients as the [[Sun]] — hydrogen and helium — but would need about 80 times more mass to shine as a star. Known for its Great Red Spot and nearly a hundred known moons, including [[Ganymede]], the largest moon in the Solar System.
