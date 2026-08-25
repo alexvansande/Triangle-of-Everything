@@ -151,7 +151,7 @@ The universe is one again. One single entity, of infinite size — because lengt
 
 ## credits
 
-Design and texts by Alex Van de Sande.
+Design by Alex Van de Sande.
 
 Based on the paper ["All Objects and Some Questions"](https://doi.org/10.1119/5.0150209) by Charles Lineweaver and Vihan Patel, published in the American Journal of Physics (2023).
 
