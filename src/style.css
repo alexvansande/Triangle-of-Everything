@@ -504,7 +504,13 @@ body.sidebar-open #scale-bar { left: 456px; }
   transition: r 0.15s;
 }
 .obj-icon {
-  transition: width 0.15s, height 0.15s, x 0.15s, y 0.15s;
+  /* Hover growth animates as a center-origin transform. Never transition
+     the x/y/width/height geometry: the renderer rewrites it every zoom
+     frame (easing it makes icons trail the map), and corner-anchored
+     interpolation makes the hover jump up-left before growing. */
+  transition: transform 0.15s;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 /* ---------- Planck point pulse ---------- */
