@@ -21,6 +21,11 @@ import {
   WIDTH_LOG_OFFSET,
 } from "./data.js";
 import objectsData from "./objects.json";
+import {
+  openWaterPhasePanel, closeWaterPhasePanel, isWaterPhaseOpen,
+  selectWaterPhaseKey, onWaterPhaseToggle, waterPhaseMarkup,
+  WP_FRAME, WP_DEX_PER_UNIT, WP_FRAME_TOP_LOGM,
+} from "./water-phase.js";
 import introRaw from "../content/intro.md?raw";
 import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep } from "./tour.js";
@@ -467,6 +472,7 @@ const lObjExtras  = lObj.append("g");
 const lObjMain    = lObj.append("g");
 const lHighlight  = lContent.append("g").style("pointer-events", "none");
 const lAxisRef    = lContent.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
+const lWaterPhase = lContent.append("g"); // states-of-water inset (zooms with the map)
 // (Object labels live in lLabels, declared below lIcons so text always
 // paints ABOVE icons — a glyph must never wash out a label.)
 
@@ -1222,9 +1228,98 @@ function drawEnergyBands() {
           .attr("font-size", fscale(fontSize)).attr("letter-spacing", "0.5px")
           .attr("fill", waterColor)
           .text("Liquid Water");
+
+        // Easter egg: the states-of-water panel opens from a quiet pill
+        // below the bracket — revealed once the bracket is readable on
+        // screen, hidden at poster scale.
+        if (botY - topY >= 20) {
+        const pillW = 158, pillH = 24;
+        const pillX = bracketX - pillW + 20, pillY = botY + 18;
+        const pill = lEnergyBands.append("g")
+          .attr("class", "water-phase-pill")
+          .style("cursor", "pointer")
+          // d3.zoom's svg-level mousedown starts a pan gesture and swallows
+          // the click that should follow; keep presses on the pill local.
+          .on("mousedown", (e) => e.stopPropagation())
+          .on("click", (e) => {
+            e.stopPropagation();
+            // Dismiss the boot intro/title if it's still up — the panel
+            // opens into the same part of the screen.
+            document.getElementById("tour-close")?.click();
+            openWaterPhasePanel();
+            drawEnergyBands();
+          });
+        pill.append("rect")
+          .attr("class", "wp-pill-rect")
+          .attr("x", pillX).attr("y", pillY)
+          .attr("width", pillW).attr("height", pillH).attr("rx", pillH / 2)
+          .attr("fill", "rgba(10,14,40,0.75)")
+          .attr("stroke", "rgba(125,197,255,0.45)")
+          .attr("stroke-width", 1).attr("stroke-dasharray", "4 3");
+        pill.append("text")
+          .attr("x", pillX + pillW / 2).attr("y", pillY + pillH / 2 + fscale(10) * 0.35)
+          .attr("text-anchor", "middle")
+          .attr("font-family", "Inter, sans-serif").attr("font-weight", 500)
+          .attr("font-size", fscale(10)).attr("letter-spacing", "0.4px")
+          .attr("fill", "rgba(159,201,232,0.9)")
+          .text("❆ the states of water");
+
+        }
+
+        // Rails: the panel lives in map space with its 0°C/100°C rows at
+        // the exact logM of the bracket arrows, so the connectors are
+        // simple horizontal dashed lines at those rows.
+        if (isWaterPhaseOpen()) {
+          const xPanel = px(WATER_PANEL_RIGHT_LOGR);
+          [[topY], [botY]].forEach(([y]) => {
+            lEnergyBands.append("line")
+              .attr("x1", xPanel).attr("y1", y)
+              .attr("x2", bracketX).attr("y2", y)
+              .attr("stroke", "rgba(93,202,165,0.55)")
+              .attr("stroke-width", 1).attr("stroke-dasharray", "2 5");
+          });
+        }
       }
     }
   }
+  drawWaterPhasePanel();
+}
+
+// =============================================================
+// Draw: the states-of-water inset (map-space easter egg)
+// =============================================================
+// The panel is authored in local units (water-phase.js) and projected
+// into the map with one translate+scale, so it pans and zooms with the
+// chart like any printed inset. Its vertical scale is pinned to the
+// chart's temperature reading, making the 0°C/100°C rows land exactly
+// on the Liquid Water bracket's logM rows.
+
+const WATER_PANEL_RIGHT_LOGR = -4.6;
+
+function drawWaterPhasePanel() {
+  lWaterPhase.selectAll("*").remove();
+  if (!isWaterPhaseOpen()) return;
+  const d = vd();
+  const ppu = cw / (d.x1 - d.x0);
+  const s = WP_DEX_PER_UNIT * ppu;            // screen px per panel unit
+  if (s * WP_FRAME.w < 80) return;            // sub-thumbnail — not worth drawing
+  const leftLogR = WATER_PANEL_RIGHT_LOGR - WP_FRAME.w * WP_DEX_PER_UNIT;
+  const g = lWaterPhase.append("g")
+    .attr("class", "water-phase-g")
+    .attr("transform", `translate(${px(leftLogR)},${py(WP_FRAME_TOP_LOGM)}) scale(${s})`);
+  g.html(waterPhaseMarkup());
+  g.selectAll("[data-key]")
+    .style("cursor", "pointer")
+    .on("mousedown", (e) => e.stopPropagation())
+    .on("click", function (e) {
+      e.stopPropagation();
+      selectWaterPhaseKey(this.getAttribute("data-key"));
+      drawWaterPhasePanel();
+    });
+  g.select("[data-close]")
+    .style("cursor", "pointer")
+    .on("mousedown", (e) => e.stopPropagation())
+    .on("click", (e) => { e.stopPropagation(); closeWaterPhasePanel(); });
 }
 
 // =============================================================
@@ -5925,6 +6020,7 @@ svg.call(zoomBehavior);
 // =============================================================
 
 updateMobileState();
+onWaterPhaseToggle(() => drawEnergyBands()); // add/remove the shared-axis rails
 _booted = true;
 initConnections();
 loadTileMeta();
