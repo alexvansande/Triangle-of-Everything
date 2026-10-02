@@ -18,7 +18,7 @@ for (const [path, url] of Object.entries(imgUrls)) {
 }
 import imageManifest from "../content/images/manifest.json";
 // Spirograph state hashes for particles that can be opened in the 5D spirograph
-import hiperspirographStates from "../content/icons/hiperspirograph-states.json";
+import hyperspirographStates from "../content/icons/hyperspirograph-states.json";
 
 // Atoms whose sidebar image is a sphere-packed spirograph composite (built
 // from the hyperspirograph itself). These get a "Explore multidimensional
@@ -113,4 +113,4 @@ for (const [path, content] of Object.entries(descFiles)) {
   DESC_BY_SLUG[slug] = content.trim();
 }
 
-export { imageManifest, hiperspirographStates };
+export { imageManifest, hyperspirographStates };

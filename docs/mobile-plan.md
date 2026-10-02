@@ -214,7 +214,7 @@ Expected: fly-to 5.7 → 30–60 fps; pan 11 → 45+; and recording tours no lon
 - ✅ **F8. Title lockup** — "THE TRIANGLE OF" never wraps; "EVERYTHING" is
   canvas-measured and scaled so both lines span exactly the same width.
 
-### Spirograph (public/hiperspirograph.html) — reviewed 2026-08-19
+### Spirograph (public/hyperspirograph.html) — reviewed 2026-08-19
 
 Verdict: genuinely good on mobile (canvas 2D, 25KB gz, no deps, loops=1 embeds).
 Fixed same day: ✅ rAF loops now park when the page is hidden/offscreen (the

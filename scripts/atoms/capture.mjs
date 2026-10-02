@@ -38,7 +38,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 800, height: 800 } });
 page.on('pageerror', e => console.error('PAGE ERROR:', e.message));
 
-await page.goto('http://localhost:5173/hiperspirograph.html', { waitUntil: 'networkidle' });
+await page.goto('http://localhost:5173/hyperspirograph.html', { waitUntil: 'networkidle' });
 
 await page.evaluate((state) => {
   applyState(state);
