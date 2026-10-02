@@ -54,7 +54,7 @@ Three hyperspirograph state hashes are loaded via `applyState()`:
 
 ### 2. Capture (`capture.mjs`, `capture-nucleons.mjs`)
 
-Each script launches headless Chromium via Playwright at `localhost:5173/hiperspirograph.html`,
+Each script launches headless Chromium via Playwright at `localhost:5173/hyperspirograph.html`,
 applies the state hash, disables time animation, then sweeps Spin XZ / Tilt YZ
 (and Axis 3 for electron variants), calling `draw()` and grabbing
 `canvas.toDataURL('image/png')` for each variant. PNGs are written into

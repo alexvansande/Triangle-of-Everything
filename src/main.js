@@ -7,7 +7,7 @@ import {
 } from "./format.js";
 import {
   DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, STRINGS_ATOM_SLUGS,
-  imageManifest, hiperspirographStates, parseFrontmatter, _loadedIconUrls,
+  imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup,
 } from "./assets.js";
 import {
@@ -3064,19 +3064,19 @@ function openSidebar(obj) {
   // Display object image or placeholder (fetched on demand via <img src>)
   const imgUrl = IMG_BY_SLUG[slug];
   const imgMeta = imageManifest[slug];
-  // For particles with a Hiperspirograph state, embed the live spirograph instead
-  const spiroState = hiperspirographStates[slug];
+  // For particles with a Hyperspirograph state, embed the live spirograph instead
+  const spiroState = hyperspirographStates[slug];
   if (spiroState) {
     sbImage.innerHTML = "";
     const iframe = document.createElement("iframe");
-    iframe.src = `/hiperspirograph.html?embed=1#${spiroState}`;
+    iframe.src = `/hyperspirograph.html?embed=1#${spiroState}`;
     iframe.style.cssText = "width:100%;aspect-ratio:1/1;border:0;display:block;background:#000;border-radius:8px;";
     iframe.loading = "lazy";
     iframe.title = `${obj.name} — interactive 5D spirograph`;
     sbImage.appendChild(iframe);
     const explore = document.createElement("a");
     explore.className = "sb-spiro-explore";
-    explore.href = `/hiperspirograph.html#${spiroState}`;
+    explore.href = `/hyperspirograph.html#${spiroState}`;
     explore.target = "_blank";
     explore.rel = "noopener";
     explore.textContent = "✨ Explore multidimensional strings →";
@@ -3101,7 +3101,7 @@ function openSidebar(obj) {
     if (STRINGS_ATOM_SLUGS.has(slug)) {
       const explore = document.createElement("a");
       explore.className = "sb-spiro-explore";
-      explore.href = "/hiperspirograph.html";
+      explore.href = "/hyperspirograph.html";
       explore.target = "_blank";
       explore.rel = "noopener";
       explore.textContent = "✨ Explore multidimensional strings →";
