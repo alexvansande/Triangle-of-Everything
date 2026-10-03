@@ -3822,6 +3822,7 @@ function ensureConnGeometry(cp) {
 // nothing needs animating; these restart it when conditions change.
 function connAnimActive() {
   return !_animDisabled && !document.hidden &&
+    !document.documentElement.classList.contains("classic-open") &&
     _connPaths != null && _connPaths.some(cp => cp._visible);
 }
 function scheduleConnAnim() {
@@ -5356,6 +5357,7 @@ document.addEventListener("keydown", (e) => {
   //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations · H hide UI
   //   V lock the viewport to a 1920×1080 stage (screenshot/video framing)
   //   R reset all settings (and presenter state) to defaults
+  //   L the original Lineweaver–Patel figure (hidden; also #classic)
   switch (e.key) {
     case "+": case "=":
       svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.4); break;
@@ -5393,8 +5395,21 @@ document.addEventListener("keydown", (e) => {
       setViewportLock(!_viewportLock); break;
     case "r": case "R":
       resetAllSettings(); break;
+    case "l": case "L":
+      openClassicMode(); break;
   }
 });
+
+// Hidden "classic" mode (L key or #classic): the original Lineweaver–Patel
+// figure, zoomable. Loaded on demand; it takes over the keyboard while open.
+function openClassicMode() {
+  import("./classic.js").then(m => m.openClassic());
+}
+window.addEventListener("hashchange", () => {
+  if (location.hash === "#classic") openClassicMode();
+});
+// The map's dot animation parks while the classic figure covers it
+window.addEventListener("classic-close", () => scheduleConnAnim());
 
 // R: one keystroke back to a clean default state — settings, presenter
 // modes, hidden UI, animation speed, custom margins. Each control is
@@ -5942,6 +5957,8 @@ if (_reduceMotion && !_animDisabled) {
 function saveHash() {
   // Don't overwrite tour hashes — the tour manages its own URL state
   if (location.hash.startsWith("#tour=")) return;
+  // Nor the hidden classic figure's
+  if (location.hash === "#classic" || document.documentElement.classList.contains("classic-open")) return;
   const d = vd();
   const cx = ((d.x0 + d.x1) / 2).toFixed(1);
   const cy = ((d.y0 + d.y1) / 2).toFixed(1);
@@ -5954,6 +5971,13 @@ function saveHash() {
 function loadHash() {
   const h = location.hash.slice(1);
   if (!h || h.startsWith("tour=")) return false;
+  // Hidden: the original Lineweaver–Patel figure. The map waits underneath
+  // at its full view.
+  if (h === "classic") {
+    openClassicMode();
+    svg.call(zoomBehavior.transform, d3.zoomIdentity);
+    return true;
+  }
   // Preset region hash like #preset=particle-physics — clicks the matching button.
   if (h.startsWith("preset=")) {
     const key = h.slice(7);
