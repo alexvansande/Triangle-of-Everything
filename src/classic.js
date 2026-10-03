@@ -21,6 +21,7 @@ const FRAME = { x0: 298.5, x1: 1443.5, y0: 142.5, y1: 1660.5 };
 const R_DOM = [-40, 55];   // log radius [cm] across the frame
 const M_DOM = [-54, 68];   // log mass [g] up the frame
 const OUTER_AXIS_X = 161.5; // the log(M☉) axis line, left of the frame
+const HEADER_H = 300;       // room above the figure for the paper's title block
 
 // figure px → data, for authoring anchors straight off the published raster
 const fr = (fx) => R_DOM[0] + (fx - FRAME.x0) * (R_DOM[1] - R_DOM[0]) / (FRAME.x1 - FRAME.x0);
@@ -339,7 +340,7 @@ function build() {
   document.body.appendChild(root);
 
   svg = d3.select(root).append("svg")
-    .attr("viewBox", `0 0 ${FIG_W} ${FIG_H}`)
+    .attr("viewBox", `0 ${-HEADER_H} ${FIG_W} ${FIG_H + HEADER_H}`)
     .attr("preserveAspectRatio", "xMidYMid meet");
 
   const defs = svg.append("defs");
@@ -403,6 +404,7 @@ function build() {
 
   buildLegend();
   buildAxes();
+  buildHeader();
 
   zoom = d3.zoom()
     .scaleExtent([1, 2e4])
@@ -663,6 +665,20 @@ function ticks([a, b], off, px, horizontal) {
     const t = Math.abs(v) < step / 1e6 ? "0" : v.toFixed(dec);
     return t.startsWith("-") ? "−" + t.slice(1) : t;
   } };
+}
+
+// The paper's title block, set as on its first page: bold Helvetica title
+// flush left, authors in Helvetica indented under it, affiliation in Times
+// italic, then a parenthetical line in roman Times (the citation here).
+function buildHeader() {
+  const g = svg.append("g").attr("class", "cl-header");
+  const line = (cls, x, y, size, txt) =>
+    g.append("text").attr("class", cls).attr("x", x).attr("y", y).attr("font-size", size).text(txt);
+  line("cl-h-title", 30, -205, 60, "All objects and some questions");
+  line("cl-h-authors", 180, -140, 44, "Charles H. Lineweaver and Vihan M. Patel");
+  line("cl-h-affil", 180, -88, 38,
+    "Research School of Astronomy and Astrophysics, Australian National University");
+  line("cl-h-cite", 180, -30, 42, "(Am. J. Phys. 91, 819–825, 2023)");
 }
 
 // Static axis furniture: frame, outer M☉ axis line, Planck and energy markers

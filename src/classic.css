@@ -54,6 +54,22 @@
 #classic .cl-num { font-weight: 400; }
 #classic .cl-it { font-style: italic; }
 
+/* Title block in the journal's own faces */
+#classic text.cl-h-title,
+#classic text.cl-h-authors {
+  font-family: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
+  font-style: normal;
+}
+#classic text.cl-h-title { font-weight: 700; letter-spacing: -0.005em; }
+#classic text.cl-h-authors { font-weight: 400; }
+#classic text.cl-h-affil,
+#classic text.cl-h-cite {
+  font-family: "Times New Roman", Times, "Liberation Serif", serif;
+  font-weight: 400;
+}
+#classic text.cl-h-affil { font-style: italic; }
+#classic text.cl-h-cite { font-style: normal; }
+
 /* While open, the map underneath doesn't need to be scrollable or focusable */
 html.classic-open,
 html.classic-open body { overflow: hidden; }
