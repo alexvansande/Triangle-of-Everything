@@ -14,6 +14,7 @@ import * as d3 from "d3";
 import "./classic.css";
 import { SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M } from "./data.js";
 import objectsData from "./objects.json";
+import { enableTrackpadPinch } from "./trackpad-pinch.js";
 
 // ---------- figure geometry ----------
 const FIG_W = 1602, FIG_H = 1785;
@@ -413,6 +414,7 @@ function build() {
     .on("zoom", (e) => render(e.transform))
     .on("end", layoutNames);
   svg.call(zoom);
+  enableTrackpadPinch(svg.node());   // Safari's trackpad pinch
   render(d3.zoomIdentity);
 }
 

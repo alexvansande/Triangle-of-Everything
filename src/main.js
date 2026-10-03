@@ -30,6 +30,7 @@ import introRaw from "../content/intro.md?raw";
 import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
+import { enableTrackpadPinch } from "./trackpad-pinch.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -3742,6 +3743,8 @@ let _animPaused = false;
 let _animDisabled = false;
 let _animResumeTimer = null;
 let _animSpeed = 1; // global animation-speed multiplier (Z slower / X faster)
+let _dotSizeMult = 1;    // moving-dot size multiplier (settings slider)
+let _dotOpacityMult = 1; // moving-dot opacity multiplier (settings slider)
 
 function pauseAnimOnInteract() {
   if (_animDisabled) return;
@@ -4121,7 +4124,7 @@ function animateConnections(timestamp) {
 
       el.setAttribute("cx", String(sx));
       el.setAttribute("cy", String(sy));
-      el.setAttribute("r", String(cp.style.dotSize * sizeFactor));
+      el.setAttribute("r", String(cp.style.dotSize * sizeFactor * _dotSizeMult));
 
       const edgeFade = Math.min(t / 0.04, (1 - t) / 0.04, 1);
 
@@ -4132,7 +4135,7 @@ function animateConnections(timestamp) {
           ? emSpectrumColor(t)
           : (cp.style.color || "rgba(255,255,255,0.5)");
         el.setAttribute("fill", color);
-        el.setAttribute("opacity", String(cp._opacity * 0.6 * opacityMult * edgeFade));
+        el.setAttribute("opacity", String(Math.min(1, cp._opacity * 0.6 * opacityMult * edgeFade * _dotOpacityMult)));
       }
     });
   });
@@ -4827,6 +4830,8 @@ const zoomBehavior = d3.zoom()
   });
 
 svg.call(zoomBehavior);
+// Safari's trackpad pinch, also over the click-target overlay above the map
+enableTrackpadPinch(svg.node(), [svg.node(), clickTargetContainer]);
 
 svg.on("pointerdown.animPause", pauseAnimOnInteract);
 svg.on("wheel.animPause", pauseAnimOnInteract);
@@ -5279,6 +5284,7 @@ function saveSettings() {
     bg: setBg.checked, anim: setAnim.checked,
     labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
     fontSize: +setFontSize.value, boldHover: setBoldHover.checked,
+    dotSize: +setDotSize.value, dotOpacity: +setDotOpacity.value,
     gridUnit: _gridUnit,
     marginLeft: _userMarginLeft, marginRight: _userMarginRight,
     marginTop: _userMarginTop, marginBottom: _userMarginBottom,
@@ -5311,6 +5317,18 @@ const setIcons = document.getElementById("set-icons");
 setIcons.addEventListener("change", () => {
   _iconsEnabled = setIcons.checked;
   redraw();
+  saveSettings();
+});
+
+// Moving dots: read every animation frame, so no redraw is needed
+const setDotSize = document.getElementById("set-dot-size");
+setDotSize.addEventListener("input", () => {
+  _dotSizeMult = +setDotSize.value / 100;
+  saveSettings();
+});
+const setDotOpacity = document.getElementById("set-dot-opacity");
+setDotOpacity.addEventListener("input", () => {
+  _dotOpacityMult = +setDotOpacity.value / 100;
   saveSettings();
 });
 
@@ -5425,6 +5443,7 @@ function resetAllSettings() {
   setChk(setLabels, true); setChk(setIcons, true);
   setChk(setBoldHover, false);
   setRange(setIconSize, 100); setRange(setFontSize, 100);
+  setRange(setDotSize, 100); setRange(setDotOpacity, 100);
   if (setGridUnit.value !== "si") {
     setGridUnit.value = "si";
     setGridUnit.dispatchEvent(new Event("change", { bubbles: true }));
@@ -5802,6 +5821,14 @@ try {
       setFontSize.value = Math.max(50, Math.min(250, +saved.fontSize));
       _fontScale = +setFontSize.value / 100;
       document.documentElement.style.setProperty("--font-scale", _fontScale);
+    }
+    if (saved.dotSize > 0) {
+      setDotSize.value = Math.max(30, Math.min(300, +saved.dotSize));
+      _dotSizeMult = +setDotSize.value / 100;
+    }
+    if (typeof saved.dotOpacity === "number") {
+      setDotOpacity.value = Math.max(0, Math.min(300, saved.dotOpacity));
+      _dotOpacityMult = +setDotOpacity.value / 100;
     }
     if (saved.boldHover) {
       setBoldHover.checked = true;
