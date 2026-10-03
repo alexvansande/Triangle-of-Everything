@@ -14,6 +14,7 @@ import * as d3 from "d3";
 import "./classic.css";
 import { SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M } from "./data.js";
 import objectsData from "./objects.json";
+import { enableTrackpadPinch } from "./trackpad-pinch.js";
 
 // ---------- figure geometry ----------
 const FIG_W = 1602, FIG_H = 1785;
@@ -413,6 +414,7 @@ function build() {
     .on("zoom", (e) => render(e.transform))
     .on("end", layoutNames);
   svg.call(zoom);
+  enableTrackpadPinch(svg.node());   // Safari's trackpad pinch
   render(d3.zoomIdentity);
 }
 
@@ -809,7 +811,7 @@ function hide() {
   root.classList.remove("shown");
   const done = () => { if (!root.classList.contains("shown")) root.hidden = true; };
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) done();
-  else setTimeout(done, 750);           // just past the CSS fade
+  else setTimeout(done, 3050);          // just past the CSS fade
   document.documentElement.classList.remove("classic-open");
   window.removeEventListener("keydown", onKey, true);
   window.removeEventListener("hashchange", onHash);
