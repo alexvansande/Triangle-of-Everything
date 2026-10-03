@@ -12,7 +12,7 @@
 
 import * as d3 from "d3";
 import "./classic.css";
-import { SCHWARZSCHILD_C, COMPTON_C, PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M } from "./data.js";
+import { SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M } from "./data.js";
 import objectsData from "./objects.json";
 
 // ---------- figure geometry ----------
@@ -31,16 +31,21 @@ const BH_C = -SCHWARZSCHILD_C;      // black holes:   m − r = 27.83
 const CP_C = COMPTON_C;             // Compton limit: m + r = −37.45
 const R_I = (CP_C - BH_C) / 2;      // where the two meet
 const M_I = R_I + BH_C;
-const L_P = PLANCK_TRUE_LOG_R, M_P = PLANCK_TRUE_LOG_M;
+// The site's 2G Planck convention: l_P and m_P sit exactly where the two lines meet
+const L_P = PLANCK_LOG_R, M_P = PLANCK_LOG_M;
 const LOG_MPC = 24.489, LOG_MSUN = 33.2986, LOG_GEV = -23.749;
 // Isodensity lines are m − 3r = const ("c3"); values read off the figure.
 const C3 = {
   planck: 92.9, gut: 74.75, ew: 26.75, nuclear: 14.0, atomic: 0.0, recomb: -20.5,
-  now: -29.65,
+  now: null,                       // through our Observable Universe (set below)
   matterStart: -21.5,              // pink → blue (matter-radiation equality)
   bbn: [-0.5, 5.3], qgp: [13.7, 22.6], inflation: [75.0, 82.4],
 };
 const ISOCHRONS = ["planck", "gut", "ew", "nuclear", "atomic", "recomb"];
+// Objects come from our data, the paper's own named ones included
+const byName = (n) => objectsData.find(o => o.name === n);
+const UNIVERSE = byName("Observable Universe");
+C3.now = UNIVERSE.logM - 3 * UNIVERSE.logR;
 
 const COL = {
   forbidden: "#b9908e", radiation: "#ffc0c1", light: "#ffe6e5", matter: "#b8b1ff",
@@ -120,57 +125,53 @@ const LABELS = [
   { t: "{", at: [960, 414], size: 96, rot: 90 + ROT_BH, sy: 1.5, anchor: "middle", upright: true, weight: 500, maxK: 2 },
   { t: "stellar mass BH", at: [851, 502], size: 34, rot: ROT_BH, anchor: "middle", lead: [[858, 504], [870, 518]], obj: [843, 509] },
   { t: "{", at: [867, 540], size: 54, rot: 90 + ROT_BH, anchor: "middle", upright: true, maxK: 2 },
-  { t: "3K BH", at: [721, 639], size: 36.8, anchor: "middle", lead: [[752, 669], [735, 652]] },
-  { t: "smallest", at: [564, 694], size: 33, anchor: "middle", obj: [627, 800] },
-  { t: "observable", at: [566, 725], size: 33, anchor: "middle", obj: [627, 800] },
-  { t: "PBH", at: [565, 756], size: 36, anchor: "middle", lead: [[627, 800], [600, 760]] },
-  { t: "Hubble radius", at: [1148, 300], size: 32.3, obj: [1124.6, 286.7] },
+  { t: "3K BH", at: [721, 639], size: 36.8, anchor: "middle", lead: [[752, 669], [735, 652]], of: "3K BH" },
+  { t: "smallest", at: [564, 694], size: 33, anchor: "middle", obj: [627, 800], of: "Smallest Primordial BH" },
+  { t: "observable", at: [566, 725], size: 33, anchor: "middle", obj: [627, 800], of: "Smallest Primordial BH" },
+  { t: "PBH", at: [565, 756], size: 36, anchor: "middle", lead: [[627, 800], [600, 760]], of: "Smallest Primordial BH" },
+  { t: "Hubble radius", at: [1148, 300], size: 32.3, obj: [1124.6, 286.7], of: "Observable Universe" },
   // large scale and stars (right-hand list)
   { t: "voids", at: [1178, 345], size: 34, lead: [[1104, 356], [1172, 340]] },
   { t: "superclusters", at: [1173, 380], size: 35.7, lead: [[1100, 370], [1172, 371]] },
   { t: "galaxy clusters", at: [1170, 411], size: 35.7, lead: [[1080, 393], [1172, 400]] },
-  { t: "Milky Way", at: [1113, 448], size: 35.7, lead: [[1062, 420], [1105, 437]] },
+  { t: "Milky Way", at: [1113, 448], size: 35.7, lead: [[1062, 420], [1105, 437]], of: "Milky Way" },
   { t: "galaxies", at: [1088, 485], size: 34, lead: [[1048, 475], [1086, 472]] },
   { t: "globular clusters", at: [1079, 518], size: 34, lead: [[1015, 512], [1075, 507]] },
   { t: "main sequence stars", at: [1066, 555], size: 34, lead: [[926, 554], [1063, 546]], fig3: "out" },
   { t: "red giants", at: [1057, 592], size: 32.3, lead: [[945, 573], [1052, 582]], fig3: "out" },
-  { t: "Sun", at: [943, 600], size: 32.3, fig3: "out", lead: [[911.1, 574.3], [940, 588]] },
+  { t: "Sun", at: [943, 600], size: 32.3, fig3: "out", lead: [[911.1, 574.3], [940, 588]], of: "Sun" },
   { t: "BD", at: [939, 640], size: 38, fig3: "out", lead: [[903, 595], [935, 620]] },
   { t: "NS", at: [794, 655], size: 30.6, fig3: "out", lead: [[853, 570], [810, 625]] },
   { t: "WD", at: [835, 642], size: 36.1, fig3: "out", lead: [[880, 588], [858, 625]] },
-  { t: "Earth", at: [903, 678], size: 32.3, lead: [[886.6, 643], [912, 655]] },
+  { t: "Earth", at: [903, 678], size: 32.3, lead: [[886.6, 643], [912, 655]], of: "Earth" },
   { t: "planets", at: [1037, 674], size: 32.3, lead: [[893, 641], [1033, 662]] },
   { t: "moons and dwarf planets", at: [1020, 714], size: 34, lead: [[878, 703], [1015, 703]] },
   // everyday to microscopic
-  { t: "whale", at: [831, 897], size: 30, obj: [813, 885] },
-  { t: "human", at: [812, 948], size: 31.5, obj: [803, 930] },
-  { t: "flea", at: [786, 1043], size: 28.5, obj: [769, 1031] },
-  { t: "bacterium", at: [740, 1154], size: 31.5, obj: [728, 1141] },
-  { t: "COVID", at: [728, 1184], size: 31, obj: [717, 1175] },
-  { t: "virus", at: [730, 1205], size: 31.2, obj: [717, 1175] },
+  { t: "whale", at: [831, 897], size: 30, obj: [813, 885], of: "Blue Whale" },
+  { t: "human", at: [812, 948], size: 31.5, obj: [803, 930], of: "Human" },
+  { t: "flea", at: [786, 1043], size: 28.5, obj: [769, 1031], of: "Flea" },
+  { t: "bacterium", at: [740, 1154], size: 31.5, obj: [728, 1141], of: "Bacterium" },
+  { t: "COVID", at: [728, 1184], size: 31, obj: [717, 1175], of: "COVID Virus" },
+  { t: "virus", at: [730, 1205], size: 31.2, obj: [717, 1175], of: "COVID Virus" },
   { t: "atoms", at: [690, 1275], size: 33, obj: [680, 1270] },
   // particles on the Compton line
-  { t: "t", at: [550, 1199], size: 32, lead: [[586, 1253], [560, 1210]] },
-  { t: "H^{0}", at: [568, 1196], size: 36.8, lead: [[588, 1253], [577, 1210]] },
-  { t: "W^{±}", at: [593, 1230], size: 32, lead: [[591, 1258], [597, 1238]] },
-  { t: "n", at: [618, 1258], size: 35.2, lead: [[624, 1290], [625, 1262]] },
-  { t: "p", at: [642, 1280], size: 33.6, lead: [[628, 1295], [640, 1292]] },
-  { t: "e", at: [693, 1335], size: 36.8, lead: [[678, 1347], [690, 1340]] },
-  { t: "ν", at: [747, 1389], size: 27.2, lead: [[737, 1405], [748, 1392]] },
+  { t: "t", at: [550, 1199], size: 32, lead: [[586, 1253], [560, 1210]], of: "Top" },
+  { t: "H^{0}", at: [568, 1196], size: 36.8, lead: [[588, 1253], [577, 1210]], of: "Higgs" },
+  { t: "W^{±}", at: [593, 1230], size: 32, lead: [[591, 1258], [597, 1238]], of: "W" },
+  { t: "n", at: [618, 1258], size: 35.2, lead: [[624, 1290], [625, 1262]], of: "Neutron" },
+  { t: "p", at: [642, 1280], size: 33.6, lead: [[628, 1295], [640, 1292]], of: "Proton" },
+  { t: "e", at: [693, 1335], size: 36.8, lead: [[678, 1347], [690, 1340]], of: "Electron" },
+  { t: "ν", at: [747, 1389], size: 27.2, lead: [[737, 1405], [748, 1392]], of: "Neutrino (e)" },
 ];
 
-// Paper's own named dots, figure px; r in px (fixed size).
-const PAPER_DOTS = [
-  { at: [1124.6, 286.7], r: 14 },                    // Hubble radius
-  { at: [813, 885], r: 7 }, { at: [803, 930], r: 7 }, { at: [769, 1031], r: 7 },
-  { at: [728, 1141], r: 7 }, { at: [717, 1175], r: 7 },
-  { at: [753, 670], r: 5 }, { at: [627, 800], r: 4 },
-  { at: [980, 437], r: 5.5 }, { at: [1064, 350], r: 5.5 },
-  { at: [912, 574], r: 4.8, fill: "#f2f24a" },       // the Sun
-];
-// Objects the paper already draws itself (so our copy would double up).
-const PAPER_HAS = new Set(["Human", "Blue Whale", "Flea", "Bacterium", "COVID Virus",
-  "Observable Universe", "Singularity", "3K BH", "Smallest Primordial BH", "Sgr A*", "Ton 618"]);
+// Objects the paper draws as bigger dots (fixed px radius), and the one it
+// draws as its own glyph (the Planck-scale singularity → the QG disc).
+const DOT_STYLE = {
+  "Observable Universe": { r: 14 }, "Blue Whale": { r: 7 }, "Human": { r: 7 }, "Flea": { r: 7 },
+  "Bacterium": { r: 7 }, "COVID Virus": { r: 7 }, "3K BH": { r: 5 }, "Smallest Primordial BH": { r: 4 },
+  "Sgr A*": { r: 5.5 }, "Ton 618": { r: 5.5 }, "Sun": { r: 4.8, fill: "#f2f24a" },
+};
+const PAPER_HAS = new Set(["Singularity"]);
 // Styled like the paper's particles: white disc with a black ring.
 const RINGED = new Set(["Top", "Higgs", "W", "Z", "Proton", "Neutron", "Electron",
   "Neutrino (e)", "Neutrino (μ)", "Neutrino (τ)"]);
@@ -258,6 +259,20 @@ const y0 = d3.scaleLinear(M_DOM, [FRAME.y1, FRAME.y0]);
 let layers = {};
 
 const OBJECTS = objectsData.filter(o => !PAPER_HAS.has(o.name));
+
+// Labels naming one of our objects ride with that object's dot. A leader
+// re-aims at it; a label without one shifts by the same amount the dot
+// differs from the paper's, keeping the published spacing.
+for (const d of LABELS) {
+  if (!d.of) continue;
+  const o = byName(d.of), p = [x0(o.logR), y0(o.logM)];
+  if (d.lead) d.lead = [p, d.lead[1]];
+  else {
+    const old = d.obj || d.at;
+    d.at = [d.at[0] + p[0] - old[0], d.at[1] + p[1] - old[1]];
+  }
+  d.obj = p;
+}
 
 // Names for our extra dots appear once you zoom in (never at the published
 // framing). The paper already names these ones its own way.
@@ -366,11 +381,9 @@ function build() {
   layers.dots.selectAll("circle.cl-obj").data(OBJECTS).join("circle")
     .attr("class", "cl-obj")
     .attr("r", d => RINGED.has(d.name) ? 4 : 2.8)
-    .attr("fill", d => RINGED.has(d.name) ? "#fff" : "#000")
+    .attr("fill", d => RINGED.has(d.name) ? "#fff" : DOT_STYLE[d.name]?.fill || "#000")
     .attr("stroke", d => RINGED.has(d.name) ? "#000" : null)
     .attr("stroke-width", 1.5);
-  layers.dots.selectAll("circle.cl-paper").data(PAPER_DOTS).join("circle")
-    .attr("class", "cl-paper").attr("r", d => d.r).attr("fill", d => d.fill || "#000");
   layers.qg = layers.dots.append("g");
   layers.qg.append("circle").attr("r", 17).attr("fill", "#fff");
   layers.qg.append("circle").attr("r", 2).attr("fill", "#000");
@@ -457,7 +470,7 @@ function render(t) {
   const far = 400;
   const seg = (a, b) => { const [x1, y1] = P(a), [x2, y2] = P(b); return { x1, y1, x2, y2 }; };
   const nowLow = c3MeetsCompton(C3.now);
-  const hub = [fr(1124.6), fm(286.7)];
+  const hub = [UNIVERSE.logR, UNIVERSE.logM];
   const lines = [
     { ...seg([R_I, M_I], [far, far + BH_C]), stroke: "#000", w: 2.6 },                 // black holes
     { ...seg([R_I, M_I], [far, CP_C - far]), stroke: "#000", w: 2.6 },                  // Compton
@@ -483,10 +496,8 @@ function render(t) {
   // dots grow a little as you zoom in, never with the full zoom
   const grow = Math.min(2.2, Math.pow(k, 0.28));
   layers.dots.selectAll("circle.cl-obj").attr("cx", d => xs(d.logR)).attr("cy", d => ys(d.logM))
-    .attr("r", d => (RINGED.has(d.name) ? 4 : 2.8) * grow);
-  layers.dots.selectAll("circle.cl-paper")
-    .attr("cx", d => F(d.at)[0]).attr("cy", d => F(d.at)[1]);
-  const [qx, qy] = F([385.9, 1047]);
+    .attr("r", d => DOT_STYLE[d.name]?.r || (RINGED.has(d.name) ? 4 : 2.8) * grow);
+  const [qx, qy] = P([R_I, M_I]);
   layers.qg.attr("transform", `translate(${qx},${qy})`);
   const [bx, by] = F([717, 1387]);
   layers.rainbow.attr("transform", `translate(${bx},${by})`);
@@ -740,7 +751,7 @@ function renderAxes() {
 // Open / close
 // =============================================================
 function onKey(e) {
-  if (!root || root.hidden) return;
+  if (!isClassicOpen()) return;
   // Swallow every key so the main map's shortcuts stay quiet underneath.
   e.stopImmediatePropagation();
   if (e.key === "Escape" || e.key === "l" || e.key === "L") { e.preventDefault(); closeClassic(); return; }
@@ -759,8 +770,10 @@ function onHash() {
 
 export function openClassic() {
   if (!root) build();
-  if (!root.hidden) return;
+  if (root.classList.contains("shown")) return;
   root.hidden = false;
+  void root.offsetWidth;                // commit opacity 0 so the fade runs
+  root.classList.add("shown");
   document.documentElement.classList.add("classic-open");
   window.addEventListener("keydown", onKey, true);
   window.addEventListener("hashchange", onHash);
@@ -772,8 +785,11 @@ export function openClassic() {
 }
 
 function hide() {
-  if (!root || root.hidden) return;
-  root.hidden = true;
+  if (!root || root.hidden || !root.classList.contains("shown")) return;
+  root.classList.remove("shown");
+  const done = () => { if (!root.classList.contains("shown")) root.hidden = true; };
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) done();
+  else setTimeout(done, 750);           // just past the CSS fade
   document.documentElement.classList.remove("classic-open");
   window.removeEventListener("keydown", onKey, true);
   window.removeEventListener("hashchange", onHash);
@@ -781,7 +797,7 @@ function hide() {
 }
 
 export function closeClassic() {
-  if (!root || root.hidden) return;
+  if (!isClassicOpen()) return;
   if (pushed) { pushed = false; history.back(); }       // hashchange hides it
   else { history.replaceState(null, "", location.pathname + location.search); hide(); }
 }
@@ -796,4 +812,4 @@ if (import.meta.env.DEV) {
   };
 }
 
-export function isClassicOpen() { return !!root && !root.hidden; }
+export function isClassicOpen() { return !!root && root.classList.contains("shown"); }
