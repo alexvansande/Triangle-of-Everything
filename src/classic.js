@@ -667,18 +667,23 @@ function ticks([a, b], off, px, horizontal) {
   } };
 }
 
-// The paper's title block, set as on its first page: bold Helvetica title
-// flush left, authors in Helvetica indented under it, affiliation in Times
-// italic, then a parenthetical line in roman Times (the citation here).
+// The paper's title block, set as on its first page (bold Helvetica title,
+// authors in Helvetica, affiliation in Times italic, then a parenthetical
+// line in roman Times: the citation here), aligned to the plot frame.
 function buildHeader() {
   const g = svg.append("g").attr("class", "cl-header");
-  const line = (cls, x, y, size, txt) =>
-    g.append("text").attr("class", cls).attr("x", x).attr("y", y).attr("font-size", size).text(txt);
-  line("cl-h-title", 30, -205, 60, "All objects and some questions");
-  line("cl-h-authors", 180, -140, 44, "Charles H. Lineweaver and Vihan M. Patel");
-  line("cl-h-affil", 180, -88, 38,
-    "Research School of Astronomy and Astrophysics, Australian National University");
-  line("cl-h-cite", 180, -30, 42, "(Am. J. Phys. 91, 819–825, 2023)");
+  const width = FRAME.x1 - FRAME.x0;
+  const line = (cls, y, size, txt) => {
+    const t = g.append("text").attr("class", cls).attr("x", FRAME.x0).attr("y", y)
+      .attr("font-size", size).text(txt);
+    // shrink to the frame's width if this machine's fallback face runs wide
+    const w = t.node().getComputedTextLength();
+    if (w > width) t.attr("font-size", size * width / w);
+  };
+  line("cl-h-title", -205, 60, "All objects and some questions");
+  line("cl-h-authors", -140, 44, "Charles H. Lineweaver and Vihan M. Patel");
+  line("cl-h-affil", -88, 36, "Research School of Astronomy and Astrophysics, Australian National University");
+  line("cl-h-cite", -30, 42, "(Am. J. Phys. 91, 819–825, 2023)");
 }
 
 // Static axis furniture: frame, outer M☉ axis line, Planck and energy markers
