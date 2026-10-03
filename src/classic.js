@@ -809,7 +809,7 @@ function hide() {
   root.classList.remove("shown");
   const done = () => { if (!root.classList.contains("shown")) root.hidden = true; };
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) done();
-  else setTimeout(done, 750);           // just past the CSS fade
+  else setTimeout(done, 3050);          // just past the CSS fade
   document.documentElement.classList.remove("classic-open");
   window.removeEventListener("keydown", onKey, true);
   window.removeEventListener("hashchange", onHash);
