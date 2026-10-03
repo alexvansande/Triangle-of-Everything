@@ -1,0 +1,54 @@
+/* Hidden "classic" mode — the Lineweaver & Patel figure (see classic.js). */
+
+@font-face {
+  font-family: "Jost";
+  font-style: normal;
+  font-weight: 300 600; /* variable */
+  font-display: block;
+  src: url("/fonts/jost-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Jost";
+  font-style: italic;
+  font-weight: 300 600; /* variable */
+  font-display: block;
+  src: url("/fonts/jost-italic-latin.woff2") format("woff2");
+}
+
+#classic {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #fff;
+  color: #000;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+#classic[hidden] { display: none; }
+#classic svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+#classic svg:active { cursor: grabbing; }
+#classic .cl-fig3-rect { cursor: zoom-in; }
+
+/* Futura-like geometric sans, as in the published figure; Greek (Ω Λ ν ⊙)
+   falls back to Inter. */
+#classic text {
+  font-family: "Jost", "Futura", "Century Gothic", "Inter", sans-serif;
+  font-style: italic;
+  font-weight: 440;
+  pointer-events: none;
+}
+#classic .cl-num,
+#classic .cl-omega,
+#classic .cl-up { font-style: normal; }
+#classic .cl-num { font-weight: 400; }
+#classic .cl-it { font-style: italic; }
+
+/* While open, the map underneath doesn't need to be scrollable or focusable */
+html.classic-open,
+html.classic-open body { overflow: hidden; }

@@ -26,6 +26,7 @@ All objects are bounded by an isosceles right triangle:
 - Cosmic **time scrubber** — drag from the Planck epoch (10⁻⁴³ s) to heat death (10¹⁰⁰ yr) and watch objects condense into and fade out of existence as the universe cools; press play to run the whole history
 - Click any object for detailed info (size, mass, density, description, Wikipedia link)
 - Keyboard shortcuts, search, preset views, URL-based state
+- Hidden classic mode (`L` key or `#classic`): a zoomable redrawing of the original Lineweaver–Patel figure, with every object added as a dot; click its small rectangle to zoom into their stellar-collapse panel (`src/classic.js`)
 
 ## Getting started
 
