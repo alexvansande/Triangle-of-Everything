@@ -778,8 +778,7 @@ export function openClassic() {
   window.addEventListener("keydown", onKey, true);
   window.addEventListener("hashchange", onHash);
   if (location.hash !== "#classic") {
-    history.pushState(null, "", "#classic");
-    pushed = true;
+    try { history.pushState(null, "", "#classic"); pushed = true; } catch { /* sandboxed frame */ }
   }
   layoutNames();
 }
@@ -799,7 +798,10 @@ function hide() {
 export function closeClassic() {
   if (!isClassicOpen()) return;
   if (pushed) { pushed = false; history.back(); }       // hashchange hides it
-  else { history.replaceState(null, "", location.pathname + location.search); hide(); }
+  else {
+    try { history.replaceState(null, "", location.pathname + location.search); } catch { /* sandboxed */ }
+    hide();
+  }
 }
 
 // Dev-only handle for screenshots and debugging
