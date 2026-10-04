@@ -47,10 +47,37 @@ npm run preview
 ## Data
 
 - **`src/objects.json`** — coordinates and metadata for all plotted objects
+- **`src/dust.json`** — generated background “dust” (see below)
 - **`content/descriptions/`** — one Markdown file per object with a short description
 - **`content/intro.md`** — introductory text shown in the sidebar
 
 Adding a new object is as simple as adding a line to `objects.json` and optionally creating a `.md` file in `content/descriptions/`.
+
+### Catalogue dust
+
+Behind the ~180 hand-placed objects sit ~32,000 faint dots: real, named
+objects from 18 published catalogues (stars from DEBCat, Gaia DR3 and the
+NASA Exoplanet Archive; exoplanets; white dwarfs; gravitational-wave black
+holes; nuclei with measured charge radii; hadrons; elements; mammal species;
+molecular clouds; star clusters; nearby galaxies; galaxy clusters…). They
+have only a name, shown on hover — no description, no link, no click — and
+only appear where there is room, giving way first to everything else. They
+are there to show trends: how stars scatter off the main sequence, the
+exoplanet mass–radius curve, nuclear density, Larson's law for clouds.
+Toggle them in settings ("Show catalogue dust").
+
+```bash
+npm run build:dust               # rebuild src/dust.json from cached downloads
+npm run build:dust -- --refresh  # re-download every catalogue
+```
+
+Every source is listed with its citation and the radius it plots in
+`scripts/dust/sources.mjs`. The build fails unless each source reproduces
+known anchor values (e.g. the Fe-56 charge radius, Ceres' GM, GW150914's
+remnant mass), agrees within 0.3 dex with any hand-placed object of the same
+name (the Moon, Titan, Vesta, TRAPPIST-1… agree to ≤ 0.02 dex), stays inside
+the triangle and a plausible density envelope, and rejects no more than 2%
+of its rows. Everything dropped is listed in `docs/dust-report.md`.
 
 ### Validating the data
 

@@ -8,7 +8,7 @@ import {
 import {
   DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
-  startIconWarmup,
+  startIconWarmup, loadDescriptions,
 } from "./assets.js";
 import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
@@ -31,6 +31,7 @@ import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
+import { loadDust, drawDust, pickDust, dustReady } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -50,6 +51,8 @@ let _fontScale = 1;   // global text multiplier (settings "Font size" slider)
 const fscale = (px) => px * _fontScale;
 let _boldHover = false; // video mode: hovered lines render bold, no tooltips
 let _labelsEnabled = true;
+let _dustEnabled = true;  // catalogue dust layer (settings checkbox)
+let _userEngaged = false; // set on first pointer/wheel/key input (deferred loading)
 
 // Icon size scales with zoom: 16px at k=0.3 (fully out), up to 128px at k=800 (fully in).
 // Uses log interpolation for a natural "approaching distant object" feel.
@@ -466,6 +469,10 @@ const lDarkMatter = lContent.append("g");
 const lArrows     = lContent.append("g").style("mix-blend-mode", "screen");
 const lConnDots   = lContent.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
 const lRegLabel   = lContent.append("g");
+// Catalogue "dust": thousands of faint real objects under the curated ones
+// (src/dust.js). Never interactive except for a hover name.
+const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
+const lDustHover  = lContent.append("g").style("pointer-events", "none");
 const lObj        = lContent.append("g");
 // Retained rendering split: extras (cluster/category/BH labels, ~20 nodes)
 // are rebuilt per frame; main object groups are persistent keyed joins.
@@ -1897,6 +1904,13 @@ const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smal
 
 let _lastProjected = [];
 
+// Dust dots are a lighter tint of their category colour so a 2 px dot still
+// reads against the saturated background tiles.
+const _dustColors = {};
+function dustColor(catKey) {
+  return _dustColors[catKey] ??= d3.interpolateRgb(CATEGORIES[catKey]?.color || "#fff", "#fff")(0.4);
+}
+
 function drawObjects() {
   // Retained rendering: object groups, icons, and labels are persistent
   // nodes updated through keyed joins below — per frame this is attribute
@@ -2411,6 +2425,25 @@ function drawObjects() {
     .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
 
   _lastProjected = shownDots;
+
+  // Dust fills whatever room the curated objects leave — it never sits on
+  // a curated dot, icon or visible label.
+  drawDust(lDust, {
+    px, py, cw, ch, mobile: _isMobile,
+    hidden: !_dustEnabled || _bigBangMode,
+  }, {
+    dots: shownDots,
+    rects: _labelsEnabled ? placedLabels : [],
+    // Icons keep dust out with a CIRCLE, not their square box: a square gap
+    // shows as an empty frame around soft, glowing screen-blend art (globular
+    // cluster, nebulae). Screen-blend art fades out well inside its box, so
+    // its circle is tighter; dust under the faint halo glows through it.
+    circles: shownDots.filter(o => o._showIcon).map(o => {
+      const size = icoSize * iconSizeMult(o);
+      return { sx: o.sx, sy: o.sy, r: size * (iconUsesScreenBlend(o) ? 0.32 : 0.5) };
+    }),
+  }, dustColor);
+  lDustHover.selectAll("*").remove();
 }
 
 // Screen-blend decision is static per object — shared by enter and update.
@@ -2496,6 +2529,35 @@ function hideTooltip() {
 svg.on("mousemove.tooltip", (e) => {
   if (tooltipEl.classList.contains("visible")) positionTooltip(e);
 });
+
+// Dust hover: the name (and which catalogue it came from) — nothing else.
+// Curated objects sit above in the HTML click-target overlay, so they
+// always win; dust only answers when nothing else has the tooltip.
+let _dustTip = false;
+function hideDustTip() {
+  if (!_dustTip) return;
+  _dustTip = false;
+  lDustHover.selectAll("*").remove();
+  hideTooltip();
+}
+svg.on("mousemove.dust", (e) => {
+  if (_zooming || _touchMode || !_dustEnabled) return hideDustTip();
+  if (!_dustTip && tooltipEl.classList.contains("visible")) return; // someone else's tooltip
+  const [mx, my] = d3.pointer(e, chart.node());
+  const hit = pickDust(mx, my, 6);
+  if (!hit) return hideDustTip();
+  const color = CATEGORIES[hit.cat]?.color || "#fff";
+  lDustHover.selectAll("*").remove();
+  lDustHover.append("circle")
+    .attr("cx", hit.sx).attr("cy", hit.sy).attr("r", 3.2)
+    .attr("fill", color).attr("stroke", "rgba(6,6,26,0.9)").attr("stroke-width", 1);
+  tooltipEl.innerHTML = `<div class="tt-name" style="color:${color}">${escapeHtml(hit.name)}</div>` +
+    `<div class="tt-row">${escapeHtml(hit.source)}</div>`;
+  tooltipEl.classList.add("visible");
+  positionTooltip(e);
+  _dustTip = true;
+});
+svg.on("mouseleave.dust", hideDustTip);
 
 // =============================================================
 // Axis hover tooltip
@@ -3004,6 +3066,22 @@ let selectedObj = null;
 let _sidebarManuallyExpanded = false;
 let hashTimer = null;
 
+// Descriptions arrive in a lazy chunk (usually already fetched on the first
+// interaction). If the panel opens first, it fills in when the chunk lands —
+// unless the user has moved on to another object by then.
+let _descsLoaded = false;
+function renderDescription(obj) {
+  const apply = () => {
+    if (selectedObj !== obj) return;
+    sbDesc.innerHTML = simpleMarkdown(DESC_BY_SLUG[obj.slug] || "");
+    renderMath(sbDesc);
+  };
+  if (_descsLoaded) return apply();
+  sbDesc.innerHTML = "";
+  loadDescriptions().then(() => { _descsLoaded = true; apply(); })
+    .catch((e) => console.warn("descriptions failed to load", e));
+}
+
 function openInfoPanel(slug, name) {
   openSidebar({ slug, name, isLabel: true });
 }
@@ -3022,8 +3100,7 @@ function openSidebar(obj) {
     sbDot.style.color = "rgba(255,100,100,0.5)";
     sbCategory.textContent = "Unit reference";
     sbStats.innerHTML = "";
-    sbDesc.innerHTML = simpleMarkdown(DESC_BY_SLUG[obj.slug] || "");
-    renderMath(sbDesc);
+    renderDescription(obj);
     const wiki = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(obj.name)}`;
     sbLinks.innerHTML = `
       <a href="${wiki}" target="_blank" rel="noopener">
@@ -3192,8 +3269,7 @@ function openSidebar(obj) {
 
   sbStats.innerHTML = `<table>${rows}</table>`;
 
-  sbDesc.innerHTML = simpleMarkdown(DESC_BY_SLUG[obj.slug] || "");
-  renderMath(sbDesc);
+  renderDescription(obj);
 
   const wiki = wikiUrl(obj);
   const scholar = scholarUrl(obj.name);
@@ -4792,8 +4868,13 @@ const zoomBehavior = d3.zoom()
       });
     }
   })
-  .on("end", () => {
+  .on("end", (event) => {
     _zooming = false;
+    // Dust only matters once the view is zoomed in: fetch it on the first
+    // user gesture or any navigation that leaves the overview.
+    // Programmatic zooms (presets, search, tour) count once the user has
+    // engaged; the boot intro's own zoom-out never does.
+    if (!dustReady() && (event.sourceEvent || (_userEngaged && viewZoomedIn()))) ensureDust();
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
     lTilesBase.attr("transform", null);
@@ -5283,6 +5364,7 @@ function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked,
     labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
+    dust: setDust.checked,
     fontSize: +setFontSize.value, boldHover: setBoldHover.checked,
     dotSize: +setDotSize.value, dotOpacity: +setDotOpacity.value,
     gridUnit: _gridUnit,
@@ -5303,6 +5385,14 @@ setAnim.addEventListener("change", () => {
   _animDisabled = !setAnim.checked;
   document.body.classList.toggle("anim-off", _animDisabled);
   scheduleConnAnim();  // restart the parked dot loop when re-enabled
+  saveSettings();
+});
+
+const setDust = document.getElementById("set-dust");
+setDust.addEventListener("change", () => {
+  _dustEnabled = setDust.checked;
+  if (_dustEnabled && viewZoomedIn()) ensureDust();
+  redraw();
   saveSettings();
 });
 
@@ -5806,6 +5896,7 @@ try {
     if (saved.bg === false) { setBg.checked = false; _bgTilesEnabled = false; redraw(); }
     if (saved.anim === false) { setAnim.checked = false; _animDisabled = true; document.body.classList.add("anim-off"); }
     if (saved.labels === false) { setLabels.checked = false; _labelsEnabled = false; }
+    if (saved.dust === false) { setDust.checked = false; _dustEnabled = false; }
     if (saved.icons === false) { setIcons.checked = false; _iconsEnabled = false; }
     if (saved.gridUnit && GRID_UNITS[saved.gridUnit]) { _gridUnit = saved.gridUnit; setGridUnit.value = saved.gridUnit; }
     if (saved.iconSize > 0) {
@@ -6124,9 +6215,23 @@ setTimeout(() => {
 // Reveal page now that CSS and JS are loaded (prevents FOUC)
 document.body.classList.add("ready");
 
-// Icon cache warmup, anchored to READY (not module import) so it can never
-// drift into the startup measurement window on a slow machine.
-setTimeout(startIconWarmup, 3000);
+// Deferred loading, triggered by the user rather than by a timer: a visitor
+// who only looks at the overview never downloads the descriptions, the
+// off-screen icons, or the catalogue dust.
+function onFirstInteraction(fn) {
+  const evts = ["pointerdown", "wheel", "keydown", "touchstart"];
+  const once = () => { evts.forEach((t) => window.removeEventListener(t, once, true)); fn(); };
+  evts.forEach((t) => window.addEventListener(t, once, { capture: true, passive: true }));
+}
+const _readyAt = performance.now();
+onFirstInteraction(() => {
+  _userEngaged = true;
+  // Descriptions: needed by the info panel, so fetch as soon as the user engages
+  loadDescriptions().then(() => { _descsLoaded = true; })
+    .catch((e) => console.warn("descriptions failed to load", e));
+  // Icon cache warmup — never inside the startup window (≥ 3 s after ready)
+  setTimeout(startIconWarmup, Math.max(0, 3000 - (performance.now() - _readyAt)));
+});
 
 // Service worker: instant repeat visits + offline map (see public/sw.js).
 // Registered late and without clients.claim so the FIRST visit never pays
@@ -6138,4 +6243,22 @@ if ("serviceWorker" in navigator && !import.meta.env.DEV) {
       navigator.serviceWorker.register("/sw.js").catch(() => { /* non-fatal */ });
     }, 8000);
   });
+}
+
+// Catalogue dust (~32k real objects, ~250 KB) is invisible in the overview
+// (the curated icons fill it), so it loads on the first zoom/pan — see the
+// zoom "end" handler — or right away for a shared link that opens zoomed in.
+function ensureDust() {
+  if (!_dustEnabled) return;
+  loadDust().then(() => redraw()).catch((e) => console.warn("dust layer failed to load", e));
+}
+// "Zoomed in" by visible span, not by k: the mobile layout's resting view
+// is already k≈14.
+function viewZoomedIn() {
+  const d = vd();
+  return d.y1 - d.y0 < 60;
+}
+{
+  const [, , k] = location.hash.slice(1).split(",").map(Number);
+  if (k > 1.5) ensureDust();
 }
