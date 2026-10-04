@@ -541,7 +541,7 @@ export const CONNECTION_PATHS = [
     family: "combines",
     description: "Oxygen bonds with two hydrogen atoms to form water (H₂O)",
     points: [
-      { logR: -8.32, logM: -22.58 },  // Oxygen (Clementi calculated radius, 48 pm)
+      { logR: -8.34, logM: -22.58 },  // Oxygen (Guerra 2017 calculated radius, 46 pm)
       { logR: -8.3,  logM: -22.4 },
       { logR: -7.85, logM: -22.52 },
     ],
@@ -622,11 +622,11 @@ export const CONNECTION_PATHS = [
     id: "adenine-to-dna",
     family: "combines",
     description: "Adenine pairs with Thymine (A-T) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: -0.08,
     points: [
       { logR: -7.52, logM: -21.65 },
-      { logR: -7.8,  logM: -20.5 },
-      { logR: -7.2,  logM: -19.5 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -7.0,  logM: -18.5 },   // DNA
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -644,11 +644,11 @@ export const CONNECTION_PATHS = [
     id: "guanine-to-dna",
     family: "combines",
     description: "Guanine pairs with Cytosine (G-C) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: -0.03,
     points: [
       { logR: -7.50, logM: -21.60 },
-      { logR: -7.0,  logM: -20.8 },
-      { logR: -6.5,  logM: -19.8 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -7.0,  logM: -18.5 },   // DNA
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -666,11 +666,11 @@ export const CONNECTION_PATHS = [
     id: "cytosine-to-dna",
     family: "combines",
     description: "Cytosine pairs with Guanine (C-G) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: 0.03,
     points: [
       { logR: -7.56, logM: -21.73 },
-      { logR: -8.0,  logM: -20.8 },
-      { logR: -7.5,  logM: -19.6 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -7.0,  logM: -18.5 },   // DNA
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -688,11 +688,11 @@ export const CONNECTION_PATHS = [
     id: "thymine-to-dna",
     family: "combines",
     description: "Thymine pairs with Adenine (T-A) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: 0.08,
     points: [
       { logR: -7.54, logM: -21.68 },
-      { logR: -7.3,  logM: -20.3 },
-      { logR: -6.9,  logM: -19.3 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -7.0,  logM: -18.5 },   // DNA
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -736,7 +736,7 @@ export const CAT_DISPLAY = {
 // =============================================================
 // Periodic-table guides — labels that follow the element dust
 // =============================================================
-// The element dust (calculated atomic radii, Clementi 1967) shows the
+// The element dust (calculated atomic radii, Guerra et al. 2017) shows the
 // periodic table as a sawtooth: within a period atoms get heavier but
 // SMALLER, then a new electron shell makes the next alkali metal balloon.
 // When zoomed in, each period (and the alkali / noble-gas columns and the
@@ -749,9 +749,11 @@ export const ELEMENT_GUIDES = [
   { label: "Period 4", kind: "row", elements: ["Potassium", "Calcium", "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc", "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton"] },
   { label: "Period 5", kind: "row", elements: ["Rubidium", "Strontium", "Yttrium", "Zirconium", "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon"] },
   { label: "Period 6", kind: "row", elements: ["Cesium", "Barium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon"] },
+  { label: "Period 7", kind: "row", elements: ["Francium", "Radium", "Rutherfordium", "Dubnium", "Seaborgium", "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium", "Copernicium", "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessine", "Oganesson"] },
+  { label: "Actinides", kind: "cluster", elements: ["Actinium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium"] },
   { label: "Lanthanides", kind: "cluster", elements: ["Lanthanum", "Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium"] },
-  { label: "Alkali metals", kind: "column", elements: ["Lithium", "Sodium", "Potassium", "Rubidium", "Cesium"] },
-  { label: "Noble gases", kind: "column", elements: ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon"] },
+  { label: "Alkali metals", kind: "column", elements: ["Lithium", "Sodium", "Potassium", "Rubidium", "Cesium", "Francium"] },
+  { label: "Noble gases", kind: "column", elements: ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon", "Oganesson"] },
 ];
 
 export const SUBCAT_LABELS = {

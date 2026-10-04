@@ -3411,12 +3411,21 @@ function openSidebar(obj) {
 
   const wiki = wikiUrl(obj);
   const scholar = scholarUrl(obj.name);
-  sbLinks.innerHTML = `
-    <a href="${wiki}" target="_blank" rel="noopener">
+  // An object may carry its own primary link (e.g. a species too new for
+  // Wikipedia links its original description) in place of Wikipedia.
+  const primary = obj.paper
+    ? `<a href="${obj.paper.url}" target="_blank" rel="noopener">
+      <span class="link-icon">P</span>
+      <span class="link-label">${obj.paper.label}</span>
+      <span class="link-sub">${obj.paper.sub || ""} ↗</span>
+    </a>`
+    : `<a href="${wiki}" target="_blank" rel="noopener">
       <span class="link-icon">W</span>
       <span class="link-label">Wikipedia</span>
       <span class="link-sub">↗</span>
-    </a>
+    </a>`;
+  sbLinks.innerHTML = `
+    ${primary}
     <a href="${scholar}" target="_blank" rel="noopener">
       <span class="link-icon">S</span>
       <span class="link-label">Google Scholar</span>
@@ -4003,6 +4012,19 @@ function connBezierCtrl(A, B) {
   return { c1r: A.logR + H, c1m: A.logM + V, c2r: B.logR + H, c2m: A.logM - V };
 }
 
+// Single gentle arc A → B (quadratic, affine-invariant like the others):
+// control point at the chord midpoint, pushed sideways by `bow` × chord
+// length. Used by paths with curve: "arc" instead of the S-shaped beziers.
+function arcCtrl(A, B, bow = 0.12) {
+  const dr = B.logR - A.logR, dm = B.logM - A.logM;
+  return { r: (A.logR + B.logR) / 2 - dm * bow, m: (A.logM + B.logM) / 2 + dr * bow };
+}
+function arcDataPathGen(cp) {
+  const [A, B] = [cp.points[0], cp.points[cp.points.length - 1]];
+  const c = arcCtrl(A, B, cp.bow);
+  return `M ${A.logR},${A.logM} Q ${c.r},${c.m} ${B.logR},${B.logM}`;
+}
+
 function bezierDataPathGen(pts) {
   if (pts.length < 2) return "";
   let d = `M ${pts[0].logR},${pts[0].logM}`;
@@ -4022,7 +4044,8 @@ function ensureConnGeometry(cp) {
   if (cp._samples) return;
   const isBezier = cp.family === "decay" || cp.family === "combines";
   const probe = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  probe.setAttribute("d", isBezier ? bezierDataPathGen(cp.points) : dataCurveGen(cp.points));
+  probe.setAttribute("d", cp.curve === "arc" ? arcDataPathGen(cp)
+    : isBezier ? bezierDataPathGen(cp.points) : dataCurveGen(cp.points));
   const dataLen = probe.getTotalLength();
   const N = Math.min(128, Math.max(24, Math.ceil(dataLen * 4)));
   const sx = new Float64Array(N + 1), sy = new Float64Array(N + 1);
@@ -4098,6 +4121,11 @@ function drawConnections() {
   // Bezier path generator for decay/combines paths:
   // All points are anchors; control points come from connBezierCtrl's
   // "1:2 rectangle at 45°" formula, serialized through px()/py().
+  function arcPathGen(cp) {
+    const [A, B] = [cp.points[0], cp.points[cp.points.length - 1]];
+    const c = arcCtrl(A, B, cp.bow);
+    return `M ${px(A.logR)},${py(A.logM)} Q ${px(c.r)},${py(c.m)} ${px(B.logR)},${py(B.logM)}`;
+  }
   function bezierPathGen(pts) {
     if (pts.length < 2) return "";
     let d = `M ${px(pts[0].logR)},${py(pts[0].logM)}`;
@@ -4171,7 +4199,7 @@ function drawConnections() {
         }
       }
     } else {
-      const visD = isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);
+      const visD = cp.curve === "arc" ? arcPathGen(cp) : isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);
       const pathEl = lineGroup.append("path")
         .attr("d", visD)
         .attr("fill", "none")
@@ -4182,7 +4210,7 @@ function drawConnections() {
     }
 
     // Hit area for hover — shows line and tooltip
-    const hitD = isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);
+    const hitD = cp.curve === "arc" ? arcPathGen(cp) : isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);
     lArrows.append("path")
       .attr("d", hitD)
       .attr("fill", "none")
