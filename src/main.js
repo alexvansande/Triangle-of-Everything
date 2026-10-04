@@ -15,7 +15,7 @@ import {
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
-  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, PERIODIC_ROWS, PERIODIC_COLUMNS, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
+  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
@@ -1921,10 +1921,24 @@ function dustColor(catKey, sourceId) {
 }
 
 // Easter egg: a "THE PERIODIC TABLE" title by the element dust. Clicking it
-// toggles straight lines joining neighbours in the table — its period rows
-// and group columns — so the familiar grid can be traced
-// through where the elements actually sit by size & mass.
+// toggles straight lines joining neighbours in the table — its period rows,
+// group columns and the detached f-block's two rows and fourteen columns —
+// so the familiar grid can be traced through where the elements actually
+// sit by size & mass. The grid comes from atomic numbers (periodicCell).
 let _periodicOn = false;
+const PERIODIC_LINES = (() => {
+  const rows = new Map(), cols = new Map(), fRows = new Map(), fCols = new Map();
+  const add = (m, k, z) => (m.get(k) || m.set(k, []).get(k)).push(z);
+  for (let z = 1; z < ELEMENTS_BY_Z.length; z++) {
+    const c = periodicCell(z);
+    if (c.f == null) { add(rows, c.period, z); add(cols, c.group, z); }
+    else { add(fRows, c.period, z); add(fCols, c.f, z); }
+  }
+  // Z already runs along each row and down each column; rows go first, light
+  // periods leading (the title is placed by periods 1–3).
+  const sorted = (m, kind) => [...m.keys()].sort((a, b) => a - b).map((k) => ({ kind, zs: m.get(k) }));
+  return [...sorted(rows, "row"), ...sorted(fRows, "row"), ...sorted(cols, "column"), ...sorted(fCols, "column")];
+})();
 function drawPeriodicTable(obstacles) {
   if (!_dustEnabled || _bigBangMode) return;
   const dustPos = dustPositions("element");
@@ -1935,13 +1949,9 @@ function drawPeriodicTable(obstacles) {
     const o = OBJECTS.find((x) => x.name === name && x.cat === "atomic");
     return o ? [o.logR, o.logM] : null;
   };
-  const guides = [
-    ...PERIODIC_ROWS.map((r) => ({ ...r, kind: "row" })),
-    ...PERIODIC_COLUMNS.map((c) => ({ ...c, kind: "column" })),
-  ];
-  const lines = guides.map((g) => ({
+  const lines = PERIODIC_LINES.map((g) => ({
     kind: g.kind,
-    pts: g.elements.map(pos).filter(Boolean).map(([r, m]) => [px(r), py(m)]),
+    pts: g.zs.map((z) => pos(ELEMENTS_BY_Z[z])).filter(Boolean).map(([r, m]) => [px(r), py(m)]),
   }));
   // Title only once the light rows are spread enough on screen to trace;
   // it sits by them (periods 1–3), clear of the crowded heavy end.
