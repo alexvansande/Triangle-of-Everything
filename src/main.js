@@ -2073,6 +2073,7 @@ function drawPeriodicLayer(obstacles) {
 // draws (see ELEMENT_GUIDES). A label appears only when its line is long
 // enough on screen to carry it, and its whole run along the line must stay
 // clear of object labels, icons and category labels (it tries a few spots).
+// The period labels wait for "THE PERIODIC TABLE" to be toggled on.
 function drawElementGuides(obstacles) {
   if (!_dustEnabled || _bigBangMode) return;
   const dustPos = dustPositions("element");
@@ -2090,6 +2091,7 @@ function drawElementGuides(obstacles) {
   const onScreen = (x, y) => x >= 0 && x <= cw && y >= 0 && y <= ch;
 
   ELEMENT_GUIDES.forEach((g, gi) => {
+    if (g.kind === "row" && !_periodicOn) return; // periods are named only while the table is shown
     const pts = g.elements.map(pos).filter(Boolean).map(([r, m]) => [px(r), py(m)]);
     if (pts.length < 2) return;
     const text = g.label.toUpperCase();
