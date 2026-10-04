@@ -83,7 +83,7 @@ const MUST = new Set(["Hoba", "Cape York", "Sikhote-Alin", "Allende", "Murchison
   "Holbrook", "Pultusk", "L'Aigle", "Mighei", "Cold Bokkeveld", "Vigarano", "Ornans", "Renazzo",
   "Novo-Urei", "Bjurböle", "Gao-Guenie", "Benld", "Park Forest", "Sutter's Mill"]);
 
-const MAX_ROWS = 5000;
+const MAX_ROWS = 800; // a texture of rock, not a census — the user asked for fewer
 
 export default [
   // ---------------------------------------------------------------
@@ -98,7 +98,7 @@ export default [
     radius: "equivalent-sphere radius (3M / 4πρ)^(1/3) of the total recovered mass M, with ρ the measured mean bulk density " +
       "of the meteorite's class (H 3.40, L 3.35, LL 3.21, EH 3.72, EL 3.55, CM 2.12, CR 3.1, CO/CV 2.95, eucrite 2.86, howardite 3.02, " +
       "diogenite 3.26, aubrite 3.12, ureilite 3.05, shergottite 3.10, nakhlite 3.15, mesosiderite 4.25, pallasite 4.76, iron 7.8 g/cm³). " +
-      "Size is DERIVED; mass is measured. Stratified deterministic sample (0.1-dex mass bins) of ≤5,000, famous falls/finds always kept",
+      "Size is DERIVED; mass is measured. Stratified deterministic sample (0.1-dex mass bins) of ≤800, famous falls/finds always kept",
     density: [0.25, 0.95],
     anchors: [
       { name: "Sikhote-Alin", logM: log(23e6), tol: 0.05 },        // 23 t recovered (iron, 1947)
