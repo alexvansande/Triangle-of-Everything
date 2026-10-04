@@ -197,7 +197,7 @@ for (const src of SOURCES) {
   if (ONLY.length && !ONLY.includes(src.id)) continue;
   if (!ON_LINE.has(src.id) && !src.density && !ENVELOPE[src.id]) errors.push(`${src.id}: no density envelope`);
 }
-if (ONLY.length) {
+if (ONLY.length && !process.argv.includes("--write")) {
   console.log("\n" + report.join("\n\n"));
   if (errors.length) { console.error(`\n✗ ${errors.length} error(s):`); errors.forEach((e) => console.error("  " + e)); process.exit(1); }
   console.log("\n✓ --only run passed (nothing written)");
