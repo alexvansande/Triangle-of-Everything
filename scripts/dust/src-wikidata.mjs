@@ -169,6 +169,16 @@ function groupOf(o) {
 // (a 250 m train plotted at its 4 m height), so those need P2043.
 const NEED_LENGTH = new Set(["rail", "armour", "vehicle", "ship", "aircraft"]);
 
+// Only things that were actually built. Items whose "state of use"
+// (P5817) is cancelled / under construction / on hold are dropped, plus
+// a few never-built designs that Wikidata does not flag.
+const NOT_BUILT_STATE = new Set(["Q30108381", "Q12377751", "Q97317113"]);
+const NEVER_BUILT = new Set([
+  "Q722285", // Landkreuzer P. 1000 Ratte — paper design
+  "Q314913", // Panzer VII Löwe — paper design
+  "Q699638", // Panzerkampfwagen E-100 — hull only, never completed
+]);
+
 function loadGroup(group) {
   const out = [];
   for (const o of artefactItems()) {
@@ -180,6 +190,7 @@ function loadGroup(group) {
     if (!(o.M > 0 && o.D > 0)) continue;
     if (!o.dims.has("length") && !o.dims.has("height")) continue;
     if (NEED_LENGTH.has(group) && !o.dims.has("length")) continue;
+    if (NEVER_BUILT.has(o.q) || [...o.U].some((u) => NOT_BUILT_STATE.has(u))) continue;
     out.push({ name: o.name, logR: log((o.D * 100) / 2), logM: log(o.M * 1000), _anchor: o.q });
   }
   return out;
