@@ -622,11 +622,11 @@ export const CONNECTION_PATHS = [
     id: "adenine-to-dna",
     family: "combines",
     description: "Adenine pairs with Thymine (A-T) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: -0.08,
     points: [
       { logR: -7.52, logM: -21.65 },
-      { logR: -7.8,  logM: -20.5 },
-      { logR: -7.2,  logM: -19.5 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -7.0,  logM: -18.5 },   // DNA
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -644,11 +644,11 @@ export const CONNECTION_PATHS = [
     id: "guanine-to-dna",
     family: "combines",
     description: "Guanine pairs with Cytosine (G-C) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: -0.03,
     points: [
       { logR: -7.50, logM: -21.60 },
-      { logR: -7.0,  logM: -20.8 },
-      { logR: -6.5,  logM: -19.8 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -7.0,  logM: -18.5 },   // DNA
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -666,11 +666,11 @@ export const CONNECTION_PATHS = [
     id: "cytosine-to-dna",
     family: "combines",
     description: "Cytosine pairs with Guanine (C-G) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: 0.03,
     points: [
       { logR: -7.56, logM: -21.73 },
-      { logR: -8.0,  logM: -20.8 },
-      { logR: -7.5,  logM: -19.6 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -7.0,  logM: -18.5 },   // DNA
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -688,11 +688,11 @@ export const CONNECTION_PATHS = [
     id: "thymine-to-dna",
     family: "combines",
     description: "Thymine pairs with Adenine (T-A) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: 0.08,
     points: [
       { logR: -7.54, logM: -21.68 },
-      { logR: -7.3,  logM: -20.3 },
-      { logR: -6.9,  logM: -19.3 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -7.0,  logM: -18.5 },   // DNA
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
