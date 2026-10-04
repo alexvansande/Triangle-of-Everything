@@ -1924,7 +1924,7 @@ function dustColor(catKey, sourceId) {
 // toggles straight lines joining neighbours in the table — its period rows,
 // group columns and the detached f-block's two rows and fourteen columns —
 // so the familiar grid can be traced through where the elements actually
-// sit by size & mass. Each type of element is washed in its colour, the
+// sit by size & mass. Each element gets a ring in its type's colour, the
 // families are named along their columns, and a legend sits by the title.
 // Grid, types and families all come from atomic numbers (see data.js).
 let _periodicOn = false;
@@ -1937,18 +1937,10 @@ const PERIODIC_LINES = (() => {
     if (c.f == null) { add(rows, c.period, z); add(cols, c.group, z); }
     else { add(fRows, c.period, z); add(fCols, c.f, z); }
   }
-  const familyType = new Map(PERIODIC_FAMILIES.flatMap((f) => f.groups.map((g) => [g, f.type])));
   // Z already runs along each row and down each column; rows go first, light
-  // periods leading (the title is placed by periods 1–3). `type` colours the
-  // stretch of a line whose elements share it.
-  const sorted = (m, kind, typeOf) => [...m.keys()].sort((a, b) => a - b)
-    .map((k) => ({ kind, key: k, zs: m.get(k), type: typeOf(k) || null }));
-  return [
-    ...sorted(rows, "row", () => null),
-    ...sorted(fRows, "row", (p) => (p === 6 ? "lanthanide" : "actinide")),
-    ...sorted(cols, "column", (g) => familyType.get(g)),
-    ...sorted(fCols, "fcolumn", () => null),
-  ];
+  // periods leading (the title is placed by periods 1–3).
+  const sorted = (m, kind) => [...m.keys()].sort((a, b) => a - b).map((k) => ({ kind, key: k, zs: m.get(k) }));
+  return [...sorted(rows, "row"), ...sorted(fRows, "row"), ...sorted(cols, "column"), ...sorted(fCols, "fcolumn")];
 })();
 
 function drawPeriodicTable(obstacles) {
@@ -2023,11 +2015,11 @@ function drawPeriodicTable(obstacles) {
       obstacles.push({ x: cx - lw / 2, y: top, w: lw, h: lh });
       const g = lObjExtras.append("g").attr("class", "periodic-legend").style("pointer-events", "none");
       g.append("rect").attr("x", cx - lw / 2 - 6).attr("y", top - 4).attr("width", lw + 12).attr("height", lh + 8)
-        .attr("rx", 4).attr("fill", "rgba(6,6,26,0.75)"); // readable over the colour areas
+        .attr("rx", 4).attr("fill", "rgba(6,6,26,0.75)"); // readable over the grid lines
       ELEMENT_TYPES.forEach((t, i) => {
         const lx = cx - lw / 2 + Math.floor(i / n) * colW, ly = top + (i % n) * ROW + ROW / 2;
-        g.append("circle").attr("cx", lx + 4).attr("cy", ly).attr("r", 4)
-          .attr("fill", t.color).attr("opacity", 0.55);
+        g.append("circle").attr("cx", lx + 4).attr("cy", ly).attr("r", 3)
+          .attr("fill", "none").attr("stroke", t.color).attr("stroke-width", 1.4);
         g.append("text").attr("x", lx + 12).attr("y", ly + 3)
           .attr("font-family", "Inter, sans-serif").attr("font-size", fscale(LF))
           .attr("fill", t.color).attr("opacity", 0.9).text(t.label);
@@ -2036,49 +2028,28 @@ function drawPeriodicTable(obstacles) {
     }
   }
 
-  // Colour areas: each type's elements joined to their same-type neighbours
-  // in the grid by fat round strokes (plus a disc on each, so a lone cell
-  // still shows), drawn opaque inside a translucent group so overlaps within
-  // a type don't stack. The area follows the grid as it warps.
-  {
-    const R = 7;
-    const segs = new Map(ELEMENT_TYPES.map((t) => [t.id, []]));
-    for (const l of lines) {
-      for (let i = 1; i < l.zs.length; i++) {
-        const a = l.zs[i - 1], b = l.zs[i], t = elementType(a);
-        if (t === elementType(b)) segs.get(t).push([at.get(a), at.get(b)]);
-      }
-    }
-    for (const [z, p] of at) segs.get(elementType(z)).push([p, p]);
-    for (const t of ELEMENT_TYPES) {
-      const d = segs.get(t.id).map(([a, b]) => `M${a[0]},${a[1]}L${b[0]},${b[1]}`).join("");
-      if (!d) continue;
-      gLines.append("path").attr("class", "periodic-area")
-        .attr("d", d).attr("fill", "none").attr("stroke", t.color)
-        .attr("stroke-width", R * 2).attr("stroke-linecap", "round").attr("stroke-linejoin", "round")
-        .attr("opacity", 0.2)
-        .style("pointer-events", "none");
-    }
-  }
-  // Lines: neutral throughout, then the run of a typed line whose elements
-  // share its type drawn over in that colour (group 1 is coloured from
-  // lithium down, not from hydrogen).
+  // Grid lines, neutral; the colour is in the rings
   for (const l of lines) {
     if (l.zs.length < 2) continue;
     const row = l.kind === "row";
-    const draw = (zs, stroke, op) => gLines.append("path")
+    gLines.append("path")
       .attr("class", "periodic-line")
-      .attr("d", d3.line()(zs.map((z) => at.get(z))))
-      .attr("fill", "none").attr("stroke", stroke)
+      .attr("d", d3.line()(l.zs.map((z) => at.get(z))))
+      .attr("fill", "none").attr("stroke", color)
       .attr("stroke-width", row ? 1.2 : 1)
       .attr("stroke-dasharray", row ? null : "4 3")
       .attr("stroke-linejoin", "round")
-      .attr("opacity", op)
+      .attr("opacity", row ? 0.55 : 0.275) // columns recede behind the rows
       .style("pointer-events", "none");
-    draw(l.zs, color, row ? 0.55 : 0.275); // columns recede behind the rows
-    if (!l.type) continue;
-    const run = l.zs.filter((z) => elementType(z) === l.type);
-    if (run.length >= 2) draw(run, TYPE_COLOR[l.type], row ? 0.8 : 0.6);
+  }
+  // A ring in its type's colour around every element
+  for (const [z, [x, y]] of at) {
+    if (x < -5 || x > cw + 5 || y < -5 || y > ch + 5) continue;
+    gLines.append("circle").attr("class", "periodic-ring")
+      .attr("cx", x).attr("cy", y).attr("r", 4)
+      .attr("fill", "none").attr("stroke", TYPE_COLOR[elementType(z)])
+      .attr("stroke-width", 1.4).attr("opacity", 0.9)
+      .style("pointer-events", "none");
   }
   // Family names along their columns, in the family's colour where it has one
   PERIODIC_FAMILIES.forEach((f, i) => {
