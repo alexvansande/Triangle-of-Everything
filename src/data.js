@@ -541,7 +541,7 @@ export const CONNECTION_PATHS = [
     family: "combines",
     description: "Oxygen bonds with two hydrogen atoms to form water (H₂O)",
     points: [
-      { logR: -8.22, logM: -22.58 },
+      { logR: -8.32, logM: -22.58 },  // Oxygen (Clementi calculated radius, 48 pm)
       { logR: -8.3,  logM: -22.4 },
       { logR: -7.85, logM: -22.52 },
     ],
@@ -732,6 +732,27 @@ export const CAT_DISPLAY = {
   star: "Stars", remnant: "Remnants", blackhole: "Black Holes",
   galaxy: "Galaxies", largescale: "Large Scale",
 };
+
+// =============================================================
+// Periodic-table guides — labels that follow the element dust
+// =============================================================
+// The element dust (calculated atomic radii, Clementi 1967) shows the
+// periodic table as a sawtooth: within a period atoms get heavier but
+// SMALLER, then a new electron shell makes the next alkali metal balloon.
+// When zoomed in, each period (and the alkali / noble-gas columns and the
+// lanthanide clump) gets a quiet label laid along its dots. Names must
+// match the element dust or the hand-placed atoms in objects.json.
+export const ELEMENT_GUIDES = [
+  { label: "Period 1", kind: "row", elements: ["Hydrogen", "Helium"] },
+  { label: "Period 2", kind: "row", elements: ["Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon"] },
+  { label: "Period 3", kind: "row", elements: ["Sodium", "Magnesium", "Aluminum", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon"] },
+  { label: "Period 4", kind: "row", elements: ["Potassium", "Calcium", "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc", "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton"] },
+  { label: "Period 5", kind: "row", elements: ["Rubidium", "Strontium", "Yttrium", "Zirconium", "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon"] },
+  { label: "Period 6", kind: "row", elements: ["Cesium", "Barium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon"] },
+  { label: "Lanthanides", kind: "cluster", elements: ["Lanthanum", "Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium"] },
+  { label: "Alkali metals", kind: "column", elements: ["Lithium", "Sodium", "Potassium", "Rubidium", "Cesium"] },
+  { label: "Noble gases", kind: "column", elements: ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon"] },
+];
 
 export const SUBCAT_LABELS = {
   nucleon: "Proton & Neutron",

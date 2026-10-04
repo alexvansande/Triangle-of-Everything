@@ -161,6 +161,21 @@ export function drawDust(layer, view, blockers, colorOf) {
     .attr("d", (g) => g.d);
 }
 
+/** Map of name → [logR, logM] for one dust source (e.g. "element"). */
+const _bySource = new Map();
+export function dustPositions(sourceId) {
+  if (!_data) return null;
+  if (_bySource.has(sourceId)) return _bySource.get(sourceId);
+  const idx = _data.sources.findIndex((s) => s.id === sourceId);
+  const map = new Map();
+  if (idx >= 0) {
+    for (let i = 0; i < _data.src.length; i++)
+      if (_data.src[i] === idx) map.set(_data.names[i], [_data.r[i], _data.m[i]]);
+  }
+  _bySource.set(sourceId, map);
+  return map;
+}
+
 /** Nearest drawn dust dot within `radius` px of (x, y), or null. */
 export function pickDust(x, y, radius = 6) {
   if (!_data || !_kept.length) return null;

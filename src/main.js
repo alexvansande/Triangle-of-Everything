@@ -15,7 +15,7 @@ import {
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
-  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
+  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, ELEMENT_GUIDES, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
@@ -31,7 +31,7 @@ import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
-import { loadDust, drawDust, pickDust, dustReady } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -1911,7 +1911,135 @@ function dustColor(catKey) {
   return _dustColors[catKey] ??= d3.interpolateRgb(CATEGORIES[catKey]?.color || "#fff", "#fff")(0.4);
 }
 
+// Labels laid along the periodic-table rows/columns that the element dust
+// draws (see ELEMENT_GUIDES). A label appears only when its line is long
+// enough on screen to carry it, and its whole run along the line must stay
+// clear of object labels, icons and category labels (it tries a few spots).
+function drawElementGuides(obstacles) {
+  if (!_dustEnabled || _bigBangMode) return;
+  const dustPos = dustPositions("element");
+  if (!dustPos) return;
+  const pos = (name) => {
+    const d = dustPos.get(name);
+    if (d) return d;
+    const o = OBJECTS.find((x) => x.name === name && x.cat === "atomic");
+    return o ? [o.logR, o.logM] : null;
+  };
+  const color = dustColor("atomic");
+  const FONT = 9, CHAR_W = FONT * 0.68;
+  const hits = (r) => obstacles.some((p) =>
+    r.x < p.x + p.w && r.x + r.w > p.x && r.y < p.y + p.h && r.y + r.h > p.y);
+  const onScreen = (x, y) => x >= 0 && x <= cw && y >= 0 && y <= ch;
+
+  ELEMENT_GUIDES.forEach((g, gi) => {
+    const pts = g.elements.map(pos).filter(Boolean).map(([r, m]) => [px(r), py(m)]);
+    if (pts.length < 2) return;
+    const text = g.label.toUpperCase();
+    const textW = text.length * CHAR_W + 8;
+
+    if (g.kind === "cluster") {
+      const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+      const span = Math.max(Math.max(...ys) - Math.min(...ys), Math.max(...xs) - Math.min(...xs));
+      if (span < 24) return;
+      const cy = (Math.min(...ys) + Math.max(...ys)) / 2 + 3;
+      // right of the clump, else left of it
+      for (const [x, anchor] of [[Math.max(...xs) + 10, "start"], [Math.min(...xs) - 10, "end"]]) {
+        const rect = { x: anchor === "start" ? x : x - textW, y: cy - FONT, w: textW, h: FONT + 4 };
+        if (!onScreen(x, cy) || hits(rect)) continue;
+        obstacles.push(rect);
+        lObjExtras.append("text").attr("x", x).attr("y", cy).attr("text-anchor", anchor)
+          .attr("class", "element-guide")
+          .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+          .attr("font-size", fscale(FONT)).attr("letter-spacing", "1px")
+          .attr("fill", color).attr("opacity", 0.6)
+          .style("pointer-events", "none").text(text);
+        return;
+      }
+      return;
+    }
+
+    // Straight best-fit line through the dots (principal axis), not a curve
+    // through every point: the transition metals zigzag, and text bent along
+    // that zigzag is unreadable. Endpoints = the outermost dots projected onto
+    // the axis, ordered left → right so the text reads upright.
+    {
+      const n = pts.length;
+      const mx = pts.reduce((s, p) => s + p[0], 0) / n, my = pts.reduce((s, p) => s + p[1], 0) / n;
+      let sxx = 0, syy = 0, sxy = 0;
+      for (const [x, y] of pts) { sxx += (x - mx) ** 2; syy += (y - my) ** 2; sxy += (x - mx) * (y - my); }
+      const ang = 0.5 * Math.atan2(2 * sxy, sxx - syy);
+      let ux = Math.cos(ang), uy = Math.sin(ang);
+      if (ux < 0) { ux = -ux; uy = -uy; }
+      const ts = pts.map(([x, y]) => (x - mx) * ux + (y - my) * uy);
+      const t0 = Math.min(...ts), t1 = Math.max(...ts);
+      pts.length = 0;
+      pts.push([mx + t0 * ux, my + t0 * uy], [mx + t1 * ux, my + t1 * uy]);
+    }
+    const cum = [0];
+    for (let i = 1; i < pts.length; i++)
+      cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    const len = cum[cum.length - 1];
+    if (len < textW * 1.4) return;
+    const at = (s) => { // point + unit normal at arc length s
+      let i = 1;
+      while (i < pts.length - 1 && cum[i] < s) i++;
+      const seg = cum[i] - cum[i - 1] || 1, t = Math.min(1, Math.max(0, (s - cum[i - 1]) / seg));
+      const dx = (pts[i][0] - pts[i - 1][0]) / seg, dy = (pts[i][1] - pts[i - 1][1]) / seg;
+      return { x: pts[i - 1][0] + t * dx * seg, y: pts[i - 1][1] + t * dy * seg, nx: dy, ny: -dx };
+    };
+    const off = g.kind === "column" ? -10 : 7; // which side of the dots the text sits
+    for (const frac of [0.5, 0.35, 0.65, 0.25, 0.75]) {
+      const c = frac * len;
+      if (c - textW / 2 < 0 || c + textW / 2 > len) continue;
+      const boxes = [];
+      let ok = true;
+      for (let s2 = c - textW / 2; s2 <= c + textW / 2 + 0.1; s2 += 7) {
+        const p = at(s2);
+        const bx = p.x + p.nx * off, by = p.y + p.ny * off;
+        if (!onScreen(bx, by)) { ok = false; break; }
+        const box = { x: bx - 5, y: by - 6, w: 10, h: 12 };
+        if (hits(box)) { ok = false; break; }
+        boxes.push(box);
+      }
+      if (!ok) continue;
+      obstacles.push(...boxes);
+      const id = `element-guide-${gi}`;
+      lObjExtras.append("path").attr("id", id)
+        .attr("d", d3.line()(pts))
+        .attr("fill", "none").attr("stroke", "none");
+      lObjExtras.append("text")
+        .attr("class", "element-guide")
+        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+        .attr("font-size", fscale(FONT)).attr("letter-spacing", "1px")
+        .attr("fill", color).attr("opacity", g.kind === "column" ? 0.45 : 0.65)
+        .attr("dy", off < 0 ? -(-off - 3) : off + 3)
+        .style("pointer-events", "none")
+        .append("textPath").attr("href", `#${id}`)
+        .attr("startOffset", `${(frac * 100).toFixed(0)}%`).attr("text-anchor", "middle")
+        .text(text);
+      return;
+    }
+  });
+}
+
+// Once the periodic-table rows in the element dust are readable, the atom
+// and molecule pictures (Hydrogen, Iron, Water, Glucose…) would sit on top
+// of them: show the hand-placed atoms and molecules as plain dots instead. "Readable" = the element dust is
+// on and the view has ≥ 150 px per decade of mass.
+const ATOM_ICON_HIDE_PX_PER_DECADE = 150;
+let _atomIconsHidden = false;
+function mapIconShown(o) {
+  if (!_iconsEnabled || !ICON_BY_SLUG[o.slug]) return false;
+  // projected objects carry the category key in catKey (cat is the style object)
+  return !(_atomIconsHidden && (o.catKey || o.cat) === "atomic"); // atoms and molecules
+}
+
 function drawObjects() {
+  {
+    const d = vd();
+    _atomIconsHidden = _dustEnabled && !_bigBangMode && !!dustPositions("element") &&
+      ch / Math.abs(d.y1 - d.y0) >= ATOM_ICON_HIDE_PX_PER_DECADE;
+  }
   // Retained rendering: object groups, icons, and labels are persistent
   // nodes updated through keyed joins below — per frame this is attribute
   // writes, not DOM teardown. Only the small extras layer (cluster/category/
@@ -1955,8 +2083,8 @@ function drawObjects() {
     )
     .sort((a, b) => {
       // Icon objects get a slight priority boost (lower z = shown first)
-      const aZ = (_iconsEnabled && ICON_BY_SLUG[a.slug]) ? a.z - 0.5 : a.z;
-      const bZ = (_iconsEnabled && ICON_BY_SLUG[b.slug]) ? b.z - 0.5 : b.z;
+      const aZ = mapIconShown(a) ? a.z - 0.5 : a.z;
+      const bZ = mapIconShown(b) ? b.z - 0.5 : b.z;
       return aZ - bZ;
     });
 
@@ -1974,7 +2102,7 @@ function drawObjects() {
   const icoOverlap2 = icoOverlap * icoOverlap;
   const shownIcons = [];
   projected.forEach(o => {
-    const hasIcon = _iconsEnabled && ICON_BY_SLUG[o.slug];
+    const hasIcon = mapIconShown(o);
     if (!hasIcon || !o._showDot) { o._showIcon = false; return; }
     const tooClose = shownIcons.some(s => {
       const dx = s.sx - o.sx, dy = s.sy - o.sy;
@@ -2262,6 +2390,16 @@ function drawObjects() {
       .style("pointer-events", "none")
       .text(cl.labelText.toUpperCase());
   });
+
+  // --- Periodic-table guides along the element dust (zoomed in only) ---
+  drawElementGuides([
+    ...placedLabels,
+    ...iconRects,
+    ...categoryLabels.map((c) => {
+      const w = c.labelText.length * 12 * 0.7 + 40; // generous: spaced caps
+      return { x: c.cx - w / 2, y: c.cy - 16, w, h: 24 };
+    }),
+  ]);
 
   // --- Render BH subcategory labels along the Schwarzschild line ---
   const BH_SUBCAT_POSITIONS = [
@@ -4530,7 +4668,7 @@ function scheduleClickTargets() {
 // Hit-target size for an object, shared by the HTML click targets (mouse)
 // and the touch tap hit-test so the two input paths never drift.
 function objectHitSizePx(o, baseIco) {
-  const hasIcon = _iconsEnabled && ICON_BY_SLUG[o.slug];
+  const hasIcon = mapIconShown(o);
   return hasIcon ? baseIco * iconSizeMult(o) : 14; // 14 matches the dot hit-area radius
 }
 
