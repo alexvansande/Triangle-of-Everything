@@ -279,9 +279,10 @@ for (const d of LABELS) {
 }
 
 // Names for our extra dots appear once you zoom in (never at the published
-// framing). The paper already names these ones its own way.
-const PAPER_NAMED = new Set(["Sun", "Earth", "Milky Way", "Globular Cluster", "Galaxy Cluster",
-  "Red Giant", "White Dwarf", "Neutron Star", ...RINGED]);
+// framing). The paper already names these ones its own way: every object a
+// paper label points at (LABELS `of`), plus a few it names as a class.
+const PAPER_NAMED = new Set(["Globular Cluster", "Galaxy Cluster", "Red Giant", "White Dwarf",
+  "Neutron Star", ...RINGED, ...LABELS.map(l => l.of).filter(Boolean)]);
 const NAMED = OBJECTS.filter(o => !PAPER_NAMED.has(o.name))
   .sort((a, b) => (a.z || 3) - (b.z || 3));
 const NAME_MIN_K = [0, 2.5, 4, 6, 9, 14];   // by object z (1 = most notable)
