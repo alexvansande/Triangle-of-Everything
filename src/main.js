@@ -15,7 +15,7 @@ import {
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
-  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, ELEMENT_GUIDES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
+  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
@@ -1912,8 +1912,12 @@ let _lastProjected = [];
 // Dust dots are a lighter tint of their category colour so a 2 px dot still
 // reads against the saturated background tiles.
 const _dustColors = {};
-function dustColor(catKey) {
-  return _dustColors[catKey] ??= d3.interpolateRgb(CATEGORIES[catKey]?.color || "#fff", "#fff")(0.4);
+function dustColor(catKey, sourceId) {
+  const sub = SUBCAT_COLORS[DUST_SOURCE_SUBCAT[sourceId]];
+  const key = sub ? `${catKey}/${sourceId}` : catKey;
+  // Category dust is paled toward white; a subcategory colour keeps its
+  // depth (only lightly lifted) so it still reads apart from its category.
+  return _dustColors[key] ??= d3.interpolateRgb(sub || CATEGORIES[catKey]?.color || "#fff", "#fff")(sub ? 0.12 : 0.4);
 }
 
 // Labels laid along the periodic-table rows/columns that the element dust
@@ -2218,8 +2222,11 @@ function drawObjects() {
       cl._labelPos = labelPositions[0];
       return;
     }
-    const labelW = labelText.length * 5.5 + 12;
-    const labelH = 12;
+    // Atom/molecule category clusters print as spaced 12px caps (see render)
+    const subcats = [...new Set(cl.members.map(p => p.subcat).filter(Boolean))];
+    cl._broad = cl.cat === CATEGORIES.atomic && subcats.length === 1 && !!SUBCAT_LABELS[subcats[0]];
+    const labelW = cl._broad ? labelText.length * 9 + 12 : labelText.length * 5.5 + 12;
+    const labelH = cl._broad ? 16 : 12;
 
     for (const pos of labelPositions) {
       const lx = pos.anchor === "end" ? cl.cx + pos.dx - labelW
@@ -2352,7 +2359,7 @@ function drawObjects() {
     );
     if (!collides) {
       usedLabels.add(labelText.toUpperCase());
-      categoryLabels.push({ cx, cy, labelText, cat: members[0].cat });
+      categoryLabels.push({ cx, cy, labelText, color: SUBCAT_LABEL_COLORS[subcat] || SUBCAT_COLORS[subcat] || members[0].cat.color });
     }
   });
 
@@ -2365,6 +2372,25 @@ function drawObjects() {
       ? SUBCAT_LABELS[subcats[0]]
       : cl.label;
     const lx = cl.cx + pos.dx, ly = cl.cy + pos.dy;
+    const subColor = subcats.length === 1 ? SUBCAT_LABEL_COLORS[subcats[0]] || SUBCAT_COLORS[subcats[0]] : null;
+
+    // A cluster of atoms or of molecules names a broad category ("MOLECULES"),
+    // so it reads like the spread-out category labels ("ATOMS") beside it.
+    if (cl._broad) {
+      lObjExtras.append("text")
+        .attr("x", lx).attr("y", ly)
+        .attr("text-anchor", pos.anchor)
+        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+        .attr("font-size", fscale(CATEGORY_LABEL_FONT)).attr("letter-spacing", "1px")
+        .attr("paint-order", "stroke")
+        .attr("stroke", "rgba(6,6,26,0.6)")
+        .attr("stroke-width", 2).attr("stroke-linejoin", "round")
+        .attr("fill", subColor || cl.cat.color)
+        .attr("class", "obj-label obj-cluster-label")
+        .attr("opacity", CATEGORY_LABEL_OPACITY)
+        .text(labelText.toUpperCase());
+      return;
+    }
 
     // Single node: paint-order renders the outline behind the fill,
     // replacing the old shadow-text + fill-text pair.
@@ -2376,7 +2402,7 @@ function drawObjects() {
       .attr("paint-order", "stroke")
       .attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
-      .attr("fill", cl.cat.color)
+      .attr("fill", subColor || cl.cat.color)
       .attr("class", "obj-label obj-cluster-label")
       .text(labelText);
   });
@@ -2391,7 +2417,7 @@ function drawObjects() {
       .attr("paint-order", "stroke")
       .attr("stroke", "rgba(6,6,26,0.6)")
       .attr("stroke-width", 2).attr("stroke-linejoin", "round")
-      .attr("fill", cl.cat.color)
+      .attr("fill", cl.color)
       .attr("class", "obj-category-label")
       .attr("opacity", CATEGORY_LABEL_OPACITY)
       .style("pointer-events", "none")
@@ -2566,7 +2592,7 @@ function drawObjects() {
     .attr("x", o => o.sx + o._labelPos.dx)
     .attr("y", o => o.sy + o._labelPos.dy)
     .attr("text-anchor", o => o._labelPos.anchor)
-    .attr("fill", o => o.color)
+    .attr("fill", o => SUBCAT_LABEL_COLORS[o.subcat] || o.color)
     .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
 
   _lastProjected = shownDots;
@@ -2615,37 +2641,44 @@ function setIconHover(o, on) {
   return true;
 }
 
-// Hover "made of" lines (COMPOSITION): straight lines from the hovered object
-// to its building blocks — hand-placed objects, or element dust (N, P, S)
-// whose names are otherwise hover-only, so those ends get a name tag.
+// Hover "made of" (COMPOSITION): reveal the connection paths that build the
+// hovered thing — the same lines a hover on the path itself shows. Parts that
+// are only dust (element N, P, S; nuclei) get a name tag, and the reveal
+// continues through them (atom → nucleus → protons & neutrons); it stops at
+// curated objects, which answer their own hover.
+let _composeShown = [];
 function showComposition(o) {
-  lCompose.selectAll("*").remove();
-  const parts = COMPOSITION[o.name];
-  if (!parts) return;
-  const el = dustPositions("element");
+  hideComposition();
+  if (!_connPaths || !COMPOSITION[o.name]) return;
   const color = dustColor("atomic");
-  const sx = px(o.logR), sy = py(o.logM);
-  for (const name of parts) {
-    const cur = OBJECTS.find(q => q.name === name);
-    const pos = cur ? [cur.logR, cur.logM] : el?.get(name);
-    if (!pos) continue;
-    const tx = px(pos[0]), ty = py(pos[1]);
-    lCompose.append("line")
-      .attr("x1", sx).attr("y1", sy).attr("x2", tx).attr("y2", ty)
-      .attr("stroke", color).attr("stroke-width", 1.2).attr("stroke-opacity", 0.75)
-      .attr("stroke-dasharray", "3 3");
-    lCompose.append("circle").attr("cx", tx).attr("cy", ty).attr("r", 3.2)
-      .attr("fill", color).attr("stroke", "rgba(6,6,26,0.9)").attr("stroke-width", 1);
-    if (!cur) {
-      lCompose.append("text").attr("x", tx + 7).attr("y", ty + 3.5)
+  const seen = new Set();
+  const reveal = (name) => {
+    if (seen.has(name)) return;
+    seen.add(name);
+    for (const cp of _connPaths) {
+      if (cp._into !== name || !cp._lineGroup) continue;
+      cp._lineGroup.attr("opacity", 1);
+      _composeShown.push(cp);
+    }
+    for (const part of COMPOSITION[name] || []) {
+      if (OBJECTS.some(q => q.name === part)) continue;
+      const pos = compositionPartPos(part);
+      if (!pos) continue;
+      lCompose.append("text").attr("x", px(pos[0]) + 7).attr("y", py(pos[1]) + 3.5)
         .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
         .attr("font-size", fscale(10)).attr("paint-order", "stroke")
         .attr("stroke", "rgba(6,6,26,0.85)").attr("stroke-width", 3)
-        .attr("fill", color).text(name);
+        .attr("fill", color).text(part);
+      reveal(part);
     }
-  }
+  };
+  reveal(o.name);
 }
-function hideComposition() { lCompose.selectAll("*").remove(); }
+function hideComposition() {
+  lCompose.selectAll("*").remove();
+  _composeShown.forEach(cp => cp._lineGroup?.attr("opacity", 0));
+  _composeShown = [];
+}
 
 function objHoverEnter(e, o) {
   showComposition(o);
@@ -2717,6 +2750,7 @@ function hideDustTip() {
   if (!_dustTip) return;
   _dustTip = false;
   lDustHover.selectAll("*").remove();
+  hideComposition();
   hideTooltip();
 }
 svg.on("mousemove.dust", (e) => {
@@ -2727,6 +2761,7 @@ svg.on("mousemove.dust", (e) => {
   if (!hit) return hideDustTip();
   const color = CATEGORIES[hit.cat]?.color || "#fff";
   lDustHover.selectAll("*").remove();
+  if (COMPOSITION[hit.name]) showComposition(hit);
   lDustHover.append("circle")
     .attr("cx", hit.sx).attr("cy", hit.sy).attr("r", 3.2)
     .attr("fill", color).attr("stroke", "rgba(6,6,26,0.9)").attr("stroke-width", 1);
@@ -4117,29 +4152,99 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden) scheduleConnAnim();
 });
 
+// "Made of" paths (COMPOSITION in data.js): one "combines" path per building
+// block → whole, so composition reads like every other connection — moving
+// dots along the curve, line revealed on hover. Hand-written paths that
+// already join a part to its whole (proton → hydrogen, …) stand in for the
+// generated one. Element-dust parts (N, P, S) have no position until the dust
+// loads, so they stay pending and join on a later drawConnections().
+const COMBINES_PARTICLE = "rgba(255,152,0,0.5)"; // particles → atoms
+const COMBINES_MOLECULE = "rgba(128,222,234,0.5)"; // atoms → molecules → DNA
+const _pendingComposition = [];
+
+const nearPt = (p, r, m, tol = 0.005) => Math.abs(p.logR - r) < tol && Math.abs(p.logM - m) < tol;
+function objectAt(p) {
+  return OBJECTS.find(o => nearPt(p, o.logR, o.logM));
+}
+function compositionPartPos(name) {
+  const o = OBJECTS.find(q => q.name === name);
+  if (o) return [o.logR, o.logM];
+  return dustPositions("element")?.get(name) ?? dustPositions("nucleus")?.get(name) ?? null;
+}
+function joinList(names) {
+  return names.length < 2 ? names.join("") : `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+}
+function compositionPath(part, whole, pos, wpos) {
+  const A = { logR: pos[0], logM: pos[1] }, B = { logR: wpos[0], logM: wpos[1] };
+  const len = Math.hypot(B.logR - A.logR, B.logM - A.logM);
+  return {
+    id: `made-of:${part}>${whole}`,
+    family: "combines",
+    _into: whole,
+    description: `${whole} is made of ${joinList(COMPOSITION[whole])}`,
+    points: [A, B],
+    zoomRange: [6, 800],
+    neighborhood: {
+      x: [Math.min(A.logR, B.logR) - 1, Math.max(A.logR, B.logR) + 1],
+      y: [Math.min(A.logM, B.logM) - 1, Math.max(A.logM, B.logM) + 1],
+    },
+    style: {
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
+      dotCount: Math.max(2, Math.min(6, Math.round(len * 1.5))),
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      // Nuclei and atoms are built from particles; everything above from atoms
+      color: COMPOSITION[whole].includes("Electron") || COMPOSITION[whole].includes("Neutron")
+        ? COMBINES_PARTICLE : COMBINES_MOLECULE,
+      dash: "4 3",
+    },
+  };
+}
+function compositionPaths(existing) {
+  const out = [];
+  for (const { part, whole } of _pendingComposition.splice(0)) {
+    const pos = compositionPartPos(part), wpos = compositionPartPos(whole);
+    if (!pos || !wpos) { _pendingComposition.push({ part, whole }); continue; }
+    const covered = existing.some(cp => cp._into === whole && nearPt(cp.points[0], pos[0], pos[1]));
+    if (!covered) out.push(compositionPath(part, whole, pos, wpos));
+  }
+  return out;
+}
+function prepareConnPath(cp) {
+  const isMeteor = cp.family === "evolution";
+  // Evolution paths: random positions and speeds for meteor shower effect
+  const dotTs = isMeteor
+    ? Array.from({ length: cp.style.dotCount }, () => Math.random())
+    : Array.from({ length: cp.style.dotCount }, (_, i) => i / cp.style.dotCount);
+  const dotSpeeds = isMeteor
+    ? Array.from({ length: cp.style.dotCount }, () => 0.6 + Math.random() * 0.8)
+    : Array.from({ length: cp.style.dotCount }, () => 1);
+  return {
+    ...cp,
+    _into: cp._into ?? objectAt(cp.points[cp.points.length - 1])?.name ?? null, // whole this path builds
+    dists: computePathDists(cp.points),
+    dotTs,
+    dotSpeeds,
+    _samples: null,   // curve geometry built lazily by ensureConnGeometry()
+    _probe: null,
+    _dataLen: 0,
+    _screenLen: 1,
+    _visible: false,
+    _opacity: 0,
+  };
+}
+/** Add any composition paths whose parts have become placeable (dust load). */
+function syncCompositionPaths() {
+  if (!_connPaths || !_pendingComposition.length) return;
+  _connPaths.push(...compositionPaths(_connPaths).map(prepareConnPath));
+}
+
 function initConnections() {
-  _connPaths = CONNECTION_PATHS.map(cp => {
-    const isMeteor = cp.family === "evolution";
-    // Evolution paths: random positions and speeds for meteor shower effect
-    const dotTs = isMeteor
-      ? Array.from({ length: cp.style.dotCount }, () => Math.random())
-      : Array.from({ length: cp.style.dotCount }, (_, i) => i / cp.style.dotCount);
-    const dotSpeeds = isMeteor
-      ? Array.from({ length: cp.style.dotCount }, () => 0.6 + Math.random() * 0.8)
-      : Array.from({ length: cp.style.dotCount }, () => 1);
-    return {
-      ...cp,
-      dists: computePathDists(cp.points),
-      dotTs,
-      dotSpeeds,
-      _samples: null,   // curve geometry built lazily by ensureConnGeometry()
-      _probe: null,
-      _dataLen: 0,
-      _screenLen: 1,
-      _visible: false,
-      _opacity: 0,
-    };
-  });
+  for (const [whole, parts] of Object.entries(COMPOSITION))
+    for (const part of parts) _pendingComposition.push({ part, whole });
+  _connPaths = CONNECTION_PATHS.map(prepareConnPath);
+  _connPaths.push(...compositionPaths(_connPaths).map(prepareConnPath));
   // Warm curve geometry off the boot critical path (~2,500 getPointAtLength
   // calls if done eagerly); ensureConnGeometry() also builds on demand the
   // moment a path is actually used.
@@ -4153,6 +4258,7 @@ function drawConnections() {
   lArrows.selectAll("*").remove();
   _connDotsStale = true;
   if (!_connPaths) return;
+  syncCompositionPaths();
 
   // Screen-space serializers of the shared curve shape (connCurve /
   // connBezierCtrl are the single source of truth — see their definitions).
@@ -4183,8 +4289,13 @@ function drawConnections() {
   _connPaths.forEach(cp => {
     cp._opacity = connectionOpacity(cp, view);
     cp._visible = cp._opacity > 0.01;
+    cp._lineGroup = null;
 
-    if (!cp._visible) return;
+    // Composition paths keep a hidden line even outside their ambient zoom
+    // range: hovering the whole reveals it (showComposition) at any zoom, at
+    // full strength — the ambient fade is for the dots, not a hovered line.
+    if (!cp._visible && !cp._into) return;
+    const lineFade = cp._into ? 1 : cp._opacity;
 
     // Decay and combines paths use bezier curves (alternating anchor/control points)
     const isBezier = cp.family === "decay" || cp.family === "combines";
@@ -4236,7 +4347,7 @@ function drawConnections() {
             .attr("x1", x0).attr("y1", y0).attr("x2", x1).attr("y2", y1)
             .attr("stroke", emSpectrumColor(t0))
             .attr("stroke-width", cp.style.lineWidth * 0.6)
-            .attr("opacity", cp.style.lineOpacity * cp._opacity * 0.7)
+            .attr("opacity", cp.style.lineOpacity * lineFade * 0.7)
             .attr("stroke-linecap", "round");
         }
       }
@@ -4247,9 +4358,11 @@ function drawConnections() {
         .attr("fill", "none")
         .attr("stroke", cp.style.color || "rgba(255,255,255,0.3)")
         .attr("stroke-width", cp.style.lineWidth)
-        .attr("opacity", cp.style.lineOpacity * cp._opacity);
+        .attr("opacity", cp.style.lineOpacity * lineFade);
       if (cp.style.dash) pathEl.attr("stroke-dasharray", cp.style.dash);
     }
+
+    if (!cp._visible) return; // no dots here, so no hover target either
 
     // Hit area for hover — shows line and tooltip
     const hitD = cp.curve === "arc" ? arcPathGen(cp) : isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);

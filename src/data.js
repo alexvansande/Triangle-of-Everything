@@ -515,49 +515,6 @@ export const CONNECTION_PATHS = [
     },
   },
   {
-    id: "hydrogen-to-water",
-    family: "combines",
-    description: "Two hydrogen atoms bond with oxygen to form water (H₂O)",
-    points: [
-      { logR: -8.28, logM: -23.78 },
-      { logR: -8.8,  logM: -23.3 },
-      { logR: -8.5,  logM: -22.8 },
-      { logR: -7.85, logM: -22.52 },
-    ],
-    zoomRange: [6, 800],
-    neighborhood: { x: [-10, -6], y: [-25, -21] },
-    style: {
-      lineOpacity: 0.15,
-      lineWidth: 1.4,
-      dotCount: 6,
-      dotSize: 0.8,
-      dotSpeed: 0.7,
-      color: "rgba(128,222,234,0.5)",
-      dash: "4 3",
-    },
-  },
-  {
-    id: "oxygen-to-water",
-    family: "combines",
-    description: "Oxygen bonds with two hydrogen atoms to form water (H₂O)",
-    points: [
-      { logR: -8.34, logM: -22.58 },  // Oxygen (Guerra 2017 calculated radius, 46 pm)
-      { logR: -8.3,  logM: -22.4 },
-      { logR: -7.85, logM: -22.52 },
-    ],
-    zoomRange: [6, 800],
-    neighborhood: { x: [-10, -6], y: [-25, -21] },
-    style: {
-      lineOpacity: 0.15,
-      lineWidth: 1.4,
-      dotCount: 4,
-      dotSize: 0.8,
-      dotSpeed: 0.7,
-      color: "rgba(128,222,234,0.5)",
-      dash: "4 3",
-    },
-  },
-  {
     id: "remnant-to-nursery",
     family: "evolution",
     description: "Supernova remnants and planetary nebulae seed new stellar nurseries — stars are recycled",
@@ -721,7 +678,15 @@ export const SUBCAT_COLORS = {
   terrestrial_planet:"#448aff",   // canonical planet blue (same as cat)
   gas_giant:         "#2e74ff",   // deeper vivid blue — massive worlds
   exoplanet:         "#5590dd",   // muted blue — distant / uncertain
+  molecule:          "#3d6bff",   // deep blue — bonded atoms, clearly apart from the teal atoms
 };
+
+// Text colour for subcategories whose dot colour is too deep to read as a
+// label on the dark chart (the dots keep the deep colour).
+export const SUBCAT_LABEL_COLORS = { molecule: "#8fa8ff" };
+
+// Dust catalogues coloured as a subcategory rather than their category.
+export const DUST_SOURCE_SUBCAT = { molecule: "molecule", protein: "molecule" };
 
 // Subcategories for cluster labels — when objects are too close, show one label
 // Key: subcat value in objects.json. Value: display label for the cluster.
@@ -762,15 +727,25 @@ export const ELEMENT_GUIDES = [
 // Hovering one of these draws straight lines to what it's made of, so the
 // chain electrons + protons → atoms → molecules → bases → DNA can be read
 // across the chart. Names are hand-placed objects or element dust (N, P, S).
+// Names may be curated objects or dust points (element dust: Nitrogen, …;
+// nucleus dust: "Iron-56 nucleus", …). Atoms are built from their most
+// abundant isotope's nucleus plus electrons; hydrogen-1's nucleus IS the
+// proton, and oganesson has no measured nucleus, so it skips that step.
 export const COMPOSITION = {
   "Hydrogen":       ["Proton", "Electron"],
-  "Helium":         ["Proton", "Neutron", "Electron"],
-  "Carbon":         ["Proton", "Neutron", "Electron"],
-  "Oxygen":         ["Proton", "Neutron", "Electron"],
-  "Iron":           ["Proton", "Neutron", "Electron"],
-  "Gold":           ["Proton", "Neutron", "Electron"],
-  "Uranium":        ["Proton", "Neutron", "Electron"],
+  "Helium":         ["Helium-4 nucleus", "Electron"],
+  "Carbon":         ["Carbon-12 nucleus", "Electron"],
+  "Oxygen":         ["Oxygen-16 nucleus", "Electron"],
+  "Iron":           ["Iron-56 nucleus", "Electron"],
+  "Gold":           ["Gold-197 nucleus", "Electron"],
+  "Uranium":        ["Uranium-238 nucleus", "Electron"],
   "Oganesson":      ["Proton", "Neutron", "Electron"],
+  "Helium-4 nucleus":    ["Proton", "Neutron"],
+  "Carbon-12 nucleus":   ["Proton", "Neutron"],
+  "Oxygen-16 nucleus":   ["Proton", "Neutron"],
+  "Iron-56 nucleus":     ["Proton", "Neutron"],
+  "Gold-197 nucleus":    ["Proton", "Neutron"],
+  "Uranium-238 nucleus": ["Proton", "Neutron"],
   "Water (H₂O)":    ["Hydrogen", "Oxygen"],
   "Glucose":        ["Carbon", "Hydrogen", "Oxygen"],
   "Fullerene C₆₀":  ["Carbon"],

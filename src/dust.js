@@ -79,7 +79,7 @@ export function loadDust() {
  * @param view     { px, py, cw, ch, mobile, hidden }
  * @param blockers { dots: [{sx, sy}], rects: [{x, y, w, h}], circles: [{sx, sy, r}] }
  *                 — curated dots, labels and (round) icons dust must stay clear of
- * @param colorOf  (catKey) → css colour
+ * @param colorOf  (catKey, sourceId) → css colour
  */
 export function drawDust(layer, view, blockers, colorOf) {
   _kept = [];
@@ -157,7 +157,7 @@ export function drawDust(layer, view, blockers, colorOf) {
       .attr("stroke-linecap", "round")
       .attr("stroke-width", DUST_R * 2)
       .attr("opacity", 0.7)
-      .attr("stroke", (g) => colorOf(sources[g.s].cat)))
+      .attr("stroke", (g) => colorOf(sources[g.s].cat, sources[g.s].id)))
     .attr("d", (g) => g.d);
 }
 
