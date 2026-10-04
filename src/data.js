@@ -721,6 +721,39 @@ export const ELEMENT_GUIDES = [
   { label: "Noble gases", kind: "column", elements: ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon", "Oganesson"] },
 ];
 
+// The periodic table's main grid, periods 1–6 and groups 1–18, for the "THE
+// PERIODIC TABLE" easter egg: rows and columns together trace the grid.
+// Group 3 in period 6 is lutetium (IUPAC), so the lanthanides stay out;
+// hydrogen heads group 1 and helium group 18, as the table is drawn.
+export const PERIODIC_ROWS = [
+  { label: "Period 1", elements: ["Hydrogen", "Helium"] },
+  { label: "Period 2", elements: ["Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon"] },
+  { label: "Period 3", elements: ["Sodium", "Magnesium", "Aluminum", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon"] },
+  { label: "Period 4", elements: ["Potassium", "Calcium", "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc", "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton"] },
+  { label: "Period 5", elements: ["Rubidium", "Strontium", "Yttrium", "Zirconium", "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon"] },
+  { label: "Period 6", elements: ["Cesium", "Barium", "Lutetium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon"] },
+];
+export const PERIODIC_COLUMNS = [
+  { label: "Alkali metals",          elements: ["Hydrogen", "Lithium", "Sodium", "Potassium", "Rubidium", "Cesium"] },
+  { label: "Alkaline earth metals",  elements: ["Beryllium", "Magnesium", "Calcium", "Strontium", "Barium"] },
+  { label: "Group 3",                elements: ["Scandium", "Yttrium", "Lutetium"] },
+  { label: "Group 4",                elements: ["Titanium", "Zirconium", "Hafnium"] },
+  { label: "Group 5",                elements: ["Vanadium", "Niobium", "Tantalum"] },
+  { label: "Group 6",                elements: ["Chromium", "Molybdenum", "Tungsten"] },
+  { label: "Group 7",                elements: ["Manganese", "Technetium", "Rhenium"] },
+  { label: "Group 8",                elements: ["Iron", "Ruthenium", "Osmium"] },
+  { label: "Group 9",                elements: ["Cobalt", "Rhodium", "Iridium"] },
+  { label: "Group 10",               elements: ["Nickel", "Palladium", "Platinum"] },
+  { label: "Group 11",               elements: ["Copper", "Silver", "Gold"] },
+  { label: "Group 12",               elements: ["Zinc", "Cadmium", "Mercury"] },
+  { label: "Boron group",            elements: ["Boron", "Aluminum", "Gallium", "Indium", "Thallium"] },
+  { label: "Carbon group",           elements: ["Carbon", "Silicon", "Germanium", "Tin", "Lead"] },
+  { label: "Nitrogen group",         elements: ["Nitrogen", "Phosphorus", "Arsenic", "Antimony", "Bismuth"] },
+  { label: "Chalcogens",             elements: ["Oxygen", "Sulfur", "Selenium", "Tellurium", "Polonium"] },
+  { label: "Halogens",               elements: ["Fluorine", "Chlorine", "Bromine", "Iodine", "Astatine"] },
+  { label: "Noble gases",            elements: ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon"] },
+];
+
 // =============================================================
 // "Made of" — hover lines from a hand-placed object to its building blocks
 // =============================================================

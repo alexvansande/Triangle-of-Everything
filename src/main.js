@@ -15,7 +15,7 @@ import {
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
-  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
+  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, PERIODIC_ROWS, PERIODIC_COLUMNS, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
@@ -1920,6 +1920,81 @@ function dustColor(catKey, sourceId) {
   return _dustColors[key] ??= d3.interpolateRgb(sub || CATEGORIES[catKey]?.color || "#fff", "#fff")(sub ? 0.12 : 0.4);
 }
 
+// Easter egg: a "THE PERIODIC TABLE" title by the element dust. Clicking it
+// toggles straight lines joining neighbours in the table — its period rows
+// and group columns — so the familiar grid can be traced
+// through where the elements actually sit by size & mass.
+let _periodicOn = false;
+function drawPeriodicTable(obstacles) {
+  if (!_dustEnabled || _bigBangMode) return;
+  const dustPos = dustPositions("element");
+  if (!dustPos) return;
+  const pos = (name) => {
+    const d = dustPos.get(name);
+    if (d) return d;
+    const o = OBJECTS.find((x) => x.name === name && x.cat === "atomic");
+    return o ? [o.logR, o.logM] : null;
+  };
+  const guides = [
+    ...PERIODIC_ROWS.map((r) => ({ ...r, kind: "row" })),
+    ...PERIODIC_COLUMNS.map((c) => ({ ...c, kind: "column" })),
+  ];
+  const lines = guides.map((g) => ({
+    kind: g.kind,
+    pts: g.elements.map(pos).filter(Boolean).map(([r, m]) => [px(r), py(m)]),
+  }));
+  // Title only once the light rows are spread enough on screen to trace;
+  // it sits by them (periods 1–3), clear of the crowded heavy end.
+  const rows = lines.slice(0, 3).flatMap((l) => l.pts);
+  if (rows.length < 2) return;
+  const xs = rows.map((p) => p[0]), ys = rows.map((p) => p[1]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  if (Math.max(x1 - x0, y1 - y0) < 120) return;
+  const color = dustColor("atomic");
+
+  if (_periodicOn) {
+    for (const l of lines) {
+      if (l.pts.length < 2) continue;
+      lObjExtras.append("path")
+        .attr("class", "periodic-line")
+        .attr("d", d3.line()(l.pts))
+        .attr("fill", "none").attr("stroke", color)
+        .attr("stroke-width", l.kind === "row" ? 1.2 : 1)
+        .attr("stroke-dasharray", l.kind === "row" ? null : "4 3")
+        .attr("stroke-linejoin", "round")
+        .attr("opacity", l.kind === "row" ? 0.55 : 0.275) // columns recede behind the rows
+        .style("pointer-events", "none");
+    }
+  }
+
+  // Category-label style, centred under the light rows (else above them)
+  const FONT = 12, text = "THE PERIODIC TABLE";
+  const w = text.length * (FONT * 0.68) + 8, h = FONT + 4;
+  const cx = (x0 + x1) / 2;
+  for (const ty of [y1 + 26, y0 - 14]) {
+    const rect = { x: cx - w / 2, y: ty - FONT, w, h };
+    if (rect.x < 0 || rect.x + w > cw || rect.y < 0 || rect.y + h > ch) continue;
+    if (obstacles.some((p) => rect.x < p.x + p.w && rect.x + w > p.x && rect.y < p.y + p.h && rect.y + h > p.y)) continue;
+    obstacles.push(rect);
+    lObjExtras.append("text")
+      .attr("class", "periodic-title")
+      .attr("x", cx).attr("y", ty).attr("text-anchor", "middle")
+      .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+      .attr("font-size", fscale(FONT)).attr("letter-spacing", "1px")
+      .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.6)")
+      .attr("stroke-width", 2).attr("stroke-linejoin", "round")
+      .attr("fill", color).attr("opacity", _periodicOn ? 0.9 : 0.5)
+      .style("cursor", "pointer").style("pointer-events", "all")
+      // Toggle on press, not click: lObjExtras is rebuilt per frame, so the
+      // node under mousedown is gone by mouseup and no click would fire. Not
+      // propagating also keeps a pan from starting on the title.
+      .on("mousedown touchstart", (e) => e.stopPropagation())
+      .on("pointerdown", (e) => { e.stopPropagation(); _periodicOn = !_periodicOn; redraw(); })
+      .text(text);
+    return;
+  }
+}
+
 // Labels laid along the periodic-table rows/columns that the element dust
 // draws (see ELEMENT_GUIDES). A label appears only when its line is long
 // enough on screen to carry it, and its whole run along the line must stay
@@ -2425,14 +2500,16 @@ function drawObjects() {
   });
 
   // --- Periodic-table guides along the element dust (zoomed in only) ---
-  drawElementGuides([
+  const guideObstacles = [
     ...placedLabels,
     ...iconRects,
     ...categoryLabels.map((c) => {
       const w = c.labelText.length * 12 * 0.7 + 40; // generous: spaced caps
       return { x: c.cx - w / 2, y: c.cy - 16, w, h: 24 };
     }),
-  ]);
+  ];
+  drawPeriodicTable(guideObstacles);
+  drawElementGuides(guideObstacles);
 
   // --- Render BH subcategory labels along the Schwarzschild line ---
   const BH_SUBCAT_POSITIONS = [
