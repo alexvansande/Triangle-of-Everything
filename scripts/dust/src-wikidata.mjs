@@ -196,23 +196,41 @@ const artefact = (id, label, density, anchors) => ({
 });
 
 export default [
-  artefact("vehicle", "Vehicle model · Wikidata", [-4, 0.5], [
-    // Volkswagen Beetle: 4.08 m long; heaviest mass statement on the item
-    // (checked by hand: ~1.2 t gross) — anchors a kg↔t slip, not the exact value.
+  // Anchors use textbook values (not Wikidata's) so a unit slip in the
+  // query or the conversion fails the build. Wikidata QIDs are the keys.
+  artefact("vehicle", "Road vehicle / machine · Wikidata", [-4.5, 0.5], [
+    // Bagger 288 bucket-wheel excavator: 13,500 t, 220 m long (Wikidata: 12,840 t, 240 m)
+    { name: "Q2003436", logR: log(22000 / 2), logM: log(13500e6), tol: 0.05 },
+  ]),
+  artefact("rail", "Rail vehicle class · Wikidata", [-5.5, 0.5], [
+    // Union Pacific Big Boy locomotive (without tender): 762,000 lb = 345.6 t
+    { name: "Q933916", logM: log(345.6e6), tol: 0.03 },
+  ]),
+  artefact("armour", "Military vehicle · Wikidata", [-3, 0.5], [
+    // Tiger I: 57 t (late production), 8.45 m long with gun
+    { name: "Q151221", logR: log(845 / 2), logM: log(57e6), tol: 0.03 },
   ]),
   artefact("ship", "Ship / boat · Wikidata", [-4.5, 0.5], [
     // RMS Titanic: 269.1 m, 52,310 t displacement
-    { name: "Q25173", logR: log(26910 / 2), logM: log(52310e6), tol: 0.05 },
+    { name: "Q25173", logR: log(26910 / 2), logM: log(52310e6), tol: 0.03 },
   ]),
-  artefact("aircraft", "Aircraft model · Wikidata", [-5, 0], []),
-  artefact("spacecraft", "Rocket / spacecraft · Wikidata", [-5, 0.5], [
-    // Saturn V: 110.6 m, 2,965 t at lift-off; ISS: 94.5 m truss span, ~420 t
-    { name: "Q54363", logR: log(11065 / 2), logM: log(2965241e3), tol: 0.05 },
-    { name: "Q25271", logR: log(9450 / 2), logM: log(419725e3), tol: 0.05 },
+  artefact("aircraft", "Aircraft model · Wikidata", [-5, 0], [
+    // Concorde: 61.66 m, 185 t max take-off; An-225 Mriya: 84 m, 640 t MTOW
+    { name: "Q6505", logR: log(6166 / 2), logM: log(185e6), tol: 0.03 },
+    { name: "Q178351", logR: log(8400 / 2), logM: log(640e6), tol: 0.03 },
   ]),
-  artefact("artefact", "Artefact / structure · Wikidata", [-6, 1], [
-    // Eiffel Tower: 330 m, 10,100 t (Wikidata's figure incl. non-metal parts)
-    { name: "Q243", logR: log(33000 / 2), logM: log(10100e6), tol: 0.05 },
+  artefact("spacecraft", "Rocket / spacecraft · Wikidata", [-5, 0.8], [
+    // Saturn V: 110.6 m, 2,970 t at lift-off; ISS: 109 m truss span, ~420 t
+    // (Wikidata gives the 94.5 m width → 0.06 dex smaller); Hubble: 13.2 m, 11.1 t
+    { name: "Q54363", logR: log(11060 / 2), logM: log(2970e6), tol: 0.03 },
+    { name: "Q25271", logR: log(10900 / 2), logM: log(420e6), tol: 0.08 },
+    { name: "Q2513", logR: log(1320 / 2), logM: log(11.1e6), tol: 0.05 },
+  ]),
+  artefact("artefact", "Artefact / structure · Wikidata", [-6.5, 1], [
+    // Eiffel Tower: 330 m; 10,100 t total (7,300 t of iron) — Wikidata's figure
+    { name: "Q243", logR: log(33000 / 2), logM: log(10100e6), tol: 0.03 },
+    // Tsar Bell: 201.9 t, 6.14 m tall, 6.6 m across (Wikidata only has the height)
+    { name: "Q147875", logR: log(660 / 2), logM: log(201.9e6), tol: 0.05 },
   ]),
   // -------------------------------------------------------------
   {
