@@ -2008,14 +2008,15 @@ function drawElementGuides(obstacles) {
 }
 
 // Once the periodic-table rows in the element dust are readable, the atom
-// pictures (Hydrogen, Iron, Uranium…) would sit on top of them: show the
-// hand-placed atoms as plain dots instead. "Readable" = the element dust is
+// and molecule pictures (Hydrogen, Iron, Water, Glucose…) would sit on top
+// of them: show the hand-placed atoms and molecules as plain dots instead. "Readable" = the element dust is
 // on and the view has ≥ 150 px per decade of mass.
 const ATOM_ICON_HIDE_PX_PER_DECADE = 150;
 let _atomIconsHidden = false;
 function mapIconShown(o) {
   if (!_iconsEnabled || !ICON_BY_SLUG[o.slug]) return false;
-  return !(_atomIconsHidden && o.subcat === "atom");
+  // projected objects carry the category key in catKey (cat is the style object)
+  return !(_atomIconsHidden && (o.catKey || o.cat) === "atomic"); // atoms and molecules
 }
 
 function drawObjects() {
