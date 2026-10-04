@@ -715,8 +715,8 @@ export const ELEMENT_GUIDES = [
   { label: "Period 5", kind: "row", elements: ["Rubidium", "Strontium", "Yttrium", "Zirconium", "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon"] },
   { label: "Period 6", kind: "row", elements: ["Cesium", "Barium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon"] },
   { label: "Period 7", kind: "row", elements: ["Francium", "Radium", "Rutherfordium", "Dubnium", "Seaborgium", "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium", "Copernicium", "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessine", "Oganesson"] },
-  { label: "Actinides", kind: "cluster", elements: ["Actinium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium"] },
-  { label: "Lanthanides", kind: "cluster", elements: ["Lanthanum", "Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium"] },
+  { label: "Actinides", kind: "cluster", type: "actinide", elements: ["Actinium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium"] },
+  { label: "Lanthanides", kind: "cluster", type: "lanthanide", elements: ["Lanthanum", "Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium"] },
   { label: "Alkali metals", kind: "column", elements: ["Lithium", "Sodium", "Potassium", "Rubidium", "Cesium", "Francium"] },
   { label: "Noble gases", kind: "column", elements: ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon", "Oganesson"] },
 ];
@@ -748,6 +748,55 @@ export function periodicCell(z) {
   if (i < 16) return { period: p, f: i - 2 };
   return { period: p, group: i === 16 ? 3 : i - 13 };
 }
+
+// Element types, the colour key of the drawn table, also from Z alone. The
+// metalloid staircase and the nonmetals are the only cells that don't follow
+// from the group; superheavies take their group's type, as usually drawn.
+export const ELEMENT_TYPES = [
+  { id: "alkali",     label: "Alkali metals",          color: "#ff6b6b" },
+  { id: "alkaline",   label: "Alkaline earth metals",  color: "#ffa94d" },
+  { id: "transition", label: "Transition metals",      color: "#ffd43b" },
+  { id: "post",       label: "Post-transition metals", color: "#a9e34b" },
+  { id: "metalloid",  label: "Metalloids",             color: "#38d9a9" },
+  { id: "nonmetal",   label: "Nonmetals",              color: "#3bc9db" },
+  { id: "halogen",    label: "Halogens",               color: "#4dabf7" },
+  { id: "noble",      label: "Noble gases",            color: "#9775fa" },
+  { id: "lanthanide", label: "Lanthanides",            color: "#f783ac" },
+  { id: "actinide",   label: "Actinides",              color: "#da77f2" },
+];
+const METALLOID_Z = new Set([5, 14, 32, 33, 51, 52]);
+const NONMETAL_Z = new Set([1, 6, 7, 8, 15, 16, 34]);
+
+/** Type id (see ELEMENT_TYPES) of element Z. */
+export function elementType(z) {
+  if (z >= 57 && z <= 71) return "lanthanide";
+  if (z >= 89 && z <= 103) return "actinide";
+  if (METALLOID_Z.has(z)) return "metalloid";
+  if (NONMETAL_Z.has(z)) return "nonmetal";
+  const { group } = periodicCell(z);
+  if (group === 1) return "alkali";
+  if (group === 2) return "alkaline";
+  if (group <= 12) return "transition";
+  if (group === 17) return "halogen";
+  if (group === 18) return "noble";
+  return "post";
+}
+
+// Family names along the group columns, for the same easter egg. A family
+// whose members share one type is drawn in that type's colour; groups 13–16
+// cross the metal / nonmetal line and stay neutral. The transition metals
+// (groups 3–12) get one label for the whole block.
+export const PERIODIC_FAMILIES = [
+  { label: "Alkali metals",         groups: [1], type: "alkali" },
+  { label: "Alkaline earth metals", groups: [2], type: "alkaline" },
+  { label: "Transition metals",     groups: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12], type: "transition" },
+  { label: "Boron group",           groups: [13] },
+  { label: "Carbon group",          groups: [14] },
+  { label: "Pnictogens",            groups: [15] },
+  { label: "Chalcogens",            groups: [16] },
+  { label: "Halogens",              groups: [17], type: "halogen" },
+  { label: "Noble gases",           groups: [18], type: "noble" },
+];
 
 // =============================================================
 // "Made of" — hover lines from a hand-placed object to its building blocks

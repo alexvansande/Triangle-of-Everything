@@ -15,7 +15,7 @@ import {
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
-  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
+  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, ELEMENT_TYPES, elementType, PERIODIC_FAMILIES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
@@ -1924,8 +1924,11 @@ function dustColor(catKey, sourceId) {
 // toggles straight lines joining neighbours in the table — its period rows,
 // group columns and the detached f-block's two rows and fourteen columns —
 // so the familiar grid can be traced through where the elements actually
-// sit by size & mass. The grid comes from atomic numbers (periodicCell).
+// sit by size & mass. Each type of element is washed in its colour, the
+// families are named along their columns, and a legend sits by the title.
+// Grid, types and families all come from atomic numbers (see data.js).
 let _periodicOn = false;
+const TYPE_COLOR = Object.fromEntries(ELEMENT_TYPES.map((t) => [t.id, t.color]));
 const PERIODIC_LINES = (() => {
   const rows = new Map(), cols = new Map(), fRows = new Map(), fCols = new Map();
   const add = (m, k, z) => (m.get(k) || m.set(k, []).get(k)).push(z);
@@ -1934,11 +1937,20 @@ const PERIODIC_LINES = (() => {
     if (c.f == null) { add(rows, c.period, z); add(cols, c.group, z); }
     else { add(fRows, c.period, z); add(fCols, c.f, z); }
   }
+  const familyType = new Map(PERIODIC_FAMILIES.flatMap((f) => f.groups.map((g) => [g, f.type])));
   // Z already runs along each row and down each column; rows go first, light
-  // periods leading (the title is placed by periods 1–3).
-  const sorted = (m, kind) => [...m.keys()].sort((a, b) => a - b).map((k) => ({ kind, zs: m.get(k) }));
-  return [...sorted(rows, "row"), ...sorted(fRows, "row"), ...sorted(cols, "column"), ...sorted(fCols, "column")];
+  // periods leading (the title is placed by periods 1–3). `type` colours the
+  // stretch of a line whose elements share it.
+  const sorted = (m, kind, typeOf) => [...m.keys()].sort((a, b) => a - b)
+    .map((k) => ({ kind, key: k, zs: m.get(k), type: typeOf(k) || null }));
+  return [
+    ...sorted(rows, "row", () => null),
+    ...sorted(fRows, "row", (p) => (p === 6 ? "lanthanide" : "actinide")),
+    ...sorted(cols, "column", (g) => familyType.get(g)),
+    ...sorted(fCols, "fcolumn", () => null),
+  ];
 })();
+
 function drawPeriodicTable(obstacles) {
   if (!_dustEnabled || _bigBangMode) return;
   const dustPos = dustPositions("element");
@@ -1949,43 +1961,34 @@ function drawPeriodicTable(obstacles) {
     const o = OBJECTS.find((x) => x.name === name && x.cat === "atomic");
     return o ? [o.logR, o.logM] : null;
   };
-  const lines = PERIODIC_LINES.map((g) => ({
-    kind: g.kind,
-    pts: g.zs.map((z) => pos(ELEMENTS_BY_Z[z])).filter(Boolean).map(([r, m]) => [px(r), py(m)]),
-  }));
+  const at = new Map(); // Z → [sx, sy]
+  for (let z = 1; z < ELEMENTS_BY_Z.length; z++) {
+    const p = pos(ELEMENTS_BY_Z[z]);
+    if (p) at.set(z, [px(p[0]), py(p[1])]);
+  }
+  const lines = PERIODIC_LINES.map((l) => ({ ...l, zs: l.zs.filter((z) => at.has(z)) }));
   // Title only once the light rows are spread enough on screen to trace;
   // it sits by them (periods 1–3), clear of the crowded heavy end.
-  const rows = lines.slice(0, 3).flatMap((l) => l.pts);
+  const rows = lines.slice(0, 3).flatMap((l) => l.zs.map((z) => at.get(z)));
   if (rows.length < 2) return;
   const xs = rows.map((p) => p[0]), ys = rows.map((p) => p[1]);
   const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
   if (Math.max(x1 - x0, y1 - y0) < 120) return;
   const color = dustColor("atomic");
-
-  if (_periodicOn) {
-    for (const l of lines) {
-      if (l.pts.length < 2) continue;
-      lObjExtras.append("path")
-        .attr("class", "periodic-line")
-        .attr("d", d3.line()(l.pts))
-        .attr("fill", "none").attr("stroke", color)
-        .attr("stroke-width", l.kind === "row" ? 1.2 : 1)
-        .attr("stroke-dasharray", l.kind === "row" ? null : "4 3")
-        .attr("stroke-linejoin", "round")
-        .attr("opacity", l.kind === "row" ? 0.55 : 0.275) // columns recede behind the rows
-        .style("pointer-events", "none");
-    }
-  }
+  const gLines = lObjExtras.append("g"); // under the title, legend and labels
+  const hits = (r) => obstacles.some((p) => r.x < p.x + p.w && r.x + r.w > p.x && r.y < p.y + p.h && r.y + r.h > p.y);
+  const inside = (r) => r.x >= 0 && r.x + r.w <= cw && r.y >= 0 && r.y + r.h <= ch;
 
   // Category-label style, centred under the light rows (else above them)
   const FONT = 12, text = "THE PERIODIC TABLE";
   const w = text.length * (FONT * 0.68) + 8, h = FONT + 4;
   const cx = (x0 + x1) / 2;
-  for (const ty of [y1 + 26, y0 - 14]) {
+  let title = null;
+  for (const [ty, below] of [[y1 + 26, true], [y0 - 14, false]]) {
     const rect = { x: cx - w / 2, y: ty - FONT, w, h };
-    if (rect.x < 0 || rect.x + w > cw || rect.y < 0 || rect.y + h > ch) continue;
-    if (obstacles.some((p) => rect.x < p.x + p.w && rect.x + w > p.x && rect.y < p.y + p.h && rect.y + h > p.y)) continue;
+    if (!inside(rect) || hits(rect)) continue;
     obstacles.push(rect);
+    title = { rect, below };
     lObjExtras.append("text")
       .attr("class", "periodic-title")
       .attr("x", cx).attr("y", ty).attr("text-anchor", "middle")
@@ -2001,8 +2004,91 @@ function drawPeriodicTable(obstacles) {
       .on("mousedown touchstart", (e) => e.stopPropagation())
       .on("pointerdown", (e) => { e.stopPropagation(); _periodicOn = !_periodicOn; redraw(); })
       .text(text);
-    return;
+    break;
   }
+  if (!title || !_periodicOn) return;
+
+  // Legend: the type colours, two columns, on the far side of the title from
+  // the rows (else the near side, else one column).
+  {
+    const LF = 9, ROW = 13, half = Math.ceil(ELEMENT_TYPES.length / 2);
+    const colW = Math.max(...ELEMENT_TYPES.map((t) => t.label.length)) * LF * 0.62 + 18;
+    for (const cols of [2, 1]) {
+      const n = cols === 2 ? half : ELEMENT_TYPES.length;
+      const lw = colW * cols, lh = n * ROW;
+      const tr = title.rect;
+      const spots = title.below ? [tr.y + tr.h + 6, tr.y - lh - 6] : [tr.y - lh - 6, tr.y + tr.h + 6];
+      const top = spots.find((y) => { const r = { x: cx - lw / 2, y, w: lw, h: lh }; return inside(r) && !hits(r); });
+      if (top == null) continue;
+      obstacles.push({ x: cx - lw / 2, y: top, w: lw, h: lh });
+      const g = lObjExtras.append("g").attr("class", "periodic-legend").style("pointer-events", "none");
+      g.append("rect").attr("x", cx - lw / 2 - 6).attr("y", top - 4).attr("width", lw + 12).attr("height", lh + 8)
+        .attr("rx", 4).attr("fill", "rgba(6,6,26,0.75)"); // readable over the colour areas
+      ELEMENT_TYPES.forEach((t, i) => {
+        const lx = cx - lw / 2 + Math.floor(i / n) * colW, ly = top + (i % n) * ROW + ROW / 2;
+        g.append("circle").attr("cx", lx + 4).attr("cy", ly).attr("r", 4)
+          .attr("fill", t.color).attr("opacity", 0.55);
+        g.append("text").attr("x", lx + 12).attr("y", ly + 3)
+          .attr("font-family", "Inter, sans-serif").attr("font-size", fscale(LF))
+          .attr("fill", t.color).attr("opacity", 0.9).text(t.label);
+      });
+      break;
+    }
+  }
+
+  // Colour areas: each type's elements joined to their same-type neighbours
+  // in the grid by fat round strokes (plus a disc on each, so a lone cell
+  // still shows), drawn opaque inside a translucent group so overlaps within
+  // a type don't stack. The area follows the grid as it warps.
+  {
+    const R = 7;
+    const segs = new Map(ELEMENT_TYPES.map((t) => [t.id, []]));
+    for (const l of lines) {
+      for (let i = 1; i < l.zs.length; i++) {
+        const a = l.zs[i - 1], b = l.zs[i], t = elementType(a);
+        if (t === elementType(b)) segs.get(t).push([at.get(a), at.get(b)]);
+      }
+    }
+    for (const [z, p] of at) segs.get(elementType(z)).push([p, p]);
+    for (const t of ELEMENT_TYPES) {
+      const d = segs.get(t.id).map(([a, b]) => `M${a[0]},${a[1]}L${b[0]},${b[1]}`).join("");
+      if (!d) continue;
+      gLines.append("path").attr("class", "periodic-area")
+        .attr("d", d).attr("fill", "none").attr("stroke", t.color)
+        .attr("stroke-width", R * 2).attr("stroke-linecap", "round").attr("stroke-linejoin", "round")
+        .attr("opacity", 0.2)
+        .style("pointer-events", "none");
+    }
+  }
+  // Lines: neutral throughout, then the run of a typed line whose elements
+  // share its type drawn over in that colour (group 1 is coloured from
+  // lithium down, not from hydrogen).
+  for (const l of lines) {
+    if (l.zs.length < 2) continue;
+    const row = l.kind === "row";
+    const draw = (zs, stroke, op) => gLines.append("path")
+      .attr("class", "periodic-line")
+      .attr("d", d3.line()(zs.map((z) => at.get(z))))
+      .attr("fill", "none").attr("stroke", stroke)
+      .attr("stroke-width", row ? 1.2 : 1)
+      .attr("stroke-dasharray", row ? null : "4 3")
+      .attr("stroke-linejoin", "round")
+      .attr("opacity", op)
+      .style("pointer-events", "none");
+    draw(l.zs, color, row ? 0.55 : 0.275); // columns recede behind the rows
+    if (!l.type) continue;
+    const run = l.zs.filter((z) => elementType(z) === l.type);
+    if (run.length >= 2) draw(run, TYPE_COLOR[l.type], row ? 0.8 : 0.6);
+  }
+  // Family names along their columns, in the family's colour where it has one
+  PERIODIC_FAMILIES.forEach((f, i) => {
+    const zs = lines.filter((l) => l.kind === "column" && f.groups.includes(l.key))
+      .flatMap((l) => l.zs).filter((z) => !f.type || elementType(z) === f.type);
+    labelAlongLine(zs.map((z) => at.get(z)), f.label.toUpperCase(), {
+      id: `periodic-family-${i}`, off: -10, obstacles,
+      color: f.type ? TYPE_COLOR[f.type] : color, opacity: f.type ? 0.85 : 0.6,
+    });
+  });
 }
 
 // Labels laid along the periodic-table rows/columns that the element dust
@@ -2045,75 +2131,91 @@ function drawElementGuides(obstacles) {
           .attr("class", "element-guide")
           .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
           .attr("font-size", fscale(FONT)).attr("letter-spacing", "1px")
-          .attr("fill", color).attr("opacity", 0.6)
+          .attr("fill", _periodicOn && g.type ? TYPE_COLOR[g.type] : color).attr("opacity", _periodicOn && g.type ? 0.85 : 0.6)
           .style("pointer-events", "none").text(text);
         return;
       }
       return;
     }
 
-    // Straight best-fit line through the dots (principal axis), not a curve
-    // through every point: the transition metals zigzag, and text bent along
-    // that zigzag is unreadable. Endpoints = the outermost dots projected onto
-    // the axis, ordered left → right so the text reads upright.
-    {
-      const n = pts.length;
-      const mx = pts.reduce((s, p) => s + p[0], 0) / n, my = pts.reduce((s, p) => s + p[1], 0) / n;
-      let sxx = 0, syy = 0, sxy = 0;
-      for (const [x, y] of pts) { sxx += (x - mx) ** 2; syy += (y - my) ** 2; sxy += (x - mx) * (y - my); }
-      const ang = 0.5 * Math.atan2(2 * sxy, sxx - syy);
-      let ux = Math.cos(ang), uy = Math.sin(ang);
-      if (ux < 0) { ux = -ux; uy = -uy; }
-      const ts = pts.map(([x, y]) => (x - mx) * ux + (y - my) * uy);
-      const t0 = Math.min(...ts), t1 = Math.max(...ts);
-      pts.length = 0;
-      pts.push([mx + t0 * ux, my + t0 * uy], [mx + t1 * ux, my + t1 * uy]);
-    }
-    const cum = [0];
-    for (let i = 1; i < pts.length; i++)
-      cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
-    const len = cum[cum.length - 1];
-    if (len < textW * 1.4) return;
-    const at = (s) => { // point + unit normal at arc length s
-      let i = 1;
-      while (i < pts.length - 1 && cum[i] < s) i++;
-      const seg = cum[i] - cum[i - 1] || 1, t = Math.min(1, Math.max(0, (s - cum[i - 1]) / seg));
-      const dx = (pts[i][0] - pts[i - 1][0]) / seg, dy = (pts[i][1] - pts[i - 1][1]) / seg;
-      return { x: pts[i - 1][0] + t * dx * seg, y: pts[i - 1][1] + t * dy * seg, nx: dy, ny: -dx };
-    };
-    const off = g.kind === "column" ? -10 : 7; // which side of the dots the text sits
-    for (const frac of [0.5, 0.35, 0.65, 0.25, 0.75]) {
-      const c = frac * len;
-      if (c - textW / 2 < 0 || c + textW / 2 > len) continue;
-      const boxes = [];
-      let ok = true;
-      for (let s2 = c - textW / 2; s2 <= c + textW / 2 + 0.1; s2 += 7) {
-        const p = at(s2);
-        const bx = p.x + p.nx * off, by = p.y + p.ny * off;
-        if (!onScreen(bx, by)) { ok = false; break; }
-        const box = { x: bx - 5, y: by - 6, w: 10, h: 12 };
-        if (hits(box)) { ok = false; break; }
-        boxes.push(box);
-      }
-      if (!ok) continue;
-      obstacles.push(...boxes);
-      const id = `element-guide-${gi}`;
-      lObjExtras.append("path").attr("id", id)
-        .attr("d", d3.line()(pts))
-        .attr("fill", "none").attr("stroke", "none");
-      lObjExtras.append("text")
-        .attr("class", "element-guide")
-        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-        .attr("font-size", fscale(FONT)).attr("letter-spacing", "1px")
-        .attr("fill", color).attr("opacity", g.kind === "column" ? 0.45 : 0.65)
-        .attr("dy", off < 0 ? -(-off - 3) : off + 3)
-        .style("pointer-events", "none")
-        .append("textPath").attr("href", `#${id}`)
-        .attr("startOffset", `${(frac * 100).toFixed(0)}%`).attr("text-anchor", "middle")
-        .text(text);
-      return;
-    }
+    if (g.kind === "column" && _periodicOn) return; // the easter egg names the families itself
+    labelAlongLine(pts, text, {
+      id: `element-guide-${gi}`, off: g.kind === "column" ? -10 : 7, obstacles,
+      color, opacity: g.kind === "column" ? 0.45 : 0.65,
+    });
   });
+}
+
+/** Lay `text` along the straight best-fit line through screen points `pts`
+ *  (only if the line is long enough to carry it), `off` px to one side, at
+ *  the first of a few spots whose whole run clears `obstacles`. Returns
+ *  whether it was placed. */
+function labelAlongLine(pts, text, { id, off, obstacles, color, opacity }) {
+  if (pts.length < 2) return false;
+  const FONT = 9, CHAR_W = FONT * 0.68;
+  const textW = text.length * CHAR_W + 8;
+  const hits = (r) => obstacles.some((p) =>
+    r.x < p.x + p.w && r.x + r.w > p.x && r.y < p.y + p.h && r.y + r.h > p.y);
+  const onScreen = (x, y) => x >= 0 && x <= cw && y >= 0 && y <= ch;
+  // Straight best-fit line through the dots (principal axis), not a curve
+  // through every point: the transition metals zigzag, and text bent along
+  // that zigzag is unreadable. Endpoints = the outermost dots projected onto
+  // the axis, ordered left → right so the text reads upright.
+  {
+    const n = pts.length;
+    const mx = pts.reduce((s, p) => s + p[0], 0) / n, my = pts.reduce((s, p) => s + p[1], 0) / n;
+    let sxx = 0, syy = 0, sxy = 0;
+    for (const [x, y] of pts) { sxx += (x - mx) ** 2; syy += (y - my) ** 2; sxy += (x - mx) * (y - my); }
+    const ang = 0.5 * Math.atan2(2 * sxy, sxx - syy);
+    let ux = Math.cos(ang), uy = Math.sin(ang);
+    if (ux < 0) { ux = -ux; uy = -uy; }
+    const ts = pts.map(([x, y]) => (x - mx) * ux + (y - my) * uy);
+    const t0 = Math.min(...ts), t1 = Math.max(...ts);
+    pts = [[mx + t0 * ux, my + t0 * uy], [mx + t1 * ux, my + t1 * uy]];
+  }
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++)
+    cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const len = cum[cum.length - 1];
+  if (len < textW * 1.4) return false;
+  const at = (s) => { // point + unit normal at arc length s
+    let i = 1;
+    while (i < pts.length - 1 && cum[i] < s) i++;
+    const seg = cum[i] - cum[i - 1] || 1, t = Math.min(1, Math.max(0, (s - cum[i - 1]) / seg));
+    const dx = (pts[i][0] - pts[i - 1][0]) / seg, dy = (pts[i][1] - pts[i - 1][1]) / seg;
+    return { x: pts[i - 1][0] + t * dx * seg, y: pts[i - 1][1] + t * dy * seg, nx: dy, ny: -dx };
+  };
+  for (const frac of [0.5, 0.35, 0.65, 0.25, 0.75]) {
+    const c = frac * len;
+    if (c - textW / 2 < 0 || c + textW / 2 > len) continue;
+    const boxes = [];
+    let ok = true;
+    for (let s2 = c - textW / 2; s2 <= c + textW / 2 + 0.1; s2 += 7) {
+      const p = at(s2);
+      const bx = p.x + p.nx * off, by = p.y + p.ny * off;
+      if (!onScreen(bx, by)) { ok = false; break; }
+      const box = { x: bx - 5, y: by - 6, w: 10, h: 12 };
+      if (hits(box)) { ok = false; break; }
+      boxes.push(box);
+    }
+    if (!ok) continue;
+    obstacles.push(...boxes);
+    lObjExtras.append("path").attr("id", id)
+      .attr("d", d3.line()(pts))
+      .attr("fill", "none").attr("stroke", "none");
+    lObjExtras.append("text")
+      .attr("class", "element-guide")
+      .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+      .attr("font-size", fscale(FONT)).attr("letter-spacing", "1px")
+      .attr("fill", color).attr("opacity", opacity)
+      .attr("dy", off < 0 ? -(-off - 3) : off + 3)
+      .style("pointer-events", "none")
+      .append("textPath").attr("href", `#${id}`)
+      .attr("startOffset", `${(frac * 100).toFixed(0)}%`).attr("text-anchor", "middle")
+      .text(text);
+    return true;
+  }
+  return false;
 }
 
 // Once the periodic-table rows in the element dust are readable, the atom
