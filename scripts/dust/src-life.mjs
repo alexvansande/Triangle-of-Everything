@@ -219,6 +219,8 @@ export default [
     anchors: [
       // Aphanocapsa delicatissima, size class 1: sphere d = 0.85 µm
       { name: "Aphanocapsa delicatissima", logR: log(0.425e-4), logM: log(Math.PI / 6 * 0.85 ** 3 * UM3 * CELL_RHO), tol: 0.01 },
+      // Noctiluca scintillans (sea sparkle): textbook cell diameter ~0.4 mm (0.2–2 mm)
+      { name: "Noctiluca scintillans", logR: log(0.02), tol: 0.3 },
     ],
     async load() {
       const zip = download(this.url, "peg_bvol.zip");
@@ -296,7 +298,12 @@ export default [
     url: "https://raw.githubusercontent.com/CallumJMacgregor/KinsellaBiomass/10f1fbcd273e484524d050b93c6fd884548b8a89/moth_data.csv",
     radius: "half the species-mean forewing length (≈ the length of the moth at rest, wings folded); mass = species-mean dry mass ÷ 0.35",
     density: [-3, 0.3],
-    anchors: [],
+    anchors: [
+      // Peppered moth: one specimen, 74.3 mg dry, forewing 20 mm (parse check) …
+      { name: "Biston betularia", logR: log(1.0), logM: log(74.3 / DRY_PER_WET / 1000), tol: 0.01 },
+      // … and textbook forewing ≈ 24 mm (wingspan 45–62 mm)
+      { name: "Biston betularia", logR: log(1.2), tol: 0.15 },
+    ],
     async load(fetchText) {
       const rows = csvRows(await fetchText(this.url, "kinsella2020-moths.csv"));
       const sp = new Map();
