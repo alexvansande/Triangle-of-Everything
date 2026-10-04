@@ -28,7 +28,7 @@ import {
 } from "./water-phase.js";
 import introRaw from "../content/intro.md?raw";
 import "./style.css";
-import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep } from "./tour.js";
+import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, isTourActive, closeTour } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
@@ -1925,9 +1925,10 @@ function dustColor(catKey, sourceId) {
 // group columns and the detached f-block's two rows and fourteen columns —
 // so the familiar grid can be traced through where the elements actually
 // sit by size & mass. Each element gets a ring in its type's colour, the
-// families are named along their columns, and a legend sits by the title.
+// families are named along their columns, and a box tells the story.
 // Grid, types and families all come from atomic numbers (see data.js).
 let _periodicOn = false;
+let _periodicInView = false; // the title is up and the view sits on the elements (start-button suggestion)
 const TYPE_COLOR = Object.fromEntries(ELEMENT_TYPES.map((t) => [t.id, t.color]));
 const PERIODIC_LINES = (() => {
   const rows = new Map(), cols = new Map(), fRows = new Map(), fCols = new Map();
@@ -1943,7 +1944,32 @@ const PERIODIC_LINES = (() => {
   return [...sorted(rows, "row"), ...sorted(fRows, "row"), ...sorted(cols, "column"), ...sorted(fCols, "fcolumn")];
 })();
 
+// The box (index.html #periodic-box, styled as a tour card) carries the
+// story and the colour key; opening it closes the tour, and its × or the
+// tour's start button turns the table off.
+const periodicBox = document.getElementById("periodic-box");
+document.getElementById("periodic-legend").innerHTML = ELEMENT_TYPES.map((t) =>
+  `<li class="periodic-legend-item" style="color:${t.color}"><span class="periodic-legend-ring"></span>${t.label}</li>`).join("");
+function setPeriodic(on) {
+  _periodicOn = on;
+  periodicBox.classList.toggle("tour-hidden", !on);
+  document.body.classList.toggle("periodic-open", on);
+  if (on && isTourActive()) closeTour();
+  redraw();
+  updateStartButtonLabel();
+}
+document.getElementById("periodic-close").addEventListener("click", () => setPeriodic(false));
+document.getElementById("tour-start-btn").addEventListener("click", () => { if (_periodicOn) setPeriodic(false); });
+
 function drawPeriodicTable(obstacles) {
+  const wasInView = _periodicInView;
+  _periodicInView = false;
+  drawPeriodicLayer(obstacles);
+  // The dust can arrive after a zoom has settled: refresh the suggestion
+  // whenever being on the elements changes, not only at zoom end.
+  if (_periodicInView !== wasInView) updateStartButtonLabel();
+}
+function drawPeriodicLayer(obstacles) {
   if (!_dustEnabled || _bigBangMode) return;
   const dustPos = dustPositions("element");
   if (!dustPos) return;
@@ -1966,6 +1992,14 @@ function drawPeriodicTable(obstacles) {
   const xs = rows.map((p) => p[0]), ys = rows.map((p) => p[1]);
   const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
   if (Math.max(x1 - x0, y1 - y0) < 120) return;
+  {
+    // In view = the chart's centre within the elements' extent (padded)
+    const all = [...at.values()];
+    const ax = all.map((p) => p[0]), ay = all.map((p) => p[1]);
+    const ex0 = Math.min(...ax), ex1 = Math.max(...ax), ey0 = Math.min(...ay), ey1 = Math.max(...ay);
+    const padX = (ex1 - ex0) * 0.25, padY = (ey1 - ey0) * 0.25;
+    _periodicInView = cw / 2 > ex0 - padX && cw / 2 < ex1 + padX && ch / 2 > ey0 - padY && ch / 2 < ey1 + padY;
+  }
   const color = dustColor("atomic");
   const gLines = lObjExtras.append("g"); // under the title, legend and labels
   const hits = (r) => obstacles.some((p) => r.x < p.x + p.w && r.x + r.w > p.x && r.y < p.y + p.h && r.y + r.h > p.y);
@@ -1974,59 +2008,32 @@ function drawPeriodicTable(obstacles) {
   // Category-label style, centred under the light rows (else above them)
   const FONT = 12, text = "THE PERIODIC TABLE";
   const w = text.length * (FONT * 0.68) + 8, h = FONT + 4;
+  const drawTitle = (x, ty, anchor) => lObjExtras.append("text")
+    .attr("class", "periodic-title")
+    .attr("x", x).attr("y", ty).attr("text-anchor", anchor)
+    .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+    .attr("font-size", fscale(FONT)).attr("letter-spacing", "1px")
+    .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.6)")
+    .attr("stroke-width", 2).attr("stroke-linejoin", "round")
+    .attr("fill", color).attr("opacity", _periodicOn ? 0.9 : 0.5)
+    .style("cursor", "pointer").style("pointer-events", "all")
+    // Toggle on press, not click: lObjExtras is rebuilt per frame, so the
+    // node under mousedown is gone by mouseup and no click would fire. Not
+    // propagating also keeps a pan from starting on the title.
+    .on("mousedown touchstart", (e) => e.stopPropagation())
+    .on("pointerdown", (e) => { e.stopPropagation(); setPeriodic(!_periodicOn); })
+    .text(text);
   const cx = (x0 + x1) / 2;
-  let title = null;
-  for (const [ty, below] of [[y1 + 26, true], [y0 - 14, false]]) {
+  // Zoomed in past the light rows the title has nowhere to sit; the table
+  // stays on, and the box (#periodic-box) is there to turn it off.
+  for (const ty of [y1 + 26, y0 - 14]) {
     const rect = { x: cx - w / 2, y: ty - FONT, w, h };
     if (!inside(rect) || hits(rect)) continue;
     obstacles.push(rect);
-    title = { rect, below };
-    lObjExtras.append("text")
-      .attr("class", "periodic-title")
-      .attr("x", cx).attr("y", ty).attr("text-anchor", "middle")
-      .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", fscale(FONT)).attr("letter-spacing", "1px")
-      .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.6)")
-      .attr("stroke-width", 2).attr("stroke-linejoin", "round")
-      .attr("fill", color).attr("opacity", _periodicOn ? 0.9 : 0.5)
-      .style("cursor", "pointer").style("pointer-events", "all")
-      // Toggle on press, not click: lObjExtras is rebuilt per frame, so the
-      // node under mousedown is gone by mouseup and no click would fire. Not
-      // propagating also keeps a pan from starting on the title.
-      .on("mousedown touchstart", (e) => e.stopPropagation())
-      .on("pointerdown", (e) => { e.stopPropagation(); _periodicOn = !_periodicOn; redraw(); })
-      .text(text);
+    drawTitle(cx, ty, "middle");
     break;
   }
-  if (!title || !_periodicOn) return;
-
-  // Legend: the type colours, two columns, on the far side of the title from
-  // the rows (else the near side, else one column).
-  {
-    const LF = 9, ROW = 13, half = Math.ceil(ELEMENT_TYPES.length / 2);
-    const colW = Math.max(...ELEMENT_TYPES.map((t) => t.label.length)) * LF * 0.62 + 18;
-    for (const cols of [2, 1]) {
-      const n = cols === 2 ? half : ELEMENT_TYPES.length;
-      const lw = colW * cols, lh = n * ROW;
-      const tr = title.rect;
-      const spots = title.below ? [tr.y + tr.h + 6, tr.y - lh - 6] : [tr.y - lh - 6, tr.y + tr.h + 6];
-      const top = spots.find((y) => { const r = { x: cx - lw / 2, y, w: lw, h: lh }; return inside(r) && !hits(r); });
-      if (top == null) continue;
-      obstacles.push({ x: cx - lw / 2, y: top, w: lw, h: lh });
-      const g = lObjExtras.append("g").attr("class", "periodic-legend").style("pointer-events", "none");
-      g.append("rect").attr("x", cx - lw / 2 - 6).attr("y", top - 4).attr("width", lw + 12).attr("height", lh + 8)
-        .attr("rx", 4).attr("fill", "rgba(6,6,26,0.75)"); // readable over the grid lines
-      ELEMENT_TYPES.forEach((t, i) => {
-        const lx = cx - lw / 2 + Math.floor(i / n) * colW, ly = top + (i % n) * ROW + ROW / 2;
-        g.append("circle").attr("cx", lx + 4).attr("cy", ly).attr("r", 3)
-          .attr("fill", "none").attr("stroke", t.color).attr("stroke-width", 1.4);
-        g.append("text").attr("x", lx + 12).attr("y", ly + 3)
-          .attr("font-family", "Inter, sans-serif").attr("font-size", fscale(LF))
-          .attr("fill", t.color).attr("opacity", 0.9).text(t.label);
-      });
-      break;
-    }
-  }
+  if (!_periodicOn) return;
 
   // Grid lines, neutral; the colour is in the rings
   for (const l of lines) {
@@ -6707,6 +6714,11 @@ initTour({
   animateBigBang: animateBigBangTransition,
   exitBigBang: exitBigBangMode,
   isBigBangActive: () => _bigBangMode,
+  // Deep in the map (a dozen decades of mass or less on screen) the intro
+  // card is in the way of whatever the link points at.
+  skipIntro: () => { const d = vd(); return d.y1 - d.y0 < 12; },
+  suggest: () => (_periodicInView && !_periodicOn
+    ? { label: "Explore the periodic table", open: () => setPeriodic(true) } : null),
 });
 
 // Standalone cosmic-time scrubber — drives the same Big Bang era engine
