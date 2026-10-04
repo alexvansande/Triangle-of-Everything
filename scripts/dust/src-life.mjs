@@ -179,7 +179,7 @@ export default [
     cite: "Madin et al. (2020) A synthesis of bacterial and archaeal phenotypic trait data, Scientific Data 7:170 — condensed_species_NCBI.csv (cell diameter d1 and length d2, µm, compiled from species descriptions). Mass derived: capsule volume × 1.1 g/cm³ (E. coli buoyant density, Kubitschek et al. 1983)",
     url: "https://raw.githubusercontent.com/bacteria-archaea-traits/bacteria-archaea-traits/396dcd4d98ca20b613ba280f5514611651b6fb91/output/condensed_species_NCBI.csv",
     radius: "half the measured cell length (rods) or diameter (cocci); mass = capsule volume π/4·d1²·(d2−d1) + π/6·d1³ (midpoints of the reported ranges) × 1.1 g/cm³ — rods, cocci, coccobacilli and vibrios only",
-    density: [-3.5, 0.3],
+    density: [-4.5, 0.3],
     anchors: [
       // B. subtilis: d1 0.7–0.8, d2 2–3 µm → d1 0.75, d2 2.5 µm
       { name: "Bacillus subtilis", logR: log(1.25e-4), logM: log((Math.PI / 4 * 0.75 ** 2 * (2.5 - 0.75) + Math.PI / 6 * 0.75 ** 3) * UM3 * CELL_RHO), tol: 0.01 },
@@ -215,7 +215,7 @@ export default [
     cite: "HELCOM PEG phytoplankton biovolume list, PEG_BVOL2026 (ICES; Olenina et al. 2006, HELCOM Balt. Sea Environ. Proc. 106) — measured cell dimensions per size class and the geometric-shape volume. Mass derived: volume × 1.1 g/cm³",
     url: "https://www.ices.dk/data/Documents/ENV/PEG_BVOL.zip",
     radius: "half the largest measured cell dimension (length, diameter or height) of the species' median size class; single cells only (counting unit = cell); mass = the list's calculated cell volume × 1.1 g/cm³",
-    density: [-4, 0.3],
+    density: [-4.5, 0.3],
     anchors: [
       // Aphanocapsa delicatissima, size class 1: sphere d = 0.85 µm
       { name: "Aphanocapsa delicatissima", logR: log(0.425e-4), logM: log(Math.PI / 6 * 0.85 ** 3 * UM3 * CELL_RHO), tol: 0.01 },
