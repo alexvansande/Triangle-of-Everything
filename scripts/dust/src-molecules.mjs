@@ -75,14 +75,18 @@ export default [
       const q = "SELECT ?item ?cid ?n WHERE { ?item wdt:P662 ?cid; wikibase:sitelinks ?n. FILTER(?n >= 30) } LIMIT 5000";
       const wd = download("https://query.wikidata.org/sparql?query=" + encodeURIComponent(q), "wd-pubchem-items.csv", { type: "text/csv" });
       // one CID per item: the lowest (PubChem's parent / unspecified-stereo record)
-      const cidOf = new Map();
+      const cidOf = new Map(), links = new Map();
       for (const l of wd.replace(/\r/g, "").trim().split("\n").slice(1)) {
-        const [item, cid] = l.split(",");
+        const [item, cid, n] = l.split(",");
         const qid = item.split("/").pop(), c = +cid;
         if (!/^Q\d+$/.test(qid) || !(c > 0)) continue;
         if (!cidOf.has(qid) || c < cidOf.get(qid)) cidOf.set(qid, c);
+        links.set(qid, +n);
       }
-      const qids = [...cidOf.keys()].sort((a, b) => +a.slice(1) - +b.slice(1));
+      // two items sharing a CID ("hydrogen iodide" / "hydroiodic acid"): keep the better-known one
+      const byCid = new Map();
+      for (const [qid, c] of cidOf) if (!byCid.has(c) || links.get(qid) > links.get(byCid.get(c))) byCid.set(c, qid);
+      const qids = [...byCid.values()].sort((a, b) => +a.slice(1) - +b.slice(1));
       // English labels, 50 items per wbgetentities call
       const label = {};
       for (let i = 0; i < qids.length; i += 50) {
@@ -127,7 +131,12 @@ export default [
     cite: "SASBDB — Small Angle Scattering Biological Data Bank (Kikhney et al. 2020, Protein Sci. 29:66), REST API entry summaries; X-ray (SAXS) protein entries",
     radius: "uniform-sphere equivalent of the measured Guinier radius of gyration, R = √(5/3)·Rg (exact for a solid sphere; for elongated or flexible molecules it is the radius of the sphere with the same Rg)",
     density: [-2.5, 0.6],
-    anchors: [],
+    anchors: [
+      // hen egg-white lysozyme: 14.3 kDa, Rg ≈ 1.4–1.5 nm (textbook SAXS standard)
+      { name: "Lysozyme C", logM: log(14.3e3 * AMU), logR: log(Math.sqrt(5 / 3) * 1.45e-7), tol: 0.05 },
+      // bovine serum albumin: 66.4 kDa mature (SASBDB lists the 69.4 kDa precursor sequence), Rg ≈ 2.8–3.0 nm
+      { name: "Bovine Serum Albumin", logM: log(66.4e3 * AMU), logR: log(Math.sqrt(5 / 3) * 2.9e-7), tol: 0.05 },
+    ],
     async load() {
       const codes = JSON.parse(download("https://www.sasbdb.org/rest-api/entry/codes/molecular_type/protein/", "sasbdb-protein-codes.json"))
         .filter((e) => e.status === "Published").map((e) => e.code).sort();
@@ -143,11 +152,55 @@ export default [
         }
         entries.push(...JSON.parse(readFileSync(p, "utf8")));
       }
-      this._entries = entries;
-      return [];
+      // name → candidate entries (one protein is often measured many times)
+      const groups = new Map();
+      for (const e of entries) {
+        if (!/^X-ray/.test(e.source || "") || e.mixture) continue;            // SAXS only (SANS Rg depends on contrast)
+        if (!e.mol.length || e.mol.some((m) => m.deut)) continue;            // no deuterated samples
+        const rg = +e.rg, prg = +e.prg, mExp = +e.mwExp;
+        const mSeq = e.mol.reduce((s, m) => s + (+m.total || 0), 0);          // kDa, composition × copy number
+        if (!ok(rg, mSeq, mExp)) continue;
+        if (ok(+e.rgErr) && e.rgErr / rg > 0.05) continue;                   // Rg to ±5 %
+        if (ok(prg) && Math.abs(log(prg / rg)) > 0.05) continue;             // Guinier and P(r) Rg agree (±12 %)
+        if (Math.abs(log(mExp / mSeq)) > 0.1) continue;                      // SAXS MW confirms the stated composition (±26 %)
+        const name = proteinName(e);
+        if (!name) continue;
+        if (!groups.has(name)) groups.set(name, []);
+        groups.get(name).push({ name, logR: log(Math.sqrt(5 / 3) * rg * 1e-7), logM: log(mSeq * 1e3 * AMU), code: e.code });
+      }
+      // one dot per name: the entry with the median radius (ties → lowest code)
+      const out = [];
+      for (const g of groups.values()) {
+        g.sort((a, b) => a.logR - b.logR || a.code.localeCompare(b.code));
+        out.push(g[(g.length - 1) >> 1]);
+      }
+      return out;
     },
   },
 ];
+
+// Readable name: the molecule's long name (+ oligomeric state), or the
+// sample title for multi-component complexes.
+const PROT_ALIAS = { "Immunoglobulin G subclass 1": "Antibody (IgG)" }; // curated "Antibody (IgG)" is a whole IgG1-like antibody
+function proteinName(e) {
+  const tidy = (t) => {
+    t = String(t || "").replace(/\s+/g, " ").trim();
+    if (t.length > 5 && t === t.toUpperCase()) t = t[0] + t.slice(1).toLowerCase(); // "INTERLEUKIN 8" → "Interleukin 8"
+    return t;
+  };
+  if (e.mol.length === 1) {
+    const m = e.mol[0], base = tidy(m.long || m.short);
+    if (!base) return "";
+    if (PROT_ALIAS[base] && +m.total < 1.2 * m.mw) return PROT_ALIAS[base];
+    const olig = String(m.olig || "").trim();
+    return olig && !/^(monomer|other|unknown)$/i.test(olig) && !base.toLowerCase().includes(olig.toLowerCase()) ? `${base} (${olig})` : base;
+  }
+  const names = e.mol.map((m) => tidy(m.long || m.short));
+  const joined = names.join(" + ");
+  // sample titles sometimes end in the measured concentration ("… @ 3.0mg/mL", "…, 37.2 μM")
+  return names.every(Boolean) && joined.length <= 70 ? joined
+    : tidy(e.name).replace(/\s*[@,]\s*[\d.]+\s*(mg\/ml|[µμu]M|mM)\b.*$/i, "");
+}
 
 function slim(e) {
   const s = e.experiment?.sample || {};
