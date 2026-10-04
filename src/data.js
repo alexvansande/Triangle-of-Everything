@@ -541,7 +541,7 @@ export const CONNECTION_PATHS = [
     family: "combines",
     description: "Oxygen bonds with two hydrogen atoms to form water (H₂O)",
     points: [
-      { logR: -8.32, logM: -22.58 },  // Oxygen (Clementi calculated radius, 48 pm)
+      { logR: -8.34, logM: -22.58 },  // Oxygen (Guerra 2017 calculated radius, 46 pm)
       { logR: -8.3,  logM: -22.4 },
       { logR: -7.85, logM: -22.52 },
     ],
@@ -736,7 +736,7 @@ export const CAT_DISPLAY = {
 // =============================================================
 // Periodic-table guides — labels that follow the element dust
 // =============================================================
-// The element dust (calculated atomic radii, Clementi 1967) shows the
+// The element dust (calculated atomic radii, Guerra et al. 2017) shows the
 // periodic table as a sawtooth: within a period atoms get heavier but
 // SMALLER, then a new electron shell makes the next alkali metal balloon.
 // When zoomed in, each period (and the alkali / noble-gas columns and the
@@ -749,9 +749,11 @@ export const ELEMENT_GUIDES = [
   { label: "Period 4", kind: "row", elements: ["Potassium", "Calcium", "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc", "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton"] },
   { label: "Period 5", kind: "row", elements: ["Rubidium", "Strontium", "Yttrium", "Zirconium", "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon"] },
   { label: "Period 6", kind: "row", elements: ["Cesium", "Barium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon"] },
+  { label: "Period 7", kind: "row", elements: ["Francium", "Radium", "Rutherfordium", "Dubnium", "Seaborgium", "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium", "Copernicium", "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessine", "Oganesson"] },
+  { label: "Actinides", kind: "cluster", elements: ["Actinium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium"] },
   { label: "Lanthanides", kind: "cluster", elements: ["Lanthanum", "Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium"] },
-  { label: "Alkali metals", kind: "column", elements: ["Lithium", "Sodium", "Potassium", "Rubidium", "Cesium"] },
-  { label: "Noble gases", kind: "column", elements: ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon"] },
+  { label: "Alkali metals", kind: "column", elements: ["Lithium", "Sodium", "Potassium", "Rubidium", "Cesium", "Francium"] },
+  { label: "Noble gases", kind: "column", elements: ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon", "Oganesson"] },
 ];
 
 export const SUBCAT_LABELS = {

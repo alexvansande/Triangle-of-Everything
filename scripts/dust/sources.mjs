@@ -132,37 +132,53 @@ export const SOURCES = [
   // ---------------------------------------------------------------
   {
     id: "element",
-    label: "Element · Clementi (1967) calculated radius",
+    label: "Element · Guerra+ (2017) Dirac–Fock radius",
     cat: "atomic",
-    cite: "Masses: PubChem periodic table (IUPAC standard atomic weights). Radii: Clementi, Raimondi & Reinhardt, J. Chem. Phys. 47, 1300 (1967), via Wikipedia's atomic-radii data page",
+    cite: "Masses: PubChem periodic table (IUPAC standard atomic weights; mass of the longest-lived isotope where none exists). Radii: Guerra, Amaro, Santos & Indelicato, Atomic Data and Nuclear Data Tables 117–118, 439 (2017), doi:10.1016/j.adt.2017.01.001 — subshell radii of maximum charge density, Z = 1–118, as transcribed in github.com/VictorNorman/orbital-energy-angular (scripts/data/081425-element-data.csv); checked against Waber & Cromer, J. Chem. Phys. 42, 4116 (1965) for Z = 1–102",
     url: "https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/JSON",
-    radius: "calculated atomic radius (Clementi 1967) — the convention hydrogen (53 pm) and helium (31 pm) already use",
+    radiiUrl: "https://raw.githubusercontent.com/VictorNorman/orbital-energy-angular/c5bd73606940b9b5f41a9dc4fe0b20b4dcb3869f/scripts/data/081425-element-data.csv",
+    radius: "calculated atomic radius: radius of maximum radial charge density of the outermost occupied subshell (largest r_max among occupied subshells), relativistic Dirac–Fock (MCDFGME) ground-state calculation — same definition as Clementi (1967), now relativistic and complete to Z = 118",
     anchors: [
-      { name: "Hydrogen", logR: log(53e-10), logM: log(1.008 * AMU), tol: 0.01 },
+      { name: "Hydrogen", logR: log(52.9e-10), logM: log(1.008 * AMU), tol: 0.01 },
       { name: "Iron", logM: log(55.845 * AMU), tol: 0.002 },
+      // independent Dirac–Slater r_max of the same orbitals (Waber & Cromer 1965);
+      // Guerra sits a near-constant +0.04 dex above it across Z = 1–102
+      { name: "Gold", logR: log(118.7e-10), tol: 0.07 },
+      { name: "Francium", logR: log(244.7e-10), tol: 0.07 },
     ],
     async load(fetchText) {
       const pc = JSON.parse(await fetchText(this.url, "pubchem-periodic.json")).Table;
       const cols = pc.Columns.Column;
       const iZ = cols.indexOf("AtomicNumber"), iName = cols.indexOf("Name"), iM = cols.indexOf("AtomicMass");
-      const wt = JSON.parse(await fetchText(
-        "https://en.wikipedia.org/w/api.php?action=parse&page=Atomic_radii_of_the_elements_(data_page)&prop=wikitext&format=json&formatversion=2",
-        "wiki-atomic-radii.json")).parse.wikitext;
-      // Rows: "| Z || Sym || [[name]]" then one "| value" line per column:
-      // empirical, calculated, van der Waals, covalent… We take column 2.
-      const calc = {};
-      for (const block of wt.split("\n|-").slice(1)) {
-        const lines = block.split("\n").map((s) => s.trim()).filter((s) => s.startsWith("|"));
-        const m = lines[0]?.match(/^\|\s*(\d+)\s*\|\|/);
-        if (!m) continue;
-        const v = lines[2]?.replace(/<ref[^>]*\/>|<ref[^>]*>.*?<\/ref>|\{\{[^}]*\}\}/g, "").replace(/^\|/, "").trim();
-        const pm = parseFloat(v);
-        if (Number.isFinite(pm) && !/background/.test(lines[2])) calc[+m[1]] = pm;
+      // Spreadsheet: row 1 = block titles, row 2 = subshell labels, row 3 = units,
+      // then one row per element. The block "Atomic Radius (Rp) - Guerra" holds
+      // r_max (pm) for 1s … 7p; only subshells occupied in the ground state are filled.
+      const split = (l) => {
+        const out = []; let cur = "", q = false;
+        for (const ch of l) {
+          if (ch === '"') q = !q;
+          else if (ch === "," && !q) { out.push(cur); cur = ""; }
+          else cur += ch;
+        }
+        out.push(cur);
+        return out;
+      };
+      const rows = (await fetchText(this.radiiUrl, "guerra2017-radii.csv"))
+        .replace(/^\uFEFF/, "").split(/\r?\n/).map(split);
+      const start = rows[1].findIndex((s) => s.trim().startsWith("Atomic Radius (Rp) - Guerra"));
+      const shells = ["1s", "2s", "2p", "3s", "3p", "3d", "4s", "4p", "4d", "4f", "5s", "5p", "5d", "5f", "6s", "6p", "6d", "7s", "7p"];
+      if (start < 0 || shells.some((s, k) => rows[2][start + k].trim() !== s)) throw new Error("element: Guerra radius block not found");
+      const rmax = {};
+      for (const r of rows.slice(4)) {
+        const z = parseInt(r[2], 10);
+        if (!(z >= 1 && z <= 118)) continue;
+        const v = shells.map((_, k) => num(r[start + k])).filter((x) => ok(x));
+        if (v.length) rmax[z] = Math.max(...v);
       }
       const out = [];
       for (const row of pc.Row) {
         const c = row.Cell;
-        const z = +c[iZ], mass = num(c[iM]), pm = calc[z];
+        const z = +c[iZ], mass = num(c[iM]), pm = rmax[z];
         if (!ok(mass, pm)) continue;
         out.push({ name: c[iName], logR: log(pm * 1e-10), logM: log(mass * AMU) });
       }

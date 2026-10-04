@@ -314,8 +314,15 @@ export default [
         if (!sp.has(name)) sp.set(name, { fw: [], dm: [] });
         sp.get(name).fw.push(fw); sp.get(name).dm.push(dm);
       }
+      // Species also in LEPSIZE (src-lepidoptera.mjs) are plotted there, by
+      // body length like the other insects — this source sizes by forewing.
+      const { lepsizeSpecies } = await import("./src-lepidoptera.mjs");
+      const inLepsize = lepsizeSpecies();
       const out = [];
-      for (const [name, v] of sp) out.push({ name, logR: log(mean(v.fw) / 10 / 2), logM: log(mean(v.dm) / DRY_PER_WET / 1000) });
+      for (const [name, v] of sp) {
+        if (inLepsize.has(name)) continue;
+        out.push({ name, logR: log(mean(v.fw) / 10 / 2), logM: log(mean(v.dm) / DRY_PER_WET / 1000) });
+      }
       return out;
     },
   },
