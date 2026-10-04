@@ -1912,8 +1912,8 @@ function dustColor(catKey) {
 }
 
 // Labels laid along the periodic-table rows/columns that the element dust
-// draws (see ELEMENT_GUIDES). A label appears only when its curve is long
-// enough on screen to carry it, and its whole run along the curve must stay
+// draws (see ELEMENT_GUIDES). A label appears only when its line is long
+// enough on screen to carry it, and its whole run along the line must stay
 // clear of object labels, icons and category labels (it tries a few spots).
 function drawElementGuides(obstacles) {
   if (!_dustEnabled || _bigBangMode) return;
@@ -1958,8 +1958,23 @@ function drawElementGuides(obstacles) {
       return;
     }
 
-    // Curve through the dots, left → right so the text reads upright.
-    pts.sort((a, b) => a[0] - b[0]);
+    // Straight best-fit line through the dots (principal axis), not a curve
+    // through every point: the transition metals zigzag, and text bent along
+    // that zigzag is unreadable. Endpoints = the outermost dots projected onto
+    // the axis, ordered left → right so the text reads upright.
+    {
+      const n = pts.length;
+      const mx = pts.reduce((s, p) => s + p[0], 0) / n, my = pts.reduce((s, p) => s + p[1], 0) / n;
+      let sxx = 0, syy = 0, sxy = 0;
+      for (const [x, y] of pts) { sxx += (x - mx) ** 2; syy += (y - my) ** 2; sxy += (x - mx) * (y - my); }
+      const ang = 0.5 * Math.atan2(2 * sxy, sxx - syy);
+      let ux = Math.cos(ang), uy = Math.sin(ang);
+      if (ux < 0) { ux = -ux; uy = -uy; }
+      const ts = pts.map(([x, y]) => (x - mx) * ux + (y - my) * uy);
+      const t0 = Math.min(...ts), t1 = Math.max(...ts);
+      pts.length = 0;
+      pts.push([mx + t0 * ux, my + t0 * uy], [mx + t1 * ux, my + t1 * uy]);
+    }
     const cum = [0];
     for (let i = 1; i < pts.length; i++)
       cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
@@ -1990,7 +2005,7 @@ function drawElementGuides(obstacles) {
       obstacles.push(...boxes);
       const id = `element-guide-${gi}`;
       lObjExtras.append("path").attr("id", id)
-        .attr("d", d3.line().curve(d3.curveBasis)(pts))
+        .attr("d", d3.line()(pts))
         .attr("fill", "none").attr("stroke", "none");
       lObjExtras.append("text")
         .attr("class", "element-guide")
@@ -2381,8 +2396,8 @@ function drawObjects() {
     ...placedLabels,
     ...iconRects,
     ...categoryLabels.map((c) => {
-      const w = c.labelText.length * 12 * 0.6 + 20;
-      return { x: c.cx - w / 2, y: c.cy - 10, w, h: 16 };
+      const w = c.labelText.length * 12 * 0.7 + 40; // generous: spaced caps
+      return { x: c.cx - w / 2, y: c.cy - 16, w, h: 24 };
     }),
   ]);
 
