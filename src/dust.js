@@ -77,8 +77,8 @@ export function loadDust() {
  * Draw the dust layer.
  * @param layer    d3 selection of the <g> to draw into
  * @param view     { px, py, cw, ch, mobile, hidden }
- * @param blockers { dots: [{sx, sy}], rects: [{x, y, w, h}] } — curated
- *                 objects, icons and labels that dust must stay clear of
+ * @param blockers { dots: [{sx, sy}], rects: [{x, y, w, h}], circles: [{sx, sy, r}] }
+ *                 — curated dots, labels and (round) icons dust must stay clear of
  * @param colorOf  (catKey) → css colour
  */
 export function drawDust(layer, view, blockers, colorOf) {
@@ -101,6 +101,17 @@ export function drawDust(layer, view, blockers, colorOf) {
   };
   for (const o of blockers.dots) fill(o.sx - CLEAR_DOT, o.sy - CLEAR_DOT, o.sx + CLEAR_DOT, o.sy + CLEAR_DOT);
   for (const b of blockers.rects) fill(b.x - 2, b.y - 2, b.x + b.w + 2, b.y + b.h + 2);
+  for (const c of blockers.circles || []) {
+    // row-by-row disc fill
+    const R = c.r + 1;
+    for (let y = Math.max(0, Math.floor((c.sy - R) / OC)); y <= Math.min(gh - 1, Math.floor((c.sy + R) / OC)); y++) {
+      const dy = Math.abs((y + 0.5) * OC - c.sy);
+      if (dy > R) continue;
+      const hw = Math.sqrt(R * R - dy * dy);
+      const a = Math.max(0, Math.floor((c.sx - hw) / OC)), b = Math.min(gw - 1, Math.floor((c.sx + hw) / OC));
+      if (b >= a) occ.fill(1, y * gw + a, y * gw + b + 1);
+    }
+  }
 
   // --- thinning: spatial hash with cell = DUST_GAP ---
   const G = DUST_GAP, G2 = G * G;

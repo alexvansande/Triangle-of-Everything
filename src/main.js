@@ -2433,7 +2433,15 @@ function drawObjects() {
     hidden: !_dustEnabled || _bigBangMode,
   }, {
     dots: shownDots,
-    rects: _labelsEnabled ? [...placedLabels, ...iconRects] : iconRects,
+    rects: _labelsEnabled ? placedLabels : [],
+    // Icons keep dust out with a CIRCLE, not their square box: a square gap
+    // shows as an empty frame around soft, glowing screen-blend art (globular
+    // cluster, nebulae). Screen-blend art fades out well inside its box, so
+    // its circle is tighter; dust under the faint halo glows through it.
+    circles: shownDots.filter(o => o._showIcon).map(o => {
+      const size = icoSize * iconSizeMult(o);
+      return { sx: o.sx, sy: o.sy, r: size * (iconUsesScreenBlend(o) ? 0.32 : 0.5) };
+    }),
   }, dustColor);
   lDustHover.selectAll("*").remove();
 }
