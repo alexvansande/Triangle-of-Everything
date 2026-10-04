@@ -75,13 +75,15 @@ function wdqs(query, file) {
 // fails the load rather than silently truncating.
 // ---------------------------------------------------------------
 const dimQuery = (P) => `SELECT ?item (SAMPLE(?lab) AS ?name) (MAX(?m) AS ?M) (MAX(?d) AS ?D)
- (GROUP_CONCAT(DISTINCT STRAFTER(STR(?cls), "entity/")) AS ?C) WHERE {
+ (GROUP_CONCAT(DISTINCT STRAFTER(STR(?cls), "entity/")) AS ?C)
+ (GROUP_CONCAT(DISTINCT STRAFTER(STR(?use), "entity/")) AS ?U) WHERE {
   ?item p:P2067 ?ms. ?ms psv:P2067/wikibase:quantityNormalized/wikibase:quantityAmount ?m.
   ?ms wikibase:rank ?mr. FILTER(?mr != wikibase:DeprecatedRank)
   ?item p:${P} ?ds. ?ds psv:${P}/wikibase:quantityNormalized/wikibase:quantityAmount ?d.
   ?ds wikibase:rank ?dr. FILTER(?dr != wikibase:DeprecatedRank)
   VALUES ?cls { ${[...CLASS_GROUP.keys()].map((q) => `wd:${q}`).join(" ")} }
   ?item wdt:P31 ?cls.
+  OPTIONAL { ?item wdt:P5817 ?use }
   OPTIONAL { ?item rdfs:label ?lab FILTER(LANG(?lab) = "en") }
 } GROUP BY ?item LIMIT 30000`;
 
@@ -90,16 +92,17 @@ function artefactItems() {
   if (itemsCache) return itemsCache;
   const by = new Map();
   for (const [P, f] of [["P2043", "length"], ["P2048", "height"], ["P2049", "width"]]) {
-    const rows = wdqs(dimQuery(P), `wd-mass-${f}.json`);
-    if (rows.length >= 30000) throw new Error(`wd-mass-${f}: LIMIT reached — results truncated`);
+    const rows = wdqs(dimQuery(P), `wd-mass-${f}-v2.json`);
+    if (rows.length >= 30000) throw new Error(`wd-mass-${f}-v2: LIMIT reached — results truncated`);
     for (const b of rows) {
       const q = b.item.replace(/.*\//, "");
-      const o = by.get(q) || { q, name: b.name, M: 0, D: 0, dims: new Set(), C: new Set() };
+      const o = by.get(q) || { q, name: b.name, M: 0, D: 0, dims: new Set(), C: new Set(), U: new Set() };
       o.name ||= b.name;
       o.M = Math.max(o.M, +b.M);
       o.D = Math.max(o.D, +b.D);
       o.dims.add(f);
       (b.C || "").split(" ").filter(Boolean).forEach((c) => o.C.add(c));
+      (b.U || "").split(" ").filter(Boolean).forEach((c) => o.U.add(c));
       by.set(q, o);
     }
   }
