@@ -172,6 +172,40 @@
     <p class="setting-note">2G: Planck units measured with the black-hole
       coupling 2G, so the Triangle's apex sits at exactly 1 Planck mass
       &times; 1 Planck length. Textbook (CODATA) values are &radic;2 away.</p>
+    <button id="shortcuts-btn" type="button" aria-haspopup="dialog">Show keyboard shortcuts <kbd class="sc-key">?</kbd></button>
+  </div>
+  <!-- Keyboard shortcuts card (settings → Show keyboard shortcuts, or ?) -->
+  <div id="shortcuts-panel" role="dialog" aria-modal="false" aria-labelledby="shortcuts-title" hidden>
+    <button id="shortcuts-close" aria-label="Close keyboard shortcuts" title="Close">&times;</button>
+    <h3 id="shortcuts-title">Keyboard shortcuts</h3>
+    <div class="shortcuts-cols">
+      <section class="sc-col">
+        <h4 class="sc-head">Move around</h4>
+        <dl class="sc-list">
+          <dt class="sc-keys"><kbd class="sc-key">+</kbd> <kbd class="sc-key">W</kbd></dt><dd class="sc-desc">Zoom in</dd>
+          <dt class="sc-keys"><kbd class="sc-key">&minus;</kbd> <kbd class="sc-key">S</kbd></dt><dd class="sc-desc">Zoom out</dd>
+          <dt class="sc-keys"><kbd class="sc-key">&larr;</kbd> <kbd class="sc-key">&uarr;</kbd> <kbd class="sc-key">&rarr;</kbd> <kbd class="sc-key">&darr;</kbd></dt><dd class="sc-desc">Pan</dd>
+          <dt class="sc-keys"><kbd class="sc-key">0</kbd> <kbd class="sc-key">Home</kbd></dt><dd class="sc-desc">Back to the whole map</dd>
+          <dt class="sc-keys"><kbd class="sc-key">/</kbd></dt><dd class="sc-desc">Search</dd>
+          <dt class="sc-keys"><kbd class="sc-key">Esc</kbd></dt><dd class="sc-desc">Close the open panel or search</dd>
+        </dl>
+        <h4 class="sc-head">Tour</h4>
+        <dl class="sc-list">
+          <dt class="sc-keys"><kbd class="sc-key">A</kbd> <kbd class="sc-key">D</kbd></dt><dd class="sc-desc">Previous / next step</dd>
+        </dl>
+      </section>
+      <section class="sc-col">
+        <h4 class="sc-head">Presenting &amp; recording</h4>
+        <dl class="sc-list">
+          <dt class="sc-keys"><kbd class="sc-key">H</kbd></dt><dd class="sc-desc">Hide the text panels</dd>
+          <dt class="sc-keys"><kbd class="sc-key">V</kbd></dt><dd class="sc-desc">Lock the view to a 1920&times;1080 stage</dd>
+          <dt class="sc-keys"><kbd class="sc-key">Z</kbd> <kbd class="sc-key">X</kbd></dt><dd class="sc-desc">Slower / faster animations</dd>
+          <dt class="sc-keys"><kbd class="sc-key">R</kbd></dt><dd class="sc-desc">Reset all settings</dd>
+          <dt class="sc-keys"><kbd class="sc-key">L</kbd></dt><dd class="sc-desc">The original Lineweaver&ndash;Patel figure</dd>
+          <dt class="sc-keys"><kbd class="sc-key">?</kbd></dt><dd class="sc-desc">This list</dd>
+        </dl>
+      </section>
+    </div>
   </div>
   <!-- Tour Guide -->
   <div id="tour-header" class="tour-hidden">

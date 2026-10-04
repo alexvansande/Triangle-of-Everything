@@ -159,6 +159,61 @@ body.ui-hidden #tour-start-btn {
   display: none !important;
 }
 
+/* H while the periodic table is shown: the box shrinks to its colour key,
+   a quiet caption for the recording. */
+body.ui-hidden #periodic-close,
+body.ui-hidden #periodic-title,
+body.ui-hidden #periodic-text { display: none; }
+body.ui-hidden #periodic-box { padding: 10px 14px; width: auto; }
+body.ui-hidden #periodic-legend { border-top: 0; padding-top: 0; }
+body.ui-hidden #shortcuts-panel { display: none !important; }
+
+/* ---------- keyboard shortcuts (settings → Show keyboard shortcuts, ?) ----------
+   PERF: every rule ends in an id or an sc- class (see the water-phase note). */
+#shortcuts-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; margin-top: 10px; padding: 7px 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px; color: rgba(255,255,255,0.75);
+  font: 500 11.5px 'Inter', sans-serif; cursor: pointer;
+}
+#shortcuts-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+#shortcuts-panel {
+  position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  z-index: 70; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  overflow-y: auto; padding: 18px 22px 16px;
+  background: rgba(8, 8, 30, 0.94); border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  font-family: 'Inter', sans-serif; color: rgba(255,255,255,0.7);
+}
+#shortcuts-panel[hidden] { display: none; }
+#shortcuts-close {
+  position: absolute; top: 10px; right: 12px; width: 24px; height: 24px;
+  background: none; border: 0; border-radius: 4px; padding: 0;
+  color: rgba(255,255,255,0.35); font-size: 16px; cursor: pointer;
+}
+#shortcuts-close:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.06); }
+#shortcuts-title {
+  margin: 0 0 12px; font-size: 13px; font-weight: 600; letter-spacing: 0.4px;
+  text-transform: uppercase; color: rgba(255,255,255,0.88);
+}
+.shortcuts-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+.sc-head {
+  margin: 10px 0 6px; font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: rgba(255,255,255,0.4);
+}
+.sc-list { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0; align-items: center; }
+.sc-keys { display: flex; gap: 3px; flex-wrap: wrap; }
+.sc-desc { margin: 0; font-size: 12px; line-height: 1.35; }
+.sc-key {
+  display: inline-block; min-width: 20px; padding: 1px 5px; text-align: center;
+  font: 500 11px 'Inter', sans-serif; color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.18);
+  border-bottom-width: 2px; border-radius: 4px;
+}
+body.is-mobile .shortcuts-cols { grid-template-columns: 1fr; }
+
 /* ---------- intro animation ---------- */
 @keyframes fadeIn {
   from { opacity: 0; }

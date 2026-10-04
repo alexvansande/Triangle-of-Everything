@@ -5860,6 +5860,24 @@ document.addEventListener("pointerdown", (e) => {
   }
 });
 
+// Keyboard shortcuts card: settings → "Show keyboard shortcuts", or ?.
+// Esc, its × or a press outside closes it.
+const shortcutsPanel = document.getElementById("shortcuts-panel");
+function setShortcutsOpen(open) {
+  shortcutsPanel.hidden = !open;
+  if (open) {
+    settingsPanel.classList.remove("open");
+    settingsBtn.classList.remove("active");
+    settingsBtn.setAttribute("aria-expanded", "false");
+  }
+}
+document.getElementById("shortcuts-btn").addEventListener("click", () => setShortcutsOpen(true));
+document.getElementById("shortcuts-close").addEventListener("click", () => setShortcutsOpen(false));
+document.addEventListener("pointerdown", (e) => {
+  if (!shortcutsPanel.hidden && !shortcutsPanel.contains(e.target) &&
+      !document.getElementById("shortcuts-btn").contains(e.target)) setShortcutsOpen(false);
+});
+
 function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked,
@@ -5966,6 +5984,7 @@ document.addEventListener("keydown", (e) => {
   //   V lock the viewport to a 1920×1080 stage (screenshot/video framing)
   //   R reset all settings (and presenter state) to defaults
   //   L the original Lineweaver–Patel figure (hidden; also /classic/)
+  //   ? the keyboard shortcuts card (keep it in step with index.html)
   switch (e.key) {
     case "+": case "=":
       svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.4); break;
@@ -6005,6 +6024,8 @@ document.addEventListener("keydown", (e) => {
       resetAllSettings(); break;
     case "l": case "L":
       openClassicMode(); break;
+    case "?":
+      setShortcutsOpen(shortcutsPanel.hidden); break;
   }
 });
 
@@ -6335,7 +6356,9 @@ document.addEventListener("keydown", (e) => {
     openSearch();
   }
   if (e.key === "Escape") {
-    if (selectedObj) {
+    if (!shortcutsPanel.hidden) {
+      setShortcutsOpen(false);
+    } else if (selectedObj) {
       closeSidebar();
     } else if (searchBox.classList.contains("expanded")) {
       closeSearch();
