@@ -3411,12 +3411,21 @@ function openSidebar(obj) {
 
   const wiki = wikiUrl(obj);
   const scholar = scholarUrl(obj.name);
-  sbLinks.innerHTML = `
-    <a href="${wiki}" target="_blank" rel="noopener">
+  // An object may carry its own primary link (e.g. a species too new for
+  // Wikipedia links its original description) in place of Wikipedia.
+  const primary = obj.paper
+    ? `<a href="${obj.paper.url}" target="_blank" rel="noopener">
+      <span class="link-icon">P</span>
+      <span class="link-label">${obj.paper.label}</span>
+      <span class="link-sub">${obj.paper.sub || ""} ↗</span>
+    </a>`
+    : `<a href="${wiki}" target="_blank" rel="noopener">
       <span class="link-icon">W</span>
       <span class="link-label">Wikipedia</span>
       <span class="link-sub">↗</span>
-    </a>
+    </a>`;
+  sbLinks.innerHTML = `
+    ${primary}
     <a href="${scholar}" target="_blank" rel="noopener">
       <span class="link-icon">S</span>
       <span class="link-label">Google Scholar</span>

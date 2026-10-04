@@ -74,6 +74,7 @@
   { "name": "Microchip",        "logR": -0.65,  "logM": -1.0,   "cat": "macro", "z": 4, "wiki": "Integrated_circuit" },
   { "name": "Grain of Sand",    "logR": -1.7,   "logM": -3.8,   "cat": "macro", "z": 5, "wiki": "Sand" },
   { "name": "Ladybug",          "logR": -0.46,  "logM": -1.70,  "cat": "macro", "z": 5, "wiki": "Coccinellidae" },
+  { "name": "Eois stantonae",   "logR": -0.49,  "logM": -2.22,  "cat": "macro", "z": 3, "paper": { "label": "Original description", "sub": "Sci. Rep. 2026", "url": "https://doi.org/10.1038/s41598-026-41222-x" }, "_note": "Size estimated: described without measurements; median of 9 LEPSIZE geometrids with 16-20 mm wingspan (body 6.4 mm, dry mass 2.1 mg / 0.35 wet)" },
   { "name": "Ant",              "logR": -0.7,   "logM": -3,     "cat": "macro", "z": 5, "wiki": "Ant" },
   { "name": "Flea",             "logR": -1,     "logM": -3.5,   "cat": "macro", "z": 4, "wiki": "Flea" },
   { "name": "Penny",            "logR": -0.02,  "logM": 0.40,   "cat": "macro", "z": 5, "wiki": "Penny_(United_States_coin)" },
