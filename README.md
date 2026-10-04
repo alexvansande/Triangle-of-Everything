@@ -37,6 +37,16 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
+## Shareable pages
+
+Every hand-placed object and info-panel article has a real URL, e.g.
+`/eois-stantonae/` (the view position stays in the `#hash`). `npm run build`
+runs `scripts/build-pages.mjs` after Vite, which writes a page per object
+with its own title, description, canonical URL and Open Graph / Twitter
+tags, a 1200×630 preview image in `dist/og/`, plus `sitemap.xml`,
+`robots.txt` and a `404.html` app fallback. Preview-image text is drawn from
+the site's Inter font (`scripts/og/`) so builds are identical everywhere.
+
 ## Build for production
 
 ```bash

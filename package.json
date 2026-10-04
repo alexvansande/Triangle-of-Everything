@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/build-pages.mjs",
     "preview": "vite preview",
     "tile": "node scripts/tile-image.mjs",
     "fetch-images": "node scripts/fetch-images.mjs",
@@ -22,6 +22,7 @@
     "katex": "^0.16.38"
   },
   "devDependencies": {
+    "opentype.js": "^2.0.0",
     "puppeteer-core": "^25.8.0",
     "sharp": "^0.34.5",
     "vite": "^6"
