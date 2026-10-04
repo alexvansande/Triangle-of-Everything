@@ -38,13 +38,16 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { SOURCES } from "./dust/sources.mjs";
+import { readdirSync } from "node:fs";
+import { SOURCES as CORE_SOURCES } from "./dust/sources.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = join(ROOT, "scripts", "dust", ".cache");
 const OUT = join(ROOT, "src", "dust.json");
 const REPORT = join(ROOT, "docs", "dust-report.md");
 const REFRESH = process.argv.includes("--refresh");
+// --only id1,id2 : run just these sources and print the report, write nothing
+const ONLY = (process.argv.find((a) => a.startsWith("--only=")) || "").slice(7).split(",").filter(Boolean);
 mkdirSync(CACHE, { recursive: true });
 
 // curl (not fetch) so the environment's HTTPS proxy / CA settings apply.
@@ -73,6 +76,8 @@ const ENVELOPE = {
   cloud: [-25, -17], oc: [-27, -18], gc: [-24.5, -14], galaxy: [-28, -19], cluster: [-28.5, -24],
 };
 const ON_LINE = new Set(["hadron", "gw", "smbh"]); // placed on a boundary by definition
+// A source may also set `density: [lo, hi]` (log10 g/cm³) instead of an
+// ENVELOPE entry — every source MUST have one or the other unless ON_LINE.
 
 const norm = (s) => s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]/g, "");
 const curated = JSON.parse(readFileSync(join(ROOT, "src", "objects.json"), "utf8"));
@@ -88,7 +93,15 @@ const packed = [];
 const sourcesMeta = [];
 const median = (a) => { const s = [...a].sort((x, y) => x - y); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 
+// Extra sources live one file each in scripts/dust/src-*.mjs, each
+// exporting `default` = an array of source objects (same shape as above).
+const SOURCES = [...CORE_SOURCES];
+for (const f of readdirSync(join(ROOT, "scripts", "dust")).filter((f) => /^src-.*\.mjs$/.test(f)).sort()) {
+  const mod = await import(join(ROOT, "scripts", "dust", f));
+  SOURCES.push(...mod.default);
+}
 for (const src of SOURCES) {
+  if (ONLY.length && !ONLY.includes(src.id)) continue;
   console.log(`• ${src.id}`);
   let rows;
   try {
@@ -129,7 +142,7 @@ for (const src of SOURCES) {
       if (r.logR < COMPTON_C - r.logM - 0.05) { rejected.push([r, "inside its Compton wavelength"]); return false; }
     }
     if (r.logR > HUBBLE_LOG_R) { rejected.push([r, "beyond the Hubble radius"]); return false; }
-    const env = ENVELOPE[src.id];
+    const env = src.density || ENVELOPE[src.id];
     if (env) {
       const rho = logRho(r);
       if (rho < env[0] || rho > env[1]) { rejected.push([r, `density 10^${rho.toFixed(1)} g/cm³ outside [${env}]`]); return false; }
@@ -180,6 +193,16 @@ for (const src of SOURCES) {
   console.log(`  kept ${rows.length}/${n0}${rejected.length ? `, rejected ${rejected.length}` : ""}${xcheck.length ? `, ${xcheck.length} curated matches` : ""}`);
 }
 
+for (const src of SOURCES) {
+  if (ONLY.length && !ONLY.includes(src.id)) continue;
+  if (!ON_LINE.has(src.id) && !src.density && !ENVELOPE[src.id]) errors.push(`${src.id}: no density envelope`);
+}
+if (ONLY.length) {
+  console.log("\n" + report.join("\n\n"));
+  if (errors.length) { console.error(`\n✗ ${errors.length} error(s):`); errors.forEach((e) => console.error("  " + e)); process.exit(1); }
+  console.log("\n✓ --only run passed (nothing written)");
+  process.exit(0);
+}
 if (errors.length) {
   console.error(`\n✗ ${errors.length} error(s):`);
   errors.forEach((e) => console.error("  " + e));
