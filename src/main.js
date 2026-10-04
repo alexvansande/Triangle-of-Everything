@@ -31,6 +31,7 @@ import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
+import { loadDust, drawDust, pickDust } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -50,6 +51,7 @@ let _fontScale = 1;   // global text multiplier (settings "Font size" slider)
 const fscale = (px) => px * _fontScale;
 let _boldHover = false; // video mode: hovered lines render bold, no tooltips
 let _labelsEnabled = true;
+let _dustEnabled = true;  // catalogue dust layer (settings checkbox)
 
 // Icon size scales with zoom: 16px at k=0.3 (fully out), up to 128px at k=800 (fully in).
 // Uses log interpolation for a natural "approaching distant object" feel.
@@ -466,6 +468,10 @@ const lDarkMatter = lContent.append("g");
 const lArrows     = lContent.append("g").style("mix-blend-mode", "screen");
 const lConnDots   = lContent.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
 const lRegLabel   = lContent.append("g");
+// Catalogue "dust": thousands of faint real objects under the curated ones
+// (src/dust.js). Never interactive except for a hover name.
+const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
+const lDustHover  = lContent.append("g").style("pointer-events", "none");
 const lObj        = lContent.append("g");
 // Retained rendering split: extras (cluster/category/BH labels, ~20 nodes)
 // are rebuilt per frame; main object groups are persistent keyed joins.
@@ -1897,6 +1903,13 @@ const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smal
 
 let _lastProjected = [];
 
+// Dust dots are a lighter tint of their category colour so a 2 px dot still
+// reads against the saturated background tiles.
+const _dustColors = {};
+function dustColor(catKey) {
+  return _dustColors[catKey] ??= d3.interpolateRgb(CATEGORIES[catKey]?.color || "#fff", "#fff")(0.4);
+}
+
 function drawObjects() {
   // Retained rendering: object groups, icons, and labels are persistent
   // nodes updated through keyed joins below — per frame this is attribute
@@ -2411,6 +2424,17 @@ function drawObjects() {
     .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
 
   _lastProjected = shownDots;
+
+  // Dust fills whatever room the curated objects leave — it never sits on
+  // a curated dot, icon or visible label.
+  drawDust(lDust, {
+    px, py, cw, ch, mobile: _isMobile,
+    hidden: !_dustEnabled || _bigBangMode,
+  }, {
+    dots: shownDots,
+    rects: _labelsEnabled ? [...placedLabels, ...iconRects] : iconRects,
+  }, dustColor);
+  lDustHover.selectAll("*").remove();
 }
 
 // Screen-blend decision is static per object — shared by enter and update.
@@ -2496,6 +2520,35 @@ function hideTooltip() {
 svg.on("mousemove.tooltip", (e) => {
   if (tooltipEl.classList.contains("visible")) positionTooltip(e);
 });
+
+// Dust hover: the name (and which catalogue it came from) — nothing else.
+// Curated objects sit above in the HTML click-target overlay, so they
+// always win; dust only answers when nothing else has the tooltip.
+let _dustTip = false;
+function hideDustTip() {
+  if (!_dustTip) return;
+  _dustTip = false;
+  lDustHover.selectAll("*").remove();
+  hideTooltip();
+}
+svg.on("mousemove.dust", (e) => {
+  if (_zooming || _touchMode || !_dustEnabled) return hideDustTip();
+  if (!_dustTip && tooltipEl.classList.contains("visible")) return; // someone else's tooltip
+  const [mx, my] = d3.pointer(e, chart.node());
+  const hit = pickDust(mx, my, 6);
+  if (!hit) return hideDustTip();
+  const color = CATEGORIES[hit.cat]?.color || "#fff";
+  lDustHover.selectAll("*").remove();
+  lDustHover.append("circle")
+    .attr("cx", hit.sx).attr("cy", hit.sy).attr("r", 3.2)
+    .attr("fill", color).attr("stroke", "rgba(6,6,26,0.9)").attr("stroke-width", 1);
+  tooltipEl.innerHTML = `<div class="tt-name" style="color:${color}">${escapeHtml(hit.name)}</div>` +
+    `<div class="tt-row">${escapeHtml(hit.source)}</div>`;
+  tooltipEl.classList.add("visible");
+  positionTooltip(e);
+  _dustTip = true;
+});
+svg.on("mouseleave.dust", hideDustTip);
 
 // =============================================================
 // Axis hover tooltip
@@ -5283,6 +5336,7 @@ function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked,
     labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
+    dust: setDust.checked,
     fontSize: +setFontSize.value, boldHover: setBoldHover.checked,
     dotSize: +setDotSize.value, dotOpacity: +setDotOpacity.value,
     gridUnit: _gridUnit,
@@ -5303,6 +5357,13 @@ setAnim.addEventListener("change", () => {
   _animDisabled = !setAnim.checked;
   document.body.classList.toggle("anim-off", _animDisabled);
   scheduleConnAnim();  // restart the parked dot loop when re-enabled
+  saveSettings();
+});
+
+const setDust = document.getElementById("set-dust");
+setDust.addEventListener("change", () => {
+  _dustEnabled = setDust.checked;
+  redraw();
   saveSettings();
 });
 
@@ -5806,6 +5867,7 @@ try {
     if (saved.bg === false) { setBg.checked = false; _bgTilesEnabled = false; redraw(); }
     if (saved.anim === false) { setAnim.checked = false; _animDisabled = true; document.body.classList.add("anim-off"); }
     if (saved.labels === false) { setLabels.checked = false; _labelsEnabled = false; }
+    if (saved.dust === false) { setDust.checked = false; _dustEnabled = false; }
     if (saved.icons === false) { setIcons.checked = false; _iconsEnabled = false; }
     if (saved.gridUnit && GRID_UNITS[saved.gridUnit]) { _gridUnit = saved.gridUnit; setGridUnit.value = saved.gridUnit; }
     if (saved.iconSize > 0) {
@@ -6139,3 +6201,12 @@ if ("serviceWorker" in navigator && !import.meta.env.DEV) {
     }, 8000);
   });
 }
+
+// Catalogue dust (~32k real objects) loads after first paint, off the
+// critical path; the map is fully usable before it arrives.
+// The idle callback gets a deadline: the connection animations keep the
+// main thread busy enough that a bare requestIdleCallback can starve.
+const _loadDustNow = () =>
+  loadDust().then(() => redraw()).catch((e) => console.warn("dust layer failed to load", e));
+if (window.requestIdleCallback) requestIdleCallback(_loadDustNow, { timeout: 1500 });
+else setTimeout(_loadDustNow, 300);
