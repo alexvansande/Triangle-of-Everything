@@ -756,6 +756,33 @@ export const ELEMENT_GUIDES = [
   { label: "Noble gases", kind: "column", elements: ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon", "Oganesson"] },
 ];
 
+// =============================================================
+// "Made of" — hover lines from a hand-placed object to its building blocks
+// =============================================================
+// Hovering one of these draws straight lines to what it's made of, so the
+// chain electrons + protons → atoms → molecules → bases → DNA can be read
+// across the chart. Names are hand-placed objects or element dust (N, P, S).
+export const COMPOSITION = {
+  "Hydrogen":       ["Proton", "Electron"],
+  "Helium":         ["Proton", "Neutron", "Electron"],
+  "Carbon":         ["Proton", "Neutron", "Electron"],
+  "Oxygen":         ["Proton", "Neutron", "Electron"],
+  "Iron":           ["Proton", "Neutron", "Electron"],
+  "Gold":           ["Proton", "Neutron", "Electron"],
+  "Uranium":        ["Proton", "Neutron", "Electron"],
+  "Oganesson":      ["Proton", "Neutron", "Electron"],
+  "Water (H₂O)":    ["Hydrogen", "Oxygen"],
+  "Glucose":        ["Carbon", "Hydrogen", "Oxygen"],
+  "Fullerene C₆₀":  ["Carbon"],
+  "ATP":            ["Carbon", "Hydrogen", "Nitrogen", "Oxygen", "Phosphorus"],
+  "Adenine (A)":    ["Carbon", "Hydrogen", "Nitrogen"],
+  "Guanine (G)":    ["Carbon", "Hydrogen", "Nitrogen", "Oxygen"],
+  "Cytosine (C)":   ["Carbon", "Hydrogen", "Nitrogen", "Oxygen"],
+  "Thymine (T)":    ["Carbon", "Hydrogen", "Nitrogen", "Oxygen"],
+  "Hemoglobin":     ["Carbon", "Hydrogen", "Nitrogen", "Oxygen", "Sulfur", "Iron"],
+  "DNA":            ["Adenine (A)", "Guanine (G)", "Cytosine (C)", "Thymine (T)"],
+};
+
 export const SUBCAT_LABELS = {
   nucleon: "Proton & Neutron",
   atom: "Atoms",

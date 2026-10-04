@@ -15,7 +15,7 @@ import {
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
-  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, ELEMENT_GUIDES, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
+  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, ELEMENT_GUIDES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
@@ -56,6 +56,9 @@ let _userEngaged = false; // set on first pointer/wheel/key input (deferred load
 
 // Icon size scales with zoom: 16px at k=0.3 (fully out), up to 128px at k=800 (fully in).
 // Uses log interpolation for a natural "approaching distant object" feel.
+// ?og-shot: headless mode used by scripts/build-pages.mjs to screenshot the
+// chart around each object for its preview image (see window.__toeOg below).
+const _ogShot = new URLSearchParams(location.search).has("og-shot");
 function effectiveIconSize() {
   const minK = 0.3, maxK = 800;
   const minSize = 14, maxSize = 115;
@@ -64,7 +67,8 @@ function effectiveIconSize() {
   const size = minSize + (maxSize - minSize) * t;
   // Phones get half the desktop size across the board: full-size icons (×
   // per-object multipliers) drown a 390px screen at stellar zooms.
-  return _isMobile ? size / 2 : size;
+  // Preview-image screenshots (?og-shot) show pictures larger: they're the subject
+  return _ogShot ? size * 1.6 : _isMobile ? size / 2 : size;
 }
 // Some objects need a larger icon (e.g. Saturn's rings extend beyond the sphere)
 const ICON_SIZE_MULT = {
@@ -479,6 +483,7 @@ const lObj        = lContent.append("g");
 const lObjExtras  = lObj.append("g");
 const lObjMain    = lObj.append("g");
 const lHighlight  = lContent.append("g").style("pointer-events", "none");
+const lCompose    = lContent.append("g").style("pointer-events", "none"); // hover "made of" lines
 const lAxisRef    = lContent.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
 const lWaterPhase = lContent.append("g"); // states-of-water inset (zooms with the map)
 // (Object labels live in lLabels, declared below lIcons so text always
@@ -2028,8 +2033,10 @@ function drawElementGuides(obstacles) {
 // on and the view has ≥ 150 px per decade of mass.
 const ATOM_ICON_HIDE_PX_PER_DECADE = 150;
 let _atomIconsHidden = false;
+
 function mapIconShown(o) {
   if (!_iconsEnabled || !ICON_BY_SLUG[o.slug]) return false;
+  if (_ogShot) return true; // preview cards always show the picture
   // projected objects carry the category key in catKey (cat is the style object)
   return !(_atomIconsHidden && (o.catKey || o.cat) === "atomic"); // atoms and molecules
 }
@@ -2608,7 +2615,40 @@ function setIconHover(o, on) {
   return true;
 }
 
+// Hover "made of" lines (COMPOSITION): straight lines from the hovered object
+// to its building blocks — hand-placed objects, or element dust (N, P, S)
+// whose names are otherwise hover-only, so those ends get a name tag.
+function showComposition(o) {
+  lCompose.selectAll("*").remove();
+  const parts = COMPOSITION[o.name];
+  if (!parts) return;
+  const el = dustPositions("element");
+  const color = dustColor("atomic");
+  const sx = px(o.logR), sy = py(o.logM);
+  for (const name of parts) {
+    const cur = OBJECTS.find(q => q.name === name);
+    const pos = cur ? [cur.logR, cur.logM] : el?.get(name);
+    if (!pos) continue;
+    const tx = px(pos[0]), ty = py(pos[1]);
+    lCompose.append("line")
+      .attr("x1", sx).attr("y1", sy).attr("x2", tx).attr("y2", ty)
+      .attr("stroke", color).attr("stroke-width", 1.2).attr("stroke-opacity", 0.75)
+      .attr("stroke-dasharray", "3 3");
+    lCompose.append("circle").attr("cx", tx).attr("cy", ty).attr("r", 3.2)
+      .attr("fill", color).attr("stroke", "rgba(6,6,26,0.9)").attr("stroke-width", 1);
+    if (!cur) {
+      lCompose.append("text").attr("x", tx + 7).attr("y", ty + 3.5)
+        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+        .attr("font-size", fscale(10)).attr("paint-order", "stroke")
+        .attr("stroke", "rgba(6,6,26,0.85)").attr("stroke-width", 3)
+        .attr("fill", color).text(name);
+    }
+  }
+}
+function hideComposition() { lCompose.selectAll("*").remove(); }
+
 function objHoverEnter(e, o) {
+  showComposition(o);
   if (!setIconHover(o, true)) {
     d3.select(this).select(".obj-glow").attr("r", 10).attr("opacity", 0.25);
     d3.select(this).select(".obj-dot").attr("r", 4);
@@ -2617,6 +2657,7 @@ function objHoverEnter(e, o) {
   showTooltip(e, o, o.cat);
 }
 function objHoverLeave(e, o) {
+  hideComposition();
   if (!setIconHover(o, false)) {
     d3.select(this).select(".obj-glow").attr("r", 6).attr("opacity", 0.1);
     d3.select(this).select(".obj-dot").attr("r", 2.8);
@@ -4730,12 +4771,14 @@ function updateClickTargets() {
 
     div.addEventListener("mouseenter", (e) => {
       setIconHover(o, true);
+      showComposition(o);
       lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", null);
       showTooltip(e, o, o.cat);
     });
 
     div.addEventListener("mouseleave", () => {
       setIconHover(o, false);
+      hideComposition();
       if (!_labelsEnabled || !o._showLabel) {
         lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", "none");
       }
@@ -4768,11 +4811,13 @@ function updateClickTargets() {
 
     div.addEventListener("mouseenter", (e) => {
       setIconHover(obj, true);
+      showComposition(obj);
       showTooltip(e, obj, obj.cat);
     });
 
     div.addEventListener("mouseleave", () => {
       setIconHover(obj, false);
+      hideComposition();
       hideTooltip();
     });
 
@@ -4989,6 +5034,7 @@ const zoomBehavior = d3.zoom()
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
     _zooming = true;
     clearClickTargets();
+    hideComposition(); // hover lines would strand at pre-zoom coordinates
     // The hover hit-paths aren't rebuilt during the gesture (see
     // updateConnectionOpacities), so disable them — a mousemove mid-wheel-zoom
     // would otherwise light a connection at stale, pre-zoom coordinates.
@@ -6465,3 +6511,38 @@ function viewZoomedIn() {
   const [, , k] = location.hash.slice(1).split(",").map(Number);
   if (k > 1.5) ensureDust();
 }
+
+// =============================================================
+// Preview-image hook (?og-shot) — driven by scripts/build-pages.mjs
+// =============================================================
+// Hides every piece of interface, loads the dust, and lets the build place
+// any object at a chosen pixel of the plot at a chosen zoom, so each
+// object's share image is a real, local view of the chart around it.
+if (_ogShot) {
+  document.body.classList.add("og-shot");
+  const st = document.createElement("style");
+  st.textContent = "body.og-shot > *:not(#chart){display:none!important}";
+  document.head.appendChild(st);
+  setSidebarOpen(false);
+  _dustEnabled = true;
+  loadDust().then(() => redraw());
+  window.__toeOg = {
+    ready: () => dustReady(),
+    plot: () => ({ x: margin.left, y: margin.top, w: cw, h: ch }),
+    fullSpanX: () => Math.abs(xBase.domain()[1] - xBase.domain()[0]),
+    objects: () => OBJECTS.map(o => ({ slug: o.slug, name: o.name, logR: o.logR, logM: o.logM })),
+    // Put object `slug` at plot pixel (px, py) at zoom k; null slug → overview
+    place(slug, k, px, py) {
+      svg.interrupt();
+      const o = OBJECTS.find(x => x.slug === slug);
+      selectedObj = null; // no selection ring: the card marks the subject
+      if (!o) { svg.call(zoomBehavior.transform, d3.zoomIdentity); return; }
+      const t = d3.zoomIdentity.translate(px - xBase(o.logR) * k, py - yBase(o.logM) * k).scale(k);
+      svg.call(zoomBehavior.transform, t);
+      redraw();
+    },
+    iconsPending: () => [...document.querySelectorAll(".icon-fallback-dot")]
+      .filter(e => e.getAttribute("display") !== "none").length,
+  };
+}
+
