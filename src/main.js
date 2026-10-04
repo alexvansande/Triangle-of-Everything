@@ -2007,7 +2007,23 @@ function drawElementGuides(obstacles) {
   });
 }
 
+// Once the periodic-table rows in the element dust are readable, the atom
+// pictures (Hydrogen, Iron, Uranium…) would sit on top of them: show the
+// hand-placed atoms as plain dots instead. "Readable" = the element dust is
+// on and the view has ≥ 150 px per decade of mass.
+const ATOM_ICON_HIDE_PX_PER_DECADE = 150;
+let _atomIconsHidden = false;
+function mapIconShown(o) {
+  if (!_iconsEnabled || !ICON_BY_SLUG[o.slug]) return false;
+  return !(_atomIconsHidden && o.subcat === "atom");
+}
+
 function drawObjects() {
+  {
+    const d = vd();
+    _atomIconsHidden = _dustEnabled && !_bigBangMode && !!dustPositions("element") &&
+      ch / Math.abs(d.y1 - d.y0) >= ATOM_ICON_HIDE_PX_PER_DECADE;
+  }
   // Retained rendering: object groups, icons, and labels are persistent
   // nodes updated through keyed joins below — per frame this is attribute
   // writes, not DOM teardown. Only the small extras layer (cluster/category/
@@ -2051,8 +2067,8 @@ function drawObjects() {
     )
     .sort((a, b) => {
       // Icon objects get a slight priority boost (lower z = shown first)
-      const aZ = (_iconsEnabled && ICON_BY_SLUG[a.slug]) ? a.z - 0.5 : a.z;
-      const bZ = (_iconsEnabled && ICON_BY_SLUG[b.slug]) ? b.z - 0.5 : b.z;
+      const aZ = mapIconShown(a) ? a.z - 0.5 : a.z;
+      const bZ = mapIconShown(b) ? b.z - 0.5 : b.z;
       return aZ - bZ;
     });
 
@@ -2070,7 +2086,7 @@ function drawObjects() {
   const icoOverlap2 = icoOverlap * icoOverlap;
   const shownIcons = [];
   projected.forEach(o => {
-    const hasIcon = _iconsEnabled && ICON_BY_SLUG[o.slug];
+    const hasIcon = mapIconShown(o);
     if (!hasIcon || !o._showDot) { o._showIcon = false; return; }
     const tooClose = shownIcons.some(s => {
       const dx = s.sx - o.sx, dy = s.sy - o.sy;
@@ -4636,7 +4652,7 @@ function scheduleClickTargets() {
 // Hit-target size for an object, shared by the HTML click targets (mouse)
 // and the touch tap hit-test so the two input paths never drift.
 function objectHitSizePx(o, baseIco) {
-  const hasIcon = _iconsEnabled && ICON_BY_SLUG[o.slug];
+  const hasIcon = mapIconShown(o);
   return hasIcon ? baseIco * iconSizeMult(o) : 14; // 14 matches the dot hit-area radius
 }
 
