@@ -3,7 +3,8 @@
 // Patel, "All objects and some questions" (Am. J. Phys. 91, 819, 2023),
 // with every object from objects.json added as an extra dot. Zooming into
 // the small black rectangle fades in the annotations of their Fig. 3
-// (stellar collapse). Reached with the L key or #classic; Esc or L leaves.
+// (stellar collapse). Reached with the L key or /classic/ (old links:
+// #classic); Esc or L leaves.
 //
 // Everything is authored in the published figure's own pixel space
 // (1602 × 1785), so at first glance the page lines up with the original.
@@ -15,6 +16,7 @@ import "./classic.css";
 import { SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M } from "./data.js";
 import objectsData from "./objects.json";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
+import { loadDust, dustArrays } from "./dust.js";
 
 // ---------- figure geometry ----------
 const FIG_W = 1602, FIG_H = 1785;
@@ -277,9 +279,10 @@ for (const d of LABELS) {
 }
 
 // Names for our extra dots appear once you zoom in (never at the published
-// framing). The paper already names these ones its own way.
-const PAPER_NAMED = new Set(["Sun", "Earth", "Milky Way", "Globular Cluster", "Galaxy Cluster",
-  "Red Giant", "White Dwarf", "Neutron Star", ...RINGED]);
+// framing). The paper already names these ones its own way: every object a
+// paper label points at (LABELS `of`), plus a few it names as a class.
+const PAPER_NAMED = new Set(["Globular Cluster", "Galaxy Cluster", "Red Giant", "White Dwarf",
+  "Neutron Star", ...RINGED, ...LABELS.map(l => l.of).filter(Boolean)]);
 const NAMED = OBJECTS.filter(o => !PAPER_NAMED.has(o.name))
   .sort((a, b) => (a.z || 3) - (b.z || 3));
 const NAME_MIN_K = [0, 2.5, 4, 6, 9, 14];   // by object z (1 = most notable)
@@ -365,6 +368,9 @@ function build() {
   layers.blobs = plot.append("g");
   layers.fig3 = plot.append("g").attr("class", "cl-fig3").style("opacity", 0);
   layers.fig3Blobs = layers.fig3.append("g");
+  layers.dust = plot.append("path").attr("class", "cl-dust")
+    .attr("fill", "none").attr("stroke", "#000").attr("stroke-opacity", 0.2) // a faint texture under the figure
+    .attr("stroke-width", DUST_W).attr("stroke-linecap", "round");
   layers.dots = plot.append("g");
   layers.leaders = plot.append("g").attr("stroke", "#000").attr("stroke-width", 1.6);
   layers.labels = plot.append("g").attr("class", "cl-text");
@@ -451,6 +457,37 @@ function fig3Transform() {
 // =============================================================
 // Render (every zoom event)
 // =============================================================
+// The site's ~50k catalogue "dust" objects, as specks smaller than the
+// figure's own dots. One <path> of zero-length round-capped segments; at
+// most one speck per DUST_CELL figure-px cell, so dense clumps stay cheap.
+const DUST_W = 2.2, DUST_CELL = 2;
+function renderDust() {
+  const d = dustArrays();
+  if (!d || !xs) { layers.dust.attr("d", null); return; }
+  const { r, m } = d;
+  const gx = Math.ceil((FRAME.x1 - FRAME.x0) / DUST_CELL) + 1;
+  const gy = Math.ceil((FRAME.y1 - FRAME.y0) / DUST_CELL) + 1;
+  const seen = new Uint8Array(gx * gy);
+  // linear scales: fold them into a × v + b for the 50k-point loop
+  const [ra, rb] = xs.domain(), [xa, xb] = xs.range();
+  const [ma, mb] = ys.domain(), [ya, yb] = ys.range();
+  const sx = (xb - xa) / (rb - ra), ox = xa - ra * sx - FRAME.x0;
+  const sy = (yb - ya) / (mb - ma), oy = ya - ma * sy - FRAME.y0;
+  const W = FRAME.x1 - FRAME.x0, H = FRAME.y1 - FRAME.y0;
+  const out = [];
+  for (let i = 0; i < r.length; i++) {
+    const x = r[i] * sx + ox;
+    if (x < 0 || x > W) continue;
+    const y = m[i] * sy + oy;
+    if (y < 0 || y > H) continue;
+    const c = Math.floor(y / DUST_CELL) * gx + Math.floor(x / DUST_CELL);
+    if (seen[c]) continue;
+    seen[c] = 1;
+    out.push(`M${(x + FRAME.x0).toFixed(1)} ${(y + FRAME.y0).toFixed(1)}h0`);
+  }
+  layers.dust.attr("d", out.join("") || null);
+}
+
 function render(t) {
   xs = t.rescaleX(x0);
   ys = t.rescaleY(y0);
@@ -499,6 +536,7 @@ function render(t) {
 
   // dots grow a little as you zoom in, never with the full zoom
   const grow = Math.min(2.2, Math.pow(k, 0.28));
+  renderDust();
   layers.dots.selectAll("circle.cl-obj").attr("cx", d => xs(d.logR)).attr("cy", d => ys(d.logM))
     .attr("r", d => DOT_STYLE[d.name]?.r || (RINGED.has(d.name) ? 4 : 2.8) * grow);
   const [qx, qy] = P([R_I, M_I]);
@@ -784,11 +822,14 @@ function onKey(e) {
   else if (e.key === "0" || e.key === "Home") svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity);
 }
 
-// Opening pushes a #classic history entry, so Back (or a swipe on phones,
-// where there's no Escape key) returns to the map.
+// The figure has its own page, /classic/ (built by build-pages.mjs; the old
+// #classic still opens it). Opening pushes that URL, so Back (or a swipe on
+// phones, where there's no Escape key) returns to the map.
 let pushed = false;
-function onHash() {
-  if (location.hash !== "#classic") hide();
+let mapURL = "/";
+export const isClassicURL = () => /^\/classic\/?$/.test(location.pathname) || location.hash === "#classic";
+function onPop() {
+  if (!isClassicURL()) hide();
 }
 
 export function openClassic() {
@@ -799,11 +840,16 @@ export function openClassic() {
   root.classList.add("shown");
   document.documentElement.classList.add("classic-open");
   window.addEventListener("keydown", onKey, true);
-  window.addEventListener("hashchange", onHash);
-  if (location.hash !== "#classic") {
-    try { history.pushState(null, "", "#classic"); pushed = true; } catch { /* sandboxed frame */ }
+  window.addEventListener("popstate", onPop);
+  if (!isClassicURL()) {
+    mapURL = location.pathname + location.search + location.hash;
+    try { history.pushState(null, "", "/classic/"); pushed = true; } catch { /* sandboxed frame */ }
+  } else if (location.hash === "#classic") {
+    try { history.replaceState(null, "", "/classic/"); } catch { /* sandboxed */ }
   }
+  document.title = "All objects and some questions — The Triangle of Everything";
   layoutNames();
+  loadDust().then(() => renderDust()).catch(() => {});
 }
 
 function hide() {
@@ -814,15 +860,16 @@ function hide() {
   else setTimeout(done, 3050);          // just past the CSS fade
   document.documentElement.classList.remove("classic-open");
   window.removeEventListener("keydown", onKey, true);
-  window.removeEventListener("hashchange", onHash);
+  window.removeEventListener("popstate", onPop);
+  document.title = "The Triangle of Everything";
   window.dispatchEvent(new Event("classic-close"));
 }
 
 export function closeClassic() {
   if (!isClassicOpen()) return;
-  if (pushed) { pushed = false; history.back(); }       // hashchange hides it
+  if (pushed) { pushed = false; history.back(); }       // popstate hides it
   else {
-    try { history.replaceState(null, "", location.pathname + location.search); } catch { /* sandboxed */ }
+    try { history.replaceState(null, "", mapURL); } catch { /* sandboxed */ }
     hide();
   }
 }

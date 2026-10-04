@@ -11,12 +11,12 @@
   <meta name="description" content="An interactive chart plotting every object that can exist by mass and size — from quarks to the observable universe.">
   <meta property="og:title" content="The Triangle of Everything">
   <meta property="og:description" content="An interactive chart plotting every object that can exist by mass and size — from quarks to the observable universe.">
-  <meta property="og:image" content="/og-preview.jpg">
+  <meta property="og:image" content="https://triangleofeverything.com/og-preview.jpg">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="The Triangle of Everything">
   <meta name="twitter:description" content="An interactive chart plotting every object that can exist by mass and size — from quarks to the observable universe.">
-  <meta name="twitter:image" content="/og-preview.jpg">
+  <meta name="twitter:image" content="https://triangleofeverything.com/og-preview.jpg">
   <link rel="preload" href="/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/space-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin>
   <style>
@@ -172,6 +172,40 @@
     <p class="setting-note">2G: Planck units measured with the black-hole
       coupling 2G, so the Triangle's apex sits at exactly 1 Planck mass
       &times; 1 Planck length. Textbook (CODATA) values are &radic;2 away.</p>
+    <button id="shortcuts-btn" type="button" aria-haspopup="dialog">Show keyboard shortcuts <kbd class="sc-key">?</kbd></button>
+  </div>
+  <!-- Keyboard shortcuts card (settings → Show keyboard shortcuts, or ?) -->
+  <div id="shortcuts-panel" role="dialog" aria-modal="false" aria-labelledby="shortcuts-title" hidden>
+    <button id="shortcuts-close" aria-label="Close keyboard shortcuts" title="Close">&times;</button>
+    <h3 id="shortcuts-title">Keyboard shortcuts</h3>
+    <div class="shortcuts-cols">
+      <section class="sc-col">
+        <h4 class="sc-head">Move around</h4>
+        <dl class="sc-list">
+          <dt class="sc-keys"><kbd class="sc-key">+</kbd> <kbd class="sc-key">W</kbd></dt><dd class="sc-desc">Zoom in</dd>
+          <dt class="sc-keys"><kbd class="sc-key">&minus;</kbd> <kbd class="sc-key">S</kbd></dt><dd class="sc-desc">Zoom out</dd>
+          <dt class="sc-keys"><kbd class="sc-key">&larr;</kbd> <kbd class="sc-key">&uarr;</kbd> <kbd class="sc-key">&rarr;</kbd> <kbd class="sc-key">&darr;</kbd></dt><dd class="sc-desc">Pan</dd>
+          <dt class="sc-keys"><kbd class="sc-key">0</kbd> <kbd class="sc-key">Home</kbd></dt><dd class="sc-desc">Back to the whole map</dd>
+          <dt class="sc-keys"><kbd class="sc-key">/</kbd></dt><dd class="sc-desc">Search</dd>
+          <dt class="sc-keys"><kbd class="sc-key">Esc</kbd></dt><dd class="sc-desc">Close the open panel or search</dd>
+        </dl>
+        <h4 class="sc-head">Tour</h4>
+        <dl class="sc-list">
+          <dt class="sc-keys"><kbd class="sc-key">A</kbd> <kbd class="sc-key">D</kbd></dt><dd class="sc-desc">Previous / next step</dd>
+        </dl>
+      </section>
+      <section class="sc-col">
+        <h4 class="sc-head">Presenting &amp; recording</h4>
+        <dl class="sc-list">
+          <dt class="sc-keys"><kbd class="sc-key">H</kbd></dt><dd class="sc-desc">Hide the text panels</dd>
+          <dt class="sc-keys"><kbd class="sc-key">V</kbd></dt><dd class="sc-desc">Lock the view to a 1920&times;1080 stage</dd>
+          <dt class="sc-keys"><kbd class="sc-key">Z</kbd> <kbd class="sc-key">X</kbd></dt><dd class="sc-desc">Slower / faster animations</dd>
+          <dt class="sc-keys"><kbd class="sc-key">R</kbd></dt><dd class="sc-desc">Reset all settings</dd>
+          <dt class="sc-keys"><kbd class="sc-key">L</kbd></dt><dd class="sc-desc">The original Lineweaver&ndash;Patel figure</dd>
+          <dt class="sc-keys"><kbd class="sc-key">?</kbd></dt><dd class="sc-desc">This list</dd>
+        </dl>
+      </section>
+    </div>
   </div>
   <!-- Tour Guide -->
   <div id="tour-header" class="tour-hidden">
@@ -189,6 +223,27 @@
       <button id="tour-next-label"></button>
     </div>
     <div id="tour-dots"></div>
+  </div>
+  <!-- "THE PERIODIC TABLE" easter egg: opened from its title in the map -->
+  <div id="periodic-box" class="tour-hidden" role="dialog" aria-labelledby="periodic-title">
+    <button id="periodic-close" aria-label="Hide the periodic table" title="Hide the periodic table">&times;</button>
+    <h3 id="periodic-title">The periodic table</h3>
+    <div id="periodic-text">
+      <p>Every element sits here by its real size and mass. The lines join
+        neighbours in the familiar table, solid along the periods and dashed
+        down the groups, so you can watch the grid bend.</p>
+      <p>Along a period atoms get heavier but smaller: each new proton pulls
+        the same electron shell in tighter. Then a new shell opens and the
+        next alkali metal balloons out, so every period is a sawtooth.</p>
+      <p>The long spike is palladium. Its neighbours keep an electron in the
+        outer 5s shell; palladium tucks all of them into the inner 4d, and
+        comes out barely bigger than hydrogen, under half their size.</p>
+      <p>The lanthanides huddle in a clump. They fill the buried 4f shell,
+        which hardly shows from outside, and shrink a little at each step.
+        At the bottom, relativity starts to bite: francium comes out a touch
+        smaller than caesium above it.</p>
+    </div>
+    <ul id="periodic-legend"></ul>
   </div>
   <button id="tour-start-btn" class="tour-hidden">
     <span id="tour-start-label">Start the tour</span>

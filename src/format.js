@@ -19,7 +19,9 @@ export function friendlyRadius(logR) {
   if (logR >= 5)     return `${Math.pow(10, logR - 5).toPrecision(3)} km`;
   if (logR >= 2)     return `${Math.pow(10, logR - 2).toPrecision(3)} m`;
   if (logR >= -1)    return `${Math.pow(10, logR).toPrecision(3)} cm`;
+  if (logR >= -4)    return `${Math.pow(10, logR + 4).toPrecision(3)} μm`;
   if (logR >= -7)    return `${Math.pow(10, logR + 7).toPrecision(3)} nm`;
+  if (logR >= -10)   return `${Math.pow(10, logR + 10).toPrecision(3)} pm`;
   if (logR >= -13)   return `${Math.pow(10, logR + 13).toPrecision(3)} fm`;
   return `10^${logR.toFixed(1)} cm`;
 }
