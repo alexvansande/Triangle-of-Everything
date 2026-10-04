@@ -50,7 +50,7 @@
   { "name": "Guanine (G)",      "logR": -7.50,  "logM": -21.60, "cat": "atomic", "subcat": "molecule", "z": 5, "wiki": "Guanine" },
   { "name": "Cytosine (C)",     "logR": -7.56,  "logM": -21.73, "cat": "atomic", "subcat": "molecule", "z": 5, "wiki": "Cytosine" },
   { "name": "Thymine (T)",      "logR": -7.54,  "logM": -21.68, "cat": "atomic", "subcat": "molecule", "z": 5, "wiki": "Thymine" },
-  { "name": "DNA",              "logR": -7.0,   "logM": -18.5,  "cat": "atomic", "subcat": "molecule", "z": 4, "wiki": "DNA" },
+  { "name": "DNA",              "logR": -6.77,  "logM": -19.95,  "cat": "atomic", "subcat": "molecule", "z": 3, "wiki": "DNA" },
   { "name": "Ribosome",         "logR": -5.90,  "logM": -17.16, "cat": "atomic", "subcat": "molecule", "z": 5, "wiki": "Ribosome" },
 
   { "name": "Tobacco Mosaic",   "logR": -4.82,  "logM": -16.18, "cat": "micro", "subcat": "virus", "z": 5, "wiki": "Tobacco_mosaic_virus" },

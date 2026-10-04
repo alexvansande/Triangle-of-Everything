@@ -4547,17 +4547,25 @@ function drawTiles() {
 
   const screenPPU = Math.abs(px(1) - px(0));
 
+  // Deliberately soft background: accept a tile level up to BG_SOFTEN× coarser
+  // than the screen. The painted texture's fine grain read as noise competing
+  // with the real catalogue dots; upscaled (and blurred below) it stays as
+  // colour and mood without the grain — and fetches fewer bytes.
+  const BG_SOFTEN = 4;
   let best = levels[0];
   for (const lv of levels) {
     const lvPPU = (lv.w / imgDataW);
     best = lv;
-    if (lvPPU >= screenPPU) break;
+    if (lvPPU * BG_SOFTEN >= screenPPU) break;
   }
 
   // Detect over-zoom: when screen resolution exceeds the best tile level
   const bestPPU = best.w / imgDataW;
   const overZoom = screenPPU / bestPPU;
-  const blurPx = overZoom > 1.5 ? Math.min(4, (overZoom - 1) * 0.7) : 0;
+  // One blur on the whole layer (not per tile): smooths the painted grain
+  // into colour, hides upscaling and tile seams, and costs one filter pass.
+  const blurPx = 0;
+  lTiles.style("filter", overZoom > 1.2 ? `blur(${Math.min(14, overZoom * 3).toFixed(1)}px)` : null);
 
   const { x0, x1, y0, y1 } = vd();
   // Data units per pixel at this zoom level (correct for partial edge tiles)
@@ -5678,7 +5686,7 @@ document.addEventListener("keydown", (e) => {
   //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations · H hide UI
   //   V lock the viewport to a 1920×1080 stage (screenshot/video framing)
   //   R reset all settings (and presenter state) to defaults
-  //   L the original Lineweaver–Patel figure (hidden; also #classic)
+  //   L the original Lineweaver–Patel figure (hidden; also /classic/)
   switch (e.key) {
     case "+": case "=":
       svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.4); break;
@@ -5721,13 +5729,17 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// Hidden "classic" mode (L key or #classic): the original Lineweaver–Patel
+// Hidden "classic" mode (L key, /classic/ or #classic): the original Lineweaver–Patel
 // figure, zoomable. Loaded on demand; it takes over the keyboard while open.
 function openClassicMode() {
   import("./classic.js").then(m => m.openClassic());
 }
 window.addEventListener("hashchange", () => {
   if (location.hash === "#classic") openClassicMode();
+});
+// Forward/Back onto the figure's own page, /classic/
+window.addEventListener("popstate", () => {
+  if (location.pathname.replace(/\/+$/, "") === "/classic") openClassicMode();
 });
 // The map's dot animation parks while the classic figure covers it
 window.addEventListener("classic-close", () => scheduleConnAnim());
@@ -6289,7 +6301,8 @@ function saveHash() {
   // Don't overwrite tour hashes — the tour manages its own URL state
   if (location.hash.startsWith("#tour=")) return;
   // Nor the hidden classic figure's
-  if (location.hash === "#classic" || document.documentElement.classList.contains("classic-open")) return;
+  if (location.hash === "#classic" || pathSlug() === "classic" ||
+      document.documentElement.classList.contains("classic-open")) return;
   const d = vd();
   const cx = ((d.x0 + d.x1) / 2).toFixed(1);
   const cy = ((d.y0 + d.y1) / 2).toFixed(1);
@@ -6314,7 +6327,14 @@ function pathSlug() {
 function loadHash() {
   const h = location.hash.slice(1);
   const ps = pathSlug();
-  if (ps && !h.startsWith("tour=") && h !== "classic") {
+  // Hidden: the original Lineweaver–Patel figure, at /classic/ (or the old
+  // #classic). The map waits underneath at its full view.
+  if (ps === "classic" || h === "classic") {
+    openClassicMode();
+    svg.call(zoomBehavior.transform, d3.zoomIdentity);
+    return true;
+  }
+  if (ps && !h.startsWith("tour=")) {
     const obj = OBJECTS.find(o => o.slug === ps);
     // Info-panel articles are known from the page build-pages.mjs wrote;
     // anything else (served by 404.html) falls back to the home view.
@@ -6334,13 +6354,6 @@ function loadHash() {
     history.replaceState(null, "", "/" + location.hash);
   }
   if (!h || h.startsWith("tour=")) return false;
-  // Hidden: the original Lineweaver–Patel figure. The map waits underneath
-  // at its full view.
-  if (h === "classic") {
-    openClassicMode();
-    svg.call(zoomBehavior.transform, d3.zoomIdentity);
-    return true;
-  }
   // Preset region hash like #preset=particle-physics — clicks the matching button.
   if (h.startsWith("preset=")) {
     const key = h.slice(7);

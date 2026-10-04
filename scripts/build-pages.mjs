@@ -294,6 +294,39 @@ async function screenshotAll(pages, out) {
   return true;
 }
 
+// The classic Lineweaver & Patel figure (/classic/) is portrait, so its
+// preview is the whole figure on the left with the card beside it.
+async function screenshotClassic(page, file) {
+  const chrome = findChrome();
+  if (!chrome || process.env.OG_NO_SHOTS) return false;
+  const { preview } = await import("vite");
+  const { default: puppeteer } = await import("puppeteer-core");
+  const server = await preview({ root: ROOT, logLevel: "silent", preview: { port: 4321, strictPort: false, open: false } });
+  const base = server.resolvedUrls.local[0].replace(/\/$/, "");
+  const browser = await puppeteer.launch({ executablePath: chrome, headless: true, args: ["--no-sandbox", "--hide-scrollbars"] });
+  try {
+    const p = await browser.newPage();
+    await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]); // skip the fade-in
+    await p.setViewport({ width: 600, height: 700, deviceScaleFactor: 1.5 });
+    await p.goto(`${base}/classic/`, { waitUntil: "load" });
+    await p.waitForSelector("#classic.shown path.cl-dust[d]", { timeout: 30000 });
+    await p.waitForNetworkIdle({ idleTime: 400, timeout: 8000 }).catch(() => {});
+    await new Promise((r) => setTimeout(r, 300));
+    const fig = await sharp(await p.screenshot({ type: "png" })).trim({ threshold: 4 })
+      .resize({ height: H - 40, width: 640, fit: "inside" }).png().toBuffer();
+    const { width: fw } = await sharp(fig).metadata();
+    const bg = await sharp({ create: { width: W, height: H, channels: 3, background: "#ffffff" } })
+      .composite([{ input: fig, left: Math.round(40 + (560 - fw) / 2), top: 20 },
+        { input: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#2a1d6e"/><stop offset="1" stop-color="#0b0824"/></linearGradient></defs><rect x="640" width="${W - 640}" height="${H}" fill="url(#g)"/></svg>`) }])
+      .png().toBuffer();
+    await (await composeCard(bg, page, null)).jpeg({ quality: 86, mozjpeg: true }).toFile(file);
+  } finally {
+    await browser.close();
+    await new Promise((r) => server.httpServer.close(r));
+  }
+  return true;
+}
+
 // ---------------------------------------------------------------- pages --
 const template = readFileSync(join(DIST, "index.html"), "utf8");
 writeFileSync(join(DIST, "404.html"), template); // unknown paths still load the map
@@ -349,6 +382,21 @@ if (!shot) {
   }
 }
 
+// The classic figure's own page (not an object: the app routes /classic/
+// itself, so it stays out of the object loop above)
+const CLASSIC = {
+  slug: "classic", obj: null,
+  name: "All objects and some questions",
+  md: "Lineweaver & Patel's figure of every object in the universe by mass and size (Am. J. Phys. 91, 819, 2023), redrawn so you can zoom into it, with the Triangle of Everything's objects and about 50,000 catalogue objects as fine dust.",
+};
+mkdirSync(join(DIST, "classic"), { recursive: true });
+writeFileSync(join(DIST, "classic", "index.html"), pageHtml(CLASSIC));
+if (!(await screenshotClassic(CLASSIC, join(DIST, "og", "classic.jpg")))) {
+  const { bg } = await fallbackBg(CLASSIC);
+  await (await composeCard(bg, CLASSIC, null)).jpeg({ quality: 84, mozjpeg: true }).toFile(join(DIST, "og", "classic.jpg"));
+}
+all.push(CLASSIC); // into the sitemap
+
 const today = new Date().toISOString().slice(0, 10);
 writeFileSync(join(DIST, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -357,4 +405,4 @@ ${all.map((p) => `  <url><loc>${SITE}/${p.slug}/</loc><lastmod>${today}</lastmod
 </urlset>
 `);
 writeFileSync(join(DIST, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
-console.log(`✓ ${all.length} object pages + preview images (${shot ? "chart screenshots" : "icon cards"}), sitemap.xml, robots.txt, 404.html`);
+console.log(`✓ ${all.length - 1} object pages + /classic/ + preview images (${shot ? "chart screenshots" : "icon cards"}), sitemap.xml, robots.txt, 404.html`);

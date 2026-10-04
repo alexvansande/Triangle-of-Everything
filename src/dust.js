@@ -203,3 +203,8 @@ export function pickDust(x, y, radius = 6) {
     sx: best.sx, sy: best.sy,
   };
 }
+
+/** Raw positions { r, m } (log radius, log mass) once loaded, else null. */
+export function dustArrays() {
+  return _data ? { r: _data.r, m: _data.m } : null;
+}

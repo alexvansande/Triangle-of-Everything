@@ -626,7 +626,7 @@ export const CONNECTION_PATHS = [
     curve: "arc", bow: -0.08,
     points: [
       { logR: -7.52, logM: -21.65 },
-      { logR: -7.0,  logM: -18.5 },   // DNA
+      { logR: -6.77, logM: -19.95 },   // DNA (one helix turn)
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -648,7 +648,7 @@ export const CONNECTION_PATHS = [
     curve: "arc", bow: -0.03,
     points: [
       { logR: -7.50, logM: -21.60 },
-      { logR: -7.0,  logM: -18.5 },   // DNA
+      { logR: -6.77, logM: -19.95 },   // DNA (one helix turn)
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -670,7 +670,7 @@ export const CONNECTION_PATHS = [
     curve: "arc", bow: 0.03,
     points: [
       { logR: -7.56, logM: -21.73 },
-      { logR: -7.0,  logM: -18.5 },   // DNA
+      { logR: -6.77, logM: -19.95 },   // DNA (one helix turn)
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -692,7 +692,7 @@ export const CONNECTION_PATHS = [
     curve: "arc", bow: 0.08,
     points: [
       { logR: -7.54, logM: -21.68 },
-      { logR: -7.0,  logM: -18.5 },   // DNA
+      { logR: -6.77, logM: -19.95 },   // DNA (one helix turn)
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
