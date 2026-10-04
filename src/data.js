@@ -704,9 +704,10 @@ export const CAT_DISPLAY = {
 // The element dust (calculated atomic radii, Guerra et al. 2017) shows the
 // periodic table as a sawtooth: within a period atoms get heavier but
 // SMALLER, then a new electron shell makes the next alkali metal balloon.
-// When zoomed in, each period (and the alkali / noble-gas columns and the
-// lanthanide clump) gets a quiet label laid along its dots. Names must
-// match the element dust or the hand-placed atoms in objects.json.
+// While "THE PERIODIC TABLE" is toggled on, each period (and the lanthanide
+// and actinide clumps) gets a quiet label laid along its dots; the families
+// are named from PERIODIC_FAMILIES. Names must match the element dust or the
+// hand-placed atoms in objects.json.
 export const ELEMENT_GUIDES = [
   { label: "Period 1", kind: "row", elements: ["Hydrogen", "Helium"] },
   { label: "Period 2", kind: "row", elements: ["Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon"] },
@@ -717,8 +718,6 @@ export const ELEMENT_GUIDES = [
   { label: "Period 7", kind: "row", elements: ["Francium", "Radium", "Rutherfordium", "Dubnium", "Seaborgium", "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium", "Copernicium", "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessine", "Oganesson"] },
   { label: "Actinides", kind: "cluster", type: "actinide", elements: ["Actinium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium"] },
   { label: "Lanthanides", kind: "cluster", type: "lanthanide", elements: ["Lanthanum", "Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium"] },
-  { label: "Alkali metals", kind: "column", elements: ["Lithium", "Sodium", "Potassium", "Rubidium", "Cesium", "Francium"] },
-  { label: "Noble gases", kind: "column", elements: ["Helium", "Neon", "Argon", "Krypton", "Xenon", "Radon", "Oganesson"] },
 ];
 
 // The periodic table as a grid, for the "THE PERIODIC TABLE" easter egg:

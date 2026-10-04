@@ -2073,9 +2073,9 @@ function drawPeriodicLayer(obstacles) {
 // draws (see ELEMENT_GUIDES). A label appears only when its line is long
 // enough on screen to carry it, and its whole run along the line must stay
 // clear of object labels, icons and category labels (it tries a few spots).
-// The period labels wait for "THE PERIODIC TABLE" to be toggled on.
+// They all wait for "THE PERIODIC TABLE" to be toggled on.
 function drawElementGuides(obstacles) {
-  if (!_dustEnabled || _bigBangMode) return;
+  if (!_periodicOn || !_dustEnabled || _bigBangMode) return;
   const dustPos = dustPositions("element");
   if (!dustPos) return;
   const pos = (name) => {
@@ -2091,7 +2091,6 @@ function drawElementGuides(obstacles) {
   const onScreen = (x, y) => x >= 0 && x <= cw && y >= 0 && y <= ch;
 
   ELEMENT_GUIDES.forEach((g, gi) => {
-    if (g.kind === "row" && !_periodicOn) return; // periods are named only while the table is shown
     const pts = g.elements.map(pos).filter(Boolean).map(([r, m]) => [px(r), py(m)]);
     if (pts.length < 2) return;
     const text = g.label.toUpperCase();
@@ -2118,10 +2117,8 @@ function drawElementGuides(obstacles) {
       return;
     }
 
-    if (g.kind === "column" && _periodicOn) return; // the easter egg names the families itself
     labelAlongLine(pts, text, {
-      id: `element-guide-${gi}`, off: g.kind === "column" ? -10 : 7, obstacles,
-      color, opacity: g.kind === "column" ? 0.45 : 0.65,
+      id: `element-guide-${gi}`, off: 7, obstacles, color, opacity: 0.65,
     });
   });
 }
