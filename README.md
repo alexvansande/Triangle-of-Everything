@@ -55,11 +55,17 @@ Adding a new object is as simple as adding a line to `objects.json` and optional
 
 ### Catalogue dust
 
-Behind the ~180 hand-placed objects sit ~32,000 faint dots: real, named
-objects from 18 published catalogues (stars from DEBCat, Gaia DR3 and the
-NASA Exoplanet Archive; exoplanets; white dwarfs; gravitational-wave black
-holes; nuclei with measured charge radii; hadrons; elements; mammal species;
-molecular clouds; star clusters; nearby galaxies; galaxy clusters…). They
+Behind the ~180 hand-placed objects sit ~50,000 faint dots: real, named
+objects from 40 published sources — hadrons, nuclei with measured charge
+radii, elements, molecules (PubChem), proteins (SASBDB), bacteria and algae
+cells, insects, amphibians, mammals, meteorites, vehicles, ships, aircraft,
+spacecraft and structures (Wikidata), lakes, glaciers and ice sheets,
+asteroids and boulders, moons, exoplanets, brown dwarfs, stars (DEBCat,
+Gaia DR3, exoplanet hosts), white dwarfs, black holes, molecular clouds,
+star clusters, galaxies and galaxy clusters. Where a mass or size is derived
+rather than measured (e.g. mass from a measured volume × a measured density),
+the hover label says so. Extra sources live one file each in
+`scripts/dust/src-*.mjs`. They
 have only a name, shown on hover — no description, no link, no click — and
 only appear where there is room, giving way first to everything else. They
 are there to show trends: how stars scatter off the main sequence, the

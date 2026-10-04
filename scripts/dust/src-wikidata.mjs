@@ -179,6 +179,14 @@ const NEVER_BUILT = new Set([
   "Q699638", // Panzerkampfwagen E-100 — hull only, never completed
 ]);
 
+// Values that passed the automatic checks but are wrong on Wikidata
+// (reviewed by hand; dropped at the user's request).
+const BAD_VALUES = new Set([
+  "RG-19",               // ~646 t at 49 m — almost certainly a data error
+  "Christ the Redeemer", // 1,145 t on Wikidata vs the usual 635 t
+  "Emma Mærsk",          // 16,810 t is not her displacement
+]);
+
 function loadGroup(group) {
   const out = [];
   for (const o of artefactItems()) {
@@ -191,6 +199,7 @@ function loadGroup(group) {
     if (!o.dims.has("length") && !o.dims.has("height")) continue;
     if (NEED_LENGTH.has(group) && !o.dims.has("length")) continue;
     if (NEVER_BUILT.has(o.q) || [...o.U].some((u) => NOT_BUILT_STATE.has(u))) continue;
+    if (BAD_VALUES.has(o.name)) continue;
     out.push({ name: o.name, logR: log((o.D * 100) / 2), logM: log(o.M * 1000), _anchor: o.q });
   }
   return out;
