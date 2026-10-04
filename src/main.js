@@ -5979,6 +5979,9 @@ setGridUnit.addEventListener("change", () => {
 const PAN_STEP = 80;
 document.addEventListener("keydown", (e) => {
   if (e.target.tagName === "INPUT") return;
+  // ? = Shift+/ on US keys; match the physical key too, so layouts that
+  // report another character for it still open the card.
+  if (e.key !== "?" && e.code === "Slash" && e.shiftKey) { setShortcutsOpen(shortcutsPanel.hidden); return; }
   // Arrow keys pan. Letter keys are recording shortcuts (see keyhint / docs):
   //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations · H hide UI
   //   V lock the viewport to a 1920×1080 stage (screenshot/video framing)
