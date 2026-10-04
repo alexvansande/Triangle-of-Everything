@@ -368,7 +368,7 @@ function build() {
   layers.fig3 = plot.append("g").attr("class", "cl-fig3").style("opacity", 0);
   layers.fig3Blobs = layers.fig3.append("g");
   layers.dust = plot.append("path").attr("class", "cl-dust")
-    .attr("fill", "none").attr("stroke", "#000").attr("stroke-opacity", 0.1) // a faint texture under the figure
+    .attr("fill", "none").attr("stroke", "#000").attr("stroke-opacity", 0.2) // a faint texture under the figure
     .attr("stroke-width", DUST_W).attr("stroke-linecap", "round");
   layers.dots = plot.append("g");
   layers.leaders = plot.append("g").attr("stroke", "#000").attr("stroke-width", 1.6);
