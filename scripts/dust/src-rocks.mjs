@@ -10,9 +10,20 @@
 //                       mutual orbits from radar, DART) — a cited hand
 //                       table, skipping bodies already in JPL SBDB
 //                       ("smallbody" source).
+//   asteroid-boulder    IAU-named boulders (saxa) on spacecraft-visited
+//                       asteroids; size from the IAU gazetteer, mass
+//                       DERIVED = sphere of that size × host bulk density.
+//   impactor            Small asteroids observed before/at atmospheric
+//                       entry; pre-entry mass & size are model estimates.
 // =============================================================
 
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 const log = Math.log10;
+const CACHE = join(dirname(fileURLToPath(import.meta.url)), ".cache");
 const SPHERE = (4 * Math.PI) / 3;
 
 // Measured mean BULK density (g/cm³) per class. Stones: Britt & Consolmagno
@@ -181,4 +192,85 @@ export default [
       return T.map(([name, m, d]) => ({ name, logR: log(d * 1e5 / 2), logM: log(m) }));
     },
   },
+  // ---------------------------------------------------------------
+  {
+    id: "asteroid-boulder",
+    label: "Boulder · IAU names (mass = size³ × host density)",
+    cat: "planet",
+    cite: "Names and sizes: IAU/USGS Gazetteer of Planetary Nomenclature, feature type Saxum (GIS center-point files). " +
+      "Host bulk density = measured mass / shape-model volume: Bennu 1.19 g/cm³ (Scheeres+ 2019, Lauretta+ 2019), " +
+      "Ryugu 1.19 (JPL SBDB GM & diameter; Watanabe+ 2019 Science 364, 268), Dinkinesh 2.54 (JPL SBDB GM & diameter; Lucy flyby), " +
+      "Didymos 2.58 (Richardson+ 2025 system mass & volume-equivalent diameter, as in smallbody-measured)",
+    radius: "half the gazetteer size of the boulder (its longest dimension, the artefact convention). Mass is DERIVED: " +
+      "a sphere of that diameter × the host asteroid's measured bulk density — an upper bound for flattened boulders " +
+      "(typical axis ratios c/a ≈ 0.5 would lower it by ~0.3 dex). Boulders on Dimorphos and Donaldjohanson are left out " +
+      "(no measured host mass); features < 1 m are dropped",
+    density: [-0.2, 0.6],
+    anchors: [{ name: "Roc Saxum (Bennu)", logR: log(96e2 / 2), tol: 0.01 }],
+    async load() {
+      // host bulk density, g/cm³ (mass / volume of the values plotted elsewhere on the chart)
+      const HOST = {
+        BENNU: ["Bennu", 7.329e13 / ((Math.PI / 6) * 4.9e4 ** 3)],
+        RYUGU: ["Ryugu", (3.0e-8 * 1e15 / 6.674e-8) / ((Math.PI / 6) * 0.896e5 ** 3)],
+        DINKINESH: ["Dinkinesh", (3.3e-8 * 1e15 / 6.674e-8) / ((Math.PI / 6) * 0.719e5 ** 3)],
+        DIDYMOS: ["Didymos", 5.26e14 / ((Math.PI / 6) * 0.73e5 ** 3)],
+      };
+      mkdirSync(CACHE, { recursive: true });
+      const out = [];
+      for (const [target, [host, rho]] of Object.entries(HOST)) {
+        const zip = join(CACHE, `gazetteer-${target}.zip`);
+        if (!existsSync(zip)) {
+          console.log(`  ↓ gazetteer-${target}.zip`);
+          execFileSync("curl", ["-sSfL", "--retry", "3", "-m", "300", "-o", zip,
+            `https://asc-planetarynames-data.s3.us-west-2.amazonaws.com/${target}_nomenclature_center_pts.zip`]);
+        }
+        const dbf = execFileSync("unzip", ["-p", zip, `${target}_nomenclature_center_pts.dbf`], { maxBuffer: 1 << 26 });
+        for (const r of readDBF(dbf)) {
+          if (r.code !== "SA") continue;                  // Saxum = named boulder
+          const d = Number(r.diameter) * 1e5;             // km → cm
+          if (!(d >= 100)) continue;                      // < 1 m: not a resolved boulder
+          out.push({ name: `${r.clean_name || r.name} (${host})`, logR: log(d / 2), logM: log(rho * (Math.PI / 6) * d ** 3) });
+        }
+      }
+      return out;
+    },
+  },
+  // ---------------------------------------------------------------
+  {
+    id: "impactor",
+    label: "Impacting asteroid (pre-entry estimate)",
+    cat: "planet",
+    cite: "Chelyabinsk: Popova et al. 2013, Science 342, 1069 (1.3e7 kg, 19.8 ± 4.6 m, assuming 3.3 g/cm³). " +
+      "2008 TC3: Jenniskens et al. 2009, Nature 458, 485 (83 ± 25 t, 4.1 ± 0.3 m). " +
+      "2018 LA: Jenniskens et al. 2021, MAPS 56, 844 (≈156 cm, bulk density ≈2.85 g/cm³)",
+    radius: "half the pre-entry diameter. Both numbers are model estimates (brightness/albedo, airburst energy, " +
+      "assumed or meteorite-derived density), uncertain by ~0.1–0.2 dex in mass",
+    density: [0, 0.7],
+    anchors: [{ name: "Chelyabinsk meteoroid", logM: log(1.3e10), tol: 0.01 }],
+    async load() {
+      const T = [
+        ["Chelyabinsk meteoroid", 1.3e10, 19.8e2],
+        ["2008 TC3 (Almahata Sitta)", 8.3e7, 4.1e2],
+        // 2018 LA: size from Jenniskens+ 2021; mass = sphere × their 2.85 g/cm³
+        ["2018 LA (Motopi Pan)", 2.85 * (Math.PI / 6) * 156 ** 3, 156],
+      ];
+      return T.map(([name, m, d]) => ({ name, logR: log(d / 2), logM: log(m) }));
+    },
+  },
 ];
+
+// Minimal dBASE III reader (gazetteer .dbf): returns [{field: string}]
+function readDBF(b) {
+  const n = b.readUInt32LE(4), hl = b.readUInt16LE(8), rl = b.readUInt16LE(10);
+  const fields = [];
+  for (let o = 32; b[o] !== 0x0d; o += 32)
+    fields.push([b.toString("latin1", o, o + 11).replace(/\0.*$/, ""), b[o + 16]]);
+  const rows = [];
+  for (let i = 0; i < n; i++) {
+    let p = hl + i * rl + 1;
+    const r = {};
+    for (const [name, len] of fields) { r[name] = b.toString("utf8", p, p + len).trim(); p += len; }
+    rows.push(r);
+  }
+  return rows;
+}
