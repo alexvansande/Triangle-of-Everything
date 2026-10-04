@@ -3,9 +3,14 @@
 // spirograph embeds. Eager `?url` globs inline URL strings only — bytes are
 // fetched on demand (map-tile-style pop-in) with an idle-time warmup.
 
-// Load descriptions from markdown files (eager, at build time)
-export const descFiles = import.meta.glob("../content/descriptions/*.md", { query: "?raw", import: "default", eager: true });
+// Object descriptions live in their own lazily loaded chunk (descriptions.js).
+// DESC_BY_SLUG fills in once loadDescriptions() resolves.
 export const DESC_BY_SLUG = {};
+let _descLoading = null;
+export function loadDescriptions() {
+  return _descLoading ??= import("./descriptions.js")
+    .then((m) => Object.assign(DESC_BY_SLUG, m.DESC_BY_SLUG));
+}
 
 // Object images: eager `?url` glob inlines just the URL strings (no per-file
 // JS wrapper chunk); the webp itself is fetched on demand when the sidebar
@@ -106,11 +111,6 @@ export function parseFrontmatter(raw) {
     meta[key] = val;
   });
   return { meta, body };
-}
-
-for (const [path, content] of Object.entries(descFiles)) {
-  const slug = path.replace("../content/descriptions/", "").replace(".md", "");
-  DESC_BY_SLUG[slug] = content.trim();
 }
 
 export { imageManifest, hyperspirographStates };

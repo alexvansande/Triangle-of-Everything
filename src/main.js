@@ -8,7 +8,7 @@ import {
 import {
   DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
-  startIconWarmup,
+  startIconWarmup, loadDescriptions,
 } from "./assets.js";
 import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
@@ -31,7 +31,7 @@ import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
-import { loadDust, drawDust, pickDust } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -52,6 +52,7 @@ const fscale = (px) => px * _fontScale;
 let _boldHover = false; // video mode: hovered lines render bold, no tooltips
 let _labelsEnabled = true;
 let _dustEnabled = true;  // catalogue dust layer (settings checkbox)
+let _userEngaged = false; // set on first pointer/wheel/key input (deferred loading)
 
 // Icon size scales with zoom: 16px at k=0.3 (fully out), up to 128px at k=800 (fully in).
 // Uses log interpolation for a natural "approaching distant object" feel.
@@ -3057,6 +3058,22 @@ let selectedObj = null;
 let _sidebarManuallyExpanded = false;
 let hashTimer = null;
 
+// Descriptions arrive in a lazy chunk (usually already fetched on the first
+// interaction). If the panel opens first, it fills in when the chunk lands —
+// unless the user has moved on to another object by then.
+let _descsLoaded = false;
+function renderDescription(obj) {
+  const apply = () => {
+    if (selectedObj !== obj) return;
+    sbDesc.innerHTML = simpleMarkdown(DESC_BY_SLUG[obj.slug] || "");
+    renderMath(sbDesc);
+  };
+  if (_descsLoaded) return apply();
+  sbDesc.innerHTML = "";
+  loadDescriptions().then(() => { _descsLoaded = true; apply(); })
+    .catch((e) => console.warn("descriptions failed to load", e));
+}
+
 function openInfoPanel(slug, name) {
   openSidebar({ slug, name, isLabel: true });
 }
@@ -3075,8 +3092,7 @@ function openSidebar(obj) {
     sbDot.style.color = "rgba(255,100,100,0.5)";
     sbCategory.textContent = "Unit reference";
     sbStats.innerHTML = "";
-    sbDesc.innerHTML = simpleMarkdown(DESC_BY_SLUG[obj.slug] || "");
-    renderMath(sbDesc);
+    renderDescription(obj);
     const wiki = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(obj.name)}`;
     sbLinks.innerHTML = `
       <a href="${wiki}" target="_blank" rel="noopener">
@@ -3245,8 +3261,7 @@ function openSidebar(obj) {
 
   sbStats.innerHTML = `<table>${rows}</table>`;
 
-  sbDesc.innerHTML = simpleMarkdown(DESC_BY_SLUG[obj.slug] || "");
-  renderMath(sbDesc);
+  renderDescription(obj);
 
   const wiki = wikiUrl(obj);
   const scholar = scholarUrl(obj.name);
@@ -4845,8 +4860,13 @@ const zoomBehavior = d3.zoom()
       });
     }
   })
-  .on("end", () => {
+  .on("end", (event) => {
     _zooming = false;
+    // Dust only matters once the view is zoomed in: fetch it on the first
+    // user gesture or any navigation that leaves the overview.
+    // Programmatic zooms (presets, search, tour) count once the user has
+    // engaged; the boot intro's own zoom-out never does.
+    if (!dustReady() && (event.sourceEvent || (_userEngaged && viewZoomedIn()))) ensureDust();
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
     lTilesBase.attr("transform", null);
@@ -5363,6 +5383,7 @@ setAnim.addEventListener("change", () => {
 const setDust = document.getElementById("set-dust");
 setDust.addEventListener("change", () => {
   _dustEnabled = setDust.checked;
+  if (_dustEnabled && viewZoomedIn()) ensureDust();
   redraw();
   saveSettings();
 });
@@ -6186,9 +6207,23 @@ setTimeout(() => {
 // Reveal page now that CSS and JS are loaded (prevents FOUC)
 document.body.classList.add("ready");
 
-// Icon cache warmup, anchored to READY (not module import) so it can never
-// drift into the startup measurement window on a slow machine.
-setTimeout(startIconWarmup, 3000);
+// Deferred loading, triggered by the user rather than by a timer: a visitor
+// who only looks at the overview never downloads the descriptions, the
+// off-screen icons, or the catalogue dust.
+function onFirstInteraction(fn) {
+  const evts = ["pointerdown", "wheel", "keydown", "touchstart"];
+  const once = () => { evts.forEach((t) => window.removeEventListener(t, once, true)); fn(); };
+  evts.forEach((t) => window.addEventListener(t, once, { capture: true, passive: true }));
+}
+const _readyAt = performance.now();
+onFirstInteraction(() => {
+  _userEngaged = true;
+  // Descriptions: needed by the info panel, so fetch as soon as the user engages
+  loadDescriptions().then(() => { _descsLoaded = true; })
+    .catch((e) => console.warn("descriptions failed to load", e));
+  // Icon cache warmup — never inside the startup window (≥ 3 s after ready)
+  setTimeout(startIconWarmup, Math.max(0, 3000 - (performance.now() - _readyAt)));
+});
 
 // Service worker: instant repeat visits + offline map (see public/sw.js).
 // Registered late and without clients.claim so the FIRST visit never pays
@@ -6202,11 +6237,20 @@ if ("serviceWorker" in navigator && !import.meta.env.DEV) {
   });
 }
 
-// Catalogue dust (~32k real objects) loads after first paint, off the
-// critical path; the map is fully usable before it arrives.
-// The idle callback gets a deadline: the connection animations keep the
-// main thread busy enough that a bare requestIdleCallback can starve.
-const _loadDustNow = () =>
+// Catalogue dust (~32k real objects, ~250 KB) is invisible in the overview
+// (the curated icons fill it), so it loads on the first zoom/pan — see the
+// zoom "end" handler — or right away for a shared link that opens zoomed in.
+function ensureDust() {
+  if (!_dustEnabled) return;
   loadDust().then(() => redraw()).catch((e) => console.warn("dust layer failed to load", e));
-if (window.requestIdleCallback) requestIdleCallback(_loadDustNow, { timeout: 1500 });
-else setTimeout(_loadDustNow, 300);
+}
+// "Zoomed in" by visible span, not by k: the mobile layout's resting view
+// is already k≈14.
+function viewZoomedIn() {
+  const d = vd();
+  return d.y1 - d.y0 < 60;
+}
+{
+  const [, , k] = location.hash.slice(1).split(",").map(Number);
+  if (k > 1.5) ensureDust();
+}
