@@ -106,7 +106,12 @@ for (const [slug, md] of Object.entries(DESC)) {
 // width / mass / density rows. Without a Chrome to drive (local builds), it
 // falls back to the icon on a plain dark card.
 const W = 1200, H = 630;
-const font = (f) => opentype.parse(readFileSync(join(ROOT, "scripts", "og", `${f}.ttf`)).buffer);
+// Copy out exactly the file's bytes: a Buffer's .buffer can be a shared pool
+// holding other data too (Node 26 pools these reads; 20 happened not to).
+const font = (f) => {
+  const b = readFileSync(join(ROOT, "scripts", "og", `${f}.ttf`));
+  return opentype.parse(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
+};
 const FONT = { inter400: font("Inter-400"), inter700: font("Inter-700"), mono400: font("SpaceMono-400"), mono700: font("SpaceMono-700") };
 // The Latin subsets have no subscripts / astronomy glyphs: plain-text stand-ins
 // Superscript runs the font can draw stay superscripts (cm³, 10²); a run with

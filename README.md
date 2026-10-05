@@ -106,6 +106,31 @@ below its own Schwarzschild radius or Compton wavelength, or beyond the Hubble
 radius) and flags any object whose density is wildly out of line with others of
 the same size. Use `npm run validate -- --strict` for a noisier review pass.
 
+## Printing the poster
+
+The site started as a poster, and it can print itself back into one:
+
+```bash
+npm run poster
+```
+
+Headless Chrome loads the app in poster mode (no UI, no animation), renders
+the whole triangle as a full-bleed page plus two zoomed insets on the bottom
+row (particles, the stellar cycle), draws the animated connection paths as
+static arrows and screenshots each at print resolution. The composed raster
+then goes through Chrome's printer with vector text on top — the title and
+every axis (grid numbers, unit references, epoch labels) — plus every
+object name that fits without touching a neighbour (bold Helvetica caps) —
+giving `posters/<name>.pdf`, alongside the raster `.png` and a small
+preview. The tour's chart-anchored steps print as numbered callouts in the
+free space beside the triangle (dot, leader line, title and text), as many
+as fit without overlapping anything. In-chart annotations are still off. Defaults to A1 at
+300 dpi; `--size A2`, `--dpi`, `--scale` (icon size on paper vs. how
+many objects show individually), `--icon-size`, `--out file.jpg` and
+`--panels` (keep the raw panels) are documented at the top of
+`scripts/poster.mjs`. The page layout and the three data regions are plain
+constants in that file.
+
 ## Tech stack
 
 - [D3.js](https://d3js.org/) for scales, zoom, and SVG rendering

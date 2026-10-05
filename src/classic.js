@@ -16,6 +16,7 @@ import "./classic.css";
 import { SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M } from "./data.js";
 import objectsData from "./objects.json";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
+import { enableTrackpadPan } from "./trackpad-pan.js";
 import { loadDust, dustArrays } from "./dust.js";
 
 // ---------- figure geometry ----------
@@ -421,6 +422,7 @@ function build() {
     .on("end", layoutNames);
   svg.call(zoom);
   enableTrackpadPinch(svg.node());   // Safari's trackpad pinch
+  enableTrackpadPan(svg.node(), zoom); // two-finger drag pans; pinch / wheel zoom
   render(d3.zoomIdentity);
 }
 
@@ -832,10 +834,44 @@ function onPop() {
   if (!isClassicURL()) hide();
 }
 
-export function openClassic() {
+// ---------- view sync with the map (both directions of the fade) ----------
+// A view is { cx, cy, r, m, ppdX, ppdY }: screen point (cx, cy) in client px
+// shows log r / log m, at ppdX / ppdY screen px per decade. Both figures use
+// the same units, so matching the map's view makes the cross-fade line up.
+const FRAME_PPD_X = (FRAME.x1 - FRAME.x0) / (R_DOM[1] - R_DOM[0]); // fig px / decade at k = 1
+const FRAME_C = [(FRAME.x0 + FRAME.x1) / 2, (FRAME.y0 + FRAME.y1) / 2];
+const toClient = (ctm, [x, y]) => [ctm.a * x + ctm.e, ctm.d * y + ctm.f];
+
+export function classicView() {
+  const ctm = svg?.node().getScreenCTM();
+  if (!ctm || !xs) return null;
+  const [cx, cy] = toClient(ctm, FRAME_C);
+  return {
+    cx, cy, r: xs.invert(FRAME_C[0]), m: ys.invert(FRAME_C[1]),
+    ppdX: ctm.a * (xs(1) - xs(0)), ppdY: ctm.d * (ys(0) - ys(1)),
+  };
+}
+
+function applyView(v) {
+  const ctm = svg.node().getScreenCTM();
+  if (!ctm || !v) return;
+  const [ax, ay] = toClient(ctm, FRAME_C);
+  // What the incoming view shows at our frame centre, at its scale
+  const r = v.r + (ax - v.cx) / v.ppdX;
+  const m = v.m - (ay - v.cy) / v.ppdY;
+  const [kMin, kMax] = zoom.scaleExtent();
+  const k = Math.max(kMin, Math.min(kMax, v.ppdX / (ctm.a * FRAME_PPD_X)));
+  const t = d3.zoomIdentity.translate(...FRAME_C).scale(k).translate(-x0(r), -y0(m));
+  const ext = [[FRAME.x0, FRAME.y0], [FRAME.x1, FRAME.y1]];
+  svg.interrupt().call(zoom.transform, zoom.constrain()(t, ext, zoom.translateExtent()));
+}
+
+// view: the map's current view (see above), to open on the same spot.
+export function openClassic(view) {
   if (!root) build();
   if (root.classList.contains("shown")) return;
   root.hidden = false;
+  if (view) applyView(view);            // laid out now (unhidden), still transparent
   void root.offsetWidth;                // commit opacity 0 so the fade runs
   root.classList.add("shown");
   document.documentElement.classList.add("classic-open");
@@ -862,7 +898,8 @@ function hide() {
   window.removeEventListener("keydown", onKey, true);
   window.removeEventListener("popstate", onPop);
   document.title = "The Triangle of Everything";
-  window.dispatchEvent(new Event("classic-close"));
+  // The map takes over our view as it fades back in (see main.js)
+  window.dispatchEvent(new CustomEvent("classic-close", { detail: classicView() }));
 }
 
 export function closeClassic() {

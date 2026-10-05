@@ -31,6 +31,7 @@ import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, isTourActive, closeTour } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
+import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
 import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
@@ -104,7 +105,7 @@ let tileMeta = null;
 // =============================================================
 // Big Bang animated timeline — state
 // =============================================================
-import { BIG_BANG_ERAS } from "./tour-data.js";
+import { BIG_BANG_ERAS, TOUR_STEPS } from "./tour-data.js";
 
 let _bigBangMode = false;
 let _bigBangHubbleLogR = HUBBLE_LOG_R;
@@ -178,14 +179,30 @@ const MOBILE_BREAKPOINT = 768;
 let _isSidebarOpen = false;
 let _isMobile = window.innerWidth < MOBILE_BREAKPOINT;
 
-// Recording viewport (V): lock the app to a fixed 1920×1080 stage, scaled
-// to fit the window and centered on black — a stable crop target for
-// screenshots and screen recordings. While locked the app lays out (and
-// behaves) as a 1920×1080 desktop regardless of the real window.
-const VP_LOCK_W = 1920, VP_LOCK_H = 1080;
-let _viewportLock = false;
-const viewportLockScale = () =>
-  Math.min(1, window.innerWidth / VP_LOCK_W, window.innerHeight / VP_LOCK_H);
+// Recording viewport (V): lock the app to a fixed stage, scaled to fit the
+// window and centered on black — a stable crop target for screenshots and
+// screen recordings. V cycles off → landscape (a 1920×1080 desktop) →
+// portrait (a 432×768 phone in the mobile layout; ×2.5 = a 1080×1920
+// vertical video) → off. While locked the app lays out (and behaves) as
+// the stage regardless of the real window.
+const VP_STAGES = {
+  landscape: { W: 1920, H: 1080, maxScale: 1, pad: 0 },
+  // Upscale: a phone is tiny on a monitor. The pad leaves a black gutter for
+  // the safe-zone guides (see positionSafeZones), outside the capture crop.
+  portrait:  { W: 432,  H: 768,  maxScale: Infinity, pad: 36 },
+};
+// Where TikTok / Reels / Shorts draw their own UI over a 9:16 video, as
+// fractions of the frame — roughly the union of the three apps' overlays:
+// status + tabs on top, caption/username/music at the bottom, the
+// like/comment/share column on the right.
+const VP_SAFE = { top: 0.14, bottom: 0.25, left: 0.06, right: 0.13 };
+let _viewportLock = null; // null | "landscape" | "portrait"
+const vpStage = () => VP_STAGES[_viewportLock];
+const viewportLockScale = () => {
+  const s = vpStage();
+  return Math.min(s.maxScale,
+    (window.innerWidth - 2 * s.pad) / s.W, (window.innerHeight - 2 * s.pad) / s.H);
+};
 let _showAxesMobile = false; // edge-to-edge by default; axes pill toggles unit margins
 const _isCoarse = !!window.matchMedia?.("(pointer: coarse)").matches;
 const _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -199,7 +216,9 @@ let W, H, cw, ch;
 
 function updateMobileState() {
   const wasMobile = _isMobile;
-  _isMobile = !_viewportLock && window.innerWidth < MOBILE_BREAKPOINT;
+  // Poster panels can be narrow (an inset) yet must keep the desktop axes.
+  _isMobile = _viewportLock ? _viewportLock === "portrait"
+    : !_posterMargins && window.innerWidth < MOBILE_BREAKPOINT;
   if (_isMobile) {
     document.body.classList.add("is-mobile");
   } else {
@@ -221,6 +240,29 @@ let _userMarginLeft = null;
 let _userMarginRight = null;
 let _userMarginTop = null;
 let _userMarginBottom = null;
+let _posterMargins = null; // explicit axis columns, set by window.__poster
+let _posterStage = null;   // fixed {W, H} stage in CSS px, set by window.__poster
+let _posterNoText = false; // hide every label, number and annotation layer
+let _posterArrows = false; // draw every connection path as static arrows
+let _posterLabels = false; // strict, measured object labels for the vector overlay
+let _posterLabelSize = 11; // CSS px
+const _posterLabelFont = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+const _posterLabelTracking = 0.04; // em
+let _posterMeasureCtx = null;
+const _posterLabelWidths = new Map();
+/** Real text width of an object name as the poster prints it (bold caps). */
+function posterLabelWidth(name) {
+  const key = name + "@" + _posterLabelSize;
+  let w = _posterLabelWidths.get(key);
+  if (w == null) {
+    if (!_posterMeasureCtx) _posterMeasureCtx = document.createElement("canvas").getContext("2d");
+    _posterMeasureCtx.font = `700 ${_posterLabelSize}px ${_posterLabelFont}`;
+    const text = name.toUpperCase();
+    w = _posterMeasureCtx.measureText(text).width + text.length * _posterLabelTracking * _posterLabelSize;
+    _posterLabelWidths.set(key, w);
+  }
+  return w;
+}
 const RIGHT_MARGIN_DEFAULT = 125;
 const RIGHT_MARGIN_MIN = 50;
 const RIGHT_MARGIN_MAX = 220;
@@ -234,8 +276,8 @@ const BOTTOM_MARGIN_MIN = 50;
 const BOTTOM_MARGIN_MAX = 200;
 
 function measure() {
-  W = _viewportLock ? VP_LOCK_W : window.innerWidth;
-  H = _viewportLock ? VP_LOCK_H : window.innerHeight;
+  W = _posterStage ? _posterStage.W : _viewportLock ? vpStage().W : window.innerWidth;
+  H = _posterStage ? _posterStage.H : _viewportLock ? vpStage().H : window.innerHeight;
   if (_isMobile) {
     // Edge-to-edge map on phones: the chart IS the screen and all UI floats
     // above it. The axes pill (#axes-toggle) temporarily restores the unit
@@ -269,6 +311,14 @@ function measure() {
     margin.bottom = _userMarginBottom != null
       ? Math.max(BOTTOM_MARGIN_MIN, Math.min(BOTTOM_MARGIN_MAX, _userMarginBottom))
       : BOTTOM_MARGIN_DEFAULT;
+  }
+  if (_posterMargins) {
+    // Poster renderer (window.__poster): the print frame sizes its own axis
+    // columns, uncapped by the drag-handle limits.
+    margin.left = _posterMargins.left;
+    margin.right = _posterMargins.right;
+    margin.top = _posterMargins.top;
+    margin.bottom = _posterMargins.bottom;
   }
   cw = W - margin.left - margin.right;
   ch = H - margin.top - margin.bottom;
@@ -2288,7 +2338,7 @@ function drawObjects() {
   });
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
-  const th2 = CLUSTER_THRESHOLD * CLUSTER_THRESHOLD;
+  const th2 = _posterLabels ? -1 : CLUSTER_THRESHOLD * CLUSTER_THRESHOLD; // poster: no clusters
   const clusters = [];
   const assigned = new Set();
 
@@ -2427,8 +2477,8 @@ function drawObjects() {
     if (!o._showDot) { o._showLabel = false; o._labelPos = null; return; }
     if (o._inCluster) { o._showLabel = false; o._labelPos = labelPositions[0]; return; }
 
-    const labelW = o.name.length * 6 + 10;
-    const labelH = 13;
+    const labelW = _posterLabels ? posterLabelWidth(o.name) + 6 : o.name.length * 6 + 10;
+    const labelH = _posterLabels ? _posterLabelSize + 3 : 13;
 
     // Icon-bearing objects push their own label just outside the glyph
     const ownR = o._showIcon ? (icoSize * iconSizeMult(o)) / 2 : 0;
@@ -2449,7 +2499,9 @@ function drawObjects() {
       const collides = placedLabels.some(p =>
         rect.x < p.x + p.w + 6 && rect.x + rect.w + 6 > p.x &&
         rect.y < p.y + p.h + 2 && rect.y + rect.h + 2 > p.y
-      ) || hitsIcons(rect, o);
+      ) || hitsIcons(rect, o)
+        // Poster: a label must sit fully inside the panel — it is cut out.
+        || (_posterLabels && (rect.x < 2 || rect.y < 2 || rect.x + rect.w > cw - 2 || rect.y + rect.h > ch - 2));
 
       if (!collides) {
         o._showLabel = true;
@@ -2460,7 +2512,7 @@ function drawObjects() {
       }
     }
 
-    if (!o._labelPos) {
+    if (!o._labelPos && !_posterLabels) {
       // Nothing clears both labels AND icons — retry ignoring icons and
       // accept glyph overlap rather than dropping the label (today's
       // behavior; overlap beats absence). Only genuine label-vs-label
@@ -2759,6 +2811,16 @@ function drawObjects() {
     .attr("y", o => o.sy + o._labelPos.dy)
     .attr("text-anchor", o => o._labelPos.anchor)
     .attr("fill", o => SUBCAT_LABEL_COLORS[o.subcat] || o.color)
+    .each(function(o) {
+      // Poster: bold Helvetica caps, sized for print (window.__poster).
+      if (!_posterLabels) return;
+      d3.select(this)
+        .attr("font-family", _posterLabelFont).attr("font-weight", 700)
+        .attr("font-size", _posterLabelSize)
+        .attr("letter-spacing", `${_posterLabelTracking}em`)
+        .attr("stroke-width", 2.5)
+        .text(o.name.toUpperCase());
+    })
     .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
 
   _lastProjected = shownDots;
@@ -4420,6 +4482,64 @@ function initConnections() {
   scheduleConnAnim();
 }
 
+/** Arc-length position (0–1) of anchor i on a connection path's curve. The
+ *  curve passes through every anchor, so it is the first local minimum of
+ *  the sample distance after the previous anchor — "first" matters for the
+ *  stellar loops, which pass within a fraction of a unit of themselves. */
+function connAnchorT(cp, i, fromK) {
+  const n = cp.points.length - 1;
+  if (i === 0) return { t: 0, k: 0 };
+  if (i === n) return { t: 1, k: cp._samples.sx.length - 1 };
+  const p = cp.points[i], s = cp._samples, N = s.sx.length - 1;
+  const d2 = (k) => (s.sx[k] - p.logR) ** 2 + (s.sy[k] - p.logM) ** 2;
+  const spacing2 = (cp._dataLen / N) ** 2;
+  let best = -1, bd = Infinity;
+  for (let k = fromK + 1; k <= N; k++) {
+    const d = d2(k);
+    if (d < bd) { bd = d; best = k; }
+    if (d < spacing2 && k < N && d2(k + 1) > d) break; // first local minimum near the anchor
+  }
+  // Refine on the exact path within one sample either side.
+  let lo = Math.max(0, best - 1) / N * cp._dataLen, hi = Math.min(N, best + 1) / N * cp._dataLen;
+  const dist = (L) => { const q = cp._probe.getPointAtLength(L); return (q.x - p.logR) ** 2 + (q.y - p.logM) ** 2; };
+  for (let it = 0; it < 24; it++) {
+    const m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3;
+    if (dist(m1) < dist(m2)) hi = m2; else lo = m1;
+  }
+  return { t: ((lo + hi) / 2) / cp._dataLen, k: best };
+}
+
+/** Poster arrows: an arrowhead at the midpoint of every segment of a
+ *  connection path, pointing the way the animated dots travel. */
+function drawConnArrowheads(cp, group, opacity) {
+  ensureConnGeometry(cp);
+  const size = 9; // px, tip to base
+  const ts = [];
+  let k = 0;
+  for (let i = 0; i < cp.points.length; i++) {
+    const r = connAnchorT(cp, i, k);
+    ts.push(r.t); k = r.k;
+  }
+  for (let i = 0; i < cp.points.length - 1; i++) {
+    const [ax, ay] = getPathScreenPos(cp, ts[i]);
+    const [bx, by] = getPathScreenPos(cp, ts[i + 1]);
+    if (Math.hypot(bx - ax, by - ay) < size * 2.5) continue; // too short to carry an arrow
+    const tm = (ts[i] + ts[i + 1]) / 2;
+    const [x0, y0] = getPathScreenPos(cp, tm - 0.004);
+    const [x1, y1] = getPathScreenPos(cp, tm + 0.004);
+    const dx = x1 - x0, dy = y1 - y0, l = Math.hypot(dx, dy) || 1;
+    const ux = dx / l, uy = dy / l;
+    const [mx, my] = getPathScreenPos(cp, tm);
+    const tipX = mx + ux * size / 2, tipY = my + uy * size / 2;
+    const bX = tipX - ux * size, bY = tipY - uy * size;
+    const w = size * 0.42;
+    group.append("polygon")
+      .attr("points", `${tipX},${tipY} ${bX - uy * w},${bY + ux * w} ${bX + uy * w},${bY - ux * w}`)
+      .attr("fill", cp.family === "spectrum" ? emSpectrumColor(tm) : (cp.style.color || "rgba(255,255,255,0.6)"))
+      .attr("opacity", opacity);
+  }
+}
+
 function drawConnections() {
   lArrows.selectAll("*").remove();
   _connDotsStale = true;
@@ -4452,8 +4572,14 @@ function drawConnections() {
   }
 
   const view = vd(); // hoisted: identical for every path this draw
+  // Poster arrows (window.__poster): every path shown at every zoom, lines
+  // strong enough to print, arrowheads instead of the animated dots.
+  // A hovered composition line (cp._into) skips the ambient fade.
+  const lineOp = (cp) => _posterArrows ? Math.min(1, cp.style.lineOpacity * 4)
+    : cp.style.lineOpacity * (cp._into ? 1 : cp._opacity);
+  const lineW = (cp) => cp.style.lineWidth * (_posterArrows ? 1.4 : 1);
   _connPaths.forEach(cp => {
-    cp._opacity = connectionOpacity(cp, view);
+    cp._opacity = _posterArrows ? 1 : connectionOpacity(cp, view);
     cp._visible = cp._opacity > 0.01;
     cp._lineGroup = null;
 
@@ -4461,7 +4587,6 @@ function drawConnections() {
     // range: hovering the whole reveals it (showComposition) at any zoom, at
     // full strength — the ambient fade is for the dots, not a hovered line.
     if (!cp._visible && !cp._into) return;
-    const lineFade = cp._into ? 1 : cp._opacity;
 
     // Decay and combines paths use bezier curves (alternating anchor/control points)
     const isBezier = cp.family === "decay" || cp.family === "combines";
@@ -4469,7 +4594,7 @@ function drawConnections() {
     // Draw visible line (hidden by default, revealed on hover)
     const lineGroup = lArrows.append("g")
       .attr("class", "conn-line")
-      .attr("opacity", 0)
+      .attr("opacity", _posterArrows ? 1 : 0)
       .style("transition", "opacity 0.3s")
       .style("pointer-events", "none");
     cp._lineGroup = lineGroup;
@@ -4512,8 +4637,8 @@ function drawConnections() {
           lineGroup.append("line")
             .attr("x1", x0).attr("y1", y0).attr("x2", x1).attr("y2", y1)
             .attr("stroke", emSpectrumColor(t0))
-            .attr("stroke-width", cp.style.lineWidth * 0.6)
-            .attr("opacity", cp.style.lineOpacity * lineFade * 0.7)
+            .attr("stroke-width", lineW(cp) * 0.6)
+            .attr("opacity", lineOp(cp) * 0.7)
             .attr("stroke-linecap", "round");
         }
       }
@@ -4523,10 +4648,11 @@ function drawConnections() {
         .attr("d", visD)
         .attr("fill", "none")
         .attr("stroke", cp.style.color || "rgba(255,255,255,0.3)")
-        .attr("stroke-width", cp.style.lineWidth)
-        .attr("opacity", cp.style.lineOpacity * lineFade);
+        .attr("stroke-width", lineW(cp))
+        .attr("opacity", lineOp(cp));
       if (cp.style.dash) pathEl.attr("stroke-dasharray", cp.style.dash);
     }
+    if (_posterArrows) drawConnArrowheads(cp, lineGroup, lineOp(cp));
 
     if (!cp._visible) return; // no dots here, so no hover target either
 
@@ -4846,7 +4972,12 @@ function drawTiles() {
   const blurPx = 0;
   lTiles.style("filter", overZoom > 1.2 ? `blur(${Math.min(14, overZoom * 3).toFixed(1)}px)` : null);
 
-  const { x0, x1, y0, y1 } = vd();
+  // Poster mode: the tile layers sit outside the clip so the nebula also
+  // covers the axis columns — cull against the padded range.
+  const _vd = vd();
+  const _padU = _posterMargins
+    ? Math.max(margin.left, margin.right, margin.top, margin.bottom) / Math.abs(px(1) - px(0)) : 0;
+  const x0 = _vd.x0 - _padU, x1 = _vd.x1 + _padU, y0 = _vd.y0 - _padU, y1 = _vd.y1 + _padU;
   // Data units per pixel at this zoom level (correct for partial edge tiles)
   const dppX = imgDataW / best.w;
   const dppY = imgDataH / best.h;
@@ -5011,6 +5142,14 @@ function redraw() {
 
 const clickTargetContainer = document.getElementById("click-targets");
 let _clickTargetTimer = null;
+// The targets sit above the SVG, so a wheel/trackpad gesture that starts on
+// an object would never reach d3-zoom. Re-dispatch it on the SVG (same
+// coordinates); zoom start then clears the targets for the rest of it.
+clickTargetContainer.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  wheelKind(e); // classify the real event: the copy loses legacy wheelDeltaY
+  svg.node().dispatchEvent(new WheelEvent("wheel", e));
+}, { passive: false });
 
 function clearClickTargets() {
   clickTargetContainer.innerHTML = "";
@@ -5259,6 +5398,7 @@ function redrawVectors() {
   drawObjects();
   drawHighlight();
   drawAxes();
+  if (_posterNoText) posterHideText(); // wordless print: see window.__poster
   updateMinimap();
   updateScaleBar();
 }
@@ -5309,6 +5449,13 @@ let rafPending = false;
 let _zoomPrevTransform = null;  // track previous transform for CSS offset
 let _zooming = false;
 let _panSamples = [];           // recent touch-pan positions for momentum
+// Zooming away from the tour dismisses it: a user zoom (wheel, pinch,
+// dblclick — anything with a sourceEvent) that drifts 2× from the scale
+// the tour left the view at closes the box. Programmatic zooms (tour
+// steps, keyboard W/S) reset the baseline.
+const TOUR_DISMISS_ZOOM = 2;
+let _userZoomGesture = false;
+let _tourBaseK = null;
 
 const zoomBehavior = d3.zoom()
   .scaleExtent([0.3, 800])
@@ -5317,8 +5464,11 @@ const zoomBehavior = d3.zoom()
     if (event.target.closest?.("button, input, a")) return false;
     return svg.node().contains(event.target);
   })
-  .on("start", () => {
+  .on("start", (event) => {
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
+    _userZoomGesture = !!event.sourceEvent;
+    if (!_userZoomGesture) _tourBaseK = null;
+    else if (_tourBaseK == null) _tourBaseK = currentK;
     _zooming = true;
     clearClickTargets();
     hideComposition(); // hover lines would strand at pre-zoom coordinates
@@ -5336,6 +5486,10 @@ const zoomBehavior = d3.zoom()
   .on("zoom", (event) => {
     const t = event.transform;
     currentK = t.k;
+    if (_userZoomGesture && _tourBaseK && isTourActive() &&
+        Math.abs(Math.log(t.k / _tourBaseK)) > Math.log(TOUR_DISMISS_ZOOM)) {
+      closeTour();
+    }
     xS = t.rescaleX(xBase);
     yS = t.rescaleY(yBase);
 
@@ -5413,6 +5567,10 @@ const zoomBehavior = d3.zoom()
 svg.call(zoomBehavior);
 // Safari's trackpad pinch, also over the click-target overlay above the map
 enableTrackpadPinch(svg.node(), [svg.node(), clickTargetContainer]);
+
+// Trackpad two-finger drag pans; pinch and mouse wheel zoom (trackpad-pan.js).
+// Wraps the start/end listeners above, so it must come after them.
+enableTrackpadPan(svg.node(), zoomBehavior);
 
 svg.on("pointerdown.animPause", pauseAnimOnInteract);
 svg.on("wheel.animPause", pauseAnimOnInteract);
@@ -5771,6 +5929,157 @@ window.__debugBigBang = {
 };
 
 // =============================================================
+// Poster renderer hook (scripts/poster.mjs)
+// =============================================================
+// Headless Chrome drives the chart into a print frame: hide the app UI,
+// freeze animation, size the axis columns, lay the chart out on a fixed
+// stage (which can be far larger than the browser window), frame a data
+// region exactly, wait for every tile and icon to arrive, then screenshot
+// the stage one window-sized piece at a time via shift(). Nothing in the
+// app calls this — it exists so the site can print its own poster.
+// Wordless print: drop the annotation layers whole (labels ride with their
+// leader lines and pills) plus any text left in the drawing layers. Runs at
+// the end of every redraw while poster no-text mode is on — a DOM pass, not
+// a stylesheet rule, because a bare-tag selector would tax every per-frame
+// rebuild in the app itself.
+function posterHideText() {
+  [lAxesWrap, lEnergyBands, lWaterPhase, lRegLabel, lObjExtras, lLabels]
+    .forEach(l => l.attr("display", "none"));
+  document.querySelectorAll("#chart svg text").forEach(t => { t.style.display = "none"; });
+}
+
+window.__poster = {
+  /** Poster mode: no HTML chrome, no animation, explicit axis margins, an
+   *  optional fixed stage size {W, H} in CSS px replacing the window,
+   *  text:false for a wordless raster (no axes, labels or annotations),
+   *  arrows:true to draw every connection path as static arrows, and
+   *  labels:true to place strict, measured object labels (bold Helvetica
+   *  caps, labelSize CSS px) for the vector overlay — see overlay(). */
+  enter({ fontScale = 1, iconSize = 100, margins = null, stage = null, text = true, arrows = false,
+          labels = false, labelSize = 11 } = {}) {
+    svg.interrupt();
+    document.body.classList.add("poster-mode", "ui-hidden", "anim-off");
+    _animDisabled = true;
+    _fontScale = fontScale;
+    document.documentElement.style.setProperty("--font-scale", _fontScale);
+    _iconSize = iconSize;
+    _posterMargins = margins;
+    _posterStage = stage;
+    _posterNoText = !text;
+    _posterArrows = arrows;
+    _posterLabels = labels;
+    _posterLabelSize = labelSize;
+    // Nebula under everything: lift the tile layers out of the clip so they
+    // also paint the axis columns (the vector layers stay clipped). The
+    // icon and label layers come out too: a clip-path isolates its group,
+    // so screen-blended icons left inside would composite against nothing
+    // and show their black squares.
+    if (lTiles.node().parentNode === clip.node()) {
+      const c = chart.node();
+      c.insertBefore(lTilesBase.node(), clip.node());
+      c.insertBefore(lTiles.node(), clip.node());
+      c.insertBefore(lIcons.node(), lAxesWrap.node());
+      c.insertBefore(lLabels.node(), lAxesWrap.node());
+      clip.select("rect.bg-rect").attr("display", "none"); // would paint over the tiles
+    }
+    document.body.style.setProperty("--poster-w", stage ? stage.W + "px" : "100vw");
+    document.body.style.setProperty("--poster-h", stage ? stage.H + "px" : "100vh");
+    if (_isSidebarOpen) setSidebarOpen(false);
+    updateMobileState();
+    relayout();
+    return { W, H, cw, ch, margin: { ...margin } };
+  },
+  /** Slide the stage so that stage point (x, y) sits at the window's top-left
+   *  corner; resolves after the next two frames have painted. */
+  async shift(x, y) {
+    document.body.style.transform = `translate(${-x}px, ${-y}px)`;
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  },
+  /** Fit a data region {x:[lo,hi], y:[lo,hi]} into `frame` ({x, y, w, h} in
+   *  chart px; default the whole chart area), centered, with `pad`
+   *  (fraction of the region) of breathing room. No transition. */
+  fit(region, pad = 0.05, frame = null) {
+    svg.interrupt();
+    const f = frame || { x: 0, y: 0, w: cw, h: ch };
+    const [x0, x1] = region.x, [y0, y1] = region.y;
+    const kx = f.w / ((xBase(x1) - xBase(x0)) * (1 + 2 * pad));
+    const ky = f.h / ((yBase(y0) - yBase(y1)) * (1 + 2 * pad));
+    const k = Math.min(kx, ky);
+    const cx = (xBase(x0) + xBase(x1)) / 2;
+    const cy = (yBase(y0) + yBase(y1)) / 2;
+    const t = d3.zoomIdentity.translate(f.x + f.w / 2 - cx * k, f.y + f.h / 2 - cy * k).scale(k);
+    svg.call(zoomBehavior.transform, t);
+    return { k, ...vd() };
+  },
+  /** The text layers — the axes (numbers, unit references, titles, epoch
+   *  labels and their tick lines) and, in labels mode, the object labels —
+   *  as self-contained SVG markup: computed styles inlined, app classes
+   *  stripped, axis font sizes multiplied by `axisFont`. Plus the layers'
+   *  offset within the stage. The poster PDF prints this as vector text
+   *  over the raster, so the raster itself carries no text. */
+  overlay(axisFont = 1) {
+    const PROPS = ["font-family", "font-size", "font-weight", "font-style", "letter-spacing",
+      "fill", "fill-opacity", "opacity", "stroke", "stroke-width", "stroke-dasharray",
+      "stroke-opacity", "stroke-linecap", "stroke-linejoin", "text-anchor", "dominant-baseline", "paint-order"];
+    const cloneLayer = (layer, fontMul) => {
+      const src = layer.node();
+      const clone = src.cloneNode(true);
+      clone.removeAttribute("display");
+      const a = src.querySelectorAll("*"), b = clone.querySelectorAll("*");
+      for (let i = 0; i < a.length; i++) {
+        const cs = getComputedStyle(a[i]);
+        // Unit references grow less than the numbers (they sit beside them),
+        // and on the right axis they step aside so the wider numbers clear.
+        const isUnit = a[i].classList.contains("axis-unit-link");
+        const mul = isUnit ? 1 + (fontMul - 1) * 0.5 : fontMul;
+        if (isUnit && fontMul > 1 && a[i].closest(".axis-r") && b[i].hasAttribute("x")) {
+          b[i].setAttribute("x", (parseFloat(b[i].getAttribute("x")) + 8 * (fontMul - 1) * 4).toFixed(2));
+        }
+        b[i].removeAttribute("style");
+        b[i].removeAttribute("class");
+        if (b[i].getAttribute("display") === "none") continue;
+        for (const p of PROPS) {
+          let v = cs.getPropertyValue(p);
+          if (!v || v === "none" || v === "normal") continue;
+          if (p === "font-size" && mul !== 1) v = (parseFloat(v) * mul).toFixed(2) + "px";
+          b[i].style.setProperty(p, v);
+        }
+      }
+      return clone.outerHTML;
+    };
+    const parts = [cloneLayer(lAxesWrap, axisFont)];
+    if (_posterLabels) parts.push(cloneLayer(lLabels, 1));
+    return { svg: parts.join(""), x: margin.left, y: margin.top, W, H };
+  },
+  /** The tour's chart-anchored steps (id, title, text, view region), in
+   *  tour order — the poster prints them as callouts. */
+  tour() {
+    return TOUR_STEPS
+      .filter(s => s.view && !s.isIntro)
+      .map(s => ({ id: s.id, title: s.title, text: s.text, view: s.view, index: TOUR_STEPS.indexOf(s) }));
+  },
+  /** Resolves once fonts, the tile manifest and every <image> currently in
+   *  the SVG have loaded, and two frames have painted. */
+  async ready() {
+    await document.fonts?.ready;
+    while (!tileMeta) await new Promise(r => setTimeout(r, 50));
+    redraw(); // tiles may have been skipped if the manifest arrived after fit()
+    const hrefs = [...new Set([...document.querySelectorAll("#chart svg image")]
+      .map(el => el.getAttribute("href")).filter(Boolean))];
+    await Promise.all(hrefs.map(h => new Promise(res => {
+      const im = new Image();
+      im.onload = im.onerror = () => res();
+      im.src = h;
+    })));
+    if (_posterNoText) posterHideText();
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const labels = [...document.querySelectorAll("#chart svg text.obj-label")]
+      .filter(t => t.getAttribute("display") !== "none").length;
+    return { images: hrefs.length, labels, k: currentK, ...vd() };
+  },
+};
+
+// =============================================================
 // Readout
 // =============================================================
 
@@ -5984,7 +6293,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key !== "?" && e.code === "Slash" && e.shiftKey) { setShortcutsOpen(shortcutsPanel.hidden); return; }
   // Arrow keys pan. Letter keys are recording shortcuts (see keyhint / docs):
   //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations · H hide UI
-  //   V lock the viewport to a 1920×1080 stage (screenshot/video framing)
+  //   V cycle the recording stage: 1920×1080 → 9:16 phone (mobile layout) → off
   //   R reset all settings (and presenter state) to defaults
   //   L the original Lineweaver–Patel figure (hidden; also /classic/)
   //   ? the keyboard shortcuts card (keep it in step with index.html)
@@ -6022,7 +6331,9 @@ document.addEventListener("keydown", (e) => {
     case "h": case "H":
       document.body.classList.toggle("ui-hidden"); break;
     case "v": case "V":
-      setViewportLock(!_viewportLock); break;
+      setViewportLock(!_viewportLock ? "landscape" : _viewportLock === "landscape" ? "portrait" : null);
+      announce(_viewportLock ? `Viewport: ${_viewportLock} ${vpStage().W}×${vpStage().H}` : "Viewport unlocked");
+      break;
     case "r": case "R":
       resetAllSettings(); break;
     case "l": case "L":
@@ -6034,8 +6345,36 @@ document.addEventListener("keydown", (e) => {
 
 // Hidden "classic" mode (L key, /classic/ or #classic): the original Lineweaver–Patel
 // figure, zoomable. Loaded on demand; it takes over the keyboard while open.
-function openClassicMode() {
-  import("./classic.js").then(m => m.openClassic());
+// sync: open on the map's current spot (false for a direct /classic/ visit,
+// which shows the published figure's own framing).
+function openClassicMode(sync = true) {
+  const view = sync ? mapView() : null;
+  import("./classic.js").then(m => m.openClassic(view));
+}
+
+// View sync across the classic cross-fade: both figures plot log r [cm] ×
+// log m [g], so each opens on the spot the other was showing. A view is
+// { cx, cy, r, m, ppdX, ppdY } — client point (cx, cy) shows (r, m), at
+// ppdX / ppdY screen px per decade (see classic.js).
+function plotCenterClient() {
+  const ctm = svg.node().getScreenCTM();
+  return ctm && [ctm.a * (margin.left + cw / 2) + ctm.e, ctm.d * (margin.top + ch / 2) + ctm.f, ctm.a];
+}
+function mapView() {
+  const p = plotCenterClient();
+  if (!p) return null;
+  const ppd = p[2] * (xS(1) - xS(0)); // equal-scale axes: one px/decade
+  return { cx: p[0], cy: p[1], r: xS.invert(cw / 2), m: yS.invert(ch / 2), ppdX: ppd, ppdY: ppd };
+}
+function applyMapView(v) {
+  const p = plotCenterClient();
+  if (!p || !v) return;
+  const r = v.r + (p[0] - v.cx) / v.ppdX;
+  const m = v.m - (p[1] - v.cy) / v.ppdY;
+  const [kMin, kMax] = zoomBehavior.scaleExtent();
+  const k = Math.max(kMin, Math.min(kMax, v.ppdX / (p[2] * (xBase(1) - xBase(0)))));
+  svg.interrupt();
+  flyTo(r, m, k);
 }
 window.addEventListener("hashchange", () => {
   if (location.hash === "#classic") openClassicMode();
@@ -6044,8 +6383,12 @@ window.addEventListener("hashchange", () => {
 window.addEventListener("popstate", () => {
   if (location.pathname.replace(/\/+$/, "") === "/classic") openClassicMode();
 });
-// The map's dot animation parks while the classic figure covers it
-window.addEventListener("classic-close", () => scheduleConnAnim());
+// The map's dot animation parks while the classic figure covers it. Closing
+// hands over the figure's view; the map jumps there while still covered.
+window.addEventListener("classic-close", (e) => {
+  applyMapView(e.detail);
+  scheduleConnAnim();
+});
 
 // R: one keystroke back to a clean default state — settings, presenter
 // modes, hidden UI, animation speed, custom margins. Each control is
@@ -6069,30 +6412,72 @@ function resetAllSettings() {
   _animSpeed = 1;
   _userMarginLeft = _userMarginRight = _userMarginTop = _userMarginBottom = null;
   document.body.classList.remove("ui-hidden");
-  if (_viewportLock) setViewportLock(false);
+  if (_viewportLock) setViewportLock(null);
   relayout();
   saveSettings();
   announce("Settings reset to defaults");
 }
 
-// Recording viewport toggle (V). The transformed <body> becomes the
-// containing block for its fixed-position children, so the whole UI —
-// pills, sidebar, tour — anchors inside the 1920×1080 stage.
-function setViewportLock(on) {
-  _viewportLock = on;
+// Recording viewport (V). The transformed <body> becomes the containing
+// block for its fixed-position children, so the whole UI — pills, sidebar,
+// tour — anchors inside the stage. mode: null | "landscape" | "portrait".
+function setViewportLock(mode) {
+  _viewportLock = mode;
   // Stop any in-flight zoom transition first: relayout reads the current
   // transform, and reading it mid-transition can propagate NaN.
   svg.interrupt();
-  document.documentElement.classList.toggle("viewport-lock-page", on);
-  document.body.classList.toggle("viewport-lock", on);
-  if (on) {
-    document.body.style.setProperty("--vp-scale", viewportLockScale());
+  document.documentElement.classList.toggle("viewport-lock-page", !!mode);
+  document.body.classList.toggle("viewport-lock", !!mode);
+  const bs = document.body.style;
+  if (mode) {
+    const s = vpStage();
+    bs.setProperty("--vp-scale", viewportLockScale());
+    // --app-w/h stand in for 100vw/100vh in CSS sized to the viewport.
+    bs.setProperty("--app-w", s.W + "px");
+    bs.setProperty("--app-h", s.H + "px");
   } else {
-    document.body.style.removeProperty("--vp-scale");
+    bs.removeProperty("--vp-scale");
+    bs.removeProperty("--app-w");
+    bs.removeProperty("--app-h");
   }
+  positionSafeZones();
   const modeChanged = updateMobileState();
   relayout(); // preserves zoom center + scale through the new layout
-  if (modeChanged) applyTitleLockups();
+  if (modeChanged) {
+    applyTitleLockups();
+    if (_isMobile && _isSidebarOpen) setSidebarOpen(false);
+  }
+}
+
+// Vertical-video safe zones (portrait stage only): four colour bars in the
+// black gutter around the stage — red where the apps' UI covers the video,
+// green where content stays visible. They live outside <body> (the stage),
+// so cropping the capture to the stage leaves them out.
+let _safeZonesEl = null;
+function positionSafeZones() {
+  const on = _viewportLock === "portrait";
+  if (!on) { _safeZonesEl?.remove(); _safeZonesEl = null; return; }
+  if (!_safeZonesEl) {
+    _safeZonesEl = document.createElement("div");
+    _safeZonesEl.className = "vp-safe-zones";
+    _safeZonesEl.setAttribute("aria-hidden", "true");
+    _safeZonesEl.innerHTML =
+      `<div class="vp-safe-v vp-safe-l"></div><div class="vp-safe-v vp-safe-r"></div>` +
+      `<div class="vp-safe-h vp-safe-t"></div><div class="vp-safe-h vp-safe-b"></div>` +
+      `<span class="vp-safe-label" style="--y:${VP_SAFE.top / 2}">top bar</span>` +
+      `<span class="vp-safe-label" style="--y:${1 - VP_SAFE.bottom / 2}">caption</span>`;
+    document.documentElement.appendChild(_safeZonesEl);
+  }
+  const r = document.body.getBoundingClientRect();
+  const st = _safeZonesEl.style;
+  st.setProperty("--sx", r.left + "px");
+  st.setProperty("--sy", r.top + "px");
+  st.setProperty("--sw", r.width + "px");
+  st.setProperty("--sh", r.height + "px");
+  st.setProperty("--st", VP_SAFE.top * 100 + "%");
+  st.setProperty("--sb", (1 - VP_SAFE.bottom) * 100 + "%");
+  st.setProperty("--sl", VP_SAFE.left * 100 + "%");
+  st.setProperty("--sr", (1 - VP_SAFE.right) * 100 + "%");
 }
 
 // =============================================================
@@ -6136,6 +6521,7 @@ window.addEventListener("resize", () => {
     if (_viewportLock) {
       // Stage dims are fixed; only the fit-to-window scale changes.
       document.body.style.setProperty("--vp-scale", viewportLockScale());
+      positionSafeZones();
       return;
     }
     const dw = Math.abs(window.innerWidth - _lastVw);
@@ -6635,7 +7021,7 @@ function loadHash() {
   // Hidden: the original Lineweaver–Patel figure, at /classic/ (or the old
   // #classic). The map waits underneath at its full view.
   if (ps === "classic" || h === "classic") {
-    openClassicMode();
+    openClassicMode(false);
     svg.call(zoomBehavior.transform, d3.zoomIdentity);
     return true;
   }

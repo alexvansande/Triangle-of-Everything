@@ -19,3 +19,6 @@ scripts/**/*.pdf
 
 # Raw catalogue downloads for the dust layer (re-fetched by npm run build:dust)
 scripts/dust/.cache/
+
+# Poster renders (scripts/poster.mjs output)
+posters/
