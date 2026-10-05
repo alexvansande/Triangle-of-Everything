@@ -298,7 +298,11 @@ export function tourStep(delta) {
   }
   const step = TOUR_STEPS[_tourStep];
   const title = (step && (step.title || step.id)) || "";
-  const body = els.text ? els.text.textContent.trim() : "";
+  // Render from the step data, not els.text: renderStep swaps the DOM only
+  // after a 300ms exit animation, so the box still holds the previous step.
+  const tmp = document.createElement("div");
+  tmp.innerHTML = step ? markdownToHtml(step.text || "") : "";
+  const body = [...tmp.children].map(el => el.textContent.trim()).join("\n\n");
   console.log(
     `%c━━ Tour ${_tourStep + 1}/${TOUR_STEPS.length} · ${title} ━━`,
     "color:#b388ff;font-weight:bold;font-size:13px"

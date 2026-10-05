@@ -80,7 +80,7 @@
   left: calc(var(--left-axis-w, 80px) + 20px);
   z-index: 30;
   width: 340px;
-  max-height: 50vh;
+  max-height: calc(var(--app-h, 100vh) * 0.5);
   background: rgba(8, 8, 30, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 12px;
@@ -405,7 +405,7 @@ body.is-mobile #tour-header {
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  max-width: calc(100vw - 48px);
+  max-width: calc(var(--app-w, 100vw) - 48px);
   bottom: auto;
   top: 80px;
 }
@@ -444,7 +444,7 @@ body.is-mobile #periodic-box {
   max-width: none;
   transform: none;
   bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-  max-height: 34vh; /* tour text never covers more than ~1/3 of the screen */
+  max-height: calc(var(--app-h, 100vh) * 0.34); /* tour text never covers more than ~1/3 of the screen */
   padding: 12px 16px 10px;
 }
 

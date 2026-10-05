@@ -134,13 +134,14 @@ body.bold-hover .line-hot {
   zoom: var(--font-scale, 1);
 }
 
-/* Recording viewport (V): the app locks to a 1920×1080 dark-grey stage,
-   scaled to fit and centered; everything beyond it is black so screen
-   captures can crop to a stable, pixel-true 1080p frame. */
+/* Recording viewport (V): the app locks to a dark-grey stage — 1920×1080,
+   or a 432×768 phone (9:16) — scaled to fit and centered; everything beyond
+   it is black so screen captures can crop to a stable frame. --app-w/h
+   (set by JS) replace 100vw/100vh wherever the UI sizes to the viewport. */
 html.viewport-lock-page { background: #000; }
 body.viewport-lock {
   position: fixed;
-  width: 1920px; height: 1080px;
+  width: var(--app-w); height: var(--app-h);
   left: 50%; top: 50%;
   transform: translate(-50%, -50%) scale(var(--vp-scale, 1));
   transform-origin: center center;
@@ -149,13 +150,52 @@ body.viewport-lock {
   outline: 2px solid #3c3c44;
 }
 
-/* H shortcut: hide the text panels for a clean recording / screenshot.
+/* Safe-zone guides for the portrait stage (built by positionSafeZones):
+   bars hugging the stage from the black gutter. --sx/--sy/--sw/--sh are the
+   stage's on-screen rect; --st/--sb/--sl/--sr the safe-area boundaries. */
+.vp-safe-zones {
+  --unsafe: rgba(255, 82, 82, 0.75);
+  --safe: rgba(76, 200, 120, 0.55);
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 2147483647;
+}
+.vp-safe-v, .vp-safe-h { position: absolute; }
+.vp-safe-v {
+  top: var(--sy); height: var(--sh); width: 6px;
+  background: linear-gradient(to bottom,
+    var(--unsafe) 0 var(--st), var(--safe) var(--st) var(--sb), var(--unsafe) var(--sb) 100%);
+}
+.vp-safe-l { left: calc(var(--sx) - 14px); }
+.vp-safe-r { left: calc(var(--sx) + var(--sw) + 8px); }
+.vp-safe-h {
+  left: var(--sx); width: var(--sw); height: 6px;
+  background: linear-gradient(to right,
+    var(--unsafe) 0 var(--sl), var(--safe) var(--sl) var(--sr), var(--unsafe) var(--sr) 100%);
+}
+.vp-safe-t { top: calc(var(--sy) - 14px); }
+.vp-safe-b { top: calc(var(--sy) + var(--sh) + 8px); }
+.vp-safe-label {
+  position: absolute;
+  right: calc(100% - var(--sx) + 20px);
+  top: calc(var(--sy) + var(--sh) * var(--y));
+  transform: translateY(-50%);
+  font: 500 10px/1 'Inter', sans-serif;
+  letter-spacing: 0.5px; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+}
+
+/* H shortcut: hide the text panels, zoom buttons and category bar for a
+   clean recording / screenshot.
    Not persisted — a page refresh brings everything back. */
 body.ui-hidden #sidebar,
 body.ui-hidden #sidebar-expand,
 body.ui-hidden #tour-box,
 body.ui-hidden #tour-header,
-body.ui-hidden #tour-start-btn {
+body.ui-hidden #tour-start-btn,
+body.ui-hidden #controls,
+body.ui-hidden #preset-bar {
   display: none !important;
 }
 
@@ -180,7 +220,7 @@ body.ui-hidden #shortcuts-panel { display: none !important; }
 #shortcuts-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
 #shortcuts-panel {
   position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  z-index: 70; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  z-index: 70; width: min(560px, calc(var(--app-w, 100vw) - 32px)); max-height: calc(var(--app-h, 100vh) - 48px);
   overflow-y: auto; padding: 18px 22px 16px;
   background: rgba(8, 8, 30, 0.94); border: 1px solid rgba(255,255,255,0.10);
   border-radius: 12px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
@@ -213,6 +253,18 @@ body.ui-hidden #shortcuts-panel { display: none !important; }
   border-bottom-width: 2px; border-radius: 4px;
 }
 body.is-mobile .shortcuts-cols { grid-template-columns: 1fr; }
+
+/* Poster renderer (window.__poster, scripts/poster.mjs): the chart alone,
+   edge to edge, nothing floating, nothing animated. */
+body.poster-mode > :not(#chart) { display: none !important; }
+body.poster-mode {
+  position: fixed; left: 0; top: 0;
+  width: var(--poster-w, 100vw); height: var(--poster-h, 100vh);
+  overflow: hidden; transform-origin: 0 0;
+}
+body.poster-mode #chart svg { animation: none; }
+body.poster-mode .minimap-group,
+body.poster-mode .axis-resize-handle { display: none !important; }
 
 /* ---------- intro animation ---------- */
 @keyframes fadeIn {
@@ -273,7 +325,7 @@ body.sidebar-open #controls { left: 454px; }
 /* ---------- cosmic time scrubber ---------- */
 #scrubber-panel {
   position: fixed; bottom: 60px; left: 50%;
-  width: min(560px, calc(100vw - 120px));
+  width: min(560px, calc(var(--app-w, 100vw) - 120px));
   transform: translate(-50%, 24px);
   z-index: 11;
   padding: 14px 18px 10px;
@@ -686,10 +738,10 @@ body.anim-off .planck-pulse { animation: none; }
 #preset-bar {
   position: fixed; bottom: 14px; left: 60px; z-index: 10;
   display: flex; gap: 3px; flex-wrap: wrap;
-  max-width: calc(100vw - 80px);
+  max-width: calc(var(--app-w, 100vw) - 80px);
   transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-body.sidebar-open #preset-bar { left: 500px; max-width: calc(100vw - 520px); }
+body.sidebar-open #preset-bar { left: 500px; max-width: calc(var(--app-w, 100vw) - 520px); }
 #preset-bar button {
   padding: 4px 8px; border: 1px solid rgba(255,255,255,0.1);
   background: rgba(6,6,26,0.85); color: rgba(255,255,255,0.45);
@@ -1226,7 +1278,7 @@ html, body {
 
 body.is-mobile #sidebar {
   width: 100%;
-  max-width: 100vw;
+  max-width: var(--app-w, 100vw);
   border-right: none;
 }
 
@@ -1260,7 +1312,7 @@ body.is-mobile .minimap-group { display: none; }
 /* On mobile, controls don't shift when sidebar opens (it's an overlay) */
 body.is-mobile.sidebar-open #controls { left: 14px; }
 body.is-mobile.sidebar-open #scale-bar { left: 16px; }
-body.is-mobile.sidebar-open #preset-bar { left: 60px; max-width: calc(100vw - 80px); }
+body.is-mobile.sidebar-open #preset-bar { left: 60px; max-width: calc(var(--app-w, 100vw) - 80px); }
 
 /* Preset bar: horizontal scroll on mobile */
 body.is-mobile #preset-bar {
@@ -1282,7 +1334,7 @@ body.is-mobile #settings-btn {
 }
 
 body.is-mobile #search-box.expanded #search-input {
-  width: calc(100vw - 100px);
+  width: calc(var(--app-w, 100vw) - 100px);
   max-width: 300px;
 }
 
@@ -1368,7 +1420,7 @@ body.is-mobile #axes-toggle.active {
 body.is-mobile.touring #axes-toggle { display: none !important; }
 /* Search expands rightward from its pill on the left edge */
 body.is-mobile #search-box.expanded #search-input {
-  width: calc(100vw - 130px);
+  width: calc(var(--app-w, 100vw) - 130px);
   max-width: 320px;
 }
 /* Bottom clusters: hug the edges, respect the home indicator */
@@ -1412,8 +1464,8 @@ body.is-mobile #sidebar {
   right: 0;
   bottom: 0;
   width: 100%;
-  max-width: 100vw;
-  height: 46vh;
+  max-width: var(--app-w, 100vw);
+  height: calc(var(--app-h, 100vh) * 0.46);
   border-right: none;
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px 16px 0 0;
@@ -1424,7 +1476,7 @@ body.is-mobile #sidebar {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 body.is-mobile #sidebar.open { transform: translateY(0); }
-body.is-mobile #sidebar.sheet-full { height: calc(96vh - env(safe-area-inset-top, 0px)); }
+body.is-mobile #sidebar.sheet-full { height: calc(var(--app-h, 100vh) * 0.96 - env(safe-area-inset-top, 0px)); }
 body.is-mobile #sidebar::before {
   content: "";
   position: absolute;

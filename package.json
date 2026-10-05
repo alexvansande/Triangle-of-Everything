@@ -15,7 +15,8 @@
     "perf:mobile": "node scripts/mobile-perf.mjs",
     "perf:compare": "node scripts/perf-compare.mjs",
     "audit:assets": "node scripts/asset-audit.mjs",
-    "build:dust": "node scripts/build-dust.mjs"
+    "build:dust": "node scripts/build-dust.mjs",
+    "poster": "node scripts/poster.mjs"
   },
   "dependencies": {
     "d3": "^7",
