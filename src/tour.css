@@ -72,7 +72,8 @@
    Tour Box (glass-morphism card)
    ========================================================== */
 
-#tour-box {
+#tour-box,
+#periodic-box {
   position: fixed;
   bottom: 100px;
   /* Tracks chart left edge like #tour-header */
@@ -104,7 +105,8 @@
 }
 
 /* ---- Close button ---- */
-#tour-close {
+#tour-close,
+#periodic-close {
   position: absolute;
   top: 10px;
   right: 12px;
@@ -123,7 +125,8 @@
   padding: 0;
 }
 
-#tour-close:hover {
+#tour-close:hover,
+#periodic-close:hover {
   color: rgba(255, 255, 255, 0.8);
   background: rgba(255, 255, 255, 0.06);
 }
@@ -156,7 +159,8 @@
 }
 
 /* ---- Content ---- */
-#tour-title {
+#tour-title,
+#periodic-title {
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 13px;
@@ -166,7 +170,8 @@
   text-transform: uppercase;
 }
 
-#tour-text {
+#tour-text,
+#periodic-text {
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   line-height: 1.6;
@@ -189,7 +194,8 @@
 }
 
 /* Paragraph spacing inside tour text */
-#tour-text p {
+#tour-text p,
+#periodic-text p {
   margin: 0 0 10px 0;
 }
 
@@ -389,6 +395,7 @@
 /* Hide tour elements when sidebar is open (any viewport) */
 body.sidebar-open #tour-header,
 body.sidebar-open #tour-box,
+body.sidebar-open #periodic-box,
 body.sidebar-open #tour-start-btn {
   opacity: 0 !important;
   pointer-events: none !important;
@@ -429,7 +436,8 @@ body.is-mobile #tour-header p {
    which used to strip a translateX(-50%) centering and leave the panel
    floating half off-screen mid-viewport during those moments. With
    left/right insets there is no X-transform to lose. */
-body.is-mobile #tour-box {
+body.is-mobile #tour-box,
+body.is-mobile #periodic-box {
   left: 12px;
   right: 12px;
   width: auto;
@@ -495,4 +503,40 @@ body.is-mobile .tour-title-line2 {
 #tour-text.has-more {
   -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 26px), transparent);
   mask-image: linear-gradient(180deg, #000 calc(100% - 26px), transparent);
+}
+
+
+/* ==========================================================
+   "THE PERIODIC TABLE" easter egg box (tour-box look)
+   ========================================================== */
+
+#periodic-box { padding-bottom: 16px; }
+#periodic-legend {
+  list-style: none;
+  margin: 0;
+  padding: 12px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 12px;
+  flex-shrink: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+}
+.periodic-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.periodic-legend-ring {
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+/* The table's box replaces the start button while it is open */
+body.periodic-open #tour-start-btn {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }

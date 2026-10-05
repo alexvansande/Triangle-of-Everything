@@ -16,3 +16,6 @@ scripts/perf-reports/*
 !scripts/perf-reports/mobile-perf-2026-08-19T17-40-31-993Z.json
 # Reference material dropped into scripts/ (e.g. stray PDFs)
 scripts/**/*.pdf
+
+# Raw catalogue downloads for the dust layer (re-fetched by npm run build:dust)
+scripts/dust/.cache/

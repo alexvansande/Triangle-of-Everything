@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/build-pages.mjs",
     "preview": "vite preview",
     "tile": "node scripts/tile-image.mjs",
     "fetch-images": "node scripts/fetch-images.mjs",
@@ -14,13 +14,15 @@
     "validate": "node scripts/validate-objects.mjs",
     "perf:mobile": "node scripts/mobile-perf.mjs",
     "perf:compare": "node scripts/perf-compare.mjs",
-    "audit:assets": "node scripts/asset-audit.mjs"
+    "audit:assets": "node scripts/asset-audit.mjs",
+    "build:dust": "node scripts/build-dust.mjs"
   },
   "dependencies": {
     "d3": "^7",
     "katex": "^0.16.38"
   },
   "devDependencies": {
+    "opentype.js": "^2.0.0",
     "puppeteer-core": "^25.8.0",
     "sharp": "^0.34.5",
     "vite": "^6"

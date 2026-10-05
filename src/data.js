@@ -515,49 +515,6 @@ export const CONNECTION_PATHS = [
     },
   },
   {
-    id: "hydrogen-to-water",
-    family: "combines",
-    description: "Two hydrogen atoms bond with oxygen to form water (H₂O)",
-    points: [
-      { logR: -8.28, logM: -23.78 },
-      { logR: -8.8,  logM: -23.3 },
-      { logR: -8.5,  logM: -22.8 },
-      { logR: -7.85, logM: -22.52 },
-    ],
-    zoomRange: [6, 800],
-    neighborhood: { x: [-10, -6], y: [-25, -21] },
-    style: {
-      lineOpacity: 0.15,
-      lineWidth: 1.4,
-      dotCount: 6,
-      dotSize: 0.8,
-      dotSpeed: 0.7,
-      color: "rgba(128,222,234,0.5)",
-      dash: "4 3",
-    },
-  },
-  {
-    id: "oxygen-to-water",
-    family: "combines",
-    description: "Oxygen bonds with two hydrogen atoms to form water (H₂O)",
-    points: [
-      { logR: -8.22, logM: -22.58 },
-      { logR: -8.3,  logM: -22.4 },
-      { logR: -7.85, logM: -22.52 },
-    ],
-    zoomRange: [6, 800],
-    neighborhood: { x: [-10, -6], y: [-25, -21] },
-    style: {
-      lineOpacity: 0.15,
-      lineWidth: 1.4,
-      dotCount: 4,
-      dotSize: 0.8,
-      dotSpeed: 0.7,
-      color: "rgba(128,222,234,0.5)",
-      dash: "4 3",
-    },
-  },
-  {
     id: "remnant-to-nursery",
     family: "evolution",
     description: "Supernova remnants and planetary nebulae seed new stellar nurseries — stars are recycled",
@@ -622,11 +579,11 @@ export const CONNECTION_PATHS = [
     id: "adenine-to-dna",
     family: "combines",
     description: "Adenine pairs with Thymine (A-T) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: -0.08,
     points: [
       { logR: -7.52, logM: -21.65 },
-      { logR: -7.8,  logM: -20.5 },
-      { logR: -7.2,  logM: -19.5 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -6.77, logM: -19.95 },   // DNA (one helix turn)
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -644,11 +601,11 @@ export const CONNECTION_PATHS = [
     id: "guanine-to-dna",
     family: "combines",
     description: "Guanine pairs with Cytosine (G-C) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: -0.03,
     points: [
       { logR: -7.50, logM: -21.60 },
-      { logR: -7.0,  logM: -20.8 },
-      { logR: -6.5,  logM: -19.8 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -6.77, logM: -19.95 },   // DNA (one helix turn)
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -666,11 +623,11 @@ export const CONNECTION_PATHS = [
     id: "cytosine-to-dna",
     family: "combines",
     description: "Cytosine pairs with Guanine (C-G) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: 0.03,
     points: [
       { logR: -7.56, logM: -21.73 },
-      { logR: -8.0,  logM: -20.8 },
-      { logR: -7.5,  logM: -19.6 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -6.77, logM: -19.95 },   // DNA (one helix turn)
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -688,11 +645,11 @@ export const CONNECTION_PATHS = [
     id: "thymine-to-dna",
     family: "combines",
     description: "Thymine pairs with Adenine (T-A) in the DNA double helix",
+    // One gentle arc base → DNA (bow fans the four apart)
+    curve: "arc", bow: 0.08,
     points: [
       { logR: -7.54, logM: -21.68 },
-      { logR: -7.3,  logM: -20.3 },
-      { logR: -6.9,  logM: -19.3 },
-      { logR: -6.7,  logM: -18.5 },
+      { logR: -6.77, logM: -19.95 },   // DNA (one helix turn)
     ],
     zoomRange: [5, 800],
     neighborhood: { x: [-9, -5], y: [-23, -17] },
@@ -721,7 +678,15 @@ export const SUBCAT_COLORS = {
   terrestrial_planet:"#448aff",   // canonical planet blue (same as cat)
   gas_giant:         "#2e74ff",   // deeper vivid blue — massive worlds
   exoplanet:         "#5590dd",   // muted blue — distant / uncertain
+  molecule:          "#3d6bff",   // deep blue — bonded atoms, clearly apart from the teal atoms
 };
+
+// Text colour for subcategories whose dot colour is too deep to read as a
+// label on the dark chart (the dots keep the deep colour).
+export const SUBCAT_LABEL_COLORS = { molecule: "#8fa8ff" };
+
+// Dust catalogues coloured as a subcategory rather than their category.
+export const DUST_SOURCE_SUBCAT = { molecule: "molecule", protein: "molecule" };
 
 // Subcategories for cluster labels — when objects are too close, show one label
 // Key: subcat value in objects.json. Value: display label for the cluster.
@@ -731,6 +696,142 @@ export const CAT_DISPLAY = {
   micro: "Microscopic", macro: "", planet: "Planets",
   star: "Stars", remnant: "Remnants", blackhole: "Black Holes",
   galaxy: "Galaxies", largescale: "Large Scale",
+};
+
+// =============================================================
+// Periodic-table guides — labels that follow the element dust
+// =============================================================
+// The element dust (calculated atomic radii, Guerra et al. 2017) shows the
+// periodic table as a sawtooth: within a period atoms get heavier but
+// SMALLER, then a new electron shell makes the next alkali metal balloon.
+// While "THE PERIODIC TABLE" is toggled on, each period (and the lanthanide
+// and actinide clumps) gets a quiet label laid along its dots; the families
+// are named from PERIODIC_FAMILIES. Names must match the element dust or the
+// hand-placed atoms in objects.json.
+export const ELEMENT_GUIDES = [
+  { label: "Period 1", kind: "row", elements: ["Hydrogen", "Helium"] },
+  { label: "Period 2", kind: "row", elements: ["Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon"] },
+  { label: "Period 3", kind: "row", elements: ["Sodium", "Magnesium", "Aluminum", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon"] },
+  { label: "Period 4", kind: "row", elements: ["Potassium", "Calcium", "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc", "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton"] },
+  { label: "Period 5", kind: "row", elements: ["Rubidium", "Strontium", "Yttrium", "Zirconium", "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon"] },
+  { label: "Period 6", kind: "row", elements: ["Cesium", "Barium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon"] },
+  { label: "Period 7", kind: "row", elements: ["Francium", "Radium", "Rutherfordium", "Dubnium", "Seaborgium", "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium", "Copernicium", "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessine", "Oganesson"] },
+  { label: "Actinides", kind: "cluster", type: "actinide", elements: ["Actinium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium"] },
+  { label: "Lanthanides", kind: "cluster", type: "lanthanide", elements: ["Lanthanum", "Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium"] },
+];
+
+// The periodic table as a grid, for the "THE PERIODIC TABLE" easter egg:
+// every element's cell, worked out from its atomic number alone. The order
+// by Z comes from ELEMENT_GUIDES above (periods, with the f-block clumps
+// spliced back in), so no element is named twice. Lutetium and lawrencium
+// sit in group 3 (IUPAC), leaving the f-block rows as lanthanum–ytterbium
+// and actinium–nobelium, 14 wide; hydrogen heads group 1, helium group 18.
+const guide = (label) => ELEMENT_GUIDES.find((g) => g.label === label).elements;
+export const ELEMENTS_BY_Z = [
+  null,
+  ...["Period 1", "Period 2", "Period 3", "Period 4", "Period 5"].flatMap(guide),
+  ...guide("Period 6").slice(0, 2), ...guide("Lanthanides"), ...guide("Period 6").slice(2),
+  ...guide("Period 7").slice(0, 2), ...guide("Actinides"), ...guide("Period 7").slice(2),
+];
+const PERIOD_START = [1, 3, 11, 19, 37, 55, 87, 119];
+
+/** Where element Z sits in the drawn table: { period, group } in the main
+ *  grid (groups 1–18), or { period, f } in a detached f-block row (0–13). */
+export function periodicCell(z) {
+  const p = PERIOD_START.findIndex((s) => s > z); // 1-based period
+  const i = z - PERIOD_START[p - 1];
+  if (p === 1) return { period: 1, group: i ? 18 : 1 };
+  if (i < 2) return { period: p, group: i + 1 };
+  if (p <= 3) return { period: p, group: i + 11 };
+  if (p <= 5) return { period: p, group: i + 1 };
+  if (i < 16) return { period: p, f: i - 2 };
+  return { period: p, group: i === 16 ? 3 : i - 13 };
+}
+
+// Element types, the colour key of the drawn table, also from Z alone. The
+// metalloid staircase and the nonmetals are the only cells that don't follow
+// from the group; superheavies take their group's type, as usually drawn.
+export const ELEMENT_TYPES = [
+  { id: "alkali",     label: "Alkali metals",          color: "#ff6b6b" },
+  { id: "alkaline",   label: "Alkaline earth metals",  color: "#ffa94d" },
+  { id: "transition", label: "Transition metals",      color: "#ffd43b" },
+  { id: "post",       label: "Post-transition metals", color: "#a9e34b" },
+  { id: "metalloid",  label: "Metalloids",             color: "#38d9a9" },
+  { id: "nonmetal",   label: "Nonmetals",              color: "#3bc9db" },
+  { id: "halogen",    label: "Halogens",               color: "#4dabf7" },
+  { id: "noble",      label: "Noble gases",            color: "#9775fa" },
+  { id: "lanthanide", label: "Lanthanides",            color: "#f783ac" },
+  { id: "actinide",   label: "Actinides",              color: "#da77f2" },
+];
+const METALLOID_Z = new Set([5, 14, 32, 33, 51, 52]);
+const NONMETAL_Z = new Set([1, 6, 7, 8, 15, 16, 34]);
+
+/** Type id (see ELEMENT_TYPES) of element Z. */
+export function elementType(z) {
+  if (z >= 57 && z <= 71) return "lanthanide";
+  if (z >= 89 && z <= 103) return "actinide";
+  if (METALLOID_Z.has(z)) return "metalloid";
+  if (NONMETAL_Z.has(z)) return "nonmetal";
+  const { group } = periodicCell(z);
+  if (group === 1) return "alkali";
+  if (group === 2) return "alkaline";
+  if (group <= 12) return "transition";
+  if (group === 17) return "halogen";
+  if (group === 18) return "noble";
+  return "post";
+}
+
+// Family names along the group columns, for the same easter egg. A family
+// whose members share one type is drawn in that type's colour; groups 13–16
+// cross the metal / nonmetal line and stay neutral. The transition metals
+// (groups 3–12) get one label for the whole block.
+export const PERIODIC_FAMILIES = [
+  { label: "Alkali metals",         groups: [1], type: "alkali" },
+  { label: "Alkaline earth metals", groups: [2], type: "alkaline" },
+  { label: "Transition metals",     groups: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12], type: "transition" },
+  { label: "Boron group",           groups: [13] },
+  { label: "Carbon group",          groups: [14] },
+  { label: "Pnictogens",            groups: [15] },
+  { label: "Chalcogens",            groups: [16] },
+  { label: "Halogens",              groups: [17], type: "halogen" },
+  { label: "Noble gases",           groups: [18], type: "noble" },
+];
+
+// =============================================================
+// "Made of" — hover lines from a hand-placed object to its building blocks
+// =============================================================
+// Hovering one of these draws straight lines to what it's made of, so the
+// chain electrons + protons → atoms → molecules → bases → DNA can be read
+// across the chart. Names are hand-placed objects or element dust (N, P, S).
+// Names may be curated objects or dust points (element dust: Nitrogen, …;
+// nucleus dust: "Iron-56 nucleus", …). Atoms are built from their most
+// abundant isotope's nucleus plus electrons; hydrogen-1's nucleus IS the
+// proton, and oganesson has no measured nucleus, so it skips that step.
+export const COMPOSITION = {
+  "Hydrogen":       ["Proton", "Electron"],
+  "Helium":         ["Helium-4 nucleus", "Electron"],
+  "Carbon":         ["Carbon-12 nucleus", "Electron"],
+  "Oxygen":         ["Oxygen-16 nucleus", "Electron"],
+  "Iron":           ["Iron-56 nucleus", "Electron"],
+  "Gold":           ["Gold-197 nucleus", "Electron"],
+  "Uranium":        ["Uranium-238 nucleus", "Electron"],
+  "Oganesson":      ["Proton", "Neutron", "Electron"],
+  "Helium-4 nucleus":    ["Proton", "Neutron"],
+  "Carbon-12 nucleus":   ["Proton", "Neutron"],
+  "Oxygen-16 nucleus":   ["Proton", "Neutron"],
+  "Iron-56 nucleus":     ["Proton", "Neutron"],
+  "Gold-197 nucleus":    ["Proton", "Neutron"],
+  "Uranium-238 nucleus": ["Proton", "Neutron"],
+  "Water (H₂O)":    ["Hydrogen", "Oxygen"],
+  "Glucose":        ["Carbon", "Hydrogen", "Oxygen"],
+  "Fullerene C₆₀":  ["Carbon"],
+  "ATP":            ["Carbon", "Hydrogen", "Nitrogen", "Oxygen", "Phosphorus"],
+  "Adenine (A)":    ["Carbon", "Hydrogen", "Nitrogen"],
+  "Guanine (G)":    ["Carbon", "Hydrogen", "Nitrogen", "Oxygen"],
+  "Cytosine (C)":   ["Carbon", "Hydrogen", "Nitrogen", "Oxygen"],
+  "Thymine (T)":    ["Carbon", "Hydrogen", "Nitrogen", "Oxygen"],
+  "Hemoglobin":     ["Carbon", "Hydrogen", "Nitrogen", "Oxygen", "Sulfur", "Iron"],
+  "DNA":            ["Adenine (A)", "Guanine (G)", "Cytosine (C)", "Thymine (T)"],
 };
 
 export const SUBCAT_LABELS = {

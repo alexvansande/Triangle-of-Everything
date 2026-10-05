@@ -77,12 +77,17 @@ let _animateBigBang = null;   // injected from main.js
 let _exitBigBang = null;      // injected from main.js
 let _isBigBangActive = null;  // injected from main.js
 let _contextualStepIndex = -1; // which step the contextual label refers to
+let _suggest = null;          // injected from main.js: () => { label, open } | null
+let _skipIntro = null;        // injected from main.js: () => true when deep in the map
+let _suggestion = null;       // the suggestion the start button currently shows
 
 // ---- DOM refs ----
 let els = {};
 
-export function initTour({ zoomToRegion, vd, animateBigBang, exitBigBang, isBigBangActive }) {
+export function initTour({ zoomToRegion, vd, animateBigBang, exitBigBang, isBigBangActive, suggest, skipIntro }) {
   _zoomToRegion = zoomToRegion;
+  _suggest = suggest;
+  _skipIntro = skipIntro;
   _getViewDomain = vd;
   _animateBigBang = animateBigBang;
   _exitBigBang = exitBigBang;
@@ -136,8 +141,12 @@ export function initTour({ zoomToRegion, vd, animateBigBang, exitBigBang, isBigB
   // Always auto-show tour after intro animation — AFTER it, not during:
   // the boot zoom-out runs 1000ms..4000ms, and fading the card in mid-zoom
   // put flying labels through the title for the first seconds of every visit.
+  // Arriving deep in the map (a shared link), the intro would cover what the
+  // link points at: offer the start button instead.
   setTimeout(() => {
-    if (!_tourActive) startTour(0, true);
+    if (_tourActive) return;
+    if (_skipIntro && _skipIntro()) showStartButton();
+    else startTour(0, true);
   }, 4200);
 }
 
@@ -153,6 +162,14 @@ export function isTourActive() {
 
 export function updateStartButtonLabel() {
   if (_tourActive || !els.startLabel) return;
+
+  // An outside suggestion (main.js: an easter egg in view) wins over the steps
+  _suggestion = _suggest ? _suggest() : null;
+  if (_suggestion) {
+    _contextualStepIndex = -1;
+    els.startLabel.textContent = _suggestion.label;
+    return;
+  }
 
   const d = _getViewDomain ? _getViewDomain() : null;
   if (!d) {
@@ -201,7 +218,7 @@ export function startTour(stepIndex, skipNav) {
   }, 1200);
 }
 
-function closeTour() {
+export function closeTour() {
   _tourActive = false;
   document.body.classList.remove("touring");
   els.box.classList.add("tour-hidden");
@@ -221,7 +238,9 @@ function showStartButton() {
 }
 
 function onStartButtonClick() {
-  if (_contextualStepIndex >= 0) {
+  if (_suggestion) {
+    _suggestion.open();
+  } else if (_contextualStepIndex >= 0) {
     startTour(_contextualStepIndex);
   } else if (_tourStep > 0) {
     startTour(_tourStep);

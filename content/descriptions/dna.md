@@ -1,1 +1,1 @@
-DNA: deoxyribonucleic acid, the molecule that encodes the genetic instructions for all known life. Stretched out, the DNA in a single human cell would be about 2 meters long.
+DNA: deoxyribonucleic acid, the molecule that encodes the genetic instructions for all known life. A DNA molecule has no single size — it is a chain that can be a few dozen base pairs long or, stretched out, about 2 meters for the DNA in a single human cell — so this point shows one full turn of the double helix: 10.5 base pairs (about 6,800 daltons), 3.4 nm long and 2 nm wide.

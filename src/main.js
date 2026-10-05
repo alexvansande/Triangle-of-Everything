@@ -8,14 +8,14 @@ import {
 import {
   DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
-  startIconWarmup,
+  startIconWarmup, loadDescriptions,
 } from "./assets.js";
 import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
-  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABELS, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
+  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, ELEMENT_TYPES, elementType, PERIODIC_FAMILIES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
@@ -28,8 +28,10 @@ import {
 } from "./water-phase.js";
 import introRaw from "../content/intro.md?raw";
 import "./style.css";
-import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep } from "./tour.js";
+import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, isTourActive, closeTour } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
+import { enableTrackpadPinch } from "./trackpad-pinch.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -49,9 +51,14 @@ let _fontScale = 1;   // global text multiplier (settings "Font size" slider)
 const fscale = (px) => px * _fontScale;
 let _boldHover = false; // video mode: hovered lines render bold, no tooltips
 let _labelsEnabled = true;
+let _dustEnabled = true;  // catalogue dust layer (settings checkbox)
+let _userEngaged = false; // set on first pointer/wheel/key input (deferred loading)
 
 // Icon size scales with zoom: 16px at k=0.3 (fully out), up to 128px at k=800 (fully in).
 // Uses log interpolation for a natural "approaching distant object" feel.
+// ?og-shot: headless mode used by scripts/build-pages.mjs to screenshot the
+// chart around each object for its preview image (see window.__toeOg below).
+const _ogShot = new URLSearchParams(location.search).has("og-shot");
 function effectiveIconSize() {
   const minK = 0.3, maxK = 800;
   const minSize = 14, maxSize = 115;
@@ -60,7 +67,8 @@ function effectiveIconSize() {
   const size = minSize + (maxSize - minSize) * t;
   // Phones get half the desktop size across the board: full-size icons (×
   // per-object multipliers) drown a 390px screen at stellar zooms.
-  return _isMobile ? size / 2 : size;
+  // Preview-image screenshots (?og-shot) show pictures larger: they're the subject
+  return _ogShot ? size * 1.6 : _isMobile ? size / 2 : size;
 }
 // Some objects need a larger icon (e.g. Saturn's rings extend beyond the sphere)
 const ICON_SIZE_MULT = {
@@ -465,12 +473,17 @@ const lDarkMatter = lContent.append("g");
 const lArrows     = lContent.append("g").style("mix-blend-mode", "screen");
 const lConnDots   = lContent.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
 const lRegLabel   = lContent.append("g");
+// Catalogue "dust": thousands of faint real objects under the curated ones
+// (src/dust.js). Never interactive except for a hover name.
+const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
+const lDustHover  = lContent.append("g").style("pointer-events", "none");
 const lObj        = lContent.append("g");
 // Retained rendering split: extras (cluster/category/BH labels, ~20 nodes)
 // are rebuilt per frame; main object groups are persistent keyed joins.
 const lObjExtras  = lObj.append("g");
 const lObjMain    = lObj.append("g");
 const lHighlight  = lContent.append("g").style("pointer-events", "none");
+const lCompose    = lContent.append("g").style("pointer-events", "none"); // hover "made of" lines
 const lAxisRef    = lContent.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
 const lWaterPhase = lContent.append("g"); // states-of-water inset (zooms with the map)
 // (Object labels live in lLabels, declared below lIcons so text always
@@ -1896,7 +1909,312 @@ const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smal
 
 let _lastProjected = [];
 
+// Dust dots are a lighter tint of their category colour so a 2 px dot still
+// reads against the saturated background tiles.
+const _dustColors = {};
+function dustColor(catKey, sourceId) {
+  const sub = SUBCAT_COLORS[DUST_SOURCE_SUBCAT[sourceId]];
+  const key = sub ? `${catKey}/${sourceId}` : catKey;
+  // Category dust is paled toward white; a subcategory colour keeps its
+  // depth (only lightly lifted) so it still reads apart from its category.
+  return _dustColors[key] ??= d3.interpolateRgb(sub || CATEGORIES[catKey]?.color || "#fff", "#fff")(sub ? 0.12 : 0.4);
+}
+
+// Easter egg: a "THE PERIODIC TABLE" title by the element dust. Clicking it
+// toggles straight lines joining neighbours in the table — its period rows,
+// group columns and the detached f-block's two rows and fourteen columns —
+// so the familiar grid can be traced through where the elements actually
+// sit by size & mass. Each element gets a ring in its type's colour, the
+// families are named along their columns, and a box tells the story.
+// Grid, types and families all come from atomic numbers (see data.js).
+let _periodicOn = false;
+let _periodicInView = false; // the title is up and the view sits on the elements (start-button suggestion)
+const TYPE_COLOR = Object.fromEntries(ELEMENT_TYPES.map((t) => [t.id, t.color]));
+const PERIODIC_LINES = (() => {
+  const rows = new Map(), cols = new Map(), fRows = new Map(), fCols = new Map();
+  const add = (m, k, z) => (m.get(k) || m.set(k, []).get(k)).push(z);
+  for (let z = 1; z < ELEMENTS_BY_Z.length; z++) {
+    const c = periodicCell(z);
+    if (c.f == null) { add(rows, c.period, z); add(cols, c.group, z); }
+    else { add(fRows, c.period, z); add(fCols, c.f, z); }
+  }
+  // Z already runs along each row and down each column; rows go first, light
+  // periods leading (the title is placed by periods 1–3).
+  const sorted = (m, kind) => [...m.keys()].sort((a, b) => a - b).map((k) => ({ kind, key: k, zs: m.get(k) }));
+  return [...sorted(rows, "row"), ...sorted(fRows, "row"), ...sorted(cols, "column"), ...sorted(fCols, "fcolumn")];
+})();
+
+// The box (index.html #periodic-box, styled as a tour card) carries the
+// story and the colour key; opening it closes the tour, and its × or the
+// tour's start button turns the table off.
+const periodicBox = document.getElementById("periodic-box");
+document.getElementById("periodic-legend").innerHTML = ELEMENT_TYPES.map((t) =>
+  `<li class="periodic-legend-item" style="color:${t.color}"><span class="periodic-legend-ring"></span>${t.label}</li>`).join("");
+function setPeriodic(on) {
+  _periodicOn = on;
+  periodicBox.classList.toggle("tour-hidden", !on);
+  document.body.classList.toggle("periodic-open", on);
+  if (on && isTourActive()) closeTour();
+  redraw();
+  updateStartButtonLabel();
+}
+document.getElementById("periodic-close").addEventListener("click", () => setPeriodic(false));
+document.getElementById("tour-start-btn").addEventListener("click", () => { if (_periodicOn) setPeriodic(false); });
+
+function drawPeriodicTable(obstacles) {
+  const wasInView = _periodicInView;
+  _periodicInView = false;
+  drawPeriodicLayer(obstacles);
+  // The dust can arrive after a zoom has settled: refresh the suggestion
+  // whenever being on the elements changes, not only at zoom end.
+  if (_periodicInView !== wasInView) updateStartButtonLabel();
+}
+function drawPeriodicLayer(obstacles) {
+  if (!_dustEnabled || _bigBangMode) return;
+  const dustPos = dustPositions("element");
+  if (!dustPos) return;
+  const pos = (name) => {
+    const d = dustPos.get(name);
+    if (d) return d;
+    const o = OBJECTS.find((x) => x.name === name && x.cat === "atomic");
+    return o ? [o.logR, o.logM] : null;
+  };
+  const at = new Map(); // Z → [sx, sy]
+  for (let z = 1; z < ELEMENTS_BY_Z.length; z++) {
+    const p = pos(ELEMENTS_BY_Z[z]);
+    if (p) at.set(z, [px(p[0]), py(p[1])]);
+  }
+  const lines = PERIODIC_LINES.map((l) => ({ ...l, zs: l.zs.filter((z) => at.has(z)) }));
+  // Title only once the light rows are spread enough on screen to trace;
+  // it sits by them (periods 1–3), clear of the crowded heavy end.
+  const rows = lines.slice(0, 3).flatMap((l) => l.zs.map((z) => at.get(z)));
+  if (rows.length < 2) return;
+  const xs = rows.map((p) => p[0]), ys = rows.map((p) => p[1]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  if (Math.max(x1 - x0, y1 - y0) < 120) return;
+  {
+    // In view = the chart's centre within the elements' extent (padded)
+    const all = [...at.values()];
+    const ax = all.map((p) => p[0]), ay = all.map((p) => p[1]);
+    const ex0 = Math.min(...ax), ex1 = Math.max(...ax), ey0 = Math.min(...ay), ey1 = Math.max(...ay);
+    const padX = (ex1 - ex0) * 0.25, padY = (ey1 - ey0) * 0.25;
+    _periodicInView = cw / 2 > ex0 - padX && cw / 2 < ex1 + padX && ch / 2 > ey0 - padY && ch / 2 < ey1 + padY;
+  }
+  const color = dustColor("atomic");
+  const gLines = lObjExtras.append("g"); // under the title, legend and labels
+  const hits = (r) => obstacles.some((p) => r.x < p.x + p.w && r.x + r.w > p.x && r.y < p.y + p.h && r.y + r.h > p.y);
+  const inside = (r) => r.x >= 0 && r.x + r.w <= cw && r.y >= 0 && r.y + r.h <= ch;
+
+  // Category-label style, centred under the light rows (else above them)
+  const FONT = 12, text = "THE PERIODIC TABLE";
+  const w = text.length * (FONT * 0.68) + 8, h = FONT + 4;
+  const drawTitle = (x, ty, anchor) => lObjExtras.append("text")
+    .attr("class", "periodic-title")
+    .attr("x", x).attr("y", ty).attr("text-anchor", anchor)
+    .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+    .attr("font-size", fscale(FONT)).attr("letter-spacing", "1px")
+    .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.6)")
+    .attr("stroke-width", 2).attr("stroke-linejoin", "round")
+    .attr("fill", color).attr("opacity", _periodicOn ? 0.9 : 0.5)
+    .style("cursor", "pointer").style("pointer-events", "all")
+    // Toggle on press, not click: lObjExtras is rebuilt per frame, so the
+    // node under mousedown is gone by mouseup and no click would fire. Not
+    // propagating also keeps a pan from starting on the title.
+    .on("mousedown touchstart", (e) => e.stopPropagation())
+    .on("pointerdown", (e) => { e.stopPropagation(); setPeriodic(!_periodicOn); })
+    .text(text);
+  const cx = (x0 + x1) / 2;
+  // Zoomed in past the light rows the title has nowhere to sit; the table
+  // stays on, and the box (#periodic-box) is there to turn it off.
+  for (const ty of [y1 + 26, y0 - 14]) {
+    const rect = { x: cx - w / 2, y: ty - FONT, w, h };
+    if (!inside(rect) || hits(rect)) continue;
+    obstacles.push(rect);
+    drawTitle(cx, ty, "middle");
+    break;
+  }
+  if (!_periodicOn) return;
+
+  // Grid lines, neutral; the colour is in the rings
+  for (const l of lines) {
+    if (l.zs.length < 2) continue;
+    const row = l.kind === "row";
+    gLines.append("path")
+      .attr("class", "periodic-line")
+      .attr("d", d3.line()(l.zs.map((z) => at.get(z))))
+      .attr("fill", "none").attr("stroke", color)
+      .attr("stroke-width", row ? 1.2 : 1)
+      .attr("stroke-dasharray", row ? null : "4 3")
+      .attr("stroke-linejoin", "round")
+      .attr("opacity", row ? 0.55 : 0.275) // columns recede behind the rows
+      .style("pointer-events", "none");
+  }
+  // A ring in its type's colour around every element
+  for (const [z, [x, y]] of at) {
+    if (x < -5 || x > cw + 5 || y < -5 || y > ch + 5) continue;
+    gLines.append("circle").attr("class", "periodic-ring")
+      .attr("cx", x).attr("cy", y).attr("r", 4)
+      .attr("fill", "none").attr("stroke", TYPE_COLOR[elementType(z)])
+      .attr("stroke-width", 1.4).attr("opacity", 0.9)
+      .style("pointer-events", "none");
+  }
+  // Family names along their columns, in the family's colour where it has one
+  PERIODIC_FAMILIES.forEach((f, i) => {
+    const zs = lines.filter((l) => l.kind === "column" && f.groups.includes(l.key))
+      .flatMap((l) => l.zs).filter((z) => !f.type || elementType(z) === f.type);
+    labelAlongLine(zs.map((z) => at.get(z)), f.label.toUpperCase(), {
+      id: `periodic-family-${i}`, off: -10, obstacles,
+      color: f.type ? TYPE_COLOR[f.type] : color, opacity: f.type ? 0.85 : 0.6,
+    });
+  });
+}
+
+// Labels laid along the periodic-table rows/columns that the element dust
+// draws (see ELEMENT_GUIDES). A label appears only when its line is long
+// enough on screen to carry it, and its whole run along the line must stay
+// clear of object labels, icons and category labels (it tries a few spots).
+// They all wait for "THE PERIODIC TABLE" to be toggled on.
+function drawElementGuides(obstacles) {
+  if (!_periodicOn || !_dustEnabled || _bigBangMode) return;
+  const dustPos = dustPositions("element");
+  if (!dustPos) return;
+  const pos = (name) => {
+    const d = dustPos.get(name);
+    if (d) return d;
+    const o = OBJECTS.find((x) => x.name === name && x.cat === "atomic");
+    return o ? [o.logR, o.logM] : null;
+  };
+  const color = dustColor("atomic");
+  const FONT = 9, CHAR_W = FONT * 0.68;
+  const hits = (r) => obstacles.some((p) =>
+    r.x < p.x + p.w && r.x + r.w > p.x && r.y < p.y + p.h && r.y + r.h > p.y);
+  const onScreen = (x, y) => x >= 0 && x <= cw && y >= 0 && y <= ch;
+
+  ELEMENT_GUIDES.forEach((g, gi) => {
+    const pts = g.elements.map(pos).filter(Boolean).map(([r, m]) => [px(r), py(m)]);
+    if (pts.length < 2) return;
+    const text = g.label.toUpperCase();
+    const textW = text.length * CHAR_W + 8;
+
+    if (g.kind === "cluster") {
+      const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+      const span = Math.max(Math.max(...ys) - Math.min(...ys), Math.max(...xs) - Math.min(...xs));
+      if (span < 24) return;
+      const cy = (Math.min(...ys) + Math.max(...ys)) / 2 + 3;
+      // right of the clump, else left of it
+      for (const [x, anchor] of [[Math.max(...xs) + 10, "start"], [Math.min(...xs) - 10, "end"]]) {
+        const rect = { x: anchor === "start" ? x : x - textW, y: cy - FONT, w: textW, h: FONT + 4 };
+        if (!onScreen(x, cy) || hits(rect)) continue;
+        obstacles.push(rect);
+        lObjExtras.append("text").attr("x", x).attr("y", cy).attr("text-anchor", anchor)
+          .attr("class", "element-guide")
+          .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+          .attr("font-size", fscale(FONT)).attr("letter-spacing", "1px")
+          .attr("fill", _periodicOn && g.type ? TYPE_COLOR[g.type] : color).attr("opacity", _periodicOn && g.type ? 0.85 : 0.6)
+          .style("pointer-events", "none").text(text);
+        return;
+      }
+      return;
+    }
+
+    labelAlongLine(pts, text, {
+      id: `element-guide-${gi}`, off: 7, obstacles, color, opacity: 0.65,
+    });
+  });
+}
+
+/** Lay `text` along the straight best-fit line through screen points `pts`
+ *  (only if the line is long enough to carry it), `off` px to one side, at
+ *  the first of a few spots whose whole run clears `obstacles`. Returns
+ *  whether it was placed. */
+function labelAlongLine(pts, text, { id, off, obstacles, color, opacity }) {
+  if (pts.length < 2) return false;
+  const FONT = 9, CHAR_W = FONT * 0.68;
+  const textW = text.length * CHAR_W + 8;
+  const hits = (r) => obstacles.some((p) =>
+    r.x < p.x + p.w && r.x + r.w > p.x && r.y < p.y + p.h && r.y + r.h > p.y);
+  const onScreen = (x, y) => x >= 0 && x <= cw && y >= 0 && y <= ch;
+  // Straight best-fit line through the dots (principal axis), not a curve
+  // through every point: the transition metals zigzag, and text bent along
+  // that zigzag is unreadable. Endpoints = the outermost dots projected onto
+  // the axis, ordered left → right so the text reads upright.
+  {
+    const n = pts.length;
+    const mx = pts.reduce((s, p) => s + p[0], 0) / n, my = pts.reduce((s, p) => s + p[1], 0) / n;
+    let sxx = 0, syy = 0, sxy = 0;
+    for (const [x, y] of pts) { sxx += (x - mx) ** 2; syy += (y - my) ** 2; sxy += (x - mx) * (y - my); }
+    const ang = 0.5 * Math.atan2(2 * sxy, sxx - syy);
+    let ux = Math.cos(ang), uy = Math.sin(ang);
+    if (ux < 0) { ux = -ux; uy = -uy; }
+    const ts = pts.map(([x, y]) => (x - mx) * ux + (y - my) * uy);
+    const t0 = Math.min(...ts), t1 = Math.max(...ts);
+    pts = [[mx + t0 * ux, my + t0 * uy], [mx + t1 * ux, my + t1 * uy]];
+  }
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++)
+    cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const len = cum[cum.length - 1];
+  if (len < textW * 1.4) return false;
+  const at = (s) => { // point + unit normal at arc length s
+    let i = 1;
+    while (i < pts.length - 1 && cum[i] < s) i++;
+    const seg = cum[i] - cum[i - 1] || 1, t = Math.min(1, Math.max(0, (s - cum[i - 1]) / seg));
+    const dx = (pts[i][0] - pts[i - 1][0]) / seg, dy = (pts[i][1] - pts[i - 1][1]) / seg;
+    return { x: pts[i - 1][0] + t * dx * seg, y: pts[i - 1][1] + t * dy * seg, nx: dy, ny: -dx };
+  };
+  for (const frac of [0.5, 0.35, 0.65, 0.25, 0.75]) {
+    const c = frac * len;
+    if (c - textW / 2 < 0 || c + textW / 2 > len) continue;
+    const boxes = [];
+    let ok = true;
+    for (let s2 = c - textW / 2; s2 <= c + textW / 2 + 0.1; s2 += 7) {
+      const p = at(s2);
+      const bx = p.x + p.nx * off, by = p.y + p.ny * off;
+      if (!onScreen(bx, by)) { ok = false; break; }
+      const box = { x: bx - 5, y: by - 6, w: 10, h: 12 };
+      if (hits(box)) { ok = false; break; }
+      boxes.push(box);
+    }
+    if (!ok) continue;
+    obstacles.push(...boxes);
+    lObjExtras.append("path").attr("id", id)
+      .attr("d", d3.line()(pts))
+      .attr("fill", "none").attr("stroke", "none");
+    lObjExtras.append("text")
+      .attr("class", "element-guide")
+      .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+      .attr("font-size", fscale(FONT)).attr("letter-spacing", "1px")
+      .attr("fill", color).attr("opacity", opacity)
+      .attr("dy", off < 0 ? -(-off - 3) : off + 3)
+      .style("pointer-events", "none")
+      .append("textPath").attr("href", `#${id}`)
+      .attr("startOffset", `${(frac * 100).toFixed(0)}%`).attr("text-anchor", "middle")
+      .text(text);
+    return true;
+  }
+  return false;
+}
+
+// Once the periodic-table rows in the element dust are readable, the atom
+// and molecule pictures (Hydrogen, Iron, Water, Glucose…) would sit on top
+// of them: show the hand-placed atoms and molecules as plain dots instead. "Readable" = the element dust is
+// on and the view has ≥ 150 px per decade of mass.
+const ATOM_ICON_HIDE_PX_PER_DECADE = 150;
+let _atomIconsHidden = false;
+
+function mapIconShown(o) {
+  if (!_iconsEnabled || !ICON_BY_SLUG[o.slug]) return false;
+  if (_ogShot) return true; // preview cards always show the picture
+  // projected objects carry the category key in catKey (cat is the style object)
+  return !(_atomIconsHidden && (o.catKey || o.cat) === "atomic"); // atoms and molecules
+}
+
 function drawObjects() {
+  {
+    const d = vd();
+    _atomIconsHidden = _dustEnabled && !_bigBangMode && !!dustPositions("element") &&
+      ch / Math.abs(d.y1 - d.y0) >= ATOM_ICON_HIDE_PX_PER_DECADE;
+  }
   // Retained rendering: object groups, icons, and labels are persistent
   // nodes updated through keyed joins below — per frame this is attribute
   // writes, not DOM teardown. Only the small extras layer (cluster/category/
@@ -1940,8 +2258,8 @@ function drawObjects() {
     )
     .sort((a, b) => {
       // Icon objects get a slight priority boost (lower z = shown first)
-      const aZ = (_iconsEnabled && ICON_BY_SLUG[a.slug]) ? a.z - 0.5 : a.z;
-      const bZ = (_iconsEnabled && ICON_BY_SLUG[b.slug]) ? b.z - 0.5 : b.z;
+      const aZ = mapIconShown(a) ? a.z - 0.5 : a.z;
+      const bZ = mapIconShown(b) ? b.z - 0.5 : b.z;
       return aZ - bZ;
     });
 
@@ -1959,7 +2277,7 @@ function drawObjects() {
   const icoOverlap2 = icoOverlap * icoOverlap;
   const shownIcons = [];
   projected.forEach(o => {
-    const hasIcon = _iconsEnabled && ICON_BY_SLUG[o.slug];
+    const hasIcon = mapIconShown(o);
     if (!hasIcon || !o._showDot) { o._showIcon = false; return; }
     const tooClose = shownIcons.some(s => {
       const dx = s.sx - o.sx, dy = s.sy - o.sy;
@@ -2068,8 +2386,11 @@ function drawObjects() {
       cl._labelPos = labelPositions[0];
       return;
     }
-    const labelW = labelText.length * 5.5 + 12;
-    const labelH = 12;
+    // Atom/molecule category clusters print as spaced 12px caps (see render)
+    const subcats = [...new Set(cl.members.map(p => p.subcat).filter(Boolean))];
+    cl._broad = cl.cat === CATEGORIES.atomic && subcats.length === 1 && !!SUBCAT_LABELS[subcats[0]];
+    const labelW = cl._broad ? labelText.length * 9 + 12 : labelText.length * 5.5 + 12;
+    const labelH = cl._broad ? 16 : 12;
 
     for (const pos of labelPositions) {
       const lx = pos.anchor === "end" ? cl.cx + pos.dx - labelW
@@ -2202,7 +2523,7 @@ function drawObjects() {
     );
     if (!collides) {
       usedLabels.add(labelText.toUpperCase());
-      categoryLabels.push({ cx, cy, labelText, cat: members[0].cat });
+      categoryLabels.push({ cx, cy, labelText, color: SUBCAT_LABEL_COLORS[subcat] || SUBCAT_COLORS[subcat] || members[0].cat.color });
     }
   });
 
@@ -2215,6 +2536,25 @@ function drawObjects() {
       ? SUBCAT_LABELS[subcats[0]]
       : cl.label;
     const lx = cl.cx + pos.dx, ly = cl.cy + pos.dy;
+    const subColor = subcats.length === 1 ? SUBCAT_LABEL_COLORS[subcats[0]] || SUBCAT_COLORS[subcats[0]] : null;
+
+    // A cluster of atoms or of molecules names a broad category ("MOLECULES"),
+    // so it reads like the spread-out category labels ("ATOMS") beside it.
+    if (cl._broad) {
+      lObjExtras.append("text")
+        .attr("x", lx).attr("y", ly)
+        .attr("text-anchor", pos.anchor)
+        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+        .attr("font-size", fscale(CATEGORY_LABEL_FONT)).attr("letter-spacing", "1px")
+        .attr("paint-order", "stroke")
+        .attr("stroke", "rgba(6,6,26,0.6)")
+        .attr("stroke-width", 2).attr("stroke-linejoin", "round")
+        .attr("fill", subColor || cl.cat.color)
+        .attr("class", "obj-label obj-cluster-label")
+        .attr("opacity", CATEGORY_LABEL_OPACITY)
+        .text(labelText.toUpperCase());
+      return;
+    }
 
     // Single node: paint-order renders the outline behind the fill,
     // replacing the old shadow-text + fill-text pair.
@@ -2226,7 +2566,7 @@ function drawObjects() {
       .attr("paint-order", "stroke")
       .attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
-      .attr("fill", cl.cat.color)
+      .attr("fill", subColor || cl.cat.color)
       .attr("class", "obj-label obj-cluster-label")
       .text(labelText);
   });
@@ -2241,12 +2581,24 @@ function drawObjects() {
       .attr("paint-order", "stroke")
       .attr("stroke", "rgba(6,6,26,0.6)")
       .attr("stroke-width", 2).attr("stroke-linejoin", "round")
-      .attr("fill", cl.cat.color)
+      .attr("fill", cl.color)
       .attr("class", "obj-category-label")
       .attr("opacity", CATEGORY_LABEL_OPACITY)
       .style("pointer-events", "none")
       .text(cl.labelText.toUpperCase());
   });
+
+  // --- Periodic-table guides along the element dust (zoomed in only) ---
+  const guideObstacles = [
+    ...placedLabels,
+    ...iconRects,
+    ...categoryLabels.map((c) => {
+      const w = c.labelText.length * 12 * 0.7 + 40; // generous: spaced caps
+      return { x: c.cx - w / 2, y: c.cy - 16, w, h: 24 };
+    }),
+  ];
+  drawPeriodicTable(guideObstacles);
+  drawElementGuides(guideObstacles);
 
   // --- Render BH subcategory labels along the Schwarzschild line ---
   const BH_SUBCAT_POSITIONS = [
@@ -2406,10 +2758,29 @@ function drawObjects() {
     .attr("x", o => o.sx + o._labelPos.dx)
     .attr("y", o => o.sy + o._labelPos.dy)
     .attr("text-anchor", o => o._labelPos.anchor)
-    .attr("fill", o => o.color)
+    .attr("fill", o => SUBCAT_LABEL_COLORS[o.subcat] || o.color)
     .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
 
   _lastProjected = shownDots;
+
+  // Dust fills whatever room the curated objects leave — it never sits on
+  // a curated dot, icon or visible label.
+  drawDust(lDust, {
+    px, py, cw, ch, mobile: _isMobile,
+    hidden: !_dustEnabled || _bigBangMode,
+  }, {
+    dots: shownDots,
+    rects: _labelsEnabled ? placedLabels : [],
+    // Icons keep dust out with a CIRCLE, not their square box: a square gap
+    // shows as an empty frame around soft, glowing screen-blend art (globular
+    // cluster, nebulae). Screen-blend art fades out well inside its box, so
+    // its circle is tighter; dust under the faint halo glows through it.
+    circles: shownDots.filter(o => o._showIcon).map(o => {
+      const size = icoSize * iconSizeMult(o);
+      return { sx: o.sx, sy: o.sy, r: size * (iconUsesScreenBlend(o) ? 0.32 : 0.5) };
+    }),
+  }, dustColor);
+  lDustHover.selectAll("*").remove();
 }
 
 // Screen-blend decision is static per object — shared by enter and update.
@@ -2436,7 +2807,47 @@ function setIconHover(o, on) {
   return true;
 }
 
+// Hover "made of" (COMPOSITION): reveal the connection paths that build the
+// hovered thing — the same lines a hover on the path itself shows. Parts that
+// are only dust (element N, P, S; nuclei) get a name tag, and the reveal
+// continues through them (atom → nucleus → protons & neutrons); it stops at
+// curated objects, which answer their own hover.
+let _composeShown = [];
+function showComposition(o) {
+  hideComposition();
+  if (!_connPaths || !COMPOSITION[o.name]) return;
+  const color = dustColor("atomic");
+  const seen = new Set();
+  const reveal = (name) => {
+    if (seen.has(name)) return;
+    seen.add(name);
+    for (const cp of _connPaths) {
+      if (cp._into !== name || !cp._lineGroup) continue;
+      cp._lineGroup.attr("opacity", 1);
+      _composeShown.push(cp);
+    }
+    for (const part of COMPOSITION[name] || []) {
+      if (OBJECTS.some(q => q.name === part)) continue;
+      const pos = compositionPartPos(part);
+      if (!pos) continue;
+      lCompose.append("text").attr("x", px(pos[0]) + 7).attr("y", py(pos[1]) + 3.5)
+        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+        .attr("font-size", fscale(10)).attr("paint-order", "stroke")
+        .attr("stroke", "rgba(6,6,26,0.85)").attr("stroke-width", 3)
+        .attr("fill", color).text(part);
+      reveal(part);
+    }
+  };
+  reveal(o.name);
+}
+function hideComposition() {
+  lCompose.selectAll("*").remove();
+  _composeShown.forEach(cp => cp._lineGroup?.attr("opacity", 0));
+  _composeShown = [];
+}
+
 function objHoverEnter(e, o) {
+  showComposition(o);
   if (!setIconHover(o, true)) {
     d3.select(this).select(".obj-glow").attr("r", 10).attr("opacity", 0.25);
     d3.select(this).select(".obj-dot").attr("r", 4);
@@ -2445,6 +2856,7 @@ function objHoverEnter(e, o) {
   showTooltip(e, o, o.cat);
 }
 function objHoverLeave(e, o) {
+  hideComposition();
   if (!setIconHover(o, false)) {
     d3.select(this).select(".obj-glow").attr("r", 6).attr("opacity", 0.1);
     d3.select(this).select(".obj-dot").attr("r", 2.8);
@@ -2495,6 +2907,37 @@ function hideTooltip() {
 svg.on("mousemove.tooltip", (e) => {
   if (tooltipEl.classList.contains("visible")) positionTooltip(e);
 });
+
+// Dust hover: the name (and which catalogue it came from) — nothing else.
+// Curated objects sit above in the HTML click-target overlay, so they
+// always win; dust only answers when nothing else has the tooltip.
+let _dustTip = false;
+function hideDustTip() {
+  if (!_dustTip) return;
+  _dustTip = false;
+  lDustHover.selectAll("*").remove();
+  hideComposition();
+  hideTooltip();
+}
+svg.on("mousemove.dust", (e) => {
+  if (_zooming || _touchMode || !_dustEnabled) return hideDustTip();
+  if (!_dustTip && tooltipEl.classList.contains("visible")) return; // someone else's tooltip
+  const [mx, my] = d3.pointer(e, chart.node());
+  const hit = pickDust(mx, my, 6);
+  if (!hit) return hideDustTip();
+  const color = CATEGORIES[hit.cat]?.color || "#fff";
+  lDustHover.selectAll("*").remove();
+  if (COMPOSITION[hit.name]) showComposition(hit);
+  lDustHover.append("circle")
+    .attr("cx", hit.sx).attr("cy", hit.sy).attr("r", 3.2)
+    .attr("fill", color).attr("stroke", "rgba(6,6,26,0.9)").attr("stroke-width", 1);
+  tooltipEl.innerHTML = `<div class="tt-name" style="color:${color}">${escapeHtml(hit.name)}</div>` +
+    `<div class="tt-row">${escapeHtml(hit.source)}</div>`;
+  tooltipEl.classList.add("visible");
+  positionTooltip(e);
+  _dustTip = true;
+});
+svg.on("mouseleave.dust", hideDustTip);
 
 // =============================================================
 // Axis hover tooltip
@@ -3003,6 +3446,22 @@ let selectedObj = null;
 let _sidebarManuallyExpanded = false;
 let hashTimer = null;
 
+// Descriptions arrive in a lazy chunk (usually already fetched on the first
+// interaction). If the panel opens first, it fills in when the chunk lands —
+// unless the user has moved on to another object by then.
+let _descsLoaded = false;
+function renderDescription(obj) {
+  const apply = () => {
+    if (selectedObj !== obj) return;
+    sbDesc.innerHTML = simpleMarkdown(DESC_BY_SLUG[obj.slug] || "");
+    renderMath(sbDesc);
+  };
+  if (_descsLoaded) return apply();
+  sbDesc.innerHTML = "";
+  loadDescriptions().then(() => { _descsLoaded = true; apply(); })
+    .catch((e) => console.warn("descriptions failed to load", e));
+}
+
 function openInfoPanel(slug, name) {
   openSidebar({ slug, name, isLabel: true });
 }
@@ -3021,8 +3480,7 @@ function openSidebar(obj) {
     sbDot.style.color = "rgba(255,100,100,0.5)";
     sbCategory.textContent = "Unit reference";
     sbStats.innerHTML = "";
-    sbDesc.innerHTML = simpleMarkdown(DESC_BY_SLUG[obj.slug] || "");
-    renderMath(sbDesc);
+    renderDescription(obj);
     const wiki = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(obj.name)}`;
     sbLinks.innerHTML = `
       <a href="${wiki}" target="_blank" rel="noopener">
@@ -3191,17 +3649,25 @@ function openSidebar(obj) {
 
   sbStats.innerHTML = `<table>${rows}</table>`;
 
-  sbDesc.innerHTML = simpleMarkdown(DESC_BY_SLUG[obj.slug] || "");
-  renderMath(sbDesc);
+  renderDescription(obj);
 
   const wiki = wikiUrl(obj);
   const scholar = scholarUrl(obj.name);
-  sbLinks.innerHTML = `
-    <a href="${wiki}" target="_blank" rel="noopener">
+  // An object may carry its own primary link (e.g. a species too new for
+  // Wikipedia links its original description) in place of Wikipedia.
+  const primary = obj.paper
+    ? `<a href="${obj.paper.url}" target="_blank" rel="noopener">
+      <span class="link-icon">P</span>
+      <span class="link-label">${obj.paper.label}</span>
+      <span class="link-sub">${obj.paper.sub || ""} ↗</span>
+    </a>`
+    : `<a href="${wiki}" target="_blank" rel="noopener">
       <span class="link-icon">W</span>
       <span class="link-label">Wikipedia</span>
       <span class="link-sub">↗</span>
-    </a>
+    </a>`;
+  sbLinks.innerHTML = `
+    ${primary}
     <a href="${scholar}" target="_blank" rel="noopener">
       <span class="link-icon">S</span>
       <span class="link-label">Google Scholar</span>
@@ -3273,6 +3739,7 @@ document.addEventListener("click", (e) => {
   if (chartEl?.contains(e.target) && !e.target.closest?.("#click-targets")) {
     selectedObj = null;
     drawHighlight();
+    if (_booted) { clearTimeout(hashTimer); saveHash(); } // URL back to /
     if (sidebarEl.classList.contains("open")) {
       if (_sidebarManuallyExpanded) {
         closeSidebar();
@@ -3742,6 +4209,8 @@ let _animPaused = false;
 let _animDisabled = false;
 let _animResumeTimer = null;
 let _animSpeed = 1; // global animation-speed multiplier (Z slower / X faster)
+let _dotSizeMult = 1;    // moving-dot size multiplier (settings slider)
+let _dotOpacityMult = 1; // moving-dot opacity multiplier (settings slider)
 
 function pauseAnimOnInteract() {
   if (_animDisabled) return;
@@ -3786,6 +4255,19 @@ function connBezierCtrl(A, B) {
   return { c1r: A.logR + H, c1m: A.logM + V, c2r: B.logR + H, c2m: A.logM - V };
 }
 
+// Single gentle arc A → B (quadratic, affine-invariant like the others):
+// control point at the chord midpoint, pushed sideways by `bow` × chord
+// length. Used by paths with curve: "arc" instead of the S-shaped beziers.
+function arcCtrl(A, B, bow = 0.12) {
+  const dr = B.logR - A.logR, dm = B.logM - A.logM;
+  return { r: (A.logR + B.logR) / 2 - dm * bow, m: (A.logM + B.logM) / 2 + dr * bow };
+}
+function arcDataPathGen(cp) {
+  const [A, B] = [cp.points[0], cp.points[cp.points.length - 1]];
+  const c = arcCtrl(A, B, cp.bow);
+  return `M ${A.logR},${A.logM} Q ${c.r},${c.m} ${B.logR},${B.logM}`;
+}
+
 function bezierDataPathGen(pts) {
   if (pts.length < 2) return "";
   let d = `M ${pts[0].logR},${pts[0].logM}`;
@@ -3805,7 +4287,8 @@ function ensureConnGeometry(cp) {
   if (cp._samples) return;
   const isBezier = cp.family === "decay" || cp.family === "combines";
   const probe = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  probe.setAttribute("d", isBezier ? bezierDataPathGen(cp.points) : dataCurveGen(cp.points));
+  probe.setAttribute("d", cp.curve === "arc" ? arcDataPathGen(cp)
+    : isBezier ? bezierDataPathGen(cp.points) : dataCurveGen(cp.points));
   const dataLen = probe.getTotalLength();
   const N = Math.min(128, Math.max(24, Math.ceil(dataLen * 4)));
   const sx = new Float64Array(N + 1), sy = new Float64Array(N + 1);
@@ -3822,6 +4305,7 @@ function ensureConnGeometry(cp) {
 // nothing needs animating; these restart it when conditions change.
 function connAnimActive() {
   return !_animDisabled && !document.hidden &&
+    !document.documentElement.classList.contains("classic-open") &&
     _connPaths != null && _connPaths.some(cp => cp._visible);
 }
 function scheduleConnAnim() {
@@ -3834,29 +4318,99 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden) scheduleConnAnim();
 });
 
+// "Made of" paths (COMPOSITION in data.js): one "combines" path per building
+// block → whole, so composition reads like every other connection — moving
+// dots along the curve, line revealed on hover. Hand-written paths that
+// already join a part to its whole (proton → hydrogen, …) stand in for the
+// generated one. Element-dust parts (N, P, S) have no position until the dust
+// loads, so they stay pending and join on a later drawConnections().
+const COMBINES_PARTICLE = "rgba(255,152,0,0.5)"; // particles → atoms
+const COMBINES_MOLECULE = "rgba(128,222,234,0.5)"; // atoms → molecules → DNA
+const _pendingComposition = [];
+
+const nearPt = (p, r, m, tol = 0.005) => Math.abs(p.logR - r) < tol && Math.abs(p.logM - m) < tol;
+function objectAt(p) {
+  return OBJECTS.find(o => nearPt(p, o.logR, o.logM));
+}
+function compositionPartPos(name) {
+  const o = OBJECTS.find(q => q.name === name);
+  if (o) return [o.logR, o.logM];
+  return dustPositions("element")?.get(name) ?? dustPositions("nucleus")?.get(name) ?? null;
+}
+function joinList(names) {
+  return names.length < 2 ? names.join("") : `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+}
+function compositionPath(part, whole, pos, wpos) {
+  const A = { logR: pos[0], logM: pos[1] }, B = { logR: wpos[0], logM: wpos[1] };
+  const len = Math.hypot(B.logR - A.logR, B.logM - A.logM);
+  return {
+    id: `made-of:${part}>${whole}`,
+    family: "combines",
+    _into: whole,
+    description: `${whole} is made of ${joinList(COMPOSITION[whole])}`,
+    points: [A, B],
+    zoomRange: [6, 800],
+    neighborhood: {
+      x: [Math.min(A.logR, B.logR) - 1, Math.max(A.logR, B.logR) + 1],
+      y: [Math.min(A.logM, B.logM) - 1, Math.max(A.logM, B.logM) + 1],
+    },
+    style: {
+      lineOpacity: 0.15,
+      lineWidth: 1.4,
+      dotCount: Math.max(2, Math.min(6, Math.round(len * 1.5))),
+      dotSize: 0.8,
+      dotSpeed: 0.7,
+      // Nuclei and atoms are built from particles; everything above from atoms
+      color: COMPOSITION[whole].includes("Electron") || COMPOSITION[whole].includes("Neutron")
+        ? COMBINES_PARTICLE : COMBINES_MOLECULE,
+      dash: "4 3",
+    },
+  };
+}
+function compositionPaths(existing) {
+  const out = [];
+  for (const { part, whole } of _pendingComposition.splice(0)) {
+    const pos = compositionPartPos(part), wpos = compositionPartPos(whole);
+    if (!pos || !wpos) { _pendingComposition.push({ part, whole }); continue; }
+    const covered = existing.some(cp => cp._into === whole && nearPt(cp.points[0], pos[0], pos[1]));
+    if (!covered) out.push(compositionPath(part, whole, pos, wpos));
+  }
+  return out;
+}
+function prepareConnPath(cp) {
+  const isMeteor = cp.family === "evolution";
+  // Evolution paths: random positions and speeds for meteor shower effect
+  const dotTs = isMeteor
+    ? Array.from({ length: cp.style.dotCount }, () => Math.random())
+    : Array.from({ length: cp.style.dotCount }, (_, i) => i / cp.style.dotCount);
+  const dotSpeeds = isMeteor
+    ? Array.from({ length: cp.style.dotCount }, () => 0.6 + Math.random() * 0.8)
+    : Array.from({ length: cp.style.dotCount }, () => 1);
+  return {
+    ...cp,
+    _into: cp._into ?? objectAt(cp.points[cp.points.length - 1])?.name ?? null, // whole this path builds
+    dists: computePathDists(cp.points),
+    dotTs,
+    dotSpeeds,
+    _samples: null,   // curve geometry built lazily by ensureConnGeometry()
+    _probe: null,
+    _dataLen: 0,
+    _screenLen: 1,
+    _visible: false,
+    _opacity: 0,
+  };
+}
+/** Add any composition paths whose parts have become placeable (dust load). */
+function syncCompositionPaths() {
+  if (!_connPaths || !_pendingComposition.length) return;
+  _connPaths.push(...compositionPaths(_connPaths).map(prepareConnPath));
+}
+
 function initConnections() {
-  _connPaths = CONNECTION_PATHS.map(cp => {
-    const isMeteor = cp.family === "evolution";
-    // Evolution paths: random positions and speeds for meteor shower effect
-    const dotTs = isMeteor
-      ? Array.from({ length: cp.style.dotCount }, () => Math.random())
-      : Array.from({ length: cp.style.dotCount }, (_, i) => i / cp.style.dotCount);
-    const dotSpeeds = isMeteor
-      ? Array.from({ length: cp.style.dotCount }, () => 0.6 + Math.random() * 0.8)
-      : Array.from({ length: cp.style.dotCount }, () => 1);
-    return {
-      ...cp,
-      dists: computePathDists(cp.points),
-      dotTs,
-      dotSpeeds,
-      _samples: null,   // curve geometry built lazily by ensureConnGeometry()
-      _probe: null,
-      _dataLen: 0,
-      _screenLen: 1,
-      _visible: false,
-      _opacity: 0,
-    };
-  });
+  for (const [whole, parts] of Object.entries(COMPOSITION))
+    for (const part of parts) _pendingComposition.push({ part, whole });
+  _connPaths = CONNECTION_PATHS.map(prepareConnPath);
+  _connPaths.push(...compositionPaths(_connPaths).map(prepareConnPath));
   // Warm curve geometry off the boot critical path (~2,500 getPointAtLength
   // calls if done eagerly); ensureConnGeometry() also builds on demand the
   // moment a path is actually used.
@@ -3870,6 +4424,7 @@ function drawConnections() {
   lArrows.selectAll("*").remove();
   _connDotsStale = true;
   if (!_connPaths) return;
+  syncCompositionPaths();
 
   // Screen-space serializers of the shared curve shape (connCurve /
   // connBezierCtrl are the single source of truth — see their definitions).
@@ -3880,6 +4435,11 @@ function drawConnections() {
   // Bezier path generator for decay/combines paths:
   // All points are anchors; control points come from connBezierCtrl's
   // "1:2 rectangle at 45°" formula, serialized through px()/py().
+  function arcPathGen(cp) {
+    const [A, B] = [cp.points[0], cp.points[cp.points.length - 1]];
+    const c = arcCtrl(A, B, cp.bow);
+    return `M ${px(A.logR)},${py(A.logM)} Q ${px(c.r)},${py(c.m)} ${px(B.logR)},${py(B.logM)}`;
+  }
   function bezierPathGen(pts) {
     if (pts.length < 2) return "";
     let d = `M ${px(pts[0].logR)},${py(pts[0].logM)}`;
@@ -3895,8 +4455,13 @@ function drawConnections() {
   _connPaths.forEach(cp => {
     cp._opacity = connectionOpacity(cp, view);
     cp._visible = cp._opacity > 0.01;
+    cp._lineGroup = null;
 
-    if (!cp._visible) return;
+    // Composition paths keep a hidden line even outside their ambient zoom
+    // range: hovering the whole reveals it (showComposition) at any zoom, at
+    // full strength — the ambient fade is for the dots, not a hovered line.
+    if (!cp._visible && !cp._into) return;
+    const lineFade = cp._into ? 1 : cp._opacity;
 
     // Decay and combines paths use bezier curves (alternating anchor/control points)
     const isBezier = cp.family === "decay" || cp.family === "combines";
@@ -3948,23 +4513,25 @@ function drawConnections() {
             .attr("x1", x0).attr("y1", y0).attr("x2", x1).attr("y2", y1)
             .attr("stroke", emSpectrumColor(t0))
             .attr("stroke-width", cp.style.lineWidth * 0.6)
-            .attr("opacity", cp.style.lineOpacity * cp._opacity * 0.7)
+            .attr("opacity", cp.style.lineOpacity * lineFade * 0.7)
             .attr("stroke-linecap", "round");
         }
       }
     } else {
-      const visD = isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);
+      const visD = cp.curve === "arc" ? arcPathGen(cp) : isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);
       const pathEl = lineGroup.append("path")
         .attr("d", visD)
         .attr("fill", "none")
         .attr("stroke", cp.style.color || "rgba(255,255,255,0.3)")
         .attr("stroke-width", cp.style.lineWidth)
-        .attr("opacity", cp.style.lineOpacity * cp._opacity);
+        .attr("opacity", cp.style.lineOpacity * lineFade);
       if (cp.style.dash) pathEl.attr("stroke-dasharray", cp.style.dash);
     }
 
+    if (!cp._visible) return; // no dots here, so no hover target either
+
     // Hit area for hover — shows line and tooltip
-    const hitD = isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);
+    const hitD = cp.curve === "arc" ? arcPathGen(cp) : isBezier ? bezierPathGen(cp.points) : curveLineGen(cp.points);
     lArrows.append("path")
       .attr("d", hitD)
       .attr("fill", "none")
@@ -4120,7 +4687,7 @@ function animateConnections(timestamp) {
 
       el.setAttribute("cx", String(sx));
       el.setAttribute("cy", String(sy));
-      el.setAttribute("r", String(cp.style.dotSize * sizeFactor));
+      el.setAttribute("r", String(cp.style.dotSize * sizeFactor * _dotSizeMult));
 
       const edgeFade = Math.min(t / 0.04, (1 - t) / 0.04, 1);
 
@@ -4131,7 +4698,7 @@ function animateConnections(timestamp) {
           ? emSpectrumColor(t)
           : (cp.style.color || "rgba(255,255,255,0.5)");
         el.setAttribute("fill", color);
-        el.setAttribute("opacity", String(cp._opacity * 0.6 * opacityMult * edgeFade));
+        el.setAttribute("opacity", String(Math.min(1, cp._opacity * 0.6 * opacityMult * edgeFade * _dotOpacityMult)));
       }
     });
   });
@@ -4259,17 +4826,25 @@ function drawTiles() {
 
   const screenPPU = Math.abs(px(1) - px(0));
 
+  // Deliberately soft background: accept a tile level up to BG_SOFTEN× coarser
+  // than the screen. The painted texture's fine grain read as noise competing
+  // with the real catalogue dots; upscaled (and blurred below) it stays as
+  // colour and mood without the grain — and fetches fewer bytes.
+  const BG_SOFTEN = 4;
   let best = levels[0];
   for (const lv of levels) {
     const lvPPU = (lv.w / imgDataW);
     best = lv;
-    if (lvPPU >= screenPPU) break;
+    if (lvPPU * BG_SOFTEN >= screenPPU) break;
   }
 
   // Detect over-zoom: when screen resolution exceeds the best tile level
   const bestPPU = best.w / imgDataW;
   const overZoom = screenPPU / bestPPU;
-  const blurPx = overZoom > 1.5 ? Math.min(4, (overZoom - 1) * 0.7) : 0;
+  // One blur on the whole layer (not per tile): smooths the painted grain
+  // into colour, hides upscaling and tile seams, and costs one filter pass.
+  const blurPx = 0;
+  lTiles.style("filter", overZoom > 1.2 ? `blur(${Math.min(14, overZoom * 3).toFixed(1)}px)` : null);
 
   const { x0, x1, y0, y1 } = vd();
   // Data units per pixel at this zoom level (correct for partial edge tiles)
@@ -4450,7 +5025,7 @@ function scheduleClickTargets() {
 // Hit-target size for an object, shared by the HTML click targets (mouse)
 // and the touch tap hit-test so the two input paths never drift.
 function objectHitSizePx(o, baseIco) {
-  const hasIcon = _iconsEnabled && ICON_BY_SLUG[o.slug];
+  const hasIcon = mapIconShown(o);
   return hasIcon ? baseIco * iconSizeMult(o) : 14; // 14 matches the dot hit-area radius
 }
 
@@ -4483,12 +5058,14 @@ function updateClickTargets() {
 
     div.addEventListener("mouseenter", (e) => {
       setIconHover(o, true);
+      showComposition(o);
       lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", null);
       showTooltip(e, o, o.cat);
     });
 
     div.addEventListener("mouseleave", () => {
       setIconHover(o, false);
+      hideComposition();
       if (!_labelsEnabled || !o._showLabel) {
         lLabels.selectAll(`[data-label-slug="${o.slug}"]`).attr("display", "none");
       }
@@ -4521,11 +5098,13 @@ function updateClickTargets() {
 
     div.addEventListener("mouseenter", (e) => {
       setIconHover(obj, true);
+      showComposition(obj);
       showTooltip(e, obj, obj.cat);
     });
 
     div.addEventListener("mouseleave", () => {
       setIconHover(obj, false);
+      hideComposition();
       hideTooltip();
     });
 
@@ -4742,6 +5321,7 @@ const zoomBehavior = d3.zoom()
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
     _zooming = true;
     clearClickTargets();
+    hideComposition(); // hover lines would strand at pre-zoom coordinates
     // The hover hit-paths aren't rebuilt during the gesture (see
     // updateConnectionOpacities), so disable them — a mousemove mid-wheel-zoom
     // would otherwise light a connection at stale, pre-zoom coordinates.
@@ -4788,8 +5368,13 @@ const zoomBehavior = d3.zoom()
       });
     }
   })
-  .on("end", () => {
+  .on("end", (event) => {
     _zooming = false;
+    // Dust only matters once the view is zoomed in: fetch it on the first
+    // user gesture or any navigation that leaves the overview.
+    // Programmatic zooms (presets, search, tour) count once the user has
+    // engaged; the boot intro's own zoom-out never does.
+    if (!dustReady() && (event.sourceEvent || (_userEngaged && viewZoomedIn()))) ensureDust();
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
     lTilesBase.attr("transform", null);
@@ -4826,6 +5411,8 @@ const zoomBehavior = d3.zoom()
   });
 
 svg.call(zoomBehavior);
+// Safari's trackpad pinch, also over the click-target overlay above the map
+enableTrackpadPinch(svg.node(), [svg.node(), clickTargetContainer]);
 
 svg.on("pointerdown.animPause", pauseAnimOnInteract);
 svg.on("wheel.animPause", pauseAnimOnInteract);
@@ -5273,11 +5860,31 @@ document.addEventListener("pointerdown", (e) => {
   }
 });
 
+// Keyboard shortcuts card: settings → "Show keyboard shortcuts", or ?.
+// Esc, its × or a press outside closes it.
+const shortcutsPanel = document.getElementById("shortcuts-panel");
+function setShortcutsOpen(open) {
+  shortcutsPanel.hidden = !open;
+  if (open) {
+    settingsPanel.classList.remove("open");
+    settingsBtn.classList.remove("active");
+    settingsBtn.setAttribute("aria-expanded", "false");
+  }
+}
+document.getElementById("shortcuts-btn").addEventListener("click", () => setShortcutsOpen(true));
+document.getElementById("shortcuts-close").addEventListener("click", () => setShortcutsOpen(false));
+document.addEventListener("pointerdown", (e) => {
+  if (!shortcutsPanel.hidden && !shortcutsPanel.contains(e.target) &&
+      !document.getElementById("shortcuts-btn").contains(e.target)) setShortcutsOpen(false);
+});
+
 function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked,
     labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
+    dust: setDust.checked,
     fontSize: +setFontSize.value, boldHover: setBoldHover.checked,
+    dotSize: +setDotSize.value, dotOpacity: +setDotOpacity.value,
     gridUnit: _gridUnit,
     marginLeft: _userMarginLeft, marginRight: _userMarginRight,
     marginTop: _userMarginTop, marginBottom: _userMarginBottom,
@@ -5299,6 +5906,14 @@ setAnim.addEventListener("change", () => {
   saveSettings();
 });
 
+const setDust = document.getElementById("set-dust");
+setDust.addEventListener("change", () => {
+  _dustEnabled = setDust.checked;
+  if (_dustEnabled && viewZoomedIn()) ensureDust();
+  redraw();
+  saveSettings();
+});
+
 const setLabels = document.getElementById("set-labels");
 setLabels.addEventListener("change", () => {
   _labelsEnabled = setLabels.checked;
@@ -5310,6 +5925,18 @@ const setIcons = document.getElementById("set-icons");
 setIcons.addEventListener("change", () => {
   _iconsEnabled = setIcons.checked;
   redraw();
+  saveSettings();
+});
+
+// Moving dots: read every animation frame, so no redraw is needed
+const setDotSize = document.getElementById("set-dot-size");
+setDotSize.addEventListener("input", () => {
+  _dotSizeMult = +setDotSize.value / 100;
+  saveSettings();
+});
+const setDotOpacity = document.getElementById("set-dot-opacity");
+setDotOpacity.addEventListener("input", () => {
+  _dotOpacityMult = +setDotOpacity.value / 100;
   saveSettings();
 });
 
@@ -5352,10 +5979,15 @@ setGridUnit.addEventListener("change", () => {
 const PAN_STEP = 80;
 document.addEventListener("keydown", (e) => {
   if (e.target.tagName === "INPUT") return;
+  // ? = Shift+/ on US keys; match the physical key too, so layouts that
+  // report another character for it still open the card.
+  if (e.key !== "?" && e.code === "Slash" && e.shiftKey) { setShortcutsOpen(shortcutsPanel.hidden); return; }
   // Arrow keys pan. Letter keys are recording shortcuts (see keyhint / docs):
   //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations · H hide UI
   //   V lock the viewport to a 1920×1080 stage (screenshot/video framing)
   //   R reset all settings (and presenter state) to defaults
+  //   L the original Lineweaver–Patel figure (hidden; also /classic/)
+  //   ? the keyboard shortcuts card (keep it in step with index.html)
   switch (e.key) {
     case "+": case "=":
       svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.4); break;
@@ -5393,8 +6025,27 @@ document.addEventListener("keydown", (e) => {
       setViewportLock(!_viewportLock); break;
     case "r": case "R":
       resetAllSettings(); break;
+    case "l": case "L":
+      openClassicMode(); break;
+    case "?":
+      setShortcutsOpen(shortcutsPanel.hidden); break;
   }
 });
+
+// Hidden "classic" mode (L key, /classic/ or #classic): the original Lineweaver–Patel
+// figure, zoomable. Loaded on demand; it takes over the keyboard while open.
+function openClassicMode() {
+  import("./classic.js").then(m => m.openClassic());
+}
+window.addEventListener("hashchange", () => {
+  if (location.hash === "#classic") openClassicMode();
+});
+// Forward/Back onto the figure's own page, /classic/
+window.addEventListener("popstate", () => {
+  if (location.pathname.replace(/\/+$/, "") === "/classic") openClassicMode();
+});
+// The map's dot animation parks while the classic figure covers it
+window.addEventListener("classic-close", () => scheduleConnAnim());
 
 // R: one keystroke back to a clean default state — settings, presenter
 // modes, hidden UI, animation speed, custom margins. Each control is
@@ -5410,6 +6061,7 @@ function resetAllSettings() {
   setChk(setLabels, true); setChk(setIcons, true);
   setChk(setBoldHover, false);
   setRange(setIconSize, 100); setRange(setFontSize, 100);
+  setRange(setDotSize, 100); setRange(setDotOpacity, 100);
   if (setGridUnit.value !== "si") {
     setGridUnit.value = "si";
     setGridUnit.dispatchEvent(new Event("change", { bubbles: true }));
@@ -5707,7 +6359,9 @@ document.addEventListener("keydown", (e) => {
     openSearch();
   }
   if (e.key === "Escape") {
-    if (selectedObj) {
+    if (!shortcutsPanel.hidden) {
+      setShortcutsOpen(false);
+    } else if (selectedObj) {
       closeSidebar();
     } else if (searchBox.classList.contains("expanded")) {
       closeSearch();
@@ -5772,6 +6426,7 @@ try {
     if (saved.bg === false) { setBg.checked = false; _bgTilesEnabled = false; redraw(); }
     if (saved.anim === false) { setAnim.checked = false; _animDisabled = true; document.body.classList.add("anim-off"); }
     if (saved.labels === false) { setLabels.checked = false; _labelsEnabled = false; }
+    if (saved.dust === false) { setDust.checked = false; _dustEnabled = false; }
     if (saved.icons === false) { setIcons.checked = false; _iconsEnabled = false; }
     if (saved.gridUnit && GRID_UNITS[saved.gridUnit]) { _gridUnit = saved.gridUnit; setGridUnit.value = saved.gridUnit; }
     if (saved.iconSize > 0) {
@@ -5787,6 +6442,14 @@ try {
       setFontSize.value = Math.max(50, Math.min(250, +saved.fontSize));
       _fontScale = +setFontSize.value / 100;
       document.documentElement.style.setProperty("--font-scale", _fontScale);
+    }
+    if (saved.dotSize > 0) {
+      setDotSize.value = Math.max(30, Math.min(300, +saved.dotSize));
+      _dotSizeMult = +setDotSize.value / 100;
+    }
+    if (typeof saved.dotOpacity === "number") {
+      setDotOpacity.value = Math.max(0, Math.min(300, saved.dotOpacity));
+      _dotOpacityMult = +setDotOpacity.value / 100;
     }
     if (saved.boldHover) {
       setBoldHover.checked = true;
@@ -5942,17 +6605,59 @@ if (_reduceMotion && !_animDisabled) {
 function saveHash() {
   // Don't overwrite tour hashes — the tour manages its own URL state
   if (location.hash.startsWith("#tour=")) return;
+  // Nor the hidden classic figure's
+  if (location.hash === "#classic" || pathSlug() === "classic" ||
+      document.documentElement.classList.contains("classic-open")) return;
   const d = vd();
   const cx = ((d.x0 + d.x1) / 2).toFixed(1);
   const cy = ((d.y0 + d.y1) / 2).toFixed(1);
   const z = currentK.toFixed(2);
-  const slug = selectedObj && !selectedObj.isLabel ? selectedObj.slug : "";
-  const hash = slug ? `${cx},${cy},${z},${slug}` : `${cx},${cy},${z}`;
-  history.replaceState(null, "", `#${hash}`);
+  // The open object/article lives in the PATH (/eois-stantonae/), which is a
+  // real, crawlable page with its own title and preview image (generated by
+  // scripts/build-pages.mjs); the view stays in the hash.
+  const slug = selectedObj?.slug || "";
+  const path = slug ? `/${slug}/` : "/";
+  history.replaceState(null, "", `${path}#${cx},${cy},${z}`);
+  const name = selectedObj && (selectedObj.sidebarName || selectedObj.name);
+  document.title = name ? `${name} — The Triangle of Everything` : "The Triangle of Everything";
+}
+
+// Object named by the URL path (/eois-stantonae/), if any. Pages built by
+// build-pages.mjs also carry its display name for info-panel articles.
+function pathSlug() {
+  const seg = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, "");
+  return /^[a-z0-9][a-z0-9-]*$/.test(seg) ? seg : null;
 }
 
 function loadHash() {
   const h = location.hash.slice(1);
+  const ps = pathSlug();
+  // Hidden: the original Lineweaver–Patel figure, at /classic/ (or the old
+  // #classic). The map waits underneath at its full view.
+  if (ps === "classic" || h === "classic") {
+    openClassicMode();
+    svg.call(zoomBehavior.transform, d3.zoomIdentity);
+    return true;
+  }
+  if (ps && !h.startsWith("tour=")) {
+    const obj = OBJECTS.find(o => o.slug === ps);
+    // Info-panel articles are known from the page build-pages.mjs wrote;
+    // anything else (served by 404.html) falls back to the home view.
+    const page = window.__TOE_PAGE__?.slug === ps ? window.__TOE_PAGE__ : null;
+    if (obj || page) {
+      const name = obj?.name || page.name;
+      const nums = h.split(",").slice(0, 3).map(Number);
+      const view = nums.length === 3 && nums.every(Number.isFinite) ? nums
+        : obj ? [obj.logR, obj.logM, 12] : null;
+      if (obj) openSidebar(obj); else openInfoPanel(ps, name);
+      setSidebarOpen(true);
+      // Opening the panel re-lays-out the map; place the view after that
+      // settles or the layout pass undoes the zoom.
+      if (view) requestAnimationFrame(() => requestAnimationFrame(() => flyTo(view[0], view[1], view[2])));
+      return true;
+    }
+    history.replaceState(null, "", "/" + location.hash);
+  }
   if (!h || h.startsWith("tour=")) return false;
   // Preset region hash like #preset=particle-physics — clicks the matching button.
   if (h.startsWith("preset=")) {
@@ -5968,7 +6673,11 @@ function loadHash() {
     if (parts.length === 1 && /^[a-z][a-z0-9-]*$/i.test(h)) {
       const obj = OBJECTS.find(o => o.slug === h);
       if (obj) {
-        navigateToObject(obj.slug, obj.name);
+        // Same as a /slug/ landing: open the panel, then zoom once the
+        // layout pass has run (navigateToObject's fly-in gets undone).
+        openSidebar(obj);
+        setSidebarOpen(true);
+        requestAnimationFrame(() => requestAnimationFrame(() => flyTo(obj.logR, obj.logM, 12)));
         return true;
       }
     }
@@ -6030,6 +6739,11 @@ initTour({
   animateBigBang: animateBigBangTransition,
   exitBigBang: exitBigBangMode,
   isBigBangActive: () => _bigBangMode,
+  // Deep in the map (a dozen decades of mass or less on screen) the intro
+  // card is in the way of whatever the link points at.
+  skipIntro: () => { const d = vd(); return d.y1 - d.y0 < 12; },
+  suggest: () => (_periodicInView && !_periodicOn
+    ? { label: "Explore the periodic table", open: () => setPeriodic(true) } : null),
 });
 
 // Standalone cosmic-time scrubber — drives the same Big Bang era engine
@@ -6073,9 +6787,23 @@ setTimeout(() => {
 // Reveal page now that CSS and JS are loaded (prevents FOUC)
 document.body.classList.add("ready");
 
-// Icon cache warmup, anchored to READY (not module import) so it can never
-// drift into the startup measurement window on a slow machine.
-setTimeout(startIconWarmup, 3000);
+// Deferred loading, triggered by the user rather than by a timer: a visitor
+// who only looks at the overview never downloads the descriptions, the
+// off-screen icons, or the catalogue dust.
+function onFirstInteraction(fn) {
+  const evts = ["pointerdown", "wheel", "keydown", "touchstart"];
+  const once = () => { evts.forEach((t) => window.removeEventListener(t, once, true)); fn(); };
+  evts.forEach((t) => window.addEventListener(t, once, { capture: true, passive: true }));
+}
+const _readyAt = performance.now();
+onFirstInteraction(() => {
+  _userEngaged = true;
+  // Descriptions: needed by the info panel, so fetch as soon as the user engages
+  loadDescriptions().then(() => { _descsLoaded = true; })
+    .catch((e) => console.warn("descriptions failed to load", e));
+  // Icon cache warmup — never inside the startup window (≥ 3 s after ready)
+  setTimeout(startIconWarmup, Math.max(0, 3000 - (performance.now() - _readyAt)));
+});
 
 // Service worker: instant repeat visits + offline map (see public/sw.js).
 // Registered late and without clients.claim so the FIRST visit never pays
@@ -6088,3 +6816,56 @@ if ("serviceWorker" in navigator && !import.meta.env.DEV) {
     }, 8000);
   });
 }
+
+// Catalogue dust (~32k real objects, ~250 KB) is invisible in the overview
+// (the curated icons fill it), so it loads on the first zoom/pan — see the
+// zoom "end" handler — or right away for a shared link that opens zoomed in.
+function ensureDust() {
+  if (!_dustEnabled) return;
+  loadDust().then(() => redraw()).catch((e) => console.warn("dust layer failed to load", e));
+}
+// "Zoomed in" by visible span, not by k: the mobile layout's resting view
+// is already k≈14.
+function viewZoomedIn() {
+  const d = vd();
+  return d.y1 - d.y0 < 60;
+}
+{
+  const [, , k] = location.hash.slice(1).split(",").map(Number);
+  if (k > 1.5) ensureDust();
+}
+
+// =============================================================
+// Preview-image hook (?og-shot) — driven by scripts/build-pages.mjs
+// =============================================================
+// Hides every piece of interface, loads the dust, and lets the build place
+// any object at a chosen pixel of the plot at a chosen zoom, so each
+// object's share image is a real, local view of the chart around it.
+if (_ogShot) {
+  document.body.classList.add("og-shot");
+  const st = document.createElement("style");
+  st.textContent = "body.og-shot > *:not(#chart){display:none!important}";
+  document.head.appendChild(st);
+  setSidebarOpen(false);
+  _dustEnabled = true;
+  loadDust().then(() => redraw());
+  window.__toeOg = {
+    ready: () => dustReady(),
+    plot: () => ({ x: margin.left, y: margin.top, w: cw, h: ch }),
+    fullSpanX: () => Math.abs(xBase.domain()[1] - xBase.domain()[0]),
+    objects: () => OBJECTS.map(o => ({ slug: o.slug, name: o.name, logR: o.logR, logM: o.logM })),
+    // Put object `slug` at plot pixel (px, py) at zoom k; null slug → overview
+    place(slug, k, px, py) {
+      svg.interrupt();
+      const o = OBJECTS.find(x => x.slug === slug);
+      selectedObj = null; // no selection ring: the card marks the subject
+      if (!o) { svg.call(zoomBehavior.transform, d3.zoomIdentity); return; }
+      const t = d3.zoomIdentity.translate(px - xBase(o.logR) * k, py - yBase(o.logM) * k).scale(k);
+      svg.call(zoomBehavior.transform, t);
+      redraw();
+    },
+    iconsPending: () => [...document.querySelectorAll(".icon-fallback-dot")]
+      .filter(e => e.getAttribute("display") !== "none").length,
+  };
+}
+

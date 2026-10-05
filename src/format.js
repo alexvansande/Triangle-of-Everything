@@ -19,7 +19,9 @@ export function friendlyRadius(logR) {
   if (logR >= 5)     return `${Math.pow(10, logR - 5).toPrecision(3)} km`;
   if (logR >= 2)     return `${Math.pow(10, logR - 2).toPrecision(3)} m`;
   if (logR >= -1)    return `${Math.pow(10, logR).toPrecision(3)} cm`;
+  if (logR >= -4)    return `${Math.pow(10, logR + 4).toPrecision(3)} μm`;
   if (logR >= -7)    return `${Math.pow(10, logR + 7).toPrecision(3)} nm`;
+  if (logR >= -10)   return `${Math.pow(10, logR + 10).toPrecision(3)} pm`;
   if (logR >= -13)   return `${Math.pow(10, logR + 13).toPrecision(3)} fm`;
   return `10^${logR.toFixed(1)} cm`;
 }
@@ -30,6 +32,12 @@ export function friendlyMass(logM) {
   if (logM >= 6)   return `${Math.pow(10, logM - 6).toPrecision(3)} tonnes`;
   if (logM >= 3)   return `${Math.pow(10, logM - 3).toPrecision(3)} kg`;
   if (logM >= 0)   return `${Math.pow(10, logM).toPrecision(3)} g`;
+  // Sub-gram everyday/microscopic masses in metric prefixes (a ladybug is
+  // ~20 mg, not 1e22 GeV); particle units take over below an attogram.
+  const SUB = [[-3, "mg"], [-6, "μg"], [-9, "ng"], [-12, "pg"], [-15, "fg"], [-18, "ag"]];
+  for (const [e, unit] of SUB) {
+    if (logM >= e) return `${Math.pow(10, logM - e).toPrecision(3)} ${unit}`;
+  }
   const gevOff = Math.log10(1.783e-24);
   if (logM >= gevOff - 3) return `${Math.pow(10, logM - gevOff).toPrecision(3)} GeV`;
   if (logM >= gevOff - 6) return `${Math.pow(10, logM - gevOff + 3).toPrecision(3)} MeV`;
