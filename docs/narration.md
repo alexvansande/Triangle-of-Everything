@@ -93,3 +93,30 @@ Keep those.
 - This works on the classic figure's axis labels (`.cl-num` text in
   `src/classic.js`) and the map's axis numbers. Do it through a narration
   hook rather than drawing a copy on top, so the real numbers animate.
+
+## Output plan: one long horizontal cut, many short vertical ones
+
+The same recordings feed two kinds of video:
+
+- **Long horizontal** (16:9, `&stage=landscape`): one or two long videos
+  covering the whole tour.
+- **Short vertical** (9:16, the default stage): many 2–6 minute videos, one
+  topic each. **These are the current focus.**
+
+They share material but are edited separately, because some things suit one
+format and not the other:
+- Vertical shorts each need their own small introduction and ending, which the
+  long video doesn't.
+- The long video has connecting parts that aren't worth a short of their own.
+
+**How to save edits.** Keep one recording, but give it **several scripts**.
+Each video gets its own cut list (an EDL in the `video/<take>/tools/edl.py`
+style) and its own take folder under `public/narration/`, with that cut's
+`words.json` and `"scene"`. For example:
+- `short-01-hook`, `short-02-density`, `short-03-black-holes`… (vertical)
+- `long-01` (horizontal)
+
+A clip can appear in several cuts. When you transcribe a new recording, note
+which lines are short-only (intros, endings), which are long-only, and which
+are shared, and keep the scene scripts per cut. They usually share their cues,
+so a short's scene can import the matching section from the tour scene.
