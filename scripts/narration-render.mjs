@@ -117,7 +117,8 @@ const audio = `public/narration/${take}/${meta.audio}`;
 await new Promise((res, rej) => spawn("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y",
   "-f", "concat", "-safe", "0", "-i", path.join(TMP, "list.txt"),
   "-ss", String(from), "-t", String(to - from), "-i", audio,
-  "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", OUT],
+  "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-af", "apad", "-t", String(to - from),   // silent tail if the take runs past its audio
+  "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", OUT],
   { stdio: "inherit" }).on("close", c => c ? rej(new Error("ffmpeg mux failed")) : res()));
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log("done:", OUT);

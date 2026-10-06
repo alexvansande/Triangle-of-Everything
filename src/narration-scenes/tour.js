@@ -1,7 +1,8 @@
 // =============================================================
 // Narration scene script — what the camera does while you talk
 // =============================================================
-// Read by src/narration.js. Each cue fires when its phrase is SPOKEN
+// The full tour (take 1). Read by src/narration.js; a take picks its scene
+// with "scene" in its words.json (default "tour"). Each cue fires when its phrase is SPOKEN
 // (looked up in the take's words.json, in order), so the same script fits
 // any recording of roughly the same text. A phrase that isn't found is
 // skipped with a console warning — give alternatives as an array.

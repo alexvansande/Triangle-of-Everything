@@ -7,7 +7,7 @@ cross-fade from the classic Lineweaver–Patel figure to the map.
 | Piece | File |
 |---|---|
 | Player / engine | `src/narration.js` (loaded only with `?narrate=`) |
-| What happens when | `src/narration-scene.js` |
+| What happens when | `src/narration-scenes/<scene>.js` (a take picks one with `"scene"` in its words.json; default `tour`) |
 | A recording ("take") | `public/narration/<take>/audio.m4a` + `words.json` |
 | New take from an audio file | `scripts/narration-take.py` |
 | Video render (1080×1920 MP4) | `scripts/narration-render.mjs` |
@@ -56,7 +56,7 @@ that the new take doesn't contain are skipped and listed in the console
 - The unit rulers fade in for every camera move and out once it settles. Add `units: true` to pin them.
 - `classic: "out"` cross-fades from the classic figure to the map. The narration starts on the classic figure.
 
-The full field list is at the top of `src/narration-scene.js`.
+The full field list is at the top of `src/narration-scenes/tour.js`.
 
 ## Render the video
 

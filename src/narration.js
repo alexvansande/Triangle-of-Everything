@@ -25,9 +25,14 @@ import {
   RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES,
 } from "./data.js";
 import { narrClassic, classicFrameClient } from "./classic.js";
-import SCENE from "./narration-scene.js";
+// Scene scripts, one per file in ./narration-scenes/ (lazy chunks)
+const SCENES = import.meta.glob("./narration-scenes/*.js");
+let SCENE;
 
 let params, RENDER, CAPTIONS;
+// The size ruler hugs the bottom edge (y as a fraction of the stage height):
+// out of the middle of the picture. Captions sit just above it.
+const RULER_Y = 0.955;
 
 const norm = (w) => w.toLowerCase().replace(/[’']/g, "'").replace(/[^a-z0-9']/g, "");
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -100,7 +105,7 @@ function buildCaptions(words) {
     const key = norm(w);
     const shown = fix[key] ? w.replace(/[A-Za-z’']+/, fix[key]) : w;
     const prev = cur[cur.length - 1];
-    if (prev && (s - prev.e > 0.45 || cur.length >= 5 || cur.reduce((n, x) => n + x.w.length + 1, 0) + shown.length > 30)) flush();
+    if (prev && (s - prev.e > 0.45 || cur.length >= 4 || cur.reduce((n, x) => n + x.w.length + 1, 0) + shown.length > 22)) flush();
     cur.push({ w: shown, s, e });
     if (/[.?!]$/.test(w)) flush();
   });
@@ -114,6 +119,7 @@ export async function startNarration(app) {
   CAPTIONS = params.get("captions") !== "0";
   const base = `/narration/${app.take}/`;
   const take = await fetch(base + "words.json").then(r => r.json());
+  SCENE = (await SCENES[`./narration-scenes/${take.scene || "tour"}.js`]()).default;
   const cues = resolveScene(take.words);
   const captions = CAPTIONS ? buildCaptions(take.words) : [];
   const duration = take.duration;
@@ -201,10 +207,12 @@ export async function startNarration(app) {
   const style = document.createElement("style");
   style.textContent = NARR_CSS;
   document.head.appendChild(style);
+  await document.fonts.load('700 38px "Barlow Condensed"').catch(() => {});
   const nsvg = d3.select("#narr-svg");
   const gUnits = nsvg.append("g").attr("class", "narr-units");
   const hlClip = nsvg.append("clipPath").attr("id", "narr-hl-clip").append("rect");
   const gHl = nsvg.append("g").attr("class", "narr-hl");
+  const gHlFree = nsvg.append("g").attr("class", "narr-hl-free"); // axis bands: never clipped
   const capEl = document.getElementById("narr-caption");
 
   let curT = 0;
@@ -220,10 +228,19 @@ export async function startNarration(app) {
       gHl.attr("clip-path", "url(#narr-hl-clip)");
     } else gHl.attr("clip-path", null);
     const live = highlights.filter(h => t >= h.t0 - 0.01 && t < h.t1 + 0.5);
-    const g = gHl.selectAll("g.hl").data(live, d => d.id);
-    g.exit().remove();
-    const all = g.enter().append("g").attr("class", "hl").merge(g);
-    all.each(function (h) {
+    const join = (grp, data) => {
+      const g = grp.selectAll("g.hl").data(data, d => d.id);
+      g.exit().remove();
+      return g.enter().append("g").attr("class", "hl").merge(g);
+    };
+    join(gHlFree, live.filter(h => h.axis)).each(function (h) {
+      const el = d3.select(this);
+      el.selectAll("*").remove();
+      const age = t - h.t0;
+      el.attr("opacity", smooth(age / 0.45) * (1 - smooth((t - h.t1) / 0.5)));
+      drawAxis(el, h, age, fr);
+    });
+    join(gHl, live.filter(h => !h.axis)).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
       const age = t - h.t0;
@@ -234,6 +251,47 @@ export async function startNarration(app) {
       else if (h.side) drawSide(el, h);
       else if (h.arrow) drawArrow(el, h, age);
     });
+  }
+  /** A glowing band over one axis: { axis: "left"|"right"|"top"|"bottom", label? }.
+   *  Over the classic figure the band covers that side's tick labels, just
+   *  outside the plot frame; on the map it hugs the screen edge (or the size
+   *  ruler, for "bottom"). */
+  function drawAxis(el, h, age, frClient) {
+    const SW = layer.clientWidth, SH = layer.clientHeight;
+    let box;
+    if (frClient) {
+      const lr = layer.getBoundingClientRect(), sc = lr.width / SW;
+      box = { x: (frClient.x - lr.x) / sc, y: (frClient.y - lr.y) / sc, w: frClient.w / sc, h: frClient.h / sc };
+    } else {
+      const yR = SH * (SCENE.rulerY ?? RULER_Y);
+      box = { x: 34, y: 18, w: SW - 68, h: yR - 18 };
+    }
+    const T = frClient ? 44 : 30;   // band thickness
+    const side = h.axis;
+    const r = side === "left" ? { x: box.x - T, y: box.y, w: T, h: box.h }
+      : side === "right" ? { x: box.x + box.w, y: box.y, w: T, h: box.h }
+      : side === "top" ? { x: box.x, y: box.y - T, w: box.w, h: T }
+      : { x: box.x, y: box.y + box.h, w: box.w, h: T };
+    const col = h.color || "#ffb300";
+    const grow = d3.easeCubicOut(clamp01(age / 0.7));
+    const pulse = 0.5 + 0.5 * Math.sin(age * 3);
+    const vert = side === "left" || side === "right";
+    // the band grows from the middle of the axis outwards
+    const gr = vert ? { x: r.x, y: r.y + r.h * (1 - grow) / 2, w: r.w, h: r.h * grow }
+      : { x: r.x + r.w * (1 - grow) / 2, y: r.y, w: r.w * grow, h: r.h };
+    el.append("rect").attr("x", gr.x - 3).attr("y", gr.y - 3).attr("width", gr.w + 6).attr("height", gr.h + 6)
+      .attr("rx", 9).attr("fill", col).attr("opacity", 0.10 + 0.06 * pulse);
+    el.append("rect").attr("x", gr.x).attr("y", gr.y).attr("width", gr.w).attr("height", gr.h)
+      .attr("rx", 7).attr("fill", col).attr("fill-opacity", 0.16).attr("stroke", col).attr("stroke-width", 2.4);
+    if (!h.label) return;
+    const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+    // label sits inside the plot, next to the band, so it never leaves the stage
+    const lx = side === "left" ? r.x + r.w + 14 : side === "right" ? r.x - 14 : cx;
+    const ly = side === "top" ? r.y + r.h + 26 : side === "bottom" ? r.y - 12 : cy;
+    const rot = side === "left" ? 90 : side === "right" ? -90 : 0;
+    el.append("text").attr("class", "narr-axislabel").attr("text-anchor", "middle")
+      .attr("transform", `translate(${lx},${ly}) rotate(${rot})`)
+      .attr("fill", col).attr("opacity", grow).text(h.label.toUpperCase());
   }
   function drawObj(el, h, age) {
     const o = objByName.get(h.obj);
@@ -348,7 +406,7 @@ export async function startNarration(app) {
     if (o <= 0.01) return;
     gUnits.selectAll("*").remove();
     const SW = layer.clientWidth, SH = layer.clientHeight;
-    const yR = Math.round(SH * (SCENE.rulerY ?? 0.735)), xR = Math.round(SW * 0.065);
+    const yR = Math.round(SH * (SCENE.rulerY ?? RULER_Y)), xR = Math.round(SW * 0.065);
     // horizontal: size
     gUnits.append("rect").attr("x", 0).attr("y", yR - 16).attr("width", SW).attr("height", 34)
       .attr("fill", "url(#narr-fade-h)");
@@ -398,11 +456,14 @@ export async function startNarration(app) {
     const c = captions[i];
     if (i !== capIdx) {
       capIdx = i;
-      capEl.innerHTML = c ? `<span class="pill">${c.ws.map(w => `<span>${w.w.replace(/</g, "&lt;")}</span>`).join(" ")}</span>` : "";
+      capEl.innerHTML = c ? c.ws.map(w => `<span>${w.w.replace(/</g, "&lt;")}</span>`).join(" ") : "";
     }
     if (!c) return;
     capEl.style.opacity = smooth((t - c.s) / 0.12) * (1 - smooth((t - (c.e - 0.15)) / 0.15));
-    [...capEl.querySelectorAll(".pill > span")].forEach((sp, j) => sp.classList.toggle("on", t >= c.ws[j].s - 0.03));
+    [...capEl.children].forEach((sp, j) => {
+      sp.classList.toggle("on", t >= c.ws[j].s - 0.03);
+      sp.classList.toggle("now", t >= c.ws[j].s - 0.03 && t < (c.ws[j + 1]?.s ?? c.ws[j].e + 0.3) - 0.03);
+    });
   }
 
   // ---------- frame ----------
@@ -484,17 +545,21 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 #narr-svg text { font-family: Inter, system-ui, sans-serif; paint-order: stroke; stroke: rgba(0,0,0,0.85); stroke-width: 3px; stroke-linejoin: round; }
 .narr-tag { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; }
 .narr-linelabel { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; }
+.narr-axislabel { font-family: "Barlow Condensed", Inter, sans-serif !important; font-size: 22px; font-weight: 700; letter-spacing: 0.12em; }
 .narr-sidelabel { font-size: 15px; font-weight: 800; letter-spacing: 0.22em; }
 .narr-axis { stroke: rgba(255,255,255,0.45); stroke-width: 1; }
 .narr-tick { stroke: rgba(255,255,255,0.9); stroke-width: 1.2; }
 .narr-unit { fill: rgba(255,255,255,0.92); font-size: 9.5px; font-weight: 600; }
 .narr-axname { fill: rgba(255,255,255,0.6); font-size: 9px; font-weight: 800; letter-spacing: 0.2em; }
-#narr-caption { position: absolute; left: 7%; right: 15%; top: 61%; text-align: center; pointer-events: none; }
-#narr-caption .pill { display: inline; padding: 3px 9px; border-radius: 9px; background: rgba(8,6,24,0.62);
-  -webkit-box-decoration-break: clone; box-decoration-break: clone;
-  font: 800 21px/1.45 Inter, system-ui, sans-serif; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-#narr-caption span { opacity: 0.55; transition: none; }
-#narr-caption span.on { opacity: 1; color: #fff; }
+@font-face { font-family: "Barlow Condensed"; font-weight: 700; font-display: block;
+  src: url("/fonts/barlow-condensed-700-latin.woff2") format("woff2"); }
+#narr-caption { position: absolute; left: 6%; right: 6%; bottom: 8.5%; text-align: center; pointer-events: none;
+  font: 700 38px/1.02 "Barlow Condensed", "DIN Condensed", "Arial Narrow", sans-serif; text-transform: uppercase;
+  letter-spacing: 0.01em; color: #fff;
+  -webkit-text-stroke: 6px #000; paint-order: stroke fill;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.6); }
+#narr-caption span { color: #fff; }
+#narr-caption span.now { color: #ffd54f; }
 #narr-ui { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 18px; background: rgba(0,0,0,0.35); color: #fff; font-family: Inter, system-ui, sans-serif; }
 #narr-ui.hidden { display: none; }
