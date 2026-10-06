@@ -69,3 +69,27 @@ node scripts/narration-render.mjs take-1 --workers 3 --out narration.mp4
 The page runs on a virtual clock that the script steps one frame at a time, so
 every frame is exact no matter how slow the machine is. That's about 10 frames
 per second per worker on a 4-core box, so a 13-minute take needs roughly an hour.
+
+## Notes for the next take (from the take 2 review)
+
+What worked: the condensed caption style, the new mic, and the bottom-edge ruler.
+Keep those.
+
+**Recording**
+- Keep the intro on the classic figure shorter, so we reach our own chart sooner.
+
+**Classic figure facts** (the hook scene must match these)
+- The top axis is log radius too (Mpc), and the bottom is log radius (cm).
+  Time is *not* on an axis: it's written on the diagonal lines (the ones
+  labelled "now" or ending in "s"). So on "time…", highlight those diagonal
+  labels instead of the top axis.
+- The left axis is mass (g and M☉). The right axis is mass in GeV, which is
+  the energy side.
+
+**Axis highlight: restyle** (`drawAxis` in `src/narration.js`)
+- Replace the rectangle band. Instead, make the axis's own tick numbers grow
+  for about a second in a wave that runs along the axis, one number after
+  another, with a soft yellow glow behind each number.
+- This works on the classic figure's axis labels (`.cl-num` text in
+  `src/classic.js`) and the map's axis numbers. Do it through a narration
+  hook rather than drawing a copy on top, so the real numbers animate.
