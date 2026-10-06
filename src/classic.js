@@ -922,3 +922,35 @@ if (import.meta.env.DEV) {
 }
 
 export function isClassicOpen() { return !!root && root.classList.contains("shown"); }
+
+// The plot frame's box in client px (narration clips its highlights to it)
+export function classicFrameClient() {
+  const ctm = svg?.node().getScreenCTM();
+  if (!ctm) return null;
+  return { x: ctm.a * FRAME.x0 + ctm.e, y: ctm.d * FRAME.y0 + ctm.f,
+    w: ctm.a * (FRAME.x1 - FRAME.x0), h: ctm.d * (FRAME.y1 - FRAME.y0) };
+}
+
+// Narration player (src/narration.js): show the figure at an explicit
+// opacity and camera, frame by frame. No URL push, no CSS fade (the
+// player owns time), no keyboard. view: { r, m, span } puts log r / log m
+// at the figure's screen centre with `span` decades across its width.
+export function narrClassic(opacity, view) {
+  if (opacity <= 0) {
+    if (root) { root.hidden = true; root.classList.remove("shown"); }
+    return;
+  }
+  if (!root) { build(); loadDust().then(() => renderDust()).catch(() => {}); }
+  root.style.transition = "none";
+  if (root.hidden) { root.hidden = false; root.classList.add("shown"); layoutNames(); }
+  root.style.opacity = opacity;
+  if (!view) return;
+  const ctm = svg.node().getScreenCTM();
+  if (!ctm) return;
+  const rect = svg.node().getBoundingClientRect();
+  const k = (rect.width / view.span) / (ctm.a * FRAME_PPD_X);
+  // The figure point under the screen centre (screen → figure coordinates)
+  const fx = (rect.left + rect.width / 2 - ctm.e) / ctm.a;
+  const fy = (rect.top + rect.height / 2 - ctm.f) / ctm.d;
+  svg.call(zoom.transform, d3.zoomIdentity.translate(fx, fy).scale(k).translate(-x0(view.r), -y0(view.m)));
+}

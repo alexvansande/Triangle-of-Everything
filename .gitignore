@@ -22,3 +22,14 @@ scripts/dust/.cache/
 
 # Poster renders (scripts/poster.mjs output)
 posters/
+
+# Narration media: recordings and renders stay local (they get re-recorded).
+# The one exception is the reference cut in video/reference/, kept so each
+# new version can be compared against it and then replace it.
+*.m4a
+*.wav
+*.mp3
+*.flac
+*.mp4
+!video/reference/*.mp4
+.narr-render-*/

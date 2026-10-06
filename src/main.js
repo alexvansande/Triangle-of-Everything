@@ -5401,6 +5401,7 @@ function redrawVectors() {
   if (_posterNoText) posterHideText(); // wordless print: see window.__poster
   updateMinimap();
   updateScaleBar();
+  _narrRedrawHook?.();
 }
 
 /* NOTE: a dots-only "fast renderer" (drawObjectsFast) used to live here and
@@ -5438,6 +5439,7 @@ function redrawVectorsLight() {
   drawAxes();
   updateMinimap();
   updateScaleBar();
+  _narrRedrawHook?.();
 }
 
 // =============================================================
@@ -5446,6 +5448,7 @@ function redrawVectorsLight() {
 
 let currentK = 1;
 let rafPending = false;
+let _narrRedrawHook = null; // narration overlay redraw (src/narration.js)
 let _zoomPrevTransform = null;  // track previous transform for CSS offset
 let _zooming = false;
 let _panSamples = [];           // recent touch-pan positions for momentum
@@ -7255,3 +7258,64 @@ if (_ogShot) {
   };
 }
 
+
+// =============================================================
+// Narration player (?narrate=<take>) — src/narration.js
+// =============================================================
+// Plays a recorded narration and drives the camera, highlights, unit
+// rulers and captions from a phrase-anchored scene script. The player owns
+// the camera: each frame it sets the view directly, wrapped in a synthetic
+// zoom gesture (start → zoom… → end on arrival) so the app redraws exactly
+// as it does during a tour transition, and refreshes tiles on arrival.
+{
+  // Read the query now: the hash/URL sync later rewrites the address bar.
+  const narrParams = new URLSearchParams(location.search);
+  const narrTake = narrParams.get("narrate");
+  if (narrTake) {
+    let gesture = false, last = null;
+    const ppdBase = () => xBase(1) - xBase(0); // plot px per decade at k = 1
+    const api = {
+      d3, take: narrTake, params: narrParams,
+      plot: () => ({ x: margin.left, y: margin.top, w: cw, h: ch }),
+      px: (r) => xS(r), py: (m) => yS(m),
+      objects: OBJECTS,
+      categories: CATEGORIES,
+      /** { r, m, span } → zoom transform: (r, m) at the plot centre, `span`
+       *  decades across the plot width. */
+      viewTransform(v) {
+        const k = cw / (v.span * ppdBase());
+        return d3.zoomIdentity.translate(cw / 2 - xBase(v.r) * k, ch / 2 - yBase(v.m) * k).scale(k);
+      },
+      /** moving=false ends the gesture: full redraw, fresh tiles. */
+      setCamera(v, moving) {
+        const t = api.viewTransform(v);
+        const same = last && Math.abs(last.k - t.k) < 1e-9 && Math.abs(last.x - t.x) < 1e-6 && Math.abs(last.y - t.y) < 1e-6;
+        if (same && (moving || !gesture)) return;
+        last = t;
+        const node = svg.node(), ev = { transform: t, sourceEvent: null };
+        if (!gesture) { gesture = true; zoomBehavior.on("start").call(node, ev); }
+        node.__zoom = t;
+        zoomBehavior.on("zoom").call(node, ev);
+        if (!moving) { gesture = false; zoomBehavior.on("end").call(node, ev); }
+      },
+      onRedraw(fn) { _narrRedrawHook = fn; },
+      tilesPending: () => [..._tileCache.values()].filter(img => !img.complete).length,
+      iconsPending: () => [...document.querySelectorAll(".icon-fallback-dot")]
+        .filter(e => e.getAttribute("display") !== "none").length,
+      dustReady: () => dustReady(),
+      setStage(mode) { if (mode !== _viewportLock) setViewportLock(mode); },
+      isMobile: () => _isMobile,
+      prepare() {
+        svg.interrupt();
+        if (isTourActive()) closeTour();
+        selectedObj = null;
+        setSidebarOpen(false);
+        _userEngaged = true;
+        _dustEnabled = true;
+        ensureDust();
+        document.body.classList.add("ui-hidden", "narrating");
+      },
+    };
+    import("./narration.js").then(m => m.startNarration(api));
+  }
+}
