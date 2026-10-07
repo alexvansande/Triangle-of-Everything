@@ -8,6 +8,8 @@
 const FULL = { r: -2.2, m: -4.8, span: 74 };
 
 export default {
+  title: "Up the line",
+  blurb: "From whales to round worlds, atmospheres and gas giants.",
   start: { r: 2.5, m: 7, span: 12 },
   captionFixes: { short: "chart", celadus: "Enceladus", celagos: "Enceladus" },
 

@@ -88,9 +88,11 @@ node scripts/narration-preview.mjs short-01-hook take-2   # takes with audio; de
 `dist-preview/` is the app with relative paths, so it runs from any folder. It
 holds only what the player needs: map tiles to zoom level 4, woff2 fonts only,
 no object pages. `index.html` is the normal page, and `page.html` is the same
-page without `<html>`/`<head>`/`<body>` for hosts that add their own. The first
-take plays by default, and `#<take>` in the address or the buttons at the top
-pick another. In this build mode (`--mode narration-preview`), the app leaves
+page without `<html>`/`<head>`/`<body>` for hosts that add their own. It opens on a
+grid of the takes: each card shows a still, the length, and the `title` and
+`blurb` from the take's scene. `#<take>` plays one, with an "All videos"
+button back to the grid. The stills come from a running dev server, so keep
+`npm run dev` up while building. In this build mode (`--mode narration-preview`), the app leaves
 the address bar alone and skips the service worker.
 
 ## Render the video

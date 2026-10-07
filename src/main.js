@@ -7283,9 +7283,10 @@ if (_ogShot) {
   // Read the query now: the hash/URL sync later rewrites the address bar.
   const narrParams = new URLSearchParams(location.search);
   // The preview can't pass a query string, so it names the take in the hash
-  // (#take-2) or falls back to the one it was built for.
-  const narrTake = narrParams.get("narrate") ||
-    (NARR_PREVIEW ? location.hash.slice(1) || import.meta.env.VITE_NARRATE : null);
+  // (#short-02-density); with no hash it shows its grid of takes instead.
+  const narrTake = narrParams.get("narrate") || (NARR_PREVIEW ? location.hash.slice(1) || null : null);
+  // the preview reloads to switch takes (or to go back to its grid)
+  if (NARR_PREVIEW) window.addEventListener("hashchange", () => location.reload());
   if (narrTake) {
     let gesture = false, last = null;
     const ppdBase = () => xBase(1) - xBase(0); // plot px per decade at k = 1
@@ -7332,6 +7333,6 @@ if (_ogShot) {
       },
     };
     import("./narration.js").then(m => m.startNarration(api));
-    if (NARR_PREVIEW) window.addEventListener("hashchange", () => location.reload());
+
   }
 }

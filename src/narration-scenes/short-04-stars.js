@@ -8,6 +8,8 @@
 const FULL = { r: -2.2, m: -4.8, span: 74 };
 
 export default {
+  title: "Planets into stars",
+  blurb: "Brown dwarfs, the main sequence, the life of a star, and the first side.",
   start: { r: 10.4, m: 31.6, span: 6 },
   captionFixes: { short: "chart", spread: "red", nebulae: "nebula" },
 

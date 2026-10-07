@@ -8,6 +8,8 @@
 const FULL = { r: -2.2, m: -4.8, span: 74 };   // the whole triangle, portrait
 
 export default {
+  title: "Why the diagonal?",
+  blurb: "Humans, a liter of water, the cube law, and what floats or sinks.",
   start: FULL,
   captionFixes: { short: "chart", recipient: "container" },
 

@@ -202,7 +202,7 @@ export async function startNarration(app) {
   layer.id = "narr-layer";
   layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-caption"></div>` +
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
-      <div id="narr-title">The Triangle of Everything<span>narrated tour · tap to play</span></div></div>
+      <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div></div>
       <div id="narr-bar"><div id="narr-bar-fill"></div></div>`);
   document.body.appendChild(layer);
   const style = document.createElement("style");
@@ -318,21 +318,20 @@ export async function startNarration(app) {
         if (!prev || prev.s < s) fx.set(n, { s, g });
       });
     }
+    // An SVG transform attribute, not CSS: Safari mis-places CSS transforms
+    // on SVG text (the numbers drifted off or vanished there).
+    const disks = [];
     for (const n of ax.nums) {
       const e = fx.get(n);
-      if (!e || e.s < 0.001) { n.style.transform = ""; continue; }
-      n.style.transformBox = "fill-box";
+      if (!e || e.s < 0.001) { n.removeAttribute("transform"); continue; }
+      const b = n.getBBox(), k = 1 + e.s, side = n.getAttribute("data-side");
       // grow away from the axis line, so the ticks stay clear
-      n.style.transformOrigin = { left: "right center", right: "left center", top: "center bottom", bottom: "center top" }[n.getAttribute("data-side")];
-      n.style.transform = `scale(${1 + e.s})`;
+      const ox = side === "left" ? b.x + b.width : side === "right" ? b.x : b.x + b.width / 2;
+      const oy = side === "top" ? b.y + b.height : side === "bottom" ? b.y : b.y + b.height / 2;
+      n.setAttribute("transform", `translate(${ox} ${oy}) scale(${k}) translate(${-ox} ${-oy})`);
+      if (e.g > 0.005) disks.push({ x: ox + (b.x + b.width / 2 - ox) * k, y: oy + (b.y + b.height / 2 - oy) * k,
+        r: Math.max(b.width, b.height) * 0.62 * k, g: e.g });
     }
-    const disks = [...fx].filter(([, e]) => e.g > 0.005).map(([n, e]) => {
-      const b = n.getBBox();
-      const side = n.getAttribute("data-side"), k = 1 + e.s;
-      const x = side === "left" ? b.x + b.width * (1 - k / 2) : side === "right" ? b.x + b.width * k / 2 : b.x + b.width / 2;
-      const y = side === "top" ? b.y + b.height * (1 - k / 2) : side === "bottom" ? b.y + b.height * k / 2 : b.y + b.height / 2;
-      return { x, y, r: Math.max(b.width, b.height) * 0.62 * k, g: e.g };
-    });
     ax.glow.selectAll("circle").data(disks).join("circle")
       .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", d => d.r)
       .attr("fill", AXIS_GLOW).attr("opacity", d => 0.75 * d.g).attr("filter", "url(#cl-glow-blur)");

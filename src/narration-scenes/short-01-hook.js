@@ -11,6 +11,8 @@ const FIG = { r: 7.5, m: 9, span: 106 };      // the whole classic figure
 const MAP = { r: -2.2, m: -4.8, span: 74 };   // the whole triangle, portrait
 
 export default {
+  title: "The hook",
+  blurb: "The classic chart, and why it's much more than mass versus size.",
   start: FIG,
 
   captionFixes: { short: "chart", shard: "chart", lights: "light" },
