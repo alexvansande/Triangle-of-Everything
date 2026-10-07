@@ -1,11 +1,14 @@
-"""Sound design for a take: a pad under the voice, whooshes on camera flights,
-chimes on new highlights, and a swell on the classic → map reveal. All of it is
-synthesized here (no samples) and keyed to the scene's own timeline.
+"""Sound design for a take, kept light: an effect on the voice for a few
+highlighted phrases, small sound effects when the narration talks about
+something you could hear (bubbles, wind, an explosion…), and, rarely, quiet
+rhythmic music under an emotional passage. Everything is synthesized here (no
+samples) and placed by the scene's `sound` cues (see the top of
+src/narration-scenes/tour.js), resolved to times by the player.
 
     python3 scripts/narration-sound.py public/narration/<take> timeline.json
 (run through scripts/narration-sound.mjs, which gets timeline.json from the
-player). Writes mix.m4a (voice + sound, stereo) next to audio.m4a and adds
-"mix" to words.json; the voice file itself is left alone.
+player). Writes mix.m4a (stereo) next to audio.m4a and adds "mix" to
+words.json; the voice file itself is left alone.
 """
 import json, os, subprocess, sys
 import numpy as np
@@ -13,190 +16,298 @@ import numpy as np
 SR = 48000
 rng = np.random.default_rng(7)   # same take, same sound
 db = lambda x: 10 ** (x / 20)
+hz = lambda midi: 440 * 2 ** ((midi - 69) / 12)
+I = lambda sec: int(round(sec * SR))
 
 take_dir, tl_path = sys.argv[1], sys.argv[2]
 take = json.load(open(os.path.join(take_dir, "words.json")))
-tl = json.load(open(tl_path))
+cues = json.load(open(tl_path)).get("sound") or []
 
-# ---------- the voice ----------
 raw = subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(take_dir, take["audio"]), "-ac", "1", "-ar", str(SR),
                       "-f", "f32le", "-"], capture_output=True, check=True).stdout
 voice = np.frombuffer(raw, np.float32).astype(np.float64)
 N = len(voice); T = N / SR
-t = np.arange(N) / SR
 
-def smooth(x, attack, release):
-    """One-pole envelope follower (seconds), on a 10 ms grid then upsampled."""
-    hop = SR // 100; m = len(x) // hop
-    e = np.sqrt((x[:m * hop].reshape(m, hop) ** 2).mean(1))
-    a, r = np.exp(-1 / (attack * 100)), np.exp(-1 / (release * 100))
-    out = np.empty(m); y = 0.0
-    for i, v in enumerate(e):
-        y = a * y + (1 - a) * v if v > y else r * y + (1 - r) * v
-        out[i] = y
-    return np.interp(np.arange(len(x)) / hop, np.arange(m), out)
-
-# Ducking: how much the voice is talking, 0..1
-venv = smooth(voice, 0.06, 0.45)
-talk = np.clip((20 * np.log10(venv + 1e-9) + 48) / 18, 0, 1)
-
-def stereo(x, pan=0.0):
-    """Equal-power pan, -1 left … 1 right (pan may be an array)."""
-    a = (np.asarray(pan) + 1) * np.pi / 4
-    return np.stack([x * np.cos(a), x * np.sin(a)])
+# ---------- helpers ----------
+def fft_filter(x, lo=None, hi=None, order=2):
+    """Zero-phase band-pass by spectrum shaping (Butterworth-like magnitude)."""
+    n = 1 << int(np.ceil(np.log2(len(x) + 1)))
+    X = np.fft.rfft(x, n); f = np.fft.rfftfreq(n, 1 / SR) + 1e-9
+    g = np.ones_like(f)
+    if lo: g *= 1 / np.sqrt(1 + (lo / f) ** (2 * order))
+    if hi: g *= 1 / np.sqrt(1 + (f / hi) ** (2 * order))
+    return np.fft.irfft(X * g, n)[:len(x)]
 
 def fft_convolve(x, ir):
     n = 1 << int(np.ceil(np.log2(len(x) + len(ir))))
-    return np.fft.irfft(np.fft.rfft(x, n) * np.fft.rfft(ir, n), n)[:len(x)]
+    return np.fft.irfft(np.fft.rfft(x, n) * np.fft.rfft(ir, n), n)[:len(x) + len(ir) - 1]
 
-def reverb_ir(seconds=2.8, seed=1):
-    """A soft hall: decaying stereo noise, darker as it fades."""
-    r = np.random.default_rng(seed); n = int(seconds * SR); k = np.arange(n) / SR
-    out = []
-    for ch in range(2):
-        x = r.standard_normal(n) * np.exp(-k * 6.9 / seconds)
-        X = np.fft.rfft(x); f = np.fft.rfftfreq(n, 1 / SR)
-        x = np.fft.irfft(X * (1 / (1 + (f / 5000) ** 2)), n)
-        x[: int(0.012 * SR)] *= np.linspace(0, 1, int(0.012 * SR))   # pre-delay ramp
+def reverb_ir(seconds, seed, bright=5000):
+    r = np.random.default_rng(seed); n = I(seconds); k = np.arange(n) / SR; out = []
+    for _ in range(2):
+        x = fft_filter(r.standard_normal(n) * np.exp(-k * 6.9 / seconds), hi=bright)
+        x[: I(0.015)] *= np.linspace(0, 1, I(0.015))
         out.append(x / np.sqrt((x ** 2).sum()))
     return out
-IR = reverb_ir()
-def verb(st, wet):
-    return np.stack([fft_convolve(st[c], IR[c]) for c in range(2)]) * wet
+ROOM, HALL = reverb_ir(1.6, 1), reverb_ir(4.5, 2, 3500)
 
-# ---------- pad: a slow progression of open chords ----------
-# D sus2 → B m7 → G maj9 → A sus4, about 12 s each; voices are a few
-# harmonics with a slight L/R detune, so it breathes without beating hard.
-hz = lambda midi: 440 * 2 ** ((midi - 69) / 12)
-CHORDS = [[38, 45, 52, 57, 64], [35, 42, 50, 54, 61], [31, 43, 50, 54, 57], [33, 45, 50, 52, 57]]
-SEG = 12.0
-pad = np.zeros((2, N))
-nseg = int(np.ceil(T / SEG)) + 1
-for i in range(nseg):
-    chord = CHORDS[i % len(CHORDS)]
-    t0 = i * SEG - 3; t1 = (i + 1) * SEG + 3          # 3 s crossfades
-    a, b = max(0, int(t0 * SR)), min(N, int(t1 * SR))
-    if a >= b: continue
-    tt = t[a:b]
-    w = np.clip((tt - t0) / 6, 0, 1) * np.clip((t1 - tt) / 6, 0, 1)
-    w = np.sin(w * np.pi / 2) ** 2
-    for j, note in enumerate(chord):
-        f = hz(note)
-        amp = 0.9 / (1 + 0.35 * j) * (1 + 0.25 * np.sin(2 * np.pi * (0.05 + 0.013 * j) * tt + j))
-        for ch, det in ((0, -0.18), (1, 0.18)):
-            s = np.zeros_like(tt)
-            for h, ha in ((1, 1), (2, 0.35), (3, 0.12), (4, 0.05)):
-                s += ha * np.sin(2 * np.pi * (f + det) * h * tt + rng.uniform(0, 6.28))
-            pad[ch, a:b] += s * amp * w
-pad /= np.abs(pad).max()
-# fade in over 2.5 s, out over the last 3 s; dip 7 dB while the voice talks
-env = np.clip(t / 2.5, 0, 1) * np.clip((T - t) / 3, 0, 1) * db(-7 * talk)
-pad *= env * db(-24)
+def env(n, attack, release, hold=0):
+    k = np.arange(n) / SR
+    return np.minimum(1, k / max(attack, 1e-4)) * np.where(k < attack + hold, 1, np.exp(-(k - attack - hold) / release))
 
-fx = np.zeros((2, N))
-def place(st, at):
-    a = int(at * SR)
-    if a >= N: return
-    b = min(N, a + st.shape[1]); fx[:, a:b] += st[:, : b - a]
+def fade_mask(a, b):
+    """1 over samples [a, b) of the voice, with 30 ms ramps: for swapping a span."""
+    m = np.zeros(N); r = I(0.03); a, b = max(0, a), min(N, b)
+    m[a:b] = 1
+    m[max(0, a - r):a] = np.linspace(0, 1, a - max(0, a - r))
+    m[b:min(N, b + r)] = np.linspace(1, 0, min(N, b + r) - b)
+    return m
 
-# ---------- whooshes on camera flights ----------
-def whoosh(dur, rise, size, pan0, pan1):
-    """Noise through a band that sweeps up (zooming in) or down (out)."""
-    L = dur + 0.8; n = int(L * SR); k = np.arange(n) / SR
-    win, hop = 2048, 512
-    noise = rng.standard_normal(n + win)
-    out = np.zeros(n + win); norm = np.zeros(n + win); hann = np.hanning(win)
-    freqs = np.fft.rfftfreq(win, 1 / SR)
-    lo, hi = (250, 2400) if rise else (2400, 250)
-    for s0 in range(0, n, hop):
-        p = min(1, (s0 / SR) / dur)
-        fc = lo * (hi / lo) ** (p * p * (3 - 2 * p))
-        band = np.exp(-0.5 * (np.log2(np.maximum(freqs, 1) / fc) / 0.9) ** 2)
-        seg = np.fft.irfft(np.fft.rfft(noise[s0:s0 + win] * hann) * band, win)
-        out[s0:s0 + win] += seg * hann; norm[s0:s0 + win] += hann ** 2
-    x = (out / np.maximum(norm, 1e-6))[:n]
-    peak = 0.62 * dur
-    e = np.where(k < peak, (k / peak) ** 2, np.exp(-(k - peak) / 0.35))
-    x = x * e / (np.abs(x * e).max() + 1e-9) * size
-    return stereo(x, np.linspace(pan0, pan1, n))
+def frac_delay(x, d):
+    """x delayed by d samples (d may vary over time)."""
+    return np.interp(np.arange(len(x)) - d, np.arange(len(x)), x, left=0, right=0)
 
-for fl in tl["flights"]:
-    move = abs(fl["zoom"]) + 0.6 * fl["travel"]
-    if move < 0.12 or fl["t"] < 0.5: continue            # drifts and the opening hold stay quiet
-    size = db(-27 + 7 * min(1, (move - 0.12) / 0.9))
-    sweep = np.clip(fl["travel"], 0, 0.6)
-    place(whoosh(fl["dur"], fl["zoom"] < 0, size, -sweep, sweep), fl["t"] - 0.15)
+# The voice in stereo, centred (equal power); voice effects work on it in place
+vL = voice * np.sqrt(0.5); vR = vL.copy()
+M = N + I(8)                                      # buses have room for tails
+fxL, fxR, send = np.zeros(M), np.zeros(M), np.zeros(M)
 
-# ---------- chimes on new highlights ----------
-def chime(f, level, seconds=3.2):
-    """A soft bell: inharmonic partials with their own decays."""
-    n = int(seconds * SR); k = np.arange(n) / SR
-    x = sum(a * np.sin(2 * np.pi * f * r * k) * np.exp(-k / d)
-            for r, a, d in ((1, 1, 1.4), (2.0, 0.28, 0.7), (2.76, 0.18, 0.45), (5.4, 0.06, 0.2)))
-    x *= np.minimum(1, k / 0.004)
-    return x / np.abs(x).max() * level
+def add(x, at, pan=0.0, wet=0.0):
+    """Mix a mono (or (2, n) stereo) clip into the effects bus at `at` seconds."""
+    a = I(at)
+    if a >= M: return
+    if x.ndim == 1:
+        p = (pan + 1) * np.pi / 4; x = np.stack([x * np.cos(p), x * np.sin(p)])
+    b = min(M, a + x.shape[1]); n = b - a
+    fxL[a:b] += x[0, :n]; fxR[a:b] += x[1, :n]
+    if wet: send[a:b] += (x[0, :n] + x[1, :n]) * wet
 
-PENT = [74, 76, 78, 81, 83, 86, 88]   # D major pentatonic, from D5
-chimes, last = [], -9
-for h in tl["highlights"]:            # at most one every 2.5 s, so it never ticks like a clock
-    if h["t"] - last >= 2.5: chimes.append(h); last = h["t"]
-for i, h in enumerate(chimes):
-    note = PENT[(i * 2) % len(PENT)]
-    c = chime(hz(note), db(-30))
-    if h["n"] > 1: c = c + chime(hz(note + 7), db(-34))   # two things at once: a fifth
-    place(stereo(c, 0.35 * np.sin(i * 2.1)), h["t"] + 0.02)
+def swap_voice(a, b, left, right):
+    """Replace the voice over [a, b) with a processed left/right pair."""
+    global vL, vR
+    m = fade_mask(a, b); L = np.zeros(N); R = np.zeros(N)
+    n = min(b, N) - a; L[a:a + n] = left[:n]; R[a:a + n] = right[:n]
+    vL = vL * (1 - m) + L * m; vR = vR * (1 - m) + R * m
 
-# ---------- the reveal: classic figure → the map ----------
-if tl.get("fade"):
-    ft, fd = tl["fade"]["t"], tl["fade"]["dur"]
-    pre = 1.8; L = pre + fd; n = int(L * SR); k = np.arange(n) / SR
-    # a rising shimmer: noise + fifths, swelling into the moment the map lands
-    sw = (k / L) ** 2.2
-    shimmer = sum(np.sin(2 * np.pi * hz(m) * k * (1 + 0.02 * k / L)) for m in (62, 69, 74, 81)) / 4
-    nz = rng.standard_normal(n); nz = np.convolve(nz, np.ones(24) / 24, "same")
-    rise = (0.6 * shimmer + 0.5 * nz) * sw
-    rise *= np.minimum(1, (L - k) / 0.08)                          # cut at the landing
-    place(stereo(rise / np.abs(rise).max() * db(-24)), ft - pre)
-    # the landing: a low bloom and a bright chord ringing out
-    n2 = int(4.5 * SR); k2 = np.arange(n2) / SR
-    boom = np.sin(2 * np.pi * 46 * k2 * (1 - 0.08 * k2 / 4.5)) * np.exp(-k2 / 1.3) * np.minimum(1, k2 / 0.02)
-    bell = sum(chime(hz(m), 1, 4.5)[:n2] for m in (62, 69, 74, 78)) / 4
-    land = 0.9 * boom / np.abs(boom).max() + 0.5 * bell
-    place(stereo(land * db(-24)), ft + fd)
+# ---------- voice effects ----------
+def span(c, pre=0.04, post=0.12):
+    return I(c["s"] - pre), I(c["e"] + post)
 
-# ---------- mix ----------
-wet = verb(fx + 0.25 * pad, db(-6))
-bed = pad + fx + wet
-mix = stereo(voice) + bed          # the voice sits in the centre (equal power)
+def v_echo(c):            # repeats that fade off, darker and further each time
+    a, b = span(c, post=0.25); seg = voice[a:b]
+    for k in range(1, 5):
+        rep = fft_filter(seg, lo=250, hi=4200 / k ** 0.6) * 0.5 ** k * 0.9
+        add(rep, c["s"] - 0.04 + 0.3 * k, pan=0.55 * (-1) ** k, wet=0.4)
 
-# A look-ahead limiter at -1 dBFS for the few peaks where the bed lands on a loud syllable
-def limit(x, ceiling=db(-1), look=0.004, release=0.12):
-    need = np.minimum(1, ceiling / (np.abs(x).max(0) + 1e-9))
-    w = int(look * SR)
-    pad_ = np.concatenate([need, np.ones(w)])
-    g = np.minimum.reduce([pad_[i:i + len(need)] for i in range(0, w, max(1, w // 8))])   # hold the dip ahead
-    r = np.exp(-1 / (release * SR)); out = np.empty_like(g); y = 1.0
-    for i in range(0, len(g), 64):        # block-wise release keeps it quick in numpy
-        blk = g[i:i + 64]; y = min(blk.min(), 1 - (1 - y) * r ** 64); out[i:i + 64] = np.minimum(blk, y)
-    return x * out
+def v_hall(c):            # a long tail after the phrase
+    a, b = span(c); seg = voice[a:b] * 0.32
+    add(np.stack([fft_convolve(seg, HALL[0]), fft_convolve(seg, HALL[1])]), c["s"] - 0.04)
 
+def v_radio(c):           # a tuned-in radio: narrow band, a little grit, its hiss under it
+    a, b = span(c, pre=0.12, post=0.2); seg = voice[a:b]
+    r = fft_filter(seg, lo=450, hi=2600, order=3)
+    r = np.tanh(r * 4 / (np.abs(r).max() + 1e-9)) * np.abs(seg).max()
+    r *= 1 + 0.08 * np.sin(2 * np.pi * 7 * np.arange(len(r)) / SR)
+    swap_voice(a, b, r * np.sqrt(0.5), r * np.sqrt(0.5))
+    add(static(len(r) / SR + 0.25), c["s"] - 0.16)
+
+def v_wide(c):            # spreads out in stereo (Haas delay + a slow chorus)
+    a, b = span(c, post=0.2); seg = voice[a:b]; k = np.arange(len(seg)) / SR
+    right = frac_delay(seg, I(0.016) + 40 * np.sin(2 * np.pi * 0.7 * k))
+    left = frac_delay(seg, 20 + 30 * np.sin(2 * np.pi * 0.9 * k + 1))
+    swap_voice(a, b, left * 0.8, right * 0.8)
+
+def v_liquid(c):          # a watery wobble on a copy of the phrase
+    a, b = span(c, post=0.3); seg = voice[a:b]; k = np.arange(len(seg)) / SR
+    wob = frac_delay(seg, I(0.009) + I(0.004) * np.sin(2 * np.pi * 5.5 * k))
+    wob = fft_filter(wob, lo=200, hi=2400) * 0.35
+    add(np.stack([wob, frac_delay(wob, I(0.007))]), c["s"] - 0.04, wet=0.5)
+
+def v_deep(c):            # a copy that sinks in pitch and drags behind
+    a, b = span(c, post=0.1); seg = voice[a:b]
+    slow = np.interp(np.arange(0, len(seg), 0.8), np.arange(len(seg)), seg)
+    slow = fft_filter(slow, hi=1600) * env(len(slow), 0.05, 0.9, hold=len(seg) / SR * 0.6) * 0.48
+    add(slow, c["s"] + 0.05, wet=0.6)
+
+# ---------- small effects ----------
+def static(sec):
+    n = I(sec); x = rng.standard_normal(n) * 0.25
+    x += (rng.random(n) < 0.0009) * rng.standard_normal(n) * 3     # crackles
+    x = fft_filter(x, lo=1200, hi=7000)
+    return x * env(n, 0.05, 0.12, hold=max(0, sec - 0.2)) / (np.abs(x).max() + 1e-9) * db(-26)
+
+def blip(f0, f1, sec, level):
+    n = I(sec); k = np.arange(n) / SR; f = f0 * (f1 / f0) ** (k / sec)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * env(n, 0.003, sec / 3) * level
+
+def fx_bubble():          # bubbles rising: quicker and higher
+    out = np.zeros(I(1.4)); t = 0.0
+    for j in range(6):
+        f = 380 * 1.22 ** j * rng.uniform(0.95, 1.05)
+        x = blip(f, f * 2.2, 0.07, db(-22) * (1 - 0.08 * j)); a = I(t)
+        out[a:a + len(x)] += x[: len(out) - a]; t += 0.2 * 0.82 ** j
+    return out
+
+def fx_glug():            # bloops going down
+    out = np.zeros(I(1.3))
+    for j in range(3):
+        f = 520 * 0.72 ** j; x = blip(f, f * 0.45, 0.16, db(-21)); a = I(0.21 * j)
+        out[a:a + len(x)] += x
+    return fft_filter(out, hi=1800)
+
+def fx_wind():
+    sec = 3.4; n = I(sec); k = np.arange(n) / SR
+    x = fft_filter(rng.standard_normal(n), lo=300, hi=1400, order=1)
+    x *= (0.6 + 0.4 * np.sin(2 * np.pi * 0.45 * k - 1.2)) * np.sin(np.pi * k / sec) ** 2
+    return x / np.abs(x).max() * db(-22)
+
+def fx_hiss():            # escaping gas: swells, then thins away to one side
+    sec = 2.6; n = I(sec); k = np.arange(n) / SR
+    x = fft_filter(rng.standard_normal(n), lo=2500, hi=9000) * np.sin(np.pi * (k / sec) ** 0.6) ** 2
+    p = (k / sec * 0.8 + 0.1) * np.pi / 2
+    st = np.stack([x * np.cos(p), x * np.sin(p)])
+    return st / np.abs(st).max() * db(-25)
+
+def fx_drops():           # condensation: a few droplets
+    out = np.zeros(I(1.8))
+    for j, tt in enumerate((0.0, 0.33, 0.52, 0.94, 1.15)):
+        x = blip(hz(84 + (j * 5) % 9), hz(91 + (j * 5) % 9), 0.05, db(-27)); a = I(tt)
+        out[a:a + len(x)] += x
+    return out
+
+def fx_ignite():          # a warm low hum swelling up
+    sec = 3.2; n = I(sec); k = np.arange(n) / SR
+    hum = sum(a * np.sin(2 * np.pi * f * k) for f, a in ((55, 1), (110, 0.5), (165, 0.25), (220, 0.12)))
+    x = (hum + fft_filter(rng.standard_normal(n), lo=150, hi=900) * 0.3) * (k / sec) ** 1.5 * np.minimum(1, (sec - k) / 0.6)
+    return x / np.abs(x).max() * db(-25)
+
+def fx_boom():            # a distant explosion: thump, blast, rumble
+    sec = 4.5; n = I(sec); k = np.arange(n) / SR
+    f = 52 * np.exp(-k * 0.5) + 26
+    x = (np.sin(2 * np.pi * np.cumsum(f) / SR) * env(n, 0.006, 0.7)
+         + fft_filter(rng.standard_normal(n), hi=900) * env(n, 0.01, 0.35) * 0.8
+         + fft_filter(rng.standard_normal(n), hi=160) * env(n, 0.3, 1.4) * 0.9)
+    return x / np.abs(x).max() * db(-15)
+
+def fx_drop():            # a sub drop
+    sec = 2.2; n = I(sec); k = np.arange(n) / SR
+    f = 90 * (30 / 90) ** (k / sec)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * env(n, 0.02, 0.8) * db(-17)
+
+FX = {"bubble": (fx_bubble, 0.25), "glug": (fx_glug, 0.3), "wind": (fx_wind, 0.2), "hiss": (fx_hiss, 0.3),
+      "drops": (fx_drops, 0.35), "ignite": (fx_ignite, 0.2), "boom": (fx_boom, 0.45), "drop": (fx_drop, 0.3),
+      "static": (lambda: static(1.4), 0.1)}
+
+# ---------- music: quiet rhythms under a passage ----------
+def kick(f0=62, f1=44, sec=0.32):
+    n = I(sec); k = np.arange(n) / SR; f = f1 + (f0 - f1) * np.exp(-k * 30)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * env(n, 0.003, 0.09)
+
+def tick():
+    n = I(0.04); return fft_filter(rng.standard_normal(n), lo=6000) * env(n, 0.001, 0.008)
+
+def pluck(f, sec):
+    """Karplus–Strong: a soft, damped string."""
+    n = I(sec); p = max(2, int(SR / f)); buf = rng.uniform(-1, 1, p); out = np.empty(n)
+    for i in range(n):
+        j = i % p; out[i] = buf[j]; buf[j] = 0.497 * (buf[j] + buf[(i + 1) % p])
+    out = fft_filter(out, hi=3200) * env(n, 0.002, sec / 2.5)
+    return out / np.abs(out).max()
+
+def put(out, x, at, pan, lvl):
+    a = I(at)
+    if a >= out.shape[1]: return
+    b = min(out.shape[1], a + len(x)); p = (pan + 1) * np.pi / 4
+    out[0, a:b] += x[: b - a] * np.cos(p) * lvl; out[1, a:b] += x[: b - a] * np.sin(p) * lvl
+
+def music_pulse(L):
+    """A soft beat with plucked open notes (D major add9), about 84 BPM."""
+    beat = 60 / 84; out = np.zeros((2, I(L + 3)))
+    notes = [62, 69, 76, 78, 69, 76, 74, 69]; plk = {m: pluck(hz(m), 1.6) for m in set(notes)}
+    for i in range(int(L / (beat / 2)) + 1):
+        at = i * beat / 2
+        if i % 4 == 0: put(out, kick(), at, 0, db(-19))
+        if i % 4 == 2: put(out, kick(58, 42), at, 0, db(-24))
+        if i % 2 == 1: put(out, tick(), at, 0.3 * (-1) ** (i // 2), db(-33))
+        if i % 8 != 5: put(out, plk[notes[i % 8]], at, 0.45 * np.sin(i * 0.9), db(-24))
+    return out
+
+def music_heartbeat(L):
+    """Lub-dub, quickening from 62 to 88 BPM toward the end, with a faint tick."""
+    out = np.zeros((2, I(L + 3))); t = 0.0
+    while t < L:
+        p = t / L; bpm = 62 + 26 * p ** 1.6
+        put(out, kick(58, 38, 0.28), t, 0, db(-17))
+        put(out, kick(50, 38, 0.28), t + 0.17, 0, db(-22))
+        put(out, tick(), t + 30 / bpm, 0, db(-40) * (0.5 + p))
+        t += 60 / bpm
+    return out
+
+def shape(out, L, stop):
+    """Fade in over 2.5 s; out over 2 s past the end, or cut dead at the end."""
+    k = np.arange(out.shape[1]) / SR; g = np.minimum(1, k / 2.5)
+    g *= np.clip((L - k) / 0.03, 0, 1) if stop == "cut" else np.clip(1 - (k - L) / 2.0, 0, 1)
+    return out * g
+
+MUSIC = {"pulse": music_pulse, "heartbeat": music_heartbeat}
+VOICE = {"echo": v_echo, "hall": v_hall, "radio": v_radio, "wide": v_wide, "liquid": v_liquid, "deep": v_deep}
+
+music = np.zeros((2, M))
+done = []
+for c in cues:
+    if "voice" in c:
+        VOICE[c["voice"]](c); done.append(f"voice {c['voice']}")
+    elif "fx" in c:
+        fn, wet = FX[c["fx"]]
+        at = (c["e"] if c.get("atEnd") else c["s"]) + c.get("offset", 0)
+        add(fn() * db(c.get("gain", 0)), at, pan=c.get("pan", 0), wet=wet); done.append(f"fx {c['fx']}")
+    elif "music" in c:
+        L = min(c["e"], T) - c["s"]
+        if c.get("stop") != "cut" and c["s"] + L > T - 2.2: L = T - 2.2 - c["s"]   # fade out inside the take
+        m = shape(MUSIC[c["music"]](L), L, c.get("stop"))
+        a = I(c["s"]); b = min(M, a + m.shape[1]); music[:, a:b] += m[:, : b - a]
+        done.append(f"music {c['music']} {L:.0f} s")
+
+# Music steps back 4 dB while the voice talks (a slow follower, so it doesn't pump)
+def follower(x, attack, release):
+    hop = SR // 100; m = len(x) // hop
+    e = np.sqrt((x[:m * hop].reshape(m, hop) ** 2).mean(1))
+    a, r = np.exp(-1 / (attack * 100)), np.exp(-1 / (release * 100)); y = 0.0; out = np.empty(m)
+    for i, v in enumerate(e):
+        y = a * y + (1 - a) * v if v > y else r * y + (1 - r) * v; out[i] = y
+    return np.interp(np.arange(len(x)) / hop, np.arange(m), out)
+talk = np.clip((20 * np.log10(follower(voice, 0.08, 0.6) + 1e-9) + 48) / 18, 0, 1)
+music *= db(-4 * np.concatenate([talk, np.zeros(M - N)]))
+send += (music[0] + music[1]) * 0.2
+
+wet = [fft_convolve(send, ROOM[c])[:M] * db(-8) for c in range(2)]
+bed = np.stack([fxL + music[0] + wet[0], fxR + music[1] + wet[1]])[:, :N]
+mix = np.stack([vL, vR]) + bed                      # same length as the voice, so the timings hold
+
+# ---------- level: the voice file's loudness, a −1 dBFS ceiling ----------
 def lufs(x):
     p = subprocess.run(["ffmpeg", "-hide_banner", "-f", "f32le", "-ar", str(SR), "-ac", str(x.shape[0]), "-i", "-",
                         "-af", "ebur128=framelog=quiet", "-f", "null", "-"],
                        input=x.T.astype(np.float32).tobytes(), capture_output=True).stderr.decode()
     return float(p.rsplit("I:", 1)[1].split("LUFS")[0])
 
-target = lufs(np.stack([voice]))          # the voice file's loudness (−16 LUFS)
-mix *= db(target - lufs(mix))
-mix = limit(mix)
-if os.environ.get("SOUND_STEMS"):         # for checking levels: the bed alone
-    bed.T.astype(np.float32).tofile(os.path.join(take_dir, "bed.f32"))
+def limit(x, ceiling=db(-1), look=0.004, release=0.12):
+    need = np.minimum(1, ceiling / (np.abs(x).max(0) + 1e-9)); w = I(look)
+    padded = np.concatenate([need, np.ones(w)])
+    g = np.minimum.reduce([padded[i:i + len(need)] for i in range(0, w, max(1, w // 8))])
+    r = np.exp(-1 / (release * SR)); out = np.empty_like(g); y = 1.0
+    for i in range(0, len(g), 64):
+        blk = g[i:i + 64]; y = min(blk.min(), 1 - (1 - y) * r ** 64); out[i:i + 64] = np.minimum(blk, y)
+    return x * out
 
-out = os.path.join(take_dir, "mix.m4a")
+gain = db(lufs(voice[None]) - lufs(mix))
+mix = limit(mix * gain)
+if os.environ.get("SOUND_STEMS"):                   # for checking levels: everything but the voice
+    (bed * gain).T.astype(np.float32).tofile(os.path.join(take_dir, "bed.f32"))
+
 subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "f32le", "-ar", str(SR), "-ac", "2", "-i", "-",
-                "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out],
+                "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", os.path.join(take_dir, "mix.m4a")],
                input=mix.T.astype(np.float32).tobytes(), check=True)
 take["mix"] = "mix.m4a"
 json.dump(take, open(os.path.join(take_dir, "words.json"), "w"), ensure_ascii=False, separators=(",", ":"))
-n_wh = sum(1 for f in tl["flights"] if abs(f["zoom"]) + 0.6 * f["travel"] >= 0.12 and f["t"] >= 0.5)
-print(f"  {T:.1f} s: pad, {n_wh} whooshes, {len(chimes)} chimes" + (", reveal" if tl.get("fade") else ""))
+print(f"  {T:.1f} s: " + (", ".join(done) or "no sound cues"))

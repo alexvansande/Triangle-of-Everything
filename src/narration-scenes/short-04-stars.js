@@ -13,6 +13,15 @@ export default {
   start: { r: 10.4, m: 31.6, span: 6 },
   captionFixes: { short: "chart", spread: "red", nebulae: "nebula" },
 
+  sound: [
+    { at: "once they start generating fusion", fx: "ignite", offset: 0.6 },
+    { at: "the life cycle of a star", music: "heartbeat", to: "go boom", stop: "cut" },
+    { at: "go boom", fx: "boom", offset: 0.25 },
+    { at: "go boom", voice: "echo" },
+    { at: "becomes a black hole", voice: "deep" },
+    { at: "becomes a black hole", fx: "drop", atEnd: true, offset: -0.4 },
+  ],
+
   cues: [
     { at: "completely different things", cam: { r: 10.4, m: 31.6, span: 5 },
       hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "Sun", label: "star", delay: 0.6 }] },

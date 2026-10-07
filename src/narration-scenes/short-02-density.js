@@ -13,6 +13,13 @@ export default {
   start: FULL,
   captionFixes: { short: "chart", recipient: "container" },
 
+  sound: [
+    { at: "three dimensional universe", voice: "wide" },
+    { at: "will float in water", fx: "bubble", offset: 0.3 },
+    { at: "will sink", fx: "glug", offset: 0.15 },
+    { at: "it just sinks", fx: "glug", offset: 0.2, gain: 2 },
+  ],
+
   cues: [
     { at: "this diagonal line", cam: { r: 2, m: 6, span: 44 }, dur: 3,
       hl: [{ line: "water", label: "the diagonal", delay: 0.8 }] },

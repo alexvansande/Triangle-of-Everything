@@ -17,6 +17,12 @@ export default {
 
   captionFixes: { short: "chart", shard: "chart", lights: "light" },
 
+  sound: [
+    { at: "or radio waves", voice: "radio" },
+    { at: "and then you realize", music: "pulse" },
+    { at: "since the big bang", voice: "echo" },
+  ],
+
   cues: [
     { at: "most interesting chart", cam: { r: 6, m: 8, span: 96 }, dur: 5, drift: 0.03 },
 

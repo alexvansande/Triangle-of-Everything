@@ -53,32 +53,41 @@ carries over to the next short.
 
 ## Sound design
 
+Keep it light: most of a short is the plain voice. Three kinds of moments,
+each a phrase-anchored cue in the scene's `sound` list (fields at the top of
+`src/narration-scenes/tour.js`):
+- **Voice effects** on a few highlighted phrases: `echo`, `hall`, `radio`,
+  `wide`, `liquid`, `deep`.
+- **Small sound effects** when the narration names something you could hear:
+  `bubble`, `glug`, `wind`, `hiss`, `drops` (condensation), `ignite`, `boom`,
+  `drop`, `static`.
+- **Music, rarely**, only under an emotional passage, made of quiet rhythms:
+  `pulse` (a soft beat and plucked notes) or `heartbeat` (a lub-dub that
+  quickens). It steps back 4 dB while the voice talks, and `stop: "cut"` ends
+  it dead (the heartbeat stops on the supernova's "boom").
+
 ```bash
 npm run dev    # keep running
 node scripts/narration-sound.mjs short-01-hook short-02-density …
 ```
 
-It reads each take's timeline from the player (`window.__narr.timeline()`:
-camera flights, highlights that are new, the classic → map fade) and
-synthesizes a bed for it in numpy (`scripts/narration-sound.py`). There are no
-samples, so nothing needs a licence:
-- **Pad**: open chords, D sus2 → B m7 → G maj9 → A sus4, about 12 s each,
-  that dip 7 dB while the voice talks. It sits about 23 dB under the voice.
-- **Whooshes** on camera flights: band-passed noise that sweeps up when
-  zooming in and down when zooming out, sized by how far the camera goes and
-  panned along its travel. Drifts and small moves stay quiet.
-- **Chimes** on new highlights: a soft bell on D major pentatonic, at most one
-  every 2.5 s, with a fifth on top when two things light up at once.
-- **Reveal**: a rising shimmer into the classic → map cross-fade, then a low
-  bloom and a ringing chord as the map lands.
-- A shared hall reverb, the mix matched to the voice's loudness (−16 LUFS),
-  and a look-ahead limiter at −1 dBFS.
+The player resolves the cues to times (`window.__narr.timeline()`), and
+`scripts/narration-sound.py` synthesizes every sound in numpy (no samples, so
+nothing needs a licence), mixes it with the voice at the voice's loudness
+(−16 LUFS) under a −1 dBFS ceiling, and writes `mix.m4a` next to `audio.m4a`
+(the voice file stays as it is) and `"mix"` in words.json. The player plays the
+mix, and a "Sound design on/off" chip on the pause screen switches to the bare
+voice in place. The renderer muxes the mix too (`--voice-only` for the bare
+voice). Run it again after changing a take's audio or its scene.
 
-It writes `mix.m4a` next to `audio.m4a` (the voice alone stays as it is) and
-`"mix"` in words.json. The player plays the mix, and a "Sound design on/off"
-chip on the pause screen switches to the bare voice in place. The renderer
-muxes the mix too (`--voice-only` for the bare voice). Run it again after
-changing a take's audio or its scene.
+Where it's used now:
+
+| Short | Voice effects | Sound effects | Music |
+|---|---|---|---|
+| hook | radio on "radio waves", echo on "the big bang" | – | pulse from "and then you realize" to the end |
+| density | wide on "three-dimensional universe" | bubble on "float", glug on "sink" and the hippo's "sinks" | – |
+| planets | liquid on "might as well be liquid" | wind on "atmosphere", hiss on "hydrogen just cannot escape" | – |
+| stars | echo on "boom", deep on "black hole" | ignite on fusion, boom on the supernova, a sub drop on "black hole" | heartbeat through the life cycle, cut at "boom" |
 
 ## A new recording
 

@@ -98,6 +98,24 @@ function resolveScene(words) {
   window.__narrMissing = missing;
   if (missing.length) console.warn(`[narration] ${missing.length} cue phrase(s) not found:`, missing);
   cues.sort((a, b) => a.time - b.time);
+  // Sound cues (scripts/narration-sound.mjs): the span of the phrase they
+  // name (s → e), or up to the phrase in `to` (or the end) for music. Each
+  // takes the phrase's first occurrence, so their order doesn't matter.
+  cues.sound = [];
+  for (const c of SCENE.sound || []) {
+    const alts = Array.isArray(c.at) ? c.at : [c.at];
+    let hit = null;
+    for (const a of alts) { hit = find(a, 0); if (hit) break; }
+    if (!hit) { missing.push(alts[0]); continue; }
+    let e = hit.e;
+    if (c.to) {
+      const end = find(c.to, hit.s);
+      if (!end) { missing.push(c.to); continue; }
+      e = c.toEnd ? end.e : end.s;
+    } else if (c.music) e = words[words.length - 1][2];
+    cues.sound.push({ ...c, s: +hit.s.toFixed(3), e: +e.toFixed(3) });
+  }
+  if (missing.length) window.__narrMissing = missing;
   return cues;
 }
 
@@ -551,25 +569,10 @@ export async function startNarration(app) {
   window.__narr = {
     duration,
     cues: cues.map(c => ({ t: +c.time.toFixed(2), at: c.at })),
-    // what happens when, for scripts/narration-sound.mjs: camera flights (how
-    // far, in decades of zoom and of travel), highlights appearing, the fade
+    // the scene's sound cues resolved to times, for scripts/narration-sound.mjs
     timeline: () => ({
       duration,
-      flights: keys.map(k => ({ t: k.t, dur: k.dur, zoom: Math.log10(k.to.span / k.from.span),
-        travel: Math.hypot(k.to.r - k.from.r, k.to.m - k.from.m) / Math.max(k.from.span, k.to.span) })),
-      // only what's new: a cue that repeats the last one's highlight stays quiet
-      highlights: (() => {
-        const sig = ({ t0, t1, id, delay, ...h }) => JSON.stringify(h);
-        const out = []; let prev = new Set(), prevEnd = -1;
-        for (const t of [...new Set(highlights.map(h => h.t0))].sort((a, b) => a - b)) {
-          const at = highlights.filter(h => h.t0 === t), now = new Set(at.map(sig));
-          const fresh = [...now].filter(k => !prev.has(k) || t > prevEnd + 0.5).length;
-          if (fresh) out.push({ t: +t.toFixed(2), n: fresh });
-          prev = now; prevEnd = Math.max(...at.map(h => h.t1));
-        }
-        return out;
-      })(),
-      fade: fadeT >= 0 ? { t: fadeT, dur: FADE } : null,
+      sound: cues.sound,
     }),
     renderAt,
     settle(t) { const { view } = camera(t); app.setCamera(view, false); overlay(); },

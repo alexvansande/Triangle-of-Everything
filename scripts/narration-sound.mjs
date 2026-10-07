@@ -1,6 +1,6 @@
-// Sound design for takes: reads each take's timeline (camera flights, new
-// highlights, the classic → map fade) from the player on the dev server, then
-// synthesizes the bed and mixes it under the voice (scripts/narration-sound.py).
+// Sound design for takes: resolves each scene's `sound` cues (voice effects,
+// small effects, rare music) to times through the player on the dev server,
+// then synthesizes them and mixes them with the voice (scripts/narration-sound.py).
 //
 //   npm run dev    # keep running
 //   node scripts/narration-sound.mjs short-01-hook short-02-density …

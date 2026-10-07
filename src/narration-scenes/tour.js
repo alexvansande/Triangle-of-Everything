@@ -25,6 +25,19 @@
 //   clear    end the current highlights
 //   units    pin the unit rulers on (they also show during every move)
 //   classic  "out" — cross-fade from the classic figure to the map (fade s)
+//
+// Sound cues (optional `sound: [...]`, read by scripts/narration-sound.mjs;
+// keep them rare). Each names a phrase like a cue does:
+//   { at, voice }  an effect on the voice for that phrase: "echo" (repeats
+//                  that fade off), "hall" (a long tail), "radio" (a tuned-in
+//                  radio with static), "wide" (spreads out in stereo),
+//                  "liquid" (a watery wobble), "deep" (sinks and drags)
+//   { at, fx }     a small effect from the phrase's first word: "static",
+//                  "bubble", "glug", "wind", "hiss", "drops", "ignite",
+//                  "boom", "drop"; offset (s), atEnd, gain (dB)
+//   { at, music, to?, toEnd? }  quiet rhythm from the phrase to the `to`
+//                  phrase (or the end): "pulse" (a soft beat and plucks) or
+//                  "heartbeat"; stop: "cut" ends it dead instead of fading
 
 const FULL = { r: -2.2, m: -4.8, span: 74 };   // the whole triangle, portrait
 

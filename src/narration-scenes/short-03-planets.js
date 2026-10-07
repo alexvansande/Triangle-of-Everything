@@ -13,6 +13,12 @@ export default {
   start: FULL,
   captionFixes: { short: "chart", celadus: "Enceladus", celagos: "Enceladus" },
 
+  sound: [
+    { at: "might as well be liquid", voice: "liquid" },
+    { at: "start having an atmosphere", fx: "wind", offset: 0.4 },
+    { at: "hydrogen just cannot escape", fx: "hiss" },
+  ],
+
   cues: [
     // intro (rec8): the diagonal, then up it from the animals
     { at: "this diagonal line", cam: { r: 2, m: 6, span: 44 }, dur: 3,
