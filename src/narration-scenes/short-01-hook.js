@@ -35,10 +35,10 @@ export default {
     { at: "like photons", cam: { r: -9, m: -27, span: 22 } },
 
     // energy and wavelength
-    { at: "these things have", cam: FIG, dur: 2 },
-    { at: "left axis is energy", offset: 0.4, hl: [{ axis: "left", label: "energy" }] },
+    { at: "this is because", cam: FIG, dur: 2 },
+    { at: "of energy", hl: [{ axis: "left", label: "energy" }] },
     { at: "bottom axis", hl: [{ axis: "bottom", label: "size" }] },
-    { at: "about wavelength", hl: [{ axis: "bottom", label: "wavelength" }] },
+    { at: "as a wavelength", hl: [{ axis: "bottom", label: "wavelength" }] },
 
     // quantum meets relativity at the Planck point; time on the diagonals
     { at: "even crazier", cam: FIG, dur: 2, clear: true },

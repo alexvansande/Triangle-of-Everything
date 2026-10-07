@@ -6,9 +6,10 @@ Four recordings came in that morning, all on the iPhone at about the same mic ga
 |---|---|---|---|
 | `Link_office_mall_2.m4a` | 3:47 | noise reduction on | `short-01-hook` |
 | `Link_office_mall_3.m4a` | 16:36 | noise reduction **off** | `short-02-density`, `short-03-planets`, `short-04-stars` |
-| `Link_office_mall_4.m4a` | 1:39 | noise reduction on, air conditioner on low | `short-01-hook` (energy and wavelength lines) |
+| `Link_office_mall_4.m4a` | 1:39 | noise reduction on, air conditioner on low | was `short-01-hook`'s energy and wavelength lines, now replaced by rec7 |
 | `Barra_da_Tijuca.m4a` (`rec5`) | 7:15 | mic about 10 cm away, **16 kHz**: recorded over the car's Bluetooth hands-free link, so nothing above 8 kHz | not used; it has every correction below, read well, but too dull to splice |
 | `O2 Corporate & Offices 2.m4a` (`rec6`, Google Drive "Recordings") | 4:17 | 48 kHz 24-bit lossless, mic about 10 cm away, off to the side | intros: `short-01-hook` (quantum + relativity → the Big Bang), `short-02-density`, `short-04-stars` |
+| `wavelength.m4a` (`rec7`, iCloud) | 1:18 | 48 kHz, quiet room (floor about −91 dBFS) | `short-01-hook`: "a chart of mass versus size, right?" → photons → "a chart of energy" → "doubles as a wavelength" |
 
 **Sound.** Recording 3 is the cleanest. Its background in pauses sits at about
 −81 dBFS, against −68 for recording 2 and −64 for recording 4. All three end up
@@ -61,7 +62,7 @@ Each row is a factual problem, followed by a suggested line that fits where it g
 ## Listen to these joins
 
 I checked the cuts by re-transcribing them, not by ear, so intonation jumps are possible at:
-- `short-01-hook` 0:24 (recording 2 → 4) and 1:11 (recording 4 → 2).
+- `short-01-hook` 0:24 (recording 2 → 7) and 0:48 (recording 7 → 6).
 - `short-04-stars` at 0:11: the hook "Their difference is mostly about mass" comes from 12:10. It's followed by "And then notice that suddenly…" from 11:17.
 - `short-04-stars` at 2:00: the life-cycle lines join two passes, one ending "…generate new energy", the next starting "so they will expand and collapse a few times…".
 
@@ -97,3 +98,15 @@ begins on its promise line.
   each EDL).
 - **Still to record at 48 kHz (Bluetooth off):** the corrections above. They
   exist in rec5, but only at 16 kHz. Also the intro for `short-03-planets`.
+
+## rec7: the wavelength lines
+
+`wavelength.m4a` replaces rec4's four lines in `short-01-hook` (24–52 s). Rec4
+had the air conditioner under it: about 12 dB more background than the rest of
+the hook after cleanup, and "visible lights". Rec7 is the quietest recording so
+far. Its `SOURCE_FX` takes out ~4 dB of boom around 180 Hz and lifts the top
+~4 dB to match rec2. The new wording drops "So what do these things have?" and
+says "the bottom axis doubles as a wavelength", which makes the hook 4.4 s
+shorter. The raw rec2 wasn't at hand, so the new lines were built and cleaned
+with the same tools and spliced into the existing edit; `edl.py` rebuilds the
+whole thing from raw.
