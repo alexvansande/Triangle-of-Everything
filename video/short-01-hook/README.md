@@ -28,3 +28,5 @@ python3 video/tools/enhance.py $W/audio/edit_raw.wav $W/audio/edit   # cleanup, 
 
 Then copy `edit.m4a` to `public/narration/short-01-hook/audio.m4a`, and
 re-transcribe the edit for `words.json` (the cues anchor to its words).
+Last, speed it up to 1.2× (pitch kept; the word timings scale with it):
+`python3 scripts/narration-tempo.py short-01-hook`.

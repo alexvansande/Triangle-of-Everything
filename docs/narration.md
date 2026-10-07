@@ -43,10 +43,13 @@ down 5 s and starts the next short **in place**, on the same audio element, so
 phones keep playing without another tap. The "Autoplay on/off" chip on the
 pause screen switches it; `&autoplay=0` starts with it off.
 
-**Speed**: the pause screen has 1× to 1.5× (`[` and `]` on a keyboard,
-`&speed=1.2` in the URL). The browser keeps the pitch, and every frame follows
-the audio clock, so camera moves and captions speed up with it. The choice is
-remembered per browser and carries over to the next short.
+**Speed**: the shorts' audio is sped up to **1.2×** with the pitch kept
+(`scripts/narration-tempo.py`, which also scales the word timings and writes
+`"tempo": 1.2` into words.json), so renders come out at 1.2× too. The pause
+screen's 1× to 1.5× (`[` and `]` on a keyboard, `&speed=` in the URL) count
+from the pace it was spoken at: 1.2× plays the file as-is and is the default,
+and 1× slows it back to natural speed. A choice is remembered per browser and
+carries over to the next short.
 
 ## A new recording
 

@@ -16,7 +16,8 @@
 //   ?narrate=take-1             live player (tap to start, tap to pause)
 //   &render=1                   no player UI; exposes window.__narr for the renderer
 //   &autoplay=0                 don't start on load or roll on to the next short
-//   &speed=1.2                  playback speed (1–1.5, pitch kept); also on the pause screen, or [ and ]
+//   &speed=1.2                  playback speed (1–1.5 of the pace it was spoken at, pitch kept;
+//                               default: the take's "tempo"); also on the pause screen, or [ and ]
 //   &captions=0                 no captions
 //   &stage=landscape|none       recording stage (default: 9:16 phone)
 
@@ -566,14 +567,17 @@ export async function startNarration(app) {
   audio.preload = "auto";
   // Speed: the pitch stays put (the browser time-stretches); every frame
   // follows audio.currentTime, so the camera and captions keep in step.
+  // The buttons count from the pace it was spoken at: a take sped up to 1.2×
+  // (scripts/narration-tempo.py) plays as-is at 1.2× and slows down at 1×.
   audio.preservesPitch = audio.mozPreservesPitch = audio.webkitPreservesPitch = true;
+  const tempo = take.tempo || 1;
   const speedEl = document.getElementById("narr-speed");
-  const setSpeed = (v) => {
-    speed = v; audio.defaultPlaybackRate = audio.playbackRate = v;
-    try { localStorage.setItem("narr-speed", v); } catch {}
+  const setSpeed = (v, keep = true) => {
+    speed = v; audio.defaultPlaybackRate = audio.playbackRate = v / tempo;
+    if (keep) try { localStorage.setItem("narr-speed-v2", v); } catch {}
     speedEl.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", +b.dataset.speed === v));
   };
-  setSpeed(speed);
+  setSpeed(speed ?? (SPEEDS.includes(tempo) ? tempo : 1), false);
   speedEl.addEventListener("click", (e) => {
     e.stopPropagation();
     const b = e.target.closest("button[data-speed]");
@@ -700,10 +704,10 @@ export async function startNarration(app) {
 
 // Playback speeds; the choice is remembered per browser, &speed= overrides it
 const SPEEDS = [1, 1.1, 1.2, 1.3, 1.4, 1.5];
-let speed = (() => {
+let speed = (() => {   // null: the take's own tempo
   let v = +new URLSearchParams(location.search).get("speed");
-  if (!SPEEDS.includes(v)) try { v = +localStorage.getItem("narr-speed"); } catch {}
-  return SPEEDS.includes(v) ? v : 1;
+  if (!SPEEDS.includes(v)) try { v = +localStorage.getItem("narr-speed-v2"); } catch {}
+  return SPEEDS.includes(v) ? v : null;
 })();
 
 // The autoplay switch, remembered per browser; &autoplay=0 turns it off
