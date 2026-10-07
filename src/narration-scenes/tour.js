@@ -38,6 +38,10 @@
 //   { at, music, to?, toEnd? }  quiet rhythm from the phrase to the `to`
 //                  phrase (or the end): "pulse" (a soft beat and plucks) or
 //                  "heartbeat"; stop: "cut" ends it dead instead of fading
+//   { at, intensity, ramp? }  the music bed's energy from this phrase on, until
+//                  the next one: 0 silent, 0.5 hushed, 1 normal, 2 a build
+//                  (twice the notes, a bass pulse), 3 the peak (a soft kick and
+//                  a pad, about 6 dB fuller); ramps over `ramp` s (default 2)
 // bed: false        no music bed (by default a quiet rhythmic bed runs under
 //                  the whole take, shaped by where the camera is: small scales
 //                  quick and high, galaxies slow and low; dense things minor)

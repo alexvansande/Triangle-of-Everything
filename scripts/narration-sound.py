@@ -310,6 +310,20 @@ def note_c(midi, sec, bright):
     if key not in _cache: _cache[key] = note(midi, key[1], key[2])
     return _cache[key]
 
+# Intensity: { at, intensity, ramp? } cues set the bed's energy from that phrase
+# on: 0 silent, 1 the normal bed, 2 a build (more notes, a bass pulse), 3 the
+# peak (a soft kick too, louder). It ramps over `ramp` s (default 2) and holds
+# until the next intensity cue.
+KEYS = sorted(((c["s"] + c.get("offset", 0), float(c["intensity"]), c.get("ramp", 2.0))
+               for c in cues if "intensity" in c), key=lambda k: k[0])
+def intensity(t):
+    v = 1.0
+    for t0, target, ramp in KEYS:
+        if t < t0: break
+        f = min(1, (t - t0) / max(ramp, 0.01)); f = f * f * (3 - 2 * f)
+        v = v + (target - v) * f
+    return v
+
 def bed_music():
     path = np.array(TL["path"])                   # t, log r, log m, span
     tt, r, m, span = path[:, 0], path[:, 1], path[:, 2], path[:, 3]
@@ -330,7 +344,8 @@ def bed_music():
             mode = "minor" if d > 0.6 else "major" if d < 0.2 else mode
         chord = CHORDS[mode][(st // CHORD_STEPS) % 4]
         v = X(t)
-        per_beat = 4 * 2 ** (-3 * v)              # 4 notes a beat (atoms) … ½ (galaxies)
+        e = intensity(t)
+        per_beat = min(4, 4 * 2 ** (-3 * v) * 2 ** max(0, min(e, 2) - 1))   # 4 a beat (atoms) … ½ (galaxies); doubled by a build
         every = max(1, int(round(4 / per_beat)))  # play on every n-th 16th
         if st % every == 0:
             base = 74 - 30 * v                    # register: high for small things, low for big ones
@@ -341,18 +356,23 @@ def bed_music():
                 p = tones[i if i < len(tones) else 2 * len(tones) - 2 - i]      # up and down the chord
                 sec = 0.45 + 2.6 * v; bright = 1 - v
                 accent = 1.0 if st % 4 == 0 else 0.7
-                lvl = db(-18 + 3 * v) * accent
+                lvl = db(-18 + 3 * v) * accent * (e if e < 1 else db(3 * min(e - 1, 1) + 2 * max(0, e - 2)))
                 add_to(out, note_c(p, sec, bright) * lvl, t + rng.normal(0, 0.004), 0.5 * np.sin(st * 0.37) * (0.4 + 0.6 * v))
+        if e > 1.4 and st % 4 == 0:               # a build: the root pulses on every beat
+            add_to(out, note_c(chord[0] - 12, 0.5, 0.3) * db(-21) * min(1, e - 1.4) * (1 if st % 16 == 0 else 0.75), t, 0)
+        if e > 2.2 and st % 8 == 0:               # the peak: a soft kick on beats 1 and 3
+            add_to(out, kick() * db(-14) * min(1, (e - 2.2) / 0.8), t, 0)
         if st % BAR_STEPS == 0:                   # a soft root under each bar
-            add_to(out, note_c(chord[0] - 12, 1.6 + 2 * X(t), 0.2) * db(-19), t, 0)
+            add_to(out, note_c(chord[0] - 12, 1.6 + 2 * X(t), 0.2) * db(-19) * min(1, e), t, 0)
         if st % 2 == 1 and X(t) < 0.35:           # small scales: a faint tick on the off-16ths
             tk = fft_filter(rng.standard_normal(I(0.03)), lo=7000) * env(I(0.03), 0.001, 0.006)
             add_to(out, tk * db(-33) * (0.35 - X(t)) / 0.35, t, 0.3 * (-1) ** st)
-        if st % CHORD_STEPS == 0 and X(t + 2) > 0.5: # big scales: a slow pad on each chord
+        e2 = intensity(t + 2); padamt = max((X(t + 2) - 0.5) / 0.5, (e2 - 2) * 0.8)
+        if st % CHORD_STEPS == 0 and padamt > 0:  # big scales, or the peak: a slow pad on each chord
             L = CHORD_STEPS * STEP + 1.5; n = I(L); k = np.arange(n) / SR
             w = np.sin(np.pi * np.clip(k / L, 0, 1)) ** 2
             s_ = sum(np.sin(2 * np.pi * hz(q + 12) * k + j) for j, q in enumerate(chord)) * w / 3
-            add_to(pad, s_ * db(-24) * (X(t + 2) - 0.5) / 0.5, t - 0.75, 0, wide=True)
+            add_to(pad, s_ * db(-24) * min(1, padamt) * min(1, e2), t - 0.75, 0, wide=True)
     return out + pad, xs, tt
 
 def add_to(bus, x, at, pan, wide=False):
@@ -374,7 +394,7 @@ if TL.get("bed", True) and TL.get("path"):
     bedm *= g * db(-8 * np.concatenate([talk_b, np.zeros(M - N)]))
     music += bedm
     send += (bedm[0] + bedm[1]) * (0.15 + 0.45 * np.interp(k, tt, xs))
-    done.append("bed")
+    done.append(f"bed ({len(KEYS)} intensity cues)" if KEYS else "bed")
 
 wet = [fft_convolve(send, ROOM[c])[:M] * db(-8) for c in range(2)]
 bed = np.stack([fxL + music[0] + wet[0], fxR + music[1] + wet[1]])[:, :N]

@@ -77,6 +77,11 @@ each a phrase-anchored cue in the scene's `sound` list (fields at the top of
   stays one piece. It sits about 19 dB under the voice, drops 8 dB while the
   voice talks, and steps aside for cue music (and stays out a few seconds
   after a `stop: "cut"`). `bed: false` in a scene turns it off.
+- **Drama**: `{ at: "phrase", intensity: 2 }` cues set the bed's energy from
+  that phrase on, until the next one: 0 silent, 0.5 hushed, 1 normal, 2 a
+  build (twice the notes, a bass pulse on every beat), 3 the peak (a soft kick
+  and a sustained pad, about 6 dB fuller than normal). It ramps over `ramp`
+  seconds (default 2). No intensity cues are set yet: the author picks them.
 
 ```bash
 npm run dev    # keep running
