@@ -10,6 +10,12 @@ import {
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
+
+// Where the build is served from: "/" on the site, "./" in the narration
+// preview (scripts/narration-preview.mjs), which runs from a sub-folder.
+const BASE = import.meta.env.BASE_URL;
+// The narration preview: the player only, no address-bar sync or service worker.
+const NARR_PREVIEW = import.meta.env.MODE === "narration-preview";
 import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
@@ -5001,7 +5007,7 @@ function drawTiles() {
 
       if (sw < 1 || sh < 1) continue;
 
-      const href = `/tiles/z${best.z}/tile_${c}_${r}.webp`;
+      const href = `${BASE}tiles/z${best.z}/tile_${c}_${r}.webp`;
 
       const key = href;
       if (!_tileCache.has(key)) {
@@ -5062,7 +5068,7 @@ function drawBaseTiles() {
 
       if (sw < 1 || sh < 1) continue;
 
-      const href = `/tiles/z${base.z}/tile_${c}_${r}.webp`;
+      const href = `${BASE}tiles/z${base.z}/tile_${c}_${r}.webp`;
       if (!_tileCache.has(href)) {
         const img = new Image();
         img.src = href;
@@ -5081,7 +5087,7 @@ function drawBaseTiles() {
 
 async function loadTileMeta() {
   try {
-    const response = await fetch("/tiles/meta.json");
+    const response = await fetch(`${BASE}tiles/meta.json`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     tileMeta = await response.json();
     drawBaseTiles(); // draw low-res background immediately
@@ -5401,6 +5407,7 @@ function redrawVectors() {
   if (_posterNoText) posterHideText(); // wordless print: see window.__poster
   updateMinimap();
   updateScaleBar();
+  _narrRedrawHook?.();
 }
 
 /* NOTE: a dots-only "fast renderer" (drawObjectsFast) used to live here and
@@ -5438,6 +5445,7 @@ function redrawVectorsLight() {
   drawAxes();
   updateMinimap();
   updateScaleBar();
+  _narrRedrawHook?.();
 }
 
 // =============================================================
@@ -5446,6 +5454,7 @@ function redrawVectorsLight() {
 
 let currentK = 1;
 let rafPending = false;
+let _narrRedrawHook = null; // narration overlay redraw (src/narration.js)
 let _zoomPrevTransform = null;  // track previous transform for CSS offset
 let _zooming = false;
 let _panSamples = [];           // recent touch-pan positions for momentum
@@ -5642,7 +5651,7 @@ function preloadTilesForTransform(targetTransform) {
 
       if (tLogRmax < x0 || tLogRmin > x1 || tLogMmax < y0 || tLogMmin > y1) continue;
 
-      const href = `/tiles/z${best.z}/tile_${c}_${r}.webp`;
+      const href = `${BASE}tiles/z${best.z}/tile_${c}_${r}.webp`;
       if (!_tileCache.has(href)) {
         const img = new Image();
         const p = new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
@@ -6989,6 +6998,7 @@ if (_reduceMotion && !_animDisabled) {
 // =============================================================
 
 function saveHash() {
+  if (NARR_PREVIEW) return;
   // Don't overwrite tour hashes — the tour manages its own URL state
   if (location.hash.startsWith("#tour=")) return;
   // Nor the hidden classic figure's
@@ -7011,11 +7021,13 @@ function saveHash() {
 // Object named by the URL path (/eois-stantonae/), if any. Pages built by
 // build-pages.mjs also carry its display name for info-panel articles.
 function pathSlug() {
+  if (NARR_PREVIEW) return null;
   const seg = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, "");
   return /^[a-z0-9][a-z0-9-]*$/.test(seg) ? seg : null;
 }
 
 function loadHash() {
+  if (NARR_PREVIEW) return false; // the hash names the take there
   const h = location.hash.slice(1);
   const ps = pathSlug();
   // Hidden: the original Lineweaver–Patel figure, at /classic/ (or the old
@@ -7145,7 +7157,10 @@ initTimeScrubber({
   resetView: () => svg.call(zoomBehavior.transform, d3.zoomIdentity),
 });
 
-if (!loadHash()) {
+// A narration (?narrate=, or the preview build) drives the camera itself:
+// the boot zoom-out below would fight it for its first seconds.
+const _narrating = NARR_PREVIEW || new URLSearchParams(location.search).has("narrate");
+if (!loadHash() && !_narrating) {
   // Intro animation: start zoomed on Human, then zoom out to full view
   const introK = 14;
   flyTo(1.7, 4.9, introK); // start on Human
@@ -7195,7 +7210,7 @@ onFirstInteraction(() => {
 // Registered late and without clients.claim so the FIRST visit never pays
 // for interception or cache writes — the SW only serves later navigations.
 // Skipped in dev — it would fight Vite's HMR.
-if ("serviceWorker" in navigator && !import.meta.env.DEV) {
+if ("serviceWorker" in navigator && !import.meta.env.DEV && !NARR_PREVIEW) {
   window.addEventListener("load", () => {
     setTimeout(() => {
       navigator.serviceWorker.register("/sw.js").catch(() => { /* non-fatal */ });
@@ -7255,3 +7270,69 @@ if (_ogShot) {
   };
 }
 
+
+// =============================================================
+// Narration player (?narrate=<take>) — src/narration.js
+// =============================================================
+// Plays a recorded narration and drives the camera, highlights, unit
+// rulers and captions from a phrase-anchored scene script. The player owns
+// the camera: each frame it sets the view directly, wrapped in a synthetic
+// zoom gesture (start → zoom… → end on arrival) so the app redraws exactly
+// as it does during a tour transition, and refreshes tiles on arrival.
+{
+  // Read the query now: the hash/URL sync later rewrites the address bar.
+  const narrParams = new URLSearchParams(location.search);
+  // The preview can't pass a query string, so it names the take in the hash
+  // (#short-02-density); with no hash it shows its grid of takes instead.
+  const narrTake = narrParams.get("narrate") || (NARR_PREVIEW ? location.hash.slice(1) || null : null);
+  // the preview reloads to switch takes (or to go back to its grid)
+  if (NARR_PREVIEW) window.addEventListener("hashchange", () => location.reload());
+  if (narrTake) {
+    let gesture = false, last = null;
+    const ppdBase = () => xBase(1) - xBase(0); // plot px per decade at k = 1
+    const api = {
+      d3, take: narrTake, params: narrParams,
+      plot: () => ({ x: margin.left, y: margin.top, w: cw, h: ch }),
+      px: (r) => xS(r), py: (m) => yS(m),
+      objects: OBJECTS,
+      categories: CATEGORIES,
+      /** { r, m, span } → zoom transform: (r, m) at the plot centre, `span`
+       *  decades across the plot width. */
+      viewTransform(v) {
+        const k = cw / (v.span * ppdBase());
+        return d3.zoomIdentity.translate(cw / 2 - xBase(v.r) * k, ch / 2 - yBase(v.m) * k).scale(k);
+      },
+      /** moving=false ends the gesture: full redraw, fresh tiles. */
+      setCamera(v, moving) {
+        const t = api.viewTransform(v);
+        const same = last && Math.abs(last.k - t.k) < 1e-9 && Math.abs(last.x - t.x) < 1e-6 && Math.abs(last.y - t.y) < 1e-6;
+        if (same && (moving || !gesture)) return;
+        last = t;
+        const node = svg.node(), ev = { transform: t, sourceEvent: null };
+        if (!gesture) { gesture = true; zoomBehavior.on("start").call(node, ev); }
+        node.__zoom = t;
+        zoomBehavior.on("zoom").call(node, ev);
+        if (!moving) { gesture = false; zoomBehavior.on("end").call(node, ev); }
+      },
+      onRedraw(fn) { _narrRedrawHook = fn; },
+      tilesPending: () => [..._tileCache.values()].filter(img => !img.complete).length,
+      iconsPending: () => [...document.querySelectorAll(".icon-fallback-dot")]
+        .filter(e => e.getAttribute("display") !== "none").length,
+      dustReady: () => dustReady(),
+      setStage(mode) { if (mode !== _viewportLock) setViewportLock(mode); },
+      isMobile: () => _isMobile,
+      prepare() {
+        svg.interrupt();
+        if (isTourActive()) closeTour();
+        selectedObj = null;
+        setSidebarOpen(false);
+        _userEngaged = true;
+        _dustEnabled = true;
+        ensureDust();
+        document.body.classList.add("ui-hidden", "narrating");
+      },
+    };
+    import("./narration.js").then(m => m.startNarration(api));
+
+  }
+}

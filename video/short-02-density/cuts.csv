@@ -1,0 +1,20 @@
+source,beat,out_start,out_end,src_start,src_end,text
+rec6,q,0.00,18.08,60.70,79.11,"When you plot every object by mass and size, something really interesting happens, which all of them start going around this diagonal line. And at first it's weird, but then you realize it's sort of obvious when you zoom in."
+rec3,human,18.68,22.26,172.12,175.70,"Let's zoom in. So here we are, humans."
+rec3,human,22.54,31.11,175.72,184.32,We are roughly one to two meters high. We are usually about 100 kilograms or less.
+rec3,human,31.39,35.16,199.74,203.51,Notice that we're just talking about order of magnitude.
+rec3,human,35.45,41.34,204.28,210.19,"So the sizes and the masses, it only matters when you multiply it by 10."
+rec3,water,41.95,46.84,218.31,223.20,One liter of water is one kilogram and it's 10 centimeter wide
+rec3,water,47.12,50.81,241.74,245.43,So this is where the one liter of water sits.
+rec3,ton,51.41,57.45,265.11,271.15,"If you multiply your size by 10, so now what was 10 centimeters is one meter."
+rec3,ton,57.73,61.40,271.39,275.06,You have a cube of one meter by one meter by one meter.
+rec3,ton,61.68,64.22,275.16,277.70,That's one ton of water.
+rec3,ton,64.50,71.70,277.89,285.10,"So when you multiply the sizes by 10, you have 1 ,000 times more mass"
+rec3,ton,71.98,75.49,308.17,311.68,That's because we live in a three -dimensional universe.
+rec3,ton,75.77,77.24,311.92,313.39,That's the cube law.
+rec3,line,77.84,82.22,332.79,337.66,so this blue line here is always the density of water.
+rec3,line,82.50,94.41,337.87,349.89,And that already tells us a story because everything that is to the right of it will float in water and everything that is to the left of it will sink.
+rec3,eg,95.01,100.69,361.51,367.19,"so for example, most of those dots to the left are meteorites and small rocks."
+rec3,eg,100.97,109.89,367.21,376.43,"Most of the dots to the right are animals and most animals float in water, except the hippo."
+rec3,hippo,110.49,124.04,385.21,398.81,"The hippo sits right on the line, a little bit to the left of it. That's because the hippopotamus doesn't actually swim. it just sinks and walks in the bottom of the rivers."
+rec3,end,124.64,128.62,398.94,402.93,So that's a small interesting story that this already tells.

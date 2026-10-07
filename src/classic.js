@@ -24,7 +24,15 @@ const FIG_W = 1602, FIG_H = 1785;
 const FRAME = { x0: 298.5, x1: 1443.5, y0: 142.5, y1: 1660.5 };
 const R_DOM = [-40, 55];   // log radius [cm] across the frame
 const M_DOM = [-54, 68];   // log mass [g] up the frame
-const OUTER_AXIS_X = 161.5; // the log(M☉) axis line, left of the frame
+// Two changes from the paper so the figure reads like the map: the vertical
+// axes swap sides (energy in GeV on the left, mass in g on the right), and
+// the paper's second mass axis, in M☉, is left out. Positions outside the
+// frame are the paper's, mirrored about the frame:
+const mR = (fx) => FRAME.x1 + (FRAME.x0 - fx); // paper's left margin → right
+const mL = (fx) => FRAME.x0 - (fx - FRAME.x1); // paper's right margin → left
+// Both margins are now as narrow as the paper's GeV one (158.5 px)
+const MARGIN = FIG_W - FRAME.x1;
+const VB_X = FRAME.x0 - MARGIN, VB_W = FRAME.x1 - FRAME.x0 + 2 * MARGIN;
 const HEADER_H = 300;       // room above the figure for the paper's title block
 
 // figure px → data, for authoring anchors straight off the published raster
@@ -38,7 +46,7 @@ const R_I = (CP_C - BH_C) / 2;      // where the two meet
 const M_I = R_I + BH_C;
 // The site's 2G Planck convention: l_P and m_P sit exactly where the two lines meet
 const L_P = PLANCK_LOG_R, M_P = PLANCK_LOG_M;
-const LOG_MPC = 24.489, LOG_MSUN = 33.2986, LOG_GEV = -23.749;
+const LOG_MPC = 24.489, LOG_GEV = -23.749;
 // Isodensity lines are m − 3r = const ("c3"); values read off the figure.
 const C3 = {
   planck: 92.9, gut: 74.75, ew: 26.75, nuclear: 14.0, atomic: 0.0, recomb: -20.5,
@@ -196,20 +204,21 @@ const BLOBS = [
   [680, 1270, 27, 5, -72, "#cdb8de"],      // atoms
 ];
 
-// Fixed text outside the frame (axis titles), figure px
+// Fixed text outside the frame (axis titles), figure px. The rotated titles'
+// glyphs hang left of their baseline (the TITLE_BOX spans in renderAxes), so
+// a mirrored title moves right by its ascent minus descent to keep that span.
 const TITLES = [
   { t: "log ~{(}physical radius~{)} ~{[}cm~{]}", at: [872, 1769], size: 41.4, anchor: "middle" },
   { t: "log ~{(}radius~{)} ~{[}Mpc~{]}", at: [868, 38], size: 45.5, anchor: "middle" },
-  { t: "log ~{(}mass~{)} ~{[}g~{]}", at: [227, 900], size: 43.7, rot: -90, anchor: "middle" },
-  { t: "log ~{(}M_{⊙}~{)}", at: [41, 897], size: 46, rot: -90, anchor: "middle" },
-  { t: "log ~{(}mass~{)} ~{[}GeV~{]}", at: [1552, 902], size: 43.7, rot: -90, anchor: "middle" },
+  { t: "log ~{(}mass~{)} ~{[}g~{]}", at: [mR(227) + 32, 900], size: 43.7, rot: -90, anchor: "middle" },
+  { t: "log ~{(}mass~{)} ~{[}GeV~{]}", at: [mL(1552) + 24, 902], size: 43.7, rot: -90, anchor: "middle" },
 ];
 
 // Fig. 3 window, data space; the paper draws its rectangle a little inside it
 const FIG3 = { r: [5.5, 11.5], m: [31.0, 34.42] };
 const FIG3_RECT = { r: [fr(850.5), fr(918)], m: [fm(602), fm(565)] };
 
-// Red arrows on the right axis: [log GeV, label, arrow-tail dy, text-baseline dy]
+// Red arrows on the energy (left) axis: [log GeV, label, arrow-tail dy, text-baseline dy]
 // (offsets from the arrow tip, as drawn in the paper)
 const ENERGY_MARKS = [
   [19.09, "E_{P}", 26, 46],      // Planck energy
@@ -345,7 +354,7 @@ function build() {
   document.body.appendChild(root);
 
   svg = d3.select(root).append("svg")
-    .attr("viewBox", `0 ${-HEADER_H} ${FIG_W} ${FIG_H + HEADER_H}`)
+    .attr("viewBox", `${VB_X} ${-HEADER_H} ${VB_W} ${FIG_H + HEADER_H}`)
     .attr("preserveAspectRatio", "xMidYMid meet");
 
   const defs = svg.append("defs");
@@ -728,14 +737,12 @@ function buildHeader() {
   line("cl-h-cite", -30, 42, "(Am. J. Phys. 91, 819–825, 2023)");
 }
 
-// Static axis furniture: frame, outer M☉ axis line, Planck and energy markers
+// Static axis furniture: frame, Planck and energy markers
 function buildAxes() {
   const g = layers.axesStatic = svg.append("g");
   g.append("rect").attr("x", FRAME.x0).attr("y", FRAME.y0)
     .attr("width", FRAME.x1 - FRAME.x0).attr("height", FRAME.y1 - FRAME.y0)
     .attr("fill", "none").attr("stroke", "#000").attr("stroke-width", 2.4);
-  g.append("line").attr("x1", OUTER_AXIS_X).attr("y1", FRAME.y0).attr("x2", OUTER_AXIS_X).attr("y2", FRAME.y1)
-    .attr("stroke", "#000").attr("stroke-width", 2.4);
   const marker = (cls, label, color, anchor) => {
     const m = g.append("g").attr("class", cls);
     m.append("line").attr("stroke", color).attr("stroke-width", color === "#000" ? 1.6 : 1.8)
@@ -745,9 +752,9 @@ function buildAxes() {
     richText(t, label, 40);
     return m;
   };
-  layers.mP = marker("cl-mp", "m_{P}", "#000", "end");
+  layers.mP = marker("cl-mp", "m_{P}", "#000", "start");
   layers.lP = marker("cl-lp", "l_{P}", "#000", "middle");
-  layers.energy = ENERGY_MARKS.map(([, txt]) => marker("cl-e", txt, COL.red, "start"));
+  layers.energy = ENERGY_MARKS.map(([, txt]) => marker("cl-e", txt, COL.red, "end"));
 }
 
 function renderAxes() {
@@ -757,25 +764,24 @@ function renderAxes() {
   // vertical-axis numbers must not run into the rotated axis titles
   const numW = (txt) => txt.length * NUM_PX * 0.5;
   const clearOf = (x0_, x1_, y, [tx0, ty0, tx1, ty1]) => x1_ < tx0 || x0_ > tx1 || y + 16 < ty0 || y - 16 > ty1;
-  const TITLE_BOX = { inner: [190, 773, 232, 1027], outer: [6, 818, 50, 977], right: [1517, 742, 1563, 1062] };
+  const TITLE_BOX = { mass: [mR(232), 773, mR(190), 1027], energy: [mL(1563), 742, mL(1517), 1062] };
   const MAJ = 12, MIN = 6, PW = FRAME.x1 - FRAME.x0, PH = FRAME.y1 - FRAME.y0;
   const lines = [], nums = [];
 
   // horizontal axes: bottom log radius [cm], top log radius [Mpc]
-  [[0, FRAME.y1, 1, 1718], [-LOG_MPC, FRAME.y0, -1, 113]].forEach(([off, y0_, dir, ny]) => {
+  [[0, FRAME.y1, 1, 1718, "bottom"], [-LOG_MPC, FRAME.y0, -1, 113, "top"]].forEach(([off, y0_, dir, ny, side]) => {
     const T = ticks(xs.domain(), off, PW, true);
     T.min.forEach(t => { const x = xs(t.pos); if (inX(x)) lines.push([x, y0_, x, y0_ + dir * MIN, 1.6]); });
     T.maj.forEach(t => {
       const x = xs(t.pos);
       if (!inX(x)) return;
       lines.push([x, y0_, x, y0_ + dir * MAJ, 2]);
-      nums.push([x, ny, T.fmt(t.val), "middle"]);
+      nums.push([x, ny, T.fmt(t.val), "middle", side]);
     });
   });
-  // vertical axes: inner log mass [g], outer log mass [M☉], right log mass [GeV]
-  [[0, FRAME.x0, -1, 279, "end", TITLE_BOX.inner],
-   [-LOG_MSUN, OUTER_AXIS_X, -1, 141, "end", TITLE_BOX.outer],
-   [-LOG_GEV, FRAME.x1, 1, 1466, "start", TITLE_BOX.right]].forEach(([off, x0_, dir, nx, anchor, box]) => {
+  // vertical axes: log mass [g] on the right, log mass [GeV] (energy) on the left
+  [[0, FRAME.x1, 1, mR(279), "start", TITLE_BOX.mass],
+   [-LOG_GEV, FRAME.x0, -1, mL(1466), "end", TITLE_BOX.energy]].forEach(([off, x0_, dir, nx, anchor, box]) => {
     const T = ticks(ys.domain(), off, PH, false);
     T.min.forEach(t => { const y = ys(t.pos); if (inY(y)) lines.push([x0_, y, x0_ + dir * MIN, y, 1.6]); });
     T.maj.forEach(t => {
@@ -784,7 +790,7 @@ function renderAxes() {
       lines.push([x0_, y, x0_ + dir * MAJ, y, 2]);
       const txt = T.fmt(t.val), w = numW(txt);
       const [a, b] = anchor === "end" ? [nx - w, nx] : [nx, nx + w];
-      if (labY(y) && clearOf(a, b, y, box)) nums.push([nx, y + 16, txt, anchor]);
+      if (labY(y) && clearOf(a, b, y, box)) nums.push([nx, y + 16, txt, anchor, dir > 0 ? "right" : "left"]);
     });
   });
   layers.axes.selectAll("line").data(lines).join("line").attr("stroke", "#000")
@@ -792,7 +798,8 @@ function renderAxes() {
     .attr("stroke-width", d => d[4]);
   layers.axes.selectAll("text").data(nums).join("text").attr("class", "cl-num")
     .attr("font-size", NUM_PX)
-    .attr("x", d => d[0]).attr("y", d => d[1]).attr("text-anchor", d => d[3]).text(d => d[2]);
+    .attr("x", d => d[0]).attr("y", d => d[1]).attr("text-anchor", d => d[3]).attr("data-side", d => d[4])
+    .text(d => d[2]);
 
   // Planck mass and length arrows, red energy arrows: follow the axes
   const place = (m, show, [x1, y1, x2, y2], [tx, ty]) => {
@@ -802,11 +809,11 @@ function renderAxes() {
     m.select("text").attr("x", tx).attr("y", ty);
   };
   const yP = ys(M_P), xP = xs(L_P);
-  place(layers.mP, inY(yP), [248, yP, 294, yP], [246, yP + 13]);
+  place(layers.mP, inY(yP), [mR(248), yP, mR(294), yP], [mR(246), yP + 13]);
   place(layers.lP, inX(xP), [xP, 1728, xP, 1666], [xP - 4, 1766]);
   ENERGY_MARKS.forEach(([lg, , tail, base], i) => {
     const y = ys(lg + LOG_GEV);
-    place(layers.energy[i], inY(y), [1503, y + tail, 1450, y], [1507, y + base]);
+    place(layers.energy[i], inY(y), [mL(1503), y + tail, mL(1450), y], [mL(1507), y + base]);
   });
 }
 
@@ -922,3 +929,56 @@ if (import.meta.env.DEV) {
 }
 
 export function isClassicOpen() { return !!root && root.classList.contains("shown"); }
+
+// The plot frame's box in client px (narration clips its highlights to it)
+export function classicFrameClient() {
+  const ctm = svg?.node().getScreenCTM();
+  if (!ctm) return null;
+  return { x: ctm.a * FRAME.x0 + ctm.e, y: ctm.d * FRAME.y0 + ctm.f,
+    w: ctm.a * (FRAME.x1 - FRAME.x0), h: ctm.d * (FRAME.y1 - FRAME.y0) };
+}
+
+// Narration player: the axis numbers ("left" | "right" | "top" | "bottom" in
+// data-side) and a layer just beneath them for glows, in figure px, with a
+// soft-blur filter "#cl-glow-blur" for it.
+export function classicAxisNumbers() {
+  if (!layers.axes) return null;
+  if (!layers.axisGlow) {
+    layers.axisGlow = svg.insert("g", ".cl-axes").attr("class", "cl-axis-glow");
+    svg.select("defs").append("filter").attr("id", "cl-glow-blur")
+      .attr("x", "-100%").attr("y", "-100%").attr("width", "300%").attr("height", "300%")
+      .append("feGaussianBlur").attr("stdDeviation", 11);
+  }
+  return { nums: layers.axes.selectAll("text").nodes(), glow: layers.axisGlow };
+}
+
+// Narration player (src/narration.js): show the figure at an explicit
+// opacity and camera, frame by frame. No URL push, no CSS fade (the
+// player owns time), no keyboard. view: { r, m, span } puts log r / log m
+// at the figure's screen centre with `span` decades across its width.
+// The paper's figure is about 3% taller per decade of mass than per decade of
+// size; the map is square (same px per decade both ways). While a narration
+// drives the figure, squash it vertically to match, so that every point sits
+// exactly on the map during the cross-fade, not just the one at the centre.
+const ISO_Y = FRAME_PPD_X / ((FRAME.y1 - FRAME.y0) / (M_DOM[1] - M_DOM[0]));
+
+export function narrClassic(opacity, view) {
+  if (opacity <= 0) {
+    if (root) { root.hidden = true; root.classList.remove("shown"); svg.style("transform", null); }
+    return;
+  }
+  if (!root) { build(); loadDust().then(() => renderDust()).catch(() => {}); }
+  root.style.transition = "none";
+  if (root.hidden) { root.hidden = false; root.classList.add("shown"); layoutNames(); }
+  root.style.opacity = opacity;
+  if (!view) return;
+  svg.style("transform", `scaleY(${ISO_Y})`);   // about its centre: the camera's centre
+  const ctm = svg.node().getScreenCTM();
+  if (!ctm) return;
+  const rect = svg.node().getBoundingClientRect();
+  const k = (rect.width / view.span) / (ctm.a * FRAME_PPD_X);
+  // The figure point under the screen centre (screen → figure coordinates)
+  const fx = (rect.left + rect.width / 2 - ctm.e) / ctm.a;
+  const fy = (rect.top + rect.height / 2 - ctm.f) / ctm.d;
+  svg.call(zoom.transform, d3.zoomIdentity.translate(fx, fy).scale(k).translate(-x0(view.r), -y0(view.m)));
+}
