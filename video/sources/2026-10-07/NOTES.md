@@ -130,8 +130,8 @@ should be whole passages, not phrases.
 |---|---|---|
 | `intro to video 3.m4a` (`rec8`) | 0:56 | `short-03-planets` intro: "When you plot every object…" → "…man-made objects and small structures". It replaces rec3's opening and goes back to rec3 at "And as we go up and up…". Left out: "So, so what we've seen" (it refers to the previous video), the first try at "and then as we move", the meteorite aside ("to the to the earth"), and "the size of actual meteors" (meteors are the streaks; rec3's "small asteroids and moons" follows instead). |
 | `small fixes.m4a` (`rec9`) | 1:54 | **not spliced yet**, see below |
-| `and if you notice a sharp turn to the left.m4a` (`rec10`) | | **not reviewed yet** |
-| `new intro.m4a` (`rec11`) | 4:44 | **not reviewed yet**; might replace rec8 if the sound matches |
+| `and if you notice a sharp turn to the left.m4a` (`rec10`) | 1:03 | **not spliced yet.** For `short-04-stars` (the `turn` beat): "…after like a super Jupiter, it takes a sharp turn to the left… so massive… such an extraordinary pressure that they strip their electrons out of their nuclei and they become degenerate matter. And at this point, there is really a split." There are several passes, and it trails off at the end ("okay, well, that was enough"). |
+| `new intro.m4a` (`rec11`) | 4:44 | **not reviewed yet.** It's a new take of the **hook** (`short-01-hook`), not of the short-3 intro: "most fascinating chart in all of physics", mass and size, quantum and relativity meeting, the diagonals in seconds since the Big Bang, photons, energy and wavelength, "the history of our universe", ending "let me show you the brilliant story of the triangle of everything". It has many passes; the cleanest run is about 113–187 s, with a second run of the photons/energy part at 191–270 s. Recorded at home, so it would make the hook one setup throughout. |
 
 ## Status, end of 2026-10-07
 
