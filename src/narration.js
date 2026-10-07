@@ -539,6 +539,7 @@ export async function startNarration(app) {
     cues: cues.map(c => ({ t: +c.time.toFixed(2), at: c.at })),
     renderAt,
     settle(t) { const { view } = camera(t); app.setCamera(view, false); overlay(); },
+    camera: (t) => camera(t).view,
     pending: () => app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1),
     audio: base + take.audio,
   };
@@ -602,8 +603,7 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 #narr-caption { position: absolute; left: 6%; right: 6%; bottom: 8.5%; text-align: center; pointer-events: none;
   font: 700 38px/1.02 "Barlow Condensed", "DIN Condensed", "Arial Narrow", sans-serif; text-transform: uppercase;
   letter-spacing: 0.01em; color: #fff;
-  -webkit-text-stroke: 6px #000; paint-order: stroke fill;
-  text-shadow: 0 4px 12px rgba(0,0,0,0.6); }
+  -webkit-text-stroke: 6px #000; paint-order: stroke fill; }
 #narr-caption span { color: #fff; }
 #narr-caption span.now { color: #ffd54f; }
 #narr-ui { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;

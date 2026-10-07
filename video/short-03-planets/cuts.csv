@@ -1,0 +1,16 @@
+source,beat,out_start,out_end,src_start,src_end,text
+rec3,life,0.00,8.75,415.17,423.93,"And as we move up the line, you have more animals until we have the largest animals that ever lived, the blue whale"
+rec3,life,9.03,15.15,424.27,430.72,"and then the largest living thing that have ever existed, the huge sequoia tree."
+rec3,made,15.75,25.57,431.10,441.18,"From this point on, almost all those dots are man -made structures or small asteroids."
+rec3,round,26.17,37.57,443.24,454.64,"And as we go up and up, we mostly have small asteroids and moons. And we're going to see something very interesting."
+rec3,round,37.85,43.36,456.08,461.59,"The more up we go, the more those asteroids will become rounder and rounder."
+rec3,round,43.64,57.03,461.59,474.97,"Look at Hyperion and Mimas and Celadus, Vesta, Ceres, and then when we reach Pluto, we are in the dwarf planets and they are mostly all round."
+rec3,liquid,57.63,66.89,489.89,499.31,so this point is where gravity overcomes the molecular bond that holds shapes together.
+rec3,liquid,67.17,74.98,499.63,507.44,"From this point on, everything might as well be liquid. liquid, they behave like liquid, so they become round."
+rec3,atmo,75.58,84.14,528.33,536.90,"As the mass of the object increases, its gravity also allows it to start having an atmosphere."
+rec3,atmo,84.42,90.65,537.20,543.43,"Mercury and the moon don't have any atmosphere. Mars has one, but it's very thin."
+rec3,atmo,90.93,96.92,543.92,549.91,"Venus and Earth, well, they have a nice atmosphere. I would say Earth is better."
+rec3,gas,97.52,115.11,554.29,572.30,"but if we go it any further, we start seeing super earths and gas giants gas giants are so massive that most of their mass is just gas they don't have a surface anymore it's just gas"
+rec3,gas,115.39,121.76,591.53,598.17,Their gravity is so strong that hydrogen just cannot escape
+rec3,earth,122.36,133.54,648.41,659.59,So Earth is really in this thin line where we just have enough mass to have some atmosphere but not enough that that atmosphere becomes a giant gas planet.
+rec3,end,134.44,138.56,661.91,666.04,"And when you go up and up, something else start happening."

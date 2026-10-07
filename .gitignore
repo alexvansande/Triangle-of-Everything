@@ -35,3 +35,4 @@ posters/
 !public/narration/short-01-hook/audio.m4a
 .narr-render-*/
 __pycache__/
+narration-frames/

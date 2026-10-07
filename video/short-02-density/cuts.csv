@@ -1,0 +1,20 @@
+source,beat,out_start,out_end,src_start,src_end,text
+rec3,q,0.00,5.95,164.78,170.73,I want to start with the basic question of why is everything just on this diagonal here?
+rec3,human,6.55,10.13,172.12,175.70,"Let's zoom in. So here we are, humans."
+rec3,human,10.41,18.98,175.72,184.32,We are roughly one to two meters high. We are usually about 100 kilograms or less.
+rec3,human,19.27,23.04,199.74,203.51,Notice that we're just talking about order of magnitude.
+rec3,human,23.32,29.22,204.28,210.19,"So the sizes and the masses, it only matters when you multiply it by 10."
+rec3,water,29.82,34.71,218.31,223.20,One liter of water is one kilogram and it's 10 centimeter wide
+rec3,water,34.99,38.68,241.74,245.43,So this is where the one liter of water sits.
+rec3,ton,39.28,45.32,265.11,271.15,"If you multiply your size by 10, so now what was 10 centimeters is one meter."
+rec3,ton,45.60,49.27,271.39,275.06,You have a cube of one meter by one meter by one meter.
+rec3,ton,49.55,52.09,275.16,277.70,That's one ton of water.
+rec3,ton,52.37,59.57,277.89,285.10,"So when you multiply the sizes by 10, you have 1 ,000 times more mass"
+rec3,ton,59.85,63.36,308.17,311.68,That's because we live in a three -dimensional universe.
+rec3,ton,63.64,65.11,311.92,313.39,That's the cube law.
+rec3,line,65.71,70.09,332.79,337.66,so this blue line here is always the density of water.
+rec3,line,70.37,82.28,337.87,349.89,And that already tells us a story because everything that is to the right of it will float in water and everything that is to the left of it will sink.
+rec3,eg,82.88,88.56,361.51,367.19,"so for example, most of those dots to the left are meteorites and small rocks."
+rec3,eg,88.84,97.76,367.21,376.43,"Most of the dots to the right are animals and most animals float in water, except the hippo."
+rec3,hippo,98.36,111.91,385.21,398.81,"The hippo sits right on the line, a little bit to the left of it. That's because the hippopotamus doesn't actually swim. it just sinks and walks in the bottom of the rivers."
+rec3,end,112.51,116.49,398.94,402.93,So that's a small interesting story that this already tells.

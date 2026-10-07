@@ -65,6 +65,15 @@ that the new take doesn't contain are skipped and listed in the console
 
 The full field list is at the top of `src/narration-scenes/tour.js`.
 
+## Check a take
+
+```bash
+node scripts/narration-frames.mjs short-02-density 4 30 61.5 --out /tmp/frames
+```
+
+This lists any cue whose phrase isn't in the take, and saves a 9:16 still at
+each time given.
+
 ## Preview without rendering
 
 Rendering takes about an hour, so to check an edit, watch the player live

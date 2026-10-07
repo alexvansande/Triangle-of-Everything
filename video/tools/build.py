@@ -1,14 +1,21 @@
 """Cut an edit from one or more raw recordings.
 
-    python3 tools/build.py WORKDIR
+    python3 video/tools/build.py WORKDIR video/<short>/edl.py
 WORKDIR holds audio/<source>.wav (48 kHz mono) and <source>.words.json
 ([[word, start, end], …] from scripts/narration-take.py's Whisper settings)
-for every source tools/edl.py names. Writes WORKDIR/audio/edit_raw.wav and
-WORKDIR/cuts.csv; then run tools/enhance.sh on edit_raw.wav.
+for every source the EDL names. Writes WORKDIR/audio/edit_raw.wav and
+WORKDIR/cuts.csv; then run video/tools/enhance.sh on edit_raw.wav.
+
+EDL entries: (source, beat, first-word start, last-word start, {s, e, gap})
+in source seconds. Cuts snap to the nearest real silence unless s/e are
+given; gap overrides the pause before a clip (default 0.28 s inside a
+beat, 0.6 s between beats).
 """
 import csv, json, os, sys, wave
 import numpy as np
-sys.path.insert(0, os.path.dirname(__file__)); from edl import EDL
+import importlib.util
+spec = importlib.util.spec_from_file_location("edl", sys.argv[2]); m = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m); EDL = m.EDL
 D = sys.argv[1]
 GAP_SAME, GAP_BEAT, TAIL = 0.28, 0.6, 0.5
 

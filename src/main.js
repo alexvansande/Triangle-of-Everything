@@ -7157,7 +7157,10 @@ initTimeScrubber({
   resetView: () => svg.call(zoomBehavior.transform, d3.zoomIdentity),
 });
 
-if (!loadHash()) {
+// A narration (?narrate=, or the preview build) drives the camera itself:
+// the boot zoom-out below would fight it for its first seconds.
+const _narrating = NARR_PREVIEW || new URLSearchParams(location.search).has("narrate");
+if (!loadHash() && !_narrating) {
   // Intro animation: start zoomed on Human, then zoom out to full view
   const introK = 14;
   flyTo(1.7, 4.9, introK); // start on Human
