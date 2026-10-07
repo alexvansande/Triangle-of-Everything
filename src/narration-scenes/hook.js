@@ -3,9 +3,9 @@
 // cross-fade into the map on "…the triangle of everything".
 // =============================================================
 // Field reference: see the top of ./tour.js. Axis bands: { axis: side }.
-// On the classic figure the left axis is mass (g, M☉), the right one mass
-// in GeV, the top one radius in Mpc (time lives on the diagonals), so the
-// bands only carry a label where the figure agrees with the narration.
+// The classic figure has its axes swapped from the paper to match the map:
+// the left axis is energy (mass in GeV), the right ones mass (g, M☉), the
+// top one radius in Mpc (time lives on the diagonals).
 
 const FIG = { r: 7.5, m: 9, span: 106 };      // the whole classic figure
 const MAP = { r: -2.2, m: -4.8, span: 74 };   // the whole triangle, portrait

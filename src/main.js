@@ -10,6 +10,12 @@ import {
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
+
+// Where the build is served from: "/" on the site, "./" in the narration
+// preview (scripts/narration-preview.mjs), which runs from a sub-folder.
+const BASE = import.meta.env.BASE_URL;
+// The narration preview: the player only, no address-bar sync or service worker.
+const NARR_PREVIEW = import.meta.env.MODE === "narration-preview";
 import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
@@ -5001,7 +5007,7 @@ function drawTiles() {
 
       if (sw < 1 || sh < 1) continue;
 
-      const href = `/tiles/z${best.z}/tile_${c}_${r}.webp`;
+      const href = `${BASE}tiles/z${best.z}/tile_${c}_${r}.webp`;
 
       const key = href;
       if (!_tileCache.has(key)) {
@@ -5062,7 +5068,7 @@ function drawBaseTiles() {
 
       if (sw < 1 || sh < 1) continue;
 
-      const href = `/tiles/z${base.z}/tile_${c}_${r}.webp`;
+      const href = `${BASE}tiles/z${base.z}/tile_${c}_${r}.webp`;
       if (!_tileCache.has(href)) {
         const img = new Image();
         img.src = href;
@@ -5081,7 +5087,7 @@ function drawBaseTiles() {
 
 async function loadTileMeta() {
   try {
-    const response = await fetch("/tiles/meta.json");
+    const response = await fetch(`${BASE}tiles/meta.json`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     tileMeta = await response.json();
     drawBaseTiles(); // draw low-res background immediately
@@ -5645,7 +5651,7 @@ function preloadTilesForTransform(targetTransform) {
 
       if (tLogRmax < x0 || tLogRmin > x1 || tLogMmax < y0 || tLogMmin > y1) continue;
 
-      const href = `/tiles/z${best.z}/tile_${c}_${r}.webp`;
+      const href = `${BASE}tiles/z${best.z}/tile_${c}_${r}.webp`;
       if (!_tileCache.has(href)) {
         const img = new Image();
         const p = new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
@@ -6992,6 +6998,7 @@ if (_reduceMotion && !_animDisabled) {
 // =============================================================
 
 function saveHash() {
+  if (NARR_PREVIEW) return;
   // Don't overwrite tour hashes — the tour manages its own URL state
   if (location.hash.startsWith("#tour=")) return;
   // Nor the hidden classic figure's
@@ -7014,11 +7021,13 @@ function saveHash() {
 // Object named by the URL path (/eois-stantonae/), if any. Pages built by
 // build-pages.mjs also carry its display name for info-panel articles.
 function pathSlug() {
+  if (NARR_PREVIEW) return null;
   const seg = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, "");
   return /^[a-z0-9][a-z0-9-]*$/.test(seg) ? seg : null;
 }
 
 function loadHash() {
+  if (NARR_PREVIEW) return false; // the hash names the take there
   const h = location.hash.slice(1);
   const ps = pathSlug();
   // Hidden: the original Lineweaver–Patel figure, at /classic/ (or the old
@@ -7198,7 +7207,7 @@ onFirstInteraction(() => {
 // Registered late and without clients.claim so the FIRST visit never pays
 // for interception or cache writes — the SW only serves later navigations.
 // Skipped in dev — it would fight Vite's HMR.
-if ("serviceWorker" in navigator && !import.meta.env.DEV) {
+if ("serviceWorker" in navigator && !import.meta.env.DEV && !NARR_PREVIEW) {
   window.addEventListener("load", () => {
     setTimeout(() => {
       navigator.serviceWorker.register("/sw.js").catch(() => { /* non-fatal */ });
@@ -7270,7 +7279,10 @@ if (_ogShot) {
 {
   // Read the query now: the hash/URL sync later rewrites the address bar.
   const narrParams = new URLSearchParams(location.search);
-  const narrTake = narrParams.get("narrate");
+  // The preview can't pass a query string, so it names the take in the hash
+  // (#take-2) or falls back to the one it was built for.
+  const narrTake = narrParams.get("narrate") ||
+    (NARR_PREVIEW ? location.hash.slice(1) || import.meta.env.VITE_NARRATE : null);
   if (narrTake) {
     let gesture = false, last = null;
     const ppdBase = () => xBase(1) - xBase(0); // plot px per decade at k = 1
@@ -7317,5 +7329,6 @@ if (_ogShot) {
       },
     };
     import("./narration.js").then(m => m.startNarration(api));
+    if (NARR_PREVIEW) window.addEventListener("hashchange", () => location.reload());
   }
 }

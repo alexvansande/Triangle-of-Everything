@@ -24,7 +24,13 @@ const FIG_W = 1602, FIG_H = 1785;
 const FRAME = { x0: 298.5, x1: 1443.5, y0: 142.5, y1: 1660.5 };
 const R_DOM = [-40, 55];   // log radius [cm] across the frame
 const M_DOM = [-54, 68];   // log mass [g] up the frame
-const OUTER_AXIS_X = 161.5; // the log(M☉) axis line, left of the frame
+// The axes are swapped left↔right relative to the paper so the figure reads
+// like the map: energy (GeV) on the left, mass (g and M☉) on the right.
+// Positions outside the frame are the paper's, mirrored about the frame:
+const mR = (fx) => FRAME.x1 + (FRAME.x0 - fx); // paper's left margin → right
+const mL = (fx) => FRAME.x0 - (fx - FRAME.x1); // paper's right margin → left
+const VB_X = mL(FIG_W);                         // the narrow margin is now on the left
+const OUTER_AXIS_X = mR(161.5); // the log(M☉) axis line, right of the frame
 const HEADER_H = 300;       // room above the figure for the paper's title block
 
 // figure px → data, for authoring anchors straight off the published raster
@@ -196,20 +202,22 @@ const BLOBS = [
   [680, 1270, 27, 5, -72, "#cdb8de"],      // atoms
 ];
 
-// Fixed text outside the frame (axis titles), figure px
+// Fixed text outside the frame (axis titles), figure px. The rotated titles'
+// glyphs hang left of their baseline (the TITLE_BOX spans in renderAxes), so
+// a mirrored title moves right by its ascent minus descent to keep that span.
 const TITLES = [
   { t: "log ~{(}physical radius~{)} ~{[}cm~{]}", at: [872, 1769], size: 41.4, anchor: "middle" },
   { t: "log ~{(}radius~{)} ~{[}Mpc~{]}", at: [868, 38], size: 45.5, anchor: "middle" },
-  { t: "log ~{(}mass~{)} ~{[}g~{]}", at: [227, 900], size: 43.7, rot: -90, anchor: "middle" },
-  { t: "log ~{(}M_{⊙}~{)}", at: [41, 897], size: 46, rot: -90, anchor: "middle" },
-  { t: "log ~{(}mass~{)} ~{[}GeV~{]}", at: [1552, 902], size: 43.7, rot: -90, anchor: "middle" },
+  { t: "log ~{(}mass~{)} ~{[}g~{]}", at: [mR(227) + 32, 900], size: 43.7, rot: -90, anchor: "middle" },
+  { t: "log ~{(}M_{⊙}~{)}", at: [mR(41) + 26, 897], size: 46, rot: -90, anchor: "middle" },
+  { t: "log ~{(}mass~{)} ~{[}GeV~{]}", at: [mL(1552) + 24, 902], size: 43.7, rot: -90, anchor: "middle" },
 ];
 
 // Fig. 3 window, data space; the paper draws its rectangle a little inside it
 const FIG3 = { r: [5.5, 11.5], m: [31.0, 34.42] };
 const FIG3_RECT = { r: [fr(850.5), fr(918)], m: [fm(602), fm(565)] };
 
-// Red arrows on the right axis: [log GeV, label, arrow-tail dy, text-baseline dy]
+// Red arrows on the energy (left) axis: [log GeV, label, arrow-tail dy, text-baseline dy]
 // (offsets from the arrow tip, as drawn in the paper)
 const ENERGY_MARKS = [
   [19.09, "E_{P}", 26, 46],      // Planck energy
@@ -345,7 +353,7 @@ function build() {
   document.body.appendChild(root);
 
   svg = d3.select(root).append("svg")
-    .attr("viewBox", `0 ${-HEADER_H} ${FIG_W} ${FIG_H + HEADER_H}`)
+    .attr("viewBox", `${VB_X} ${-HEADER_H} ${FIG_W} ${FIG_H + HEADER_H}`)
     .attr("preserveAspectRatio", "xMidYMid meet");
 
   const defs = svg.append("defs");
@@ -745,9 +753,9 @@ function buildAxes() {
     richText(t, label, 40);
     return m;
   };
-  layers.mP = marker("cl-mp", "m_{P}", "#000", "end");
+  layers.mP = marker("cl-mp", "m_{P}", "#000", "start");
   layers.lP = marker("cl-lp", "l_{P}", "#000", "middle");
-  layers.energy = ENERGY_MARKS.map(([, txt]) => marker("cl-e", txt, COL.red, "start"));
+  layers.energy = ENERGY_MARKS.map(([, txt]) => marker("cl-e", txt, COL.red, "end"));
 }
 
 function renderAxes() {
@@ -757,7 +765,8 @@ function renderAxes() {
   // vertical-axis numbers must not run into the rotated axis titles
   const numW = (txt) => txt.length * NUM_PX * 0.5;
   const clearOf = (x0_, x1_, y, [tx0, ty0, tx1, ty1]) => x1_ < tx0 || x0_ > tx1 || y + 16 < ty0 || y - 16 > ty1;
-  const TITLE_BOX = { inner: [190, 773, 232, 1027], outer: [6, 818, 50, 977], right: [1517, 742, 1563, 1062] };
+  const TITLE_BOX = { inner: [mR(232), 773, mR(190), 1027], outer: [mR(50), 818, mR(6), 977],
+    energy: [mL(1563), 742, mL(1517), 1062] };
   const MAJ = 12, MIN = 6, PW = FRAME.x1 - FRAME.x0, PH = FRAME.y1 - FRAME.y0;
   const lines = [], nums = [];
 
@@ -772,10 +781,11 @@ function renderAxes() {
       nums.push([x, ny, T.fmt(t.val), "middle"]);
     });
   });
-  // vertical axes: inner log mass [g], outer log mass [M☉], right log mass [GeV]
-  [[0, FRAME.x0, -1, 279, "end", TITLE_BOX.inner],
-   [-LOG_MSUN, OUTER_AXIS_X, -1, 141, "end", TITLE_BOX.outer],
-   [-LOG_GEV, FRAME.x1, 1, 1466, "start", TITLE_BOX.right]].forEach(([off, x0_, dir, nx, anchor, box]) => {
+  // vertical axes: inner log mass [g] and outer log mass [M☉] on the right,
+  // log mass [GeV] (energy) on the left
+  [[0, FRAME.x1, 1, mR(279), "start", TITLE_BOX.inner],
+   [-LOG_MSUN, OUTER_AXIS_X, 1, mR(141), "start", TITLE_BOX.outer],
+   [-LOG_GEV, FRAME.x0, -1, mL(1466), "end", TITLE_BOX.energy]].forEach(([off, x0_, dir, nx, anchor, box]) => {
     const T = ticks(ys.domain(), off, PH, false);
     T.min.forEach(t => { const y = ys(t.pos); if (inY(y)) lines.push([x0_, y, x0_ + dir * MIN, y, 1.6]); });
     T.maj.forEach(t => {
@@ -802,11 +812,11 @@ function renderAxes() {
     m.select("text").attr("x", tx).attr("y", ty);
   };
   const yP = ys(M_P), xP = xs(L_P);
-  place(layers.mP, inY(yP), [248, yP, 294, yP], [246, yP + 13]);
+  place(layers.mP, inY(yP), [mR(248), yP, mR(294), yP], [mR(246), yP + 13]);
   place(layers.lP, inX(xP), [xP, 1728, xP, 1666], [xP - 4, 1766]);
   ENERGY_MARKS.forEach(([lg, , tail, base], i) => {
     const y = ys(lg + LOG_GEV);
-    place(layers.energy[i], inY(y), [1503, y + tail, 1450, y], [1507, y + base]);
+    place(layers.energy[i], inY(y), [mL(1503), y + tail, mL(1450), y], [mL(1507), y + base]);
   });
 }
 

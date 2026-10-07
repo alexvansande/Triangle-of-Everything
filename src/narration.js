@@ -117,7 +117,7 @@ export async function startNarration(app) {
   params = app.params;
   RENDER = params.has("render");
   CAPTIONS = params.get("captions") !== "0";
-  const base = `/narration/${app.take}/`;
+  const base = `${import.meta.env.BASE_URL}narration/${app.take}/`;
   const take = await fetch(base + "words.json").then(r => r.json());
   SCENE = (await SCENES[`./narration-scenes/${take.scene || "tour"}.js`]()).default;
   const cues = resolveScene(take.words);
@@ -552,7 +552,7 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 .narr-unit { fill: rgba(255,255,255,0.92); font-size: 9.5px; font-weight: 600; }
 .narr-axname { fill: rgba(255,255,255,0.6); font-size: 9px; font-weight: 800; letter-spacing: 0.2em; }
 @font-face { font-family: "Barlow Condensed"; font-weight: 700; font-display: block;
-  src: url("/fonts/barlow-condensed-700-latin.woff2") format("woff2"); }
+  src: url("${import.meta.env.BASE_URL}fonts/barlow-condensed-700-latin.woff2") format("woff2"); }
 #narr-caption { position: absolute; left: 6%; right: 6%; bottom: 8.5%; text-align: center; pointer-events: none;
   font: 700 38px/1.02 "Barlow Condensed", "DIN Condensed", "Arial Narrow", sans-serif; text-transform: uppercase;
   letter-spacing: 0.01em; color: #fff;

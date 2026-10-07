@@ -65,6 +65,25 @@ that the new take doesn't contain are skipped and listed in the console
 
 The full field list is at the top of `src/narration-scenes/tour.js`.
 
+## Preview without rendering
+
+Rendering takes about an hour, so to check an edit, watch the player live
+instead. It plays the audio and runs every camera move, highlight and caption
+in real time. To watch it away from a dev server (for example on a phone,
+through a private claude.ai page), build the trimmed preview:
+
+```bash
+node scripts/narration-preview.mjs short-01-hook take-2   # takes with audio; default: all of them
+```
+
+`dist-preview/` is the app with relative paths, so it runs from any folder. It
+holds only what the player needs: map tiles to zoom level 4, woff2 fonts only,
+no object pages. `index.html` is the normal page, and `page.html` is the same
+page without `<html>`/`<head>`/`<body>` for hosts that add their own. The first
+take plays by default, and `#<take>` in the address or the buttons at the top
+pick another. In this build mode (`--mode narration-preview`), the app leaves
+the address bar alone and skips the service worker.
+
 ## Render the video
 
 ```bash
@@ -90,8 +109,9 @@ Keep those.
   Time is *not* on an axis: it's written on the diagonal lines (the ones
   labelled "now" or ending in "s"). So on "time…", highlight those diagonal
   labels instead of the top axis.
-- The left axis is mass (g and M☉). The right axis is mass in GeV, which is
-  the energy side.
+- The app draws the classic figure with its vertical axes **swapped from the
+  paper**, so it reads like the map: the left axis is mass in GeV (the energy
+  side), and the right axes are mass in g and M☉.
 
 **Axis highlight: restyle** (`drawAxis` in `src/narration.js`)
 - Replace the rectangle band. Instead, make the axis's own tick numbers grow
