@@ -1,19 +1,20 @@
 source,beat,out_start,out_end,src_start,src_end,text
-rec3,hook,0.00,7.82,717.75,725.58,"we often like to think of planets on stars are completely different things, but they are not as different."
-rec3,hook,8.10,10.96,730.39,733.26,Their difference is mostly about mass.
-rec3,turn,11.56,19.60,677.33,685.37,And then notice that suddenly most of the dots start taking a sharp left turn.
-rec3,turn,19.88,36.49,685.57,702.45,That's because they become so massive that the matter in the nucleus starts becoming degenerate matter where the pressure is so large that they scrape the electron layers
-rec3,bd,37.09,57.32,760.41,781.55,"So we start having those weird objects called brown dwarfs, which are a midpoint between a super big Jupiter and a very tiny star in which they start breaking down their core atoms, but not as much as to generate fusion."
-rec3,ms,57.92,82.09,781.51,806.03,"And then once they start generating fusion, they start generating energy and that starts compensating that pressure in the nuclei and they start expanding again. And that's why you see that the stars start following this other diagonal line directly proportional to their mass."
-rec3,ms,82.37,85.95,808.34,811.92,this line is called the main sequence.
-rec3,ms,86.23,90.02,812.67,816.45,Almost every star is on the main sequence.
-rec3,life,90.61,98.58,821.21,829.42,"And this becomes even interesting, because this chart will tell you the life cycle of a star."
-rec3,life,98.86,120.34,829.48,850.96,"Because what happens is that in order to sustain that expansion, they need to spend fuel and that fuel is hydrogen, it's fusion. But once they spend this fuel, they will collapse again. But that collapse will create further pressure and generate new energy."
-rec3,life,120.62,132.22,878.86,890.46,so they will expand and collapse a few times becoming a red giant or a spread super giant until they will go boom and become a supernova
-rec3,split,132.82,145.74,915.32,928.30,and then the object will split in two. The outer layers will expand in a nebulae while the inner layers will become a very dense object.
-rec3,split,146.02,149.82,928.26,932.07,"And what that object will become, it also depends on mass."
-rec3,split,150.10,152.25,942.09,944.24,it will become a neutron star.
-rec3,bh,152.85,156.45,953.04,956.65,"But if it's any more massive than that, it becomes a black hole."
-rec3,bh,156.73,162.99,956.88,963.14,And that's where we meet the first side of our triangle of everything.
-rec3,side,163.59,175.44,969.43,981.28,"for every object, there's a relationship between mass and size that after some point, if you are massive enough or if you're compressed enough, you become a black hole."
-rec3,side,175.72,187.04,981.76,993.08,"the size of a black hole is defined by its Schwarzschild radius, which is directly proportional to mass, this is why the slope here is a one -to -one slope."
+rec6,hook,0.00,9.39,225.18,234.57,"We think of planets and stars are being completely different things in two different categories that don't mix, but that's not really true."
+rec6,hook,9.67,23.48,239.06,253.09,"If we plot them all by size and mass, then not only we can understand how they connect to each other, but also how they evolve into each other. Their whole life cycle is here."
+rec3,hook,23.76,26.62,730.39,733.26,Their difference is mostly about mass.
+rec3,turn,27.23,35.26,677.33,685.37,And then notice that suddenly most of the dots start taking a sharp left turn.
+rec3,turn,35.54,52.15,685.57,702.45,That's because they become so massive that the matter in the nucleus starts becoming degenerate matter where the pressure is so large that they scrape the electron layers
+rec3,bd,52.75,72.98,760.41,781.55,"So we start having those weird objects called brown dwarfs, which are a midpoint between a super big Jupiter and a very tiny star in which they start breaking down their core atoms, but not as much as to generate fusion."
+rec3,ms,73.58,97.75,781.51,806.03,"And then once they start generating fusion, they start generating energy and that starts compensating that pressure in the nuclei and they start expanding again. And that's why you see that the stars start following this other diagonal line directly proportional to their mass."
+rec3,ms,98.03,101.61,808.34,811.92,this line is called the main sequence.
+rec3,ms,101.89,105.67,812.67,816.45,Almost every star is on the main sequence.
+rec3,life,106.27,114.24,821.21,829.42,"And this becomes even interesting, because this chart will tell you the life cycle of a star."
+rec3,life,114.52,136.00,829.48,850.96,"Because what happens is that in order to sustain that expansion, they need to spend fuel and that fuel is hydrogen, it's fusion. But once they spend this fuel, they will collapse again. But that collapse will create further pressure and generate new energy."
+rec3,life,136.28,147.88,878.86,890.46,so they will expand and collapse a few times becoming a red giant or a spread super giant until they will go boom and become a supernova
+rec3,split,148.48,161.40,915.32,928.30,and then the object will split in two. The outer layers will expand in a nebulae while the inner layers will become a very dense object.
+rec3,split,161.68,165.48,928.26,932.07,"And what that object will become, it also depends on mass."
+rec3,split,165.76,167.91,942.09,944.24,it will become a neutron star.
+rec3,bh,168.51,172.11,953.04,956.65,"But if it's any more massive than that, it becomes a black hole."
+rec3,bh,172.39,178.65,956.88,963.14,And that's where we meet the first side of our triangle of everything.
+rec3,side,179.25,191.10,969.43,981.28,"for every object, there's a relationship between mass and size that after some point, if you are massive enough or if you're compressed enough, you become a black hole."
+rec3,side,191.38,202.70,981.76,993.08,"the size of a black hole is defined by its Schwarzschild radius, which is directly proportional to mass, this is why the slope here is a one -to -one slope."

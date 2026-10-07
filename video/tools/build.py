@@ -7,6 +7,7 @@ for every source the EDL names. Writes WORKDIR/audio/edit_raw.wav and
 WORKDIR/cuts.csv; then run video/tools/enhance.py on edit_raw.wav.
 
 EDL entries: (source, beat, first-word start, last-word start, {s, e, gap})
+SOURCE_FX (optional): {source: ffmpeg filter}, applied to that recording first.
 in source seconds. Cuts snap to the nearest real silence unless s/e are
 given; gap overrides the pause before a clip (default 0.28 s inside a
 beat, 0.6 s between beats).
@@ -16,6 +17,9 @@ import numpy as np
 import importlib.util
 spec = importlib.util.spec_from_file_location("edl", sys.argv[2]); m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m); EDL = m.EDL
+# Optional per-source ffmpeg filters (EDL module's SOURCE_FX), e.g. an EQ that
+# matches a recording made with a different mic placement to the others.
+SOURCE_FX = getattr(m, "SOURCE_FX", {})
 D = sys.argv[1]
 GAP_SAME, GAP_BEAT, TAIL = 0.28, 0.6, 0.5
 
@@ -23,7 +27,14 @@ class Source:
     def __init__(self, name):
         self.words = [{"w": w, "s": s, "e": e} for w, s, e in json.load(open(f"{D}/{name}.words.json"))]
         self.by_start = {round(w["s"], 2): w for w in self.words}
-        wf = wave.open(f"{D}/audio/{name}.wav"); self.SR = SR = wf.getframerate()
+        src = f"{D}/audio/{name}.wav"
+        if name in SOURCE_FX:
+            import subprocess
+            fx = f"{D}/audio/{name}.fx.wav"
+            subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", src, "-af", SOURCE_FX[name],
+                            "-ac", "1", "-c:a", "pcm_s16le", fx], check=True)
+            src = fx
+        wf = wave.open(src); self.SR = SR = wf.getframerate()
         a = np.frombuffer(wf.readframes(wf.getnframes()), dtype=np.int16).astype(np.float32) / 32768
         # the building's rumble sits at 20–60 Hz: keep it out of the silence detector
         self.a = a

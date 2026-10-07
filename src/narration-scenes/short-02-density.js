@@ -14,7 +14,7 @@ export default {
   captionFixes: { short: "chart", recipient: "container" },
 
   cues: [
-    { at: "why is everything", cam: { r: 2, m: 6, span: 44 }, dur: 3,
+    { at: "this diagonal line", cam: { r: 2, m: 6, span: 44 }, dur: 3,
       hl: [{ line: "water", label: "the diagonal", delay: 0.8 }] },
     { at: "let's zoom in", cam: { obj: "Human", span: 6 }, clear: true },
     { at: "here we are humans", hl: [{ obj: "Human", label: "you are here" }] },

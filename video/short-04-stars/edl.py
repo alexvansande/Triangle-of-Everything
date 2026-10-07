@@ -3,8 +3,14 @@
 # Cut from the 2026-10-07 recording rec3 = Link_office_mall_3.m4a (16:36, noise
 # reduction off; raw file in iCloud). Build: see video/short-01-hook/README.md.
 # (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds.
+# rec6 = "O2 Corporate & Offices 2.m4a" (Google Drive, 48 kHz lossless; mic about
+# 10 cm away, off to the side). It is 4–8 dB darker above 1.2 kHz than rec3;
+# this EQ matches it to rec3 within about ±2 dB.
+SOURCE_FX = {"rec6": "equalizer=f=1400:t=q:w=1.2:g=4,highshelf=f=4500:t=q:w=0.6:g=7"}
+
 EDL = [
- ("rec3", "hook", 717.82, 725.02),    # we often like to think of planets and stars are completely different things, but they are not as different.
+ ("rec6", "hook", 225.46, 234.04),    # We think of planets and stars as being completely different things in two different categories that don't mix, but that's not really true.
+ ("rec6", "hook", 239.06, 252.36),    # If we plot them all by size and mass, then not only we can understand how they connect ... how they evolve into each other. Their whole life cycle is here.
  ("rec3", "hook", 730.15, 732.44),    # Their difference is mostly about mass.
  ("rec3", "turn", 677.22, 684.56),    # And then notice that suddenly most of the dots start taking a sharp left turn.
  ("rec3", "turn", 685.93, 701.82, {"e": 702.45}),  # That's because they become so massive ... they scrape the electron layers

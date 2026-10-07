@@ -16,7 +16,10 @@ export default {
   cues: [
     { at: "completely different things", cam: { r: 10.4, m: 31.6, span: 5 },
       hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "Sun", label: "star", delay: 0.6 }] },
-    { at: "mostly about mass", hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "Sun", label: "star" }] },
+    { at: "evolve into each other", cam: { r: 11, m: 33, span: 14 }, drift: 0.03,
+      hl: [{ obj: "Jupiter", place: "left" }, { obj: "Sun" }, { obj: "Red Giant", delay: 0.4 }, { obj: "White Dwarf", delay: 0.8, place: "left" }] },
+    { at: "mostly about mass", cam: { r: 10.4, m: 31.6, span: 5 },
+      hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "Sun", label: "star" }] },
     { at: "sharp left turn", cam: { r: 10, m: 30.6, span: 4.4 },
       hl: [{ line: "water" }, { obj: "Saturn", place: "left" }, { obj: "Jupiter", delay: 0.4 }, { obj: "Y Brown Dwarf", label: "brown dwarfs", delay: 0.8 }] },
     { at: "degenerate matter", hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },

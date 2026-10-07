@@ -40,12 +40,18 @@ export default {
     { at: "bottom axis", hl: [{ axis: "bottom", label: "size" }] },
     { at: "about wavelength", hl: [{ axis: "bottom", label: "wavelength" }] },
 
-    // time, on the diagonals
-    { at: "on the top here", cam: { r: 22, m: 50, span: 44 }, clear: true },
-    { at: "we have now", cam: { r: 27, m: 60, span: 22 } },
-    { at: "those diagonals", cam: { r: 20, m: 48, span: 48 } },
-    { at: "since the big bang", cam: { r: 30, m: 63, span: 24 } },
-    { at: "history of the universe", cam: FIG, dur: 2.4, drift: 0.04 },
+    // quantum meets relativity at the Planck point; time on the diagonals
+    { at: "even crazier", cam: FIG, dur: 2, clear: true },
+    { at: "quantum mechanics", cam: { r: -16, m: -10, span: 64 },
+      hl: [{ line: "compton", label: "quantum" }] },
+    { at: "we have relativity", hl: [{ line: "compton", label: "quantum" }, { line: "schwarzschild", label: "relativity" }] },
+    { at: "this one point", cam: { r: -30, m: -3, span: 30 },
+      hl: [{ line: "compton" }, { line: "schwarzschild" }] },
+    { at: "diagonal lines", cam: { r: 22, m: 50, span: 44 }, clear: true },
+    { at: "get to now", cam: { r: 27, m: 60, span: 22 } },
+    { at: "since the big bang", cam: { r: 22, m: 52, span: 40 } },
+    { at: "joining at the big bang", cam: { r: -18, m: 12, span: 70 }, dur: 2.4,
+      hl: [{ line: "compton" }, { line: "schwarzschild" }] },
 
     // into the map
     { at: "the triangle of everything", offset: -0.6, classic: "out", fade: 3, cam: MAP, dur: 3.4, drift: 0.04,

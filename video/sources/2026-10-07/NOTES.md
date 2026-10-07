@@ -6,7 +6,9 @@ Four recordings came in that morning, all on the iPhone at about the same mic ga
 |---|---|---|---|
 | `Link_office_mall_2.m4a` | 3:47 | noise reduction on | `short-01-hook` |
 | `Link_office_mall_3.m4a` | 16:36 | noise reduction **off** | `short-02-density`, `short-03-planets`, `short-04-stars` |
-| `Link_office_mall_4.m4a` | 1:39 | noise reduction on, air conditioner on low | `short-01-hook` (energy, wavelength and time lines) |
+| `Link_office_mall_4.m4a` | 1:39 | noise reduction on, air conditioner on low | `short-01-hook` (energy and wavelength lines) |
+| `Barra_da_Tijuca.m4a` (`rec5`) | 7:15 | mic about 10 cm away, **16 kHz**: recorded over the car's Bluetooth hands-free link, so nothing above 8 kHz | not used; it has every correction below, read well, but too dull to splice |
+| `O2 Corporate & Offices 2.m4a` (`rec6`, Google Drive "Recordings") | 4:17 | 48 kHz 24-bit lossless, mic about 10 cm away, off to the side | intros: `short-01-hook` (quantum + relativity → the Big Bang), `short-02-density`, `short-04-stars` |
 
 **Sound.** Recording 3 is the cleanest. Its background in pauses sits at about
 −81 dBFS, against −68 for recording 2 and −64 for recording 4. All three end up
@@ -82,3 +84,16 @@ looking at and what this video is about. The easiest way is to record two pieces
 On screen during the intro, the camera starts on the whole triangle, with
 "size →" and "mass ↑" arrows on the shared line, then flies to where the short
 begins on its promise line.
+
+
+## Status after rec6
+
+- **Spliced in:** the density intro ("When you plot every object by mass and
+  size…"), the stars intro ("We think of planets and stars as being completely
+  different things…"), and the hook's new passage (quantum mechanics bottom
+  left, relativity top left, one point, the diagonals in seconds, "joining at
+  the Big Bang"). It replaces "on the top here we have seconds…" and the
+  "history of the universe" line. rec6 is EQ-matched to rec3 (`SOURCE_FX` in
+  each EDL).
+- **Still to record at 48 kHz (Bluetooth off):** the corrections above. They
+  exist in rec5, but only at 16 kHz. Also the intro for `short-03-planets`.

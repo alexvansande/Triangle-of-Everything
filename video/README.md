@@ -13,5 +13,7 @@ landed). Its take, `public/narration/<cut>/`, and its scene,
   in iCloud and gets uploaded per session.
 - `narration-take-1/`: the first take's edit (13 minutes, the whole tour).
 
-Only `short-01-hook`'s audio is in git. For the others, upload the source
-recording and rebuild.
+The shorts' edited audio is in git (`public/narration/short-*/audio.m4a`), so
+the player and the preview work from a clean checkout. The raw recordings are
+not; to rebuild an edit, fetch its sources (iCloud, or the Google Drive
+"Recordings" folder) and run `video/tools/build.py`.

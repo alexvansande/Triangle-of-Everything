@@ -2,8 +2,13 @@
 # Cut from the 2026-10-07 recording rec3 = Link_office_mall_3.m4a (16:36, noise
 # reduction off; raw file in iCloud). Build: see video/short-01-hook/README.md.
 # (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds.
+# rec6 = "O2 Corporate & Offices 2.m4a" (Google Drive, 48 kHz lossless; mic about
+# 10 cm away, off to the side). It is 4–8 dB darker above 1.2 kHz than rec3;
+# this EQ matches it to rec3 within about ±2 dB.
+SOURCE_FX = {"rec6": "equalizer=f=1400:t=q:w=1.2:g=4,highshelf=f=4500:t=q:w=0.6:g=7"}
+
 EDL = [
- ("rec3", "q", 164.62, 170.26),       # I want to start with the basic question of why is everything just on this diagonal here?
+ ("rec6", "q", 60.42, 78.44),        # When you plot every object by mass and size, something really interesting happens ... diagonal line. And at first it's weird, but then you realize it's sort of obvious when you zoom in.
  ("rec3", "human", 172.24, 174.94),   # Let's zoom in. So here we are, humans.
  ("rec3", "human", 175.82, 183.76),   # We are roughly one to two meters high. We are usually about 100 kilograms or less.
  ("rec3", "human", 199.94, 202.68),   # Notice that we're just talking about order of magnitude.

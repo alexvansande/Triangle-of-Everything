@@ -7,7 +7,10 @@ rec4,axes,24.23,27.06,40.62,43.45,"So this is a chart about mass and size, right
 rec4,more,27.66,37.70,43.69,53.73,"No, it's so much more than that because it also includes some things that don't have mass, like photons or visible lights or radio waves."
 rec4,energy,38.30,45.37,54.97,62.61,"So what do these things have? Well, it turns out the left axis is energy."
 rec4,energy,45.65,51.91,68.74,75.08,"And the bottom axis is not only about size, it's also about wavelength."
-rec4,time,52.51,64.09,75.41,87.00,"And it becomes crazier when you see that on the top here we have seconds and we have now. So actually those diagonals on the top, they measure time."
-rec4,time,64.37,66.32,87.62,89.56,Time since the Big Bang.
-rec4,time,66.60,70.88,93.03,97.31,Because this is also a short about the history of the universe.
-rec2,end,71.88,80.21,214.07,222.40,"this is the triangle of everything, and let me take you a tour around because it is simply fascinating."
+rec6,time,52.51,54.34,133.87,135.70,it gets even crazier
+rec6,time,54.62,61.47,142.56,149.42,"because on the bottom left, we have quantum mechanics, on the top left, we have relativity and they connect in"
+rec6,time,61.55,63.35,151.90,153.69,this one point.
+rec6,time,63.63,65.28,153.80,155.45,What is that point?
+rec6,time,65.56,77.11,155.51,167.06,"And then you realize that out of all those points, there are some diagonal lines and they are being measured in seconds until they get to now. That is time since the Big Bang."
+rec6,time,77.39,81.58,167.42,171.62,So relativity and quantum mechanics are joining at the Big Bang.
+rec2,end,82.58,90.91,214.07,222.40,"this is the triangle of everything, and let me take you a tour around because it is simply fascinating."
