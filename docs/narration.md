@@ -16,6 +16,13 @@ cross-fade from the classic Lineweaver–Patel figure to the map.
 re-recorded and renders get regenerated. Only `words.json` (the word timings)
 is committed per take. To play a take, put its `audio.m4a` back in
 `public/narration/<take>/`, or regenerate both files with `narration-take.py`.
+
+**Where the recordings live:** the raw recordings and final renders are kept
+in the author's iCloud, not in git. Each editing session gets the recording by
+direct upload into the chat, then `narration-take.py` (or the EDL tools in
+`video/<take>/tools/`) rebuilds `audio.m4a` and `words.json` from it. The
+committed `words.json` and EDLs are enough to recreate any cut once the same
+source recording is uploaded again.
 The one exception is `video/reference/`, a compact copy of the latest render.
 It's kept so each new version can be compared against it and then replace it.
 
