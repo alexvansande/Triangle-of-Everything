@@ -9,7 +9,7 @@ Four recordings came in that morning, all on the iPhone at about the same mic ga
 | `Link_office_mall_4.m4a` | 1:39 | noise reduction on, air conditioner on low | was `short-01-hook`'s energy and wavelength lines, now replaced by rec7 |
 | `Barra_da_Tijuca.m4a` (`rec5`) | 7:15 | mic about 10 cm away, **16 kHz**: recorded over the car's Bluetooth hands-free link, so nothing above 8 kHz | not used; it has every correction below, read well, but too dull to splice |
 | `O2 Corporate & Offices 2.m4a` (`rec6`, Google Drive "Recordings") | 4:17 | 48 kHz 24-bit lossless, mic about 10 cm away, off to the side | intros: `short-01-hook` (quantum + relativity → the Big Bang), `short-02-density`, `short-04-stars` |
-| `wavelength.m4a` (`rec7`, iCloud) | 1:18 | 48 kHz, quiet room (floor about −91 dBFS) | `short-01-hook`: "a chart of mass versus size, right?" → photons → "a chart of energy" → "doubles as a wavelength" |
+| `wavelength.m4a` (`rec7`, iCloud) | 1:18 | **at home**, 48 kHz, quiet room (floor about −91 dBFS) | `short-01-hook`: "a chart of mass versus size, right?" → photons → "a chart of energy" → "doubles as a wavelength" |
 
 **Sound.** Recording 3 is the cleanest. Its background in pauses sits at about
 −81 dBFS, against −68 for recording 2 and −64 for recording 4. All three end up
@@ -113,3 +113,45 @@ says "the bottom axis doubles as a wavelength", which makes the hook 4.4 s
 shorter. The raw rec2 wasn't at hand, so the new lines were built and cleaned
 with the same tools and spliced into the existing edit; `edl.py` rebuilds the
 whole thing from raw.
+
+## Home recordings (rec7 onwards)
+
+From `wavelength.m4a` on, the takes were recorded **at home**, not in the
+office where rec2–rec4 and rec6 were made. That's why they sound different:
+a closer, drier room with a lower background, a 1 kHz honk on rec7, and more
+low end on rec8. Each one gets an EQ fitted to the recording it sits next to
+(third-octave averages of speech, iterated through `enhance.py` until within
+about ±0.5 dB above 250 Hz), and the background is matched as far as possible:
+rec7 gets rec6's room tone added, and rec8 an extra denoise. Splices between
+home and office still sit best at sentence or beat boundaries, so re-records
+should be whole passages, not phrases.
+
+| File | Length | Used for |
+|---|---|---|
+| `intro to video 3.m4a` (`rec8`) | 0:56 | `short-03-planets` intro: "When you plot every object…" → "…man-made objects and small structures". It replaces rec3's opening and goes back to rec3 at "And as we go up and up…". Left out: "So, so what we've seen" (it refers to the previous video), the first try at "and then as we move", the meteorite aside ("to the to the earth"), and "the size of actual meteors" (meteors are the streaks; rec3's "small asteroids and moons" follows instead). |
+| `small fixes.m4a` (`rec9`) | 1:54 | **not spliced yet**, see below |
+| `and if you notice a sharp turn to the left.m4a` (`rec10`) | | **not reviewed yet** |
+| `new intro.m4a` (`rec11`) | 4:44 | **not reviewed yet**; might replace rec8 if the sound matches |
+
+## Status, end of 2026-10-07
+
+Done: rec7 in the hook (EQ + room tone), rec8 at the start of `short-03-planets`.
+
+**rec9 (`small fixes.m4a`)**, takes and where each goes (source seconds):
+
+| Take | Goes to |
+|---|---|
+| 3.7–19.8 "Stars, like the sun, swell into red giants… a supernova." | `short-04-stars`, replaces the `life` clip "so they will expand and collapse a few times… a supernova" |
+| 24.9–33.5 "If the core left behind is up to about two or three suns… a black hole." | `short-04-stars`, replaces "it will become a neutron star. But if it's any more massive than that, it becomes a black hole." |
+| 37.1–46.5 "So the matter in their core becomes degenerate… strips the electron off its atoms." | `short-04-stars`, replaces the `turn` clip "That's because they become so massive that the matter in the nucleus…" |
+| 49.3–58.5 "Notice that Saturn is just to the right of the blue line… float in it." | `short-03-planets`, after "…becomes a giant gas planet.", before the closing line; needs a cue on Saturn and the water line |
+| 70.7–76.1 "And the bottom axis isn't only size, it's also wavelength." | `short-01-hook`, replaces rec7's "doubles as a wavelength" (both home: a clean swap); cue "as a wavelength" → "also wavelength" |
+| 82.5–86.0 "The horizontal axis is size." (Whisper hears "original") | `short-01-hook`, replaces rec2's "the horizontal axis is in size" |
+| 88.9–94.2 "They can fuse a little deuterium, but never enough hydrogen to become a star." | `short-04-stars`, the `bd` clip, after "…a very tiny star"; needs a cut inside the clip |
+| 95.8–99.0 "The largest single tree, the giant sequoia." | `short-03-planets`, in rec8's "the largest plant ever, the sequoia tree" (same room, so a phrase swap works) |
+| 100.0–103.1 "If you make the box 10 times wider" | not planned: a home phrase in the middle of an office sentence in `short-02-density`; re-record the whole passage instead |
+| 105.8–108.2 "Planets and stars" | not planned: mid-sentence in rec6 (`short-04-stars` 0:00); same reason |
+
+Note: Whisper's times for rec9's first take look ~2 s late (there's speech at
+1.5–2.5 s); check by ear before cutting. The fitted EQs are in
+`rec9.eq-to-rec3.txt` (for the shorts) and `rec9.eq-to-hook.txt`.

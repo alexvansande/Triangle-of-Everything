@@ -10,14 +10,17 @@ const FULL = { r: -2.2, m: -4.8, span: 74 };
 export default {
   title: "Up the line",
   blurb: "From whales to round worlds, atmospheres and gas giants.",
-  start: { r: 2.5, m: 7, span: 12 },
+  start: FULL,
   captionFixes: { short: "chart", celadus: "Enceladus", celagos: "Enceladus" },
 
   cues: [
-    { at: "move up the line", cam: { r: 2.6, m: 7.2, span: 9 }, hl: [{ line: "water" }] },
+    // intro (rec8): the diagonal, then up it from the animals
+    { at: "this diagonal line", cam: { r: 2, m: 6, span: 44 }, dur: 3,
+      hl: [{ line: "water", label: "the diagonal", delay: 0.8 }] },
+    { at: "start with animals", cam: { r: 2.6, m: 7.2, span: 9 }, hl: [{ line: "water" }] },
     { at: "the blue whale", cam: { obj: "Blue Whale", span: 4 }, hl: [{ obj: "Blue Whale" }] },
     { at: "sequoia tree", cam: { obj: "Sequoia", span: 4 }, hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia" }] },
-    { at: "man made structures", cam: { r: 4.6, m: 13.5, span: 8 },
+    { at: ["man made objects", "man made structures"], cam: { r: 4.6, m: 13.5, span: 8 },
       hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Supertanker", delay: 0.4 }] },
     { at: "small asteroids", hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Supertanker" }, { obj: "Bennu", delay: 0.2 }] },
     { at: "asteroids and moons", cam: { r: 6, m: 18.5, span: 9 }, clear: true },
@@ -38,7 +41,7 @@ export default {
     { at: "gas giants", cam: { r: 9.45, m: 29.3, span: 4 },
       hl: [{ obj: "Kepler-22b", label: "super-Earth", place: "left" }, { obj: "Neptune", delay: 0.3 }, { obj: "Saturn", delay: 0.6 }, { obj: "Jupiter", delay: 0.9 }] },
     { at: "hydrogen just cannot escape", hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter" }] },
-    { at: "earth is really in this thin line", cam: { r: 9.1, m: 28.6, span: 4.6 },
+    { at: ["earth is really in", "earth is really in this thin line"], cam: { r: 9.1, m: 28.6, span: 4.6 },
       hl: [{ obj: "Earth", label: "Earth", place: "left" }, { obj: "Mars", delay: 0.6 }, { obj: "Neptune", delay: 1.2 }] },
     { at: "something else start", cam: { r: 10.2, m: 31.2, span: 6 }, drift: 0.04, clear: true },
   ],
