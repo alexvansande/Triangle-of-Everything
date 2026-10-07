@@ -11,6 +11,12 @@
 // the quantum corner rings like glass, life plucks, stars swell like brass,
 // galaxies drone. Everything is synthesized with Web Audio, no samples.
 //
+// Dust: the ~50,000 catalogue points under the curated dots are a texture,
+// not notes. A soft "rain" of filtered noise follows how many of them the
+// playheads are crossing (brighter when they sit high on the screen), and now
+// and then one of them sparkles: a quiet, short tone at its height. At most one
+// sparkle per lane per step, so thousands of dots never turn into a wall.
+//
 // Loops: the screen can split into 2 or 4 lanes, each with its own playhead
 // sweeping its lane in the same 16 steps at the same tempo, so several loops
 // play side by side (reading the map in finer detail) without speeding up.
@@ -160,7 +166,11 @@ export function startSonify(app) {
       <li data-cat="${k}" title="tap to mute · double-tap to solo">
         <span class="sn-dot" style="background:${app.categories[k]?.color || "#fff"}"></span>
         <span class="sn-name">${v.name}</span><span class="sn-sound">${v.sound}</span><span class="sn-n">0</span>
-      </li>`).join("")}</ul>`;
+      </li>`).join("")}
+      <li data-cat="dust" title="tap to mute · double-tap to solo">
+        <span class="sn-dot sn-dust"></span>
+        <span class="sn-name">Catalogue dust</span><span class="sn-sound">rain and sparkles</span><span class="sn-n">0</span>
+      </li></ul>`;
   document.body.appendChild(panel);
   const style = document.createElement("style");
   style.textContent = CSS;
@@ -180,6 +190,44 @@ export function startSonify(app) {
       out.push({ o, x, y, lane: Math.floor(col / STEPS), step: col % STEPS });
     }
     return out;
+  }
+  // The dust: the map's scales are linear in log r and log m, so each point is
+  // two multiply-adds; one pass per step finds the ones under the playheads.
+  function dustAt(step) {
+    const D = app.dust(); if (!D) return null;
+    const P = app.plot(), ax = app.px(1) - app.px(0), bx = app.px(0), ay = app.py(1) - app.py(0), by = app.py(0);
+    const cols = STEPS * state.loops, lanes = Array.from({ length: state.loops }, () => ({ n: 0, ySum: 0, pick: -1 }));
+    for (let i = 0; i < D.r.length; i++) {
+      const x = ax * D.r[i] + bx; if (x < 0 || x >= P.w) continue;
+      const y = ay * D.m[i] + by; if (y < 0 || y >= P.h) continue;
+      const col = Math.floor(x / P.w * cols); if (col % STEPS !== step) continue;
+      const L = lanes[Math.floor(col / STEPS)];
+      L.n++; L.ySum += y;
+      if (Math.random() * L.n < 1) L.pick = i;      // one at random (reservoir sampling)
+    }
+    return { lanes, D, ax, bx, ay, by, P };
+  }
+  function dustCount() {
+    const D = app.dust(); if (!D) return 0;
+    const P = app.plot(), ax = app.px(1) - app.px(0), bx = app.px(0), ay = app.py(1) - app.py(0), by = app.py(0);
+    let n = 0;
+    for (let i = 0; i < D.r.length; i++) {
+      const x = ax * D.r[i] + bx, y = ay * D.m[i] + by;
+      if (x >= 0 && x < P.w && y >= 0 && y < P.h) n++;
+    }
+    return n;
+  }
+  let rain = null;                              // { gain, filter }: one noise source, shaped each step
+  function makeRain() {
+    const len = ctx.sampleRate * 2, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    let b = 0; for (let i = 0; i < len; i++) { b = 0.97 * b + 0.03 * (Math.random() * 2 - 1); d[i] = b * 6 + (Math.random() * 2 - 1) * 0.15; }
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    const filter = ctx.createBiquadFilter(); filter.type = "bandpass"; filter.Q.value = 0.9; filter.frequency.value = 1500;
+    const gain = ctx.createGain(); gain.gain.value = 0;
+    const send = ctx.createGain(); send.gain.value = 0.5;
+    src.connect(filter).connect(gain); gain.connect(master); gain.connect(send).connect(verb);
+    src.start();
+    return { gain, filter };
   }
   const audible = (cat) => state.solo ? state.solo === cat : !state.mute.has(cat);
 
@@ -202,6 +250,29 @@ export function startSonify(app) {
       PLAY[o.cat](t, mtof(midi), vel * (0.85 + p[3] * 0.3), p, pan);
       pulses.push({ name: o.name, color: app.categories[o.cat]?.color || "#fff", t });
     }
+    // the dust under the playheads: rain loudness by how many, a sparkle now and then
+    const dz = audible("dust") ? dustAt(step) : null;
+    if (!rain) rain = makeRain();
+    const total = dz ? dz.lanes.reduce((s, L) => s + L.n, 0) : 0;
+    const level = total ? 0.12 * Math.min(1, Math.log1p(total) / Math.log1p(400)) : 0;
+    rain.gain.gain.setTargetAtTime(level, t, 0.08);
+    if (total) {
+      const yAvg = dz.lanes.reduce((s, L) => s + L.ySum, 0) / total;
+      rain.filter.frequency.setTargetAtTime(500 * 2 ** (3.5 * (1 - yAvg / P.h)), t, 0.1);   // higher on screen: brighter
+      dz.lanes.forEach(L => {
+        if (L.pick < 0 || Math.random() > Math.min(0.5, L.n / 40)) return;
+        const i = L.pick, x = dz.ax * dz.D.r[i] + dz.bx, y = dz.ay * dz.D.m[i] + dz.by;
+        const row = Math.max(0, Math.min(ROWS - 1, Math.floor((1 - y / P.h) * ROWS)));
+        const f = mtof(ROOT + 24 + SCALE[row % 5] + 12 * Math.floor(row / 5));
+        const pan = ctx.createStereoPanner(); pan.pan.value = (x / P.w) * 1.4 - 0.7;
+        const send = ctx.createGain(); send.gain.value = 0.7;
+        pan.connect(master); pan.connect(send).connect(verb);
+        const at = t + Math.random() * stepDur() * 0.5;     // a little off the grid, like real sparkle
+        const g = ctx.createGain(); g.gain.value = 0; g.connect(pan); env(g, at, 0.002, 0.16, 0.25);
+        osc("sine", f, at, at + 0.6, g);
+        pulses.push({ dust: [x, y], color: "#ffffff", t });
+      });
+    }
   }
   let timer = 0;
   function tick() {
@@ -220,6 +291,7 @@ export function startSonify(app) {
   }
   function stop() {
     state.playing = false; clearInterval(timer);
+    if (rain) rain.gain.gain.setTargetAtTime(0, ctx.currentTime, 0.05);
     playBtn.textContent = "▶"; playBtn.setAttribute("aria-label", "Play");
   }
 
@@ -267,6 +339,7 @@ export function startSonify(app) {
   }
   setInterval(() => {
     const counts = {}; for (const v of visible()) counts[v.o.cat] = (counts[v.o.cat] || 0) + 1;
+    counts.dust = dustCount();
     showList(counts);
   }, 300);
 
@@ -297,8 +370,13 @@ export function startSonify(app) {
       const q = pulses[i], age = now - q.t;
       if (age > 0.9) { pulses.splice(i, 1); continue; }
       if (age < 0) continue;
-      const o = byName.get(q.name), px = P.x + app.px(o.logR), py = P.y + app.py(o.logM);
       const f = age / 0.9;
+      if (q.dust) {                             // a dust sparkle: a small, faint ring
+        g2.strokeStyle = q.color; g2.globalAlpha = (1 - f) * 0.6; g2.lineWidth = 1;
+        g2.beginPath(); g2.arc(P.x + q.dust[0], P.y + q.dust[1], 2 + f * 10, 0, Math.PI * 2); g2.stroke();
+        g2.globalAlpha = 1; continue;
+      }
+      const o = byName.get(q.name), px = P.x + app.px(o.logR), py = P.y + app.py(o.logM);
       g2.strokeStyle = q.color; g2.globalAlpha = (1 - f) * 0.9; g2.lineWidth = 2.5 * (1 - f) + 0.5;
       g2.beginPath(); g2.arc(px, py, 6 + f * 26, 0, Math.PI * 2); g2.stroke();
       g2.globalAlpha = 1;
@@ -331,6 +409,7 @@ const CSS = `
   padding: 5px 6px; border-radius: 8px; cursor: pointer; user-select: none; }
 #sn-list li:hover { background: rgba(255, 255, 255, 0.06); }
 .sn-dot { grid-row: 1 / 3; width: 10px; height: 10px; border-radius: 50%; }
+.sn-dust { background: radial-gradient(circle, #fff 0 1.5px, transparent 2px) 0 0 / 5px 5px, rgba(255, 255, 255, 0.15); }
 .sn-name { font-weight: 600; }
 .sn-sound { grid-column: 2; color: #a3a8d6; font-size: 11.5px; }
 .sn-n { grid-row: 1 / 3; grid-column: 3; font-variant-numeric: tabular-nums; color: #a3a8d6; font-size: 12px; }

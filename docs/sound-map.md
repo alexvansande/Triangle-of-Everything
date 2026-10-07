@@ -55,4 +55,13 @@ node scripts/sonify-preview.mjs          # dist-sonify/: page.html, index.html
 - The panel lists the instruments with how many of each are on screen. Tap to
   mute, double-tap to solo.
 
+- **Catalogue dust** (the ~52,000 points in `src/dust.json`) is a texture, not
+  notes: a soft "rain" of filtered noise whose loudness follows how many dust
+  points the playheads are crossing (brighter when they sit high on the
+  screen), and now and then one of them sparkles, a quiet short tone at its
+  height (at most one per lane per step, more often where the dust is dense).
+  It sits about 14–22 dB under the instruments. It has its own row in the
+  panel (live count, mute, solo); with the dust layer off in the settings it
+  stays silent.
+
 Everything is synthesized with Web Audio; there are no samples.

@@ -44,7 +44,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, i
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustArrays } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -7372,6 +7372,7 @@ if (_ogShot) {
 // The chart as a step sequencer: a playhead sweeps across the visible plot and
 // every main object it passes plays its own tone, on its region's instrument.
 if (SONIFY) {
+  let dustAsked = false;
   setSidebarOpen(false);   // the map is the instrument: give it the room
   import("./sonify.js").then(m => m.startSonify({
     objects: OBJECTS,
@@ -7383,5 +7384,7 @@ if (SONIFY) {
     },
     px: (r) => xS(r), py: (m) => yS(m),
     k: () => currentK,
+    /** the catalogue dust as { r, m } arrays once loaded, else null */
+    dust: () => { if (!dustAsked) { dustAsked = true; ensureDust(); } return dustArrays(); },
   }));
 }
