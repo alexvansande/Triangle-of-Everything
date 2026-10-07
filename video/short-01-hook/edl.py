@@ -16,5 +16,5 @@ EDL = [
  ("rec4", "time", 75.48, 85.98),    # And it becomes crazier ... those diagonals on the top, they measure time.
  ("rec4", "time", 87.66, 89.10),    # Time since the Big Bang.
  ("rec4", "time", 93.06, 96.62),    # Because this is also a chart about the history of the universe.
- ("rec2", "end", 214.08, 220.98, {"e": 222.08, "gap": 1.0}), # This is the triangle of everything, and let me take you a tour around because it is simply fascinating.
+ ("rec2", "end", 214.08, 220.98, {"e": 222.40, "gap": 1.0}), # This is the triangle of everything, and let me take you a tour around because it is simply fascinating.
 ]

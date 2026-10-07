@@ -956,9 +956,15 @@ export function classicAxisNumbers() {
 // opacity and camera, frame by frame. No URL push, no CSS fade (the
 // player owns time), no keyboard. view: { r, m, span } puts log r / log m
 // at the figure's screen centre with `span` decades across its width.
+// The paper's figure is about 3% taller per decade of mass than per decade of
+// size; the map is square (same px per decade both ways). While a narration
+// drives the figure, squash it vertically to match, so that every point sits
+// exactly on the map during the cross-fade, not just the one at the centre.
+const ISO_Y = FRAME_PPD_X / ((FRAME.y1 - FRAME.y0) / (M_DOM[1] - M_DOM[0]));
+
 export function narrClassic(opacity, view) {
   if (opacity <= 0) {
-    if (root) { root.hidden = true; root.classList.remove("shown"); }
+    if (root) { root.hidden = true; root.classList.remove("shown"); svg.style("transform", null); }
     return;
   }
   if (!root) { build(); loadDust().then(() => renderDust()).catch(() => {}); }
@@ -966,6 +972,7 @@ export function narrClassic(opacity, view) {
   if (root.hidden) { root.hidden = false; root.classList.add("shown"); layoutNames(); }
   root.style.opacity = opacity;
   if (!view) return;
+  svg.style("transform", `scaleY(${ISO_Y})`);   // about its centre: the camera's centre
   const ctm = svg.node().getScreenCTM();
   if (!ctm) return;
   const rect = svg.node().getBoundingClientRect();
