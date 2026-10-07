@@ -43,6 +43,11 @@ down 5 s and starts the next short **in place**, on the same audio element, so
 phones keep playing without another tap. The "Autoplay on/off" chip on the
 pause screen switches it; `&autoplay=0` starts with it off.
 
+**Speed**: the pause screen has 1× to 1.5× (`[` and `]` on a keyboard,
+`&speed=1.2` in the URL). The browser keeps the pitch, and every frame follows
+the audio clock, so camera moves and captions speed up with it. The choice is
+remembered per browser and carries over to the next short.
+
 ## A new recording
 
 ```bash

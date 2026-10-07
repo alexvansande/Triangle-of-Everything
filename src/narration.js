@@ -16,6 +16,7 @@
 //   ?narrate=take-1             live player (tap to start, tap to pause)
 //   &render=1                   no player UI; exposes window.__narr for the renderer
 //   &autoplay=0                 don't start on load or roll on to the next short
+//   &speed=1.2                  playback speed (1–1.5, pitch kept); also on the pause screen, or [ and ]
 //   &captions=0                 no captions
 //   &stage=landscape|none       recording stage (default: 9:16 phone)
 
@@ -209,6 +210,8 @@ export async function startNarration(app) {
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
       <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div>
       <a id="narr-next" href="#" hidden></a>
+      <div id="narr-speed" role="group" aria-label="Speed">${SPEEDS.map(v =>
+        `<button type="button" data-speed="${v}">${v}×</button>`).join("")}</div>
       <button id="narr-auto" type="button" aria-pressed="true"></button></div>
       <div id="narr-bar" role="slider" aria-label="Seek" tabindex="0"><div id="narr-track"><div id="narr-bar-fill"></div><div id="narr-knob"></div></div><span id="narr-time"></span></div>`);
   document.body.appendChild(layer);
@@ -561,6 +564,21 @@ export async function startNarration(app) {
   audio.muted = false;
   audio.src = base + take.audio;
   audio.preload = "auto";
+  // Speed: the pitch stays put (the browser time-stretches); every frame
+  // follows audio.currentTime, so the camera and captions keep in step.
+  audio.preservesPitch = audio.mozPreservesPitch = audio.webkitPreservesPitch = true;
+  const speedEl = document.getElementById("narr-speed");
+  const setSpeed = (v) => {
+    speed = v; audio.defaultPlaybackRate = audio.playbackRate = v;
+    try { localStorage.setItem("narr-speed", v); } catch {}
+    speedEl.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", +b.dataset.speed === v));
+  };
+  setSpeed(speed);
+  speedEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const b = e.target.closest("button[data-speed]");
+    if (b) setSpeed(+b.dataset.speed);
+  }, on);
   const ui = document.getElementById("narr-ui");
   const fill = document.getElementById("narr-bar-fill");
   const knob = document.getElementById("narr-knob");
@@ -597,7 +615,7 @@ export async function startNarration(app) {
     if (audio.paused) window.__narr.settle(t);
   };
   layer.addEventListener("click", (e) => {
-    if (e.target.closest("#narr-bar, #narr-next, #narr-auto")) return;
+    if (e.target.closest("#narr-bar, #narr-next, #narr-auto, #narr-speed")) return;
     audio.paused ? play() : pause();
   }, on);
   // the scrubber: press anywhere on the bar and drag; the scene follows the finger
@@ -615,6 +633,10 @@ export async function startNarration(app) {
   bar.addEventListener("click", (e) => e.stopPropagation());
   window.addEventListener("keydown", (e) => {
     if (e.key === " ") { e.preventDefault(); audio.paused ? play() : pause(); }
+    else if (e.key === "[" || e.key === "]") {
+      const i = SPEEDS.indexOf(speed) + (e.key === "]" ? 1 : -1);
+      if (SPEEDS[i]) setSpeed(SPEEDS[i]);
+    }
     else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
       e.preventDefault(); e.stopImmediatePropagation();
       seek(audio.currentTime + (e.key === "ArrowRight" ? 5 : -5));
@@ -676,6 +698,14 @@ export async function startNarration(app) {
   if (app.autoplay ?? autoplayOn()) play();
 }
 
+// Playback speeds; the choice is remembered per browser, &speed= overrides it
+const SPEEDS = [1, 1.1, 1.2, 1.3, 1.4, 1.5];
+let speed = (() => {
+  let v = +new URLSearchParams(location.search).get("speed");
+  if (!SPEEDS.includes(v)) try { v = +localStorage.getItem("narr-speed"); } catch {}
+  return SPEEDS.includes(v) ? v : 1;
+})();
+
 // The autoplay switch, remembered per browser; &autoplay=0 turns it off
 let autoplayPref = null;
 function autoplayOn() {
@@ -725,6 +755,12 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
   color: #0b0c20; background: #ffd54f; border-radius: 999px; padding: 11px 18px 10px; text-decoration: none; margin-top: 4px; }
 #narr-next::after { content: " ›"; }
 #narr-next[hidden] { display: none; }
+#narr-speed { display: flex; gap: 4px; padding: 3px; border-radius: 999px; background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.2); }
+#narr-speed button { font: 600 13px/1 Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: #fff;
+  background: none; border: 0; border-radius: 999px; padding: 8px 9px; min-width: 40px; cursor: pointer; }
+#narr-speed button[aria-pressed="true"] { background: #ffd54f; color: #0b0c20; }
+#narr-speed button:focus-visible { outline: 2px solid #ffd54f; outline-offset: 1px; }
 #narr-auto { font: 600 12px/1 Inter, system-ui, sans-serif; letter-spacing: 0.04em; color: #fff; cursor: pointer;
   background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.35); border-radius: 999px; padding: 7px 12px; }
 #narr-auto[aria-pressed="true"] { border-color: #ffd54f; color: #ffd54f; }
