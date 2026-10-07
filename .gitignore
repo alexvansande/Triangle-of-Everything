@@ -32,4 +32,6 @@ posters/
 *.flac
 *.mp4
 !video/reference/*.mp4
+# …and one working take, so ?narrate=take-2 plays out of the box
+!public/narration/take-2/audio.m4a
 .narr-render-*/
