@@ -10,9 +10,14 @@
 // every dot has a voice of its own. Zooming and panning changes the music:
 // the quantum corner rings like glass, life plucks, stars swell like brass,
 // galaxies drone. Everything is synthesized with Web Audio, no samples.
+//
+// Loops: the screen can split into 2 or 4 lanes, each with its own playhead
+// sweeping its lane in the same 16 steps at the same tempo, so several loops
+// play side by side (reading the map in finer detail) without speeding up.
 
 const STEPS = 16;
-const MAX_VOICES = 5;                        // per step: the most important objects win
+const LOOPS = [1, 2, 4];                     // lanes across the screen, each its own 16-step loop
+const MAX_VOICES = { 1: 5, 2: 4, 4: 3 };     // per lane per step: the most important objects win
 const SCALE = [0, 2, 4, 7, 9];               // major pentatonic
 const ROOT = 50;                             // D3
 const ROWS = 15;                             // three octaves of the scale across the screen height
@@ -132,7 +137,7 @@ const PLAY = {
 };
 
 export function startSonify(app) {
-  const state = { playing: false, bpm: 112, mute: new Set(), solo: null, t0: 0, step: 0, next: 0 };
+  const state = { playing: false, bpm: 112, loops: 1, mute: new Set(), solo: null, t0: 0, step: 0, next: 0 };
   const voices = new Map(app.objects.map(o => [o.name, voiceOf(o.name)]));
   const pulses = [];                         // rings to draw: {x, y, color, t}
 
@@ -149,6 +154,8 @@ export function startSonify(app) {
       <div><div class="sn-title">Sound map</div><div class="sn-sub">zoom and pan to change the music</div></div>
     </div>
     <label class="sn-tempo">tempo <input id="sn-bpm" type="range" min="60" max="168" step="4" value="${state.bpm}"><span id="sn-bpm-v">${state.bpm}</span></label>
+    <div class="sn-loops" role="group" aria-label="Loops across the screen">loops ${LOOPS.map(n =>
+      `<button type="button" data-loops="${n}" aria-pressed="${n === state.loops}">${n}</button>`).join("")}</div>
     <ul id="sn-list">${Object.entries(INSTRUMENTS).map(([k, v]) => `
       <li data-cat="${k}" title="tap to mute · double-tap to solo">
         <span class="sn-dot" style="background:${app.categories[k]?.color || "#fff"}"></span>
@@ -169,7 +176,8 @@ export function startSonify(app) {
       if (o.minK && k < o.minK) continue;
       const x = app.px(o.logR), y = app.py(o.logM);
       if (x < 0 || x >= P.w || y < 0 || y >= P.h) continue;
-      out.push({ o, x, y, col: Math.floor(x / P.w * STEPS) });
+      const col = Math.floor(x / P.w * STEPS * state.loops);      // a column across all the lanes
+      out.push({ o, x, y, lane: Math.floor(col / STEPS), step: col % STEPS });
     }
     return out;
   }
@@ -179,8 +187,9 @@ export function startSonify(app) {
   const stepDur = () => 60 / state.bpm / 2;  // 8th notes
   function scheduleStep(step, t) {
     const P = app.plot();
-    const hits = visible().filter(v => v.col === step && audible(v.o.cat) && INSTRUMENTS[v.o.cat])
-      .sort((a, b) => (a.o.z ?? 9) - (b.o.z ?? 9)).slice(0, MAX_VOICES);
+    const lanes = Array.from({ length: state.loops }, () => []);
+    for (const v of visible()) if (v.step === step && audible(v.o.cat) && INSTRUMENTS[v.o.cat]) lanes[v.lane].push(v);
+    const hits = lanes.flatMap(l => l.sort((a, b) => (a.o.z ?? 9) - (b.o.z ?? 9)).slice(0, MAX_VOICES[state.loops]));
     const vel = 0.9 / Math.sqrt(Math.max(1, hits.length));
     for (const { o, x, y } of hits) {
       const ins = INSTRUMENTS[o.cat];
@@ -221,6 +230,13 @@ export function startSonify(app) {
   bpm.addEventListener("input", () => {     // takes effect from the next step
     state.bpm = +bpm.value; panel.querySelector("#sn-bpm-v").textContent = state.bpm;
   });
+  const setLoops = (n) => {               // the playheads stay in step: only the lanes change
+    state.loops = n;
+    panel.querySelectorAll("[data-loops]").forEach(b => b.setAttribute("aria-pressed", +b.dataset.loops === n));
+  };
+  panel.querySelector(".sn-loops").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-loops]"); if (b) setLoops(+b.dataset.loops);
+  });
   let lastTap = { cat: null, t: 0 };
   panel.querySelector("#sn-list").addEventListener("click", (e) => {
     const li = e.target.closest("li[data-cat]"); if (!li) return;
@@ -235,6 +251,7 @@ export function startSonify(app) {
   addEventListener("keydown", (e) => {
     if (e.target.closest("input, textarea")) return;
     if (e.key === "p" || e.key === "P") { e.preventDefault(); state.playing ? stop() : play(); }
+    if (e.key === "l" || e.key === "L") { e.preventDefault(); setLoops(LOOPS[(LOOPS.indexOf(state.loops) + 1) % LOOPS.length]); }
   });
   function showList(counts) {
     panel.querySelectorAll("#sn-list li").forEach(li => {
@@ -263,11 +280,19 @@ export function startSonify(app) {
     // the playhead: where the step clock is now (the step being heard)
     const heard = ((state.step - Math.ceil((state.next - now) / stepDur()) + STEPS * 4) % STEPS);
     const frac = 1 - ((state.next - now) / stepDur() % 1);
-    const x = P.x + (heard + frac) / STEPS * P.w;
-    const grad = g2.createLinearGradient(x - 60, 0, x, 0);
-    grad.addColorStop(0, "rgba(255,213,79,0)"); grad.addColorStop(1, "rgba(255,213,79,0.10)");
-    g2.fillStyle = grad; g2.fillRect(x - 60, P.y, 60, P.h);
-    g2.fillStyle = "rgba(255,213,79,0.55)"; g2.fillRect(x - 1, P.y, 2, P.h);
+    const laneW = P.w / state.loops, tail = Math.min(60, laneW * 0.4);
+    for (let j = 0; j < state.loops; j++) {
+      const x0 = P.x + j * laneW, x = x0 + (heard + frac) / STEPS * laneW;
+      if (j) {                                // the lane borders
+        g2.strokeStyle = "rgba(255,213,79,0.18)"; g2.lineWidth = 1; g2.setLineDash([4, 6]);
+        g2.beginPath(); g2.moveTo(x0 + 0.5, P.y); g2.lineTo(x0 + 0.5, P.y + P.h); g2.stroke(); g2.setLineDash([]);
+      }
+      const a = Math.max(x0, x - tail);
+      const grad = g2.createLinearGradient(x - tail, 0, x, 0);
+      grad.addColorStop(0, "rgba(255,213,79,0)"); grad.addColorStop(1, "rgba(255,213,79,0.10)");
+      g2.fillStyle = grad; g2.fillRect(a, P.y, x - a, P.h);
+      g2.fillStyle = "rgba(255,213,79,0.55)"; g2.fillRect(x - 1, P.y, 2, P.h);
+    }
     for (let i = pulses.length - 1; i >= 0; i--) {
       const q = pulses[i], age = now - q.t;
       if (age > 0.9) { pulses.splice(i, 1); continue; }
@@ -296,6 +321,11 @@ const CSS = `
 .sn-tempo { display: flex; align-items: center; gap: 8px; margin: 10px 0 6px; color: #a3a8d6; font-size: 12px; }
 .sn-tempo input { flex: 1; accent-color: #ffd54f; }
 .sn-tempo span { width: 28px; text-align: right; font-variant-numeric: tabular-nums; color: #eef0ff; }
+.sn-loops { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; color: #a3a8d6; font-size: 12px; }
+.sn-loops button { flex: 1; padding: 5px 0; border-radius: 7px; border: 1px solid rgba(150, 160, 255, 0.25); background: none;
+  color: #eef0ff; font: 600 12px/1 Inter, system-ui, sans-serif; cursor: pointer; }
+.sn-loops button[aria-pressed="true"] { background: #ffd54f; border-color: #ffd54f; color: #0b0c20; }
+.sn-loops button:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
 #sn-list { list-style: none; margin: 0; padding: 0; }
 #sn-list li { display: grid; grid-template-columns: 12px 1fr auto; grid-template-rows: auto auto; column-gap: 8px; align-items: center;
   padding: 5px 6px; border-radius: 8px; cursor: pointer; user-select: none; }

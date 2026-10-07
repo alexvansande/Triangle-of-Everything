@@ -10,7 +10,7 @@ ToneMatrix. It's a separate mode from the narration.
 
 ```bash
 npm run dev
-open "http://localhost:5173/?sonify"     # press play (or P), then zoom and pan
+open "http://localhost:5173/?sonify"     # press play (or P), then zoom and pan; L: loops
 node scripts/sonify-preview.mjs          # dist-sonify/: page.html, index.html
 ```
 
@@ -45,6 +45,11 @@ node scripts/sonify-preview.mjs          # dist-sonify/: page.html, index.html
   voice wherever it shows up.
 - Pan follows its place across the screen, and the reverb grows toward the
   cosmic end.
+- **Loops** (1, 2 or 4; `L` cycles): the screen splits into that many lanes,
+  each with its own playhead sweeping its lane in the same 16 steps at the same
+  tempo. So 2 or 4 loops play side by side without speeding up, and the map
+  is read in 2× or 4× finer detail. Each lane keeps its best 4 (2 loops) or 3
+  (4 loops) voices a step, so it doesn't get muddy.
 - Zooming into a region leaves only its instruments playing; the region
   buttons (Particle Physics … Cosmology) jump between them.
 - The panel lists the instruments with how many of each are on screen. Tap to
