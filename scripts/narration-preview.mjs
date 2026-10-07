@@ -156,6 +156,7 @@ html = html.replace("</body>", `<section id="narr-grid" hidden aria-label="Narra
 @media (prefers-reduced-motion: reduce) { .ng-thumb img { transition: none; } }
 </style>
 <script>
+window.__narrTakes = ${JSON.stringify(info.map(k => ({ id: k.id, title: k.title }))).replace(/</g, "\\u003c")};
 (function () {
   var playing = location.hash.length > 1;
   document.getElementById(playing ? "narr-back" : "narr-grid").hidden = false;

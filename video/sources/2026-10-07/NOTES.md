@@ -104,8 +104,11 @@ begins on its promise line.
 `wavelength.m4a` replaces rec4's four lines in `short-01-hook` (24–52 s). Rec4
 had the air conditioner under it: about 12 dB more background than the rest of
 the hook after cleanup, and "visible lights". Rec7 is the quietest recording so
-far. Its `SOURCE_FX` takes out ~4 dB of boom around 180 Hz and lifts the top
-~4 dB to match rec2. The new wording drops "So what do these things have?" and
+far. On its own it sounded different from its neighbours: a honk at 1 kHz,
+6–7 dB thin at 1.2–2 kHz, and no background at all (−76 dB against about
+−60). Its `SOURCE_FX` is fitted on third-octave averages of rec2 and rec6
+(±0.3 dB above 250 Hz), and its clips carry 4 s of rec6's own room tone,
+looped and cleaned the same way, at the neighbours' level. The new wording drops "So what do these things have?" and
 says "the bottom axis doubles as a wavelength", which makes the hook 4.4 s
 shorter. The raw rec2 wasn't at hand, so the new lines were built and cleaned
 with the same tools and spliced into the existing edit; `edl.py` rebuilds the

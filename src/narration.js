@@ -202,8 +202,9 @@ export async function startNarration(app) {
   layer.id = "narr-layer";
   layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-caption"></div>` +
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
-      <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div></div>
-      <div id="narr-bar"><div id="narr-bar-fill"></div></div>`);
+      <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div>
+      <a id="narr-next" href="#" hidden></a></div>
+      <div id="narr-bar" role="slider" aria-label="Seek" tabindex="0"><div id="narr-track"><div id="narr-bar-fill"></div><div id="narr-knob"></div></div><span id="narr-time"></span></div>`);
   document.body.appendChild(layer);
   const style = document.createElement("style");
   style.textContent = NARR_CSS;
@@ -549,36 +550,81 @@ export async function startNarration(app) {
   audio.preload = "auto";
   const ui = document.getElementById("narr-ui");
   const fill = document.getElementById("narr-bar-fill");
+  const knob = document.getElementById("narr-knob");
   const bar = document.getElementById("narr-bar");
+  const timeEl = document.getElementById("narr-time");
+  const mmss = (t) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
+  const showTime = (t) => {
+    const f = Math.min(1, t / duration) * 100;
+    fill.style.width = f + "%"; knob.style.left = f + "%";
+    timeEl.textContent = `${mmss(t)} / ${mmss(duration)}`;
+    bar.setAttribute("aria-valuenow", Math.round(t));
+  };
+  bar.setAttribute("aria-valuemin", 0); bar.setAttribute("aria-valuemax", Math.round(duration));
   let raf = 0;
   const loop = () => {
     renderAt(audio.currentTime);
-    fill.style.width = (100 * audio.currentTime / duration) + "%";
+    showTime(audio.currentTime);
     if (!audio.paused) raf = requestAnimationFrame(loop);
   };
-  const play = () => { ui.classList.add("hidden"); audio.play(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); };
-  const pause = () => { audio.pause(); ui.classList.remove("hidden"); ui.querySelector("span").textContent = "paused · tap to resume"; window.__narr.settle(audio.currentTime); };
+  const play = () => { ui.classList.add("hidden"); layer.classList.remove("paused"); audio.play(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); };
+  const pause = () => { audio.pause(); ui.classList.remove("hidden"); layer.classList.add("paused"); ui.querySelector("span").textContent = "paused · tap to resume"; window.__narr.settle(audio.currentTime); };
+  layer.classList.add("paused");
+  const seek = (t) => {
+    t = Math.max(0, Math.min(duration - 0.05, t));
+    audio.currentTime = t;
+    renderAt(t); showTime(t);
+    if (audio.paused) window.__narr.settle(t);
+  };
   layer.addEventListener("click", (e) => {
-    if (e.target.closest("#narr-bar")) return;
+    if (e.target.closest("#narr-bar, #narr-next")) return;
     audio.paused ? play() : pause();
   });
-  bar.addEventListener("click", (e) => {
-    const f = (e.clientX - bar.getBoundingClientRect().left) / bar.getBoundingClientRect().width;
-    audio.currentTime = f * duration;
-    renderAt(audio.currentTime);
-    fill.style.width = (100 * f) + "%";
-    if (audio.paused) window.__narr.settle(audio.currentTime);
+  // the scrubber: press anywhere on the bar and drag; the scene follows the finger
+  const at = (e) => { const r = bar.getBoundingClientRect(); return (e.clientX - r.left) / r.width * duration; };
+  bar.addEventListener("pointerdown", (e) => {
+    e.preventDefault(); e.stopPropagation();
+    try { bar.setPointerCapture(e.pointerId); } catch {}
+    layer.classList.add("scrubbing");
+    seek(at(e));
   });
+  bar.addEventListener("pointermove", (e) => { if (bar.hasPointerCapture(e.pointerId)) seek(at(e)); });
+  const end = (e) => { if (bar.hasPointerCapture(e.pointerId)) bar.releasePointerCapture(e.pointerId); layer.classList.remove("scrubbing"); };
+  bar.addEventListener("pointerup", end);
+  bar.addEventListener("pointercancel", end);
+  bar.addEventListener("click", (e) => e.stopPropagation());
   window.addEventListener("keydown", (e) => {
     if (e.key === " ") { e.preventDefault(); audio.paused ? play() : pause(); }
     else if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
       e.preventDefault(); e.stopImmediatePropagation();
-      audio.currentTime = Math.max(0, audio.currentTime + (e.key === "ArrowRight" ? 5 : -5));
-      renderAt(audio.currentTime);
-      if (audio.paused) window.__narr.settle(audio.currentTime);
+      seek(audio.currentTime + (e.key === "ArrowRight" ? 5 : -5));
     }
   }, true);
-  audio.addEventListener("ended", () => { ui.classList.remove("hidden"); ui.querySelector("span").textContent = "the end · tap to replay"; });
+  showTime(0);
+
+  // "Play next" on the end screen: the preview's grid order (window.__narrTakes),
+  // or the shorts in name order on the dev server
+  const nextEl = document.getElementById("narr-next");
+  const preview = import.meta.env.MODE === "narration-preview";
+  const order = window.__narrTakes ||
+    Object.keys(SCENES).map(k => k.match(/([^/]+)\.js$/)[1]).filter(n => n.startsWith("short-")).sort().map(id => ({ id }));
+  const next = order[order.findIndex(k => k.id === app.take) + 1];
+  if (next) {
+    (async () => {
+      const title = next.title || (SCENES[`./narration-scenes/${next.id}.js`] &&
+        (await SCENES[`./narration-scenes/${next.id}.js`]()).default.title) || next.id;
+      nextEl.textContent = `Play next: ${title}`;
+      if (preview) nextEl.href = `#${next.id}`;
+      else { const u = new URL(location.href); u.searchParams.set("narrate", next.id); nextEl.href = u.pathname + u.search; }
+    })();
+  }
+  audio.addEventListener("ended", () => {
+    ui.classList.remove("hidden"); layer.classList.add("paused");
+    ui.querySelector("span").textContent = "the end · tap to replay";
+    showTime(duration);
+    if (next) nextEl.hidden = false;
+  });
+  audio.addEventListener("play", () => { nextEl.hidden = true; });
 }
 
 const NARR_CSS = `
@@ -612,6 +658,22 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
   background: rgba(255,255,255,0.12); color: #fff; font-size: 34px; padding-left: 8px; cursor: pointer; }
 #narr-title { text-align: center; font-weight: 800; letter-spacing: 0.06em; font-size: 17px; }
 #narr-title span { display: block; font-weight: 500; letter-spacing: 0.02em; font-size: 13px; opacity: 0.75; margin-top: 6px; }
-#narr-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 14px; cursor: pointer; }
-#narr-bar-fill { position: absolute; left: 0; bottom: 0; height: 3px; width: 0; background: rgba(255,255,255,0.75); }
+#narr-next { font: 700 20px/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #0b0c20; background: #ffd54f; border-radius: 999px; padding: 11px 18px 10px; text-decoration: none; margin-top: 4px; }
+#narr-next::after { content: " ›"; }
+#narr-next[hidden] { display: none; }
+/* the scrubber: a hairline while playing, a full track with a knob and the time
+   when paused, hovered or dragged; the hit area is 32 px tall for fingers */
+#narr-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 32px; cursor: pointer; touch-action: none; }
+#narr-track { position: absolute; left: 14px; right: 14px; bottom: 12px; height: 3px; border-radius: 2px;
+  background: rgba(255,255,255,0.18); transition: height 0.15s, left 0.15s, right 0.15s, bottom 0.15s; }
+#narr-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 2px; background: #ffd54f; }
+#narr-knob { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+  background: #ffd54f; box-shadow: 0 0 0 3px rgba(0,0,0,0.35); opacity: 0; transition: opacity 0.15s; }
+#narr-time { position: absolute; right: 14px; bottom: 22px; font: 600 12px/1 Inter, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums; color: #fff; text-shadow: 0 1px 3px #000; opacity: 0; transition: opacity 0.15s; pointer-events: none; }
+#narr-layer:not(.paused):not(.scrubbing) #narr-track { left: 0; right: 0; bottom: 0; border-radius: 0; }
+#narr-layer.paused #narr-track, #narr-layer.scrubbing #narr-track, #narr-bar:hover #narr-track { height: 5px; }
+#narr-layer.paused #narr-knob, #narr-layer.scrubbing #narr-knob, #narr-bar:hover #narr-knob,
+#narr-layer.paused #narr-time, #narr-layer.scrubbing #narr-time, #narr-bar:hover #narr-time { opacity: 1; }
 `;

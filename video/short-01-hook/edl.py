@@ -8,10 +8,12 @@
 # rec6 = "O2 Corporate & Offices 2.m4a" (Google Drive, 48 kHz lossless; mic about
 # 10 cm away, off to the side). It is 4–8 dB darker above 1.2 kHz than rec3;
 # this EQ matches it to rec3 within about ±2 dB.
-# rec7 is ~4 dB boomier at 100–300 Hz and ~3 dB duller at 2–10 kHz than rec2;
-# this EQ matches it within about ±1 dB below 10 kHz.
+# rec7 (close, quiet room) has a honk at 1 kHz and is thin at 1.2–2 kHz next to
+# rec2/rec6; this EQ (fitted on third-octave averages) matches it within
+# ±0.3 dB above 250 Hz. In the edit, rec7's clips also carry 4 s of rec6's
+# room tone (same cleanup, −55 → −59.5 dB), so the background doesn't drop out.
 SOURCE_FX = {"rec6": "equalizer=f=1400:t=q:w=1.2:g=4,highshelf=f=4500:t=q:w=0.6:g=7",
-             "rec7": "equalizer=f=180:t=q:w=1.2:g=-4,highshelf=f=3000:t=q:w=0.6:g=4,highshelf=f=11000:t=q:w=0.7:g=-2.5"}
+             "rec7": "equalizer=f=180:t=q:w=1.2:g=-4,highshelf=f=3000:t=q:w=0.6:g=4,highshelf=f=11000:t=q:w=0.7:g=-2.5,firequalizer=gain_entry='entry(100,0.51);entry(125,0.48);entry(160,-1.09);entry(200,-1.25);entry(250,-1.61);entry(315,0.52);entry(400,2.91);entry(500,-1.16);entry(630,1.46);entry(800,3.33);entry(1000,-5.05);entry(1250,3.87);entry(1600,4.70);entry(2000,4.72);entry(2500,-3.36);entry(3150,-3.60);entry(4000,2.30);entry(5000,0.07);entry(6300,-0.89);entry(8000,1.76);entry(10000,-2.80);entry(12500,-1.94);entry(16000,-1.26)'"}
 
 EDL = [
  ("rec2", "open", 48.52, 52.66),    # This is the most interesting chart in all of physics.
