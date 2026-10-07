@@ -23,8 +23,8 @@ direct upload into the chat, then `narration-take.py` (or the EDL tools in
 `video/<take>/tools/`) rebuilds `audio.m4a` and `words.json` from it. The
 committed `words.json` and EDLs are enough to recreate any cut once the same
 source recording is uploaded again.
-The one exception is `video/reference/`, a compact copy of the latest render.
-It's kept so each new version can be compared against it and then replace it.
+The one exception is take 2's audio (`public/narration/take-2/audio.m4a`), so the
+player works from a clean checkout.
 
 ## Watch it live
 

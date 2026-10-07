@@ -23,15 +23,12 @@ scripts/dust/.cache/
 # Poster renders (scripts/poster.mjs output)
 posters/
 
-# Narration media: recordings and renders stay local (they get re-recorded).
-# The one exception is the reference cut in video/reference/, kept so each
-# new version can be compared against it and then replace it.
+# Narration media: recordings and renders live outside git (iCloud).
 *.m4a
 *.wav
 *.mp3
 *.flac
 *.mp4
-!video/reference/*.mp4
-# …and one working take, so ?narrate=take-2 plays out of the box
+# The one exception: one working take, so ?narrate=take-2 plays out of the box
 !public/narration/take-2/audio.m4a
 .narr-render-*/
