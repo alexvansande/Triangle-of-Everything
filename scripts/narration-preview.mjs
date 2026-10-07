@@ -33,6 +33,16 @@ const rm = (p) => fs.rmSync(path.join(OUT, p), { recursive: true, force: true })
 ["tiles/z5", "og", "og-preview.jpg", "hyperspirograph.html", "hiperspirograph.html", "spirograph-tour.md",
  "sw.js", "manifest.webmanifest", "CNAME", "favicon.png", "apple-touch-icon.png"].forEach(rm);
 for (const t of fs.readdirSync(path.join(OUT, "narration"))) if (!takes.includes(t)) rm(`narration/${t}`);
+// The audio goes out as MP3: some hosts (claude.ai pages) don't serve .m4a.
+for (const t of takes) {
+  const dir = path.join(OUT, "narration", t), wj = path.join(dir, "words.json");
+  const take = JSON.parse(fs.readFileSync(wj, "utf8"));
+  if (take.audio.endsWith(".mp3")) continue;
+  execFileSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", "-i", path.join(dir, take.audio),
+    "-c:a", "libmp3lame", "-b:a", "128k", path.join(dir, "audio.mp3")]);
+  fs.rmSync(path.join(dir, take.audio));
+  fs.writeFileSync(wj, JSON.stringify({ ...take, audio: "audio.mp3" }));
+}
 // KaTeX ships woff2 + woff + ttf of every face; browsers take the woff2.
 for (const f of fs.readdirSync(path.join(OUT, "assets"))) if (/^KaTeX_.*\.(woff|ttf)$/.test(f)) rm(`assets/${f}`);
 
@@ -40,6 +50,7 @@ for (const f of fs.readdirSync(path.join(OUT, "assets"))) if (/^KaTeX_.*\.(woff|
 let html = fs.readFileSync(path.join(OUT, "index.html"), "utf8")
   .replace(/<link rel="(icon|apple-touch-icon|manifest)"[^>]*>\n?/g, "")
   .replace(/<meta (name|property)="(og|twitter):[^>]*>\n?/g, "")
+  .replace(/<script data-goatcounter[^>]*><\/script>\n?/, "")   // no analytics from previews
   .replace(/<title>[^<]*<\/title>/, "<title>Triangle Narration Preview</title>");
 // A take switcher, when there's more than one take
 if (takes.length > 1) {
