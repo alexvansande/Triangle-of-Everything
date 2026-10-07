@@ -36,6 +36,7 @@ posters/
 !public/narration/short-02-density/audio.m4a
 !public/narration/short-03-planets/audio.m4a
 !public/narration/short-04-stars/audio.m4a
+!public/narration/short-*/mix.m4a
 .narr-render-*/
 __pycache__/
 narration-frames/

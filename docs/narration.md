@@ -51,6 +51,35 @@ from the pace it was spoken at: 1.2× plays the file as-is and is the default,
 and 1× slows it back to natural speed. A choice is remembered per browser and
 carries over to the next short.
 
+## Sound design
+
+```bash
+npm run dev    # keep running
+node scripts/narration-sound.mjs short-01-hook short-02-density …
+```
+
+It reads each take's timeline from the player (`window.__narr.timeline()`:
+camera flights, highlights that are new, the classic → map fade) and
+synthesizes a bed for it in numpy (`scripts/narration-sound.py`). There are no
+samples, so nothing needs a licence:
+- **Pad**: open chords, D sus2 → B m7 → G maj9 → A sus4, about 12 s each,
+  that dip 7 dB while the voice talks. It sits about 23 dB under the voice.
+- **Whooshes** on camera flights: band-passed noise that sweeps up when
+  zooming in and down when zooming out, sized by how far the camera goes and
+  panned along its travel. Drifts and small moves stay quiet.
+- **Chimes** on new highlights: a soft bell on D major pentatonic, at most one
+  every 2.5 s, with a fifth on top when two things light up at once.
+- **Reveal**: a rising shimmer into the classic → map cross-fade, then a low
+  bloom and a ringing chord as the map lands.
+- A shared hall reverb, the mix matched to the voice's loudness (−16 LUFS),
+  and a look-ahead limiter at −1 dBFS.
+
+It writes `mix.m4a` next to `audio.m4a` (the voice alone stays as it is) and
+`"mix"` in words.json. The player plays the mix, and a "Sound design on/off"
+chip on the pause screen switches to the bare voice in place. The renderer
+muxes the mix too (`--voice-only` for the bare voice). Run it again after
+changing a take's audio or its scene.
+
 ## A new recording
 
 ```bash

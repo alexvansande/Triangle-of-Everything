@@ -40,11 +40,16 @@ for (const t of fs.readdirSync(path.join(OUT, "narration"))) if (!takes.includes
 for (const t of takes) {
   const dir = path.join(OUT, "narration", t), wj = path.join(dir, "words.json");
   const take = JSON.parse(fs.readFileSync(wj, "utf8"));
-  if (take.audio.endsWith(".mp3")) continue;
-  execFileSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", "-i", path.join(dir, take.audio),
-    "-c:a", "libmp3lame", "-b:a", "128k", path.join(dir, "audio.mp3")]);
-  fs.rmSync(path.join(dir, take.audio));
-  fs.writeFileSync(wj, JSON.stringify({ ...take, audio: "audio.mp3" }));
+  const out = { ...take };
+  for (const k of ["audio", "mix"]) {          // the voice, and the voice with its sound design
+    if (!take[k] || take[k].endsWith(".mp3")) continue;
+    const mp3 = take[k].replace(/\.\w+$/, ".mp3");
+    execFileSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", "-i", path.join(dir, take[k]),
+      "-c:a", "libmp3lame", "-b:a", k === "mix" ? "160k" : "128k", path.join(dir, mp3)]);
+    fs.rmSync(path.join(dir, take[k]));
+    out[k] = mp3;
+  }
+  fs.writeFileSync(wj, JSON.stringify(out));
 }
 // The map picks tile levels from meta.json: list only the ones shipped, or
 // it asks for the missing z5 tiles at deep zooms and they never load.

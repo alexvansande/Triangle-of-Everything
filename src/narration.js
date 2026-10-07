@@ -213,7 +213,8 @@ export async function startNarration(app) {
       <a id="narr-next" href="#" hidden></a>
       <div id="narr-speed" role="group" aria-label="Speed">${SPEEDS.map(v =>
         `<button type="button" data-speed="${v}">${v}×</button>`).join("")}</div>
-      <button id="narr-auto" type="button" aria-pressed="true"></button></div>
+      <div id="narr-chips"><button id="narr-auto" class="narr-chip" type="button" aria-pressed="true"></button>
+      <button id="narr-sound" class="narr-chip" type="button" aria-pressed="true" hidden></button></div></div>
       <div id="narr-bar" role="slider" aria-label="Seek" tabindex="0"><div id="narr-track"><div id="narr-bar-fill"></div><div id="narr-knob"></div></div><span id="narr-time"></span></div>`);
   document.body.appendChild(layer);
   if (!document.getElementById("narr-css")) {
@@ -550,6 +551,26 @@ export async function startNarration(app) {
   window.__narr = {
     duration,
     cues: cues.map(c => ({ t: +c.time.toFixed(2), at: c.at })),
+    // what happens when, for scripts/narration-sound.mjs: camera flights (how
+    // far, in decades of zoom and of travel), highlights appearing, the fade
+    timeline: () => ({
+      duration,
+      flights: keys.map(k => ({ t: k.t, dur: k.dur, zoom: Math.log10(k.to.span / k.from.span),
+        travel: Math.hypot(k.to.r - k.from.r, k.to.m - k.from.m) / Math.max(k.from.span, k.to.span) })),
+      // only what's new: a cue that repeats the last one's highlight stays quiet
+      highlights: (() => {
+        const sig = ({ t0, t1, id, delay, ...h }) => JSON.stringify(h);
+        const out = []; let prev = new Set(), prevEnd = -1;
+        for (const t of [...new Set(highlights.map(h => h.t0))].sort((a, b) => a - b)) {
+          const at = highlights.filter(h => h.t0 === t), now = new Set(at.map(sig));
+          const fresh = [...now].filter(k => !prev.has(k) || t > prevEnd + 0.5).length;
+          if (fresh) out.push({ t: +t.toFixed(2), n: fresh });
+          prev = now; prevEnd = Math.max(...at.map(h => h.t1));
+        }
+        return out;
+      })(),
+      fade: fadeT >= 0 ? { t: fadeT, dur: FADE } : null,
+    }),
     renderAt,
     settle(t) { const { view } = camera(t); app.setCamera(view, false); overlay(); },
     camera: (t) => camera(t).view,
@@ -563,7 +584,10 @@ export async function startNarration(app) {
   // mobile browsers let it play the next take without another tap.
   const audio = app.audio || new Audio();
   audio.muted = false;
-  audio.src = base + take.audio;
+  // Sound design (scripts/narration-sound.mjs): the voice with its bed, if the
+  // take has one; the chip switches back to the bare voice, in place.
+  const srcFor = () => base + (take.mix && soundOn() ? take.mix : take.audio);
+  audio.src = srcFor();
   audio.preload = "auto";
   // Speed: the pitch stays put (the browser time-stretches); every frame
   // follows audio.currentTime, so the camera and captions keep in step.
@@ -619,7 +643,7 @@ export async function startNarration(app) {
     if (audio.paused) window.__narr.settle(t);
   };
   layer.addEventListener("click", (e) => {
-    if (e.target.closest("#narr-bar, #narr-next, #narr-auto, #narr-speed")) return;
+    if (e.target.closest("#narr-bar, #narr-next, #narr-chips, #narr-speed")) return;
     audio.paused ? play() : pause();
   }, on);
   // the scrubber: press anywhere on the bar and drag; the scene follows the finger
@@ -666,6 +690,19 @@ export async function startNarration(app) {
     })();
     nextEl.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); goNext(); }, on);
   }
+  const soundEl = document.getElementById("narr-sound");
+  const showSound = () => {
+    soundEl.textContent = `Sound design ${soundOn() ? "on" : "off"}`;
+    soundEl.setAttribute("aria-pressed", soundOn());
+  };
+  if (take.mix) { soundEl.hidden = false; showSound(); }
+  soundEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setSoundOn(!soundOn()); showSound();
+    const at = audio.currentTime, playing = !audio.paused;
+    audio.src = srcFor(); audio.playbackRate = audio.defaultPlaybackRate;
+    audio.addEventListener("loadedmetadata", () => { audio.currentTime = at; if (playing) audio.play().catch(() => {}); }, { once: true });
+  }, on);
   const showAuto = () => {
     autoEl.textContent = `Autoplay ${autoplayOn() ? "on" : "off"}`;
     autoEl.setAttribute("aria-pressed", autoplayOn());
@@ -719,6 +756,15 @@ function autoplayOn() {
   }
   return autoplayPref;
 }
+let soundPref = null;
+function soundOn() {
+  if (soundPref == null) try { soundPref = localStorage.getItem("narr-sound") !== "0"; } catch { soundPref = true; }
+  return soundPref;
+}
+function setSoundOn(v) {
+  soundPref = v;
+  try { localStorage.setItem("narr-sound", v ? "1" : "0"); } catch {}
+}
 function setAutoplay(v) {
   autoplayPref = v;
   try { localStorage.setItem("narr-autoplay", v ? "1" : "0"); } catch {}
@@ -765,9 +811,11 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
   background: none; border: 0; border-radius: 999px; padding: 8px 9px; min-width: 40px; cursor: pointer; }
 #narr-speed button[aria-pressed="true"] { background: #ffd54f; color: #0b0c20; }
 #narr-speed button:focus-visible { outline: 2px solid #ffd54f; outline-offset: 1px; }
-#narr-auto { font: 600 12px/1 Inter, system-ui, sans-serif; letter-spacing: 0.04em; color: #fff; cursor: pointer;
+#narr-chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+#narr-chips [hidden] { display: none; }
+.narr-chip { font: 600 12px/1 Inter, system-ui, sans-serif; letter-spacing: 0.04em; color: #fff; cursor: pointer;
   background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.35); border-radius: 999px; padding: 7px 12px; }
-#narr-auto[aria-pressed="true"] { border-color: #ffd54f; color: #ffd54f; }
+.narr-chip[aria-pressed="true"] { border-color: #ffd54f; color: #ffd54f; }
 /* the scrubber: a hairline while playing, a full track with a knob and the time
    when paused, hovered or dragged; the hit area is 32 px tall for fingers */
 #narr-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 32px; cursor: pointer; touch-action: none; }

@@ -113,7 +113,8 @@ for (let i = 0; i < WORKERS; i++) {
 console.log(`rendering ${take} ${from}s–${to}s at ${FPS} fps with ${WORKERS} worker(s) → ${OUT}`);
 await Promise.all(parts.map((p, i) => renderRange(p.a, p.b, p.file, `w${i}`)));
 fs.writeFileSync(path.join(TMP, "list.txt"), parts.map(p => `file '${p.file}'`).join("\n"));
-const audio = `public/narration/${take}/${meta.audio}`;
+// the voice with its sound design (narration-sound.mjs) if the take has one; --voice-only for the bare voice
+const audio = `public/narration/${take}/${meta.mix && !process.argv.includes("--voice-only") ? meta.mix : meta.audio}`;
 await new Promise((res, rej) => spawn("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y",
   "-f", "concat", "-safe", "0", "-i", path.join(TMP, "list.txt"),
   "-ss", String(from), "-t", String(to - from), "-i", audio,
