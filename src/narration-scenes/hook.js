@@ -2,7 +2,7 @@
 // Scene: the opening hook (take 2) — all on the classic figure, then the
 // cross-fade into the map on "…the triangle of everything".
 // =============================================================
-// Field reference: see the top of ./tour.js. Axis bands: { axis: side }.
+// Field reference: see the top of ./tour.js. Axis highlights: { axis: side }.
 // The classic figure has its axes swapped from the paper to match the map:
 // the left axis is energy (mass in GeV), the right ones mass (g, M☉), the
 // top one radius in Mpc (time lives on the diagonals).

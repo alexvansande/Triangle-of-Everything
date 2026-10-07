@@ -771,14 +771,14 @@ function renderAxes() {
   const lines = [], nums = [];
 
   // horizontal axes: bottom log radius [cm], top log radius [Mpc]
-  [[0, FRAME.y1, 1, 1718], [-LOG_MPC, FRAME.y0, -1, 113]].forEach(([off, y0_, dir, ny]) => {
+  [[0, FRAME.y1, 1, 1718, "bottom"], [-LOG_MPC, FRAME.y0, -1, 113, "top"]].forEach(([off, y0_, dir, ny, side]) => {
     const T = ticks(xs.domain(), off, PW, true);
     T.min.forEach(t => { const x = xs(t.pos); if (inX(x)) lines.push([x, y0_, x, y0_ + dir * MIN, 1.6]); });
     T.maj.forEach(t => {
       const x = xs(t.pos);
       if (!inX(x)) return;
       lines.push([x, y0_, x, y0_ + dir * MAJ, 2]);
-      nums.push([x, ny, T.fmt(t.val), "middle"]);
+      nums.push([x, ny, T.fmt(t.val), "middle", side]);
     });
   });
   // vertical axes: inner log mass [g] and outer log mass [M☉] on the right,
@@ -794,7 +794,7 @@ function renderAxes() {
       lines.push([x0_, y, x0_ + dir * MAJ, y, 2]);
       const txt = T.fmt(t.val), w = numW(txt);
       const [a, b] = anchor === "end" ? [nx - w, nx] : [nx, nx + w];
-      if (labY(y) && clearOf(a, b, y, box)) nums.push([nx, y + 16, txt, anchor]);
+      if (labY(y) && clearOf(a, b, y, box)) nums.push([nx, y + 16, txt, anchor, dir > 0 ? "right" : "left"]);
     });
   });
   layers.axes.selectAll("line").data(lines).join("line").attr("stroke", "#000")
@@ -802,7 +802,8 @@ function renderAxes() {
     .attr("stroke-width", d => d[4]);
   layers.axes.selectAll("text").data(nums).join("text").attr("class", "cl-num")
     .attr("font-size", NUM_PX)
-    .attr("x", d => d[0]).attr("y", d => d[1]).attr("text-anchor", d => d[3]).text(d => d[2]);
+    .attr("x", d => d[0]).attr("y", d => d[1]).attr("text-anchor", d => d[3]).attr("data-side", d => d[4])
+    .text(d => d[2]);
 
   // Planck mass and length arrows, red energy arrows: follow the axes
   const place = (m, show, [x1, y1, x2, y2], [tx, ty]) => {
@@ -939,6 +940,20 @@ export function classicFrameClient() {
   if (!ctm) return null;
   return { x: ctm.a * FRAME.x0 + ctm.e, y: ctm.d * FRAME.y0 + ctm.f,
     w: ctm.a * (FRAME.x1 - FRAME.x0), h: ctm.d * (FRAME.y1 - FRAME.y0) };
+}
+
+// Narration player: the axis numbers ("left" | "right" | "top" | "bottom" in
+// data-side) and a layer just beneath them for glows, in figure px, with a
+// soft-blur filter "#cl-glow-blur" for it.
+export function classicAxisNumbers() {
+  if (!layers.axes) return null;
+  if (!layers.axisGlow) {
+    layers.axisGlow = svg.insert("g", ".cl-axes").attr("class", "cl-axis-glow");
+    svg.select("defs").append("filter").attr("id", "cl-glow-blur")
+      .attr("x", "-100%").attr("y", "-100%").attr("width", "300%").attr("height", "300%")
+      .append("feGaussianBlur").attr("stdDeviation", 11);
+  }
+  return { nums: layers.axes.selectAll("text").nodes(), glow: layers.axisGlow };
 }
 
 // Narration player (src/narration.js): show the figure at an explicit

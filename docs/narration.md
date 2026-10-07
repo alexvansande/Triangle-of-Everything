@@ -113,13 +113,11 @@ Keep those.
   paper**, so it reads like the map: the left axis is mass in GeV (the energy
   side), and the right axes are mass in g and M☉.
 
-**Axis highlight: restyle** (`drawAxis` in `src/narration.js`)
-- Replace the rectangle band. Instead, make the axis's own tick numbers grow
-  for about a second in a wave that runs along the axis, one number after
-  another, with a soft yellow glow behind each number.
-- This works on the classic figure's axis labels (`.cl-num` text in
-  `src/classic.js`) and the map's axis numbers. Do it through a narration
-  hook rather than drawing a copy on top, so the real numbers animate.
+**Axis highlight** (`swellAxisNumbers` in `src/narration.js`): done. Over the
+classic figure, `{ axis: side }` makes that axis's own tick numbers swell one
+after another along it, then stay about 30% larger over blurred yellow disks.
+There's no box. On the map, which has no tick numbers in the narration view,
+a soft glow runs along that edge.
 
 ## Output plan: one long horizontal cut, many short vertical ones
 

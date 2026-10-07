@@ -24,7 +24,7 @@ import {
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
   RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES,
 } from "./data.js";
-import { narrClassic, classicFrameClient } from "./classic.js";
+import { narrClassic, classicFrameClient, classicAxisNumbers } from "./classic.js";
 // Scene scripts, one per file in ./narration-scenes/ (lazy chunks)
 const SCENES = import.meta.glob("./narration-scenes/*.js");
 let SCENE;
@@ -33,6 +33,7 @@ let params, RENDER, CAPTIONS;
 // The size ruler hugs the bottom edge (y as a fraction of the stage height):
 // out of the middle of the picture. Captions sit just above it.
 const RULER_Y = 0.955;
+const AXIS_GLOW = "#ffc531";   // axis highlights: glow under the tick numbers
 
 const norm = (w) => w.toLowerCase().replace(/[’']/g, "'").replace(/[^a-z0-9']/g, "");
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -233,13 +234,15 @@ export async function startNarration(app) {
       g.exit().remove();
       return g.enter().append("g").attr("class", "hl").merge(g);
     };
-    join(gHlFree, live.filter(h => h.axis)).each(function (h) {
+    const axisHls = live.filter(h => h.axis);
+    join(gHlFree, axisHls).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
       const age = t - h.t0;
       el.attr("opacity", smooth(age / 0.45) * (1 - smooth((t - h.t1) / 0.5)));
       drawAxis(el, h, age, fr);
     });
+    swellAxisNumbers(fr ? axisHls : [], t);
     join(gHl, live.filter(h => !h.axis)).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
@@ -272,17 +275,17 @@ export async function startNarration(app) {
       : side === "right" ? { x: box.x + box.w, y: box.y, w: T, h: box.h }
       : side === "top" ? { x: box.x, y: box.y - T, w: box.w, h: T }
       : { x: box.x, y: box.y + box.h, w: box.w, h: T };
-    const col = h.color || "#ffb300";
+    const col = h.color || AXIS_GLOW;
     const grow = d3.easeCubicOut(clamp01(age / 0.7));
-    const pulse = 0.5 + 0.5 * Math.sin(age * 3);
     const vert = side === "left" || side === "right";
-    // the band grows from the middle of the axis outwards
-    const gr = vert ? { x: r.x, y: r.y + r.h * (1 - grow) / 2, w: r.w, h: r.h * grow }
-      : { x: r.x + r.w * (1 - grow) / 2, y: r.y, w: r.w * grow, h: r.h };
-    el.append("rect").attr("x", gr.x - 3).attr("y", gr.y - 3).attr("width", gr.w + 6).attr("height", gr.h + 6)
-      .attr("rx", 9).attr("fill", col).attr("opacity", 0.10 + 0.06 * pulse);
-    el.append("rect").attr("x", gr.x).attr("y", gr.y).attr("width", gr.w).attr("height", gr.h)
-      .attr("rx", 7).attr("fill", col).attr("fill-opacity", 0.16).attr("stroke", col).attr("stroke-width", 2.4);
+    // On the map there are no tick numbers to swell: a soft glow runs along
+    // that edge instead, growing from the middle outwards.
+    if (!frClient) {
+      const gr = vert ? { x: r.x, y: r.y + r.h * (1 - grow) / 2, w: r.w, h: r.h * grow }
+        : { x: r.x + r.w * (1 - grow) / 2, y: r.y, w: r.w * grow, h: r.h };
+      el.append("rect").attr("x", gr.x).attr("y", gr.y).attr("width", gr.w).attr("height", gr.h)
+        .attr("rx", T / 2).attr("fill", col).attr("opacity", 0.35).attr("filter", "url(#narr-soft)");
+    }
     if (!h.label) return;
     const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
     // label sits inside the plot, next to the band, so it never leaves the stage
@@ -292,6 +295,47 @@ export async function startNarration(app) {
     el.append("text").attr("class", "narr-axislabel").attr("text-anchor", "middle")
       .attr("transform", `translate(${lx},${ly}) rotate(${rot})`)
       .attr("fill", col).attr("opacity", grow).text(h.label.toUpperCase());
+  }
+  /** Over the classic figure, an axis highlight acts on the figure's own tick
+   *  numbers: they swell one after another along the axis (a wave of about a
+   *  second), then stay a little larger, each over a blurred yellow disk. */
+  function swellAxisNumbers(hls, t) {
+    const ax = classicAxisNumbers();
+    if (!ax) return;
+    const fx = new Map();               // number → { s: extra scale, g: glow }
+    for (const h of hls) {
+      const age = t - h.t0, fade = smooth(age / 0.3) * (1 - smooth((t - h.t1) / 0.5));
+      const nums = ax.nums.filter(n => n.getAttribute("data-side") === h.axis);
+      const vert = h.axis === "left" || h.axis === "right";
+      // the wave runs up a vertical axis, left to right along a horizontal one
+      nums.sort((a, b) => vert ? +b.getAttribute("y") - +a.getAttribute("y") : +a.getAttribute("x") - +b.getAttribute("x"));
+      nums.forEach((n, i) => {
+        const u = age - 0.9 * i / Math.max(1, nums.length - 1);
+        const bump = Math.sin(Math.PI * clamp01(u / 0.45));
+        const s = (0.3 * smooth(u / 0.3) + 0.4 * bump) * fade;
+        const g = (0.55 * smooth(u / 0.3) + 0.45 * bump) * fade;
+        const prev = fx.get(n);
+        if (!prev || prev.s < s) fx.set(n, { s, g });
+      });
+    }
+    for (const n of ax.nums) {
+      const e = fx.get(n);
+      if (!e || e.s < 0.001) { n.style.transform = ""; continue; }
+      n.style.transformBox = "fill-box";
+      // grow away from the axis line, so the ticks stay clear
+      n.style.transformOrigin = { left: "right center", right: "left center", top: "center bottom", bottom: "center top" }[n.getAttribute("data-side")];
+      n.style.transform = `scale(${1 + e.s})`;
+    }
+    const disks = [...fx].filter(([, e]) => e.g > 0.005).map(([n, e]) => {
+      const b = n.getBBox();
+      const side = n.getAttribute("data-side"), k = 1 + e.s;
+      const x = side === "left" ? b.x + b.width * (1 - k / 2) : side === "right" ? b.x + b.width * k / 2 : b.x + b.width / 2;
+      const y = side === "top" ? b.y + b.height * (1 - k / 2) : side === "bottom" ? b.y + b.height * k / 2 : b.y + b.height / 2;
+      return { x, y, r: Math.max(b.width, b.height) * 0.62 * k, g: e.g };
+    });
+    ax.glow.selectAll("circle").data(disks).join("circle")
+      .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", d => d.r)
+      .attr("fill", AXIS_GLOW).attr("opacity", d => 0.75 * d.g).attr("filter", "url(#cl-glow-blur)");
   }
   function drawObj(el, h, age) {
     const o = objByName.get(h.obj);
@@ -440,6 +484,8 @@ export async function startNarration(app) {
       .attr("class", "narr-axname").text("MASS →");
   }
   const defs = nsvg.append("defs");
+  defs.append("filter").attr("id", "narr-soft").attr("x", "-50%").attr("y", "-50%").attr("width", "200%").attr("height", "200%")
+    .append("feGaussianBlur").attr("stdDeviation", 8);
   const gh = defs.append("linearGradient").attr("id", "narr-fade-h").attr("x1", 0).attr("x2", 0).attr("y1", 0).attr("y2", 1);
   gh.append("stop").attr("offset", 0).attr("stop-color", "#000").attr("stop-opacity", 0);
   gh.append("stop").attr("offset", 0.5).attr("stop-color", "#000").attr("stop-opacity", 0.55);
