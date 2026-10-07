@@ -21,7 +21,8 @@ I = lambda sec: int(round(sec * SR))
 
 take_dir, tl_path = sys.argv[1], sys.argv[2]
 take = json.load(open(os.path.join(take_dir, "words.json")))
-cues = json.load(open(tl_path)).get("sound") or []
+TL = json.load(open(tl_path))
+cues = TL.get("sound") or []
 
 raw = subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(take_dir, take["audio"]), "-ac", "1", "-ar", str(SR),
                       "-f", "f32le", "-"], capture_output=True, check=True).stdout
@@ -256,6 +257,7 @@ VOICE = {"echo": v_echo, "hall": v_hall, "radio": v_radio, "wide": v_wide, "liqu
 
 music = np.zeros((2, M))
 done = []
+cue_music = []     # (start, end, cut) of cue music: the bed steps aside for it
 for c in cues:
     if "voice" in c:
         VOICE[c["voice"]](c); done.append(f"voice {c['voice']}")
@@ -268,6 +270,7 @@ for c in cues:
         if c.get("stop") != "cut" and c["s"] + L > T - 2.2: L = T - 2.2 - c["s"]   # fade out inside the take
         m = shape(MUSIC[c["music"]](L), L, c.get("stop"))
         a = I(c["s"]); b = min(M, a + m.shape[1]); music[:, a:b] += m[:, : b - a]
+        cue_music.append((c["s"], c["s"] + L, c.get("stop") == "cut"))
         done.append(f"music {c['music']} {L:.0f} s")
 
 # Music steps back 4 dB while the voice talks (a slow follower, so it doesn't pump)
@@ -281,6 +284,97 @@ def follower(x, attack, release):
 talk = np.clip((20 * np.log10(follower(voice, 0.08, 0.6) + 1e-9) + 48) / 18, 0, 1)
 music *= db(-4 * np.concatenate([talk, np.zeros(M - N)]))
 send += (music[0] + music[1]) * 0.2
+
+# ---------- the music bed: quiet rhythmic plucks shaped by where the camera is ----------
+# One tempo and one chord loop for the whole take; the camera's place sets the
+# colour. Scale (log radius at the screen centre) → small things are quick, high
+# and glassy, galaxies slow, low and wide with a pad under them. Density (which
+# side of the water line) → dense things take the minor loop, airy ones major.
+# It rises into the pauses and drops 8 dB while the voice talks.
+BPM = 92; STEP = 60 / BPM / 4                     # a 16th note
+CHORDS = {"major": [[50, 54, 57], [47, 50, 54], [43, 47, 50], [45, 49, 52]],     # D  Bm G  A
+          "minor": [[50, 53, 57], [46, 50, 53], [43, 46, 50], [45, 49, 52]]}     # Dm Bb Gm A
+BAR_STEPS = 16; CHORD_STEPS = 2 * BAR_STEPS
+
+def note(midi, sec, bright):
+    """A soft plucked/piano-ish tone: harmonics that die away faster the higher they are."""
+    n = I(sec); k = np.arange(n) / SR; f = hz(midi); x = np.zeros(n)
+    for h in range(1, 9):
+        if f * h > 9000: break
+        x += (0.6 ** (h - 1)) * np.sin(2 * np.pi * f * h * k * (1 + 0.0004 * h * h)) * np.exp(-k * h ** (1.2 - 0.6 * bright) / (sec * 0.35))
+    x *= np.minimum(1, k / 0.004) * np.minimum(1, (sec - k) / 0.05)
+    return x / (np.abs(x).max() + 1e-9)
+_cache = {}
+def note_c(midi, sec, bright):
+    key = (midi, round(sec, 1), round(bright, 1))
+    if key not in _cache: _cache[key] = note(midi, key[1], key[2])
+    return _cache[key]
+
+def bed_music():
+    path = np.array(TL["path"])                   # t, log r, log m, span
+    tt, r, m, span = path[:, 0], path[:, 1], path[:, 2], path[:, 3]
+    x = np.clip((r + 15) / 42, 0, 1)              # 0: protons, ~0.17 atoms, ~0.4 us, ~0.6 the Sun, ~0.9 galaxies
+    wide = np.clip((span - 20) / 40, 0, 1)        # a wide overview (the whole chart) sounds spacious, like the cosmos
+    x = x * (1 - wide) + 0.8 * wide
+    a = np.exp(-0.25 / 1.8); xs = np.empty_like(x); y = x[0]
+    for i, v in enumerate(x): y = a * y + (1 - a) * v; xs[i] = y          # glide, don't jump with every flight
+    rho = m - 3 * r - 0.62                        # log density in g/cm³ (0 = water)
+    X = lambda t: float(np.interp(t, tt, xs))
+    out = np.zeros((2, M)); pad = np.zeros((2, M))
+    nsteps = int(T / STEP) + 1
+    mode = "major"
+    for st in range(nsteps):
+        t = st * STEP
+        if st % CHORD_STEPS == 0:                 # the mood can change only on a chord change
+            d = float(np.interp(t + 2, tt, rho))
+            mode = "minor" if d > 0.6 else "major" if d < 0.2 else mode
+        chord = CHORDS[mode][(st // CHORD_STEPS) % 4]
+        v = X(t)
+        per_beat = 4 * 2 ** (-3 * v)              # 4 notes a beat (atoms) … ½ (galaxies)
+        every = max(1, int(round(4 / per_beat)))  # play on every n-th 16th
+        if st % every == 0:
+            base = 74 - 30 * v                    # register: high for small things, low for big ones
+            tones = [p + 12 * o for o in range(-2, 4) for p in chord]
+            tones = [p for p in tones if base - 2 <= p <= base + 17]
+            if tones:
+                i = (st // every) % (2 * len(tones) - 2) if len(tones) > 1 else 0
+                p = tones[i if i < len(tones) else 2 * len(tones) - 2 - i]      # up and down the chord
+                sec = 0.45 + 2.6 * v; bright = 1 - v
+                accent = 1.0 if st % 4 == 0 else 0.7
+                lvl = db(-18 + 3 * v) * accent
+                add_to(out, note_c(p, sec, bright) * lvl, t + rng.normal(0, 0.004), 0.5 * np.sin(st * 0.37) * (0.4 + 0.6 * v))
+        if st % BAR_STEPS == 0:                   # a soft root under each bar
+            add_to(out, note_c(chord[0] - 12, 1.6 + 2 * X(t), 0.2) * db(-19), t, 0)
+        if st % 2 == 1 and X(t) < 0.35:           # small scales: a faint tick on the off-16ths
+            tk = fft_filter(rng.standard_normal(I(0.03)), lo=7000) * env(I(0.03), 0.001, 0.006)
+            add_to(out, tk * db(-33) * (0.35 - X(t)) / 0.35, t, 0.3 * (-1) ** st)
+        if st % CHORD_STEPS == 0 and X(t + 2) > 0.5: # big scales: a slow pad on each chord
+            L = CHORD_STEPS * STEP + 1.5; n = I(L); k = np.arange(n) / SR
+            w = np.sin(np.pi * np.clip(k / L, 0, 1)) ** 2
+            s_ = sum(np.sin(2 * np.pi * hz(q + 12) * k + j) for j, q in enumerate(chord)) * w / 3
+            add_to(pad, s_ * db(-24) * (X(t + 2) - 0.5) / 0.5, t - 0.75, 0, wide=True)
+    return out + pad, xs, tt
+
+def add_to(bus, x, at, pan, wide=False):
+    a = max(0, I(at))
+    if a >= M: return
+    b = min(M, a + len(x)); p = (pan + 1) * np.pi / 4
+    if wide: bus[0, a:b] += x[: b - a]; bus[1, a:b] += frac_delay(x, I(0.011))[: b - a]; return
+    bus[0, a:b] += x[: b - a] * np.cos(p); bus[1, a:b] += x[: b - a] * np.sin(p)
+
+if TL.get("bed", True) and TL.get("path"):
+    bedm, xs, tt = bed_music()
+    k = np.arange(M) / SR
+    g = np.minimum(1, k / 3) * np.clip((T - 0.3 - k) / 3, 0, 1)        # in over 3 s, out by the end
+    for s0, e0, cut in cue_music:                 # step aside for cue music; after a cut, stay out a while
+        out_from, back = s0 - 2, (e0 + 4 if cut else e0 + 1)
+        g *= np.clip(np.maximum((out_from - k) / 2, (k - back) / 3), 0, 1)
+    # its own quicker follower, so it blooms even in the short pauses between phrases
+    talk_b = np.clip((20 * np.log10(follower(voice, 0.05, 0.3) + 1e-9) + 48) / 18, 0, 1)
+    bedm *= g * db(-8 * np.concatenate([talk_b, np.zeros(M - N)]))
+    music += bedm
+    send += (bedm[0] + bedm[1]) * (0.15 + 0.45 * np.interp(k, tt, xs))
+    done.append("bed")
 
 wet = [fft_convolve(send, ROOM[c])[:M] * db(-8) for c in range(2)]
 bed = np.stack([fxL + music[0] + wet[0], fxR + music[1] + wet[1]])[:, :N]

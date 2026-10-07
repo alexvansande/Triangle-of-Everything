@@ -66,6 +66,18 @@ each a phrase-anchored cue in the scene's `sound` list (fields at the top of
   quickens). It steps back 4 dB while the voice talks, and `stop: "cut"` ends
   it dead (the heartbeat stops on the supernova's "boom").
 
+- **A music bed** under the whole take, quiet and rhythmic (soft plucked
+  arpeggios at 92 BPM on a D – Bm – G – A loop), to fill the gaps between
+  phrases. It follows the camera: the scale at the screen centre sets its
+  character (atoms: quick 16ths, high and glassy, with faint ticks; human
+  scale: warm 8ths; stars: slower, rounder notes; galaxies: sparse, low and long, with a pad
+  and more reverb), a wide overview of the chart counts as spacious, and
+  density sets the mood (left of the water line, dense: the minor loop; airy:
+  major), switching only on a chord change. The tempo never changes, so it
+  stays one piece. It sits about 19 dB under the voice, drops 8 dB while the
+  voice talks, and steps aside for cue music (and stays out a few seconds
+  after a `stop: "cut"`). `bed: false` in a scene turns it off.
+
 ```bash
 npm run dev    # keep running
 node scripts/narration-sound.mjs short-01-hook short-02-density …

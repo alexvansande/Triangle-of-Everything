@@ -38,6 +38,9 @@
 //   { at, music, to?, toEnd? }  quiet rhythm from the phrase to the `to`
 //                  phrase (or the end): "pulse" (a soft beat and plucks) or
 //                  "heartbeat"; stop: "cut" ends it dead instead of fading
+// bed: false        no music bed (by default a quiet rhythmic bed runs under
+//                  the whole take, shaped by where the camera is: small scales
+//                  quick and high, galaxies slow and low; dense things minor)
 
 const FULL = { r: -2.2, m: -4.8, span: 74 };   // the whole triangle, portrait
 
