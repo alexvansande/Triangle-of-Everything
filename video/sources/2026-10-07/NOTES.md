@@ -62,3 +62,23 @@ I checked the cuts by re-transcribing them, not by ear, so intonation jumps are 
 - `short-01-hook` 0:24 (recording 2 → 4) and 1:11 (recording 4 → 2).
 - `short-04-stars` at 0:11: the hook "Their difference is mostly about mass" comes from 12:10. It's followed by "And then notice that suddenly…" from 11:17.
 - `short-04-stars` at 2:00: the life-cycle lines join two passes, one ending "…generate new energy", the next starting "so they will expand and collapse a few times…".
+
+## Next recording: an intro for each short
+
+Each short should stand on its own, so it opens with about 10 s of what we're
+looking at and what this video is about. The easiest way is to record two pieces:
+
+1. **One shared line, recorded once and used in every short:**
+   "This is the triangle of everything: every object in the universe on one
+   chart. Size goes from left to right, mass from bottom to top."
+2. **One line per short, the promise:**
+   - `short-02-density`: "And almost everything sits on one diagonal line. Why?"
+     The cut then goes straight to "Let's zoom in. So here we are, humans."
+   - `short-03-planets`: "Today we climb that diagonal, from whales to planets,
+     and watch gravity take over."
+   - `short-04-stars`: "Today: what turns a planet into a star, how stars live
+     and die, and where black holes draw the first edge of the triangle."
+
+On screen during the intro, the camera starts on the whole triangle, with
+"size →" and "mass ↑" arrows on the shared line, then flies to where the short
+begins on its promise line.

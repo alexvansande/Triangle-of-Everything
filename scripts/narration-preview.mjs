@@ -46,6 +46,13 @@ for (const t of takes) {
   fs.rmSync(path.join(dir, take.audio));
   fs.writeFileSync(wj, JSON.stringify({ ...take, audio: "audio.mp3" }));
 }
+// The map picks tile levels from meta.json: list only the ones shipped, or
+// it asks for the missing z5 tiles at deep zooms and they never load.
+{
+  const mp = path.join(OUT, "tiles", "meta.json"), meta = JSON.parse(fs.readFileSync(mp, "utf8"));
+  meta.levels = meta.levels.filter(l => fs.existsSync(path.join(OUT, "tiles", `z${l.z}`)));
+  fs.writeFileSync(mp, JSON.stringify(meta));
+}
 // KaTeX ships woff2 + woff + ttf of every face; browsers take the woff2.
 for (const f of fs.readdirSync(path.join(OUT, "assets"))) if (/^KaTeX_.*\.(woff|ttf)$/.test(f)) rm(`assets/${f}`);
 
