@@ -34,3 +34,4 @@ posters/
 !public/narration/take-2/audio.m4a
 !public/narration/short-01-hook/audio.m4a
 .narr-render-*/
+__pycache__/
