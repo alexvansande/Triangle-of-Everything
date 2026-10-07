@@ -95,39 +95,41 @@ def span(c, pre=0.04, post=0.12):
 
 def v_echo(c):            # repeats that fade off, darker and further each time
     a, b = span(c, post=0.25); seg = voice[a:b]
-    for k in range(1, 5):
-        rep = fft_filter(seg, lo=250, hi=4200 / k ** 0.6) * 0.5 ** k * 0.9
-        add(rep, c["s"] - 0.04 + 0.3 * k, pan=0.55 * (-1) ** k, wet=0.4)
+    for k in range(1, 4):
+        rep = fft_filter(seg, lo=300, hi=3600 / k ** 0.6) * 0.32 * 0.5 ** (k - 1)
+        add(rep, c["s"] - 0.04 + 0.3 * k, pan=0.35 * (-1) ** k, wet=0.25)
 
 def v_hall(c):            # a long tail after the phrase
-    a, b = span(c); seg = voice[a:b] * 0.32
+    a, b = span(c); seg = voice[a:b] * 0.2
     add(np.stack([fft_convolve(seg, HALL[0]), fft_convolve(seg, HALL[1])]), c["s"] - 0.04)
 
 def v_radio(c):           # a tuned-in radio: narrow band, a little grit, its hiss under it
     a, b = span(c, pre=0.12, post=0.2); seg = voice[a:b]
-    r = fft_filter(seg, lo=450, hi=2600, order=3)
-    r = np.tanh(r * 4 / (np.abs(r).max() + 1e-9)) * np.abs(seg).max()
-    r *= 1 + 0.08 * np.sin(2 * np.pi * 7 * np.arange(len(r)) / SR)
+    r = fft_filter(seg, lo=320, hi=3400, order=2)
+    r = np.tanh(r * 2 / (np.abs(r).max() + 1e-9)) / np.tanh(2) * np.abs(seg).max()
+    r *= 1 + 0.04 * np.sin(2 * np.pi * 7 * np.arange(len(r)) / SR)
+    r = 0.6 * r + 0.4 * seg                      # the natural voice stays under it
     swap_voice(a, b, r * np.sqrt(0.5), r * np.sqrt(0.5))
-    add(static(len(r) / SR + 0.25), c["s"] - 0.16)
+    add(static(len(r) / SR + 0.25) * db(-4), c["s"] - 0.16)
 
 def v_wide(c):            # spreads out in stereo (Haas delay + a slow chorus)
     a, b = span(c, post=0.2); seg = voice[a:b]; k = np.arange(len(seg)) / SR
-    right = frac_delay(seg, I(0.016) + 40 * np.sin(2 * np.pi * 0.7 * k))
-    left = frac_delay(seg, 20 + 30 * np.sin(2 * np.pi * 0.9 * k + 1))
-    swap_voice(a, b, left * 0.8, right * 0.8)
+    right = frac_delay(seg, I(0.009) + 25 * np.sin(2 * np.pi * 0.7 * k))
+    left = frac_delay(seg, 12 + 18 * np.sin(2 * np.pi * 0.9 * k + 1))
+    dry = seg * np.sqrt(0.5)
+    swap_voice(a, b, 0.5 * dry + 0.4 * left, 0.5 * dry + 0.4 * right)
 
 def v_liquid(c):          # a watery wobble on a copy of the phrase
     a, b = span(c, post=0.3); seg = voice[a:b]; k = np.arange(len(seg)) / SR
     wob = frac_delay(seg, I(0.009) + I(0.004) * np.sin(2 * np.pi * 5.5 * k))
-    wob = fft_filter(wob, lo=200, hi=2400) * 0.35
-    add(np.stack([wob, frac_delay(wob, I(0.007))]), c["s"] - 0.04, wet=0.5)
+    wob = fft_filter(wob, lo=200, hi=2400) * 0.22
+    add(np.stack([wob, frac_delay(wob, I(0.007))]), c["s"] - 0.04, wet=0.3)
 
 def v_deep(c):            # a copy that sinks in pitch and drags behind
     a, b = span(c, post=0.1); seg = voice[a:b]
     slow = np.interp(np.arange(0, len(seg), 0.8), np.arange(len(seg)), seg)
-    slow = fft_filter(slow, hi=1600) * env(len(slow), 0.05, 0.9, hold=len(seg) / SR * 0.6) * 0.48
-    add(slow, c["s"] + 0.05, wet=0.6)
+    slow = fft_filter(slow, hi=1600) * env(len(slow), 0.05, 0.9, hold=len(seg) / SR * 0.6) * 0.3
+    add(slow, c["s"] + 0.05, wet=0.4)
 
 # ---------- small effects ----------
 def static(sec):

@@ -56,7 +56,7 @@ carries over to the next short.
 Keep it light: most of a short is the plain voice. Three kinds of moments,
 each a phrase-anchored cue in the scene's `sound` list (fields at the top of
 `src/narration-scenes/tour.js`):
-- **Voice effects** on a few highlighted phrases: `echo`, `hall`, `radio`,
+- **Voice effects**, gentle (they colour the voice rather than replace it), on a few highlighted phrases: `echo`, `hall`, `radio`,
   `wide`, `liquid`, `deep`.
 - **Small sound effects** when the narration names something you could hear:
   `bubble`, `glug`, `wind`, `hiss`, `drops` (condensation), `ignite`, `boom`,
@@ -87,7 +87,7 @@ Where it's used now:
 | hook | radio on "radio waves", echo on "the big bang" | – | pulse from "and then you realize" to the end |
 | density | wide on "three-dimensional universe" | bubble on "float", glug on "sink" and the hippo's "sinks" | – |
 | planets | liquid on "might as well be liquid" | wind on "atmosphere", hiss on "hydrogen just cannot escape" | – |
-| stars | echo on "boom", deep on "black hole" | ignite on fusion, boom on the supernova, a sub drop on "black hole" | heartbeat through the life cycle, cut at "boom" |
+| stars | deep on "black hole" | ignite on fusion, boom on the supernova, a sub drop on "black hole" | heartbeat through the life cycle, cut at "boom" |
 
 ## A new recording
 

@@ -17,7 +17,6 @@ export default {
     { at: "once they start generating fusion", fx: "ignite", offset: 0.6 },
     { at: "the life cycle of a star", music: "heartbeat", to: "go boom", stop: "cut" },
     { at: "go boom", fx: "boom", offset: 0.25 },
-    { at: "go boom", voice: "echo" },
     { at: "becomes a black hole", voice: "deep" },
     { at: "becomes a black hole", fx: "drop", atEnd: true, offset: -0.4 },
   ],
