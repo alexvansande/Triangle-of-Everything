@@ -106,7 +106,8 @@ html = html.replace("</body>", `<section id="narr-grid" hidden aria-label="Narra
   <header class="ng-head">
     <p class="ng-eyebrow">The Triangle of Everything</p>
     <h1>Narration previews</h1>
-    <p class="ng-note">${info.length} vertical shorts, played live from the map with their audio. Tap one to watch it, then tap the screen to pause.</p>
+    <p class="ng-note">${info.length} vertical shorts, played live from the map with their audio. Tap one to watch it, then tap the screen to pause. With autoplay on, each one rolls into the next.</p>
+    <a class="ng-all" href="#${esc(info[0].id)}">Play all · ${mmss(info.reduce((s, k) => s + k.duration, 0))}</a>
   </header>
   <div class="ng-grid">${cards}
   </div>
@@ -130,6 +131,10 @@ html = html.replace("</body>", `<section id="narr-grid" hidden aria-label="Narra
 .ng-eyebrow { margin: 0 0 6px; font: 700 13px/1 var(--ng-display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ng-accent); }
 #narr-grid h1 { margin: 0; font: 700 clamp(34px, 7vw, 52px)/0.95 var(--ng-display); text-transform: uppercase; letter-spacing: 0.01em; text-wrap: balance; }
 .ng-note { margin: 10px 0 0; max-width: 46ch; font-size: 14px; line-height: 1.45; color: var(--ng-muted); }
+.ng-all { display: inline-block; margin-top: 16px; font: 700 20px/1 var(--ng-display); letter-spacing: 0.08em; text-transform: uppercase;
+  color: #0b0c20; background: var(--ng-accent); border-radius: 999px; padding: 12px 20px 11px; text-decoration: none; }
+.ng-all::before { content: "▶ "; }
+.ng-all:focus-visible { outline: 2px solid var(--ng-fg); outline-offset: 3px; }
 .ng-grid { max-width: 960px; margin: 0 auto; display: grid; gap: 18px 14px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 .ng-card { display: flex; flex-direction: column; gap: 6px; min-width: 0; color: inherit; text-decoration: none; border-radius: 12px; }
 .ng-card:focus-visible { outline: 2px solid var(--ng-accent); outline-offset: 4px; }

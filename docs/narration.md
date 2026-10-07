@@ -37,6 +37,12 @@ Tap or press Space to play and pause. Tap the bottom edge to seek, or use ‚Üê/‚Ü
 On a desktop it runs in the 9:16 phone stage. Add `&stage=landscape` for 16:9
 or `&stage=none` for the plain window, and `&captions=0` to drop the captions.
 
+**Autoplay** (on by default, remembered per browser): a take starts on load if
+the browser allows it (otherwise it waits for a tap), and at the end it counts
+down 5 s and starts the next short **in place**, on the same audio element, so
+phones keep playing without another tap. The "Autoplay on/off" chip on the
+pause screen switches it; `&autoplay=0` starts with it off.
+
 ## A new recording
 
 ```bash
@@ -91,7 +97,9 @@ no object pages. `index.html` is the normal page, and `page.html` is the same
 page without `<html>`/`<head>`/`<body>` for hosts that add their own. It opens on a
 grid of the takes: each card shows a still, the length, and the `title` and
 `blurb` from the take's scene. `#<take>` plays one, with an "All videos"
-button back to the grid. The stills come from a running dev server, so keep
+button back to the grid; "Play all" starts the first and autoplays through the
+rest. A card opens its take without a reload, so the tap that chose it also
+starts the sound. The stills come from a running dev server, so keep
 `npm run dev` up while building. In this build mode (`--mode narration-preview`), the app leaves
 the address bar alone and skips the service worker.
 

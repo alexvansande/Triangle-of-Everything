@@ -7285,13 +7285,36 @@ if (_ogShot) {
   // The preview can't pass a query string, so it names the take in the hash
   // (#short-02-density); with no hash it shows its grid of takes instead.
   const narrTake = narrParams.get("narrate") || (NARR_PREVIEW ? location.hash.slice(1) || null : null);
-  // the preview reloads to switch takes (or to go back to its grid)
+  // the preview reloads to go back to its grid (or to a take typed in the hash)
   if (NARR_PREVIEW) window.addEventListener("hashchange", () => location.reload());
-  if (narrTake) {
+  // One audio element for every take: a tap starts it once, and after that
+  // phones let it go on to the next short by itself (autoplay).
+  const narrAudio = new Audio();
+  /** Start a take in place, replacing the one playing (no reload). */
+  const startTake = (take, opts = {}) => {
+    const u = new URL(location.href);
+    if (NARR_PREVIEW) u.hash = take; else u.searchParams.set("narrate", take);
+    history[opts.push ? "pushState" : "replaceState"](history.state, "", u);
+    import("./narration.js").then(m => m.startNarration({ ...narrApi, take, autoplay: opts.autoplay, playAll: opts.all }));
+  };
+  // The preview's grid: a card (or "Play all") opens its take in place, so
+  // the tap that chose it also starts the sound.
+  if (NARR_PREVIEW) document.addEventListener("click", (e) => {
+    const card = e.target.closest("#narr-grid a[href^='#']");
+    if (!card || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    narrAudio.muted = true; narrAudio.play().catch(() => {}); narrAudio.pause();  // unlock it within the tap
+    document.getElementById("narr-grid").hidden = true;
+    document.getElementById("narr-back").hidden = false;
+    startTake(card.hash.slice(1), { push: true, autoplay: true, all: card.classList.contains("ng-all") });
+  });
+  let narrApi = null;
+  if (narrTake || NARR_PREVIEW) {
     let gesture = false, last = null;
     const ppdBase = () => xBase(1) - xBase(0); // plot px per decade at k = 1
-    const api = {
-      d3, take: narrTake, params: narrParams,
+    const api = narrApi = {
+      d3, take: narrTake, params: narrParams, audio: narrAudio,
+      goto: (take) => startTake(take, { autoplay: true }),
       plot: () => ({ x: margin.left, y: margin.top, w: cw, h: ch }),
       px: (r) => xS(r), py: (m) => yS(m),
       objects: OBJECTS,
@@ -7332,7 +7355,7 @@ if (_ogShot) {
         document.body.classList.add("ui-hidden", "narrating");
       },
     };
-    import("./narration.js").then(m => m.startNarration(api));
+    if (narrTake) import("./narration.js").then(m => m.startNarration(api));
 
   }
 }

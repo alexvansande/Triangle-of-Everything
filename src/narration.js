@@ -15,6 +15,7 @@
 //
 //   ?narrate=take-1             live player (tap to start, tap to pause)
 //   &render=1                   no player UI; exposes window.__narr for the renderer
+//   &autoplay=0                 don't start on load or roll on to the next short
 //   &captions=0                 no captions
 //   &stage=landscape|none       recording stage (default: 9:16 phone)
 
@@ -30,6 +31,8 @@ const SCENES = import.meta.glob("./narration-scenes/*.js");
 let SCENE;
 
 let params, RENDER, CAPTIONS;
+// The running player, so the next take can replace it in place (autoplay)
+let current = null;
 // The size ruler hugs the bottom edge (y as a fraction of the stage height):
 // out of the middle of the picture. Captions sit just above it.
 const RULER_Y = 0.955;
@@ -115,6 +118,8 @@ function buildCaptions(words) {
 }
 
 export async function startNarration(app) {
+  current?.destroy(); current = null;
+  const ac = new AbortController(), on = { signal: ac.signal };
   params = app.params;
   RENDER = params.has("render");
   CAPTIONS = params.get("captions") !== "0";
@@ -203,12 +208,16 @@ export async function startNarration(app) {
   layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-caption"></div>` +
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
       <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div>
-      <a id="narr-next" href="#" hidden></a></div>
+      <a id="narr-next" href="#" hidden></a>
+      <button id="narr-auto" type="button" aria-pressed="true"></button></div>
       <div id="narr-bar" role="slider" aria-label="Seek" tabindex="0"><div id="narr-track"><div id="narr-bar-fill"></div><div id="narr-knob"></div></div><span id="narr-time"></span></div>`);
   document.body.appendChild(layer);
-  const style = document.createElement("style");
-  style.textContent = NARR_CSS;
-  document.head.appendChild(style);
+  if (!document.getElementById("narr-css")) {
+    const style = document.createElement("style");
+    style.id = "narr-css";
+    style.textContent = NARR_CSS;
+    document.head.appendChild(style);
+  }
   await document.fonts.load('700 38px "Barlow Condensed"').catch(() => {});
   const nsvg = d3.select("#narr-svg");
   const gUnits = nsvg.append("g").attr("class", "narr-units");
@@ -546,7 +555,11 @@ export async function startNarration(app) {
   if (RENDER) return;
 
   // ---------- live player ----------
-  const audio = new Audio(base + take.audio);
+  // One audio element for every take (app.audio): once a tap has started it,
+  // mobile browsers let it play the next take without another tap.
+  const audio = app.audio || new Audio();
+  audio.muted = false;
+  audio.src = base + take.audio;
   audio.preload = "auto";
   const ui = document.getElementById("narr-ui");
   const fill = document.getElementById("narr-bar-fill");
@@ -561,14 +574,21 @@ export async function startNarration(app) {
     bar.setAttribute("aria-valuenow", Math.round(t));
   };
   bar.setAttribute("aria-valuemin", 0); bar.setAttribute("aria-valuemax", Math.round(duration));
-  let raf = 0;
+  let raf = 0, countdown = 0;
   const loop = () => {
     renderAt(audio.currentTime);
     showTime(audio.currentTime);
     if (!audio.paused) raf = requestAnimationFrame(loop);
   };
-  const play = () => { ui.classList.add("hidden"); layer.classList.remove("paused"); audio.play(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); };
-  const pause = () => { audio.pause(); ui.classList.remove("hidden"); layer.classList.add("paused"); ui.querySelector("span").textContent = "paused · tap to resume"; window.__narr.settle(audio.currentTime); };
+  const hint = (text) => { ui.querySelector("span").textContent = text; };
+  const play = () => {
+    stopCountdown();
+    ui.classList.add("hidden"); layer.classList.remove("paused");
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
+    // blocked (no tap yet on this page): back to the play button
+    audio.play().catch(() => { ui.classList.remove("hidden"); layer.classList.add("paused"); hint("tap to play"); });
+  };
+  const pause = () => { audio.pause(); ui.classList.remove("hidden"); layer.classList.add("paused"); hint("paused · tap to resume"); window.__narr.settle(audio.currentTime); };
   layer.classList.add("paused");
   const seek = (t) => {
     t = Math.max(0, Math.min(duration - 0.05, t));
@@ -577,9 +597,9 @@ export async function startNarration(app) {
     if (audio.paused) window.__narr.settle(t);
   };
   layer.addEventListener("click", (e) => {
-    if (e.target.closest("#narr-bar, #narr-next")) return;
+    if (e.target.closest("#narr-bar, #narr-next, #narr-auto")) return;
     audio.paused ? play() : pause();
-  });
+  }, on);
   // the scrubber: press anywhere on the bar and drag; the scene follows the finger
   const at = (e) => { const r = bar.getBoundingClientRect(); return (e.clientX - r.left) / r.width * duration; };
   bar.addEventListener("pointerdown", (e) => {
@@ -599,32 +619,75 @@ export async function startNarration(app) {
       e.preventDefault(); e.stopImmediatePropagation();
       seek(audio.currentTime + (e.key === "ArrowRight" ? 5 : -5));
     }
-  }, true);
+  }, { capture: true, signal: ac.signal });
   showTime(0);
 
   // "Play next" on the end screen: the preview's grid order (window.__narrTakes),
-  // or the shorts in name order on the dev server
+  // or the shorts in name order on the dev server. With autoplay on, the end
+  // screen counts down and the next short starts in place, on the same audio.
   const nextEl = document.getElementById("narr-next");
-  const preview = import.meta.env.MODE === "narration-preview";
+  const autoEl = document.getElementById("narr-auto");
   const order = window.__narrTakes ||
     Object.keys(SCENES).map(k => k.match(/([^/]+)\.js$/)[1]).filter(n => n.startsWith("short-")).sort().map(id => ({ id }));
   const next = order[order.findIndex(k => k.id === app.take) + 1];
+  let nextTitle = next?.id;
+  const goNext = () => { stopCountdown(); app.goto(next.id); };
   if (next) {
     (async () => {
-      const title = next.title || (SCENES[`./narration-scenes/${next.id}.js`] &&
+      nextTitle = next.title || (SCENES[`./narration-scenes/${next.id}.js`] &&
         (await SCENES[`./narration-scenes/${next.id}.js`]()).default.title) || next.id;
-      nextEl.textContent = `Play next: ${title}`;
-      if (preview) nextEl.href = `#${next.id}`;
-      else { const u = new URL(location.href); u.searchParams.set("narrate", next.id); nextEl.href = u.pathname + u.search; }
+      nextEl.textContent = `Play next: ${nextTitle}`;
     })();
+    nextEl.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); goNext(); }, on);
   }
+  const showAuto = () => {
+    autoEl.textContent = `Autoplay ${autoplayOn() ? "on" : "off"}`;
+    autoEl.setAttribute("aria-pressed", autoplayOn());
+  };
+  if (app.playAll) setAutoplay(true);   // "Play all" on the grid
+  showAuto();
+  autoEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setAutoplay(!autoplayOn()); showAuto();
+    if (!autoplayOn() && countdown) { stopCountdown(); hint("the end · tap to replay"); }
+  }, on);
+  function stopCountdown() { clearInterval(countdown); countdown = 0; }
   audio.addEventListener("ended", () => {
     ui.classList.remove("hidden"); layer.classList.add("paused");
-    ui.querySelector("span").textContent = "the end · tap to replay";
+    hint("the end · tap to replay");
     showTime(duration);
-    if (next) nextEl.hidden = false;
-  });
-  audio.addEventListener("play", () => { nextEl.hidden = true; });
+    if (!next) return;
+    nextEl.hidden = false;
+    if (!autoplayOn()) return;
+    let n = 5;
+    const tick = () => n ? hint(`${nextTitle} in ${n--}… · tap to replay`) : goNext();
+    tick();
+    countdown = setInterval(tick, 1000);
+  }, on);
+  audio.addEventListener("play", () => { nextEl.hidden = true; }, on);
+
+  current = {
+    destroy() {
+      stopCountdown(); cancelAnimationFrame(raf); ac.abort();
+      audio.pause(); layer.remove(); app.onRedraw(null);
+    },
+  };
+  // Autoplay: start on load (the browser may still want a tap first)
+  if (app.autoplay ?? autoplayOn()) play();
+}
+
+// The autoplay switch, remembered per browser; &autoplay=0 turns it off
+let autoplayPref = null;
+function autoplayOn() {
+  if (autoplayPref == null) {
+    try { autoplayPref = localStorage.getItem("narr-autoplay") !== "0"; } catch { autoplayPref = true; }
+    if (params?.get("autoplay") === "0") autoplayPref = false;
+  }
+  return autoplayPref;
+}
+function setAutoplay(v) {
+  autoplayPref = v;
+  try { localStorage.setItem("narr-autoplay", v ? "1" : "0"); } catch {}
 }
 
 const NARR_CSS = `
@@ -662,6 +725,9 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
   color: #0b0c20; background: #ffd54f; border-radius: 999px; padding: 11px 18px 10px; text-decoration: none; margin-top: 4px; }
 #narr-next::after { content: " ›"; }
 #narr-next[hidden] { display: none; }
+#narr-auto { font: 600 12px/1 Inter, system-ui, sans-serif; letter-spacing: 0.04em; color: #fff; cursor: pointer;
+  background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.35); border-radius: 999px; padding: 7px 12px; }
+#narr-auto[aria-pressed="true"] { border-color: #ffd54f; color: #ffd54f; }
 /* the scrubber: a hairline while playing, a full track with a knob and the time
    when paused, hovered or dragged; the hit area is 32 px tall for fingers */
 #narr-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 32px; cursor: pointer; touch-action: none; }
