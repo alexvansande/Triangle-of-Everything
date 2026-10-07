@@ -32,4 +32,5 @@ posters/
 *.mp4
 # The one exception: one working take, so ?narrate=take-2 plays out of the box
 !public/narration/take-2/audio.m4a
+!public/narration/short-01-hook/audio.m4a
 .narr-render-*/

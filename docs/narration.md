@@ -23,8 +23,8 @@ direct upload into the chat, then `narration-take.py` (or the EDL tools in
 `video/<take>/tools/`) rebuilds `audio.m4a` and `words.json` from it. The
 committed `words.json` and EDLs are enough to recreate any cut once the same
 source recording is uploaded again.
-The one exception is take 2's audio (`public/narration/take-2/audio.m4a`), so the
-player works from a clean checkout.
+The exceptions are the audio of take 2 and of `short-01-hook` (the current
+hook), so the player and the preview work from a clean checkout.
 
 ## Watch it live
 
@@ -109,9 +109,10 @@ Keep those.
   Time is *not* on an axis: it's written on the diagonal lines (the ones
   labelled "now" or ending in "s"). So on "time…", highlight those diagonal
   labels instead of the top axis.
-- The app draws the classic figure with its vertical axes **swapped from the
+- The app draws the classic figure's vertical axes **differently from the
   paper**, so it reads like the map: the left axis is mass in GeV (the energy
-  side), and the right axes are mass in g and M☉.
+  side), and the right axis is mass in g. The paper's second mass axis, in
+  M☉, is left out.
 
 **Axis highlight** (`swellAxisNumbers` in `src/narration.js`): done. Over the
 classic figure, `{ axis: side }` makes that axis's own tick numbers swell one
