@@ -382,7 +382,7 @@ def add_to(bus, x, at, pan, wide=False):
     if wide: bus[0, a:b] += x[: b - a]; bus[1, a:b] += frac_delay(x, I(0.011))[: b - a]; return
     bus[0, a:b] += x[: b - a] * np.cos(p); bus[1, a:b] += x[: b - a] * np.sin(p)
 
-if TL.get("bed", True) and TL.get("path"):
+if TL.get("bed") and TL.get("path"):          # off unless the scene sets bed: true
     bedm, xs, tt = bed_music()
     k = np.arange(M) / SR
     g = np.minimum(1, k / 3) * np.clip((T - 0.3 - k) / 3, 0, 1)        # in over 3 s, out by the end

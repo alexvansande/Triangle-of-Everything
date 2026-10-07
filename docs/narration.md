@@ -56,7 +56,8 @@ carries over to the next short.
 Keep it light: most of a short is the plain voice. Three kinds of moments,
 each a phrase-anchored cue in the scene's `sound` list (fields at the top of
 `src/narration-scenes/tour.js`):
-- **Voice effects**, gentle (they colour the voice rather than replace it), on a few highlighted phrases: `echo`, `hall`, `radio`,
+- **Voice effects** (in the code, but none in use for now: on the voice they
+  read as a recording glitch), for a few highlighted phrases: `echo`, `hall`, `radio`,
   `wide`, `liquid`, `deep`.
 - **Small sound effects** when the narration names something you could hear:
   `bubble`, `glug`, `wind`, `hiss`, `drops` (condensation), `ignite`, `boom`,
@@ -66,7 +67,8 @@ each a phrase-anchored cue in the scene's `sound` list (fields at the top of
   quickens). It steps back 4 dB while the voice talks, and `stop: "cut"` ends
   it dead (the heartbeat stops on the supernova's "boom").
 
-- **A music bed** under the whole take, quiet and rhythmic (soft plucked
+- **A music bed** (off by default for now; `bed: true` in a scene turns it
+  on) under the whole take, quiet and rhythmic (soft plucked
   arpeggios at 92 BPM on a D – Bm – G – A loop), to fill the gaps between
   phrases. It follows the camera: the scale at the screen centre sets its
   character (atoms: quick 16ths, high and glassy, with faint ticks; human
@@ -76,12 +78,11 @@ each a phrase-anchored cue in the scene's `sound` list (fields at the top of
   major), switching only on a chord change. The tempo never changes, so it
   stays one piece. It sits about 19 dB under the voice, drops 8 dB while the
   voice talks, and steps aside for cue music (and stays out a few seconds
-  after a `stop: "cut"`). `bed: false` in a scene turns it off.
-- **Drama**: `{ at: "phrase", intensity: 2 }` cues set the bed's energy from
+  after a `stop: "cut"`). - **Drama**: `{ at: "phrase", intensity: 2 }` cues set the bed's energy from
   that phrase on, until the next one: 0 silent, 0.5 hushed, 1 normal, 2 a
   build (twice the notes, a bass pulse on every beat), 3 the peak (a soft kick
   and a sustained pad, about 6 dB fuller than normal). It ramps over `ramp`
-  seconds (default 2). No intensity cues are set yet: the author picks them.
+  seconds (default 2). No intensity cues are set yet, and they only act when the bed is on.
 
 ```bash
 npm run dev    # keep running
@@ -99,12 +100,12 @@ voice). Run it again after changing a take's audio or its scene.
 
 Where it's used now:
 
-| Short | Voice effects | Sound effects | Music |
-|---|---|---|---|
-| hook | radio on "radio waves", echo on "the big bang" | – | pulse from "and then you realize" to the end |
-| density | wide on "three-dimensional universe" | bubble on "float", glug on "sink" and the hippo's "sinks" | – |
-| planets | liquid on "might as well be liquid" | wind on "atmosphere", hiss on "hydrogen just cannot escape" | – |
-| stars | deep on "black hole" | ignite on fusion, boom on the supernova, a sub drop on "black hole" | heartbeat through the life cycle, cut at "boom" |
+| Short | Sound effects | Music |
+|---|---|---|
+| hook | – | pulse from "and then you realize" to the end |
+| density | bubble on "float", glug on "sink" and the hippo's "sinks" | – |
+| planets | wind on "atmosphere", hiss on "hydrogen just cannot escape" | – |
+| stars | ignite on fusion, boom on the supernova, a sub drop on "black hole" | heartbeat through the life cycle, cut at "boom" |
 
 ## A new recording
 

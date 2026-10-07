@@ -574,7 +574,7 @@ export async function startNarration(app) {
       duration,
       sound: cues.sound,
       // the music bed follows the camera: [t, log r, log m, span] every 0.25 s
-      bed: SCENE.bed ?? true,
+      bed: SCENE.bed ?? false,      // off by default for now; a scene opts in with bed: true
       path: Array.from({ length: Math.ceil(duration * 4) + 1 }, (_, i) => {
         const v = camera(i / 4).view;
         return [i / 4, +v.r.toFixed(3), +v.m.toFixed(3), +v.span.toFixed(3)];

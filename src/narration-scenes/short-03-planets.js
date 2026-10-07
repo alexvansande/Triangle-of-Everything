@@ -14,7 +14,6 @@ export default {
   captionFixes: { short: "chart", celadus: "Enceladus", celagos: "Enceladus" },
 
   sound: [
-    { at: "might as well be liquid", voice: "liquid" },
     { at: "start having an atmosphere", fx: "wind", offset: 0.4 },
     { at: "hydrogen just cannot escape", fx: "hiss" },
   ],

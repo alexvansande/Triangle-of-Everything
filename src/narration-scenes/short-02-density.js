@@ -14,7 +14,6 @@ export default {
   captionFixes: { short: "chart", recipient: "container" },
 
   sound: [
-    { at: "three dimensional universe", voice: "wide" },
     { at: "will float in water", fx: "bubble", offset: 0.3 },
     { at: "will sink", fx: "glug", offset: 0.15 },
     { at: "it just sinks", fx: "glug", offset: 0.2, gain: 2 },

@@ -28,7 +28,7 @@
 //
 // Sound cues (optional `sound: [...]`, read by scripts/narration-sound.mjs;
 // keep them rare). Each names a phrase like a cue does:
-//   { at, voice }  an effect on the voice for that phrase: "echo" (repeats
+//   { at, voice }  (none in use: they read as recording glitches) an effect on the voice for that phrase: "echo" (repeats
 //                  that fade off), "hall" (a long tail), "radio" (a tuned-in
 //                  radio with static), "wide" (spreads out in stereo),
 //                  "liquid" (a watery wobble), "deep" (sinks and drags)
@@ -42,9 +42,9 @@
 //                  the next one: 0 silent, 0.5 hushed, 1 normal, 2 a build
 //                  (twice the notes, a bass pulse), 3 the peak (a soft kick and
 //                  a pad, about 6 dB fuller); ramps over `ramp` s (default 2)
-// bed: false        no music bed (by default a quiet rhythmic bed runs under
-//                  the whole take, shaped by where the camera is: small scales
-//                  quick and high, galaxies slow and low; dense things minor)
+// bed: true         a quiet rhythmic music bed under the whole take, shaped by
+//                  where the camera is: small scales quick and high, galaxies
+//                  slow and low; dense things minor (off by default for now)
 
 const FULL = { r: -2.2, m: -4.8, span: 74 };   // the whole triangle, portrait
 
