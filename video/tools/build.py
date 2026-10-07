@@ -4,7 +4,7 @@
 WORKDIR holds audio/<source>.wav (48 kHz mono) and <source>.words.json
 ([[word, start, end], …] from scripts/narration-take.py's Whisper settings)
 for every source the EDL names. Writes WORKDIR/audio/edit_raw.wav and
-WORKDIR/cuts.csv; then run video/tools/enhance.sh on edit_raw.wav.
+WORKDIR/cuts.csv; then run video/tools/enhance.py on edit_raw.wav.
 
 EDL entries: (source, beat, first-word start, last-word start, {s, e, gap})
 in source seconds. Cuts snap to the nearest real silence unless s/e are

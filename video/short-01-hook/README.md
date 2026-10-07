@@ -21,7 +21,7 @@ ffmpeg -i Link_office_mall_2.m4a -ac 1 -ar 48000 -c:a pcm_s16le $W/audio/rec2.wa
 ffmpeg -i Link_office_mall_4.m4a -ac 1 -ar 48000 -c:a pcm_s16le $W/audio/rec4.wav
 cp video/sources/2026-10-07/rec*.words.json $W/
 python3 video/tools/build.py $W video/short-01-hook/edl.py         # → $W/audio/edit_raw.wav, $W/cuts.csv
-bash video/tools/enhance.sh $W/audio/edit_raw.wav $W/audio/edit   # cleanup, −16 LUFS
+python3 video/tools/enhance.py $W/audio/edit_raw.wav $W/audio/edit   # cleanup, −16 LUFS
 ```
 
 Then copy `edit.m4a` to `public/narration/short-01-hook/audio.m4a`, and

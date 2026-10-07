@@ -10,7 +10,7 @@ Four recordings came in that morning, all on the iPhone at about the same mic ga
 
 **Sound.** Recording 3 is the cleanest. Its background in pauses sits at about
 −81 dBFS, against −68 for recording 2 and −64 for recording 4. All three end up
-fine after `video/tools/enhance.sh`, the cleanup and −16 LUFS step. Keep one
+fine after `video/tools/enhance.py`, the cleanup and −16 LUFS step. Keep one
 setup per video so the background doesn't change at the joins. A 20–60 Hz
 building rumble is in every file, and the 80 Hz high-pass removes it.
 

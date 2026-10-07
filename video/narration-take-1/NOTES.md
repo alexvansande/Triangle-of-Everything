@@ -113,7 +113,7 @@ Everything is scripted, so you can change a cut and regenerate:
 # in a scratch dir containing audio/raw.wav (48k mono) + audio/raw16.wav (16k) + transcript.json
 python3 tools/transcribe.py audio/raw16.wav transcript.json    # Whisper medium.en, word timestamps (pip install faster-whisper)
 python3 tools/build.py .                                       # reads tools/edl.py → audio/edit_raw.wav + cuts.csv
-tools/enhance.sh audio/edit_raw.wav audio/edit_enhanced        # cleanup + −16 LUFS
+tools/enhance.py audio/edit_raw.wav audio/edit_enhanced        # cleanup + −16 LUFS
 ```
 
 `tools/edl.py` is the edit decision list: one line per clip, `(tour_step, first_word_time, last_word_time, {optional exact s/e override})`, with the spoken text as a comment. Cuts snap to the nearest real silence automatically.
