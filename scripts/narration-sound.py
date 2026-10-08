@@ -28,6 +28,9 @@ raw = subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(take_dir, take
                       "-f", "f32le", "-"], capture_output=True, check=True).stdout
 voice = np.frombuffer(raw, np.float32).astype(np.float64)
 N = len(voice); T = N / SR
+# the end credits run on after the last word (player: scene `credits`, 3 s);
+# the mix is that much longer, with the music carrying on under them
+CR = float(TL.get("credits", 0)); NC = N + int(round(CR * SR)); TC = NC / SR
 
 # ---------- helpers ----------
 def fft_filter(x, lo=None, hi=None, order=2):
@@ -417,12 +420,12 @@ if bk:
     path = os.path.join(os.path.dirname(__file__), "..", "video", "music", TRACKS.get(bk["track"], bk["track"]))
     if not os.path.exists(path): sys.exit(f"  backing track missing: {path} (run video/music/fetch.sh)")
     off = bk.get("offset", 0)
-    raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", str(off), "-i", path, "-t", str(T + 1), "-ac", "2", "-ar", str(SR),
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", str(off), "-i", path, "-t", str(TC + 1), "-ac", "2", "-ar", str(SR),
                           "-f", "f32le", "-"], capture_output=True, check=True).stdout
     trk = np.frombuffer(raw, np.float32).astype(np.float64).reshape(-1, 2).T
     trk = np.pad(trk, ((0, 0), (0, max(0, M - trk.shape[1]))))[:, :M]
     k = np.arange(M) / SR
-    g = np.minimum(1, k / 2) * np.clip((T - k) / 3, 0, 1)
+    g = np.minimum(1, k / 2) * np.clip((TC - k) / 2.5, 0, 1)          # out by the end of the credits
     for s0, e0, cut in cue_music:
         out_from, back = s0 - 2, (e0 + 4 if cut else e0 + 1)
         g *= np.clip(np.maximum((out_from - k) / 2, (k - back) / 3), 0, 1)
@@ -433,8 +436,8 @@ if bk:
     done.append(f"backing \"{bk['track']}\"")
 
 wet = [fft_convolve(send, ROOM[c])[:M] * db(-8) for c in range(2)]
-bed = np.stack([fxL + music[0] + wet[0], fxR + music[1] + wet[1]])[:, :N]
-mix = np.stack([vL, vR]) + bed                      # same length as the voice, so the timings hold
+bed = np.stack([fxL + music[0] + wet[0], fxR + music[1] + wet[1]])[:, :NC]
+mix = np.pad(np.stack([vL, vR]), ((0, 0), (0, NC - N))) + bed   # the voice's length plus the credits: the word timings hold
 
 # ---------- level: the voice file's loudness, a −1 dBFS ceiling ----------
 def limit(x, ceiling=db(-1), look=0.004, release=0.12):
@@ -455,5 +458,6 @@ subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "f32le", "-ar", str(SR), "-
                 "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", os.path.join(take_dir, "mix.m4a")],
                input=mix.T.astype(np.float32).tobytes(), check=True)
 take["mix"] = "mix.m4a"
+take["credits"] = CR
 json.dump(take, open(os.path.join(take_dir, "words.json"), "w"), ensure_ascii=False, separators=(",", ":"))
 print(f"  {T:.1f} s: " + (", ".join(done) or "no sound cues"))

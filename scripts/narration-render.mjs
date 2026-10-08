@@ -103,7 +103,8 @@ async function renderRange(t0, t1, file, label) {
 }
 
 const meta = JSON.parse(fs.readFileSync(`public/narration/${take}/words.json`, "utf8"));
-const from = +opt("from", 0), to = Math.min(+opt("to", meta.duration), meta.duration);
+const total = meta.duration + (meta.credits || 0);   // the end credits run on after the last word
+const from = +opt("from", 0), to = Math.min(+opt("to", total), total);
 const parts = [];
 const step = (to - from) / WORKERS;
 for (let i = 0; i < WORKERS; i++) {

@@ -51,6 +51,16 @@ from the pace it was spoken at: 1.2× plays the file as-is and is the default,
 and 1× slows it back to natural speed. A choice is remembered per browser and
 carries over to the next short.
 
+## End credits
+
+Every video, short or long, ends on a credits card for 3 seconds after the last
+word (scene `credits: <seconds>`; 0 for none): design and narration, the
+Lineweaver–Patel paper, the music (the take's backing track), the AI-use note,
+and triangleofeverything.com. The text is `creditsHTML` in `src/narration.js`.
+The mix (`narration-sound.mjs`) is that much longer, with the music carrying on
+under the card and fading out by the end, and it writes `"credits"` into
+words.json so the renderer includes them.
+
 ## Sound design
 
 Keep it light: most of a short is the plain voice. Three kinds of moments,

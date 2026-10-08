@@ -148,7 +148,11 @@ export async function startNarration(app) {
   SCENE = (await SCENES[`./narration-scenes/${take.scene || "tour"}.js`]()).default;
   const cues = resolveScene(take.words);
   const captions = CAPTIONS ? buildCaptions(take.words) : [];
-  const duration = take.duration;
+  // The video runs on for the end credits (scene `credits`, default 3 s) after
+  // the last word; the mix (narration-sound.mjs) carries the music under them.
+  const speechEnd = take.duration;
+  const CREDITS = take.credits ?? SCENE.credits ?? 3;
+  const duration = speechEnd + CREDITS;
 
   const stage = params.get("stage") || "portrait";
   if (stage !== "none" && (RENDER || !app.isMobile())) app.setStage(stage);
@@ -225,7 +229,8 @@ export async function startNarration(app) {
   // ---------- DOM ----------
   const layer = document.createElement("div");
   layer.id = "narr-layer";
-  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-caption"></div>` +
+  const track = SCENE.backing && (typeof SCENE.backing === "string" ? SCENE.backing : SCENE.backing.track);
+  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-caption"></div>` + creditsHTML(track) +
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
       <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div>
       <a id="narr-next" href="#" hidden></a>
@@ -546,8 +551,12 @@ export async function startNarration(app) {
 
   // ---------- frame ----------
   let lastKey = -2, lastPhase = null;
+  const creditsEl = document.getElementById("narr-credits");
   function renderAt(t) {
     curT = t;
+    const co_ = CREDITS ? clamp01((t - speechEnd - 0.15) / 0.5) : 0;    // the end card fades in after the last word
+    creditsEl.style.opacity = co_;
+    creditsEl.style.visibility = co_ > 0 ? "visible" : "hidden";
     const { view, key } = camera(t);
     const co = classicOpacity(t);
     narrClassic(co, co > 0 ? view : null);
@@ -571,7 +580,8 @@ export async function startNarration(app) {
     cues: cues.map(c => ({ t: +c.time.toFixed(2), at: c.at })),
     // the scene's sound cues resolved to times, for scripts/narration-sound.mjs
     timeline: () => ({
-      duration,
+      duration: speechEnd,
+      credits: CREDITS,
       sound: cues.sound,
       // the music bed follows the camera: [t, log r, log m, span] every 0.25 s
       bed: SCENE.bed ?? false,      // off by default for now; a scene opts in with bed: true
@@ -728,7 +738,7 @@ export async function startNarration(app) {
   audio.addEventListener("ended", () => {
     ui.classList.remove("hidden"); layer.classList.add("paused");
     hint("the end · tap to replay");
-    showTime(duration);
+    renderAt(duration); showTime(duration);     // the credits card stays up behind the end screen
     if (!next) return;
     nextEl.hidden = false;
     if (!autoplayOn()) return;
@@ -780,6 +790,18 @@ function setAutoplay(v) {
   try { localStorage.setItem("narr-autoplay", v ? "1" : "0"); } catch {}
 }
 
+// End credits: every video, short or long, closes on this card for a few seconds.
+const creditsHTML = (track) => `<div id="narr-credits" aria-hidden="true"><div class="nc-in">
+  <div class="nc-title">The Triangle<br>of Everything</div>
+  <dl>
+    <dt>Design and narration</dt><dd>Alex Van de Sande</dd>
+    <dt>Inspired by the paper</dt><dd>“All objects and some questions”<span>Charles H. Lineweaver and Vihan M. Patel · Am. J. Phys. 2023</span></dd>
+    <dt>Music</dt><dd>${track ? `“${track}” by ` : ""}Kevin MacLeod<span>incompetech.com · CC BY 4.0</span></dd>
+  </dl>
+  <p class="nc-ai"><b>AI use:</b> Claude was used for the code of the page and for editing. ChatGPT was used for some of the smaller images.</p>
+  <div class="nc-url"><span>More at</span>triangleofeverything.com</div>
+</div></div>`;
+
 const NARR_CSS = `
 #narr-layer { position: fixed; inset: 0; z-index: 10001; pointer-events: auto; overflow: hidden;
   width: var(--app-w, 100vw); height: var(--app-h, 100vh); }
@@ -803,6 +825,19 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
   letter-spacing: 0.01em; color: #fff;
   -webkit-text-stroke: 6px #000; paint-order: stroke fill; }
 #narr-caption span { color: #fff; }
+#narr-credits { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(16, 14, 52, 0.9), rgba(4, 4, 16, 0.97)); color: #eef0ff; pointer-events: none;
+  font-family: Inter, system-ui, sans-serif; text-align: center; }
+#narr-credits .nc-in { width: min(84%, 560px); container-type: inline-size; }
+.nc-title { font: 700 13.5cqi/0.92 "Barlow Condensed", "Arial Narrow", sans-serif; text-transform: uppercase; letter-spacing: 0.01em; margin-bottom: 7cqi; }
+#narr-credits dl { margin: 0; }
+#narr-credits dt { font: 700 3.6cqi/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #ffd54f; margin-top: 4.6cqi; }
+#narr-credits dd { margin: 1.4cqi 0 0; font-size: 5cqi; font-weight: 600; line-height: 1.2; }
+#narr-credits dd span { display: block; margin-top: 0.8cqi; font-size: 3.4cqi; font-weight: 400; color: #a3a8d6; }
+.nc-ai { margin: 7cqi auto 0; max-width: 92%; font-size: 3.1cqi; line-height: 1.45; color: #a3a8d6; }
+.nc-ai b { color: #eef0ff; font-weight: 600; }
+.nc-url { margin-top: 6cqi; font: 700 7cqi/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.02em; color: #ffd54f; }
+.nc-url span { display: block; margin-bottom: 1.2cqi; font: 500 3.2cqi/1 Inter, system-ui, sans-serif; letter-spacing: 0.04em; color: #a3a8d6; }
 #narr-caption span.now { color: #ffd54f; }
 #narr-ui { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 18px; background: rgba(0,0,0,0.35); color: #fff; font-family: Inter, system-ui, sans-serif; }
