@@ -823,7 +823,7 @@ const creditsHTML = (track) => `<div id="narr-credits" aria-hidden="true"><div c
     <dt>Inspired by the paper</dt><dd>“All objects and some questions”<span>Charles H. Lineweaver and Vihan M. Patel · Am. J. Phys. 2023</span></dd>
     <dt>Music</dt><dd>${track ? `“${track}” by ` : ""}Kevin MacLeod<span>incompetech.com · CC BY 4.0</span></dd>
   </dl>
-  <p class="nc-ai"><b>AI use:</b> Claude was used for the code of the page and for editing. ChatGPT was used for some of the smaller images.</p>
+  <p class="nc-ai"><b>AI usage:</b> Claude was used to generate code and editing for the video and app. Object images are either public domain sources, rendered from code and in some cases, ChatGPT. For full image credit see website.</p>
   <div class="nc-url"><span>More at</span>triangleofeverything.com</div>
 </div></div>`;
 
