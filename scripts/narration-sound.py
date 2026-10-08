@@ -396,17 +396,47 @@ if TL.get("bed") and TL.get("path"):          # off unless the scene sets bed: t
     send += (bedm[0] + bedm[1]) * (0.15 + 0.45 * np.interp(k, tt, xs))
     done.append(f"bed ({len(KEYS)} intensity cues)" if KEYS else "bed")
 
-wet = [fft_convolve(send, ROOM[c])[:M] * db(-8) for c in range(2)]
-bed = np.stack([fxL + music[0] + wet[0], fxR + music[1] + wet[1]])[:, :N]
-mix = np.stack([vL, vR]) + bed                      # same length as the voice, so the timings hold
-
-# ---------- level: the voice file's loudness, a −1 dBFS ceiling ----------
 def lufs(x):
     p = subprocess.run(["ffmpeg", "-hide_banner", "-f", "f32le", "-ar", str(SR), "-ac", str(x.shape[0]), "-i", "-",
                         "-af", "ebur128=framelog=quiet", "-f", "null", "-"],
                        input=x.T.astype(np.float32).tobytes(), capture_output=True).stderr.decode()
     return float(p.rsplit("I:", 1)[1].split("LUFS")[0])
 
+# ---------- backing track: a real piece of music under the whole take ----------
+# Kevin MacLeod's tracks (incompetech.com, CC BY 4.0; video/music/CREDITS.md,
+# fetched by video/music/fetch.sh). The scene names one: backing: "Dreamer" or
+# { track, offset (s into the track), gain (dB) }. It sits about 9 LU under the
+# voice on its own (about 19 dB under it while it talks, ducked 8 dB), fades in over 2 s and
+# out over the last 3, and steps aside for cue music (out 2 s before, back after;
+# after a "cut", a few seconds later).
+TRACKS = {"Immersed": "Immersed.mp3", "Dreamer": "Dreamer.mp3", "Fresh Air": "Fresh Air.mp3",
+          "Soaring": "Soaring.mp3", "Space X-plorers": "space explorers.mp3", "Mesmerize": "Mesmerize.mp3"}
+bk = TL.get("backing")
+if bk:
+    bk = {"track": bk} if isinstance(bk, str) else bk
+    path = os.path.join(os.path.dirname(__file__), "..", "video", "music", TRACKS.get(bk["track"], bk["track"]))
+    if not os.path.exists(path): sys.exit(f"  backing track missing: {path} (run video/music/fetch.sh)")
+    off = bk.get("offset", 0)
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", str(off), "-i", path, "-t", str(T + 1), "-ac", "2", "-ar", str(SR),
+                          "-f", "f32le", "-"], capture_output=True, check=True).stdout
+    trk = np.frombuffer(raw, np.float32).astype(np.float64).reshape(-1, 2).T
+    trk = np.pad(trk, ((0, 0), (0, max(0, M - trk.shape[1]))))[:, :M]
+    k = np.arange(M) / SR
+    g = np.minimum(1, k / 2) * np.clip((T - k) / 3, 0, 1)
+    for s0, e0, cut in cue_music:
+        out_from, back = s0 - 2, (e0 + 4 if cut else e0 + 1)
+        g *= np.clip(np.maximum((out_from - k) / 2, (k - back) / 3), 0, 1)
+    talk_k = np.clip((20 * np.log10(follower(voice, 0.08, 0.5) + 1e-9) + 48) / 18, 0, 1)
+    duck = db(-8 * np.concatenate([talk_k, np.zeros(M - N)]))
+    level = db(lufs(voice[None]) - 9 - lufs(trk[:, :N]) + bk.get("gain", 0))
+    music += trk * g * duck * level
+    done.append(f"backing \"{bk['track']}\"")
+
+wet = [fft_convolve(send, ROOM[c])[:M] * db(-8) for c in range(2)]
+bed = np.stack([fxL + music[0] + wet[0], fxR + music[1] + wet[1]])[:, :N]
+mix = np.stack([vL, vR]) + bed                      # same length as the voice, so the timings hold
+
+# ---------- level: the voice file's loudness, a −1 dBFS ceiling ----------
 def limit(x, ceiling=db(-1), look=0.004, release=0.12):
     need = np.minimum(1, ceiling / (np.abs(x).max(0) + 1e-9)); w = I(look)
     padded = np.concatenate([need, np.ones(w)])

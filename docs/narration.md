@@ -78,7 +78,13 @@ each a phrase-anchored cue in the scene's `sound` list (fields at the top of
   major), switching only on a chord change. The tempo never changes, so it
   stays one piece. It sits about 19 dB under the voice, drops 8 dB while the
   voice talks, and steps aside for cue music (and stays out a few seconds
-  after a `stop: "cut"`). - **Drama**: `{ at: "phrase", intensity: 2 }` cues set the bed's energy from
+  after a `stop: "cut"`). - **A backing track**: `backing: "Dreamer"` (or `{ track, offset, gain }`) puts
+  one of Kevin MacLeod's pieces under the whole take (incompetech.com, CC BY 4.0:
+  credit it in the video's description; `video/music/CREDITS.md` has the text,
+  and `video/music/fetch.sh` downloads the mp3s, which aren't in git). It's
+  normalised to sit about 19 dB under the voice while it talks (ducked 8 dB),
+  fades in and out, and steps aside for cue music.
+- **Drama**: `{ at: "phrase", intensity: 2 }` cues set the bed's energy from
   that phrase on, until the next one: 0 silent, 0.5 hushed, 1 normal, 2 a
   build (twice the notes, a bass pulse on every beat), 3 the peak (a soft kick
   and a sustained pad, about 6 dB fuller than normal). It ramps over `ramp`

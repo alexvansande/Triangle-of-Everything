@@ -73,7 +73,8 @@ for (const t of takes) {
   const take = JSON.parse(fs.readFileSync(path.join(OUT, "narration", t, "words.json"), "utf8"));
   const scene = (await import(path.resolve(`src/narration-scenes/${take.scene || "tour"}.js`))).default;
   const first = take.words.map(w => w[0]).join(" ").match(/^.*?[.?!](\s|$)/)?.[0].trim() ?? "";
-  info.push({ id: t, title: scene.title || t, blurb: scene.blurb || first, duration: take.duration,
+  const music = scene.backing && (typeof scene.backing === "string" ? scene.backing : scene.backing.track);
+  info.push({ id: t, title: scene.title || t, blurb: scene.blurb || first, duration: take.duration, music,
     thumbAt: scene.thumb ?? take.duration * 0.4, num: (t.match(/\d+/) || [""])[0] });
 }
 // A still of each take from the dev server, if one is running
@@ -105,7 +106,8 @@ const cards = info.map(k => `
       <span class="ng-thumb">${k.thumb ? `<img src="${k.thumb}" alt="" loading="lazy">` : ""}
         <span class="ng-num">${esc(k.num)}</span><span class="ng-len">${mmss(k.duration)}</span><span class="ng-play" aria-hidden="true"></span></span>
       <span class="ng-title">${esc(k.title)}</span>
-      <span class="ng-blurb">${esc(k.blurb)}</span>
+      <span class="ng-blurb">${esc(k.blurb)}</span>${k.music ? `
+      <span class="ng-music">♪ “${esc(k.music)}” Kevin MacLeod (incompetech.com)</span>` : ""}
     </a>`).join("");
 html = html.replace("</body>", `<section id="narr-grid" hidden aria-label="Narration previews">
   <header class="ng-head">
@@ -115,7 +117,10 @@ html = html.replace("</body>", `<section id="narr-grid" hidden aria-label="Narra
     <a class="ng-all" href="#${esc(info[0].id)}">Play all · ${mmss(info.reduce((s, k) => s + k.duration, 0))}</a>
   </header>
   <div class="ng-grid">${cards}
-  </div>
+  </div>${info.some(k => k.music) ? `
+  <p class="ng-credits">Music by Kevin MacLeod (<a href="https://incompetech.com" target="_blank" rel="noopener">incompetech.com</a>),
+    licensed under Creative Commons: By Attribution 4.0
+    (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">creativecommons.org/licenses/by/4.0</a>).</p>` : ""}
 </section>
 <a id="narr-back" href="#" hidden>All videos</a>
 <style>
@@ -157,6 +162,9 @@ html = html.replace("</body>", `<section id="narr-grid" hidden aria-label="Narra
   border-color: transparent transparent transparent #fff; }
 .ng-title { font: 700 22px/1 var(--ng-display); text-transform: uppercase; letter-spacing: 0.01em; }
 .ng-blurb { font-size: 13px; line-height: 1.4; color: var(--ng-muted); }
+.ng-music { font-size: 11.5px; line-height: 1.35; color: var(--ng-accent); opacity: 0.85; }
+.ng-credits { max-width: 960px; margin: 26px auto 0; font-size: 12px; line-height: 1.5; color: var(--ng-muted); }
+.ng-credits a { color: var(--ng-fg); }
 #narr-back { position: fixed; z-index: 100001; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 10px;
   font: 700 15px/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
   color: #fff; background: rgba(7, 7, 28, 0.82); border: 1px solid rgba(255, 213, 79, 0.7); border-radius: 999px;

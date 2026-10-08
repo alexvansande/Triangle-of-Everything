@@ -13,6 +13,8 @@ export default {
   start: FULL,
   captionFixes: { short: "chart", recipient: "container" },
 
+  // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
+  backing: "Dreamer",
   sound: [
     { at: "will float in water", fx: "bubble", offset: 0.3 },
     { at: "will sink", fx: "glug", offset: 0.15 },

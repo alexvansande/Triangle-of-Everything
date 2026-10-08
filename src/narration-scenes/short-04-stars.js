@@ -13,6 +13,8 @@ export default {
   start: { r: 10.4, m: 31.6, span: 6 },
   captionFixes: { short: "chart", spread: "red", nebulae: "nebula" },
 
+  // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
+  backing: "Immersed",
   sound: [
     { at: "once they start generating fusion", fx: "ignite", offset: 0.6 },
     { at: "the life cycle of a star", music: "heartbeat", to: "go boom", stop: "cut" },

@@ -13,6 +13,8 @@ export default {
   start: FULL,
   captionFixes: { short: "chart", celadus: "Enceladus", celagos: "Enceladus" },
 
+  // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
+  backing: "Soaring",
   sound: [
     { at: "start having an atmosphere", fx: "wind", offset: 0.4 },
     { at: "hydrogen just cannot escape", fx: "hiss" },

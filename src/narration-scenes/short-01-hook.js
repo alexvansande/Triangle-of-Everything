@@ -17,8 +17,9 @@ export default {
 
   captionFixes: { short: "chart", shard: "chart", lights: "light" },
 
+  // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
+  backing: "Space X-plorers",
   sound: [
-    { at: "and then you realize", music: "pulse" },
   ],
 
   cues: [
