@@ -229,6 +229,7 @@ export async function startNarration(app) {
   // ---------- DOM ----------
   const layer = document.createElement("div");
   layer.id = "narr-layer";
+  if (!RENDER) layer.classList.add("live");     // the player's own UI (renders have none)
   const track = SCENE.backing && (typeof SCENE.backing === "string" ? SCENE.backing : SCENE.backing.track);
   layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-caption"></div>` + creditsHTML(track) +
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
@@ -850,6 +851,8 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
   letter-spacing: 0.01em; color: #fff;
   -webkit-text-stroke: 6px #000; paint-order: stroke fill; }
 #narr-caption span { color: #fff; }
+/* in the player, the captions sit above the lifted scrubber */
+#narr-layer.live #narr-caption { bottom: max(8.5%, calc(env(safe-area-inset-bottom, 0px) + 92px)); }
 #narr-credits { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0;
   background: radial-gradient(ellipse at 50% 40%, rgba(16, 14, 52, 0.9), rgba(4, 4, 16, 0.97)); color: #eef0ff; pointer-events: none;
   font-family: Inter, system-ui, sans-serif; text-align: center; }
@@ -887,16 +890,19 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
   background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.35); border-radius: 999px; padding: 7px 12px; }
 .narr-chip[aria-pressed="true"] { border-color: #ffd54f; color: #ffd54f; }
 /* the scrubber: a hairline while playing, a full track with a knob and the time
-   when paused, hovered or dragged; the hit area is 32 px tall for fingers */
-#narr-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 32px; cursor: pointer; touch-action: none; }
-#narr-track { position: absolute; left: 14px; right: 14px; bottom: 12px; height: 3px; border-radius: 2px;
+   when paused, hovered or dragged; the hit area is 44 px tall for fingers */
+/* Lifted clear of the bottom edge, where phones put the home bar and the
+   app-switch swipe, and inset from the side edges (back/forward swipes). */
+#narr-bar { position: absolute; left: 10px; right: 10px; bottom: calc(env(safe-area-inset-bottom, 0px) + 38px); height: 44px;
+  cursor: pointer; touch-action: none; }
+#narr-track { position: absolute; left: 14px; right: 14px; bottom: 16px; height: 3px; border-radius: 2px;
   background: rgba(255,255,255,0.18); transition: height 0.15s, left 0.15s, right 0.15s, bottom 0.15s; }
 #narr-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 2px; background: #ffd54f; }
 #narr-knob { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
   background: #ffd54f; box-shadow: 0 0 0 3px rgba(0,0,0,0.35); opacity: 0; transition: opacity 0.15s; }
-#narr-time { position: absolute; right: 14px; bottom: 22px; font: 600 12px/1 Inter, system-ui, sans-serif;
+#narr-time { position: absolute; right: 14px; bottom: 28px; font: 600 12px/1 Inter, system-ui, sans-serif;
   font-variant-numeric: tabular-nums; color: #fff; text-shadow: 0 1px 3px #000; opacity: 0; transition: opacity 0.15s; pointer-events: none; }
-#narr-layer:not(.paused):not(.scrubbing) #narr-track { left: 0; right: 0; bottom: 0; border-radius: 0; }
+#narr-layer:not(.paused):not(.scrubbing) #narr-track { opacity: 0.55; }
 #narr-layer.paused #narr-track, #narr-layer.scrubbing #narr-track, #narr-bar:hover #narr-track { height: 5px; }
 #narr-layer.paused #narr-knob, #narr-layer.scrubbing #narr-knob, #narr-bar:hover #narr-knob,
 #narr-layer.paused #narr-time, #narr-layer.scrubbing #narr-time, #narr-bar:hover #narr-time { opacity: 1; }

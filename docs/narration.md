@@ -33,7 +33,7 @@ npm run dev
 open "http://localhost:5173/?narrate=take-1"
 ```
 
-Tap or press Space to play and pause. Tap the bottom edge to seek, or use ←/→ for ±5 s.
+Tap or press Space to play and pause. Drag the scrubber (just above the bottom edge, clear of the phone's home-bar swipe) to seek, or use ←/→ for ±5 s.
 On a desktop it runs in the 9:16 phone stage. Add `&stage=landscape` for 16:9
 or `&stage=none` for the plain window, and `&captions=0` to drop the captions.
 
