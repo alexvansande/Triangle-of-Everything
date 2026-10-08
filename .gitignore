@@ -1,7 +1,6 @@
 node_modules/
 dist/
 dist-preview
-dist-sonify
 .DS_Store
 *.local
 .env

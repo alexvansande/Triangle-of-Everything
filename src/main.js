@@ -16,12 +16,6 @@ import {
 const BASE = import.meta.env.BASE_URL;
 // The narration preview: the player only, no address-bar sync or service worker.
 const NARR_PREVIEW = import.meta.env.MODE === "narration-preview";
-// The sound map (src/sonify.js): ?sonify on the site, or its own build
-// (scripts/sonify-preview.mjs), which runs from a sub-folder like the preview.
-const SONIFY_PREVIEW = import.meta.env.MODE === "sonify-preview";
-const SONIFY = SONIFY_PREVIEW || new URLSearchParams(location.search).has("sonify");
-// Builds hosted from a sub-folder leave the address bar alone (no path/hash sync)
-const EMBEDDED = NARR_PREVIEW || SONIFY_PREVIEW;
 import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
@@ -44,7 +38,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, i
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustArrays } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -7004,7 +6998,7 @@ if (_reduceMotion && !_animDisabled) {
 // =============================================================
 
 function saveHash() {
-  if (EMBEDDED) return;
+  if (NARR_PREVIEW) return;
   // Don't overwrite tour hashes — the tour manages its own URL state
   if (location.hash.startsWith("#tour=")) return;
   // Nor the hidden classic figure's
@@ -7027,13 +7021,13 @@ function saveHash() {
 // Object named by the URL path (/eois-stantonae/), if any. Pages built by
 // build-pages.mjs also carry its display name for info-panel articles.
 function pathSlug() {
-  if (EMBEDDED) return null;
+  if (NARR_PREVIEW) return null;
   const seg = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, "");
   return /^[a-z0-9][a-z0-9-]*$/.test(seg) ? seg : null;
 }
 
 function loadHash() {
-  if (EMBEDDED) return false; // the hash names the take there (or isn't ours)
+  if (NARR_PREVIEW) return false; // the hash names the take there
   const h = location.hash.slice(1);
   const ps = pathSlug();
   // Hidden: the original Lineweaver–Patel figure, at /classic/ (or the old
@@ -7216,7 +7210,7 @@ onFirstInteraction(() => {
 // Registered late and without clients.claim so the FIRST visit never pays
 // for interception or cache writes — the SW only serves later navigations.
 // Skipped in dev — it would fight Vite's HMR.
-if ("serviceWorker" in navigator && !import.meta.env.DEV && !EMBEDDED) {
+if ("serviceWorker" in navigator && !import.meta.env.DEV && !NARR_PREVIEW) {
   window.addEventListener("load", () => {
     setTimeout(() => {
       navigator.serviceWorker.register("/sw.js").catch(() => { /* non-fatal */ });
@@ -7364,27 +7358,4 @@ if (_ogShot) {
     if (narrTake) import("./narration.js").then(m => m.startNarration(api));
 
   }
-}
-
-// =============================================================
-// Sound map (?sonify) — src/sonify.js
-// =============================================================
-// The chart as a step sequencer: a playhead sweeps across the visible plot and
-// every main object it passes plays its own tone, on its region's instrument.
-if (SONIFY) {
-  let dustAsked = false;
-  setSidebarOpen(false);   // the map is the instrument: give it the room
-  import("./sonify.js").then(m => m.startSonify({
-    objects: OBJECTS,
-    categories: CATEGORIES,
-    /** the plot area in client pixels */
-    plot() {
-      const r = svg.node().getBoundingClientRect();
-      return { x: r.left + margin.left, y: r.top + margin.top, w: cw, h: ch };
-    },
-    px: (r) => xS(r), py: (m) => yS(m),
-    k: () => currentK,
-    /** the catalogue dust as { r, m } arrays once loaded, else null */
-    dust: () => { if (!dustAsked) { dustAsked = true; ensureDust(); } return dustArrays(); },
-  }));
 }
