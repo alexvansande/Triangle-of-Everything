@@ -291,6 +291,7 @@ export async function startNarration(app) {
       else if (h.line) drawLine(el, LINES[h.line], h, age);
       else if (h.side) drawSide(el, h);
       else if (h.arrow) drawArrow(el, h, age);
+      else if (h.swing) drawSwing(el, h, age);
     });
   }
   /** A glowing band over one axis: { axis: "left"|"right"|"top"|"bottom", label? }.
@@ -452,6 +453,30 @@ export async function startNarration(app) {
         .attr("x", plot.x + plot.w * (h.side === "right" ? 0.78 : 0.22)).attr("y", plot.y + plot.h * (h.labelY ?? 0.3))
         .attr("text-anchor", "middle").attr("fill", col).text(h.label.toUpperCase());
     }
+  }
+  /** A star living its life: a glowing disk that swings back and forth between
+   *  two points (swing: [from, to], each { obj } or { r, m }), each swing a
+   *  little further and slower, swelling and reddening toward `to` and shrinking
+   *  back as it falls. period (s, default 2.4) is the first swing's length. */
+  function drawSwing(el, h, age) {
+    const pt = (q) => { const o = q.obj && objByName.get(q.obj); return o ? [o.logR, o.logM] : [q.r, q.m]; };
+    const [A, B] = h.swing.map(pt);
+    const [x1, y1, x2, y2] = [sx(A[0]), sy(A[1]), sx(B[0]), sy(B[1])];
+    const fade = smooth(age / 0.6);
+    el.append("line").attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2)   // the track
+      .attr("stroke", "#ffd54f").attr("stroke-width", 1.4).attr("stroke-dasharray", "3 5").attr("opacity", 0.45 * fade);
+    // phase: swings stretch out over time (the period grows ~6% a swing)
+    const P0 = h.period ?? 2.4, g = 0.06;
+    const n = Math.log1p(g * age / P0) / Math.log1p(g);                 // swings so far (fractional)
+    const u = (0.5 - 0.5 * Math.cos(2 * Math.PI * n)) * Math.min(1, 0.45 + 0.12 * n);  // reach grows to the full track
+    const x = x1 + (x2 - x1) * u, y = y1 + (y2 - y1) * u;
+    const col = d3.interpolateRgb("#ffe27a", "#ff6a3d")(u);
+    const R = (8 + 14 * u) * fade;
+    el.append("circle").attr("cx", x).attr("cy", y).attr("r", R * 2.2).attr("fill", col).attr("opacity", 0.18).attr("filter", "url(#narr-soft)");
+    el.append("circle").attr("cx", x).attr("cy", y).attr("r", R).attr("fill", col).attr("opacity", 0.85);
+    el.append("circle").attr("cx", x).attr("cy", y).attr("r", R + 3).attr("fill", "none").attr("stroke", "#fff").attr("stroke-width", 1).attr("opacity", 0.5);
+    if (h.label) el.append("text").attr("class", "narr-tag").attr("x", x).attr("y", y - R - 9)
+      .attr("text-anchor", "middle").attr("fill", col).text(h.label.toUpperCase());
   }
   function drawArrow(el, h, age) {
     const from = h.from.obj ? objByName.get(h.from.obj) : null;

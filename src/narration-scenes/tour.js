@@ -21,6 +21,8 @@
 //                      "darkmatter"|"mainsequence"|"triangle", label? }
 //              { side: "left"|"right", of?: "water", label? }
 //              { arrow: true, from: {obj}|{r,m}, to: {obj}|{r,m,mark}, label? }
+//              { swing: [{obj}|{r,m}, {obj}|{r,m}], period?, label? } — a star
+//                swinging back and forth between two points, further each time
 //            any item can take delay (s) to stagger
 //   clear    end the current highlights
 //   units    pin the unit rulers on (they also show during every move)

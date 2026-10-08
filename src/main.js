@@ -6537,7 +6537,10 @@ window.addEventListener("resize", () => {
     const dh = Math.abs(window.innerHeight - _lastVh);
     // Browser-chrome height wiggle only matters in the phone layout; a
     // desktop-layout tablet resizing its window deserves a real relayout.
-    if (_isCoarse && _isMobile && dw === 0 && dh < 160) return;
+    // Not while narrating: the narration fills the window, and a host page
+    // (a claude.ai panel opening) can grow it by less than that after boot,
+    // which would leave the map short of the bottom edge.
+    if (_isCoarse && _isMobile && dw === 0 && dh < 160 && !document.body.classList.contains("narrating")) return;
     _lastVw = window.innerWidth; _lastVh = window.innerHeight;
     const modeChanged = updateMobileState();
     relayout(); // preserves zoom center + scale through the new layout
@@ -7353,6 +7356,10 @@ if (_ogShot) {
         _dustEnabled = true;
         ensureDust();
         document.body.classList.add("ui-hidden", "narrating");
+        // the map must fill the window the narration fills (see the resize handler)
+        if (!_viewportLock && (W !== window.innerWidth || H !== window.innerHeight)) {
+          _lastVw = window.innerWidth; _lastVh = window.innerHeight; relayout();
+        }
       },
     };
     if (narrTake) import("./narration.js").then(m => m.startNarration(api));

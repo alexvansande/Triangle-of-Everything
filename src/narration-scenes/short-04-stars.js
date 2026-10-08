@@ -42,7 +42,9 @@ export default {
     { at: "almost every star", hl: [{ line: "mainsequence", label: "main sequence" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
 
     { at: "life cycle of a star", cam: { r: 12.4, m: 33.7, span: 9 }, hl: [{ obj: "Sun" }] },
-    { at: "collapse again", hl: [{ obj: "Sun" }] },
+    // expand and collapse: the Sun swings toward the red giants and back, further each time
+    { at: "sustain that expansion", hold: 25,
+      hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4 }] },
     { at: "red giant", cam: { r: 12.6, m: 33.8, span: 7 },
       hl: [{ obj: "Sun" }, { arrow: true, from: { obj: "Sun" }, to: { obj: "Red Giant" } }, { obj: "Red Giant", delay: 1 }] },
     { at: "red supergiant", hl: [{ obj: "Red Giant" }, { obj: "Red Supergiant", delay: 0.2 }] },
