@@ -2,7 +2,7 @@
 // Scene: short-04-stars — planets and stars differ by mass: Jupiter's own
 // heat, brown dwarfs and deuterium, the fork after them, the main sequence,
 // the life of a star, the nebulae that make new stars, and what the core
-// becomes. Recorded 2026-10-19 (rec16; video/short-04-stars/).
+// becomes. Recorded 2026-10-19 (rec16, ending rec17; video/short-04-stars/).
 // =============================================================
 // Field reference: see the top of ./tour.js.
 
@@ -24,7 +24,7 @@ export default {
     { at: "fuse all of the hydrogen", fx: "ignite", offset: 0.4 },
     { at: "fuel for fusion is depleted", music: "heartbeat", to: "split in two", stop: "cut" },
     { at: "split in two", fx: "boom", offset: 0.1 },
-    { at: "become a black hole", fx: "drop", atEnd: true, offset: -0.4 },
+    { at: "collapse into a black hole", fx: "drop", atEnd: true, offset: -0.4 },
   ],
 
   cues: [
@@ -80,8 +80,13 @@ export default {
     // what the core becomes
     { at: "what about the core", cam: { r: 8.6, m: 33.6, span: 8 }, clear: true, hl: [{ obj: "Sun" }] },
     { at: "white dwarf", hl: [{ obj: "Sun" }, { arrow: true, from: { obj: "Sun" }, to: { obj: "White Dwarf" }, color: "#90caf9" }, { obj: "White Dwarf", place: "left", delay: 0.6 }] },
-    { at: "above a certain limit", hl: [{ obj: "White Dwarf", place: "left" }, { obj: "Neutron Star", delay: 0.4 }] },
-    { at: "pure neutrons", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "pure neutrons" }] },
-    { at: "become a black hole", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star" }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
+    { at: "big enough to go supernova", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: false, delay: 0.4 }] },
+    { at: "protons and electrons", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "protons + electrons → neutrons", place: "right" }] },
+    { at: "create a neutron star", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "neutron star", place: "right" }] },
+    { at: "single spoonful", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "a teaspoon ≈ 3 billion tonnes", place: "right" }] },
+    { at: "collapse into a black hole", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
+    // teaser for the black-hole video: the edge they sit on
+    { at: "deserves a video", cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
+      hl: [{ line: "schwarzschild" }, { obj: "Stellar BH", label: "next: black holes" }] },
   ],
 };

@@ -21,6 +21,6 @@ rec16,nursery,130.81,143.54,407.84,420.56,"And as those supernovas, and those ne
 rec16,nursery,143.82,144.24,420.80,421.22,where
 rec16,nursery,144.30,157.33,422.00,435.03,"huge clouds of gas will then be attracted, and compress again into protostars, and then stars again, and the cycle begins."
 rec16,core,157.93,162.73,436.76,441.56,"And what about the core? Well, something interesting happens with the core."
-rec16,core,163.01,169.26,488.01,494.25,"So if it's not massive enough to become a supernova, it will become a white dwarf."
-rec16,core,169.54,182.60,498.75,512.16,"But if it's above a certain limit, then it becomes a neutron star, a super dense object which is mostly made of pure neutrons."
-rec16,core,182.88,190.17,512.33,519.68,"And if the original star was just heavy enough, then it will become a black hole."
+rec17,end,163.33,173.72,5.84,16.54,"If a star isn't massive enough to go supernova, then after the few is depleted, all that's left is a white dwarf."
+rec17,end,174.00,206.38,23.45,56.34,"big enough to go supernova, then the pressure inside the core of that supernova will be so large that the protons on the electrons themselves will be squished together into a neutron, and it will create a neutron star, an object so dense that a single spoonful of it would weight the same as a mountain on Earth."
+rec17,end,206.66,221.11,70.90,86.06,"is any bigger than that, then the core would collapse into a black hole, an object so crazy that it deserves a video on itself."

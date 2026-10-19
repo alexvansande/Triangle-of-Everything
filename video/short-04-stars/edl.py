@@ -5,11 +5,16 @@
 # 48 kHz ALAC; noise floor about −80 dB, no clipping), one take that replaces the
 # 2026-10-07 cut from rec3 and rec6. Build: see video/short-01-hook/README.md.
 # The black-hole / Schwarzschild part of rec16 (520 s on) is left out: black holes get
-# their own video, and the ending will be re-recorded.
+# their own video.
+# rec17 = "Avenida_Afonso_de_Taunay_660_8.m4a" (uploaded 2026-10-19, 1:27, 48 kHz ALAC): the new
+# ending, after "And what about the core?" (white dwarf, neutron star, black hole → next
+# video). It replaces rec16's 448–520 s.
 # (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds;
 # the builder snaps each cut to the nearest real silence.
 
-SOURCE_FX = {}
+# rec17: 2.5 dB softer than rec16, about 2 dB heavier at 80–160 Hz and 2 dB brighter above
+# 2.5 kHz; this matches it within about ±1.5 dB.
+SOURCE_FX = {"rec17": "volume=2.5dB,equalizer=f=115:t=q:w=1.0:g=-2,equalizer=f=1000:t=q:w=1.2:g=1.5,highshelf=f=3500:g=-4"}
 
 EDL = [
  ("rec16", "hook", 8.48, 13.40),      # We tend to think of stars and planets as completely different categories, but that's not really true.
@@ -34,7 +39,7 @@ EDL = [
  ("rec16", "nursery", 420.44, 420.44, {"s": 420.80, "e": 421.22}),  # where   ("that," left out)
  ("rec16", "nursery", 422.20, 434.16, {"s": 422.00, "gap": 0.06}),  # those huge clouds of gas will then be attracted, and compress again into protostars, and then stars again, and the cycle begins.
  ("rec16", "core", 436.38, 441.06),   # And what about the core? Well, something interesting happens with the core.
- ("rec16", "core", 488.04, 493.34),   # So if it's not massive enough to become a supernova, it will become a white dwarf.
- ("rec16", "core", 498.12, 511.30),   # But if it's above a certain limit, then it becomes a neutron star, a super dense object which is mostly made of pure neutrons.
- ("rec16", "core", 512.00, 519.14),   # And if the original star was just heavy enough, then it will become a black hole.
+ ("rec17", "end", 5.12, 15.60),       # If a star isn't massive enough to go supernova, then after the fuel is depleted, all that's left is a white dwarf.
+ ("rec17", "end", 24.32, 55.78, {"s": 23.45}),  # But if it's big enough to go supernova ... protons and the electrons ... squished together into a neutron ... a single spoonful of it would weigh the same as a mountain on Earth.   (a restart, "But, if it's,", left out)
+ ("rec17", "end", 71.86, 85.14, {"s": 70.90}),  # and if the star is any bigger than that, then the core would collapse into a black hole, an object so crazy that it deserves a video on itself.   ("the core explosion of the supernova would turn," and a restart left out)
 ]

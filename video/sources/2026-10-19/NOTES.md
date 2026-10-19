@@ -159,10 +159,21 @@ supernova remnants and planetary nebulae become stellar nurseries → the core
 becomes a white dwarf, a neutron star or a black hole. `video/short-04-stars/edl.py`,
 25 clips, 3:11 before the 1.1× tempo, 2:53 after.
 
-**The ending will be re-recorded**, and the black-hole part (520 s on: "a black hole
-is not an object in this chart, it's a line… the Schwarzschild radius… the first
-limit of the triangle") is left out, for a video of its own. The cut ends for now
-at "…then it will become a black hole."
+The black-hole part (520 s on: "a black hole is not an object in this chart, it's
+a line… the Schwarzschild radius… the first limit of the triangle") is left out,
+for a video of its own. **rec17** is the new ending, after rec16's "And what about
+the core? Well, something interesting happens with the core.": "If a star isn't
+massive enough to go supernova, then after the fuel is depleted, all that's left is
+a white dwarf. But if it's big enough to go supernova, then the pressure inside the
+core of that supernova will be so large that the protons and electrons themselves
+will be squished together into a neutron, and it will create a neutron star, an
+object so dense that a single spoonful of it would weigh the same as a mountain on
+Earth. And if the star is any bigger than that, then the core would collapse into a
+black hole, an object so crazy that it deserves a video on itself." Left out of
+rec17: a restart ("But, if it's,") and "and if the object is any larger than that,
+then the core explosion of the supernova would turn, and if the object is any…".
+Whisper wrote "weight" and "protostores": fixed by hand. With rec17 the video is
+3:22 at 1.1×.
 
 Left out: the first try of the opening, "starting with Jupiter and Saturn, in
 fact, the gas…", two tries at "mostly due to…" (one with an "uh"), "and as that
@@ -201,7 +212,7 @@ Wrong, left out of the cut:
    star up, it doesn't push the layers away (that only happens at the end of its
    life). The cut uses the other take, "pushes the objects to be bigger in diameter".
 
-Wrong, still in the cut (the ending is being re-recorded anyway):
+Wrong, replaced by rec17:
 3. "if the original star was **just** heavy enough, then it will become a black
    hole": "just heavy enough" sounds like barely. It takes the heaviest stars (about
    20–25 Suns and up). Suggested: "And if the original star was heavier still, its
@@ -230,3 +241,22 @@ horizon, the Schwarzschild radius, which grows in proportion to mass, hence the
 without becoming a black hole. "a black hole is a singularity, it doesn't really
 have a size" is fair as a simplification (the singularity is what general
 relativity predicts at the centre).
+
+## Fact check (rec17)
+
+Right: stars that don't go supernova (below about 8 Suns) end, once the fuel runs
+out, as a white dwarf; in a core-collapse supernova, protons and electrons are
+pressed together into neutrons (electron capture, p + e⁻ → n + ν) and the core
+becomes a neutron star; the heaviest stars' cores collapse into black holes.
+
+"a single spoonful of it would weigh the same as **a mountain**": right for a modest
+mountain. On the chart's numbers (1.4 Suns in a 10 km radius, about 7 × 10¹⁴
+g/cm³), a 5 ml teaspoon is about 3–4 billion tonnes: about a cubic kilometre of
+rock, a mountain of roughly 1–2 km. Everest (10¹⁵ kg on the chart) would take a
+few hundred teaspoons. The scene's label says "a teaspoon ≈ 3 billion tonnes".
+
+Imprecise, optional:
+1. "the pressure inside the core **of that supernova**": the core of the star; the
+   supernova is the explosion that follows the core's collapse.
+2. "if the star is any **bigger** than that": heavier, not bigger (the biggest
+   stars aren't always the heaviest); fine as spoken.
