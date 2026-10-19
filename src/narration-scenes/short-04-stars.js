@@ -81,7 +81,7 @@ export default {
     { at: "what about the core", cam: { r: 8.6, m: 33.6, span: 8 }, clear: true, hl: [{ obj: "Sun" }] },
     { at: "white dwarf", hl: [{ obj: "Sun" }, { arrow: true, from: { obj: "Sun" }, to: { obj: "White Dwarf" }, color: "#90caf9" }, { obj: "White Dwarf", place: "left", delay: 0.6 }] },
     { at: "big enough to go supernova", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: false, delay: 0.4 }] },
-    { at: "protons and electrons", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "protons + electrons → neutrons", place: "right" }] },
+    { at: ["protons and the electrons", "protons and electrons"], hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "protons + electrons → neutrons", place: "right" }] },
     { at: "create a neutron star", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "neutron star", place: "right" }] },
     { at: "single spoonful", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "a teaspoon ≈ 3 billion tonnes", place: "right" }] },
     { at: "collapse into a black hole", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },

@@ -309,3 +309,17 @@ outer layers will become **a supernova**" (a supernova remnant).
 
 Fixed today without re-recording: video 3's caption had dropped "right" ("most
 objects on the ___ are actually animals"); the audio has it.
+
+## Video 4, second pass (author's notes)
+
+- Pauses: `build.py` now takes `PAUSES` per EDL (longest pause kept after a word,
+  a comma, a sentence end). Video 4 uses 0.18 / 0.3 / 0.45 s, which tightens
+  "start fusing… hydrogen", "join together… with… others", "until… the hydrogen".
+- False starts cut: "The outer layer…" before "The outer layers will become…"
+  (rec16 355.3 s) and "an ob…" before "an object so dense" (rec17 46 s).
+- rec17 sounded different: besides the room (drier: about 2 dB less decay 100 ms
+  after each word), it is spoken about 9% slower (4.0 against 4.4 syllables a
+  second while speaking) and lower (median pitch 105 Hz against 120 Hz, about two
+  semitones: a calmer, lower-energy read). `SOURCE_TEMPO = {"rec17": 1.09}` matches
+  the pace (pitch kept); the pitch is left alone, as shifting it sounds processed.
+- Video 4 is now 3:10 at 1.1×.

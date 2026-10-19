@@ -11,6 +11,12 @@ SOURCE_FX (optional): {source: ffmpeg filter}, applied to that recording first.
 in source seconds. Cuts snap to the nearest real silence unless s/e are
 given; gap overrides the pause before a clip (default 0.28 s inside a
 beat, 0.6 s between beats).
+SOURCE_TEMPO (optional): {source: factor}, speeds that recording's clips up after
+cutting (pitch kept), for a take spoken slower than the ones around it.
+PAUSES (optional): {"word": s, ",": s, ".": s}, the longest pause kept inside a
+clip after a word, a comma or a sentence end (default 0.5 s for all). A
+hesitation mid-phrase ("start fusing… hydrogen") can be cut much shorter
+than a breath at a full stop.
 """
 import csv, json, os, sys, wave
 import numpy as np
@@ -20,6 +26,8 @@ spec.loader.exec_module(m); EDL = m.EDL
 # Optional per-source ffmpeg filters (EDL module's SOURCE_FX), e.g. an EQ that
 # matches a recording made with a different mic placement to the others.
 SOURCE_FX = getattr(m, "SOURCE_FX", {})
+SOURCE_TEMPO = getattr(m, "SOURCE_TEMPO", {})
+PAUSES = {"word": 0.5, ",": 0.5, ".": 0.5, **getattr(m, "PAUSES", {})}
 D = sys.argv[1]
 GAP_SAME, GAP_BEAT, TAIL = 0.28, 0.6, 0.5
 
@@ -65,7 +73,13 @@ class Source:
     def end_cut(self, w):
         c = [r for r in self.runs(w["e"] - 0.2, w["e"] + 0.8, self.thr()) if r[0] >= w["e"] - 0.2 and r[1] - r[0] >= 0.08]
         return c[0][0] + 0.08 if c else self.quietest(w["e"] - 0.05, w["e"] + 0.15)
-    def cap_pauses(self, x, maxp=0.5):
+    def max_pause(self, t):
+        """Longest pause to keep at source time t, from the word spoken before it."""
+        before = [w for w in self.words if w["s"] < t]
+        if not before: return PAUSES["word"]
+        last = before[-1]["w"].strip()
+        return PAUSES["."] if last[-1:] in ".?!" else PAUSES[","] if last[-1:] in ",;:" else PAUSES["word"]
+    def cap_pauses(self, x, t0=0.0):
         SR = self.SR; f = int(0.01 * SR); m = len(x) // f
         hp = x - np.convolve(x, np.ones(int(SR / 90)) / int(SR / 90), mode="same")
         e = 20 * np.log10(np.sqrt((hp[:m * f].reshape(m, f) ** 2).mean(1)) + 1e-9)
@@ -74,11 +88,18 @@ class Source:
             if quiet[k]:
                 j = k
                 while j < m and quiet[j]: j += 1
+                maxp = self.max_pause(t0 + k * f / SR)
                 if (j - k) * f > maxp * SR:
                     keep = int(maxp * SR) // 2; out.append(x[last:k * f + keep]); last = j * f - keep
                 k = j
             else: k += 1
         out.append(x[last:]); return np.concatenate(out)
+
+def tempo(x, SR, factor):
+    import subprocess
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", "-",
+                        "-af", f"atempo={factor}", "-f", "f32le", "-"], input=x.astype(np.float32).tobytes(), capture_output=True, check=True)
+    return np.frombuffer(p.stdout, np.float32)
 
 def fade(x, SR, ms=12):
     k = int(ms / 1000 * SR); x = x.copy(); r = np.linspace(0, 1, k); x[:k] *= r; x[-k:] *= r[::-1]; return x
@@ -90,7 +111,9 @@ for item in EDL:
     name, beat, ws, we = item[:4]; ov = item[4] if len(item) > 4 else {}
     S = sources[name]; w0, w1 = S.by_start[round(ws, 2)], S.by_start[round(we, 2)]
     s = ov.get("s") or S.start_cut(w0); e = ov.get("e") or S.end_cut(w1)
-    clip = fade(S.cap_pauses(S.a[int(s * SR):int(e * SR)]), SR)
+    clip = S.cap_pauses(S.a[int(s * SR):int(e * SR)], s)
+    if name in SOURCE_TEMPO: clip = tempo(clip, SR, SOURCE_TEMPO[name])
+    clip = fade(clip, SR)
     gap = 0.0 if prev is None else ov.get("gap", GAP_BEAT if beat != prev else GAP_SAME)
     out.append(np.zeros(int(gap * SR), np.float32)); t += gap
     text = " ".join(w["w"] for w in S.words if w0["s"] - 1e-3 <= w["s"] <= w1["s"] + 1e-3)

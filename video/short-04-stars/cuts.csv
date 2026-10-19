@@ -2,25 +2,26 @@ source,beat,out_start,out_end,src_start,src_end,text
 rec16,hook,0.00,5.83,8.18,14.00,"We tend to think of stars and planets as completely different categories, but that's not really true."
 rec16,heat,6.42,7.39,14.85,15.82,"In fact,"
 rec16,heat,7.59,14.21,22.20,28.82,"Saturn and Jupiter in our solar system, they generate more heat than they absorb from the sun."
-rec16,heat,14.41,19.35,32.56,37.60,math compressing in their core.
-rec16,heat,19.63,23.57,60.34,64.28,"and as that mass increases, so does the core pressure."
-rec16,bd,24.17,37.05,64.35,77.74,"Until at some point, they become brown dwarfs. Brown dwarfs are those really in -between objects who are not really stars, but not really planets."
-rec16,bd,37.33,42.68,81.31,86.66,they are massive enough that they can start fusing hydrogen.
-rec16,bd,42.96,50.02,86.66,93.72,"But not all hydrogen, only those in the form of deuterium, which is only a minuscule portion of it."
-rec16,bd,50.30,59.73,141.33,150.75,that sort of hydrogen is so rare that brown dwarfs don't have enough energy to sustain themselves as stars.
-rec16,fork,60.33,68.73,170.00,178.41,"but once we increase that mass even further, then we have this bifurcation that we see on this graph."
-rec16,ms,69.33,82.31,228.88,241.87,"What is happening is that once the core pressure is strong enough, then it can fuse all of the hydrogen, and then that starts releasing a massive amount of energy,"
-rec16,ms,82.59,95.29,249.12,261.81,"And there's an internal pressure that pushes the objects to be bigger in diameter, and they start following this other diagonal line, which we call the main sequence of stars,"
-rec16,ms,95.44,103.49,309.02,317.12,in which most stars will live most of their lives on until the hydrogen is depleted.
-rec16,life,104.09,106.40,317.92,320.23,And then what will happen is that
-rec16,life,106.52,117.09,328.54,340.11,"as their fuel for fusion is depleted, then they will start collapsing, and expanding, and collapsing, and expanding,"
-rec16,split,117.29,119.42,350.65,352.78,and the object will split in two.
-rec16,split,119.70,126.09,355.23,361.62,"the outer layers will become a supernova, or a planetary nebula,"
-rec16,split,126.24,130.21,364.06,368.02,and the inner core will become a very dense object.
-rec16,nursery,130.81,143.54,407.84,420.56,"And as those supernovas, and those nebulas expand, they will join together with others, and they will create what we call stellar nurseries,"
-rec16,nursery,143.82,144.24,420.80,421.22,where
-rec16,nursery,144.30,157.33,422.00,435.03,"huge clouds of gas will then be attracted, and compress again into protostars, and then stars again, and the cycle begins."
-rec16,core,157.93,162.73,436.76,441.56,"And what about the core? Well, something interesting happens with the core."
-rec17,end,163.33,173.72,5.84,16.54,"If a star isn't massive enough to go supernova, then after the few is depleted, all that's left is a white dwarf."
-rec17,end,174.00,206.38,23.45,56.34,"big enough to go supernova, then the pressure inside the core of that supernova will be so large that the protons on the electrons themselves will be squished together into a neutron, and it will create a neutron star, an object so dense that a single spoonful of it would weight the same as a mountain on Earth."
-rec17,end,206.66,221.11,70.90,86.06,"is any bigger than that, then the core would collapse into a black hole, an object so crazy that it deserves a video on itself."
+rec16,heat,14.41,19.03,32.56,37.60,math compressing in their core.
+rec16,heat,19.31,23.25,60.34,64.28,"and as that mass increases, so does the core pressure."
+rec16,bd,23.85,36.53,64.35,77.74,"Until at some point, they become brown dwarfs. Brown dwarfs are those really in -between objects who are not really stars, but not really planets."
+rec16,bd,36.81,42.16,81.31,86.66,they are massive enough that they can start fusing hydrogen.
+rec16,bd,42.44,49.50,86.66,93.72,"But not all hydrogen, only those in the form of deuterium, which is only a minuscule portion of it."
+rec16,bd,49.78,59.21,141.33,150.75,that sort of hydrogen is so rare that brown dwarfs don't have enough energy to sustain themselves as stars.
+rec16,fork,59.81,68.21,170.00,178.41,"but once we increase that mass even further, then we have this bifurcation that we see on this graph."
+rec16,ms,68.81,81.67,228.88,241.87,"What is happening is that once the core pressure is strong enough, then it can fuse all of the hydrogen, and then that starts releasing a massive amount of energy,"
+rec16,ms,81.95,94.65,249.12,261.81,"And there's an internal pressure that pushes the objects to be bigger in diameter, and they start following this other diagonal line, which we call the main sequence of stars,"
+rec16,ms,94.80,102.53,309.02,317.12,in which most stars will live most of their lives on until the hydrogen is depleted.
+rec16,life,103.13,105.44,317.92,320.23,And then what will happen is that
+rec16,life,105.56,115.81,328.54,340.11,"as their fuel for fusion is depleted, then they will start collapsing, and expanding, and collapsing, and expanding,"
+rec16,split,116.01,118.14,350.65,352.78,and the object will split in two.
+rec16,split,118.42,123.50,356.55,361.62,"the outer layers will become a supernova, or a planetary nebula,"
+rec16,split,123.65,127.62,364.06,368.02,and the inner core will become a very dense object.
+rec16,nursery,128.22,140.68,407.84,420.56,"And as those supernovas, and those nebulas expand, they will join together with others, and they will create what we call stellar nurseries,"
+rec16,nursery,140.96,141.38,420.80,421.22,where
+rec16,nursery,141.44,154.19,422.00,435.03,"huge clouds of gas will then be attracted, and compress again into protostars, and then stars again, and the cycle begins."
+rec16,core,154.79,159.59,436.76,441.56,"And what about the core? Well, something interesting happens with the core."
+rec17,end,160.19,169.08,5.84,16.54,"If a star isn't massive enough to go supernova, then after the few is depleted, all that's left is a white dwarf."
+rec17,end,169.36,187.74,23.45,45.00,"big enough to go supernova, then the pressure inside the core of that supernova will be so large that the protons on the electrons themselves will be squished together into a neutron, and it will create a neutron star,"
+rec17,end,187.89,196.15,47.20,56.34,so dense that a single spoonful of it would weight the same as a mountain on Earth.
+rec17,end,196.43,208.82,70.90,86.06,"is any bigger than that, then the core would collapse into a black hole, an object so crazy that it deserves a video on itself."
