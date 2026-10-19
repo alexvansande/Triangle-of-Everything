@@ -31,7 +31,9 @@ const norm = (s) => s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]/g, "");
 
 // LaTeX bits in the CompOSE names: J1741$+$1351, Her$\,$X$-$1
 const clean = (s) => s.replace(/\$\+\$/g, "+").replace(/\$-\$/g, "−").replace(/\$\\,\$/g, " ").replace(/\$/g, "").trim();
-const named = (s) => (/^[JB]\d/.test(s) ? `PSR ${s}` : s)
+// The compilation's typos: J0952+0607 is PSR J0952−0607 (Romani et al. 2022)
+const FIX = { "J0952+0607": "J0952−0607" };
+const named = (s) => (/^[JB]\d/.test(FIX[s] || s) ? `PSR ${FIX[s] || s}` : s)
   .replace(/^GW170817a$/, "GW170817 (heavier star)").replace(/^GW170817b$/, "GW170817 (lighter star)");
 
 export default [
