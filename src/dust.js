@@ -26,9 +26,9 @@ import dustUrl from "./dust.json?url";
 const DUST_GAP = 5;        // px — minimum spacing between dust dots
 const DUST_R = 1.15;       // px — dot radius
 const CLEAR_DOT = 9;       // px — keep-out radius around curated dots
-const BH_TICK_GAP = 3;     // px — black-hole ticks start this far beyond the Schwarzschild line
-const BH_TICK_LEN = 11;    // px
-const BH_TICK_W = 2.2;     // px
+const BH_TICK_GAP = 2;     // px — black-hole ticks start this far beyond the Schwarzschild line
+const BH_TICK_LEN = 4;     // px
+const BH_TICK_W = 1.3;     // px
 const MAX_DOTS_DESKTOP = 7000;
 const MAX_DOTS_MOBILE = 3000;
 
@@ -166,7 +166,7 @@ export function drawDust(layer, view, blockers, colorOf) {
       .attr("fill", "none")
       .attr("stroke-linecap", "round")
       .attr("stroke-width", (g) => sources[g.s].cat === "blackhole" ? BH_TICK_W : DUST_R * 2)
-      .attr("opacity", (g) => sources[g.s].cat === "blackhole" ? 1 : 0.7)
+      .attr("opacity", (g) => sources[g.s].cat === "blackhole" ? 0.85 : 0.7)
       .attr("stroke", (g) => colorOf(sources[g.s].cat, sources[g.s].id)))
     .attr("d", (g) => g.d);
 }
