@@ -859,41 +859,6 @@ export const SUBCAT_LABELS = {
 };
 
 // =============================================================
-// Dark Matter Search Regions
-// =============================================================
-// Polygonal areas near the Schwarzschild line where macro dark matter
-// has not been excluded by current observations (Jacobs, Starkman & Lynn 2015).
-// Coordinates in CGS (logR, logM). Each region hugs the Schwarzschild
-// line and extends outward 2-3 log units in radius.
-// Mass windows: 55g–10^17 g and 2×10^20 g – 4×10^24 g.
-
-export const DARK_MATTER_REGIONS = [
-  {
-    id: "dm-window-1",
-    label: "Macro DM Window I",
-    // logM from ~1.74 (55g) to ~17 (10^17 g)
-    // Extends from Schwarzschild line outward ~2–3 log units in R
-    polygon: [
-      { logR: schwarzschildR(1.74),       logM: 1.74 },
-      { logR: schwarzschildR(17),         logM: 17 },
-      { logR: schwarzschildR(17) + 3,     logM: 17 },
-      { logR: schwarzschildR(1.74) + 3,   logM: 1.74 },
-    ],
-  },
-  {
-    id: "dm-window-2",
-    label: "Macro DM Window II",
-    // logM from ~20.3 (2×10^20 g) to ~24.6 (4×10^24 g)
-    polygon: [
-      { logR: schwarzschildR(20.3),       logM: 20.3 },
-      { logR: schwarzschildR(24.6),       logM: 24.6 },
-      { logR: schwarzschildR(24.6) + 3,   logM: 24.6 },
-      { logR: schwarzschildR(20.3) + 3,   logM: 20.3 },
-    ],
-  },
-];
-
-// =============================================================
 // Primordial black holes: the mass range where they could still be the dark matter
 // =============================================================
 // Black holes sit on the Schwarzschild line, so only their mass is free. Below
@@ -910,7 +875,7 @@ export const PBH_WINDOW = {
   logM: [17, 22],
   lower: "Hawking radiation",
   upper: "Microlensing",
-  label: "Area of possible PBH",
+  label: "Primordial Black Holes",
   slug: "primordial-black-hole",
   title: "Primordial Black Holes",
 };
