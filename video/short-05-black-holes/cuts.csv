@@ -1,0 +1,49 @@
+source,beat,out_start,out_end,src_start,src_end,text
+rec18,intro,0.00,4.57,51.47,56.10,"Anything that ever existed can be plotted in this chart,"
+rec18,intro,4.77,13.07,67.80,76.14,featuring mass on the vertical axis and diameter on the horizontal axis it is in effect a density scatter plot.
+rec18,intro,13.35,15.53,83.53,85.72,it tells you a million stories
+rec18,intro,15.73,18.34,125.45,128.05,I have been covering a lot of those stories.
+rec18,intro,18.62,20.36,128.34,130.08,"For example,"
+rec18,intro,20.51,44.95,131.91,156.58,"how stars are formed in stellar nurseries and then as they go through their life, they will expand and collapse and will become again supernova, which will then merge into new stellar novus and leave behind a core that can be a white dwarf or a neutron star or the strangest object of all the black holes."
+rec18,intro,45.23,48.55,158.77,162.09,now I want to tell you a little bit about black holes.
+rec18,line,49.15,66.43,165.89,183.77,"But unlike most of the other objects I'm covering which here appears as dots or a cloud of dots, black holes are not really one object, not even a category of objects, but a line,"
+rec18,line,66.63,73.38,230.72,237.62,really they are one of the three sides of the triangle of everything.
+rec18,limit,73.98,85.12,238.17,251.73,"And the reason is that they represent a limit of both mass and size, that anything can be in the universe."
+rec18,limit,85.40,93.83,258.39,267.03,There is a point in which nothing can become more massive or more compact than this line.
+rec18,schw,94.42,149.84,283.42,343.15,"This line is called the Schwarzschild radius, and which represents the limit that no object in our universe, past, present, or future, can cross because anything that is more massive or more compact than it will simply collapse into a black hole and a black hole doesn't really have a size it is considered an object of size zero but it has an event horizon and that event horizon has a diameter which is directly proportional to the mass of the core inside it And that is why the Schwarzschild radius is a straight one -to -one slope line going 45 degrees angles here."
+rec18,onthe,150.44,156.10,387.35,393.25,"but in reality, anything that reaches this line is a black hole and"
+rec18,onthe,156.22,159.93,396.95,401.17,every black hole will be on this line.
+rec19,big,160.53,166.98,28.36,34.82,"So, we know black holes are formed when massive stars collapse,"
+rec19,big,167.13,175.02,36.76,45.31,"and those dots here show you a list of all known black holes,"
+rec19,big,175.17,178.80,52.16,56.15,and they all of course follow the same line.
+rec19,big,179.08,184.47,90.42,96.23,And they vary in size from just the size of stars
+rec19,big,184.59,188.64,98.74,102.79,to the ones that are in the center of galaxies
+rec19,big,188.79,195.77,65.03,72.00,like the one in the center of our own Milky Way or the one in the center of the Andromeda Galaxy
+rec19,big,196.05,204.02,116.99,124.98,Like the M87 which was the first one to be photographed or the TON 618
+rec19,big,204.14,206.68,229.01,231.56,"the largest black hole we know,"
+rec19,big,206.80,212.22,132.62,138.18,whose event horizon would swallow our whole solar system
+rec19,dense,212.82,217.97,161.85,167.01,as black holes become more massive they actually become less dense
+rec19,dense,218.25,230.43,173.25,185.82,there's a point in which the supermassive black holes are actually less dense than water and again could float on a pool if you had one big enough
+rec19,small,231.03,239.73,276.92,285.72,"but there's also a very cool story towards the other end of this line into smaller black holes,"
+rec19,small,239.88,245.13,295.69,300.94,"despite the fact that black holes are formed when giant stars collapse,"
+rec19,small,245.33,252.67,308.82,316.16,"if you had the technology to make a black hole, you could build a black hole of any size."
+rec19,pbh,253.27,257.97,319.03,323.82,"But other than in some alien tech laboratory,"
+rec19,pbh,258.12,261.13,327.23,330.24,the only natural way in which we know that
+rec19,pbh,261.18,261.84,330.19,330.85,black holes
+rec19,pbh,261.92,264.17,331.58,333.83,"might have been formed,"
+rec19,pbh,264.29,272.27,333.81,342.06,are in the very early moments of our universe's history
+rec19,pbh,272.39,275.84,344.81,348.25,when everything was a dense soup of materials.
+rec19,pbh,276.12,280.66,351.59,356.13,We know that those black holes could have existed and we've been looking for them.
+rec19,pbh,280.94,286.70,378.13,383.92,"while we have already looked into many sizes,"
+rec19,pbh,286.82,293.79,385.66,392.79,"there are still some ranges in which we haven't been able to look in yet, and they could be there."
+rec19,pbh,294.07,309.52,393.40,410.42,We are talking about sizes that will be like a small asteroid or a mountain but the size of a grain of sand or maybe the size of a single proton.
+rec19,pbh,309.80,312.47,410.98,413.65,Those are primordial black holes
+rec19,dm,313.07,319.34,433.30,440.34,those would be tiny particles that are invisible to any telescope
+rec19,dm,319.49,327.44,457.61,466.70,But you could detect by the gravitational effects on the galaxies as a whole.
+rec19,dm,327.72,333.38,468.56,474.22,and the interesting part is that we do know that those effects exist.
+rec19,dm,333.66,346.42,488.20,501.81,and the reason we're looking for them is that we know galaxies are full of something that is very massive yet invisible
+rec19,dm,346.54,354.52,503.78,512.48,and if primordial black holes exist they could explain that without us needing to invoke any sort of new physics.
+rec19,end,355.12,366.02,584.50,597.24,"And another way you can see all this missing dark matter in our universe, in our shirt, is by looking at galaxies,"
+rec19,end,366.30,369.48,602.55,605.73,"galaxies and clusters,"
+rec19,end,369.63,380.36,623.69,639.88,you see that they follow a complete separate diagonal line in which they are much larger than we would expect.
+rec19,end,380.64,389.10,643.71,652.31,And that different diagonal line is probably due to the existence of dark matter.

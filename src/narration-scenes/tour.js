@@ -21,6 +21,8 @@
 //                      "darkmatter"|"mainsequence"|"triangle", label? }
 //              { side: "left"|"right", of?: "water", label? }
 //              { arrow: true, from: {obj}|{r,m}, to: {obj}|{r,m,mark}, label? }
+//              { dust: "blackhole", label?, labelX?, labelY?, sweep? } — every
+//                catalogue dot of that category, lit in a sweep up the chart
 //              { swing: [{obj}|{r,m}, {obj}|{r,m}], period?, label? } — a star
 //                swinging back and forth between two points, further each time
 //            any item can take delay (s) to stagger

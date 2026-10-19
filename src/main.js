@@ -38,7 +38,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, i
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustOfCat } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -7345,6 +7345,10 @@ if (_ogShot) {
       iconsPending: () => [...document.querySelectorAll(".icon-fallback-dot")]
         .filter(e => e.getAttribute("display") !== "none").length,
       dustReady: () => dustReady(),
+      dustOfCat: (cat) => dustOfCat(cat),
+      /** The moving dots (evolution, composition, spectrum paths) at a size
+       *  and strength that reads in a phone video: 1.6 px at 60% is a speck. */
+      setDots({ size = 1, opacity = 1 } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; },
       setStage(mode) { if (mode !== _viewportLock) setViewportLock(mode); },
       isMobile: () => _isMobile,
       prepare() {

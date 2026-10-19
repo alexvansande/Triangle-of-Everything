@@ -157,6 +157,9 @@ export async function startNarration(app) {
   const stage = params.get("stage") || "portrait";
   if (stage !== "none" && (RENDER || !app.isMobile())) app.setStage(stage);
   app.prepare();
+  // the paths' moving dots carry the story (a star's life, what things are
+  // made of), so they're drawn bigger and brighter than in the app
+  app.setDots?.(SCENE.dots ?? { size: 2.4, opacity: 1.7 });
 
   const objByName = new Map(app.objects.map(o => [o.name, o]));
   const objColor = (o) => app.categories[o.cat]?.color || "#fff";
@@ -293,6 +296,7 @@ export async function startNarration(app) {
       else if (h.side) drawSide(el, h);
       else if (h.arrow) drawArrow(el, h, age);
       else if (h.swing) drawSwing(el, h, age);
+      else if (h.dust) drawDustCat(el, h, age);
     });
   }
   /** A glowing band over one axis: { axis: "left"|"right"|"top"|"bottom", label? }.
@@ -454,6 +458,28 @@ export async function startNarration(app) {
         .attr("x", plot.x + plot.w * (h.side === "right" ? 0.78 : 0.22)).attr("y", plot.y + plot.h * (h.labelY ?? 0.3))
         .attr("text-anchor", "middle").attr("fill", col).text(h.label.toUpperCase());
     }
+  }
+  /** Every catalogue dot of one category ({ dust: "blackhole", label? }): a
+   *  small ring on each, lit in a sweep from the lightest to the heaviest. */
+  function drawDustCat(el, h, age) {
+    const pts = app.dustOfCat?.(h.dust);
+    if (!pts?.length) return;
+    const col = h.color || app.categories[h.dust]?.color || "#fff";
+    const plot = app.plot();
+    const lo = d3.min(pts, p => p[1]), hi = d3.max(pts, p => p[1]);
+    const sweep = h.sweep ?? 1.6;
+    for (const [r, m] of pts) {
+      const x = sx(r), y = sy(m);
+      if (x < plot.x - 10 || x > plot.x + plot.w + 10 || y < plot.y - 10 || y > plot.y + plot.h + 10) continue;
+      const a = clamp01((age - sweep * (m - lo) / Math.max(1e-6, hi - lo)) / 0.35);
+      if (a <= 0) continue;
+      el.append("circle").attr("cx", x).attr("cy", y).attr("r", 1.8 + 3 * (1 - a)).attr("fill", col).attr("opacity", 0.85 * a);
+      el.append("circle").attr("cx", x).attr("cy", y).attr("r", 4).attr("fill", "none")
+        .attr("stroke", "#fff").attr("stroke-width", 0.6).attr("opacity", 0.25 * a);
+    }
+    if (h.label) el.append("text").attr("class", "narr-sidelabel")
+      .attr("x", plot.x + plot.w * (h.labelX ?? 0.5)).attr("y", plot.y + plot.h * (h.labelY ?? 0.2))
+      .attr("text-anchor", "middle").attr("fill", col).attr("opacity", clamp01(age / 0.6)).text(h.label.toUpperCase());
   }
   /** A star living its life: a glowing disk that swings back and forth between
    *  two points (swing: [from, to], each { obj } or { r, m }), each swing a

@@ -204,6 +204,19 @@ export function pickDust(x, y, radius = 6) {
   };
 }
 
+/** Every dust dot of one category as [logR, logM] pairs (e.g. all the known
+ *  black holes, for the narration), or null before the dust has loaded. */
+const _byCat = new Map();
+export function dustOfCat(cat) {
+  if (!_data) return null;
+  if (_byCat.has(cat)) return _byCat.get(cat);
+  const out = [];
+  for (let i = 0; i < _data.src.length; i++)
+    if (_data.sources[_data.src[i]].cat === cat) out.push([_data.r[i], _data.m[i]]);
+  _byCat.set(cat, out);
+  return out;
+}
+
 /** Raw positions { r, m } (log radius, log mass) once loaded, else null. */
 export function dustArrays() {
   return _data ? { r: _data.r, m: _data.m } : null;

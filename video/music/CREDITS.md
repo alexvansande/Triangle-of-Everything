@@ -21,7 +21,7 @@ https://creativecommons.org/licenses/by/4.0/
 | Soaring | short-03-planets | `Soaring.mp3` | 6:20 |
 | Immersed | short-04-stars | `Immersed.mp3` | 4:09 |
 | Fresh Air | (spare) | `Fresh Air.mp3` | 4:54 |
-| Mesmerize | (spare) | `Mesmerize.mp3` | 7:04 |
+| Mesmerize | short-05-black-holes | `Mesmerize.mp3` | 7:04 |
 
 The music is mixed under the voice: lowered, faded in and out, ducked while
 the narrator talks, and around the scenes' own sound effects. Its

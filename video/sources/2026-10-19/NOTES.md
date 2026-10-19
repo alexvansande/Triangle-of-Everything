@@ -4,6 +4,8 @@
 |---|---|---|---|
 | `rec12` | `From humans to brown dwarfs .m4a` | 6:20 | home, 48 kHz ALAC; noise floor about −78 dB, so no extra denoise |
 | `rec13` | `bar_do_zeca_pagodinho_4.m4a` (uploaded to the chat) | 0:51 | 48 kHz ALAC; the same noise floor (−79 dB) and a tone within ±3 dB of rec12; 3 dB hotter, turned down |
+| `rec18` | `black holes.m4a` (iCloud recordings) | 16:08 | a different room (not the car); 48 kHz AAC; many retries in one take |
+| `rec19` | `black holes and dark matter .m4a` (iCloud recordings) | 10:55 | same room as rec18 |
 | `rec14` | `bar_do_zeca_pagodinho_6.m4a` (uploaded to the chat) | 2:31 | 48 kHz ALAC; clean (−81.5 dB floor, no clipping); 6 dB hotter than rec12, a little lighter in the bass and duller on top: turned down and EQ'd to match |
 
 One take of the whole of `short-03-planets`, replacing the earlier cut from
@@ -323,3 +325,86 @@ objects on the ___ are actually animals"); the audio has it.
   semitones: a calmer, lower-energy read). `SOURCE_TEMPO = {"rec17": 1.09}` matches
   the pace (pitch kept); the pitch is left alone, as shifting it sounds processed.
 - Video 4 is now 3:10 at 1.1×.
+
+## rec18 + rec19: `short-05-black-holes`
+
+rec18 is one long take of video 5: the chart so far, black holes as a line, the
+Schwarzschild radius, every black hole on it, then small black holes, primordial
+ones and dark matter, ending on TON 618. Two notes to Claude inside it:
+- 402–441 s: "add points on this line representing all known black holes". Done
+  without new data: the catalogue dust already has 524 of them (279 LIGO–Virgo–KAGRA
+  merger remnants, 245 supermassive black holes from van den Bosch 2016). A new
+  highlight, `{ dust: "blackhole" }` (src/narration.js), lights every one in a sweep
+  up the line, on "all known black holes".
+- rec19 opens with the author's plan: start with the big black holes, then the
+  small ones, so the video ends on a cliffhanger rather than at the top; keep rec18's
+  opening, change the middle and the end.
+
+The cut (`video/short-05-black-holes/edl.py`, 48 clips): rec18 up to "every black
+hole will be on this line" (the intro, the line, the limit, the Schwarzschild
+radius), then rec19: known black holes → from stellar to galaxy centres (Milky Way,
+Andromeda) → M87*, TON 618 → less dense than water → the small end → primordial
+black holes → dark matter → the dark-matter diagonal of galaxies. 6:30 before the
+1.1× tempo, 5:54 after. Backing track: Mesmerize.
+
+Left out of rec19: the ocean joke (the author's own call), "they are all, of
+course, linear", "there is no reason that they could exist in other ways" (says
+the opposite; a re-run of Whisper on the clip hears "could" too), "have been," in
+"have been, might have been formed", the take saying every galaxy-centre black hole
+is less dense than water (item 1 below), "planets compressed to the size of a
+single atom" (item 3), "we cannot measure in any way", and "globular clusters"
+(item 5).
+
+Caption fixes by hand: "densely scattered" → density scatter, "them covering" →
+I'm covering, "shirt" → chart, "Ton-608" → TON 618; scene captionFixes: "novus" →
+nurseries, "math" → mass.
+
+## Fact check (rec18 + rec19 as cut)
+
+Right: anything more massive or more compact than the Schwarzschild radius
+collapses; a black hole's size on the chart is its event horizon, 2GM/c², which is
+proportional to mass, hence the 1 : 1, 45° line on this log–log chart; every black
+hole sits on it (the dust confirms it: all 524 lie exactly on the line); stellar
+black holes come from the collapse of massive stars; Sgr A* in the Milky Way, one in
+Andromeda's centre (about 1.4 × 10⁸ Suns); M87* was the first photographed (EHT,
+2019); TON 618 is among the most massive known; density falls as 1/M², so the
+heaviest black holes are less dense than water; in principle a black hole of any
+mass could exist; primordial black holes could have formed from the dense early
+universe, the lightest ones would have evaporated by now (below about 10¹⁵ g: a
+proton-sized horizon, matching "the size of a single proton" for the smallest
+survivors); they are searched for as dark matter and ruled out over most masses,
+with the asteroid-mass window (about 10¹⁷–10²³ g) still open; galaxies and galaxy
+clusters hold far more mass than we see, which is what dark matter means here.
+
+Imprecise, worth knowing (the scene labels state the correct version):
+1. "**there's a point** in which the supermassive black holes are less dense than
+   water": right as cut. The other take, "the supermassive black holes, the ones in
+   the center of galaxies, are less dense than water", is wrong for ours: Sgr A*
+   (4 million Suns) averages about 1,000 g/cm³. The crossover is at about 1.4 × 10⁸
+   Suns, right where Andromeda's sits. M87* and TON 618 are far lighter than water.
+2. "TON 618 … the largest black hole we know, whose event horizon would swallow our
+   whole solar system": the chart's 66 billion Suns (older estimate; a 2019 one is
+   about 41 billion) gives a horizon of about 1,300 AU, some 40× Neptune's orbit,
+   though not the Oort cloud.
+3. "a small asteroid or a mountain, but the size of a grain of sand, or maybe the size
+   of a single proton": the pairing is off. An asteroid's mass (Eros) makes a hole
+   smaller than an atom; a grain of sand takes about the Moon's mass; a proton-sized
+   one is about 10¹⁵ g, a large hill. The scene shows each: asteroid → smaller than an
+   atom, the Moon → a grain of sand, the smallest survivor → proton-sized.
+   Suggested re-record: "objects as massive as an asteroid, squeezed smaller than an
+   atom, or as massive as the Moon, squeezed into a grain of sand".
+4. "tiny **particles**": they'd be black holes, not particles; "tiny objects".
+5. "galaxies and **globular** clusters … follow a separate diagonal": globular
+   clusters have almost no dark matter (they sit near the stars' density). The cut
+   uses "galaxies and clusters" (galaxy clusters, which do).
+6. "We know that those black holes could have existed": they are allowed by theory,
+   not known; fine as spoken.
+7. "a large black hole could get smaller by Hawking radiation" (rec18, not in the
+   cut): in principle, but a stellar one takes about 10⁶⁷ years, and today any black
+   hole heavier than about the Moon absorbs more from the cosmic background than it
+   radiates. rec18's "trillions of years" was far too short and is left out.
+8. "the mass of the core inside it" (rec18): the event horizon follows the black
+   hole's whole mass; "core" is loose.
+9. "without needing to invoke any sort of new physics": primordial black holes need
+   no new particle, but forming enough of them needs something unusual in the early
+   universe (strong density spikes from inflation). Commonly said this way.

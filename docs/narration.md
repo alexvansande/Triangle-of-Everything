@@ -122,6 +122,12 @@ Where it's used now:
 | density | bubble on "float", glug on "sink" and the hippo's "sinks" | – |
 | planets | wind on "atmosphere", hiss on "hydrogen just cannot escape" | – |
 | stars | ignite on fusion, boom on the supernova, a sub drop on "black hole" | heartbeat through the life cycle, cut at "boom" |
+| black holes | a sub drop on "collapse into a black hole", bubble on "float on a pool" | – |
+
+**Moving dots.** The connection paths' dots (a star's life, what things are
+made of, the spectrum) are drawn at 2.4× size and 1.7× opacity while narrating
+(`app.setDots`; a scene can set `dots: { size, opacity }`): at the app's own 1.6 px
+they vanish in a phone video.
 
 ## A new recording
 
