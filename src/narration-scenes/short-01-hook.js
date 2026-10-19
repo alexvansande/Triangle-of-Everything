@@ -3,7 +3,7 @@
 // classic figure, then the cross-fade into the map on "…the triangle of
 // everything". Recorded 2026-10-07 (video/short-01-hook/).
 // =============================================================
-// Field reference: see the top of ./tour.js. Axis highlights: { axis: side }.
+// Field reference: docs/narration.md, "Scene fields". Axis highlights: { axis: side }.
 // The classic figure here has energy (GeV) on the left, mass (g) on the
 // right, size (cm) on the bottom; time is written on the diagonals.
 

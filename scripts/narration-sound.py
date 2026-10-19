@@ -2,8 +2,8 @@
 highlighted phrases, small sound effects when the narration talks about
 something you could hear (bubbles, wind, an explosion…), and, rarely, quiet
 rhythmic music under an emotional passage. Everything is synthesized here (no
-samples) and placed by the scene's `sound` cues (see the top of
-src/narration-scenes/tour.js), resolved to times by the player.
+samples) and placed by the scene's `sound` cues (see "Scene fields" in
+docs/narration.md), resolved to times by the player.
 
     python3 scripts/narration-sound.py public/narration/<take> timeline.json
 (run through scripts/narration-sound.mjs, which gets timeline.json from the

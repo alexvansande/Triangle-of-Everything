@@ -5,7 +5,7 @@
 // Saturn floating, the turn to degenerate matter, and the brown dwarfs.
 // Recorded 2026-10-19 (rec12–rec15; video/short-03-planets/).
 // =============================================================
-// Field reference: see the top of ./tour.js.
+// Field reference: docs/narration.md, "Scene fields".
 
 const FULL = { r: -2.2, m: -4.8, span: 74 };
 

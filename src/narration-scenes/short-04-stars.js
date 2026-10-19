@@ -4,7 +4,7 @@
 // the life of a star, the nebulae that make new stars, and what the core
 // becomes. Recorded 2026-10-19 (rec16, ending rec17; video/short-04-stars/).
 // =============================================================
-// Field reference: see the top of ./tour.js.
+// Field reference: docs/narration.md, "Scene fields".
 
 const BD = [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }];
 const FORK = [

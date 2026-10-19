@@ -72,7 +72,7 @@ let html = fs.readFileSync(path.join(OUT, "index.html"), "utf8")
 const info = [];
 for (const t of takes) {
   const take = JSON.parse(fs.readFileSync(path.join(OUT, "narration", t, "words.json"), "utf8"));
-  const scene = (await import(path.resolve(`src/narration-scenes/${take.scene || "tour"}.js`))).default;
+  const scene = (await import(path.resolve(`src/narration-scenes/${take.scene || t}.js`))).default;
   const first = take.words.map(w => w[0]).join(" ").match(/^.*?[.?!](\s|$)/)?.[0].trim() ?? "";
   const music = scene.backing && (typeof scene.backing === "string" ? scene.backing : scene.backing.track);
   info.push({ id: t, title: scene.title || t, blurb: scene.blurb || first, duration: take.duration, music,

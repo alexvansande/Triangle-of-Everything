@@ -3,7 +3,7 @@
 // a liter and a tonne of water, the cube law, the water line, float or sink,
 // the hippo. On the map from the start. Recorded 2026-10-07 (video/short-02-density/).
 // =============================================================
-// Field reference: see the top of ./tour.js.
+// Field reference: docs/narration.md, "Scene fields".
 
 const FULL = { r: -2.2, m: -4.8, span: 74 };   // the whole triangle, portrait
 

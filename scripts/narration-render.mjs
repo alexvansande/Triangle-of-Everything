@@ -1,7 +1,7 @@
 // Render a narrated tour (src/narration.js) to a 1080×1920 MP4.
 //
 //   npm run dev                                   # in another terminal
-//   node scripts/narration-render.mjs take-1 [--from 0] [--to 769.7] [--fps 30] [--workers 3] [--out narration.mp4]
+//   node scripts/narration-render.mjs short-01-hook [--from 0] [--to 60] [--fps 30] [--workers 3] [--out narration.mp4]
 //
 // Frame-exact: the page runs on a virtual clock (performance.now, Date.now,
 // requestAnimationFrame, setTimeout and CSS animations are all stepped by
@@ -16,7 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const args = process.argv.slice(2);
-const take = args[0] && !args[0].startsWith("--") ? args[0] : "take-1";
+const take = args[0] && !args[0].startsWith("--") ? args[0] : "short-01-hook";
 const opt = (k, d) => { const i = args.indexOf("--" + k); return i >= 0 ? args[i + 1] : d; };
 const BASE = opt("url", "http://localhost:5173");
 const FPS = +opt("fps", 30);
