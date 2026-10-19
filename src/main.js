@@ -23,7 +23,7 @@ import {
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
   CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, ELEMENT_TYPES, elementType, PERIODIC_FAMILIES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
-  DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
+  PBH_WINDOW, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
 } from "./data.js";
 import objectsData from "./objects.json";
@@ -1396,69 +1396,9 @@ function drawWaterPhasePanel() {
 // Draw: Dark Matter Search Regions
 // =============================================================
 
-let _dmHovered = false;
-
 function drawDarkMatterRegions() {
   lDarkMatter.selectAll("*").remove();
-
-  const baseOpacity = currentK > 3 ? 0.2 : (currentK > 1.5 ? 0.1 : 0.06);
-  const opacity = _dmHovered ? 0.3 : baseOpacity;
-
-  DARK_MATTER_REGIONS.forEach(region => {
-    const pts = region.polygon.map(p => `${px(p.logR)},${py(p.logM)}`).join(" ");
-    lDarkMatter.append("polygon")
-      .attr("points", pts)
-      .attr("fill", "#ffffff")
-      .attr("opacity", opacity)
-      .attr("class", "dm-region")
-      .style("cursor", "pointer")
-      .on("mouseover", () => { _dmHovered = true; drawDarkMatterRegions(); })
-      .on("mouseout", () => { _dmHovered = false; drawDarkMatterRegions(); })
-      .on("click", (e) => {
-        e.stopPropagation();
-        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
-        setSidebarOpen(true);
-      });
-  });
-
-  // Label — positioned between the two windows, rotated along Schwarzschild line
-  // Only show labels at higher zoom; polygons are visible earlier
-  if (currentK < 2) return;
-  const schwAng = screenAngle(1);
-  const labelM = 19;
-  const labelR = schwarzschildR(labelM) + 1.5;
-  const lx = px(labelR), ly = py(labelM);
-  if (lx > -50 && lx < cw + 50 && ly > -50 && ly < ch + 50) {
-    const g = lDarkMatter.append("g").style("cursor", "pointer")
-      .on("click", (e) => {
-        e.stopPropagation();
-        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
-        setSidebarOpen(true);
-      })
-      .on("mouseover", () => { _dmHovered = true; drawDarkMatterRegions(); })
-      .on("mouseout", () => { _dmHovered = false; drawDarkMatterRegions(); });
-    // Background stroke for readability
-    g.append("text")
-      .attr("x", lx).attr("y", ly)
-      .attr("text-anchor", "middle")
-      .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", fscale(10)).attr("font-weight", 600)
-      .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
-      .attr("stroke-width", 3).attr("stroke-linejoin", "round")
-      .attr("letter-spacing", "1px")
-      .attr("transform", `rotate(${schwAng},${lx},${ly})`)
-      .text("POSSIBLE AREAS FOR DARK MATTER");
-    // Foreground text
-    g.append("text")
-      .attr("x", lx).attr("y", ly)
-      .attr("text-anchor", "middle")
-      .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", fscale(10)).attr("font-weight", 600)
-      .attr("fill", `rgba(255,255,255,${opacity + 0.2})`)
-      .attr("letter-spacing", "1px")
-      .attr("transform", `rotate(${schwAng},${lx},${ly})`)
-      .text("POSSIBLE AREAS FOR DARK MATTER");
-  }
+  drawPbhWindow();
 
   // WIMP label — near Compton line in particle region
   const wimpR = -16, wimpM = -22;
@@ -1498,6 +1438,62 @@ function drawDarkMatterRegions() {
         setSidebarOpen(true);
       });
   }
+}
+
+/** Primordial black holes: the stretch of the Schwarzschild line where they could
+ *  still be the dark matter (PBH_WINDOW), with an arrow at each end, outside the
+ *  line like the other black-hole labels, naming what rules out the masses beyond
+ *  it. Everything clicks through to the PBH article. */
+function drawPbhWindow() {
+  const [m0, m1] = PBH_WINDOW.logM;
+  const col = "#ff5c7c";
+  const open = (e) => { e.stopPropagation(); openInfoPanel(PBH_WINDOW.slug, PBH_WINDOW.title); setSidebarOpen(true); };
+  const ppd = Math.abs(px(1) - px(0));                 // screen px per decade
+  const ang = screenAngle(1);                          // the Schwarzschild line on screen
+  const along = [Math.cos(ang * Math.PI / 180), Math.sin(ang * Math.PI / 180)];   // up the line
+  const inward = [-along[1], along[0]];                // toward the triangle (where objects can be)
+  const outward = [-inward[0], -inward[1]];            // beyond the line
+  const at = (m) => [px(schwarzschildR(m)), py(m)];
+  const [ax, ay] = at(m0), [bx, by] = at(m1);
+  const w = Math.max(6, Math.min(18, ppd * 0.35));     // band width, px
+  const g = lDarkMatter.append("g").attr("class", "pbh-window").style("cursor", "pointer").on("click", open);
+  // the band, on the triangle's side of the line
+  g.append("polygon")
+    .attr("points", [[ax, ay], [bx, by], [bx + inward[0] * w, by + inward[1] * w], [ax + inward[0] * w, ay + inward[1] * w]].map(p => p.join(",")).join(" "))
+    .attr("fill", col).attr("opacity", 0.28);
+  g.append("line").attr("x1", ax).attr("y1", ay).attr("x2", bx).attr("y2", by)
+    .attr("stroke", col).attr("stroke-width", 2.5).attr("stroke-linecap", "round");
+  if (currentK < 2) return;
+  const font = (el, size, weight) => el.attr("font-family", "Inter, sans-serif")
+    .attr("font-size", fscale(size)).attr("font-weight", weight).attr("letter-spacing", "1px")
+    .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.7)").attr("stroke-width", 2.5)
+    .attr("stroke-linejoin", "round");
+  // the limits: an arrow pushing in from each end, named by what sets it
+  const len = Math.max(26, Math.min(70, ppd * 1.2));
+  const off = 12;                                      // beyond the line
+  [[ax, ay, 1, PBH_WINDOW.lower], [bx, by, -1, PBH_WINDOW.upper]].forEach(([x, y, dir, name]) => {
+    const hx = x + outward[0] * off, hy = y + outward[1] * off;
+    const tx = hx - along[0] * dir * len, ty = hy - along[1] * dir * len;
+    g.append("line").attr("x1", tx).attr("y1", ty).attr("x2", hx).attr("y2", hy)
+      .attr("stroke", col).attr("stroke-width", 1.6);
+    const ux = along[0] * dir, uy = along[1] * dir, hs = 7;
+    g.append("polygon").attr("fill", col).attr("points", [
+      [hx, hy], [hx - ux * hs + uy * hs * 0.55, hy - uy * hs - ux * hs * 0.55],
+      [hx - ux * hs - uy * hs * 0.55, hy - uy * hs + ux * hs * 0.55]].map(p => p.join(",")).join(" "));
+    // the name past the arrow's tail, beyond the line, reading away from it
+    const lx = tx + outward[0] * 6, ly = ty + outward[1] * 6;
+    const t = g.append("text").attr("x", lx).attr("y", ly).attr("text-anchor", "end")
+      .attr("dominant-baseline", "middle").attr("fill", col);
+    name.forEach((line, i) => t.append("tspan").attr("x", lx)
+      .attr("dy", i ? "1.2em" : `${-0.6 * (name.length - 1)}em`).text(line.toUpperCase()));
+    font(t, 8, 600);
+  });
+  // the category's name along the line, centred, outside it like the other black-hole labels
+  const [mx, my] = at((m0 + m1) / 2);
+  const lx = mx + outward[0] * 12, ly = my + outward[1] * 12;
+  const t = g.append("text").attr("x", lx).attr("y", ly).attr("text-anchor", "middle")
+    .attr("fill", col).attr("transform", `rotate(${ang},${lx},${ly})`).text(PBH_WINDOW.label.toUpperCase());
+  font(t, 9, 700);
 }
 
 // =============================================================
@@ -2662,7 +2658,6 @@ function drawObjects() {
 
   // --- Render BH subcategory labels along the Schwarzschild line ---
   const BH_SUBCAT_POSITIONS = [
-    { label: "Primordial Black Holes", logM: 25.0, slug: "primordial-black-hole" },
     { label: "Stellar Black Holes", logM: 35.5 },
     { label: "Supermassive Black Holes", logM: 41.5 },
   ];
@@ -2708,13 +2703,11 @@ function drawObjects() {
     const bhScreenPts = BH_SUBCAT_POSITIONS.map(bh => ({
       x: px(schwarzschildR(bh.logM)), y: py(bh.logM), label: bh.label, logM: bh.logM,
     }));
-    const dist01 = Math.hypot(bhScreenPts[1].x - bhScreenPts[0].x, bhScreenPts[1].y - bhScreenPts[0].y);
-    const dist12 = Math.hypot(bhScreenPts[2].x - bhScreenPts[1].x, bhScreenPts[2].y - bhScreenPts[1].y);
-    const minDist = Math.min(dist01, dist12);
+    const minDist = d3.min(bhScreenPts.slice(1), (p, i) => Math.hypot(p.x - bhScreenPts[i].x, p.y - bhScreenPts[i].y));
 
     if (minDist < 200) {
       // Labels would overlap — show single consolidated "BLACK HOLES"
-      const midM = (BH_SUBCAT_POSITIONS[0].logM + BH_SUBCAT_POSITIONS[2].logM) / 2;
+      const midM = (BH_SUBCAT_POSITIONS[0].logM + BH_SUBCAT_POSITIONS.at(-1).logM) / 2;
       renderBHLabel("BLACK HOLES", midM);
     } else {
       BH_SUBCAT_POSITIONS.forEach(bh => renderBHLabel(bh.label.toUpperCase(), bh.logM, bh.slug));
@@ -5258,15 +5251,17 @@ function updateClickTargets() {
     clickTargetContainer.appendChild(div);
   });
 
-  // Dark matter region click targets: overlay on the "POSSIBLE AREAS" label and region polygons
-  lDarkMatter.selectAll("text, polygon.dm-region").each(function() {
+  // Dark matter label click targets (WIMP, MACHO, and the primordial black holes'
+  // window, whose labels open the PBH article instead)
+  lDarkMatter.selectAll("text").each(function() {
+    const pbh = !!this.closest(".pbh-window");
     try {
       const bbox = this.getBBox();
       if (bbox.width < 2 || bbox.height < 2) return;
       const div = document.createElement("button");
       div.type = "button";
       div.className = "click-target";
-      div.setAttribute("aria-label", "Dark matter regions — learn more");
+      div.setAttribute("aria-label", pbh ? `${PBH_WINDOW.title} — learn more` : "Dark matter — learn more");
       div.style.left = (bbox.x + margin.left - 2) + "px";
       div.style.top = (bbox.y + margin.top - 2) + "px";
       div.style.width = (bbox.width + 4) + "px";
@@ -5275,7 +5270,8 @@ function updateClickTargets() {
 
       div.addEventListener("click", (e) => {
         e.stopPropagation();
-        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+        if (pbh) openInfoPanel(PBH_WINDOW.slug, PBH_WINDOW.title);
+        else openInfoPanel("dark-matter-search", "The Search for Dark Matter");
         setSidebarOpen(true);
       });
 
@@ -5376,9 +5372,9 @@ _chartTapEl.addEventListener("pointerup", (e) => {
   });
   if (best) { selectObject(best); return; }
 
-  // 4. Dark-matter regions (their HTML click-targets are inert on touch)
-  if (under.some(el => el.classList?.contains("dm-region"))) {
-    openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+  // 4. The primordial black holes' window (its HTML click-targets are inert on touch)
+  if (under.some(el => el.closest?.(".pbh-window"))) {
+    openInfoPanel(PBH_WINDOW.slug, PBH_WINDOW.title);
     setSidebarOpen(true);
     return;
   }

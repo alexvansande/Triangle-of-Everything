@@ -859,39 +859,26 @@ export const SUBCAT_LABELS = {
 };
 
 // =============================================================
-// Dark Matter Search Regions
+// Primordial black holes: the mass range where they could still be the dark matter
 // =============================================================
-// Polygonal areas near the Schwarzschild line where macro dark matter
-// has not been excluded by current observations (Jacobs, Starkman & Lynn 2015).
-// Coordinates in CGS (logR, logM). Each region hugs the Schwarzschild
-// line and extends outward 2-3 log units in radius.
-// Mass windows: 55g–10^17 g and 2×10^20 g – 4×10^24 g.
-
-export const DARK_MATTER_REGIONS = [
-  {
-    id: "dm-window-1",
-    label: "Macro DM Window I",
-    // logM from ~1.74 (55g) to ~17 (10^17 g)
-    // Extends from Schwarzschild line outward ~2–3 log units in R
-    polygon: [
-      { logR: schwarzschildR(1.74),       logM: 1.74 },
-      { logR: schwarzschildR(17),         logM: 17 },
-      { logR: schwarzschildR(17) + 3,     logM: 17 },
-      { logR: schwarzschildR(1.74) + 3,   logM: 1.74 },
-    ],
-  },
-  {
-    id: "dm-window-2",
-    label: "Macro DM Window II",
-    // logM from ~20.3 (2×10^20 g) to ~24.6 (4×10^24 g)
-    polygon: [
-      { logR: schwarzschildR(20.3),       logM: 20.3 },
-      { logR: schwarzschildR(24.6),       logM: 24.6 },
-      { logR: schwarzschildR(24.6) + 3,   logM: 24.6 },
-      { logR: schwarzschildR(20.3) + 3,   logM: 20.3 },
-    ],
-  },
-];
+// Black holes sit on the Schwarzschild line, so only their mass is free. Below
+// ~1e17 g, Hawking radiation rules them out as the dark matter: under ~5e14 g they
+// have evaporated already, and up to ~1e17 g the radiation they would still be
+// giving off (gamma rays, electrons and positrons) isn't seen. Above ~1e22 g,
+// microlensing surveys would have seen them pass in front of stars (Subaru HSC on
+// Andromeda, then MACHO, EROS, OGLE, Kepler at higher masses). The asteroid-mass
+// window between is still open.
+// Carr, Kohri, Sendouda & Yokoyama, Rep. Prog. Phys. 84, 116902 (2021),
+// arXiv:2002.12778; Niikura et al., Nature Astronomy 3, 524 (2019),
+// arXiv:1701.02151; Montero-Camacho et al., JCAP 08 (2019) 031, arXiv:1906.05950.
+export const PBH_WINDOW = {
+  logM: [17, 22],
+  lower: ["Ruled out by", "Hawking radiation"],   // one line each
+  upper: ["Ruled out by", "microlensing surveys"],
+  label: "Primordial Black Holes",
+  slug: "primordial-black-hole",
+  title: "Primordial Black Holes",
+};
 
 // =============================================================
 // Energy Level Bands (left side of triangle)
