@@ -874,7 +874,7 @@ export const SUBCAT_LABELS = {
 export const PBH_WINDOW = {
   logM: [17, 22],
   lower: ["Ruled out by", "Hawking radiation"],   // one line each
-  upper: ["Ruled out by microlensing surveys"],
+  upper: ["Ruled out by", "microlensing surveys"],
   label: "Primordial Black Holes",
   slug: "primordial-black-hole",
   title: "Primordial Black Holes",
