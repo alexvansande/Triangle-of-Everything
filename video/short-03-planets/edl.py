@@ -13,7 +13,8 @@
 # duller on top: SOURCE_FX turns it down and nudges the tone back (within ±1 dB).
 # rec15 = "bar_do_zeca_pagodinho_8.m4a" (uploaded 2026-10-19, 1:38; same session as rec14,
 # same treatment): Saturn on the line and the Jupiter-size plateau, replacing rec12's
-# "more objects will move towards the right" (only Saturn crosses).
+# "more objects will move towards the right" (flagged as wrong, but the exoplanet
+# dots show it was right: see the 2026-10-19 notes).
 # (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds;
 # the builder snaps each cut to the nearest real silence.
 

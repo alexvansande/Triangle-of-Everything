@@ -92,10 +92,13 @@ Wrong, worth re-recording:
    keep heavier gases (N₂, O₂, CO₂); light ones (H, He) escape, and keeping them is
    what makes a gas giant, the next line. Suggested: "…enough to hold onto gases" or
    "…to hold heavier gases".
-2. **Fixed by rec15.** "**more objects** will move towards the right side of the graph. Saturn…": only
-   Saturn crosses. Jupiter (1.33 g/cm³), Uranus (1.27) and Neptune (1.64) are denser
-   than water, left of the line on the chart. Suggested: "…objects get close to the
-   line, and Saturn actually crosses it: it would float…".
+2. **Retracted (my error).** "**more objects** will move towards the right side of the
+   graph. Saturn…" was flagged as "only Saturn crosses", but that is only true of the
+   Solar System. The chart's exoplanet dots (NASA Exoplanet Archive, measured mass
+   and radius) say the opposite: about 95% of planets of 0.2–0.7 Jupiter masses are
+   less dense than water, and 77% of those around 1 Jupiter mass. The original line
+   was right; rec15's "Saturn falls almost on the line" is right too. See the rec15
+   check for why.
 
 Imprecise, optional:
 3. "In this chart, **diagonal lines** represent density": true of the parallel slanted
@@ -129,12 +132,22 @@ Jupiter mass, planets and brown dwarfs stay roughly Jupiter's size as mass grows
 
 Wrong, left out of the cut: "as they grow… more and more objects falling a little
 bit to the **left**": backwards. As planets grow into gas giants they get *less*
-dense and move right, toward the line (Neptune 1.64 → Saturn 0.69 g/cm³); only past
-Jupiter do they turn left again. The cut keeps "as they grow, Saturn falls almost
+dense and move right, and most of them cross the line: in the chart's exoplanet
+dots, the share less dense than water goes from about 10% at Neptune masses to 54%
+at 0.1, 67% at 0.18 and 95% at 0.3–0.6 Jupiter masses (median density 0.4 g/cm³).
+Past about a Jupiter mass the radius stops growing, so they go straight up the chart
+and back across the line, to the left (35% float at 1.8, 3% at 3 Jupiter masses).
+The least dense giants sit near Saturn's mass because: the hydrogen envelope keeps
+growing (the core's share falls) while the radius reaches about 1 Jupiter radius by
+0.3 Jupiter masses and then stays put, and density is mass ÷ radius³; most of these
+planets are hot Jupiters and Saturns, puffed up by their star's heat, and lighter
+giants puff up more (WASP-17b: 0.5 Jupiter masses, twice Jupiter's radius, 0.08
+g/cm³); and transits favour big, close-in planets, so cool Saturns like ours are
+rare in the catalogue. The cut keeps "as they grow, Saturn falls almost
 on the line", which is right. If re-recorded: "as they grow, they get lighter for
 their size, and Saturn falls almost on the line…".
 
-Nothing from rec12 left open: items 1 and 2 are fixed by rec14 and rec15.
+Nothing from rec12 left open: item 1 is fixed by rec14, and item 2 was my error.
 
 ## rec16: `short-04-stars`
 
