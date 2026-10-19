@@ -59,6 +59,10 @@ export const ICON_MULTI_MAP = {
 // strings — no per-icon JS wrapper chunk, no upfront image fetches. The
 // browser fetches each webp on demand the first time its <image> renders
 // (map-tile-style pop-in); a gentle warmup prefetches the rest after boot.
+// Objects drawn as a plain named dot even though an icon file exists: the dot's
+// position is the point (a Wolf-Rayet star is a stripped core, left of the
+// main sequence), and the painted icon hid it.
+const NO_ICON = new Set(["wolf-rayet"]);
 export const iconUrls = import.meta.glob("../content/icons/*.webp", { query: "?url", import: "default", eager: true });
 export const ICON_BY_SLUG = {};
 for (const [path, url] of Object.entries(iconUrls)) {
@@ -67,7 +71,7 @@ for (const [path, url] of Object.entries(iconUrls)) {
     ICON_MULTI_MAP[iconFile].forEach(s => { ICON_BY_SLUG[s] = url; });
   } else {
     const slug = ICON_SLUG_MAP[iconFile] || iconFile;
-    ICON_BY_SLUG[slug] = url;
+    if (!NO_ICON.has(slug)) ICON_BY_SLUG[slug] = url;
   }
 }
 // Icon webps whose bytes have actually arrived (SVG <image> load events) —
