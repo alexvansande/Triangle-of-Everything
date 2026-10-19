@@ -499,7 +499,8 @@ export async function startNarration(app) {
   }
   /** A loop drawn round a cloud of dots: { ellipse: [r, m, rx, ry], rot?, label?,
    *  place?: "above"|"below"|"left"|"right" } — centre and half-axes in decades
-   *  (log cm, log g); rot turns it on screen (degrees). */
+   *  (log cm, log g). It leans with the 3 : 1 density diagonals unless rot
+   *  (screen degrees) says otherwise. */
   function drawEllipse(el, h, age) {
     const [r, m, rx, ry] = h.ellipse;
     const cx = sx(r), cy = sy(m);
@@ -508,7 +509,9 @@ export async function startNarration(app) {
     const col = h.color || "#ffd54f";
     const prog = d3.easeCubicOut(clamp01(age / (h.draw ?? 0.9)));
     const len = Math.PI * (3 * (RX + RY) - Math.sqrt((3 * RX + RY) * (RX + 3 * RY)));
-    const g = el.append("g").attr("transform", `translate(${cx},${cy}) rotate(${h.rot || 0})`);
+    // by default the tall axis leans with the 3 : 1 density diagonals (log M = 3 log R + c)
+    const rot = h.rot ?? 90 - Math.atan2(3 * ky, kx) * 180 / Math.PI;
+    const g = el.append("g").attr("transform", `translate(${cx},${cy}) rotate(${rot})`);
     // drawn as a path from the top, clockwise, so the stroke grows from 12 o'clock
     const d = `M0,${-RY}A${RX},${RY} 0 1,1 0,${RY}A${RX},${RY} 0 1,1 0,${-RY}`;
     [[7, 0.15], [2.2, 1]].forEach(([w, o]) => g.append("path").attr("d", d)
