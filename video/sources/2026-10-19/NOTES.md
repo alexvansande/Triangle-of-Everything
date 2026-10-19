@@ -495,3 +495,18 @@ we can see". "you'd be impossible to detect them" (they'd).
 Re-record, optional (the cut works without it): "So we have this range: something with
 the mass of a small moon or a mountain, squeezed into something far smaller than an
 atom."
+
+## Video 5, third pass (author's notes after watching)
+
+- The Schwarzschild limit was explained twice ("they represent a limit of both mass
+  and size…", "there is a point in which nothing can become more massive or more
+  compact…", then "This line is called the Schwarzschild radius, which represents the
+  limit…"): only the last stays, without its "and" before "which".
+- Stutters cut: "a black hole and… every black hole" (now two sentences), "by the… the
+  effects on gravity", and a double false start before "the reason we've been looking
+  for them" (rec20 311–312.7 s).
+- Leading "and"/"but" dropped where sentences piled up: "Unlike most…", "In reality…",
+  "They all, of course…", "They vary in size…", "We don't know how to make that in a
+  lab…", "We know that they couldn't…", "The reason we've been looking…", "If primordial
+  black holes exist…".
+- Now 5:13 at 1.2×.

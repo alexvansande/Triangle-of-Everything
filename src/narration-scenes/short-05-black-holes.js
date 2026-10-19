@@ -55,11 +55,10 @@ export default {
     ] },
     { at: "but a line", icons: true, hl: [{ ...SCHW, label: "black holes" }] },
     { at: "three sides", cam: FULL, hl: [{ line: "triangle" }, { ...SCHW, label: "black holes" }] },
-    { at: "limit of both mass and size", hl: [{ ...SCHW, label: "the limit" }] },
-    { at: "more massive or more compact", cam: { r: 5, m: 28, span: 16 },
-      hl: [SCHW, { obj: "Earth" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), label: "squeeze to 9 mm", delay: 0.6 }] },
     { at: "called the schwarzschild radius", hl: [{ ...SCHW, label: "schwarzschild radius" }] },
     { at: "past, present", hl: [{ ...SCHW, label: "nothing crosses it" }, { side: "left", of: "schwarzschild" }] },
+    { at: "more massive or more compact", cam: { r: 5, m: 28, span: 16 },
+      hl: [SCHW, { obj: "Earth" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), label: "squeeze to 9 mm", delay: 0.6 }] },
     { at: "doesn't really have a size", cam: { obj: "Stellar BH", span: 6 }, hl: [SCHW, { obj: "Stellar BH", label: "black hole" }] },
     { at: "event horizon", hl: [SCHW, { obj: "Stellar BH", label: "size = event horizon" }] },
     { at: "directly proportional", cam: { r: 4, m: 31, span: 24 }, hl: [{ ...SCHW, label: "1 : 1 · 45°" }] },
@@ -94,7 +93,7 @@ export default {
     // the rest: Hawking radiation below, microlensing above
     { at: "some of them have remained", cam: { r: -8.3, m: 19.5, span: 12 }, clear: true },
     { at: "mass of stars and planets", cam: { r: -5.4, m: 22.6, span: 10 } },
-    { at: "couldn't be much smaller", cam: { r: -11, m: 16.6, span: 10 } },
+    { at: "much smaller", cam: { r: -11, m: 16.6, span: 10 } },
     { at: "this range", cam: { r: -8.3, m: 19.5, span: 12 }, hl: [{ arrow: true, from: { r: -4.6, m: 17.6 }, to: BH(19.5), label: "still open", delay: 0.3 }] },
     { at: ["small moon", "a small moon"], cam: { r: -1.5, m: 18.8, span: 18 }, hl: [
       { obj: "Phobos", label: "a small moon" }, { arrow: true, from: { obj: "Phobos" }, to: BH(19.03), label: "smaller than an atom", delay: 0.4 },
