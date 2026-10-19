@@ -141,7 +141,6 @@
   { "name": "Vega",             "logR": 11.22,  "logM": 33.63,  "cat": "star", "z": 4, "wiki": "Vega" },
   { "name": "Horizontal Branch","logR": 11.54,  "logM": 33.11,  "cat": "star", "z": 5, "wiki": "Horizontal_branch" },
   { "name": "Wolf-Rayet",       "logR": 11.54,  "logM": 34.60,  "cat": "star", "z": 3, "wiki": "Wolf%E2%80%93Rayet_star" },
-  { "name": "Massive Star",     "logR": 11.84,   "logM": 34.80,  "cat": "star", "z": 2, "wiki": "O-type_main-sequence_star" },
   { "name": "Blue Supergiant",  "logR": 12.24,  "logM": 34.70,  "cat": "star", "z": 3, "wiki": "Blue_supergiant_star" },
   { "name": "V. Massive Star",  "logR": 12.44,   "logM": 35.58,  "cat": "star", "z": 3, "wiki": "Hypergiant" },
   { "name": "Red Giant",        "logR": 12.85,  "logM": 33.30,  "cat": "star", "z": 1.5, "wiki": "Red_giant" },
