@@ -53,6 +53,7 @@ async function loadKatex() {
 }
 
 let _iconsEnabled = true;
+let _iconOnly = null;     // narration: a Set of the only object names that get their picture
 let _iconSize = 100;  // percent multiplier on top of zoom-derived effective size
 let _fontScale = 1;   // global text multiplier (settings "Font size" slider)
 const fscale = (px) => px * _fontScale;
@@ -2260,6 +2261,7 @@ let _atomIconsHidden = false;
 
 function mapIconShown(o) {
   if (!_iconsEnabled || !ICON_BY_SLUG[o.slug]) return false;
+  if (_iconOnly && !_iconOnly.has(o.name)) return false;
   if (_ogShot) return true; // preview cards always show the picture
   // projected objects carry the category key in catKey (cat is the style object)
   return !(_atomIconsHidden && (o.catKey || o.cat) === "atomic"); // atoms and molecules
@@ -7349,6 +7351,9 @@ if (_ogShot) {
       /** The moving dots (evolution, composition, spectrum paths) at a size
        *  and strength that reads in a phone video: 1.6 px at 60% is a speck. */
       setDots({ size = 1, opacity = 1 } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; },
+      /** Only these objects keep their picture (the rest are plain dots over
+       *  the dust); null for all of them. */
+      setIcons(names) { _iconOnly = names ? new Set(names) : null; redraw(); },
       setStage(mode) { if (mode !== _viewportLock) setViewportLock(mode); },
       isMobile: () => _isMobile,
       prepare() {

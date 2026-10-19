@@ -22,7 +22,7 @@ EDL = [
  ("rec18", "intro", 128.66, 129.02),   # For example,
  ("rec18", "intro", 132.22, 155.96, {"gap": 0.15}),  # how stars are formed in stellar nurseries ... a white dwarf or a neutron star, or the strangest object of all, the black holes.
  ("rec18", "intro", 159.14, 161.3),    # Now I want to tell you a little bit about black holes.
- ("rec18", "line", 165.22, 183.14),    # But unlike most of the other objects ... black holes are not really one object, not even a category of objects, but a line,
+ ("rec18", "line", 165.22, 183.14, {"s": 168.36}),  # (the first "But unlike most," left out) but unlike most of the other objects ... black holes are not really one object, not even a category of objects, but a line,
  ("rec18", "line", 230.78, 236.92, {"gap": 0.2}),  # really, they are one of the three sides of the triangle of everything.   ("the top half of the three lines" and the restarts left out)
  ("rec18", "limit", 238.2, 251.0),     # And the reason is that they represent a limit of both mass and size that anything can be in the universe.
  ("rec18", "limit", 258.26, 266.48),   # There is a point in which nothing can become more massive or more compact than this line.
@@ -36,11 +36,11 @@ EDL = [
  ("rec19", "big", 90.28, 95.24),       # And they vary in size, from just the size of stars
  ("rec19", "big", 97.76, 101.6, {"gap": 0.12}),  # to the ones that are in the center of galaxies,
  ("rec19", "big", 65.06, 70.84, {"gap": 0.15}),  # like the one in the center of our own Milky Way, or the one in the center of the Andromeda Galaxy.
- ("rec19", "big", 116.87, 123.54),     # Like the M87, which was the first one to be photographed, or the TON 618,
+ ("rec19", "dense", 161.93, 166.27, {"gap": 0.4}),   # As black holes become more massive, they actually become less dense.
+ ("rec19", "dense", 172.77, 185.33),   # There's a point in which the supermassive black holes are actually less dense than water, and again could float on a pool if you had one big enough.   (the ocean joke left out, and the take that says all galaxy-centre ones are: see the fact check)
+ ("rec19", "big", 116.87, 123.54),     # Like the M87 (examples of the light ones: the density lines now come first, as the author asked), which was the first one to be photographed, or the TON 618,
  ("rec19", "big", 229.11, 231.01, {"gap": 0.12}),  # the largest black hole we know,
  ("rec19", "big", 133.01, 137.01, {"gap": 0.12}),  # whose event horizon would swallow our whole solar system.
- ("rec19", "dense", 161.93, 166.27),   # As black holes become more massive, they actually become less dense.
- ("rec19", "dense", 172.77, 185.33),   # There's a point in which the supermassive black holes are actually less dense than water, and again could float on a pool if you had one big enough.   (the ocean joke left out, and the take that says all galaxy-centre ones are: see the fact check)
  # then the small ones
  ("rec19", "small", 276.75, 285.09),   # But there's also a very cool story towards the other end of this line, into smaller black holes,
  ("rec19", "small", 295.85, 300.09, {"gap": 0.15}),  # despite the fact that black holes are formed when giant stars collapse,   ("there is no reason that they could exist in other ways" left out: it says the opposite)
@@ -49,7 +49,8 @@ EDL = [
  ("rec19", "pbh", 327.25, 329.95, {"gap": 0.15}),  # the only natural way in which we know that
  ("rec19", "pbh", 330.17, 330.49, {"gap": 0.05}),  # black holes
  ("rec19", "pbh", 331.59, 332.55, {"gap": 0.08}),  # might have been formed,   ("have been," left out)
- ("rec19", "pbh", 333.67, 341.09, {"gap": 0.12}),  # are in the very early moments of our universe's history,
+ ("rec19", "pbh", 333.67, 335.55, {"gap": 0.12, "e": 336.32}),  # are in the very early moments
+ ("rec19", "pbh", 338.05, 341.09, {"gap": 0.1, "s": 339.5}),    # of our universe's history,   ("of our uni-" restart left out; Whisper merged it into "universe's")
  ("rec19", "pbh", 344.77, 347.33, {"gap": 0.12}),  # when everything was a dense soup of materials.
  ("rec19", "pbh", 350.97, 355.65),     # We know that those black holes could have existed, and we've been looking for them.
  ("rec19", "pbh", 378.45, 382.79),     # While we have already looked into many sizes,

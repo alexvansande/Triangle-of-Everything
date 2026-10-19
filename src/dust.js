@@ -156,7 +156,9 @@ export function drawDust(layer, view, blockers, colorOf) {
       .attr("fill", "none")
       .attr("stroke-linecap", "round")
       .attr("stroke-width", DUST_R * 2)
-      .attr("opacity", 0.7)
+      // black holes sit on the Schwarzschild line, where a row of bright red
+      // dots competes with the line itself: they stay quieter
+      .attr("opacity", (g) => sources[g.s].cat === "blackhole" ? 0.3 : 0.7)
       .attr("stroke", (g) => colorOf(sources[g.s].cat, sources[g.s].id)))
     .attr("d", (g) => g.d);
 }

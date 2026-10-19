@@ -345,7 +345,9 @@ hole will be on this line" (the intro, the line, the limit, the Schwarzschild
 radius), then rec19: known black holes → from stellar to galaxy centres (Milky Way,
 Andromeda) → M87*, TON 618 → less dense than water → the small end → primordial
 black holes → dark matter → the dark-matter diagonal of galaxies. 6:30 before the
-1.1× tempo, 5:54 after. Backing track: Mesmerize.
+1.2× tempo (this video plays faster than the others, by request), 5:20 after. Backing track: Mesmerize.
+
+Second pass (author's notes): the first "But unlike most," cut; the density lines ("as black holes become more massive…", "less dense than water") moved before M87* and TON 618, which now read as their examples; "early moments of our uni-… our universe's history" cut to one (Whisper had merged the restart into "universe's"); on "a cloud of dots" the pictures go off and the catalogue clouds get circled (planets, white dwarfs, stars, nebulae & clusters, galaxies); every video now shows only the pictures its scene highlights; the black-hole dust is quieter on the map (30%) and solid, in the Schwarzschild line's colour, when highlighted.
 
 Left out of rec19: the ocean joke (the author's own call), "they are all, of
 course, linear", "there is no reason that they could exist in other ways" (says

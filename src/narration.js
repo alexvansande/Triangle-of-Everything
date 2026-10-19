@@ -217,6 +217,21 @@ export async function startNarration(app) {
     c.hl.forEach((h, j) => highlights.push({ ...h, t0: c.time + (h.delay || 0), t1, id: `${i}-${j}` }));
   });
 
+  // ---------- icons: only the objects the scene points at keep their picture ----------
+  // (a cue's `icons`: false for none, true for the scene's set, or a list of names,
+  // from that cue on; the scene's `icons` replaces the default set)
+  const sceneIcons = SCENE.icons ?? [...new Set(cues.flatMap(c => (c.hl || []).flatMap(h =>
+    [h.obj, h.arrow && h.from?.obj, h.arrow && h.to?.obj].filter(Boolean))))];
+  const iconCues = cues.filter(c => c.icons !== undefined);
+  let iconsNow;
+  function applyIcons(t) {
+    let v = true;
+    for (const c of iconCues) if (c.time <= t) v = c.icons;
+    const names = v === false ? [] : v === true ? sceneIcons : v;
+    const key = names.join("|");
+    if (key !== iconsNow) { iconsNow = key; app.setIcons?.(names); }
+  }
+
   // ---------- unit rulers: up while the camera moves (or pinned) ----------
   const pins = cues.filter(c => c.units).map(c => ({ t0: c.time, t1: c.time + (c.unitsFor ?? 6) }));
   function unitsOpacity(t) {
@@ -263,6 +278,7 @@ export async function startNarration(app) {
   const sy = (m) => app.plot().y + app.py(m);
 
   function drawHighlights(t) {
+    applyIcons(t);
     // over the classic figure, keep highlights inside its plot frame
     const fr = classicOpacity(t) > 0.5 ? classicFrameClient() : null;
     if (fr) {
@@ -297,6 +313,7 @@ export async function startNarration(app) {
       else if (h.arrow) drawArrow(el, h, age);
       else if (h.swing) drawSwing(el, h, age);
       else if (h.dust) drawDustCat(el, h, age);
+      else if (h.ellipse) drawEllipse(el, h, age);
     });
   }
   /** A glowing band over one axis: { axis: "left"|"right"|"top"|"bottom", label? }.
@@ -464,7 +481,8 @@ export async function startNarration(app) {
   function drawDustCat(el, h, age) {
     const pts = app.dustOfCat?.(h.dust);
     if (!pts?.length) return;
-    const col = h.color || app.categories[h.dust]?.color || "#fff";
+    // as solid as the Schwarzschild line and a little wider than it
+    const col = h.color || (h.dust === "blackhole" ? LINES.schwarzschild.color : app.categories[h.dust]?.color) || "#fff";
     const plot = app.plot();
     const lo = d3.min(pts, p => p[1]), hi = d3.max(pts, p => p[1]);
     const sweep = h.sweep ?? 1.6;
@@ -473,13 +491,36 @@ export async function startNarration(app) {
       if (x < plot.x - 10 || x > plot.x + plot.w + 10 || y < plot.y - 10 || y > plot.y + plot.h + 10) continue;
       const a = clamp01((age - sweep * (m - lo) / Math.max(1e-6, hi - lo)) / 0.35);
       if (a <= 0) continue;
-      el.append("circle").attr("cx", x).attr("cy", y).attr("r", 1.8 + 3 * (1 - a)).attr("fill", col).attr("opacity", 0.85 * a);
-      el.append("circle").attr("cx", x).attr("cy", y).attr("r", 4).attr("fill", "none")
-        .attr("stroke", "#fff").attr("stroke-width", 0.6).attr("opacity", 0.25 * a);
+      el.append("circle").attr("cx", x).attr("cy", y).attr("r", (h.r ?? 2.6) + 3 * (1 - a)).attr("fill", col).attr("opacity", a);
     }
     if (h.label) el.append("text").attr("class", "narr-sidelabel")
       .attr("x", plot.x + plot.w * (h.labelX ?? 0.5)).attr("y", plot.y + plot.h * (h.labelY ?? 0.2))
       .attr("text-anchor", "middle").attr("fill", col).attr("opacity", clamp01(age / 0.6)).text(h.label.toUpperCase());
+  }
+  /** A loop drawn round a cloud of dots: { ellipse: [r, m, rx, ry], rot?, label?,
+   *  place?: "above"|"below"|"left"|"right" } — centre and half-axes in decades
+   *  (log cm, log g); rot turns it on screen (degrees). */
+  function drawEllipse(el, h, age) {
+    const [r, m, rx, ry] = h.ellipse;
+    const cx = sx(r), cy = sy(m);
+    const kx = Math.abs(sx(r + 1) - sx(r)), ky = Math.abs(sy(m + 1) - sy(m));
+    const RX = rx * kx, RY = ry * ky;
+    const col = h.color || "#ffd54f";
+    const prog = d3.easeCubicOut(clamp01(age / (h.draw ?? 0.9)));
+    const len = Math.PI * (3 * (RX + RY) - Math.sqrt((3 * RX + RY) * (RX + 3 * RY)));
+    const g = el.append("g").attr("transform", `translate(${cx},${cy}) rotate(${h.rot || 0})`);
+    // drawn as a path from the top, clockwise, so the stroke grows from 12 o'clock
+    const d = `M0,${-RY}A${RX},${RY} 0 1,1 0,${RY}A${RX},${RY} 0 1,1 0,${-RY}`;
+    [[7, 0.15], [2.2, 1]].forEach(([w, o]) => g.append("path").attr("d", d)
+      .attr("fill", "none").attr("stroke", col).attr("stroke-width", w).attr("opacity", o)
+      .attr("stroke-dasharray", `${len * prog} ${len + 10}`));
+    if (h.label === false) return;
+    const place = h.place || "above";
+    const tx = place === "left" ? cx - RX - 8 : place === "right" ? cx + RX + 8 : cx;
+    const ty = place === "below" ? cy + RY + 22 : place === "above" ? cy - RY - 10 : cy + 5;
+    el.append("text").attr("class", "narr-tag").attr("x", tx).attr("y", ty)
+      .attr("text-anchor", place === "left" ? "end" : place === "right" ? "start" : "middle")
+      .attr("fill", col).attr("opacity", prog).text((h.label || "").toUpperCase());
   }
   /** A star living its life: a glowing disk that swings back and forth between
    *  two points (swing: [from, to], each { obj } or { r, m }), each swing a

@@ -23,11 +23,16 @@
 //              { arrow: true, from: {obj}|{r,m}, to: {obj}|{r,m,mark}, label? }
 //              { dust: "blackhole", label?, labelX?, labelY?, sweep? } — every
 //                catalogue dot of that category, lit in a sweep up the chart
+//              { ellipse: [r, m, rx, ry], rot?, label?, place? } — a loop round
+//                a cloud of dots (centre and half-axes in decades)
 //              { swing: [{obj}|{r,m}, {obj}|{r,m}], period?, label? } — a star
 //                swinging back and forth between two points, further each time
 //            any item can take delay (s) to stagger
 //   clear    end the current highlights
 //   units    pin the unit rulers on (they also show during every move)
+//   icons    from this cue on: false (no pictures), true (the scene's set) or a list of
+//            names. By default only objects some cue highlights keep their picture
+//            (a scene's `icons: [...]` replaces that set); the rest are plain dots.
 //   classic  "out" — cross-fade from the classic figure to the map (fade s)
 //
 // Sound cues (optional `sound: [...]`, read by scripts/narration-sound.mjs;

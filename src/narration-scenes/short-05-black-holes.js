@@ -43,8 +43,17 @@ export default {
     { at: "strangest object", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: false }, { obj: "Stellar BH", label: "black hole" }] },
 
     // ── Not an object: a line ────────────────────────────────
-    { at: "unlike most of the other objects", cam: { r: 9, m: 32, span: 30 }, clear: true },
-    { at: "but a line", hl: [{ ...SCHW, label: "black holes" }] },
+    // everything else is a cloud of catalogue dots: pictures off, the clouds circled
+    // (ellipses fitted to the dust: 5–95% of each catalogue)
+    { at: "unlike most of the other objects", cam: { r: 15.2, m: 35.6, span: 17 }, clear: true, icons: false },
+    { at: ["cloud of dots", "appears as dots"], hold: 8, hl: [
+      { ellipse: [9.5, 29.65, 0.75, 1.6], label: "planets", place: "below", color: "#90caf9" },
+      { ellipse: [9.05, 33.0, 0.42, 0.45], label: "white dwarfs", place: "left", color: "#e0e0e0", delay: 0.25 },
+      { ellipse: [11.3, 33.45, 1.15, 0.7], label: "stars", place: "right", color: "#ffd54f", delay: 0.5 },
+      { ellipse: [19.4, 37.2, 1.1, 2.2], label: "nebulae & clusters", place: "left", color: "#ce93d8", delay: 0.75 },
+      { ellipse: [21.85, 41.6, 0.95, 2.3], label: "galaxies", place: "above", color: "#80deea", delay: 1 },
+    ] },
+    { at: "but a line", icons: true, hl: [{ ...SCHW, label: "black holes" }] },
     { at: "three sides", cam: FULL, hl: [{ line: "triangle" }, { ...SCHW, label: "black holes" }] },
     { at: "limit of both mass and size", hl: [{ ...SCHW, label: "the limit" }] },
     { at: "more massive or more compact", cam: { r: 5, m: 28, span: 16 },
