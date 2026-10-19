@@ -17,7 +17,7 @@ import {
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
   CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, ELEMENT_TYPES, elementType, PERIODIC_FAMILIES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
-  DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
+  DARK_MATTER_REGIONS, PBH_WINDOW, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
 } from "./data.js";
 import objectsData from "./objects.json";
@@ -1414,6 +1414,8 @@ function drawDarkMatterRegions() {
       });
   });
 
+  drawPbhWindow();
+
   // Label — positioned between the two windows, rotated along Schwarzschild line
   // Only show labels at higher zoom; polygons are visible earlier
   if (currentK < 2) return;
@@ -1491,6 +1493,57 @@ function drawDarkMatterRegions() {
         setSidebarOpen(true);
       });
   }
+}
+
+/** Primordial black holes: the stretch of the Schwarzschild line where they could
+ *  still be the dark matter (PBH_WINDOW), with an arrow at each end naming what
+ *  rules out the masses beyond it. Everything clicks through to the PBH article. */
+function drawPbhWindow() {
+  const [m0, m1] = PBH_WINDOW.logM;
+  const col = "#ff5c7c";
+  const open = (e) => { e.stopPropagation(); openInfoPanel(PBH_WINDOW.slug, PBH_WINDOW.title); setSidebarOpen(true); };
+  const ppd = Math.abs(px(1) - px(0));                 // screen px per decade
+  const ang = screenAngle(1);                          // the Schwarzschild line on screen
+  const along = [Math.cos(ang * Math.PI / 180), Math.sin(ang * Math.PI / 180)];   // up the line
+  const out = [-along[1], along[0]];                   // across it, toward the allowed side (right)
+  const at = (m) => [px(schwarzschildR(m)), py(m)];
+  const [ax, ay] = at(m0), [bx, by] = at(m1);
+  const w = Math.max(6, Math.min(18, ppd * 0.35));     // band width, px
+  const g = lDarkMatter.append("g").attr("class", "pbh-window").style("cursor", "pointer").on("click", open);
+  // the band, on the allowed side of the line
+  g.append("polygon")
+    .attr("points", [[ax, ay], [bx, by], [bx + out[0] * w, by + out[1] * w], [ax + out[0] * w, ay + out[1] * w]].map(p => p.join(",")).join(" "))
+    .attr("fill", col).attr("opacity", 0.28);
+  g.append("line").attr("x1", ax).attr("y1", ay).attr("x2", bx).attr("y2", by)
+    .attr("stroke", col).attr("stroke-width", 2.5).attr("stroke-linecap", "round");
+  if (currentK < 2) return;
+  const font = (el, size, weight) => el.attr("font-family", "Inter, sans-serif")
+    .attr("font-size", fscale(size)).attr("font-weight", weight).attr("letter-spacing", "1px");
+  const halo = (el) => el.clone(true).lower().attr("fill", "none").attr("stroke", "rgba(6,6,26,0.7)")
+    .attr("stroke-width", 3).attr("stroke-linejoin", "round");
+  // the limits: an arrow pushing in from each end, named by what sets it
+  const len = Math.max(26, Math.min(70, ppd * 1.2));
+  [[ax, ay, 1, PBH_WINDOW.lower], [bx, by, -1, PBH_WINDOW.upper]].forEach(([x, y, dir, name]) => {
+    const off = w + 10;                                // beside the band
+    const hx = x + out[0] * off, hy = y + out[1] * off;
+    const tx = hx - along[0] * dir * len, ty = hy - along[1] * dir * len;
+    g.append("line").attr("x1", tx).attr("y1", ty).attr("x2", hx).attr("y2", hy)
+      .attr("stroke", col).attr("stroke-width", 1.6);
+    const ux = along[0] * dir, uy = along[1] * dir, hs = 7;
+    g.append("polygon").attr("fill", col).attr("points", [
+      [hx, hy], [hx - ux * hs + uy * hs * 0.55, hy - uy * hs - ux * hs * 0.55],
+      [hx - ux * hs - uy * hs * 0.55, hy - uy * hs + ux * hs * 0.55]].map(p => p.join(",")).join(" "));
+    const lx = tx + out[0] * 6, ly = ty + out[1] * 6;
+    const t = g.append("text").attr("x", lx).attr("y", ly).attr("text-anchor", "start")
+      .attr("dominant-baseline", "middle").attr("fill", col).text(name.toUpperCase());
+    font(t, 8, 600); halo(t);
+  });
+  // the category label, just inside the black-hole side, along the line
+  const mid = at((m0 + m1) / 2);
+  const lx = mid[0] - out[0] * 10, ly = mid[1] - out[1] * 10;
+  const t = g.append("text").attr("x", lx).attr("y", ly).attr("text-anchor", "middle")
+    .attr("fill", col).attr("transform", `rotate(${ang},${lx},${ly})`).text(PBH_WINDOW.label.toUpperCase());
+  font(t, 9, 700); halo(t);
 }
 
 // =============================================================

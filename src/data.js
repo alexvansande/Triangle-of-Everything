@@ -894,6 +894,28 @@ export const DARK_MATTER_REGIONS = [
 ];
 
 // =============================================================
+// Primordial black holes: the mass range where they could still be the dark matter
+// =============================================================
+// Black holes sit on the Schwarzschild line, so only their mass is free. Below
+// ~1e17 g, Hawking radiation rules them out as the dark matter: under ~5e14 g they
+// have evaporated already, and up to ~1e17 g the radiation they would still be
+// giving off (gamma rays, electrons and positrons) isn't seen. Above ~1e22 g,
+// microlensing surveys would have seen them pass in front of stars (Subaru HSC on
+// Andromeda, then MACHO, EROS, OGLE, Kepler at higher masses). The asteroid-mass
+// window between is still open.
+// Carr, Kohri, Sendouda & Yokoyama, Rep. Prog. Phys. 84, 116902 (2021),
+// arXiv:2002.12778; Niikura et al., Nature Astronomy 3, 524 (2019),
+// arXiv:1701.02151; Montero-Camacho et al., JCAP 08 (2019) 031, arXiv:1906.05950.
+export const PBH_WINDOW = {
+  logM: [17, 22],
+  lower: "Hawking radiation",
+  upper: "Microlensing",
+  label: "Area of possible PBH",
+  slug: "primordial-black-hole",
+  title: "Primordial Black Holes",
+};
+
+// =============================================================
 // Energy Level Bands (left side of triangle)
 // =============================================================
 // Horizontal lines marking energy thresholds, with labels floating
