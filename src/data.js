@@ -261,13 +261,18 @@ export const REFERENCE_LINES = [
     color: "rgba(255,130,50,0.12)", width: 1, dash: "4 3",
   },
   {
+    // the most a white dwarf can weigh: drawn across the white dwarfs only
     label: "Chandrasekhar Limit (1.44 M☉)",
-    points: [{ logR: 5.5, logM: 33.46 }, { logR: 9.5, logM: 33.46 }],
+    points: [{ logR: 8.4, logM: 33.46 }, { logR: 9.7, logM: 33.46 }],
     color: "rgba(180,180,255,0.2)", width: 0.8, dash: "6 4",
   },
   {
-    label: "TOV Limit (~2.1 M☉)",
-    points: [{ logR: 5.5, logM: 33.62 }, { logR: 9.5, logM: 33.62 }],
+    // the most a neutron star can weigh: drawn across the neutron stars only. Not
+    // yet pinned down (it depends on the unknown equation of state of dense matter);
+    // pulsars of 2.0–2.35 M☉ (PSR J0740+6620, J0952−0607) and GW170817 put it near
+    // 2.2–2.3 M☉
+    label: "TOV Limit (~2.2–2.3 M☉, uncertain)",
+    points: [{ logR: 5.85, logM: 33.65 }, { logR: 6.5, logM: 33.65 }],
     color: "rgba(255,100,100,0.2)", width: 0.8, dash: "6 4",
   },
   {
