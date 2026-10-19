@@ -542,3 +542,23 @@ Done in the scene meanwhile: the chart's two limits light up at the end of video
 supernova", "neutron star limit · ~2 Suns" on the neutron star, "above it: black
 hole" on the black hole, with the camera close on each. Most of video 4's other
 camera moves are about twice as close as before.
+
+## For the next recording session: the galaxies' diagonal
+
+The author will re-record the dark-matter part of video 5. What the chart shows:
+- Galaxies and clusters sit on their own diagonal (mean density about 1e-24 g/cm³)
+  mostly because they are mostly empty space between stars, not because of dark
+  matter.
+- Take the dark matter away and each drops straight down by about a decade (big
+  spirals 0.8–1, clusters and Laniakea 0.8–0.9 with their hot gas counted, dwarf
+  galaxies 1.5 or more; globular clusters and NGC 1277 stay): a parallel line ten
+  times less dense, further from the atomic line, not closer.
+- The evidence for dark matter is that the mass measured from motion (rotation
+  curves, cluster velocities, lensing) is about ten times the stars and gas we see.
+  Suggested wording: "they're much more massive than all the stars and gas we can
+  see in them."
+- The current cut's "they exist in this other one, meaning that they are much more
+  massive than their size would be expected" (rec20 331 s) is the line to replace.
+- The map and the scenes call it the dark-matter line (`darkmatter` in
+  src/narration.js, and the map's label); rename it if the narration says "empty
+  space".
