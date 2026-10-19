@@ -125,6 +125,11 @@ Where it's used now:
 
 ## A new recording
 
+**Fact-check it.** Every new recording gets a fact-check against the chart and
+the physics before it ships: what's right, what's wrong (with a suggested
+re-wording to record), and what's only imprecise, written in that recording's
+`video/sources/<date>/NOTES.md` under "Fact check".
+
 ```bash
 pip install faster-whisper
 python3 scripts/narration-take.py ~/Desktop/narration-2.m4a take-2

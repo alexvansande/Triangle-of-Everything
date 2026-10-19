@@ -44,3 +44,39 @@ fixed by hand. Check it after re-transcribing.
 
 Overlap: this take now ends where `short-04-stars` begins (the sharp left
 turn, degenerate matter, brown dwarfs), so short 4's opening repeats it.
+
+## Fact check (video 3 as cut: rec13 + rec12)
+
+Right: the blue line is the density of water, denser things to its left sink and
+lighter ones to its right float; rocks on the left, animals on the right; the blue
+whale is the largest animal and the giant sequoia the largest tree (by volume);
+planes → supertankers → the Great Pyramid is the right order by mass; objects turn
+round when gravity beats the strength of their material and then settle like a
+fluid; Mercury and the Moon have no real atmosphere, Mars a thin one, Venus and Earth
+one; past a certain mass a planet keeps its hydrogen, becomes a gas giant and has no
+surface; Earth sits on the thin line between rocky worlds and gas planets (the
+observed gap at about 1.5–2 Earth radii); Saturn would float (0.69 g/cm³); above about
+a Jupiter mass, more mass barely changes the radius, so density climbs and the dots
+turn left; crushed atoms lose their electrons (pressure ionisation) and the matter
+becomes degenerate, then the brown dwarfs.
+
+Wrong, worth re-recording:
+1. "the gravity is enough to hold **light gases** together": backwards. Rocky planets
+   keep heavier gases (N₂, O₂, CO₂); light ones (H, He) escape, and keeping them is
+   what makes a gas giant, the next line. Suggested: "…enough to hold onto gases" or
+   "…to hold heavier gases".
+2. "**more objects** will move towards the right side of the graph. Saturn…": only
+   Saturn crosses. Jupiter (1.33 g/cm³), Uranus (1.27) and Neptune (1.64) are denser
+   than water, left of the line on the chart. Suggested: "…objects get close to the
+   line, and Saturn actually crosses it: it would float…".
+
+Imprecise, optional:
+3. "In this chart, **diagonal lines** represent density": true of the parallel slanted
+   lines, not of the chart's main diagonals (the black-hole and quantum edges).
+   "These diagonal lines…" would be safer.
+4. "big rocks and **meteorites**": asteroids at that size; meteorites are the small
+   pieces that reach the ground.
+5. "some take a drastic turn to the right and some to the left": right about the
+   chart (stars branch right, white dwarfs left), but white dwarfs come from stars,
+   not from brown dwarfs; video 4 should say so.
+6. "Venus and Earth **has** one": grammar only.
