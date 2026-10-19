@@ -18,8 +18,8 @@ export default {
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Soaring",
   sound: [
-    { at: "start acquiring an atmosphere", fx: "wind", offset: 0.4 },
-    { at: "hydrogen does not escape", fx: "hiss" },
+    { at: "hold on to some more heavy gases", fx: "wind", offset: 0.4 },
+    { at: "float up and go away", fx: "hiss", offset: 0.3 },
     { at: "would float in water", fx: "bubble", offset: 0.3 },
   ],
 
@@ -53,18 +53,20 @@ export default {
     { at: "gravity overcomes", hl: [{ obj: "Hyperion", place: "left" }, { obj: "Mimas" }, { obj: "Ceres" }, { obj: "Pluto", label: "round" }] },
     { at: "might well be liquid", hl: [{ obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
 
-    // atmospheres
-    { at: "acquiring an atmosphere", cam: { r: 8.6, m: 27.1, span: 3.4 }, clear: true },
-    { at: "mercury and the moon", hl: [{ obj: "Mercury", label: "Mercury · none", place: "left" }, { obj: "Moon", label: "Moon · none", place: "left" }] },
+    // atmospheres (rec14)
+    { at: "become more massive", cam: { r: 8.6, m: 27.1, span: 3.4 }, clear: true },
+    { at: "moon and mercury", hl: [{ obj: "Moon", label: "Moon · none", place: "left" }, { obj: "Mercury", label: "Mercury · none", place: "left" }] },
     { at: "a thin one", hl: [{ obj: "Mercury", label: "Mercury", place: "left" }, { obj: "Mars", label: "Mars · thin" }] },
-    { at: "venus and earth", hl: [{ obj: "Mars" }, { obj: "Venus", place: "left" }, { obj: "Earth", delay: 0.4 }] },
+    { at: "earth and venus", hl: [{ obj: "Mars" }, { obj: "Earth", delay: 0.2 }, { obj: "Venus", place: "left", delay: 0.5 }] },
 
-    // gas giants, and Earth between
-    { at: "after this point", cam: { r: 9.45, m: 29.3, span: 4 },
+    // gas giants keep their hydrogen; Earth in the Goldilocks zone of mass
+    { at: "lighter gases", cam: { r: 9.45, m: 29.3, span: 4 },
       hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn", delay: 0.3 }, { obj: "Jupiter", delay: 0.6 }] },
-    { at: "a gas giant", hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn", label: "gas giants" }, { obj: "Jupiter", label: false }] },
-    { at: "earth really sits", cam: { r: 9.1, m: 28.6, span: 4.6 },
-      hl: [{ obj: "Earth", place: "left" }, { obj: "Mars", delay: 0.5 }, { obj: "Neptune", delay: 1 }] },
+    { at: "float up and go away", cam: { r: 9.1, m: 28.6, span: 4.6 }, hl: [{ obj: "Earth", label: "hydrogen escapes", place: "left" }] },
+    { at: "more massive planets", cam: { r: 9.45, m: 29.3, span: 4 }, hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn" }, { obj: "Jupiter", label: false }] },
+    { at: "become gas giants", hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn", label: "gas giants" }, { obj: "Jupiter", label: false }] },
+    { at: "goldilocks zone", cam: { r: 9.1, m: 28.6, span: 4.6 },
+      hl: [{ obj: "Earth", label: "Goldilocks mass", place: "below" }, { obj: "Mars", delay: 0.5 }, { obj: "Neptune", delay: 1 }] },
 
     // the turn: Saturn floats, then off the diagonal toward degenerate matter
     { at: "further we go in the mass line", cam: { r: 9.8, m: 30.2, span: 4 }, clear: true },

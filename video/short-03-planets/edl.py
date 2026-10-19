@@ -7,8 +7,14 @@
 # like short-02 ("something really interesting happens…"); rec12 takes over from "And if
 # you start at the human scale". Same noise floor as rec12 (about −79 dB) and a tone
 # within ±3 dB of it, so no EQ. rec13's own human-scale lines are left out.
+# rec14 = "bar_do_zeca_pagodinho_6.m4a" (uploaded 2026-10-19, 2:31, 48 kHz ALAC): the
+# atmospheres → gas giants → Earth's Goldilocks zone, re-recorded (rec12 had "hold light
+# gases", backwards). About 6 dB hotter than rec12 and a little lighter in the bass and
+# duller on top: SOURCE_FX turns it down and nudges the tone back (within ±1 dB).
 # (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds;
 # the builder snaps each cut to the nearest real silence.
+
+SOURCE_FX = {"rec13": "volume=-3dB", "rec14": "volume=-6dB,equalizer=f=120:t=q:w=1.0:g=2.5,equalizer=f=1000:t=q:w=1.2:g=-2,equalizer=f=6300:t=q:w=1.2:g=2.5"}
 
 EDL = [
  ("rec13", "intro", 1.54, 10.54),     # In this chart, diagonal lines represent density. This blue line represents the density of water.
@@ -23,11 +29,12 @@ EDL = [
  ("rec12", "round", 84.44, 91.18),    # and as we go higher on the diagonal line, you notice that the objects are becoming more and more spherical.
  ("rec12", "round", 92.82, 101.92),   # That happens because at this point, the force of gravity overcomes the molecular bond that keeps objects together under shape.
  ("rec12", "round", 103.70, 108.52),  # And at this point, everything might well be liquid, because they behave like liquids.
- ("rec12", "atmo", 151.04, 161.60),   # as we increase in mass, objects now start acquiring an atmosphere because the gravity is enough to hold light gases together.
- ("rec12", "atmo", 163.90, 167.36),   # So Mercury and the Moon don't have an atmosphere, but Mars has a thin one.
- ("rec12", "atmo", 169.52, 171.60, {"gap": 0.2}),  # Venus and Earth has one,   ("Venus and Earth have" left out)
- ("rec12", "gas", 198.08, 216.76, {"gap": 0.2}),   # but after this point, objects are so massive that hydrogen does not escape its orbit ... a gas giant ... doesn't have an actual surface anymore.
- ("rec12", "earth", 225.34, 235.98),  # So, Earth really sits in this thin line where it's massive enough to have some atmosphere, but not so massive that it's just a gas giant.
+ ("rec14", "atmo", 3.38, 13.66),      # As these objects become more massive, their gravity starts being able to hold on to some more heavy gases.
+ ("rec14", "atmo", 50.00, 60.90),     # So for example, while Moon and Mercury basically have no atmosphere, Mars does have a thin one, and Earth and Venus has a more thicker one.
+ ("rec14", "gas", 62.38, 75.44),      # But once they start becoming massive enough, they're able not only to hold the heavy gases, they're also able to hold the lighter gases like hydrogen or helium.
+ ("rec14", "gas", 101.62, 109.68),    # On Earth, helium and hydrogen will just float up and go away into space.
+ ("rec14", "gas", 110.40, 126.84),    # But with some more massive planets, they stick around ... most of the universe is helium and hydrogen ... that's how they will become gas giants.
+ ("rec14", "earth", 131.12, 149.60),  # So Earth also lives in a very interesting Goldilocks zone of mass, where it's massive enough to hold a thin atmosphere, but not so massive that you hold hydrogen and helium and become a gas giant.
  ("rec12", "turn", 249.78, 251.86),   # The further we go in the mass line, you notice
  ("rec12", "turn", 253.84, 263.26, {"gap": 0.12}), # that more objects will move towards the right side of the graph. Saturn actually would float in water if you had a pool big enough,
  ("rec12", "turn", 264.28, 280.36),   # but then they start going drastically to the left of it, the Jupiter and the super-Jupiters, and now we are off the main diagonal line.

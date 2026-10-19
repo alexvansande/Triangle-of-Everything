@@ -3,7 +3,8 @@
 | Source | Raw file (Google Drive "Recordings") | Length | Setup |
 |---|---|---|---|
 | `rec12` | `From humans to brown dwarfs .m4a` | 6:20 | home, 48 kHz ALAC; noise floor about −78 dB, so no extra denoise |
-| `rec13` | `bar_do_zeca_pagodinho_4.m4a` (uploaded to the chat) | 0:51 | 48 kHz ALAC; the same noise floor (−79 dB) and a tone within ±3 dB of rec12, so no EQ |
+| `rec13` | `bar_do_zeca_pagodinho_4.m4a` (uploaded to the chat) | 0:51 | 48 kHz ALAC; the same noise floor (−79 dB) and a tone within ±3 dB of rec12; 3 dB hotter, turned down |
+| `rec14` | `bar_do_zeca_pagodinho_6.m4a` (uploaded to the chat) | 2:31 | 48 kHz ALAC; clean (−81.5 dB floor, no clipping); 6 dB hotter than rec12, a little lighter in the bass and duller on top: turned down and EQ'd to match |
 
 One take of the whole of `short-03-planets`, replacing the earlier cut from
 rec8 (home intro) and rec3 (office): humans, rocks and animals either side of
@@ -20,6 +21,19 @@ replacing rec12's, which began like `short-02-density` ("something really
 interesting happens…"). rec12 takes over from "And if you start at the human
 scale". rec13's own human-scale lines are left out. Caption fixes: "flow" →
 float, "dressed" → drastic.
+
+**rec14** re-records the atmospheres → gas giants → Earth section (rec12 had
+"hold light gases", backwards). Kept: "As these objects become more massive,
+their gravity starts being able to hold on to some more heavy gases" · "So for
+example, while Moon and Mercury basically have no atmosphere, Mars does have a
+thin one, and Earth and Venus has a more thicker one" · "But once they start
+becoming massive enough … also able to hold the lighter gases like hydrogen or
+helium" · "On Earth, helium and hydrogen will just float up and go away into
+space" (the last of three tries) · "But with some more massive planets, they
+stick around … that's how they will become gas giants" · "So Earth also lives
+in a very interesting Goldilocks zone of mass…". Left out: the restarts "As these
+objects, as the objects on this line…", "and now the gravity is and now…", and
+the first two tries at the escape line.
 
 **Tempo: this batch plays at 1.1×, not 1.2×** (the narration is naturally a
 little faster from here on): `python3 scripts/narration-tempo.py <take> --tempo 1.1`.
@@ -61,7 +75,7 @@ turn left; crushed atoms lose their electrons (pressure ionisation) and the matt
 becomes degenerate, then the brown dwarfs.
 
 Wrong, worth re-recording:
-1. "the gravity is enough to hold **light gases** together": backwards. Rocky planets
+1. **Fixed by rec14.** "the gravity is enough to hold **light gases** together": backwards. Rocky planets
    keep heavier gases (N₂, O₂, CO₂); light ones (H, He) escape, and keeping them is
    what makes a gas giant, the next line. Suggested: "…enough to hold onto gases" or
    "…to hold heavier gases".
@@ -80,3 +94,17 @@ Imprecise, optional:
    chart (stars branch right, white dwarfs left), but white dwarfs come from stars,
    not from brown dwarfs; video 4 should say so.
 6. "Venus and Earth **has** one": grammar only.
+
+## Fact check (rec14)
+
+Right: heavier gases are held first, then light ones (hydrogen, helium) once a
+planet is massive enough; the Moon and Mercury have essentially no atmosphere,
+Mars a thin one, Earth and Venus thicker ones (Venus's is about 90× Earth's); on
+Earth hydrogen and helium rise and escape to space; most of the universe's
+ordinary matter is hydrogen and helium (about 98% by mass), so a planet that keeps
+them grows into a gas giant; Earth sits in a "Goldilocks zone of mass" between the
+two (a twist on the usual Goldilocks zone, which is about distance from the star).
+
+Imprecise, optional: "Earth and Venus **has** a **more thicker** one" (grammar).
+
+Still open from rec12: item 2 above (only Saturn crosses to the floating side).
