@@ -26,6 +26,9 @@ import dustUrl from "./dust.json?url";
 const DUST_GAP = 5;        // px — minimum spacing between dust dots
 const DUST_R = 1.15;       // px — dot radius
 const CLEAR_DOT = 9;       // px — keep-out radius around curated dots
+const BH_TICK_GAP = 3;     // px — black-hole ticks start this far beyond the Schwarzschild line
+const BH_TICK_LEN = 11;    // px
+const BH_TICK_W = 2.2;     // px
 const MAX_DOTS_DESKTOP = 7000;
 const MAX_DOTS_MOBILE = 3000;
 
@@ -113,6 +116,13 @@ export function drawDust(layer, view, blockers, colorOf) {
     }
   }
 
+  // Black holes sit exactly on the Schwarzschild line, where a dot vanishes into
+  // the line: they're drawn as short ticks just beyond it instead, like a rug plot.
+  const ax = px(1) - px(0), ay = py(1) - py(0), al = Math.hypot(ax, ay) || 1;
+  const tnx = ay / al, tny = -ax / al;                  // across the line, away from the triangle
+  const tick = (sx, sy) => `M${(sx + tnx * BH_TICK_GAP).toFixed(1)} ${(sy + tny * BH_TICK_GAP).toFixed(1)}` +
+    `l${(tnx * BH_TICK_LEN).toFixed(1)} ${(tny * BH_TICK_LEN).toFixed(1)}`;
+
   // --- thinning: spatial hash with cell = DUST_GAP ---
   const G = DUST_GAP, G2 = G * G;
   const paths = new Map(); // srcIdx → path string parts
@@ -143,7 +153,7 @@ export function drawDust(layer, view, blockers, colorOf) {
     _kept.push({ i, sx, sy });
     const s = src[i];
     if (!paths.has(s)) paths.set(s, []);
-    paths.get(s).push(`M${sx.toFixed(1)} ${sy.toFixed(1)}h0`);
+    paths.get(s).push(sources[s].cat === "blackhole" ? tick(sx, sy) : `M${sx.toFixed(1)} ${sy.toFixed(1)}h0`);
   }
 
   // One <path> per source: round caps on zero-length segments render as
@@ -155,8 +165,8 @@ export function drawDust(layer, view, blockers, colorOf) {
       .attr("class", "dust")
       .attr("fill", "none")
       .attr("stroke-linecap", "round")
-      .attr("stroke-width", DUST_R * 2)
-      .attr("opacity", 0.7)
+      .attr("stroke-width", (g) => sources[g.s].cat === "blackhole" ? BH_TICK_W : DUST_R * 2)
+      .attr("opacity", (g) => sources[g.s].cat === "blackhole" ? 1 : 0.7)
       .attr("stroke", (g) => colorOf(sources[g.s].cat, sources[g.s].id)))
     .attr("d", (g) => g.d);
 }
