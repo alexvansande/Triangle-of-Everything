@@ -13,7 +13,7 @@ export default {
   title: "Up the line",
   blurb: "From humans to round worlds, gas giants and brown dwarfs.",
   start: FULL,
-  captionFixes: { flow: "float" },
+  captionFixes: { flow: "float", dressed: "drastic" },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Soaring",
@@ -24,16 +24,17 @@ export default {
   ],
 
   cues: [
-    // intro (rec13): diagonals are densities, the blue one is water, sink or float
+    // intro (rec13): diagonals are densities, the blue one is water, sink or float; then rec12
     { at: "diagonal lines represent density", cam: { r: 2, m: 6, span: 44 }, dur: 3 },
     { at: "density of water", hl: [{ line: "water", label: "density of water" }] },
     { at: "made of atoms", hl: [{ line: "water" }] },
     { at: "to the left will sink", hl: [{ line: "water" }, { side: "left", label: "sinks" }] },
     { at: "to the right will", hl: [{ line: "water" }, { side: "left", label: "sinks" }, { side: "right", label: "floats" }] },
     { at: "the human scale", cam: { r: 2.4, m: 6.6, span: 12 }, hl: [{ line: "water" }, { obj: "Human" }] },
-    { at: "mostly animals", hl: [{ line: "water" }, { obj: "Human" }, { side: "right", label: "animals" }] },
+    { at: "meteorites and rocks", hl: [{ line: "water" }, { side: "left", label: "rocks · sink" }] },
+    { at: "actually animals", hl: [{ line: "water" }, { side: "left", label: "rocks · sink" }, { side: "right", label: "animals · float" }] },
     { at: "the blue whale", cam: { obj: "Blue Whale", span: 4 }, hl: [{ obj: "Blue Whale", label: "largest animal" }] },
-    { at: "the sequoia tree", hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest plant" }] },
+    { at: "the sequoia", hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // made by us, and the mountains after them
     { at: "engineering categories", cam: { r: 4, m: 11, span: 6 }, clear: true },
@@ -79,7 +80,7 @@ export default {
       hl: [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "brown dwarfs" }] },
 
     // the cliffhanger: two directions
-    { at: "drastic turn to the right", cam: { r: 9.9, m: 32.6, span: 5 },
+    { at: ["drastic turn to the right", "turn to the right"], cam: { r: 9.9, m: 32.6, span: 5 },
       hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" }] },
     { at: "turn to the left", hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
       { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#90caf9" }] },

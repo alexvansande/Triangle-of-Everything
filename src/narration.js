@@ -688,8 +688,25 @@ export async function startNarration(app) {
     renderAt(t); showTime(t);
     if (audio.paused) window.__narr.settle(t);
   };
-  layer.addEventListener("click", (e) => {
-    if (e.target.closest("#narr-bar, #narr-next, #narr-chips, #narr-speed")) return;
+  // Tap anywhere to play or pause. Taps are read from the pointer itself (a
+  // short press that barely moves), not from "click": iOS Safari doesn't always
+  // turn a tap on a plain full-screen area into a click (and may hold it back
+  // waiting for a double-tap), which left the player deaf to taps once playing.
+  const controls = "#narr-bar, #narr-next, #narr-chips, #narr-speed";
+  let down = null, tappedAt = 0;
+  layer.addEventListener("pointerdown", (e) => {
+    down = e.target.closest(controls) || e.button > 0 ? null : { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId };
+  }, on);
+  layer.addEventListener("pointerup", (e) => {
+    const d = down; down = null;
+    if (!d || d.id !== e.pointerId || e.target.closest(controls)) return;
+    if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 12 || performance.now() - d.t > 600) return;   // a drag or a long press
+    tappedAt = performance.now();
+    audio.paused ? play() : pause();
+  }, on);
+  layer.addEventListener("pointercancel", () => { down = null; }, on);
+  layer.addEventListener("click", (e) => {     // keyboard activation of the play button (a pointer tap was handled above)
+    if (e.target.closest(controls) || performance.now() - tappedAt < 800 || e.detail !== 0) return;
     audio.paused ? play() : pause();
   }, on);
   // the scrubber: press anywhere on the bar and drag; the scene follows the finger
@@ -830,6 +847,7 @@ const creditsHTML = (track) => `<div id="narr-credits" aria-hidden="true"><div c
 
 const NARR_CSS = `
 #narr-layer { position: fixed; inset: 0; z-index: 10001; pointer-events: auto; overflow: hidden;
+  cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   width: var(--app-w, 100vw); height: var(--app-h, 100vh); }
 body.narrating #search-btn, body.narrating #search-box, body.narrating #settings-btn,
 body.narrating #axes-toggle, body.narrating #minimap, body.narrating #scale-bar,

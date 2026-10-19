@@ -1,25 +1,26 @@
 source,beat,out_start,out_end,src_start,src_end,text
 rec13,intro,0.00,8.86,2.42,11.28,"In this chart, diagonal lines represent density. This blue line represents the density of water."
 rec13,intro,9.14,21.64,11.87,26.62,And all of those dots are mostly things made of atoms. Everything to the left will sink and everything to the right will float.
-rec13,life,22.24,38.25,34.56,50.57,"starting in the human scale, we see mostly animals and we see the blue whale, the largest animal that ever existed. And then we have the sequoia tree, the largest plant that ever existed."
-rec12,made,38.85,46.10,44.54,51.92,And then we start on more engineering categories like planes and supertankers and the Great Pyramid.
-rec12,made,46.38,47.87,52.18,53.67,"And after the pyramid,"
-rec12,made,48.02,51.94,54.94,58.85,we will transition to natural things like mountains.
-rec12,made,52.22,56.04,58.84,62.66,"Because really, the Great Pyramid is a mountain."
-rec12,rocks,56.64,64.10,63.18,70.64,And then it will be big rocks and meteorites and comets and small moons.
-rec12,round,64.70,72.02,84.83,92.15,"and as we go higher on the diagonal line, you notice that the objects are becoming more and more spherical."
-rec12,round,72.30,81.89,93.02,102.61,"That happens because at this point, the force of gravity overcomes the molecular bond that keeps objects together under shape."
-rec12,round,82.17,87.08,104.27,109.17,"And at this point, everything might well be liquid, because they behave like liquids."
-rec12,atmo,87.68,98.29,151.18,162.41,as we increase in mass objects now start acquiring an atmosphere because the gravity is enough to hold light gases together.
-rec12,atmo,98.57,102.57,163.78,167.78,So Mercury and the Moon don't have an atmosphere but Mars has a thin one
-rec12,atmo,102.77,105.32,170.34,172.97,Venus and Earth has one
-rec12,gas,105.52,122.64,198.74,217.28,"but after this point, objects are so massive that hydrogen does not escape its orbit, and it accumulates so much of the atmosphere that it becomes a gas giant and it doesn't have an actual surface anymore."
-rec12,earth,123.24,133.56,225.28,236.75,"So, Earth really sits in this thin line where it's massive enough to have some atmosphere, but not so massive that it's just a gas giant."
-rec12,turn,134.16,136.94,249.44,252.22,"the further we go in the mass line, you notice"
-rec12,turn,137.06,146.73,253.78,263.69,"that more objects will move towards the right side of the graph, Saturn actually would float in water if you had a pool big enough,"
-rec12,turn,147.01,162.71,264.06,280.89,"but then they start going drastically to the left of it, the Jupiter and the super -egyptars, and now we are off the main diagonal line."
-rec12,degen,163.31,185.16,303.73,325.58,This is happening because the pressure inside the core of those objects is so massive that they are stripping their atoms of their electron layers and they are becoming degenerate matter and if this diagonal line was really just the density of water and matter in general now we are going into the degenerate matter line
-rec12,end,185.76,189.20,357.65,361.09,So we are now into the brown dwarf phase.
-rec12,end,189.48,200.69,361.58,372.79,But something happens after brown dwarf sizes that some objects will take a drastic turn to the right and some a drastic turn to the left.
-rec12,end,200.97,201.96,373.57,374.56,What is this?
-rec12,end,202.41,204.20,375.09,376.88,We'll explore on the next video.
+rec12,intro,21.92,33.21,28.77,40.23,"And if you start at the human scale, we'll see that most objects on the left are meteorites and rocks, and most objects on the right are actually animals because most of them float in water."
+rec12,life,33.81,37.79,40.23,44.21,"And we have the largest animal, the blue whale, the largest tree, the sequoia."
+rec12,made,38.39,45.63,44.54,51.92,And then we start on more engineering categories like planes and supertankers and the Great Pyramid.
+rec12,made,45.91,47.41,52.18,53.67,"And after the pyramid,"
+rec12,made,47.56,51.47,54.94,58.85,we will transition to natural things like mountains.
+rec12,made,51.75,55.57,58.84,62.66,"Because really, the Great Pyramid is a mountain."
+rec12,rocks,56.17,63.63,63.18,70.64,And then it will be big rocks and meteorites and comets and small moons.
+rec12,round,64.23,71.55,84.83,92.15,"and as we go higher on the diagonal line, you notice that the objects are becoming more and more spherical."
+rec12,round,71.83,81.43,93.02,102.61,"That happens because at this point, the force of gravity overcomes the molecular bond that keeps objects together under shape."
+rec12,round,81.71,86.61,104.27,109.17,"And at this point, everything might well be liquid, because they behave like liquids."
+rec12,atmo,87.21,97.82,151.18,162.41,as we increase in mass objects now start acquiring an atmosphere because the gravity is enough to hold light gases together.
+rec12,atmo,98.10,102.10,163.78,167.78,So Mercury and the Moon don't have an atmosphere but Mars has a thin one
+rec12,atmo,102.30,104.86,170.34,172.97,Venus and Earth has one
+rec12,gas,105.06,122.18,198.74,217.28,"but after this point, objects are so massive that hydrogen does not escape its orbit, and it accumulates so much of the atmosphere that it becomes a gas giant and it doesn't have an actual surface anymore."
+rec12,earth,122.78,133.09,225.28,236.75,"So, Earth really sits in this thin line where it's massive enough to have some atmosphere, but not so massive that it's just a gas giant."
+rec12,turn,133.69,136.47,249.44,252.22,"the further we go in the mass line, you notice"
+rec12,turn,136.59,146.27,253.78,263.69,"that more objects will move towards the right side of the graph, Saturn actually would float in water if you had a pool big enough,"
+rec12,turn,146.55,162.24,264.06,280.89,"but then they start going drastically to the left of it, the Jupiter and the super -egyptars, and now we are off the main diagonal line."
+rec12,degen,162.84,184.70,303.73,325.58,This is happening because the pressure inside the core of those objects is so massive that they are stripping their atoms of their electron layers and they are becoming degenerate matter and if this diagonal line was really just the density of water and matter in general now we are going into the degenerate matter line
+rec12,end,185.30,188.74,357.65,361.09,So we are now into the brown dwarf phase.
+rec12,end,189.02,200.22,361.58,372.79,But something happens after brown dwarf sizes that some objects will take a drastic turn to the right and some a drastic turn to the left.
+rec12,end,200.50,201.49,373.57,374.56,What is this?
+rec12,end,201.94,203.74,375.09,376.88,We'll explore on the next video.
