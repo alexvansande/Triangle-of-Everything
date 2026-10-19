@@ -1479,9 +1479,8 @@ function drawPbhWindow() {
       .attr("dominant-baseline", "middle").attr("fill", col).text(name.toUpperCase());
     font(t, 8, 600);
   });
-  // the category's name along the line, outside it like the other black-hole labels,
-  // a little above the middle so it clears the object's picture
-  const [mx, my] = at(m0 + (m1 - m0) * 0.72);
+  // the category's name along the line, centred, outside it like the other black-hole labels
+  const [mx, my] = at((m0 + m1) / 2);
   const lx = mx + outward[0] * 12, ly = my + outward[1] * 12;
   const t = g.append("text").attr("x", lx).attr("y", ly).attr("text-anchor", "middle")
     .attr("fill", col).attr("transform", `rotate(${ang},${lx},${ly})`).text(PBH_WINDOW.label.toUpperCase());
