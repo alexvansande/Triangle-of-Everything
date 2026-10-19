@@ -48,11 +48,14 @@ const C3 = {
 };
 const ISOCHRONS = ["planck", "gut", "ew", "nuclear", "atomic", "recomb"];
 // Objects come from our data, the paper's own named ones included
-// Points the paper draws that the map no longer has: the map shows one generic
-// primordial black hole in the mass window still open to them, the paper its
-// smallest observable one (5e14 g, just evaporating today).
+// Points the paper draws that the map no longer has: the map marks the mass
+// window still open to primordial black holes instead of single ones. The paper
+// shows the smallest observable one (5e14 g, just evaporating today) and the 3K
+// black hole (as hot as today's microwave background: lighter ones evaporate,
+// heavier ones grow).
 const PAPER_ONLY = [
   { name: "Smallest Primordial BH", logR: -13.13, logM: 14.70, cat: "blackhole", subcat: "primordial_bh", z: 5 },
+  { name: "3K BH", logR: -2.17, logM: 25.65, cat: "blackhole", subcat: "primordial_bh", z: 4 },
 ];
 const byName = (n) => objectsData.find(o => o.name === n) || PAPER_ONLY.find(o => o.name === n);
 const UNIVERSE = byName("Observable Universe");

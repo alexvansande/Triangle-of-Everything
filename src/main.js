@@ -1476,7 +1476,9 @@ function drawPbhWindow() {
     // the name past the arrow's tail, beyond the line, reading away from it
     const lx = tx + outward[0] * 6, ly = ty + outward[1] * 6;
     const t = g.append("text").attr("x", lx).attr("y", ly).attr("text-anchor", "end")
-      .attr("dominant-baseline", "middle").attr("fill", col).text(name.toUpperCase());
+      .attr("dominant-baseline", "middle").attr("fill", col);
+    name.forEach((line, i) => t.append("tspan").attr("x", lx)
+      .attr("dy", i ? "1.2em" : `${-0.6 * (name.length - 1)}em`).text(line.toUpperCase()));
     font(t, 8, 600);
   });
   // the category's name along the line, centred, outside it like the other black-hole labels
