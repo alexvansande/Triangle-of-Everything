@@ -61,6 +61,8 @@ const LINES = {
   water:         { pts: densitySegment(0), color: "#80deea" },
   darkmatter:    { pts: densitySegment(-24), color: "#e1a6ff" },
   mainsequence:  { pts: REFERENCE_LINES.find(l => l.label === "Main Sequence").points.map(p => [p.logR, p.logM]), color: "#ffd740" },
+  chandrasekhar: { pts: REFERENCE_LINES.find(l => l.label.startsWith("Chandrasekhar")).points.map(p => [p.logR, p.logM]), color: "#90caf9" },
+  tov:           { pts: REFERENCE_LINES.find(l => l.label.startsWith("TOV")).points.map(p => [p.logR, p.logM]), color: "#ff8a80" },
 };
 LINES.triangle = { pts: [...LINES.schwarzschild.pts, [H, comptonM(H)], LINES.schwarzschild.pts[0]], color: "#ffffff" };
 
