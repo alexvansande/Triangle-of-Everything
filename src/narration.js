@@ -480,18 +480,31 @@ export async function startNarration(app) {
    *  small ring on each, lit in a sweep from the lightest to the heaviest. */
   function drawDustCat(el, h, age) {
     const pts = app.dustOfCat?.(h.dust);
+    // (ticks?, len?, w?: black holes default to ticks beside the line)
     if (!pts?.length) return;
     // as solid as the Schwarzschild line and a little wider than it
     const col = h.color || (h.dust === "blackhole" ? LINES.schwarzschild.color : app.categories[h.dust]?.color) || "#fff";
     const plot = app.plot();
     const lo = d3.min(pts, p => p[1]), hi = d3.max(pts, p => p[1]);
     const sweep = h.sweep ?? 1.6;
+    // black holes sit exactly on the Schwarzschild line, where dots vanish into it:
+    // they become ticks just beyond the line instead, like a rug plot
+    const ticks = h.ticks ?? h.dust === "blackhole";
+    const ax = sx(1) - sx(0), ay = sy(1) - sy(0), al = Math.hypot(ax, ay) || 1;
+    const nx = ay / al, ny = -ax / al;                 // across the line, away from the triangle
     for (const [r, m] of pts) {
       const x = sx(r), y = sy(m);
       if (x < plot.x - 10 || x > plot.x + plot.w + 10 || y < plot.y - 10 || y > plot.y + plot.h + 10) continue;
       const a = clamp01((age - sweep * (m - lo) / Math.max(1e-6, hi - lo)) / 0.35);
       if (a <= 0) continue;
-      el.append("circle").attr("cx", x).attr("cy", y).attr("r", (h.r ?? 2.6) + 3 * (1 - a)).attr("fill", col).attr("opacity", a);
+      if (ticks) {
+        const g0 = 4, len = (h.len ?? 11) * (0.4 + 0.6 * a);
+        el.append("line").attr("x1", x + nx * g0).attr("y1", y + ny * g0)
+          .attr("x2", x + nx * (g0 + len)).attr("y2", y + ny * (g0 + len))
+          .attr("stroke", col).attr("stroke-width", h.w ?? 2).attr("stroke-linecap", "round").attr("opacity", a);
+      } else {
+        el.append("circle").attr("cx", x).attr("cy", y).attr("r", (h.r ?? 2.6) + 3 * (1 - a)).attr("fill", col).attr("opacity", a);
+      }
     }
     if (h.label) el.append("text").attr("class", "narr-sidelabel")
       .attr("x", plot.x + plot.w * (h.labelX ?? 0.5)).attr("y", plot.y + plot.h * (h.labelY ?? 0.2))

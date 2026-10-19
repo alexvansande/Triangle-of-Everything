@@ -89,17 +89,18 @@ export default {
     { at: "giant stars collapse", hl: [SCHW] },
     { at: "any size", hl: [{ ...SCHW, label: "any size" }] },
     { at: "very early moments", cam: { r: -8, m: 18, span: 34 }, clear: true },
-    { at: "looking for them", cam: { obj: "Smallest Primordial BH", span: 12 }, hl: [SCHW, { obj: "Smallest Primordial BH", label: "primordial black holes?" }] },
-    { at: "many sizes", cam: { r: -6, m: 21.5, span: 18 }, hl: [{ ...SCHW, label: "mostly ruled out" }] },
-    { at: "some ranges", hl: [SCHW, { arrow: true, from: { obj: "Eros" }, to: BH(18.83), label: "still open: asteroid masses", delay: 0.3 }] },
-    { at: "small asteroid", hl: [SCHW, { obj: "Eros", label: "an asteroid" },
+    // the map draws the window still open to them (1e17–1e22 g) and what rules out
+    // the rest: Hawking radiation below, microlensing above
+    { at: "looking for them", cam: { r: -8.3, m: 19.5, span: 12 }, clear: true },
+    { at: "many sizes", cam: { r: -8.8, m: 19.3, span: 15 } },
+    { at: "some ranges", hl: [{ arrow: true, from: { r: -4.6, m: 17.6 }, to: BH(19.5), label: "still open", delay: 0.3 }] },
+    { at: "small asteroid", hl: [{ obj: "Eros", label: "an asteroid" },
       { arrow: true, from: { obj: "Eros" }, to: BH(18.83), label: "smaller than an atom", delay: 0.6 }] },
-    { at: "grain of sand", cam: { r: 1, m: 24, span: 20 }, hl: [SCHW, { obj: "Moon" },
-      { arrow: true, from: { obj: "Moon" }, to: BH(25.87), label: "the moon → a grain of sand", delay: 0.3 }] },
-    { at: "single proton", cam: { obj: "Smallest Primordial BH", span: 10 },
-      hl: [SCHW, { obj: "Smallest Primordial BH", label: "proton-sized · the smallest left" }] },
-    { at: "those are primordial", hl: [SCHW, { obj: "Smallest Primordial BH", label: "primordial black holes" }] },
-    { at: "invisible to any telescope", hl: [{ obj: "Smallest Primordial BH", label: "invisible" }] },
+    { at: "grain of sand", cam: { r: -2, m: 22.5, span: 24 }, hl: [{ obj: "Moon" },
+      { arrow: true, from: { obj: "Moon" }, to: BH(25.87), label: "the moon → a grain of sand · ruled out", delay: 0.3 }] },
+    { at: "single proton", cam: { r: -11, m: 16.5, span: 16 },
+      hl: [{ arrow: true, from: { r: -9.5, m: 13 }, to: BH(14.7), label: "proton-sized · evaporated", delay: 0.2 }] },
+    { at: "those are primordial", cam: { r: -8.3, m: 19.5, span: 12 }, clear: true },
 
     // ── Dark matter ──────────────────────────────────────────
     { at: "galaxies as a whole", cam: { obj: "Milky Way", span: 7 }, clear: true, hl: [{ obj: "Milky Way" }] },

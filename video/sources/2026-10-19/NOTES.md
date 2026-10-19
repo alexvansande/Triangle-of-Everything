@@ -410,3 +410,21 @@ Imprecise, worth knowing (the scene labels state the correct version):
 9. "without needing to invoke any sort of new physics": primordial black holes need
    no new particle, but forming enough of them needs something unusual in the early
    universe (strong density spikes from inflation). Commonly said this way.
+
+## After the PBH window (PR #14, merged 2026-10-19)
+
+The map now marks where primordial black holes could still be all of the dark
+matter: 1e17–1e22 g on the Schwarzschild line, ruled out below by Hawking radiation
+and above by microlensing surveys; "Smallest Primordial BH" and "3K BH" are off the
+map (the classic figure keeps them). Video 5 shows the window on its own (it is part
+of the map), and its cues now point there.
+
+Against the window, rec19's "sizes that will be like a small asteroid or a mountain,
+but the size of a grain of sand, or maybe the size of a single proton":
+- a mountain or an asteroid: inside the window (Eros → about 1e-9 cm, smaller than
+  an atom) ✓
+- a grain of sand: takes about the Moon's mass, which microlensing rules out
+- a single proton: about 5e14 g, which has evaporated
+The scene labels both as ruled out. A re-record that fits the window: "We are talking
+about objects as massive as a mountain or an asteroid, squeezed into something far
+smaller than an atom."
