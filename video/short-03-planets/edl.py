@@ -2,13 +2,18 @@
 # Cut from rec12 = "From humans to brown dwarfs .m4a" (Google Drive "Recordings",
 # 2026-10-19, 6:20, 48 kHz ALAC; recorded at home), one take that replaces the
 # earlier mix of rec8 (intro) and rec3 (office). Build: see video/short-01-hook/README.md.
+# rec13 = "bar_do_zeca_pagodinho_4.m4a" (uploaded 2026-10-19, 0:51, 48 kHz ALAC): a new
+# intro through the sequoia, so this video no longer opens like short-02 ("something
+# really interesting happens…"). Same noise floor as rec12 (about −79 dB) and a tone
+# within ±3 dB of it, so no EQ. Its false start "Starting with animals and humans and
+# whales," is left out.
 # (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds;
 # the builder snaps each cut to the nearest real silence.
 
 EDL = [
- ("rec12", "intro", 3.32, 18.52, {"s": 7.52}),  # (a false start "so something very interesting happens when" left out) So, something really interesting happens when we sort all objects ... on the diagonal line of the chart,
- ("rec12", "intro", 28.38, 39.80),    # And if you start at the human scale ... left are meteorites and rocks ... right are actually animals because most of them float in water.
- ("rec12", "life", 40.22, 43.60),     # And we have the largest animal, the blue whale, the largest tree, the sequoia.
+ ("rec13", "intro", 1.54, 10.54),     # In this chart, diagonal lines represent density. This blue line represents the density of water.
+ ("rec13", "intro", 11.92, 25.98),    # And all of those dots are mostly things made of atoms. Everything to the left will sink and everything to the right will float.
+ ("rec13", "life", 34.44, 49.42),     # Starting in the human scale, we see mostly animals ... the blue whale, the largest animal that ever existed. And then we have the sequoia tree, the largest plant that ever existed.
  ("rec12", "made", 44.52, 51.20),     # And then we start on more engineering categories like planes and supertankers and the Great Pyramid.
  ("rec12", "made", 51.66, 52.98),     # And after the pyramid,
  ("rec12", "made", 54.66, 58.02, {"gap": 0.15}),  # we will transition to natural things like mountains.   ("we really," left out)

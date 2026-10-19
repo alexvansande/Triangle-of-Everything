@@ -13,7 +13,7 @@ export default {
   title: "Up the line",
   blurb: "From humans to round worlds, gas giants and brown dwarfs.",
   start: FULL,
-  captionFixes: { short: "sort", scene: "chart" },
+  captionFixes: { flow: "float" },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Soaring",
@@ -24,19 +24,21 @@ export default {
   ],
 
   cues: [
-    // intro: every object on the diagonal, then the human scale and either side of it
-    { at: "diagonal line of the", cam: { r: 2, m: 6, span: 44 }, dur: 3,
-      hl: [{ line: "water", label: "the diagonal", delay: 0.6 }] },
+    // intro (rec13): diagonals are densities, the blue one is water, sink or float
+    { at: "diagonal lines represent density", cam: { r: 2, m: 6, span: 44 }, dur: 3 },
+    { at: "density of water", hl: [{ line: "water", label: "density of water" }] },
+    { at: "made of atoms", hl: [{ line: "water" }] },
+    { at: "to the left will sink", hl: [{ line: "water" }, { side: "left", label: "sinks" }] },
+    { at: "to the right will", hl: [{ line: "water" }, { side: "left", label: "sinks" }, { side: "right", label: "floats" }] },
     { at: "the human scale", cam: { r: 2.4, m: 6.6, span: 12 }, hl: [{ line: "water" }, { obj: "Human" }] },
-    { at: "meteorites and rocks", hl: [{ line: "water" }, { side: "left", label: "rocks · sink" }] },
-    { at: "actually animals", hl: [{ line: "water" }, { side: "left", label: "rocks · sink" }, { side: "right", label: "animals · float" }] },
-    { at: "the blue whale", cam: { obj: "Blue Whale", span: 4 }, hl: [{ obj: "Blue Whale" }] },
-    { at: "the sequoia", hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia" }] },
+    { at: "mostly animals", hl: [{ line: "water" }, { obj: "Human" }, { side: "right", label: "animals" }] },
+    { at: "the blue whale", cam: { obj: "Blue Whale", span: 4 }, hl: [{ obj: "Blue Whale", label: "largest animal" }] },
+    { at: "the sequoia tree", hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest plant" }] },
 
     // made by us, and the mountains after them
     { at: "engineering categories", cam: { r: 4, m: 11, span: 6 }, clear: true },
     { at: "like planes", hl: [{ obj: "Boeing 747" }] },
-    { at: "supertankers", hl: [{ obj: "Boeing 747", place: "left" }, { obj: "Supertanker" }] },
+    { at: ["supertankers", "super tankers"], hl: [{ obj: "Boeing 747", place: "left" }, { obj: "Supertanker" }] },
     { at: "the great pyramid", hl: [{ obj: "Boeing 747", place: "left" }, { obj: "Supertanker" }, { obj: "Great Pyramid", place: "left" }] },
     { at: "like mountains", cam: { r: 5, m: 15.6, span: 7 }, hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Mt. Everest", delay: 0.3 }] },
     { at: "is a mountain", hl: [{ obj: "Great Pyramid", label: "a mountain", place: "left" }, { obj: "Mt. Everest" }] },
