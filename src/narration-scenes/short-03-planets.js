@@ -3,7 +3,7 @@
 // and animals either side of it, the whale and the sequoia, man-made things
 // and mountains, round worlds, atmospheres, gas giants and Earth between them,
 // Saturn floating, the turn to degenerate matter, and the brown dwarfs.
-// Recorded 2026-10-19 (rec12; video/short-03-planets/).
+// Recorded 2026-10-19 (rec12–rec15; video/short-03-planets/).
 // =============================================================
 // Field reference: see the top of ./tour.js.
 
@@ -68,12 +68,14 @@ export default {
     { at: "goldilocks zone", cam: { r: 9.1, m: 28.6, span: 4.6 },
       hl: [{ obj: "Earth", label: "Goldilocks mass", place: "below" }, { obj: "Mars", delay: 0.5 }, { obj: "Neptune", delay: 1 }] },
 
-    // the turn: Saturn floats, then off the diagonal toward degenerate matter
-    { at: "further we go in the mass line", cam: { r: 9.8, m: 30.2, span: 4 }, clear: true },
-    { at: "right side of the graph", hl: [{ line: "water" }, { side: "right", label: "floats" }] },
-    { at: "saturn actually", hl: [{ line: "water" }, { obj: "Saturn", label: "Saturn · would float", place: "left" }] },
-    { at: "drastically to the left", hl: [{ line: "water" }, { obj: "Saturn", place: "left" }, { obj: "Jupiter", delay: 0.3 }, { obj: "Beta Pictoris b", label: "super-Jupiter", delay: 0.8 }] },
-    { at: "off the main diagonal", cam: { r: 9.95, m: 30.9, span: 4.2 }, hl: [{ line: "water", label: "the diagonal" }, { obj: "Jupiter" }, { obj: "Beta Pictoris b", label: false }] },
+    // the turn (rec15): most sink, Saturn floats, then the Jupiter-size plateau
+    { at: "left side of the line", cam: { r: 9.8, m: 30.2, span: 4 }, clear: true, hl: [{ line: "water" }, { side: "left", label: "sinks" }] },
+    { at: "as they grow", hl: [{ line: "water" }, { obj: "Neptune", place: "left" }, { obj: "Saturn", delay: 0.3 }] },
+    { at: "saturn falls almost on the line", hl: [{ line: "water" }, { obj: "Neptune", place: "left" }, { obj: "Saturn", label: "Saturn · on the line" }] },
+    { at: "would float in water", hl: [{ line: "water" }, { obj: "Saturn", label: "Saturn · would float", place: "left" }] },
+    { at: "past the jupiter mass planets", cam: { r: 9.95, m: 30.9, span: 4.2 },
+      hl: [{ line: "water" }, { obj: "Saturn", label: false, place: "left" }, { obj: "Jupiter", label: false }, { obj: "Beta Pictoris b", label: "super-Jupiter", delay: 0.6 }] },
+    { at: "stay roughly jupiter size", hl: [{ obj: "Jupiter", label: "Jupiter size", place: "left" }, { obj: "Beta Pictoris b", label: false }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
     { at: "pressure inside the core", hl: [{ obj: "Jupiter", place: "left" }, { obj: "Beta Pictoris b", label: false }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
     { at: "becoming degenerate matter", hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
       { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "degenerate matter" }] },

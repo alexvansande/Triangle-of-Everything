@@ -11,10 +11,15 @@
 # atmospheres → gas giants → Earth's Goldilocks zone, re-recorded (rec12 had "hold light
 # gases", backwards). About 6 dB hotter than rec12 and a little lighter in the bass and
 # duller on top: SOURCE_FX turns it down and nudges the tone back (within ±1 dB).
+# rec15 = "bar_do_zeca_pagodinho_8.m4a" (uploaded 2026-10-19, 1:38; same session as rec14,
+# same treatment): Saturn on the line and the Jupiter-size plateau, replacing rec12's
+# "more objects will move towards the right" (only Saturn crosses).
 # (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds;
 # the builder snaps each cut to the nearest real silence.
 
-SOURCE_FX = {"rec13": "volume=-3dB", "rec14": "volume=-6dB,equalizer=f=120:t=q:w=1.0:g=2.5,equalizer=f=1000:t=q:w=1.2:g=-2,equalizer=f=6300:t=q:w=1.2:g=2.5"}
+R14 = "volume=-6dB,equalizer=f=120:t=q:w=1.0:g=2.5,equalizer=f=1000:t=q:w=1.2:g=-2,equalizer=f=6300:t=q:w=1.2:g=2.5"
+R15 = R14.replace("volume=-6dB", "volume=-2.5dB")  # same EQ; rec15 came in about 3.5 dB softer than rec14
+SOURCE_FX = {"rec13": "volume=-3dB", "rec14": R14, "rec15": R15}
 
 EDL = [
  ("rec13", "intro", 1.54, 10.54),     # In this chart, diagonal lines represent density. This blue line represents the density of water.
@@ -35,9 +40,11 @@ EDL = [
  ("rec14", "gas", 101.62, 109.68),    # On Earth, helium and hydrogen will just float up and go away into space.
  ("rec14", "gas", 110.40, 126.84),    # But with some more massive planets, they stick around ... most of the universe is helium and hydrogen ... that's how they will become gas giants.
  ("rec14", "earth", 131.12, 149.60),  # So Earth also lives in a very interesting Goldilocks zone of mass, where it's massive enough to hold a thin atmosphere, but not so massive that you hold hydrogen and helium and become a gas giant.
- ("rec12", "turn", 249.78, 251.86),   # The further we go in the mass line, you notice
- ("rec12", "turn", 253.84, 263.26, {"gap": 0.12}), # that more objects will move towards the right side of the graph. Saturn actually would float in water if you had a pool big enough,
- ("rec12", "turn", 264.28, 280.36),   # but then they start going drastically to the left of it, the Jupiter and the super-Jupiters, and now we are off the main diagonal line.
+ ("rec15", "turn", 21.80, 25.26),     # So, most of the objects are on the left side of the line,
+ ("rec15", "turn", 26.90, 27.62, {"gap": 0.12}),  # as they grow,   ("and as we," left out)
+ ("rec15", "turn", 33.02, 40.98, {"gap": 0.12}),  # Saturn falls almost on the line to the point that Saturn would float in water if you had a pool big enough.   ("we can see that we have more and more objects falling a little bit to the left," left out: backwards)
+ ("rec15", "turn", 70.34, 74.28),     # Something weird happens past the Jupiter mass planets,
+ ("rec15", "turn", 81.76, 86.56, {"gap": 0.15}),  # because even as they become more massive, they stay roughly Jupiter size.
  ("rec12", "degen", 303.10, 325.08),  # This is happening because the pressure inside the core ... degenerate matter ... now we are going into the degenerate matter line
  ("rec12", "end", 357.38, 360.20),    # So we are now into the brown dwarf phase.
  ("rec12", "end", 361.48, 372.34),    # But something happens after brown dwarf sizes, that some objects will take a drastic turn to the right and some a drastic turn to the left.

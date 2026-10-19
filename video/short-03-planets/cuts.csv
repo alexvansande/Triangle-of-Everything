@@ -17,11 +17,13 @@ rec14,gas,110.44,123.62,62.98,76.16,"But once they start becoming massive enough
 rec14,gas,123.90,131.05,103.31,110.46,"on Earth, helium and hydrogen will just float up and go away into space."
 rec14,gas,131.33,148.47,110.46,127.61,"But with some more massive planets, they stick around and because most of the universe is helium and hydrogen, those planets will become more and more massive and that's how they will become gas giants."
 rec14,earth,149.07,168.51,130.90,150.33,"So Earth also lives in a very interesting Goldilocks zone of mass, where it's massive enough to hold a thin atmosphere, but not so massive that you hold hydrogen and helium and become a gas giant."
-rec12,turn,169.11,171.89,249.44,252.22,"the further we go in the mass line, you notice"
-rec12,turn,172.01,181.68,253.78,263.69,"that more objects will move towards the right side of the graph, Saturn actually would float in water if you had a pool big enough,"
-rec12,turn,181.96,197.66,264.06,280.89,"but then they start going drastically to the left of it, the Jupiter and the super -egyptars, and now we are off the main diagonal line."
-rec12,degen,198.26,220.11,303.73,325.58,This is happening because the pressure inside the core of those objects is so massive that they are stripping their atoms of their electron layers and they are becoming degenerate matter and if this diagonal line was really just the density of water and matter in general now we are going into the degenerate matter line
-rec12,end,220.71,224.15,357.65,361.09,So we are now into the brown dwarf phase.
-rec12,end,224.43,235.64,361.58,372.79,But something happens after brown dwarf sizes that some objects will take a drastic turn to the right and some a drastic turn to the left.
-rec12,end,235.92,236.91,373.57,374.56,What is this?
-rec12,end,237.36,239.15,375.09,376.88,We'll explore on the next video.
+rec15,turn,169.11,173.36,21.66,25.91,"So, most of the objects are on the left side of the line,"
+rec15,turn,173.48,174.55,27.06,28.13,"as they grow,"
+rec15,turn,174.67,182.88,32.90,41.57,Saturn falls almost on the line to the point that Saturn would float in water if you had a pool big enough.
+rec15,turn,183.16,187.46,71.07,75.38,something weird happens past the Jupiter mass planets
+rec15,turn,187.61,193.00,81.95,87.34,"because even as they become more massive, they stay roughly Jupiter size."
+rec12,degen,193.60,215.45,303.73,325.58,This is happening because the pressure inside the core of those objects is so massive that they are stripping their atoms of their electron layers and they are becoming degenerate matter and if this diagonal line was really just the density of water and matter in general now we are going into the degenerate matter line
+rec12,end,216.05,219.49,357.65,361.09,So we are now into the brown dwarf phase.
+rec12,end,219.77,230.98,361.58,372.79,But something happens after brown dwarf sizes that some objects will take a drastic turn to the right and some a drastic turn to the left.
+rec12,end,231.26,232.25,373.57,374.56,What is this?
+rec12,end,232.70,234.49,375.09,376.88,We'll explore on the next video.

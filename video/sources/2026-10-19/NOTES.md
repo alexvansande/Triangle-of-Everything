@@ -35,12 +35,24 @@ in a very interesting Goldilocks zone of mass…". Left out: the restarts "As th
 objects, as the objects on this line…", "and now the gravity is and now…", and
 the first two tries at the escape line.
 
+**rec15** re-records Saturn and the Jupiter plateau, up to the degenerate
+matter (rec12 had "more objects will move towards the right"). Kept: "So, most
+of the objects are on the left side of the line," · "as they grow," · "Saturn
+falls almost on the line to the point that Saturn would float in water if you
+had a pool big enough." · "Something weird happens past the Jupiter mass
+planets," · "because even as they become more massive, they stay roughly
+Jupiter size." Left out: "more and more objects falling a little bit to the
+left" (backwards, see the fact check), the silence before 21.8 s, and the
+repeated tries. rec12 picks up again at "This is happening because the
+pressure inside the core…". Whisper wrote "regrow" for "grow", "moon and the
+mercury" and "marsh" in the edit: fixed by hand in words.json.
+
 **Tempo: this batch plays at 1.1×, not 1.2×** (the narration is naturally a
 little faster from here on): `python3 scripts/narration-tempo.py <take> --tempo 1.1`.
 
-`rec12.words.json` and `rec13.words.json` have their Whisper word timings (medium.en). The cut is
-`video/short-03-planets/edl.py` (25 clips: rec13 then rec12; 3:24 before the 1.1× tempo,
-3:06 after); `cuts.csv` lists where each clip landed.
+`rec12`–`rec15.words.json` have their Whisper word timings (medium.en). The cut is
+`video/short-03-planets/edl.py` (28 clips from rec13, rec12, rec14, rec15; 3:55 before the 1.1× tempo,
+3:34 after); `cuts.csv` lists where each clip landed.
 
 Left out of rec12 (its opening is now rec13's): a false start in the first seconds ("so something very interesting
 happens when", hidden in a pause; the cut starts at 7.52 s), the first try at
@@ -52,9 +64,9 @@ massive enough to have some gravity", "that some," before "that more objects",
 the first pass of the degenerate-matter lines, and the takes between 328 s
 and 353 s.
 
-Whisper often mishears "super-Jupiters" in the edit (dropping it, or writing
-"super -egyptars"); `public/narration/short-03-planets/words.json` has it
-fixed by hand. Check it after re-transcribing.
+Whisper often mishears "super-Jupiters" (dropping it, or writing "super
+-egyptars"); since rec15 the narration no longer says it (the chart label
+still does).
 
 Overlap: this take now ends where `short-04-stars` begins (the sharp left
 turn, degenerate matter, brown dwarfs), so short 4's opening repeats it.
@@ -79,7 +91,7 @@ Wrong, worth re-recording:
    keep heavier gases (N₂, O₂, CO₂); light ones (H, He) escape, and keeping them is
    what makes a gas giant, the next line. Suggested: "…enough to hold onto gases" or
    "…to hold heavier gases".
-2. "**more objects** will move towards the right side of the graph. Saturn…": only
+2. **Fixed by rec15.** "**more objects** will move towards the right side of the graph. Saturn…": only
    Saturn crosses. Jupiter (1.33 g/cm³), Uranus (1.27) and Neptune (1.64) are denser
    than water, left of the line on the chart. Suggested: "…objects get close to the
    line, and Saturn actually crosses it: it would float…".
@@ -107,4 +119,18 @@ two (a twist on the usual Goldilocks zone, which is about distance from the star
 
 Imprecise, optional: "Earth and Venus **has** a **more thicker** one" (grammar).
 
-Still open from rec12: item 2 above (only Saturn crosses to the floating side).
+## Fact check (rec15)
+
+Right: most of the objects on this stretch are left of the water line (denser
+than water); Saturn sits almost on it and would float (0.69 g/cm³); past about a
+Jupiter mass, planets and brown dwarfs stay roughly Jupiter's size as mass grows
+(electron degeneracy pressure), so their density climbs.
+
+Wrong, left out of the cut: "as they grow… more and more objects falling a little
+bit to the **left**": backwards. As planets grow into gas giants they get *less*
+dense and move right, toward the line (Neptune 1.64 → Saturn 0.69 g/cm³); only past
+Jupiter do they turn left again. The cut keeps "as they grow, Saturn falls almost
+on the line", which is right. If re-recorded: "as they grow, they get lighter for
+their size, and Saturn falls almost on the line…".
+
+Nothing from rec12 left open: items 1 and 2 are fixed by rec14 and rec15.
