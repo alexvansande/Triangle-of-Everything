@@ -873,8 +873,8 @@ export const SUBCAT_LABELS = {
 // arXiv:1701.02151; Montero-Camacho et al., JCAP 08 (2019) 031, arXiv:1906.05950.
 export const PBH_WINDOW = {
   logM: [17, 22],
-  lower: ["Evaporated due to", "Hawking radiation"],   // one line each
-  upper: ["Excluded by microlensing surveys"],
+  lower: ["Ruled out by", "Hawking radiation"],   // one line each
+  upper: ["Ruled out by microlensing surveys"],
   label: "Primordial Black Holes",
   slug: "primordial-black-hole",
   title: "Primordial Black Holes",
