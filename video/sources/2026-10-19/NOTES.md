@@ -510,3 +510,35 @@ atom."
   lab…", "We know that they couldn't…", "The reason we've been looking…", "If primordial
   black holes exist…".
 - Now 5:13 at 1.2×.
+
+## Ideas for a future re-take of video 4's ending (not re-recording now)
+
+- **Order of the collapse.** "the pressure inside the core of that supernova will be
+  so large that the protons and the electrons… squished together" puts the
+  supernova first. It's the other way round: at the end, a heavy star's core is an
+  Earth-sized ball of iron held up by its electrons (like a white dwarf). Iron
+  can't be fused for energy, so the core keeps gaining mass; at about 1.4 Suns
+  (the Chandrasekhar limit, a dashed line on the chart) the electrons give way.
+  In under a second the core falls from Earth size to about 20 km, protons and
+  electrons become neutrons, and the infalling star bounces off that new core and
+  explodes: the supernova. What stays in the middle is the neutron star; above
+  about 2–2.5 Suns (the TOV limit, the other dashed line) it becomes a black hole.
+  Possible line: "the core collapses, its protons and electrons are squeezed into
+  neutrons, and the rest of the star bounces off it in a supernova."
+- **"Every Sun-like star grows a white dwarf inside it as it ages."** Not on the
+  main sequence (the Sun's core is hot gas at about 150 g/cm³; a white dwarf is
+  about 10⁶ g/cm³). Once the core's hydrogen runs out, the helium ash shrinks
+  until its electrons can't be packed tighter, while the outside swells into a red
+  giant; later it fuses to carbon and oxygen, what white dwarfs are made of. When
+  the outer layers drift off as a planetary nebula, that core is the white dwarf.
+  Heavy stars (above about 8 Suns) carry on to iron and collapse instead; red
+  dwarfs haven't run out of hydrogen in the age of the universe. Possible line,
+  where the red giant appears: "Inside, a white dwarf is growing out of the
+  star's own ashes. When the outer layers blow away, that's what's left."
+
+Done in the scene meanwhile: the chart's two limits light up at the end of video 4
+(`chandrasekhar` and `tov` lines, new in `src/narration.js`): "white dwarf limit ·
+1.44 Suns" on the white dwarf, "core passes 1.44 Suns" at "big enough to go
+supernova", "neutron star limit · ~2 Suns" on the neutron star, "above it: black
+hole" on the black hole, with the camera close on each. Most of video 4's other
+camera moves are about twice as close as before.

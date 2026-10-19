@@ -6,7 +6,7 @@
 // chart's dark-matter line. Recorded 2026-10-19 (rec18, rec19;
 // video/short-05-black-holes/).
 // =============================================================
-// Field reference: see the top of ./tour.js.
+// Field reference: docs/narration.md, "Scene fields".
 
 const FULL = { r: -2.2, m: -4.8, span: 74 };
 // On the Schwarzschild line log R = log M − 27.83 (cm, g).

@@ -23,14 +23,14 @@ direct upload into the chat, then `narration-take.py` (or the EDL tools in
 `video/<take>/tools/`) rebuilds `audio.m4a` and `words.json` from it. The
 committed `words.json` and EDLs are enough to recreate any cut once the same
 source recording is uploaded again.
-The exceptions are the audio of take 2 and of `short-01-hook` (the current
-hook), so the player and the preview work from a clean checkout.
+The exceptions are the shorts' audio and mix, so the player and the preview
+work from a clean checkout.
 
 ## Watch it live
 
 ```bash
 npm run dev
-open "http://localhost:5173/?narrate=take-1"
+open "http://localhost:5173/?narrate=short-01-hook"
 ```
 
 Tap or press Space to play and pause. Drag the scrubber (just above the bottom edge, clear of the phone's home-bar swipe) to seek, or use ←/→ for ±5 s.
@@ -53,10 +53,11 @@ carries over to the next short.
 
 ## End credits
 
-Every video, short or long, ends on a credits card for 3 seconds after the last
+Every video ends on a credits card for 3 seconds after the last
 word (scene `credits: <seconds>`; 0 for none): design and narration, the
-Lineweaver–Patel paper, the music (the take's backing track), the AI-use note,
-and triangleofeverything.com. The text is `creditsHTML` in `src/narration.js`.
+Lineweaver–Patel paper, the music (the take's backing track) and
+triangleofeverything.com. The AI-use note goes in the published description
+instead (`video/DESCRIPTION.md`). The text is `creditsHTML` in `src/narration.js`.
 The mix (`narration-sound.mjs`) is that much longer, with the music carrying on
 under the card and fading out by the end, and it writes `"credits"` into
 words.json so the renderer includes them.
@@ -64,8 +65,8 @@ words.json so the renderer includes them.
 ## Sound design
 
 Keep it light: most of a short is the plain voice. Three kinds of moments,
-each a phrase-anchored cue in the scene's `sound` list (fields at the top of
-`src/narration-scenes/tour.js`):
+each a phrase-anchored cue in the scene's `sound` list (fields under
+[Scene fields](#scene-fields)):
 - **Voice effects** (in the code, but none in use for now: on the voice they
   read as a recording glitch), for a few highlighted phrases: `echo`, `hall`, `radio`,
   `wide`, `liquid`, `deep`.
@@ -138,8 +139,8 @@ re-wording to record), and what's only imprecise, written in that recording's
 
 ```bash
 pip install faster-whisper
-python3 scripts/narration-take.py ~/Desktop/narration-2.m4a take-2
-open "http://localhost:5173/?narrate=take-2"
+python3 scripts/narration-take.py ~/Desktop/recording.m4a short-05-example
+open "http://localhost:5173/?narrate=short-05-example"
 ```
 
 The scene script doesn't change. Each cue fires when its **phrase is spoken**,
@@ -156,11 +157,11 @@ that the new take doesn't contain are skipped and listed in the console
 ```
 
 - `cam`: where to fly. `r` and `m` are log radius [cm] and log mass [g] at the screen centre, and `span` is decades across the screen width; or use `{ obj: "Name", span }`. Flights take a duration based on distance, then the camera drifts slowly inward while it holds.
-- `hl`: what to highlight until the next cue that has `hl` or `clear`. That can be objects, the lines (`schwarzschild`, `compton`, `hubble`, `water`, `darkmatter`, `mainsequence`, `triangle`), one side of the water line, or arrows between objects or points.
+- `hl`: what to highlight until the next cue that has `hl` or `clear`. That can be objects, the lines (`schwarzschild`, `compton`, `hubble`, `water`, `darkmatter`, `mainsequence`, `chandrasekhar`, `tov`, `triangle`), one side of the water line, or arrows between objects or points.
 - The unit rulers fade in for every camera move and out once it settles. Add `units: true` to pin them.
 - `classic: "out"` cross-fades from the classic figure to the map. The narration starts on the classic figure.
 
-The full field list is at the top of `src/narration-scenes/tour.js`.
+The full field list is under [Scene fields](#scene-fields) below.
 
 ## Check a take
 
@@ -179,7 +180,7 @@ in real time. To watch it away from a dev server (for example on a phone,
 through a private claude.ai page), build the trimmed preview:
 
 ```bash
-node scripts/narration-preview.mjs short-01-hook take-2   # takes with audio; default: all of them
+node scripts/narration-preview.mjs short-01-hook short-04-stars   # takes with audio; default: the shorts
 ```
 
 `dist-preview/` is the app with relative paths, so it runs from any folder. It
@@ -198,7 +199,7 @@ the address bar alone and skips the service worker.
 
 ```bash
 npm run dev    # keep running
-node scripts/narration-render.mjs take-1 --workers 3 --out narration.mp4
+node scripts/narration-render.mjs short-01-hook --workers 3 --out short-01-hook.mp4
 # a slice for checking: --from 100 --to 120 --workers 1
 ```
 
@@ -246,8 +247,7 @@ format and not the other:
 - The long video has connecting parts that aren't worth a short of their own.
 
 **How to save edits.** Keep one recording, but give it **several scripts**.
-Each video gets its own cut list (an EDL in the `video/<take>/tools/edl.py`
-style) and its own take folder under `public/narration/`, with that cut's
+Each video gets its own cut list (an EDL like `video/<cut>/edl.py`) and its own take folder under `public/narration/`, with that cut's
 `words.json` and `"scene"`. For example:
 - `short-01-hook`, `short-02-density`, `short-03-black-holes`… (vertical)
 - `long-01` (horizontal)
@@ -255,4 +255,64 @@ style) and its own take folder under `public/narration/`, with that cut's
 A clip can appear in several cuts. When you transcribe a new recording, note
 which lines are short-only (intros, endings), which are long-only, and which
 are shared, and keep the scene scripts per cut. They usually share their cues,
-so a short's scene can import the matching section from the tour scene.
+so a short's scene can import the matching section from another scene.
+
+## Scene fields
+
+A scene is `src/narration-scenes/<take>.js`; a take picks it with `"scene"` in its
+words.json (default: the take's own name).
+
+```
+Cue fields
+  at       phrase (or [alternatives]) that triggers the cue
+  offset   seconds relative to the phrase's first word (default -0.25)
+  atEnd    anchor to the phrase's last word instead
+  cam      { r, m, span } — log radius [cm], log mass [g], decades across
+           the screen width — or { obj: "Name", span, dr, dm }
+  dur      flight seconds (default: from the distance travelled)
+  drift    slow zoom-in while holding, as a fraction (default 0.05)
+  hl       highlights, shown until the next cue with hl/clear:
+             { obj: "Name", label?, place?: "left"|"below", color? }
+             { line: "schwarzschild"|"compton"|"hubble"|"water"|
+                     "darkmatter"|"mainsequence"|"triangle"|
+                     "chandrasekhar"|"tov", label? }
+             { side: "left"|"right", of?: "water", label? }
+             { arrow: true, from: {obj}|{r,m}, to: {obj}|{r,m,mark}, label? }
+             { swing: [{obj}|{r,m}, {obj}|{r,m}], period?, label? } — a star
+               swinging back and forth between two points, further each time
+             { dust: "blackhole", label?, labelX?, labelY?, sweep?, ticks? } —
+               every catalogue dot of that category, lit in a sweep up the
+               chart (black holes as ticks beside the Schwarzschild line)
+             { ellipse: [r, m, rx, ry], rot?, label?, place? } — a loop round a
+               cloud of dots (centre and half-axes in decades); leans with the
+               3 : 1 density diagonals unless rot (screen degrees) is given
+           any item can take delay (s) to stagger
+  clear    end the current highlights
+  units    pin the unit rulers on (they also show during every move)
+  classic  "out" — cross-fade from the classic figure to the map (fade s)
+  icons    from this cue on: false (no pictures), true (the scene's set) or a
+           list of names. By default only objects some cue highlights keep their
+           picture (a scene's `icons: [...]` replaces that set)
+
+Scene-level: dots: { size, opacity } for the paths' moving dots (default 2.4, 1.7)
+
+Sound cues (optional `sound: [...]`, read by scripts/narration-sound.mjs;
+keep them rare). Each names a phrase like a cue does:
+  { at, voice }  (none in use: they read as recording glitches) an effect on the voice for that phrase: "echo" (repeats
+                 that fade off), "hall" (a long tail), "radio" (a tuned-in
+                 radio with static), "wide" (spreads out in stereo),
+                 "liquid" (a watery wobble), "deep" (sinks and drags)
+  { at, fx }     a small effect from the phrase's first word: "static",
+                 "bubble", "glug", "wind", "hiss", "drops", "ignite",
+                 "boom", "drop"; offset (s), atEnd, gain (dB)
+  { at, music, to?, toEnd? }  quiet rhythm from the phrase to the `to`
+                 phrase (or the end): "pulse" (a soft beat and plucks) or
+                 "heartbeat"; stop: "cut" ends it dead instead of fading
+  { at, intensity, ramp? }  the music bed's energy from this phrase on, until
+                 the next one: 0 silent, 0.5 hushed, 1 normal, 2 a build
+                 (twice the notes, a bass pulse), 3 the peak (a soft kick and
+                 a pad, about 6 dB fuller); ramps over `ramp` s (default 2)
+bed: true         a quiet rhythmic music bed under the whole take, shaped by
+                 where the camera is: small scales quick and high, galaxies
+                 slow and low; dense things minor (off by default for now)
+```

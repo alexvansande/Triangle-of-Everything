@@ -3,7 +3,7 @@
 // =============================================================
 // Plays a recorded narration (public/narration/<take>/) over the map and
 // drives everything from a phrase-anchored scene script
-// (src/narration-scene.js): camera moves, highlights, the unit rulers,
+// (src/narration-scenes/<take>.js): camera moves, highlights, the unit rulers,
 // karaoke captions, and the cross-fade from the classic Lineweaver–Patel
 // figure. Cues are anchored to WORDS, not timestamps: a new recording only
 // needs its own words.json (word timings) and every cue lands on the same
@@ -13,7 +13,7 @@
 // so the live player can seek freely and scripts/narration-render.mjs can
 // render a frame-exact video by stepping t.
 //
-//   ?narrate=take-1             live player (tap to start, tap to pause)
+//   ?narrate=short-01-hook      live player (tap to start, tap to pause)
 //   &render=1                   no player UI; exposes window.__narr for the renderer
 //   &autoplay=0                 don't start on load or roll on to the next short
 //   &speed=1.2                  playback speed (1–1.5 of the pace it was spoken at, pitch kept;
@@ -61,6 +61,8 @@ const LINES = {
   water:         { pts: densitySegment(0), color: "#80deea" },
   darkmatter:    { pts: densitySegment(-24), color: "#e1a6ff" },
   mainsequence:  { pts: REFERENCE_LINES.find(l => l.label === "Main Sequence").points.map(p => [p.logR, p.logM]), color: "#ffd740" },
+  chandrasekhar: { pts: REFERENCE_LINES.find(l => l.label.startsWith("Chandrasekhar")).points.map(p => [p.logR, p.logM]), color: "#90caf9" },
+  tov:           { pts: REFERENCE_LINES.find(l => l.label.startsWith("TOV")).points.map(p => [p.logR, p.logM]), color: "#ff8a80" },
 };
 LINES.triangle = { pts: [...LINES.schwarzschild.pts, [H, comptonM(H)], LINES.schwarzschild.pts[0]], color: "#ffffff" };
 
@@ -145,7 +147,7 @@ export async function startNarration(app) {
   CAPTIONS = params.get("captions") !== "0";
   const base = `${import.meta.env.BASE_URL}narration/${app.take}/`;
   const take = await fetch(base + "words.json").then(r => r.json());
-  SCENE = (await SCENES[`./narration-scenes/${take.scene || "tour"}.js`]()).default;
+  SCENE = (await SCENES[`./narration-scenes/${take.scene || app.take}.js`]()).default;
   const cues = resolveScene(take.words);
   const captions = CAPTIONS ? buildCaptions(take.words) : [];
   // The video runs on for the end credits (scene `credits`, default 3 s) after
@@ -924,7 +926,6 @@ const creditsHTML = (track) => `<div id="narr-credits" aria-hidden="true"><div c
     <dt>Inspired by the paper</dt><dd>“All objects and some questions”<span>Charles H. Lineweaver and Vihan M. Patel · Am. J. Phys. 2023</span></dd>
     <dt>Music</dt><dd>${track ? `“${track}” by ` : ""}Kevin MacLeod<span>incompetech.com · CC BY 4.0</span></dd>
   </dl>
-  <p class="nc-ai"><b>AI usage:</b> Claude was used to generate code and editing for the video and app. Object images are either public domain sources, rendered from code and in some cases, ChatGPT. For full image credit see website.</p>
   <div class="nc-url"><span>More at</span>triangleofeverything.com</div>
 </div></div>`;
 
@@ -963,8 +964,6 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 #narr-credits dt { font: 700 3.6cqi/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #ffd54f; margin-top: 4.6cqi; }
 #narr-credits dd { margin: 1.4cqi 0 0; font-size: 5cqi; font-weight: 600; line-height: 1.2; }
 #narr-credits dd span { display: block; margin-top: 0.8cqi; font-size: 3.4cqi; font-weight: 400; color: #a3a8d6; }
-.nc-ai { margin: 7cqi auto 0; max-width: 92%; font-size: 3.1cqi; line-height: 1.45; color: #a3a8d6; }
-.nc-ai b { color: #eef0ff; font-weight: 600; }
 .nc-url { margin-top: 6cqi; font: 700 7cqi/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.02em; color: #ffd54f; }
 .nc-url span { display: block; margin-bottom: 1.2cqi; font: 500 3.2cqi/1 Inter, system-ui, sans-serif; letter-spacing: 0.04em; color: #a3a8d6; }
 #narr-caption span.now { color: #ffd54f; }

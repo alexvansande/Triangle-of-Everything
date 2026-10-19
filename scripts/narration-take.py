@@ -2,7 +2,7 @@
 """Prepare a narration take for the player (src/narration.js).
 
     pip install faster-whisper
-    python3 scripts/narration-take.py path/to/recording.m4a take-2
+    python3 scripts/narration-take.py path/to/recording.m4a short-05-example
 
 Copies the audio to public/narration/<take>/audio.m4a (re-encoded to AAC if
 needed) and writes words.json: every spoken word with its start/end time,

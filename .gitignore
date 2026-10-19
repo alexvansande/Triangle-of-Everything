@@ -30,8 +30,7 @@ posters/
 *.mp3
 *.flac
 *.mp4
-# The one exception: one working take, so ?narrate=take-2 plays out of the box
-!public/narration/take-2/audio.m4a
+# The exceptions: the shorts' audio and mix, so they play out of the box
 !public/narration/short-01-hook/audio.m4a
 !public/narration/short-02-density/audio.m4a
 !public/narration/short-03-planets/audio.m4a

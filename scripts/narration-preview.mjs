@@ -23,7 +23,8 @@ const withAudio = (t) => {
   catch { return false; }
 };
 let takes = process.argv.slice(2);
-if (!takes.length) takes = fs.readdirSync(NARR).filter(withAudio).sort();
+// default: the shorts
+if (!takes.length) takes = fs.readdirSync(NARR).filter(t => t.startsWith("short-") && withAudio(t)).sort();
 const missing = takes.filter(t => !withAudio(t));
 if (missing.length) { console.error(`no audio for: ${missing.join(", ")}`); process.exit(1); }
 if (!takes.length) { console.error("no take has its audio.m4a in public/narration/"); process.exit(1); }
@@ -71,7 +72,7 @@ let html = fs.readFileSync(path.join(OUT, "index.html"), "utf8")
 const info = [];
 for (const t of takes) {
   const take = JSON.parse(fs.readFileSync(path.join(OUT, "narration", t, "words.json"), "utf8"));
-  const scene = (await import(path.resolve(`src/narration-scenes/${take.scene || "tour"}.js`))).default;
+  const scene = (await import(path.resolve(`src/narration-scenes/${take.scene || t}.js`))).default;
   const first = take.words.map(w => w[0]).join(" ").match(/^.*?[.?!](\s|$)/)?.[0].trim() ?? "";
   const music = scene.backing && (typeof scene.backing === "string" ? scene.backing : scene.backing.track);
   info.push({ id: t, title: scene.title || t, blurb: scene.blurb || first, duration: take.duration, music,
