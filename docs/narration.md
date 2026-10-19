@@ -132,8 +132,8 @@ re-wording to record), and what's only imprecise, written in that recording's
 
 ```bash
 pip install faster-whisper
-python3 scripts/narration-take.py ~/Desktop/narration-2.m4a take-2
-open "http://localhost:5173/?narrate=take-2"
+python3 scripts/narration-take.py ~/Desktop/recording.m4a short-05-example
+open "http://localhost:5173/?narrate=short-05-example"
 ```
 
 The scene script doesn't change. Each cue fires when its **phrase is spoken**,
@@ -173,7 +173,7 @@ in real time. To watch it away from a dev server (for example on a phone,
 through a private claude.ai page), build the trimmed preview:
 
 ```bash
-node scripts/narration-preview.mjs short-01-hook take-2   # takes with audio; default: all of them
+node scripts/narration-preview.mjs short-01-hook short-04-stars   # takes with audio; default: the shorts
 ```
 
 `dist-preview/` is the app with relative paths, so it runs from any folder. It

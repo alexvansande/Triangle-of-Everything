@@ -23,7 +23,8 @@ const withAudio = (t) => {
   catch { return false; }
 };
 let takes = process.argv.slice(2);
-if (!takes.length) takes = fs.readdirSync(NARR).filter(withAudio).sort();
+// default: the shorts
+if (!takes.length) takes = fs.readdirSync(NARR).filter(t => t.startsWith("short-") && withAudio(t)).sort();
 const missing = takes.filter(t => !withAudio(t));
 if (missing.length) { console.error(`no audio for: ${missing.join(", ")}`); process.exit(1); }
 if (!takes.length) { console.error("no take has its audio.m4a in public/narration/"); process.exit(1); }
