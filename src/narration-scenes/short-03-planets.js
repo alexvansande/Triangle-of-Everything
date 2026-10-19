@@ -1,7 +1,9 @@
 // =============================================================
-// Scene: short-03-planets — up the water line: the blue whale and the
-// sequoia, man-made things and asteroids, round worlds, atmospheres, gas
-// giants, and Earth in between. Recorded 2026-10-07 (video/short-03-planets/).
+// Scene: short-03-planets — up the line from humans to brown dwarfs: rocks
+// and animals either side of it, the whale and the sequoia, man-made things
+// and mountains, round worlds, atmospheres, gas giants and Earth between them,
+// Saturn floating, the turn to degenerate matter, and the brown dwarfs.
+// Recorded 2026-10-19 (rec12; video/short-03-planets/).
 // =============================================================
 // Field reference: see the top of ./tour.js.
 
@@ -9,47 +11,77 @@ const FULL = { r: -2.2, m: -4.8, span: 74 };
 
 export default {
   title: "Up the line",
-  blurb: "From whales to round worlds, atmospheres and gas giants.",
+  blurb: "From humans to round worlds, gas giants and brown dwarfs.",
   start: FULL,
-  captionFixes: { short: "chart", celadus: "Enceladus", celagos: "Enceladus" },
+  captionFixes: { short: "sort", scene: "chart" },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Soaring",
   sound: [
-    { at: "start having an atmosphere", fx: "wind", offset: 0.4 },
-    { at: "hydrogen just cannot escape", fx: "hiss" },
+    { at: "start acquiring an atmosphere", fx: "wind", offset: 0.4 },
+    { at: "hydrogen does not escape", fx: "hiss" },
+    { at: "would float in water", fx: "bubble", offset: 0.3 },
   ],
 
   cues: [
-    // intro (rec8): the diagonal, then up it from the animals
-    { at: "this diagonal line", cam: { r: 2, m: 6, span: 44 }, dur: 3,
-      hl: [{ line: "water", label: "the diagonal", delay: 0.8 }] },
-    { at: "start with animals", cam: { r: 2.6, m: 7.2, span: 9 }, hl: [{ line: "water" }] },
+    // intro: every object on the diagonal, then the human scale and either side of it
+    { at: "diagonal line of the", cam: { r: 2, m: 6, span: 44 }, dur: 3,
+      hl: [{ line: "water", label: "the diagonal", delay: 0.6 }] },
+    { at: "the human scale", cam: { r: 2.4, m: 6.6, span: 12 }, hl: [{ line: "water" }, { obj: "Human" }] },
+    { at: "meteorites and rocks", hl: [{ line: "water" }, { side: "left", label: "rocks · sink" }] },
+    { at: "actually animals", hl: [{ line: "water" }, { side: "left", label: "rocks · sink" }, { side: "right", label: "animals · float" }] },
     { at: "the blue whale", cam: { obj: "Blue Whale", span: 4 }, hl: [{ obj: "Blue Whale" }] },
-    { at: "sequoia tree", cam: { obj: "Sequoia", span: 4 }, hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia" }] },
-    { at: ["man made objects", "man made structures"], cam: { r: 4.6, m: 13.5, span: 8 },
-      hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Supertanker", delay: 0.4 }] },
-    { at: "small asteroids", hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Supertanker" }, { obj: "Bennu", delay: 0.2 }] },
-    { at: "asteroids and moons", cam: { r: 6, m: 18.5, span: 9 }, clear: true },
-    { at: "rounder and rounder", cam: { r: 7.3, m: 22.6, span: 6 } },
-    { at: "look at hyperion", hl: [{ obj: "Hyperion", place: "left" }] },
-    { at: "mimas", hl: [{ obj: "Hyperion", place: "left" }, { obj: "Mimas" }] },
-    { at: ["enceladus", "celadus", "celagos"], hl: [{ obj: "Hyperion", place: "left" }, { obj: "Mimas" }, { obj: "Enceladus", place: "left" }] },
-    { at: "vesta", hl: [{ obj: "Hyperion", place: "left" }, { obj: "Mimas" }, { obj: "Vesta" }] },
-    { at: "ceres", cam: { r: 7.6, m: 23.8, span: 6 }, hl: [{ obj: "Mimas" }, { obj: "Vesta" }, { obj: "Ceres", place: "left" }] },
-    { at: "reach pluto", cam: { obj: "Pluto", span: 4 }, hl: [{ obj: "Pluto", label: "Pluto · round" }] },
-    { at: "gravity overcomes", cam: { r: 7.6, m: 23.8, span: 6 }, hl: [{ obj: "Mimas" }, { obj: "Ceres" }, { obj: "Pluto" }] },
-    { at: "become round", hl: [{ obj: "Mimas", label: "round" }, { obj: "Ceres" }, { obj: "Pluto" }] },
+    { at: "the sequoia", hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia" }] },
 
-    { at: "having an atmosphere", cam: { r: 8.6, m: 27.1, span: 3.4 }, clear: true },
+    // made by us, and the mountains after them
+    { at: "engineering categories", cam: { r: 4, m: 11, span: 6 }, clear: true },
+    { at: "like planes", hl: [{ obj: "Boeing 747" }] },
+    { at: "supertankers", hl: [{ obj: "Boeing 747", place: "left" }, { obj: "Supertanker" }] },
+    { at: "the great pyramid", hl: [{ obj: "Boeing 747", place: "left" }, { obj: "Supertanker" }, { obj: "Great Pyramid", place: "left" }] },
+    { at: "like mountains", cam: { r: 5, m: 15.6, span: 7 }, hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Mt. Everest", delay: 0.3 }] },
+    { at: "is a mountain", hl: [{ obj: "Great Pyramid", label: "a mountain", place: "left" }, { obj: "Mt. Everest" }] },
+    { at: "big rocks", cam: { r: 5.9, m: 18.4, span: 5 }, hl: [{ obj: "Eros", label: "rocks" }] },
+    { at: "and comets", hl: [{ obj: "Eros", place: "left" }, { obj: "Halley's Comet", label: "comets", place: "left" }] },
+    { at: "small moons", hl: [{ obj: "Halley's Comet", place: "left" }, { obj: "Deimos", label: false }, { obj: "Phobos", label: "small moons" }] },
+
+    // round worlds
+    { at: "more and more spherical", cam: { r: 7.4, m: 22.9, span: 6 },
+      hl: [{ obj: "Hyperion", place: "left", label: "Hyperion · lumpy" }, { obj: "Mimas", delay: 0.5 }, { obj: "Ceres", delay: 1 }, { obj: "Pluto", delay: 1.5 }] },
+    { at: "gravity overcomes", hl: [{ obj: "Hyperion", place: "left" }, { obj: "Mimas" }, { obj: "Ceres" }, { obj: "Pluto", label: "round" }] },
+    { at: "might well be liquid", hl: [{ obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
+
+    // atmospheres
+    { at: "acquiring an atmosphere", cam: { r: 8.6, m: 27.1, span: 3.4 }, clear: true },
     { at: "mercury and the moon", hl: [{ obj: "Mercury", label: "Mercury · none", place: "left" }, { obj: "Moon", label: "Moon · none", place: "left" }] },
-    { at: "mars has one", hl: [{ obj: "Mercury", label: "Mercury", place: "left" }, { obj: "Mars", label: "Mars · thin" }] },
-    { at: "venus and earth", hl: [{ obj: "Mars" }, { obj: "Venus", place: "left" }, { obj: "Earth", delay: 0.5 }] },
-    { at: "gas giants", cam: { r: 9.45, m: 29.3, span: 4 },
-      hl: [{ obj: "Kepler-22b", label: "super-Earth", place: "left" }, { obj: "Neptune", delay: 0.3 }, { obj: "Saturn", delay: 0.6 }, { obj: "Jupiter", delay: 0.9 }] },
-    { at: "hydrogen just cannot escape", hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter" }] },
-    { at: ["earth is really in", "earth is really in this thin line"], cam: { r: 9.1, m: 28.6, span: 4.6 },
-      hl: [{ obj: "Earth", label: "Earth", place: "left" }, { obj: "Mars", delay: 0.6 }, { obj: "Neptune", delay: 1.2 }] },
-    { at: "something else start", cam: { r: 10.2, m: 31.2, span: 6 }, drift: 0.04, clear: true },
+    { at: "a thin one", hl: [{ obj: "Mercury", label: "Mercury", place: "left" }, { obj: "Mars", label: "Mars · thin" }] },
+    { at: "venus and earth", hl: [{ obj: "Mars" }, { obj: "Venus", place: "left" }, { obj: "Earth", delay: 0.4 }] },
+
+    // gas giants, and Earth between
+    { at: "after this point", cam: { r: 9.45, m: 29.3, span: 4 },
+      hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn", delay: 0.3 }, { obj: "Jupiter", delay: 0.6 }] },
+    { at: "a gas giant", hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn", label: "gas giants" }, { obj: "Jupiter", label: false }] },
+    { at: "earth really sits", cam: { r: 9.1, m: 28.6, span: 4.6 },
+      hl: [{ obj: "Earth", place: "left" }, { obj: "Mars", delay: 0.5 }, { obj: "Neptune", delay: 1 }] },
+
+    // the turn: Saturn floats, then off the diagonal toward degenerate matter
+    { at: "further we go in the mass line", cam: { r: 9.8, m: 30.2, span: 4 }, clear: true },
+    { at: "right side of the graph", hl: [{ line: "water" }, { side: "right", label: "floats" }] },
+    { at: "saturn actually", hl: [{ line: "water" }, { obj: "Saturn", label: "Saturn · would float", place: "left" }] },
+    { at: "drastically to the left", hl: [{ line: "water" }, { obj: "Saturn", place: "left" }, { obj: "Jupiter", delay: 0.3 }, { obj: "Beta Pictoris b", label: "super-Jupiter", delay: 0.8 }] },
+    { at: "off the main diagonal", cam: { r: 9.95, m: 30.9, span: 4.2 }, hl: [{ line: "water", label: "the diagonal" }, { obj: "Jupiter" }, { obj: "Beta Pictoris b", label: false }] },
+    { at: "pressure inside the core", hl: [{ obj: "Jupiter", place: "left" }, { obj: "Beta Pictoris b", label: false }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
+    { at: "becoming degenerate matter", hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
+      { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "degenerate matter" }] },
+    { at: "density of water", hl: [{ line: "water", label: "density of water" }, { obj: "L Brown Dwarf", label: false }] },
+    { at: "brown dwarf phase", cam: { r: 10, m: 31.5, span: 3.6 },
+      hl: [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "brown dwarfs" }] },
+
+    // the cliffhanger: two directions
+    { at: "drastic turn to the right", cam: { r: 9.9, m: 32.6, span: 5 },
+      hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" }] },
+    { at: "turn to the left", hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
+      { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#90caf9" }] },
+    { at: "what is this", hl: [{ arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f", draw: 0.01 },
+      { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#90caf9", draw: 0.01 }] },
   ],
 };

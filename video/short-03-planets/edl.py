@@ -1,28 +1,33 @@
-# short-03-planets: up the line, from whales to round worlds and gas giants.
-# Cut from the 2026-10-07 recording rec3 = Link_office_mall_3.m4a (16:36, noise
-# reduction off; raw file in iCloud). Build: see video/short-01-hook/README.md.
-# rec8 = "intro to video 3.m4a" (iCloud, 0:56; recorded at home): the intro, through
-#        the man-made objects; replaces rec3's opening (blue whale → "small asteroids").
-#        The EQ is fitted to rec3 (third-octave averages); the extra denoise brings its
-#        background from about −61 to −64 dB, still ~6 dB above rec3's.
-# (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds.
-SOURCE_FX = {"rec8": "firequalizer=gain_entry='entry(100,-1.30);entry(125,-1.44);entry(160,-2.68);entry(200,-3.01);entry(250,-3.46);entry(315,-2.28);entry(400,-1.22);entry(500,1.70);entry(630,2.00);entry(800,1.05);entry(1000,2.25);entry(1250,3.17);entry(1600,-0.55);entry(2000,1.30);entry(2500,1.13);entry(3150,-4.88);entry(4000,10.00);entry(5000,0.50);entry(6300,4.90);entry(8000,2.08);entry(10000,0.94);entry(12500,1.82);entry(16000,4.91)',volume=14dB,afftdn=nr=18:nf=-72:tn=1,volume=-14dB"}
+# short-03-planets: up the line, from humans to brown dwarfs.
+# Cut from rec12 = "From humans to brown dwarfs .m4a" (Google Drive "Recordings",
+# 2026-10-19, 6:20, 48 kHz ALAC; recorded at home), one take that replaces the
+# earlier mix of rec8 (intro) and rec3 (office). Build: see video/short-01-hook/README.md.
+# (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds;
+# the builder snaps each cut to the nearest real silence.
 
 EDL = [
- ("rec8", "intro", 4.32, 11.00),   # When you plot every object by their mass and their size, they all will align over this diagonal line.
- ("rec8", "intro", 11.80, 19.80),  # And that line tells an interesting story ... the category of objects you see.
- ("rec8", "life", 20.86, 28.76),   # We start with animals right here ... the blue whale, and the largest plant ever, the sequoia tree
- ("rec8", "made", 31.90, 39.72, {"s": 32.45}),  # and then as we move higher and higher we are now in the area of man-made objects and small structures
- ("rec3", "round", 443.40, 453.68),   # And as we go up and up, we mostly have small asteroids and moons. And we're going to see something very interesting.
- ("rec3", "round", 456.10, 461.02),   # The more up we go, the more those asteroids will become rounder and rounder.
- ("rec3", "round", 461.72, 473.90),   # Look at Hyperion and Mimas and Enceladus, Vesta, Ceres, and then when we reach Pluto, we are in the dwarf planets and they are mostly all round.
- ("rec3", "liquid", 489.88, 498.46),  # so this point is where gravity overcomes the molecular bond that holds shapes together.
- ("rec3", "liquid", 499.70, 506.76),  # From this point on, everything might as well be liquid, they behave like liquid, so they become round.
- ("rec3", "atmo", 527.34, 536.06),    # As the mass of the object increases, its gravity also allows it to start having an atmosphere.
- ("rec3", "atmo", 537.48, 542.78),    # Mercury and the moon don't have any atmosphere. Mars has one, but it's very thin.
- ("rec3", "atmo", 544.16, 549.38),    # Venus and Earth, well, they have a nice atmosphere. I would say Earth is better.
- ("rec3", "gas", 553.76, 571.12, {"e": 572.30}),  # but if we go any further, we start seeing super earths and gas giants ... it's just gas.
- ("rec3", "gas", 591.60, 597.06),     # Their gravity is so strong that hydrogen just cannot escape it.
- ("rec3", "earth", 648.44, 658.88),   # So Earth is really in this thin line ... becomes a giant gas planet.
- ("rec3", "end", 661.68, 665.40, {"gap": 0.9}),  # And when you go up and up, something else start happening.
+ ("rec12", "intro", 3.32, 18.52, {"s": 7.52}),  # (a false start "so something very interesting happens when" left out) So, something really interesting happens when we sort all objects ... on the diagonal line of the chart,
+ ("rec12", "intro", 28.38, 39.80),    # And if you start at the human scale ... left are meteorites and rocks ... right are actually animals because most of them float in water.
+ ("rec12", "life", 40.22, 43.60),     # And we have the largest animal, the blue whale, the largest tree, the sequoia.
+ ("rec12", "made", 44.52, 51.20),     # And then we start on more engineering categories like planes and supertankers and the Great Pyramid.
+ ("rec12", "made", 51.66, 52.98),     # And after the pyramid,
+ ("rec12", "made", 54.66, 58.02, {"gap": 0.15}),  # we will transition to natural things like mountains.   ("we really," left out)
+ ("rec12", "made", 59.00, 62.10),     # Because really, the Great Pyramid is a mountain.
+ ("rec12", "rocks", 63.12, 69.72),    # And then it will be big rocks and meteorites and comets and small moons.
+ ("rec12", "round", 84.44, 91.18),    # and as we go higher on the diagonal line, you notice that the objects are becoming more and more spherical.
+ ("rec12", "round", 92.82, 101.92),   # That happens because at this point, the force of gravity overcomes the molecular bond that keeps objects together under shape.
+ ("rec12", "round", 103.70, 108.52),  # And at this point, everything might well be liquid, because they behave like liquids.
+ ("rec12", "atmo", 151.04, 161.60),   # as we increase in mass, objects now start acquiring an atmosphere because the gravity is enough to hold light gases together.
+ ("rec12", "atmo", 163.90, 167.36),   # So Mercury and the Moon don't have an atmosphere, but Mars has a thin one.
+ ("rec12", "atmo", 169.52, 171.60, {"gap": 0.2}),  # Venus and Earth has one,   ("Venus and Earth have" left out)
+ ("rec12", "gas", 198.08, 216.76, {"gap": 0.2}),   # but after this point, objects are so massive that hydrogen does not escape its orbit ... a gas giant ... doesn't have an actual surface anymore.
+ ("rec12", "earth", 225.34, 235.98),  # So, Earth really sits in this thin line where it's massive enough to have some atmosphere, but not so massive that it's just a gas giant.
+ ("rec12", "turn", 249.78, 251.86),   # The further we go in the mass line, you notice
+ ("rec12", "turn", 253.84, 263.26, {"gap": 0.12}), # that more objects will move towards the right side of the graph. Saturn actually would float in water if you had a pool big enough,
+ ("rec12", "turn", 264.28, 280.36),   # but then they start going drastically to the left of it, the Jupiter and the super-Jupiters, and now we are off the main diagonal line.
+ ("rec12", "degen", 303.10, 325.08),  # This is happening because the pressure inside the core ... degenerate matter ... now we are going into the degenerate matter line
+ ("rec12", "end", 357.38, 360.20),    # So we are now into the brown dwarf phase.
+ ("rec12", "end", 361.48, 372.34),    # But something happens after brown dwarf sizes, that some objects will take a drastic turn to the right and some a drastic turn to the left.
+ ("rec12", "end", 373.52, 374.04),    # What is this?
+ ("rec12", "end", 375.10, 376.34, {"gap": 0.45}),  # We'll explore on the next video.
 ]
