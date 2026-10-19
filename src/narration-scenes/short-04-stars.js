@@ -1,64 +1,87 @@
 // =============================================================
-// Scene: short-04-stars — planets and stars differ by mass: the left turn,
-// brown dwarfs, the main sequence, the life of a star, its remnant, and
-// the first side of the triangle. Recorded 2026-10-07 (video/short-04-stars/).
+// Scene: short-04-stars — planets and stars differ by mass: Jupiter's own
+// heat, brown dwarfs and deuterium, the fork after them, the main sequence,
+// the life of a star, the nebulae that make new stars, and what the core
+// becomes. Recorded 2026-10-19 (rec16; video/short-04-stars/).
 // =============================================================
 // Field reference: see the top of ./tour.js.
 
-const FULL = { r: -2.2, m: -4.8, span: 74 };
+const BD = [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }];
+const FORK = [
+  { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
+  // the left branch is not where brown dwarfs go: white dwarfs are the cores of dead stars (end of the video)
+  { obj: "White Dwarf", label: "dead stars' cores", place: "right", delay: 0.8 },
+];
 
 export default {
   title: "Planets into stars",
-  blurb: "Brown dwarfs, the main sequence, the life of a star, and the first side.",
+  blurb: "Brown dwarfs, the main sequence, the life of a star, and what is left of it.",
   start: { r: 10.4, m: 31.6, span: 6 },
-  captionFixes: { short: "chart", spread: "red", nebulae: "nebula" },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Immersed",
   sound: [
-    { at: "once they start generating fusion", fx: "ignite", offset: 0.6 },
-    { at: "the life cycle of a star", music: "heartbeat", to: "go boom", stop: "cut" },
-    { at: "go boom", fx: "boom", offset: 0.25 },
-    { at: "becomes a black hole", fx: "drop", atEnd: true, offset: -0.4 },
+    { at: "fuse all of the hydrogen", fx: "ignite", offset: 0.4 },
+    { at: "fuel for fusion is depleted", music: "heartbeat", to: "split in two", stop: "cut" },
+    { at: "split in two", fx: "boom", offset: 0.1 },
+    { at: "become a black hole", fx: "drop", atEnd: true, offset: -0.4 },
   ],
 
   cues: [
-    { at: "completely different things", cam: { r: 10.4, m: 31.6, span: 5 },
+    { at: "completely different categories", cam: { r: 10.4, m: 31.6, span: 5 },
       hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "Sun", label: "star", delay: 0.6 }] },
-    { at: "evolve into each other", cam: { r: 11, m: 33, span: 14 }, drift: 0.03,
-      hl: [{ obj: "Jupiter", place: "left" }, { obj: "Sun" }, { obj: "Red Giant", delay: 0.4 }, { obj: "White Dwarf", delay: 0.8, place: "left" }] },
-    { at: "mostly about mass", cam: { r: 10.4, m: 31.6, span: 5 },
-      hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "Sun", label: "star" }] },
-    { at: "sharp left turn", cam: { r: 10, m: 30.6, span: 4.4 },
-      hl: [{ line: "water" }, { obj: "Saturn", place: "left" }, { obj: "Jupiter", delay: 0.4 }, { obj: "Y Brown Dwarf", label: "brown dwarfs", delay: 0.8 }] },
-    { at: "degenerate matter", hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
-      { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "degenerate cores" }] },
-    { at: "called brown dwarfs", cam: { r: 10, m: 31.4, span: 3.6 },
-      hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false },
-           { obj: "L Brown Dwarf", label: "brown dwarfs" }, { obj: "Proxima Cen", label: "tiny star", delay: 0.8 }] },
-    { at: "generating fusion", cam: { r: 10.6, m: 32.8, span: 4 }, hl: [{ obj: "Proxima Cen" }, { obj: "Sun", delay: 0.6 }] },
-    { at: "other diagonal line", cam: { r: 11, m: 33.5, span: 7 },
-      hl: [{ obj: "Sun" }, { line: "mainsequence", label: "main sequence" }] },
-    { at: "almost every star", hl: [{ line: "mainsequence", label: "main sequence" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
 
-    { at: "life cycle of a star", cam: { r: 12.4, m: 33.7, span: 9 }, hl: [{ obj: "Sun" }] },
-    // expand and collapse: the Sun swings toward the red giants and back, further each time
-    { at: "sustain that expansion", hold: 25,
-      hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4 }] },
-    { at: "red giant", cam: { r: 12.6, m: 33.8, span: 7 },
-      hl: [{ obj: "Sun" }, { arrow: true, from: { obj: "Sun" }, to: { obj: "Red Giant" } }, { obj: "Red Giant", delay: 1 }] },
-    { at: "red supergiant", hl: [{ obj: "Red Giant" }, { obj: "Red Supergiant", delay: 0.2 }] },
-    { at: "become a supernova", cam: { r: 15.8, m: 34, span: 12 }, dur: 1.4,
-      hl: [{ arrow: true, from: { obj: "Red Supergiant" }, to: { obj: "Supernova Remnant" }, color: "#ff8a65" }, { obj: "Supernova Remnant", delay: 0.8 }] },
-    { at: "split in two", cam: { r: 12.5, m: 33.8, span: 17 }, hl: [{ obj: "Supernova Remnant", label: "outer layers · nebula", place: "left" }] },
-    { at: "very dense object", hl: [{ obj: "Supernova Remnant", label: "outer layers", place: "left" }, { obj: "Neutron Star", label: "dense core", place: "right" }] },
-    { at: "neutron star", cam: { r: 7.5, m: 33.8, span: 9 }, hl: [{ obj: "Neutron Star", place: "left" }] },
-    { at: "becomes a black hole", hl: [{ obj: "Neutron Star", place: "left" }, { obj: "Stellar BH", place: "left", label: "black hole" }] },
-    { at: "first side of our triangle", cam: FULL, dur: 3, hl: [{ line: "schwarzschild", label: "side 1 · black holes" }] },
-    { at: "for every object", cam: { r: 5, m: 28, span: 16 }, hl: [{ line: "schwarzschild" }, { obj: "Earth" }] },
-    { at: "compressed enough", hl: [{ line: "schwarzschild" }, { obj: "Earth" },
-      { arrow: true, from: { obj: "Earth" }, to: { r: -0.05, m: 27.78, mark: true }, label: "squeeze to 9 mm" }] },
-    { at: "schwarzschild radius", cam: { r: 4, m: 31, span: 24 }, hl: [{ line: "schwarzschild", label: "schwarzschild radius" }] },
-    { at: "one to one slope", hl: [{ line: "schwarzschild", label: "1 : 1 · 45°" }] },
+    // Jupiter and Saturn make their own heat
+    { at: "saturn and jupiter", cam: { r: 9.8, m: 30, span: 3 }, hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", delay: 0.3 }] },
+    { at: "more heat than they absorb", hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", label: "gives off more heat than it gets" }] },
+    { at: "compressing in their core", hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", label: "slowly contracting" }] },
+    { at: "as that mass increases", cam: { r: 9.85, m: 30.9, span: 3.6 },
+      hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }, { obj: "T Brown Dwarf", label: false, delay: 0.8 }] },
+
+    // brown dwarfs: deuterium only
+    { at: "become brown dwarfs", hl: [{ obj: "Jupiter", place: "left" }, ...BD, { obj: "L Brown Dwarf", label: "brown dwarfs" }] },
+    { at: "in-between objects", cam: { r: 9.9, m: 31.4, span: 4 },
+      hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "L Brown Dwarf", label: "brown dwarf" }, { obj: "Proxima Cen", label: "star", delay: 0.5 }] },
+    { at: "start fusing hydrogen", hl: [{ obj: "Jupiter", place: "left" }, ...BD, { obj: "L Brown Dwarf", label: "fuses a little" }] },
+    { at: "form of deuterium", hl: [...BD, { obj: "L Brown Dwarf", label: "deuterium only" }] },
+    { at: "minuscule portion", hl: [...BD, { obj: "L Brown Dwarf", label: "1 hydrogen in ~40,000" }] },
+    { at: "sustain themselves as stars", hl: [...BD, { obj: "L Brown Dwarf", label: "never a star" }, { obj: "Proxima Cen", label: false }] },
+
+    // the fork: stars to the right, white dwarfs to the left
+    { at: "increase that mass even further", cam: { r: 10, m: 32.5, span: 5 }, hl: [{ obj: "L Brown Dwarf", label: false }] },
+    { at: "bifurcation", hl: [{ obj: "L Brown Dwarf", label: false }, ...FORK] },
+
+    // fusion turns on: the main sequence
+    { at: "core pressure is strong enough", cam: { r: 10.4, m: 32.6, span: 4 }, clear: true, hl: [{ obj: "Proxima Cen", label: "fusion starts" }] },
+    { at: "bigger in diameter", hl: [{ obj: "Proxima Cen", place: "left" }, { arrow: true, from: { obj: "Proxima Cen" }, to: { obj: "Sun" } }, { obj: "Sun", delay: 0.8 }] },
+    { at: "other diagonal line", cam: { r: 11, m: 33.5, span: 7 }, hl: [{ obj: "Sun" }, { line: "mainsequence", label: "main sequence" }] },
+    { at: "most stars will live", hl: [{ line: "mainsequence", label: "main sequence" }, { obj: "Sun" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
+    { at: "hydrogen is depleted", hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
+
+    // the end of a star: collapse, expand, split
+    { at: "start collapsing", cam: { r: 12.2, m: 33.6, span: 7 }, hold: 6,
+      hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4 }, { obj: "Red Giant", label: "red giant", delay: 1 }] },
+    { at: "split in two", cam: { r: 15.8, m: 33.7, span: 13 },
+      hl: [{ obj: "Red Giant", place: "left" }, { obj: "Planetary Nebula", delay: 0.4 }, { obj: "Supernova Remnant", delay: 0.8 }] },
+    { at: "become a supernova", hl: [{ obj: "Red Giant", place: "left" }, { obj: "Supernova Remnant", label: "supernova remnant" }, { obj: "Planetary Nebula", label: false }] },
+    { at: "planetary nebula", hl: [{ obj: "Red Giant", place: "left" }, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
+    { at: "inner core", cam: { r: 8.6, m: 33.6, span: 8 },
+      hl: [{ obj: "Red Giant", label: false }, { obj: "White Dwarf", label: "dense core", place: "right", delay: 0.4 }, { obj: "Neutron Star", label: false, delay: 0.7 }] },
+
+    // the gas goes round again: stellar nurseries
+    { at: "those nebulas expand", cam: { r: 17.2, m: 34, span: 9 },
+      hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
+    { at: "stellar nurseries", hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Nebulae", label: "stellar nursery" }] },
+    { at: "protostars", cam: { r: 14, m: 34, span: 11 },
+      hl: [{ obj: "Nebulae", label: false }, { arrow: true, from: { obj: "Nebulae" }, to: { obj: "Protostar" } }, { obj: "Protostar", delay: 0.6 }] },
+    { at: "stars again", hl: [{ obj: "Nebulae", label: false }, { arrow: true, from: { obj: "Nebulae" }, to: { obj: "Protostar" } },
+      { arrow: true, from: { obj: "Protostar" }, to: { obj: "Sun" } }, { obj: "Sun", delay: 0.6 }] },
+
+    // what the core becomes
+    { at: "what about the core", cam: { r: 8.6, m: 33.6, span: 8 }, clear: true, hl: [{ obj: "Sun" }] },
+    { at: "white dwarf", hl: [{ obj: "Sun" }, { arrow: true, from: { obj: "Sun" }, to: { obj: "White Dwarf" }, color: "#90caf9" }, { obj: "White Dwarf", place: "left", delay: 0.6 }] },
+    { at: "above a certain limit", hl: [{ obj: "White Dwarf", place: "left" }, { obj: "Neutron Star", delay: 0.4 }] },
+    { at: "pure neutrons", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "pure neutrons" }] },
+    { at: "become a black hole", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star" }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
   ],
 };

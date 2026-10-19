@@ -1,31 +1,40 @@
-# short-04-stars: planets to stars, the main sequence, the life of a star and
-# the first side of the triangle.
-# Cut from the 2026-10-07 recording rec3 = Link_office_mall_3.m4a (16:36, noise
-# reduction off; raw file in iCloud). Build: see video/short-01-hook/README.md.
-# (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds.
-# rec6 = "O2 Corporate & Offices 2.m4a" (Google Drive, 48 kHz lossless; mic about
-# 10 cm away, off to the side). It is 4–8 dB darker above 1.2 kHz than rec3;
-# this EQ matches it to rec3 within about ±2 dB.
-SOURCE_FX = {"rec6": "equalizer=f=1400:t=q:w=1.2:g=4,highshelf=f=4500:t=q:w=0.6:g=7"}
+# short-04-stars: planets into stars. Jupiter's own heat, brown dwarfs and deuterium,
+# the fork after them, the main sequence, the life of a star, the nebulae that make
+# new stars, and what the core becomes (white dwarf, neutron star, black hole).
+# Cut from rec16 = "Star life cycles" (Google Drive "Recordings", 2026-10-19, 10:24,
+# 48 kHz ALAC; noise floor about −80 dB, no clipping), one take that replaces the
+# 2026-10-07 cut from rec3 and rec6. Build: see video/short-01-hook/README.md.
+# The black-hole / Schwarzschild part of rec16 (520 s on) is left out: black holes get
+# their own video, and the ending will be re-recorded.
+# (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds;
+# the builder snaps each cut to the nearest real silence.
+
+SOURCE_FX = {}
 
 EDL = [
- ("rec6", "hook", 225.46, 234.04),    # We think of planets and stars as being completely different things in two different categories that don't mix, but that's not really true.
- ("rec6", "hook", 239.06, 252.36),    # If we plot them all by size and mass, then not only we can understand how they connect ... how they evolve into each other. Their whole life cycle is here.
- ("rec3", "hook", 730.15, 732.44),    # Their difference is mostly about mass.
- ("rec3", "turn", 677.22, 684.56),    # And then notice that suddenly most of the dots start taking a sharp left turn.
- ("rec3", "turn", 685.93, 701.82, {"e": 702.45}),  # That's because they become so massive ... they scrape the electron layers
- ("rec3", "bd", 760.08, 780.44),      # So we start having those weird objects called brown dwarfs ... not as much as to generate fusion.
- ("rec3", "ms", 781.30, 805.14),      # And then once they start generating fusion ... directly proportional to their mass.
- ("rec3", "ms", 808.22, 810.88),      # this line is called the main sequence.
- ("rec3", "ms", 812.67, 815.60),      # Almost every star is on the main sequence.
- ("rec3", "life", 820.62, 828.90),    # And this becomes even interesting, because this chart will tell you the life cycle of a star.
- ("rec3", "life", 829.32, 850.34),    # Because what happens ... generate new energy.
- ("rec3", "life", 878.66, 889.68),    # so they will expand and collapse a few times becoming a red giant or a red supergiant until they will go boom and become a supernova
- ("rec3", "split", 915.12, 927.40),   # and then the object will split in two. The outer layers will expand in a nebula while the inner layers will become a very dense object.
- ("rec3", "split", 928.10, 931.64),   # And what that object will become, it also depends on mass.
- ("rec3", "split", 942.14, 943.60),   # it will become a neutron star.
- ("rec3", "bh", 952.56, 956.14),      # But if it's any more massive than that, it becomes a black hole.
- ("rec3", "bh", 956.54, 962.40),      # And that's where we meet the first side of our triangle of everything.
- ("rec3", "side", 969.32, 980.80),    # for every object, there's a relationship between mass and size ... you become a black hole.
- ("rec3", "side", 981.90, 992.52),    # the size of a black hole is defined by its Schwarzschild radius ... a one-to-one slope.
+ ("rec16", "hook", 8.48, 13.40),      # We tend to think of stars and planets as completely different categories, but that's not really true.
+ ("rec16", "heat", 15.04, 15.22, {"s": 14.85, "e": 15.82}),  # In fact,
+ ("rec16", "heat", 21.22, 28.50, {"s": 22.20, "e": 28.82, "gap": 0.2}),  # Saturn and Jupiter in our solar system, they generate more heat than they absorb from the Sun,
+ ("rec16", "heat", 33.62, 36.72, {"s": 32.56, "gap": 0.2}),  # mostly due to their mass compressing in their core.   (third try; "the gas...", "mostly due to..." and "mostly due, uh," left out)
+ ("rec16", "heat", 60.62, 63.56),     # And as that mass increases, so does the core pressure.
+ ("rec16", "bd", 64.22, 76.50),       # Until at some point, they become brown dwarfs. Brown dwarfs are those really in-between objects ... not really planets.
+ ("rec16", "bd", 81.08, 85.16),       # They are massive enough that they can start fusing hydrogen.
+ ("rec16", "bd", 86.38, 93.34),       # But not all hydrogen, only those in the form of deuterium, which is only a minuscule portion of it.
+ ("rec16", "bd", 141.58, 149.96),     # That sort of hydrogen is so rare that brown dwarfs don't have enough energy to sustain themselves as stars.
+ ("rec16", "fork", 170.06, 177.70),   # But once we increase that mass even further, then we have this bifurcation that we see on this graph.
+ ("rec16", "ms", 228.70, 240.92),     # What is happening is that once the core pressure is strong enough, then it can fuse all of the hydrogen, and then that starts releasing a massive amount of energy,
+ ("rec16", "ms", 248.44, 261.12),     # And there's an internal pressure that pushes the objects to be bigger in diameter, and they start following this other diagonal line, which we call the main sequence of stars,
+ ("rec16", "ms", 309.00, 316.28, {"gap": 0.15}),  # in which most stars will live most of their lives on until the hydrogen is depleted.
+ ("rec16", "life", 317.64, 319.72),   # And then what will happen is that
+ ("rec16", "life", 328.78, 338.88, {"gap": 0.12}),  # as their fuel for fusion is depleted, then they will start collapsing, and expanding, and collapsing, and expanding,
+ ("rec16", "split", 349.88, 352.40, {"gap": 0.2}),  # and the object will split in two.   ("until their outer layers will explode, often in a supernova," left out)
+ ("rec16", "split", 354.72, 360.92),  # The outer layers will become a supernova, or a planetary nebula,
+ ("rec16", "split", 364.12, 367.16, {"gap": 0.15}),  # and the inner core will become a very dense object.
+ ("rec16", "nursery", 407.80, 419.60),  # And as those supernovas, and those nebulas expand, they will join together with others, and they will create what we call stellar nurseries,
+ ("rec16", "nursery", 420.44, 420.44, {"s": 420.80, "e": 421.22}),  # where   ("that," left out)
+ ("rec16", "nursery", 422.20, 434.16, {"s": 422.00, "gap": 0.06}),  # those huge clouds of gas will then be attracted, and compress again into protostars, and then stars again, and the cycle begins.
+ ("rec16", "core", 436.38, 441.06),   # And what about the core? Well, something interesting happens with the core.
+ ("rec16", "core", 488.04, 493.34),   # So if it's not massive enough to become a supernova, it will become a white dwarf.
+ ("rec16", "core", 498.12, 511.30),   # But if it's above a certain limit, then it becomes a neutron star, a super dense object which is mostly made of pure neutrons.
+ ("rec16", "core", 512.00, 519.14),   # And if the original star was just heavy enough, then it will become a black hole.
 ]

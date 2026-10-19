@@ -68,8 +68,9 @@ Whisper often mishears "super-Jupiters" (dropping it, or writing "super
 -egyptars"); since rec15 the narration no longer says it (the chart label
 still does).
 
-Overlap: this take now ends where `short-04-stars` begins (the sharp left
-turn, degenerate matter, brown dwarfs), so short 4's opening repeats it.
+Overlap with `short-04-stars`: resolved by rec16, which replaces that video and
+no longer opens with the left turn and degenerate matter (it only recaps brown
+dwarfs, adding deuterium).
 
 ## Fact check (video 3 as cut: rec13 + rec12)
 
@@ -134,3 +135,85 @@ on the line", which is right. If re-recorded: "as they grow, they get lighter fo
 their size, and Saturn falls almost on the line…".
 
 Nothing from rec12 left open: items 1 and 2 are fixed by rec14 and rec15.
+
+## rec16: `short-04-stars`
+
+One take of the whole of video 4, replacing the 2026-10-07 cut (rec3 + rec6):
+planets and stars aren't separate categories → Jupiter and Saturn give off more
+heat than they get → brown dwarfs and deuterium → the fork in the chart → fusion
+and the main sequence → the end of a star (collapse and expand, split in two) →
+supernova remnants and planetary nebulae become stellar nurseries → the core
+becomes a white dwarf, a neutron star or a black hole. `video/short-04-stars/edl.py`,
+25 clips, 3:11 before the 1.1× tempo, 2:53 after.
+
+**The ending will be re-recorded**, and the black-hole part (520 s on: "a black hole
+is not an object in this chart, it's a line… the Schwarzschild radius… the first
+limit of the triangle") is left out, for a video of its own. The cut ends for now
+at "…then it will become a black hole."
+
+Left out: the first try of the opening, "starting with Jupiter and Saturn, in
+fact, the gas…", two tries at "mostly due to…" (one with an "uh"), "and as that
+core, and as that mass increases, and the core pressure…", the first and the
+longest deuterium takes, "so they never have enough energy", the restarts before
+the fork, the axes explanation (209–224 s; videos 1 and 2 cover it), "the object
+becomes," before the internal pressure, "pushes the outer layers of the atmosphere
+away" (see the fact check), the repeated main-sequence line, "until their outer
+layers will explode, often in a supernova," (wrong, see below), "the inner
+layers," before "the inner core", the first stellar-nursery take, a stutter
+("where that, those huge clouds"), and the first tries at the core (448–484 s).
+
+Whisper in the edit: "in -between" and "proto -stars" joined by hand.
+
+## Fact check (rec16)
+
+Right: Jupiter and Saturn radiate more heat than they get from the Sun (about
+1.7× and 2×), mostly from slow contraction (Kelvin–Helmholtz), so their own
+gravity heats them; more mass means more core pressure; brown dwarfs sit between
+planets and stars, and above about 13 Jupiter masses fuse deuterium (one proton
+and one neutron), which is rare (about 1 hydrogen atom in 40,000 in the universe),
+so they never become stars; once fusion of ordinary hydrogen starts, its pressure
+puffs the star up and it follows the main sequence, where stars spend about 90% of
+their lives until the hydrogen in the core runs out; the ejected gas of dead stars
+mixes into new clouds that collapse into protostars and stars; stars not massive
+enough to go supernova (below about 8 Suns) leave a white dwarf; above that, a
+neutron star, made almost entirely of neutrons; heavier still, a black hole.
+
+Wrong, left out of the cut:
+1. "their outer layers will explode, **often** in a supernova": most stars don't
+   explode. Only those above about 8 Suns go supernova; the rest (the Sun included)
+   shed their outer layers gently as a planetary nebula. The take right after says it
+   correctly ("will become a supernova or a planetary nebula"), and that's the one in
+   the cut.
+2. "pushes the outer layers of the atmosphere **away**": fusion pressure puffs the
+   star up, it doesn't push the layers away (that only happens at the end of its
+   life). The cut uses the other take, "pushes the objects to be bigger in diameter".
+
+Wrong, still in the cut (the ending is being re-recorded anyway):
+3. "if the original star was **just** heavy enough, then it will become a black
+   hole": "just heavy enough" sounds like barely. It takes the heaviest stars (about
+   20–25 Suns and up). Suggested: "And if the original star was heavier still, its
+   core becomes a black hole."
+
+Imprecise, optional:
+4. "it can fuse **all of the** hydrogen": he means ordinary hydrogen, not only
+   deuterium. A star only ever burns about a tenth of its hydrogen on the main
+   sequence. "…it can fuse ordinary hydrogen" would be clearer.
+5. "The outer layers will become **a supernova**": they become a supernova
+   remnant; the supernova is the explosion.
+6. "collapsing and expanding, and collapsing and expanding": simplified. As the
+   fuel runs out, the core contracts while the outer layers swell (red giant), in a
+   few stages; stars don't really pulse in and out as a whole.
+7. "Saturn and Jupiter… mostly due to their mass compressing in their core":
+   right for Jupiter; for Saturn, helium raining down inside adds a good part of it.
+8. "after the brown dwarf we have a bifurcation": the chart's two branches are stars
+   (right) and white dwarfs (left), but brown dwarfs don't become white dwarfs. The
+   video explains white dwarfs at the end, and the scene labels that branch "dead
+   stars' cores" instead of drawing an arrow to it. Video 3's cliffhanger still draws
+   an arrow from the brown dwarfs to the white dwarfs (item 5 of the rec12 check).
+
+The black-hole part (not in the cut) checks out: a black hole's size is its event
+horizon, the Schwarzschild radius, which grows in proportion to mass, hence the
+1 : 1 slope on this log–log chart; for any size there's a mass it can't exceed
+without becoming a black hole. "a black hole is a singularity, it doesn't really
+have a size" is fair as a simplification (the singularity is what general
+relativity predicts at the centre).
