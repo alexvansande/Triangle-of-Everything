@@ -9,8 +9,8 @@
 //                and slow pulsars, X-ray/optical binaries and GW170817.
 //
 // Radius: almost no neutron star has a measured radius, and all that do sit
-// at 11–14 km (NICER), so every star is plotted at 12 km — except the four
-// NICER pulsars, which get their measured radius (and are added when the
+// at 11–14 km (NICER), so every star is plotted at 12 km — except the NICER
+// pulsars whose radius is well measured, which get it (and are added when the
 // compilation lacks a timing mass for them).
 // =============================================================
 
@@ -25,8 +25,10 @@ const NICER = [
   ["PSR J0030+0451", 1.43, 12.7, "Vinciguerra et al. 2024, ApJ 961, 62"],
   ["PSR J0740+6620", 2.08, 12.5, "Salmi et al. 2024, ApJ 974, 294 (mass: Fonseca et al. 2021)"],
   ["PSR J0437−4715", 1.418, 11.36, "Choudhury et al. 2024, ApJL 971, L20"],
-  ["PSR J1231−1411", 1.04, 12.6, "Salmi et al. 2024, ApJ 976, 58"],
 ];
+// Left out: PSR J1231−1411 (Salmi et al. 2024: 1.04 Msun, 12.6 km). Its mass and
+// radius both come from the X-ray fit and are set mostly by its priors (a 2025
+// reanalysis gets 1.12 Msun, 9.9 km), and it has no timing mass in the compilation.
 const norm = (s) => s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]/g, "");
 
 // LaTeX bits in the CompOSE names: J1741$+$1351, Her$\,$X$-$1
@@ -43,7 +45,7 @@ export default [
     cat: "remnant",
     cite: "CompOSE neutron-star mass compilation (Suleiman & Fortin; Suleiman et al. 2021, PRC 104, 015801), compose.obspm.fr/resources; NICER radii: " +
       NICER.map((n) => `${n[0]} — ${n[3]}`).join("; "),
-    radius: "12 km (the middle of NICER's 11–14 km) unless NICER measured it",
+    radius: "12 km (the middle of NICER's 11–14 km) unless NICER measured it well",
     density: [14, 15.5],
     anchors: [{ name: "PSR J0740+6620", logR: log(12.5e5), tol: 0.01 }],
     async load(fetchText) {
