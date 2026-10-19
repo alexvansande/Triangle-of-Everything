@@ -260,3 +260,52 @@ Imprecise, optional:
    supernova is the explosion that follows the core's collapse.
 2. "if the star is any **bigger** than that": heavier, not bigger (the biggest
    stars aren't always the heaviest); fine as spoken.
+
+## Re-read of all four videos (2026-10-19): what to re-record
+
+**1. Animals and the water line (videos 2 and 3): wrong reason.** Video 2: "Most
+of the dots to the right are animals. And most animals float in water, except the
+hippo. The hippo sits right on the line…"; video 3 (rec12): "most objects on the
+right are actually animals because most of them float in water". On this chart an
+animal's size is half its body length (PanTHERIA head–body length; "Human" is
+1.7 m → 85 cm), so its dot is a ball as wide as the animal is long, which is mostly
+empty space. That puts every mammal and amphibian in the dust (all 2,325) to the
+right of the water line, whatever its real density (almost all animals are close
+to 1 g/cm³). A human plots at about 0.03 g/cm³, an elephant 0.3, a blue whale 0.015.
+The hippo is the exception only because it was hand-placed there
+(`src/objects.json`: "Placed denser than water… as easter egg"), with an 89 cm
+radius, the same as a human's; a real hippo is about 3.5–5 m long (radius about
+2 m), which would put it at about 0.1 g/cm³ like the rest. The hippo fact itself is
+right (hippos are denser than water, can't swim, and walk on the bottom), but the
+chart can't show it.
+A rule that does hold: the ball always contains the object, so the dot's density is
+never higher than the real one. Anything **left** of the line really is denser
+than water and sinks; something to the right may or may not float.
+Suggested (video 2's ending): "Most of the dots to the right are animals. Not
+because they're light: almost every animal is about as dense as water. It's
+because we measure them by their length, as if each one were a ball that long,
+and most of that ball is empty. So the rule only works one way: anything left of
+this line sinks for sure." Video 3's line could become: "…and on the right are
+animals, mostly because they're long and thin, not round." The hippo dot needs a
+decision: move it to its real size, or keep it as an easter egg and stop
+pointing at it.
+
+**2. Video 1 (hook): sound, not facts.** It mixes three setups (office rec2 with
+noise reduction, home rec7, office rec6), so the background and tone change at
+0:24 and 0:48. rec11 ("new intro.m4a", 4:44, home) is a full re-take of the hook
+that was never reviewed; it may make a re-record unnecessary. Also "the horizontal
+axis is **in** size" (rec9 has "The horizontal axis is size", not spliced yet).
+The facts check out: the bottom-left edge is the quantum (Compton) limit, the
+top-left the black-hole (Schwarzschild) limit, they meet at the Planck point,
+and the chart's diagonal isochrons (Planck 10⁻⁴³ s … now) are the times when the
+universe's average density was that high, so "joining at the Big Bang" follows
+the paper.
+
+**Optional, small:** video 2 "if you multiply **your** size by 10" (the box's
+size); video 2 "so the sizes and the masses, it only matters when you multiply
+it by 10" (each grid step is ×10); video 3 "big rocks and **meteorites**"
+(asteroids); video 4 "fuse **all of the** hydrogen" (ordinary hydrogen) and "the
+outer layers will become **a supernova**" (a supernova remnant).
+
+Fixed today without re-recording: video 3's caption had dropped "right" ("most
+objects on the ___ are actually animals"); the audio has it.
