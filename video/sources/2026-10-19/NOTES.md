@@ -6,6 +6,7 @@
 | `rec13` | `bar_do_zeca_pagodinho_4.m4a` (uploaded to the chat) | 0:51 | 48 kHz ALAC; the same noise floor (−79 dB) and a tone within ±3 dB of rec12; 3 dB hotter, turned down |
 | `rec18` | `black holes.m4a` (iCloud recordings) | 16:08 | a different room (not the car); 48 kHz AAC; many retries in one take |
 | `rec19` | `black holes and dark matter .m4a` (iCloud recordings) | 10:55 | same room as rec18 |
+| `rec20` | `primordial black holes.m4a` (iCloud recordings) | 7:12 | same room as rec18–19 |
 | `rec14` | `bar_do_zeca_pagodinho_6.m4a` (uploaded to the chat) | 2:31 | 48 kHz ALAC; clean (−81.5 dB floor, no clipping); 6 dB hotter than rec12, a little lighter in the bass and duller on top: turned down and EQ'd to match |
 
 One take of the whole of `short-03-planets`, replacing the earlier cut from
@@ -436,3 +437,61 @@ measured masses as dust. The scenes point at PSR J0030+0451 where they used the
 generic "Neutron Star", labelled "neutron star". Video 4's teaspoon label is now
 "≈ 2 billion tonnes": at J0030's 1.43 Suns in 12.7 km (3.3 × 10¹⁴ g/cm³) a 5 ml
 teaspoon is about 1.7 billion tonnes, still "a mountain".
+
+## rec20: the small black holes onward, with a cliffhanger
+
+rec20 re-records video 5 from the small black holes to the end, opening "Arguably,
+the most interesting story isn't about the largest black holes, but the smallest
+possible ones" and ending on the next side of the triangle ("And if we follow that
+line of galaxies, where does it end? … Another limit of what things can be in our
+universe"). It replaces rec19 from "But there's also a very cool story" on; rec18's
+opening and rec19's big black holes stay. One line comes from rec19: "And if primordial
+black holes exist, they could explain that without us needing to invoke any sort of
+new physics" (rec20's take said "mountain size protons"). 50 clips, 5:38 at 1.2×.
+
+Left out: the first tries at "you could make a black hole of any…", "so we know that
+there can be a lot of them" (says the opposite: microlensing shows there can't be), "in
+the early," and its restart, "than, let's say, a small meteor", "compressed to the size
+of a proton", the first take of the galaxies' diagonal ("should be much more massive than
+they are", backwards), the second take's "at the level of nebulas", and the "mountain
+size protons" take.
+
+Caption fixes by hand: "mess" → mass, "microlamps and surveys" / "microlensin" →
+microlensing surveys, "Hawking's" → Hawking, "That's all that we call" → That's what
+we call; "we" restored in "and we haven't found any".
+
+## Fact check (rec20)
+
+Right: any mass becomes a black hole if squeezed enough; collapsing stars make them,
+and the early universe was dense enough to (whether it did depends on its density
+ripples); microlensing has found no black holes of planet-to-star masses in the numbers
+dark matter would need, so they're absent or rare; Hawking radiation sets the lower
+limit; a small moon (Phobos, about 1e19 g) or a mountain (1e17–1e18 g) is inside the
+window (1e17–1e22 g); they'd be invisible but felt by their gravity; galaxies and
+clusters lie on a different, lower-density diagonal than everyday matter, and their
+measured mass is several times what their stars and gas account for: the missing
+matter we call dark matter; the galaxies' line runs up to the Hubble radius, the next
+side of the triangle.
+
+Wrong, left out of the cut:
+1. "they couldn't be much smaller than, let's say, a small meteor": far too small. Those
+   that have fully evaporated are below about 5e14 g (a hill, a rock some 700 m
+   across), and as dark matter they're ruled out up to about 1e17 g (a mountain). A
+   meteor is grams to tonnes. The cut keeps "they couldn't be much smaller, because
+   otherwise they would have evaporated".
+2. "compressed to the size of a proton": a mountain's or small moon's mass makes a
+   black hole of 1e-11 to 1e-9 cm, a thousandth to a tenth of an atom, but 200 to 20,000
+   times a proton. Only one of about 5e14 g (already evaporated) is proton-sized. The
+   scene says "smaller than an atom".
+3. "we know that there can be a lot of them": backwards (see above).
+4. Galaxies "nebulas and galaxies … aligned in a different diagonal": nebulae and
+   molecular clouds hold almost no dark matter and lie elsewhere (Larson's law); only
+   galaxies and clusters are on that line.
+
+Imprecise, kept: "much more massive than their size would be expected": they are more
+massive than their visible matter, not than their size; the scene says "more mass than
+we can see". "you'd be impossible to detect them" (they'd).
+
+Re-record, optional (the cut works without it): "So we have this range: something with
+the mass of a small moon or a mountain, squeezed into something far smaller than an
+atom."

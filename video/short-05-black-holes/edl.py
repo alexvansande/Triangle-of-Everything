@@ -3,6 +3,8 @@
 # known black hole on it, big first (Sgr A*, Andromeda, M87*, TON 618, less dense than
 # water), then the small ones (engineered, primordial), the hunt for them as dark matter,
 # and a cliffhanger on the chart's dark-matter line.
+# The small black holes onward come from rec20 = "primordial black holes.m4a" (2026-10-19,
+# 7:12, same room), which re-records that part and ends on the next side of the triangle.
 # Cut from rec18 = "black holes.m4a" (iCloud recordings, 2026-10-19, 16:08, 48 kHz AAC;
 # a different room from rec12–17, one take with many retries) up to "every black hole
 # will be on this line"; then rec19 = "black holes and dark matter .m4a" (2026-10-19, 10:55,
@@ -41,30 +43,30 @@ EDL = [
  ("rec19", "big", 116.87, 123.54),     # Like the M87 (examples of the light ones: the density lines now come first, as the author asked), which was the first one to be photographed, or the TON 618,
  ("rec19", "big", 229.11, 231.01, {"gap": 0.12}),  # the largest black hole we know,
  ("rec19", "big", 133.01, 137.01, {"gap": 0.12}),  # whose event horizon would swallow our whole solar system.
- # then the small ones
- ("rec19", "small", 276.75, 285.09),   # But there's also a very cool story towards the other end of this line, into smaller black holes,
- ("rec19", "small", 295.85, 300.09, {"gap": 0.15}),  # despite the fact that black holes are formed when giant stars collapse,   ("there is no reason that they could exist in other ways" left out: it says the opposite)
- ("rec19", "small", 308.79, 315.15, {"gap": 0.2}),   # if you had the technology to make a black hole, you could build a black hole of any size.
- ("rec19", "pbh", 318.95, 322.53),     # But other than in some alien tech laboratory,
- ("rec19", "pbh", 327.25, 329.95, {"gap": 0.15}),  # the only natural way in which we know that
- ("rec19", "pbh", 330.17, 330.49, {"gap": 0.05}),  # black holes
- ("rec19", "pbh", 331.59, 332.55, {"gap": 0.08}),  # might have been formed,   ("have been," left out)
- ("rec19", "pbh", 333.67, 335.55, {"gap": 0.12, "e": 336.32}),  # are in the very early moments
- ("rec19", "pbh", 338.05, 341.09, {"gap": 0.1, "s": 339.5}),    # of our universe's history,   ("of our uni-" restart left out; Whisper merged it into "universe's")
- ("rec19", "pbh", 344.77, 347.33, {"gap": 0.12}),  # when everything was a dense soup of materials.
- ("rec19", "pbh", 350.97, 355.65),     # We know that those black holes could have existed, and we've been looking for them.
- ("rec19", "pbh", 378.45, 382.79),     # While we have already looked into many sizes,
- ("rec19", "pbh", 385.73, 392.29, {"gap": 0.12}),  # there are still some ranges in which we haven't been able to look in yet, and they could be there.
- ("rec19", "pbh", 392.65, 409.65),     # We are talking about sizes that will be like a small asteroid or a mountain, but the size of a grain of sand, or maybe the size of a single proton.
- ("rec19", "pbh", 411.27, 413.01),     # Those are primordial black holes.
- ("rec19", "dm", 432.87, 439.35),      # Those would be tiny particles that are invisible to any telescope,
- ("rec19", "dm", 457.63, 466.31, {"gap": 0.15}),   # but you could detect them by the gravitational effects on the galaxies as a whole.
- ("rec19", "dm", 468.51, 472.99),      # And the interesting part is that we do know that those effects exist.
- ("rec19", "dm", 486.89, 500.21),      # And the reason we're looking for them is that we know galaxies are full of something that is very massive, yet invisible,
- ("rec19", "dm", 503.31, 511.75, {"gap": 0.12}),   # and if primordial black holes exist, they could explain that without us needing to invoke any sort of new physics.   ("and primordial" slip left out)
- # ending: the dark-matter line
- ("rec19", "end", 584.41, 596.15),     # And another way you can see all this missing dark matter in our universe, in our chart, is by looking at galaxies.
- ("rec19", "end", 602.83, 604.53),     # Galaxies and clusters,   ("globular clusters" take left out: they hold almost no dark matter)
- ("rec19", "end", 623.95, 638.75, {"gap": 0.15}),  # you see that they follow a completely separate diagonal line, in which they are much larger than we would expect.
- ("rec19", "end", 642.61, 651.61),     # And that different diagonal line is probably due to the existence of dark matter.
+ # rec20: the small ones, dark matter, and the cliffhanger
+ ("rec20", "small", 3.38, 10.44, {"gap": 0.7}),   # Arguably, the most interesting story isn't about the largest black holes, but the smallest possible ones.
+ ("rec20", "small", 70.58, 75.02),     # We know that black holes are formed when giant stars collapse,
+ ("rec20", "small", 41.92, 49.28, {"gap": 0.12}),  # but in theory, you could make any mass into a black hole. You just need to press it very, very hard.
+ ("rec20", "small", 51.18, 55.88),     # Maybe some aliens out there have some machinery that builds a black hole.
+ ("rec20", "pbh", 92.3, 97.22),        # So we know those conditions exist when a star collapses.
+ ("rec20", "pbh", 102.36, 110.28, {"e": 111.0}),  # And we don't know how to make that in a lab, but we know that those conditions also existed
+ ("rec20", "pbh", 117.58, 118.92, {"s": 116.4, "gap": 0.1}),  # in the very early moments of the Big Bang.   ("in the early," and the restart "we know those conditions also existed" left out)
+ ("rec20", "pbh", 122.06, 128.68),     # So maybe some of them have remained, and we've actually been looking for them.
+ ("rec20", "pbh", 160.4, 175.22),      # We've looked for black holes with the mass of stars and planets, and we haven't found any through microlensing surveys. So maybe they don't exist, or maybe they're very rare.   ("so we know that there can be a lot of them" left out: backwards)
+ ("rec20", "pbh", 176.84, 180.38),     # And we know that they couldn't be much smaller,
+ ("rec20", "pbh", 186.4, 191.32, {"gap": 0.12}),   # because otherwise they would have evaporated by now due to Hawking radiation.   ("than, let's say, a small meteor" left out: see the fact check)
+ ("rec20", "pbh", 192.94, 193.72),     # So we have this range,
+ ("rec20", "pbh", 197.74, 202.62, {"gap": 0.12}),  # which is something the size of a small moon or maybe a mountain.   ("compressed to the size of a proton" left out: see the fact check)
+ ("rec20", "pbh", 209.62, 212.9),      # We don't know if it exists. It could exist.
+ ("rec20", "pbh", 214.34, 237.48),     # And if it does, you'd be impossible to detect them using our conventional means. We could not see them. We could not catch them, but we could detect their presence by the effects on gravity.
+ ("rec20", "dm", 306.84, 317.24),      # And the reason we've been looking for them is that we know that those effects exist.
+ ("rec20", "dm", 247.41, 261.54),      # If we look at large galaxies on this graph, you'll see that they are in a different diagonal line than everything else.
+ ("rec20", "dm", 263.5, 269.12),       # Most of the things we've seen so far are on this atomic diagonal line,
+ ("rec20", "dm", 270.56, 276.2, {"gap": 0.12}),    # but the galaxies and clusters of galaxies, they exist in this other one,
+ ("rec20", "dm", 331.42, 337.56, {"gap": 0.12}),   # meaning that they are much more massive than their size would be expected.   (from the second take; the first had it backwards, the second's "nebulas" left out)
+ ("rec20", "dm", 344.24, 350.94),      # We don't know where all that missing matter is. That's what we call dark matter.
+ ("rec19", "dm", 503.31, 511.75, {"gap": 0.4}),    # And if primordial black holes exist, they could explain that without us needing to invoke any sort of new physics.   (rec20's "mountain size protons" take left out)
+ ("rec20", "end", 408.81, 412.76),     # And if we follow that line of galaxies, where does it end?
+ ("rec20", "end", 417.5, 422.98, {"gap": 0.3}),    # It will end in the next side of our triangle of everything.
+ ("rec20", "end", 426.24, 429.94),     # Another limit of what things can be in our universe.
 ]
