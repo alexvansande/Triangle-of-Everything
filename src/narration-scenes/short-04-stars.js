@@ -66,7 +66,7 @@ export default {
     { at: "become a supernova", hl: [{ obj: "Red Giant", place: "left" }, { obj: "Supernova Remnant", label: "supernova remnant" }, { obj: "Planetary Nebula", label: false }] },
     { at: "planetary nebula", hl: [{ obj: "Red Giant", place: "left" }, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
     { at: "inner core", cam: { r: 8.6, m: 33.6, span: 8 },
-      hl: [{ obj: "Red Giant", label: false }, { obj: "White Dwarf", label: "dense core", place: "right", delay: 0.4 }, { obj: "Neutron Star", label: false, delay: 0.7 }] },
+      hl: [{ obj: "Red Giant", label: false }, { obj: "White Dwarf", label: "dense core", place: "right", delay: 0.4 }, { obj: "PSR J0030+0451", label: false, delay: 0.7 }] },
 
     // the gas goes round again: stellar nurseries
     { at: "those nebulas expand", cam: { r: 17.2, m: 34, span: 9 },
@@ -80,11 +80,11 @@ export default {
     // what the core becomes
     { at: "what about the core", cam: { r: 8.6, m: 33.6, span: 8 }, clear: true, hl: [{ obj: "Sun" }] },
     { at: "white dwarf", hl: [{ obj: "Sun" }, { arrow: true, from: { obj: "Sun" }, to: { obj: "White Dwarf" }, color: "#90caf9" }, { obj: "White Dwarf", place: "left", delay: 0.6 }] },
-    { at: "big enough to go supernova", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: false, delay: 0.4 }] },
-    { at: ["protons and the electrons", "protons and electrons"], hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "protons + electrons → neutrons", place: "right" }] },
-    { at: "create a neutron star", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "neutron star", place: "right" }] },
-    { at: "single spoonful", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: "a teaspoon ≈ 3 billion tonnes", place: "right" }] },
-    { at: "collapse into a black hole", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
+    { at: "big enough to go supernova", hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false, delay: 0.4 }] },
+    { at: ["protons and the electrons", "protons and electrons"], hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "protons + electrons → neutrons", place: "right" }] },
+    { at: "create a neutron star", hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }] },
+    { at: "single spoonful", hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "a teaspoon ≈ 2 billion tonnes", place: "right" }] },
+    { at: "collapse into a black hole", hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
     // teaser for the black-hole video: the edge they sit on
     { at: "deserves a video", cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
       hl: [{ line: "schwarzschild" }, { obj: "Stellar BH", label: "next: black holes" }] },

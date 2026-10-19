@@ -39,8 +39,8 @@ export default {
     { at: "supernova", hl: [{ obj: "Supernova Remnant", label: "supernova remnant" }] },
     { at: "leave behind a core", cam: { r: 8.6, m: 33.6, span: 8 }, clear: true },
     { at: "white dwarf", hl: [{ obj: "White Dwarf", place: "left" }] },
-    { at: "neutron star", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", place: "right" }] },
-    { at: "strangest object", hl: [{ obj: "White Dwarf", label: false }, { obj: "Neutron Star", label: false }, { obj: "Stellar BH", label: "black hole" }] },
+    { at: "neutron star", hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }] },
+    { at: "strangest object", hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole" }] },
 
     // ── Not an object: a line ────────────────────────────────
     // everything else is a cloud of catalogue dots: pictures off, the clouds circled
@@ -66,7 +66,7 @@ export default {
     { at: "anything that reaches this line", hl: [{ ...SCHW, label: "every black hole is here" }] },
 
     // ── The big ones ─────────────────────────────────────────
-    { at: "massive stars collapse", cam: { r: 8, m: 34, span: 12 }, hl: [{ obj: "Neutron Star", label: false }, { obj: "Stellar BH", label: "collapsed stars" }] },
+    { at: "massive stars collapse", cam: { r: 8, m: 34, span: 12 }, hl: [{ obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "collapsed stars" }] },
     { at: "all known black holes", cam: { r: 11, m: 38.6, span: 20 }, hl: [{ ...KNOWN, label: "every known black hole", labelY: 0.16 }] },
     { at: "follow the same line", hl: [KNOWN, SCHW] },
     { at: "size of stars", cam: { r: 7.5, m: 35.3, span: 7 }, hl: [KNOWN, { obj: "Stellar BH", label: "a few suns" }] },

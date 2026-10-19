@@ -428,3 +428,11 @@ but the size of a grain of sand, or maybe the size of a single proton":
 The scene labels both as ruled out. A re-record that fits the window: "We are talking
 about objects as massive as a mountain or an asteroid, squeezed into something far
 smaller than an atom."
+
+## After the neutron-star update (PR #16, merged 2026-10-19)
+
+The map's neutron stars are now named pulsars (NICER mass and radius) and 75
+measured masses as dust. The scenes point at PSR J0030+0451 where they used the
+generic "Neutron Star", labelled "neutron star". Video 4's teaspoon label is now
+"≈ 2 billion tonnes": at J0030's 1.43 Suns in 12.7 km (3.3 × 10¹⁴ g/cm³) a 5 ml
+teaspoon is about 1.7 billion tonnes, still "a mountain".

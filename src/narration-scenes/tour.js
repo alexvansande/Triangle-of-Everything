@@ -157,9 +157,9 @@ export default {
       hl: [{ obj: "Supernova Remnant" }, { obj: "Nebulae", delay: 0.6, place: "below" }] },
     { at: "split the object", cam: { r: 11.5, m: 33.6, span: 17 }, clear: true },
     { at: "white dwarf", hl: [{ obj: "White Dwarf" }] },
-    { at: "neutron star", hl: [{ obj: "White Dwarf" }, { obj: "Neutron Star", place: "left" }] },
+    { at: "neutron star", hl: [{ obj: "White Dwarf" }, { obj: "PSR J0030+0451", label: "neutron star", place: "left" }] },
     { at: "collapse into black holes", cam: { r: 8, m: 34, span: 12 },
-      hl: [{ obj: "White Dwarf" }, { obj: "Neutron Star", place: "left" }, { obj: "Stellar BH", place: "left" }] },
+      hl: [{ obj: "White Dwarf" }, { obj: "PSR J0030+0451", label: "neutron star", place: "left" }, { obj: "Stellar BH", place: "left" }] },
 
     // ── Black holes ──────────────────────────────────────────
     { at: "this line right here", cam: { r: 5, m: 33, span: 16 },
