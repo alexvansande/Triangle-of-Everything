@@ -25,8 +25,20 @@ the lightest up (Carr, Kohri, Sendouda & Yokoyama, *Rep. Prog. Phys.* 84, 116902
 
 **Still open: about 10¹⁷–10²² g** (asteroid masses): Hawking radiation closes it from
 below, microlensing from above, and the neutron-star and white-dwarf arguments in
-between aren't settled. A black hole there is somewhere between a thousandth of an
-atom and a small virus across. On the map: `PBH_WINDOW` in `src/data.js`, and the
+between aren't settled. A black hole there is somewhere between a few hundred times
+smaller than an atom and a small virus across.
+
+| Primordial black hole | Mass | Size (event horizon, 2GM/c²) | Comparison |
+|---|---|---|---|
+| Lightest that can still exist (lighter ones have evaporated) | ~5 × 10¹⁴ g = 500 million tonnes (a ~700 m asteroid) | 1.5 × 10⁻¹³ cm across | about a proton |
+| Bottom of the open window | 10¹⁷ g = 100 billion tonnes (a ~4 km asteroid) | 3 × 10⁻¹¹ cm across | 1/350 of a hydrogen atom |
+| Top of the window if the neutron-star argument holds | 10¹⁸ g = 10¹⁵ kg (Mount Everest, by the chart's numbers) | 3 × 10⁻¹⁰ cm across | 1/35 of a hydrogen atom |
+| Top of the open window | 10²² g = 10¹⁹ kg (a ~200 km moon) | 3 × 10⁻⁶ cm = 30 nm across | a small virus |
+
+So: if the neutron-star and white-dwarf limits are right, what's left is black holes
+from a small asteroid's to Mount Everest's mass, each between a few hundred and a few
+dozen times smaller than an atom. If those limits are wrong (they're contested), the
+window runs up to small moons, as big as a virus. On the map: `PBH_WINDOW` in `src/data.js`, and the
 primordial black hole article.
 
 ## Macro dark matter

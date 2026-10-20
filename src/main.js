@@ -4274,6 +4274,7 @@ let _animResumeTimer = null;
 let _animSpeed = 1; // global animation-speed multiplier (Z slower / X faster)
 let _dotSizeMult = 1;    // moving-dot size multiplier (settings slider)
 let _dotOpacityMult = 1; // moving-dot opacity multiplier (settings slider)
+let _dotFixedR = null;    // moving-dot radius in px, overriding the paths' own sizes (narration)
 
 function pauseAnimOnInteract() {
   if (_animDisabled) return;
@@ -4726,6 +4727,7 @@ function getPathScreenPos(cp, t, ppu) {
   return [px(pos.logR), py(pos.logM)];
 }
 
+const EM_PATH_GAP_DEX = 0.49; // the em-spectrum path's points sit 0.49 dex above the Compton line
 function applyEmWave(cp, t, sx, sy, timestamp, ppu) {
   if (cp.family !== "spectrum") return [sx, sy];
   const tFwd = Math.min(1, t + 0.005);
@@ -4735,7 +4737,11 @@ function applyEmWave(cp, t, sx, sy, timestamp, ppu) {
   const perpX = -tdy / tlen, perpY = tdx / tlen;
 
   const freq = 28 * Math.max(0.12, 1 - t * 0.88);
-  const amplitude = 6 + t * 10;
+  // The path runs half a decade above the Compton line. Zoomed out that gap
+  // is a few px, so the wave is capped to stay inside it: no dot crosses into
+  // the quantum-forbidden side.
+  const gapPx = EM_PATH_GAP_DEX * ppu * Math.SQRT1_2 - ((_dotFixedR ?? cp.style.dotSize * _dotSizeMult) + 0.5);
+  const amplitude = Math.max(0, Math.min(6 + t * 10, gapPx));
   const phase = t * freq * Math.PI * 2 - timestamp * 0.0004;
   return [sx + perpX * Math.sin(phase) * amplitude, sy + perpY * Math.sin(phase) * amplitude];
 }
@@ -4814,7 +4820,7 @@ function animateConnections(timestamp) {
 
       el.setAttribute("cx", String(sx));
       el.setAttribute("cy", String(sy));
-      el.setAttribute("r", String(cp.style.dotSize * sizeFactor * _dotSizeMult));
+      el.setAttribute("r", String((_dotFixedR ?? cp.style.dotSize * _dotSizeMult) * sizeFactor));
 
       const edgeFade = Math.min(t / 0.04, (1 - t) / 0.04, 1);
 
@@ -7344,9 +7350,9 @@ if (_ogShot) {
         .filter(e => e.getAttribute("display") !== "none").length,
       dustReady: () => dustReady(),
       dustOfCat: (cat) => dustOfCat(cat),
-      /** The moving dots (evolution, composition, spectrum paths) at a size
-       *  and strength that reads in a phone video: 1.6 px at 60% is a speck. */
-      setDots({ size = 1, opacity = 1 } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; },
+      /** The moving dots (evolution, composition, spectrum paths): a size
+       *  multiplier, an opacity multiplier, or a fixed radius in px. */
+      setDots({ size = 1, opacity = 1, radius = null } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; _dotFixedR = radius; },
       /** Only these objects keep their picture (the rest are plain dots over
        *  the dust); null for all of them. */
       setIcons(names) { _iconOnly = names ? new Set(names) : null; redraw(); },

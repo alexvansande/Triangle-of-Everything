@@ -159,9 +159,9 @@ export async function startNarration(app) {
   const stage = params.get("stage") || "portrait";
   if (stage !== "none" && (RENDER || !app.isMobile())) app.setStage(stage);
   app.prepare();
-  // the paths' moving dots carry the story (a star's life, what things are
-  // made of), so they're drawn bigger and brighter than in the app
-  app.setDots?.(SCENE.dots ?? { size: 2.4, opacity: 1.7 });
+  // the paths' moving dots: as big as the catalogue dust (1.15 px), brighter
+  // than in the app so they still read in a phone video
+  app.setDots?.(SCENE.dots ?? { radius: 1.15, opacity: 1.7 });
 
   const objByName = new Map(app.objects.map(o => [o.name, o]));
   const objColor = (o) => app.categories[o.cat]?.color || "#fff";
