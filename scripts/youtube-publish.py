@@ -16,19 +16,22 @@ video/youtube-uploads.json, so a video is never uploaded twice (--force re-uploa
 Setup, once:
   1. Google Cloud console: a project with "YouTube Data API v3" enabled, and an OAuth
      client of type "Desktop app". Download its JSON as
-     ~/.config/triangle-youtube/client_secret.json (or set YT_CLIENT_SECRETS).
+     ~/.config/youtube-upload/client_secret.json (or set YT_CLIENT_SECRETS). The Google
+     project and client aren't Triangle-specific: name them for any upload project.
   2. pip install google-api-python-client google-auth-oauthlib
   3. The first --upload opens a browser to sign in to the channel; the token is kept in
-     ~/.config/triangle-youtube/token.json.
+     ~/.config/youtube-upload/token-<channel>.json (YT_CHANNEL, default "default").
 Quota: an upload costs 1,600 of the default 10,000 units a day, so about six videos a
 day. Videos start private (youtube.json "privacy"); "publishAt" schedules them.
 """
 import argparse, datetime, json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONF = os.path.expanduser(os.environ.get("YT_CONFIG_DIR", "~/.config/triangle-youtube"))
+# Shared by any project that uploads to YouTube (not Triangle-specific): the OAuth
+# client, and one sign-in token per channel (YT_CHANNEL picks which, default "default").
+CONF = os.path.expanduser(os.environ.get("YT_CONFIG_DIR", "~/.config/youtube-upload"))
 SECRETS = os.path.expanduser(os.environ.get("YT_CLIENT_SECRETS", os.path.join(CONF, "client_secret.json")))
-TOKEN = os.path.join(CONF, "token.json")
+TOKEN = os.path.join(CONF, f"token-{os.environ.get('YT_CHANNEL', 'default')}.json")
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload",
           "https://www.googleapis.com/auth/youtube.force-ssl"]   # playlists, captions, thumbnails
 MANIFEST = os.path.join(ROOT, "video", "youtube.json")
