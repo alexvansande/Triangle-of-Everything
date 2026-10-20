@@ -20,8 +20,18 @@ Rendered 2026-10-20 from 32bb067 (the branch tip after take 5), checked (length 
 | short-04-stars | 3:10 | done, 3:13, 129 MB |
 | short-05d-black-holes | 5:40 | done, 5:43, 305 MB (video 5 = take 5) |
 
-Not rendered: short-05, 05b, 05c (earlier black-hole takes, to be removed from the
-artifact). If a take's audio, words.json or scene changes after its render, say so
+Archived 2026-10-20: the earlier black-hole takes were rendered the same way (length =
+narration + credits checked, mid-video frame checked), copied to iCloud
+`Projects/triangle/output videos/older black hole takes/`, and then removed from the branch
+(audio, words.json, scene, edl; recoverable from git history; `video/sources/` notes kept):
+
+| Take | Length | Size |
+|---|---|---|
+| short-05-black-holes.mp4 | 5:16 with credits | 288 MB |
+| short-05b-black-holes.mp4 | 4:56 with credits | 294 MB |
+| short-05c-black-holes.mp4 | 4:42 with credits | 269 MB |
+
+If a take's audio, words.json or scene changes after its render, say so
 here: it needs rendering again.
 
 ## Publishing

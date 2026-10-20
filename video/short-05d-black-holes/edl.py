@@ -1,4 +1,4 @@
-# short-05d-black-holes: video 5, take 5 (rec24), kept next to 05b and 05c until the author picks.
+# short-05d-black-holes: video 5, take 5 (rec24), the chosen take (05, 05b, 05c archived as MP4s on 2026-10-20; see video/EXPORT.md).
 # rec24 = "Dark matter take 5.m4a" (Google Drive "Recordings", 2026-10-20, 10:48, 48 kHz ALAC;
 # noise floor about -79 dB, no clipping). The whole video again, with the Schwarzschild
 # radius and the 45-degree slope in place, the red giants' nebulae feeding new stars, the
