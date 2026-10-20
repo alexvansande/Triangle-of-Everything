@@ -5,6 +5,7 @@
 | `rec21` | `Black holes to dark matter take 3` | 18:08 | 48 kHz ALAC; noise floor about −77 dB, no clipping, −31 LUFS |
 | `rec22` | `Black holes take 4` | 10:00 | 48 kHz ALAC; noise floor about −80 dB, no clipping; construction nearby (see below) |
 | `rec23` | `bar_do_zeca_pagodinho_14.m4a` (uploaded to the chat) | 2:14 | 48 kHz ALAC; −80 dB floor; level and tone within 1 dB of rec22, no EQ |
+| `rec24` | `Dark matter take 5.m4a` | 10:48 | 48 kHz ALAC; noise floor about −79 dB, no clipping |
 
 One take of the whole of video 5, cut as `short-05b-black-holes` (58 clips, 6:21
 before the 1.2× tempo, 5:18 after) and kept next to the first version
@@ -215,3 +216,61 @@ radius nothing escapes from; that radius is proportional to mass (r = 2GM/c²), 
 this chart's equal-decade axes is a 1 : 1, 45° line. Imprecise, optional: "directly
 related to mass" is right; "directly proportional" says exactly why it's a straight 45°
 line.
+
+## rec24 (take 5): `short-05d-black-holes`
+
+A fifth full take of video 5, with the Schwarzschild radius and the 45° slope in place
+from the start, and new lines: "a log-log density scatterplot", the red giants' nebulae
+merging into new stellar nurseries and "a new generation of stars", "left behind as the
+skeleton of a dead star", the two moments black holes can form ("the core of dying stars"
+and "the very early moments of the Big Bang, when everything was a soup of very hot and
+dense matter"), "black holes of multiple sizes", "they would not react to light … not be
+visible on a telescope", "objects the size of an atom that weigh as much as a mountain",
+"or maybe not, maybe we'll figure out that something else is dark matter", and "the
+lucky few survivors". Cut as `short-05d-black-holes` (49 clips, 6:25 before the 1.3×
+tempo, 4:57 after), next to 05b and 05c. The scene is 05c's with the cues moved to this
+take, plus arrows from the red giant to its nebula and on to new stars, and "a hot, dense
+soup" on the early universe.
+
+The author's note inside it (234–254 s): "when we talk about M87 we should be using the
+actual photograph and not an AI-generated icon". Done: `content/icons/m87.webp` is now a
+round crop of the real Event Horizon Telescope image already used in the sidebar
+(`content/images/m87.webp`, EHT Collaboration, CC BY 4.0, via Wikimedia Commons), with the
+dark sky faded to transparent; `scripts/generate-icons.mjs` no longer regenerates it.
+This changes the icon everywhere in the app, not only in the videos.
+
+Left out: a false start in the first line, "But black holes are…", a first "Most objects,",
+three false starts at "All of the black holes we know of have been formed…", a second
+"They vary in size…", "two places, but we know", the "eliminating" and "closing the
+window" tries, a repeated list of surveys, the first "tiny window in which…", the first
+"filled with…" (trailing off), the "or maybe not" tries but one, and "most of everything
+just collapsed into particle-sized black holes" (see below; the cut uses "most of the
+matter just collapsed into black holes the size of an atom").
+Caption fixes: "protosaurs" → protostars, "down-score" → dense core, "math" → mass, "or
+not" → are not, "large in" → larger than, "weight" → weigh.
+
+### Fact check (rec24)
+
+Right: everything in rec22 and rec23 that's repeated here; the chart is log–log; red
+giants shed their outer layers as planetary nebulae, whose gas joins new star-forming
+clouds; a dense remnant is left; black holes form in collapsing stellar cores, and could
+have formed in the dense early universe in a range of masses; the surveys and Hawking
+radiation leave the asteroid-to-small-moon window; a mountain's mass (about 10¹⁸ g) is in
+the part of the window even the neutron-star argument leaves open, and its horizon is
+about 1/35 of an atom across; galaxies weigh about ten times their visible matter.
+
+Imprecise, optional:
+1. "They would not **react to light**": they don't shine or reflect, but they do bend
+   light passing near them; that's exactly how the microlensing searches look for them.
+   "They wouldn't shine or reflect any light" would be exact.
+2. "the size of an atom": smaller than one (a mountain's mass: about 1/35 of a hydrogen
+   atom; an asteroid's: about 1/350).
+3. "whose event horizon is **larger than our solar system**": larger than the planets'
+   orbits (about 40 times Neptune's), not than the Oort cloud.
+4. "something **very heavy** and basically invisible": a lot of invisible mass; the
+   substance itself isn't heavy.
+5. Left out of the cut: "most of **everything** just collapsed into **particle-sized**
+   black holes": dark matter is most of the matter, not of everything (dark energy is
+   most of the universe's energy), and asteroid-mass black holes are larger than a
+   proton (100 to 10,000 times). The cut uses the take that says "most of the matter …
+   black holes the size of an atom".
