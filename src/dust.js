@@ -227,6 +227,18 @@ export function dustOfCat(cat) {
   return out;
 }
 
+/** Dots of the given catalogue sources (ids from dust.json's sources), as
+ *  [r, m, sourceId]. */
+export function dustOfSrc(ids) {
+  if (!_data) return null;
+  const want = new Set(ids), out = [];
+  for (let i = 0; i < _data.src.length; i++) {
+    const id = _data.sources[_data.src[i]].id;
+    if (want.has(id)) out.push([_data.r[i], _data.m[i], id]);
+  }
+  return out;
+}
+
 /** Raw positions { r, m } (log radius, log mass) once loaded, else null. */
 export function dustArrays() {
   return _data ? { r: _data.r, m: _data.m } : null;

@@ -1,0 +1,59 @@
+source,beat,out_start,out_end,src_start,src_end,text
+rec21,intro,0.00,6.38,43.48,50.34,everything that could have ever existed can be plotted in this chart.
+rec21,intro,6.67,10.17,56.37,61.21,"with size on the horizontal axis,"
+rec21,intro,10.45,15.31,64.64,69.68,"and mass on the vertical axis, it's really a density scatter plot."
+rec21,intro,15.59,19.50,69.92,73.83,"And as you zoom in, it tells you a million stories."
+rec21,intro,19.79,24.38,75.88,80.57,"Like, for example, you can see the life cycle of stars"
+rec21,intro,24.66,27.56,86.91,89.90,as they form from stellar nurseries
+rec21,intro,27.84,34.74,92.55,99.45,"and collapse into protostores, then stars, and they leave their life in the main sequence."
+rec21,intro,35.02,42.13,110.66,118.11,"and as their hydrogen is depleted, they will collapse and expand and become red giants,"
+rec21,intro,42.28,47.02,135.41,140.15,"and depending on their mass, stars will always leave a dense core behind."
+rec21,intro,47.30,52.19,140.52,146.92,"That could be a white dwarf, or a neutron star, or even a black hole."
+rec21,line,52.79,58.30,148.87,155.43,"And black holes are a very different kind of object than most we've seen,"
+rec21,line,58.58,64.90,165.89,172.94,"unlike most of the objects in this graph, which usually shows a cluster of dots,"
+rec21,line,65.05,68.80,186.72,190.82,"all of the known black holes exist on a line,"
+rec21,line,69.08,76.45,191.97,200.09,"and that line isn't any line, that line is the upper limit of our triangle of everything,"
+rec21,line,76.73,82.33,231.95,238.07,"because it represents the top left limit on anything that can ever exist,"
+rec21,line,82.61,97.18,242.49,258.05,"anything that gets small enough, or massive enough, to cross the Schwarzschild radius will just become a black hole, and will leave somewhere on this line, and never cross it."
+rec21,known,97.78,104.62,279.88,287.06,"all of the black holes we know of are formed in the collapsing core of a dying star,"
+rec21,known,104.90,108.20,302.97,306.27,"they're often five to a hundred of our suns,"
+rec21,known,108.48,117.85,327.86,339.25,"they vary in size from a massive star to hundreds and thousands and millions of suns,"
+rec21,known,118.13,121.59,340.19,344.03,"like the ones in the center of our own Milky Way,"
+rec21,known,121.71,125.58,346.80,350.67,"which has four million solar masses,"
+rec21,dense,126.08,130.69,399.44,404.33,"and as they grow massive and bigger they actually become less dense,"
+rec21,dense,130.97,132.53,407.31,408.88,"and after some point,"
+rec21,dense,132.65,139.70,410.91,418.51,"the really super massive black holes are actually lighter than water and could float on a pool,"
+rec21,dense,139.98,144.51,421.00,425.68,"like the M87, the first one ever to be photographed,"
+rec21,dense,144.79,154.68,428.20,441.24,"or TON 618, the largest black hole we know of, whose event horizon is larger than our whole solar system,"
+rec21,dense,154.96,160.74,442.61,448.90,"and whose mass is 60 billion of our suns,"
+rec21,small,161.34,168.89,450.50,458.55,"but the most interesting story is not asking how big they can become, but really how small they can become,"
+rec21,small,169.17,177.34,460.34,469.76,"because despite the fact that the ones we know have been formed in the collapsing core of dying stars,"
+rec21,small,177.62,185.17,473.27,481.27,"in theory, if you could compress anything enough, it would also become a black hole."
+rec21,pbh,185.77,194.11,508.73,518.31,"we know those conditions exist when stars die, we don't know how to make them yet in a lab,"
+rec21,pbh,194.39,200.71,519.24,526.07,"but we know that those conditions also existed in the early moments of the universe,"
+rec21,pbh,200.99,208.31,528.54,537.83,"so maybe some of them have been formed, and they are still around, and we've been looking for them,"
+rec21,pbh,208.59,215.46,581.22,589.00,"we use quasars and the cosmic background radiation, and gravitational waves,"
+rec21,pbh,215.74,219.98,589.56,594.87,"and microlensing, and we haven't found any,"
+rec21,pbh,220.26,227.66,602.22,610.50,and each of those surveys limit the sizes of primordial black holes that can exist.
+rec21,pbh,227.94,238.30,612.76,624.07,"We also know that they cannot be too small, otherwise Hawking radiation would have evaporated them by now."
+rec21,window,238.90,246.10,695.15,703.45,"so each of those surveys has closed the window on primordial black holes, but the window is still open."
+rec21,window,246.38,254.96,664.45,673.17,"so the window that's still open would be an object with the mass of a moon compressed to the size of a virus,"
+rec21,window,255.24,261.83,674.50,682.23,to maybe an object the size of an asteroid compressed to the size of an atom.
+rec21,window,262.33,268.02,760.69,767.17,and if those objects are out there they would be invisible they would be dark
+rec21,window,268.30,271.18,771.88,774.95,but we would still know that they existed
+rec21,window,271.30,273.44,777.35,779.49,their effects on gravity
+rec21,dm,273.84,285.06,780.05,792.58,and the reason we've been looking for such objects for so long is that we know something exactly like this ought to exist.
+rec21,dm,285.34,286.19,820.11,820.95,when we measure
+rec21,dm,286.24,293.17,822.58,830.38,"galaxies and clusters of galaxies, we find that they are much heavier than they ought to be."
+rec21,dm,293.29,299.49,887.25,893.95,sometimes 10 times more heavy than what we expected them to be in the first place.
+rec21,dm,299.79,303.60,855.03,858.84,and that missing mass is dark matter
+rec21,dm,304.00,308.91,895.94,901.83,So most of the mass of the universe is invisible to us
+rec21,dm,309.19,314.97,902.00,907.87,and if they were in the form of microscopic black holes
+rec21,dm,315.09,319.84,916.49,921.56,then that wouldn't require a new particle or new physics.
+rec21,dm,320.24,326.75,923.81,930.53,It's possible that that window will close even further with some studies of neutron stars
+rec21,dm,327.02,329.96,946.55,949.59,but so far it is still open
+rec21,end,330.56,345.30,956.40,972.99,and if we follow those large galaxies you'll notice that unlike most of the objects in the shard that are following the density line of atoms galaxies and clusters
+rec21,end,345.42,356.41,975.41,988.50,they follow a different diagonal that is the density of empty space because most of the stuff is just empty
+rec21,end,356.69,366.65,1036.42,1047.00,because the largest structures that we know in the universe are as dense as empty space some of them are actually just empty space
+rec21,end,367.05,370.44,1066.16,1069.55,and if you keep following that line where do we get
+rec21,end,370.74,380.82,1074.64,1085.69,we will find the second wall that limits everything that can exist this is the second side of our triangle of everything

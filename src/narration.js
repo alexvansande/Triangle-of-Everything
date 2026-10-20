@@ -60,6 +60,8 @@ const LINES = {
   hubble:        { pts: [[H, comptonM(H)], [H, schwarzschildM(H)]], color: "#ffd54f" },
   water:         { pts: densitySegment(0), color: "#80deea" },
   darkmatter:    { pts: densitySegment(-24), color: "#e1a6ff" },
+  // the galaxies' line without their dark matter: ten times less dense
+  luminous:      { pts: densitySegment(-25), color: "#80deea" },
   mainsequence:  { pts: REFERENCE_LINES.find(l => l.label === "Main Sequence").points.map(p => [p.logR, p.logM]), color: "#ffd740" },
   chandrasekhar: { pts: REFERENCE_LINES.find(l => l.label.startsWith("Chandrasekhar")).points.map(p => [p.logR, p.logM]), color: "#90caf9" },
   tov:           { pts: REFERENCE_LINES.find(l => l.label.startsWith("TOV")).points.map(p => [p.logR, p.logM]), color: "#ff8a80" },
@@ -478,10 +480,14 @@ export async function startNarration(app) {
         .attr("text-anchor", "middle").attr("fill", col).text(h.label.toUpperCase());
     }
   }
-  /** Every catalogue dot of one category ({ dust: "blackhole", label? }): a
-   *  small ring on each, lit in a sweep from the lightest to the heaviest. */
+  /** Every catalogue dot of one category ({ dust: "blackhole", label? }), or of
+   *  some sources ({ dust: "galaxy", src: ["galaxy", "cluster"] }): a small ring
+   *  on each, lit in a sweep from the lightest to the heaviest. shift: { source:
+   *  decades } then slides each dot down (or up) in mass, after shiftAt seconds
+   *  over shiftDur, leaving a faint ghost where it was: "take the dark matter
+   *  away". */
   function drawDustCat(el, h, age) {
-    const pts = app.dustOfCat?.(h.dust);
+    const pts = h.src ? app.dustOfSrc?.(h.src) : app.dustOfCat?.(h.dust);
     // (ticks?, len?, w?: black holes default to ticks beside the line)
     if (!pts?.length) return;
     // as solid as the Schwarzschild line and a little wider than it
@@ -494,8 +500,15 @@ export async function startNarration(app) {
     const ticks = h.ticks ?? h.dust === "blackhole";
     const ax = sx(1) - sx(0), ay = sy(1) - sy(0), al = Math.hypot(ax, ay) || 1;
     const nx = ay / al, ny = -ax / al;                 // across the line, away from the triangle
-    for (const [r, m] of pts) {
-      const x = sx(r), y = sy(m);
+    const sh = h.shift ? smooth((age - (h.shiftAt ?? 1.2)) / (h.shiftDur ?? 1.8)) : 0;
+    for (const [r, m, id] of pts) {
+      const dm = h.shift ? (h.shift[id] ?? h.shift.all ?? 0) * sh : 0;
+      if (dm) {
+        const gx = sx(r), gy = sy(m);
+        el.append("circle").attr("cx", gx).attr("cy", gy).attr("r", h.r ?? 2.6).attr("fill", "none")
+          .attr("stroke", h.color || app.categories[h.dust]?.color || "#fff").attr("stroke-width", 0.8).attr("opacity", 0.35 * sh);
+      }
+      const x = sx(r), y = sy(m + dm);
       if (x < plot.x - 10 || x > plot.x + plot.w + 10 || y < plot.y - 10 || y > plot.y + plot.h + 10) continue;
       const a = clamp01((age - sweep * (m - lo) / Math.max(1e-6, hi - lo)) / 0.35);
       if (a <= 0) continue;

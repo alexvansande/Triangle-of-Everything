@@ -38,7 +38,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, i
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustOfCat } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustOfCat, dustOfSrc } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -7350,6 +7350,7 @@ if (_ogShot) {
         .filter(e => e.getAttribute("display") !== "none").length,
       dustReady: () => dustReady(),
       dustOfCat: (cat) => dustOfCat(cat),
+      dustOfSrc: (ids) => dustOfSrc(ids),
       /** The moving dots (evolution, composition, spectrum paths): a size
        *  multiplier, an opacity multiplier, or a fixed radius in px. */
       setDots({ size = 1, opacity = 1, radius = null } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; _dotFixedR = radius; },

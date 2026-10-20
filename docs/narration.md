@@ -157,7 +157,7 @@ that the new take doesn't contain are skipped and listed in the console
 ```
 
 - `cam`: where to fly. `r` and `m` are log radius [cm] and log mass [g] at the screen centre, and `span` is decades across the screen width; or use `{ obj: "Name", span }`. Flights take a duration based on distance, then the camera drifts slowly inward while it holds.
-- `hl`: what to highlight until the next cue that has `hl` or `clear`. That can be objects, the lines (`schwarzschild`, `compton`, `hubble`, `water`, `darkmatter`, `mainsequence`, `chandrasekhar`, `tov`, `triangle`), one side of the water line, or arrows between objects or points.
+- `hl`: what to highlight until the next cue that has `hl` or `clear`. That can be objects, the lines (`schwarzschild`, `compton`, `hubble`, `water`, `darkmatter`, `luminous` (the galaxies' line without dark matter), `mainsequence`, `chandrasekhar`, `tov`, `triangle`), one side of the water line, or arrows between objects or points.
 - The unit rulers fade in for every camera move and out once it settles. Add `units: true` to pin them.
 - `classic: "out"` cross-fades from the classic figure to the map. The narration starts on the classic figure.
 
