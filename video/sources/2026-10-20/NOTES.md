@@ -297,3 +297,20 @@ Imprecise, optional:
   10¹⁸ g with dashed guides to both axes, "1 trillion tonnes" and "radius 1.5 picometres"
   (new `cross` highlight), instead of a label.
 - 05d is now 5:43 at 1.1×.
+
+### 05d, third pass
+
+- The rubberband stretch sounded worse ("inside a tin can, or over the phone"): its phase
+  vocoder smears the treated stereo voice and its room reverb. Back to ffmpeg's atempo at
+  1.1×, which is now the default in `scripts/narration-tempo.py`.
+- "And left behind as the skeleton of a dead star, there will always be some sort of dense
+  core behind": the first "And left behind" is cut, so it reads "As the skeleton of a dead
+  star, there will always be some sort of dense core behind".
+- "60 billion of… 60 billions of our suns": the first try is cut.
+- The window: the surveys no longer hand over the red band one after another. Each keeps
+  its own range, in its own lane where they overlap: quasar light above ~10⁴ Suns, the
+  microwave background above ~10 Suns, gravitational waves ~1–100 Suns, microlensing
+  10²² g to ~30 Suns, neutron stars ~10¹⁸–10²³ g (dashed, contested). A faint red trace
+  keeps the first window in view. Same in 05b and 05c.
+- Mass is read on the right everywhere: the narration's mass ruler moved to the right edge,
+  and the mountain dot's guide runs right to it. The left is kept for energy and temperature.

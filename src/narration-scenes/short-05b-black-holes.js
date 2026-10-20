@@ -17,12 +17,13 @@ const KNOWN = { dust: "blackhole", sweep: 1.6 };
 // drops about a decade (big spirals 0.8–1, clusters ~0.85 counting their hot gas)
 // primordial black holes: the window (log10 g) and the masses each survey rules out
 const W0 = [-4.7, 38.3], W1 = [-4.7, 37.3], W2 = [-4.7, 34.3], W3 = [-4.7, 33.3], W4 = [-4.7, 22], W5 = [17, 22], W6 = [17, 18];
+// each survey's own range (docs/dark-matter-constraints.md): they overlap, and each stays drawn
 const QSO = { m: [37.3, 38.3] };   // Lyman-alpha forest in quasar light: above ~1e4 Suns
-const CMB = { m: [34.3, 37.3] };   // accretion marks in the CMB: above ~10 Suns
-const GW = { m: [33.3, 34.3] };    // LIGO/Virgo merger rates: ~1–100 Suns
-const ML = { m: [22, 33.3] };      // microlensing: 1e22 g to ~30 Suns
+const CMB = { m: [34.3, 38.3] };   // accretion marks in the CMB: above ~10 Suns
+const GW = { m: [33.3, 35.3] };    // LIGO/Virgo merger rates: ~1–100 Suns
+const ML = { m: [22, 34.8] };      // microlensing: 1e22 g to ~30 Suns
 const HAW = { m: [-4.7, 17] };     // evaporated, or still glowing (Hawking radiation), and the early elements
-const NS = { m: [18, 22], dash: true };  // captured by neutron stars (contested)
+const NS = { m: [18, 23], dash: true };  // captured by neutron stars (contested), ~1e18–1e23 g
 const GAL = { dust: "galaxy", src: ["galaxy", "cluster"], color: "#80deea", sweep: 1.2, r: 2.2 };
 const GAL_DROP = { ...GAL, sweep: 0.01, shift: { galaxy: -1, cluster: -0.85 }, shiftAt: 0.5, shiftDur: 2 };
 
@@ -99,12 +100,12 @@ export default {
     // Schwarzschild line from the Planck mass to ~1e5 Suns, cut down to what's
     // still open (log10 g; docs/dark-matter-constraints.md)
     { at: "still around", cam: { r: -11, m: 16.8, span: 46 }, clear: true, hl: [{ window: W0, label: "could they\nbe here?", dist: 60 }] },
-    { at: "quasars", hl: [{ window: W1, from: W0, cuts: [{ ...QSO, label: "ruled out by\nquasar light" }] }] },
-    { at: "cosmic background radiation", hl: [{ window: W2, from: W1, cuts: [QSO, { ...CMB, label: "ruled out by the\nmicrowave background" }] }] },
-    { at: "gravitational waves", hl: [{ window: W3, from: W2, cuts: [QSO, CMB, { ...GW, label: "ruled out by\ngravitational waves" }] }] },
-    { at: "microlensing", hl: [{ window: W4, from: W3, cuts: [QSO, CMB, GW, { ...ML, label: "ruled out by\nmicrolensing" }] }] },
+    { at: "quasars", hl: [{ window: W1, from: W0, trace: W0, cuts: [{ ...QSO, label: "ruled out by\nquasar light" }] }] },
+    { at: "cosmic background radiation", hl: [{ window: W2, from: W1, trace: W0, cuts: [QSO, { ...CMB, label: "ruled out by the\nmicrowave background" }] }] },
+    { at: "gravitational waves", hl: [{ window: W3, from: W2, trace: W0, cuts: [QSO, CMB, { ...GW, label: "ruled out by\ngravitational waves" }] }] },
+    { at: "microlensing", hl: [{ window: W4, from: W3, trace: W0, cuts: [QSO, CMB, GW, { ...ML, label: "ruled out by\nmicrolensing" }] }] },
     { at: "cannot be too small", cam: { r: -18, m: 10, span: 34 } },
-    { at: "evaporated them by now", hl: [{ window: W5, from: W4, cuts: [QSO, CMB, GW, ML, { ...HAW, label: "evaporated by\nhawking radiation" }] }] },
+    { at: "evaporated them by now", hl: [{ window: W5, from: W4, trace: W0, cuts: [QSO, CMB, GW, ML, { ...HAW, label: "evaporated by\nhawking radiation" }] }] },
     { at: "window is still open", cam: { r: -8.6, m: 19.4, span: 12 }, hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
     { at: "mass of a moon", cam: { r: 0.5, m: 19.6, span: 24 }, hl: [
       { obj: "Mimas", label: "a small moon" }, { arrow: true, from: { obj: "Mimas" }, to: BH(22), label: "size of a virus", delay: 0.4 }] },
@@ -124,8 +125,8 @@ export default {
     { at: "missing mass is dark matter", hl: [GAL, { line: "darkmatter", label: "dark matter" }] },
     { at: "microscopic black holes", hl: [GAL, { line: "darkmatter", label: "primordial black holes?" }] },
     { at: "studies of neutron stars", cam: { r: -8.6, m: 19.4, span: 12 }, clear: true,
-      hl: [{ window: W6, from: W5, cuts: [ML, HAW, { ...NS, label: "might be ruled out\nby neutron stars" }] }] },
-    { at: "it is still open", hl: [{ window: W5, from: W6, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
+      hl: [{ window: W6, from: W5, trace: W0, cuts: [ML, HAW, { ...NS, label: "might be ruled out\nby neutron stars" }] }] },
+    { at: "it is still open", hl: [{ window: W5, from: W6, trace: W0, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
 
     // ── Cliffhanger: the empty-space diagonal to the next side ──
     { at: "follow those large galaxies", cam: { r: 18, m: 38, span: 34 }, clear: true, hl: [GAL] },

@@ -15,12 +15,13 @@ const KNOWN = { dust: "blackhole", sweep: 1.6 };
 // drops about a decade (big spirals 0.8–1, clusters ~0.85 counting their hot gas)
 // primordial black holes: the window (log10 g) and the masses each survey rules out
 const W0 = [-4.7, 38.3], W1 = [-4.7, 37.3], W2 = [-4.7, 34.3], W3 = [-4.7, 33.3], W4 = [-4.7, 22], W5 = [17, 22], W6 = [17, 18];
+// each survey's own range (docs/dark-matter-constraints.md): they overlap, and each stays drawn
 const QSO = { m: [37.3, 38.3] };   // Lyman-alpha forest in quasar light: above ~1e4 Suns
-const CMB = { m: [34.3, 37.3] };   // accretion marks in the CMB: above ~10 Suns
-const GW = { m: [33.3, 34.3] };    // LIGO/Virgo merger rates: ~1–100 Suns
-const ML = { m: [22, 33.3] };      // microlensing: 1e22 g to ~30 Suns
+const CMB = { m: [34.3, 38.3] };   // accretion marks in the CMB: above ~10 Suns
+const GW = { m: [33.3, 35.3] };    // LIGO/Virgo merger rates: ~1–100 Suns
+const ML = { m: [22, 34.8] };      // microlensing: 1e22 g to ~30 Suns
 const HAW = { m: [-4.7, 17] };     // evaporated, or still glowing (Hawking radiation), and the early elements
-const NS = { m: [18, 22], dash: true };  // captured by neutron stars (contested)
+const NS = { m: [18, 23], dash: true };  // captured by neutron stars (contested), ~1e18–1e23 g
 const GAL = { dust: "galaxy", src: ["galaxy", "cluster"], color: "#80deea", sweep: 1.2, r: 2.2 };
 const GAL_DROP = { ...GAL, sweep: 0.01, shift: { galaxy: -1, cluster: -0.85 }, shiftAt: 0.5, shiftDur: 2 };
 
@@ -104,12 +105,12 @@ export default {
     // Schwarzschild line from the Planck mass to ~1e5 Suns, cut down to what's
     // still open (log10 g; docs/dark-matter-constraints.md)
     { at: "still be around", cam: { r: -11, m: 16.8, span: 46 }, clear: true, hl: [{ window: W0, label: "could they\nbe here?", dist: 60 }] },
-    { at: "quasars", hl: [{ window: W1, from: W0, cuts: [{ ...QSO, label: "ruled out by\nquasar light" }] }] },
-    { at: "cosmic background radiation", hl: [{ window: W2, from: W1, cuts: [QSO, { ...CMB, label: "ruled out by the\nmicrowave background" }] }] },
-    { at: "gravitational waves", hl: [{ window: W3, from: W2, cuts: [QSO, CMB, { ...GW, label: "ruled out by\ngravitational waves" }] }] },
-    { at: "microlensing", hl: [{ window: W4, from: W3, cuts: [QSO, CMB, GW, { ...ML, label: "ruled out by\nmicrolensing" }] }] },
+    { at: "quasars", hl: [{ window: W1, from: W0, trace: W0, cuts: [{ ...QSO, label: "ruled out by\nquasar light" }] }] },
+    { at: "cosmic background radiation", hl: [{ window: W2, from: W1, trace: W0, cuts: [QSO, { ...CMB, label: "ruled out by the\nmicrowave background" }] }] },
+    { at: "gravitational waves", hl: [{ window: W3, from: W2, trace: W0, cuts: [QSO, CMB, { ...GW, label: "ruled out by\ngravitational waves" }] }] },
+    { at: "microlensing", hl: [{ window: W4, from: W3, trace: W0, cuts: [QSO, CMB, GW, { ...ML, label: "ruled out by\nmicrolensing" }] }] },
     { at: "cannot be too small", cam: { r: -18, m: 10, span: 34 } },
-    { at: "would have evaporated", hl: [{ window: W5, from: W4, cuts: [QSO, CMB, GW, ML, { ...HAW, label: "evaporated by\nhawking radiation" }] }] },
+    { at: "would have evaporated", hl: [{ window: W5, from: W4, trace: W0, cuts: [QSO, CMB, GW, ML, { ...HAW, label: "evaporated by\nhawking radiation" }] }] },
     { at: "tiny window", cam: { r: -8.6, m: 19.4, span: 12 }, hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
     // straight across: the same mass squeezed onto the black-hole line
     // (Hyperion, a small moon of Saturn, 5.6e21 g → ~17 nm; Eros, an asteroid, 6.7e18 g → ~1/5 of an atom)
@@ -131,8 +132,8 @@ export default {
     // a slow pull back from the galaxies instead of holding on the dark-matter line
     { at: "of course dark matter", cam: { r: 14, m: 36, span: 44 }, dur: 9, hl: [{ ...GAL, label: "dark matter", labelY: 0.12 }] },
     { at: "research on neutron stars", cam: { r: -8.6, m: 19.4, span: 12 }, clear: true,
-      hl: [{ window: W6, from: W5, cuts: [ML, HAW, { ...NS, label: "might be ruled out\nby neutron stars" }] }] },
-    { at: "empty space in the universe", hl: [{ window: W5, from: W6, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
+      hl: [{ window: W6, from: W5, trace: W0, cuts: [ML, HAW, { ...NS, label: "might be ruled out\nby neutron stars" }] }] },
+    { at: "empty space in the universe", hl: [{ window: W5, from: W6, trace: W0, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
 
     // ── Ending: maybe most matter is in tiny black holes ─────
     // a mountain's mass (1e18 g, Everest on the chart) read off both axes on the line

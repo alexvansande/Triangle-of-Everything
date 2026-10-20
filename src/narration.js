@@ -535,21 +535,21 @@ export async function startNarration(app) {
    *  mass) and down to the size ruler (labelled with the size), drawn out from the
    *  dot. */
   function drawCross(el, h, age) {
-    const plot = app.plot(), SH = layer.clientHeight;
+    const SH = layer.clientHeight;
     const x = sx(h.cross.r), y = sy(h.cross.m), col = h.color || "#ffd54f";
     const k = d3.easeCubicOut(clamp01(age / 0.9));
-    const xL = plot.x + 6, yB = SH * (SCENE.rulerY ?? RULER_Y) - 8;
+    const xR = massAxisX(layer.clientWidth), yB = SH * (SCENE.rulerY ?? RULER_Y) - 8;
     const guide = (x1, y1, x2, y2) => el.append("line").attr("x1", x1).attr("y1", y1)
       .attr("x2", x1 + (x2 - x1) * k).attr("y2", y1 + (y2 - y1) * k)
       .attr("stroke", col).attr("stroke-width", 1.4).attr("stroke-dasharray", "5 4").attr("opacity", 0.9);
-    guide(x, y, xL, y);
+    guide(x, y, xR, y);                                  // mass is read on the right-hand ruler
     guide(x, y, x, yB);
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", 5).attr("fill", col);
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", 9 + 3 * (1 - k)).attr("fill", "none")
       .attr("stroke", col).attr("stroke-width", 1.2).attr("opacity", 0.7);
     const a = clamp01((age - 0.6) / 0.4);
-    if (h.mass) el.append("text").attr("class", "narr-sidelabel").attr("x", xL + 2).attr("y", y - 8)
-      .attr("text-anchor", "start").attr("fill", col).attr("opacity", a).text(h.mass.toUpperCase());
+    if (h.mass) el.append("text").attr("class", "narr-sidelabel").attr("x", xR - 2).attr("y", y - 8)
+      .attr("text-anchor", "end").attr("fill", col).attr("opacity", a).text(h.mass.toUpperCase());
     // the size label rides up the guide, clear of the captions
     if (h.size) el.append("text").attr("class", "narr-sidelabel").attr("x", x + 8).attr("y", Math.min(yB - 6, SH * 0.72))
       .attr("text-anchor", "start").attr("fill", col).attr("opacity", a).text(h.size.toUpperCase());
@@ -557,9 +557,11 @@ export async function startNarration(app) {
   /** Masses still allowed along the Schwarzschild line, and what rules out the
    *  rest: { window: [lo, hi], from?: [lo, hi], label?, cuts: [{ m: [lo, hi],
    *  label?, dash? }] } — log10 grams. The red band slides from `from` to
-   *  `window` (over `dur`, 1.2 s); each cut is a grey band beside the line, and a
-   *  cut with a label gets a horizontal label out in the forbidden corner, joined
-   *  to it by a leader. */
+   *  `window` (over `dur`, 1.2 s) as the newly named cut grows in; each cut is a
+   *  grey band beside the line, in a lane of its own where it overlaps an earlier
+   *  one, with ticks back to the line at its limits; a cut with a label is the new
+   *  one and gets a horizontal label out in the forbidden corner. `trace: [lo, hi]`
+   *  keeps a faint line along the first window. */
   function drawWindow(el, h, age) {
     const at = (m) => [sx(m - 27.83), sy(m)];           // on the Schwarzschild line
     const ax = sx(1) - sx(0), ay = sy(1) - sy(0), al = Math.hypot(ax, ay) || 1;
@@ -589,19 +591,33 @@ export async function startNarration(app) {
       el.insert("line", "text").attr("x1", mid[0]).attr("y1", mid[1]).attr("x2", ex).attr("y2", lab[1] - 6)
         .attr("stroke", stroke).attr("stroke-width", 1).attr("opacity", op);
     };
+    // each survey keeps its own range, in its own lane beside the line where it
+    // overlaps one drawn before it (lanes given in the order the cuts are listed)
+    const lanes = [];
+    const laneOf = (c) => {
+      let i = 0;
+      while (lanes[i]?.some(([lo, hi]) => c.m[0] < hi && lo < c.m[1])) i++;
+      (lanes[i] ||= []).push(c.m); return i;
+    };
+    const grow = smooth(age / (h.dur ?? 1.2));
+    if (h.trace) el.append("path").attr("d", seg(h.trace[0], h.trace[1], 7)).attr("stroke", h.color || "#ff5c7a")
+      .attr("stroke-width", 2).attr("stroke-linecap", "round").attr("opacity", 0.35);
     for (const c of h.cuts || []) {
-      el.append("path").attr("d", seg(c.m[0], c.m[1], 7)).attr("stroke", c.color || "#b0b4c8")
+      const d = 14 + 7 * laneOf(c), col = c.color || "#b0b4c8";
+      // the newly named one (with a label) grows out from its middle
+      const g = c.label ? grow : 1, mid0 = (c.m[0] + c.m[1]) / 2;
+      const lo = mid0 + (c.m[0] - mid0) * g, hi = mid0 + (c.m[1] - mid0) * g;
+      el.append("path").attr("d", seg(lo, hi, d)).attr("stroke", col)
         .attr("stroke-width", 4).attr("stroke-linecap", "butt").attr("opacity", 0.8)
         .attr("stroke-dasharray", c.dash ? "5 4" : null);
-      for (const m of c.m) {                             // end ticks
-        const a = off(at(m), 3), b = off(at(m), 11);
+      if (g === 1) for (const m of c.m) {                // end ticks, back to the line: the limit
+        const a = off(at(m), 3), b = off(at(m), d + 4);
         el.append("line").attr("x1", a[0]).attr("y1", a[1]).attr("x2", b[0]).attr("y2", b[1])
-          .attr("stroke", c.color || "#b0b4c8").attr("stroke-width", 1.4);
+          .attr("stroke", col).attr("stroke-width", 1.2).attr("opacity", 0.8);
       }
       if (c.label) {
-        const mid = off(at((c.m[0] + c.m[1]) / 2), 9), lab = off(mid, c.dist ?? 46);
-        const a = clamp01(age / 0.5);
-        sideLabel(mid, lab, c.label, "#e8eaf6", "#d0d4e8", a);
+        const mid = off(at(mid0), d + 2), lab = off(mid, c.dist ?? 46);
+        sideLabel(mid, lab, c.label, "#e8eaf6", "#d0d4e8", clamp01(age / 0.5));
       }
     }
     const k = h.from ? smooth(age / (h.dur ?? 1.2)) : 1;
@@ -694,6 +710,7 @@ export async function startNarration(app) {
   }
 
   // ---------- unit rulers (HUD) ----------
+  const massAxisX = (SW) => SW - Math.round(SW * 0.065);
   const W_OFF = Math.log10(2);
   function drawUnits(t) {
     const o = unitsOpacity(t);
@@ -701,7 +718,7 @@ export async function startNarration(app) {
     if (o <= 0.01) return;
     gUnits.selectAll("*").remove();
     const SW = layer.clientWidth, SH = layer.clientHeight;
-    const yR = Math.round(SH * (SCENE.rulerY ?? RULER_Y)), xR = Math.round(SW * 0.065);
+    const yR = Math.round(SH * (SCENE.rulerY ?? RULER_Y)), xR = massAxisX(SW);
     // horizontal: size
     gUnits.append("rect").attr("x", 0).attr("y", yR - 16).attr("width", SW).attr("height", 34)
       .attr("fill", "url(#narr-fade-h)");
@@ -718,8 +735,8 @@ export async function startNarration(app) {
       gUnits.append("text").attr("x", x).attr("y", yR + 15).attr("text-anchor", "middle").attr("class", "narr-unit").text(u.label);
     }
     gUnits.append("text").attr("x", SW - 8).attr("y", yR - 7).attr("text-anchor", "end").attr("class", "narr-axname").text("SIZE →");
-    // vertical: mass
-    gUnits.append("rect").attr("x", 0).attr("y", 0).attr("width", xR + 54).attr("height", SH).attr("fill", "url(#narr-fade-v)");
+    // vertical: mass, on the right as in the map (the left is kept for energy and temperature)
+    gUnits.append("rect").attr("x", xR - 54).attr("y", 0).attr("width", SW - xR + 54).attr("height", SH).attr("fill", "url(#narr-fade-v)");
     gUnits.append("line").attr("x1", xR).attr("x2", xR).attr("y1", 0).attr("y2", SH).attr("class", "narr-axis");
     const placedY = [];
     for (const u of MASS_UNITS) {
@@ -729,9 +746,9 @@ export async function startNarration(app) {
       if (placedY.some(p => Math.abs(p - y) < 17)) continue;
       placedY.push(y);
       gUnits.append("line").attr("x1", xR - 5).attr("x2", xR + 5).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
-      gUnits.append("text").attr("x", xR + 8).attr("y", y + 3.5).attr("class", "narr-unit").text(u.label);
+      gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5).attr("text-anchor", "end").attr("class", "narr-unit").text(u.label);
     }
-    gUnits.append("text").attr("transform", `translate(${xR - 6},${SH * 0.16}) rotate(-90)`).attr("text-anchor", "end")
+    gUnits.append("text").attr("transform", `translate(${xR + 13},${SH * 0.16}) rotate(-90)`).attr("text-anchor", "end")
       .attr("class", "narr-axname").text("MASS →");
   }
   const defs = nsvg.append("defs");
@@ -742,8 +759,8 @@ export async function startNarration(app) {
   gh.append("stop").attr("offset", 0.5).attr("stop-color", "#000").attr("stop-opacity", 0.55);
   gh.append("stop").attr("offset", 1).attr("stop-color", "#000").attr("stop-opacity", 0);
   const gv = defs.append("linearGradient").attr("id", "narr-fade-v").attr("x1", 0).attr("x2", 1).attr("y1", 0).attr("y2", 0);
-  gv.append("stop").attr("offset", 0).attr("stop-color", "#000").attr("stop-opacity", 0.6);
-  gv.append("stop").attr("offset", 1).attr("stop-color", "#000").attr("stop-opacity", 0);
+  gv.append("stop").attr("offset", 0).attr("stop-color", "#000").attr("stop-opacity", 0);
+  gv.append("stop").attr("offset", 1).attr("stop-color", "#000").attr("stop-opacity", 0.6);
 
   // ---------- captions ----------
   let capIdx = -2;

@@ -44,7 +44,7 @@ phones keep playing without another tap. The "Autoplay on/off" chip on the
 pause screen switches it; `&autoplay=0` starts with it off.
 
 **Speed**: the shorts' audio is sped up with the pitch kept, to **1.2×** for the 2026-10-07 recordings and **1.1×** from the 2026-10-19 ones (`--tempo 1.1`)
-(`scripts/narration-tempo.py`, which also scales the word timings and writes
+(`scripts/narration-tempo.py`, with ffmpeg's atempo: rubberband made the voice sound like a phone or a tin can; it also scales the word timings and writes
 `"tempo": 1.2` into words.json), so renders come out at 1.2× too. The pause
 screen's 1× to 1.5× (`[` and `]` on a keyboard, `&speed=` in the URL) count
 from the pace it was spoken at: 1.2× plays the file as-is and is the default,
@@ -158,7 +158,7 @@ that the new take doesn't contain are skipped and listed in the console
 
 - `cam`: where to fly. `r` and `m` are log radius [cm] and log mass [g] at the screen centre, and `span` is decades across the screen width; or use `{ obj: "Name", span }`. Flights take a duration based on distance, then the camera drifts slowly inward while it holds.
 - `hl`: what to highlight until the next cue that has `hl` or `clear`. That can be objects, the lines (`schwarzschild`, `compton`, `hubble`, `water`, `darkmatter`, `luminous` (the galaxies' line without dark matter), `mainsequence`, `chandrasekhar`, `tov`, `triangle`), one side of the water line, or arrows between objects or points.
-- The unit rulers fade in for every camera move and out once it settles. Add `units: true` to pin them.
+- The unit rulers fade in for every camera move and out once it settles. Add `units: true` to pin them. Mass is on the right, as in the map; the left side is kept for energy and temperature.
 - `classic: "out"` cross-fades from the classic figure to the map. The narration starts on the classic figure.
 
 The full field list is under [Scene fields](#scene-fields) below.
@@ -298,6 +298,13 @@ Cue fields
              { ellipse: [r, m, rx, ry], rot?, label?, place? } — a loop round a
                cloud of dots (centre and half-axes in decades); leans with the
                3 : 1 density diagonals unless rot (screen degrees) is given
+             { window: [lo, hi], from?, trace?, label?, cuts: [{ m: [lo, hi], label?, dash? }] }
+               — masses (log g) still open along the Schwarzschild line, in red;
+               each cut is a survey's own range, kept drawn and given its own lane
+               where it overlaps an earlier one; the one with a label is the new
+               one and grows in. trace: a faint line along the first window
+             { cross: { r, m }, mass?, size? } — a dot with dashed guides to the
+               mass ruler (right) and the size ruler (bottom), labelled
            any item can take delay (s) to stagger
   clear    end the current highlights
   units    pin the unit rulers on (they also show during every move)

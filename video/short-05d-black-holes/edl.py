@@ -16,7 +16,7 @@ EDL = [
  ("rec24", "intro", 55.02, 56.88),  # Then they will live their life in the main sequence.
  ("rec24", "intro", 57.46, 63.28),  # And as their hydrogen is depleted, they will collapse and expand and collapse and become red giants.
  ("rec24", "intro", 63.96, 76.16),  # And those red giants will then expand into nebulas, which will merge again into new stellar nurseries, creating a new generation of stars.
- ("rec24", "intro", 77.28, 94.10, {"gap": 0.5}),  # And left behind as the skeleton of a dead star, there will always be some sort of dense core behind, which sometimes, depending on the mass, will be a white dwarf, a neutron star, or the most interesting one of them, the black holes.
+ ("rec24", "intro", 78.68, 94.10, {"s": 78.95, "gap": 0.5}),  # ("And left behind" left out: "behind" comes again at the end) As the skeleton of a dead star, there will always be some sort of dense core behind, which sometimes, depending on the mass, will be a white dwarf, a neutron star, or the most interesting one of them, the black holes.
  ("rec24", "line", 99.40, 104.40, {"s": 99.82, "gap": 0.6}),  # Most objects in our triangle will be clusters of dots around some point.   ("But black holes are…" and a first "Most objects," left out)
  ("rec24", "line", 104.78, 108.80),  # But black holes are not, they sit all on this line.
  ("rec24", "line", 109.28, 111.56),  # And that line is called the Schwarzschild radius.
@@ -32,7 +32,8 @@ EDL = [
  ("rec24", "known", 198.64, 204.22, {"gap": 0.12}),  # like the ones in the center of our own Milky Way, which has four million solar masses.   (a second "They vary in size…" left out)
  ("rec24", "dense", 205.36, 208.90, {"gap": 0.5}),  # And as they grow more massive, they actually become less dense.
  ("rec24", "dense", 210.10, 215.64),  # And after some point, the really supermassive ones are actually lighter than water and could float on a pool.
- ("rec24", "dense", 217.68, 232.70),  # Like M87, the first one ever to be photographed, or TON 618, the largest black hole that we know of, whose event horizon is larger than our solar system, and whose mass is 60 billion of our suns.   (the note about M87's photograph left out)
+ ("rec24", "dense", 217.68, 229.40, {"e": 229.65}),  # Like M87, the first one ever to be photographed, or TON 618, the largest black hole that we know of, whose event horizon is larger than our solar system, and whose mass is    (the note about M87's photograph left out)
+ ("rec24", "dense", 232.48, 232.70, {"s": 231.50, "gap": 0.12}),  # 60 billion of our suns.   (the first "60 billion of," a false start, left out)
  ("rec24", "small", 256.90, 261.92, {"gap": 0.6}),  # But the most interesting story is not how big they can be, but actually how small they can be.
  ("rec24", "small", 263.06, 265.50),  # With enough pressure, anything can become a black hole.
  ("rec24", "small", 266.06, 268.42),  # We don't know how to build one, we just don't have the technology.

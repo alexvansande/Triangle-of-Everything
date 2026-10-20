@@ -10,17 +10,17 @@ speed buttons stay in recorded-speed terms: 1× slows the file back to the
 pace it was spoken at, and the take's own tempo (1.2×) plays the file as-is.
 A take that already has a tempo is left alone (rebuild it from the edit).
 
-The stretch is done with rubberband (--engine rubberband, the default), tuned for
-speech: smooth transients and a soft onset detector keep the voice from sounding
-phasey or mechanical, which ffmpeg's simpler atempo does more and more above about
-1.2×. --engine atempo gives the old behaviour.
+The stretch is done with ffmpeg's atempo (--engine atempo, the default), which keeps
+speech clean at the tempos used here (1.1–1.3×). --engine rubberband is there for
+comparison only: rubberband's phase vocoder made the treated voice (stereo, with the
+room reverb) sound like it came through a phone or a tin can at 1.1× (05d, 2026-10-20).
 """
 import argparse, json, os, subprocess, sys
 
 ap = argparse.ArgumentParser()
 ap.add_argument("takes", nargs="+")
 ap.add_argument("--tempo", type=float, default=1.2)
-ap.add_argument("--engine", choices=["rubberband", "atempo"], default="rubberband")
+ap.add_argument("--engine", choices=["rubberband", "atempo"], default="atempo")
 a = ap.parse_args()
 for take in a.takes:
     d = os.path.join("public/narration", take)
