@@ -257,6 +257,15 @@ which lines are short-only (intros, endings), which are long-only, and which
 are shared, and keep the scene scripts per cut. They usually share their cues,
 so a short's scene can import the matching section from another scene.
 
+## Reference figures
+
+- **What has been ruled out as dark matter**: [`img/dark-matter-constraints.png`](img/dark-matter-constraints.png)
+  (SVG alongside) marks every primordial-black-hole limit (by mass, along the
+  Schwarzschild line) and every macro dark-matter limit (mica, human injuries, white
+  dwarfs, CMB) on the chart's axes; [`dark-matter-constraints.md`](dark-matter-constraints.md)
+  explains each with sources. Use it to check narration about dark matter and
+  primordial black holes (video 5 and after).
+
 ## Scene fields
 
 A scene is `src/narration-scenes/<take>.js`; a take picks it with `"scene"` in its

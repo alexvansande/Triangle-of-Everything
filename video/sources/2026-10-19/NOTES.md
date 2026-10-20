@@ -545,6 +545,10 @@ camera moves are about twice as close as before.
 
 ## For the next recording session: the galaxies' diagonal
 
+See also the dark-matter limits figure, [`docs/img/dark-matter-constraints.png`](../../../docs/img/dark-matter-constraints.png),
+and its write-up, [`docs/dark-matter-constraints.md`](../../../docs/dark-matter-constraints.md): every primordial
+black hole and macro dark-matter limit on the triangle's axes, with sources.
+
 The author will re-record the dark-matter part of video 5. What the chart shows:
 - Galaxies and clusters sit on their own diagonal (mean density about 1e-24 g/cm³)
   mostly because they are mostly empty space between stars, not because of dark

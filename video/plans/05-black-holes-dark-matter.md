@@ -1,5 +1,10 @@
 # Video 5 (planned): black holes, dark matter, the largest objects
 
+> **Reference figure:** what has been ruled out as dark matter (primordial black
+> holes by mass range, macro dark matter including the "human injuries" limit) on
+> the triangle's axes: [`docs/img/dark-matter-constraints.png`](../../docs/img/dark-matter-constraints.png)
+> (SVG alongside), explained in [`docs/dark-matter-constraints.md`](../../docs/dark-matter-constraints.md).
+
 What the app's tour (`content/tour-content.md`: black-holes, dark-matter, largest)
 and the old full-tour narration (take 1, 2026-10-06, 12:16–23:00; in git history
 under `video/narration-take-1/raw-transcript.md`) already say, checked against the
