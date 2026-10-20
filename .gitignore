@@ -36,3 +36,6 @@ posters/
 .narr-render-*/
 __pycache__/
 narration-frames/
+
+# rendered videos (local only; copies go to iCloud)
+output/

@@ -1,0 +1,43 @@
+{
+  "_about": "Per-video settings for scripts/youtube-publish.py. Edit titles, tags and dates here; the description is built from video/DESCRIPTION.md, the blurb below and the track's credit in video/music/CREDITS.md. privacy: private | unlisted | public; publishAt (ISO 8601, e.g. 2026-10-27T15:00:00-03:00) schedules a private video to go public then. YouTube counts a vertical video as a Short only up to 3:00.",
+  "defaults": {
+    "privacy": "private",
+    "categoryId": "28",
+    "madeForKids": false,
+    "language": "en",
+    "tags": ["triangle of everything", "physics", "astronomy", "science", "mass", "size", "density"],
+    "playlist": "The Triangle of Everything"
+  },
+  "videos": [
+    {
+      "take": "short-01-hook",
+      "title": "The most interesting chart in science #Shorts",
+      "blurb": "The classic chart of every object by mass and size, and why it's much more than mass versus size.",
+      "music": "Space X-plorers"
+    },
+    {
+      "take": "short-02-density",
+      "title": "Why everything falls on one diagonal #Shorts",
+      "blurb": "Humans, a liter of water, the cube law, and what floats or sinks.",
+      "music": "Dreamer"
+    },
+    {
+      "take": "short-03-planets",
+      "title": "From humans to gas giants: climbing the density line",
+      "blurb": "From humans to round worlds, gas giants and brown dwarfs.",
+      "music": "Soaring"
+    },
+    {
+      "take": "short-04-stars",
+      "title": "How planets turn into stars (and what's left when they die)",
+      "blurb": "Brown dwarfs, the main sequence, the life of a star, and what is left of it.",
+      "music": "Immersed"
+    },
+    {
+      "take": "short-05d-black-holes",
+      "title": "Black holes aren't objects, they're a line",
+      "blurb": "The top-left limit of everything and why it is 45°, TON 618, the window for primordial black holes, galaxies without their dark matter, and the lucky few survivors.",
+      "music": "Mesmerize"
+    }
+  ]
+}
