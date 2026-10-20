@@ -314,3 +314,27 @@ Imprecise, optional:
   keeps the first window in view. Same in 05b and 05c.
 - Mass is read on the right everywhere: the narration's mass ruler moved to the right edge,
   and the mountain dot's guide runs right to it. The left is kept for energy and temperature.
+- Black-hole ticks (every catalogued black hole) only on "sit all on this line" now (all
+  video 5 versions); held through the rest they looked odd.
+- "A soup of very hot and dense matter": no longer a label on the Schwarzschild line but a
+  density line, "the whole universe / was a hot dense soup" (a nod to the Big Bang Theory
+  theme: "our whole universe was in a hot, dense state"). It's drawn at 10⁴⁰ g/cm³, the
+  universe about 10⁻¹⁷ s in (radiation era: ρ ≈ 4.5×10⁵ g/cm³ ÷ t²), which meets the
+  black-hole line at ~3×10²¹ g: a lump of soup as big as its own horizon collapses.
+- "Maybe in the early moments of our history": a density line too, 10⁴⁴ g/cm³, "density of
+  the universe, 10⁻¹⁹ seconds after the big bang", meeting the black-hole line at ~2×10¹⁹ g,
+  inside the window. Not minutes: black holes this small form within ~10⁻²⁰–10⁻¹⁶ s (a
+  black hole forms at about the horizon mass, t ≈ GM/c³).
+- Black-hole ticks (every catalogued black hole) only on "sit all on this line" now (all
+  video 5 versions); held through the rest they looked odd.
+- "A soup of very hot and dense matter": no longer a label on the Schwarzschild line but a
+  density line, "the whole universe / was a hot dense soup" (the line is from the Big Bang
+  Theory theme by Barenaked Ladies: "our whole universe was in a hot, dense state"). Drawn
+  at 10⁴⁰ g/cm³, the universe about 10⁻¹⁷ s in (radiation era: ρ ≈ 4.5×10⁵ g/cm³ ÷ t²);
+  it meets the black-hole line at ~3×10²¹ g, where a lump of soup as big as its own
+  horizon collapses.
+- "Maybe in the early moments of our history": a density line too, 10⁴⁴ g/cm³ (~10⁻¹⁹ s),
+  "density of universe / first instants after big bang", meeting
+  the black-hole line at ~2×10¹⁹ g, inside the window. Black holes this small form within
+  ~10⁻²⁰–10⁻¹⁶ s (at about the horizon mass, t ≈ GM/c³), so "less than a billionth" is true
+  with lots of room.

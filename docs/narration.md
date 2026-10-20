@@ -289,6 +289,8 @@ Cue fields
                      "darkmatter"|"mainsequence"|"triangle"|
                      "chandrasekhar"|"tov", label? }
              { side: "left"|"right", of?: "water", label? }
+             { density: logRho, label? } — a line of constant density (log g/cm³);
+               "\n" in a line label stacks it
              { arrow: true, from: {obj}|{r,m}, to: {obj}|{r,m,mark}, label? }
              { swing: [{obj}|{r,m}, {obj}|{r,m}], period?, label? } — a star
                swinging back and forth between two points, further each time

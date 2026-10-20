@@ -316,6 +316,7 @@ export async function startNarration(app) {
       el.attr("opacity", op);
       if (h.obj) drawObj(el, h, age);
       else if (h.line) drawLine(el, LINES[h.line], h, age);
+      else if (h.density != null) drawLine(el, { pts: densitySegment(h.density), color: "#ffab40" }, h, age);
       else if (h.side) drawSide(el, h);
       else if (h.arrow) drawArrow(el, h, age);
       else if (h.swing) drawSwing(el, h, age);
@@ -451,9 +452,12 @@ export async function startNarration(app) {
       const mid = h.labelAt != null ? [sx(h.labelAt[0]), sy(h.labelAt[1])] : clipMid(p, plot);
       const ang = Math.atan2(p[p.length - 1][1] - p[0][1], p[p.length - 1][0] - p[0][0]) * 180 / Math.PI;
       const a2 = ang > 90 ? ang - 180 : ang < -90 ? ang + 180 : ang;
-      el.append("text").attr("class", "narr-linelabel")
-        .attr("transform", `translate(${mid[0]},${mid[1]}) rotate(${a2}) translate(0,-10)`)
-        .attr("text-anchor", "middle").attr("fill", col).attr("opacity", prog).text(h.label.toUpperCase());
+      // "\n" stacks the label in lines above the line
+      const lines = h.label.toUpperCase().split("\n");
+      const t = el.append("text").attr("class", "narr-linelabel")
+        .attr("transform", `translate(${mid[0]},${mid[1]}) rotate(${a2}) translate(0,${-10 - 13 * (lines.length - 1)})`)
+        .attr("text-anchor", "middle").attr("fill", col).attr("opacity", prog);
+      lines.forEach((ln, i) => t.append("tspan").attr("x", 0).attr("dy", i ? "1.2em" : 0).text(ln));
     }
   }
   function clipMid(p, plot) {

@@ -67,7 +67,7 @@ export default {
       { ellipse: [21.85, 41.6, 0.95, 2.3], label: "galaxies", place: "above", color: "#80deea", delay: 0.75 },
     ] },
     { at: "sit all on this line", icons: true, hl: [KNOWN, { ...SCHW, label: "black holes" }] },
-    { at: "called the schwarzschild radius", hl: [KNOWN, { ...SCHW, label: "schwarzschild radius" }] },
+    { at: "called the schwarzschild radius", hl: [{ ...SCHW, label: "schwarzschild radius" }] },
     { at: "top left limit", cam: FULL, hl: [{ line: "triangle" }, { ...SCHW, label: "nothing crosses it" }, { side: "left", of: "schwarzschild" }] },
     { at: "too small or too massive", cam: { r: 5, m: 28, span: 16 },
       hl: [SCHW, { obj: "Earth" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), label: "squeeze to 9 mm", delay: 0.6 }] },
@@ -76,21 +76,21 @@ export default {
     { at: "don't have a size", cam: { obj: "Stellar BH", span: 6 }, clear: true, hl: [SCHW, { obj: "Stellar BH", label: "black hole" }] },
     { at: "singularity", hl: [SCHW, { obj: "Stellar BH", label: "a point · size zero" }] },
     { at: "event horizon", hl: [SCHW, { obj: "Stellar BH", label: "size = event horizon" }] },
-    { at: "directly related to mass", cam: { r: 4, m: 31, span: 24 }, hl: [{ ...SCHW, label: "twice the mass, twice the size" }, KNOWN] },
-    { at: "45 degree angle", hl: [{ ...SCHW, label: "1 : 1 · 45°" }, KNOWN] },
+    { at: "directly related to mass", cam: { r: 4, m: 31, span: 24 }, hl: [{ ...SCHW, label: "twice the mass, twice the size" }] },
+    { at: "45 degree angle", hl: [{ ...SCHW, label: "1 : 1 · 45°" }] },
 
     // ── The big ones ─────────────────────────────────────────
     { at: "collapsing core of a dying star", cam: { r: 8, m: 34, span: 12 }, hl: [{ obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "collapsed stars" }] },
-    { at: "mergers of other black holes", hl: [{ obj: "Stellar BH", label: "or merged black holes" }, KNOWN] },
-    { at: "hundreds and thousands", cam: { r: 11, m: 38.6, span: 20 }, hl: [{ ...KNOWN, label: "every known black hole", labelY: 0.16 }] },
-    { at: "our own milky way", cam: { r: 14, m: 41.5, span: 12 }, hl: [KNOWN, { obj: "Sgr A*", label: "sgr a* · our galaxy's" }] },
-    { at: ["4 million", "four million"], hl: [KNOWN, { obj: "Sgr A*", label: "4 million suns" }] },
+    { at: "mergers of other black holes", hl: [{ obj: "Stellar BH", label: "or merged black holes" }] },
+    { at: "hundreds and thousands", cam: { r: 11, m: 38.6, span: 20 }, hl: [{ ...SCHW, label: "every known black hole" }] },
+    { at: "our own milky way", cam: { r: 14, m: 41.5, span: 12 }, hl: [{ obj: "Sgr A*", label: "sgr a* · our galaxy's" }] },
+    { at: ["4 million", "four million"], hl: [{ obj: "Sgr A*", label: "4 million suns" }] },
     { at: "become less dense", cam: { r: 13.5, m: 41.3, span: 14 }, hl: [SCHW, { line: "water", label: "water" }] },
     { at: "lighter than water", hl: [SCHW, { line: "water", label: "water" }, { side: "right", of: "water" },
       { obj: "Sgr A*", label: "denser than water", place: "left" }, { obj: "M87*", label: "lighter than water", delay: 0.6 }] },
     { at: "float on a pool", hl: [{ line: "water" }, { side: "right", of: "water" }, { obj: "M87*", label: "it would float" }, { obj: "Ton 618", label: false }] },
-    { at: "m87", cam: { r: 15.4, m: 43.3, span: 7 }, hl: [KNOWN, { obj: "M87*", label: "m87* · first photographed", place: "left" }] },
-    { at: "largest black hole", hl: [KNOWN, { obj: "M87*", label: false }, { obj: "Ton 618", label: "ton 618", place: "left" }] },
+    { at: "m87", cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: "m87* · first photographed", place: "left" }] },
+    { at: "largest black hole", hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "ton 618", place: "left" }] },
     { at: "our solar system", hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "horizon ≈ 40× neptune's orbit", place: "left" }] },
     { at: "60 billion", hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "~60 billion suns", place: "left" }] },
 
@@ -100,7 +100,9 @@ export default {
       hl: [SCHW, { obj: "Earth" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), label: "squeeze to 9 mm", delay: 0.6 }] },
     { at: "core of dying stars", cam: { obj: "Stellar BH", span: 8 }, hl: [{ obj: "Stellar BH", label: "collapsed stars" }] },
     { at: "early moments of the big bang", cam: { r: -8, m: 18, span: 34 }, clear: true },
-    { at: "soup of very hot", hl: [{ ...SCHW, label: "a hot, dense soup" }] },
+    // the early universe as a density line: ~1e40 g/cm³ about 1e-17 s in, which meets
+    // the black-hole line at ~3e21 g (a lump of it the size of its own horizon collapses)
+    { at: "soup of very hot", hl: [SCHW, { density: 40, label: "the whole universe\nwas a hot dense soup" }] },
     // the window narrowing as each survey is named: a red band along the
     // Schwarzschild line from the Planck mass to ~1e5 Suns, cut down to what's
     // still open (log10 g; docs/dark-matter-constraints.md)
@@ -140,7 +142,10 @@ export default {
     { at: "much as a mountain", hl: [{ window: W5, cuts: [ML, HAW, NS] },
       { cross: BH(18), mass: "1 trillion tonnes", size: "radius 1.5 picometres", delay: 0.2 }] },
     { at: "something else is dark matter", cam: { r: 4, m: 30, span: 50 }, dur: 6, clear: true },
-    { at: "early moments of our history", cam: { r: -8.6, m: 19.4, span: 12 }, clear: true, hl: [{ window: W5, cuts: [ML, HAW, NS], label: "tiny black holes?", dist: 40 }] },
+    // radiation era: ρ ≈ 4.5e5 g/cm³ / t² (t in s); 1e44 g/cm³ at ~1e-19 s, which meets the
+    // black-hole line at ~2e19 g, in the window
+    { at: "early moments of our history", cam: { r: -8.6, m: 19.4, span: 12 }, clear: true,
+      hl: [{ density: 44, label: "density of universe\nfirst instants after big bang" }] },
     { at: "lucky few survivors", cam: FULL, dur: 3, hl: [{ line: "water", label: "everything else" }] },
   ],
 };
