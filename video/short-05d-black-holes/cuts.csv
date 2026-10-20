@@ -31,20 +31,21 @@ rec24,small,186.48,187.15,269.44,270.10,But we know
 rec24,small,187.20,191.85,272.92,277.62,two moments where the conditions to make a black hole happens.
 rec24,small,192.13,195.88,277.90,281.64,"One of them is, as we said, the core of dying stars."
 rec24,small,196.16,208.56,281.78,294.82,"And the second one happened in the very early moments of the Big Bang, when everything was a soup of very hot and dense matter."
-rec24,pbh,209.06,221.86,299.19,312.29,"So back then, some of that soup could have collapsed into black holes of multiple sizes, and some of those might still be around."
-rec24,pbh,222.14,223.77,312.54,314.18,And we've been looking for them.
-rec24,pbh,224.05,233.58,314.24,323.77,"We've done surveys using quasars and the cosmic background radiation, and then gravitational waves, and finally microlensing."
-rec24,pbh,233.98,249.08,334.63,351.45,"And as we've done those surveys and found nothing so far, the window on where primordial black holes can exist has been closing somewhat."
-rec24,pbh,249.48,257.70,387.46,395.73,"And we also know they cannot be too small, otherwise they would have evaporated through a process that we called Hawking radiation."
-rec24,window,258.20,276.09,407.64,425.68,"So there is a tiny window of size and mass those objects could be, and they would be something like as tiny as a virus, but with the mass of a small moon, or maybe something as heavy as an asteroid compressed to the size of an atom."
-rec24,window,276.49,295.58,426.01,445.31,"And if those objects exist and are out there and are very common, they would be basically invisible. They would not react to light. They would not be visible on a telescope. We could only find them by secondary effects, like the effects on their gravity."
-rec24,dm,295.98,302.76,448.58,455.37,"and the reason we've been looking for such objects for so long, is that we have detected those effects on gravity."
-rec24,dm,303.04,319.93,455.38,472.26,"When we measure galaxies, we find that they are much heavier than they ought to be, sometimes ten times as much, meaning that most of the mass of the universe is formed of something very heavy, and basically invisible, which is, of course, dark matter."
-rec24,dm,320.33,333.56,490.85,504.31,"We don't know what it is yet, and there are a lot of candidates for it, but if they are just very tiny black holes, then that doesn't require any new physics or any new particles to exist."
-rec24,dm,333.96,335.72,507.02,508.78,So we keep looking for them.
-rec24,dm,336.00,338.17,508.93,511.10,That window is still closing down.
-rec24,dm,338.45,343.01,511.08,515.64,There's some real research on neutron stars that suggests that the window is even smaller.
-rec24,end,343.41,356.34,542.75,556.48,little objects the size of an atom that weight as much as a mountain.
-rec24,end,356.94,361.34,597.20,601.60,Or maybe not. Maybe you'll figure out that something else is dark matter.
-rec24,end,361.74,375.27,578.69,592.29,"But I still find it fascinating that maybe in the early moments of our history, most of the matter just collapsed into black holes to the size of an atom."
-rec24,end,375.77,385.05,635.37,645.08,"And we, everything else, the galaxies, the stars, all that we know of, are just the lucky few survivors."
+rec24,pbh,209.06,218.89,302.38,312.29,"that soup could have collapsed into black holes of multiple sizes, and some of those might still be around."
+rec24,pbh,219.17,220.80,312.54,314.18,And we've been looking for them.
+rec24,pbh,221.08,230.61,314.24,323.77,"We've done surveys using quasars and the cosmic background radiation, and then gravitational waves, and finally microlensing."
+rec24,pbh,231.01,235.08,334.63,338.70,"And as we've done those surveys and found nothing so far,"
+rec24,pbh,235.28,241.18,345.45,351.45,primordial black holes can exist has been closing somewhat.
+rec24,pbh,241.58,249.80,387.46,395.73,"And we also know they cannot be too small, otherwise they would have evaporated through a process that we called Hawking radiation."
+rec24,window,250.30,268.19,407.64,425.68,"So there is a tiny window of size and mass those objects could be, and they would be something like as tiny as a virus, but with the mass of a small moon, or maybe something as heavy as an asteroid compressed to the size of an atom."
+rec24,window,268.59,287.68,426.01,445.31,"And if those objects exist and are out there and are very common, they would be basically invisible. They would not react to light. They would not be visible on a telescope. We could only find them by secondary effects, like the effects on their gravity."
+rec24,dm,288.08,294.86,448.58,455.37,"and the reason we've been looking for such objects for so long, is that we have detected those effects on gravity."
+rec24,dm,295.14,312.03,455.38,472.26,"When we measure galaxies, we find that they are much heavier than they ought to be, sometimes ten times as much, meaning that most of the mass of the universe is formed of something very heavy, and basically invisible, which is, of course, dark matter."
+rec24,dm,312.43,325.66,490.85,504.31,"We don't know what it is yet, and there are a lot of candidates for it, but if they are just very tiny black holes, then that doesn't require any new physics or any new particles to exist."
+rec24,dm,326.06,327.82,507.02,508.78,So we keep looking for them.
+rec24,dm,328.10,330.27,508.93,511.10,That window is still closing down.
+rec24,dm,330.55,335.11,511.08,515.64,There's some real research on neutron stars that suggests that the window is even smaller.
+rec24,end,335.51,348.44,542.75,556.48,little objects the size of an atom that weight as much as a mountain.
+rec24,end,349.04,353.44,597.20,601.60,Or maybe not. Maybe you'll figure out that something else is dark matter.
+rec24,end,353.84,367.37,578.69,592.29,"But I still find it fascinating that maybe in the early moments of our history, most of the matter just collapsed into black holes to the size of an atom."
+rec24,end,367.87,377.15,635.37,645.08,"And we, everything else, the galaxies, the stars, all that we know of, are just the lucky few survivors."

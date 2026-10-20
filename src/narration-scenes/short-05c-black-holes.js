@@ -27,6 +27,7 @@ export default {
   title: "Black holes (take 4)",
   blurb: "Take 4: the top-left limit, TON 618, the window for primordial black holes, galaxies without their dark matter, and the lucky survivors.",
   start: FULL,
+  pbhWindow: false,   // the window is drawn as it's told (window highlight), not the map's
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Mesmerize",

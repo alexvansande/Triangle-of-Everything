@@ -268,6 +268,9 @@ so a short's scene can import the matching section from another scene.
 
 ## Scene fields
 
+Scene-level: `pbhWindow: false` hides the map's own primordial black hole window
+(and its "ruled out by" labels) for a scene that draws the window itself.
+
 A scene is `src/narration-scenes/<take>.js`; a take picks it with `"scene"` in its
 words.json (default: the take's own name).
 

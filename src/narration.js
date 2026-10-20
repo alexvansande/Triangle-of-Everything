@@ -164,6 +164,9 @@ export async function startNarration(app) {
   // the paths' moving dots: as big as the catalogue dust (1.15 px), brighter
   // than in the app so they still read in a phone video
   app.setDots?.(SCENE.dots ?? { radius: 1.15, opacity: 1.7 });
+  // a scene that tells the primordial black hole window itself hides the map's
+  // ready-made one, so no label shows before it's been talked about
+  app.setPbhWindow?.(SCENE.pbhWindow !== false);
 
   const objByName = new Map(app.objects.map(o => [o.name, o]));
   const objColor = (o) => app.categories[o.cat]?.color || "#fff";
@@ -319,6 +322,7 @@ export async function startNarration(app) {
       else if (h.dust) drawDustCat(el, h, age);
       else if (h.ellipse) drawEllipse(el, h, age);
       else if (h.window) drawWindow(el, h, age);
+      else if (h.cross) drawCross(el, h, age);
     });
   }
   /** A glowing band over one axis: { axis: "left"|"right"|"top"|"bottom", label? }.
@@ -525,6 +529,30 @@ export async function startNarration(app) {
     if (h.label) el.append("text").attr("class", "narr-sidelabel")
       .attr("x", plot.x + plot.w * (h.labelX ?? 0.5)).attr("y", plot.y + plot.h * (h.labelY ?? 0.2))
       .attr("text-anchor", "middle").attr("fill", col).attr("opacity", clamp01(age / 0.6)).text(h.label.toUpperCase());
+  }
+  /** A point read off both axes: { cross: { r, m }, mass: "label", size: "label",
+   *  color? } — a dot, with dashed guides out to the left edge (labelled with the
+   *  mass) and down to the size ruler (labelled with the size), drawn out from the
+   *  dot. */
+  function drawCross(el, h, age) {
+    const plot = app.plot(), SH = layer.clientHeight;
+    const x = sx(h.cross.r), y = sy(h.cross.m), col = h.color || "#ffd54f";
+    const k = d3.easeCubicOut(clamp01(age / 0.9));
+    const xL = plot.x + 6, yB = SH * (SCENE.rulerY ?? RULER_Y) - 8;
+    const guide = (x1, y1, x2, y2) => el.append("line").attr("x1", x1).attr("y1", y1)
+      .attr("x2", x1 + (x2 - x1) * k).attr("y2", y1 + (y2 - y1) * k)
+      .attr("stroke", col).attr("stroke-width", 1.4).attr("stroke-dasharray", "5 4").attr("opacity", 0.9);
+    guide(x, y, xL, y);
+    guide(x, y, x, yB);
+    el.append("circle").attr("cx", x).attr("cy", y).attr("r", 5).attr("fill", col);
+    el.append("circle").attr("cx", x).attr("cy", y).attr("r", 9 + 3 * (1 - k)).attr("fill", "none")
+      .attr("stroke", col).attr("stroke-width", 1.2).attr("opacity", 0.7);
+    const a = clamp01((age - 0.6) / 0.4);
+    if (h.mass) el.append("text").attr("class", "narr-sidelabel").attr("x", xL + 2).attr("y", y - 8)
+      .attr("text-anchor", "start").attr("fill", col).attr("opacity", a).text(h.mass.toUpperCase());
+    // the size label rides up the guide, clear of the captions
+    if (h.size) el.append("text").attr("class", "narr-sidelabel").attr("x", x + 8).attr("y", Math.min(yB - 6, SH * 0.72))
+      .attr("text-anchor", "start").attr("fill", col).attr("opacity", a).text(h.size.toUpperCase());
   }
   /** Masses still allowed along the Schwarzschild line, and what rules out the
    *  rest: { window: [lo, hi], from?: [lo, hi], label?, cuts: [{ m: [lo, hi],

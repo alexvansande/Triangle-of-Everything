@@ -274,3 +274,26 @@ Imprecise, optional:
    most of the universe's energy), and asteroid-mass black holes are larger than a
    proton (100 to 10,000 times). The cut uses the take that says "most of the matter …
    black holes the size of an atom".
+
+### 05d, second pass (author's notes after watching)
+
+- A "strange mechanical effect" on the voice: likely the time-stretch. 05d now plays at
+  **1.1×** (the author likes the rhythm) and `scripts/narration-tempo.py` uses ffmpeg's
+  **rubberband** stretcher by default (smooth transients, soft onset detector, long
+  window), which keeps speech much cleaner than the old `atempo`; `--engine atempo`
+  gives the old behaviour. Earlier takes keep their atempo stretch until rebuilt.
+- Stutters cut: "So back then, some of those, some," before "So back then, some of
+  that soup…" (rec24 299–302.4 s), and "the window of where those black-, the window
+  on-" before "the window on where primordial black holes can exist" (339–345.5 s).
+- The map's own primordial black hole window and its "ruled out by" labels are hidden in
+  05b, 05c and 05d (`pbhWindow: false` in the scene; `app.setPbhWindow`), so a label only
+  appears when that survey is named.
+- The small moon is now Hyperion (Saturn's, 5.6 × 10²¹ g, inside the window), so its
+  arrow to the black-hole line is horizontal: the same mass, about 17 nm across; the
+  asteroid is Eros (6.7 × 10¹⁸ g, about a fifth of an atom), also horizontal.
+- After the galaxies drop, a slow pull back (9 s) replaces the held shot of the
+  dark-matter line; "something else is dark matter" is a slow zoom out too.
+- "Objects the size of an atom that weigh as much as a mountain": a dot on the line at
+  10¹⁸ g with dashed guides to both axes, "1 trillion tonnes" and "radius 1.5 picometres"
+  (new `cross` highlight), instead of a label.
+- 05d is now 5:43 at 1.1×.

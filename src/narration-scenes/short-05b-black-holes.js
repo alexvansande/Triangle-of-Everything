@@ -30,6 +30,7 @@ export default {
   title: "Black holes (new take)",
   blurb: "The same story in one new take: the top-left limit, TON 618, the window for primordial black holes, and galaxies without their dark matter.",
   start: FULL,
+  pbhWindow: false,   // the window is drawn as it's told (window highlight), not the map's
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Mesmerize",

@@ -1444,7 +1444,9 @@ function drawDarkMatterRegions() {
  *  still be the dark matter (PBH_WINDOW), with an arrow at each end, outside the
  *  line like the other black-hole labels, naming what rules out the masses beyond
  *  it. Everything clicks through to the PBH article. */
+let _pbhWindowHidden = false;   // narration scenes that draw their own window hide this one
 function drawPbhWindow() {
+  if (_pbhWindowHidden) return;
   const [m0, m1] = PBH_WINDOW.logM;
   const col = "#ff5c7c";
   const open = (e) => { e.stopPropagation(); openInfoPanel(PBH_WINDOW.slug, PBH_WINDOW.title); setSidebarOpen(true); };
@@ -7357,6 +7359,8 @@ if (_ogShot) {
       /** Only these objects keep their picture (the rest are plain dots over
        *  the dust); null for all of them. */
       setIcons(names) { _iconOnly = names ? new Set(names) : null; redraw(); },
+      /** Show or hide the map's own primordial black hole window and its labels. */
+      setPbhWindow(show) { _pbhWindowHidden = !show; redraw(); },
       setStage(mode) { if (mode !== _viewportLock) setViewportLock(mode); },
       isMobile: () => _isMobile,
       prepare() {

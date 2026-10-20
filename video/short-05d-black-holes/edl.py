@@ -40,10 +40,11 @@ EDL = [
  ("rec24", "small", 272.96, 277.08, {"s": 272.92, "gap": 0.05}),  # two moments where the conditions to make a black hole happens.   ("two places, but we know" left out)
  ("rec24", "small", 277.86, 280.92),  # One of them is, as we said, the core of dying stars.
  ("rec24", "small", 281.48, 293.92),  # And the second one happened in the very early moments of the Big Bang, when everything was a soup of very hot and dense matter.
- ("rec24", "pbh", 299.32, 311.60, {"gap": 0.5}),  # So back then, some of that soup could have collapsed into black holes of multiple sizes, and some of those might still be around.
+ ("rec24", "pbh", 304.28, 311.60, {"s": 302.38, "gap": 0.5}),  # So back then, some of that soup could have collapsed into black holes of multiple sizes, and some of those might still be around.   ("So back then, some of those, some," left out)
  ("rec24", "pbh", 312.62, 313.76),  # And we've been looking for them.
  ("rec24", "pbh", 314.20, 322.52),  # We've done surveys using quasars and the cosmic background radiation, and then gravitational waves, and finally microlensing.
- ("rec24", "pbh", 334.08, 350.60, {"gap": 0.4}),  # And as we've done those surveys and found nothing so far, the window on where primordial black holes can exist has been closing somewhat.   (two tries left out)
+ ("rec24", "pbh", 334.08, 338.08, {"e": 338.7, "gap": 0.4}),  # And as we've done those surveys and found nothing so far,
+ ("rec24", "pbh", 347.10, 350.60, {"s": 345.45, "gap": 0.2}),  # the window on where primordial black holes can exist has been closing somewhat.   (two tries left out, and "the window of where those black-, the window on-")
  ("rec24", "pbh", 387.56, 394.78, {"gap": 0.4}),  # And we also know they cannot be too small, otherwise they would have evaporated through a process that we called Hawking radiation.
  ("rec24", "window", 407.28, 425.24, {"gap": 0.5}),  # So there is a tiny window of size and mass those objects could be, and they would be something like as tiny as a virus, but with the mass of a small moon, or maybe something as heavy as an asteroid compressed to the size of an atom.   ("So there's a tiny window in which…" left out)
  ("rec24", "window", 425.98, 444.66, {"gap": 0.4}),  # And if those objects exist and are out there and are very common, they would be basically invisible. They would not react to light. They would not be visible on a telescope. We could only find them by secondary effects, like the effects on their gravity.

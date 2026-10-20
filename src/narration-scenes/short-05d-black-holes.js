@@ -28,6 +28,7 @@ export default {
   title: "Black holes (take 5)",
   blurb: "Take 5: the top-left limit and why it is 45°, TON 618, the window for primordial black holes, galaxies without their dark matter, and the lucky few survivors.",
   start: FULL,
+  pbhWindow: false,   // the window is drawn as it's told (window highlight), not the map's
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Mesmerize",
@@ -110,10 +111,12 @@ export default {
     { at: "cannot be too small", cam: { r: -18, m: 10, span: 34 } },
     { at: "would have evaporated", hl: [{ window: W5, from: W4, cuts: [QSO, CMB, GW, ML, { ...HAW, label: "evaporated by\nhawking radiation" }] }] },
     { at: "tiny window", cam: { r: -8.6, m: 19.4, span: 12 }, hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
-    { at: "mass of a small moon", cam: { r: 0.5, m: 19.6, span: 24 }, hl: [
-      { obj: "Mimas", label: "a small moon" }, { arrow: true, from: { obj: "Mimas" }, to: BH(22), label: "size of a virus", delay: 0.4 }] },
-    { at: "heavy as an asteroid", hl: [{ obj: "Mimas", label: false }, { arrow: true, from: { obj: "Mimas" }, to: BH(22) },
-      { arrow: true, from: { r: 5.3, m: 17 }, to: BH(17), label: "asteroid · smaller than an atom", delay: 0.3 }] },
+    // straight across: the same mass squeezed onto the black-hole line
+    // (Hyperion, a small moon of Saturn, 5.6e21 g → ~17 nm; Eros, an asteroid, 6.7e18 g → ~1/5 of an atom)
+    { at: "mass of a small moon", cam: { r: -1.2, m: 20.2, span: 20 }, hl: [
+      { obj: "Hyperion", label: "a small moon", place: "above" }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75), label: "the size of a virus", delay: 0.4 }] },
+    { at: "heavy as an asteroid", hl: [{ obj: "Hyperion", label: false }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75) },
+      { obj: "Eros", label: "an asteroid", place: "below", delay: 0.2 }, { arrow: true, from: { obj: "Eros" }, to: BH(18.83), label: "smaller than an atom", delay: 0.6 }] },
     { at: "basically invisible", cam: { r: -8.3, m: 19.5, span: 12 }, clear: true },
 
     // ── Dark matter: galaxies without it ─────────────────────
@@ -125,15 +128,17 @@ export default {
     { at: "much heavier than they ought to be", cam: { r: 22.3, m: 44.1, span: 3.6 }, hold: 6,
       hl: [{ ...GAL_DROP, label: "without dark matter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only", delay: 2 }] },
     { at: ["ten times", "10 times"], hl: [{ ...GAL_DROP, shiftAt: -10, label: "about 10× lighter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
-    { at: "of course dark matter", hl: [GAL, { line: "darkmatter", label: "dark matter" }] },
-    { at: "very tiny black holes", hl: [GAL, { line: "darkmatter", label: "primordial black holes?" }] },
+    // a slow pull back from the galaxies instead of holding on the dark-matter line
+    { at: "of course dark matter", cam: { r: 14, m: 36, span: 44 }, dur: 9, hl: [{ ...GAL, label: "dark matter", labelY: 0.12 }] },
     { at: "research on neutron stars", cam: { r: -8.6, m: 19.4, span: 12 }, clear: true,
       hl: [{ window: W6, from: W5, cuts: [ML, HAW, { ...NS, label: "might be ruled out\nby neutron stars" }] }] },
     { at: "empty space in the universe", hl: [{ window: W5, from: W6, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
 
     // ── Ending: maybe most matter is in tiny black holes ─────
-    { at: "much as a mountain", hl: [{ window: W5, cuts: [ML, HAW, NS], label: "a mountain's mass,\nsmaller than an atom", dist: 40 }] },
-    { at: "something else is dark matter", cam: { r: 22.3, m: 44.1, span: 6 }, clear: true, hl: [GAL, { line: "darkmatter", label: "dark matter" }] },
+    // a mountain's mass (1e18 g, Everest on the chart) read off both axes on the line
+    { at: "much as a mountain", hl: [{ window: W5, cuts: [ML, HAW, NS] },
+      { cross: BH(18), mass: "1 trillion tonnes", size: "radius 1.5 picometres", delay: 0.2 }] },
+    { at: "something else is dark matter", cam: { r: 4, m: 30, span: 50 }, dur: 6, clear: true },
     { at: "early moments of our history", cam: { r: -8.6, m: 19.4, span: 12 }, clear: true, hl: [{ window: W5, cuts: [ML, HAW, NS], label: "tiny black holes?", dist: 40 }] },
     { at: "lucky few survivors", cam: FULL, dur: 3, hl: [{ line: "water", label: "everything else" }] },
   ],
