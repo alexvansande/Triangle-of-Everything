@@ -61,12 +61,18 @@ export default {
       { ellipse: [11.3, 33.45, 1.15, 0.7], label: "stars", place: "right", color: "#ffd54f", delay: 0.5 },
       { ellipse: [21.85, 41.6, 0.95, 2.3], label: "galaxies", place: "above", color: "#80deea", delay: 0.75 },
     ] },
-    { at: "lives on this line", icons: true, hl: [KNOWN, { ...SCHW, label: "black holes" }] },
-    { at: "first limit", cam: FULL, hl: [{ line: "triangle" }, { ...SCHW, label: "black holes" }] },
-    { at: "top left boundary", hl: [{ ...SCHW, label: "schwarzschild radius · nothing crosses it" }, { side: "left", of: "schwarzschild" }] },
+    { at: "sit in this line", icons: true, hl: [KNOWN, { ...SCHW, label: "black holes" }] },
+    { at: "called the schwarzschild radius", hl: [KNOWN, { ...SCHW, label: "schwarzschild radius" }] },
+    { at: "top left limit", cam: FULL, hl: [{ line: "triangle" }, { ...SCHW, label: "nothing crosses it" }, { side: "left", of: "schwarzschild" }] },
     { at: "too small or too massive", cam: { r: 5, m: 28, span: 16 },
       hl: [SCHW, { obj: "Earth" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), label: "squeeze to 9 mm", delay: 0.6 }] },
-    { at: "never cross it", cam: { r: 4, m: 31, span: 24 }, hl: [{ ...SCHW, label: "every black hole is here" }] },
+    { at: "never cross it", hl: [{ ...SCHW, label: "every black hole is here" }] },
+    // why the line is 45°: the size we draw is the event horizon, proportional to mass
+    { at: "don't actually have a size", cam: { obj: "Stellar BH", span: 6 }, clear: true, hl: [SCHW, { obj: "Stellar BH", label: "black hole" }] },
+    { at: "singularity", hl: [SCHW, { obj: "Stellar BH", label: "a point · size zero" }] },
+    { at: "event horizon", hl: [SCHW, { obj: "Stellar BH", label: "size = event horizon" }] },
+    { at: "directly related to mass", cam: { r: 4, m: 31, span: 24 }, hl: [{ ...SCHW, label: "twice the mass, twice the size" }, KNOWN] },
+    { at: "45 degree angle", hl: [{ ...SCHW, label: "1 : 1 · 45°" }, KNOWN] },
 
     // ── The big ones ─────────────────────────────────────────
     { at: "collapsing core of a dying star", cam: { r: 8, m: 34, span: 12 }, hl: [{ obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "collapsed stars" }] },

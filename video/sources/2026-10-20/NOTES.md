@@ -4,6 +4,7 @@
 |---|---|---|---|
 | `rec21` | `Black holes to dark matter take 3` | 18:08 | 48 kHz ALAC; noise floor about −77 dB, no clipping, −31 LUFS |
 | `rec22` | `Black holes take 4` | 10:00 | 48 kHz ALAC; noise floor about −80 dB, no clipping; construction nearby (see below) |
+| `rec23` | `bar_do_zeca_pagodinho_14.m4a` (uploaded to the chat) | 2:14 | 48 kHz ALAC; −80 dB floor; level and tone within 1 dB of rec22, no EQ |
 
 One take of the whole of video 5, cut as `short-05b-black-holes` (58 clips, 6:21
 before the 1.2× tempo, 5:18 after) and kept next to the first version
@@ -182,4 +183,35 @@ Imprecise, worth knowing:
    else, are just the lucky survivors": a nice image, and right if primordial black holes
    were all of the dark matter (ordinary matter would then be the ~15% that didn't
    collapse); it's framed as a possibility, which it is.
-6. Still not in this take: why the line is 45° (event horizon grows with mass).
+6. Why the line is 45°: added by the rec23 pickup (below).
+
+## rec23: the Schwarzschild radius and the 45° slope (pickup for 05c)
+
+Spliced into 05c in place of take 4's "every black hole we know of lives on this line …
+it works as the first limit, the top left boundary": "Most objects in this graph are
+clusters of dots around some point, but black holes are not. They all sit in this line.
+And this line is called the Schwarzschild radius. And the line is very special because it
+represents the top left limit of our triangle of everything." Then take 4's "As anything
+that gets too small or too massive…", then rec23 again: "Black holes don't actually have a
+size. They are considered to be a singularity, meaning that they have size of zero. But they
+do have what is called an event horizon, a radius from which nothing can escape it. And that
+radius is directly related to mass. That's why the slope on the upper left is just a 45
+degree angle." 05c is now 4:39 at 1.3×.
+
+Left out: the author's opening note (avoiding "Schwarzschild" for fear of mispronouncing
+it), "Black holes are a very different kind of a…", "black holes are actually, but all
+black holes are in a line", a first "Most objects in this graph…", the first singularity
+try ("…inside of them because it just broke space time": loose), a repeated "what is called
+an,", and two other tries at the 45° line (one with "one to one,").
+
+Pronunciation: Whisper heard "short child" every time, i.e. the w of "Schwarz-" gets lost;
+the usual English is "SHWARTS-child" (German "SHVARTS-shilt"). Understandable as is.
+
+### Fact check (rec23)
+
+Right: black holes all sit on one line, the top-left limit; a black hole is treated as a
+singularity of zero size (general relativity's prediction); it has an event horizon, the
+radius nothing escapes from; that radius is proportional to mass (r = 2GM/c²), which on
+this chart's equal-decade axes is a 1 : 1, 45° line. Imprecise, optional: "directly
+related to mass" is right; "directly proportional" says exactly why it's a straight 45°
+line.

@@ -3,6 +3,9 @@
 # noise floor about -80 dB, no clipping; construction nearby, none audible in the pauses).
 # The whole video again, ending sooner: on dark matter and primordial black holes as
 # "the lucky survivors", without the empty-space diagonal and the next side.
+# rec23 = "bar_do_zeca_pagodinho_14.m4a" (uploaded 2026-10-20, 2:14): a pickup naming the
+# Schwarzschild radius and explaining the 45° slope (event horizon proportional to mass);
+# it replaces take 4's "every black hole … lives on this line … the first limit".
 # (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds.
 
 PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
@@ -15,10 +18,17 @@ EDL = [
  ("rec22", "intro", 32.18, 40.74),  # Then stars, as they live their life in the main sequence and as their hydrogen is depleted, they will collapse and expand and become red giants.
  ("rec22", "intro", 41.72, 50.28),  # And depending on their mass, stars will always leave a dense core behind, which could be a white dwarf or a neutron star, or even a black hole.   (the repeated "or even a black hole" left out)
  ("rec22", "line", 54.68, 57.60, {"gap": 0.6}),  # But black holes are a very different kind of objects.
- ("rec22", "line", 60.14, 72.18),  # But most objects we've seen on this chart are really clusters of dots, but black holes are completely different because every black hole we know of lives on this line.
- ("rec22", "line", 81.98, 86.50, {"e": 87.5}),  # And it's a very special line because it works as the first limit,   (the first try left out)
- ("rec22", "line", 92.60, 96.00, {"s": 92.42, "gap": 0.12}),  # the top left boundary of our triangle of everything.   (a repeated "because it works as the first limit" left out)
+ ("rec23", "line", 34.72, 39.02, {"s": 32.45}),  # Most objects in this graph are clusters of dots around some point, but black holes are not.   (a first "Most objects in this graph…" left out)
+ ("rec23", "line", 48.58, 49.86, {"gap": 0.15}),  # They all sit in this line.
+ ("rec23", "line", 52.08, 54.18),  # And this line is called the Schwarzschild radius.
+ ("rec23", "line", 55.84, 63.50),  # And the line is very special because it represents the top left limit of our triangle of everything.
  ("rec22", "line", 99.38, 111.30),  # As anything that gets too small or too massive to cross it will become a black hole and live instead somewhere on this line and never cross it.
+ ("rec23", "horizon", 77.18, 78.86, {"gap": 0.5}),  # Black holes don't actually have a size.   (the first try, "…because it just broke space time", left out)
+ ("rec23", "horizon", 79.99, 85.02),  # They are considered to be a singularity, meaning that they have size of zero.
+ ("rec23", "horizon", 86.04, 86.64, {"e": 87.28}),  # But they do have
+ ("rec23", "horizon", 89.76, 94.40, {"s": 88.82, "gap": 0.05}),  # what is called an event horizon, a radius from which nothing can escape it.   (a first "what is called an," left out)
+ ("rec23", "horizon", 95.76, 99.30),  # And that radius is directly related to mass.
+ ("rec23", "horizon", 122.90, 127.66, {"gap": 0.3}),  # That's why the slope on the upper left is just a 45 degree angle.   (two other tries left out)
  ("rec22", "known", 118.32, 128.18, {"gap": 0.6}),  # All the black holes we know of have been formed in the collapsing core of dying star or are mergers of other black holes.
  ("rec22", "known", 129.52, 135.78),  # They vary in size from a massive star to hundreds and thousands and millions of suns
  ("rec22", "known", 138.56, 141.14),  # like the ones in the center of our own Milky Way,   (first try left out)
