@@ -318,6 +318,7 @@ export async function startNarration(app) {
       else if (h.swing) drawSwing(el, h, age);
       else if (h.dust) drawDustCat(el, h, age);
       else if (h.ellipse) drawEllipse(el, h, age);
+      else if (h.window) drawWindow(el, h, age);
     });
   }
   /** A glowing band over one axis: { axis: "left"|"right"|"top"|"bottom", label? }.
@@ -524,6 +525,65 @@ export async function startNarration(app) {
     if (h.label) el.append("text").attr("class", "narr-sidelabel")
       .attr("x", plot.x + plot.w * (h.labelX ?? 0.5)).attr("y", plot.y + plot.h * (h.labelY ?? 0.2))
       .attr("text-anchor", "middle").attr("fill", col).attr("opacity", clamp01(age / 0.6)).text(h.label.toUpperCase());
+  }
+  /** Masses still allowed along the Schwarzschild line, and what rules out the
+   *  rest: { window: [lo, hi], from?: [lo, hi], label?, cuts: [{ m: [lo, hi],
+   *  label?, dash? }] } — log10 grams. The red band slides from `from` to
+   *  `window` (over `dur`, 1.2 s); each cut is a grey band beside the line, and a
+   *  cut with a label gets a horizontal label out in the forbidden corner, joined
+   *  to it by a leader. */
+  function drawWindow(el, h, age) {
+    const at = (m) => [sx(m - 27.83), sy(m)];           // on the Schwarzschild line
+    const ax = sx(1) - sx(0), ay = sy(1) - sy(0), al = Math.hypot(ax, ay) || 1;
+    const nx = ay / al, ny = -ax / al;                   // across the line, away from the triangle
+    const off = (p, d) => [p[0] + nx * d, p[1] + ny * d];
+    const seg = (lo, hi, d) => { const a = off(at(lo), d), b = off(at(hi), d); return `M${a}L${b}`; };
+    // a horizontal label out in the forbidden corner, kept on screen, with a
+    // leader back to the band
+    const SW = layer.clientWidth;
+    const sideLabel = (mid, lab, text, fill, stroke, op) => {
+      const t = el.append("text").attr("class", "narr-sidelabel").attr("y", lab[1] + 4)
+        .attr("text-anchor", "middle").attr("fill", fill).attr("opacity", op).text(text.toUpperCase());
+      let w = t.node().getComputedTextLength?.() || text.length * 8;
+      if (w > SW - 24) {                                 // too wide for the screen: two lines
+        const words = text.toUpperCase().split(" "), half = Math.ceil(words.length / 2);
+        t.text(null).attr("y", lab[1] - 4);
+        [words.slice(0, half), words.slice(half)].forEach((ln, i) =>
+          t.append("tspan").attr("dy", i ? "1.25em" : 0).text(ln.join(" ")));
+        t.selectAll("tspan").attr("x", 0);
+        w = Math.max(...t.selectAll("tspan").nodes().map(n => n.getComputedTextLength?.() || 0)) || w / 2;
+      }
+      const x = Math.max(12 + w / 2, Math.min(SW - 12 - w / 2, lab[0] - w / 2));
+      t.attr("x", x); t.selectAll("tspan").attr("x", x);
+      const ex = Math.max(x - w / 2, Math.min(x + w / 2, mid[0]));
+      el.insert("line", "text").attr("x1", mid[0]).attr("y1", mid[1]).attr("x2", ex).attr("y2", lab[1] - 6)
+        .attr("stroke", stroke).attr("stroke-width", 1).attr("opacity", op);
+    };
+    for (const c of h.cuts || []) {
+      el.append("path").attr("d", seg(c.m[0], c.m[1], 7)).attr("stroke", c.color || "#b0b4c8")
+        .attr("stroke-width", 4).attr("stroke-linecap", "butt").attr("opacity", 0.8)
+        .attr("stroke-dasharray", c.dash ? "5 4" : null);
+      for (const m of c.m) {                             // end ticks
+        const a = off(at(m), 3), b = off(at(m), 11);
+        el.append("line").attr("x1", a[0]).attr("y1", a[1]).attr("x2", b[0]).attr("y2", b[1])
+          .attr("stroke", c.color || "#b0b4c8").attr("stroke-width", 1.4);
+      }
+      if (c.label) {
+        const mid = off(at((c.m[0] + c.m[1]) / 2), 9), lab = off(mid, c.dist ?? 46);
+        const a = clamp01(age / 0.5);
+        sideLabel(mid, lab, c.label, "#e8eaf6", "#d0d4e8", a);
+      }
+    }
+    const k = h.from ? smooth(age / (h.dur ?? 1.2)) : 1;
+    const lo = h.from ? h.from[0] + (h.window[0] - h.from[0]) * k : h.window[0];
+    const hi = h.from ? h.from[1] + (h.window[1] - h.from[1]) * k : h.window[1];
+    const col = h.color || "#ff5c7a";
+    [[12, 0.2], [6, 1]].forEach(([w, o]) => el.append("path").attr("d", seg(lo, hi, 7)).attr("stroke", col)
+      .attr("stroke-width", w).attr("stroke-linecap", "round").attr("opacity", o));
+    if (h.label) {
+      const mid = off(at((lo + hi) / 2), 9), lab = off(mid, h.dist ?? 46);
+      sideLabel(mid, lab, h.label, col, col, 1);
+    }
   }
   /** A loop drawn round a cloud of dots: { ellipse: [r, m, rx, ry], rot?, label?,
    *  place?: "above"|"below"|"left"|"right" } — centre and half-axes in decades

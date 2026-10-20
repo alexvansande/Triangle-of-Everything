@@ -107,3 +107,20 @@ New in this take: Sgr A*'s 4 million Suns, stellar black holes at 5–100 Suns, 
 microlensing), the window as moon-to-virus and asteroid-to-atom, ten times more
 mass than expected, the neutron-star studies that may close the window, and the
 empty-space framing of the galaxies' diagonal with the voids.
+
+## Second pass (author's notes after watching)
+
+- The author prefers this take to the first video 5, and plays it at **1.3×**
+  (`narration-tempo.py --tempo 1.3`; 4:53).
+- The narrowing window is drawn as it's told: a red band along the Schwarzschild
+  line from the Planck mass to about 10⁵ Suns (`window` highlight in
+  `src/narration.js`), cut down as each survey is named, each cut a grey segment
+  with a "ruled out by…" label: quasar light (above ~10⁴ Suns), the microwave
+  background (above ~10 Suns), gravitational waves (~1–10 Suns here), microlensing
+  (10²² g to ~30 Suns), Hawking radiation (below 10¹⁷ g), leaving 10¹⁷–10²² g
+  "still open"; on "studies of neutron stars" it shrinks further to 10¹⁸ g with a
+  dashed "might be ruled out by neutron stars", and grows back on "so far it is
+  still open". The band starts at 10⁵ Suns rather than at stars so that every survey
+  named visibly trims it.
+- The author may re-record parts of the beginning (with the 45° explanation) and end
+  the video sooner, leaving more for the next one.
