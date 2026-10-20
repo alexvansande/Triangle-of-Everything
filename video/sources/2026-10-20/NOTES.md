@@ -3,6 +3,7 @@
 | Source | Raw file (Google Drive "Recordings") | Length | Setup |
 |---|---|---|---|
 | `rec21` | `Black holes to dark matter take 3` | 18:08 | 48 kHz ALAC; noise floor about −77 dB, no clipping, −31 LUFS |
+| `rec22` | `Black holes take 4` | 10:00 | 48 kHz ALAC; noise floor about −80 dB, no clipping; construction nearby (see below) |
 
 One take of the whole of video 5, cut as `short-05b-black-holes` (58 clips, 6:21
 before the 1.2× tempo, 5:18 after) and kept next to the first version
@@ -124,3 +125,61 @@ empty-space framing of the galaxies' diagonal with the voids.
   named visibly trims it.
 - The author may re-record parts of the beginning (with the 45° explanation) and end
   the video sooner, leaving more for the next one.
+
+## rec22 (take 4): `short-05c-black-holes`
+
+Another full take of video 5, ending sooner, on dark matter and "we, everything
+else, are just the lucky survivors" (no empty-space diagonal or next side). Cut as
+`short-05c-black-holes` (45 clips, 5:39 before the 1.3× tempo, 4:21 after), kept next
+to 05b. The scene is 05b's (the shrinking window, the galaxies dropping without their
+dark matter), with the cues moved to this take's wording and a new ending: the window
+"still open" on the asteroid-mass black holes, the galaxies on "other explanations for
+dark matter", and the whole chart with the atomic line, "everything else", on "the
+lucky survivors". Since this pass, the window's labels are always two lines (05b and
+05c), as asked.
+
+**Construction noise:** none audible. The 33 pauses longer than 0.7 s all sit at the
+room's level (median −78 to −80 dB), with no steady rumble or drilling; the short
+sounds in shorter pauses are 80–165 Hz bursts right at a word's start or end (breaths,
+lip and plosive sounds), plus a thinking "hmm" (216 s) and a false start "but…" (464 s),
+both cut.
+
+Left out: "math" heard for "mass" (it's "mass"), the repeated "or even a black hole",
+the first "it's the first limit, the top," and a repeated "because it works as the first
+limit", first tries at the Milky Way and the 4 million Suns, the first "most interesting
+story is actually is not asking…", "Because… hmm", "We don't know, we don't have the
+technology…" (two tries), two stalled "those conditions have…", "it's possible that some
+black holes have,", the faster first list of surveys (the slower "and then … and finally"
+one is used, which suits the shrinking window), "there's a limit on how big they can be",
+"Hawking radiation will help", the "small moons compressed" try, the stumbles before "if
+those objects are out there", "we actually know", repeated "This is of course dark
+matter", "it would be interesting", the "made…/tiny particles" tries, "filled with
+objects, it's", and the trailing "compressed into black holes in the very,".
+Caption fixes: "math" → mass, "ukulele" → Milky Way, "mini-sequence" → main sequence,
+"black life" → black hole.
+
+### Fact check (rec22)
+
+Right, as in rec21, plus two improvements: the formation line now says "or are mergers
+of other black holes", and the ending ("most of what we believe to be empty space …
+filled with asteroids compressed to the size of an atom") is a fair "it's still possible".
+
+Imprecise, worth knowing:
+1. "formed in the collapsing core of a dying star **or are mergers** of other black
+   holes": better than before; the supermassive ones grew mostly by swallowing gas, with
+   mergers, from seeds nobody has pinned down. Fine as spoken.
+2. "very old, **cold** primordial black holes": small black holes are the opposite of
+   cold. Hawking radiation makes them hotter the smaller they are: an asteroid-mass one
+   would be at roughly 10⁴–10⁹ K, though its glow is far too faint to see. "Very old,
+   dark primordial black holes" would be exact.
+3. "objects tiny as a virus with the mass of a small moon … asteroid compressed to the
+   size of an atom": right; the asteroid-mass ones are a few hundred times smaller than an
+   atom (the scene says "smaller than atoms").
+4. "most of the mass in the universe is formed of something **very heavy** and
+   invisible": most of the matter (about 85%) is dark matter; "heavy" isn't needed (it's
+   a lot of mass, not a heavy substance).
+5. "most of the matter has been compressed into tiny black holes … and we, everything
+   else, are just the lucky survivors": a nice image, and right if primordial black holes
+   were all of the dark matter (ordinary matter would then be the ~15% that didn't
+   collapse); it's framed as a possibility, which it is.
+6. Still not in this take: why the line is 45° (event horizon grows with mass).

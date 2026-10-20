@@ -545,11 +545,13 @@ export async function startNarration(app) {
       const t = el.append("text").attr("class", "narr-sidelabel").attr("y", lab[1] + 4)
         .attr("text-anchor", "middle").attr("fill", fill).attr("opacity", op).text(text.toUpperCase());
       let w = t.node().getComputedTextLength?.() || text.length * 8;
-      if (w > SW - 24) {                                 // too wide for the screen: two lines
-        const words = text.toUpperCase().split(" "), half = Math.ceil(words.length / 2);
+      // two lines where the label says so ("\n"), or when it's too wide for the screen
+      const lines = text.includes("\n") ? text.toUpperCase().split("\n")
+        : w > SW - 24 ? (() => { const ws = text.toUpperCase().split(" "), k = Math.ceil(ws.length / 2);
+            return [ws.slice(0, k).join(" "), ws.slice(k).join(" ")]; })() : null;
+      if (lines) {
         t.text(null).attr("y", lab[1] - 4);
-        [words.slice(0, half), words.slice(half)].forEach((ln, i) =>
-          t.append("tspan").attr("dy", i ? "1.25em" : 0).text(ln.join(" ")));
+        lines.forEach((ln, i) => t.append("tspan").attr("dy", i ? "1.25em" : 0).text(ln));
         t.selectAll("tspan").attr("x", 0);
         w = Math.max(...t.selectAll("tspan").nodes().map(n => n.getComputedTextLength?.() || 0)) || w / 2;
       }

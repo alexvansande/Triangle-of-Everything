@@ -1,0 +1,46 @@
+source,beat,out_start,out_end,src_start,src_end,text
+rec22,intro,0.00,8.87,6.54,15.62,Everything that could have ever existed can be plotted in this chart with size on the horizontal axis and math on the vertical axis.
+rec22,intro,9.14,11.32,16.30,18.48,It's really a density scatter plot.
+rec22,intro,11.60,14.46,18.91,21.76,"And as you zoom in, it tells you a million stories."
+rec22,intro,14.74,24.21,21.92,31.39,"Like for example, you can see the life cycle of stars as they form from stellar nurseries and collapse into protostars."
+rec22,intro,24.49,34.09,32.00,41.59,"Then stars, as they live their life in the mean sequence and as their hydrogen is depleted, they will collapse and expand and become red giants."
+rec22,intro,34.37,43.42,41.65,50.77,"And depending on their math, stars will always leave a dense core behind, which could be a white dwarf or a neutron star, or even a black hole,"
+rec22,line,44.02,47.17,55.16,58.31,But black holes are a very different kind of objects.
+rec22,line,47.45,59.01,60.66,72.75,"But most objects we've seen on this chart are really clusters of dots, but black holes are completely different because every black hole we know of lives on this line."
+rec22,line,59.29,64.73,82.06,87.50,"and it's a very special line because it works as the first limit,"
+rec22,line,64.85,69.26,92.42,96.83,top left boundary of our triangle of everything.
+rec22,line,69.54,83.08,99.30,113.39,As anything that gets too small or too massive to cross it will become a black life and live instead somewhere on this line and never cross it.
+rec22,known,83.68,94.05,118.09,128.84,the black holes we know of have been formed in the collapsing core of dying star or are mergers of other black holes.
+rec22,known,94.33,101.00,129.71,136.61,They vary in size from a massive star to hundreds and thousands and millions of suns
+rec22,known,101.28,104.54,139.04,142.43,"like the ones in the center of our own ukulele,"
+rec22,known,104.66,107.01,144.91,147.26,which has four million solar masses.
+rec22,dense,107.51,111.81,147.67,151.98,"And as they grow massive and bigger, they actually become less dense."
+rec22,dense,112.09,134.81,153.02,176.30,"And after some point, the really super massive ones are actually lighter than water and could float in a pool like M87, the first one ever to be photographed, or TON 618, largest black hole we know of, whose event horizon is larger than our whole solar system and whose mass is 60 billion of our suns."
+rec22,small,135.41,141.61,199.58,205.78,"but the most interesting story is not how big they can be, but how small they can be actually."
+rec22,small,141.89,145.74,219.06,223.08,"with enough pressure, anything can become a black hole."
+rec22,small,146.02,149.25,233.37,237.36,"we don't have the technology to build one,"
+rec22,small,149.37,154.52,237.96,243.10,but we know that those conditions happens in the core of dying stars.
+rec22,pbh,155.12,162.98,250.33,258.76,happened before in the very early moments of our own universe.
+rec22,pbh,163.26,173.17,262.31,273.21,"and it's possible that back then, some of the mass has collapsed in some very old, cold primordial black holes."
+rec22,pbh,173.45,180.21,276.11,283.71,"And they might still be around, and we've been looking for them."
+rec22,pbh,180.61,193.39,298.97,311.94,"we've done surveys using quasars and the cosmic background radiation and then gravitational waves and finally microlensing, and so far we haven't found any."
+rec22,pbh,193.79,201.43,323.29,331.14,"We also know that it can't be too small, otherwise they would have evaporated by now in a process called Hawking radiation."
+rec22,window,201.83,209.54,332.62,340.50,"So each of those surveys has closed the window on the existence of primordial black holes, but it's still open."
+rec22,window,210.04,226.20,357.84,375.81,"So it is still possible that the universe is filled with objects tiny as a virus, with the mass of a small moon, or maybe some objects the size of an asteroid compressed to the size of an atom."
+rec22,window,226.70,239.15,382.25,394.96,"and if those objects are out there, they will be almost invisible. They would be dark, and we could only detect them probably through their effect on gravity."
+rec22,dm,239.55,243.17,395.34,398.97,And the reason we've been looking for such objects for so long
+rec22,dm,243.27,247.18,406.85,410.98,is that we have detected those effects on gravity.
+rec22,dm,247.58,255.43,414.14,422.07,"When we measure galaxies, we find that they are much heavier than they ought to be, sometimes ten times as much,"
+rec22,dm,255.71,263.59,427.89,435.92,meaning that most of the mass in the universe is formed of something very heavy and invisible.
+rec22,dm,263.89,266.49,439.71,442.63,This is of course dark matter.
+rec22,dm,266.89,270.33,459.98,463.52,"We don't know what it is yet, there are a lot of things they could be,"
+rec22,dm,270.45,281.32,465.23,476.82,"but if they were actually just very tiny black holes, then that wouldn't require any new physics or any new particle to exist."
+rec22,dm,281.72,283.23,477.27,478.77,So we keep looking for them.
+rec22,dm,283.51,285.79,480.59,482.88,That window is still closing down.
+rec22,dm,286.07,291.49,483.39,488.92,"There are some new research on neutron stars that suggest that the window is even smaller,"
+rec22,end,291.64,298.36,517.94,524.65,but it's still possible that most of what we believe to be empty space in the universe is
+rec22,end,298.41,307.78,527.72,537.09,filled with asteroids that have been compressed to the size of an atom in the very early moments of the universe.
+rec22,end,308.28,314.17,551.05,557.29,"There are a lot of other explanations for dark matter and we're still looking for them,"
+rec22,end,314.45,316.73,557.91,560.18,but I find it fascinating that
+rec22,end,316.81,332.71,574.62,591.20,"maybe in the early moments of the universe, most of the matter has been compressed into tiny black holes that are still out there, the size of an atom maybe, and the mass of an asteroid."
+rec22,end,333.21,338.34,591.53,597.29,"And we, everything else, are just the lucky survivors."

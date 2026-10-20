@@ -97,13 +97,13 @@ export default {
     // the window narrowing as each survey is named: a red band along the
     // Schwarzschild line from the Planck mass to ~1e5 Suns, cut down to what's
     // still open (log10 g; docs/dark-matter-constraints.md)
-    { at: "still around", cam: { r: -11, m: 16.8, span: 46 }, clear: true, hl: [{ window: W0, label: "could they be here?", dist: 60 }] },
-    { at: "quasars", hl: [{ window: W1, from: W0, cuts: [{ ...QSO, label: "ruled out by quasar light" }] }] },
-    { at: "cosmic background radiation", hl: [{ window: W2, from: W1, cuts: [QSO, { ...CMB, label: "ruled out by the microwave background" }] }] },
-    { at: "gravitational waves", hl: [{ window: W3, from: W2, cuts: [QSO, CMB, { ...GW, label: "ruled out by gravitational waves" }] }] },
-    { at: "microlensing", hl: [{ window: W4, from: W3, cuts: [QSO, CMB, GW, { ...ML, label: "ruled out by microlensing" }] }] },
+    { at: "still around", cam: { r: -11, m: 16.8, span: 46 }, clear: true, hl: [{ window: W0, label: "could they\nbe here?", dist: 60 }] },
+    { at: "quasars", hl: [{ window: W1, from: W0, cuts: [{ ...QSO, label: "ruled out by\nquasar light" }] }] },
+    { at: "cosmic background radiation", hl: [{ window: W2, from: W1, cuts: [QSO, { ...CMB, label: "ruled out by the\nmicrowave background" }] }] },
+    { at: "gravitational waves", hl: [{ window: W3, from: W2, cuts: [QSO, CMB, { ...GW, label: "ruled out by\ngravitational waves" }] }] },
+    { at: "microlensing", hl: [{ window: W4, from: W3, cuts: [QSO, CMB, GW, { ...ML, label: "ruled out by\nmicrolensing" }] }] },
     { at: "cannot be too small", cam: { r: -18, m: 10, span: 34 } },
-    { at: "evaporated them by now", hl: [{ window: W5, from: W4, cuts: [QSO, CMB, GW, ML, { ...HAW, label: "evaporated · hawking radiation" }] }] },
+    { at: "evaporated them by now", hl: [{ window: W5, from: W4, cuts: [QSO, CMB, GW, ML, { ...HAW, label: "evaporated by\nhawking radiation" }] }] },
     { at: "window is still open", cam: { r: -8.6, m: 19.4, span: 12 }, hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
     { at: "mass of a moon", cam: { r: 0.5, m: 19.6, span: 24 }, hl: [
       { obj: "Mimas", label: "a small moon" }, { arrow: true, from: { obj: "Mimas" }, to: BH(22), label: "size of a virus", delay: 0.4 }] },
@@ -123,7 +123,7 @@ export default {
     { at: "missing mass is dark matter", hl: [GAL, { line: "darkmatter", label: "dark matter" }] },
     { at: "microscopic black holes", hl: [GAL, { line: "darkmatter", label: "primordial black holes?" }] },
     { at: "studies of neutron stars", cam: { r: -8.6, m: 19.4, span: 12 }, clear: true,
-      hl: [{ window: W6, from: W5, cuts: [ML, HAW, { ...NS, label: "might be ruled out by neutron stars" }] }] },
+      hl: [{ window: W6, from: W5, cuts: [ML, HAW, { ...NS, label: "might be ruled out\nby neutron stars" }] }] },
     { at: "it is still open", hl: [{ window: W5, from: W6, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
 
     // ── Cliffhanger: the empty-space diagonal to the next side ──
