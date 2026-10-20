@@ -108,7 +108,8 @@ def service():
                 sys.exit(f"no OAuth client at {SECRETS} (see the setup notes at the top of this script)")
             creds = InstalledAppFlow.from_client_secrets_file(SECRETS, SCOPES).run_local_server(port=0)
         os.makedirs(CONF, exist_ok=True)
-        open(TOKEN, "w").write(creds.to_json())
+        fd = os.open(TOKEN, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)   # the token is a secret too
+        with os.fdopen(fd, "w") as f: f.write(creds.to_json())
     return build("youtube", "v3", credentials=creds)
 
 
