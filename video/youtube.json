@@ -1,12 +1,13 @@
 {
-  "_about": "Per-video settings for scripts/youtube-publish.py. Edit titles, tags and dates here; the description is built from video/DESCRIPTION.md, the blurb below and the track's credit in video/music/CREDITS.md. privacy: private | unlisted | public; publishAt (ISO 8601, e.g. 2026-10-27T15:00:00-03:00) schedules a private video to go public then. YouTube counts a vertical video as a Short only up to 3:00.",
+  "_about": "Per-video settings for scripts/youtube-publish.py. Edit titles, tags and dates here; the description is built from video/DESCRIPTION.md, the blurb below and the track's credit in video/music/CREDITS.md. privacy: private | unlisted | public; publishAt (ISO 8601, e.g. 2026-10-27T15:00:00-03:00) schedules a private video to go public then. fullVideo: once the long video is up, put its link here and run --update: every description gets 'Watch the full video: <link>'. YouTube counts a vertical video as a Short only up to 3:00.",
   "defaults": {
     "privacy": "private",
     "categoryId": "28",
     "madeForKids": false,
     "language": "en",
     "tags": ["triangle of everything", "physics", "astronomy", "science", "mass", "size", "density"],
-    "playlist": "The Triangle of Everything"
+    "playlist": "The Triangle of Everything",
+    "fullVideo": ""
   },
   "videos": [
     {

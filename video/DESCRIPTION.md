@@ -10,8 +10,8 @@ Vihan M. Patel, American Journal of Physics (2023)
 Music: "<track>" by Kevin MacLeod (incompetech.com), licensed under CC BY 4.0
 (tracks per video: `video/music/CREDITS.md`)
 
-**AI usage:** Claude was used to generate code and editing for the video and app.
-Object images are either public domain sources, rendered from code and in some
-cases, ChatGPT. For full image credit see website.
+**AI:** This is a human-powered channel. Claude was used to generate the code for the
+browser, edit audio and other tasks. Object images are either public domain sources,
+rendered from code and in some cases, ChatGPT. For full credits and more see:
 
-More at triangleofeverything.com
+triangleofeverything.com

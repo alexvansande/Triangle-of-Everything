@@ -5,6 +5,7 @@
     python3 scripts/youtube-publish.py --upload        # upload every video not yet uploaded
     python3 scripts/youtube-publish.py --upload --only short-01-hook
     python3 scripts/youtube-publish.py --captions-only # (re)write the .srt files, no upload
+    python3 scripts/youtube-publish.py --update        # rewrite titles/descriptions of uploaded videos
 
 Reads video/youtube.json (titles, blurbs, music, privacy, schedule), builds each
 description from video/DESCRIPTION.md and the track's credit (video/music/CREDITS.md),
@@ -36,6 +37,7 @@ SCOPES = ["https://www.googleapis.com/auth/youtube.upload",
           "https://www.googleapis.com/auth/youtube.force-ssl"]   # playlists, captions, thumbnails
 MANIFEST = os.path.join(ROOT, "video", "youtube.json")
 STATE = os.path.join(ROOT, "video", "youtube-uploads.json")
+MANIFEST_DEFAULTS = {}   # youtube.json "defaults", set in main()
 VIDEOS = os.path.join(ROOT, "output", "videos")
 
 
@@ -68,7 +70,9 @@ def description(v):
     credit = (f'Music: "{v["music"]}" Kevin MacLeod (incompetech.com)\n'
               "Licensed under Creative Commons: By Attribution 4.0\n"
               "https://creativecommons.org/licenses/by/4.0/")
-    return f'{v["blurb"]}\n\n{body.strip()}\n\n{credit}\n'
+    full = v.get("fullVideo", MANIFEST_DEFAULTS.get("fullVideo"))
+    watch = f"\n\nWatch the full video: {full}" if full else ""
+    return f'{v["blurb"]}{watch}\n\n{body.strip()}\n\n{credit}\n'
 
 
 # ---------- captions ----------
@@ -152,10 +156,24 @@ def main():
     ap.add_argument("--only", action="append", help="just this take (repeatable)")
     ap.add_argument("--force", action="store_true", help="upload again even if already uploaded")
     ap.add_argument("--captions-only", action="store_true", help="write output/videos/<take>.srt and stop")
+    ap.add_argument("--update", action="store_true",
+                    help="rewrite title, description and tags of videos already uploaded (after editing youtube.json or DESCRIPTION.md)")
     a = ap.parse_args()
     m = load(MANIFEST)
     cfg, state = m["defaults"], load(STATE, {})
+    MANIFEST_DEFAULTS.update(cfg)
     todo = [v for v in m["videos"] if not a.only or v["take"] in a.only]
+    if a.update:
+        yt = service()
+        for v in todo:
+            if v["take"] not in state:
+                print(f"{v['take']}: not uploaded yet"); continue
+            vid = state[v["take"]]["id"]
+            cur = yt.videos().list(part="snippet", id=vid).execute()["items"][0]["snippet"]
+            cur.update(title=v["title"], description=description(v), tags=v.get("tags", cfg["tags"]))
+            yt.videos().update(part="snippet", body={"id": vid, "snippet": cur}).execute()
+            print(f"{v['take']}: updated https://youtu.be/{vid}")
+        return
     yt = service() if a.upload and not a.captions_only else None
     for v in todo:
         take, path = v["take"], os.path.join(VIDEOS, v["take"] + ".mp4")
