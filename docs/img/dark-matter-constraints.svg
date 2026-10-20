@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 780" width="980" height="780" font-family="Inter, Helvetica, Arial, sans-serif">
+<rect width="980" height="780" fill="#0b0b1e"/>
+<text x="70" y="34" fill="#eef0ff" font-size="20" font-weight="600">What has been ruled out as dark matter, on the triangle's axes</text>
+<text x="70" y="56" fill="#a3a8d6" font-size="13">Primordial black holes (bands along the Schwarzschild line) and macro dark matter (regions). Each limit assumes the objects are all of the dark matter.</text>
+<clipPath id="plot"><rect x="70" y="100" width="420" height="560"/></clipPath>
+<clipPath id="bands"><rect x="70" y="66" width="420" height="594"/></clipPath>
+<rect x="70" y="100" width="420" height="560" fill="#14143a" stroke="#3a3d6e"/>
+<g clip-path="url(#plot)">
+<polygon points="70.0,100.0 70.0,522.4 492.4,100.0" fill="#05050f"/>
+<line x1="112" y1="660" x2="112" y2="100" stroke="#262a55" stroke-width="0.6"/>
+<line x1="182" y1="660" x2="182" y2="100" stroke="#262a55" stroke-width="0.6"/>
+<line x1="252" y1="660" x2="252" y2="100" stroke="#262a55" stroke-width="0.6"/>
+<line x1="322" y1="660" x2="322" y2="100" stroke="#262a55" stroke-width="0.6"/>
+<line x1="392" y1="660" x2="392" y2="100" stroke="#262a55" stroke-width="0.6"/>
+<line x1="462" y1="660" x2="462" y2="100" stroke="#262a55" stroke-width="0.6"/>
+<line x1="70" y1="590" x2="490" y2="590" stroke="#262a55" stroke-width="0.6"/>
+<line x1="70" y1="520" x2="490" y2="520" stroke="#262a55" stroke-width="0.6"/>
+<line x1="70" y1="450" x2="490" y2="450" stroke="#262a55" stroke-width="0.6"/>
+<line x1="70" y1="380" x2="490" y2="380" stroke="#262a55" stroke-width="0.6"/>
+<line x1="70" y1="310" x2="490" y2="310" stroke="#262a55" stroke-width="0.6"/>
+<line x1="70" y1="240" x2="490" y2="240" stroke="#262a55" stroke-width="0.6"/>
+<line x1="70" y1="170" x2="490" y2="170" stroke="#262a55" stroke-width="0.6"/>
+<polygon points="274.1,660.0 490.0,660.0 490.0,310.0 449.1,310.0" fill="#8a8a9a" opacity="0.35"/>
+<polygon points="255.5,581.6 255.5,450.0 262.5,433.2 270.9,373.0 294.0,357.6 378.0,357.6" fill="#3b6fd8" opacity="0.55"/>
+<polygon points="213.5,660.0 266.0,660.0 266.0,635.6 213.5,635.6" fill="#f2e14a" opacity="0.75"/>
+<polygon points="268.4,660.0 268.4,594.2 307.0,594.2 274.1,660.0" fill="#e2453c" opacity="0.85"/>
+<line x1="252.14" y1="660" x2="438.76" y2="100" stroke="#c9c9ff" stroke-width="1" stroke-dasharray="6 4" opacity="0.7"/>
+<line x1="319.06" y1="660" x2="490" y2="147.32000000000005" stroke="#4fc3f7" stroke-width="1" stroke-dasharray="6 4" opacity="0.7"/>
+</g>
+<line x1="70" y1="522.38" x2="492.38" y2="100" stroke="#ff6e6e" stroke-width="2"/>
+<g clip-path="url(#bands)">
+<line x1="62.9" y1="515.3" x2="107.3" y2="470.9" stroke="#ff9f43" stroke-width="5" stroke-linecap="butt"/>
+<line x1="107.3" y1="470.9" x2="163.3" y2="414.9" stroke="#ff5c7c" stroke-width="5" stroke-linecap="butt"/>
+<line x1="177.3" y1="400.9" x2="247.3" y2="330.9" stroke="#b39ddb" stroke-width="5" stroke-linecap="butt" stroke-dasharray="5 3"/>
+<line x1="226.2" y1="337.9" x2="405.4" y2="158.7" stroke="#ffd54f" stroke-width="5" stroke-linecap="butt"/>
+<line x1="377.4" y1="172.6" x2="405.4" y2="144.6" stroke="#4dd0e1" stroke-width="5" stroke-linecap="butt"/>
+<line x1="370.3" y1="165.5" x2="440.3" y2="95.5" stroke="#81c784" stroke-width="5" stroke-linecap="butt"/>
+<line x1="377.2" y1="144.4" x2="454.2" y2="67.4" stroke="#f48fb1" stroke-width="5" stroke-linecap="butt"/>
+<line x1="412.2" y1="95.4" x2="447.2" y2="60.4" stroke="#a1887f" stroke-width="5" stroke-linecap="butt"/>
+<line x1="170.38000000000002" y1="422" x2="240.38000000000002" y2="352" stroke="#2ee59d" stroke-width="6"/>
+</g>
+<text x="221" y="401" fill="#2ee59d" font-size="13" font-weight="600">still open: 10¹⁷–10²² g</text>
+<text x="221" y="417" fill="#2ee59d" font-size="11">(asteroid masses)</text>
+<text x="189" y="240" fill="#ff6e6e" font-size="12" transform="rotate(-45 189 240)">SCHWARZSCHILD RADIUS (black holes)</text>
+<text x="414" y="219" fill="#c9c9ff" font-size="11">nuclear density</text>
+<text x="466" y="261" fill="#4fc3f7" font-size="11">water</text>
+<text x="371" y="520" fill="#d0d0e0" font-size="12">CMB scattering</text>
+<text x="280" y="485" fill="#a9c4ff" font-size="12">white dwarfs</text>
+<text x="280" y="502" fill="#a9c4ff" font-size="10">(set off as supernovae)</text>
+<line x1="239.4" y1="647.4" x2="154" y2="576" stroke="#f2e14a" stroke-width="0.8"/>
+<text x="91" y="570" fill="#f2e14a" font-size="12">ancient mica (no tracks)</text>
+<line x1="281.4" y1="629.2" x2="154" y2="612.4" stroke="#ff7a70" stroke-width="0.8"/>
+<text x="91" y="608" fill="#ff7a70" font-size="12" font-weight="600">no unexplained human injuries</text>
+<text x="91" y="624" fill="#ff7a70" font-size="10">US, Canada, Western Europe, 10 years</text>
+<text x="91" y="282" fill="#6b6f9e" font-size="12">more mass than a black hole</text>
+<text x="91" y="296" fill="#6b6f9e" font-size="12">that size: nothing can be here</text>
+<text x="112" y="678" fill="#a3a8d6" font-size="11" text-anchor="middle">-15</text>
+<text x="182" y="678" fill="#a3a8d6" font-size="11" text-anchor="middle">-10</text>
+<text x="252" y="678" fill="#a3a8d6" font-size="11" text-anchor="middle">-5</text>
+<text x="322" y="678" fill="#a3a8d6" font-size="11" text-anchor="middle">0</text>
+<text x="392" y="678" fill="#a3a8d6" font-size="11" text-anchor="middle">5</text>
+<text x="462" y="678" fill="#a3a8d6" font-size="11" text-anchor="middle">10</text>
+<text x="62" y="664" fill="#a3a8d6" font-size="11" text-anchor="end">0</text>
+<text x="62" y="524" fill="#a3a8d6" font-size="11" text-anchor="end">10</text>
+<text x="62" y="384" fill="#a3a8d6" font-size="11" text-anchor="end">20</text>
+<text x="62" y="244" fill="#a3a8d6" font-size="11" text-anchor="end">30</text>
+<text x="62" y="104" fill="#a3a8d6" font-size="11" text-anchor="end">40</text>
+<text x="280.0" y="698" fill="#a3a8d6" font-size="12" text-anchor="middle">log radius (cm)</text>
+<text x="70" y="92" fill="#a3a8d6" font-size="12">log mass (g)</text>
+<text x="520" y="90" fill="#eef0ff" font-size="14" font-weight="600">Primordial black holes ruled out by</text>
+<line x1="520" y1="110" x2="544" y2="110" stroke="#ff9f43" stroke-width="5"/>
+<text x="552" y="114" fill="#dfe2ff" font-size="12">Big Bang nucleosynthesis</text>
+<text x="552" y="128" fill="#8f94c4" font-size="11">below 10¹³ g</text>
+<line x1="520" y1="146" x2="544" y2="146" stroke="#ff5c7c" stroke-width="5"/>
+<text x="552" y="150" fill="#dfe2ff" font-size="12">Hawking radiation: γ-rays, 511 keV, Voyager, CMB</text>
+<text x="552" y="164" fill="#8f94c4" font-size="11">10¹³–10¹⁷ g</text>
+<line x1="520" y1="182" x2="544" y2="182" stroke="#b39ddb" stroke-width="5" stroke-dasharray="5 3"/>
+<text x="552" y="186" fill="#dfe2ff" font-size="12">Neutron stars / white dwarfs (contested)</text>
+<text x="552" y="200" fill="#8f94c4" font-size="11">10¹⁸–10²³ g</text>
+<line x1="520" y1="218" x2="544" y2="218" stroke="#ffd54f" stroke-width="5"/>
+<text x="552" y="222" fill="#dfe2ff" font-size="12">Microlensing: Subaru HSC, Kepler, MACHO, EROS, OGLE</text>
+<text x="552" y="236" fill="#8f94c4" font-size="11">10²² g – 30 M☉</text>
+<line x1="520" y1="254" x2="544" y2="254" stroke="#4dd0e1" stroke-width="5"/>
+<text x="552" y="258" fill="#dfe2ff" font-size="12">Gravitational waves: LIGO/Virgo merger rates</text>
+<text x="552" y="272" fill="#8f94c4" font-size="11">1–100 M☉</text>
+<line x1="520" y1="290" x2="544" y2="290" stroke="#81c784" stroke-width="5"/>
+<text x="552" y="294" fill="#dfe2ff" font-size="12">Dynamics: wide binaries, Eridanus II's cluster</text>
+<text x="552" y="308" fill="#8f94c4" font-size="11">1–10⁵ M☉</text>
+<line x1="520" y1="326" x2="544" y2="326" stroke="#f48fb1" stroke-width="5"/>
+<text x="552" y="330" fill="#dfe2ff" font-size="12">Accretion: CMB (Planck), galactic X-ray/radio</text>
+<text x="552" y="344" fill="#8f94c4" font-size="11">above 10 M☉</text>
+<line x1="520" y1="362" x2="544" y2="362" stroke="#a1887f" stroke-width="5"/>
+<text x="552" y="366" fill="#dfe2ff" font-size="12">Large-scale structure: Lyman-alpha forest</text>
+<text x="552" y="380" fill="#8f94c4" font-size="11">above 10⁴ M☉</text>
+<line x1="520" y1="398" x2="544" y2="398" stroke="#2ee59d" stroke-width="6"/>
+<text x="552" y="402" fill="#2ee59d" font-size="12" font-weight="600">Nothing rules them out: 10¹⁷–10²² g</text>
+<text x="520" y="442" fill="#eef0ff" font-size="14" font-weight="600">Macro dark matter ruled out by</text>
+<rect x="520" y="455" width="24" height="12" fill="#f2e14a" opacity="0.75"/>
+<text x="552" y="466" fill="#dfe2ff" font-size="12">Ancient mica</text>
+<text x="552" y="480" fill="#8f94c4" font-size="11">no tracks in 500-million-year-old crystals</text>
+<rect x="520" y="489" width="24" height="12" fill="#e2453c" opacity="0.85"/>
+<text x="552" y="500" fill="#dfe2ff" font-size="12">Human injuries</text>
+<text x="552" y="514" fill="#8f94c4" font-size="11">no unexplained 'gunshot' wounds</text>
+<rect x="520" y="523" width="24" height="12" fill="#3b6fd8" opacity="0.55"/>
+<text x="552" y="534" fill="#dfe2ff" font-size="12">White dwarfs</text>
+<text x="552" y="548" fill="#8f94c4" font-size="11">none set off as supernovae</text>
+<rect x="520" y="557" width="24" height="12" fill="#8a8a9a" opacity="0.35"/>
+<text x="552" y="568" fill="#dfe2ff" font-size="12">CMB (Planck)</text>
+<text x="552" y="582" fill="#8f94c4" font-size="11">no scattering of light by dark matter</text>
+<text x="520" y="608" fill="#8f94c4" font-size="11">Unshaded between nuclear density and the black-hole</text>
+<text x="520" y="622" fill="#8f94c4" font-size="11">line: macros not yet ruled out (mostly unsearched).</text>
+<text x="70" y="756" fill="#6b6f9e" font-size="10">Sources: Carr, Kohri, Sendouda &amp; Yokoyama, Rep. Prog. Phys. 84, 116902 (2021); Sidhu, Scherrer &amp; Starkman (2019); Niikura et al. (2019).</text>
+<text x="70" y="770" fill="#6b6f9e" font-size="10">Ranges are approximate, rounded to whole decades. Macro regions mapped from σ (cm²) with R = √(σ/π). docs/dark-matter-constraints.md has the details.</text>
+</svg>
