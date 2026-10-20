@@ -10,15 +10,15 @@ depends on.
 `output/videos/<take>.mp4` (1080×1920, 30 fps, with the sound-design mix; `output/` is
 gitignored). It needs the dev server and Google Chrome, so it runs on the Mac.
 
-Rendered 2026-10-20 from 32bb067 (the branch tip after take 5):
+Rendered 2026-10-20 from 32bb067 (the branch tip after take 5), checked (length = narration + credits, sample frames), and copied to iCloud `Projects/triangle/output videos/`:
 
 | Take | Length | Status |
 |---|---|---|
-| short-01-hook | 1:13 | rendering |
-| short-02-density | 1:48 | rendering |
-| short-03-planets | 3:34 | rendering |
-| short-04-stars | 3:10 | rendering |
-| short-05d-black-holes | 5:40 | next (video 5 = take 5) |
+| short-01-hook | 1:13 | done, 1:16 with credits, 48 MB |
+| short-02-density | 1:48 | done, 1:51, 116 MB |
+| short-03-planets | 3:34 | done, 3:37, 179 MB |
+| short-04-stars | 3:10 | done, 3:13, 129 MB |
+| short-05d-black-holes | 5:40 | done, 5:43, 305 MB (video 5 = take 5) |
 
 Not rendered: short-05, 05b, 05c (earlier black-hole takes, to be removed from the
 artifact). If a take's audio, words.json or scene changes after its render, say so
