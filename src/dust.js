@@ -23,6 +23,7 @@
 
 import dustUrl from "./dust.json?url";
 import { applyBulkDust } from "./bulk-density.js";
+import { select as d3sel } from "d3";
 
 const DUST_GAP = 5;        // px — minimum spacing between dust dots
 const DUST_R = 1.15;       // px — dot radius
@@ -38,7 +39,7 @@ const LABEL_MAX_DESKTOP = 10;   // labels on screen at most
 const LABEL_MAX_MOBILE = 5;
 const LABEL_GAP_DESKTOP = 110;  // px — clear radius around each labelled dot
 const LABEL_GAP_MOBILE = 90;
-const LABEL_FONT = 9;           // px, before the font-size setting
+const LABEL_FONT = 10;          // px, before the font-size setting — as curated labels
 const LABEL_MAX_CHARS = 24;    // longer names are skipped, not cut (~90% of names fit)
 // Catalogue designations (Gaia DR3 4057…, 2MASS J0523…, MD17 cloud 6573)
 // aren't worth reading.
@@ -110,7 +111,8 @@ export function loadDust() {
 /**
  * Draw the dust layer.
  * @param layer    d3 selection of the <g> to draw into
- * @param view     { px, py, cw, ch, mobile, hidden, labels, fontScale }
+ * @param view     { px, py, cw, ch, mobile, hidden, labels, fontScale, labelColorOf }
+ *                 — labelColorOf (catKey, sourceId): full colour for named dust
  * @param blockers { dots: [{sx, sy}], rects: [{x, y, w, h}], circles: [{sx, sy, r}] }
  *                 — curated dots, labels and (round) icons dust must stay clear of
  * @param colorOf  (catKey, sourceId) → css colour
@@ -118,7 +120,7 @@ export function loadDust() {
 export function drawDust(layer, view, blockers, colorOf) {
   _kept = [];
   _keptGrid = new Map();
-  if (!_data || view.hidden) { layer.selectAll("path, text").remove(); _labelled = new Set(); return; }
+  if (!_data || view.hidden) { layer.selectAll("path, g.dust-named").remove(); _labelled = new Set(); return; }
 
   const { px, py, cw, ch } = view;
   const { r, m, src, rank, sources } = _data;
@@ -206,7 +208,8 @@ export function drawDust(layer, view, blockers, colorOf) {
 
 /** Name a sparse few of the dots just drawn: greedy by priority (last
  *  frame's labels first, then the fixed random rank), each needing a clear
- *  radius from the others and a free spot for its text. */
+ *  radius from the others and a free spot for its text. A named dot is
+ *  drawn like a curated object (glow, 2.8 px dot, bold label) — promoted. */
 function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
   const { names, src, sources } = _data;
   const placed = [];
@@ -231,29 +234,37 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       if (!name || name.length > LABEL_MAX_CHARS || ID_LIKE.test(name)) continue;
       const text = name.toLowerCase().includes(kind.split(" ").pop()) ? name : `${name} (${kind})`;
       if (placed.some((p) => (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < gap2)) continue;
-      const w = text.length * fs * 0.55, h = fs * 1.2;
+      const w = text.length * fs * 0.62, h = fs * 1.2;
       let anchor = null;
-      if (free(q.sx + 4, q.sy - h / 2, q.sx + 6 + w, q.sy + h / 2)) anchor = "start";
-      else if (free(q.sx - 6 - w, q.sy - h / 2, q.sx - 4, q.sy + h / 2)) anchor = "end";
+      if (free(q.sx + 6, q.sy - h / 2, q.sx + 9 + w, q.sy + h / 2)) anchor = "start";
+      else if (free(q.sx - 9 - w, q.sy - h / 2, q.sx - 6, q.sy + h / 2)) anchor = "end";
       if (!anchor) continue;
       placed.push({ i: q.i, sx: q.sx, sy: q.sy, text, anchor, fs });
     }
   }
   _labelled = new Set(placed.map((p) => p.i));
-  layer.selectAll("text.dust-label")
+  const color = (p) => (view.labelColorOf || colorOf)(sources[src[p.i]].cat, sources[src[p.i]].id);
+  layer.selectAll("g.dust-named")
     .data(placed, (p) => p.i)
-    .join((enter) => enter.append("text")
-      .attr("class", "dust-label")
-      .attr("font-family", "Inter, sans-serif").attr("font-style", "italic").attr("font-weight", 500)
-      .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.85)")
-      .attr("stroke-width", 2.5).attr("stroke-linejoin", "round")
-      .attr("dominant-baseline", "central").attr("opacity", 0.8))
-    .attr("x", (p) => p.sx + (p.anchor === "start" ? 5 : -5))
-    .attr("y", (p) => p.sy)
-    .attr("text-anchor", (p) => p.anchor)
-    .attr("font-size", (p) => p.fs)
-    .attr("fill", (p) => colorOf(sources[src[p.i]].cat, sources[src[p.i]].id))
-    .text((p) => p.text);
+    .join((enter) => {
+      const g = enter.append("g").attr("class", "dust-named");
+      g.append("circle").attr("class", "dn-glow").attr("r", 6).attr("opacity", 0.1);
+      g.append("circle").attr("class", "dn-dot").attr("r", 2.8).attr("opacity", 0.85);
+      g.append("text")
+        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600).attr("letter-spacing", "0.5px")
+        .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.85)")
+        .attr("stroke-width", 3).attr("stroke-linejoin", "round")
+        .attr("dominant-baseline", "central");
+      return g;
+    })
+    .each(function (p) {
+      const g = d3sel(this), c = color(p);
+      g.selectAll("circle").attr("cx", p.sx).attr("cy", p.sy).attr("fill", c);
+      g.select("text")
+        .attr("x", p.sx + (p.anchor === "start" ? 8 : -8)).attr("y", p.sy)
+        .attr("text-anchor", p.anchor).attr("font-size", p.fs)
+        .attr("fill", c).text(p.text);
+    });
 }
 
 /** Map of name → [logR, logM] for one dust source (e.g. "element"). */
