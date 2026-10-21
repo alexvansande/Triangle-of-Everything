@@ -18,7 +18,13 @@ a little over 3 at 1.1×.
    all along).
 6. Close: the three horizons on one density line; the triangle is complete.
 
-## Script
+## Script (v2, 2026-10-21)
+
+Changes from v1: the "never reaches us" line now belongs to the cosmic event horizon
+(about 17 billion light-years), not the Hubble radius (14); "the mass of five hydrogen
+atoms" instead of "five atoms"; "everything in it, even dark energy" for the black-hole
+line; the knife's-edge balance explains why it lands there. About 620 words: a
+little under 4 minutes spoken, about 3½ at 1.1×.
 
 **1. Recap**
 
@@ -40,68 +46,74 @@ Then the largest structures we've mapped: superclusters. Ours is called Laniakea
 a hundred thousand galaxies strung along filaments, half a billion light-years
 across. And then there are voids. A void is a giant hole, and it's funny to call a
 hole an object, but you can weigh it: it's not empty, just emptier than average.
-And on the chart it sits right next to Laniakea. At this scale, everything is just
-the average density of the universe: about five atoms in every cubic metre.
+At this scale, everything comes down to the average density of the universe: the
+mass of about five hydrogen atoms in every cubic metre.
 
-**3. The two edges**
+**3. The second edge**
 
 Which brings us to the two edges of the triangle. The first one we met last time:
 the Schwarzschild line. Anything too massive for its size collapses into a black
 hole, and black holes never cross the line. They live on it.
 
-The other edge isn't about how small something can be, but how big. The universe is
-expanding, and the farther away something is, the faster it moves away from us. At
-some point, faster than light. That sounds forbidden, but nothing is moving through
-space that fast: space itself is stretching. This distance, where things recede at
-the speed of light, is the Hubble radius: about fourteen billion light-years.
+The other edge isn't about how small something can be, but how big. Nothing can
+travel through the universe faster than light. But that rule is for things moving
+through space, not for space itself. The universe is expanding, and the farther away
+something is, the faster it's carried away from us. About fourteen billion
+light-years out, it's carried away at the speed of light.
 
 **4. Our own universe**
 
-Nothing bigger than that can hold together as one thing: one side could never even
-talk to the other. So nothing on the chart is bigger. This is, in practice, the
-edge of our own universe. Our universe, not the universe: as far as we can measure,
-it may well be infinite, and beyond our sphere it probably looks just like here.
-We'll never know.
+And a little farther, about seventeen billion light-years, is a real horizon:
+anything that happens there right now will never reach us. Not because it's far,
+but because the space in between grows faster than its light can cross it.
 
-And the sphere is centred on us. A galaxy near our edge has its own sphere, centred
-on it, where we are the ones at the edge. Everyone gets their own universe.
+So nothing can be bigger than this and still be one thing: one side could never
+even talk to the other. This is, in practice, the edge of our own universe. Our
+universe, not the universe: as far as we can measure, it may well be infinite, and
+beyond our horizon it probably looks just like here. We'll never know.
+
+And the horizon is centred on us. A galaxy near our edge has its own, centred on
+it, where we are the ones at the edge. Everyone gets their own universe.
 
 **5. The twist**
 
-Now here's the strange part. Put the mass inside the Hubble sphere on the chart, and
-it lands exactly on the black-hole line. So is our universe a black hole?
+Now here's the strange part. Count everything inside that sphere, even dark energy,
+the mysterious something that's speeding up the expansion, and put it on the
+chart. It lands right on the black-hole line. So is our universe a black hole?
 
 No. A black hole is a lump of mass in empty space, with a centre, falling in on
 itself. The universe has no centre and no outside, and it's expanding. And a black
-hole's horizon keeps things in; ours keeps things out: what happens far enough away
-will never reach us.
+hole's horizon keeps things in; ours keeps things out.
 
-But it's not a coincidence either. The universe has exactly the density, the
-critical density, at which a Hubble sphere holds the mass of a black hole its own
-size. And it always has. Since the Big Bang, our sphere has been sliding up this
-line, from the Planck point at the corner, through every era of the universe, to
-here.
+But it's not a coincidence either. The universe is expanding at exactly the speed
+it needs to escape its own gravity, balanced on a knife's edge. And at the distance
+where it recedes at the speed of light, the escape velocity is the speed of light
+too. That's the edge of a black hole. And it has always been this way: since the
+Big Bang, our horizon has been sliding up this line, from the Planck point at the
+corner, through every era of the universe, to here.
 
 **6. Close**
 
-There are other horizons too: the farthest light that has reached us, forty-six
-billion light-years away, and the edge of what will ever reach us. They all fall on
-the same line, the average density of the universe. And with that, the triangle is
-complete: from the smallest thing that can exist, to the biggest.
+There's one more horizon: the farthest light that has ever reached us, from places
+that are now forty-six billion light-years away. It falls on the same line, the
+average density of the universe. And with that, the triangle is complete: from the
+smallest thing that can exist, to the biggest.
 
 ## For the re-record
 
 - Read section by section, with a breath between them; each is one scene.
-- Say "Hubble radius" or "Hubble sphere", not "observable universe", for the
-  14-billion-light-year edge. "Observable universe" is the 46-billion one (§6). The
-  chart's dot is labelled "Observable Universe" but sits at the Hubble radius:
-  rename it, or keep the word out of the narration.
-- Don't call the Hubble sphere an event horizon. If you want the black-hole
-  comparison, it's "our horizon" (§5).
+- Three distances, three meanings: fourteen billion light-years recedes at light
+  speed now (Hubble radius, §3); seventeen billion is the event horizon, "never
+  reaches us" (§4); forty-six billion is the observable universe, light already
+  received (§6). Don't swap them. The chart's dot labelled "Observable Universe"
+  sits at the Hubble radius: rename it before this video.
+- "Count everything, even dark energy": without it nothing lands on the line, and
+  counting it is how black holes are weighed too (all energy ÷ c²).
 - "May well be infinite", not "is infinite".
-- Numbers to keep: fourteen billion light-years (Hubble radius), forty-six billion
-  (observable universe), five atoms per cubic metre (average density), one atom per
-  cubic centimetre (a galaxy), a hundred thousand galaxies (Laniakea).
+- Numbers to keep: 14, 17 and 46 billion light-years (the three horizons, rounded;
+  `docs/img/cosmic-horizons.png`), the mass of five hydrogen atoms per cubic metre
+  (average density), one atom per cubic centimetre (a galaxy), a hundred thousand
+  galaxies (Laniakea).
 - Pronunciation: Laniakea is "LAH-nee-ah-KAY-ah" (Hawaiian, "immense heaven").
   Magellanic, not "Magellanian".
 - The draft wanders when it explains why faster-than-light is allowed and why
