@@ -194,7 +194,7 @@ export async function startNarration(app) {
 
   // ---------- camera timeline ----------
   const START = SCENE.start;
-  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam), dur: c.dur, drift: c.drift ?? 0.05 }))
+  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam), dur: c.dur, drift: c.drift ?? 0.05, quiet: !!c.quiet }))
     .filter(k => k.to);
   for (let i = 0; i < keys.length; i++) {
     const from = i === 0 ? START : camAt(keys[i].t, i - 1);
@@ -252,12 +252,21 @@ export async function startNarration(app) {
     if (key !== iconsNow) { iconsNow = key; app.setIcons?.(names); }
   }
 
+  // ---------- object labels: a cue's `labels: false` hides them from then on ----------
+  const labelCues = cues.filter(c => c.labels !== undefined);
+  let labelsNow;
+  function applyLabels(t) {
+    let v = true;
+    for (const c of labelCues) if (c.time <= t) v = c.labels;
+    if (v !== labelsNow) { labelsNow = v; app.setLabels?.(v); }
+  }
+
   // ---------- unit rulers: up while the camera moves (or pinned) ----------
   const pins = cues.filter(c => c.units).map(c => ({ t0: c.time, t1: c.time + (c.unitsFor ?? 6) }));
   function unitsOpacity(t) {
     let o = 0;
     for (const k of keys) {
-      if (k.end - k.t < 0.4) continue;
+      if (k.end - k.t < 0.4 || k.quiet) continue;   // quiet: a move with no rulers
       o = Math.max(o, smooth((t - (k.t - 0.4)) / 0.4) * (1 - smooth((t - (k.end + 0.9)) / 0.9)));
     }
     for (const p of pins) o = Math.max(o, smooth((t - p.t0) / 0.4) * (1 - smooth((t - p.t1) / 0.9)));
@@ -366,6 +375,7 @@ export async function startNarration(app) {
 
   function drawHighlights(t) {
     applyIcons(t);
+    applyLabels(t);
     // over the classic figure, keep highlights inside its plot frame
     const fr = classicOpacity(t) > 0.5 ? classicFrameClient() : null;
     if (fr) {
@@ -401,6 +411,9 @@ export async function startNarration(app) {
       else if (h.arrow) drawArrow(el, h, age);
       else if (h.swing) drawSwing(el, h, age);
       else if (h.split) drawSplit(el, h, age);
+      else if (h.poly) drawPoly(el, h, age);
+      else if (h.title) drawTitle(el, h, age);
+      else if (h.mark) drawMark(el, h, age);
       else if (h.dust) drawDustCat(el, h, age);
       else if (h.ellipse) drawEllipse(el, h, age);
       else if (h.window) drawWindow(el, h, age);
@@ -690,8 +703,12 @@ export async function startNarration(app) {
     for (const c of h.cuts || []) {
       const d = 14 + 7 * laneOf(c), col = c.color || "#b0b4c8";
       // the newly named one (with a label) grows out from its middle
+      // grow: "up" sweeps from the light end (a limit pushing the window's floor up),
+      // "down" from the heavy end; default from the middle
       const g = c.label ? grow : 1, mid0 = (c.m[0] + c.m[1]) / 2;
-      const lo = mid0 + (c.m[0] - mid0) * g, hi = mid0 + (c.m[1] - mid0) * g;
+      const [lo, hi] = c.grow === "up" ? [c.m[0], c.m[0] + (c.m[1] - c.m[0]) * g]
+        : c.grow === "down" ? [c.m[1] - (c.m[1] - c.m[0]) * g, c.m[1]]
+        : [mid0 + (c.m[0] - mid0) * g, mid0 + (c.m[1] - mid0) * g];
       el.append("path").attr("d", seg(lo, hi, d)).attr("stroke", col)
         .attr("stroke-width", 4).attr("stroke-linecap", "butt").attr("opacity", 0.8)
         .attr("stroke-dasharray", c.dash ? "5 4" : null);
@@ -818,6 +835,45 @@ export async function startNarration(app) {
       .attr("fill", "#bfe3ff").attr("opacity", lab).text(h.coreLabel.toUpperCase());
     if (h.shellLabel) el.append("text").attr("class", "narr-tag").attr("x", sxp).attr("y", syp - Rs - 10).attr("text-anchor", "middle")
       .attr("fill", scol).attr("opacity", lab).text(h.shellLabel.toUpperCase());
+  }
+  /** A region of the chart: { poly: [[r, m], …], fill, label?, labelAt?: [r, m] },
+   *  fading in (e.g. what's been ruled out as dark matter). */
+  function hatchFill(col) {
+    const id = "narr-hatch-" + col.replace(/[^0-9a-z]/gi, "");
+    if (defs.select("#" + id).empty())
+      defs.append("pattern").attr("id", id).attr("width", 9).attr("height", 9).attr("patternUnits", "userSpaceOnUse")
+        .attr("patternTransform", "rotate(45)")
+        .append("line").attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 9).attr("stroke", col).attr("stroke-width", 2.4);
+    return `url(#${id})`;
+  }
+  function drawPoly(el, h, age) {
+    const op = h.instant ? 1 : smooth(age / 0.9), col = h.fill || "#3b6fd8";
+    const pts = h.poly.map(([r, m]) => `${sx(r).toFixed(1)},${sy(m).toFixed(1)}`).join(" ");
+    // hatch: crossed out, a ruled-out area
+    el.append("polygon").attr("points", pts).attr("fill", h.hatch ? hatchFill(col) : col).attr("opacity", (h.opacity ?? 0.5) * op)
+      .attr("stroke", col).attr("stroke-width", 1.4).attr("stroke-opacity", 0.9 * op);
+    if (h.label) {
+      const [lr, lm] = h.labelAt || [h.poly.reduce((a, p) => a + p[0], 0) / h.poly.length, h.poly.reduce((a, p) => a + p[1], 0) / h.poly.length];
+      const t = el.append("text").attr("class", "narr-tag").attr("x", sx(lr)).attr("y", sy(lm)).attr("text-anchor", "middle")
+        .attr("fill", h.labelColor || "#fff").attr("opacity", h.instant ? 1 : smooth((age - 0.3) / 0.6));
+      h.label.split("\n").forEach((ln, i) => t.append("tspan").attr("x", sx(lr)).attr("dy", i ? "1.2em" : 0).text(ln.toUpperCase()));
+    }
+  }
+  /** A big title in the middle of the screen: { title: "Here be dark matter?", y?: 0.4 } */
+  function drawTitle(el, h, age) {
+    const SW = layer.clientWidth, SH = layer.clientHeight, op = h.instant ? 1 : smooth(age / 1.0);
+    const t = el.append("text").attr("class", "narr-title").attr("x", SW / 2).attr("y", SH * (h.y ?? 0.4))
+      .attr("text-anchor", "middle").attr("opacity", op);
+    h.title.split("\n").forEach((ln, i) => t.append("tspan").attr("x", SW / 2).attr("dy", i ? "1.0em" : 0).text(ln.toUpperCase()));
+  }
+  /** A labelled point: { mark: [r, m], label, color? } (a candidate with no object of its own) */
+  function drawMark(el, h, age) {
+    const op = h.instant ? 1 : smooth(age / 0.6), x = sx(h.mark[0]), y = sy(h.mark[1]), col = h.color || "#ffd54f";
+    el.append("circle").attr("cx", x).attr("cy", y).attr("r", 5).attr("fill", col).attr("opacity", op);
+    el.append("circle").attr("cx", x).attr("cy", y).attr("r", 11).attr("fill", "none").attr("stroke", col).attr("stroke-width", 1.4).attr("opacity", 0.7 * op);
+    const place = h.place || "right";
+    el.append("text").attr("class", "narr-tag narr-cand").attr("x", place === "left" ? x - 16 : x + 16).attr("y", y + 5)
+      .attr("text-anchor", place === "left" ? "end" : "start").attr("fill", col).attr("opacity", op).text((h.label || "").toUpperCase());
   }
   function drawArrow(el, h, age) {
     const from = h.from.obj ? objByName.get(h.from.obj) : null;
@@ -1246,6 +1302,10 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 #narr-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 #narr-svg text { font-family: Inter, system-ui, sans-serif; paint-order: stroke; stroke: rgba(0,0,0,0.85); stroke-width: 3px; stroke-linejoin: round; }
 .narr-tag { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; }
+.narr-cand { font-size: 15px; }
+body.narr-no-text #chart text { visibility: hidden; }
+#narr-svg text.narr-title { font-family: "Barlow Condensed", "Arial Narrow", sans-serif !important; font-size: 42px; font-weight: 700;
+  letter-spacing: 0.04em; fill: #ffd54f; stroke: rgba(0,0,0,0.9); stroke-width: 6px; }
 .narr-linelabel { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; }
 .narr-axislabel { font-family: "Barlow Condensed", Inter, sans-serif !important; font-size: 22px; font-weight: 700; letter-spacing: 0.12em; }
 .narr-sidelabel { font-size: 15px; font-weight: 800; letter-spacing: 0.22em; }

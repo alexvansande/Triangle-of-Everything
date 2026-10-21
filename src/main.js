@@ -7498,6 +7498,12 @@ if (_ogShot) {
        *  multiplier, an opacity multiplier, or a fixed radius in px. */
       /** Fade the background painting at zooms deeper than its resolution (videos). */
       setBgFadeDeep(on = true) { _bgFadeDeep = on; drawTiles(); },
+      /** Object labels on or off (videos: a quiet closing shot). */
+      setLabels(on = true) {
+        // off also hides the chart's other text (band and path names) for a clean shot
+        document.body.classList.toggle("narr-no-text", !on);
+        if (_labelsEnabled !== on) { _labelsEnabled = on; redraw(); }
+      },
       setDots({ size = 1, opacity = 1, radius = null } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; _dotFixedR = radius; },
       /** Only these objects keep their picture (the rest are plain dots over
        *  the dust); null for all of them. */

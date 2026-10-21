@@ -18,12 +18,34 @@ const KNOWN = { dust: "blackhole", sweep: 1.6 };
 // primordial black holes: the window (log10 g) and the masses each survey rules out
 const W0 = [-4.7, 38.3], W1 = [-4.7, 37.3], W2 = [-4.7, 34.3], W3 = [-4.7, 33.3], W4 = [-4.7, 22], W5 = [17, 22], W6 = [17, 18];
 // each survey's own range (docs/dark-matter-constraints.md): they overlap, and each stays drawn
-const QSO = { m: [37.3, 38.3] };   // Lyman-alpha forest in quasar light: above ~1e4 Suns
-const CMB = { m: [34.3, 38.3] };   // accretion marks in the CMB: above ~10 Suns
-const GW = { m: [33.3, 35.3] };    // LIGO/Virgo merger rates: ~1–100 Suns
-const ML = { m: [22, 34.8] };      // microlensing: 1e22 g to ~30 Suns
-const HAW = { m: [-4.7, 17] };     // evaporated, or still glowing (Hawking radiation), and the early elements
-const NS = { m: [18, 23], dash: true };  // captured by neutron stars (contested), ~1e18–1e23 g
+const QSO = { m: [37.3, 38.3], grow: "down" };   // Lyman-alpha forest in quasar light: above ~1e4 Suns
+const CMB = { m: [34.3, 38.3], grow: "down" };   // accretion marks in the CMB: above ~10 Suns
+const GW = { m: [33.3, 35.3], grow: "down" };    // LIGO/Virgo merger rates: ~1–100 Suns
+const ML = { m: [22, 34.8], grow: "down" };      // microlensing: 1e22 g to ~30 Suns
+const HAW = { m: [-4.7, 17], grow: "up" };     // evaporated, or still glowing (Hawking radiation), and the early elements
+const NS = { m: [18, 23], dash: true, grow: "down" };  // captured by neutron stars (contested), ~1e18–1e23 g
+// a dying star splitting in two (as in video 3): core to the white dwarfs, layers to the nebulae
+const SPLIT = { split: { from: { obj: "Red Giant" }, core: { obj: "White Dwarf" }, shell: { obj: "Planetary Nebula" } } };
+// what has been ruled out as macro dark matter, from docs/img/dark-matter-constraints.svg
+// (Sidhu, Scherrer & Starkman 2019; on the chart's axes, R = √(σ/π))
+// hatched = crossed out; each says what ruled it out
+const DM_MICA = { poly: [[-7.75, 0], [-4, 0], [-4, 1.74], [-7.75, 1.74]], hatch: true, fill: "#f2e14a", opacity: 0.85,
+  label: "ruled out by\nancient crystals", labelAt: [-9.5, -2.2], labelColor: "#f2e14a" };
+const DM_HURT = { poly: [[-3.83, 0], [-3.83, 4.7], [-1.07, 4.7], [-3.42, 0]], hatch: true, fill: "#ff6b5e", opacity: 0.9,
+  label: "ruled out by a lack of\nrandom human injuries", labelAt: [-10.5, 5.6], labelColor: "#ff8a80" };
+const DM_WD = { poly: [[-4.75, 5.6], [-4.75, 15], [-4.25, 16.2], [-3.65, 20.5], [-2, 21.6], [4, 21.6]], hatch: true, fill: "#6f9bff", opacity: 0.75,
+  label: "ruled out by white dwarfs\nthat never exploded", labelAt: [3.4, 14.2], labelColor: "#9ec1ff" };
+const DM_CMB = { poly: [[-3.42, 0], [30, 0], [30, 25], [9.08, 25]], hatch: true, fill: "#b8bccc", opacity: 0.45,
+  label: "ruled out by the\nmicrowave background", labelAt: [6.5, 4.5], labelColor: "#e0e3f0" };
+// the candidates, as questions
+const DM_TITLE = { title: "Here be\ndark matter?", y: 0.16 };
+const DM_CANDS = [
+  { obj: "WIMP*", label: "WIMPs?", place: "right" },
+  { mark: [10, 32], label: "MACHOs?", place: "left" },
+  { mark: [-1, 9], label: "macro dark matter?", place: "left", color: "#ffe9a3" },
+];
+const DM_PBH = { mark: [-8.3, 19.5], label: "primordial black holes?", place: "right", color: "#ff8fa8" };
+const still = (h) => ({ ...h, instant: true, delay: 0 });
 const GAL = { dust: "galaxy", src: ["galaxy", "cluster"], color: "#80deea", sweep: 1.2, r: 2.2 };
 const GAL_DROP = { ...GAL, sweep: 0.01, shift: { galaxy: -1, cluster: -0.85 }, shiftAt: 0.5, shiftDur: 2 };
 
@@ -45,15 +67,15 @@ export default {
   cues: [
     // ── The chart so far ─────────────────────────────────────
     { at: "could have ever existed", cam: { r: 3, m: 9, span: 56 }, dur: 12, drift: 0.02, hl: [{ line: "triangle" }] },
-    { at: "horizontal axis", hl: [{ axis: "bottom", label: "size" }] },
-    { at: "vertical axis", hl: [{ axis: "left", label: "mass" }] },
+    { at: "horizontal axis", units: true, unitsFor: 9, hl: [{ axis: "bottom", label: "size" }] },
+    { at: "vertical axis", hl: [{ axis: "bottom", label: "size" }, { axis: "right", label: "mass" }] },
     { at: "density scatter plot", cam: { r: 2, m: 6, span: 44 }, hl: [{ line: "water", label: "density" }] },
-    { at: "stellar nurseries", cam: { r: 14, m: 34, span: 11 }, hl: [{ obj: "Nebulae", label: "stellar nursery" }, { obj: "Protostar", delay: 0.6 }] },
+    { at: "stellar nurseries", cam: { r: 15, m: 34.6, span: 11 }, hl: [{ obj: "Stellar Nursery", label: "stellar nursery" }, { arrow: true, from: { obj: "Stellar Nursery" }, to: { obj: "Protostar" }, delay: 0.4 }, { obj: "Protostar", delay: 0.8 }] },
     { at: "main sequence", cam: { r: 11.2, m: 33.4, span: 5 }, hl: [{ line: "mainsequence", label: "main sequence" }, { obj: "Sun" }] },
-    { at: "collapse and expand", hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4 }] },
-    { at: "red giants", hl: [{ obj: "Sun" }, { obj: "Red Giant", label: "red giant" }] },
-    { at: "into nebulas", cam: { r: 15.6, m: 33.8, span: 8 }, hl: [{ obj: "Red Giant", label: false }, { arrow: true, from: { obj: "Red Giant" }, to: { obj: "Planetary Nebula" } }, { obj: "Planetary Nebula", label: "nebula", delay: 0.6 }] },
-    { at: "new generation of stars", hl: [{ obj: "Planetary Nebula", label: false }, { arrow: true, from: { obj: "Planetary Nebula" }, to: { obj: "Nebulae" } }, { obj: "Nebulae", label: "new stars", delay: 0.6 }] },
+        // one uninterrupted swing (a new hl cue would restart it) into the split
+    { at: "collapse and expand", hold: 12, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4, core: true }, { obj: "Red Giant", label: "red giant", delay: 2.6 }] },
+    { at: "into nebulas", cam: { r: 13.1, m: 33.6, span: 12.5 }, dur: 1.6, hl: [{ ...SPLIT, coreLabel: "core", shellLabel: "nebula" }] },
+    { at: "new generation of stars", hl: [{ ...SPLIT, draw: 0.01 }, { arrow: true, from: { obj: "Planetary Nebula" }, to: { obj: "Stellar Nursery" } }, { obj: "Stellar Nursery", label: "new stars", delay: 0.6 }] },
     { at: "skeleton of a dead star", cam: { r: 8.4, m: 33.6, span: 6 }, clear: true },
     { at: "white dwarf", hl: [{ obj: "White Dwarf", place: "left" }] },
     { at: "neutron star", hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }] },
@@ -106,11 +128,10 @@ export default {
     { at: "early moments of the big bang", cam: { r: -8, m: 18, span: 34 }, clear: true },
     // the early universe as a density line: ~1e40 g/cm³ about 1e-17 s in, which meets
     // the black-hole line at ~3e21 g (a lump of it the size of its own horizon collapses)
-    { at: "soup of very hot", hl: [SCHW, { density: 40, label: "the whole universe\nwas a hot dense soup" }] },
+    { at: "soup of very hot", hl: [SCHW, { density: 40, label: "the whole universe\nwas in a hot dense state" }] },
     // the window narrowing as each survey is named: a red band along the
     // Schwarzschild line from the Planck mass to ~1e5 Suns, cut down to what's
     // still open (log10 g; docs/dark-matter-constraints.md)
-    { at: "soup of very hot", offset: 2.0, photo: "cmb", dur: 5, fit: "contain", kb: [1, 1.25], caption: "The cosmic microwave background · WMAP · 2012 · the soup, 380,000 years after the Big Bang" },
     { at: "still be around", cam: { r: -11, m: 16.8, span: 46 }, clear: true, hl: [{ window: W0, label: "could they\nbe here?", dist: 60 }] },
     { at: "quasars", hl: [{ window: W1, from: W0, trace: W0, cuts: [{ ...QSO, label: "ruled out by\nquasar light" }] }] },
     { at: "cosmic background radiation", hl: [{ window: W2, from: W1, trace: W0, cuts: [QSO, { ...CMB, label: "ruled out by the\nmicrowave background" }] }] },
@@ -125,7 +146,7 @@ export default {
       { obj: "Hyperion", label: "a small moon", place: "above" }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75), label: "the size of a virus", delay: 0.4 }] },
     { at: "heavy as an asteroid", hl: [{ obj: "Hyperion", label: false }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75) },
       { obj: "Eros", label: "an asteroid", place: "below", delay: 0.2 }, { arrow: true, from: { obj: "Eros" }, to: BH(18.83), label: "smaller than an atom", delay: 0.6 }] },
-    { at: "basically invisible", cam: { r: -8.3, m: 19.5, span: 12 }, clear: true },
+    { at: "basically invisible", cam: { r: 23, m: 45, span: 14 }, dur: 9, drift: 0.02, clear: true },
 
     // ── Dark matter: galaxies without it ─────────────────────
     { at: "effects on their gravity", cam: { obj: "Milky Way", span: 7 }, clear: true, hl: [{ obj: "Milky Way" }] },
@@ -137,7 +158,18 @@ export default {
       hl: [{ ...GAL_DROP, label: "without dark matter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only", delay: 2 }] },
     { at: ["ten times", "10 times"], hl: [{ ...GAL_DROP, shiftAt: -10, label: "about 10× lighter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
     // a slow pull back from the galaxies instead of holding on the dark-matter line
-    { at: "of course dark matter", cam: { r: 14, m: 36, span: 44 }, dur: 9, hl: [{ ...GAL, label: "dark matter", labelY: 0.12 }] },
+    // ── Here be dark matter? The candidates, and what has been crossed out ──
+    { at: "of course dark matter", cam: { r: -2.5, m: 1.5, span: 40 }, dur: 4, quiet: true, labels: false, icons: false, clear: true,
+      hl: [SCHW, { ...DM_TITLE, delay: 1.2 }, ...DM_CANDS.map((c, i) => ({ ...c, delay: 2 + 0.5 * i }))] },
+    // the candidates and what has ruled them out: macro dark matter, region by region
+    { at: "a lot of candidates", cam: { r: -2.3, m: 1.8, span: 39 }, dur: 9, drift: 0, quiet: true,
+      hl: [SCHW, still(DM_TITLE), ...DM_CANDS.map(still),
+        { ...DM_MICA, delay: 0.4 }, { ...DM_HURT, delay: 1.6 }, { ...DM_WD, delay: 2.8 }, { ...DM_CMB, delay: 4.0 }] },
+    { at: "very tiny black",
+      hl: [SCHW, still(DM_TITLE), ...DM_CANDS.map(still), still(DM_MICA), still(DM_HURT), still(DM_WD), still(DM_CMB),
+        DM_PBH, { window: W5, cuts: [ML, HAW], delay: 0.4 }] },
+    { at: "keep looking for them", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 3, labels: true, icons: true, clear: true,
+      hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
     { at: "research on neutron stars", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 5, clear: true,
       hl: [{ window: W6, from: W5, trace: W0, cuts: [ML, HAW, { ...NS, label: "might be ruled out\nby neutron stars" }] }] },
     { at: "empty space in the universe", cam: { r: -7.4, m: 20.6, span: 10 }, dur: 9, drift: 0.01, hl: [{ window: W5, from: W6, trace: W0, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
@@ -151,7 +183,6 @@ export default {
     // black-hole line at ~2e19 g, in the window
     { at: "early moments of our history", cam: { r: -8.6, m: 19.4, span: 12 }, clear: true,
       hl: [{ density: 44, label: "density of universe\nfirst instants after big bang" }] },
-    { at: "lucky few survivors", cam: { r: 3, m: 12, span: 40 }, dur: 6, drift: 0.02, hl: [{ line: "water", label: "everything else" }] },
-    { at: "lucky few", offset: 0.4, photo: "xdf", dur: 3.2, kb: [1, 1.5], caption: "Hubble eXtreme Deep Field · 2012 · the lucky few" },
+    { at: "everything else", cam: FULL, dur: 11, drift: 0, quiet: true, labels: false, icons: false, clear: true },
   ],
 };

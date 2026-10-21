@@ -36,6 +36,16 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   the top right (cosmology), keep shots at ~4 decades across or wider.
 - **Axis rulers** show in-between ticks (10 kg, 100 kg… and 2×/5× when zoomed in), in every video.
 
+- **Clean shots when the author asks for them**: a cue's `labels: false` hides every piece of
+  chart text (object, band and path names) until a later `labels: true`; `quiet: true` on a
+  camera move keeps the unit rulers off. Used for "Here be dark matter?" and the closing
+  zoom-out of video 4 to the bare triangle.
+- **Diagrams on the chart beat cutaways**: video 4's dark-matter search draws the figure from
+  `docs/img/dark-matter-constraints.svg` on the chart itself (hatched "ruled out by…" areas,
+  the candidates as questions), not as a picture.
+- **Axis talk shows the real axes**: mass on the right (as in the map), size along the bottom,
+  with the numbered rulers pinned while they're named.
+
 ## 3. Photo cutaways: when, and which
 
 Mechanics: `{ at, photo, caption: "what · who · when", obj, dur, fit, kb, focus, place }`
