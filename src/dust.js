@@ -44,6 +44,8 @@ const LABEL_MAX_CHARS = 24;    // longer names are skipped, not cut (~90% of nam
 // Catalogue designations (Gaia DR3 4057…, 2MASS J0523…, MD17 cloud 6573)
 // aren't worth reading.
 const ID_LIKE = /\d{5,}|^(Gaia|2MASS|TIC|KIC|EPIC|HIP|HD|TYC|WISE|SDSS|UGC|PGC|NGC|IC|GJ|LHS|NLTT|MD17)\b/i;
+// One-word acronyms (EOFdMKM) read as noise; S-125 or MAZ-537 still pass.
+const ACRONYM = /^(?=\S+$)(?:[^A-Z]*[A-Z]){5}/;
 // What each catalogue's things are, added as "Twike (car)" unless the name
 // already says it. Missing = no label for that catalogue.
 const LABEL_KIND = {
@@ -59,6 +61,18 @@ const LABEL_KIND = {
   debcat: "binary star", host: "star", wd: "white dwarf", neutronstar: "neutron star",
   oc: "star cluster", gc: "globular cluster", galaxy: "galaxy", cluster: "galaxy cluster",
 };
+// Wikidata files drones as aircraft: below ~100 kg they all are (the
+// lightest crewed one, the 1909 Demoiselle, is 110 kg), bar museum models.
+function labelKind(id, name, logM) {
+  if (id === "aircraft" && logM < 5.02) return /\bmodel\b/i.test(name) ? "model" : "drone";
+  return LABEL_KIND[id];
+}
+
+// Catalogue entries dropped at load: [source id, name, why]. Also listed in
+// the source's build script so the next dust build leaves them out.
+const DUST_EXCLUDE = [
+  ["artefact", "Untitled", "an artwork's title, not a name"],
+];
 
 let _data = null;          // { names, r, m, src, rank, sources }
 let _loading = null;
@@ -77,16 +91,20 @@ export function loadDust() {
     if (!res.ok) throw new Error(`dust.json: HTTP ${res.status}`);
     return res.json();
   }).then(({ sources, name, r: rr, m: mm, s: ss }) => {
-    const n = name.length;
+    const drop = new Set(DUST_EXCLUDE.map(([id, nm]) => `${id}|${nm}`));
+    const keep = [];
+    for (let i = 0; i < name.length; i++) if (!drop.has(`${sources[ss[i]].id}|${name[i]}`)) keep.push(i);
+    const n = keep.length;
     const names = new Array(n);
-    const r = Float32Array.from(rr), m = Float32Array.from(mm);
-    const src = Uint8Array.from(ss);
+    const raw = keep.map((i) => name[i]);
+    const r = Float32Array.from(keep, (i) => rr[i]), m = Float32Array.from(keep, (i) => mm[i]);
+    const src = Uint8Array.from(keep, (i) => ss[i]);
     // Non-round things to their bulk-density ball radius (bulk-density.js);
     // rSpan keeps the catalogue's half-longest-dimension radius.
-    const rSpan = applyBulkDust(r, m, src, sources, name);
+    const rSpan = applyBulkDust(r, m, src, sources, raw);
     for (let i = 0; i < n; i++) {
       const so = sources[src[i]];
-      names[i] = so.pre + name[i] + so.suf;
+      names[i] = so.pre + raw[i] + so.suf;
     }
     // Deterministic shuffle (mulberry32) → stable thinning priority
     const rank = new Uint32Array(n);
@@ -228,10 +246,10 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     const order = [..._kept.filter((q) => _labelled.has(q.i)), ..._kept.filter((q) => !_labelled.has(q.i))];
     for (const q of order) {
       if (placed.length >= max) break;
-      const so = sources[src[q.i]], kind = LABEL_KIND[so.id];
+      const so = sources[src[q.i]], kind = labelKind(so.id, names[q.i], _data.m[q.i]);
       if (!kind || so.suf) continue;             // black holes (ticks), clouds, nuclei…
       const name = names[q.i];
-      if (!name || name.length > LABEL_MAX_CHARS || ID_LIKE.test(name)) continue;
+      if (!name || name.length > LABEL_MAX_CHARS || ID_LIKE.test(name) || ACRONYM.test(name)) continue;
       const text = name.toLowerCase().includes(kind.split(" ").pop()) ? name : `${name} (${kind})`;
       if (placed.some((p) => (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < gap2)) continue;
       const w = text.length * fs * 0.62, h = fs * 1.2;
