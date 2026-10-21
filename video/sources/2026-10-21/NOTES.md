@@ -102,3 +102,58 @@ holds exactly the mass whose Schwarzschild radius is the Hubble radius
 (2GM/c² = c/H). Not a coincidence, and it was true at every moment: as the universe
 aged, its Hubble sphere slid up the black-hole line, crossing the epoch lines
 already in the chart (Planck, GUT, electroweak, nuclear, first nuclei, CMB, now).
+
+## rec26: "Hubble Sphere.m4a" (video 6, the real take)
+
+iCloud recordings, 2026-10-21 11:03, 8:30, 48 kHz. Read from the v2 script in
+`video/plans/06-hubble-sphere.md`, with ad-libs at the end (the observable universe
+"outside the triangle"). Cut as `short-06-hubble-sphere` (33 clips, 4:52 before the
+1.1× tempo, 4:25 after); words in `rec26.words.json`. Backing track: Fresh Air.
+
+Left out: two false starts of the opening; "around a hundred thousand star,"; the
+first "five hydrogen atoms in every meter"; "nothing can exist," restart; the first
+"nothing can travel through the universe… but that"; "is the real Earth"; the first
+"it may be well infinite and beyond our…" (hidden by Whisper inside "horizon"); the
+first "count everything… speeding up the…" (joined to the second take's "and put it on
+a chart"); "The universe has no center," first try; the horizon lines ("keeps things
+on… in, or keeps things out", garbled); "balanced on the knife's edge" (the author:
+"I don't like those words"); "it's like light escaping"; two tries at "sliding up";
+the repeated "one more horizon" passages; "due to the distance of the universe";
+"I don't know how to end it" and "so that point is not really there".
+
+Caption fixes by hand: degenerate "mother" → matter, "nebulae" → nebula, "or a galaxy"
+→ Our galaxy, "weight" → weigh, "lumped" → lump, "filing on itself" → falling in on
+itself, "plank" → Planck, "hobo" → Hubble line, "or universe" → our universe, "may be
+well be" → may well be, "There was actually" → There's actually.
+
+### Fact check (rec26 as cut)
+
+Right: everything made of atoms on one diagonal, splitting at brown dwarfs; bigger
+means emptier from nebulae to voids; a galaxy averages about one atom per cm³; groups,
+clusters, Laniakea (about 100,000 galaxies, ~500 million light-years); voids are
+emptier than average, not empty; the average density is about five hydrogen atoms' mass
+per m³ (the critical density, ~9 × 10⁻³⁰ g/cm³); nothing up or left of the Schwarzschild
+line; space can carry things away faster than light; recession reaches c at about 14
+billion ly (Hubble radius); about 17 billion ly is the event horizon ("never reaches
+us"); the universe may well be infinite; everyone has their own horizon; counting
+everything including dark energy puts the Hubble sphere on the black-hole line; a
+black hole has a centre and an outside, the universe has neither; the expansion rate is
+set by the density (Friedmann), like escape velocity set by mass; the Hubble sphere has
+slid up the line since the Big Bang; the observable universe (46 billion ly) is on the
+same average-density line and outside the triangle.
+
+Imprecise, worth knowing:
+1. **"it's sort of an illusion, because the light that reaches us is not there"**: the
+   observable universe isn't an illusion. The galaxies whose light we now receive
+   really are about 46 billion ly away today; what we see is how they looked when they
+   were much closer. What makes it fall outside the triangle is that it isn't one
+   connected thing: no signal could cross it, so the triangle's "one object" rule
+   doesn't apply. A re-record could say: "That point sits outside the triangle, because
+   it isn't one object: its far sides have never been able to reach each other. We see
+   them only as they were, long ago, when they were much closer."
+2. "Nothing can travel through space faster than light, but space itself can": space
+   doesn't move; distances grow. Fine as a popular phrasing.
+3. "Anything that happens here, right now" (said "here", meaning there).
+4. The chart's "Observable Universe" dot sits at the Hubble radius (10²⁸·¹⁴ cm), so the
+   video labels it "Hubble sphere", while the map's own label still says "Observable
+   Universe". Renaming the object (`src/objects.json`) would fix it on the site too.
