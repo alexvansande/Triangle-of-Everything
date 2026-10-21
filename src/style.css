@@ -1133,41 +1133,8 @@ body:not(.sidebar-open) #sidebar-expand { display: flex; }
   fill: rgba(255,255,255,0.92);
 }
 
-/* Margin-driven scaling: SVG font-size attributes are overridden by CSS,
-   so changing these vars rescales every label without touching the JS
-   that builds the axes. The drag handles update --right-axis-w and
-   --left-axis-w on <body>. */
-g.axis-r .axis-label,
-g.axis-r .axis-unit-link {
-  font-size: clamp(7px, calc(var(--right-axis-w, 95px) * 0.13), 16px) !important;
-}
-g.axis-l .axis-label,
-g.axis-l .axis-unit-link {
-  font-size: clamp(7px, calc(var(--left-axis-w, 175px) * 0.07), 14px) !important;
-}
-g.axis-b .axis-label,
-g.axis-b .axis-unit-link {
-  font-size: clamp(7px, calc(var(--bottom-axis-h, 80px) * 0.16), 16px) !important;
-}
-g.axis-t .axis-label,
-g.axis-t .axis-unit-link {
-  font-size: clamp(7px, calc(var(--top-axis-h, 55px) * 0.20), 16px) !important;
-}
-/* Reference labels render ~72% of the grid-number size on each axis, so the
-   bold named units read as secondary to the light numbers. (Must come after
-   the combined rules above to win the cascade.) */
-g.axis-r .axis-unit-link {
-  font-size: clamp(6px, calc(var(--right-axis-w, 95px) * 0.094), 12px) !important;
-}
-g.axis-l .axis-unit-link {
-  font-size: clamp(6px, calc(var(--left-axis-w, 175px) * 0.050), 10px) !important;
-}
-g.axis-b .axis-unit-link {
-  font-size: clamp(6px, calc(var(--bottom-axis-h, 80px) * 0.115), 12px) !important;
-}
-g.axis-t .axis-unit-link {
-  font-size: clamp(6px, calc(var(--top-axis-h, 55px) * 0.144), 12px) !important;
-}
+/* Axis text sizes are set inline by drawAxes (axisLayout in main.js): they
+   follow the Font size setting, and each axis column is laid out from them. */
 
 /* Drag handles at the chart edges. Vertical handles for left/right (col-resize),
    horizontal handles for top/bottom (row-resize). */
