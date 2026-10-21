@@ -684,6 +684,7 @@ export const SUBCAT_COLORS = {
   gas_giant:         "#2e74ff",   // deeper vivid blue — massive worlds
   exoplanet:         "#5590dd",   // muted blue — distant / uncertain
   molecule:          "#3d6bff",   // deep blue — bonded atoms, clearly apart from the teal atoms
+  machine:           "#ffab40",   // amber — things we built, apart from the green animals beside them
 };
 
 // Text colour for subcategories whose dot colour is too deep to read as a
@@ -691,7 +692,11 @@ export const SUBCAT_COLORS = {
 export const SUBCAT_LABEL_COLORS = { molecule: "#8fa8ff" };
 
 // Dust catalogues coloured as a subcategory rather than their category.
-export const DUST_SOURCE_SUBCAT = { molecule: "molecule", protein: "molecule" };
+export const DUST_SOURCE_SUBCAT = {
+  molecule: "molecule", protein: "molecule",
+  vehicle: "machine", rail: "machine", armour: "machine", ship: "machine",
+  aircraft: "machine", spacecraft: "machine", artefact: "machine",
+};
 
 // Subcategories for cluster labels — when objects are too close, show one label
 // Key: subcat value in objects.json. Value: display label for the cluster.
