@@ -2846,6 +2846,7 @@ function drawObjects() {
     hidden: !_dustEnabled || _bigBangMode,
     // a few dust names, map-style; not in the narrated videos or the poster
     labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fontScale: _fontScale,
+    labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
   }, {
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
