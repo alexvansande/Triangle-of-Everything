@@ -9,7 +9,8 @@ video description of every video that shows them, like the music.
 |---|---|---|---|
 | andromeda | Brody Wesner | CC0 | [Andromeda_Galaxy_2025.png](https://commons.wikimedia.org/wiki/File:Andromeda_Galaxy_2025.png) |
 | betelgeuse | ALMA (ESO/NAOJ/NRAO)/E. O’Gorman/P. Kervella | CC BY 4.0 | [Betelgeuse_captured_by_ALMA.jpg](https://commons.wikimedia.org/wiki/File:Betelgeuse_captured_by_ALMA.jpg) |
-| blue-whale | NOAA Photo Library | Public domain | [Anim1754_-_Flickr_-_NOAA_Photo_Library.jpg](https://commons.wikimedia.org/wiki/File:Anim1754_-_Flickr_-_NOAA_Photo_Library.jpg) |
+| blue-whale | NOAA Photo Library | Public domain | [Anim1754_-_Flickr_-_NOAA_Photo_Library.jpg](https://commons.wikimedia.org/wiki/File:Anim1754_-_Flickr_-_NOAA_Photo_Library.jpg) |   (kept for a future horizontal version)
+| blue-whale-fluke | Gregory "Slobirdr" Smith | CC BY-SA 2.0 | [Blue Whale (Balaenoptera musculus) (16108163937).jpg](https://commons.wikimedia.org/wiki/File:Blue_Whale_(Balaenoptera_musculus)_(16108163937).jpg) |
 | bullet | NASA/CXC/M. Weiss | Public domain | [1e0657 scale.jpg](https://commons.wikimedia.org/wiki/File:1e0657_scale.jpg) |
 | ceres | Justin Cowart | Public domain | [Ceres_-_RC3_-_Haulani_Crater_(22381131691)_(cropped).jpg](https://commons.wikimedia.org/wiki/File:Ceres_-_RC3_-_Haulani_Crater_(22381131691)_(cropped).jpg) |
 | cmb | NASA / WMAP Science Team | Public domain | [Ilc 9yr moll4096.png](https://commons.wikimedia.org/wiki/File:Ilc_9yr_moll4096.png) |

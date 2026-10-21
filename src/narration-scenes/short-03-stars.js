@@ -77,11 +77,11 @@ export default {
     // the gas goes round again: stellar nurseries
     { at: "those nebulas expand", cam: { r: 18.1, m: 33.7, span: 2.8 },
       hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
-    { at: "stellar nurseries", hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Nebulae", label: "stellar nursery" }] },
-    { at: "stellar nurseries", offset: 0.4, photo: "pillars", obj: "Nebulae", place: 0.75, dur: 4.5, kb: [1, 1.3], focus: [0.5, 0.4], caption: "Pillars of Creation · Webb · 2022 · a stellar nursery" },
-    { at: "protostars", cam: { r: 16.5, m: 34.2, span: 5.4 },
-      hl: [{ obj: "Nebulae", label: false }, { arrow: true, from: { obj: "Nebulae" }, to: { obj: "Protostar" } }, { obj: "Protostar", delay: 0.6 }] },
-    { at: "stars again", cam: { r: 14.6, m: 33.9, span: 9 }, hl: [{ obj: "Nebulae", label: false }, { arrow: true, from: { obj: "Nebulae" }, to: { obj: "Protostar" } },
+    { at: "stellar nurseries", hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Stellar Nursery", label: "stellar nursery" }] },
+    { at: "stellar nurseries", offset: 0.4, photo: "pillars", obj: "Stellar Nursery", place: 0.75, dur: 4.5, kb: [1, 1.3], focus: [0.5, 0.4], caption: "Pillars of Creation · Webb · 2022 · a stellar nursery" },
+    { at: "protostars", cam: { r: 16.8, m: 34.6, span: 6.2 },
+      hl: [{ obj: "Stellar Nursery", label: false }, { arrow: true, from: { obj: "Stellar Nursery" }, to: { obj: "Protostar" } }, { obj: "Protostar", delay: 0.6 }] },
+    { at: "stars again", cam: { r: 14.6, m: 33.9, span: 9 }, hl: [{ obj: "Stellar Nursery", label: false }, { arrow: true, from: { obj: "Stellar Nursery" }, to: { obj: "Protostar" } },
       { arrow: true, from: { obj: "Protostar" }, to: { obj: "Sun" } }, { obj: "Sun", delay: 0.6 }] },
 
     // what the core becomes

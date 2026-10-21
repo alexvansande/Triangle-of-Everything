@@ -11,8 +11,8 @@ PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
 EDL = [
  # the diagonal (rec27, as in video 2)
  ("rec27", "q", 82.52, 94.16),        # You can fit everything in the universe in a single chart by measuring mass and the size, and most things will fall in this diagonal line.
- ("rec27", "q", 99.2, 102.64, {"e": 103.22}),   # And it shouldn't be surprising   (cut in the dip after "-ing": at 103.1 it sounded clipped)
- ("rec27", "water", 104.18, 109.2, {"gap": 0.2}),   # take a look, for example, at one liter of water: that's exactly one kilogram,
+ ("rec27", "q", 99.2, 103.86),       # And it shouldn't be surprising to think about it.   (kept whole: "surprising" runs into "to", any cut there sounded clipped)
+ ("rec27", "water", 104.18, 109.2, {"gap": 0.3}),   # Take a look, for example, at one liter of water: that's exactly one kilogram,
  ("rec27", "water", 130.52, 133.94, {"gap": 0.2}),  # and it's 10 centimeters. That is just how the metric system works.
  ("rec27", "cube", 138.34, 142.26, {"s": 139.15}),  # If you multiply the size in all three dimensions by ten,   (a stray "the size," left out)
  ("rec27", "cube", 143.24, 148.5, {"s": 145.7}),    # it means that you're moving one square to the right.   (a first "it means that you're moving one square." left out)
@@ -29,7 +29,7 @@ EDL = [
  ("rec28", "animals", 88.68, 91.2, {"e": 91.6}),  # That's because, as Hank Green once said it,   (his "We never left the water": DFTBA shirt, see NOTES)
  ("rec27", "animals", 276.82, 283.8, {"s": 277.8, "e": 284.3}),  # ("life is," restart left out) life started in water, and in reality we never left it, we just carried it with us.
  ("rec28", "animals", 116.84, 124.74, {"s": 117.7}),   # (a cough, "so most" and "most angels," left out) Most animals live in this range, but they will have some variation, some will be lighter and some will be heavier.
- ("rec28", "animals", 125.5, 129.3),     # For example, a famous example will be the hippo.
+ ("rec28", "animals", 125.5, 129.3, {"s": 127.6}),     # A famous example would be the hippo.   ("For example," before it left out)
  ("rec28", "animals", 130.38, 134.36),   # The hippo, despite being an aquatic animal, does not actually swim.
  ("rec28", "animals", 144.04, 148.44),   # The hippopotamus sinks to the bottom of lakes and rivers and just walks.   (two cut-off tries left out)
  ("rec28", "big", 174.99, 184.58, {"gap": 0.6}),  # And as we go up the line, we'll find larger animals like dinosaurs or the blue whale, which is the largest animals to ever exist.   ("who ever walked earth" try left out)

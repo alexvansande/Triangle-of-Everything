@@ -446,5 +446,19 @@
   "date": "2012-12-21 22:30:50",
   "license": "Public domain",
   "desc": "CMB Images\nIMAGES &gt; CMB IMAGES &gt; NINE YEAR MICROWAVE SKY\nhttp://map.gsfc.nasa.gov/media/121238/index.html\nNine Year Microwave Sky\nThe detailed, all-sky picture of the infant universe created from nine years of WMAP data. The image reveals 13.77 billion year old temperature fluctuations (shown "
+ },
+ "blue-whale-fluke": {
+  "title": "Blue Whale (Balaenoptera musculus) (16108163937).jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Blue_Whale_(Balaenoptera_musculus)_(16108163937).jpg",
+  "ext": "jpg",
+  "orig": [
+   3014,
+   1999
+  ],
+  "artist": "Gregory \"Slobirdr\" Smith",
+  "credit": "Flickr",
+  "date": "",
+  "license": "CC BY-SA 2.0",
+  "desc": "Blue whale tail fluke"
  }
 }

@@ -1,56 +1,56 @@
 source,beat,out_start,out_end,src_start,src_end,text
 rec27,q,0.00,9.99,83.18,94.69,you can fit everything in the universe in a single chart by measuring mass and the size and most things will fall in this diagonal line
-rec27,q,10.27,11.58,101.90,103.22,and it shouldn't be surprising
-rec27,water,11.78,17.20,104.42,110.16,take a look at for example one liter of water that's exactly one kilogram.
-rec27,water,17.40,21.44,130.53,134.57,and it's 10 centimeters. That is just how the metric system works.
-rec27,cube,22.04,26.10,139.15,143.21,"if you multiply the size in all three dimensions by ten,"
-rec27,cube,26.38,29.24,145.70,148.98,it means that you're moving one square to the right.
-rec27,cube,29.52,36.49,150.01,156.98,"But then it multiplies the volume by a thousand, it means you're moving three squares up."
-rec27,cube,36.77,43.26,157.32,164.37,"And because water has a constant density, that also increases the weight by a thousand."
-rec27,cube,43.54,48.86,169.25,174.57,that's why everything in water will always fall in this diagonal blue line.
-rec28,line,49.46,57.89,33.45,41.99,And this water density line tells us an interesting story because by definition everything on the left will sink.
-rec28,line,58.17,66.06,42.41,51.45,"And here we have things made of rocks or metal, like meteorites or statues or other structures."
-rec28,line,66.34,68.90,60.94,63.50,everything to the right will
-rec28,line,69.10,75.06,75.41,81.36,and it's not surprising that we shall find boats and things with empty space inside.
-rec28,animals,75.66,80.68,82.54,87.56,"Animals, on the other hand, all live in a much narrower range."
-rec28,animals,80.96,83.93,88.62,91.60,"That's because, as Hank Green once said it,"
-rec27,animals,84.21,90.70,277.80,284.30,"life started in water and in reality we never left it, we just carried it with us"
-rec28,animals,90.98,98.42,117.70,125.25,"So most animals live in this range, but they will have some variation, some will be lighter and some will be heavier."
-rec28,animals,98.70,102.08,125.51,129.90,"For example, A famous example will be the hippo."
-rec28,animals,102.36,107.12,130.34,135.09,"The hippo, despite being an aquatic animal, does not actually swim."
-rec28,animals,107.40,112.33,144.13,149.23,the hippopotamus sinks to the bottom of lakes and rivers and just walks.
-rec28,big,112.93,123.09,175.11,185.43,"And as we go up the line, we'll find larger animals like dinosaurs or the blue whale, which is the largest animals to ever exist."
-rec28,big,123.37,126.14,188.72,191.48,"Or the sequoia tree, the largest plant,"
-rec28,built,126.74,128.01,199.94,201.21,"Bigger than that,"
-rec28,built,128.29,131.54,204.39,207.71,and we are now clearly in engineering phase.
-rec28,built,131.82,132.24,234.21,234.62,for example
-rec28,built,132.39,137.09,219.87,224.62,the Eiffel Tower is very to the right because it has a lot of empty space.
-rec28,built,137.37,139.99,246.57,251.99,it is in practice a fractal
-rec28,rocks,140.59,150.27,330.50,340.19,"and once we go past the largest structures we ever built, the Great Pyramid, we arrive at natural things like hills and mountains."
-rec28,rocks,150.55,154.31,282.59,286.35,the great pyramid is in many ways a mountain itself.
-rec28,rocks,154.59,156.37,315.82,317.61,"Mount Everest is here,"
-rec28,rocks,156.65,168.29,347.15,359.10,we have lakes and glaciers and then small asteroids and comets and now small moons like Deimos and Phobos the small moons of Mars
-rec28,round,168.89,179.71,359.88,370.83,but something funny happens once we are past Hyperion or Vesta is that now our objects are more and more round
-rec28,round,179.99,181.92,372.14,374.07,"That's because at this scale,"
-rec28,round,182.07,184.79,376.84,379.56,the force of gravity overcomes
-rec28,round,184.89,188.61,383.15,386.87,the molecular bond that keeps things in shape around us
-rec28,round,188.89,195.28,403.10,409.79,"and everything can just be treated like a liquid, and liquids will take a spherical shape."
-rec28,air,195.88,198.39,432.90,435.41,"and as we climb the hill of mass,"
-rec28,air,198.54,199.98,441.30,442.74,their mass starts
-rec28,air,200.03,202.91,443.10,446.02,being able to attract and retain gas.
-rec28,air,203.19,206.76,451.45,455.21,The Moon and Mercury basically have no atmosphere.
-rec28,air,207.04,209.46,455.51,457.93,Mars has one but it's very thin.
-rec28,air,209.74,216.27,475.87,482.40,"Venus and Earth are able to trap the heavy gases, but the light gases like hydrogen and helium"
-rec28,air,216.39,219.02,484.05,486.69,will still float out into space
-rec28,giants,219.62,224.81,491.32,496.53,once we are past that objects balloon into gas giants
-rec28,giants,225.09,235.07,506.68,516.87,"that's because most of the ordinary matter in the universe is hydrogen and helium, and if you can hold on to them, you will become a gas giant."
-rec28,giants,235.35,240.35,520.90,525.90,"And you see that reflected on the graph as we move from rocky planets,"
-rec28,giants,240.63,244.12,537.20,540.70,The gas giants are briefly on the right side of the line.
-rec28,giants,244.40,248.21,551.74,555.55,Saturn is less dense than water and would float.
-rec28,jupiter,248.81,253.24,600.16,604.67,"But after we are past the Jupiter mass, something weird happens"
-rec28,jupiter,253.52,263.19,613.30,624.57,super Jupiter planets they can be much more massive than Jupiter itself but still they will be the same size of Jupiter
-rec28,jupiter,263.47,275.87,634.46,647.55,what's happening here is that the pressure in the core of those planets is becoming so tough that it's stripping away the electron layers and creating degenerate matter.
-rec28,split,276.47,280.48,654.80,658.92,And this is when our graph will split.
-rec28,split,280.76,287.64,666.88,673.75,Where some objects are just shooting to the right and some objects are shooting to the left
-rec28,split,287.92,291.10,679.45,682.62,This happens right on the brown dwarfs
-rec28,split,291.40,300.19,703.35,712.36,that's happening because this is not the story of ordinary matter anymore this is the story of life and death of stars
+rec27,q,10.27,12.55,101.90,104.19,and it shouldn't be surprising to think about it
+rec27,water,12.85,18.27,104.42,110.16,take a look at for example one liter of water that's exactly one kilogram.
+rec27,water,18.47,22.51,130.53,134.57,and it's 10 centimeters. That is just how the metric system works.
+rec27,cube,23.11,27.17,139.15,143.21,"if you multiply the size in all three dimensions by ten,"
+rec27,cube,27.45,30.31,145.70,148.98,it means that you're moving one square to the right.
+rec27,cube,30.59,37.56,150.01,156.98,"But then it multiplies the volume by a thousand, it means you're moving three squares up."
+rec27,cube,37.84,44.33,157.32,164.37,"And because water has a constant density, that also increases the weight by a thousand."
+rec27,cube,44.61,49.93,169.25,174.57,that's why everything in water will always fall in this diagonal blue line.
+rec28,line,50.53,58.96,33.45,41.99,And this water density line tells us an interesting story because by definition everything on the left will sink.
+rec28,line,59.24,67.13,42.41,51.45,"And here we have things made of rocks or metal, like meteorites or statues or other structures."
+rec28,line,67.41,69.97,60.94,63.50,everything to the right will
+rec28,line,70.17,76.13,75.41,81.36,and it's not surprising that we shall find boats and things with empty space inside.
+rec28,animals,76.73,81.75,82.54,87.56,"Animals, on the other hand, all live in a much narrower range."
+rec28,animals,82.03,85.00,88.62,91.60,"That's because, as Hank Green once said it,"
+rec27,animals,85.28,91.77,277.80,284.30,"life started in water and in reality we never left it, we just carried it with us"
+rec28,animals,92.05,99.49,117.70,125.25,"So most animals live in this range, but they will have some variation, some will be lighter and some will be heavier."
+rec28,animals,99.77,102.06,127.60,129.90,"For example, A famous example will be the hippo."
+rec28,animals,102.34,107.10,130.34,135.09,"The hippo, despite being an aquatic animal, does not actually swim."
+rec28,animals,107.38,112.31,144.13,149.23,the hippopotamus sinks to the bottom of lakes and rivers and just walks.
+rec28,big,112.91,123.07,175.11,185.43,"And as we go up the line, we'll find larger animals like dinosaurs or the blue whale, which is the largest animals to ever exist."
+rec28,big,123.35,126.12,188.72,191.48,"Or the sequoia tree, the largest plant,"
+rec28,built,126.72,127.99,199.94,201.21,"Bigger than that,"
+rec28,built,128.27,131.52,204.39,207.71,and we are now clearly in engineering phase.
+rec28,built,131.80,132.22,234.21,234.62,for example
+rec28,built,132.37,137.07,219.87,224.62,the Eiffel Tower is very to the right because it has a lot of empty space.
+rec28,built,137.35,139.97,246.57,251.99,it is in practice a fractal
+rec28,rocks,140.57,150.25,330.50,340.19,"and once we go past the largest structures we ever built, the Great Pyramid, we arrive at natural things like hills and mountains."
+rec28,rocks,150.53,154.29,282.59,286.35,the great pyramid is in many ways a mountain itself.
+rec28,rocks,154.57,156.35,315.82,317.61,"Mount Everest is here,"
+rec28,rocks,156.63,168.27,347.15,359.10,we have lakes and glaciers and then small asteroids and comets and now small moons like Deimos and Phobos the small moons of Mars
+rec28,round,168.87,179.69,359.88,370.83,but something funny happens once we are past Hyperion or Vesta is that now our objects are more and more round
+rec28,round,179.97,181.90,372.14,374.07,"That's because at this scale,"
+rec28,round,182.05,184.77,376.84,379.56,the force of gravity overcomes
+rec28,round,184.87,188.59,383.15,386.87,the molecular bond that keeps things in shape around us
+rec28,round,188.87,195.26,403.10,409.79,"and everything can just be treated like a liquid, and liquids will take a spherical shape."
+rec28,air,195.86,198.37,432.90,435.41,"and as we climb the hill of mass,"
+rec28,air,198.52,199.96,441.30,442.74,their mass starts
+rec28,air,200.01,202.89,443.10,446.02,being able to attract and retain gas.
+rec28,air,203.17,206.74,451.45,455.21,The Moon and Mercury basically have no atmosphere.
+rec28,air,207.02,209.44,455.51,457.93,Mars has one but it's very thin.
+rec28,air,209.72,216.25,475.87,482.40,"Venus and Earth are able to trap the heavy gases, but the light gases like hydrogen and helium"
+rec28,air,216.37,219.00,484.05,486.69,will still float out into space
+rec28,giants,219.60,224.79,491.32,496.53,once we are past that objects balloon into gas giants
+rec28,giants,225.07,235.05,506.68,516.87,"that's because most of the ordinary matter in the universe is hydrogen and helium, and if you can hold on to them, you will become a gas giant."
+rec28,giants,235.33,240.33,520.90,525.90,"And you see that reflected on the graph as we move from rocky planets,"
+rec28,giants,240.61,244.10,537.20,540.70,The gas giants are briefly on the right side of the line.
+rec28,giants,244.38,248.19,551.74,555.55,Saturn is less dense than water and would float.
+rec28,jupiter,248.79,253.22,600.16,604.67,"But after we are past the Jupiter mass, something weird happens"
+rec28,jupiter,253.50,263.17,613.30,624.57,super Jupiter planets they can be much more massive than Jupiter itself but still they will be the same size of Jupiter
+rec28,jupiter,263.45,275.85,634.46,647.55,what's happening here is that the pressure in the core of those planets is becoming so tough that it's stripping away the electron layers and creating degenerate matter.
+rec28,split,276.45,280.46,654.80,658.92,And this is when our graph will split.
+rec28,split,280.74,287.62,666.88,673.75,Where some objects are just shooting to the right and some objects are shooting to the left
+rec28,split,287.90,291.08,679.45,682.62,This happens right on the brown dwarfs
+rec28,split,291.38,300.17,703.35,712.36,that's happening because this is not the story of ordinary matter anymore this is the story of life and death of stars

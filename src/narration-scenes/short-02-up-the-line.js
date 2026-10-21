@@ -74,7 +74,7 @@ export default {
     { at: "larger animals", cam: { r: 2.7, m: 7.6, span: 4 }, hl: [WATER, { obj: "Elephant" }, { obj: "Blue Whale", delay: 0.5 }] },
     { at: "dinosaurs", hl: [WATER, { obj: "Tyrannosaurus rex", label: "T. rex", place: "left" }, { obj: "Argentinosaurus", label: "Argentinosaurus", delay: 0.4 }] },
     { at: "the blue whale", cam: { obj: "Blue Whale", span: 2.5 }, hl: [{ obj: "Blue Whale", label: "largest animal" }] },
-    { at: "the blue whale", offset: 0.6, photo: "blue-whale", obj: "Blue Whale", dur: 3.2, kb: [1.04, 1.18], caption: "Blue whale · NOAA · the largest animal that ever lived" },
+    { at: "the blue whale", offset: 0.6, photo: "blue-whale-fluke", obj: "Blue Whale", dur: 3.6, kb: [1.05, 1.2], focus: [0.5, 0.4], caption: "Blue whale · Gregory Smith · the largest animal that ever lived" },
     { at: "the sequoia", hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // what we build
@@ -92,10 +92,9 @@ export default {
     { at: "mount everest is here", cam: { obj: "Mt. Everest", span: 2.5 }, hl: [{ obj: "Mt. Everest", label: "Everest" }] },
     { at: "asteroids and comets", cam: { r: 5.9, m: 18.4, span: 3.5 },
       hl: [{ obj: "Eros", label: "asteroids" }, { obj: "Halley's Comet", label: "comets", place: "left", delay: 0.4 }] },
-    { at: "small moons", hl: [{ obj: "Halley's Comet", place: "left" }, { obj: "Deimos", label: false }, { obj: "Phobos", label: "moons of Mars" }] },
+    { at: "small moons", cam: { obj: "Phobos", dr: -0.15, span: 1.7 }, dur: 6, drift: 0.02, hl: [{ obj: "Halley's Comet", place: "left" }, { obj: "Deimos", label: false }, { obj: "Phobos", label: "moons of Mars" }] },
 
     // round worlds
-    { at: "deimos", offset: 0.4, photo: ["phobos", "deimos"], labels: ["Phobos", "Deimos"], obj: "Phobos", dur: 4.5, caption: "Moons of Mars · Mars Reconnaissance Orbiter · 2008–09" },
     { at: "past hyperion", cam: { r: 7.4, m: 22.9, span: 4.5 },
       hl: [{ obj: "Hyperion", place: "left", label: "Hyperion · lumpy" }, { obj: "Vesta", delay: 0.4 }, { obj: "Mimas", delay: 0.8 }, { obj: "Ceres", delay: 1.2 }, { obj: "Pluto", delay: 1.6 }] },
     { at: "more and more round", photo: ["hyperion", "vesta", "ceres", "pluto"], labels: ["Hyperion · 135 km", "Vesta · 263 km", "Ceres · 470 km", "Pluto · 1,188 km"], obj: "Ceres", dur: 6, kb: [1, 1.04], caption: "From lumpy to round · Cassini, Dawn, New Horizons" },
@@ -104,21 +103,21 @@ export default {
 
     // atmospheres
     { at: "hill of mass", cam: { r: 8.6, m: 27.1, span: 3.4 }, clear: true },
-    { at: "moon and mercury", hl: [{ obj: "Moon", label: "Moon · none", place: "left" }, { obj: "Mercury", label: "Mercury · none", place: "left" }] },
-    { at: "no atmosphere", photo: ["mercury", "mars", "earth"], labels: ["Mercury · none", "Mars · thin", "Earth · thick"], obj: "Mars", dur: 6, kb: [1, 1.04], caption: "Atmospheres · MESSENGER · Kevin M. Gill · Meteosat-12" },
-    { at: "very thin", hl: [{ obj: "Mercury", label: "Mercury", place: "left" }, { obj: "Mars", label: "Mars · thin" }] },
-    { at: "venus and earth", hl: [{ obj: "Mars" }, { obj: "Earth", delay: 0.2 }, { obj: "Venus", place: "left", delay: 0.5 }] },
+    { at: "moon and mercury", cam: { obj: "Mercury", dr: -0.1, span: 2.2 }, dur: 3.5, hl: [{ obj: "Moon", label: "Moon · none", place: "left" }, { obj: "Mercury", label: "Mercury · none", place: "left" }] },
+    { at: "very thin", cam: { obj: "Mars", span: 2.0 }, dur: 3, hl: [{ obj: "Mercury", label: "Mercury", place: "left" }, { obj: "Mars", label: "Mars · thin" }] },
+    { at: "venus and earth", cam: { obj: "Earth", dr: -0.05, span: 2.0 }, dur: 3, hl: [{ obj: "Mars" }, { obj: "Earth", delay: 0.2 }, { obj: "Venus", place: "left", delay: 0.5 }] },
     { at: "float out into space", cam: { r: 9.1, m: 28.6, span: 4.6 }, hl: [{ obj: "Earth", label: "hydrogen escapes", place: "left" }] },
 
     // gas giants
     { at: "balloon into gas giants", cam: { r: 9.65, m: 29.8, span: 2.4 },
       hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn", delay: 0.3 }, { obj: "Jupiter", delay: 0.6 }] },
-    { at: "ordinary matter", photo: "jupiter", obj: "Jupiter", dur: 5, fit: "contain", kb: [1, 1.2], caption: "Jupiter · Hubble · 2024 · mostly hydrogen and helium" },
+    // a slow push onto the gas giants (their own icons, no cutaway)
+    { at: "ordinary matter", cam: { r: 9.75, m: 30.0, span: 1.7 }, dur: 7, drift: 0.02 },
     { at: "become a gas giant", hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn", label: "gas giants" }, { obj: "Jupiter", label: false }] },
     { at: "rocky planets", cam: { r: 9.5, m: 29.4, span: 2.8 }, hl: [WATER, { obj: "Earth", place: "left" }, { obj: "Neptune", place: "left" }] },
     { at: "right side of the line", cam: { obj: "Saturn", span: 1.5 }, hl: [WATER, { obj: "Neptune", place: "left" }, { obj: "Saturn", label: "Saturn · right of the line" }] },
-    { at: "less dense than water", photo: "saturn", obj: "Saturn", dur: 4, fit: "contain", kb: [1, 1.12], caption: "Saturn · Cassini · 2009 · it would float" },
-    { at: "would float", cam: { obj: "Saturn", span: 1.1 }, hl: [WATER, { obj: "Saturn", label: "Saturn · would float", place: "left" }] },
+    { at: "less dense than water", cam: { obj: "Saturn", span: 1.4 }, dur: 3 },
+    { at: "would float", cam: { obj: "Saturn", span: 1.0 }, dur: 3, hl: [WATER, { obj: "Saturn", label: "Saturn · would float", place: "left" }] },
 
     // super-Jupiters and degenerate matter
     { at: "past the jupiter", cam: { r: 9.88, m: 30.7, span: 2.4 },

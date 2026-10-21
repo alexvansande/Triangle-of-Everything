@@ -748,6 +748,13 @@ export async function startNarration(app) {
    *  two points (swing: [from, to], each { obj } or { r, m }), each swing a
    *  little further and slower, swelling and reddening toward `to` and shrinking
    *  back as it falls. period (s, default 2.4) is the first swing's length. */
+  /** How far along its track a swing is (0 at `from`, 1 at `to`) after `age` s:
+   *  the swings stretch out over time (the period grows ~6% a swing) and reach further. */
+  function swingU(h, age) {
+    const P0 = h.period ?? 2.4, g = 0.06;
+    const n = Math.log1p(g * Math.max(0, age) / P0) / Math.log1p(g);
+    return (0.5 - 0.5 * Math.cos(2 * Math.PI * n)) * Math.min(1, 0.45 + 0.12 * n);
+  }
   function drawSwing(el, h, age) {
     const pt = (q) => { const o = q.obj && objByName.get(q.obj); return o ? [o.logR, o.logM] : [q.r, q.m]; };
     const [A, B] = h.swing.map(pt);
@@ -755,10 +762,7 @@ export async function startNarration(app) {
     const fade = smooth(age / 0.6);
     el.append("line").attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2)   // the track
       .attr("stroke", "#ffd54f").attr("stroke-width", 1.4).attr("stroke-dasharray", "3 5").attr("opacity", 0.45 * fade);
-    // phase: swings stretch out over time (the period grows ~6% a swing)
-    const P0 = h.period ?? 2.4, g = 0.06;
-    const n = Math.log1p(g * age / P0) / Math.log1p(g);                 // swings so far (fractional)
-    const u = (0.5 - 0.5 * Math.cos(2 * Math.PI * n)) * Math.min(1, 0.45 + 0.12 * n);  // reach grows to the full track
+    const u = swingU(h, age);
     const x = x1 + (x2 - x1) * u, y = y1 + (y2 - y1) * u;
     const col = d3.interpolateRgb("#ffe27a", "#ff6a3d")(u);
     if (h.core) {
@@ -786,12 +790,22 @@ export async function startNarration(app) {
    *  coreLabel / shellLabel show once they arrive. */
   function drawSplit(el, h, age) {
     const pt = (q) => { const o = q.obj && objByName.get(q.obj); return o ? [o.logR, o.logM] : [q.r, q.m]; };
-    const [A, C, S] = [h.split.from, h.split.core, h.split.shell].map(pt).map(([r, m]) => [sx(r), sy(m)]);
+    // start where the swelling star is right now (the core-and-layers swing before it),
+    // so nothing jumps; without one, start at `from`
+    let start = pt(h.split.from), R0 = 39;
+    const sw = highlights.filter(q => q.swing && q.core && q.t0 <= h.t0 + 0.01).pop();
+    if (sw && h.t0 - sw.t0 < 60) {
+      const u0 = swingU(sw, h.t0 - sw.t0), [P, Q] = sw.swing.map(pt);
+      start = [P[0] + (Q[0] - P[0]) * u0, P[1] + (Q[1] - P[1]) * u0];
+      R0 = 9 + 30 * u0;
+    }
+    const A = [sx(start[0]), sy(start[1])];
+    const [C, S] = [h.split.core, h.split.shell].map(pt).map(([r, m]) => [sx(r), sy(m)]);
     const p = d3.easeCubicInOut(clamp01(age / (h.draw ?? 2.4)));
     const lerp = (P, Q) => [P[0] + (Q[0] - P[0]) * p, P[1] + (Q[1] - P[1]) * p];
     const [sxp, syp] = lerp(A, S), [cxp, cyp] = lerp(A, C);
     // the outer layers: a red disc thinning into a ring
-    const Rs = 39 + 36 * p, scol = d3.interpolateRgb("#ff6a3d", "#ff8fb0")(p);
+    const Rs = R0 + (75 - R0) * p, scol = d3.interpolateRgb("#ff6a3d", "#ff8fb0")(p);
     el.append("circle").attr("cx", sxp).attr("cy", syp).attr("r", Rs).attr("fill", scol).attr("opacity", 0.32 * (1 - p) + 0.06)
       .attr("stroke", scol).attr("stroke-width", 2 + 3 * p).attr("stroke-opacity", 0.9 - 0.3 * p);
     // the core: small, white-hot, a trail behind it
