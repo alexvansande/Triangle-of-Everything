@@ -260,12 +260,19 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     const order = [..._kept.filter((q) => _labelled.has(q.i)), ..._kept.filter((q) => !_labelled.has(q.i))];
     for (const q of order) {
       if (placed.length >= max) break;
-      const so = sources[src[q.i]];
-      const kind = _data.fame.get(q.i)?.kind || labelKind(so.id, names[q.i], _data.m[q.i]);
-      if (!kind || so.suf) continue;             // black holes (ticks), clouds, nuclei…
-      const name = names[q.i];
-      if (!name || name.length > LABEL_MAX_CHARS || ID_LIKE.test(name) || ACRONYM.test(name)) continue;
-      const text = name.toLowerCase().includes(kind.split(" ").pop()) ? name : `${name} (${kind})`;
+      const so = sources[src[q.i]], famous = _data.fame.get(q.i);
+      let text;
+      if (famous) {
+        // hand-picked: its popular name ("Andromeda", "Hedgehog") and kind ("" = none)
+        const name = famous.label || names[q.i];
+        text = famous.kind && !name.toLowerCase().includes(famous.kind.split(" ").pop()) ? `${name} (${famous.kind})` : name;
+      } else {
+        const kind = labelKind(so.id, names[q.i], _data.m[q.i]);
+        if (!kind || so.suf) continue;           // black holes (ticks), clouds, nuclei…
+        const name = names[q.i];
+        if (!name || name.length > LABEL_MAX_CHARS || ID_LIKE.test(name) || ACRONYM.test(name)) continue;
+        text = name.toLowerCase().includes(kind.split(" ").pop()) ? name : `${name} (${kind})`;
+      }
       if (placed.some((p) => (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < gap2)) continue;
       const w = text.length * fs * 0.62, h = fs * 1.2;
       let anchor = null;
