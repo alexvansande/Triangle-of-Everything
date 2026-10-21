@@ -1962,6 +1962,8 @@ function catDisplayLabel(catKey) {
 }
 
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
+const ICON_ROOM = 1.3;       // icons keep 30% of their radii clear between them
+let _iconShownPrev = new Set();
 const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
 let _lastProjected = [];
@@ -2330,20 +2332,27 @@ function drawObjects() {
     if (o._showDot) visibleDots.push(o);
   });
 
-  // --- Icon overlap: when icons touch, only the highest-priority keeps its icon ---
-  const icoOverlap = icoSize * 1.0; // icons overlap when closer than 70% of icon size
-  const icoOverlap2 = icoOverlap * icoOverlap;
+  // --- Icon crowding, map-style: icons need room, measured by their real
+  // drawn sizes (iconSizeMult grows them with the object), so a crowded
+  // stretch (moons, dwarf planets) shows only its top-priority pictures and
+  // the rest appear as you zoom in. Priority: z, then last frame's icons. ---
   const shownIcons = [];
-  projected.forEach(o => {
-    const hasIcon = mapIconShown(o);
-    if (!hasIcon || !o._showDot) { o._showIcon = false; return; }
+  const icoR = (o) => icoSize * iconSizeMult(o) / 2;
+  const iconOrder = projected.filter(o => mapIconShown(o) && o._showDot)
+    .sort((a, b) => a.z - b.z || (_iconShownPrev.has(b.slug) - _iconShownPrev.has(a.slug)));
+  projected.forEach(o => { o._showIcon = false; });
+  iconOrder.forEach(o => {
+    const r = icoR(o);
     const tooClose = shownIcons.some(s => {
-      const dx = s.sx - o.sx, dy = s.sy - o.sy;
-      return dx * dx + dy * dy < icoOverlap2;
+      // a narration scene picks its pictures (_iconOnly): only true overlaps hide one
+      const need = _iconOnly ? icoSize : (r + s._icoR) * ICON_ROOM;
+      return (s.sx - o.sx) ** 2 + (s.sy - o.sy) ** 2 < need * need;
     });
-    o._showIcon = !tooClose;
-    if (o._showIcon) shownIcons.push(o);
+    if (tooClose) return;
+    o._showIcon = true; o._icoR = r;
+    shownIcons.push(o);
   });
+  _iconShownPrev = new Set(shownIcons.map(o => o.slug));
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
   const th2 = _posterLabels ? -1 : CLUSTER_THRESHOLD * CLUSTER_THRESHOLD; // poster: no clusters
