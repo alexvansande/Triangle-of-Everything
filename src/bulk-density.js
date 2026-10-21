@@ -60,6 +60,13 @@ const LAKE_RHO = { "Dead Sea": 1.24 };
 // so a range spreads them in mass instead (up/down, at a fixed radius).
 const MASS_FROM_VOLUME = { bacterium: 1.1, cell: 1.1 };
 
+// Meteorites: mass measured, size derived from the mean density of their
+// class (stony ~3.2–3.4, irons 7.8 g/cm³; Britt & Consolmagno 2003). The two
+// families stay apart — stone vs metal is the story — but each meteorite
+// gets its class's real spread (porosity, weathering), so a family is a band,
+// not a line: ×0.88–1.12 for stones, 7.0–7.9 g/cm³ for irons.
+const METEORITE_SPREAD = { stone: [0.88, 1.12], iron: [7.0, 7.9] };
+
 // Too varied for one density range (bells, statues, towers, bridges):
 // bulk density = density of the bounding ball × k, where k = how many times
 // the bounding ball's volume exceeds the envelope's. Keeps each item's own
@@ -103,8 +110,16 @@ export function applyBulkDust(r, m, src, sources, rawNames) {
     const id = sources[src[i]].id;
     const rho = id === "lake" ? (LAKE_RHO[rawNames[i]] ?? DUST_RHO.lake) : DUST_RHO[id];
     const shape = DUST_SHAPE[id];
-    if (rho == null && !shape) continue;
+    if (rho == null && !shape && id !== "meteorite") continue;
     const u = bell(id + ":" + rawNames[i]);
+    if (id === "meteorite") {
+      const classRho = 10 ** (m[i] - 3 * r[i] - DENSITY_SPHERE_C);
+      const logRho = classRho > 6
+        ? logUniform(METEORITE_SPREAD.iron[0], METEORITE_SPREAD.iron[1], u)
+        : Math.log10(classRho) + logUniform(METEORITE_SPREAD.stone[0], METEORITE_SPREAD.stone[1], u);
+      r[i] = logBall(m[i], 10 ** logRho);
+      continue;
+    }
     const fromVolume = MASS_FROM_VOLUME[id];
     if (fromVolume) {
       r[i] = logBall(m[i], fromVolume);
