@@ -859,10 +859,11 @@ export async function startNarration(app) {
       h.label.split("\n").forEach((ln, i) => t.append("tspan").attr("x", sx(lr)).attr("dy", i ? "1.2em" : 0).text(ln.toUpperCase()));
     }
   }
-  /** A big title in the middle of the screen: { title: "Here be dark matter?", y?: 0.4 } */
+  /** A big title in the middle of the screen: { title: "Here be dark matter?", y?: 0.4 };
+   *  small: true for a quiet note (a source, a credit) */
   function drawTitle(el, h, age) {
     const SW = layer.clientWidth, SH = layer.clientHeight, op = h.instant ? 1 : smooth(age / 1.0);
-    const t = el.append("text").attr("class", "narr-title").attr("x", SW / 2).attr("y", SH * (h.y ?? 0.4))
+    const t = el.append("text").attr("class", h.small ? "narr-note" : "narr-title").attr("x", SW / 2).attr("y", SH * (h.y ?? 0.4))
       .attr("text-anchor", "middle").attr("opacity", op);
     h.title.split("\n").forEach((ln, i) => t.append("tspan").attr("x", SW / 2).attr("dy", i ? "1.0em" : 0).text(ln.toUpperCase()));
   }
@@ -1304,6 +1305,7 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 .narr-tag { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; }
 .narr-cand { font-size: 15px; }
 body.narr-no-text #chart text { visibility: hidden; }
+#narr-svg text.narr-note { font-size: 12.5px; font-weight: 500; letter-spacing: 0.04em; fill: rgba(235,238,255,0.9); stroke-width: 3px; }
 #narr-svg text.narr-title { font-family: "Barlow Condensed", "Arial Narrow", sans-serif !important; font-size: 42px; font-weight: 700;
   letter-spacing: 0.04em; fill: #ffd54f; stroke: rgba(0,0,0,0.9); stroke-width: 6px; }
 .narr-linelabel { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; }

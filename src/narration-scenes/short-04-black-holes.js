@@ -44,6 +44,8 @@ const DM_CANDS = [
   { mark: [10, 32], label: "MACHOs?", place: "left" },
   { mark: [-1, 9], label: "macro dark matter?", place: "left", color: "#ffe9a3" },
 ];
+// the source of the macro areas, quietly under the title
+const DM_SOURCE = { title: "after Sidhu, Scherrer & Starkman (2019),\n\u201cDeath and serious injury by dark matter\u201d", small: true, y: 0.7 };
 const DM_PBH = { mark: [-8.3, 19.5], label: "primordial black holes?", place: "right", color: "#ff8fa8" };
 const still = (h) => ({ ...h, instant: true, delay: 0 });
 const GAL = { dust: "galaxy", src: ["galaxy", "cluster"], color: "#80deea", sweep: 1.2, r: 2.2 };
@@ -162,12 +164,12 @@ export default {
     { at: "of course dark matter", cam: { r: -2.5, m: 1.5, span: 40 }, dur: 4, quiet: true, labels: false, icons: false, clear: true,
       hl: [SCHW, { ...DM_TITLE, delay: 1.2 }, ...DM_CANDS.map((c, i) => ({ ...c, delay: 2 + 0.5 * i }))] },
     // the candidates and what has ruled them out: macro dark matter, region by region
-    { at: "a lot of candidates", cam: { r: -2.3, m: 1.8, span: 39 }, dur: 9, drift: 0, quiet: true,
-      hl: [SCHW, still(DM_TITLE), ...DM_CANDS.map(still),
-        { ...DM_MICA, delay: 0.4 }, { ...DM_HURT, delay: 1.6 }, { ...DM_WD, delay: 2.8 }, { ...DM_CMB, delay: 4.0 }] },
-    { at: "very tiny black",
-      hl: [SCHW, still(DM_TITLE), ...DM_CANDS.map(still), still(DM_MICA), still(DM_HURT), still(DM_WD), still(DM_CMB),
-        DM_PBH, { window: W5, cuts: [ML, HAW], delay: 0.4 }] },
+    // one cue, so nothing redraws: the areas come in ~2 s apart and stay up until
+    // "we keep looking for them"; primordial black holes join on "very tiny black holes"
+    { at: "a lot of candidates", cam: { r: -2.3, m: 1.8, span: 39 }, dur: 11, drift: 0, quiet: true, hold: 13,
+      hl: [SCHW, still(DM_TITLE), ...DM_CANDS.map(still), { ...DM_SOURCE, delay: 0.8 },
+        { ...DM_MICA, delay: 0.6 }, { ...DM_HURT, delay: 2.7 }, { ...DM_PBH, delay: 3.4 }, { window: W5, cuts: [ML, HAW], delay: 3.8 },
+        { ...DM_WD, delay: 4.8 }, { ...DM_CMB, delay: 6.9 }] },
     { at: "keep looking for them", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 3, labels: true, icons: true, clear: true,
       hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
     { at: "research on neutron stars", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 5, clear: true,
