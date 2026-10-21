@@ -39,9 +39,25 @@ const LABEL_MAX_MOBILE = 5;
 const LABEL_GAP_DESKTOP = 110;  // px — clear radius around each labelled dot
 const LABEL_GAP_MOBILE = 90;
 const LABEL_FONT = 9;           // px, before the font-size setting
-const LABEL_MAX_CHARS = 28;
-// Catalogue designations (Gaia DR3 4057…, 2MASS J0523…) aren't worth reading.
-const ID_LIKE = /\d{5,}|^(Gaia|2MASS|TIC|KIC|EPIC|HIP|HD|TYC|WISE|SDSS|UGC|PGC|NGC|IC|GJ|LHS|NLTT)\b/i;
+const LABEL_MAX_CHARS = 24;    // longer names are skipped, not cut (~90% of names fit)
+// Catalogue designations (Gaia DR3 4057…, 2MASS J0523…, MD17 cloud 6573)
+// aren't worth reading.
+const ID_LIKE = /\d{5,}|^(Gaia|2MASS|TIC|KIC|EPIC|HIP|HD|TYC|WISE|SDSS|UGC|PGC|NGC|IC|GJ|LHS|NLTT|MD17)\b/i;
+// What each catalogue's things are, added as "Twike (car)" unless the name
+// already says it. Missing = no label for that catalogue.
+const LABEL_KIND = {
+  hadron: "particle", element: "element", molecule: "molecule", protein: "protein",
+  bacterium: "microbe", cell: "microalga", insect: "insect", lepidoptera: "moth or butterfly",
+  moth: "moth", amphibian: "amphibian", mammal: "mammal",
+  vehicle: "vehicle", rail: "train", armour: "military vehicle", ship: "ship",
+  aircraft: "aircraft", spacecraft: "spacecraft", artefact: "artefact",
+  lake: "lake", glacier: "glacier", icesheet: "ice sheet",
+  meteorite: "meteorite", "asteroid-boulder": "boulder", impactor: "impactor",
+  smallbody: "asteroid", "smallbody-measured": "asteroid", moon: "moon",
+  exoplanet: "exoplanet", browndwarf: "brown dwarf",
+  debcat: "binary star", host: "star", wd: "white dwarf", neutronstar: "neutron star",
+  oc: "star cluster", gc: "globular cluster", galaxy: "galaxy", cluster: "galaxy cluster",
+};
 
 let _data = null;          // { names, r, m, src, rank, sources }
 let _loading = null;
@@ -209,10 +225,11 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     const order = [..._kept.filter((q) => _labelled.has(q.i)), ..._kept.filter((q) => !_labelled.has(q.i))];
     for (const q of order) {
       if (placed.length >= max) break;
-      if (sources[src[q.i]].cat === "blackhole") continue;     // ticks on the line, not dots
-      let text = names[q.i];
-      if (!text || ID_LIKE.test(text)) continue;
-      if (text.length > LABEL_MAX_CHARS) text = text.slice(0, LABEL_MAX_CHARS - 1) + "…";
+      const so = sources[src[q.i]], kind = LABEL_KIND[so.id];
+      if (!kind || so.suf) continue;             // black holes (ticks), clouds, nuclei…
+      const name = names[q.i];
+      if (!name || name.length > LABEL_MAX_CHARS || ID_LIKE.test(name)) continue;
+      const text = name.toLowerCase().includes(kind.split(" ").pop()) ? name : `${name} (${kind})`;
       if (placed.some((p) => (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < gap2)) continue;
       const w = text.length * fs * 0.55, h = fs * 1.2;
       let anchor = null;
