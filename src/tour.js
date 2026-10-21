@@ -125,6 +125,12 @@ export function initTour({ zoomToRegion, vd, animateBigBang, exitBigBang, isBigB
   els.nextLabel.addEventListener("click", nextStep);
   els.startBtn.addEventListener("click", onStartButtonClick);
 
+  // The title (#tour-header) sits just above the box: track the box's height
+  // so a larger font size or longer text pushes the title up, not under it.
+  new ResizeObserver(() => {
+    document.documentElement.style.setProperty("--tour-box-h", els.box.offsetHeight + "px");
+  }).observe(els.box);
+
   // Mobile swipe on tour box
   setupSwipe(els.box);
 
@@ -296,17 +302,48 @@ export function tourStep(delta) {
     const t = _tourStep + delta;
     if (t >= 0 && t < TOUR_STEPS.length) goToStep(t);
   }
-  const step = TOUR_STEPS[_tourStep];
-  const title = (step && (step.title || step.id)) || "";
-  // Render from the step data, not els.text: renderStep swaps the DOM only
-  // after a 300ms exit animation, so the box still holds the previous step.
+  logStep(_tourStep);
+}
+
+/** Jump straight to a step (0-based), starting the tour if needed — the
+ *  "07 + Space" recording shortcut. Returns false for a step that doesn't exist. */
+export function tourGoTo(index) {
+  if (!(index >= 0 && index < TOUR_STEPS.length)) return false;
+  if (!_tourActive) startTour(index);
+  else goToStep(index);
+  logStep(index);
+  return true;
+}
+
+/** Every step in order, numbered as the jump shortcut takes them (01, 02 …),
+ *  for reading the whole script while recording with the UI hidden. */
+export function logAllSteps() {
+  console.log(`%c━━ Tour script: ${TOUR_STEPS.length} steps · type the number + Space to jump ━━`,
+    "color:#b388ff;font-weight:bold;font-size:14px");
+  TOUR_STEPS.forEach((step, i) => {
+    console.log(`%c${stepNum(i)} · ${stepTitle(step)}`, "color:#b388ff;font-weight:bold");
+    const body = stepBody(step);
+    if (body) console.log(body);
+  });
+}
+
+const stepNum = (i) => String(i + 1).padStart(2, "0");
+const stepTitle = (step) => (step && (step.title || step.id)) || "";
+// Render from the step data, not els.text: renderStep swaps the DOM only
+// after a 300ms exit animation, so the box may still hold another step.
+function stepBody(step) {
   const tmp = document.createElement("div");
   tmp.innerHTML = step ? markdownToHtml(step.text || "") : "";
-  const body = [...tmp.children].map(el => el.textContent.trim()).join("\n\n");
+  return [...tmp.children].map(el => el.textContent.trim()).join("\n\n");
+}
+
+function logStep(index) {
+  const step = TOUR_STEPS[index];
   console.log(
-    `%c━━ Tour ${_tourStep + 1}/${TOUR_STEPS.length} · ${title} ━━`,
+    `%c━━ Tour ${stepNum(index)}/${TOUR_STEPS.length} · ${stepTitle(step)} ━━`,
     "color:#b388ff;font-weight:bold;font-size:13px"
   );
+  const body = stepBody(step);
   if (body) console.log(body);
 }
 
