@@ -21,6 +21,7 @@ import {
   WIDTH_LOG_OFFSET,
 } from "./data.js";
 import objectsData from "./objects.json";
+import { applyBulkObjects } from "./bulk-density.js";
 import {
   openWaterPhasePanel, closeWaterPhasePanel, isWaterPhaseOpen,
   selectWaterPhaseKey, onWaterPhaseToggle, waterPhaseMarkup,
@@ -99,7 +100,7 @@ function nameToSlug(name) {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-const OBJECTS = objectsData.map(o => ({ ...o, slug: o.slug || nameToSlug(o.name) }));
+const OBJECTS = applyBulkObjects(objectsData).map(o => ({ ...o, slug: o.slug || nameToSlug(o.name) }));
 let tileMeta = null;
 
 // =============================================================
@@ -2932,8 +2933,8 @@ function showTooltip(event, obj, cat) {
   const photon = isPhoton(obj);
   // Photons are plotted at half a wavelength so the width ruler reads λ;
   // the offset restores the true wavelength for display.
-  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
-  const rLabel = photon ? "wavelength" : "width";
+  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius((obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET);
+  const rLabel = photon ? "wavelength" : obj.logRSpan != null ? "longest side" : "width";
   const mLabel = photon ? "energy" : "mass";
   const mVal = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
   const ttColor = obj.color || cat.color;
@@ -3640,11 +3641,11 @@ function openSidebar(obj) {
   const isParticle = c === "particle" || c === "composite" || c === "atomic";
   const isCosmicStructure = c === "galaxy" || c === "largescale";
 
-  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
+  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius((obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET);
   const m = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
   const rho = friendlyDensity(obj.logR, obj.logM, obj.logDensity);
 
-  const logR_m = obj.logR + WIDTH_LOG_OFFSET - 2;
+  const logR_m = (obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET - 2;
   const logM_kg = obj.logM - 3;
   const logNote = `(10<sup>${logR_m >= 0 ? logR_m.toFixed(1) : logR_m.toFixed(1)}</sup> m · 10<sup>${logM_kg >= 0 ? logM_kg.toFixed(1) : logM_kg.toFixed(1)}</sup> kg)`;
 
@@ -3672,12 +3673,12 @@ function openSidebar(obj) {
       <tr><td colspan="2" class="sb-log-note">(10<sup>${(obj.logR + WIDTH_LOG_OFFSET).toFixed(1)}</sup> cm · 10<sup>${(obj.logM + 32.75).toFixed(1)}</sup> eV)</td></tr>
       <tr><td colspan="2" class="sb-footnote">* Massless — vertical axis shows mass-equivalent energy E = hc/λ</td></tr>`;
   } else if (isEveryday) {
-    const sizeLabel = obj.logR < -1 ? "Size" : "Width";
+    const sizeLabel = obj.logRSpan != null ? "Longest side" : obj.logR < -1 ? "Size" : "Width";
     const massLabel = "Weight";
     rows = `
       <tr><td>${sizeLabel}</td><td>${r}</td></tr>
       <tr><td>${massLabel}</td><td>${m}</td></tr>
-      <tr><td>Density</td><td>${rho}</td></tr>
+      <tr><td>${obj.logRSpan != null ? "Bulk density" : "Density"}</td><td>${rho}</td></tr>
       <tr><td colspan="2" class="sb-log-note">${logNote}</td></tr>`;
   } else if (isParticle) {
     rows = `
