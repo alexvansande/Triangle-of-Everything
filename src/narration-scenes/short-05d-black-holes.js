@@ -28,8 +28,8 @@ const GAL = { dust: "galaxy", src: ["galaxy", "cluster"], color: "#80deea", swee
 const GAL_DROP = { ...GAL, sweep: 0.01, shift: { galaxy: -1, cluster: -0.85 }, shiftAt: 0.5, shiftDur: 2 };
 
 export default {
-  title: "Black holes (take 5)",
-  blurb: "Take 5: the top-left limit and why it is 45°, TON 618, the window for primordial black holes, galaxies without their dark matter, and the lucky few survivors.",
+  title: "Black holes",
+  blurb: "The top-left limit and why it is 45°, TON 618, the window for primordial black holes, galaxies without their dark matter, and the lucky few survivors.",
   start: FULL,
   pbhWindow: false,   // the window is drawn as it's told (window highlight), not the map's
 
