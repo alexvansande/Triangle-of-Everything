@@ -22,11 +22,17 @@ kepler-22b, beta-pictoris-b
 amoeba, hemoglobin, dna, bacteriophage-t4, insulin, glucose, water-h2o
 
 ### Macro objects
-1-liter-of-water, 1-ml-of-water, 1-tonne-of-water, mouse, microchip,
-blue-whale, boeing-747, supertanker
+mouse, microchip, blue-whale, boeing-747, supertanker
 
 ### Other
 big-bang, tardigrade, sequoia
+
+## AI-Generated, gen3 set (2026)
+Masters in iCloud `Projects/triangle/illustrations/gen3/generated/`; the
+`src/` PNGs are those masters cropped so the subject fills 122 of 128 px.
+1-ml-of-water, 1-liter-of-water, 1-tonne-of-water, ant, elephant, eros,
+mt-everest, argentinosaurus, l-brown-dwarf, proxima-cen, sirius-a, vega,
+neutron-star, milky-way
 
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
@@ -66,3 +72,5 @@ NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
 | planetary-nebula | NASA/ESA/Hubble Heritage Team | Public domain | Wikimedia: NGC_7293.JPG |
 | halleys-comet | NASA/W. Liller | Public domain | Wikimedia: Lspn_comet_halley.jpg |
 | barnard-68 | ESO | CC BY 4.0 | Wikimedia: Barnard_68.jpg |
+| galaxy-cluster | ESA/Hubble & NASA, Richard Massey (Durham University) | CC BY 4.0 | Wikimedia: Hubble_image_of_the_galaxy_cluster_Abell_3827.jpg (Abell 3827, round-cropped) |
+| nebulae | David (Deddy) Dayag | CC BY-SA 4.0 | Wikimedia: Trifid_Nebula_by_Deddy_Dayag.jpg (round-cropped from content/images/nebulae.webp) |
