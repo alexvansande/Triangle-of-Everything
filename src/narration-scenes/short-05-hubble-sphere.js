@@ -19,6 +19,8 @@ const AVG = { density: RHO };
 const HS = "Observable Universe";                    // the chart's dot sits at the Hubble radius
 const EH = { r: 28.20, m: 56.17, mark: true };       // cosmic event horizon, 16.7 billion ly
 const PH = { r: 28.64, m: 57.49, mark: true };       // particle horizon = observable universe, 46.5 billion ly
+// a dying massive star: the core collapses to a neutron star, the layers blow out as a supernova
+const SN_SPLIT = { split: { from: { obj: "Red Giant" }, core: { obj: "PSR J0030+0451" }, shell: { obj: "Supernova Remnant" } } };
 const OU = { ellipse: [PH.r, PH.m, 0.09, 0.09], rot: 0, place: "above" };   // a ring on that dot, for its label
 
 export default {
@@ -52,11 +54,13 @@ export default {
       hl: [{ ...SCHW, label: "edge 1" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: false, delay: 0.4 }, { obj: "M87*", label: false, delay: 0.8 }, { obj: "Ton 618", label: false, delay: 1.2 }] },
     { at: "called the schwarzschild", hl: [{ ...SCHW, label: "Schwarzschild radius" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: "black holes live on it" }, { obj: "M87*", label: false }, { obj: "Ton 618", label: false }] },
     { at: "can be above that", hl: [SCHW, { side: "left", of: "schwarzschild", label: "nothing" }] },
-    { at: "to the right we have stars", cam: { r: 12, m: 34, span: 12 }, clear: true, hl: [{ obj: "Sun" }, { obj: "Red Giant", label: "red giants", delay: 0.4 }] },
-    { at: "supernovas", hl: [{ obj: "Red Giant", label: false }, { obj: "Supernova Remnant", label: "supernovae" }] },
-    { at: "supernovas", offset: 0.6, photo: "crab", obj: "Supernova Remnant", place: 0.72, dur: 4, kb: [1, 1.25], caption: "Crab Nebula · Hubble · 2005" },
+    // the star as core + outer layers (as in videos 3 and 4), then the split: core to the
+    // neutron stars, the layers out to the supernova remnant
+    { at: "to the right we have stars", cam: { r: 12.4, m: 33.8, span: 14.5 }, clear: true,
+      hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4, core: true }, { obj: "Red Giant", label: "red giants", delay: 2.2 }] },
+    { at: "explode into supernovas", cam: { r: 12.4, m: 33.8, span: 18.5 }, dur: 1.6, hl: [{ ...SN_SPLIT, coreLabel: "neutron star", shellLabel: "supernova" }] },
     { at: "expand out into space", cam: { r: 17, m: 35, span: 12 },
-      hl: [{ obj: "Supernova Remnant", label: false }, { arrow: true, from: { obj: "Supernova Remnant" }, to: { obj: "Stellar Nursery" } }, { obj: "Stellar Nursery", label: "new stars", delay: 0.6 }] },
+      hl: [{ ...SN_SPLIT, draw: 0.01 }, { arrow: true, from: { obj: "Supernova Remnant" }, to: { obj: "Stellar Nursery" } }, { obj: "Stellar Nursery", label: "new stars", delay: 0.6 }] },
 
     // ── Bigger means emptier ─────────────────────────────────
     { at: "new generation", photo: "pillars", obj: "Stellar Nursery", place: 0.75, dur: 4.5, kb: [1, 1.3], focus: [0.5, 0.4], caption: "Pillars of Creation · Webb · 2022 · where stars are born" },

@@ -402,7 +402,12 @@ export async function startNarration(app) {
       const el = d3.select(this);
       el.selectAll("*").remove();
       const age = t - h.t0;
-      const op = smooth(age / 0.45) * (1 - smooth((t - h.t1) / 0.5));
+      let op = smooth(age / 0.45) * (1 - smooth((t - h.t1) / 0.5));
+      // a dying star handing over to its split: the swing stops dead at the hand-over and
+      // the split starts at full strength from the same spot (a cross-fade showed two
+      // stars, one still moving, which read as a jump)
+      if (h.split) op = t >= h.t0 ? 1 - smooth((t - h.t1) / 0.5) : 0;
+      else if (h.swing && h.core && t >= h.t1 && highlights.some(q => q.split && Math.abs(q.t0 - h.t1) < 0.05)) op = 0;
       el.attr("opacity", op);
       if (h.obj) drawObj(el, h, age);
       else if (h.line) drawLine(el, LINES[h.line], h, age);
