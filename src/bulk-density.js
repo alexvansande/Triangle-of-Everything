@@ -39,8 +39,8 @@ export const DUST_RHO = {
   insect: [0.8, 1.1],
   lepidoptera: [0.7, 1.1],
   moth: [0.7, 1.1],
-  bacterium: 1.1,              // mass = capsule volume × 1.1
-  cell: 1.1,                   // mass = biovolume × 1.1
+  bacterium: [1.05, 1.15],     // measured buoyant densities (E. coli 1.08–1.11)
+  cell: [1.02, 1.15],          // protists and algae; diatoms' silica runs higher
   // ice and water: mass = surveyed volume × density
   glacier: 0.917,
   icesheet: 0.917,
@@ -54,6 +54,11 @@ export const DUST_RHO = {
   spacecraft: [0.05, 0.5],     // satellites ~0.05–0.3, fuelled rockets ~0.3–0.5
 };
 const LAKE_RHO = { "Dead Sea": 1.24 };
+
+// Catalogues whose MASS is derived as measured volume × this density. Their
+// ball radius is exact (the volume is measured); the density is the guess,
+// so a range spreads them in mass instead (up/down, at a fixed radius).
+const MASS_FROM_VOLUME = { bacterium: 1.1, cell: 1.1 };
 
 // Too varied for one density range (bells, statues, towers, bridges):
 // bulk density = density of the bounding ball × k, where k = how many times
@@ -74,6 +79,9 @@ function unit(s) {
   return (h >>> 0) / 4294967296;
 }
 const logUniform = (lo, hi, u) => Math.log10(lo) + u * (Math.log10(hi) - Math.log10(lo));
+/** Bell-shaped 0..1: the mean of three uniforms (peaks mid-range, never
+ *  leaves it), so a cloud is dense in the middle and thins out to its limits. */
+const bell = (key) => (unit(key + "#a") + unit(key + "#b") + unit(key + "#c")) / 3;
 
 /** Curated objects → new array; those with `rho` move to their ball radius. */
 export function applyBulkObjects(list) {
@@ -85,8 +93,9 @@ export function applyBulkObjects(list) {
   });
 }
 
-/** Dust radii (Float32Array `r`, mutated in place). Returns the original
- *  radii, or null when nothing moved. */
+/** Dust radii (Float32Array `r`, mutated in place; masses `m` too for the
+ *  MASS_FROM_VOLUME catalogues). Returns the original radii, or null when
+ *  nothing moved. */
 export function applyBulkDust(r, m, src, sources, rawNames) {
   if (SIZE_MODE !== "bulk") return null;
   const rSpan = Float32Array.from(r);
@@ -95,7 +104,13 @@ export function applyBulkDust(r, m, src, sources, rawNames) {
     const rho = id === "lake" ? (LAKE_RHO[rawNames[i]] ?? DUST_RHO.lake) : DUST_RHO[id];
     const shape = DUST_SHAPE[id];
     if (rho == null && !shape) continue;
-    const u = unit(id + ":" + rawNames[i]);
+    const u = bell(id + ":" + rawNames[i]);
+    const fromVolume = MASS_FROM_VOLUME[id];
+    if (fromVolume) {
+      r[i] = logBall(m[i], fromVolume);
+      m[i] += logUniform(rho[0], rho[1], u) - Math.log10(fromVolume);
+      continue;
+    }
     let logRho;
     const bounding = m[i] - 3 * r[i] - DENSITY_SPHERE_C;
     if (shape) {
