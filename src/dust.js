@@ -24,6 +24,10 @@
 import dustUrl from "./dust.json?url";
 import { applyBulkDust } from "./bulk-density.js";
 import { select as d3sel } from "d3";
+// The most recognisable objects of each mass band (three decades wide), picked
+// by hand: [{ band, rank, source, name, kind }]. They are drawn and named
+// before anything else, with their specific kind ("ocean liner", "axolotl").
+import FAMOUS from "./dust-famous.json";
 
 const DUST_GAP = 5;        // px — minimum spacing between dust dots
 const DUST_R = 1.15;       // px — dot radius
@@ -106,7 +110,14 @@ export function loadDust() {
       const so = sources[src[i]];
       names[i] = so.pre + raw[i] + so.suf;
     }
-    // Deterministic shuffle (mulberry32) → stable thinning priority
+    // The famous few first (each band's no. 1, then each band's no. 2…), then
+    // the rest in a deterministic shuffle (mulberry32): stable thinning priority
+    const famousKey = new Map(FAMOUS.map((f) => [`${f.source}|${f.name}`, f]));
+    const fame = new Map();     // dust index → { rank, kind }
+    for (let i = 0; i < n; i++) {
+      const f = famousKey.get(`${sources[src[i]].id}|${raw[i]}`);
+      if (f) fame.set(i, f);
+    }
     const rank = new Uint32Array(n);
     for (let i = 0; i < n; i++) rank[i] = i;
     let s = 0x9e3779b9;
@@ -120,7 +131,10 @@ export function loadDust() {
       const j = Math.floor(rnd() * (i + 1));
       const t = rank[i]; rank[i] = rank[j]; rank[j] = t;
     }
-    _data = { names, r, rSpan, m, src, rank, sources };
+    const first = [...fame.keys()].sort((a, b) => fame.get(a).rank - fame.get(b).rank);
+    const rest = rank.filter((i) => !fame.has(i));
+    rank.set(first, 0); rank.set(rest, first.length);
+    _data = { names, r, rSpan, m, src, rank, sources, fame };
     return _data;
   });
   return _loading;
@@ -246,7 +260,8 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     const order = [..._kept.filter((q) => _labelled.has(q.i)), ..._kept.filter((q) => !_labelled.has(q.i))];
     for (const q of order) {
       if (placed.length >= max) break;
-      const so = sources[src[q.i]], kind = labelKind(so.id, names[q.i], _data.m[q.i]);
+      const so = sources[src[q.i]];
+      const kind = _data.fame.get(q.i)?.kind || labelKind(so.id, names[q.i], _data.m[q.i]);
       if (!kind || so.suf) continue;             // black holes (ticks), clouds, nuclei…
       const name = names[q.i];
       if (!name || name.length > LABEL_MAX_CHARS || ID_LIKE.test(name) || ACRONYM.test(name)) continue;
