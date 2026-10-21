@@ -164,7 +164,7 @@ export async function startNarration(app) {
   // the paths' moving dots: as big as the catalogue dust (1.15 px), brighter
   // than in the app so they still read in a phone video
   app.setDots?.(SCENE.dots ?? { radius: 1.15, opacity: 1.7 });
-  app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? true);
+  app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);   // off: the author prefers the background kept on deep zooms
   // a scene that tells the primordial black hole window itself hides the map's
   // ready-made one, so no label shows before it's been talked about
   app.setPbhWindow?.(SCENE.pbhWindow !== false);
@@ -400,6 +400,7 @@ export async function startNarration(app) {
       else if (h.side) drawSide(el, h);
       else if (h.arrow) drawArrow(el, h, age);
       else if (h.swing) drawSwing(el, h, age);
+      else if (h.split) drawSplit(el, h, age);
       else if (h.dust) drawDustCat(el, h, age);
       else if (h.ellipse) drawEllipse(el, h, age);
       else if (h.window) drawWindow(el, h, age);
@@ -760,12 +761,49 @@ export async function startNarration(app) {
     const u = (0.5 - 0.5 * Math.cos(2 * Math.PI * n)) * Math.min(1, 0.45 + 0.12 * n);  // reach grows to the full track
     const x = x1 + (x2 - x1) * u, y = y1 + (y2 - y1) * u;
     const col = d3.interpolateRgb("#ffe27a", "#ff6a3d")(u);
+    if (h.core) {
+      // two circles: a small hot core that stays put inside the star, and the outer
+      // layers swelling into a red giant and falling back
+      const R = (9 + 30 * u) * fade;
+      el.append("circle").attr("cx", x).attr("cy", y).attr("r", R * 1.6).attr("fill", col).attr("opacity", 0.14).attr("filter", "url(#narr-soft)");
+      el.append("circle").attr("cx", x).attr("cy", y).attr("r", R).attr("fill", col).attr("opacity", 0.32)
+        .attr("stroke", col).attr("stroke-width", 2);
+      el.append("circle").attr("cx", x).attr("cy", y).attr("r", 4.5 * fade).attr("fill", "#fff7d6");
+      if (h.label) el.append("text").attr("class", "narr-tag").attr("x", x).attr("y", y - R - 9)
+        .attr("text-anchor", "middle").attr("fill", col).text(h.label.toUpperCase());
+      return;
+    }
     const R = (8 + 14 * u) * fade;
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", R * 2.2).attr("fill", col).attr("opacity", 0.18).attr("filter", "url(#narr-soft)");
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", R).attr("fill", col).attr("opacity", 0.85);
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", R + 3).attr("fill", "none").attr("stroke", "#fff").attr("stroke-width", 1).attr("opacity", 0.5);
     if (h.label) el.append("text").attr("class", "narr-tag").attr("x", x).attr("y", y - R - 9)
       .attr("text-anchor", "middle").attr("fill", col).text(h.label.toUpperCase());
+  }
+  /** A dying star splitting in two (split: { from, core, shell }, each { obj } or
+   *  { r, m }): the core slides to `core` and shrinks to a hot white dot, the outer
+   *  layers drift to `shell`, opening into a fading ring. draw (s, default 2.4);
+   *  coreLabel / shellLabel show once they arrive. */
+  function drawSplit(el, h, age) {
+    const pt = (q) => { const o = q.obj && objByName.get(q.obj); return o ? [o.logR, o.logM] : [q.r, q.m]; };
+    const [A, C, S] = [h.split.from, h.split.core, h.split.shell].map(pt).map(([r, m]) => [sx(r), sy(m)]);
+    const p = d3.easeCubicInOut(clamp01(age / (h.draw ?? 2.4)));
+    const lerp = (P, Q) => [P[0] + (Q[0] - P[0]) * p, P[1] + (Q[1] - P[1]) * p];
+    const [sxp, syp] = lerp(A, S), [cxp, cyp] = lerp(A, C);
+    // the outer layers: a red disc thinning into a ring
+    const Rs = 39 + 36 * p, scol = d3.interpolateRgb("#ff6a3d", "#ff8fb0")(p);
+    el.append("circle").attr("cx", sxp).attr("cy", syp).attr("r", Rs).attr("fill", scol).attr("opacity", 0.32 * (1 - p) + 0.06)
+      .attr("stroke", scol).attr("stroke-width", 2 + 3 * p).attr("stroke-opacity", 0.9 - 0.3 * p);
+    // the core: small, white-hot, a trail behind it
+    el.append("line").attr("x1", A[0]).attr("y1", A[1]).attr("x2", cxp).attr("y2", cyp)
+      .attr("stroke", "#bfe3ff").attr("stroke-width", 1.4).attr("stroke-dasharray", "3 5").attr("opacity", 0.5);
+    el.append("circle").attr("cx", cxp).attr("cy", cyp).attr("r", 10).attr("fill", "#bfe3ff").attr("opacity", 0.25).attr("filter", "url(#narr-soft)");
+    el.append("circle").attr("cx", cxp).attr("cy", cyp).attr("r", 4.5 - 1 * p).attr("fill", d3.interpolateRgb("#fff7d6", "#e8f4ff")(p));
+    const lab = clamp01((p - 0.8) / 0.2);
+    if (h.coreLabel) el.append("text").attr("class", "narr-tag").attr("x", cxp).attr("y", cyp + 24).attr("text-anchor", "middle")
+      .attr("fill", "#bfe3ff").attr("opacity", lab).text(h.coreLabel.toUpperCase());
+    if (h.shellLabel) el.append("text").attr("class", "narr-tag").attr("x", sxp).attr("y", syp - Rs - 10).attr("text-anchor", "middle")
+      .attr("fill", scol).attr("opacity", lab).text(h.shellLabel.toUpperCase());
   }
   function drawArrow(el, h, age) {
     const from = h.from.obj ? objByName.get(h.from.obj) : null;

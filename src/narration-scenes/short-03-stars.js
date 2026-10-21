@@ -6,6 +6,8 @@
 // =============================================================
 // Field reference: docs/narration.md, "Scene fields".
 
+// a dying star splitting in two: the core to the white dwarfs, the outer layers to the nebulae
+const SPLIT = { split: { from: { obj: "Red Giant" }, core: { obj: "White Dwarf" }, shell: { obj: "Planetary Nebula" } } };
 const BD = [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }];
 const FORK = [
   { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
@@ -43,7 +45,6 @@ export default {
     { at: "become brown dwarfs", hl: [{ obj: "Jupiter", place: "left" }, ...BD, { obj: "L Brown Dwarf", label: "brown dwarfs" }] },
     { at: "in-between objects", cam: { r: 9.9, m: 31.35, span: 1.8 },
       hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "L Brown Dwarf", label: "brown dwarf" }, { obj: "Proxima Cen", label: "star", delay: 0.5 }] },
-    { at: "in-between objects", offset: 0.5, photo: "gliese-229b", obj: "L Brown Dwarf", dur: 5, fit: "contain", kb: [1.35, 1.55], focus: [0.8, 0.5], caption: "Gliese 229B, the first brown dwarf ever seen · Hubble · 1995" },
     { at: "start fusing hydrogen", hl: [{ obj: "Jupiter", place: "left" }, ...BD, { obj: "L Brown Dwarf", label: "fuses a little" }] },
     { at: "form of deuterium", hl: [...BD, { obj: "L Brown Dwarf", label: "deuterium only" }] },
     { at: "minuscule portion", hl: [...BD, { obj: "L Brown Dwarf", label: "1 hydrogen in ~40,000" }] },
@@ -62,12 +63,14 @@ export default {
     { at: "hydrogen is depleted", hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
 
     // the end of a star: collapse, expand, split
-    { at: "start collapsing", cam: { r: 11.85, m: 33.4, span: 3.2 }, hold: 6,
-      hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4 }, { obj: "Red Giant", label: "red giant", delay: 1 }] },
-    { at: "split in two", cam: { r: 15.8, m: 33.6, span: 7.4 },
-      hl: [{ obj: "Red Giant", label: false }, { obj: "Planetary Nebula", delay: 0.4 }, { obj: "Supernova Remnant", delay: 0.8 }] },
-    { at: "become a supernova", hl: [{ obj: "Red Giant", label: false }, { obj: "Supernova Remnant", label: "supernova remnant", place: "left" }, { obj: "Planetary Nebula", label: false }] },
-    { at: "planetary nebula", hl: [{ obj: "Red Giant", label: false }, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
+    // two circles: the core stays small while the outer layers swell and fall back, the
+    // star moving along the chart as it does; then the split: core left, layers right
+    { at: "start collapsing", cam: { r: 11.85, m: 33.4, span: 3.6 }, hold: 8,
+      hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4, core: true }, { obj: "Red Giant", label: "red giant", delay: 1 }] },
+    { at: "split in two", cam: { r: 13.1, m: 33.6, span: 12.5 }, dur: 1.6,
+      hl: [{ ...SPLIT, coreLabel: "core", shellLabel: "outer layers" }] },
+    { at: "become a supernova", hl: [{ ...SPLIT, draw: 0.01 }, { obj: "Supernova Remnant", label: "supernova remnant", place: "left" }] },
+    { at: "planetary nebula", hl: [{ ...SPLIT, draw: 0.01 }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
     { at: "inner core", cam: { r: 7.5, m: 33.4, span: 4.2 },
       hl: [{ obj: "Red Giant", label: false }, { obj: "White Dwarf", label: "dense core", place: "right", delay: 0.4 }, { obj: "PSR J0030+0451", label: false, delay: 0.7 }] },
 
@@ -90,7 +93,6 @@ export default {
     { at: ["protons and the electrons", "protons and electrons"], cam: { r: 6.35, m: 33.75, span: 2 }, hl: [{ line: "chandrasekhar" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "protons + electrons → neutrons", place: "right" }] },
     { at: "create a neutron star", hl: [{ line: "chandrasekhar" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "neutron star", place: "right" },
       { line: "tov", label: "neutron star limit · ~2.2–2.3 Suns", delay: 0.8 }] },
-    { at: "create a neutron star", offset: 0.8, photo: "crab", obj: "PSR J0030+0451", place: 0.72, dur: 4.2, kb: [1, 1.3], caption: "Crab Nebula · Hubble · 2005 · a neutron star at its heart" },
     { at: "single spoonful", hl: [{ line: "tov" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "a teaspoon ≈ 2 billion tonnes", place: "right" }] },
     { at: "collapse into a black hole", hl: [{ line: "tov", label: "above it: black hole" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
     // teaser for the black-hole video: the edge they sit on
