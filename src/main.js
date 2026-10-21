@@ -527,7 +527,7 @@ const lRegLabel   = lContent.append("g");
 // Catalogue "dust": thousands of faint real objects under the curated ones
 // (src/dust.js). Never interactive except for a hover name.
 const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
-const DUST_LABELS_OFF = NARR_PREVIEW || new URLSearchParams(location.search).has("narrate");
+const DUST_LABELS_OFF = new URLSearchParams(location.search).has("narrate");
 const lDustHover  = lContent.append("g").style("pointer-events", "none");
 const lObj        = lContent.append("g");
 // Retained rendering split: extras (cluster/category/BH labels, ~20 nodes)
@@ -2334,8 +2334,7 @@ function drawObjects() {
   iconOrder.forEach(o => {
     const r = icoR(o);
     const tooClose = shownIcons.some(s => {
-      // a narration scene picks its pictures (_iconOnly): only true overlaps hide one
-      const need = _iconOnly ? icoSize : (r + s._icoR) * ICON_ROOM;
+      const need = (r + s._icoR) * ICON_ROOM;
       return (s.sx - o.sx) ** 2 + (s.sy - o.sy) ** 2 < need * need;
     });
     if (tooClose) return;
