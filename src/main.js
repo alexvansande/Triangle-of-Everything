@@ -16,6 +16,10 @@ import {
 const BASE = import.meta.env.BASE_URL;
 // The narration preview: the player only, no address-bar sync or service worker.
 const NARR_PREVIEW = import.meta.env.MODE === "narration-preview";
+// Built with relative paths (--base ./) to run from a sub-folder, like a
+// claude.ai page: the URL path isn't ours, so only the hash is kept in sync —
+// rewriting the path to "/" would break every relative asset (map tiles…).
+const SUBFOLDER = BASE !== "/";
 import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
@@ -27,6 +31,7 @@ import {
   WIDTH_LOG_OFFSET,
 } from "./data.js";
 import objectsData from "./objects.json";
+import { applyBulkObjects } from "./bulk-density.js";
 import {
   openWaterPhasePanel, closeWaterPhasePanel, isWaterPhaseOpen,
   selectWaterPhaseKey, onWaterPhaseToggle, waterPhaseMarkup,
@@ -106,7 +111,7 @@ function nameToSlug(name) {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-const OBJECTS = objectsData.map(o => ({ ...o, slug: o.slug || nameToSlug(o.name) }));
+const OBJECTS = applyBulkObjects(objectsData).map(o => ({ ...o, slug: o.slug || nameToSlug(o.name) }));
 let tileMeta = null;
 
 // =============================================================
@@ -533,6 +538,7 @@ const lRegLabel   = lContent.append("g");
 // Catalogue "dust": thousands of faint real objects under the curated ones
 // (src/dust.js). Never interactive except for a hover name.
 const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
+const DUST_LABELS_OFF = NARR_PREVIEW || new URLSearchParams(location.search).has("narrate");
 const lDustHover  = lContent.append("g").style("pointer-events", "none");
 const lObj        = lContent.append("g");
 // Retained rendering split: extras (cluster/category/BH labels, ~20 nodes)
@@ -1960,6 +1966,8 @@ function catDisplayLabel(catKey) {
 }
 
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
+const ICON_ROOM = 1.3;       // icons keep 30% of their radii clear between them
+let _iconShownPrev = new Set();
 const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
 let _lastProjected = [];
@@ -2328,20 +2336,27 @@ function drawObjects() {
     if (o._showDot) visibleDots.push(o);
   });
 
-  // --- Icon overlap: when icons touch, only the highest-priority keeps its icon ---
-  const icoOverlap = icoSize * 1.0; // icons overlap when closer than 70% of icon size
-  const icoOverlap2 = icoOverlap * icoOverlap;
+  // --- Icon crowding, map-style: icons need room, measured by their real
+  // drawn sizes (iconSizeMult grows them with the object), so a crowded
+  // stretch (moons, dwarf planets) shows only its top-priority pictures and
+  // the rest appear as you zoom in. Priority: z, then last frame's icons. ---
   const shownIcons = [];
-  projected.forEach(o => {
-    const hasIcon = mapIconShown(o);
-    if (!hasIcon || !o._showDot) { o._showIcon = false; return; }
+  const icoR = (o) => icoSize * iconSizeMult(o) / 2;
+  const iconOrder = projected.filter(o => mapIconShown(o) && o._showDot)
+    .sort((a, b) => a.z - b.z || (_iconShownPrev.has(b.slug) - _iconShownPrev.has(a.slug)));
+  projected.forEach(o => { o._showIcon = false; });
+  iconOrder.forEach(o => {
+    const r = icoR(o);
     const tooClose = shownIcons.some(s => {
-      const dx = s.sx - o.sx, dy = s.sy - o.sy;
-      return dx * dx + dy * dy < icoOverlap2;
+      // a narration scene picks its pictures (_iconOnly): only true overlaps hide one
+      const need = _iconOnly ? icoSize : (r + s._icoR) * ICON_ROOM;
+      return (s.sx - o.sx) ** 2 + (s.sy - o.sy) ** 2 < need * need;
     });
-    o._showIcon = !tooClose;
-    if (o._showIcon) shownIcons.push(o);
+    if (tooClose) return;
+    o._showIcon = true; o._icoR = r;
+    shownIcons.push(o);
   });
+  _iconShownPrev = new Set(shownIcons.map(o => o.slug));
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
   const th2 = _posterLabels ? -1 : CLUSTER_THRESHOLD * CLUSTER_THRESHOLD; // poster: no clusters
@@ -2833,6 +2848,9 @@ function drawObjects() {
   drawDust(lDust, {
     px, py, cw, ch, mobile: _isMobile,
     hidden: !_dustEnabled || _bigBangMode,
+    // a few dust names, map-style; not in the narrated videos or the poster
+    labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fontScale: _fontScale,
+    labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
   }, {
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
@@ -2942,8 +2960,8 @@ function showTooltip(event, obj, cat) {
   const photon = isPhoton(obj);
   // Photons are plotted at half a wavelength so the width ruler reads λ;
   // the offset restores the true wavelength for display.
-  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
-  const rLabel = photon ? "wavelength" : "width";
+  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius((obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET);
+  const rLabel = photon ? "wavelength" : obj.logRSpan != null ? "longest side" : "width";
   const mLabel = photon ? "energy" : "mass";
   const mVal = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
   const ttColor = obj.color || cat.color;
@@ -3650,11 +3668,11 @@ function openSidebar(obj) {
   const isParticle = c === "particle" || c === "composite" || c === "atomic";
   const isCosmicStructure = c === "galaxy" || c === "largescale";
 
-  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
+  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius((obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET);
   const m = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
   const rho = friendlyDensity(obj.logR, obj.logM, obj.logDensity);
 
-  const logR_m = obj.logR + WIDTH_LOG_OFFSET - 2;
+  const logR_m = (obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET - 2;
   const logM_kg = obj.logM - 3;
   const logNote = `(10<sup>${logR_m >= 0 ? logR_m.toFixed(1) : logR_m.toFixed(1)}</sup> m · 10<sup>${logM_kg >= 0 ? logM_kg.toFixed(1) : logM_kg.toFixed(1)}</sup> kg)`;
 
@@ -3682,12 +3700,12 @@ function openSidebar(obj) {
       <tr><td colspan="2" class="sb-log-note">(10<sup>${(obj.logR + WIDTH_LOG_OFFSET).toFixed(1)}</sup> cm · 10<sup>${(obj.logM + 32.75).toFixed(1)}</sup> eV)</td></tr>
       <tr><td colspan="2" class="sb-footnote">* Massless — vertical axis shows mass-equivalent energy E = hc/λ</td></tr>`;
   } else if (isEveryday) {
-    const sizeLabel = obj.logR < -1 ? "Size" : "Width";
+    const sizeLabel = obj.logRSpan != null ? "Longest side" : obj.logR < -1 ? "Size" : "Width";
     const massLabel = "Weight";
     rows = `
       <tr><td>${sizeLabel}</td><td>${r}</td></tr>
       <tr><td>${massLabel}</td><td>${m}</td></tr>
-      <tr><td>Density</td><td>${rho}</td></tr>
+      <tr><td>${obj.logRSpan != null ? "Bulk density" : "Density"}</td><td>${rho}</td></tr>
       <tr><td colspan="2" class="sb-log-note">${logNote}</td></tr>`;
   } else if (isParticle) {
     rows = `
@@ -7021,7 +7039,7 @@ function saveHash() {
   // real, crawlable page with its own title and preview image (generated by
   // scripts/build-pages.mjs); the view stays in the hash.
   const slug = selectedObj?.slug || "";
-  const path = slug ? `/${slug}/` : "/";
+  const path = SUBFOLDER ? location.pathname : slug ? `/${slug}/` : "/";
   history.replaceState(null, "", `${path}#${cx},${cy},${z}`);
   const name = selectedObj && (selectedObj.sidebarName || selectedObj.name);
   document.title = name ? `${name} — The Triangle of Everything` : "The Triangle of Everything";
@@ -7030,7 +7048,7 @@ function saveHash() {
 // Object named by the URL path (/eois-stantonae/), if any. Pages built by
 // build-pages.mjs also carry its display name for info-panel articles.
 function pathSlug() {
-  if (NARR_PREVIEW) return null;
+  if (NARR_PREVIEW || SUBFOLDER) return null;
   const seg = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, "");
   return /^[a-z0-9][a-z0-9-]*$/.test(seg) ? seg : null;
 }

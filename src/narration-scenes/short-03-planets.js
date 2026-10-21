@@ -33,11 +33,14 @@ export default {
     { at: "the human scale", cam: { r: 2.4, m: 6.6, span: 12 }, hl: [{ line: "water" }, { obj: "Human" }] },
     { at: "meteorites and rocks", hl: [{ line: "water" }, { side: "left", label: "rocks · sink" }] },
     { at: "actually animals", hl: [{ line: "water" }, { side: "left", label: "rocks · sink" }, { side: "right", label: "animals · float" }] },
+    // bulk density puts animals ON the line: zoom in to see the side
+    { at: "most of them float", cam: { obj: "Human", span: 0.12 }, dur: 1.2,
+      hl: [{ line: "water" }, { obj: "Human", label: "human · 0.985 g/cm³" }, { side: "right", label: "floats" }] },
     { at: "the blue whale", cam: { obj: "Blue Whale", span: 4 }, hl: [{ obj: "Blue Whale", label: "largest animal" }] },
     { at: "the sequoia", hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // made by us, and the mountains after them
-    { at: "engineering categories", cam: { r: 4, m: 11, span: 6 }, clear: true },
+    { at: "engineering categories", cam: { r: 3.4, m: 10.7, span: 5 }, clear: true },
     { at: "like planes", hl: [{ obj: "Boeing 747" }] },
     { at: ["supertankers", "super tankers"], hl: [{ obj: "Boeing 747", place: "left" }, { obj: "Supertanker" }] },
     { at: "the great pyramid", hl: [{ obj: "Boeing 747", place: "left" }, { obj: "Supertanker" }, { obj: "Great Pyramid", place: "left" }] },

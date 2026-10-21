@@ -22,6 +22,12 @@
 // =============================================================
 
 import dustUrl from "./dust.json?url";
+import { applyBulkDust } from "./bulk-density.js";
+import { select as d3sel } from "d3";
+// The most recognisable objects of each mass band (three decades wide), picked
+// by hand: [{ band, rank, source, name, kind }]. They are drawn and named
+// before anything else, with their specific kind ("ocean liner", "axolotl").
+import FAMOUS from "./dust-famous.json";
 
 const DUST_GAP = 5;        // px — minimum spacing between dust dots
 const DUST_R = 1.15;       // px — dot radius
@@ -31,11 +37,52 @@ const BH_TICK_LEN = 4;     // px
 const BH_TICK_W = 1.3;     // px
 const MAX_DOTS_DESKTOP = 7000;
 const MAX_DOTS_MOBILE = 3000;
+// Named dust: a few dots get their name written next to them, like a map
+// showing more towns as you zoom in. Sparse on purpose.
+const LABEL_MAX_DESKTOP = 10;   // labels on screen at most
+const LABEL_MAX_MOBILE = 5;
+const LABEL_GAP_DESKTOP = 110;  // px — clear radius around each labelled dot
+const LABEL_GAP_MOBILE = 90;
+const LABEL_FONT = 10;          // px, before the font-size setting — as curated labels
+const LABEL_MAX_CHARS = 24;    // longer names are skipped, not cut (~90% of names fit)
+// Catalogue designations (Gaia DR3 4057…, 2MASS J0523…, MD17 cloud 6573)
+// aren't worth reading.
+const ID_LIKE = /\d{5,}|^(Gaia|2MASS|TIC|KIC|EPIC|HIP|HD|TYC|WISE|SDSS|UGC|PGC|NGC|IC|GJ|LHS|NLTT|MD17)\b/i;
+// One-word acronyms (EOFdMKM) read as noise; S-125 or MAZ-537 still pass.
+const ACRONYM = /^(?=\S+$)(?:[^A-Z]*[A-Z]){5}/;
+// What each catalogue's things are, added as "Twike (car)" unless the name
+// already says it. Missing = no label for that catalogue.
+const LABEL_KIND = {
+  hadron: "particle", element: "element", molecule: "molecule", protein: "protein",
+  bacterium: "microbe", cell: "microalga", insect: "insect", lepidoptera: "moth or butterfly",
+  moth: "moth", amphibian: "amphibian", mammal: "mammal",
+  vehicle: "vehicle", rail: "train", armour: "military vehicle", ship: "ship",
+  aircraft: "aircraft", spacecraft: "spacecraft", artefact: "artefact",
+  lake: "lake", glacier: "glacier", icesheet: "ice sheet",
+  meteorite: "meteorite", "asteroid-boulder": "boulder", impactor: "impactor",
+  smallbody: "asteroid", "smallbody-measured": "asteroid", moon: "moon",
+  exoplanet: "exoplanet", browndwarf: "brown dwarf",
+  debcat: "binary star", host: "star", wd: "white dwarf", neutronstar: "neutron star",
+  oc: "star cluster", gc: "globular cluster", galaxy: "galaxy", cluster: "galaxy cluster",
+};
+// Wikidata files drones as aircraft: below ~100 kg they all are (the
+// lightest crewed one, the 1909 Demoiselle, is 110 kg), bar museum models.
+function labelKind(id, name, logM) {
+  if (id === "aircraft" && logM < 5.02) return /\bmodel\b/i.test(name) ? "model" : "drone";
+  return LABEL_KIND[id];
+}
+
+// Catalogue entries dropped at load: [source id, name, why]. Also listed in
+// the source's build script so the next dust build leaves them out.
+const DUST_EXCLUDE = [
+  ["artefact", "Untitled", "an artwork's title, not a name"],
+];
 
 let _data = null;          // { names, r, m, src, rank, sources }
 let _loading = null;
 let _kept = [];            // [{ i, sx, sy }] drawn this frame
 let _keptGrid = new Map(); // cell key → indices into _kept (hover lookup)
+let _labelled = new Set(); // dust indices labelled last frame: kept first, so labels don't flicker
 
 export function dustReady() { return !!_data; }
 
@@ -48,15 +95,29 @@ export function loadDust() {
     if (!res.ok) throw new Error(`dust.json: HTTP ${res.status}`);
     return res.json();
   }).then(({ sources, name, r: rr, m: mm, s: ss }) => {
-    const n = name.length;
+    const drop = new Set(DUST_EXCLUDE.map(([id, nm]) => `${id}|${nm}`));
+    const keep = [];
+    for (let i = 0; i < name.length; i++) if (!drop.has(`${sources[ss[i]].id}|${name[i]}`)) keep.push(i);
+    const n = keep.length;
     const names = new Array(n);
-    const r = Float32Array.from(rr), m = Float32Array.from(mm);
-    const src = Uint8Array.from(ss);
+    const raw = keep.map((i) => name[i]);
+    const r = Float32Array.from(keep, (i) => rr[i]), m = Float32Array.from(keep, (i) => mm[i]);
+    const src = Uint8Array.from(keep, (i) => ss[i]);
+    // Non-round things to their bulk-density ball radius (bulk-density.js);
+    // rSpan keeps the catalogue's half-longest-dimension radius.
+    const rSpan = applyBulkDust(r, m, src, sources, raw);
     for (let i = 0; i < n; i++) {
       const so = sources[src[i]];
-      names[i] = so.pre + name[i] + so.suf;
+      names[i] = so.pre + raw[i] + so.suf;
     }
-    // Deterministic shuffle (mulberry32) → stable thinning priority
+    // The famous few first (each band's no. 1, then each band's no. 2…), then
+    // the rest in a deterministic shuffle (mulberry32): stable thinning priority
+    const famousKey = new Map(FAMOUS.map((f) => [`${f.source}|${f.name}`, f]));
+    const fame = new Map();     // dust index → { rank, kind }
+    for (let i = 0; i < n; i++) {
+      const f = famousKey.get(`${sources[src[i]].id}|${raw[i]}`);
+      if (f) fame.set(i, f);
+    }
     const rank = new Uint32Array(n);
     for (let i = 0; i < n; i++) rank[i] = i;
     let s = 0x9e3779b9;
@@ -70,7 +131,10 @@ export function loadDust() {
       const j = Math.floor(rnd() * (i + 1));
       const t = rank[i]; rank[i] = rank[j]; rank[j] = t;
     }
-    _data = { names, r, m, src, rank, sources };
+    const first = [...fame.keys()].sort((a, b) => fame.get(a).rank - fame.get(b).rank);
+    const rest = rank.filter((i) => !fame.has(i));
+    rank.set(first, 0); rank.set(rest, first.length);
+    _data = { names, r, rSpan, m, src, rank, sources, fame };
     return _data;
   });
   return _loading;
@@ -79,7 +143,8 @@ export function loadDust() {
 /**
  * Draw the dust layer.
  * @param layer    d3 selection of the <g> to draw into
- * @param view     { px, py, cw, ch, mobile, hidden }
+ * @param view     { px, py, cw, ch, mobile, hidden, labels, fontScale, labelColorOf }
+ *                 — labelColorOf (catKey, sourceId): full colour for named dust
  * @param blockers { dots: [{sx, sy}], rects: [{x, y, w, h}], circles: [{sx, sy, r}] }
  *                 — curated dots, labels and (round) icons dust must stay clear of
  * @param colorOf  (catKey, sourceId) → css colour
@@ -87,7 +152,7 @@ export function loadDust() {
 export function drawDust(layer, view, blockers, colorOf) {
   _kept = [];
   _keptGrid = new Map();
-  if (!_data || view.hidden) { layer.selectAll("path").remove(); return; }
+  if (!_data || view.hidden) { layer.selectAll("path, g.dust-named").remove(); _labelled = new Set(); return; }
 
   const { px, py, cw, ch } = view;
   const { r, m, src, rank, sources } = _data;
@@ -169,6 +234,70 @@ export function drawDust(layer, view, blockers, colorOf) {
       .attr("opacity", (g) => sources[g.s].cat === "blackhole" ? 0.85 : 0.7)
       .attr("stroke", (g) => colorOf(sources[g.s].cat, sources[g.s].id)))
     .attr("d", (g) => g.d);
+
+  drawDustLabels(layer, view, occ, gw, gh, OC, colorOf);
+}
+
+/** Name a sparse few of the dots just drawn: greedy by priority (last
+ *  frame's labels first, then the fixed random rank), each needing a clear
+ *  radius from the others and a free spot for its text. A named dot is
+ *  drawn like a curated object (glow, 2.8 px dot, bold label) — promoted. */
+function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
+  const { names, src, sources } = _data;
+  const placed = [];
+  if (view.labels) {
+    const max = view.mobile ? LABEL_MAX_MOBILE : LABEL_MAX_DESKTOP;
+    const gap2 = (view.mobile ? LABEL_GAP_MOBILE : LABEL_GAP_DESKTOP) ** 2;
+    const fs = LABEL_FONT * (view.fontScale || 1);
+    const free = (x0, y0, x1, y1) => {
+      if (x0 < 0 || y0 < 0 || x1 > view.cw || y1 > view.ch) return false;
+      for (let y = Math.floor(y0 / OC); y <= Math.floor(y1 / OC); y++)
+        for (let x = Math.floor(x0 / OC); x <= Math.floor(x1 / OC); x++)
+          if (occ[y * gw + x]) return false;
+      return true;
+    };
+    // _kept is already in rank order; last frame's labels go first
+    const order = [..._kept.filter((q) => _labelled.has(q.i)), ..._kept.filter((q) => !_labelled.has(q.i))];
+    for (const q of order) {
+      if (placed.length >= max) break;
+      const so = sources[src[q.i]];
+      const kind = _data.fame.get(q.i)?.kind || labelKind(so.id, names[q.i], _data.m[q.i]);
+      if (!kind || so.suf) continue;             // black holes (ticks), clouds, nuclei…
+      const name = names[q.i];
+      if (!name || name.length > LABEL_MAX_CHARS || ID_LIKE.test(name) || ACRONYM.test(name)) continue;
+      const text = name.toLowerCase().includes(kind.split(" ").pop()) ? name : `${name} (${kind})`;
+      if (placed.some((p) => (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < gap2)) continue;
+      const w = text.length * fs * 0.62, h = fs * 1.2;
+      let anchor = null;
+      if (free(q.sx + 6, q.sy - h / 2, q.sx + 9 + w, q.sy + h / 2)) anchor = "start";
+      else if (free(q.sx - 9 - w, q.sy - h / 2, q.sx - 6, q.sy + h / 2)) anchor = "end";
+      if (!anchor) continue;
+      placed.push({ i: q.i, sx: q.sx, sy: q.sy, text, anchor, fs });
+    }
+  }
+  _labelled = new Set(placed.map((p) => p.i));
+  const color = (p) => (view.labelColorOf || colorOf)(sources[src[p.i]].cat, sources[src[p.i]].id);
+  layer.selectAll("g.dust-named")
+    .data(placed, (p) => p.i)
+    .join((enter) => {
+      const g = enter.append("g").attr("class", "dust-named");
+      g.append("circle").attr("class", "dn-glow").attr("r", 6).attr("opacity", 0.1);
+      g.append("circle").attr("class", "dn-dot").attr("r", 2.8).attr("opacity", 0.85);
+      g.append("text")
+        .attr("font-family", "Inter, sans-serif").attr("font-weight", 600).attr("letter-spacing", "0.5px")
+        .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.85)")
+        .attr("stroke-width", 3).attr("stroke-linejoin", "round")
+        .attr("dominant-baseline", "central");
+      return g;
+    })
+    .each(function (p) {
+      const g = d3sel(this), c = color(p);
+      g.selectAll("circle").attr("cx", p.sx).attr("cy", p.sy).attr("fill", c);
+      g.select("text")
+        .attr("x", p.sx + (p.anchor === "start" ? 8 : -8)).attr("y", p.sy)
+        .attr("text-anchor", p.anchor).attr("font-size", p.fs)
+        .attr("fill", c).text(p.text);
+    });
 }
 
 /** Map of name → [logR, logM] for one dust source (e.g. "element"). */
