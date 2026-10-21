@@ -48,8 +48,16 @@ export default {
       hl: [{ line: "water" }, { side: "left", label: "rocks · denser than water" }] },
     { at: "are animals", cam: { r: 1, m: 3.5, span: 9 },
       hl: [{ line: "water" }, { side: "right", label: "animals" }] },
-    { at: "the hippo sits", cam: { obj: "Hippopotamus", span: 3.5 },
+    // Bulk density (src/bulk-density.js): animals sit ON the line, within about
+    // ±0.01 decades of it, so these zoom in far enough to see which side.
+    { at: "most animals float", cam: { obj: "Human", span: 0.12 }, dur: 1.2,
+      hl: [{ line: "water" }, { obj: "Human", label: "human · 0.985 g/cm³" }, { side: "right", label: "floats" }] },
+    { at: "except the hippo", cam: { obj: "Hippopotamus", span: 3.5 }, dur: 1.5,
       hl: [{ obj: "Hippopotamus" }, { line: "water" }] },
+    { at: "the hippo sits", cam: { obj: "Hippopotamus", span: 0.1 }, dur: 2.5,
+      hl: [{ obj: "Hippopotamus" }, { line: "water" }] },
+    { at: "a little bit to the left",
+      hl: [{ obj: "Hippopotamus", label: "hippo · 1.05 g/cm³" }, { line: "water" }, { side: "left", label: "sinks" }] },
     { at: "small interesting story", cam: { r: 2, m: 6, span: 30 }, drift: 0.03,
       hl: [{ line: "water", label: "density of water" }] },
   ],
