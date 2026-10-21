@@ -110,3 +110,28 @@ Priority: ★★★ do first (long still, strong picture), ★★ good, ★ only
   so they render frame-exact with the rest; the pixel grid, cube law, degeneracy and the
   two horizons are each about a screen of code.
 - Start with the ★★★ ones: in video 5 they cover about 4 of its 6 still minutes.
+
+## Status (2026-10-21)
+
+Done:
+- **Camera moves**: video 2's slow opening push and the climb up both branches at the
+  split; video 3's glide at "bifurcation"; video 4's slow opening push, the Schwarzschild
+  line framed by the real black holes, a gentler "how small they can be", a pan along the
+  window, no full zoom-out at the end; video 5's two lines framed close, not full.
+- **Photo cutaways** (`{ at, photo, caption, obj, dur, fit, kb, focus, place }` in the
+  scenes; `src/narration.js`, "photo cutaways"): full screen for things that aren't chart
+  regions, `place` (a round window on the chart over the dot) for nebulae and galaxies.
+  Video 2: blue whale, sequoia, Eiffel Tower, Phobos + Deimos, Hyperion → Pluto, Mercury /
+  Mars / Earth, Jupiter, Saturn. Video 3: Jupiter in infrared, Gliese 229B, the Sun (window),
+  the Pillars (window), the Crab (window), M87*. Video 4: Sgr A*, M87*, the microwave
+  background, the eXtreme Deep Field. Video 5: the Crab, the Pillars, the Large Magellanic
+  Cloud, Andromeda, SMACS 0723 (all windows), M87*, the eXtreme Deep Field, the microwave
+  background.
+- Left out on purpose, the chart already shows it: video 3's star life cycle, video 4's
+  red giants swing, survey window and dark-matter drop. Laniakea's "map" was dropped: a 3D
+  rendering, not a photo, and it read badly on a phone.
+
+Photos: `public/narration/photos/` (3600 px JPEGs), credits in `video/photos/CREDITS.md`
+(add them to each video's description). Still to do: the diagrams (cube law, the cell as a
+bag of water, degeneracy, deuterium, gravity vs fusion, the event horizon, 45°, the pixels,
+the two horizons, everyone's own universe, where the light left).

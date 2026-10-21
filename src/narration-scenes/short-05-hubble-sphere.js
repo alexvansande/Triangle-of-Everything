@@ -54,17 +54,22 @@ export default {
     { at: "can be above that", hl: [SCHW, { side: "left", of: "schwarzschild", label: "nothing" }] },
     { at: "to the right we have stars", cam: { r: 12, m: 34, span: 12 }, clear: true, hl: [{ obj: "Sun" }, { obj: "Red Giant", label: "red giants", delay: 0.4 }] },
     { at: "supernovas", hl: [{ obj: "Red Giant", label: false }, { obj: "Supernova Remnant", label: "supernovae" }] },
+    { at: "supernovas", offset: 0.6, photo: "crab", obj: "Supernova Remnant", place: 0.72, dur: 4, kb: [1, 1.25], caption: "Crab Nebula · Hubble · 2005" },
     { at: "expand out into space", cam: { r: 17, m: 35, span: 12 },
       hl: [{ obj: "Supernova Remnant", label: false }, { arrow: true, from: { obj: "Supernova Remnant" }, to: { obj: "Stellar Nursery" } }, { obj: "Stellar Nursery", label: "new stars", delay: 0.6 }] },
 
     // ── Bigger means emptier ─────────────────────────────────
+    { at: "new generation", photo: "pillars", obj: "Stellar Nursery", place: 0.75, dur: 4.5, kb: [1, 1.3], focus: [0.5, 0.4], caption: "Pillars of Creation · Webb · 2022 · where stars are born" },
     { at: "mostly made of empty space", cam: { r: 20, m: 40, span: 24 }, clear: true },
     { at: "globular clusters", hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
+    { at: "dwarf galaxies", photo: "lmc", obj: "Dwarf Galaxy", place: 0.7, dur: 4, kb: [1, 1.25], caption: "Large Magellanic Cloud · a dwarf galaxy · Spitzer" },
     { at: "the less dense it is", hl: [{ obj: "Nebulae", label: "nebula" }, { obj: "Globular Cluster", label: false }, { obj: "Milky Way", label: false }] },
     { at: "empty space between the stars", cam: { obj: "Milky Way", span: 7 }, hl: [{ obj: "Milky Way", label: "~1 atom per cm³" }] },
     { at: "the milky way", hl: [{ obj: "Milky Way" }, { obj: "Andromeda (M31)", delay: 0.6 }] },
+    { at: "its sister", photo: "andromeda", obj: "Andromeda (M31)", place: 0.86, dur: 5, kb: [1, 1.3], caption: "Andromeda · Brody Wesner · 2025 · 2.5 million light-years away" },
     { at: "local group", hl: [{ obj: "Milky Way", label: false }, { obj: "Andromeda (M31)", label: "local group" }] },
     { at: "galaxy clusters are even", cam: { r: 24, m: 46.5, span: 10 }, hl: [{ obj: "Galaxy Cluster", label: "emptier still" }] },
+    { at: "galaxy clusters are even", offset: 0.8, photo: "smacs", obj: "Galaxy Cluster", place: 0.8, dur: 5, kb: [1, 1.4], caption: "Galaxy cluster SMACS 0723 · Webb · 2022" },
     { at: "superclusters", cam: { r: 26.2, m: 49.5, span: 7 }, hl: [{ obj: "Laniakea", label: "superclusters" }] },
     { at: "laniakea", hl: [{ obj: "Laniakea", label: "Laniakea · 100,000 galaxies" }] },
     { at: "those are the voids", hl: [{ obj: "Laniakea", label: false }, { obj: "Boötes Void", label: "voids" }, { obj: "KBC Void", label: false, delay: 0.4 }] },
@@ -91,6 +96,7 @@ export default {
     { at: "exactly on the black hole line", hl: [SCHW, { obj: HS, label: "on the black-hole line" }] },
     { at: "inside a black hole", hl: [SCHW, { obj: HS, label: "a black hole?" }] },
     { at: "represent event horizons", hl: [{ ...SCHW, label: "event horizons" }, { ...HUB, label: false }, { obj: HS, label: false }] },
+    { at: "represent event horizons", offset: 0.5, photo: "m87", dur: 3.5, fit: "contain", kb: [1, 1.15], caption: "M87*'s event horizon · Event Horizon Telescope · 2019" },
     { at: "can never come out", hl: [{ ...SCHW, label: "nothing gets out" }, { obj: HS, label: false }] },
     { at: "can never come in", hl: [SCHW, { obj: HS, label: "nothing gets in" }] },
     { at: "both are dependent", hl: [SCHW, { ...AVG, label: "both set by mass" }, { obj: HS, label: false }] },
@@ -103,14 +109,16 @@ export default {
     { at: "may well be infinite", cam: { r: 27, m: 54, span: 10 }, hl: [HUB, { side: "right", of: "hubble" }, { obj: HS, label: "beyond: probably more of the same" }] },
 
     // ── The two limits, and the observable universe ──────────
-    { at: "those two lines", cam: { r: 25, m: 51, span: 16 }, dur: 3, clear: true, hl: [{ ...SCHW, label: "black-hole line" }, { ...HUB, label: "Hubble line", delay: 0.6 }] },
+    { at: "those two lines", cam: { r: 26.5, m: 53.5, span: 12 }, dur: 6, drift: 0.02, clear: true, hl: [{ ...SCHW, label: "black-hole line" }, { ...HUB, label: "Hubble line", delay: 0.6 }] },
     { at: "upper limits", hl: [{ line: "triangle" }] },
     // the label sits on the observable universe's own dot, not on the arrow
     { at: "one more thing", cam: { r: 28.2, m: 56.4, span: 5 }, clear: true, hl: [{ obj: HS, label: false }] },
     { at: "46 billion", hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH }, { ...OU, label: "observable universe · 46 billion ly" }] },
     { at: "unreachable", hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH }, { ...OU, label: "beyond our reach" }] },
+    { at: "unreachable", offset: 0.4, photo: "xdf", dur: 6, kb: [1, 1.5], caption: "Hubble eXtreme Deep Field · 2012 · galaxies as they were, up to 13 billion years ago" },
     { at: "outside our triangle", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "outside the triangle" }] },
     { at: "an illusion", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "where they would be now" }] },
     { at: "history of our own past", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "a history of our own past" }] },
+    { at: "early universe", photo: "cmb", dur: 4, fit: "contain", kb: [1, 1.2], caption: "The cosmic microwave background · WMAP · 2012 · the oldest light" },
   ],
 };

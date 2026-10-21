@@ -34,6 +34,7 @@ export default {
     // Jupiter and Saturn make their own heat
     { at: "saturn and jupiter", cam: { r: 9.8, m: 30.05, span: 1.5 }, hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", delay: 0.3 }] },
     { at: "more heat than they absorb", hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", label: "gives off more heat than it gets" }] },
+    { at: "more heat than they absorb", offset: 0.6, photo: "jupiter-ir", obj: "Jupiter", dur: 5, fit: "contain", kb: [1, 1.15], caption: "Jupiter in infrared · Gemini North · 2021 · glowing with its own heat" },
     { at: "compressing in their core", hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", label: "slowly contracting" }] },
     { at: "as that mass increases", cam: { r: 9.85, m: 30.9, span: 1.7 },
       hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }, { obj: "T Brown Dwarf", label: false, delay: 0.8 }] },
@@ -42,6 +43,7 @@ export default {
     { at: "become brown dwarfs", hl: [{ obj: "Jupiter", place: "left" }, ...BD, { obj: "L Brown Dwarf", label: "brown dwarfs" }] },
     { at: "in-between objects", cam: { r: 9.9, m: 31.35, span: 1.8 },
       hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "L Brown Dwarf", label: "brown dwarf" }, { obj: "Proxima Cen", label: "star", delay: 0.5 }] },
+    { at: "in-between objects", offset: 0.5, photo: "gliese-229b", obj: "L Brown Dwarf", dur: 5, fit: "contain", kb: [1.35, 1.55], focus: [0.8, 0.5], caption: "Gliese 229B, the first brown dwarf ever seen · Hubble · 1995" },
     { at: "start fusing hydrogen", hl: [{ obj: "Jupiter", place: "left" }, ...BD, { obj: "L Brown Dwarf", label: "fuses a little" }] },
     { at: "form of deuterium", hl: [...BD, { obj: "L Brown Dwarf", label: "deuterium only" }] },
     { at: "minuscule portion", hl: [...BD, { obj: "L Brown Dwarf", label: "1 hydrogen in ~40,000" }] },
@@ -49,13 +51,14 @@ export default {
 
     // the fork: stars to the right, white dwarfs to the left
     { at: "increase that mass even further", cam: { r: 9.85, m: 32.6, span: 3 }, hl: [{ obj: "L Brown Dwarf", label: false }] },
-    { at: "bifurcation", hl: [{ obj: "L Brown Dwarf", label: false }, ...FORK] },
+    { at: "bifurcation", cam: { r: 9.9, m: 33.0, span: 3.8 }, dur: 5, drift: 0.02, hl: [{ obj: "L Brown Dwarf", label: false }, ...FORK] },
 
     // fusion turns on: the main sequence
     { at: "core pressure is strong enough", cam: { r: 10.4, m: 32.8, span: 1.9 }, clear: true, hl: [{ obj: "Proxima Cen", label: "fusion starts" }] },
     { at: "bigger in diameter", hl: [{ obj: "Proxima Cen", place: "left" }, { arrow: true, from: { obj: "Proxima Cen" }, to: { obj: "Sun" } }, { obj: "Sun", delay: 0.8 }] },
     { at: "other diagonal line", cam: { r: 10.9, m: 33.1, span: 3.6 }, hl: [{ obj: "Sun" }, { line: "mainsequence", label: "main sequence" }] },
     { at: "most stars will live", hl: [{ line: "mainsequence", label: "main sequence" }, { obj: "Sun" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
+    { at: "most stars will live", offset: 0.8, photo: "sun", obj: "Sun", place: 0.7, dur: 4.5, kb: [1, 1.12], caption: "The Sun · Matúš Motlo · 2019" },
     { at: "hydrogen is depleted", hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
 
     // the end of a star: collapse, expand, split
@@ -72,6 +75,7 @@ export default {
     { at: "those nebulas expand", cam: { r: 18.1, m: 33.7, span: 2.8 },
       hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
     { at: "stellar nurseries", hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Nebulae", label: "stellar nursery" }] },
+    { at: "stellar nurseries", offset: 0.4, photo: "pillars", obj: "Nebulae", place: 0.75, dur: 4.5, kb: [1, 1.3], focus: [0.5, 0.4], caption: "Pillars of Creation · Webb · 2022 · a stellar nursery" },
     { at: "protostars", cam: { r: 16.5, m: 34.2, span: 5.4 },
       hl: [{ obj: "Nebulae", label: false }, { arrow: true, from: { obj: "Nebulae" }, to: { obj: "Protostar" } }, { obj: "Protostar", delay: 0.6 }] },
     { at: "stars again", cam: { r: 14.6, m: 33.9, span: 9 }, hl: [{ obj: "Nebulae", label: false }, { arrow: true, from: { obj: "Nebulae" }, to: { obj: "Protostar" } },
@@ -86,9 +90,11 @@ export default {
     { at: ["protons and the electrons", "protons and electrons"], cam: { r: 6.35, m: 33.75, span: 2 }, hl: [{ line: "chandrasekhar" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "protons + electrons → neutrons", place: "right" }] },
     { at: "create a neutron star", hl: [{ line: "chandrasekhar" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "neutron star", place: "right" },
       { line: "tov", label: "neutron star limit · ~2.2–2.3 Suns", delay: 0.8 }] },
+    { at: "create a neutron star", offset: 0.8, photo: "crab", obj: "PSR J0030+0451", place: 0.72, dur: 4.2, kb: [1, 1.3], caption: "Crab Nebula · Hubble · 2005 · a neutron star at its heart" },
     { at: "single spoonful", hl: [{ line: "tov" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "a teaspoon ≈ 2 billion tonnes", place: "right" }] },
     { at: "collapse into a black hole", hl: [{ line: "tov", label: "above it: black hole" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
     // teaser for the black-hole video: the edge they sit on
+    { at: "collapse into a black hole", offset: 1.0, photo: "m87", obj: "Stellar BH", dur: 3.4, fit: "contain", kb: [1, 1.15], caption: "M87* · Event Horizon Telescope · 2019" },
     { at: "deserves a video", cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
       hl: [{ line: "schwarzschild" }, { obj: "Stellar BH", label: "next: black holes" }] },
   ],

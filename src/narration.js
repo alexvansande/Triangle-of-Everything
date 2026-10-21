@@ -269,7 +269,7 @@ export async function startNarration(app) {
   layer.id = "narr-layer";
   if (!RENDER) layer.classList.add("live");     // the player's own UI (renders have none)
   const track = SCENE.backing && (typeof SCENE.backing === "string" ? SCENE.backing : SCENE.backing.track);
-  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-caption"></div>` + creditsHTML(track) +
+  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-photo"><div class="np-imgs"></div><div class="np-cap"></div></div><div id="narr-caption"></div>` + creditsHTML(track) +
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
       <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div>
       <a id="narr-next" href="#" hidden></a>
@@ -292,6 +292,73 @@ export async function startNarration(app) {
   const gHl = nsvg.append("g").attr("class", "narr-hl");
   const gHlFree = nsvg.append("g").attr("class", "narr-hl-free"); // axis bands: never clipped
   const capEl = document.getElementById("narr-caption");
+
+  // ---------- photo cutaways ----------
+  // { at, photo: "m87" | ["hyperion", "vesta", …], caption: "what · who · when", labels?: […],
+  //   obj?: dot it grows from, dur?: s (6), fit?: "cover" | "contain", kb?: [scale from, to],
+  //   focus?: [x, y] (0–1 in the image, where the Ken Burns push heads),
+  //   place?: true | width (fraction of the screen, default 0.78) }
+  // Full screen (default): a black disc grows out of the object's dot until it fills the
+  // frame, with the real photo inside; the photo pushes in slowly under its caption, then
+  // shrinks back into the dot. `place`: the photo opens as a soft-edged round window on
+  // the chart itself, over the dot, with the chart still around it (nebulae, galaxies).
+  // Files: public/narration/photos/<name>.jpg (credits in video/photos/CREDITS.md).
+  const PHOTO_IN = 0.9, PHOTO_OUT = 0.8;
+  const photoUrl = (n) => `${import.meta.env.BASE_URL}narration/photos/${n}.jpg`;
+  const photos = cues.filter(c => c.photo).map(c => ({ ...c, names: [].concat(c.photo),
+    t0: c.time, t1: c.time + (c.dur ?? 6) }));
+  const photoImgs = new Map();
+  for (const p of photos) for (const n of p.names) if (!photoImgs.has(n)) {
+    const im = new Image(); im.decoding = "sync"; im.src = photoUrl(n); photoImgs.set(n, im);
+  }
+  const photoEl = document.getElementById("narr-photo");
+  const photoBox = photoEl.querySelector(".np-imgs"), photoCap = photoEl.querySelector(".np-cap");
+  let photoShown = null;
+  function drawPhoto(t) {
+    const p = photos.find(q => t >= q.t0 && t < q.t1 + PHOTO_OUT);
+    const reveal = p ? smooth((t - p.t0) / PHOTO_IN) * (1 - smooth((t - p.t1) / PHOTO_OUT)) : 0;
+    if (reveal <= 0.001) { photoEl.style.visibility = "hidden"; return; }
+    const SW = layer.clientWidth, SH = layer.clientHeight;
+    if (photoShown !== p) {
+      photoShown = p;
+      photoBox.className = "np-imgs" + (p.names.length > 1 ? " np-stack" : "");
+      photoBox.innerHTML = p.names.map((n, i) => `<figure><img src="${photoUrl(n)}" alt="">` +
+        (p.labels?.[i] ? `<figcaption>${p.labels[i]}</figcaption>` : "") + `</figure>`).join("");
+      photoBox.querySelectorAll("img").forEach(im => { im.style.objectFit = p.fit || (p.names.length > 1 ? "contain" : "cover"); });
+      const [what, ...rest] = (p.caption || "").split(" · ");
+      photoCap.innerHTML = p.caption ? `<b>${what}</b>${rest.join(" · ")}` : "";
+    }
+    // grow from the object's dot (or the middle), on the camera as it is now
+    let cx = SW / 2, cy = SH / 2;
+    const o = p.obj && objByName.get(p.obj);
+    if (o) { cx = Math.min(SW, Math.max(0, sx(o.logR))); cy = Math.min(SH, Math.max(0, sy(o.logM))); }
+    photoEl.style.visibility = "visible";
+    if (p.place) {
+      // a round window on the chart: centred on the dot, pulled towards the middle so it fits
+      const R = SW * (p.place === true ? 0.78 : p.place) / 2 * reveal ** 0.8;
+      const wx = Math.min(SW - R - 4, Math.max(R + 4, cx)), wy = Math.min(SH * 0.78 - R, Math.max(SH * 0.16 + R, cy));
+      const qx = cx + (wx - cx) * reveal, qy = cy + (wy - cy) * reveal;
+      photoEl.style.background = "transparent";
+      photoEl.style.clipPath = "none";
+      const m = `radial-gradient(circle ${R.toFixed(1)}px at ${qx.toFixed(1)}px ${qy.toFixed(1)}px, #000 82%, transparent 100%)`;
+      photoEl.style.maskImage = photoEl.style.webkitMaskImage = m;
+      Object.assign(photoBox.style, { left: `${(qx - R).toFixed(1)}px`, top: `${(qy - R).toFixed(1)}px`,
+        width: `${(2 * R).toFixed(1)}px`, height: `${(2 * R).toFixed(1)}px`, right: "auto", bottom: "auto" });
+    } else {
+      const far = Math.hypot(Math.max(cx, SW - cx), Math.max(cy, SH - cy));
+      photoEl.style.background = "";
+      photoEl.style.maskImage = photoEl.style.webkitMaskImage = "none";
+      Object.assign(photoBox.style, { left: "0", top: "0", width: "100%", height: "100%" });
+      photoEl.style.clipPath = `circle(${(12 + (far - 12) * reveal ** 1.4).toFixed(1)}px at ${cx.toFixed(1)}px ${cy.toFixed(1)}px)`;
+    }
+    // Ken Burns: a slow push towards the focus point over the whole cutaway
+    const [k0, k1] = p.kb || [1, 1.12], [fx, fy] = p.focus || [0.5, 0.5];
+    const k = clamp01((t - p.t0) / (p.t1 + PHOTO_OUT - p.t0));
+    const sc = k0 + (k1 - k0) * (0.5 - Math.cos(Math.PI * k) / 2);
+    photoBox.style.transformOrigin = `${(fx * 100).toFixed(2)}% ${(fy * 100).toFixed(2)}%`;
+    photoBox.style.transform = `scale(${sc.toFixed(4)})`;
+    photoCap.style.opacity = (smooth((t - p.t0 - PHOTO_IN * 0.6) / 0.5) * (1 - smooth((t - p.t1 + 0.3) / 0.4))).toFixed(3);
+  }
 
   let curT = 0;
   const sx = (r) => app.plot().x + app.px(r);
@@ -865,6 +932,7 @@ export async function startNarration(app) {
   function overlay() {
     drawUnits(curT);
     drawHighlights(curT);
+    drawPhoto(curT);
     drawCaption(curT);
   }
   app.onRedraw(() => { gHl && overlay(); });
@@ -890,7 +958,9 @@ export async function startNarration(app) {
     renderAt,
     settle(t) { const { view } = camera(t); app.setCamera(view, false); overlay(); },
     camera: (t) => camera(t).view,
-    pending: () => app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1),
+    pending: () => app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
+      [...photoImgs.values()].filter(im => !im.complete).length +
+      [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length,
     audio: base + take.audio,
   };
   if (RENDER) return;
@@ -1139,6 +1209,20 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
   letter-spacing: 0.01em; color: #fff;
   -webkit-text-stroke: 6px #000; paint-order: stroke fill; }
 #narr-caption span { color: #fff; }
+#narr-photo { position: absolute; inset: 0; background: #000; overflow: hidden; visibility: hidden; pointer-events: none; }
+#narr-photo .np-imgs { position: absolute; inset: 0; will-change: transform; }
+#narr-photo figure { position: absolute; inset: 0; margin: 0; }
+#narr-photo img { width: 100%; height: 100%; display: block; }
+#narr-photo .np-stack { display: flex; flex-direction: column; justify-content: center; gap: 2%; padding: 15% 8% 30%; box-sizing: border-box; }
+#narr-photo .np-stack figure { position: relative; flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; }
+#narr-photo .np-stack img { flex: 1 1 0; min-height: 0; }
+#narr-photo figcaption { margin-top: 4px; font: 700 17px/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #ffd54f; }
+#narr-photo .np-cap { position: absolute; left: 6%; right: 6%; top: 6.5%; text-align: center;
+  font: 600 15px/1.25 Inter, system-ui, sans-serif; letter-spacing: 0.02em; color: rgba(255,255,255,0.88);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 2px #000; }
+#narr-photo .np-cap b { display: block; margin-bottom: 3px; font: 700 26px/1 "Barlow Condensed", "Arial Narrow", sans-serif;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #ffd54f; }
 /* in the player, the captions sit above the lifted scrubber */
 #narr-layer.live #narr-caption { bottom: max(8.5%, calc(env(safe-area-inset-bottom, 0px) + 92px)); }
 #narr-credits { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0;

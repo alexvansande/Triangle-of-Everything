@@ -36,7 +36,8 @@ execFileSync("npx", ["vite", "build", "--mode", "narration-preview", "--base", "
 const rm = (p) => fs.rmSync(path.join(OUT, p), { recursive: true, force: true });
 ["tiles/z5", "og", "og-preview.jpg", "hyperspirograph.html", "hiperspirograph.html", "spirograph-tour.md",
  "sw.js", "manifest.webmanifest", "CNAME", "favicon.png", "apple-touch-icon.png"].forEach(rm);
-for (const t of fs.readdirSync(path.join(OUT, "narration"))) if (!takes.includes(t)) rm(`narration/${t}`);
+// photos/ holds the cutaways' pictures, shared by every take
+for (const t of fs.readdirSync(path.join(OUT, "narration"))) if (!takes.includes(t) && t !== "photos") rm(`narration/${t}`);
 // The audio goes out as MP3: some hosts (claude.ai pages) don't serve .m4a.
 for (const t of takes) {
   const dir = path.join(OUT, "narration", t), wj = path.join(dir, "words.json");

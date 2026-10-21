@@ -18,7 +18,7 @@ const WATER = { line: "water" };
 export default {
   title: "Water to brown dwarfs",
   blurb: "From a liter of water up the density line: what sinks and floats, animals, mountains, round worlds, gas giants and the brown dwarfs.",
-  start: CLOSE,
+  start: { ...CLOSE, span: 13 },   // a slow push in to CLOSE over the opening
   captionFixes: { short: "chart", math: "mass", mess: "mass" },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
@@ -32,7 +32,7 @@ export default {
 
   cues: [
     // the diagonal, a liter, the cube law (rec27)
-    { at: "everything in the universe", cam: CLOSE, drift: 0.02,
+    { at: "everything in the universe", cam: CLOSE, dur: 11, drift: 0.02,
       hl: [{ obj: "Microchip" }, { obj: "Human", delay: 0.6 }, { obj: "Great Pyramid", delay: 1.2 }] },
     { at: "this diagonal line", hl: [{ line: "water", label: "the diagonal" }] },
     { at: "one liter of water", cam: { obj: "1 Liter of Water", span: 4.5 },
@@ -74,15 +74,18 @@ export default {
     { at: "larger animals", cam: { r: 2.7, m: 7.6, span: 4 }, hl: [WATER, { obj: "Elephant" }, { obj: "Blue Whale", delay: 0.5 }] },
     { at: "dinosaurs", hl: [WATER, { obj: "Tyrannosaurus rex", label: "T. rex", place: "left" }, { obj: "Argentinosaurus", label: "Argentinosaurus", delay: 0.4 }] },
     { at: "the blue whale", cam: { obj: "Blue Whale", span: 2.5 }, hl: [{ obj: "Blue Whale", label: "largest animal" }] },
+    { at: "the blue whale", offset: 0.6, photo: "blue-whale", obj: "Blue Whale", dur: 3.2, kb: [1.04, 1.18], caption: "Blue whale · NOAA · the largest animal that ever lived" },
     { at: "the sequoia", hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // what we build
+    { at: "the sequoia", offset: 0.6, photo: "sequoia", obj: "Sequoia", dur: 3.4, kb: [1, 1.15], focus: [0.5, 0.3], caption: "Grizzly Giant sequoia · Yosemite · 2005" },
     { at: "engineering phase", cam: { r: 3.7, m: 10, span: 3.5 }, clear: true,
       hl: [{ obj: "Boeing 747" }, { obj: "Supertanker", delay: 0.3 }] },
     { at: "the eiffel tower", cam: { obj: "Eiffel Tower", span: 1.4 }, dur: 2, hl: [{ obj: "Eiffel Tower" }] },
     { at: "very to the right", cam: { obj: "Eiffel Tower", dr: -0.4, span: 2.4 }, hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
 
     // mountains, rocks and small moons
+    { at: "lot of empty space", photo: "eiffel", obj: "Eiffel Tower", dur: 6, kb: [1, 1.5], focus: [0.5, 0.45], caption: "Eiffel Tower · 7,300 t of iron, mostly air" },
     { at: "the great pyramid", cam: { obj: "Great Pyramid", span: 2.5 }, hl: [{ obj: "Great Pyramid" }] },
     { at: "hills and mountains", cam: { r: 5, m: 15.4, span: 4 }, hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Mt. Everest", delay: 0.3 }] },
     { at: "a mountain itself", hl: [{ obj: "Great Pyramid", label: "a mountain", place: "left" }, { obj: "Mt. Everest" }] },
@@ -92,14 +95,17 @@ export default {
     { at: "small moons", hl: [{ obj: "Halley's Comet", place: "left" }, { obj: "Deimos", label: false }, { obj: "Phobos", label: "moons of Mars" }] },
 
     // round worlds
+    { at: "deimos", offset: 0.4, photo: ["phobos", "deimos"], labels: ["Phobos", "Deimos"], obj: "Phobos", dur: 4.5, caption: "Moons of Mars · Mars Reconnaissance Orbiter · 2008–09" },
     { at: "past hyperion", cam: { r: 7.4, m: 22.9, span: 4.5 },
       hl: [{ obj: "Hyperion", place: "left", label: "Hyperion · lumpy" }, { obj: "Vesta", delay: 0.4 }, { obj: "Mimas", delay: 0.8 }, { obj: "Ceres", delay: 1.2 }, { obj: "Pluto", delay: 1.6 }] },
+    { at: "more and more round", photo: ["hyperion", "vesta", "ceres", "pluto"], labels: ["Hyperion · 135 km", "Vesta · 263 km", "Ceres · 470 km", "Pluto · 1,188 km"], obj: "Ceres", dur: 6, kb: [1, 1.04], caption: "From lumpy to round · Cassini, Dawn, New Horizons" },
     { at: "force of gravity", hl: [{ obj: "Hyperion", place: "left" }, { obj: "Mimas" }, { obj: "Ceres" }, { obj: "Pluto", label: "round" }] },
     { at: "treated like a liquid", hl: [{ obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
 
     // atmospheres
     { at: "hill of mass", cam: { r: 8.6, m: 27.1, span: 3.4 }, clear: true },
     { at: "moon and mercury", hl: [{ obj: "Moon", label: "Moon · none", place: "left" }, { obj: "Mercury", label: "Mercury · none", place: "left" }] },
+    { at: "no atmosphere", photo: ["mercury", "mars", "earth"], labels: ["Mercury · none", "Mars · thin", "Earth · thick"], obj: "Mars", dur: 6, kb: [1, 1.04], caption: "Atmospheres · MESSENGER · Kevin M. Gill · Meteosat-12" },
     { at: "very thin", hl: [{ obj: "Mercury", label: "Mercury", place: "left" }, { obj: "Mars", label: "Mars · thin" }] },
     { at: "venus and earth", hl: [{ obj: "Mars" }, { obj: "Earth", delay: 0.2 }, { obj: "Venus", place: "left", delay: 0.5 }] },
     { at: "float out into space", cam: { r: 9.1, m: 28.6, span: 4.6 }, hl: [{ obj: "Earth", label: "hydrogen escapes", place: "left" }] },
@@ -107,9 +113,11 @@ export default {
     // gas giants
     { at: "balloon into gas giants", cam: { r: 9.65, m: 29.8, span: 2.4 },
       hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn", delay: 0.3 }, { obj: "Jupiter", delay: 0.6 }] },
+    { at: "ordinary matter", photo: "jupiter", obj: "Jupiter", dur: 5, fit: "contain", kb: [1, 1.2], caption: "Jupiter · Hubble · 2024 · mostly hydrogen and helium" },
     { at: "become a gas giant", hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn", label: "gas giants" }, { obj: "Jupiter", label: false }] },
     { at: "rocky planets", cam: { r: 9.5, m: 29.4, span: 2.8 }, hl: [WATER, { obj: "Earth", place: "left" }, { obj: "Neptune", place: "left" }] },
     { at: "right side of the line", cam: { obj: "Saturn", span: 1.5 }, hl: [WATER, { obj: "Neptune", place: "left" }, { obj: "Saturn", label: "Saturn · right of the line" }] },
+    { at: "less dense than water", photo: "saturn", obj: "Saturn", dur: 4, fit: "contain", kb: [1, 1.12], caption: "Saturn · Cassini · 2009 · it would float" },
     { at: "would float", cam: { obj: "Saturn", span: 1.1 }, hl: [WATER, { obj: "Saturn", label: "Saturn · would float", place: "left" }] },
 
     // super-Jupiters and degenerate matter
@@ -123,13 +131,14 @@ export default {
     // the split
     { at: "graph will split", cam: { r: 9.9, m: 32.6, span: 5 },
       hl: [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "brown dwarfs" }] },
-    { at: "shooting to the right",
+    // travel up each branch: the stars to the right, the dead stars to the left
+    { at: "shooting to the right", cam: { obj: "Sun", dr: -0.5, dm: -0.3, span: 3.4 }, dur: 2.6,
       hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" }] },
-    { at: "shooting to the left", hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
+    { at: "shooting to the left", cam: { obj: "White Dwarf", dr: 0.5, dm: -0.3, span: 3.4 }, dur: 2.6, hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
       { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#90caf9" }] },
-    { at: "on the brown dwarfs", hl: [{ obj: "L Brown Dwarf", label: "brown dwarfs" }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f", draw: 0.01 },
+    { at: "on the brown dwarfs", cam: { r: 9.9, m: 32.4, span: 4.4 }, dur: 2.4, hl: [{ obj: "L Brown Dwarf", label: "brown dwarfs" }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f", draw: 0.01 },
       { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#90caf9", draw: 0.01 }] },
-    { at: "life and death of stars", hl: [{ obj: "Sun", label: "stars" }, { obj: "White Dwarf", label: "dead stars", place: "left" },
+    { at: "life and death of stars", cam: { r: 9.9, m: 32.9, span: 5.6 }, dur: 5, drift: 0.02, hl: [{ obj: "Sun", label: "stars" }, { obj: "White Dwarf", label: "dead stars", place: "left" },
       { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f", draw: 0.01 },
       { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#90caf9", draw: 0.01 }] },
   ],

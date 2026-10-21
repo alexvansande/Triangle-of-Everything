@@ -44,7 +44,7 @@ export default {
 
   cues: [
     // ── The chart so far ─────────────────────────────────────
-    { at: "could have ever existed", cam: FULL, dur: 2, hl: [{ line: "triangle" }] },
+    { at: "could have ever existed", cam: { r: 3, m: 9, span: 56 }, dur: 12, drift: 0.02, hl: [{ line: "triangle" }] },
     { at: "horizontal axis", hl: [{ axis: "bottom", label: "size" }] },
     { at: "vertical axis", hl: [{ axis: "left", label: "mass" }] },
     { at: "density scatter plot", cam: { r: 2, m: 6, span: 44 }, hl: [{ line: "water", label: "density" }] },
@@ -69,8 +69,8 @@ export default {
       { ellipse: [21.85, 41.6, 0.95, 2.3], label: "galaxies", place: "above", color: "#80deea", delay: 0.75 },
     ] },
     { at: "sit all on this line", icons: true, hl: [KNOWN, { ...SCHW, label: "black holes" }] },
-    { at: "called the schwarzschild radius", hl: [{ ...SCHW, label: "schwarzschild radius" }] },
-    { at: "top left limit", cam: FULL, hl: [{ line: "triangle" }, { ...SCHW, label: "nothing crosses it" }, { side: "left", of: "schwarzschild" }] },
+    { at: "called the schwarzschild radius", cam: { obj: "Sgr A*", span: 15 }, dur: 6, drift: 0.02, hl: [{ ...SCHW, label: "schwarzschild radius" }] },
+    { at: "top left limit", cam: { r: 11, m: 38.6, span: 20 }, dur: 4, hl: [{ line: "triangle" }, { ...SCHW, label: "nothing crosses it" }, { side: "left", of: "schwarzschild" }] },
     { at: "too small or too massive", cam: { r: 5, m: 28, span: 16 },
       hl: [SCHW, { obj: "Earth" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), label: "squeeze to 9 mm", delay: 0.6 }] },
     { at: "actually cross it", hl: [{ ...SCHW, label: "every black hole is here" }] },
@@ -87,18 +87,20 @@ export default {
     { at: "hundreds and thousands", cam: { r: 11, m: 38.6, span: 20 }, hl: [{ ...SCHW, label: "every known black hole" }] },
     { at: "our own milky way", cam: { r: 14, m: 41.5, span: 12 }, hl: [{ obj: "Sgr A*", label: "sgr a* · our galaxy's" }] },
     { at: ["4 million", "four million"], hl: [{ obj: "Sgr A*", label: "4 million suns" }] },
+    { at: ["4 million", "four million"], offset: 1.0, photo: "sgr-a", obj: "Sgr A*", dur: 4, fit: "contain", kb: [1, 1.15], caption: "Sagittarius A*, our galaxy's black hole · Event Horizon Telescope · 2022" },
     { at: "become less dense", cam: { r: 13.5, m: 41.3, span: 14 }, hl: [SCHW, { line: "water", label: "water" }] },
     { at: "lighter than water", hl: [SCHW, { line: "water", label: "water" }, { side: "right", of: "water" },
       { obj: "Sgr A*", label: "denser than water", place: "left" }, { obj: "M87*", label: "lighter than water", delay: 0.6 }] },
     { at: "float on a pool", hl: [{ line: "water" }, { side: "right", of: "water" }, { obj: "M87*", label: "it would float" }, { obj: "Ton 618", label: false }] },
     { at: "m87", cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: "m87* · first photographed", place: "left" }] },
+    { at: "first one", offset: 0.3, photo: "m87", obj: "M87*", dur: 4.2, fit: "contain", kb: [1, 1.15], caption: "M87*, the first black hole ever photographed · Event Horizon Telescope · 2019" },
     { at: "largest black hole", hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "ton 618", place: "left" }] },
     { at: "our solar system", hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "horizon ≈ 40× neptune's orbit", place: "left" }] },
     { at: "60 billion", hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "~60 billion suns", place: "left" }] },
 
     // ── The small ones ───────────────────────────────────────
-    { at: "how small they can be", cam: { r: -4, m: 24, span: 40 }, dur: 3, clear: true, hl: [{ ...SCHW, label: "the smallest" }] },
-    { at: "with enough pressure", cam: { r: 3, m: 28, span: 24 },
+    { at: "how small they can be", cam: { r: -2, m: 25, span: 28 }, dur: 4, clear: true, hl: [{ ...SCHW, label: "the smallest" }] },
+    { at: "with enough pressure", cam: { r: 3, m: 28, span: 24 }, dur: 6,
       hl: [SCHW, { obj: "Earth" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), label: "squeeze to 9 mm", delay: 0.6 }] },
     { at: "core of dying stars", cam: { obj: "Stellar BH", span: 8 }, hl: [{ obj: "Stellar BH", label: "collapsed stars" }] },
     { at: "early moments of the big bang", cam: { r: -8, m: 18, span: 34 }, clear: true },
@@ -108,6 +110,7 @@ export default {
     // the window narrowing as each survey is named: a red band along the
     // Schwarzschild line from the Planck mass to ~1e5 Suns, cut down to what's
     // still open (log10 g; docs/dark-matter-constraints.md)
+    { at: "soup of very hot", offset: 2.0, photo: "cmb", dur: 5, fit: "contain", kb: [1, 1.25], caption: "The cosmic microwave background · WMAP · 2012 · the soup, 380,000 years after the Big Bang" },
     { at: "still be around", cam: { r: -11, m: 16.8, span: 46 }, clear: true, hl: [{ window: W0, label: "could they\nbe here?", dist: 60 }] },
     { at: "quasars", hl: [{ window: W1, from: W0, trace: W0, cuts: [{ ...QSO, label: "ruled out by\nquasar light" }] }] },
     { at: "cosmic background radiation", hl: [{ window: W2, from: W1, trace: W0, cuts: [QSO, { ...CMB, label: "ruled out by the\nmicrowave background" }] }] },
@@ -135,19 +138,20 @@ export default {
     { at: ["ten times", "10 times"], hl: [{ ...GAL_DROP, shiftAt: -10, label: "about 10× lighter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
     // a slow pull back from the galaxies instead of holding on the dark-matter line
     { at: "of course dark matter", cam: { r: 14, m: 36, span: 44 }, dur: 9, hl: [{ ...GAL, label: "dark matter", labelY: 0.12 }] },
-    { at: "research on neutron stars", cam: { r: -8.6, m: 19.4, span: 12 }, clear: true,
+    { at: "research on neutron stars", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 5, clear: true,
       hl: [{ window: W6, from: W5, trace: W0, cuts: [ML, HAW, { ...NS, label: "might be ruled out\nby neutron stars" }] }] },
-    { at: "empty space in the universe", hl: [{ window: W5, from: W6, trace: W0, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
+    { at: "empty space in the universe", cam: { r: -7.4, m: 20.6, span: 10 }, dur: 9, drift: 0.01, hl: [{ window: W5, from: W6, trace: W0, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
 
     // ── Ending: maybe most matter is in tiny black holes ─────
     // a mountain's mass (1e18 g, Everest on the chart) read off both axes on the line
     { at: "much as a mountain", hl: [{ window: W5, cuts: [ML, HAW, NS] },
       { cross: BH(18), mass: "1 trillion tonnes", size: "radius 1.5 picometres", delay: 0.2 }] },
-    { at: "something else is dark matter", cam: { r: 4, m: 30, span: 50 }, dur: 6, clear: true },
+    { at: "something else is dark matter", cam: { r: 0, m: 25, span: 34 }, dur: 6, clear: true },
     // radiation era: ρ ≈ 4.5e5 g/cm³ / t² (t in s); 1e44 g/cm³ at ~1e-19 s, which meets the
     // black-hole line at ~2e19 g, in the window
     { at: "early moments of our history", cam: { r: -8.6, m: 19.4, span: 12 }, clear: true,
       hl: [{ density: 44, label: "density of universe\nfirst instants after big bang" }] },
-    { at: "lucky few survivors", cam: FULL, dur: 3, hl: [{ line: "water", label: "everything else" }] },
+    { at: "lucky few survivors", cam: { r: 3, m: 12, span: 40 }, dur: 6, drift: 0.02, hl: [{ line: "water", label: "everything else" }] },
+    { at: "lucky few", offset: 0.4, photo: "xdf", dur: 3.2, kb: [1, 1.5], caption: "Hubble eXtreme Deep Field · 2012 · the lucky few" },
   ],
 };
