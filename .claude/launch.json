@@ -4,14 +4,85 @@
     {
       "name": "dev",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite"],
+      "runtimeArgs": [
+        "vite"
+      ],
       "port": 5173
     },
     {
       "name": "preview",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "preview", "--host", "--port", "4173"],
+      "runtimeArgs": [
+        "vite",
+        "preview",
+        "--host",
+        "--port",
+        "4173"
+      ],
       "port": 4173
+    },
+    {
+      "name": "pr11",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "/Users/avsa/Dev/Triangle-pr11",
+        "--port",
+        "5181",
+        "--strictPort"
+      ],
+      "port": 5181
+    },
+    {
+      "name": "narration",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "/Users/avsa/Dev/Triangle-narration",
+        "--port",
+        "5182",
+        "--strictPort"
+      ],
+      "port": 5182
+    },
+    {
+      "name": "narration-home",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "preview",
+        "/Users/avsa/Dev/Triangle-narration",
+        "--outDir",
+        "dist-preview",
+        "--port",
+        "5183",
+        "--strictPort"
+      ],
+      "port": 5183
+    },
+    {
+      "name": "shorts",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "/Users/avsa/Dev/Triangle-shorts",
+        "--port",
+        "5184",
+        "--strictPort"
+      ],
+      "port": 5184
+    },
+    {
+      "name": "pbh",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "/Users/avsa/Dev/Triangle-pbh",
+        "--port",
+        "5185",
+        "--strictPort"
+      ],
+      "port": 5185
     }
   ]
 }
