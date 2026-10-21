@@ -20,7 +20,7 @@ https://creativecommons.org/licenses/by/4.0/
 | Dreamer | short-02-density | `Dreamer.mp3` | 3:24 |
 | Soaring | short-03-planets | `Soaring.mp3` | 6:20 |
 | Immersed | short-04-stars | `Immersed.mp3` | 4:09 |
-| Fresh Air | (spare) | `Fresh Air.mp3` | 4:54 |
+| Fresh Air | short-06-hubble-sphere | `Fresh Air.mp3` | 4:54 |
 | Mesmerize | short-05-black-holes | `Mesmerize.mp3` | 7:04 |
 
 The music is mixed under the voice: lowered, faded in and out, ducked while
