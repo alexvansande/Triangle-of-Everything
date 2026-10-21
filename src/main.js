@@ -76,6 +76,7 @@ const ICON_SIZE_MULT = {
   "saturn": 2,
   "primordial-black-hole": 2, "3k-bh": 2, "stellar-bh": 2,
   "sgr-a": 2, "m87": 2, "ton-618": 2,
+  "neutron-star": 2.5, // beams span the icon; the star is ~40% of it
 };
 
 // Physical size scaling: for every 6 orders of magnitude in real radius,
