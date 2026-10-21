@@ -42,5 +42,12 @@ titles, blurbs, music and schedule in `video/youtube.json`, the description from
 from words.json, the playlist. Dry run by default; `--upload` sends, private unless
 `youtube.json` says otherwise. Uploaded IDs are kept in `video/youtube-uploads.json`.
 
+**Visibility (2026-10-20):** the test upload of short-01-hook (jDmPwXFs8vQ) could be
+switched to unlisted in Studio, so this API project (Wandering About, 974507465706) is
+not locked to private: no YouTube API audit needed. Workflow: the script uploads private,
+Alex publishes or schedules in Studio. Still to try: `publishAt` from the script
+(fully automatic scheduling). The OAuth app is in Testing mode, so the sign-in expires
+weekly; switch it to "In production" before any unattended job.
+
 YouTube counts a vertical video as a Short only up to 3:00: 01 and 02 qualify; 03, 04
 and 05 go up as regular vertical videos unless trimmed.
