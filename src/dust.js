@@ -22,6 +22,7 @@
 // =============================================================
 
 import dustUrl from "./dust.json?url";
+import { applyBulkDust } from "./bulk-density.js";
 
 const DUST_GAP = 5;        // px — minimum spacing between dust dots
 const DUST_R = 1.15;       // px — dot radius
@@ -52,6 +53,9 @@ export function loadDust() {
     const names = new Array(n);
     const r = Float32Array.from(rr), m = Float32Array.from(mm);
     const src = Uint8Array.from(ss);
+    // Non-round things to their bulk-density ball radius (bulk-density.js);
+    // rSpan keeps the catalogue's half-longest-dimension radius.
+    const rSpan = applyBulkDust(r, m, src, sources, name);
     for (let i = 0; i < n; i++) {
       const so = sources[src[i]];
       names[i] = so.pre + name[i] + so.suf;
@@ -70,7 +74,7 @@ export function loadDust() {
       const j = Math.floor(rnd() * (i + 1));
       const t = rank[i]; rank[i] = rank[j]; rank[j] = t;
     }
-    _data = { names, r, m, src, rank, sources };
+    _data = { names, r, rSpan, m, src, rank, sources };
     return _data;
   });
   return _loading;

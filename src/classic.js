@@ -14,7 +14,9 @@
 import * as d3 from "d3";
 import "./classic.css";
 import { SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M } from "./data.js";
-import objectsData from "./objects.json";
+import rawObjects from "./objects.json";
+import { applyBulkObjects } from "./bulk-density.js";
+const objectsData = applyBulkObjects(rawObjects);
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan } from "./trackpad-pan.js";
 import { loadDust, dustArrays } from "./dust.js";
