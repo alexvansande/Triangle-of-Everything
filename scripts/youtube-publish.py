@@ -154,7 +154,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--upload", action="store_true", help="really upload (default: dry run)")
     ap.add_argument("--only", action="append", help="just this take (repeatable)")
-    ap.add_argument("--force", action="store_true", help="upload again even if already uploaded")
+    ap.add_argument("--force", action="store_true",
+                    help="upload again even if already uploaded; the earlier upload is deleted if it is still private")
     ap.add_argument("--captions-only", action="store_true", help="write output/videos/<take>.srt and stop")
     ap.add_argument("--update", action="store_true",
                     help="rewrite title, description and tags of videos already uploaded (after editing youtube.json or DESCRIPTION.md)")
@@ -191,6 +192,14 @@ def main():
             print(f"  privacy: {v.get('privacy', cfg['privacy'])}" + (f", goes public {v['publishAt']}" if v.get("publishAt") else ""))
             print("  description:\n    " + description(v).replace("\n", "\n    "))
             continue
+        if take in state:   # --force: replace the earlier upload, but only while nobody can see it
+            old = state[take]["id"]
+            items = yt.videos().list(part="status", id=old).execute().get("items", [])
+            if items and items[0]["status"]["privacyStatus"] == "private":
+                yt.videos().delete(id=old).execute()
+                print(f"  deleted the earlier private upload {old}")
+            elif items:
+                print(f"  keeping the earlier upload {old}: it is {items[0]['status']['privacyStatus']} (delete it in Studio if you mean to)")
         vid = upload(yt, v, path, cfg)
         print(f"  uploaded: https://youtu.be/{vid}")
         state[take] = {"id": vid, "title": v["title"], "uploadedAt": datetime.datetime.now().isoformat(timespec="seconds")}
