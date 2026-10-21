@@ -39,7 +39,7 @@ import {
 } from "./water-phase.js";
 import introRaw from "../content/intro.md?raw";
 import "./style.css";
-import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, isTourActive, closeTour } from "./tour.js";
+import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, tourGoTo, logAllSteps, isTourActive, closeTour } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
@@ -287,6 +287,64 @@ const BOTTOM_MARGIN_DEFAULT = 80;
 const BOTTOM_MARGIN_MIN = 50;
 const BOTTOM_MARGIN_MAX = 200;
 
+// ---------- Axis type & column layout ----------
+// Axis type follows the Font size setting (base sizes below, CSS px at
+// 100%), and each axis column is laid out FROM that type: frame → ticks →
+// decade numbers → named references → rotated title + subtitle, using the
+// measured width of the widest label in each column. A column's default
+// width is what that layout needs, so bigger type widens the column rather
+// than overflowing it; a column dragged narrower shrinks its type to fit.
+const AXIS_FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+const AXIS_TYPE = { num: 15, minor: 10.5, ref: 12.5, title: 12, sub: 10 };
+// Top and bottom keep their designed geometry, scaled with the type.
+const AXIS_TB_SCALE = { top: 1.25, bottom: 1.15 };
+const _axCtx = document.createElement("canvas").getContext("2d");
+const _axWidths = new Map();
+function axTextWidth(labels, px, weight) {
+  const key = `${labels[0]}|${labels.length}|${px}|${weight}`;
+  let w = _axWidths.get(key);
+  if (w == null) {
+    _axCtx.font = `${weight} ${px}px ${AXIS_FONT}`;
+    w = 0;
+    for (const l of labels) for (const line of l.split("\n")) w = Math.max(w, _axCtx.measureText(line).width);
+    _axWidths.set(key, w);
+  }
+  return w;
+}
+// Widest decade number any grid mode prints (a sample: measure() first runs
+// before GRID_UNITS exists).
+const AXIS_NUM_SAMPLE = ["−88", "-88", "188"];
+
+function axisLayout() {
+  if (_isMobile) {
+    // Compact ruler: numbers + rotated titles in fixed 56–92 px margins.
+    return { s: 1, num: 12, minor: 9, ref: 9.5, title: 11, sub: 9, tick: 5, numX: 9,
+      L: { title: 44, sub: 30, need: 56 }, R: { title: 46, sub: 32, need: 58 },
+      sT: 1, sB: 1, needT: 78, needB: 92 };
+  }
+  const s = _fontScale, T = AXIS_TYPE;
+  const num = T.num * s, minor = T.minor * s, ref = T.ref * s, title = T.title * s, sub = T.sub * s;
+  const gap = 10 * s, tick = 5;
+  const numX = tick + 4;                                      // number edge, from the frame
+  const refX = numX + axTextWidth(AXIS_NUM_SAMPLE, num, 700) + gap; // reference edge
+  // Rotated text: glyphs rise ~0.75em from the baseline away from the chart
+  // and dip ~0.2em toward it. Baselines measured outward from the frame.
+  const side = (refW) => {
+    const subB = refX + refW + gap * 0.8 + 0.2 * sub;
+    const titleB = subB + 0.75 * sub + 4 * s + 0.2 * title;
+    return { sub: subB, title: titleB, need: Math.ceil(titleB + 0.75 * title + 6 * s) };
+  };
+  return {
+    s, num, minor, ref, title, sub, tick, numX, refX,
+    L: side(axTextWidth(ENERGY_UNITS.map(u => u.label), ref, 700)),
+    R: side(axTextWidth(MASS_UNITS.map(u => u.label), ref, 700)),
+    sT: s * AXIS_TB_SCALE.top, sB: s * AXIS_TB_SCALE.bottom,
+    needT: Math.ceil(TOP_MARGIN_DEFAULT * s * AXIS_TB_SCALE.top),
+    needB: Math.ceil(BOTTOM_MARGIN_DEFAULT * s * AXIS_TB_SCALE.bottom),
+  };
+}
+let _axLayout = null; // axisLayout() + per-column fit, set by measure()
+
 function measure() {
   W = _posterStage ? _posterStage.W : _viewportLock ? vpStage().W : window.innerWidth;
   H = _posterStage ? _posterStage.H : _viewportLock ? vpStage().H : window.innerHeight;
@@ -308,21 +366,17 @@ function measure() {
       margin.bottom = 0;
     }
   } else {
+    // Defaults: what the axis layout needs at the current type size. The
+    // drag limits stretch to always allow at least that.
+    const ax = axisLayout();
     const baseLeft = _isSidebarOpen ? SIDEBAR_W : BASE_MARGIN_LEFT - 80;
-    const defaultLeft = _isSidebarOpen ? SIDEBAR_W + 80 : BASE_MARGIN_LEFT;
-    margin.left = _userMarginLeft != null
-      ? Math.max(baseLeft + LEFT_MARGIN_MIN_EXTRA,
-                 Math.min(baseLeft + LEFT_MARGIN_MAX_EXTRA, _userMarginLeft))
-      : defaultLeft;
-    margin.right = _userMarginRight != null
-      ? Math.max(RIGHT_MARGIN_MIN, Math.min(RIGHT_MARGIN_MAX, _userMarginRight))
-      : RIGHT_MARGIN_DEFAULT;
-    margin.top = _userMarginTop != null
-      ? Math.max(TOP_MARGIN_MIN, Math.min(TOP_MARGIN_MAX, _userMarginTop))
-      : TOP_MARGIN_DEFAULT;
-    margin.bottom = _userMarginBottom != null
-      ? Math.max(BOTTOM_MARGIN_MIN, Math.min(BOTTOM_MARGIN_MAX, _userMarginBottom))
-      : BOTTOM_MARGIN_DEFAULT;
+    const fit = (user, min, max, need) => user != null
+      ? Math.max(min, Math.min(Math.max(max, need), user)) : need;
+    margin.left = baseLeft + fit(_userMarginLeft != null ? _userMarginLeft - baseLeft : null,
+      LEFT_MARGIN_MIN_EXTRA, LEFT_MARGIN_MAX_EXTRA, ax.L.need);
+    margin.right = fit(_userMarginRight, RIGHT_MARGIN_MIN, RIGHT_MARGIN_MAX, ax.R.need);
+    margin.top = fit(_userMarginTop, TOP_MARGIN_MIN, TOP_MARGIN_MAX, ax.needT);
+    margin.bottom = fit(_userMarginBottom, BOTTOM_MARGIN_MIN, BOTTOM_MARGIN_MAX, ax.needB);
   }
   if (_posterMargins) {
     // Poster renderer (window.__poster): the print frame sizes its own axis
@@ -334,7 +388,15 @@ function measure() {
   }
   cw = W - margin.left - margin.right;
   ch = H - margin.top - margin.bottom;
-  // Expose axis-column widths to CSS so .axis-l / .axis-r font-sizes scale.
+  // A column narrower than its layout needs shrinks its type to fit.
+  {
+    const ax = axisLayout();
+    const baseLeft = _isMobile ? 0 : _isSidebarOpen ? SIDEBAR_W : BASE_MARGIN_LEFT - 80;
+    const f = (have, need) => have > 0 ? Math.min(1, have / need) : 1; // 0: column hidden
+    _axLayout = { ...ax, fL: f(margin.left - baseLeft, ax.L.need), fR: f(margin.right, ax.R.need),
+      fT: f(margin.top, ax.needT), fB: f(margin.bottom, ax.needB) };
+  }
+  // Expose axis-column widths to CSS (axis handles, tour box placement).
   document.body.style.setProperty("--left-axis-w",  margin.left  + "px");
   document.body.style.setProperty("--right-axis-w", margin.right + "px");
   document.body.style.setProperty("--top-axis-h",    margin.top    + "px");
@@ -3865,6 +3927,20 @@ function drawHighlight() {
 function drawAxes() {
   [axB, axT, axL, axR].forEach(g => g.selectAll("*").remove());
   const d = vd();
+  // Column layout + type (see axisLayout). Sizes go in as inline styles: a
+  // font-size attribute loses to any CSS rule.
+  const A = _axLayout;
+  const lS = A.fL, rS = A.fR;            // left / right column fit
+  const tS = A.sT * A.fT, bS = A.sB * A.fB; // top / bottom geometry scale
+  const fs = (px) => `${px.toFixed(2)}px`;
+  // Reference labels claim the vertical band their lines really cover; a
+  // label that would touch an already-placed one is skipped.
+  const bandsFree = (bands, p, lines, f) => {
+    const top = p - 0.75 * f - 2, bot = p + (lines - 1) * 1.1 * f + 0.3 * f + 2;
+    if (bands.some(([t, b]) => top < b && t < bot)) return false;
+    bands.push([top, bot]);
+    return true;
+  };
   const ppu = cw / (d.x1 - d.x0);
   const LOG_EV_OFFSET = 32.75;
 
@@ -3882,7 +3958,6 @@ function drawAxes() {
   else if (axisStep === 1 && 0.301 * ppu >= 22) minorStep = 0;
 
   const first = (lo, s) => Math.ceil(lo / s) * s;
-  const minUnitPx = 12;
 
   // Grid-unit mode: where decade lines are anchored, and how numbers read.
   const cfg = gridCfg();
@@ -3894,7 +3969,7 @@ function drawAxes() {
   const diagDx = 1;
   const diagDy = 3;
   const diagNorm = Math.sqrt(diagDx * diagDx + diagDy * diagDy);
-  const diagLen = 15;
+  const diagLen = 15 * tS;
 
   let lastDensityLabelP = Infinity;
   for (let logRho = -54; logRho <= 108; logRho += 9) {
@@ -3905,7 +3980,7 @@ function drawAxes() {
     if (p < 0 || p > cw) continue;
     // Zoomed out, consecutive 9-decade steps land a few px apart and the
     // rotated numbers pile into an unreadable bundle — enforce min spacing.
-    if (Math.abs(lastDensityLabelP - p) < 34) continue;
+    if (Math.abs(lastDensityLabelP - p) < 34 * tS) continue;
     lastDensityLabelP = p;
 
     const ex = p + (diagDx / diagNorm) * diagLen;
@@ -3918,32 +3993,32 @@ function drawAxes() {
       .attr("stroke-width", 0.5);
 
     const gL = logRho + 3;
-    const tx = ex + (diagDx / diagNorm) * 3;
-    const ty = ey - (diagDy / diagNorm) * 3;
+    const tx = ex + (diagDx / diagNorm) * 3 * tS;
+    const ty = ey - (diagDy / diagNorm) * 3 * tS;
     axT.append("text")
       .attr("class", "axis-label")
       .attr("x", tx).attr("y", ty)
       .attr("text-anchor", "start")
       .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
-      .attr("font-size", fscale(10)).attr("font-weight", 700)
+      .style("font-size", fs(10 * tS)).attr("font-weight", 700)
       .attr("fill", "rgba(255,255,255,0.55)")
       .attr("transform", `rotate(${densityAngle},${tx},${ty})`)
       .text(gL);
   }
 
-  axT.append("text").attr("x", cw - 5).attr("y", -38).attr("text-anchor", "end")
-    .attr("class", "axis-title").text("DENSITY");
+  axT.append("text").attr("x", cw - 5).attr("y", -38 * tS).attr("text-anchor", "end")
+    .attr("class", "axis-title").style("font-size", fs(A.title * A.fT)).text("DENSITY");
   // On mobile the pill stack occupies the top-left corner — shift TIME clear.
   // The top subtitles collide with the rotated density numbers on a narrow
   // screen, so they're desktop-only.
   const timeTitleX = _isMobile ? 62 : 5;
-  axT.append("text").attr("x", timeTitleX).attr("y", -38).attr("text-anchor", "start")
-    .attr("class", "axis-title").attr("letter-spacing", "3px").text("TIME");
+  axT.append("text").attr("x", timeTitleX).attr("y", -38 * tS).attr("text-anchor", "start")
+    .attr("class", "axis-title").style("font-size", fs(A.title * A.fT)).attr("letter-spacing", "3px").text("TIME");
   if (!_isMobile) {
-    axT.append("text").attr("x", cw - 5).attr("y", -26).attr("text-anchor", "end")
-      .attr("class", "axis-subtitle").text("10ⁿ g/L");
-    axT.append("text").attr("x", timeTitleX).attr("y", -26).attr("text-anchor", "start")
-      .attr("class", "axis-subtitle").text("10ⁿ s since Big Bang");
+    axT.append("text").attr("x", cw - 5).attr("y", -26 * tS).attr("text-anchor", "end")
+      .attr("class", "axis-subtitle").style("font-size", fs(A.sub * A.fT)).text("10ⁿ g/L");
+    axT.append("text").attr("x", timeTitleX).attr("y", -26 * tS).attr("text-anchor", "start")
+      .attr("class", "axis-subtitle").style("font-size", fs(A.sub * A.fT)).text("10ⁿ s since Big Bang");
   }
 
   // ─── BOTTOM: Big log numbers + two rows of width units ────
@@ -3973,8 +4048,8 @@ function drawAxes() {
         if (p < -1 || p > cw + 1) continue;
         axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 3)
           .attr("stroke", "rgba(255,255,255,0.10)");
-        axB.append("text").attr("x", p).attr("y", 14).attr("text-anchor", "middle")
-          .attr("class", "axis-label axis-minor").attr("font-size", fscale(9)).attr("font-weight", 400)
+        axB.append("text").attr("x", p).attr("y", 14 * bS).attr("text-anchor", "middle")
+          .attr("class", "axis-label axis-minor").style("font-size", fs(9 * bS)).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
@@ -3986,8 +4061,8 @@ function drawAxes() {
     if (p < -1 || p > cw + 1) continue;
     axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 5)
       .attr("stroke", "rgba(255,255,255,0.25)");
-    axB.append("text").attr("x", p).attr("y", 16).attr("text-anchor", "middle")
-      .attr("class", "axis-label").attr("font-size", fscale(13)).attr("font-weight", 700)
+    axB.append("text").attr("x", p).attr("y", 16 * bS).attr("text-anchor", "middle")
+      .attr("class", "axis-label").style("font-size", fs(13 * bS)).attr("font-weight", 700)
       .text(cfg.xNum(v));
   }
 
@@ -3996,12 +4071,12 @@ function drawAxes() {
     if (u.logR < d.x0 || u.logR > d.x1) return;
     const p = px(u.logR);
     if (p < -1 || p > cw + 1) return;
-    axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 28)
+    axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 26 * bS)
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
-    if (Math.abs(p - lastRow1Px) >= 40 && u.slug) {
+    if (Math.abs(p - lastRow1Px) >= 40 * bS * 1.25 && u.slug) {
       axB.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-        .attr("x", p).attr("y", 37).attr("text-anchor", "middle")
-        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(8))
+        .attr("x", p).attr("y", 37 * bS).attr("text-anchor", "middle")
+        .attr("font-family", AXIS_FONT).style("font-size", fs(10 * bS))
         .attr("fill", "rgba(255,130,130,0.6)")
         .text(u.label);
       lastRow1Px = p;
@@ -4013,27 +4088,28 @@ function drawAxes() {
     if (u.logR < d.x0 || u.logR > d.x1) return;
     const p = px(u.logR);
     if (p < -1 || p > cw + 1) return;
-    axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 48)
+    axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 46 * bS)
       .attr("stroke", "rgba(255,100,100,0.25)").attr("stroke-dasharray", "2 2");
     // On the compact mobile ruler the rotated row-2 labels run straight
     // through the centered WIDTH title — keep a clear zone around it.
     if (_isMobile && Math.abs(p - cw / 2) < 80) return;
-    if (Math.abs(p - lastRow2Px) >= 35 && u.slug) {
+    if (Math.abs(p - lastRow2Px) >= 35 * bS * 1.25 && u.slug) {
+      const y2 = 50 * bS;
       axB.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-        .attr("x", p + 2).attr("y", 50)
+        .attr("x", p + 2).attr("y", y2)
         .attr("text-anchor", "start")
-        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(7.5))
+        .attr("font-family", AXIS_FONT).style("font-size", fs(9.5 * bS))
         .attr("fill", "rgba(255,130,130,0.45)")
-        .attr("transform", `rotate(45,${p + 2},50)`)
+        .attr("transform", `rotate(45,${p + 2},${y2})`)
         .text(u.label);
       lastRow2Px = p;
     }
   });
 
-  axB.append("text").attr("x", cw / 2).attr("y", 65).attr("text-anchor", "middle")
-    .attr("class", "axis-title").text("WIDTH");
-  axB.append("text").attr("x", cw / 2).attr("y", 78).attr("text-anchor", "middle")
-    .attr("class", "axis-subtitle").text(cfg.bottomSub);
+  axB.append("text").attr("x", cw / 2).attr("y", 65 * bS).attr("text-anchor", "middle")
+    .attr("class", "axis-title").style("font-size", fs(A.title * A.fB)).text("WIDTH");
+  axB.append("text").attr("x", cw / 2).attr("y", 78 * bS).attr("text-anchor", "middle")
+    .attr("class", "axis-subtitle").style("font-size", fs(A.sub * A.fB)).text(cfg.bottomSub);
 
   // ─── LEFT: Energy / Temperature (capped at Planck energy) ─
   const leftMax = PLANCK_LOG_M;
@@ -4063,8 +4139,8 @@ function drawAxes() {
         if (p < -1 || p > ch + 1) continue;
         axL.append("line").attr("x1", -3).attr("y1", p).attr("x2", 0).attr("y2", p)
           .attr("stroke", "rgba(255,255,255,0.10)");
-        axL.append("text").attr("x", -10).attr("y", p + 3.5).attr("text-anchor", "middle")
-          .attr("class", "axis-label axis-minor").attr("font-size", fscale(9)).attr("font-weight", 400)
+        axL.append("text").attr("x", -A.numX * lS).attr("y", p + 0.35 * A.minor * lS).attr("text-anchor", "end")
+          .attr("class", "axis-label axis-minor").style("font-size", fs(A.minor * lS)).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
@@ -4076,53 +4152,50 @@ function drawAxes() {
     if (p < -1 || p > ch + 1) continue;
     axL.append("line").attr("x1", -5).attr("y1", p).attr("x2", 0).attr("y2", p)
       .attr("stroke", "rgba(255,255,255,0.25)");
-    axL.append("text").attr("x", -25).attr("y", p + 4.5).attr("text-anchor", "middle")
-      .attr("class", "axis-label").attr("font-size", fscale(11)).attr("font-weight", 700)
+    axL.append("text").attr("x", -A.numX * lS).attr("y", p + 0.35 * A.num * lS).attr("text-anchor", "end")
+      .attr("class", "axis-label").style("font-size", fs(A.num * lS)).attr("font-weight", 700)
       .text(cfg.energyNum(v));
   }
 
-  const leftCompact = _isSidebarOpen;
-  // Unit labels sit OUTBOARD of the exponent-number column (which is at x=-25)
-  // so the two don't overlap. Energy/temperature names get their own column.
-  const unitX = leftCompact ? -34 : -42;
-  const titleY = leftCompact ? -45 : -40;
+  // Unit labels sit OUTBOARD of the exponent-number column, in their own
+  // column sized by axisLayout; the rotated titles sit outboard of both.
+  const unitX = -A.refX * lS;
+  const refPx = A.ref * lS;
 
   // The outboard unit-link column and rotated titles need a wide margin —
   // the compact mobile ruler shows exponent numbers only.
-  let lastEnergyPy = -Infinity;
+  const bandsL = [];
   if (!_isMobile) ENERGY_UNITS.forEach(u => {
     if (u.logM < d.y0 || u.logM > Math.min(d.y1, leftMax)) return;
     const p = py(u.logM);
     if (p < 2 || p > ch - 2) return;
     axL.append("line").attr("x1", -3).attr("y1", p).attr("x2", 0).attr("y2", p)
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
-    if (Math.abs(p - lastEnergyPy) >= minUnitPx && u.slug) {
+    if (u.slug && bandsFree(bandsL, p, u.label.split("\n").length, refPx)) {
       const lines = u.label.split("\n");
       if (lines.length > 1) {
         const txt = axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-          .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
-          .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(leftCompact ? 8.5 : 9.5))
+          .attr("x", unitX).attr("y", p + 0.35 * refPx).attr("text-anchor", "end")
+          .attr("font-family", AXIS_FONT).style("font-size", fs(refPx))
           .attr("fill", "rgba(255,150,150,0.92)");
         lines.forEach((line, li) => {
           txt.append("tspan").attr("x", unitX).attr("dy", li === 0 ? 0 : "1.1em").text(line);
         });
       } else {
         axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-          .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
-          .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(leftCompact ? 8.5 : 9.5))
+          .attr("x", unitX).attr("y", p + 0.35 * refPx).attr("text-anchor", "end")
+          .attr("font-family", AXIS_FONT).style("font-size", fs(refPx))
           .attr("fill", "rgba(255,150,150,0.92)")
           .text(u.label);
       }
-      lastEnergyPy = p;
     }
   });
 
-  const leftTitleY = _isMobile ? -44 : titleY;
-  axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", leftTitleY)
-    .attr("text-anchor", "middle").attr("class", "axis-title").text(cfg.leftTitle);
+  axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", -A.L.title * lS)
+    .attr("text-anchor", "middle").attr("class", "axis-title").style("font-size", fs(A.title * lS)).text(cfg.leftTitle);
   if (!_isMobile) {
-    axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", titleY + 14)
-      .attr("text-anchor", "middle").attr("class", "axis-subtitle").text(cfg.leftSub);
+    axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", -A.L.sub * lS)
+      .attr("text-anchor", "middle").attr("class", "axis-subtitle").style("font-size", fs(A.sub * lS)).text(cfg.leftSub);
   }
 
   // ─── RIGHT: Mass ──────────────────────────────────────────
@@ -4153,8 +4226,8 @@ function drawAxes() {
         if (p < -1 || p > ch + 1) continue;
         axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 3).attr("y2", p)
           .attr("stroke", "rgba(255,255,255,0.10)");
-        axR.append("text").attr("x", 14).attr("y", p + 3.5).attr("text-anchor", "middle")
-          .attr("class", "axis-label axis-minor").attr("font-size", fscale(9)).attr("font-weight", 400)
+        axR.append("text").attr("x", A.numX * rS).attr("y", p + 0.35 * A.minor * rS).attr("text-anchor", "start")
+          .attr("class", "axis-label axis-minor").style("font-size", fs(A.minor * rS)).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
@@ -4166,33 +4239,33 @@ function drawAxes() {
     if (p < -1 || p > ch + 1) continue;
     axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 5).attr("y2", p)
       .attr("stroke", "rgba(255,255,255,0.25)");
-    axR.append("text").attr("x", 28).attr("y", p + 4.5).attr("text-anchor", "middle")
-      .attr("class", "axis-label").attr("font-size", fscale(13)).attr("font-weight", 700)
+    axR.append("text").attr("x", A.numX * rS).attr("y", p + 0.35 * A.num * rS).attr("text-anchor", "start")
+      .attr("class", "axis-label").style("font-size", fs(A.num * rS)).attr("font-weight", 700)
       .text(cfg.massNum(v));
   }
 
-  let lastMassUnitPy = -Infinity;
+  const bandsR = [];
+  const refPxR = A.ref * rS;
   if (!_isMobile) MASS_UNITS.forEach(u => {
     if (u.logM < d.y0 || u.logM > d.y1) return;
     const p = py(u.logM);
     if (p < 2 || p > ch - 2) return;
     axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 3).attr("y2", p)
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
-    if (Math.abs(p - lastMassUnitPy) >= minUnitPx && u.slug) {
+    if (u.slug && bandsFree(bandsR, p, u.label.split("\n").length, refPxR)) {
       axR.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-        .attr("x", 44).attr("y", p + 3).attr("text-anchor", "start")
-        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(9.5))
+        .attr("x", A.refX * rS).attr("y", p + 0.35 * refPxR).attr("text-anchor", "start")
+        .attr("font-family", AXIS_FONT).style("font-size", fs(refPxR))
         .attr("fill", "rgba(255,150,150,0.92)")
         .text(u.label);
-      lastMassUnitPy = p;
     }
   });
 
-  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", _isMobile ? -46 : -114)
-    .attr("text-anchor", "middle").attr("class", "axis-title").text("MASS");
+  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -A.R.title * rS)
+    .attr("text-anchor", "middle").attr("class", "axis-title").style("font-size", fs(A.title * rS)).text("MASS");
   if (!_isMobile) {
-    axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -102)
-      .attr("text-anchor", "middle").attr("class", "axis-subtitle").text(cfg.rightSub);
+    axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -A.R.sub * rS)
+      .attr("text-anchor", "middle").attr("class", "axis-subtitle").style("font-size", fs(A.sub * rS)).text(cfg.rightSub);
   }
 }
 
@@ -6319,13 +6392,45 @@ setGridUnit.addEventListener("change", () => {
 // =============================================================
 
 const PAN_STEP = 80;
+
+// Step jump (recording): type a tour step's number — "7", "07", "15" — then
+// Space. Digits wait in a short buffer; a lone 0 still resets the view
+// (Home does it instantly) unless another digit follows it.
+const STEP_DIGIT_MS = 1500;  // a typed number is forgotten after this
+const LONE_ZERO_MS = 450;    // how long a lone 0 waits for a second digit
+let _stepDigits = "", _stepDigitsTimer = null, _zeroResetTimer = null;
+const resetView = () =>
+  svg.transition().duration(_reduceMotion ? 0 : 500).call(zoomBehavior.transform, d3.zoomIdentity);
+function onStepDigit(digit) {
+  clearTimeout(_zeroResetTimer);
+  if (digit === "0" && !_stepDigits) _zeroResetTimer = setTimeout(resetView, LONE_ZERO_MS);
+  _stepDigits = (_stepDigits + digit).slice(-2);
+  clearTimeout(_stepDigitsTimer);
+  _stepDigitsTimer = setTimeout(() => { _stepDigits = ""; }, STEP_DIGIT_MS);
+}
+function jumpToTypedStep() {
+  clearTimeout(_zeroResetTimer);
+  clearTimeout(_stepDigitsTimer);
+  const n = parseInt(_stepDigits, 10);
+  _stepDigits = "";
+  if (!tourGoTo(n - 1)) console.log(`No tour step ${n}`);
+}
+
 document.addEventListener("keydown", (e) => {
   if (e.target.tagName === "INPUT") return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (/^[0-9]$/.test(e.key)) { onStepDigit(e.key); return; }
+  if (e.key === " " && _stepDigits) {
+    e.preventDefault(); // not a click on whatever button has focus
+    jumpToTypedStep();
+    return;
+  }
   // ? = Shift+/ on US keys; match the physical key too, so layouts that
   // report another character for it still open the card.
   if (e.key !== "?" && e.code === "Slash" && e.shiftKey) { setShortcutsOpen(shortcutsPanel.hidden); return; }
   // Arrow keys pan. Letter keys are recording shortcuts (see keyhint / docs):
-  //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations · H hide UI
+  //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations
+  //   H hide UI (and log the whole tour script) · 07 + Space jump to tour step 7
   //   V cycle the recording stage: 1920×1080 → 9:16 phone (mobile layout) → off
   //   R reset all settings (and presenter state) to defaults
   //   L the original Lineweaver–Patel figure (hidden; also /classic/)
@@ -6343,8 +6448,8 @@ document.addEventListener("keydown", (e) => {
       svg.transition().duration(150).call(zoomBehavior.translateBy, 0, PAN_STEP); break;
     case "ArrowDown":
       svg.transition().duration(150).call(zoomBehavior.translateBy, 0, -PAN_STEP); break;
-    case "Home": case "0":
-      svg.transition().duration(_reduceMotion ? 0 : 500).call(zoomBehavior.transform, d3.zoomIdentity); break;
+    case "Home":
+      resetView(); break; // "0" too — see onStepDigit
 
     // ── Recording shortcuts ──────────────────────────────────────
     case "w": case "W":
@@ -6362,7 +6467,9 @@ document.addEventListener("keydown", (e) => {
       _animSpeed = Math.min(8, +(_animSpeed * 1.4).toFixed(3));
       console.log(`Animation speed: ${_animSpeed}×`); break;
     case "h": case "H":
-      document.body.classList.toggle("ui-hidden"); break;
+      // Hiding the UI = recording: print the tour script to read from.
+      if (document.body.classList.toggle("ui-hidden")) logAllSteps();
+      break;
     case "v": case "V":
       setViewportLock(!_viewportLock ? "landscape" : _viewportLock === "landscape" ? "portrait" : null);
       announce(_viewportLock ? `Viewport: ${_viewportLock} ${vpStage().W}×${vpStage().H}` : "Viewport unlocked");
@@ -6884,6 +6991,14 @@ try {
     if (typeof saved.marginBottom === "number") _userMarginBottom = saved.marginBottom;
   }
 } catch (e) { /* ignore corrupt data */ }
+// The first layout ran before the saved settings were read: redo it so the
+// saved font size (axis type, column widths) and margins apply from the
+// first frame. Still pre-boot, so the zoom is the identity — copy the scales
+// rather than firing zoom events.
+measure();
+applyLayout();
+xS = xBase.copy();
+yS = yBase.copy();
 
 // OS reduced-motion preference: decorative animation defaults OFF unless the
 // user explicitly saved it on (their in-app choice wins over the OS default).

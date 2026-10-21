@@ -21,7 +21,9 @@
 
 #tour-header {
   position: fixed;
-  bottom: 590px;
+  /* Just above the tour box, whatever its height (font size, text length):
+     --tour-box-h is kept current by tour.js. */
+  bottom: calc(100px + var(--tour-box-h, 466px) + 24px);
   /* Sit just inside the chart's left edge — follows margin.left when the
      user resizes the energy column. */
   left: calc(var(--left-axis-w, 80px) + 40px);
