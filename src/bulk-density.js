@@ -75,6 +75,10 @@ export const DUST_SHAPE = {
   artefact: [2, 30],           // Tsar Bell ~2, Eiffel Tower ~11, long bridges ~30+
 };
 const ARTEFACT_MAX_RHO = 8;    // g/cm³, about bronze
+// Hand-set bulk densities for famous dots, instead of the random spread above.
+// Eiffel Tower: ~10,100 t in its outer envelope, holes and the arch under it
+// included: a curved pyramid 125 m square and 300 m tall, about 1.5 million m³.
+const DUST_RHO_NAMED = { "Eiffel Tower": 0.007 };
 
 const logBall = (logM, rho) => (logM - DENSITY_SPHERE_C - Math.log10(rho)) / 3;
 
@@ -128,6 +132,11 @@ export function applyBulkDust(r, m, src, sources, rawNames) {
     }
     let logRho;
     const bounding = m[i] - 3 * r[i] - DENSITY_SPHERE_C;
+    const named = DUST_RHO_NAMED[rawNames[i]];
+    if (named) {
+      r[i] = logBall(m[i], named);
+      continue;
+    }
     if (shape) {
       // a compact item (a bell) can't be packed much tighter: cap at ~bronze
       const cap = Math.max(1, ARTEFACT_MAX_RHO / 10 ** bounding);

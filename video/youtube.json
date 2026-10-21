@@ -5,7 +5,15 @@
     "categoryId": "28",
     "madeForKids": false,
     "language": "en",
-    "tags": ["triangle of everything", "physics", "astronomy", "science", "mass", "size", "density"],
+    "tags": [
+      "triangle of everything",
+      "physics",
+      "astronomy",
+      "science",
+      "mass",
+      "size",
+      "density"
+    ],
     "playlist": "The Triangle of Everything",
     "fullVideo": ""
   },
@@ -17,33 +25,27 @@
       "music": "Space X-plorers"
     },
     {
-      "take": "short-02-density",
-      "title": "Why everything falls on one diagonal #Shorts",
-      "blurb": "Humans, a liter of water, the cube law, and what floats or sinks.",
-      "music": "Dreamer"
-    },
-    {
-      "take": "short-03-planets",
-      "title": "From humans to gas giants: climbing the density line",
-      "blurb": "From humans to round worlds, gas giants and brown dwarfs.",
+      "take": "short-02-up-the-line",
+      "title": "From a liter of water to brown dwarfs: climbing the density line",
+      "blurb": "Why everything falls on one diagonal, what sinks and what floats, animals, mountains, round worlds, gas giants and the brown dwarfs.",
       "music": "Soaring"
     },
     {
-      "take": "short-04-stars",
+      "take": "short-03-stars",
       "title": "How planets turn into stars (and what's left when they die)",
       "blurb": "Brown dwarfs, the main sequence, the life of a star, and what is left of it.",
       "music": "Immersed"
     },
     {
-      "take": "short-05d-black-holes",
+      "take": "short-04-black-holes",
       "title": "Black holes aren't objects, they're a line",
       "blurb": "The top-left limit of everything and why it is 45°, TON 618, the window for primordial black holes, galaxies without their dark matter, and the lucky few survivors.",
       "music": "Mesmerize"
     },
     {
-      "take": "short-06-hubble-sphere",
+      "take": "short-05-hubble-sphere",
       "title": "Why nothing can be bigger than the Hubble sphere",
-      "blurb": "Bigger means emptier, the second edge of the triangle, why our universe sits on the black-hole line, and the three horizons.",
+      "blurb": "Bigger means emptier, the second edge of the triangle, the edge of our own universe, why it sits on the black-hole line, and the observable universe as a history of our own past.",
       "music": "Fresh Air"
     }
   ]

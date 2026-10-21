@@ -1,6 +1,6 @@
 // =============================================================
-// Scene: short-05d-black-holes — video 5, take 5 (rec24, 2026-10-20;
-// video/short-05d-black-holes/), the chosen take; the older takes 05, 05b, 05c were
+// Scene: short-04-black-holes — video 4, video 5 take 5d until 2026-10-21 (rec24, 2026-10-20;
+// video/short-04-black-holes/), the chosen take; the older takes 05, 05b, 05c were
 // archived as MP4s on 2026-10-20 (see video/EXPORT.md; recoverable from git history).
 // The top-left limit and its 45° slope, TON 618, the primordial black hole window,
 // the red giants' nebulae feeding new stars, the "skeleton" core, the Big Bang's soup,

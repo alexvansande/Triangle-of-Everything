@@ -83,6 +83,8 @@
   { "name": "Human",            "logR": 1.93,    "logM": 4.9, "rho": [0.95, 0.985, 1.07],    "cat": "macro", "z": 1.5, "wiki": "Human" },
   { "name": "Hippopotamus",     "logR": 1.95,   "logM": 6.50, "rho": [1.03, 1.05, 1.1],   "cat": "macro", "z": 4, "_note": "Hippos sink! In span mode logR is hand-set denser than water (logRho≈0.03); in bulk mode rho places it", "wiki": "Hippopotamus" },
   { "name": "Elephant",         "logR": 2.2,    "logM": 6.7, "rho": [0.9, 0.97, 1.05],    "cat": "macro", "z": 4, "wiki": "African_elephant" },
+  { "name": "Tyrannosaurus rex", "logR": 2.79, "logM": 6.94, "rho": [0.85, 0.95, 1.05], "cat": "macro", "z": 4, "wiki": "Tyrannosaurus" },
+  { "name": "Argentinosaurus", "logR": 3.25, "logM": 7.85, "rho": [0.7, 0.8, 0.95], "cat": "macro", "z": 4, "wiki": "Argentinosaurus" },
   { "name": "Blue Whale",       "logR": 3.13,    "logM": 8.18, "rho": [0.99, 1.01, 1.03],   "cat": "macro", "z": 3, "wiki": "Blue_whale" },
   { "name": "Sequoia",          "logR": 3.62,    "logM": 9.15, "rho": [0.4, 0.6, 0.9],   "cat": "macro", "z": 5, "wiki": "Sequoiadendron_giganteum" },
   { "name": "Boeing 747",       "logR": 3.55,   "logM": 8.6, "rho": [0.08, 0.15, 0.3],    "cat": "macro", "subcat": "machine", "z": 5, "wiki": "Boeing_747" },

@@ -180,7 +180,7 @@ in real time. To watch it away from a dev server (for example on a phone,
 through a private claude.ai page), build the trimmed preview:
 
 ```bash
-node scripts/narration-preview.mjs short-01-hook short-04-stars   # takes with audio; default: the shorts
+node scripts/narration-preview.mjs short-01-hook short-03-stars   # takes with audio; default: the shorts
 ```
 
 `dist-preview/` is the app with relative paths, so it runs from any folder. It
@@ -264,7 +264,7 @@ so a short's scene can import the matching section from another scene.
   Schwarzschild line) and every macro dark-matter limit (mica, human injuries, white
   dwarfs, CMB) on the chart's axes; [`dark-matter-constraints.md`](dark-matter-constraints.md)
   explains each with sources. Use it to check narration about dark matter and
-  primordial black holes (video 5 and after).
+  primordial black holes (video 4 and after).
 
 ## Scene fields
 

@@ -217,7 +217,7 @@ this chart's equal-decade axes is a 1 : 1, 45° line. Imprecise, optional: "dire
 related to mass" is right; "directly proportional" says exactly why it's a straight 45°
 line.
 
-## rec24 (take 5): `short-05d-black-holes`
+## rec24 (take 5): `short-04-black-holes`
 
 A fifth full take of video 5, with the Schwarzschild radius and the 45° slope in place
 from the start, and new lines: "a log-log density scatterplot", the red giants' nebulae
@@ -227,7 +227,7 @@ and "the very early moments of the Big Bang, when everything was a soup of very 
 dense matter"), "black holes of multiple sizes", "they would not react to light … not be
 visible on a telescope", "objects the size of an atom that weigh as much as a mountain",
 "or maybe not, maybe we'll figure out that something else is dark matter", and "the
-lucky few survivors". Cut as `short-05d-black-holes` (49 clips, 6:25 before the 1.3×
+lucky few survivors". Cut as `short-04-black-holes` (49 clips, 6:25 before the 1.3×
 tempo, 4:57 after), next to 05b and 05c. The scene is 05c's with the cues moved to this
 take, plus arrows from the red giant to its nebula and on to new stars, and "a hot, dense
 soup" on the early universe.

@@ -168,7 +168,14 @@ export async function startNarration(app) {
   // ready-made one, so no label shows before it's been talked about
   app.setPbhWindow?.(SCENE.pbhWindow !== false);
 
-  const objByName = new Map(app.objects.map(o => [o.name, o]));
+  const objects = new Map(app.objects.map(o => [o.name, o]));
+  // { obj: name } also takes a catalogue dot's name (the Eiffel Tower, a statue, a ship)
+  const objByName = { get(name) {
+    const o = objects.get(name);
+    if (o) return o;
+    const d = app.dustByName?.(name);
+    return d ? { name, logR: d.r, logM: d.m, dust: true } : undefined;
+  } };
   const objColor = (o) => app.categories[o.cat]?.color || "#fff";
   const resolveView = (v) => {
     if (v.obj) {
@@ -178,6 +185,11 @@ export async function startNarration(app) {
     }
     return { r: v.r, m: v.m, span: v.span };
   };
+
+  // a cue that names a catalogue dot needs the catalogue before the camera is planned
+  const named = (v) => v && v.obj && !objects.has(v.obj);
+  if (cues.some(c => named(c.cam) || (c.hl || []).some(h => named(h) || named(h.from) || named(h.to))))
+    await app.loadDust?.();
 
   // ---------- camera timeline ----------
   const START = SCENE.start;
@@ -716,6 +728,31 @@ export async function startNarration(app) {
   // ---------- unit rulers (HUD) ----------
   const massAxisX = (SW) => SW - Math.round(SW * 0.065);
   const W_OFF = Math.log10(2);
+  // In-between ticks for the rulers: every decade once there's room for it (10 kg,
+  // 100 kg between 1 kg and 1 tonne), and 2–9× inside a decade when zoomed in far
+  // enough to see the log lines (20 kg, 30 kg…). The named units go first and win.
+  // Prefix bases in log10 of the ruler's unit (grams; centimetres of diameter).
+  const MASS_BASES = [[-12, "pg"], [-9, "ng"], [-6, "μg"], [-3, "mg"], [0, "g"], [3, "kg"], [6, "t"], [9, "kt"], [12, "Mt"], [15, "Gt"]];
+  const SIZE_BASES = [[-13, "fm"], [-10, "pm"], [-7, "nm"], [-4, "μm"], [-1, "mm"], [0, "cm"], [2, "m"], [5, "km"]];
+  const SUP = (n) => String(n).replace(/./g, c => "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"["0123456789-".indexOf(c)]);
+  function tickLabel(v, bases) {          // v = log10 of the value in the base unit
+    const d = Math.floor(v + 1e-9), k = Math.round(10 ** (v - d));
+    let base = bases[0];
+    for (const b of bases) if (b[0] <= d) base = b;
+    const e = d - base[0];
+    if (e > 5) return `${k > 1 ? k + "×" : ""}10${SUP(e)} ${base[1]}`;
+    return `${(k * 10 ** e).toLocaleString("en-US")} ${base[1]}`;
+  }
+  // [{ at, label, minor }] for the visible span lo…hi (log10, base unit) at ppd px per decade
+  function fillTicks(lo, hi, ppd, bases) {
+    const out = [];
+    for (let d = Math.floor(lo); d <= Math.ceil(hi); d++) {
+      if (ppd > 70) out.push({ at: d, label: tickLabel(d, bases) });
+      const ks = ppd > 520 ? [2, 3, 4, 5, 6, 7, 8, 9] : ppd > 260 ? [2, 3, 5] : ppd > 150 ? [2, 5] : [];
+      for (const k of ks) out.push({ at: d + Math.log10(k), label: tickLabel(d + Math.log10(k), bases), minor: true });
+    }
+    return out.filter(t => t.at >= lo && t.at <= hi);
+  }
   function drawUnits(t) {
     const o = unitsOpacity(t);
     gUnits.attr("opacity", o).style("display", o > 0.01 ? null : "none");
@@ -738,6 +775,18 @@ export async function startNarration(app) {
       gUnits.append("line").attr("x1", x).attr("x2", x).attr("y1", yR - 5).attr("y2", yR + 5).attr("class", "narr-tick");
       gUnits.append("text").attr("x", x).attr("y", yR + 15).attr("text-anchor", "middle").attr("class", "narr-unit").text(u.label);
     }
+    // the ruler reads diameter: the label at logR is for 2r
+    const rppd = Math.abs(sx(1) - sx(0)), ix = (x) => (x - sx(0)) / (sx(1) - sx(0));
+    const rlo = ix(0) + W_OFF, rhi = ix(SW) + W_OFF;
+    for (const tk of fillTicks(Math.min(rlo, rhi), Math.max(rlo, rhi), rppd, SIZE_BASES)) {
+      const x = sx(tk.at - W_OFF), w = tk.label.length * 5.6 + 10;
+      if (x < 6 || x > SW - 6) continue;
+      if (placed.some(p => Math.abs(p - x) < w)) continue;
+      placed.push(x);
+      gUnits.append("line").attr("x1", x).attr("x2", x).attr("y1", yR - (tk.minor ? 3 : 5)).attr("y2", yR + (tk.minor ? 3 : 5)).attr("class", "narr-tick");
+      gUnits.append("text").attr("x", x).attr("y", yR + 15).attr("text-anchor", "middle")
+        .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
+    }
     gUnits.append("text").attr("x", SW - 8).attr("y", yR - 7).attr("text-anchor", "end").attr("class", "narr-axname").text("SIZE →");
     // vertical: mass, on the right as in the map (the left is kept for energy and temperature)
     gUnits.append("rect").attr("x", xR - 54).attr("y", 0).attr("width", SW - xR + 54).attr("height", SH).attr("fill", "url(#narr-fade-v)");
@@ -751,6 +800,17 @@ export async function startNarration(app) {
       placedY.push(y);
       gUnits.append("line").attr("x1", xR - 5).attr("x2", xR + 5).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
       gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5).attr("text-anchor", "end").attr("class", "narr-unit").text(u.label);
+    }
+    const mppd = Math.abs(sy(1) - sy(0)), iy = (y) => (y - sy(0)) / (sy(1) - sy(0));
+    const mA = iy(SH * 0.1), mB = iy(yR - 24);
+    for (const tk of fillTicks(Math.min(mA, mB), Math.max(mA, mB), mppd, MASS_BASES)) {
+      const y = sy(tk.at);
+      if (y < SH * 0.1 || y > yR - 24) continue;
+      if (placedY.some(p => Math.abs(p - y) < 17)) continue;
+      placedY.push(y);
+      gUnits.append("line").attr("x1", xR - (tk.minor ? 3 : 5)).attr("x2", xR + (tk.minor ? 3 : 5)).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
+      gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5).attr("text-anchor", "end")
+        .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
     }
     gUnits.append("text").attr("transform", `translate(${xR + 13},${SH * 0.16}) rotate(-90)`).attr("text-anchor", "end")
       .attr("class", "narr-axname").text("MASS →");
@@ -1069,6 +1129,7 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 .narr-axis { stroke: rgba(255,255,255,0.45); stroke-width: 1; }
 .narr-tick { stroke: rgba(255,255,255,0.9); stroke-width: 1.2; }
 .narr-unit { fill: rgba(255,255,255,0.92); font-size: 9.5px; font-weight: 600; }
+.narr-unit-minor { fill: rgba(255,255,255,0.6); font-size: 8.5px; font-weight: 500; }
 .narr-axname { fill: rgba(255,255,255,0.6); font-size: 9px; font-weight: 800; letter-spacing: 0.2em; }
 @font-face { font-family: "Barlow Condensed"; font-weight: 700; font-display: block;
   src: url("${import.meta.env.BASE_URL}fonts/barlow-condensed-700-latin.woff2") format("woff2"); }

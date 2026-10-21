@@ -15,11 +15,12 @@ Rendered 2026-10-20 from 32bb067 (the branch tip after take 5), checked (length 
 | Take | Length | Status |
 |---|---|---|
 | short-01-hook | 1:13 | done, 1:16 with credits, 48 MB |
-| short-02-density | 1:48 | done, 1:51, 116 MB |
-| short-03-planets | 3:34 | done, 3:37, 179 MB |
-| short-04-stars | 3:10 | done, 3:13, 129 MB |
-| short-05d-black-holes | 5:40 | done, 5:43, 305 MB (video 5 = take 5) |
-| short-06-hubble-sphere | 4:25 | not rendered yet (added 2026-10-21) |
+| short-02-up-the-line | 4:39 | not rendered yet |
+| short-02-density | 1:48 | retired 2026-10-21 (replaced by short-02-up-the-line) |
+| short-03-planets | 3:34 | retired 2026-10-21 (replaced by short-02-up-the-line) |
+| short-03-stars | 3:10 | done, 3:13, 129 MB (rendered as short-04-stars; the MP4 in iCloud is renamed) |
+| short-04-black-holes | 5:40 | done, 5:43, 305 MB (rendered as short-05d-black-holes, take 5; the MP4 in iCloud is renamed) |
+| short-05-hubble-sphere | 7:12 | not rendered yet (re-recorded 2026-10-21, rec29–31) |
 
 Archived 2026-10-20: the earlier black-hole takes were rendered the same way (length =
 narration + credits checked, mid-video frame checked), copied to iCloud

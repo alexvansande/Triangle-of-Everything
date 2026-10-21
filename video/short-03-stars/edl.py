@@ -1,4 +1,4 @@
-# short-04-stars: planets into stars. Jupiter's own heat, brown dwarfs and deuterium,
+# short-03-stars: planets into stars. Jupiter's own heat, brown dwarfs and deuterium,
 # the fork after them, the main sequence, the life of a star, the nebulae that make
 # new stars, and what the core becomes (white dwarf, neutron star, black hole).
 # Cut from rec16 = "Star life cycles" (Google Drive "Recordings", 2026-10-19, 10:24,

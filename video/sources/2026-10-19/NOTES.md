@@ -71,7 +71,7 @@ Whisper often mishears "super-Jupiters" (dropping it, or writing "super
 -egyptars"); since rec15 the narration no longer says it (the chart label
 still does).
 
-Overlap with `short-04-stars`: resolved by rec16, which replaces that video and
+Overlap with `short-03-stars`: resolved by rec16, which replaces that video and
 no longer opens with the left turn and degenerate matter (it only recaps brown
 dwarfs, adding deuterium).
 
@@ -152,14 +152,14 @@ their size, and Saturn falls almost on the line…".
 
 Nothing from rec12 left open: item 1 is fixed by rec14, and item 2 was my error.
 
-## rec16: `short-04-stars`
+## rec16: `short-03-stars`
 
 One take of the whole of video 4, replacing the 2026-10-07 cut (rec3 + rec6):
 planets and stars aren't separate categories → Jupiter and Saturn give off more
 heat than they get → brown dwarfs and deuterium → the fork in the chart → fusion
 and the main sequence → the end of a star (collapse and expand, split in two) →
 supernova remnants and planetary nebulae become stellar nurseries → the core
-becomes a white dwarf, a neutron star or a black hole. `video/short-04-stars/edl.py`,
+becomes a white dwarf, a neutron star or a black hole. `video/short-03-stars/edl.py`,
 25 clips, 3:11 before the 1.1× tempo, 2:53 after.
 
 The black-hole part (520 s on: "a black hole is not an object in this chart, it's

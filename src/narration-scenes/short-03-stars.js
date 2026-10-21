@@ -1,8 +1,8 @@
 // =============================================================
-// Scene: short-04-stars — planets and stars differ by mass: Jupiter's own
+// Scene: short-03-stars — planets and stars differ by mass: Jupiter's own
 // heat, brown dwarfs and deuterium, the fork after them, the main sequence,
 // the life of a star, the nebulae that make new stars, and what the core
-// becomes. Recorded 2026-10-19 (rec16, ending rec17; video/short-04-stars/).
+// becomes. Recorded 2026-10-19 (rec16, ending rec17; video/short-03-stars/).
 // =============================================================
 // Field reference: docs/narration.md, "Scene fields".
 

@@ -375,6 +375,13 @@ export function dustOfSrc(ids) {
   return out;
 }
 
+/** A catalogue dot by its shown name, where the map draws it: { r, m } or null. */
+export function dustByName(name) {
+  if (!_data) return null;
+  const i = _data.names.indexOf(name);
+  return i < 0 ? null : { r: _data.r[i], m: _data.m[i] };
+}
+
 /** Raw positions { r, m } (log radius, log mass) once loaded, else null. */
 export function dustArrays() {
   return _data ? { r: _data.r, m: _data.m } : null;

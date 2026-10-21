@@ -17,10 +17,10 @@ https://creativecommons.org/licenses/by/4.0/
 | Track | Used in | File | Length |
 |---|---|---|---|
 | Space X-plorers | short-01-hook | `space explorers.mp3` | 1:42 |
-| Dreamer | short-02-density | `Dreamer.mp3` | 3:24 |
-| Soaring | short-03-planets | `Soaring.mp3` | 6:20 |
-| Immersed | short-04-stars | `Immersed.mp3` | 4:09 |
-| Fresh Air | short-06-hubble-sphere | `Fresh Air.mp3` | 4:54 |
+| Dreamer | (retired-02-density) | `Dreamer.mp3` | 3:24 |
+| Soaring | short-02-up-the-line | `Soaring.mp3` | 6:20 |
+| Immersed | short-03-stars | `Immersed.mp3` | 4:09 |
+| Fresh Air | short-05-hubble-sphere | `Fresh Air.mp3` | 4:54 |
 | Mesmerize | short-05-black-holes | `Mesmerize.mp3` | 7:04 |
 
 The music is mixed under the voice: lowered, faded in and out, ducked while

@@ -1,4 +1,4 @@
-# Video 6: the Hubble sphere (plan)
+# Video 5 (video 6 until 2026-10-21): the Hubble sphere (plan)
 
 From the rough draft rec25 (2026-10-21; transcript and fact check in
 `video/sources/2026-10-21/NOTES.md`). The draft's own phrasing where it worked, with

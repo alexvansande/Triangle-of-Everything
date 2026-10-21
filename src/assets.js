@@ -52,7 +52,7 @@ export const ICON_SLUG_MAP = {
 };
 // Icons that map to multiple objects (same icon, different slugs)
 export const ICON_MULTI_MAP = {
-  "void": ["bo-tes-void", "eridanus-supervoid", "kbc-void"],
+  "void": ["bootes-void", "eridanus-supervoid", "kbc-void"],
   "neutrino-tau": ["neutrino"],  // Neutrino (τ) — shares slug with μ
 };
 // Eager `?url` glob inlines the 130 icon URLs into the bundle as plain

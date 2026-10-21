@@ -1,7 +1,7 @@
 """Clean up a narration edit: EQ, de-ess, gentle compression, a small room
 reverb well under the voice, then two-pass loudness normalisation to −16 LUFS.
 
-    python3 video/tools/enhance.py edit_raw.wav out_basename
+    python3 video/tools/enhance.py edit_raw.wav out_basename [--plain]
 → out_basename.wav (24-bit 48 kHz stereo), .m4a (AAC 192k) and _16k.wav
 (mono, for Whisper).
 
@@ -49,10 +49,30 @@ def room_ir(seed):
     return x / np.sqrt((x ** 2).sum())
 
 
-def main(src, out):
+def main(src, out, plain=False):
+    if plain:
+        # "plain" (--plain): only a high-pass and loudness, no EQ, denoiser, compressor or
+        # room. The author's pick for the quiet, clean Boya takes of 2026-10-21 (treatment
+        # "D" of that day's A/B): the full chain sounded boxy on them.
+        ff("-i", src, "-af", "highpass=f=80:poles=2,loudnorm=I=-16:TP=-1.5", "-ar", str(SR), "-c:a", "pcm_s24le", out + ".wav")
+    else:
+        full(src, out)
+    ff("-i", out + ".wav", "-c:a", "aac", "-b:a", "192k", out + ".m4a")
+    ff("-i", out + ".wav", "-ac", "1", "-ar", "16000", "-sample_fmt", "s16", out + "_16k.wav")
+
+
+def full(src, out):
     with tempfile.TemporaryDirectory() as tmp:
         dry_p = os.path.join(tmp, "dry.wav")
-        ff("-i", src, "-af", CHAIN, "-ac", "1", "-ar", str(SR), "-c:a", "pcm_s16le", dry_p)
+        # Bring the input to about −23 LUFS first: the denoiser's floor (nf=−65) and the
+        # compressor's threshold assume a normal level, and a quiet recording (the Boya
+        # takes of 2026-10-21 sit near −40 LUFS) gets its soft speech eaten as noise,
+        # which sounds boxy.
+        m = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", src, "-af", "ebur128", "-f", "null", "-"],
+                           capture_output=True, text=True).stderr
+        lufs = float(m[m.rindex("I:"):].split()[1])
+        pre = f"volume={max(0.0, -23 - lufs):.1f}dB,"
+        ff("-i", src, "-af", pre + CHAIN, "-ac", "1", "-ar", str(SR), "-c:a", "pcm_s16le", dry_p)
         dry = read(dry_p)[:, 0]
         # stereo room: two decorrelated tails, one per side
         wet = np.stack([np.convolve(dry, room_ir(s))[:len(dry)] for s in (1, 2)], axis=1)
@@ -67,9 +87,8 @@ def main(src, out):
         ln = (f"loudnorm=I=-16:TP=-1.5:LRA=8:linear=true:measured_I={j['input_i']}:measured_TP={j['input_tp']}:"
               f"measured_LRA={j['input_lra']}:measured_thresh={j['input_thresh']}:offset={j['target_offset']}")
         ff("-i", mix_p, "-af", ln, "-ar", str(SR), "-c:a", "pcm_s24le", out + ".wav")
-    ff("-i", out + ".wav", "-c:a", "aac", "-b:a", "192k", out + ".m4a")
-    ff("-i", out + ".wav", "-ac", "1", "-ar", "16000", "-sample_fmt", "s16", out + "_16k.wav")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    args = [a for a in sys.argv[1:] if a != "--plain"]
+    main(args[0], args[1], plain="--plain" in sys.argv)
