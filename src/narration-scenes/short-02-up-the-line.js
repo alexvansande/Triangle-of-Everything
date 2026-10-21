@@ -121,9 +121,9 @@ export default {
 
     // super-Jupiters and degenerate matter
     { at: "past the jupiter", cam: { r: 9.88, m: 30.7, span: 2.4 },
-      hl: [WATER, { obj: "Saturn", label: false, place: "left" }, { obj: "Jupiter", label: false }, { obj: "Beta Pictoris b", label: "super-Jupiter", delay: 0.6 }] },
-    { at: "same size of jupiter", hl: [{ obj: "Jupiter", label: "Jupiter size", place: "left" }, { obj: "Beta Pictoris b", label: false }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
-    { at: "pressure in the core", hl: [{ obj: "Jupiter", place: "left" }, { obj: "Beta Pictoris b", label: false }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
+      hl: [WATER, { obj: "Saturn", label: false, place: "left" }, { obj: "Jupiter", label: false }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", delay: 0.6 }] },
+    { at: "same size of jupiter", hl: [{ obj: "Jupiter", label: "Jupiter size", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
+    { at: "pressure in the core", hl: [{ obj: "Jupiter", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
     { at: "degenerate matter", hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
       { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "degenerate matter" }] },
 

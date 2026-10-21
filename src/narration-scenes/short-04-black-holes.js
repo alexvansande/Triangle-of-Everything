@@ -38,7 +38,6 @@ const DM_WD = { poly: [[-4.75, 5.6], [-4.75, 15], [-4.25, 16.2], [-3.65, 20.5], 
 const DM_CMB = { poly: [[-3.42, 0], [30, 0], [30, 25], [9.08, 25]], hatch: true, fill: "#b8bccc", opacity: 0.45,
   label: "ruled out by the\nmicrowave background", labelAt: [6.5, 4.5], labelColor: "#e0e3f0" };
 // the candidates, as questions
-const DM_TITLE = { title: "Here be\ndark matter?", y: 0.16 };
 const DM_CANDS = [
   { obj: "WIMP*", label: "WIMPs?", place: "right" },
   { mark: [10, 32], label: "MACHOs?", place: "left" },
@@ -49,6 +48,8 @@ const DM_SOURCE = { title: "after Sidhu, Scherrer & Starkman (2019),\n\u201cDeat
 const DM_PBH = { mark: [-8.3, 19.5], label: "primordial black holes?", place: "right", color: "#ff8fa8" };
 const still = (h) => ({ ...h, instant: true, delay: 0 });
 const GAL = { dust: "galaxy", src: ["galaxy", "cluster"], color: "#80deea", sweep: 1.2, r: 2.2 };
+// drawn down through the galaxy cloud as it drops a decade in mass
+const DROP_ARROW = { arrow: true, from: { r: 21.5, m: 46.1 }, to: { r: 21.5, m: 44.4 }, color: "#ffd54f", solid: true, width: 4.5 };
 const GAL_DROP = { ...GAL, sweep: 0.01, shift: { galaxy: -1, cluster: -0.85 }, shiftAt: 0.5, shiftDur: 2 };
 
 export default {
@@ -157,17 +158,17 @@ export default {
     // close in: the cloud runs along its own density diagonal, so a decade's drop
     // only reads up close, onto the parallel line ten times less dense
     { at: "much heavier than they ought to be", cam: { r: 22.3, m: 44.1, span: 3.6 }, hold: 6,
-      hl: [{ ...GAL_DROP, label: "without dark matter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only", delay: 2 }] },
-    { at: ["ten times", "10 times"], hl: [{ ...GAL_DROP, shiftAt: -10, label: "about 10× lighter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
+      hl: [{ ...DROP_ARROW, delay: 0.5, draw: 2 }, { ...GAL_DROP, label: "without dark matter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only", delay: 2 }] },
+    { at: ["ten times", "10 times"], hl: [{ ...DROP_ARROW, draw: 0.01 }, { ...GAL_DROP, shiftAt: -10, label: "about 10× lighter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
     // a slow pull back from the galaxies instead of holding on the dark-matter line
     // ── Here be dark matter? The candidates, and what has been crossed out ──
     { at: "of course dark matter", cam: { r: -2.5, m: 1.5, span: 40 }, dur: 4, quiet: true, labels: false, icons: false, clear: true,
-      hl: [SCHW, { ...DM_TITLE, delay: 1.2 }, ...DM_CANDS.map((c, i) => ({ ...c, delay: 2 + 0.5 * i }))] },
+      hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1.2 + 0.5 * i }))] },
     // the candidates and what has ruled them out: macro dark matter, region by region
     // one cue, so nothing redraws: the areas come in ~2 s apart and stay up until
     // "we keep looking for them"; primordial black holes join on "very tiny black holes"
     { at: "a lot of candidates", cam: { r: -2.3, m: 1.8, span: 39 }, dur: 11, drift: 0, quiet: true, hold: 13,
-      hl: [SCHW, still(DM_TITLE), ...DM_CANDS.map(still), { ...DM_SOURCE, delay: 0.8 },
+      hl: [SCHW, ...DM_CANDS.map(still), { ...DM_SOURCE, delay: 0.8 },
         { ...DM_MICA, delay: 0.6 }, { ...DM_HURT, delay: 2.7 }, { ...DM_PBH, delay: 3.4 }, { window: W5, cuts: [ML, HAW], delay: 3.8 },
         { ...DM_WD, delay: 4.8 }, { ...DM_CMB, delay: 6.9 }] },
     { at: "keep looking for them", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 3, labels: true, icons: true, clear: true,

@@ -46,6 +46,15 @@ cutaways could go is `cutaways.md`; this file is the *why*.
 - **Axis talk shows the real axes**: mass on the right (as in the map), size along the bottom,
   with the numbered rulers pinned while they're named.
 
+- **Highlight what the chart actually shows.** Super-Jupiters and brown dwarfs sit in one
+  column at Jupiter's size; Beta Pictoris b is a young, inflated planet drawn wider, so don't
+  point at it as "same size": draw a vertical trend line up the column (`trend: [[r, m], …]`),
+  no label.
+- **A movement gets a clear arrow**: when the galaxies drop a decade, a bold solid arrow
+  (`solid: true, width`) in clear space beside them, not a thin dashed one over the dots.
+- **Keep busy frames lean**: drop a joke title or extra label if the frame already has a lot
+  ("Here be dark matter?" was cut for this).
+
 ## 3. Photo cutaways: when, and which
 
 Mechanics: `{ at, photo, caption: "what · who · when", obj, dur, fit, kb, focus, place }`

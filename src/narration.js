@@ -407,6 +407,7 @@ export async function startNarration(app) {
       if (h.obj) drawObj(el, h, age);
       else if (h.line) drawLine(el, LINES[h.line], h, age);
       else if (h.density != null) drawLine(el, { pts: densitySegment(h.density), color: "#ffab40" }, h, age);
+      else if (h.trend) drawLine(el, { pts: h.trend, color: h.color || "#ffd54f" }, h, age);   // a trend line: [[r, m], …]
       else if (h.side) drawSide(el, h);
       else if (h.arrow) drawArrow(el, h, age);
       else if (h.swing) drawSwing(el, h, age);
@@ -889,10 +890,11 @@ export async function startNarration(app) {
     const sxp = x1 + ux * pad, syp = y1 + uy * pad;
     const ex = sxp + (x2r - x1 - 2 * pad * ux) * prog, ey = syp + (y2r - y1 - 2 * pad * uy) * prog;
     const col = h.color || "#ffffff";
+    // solid / width: a bold arrow (a movement to read at a glance), else a dashed path
     el.append("line").attr("x1", sxp).attr("y1", syp).attr("x2", ex).attr("y2", ey)
-      .attr("stroke", col).attr("stroke-width", 2).attr("stroke-dasharray", "6 5")
+      .attr("stroke", col).attr("stroke-width", h.width ?? 2).attr("stroke-dasharray", h.solid ? null : "6 5")
       .attr("stroke-dashoffset", -age * 18);
-    const ah = 9, ang = Math.atan2(uy, ux);
+    const ah = 9 + 2.5 * ((h.width ?? 2) - 2), ang = Math.atan2(uy, ux);
     el.append("path").attr("d", `M${ex},${ey} L${ex - ah * Math.cos(ang - 0.45)},${ey - ah * Math.sin(ang - 0.45)} L${ex - ah * Math.cos(ang + 0.45)},${ey - ah * Math.sin(ang + 0.45)} Z`)
       .attr("fill", col);
     if (h.to.mark) el.append("circle").attr("cx", x2r).attr("cy", y2r).attr("r", 4 * prog).attr("fill", col);

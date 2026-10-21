@@ -43,7 +43,7 @@ export default {
     { at: "mount everest", cam: { r: 6.5, m: 21, span: 16 }, hl: [{ line: "water" }, { obj: "Mt. Everest" }, { obj: "Moon", delay: 0.5 }] },
     { at: ["to a jupiter", "jupiter-sized planet"], cam: { r: 9.4, m: 29, span: 5 }, hl: [{ obj: "Jupiter" }] },
     { at: "trend changes", cam: { r: 9.88, m: 30.7, span: 2.6 }, hl: [{ obj: "Jupiter", label: "Jupiter size" }] },
-    { at: "ten times the mass", hl: [{ obj: "Jupiter", label: false, place: "left" }, { obj: "Beta Pictoris b", label: "super-Jupiter · same size" }] },
+    { at: "ten times the mass", hl: [{ obj: "Jupiter", label: false, place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" }] },
     { at: "after brown dwarfs", cam: { r: 10, m: 32.5, span: 9 }, hl: [{ obj: "L Brown Dwarf", label: "brown dwarfs" }] },
     { at: "to the left", cam: { r: 7, m: 33.5, span: 16 }, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "White Dwarf", label: "no normal matter", place: "below" }] },
     { at: "dead stars",
