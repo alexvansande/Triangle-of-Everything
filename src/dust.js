@@ -32,11 +32,22 @@ const BH_TICK_LEN = 4;     // px
 const BH_TICK_W = 1.3;     // px
 const MAX_DOTS_DESKTOP = 7000;
 const MAX_DOTS_MOBILE = 3000;
+// Named dust: a few dots get their name written next to them, like a map
+// showing more towns as you zoom in. Sparse on purpose.
+const LABEL_MAX_DESKTOP = 10;   // labels on screen at most
+const LABEL_MAX_MOBILE = 5;
+const LABEL_GAP_DESKTOP = 110;  // px — clear radius around each labelled dot
+const LABEL_GAP_MOBILE = 90;
+const LABEL_FONT = 9;           // px, before the font-size setting
+const LABEL_MAX_CHARS = 28;
+// Catalogue designations (Gaia DR3 4057…, 2MASS J0523…) aren't worth reading.
+const ID_LIKE = /\d{5,}|^(Gaia|2MASS|TIC|KIC|EPIC|HIP|HD|TYC|WISE|SDSS|UGC|PGC|NGC|IC|GJ|LHS|NLTT)\b/i;
 
 let _data = null;          // { names, r, m, src, rank, sources }
 let _loading = null;
 let _kept = [];            // [{ i, sx, sy }] drawn this frame
 let _keptGrid = new Map(); // cell key → indices into _kept (hover lookup)
+let _labelled = new Set(); // dust indices labelled last frame: kept first, so labels don't flicker
 
 export function dustReady() { return !!_data; }
 
@@ -83,7 +94,7 @@ export function loadDust() {
 /**
  * Draw the dust layer.
  * @param layer    d3 selection of the <g> to draw into
- * @param view     { px, py, cw, ch, mobile, hidden }
+ * @param view     { px, py, cw, ch, mobile, hidden, labels, fontScale }
  * @param blockers { dots: [{sx, sy}], rects: [{x, y, w, h}], circles: [{sx, sy, r}] }
  *                 — curated dots, labels and (round) icons dust must stay clear of
  * @param colorOf  (catKey, sourceId) → css colour
@@ -91,7 +102,7 @@ export function loadDust() {
 export function drawDust(layer, view, blockers, colorOf) {
   _kept = [];
   _keptGrid = new Map();
-  if (!_data || view.hidden) { layer.selectAll("path").remove(); return; }
+  if (!_data || view.hidden) { layer.selectAll("path, text").remove(); _labelled = new Set(); return; }
 
   const { px, py, cw, ch } = view;
   const { r, m, src, rank, sources } = _data;
@@ -173,6 +184,59 @@ export function drawDust(layer, view, blockers, colorOf) {
       .attr("opacity", (g) => sources[g.s].cat === "blackhole" ? 0.85 : 0.7)
       .attr("stroke", (g) => colorOf(sources[g.s].cat, sources[g.s].id)))
     .attr("d", (g) => g.d);
+
+  drawDustLabels(layer, view, occ, gw, gh, OC, colorOf);
+}
+
+/** Name a sparse few of the dots just drawn: greedy by priority (last
+ *  frame's labels first, then the fixed random rank), each needing a clear
+ *  radius from the others and a free spot for its text. */
+function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
+  const { names, src, sources } = _data;
+  const placed = [];
+  if (view.labels) {
+    const max = view.mobile ? LABEL_MAX_MOBILE : LABEL_MAX_DESKTOP;
+    const gap2 = (view.mobile ? LABEL_GAP_MOBILE : LABEL_GAP_DESKTOP) ** 2;
+    const fs = LABEL_FONT * (view.fontScale || 1);
+    const free = (x0, y0, x1, y1) => {
+      if (x0 < 0 || y0 < 0 || x1 > view.cw || y1 > view.ch) return false;
+      for (let y = Math.floor(y0 / OC); y <= Math.floor(y1 / OC); y++)
+        for (let x = Math.floor(x0 / OC); x <= Math.floor(x1 / OC); x++)
+          if (occ[y * gw + x]) return false;
+      return true;
+    };
+    // _kept is already in rank order; last frame's labels go first
+    const order = [..._kept.filter((q) => _labelled.has(q.i)), ..._kept.filter((q) => !_labelled.has(q.i))];
+    for (const q of order) {
+      if (placed.length >= max) break;
+      if (sources[src[q.i]].cat === "blackhole") continue;     // ticks on the line, not dots
+      let text = names[q.i];
+      if (!text || ID_LIKE.test(text)) continue;
+      if (text.length > LABEL_MAX_CHARS) text = text.slice(0, LABEL_MAX_CHARS - 1) + "…";
+      if (placed.some((p) => (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < gap2)) continue;
+      const w = text.length * fs * 0.55, h = fs * 1.2;
+      let anchor = null;
+      if (free(q.sx + 4, q.sy - h / 2, q.sx + 6 + w, q.sy + h / 2)) anchor = "start";
+      else if (free(q.sx - 6 - w, q.sy - h / 2, q.sx - 4, q.sy + h / 2)) anchor = "end";
+      if (!anchor) continue;
+      placed.push({ i: q.i, sx: q.sx, sy: q.sy, text, anchor, fs });
+    }
+  }
+  _labelled = new Set(placed.map((p) => p.i));
+  layer.selectAll("text.dust-label")
+    .data(placed, (p) => p.i)
+    .join((enter) => enter.append("text")
+      .attr("class", "dust-label")
+      .attr("font-family", "Inter, sans-serif").attr("font-style", "italic").attr("font-weight", 500)
+      .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.85)")
+      .attr("stroke-width", 2.5).attr("stroke-linejoin", "round")
+      .attr("dominant-baseline", "central").attr("opacity", 0.8))
+    .attr("x", (p) => p.sx + (p.anchor === "start" ? 5 : -5))
+    .attr("y", (p) => p.sy)
+    .attr("text-anchor", (p) => p.anchor)
+    .attr("font-size", (p) => p.fs)
+    .attr("fill", (p) => colorOf(sources[src[p.i]].cat, sources[src[p.i]].id))
+    .text((p) => p.text);
 }
 
 /** Map of name → [logR, logM] for one dust source (e.g. "element"). */

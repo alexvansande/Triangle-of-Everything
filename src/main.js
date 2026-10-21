@@ -534,6 +534,7 @@ const lRegLabel   = lContent.append("g");
 // Catalogue "dust": thousands of faint real objects under the curated ones
 // (src/dust.js). Never interactive except for a hover name.
 const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
+const DUST_LABELS_OFF = NARR_PREVIEW || new URLSearchParams(location.search).has("narrate");
 const lDustHover  = lContent.append("g").style("pointer-events", "none");
 const lObj        = lContent.append("g");
 // Retained rendering split: extras (cluster/category/BH labels, ~20 nodes)
@@ -2834,6 +2835,8 @@ function drawObjects() {
   drawDust(lDust, {
     px, py, cw, ch, mobile: _isMobile,
     hidden: !_dustEnabled || _bigBangMode,
+    // a few dust names, map-style; not in the narrated videos or the poster
+    labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fontScale: _fontScale,
   }, {
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
