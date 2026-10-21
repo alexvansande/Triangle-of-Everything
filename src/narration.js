@@ -164,6 +164,7 @@ export async function startNarration(app) {
   // the paths' moving dots: as big as the catalogue dust (1.15 px), brighter
   // than in the app so they still read in a phone video
   app.setDots?.(SCENE.dots ?? { radius: 1.15, opacity: 1.7 });
+  app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? true);
   // a scene that tells the primordial black hole window itself hides the map's
   // ready-made one, so no label shows before it's been talked about
   app.setPbhWindow?.(SCENE.pbhWindow !== false);

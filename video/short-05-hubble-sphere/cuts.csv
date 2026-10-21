@@ -2,81 +2,84 @@ source,beat,out_start,out_end,src_start,src_end,text
 rec29,recap,0.00,10.93,33.58,45.42,you can try to fit everything that has ever existed in one image and probably the best way to do that is using a log chart of mass and size
 rec29,recap,11.21,19.50,79.20,87.72,"and if you do that, every object around you that you can see will probably fall on this diagonal density line."
 rec29,recap,19.79,23.24,88.32,91.77,"This is the density of things made of matter,"
-rec29,recap,23.52,37.27,131.55,147.45,"that will remain true from the smallest mouth to the giant blue whale, from Mount Everest to a moon, from your right to a Jupiter -sized planet."
-rec31,split,37.87,41.68,172.07,175.88,"when we get to Jupiter sized planets, the trend changes."
-rec31,split,41.96,48.70,187.01,193.95,"A super Jupiter, 10 times this mass of Jupiter will still have the same diameter."
-rec31,split,48.98,53.35,204.77,209.14,"and then after brown dwarfs, the line really splits."
-rec29,left,53.95,57.60,178.12,181.77,"to the left, we don't have normal matter anymore."
-rec29,left,57.88,62.58,181.98,186.75,"We have the skeletal remains of dead stars, white"
-rec29,left,62.73,65.89,190.62,193.78,and neutron stars and finally black holes.
-rec29,left,66.17,72.54,215.89,222.26,and black holes will actually represent the first limit in our attempt to draw every object possible
-rec29,left,72.82,78.52,236.73,242.43,"because every object that becomes too small or too massive becomes a black hole,"
-rec29,left,78.80,84.54,245.83,251.57,and black holes all live in this diagonal line called the Schwarzschild radius.
-rec29,left,84.82,87.81,259.61,262.61,No object in our universe can be above that.
-rec31,right,88.41,97.80,220.85,230.24,"and to the right we have stars, and when they die they become red giants, and they will go plop and explode into supernovas."
-rec31,right,98.08,104.51,273.53,280.30,And that gas will just expand out into space and meet other supernova remnants
-rec31,right,104.66,107.51,288.90,291.75,and create the conditions for a new generation of stars
-rec31,right,107.56,108.91,298.10,299.44,form again.
-rec29,empty,109.51,114.39,298.83,303.71,"And at this chaos, things are mostly made of empty space."
-rec29,empty,114.67,118.95,309.08,313.37,Globular clusters and dwarf galaxies and galaxies.
-rec29,empty,119.23,125.57,356.04,362.65,at this scale the larger something becomes the less dense it is
-rec29,empty,125.85,130.60,365.40,370.16,a galaxy is mostly empty space between the stars.
-rec29,empty,130.88,136.46,378.70,384.70,our own galaxies here the Milky Way and its sister the Andromeda
-rec29,empty,136.74,140.32,390.76,394.34,and we live in a local group of galaxies.
-rec29,empty,140.60,151.03,406.77,417.29,And galaxy clusters are even less dense because it's the density of the galaxies plus all the empty space in between them.
-rec31,empty,151.31,168.37,350.59,370.02,"And above that we have the largest structures that we know of, those are superclusters which come in the shape of filaments. we live on one called the Laniakea supercluster, which is made of a hundred thousand galaxies,"
-rec31,voids,168.97,173.47,105.45,109.95,There is still something larger and those are the voids
-rec31,voids,173.75,177.05,109.94,113.25,Voids are just empty areas of space.
-rec31,voids,177.33,185.41,127.98,136.60,"They are not completely empty, they are just emptier than space around them, so they do have mass and they fit in this chart"
-rec29,edge,186.01,191.31,603.00,608.30,"What about anything bigger? Well, if you try to go any bigger,"
-rec29,edge,191.43,197.87,612.20,619.25,"then you will reach the second edge, the limit beyond where nothing can be bigger."
-rec29,edge,198.15,201.14,622.24,625.23,And that will be the Hubble sphere.
-rec29,edge,201.74,210.10,661.90,670.60,the speed of light is not about light but it's really the speed limit of how fast anything can travel in space
-rec29,edge,210.38,214.10,684.09,687.81,but space itself can actually travel faster than that
-rec29,edge,214.38,220.62,711.97,718.30,the universe is expanding not in the sense that it's a ball expanding into something
-rec29,edge,220.90,231.27,724.88,737.91,"but rather that space itself is being created as if we were adding more and more pixels inside each pixel,"
-rec29,edge,231.55,239.94,771.81,780.20,Similar to how when you want to increase the resolution on an image what you do is you just take one pixel and turn that into four
-rec29,edge,240.54,247.77,801.19,809.20,"And that means that the further away something is from us, the fastest it is running away from us."
-rec29,edge,248.05,250.42,839.60,841.97,"And at this point in the Hubble line,"
-rec30,edge,250.70,254.81,20.20,24.31,things that happen here are moving away from us at the speed of light.
-rec30,horizon,255.41,259.54,47.92,52.09,"you'd think that it means that it would never reach us, but that's not exactly true."
-rec30,horizon,259.82,261.82,52.00,54.00,it's a little bit more complicated than that
-rec30,horizon,262.10,270.39,58.03,66.32,"because the Hubble sphere itself is also growing, so things that happen here will eventually slow down and be able to reach us."
-rec30,horizon,270.67,276.63,73.34,79.66,there is a second point a little bit over here which is The cosmic event horizon
-rec30,horizon,276.91,284.21,90.39,98.64,and this is truly the edge of our universe because nothing that happens here can ever affect us
-rec30,horizon,284.49,290.35,115.64,121.50,"No information will travel from here to there, no mass, no light,"
-rec30,horizon,290.63,294.05,132.80,136.34,This is the limit of the unknowable.
-rec31,twist,294.75,299.69,31.90,36.84,"Now, if you add up everything that we know exists on the Hubble sphere,"
-rec31,twist,299.97,303.13,53.19,56.35,Here is where it would fit on our chart.
-rec30,twist,303.41,308.86,183.92,189.40,You see that the mass actually falls exactly on the black hole line
-rec30,twist,309.14,310.26,218.30,219.43,What does it mean?
-rec30,twist,310.54,312.97,228.34,230.77,Are we living inside the black hole?
-rec30,twist,313.25,318.95,240.55,246.34,both of those represents an event horizon in some way.
-rec30,twist,319.23,321.23,253.60,255.60,the Schwarzschild radius is
-rec30,twist,321.35,326.38,258.28,263.31,the limit in which light that enters it can never come out.
-rec30,twist,326.66,333.84,263.80,271.33,And the event horizon is the limit that anything outside of it can never come in.
-rec30,twist,334.12,338.03,276.85,280.76,And they both are dependent on mass.
-rec30,twist,338.31,344.16,287.15,293.00,the size of an event horizon of a black hole depends on the mass of the black hole
-rec30,twist,344.44,346.69,295.55,297.80,and the size of our Hubble sphere
-rec30,twist,346.81,354.70,311.42,319.55,"depends on the rate of expansion of the universe which is dependent on the mass inside it,"
-rec30,ours,355.30,357.63,329.89,332.22,But the similarities also end here.
-rec30,ours,357.91,362.60,340.36,345.06,because a black hole is an object with a definitive center.
-rec30,ours,362.88,367.29,347.40,351.92,"And our universe is just that, it's our universe."
-rec30,ours,367.57,370.13,354.39,356.94,It's not the universe.
-rec30,ours,370.41,377.86,380.13,387.81,"if you are sitting on a galaxy in the edge of our universe, you will probably not see just empty space on the other side,"
-rec30,ours,378.14,384.03,392.50,398.39,"you'll probably see our galaxy in one direction and a trillion more galaxies in the others,"
-rec31,ours,384.43,389.40,17.86,22.82,"as far as we have been able to measure, it may well be infinite."
-rec30,ours,389.60,393.28,410.32,414.10,and probably looks roughly the same everywhere.
-rec31,limits,393.88,397.63,426.65,430.40,those two lines the Hubble radio and the Schwarzschild radios
-rec31,limits,397.78,406.32,434.21,442.75,and they form the upper limits of how big how small and how massive a thing can be on the universe.
-rec31,end,406.92,408.74,512.51,514.34,"there is however one more thing,"
-rec31,end,409.02,415.70,514.24,520.96,if you ask a scientist the size of the universe they will probably throw a number like 46 billion light -years
-rec31,end,415.98,424.25,542.95,551.22,and inside that sphere we will see galaxies that are right now already unreachable for us
-rec31,end,424.53,428.79,573.86,578.12,even if you could travel at light speed and live forever
-rec31,end,429.07,435.95,585.34,592.66,"if we map that observable Universe, it will fit way outside our triangle."
-rec31,end,436.23,438.97,674.79,677.54,but that object is a little bit an illusion.
-rec31,end,439.25,447.77,677.61,686.25,"That is the light that is reaching us right now. That doesn't represent where they were when the light first emitted,"
-rec31,end,448.05,457.01,691.90,701.62,but rather that represents where would those objects be right now if they were not out of our reach.
-rec31,end,457.29,462.85,735.00,740.57,"the observable universe is less like a view of where your neighbour is,"
-rec31,end,463.13,466.17,748.45,751.49,but more like the history of our own past.
-rec31,end,466.45,474.82,752.41,760.87,It tells us the story of the early universe and galaxies that are already far beyond our reach.
+rec29,recap,23.52,24.72,131.55,132.75,that will remain true
+rec29,recap,24.87,35.89,134.38,147.45,"to the giant blue whale, from Mount Everest to a moon, from your right to a Jupiter -sized planet."
+rec31,split,36.49,40.30,172.07,175.88,"when we get to Jupiter sized planets, the trend changes."
+rec31,split,40.58,47.32,187.01,193.95,"A super Jupiter, 10 times this mass of Jupiter will still have the same diameter."
+rec31,split,47.60,51.97,204.77,209.14,"and then after brown dwarfs, the line really splits."
+rec29,left,52.57,56.22,178.12,181.77,"to the left, we don't have normal matter anymore."
+rec29,left,56.50,61.20,181.98,186.75,"We have the skeletal remains of dead stars, white"
+rec29,left,61.35,64.51,190.62,193.78,and neutron stars and finally black holes.
+rec29,left,64.79,71.16,215.89,222.26,and black holes will actually represent the first limit in our attempt to draw every object possible
+rec29,left,71.44,77.14,236.73,242.43,"because every object that becomes too small or too massive becomes a black hole,"
+rec29,left,77.42,83.16,245.83,251.57,and black holes all live in this diagonal line called the Schwarzschild radius.
+rec29,left,83.44,86.43,259.61,262.61,No object in our universe can be above that.
+rec31,right,87.03,91.80,220.85,225.62,"and to the right we have stars, and when they die they become red giants,"
+rec31,right,91.95,95.63,226.56,230.24,and they will go plop and explode into supernovas.
+rec31,right,95.91,102.34,273.53,280.30,And that gas will just expand out into space and meet other supernova remnants
+rec31,right,102.49,105.34,288.90,291.75,and create the conditions for a new generation of stars
+rec31,right,105.39,106.74,298.10,299.44,form again.
+rec29,empty,107.34,112.22,298.83,303.71,"And at this chaos, things are mostly made of empty space."
+rec29,empty,112.50,116.78,309.08,313.37,Globular clusters and dwarf galaxies and galaxies.
+rec29,empty,117.06,122.13,357.30,362.65,at this scale the larger something becomes the less dense it is
+rec29,empty,122.41,127.17,365.40,370.16,a galaxy is mostly empty space between the stars.
+rec29,empty,127.45,130.19,378.70,381.45,our own galaxies here the Milky Way
+rec29,empty,130.39,132.87,382.62,385.10,and its sister the Andromeda
+rec29,empty,133.15,136.74,390.76,394.34,and we live in a local group of galaxies.
+rec29,empty,137.02,147.44,406.77,417.29,And galaxy clusters are even less dense because it's the density of the galaxies plus all the empty space in between them.
+rec31,empty,147.72,164.79,350.59,370.02,"And above that we have the largest structures that we know of, those are superclusters which come in the shape of filaments. we live on one called the Laniakea supercluster, which is made of a hundred thousand galaxies,"
+rec31,voids,165.39,169.88,105.45,109.95,There is still something larger and those are the voids
+rec31,voids,170.16,173.47,109.94,113.25,Voids are just empty areas of space.
+rec31,voids,173.75,181.82,127.98,136.60,"They are not completely empty, they are just emptier than space around them, so they do have mass and they fit in this chart"
+rec29,edge,182.42,187.72,603.00,608.30,"What about anything bigger? Well, if you try to go any bigger,"
+rec29,edge,187.84,194.29,612.20,619.25,"then you will reach the second edge, the limit beyond where nothing can be bigger."
+rec29,edge,194.57,197.55,622.24,625.23,And that will be the Hubble sphere.
+rec29,edge,198.15,206.51,661.90,670.60,the speed of light is not about light but it's really the speed limit of how fast anything can travel in space
+rec29,edge,206.79,210.51,684.09,687.81,but space itself can actually travel faster than that
+rec29,edge,210.79,217.03,711.97,718.30,the universe is expanding not in the sense that it's a ball expanding into something
+rec29,edge,217.31,227.69,724.88,737.91,"but rather that space itself is being created as if we were adding more and more pixels inside each pixel,"
+rec29,edge,227.97,236.71,771.81,780.55,Similar to how when you want to increase the resolution on an image what you do is you just take one pixel and turn that into four
+rec29,edge,237.31,244.53,801.19,809.20,"And that means that the further away something is from us, the fastest it is running away from us."
+rec29,edge,244.81,247.18,839.60,841.97,"And at this point in the Hubble line,"
+rec30,edge,247.46,251.57,20.20,24.31,things that happen here are moving away from us at the speed of light.
+rec30,horizon,252.17,256.31,47.92,52.09,"you'd think that it means that it would never reach us, but that's not exactly true."
+rec30,horizon,256.59,258.59,52.00,54.00,it's a little bit more complicated than that
+rec30,horizon,258.87,267.15,58.03,66.32,"because the Hubble sphere itself is also growing, so things that happen here will eventually slow down and be able to reach us."
+rec30,horizon,267.43,273.40,73.34,79.66,there is a second point a little bit over here which is The cosmic event horizon
+rec30,horizon,273.68,280.98,90.39,98.64,and this is truly the edge of our universe because nothing that happens here can ever affect us
+rec30,horizon,281.26,287.11,115.64,121.50,"No information will travel from here to there, no mass, no light,"
+rec30,horizon,287.39,290.82,132.80,136.34,This is the limit of the unknowable.
+rec31,twist,291.52,296.45,31.90,36.84,"Now, if you add up everything that we know exists on the Hubble sphere,"
+rec31,twist,296.73,299.90,53.19,56.35,Here is where it would fit on our chart.
+rec30,twist,300.18,305.62,183.92,189.40,You see that the mass actually falls exactly on the black hole line
+rec30,twist,305.90,307.03,218.30,219.43,What does it mean?
+rec30,twist,307.31,309.74,228.34,230.77,Are we living inside the black hole?
+rec30,twist,310.02,313.15,231.83,234.96,Both of those represent event horizons.
+rec30,twist,313.43,315.43,253.60,255.60,the Schwarzschild radius is
+rec30,twist,315.55,320.58,258.28,263.31,the limit in which light that enters it can never come out.
+rec30,twist,320.86,328.04,263.80,271.33,And the event horizon is the limit that anything outside of it can never come in.
+rec30,twist,328.32,332.23,276.85,280.76,And they both are dependent on mass.
+rec30,twist,332.51,338.36,287.15,293.00,the size of an event horizon of a black hole depends on the mass of the black hole
+rec30,twist,338.64,340.89,295.55,297.80,and the size of our Hubble sphere
+rec30,twist,341.01,348.90,311.42,319.55,"depends on the rate of expansion of the universe which is dependent on the mass inside it,"
+rec30,ours,349.50,351.83,329.89,332.22,But the similarities also end here.
+rec30,ours,352.11,356.80,340.36,345.06,because a black hole is an object with a definitive center.
+rec30,ours,357.08,361.49,347.40,351.92,"And our universe is just that, it's our universe."
+rec30,ours,361.77,364.33,354.39,356.94,It's not the universe.
+rec30,ours,364.61,372.06,380.13,387.81,"if you are sitting on a galaxy in the edge of our universe, you will probably not see just empty space on the other side,"
+rec30,ours,372.34,378.23,392.50,398.39,"you'll probably see our galaxy in one direction and a trillion more galaxies in the others,"
+rec31,ours,378.63,383.60,17.86,22.82,"as far as we have been able to measure, it may well be infinite."
+rec30,ours,383.80,387.48,410.32,414.10,and probably looks roughly the same everywhere.
+rec31,limits,388.08,391.83,426.65,430.40,those two lines the Hubble radio and the Schwarzschild radios
+rec31,limits,391.98,400.52,434.21,442.75,and they form the upper limits of how big how small and how massive a thing can be on the universe.
+rec31,end,401.12,402.94,512.51,514.34,"there is however one more thing,"
+rec31,end,403.22,409.90,514.24,520.96,if you ask a scientist the size of the universe they will probably throw a number like 46 billion light -years
+rec31,end,410.18,418.45,542.95,551.22,and inside that sphere we will see galaxies that are right now already unreachable for us
+rec31,end,418.73,422.99,573.86,578.12,even if you could travel at light speed and live forever
+rec31,end,423.27,430.15,585.34,592.66,"if we map that observable Universe, it will fit way outside our triangle."
+rec31,end,430.43,433.17,674.79,677.54,but that object is a little bit an illusion.
+rec31,end,433.45,441.97,677.61,686.25,"That is the light that is reaching us right now. That doesn't represent where they were when the light first emitted,"
+rec31,end,442.25,451.21,691.90,701.62,but rather that represents where would those objects be right now if they were not out of our reach.
+rec31,end,451.49,457.05,735.00,740.57,"the observable universe is less like a view of where your neighbour is,"
+rec31,end,457.33,460.37,748.45,751.49,but more like the history of our own past.
+rec31,end,460.65,469.02,752.41,760.87,It tells us the story of the early universe and galaxies that are already far beyond our reach.

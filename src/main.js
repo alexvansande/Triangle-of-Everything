@@ -580,6 +580,7 @@ clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch
 // Background tile layer (on top of gradient, below chart content)
 const lTilesBase = clip.append("g").style("pointer-events", "none"); // permanent low-res background
 const lTiles = clip.append("g").style("pointer-events", "none");
+let _bgFadeDeep = false;   // narration: fade the over-zoomed painting (app.setBgFadeDeep)
 
 // Content wrapper: CSS-transformed during zoom for smooth panning
 // (instead of tearing down & rebuilding all DOM elements each frame)
@@ -5071,6 +5072,11 @@ function drawTiles() {
   // into colour, hides upscaling and tile seams, and costs one filter pass.
   const blurPx = 0;
   lTiles.style("filter", overZoom > 1.2 ? `blur(${Math.min(14, overZoom * 3).toFixed(1)}px)` : null);
+  // Narration videos: past what the painting can hold, fade it to a hint of colour
+  // instead of showing a blurred smear (full at 3× over-zoom, 15% by 10×).
+  const bgFade = _bgFadeDeep ? Math.max(0.15, Math.min(1, 1 - (overZoom - 3) / 7 * 0.85)) : 1;
+  lTiles.style("opacity", bgFade < 1 ? bgFade.toFixed(3) : null);
+  lTilesBase.style("opacity", bgFade < 1 ? bgFade.toFixed(3) : null);
 
   // Poster mode: the tile layers sit outside the clip so the nebula also
   // covers the axis columns — cull against the padded range.
@@ -7490,6 +7496,8 @@ if (_ogShot) {
       loadDust: () => loadDust().then(() => redraw()),
       /** The moving dots (evolution, composition, spectrum paths): a size
        *  multiplier, an opacity multiplier, or a fixed radius in px. */
+      /** Fade the background painting at zooms deeper than its resolution (videos). */
+      setBgFadeDeep(on = true) { _bgFadeDeep = on; drawTiles(); },
       setDots({ size = 1, opacity = 1, radius = null } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; _dotFixedR = radius; },
       /** Only these objects keep their picture (the rest are plain dots over
        *  the dust); null for all of them. */

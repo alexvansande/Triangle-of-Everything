@@ -19,6 +19,7 @@ const AVG = { density: RHO };
 const HS = "Observable Universe";                    // the chart's dot sits at the Hubble radius
 const EH = { r: 28.20, m: 56.17, mark: true };       // cosmic event horizon, 16.7 billion ly
 const PH = { r: 28.64, m: 57.49, mark: true };       // particle horizon = observable universe, 46.5 billion ly
+const OU = { ellipse: [PH.r, PH.m, 0.09, 0.09], rot: 0, place: "above" };   // a ring on that dot, for its label
 
 export default {
   title: "The Hubble sphere",
@@ -33,8 +34,10 @@ export default {
 
   cues: [
     // ── One line, and the split ──────────────────────────────
-    { at: "log chart of mass and size", cam: FULL, dur: 2, hl: [{ line: "triangle" }] },
-    { at: "diagonal density line", cam: { r: 3, m: 12, span: 40 }, hl: [{ line: "water", label: "made of atoms" }] },
+    // a slow push in from the whole chart towards us
+    { at: "try to fit everything", offset: -0.4, cam: { obj: "Human", span: 26 }, dur: 14, drift: 0.02 },
+    { at: "log chart of mass and size", hl: [{ line: "triangle" }] },
+    { at: "diagonal density line", hl: [{ line: "water", label: "made of atoms" }, { obj: "Human", delay: 0.6 }] },
     { at: "smallest", cam: { r: 3.2, m: 11, span: 14 },
       hl: [{ line: "water" }, { obj: "Mouse" }, { obj: "Blue Whale", delay: 0.6 }] },
     { at: "mount everest", cam: { r: 6.5, m: 21, span: 16 }, hl: [{ line: "water" }, { obj: "Mt. Everest" }, { obj: "Moon", delay: 0.5 }] },
@@ -45,8 +48,9 @@ export default {
     { at: "to the left", cam: { r: 7, m: 33.5, span: 16 }, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "White Dwarf", label: "no normal matter", place: "below" }] },
     { at: "dead stars",
       hl: [{ obj: "White Dwarf", place: "left" }, { obj: "PSR J0030+0451", label: "neutron star", place: "left", delay: 0.8 }, { obj: "Stellar BH", label: "black hole", delay: 1.6 }] },
-    { at: "first limit", cam: FULL, dur: 2.5, hl: [{ ...SCHW, label: "edge 1" }] },
-    { at: "called the schwarzschild", hl: [{ ...SCHW, label: "Schwarzschild radius · black holes live on it" }] },
+    { at: "first limit", cam: { r: 11.5, m: 40, span: 16 }, dur: 3,
+      hl: [{ ...SCHW, label: "edge 1" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: false, delay: 0.4 }, { obj: "M87*", label: false, delay: 0.8 }, { obj: "Ton 618", label: false, delay: 1.2 }] },
+    { at: "called the schwarzschild", hl: [{ ...SCHW, label: "Schwarzschild radius" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: "black holes live on it" }, { obj: "M87*", label: false }, { obj: "Ton 618", label: false }] },
     { at: "can be above that", hl: [SCHW, { side: "left", of: "schwarzschild", label: "nothing" }] },
     { at: "to the right we have stars", cam: { r: 12, m: 34, span: 12 }, clear: true, hl: [{ obj: "Sun" }, { obj: "Red Giant", label: "red giants", delay: 0.4 }] },
     { at: "supernovas", hl: [{ obj: "Red Giant", label: false }, { obj: "Supernova Remnant", label: "supernovae" }] },
@@ -67,18 +71,18 @@ export default {
     { at: "not completely empty", hl: [{ obj: "Boötes Void", label: "emptier than average" }, { obj: "KBC Void", label: false }] },
 
     // ── The second edge ──────────────────────────────────────
-    { at: "the second edge", cam: FULL, dur: 2.5, clear: true, hl: [SCHW, { ...HUB, label: "edge 2" }] },
-    { at: "will be the hubble sphere", cam: { r: 27.6, m: 55, span: 6 }, hl: [HUB, { obj: HS, label: "Hubble sphere" }] },
-    { at: "speed limit", cam: { r: 22, m: 46, span: 30 }, hl: [{ ...HUB, label: "nothing travels faster than light" }] },
+    { at: "the second edge", cam: { r: 25, m: 51, span: 16 }, dur: 3, clear: true, hl: [SCHW, { ...HUB, label: "edge 2" }] },
+    { at: "will be the hubble sphere", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "Hubble sphere" }] },
+    { at: "speed limit", cam: { r: 24.5, m: 50, span: 16 }, hl: [{ ...HUB, label: "nothing travels faster than light" }] },
     { at: "space itself", hl: [{ ...HUB, label: "but space can outrun light" }] },
     { at: "pixels", hl: [HUB, { obj: "Laniakea", label: "more space between, not motion" }] },
     { at: "the further away", hl: [HUB, { obj: "Laniakea", label: false }, { arrow: true, from: { obj: "Laniakea" }, to: { obj: HS }, label: "farther, faster" }] },
-    { at: "speed of light", cam: { r: 27.6, m: 55, span: 6 }, hl: [HUB, { obj: HS, label: "Hubble sphere · 14 billion ly" }] },
+    { at: "speed of light", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "Hubble sphere · 14 billion ly" }] },
 
     // ── The cosmic event horizon ─────────────────────────────
     { at: "would never reach us", hl: [HUB, { obj: HS, label: "never reaches us?" }] },
     { at: "also growing", hl: [HUB, { obj: HS, label: "the sphere grows · its light gets here" }] },
-    { at: "second point", cam: { r: 28.17, m: 56.05, span: 1.2 }, hl: [HUB, { obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: EH, label: "cosmic event horizon · 16 billion ly" }] },
+    { at: "second point", cam: { r: 28.0, m: 55.8, span: 5 }, hl: [HUB, { obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: EH, label: "cosmic event horizon · 16 billion ly" }] },
     { at: "truly the edge", hl: [HUB, { obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: EH, label: "the edge of our universe" }] },
     { at: "limit of the unknowable", hl: [HUB, { obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: EH, label: "the unknowable" }] },
 
@@ -86,7 +90,7 @@ export default {
     { at: "add up everything", cam: { r: 26.5, m: 54, span: 9 }, clear: true, hl: [{ obj: HS, label: "everything inside the Hubble sphere" }] },
     { at: "exactly on the black hole line", hl: [SCHW, { obj: HS, label: "on the black-hole line" }] },
     { at: "inside a black hole", hl: [SCHW, { obj: HS, label: "a black hole?" }] },
-    { at: "an event horizon in some way", hl: [{ ...SCHW, label: "event horizons" }, { ...HUB, label: false }, { obj: HS, label: false }] },
+    { at: "represent event horizons", hl: [{ ...SCHW, label: "event horizons" }, { ...HUB, label: false }, { obj: HS, label: false }] },
     { at: "can never come out", hl: [{ ...SCHW, label: "nothing gets out" }, { obj: HS, label: false }] },
     { at: "can never come in", hl: [SCHW, { obj: HS, label: "nothing gets in" }] },
     { at: "both are dependent", hl: [SCHW, { ...AVG, label: "both set by mass" }, { obj: HS, label: false }] },
@@ -94,18 +98,19 @@ export default {
     { at: "definitive center", cam: { obj: "Ton 618", span: 8 }, hl: [SCHW, { obj: "Ton 618", label: "a black hole: a lump with a centre" }] },
 
     // ── Our universe ─────────────────────────────────────────
-    { at: "it's our universe", cam: { r: 27.6, m: 55, span: 6 }, hl: [HUB, { obj: HS, label: "our universe" }] },
+    { at: "it's our universe", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "our universe" }] },
     { at: "on the other side", hl: [HUB, { obj: HS, label: "everyone has their own" }] },
     { at: "may well be infinite", cam: { r: 27, m: 54, span: 10 }, hl: [HUB, { side: "right", of: "hubble" }, { obj: HS, label: "beyond: probably more of the same" }] },
 
     // ── The two limits, and the observable universe ──────────
-    { at: "those two lines", cam: FULL, dur: 3, clear: true, hl: [{ ...SCHW, label: "black-hole line" }, { ...HUB, label: "Hubble line", delay: 0.6 }] },
+    { at: "those two lines", cam: { r: 25, m: 51, span: 16 }, dur: 3, clear: true, hl: [{ ...SCHW, label: "black-hole line" }, { ...HUB, label: "Hubble line", delay: 0.6 }] },
     { at: "upper limits", hl: [{ line: "triangle" }] },
-    { at: "one more thing", cam: { r: 28.4, m: 56.75, span: 2.4 }, clear: true, hl: [{ obj: HS, label: false }] },
-    { at: "46 billion", hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH, label: "observable universe · 46 billion ly" }] },
-    { at: "unreachable", hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: EH, label: "beyond reach" }, { arrow: true, from: { obj: HS }, to: PH, label: false }] },
-    { at: "outside our triangle", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, label: "outside the triangle" }] },
-    { at: "an illusion", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, label: "where they would be now" }] },
-    { at: "history of our own past", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, label: "a history of our own past" }] },
+    // the label sits on the observable universe's own dot, not on the arrow
+    { at: "one more thing", cam: { r: 28.2, m: 56.4, span: 5 }, clear: true, hl: [{ obj: HS, label: false }] },
+    { at: "46 billion", hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH }, { ...OU, label: "observable universe · 46 billion ly" }] },
+    { at: "unreachable", hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH }, { ...OU, label: "beyond our reach" }] },
+    { at: "outside our triangle", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "outside the triangle" }] },
+    { at: "an illusion", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "where they would be now" }] },
+    { at: "history of our own past", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "a history of our own past" }] },
   ],
 };

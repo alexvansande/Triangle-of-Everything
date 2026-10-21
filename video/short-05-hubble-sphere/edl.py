@@ -19,7 +19,8 @@ EDL = [
  ("rec29", "recap", 33.06, 44.68),    # You can try to fit everything that has ever existed in one image, and probably the best way to do that is using a log chart of mass and size.   (two starts left out)
  ("rec29", "recap", 78.54, 87.24),    # And if you do that, every object around you that you can see will probably fall on this diagonal density line.   (five tries left out)
  ("rec29", "recap", 88.56, 91.14),    # This is the density of things made of matter,
- ("rec29", "recap", 131.48, 146.7),   # that will remain true from the smallest mouse to the giant blue whale, from Mount Everest to a moon, from Earth to a Jupiter-sized planet.   (four tries left out)
+ ("rec29", "recap", 131.48, 132.2, {"e": 132.75}),  # that will remain true,   (four tries left out)
+ ("rec29", "recap", 134.22, 146.7, {"s": 134.38, "gap": 0.15}),  # from the smallest mouse to the giant blue whale, from Mount Everest to a moon, from a meteorite to a Jupiter-sized planet.   (a first "from the smallest mouse," left out)
  # the split (rec31)
  ("rec31", "split", 171.99, 174.93, {"gap": 0.6}),  # When we get to Jupiter-sized planets, the trend changes.   ("the trend reversed" tries left out)
  ("rec31", "split", 187.37, 193.11),  # A super Jupiter, ten times the mass of Jupiter, will still have the same diameter.
@@ -33,16 +34,18 @@ EDL = [
  ("rec29", "left", 246.0, 250.76),    # and black holes all live in this diagonal line called the Schwarzschild radius.
  ("rec29", "left", 259.36, 262.04),   # No object in our universe can be above that.
  # the right (rec31)
- ("rec31", "right", 220.77, 228.81, {"gap": 0.6}), # And to the right we have stars, and when they die they become red giants, and they will go pop and explode into supernovas.
+ ("rec31", "right", 220.77, 224.85, {"e": 225.62, "gap": 0.6}), # And to the right we have stars, and when they die they become red giants,
+ ("rec31", "right", 225.91, 228.81, {"s": 226.56, "gap": 0.15}),  # they will go pop and explode into supernovas.   ("and they" before a second "they" left out)
  ("rec31", "right", 273.31, 279.67, {"e": 280.3}),  # And that gas will just expand out into space and meet other supernova remnants,   (three earlier tries left out)
  ("rec31", "right", 285.29, 291.53, {"s": 288.9, "e": 291.75, "gap": 0.15}),  # and create the conditions for a new generation of stars   ("and create the conditions for new stars," left out)
  ("rec31", "right", 296.35, 297.13, {"s": 298.1, "gap": 0.05}),  # to form again.   (a cut-off "to bor…" and a repeat left out)
  # bigger means emptier (rec29)
  ("rec29", "empty", 298.36, 302.56, {"gap": 0.6}), # And at this scale, things are mostly made of empty space.
  ("rec29", "empty", 309.3, 312.3),    # Globular clusters and dwarf galaxies and galaxies.
- ("rec29", "empty", 355.22, 362.06),  # At this scale, the larger something becomes, the less dense it is.
+ ("rec29", "empty", 355.22, 362.06, {"s": 357.3}),  # ("At this scale," left out: it was just said) The larger something becomes, the less dense it is.
  ("rec29", "empty", 363.92, 369.44),  # A galaxy is mostly empty space between the stars.
- ("rec29", "empty", 378.88, 384.3, {"e": 384.7}),  # Our own galaxy here, the Milky Way, and its sister, the Andromeda,
+ ("rec29", "empty", 378.88, 381.0, {"e": 381.45}),  # Our own galaxy here, the Milky Way,
+ ("rec29", "empty", 382.0, 384.3, {"s": 382.62, "e": 385.1, "gap": 0.2}),  # and its sister, the Andromeda,   (a whispered "and I…" left out; the end no longer clipped)
  ("rec29", "empty", 391.1, 393.46),   # and we live in a local group of galaxies.
  ("rec29", "empty", 407.02, 416.42),  # And galaxy clusters are even less dense, because it's the density of the galaxies plus all the empty space in between them.
  ("rec31", "empty", 350.05, 368.91),  # And above that we have the largest structures that we know of, those are superclusters, which come in the shape of filaments. We live on one called the Laniakea supercluster, which is made of a hundred thousand galaxies.
@@ -58,7 +61,7 @@ EDL = [
  ("rec29", "edge", 681.0, 687.38),    # but space itself can actually travel faster than that.
  ("rec29", "edge", 711.52, 717.78, {"e": 718.3}),  # The universe is expanding, not in the sense that it's a ball expanding into something,
  ("rec29", "edge", 723.74, 736.98),   # but rather that space itself is being created, as if we were adding more and more pixels inside each pixel.
- ("rec29", "edge", 772.1, 779.76, {"e": 780.2}),   # Similar to how, when you want to increase the resolution on an image, what you do is you just take one pixel and turn that into four.
+ ("rec29", "edge", 772.1, 779.76, {"e": 780.55}),   # Similar to how, when you want to increase the resolution on an image, what you do is you just take one pixel and turn that into four.
  ("rec29", "edge", 800.82, 808.72, {"gap": 0.6}),  # And that means that the further away something is from us, the fastest it is running away from us.
  ("rec29", "edge", 837.08, 841.18, {"s": 839.6}),   # And at this point, in the Hubble line,   ("and everything," left out)
  ("rec30", "edge", 16.0, 23.62, {"s": 20.2}),      # ("things that happen here are moving away from…" restart left out) things that happen here are moving away from us at the speed of light.
@@ -76,11 +79,11 @@ EDL = [
  ("rec30", "twist", 183.94, 189.02, {"e": 189.4}),  # You see that the mass actually falls exactly on the black hole line.
  ("rec30", "twist", 218.12, 218.9),   # What does it mean?
  ("rec30", "twist", 228.22, 230.24),  # Are we living inside a black hole?
- ("rec30", "twist", 239.96, 245.52),  # Both of those represent an event horizon in some way.
+ ("rec30", "twist", 231.66, 234.06),  # Both of those represent event horizons.   (the later "both of those… represents an event horizon in some way" sounded doubled)
  ("rec30", "twist", 252.26, 255.32, {"s": 253.6, "e": 255.6}),  # The Schwarzschild radius is   (a doubled "the Schwarzschild" left out)
  ("rec30", "twist", 258.62, 262.78, {"gap": 0.12}),  # the limit in which light that enters it can never come out.
  ("rec30", "twist", 263.74, 269.64),  # And the event horizon is the limit that anything outside of it can never come in.
- ("rec30", "twist", 277.15, 280.06),  # And they both are dependent on mass.
+ ("rec30", "twist", 277.15, 280.06, {"s": 276.85}),  # And they both are dependent on mass.   (a cough before it left out)
  ("rec30", "twist", 285.14, 292.44, {"s": 287.15}),  # ("the size of a," left out) The size of an event horizon of a black hole depends on the mass of the black hole,
  ("rec30", "twist", 295.35, 297.42, {"e": 297.8}),  # and the size of our Hubble sphere
  ("rec30", "twist", 310.54, 319.12, {"gap": 0.12}),  # depends on the rate of expansion of the universe, which is dependent on the mass inside it.
