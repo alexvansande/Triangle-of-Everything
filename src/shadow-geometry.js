@@ -31,7 +31,7 @@ export function wallShadowState(radius, growth = 1, scene = WALL_SCENE) {
   return wallShadowAtDepth(radius, depth, scene);
 }
 
-export const ROUND_SHADOW_OPACITY = 0.6;
+export const ROUND_SHADOW_OPACITY = 0.45;
 
 export function wallShadowImageGeometry({ sx, sy, r, anchorBase, registered, round }, growth = 1) {
   const state = wallShadowState(r, growth);

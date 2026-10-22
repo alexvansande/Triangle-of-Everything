@@ -1,5 +1,11 @@
 # Famous dust and video objects
 
+Update, 22 October 2026: **14-bis** is now a curated vehicle in
+`src/objects.json` with priority `z: 2`. Curated objects reserve space before
+catalogue dust, so it takes precedence over **Flyer I**. Flyer I remains in
+the catalogue and keeps its relative ranking among dust entries. The
+historical dust-only list below does not include this curated addition.
+
 Generated 2026-10-21 from the shorts branch (`claude/narration-autoplay-artifact-hv2npe`): `src/dust-famous.json` and `src/narration-scenes/*.js`. Icon status is for `gen3-icons`.
 
 ## Famous dust, by weight class

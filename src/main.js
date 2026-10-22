@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
+import { buildSearchIndex, searchObjects } from "./object-search.js";
 import { VisibilityMemory } from "./visibility-memory.js";
 import {
   formatSci, friendlyRadius, friendlyMass, friendlyEnergy, isPhoton,
@@ -35,7 +36,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, t
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustIcons, dustDots, pickDustIcon, setDustIconScale } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -2973,8 +2974,8 @@ function drawObjects() {
     ...(STAR_GLOWS ? dustIcons().filter(d => d.cat === "star") : [])
       .map(d => ({ key: `dust:${d.i}`, ...d, glow: starTint(ICON_BY_SLUG[nameToSlug(d.name)], "#ffd27a"), glowUrl: ICON_BY_SLUG[nameToSlug(d.name)] })),
     ...shownDots.filter(o => o._showIcon && !iconUsesScreenBlend(o))
-      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
-    ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
+      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.registered || SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
+    ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
   ]);
   drawDustShadows();
 }
@@ -6906,6 +6907,7 @@ function openSearch() {
   searchBtn.setAttribute("aria-expanded", "true");
   searchInput.setAttribute("aria-expanded", "true");
   requestAnimationFrame(() => searchInput.focus());
+  ensureSearchCatalogue();
 }
 function closeSearch() {
   searchBox.classList.remove("expanded");
@@ -7010,26 +7012,42 @@ function getSearchRegions() {
 const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-searchInput.addEventListener("input", () => {
+let searchIndex = buildSearchIndex(OBJECTS, []);
+let searchCatalogueLoading = null;
+function ensureSearchCatalogue() {
+  if (searchCatalogueLoading) return;
+  searchCatalogueLoading = loadDust().then(() => {
+    searchIndex = buildSearchIndex(OBJECTS, dustSearchEntries());
+    if (searchBox.classList.contains("expanded")) renderSearchResults();
+  }).catch(error => {
+    searchCatalogueLoading = null;
+    console.warn("Search catalogue failed to load", error);
+    if (searchBox.classList.contains("expanded")) renderSearchResults(true);
+  });
+}
+
+function renderSearchResults(loadFailed = false) {
   const q = searchInput.value.trim().toLowerCase();
+  _searchActive = -1;
+  searchInput.removeAttribute("aria-activedescendant");
   if (q.length < 1) { searchResults.classList.remove("active"); return; }
 
-  const matches = OBJECTS.filter(o => o.name.toLowerCase().includes(q)).slice(0, 6);
+  const matches = searchObjects(searchIndex, q);
   const regions = getSearchRegions().filter(g => g.label.toLowerCase().includes(q)).slice(0, 3);
 
   // The UI must always respond — an empty dropdown reads as "search is broken"
   if (matches.length === 0 && regions.length === 0) {
-    searchResults.innerHTML = `<div class="search-empty">No matches for “${escapeHtml(searchInput.value.trim())}”</div>`;
+    searchResults.innerHTML = `<div class="search-empty">${loadFailed ? "Catalogue unavailable. Reopen search to retry." : !dustReady() ? "Loading catalogue…" : `No matches for “${escapeHtml(searchInput.value.trim())}”`}</div>`;
     searchResults.classList.add("active");
     return;
   }
 
-  searchResults.innerHTML = matches.map(o => {
-    const dotColor = SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff";
-    return `<button type="button" role="option" class="search-item" data-logr="${o.logR}" data-logm="${o.logM}">
+  searchResults.innerHTML = matches.map((o, index) => {
+    const dotColor = SUBCAT_COLORS[o.subcat || DUST_SOURCE_SUBCAT[o.sourceId]] || CATEGORIES[o.cat]?.color || "#fff";
+    return `<button type="button" role="option" class="search-item" data-result="${index}">
       <span class="search-dot" style="background:${dotColor}"></span>
-      <span class="search-name">${o.name}</span>
-      <span class="search-cat">${o.cat}</span>
+      <span class="search-name">${escapeHtml(o.name)}</span>
+      <span class="search-cat">${escapeHtml(o.kind || o.cat)}</span>
     </button>`;
   }).join("") + regions.map((g, i) => `
     <button type="button" role="option" class="search-item search-region" data-region="${i}">
@@ -7044,16 +7062,24 @@ searchInput.addEventListener("input", () => {
 
   searchResults.querySelectorAll(".search-item:not(.search-region)").forEach(el => {
     el.addEventListener("click", () => {
-      const logR = parseFloat(el.dataset.logr);
-      const logM = parseFloat(el.dataset.logm);
-      const obj = OBJECTS.find(o => o.logR === logR && o.logM === logM);
-      panToCoord(logR, logM);
-      if (obj) openSidebar(obj);
+      const obj = matches[+el.dataset.result];
+      focusDust(obj.dustIndex ?? null);
+      if (obj.dustIndex != null) {
+        closeSidebar();
+        _dustEnabled = true;
+        setDust.checked = true;
+        flyTo(obj.logR, obj.logM, Math.max(currentK, 12), 500, d3.easeCubicOut);
+        redraw();
+      } else {
+        panToCoord(obj.logR, obj.logM);
+        openSidebar(obj);
+      }
       closeSearch();
     });
   });
   searchResults.querySelectorAll(".search-region").forEach(el => {
     el.addEventListener("click", () => {
+      focusDust();
       const g = regions[+el.dataset.region];
       const pad = 1.5;
       const xs = g.members.map(m => m.logR), ys = g.members.map(m => m.logM);
@@ -7064,6 +7090,10 @@ searchInput.addEventListener("input", () => {
       closeSearch();
     });
   });
+}
+searchInput.addEventListener("input", () => {
+  ensureSearchCatalogue();
+  renderSearchResults();
 });
 
 // Keyboard: ArrowUp/Down move the active option, Enter activates it,

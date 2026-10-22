@@ -1,0 +1,78 @@
+{
+  "cane-toad": {
+    "fingerprint": "84c737c4c1eec9c22a599d22e74ab9b9c42cfffde3f8ac70bd8c9d5ba98b233f",
+    "baseWidth": 128,
+    "source": "content/icons/src/cane-toad.png",
+    "reason": "matching master",
+    "sourceDifference": 1.759033203125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/cane-toad.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/cane-toad.webp"
+      }
+    ]
+  },
+  "naked-mole-rat": {
+    "fingerprint": "628fd438af10e7608e84744f3b743dd824b7c3c984a3f936130740932f56f1f8",
+    "baseWidth": 128,
+    "source": "content/icons/src/naked-mole-rat.png",
+    "reason": "matching master",
+    "sourceDifference": 0.9782918294270834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/naked-mole-rat.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/naked-mole-rat.webp"
+      }
+    ]
+  },
+  "mouse": {
+    "fingerprint": "3146dda04d6c6ea301608bcbeb93e901f334a4b21797e96c11464c3d364ac14b",
+    "baseWidth": 128,
+    "source": "content/icons/src/mouse.png",
+    "reason": "matching master",
+    "sourceDifference": 4.333597819010417,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/mouse.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/mouse.webp"
+      },
+      {
+        "width": 762,
+        "path": "762/mouse.webp"
+      }
+    ]
+  },
+  "lion": {
+    "fingerprint": "ee64a809975d5235a93705c894c1aa6f38f08a2d8c635cb5a2e845a48f91f9a4",
+    "baseWidth": 128,
+    "source": "content/icons/src/lion.png",
+    "reason": "matching master",
+    "sourceDifference": 1.9873453776041667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lion.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lion.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lion.webp"
+      }
+    ]
+  }
+}

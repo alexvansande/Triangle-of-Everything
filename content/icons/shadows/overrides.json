@@ -4,7 +4,7 @@
     "source": "alpha-long-shadow",
     "anchorBase": false,
     "flipY": false,
-    "opacity": 0.5,
+    "opacity": 0.65,
     "longLength": 0.8,
     "longGap": 0.06,
     "longAngle": 45,
@@ -22,7 +22,7 @@
     "x": -45,
     "y": -65,
     "reviewed": true,
-    "updated": "2026-10-22T12:52:21.602Z",
+    "updated": "2026-10-22T14:19:12.703Z",
     "generator": "studio-long-shadow-v1"
   },
   "sequoia": {
@@ -128,7 +128,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:25.392Z",
+    "updated": "2026-10-22T14:04:05.474Z",
     "generator": "studio-long-shadow-v1"
   },
   "eiffel-tower": {
@@ -471,7 +471,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T13:04:27.321Z",
+    "updated": "2026-10-22T14:10:04.782Z",
     "generator": "studio-long-shadow-v1"
   },
   "naked-mole-rat": {
@@ -487,7 +487,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:28.089Z",
+    "updated": "2026-10-22T14:10:04.546Z",
     "generator": "studio-long-shadow-v1"
   },
   "hedgehog": {
@@ -519,7 +519,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:22.342Z",
+    "updated": "2026-10-22T14:10:04.442Z",
     "generator": "studio-long-shadow-v1"
   },
   "meerkat": {
@@ -952,7 +952,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:22.755Z",
+    "updated": "2026-10-22T14:04:05.581Z",
     "generator": "studio-long-shadow-v1"
   },
   "clostridium-botulinum": {
@@ -1400,7 +1400,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:27.679Z",
+    "updated": "2026-10-22T14:10:04.671Z",
     "generator": "studio-long-shadow-v1"
   },
   "mt-everest": {
@@ -1548,20 +1548,21 @@
     "generator": "studio-long-shadow-v1"
   },
   "saturn": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
-    "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:28.813Z",
-    "generator": "studio-long-shadow-v1"
+    "opacity": 0.53,
+    "generatedBlur": 0,
+    "generatedScale": 0.42,
+    "distance": 0,
+    "x": 35,
+    "y": 40,
+    "reviewed": true,
+    "updated": "2026-10-22T14:18:24.554Z",
+    "generator": "built-in-imagegen",
+    "note": "AI ring and globe wall shadow; preserve during scripted batches."
   },
   "saturn-v": {
     "mode": "long",

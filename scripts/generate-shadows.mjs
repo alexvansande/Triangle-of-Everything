@@ -13,9 +13,11 @@ import { shadowExclusion } from './shadow-eligibility.mjs';
 import { LONG_SHADOW_PRESET } from '../src/long-shadow.js';
 
 export const CAUSTIC_SHADOWS = new Set(['1-ml-of-water', '1-liter-of-water', '1-tonne-of-water', 'loch-ness']);
+export const CUSTOM_AI_SHADOWS = new Set(['saturn']);
 export function shadowAction(name, excluded, round) {
   if (excluded) return 'excluded';
   if (CAUSTIC_SHADOWS.has(name)) return 'caustics';
+  if (CUSTOM_AI_SHADOWS.has(name)) return 'custom';
   if (round.has(name) || name === '_sphere') return 'round';
   return 'generate';
 }
@@ -35,7 +37,7 @@ async function main() {
     const reason = await shadowExclusion(name);
     plan.push({ name, action: shadowAction(name, reason, round), ...(reason ? { reason } : {}) });
   }
-  const counts = Object.fromEntries(['generate','round','caustics','excluded'].map(a => [a,plan.filter(p => p.action === a).length]));
+  const counts = Object.fromEntries(['generate','round','caustics','custom','excluded'].map(a => [a,plan.filter(p => p.action === a).length]));
   console.log(JSON.stringify(counts));
   if (args.includes('--dry-run')) { for (const p of plan) console.log(p.action, p.name); return; }
   const executablePath = [process.env.PUPPETEER_EXECUTABLE_PATH, process.env.CHROME_PATH,

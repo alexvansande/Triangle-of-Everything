@@ -1,5 +1,105 @@
 # Shadow studio
 
+## Big Ben shadow strength — 22 October 2026
+
+Big Ben's scripted shadow uses opacity 0.65 (previously 0.50), following
+feedback that it looked too light on the chart. Keep the shared long-shadow
+direction, length, progressive blur and hover behavior. This is an individual
+reviewed override; the shared sphere remains at 0.45 layer opacity.
+
+## Animal direction: side view, always facing left — 22 October 2026
+
+The user explicitly requested cane toad, naked mole-rat, mouse and lion
+in side view, always facing LEFT. All four replacements now use broadside
+bodies parallel to the wall and left-facing heads; do not turn their faces
+toward the viewer. Apply this left-facing direction to future side-view
+animal illustrations as well. This supersedes the earlier frontal lion
+guidance below. Preserve species-appropriate poses: toad crouching, rodents
+low on four feet, lion reclining with forepaws extended to the left.
+
+Use the approved hippo/elephant finish: near-orthographic miniature viewed
+only slightly from above, upper-left lighting, readable texture, real alpha,
+no baked cast shadow. Keep tails compact without cropping, and include
+whiskers and paws inside the canvas margins. Replaced the mouse's old
+frontal source with a transparent full-body profile.
+
+Built-in image generation supplied the four objects; the shared script
+supplied their separate long wall shadows. Masters, prompts, old assets,
+resolution backups, sizing checks and previews are in
+`content/icons/shadow-candidates/wall-studies/left-facing-animals/`.
+Chart masters are 1254px; updated runtime tiers are 128/256/512/1024px.
+
+## Meteorites: natural outlines and specimen identity — 22 October 2026
+
+Reviewed the two existing meteorite icons, Hoba and Chelyabinsk, after the
+user flagged overly square shapes. Replaced both masters and refreshed
+their separate scripted long shadows and 128/256/512/1024 exports.
+
+Chelyabinsk should read as an irregular, naturally broken stony fragment,
+with dark fusion crust and localized exposed pale interior, not a machined
+cube with three broad planar faces. Hoba is genuinely a broad, roughly
+rectangular iron slab: retain its tabular identity, while avoiding ruler-
+straight edges and a paving-stone appearance. Use a near-frontal specimen
+view with a little top visible, upper-left illumination and true alpha.
+Do not turn every meteorite into the same rounded generic boulder.
+
+Built-in image generation supplied these replacements. Old assets,
+prompts, source references, raw and normalized PNGs, shadow PNGs, alpha
+checks and the before/after chart-size comparison are saved in
+`content/icons/shadow-candidates/wall-studies/meteorite-review/`.
+
+## Approved lake reference and real outlines — 22 October 2026
+
+The user explicitly approved the current Loch Ness without changes. Use
+`content/icons/src/loch-ness.png` and the prompt/selected artwork in
+`content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/`
+as the material, camera and lighting references for other lakes.
+
+For each new lake, start with a real shoreline outline where available:
+prefer an SVG or a vector lake polygon from a documented map dataset.
+Keep the source URL, attribution/license and any projection or simplification
+with the generation record. Render that outline as a reference for image
+generation alongside Loch Ness; preserve the new lake's actual proportions,
+bays, islands and recognizable contour rather than copying Loch Ness's shape.
+Use a suitable local map projection, simplify only details too small for
+the chart, and compare the generated silhouette against the source before
+installing it. If no usable outline is available, record that limitation
+rather than describing an invented silhouette as geographically verified.
+
+Presentation: just the water volume, like a translucent blue-resin miniature
+mounted slightly off a vertical museum wall. Keep the map contour facing
+the viewer with little or no perspective; show a narrow band of depth on
+TOP-facing edges from the slightly elevated camera, never a thick bottom
+fascia. Match the approved Loch Ness texture, upper-left light, violet
+bounce and readable contrast. Avoid adding surrounding terrain or a base.
+
+Deliver a transparent object PNG and a separate wall shadow with refracted
+light/caustics. Generate the caustics with AI using the approved reference;
+an alpha-only scripted shadow cannot supply them. Follow the collection's
+shared placement and hover behavior, centered sizing and adaptive-resolution
+exports. Preserve the approved Loch Ness assets.
+
+## Approved vehicle references — 22 October 2026
+
+The user explicitly approved Titanic and Boeing 747 without further changes.
+Use their current masters as visual references when generating other vehicles:
+
+- Airplanes: `content/icons/src/boeing-747.png`. Direct top/dorsal view,
+  wings and fuselage in the wall plane, like a miniature glued to the wall.
+  Match its camera, lighting and degree of relief; retain the new aircraft's
+  actual proportions and distinguishing features.
+- Ships: `content/icons/src/titanic.png`. Broadside profile, like a miniature
+  displayed on an invisible shelf slightly below eye level. Show just a
+  little of the upper deck, with minimal perspective. Match its lighting
+  and shelf-display presentation, not Titanic-specific ship details.
+- Cars: viewing angle remains undecided. Do not infer an approved car angle
+  from the airplane or ship rule; use a small view study when cars are next
+  requested.
+
+Preserve the approved Titanic and 747 artwork. Future vehicle outputs keep
+real transparency, the collection's upper-left light, separate scripted
+long wall shadows, centered silhouettes and adaptive-resolution exports.
+
 ## Large animals: side profiles like the sphinx — 22 October 2026
 
 The user prefers side views for animals such as hippo and elephant.
@@ -56,9 +156,9 @@ alpha-derived long shadow. Penny was removed from `shadows/round.json`;
 the already-scripted Golden Record shadow was refreshed. Keep these discs
 out of the shared round group in future classifications.
 
-The shared spherical texture now has an explicit 0.60 runtime layer
-opacity in `src/shadow-geometry.js`, shared by chart and studio. The prior
-layer multiplier was 0.85, so the requested 60% is numerically lighter.
+The shared spherical texture now has an explicit 0.45 runtime layer
+opacity in `src/shadow-geometry.js`, shared by chart and studio. This was
+reduced from 0.60 after visual feedback to better match the scripted shadows.
 Its existing gradient and shape are unchanged; hover still fades it further.
 Custom shadow textures keep the existing 0.85 runtime multiplier, because
 their individual opacity is already baked into their pixels.
@@ -633,3 +733,21 @@ Studio and wall-study default to #433193, sampled from the live chart in the
 water region with the shadow layer hidden. The chart is a varying background,
 so this is a local reference color rather than a global replacement. The
 opacity comparison is in docs/shadow-studio-review/water-opacity-comparison.png.
+## Saturn: generated globe and ring shadow — 22 October 2026
+
+Saturn uses a custom AI-generated wall shadow, based on its existing image
+and the original shared sphere shadow. Preserve the globe's dark near edge
+and fading, progressively softer far edge, plus the rings' projected shape
+and open gaps. This is not an alpha-sweep shadow. The planet image is unchanged.
+
+The raw transparent candidate is `content/icons/shadow-candidates/saturn.png`.
+The prompt, PNG master, rest/hover preview and previous assets are archived in
+`content/icons/shadow-candidates/wall-studies/saturn-ring-shadow/`.
+Built-in image generation was used. The installed shadow is
+`content/icons/shadows/saturn.webp`; its studio settings use `mode: generated`
+and `registered: true`, so chart and studio honor the same centered canvas
+without adding a second legacy offset. Opacity is baked at 0.53 before the
+custom layer multiplier of 0.85, approximately matching the 0.45 shared shadow.
+
+`CUSTOM_AI_SHADOWS` protects Saturn from scripted batch regeneration,
+including `--reset-reviewed`. Adjust its candidate in the studio when needed.

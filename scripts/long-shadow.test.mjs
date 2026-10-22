@@ -11,6 +11,8 @@ test('bulk generation preserves caustics and spheres and excludes screen artwork
  assert.equal(shadowAction('_sphere',null,round),'round');
  assert.equal(shadowAction('sun','Screen-blended artwork',round),'excluded');
  assert.equal(shadowAction('elephant',null,round),'generate');
+ assert.equal(shadowAction('saturn',null,round),'custom');
+ assert.equal(shadowAction('saturn','Screen-blended artwork',round),'excluded');
 });
 
 test('sweeps down-right with a fade, without flipping the silhouette',()=>{
@@ -45,9 +47,9 @@ test('registered textures rest at icon center and move independently on hover',(
  assert.ok(legacy.x>rest.x);assert.ok(legacy.y>rest.y);
 });
 
-test('shared round shadows use 60% opacity while custom textures keep their multiplier',()=>{
+test('shared round shadows use 45% opacity while custom textures keep their multiplier',()=>{
  const d={sx:200,sy:200,r:64,round:true};
- assert.equal(wallShadowImageGeometry(d).opacity,0.6);
+ assert.equal(wallShadowImageGeometry(d).opacity,0.45);
  const hover=wallShadowImageGeometry(d,1.5);
  assert.ok(hover.opacity<0.6);
  assert.equal(wallShadowImageGeometry({...d,round:false,registered:true}).opacity,0.85);

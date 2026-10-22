@@ -95,6 +95,26 @@ let _iconShapes = [];      // [{ i, name, sx, sy, r, blend }] of those pictures,
 let _visibilityEpoch = null;
 const _dotDecisions = new Map();
 const _nameDecisions = new Map(); // null means deliberately hidden, not undecided
+let _focused = null;
+let _searchEntries = null;
+
+/** Search uses the same loaded, bulk-adjusted coordinates as the renderer. */
+export function dustSearchEntries() {
+  if (!_data) return [];
+  return _searchEntries ??= _data.names.map((name, i) => {
+    const source = _data.sources[_data.src[i]], famous = _data.fame.get(i);
+    return { name: famous?.label || name, aliases: [name], dustIndex: i,
+      logR: _data.r[i], logM: _data.m[i], cat: source.cat, sourceId: source.id,
+      kind: famous?.kind || labelKind(source.id, name, _data.m[i]) || source.label };
+  });
+}
+
+export function focusDust(index = null) {
+  for (const i of [_focused, index]) {
+    _dotDecisions.delete(i); _nameDecisions.delete(i);
+  }
+  _focused = index;
+}
 
 export function dustReady() { return !!_data; }
 
@@ -148,6 +168,9 @@ export function loadDust() {
     rank.set(first, 0); rank.set(rest, first.length);
     _data = { names, r, rSpan, m, src, rank, sources, fame };
     return _data;
+  }).catch(error => {
+    _loading = null;
+    throw error;
   });
   return _loading;
 }
@@ -210,10 +233,11 @@ export function drawDust(layer, view, blockers, colorOf) {
   const paths = new Map(); // srcIdx → path string parts
   // Existing visible decisions reserve their space before new arrivals.
   // Existing hidden decisions remain hidden until the next zoom epoch.
-  const order = [...rank.filter(i => _dotDecisions.get(i) === true),
-    ...rank.filter(i => !_dotDecisions.has(i))];
+  const order = [...(_focused == null ? [] : [_focused]),
+    ...rank.filter(i => i !== _focused && _dotDecisions.get(i) === true),
+    ...rank.filter(i => i !== _focused && !_dotDecisions.has(i))];
   for (const i of order) {
-    const retained = _dotDecisions.get(i) === true;
+    const retained = i === _focused || _dotDecisions.get(i) === true;
     const pad = retained ? 256 : 0;
     const sx = px(r[i]);
     if (sx < -pad || sx > cw + pad) continue;
@@ -275,7 +299,7 @@ export function drawDust(layer, view, blockers, colorOf) {
 function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
   const { names, src, sources } = _data;
   const placed = [];
-  if (view.labels) {
+  if (view.labels || _focused != null) {
     const max = view.mobile ? LABEL_MAX_MOBILE : LABEL_MAX_DESKTOP;
     const gap2 = (view.mobile ? LABEL_GAP_MOBILE : LABEL_GAP_DESKTOP) ** 2;
     const fs = LABEL_FONT * (view.fontScale || 1);
@@ -287,7 +311,9 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       return true;
     };
     // _kept is already in rank order; last frame's labels go first
-    const order = [..._kept.filter(q => _nameDecisions.get(q.i)), ..._kept.filter(q => !_nameDecisions.has(q.i))];
+    const order = [..._kept.filter(q => q.i === _focused),
+      ..._kept.filter(q => q.i !== _focused && _nameDecisions.get(q.i)),
+      ..._kept.filter(q => q.i !== _focused && !_nameDecisions.has(q.i))];
     const maxIcons = view.iconOf ? (view.mobile ? ICON_MAX_MOBILE : ICON_MAX_DESKTOP) : 0;
     let icons = 0;
     const occupyIcon = (q, r) => {
@@ -312,6 +338,16 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       return true;
     };
     for (const q of order) {
+      if (q.i === _focused) {
+        const name = _data.fame.get(q.i)?.label || names[q.i];
+        const size = Math.max(64, view.iconSizeAt(_data.r[q.i], name));
+        const url = view.iconOf?.(name, size);
+        const icon = url ? { url, r: size / 2, name, blend: view.iconBlend?.(sources[src[q.i]].cat) } : null;
+        if (icon) { icons++; occupyIcon(q, icon.r); }
+        placed.push({ ...q, text: name, anchor: 'start', fs, icon });
+        continue;
+      }
+      if (!view.labels) continue;
       const saved = _nameDecisions.get(q.i);
       if (saved) {
         const p = { ...saved, sx:q.sx, sy:q.sy };
