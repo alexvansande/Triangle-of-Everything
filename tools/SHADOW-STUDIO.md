@@ -1036,3 +1036,7 @@ The final approved brightness boost is **5% (`brightness(1.05)`)**, replacing
 the earlier 25% experiment. The app (including dust icons) and comparison page
 share this setting. The smaller faint core, feathered edges and Pillars exception
 remain unchanged.
+
+Noctiluca scintillans uses the shared scripted long-shadow preset generated
+from its actual alpha silhouette. It is removed from `shadows/round.json` so
+the chart and future batch generation use its custom shadow, not `_sphere.webp`.

@@ -1912,5 +1912,21 @@
     "y": 80,
     "reviewed": true,
     "generator": "brown-dwarf-ember-wall-v1"
+  },
+  "noctiluca-scintillans": {
+    "mode": "long",
+    "source": "alpha-long-shadow",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 0.5,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "reviewed": false,
+    "updated": "2026-10-22T18:38:45.659Z",
+    "generator": "studio-long-shadow-v1"
   }
 }
