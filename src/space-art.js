@@ -23,7 +23,9 @@ export function spaceCoreGeometry(slug,x,y,size,growth=1) {
   return {cx:x+(comet?-.26:0)*size*growth,cy:y,r:size*growth*(comet?.20:.28)};
 }
 export function isDiffuseSpaceArt(cat,slug='') {
-  if(slug.includes('void')||slug==='heat-death'||slug==='stellar-nursery')return false;
+  // The universe illustration is a defined sphere, not a diffuse photograph:
+  // rectangular edge feathering erases its circular rim and makes it look square.
+  if(slug.includes('void')||slug==='heat-death'||slug==='stellar-nursery'||slug==='observable-universe')return false;
   return cat==='galaxy'||cat==='largescale'||[
     'halleys-comet','hale-bopp','planetary-nebula',
     'supernova-remnant','nebulae','ngc-7538','bubble-nebula','proto-pn',

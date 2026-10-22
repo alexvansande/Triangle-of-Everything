@@ -1032,6 +1032,10 @@ for comparison. `?softspace` links remain valid. The Pillars keep their original
 backing, brightness and unmasked image in both modes. The comparison page shows
 them as an explicit exception.
 
+Observable Universe is also exempt: its artwork depicts a defined sphere.
+The rectangular diffuse-photo feathering cut away its round rim and made it
+look square. Keep its original unmasked image, brightness and backing.
+
 The final approved brightness boost is **5% (`brightness(1.05)`)**, replacing
 the earlier 25% experiment. The app (including dust icons) and comparison page
 share this setting. The smaller faint core, feathered edges and Pillars exception
