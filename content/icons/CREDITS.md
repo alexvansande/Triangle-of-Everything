@@ -40,7 +40,8 @@ greenland-ice-sheet, big-ben, burj-khalifa, opportunity, ingenuity, sequoia,
 dji-mini-2, bust-of-queen-nefertiti, n1, saturn-v, great-sphinx, statue-of-unity, bennu,
 caulobacter-vibrioides, mycoplasma-pneumoniae, escherichia-coli, staphylococcus-aureus, prochlorococcus-marinus,
 pseudomonas-aeruginosa, bacillus-subtilis, clostridium-botulinum, euglena-viridis, ceratium-hirundinella,
-noctiluca-scintillans, horse-chestnut-leaf-miner, clothes-moth
+noctiluca-scintillans, horse-chestnut-leaf-miner, clothes-moth,
+honey-bee, bumblebee, painted-lady, silkworm-moth, hedgehog, cane-toad, naked-mole-rat, meerkat, atlas-moth
 
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
