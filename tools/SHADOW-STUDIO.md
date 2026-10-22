@@ -949,3 +949,13 @@ a Show lakes checkbox to inspect the shadows alone, and hover comparison.
 These are studies only: active chart shadows have not been replaced. The
 proposed shadows have clearer contours and much less luminous area; assess
 edge softness as well as sparse highlight placement before adopting widely.
+
+The user liked the darker glass treatment but found the study shadows too far
+away. The proposed column now translates the optical layer northwest by 15%
+of the resting image width on each axis, relative to the previous preview.
+This reduces the combined baked registration and chart bias from about 22%
+to 7% per axis. Scale, opacity, caustics and hover separation are preserved.
+The current column remains unchanged for comparison. The translation is in
+the preview rather than the PNG; carry it across when installing these layers
+(equivalent resting registration x=y≈-8 instead of 30 on the 768 px canvas,
+with the chart's usual +10% southeast bias).
