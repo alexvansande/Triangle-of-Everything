@@ -2987,7 +2987,7 @@ function shadowGeom(d, [, , c, px, a, b, op]) {
 // A silhouette shadow image (SHADOW_BY_SLUG) spans SHADOW_SPAN × the icon box,
 // object centred; its stretch and blur are baked in, so it only needs moving.
 const SHADOW_SPAN = 3;           // keep in sync with SPAN in scripts/generate-shadows.mjs
-const SHADOW_IMG = { off: 2.7, south: 0.3, scale: 1.0, opacity: 0.85 };
+const SHADOW_IMG = { off: 2.0, south: 0.3, scale: 1.0, opacity: 0.85 };
 function shadowImgGeom(d) {
   const k = _shadowLift?.key === d.key ? _shadowLift.k : 1;
   const lift = k > 1 ? 1 : 0;
