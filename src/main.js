@@ -33,7 +33,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, t
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustIcons } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -468,6 +468,16 @@ iconBgGrad.append("stop").attr("offset", "0%").attr("stop-color", "#000").attr("
 iconBgGrad.append("stop").attr("offset", "50%").attr("stop-color", "#000").attr("stop-opacity", 0.5);
 iconBgGrad.append("stop").attr("offset", "100%").attr("stop-color", "#000").attr("stop-opacity", 0);
 
+// Cast shadows under the pictures (drawIconShadows): blur sized to each
+// ellipse (objectBoundingBox), so one filter looks the same at every zoom.
+// The far ellipse is blurred more: the shadow softens as it leaves the object.
+[["icon-shadow-near", 0.08], ["icon-shadow-far", 0.16]].forEach(([id, sd]) => {
+  defs.append("filter").attr("id", id)
+    .attr("primitiveUnits", "objectBoundingBox")
+    .attr("x", "-60%").attr("y", "-60%").attr("width", "220%").attr("height", "220%")
+    .append("feGaussianBlur").attr("stdDeviation", sd);
+});
+
 function makeLinGrad(id, x1, y1, x2, y2, stops) {
   const g = defs.append("linearGradient").attr("id", id)
     .attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2);
@@ -588,6 +598,9 @@ const lDarkMatter = lContent.append("g");
 const lArrows     = lContent.append("g").style("mix-blend-mode", "screen");
 const lConnDots   = lContent.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
 const lRegLabel   = lContent.append("g");
+// Pictures' cast shadows: under the dust, dots, labels and pictures alike
+const lShadows    = lContent.append("g").style("pointer-events", "none").attr("class", "icon-shadows");
+const SHADOWS = !new URLSearchParams(location.search).has("noshadows");
 // Catalogue "dust": thousands of faint real objects under the curated ones
 // (src/dust.js). Never interactive except for a hover name.
 const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
@@ -2921,6 +2934,43 @@ function drawObjects() {
     }),
   }, dustColor);
   lDustHover.selectAll("*").remove();
+  drawIconShadows([
+    ...shownDots.filter(o => o._showIcon && !iconUsesScreenBlend(o))
+      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2 })),
+    ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d })),
+  ]);
+}
+
+/** Soft cast shadows for the opaque pictures (glowing, screen-blended space
+ *  art casts none): two ellipses running down-right at 45°, starting a few px
+ *  past the object as if it floated just in front of the map, the far one
+ *  longer and blurrier. Drawn under everything else (lShadows). */
+function drawIconShadows(shapes) {
+  if (!SHADOWS || _bigBangMode) shapes = [];
+  const u = Math.SQRT1_2;
+  const parts = [
+    // [class, filter, centre along the diagonal (× r) + px, half-length, half-width (× r), opacity]
+    ["sh-near", "icon-shadow-near", 0.75, 6, 0.62, 0.36, 0.55],
+    ["sh-far", "icon-shadow-far", 1.15, 10, 0.86, 0.44, 0.35],
+  ];
+  lShadows.selectAll("g.icon-shadow")
+    .data(shapes, d => d.key)
+    .join(enter => {
+      const g = enter.append("g").attr("class", "icon-shadow");
+      parts.forEach(([cls, filter]) => g.append("ellipse").attr("class", cls)
+        .attr("fill", "#000").attr("filter", `url(#${filter})`));
+      return g;
+    })
+    .each(function(d) {
+      const g = d3.select(this);
+      parts.forEach(([cls, , c, px, a, b, op]) => {
+        const off = c * d.r + px;
+        const cx = d.sx + off * u, cy = d.sy + off * u;
+        g.select(`ellipse.${cls}`)
+          .attr("cx", cx).attr("cy", cy).attr("rx", a * d.r).attr("ry", b * d.r)
+          .attr("transform", `rotate(45 ${cx} ${cy})`).attr("opacity", op);
+      });
+    });
 }
 
 // Screen-blend decision is static per object — shared by enter and update.

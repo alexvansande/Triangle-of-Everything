@@ -91,6 +91,7 @@ let _kept = [];            // [{ i, sx, sy }] drawn this frame
 let _keptGrid = new Map(); // cell key → indices into _kept (hover lookup)
 let _labelled = new Set(); // dust indices labelled last frame: kept first, so labels don't flicker
 let _iconed = new Set();   // dust indices drawn as pictures last frame (ICON_KEEP applies)
+let _iconShapes = [];      // [{ i, sx, sy, r, blend }] of those pictures, for the map's cast shadows
 
 export function dustReady() { return !!_data; }
 
@@ -160,7 +161,7 @@ export function loadDust() {
 export function drawDust(layer, view, blockers, colorOf) {
   _kept = [];
   _keptGrid = new Map();
-  if (!_data || view.hidden) { layer.selectAll("path, g.dust-named").remove(); _labelled = new Set(); _iconed = new Set(); return; }
+  if (!_data || view.hidden) { layer.selectAll("path, g.dust-named").remove(); _labelled = new Set(); _iconed = new Set(); _iconShapes = []; return; }
 
   const { px, py, cw, ch } = view;
   const { r, m, src, rank, sources } = _data;
@@ -331,6 +332,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
   }
   _labelled = new Set(placed.map((p) => p.i));
   _iconed = new Set(placed.filter((p) => p.icon).map((p) => p.i));
+  _iconShapes = placed.filter((p) => p.icon).map((p) => ({ i: p.i, sx: p.sx, sy: p.sy, r: p.icon.r, blend: p.icon.blend }));
   const color = (p) => (view.labelColorOf || colorOf)(sources[src[p.i]].cat, sources[src[p.i]].id);
   layer.selectAll("g.dust-named")
     .data(placed, (p) => p.i)
@@ -364,6 +366,9 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         .attr("fill", c).text(p.text);
     });
 }
+
+/** The dust pictures drawn last frame: [{ i, sx, sy, r, blend }]. */
+export function dustIcons() { return _iconShapes; }
 
 /** Map of name → [logR, logM] for one dust source (e.g. "element"). */
 const _bySource = new Map();
