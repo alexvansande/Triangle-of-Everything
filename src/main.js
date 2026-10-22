@@ -33,7 +33,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, t
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustIcons } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustIcons, dustDots } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -471,6 +471,10 @@ iconBgGrad.append("stop").attr("offset", "100%").attr("stop-color", "#000").attr
 // Cast shadows under the pictures (drawIconShadows): blur sized to each
 // ellipse (objectBoundingBox), so one filter looks the same at every zoom.
 // The far ellipse is blurred more: the shadow softens as it leaves the object.
+// Dust dots' shadows: one path, a fixed 0.8 px blur (dots don't scale)
+defs.append("filter").attr("id", "dust-shadow-blur")
+  .attr("x", "-5%").attr("y", "-5%").attr("width", "110%").attr("height", "110%")
+  .append("feGaussianBlur").attr("stdDeviation", 0.8);
 [["icon-shadow-near", 0.08], ["icon-shadow-far", 0.16]].forEach(([id, sd]) => {
   defs.append("filter").attr("id", id)
     .attr("primitiveUnits", "objectBoundingBox")
@@ -601,6 +605,7 @@ const lRegLabel   = lContent.append("g");
 // Pictures' cast shadows: under the dust, dots, labels and pictures alike
 const lShadows    = lContent.append("g").style("pointer-events", "none").attr("class", "icon-shadows");
 const SHADOWS = !new URLSearchParams(location.search).has("noshadows");
+const DUST_SHADOWS = SHADOWS && !new URLSearchParams(location.search).has("nodustshadows");
 // Catalogue "dust": thousands of faint real objects under the curated ones
 // (src/dust.js). Never interactive except for a hover name.
 const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
@@ -2939,6 +2944,23 @@ function drawObjects() {
       .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2 })),
     ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d })),
   ]);
+  drawDustShadows();
+}
+
+/** Every dust dot casts a tiny soft shadow down-right (same light as the
+ *  pictures'), all in one blurred path under everything. */
+function drawDustShadows() {
+  const dots = DUST_SHADOWS && !_bigBangMode && _dustEnabled ? dustDots() : [];
+  const R = 1.4, DX = 3, DY = 4;
+  let d = "";
+  for (const q of dots) {
+    const x = q.sx + DX - R, y = q.sy + DY;
+    d += `M${x.toFixed(1)},${y.toFixed(1)}a${R},${R} 0 1,0 ${2 * R},0a${R},${R} 0 1,0 ${-2 * R},0`;
+  }
+  let p = lShadows.select("path.dust-shadows");
+  if (p.empty()) p = lShadows.insert("path", ":first-child").attr("class", "dust-shadows")
+    .attr("fill", "#000").attr("opacity", 0.4).attr("filter", "url(#dust-shadow-blur)");
+  p.attr("d", d || null);
 }
 
 /** Soft cast shadows for the opaque pictures (glowing, screen-blended space

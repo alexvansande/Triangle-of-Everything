@@ -370,6 +370,9 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
 /** The dust pictures drawn last frame: [{ i, sx, sy, r, blend }]. */
 export function dustIcons() { return _iconShapes; }
 
+/** The dots drawn last frame: [{ i, sx, sy }] (the map casts their shadows). */
+export function dustDots() { return _kept; }
+
 /** Map of name → [logR, logM] for one dust source (e.g. "element"). */
 const _bySource = new Map();
 export function dustPositions(sourceId) {
