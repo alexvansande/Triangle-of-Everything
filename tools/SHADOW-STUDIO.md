@@ -823,6 +823,14 @@ opacity 0.53 unchanged. This moves the central umbra down-right to match the
 shared sphere's resting separation. See `alignment-comparison.png` in the
 same archive for the old placement, corrected placement and Jupiter reference.
 
+Transparency correction: the user spotted gray fill between the ring bands.
+The built-in image editor repaired the candidate to use neutral near-black
+shadow pixels and transparent ring gaps instead of lavender/gray paint. The
+new master is installed with the same x=55, y=76, scale=0.42 and opacity=0.53.
+Raw output, prompt, previous candidate/export, and rest/hover chart captures
+are archived in `saturn-ring-shadow/transparency-fix/`. Preserve transparency
+in future edits: a lighter shadow region should reveal more wall, not add gray.
+
 ## Illustration refresh batch — 22 October 2026
 
 The approved backlog produced 40 refreshed illustrations and seven new ones:

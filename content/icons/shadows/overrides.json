@@ -1560,9 +1560,9 @@
     "x": 55,
     "y": 76,
     "reviewed": true,
-    "updated": "2026-10-22T15:11:18.002Z",
+    "updated": "2026-10-22T17:15:34.471Z",
     "generator": "built-in-imagegen",
-    "note": "AI ring and globe wall shadow; preserve during scripted batches."
+    "note": "AI ring/globe shadow with transparent ring gaps and neutral dark pixels; preserve during scripted batches."
   },
   "saturn-v": {
     "mode": "long",
