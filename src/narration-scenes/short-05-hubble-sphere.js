@@ -63,7 +63,12 @@ export default {
       hl: [{ ...SN_SPLIT, draw: 0.01 }, { arrow: true, from: { obj: "Supernova Remnant" }, to: { obj: "Stellar Nursery" } }, { obj: "Stellar Nursery", label: "new stars", delay: 0.6 }] },
 
     // ── Bigger means emptier ─────────────────────────────────
-    { at: "new generation", photo: "pillars", obj: "Stellar Nursery", place: 0.75, dur: 4.5, kb: [1, 1.3], focus: [0.5, 0.4], caption: "Pillars of Creation · Webb · 2022 · where stars are born" },
+    // no cut: the Pillars fade in over the nursery's own picture (lens), as in video 3
+    { at: "new generation", cam: { obj: "Stellar Nursery", span: 0.6 }, dur: 1.4,
+      hl: [{ spot: "Stellar Nursery", grow: 3, dim: 0.65 }] },
+    { at: "new generation", offset: 1.3, photo: "pillars", obj: "Stellar Nursery", dur: 4.2,
+      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600] },
+      caption: "Pillars of Creation · Webb · 2022 · where stars are born" },
     { at: "mostly made of empty space", cam: { r: 20, m: 40, span: 24 }, clear: true },
     { at: "globular clusters", hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
     { at: "dwarf galaxies", photo: "lmc", obj: "Dwarf Galaxy", place: 0.7, dur: 4, kb: [1, 1.25], caption: "Large Magellanic Cloud · a dwarf galaxy · Spitzer" },

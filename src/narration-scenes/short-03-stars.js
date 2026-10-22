@@ -35,9 +35,15 @@ export default {
 
     // Jupiter and Saturn make their own heat
     { at: "saturn and jupiter", cam: { r: 9.8, m: 30.05, span: 1.5 }, hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", delay: 0.3 }] },
-    { at: "more heat than they absorb", hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", label: "gives off more heat than it gets" }] },
-    { at: "more heat than they absorb", offset: 0.6, photo: "jupiter-ir", obj: "Jupiter", dur: 5, fit: "contain", kb: [1, 1.15], caption: "Jupiter in infrared · Gemini North · 2021 · glowing with its own heat" },
-    { at: "compressing in their core", hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", label: "slowly contracting" }] },
+    // no cut: zoom onto Jupiter, grow its picture in a spotlight, then the infrared photo
+    // fades in right over the planet (lens), its disc matched to the picture's
+    { at: "more heat than they absorb", cam: { obj: "Jupiter", span: 0.45 }, dur: 1.4,
+      hl: [{ spot: "Jupiter", grow: 2, dim: 0.65 }] },
+    { at: "more heat than they absorb", offset: 1.3, photo: "jupiter-ir", obj: "Jupiter", dur: 4.4,
+      lens: { icon: [0.496, 0.5, 0.465], photo: [1791, 1677, 1651], size: [3600, 3353] },
+      caption: "Jupiter in infrared · Gemini North · 2021 · glowing with its own heat" },
+    { at: "compressing in their core", cam: { r: 9.8, m: 30.05, span: 1.5 },
+      hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", label: "slowly contracting" }] },
     { at: "as that mass increases", cam: { r: 9.85, m: 30.9, span: 1.7 },
       hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }, { obj: "T Brown Dwarf", label: false, delay: 0.8 }] },
 
@@ -59,7 +65,6 @@ export default {
     { at: "bigger in diameter", hl: [{ obj: "Proxima Cen", place: "left" }, { arrow: true, from: { obj: "Proxima Cen" }, to: { obj: "Sun" } }, { obj: "Sun", delay: 0.8 }] },
     { at: "other diagonal line", cam: { r: 10.9, m: 33.1, span: 3.6 }, hl: [{ obj: "Sun" }, { line: "mainsequence", label: "main sequence" }] },
     { at: "most stars will live", hl: [{ line: "mainsequence", label: "main sequence" }, { obj: "Sun" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
-    { at: "most stars will live", offset: 0.8, photo: "sun", obj: "Sun", place: 0.7, dur: 4.5, kb: [1, 1.12], caption: "The Sun · Matúš Motlo · 2019" },
     { at: "hydrogen is depleted", hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
 
     // the end of a star: collapse, expand, split
@@ -77,8 +82,13 @@ export default {
     // the gas goes round again: stellar nurseries
     { at: "those nebulas expand", cam: { r: 18.1, m: 33.7, span: 2.8 },
       hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
-    { at: "stellar nurseries", hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Stellar Nursery", label: "stellar nursery" }] },
-    { at: "stellar nurseries", offset: 0.4, photo: "pillars", obj: "Stellar Nursery", place: 0.75, dur: 4.5, kb: [1, 1.3], focus: [0.5, 0.4], caption: "Pillars of Creation · Webb · 2022 · a stellar nursery" },
+    // no cut: zoom onto the nursery, grow its picture in a spotlight, then Webb's
+    // Pillars fade in over it, rotated and scaled onto the picture's own pillars (lens)
+    { at: "stellar nurseries", cam: { obj: "Stellar Nursery", span: 0.6 }, dur: 1.4,
+      hl: [{ spot: "Stellar Nursery", grow: 3, dim: 0.65 }] },
+    { at: "stellar nurseries", offset: 1.3, photo: "pillars", obj: "Stellar Nursery", dur: 4.2,
+      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600] },
+      caption: "Pillars of Creation · Webb · 2022 · a stellar nursery" },
     { at: "protostars", cam: { r: 16.8, m: 34.6, span: 6.2 },
       hl: [{ obj: "Stellar Nursery", label: false }, { arrow: true, from: { obj: "Stellar Nursery" }, to: { obj: "Protostar" } }, { obj: "Protostar", delay: 0.6 }] },
     { at: "stars again", cam: { r: 14.6, m: 33.9, span: 9 }, hl: [{ obj: "Stellar Nursery", label: false }, { arrow: true, from: { obj: "Stellar Nursery" }, to: { obj: "Protostar" } },
@@ -95,8 +105,13 @@ export default {
       { line: "tov", label: "neutron star limit · ~2.2–2.3 Suns", delay: 0.8 }] },
     { at: "single spoonful", hl: [{ line: "tov" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "a teaspoon ≈ 2 billion tonnes", place: "right" }] },
     { at: "collapse into a black hole", hl: [{ line: "tov", label: "above it: black hole" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
-    // teaser for the black-hole video: the edge they sit on
-    { at: "collapse into a black hole", offset: 1.0, photo: "m87", obj: "Stellar BH", dur: 3.4, fit: "contain", kb: [1, 1.15], caption: "M87* · Event Horizon Telescope · 2019" },
+    // teaser for the black-hole video: no cut — zoom onto M87*, grow its picture in a
+    // spotlight, and the Event Horizon Telescope photo slowly fades in over it (lens)
+    { at: "collapse into a black hole", offset: 1.0, cam: { obj: "M87*", span: 0.6 }, dur: 1.2,
+      hl: [{ spot: "M87*", grow: 3, dim: 0.65 }] },
+    { at: "collapse into a black hole", offset: 1.9, photo: "m87", obj: "M87*", dur: 2.1, fadeIn: 1.4,
+      lens: { map: [0.00043284, -0.00002689, -0.308608, -0.209377], r: 0.46, size: [3600, 3600] },
+      caption: "M87* · Event Horizon Telescope · 2019" },
     { at: "deserves a video", cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
       hl: [{ line: "schwarzschild" }, { obj: "Stellar BH", label: "next: black holes" }] },
   ],

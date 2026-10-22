@@ -68,6 +68,8 @@ description).
 - **No cutaway for objects whose icon is already on screen**: planets, moons, the small
   moons (Phobos, Deimos), Jupiter and Saturn, the atmospheres talk. A slow move onto the
   icons instead.
+  Video 2's "from lumpy to round" row (Hyperion → Vesta → Ceres → Pluto) went for
+  this reason (author, 2026-10-22): the chart's ringed icons tell it.
 - **Nebulae and galaxies: a round window on the chart** over the object's dot
   (`place: 0.7–0.86`), growing out of it, the chart still around it (the stellar nursery
   with the Pillars, Andromeda, SMACS 0723, the Crab as a supernova remnant). The author
@@ -101,9 +103,3 @@ White lines and dots on black, the key word in yellow, no more than three moving
 - Captions are transcribed clip by clip (long-form Whisper drops words at joins); remove
   Whisper's inventions in silences ("Thanks for watching", "See you soon").
 - Fact-check every new recording (see the repo's CLAUDE.md).
-
-## Open
-
-- Video 2's "from lumpy to round" row (Hyperion → Vesta → Ceres → Pluto) is still a
-  cutaway although those objects have icons; kept for the size-ordered comparison, the
-  author hasn't ruled on it yet.

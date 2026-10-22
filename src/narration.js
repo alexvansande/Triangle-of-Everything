@@ -164,7 +164,9 @@ export async function startNarration(app) {
   // the paths' moving dots: as big as the catalogue dust (1.15 px), brighter
   // than in the app so they still read in a phone video
   app.setDots?.(SCENE.dots ?? { radius: 1.15, opacity: 1.7 });
-  app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);   // off: the author prefers the background kept on deep zooms
+  app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);
+  // pictures twice the app's default size, so they read on a phone
+  app.setIconScale?.(SCENE.iconSize ?? 200);   // off: the author prefers the background kept on deep zooms
   // a scene that tells the primordial black hole window itself hides the map's
   // ready-made one, so no label shows before it's been talked about
   app.setPbhWindow?.(SCENE.pbhWindow !== false);
@@ -239,16 +241,17 @@ export async function startNarration(app) {
 
   // ---------- icons: only the objects the scene points at keep their picture ----------
   // (a cue's `icons`: false for none, true for the scene's set, or a list of names,
-  // from that cue on; the scene's `icons` replaces the default set)
-  const sceneIcons = SCENE.icons ?? [...new Set(cues.flatMap(c => (c.hl || []).flatMap(h =>
-    [h.obj, h.arrow && h.from?.obj, h.arrow && h.to?.obj].filter(Boolean))))];
+  // from that cue on; the scene's `icons` replaces the default set, and "all" keeps
+  // the map's own icon visibility, as in the app)
+  const sceneIcons = SCENE.icons === "all" ? null : SCENE.icons ?? [...new Set(cues.flatMap(c => (c.hl || []).flatMap(h =>
+    [h.obj, h.spot, h.arrow && h.from?.obj, h.arrow && h.to?.obj].filter(Boolean))))];
   const iconCues = cues.filter(c => c.icons !== undefined);
   let iconsNow;
   function applyIcons(t) {
     let v = true;
     for (const c of iconCues) if (c.time <= t) v = c.icons;
     const names = v === false ? [] : v === true ? sceneIcons : v;
-    const key = names.join("|");
+    const key = names ? names.join("|") : "*";
     if (key !== iconsNow) { iconsNow = key; app.setIcons?.(names); }
   }
 
@@ -306,7 +309,16 @@ export async function startNarration(app) {
   // { at, photo: "m87" | ["hyperion", "vesta", …], caption: "what · who · when", labels?: […],
   //   obj?: dot it grows from, dur?: s (6), fit?: "cover" | "contain", kb?: [scale from, to],
   //   focus?: [x, y] (0–1 in the image, where the Ken Burns push heads),
-  //   place?: true | width (fraction of the screen, default 0.78) }
+  //   place?: true | width (fraction of the screen, default 0.78), fadeIn?: s,
+  //   lens?: { icon: [cx, cy, r], photo: [cx, cy, r], size: [w, h] }
+  //        | { map: [ar, ai, br, bi], r, at?: [x, y], size: [w, h] } }
+  // `lens`: no cut. The photo fades in through a round window laid exactly over the
+  // object's own picture, scaled so the photo's disc (photo: px in the image) sits on
+  // the picture's disc (icon: fractions of the icon) — like holding a lens to it.
+  // A picture that isn't a disc (the Pillars of Creation) takes `map` instead: the
+  // similarity q = a·p + b (complex numbers) from photo px p to icon fractions q,
+  // fitted on matching features, shown through a circle of radius r (icon widths).
+  // Pair it with a spot on the object and a camera move onto it.
   // Full screen (default): a black disc grows out of the object's dot until it fills the
   // frame, with the real photo inside; the photo pushes in slowly under its caption, then
   // shrinks back into the dot. `place`: the photo opens as a soft-edged round window on
@@ -325,7 +337,8 @@ export async function startNarration(app) {
   let photoShown = null;
   function drawPhoto(t) {
     const p = photos.find(q => t >= q.t0 && t < q.t1 + PHOTO_OUT);
-    const reveal = p ? smooth((t - p.t0) / PHOTO_IN) * (1 - smooth((t - p.t1) / PHOTO_OUT)) : 0;
+    // fadeIn: s, for a slower reveal than the default (a lens fading in)
+    const reveal = p ? smooth((t - p.t0) / (p.fadeIn ?? PHOTO_IN)) * (1 - smooth((t - p.t1) / PHOTO_OUT)) : 0;
     if (reveal <= 0.001) { photoEl.style.visibility = "hidden"; return; }
     const SW = layer.clientWidth, SH = layer.clientHeight;
     if (photoShown !== p) {
@@ -342,7 +355,44 @@ export async function startNarration(app) {
     const o = p.obj && objByName.get(p.obj);
     if (o) { cx = Math.min(SW, Math.max(0, sx(o.logR))); cy = Math.min(SH, Math.max(0, sy(o.logM))); }
     photoEl.style.visibility = "visible";
-    if (p.place) {
+    photoEl.style.opacity = "";
+    photoEl.style.maskSize = photoEl.style.webkitMaskSize = photoEl.style.maskPosition = photoEl.style.webkitMaskPosition = "";
+    photoEl.style.maskRepeat = photoEl.style.webkitMaskRepeat = "";
+    const lensBox = p.lens && app.iconRect?.(p.obj);
+    if (p.lens && !lensBox) { photoEl.style.visibility = "hidden"; return; }
+    if (lensBox) {
+      const lr = layer.getBoundingClientRect(), scl = lr.width / SW;
+      const bx = (lensBox.x - lr.x) / scl, by = (lensBox.y - lr.y) / scl, bw = lensBox.w / scl, bh = lensBox.h / scl;
+      const [iw, ih] = p.lens.size;
+      // photo px → icon fractions, as a complex similarity q = a·p + b
+      let ar, ai, br, bi, qx, qy, R;
+      if (p.lens.map) {
+        [ar, ai, br, bi] = p.lens.map;
+        const [ax, ay] = p.lens.at || [0.5, 0.5];   // window centre, icon fractions
+        qx = bx + bw * ax; qy = by + bh * ay; R = bw * (p.lens.r ?? 0.44);
+      } else {
+        const [icx, icy, ir] = p.lens.icon, [pcx, pcy, pr] = p.lens.photo;
+        ar = ir / pr; ai = 0; br = icx - pcx * ar; bi = icy - pcy * ar;
+        qx = bx + bw * icx; qy = by + bh * icy; R = bw * ir * 1.03;
+      }
+      photoEl.style.background = "transparent";
+      photoEl.style.clipPath = "none";
+      photoEl.style.opacity = reveal.toFixed(3);
+      // the lens, plus the caption's strip so the caption isn't masked away
+      const cap = photoCap.getBoundingClientRect(), capY = (cap.y - lr.y) / scl - 6, capH = cap.height / scl + 12;
+      const m = `radial-gradient(circle ${R.toFixed(1)}px at ${qx.toFixed(1)}px ${qy.toFixed(1)}px, #000 88%, transparent 100%), linear-gradient(#000, #000)`;
+      photoEl.style.maskImage = photoEl.style.webkitMaskImage = m;
+      photoEl.style.maskSize = photoEl.style.webkitMaskSize = `100% 100%, 100% ${capH.toFixed(1)}px`;
+      photoEl.style.maskPosition = photoEl.style.webkitMaskPosition = `0 0, 0 ${capY.toFixed(1)}px`;
+      photoEl.style.maskRepeat = photoEl.style.webkitMaskRepeat = "no-repeat";
+      // screen = icon box ∘ similarity, as one CSS matrix on the full-size image
+      const mtx = [bw * ar, bh * ai, -bw * ai, bh * ar, bx + bw * br, by + bh * bi].map(v => +v.toFixed(5));
+      Object.assign(photoBox.style, { left: "0", top: "0", width: `${iw}px`, height: `${ih}px`, right: "auto", bottom: "auto",
+        transformOrigin: "0 0", transform: `matrix(${mtx.join(",")})` });
+      photoBox.querySelectorAll("img").forEach(im => { im.style.objectFit = "fill"; });
+      photoCap.style.opacity = (smooth((t - p.t0 - PHOTO_IN * 0.6) / 0.5) * (1 - smooth((t - p.t1 + 0.3) / 0.4))).toFixed(3);
+      return;
+    } else if (p.place) {
       // a round window on the chart: centred on the dot, pulled towards the middle so it fits
       const R = SW * (p.place === true ? 0.78 : p.place) / 2 * reveal ** 0.8;
       const wx = Math.min(SW - R - 4, Math.max(R + 4, cx)), wy = Math.min(SH * 0.78 - R, Math.max(SH * 0.16 + R, cy));
@@ -373,6 +423,9 @@ export async function startNarration(app) {
   const sx = (r) => app.plot().x + app.px(r);
   const sy = (m) => app.plot().y + app.py(m);
 
+  // callout label fade: 0 = every chart label shown, 1 = only the highlighted objects'
+  const grown = new Map(); // spotlit pictures grown, by name → factor
+  let labelFade = 0, labelFadeT = null, labelFadeSent = 0, labelFocusNames = [], labelFocusKey = "";
   function drawHighlights(t) {
     applyIcons(t);
     applyLabels(t);
@@ -410,6 +463,7 @@ export async function startNarration(app) {
       else if (h.swing && h.core && t >= h.t1 && highlights.some(q => q.split && Math.abs(q.t0 - h.t1) < 0.05)) op = 0;
       el.attr("opacity", op);
       if (h.obj) drawObj(el, h, age);
+      else if (h.spot) drawSpot(el, h, age);
       else if (h.line) drawLine(el, LINES[h.line], h, age);
       else if (h.density != null) drawLine(el, { pts: densitySegment(h.density), color: "#ffab40" }, h, age);
       else if (h.trend) drawLine(el, { pts: h.trend, color: h.color || "#ffd54f" }, h, age);   // a trend line: [[r, m], …]
@@ -425,6 +479,27 @@ export async function startNarration(app) {
       else if (h.window) drawWindow(el, h, age);
       else if (h.cross) drawCross(el, h, age);
     });
+    // While a callout is on screen, the chart's other labels step back: only the
+    // highlighted objects keep theirs (the rest come back between callouts).
+    // Catalogue dots the scene points at show their pictures (boats, the Eiffel
+    // Tower…); a spotlight grows its object's picture as a hover would.
+    const named = live.flatMap(h => [h.obj, h.spot]).filter(n => n && objByName.get(n)?.dust);
+    app.setDustPictures?.(named.length ? [...new Set(named)] : null);
+    const grows = new Map(live.filter(h => h.spot && t < h.t1).map(h => [h.spot, h.grow ?? 2.2]));
+    for (const [n, k] of grows) if (grown.get(n) !== k) { grown.set(n, k); app.growIcon?.(n, k); }
+    for (const n of [...grown.keys()]) if (!grows.has(n)) { grown.delete(n); app.growIcon?.(n, 1); }
+    // The fade follows the narration clock (0.5 s), so the renderer's frames match playback.
+    const callout = !gHl.select("text").empty() || !gHlFree.select("text").empty();
+    if (callout) labelFocusNames = live.filter(h => h.obj).map(h => h.obj);
+    const dt = labelFadeT == null ? Infinity : Math.abs(t - labelFadeT);
+    labelFadeT = t;
+    const target = callout ? 1 : 0;
+    labelFade = dt > 1 ? target : labelFade + Math.sign(target - labelFade) * Math.min(Math.abs(target - labelFade), dt / 0.5);
+    const amount = smooth(labelFade);
+    if (Math.abs(amount - labelFadeSent) > 0.002 || labelFocusNames.join("|") !== labelFocusKey) {
+      labelFadeSent = amount; labelFocusKey = labelFocusNames.join("|");
+      app.setLabelFocus?.(amount > 0.001 ? labelFocusNames : null, amount);
+    }
   }
   /** A glowing band over one axis: { axis: "left"|"right"|"top"|"bottom", label? }.
    *  Over the classic figure the band covers that side's tick labels, just
@@ -507,18 +582,36 @@ export async function startNarration(app) {
       .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", d => d.r)
       .attr("fill", AXIS_GLOW).attr("opacity", d => 0.75 * d.g).attr("filter", "url(#cl-glow-blur)");
   }
+  /** One object in the spotlight: { spot: name, grow?: 2.2, dim?: 0.6 } — its
+   *  picture grows as on hover and everything around it dims. */
+  function drawSpot(el, h, age) {
+    const o = objByName.get(h.spot);
+    if (!o) return;
+    const x = sx(o.logR), y = sy(o.logM);
+    const SW = layer.clientWidth, SH = layer.clientHeight;
+    const hole = ((app.iconRadius?.(h.spot) || 20) * (h.grow ?? 2.2)) * 1.1 + 12;
+    const far = Math.hypot(Math.max(x, SW - x), Math.max(y, SH - y)) + 10;
+    const id = `narr-spot-${h.id}`;
+    const g = el.append("radialGradient").attr("id", id).attr("gradientUnits", "userSpaceOnUse")
+      .attr("cx", x).attr("cy", y).attr("r", far);
+    g.append("stop").attr("offset", 0).attr("stop-color", "#05051a").attr("stop-opacity", 0);
+    g.append("stop").attr("offset", hole / far).attr("stop-color", "#05051a").attr("stop-opacity", 0);
+    g.append("stop").attr("offset", Math.min(1, (hole + 60) / far)).attr("stop-color", "#05051a").attr("stop-opacity", h.dim ?? 0.6);
+    g.append("stop").attr("offset", 1).attr("stop-color", "#05051a").attr("stop-opacity", h.dim ?? 0.6);
+    el.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH)
+      .attr("fill", `url(#${id})`).attr("opacity", smooth(age / 0.8));
+  }
   function drawObj(el, h, age) {
     const o = objByName.get(h.obj);
     if (!o) return;
     const x = sx(o.logR), y = sy(o.logM);
     const col = h.color || objColor(o);
     const pop = 0.6 + 0.4 * d3.easeBackOut(clamp01(age / 0.5));
-    const R = (h.r || 17) * pop + 2 * Math.sin(age * 3.2);
-    el.append("circle").attr("cx", x).attr("cy", y).attr("r", R + 7).attr("fill", col).attr("opacity", 0.12);
-    el.append("circle").attr("cx", x).attr("cy", y).attr("r", R).attr("fill", "none")
-      .attr("stroke", col).attr("stroke-width", 2.2);
-    el.append("circle").attr("cx", x).attr("cy", y).attr("r", R + 4).attr("fill", "none")
-      .attr("stroke", "#fff").attr("stroke-width", 0.8).attr("opacity", 0.6)
+    // 1.5× the old 17 px default, and always clear of the object's own picture
+    const R = Math.max((h.r || 17) * 1.5, (app.iconRadius?.(h.obj) || 0) + 8) * pop + 2 * Math.sin(age * 3.2);
+    // just the turning dashed ring: a solid ring and a tinted disc crowded the picture
+    el.append("circle").attr("class", "narr-ring").attr("cx", x).attr("cy", y).attr("r", R + 4).attr("fill", "none")
+      .attr("stroke", "#fff").attr("stroke-width", 1.4).attr("opacity", 0.9)
       .attr("stroke-dasharray", "3 4").attr("stroke-dashoffset", -age * 6);
     if (h.label === false) return;
     const label = (h.label || o.name).toUpperCase();
@@ -1312,6 +1405,10 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 .narr-tag { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; }
 .narr-cand { font-size: 15px; }
 body.narr-no-text #chart text { visibility: hidden; }
+/* a callout on screen: every other chart label fades (axis text and the highlighted objects' own stay) */
+body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.axis-label):not(.axis-title):not(.axis-subtitle):not(.axis-unit-link) {
+  /* multiplies with each label's own opacity, so faint ones never brighten mid-fade */
+  fill-opacity: calc(1 - var(--narr-label-fade, 1)) !important; stroke-opacity: calc(1 - var(--narr-label-fade, 1)) !important; }
 #narr-svg text.narr-note { font-size: 12.5px; font-weight: 500; letter-spacing: 0.04em; fill: rgba(235,238,255,0.9); stroke-width: 3px; }
 #narr-svg text.narr-title { font-family: "Barlow Condensed", "Arial Narrow", sans-serif !important; font-size: 42px; font-weight: 700;
   letter-spacing: 0.04em; fill: #ffd54f; stroke: rgba(0,0,0,0.9); stroke-width: 6px; }

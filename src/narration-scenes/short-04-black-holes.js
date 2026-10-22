@@ -54,6 +54,8 @@ const GAL_DROP = { ...GAL, sweep: 0.01, shift: { galaxy: -1, cluster: -0.85 }, s
 
 export default {
   title: "Black holes",
+  // the map's own icon visibility throughout (no scene-picked set, no shots without pictures)
+  icons: "all",
   blurb: "The top-left limit and why it is 45°, TON 618, the window for primordial black holes, galaxies without their dark matter, and the lucky few survivors.",
   start: FULL,
   pbhWindow: false,   // the window is drawn as it's told (window highlight), not the map's
@@ -86,14 +88,14 @@ export default {
 
     // ── Not an object: a line, the top-left limit ────────────
     // everything else is a cloud of catalogue dots: pictures off, the clouds circled
-    { at: "most objects in our triangle", cam: { r: 15.2, m: 35.6, span: 17 }, clear: true, icons: false },
+    { at: "most objects in our triangle", cam: { r: 15.2, m: 35.6, span: 17 }, clear: true },
     { at: "cluster of dots", hold: 6, hl: [
       { ellipse: [9.5, 29.65, 0.75, 1.6], label: "planets", place: "below", color: "#90caf9" },
       { ellipse: [9.05, 33.0, 0.42, 0.45], label: "white dwarfs", place: "left", color: "#e0e0e0", delay: 0.25 },
       { ellipse: [11.3, 33.45, 1.15, 0.7], label: "stars", place: "right", color: "#ffd54f", delay: 0.5 },
       { ellipse: [21.85, 41.6, 0.95, 2.3], label: "galaxies", place: "above", color: "#80deea", delay: 0.75 },
     ] },
-    { at: "sit all on this line", icons: true, hl: [KNOWN, { ...SCHW, label: "black holes" }] },
+    { at: "sit all on this line", hl: [KNOWN, { ...SCHW, label: "black holes" }] },
     { at: "called the schwarzschild radius", cam: { obj: "Sgr A*", span: 15 }, dur: 6, drift: 0.02, hl: [{ ...SCHW, label: "schwarzschild radius" }] },
     { at: "top left limit", cam: { r: 11, m: 38.6, span: 20 }, dur: 4, hl: [{ line: "triangle" }, { ...SCHW, label: "nothing crosses it" }, { side: "left", of: "schwarzschild" }] },
     { at: "too small or too massive", cam: { r: 5, m: 28, span: 16 },
@@ -112,7 +114,13 @@ export default {
     { at: "hundreds and thousands", cam: { r: 11, m: 38.6, span: 20 }, hl: [{ ...SCHW, label: "every known black hole" }] },
     { at: "our own milky way", cam: { r: 14, m: 41.5, span: 12 }, hl: [{ obj: "Sgr A*", label: "sgr a* · our galaxy's" }] },
     { at: ["4 million", "four million"], hl: [{ obj: "Sgr A*", label: "4 million suns" }] },
-    { at: ["4 million", "four million"], offset: 1.0, photo: "sgr-a", obj: "Sgr A*", dur: 4, fit: "contain", kb: [1, 1.15], caption: "Sagittarius A*, our galaxy's black hole · Event Horizon Telescope · 2022" },
+    // no cut: zoom onto Sgr A*, grow its picture in a spotlight, and the EHT photo fades in
+    // over it (lens), its ring laid on the picture's photon ring round the shadow
+    { at: ["4 million", "four million"], offset: 0.8, cam: { obj: "Sgr A*", span: 0.6 }, dur: 1.3,
+      hl: [{ spot: "Sgr A*", grow: 3, dim: 0.65 }] },
+    { at: ["4 million", "four million"], offset: 2.0, photo: "sgr-a", obj: "Sgr A*", dur: 3.4, fadeIn: 1.4,
+      lens: { map: [0.00016396, 0, 0.217726, 0.159126], r: 0.24, at: [0.512, 0.453], size: [3600, 3600] },
+      caption: "Sagittarius A*, our galaxy's black hole · Event Horizon Telescope · 2022" },
     { at: "become less dense", cam: { r: 13.5, m: 41.3, span: 14 }, hl: [SCHW, { line: "water", label: "water" }] },
     { at: "lighter than water", hl: [SCHW, { line: "water", label: "water" }, { side: "right", of: "water" },
       { obj: "Sgr A*", label: "denser than water", place: "left" }, { obj: "M87*", label: "lighter than water", delay: 0.6 }] },
@@ -162,7 +170,7 @@ export default {
     { at: ["ten times", "10 times"], hl: [{ ...DROP_ARROW, draw: 0.01 }, { ...GAL_DROP, shiftAt: -10, label: "about 10× lighter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
     // a slow pull back from the galaxies instead of holding on the dark-matter line
     // ── Here be dark matter? The candidates, and what has been crossed out ──
-    { at: "of course dark matter", cam: { r: -2.5, m: 1.5, span: 40 }, dur: 4, quiet: true, labels: false, icons: false, clear: true,
+    { at: "of course dark matter", cam: { r: -2.5, m: 1.5, span: 40 }, dur: 4, quiet: true, labels: false, clear: true,
       hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1.2 + 0.5 * i }))] },
     // the candidates and what has ruled them out: macro dark matter, region by region
     // one cue, so nothing redraws: the areas come in ~2 s apart and stay up until
@@ -171,7 +179,7 @@ export default {
       hl: [SCHW, ...DM_CANDS.map(still), { ...DM_SOURCE, delay: 0.8 },
         { ...DM_MICA, delay: 0.6 }, { ...DM_HURT, delay: 2.7 }, { ...DM_PBH, delay: 3.4 }, { window: W5, cuts: [ML, HAW], delay: 3.8 },
         { ...DM_WD, delay: 4.8 }, { ...DM_CMB, delay: 6.9 }] },
-    { at: "keep looking for them", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 3, labels: true, icons: true, clear: true,
+    { at: "keep looking for them", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 3, labels: true, clear: true,
       hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
     { at: "research on neutron stars", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 5, clear: true,
       hl: [{ window: W6, from: W5, trace: W0, cuts: [ML, HAW, { ...NS, label: "might be ruled out\nby neutron stars" }] }] },
@@ -186,6 +194,6 @@ export default {
     // black-hole line at ~2e19 g, in the window
     { at: "early moments of our history", cam: { r: -8.6, m: 19.4, span: 12 }, clear: true,
       hl: [{ density: 44, label: "density of universe\nfirst instants after big bang" }] },
-    { at: "everything else", cam: FULL, dur: 11, drift: 0, quiet: true, labels: false, icons: false, clear: true },
+    { at: "everything else", cam: FULL, dur: 11, drift: 0, quiet: true, labels: false, clear: true },
   ],
 };

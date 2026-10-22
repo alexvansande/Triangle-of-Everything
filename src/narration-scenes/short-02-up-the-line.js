@@ -57,7 +57,10 @@ export default {
       hl: [WATER, { obj: "The Little Mermaid", label: "Little Mermaid · bronze" }, { obj: "Manneken Pis", place: "left", delay: 0.3 }] },
     { at: "to the right will float", cam: { r: 2.8, m: 8, span: 6 }, hl: [WATER, { side: "left", label: "sinks" }, { side: "right", label: "floats" }] },
     { at: "boats", cam: { obj: "Titanic", span: 2.2 },
-      hl: [WATER, { obj: "Titanic", label: "Titanic" }, { obj: "HMS Victory", place: "left", delay: 0.3 }, { obj: "USS Enterprise", label: false, delay: 0.6 }] },
+      // the boat pictures (Bismarck left out: it sits right on top of the Titanic);
+      // three are close in size and mass, so their names alternate sides
+      hl: [WATER, { obj: "Titanic", label: "Titanic", place: "right" }, { obj: "HMS Victory", place: "right", delay: 0.3 },
+        { obj: "USS Enterprise", place: "left", delay: 0.6 }, { obj: "Ever Given", delay: 0.9 }, { obj: "Kursk", place: "left", delay: 1.2 }] },
 
     // animals: bulk density puts them ON the line, so zoom in to see the side
     { at: "much narrower range", cam: { r: 1.2, m: 3.8, span: 6 },
@@ -85,7 +88,8 @@ export default {
     { at: "very to the right", cam: { obj: "Eiffel Tower", dr: -0.4, span: 2.4 }, hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
 
     // mountains, rocks and small moons
-    { at: "lot of empty space", photo: "eiffel", obj: "Eiffel Tower", dur: 6, kb: [1, 1.5], focus: [0.5, 0.45], caption: "Eiffel Tower · 7,300 t of iron, mostly air" },
+    // no photo: the tower's own picture, grown in a spotlight
+    { at: "lot of empty space", cam: { obj: "Eiffel Tower", span: 0.9 }, dur: 2.5, hl: [{ spot: "Eiffel Tower", grow: 2.2, dim: 0.6 }] },
     { at: "the great pyramid", cam: { obj: "Great Pyramid", span: 2.5 }, hl: [{ obj: "Great Pyramid" }] },
     { at: "hills and mountains", cam: { r: 5, m: 15.4, span: 4 }, hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Mt. Everest", delay: 0.3 }] },
     { at: "a mountain itself", hl: [{ obj: "Great Pyramid", label: "a mountain", place: "left" }, { obj: "Mt. Everest" }] },
@@ -97,7 +101,6 @@ export default {
     // round worlds
     { at: "past hyperion", cam: { r: 7.4, m: 22.9, span: 4.5 },
       hl: [{ obj: "Hyperion", place: "left", label: "Hyperion · lumpy" }, { obj: "Vesta", delay: 0.4 }, { obj: "Mimas", delay: 0.8 }, { obj: "Ceres", delay: 1.2 }, { obj: "Pluto", delay: 1.6 }] },
-    { at: "more and more round", photo: ["hyperion", "vesta", "ceres", "pluto"], labels: ["Hyperion · 135 km", "Vesta · 263 km", "Ceres · 470 km", "Pluto · 1,188 km"], obj: "Ceres", dur: 6, kb: [1, 1.04], caption: "From lumpy to round · Cassini, Dawn, New Horizons" },
     { at: "force of gravity", hl: [{ obj: "Hyperion", place: "left" }, { obj: "Mimas" }, { obj: "Ceres" }, { obj: "Pluto", label: "round" }] },
     { at: "treated like a liquid", hl: [{ obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
 
@@ -105,7 +108,8 @@ export default {
     { at: "hill of mass", cam: { r: 8.6, m: 27.1, span: 3.4 }, clear: true },
     { at: "moon and mercury", cam: { obj: "Mercury", dr: -0.1, span: 2.2 }, dur: 3.5, hl: [{ obj: "Moon", label: "Moon · none", place: "left" }, { obj: "Mercury", label: "Mercury · none", place: "left" }] },
     { at: "very thin", cam: { obj: "Mars", span: 2.0 }, dur: 3, hl: [{ obj: "Mercury", label: "Mercury", place: "left" }, { obj: "Mars", label: "Mars · thin" }] },
-    { at: "venus and earth", cam: { obj: "Earth", dr: -0.05, span: 2.0 }, dur: 3, hl: [{ obj: "Mars" }, { obj: "Earth", delay: 0.2 }, { obj: "Venus", place: "left", delay: 0.5 }] },
+    // close enough that both Venus's and Earth's pictures show
+    { at: "venus and earth", cam: { r: 8.79, m: 27.735, span: 0.25 }, dur: 3, hl: [{ obj: "Mars" }, { obj: "Earth", delay: 0.2 }, { obj: "Venus", place: "left", delay: 0.5 }] },
     { at: "float out into space", cam: { r: 9.1, m: 28.6, span: 4.6 }, hl: [{ obj: "Earth", label: "hydrogen escapes", place: "left" }] },
 
     // gas giants

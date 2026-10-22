@@ -67,6 +67,9 @@ async function loadKatex() {
 
 let _iconsEnabled = true;
 let _iconOnly = null;     // narration: a Set of the only object names that get their picture
+let _labelFocus = null;   // narration: while a callout shows, only these objects keep their labels
+let _labelFocusKey = "";
+let _dustPictures = null; // narration: catalogue dots shown as their pictures (names)
 let _iconSize = 100;  // percent multiplier on top of zoom-derived effective size
 let _fontScale = 1;   // global text multiplier (settings "Font size" slider)
 const fscale = (px) => px * _fontScale;
@@ -2970,6 +2973,7 @@ function drawObjects() {
     .attr("y", o => o.sy + o._labelPos.dy)
     .attr("text-anchor", o => o._labelPos.anchor)
     .attr("fill", o => SUBCAT_LABEL_COLORS[o.subcat] || o.color)
+    .classed("obj-label-related", o => !!_labelFocus?.has(o.name))
     .each(function(o) {
       // Poster: bold Helvetica caps, sized for print (window.__poster).
       if (!_posterLabels) return;
@@ -2992,6 +2996,7 @@ function drawObjects() {
     bodySizeAt: (size, name) => size / (ICON_SIZE_MULT[nameToSlug(name)] || 1),
     visibilityEpoch: _objectVisibility.epoch,
     hidden: !_dustEnabled || _bigBangMode,
+    pictures: _dustPictures,
     // a few dust names, map-style; not in the narrated videos or the poster
     labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fontScale: _fontScale,
     labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
@@ -3194,13 +3199,13 @@ function iconUsesScreenBlend(o) {
 /** Enlarge (on=true) or restore an object's icon on hover — shared by the
  *  SVG group handlers and the HTML click-target handlers. Returns whether
  *  the object currently renders an icon. */
-function setIconHover(o, on) {
+function setIconHover(o, on, grow = null) {
   const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
   if (!iconEl.size()) return false;
   const base = effectiveIconSize() * iconSizeMult(o);
   // Grow around the icon's center via CSS transform; geometry attrs stay
   // owned by the renderer (see .obj-icon in style.css for why).
-  const k = on ? Math.max(64, base * 1.5) / base : 1;
+  const k = on ? grow ?? Math.max(64, base * 1.5) / base : 1;
   const group = d3.select(iconEl.node().parentNode);
   if (on) group.raise();
   animateIconGrowth(group,k,(node,growth)=>{
@@ -7950,6 +7955,49 @@ if (_ogShot) {
       /** Only these objects keep their picture (the rest are plain dots over
        *  the dust); null for all of them. */
       setIcons(names) { _iconOnly = names ? new Set(names) : null; redraw(); },
+      /** Catalogue dots shown as their pictures, whatever the labels say (names; null for none). */
+      setDustPictures(names) {
+        const key = names ? names.join("|") : "";
+        if (key === (_dustPictures ? [..._dustPictures].join("|") : "")) return;
+        _dustPictures = names?.length ? new Set(names) : null; redraw();
+      },
+      /** Screen box of an object's picture as drawn now (growth and parallax included), or null. */
+      iconRect(name) {
+        const o = _lastProjected.find(p => p.name === name);
+        const el = o ? lIcons.select(`.obj-icon[data-slug="${o.slug}"]`).node()
+          : (() => { const d = dustIcons().find(p => p.name === name); return d ? lIcons.selectAll("g.dust-picture").filter(p => p.i === d.i).select(".dn-icon").node() : null; })();
+        if (!el) return null;
+        const b = el.getBoundingClientRect();
+        return b.width ? { x: b.x, y: b.y, w: b.width, h: b.height } : null;
+      },
+      /** Grow an object's picture like the hover does, by k (1 restores it). */
+      growIcon(name, k = 1) {
+        const o = _lastProjected.find(p => p.name === name);
+        if (o) { setIconHover(o, k > 1, k); return; }
+        const d = dustIcons().find(p => p.name === name);
+        if (d) { setDustIconScale(lIcons, d.i, k); liftShadow(`dust:${d.i}`, k); }
+      },
+      /** Icon size in percent of the app's default (videos), without saving it. */
+      setIconScale(pct = 100) { if (_iconSize !== pct) { _iconSize = pct; redraw(); } },
+      /** On-screen radius of an object's picture (0 when it shows as a dot). */
+      iconRadius(name) {
+        const o = _lastProjected.find(p => p.name === name);
+        return o?._showIcon ? o._icoR : dustIcons().find(d => d.name === name)?.r || 0;
+      },
+      /** While a callout is on screen, fade every other chart label but these
+       *  objects' own (names), axis text excepted, by `amount` (0–1, driven by
+       *  the narration clock so renders fade alike); null brings them all back. */
+      setLabelFocus(names, amount = 1) {
+        const on = !!names && amount > 0.001;
+        const key = on ? names.join("|") : "";
+        if (key !== _labelFocusKey) {
+          _labelFocusKey = key;
+          _labelFocus = on ? new Set(names) : null;
+          lLabels.selectAll("text.obj-label").classed("obj-label-related", o => !!_labelFocus?.has(o.name));
+        }
+        document.body.classList.toggle("narr-label-focus", on);
+        document.body.style.setProperty("--narr-label-fade", on ? amount.toFixed(3) : "0");
+      },
       /** Show or hide the map's own primordial black hole window and its labels. */
       setPbhWindow(show) { _pbhWindowHidden = !show; redraw(); },
       setStage(mode) { if (mode !== _viewportLock) setViewportLock(mode); },
