@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Infinite background · noise study</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,sans-serif;background:#161221;color:#eee9f5}*{box-sizing:border-box}
+body{margin:0;padding:24px;max-width:1700px;margin:auto}h1{margin:0;font-size:26px;font-weight:650}p{color:#b9b1cb;line-height:1.5;margin:8px 0 16px}
+header{display:flex;gap:24px;align-items:start;justify-content:space-between}
+#mini{border-radius:8px;cursor:crosshair;flex:none;border:1px solid #3a3049}
+button,select,input{font:inherit;accent-color:#c5ef9c}button,select{padding:7px 12px;border:1px solid #544762;background:#2b2339;color:inherit;border-radius:8px;cursor:pointer}
+button[aria-pressed=true]{border-color:#c5ef9c;color:#c5ef9c}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;margin:10px 0 18px;padding:14px 16px;background:#211b2d;border-radius:12px;position:sticky;top:0;z-index:2}
+.controls label{display:flex;align-items:center;gap:8px;font-size:13px}.controls input[type=range]{width:120px}
+output{min-width:46px;font-variant-numeric:tabular-nums;color:#c5ef9c}
+#readout{font-size:12px;color:#b9b1cb;font-variant-numeric:tabular-nums}
+main{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{background:#211b2d;border:1px solid #3a3049;border-radius:12px;overflow:hidden}
+.card canvas{display:block;width:100%;aspect-ratio:1;cursor:grab;touch-action:none}
+.card canvas:active{cursor:grabbing}
+.info{padding:10px 14px}.info h2{font-size:15px;margin:0 0 3px}.info p{font-size:12px;margin:0}
+.info button{float:right;padding:2px 9px;font-size:12px}
+body.solo main{grid-template-columns:1fr}body.solo .card:not(.on){display:none}
+body.solo .card canvas{aspect-ratio:16/9}
+body.clean header,body.clean .controls,body.clean .info{display:none}body.clean{padding:0;max-width:none}body.clean .card{border:0;border-radius:0}
+@media(max-width:1100px){main{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){body{padding:16px}main{grid-template-columns:1fr}header{display:block}}
+</style></head><body>
+<header><div><h1>Infinite background: noise vs image warp</h1>
+<p>A real crop of the z5 background tiles (the sharpest level), around the Hubble radius. Every panel shares one camera: drag to pan, scroll to zoom, or press “Fly in”.<br>
+The noise is pinned to chart position. Each octave fades in once the painted pixels are too coarse to show its scale, and fades out once it is finer than a screen pixel, so zooming in never pops.<br>
+Click “Solo” on a panel to see it large at 16:9, then press <b>C</b> to hide the controls for a clean capture (Esc to return).</p></div>
+<canvas id="mini" width="220" height="289" title="Click to move the camera (green = Hubble radius)"></canvas></header>
+<div class="controls">
+<label>Zoom <input id="zoom" type="range" min="0" max="3.3" step=".001" value="1.4"><output id="zoomOut"></output></label>
+<button id="fly" aria-pressed="false">Fly in</button>
+<button id="anim" aria-pressed="true">Move</button>
+<label title="How fast the clouds change shape in place">Evolve <input id="speed" type="range" min="0" max="1" step=".01" value=".24"><output id="speedOut"></output></label>
+<label title="How fast the clouds flow. Each octave drifts its own way at a speed proportional to its size, so the motion looks the same at every zoom">Drift <input id="drift" type="range" min="0" max=".5" step=".005" value=".095"><output id="driftOut"></output></label>
+<label title="0 = swirl detail only, 1 = ridged veins only">Ridge mix <input id="ridge" type="range" min="0" max="1" step=".01" value=".53"><output id="ridgeOut"></output></label>
+<label>Warp <input id="warp" type="range" min="0" max="3" step=".01" value=".51"><output id="warpOut"></output></label>
+<label>Detail <input id="detail" type="range" min="0" max="1.5" step=".01" value=".68"><output id="detailOut"></output></label>
+<label title="How much contrast the finer octaves keep. 0 = every octave equally strong (rough, CMB-like); 1 = finer octaves fade (smooth clouds)">Smoothness <input id="rough" type="range" min="0" max="1" step=".01" value="0"><output id="roughOut"></output></label>
+<label title="Largest scale the noise may touch, in source pixels. Larger = it starts reshaping the painting itself">Starts at <input id="start" type="range" min="0" max="4" step=".01" value="2.263"><output id="startOut"></output></label>
+<label>Base filter <select id="filter"><option value="1">B-spline (smooth)</option><option value="2">Catmull-Rom (sharp)</option><option value="0">Bilinear</option></select></label>
+<span id="readout"></span>
+</div>
+<main id="panels"></main>
+<script type="module">
+import {PLANCK_LOG_R, PLANCK_LOG_M, HUBBLE_LOG_R} from '/src/data.js';
+import {createNoiseRenderer, liveOctaves} from '/src/bg-noise.js';
+
+const MODES = [
+  [0, 'Today', 'What the app does now: bilinear upscale of z5, then a CSS blur of min(14, 3×zoom) px.'],
+  [8, 'Warp + swirl + ridges', 'Image warp for the shapes, then swirl and ridged detail read in the same warped space, so the veins bend with the marbling. “Ridge mix” sets the blend.'],
+  [1, 'Smooth upscale', 'No noise, just a better filter. Every other panel starts from this.'],
+  [2, 'fBm clouds', 'Fractal Brownian motion: octaves of gradient noise modulate brightness. Classic soft clouds.'],
+  [3, 'Domain-warped fBm', 'The same noise, read at positions pushed around by more noise. Swirls, curls, wisps.'],
+  [4, 'Ridged multifractal', '1 − |noise| per octave gives sharp creases: filaments and veins.'],
+  [5, 'Cellular (cosmic web)', 'Worley F2 − F1: bright cell walls, dark voids, repeated at every scale.'],
+  [6, 'Image warp', 'No added brightness. The painting itself is sampled through a swirling displacement field, so its colours fold into fractal coastlines.'],
+  [7, 'Image warp + swirl detail', 'Image warp for the shapes, plus a little domain-warped brightness so deep zooms keep texture.'],
+];
+const $ = id => document.getElementById(id);
+
+// ---------- source image geometry (same anchor as drawTiles in main.js) ----------
+const meta = await (await fetch('/tiles/meta.json')).json();
+const PPU = meta.pxPerUnitX;
+const srcX = logR => 2114 + (logR - PLANCK_LOG_R) * PPU;
+const srcY = logM => 5960 - (logM - PLANCK_LOG_M) * PPU;
+const logRof = x => PLANCK_LOG_R + (x - 2114) / PPU;
+const logMof = y => PLANCK_LOG_M - (y - 5960) / PPU;
+
+// camera: centre in source px (doubles), zoom in CSS px per source px
+const cam = { x: 4800, y: 3760, zoom: 10 ** 1.4 };
+
+// ---------- WebGL (shared with the app: src/bg-noise.js) ----------
+const glc = document.createElement('canvas');
+const R = createNoiseRenderer(glc, { preserve: true });
+if (!R) document.body.innerHTML = '<p>WebGL2 is required.</p>';
+
+// ---------- tile region (5×5 z5 tiles around the camera) ----------
+const T = meta.tileSize, z5 = meta.levels.at(-1);
+const region = { x0: 0, y0: 0, w: 0, h: 0, loading: false };
+const tileImg = (z, c, r) => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = `/tiles/z${z}/tile_${c}_${r}.webp`; });
+async function loadRegion(){
+  if (region.loading) return; region.loading = true;
+  const c0 = Math.max(0, Math.min(z5.cols - 5, Math.floor(cam.x / T) - 2));
+  const r0 = Math.max(0, Math.min(z5.rows - 5, Math.floor(cam.y / T) - 2));
+  const cv = Object.assign(document.createElement('canvas'), { width: 5*T, height: 5*T }), cx = cv.getContext('2d');
+  await Promise.all([...Array(25)].map(async (_, k) => { const c = c0 + k % 5, r = r0 + (k / 5 | 0);
+    const im = await tileImg(5, c, r); if (im) cx.drawImage(im, (c - c0)*T, (r - r0)*T); }));
+  R.setTexture('main', cv, { x0: c0*T, y0: r0*T, scale: 1, w: 5*T, h: 5*T });
+  Object.assign(region, { x0: c0*T, y0: r0*T, w: 5*T, h: 5*T, loading: false });
+  draw();
+}
+function clampCam(){
+  // stay inside the loaded tiles; reload when the camera wanders near the edge
+  const m = 300;
+  if (cam.x < region.x0 + m || cam.x > region.x0 + region.w - m || cam.y < region.y0 + m || cam.y > region.y0 + region.h - m) loadRegion();
+  cam.x = Math.max(region.x0 + 40, Math.min(region.x0 + region.w - 40, cam.x));
+  cam.y = Math.max(region.y0 + 40, Math.min(region.y0 + region.h - 40, cam.y));
+}
+
+// ---------- panels ----------
+const panels = MODES.map(([mode, title, text]) => {
+  const card = document.createElement('section'); card.className = 'card';
+  card.innerHTML = `<canvas></canvas><div class="info"><button>Solo</button><h2>${title}</h2><p>${text}</p></div>`;
+  $('panels').append(card);
+  const canvas = card.querySelector('canvas');
+  card.querySelector('button').onclick = () => setSolo(document.body.classList.contains('solo') ? null : card);
+  attachPointer(canvas);
+  return { mode, card, canvas, ctx: canvas.getContext('2d') };
+});
+function setSolo(card){
+  for (const p of panels) p.card.classList.toggle('on', p.card === card);
+  document.body.classList.toggle('solo', !!card);
+  if (!card) document.body.classList.remove('clean');
+  for (const p of panels) p.card.querySelector('button').textContent = card ? 'Back to grid' : 'Solo';
+  draw();
+}
+addEventListener('keydown', e => {
+  if (e.key === 'Escape') setSolo(null);
+  if ((e.key === 'c' || e.key === 'C') && document.body.classList.contains('solo')) { document.body.classList.toggle('clean'); draw(); }
+});
+
+function attachPointer(canvas){
+  let drag = null;
+  canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener('pointermove', e => { if (!drag) return;
+    cam.x -= (e.clientX - drag.x) / cam.zoom; cam.y -= (e.clientY - drag.y) / cam.zoom; drag = { x: e.clientX, y: e.clientY }; clampCam(); draw(); });
+  canvas.addEventListener('pointerup', () => drag = null);
+  canvas.addEventListener('wheel', e => { e.preventDefault();
+    const r = canvas.getBoundingClientRect(), mx = e.clientX - r.left - r.width/2, my = e.clientY - r.top - r.height/2;
+    const before = { x: cam.x + mx/cam.zoom, y: cam.y + my/cam.zoom };
+    setZoom(cam.zoom * Math.exp(-e.deltaY * .0015));
+    cam.x = before.x - mx/cam.zoom; cam.y = before.y - my/cam.zoom; clampCam(); draw(); }, { passive: false });
+}
+function setZoom(z){ cam.zoom = Math.max(1, Math.min(10 ** 3.3, z)); $('zoom').value = Math.log10(cam.zoom); }
+
+// ---------- minimap ----------
+const mini = $('mini'), mctx = mini.getContext('2d'), z2 = meta.levels[2], mScale = mini.width / meta.imgW;
+const miniBg = Object.assign(document.createElement('canvas'), { width: mini.width, height: mini.height });
+(async () => { const b = miniBg.getContext('2d');
+  for (let c = 0; c < z2.cols; c++) for (let r = 0; r < z2.rows; r++) { const im = await tileImg(2, c, r);
+    if (im) b.drawImage(im, c*T*mScale*8, r*T*mScale*8, im.width*mScale*8, im.height*mScale*8); }
+  drawMini(); })();
+function drawMini(){
+  mctx.drawImage(miniBg, 0, 0);
+  const hx = srcX(HUBBLE_LOG_R) * mScale; mctx.strokeStyle = '#5f5'; mctx.beginPath(); mctx.moveTo(hx, 0); mctx.lineTo(hx, mini.height); mctx.stroke();
+  mctx.strokeStyle = '#ffffff55'; mctx.strokeRect(region.x0*mScale, region.y0*mScale, region.w*mScale, region.h*mScale);
+  mctx.fillStyle = '#c5ef9c'; mctx.beginPath(); mctx.arc(cam.x*mScale, cam.y*mScale, 3, 0, 7); mctx.fill();
+}
+mini.onclick = e => { const r = mini.getBoundingClientRect();
+  cam.x = (e.clientX - r.left) / mScale; cam.y = (e.clientY - r.top) / mScale; loadRegion(); };
+
+// ---------- controls ----------
+const sliders = { speed: v => v.toFixed(2), drift: v => v.toFixed(3), ridge: v => v.toFixed(2), warp: v => v.toFixed(2), detail: v => v.toFixed(2), rough: v => v.toFixed(2), start: v => (2 ** v).toFixed(1) + ' px' };
+for (const k in sliders) $(k).oninput = draw;
+$('zoom').oninput = () => { cam.zoom = 10 ** +$('zoom').value; draw(); };
+$('filter').onchange = draw;
+let flying = false, evolving = true, t = 0, drift = 0, last = performance.now();
+$('fly').onclick = () => { flying = !flying; $('fly').setAttribute('aria-pressed', flying); tick(); };
+$('anim').onclick = () => { evolving = !evolving; $('anim').setAttribute('aria-pressed', evolving); tick(); };
+
+let raf = 0;
+function tick(){ if (!raf && (flying || evolving)) raf = requestAnimationFrame(frame); }
+function frame(now){
+  raf = 0; const dt = Math.min(.1, (now - last) / 1000); last = now;
+  if (evolving) { t += dt * +$('speed').value; drift = (drift + dt * +$('drift').value) % 256; }
+  if (flying) { setZoom(cam.zoom * Math.exp(dt * .35)); if (cam.zoom >= 10 ** 3.3) { flying = false; $('fly').setAttribute('aria-pressed', false); } }
+  draw(); tick();
+}
+last = performance.now();
+
+function draw(){
+  if (!region.w) return;
+  for (const k in sliders) $(k + 'Out').textContent = sliders[k](+$(k).value);
+  $('zoomOut').textContent = cam.zoom.toFixed(cam.zoom < 10 ? 1 : 0) + '×';
+  const dpr = devicePixelRatio || 1, zoomDev = cam.zoom * dpr;
+  $('readout').textContent = `centre logR ${logRof(cam.x).toFixed(2)}, logM ${logMof(cam.y).toFixed(2)} · Hubble at logR ${HUBBLE_LOG_R} · ${liveOctaves(zoomDev, +$('start').value)} octaves live · the app tops out near 300×`;
+  const look = { warp: +$('warp').value, detail: +$('detail').value, smooth: +$('rough').value, start: +$('start').value,
+    ridge: +$('ridge').value, filter: +$('filter').value };
+  for (const p of panels) {
+    if (!p.card.offsetParent) continue;
+    const w = Math.round(p.canvas.clientWidth * dpr), h = Math.round(p.canvas.clientHeight * dpr);
+    if (p.canvas.width !== w || p.canvas.height !== h) { p.canvas.width = w; p.canvas.height = h; }
+    R.render({ ...look, mode: p.mode, w, h, cx: cam.x, cy: cam.y, zx: zoomDev, zy: zoomDev, zoomCss: cam.zoom, time: t, drift });
+    p.ctx.drawImage(glc, 0, 0);
+  }
+  drawMini();
+}
+addEventListener('resize', draw);
+await loadRegion();
+tick();
+</script>
+</body></html>

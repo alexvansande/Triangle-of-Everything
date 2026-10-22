@@ -119,6 +119,14 @@
       <span class="checkmark"></span>
       Show background image
     </label>
+    <div id="bgnoise-setting">
+      <label class="setting-check" title="A WebGL layer keeps folding the painted background into finer detail as you zoom">
+        <input type="checkbox" id="set-bgnoise">
+        <span class="checkmark"></span>
+        Fractal background
+      </label>
+      <button id="bgnoise-open" type="button" aria-label="Fractal background options" title="Fractal background options" aria-expanded="false" aria-controls="bgnoise-box">+</button>
+    </div>
     <label class="setting-check">
       <input type="checkbox" id="set-anim" checked>
       <span class="checkmark"></span>
@@ -173,6 +181,11 @@
       coupling 2G, so the Triangle's apex sits at exactly 1 Planck mass
       &times; 1 Planck length. Textbook (CODATA) values are &radic;2 away.</p>
     <button id="shortcuts-btn" type="button" aria-haspopup="dialog">Show keyboard shortcuts <kbd class="sc-key">?</kbd></button>
+  </div>
+  <!-- Fractal background look controls (settings → + beside Fractal background) -->
+  <div id="bgnoise-box" role="dialog" aria-modal="false" aria-label="Fractal background options" hidden>
+    <button id="bgnoise-close" type="button" aria-label="Close fractal background options" title="Close">&times;</button>
+    <div id="bgnoise-mount"></div>
   </div>
   <!-- Keyboard shortcuts card (settings → Show keyboard shortcuts, or ?) -->
   <div id="shortcuts-panel" role="dialog" aria-modal="false" aria-labelledby="shortcuts-title" hidden>
