@@ -1,0 +1,704 @@
+1
+00:00:00,000 --> 00:00:04,400
+This is probably the most
+interesting chart in all of physics.
+
+2
+00:00:04,940 --> 00:00:08,980
+First thing you'll probably notice is
+that there is this diagonal line with
+
+3
+00:00:08,980 --> 00:00:14,240
+humans and whales and viruses
+and planets and stars.
+
+4
+00:00:14,720 --> 00:00:19,340
+So it's something related
+to mass and size, right?
+
+5
+00:00:19,620 --> 00:00:25,140
+But on the other hand, if you look
+at here, you have particles and this
+
+6
+00:00:25,140 --> 00:00:28,320
+last axis is all about energy.
+
+7
+00:00:28,760 --> 00:00:33,540
+And if you go up, you have those
+diagonal lines and here it says now on
+
+8
+00:00:33,540 --> 00:00:39,340
+all those numbers there are measures
+in seconds so what is happening so
+
+9
+00:00:39,340 --> 00:00:45,780
+let me take you through the triangle
+of everything anything that can ever
+
+10
+00:00:45,780 --> 00:00:52,640
+exist in the universe and the history
+of time fits here so let's start by
+
+11
+00:00:52,640 --> 00:00:54,820
+trying to understand what is it?
+
+12
+00:00:55,400 --> 00:00:58,820
+And the best place to
+start is by looking at us.
+
+13
+00:00:59,340 --> 00:01:04,720
+This is us, humans. We are not in the
+center of the chart, we are sort of
+
+14
+00:01:04,720 --> 00:01:06,160
+a little above the center.
+
+15
+00:01:06,840 --> 00:01:13,760
+So in this chart the horizontal axis
+represents the size of things and the
+
+16
+00:01:13,760 --> 00:01:15,920
+vertical axis represents the mass.
+
+17
+00:01:16,440 --> 00:01:21,920
+So right here just by looking at
+water you understand why everything is
+
+18
+00:01:21,920 --> 00:01:29,860
+in a line because one liter of water
+is roughly a cube 10 centimeters wide.
+
+19
+00:01:30,400 --> 00:01:35,120
+One ton of water, which is a thousand
+times the mass, will be one meter,
+
+20
+00:01:35,280 --> 00:01:37,240
+which is 10 times the size.
+
+21
+00:01:37,320 --> 00:01:42,540
+So this is why everything is
+sort of this diagonal line.
+
+22
+00:01:43,040 --> 00:01:50,540
+This blue line you see here, that is
+the line of the density of water and
+
+23
+00:01:50,540 --> 00:01:56,220
+everything that is on the right of
+the chart is something that will float
+
+24
+00:01:56,220 --> 00:01:59,540
+on water. On the left side
+are things that are heavier.
+
+25
+00:01:59,840 --> 00:02:04,460
+For example, here's an interesting
+story, the hippo is right on the chart
+
+26
+00:02:04,460 --> 00:02:09,380
+because the hippo actually cannot swim,
+it doesn't float in water, it just
+
+27
+00:02:09,380 --> 00:02:14,720
+walks and as you see and go up the
+line and notice that most of the stuff
+
+28
+00:02:14,720 --> 00:02:20,700
+here is to the left side. And most,
+those data points is mostly meteorites
+
+29
+00:02:20,700 --> 00:02:27,320
+and meteors. And if you go up, we
+leave the living things and start going
+
+30
+00:02:27,320 --> 00:02:32,920
+into engineering projects and small
+asteroids and then the great pyramid.
+
+31
+00:02:32,980 --> 00:02:36,200
+And then we have
+asteroids and small moons.
+
+32
+00:02:36,640 --> 00:02:41,060
+And you'll notice that they're all on
+the left side, meaning they're heavy,
+
+33
+00:02:41,260 --> 00:02:47,500
+they're made of iron, they're on up,
+you notice something interesting starts
+
+34
+00:02:47,500 --> 00:02:53,340
+to happen, which is they get rounder
+and rounder and rounder and when we
+
+35
+00:02:53,340 --> 00:02:57,160
+reach Pluto, we can notice
+that it's a perfect sphere.
+
+36
+00:02:57,660 --> 00:03:04,560
+What's happening is that gravity simply
+overcomes the molecular forces that
+
+37
+00:03:04,560 --> 00:03:09,180
+bind everything together and therefore
+the object just starts acting as
+
+38
+00:03:09,180 --> 00:03:12,480
+a liquid and just
+becomes a perfect sphere.
+
+39
+00:03:12,480 --> 00:03:19,100
+So everything now will be round because
+the strongest force here is gravity.
+
+40
+00:03:19,780 --> 00:03:23,280
+And as we increase the gravity,
+something else also starts happening.
+
+41
+00:03:23,580 --> 00:03:25,600
+We also increase atmosphere.
+
+42
+00:03:26,080 --> 00:03:32,380
+Mercury has no atmosphere, Mars has
+a very thin atmosphere, Venus, Earth,
+
+43
+00:03:32,660 --> 00:03:38,500
+now we have like a strong atmosphere,
+but when you go up, we reach the gas
+
+44
+00:03:38,500 --> 00:03:46,040
+giants. That's because Earth sits in
+a very thin line between not having
+
+45
+00:03:46,040 --> 00:03:53,640
+enough gravity to hold gases around
+it, or having so much gravity that it
+
+46
+00:03:53,640 --> 00:03:57,480
+just attracts everything
+and becomes a gas giant.
+
+47
+00:03:57,960 --> 00:04:00,760
+We have four gas giants
+in our solar system.
+
+48
+00:04:01,780 --> 00:04:06,760
+And as they become larger and larger,
+suddenly something weird happens.
+
+49
+00:04:06,760 --> 00:04:12,240
+Notice the Saturn is on the right side
+of the line, that's because Saturn
+
+50
+00:04:12,240 --> 00:04:14,940
+is actually as dense as styrofoam.
+
+51
+00:04:15,340 --> 00:04:19,440
+If you could find a pool of water
+large enough, you could take a little
+
+52
+00:04:19,440 --> 00:04:21,740
+bit of Saturn and it would float on it.
+
+53
+00:04:22,080 --> 00:04:27,260
+Then we start seeing that the trend
+is that most of the stars start going
+
+54
+00:04:27,260 --> 00:04:32,220
+on the other line, and for the first
+time they start diverging from the
+
+55
+00:04:32,220 --> 00:04:34,120
+line, they are compressing.
+
+56
+00:04:34,120 --> 00:04:40,780
+What is happening here is that the
+force of gravity and the pressure in
+
+57
+00:04:40,780 --> 00:04:47,640
+the core is so strong that matter
+starts becoming degenerate matter.
+
+58
+00:04:48,100 --> 00:04:56,280
+And it starts stripping away the atoms
+and starts crushing the atoms together
+
+59
+00:04:56,280 --> 00:05:01,640
+and the atoms will start
+generating a little bit of energy.
+
+60
+00:05:01,640 --> 00:05:08,900
+And when they start generating energy,
+they will now have an outside pressure,
+
+61
+00:05:08,900 --> 00:05:14,940
+that is the energy of the fusion of the
+atoms, and as they create this energy,
+
+62
+00:05:15,420 --> 00:05:24,320
+they start expanding the sizes of those
+entities again, and those will become
+
+63
+00:05:24,320 --> 00:05:32,000
+stars. So stars, like the sun, they're
+always in this one giant line, which
+
+64
+00:05:32,000 --> 00:05:34,040
+is called the main sequence star.
+
+65
+00:05:34,400 --> 00:05:41,520
+And here we will see actually the life
+cycle of a star, but that expansion
+
+66
+00:05:41,520 --> 00:05:47,420
+has a cost. In order for stars to keep
+their size, they need to spend fuel,
+
+67
+00:05:47,420 --> 00:05:49,420
+and that fuel is hydrogen.
+
+68
+00:05:49,420 --> 00:05:55,420
+And when they run out of helium, first
+they will expand as they shed their
+
+69
+00:05:55,420 --> 00:06:00,660
+outer layers and they become red giants,
+and then sometimes they will collapse
+
+70
+00:06:00,660 --> 00:06:08,780
+a few times and expand again until they
+will often just go boom and a supernova
+
+71
+00:06:08,780 --> 00:06:16,200
+is a rapidly expanding cloud of gas
+which will push the object very far
+
+72
+00:06:16,200 --> 00:06:20,960
+to the right. Actually, it will split
+the object, most of the mass will
+
+73
+00:06:20,960 --> 00:06:29,080
+just expand outwards, and the inner
+core will collapse into some special
+
+74
+00:06:29,080 --> 00:06:33,760
+object. Depending on the mass, it
+might become a white dwarf, or if they
+
+75
+00:06:33,760 --> 00:06:40,780
+are massive enough, they will become
+a neutron star, and if they are more
+
+76
+00:06:40,780 --> 00:06:44,340
+massive, they will just
+collapse into black holes.
+
+77
+00:06:44,340 --> 00:06:49,400
+And this line right here is
+the Schwarzschild radius.
+
+78
+00:06:50,080 --> 00:06:57,200
+And the Schwarzschild radius is the first
+limit of our triangle of everything.
+
+79
+00:06:57,780 --> 00:07:02,000
+There's a point in which every object,
+doesn't matter its size or mass,
+
+80
+00:07:02,300 --> 00:07:04,560
+will collapse into a black hole.
+
+81
+00:07:04,920 --> 00:07:09,900
+For any object there is a compression
+point in which you just cross the
+
+82
+00:07:09,900 --> 00:07:13,000
+Schwarzschild radius and it
+will become a black hole.
+
+83
+00:07:13,000 --> 00:07:19,340
+A black hole has no really defined
+size because scientists consider that
+
+84
+00:07:19,340 --> 00:07:23,620
+everything in the center just collapsed
+into singularity of size zero.
+
+85
+00:07:24,360 --> 00:07:32,120
+But there is a Schwarzschild radius and
+that radius is the point of no return
+
+86
+00:07:32,120 --> 00:07:36,780
+where nothing that goes inside
+of it can ever come back.
+
+87
+00:07:36,780 --> 00:07:43,000
+And that radius is directly proportional
+to the mass, meaning that that's
+
+88
+00:07:43,000 --> 00:07:48,240
+why the slope here is a one-to-one
+slope, it's a 45-degree angle.
+
+89
+00:07:49,380 --> 00:07:53,860
+The more massive your black hole
+becomes, the larger it becomes.
+
+90
+00:07:53,960 --> 00:07:57,220
+And really, black holes can have any size.
+
+91
+00:07:57,700 --> 00:08:03,980
+Right here we are looking at black holes
+with the mass of stars, but anything
+
+92
+00:08:03,980 --> 00:08:08,120
+can become a black hole. It's not easy
+for some object to become a black
+
+93
+00:08:08,120 --> 00:08:10,740
+hole and they need to have
+the certain conditions.
+
+94
+00:08:11,400 --> 00:08:17,920
+And we know that those conditions
+happen when stars collapse, but we also
+
+95
+00:08:17,920 --> 00:08:23,480
+know that those same conditions have
+happened before in the early universe.
+
+96
+00:08:24,140 --> 00:08:29,100
+So it is very possible that in the
+early universe, lots of black holes have
+
+97
+00:08:29,100 --> 00:08:34,620
+been formed. Most of them will have
+evaporated by now due to Hawking radiation.
+
+98
+00:08:34,620 --> 00:08:37,560
+but there could be some left over.
+
+99
+00:08:37,920 --> 00:08:42,900
+And if there are any of those primordial
+black holes around, they would
+
+100
+00:08:42,900 --> 00:08:50,480
+be roughly the mass of a small moon,
+but compressed to the size of a tiny
+
+101
+00:08:50,480 --> 00:08:57,400
+atom. Can you imagine how you can see
+an atom just zipping around the galaxy
+
+102
+00:08:57,400 --> 00:09:03,580
+in the middle of space? You cannot
+observe such an object with a telescope.
+
+103
+00:09:03,580 --> 00:09:10,200
+It's just too small and too far away, so
+it would be an object that is invisible
+
+104
+00:09:10,200 --> 00:09:15,540
+to the eye, but you could detect it
+only because of its effects on gravity.
+
+105
+00:09:16,040 --> 00:09:21,260
+You might think that this sounds a lot
+like dark matter, and a lot of scientists
+
+106
+00:09:21,260 --> 00:09:25,860
+would agree with you, and that's why
+primordial black holes are actually
+
+107
+00:09:25,860 --> 00:09:29,560
+one of the possible
+candidates for dark matter.
+
+108
+00:09:29,560 --> 00:09:35,360
+You notice that beyond the scale of
+stars, every object will follow a second
+
+109
+00:09:35,360 --> 00:09:39,380
+diagonal line, which is
+a separate density line.
+
+110
+00:09:39,520 --> 00:09:45,060
+It's a much lighter density, and
+that's the density of dark matter.
+
+111
+00:09:45,330 --> 00:09:50,860
+And that's the density of supernovas
+and stellar nurseries and globular
+
+112
+00:09:50,860 --> 00:09:53,640
+clusters and dwarf galaxies.
+
+113
+00:09:54,500 --> 00:09:58,160
+And our own galaxy, it's right here.
+
+114
+00:09:58,160 --> 00:10:04,640
+And then of groups of galaxies,
+and then of galaxy clusters.
+
+115
+00:10:04,640 --> 00:10:10,460
+And then we'll have the super filaments,
+like the one we live on called
+
+116
+00:10:10,460 --> 00:10:17,700
+Laniakea, which are filaments made of
+super groups, made of groups, made
+
+117
+00:10:17,700 --> 00:10:20,460
+of galaxies, which are made of stars.
+
+118
+00:10:21,520 --> 00:10:27,760
+And then the only object
+beyond those are just voids.
+
+119
+00:10:27,760 --> 00:10:33,540
+Just areas in space who are
+completely devoid of stars.
+
+120
+00:10:34,040 --> 00:10:36,400
+But yet they do have mass.
+
+121
+00:10:36,780 --> 00:10:40,040
+We know they have mass because
+their effects on gravity.
+
+122
+00:10:40,540 --> 00:10:45,000
+And we actually think that their mass
+puts them in the same diagonal as
+
+123
+00:10:45,000 --> 00:10:49,800
+everything else here. There's a point
+in which nothing can be bigger than
+
+124
+00:10:49,800 --> 00:10:55,660
+that. And we reach the second side
+of our triangle of everything, which
+
+125
+00:10:55,660 --> 00:11:02,780
+is the Hubble radius. The Hubble radius
+is the limit at which anything can
+
+126
+00:11:02,780 --> 00:11:07,940
+be seen by us. It's based on the speed
+of light and the rate of expansion
+
+127
+00:11:07,940 --> 00:11:12,980
+of the universe. Nothing can be bigger
+than the Hubble radius because anything
+
+128
+00:11:12,980 --> 00:11:19,520
+outside the Hubble radius cannot ever
+be seen by us or interact with us
+
+129
+00:11:19,520 --> 00:11:23,660
+in any way. It is not
+the size of the universe.
+
+130
+00:11:23,660 --> 00:11:30,600
+The size of the universe is, as far
+as we know, infinite, but that is our
+
+131
+00:11:30,600 --> 00:11:33,840
+universe, that is the observable universe.
+
+132
+00:11:34,340 --> 00:11:41,880
+And if we try to calculate how much
+mass we believe our universe has and
+
+133
+00:11:41,880 --> 00:11:49,220
+plot in this chart, it will be right on
+the intersection of the Schwarzschild
+
+134
+00:11:49,220 --> 00:11:51,460
+radius and the Hubble radius.
+
+135
+00:11:51,460 --> 00:11:57,840
+Which seems to be a very interesting
+coincidence, because the observable
+
+136
+00:11:57,840 --> 00:12:05,040
+universe is a bubble in which nothing can
+escape and everything on the Schwarzschild
+
+137
+00:12:05,040 --> 00:12:10,600
+radius are black holes for
+which nothing can come out.
+
+138
+00:12:10,940 --> 00:12:14,260
+Does that mean that our universe
+is itself a black hole?
+
+139
+00:12:14,800 --> 00:12:22,280
+Probably not. probably the observable
+universe was not always on the Schwarzschild
+
+140
+00:12:22,280 --> 00:12:27,700
+radius. Also the black holes are round
+and they have a singularity in the
+
+141
+00:12:27,700 --> 00:12:34,440
+center. And our observable universe is
+only round from Earth's perspective.
+
+142
+00:12:34,720 --> 00:12:39,580
+Someone in another place would see a
+different size of universe, so it's
+
+143
+00:12:39,580 --> 00:12:41,380
+not as if everything is locked.
+
+144
+00:12:42,000 --> 00:12:46,380
+Someone in the edges of our universe
+would be able to see other stuff, they
+
+145
+00:12:46,380 --> 00:12:49,120
+just would never be able
+to communicate that to us.
+

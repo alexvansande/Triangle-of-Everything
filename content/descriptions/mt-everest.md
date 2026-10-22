@@ -1,1 +1,3 @@
 Mount Everest: at 8,849 meters, the highest point on Earth's surface. Its summit is in the jet stream, with winds exceeding 200 km/h and temperatures dropping below −60°C.
+
+**A mountain has no single natural bottom.** Its mass on this chart is an approximate estimate: the current value does not specify a footprint or a lower cut surface. A defined estimate would calculate the terrain volume above a chosen base and multiply it by rock density. The illustration's exposed rock base shows a miniature cut from the Earth; its thickness does not represent a measured depth or a calculated mass boundary.

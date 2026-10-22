@@ -123,6 +123,7 @@
 {"band": 0, "rank": 23, "source": "amphibian", "name": "Atelopus zeteki", "label": "Panamanian golden frog", "kind": ""},
 {"band": 0, "rank": 24, "source": "meteorite", "name": "Semarkona", "kind": "meteorite"},
 {"band": 0, "rank": 25, "source": "mammal", "name": "Leontopithecus rosalia", "label": "Golden lion tamarin", "kind": ""},
+{"band": 0, "rank": 26, "source": "aircraft", "name": "DJI Mini 2", "kind": "camera drone"},
 {"band": 3, "rank": 1, "source": "aircraft", "name": "Flyer I", "kind": "Wright Flyer"},
 {"band": 3, "rank": 2, "source": "spacecraft", "name": "Curiosity", "kind": "Mars rover"},
 {"band": 3, "rank": 3, "source": "mammal", "name": "Panthera leo", "label": "Lion", "kind": ""},

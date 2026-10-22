@@ -1,0 +1,4 @@
+{
+  "tool": "image_gen.imagegen",
+  "prompt": "Refine ONLY this single Great Pyramid miniature. Preserve the nearly head-on perspective, warm sandy limestone, upper-left light, transparent background and no cast shadow. Correct the top: the Great Pyramid of Khufu should have weathered exposed masonry all the way up, with a small worn slightly truncated summit; REMOVE the conspicuous smooth casing cap near the apex (do not depict Khafre's surviving cap). Use noticeably smaller and more numerous stone courses to communicate the vast size; retain tactile weathering. The whole front base edge and both bottom corners must be fully visible inside the canvas. Center the complete object with 5% clear transparent margin on every side; do not crop the left bottom corner. One pyramid only, no ground or baseplate, no scenery, no text. Keep the narrow right side face and dominant front triangular face."
+}

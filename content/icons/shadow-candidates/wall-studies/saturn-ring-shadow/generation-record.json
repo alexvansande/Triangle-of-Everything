@@ -1,0 +1,26 @@
+{
+  "mode": "built-in image_gen",
+  "source": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-7250dedb-7055-4c09-834c-3652940361ed.png",
+  "prompt": "prompt.txt",
+  "references": [
+    "content/icons/src/saturn.png",
+    "content/icons/shadows/_sphere.webp"
+  ],
+  "settings": {
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 0.53,
+    "generatedBlur": 0,
+    "generatedScale": 0.42,
+    "distance": 0,
+    "x": 55,
+    "y": 76,
+    "reviewed": true,
+    "updated": "2026-10-22T15:11:18.002Z",
+    "generator": "built-in-imagegen",
+    "note": "AI ring and globe wall shadow; preserve during scripted batches."
+  }
+}

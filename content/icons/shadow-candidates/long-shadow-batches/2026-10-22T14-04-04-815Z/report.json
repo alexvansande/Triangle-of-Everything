@@ -1,0 +1,51 @@
+{
+  "created": "2026-10-22T14-04-04-815Z",
+  "counts": {
+    "generate": 2,
+    "round": 0,
+    "caustics": 0,
+    "excluded": 0
+  },
+  "plan": [
+    {
+      "name": "hoba",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T14:04:05.474Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "chelyabinsk",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T14:04:05.581Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    }
+  ]
+}

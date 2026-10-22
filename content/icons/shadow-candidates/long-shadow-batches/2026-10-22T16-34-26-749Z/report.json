@@ -1,0 +1,732 @@
+{
+  "created": "2026-10-22T16-34-26-749Z",
+  "counts": {
+    "generate": 36,
+    "round": 0,
+    "caustics": 0,
+    "custom": 0,
+    "excluded": 0
+  },
+  "plan": [
+    {
+      "name": "mt-everest",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:27.394Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "grinnell-glacier",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:27.500Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "blue-whale",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:27.624Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "hedgehog",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:27.738Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "meerkat",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:27.843Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "atlas-moth",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:27.955Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "clothes-moth",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:28.084Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "honey-bee",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:28.195Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "horse-chestnut-leaf-miner",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:28.312Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "painted-lady",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:28.421Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "bagger-288",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:28.527Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "benz-patent-motorwagen",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:28.636Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "bismarck",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:28.740Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "concorde",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:28.845Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "curiosity",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:28.957Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "dji-mini-2",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:29.069Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "ever-given",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:29.176Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "flyer-i",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:29.286Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "hms-victory",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:29.397Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "hubble-space-telescope",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:29.505Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "ingenuity",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:29.617Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "kursk",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:29.723Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "lockheed-sr-71-blackbird",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:29.853Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "opportunity",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:29.965Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "supertanker",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:30.067Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "tiger-i",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:30.169Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "union-pacific-big-boy",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:30.271Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "uss-enterprise",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:30.371Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "statue-of-unity",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:30.475Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "14-bis",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:30.580Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "helium-party-balloon",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:30.683Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "weather-balloon",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:30.790Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "weather-balloon-near-burst",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:30.895Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "hot-air-balloon",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:30.999Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "zeppelin-nt",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:31.101Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "soap-bubble",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:34:31.210Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    }
+  ]
+}

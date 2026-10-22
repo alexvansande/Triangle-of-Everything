@@ -1,0 +1,18 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-22",
+  "prompt": "Generate ONLY a separate transparent optical wall layer for a brown dwarf miniature, not the brown dwarf object. Input 1 is the brown dwarf object as material reference. Input 2 is the default sphere cast shadow as shape, down-right orientation and progressive softness reference. A transitional object between a dark planet and a softly glowing star: a faint dark neutral-charcoal circular/softly elongated cast shadow, darker along its upper-left portion and progressively softer and more transparent toward lower-right. In the CENTER of the shadow put a small very subdued diffuse ember-orange/rust-red pool of light, about one quarter of the shadow width, irregular softly feathered intensity, gently warm but no bright white core. Imagine embers barely illuminating a wall, less bright than candle light. The glow should be inside the shadow, a muted warm middle surrounded by faint darker penumbra. No flames, sparks, rays, starburst, planet sphere, visible surface, ring, text or floor. Render the entire effect on real transparent PNG, no painted backdrop. Designed for normal alpha compositing on purple #433193. Center the whole effect on a square canvas, shadow around 70% of the width, all feathering fades fully before edges. The layer combines partial dark occlusion and subtle additive-looking warm illumination but must be normal alpha blend compatible. Do not make it an opaque black disk or glaring fireball.",
+  "sharedBy": [
+    "y-brown-dwarf",
+    "t-brown-dwarf",
+    "l-brown-dwarf"
+  ],
+  "registration": {
+    "canvas": 768,
+    "scale": 0.52,
+    "opacity": 0.3,
+    "x": 80,
+    "y": 80
+  },
+  "note": "Stylized transition from planet shadow to stellar wall light; not a calibrated visible luminosity simulation."
+}

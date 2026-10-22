@@ -1,0 +1,44 @@
+[
+  {
+    "slug": "bismarck",
+    "prompt": "Use case: scientific-educational. Create one realistic museum miniature icon, detached on a true transparent PNG background. Reference Titanic supplies ONLY camera, upper-left/front lighting and miniature finish, not ship design. Exact BROADSIDE SIDE ELEVATION, bow at LEFT and stern at RIGHT, keel horizontal; very slightly elevated camera showing a narrow strip of the top deck, minimal perspective, no foreshortening. As if on an invisible shelf just below eye line against a wall. Render the complete ship including underwater hull, propellers and masts. Bright upper-left highlights, dimensional lower-right shading, subdued violet fill, strong thumbnail contrast. Entire silhouette centred, about 90% canvas width, at least 5% clear margin; square image. No sea, water, waves, wake, smoke, horizon, base, shelf or baked shadow. No labels or surrounding objects. Subject: German battleship Bismarck circa 1941. Long grey hull with dark red underwater portion, four twin main-gun turrets (two forward and two aft), characteristic tall superstructure, single funnel, secondary guns and masts, realistic neutral naval finish. No Nazi emblems or deck flags.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/titanic.png"
+    ]
+  },
+  {
+    "slug": "ever-given",
+    "prompt": "Use case: scientific-educational. Create one realistic museum miniature icon, detached on a true transparent PNG background. Reference Titanic supplies ONLY camera, upper-left/front lighting and miniature finish, not ship design. Exact BROADSIDE SIDE ELEVATION, bow at LEFT and stern at RIGHT, keel horizontal; very slightly elevated camera showing a narrow strip of the top deck, minimal perspective, no foreshortening. As if on an invisible shelf just below eye line against a wall. Render the complete ship including underwater hull, propellers and masts. Bright upper-left highlights, dimensional lower-right shading, subdued violet fill, strong thumbnail contrast. Entire silhouette centred, about 90% canvas width, at least 5% clear margin; square image. No sea, water, waves, wake, smoke, horizon, base, shelf or baked shadow. No labels or surrounding objects. Subject: Ever Given large modern container ship. Deep green hull with red underwater hull, dense orderly multi-colour shipping containers, white bridge superstructure toward stern at right, bulbous bow at left. Accurate extremely long boxy cargo silhouette. No cranes attached to ship.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/titanic.png"
+    ]
+  },
+  {
+    "slug": "hms-victory",
+    "prompt": "Use case: scientific-educational. Create one realistic museum miniature icon, detached on a true transparent PNG background. Reference Titanic supplies ONLY camera, upper-left/front lighting and miniature finish, not ship design. Exact BROADSIDE SIDE ELEVATION, bow at LEFT and stern at RIGHT, keel horizontal; very slightly elevated camera showing a narrow strip of the top deck, minimal perspective, no foreshortening. As if on an invisible shelf just below eye line against a wall. Render the complete ship including underwater hull, propellers and masts. Bright upper-left highlights, dimensional lower-right shading, subdued violet fill, strong thumbnail contrast. Entire silhouette centred, about 90% canvas width, at least 5% clear margin; square image. No sea, water, waves, wake, smoke, horizon, base, shelf or baked shadow. No labels or surrounding objects. Subject: HMS Victory, historic three-masted British first-rate wooden ship of the line. Yellow ochre and black striped hull with rows of gunports, three tall masts and complex fine rigging, furled sails to preserve clear broadside structure, bowsprit extending left. Warm dark wood lower hull, compact full rig silhouette.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/titanic.png"
+    ]
+  },
+  {
+    "slug": "kursk",
+    "prompt": "Use case: scientific-educational. Create one realistic museum miniature icon, detached on a true transparent PNG background. Reference Titanic supplies ONLY camera, upper-left/front lighting and miniature finish, not ship design. Exact BROADSIDE SIDE ELEVATION, bow at LEFT and stern at RIGHT, keel horizontal; very slightly elevated camera showing a narrow strip of the top deck, minimal perspective, no foreshortening. As if on an invisible shelf just below eye line against a wall. Render the complete ship including underwater hull, propellers and masts. Bright upper-left highlights, dimensional lower-right shading, subdued violet fill, strong thumbnail contrast. Entire silhouette centred, about 90% canvas width, at least 5% clear margin; square image. No sea, water, waves, wake, smoke, horizon, base, shelf or baked shadow. No labels or surrounding objects. Subject: Russian K-141 Kursk Oscar II nuclear submarine, broad long black cylindrical hull with blunt rounded bow at left, tall broad sail forward of midpoint, rear tapered tail, stabilizer fins and twin propeller system at right. Slightly red-brown lower hull. All hull visible, no water.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/titanic.png"
+    ]
+  },
+  {
+    "slug": "supertanker",
+    "prompt": "Use case: scientific-educational. Create one realistic museum miniature icon, detached on a true transparent PNG background. Reference Titanic supplies ONLY camera, upper-left/front lighting and miniature finish, not ship design. Exact BROADSIDE SIDE ELEVATION, bow at LEFT and stern at RIGHT, keel horizontal; very slightly elevated camera showing a narrow strip of the top deck, minimal perspective, no foreshortening. As if on an invisible shelf just below eye line against a wall. Render the complete ship including underwater hull, propellers and masts. Bright upper-left highlights, dimensional lower-right shading, subdued violet fill, strong thumbnail contrast. Entire silhouette centred, about 90% canvas width, at least 5% clear margin; square image. No sea, water, waves, wake, smoke, horizon, base, shelf or baked shadow. No labels or surrounding objects. Subject: A very large crude oil supertanker miniature: long broad black/navy hull, red underwater bottom, exposed flat deck with orderly pipes and manifolds, white bridge and funnel near stern at right, bulbous bow left. Distinct oil tanker with NO stacked shipping containers.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/titanic.png"
+    ]
+  },
+  {
+    "slug": "uss-enterprise",
+    "prompt": "Use case: scientific-educational. Create one realistic museum miniature icon, detached on a true transparent PNG background. Reference Titanic supplies ONLY camera, upper-left/front lighting and miniature finish, not ship design. Exact BROADSIDE SIDE ELEVATION, bow at LEFT and stern at RIGHT, keel horizontal; very slightly elevated camera showing a narrow strip of the top deck, minimal perspective, no foreshortening. As if on an invisible shelf just below eye line against a wall. Render the complete ship including underwater hull, propellers and masts. Bright upper-left highlights, dimensional lower-right shading, subdued violet fill, strong thumbnail contrast. Entire silhouette centred, about 90% canvas width, at least 5% clear margin; square image. No sea, water, waves, wake, smoke, horizon, base, shelf or baked shadow. No labels or surrounding objects. Subject: USS Enterprise CVN-65 nuclear aircraft carrier, recognizable long flat angled flight deck, characteristic island tower and antennas, medium grey hull with red underside, a few tiny aircraft parked on top as scale cues. Bow LEFT. Complete hull below waterline. Broadsided view with only a slim visible deck surface, not an overhead diagonal view.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/titanic.png"
+    ]
+  }
+]

@@ -1,0 +1,19 @@
+# Video edits
+
+One folder per cut (`short-01-hook`, `short-02-density`, …), each with an
+`edl.py` (the clips kept, in source seconds) and `cuts.csv` (where each clip
+landed). Its take, `public/narration/<cut>/`, and its scene,
+`src/narration-scenes/<cut>.js`, share the name.
+
+- `tools/build.py WORKDIR video/<cut>/edl.py` cuts the edit from the raw
+  recordings. `tools/enhance.py` cleans it up and sets loudness to −16 LUFS.
+  `video/short-01-hook/README.md` has the steps.
+- `sources/<date>/`: Whisper word timings of each raw recording and review
+  notes, with the factual problems and lines to re-record. The raw audio lives
+  in iCloud and gets uploaded per session.
+- `narration-take-1/`: the first take's edit (13 minutes, the whole tour).
+
+The shorts' edited audio is in git (`public/narration/short-*/audio.m4a`), so
+the player and the preview work from a clean checkout. The raw recordings are
+not; to rebuild an edit, fetch its sources (iCloud, or the Google Drive
+"Recordings" folder) and run `video/tools/build.py`.

@@ -1,4 +1,14 @@
+import {BLACK_HOLE_FRAMES, BLACK_HOLE_SIZE_MULT} from "./black-hole-frames.js";
+import {blackHoleFilter} from "./black-hole-palette.js";
 import * as d3 from "d3";
+import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS,SPACE_ART_DEFS,spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
+import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
+import {STAR_BODY_FRAMES, SHADOWED_SCREEN_SPHERES, BROWN_DWARFS, starBodyGeometry, starWallLight, stellarLightProfile} from "./star-light.js";
+import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
+import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
+import { buildSearchIndex, searchObjects } from "./object-search.js";
+import { VisibilityMemory } from "./visibility-memory.js";
+import { priorityCircles } from "./visibility-hierarchy.js";
 import {
   formatSci, friendlyRadius, friendlyMass, friendlyEnergy, isPhoton,
   friendlyWavelength, friendlyDensity, MASS_HOVER_UNITS, RADIUS_HOVER_UNITS,
@@ -6,10 +16,16 @@ import {
   formatLogSuper, densityToLogTime, friendlyTime, fmtTick,
 } from "./format.js";
 import {
-  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, STRINGS_ATOM_SLUGS,
+  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, iconUrlForSize, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
+
+// Where the build is served from: "/" on the site, "./" in the narration
+// preview (scripts/narration-preview.mjs), which runs from a sub-folder.
+const BASE = import.meta.env.BASE_URL;
+// The narration preview: the player only, no address-bar sync or service worker.
+const NARR_PREVIEW = import.meta.env.MODE === "narration-preview";
 import {
   BOUNDS, SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M,
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
@@ -33,7 +49,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, t
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -60,6 +76,7 @@ let _userEngaged = false; // set on first pointer/wheel/key input (deferred load
 // Uses log interpolation for a natural "approaching distant object" feel.
 // ?og-shot: headless mode used by scripts/build-pages.mjs to screenshot the
 // chart around each object for its preview image (see window.__toeOg below).
+const _softSpace = !new URLSearchParams(location.search).has("legacyspace");
 const _ogShot = new URLSearchParams(location.search).has("og-shot");
 function effectiveIconSize() {
   const minK = 0.3, maxK = 800;
@@ -77,6 +94,7 @@ const ICON_SIZE_MULT = {
   "saturn": 2,
   "primordial-black-hole": 2, "3k-bh": 2, "stellar-bh": 2,
   "sgr-a": 2, "m87": 2, "ton-618": 2,
+  ...BLACK_HOLE_SIZE_MULT,
 };
 
 // Physical size scaling: for every 6 orders of magnitude in real radius,
@@ -85,7 +103,12 @@ const ICON_SIZE_MULT = {
 function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
-  return sizeScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
+  const cat = o.catKey || o.cat;
+  // Galaxies get a second 25% boost; extend this pass to diffuse large-scale
+  // structures and black holes, keeping solid universe/void spheres unchanged.
+  const categoryScale = BLACK_HOLE_FRAMES[o.slug] ? 1 : cat === "galaxy" ? 1.25 * 1.25
+    : cat === "blackhole" || (cat === "largescale" && isDiffuseSpaceArt(cat, o.slug)) ? 1.25 : 1;
+  return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
 }
 
 function nameToSlug(name) {
@@ -101,6 +124,7 @@ function nameToSlug(name) {
 }
 
 const OBJECTS = applyBulkObjects(objectsData).map(o => ({ ...o, slug: o.slug || nameToSlug(o.name) }));
+const CURATED_SLUGS = new Set(OBJECTS.map(o => o.slug)); // dust never shows a curated object's picture
 let tileMeta = null;
 
 // =============================================================
@@ -453,6 +477,7 @@ function announce(text) {
 // decorative motion. The in-app "Show animations" checkbox still overrides.
 const _reduceMotion = !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 const defs = svg.append("defs");
+defs.node().insertAdjacentHTML("beforeend",SPACE_ART_DEFS);
 
 // Clip
 defs.append("clipPath").attr("id", "clip")
@@ -465,6 +490,29 @@ const iconBgGrad = defs.append("radialGradient").attr("id", "icon-bg-grad");
 iconBgGrad.append("stop").attr("offset", "0%").attr("stop-color", "#000").attr("stop-opacity", 0.8);
 iconBgGrad.append("stop").attr("offset", "50%").attr("stop-color", "#000").attr("stop-opacity", 0.5);
 iconBgGrad.append("stop").attr("offset", "100%").attr("stop-color", "#000").attr("stop-opacity", 0);
+
+// Cast shadows under the pictures (drawIconShadows): blur sized to each
+// ellipse (objectBoundingBox), so one filter looks the same at every zoom.
+// The far ellipse is blurred more: the shadow softens as it leaves the object.
+// Dust dots' shadows: one path, a fixed 0.8 px blur (dots don't scale)
+defs.append("filter").attr("id", "dust-shadow-blur")
+  .attr("x", "-5%").attr("y", "-5%").attr("width", "110%").attr("height", "110%")
+  .append("feGaussianBlur").attr("stdDeviation", 0.8);
+// A circular wall-light falloff, tinted per star; no generated star textures.
+const starFade=defs.append("radialGradient").attr("id","star-wall-fade");
+for(const [offset,opacity] of [[0,1],[.18,.75],[.42,.34],[.68,.10],[1,0]])starFade.append("stop").attr("offset",offset).attr("stop-color","white").attr("stop-opacity",opacity);
+defs.append("mask").attr("id","star-wall-mask").attr("maskUnits","objectBoundingBox")
+  .attr("maskContentUnits","objectBoundingBox").attr("x",0).attr("y",0).attr("width",1).attr("height",1)
+  .append("rect").attr("width",1).attr("height",1).attr("fill","url(#star-wall-fade)");
+defs.append("filter").attr("id","star-glow").attr("primitiveUnits","objectBoundingBox")
+  .attr("x","-20%").attr("y","-20%").attr("width","140%").attr("height","140%")
+  .append("feGaussianBlur").attr("stdDeviation",.012);
+[["icon-shadow-near", 0.08], ["icon-shadow-far", 0.16]].forEach(([id, sd]) => {
+  defs.append("filter").attr("id", id)
+    .attr("primitiveUnits", "objectBoundingBox")
+    .attr("x", "-60%").attr("y", "-60%").attr("width", "220%").attr("height", "220%")
+    .append("feGaussianBlur").attr("stdDeviation", sd);
+});
 
 function makeLinGrad(id, x1, y1, x2, y2, stops) {
   const g = defs.append("linearGradient").attr("id", id)
@@ -586,10 +634,19 @@ const lDarkMatter = lContent.append("g");
 const lArrows     = lContent.append("g").style("mix-blend-mode", "screen");
 const lConnDots   = lContent.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
 const lRegLabel   = lContent.append("g");
+// Pictures' cast shadows: under the dust, dots, labels and pictures alike
+const lShadows    = lContent.append("g").style("pointer-events", "none").attr("class", "icon-shadows");
+const SHADOWS = !new URLSearchParams(location.search).has("noshadows");
+// Approved circular wall lights; ?noglow is a comparison switch.
+const STAR_GLOWS = SHADOWS && !new URLSearchParams(location.search).has("noglow");
+const DUST_SHADOWS = SHADOWS && !new URLSearchParams(location.search).has("nodustshadows");
 // Catalogue "dust": thousands of faint real objects under the curated ones
 // (src/dust.js). Never interactive except for a hover name.
 const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
+const PARALLAX_OFF = new URLSearchParams(location.search).has("noparallax");
 const DUST_LABELS_OFF = new URLSearchParams(location.search).has("narrate");
+lGrid.raise(); // grid plane sits in front of dust, behind labels and pictures
+lRegLabel.raise();
 const lDustHover  = lContent.append("g").style("pointer-events", "none");
 const lObj        = lContent.append("g");
 // Retained rendering split: extras (cluster/category/BH labels, ~20 nodes)
@@ -600,8 +657,7 @@ const lHighlight  = lContent.append("g").style("pointer-events", "none");
 const lCompose    = lContent.append("g").style("pointer-events", "none"); // hover "made of" lines
 const lAxisRef    = lContent.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
 const lWaterPhase = lContent.append("g"); // states-of-water inset (zooms with the map)
-// (Object labels live in lLabels, declared below lIcons so text always
-// paints ABOVE icons — a glyph must never wash out a label.)
+// Object labels live in lLabels, behind the foreground picture layer.
 
 // Film grain noise overlay (paper texture, controlled by Noise slider)
 // TEMPORARILY DISABLED for testing — uncomment to restore
@@ -615,9 +671,8 @@ const lWaterPhase = lContent.append("g"); // states-of-water inset (zooms with t
 const grainRect = { attr: () => grainRect, style: () => grainRect }; // stub
 
 // Icon layer: rendered above noise for cleaner visibility
-const lIcons = clip.append("g").style("pointer-events", "none");
-// Object labels paint above the icons: readable text beats glyph art
 const lLabels = clip.append("g").style("pointer-events", "none");
+const lIcons = clip.append("g").attr("class", "picture-layer").style("pointer-events", "none");
 
 // Click capture now uses HTML overlays (see updateClickTargets)
 
@@ -776,6 +831,7 @@ function gridCfg() { return GRID_UNITS[_gridUnit] || GRID_UNITS.si; }
 const firstAligned = (lo, step, ref) => ref + Math.ceil((lo - ref) / step) * step;
 
 function drawGrid() {
+  lGrid.attr("transform", planeTransform(cw, ch, parallaxOn() ? PARALLAX.labels : 0));
   lGrid.selectAll("*").remove();
   const d = vd();
   const ppu = cw / (d.x1 - d.x0);
@@ -1999,6 +2055,7 @@ function drawRegionLabels() {
       .attr("transform", `rotate(${l.angle},${mx},${my})`)
       .text(l.text.toUpperCase());
   });
+  projectFreshLabels(lRegLabel);
 }
 
 // =============================================================
@@ -2016,7 +2073,7 @@ function catDisplayLabel(catKey) {
 
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
 const ICON_ROOM = 1.3;       // icons keep 30% of their radii clear between them
-let _iconShownPrev = new Set();
+const _objectVisibility = new VisibilityMemory();
 const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
 let _lastProjected = [];
@@ -2321,6 +2378,25 @@ function mapIconShown(o) {
   return !(_atomIconsHidden && (o.catKey || o.cat) === "atomic"); // atoms and molecules
 }
 
+// Data/collision coordinates stay anchored; only presentation moves in depth.
+function parallaxOn() {
+  return !_reduceMotion && !_posterLabels && !_bigBangMode &&
+    !PARALLAX_OFF;
+}
+function depthPoint(o, depth) { return planePoint(o.sx, o.sy, cw, ch, parallaxOn() ? depth : 0); }
+function objectPicturePoint(o, growth = 1) {
+  const body = effectiveIconSize() * iconSizeMult(o) / (ICON_SIZE_MULT[o.slug] || 1);
+  return iconPoint(o.sx, o.sy, cw, ch, body, growth, parallaxOn(), o.slug);
+}
+// These annotation groups are rebuilt each frame; preserve rotations while
+// translating text anchors, without stretching type along with the grid.
+function projectFreshLabels(layer) {
+  layer.selectAll("text[x][y]").each(function() {
+    const text = d3.select(this), anchor = { sx: +text.attr("x"), sy: +text.attr("y") };
+    text.attr("transform", parallaxTranslation(anchor, depthPoint(anchor, PARALLAX.labels)) + " " + (text.attr("transform") || ""));
+  });
+}
+function parallaxTranslation(o, point) { return "translate(" + (point.x-o.sx) + "," + (point.y-o.sy) + ")"; }
 function drawObjects() {
   {
     const d = vd();
@@ -2334,7 +2410,11 @@ function drawObjects() {
   lObjExtras.selectAll("*").remove();
   const d = vd();
   const icoSize = effectiveIconSize();
-  const pad = 5;
+  _objectVisibility.update([px(1)-px(0), py(1)-py(0)], JSON.stringify([
+    cw, ch, _iconSize, _fontScale, _iconsEnabled, _labelsEnabled,
+    _dustEnabled, dustReady(), _isMobile, _posterLabels, _atomIconsHidden,
+    _bigBangMode && [_bigBangObjectOverrides, _bigBangObjectOpacity],
+  ]));
 
   // Project all objects to screen, sorted by priority (low z = important)
   const projected = OBJECTS
@@ -2364,8 +2444,6 @@ function drawObjects() {
     })
     .filter(o =>
       o &&
-      o.sx >= -pad && o.sx <= cw + pad &&
-      o.sy >= -pad && o.sy <= ch + pad &&
       (!o.minK || currentK >= o.minK)
     )
     .sort((a, b) => {
@@ -2375,35 +2453,26 @@ function drawObjects() {
       return aZ - bZ;
     });
 
-  // --- Dot clustering: hide dots only when circles truly overlap ---
-  const visibleDots = [];
-  projected.forEach(o => {
-    const dx2 = (s) => (s.sx - o.sx) ** 2 + (s.sy - o.sy) ** 2;
-    const tooClose = visibleDots.some(s => dx2(s) < DOT_MIN_DIST * DOT_MIN_DIST);
-    o._showDot = !tooClose;
-    if (o._showDot) visibleDots.push(o);
-  });
-
-  // --- Icon crowding, map-style: icons need room, measured by their real
-  // drawn sizes (iconSizeMult grows them with the object), so a crowded
-  // stretch (moons, dwarf planets) shows only its top-priority pictures and
-  // the rest appear as you zoom in. Priority: z, then last frame's icons. ---
-  const shownIcons = [];
+  // Reserve all higher-priority candidates, including hidden ones. Source
+  // order resolves equal priorities; last frame's winners never alter rank.
+  const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
-  const iconOrder = projected.filter(o => mapIconShown(o) && o._showDot)
-    .sort((a, b) => a.z - b.z || (_iconShownPrev.has(b.slug) - _iconShownPrev.has(a.slug)));
-  projected.forEach(o => { o._showIcon = false; });
-  iconOrder.forEach(o => {
-    const r = icoR(o);
-    const tooClose = shownIcons.some(s => {
-      const need = (r + s._icoR) * ICON_ROOM;
-      return (s.sx - o.sx) ** 2 + (s.sy - o.sy) ** 2 < need * need;
-    });
-    if (tooClose) return;
-    o._showIcon = true; o._icoR = r;
-    shownIcons.push(o);
+  const iconOrder = projected.filter(mapIconShown);
+  const shownIcons = priorityCircles(iconOrder, icoR, ICON_ROOM);
+  projected.forEach(o => {
+    o._showDot = visibleDots.has(o);
+    o._showIcon = o._showDot && shownIcons.has(o);
+    if (o._showIcon) o._icoR = icoR(o);
   });
-  _iconShownPrev = new Set(shownIcons.map(o => o.slug));
+  // Decide against the whole curated collection, not the viewport contents.
+  // A neighbour crossing an edge cannot promote/demote a stationary object.
+  for (const o of projected) {
+    const saved = _objectVisibility.decisions.get(o.slug);
+    if (saved) {
+      o._showDot = saved.dot; o._showIcon = saved.icon;
+      if (o._showIcon) o._icoR = icoR(o);
+    } else _objectVisibility.decisions.set(o.slug, { dot:o._showDot, icon:o._showIcon });
+  }
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
   const th2 = _posterLabels ? -1 : CLUSTER_THRESHOLD * CLUSTER_THRESHOLD; // poster: no clusters
@@ -2486,7 +2555,7 @@ function drawObjects() {
   const iconRects = [];
   projected.forEach(o => {
     if (!o._showIcon) return;
-    const s = icoSize * iconSizeMult(o);
+    const s = icoSize * iconSizeMult(o) * (parallaxOn() ? 1 + 2 * PARALLAX.icon * (1 + PARALLAX.variation) / (ICON_SIZE_MULT[o.slug] || 1) : 1);
     iconRects.push({ x: o.sx - s / 2, y: o.sy - s / 2, w: s, h: s, owner: o });
   });
   const hitsIcons = (rect, owner) => iconRects.some(r =>
@@ -2549,7 +2618,7 @@ function drawObjects() {
     const labelH = _posterLabels ? _posterLabelSize + 3 : 13;
 
     // Icon-bearing objects push their own label just outside the glyph
-    const ownR = o._showIcon ? (icoSize * iconSizeMult(o)) / 2 : 0;
+    const ownR = o._showIcon ? icoSize * iconSizeMult(o) * (0.5 + (parallaxOn() ? PARALLAX.icon * (1 + PARALLAX.variation) / (ICON_SIZE_MULT[o.slug] || 1) : 0)) : 0;
     const positions = ownR > 8 ? [
       { dx: ownR + 4, dy: 3.5, anchor: "start" },
       { dx: -(ownR + 4), dy: 3.5, anchor: "end" },
@@ -2778,8 +2847,13 @@ function drawObjects() {
     }
   }
 
+  projectFreshLabels(lObjExtras);
+
   // --- Render object dots, icons, and labels via keyed joins ---
-  const shownDots = projected.filter(o => o._showDot);
+  // Cull only after making visibility/layout decisions. Keep a generous
+  // margin so wide icons and labels slide through the edge rather than pop.
+  const shownDots = projected.filter(o => o._showDot &&
+    o.sx >= -256 && o.sx <= cw + 256 && o.sy >= -256 && o.sy <= ch + 256);
   const iconObjs = shownDots.filter(o => o._showIcon);
 
   // (1) Object groups: hit area + glow/dot, keyed by slug. Structure is
@@ -2801,6 +2875,7 @@ function drawObjects() {
     .attr("opacity", o => (_bigBangMode && o.bbOpacity < 1) ? o.bbOpacity : null)
     .each(function(o) {
       const g = d3.select(this);
+      g.attr("transform", parallaxTranslation(o, depthPoint(o, PARALLAX.dust)));
       const dotDisplay = o._showIcon ? "none" : null;
       g.select(".obj-hit").attr("cx", o.sx).attr("cy", o.sy);
       g.select(".obj-glow").attr("cx", o.sx).attr("cy", o.sy)
@@ -2831,12 +2906,14 @@ function drawObjects() {
         const imgEl = gg.append("image")
           .attr("class", "obj-icon")
           .attr("data-slug", o.slug)
-          .attr("href", ICON_BY_SLUG[o.slug])
           .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
+          .style("filter",blackHoleFilter(o.slug)||(softSpaceIcon(o)?`brightness(${SPACE_ART_BRIGHTNESS})`:null))
+          .attr("mask",softSpaceIcon(o)?spaceEdgeMask(o.slug):null)
           .node();
         imgEl.addEventListener("load", () => {
           _loadedIconUrls.add(ICON_BY_SLUG[o.slug]);
           gg.select(".icon-fallback-dot").attr("display", "none");
+          gg.select(".icon-bg").attr("display", null);
         }, { once: true });
       });
       return g;
@@ -2845,14 +2922,21 @@ function drawObjects() {
       const gg = d3.select(this);
       const bbOp = (_bigBangMode && o.bbOpacity < 1) ? o.bbOpacity : null;
       const objIcoSize = icoSize * iconSizeMult(o);
+      const growth = this.__iconGrowth ?? 1;
+      gg.attr("transform", parallaxTranslation(o, objectPicturePoint(o, growth)));
+      const bodyDisc=iconBackingGeometry(o,objIcoSize,growth);
       gg.select(".icon-bg")
-        .attr("cx", o.sx).attr("cy", o.sy)
-        .attr("r", objIcoSize * 0.52).attr("opacity", bbOp);
+        .attr("cx",bodyDisc?.cx??o.sx).attr("cy",bodyDisc?.cy??o.sy)
+        .attr("r",bodyDisc?.r??objIcoSize*.52).attr("opacity",bbOp)
+        .attr("fill",softSpaceIcon(o)?"url(#space-core-gradient)":bodyDisc?"#000":"url(#icon-bg-grad)")
+        .attr("display",bodyDisc&&!_loadedIconUrls.has(ICON_BY_SLUG[o.slug])?"none":null);
       gg.select(".icon-fallback-dot")
         .attr("cx", o.sx).attr("cy", o.sy)
         .attr("display", _loadedIconUrls.has(ICON_BY_SLUG[o.slug]) ? "none" : null)
         .attr("opacity", bbOp == null ? 0.85 : 0.85 * bbOp);
       gg.select(".obj-icon")
+        .style("transform",growth===1?null:`scale(${growth})`)
+        .attr("href", iconUrlForSize(o.slug, objIcoSize))
         .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2)
         .attr("width", objIcoSize).attr("height", objIcoSize)
         .attr("opacity", bbOp);
@@ -2860,7 +2944,7 @@ function drawObjects() {
     .order();
 
   // (3) Labels: one text per object with paint-order (outline behind fill,
-  // replacing the shadow+fill pair), keyed by slug, above icons.
+  // replacing the shadow+fill pair), keyed by slug, behind icons.
   lLabels.selectAll("text.obj-label")
     .data(shownDots, o => o.slug)
     .join(enter => enter.append("text")
@@ -2872,6 +2956,7 @@ function drawObjects() {
       .attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
       .text(o => o.name))
+    .attr("transform", o => parallaxTranslation(o, depthPoint(o, PARALLAX.labels)))
     .attr("x", o => o.sx + o._labelPos.dx)
     .attr("y", o => o.sy + o._labelPos.dy)
     .attr("text-anchor", o => o._labelPos.anchor)
@@ -2888,17 +2973,35 @@ function drawObjects() {
     })
     .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
 
-  _lastProjected = shownDots;
+  _lastProjected = shownDots.filter(o => o.sx >= 0 && o.sx <= cw && o.sy >= 0 && o.sy <= ch);
 
   // Dust fills whatever room the curated objects leave — it never sits on
   // a curated dot, icon or visible label.
   drawDust(lDust, {
     px, py, cw, ch, mobile: _isMobile,
+    parallax: parallaxOn(), reducedMotion:_reduceMotion, iconLayer: lIcons, depthKeyOf: nameToSlug,
+    bodySizeAt: (size, name) => size / (ICON_SIZE_MULT[nameToSlug(name)] || 1),
+    visibilityEpoch: _objectVisibility.epoch,
     hidden: !_dustEnabled || _bigBangMode,
     // a few dust names, map-style; not in the narrated videos or the poster
     labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fontScale: _fontScale,
     labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
+    // a famous named dot with a picture (content/icons/<its slug>.webp) can
+    // show it when there's room — not one a curated object already shows
+    iconOf: _iconsEnabled && !_posterLabels ? (name, size) => {
+      const slug = nameToSlug(name);
+      return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug, size) || null;
+    } : null,
+    // as iconSizeMult, per-object multipliers included
+    iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
+    iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
+    softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
+    iconFilterOf:(cat,name)=>blackHoleFilter(nameToSlug(name)),
+    iconBrightnessOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name))?SPACE_ART_BRIGHTNESS:1,
   }, {
+    // Catalogue pictures share the same hierarchy: all curated candidates
+    // outrank them, not just this frame's visible winners or moving labels.
+    priorityCircles: projected.map(o => ({sx:o.sx,sy:o.sy,r:mapIconShown(o)?icoR(o):DOT_MIN_DIST/2})),
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
     // Icons keep dust out with a CIRCLE, not their square box: a square gap
@@ -2911,11 +3014,178 @@ function drawObjects() {
     }),
   }, dustColor);
   lDustHover.selectAll("*").remove();
+  drawIconShadows([
+    // Stellar light and the transitional brown-dwarf shadow share one key.
+    ...shownDots.filter(o=>o._showIcon&&STAR_BODY_FRAMES[o.slug]&&(STAR_GLOWS||BROWN_DWARFS.has(o.slug)))
+      .map(o=>stellarShadowData({key:o.slug,slug:o.slug,sx:o.sx,sy:o.sy,r:icoSize*iconSizeMult(o)/2,logM:o.logM},o.color)),
+    ...dustIcons().filter(d=>STAR_BODY_FRAMES[nameToSlug(d.name)]&&(STAR_GLOWS||BROWN_DWARFS.has(nameToSlug(d.name))))
+      .map(d=>stellarShadowData({key:`dust:${d.i}`,...d,slug:nameToSlug(d.name)},"#ffd27a")),
+    ...shownDots.filter(o => o._showIcon && (!iconUsesScreenBlend(o) || SHADOWED_SCREEN_SPHERES.has(o.slug)))
+      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", roundOffsetScale: SHADOW_SETTINGS_BY_SLUG[o.slug]?.roundOffsetScale, registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.registered || SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
+    ...dustIcons().filter(d => !d.blend || SHADOWED_SCREEN_SPHERES.has(nameToSlug(d.name))).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", roundOffsetScale: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.roundOffsetScale, registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
+  ]);
+  drawDustShadows();
+}
+
+/** Every dust dot casts a tiny soft shadow down-right (same light as the
+ *  pictures'), all in one blurred path under everything. */
+function drawDustShadows() {
+  const dots = DUST_SHADOWS && !_bigBangMode && _dustEnabled ? dustDots() : [];
+  const R = 1.4, DX = 3, DY = 4;
+  let d = "";
+  for (const q of dots) {
+    const x = q.sx + DX - R, y = q.sy + DY;
+    d += `M${x.toFixed(1)},${y.toFixed(1)}a${R},${R} 0 1,0 ${2 * R},0a${R},${R} 0 1,0 ${-2 * R},0`;
+  }
+  let p = lShadows.select("path.dust-shadows");
+  if (p.empty()) p = lShadows.insert("path", ":first-child").attr("class", "dust-shadows")
+    .attr("fill", "#000").attr("opacity", 0.4).attr("filter", "url(#dust-shadow-blur)");
+  p.attr("d", d || null);
+}
+
+/** Cast shadows fall on a poster behind the floating objects. Hover moves
+ *  the object toward the viewer: its shadow moves farther, grows and fades.
+ *  Image textures gain blur; fallback ellipse blur scales with their bounds. */
+const SHADOW_PARTS = [
+  // [class, filter, centre along the diagonal (× r) + px, half-length, half-width (× r), opacity]
+  ["sh-near", "icon-shadow-near", 1.1, 10, 1.05, 0.9, 0.28],
+  ["sh-far", "icon-shadow-far", 1.6, 16, 1.35, 1.05, 0.18],
+];
+// A small, fixed wall-plane bias balances the foreground parallax at the
+// southeast edge. Measure the body, excluding rings and other extensions.
+const SHADOW_SE_BIAS = 0.10;
+const LAKE_SHADOWS = new Set([
+  'loch-ness', 'caspian-sea', 'dead-sea', 'lake-baikal', 'lake-nyos',
+  'lake-superior', 'lake-tahoe', 'lake-victoria', 'sea-of-galilee',
+  'hallstatter-see', 'konigssee', 'titicaca',
+]);
+// Bring the entire optical layer 15% of the resting icon width closer on
+// each axis, without changing its caustics, scale or hover travel.
+function shadowPlacementBias(d) {
+  return LAKE_SHADOWS.has(d.name ? nameToSlug(d.name) : d.key) ? -0.05 : SHADOW_SE_BIAS;
+}
+let _shadowLift = null; // { key, k }: the hovered picture and how much it grew
+function shadowGeom(d, [, , c, px, a, b, op]) {
+  const k = _shadowLift?.key === d.key ? _shadowLift.k : 1;
+  const state = wallShadowState(d.r, k);
+  const r = state.radius;
+  const off = (c * d.r + px) * 0.85 + state.travel;
+  const cx = d.sx + off * Math.SQRT1_2, cy = d.sy + off * Math.SQRT1_2 + 0.3 * d.r;
+  return { cx, cy, rx: a * r, ry: b * r, transform: `rotate(45 ${cx} ${cy})`, opacity: op * state.opacity };
+}
+function shadowImgGeom(d) {
+  const g=wallShadowImageGeometry(d, _shadowLift?.key === d.key ? _shadowLift.k : 1);
+  return {...g,opacity:g.opacity*(d.shadowStrength??1)};
+}
+function applyShadowImg(sel, g) {
+  sel.attr("x", g.x).attr("y", g.y).attr("width", g.width).attr("height", g.height).attr("opacity", g.opacity).style("filter", g.blur ? `blur(${g.blur}px)` : "none");
+}
+function applyShadowGeom(sel, g) {
+  sel.attr("cx", g.cx).attr("cy", g.cy).attr("rx", g.rx).attr("ry", g.ry)
+    .attr("transform", g.transform).attr("opacity", g.opacity);
+}
+function stellarShadowData(d,fallback) {
+  const profile=stellarLightProfile(d.slug,d.logM),brown=BROWN_DWARFS.has(d.slug);
+  return {...d,glow:STAR_GLOWS?(profile.color||starTint(ICON_BY_SLUG[d.slug],fallback)):null,
+    glowUrl:profile.color?null:ICON_BY_SLUG[d.slug],
+    img:brown?SHADOW_BY_SLUG[d.slug]:null,registered:brown,shadowStrength:profile.shadow};
+}
+// The wall stays behind the source; hover enlarges and dims its circular light.
+function starGlowGeom(d) {
+  return starWallLight(d,_shadowLift?.key===d.key?_shadowLift.k:1);
+}
+/** The colour of a star's light: the mean of its icon's bright pixels, sampled
+ *  once per icon (fallback until it has loaded). */
+const _starTints = new Map();
+function starTint(url, fallback) {
+  if (!url) return fallback;
+  const known = _starTints.get(url);
+  if (known) return known === "pending" ? fallback : known;
+  _starTints.set(url, "pending");
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement("canvas"); c.width = c.height = 24;
+    const cx = c.getContext("2d", { willReadFrequently: true });
+    cx.drawImage(img, 0, 0, 24, 24);
+    const px = cx.getImageData(0, 0, 24, 24).data;
+    let r = 0, g = 0, b = 0, n = 0;
+    for (let i = 0; i < px.length; i += 4) {
+      const w = px[i + 3] / 255 * Math.max(px[i], px[i + 1], px[i + 2]) / 255;  // bright, opaque pixels count most
+      r += px[i] * w; g += px[i + 1] * w; b += px[i + 2] * w; n += w;
+    }
+    if (!n) return;
+    // light carries the hue at full brightness; the pool's opacity keeps it faint
+    const m = Math.max(r, g, b) / n || 1, f = 255 / m;
+    _starTints.set(url, `rgb(${Math.round(r / n * f)},${Math.round(g / n * f)},${Math.round(b / n * f)})`);
+    lShadows.selectAll("g.icon-shadow").filter(d => d.glow).each(function(d) {
+      if (d.glowUrl === url) d3.select(this).select("ellipse.sh-glow").attr("fill", _starTints.get(url));
+    });
+  };
+  img.src = url;
+  return fallback;
+}
+function drawIconShadows(shapes) {
+  if (!SHADOWS || _bigBangMode) shapes = [];
+  lShadows.selectAll("g.icon-shadow")
+    .data(shapes, d => d.key)
+    .join(enter => {
+      const g = enter.append("g").attr("class", "icon-shadow");
+      SHADOW_PARTS.forEach(([cls, filter]) => g.append("ellipse").attr("class", cls)
+        .attr("fill", "#000").attr("filter", `url(#${filter})`));
+      g.append("image").attr("class", "sh-img").attr("preserveAspectRatio", "none");
+      g.append("ellipse").attr("class", "sh-glow").attr("filter", "url(#star-glow)").attr("mask","url(#star-wall-mask)")
+        .style("mix-blend-mode", "screen");
+      return g;
+    })
+    .each(function(d) {
+      const g = d3.select(this);
+      const body = 2 * d.r / (ICON_SIZE_MULT[d.name ? nameToSlug(d.name) : d.key] || 1);
+      const bias = d.glow && !d.img ? 0 : body * shadowPlacementBias(d);
+      g.attr("transform", `translate(${bias},${bias})`);
+      const glow = g.select("ellipse.sh-glow").attr("display", d.glow ? null : "none");
+      if (d.glow) {
+        g.selectAll("ellipse:not(.sh-glow)").attr("display", "none");
+        g.select("image.sh-img").attr("display", "none");
+        const light=starGlowGeom(d);
+        applyShadowGeom(glow.interrupt().attr("fill", d.glow), {...light,cx:light.cx-bias,cy:light.cy-bias});
+        if(!d.img)return;
+      }
+      g.selectAll("ellipse:not(.sh-glow)").attr("display", d.img ? "none" : null);
+      const img = g.select("image.sh-img").attr("display", d.img ? null : "none");
+      if (d.img) {
+        if (img.attr("href") !== d.img) img.attr("href", d.img);
+        applyShadowImg(img.interrupt(), shadowImgGeom(d));
+        return;
+      }
+      SHADOW_PARTS.forEach(part => applyShadowGeom(g.select(`ellipse.${part[0]}`).interrupt(), shadowGeom(d, part)));
+    });
+}
+/** Ease one picture's shadow to its lifted (hover) or resting place. */
+function liftShadow(key, k) {
+  _shadowLift = k > 1 ? { key, k } : null;
+  lShadows.selectAll("g.icon-shadow").filter(d => d.key === key).each(function(d) {
+    const g = d3.select(this);
+    if (d.glow) {
+      const light=starGlowGeom(d),bias=d.img?2*d.r/(ICON_SIZE_MULT[d.name?nameToSlug(d.name):d.key]||1)*shadowPlacementBias(d):0;
+      applyShadowGeom(g.select("ellipse.sh-glow").interrupt().transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase), {...light,cx:light.cx-bias,cy:light.cy-bias});
+      if(!d.img)return;
+    }
+    if (d.img) {
+      applyShadowImg(g.select("image.sh-img").interrupt().transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase), shadowImgGeom(d));
+      return;
+    }
+    SHADOW_PARTS.forEach(part => applyShadowGeom(
+      g.select(`ellipse.${part[0]}`).interrupt().transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase), shadowGeom(d, part)));
+  });
 }
 
 // Screen-blend decision is static per object — shared by enter and update.
 const SCREEN_BLEND_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
 const SCREEN_BLEND_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
+function iconBackingGeometry(o,size,growth) {
+  return starBodyGeometry(o.slug,o.sx,o.sy,size,growth)||(softSpaceIcon(o)?spaceCoreGeometry(o.slug,o.sx,o.sy,size,growth):null);
+}
+function softSpaceIcon(o) {return _softSpace&&isDiffuseSpaceArt(o.catKey||o.cat,o.slug)}
 function iconUsesScreenBlend(o) {
   if (o.slug.includes("void")) return false;
   return SCREEN_BLEND_CATS.has(o.catKey || o.cat) || SCREEN_BLEND_SLUGS.has(o.slug);
@@ -2933,7 +3203,16 @@ function setIconHover(o, on) {
   // Grow around the icon's center via CSS transform; geometry attrs stay
   // owned by the renderer (see .obj-icon in style.css for why).
   const k = on ? Math.max(64, base * 1.5) / base : 1;
-  iconEl.style("transform", k === 1 ? null : `scale(${k})`);
+  const group = d3.select(iconEl.node().parentNode);
+  if (on) group.raise();
+  animateIconGrowth(group,k,(node,growth)=>{
+    const current=node.__data__,g=d3.select(node),size=effectiveIconSize()*iconSizeMult(current);
+    g.select('.obj-icon').style('transform',growth===1?null:`scale(${growth})`);
+    const disc=iconBackingGeometry(current,size,growth);
+    if(disc)g.select('.icon-bg').attr('cx',disc.cx).attr('cy',disc.cy).attr('r',disc.r);
+    g.attr('transform',parallaxTranslation(current,objectPicturePoint(current,growth)));
+  },_reduceMotion);
+  liftShadow(o.slug, k);
   return true;
 }
 
@@ -3042,7 +3321,24 @@ svg.on("mousemove.tooltip", (e) => {
 // Curated objects sit above in the HTML click-target overlay, so they
 // always win; dust only answers when nothing else has the tooltip.
 let _dustTip = false;
+let _dustIconHover = null;   // index of the dust picture grown under the pointer
+/** Same growth as setIconHover (curated icons): to ≥ 64 px or 1.5×, shadow lifted. */
+function setDustIconHover(icon) {
+  const i = icon ? icon.i : null;
+  if (i === _dustIconHover) return;
+  if (_dustIconHover != null) {
+    setDustIconScale(lIcons, _dustIconHover, 1);
+    liftShadow(`dust:${_dustIconHover}`, 1);
+  }
+  _dustIconHover = i;
+  if (icon) {
+    const base = 2 * icon.r, k = Math.max(64, base * 1.5) / base;
+    setDustIconScale(lIcons, i, k);
+    liftShadow(`dust:${i}`, k);
+  }
+}
 function hideDustTip() {
+  setDustIconHover(null);
   if (!_dustTip) return;
   _dustTip = false;
   lDustHover.selectAll("*").remove();
@@ -3053,12 +3349,16 @@ svg.on("mousemove.dust", (e) => {
   if (_zooming || _touchMode || !_dustEnabled) return hideDustTip();
   if (!_dustTip && tooltipEl.classList.contains("visible")) return; // someone else's tooltip
   const [mx, my] = d3.pointer(e, chart.node());
-  const hit = pickDust(mx, my, 6);
-  if (!hit) return hideDustTip();
+  // a dust picture answers anywhere over it, like a curated icon
+  const icon = pickDustIcon(mx, my);
+  const anchor = icon && depthPoint(icon, PARALLAX.dust);
+  const hit = icon ? { ...pickDust(anchor.x, anchor.y, 1), name: icon.name } : pickDust(mx, my, 6);
+  if (!hit || !hit.source) return hideDustTip();
+  setDustIconHover(icon);
   const color = CATEGORIES[hit.cat]?.color || "#fff";
   lDustHover.selectAll("*").remove();
   if (COMPOSITION[hit.name]) showComposition(hit);
-  lDustHover.append("circle")
+  if (!icon) lDustHover.append("circle")
     .attr("cx", hit.sx).attr("cy", hit.sy).attr("r", 3.2)
     .attr("fill", color).attr("stroke", "rgba(6,6,26,0.9)").attr("stroke-width", 1);
   tooltipEl.innerHTML = `<div class="tt-name" style="color:${color}">${escapeHtml(hit.name)}</div>` +
@@ -5009,22 +5309,23 @@ const _tileCache = new Map();
 let _bgTilesEnabled = true;
 
 // Fractal background (bg-noise.js): once you zoom past the painted tiles'
-// resolution, a WebGL layer behind the SVG crossfades in and keeps folding the
+// resolution, a WebGL layer inside the SVG crossfades in and keeps folding the
 // painting into finer detail. Nothing is fetched or run until then (and on the
 // site not before the user's first zoom, since the home view is already past
 // the tiles), and it stops entirely when you zoom back out. Settings toggle (+ opens its look
 // controls); ?bgnoise / ?bgnoise=0 override the saved choice. Narrations
 // (?narrate) default it on at full resolution; the site defaults it off and,
 // when enabled, renders at half resolution (~4× cheaper on the GPU).
-const _narrating = new URLSearchParams(location.search).has("narrate") ||
+const _bgNoiseNarr = new URLSearchParams(location.search).has("narrate") ||
   import.meta.env.MODE === "narration-preview";
-const BG_NOISE_DEFAULT_ON = _narrating;
-const BG_NOISE_PROFILE = _narrating ? {} : { res: 0.5 };
+const BG_NOISE_DEFAULT_ON = _bgNoiseNarr;
+const BG_NOISE_PROFILE = _bgNoiseNarr ? {} : { res: 0.5 };
 const BG_NOISE_ON_AT = 1, BG_NOISE_OFF_AT = 0.7; // css px per source px (tiles run out at 1)
 const _bgNoiseUrl = new URLSearchParams(location.search).get("bgnoise"); // null | "" | "0" | "1"
 let _bgNoise = null;          // the layer, created on first zoom-in
+let _bgNoiseSurface = null;
 let _bgNoiseShown = false;    // currently replacing the tiles
-let _bgNoiseArmed = _narrating; // site: not at startup, only after the first zoom
+let _bgNoiseArmed = _bgNoiseNarr; // site: not at startup, only after the first zoom
 let _bgNoiseFadeTimer = 0;
 let _bgNoiseWanted = _bgNoiseUrl !== null ? _bgNoiseUrl !== "0" : BG_NOISE_DEFAULT_ON;
 let _bgNoiseMod = null;
@@ -5034,8 +5335,9 @@ const loadBgNoise = () => (_bgNoiseMod ??= import("./bg-noise.js").then(m => { m
 function bgNoiseView() {
   const ppu = tileMeta.pxPerUnitX;
   const logR = xS.invert(cw / 2), logM = yS.invert(ch / 2);
+  _bgNoiseSurface?.attr("width", cw).attr("height", ch);
   return {
-    left: margin.left, top: margin.top, w: cw, h: ch,
+    left: 0, top: 0, w: cw, h: ch,
     cx: 2114 + (logR - PLANCK_LOG_R) * ppu, cy: 5960 - (logM - PLANCK_LOG_M) * ppu,
     zx: Math.abs(xS(1) - xS(0)) / ppu, zy: Math.abs(yS(0) - yS(1)) / ppu,
   };
@@ -5047,16 +5349,12 @@ function setBgNoise(on) {
   syncBgNoise();
 }
 
-// Tiles and SVG backdrops while the layer is up: the canvas sits behind the
-// SVG, so its black backdrops go and the tile layers fade out over it.
+// Both backgrounds share the icons' clipped compositing group, so Screen
+// blends against the fractal pixels just as it does against the painted tiles.
 function setBgNoiseBackdrop(noise) {
   clearTimeout(_bgNoiseFadeTimer);
   const tiles = [lTiles, lTilesBase];
   if (noise) {
-    document.getElementById("chart").style.background = "#000";
-    svg.style("position", "relative");
-    svg.select("rect.svg-bg").attr("fill", "none");
-    clip.select("rect.bg-rect").attr("display", "none");
     tiles.forEach(l => l.style("transition", "opacity 0.5s").style("opacity", 0));
     _bgNoiseFadeTimer = setTimeout(() => tiles.forEach(l => l.style("display", "none")), 520);
   } else {
@@ -5065,10 +5363,6 @@ function setBgNoiseBackdrop(noise) {
     tiles.forEach(l => l.style("opacity", 1));
     _bgNoiseFadeTimer = setTimeout(() => {
       tiles.forEach(l => l.style("transition", null).style("opacity", null));
-      document.getElementById("chart").style.background = "";
-      svg.style("position", null);
-      svg.select("rect.svg-bg").attr("fill", "#000000");
-      clip.select("rect.bg-rect").attr("display", null);
     }, 520);
   }
 }
@@ -5088,11 +5382,18 @@ async function syncBgNoise() {
   if (!_bgNoise) {
     const { createBgNoise } = await loadBgNoise();
     if (!_bgNoiseShown || _bgNoise) { _bgNoise?.setVisible(_bgNoiseShown); return; } // changed while loading
+    // A sibling HTML canvas lies outside clip's isolated blending group.
+    // Embed it beneath the tiles instead, keeping all chart blends intact.
+    _bgNoiseSurface = clip.insert("foreignObject", () => lTilesBase.node())
+      .attr("class", "fractal-backdrop").attr("width", cw).attr("height", ch)
+      .style("pointer-events", "none");
+    const host = _bgNoiseSurface.append("xhtml:div")
+      .style("position", "relative").style("width", "100%").style("height", "100%").node();
     _bgNoise = createBgNoise({
-      host: document.getElementById("chart"), meta: tileMeta, getView: bgNoiseView,
+      host, meta: tileMeta, getView: bgNoiseView,
       onShown: () => { if (_bgNoiseShown) setBgNoiseBackdrop(true); },
     });
-    if (!_bgNoise) { _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
+    if (!_bgNoise) { _bgNoiseSurface.remove(); _bgNoiseSurface = null; _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
   }
   _bgNoise.setVisible(true);
 }
@@ -5120,25 +5421,19 @@ function drawTiles() {
 
   const screenPPU = Math.abs(px(1) - px(0));
 
-  // Deliberately soft background: accept a tile level up to BG_SOFTEN× coarser
-  // than the screen. The painted texture's fine grain read as noise competing
-  // with the real catalogue dots; upscaled (and blurred below) it stays as
-  // colour and mood without the grain — and fetches fewer bytes.
-  const BG_SOFTEN = 4;
+  // Match device pixels before resorting to fractal detail. Deliberately
+  // undersampling here made the painted view much softer than the fractal one.
+  const targetPPU = screenPPU * Math.min(2, window.devicePixelRatio || 1);
   let best = levels[0];
   for (const lv of levels) {
     const lvPPU = (lv.w / imgDataW);
     best = lv;
-    if (lvPPU * BG_SOFTEN >= screenPPU) break;
+    if (lvPPU >= targetPPU) break;
   }
 
-  // Detect over-zoom: when screen resolution exceeds the best tile level
-  const bestPPU = best.w / imgDataW;
-  const overZoom = screenPPU / bestPPU;
-  // One blur on the whole layer (not per tile): smooths the painted grain
-  // into colour, hides upscaling and tile seams, and costs one filter pass.
-  const blurPx = 0;
-  lTiles.style("filter", overZoom > 1.2 ? `blur(${Math.min(14, overZoom * 3).toFixed(1)}px)` : null);
+  // Browser interpolation handles zoom beyond the source resolution. Extra
+  // blur would erase available detail just before the fractal handoff.
+  lTiles.style("filter", null);
 
   // Poster mode: the tile layers sit outside the clip so the nebula also
   // covers the axis columns — cull against the padded range.
@@ -5169,7 +5464,7 @@ function drawTiles() {
 
       if (sw < 1 || sh < 1) continue;
 
-      const href = `/tiles/z${best.z}/tile_${c}_${r}.webp`;
+      const href = `${BASE}tiles/z${best.z}/tile_${c}_${r}.webp`;
 
       const key = href;
       if (!_tileCache.has(key)) {
@@ -5178,17 +5473,13 @@ function drawTiles() {
         _tileCache.set(key, img);
       }
 
-      const tileImg = lTiles.append("image")
+      lTiles.append("image")
         .attr("href", href)
         .attr("x", sx).attr("y", sy)
         .attr("width", sw).attr("height", sh)
         .attr("preserveAspectRatio", "none")
         .attr("image-rendering", "auto");
 
-      // Apply blur when zoomed past tile resolution to hide pixelation
-      if (blurPx > 0) {
-        tileImg.style("filter", `blur(${blurPx.toFixed(1)}px)`);
-      }
     }
   }
 }
@@ -5230,7 +5521,7 @@ function drawBaseTiles() {
 
       if (sw < 1 || sh < 1) continue;
 
-      const href = `/tiles/z${base.z}/tile_${c}_${r}.webp`;
+      const href = `${BASE}tiles/z${base.z}/tile_${c}_${r}.webp`;
       if (!_tileCache.has(href)) {
         const img = new Image();
         img.src = href;
@@ -5249,7 +5540,7 @@ function drawBaseTiles() {
 
 async function loadTileMeta() {
   try {
-    const response = await fetch("/tiles/meta.json");
+    const response = await fetch(`${BASE}tiles/meta.json`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     tileMeta = await response.json();
     drawBaseTiles(); // draw low-res background immediately
@@ -5347,8 +5638,9 @@ function updateClickTargets() {
     const size = objectHitSizePx(o, baseIco);
 
     // Convert SVG coords to page coords
-    const pageX = o.sx + margin.left;
-    const pageY = o.sy + margin.top;
+    const visual = o._showIcon ? objectPicturePoint(o) : depthPoint(o, PARALLAX.dust);
+    const pageX = visual.x + margin.left;
+    const pageY = visual.y + margin.top;
 
     const div = document.createElement("button");
     div.type = "button";
@@ -5389,7 +5681,8 @@ function updateClickTargets() {
   // per label after every gesture.
   if (_labelsEnabled) _lastProjected.forEach(obj => {
     if (!obj._showLabel || !obj._labelRect) return;
-    const r = obj._labelRect;
+    const point = depthPoint(obj, PARALLAX.labels);
+    const r = { ...obj._labelRect, x: obj._labelRect.x + point.x - obj.sx, y: obj._labelRect.y + point.y - obj.sy };
     const div = document.createElement("button");
     div.type = "button";
     div.className = "click-target click-target-label";
@@ -5535,7 +5828,8 @@ _chartTapEl.addEventListener("pointerup", (e) => {
   let best = null, bestD2 = Infinity;
   (_lastProjected || []).forEach(o => {
     const r = Math.max(22, objectHitSizePx(o, baseIco) / 2 + 8);
-    const ddx = o.sx - sx, ddy = o.sy - sy;
+    const point = o._showIcon ? objectPicturePoint(o) : depthPoint(o, PARALLAX.dust);
+    const ddx = point.x - sx, ddy = point.y - sy;
     const d2 = ddx * ddx + ddy * ddy;
     if (d2 < r * r && d2 < bestD2) { best = o; bestD2 = d2; }
   });
@@ -5574,6 +5868,7 @@ function redrawVectors() {
   if (_posterNoText) posterHideText(); // wordless print: see window.__poster
   updateMinimap();
   updateScaleBar();
+  _narrRedrawHook?.();
 }
 
 /* NOTE: a dots-only "fast renderer" (drawObjectsFast) used to live here and
@@ -5611,6 +5906,7 @@ function redrawVectorsLight() {
   drawAxes();
   updateMinimap();
   updateScaleBar();
+  _narrRedrawHook?.();
 }
 
 // =============================================================
@@ -5619,6 +5915,7 @@ function redrawVectorsLight() {
 
 let currentK = 1;
 let rafPending = false;
+let _narrRedrawHook = null; // narration overlay redraw (src/narration.js)
 let _zoomPrevTransform = null;  // track previous transform for CSS offset
 let _zooming = false;
 let _panSamples = [];           // recent touch-pan positions for momentum
@@ -5643,6 +5940,11 @@ const zoomBehavior = d3.zoom()
     if (!_userZoomGesture) _tourBaseK = null;
     else if (_tourBaseK == null) _tourBaseK = currentK;
     _zooming = true;
+    if (_shadowLift) {
+      const o = _lastProjected.find(o => o.slug === _shadowLift.key);
+      if (o) setIconHover(o, false);
+    }
+    hideDustTip();
     clearClickTargets();
     hideComposition(); // hover lines would strand at pre-zoom coordinates
     // The hover hit-paths aren't rebuilt during the gesture (see
@@ -5817,7 +6119,7 @@ function preloadTilesForTransform(targetTransform) {
 
       if (tLogRmax < x0 || tLogRmin > x1 || tLogMmax < y0 || tLogMmin > y1) continue;
 
-      const href = `/tiles/z${best.z}/tile_${c}_${r}.webp`;
+      const href = `${BASE}tiles/z${best.z}/tile_${c}_${r}.webp`;
       if (!_tileCache.has(href)) {
         const img = new Image();
         const p = new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
@@ -6535,13 +6837,13 @@ document.addEventListener("keydown", (e) => {
     case "-": case "_":
       svg.transition().duration(200).call(zoomBehavior.scaleBy, 1 / 1.4); break;
     case "ArrowLeft":
-      svg.transition().duration(150).call(zoomBehavior.translateBy, PAN_STEP, 0); break;
+      svg.transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase).call(zoomBehavior.translateBy, PAN_STEP, 0); break;
     case "ArrowRight":
-      svg.transition().duration(150).call(zoomBehavior.translateBy, -PAN_STEP, 0); break;
+      svg.transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase).call(zoomBehavior.translateBy, -PAN_STEP, 0); break;
     case "ArrowUp":
-      svg.transition().duration(150).call(zoomBehavior.translateBy, 0, PAN_STEP); break;
+      svg.transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase).call(zoomBehavior.translateBy, 0, PAN_STEP); break;
     case "ArrowDown":
-      svg.transition().duration(150).call(zoomBehavior.translateBy, 0, -PAN_STEP); break;
+      svg.transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase).call(zoomBehavior.translateBy, 0, -PAN_STEP); break;
     case "Home":
       resetView(); break; // "0" too — see onStepDigit
 
@@ -6749,6 +7051,16 @@ function applyLayout({ resetZoom } = {}) {
 // redraw() here.
 let _lastVw = window.innerWidth, _lastVh = window.innerHeight;
 let _resizeTimer = null;
+// Moving between displays can change pixel density without changing CSS size.
+// Refresh image tiers even when the normal layout resize does not run.
+function watchIconPixelDensity() {
+  const query = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+  query.addEventListener("change", () => {
+    watchIconPixelDensity();
+    redraw();
+  }, { once: true });
+}
+watchIconPixelDensity();
 window.addEventListener("resize", () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(() => {
@@ -6787,6 +7099,7 @@ function openSearch() {
   searchBtn.setAttribute("aria-expanded", "true");
   searchInput.setAttribute("aria-expanded", "true");
   requestAnimationFrame(() => searchInput.focus());
+  ensureSearchCatalogue();
 }
 function closeSearch() {
   searchBox.classList.remove("expanded");
@@ -6891,26 +7204,42 @@ function getSearchRegions() {
 const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-searchInput.addEventListener("input", () => {
+let searchIndex = buildSearchIndex(OBJECTS, []);
+let searchCatalogueLoading = null;
+function ensureSearchCatalogue() {
+  if (searchCatalogueLoading) return;
+  searchCatalogueLoading = loadDust().then(() => {
+    searchIndex = buildSearchIndex(OBJECTS, dustSearchEntries());
+    if (searchBox.classList.contains("expanded")) renderSearchResults();
+  }).catch(error => {
+    searchCatalogueLoading = null;
+    console.warn("Search catalogue failed to load", error);
+    if (searchBox.classList.contains("expanded")) renderSearchResults(true);
+  });
+}
+
+function renderSearchResults(loadFailed = false) {
   const q = searchInput.value.trim().toLowerCase();
+  _searchActive = -1;
+  searchInput.removeAttribute("aria-activedescendant");
   if (q.length < 1) { searchResults.classList.remove("active"); return; }
 
-  const matches = OBJECTS.filter(o => o.name.toLowerCase().includes(q)).slice(0, 6);
+  const matches = searchObjects(searchIndex, q);
   const regions = getSearchRegions().filter(g => g.label.toLowerCase().includes(q)).slice(0, 3);
 
   // The UI must always respond — an empty dropdown reads as "search is broken"
   if (matches.length === 0 && regions.length === 0) {
-    searchResults.innerHTML = `<div class="search-empty">No matches for “${escapeHtml(searchInput.value.trim())}”</div>`;
+    searchResults.innerHTML = `<div class="search-empty">${loadFailed ? "Catalogue unavailable. Reopen search to retry." : !dustReady() ? "Loading catalogue…" : `No matches for “${escapeHtml(searchInput.value.trim())}”`}</div>`;
     searchResults.classList.add("active");
     return;
   }
 
-  searchResults.innerHTML = matches.map(o => {
-    const dotColor = SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff";
-    return `<button type="button" role="option" class="search-item" data-logr="${o.logR}" data-logm="${o.logM}">
+  searchResults.innerHTML = matches.map((o, index) => {
+    const dotColor = SUBCAT_COLORS[o.subcat || DUST_SOURCE_SUBCAT[o.sourceId]] || CATEGORIES[o.cat]?.color || "#fff";
+    return `<button type="button" role="option" class="search-item" data-result="${index}">
       <span class="search-dot" style="background:${dotColor}"></span>
-      <span class="search-name">${o.name}</span>
-      <span class="search-cat">${o.cat}</span>
+      <span class="search-name">${escapeHtml(o.name)}</span>
+      <span class="search-cat">${escapeHtml(o.kind || o.cat)}</span>
     </button>`;
   }).join("") + regions.map((g, i) => `
     <button type="button" role="option" class="search-item search-region" data-region="${i}">
@@ -6925,16 +7254,24 @@ searchInput.addEventListener("input", () => {
 
   searchResults.querySelectorAll(".search-item:not(.search-region)").forEach(el => {
     el.addEventListener("click", () => {
-      const logR = parseFloat(el.dataset.logr);
-      const logM = parseFloat(el.dataset.logm);
-      const obj = OBJECTS.find(o => o.logR === logR && o.logM === logM);
-      panToCoord(logR, logM);
-      if (obj) openSidebar(obj);
+      const obj = matches[+el.dataset.result];
+      focusDust(obj.dustIndex ?? null);
+      if (obj.dustIndex != null) {
+        closeSidebar();
+        _dustEnabled = true;
+        setDust.checked = true;
+        flyTo(obj.logR, obj.logM, Math.max(currentK, 12), 500, d3.easeCubicOut);
+        redraw();
+      } else {
+        panToCoord(obj.logR, obj.logM);
+        openSidebar(obj);
+      }
       closeSearch();
     });
   });
   searchResults.querySelectorAll(".search-region").forEach(el => {
     el.addEventListener("click", () => {
+      focusDust();
       const g = regions[+el.dataset.region];
       const pad = 1.5;
       const xs = g.members.map(m => m.logR), ys = g.members.map(m => m.logM);
@@ -6945,6 +7282,10 @@ searchInput.addEventListener("input", () => {
       closeSearch();
     });
   });
+}
+searchInput.addEventListener("input", () => {
+  ensureSearchCatalogue();
+  renderSearchResults();
 });
 
 // Keyboard: ArrowUp/Down move the active option, Enter activates it,
@@ -7232,6 +7573,7 @@ if (_reduceMotion && !_animDisabled) {
 // =============================================================
 
 function saveHash() {
+  if (NARR_PREVIEW) return;
   // Don't overwrite tour hashes — the tour manages its own URL state
   if (location.hash.startsWith("#tour=")) return;
   // Nor the hidden classic figure's
@@ -7254,11 +7596,13 @@ function saveHash() {
 // Object named by the URL path (/eois-stantonae/), if any. Pages built by
 // build-pages.mjs also carry its display name for info-panel articles.
 function pathSlug() {
+  if (NARR_PREVIEW) return null;
   const seg = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, "");
   return /^[a-z0-9][a-z0-9-]*$/.test(seg) ? seg : null;
 }
 
 function loadHash() {
+  if (NARR_PREVIEW) return false; // the hash names the take there
   const h = location.hash.slice(1);
   const ps = pathSlug();
   // Hidden: the original Lineweaver–Patel figure, at /classic/ (or the old
@@ -7388,7 +7732,10 @@ initTimeScrubber({
   resetView: () => svg.call(zoomBehavior.transform, d3.zoomIdentity),
 });
 
-if (!loadHash()) {
+// A narration (?narrate=, or the preview build) drives the camera itself:
+// the boot zoom-out below would fight it for its first seconds.
+const _narrating = NARR_PREVIEW || new URLSearchParams(location.search).has("narrate");
+if (!loadHash() && !_narrating) {
   // Intro animation: start zoomed on Human, then zoom out to full view
   const introK = 14;
   flyTo(1.7, 4.9, introK); // start on Human
@@ -7438,7 +7785,7 @@ onFirstInteraction(() => {
 // Registered late and without clients.claim so the FIRST visit never pays
 // for interception or cache writes — the SW only serves later navigations.
 // Skipped in dev — it would fight Vite's HMR.
-if ("serviceWorker" in navigator && !import.meta.env.DEV) {
+if ("serviceWorker" in navigator && !import.meta.env.DEV && !NARR_PREVIEW) {
   window.addEventListener("load", () => {
     setTimeout(() => {
       navigator.serviceWorker.register("/sw.js").catch(() => { /* non-fatal */ });
@@ -7498,3 +7845,69 @@ if (_ogShot) {
   };
 }
 
+
+// =============================================================
+// Narration player (?narrate=<take>) — src/narration.js
+// =============================================================
+// Plays a recorded narration and drives the camera, highlights, unit
+// rulers and captions from a phrase-anchored scene script. The player owns
+// the camera: each frame it sets the view directly, wrapped in a synthetic
+// zoom gesture (start → zoom… → end on arrival) so the app redraws exactly
+// as it does during a tour transition, and refreshes tiles on arrival.
+{
+  // Read the query now: the hash/URL sync later rewrites the address bar.
+  const narrParams = new URLSearchParams(location.search);
+  // The preview can't pass a query string, so it names the take in the hash
+  // (#short-02-density); with no hash it shows its grid of takes instead.
+  const narrTake = narrParams.get("narrate") || (NARR_PREVIEW ? location.hash.slice(1) || null : null);
+  // the preview reloads to switch takes (or to go back to its grid)
+  if (NARR_PREVIEW) window.addEventListener("hashchange", () => location.reload());
+  if (narrTake) {
+    let gesture = false, last = null;
+    const ppdBase = () => xBase(1) - xBase(0); // plot px per decade at k = 1
+    const api = {
+      d3, take: narrTake, params: narrParams,
+      plot: () => ({ x: margin.left, y: margin.top, w: cw, h: ch }),
+      px: (r) => xS(r), py: (m) => yS(m),
+      objects: OBJECTS,
+      categories: CATEGORIES,
+      /** { r, m, span } → zoom transform: (r, m) at the plot centre, `span`
+       *  decades across the plot width. */
+      viewTransform(v) {
+        const k = cw / (v.span * ppdBase());
+        return d3.zoomIdentity.translate(cw / 2 - xBase(v.r) * k, ch / 2 - yBase(v.m) * k).scale(k);
+      },
+      /** moving=false ends the gesture: full redraw, fresh tiles. */
+      setCamera(v, moving) {
+        const t = api.viewTransform(v);
+        const same = last && Math.abs(last.k - t.k) < 1e-9 && Math.abs(last.x - t.x) < 1e-6 && Math.abs(last.y - t.y) < 1e-6;
+        if (same && (moving || !gesture)) return;
+        last = t;
+        const node = svg.node(), ev = { transform: t, sourceEvent: null };
+        if (!gesture) { gesture = true; zoomBehavior.on("start").call(node, ev); }
+        node.__zoom = t;
+        zoomBehavior.on("zoom").call(node, ev);
+        if (!moving) { gesture = false; zoomBehavior.on("end").call(node, ev); }
+      },
+      onRedraw(fn) { _narrRedrawHook = fn; },
+      tilesPending: () => [..._tileCache.values()].filter(img => !img.complete).length,
+      iconsPending: () => [...document.querySelectorAll(".icon-fallback-dot")]
+        .filter(e => e.getAttribute("display") !== "none").length,
+      dustReady: () => dustReady(),
+      setStage(mode) { if (mode !== _viewportLock) setViewportLock(mode); },
+      isMobile: () => _isMobile,
+      prepare() {
+        svg.interrupt();
+        if (isTourActive()) closeTour();
+        selectedObj = null;
+        setSidebarOpen(false);
+        _userEngaged = true;
+        _dustEnabled = true;
+        ensureDust();
+        document.body.classList.add("ui-hidden", "narrating");
+      },
+    };
+    import("./narration.js").then(m => m.startNarration(api));
+
+  }
+}

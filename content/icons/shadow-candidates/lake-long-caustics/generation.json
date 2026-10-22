@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-22",
+  "tool": "built-in image_gen",
+  "source": "exec-c76c8ac4-3da4-4f23-9bd3-9a2e56c1c8b6.png",
+  "reference": "content/icons/shadow-candidates/lake-resin-study/lake-victoria-candidate.png",
+  "prompt": "Create a reusable optical light texture for compositing inside a dark cast shadow of a miniature blue glass lake. Transparent PNG background, square. ONLY ONE small isolated irregular refractive caustic light patch in the center, occupying about 40% canvas width, lots of transparent margin. A delicate oblique curved fold of pale neutral ivory-white light with a tiny concentrated bright focus and faint cool silver feathering, like sunlight focused through thick blue glass onto a matte wall. Physically organic, subtle, no lavender, no purple, no blue colored flood. No starburst spikes, no lens flare, no web, no rings, no object, no shadow silhouette, no wall or background. Soft alpha falloff fading to completely transparent. The attached reference is a style reference for the tiny bright spots only: render one of those optical spots by itself with no dark lake shape.",
+  "render": "node scripts/generate-lake-shadows.mjs",
+  "method": "Existing LONG_SHADOW_PRESET from object alpha; two small copies of the generated optical texture positioned inside exposed shadow coverage. Shared artistic caustic texture, not a physically simulated per-lake refraction.",
+  "status": "installed in chart and studio"
+}

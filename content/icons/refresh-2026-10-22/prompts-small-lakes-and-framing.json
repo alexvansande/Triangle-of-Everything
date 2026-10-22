@@ -1,0 +1,48 @@
+[
+  {
+    "slug": "lake-nyos",
+    "prompt": "Use case: scientific-educational. Create one new water-only lake miniature for lake nyos. Reference 1 is the actual geographic silhouette: preserve its north-up outline, proportions, islands, holes, bays and separate water bodies VERY faithfully, smoothing only the map's tiny angular sampling edges. Reference 2 is approved Loch Ness and supplies ONLY blue resin/water material, upper-left light, texture and subtle depth, NOT shape. The result is a translucent blue resin casting of the lake's WATER VOLUME only, mounted slightly off a vertical museum display wall. The entire map face is parallel to the screen and seen nearly head-on with no foreshortening. A very thin band of depth is visible along TOP-facing edges because the camera is just slightly above; never a thick extruded bottom fascia. Rich deep blue water, turquoise edge highlights, fine natural ripples and reflected silvery glints; retain sufficient blue opacity to read clearly against purple #392885. Natural map contour, not an arbitrary blob. Subject centred and occupies 90-94% of square canvas longest side with safe transparent margins. TRUE transparent background, remove white map-reference background. NO terrain, land rim, surrounding water, map markings, labels, pedestal, shelf, cast shadow or caustics outside the subject; those will be separate. No perspective rotation.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-nyos.png",
+      "/Users/avsa/Dev/Triangle/content/icons/src/loch-ness.png"
+    ]
+  },
+  {
+    "slug": "hallstatter-see",
+    "prompt": "Use case: scientific-educational. Create one new water-only lake miniature for hallstatter see. Reference 1 is the actual geographic silhouette: preserve its north-up outline, proportions, islands, holes, bays and separate water bodies VERY faithfully, smoothing only the map's tiny angular sampling edges. Reference 2 is approved Loch Ness and supplies ONLY blue resin/water material, upper-left light, texture and subtle depth, NOT shape. The result is a translucent blue resin casting of the lake's WATER VOLUME only, mounted slightly off a vertical museum display wall. The entire map face is parallel to the screen and seen nearly head-on with no foreshortening. A very thin band of depth is visible along TOP-facing edges because the camera is just slightly above; never a thick extruded bottom fascia. Rich deep blue water, turquoise edge highlights, fine natural ripples and reflected silvery glints; retain sufficient blue opacity to read clearly against purple #392885. Natural map contour, not an arbitrary blob. Subject centred and occupies 90-94% of square canvas longest side with safe transparent margins. TRUE transparent background, remove white map-reference background. NO terrain, land rim, surrounding water, map markings, labels, pedestal, shelf, cast shadow or caustics outside the subject; those will be separate. No perspective rotation.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/hallstatter-see.png",
+      "/Users/avsa/Dev/Triangle/content/icons/src/loch-ness.png"
+    ]
+  },
+  {
+    "slug": "konigssee",
+    "prompt": "Use case: scientific-educational. Create one new water-only lake miniature for konigssee. Reference 1 is the actual geographic silhouette: preserve its north-up outline, proportions, islands, holes, bays and separate water bodies VERY faithfully, smoothing only the map's tiny angular sampling edges. Reference 2 is approved Loch Ness and supplies ONLY blue resin/water material, upper-left light, texture and subtle depth, NOT shape. The result is a translucent blue resin casting of the lake's WATER VOLUME only, mounted slightly off a vertical museum display wall. The entire map face is parallel to the screen and seen nearly head-on with no foreshortening. A very thin band of depth is visible along TOP-facing edges because the camera is just slightly above; never a thick extruded bottom fascia. Rich deep blue water, turquoise edge highlights, fine natural ripples and reflected silvery glints; retain sufficient blue opacity to read clearly against purple #392885. Natural map contour, not an arbitrary blob. Subject centred and occupies 90-94% of square canvas longest side with safe transparent margins. TRUE transparent background, remove white map-reference background. NO terrain, land rim, surrounding water, map markings, labels, pedestal, shelf, cast shadow or caustics outside the subject; those will be separate. No perspective rotation.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/konigssee.png",
+      "/Users/avsa/Dev/Triangle/content/icons/src/loch-ness.png"
+    ]
+  },
+  {
+    "slug": "lake-superior",
+    "prompt": "Edit the reference by zooming out so the ENTIRE existing lake silhouette fits well within a square transparent canvas, with at least 70 pixels transparent on left and right. Complete any clipped right/east edge naturally using the second outline reference. Preserve all material, shape, lighting and camera. Nothing else added. Do not crop any part.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/lake-superior-raw.png",
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-superior.png"
+    ]
+  },
+  {
+    "slug": "bagger-288",
+    "prompt": "Edit the reference image ONLY to zoom out and restore the clipped left and right ends. Complete bucket wheel teeth on left and rear counterweight on right. Entire machine must fit within square transparent canvas with at least 70 pixels clear margin left/right. Preserve design textures and lighting. No other objects, no shadow.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/bagger-288-raw.png"
+    ]
+  },
+  {
+    "slug": "ingenuity",
+    "prompt": "Correct the reference image geometry: use a TRUE DIRECT OVERHEAD top view looking straight down NASA Ingenuity's central shaft. The small rectangular solar panel must be EXACTLY CENTERED OVER and OCCLUDE the single central rotor hub. It is above the rotors, not offset to the top of the picture, not on an extension sticking out the side. Four carbon-fiber blades emerge from under the panel as one X centered on it, two coaxial rotors. Gold body centered directly below panel and mostly hidden. Four thin splayed legs visible beyond the panel. Orthographic overhead, no visible vertical shaft. All parts fully visible with clear margins, transparent background, same upper-left illumination.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/ingenuity-raw.png"
+    ]
+  }
+]

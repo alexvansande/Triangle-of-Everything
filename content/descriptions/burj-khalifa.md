@@ -1,0 +1,1 @@
+Burj Khalifa: the tallest building in the world, 828 meters high, in Dubai. Finished in 2010, its 163 floors of reinforced concrete, steel and glass weigh about half a million tonnes — roughly a loaded supertanker stood on end.

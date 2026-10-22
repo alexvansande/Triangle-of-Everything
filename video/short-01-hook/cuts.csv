@@ -1,0 +1,16 @@
+source,beat,out_start,out_end,src_start,src_end,text
+rec2,open,0.00,4.29,49.13,53.42,"This is the most interesting chart in all of physics,"
+rec2,diag,4.89,15.88,63.38,74.36,The first thing you probably noticed is that we have this diagonal line with everything from bacteria to humans to stars and planets and galaxies.
+rec2,axes,16.48,19.39,96.89,99.81,"The vertical axis is mass,"
+rec2,axes,19.67,23.95,100.77,105.44,the horizontal axis is in size.
+rec7,axes,24.23,27.93,40.62,44.31,"So this is a chart of mass versus size, right?"
+rec7,more,28.53,38.01,44.69,54.27,"Yeah, but it's so much more than that actually, because it also includes some things that don't have mass, like photons, or visible light, or radio waves."
+rec7,energy,38.61,43.11,54.34,58.84,This is because this chart is also a chart of energy.
+rec7,energy,43.39,47.70,69.10,73.41,And the bottom axis doubles as a wavelength.
+rec6,time,48.41,50.24,133.87,135.70,it gets even crazier
+rec6,time,50.52,57.37,142.56,149.42,"because on the bottom left, we have quantum mechanics, on the top left, we have relativity and they connect in"
+rec6,time,57.45,59.25,151.90,153.69,this one point.
+rec6,time,59.53,61.18,153.80,155.45,What is that point?
+rec6,time,61.46,73.01,155.51,167.06,"And then you realize that out of all those points, there are some diagonal lines and they are being measured in seconds until they get to now. That is time since the Big Bang."
+rec6,time,73.29,77.48,167.42,171.62,So relativity and quantum mechanics are joining at the Big Bang.
+rec2,end,78.48,86.81,214.07,222.40,"this is the triangle of everything, and let me take you a tour around because it is simply fascinating."

@@ -1,0 +1,1 @@
+Statue of Unity: the tallest statue in the world, 182 meters of Sardar Vallabhbhai Patel standing on a 58-meter base in Gujarat, India. Finished in 2018, it is a concrete and steel core clad in about 1,700 tonnes of bronze, twice the height of the Statue of Liberty.

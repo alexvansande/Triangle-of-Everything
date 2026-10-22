@@ -1,0 +1,80 @@
+{
+  "mode": "built-in image_gen",
+  "selected": {
+    "cane-toad": "d785a61f-6e19-44df-93a9-e32996a96b07",
+    "naked-mole-rat": "ab6f8278-16e9-4cd8-b254-0aad95dc8f7a",
+    "mouse": "1a58839c-4ff7-4fca-8064-5e9243e112bf",
+    "lion": "f640079a-21e6-46a4-a947-9fafbd6e0ef2"
+  },
+  "checks": {
+    "cane-toad": {
+      "width": 1254,
+      "height": 1254,
+      "solidBounds": [
+        41,
+        287,
+        1212,
+        966
+      ],
+      "margins": [
+        41,
+        287,
+        41,
+        287
+      ],
+      "transparentFraction": 0.6611411267039572
+    },
+    "naked-mole-rat": {
+      "width": 1254,
+      "height": 1254,
+      "solidBounds": [
+        40,
+        415,
+        1212,
+        840
+      ],
+      "margins": [
+        40,
+        415,
+        41,
+        413
+      ],
+      "transparentFraction": 0.804531718596186
+    },
+    "mouse": {
+      "width": 1254,
+      "height": 1254,
+      "solidBounds": [
+        40,
+        351,
+        1212,
+        903
+      ],
+      "margins": [
+        40,
+        351,
+        41,
+        350
+      ],
+      "transparentFraction": 0.7513602405317339
+    },
+    "lion": {
+      "width": 1254,
+      "height": 1254,
+      "solidBounds": [
+        41,
+        252,
+        1212,
+        1002
+      ],
+      "margins": [
+        41,
+        252,
+        41,
+        251
+      ],
+      "transparentFraction": 0.6533122715444549
+    }
+  },
+  "shadowBatch": "2026-10-22T14-10-03-807Z"
+}

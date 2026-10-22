@@ -1,0 +1,66 @@
+[
+  {
+    "slug": "caspian-sea",
+    "prompt": "Use case: scientific-educational. Create one new water-only lake miniature for caspian sea. Reference 1 is the actual geographic silhouette: preserve its north-up outline, proportions, islands, holes, bays and separate water bodies VERY faithfully, smoothing only the map's tiny angular sampling edges. Reference 2 is approved Loch Ness and supplies ONLY blue resin/water material, upper-left light, texture and subtle depth, NOT shape. The result is a translucent blue resin casting of the lake's WATER VOLUME only, mounted slightly off a vertical museum display wall. The entire map face is parallel to the screen and seen nearly head-on with no foreshortening. A very thin band of depth is visible along TOP-facing edges because the camera is just slightly above; never a thick extruded bottom fascia. Rich deep blue water, turquoise edge highlights, fine natural ripples and reflected silvery glints; retain sufficient blue opacity to read clearly against purple #392885. Natural map contour, not an arbitrary blob. Subject centred and occupies 90-94% of square canvas longest side with safe transparent margins. TRUE transparent background, remove white map-reference background. NO terrain, land rim, surrounding water, map markings, labels, pedestal, shelf, cast shadow or caustics outside the subject; those will be separate. No perspective rotation.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/caspian-sea.png",
+      "/Users/avsa/Dev/Triangle/content/icons/src/loch-ness.png"
+    ]
+  },
+  {
+    "slug": "dead-sea",
+    "prompt": "Use case: scientific-educational. Create one new water-only lake miniature for dead sea. Reference 1 is the actual geographic silhouette: preserve its north-up outline, proportions, islands, holes, bays and separate water bodies VERY faithfully, smoothing only the map's tiny angular sampling edges. Reference 2 is approved Loch Ness and supplies ONLY blue resin/water material, upper-left light, texture and subtle depth, NOT shape. The result is a translucent blue resin casting of the lake's WATER VOLUME only, mounted slightly off a vertical museum display wall. The entire map face is parallel to the screen and seen nearly head-on with no foreshortening. A very thin band of depth is visible along TOP-facing edges because the camera is just slightly above; never a thick extruded bottom fascia. Rich deep blue water, turquoise edge highlights, fine natural ripples and reflected silvery glints; retain sufficient blue opacity to read clearly against purple #392885. Natural map contour, not an arbitrary blob. Subject centred and occupies 90-94% of square canvas longest side with safe transparent margins. TRUE transparent background, remove white map-reference background. NO terrain, land rim, surrounding water, map markings, labels, pedestal, shelf, cast shadow or caustics outside the subject; those will be separate. No perspective rotation.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/dead-sea.png",
+      "/Users/avsa/Dev/Triangle/content/icons/src/loch-ness.png"
+    ]
+  },
+  {
+    "slug": "lake-baikal",
+    "prompt": "Use case: scientific-educational. Create one new water-only lake miniature for lake baikal. Reference 1 is the actual geographic silhouette: preserve its north-up outline, proportions, islands, holes, bays and separate water bodies VERY faithfully, smoothing only the map's tiny angular sampling edges. Reference 2 is approved Loch Ness and supplies ONLY blue resin/water material, upper-left light, texture and subtle depth, NOT shape. The result is a translucent blue resin casting of the lake's WATER VOLUME only, mounted slightly off a vertical museum display wall. The entire map face is parallel to the screen and seen nearly head-on with no foreshortening. A very thin band of depth is visible along TOP-facing edges because the camera is just slightly above; never a thick extruded bottom fascia. Rich deep blue water, turquoise edge highlights, fine natural ripples and reflected silvery glints; retain sufficient blue opacity to read clearly against purple #392885. Natural map contour, not an arbitrary blob. Subject centred and occupies 90-94% of square canvas longest side with safe transparent margins. TRUE transparent background, remove white map-reference background. NO terrain, land rim, surrounding water, map markings, labels, pedestal, shelf, cast shadow or caustics outside the subject; those will be separate. No perspective rotation.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-baikal.png",
+      "/Users/avsa/Dev/Triangle/content/icons/src/loch-ness.png"
+    ]
+  },
+  {
+    "slug": "lake-superior",
+    "prompt": "Use case: scientific-educational. Create one new water-only lake miniature for lake superior. Reference 1 is the actual geographic silhouette: preserve its north-up outline, proportions, islands, holes, bays and separate water bodies VERY faithfully, smoothing only the map's tiny angular sampling edges. Reference 2 is approved Loch Ness and supplies ONLY blue resin/water material, upper-left light, texture and subtle depth, NOT shape. The result is a translucent blue resin casting of the lake's WATER VOLUME only, mounted slightly off a vertical museum display wall. The entire map face is parallel to the screen and seen nearly head-on with no foreshortening. A very thin band of depth is visible along TOP-facing edges because the camera is just slightly above; never a thick extruded bottom fascia. Rich deep blue water, turquoise edge highlights, fine natural ripples and reflected silvery glints; retain sufficient blue opacity to read clearly against purple #392885. Natural map contour, not an arbitrary blob. Subject centred and occupies 90-94% of square canvas longest side with safe transparent margins. TRUE transparent background, remove white map-reference background. NO terrain, land rim, surrounding water, map markings, labels, pedestal, shelf, cast shadow or caustics outside the subject; those will be separate. No perspective rotation.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-superior.png",
+      "/Users/avsa/Dev/Triangle/content/icons/src/loch-ness.png"
+    ]
+  },
+  {
+    "slug": "lake-tahoe",
+    "prompt": "Use case: scientific-educational. Create one new water-only lake miniature for lake tahoe. Reference 1 is the actual geographic silhouette: preserve its north-up outline, proportions, islands, holes, bays and separate water bodies VERY faithfully, smoothing only the map's tiny angular sampling edges. Reference 2 is approved Loch Ness and supplies ONLY blue resin/water material, upper-left light, texture and subtle depth, NOT shape. The result is a translucent blue resin casting of the lake's WATER VOLUME only, mounted slightly off a vertical museum display wall. The entire map face is parallel to the screen and seen nearly head-on with no foreshortening. A very thin band of depth is visible along TOP-facing edges because the camera is just slightly above; never a thick extruded bottom fascia. Rich deep blue water, turquoise edge highlights, fine natural ripples and reflected silvery glints; retain sufficient blue opacity to read clearly against purple #392885. Natural map contour, not an arbitrary blob. Subject centred and occupies 90-94% of square canvas longest side with safe transparent margins. TRUE transparent background, remove white map-reference background. NO terrain, land rim, surrounding water, map markings, labels, pedestal, shelf, cast shadow or caustics outside the subject; those will be separate. No perspective rotation.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-tahoe.png",
+      "/Users/avsa/Dev/Triangle/content/icons/src/loch-ness.png"
+    ]
+  },
+  {
+    "slug": "lake-victoria",
+    "prompt": "Use case: scientific-educational. Create one new water-only lake miniature for lake victoria. Reference 1 is the actual geographic silhouette: preserve its north-up outline, proportions, islands, holes, bays and separate water bodies VERY faithfully, smoothing only the map's tiny angular sampling edges. Reference 2 is approved Loch Ness and supplies ONLY blue resin/water material, upper-left light, texture and subtle depth, NOT shape. The result is a translucent blue resin casting of the lake's WATER VOLUME only, mounted slightly off a vertical museum display wall. The entire map face is parallel to the screen and seen nearly head-on with no foreshortening. A very thin band of depth is visible along TOP-facing edges because the camera is just slightly above; never a thick extruded bottom fascia. Rich deep blue water, turquoise edge highlights, fine natural ripples and reflected silvery glints; retain sufficient blue opacity to read clearly against purple #392885. Natural map contour, not an arbitrary blob. Subject centred and occupies 90-94% of square canvas longest side with safe transparent margins. TRUE transparent background, remove white map-reference background. NO terrain, land rim, surrounding water, map markings, labels, pedestal, shelf, cast shadow or caustics outside the subject; those will be separate. No perspective rotation.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-victoria.png",
+      "/Users/avsa/Dev/Triangle/content/icons/src/loch-ness.png"
+    ]
+  },
+  {
+    "slug": "sea-of-galilee",
+    "prompt": "Use case: scientific-educational. Create one new water-only lake miniature for sea of galilee. Reference 1 is the actual geographic silhouette: preserve its north-up outline, proportions, islands, holes, bays and separate water bodies VERY faithfully, smoothing only the map's tiny angular sampling edges. Reference 2 is approved Loch Ness and supplies ONLY blue resin/water material, upper-left light, texture and subtle depth, NOT shape. The result is a translucent blue resin casting of the lake's WATER VOLUME only, mounted slightly off a vertical museum display wall. The entire map face is parallel to the screen and seen nearly head-on with no foreshortening. A very thin band of depth is visible along TOP-facing edges because the camera is just slightly above; never a thick extruded bottom fascia. Rich deep blue water, turquoise edge highlights, fine natural ripples and reflected silvery glints; retain sufficient blue opacity to read clearly against purple #392885. Natural map contour, not an arbitrary blob. Subject centred and occupies 90-94% of square canvas longest side with safe transparent margins. TRUE transparent background, remove white map-reference background. NO terrain, land rim, surrounding water, map markings, labels, pedestal, shelf, cast shadow or caustics outside the subject; those will be separate. No perspective rotation.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/sea-of-galilee.png",
+      "/Users/avsa/Dev/Triangle/content/icons/src/loch-ness.png"
+    ]
+  },
+  {
+    "slug": "titicaca",
+    "prompt": "Use case: scientific-educational. Create one new water-only lake miniature for titicaca. Reference 1 is the actual geographic silhouette: preserve its north-up outline, proportions, islands, holes, bays and separate water bodies VERY faithfully, smoothing only the map's tiny angular sampling edges. Reference 2 is approved Loch Ness and supplies ONLY blue resin/water material, upper-left light, texture and subtle depth, NOT shape. The result is a translucent blue resin casting of the lake's WATER VOLUME only, mounted slightly off a vertical museum display wall. The entire map face is parallel to the screen and seen nearly head-on with no foreshortening. A very thin band of depth is visible along TOP-facing edges because the camera is just slightly above; never a thick extruded bottom fascia. Rich deep blue water, turquoise edge highlights, fine natural ripples and reflected silvery glints; retain sufficient blue opacity to read clearly against purple #392885. Natural map contour, not an arbitrary blob. Subject centred and occupies 90-94% of square canvas longest side with safe transparent margins. TRUE transparent background, remove white map-reference background. NO terrain, land rim, surrounding water, map markings, labels, pedestal, shelf, cast shadow or caustics outside the subject; those will be separate. No perspective rotation.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/titicaca.png",
+      "/Users/avsa/Dev/Triangle/content/icons/src/loch-ness.png"
+    ]
+  }
+]

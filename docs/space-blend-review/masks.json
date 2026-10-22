@@ -1,0 +1,20 @@
+{
+  "samples": [
+    {
+      "slug": "milky-way",
+      "mask": "url(#space-edge-milky-way)",
+      "fill": "url(#space-core-gradient)"
+    },
+    {
+      "slug": "andromeda-m31",
+      "mask": "url(#space-edge-andromeda-m31)",
+      "fill": "url(#space-core-gradient)"
+    },
+    {
+      "slug": "halleys-comet",
+      "mask": "url(#space-edge-halleys-comet)",
+      "fill": "url(#space-core-gradient)"
+    }
+  ],
+  "errors": []
+}

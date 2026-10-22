@@ -1,0 +1,48 @@
+{
+  "errors": [],
+  "newObjects": [
+    {
+      "slug": "14-bis",
+      "icon": true,
+      "shadow": true,
+      "hiRes": "/content/icons/resolutions/1024/14-bis.webp"
+    },
+    {
+      "slug": "helium-party-balloon",
+      "icon": true,
+      "shadow": true,
+      "hiRes": "/content/icons/resolutions/1024/helium-party-balloon.webp"
+    },
+    {
+      "slug": "weather-balloon",
+      "icon": true,
+      "shadow": true,
+      "hiRes": "/content/icons/resolutions/1024/weather-balloon.webp"
+    },
+    {
+      "slug": "weather-balloon-near-burst",
+      "icon": true,
+      "shadow": true,
+      "hiRes": "/content/icons/resolutions/1024/weather-balloon-near-burst.webp"
+    },
+    {
+      "slug": "hot-air-balloon",
+      "icon": true,
+      "shadow": true,
+      "hiRes": "/content/icons/resolutions/1024/hot-air-balloon.webp"
+    },
+    {
+      "slug": "zeppelin-nt",
+      "icon": true,
+      "shadow": true,
+      "hiRes": "/content/icons/resolutions/1024/zeppelin-nt.webp"
+    },
+    {
+      "slug": "soap-bubble",
+      "icon": true,
+      "shadow": true,
+      "hiRes": "/content/icons/resolutions/1024/soap-bubble.webp"
+    }
+  ],
+  "mobileFits": true
+}

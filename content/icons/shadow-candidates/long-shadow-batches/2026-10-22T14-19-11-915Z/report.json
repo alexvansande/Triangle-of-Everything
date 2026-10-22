@@ -1,0 +1,42 @@
+{
+  "created": "2026-10-22T14-19-11-915Z",
+  "counts": {
+    "generate": 1,
+    "round": 0,
+    "caustics": 0,
+    "custom": 0,
+    "excluded": 0
+  },
+  "plan": [
+    {
+      "name": "big-ben",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.65,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "generatedBlur": 8,
+        "distance": 0,
+        "generatedScale": 0.4,
+        "depth": 0.15,
+        "height": 1.05,
+        "width": 0.7,
+        "blur": 14,
+        "fade": 0.4,
+        "x": -45,
+        "y": -65,
+        "reviewed": true,
+        "updated": "2026-10-22T14:19:12.703Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    }
+  ]
+}

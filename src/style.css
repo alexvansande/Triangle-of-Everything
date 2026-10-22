@@ -426,6 +426,7 @@ body.sidebar-open #scrubber-panel { left: calc(50% + 220px); }
 #settings-panel {
   position: fixed; bottom: 140px; right: 14px;
   width: 220px;
+  max-height: calc(100dvh - 170px); overflow-y: auto;
   z-index: 60; /* above the chart-margin drag strips (50), so sliders get the drag */
   background: rgba(6,6,26,0.92);
   border: 1px solid rgba(255,255,255,0.1);
@@ -649,12 +650,14 @@ body.sidebar-open #scale-bar { left: 456px; }
 .obj-dot {
   transition: r 0.15s;
 }
-.obj-icon {
+.obj-icon,
+.dn-icon {
   /* Hover growth animates as a center-origin transform. Never transition
      the x/y/width/height geometry: the renderer rewrites it every zoom
      frame (easing it makes icons trail the map), and corner-anchored
      interpolation makes the hover jump up-left before growing. */
-  transition: transform 0.15s;
+  /* A shared JS tween keeps size, black backing and parallax in lockstep. */
+  transition: none;
   transform-box: fill-box;
   transform-origin: center;
 }

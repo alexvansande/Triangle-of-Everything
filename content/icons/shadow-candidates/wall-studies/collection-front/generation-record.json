@@ -1,0 +1,59 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-22",
+  "objects": [
+    {
+      "name": "human",
+      "prompt": "Edit target image 1 is the existing meditating human. Image 2 is a lighting and perspective reference ONLY (gray cube). Regenerate the SAME bald adult man with grey beard, brown bead necklaces, bare torso and loose dark brown trousers, same calm expression and front-facing seated cross-legged lotus-like meditation pose, hands together in lap. Preserve recognizability, anatomy and pose. Change lighting to one consistent broad light from SCREEN UPPER LEFT, brighter upper-left scalp, left shoulder and knees, shadow on screen-right and underside; restrained violet ambient bounce for a purple-wall chart. Improve readable midtone detail at small icon size. Viewer sees a collection displayed on a wall just below their eye line: nearly frontal camera looking down only 8–10 degrees, weak long-lens perspective. The man is floating, no ground contact, no mat, no pedestal. OBJECT ONLY: no cast shadow, no wall, no floor, no border, no background. Genuine transparent PNG. Remove all black background and white border from original. Full seated figure centered on square canvas, longest solid dimension 93% of canvas, ample nonclipped margin. Photorealistic detailed rendered cutout, not cartoon. No text.",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/human.png",
+        "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/cube-head-on-study.png"
+      ]
+    },
+    {
+      "name": "big-ben",
+      "prompt": "Edit target image 1: existing Elizabeth Tower / Big Ben miniature icon. Image 2: gray cube CAMERA AND LIGHTING reference ONLY. Regenerate the clock tower for a wall-mounted collection viewed almost straight on, just below the viewer's eye line. Rotate the tower away from its old 45-degree corner-on isometric presentation: turn its main clock facade toward the viewer, broad dominant front facade, a narrower right side about 15–20% of visible width. Camera pitched downward only 8–10 degrees with weak long-lens perspective, almost parallel upright verticals, modest visible roof surfaces like the gray cube, not a steep aerial isometric view and not upward-looking street view. Preserve authentic iconic gold-beige carved Gothic stone tower, white clock faces, dark slate roof, gold finial, full base-to-tip slender proportions. Realistic fine stone weathering and readable dark recesses. Single broad upper-LEFT screen light highlights top-left and front-left edges, right side and undersides darker, restrained purple ambient bounce. Floating detached miniature. OBJECT ONLY, no cast shadow, no surroundings, no base plate, no wall or floor. Transparent PNG. Square canvas centered, tip-to-base height 93%, clear margin all sides. No clipping. No text or labels.",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/big-ben.png",
+        "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/cube-head-on-study.png"
+      ]
+    },
+    {
+      "name": "eiffel-tower",
+      "prompt": "Edit target image 1: existing Eiffel Tower miniature icon. Image 2: gray cube CAMERA AND LIGHTING reference ONLY. Regenerate Eiffel Tower for a collection displayed in front of us slightly below eye level. Rotate from old corner-on 45-degree isometric angle to a nearly frontal broad main arch, with slight yaw about 12–15 degrees revealing a little right side and the rear supports through the lattice. Camera only 8–10 degrees above subject, weak long-lens perspective, nearly parallel upright center axis, much less top-down foreshortening than old image. Main broad arch and four tapering iron legs, three platforms, antenna, full recognizable tower proportions. Realistic warm bronze-brown painted wrought-iron lattice and fine weathered texture, strong readable structural contrast at small size. One broad light from SCREEN UPPER LEFT, brighter top-left surfaces, darker right and undersides, subtle purple ambient bounce. Floating detached miniature. OBJECT ONLY: no cast shadow, floor, ground plane, wall, scenic surroundings, baseplate or pedestal. Real transparent PNG with transparent openings through the ironwork. Center on square canvas with 93% tip-to-base solid height, full tower and antenna unclipped. Same rendered family as reference. No text or labels.",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/eiffel-tower.png",
+        "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/cube-head-on-study.png"
+      ]
+    }
+  ],
+  "eiffelCameraRefinement": "Edit this Eiffel Tower icon. Keep its full shape, slight three-quarter yaw, bronze material, upper-left lighting, clear detail, transparent background and centered complete tower. Correct ONLY camera elevation: currently it reads like a street view looking UP at the decks. We need the view of a small collectible just BELOW the observer's eye line, so the camera looks gently DOWN at it from about 12 degrees elevation. Show narrow TOP surfaces of both observation platforms and the four foot blocks, not prominent dark undersides. Keep the front arch dominant and the right side narrow. Weak perspective, almost parallel vertical center axis. No steep bird's-eye / isometric angle. No floor, no cast shadow. Real transparent PNG. Full tower centered and unclipped.",
+  "shadows": [
+    {
+      "name": "human",
+      "prompt": "Generate a SEPARATE CAST-SHADOW-ONLY transparent PNG asset for the object in image 1. Image 2 is the approved gray cube wall-lighting study, use only its cast-shadow softness and light direction as style reference. Imagine the object floating in front of a VERTICAL WALL parallel to the screen, lit by an area light above and to SCREEN LEFT. This is NOT a floor projection. The wall shadow remains almost UPRIGHT, recognizable frontal outline, NO flattened ground silhouette, NO diagonal reclining shape, NO reflection, NO visible object. Infer actual three-dimensional volume rather than simply copying its pixels: nearby rear surfaces make stronger, firmer occlusion; parts protruding toward the viewer create slightly expanded, softer silhouettes. Dark near-black violet (#140f2e), no color details, no lit object details, no white glow. Fairly dark core fading continuously to fully transparent outer penumbra; progressively softer edges toward screen lower-right, like reference study. Use the same strong core and same softness family for this whole collection. Keep overall shadow shape centered in SQUARE canvas, height approximately 88% with transparent margins including blur. Retain the reference object's overall height-to-width proportion. DO NOT bake a large positional displacement: just center the isolated wall shadow, the app places it down-right. True RGBA transparent background, no wall drawn, no ground plane, no labels. The shadow is of this exact SEATED CROSS-LEGGED meditating man: round bald head on TOP, shoulders/torso in middle, elbows and clasped hands, broad crossed knees at BOTTOM. Upright seated triangular outline, never a standing human, never flipped. Hands and knees extend toward viewer and therefore have broader softer edges than rear torso; preserve modest translucent gaps between elbows and waist."
+    },
+    {
+      "name": "big-ben",
+      "prompt": "Generate a SEPARATE CAST-SHADOW-ONLY transparent PNG asset for the object in image 1. Image 2 is the approved gray cube wall-lighting study, use only its cast-shadow softness and light direction as style reference. Imagine the object floating in front of a VERTICAL WALL parallel to the screen, lit by an area light above and to SCREEN LEFT. This is NOT a floor projection. The wall shadow remains almost UPRIGHT, recognizable frontal outline, NO flattened ground silhouette, NO diagonal reclining shape, NO reflection, NO visible object. Infer actual three-dimensional volume rather than simply copying its pixels: nearby rear surfaces make stronger, firmer occlusion; parts protruding toward the viewer create slightly expanded, softer silhouettes. Dark near-black violet (#140f2e), no color details, no lit object details, no white glow. Fairly dark core fading continuously to fully transparent outer penumbra; progressively softer edges toward screen lower-right, like reference study. Use the same strong core and same softness family for this whole collection. Keep overall shadow shape centered in SQUARE canvas, height approximately 88% with transparent margins including blur. Retain the reference object's overall height-to-width proportion. DO NOT bake a large positional displacement: just center the isolated wall shadow, the app places it down-right. True RGBA transparent background, no wall drawn, no ground plane, no labels. The shadow belongs to this tall narrow upright clock tower: pinnacle and pointed roof at TOP, slim rectangular tower shaft and base at BOTTOM. Keep its center axis vertical. Clock faces are NOT light sources and must not appear as white circles in shadow. Roof tiers and finial affect outline only. The wall is behind the whole tower: tower height does not imply a long floor shadow. Maintain slender proportions."
+    },
+    {
+      "name": "eiffel-tower",
+      "prompt": "Generate a SEPARATE CAST-SHADOW-ONLY transparent PNG asset for the object in image 1. Image 2 is the approved gray cube wall-lighting study, use only its cast-shadow softness and light direction as style reference. Imagine the object floating in front of a VERTICAL WALL parallel to the screen, lit by an area light above and to SCREEN LEFT. This is NOT a floor projection. The wall shadow remains almost UPRIGHT, recognizable frontal outline, NO flattened ground silhouette, NO diagonal reclining shape, NO reflection, NO visible object. Infer actual three-dimensional volume rather than simply copying its pixels: nearby rear surfaces make stronger, firmer occlusion; parts protruding toward the viewer create slightly expanded, softer silhouettes. Dark near-black violet (#140f2e), no color details, no lit object details, no white glow. Fairly dark core fading continuously to fully transparent outer penumbra; progressively softer edges toward screen lower-right, like reference study. Use the same strong core and same softness family for this whole collection. Keep overall shadow shape centered in SQUARE canvas, height approximately 88% with transparent margins including blur. Retain the reference object's overall height-to-width proportion. DO NOT bake a large positional displacement: just center the isolated wall shadow, the app places it down-right. True RGBA transparent background, no wall drawn, no ground plane, no labels. The shadow belongs to this Eiffel Tower: antenna at TOP, tapering shaft and platforms in middle, four splayed legs and arch at BOTTOM. Retain some softly blurred transmission through major lattice gaps and especially the large open base arch. No detailed lit metal: dark shadow only. Shadow stays upright on wall, never flattened or slanted onto a floor. Infer occlusion of front/rear struts and allow fine lattice to merge into softer shadow."
+    }
+  ],
+  "sharedPreset": {
+    "opacity": 0.5,
+    "generatedBlur": 8,
+    "distance": 0,
+    "generatedScale": 0.4,
+    "x": -45,
+    "y": -65,
+    "anchorBase": false,
+    "flipY": false
+  },
+  "normalization": {
+    "object": "1254 square; solid coverage about 94%, centered",
+    "shadow": "1254 square; alpha>8 bounds plus 10px margin fit 1120px, centered"
+  }
+}
