@@ -5313,15 +5313,15 @@ let _bgTilesEnabled = true;
 // controls); ?bgnoise / ?bgnoise=0 override the saved choice. Narrations
 // (?narrate) default it on at full resolution; the site defaults it off and,
 // when enabled, renders at half resolution (~4× cheaper on the GPU).
-const _narrating = new URLSearchParams(location.search).has("narrate") ||
+const _bgNoiseNarr = new URLSearchParams(location.search).has("narrate") ||
   import.meta.env.MODE === "narration-preview";
-const BG_NOISE_DEFAULT_ON = _narrating;
-const BG_NOISE_PROFILE = _narrating ? {} : { res: 0.5 };
+const BG_NOISE_DEFAULT_ON = _bgNoiseNarr;
+const BG_NOISE_PROFILE = _bgNoiseNarr ? {} : { res: 0.5 };
 const BG_NOISE_ON_AT = 1, BG_NOISE_OFF_AT = 0.7; // css px per source px (tiles run out at 1)
 const _bgNoiseUrl = new URLSearchParams(location.search).get("bgnoise"); // null | "" | "0" | "1"
 let _bgNoise = null;          // the layer, created on first zoom-in
 let _bgNoiseShown = false;    // currently replacing the tiles
-let _bgNoiseArmed = _narrating; // site: not at startup, only after the first zoom
+let _bgNoiseArmed = _bgNoiseNarr; // site: not at startup, only after the first zoom
 let _bgNoiseFadeTimer = 0;
 let _bgNoiseWanted = _bgNoiseUrl !== null ? _bgNoiseUrl !== "0" : BG_NOISE_DEFAULT_ON;
 let _bgNoiseMod = null;
