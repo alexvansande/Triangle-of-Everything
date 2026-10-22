@@ -1123,3 +1123,23 @@ opacity is baked in. The general batch generator still protects these lakes.
 Review all 12 before/after pairs at `/tools/lake-long-shadow-study.html`, including
 object visibility and hover controls. This supersedes the earlier study-only
 status above. The individual study images remain archived as references.
+
+### EHT-based M87* and Sagittarius A* icon candidates — October 22
+
+The user requested imagined higher-resolution versions of the real EHT images,
+with matching framing for a smooth crossfade. They explicitly prefer an actual
+astronomical-photo appearance over cinematic/Interstellar styling. References
+are the existing EHT Collaboration CC BY 4.0 sidebar photos in content/images.
+Original observations and current chart icons remain unchanged for comparison.
+
+`content/icons/candidates/eht-reconstructions/` contains square-padded 1254px
+references, 1254px reconstructions, normalized icon exports at 128/256/512/1024,
+reference-derived crop rectangles and full generation prompts. The first,
+filament-heavy studies are archived; the final candidates use softer granular
+emission to match the broad intensity patterns. Added detail is artistic and
+must not be described as recovered observational information. Source geometry
+is matched visually, not an exact inverse reconstruction of EHT measurements.
+
+`/tools/eht-icon-study.html` provides a manual crossfade and animated dissolve,
+plus 128px Screen-blended previews on purple. Preserve the distinction between
+original observations and reconstructed illustration in credits and future use.
