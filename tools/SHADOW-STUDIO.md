@@ -1153,3 +1153,21 @@ viewpoint, not a claim about a visible-light telescope observation. They do not
 show a physical horizon surface. `/tools/eht-icon-study.html` now defaults to
 these candidates and lets the user select the original swirls or softer pass.
 Current chart icons are still unchanged pending selection.
+
+### Installed black hole family — October 22
+
+The user approved the finer telescope swirls for M87* and Sagittarius A*.
+Both now replace their chart icons, with high-resolution variants and the
+reference-derived square crops. Original EHT sidebar photographs stay intact.
+New stellar-bh and ton-618 illustrations use the same orange/amber swirl family
+at a more inclined angle: flattened disk, bent upper emission arc, subdued
+lower arc and dark central light-capture shadow. These two are illustrative,
+not resolved observations. Do not label the apparent dark rim as a directly
+visible Schwarzschild-radius surface. No jets or extra cast shadows were added.
+
+All four masters and 128/256/512/1024px variants are installed. Prior sources
+and root icons are backed up in `content/icons/candidates/black-hole-family/previous`.
+Prompts and provenance are alongside them. The review page is
+`/tools/black-hole-family.html`; `/tools/eht-icon-study.html` still compares
+all EHT reconstruction variants against observations. Existing black-hole
+size multipliers are retained.
