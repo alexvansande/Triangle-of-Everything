@@ -83,6 +83,18 @@
         "--strictPort"
       ],
       "port": 5185
+    },
+    {
+      "name": "chartfixes",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "/Users/avsa/Dev/Triangle/.claude/worktrees/agent-a414ff73bd570ce7a",
+        "--port",
+        "5186",
+        "--strictPort"
+      ],
+      "port": 5186
     }
   ]
 }

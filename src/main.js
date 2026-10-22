@@ -475,6 +475,12 @@ iconBgGrad.append("stop").attr("offset", "100%").attr("stop-color", "#000").attr
 defs.append("filter").attr("id", "dust-shadow-blur")
   .attr("x", "-5%").attr("y", "-5%").attr("width", "110%").attr("height", "110%")
   .append("feGaussianBlur").attr("stdDeviation", 0.8);
+// Stars' light pools (starGlowGeom): blur sized to the flat ellipse, softer
+// across than along, so the pool fades into the floor.
+defs.append("filter").attr("id", "star-glow")
+  .attr("primitiveUnits", "objectBoundingBox")
+  .attr("x", "-60%").attr("y", "-150%").attr("width", "220%").attr("height", "400%")
+  .append("feGaussianBlur").attr("stdDeviation", "0.14 0.3");
 [["icon-shadow-near", 0.08], ["icon-shadow-far", 0.16]].forEach(([id, sd]) => {
   defs.append("filter").attr("id", id)
     .attr("primitiveUnits", "objectBoundingBox")
@@ -605,6 +611,8 @@ const lRegLabel   = lContent.append("g");
 // Pictures' cast shadows: under the dust, dots, labels and pictures alike
 const lShadows    = lContent.append("g").style("pointer-events", "none").attr("class", "icon-shadows");
 const SHADOWS = !new URLSearchParams(location.search).has("noshadows");
+// Stars' light pools: off for now, ?glow to try them
+const STAR_GLOWS = SHADOWS && new URLSearchParams(location.search).has("glow");
 const DUST_SHADOWS = SHADOWS && !new URLSearchParams(location.search).has("nodustshadows");
 // Catalogue "dust": thousands of faint real objects under the curated ones
 // (src/dust.js). Never interactive except for a hover name.
@@ -2941,6 +2949,11 @@ function drawObjects() {
   }, dustColor);
   lDustHover.selectAll("*").remove();
   drawIconShadows([
+    // stars make light: a pool of their colour on the floor instead of a shadow
+    ...(STAR_GLOWS ? shownDots.filter(o => o._showIcon && (o.catKey || o.cat) === "star") : [])
+      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, glow: starTint(ICON_BY_SLUG[o.slug], o.color), glowUrl: ICON_BY_SLUG[o.slug] })),
+    ...(STAR_GLOWS ? dustIcons().filter(d => d.cat === "star") : [])
+      .map(d => ({ key: `dust:${d.i}`, ...d, glow: starTint(ICON_BY_SLUG[nameToSlug(d.name)], "#ffd27a"), glowUrl: ICON_BY_SLUG[nameToSlug(d.name)] })),
     ...shownDots.filter(o => o._showIcon && !iconUsesScreenBlend(o))
       .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug] })),
     ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)] })),
@@ -3005,6 +3018,53 @@ function applyShadowGeom(sel, g) {
   sel.attr("cx", g.cx).attr("cy", g.cy).attr("rx", g.rx).attr("ry", g.ry)
     .attr("transform", g.transform).attr("opacity", g.opacity);
 }
+/** A star's light pool: a flat ellipse of its colour on the floor under it —
+ *  a light source lights the ground beneath it rather than casting a shadow
+ *  away from the light. The pool is anchored: it sits low enough that even the
+ *  star grown on hover (setIconHover: to ≥ 64 px or 1.5×) never covers it, and
+ *  on hover it only spreads about its own centre and fades a little. Kept
+ *  faint: screen-blended at ~0.3, a hint of light, not a second object. */
+const STAR_GLOW = { width: 1.0, height: 0.24, spread: 1.3, gap: 0.08, opacity: 0.3 };
+function starGlowGeom(d) {
+  const lifted = _shadowLift?.key === d.key;
+  const kHover = Math.max(64, 4 * d.r * 0.75) / (2 * d.r);   // as setIconHover: max(64, size × 1.5) / size
+  const k = lifted ? kHover : 1, grow = lifted ? STAR_GLOW.spread : 1;
+  // the hovered pool's top edge clears the hovered star's bottom (icons fill 122/128 → 0.95 r)
+  const ryHover = STAR_GLOW.height * d.r * kHover * STAR_GLOW.spread;
+  const cy = d.sy + d.r * (0.95 * kHover + STAR_GLOW.gap) + ryHover;
+  return { cx: d.sx, cy, rx: STAR_GLOW.width * d.r * k * grow, ry: STAR_GLOW.height * d.r * k * grow,
+    transform: null, opacity: STAR_GLOW.opacity * (lifted ? 0.7 : 1) };
+}
+/** The colour of a star's light: the mean of its icon's bright pixels, sampled
+ *  once per icon (fallback until it has loaded). */
+const _starTints = new Map();
+function starTint(url, fallback) {
+  if (!url) return fallback;
+  const known = _starTints.get(url);
+  if (known) return known === "pending" ? fallback : known;
+  _starTints.set(url, "pending");
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement("canvas"); c.width = c.height = 24;
+    const cx = c.getContext("2d", { willReadFrequently: true });
+    cx.drawImage(img, 0, 0, 24, 24);
+    const px = cx.getImageData(0, 0, 24, 24).data;
+    let r = 0, g = 0, b = 0, n = 0;
+    for (let i = 0; i < px.length; i += 4) {
+      const w = px[i + 3] / 255 * Math.max(px[i], px[i + 1], px[i + 2]) / 255;  // bright, opaque pixels count most
+      r += px[i] * w; g += px[i + 1] * w; b += px[i + 2] * w; n += w;
+    }
+    if (!n) return;
+    // light carries the hue at full brightness; the pool's opacity keeps it faint
+    const m = Math.max(r, g, b) / n || 1, f = 255 / m;
+    _starTints.set(url, `rgb(${Math.round(r / n * f)},${Math.round(g / n * f)},${Math.round(b / n * f)})`);
+    lShadows.selectAll("g.icon-shadow").filter(d => d.glow).each(function(d) {
+      if (d.glowUrl === url) d3.select(this).select("ellipse.sh-glow").attr("fill", _starTints.get(url));
+    });
+  };
+  img.src = url;
+  return fallback;
+}
 function drawIconShadows(shapes) {
   if (!SHADOWS || _bigBangMode) shapes = [];
   lShadows.selectAll("g.icon-shadow")
@@ -3014,11 +3074,20 @@ function drawIconShadows(shapes) {
       SHADOW_PARTS.forEach(([cls, filter]) => g.append("ellipse").attr("class", cls)
         .attr("fill", "#000").attr("filter", `url(#${filter})`));
       g.append("image").attr("class", "sh-img").attr("preserveAspectRatio", "none");
+      g.append("ellipse").attr("class", "sh-glow").attr("filter", "url(#star-glow)")
+        .style("mix-blend-mode", "screen");
       return g;
     })
     .each(function(d) {
       const g = d3.select(this);
-      g.selectAll("ellipse").attr("display", d.img ? "none" : null);
+      const glow = g.select("ellipse.sh-glow").attr("display", d.glow ? null : "none");
+      if (d.glow) {
+        g.selectAll("ellipse:not(.sh-glow)").attr("display", "none");
+        g.select("image.sh-img").attr("display", "none");
+        applyShadowGeom(glow.interrupt().attr("fill", d.glow), starGlowGeom(d));
+        return;
+      }
+      g.selectAll("ellipse:not(.sh-glow)").attr("display", d.img ? "none" : null);
       const img = g.select("image.sh-img").attr("display", d.img ? null : "none");
       if (d.img) {
         if (img.attr("href") !== d.img) img.attr("href", d.img);
@@ -3033,6 +3102,10 @@ function liftShadow(key, k) {
   _shadowLift = k > 1 ? { key, k } : null;
   lShadows.selectAll("g.icon-shadow").filter(d => d.key === key).each(function(d) {
     const g = d3.select(this);
+    if (d.glow) {
+      applyShadowGeom(g.select("ellipse.sh-glow").interrupt().transition().duration(150), starGlowGeom(d));
+      return;
+    }
     if (d.img) {
       applyShadowImg(g.select("image.sh-img").interrupt().transition().duration(150), shadowImgGeom(d));
       return;

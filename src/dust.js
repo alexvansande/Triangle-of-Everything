@@ -332,7 +332,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
   }
   _labelled = new Set(placed.map((p) => p.i));
   _iconed = new Set(placed.filter((p) => p.icon).map((p) => p.i));
-  _iconShapes = placed.filter((p) => p.icon).map((p) => ({ i: p.i, name: p.icon.name, sx: p.sx, sy: p.sy, r: p.icon.r, blend: p.icon.blend }));
+  _iconShapes = placed.filter((p) => p.icon).map((p) => ({ i: p.i, name: p.icon.name, cat: sources[src[p.i]].cat, sx: p.sx, sy: p.sy, r: p.icon.r, blend: p.icon.blend }));
   const color = (p) => (view.labelColorOf || colorOf)(sources[src[p.i]].cat, sources[src[p.i]].id);
   layer.selectAll("g.dust-named")
     .data(placed, (p) => p.i)
