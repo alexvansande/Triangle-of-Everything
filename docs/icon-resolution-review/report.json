@@ -1,0 +1,143 @@
+[
+  {
+    "dpr": 1,
+    "icons": [
+      {
+        "slug": "Bumblebee",
+        "cssSize": 72.74282125835295,
+        "native": 128,
+        "need": 110,
+        "url": "/content/icons/bumblebee.webp"
+      },
+      {
+        "slug": "Cane toad",
+        "cssSize": 73.73343393666029,
+        "native": 128,
+        "need": 111,
+        "url": "/content/icons/cane-toad.webp"
+      },
+      {
+        "slug": "1-ml-of-water",
+        "cssSize": 72.94094946230094,
+        "native": 128,
+        "need": 110,
+        "url": "/content/icons/1-ml-of-water.webp"
+      },
+      {
+        "slug": "eois-stantonae",
+        "cssSize": 72.10904285321932,
+        "native": 128,
+        "need": 109,
+        "url": "/content/icons/eois-stantonae.webp"
+      },
+      {
+        "slug": "microchip",
+        "cssSize": 72.43509567607592,
+        "native": 128,
+        "need": 109,
+        "url": "/content/icons/microchip.webp"
+      },
+      {
+        "slug": "mouse",
+        "cssSize": 73.45126053057419,
+        "native": 128,
+        "need": 111,
+        "url": "/content/icons/mouse.webp"
+      }
+    ]
+  },
+  {
+    "dpr": 2,
+    "icons": [
+      {
+        "slug": "Bumblebee",
+        "cssSize": 72.74282125835295,
+        "native": 256,
+        "need": 219,
+        "url": "/content/icons/resolutions/256/bumblebee.webp"
+      },
+      {
+        "slug": "Cane toad",
+        "cssSize": 73.73343393666029,
+        "native": 256,
+        "need": 222,
+        "url": "/content/icons/resolutions/256/cane-toad.webp"
+      },
+      {
+        "slug": "1-ml-of-water",
+        "cssSize": 72.94094946230094,
+        "native": 256,
+        "need": 219,
+        "url": "/content/icons/resolutions/256/1-ml-of-water.webp"
+      },
+      {
+        "slug": "eois-stantonae",
+        "cssSize": 72.10904285321932,
+        "native": 256,
+        "need": 217,
+        "url": "/content/icons/resolutions/256/eois-stantonae.webp"
+      },
+      {
+        "slug": "microchip",
+        "cssSize": 72.43509567607592,
+        "native": 256,
+        "need": 218,
+        "url": "/content/icons/resolutions/256/microchip.webp"
+      },
+      {
+        "slug": "mouse",
+        "cssSize": 73.45126053057419,
+        "native": 256,
+        "need": 221,
+        "url": "/content/icons/resolutions/256/mouse.webp"
+      }
+    ]
+  },
+  {
+    "dpr": 3,
+    "icons": [
+      {
+        "slug": "Bumblebee",
+        "cssSize": 72.74282125835295,
+        "native": 512,
+        "need": 328,
+        "url": "/content/icons/resolutions/512/bumblebee.webp"
+      },
+      {
+        "slug": "Cane toad",
+        "cssSize": 73.73343393666029,
+        "native": 512,
+        "need": 332,
+        "url": "/content/icons/resolutions/512/cane-toad.webp"
+      },
+      {
+        "slug": "1-ml-of-water",
+        "cssSize": 72.94094946230094,
+        "native": 512,
+        "need": 329,
+        "url": "/content/icons/resolutions/512/1-ml-of-water.webp"
+      },
+      {
+        "slug": "eois-stantonae",
+        "cssSize": 72.10904285321932,
+        "native": 512,
+        "need": 325,
+        "url": "/content/icons/resolutions/512/eois-stantonae.webp"
+      },
+      {
+        "slug": "microchip",
+        "cssSize": 72.43509567607592,
+        "native": 512,
+        "need": 326,
+        "url": "/content/icons/resolutions/512/microchip.webp"
+      },
+      {
+        "slug": "mouse",
+        "cssSize": 73.45126053057419,
+        "native": 512,
+        "need": 331,
+        "url": "/content/icons/resolutions/512/mouse.webp"
+      }
+    ]
+  }
+]

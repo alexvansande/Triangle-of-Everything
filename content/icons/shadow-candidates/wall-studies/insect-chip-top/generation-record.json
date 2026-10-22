@@ -1,0 +1,37 @@
+{
+  "mode": "built-in image_gen",
+  "requests": [
+    {
+      "name": "ant",
+      "prompt": "Use case: style-transfer. Asset type: realistic miniature collection icon for a purple chart. Reference image is the old icon: retain recognizable material and species/product identity, but replace its camera angle with a STRICT TOP/DORSAL VIEW, looking straight down at the specimen's back, as though its underside is glued to a vertical museum display wall and we face that wall. Main outline lies parallel to image plane, no isometric or corner view, no perspective foreshortening. Clean high-quality detailed photoreal miniature, crisp silhouette readable at 128px. Lighting soft strong upper-left/front, clearly shaded lower-right relief, very subtle violet ambient fill. One centered object filling about 92-94% of longest canvas dimension with clear margin on every side. Square transparent PNG, REAL alpha background, NO cast shadow, NO wall, shelf, ground, pins, glue, text or watermark. Only natural self-shading. A single reddish chestnut ant, HEAD POINTING UP, elongated abdomen below. Anatomically accurate dorsal specimen, three clear body regions, narrow waist, two elbowed antennae reaching upward, exactly six articulated legs in three pairs attached to thorax, sensibly spread sideways. Fine exoskeleton texture and restrained amber specular highlights. Entire legs and antennae in frame.",
+      "referenced_image_paths": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/ant.png"
+      ],
+      "transparent_background": true
+    },
+    {
+      "name": "microchip",
+      "prompt": "Use case: style-transfer. Asset type: realistic miniature collection icon for a purple chart. Reference image is the old icon: retain recognizable material and species/product identity, but replace its camera angle with a STRICT TOP/DORSAL VIEW, looking straight down at the specimen's back, as though its underside is glued to a vertical museum display wall and we face that wall. Main outline lies parallel to image plane, no isometric or corner view, no perspective foreshortening. Clean high-quality detailed photoreal miniature, crisp silhouette readable at 128px. Lighting soft strong upper-left/front, clearly shaded lower-right relief, very subtle violet ambient fill. One centered object filling about 92-94% of longest canvas dimension with clear margin on every side. Square transparent PNG, REAL alpha background, NO cast shadow, NO wall, shelf, ground, pins, glue, text or watermark. Only natural self-shading. A single generic square dark gray microchip with silver gull-wing leads on all FOUR sides, seen straight down onto the top face. Square package sides exactly horizontal and vertical, not rotated into a diamond. Subtle etched circuit motif centered on package, no brand or readable text. Matte fine-grained graphite ceramic and brushed silver metal leads, believable tiny relief; NO visible thick bottom sidewall. Every lead in frame, regular spacing and coherent manufacture.",
+      "referenced_image_paths": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/microchip.png"
+      ],
+      "transparent_background": true
+    },
+    {
+      "name": "bumblebee",
+      "prompt": "Use case: style-transfer. Asset type: realistic miniature collection icon for a purple chart. Reference image is the old icon: retain recognizable material and species/product identity, but replace its camera angle with a STRICT TOP/DORSAL VIEW, looking straight down at the specimen's back, as though its underside is glued to a vertical museum display wall and we face that wall. Main outline lies parallel to image plane, no isometric or corner view, no perspective foreshortening. Clean high-quality detailed photoreal miniature, crisp silhouette readable at 128px. Lighting soft strong upper-left/front, clearly shaded lower-right relief, very subtle violet ambient fill. One centered object filling about 92-94% of longest canvas dimension with clear margin on every side. Square transparent PNG, REAL alpha background, NO cast shadow, NO wall, shelf, ground, pins, glue, text or watermark. Only natural self-shading. A single fuzzy black and golden-yellow bumblebee, white tail, HEAD POINTING UP, viewed directly from above its back. Realistic museum specimen: exactly six dark jointed legs (three pairs), two antennae, translucent veined wings spread gently left/right in plane. Four wings total, small hindwings partially overlapping larger forewings, naturally attached to thorax. Compact pose with all wings, legs and antennae inside frame. Sharp realistic fur and luminous translucent wing membranes, black/yellow banding.",
+      "referenced_image_paths": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/bumblebee.png"
+      ],
+      "transparent_background": true
+    },
+    {
+      "name": "ladybug",
+      "prompt": "Use case: style-transfer. Asset type: realistic miniature collection icon for a purple chart. Reference image is the old icon: retain recognizable material and species/product identity, but replace its camera angle with a STRICT TOP/DORSAL VIEW, looking straight down at the specimen's back, as though its underside is glued to a vertical museum display wall and we face that wall. Main outline lies parallel to image plane, no isometric or corner view, no perspective foreshortening. Clean high-quality detailed photoreal miniature, crisp silhouette readable at 128px. Lighting soft strong upper-left/front, clearly shaded lower-right relief, very subtle violet ambient fill. One centered object filling about 92-94% of longest canvas dimension with clear margin on every side. Square transparent PNG, REAL alpha background, NO cast shadow, NO wall, shelf, ground, pins, glue, text or watermark. Only natural self-shading. A single orange-red ladybug with glossy rounded closed wing covers and natural black spots, black and cream pronotum, HEAD POINTING UP. Strict dorsal top view; thin straight central seam between closed elytra. Exactly six short jointed legs in three pairs and two short antennae, all intact and in frame. Fine natural shell texture, restrained upper-left softbox highlight. Clean true alpha silhouette without ANY green background, green fringing, color spill, or rectangle from the reference.",
+      "referenced_image_paths": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/ladybug.png"
+      ],
+      "transparent_background": true
+    }
+  ]
+}

@@ -393,7 +393,9 @@ export const SOURCES = [
     async load(fetchText) {
       const rows = vizier(await fetchText(viz("J/ApJ/831/134/table2", ["Name", "logBHMass"]), "smbh.tsv"));
       return rows
-        .filter((r) => Number.isFinite(num(r.logBHMass)))
+        // logBHMass 0 marks an upper limit only (the bound is in E_logBHMass): no
+        // measured mass, so no dot (NGC 1428, M33 and three more sat at 1 Msun)
+        .filter((r) => Number.isFinite(num(r.logBHMass)) && num(r.logBHMass) > 0)
         .map((r) => {
           const logM = num(r.logBHMass) + log(M_SUN);
           return { name: `${clean(r.Name)} BH`, logR: logM + SCHW_C, logM };

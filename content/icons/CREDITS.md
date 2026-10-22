@@ -9,29 +9,47 @@ neutrino-tau, neutrino-mu, neutrino-e, higgs, w-boson, z-boson,
 visible-light, gamma-ray, x-and-y-bosons
 
 ### Stars
-sun, red-giant, red-dwarf, blue-supergiant, wolf-rayet,
-betelgeuse, t-brown-dwarf, y-brown-dwarf, white-dwarf, sirius-b
+sun, red-giant, blue-supergiant,
+betelgeuse, y-brown-dwarf, sirius-b
 
 ### Black Holes
-smallest-primordial-bh, 3k-bh, stellar-bh, sgr-a, m87, ton-618
+smallest-primordial-bh, 3k-bh, sgr-a, m87
 
 ### Planets (AI-generated, later replaced by real photos for most)
-kepler-22b, beta-pictoris-b
+kepler-22b
 
 ### Micro/Bio (BioVisions style)
 amoeba, hemoglobin, dna, bacteriophage-t4, insulin, glucose, water-h2o
 
 ### Macro objects
-1-liter-of-water, 1-ml-of-water, 1-tonne-of-water, mouse, microchip,
-blue-whale, boeing-747, supertanker
+mouse
 
 ### Other
-big-bang, tardigrade, sequoia
+big-bang, tardigrade
+
+## AI-Generated, gen3 set (2026)
+Masters in iCloud `Projects/triangle/illustrations/gen3/generated/`; the
+`src/` PNGs are those masters cropped so the subject fills 122 of 128 px.
+1-ml-of-water, 1-liter-of-water, 1-tonne-of-water, ant, elephant, eros,
+mt-everest, argentinosaurus, l-brown-dwarf, proxima-cen, sirius-a, vega,
+neutron-star, milky-way, eiffel-tower, pollen-grain, tyrannosaurus-rex, protostar,
+boeing-747, pyramid-giza, supertanker, microchip, hippo, blue-whale, red-dwarf, white-dwarf, t-brown-dwarf, wolf-rayet, beta-pictoris-b, ton-618, stellar-bh,
+titanic, hoba, chelyabinsk, hms-victory, manneken-pis, uss-enterprise, the-little-mermaid,
+antarctic-ice-sheet, caspian-sea, lake-baikal, dead-sea, loch-ness,
+greenland-ice-sheet, big-ben, burj-khalifa, opportunity, ingenuity, sequoia,
+dji-mini-2, bust-of-queen-nefertiti, n1, saturn-v, great-sphinx, statue-of-unity, bennu,
+caulobacter-vibrioides, mycoplasma-pneumoniae, escherichia-coli, staphylococcus-aureus, prochlorococcus-marinus,
+pseudomonas-aeruginosa, bacillus-subtilis, clostridium-botulinum, euglena-viridis, ceratium-hirundinella,
+noctiluca-scintillans, horse-chestnut-leaf-miner, clothes-moth,
+honey-bee, bumblebee, painted-lady, silkworm-moth, hedgehog, cane-toad, naked-mole-rat, meerkat, atlas-moth,
+curiosity, lion, flyer-i, hubble-space-telescope, benz-patent-motorwagen, concorde, union-pacific-big-boy, tiger-i, lockheed-sr-71-blackbird, asian-elephant, bismarck,
+ever-given, bagger-288, lake-nyos, konigssee, hallstatter-see, grinnell-glacier, titicaca,
+lake-tahoe, lake-superior, lake-victoria, voyager-golden-record, sea-of-galilee, kursk
 
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
-hippo, human, red-blood-cell, grain-of-salt, pyramid-giza, penny,
-soccer-ball, observable-universe, void, itokawa, bennu,
+human, red-blood-cell, grain-of-salt, penny,
+soccer-ball, observable-universe, void, itokawa,
 NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
 
 ## Downloaded from Space Agencies / Wikimedia
@@ -66,3 +84,5 @@ NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
 | planetary-nebula | NASA/ESA/Hubble Heritage Team | Public domain | Wikimedia: NGC_7293.JPG |
 | halleys-comet | NASA/W. Liller | Public domain | Wikimedia: Lspn_comet_halley.jpg |
 | barnard-68 | ESO | CC BY 4.0 | Wikimedia: Barnard_68.jpg |
+| galaxy-cluster | ESA/Hubble & NASA, Richard Massey (Durham University) | CC BY 4.0 | Wikimedia: Hubble_image_of_the_galaxy_cluster_Abell_3827.jpg (Abell 3827, round-cropped) |
+| nebulae | David (Deddy) Dayag | CC BY-SA 4.0 | Wikimedia: Trifid_Nebula_by_Deddy_Dayag.jpg (round-cropped from content/images/nebulae.webp) |

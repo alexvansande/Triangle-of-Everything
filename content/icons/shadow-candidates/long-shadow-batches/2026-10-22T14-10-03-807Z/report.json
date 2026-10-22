@@ -1,0 +1,91 @@
+{
+  "created": "2026-10-22T14-10-03-807Z",
+  "counts": {
+    "generate": 4,
+    "round": 0,
+    "caustics": 0,
+    "excluded": 0
+  },
+  "plan": [
+    {
+      "name": "cane-toad",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T14:10:04.442Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "naked-mole-rat",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T14:10:04.546Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "mouse",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T14:10:04.671Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "lion",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T14:10:04.782Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    }
+  ]
+}

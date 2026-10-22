@@ -185,6 +185,7 @@ const BAD_VALUES = new Set([
   "RG-19",               // ~646 t at 49 m — almost certainly a data error
   "Christ the Redeemer", // 1,145 t on Wikidata vs the usual 635 t
   "Emma Mærsk",          // 16,810 t is not her displacement
+  "Untitled",            // an artwork's title, not a name (also dropped at load: src/dust.js)
 ]);
 
 function loadGroup(group) {

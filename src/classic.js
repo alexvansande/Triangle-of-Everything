@@ -14,7 +14,9 @@
 import * as d3 from "d3";
 import "./classic.css";
 import { SCHWARZSCHILD_C, COMPTON_C, PLANCK_LOG_R, PLANCK_LOG_M } from "./data.js";
-import objectsData from "./objects.json";
+import rawObjects from "./objects.json";
+import { applyBulkObjects } from "./bulk-density.js";
+const objectsData = applyBulkObjects(rawObjects);
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan } from "./trackpad-pan.js";
 import { loadDust, dustArrays } from "./dust.js";
@@ -56,7 +58,16 @@ const C3 = {
 };
 const ISOCHRONS = ["planck", "gut", "ew", "nuclear", "atomic", "recomb"];
 // Objects come from our data, the paper's own named ones included
-const byName = (n) => objectsData.find(o => o.name === n);
+// Points the paper draws that the map no longer has: the map marks the mass
+// window still open to primordial black holes instead of single ones. The paper
+// shows the smallest observable one (5e14 g, just evaporating today) and the 3K
+// black hole (as hot as today's microwave background: lighter ones evaporate,
+// heavier ones grow).
+const PAPER_ONLY = [
+  { name: "Smallest Primordial BH", logR: -13.13, logM: 14.70, cat: "blackhole", subcat: "primordial_bh", z: 5 },
+  { name: "3K BH", logR: -2.17, logM: 25.65, cat: "blackhole", subcat: "primordial_bh", z: 4 },
+];
+const byName = (n) => objectsData.find(o => o.name === n) || PAPER_ONLY.find(o => o.name === n);
 const UNIVERSE = byName("Observable Universe");
 C3.now = UNIVERSE.logM - 3 * UNIVERSE.logR;
 
@@ -272,7 +283,7 @@ const x0 = d3.scaleLinear(R_DOM, [FRAME.x0, FRAME.x1]);
 const y0 = d3.scaleLinear(M_DOM, [FRAME.y1, FRAME.y0]);
 let layers = {};
 
-const OBJECTS = objectsData.filter(o => !PAPER_HAS.has(o.name));
+const OBJECTS = [...objectsData, ...PAPER_ONLY].filter(o => !PAPER_HAS.has(o.name));
 
 // Labels naming one of our objects ride with that object's dot. A leader
 // re-aims at it; a label without one shifts by the same amount the dot
@@ -292,7 +303,8 @@ for (const d of LABELS) {
 // framing). The paper already names these ones its own way: every object a
 // paper label points at (LABELS `of`), plus a few it names as a class.
 const PAPER_NAMED = new Set(["Globular Cluster", "Galaxy Cluster", "Red Giant", "White Dwarf",
-  "Neutron Star", ...RINGED, ...LABELS.map(l => l.of).filter(Boolean)]);
+  ...objectsData.filter(o => o.subcat === "neutron_star").map(o => o.name),   // the paper's "neutron stars"
+  ...RINGED, ...LABELS.map(l => l.of).filter(Boolean)]);
 const NAMED = OBJECTS.filter(o => !PAPER_NAMED.has(o.name))
   .sort((a, b) => (a.z || 3) - (b.z || 3));
 const NAME_MIN_K = [0, 2.5, 4, 6, 9, 14];   // by object z (1 = most notable)

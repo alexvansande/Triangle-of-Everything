@@ -1,4 +1,7 @@
 import * as d3 from "d3";
+import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
+import { buildSearchIndex, searchObjects } from "./object-search.js";
+import { VisibilityMemory } from "./visibility-memory.js";
 import {
   formatSci, friendlyRadius, friendlyMass, friendlyEnergy, isPhoton,
   friendlyWavelength, friendlyDensity, MASS_HOVER_UNITS, RADIUS_HOVER_UNITS,
@@ -6,7 +9,7 @@ import {
   formatLogSuper, densityToLogTime, friendlyTime, fmtTick,
 } from "./format.js";
 import {
-  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, STRINGS_ATOM_SLUGS,
+  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, iconUrlForSize, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
@@ -23,10 +26,11 @@ import {
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
   CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, ELEMENT_TYPES, elementType, PERIODIC_FAMILIES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
-  DARK_MATTER_REGIONS, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
+  PBH_WINDOW, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
 } from "./data.js";
 import objectsData from "./objects.json";
+import { applyBulkObjects } from "./bulk-density.js";
 import {
   openWaterPhasePanel, closeWaterPhasePanel, isWaterPhaseOpen,
   selectWaterPhaseKey, onWaterPhaseToggle, waterPhaseMarkup,
@@ -34,11 +38,11 @@ import {
 } from "./water-phase.js";
 import introRaw from "../content/intro.md?raw";
 import "./style.css";
-import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, isTourActive, closeTour } from "./tour.js";
+import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, tourGoTo, logAllSteps, isTourActive, closeTour } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -82,6 +86,7 @@ const ICON_SIZE_MULT = {
   "saturn": 2,
   "primordial-black-hole": 2, "3k-bh": 2, "stellar-bh": 2,
   "sgr-a": 2, "m87": 2, "ton-618": 2,
+  "neutron-star": 2.5, // beams span the icon; the star is ~40% of it
 };
 
 // Physical size scaling: for every 6 orders of magnitude in real radius,
@@ -105,7 +110,8 @@ function nameToSlug(name) {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-const OBJECTS = objectsData.map(o => ({ ...o, slug: o.slug || nameToSlug(o.name) }));
+const OBJECTS = applyBulkObjects(objectsData).map(o => ({ ...o, slug: o.slug || nameToSlug(o.name) }));
+const CURATED_SLUGS = new Set(OBJECTS.map(o => o.slug)); // dust never shows a curated object's picture
 let tileMeta = null;
 
 // =============================================================
@@ -281,6 +287,64 @@ const BOTTOM_MARGIN_DEFAULT = 80;
 const BOTTOM_MARGIN_MIN = 50;
 const BOTTOM_MARGIN_MAX = 200;
 
+// ---------- Axis type & column layout ----------
+// Axis type follows the Font size setting (base sizes below, CSS px at
+// 100%), and each axis column is laid out FROM that type: frame → ticks →
+// decade numbers → named references → rotated title + subtitle, using the
+// measured width of the widest label in each column. A column's default
+// width is what that layout needs, so bigger type widens the column rather
+// than overflowing it; a column dragged narrower shrinks its type to fit.
+const AXIS_FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+const AXIS_TYPE = { num: 15, minor: 10.5, ref: 12.5, title: 12, sub: 10 };
+// Top and bottom keep their designed geometry, scaled with the type.
+const AXIS_TB_SCALE = { top: 1.25, bottom: 1.15 };
+const _axCtx = document.createElement("canvas").getContext("2d");
+const _axWidths = new Map();
+function axTextWidth(labels, px, weight) {
+  const key = `${labels[0]}|${labels.length}|${px}|${weight}`;
+  let w = _axWidths.get(key);
+  if (w == null) {
+    _axCtx.font = `${weight} ${px}px ${AXIS_FONT}`;
+    w = 0;
+    for (const l of labels) for (const line of l.split("\n")) w = Math.max(w, _axCtx.measureText(line).width);
+    _axWidths.set(key, w);
+  }
+  return w;
+}
+// Widest decade number any grid mode prints (a sample: measure() first runs
+// before GRID_UNITS exists).
+const AXIS_NUM_SAMPLE = ["−88", "-88", "188"];
+
+function axisLayout() {
+  if (_isMobile) {
+    // Compact ruler: numbers + rotated titles in fixed 56–92 px margins.
+    return { s: 1, num: 12, minor: 9, ref: 9.5, title: 11, sub: 9, tick: 5, numX: 9,
+      L: { title: 44, sub: 30, need: 56 }, R: { title: 46, sub: 32, need: 58 },
+      sT: 1, sB: 1, needT: 78, needB: 92 };
+  }
+  const s = _fontScale, T = AXIS_TYPE;
+  const num = T.num * s, minor = T.minor * s, ref = T.ref * s, title = T.title * s, sub = T.sub * s;
+  const gap = 10 * s, tick = 5;
+  const numX = tick + 4;                                      // number edge, from the frame
+  const refX = numX + axTextWidth(AXIS_NUM_SAMPLE, num, 700) + gap; // reference edge
+  // Rotated text: glyphs rise ~0.75em from the baseline away from the chart
+  // and dip ~0.2em toward it. Baselines measured outward from the frame.
+  const side = (refW) => {
+    const subB = refX + refW + gap * 0.8 + 0.2 * sub;
+    const titleB = subB + 0.75 * sub + 4 * s + 0.2 * title;
+    return { sub: subB, title: titleB, need: Math.ceil(titleB + 0.75 * title + 6 * s) };
+  };
+  return {
+    s, num, minor, ref, title, sub, tick, numX, refX,
+    L: side(axTextWidth(ENERGY_UNITS.map(u => u.label), ref, 700)),
+    R: side(axTextWidth(MASS_UNITS.map(u => u.label), ref, 700)),
+    sT: s * AXIS_TB_SCALE.top, sB: s * AXIS_TB_SCALE.bottom,
+    needT: Math.ceil(TOP_MARGIN_DEFAULT * s * AXIS_TB_SCALE.top),
+    needB: Math.ceil(BOTTOM_MARGIN_DEFAULT * s * AXIS_TB_SCALE.bottom),
+  };
+}
+let _axLayout = null; // axisLayout() + per-column fit, set by measure()
+
 function measure() {
   W = _posterStage ? _posterStage.W : _viewportLock ? vpStage().W : window.innerWidth;
   H = _posterStage ? _posterStage.H : _viewportLock ? vpStage().H : window.innerHeight;
@@ -302,21 +366,17 @@ function measure() {
       margin.bottom = 0;
     }
   } else {
+    // Defaults: what the axis layout needs at the current type size. The
+    // drag limits stretch to always allow at least that.
+    const ax = axisLayout();
     const baseLeft = _isSidebarOpen ? SIDEBAR_W : BASE_MARGIN_LEFT - 80;
-    const defaultLeft = _isSidebarOpen ? SIDEBAR_W + 80 : BASE_MARGIN_LEFT;
-    margin.left = _userMarginLeft != null
-      ? Math.max(baseLeft + LEFT_MARGIN_MIN_EXTRA,
-                 Math.min(baseLeft + LEFT_MARGIN_MAX_EXTRA, _userMarginLeft))
-      : defaultLeft;
-    margin.right = _userMarginRight != null
-      ? Math.max(RIGHT_MARGIN_MIN, Math.min(RIGHT_MARGIN_MAX, _userMarginRight))
-      : RIGHT_MARGIN_DEFAULT;
-    margin.top = _userMarginTop != null
-      ? Math.max(TOP_MARGIN_MIN, Math.min(TOP_MARGIN_MAX, _userMarginTop))
-      : TOP_MARGIN_DEFAULT;
-    margin.bottom = _userMarginBottom != null
-      ? Math.max(BOTTOM_MARGIN_MIN, Math.min(BOTTOM_MARGIN_MAX, _userMarginBottom))
-      : BOTTOM_MARGIN_DEFAULT;
+    const fit = (user, min, max, need) => user != null
+      ? Math.max(min, Math.min(Math.max(max, need), user)) : need;
+    margin.left = baseLeft + fit(_userMarginLeft != null ? _userMarginLeft - baseLeft : null,
+      LEFT_MARGIN_MIN_EXTRA, LEFT_MARGIN_MAX_EXTRA, ax.L.need);
+    margin.right = fit(_userMarginRight, RIGHT_MARGIN_MIN, RIGHT_MARGIN_MAX, ax.R.need);
+    margin.top = fit(_userMarginTop, TOP_MARGIN_MIN, TOP_MARGIN_MAX, ax.needT);
+    margin.bottom = fit(_userMarginBottom, BOTTOM_MARGIN_MIN, BOTTOM_MARGIN_MAX, ax.needB);
   }
   if (_posterMargins) {
     // Poster renderer (window.__poster): the print frame sizes its own axis
@@ -328,7 +388,15 @@ function measure() {
   }
   cw = W - margin.left - margin.right;
   ch = H - margin.top - margin.bottom;
-  // Expose axis-column widths to CSS so .axis-l / .axis-r font-sizes scale.
+  // A column narrower than its layout needs shrinks its type to fit.
+  {
+    const ax = axisLayout();
+    const baseLeft = _isMobile ? 0 : _isSidebarOpen ? SIDEBAR_W : BASE_MARGIN_LEFT - 80;
+    const f = (have, need) => have > 0 ? Math.min(1, have / need) : 1; // 0: column hidden
+    _axLayout = { ...ax, fL: f(margin.left - baseLeft, ax.L.need), fR: f(margin.right, ax.R.need),
+      fT: f(margin.top, ax.needT), fB: f(margin.bottom, ax.needB) };
+  }
+  // Expose axis-column widths to CSS (axis handles, tour box placement).
   document.body.style.setProperty("--left-axis-w",  margin.left  + "px");
   document.body.style.setProperty("--right-axis-w", margin.right + "px");
   document.body.style.setProperty("--top-axis-h",    margin.top    + "px");
@@ -408,6 +476,26 @@ const iconBgGrad = defs.append("radialGradient").attr("id", "icon-bg-grad");
 iconBgGrad.append("stop").attr("offset", "0%").attr("stop-color", "#000").attr("stop-opacity", 0.8);
 iconBgGrad.append("stop").attr("offset", "50%").attr("stop-color", "#000").attr("stop-opacity", 0.5);
 iconBgGrad.append("stop").attr("offset", "100%").attr("stop-color", "#000").attr("stop-opacity", 0);
+
+// Cast shadows under the pictures (drawIconShadows): blur sized to each
+// ellipse (objectBoundingBox), so one filter looks the same at every zoom.
+// The far ellipse is blurred more: the shadow softens as it leaves the object.
+// Dust dots' shadows: one path, a fixed 0.8 px blur (dots don't scale)
+defs.append("filter").attr("id", "dust-shadow-blur")
+  .attr("x", "-5%").attr("y", "-5%").attr("width", "110%").attr("height", "110%")
+  .append("feGaussianBlur").attr("stdDeviation", 0.8);
+// Stars' light pools (starGlowGeom): blur sized to the flat ellipse, softer
+// across than along, so the pool fades into the floor.
+defs.append("filter").attr("id", "star-glow")
+  .attr("primitiveUnits", "objectBoundingBox")
+  .attr("x", "-60%").attr("y", "-150%").attr("width", "220%").attr("height", "400%")
+  .append("feGaussianBlur").attr("stdDeviation", "0.14 0.3");
+[["icon-shadow-near", 0.08], ["icon-shadow-far", 0.16]].forEach(([id, sd]) => {
+  defs.append("filter").attr("id", id)
+    .attr("primitiveUnits", "objectBoundingBox")
+    .attr("x", "-60%").attr("y", "-60%").attr("width", "220%").attr("height", "220%")
+    .append("feGaussianBlur").attr("stdDeviation", sd);
+});
 
 function makeLinGrad(id, x1, y1, x2, y2, stops) {
   const g = defs.append("linearGradient").attr("id", id)
@@ -529,9 +617,16 @@ const lDarkMatter = lContent.append("g");
 const lArrows     = lContent.append("g").style("mix-blend-mode", "screen");
 const lConnDots   = lContent.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
 const lRegLabel   = lContent.append("g");
+// Pictures' cast shadows: under the dust, dots, labels and pictures alike
+const lShadows    = lContent.append("g").style("pointer-events", "none").attr("class", "icon-shadows");
+const SHADOWS = !new URLSearchParams(location.search).has("noshadows");
+// Stars' light pools: off for now, ?glow to try them
+const STAR_GLOWS = SHADOWS && new URLSearchParams(location.search).has("glow");
+const DUST_SHADOWS = SHADOWS && !new URLSearchParams(location.search).has("nodustshadows");
 // Catalogue "dust": thousands of faint real objects under the curated ones
 // (src/dust.js). Never interactive except for a hover name.
 const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
+const DUST_LABELS_OFF = new URLSearchParams(location.search).has("narrate");
 const lDustHover  = lContent.append("g").style("pointer-events", "none");
 const lObj        = lContent.append("g");
 // Retained rendering split: extras (cluster/category/BH labels, ~20 nodes)
@@ -1395,69 +1490,9 @@ function drawWaterPhasePanel() {
 // Draw: Dark Matter Search Regions
 // =============================================================
 
-let _dmHovered = false;
-
 function drawDarkMatterRegions() {
   lDarkMatter.selectAll("*").remove();
-
-  const baseOpacity = currentK > 3 ? 0.2 : (currentK > 1.5 ? 0.1 : 0.06);
-  const opacity = _dmHovered ? 0.3 : baseOpacity;
-
-  DARK_MATTER_REGIONS.forEach(region => {
-    const pts = region.polygon.map(p => `${px(p.logR)},${py(p.logM)}`).join(" ");
-    lDarkMatter.append("polygon")
-      .attr("points", pts)
-      .attr("fill", "#ffffff")
-      .attr("opacity", opacity)
-      .attr("class", "dm-region")
-      .style("cursor", "pointer")
-      .on("mouseover", () => { _dmHovered = true; drawDarkMatterRegions(); })
-      .on("mouseout", () => { _dmHovered = false; drawDarkMatterRegions(); })
-      .on("click", (e) => {
-        e.stopPropagation();
-        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
-        setSidebarOpen(true);
-      });
-  });
-
-  // Label — positioned between the two windows, rotated along Schwarzschild line
-  // Only show labels at higher zoom; polygons are visible earlier
-  if (currentK < 2) return;
-  const schwAng = screenAngle(1);
-  const labelM = 19;
-  const labelR = schwarzschildR(labelM) + 1.5;
-  const lx = px(labelR), ly = py(labelM);
-  if (lx > -50 && lx < cw + 50 && ly > -50 && ly < ch + 50) {
-    const g = lDarkMatter.append("g").style("cursor", "pointer")
-      .on("click", (e) => {
-        e.stopPropagation();
-        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
-        setSidebarOpen(true);
-      })
-      .on("mouseover", () => { _dmHovered = true; drawDarkMatterRegions(); })
-      .on("mouseout", () => { _dmHovered = false; drawDarkMatterRegions(); });
-    // Background stroke for readability
-    g.append("text")
-      .attr("x", lx).attr("y", ly)
-      .attr("text-anchor", "middle")
-      .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", fscale(10)).attr("font-weight", 600)
-      .attr("fill", "none").attr("stroke", "rgba(6,6,26,0.6)")
-      .attr("stroke-width", 3).attr("stroke-linejoin", "round")
-      .attr("letter-spacing", "1px")
-      .attr("transform", `rotate(${schwAng},${lx},${ly})`)
-      .text("POSSIBLE AREAS FOR DARK MATTER");
-    // Foreground text
-    g.append("text")
-      .attr("x", lx).attr("y", ly)
-      .attr("text-anchor", "middle")
-      .attr("font-family", "Inter, sans-serif")
-      .attr("font-size", fscale(10)).attr("font-weight", 600)
-      .attr("fill", `rgba(255,255,255,${opacity + 0.2})`)
-      .attr("letter-spacing", "1px")
-      .attr("transform", `rotate(${schwAng},${lx},${ly})`)
-      .text("POSSIBLE AREAS FOR DARK MATTER");
-  }
+  drawPbhWindow();
 
   // WIMP label — near Compton line in particle region
   const wimpR = -16, wimpM = -22;
@@ -1497,6 +1532,62 @@ function drawDarkMatterRegions() {
         setSidebarOpen(true);
       });
   }
+}
+
+/** Primordial black holes: the stretch of the Schwarzschild line where they could
+ *  still be the dark matter (PBH_WINDOW), with an arrow at each end, outside the
+ *  line like the other black-hole labels, naming what rules out the masses beyond
+ *  it. Everything clicks through to the PBH article. */
+function drawPbhWindow() {
+  const [m0, m1] = PBH_WINDOW.logM;
+  const col = "#ff5c7c";
+  const open = (e) => { e.stopPropagation(); openInfoPanel(PBH_WINDOW.slug, PBH_WINDOW.title); setSidebarOpen(true); };
+  const ppd = Math.abs(px(1) - px(0));                 // screen px per decade
+  const ang = screenAngle(1);                          // the Schwarzschild line on screen
+  const along = [Math.cos(ang * Math.PI / 180), Math.sin(ang * Math.PI / 180)];   // up the line
+  const inward = [-along[1], along[0]];                // toward the triangle (where objects can be)
+  const outward = [-inward[0], -inward[1]];            // beyond the line
+  const at = (m) => [px(schwarzschildR(m)), py(m)];
+  const [ax, ay] = at(m0), [bx, by] = at(m1);
+  const w = Math.max(6, Math.min(18, ppd * 0.35));     // band width, px
+  const g = lDarkMatter.append("g").attr("class", "pbh-window").style("cursor", "pointer").on("click", open);
+  // the band, on the triangle's side of the line
+  g.append("polygon")
+    .attr("points", [[ax, ay], [bx, by], [bx + inward[0] * w, by + inward[1] * w], [ax + inward[0] * w, ay + inward[1] * w]].map(p => p.join(",")).join(" "))
+    .attr("fill", col).attr("opacity", 0.28);
+  g.append("line").attr("x1", ax).attr("y1", ay).attr("x2", bx).attr("y2", by)
+    .attr("stroke", col).attr("stroke-width", 2.5).attr("stroke-linecap", "round");
+  if (currentK < 2) return;
+  const font = (el, size, weight) => el.attr("font-family", "Inter, sans-serif")
+    .attr("font-size", fscale(size)).attr("font-weight", weight).attr("letter-spacing", "1px")
+    .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.7)").attr("stroke-width", 2.5)
+    .attr("stroke-linejoin", "round");
+  // the limits: an arrow pushing in from each end, named by what sets it
+  const len = Math.max(26, Math.min(70, ppd * 1.2));
+  const off = 12;                                      // beyond the line
+  [[ax, ay, 1, PBH_WINDOW.lower], [bx, by, -1, PBH_WINDOW.upper]].forEach(([x, y, dir, name]) => {
+    const hx = x + outward[0] * off, hy = y + outward[1] * off;
+    const tx = hx - along[0] * dir * len, ty = hy - along[1] * dir * len;
+    g.append("line").attr("x1", tx).attr("y1", ty).attr("x2", hx).attr("y2", hy)
+      .attr("stroke", col).attr("stroke-width", 1.6);
+    const ux = along[0] * dir, uy = along[1] * dir, hs = 7;
+    g.append("polygon").attr("fill", col).attr("points", [
+      [hx, hy], [hx - ux * hs + uy * hs * 0.55, hy - uy * hs - ux * hs * 0.55],
+      [hx - ux * hs - uy * hs * 0.55, hy - uy * hs + ux * hs * 0.55]].map(p => p.join(",")).join(" "));
+    // the name past the arrow's tail, beyond the line, reading away from it
+    const lx = tx + outward[0] * 6, ly = ty + outward[1] * 6;
+    const t = g.append("text").attr("x", lx).attr("y", ly).attr("text-anchor", "end")
+      .attr("dominant-baseline", "middle").attr("fill", col);
+    name.forEach((line, i) => t.append("tspan").attr("x", lx)
+      .attr("dy", i ? "1.2em" : `${-0.6 * (name.length - 1)}em`).text(line.toUpperCase()));
+    font(t, 8, 600);
+  });
+  // the category's name along the line, centred, outside it like the other black-hole labels
+  const [mx, my] = at((m0 + m1) / 2);
+  const lx = mx + outward[0] * 12, ly = my + outward[1] * 12;
+  const t = g.append("text").attr("x", lx).attr("y", ly).attr("text-anchor", "middle")
+    .attr("fill", col).attr("transform", `rotate(${ang},${lx},${ly})`).text(PBH_WINDOW.label.toUpperCase());
+  font(t, 9, 700);
 }
 
 // =============================================================
@@ -1961,6 +2052,9 @@ function catDisplayLabel(catKey) {
 }
 
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
+const ICON_ROOM = 1.3;       // icons keep 30% of their radii clear between them
+let _iconShownPrev = new Set();
+const _objectVisibility = new VisibilityMemory();
 const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
 let _lastProjected = [];
@@ -2278,7 +2372,11 @@ function drawObjects() {
   lObjExtras.selectAll("*").remove();
   const d = vd();
   const icoSize = effectiveIconSize();
-  const pad = 5;
+  _objectVisibility.update([px(1)-px(0), py(1)-py(0)], JSON.stringify([
+    cw, ch, _iconSize, _fontScale, _iconsEnabled, _labelsEnabled,
+    _dustEnabled, dustReady(), _isMobile, _posterLabels, _atomIconsHidden,
+    _bigBangMode && [_bigBangObjectOverrides, _bigBangObjectOpacity],
+  ]));
 
   // Project all objects to screen, sorted by priority (low z = important)
   const projected = OBJECTS
@@ -2308,8 +2406,6 @@ function drawObjects() {
     })
     .filter(o =>
       o &&
-      o.sx >= -pad && o.sx <= cw + pad &&
-      o.sy >= -pad && o.sy <= ch + pad &&
       (!o.minK || currentK >= o.minK)
     )
     .sort((a, b) => {
@@ -2328,20 +2424,35 @@ function drawObjects() {
     if (o._showDot) visibleDots.push(o);
   });
 
-  // --- Icon overlap: when icons touch, only the highest-priority keeps its icon ---
-  const icoOverlap = icoSize * 1.0; // icons overlap when closer than 70% of icon size
-  const icoOverlap2 = icoOverlap * icoOverlap;
+  // --- Icon crowding, map-style: icons need room, measured by their real
+  // drawn sizes (iconSizeMult grows them with the object), so a crowded
+  // stretch (moons, dwarf planets) shows only its top-priority pictures and
+  // the rest appear as you zoom in. Priority: z, then last frame's icons. ---
   const shownIcons = [];
-  projected.forEach(o => {
-    const hasIcon = mapIconShown(o);
-    if (!hasIcon || !o._showDot) { o._showIcon = false; return; }
+  const icoR = (o) => icoSize * iconSizeMult(o) / 2;
+  const iconOrder = projected.filter(o => mapIconShown(o) && o._showDot)
+    .sort((a, b) => a.z - b.z || (_iconShownPrev.has(b.slug) - _iconShownPrev.has(a.slug)));
+  projected.forEach(o => { o._showIcon = false; });
+  iconOrder.forEach(o => {
+    const r = icoR(o);
     const tooClose = shownIcons.some(s => {
-      const dx = s.sx - o.sx, dy = s.sy - o.sy;
-      return dx * dx + dy * dy < icoOverlap2;
+      const need = (r + s._icoR) * ICON_ROOM;
+      return (s.sx - o.sx) ** 2 + (s.sy - o.sy) ** 2 < need * need;
     });
-    o._showIcon = !tooClose;
-    if (o._showIcon) shownIcons.push(o);
+    if (tooClose) return;
+    o._showIcon = true; o._icoR = r;
+    shownIcons.push(o);
   });
+  // Decide against the whole curated collection, not the viewport contents.
+  // A neighbour crossing an edge cannot promote/demote a stationary object.
+  for (const o of projected) {
+    const saved = _objectVisibility.decisions.get(o.slug);
+    if (saved) {
+      o._showDot = saved.dot; o._showIcon = saved.icon;
+      if (o._showIcon) o._icoR = icoR(o);
+    } else _objectVisibility.decisions.set(o.slug, { dot:o._showDot, icon:o._showIcon });
+  }
+  _iconShownPrev = new Set(projected.filter(o=>o._showIcon).map(o=>o.slug));
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
   const th2 = _posterLabels ? -1 : CLUSTER_THRESHOLD * CLUSTER_THRESHOLD; // poster: no clusters
@@ -2660,7 +2771,6 @@ function drawObjects() {
 
   // --- Render BH subcategory labels along the Schwarzschild line ---
   const BH_SUBCAT_POSITIONS = [
-    { label: "Primordial Black Holes", logM: 25.0, slug: "primordial-black-hole" },
     { label: "Stellar Black Holes", logM: 35.5 },
     { label: "Supermassive Black Holes", logM: 41.5 },
   ];
@@ -2706,13 +2816,11 @@ function drawObjects() {
     const bhScreenPts = BH_SUBCAT_POSITIONS.map(bh => ({
       x: px(schwarzschildR(bh.logM)), y: py(bh.logM), label: bh.label, logM: bh.logM,
     }));
-    const dist01 = Math.hypot(bhScreenPts[1].x - bhScreenPts[0].x, bhScreenPts[1].y - bhScreenPts[0].y);
-    const dist12 = Math.hypot(bhScreenPts[2].x - bhScreenPts[1].x, bhScreenPts[2].y - bhScreenPts[1].y);
-    const minDist = Math.min(dist01, dist12);
+    const minDist = d3.min(bhScreenPts.slice(1), (p, i) => Math.hypot(p.x - bhScreenPts[i].x, p.y - bhScreenPts[i].y));
 
     if (minDist < 200) {
       // Labels would overlap — show single consolidated "BLACK HOLES"
-      const midM = (BH_SUBCAT_POSITIONS[0].logM + BH_SUBCAT_POSITIONS[2].logM) / 2;
+      const midM = (BH_SUBCAT_POSITIONS[0].logM + BH_SUBCAT_POSITIONS.at(-1).logM) / 2;
       renderBHLabel("BLACK HOLES", midM);
     } else {
       BH_SUBCAT_POSITIONS.forEach(bh => renderBHLabel(bh.label.toUpperCase(), bh.logM, bh.slug));
@@ -2720,7 +2828,10 @@ function drawObjects() {
   }
 
   // --- Render object dots, icons, and labels via keyed joins ---
-  const shownDots = projected.filter(o => o._showDot);
+  // Cull only after making visibility/layout decisions. Keep a generous
+  // margin so wide icons and labels slide through the edge rather than pop.
+  const shownDots = projected.filter(o => o._showDot &&
+    o.sx >= -256 && o.sx <= cw + 256 && o.sy >= -256 && o.sy <= ch + 256);
   const iconObjs = shownDots.filter(o => o._showIcon);
 
   // (1) Object groups: hit area + glow/dot, keyed by slug. Structure is
@@ -2772,7 +2883,6 @@ function drawObjects() {
         const imgEl = gg.append("image")
           .attr("class", "obj-icon")
           .attr("data-slug", o.slug)
-          .attr("href", ICON_BY_SLUG[o.slug])
           .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
           .node();
         imgEl.addEventListener("load", () => {
@@ -2794,6 +2904,7 @@ function drawObjects() {
         .attr("display", _loadedIconUrls.has(ICON_BY_SLUG[o.slug]) ? "none" : null)
         .attr("opacity", bbOp == null ? 0.85 : 0.85 * bbOp);
       gg.select(".obj-icon")
+        .attr("href", iconUrlForSize(o.slug, objIcoSize))
         .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2)
         .attr("width", objIcoSize).attr("height", objIcoSize)
         .attr("opacity", bbOp);
@@ -2829,13 +2940,26 @@ function drawObjects() {
     })
     .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
 
-  _lastProjected = shownDots;
+  _lastProjected = shownDots.filter(o => o.sx >= 0 && o.sx <= cw && o.sy >= 0 && o.sy <= ch);
 
   // Dust fills whatever room the curated objects leave — it never sits on
   // a curated dot, icon or visible label.
   drawDust(lDust, {
     px, py, cw, ch, mobile: _isMobile,
+    visibilityEpoch: _objectVisibility.epoch,
     hidden: !_dustEnabled || _bigBangMode,
+    // a few dust names, map-style; not in the narrated videos or the poster
+    labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fontScale: _fontScale,
+    labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
+    // a famous named dot with a picture (content/icons/<its slug>.webp) can
+    // show it when there's room — not one a curated object already shows
+    iconOf: _iconsEnabled && !_posterLabels ? (name, size) => {
+      const slug = nameToSlug(name);
+      return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug, size) || null;
+    } : null,
+    // as iconSizeMult, per-object multipliers included
+    iconSizeAt: (logR, name) => icoSize * Math.pow(1.1, (logR + 3.5) / 6) * (ICON_SIZE_MULT[nameToSlug(name)] || 1) * (_iconSize / 100),
+    iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
   }, {
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
@@ -2849,6 +2973,157 @@ function drawObjects() {
     }),
   }, dustColor);
   lDustHover.selectAll("*").remove();
+  drawIconShadows([
+    // stars make light: a pool of their colour on the floor instead of a shadow
+    ...(STAR_GLOWS ? shownDots.filter(o => o._showIcon && (o.catKey || o.cat) === "star") : [])
+      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, glow: starTint(ICON_BY_SLUG[o.slug], o.color), glowUrl: ICON_BY_SLUG[o.slug] })),
+    ...(STAR_GLOWS ? dustIcons().filter(d => d.cat === "star") : [])
+      .map(d => ({ key: `dust:${d.i}`, ...d, glow: starTint(ICON_BY_SLUG[nameToSlug(d.name)], "#ffd27a"), glowUrl: ICON_BY_SLUG[nameToSlug(d.name)] })),
+    ...shownDots.filter(o => o._showIcon && !iconUsesScreenBlend(o))
+      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.registered || SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
+    ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
+  ]);
+  drawDustShadows();
+}
+
+/** Every dust dot casts a tiny soft shadow down-right (same light as the
+ *  pictures'), all in one blurred path under everything. */
+function drawDustShadows() {
+  const dots = DUST_SHADOWS && !_bigBangMode && _dustEnabled ? dustDots() : [];
+  const R = 1.4, DX = 3, DY = 4;
+  let d = "";
+  for (const q of dots) {
+    const x = q.sx + DX - R, y = q.sy + DY;
+    d += `M${x.toFixed(1)},${y.toFixed(1)}a${R},${R} 0 1,0 ${2 * R},0a${R},${R} 0 1,0 ${-2 * R},0`;
+  }
+  let p = lShadows.select("path.dust-shadows");
+  if (p.empty()) p = lShadows.insert("path", ":first-child").attr("class", "dust-shadows")
+    .attr("fill", "#000").attr("opacity", 0.4).attr("filter", "url(#dust-shadow-blur)");
+  p.attr("d", d || null);
+}
+
+/** Cast shadows fall on a poster behind the floating objects. Hover moves
+ *  the object toward the viewer: its shadow moves farther, grows and fades.
+ *  Image textures gain blur; fallback ellipse blur scales with their bounds. */
+const SHADOW_PARTS = [
+  // [class, filter, centre along the diagonal (× r) + px, half-length, half-width (× r), opacity]
+  ["sh-near", "icon-shadow-near", 1.1, 10, 1.05, 0.9, 0.28],
+  ["sh-far", "icon-shadow-far", 1.6, 16, 1.35, 1.05, 0.18],
+];
+let _shadowLift = null; // { key, k }: the hovered picture and how much it grew
+function shadowGeom(d, [, , c, px, a, b, op]) {
+  const k = _shadowLift?.key === d.key ? _shadowLift.k : 1;
+  const state = wallShadowState(d.r, k);
+  const r = state.radius;
+  const off = (c * d.r + px) * 0.85 + state.travel;
+  const cx = d.sx + off * Math.SQRT1_2, cy = d.sy + off * Math.SQRT1_2 + 0.3 * d.r;
+  return { cx, cy, rx: a * r, ry: b * r, transform: `rotate(45 ${cx} ${cy})`, opacity: op * state.opacity };
+}
+function shadowImgGeom(d) {
+  return wallShadowImageGeometry(d, _shadowLift?.key === d.key ? _shadowLift.k : 1);
+}
+function applyShadowImg(sel, g) {
+  sel.attr("x", g.x).attr("y", g.y).attr("width", g.width).attr("height", g.height).attr("opacity", g.opacity).style("filter", g.blur ? `blur(${g.blur}px)` : "none");
+}
+function applyShadowGeom(sel, g) {
+  sel.attr("cx", g.cx).attr("cy", g.cy).attr("rx", g.rx).attr("ry", g.ry)
+    .attr("transform", g.transform).attr("opacity", g.opacity);
+}
+/** A star's light pool: a flat ellipse of its colour on the floor under it —
+ *  a light source lights the ground beneath it rather than casting a shadow
+ *  away from the light. The pool is anchored: it sits low enough that even the
+ *  star grown on hover (setIconHover: to ≥ 64 px or 1.5×) never covers it, and
+ *  on hover it only spreads about its own centre and fades a little. Kept
+ *  faint: screen-blended at ~0.3, a hint of light, not a second object. */
+const STAR_GLOW = { width: 1.0, height: 0.24, spread: 1.3, gap: 0.08, opacity: 0.3 };
+function starGlowGeom(d) {
+  const lifted = _shadowLift?.key === d.key;
+  const kHover = Math.max(64, 4 * d.r * 0.75) / (2 * d.r);   // as setIconHover: max(64, size × 1.5) / size
+  const k = lifted ? kHover : 1, grow = lifted ? STAR_GLOW.spread : 1;
+  // the hovered pool's top edge clears the hovered star's bottom (icons fill 122/128 → 0.95 r)
+  const ryHover = STAR_GLOW.height * d.r * kHover * STAR_GLOW.spread;
+  const cy = d.sy + d.r * (0.95 * kHover + STAR_GLOW.gap) + ryHover;
+  return { cx: d.sx, cy, rx: STAR_GLOW.width * d.r * k * grow, ry: STAR_GLOW.height * d.r * k * grow,
+    transform: null, opacity: STAR_GLOW.opacity * (lifted ? 0.7 : 1) };
+}
+/** The colour of a star's light: the mean of its icon's bright pixels, sampled
+ *  once per icon (fallback until it has loaded). */
+const _starTints = new Map();
+function starTint(url, fallback) {
+  if (!url) return fallback;
+  const known = _starTints.get(url);
+  if (known) return known === "pending" ? fallback : known;
+  _starTints.set(url, "pending");
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement("canvas"); c.width = c.height = 24;
+    const cx = c.getContext("2d", { willReadFrequently: true });
+    cx.drawImage(img, 0, 0, 24, 24);
+    const px = cx.getImageData(0, 0, 24, 24).data;
+    let r = 0, g = 0, b = 0, n = 0;
+    for (let i = 0; i < px.length; i += 4) {
+      const w = px[i + 3] / 255 * Math.max(px[i], px[i + 1], px[i + 2]) / 255;  // bright, opaque pixels count most
+      r += px[i] * w; g += px[i + 1] * w; b += px[i + 2] * w; n += w;
+    }
+    if (!n) return;
+    // light carries the hue at full brightness; the pool's opacity keeps it faint
+    const m = Math.max(r, g, b) / n || 1, f = 255 / m;
+    _starTints.set(url, `rgb(${Math.round(r / n * f)},${Math.round(g / n * f)},${Math.round(b / n * f)})`);
+    lShadows.selectAll("g.icon-shadow").filter(d => d.glow).each(function(d) {
+      if (d.glowUrl === url) d3.select(this).select("ellipse.sh-glow").attr("fill", _starTints.get(url));
+    });
+  };
+  img.src = url;
+  return fallback;
+}
+function drawIconShadows(shapes) {
+  if (!SHADOWS || _bigBangMode) shapes = [];
+  lShadows.selectAll("g.icon-shadow")
+    .data(shapes, d => d.key)
+    .join(enter => {
+      const g = enter.append("g").attr("class", "icon-shadow");
+      SHADOW_PARTS.forEach(([cls, filter]) => g.append("ellipse").attr("class", cls)
+        .attr("fill", "#000").attr("filter", `url(#${filter})`));
+      g.append("image").attr("class", "sh-img").attr("preserveAspectRatio", "none");
+      g.append("ellipse").attr("class", "sh-glow").attr("filter", "url(#star-glow)")
+        .style("mix-blend-mode", "screen");
+      return g;
+    })
+    .each(function(d) {
+      const g = d3.select(this);
+      const glow = g.select("ellipse.sh-glow").attr("display", d.glow ? null : "none");
+      if (d.glow) {
+        g.selectAll("ellipse:not(.sh-glow)").attr("display", "none");
+        g.select("image.sh-img").attr("display", "none");
+        applyShadowGeom(glow.interrupt().attr("fill", d.glow), starGlowGeom(d));
+        return;
+      }
+      g.selectAll("ellipse:not(.sh-glow)").attr("display", d.img ? "none" : null);
+      const img = g.select("image.sh-img").attr("display", d.img ? null : "none");
+      if (d.img) {
+        if (img.attr("href") !== d.img) img.attr("href", d.img);
+        applyShadowImg(img.interrupt(), shadowImgGeom(d));
+        return;
+      }
+      SHADOW_PARTS.forEach(part => applyShadowGeom(g.select(`ellipse.${part[0]}`).interrupt(), shadowGeom(d, part)));
+    });
+}
+/** Ease one picture's shadow to its lifted (hover) or resting place. */
+function liftShadow(key, k) {
+  _shadowLift = k > 1 ? { key, k } : null;
+  lShadows.selectAll("g.icon-shadow").filter(d => d.key === key).each(function(d) {
+    const g = d3.select(this);
+    if (d.glow) {
+      applyShadowGeom(g.select("ellipse.sh-glow").interrupt().transition().duration(150), starGlowGeom(d));
+      return;
+    }
+    if (d.img) {
+      applyShadowImg(g.select("image.sh-img").interrupt().transition().duration(150), shadowImgGeom(d));
+      return;
+    }
+    SHADOW_PARTS.forEach(part => applyShadowGeom(
+      g.select(`ellipse.${part[0]}`).interrupt().transition().duration(150), shadowGeom(d, part)));
+  });
 }
 
 // Screen-blend decision is static per object — shared by enter and update.
@@ -2872,6 +3147,7 @@ function setIconHover(o, on) {
   // owned by the renderer (see .obj-icon in style.css for why).
   const k = on ? Math.max(64, base * 1.5) / base : 1;
   iconEl.style("transform", k === 1 ? null : `scale(${k})`);
+  liftShadow(o.slug, k);
   return true;
 }
 
@@ -2945,8 +3221,8 @@ function showTooltip(event, obj, cat) {
   const photon = isPhoton(obj);
   // Photons are plotted at half a wavelength so the width ruler reads λ;
   // the offset restores the true wavelength for display.
-  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
-  const rLabel = photon ? "wavelength" : "width";
+  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius((obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET);
+  const rLabel = photon ? "wavelength" : obj.logRSpan != null ? "longest side" : "width";
   const mLabel = photon ? "energy" : "mass";
   const mVal = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
   const ttColor = obj.color || cat.color;
@@ -2980,7 +3256,24 @@ svg.on("mousemove.tooltip", (e) => {
 // Curated objects sit above in the HTML click-target overlay, so they
 // always win; dust only answers when nothing else has the tooltip.
 let _dustTip = false;
+let _dustIconHover = null;   // index of the dust picture grown under the pointer
+/** Same growth as setIconHover (curated icons): to ≥ 64 px or 1.5×, shadow lifted. */
+function setDustIconHover(icon) {
+  const i = icon ? icon.i : null;
+  if (i === _dustIconHover) return;
+  if (_dustIconHover != null) {
+    setDustIconScale(lDust, _dustIconHover, 1);
+    liftShadow(`dust:${_dustIconHover}`, 1);
+  }
+  _dustIconHover = i;
+  if (icon) {
+    const base = 2 * icon.r, k = Math.max(64, base * 1.5) / base;
+    setDustIconScale(lDust, i, k);
+    liftShadow(`dust:${i}`, k);
+  }
+}
 function hideDustTip() {
+  setDustIconHover(null);
   if (!_dustTip) return;
   _dustTip = false;
   lDustHover.selectAll("*").remove();
@@ -2991,12 +3284,15 @@ svg.on("mousemove.dust", (e) => {
   if (_zooming || _touchMode || !_dustEnabled) return hideDustTip();
   if (!_dustTip && tooltipEl.classList.contains("visible")) return; // someone else's tooltip
   const [mx, my] = d3.pointer(e, chart.node());
-  const hit = pickDust(mx, my, 6);
-  if (!hit) return hideDustTip();
+  // a dust picture answers anywhere over it, like a curated icon
+  const icon = pickDustIcon(mx, my);
+  const hit = icon ? { ...pickDust(icon.sx, icon.sy, 1), name: icon.name } : pickDust(mx, my, 6);
+  if (!hit || !hit.source) return hideDustTip();
+  setDustIconHover(icon);
   const color = CATEGORIES[hit.cat]?.color || "#fff";
   lDustHover.selectAll("*").remove();
   if (COMPOSITION[hit.name]) showComposition(hit);
-  lDustHover.append("circle")
+  if (!icon) lDustHover.append("circle")
     .attr("cx", hit.sx).attr("cy", hit.sy).attr("r", 3.2)
     .attr("fill", color).attr("stroke", "rgba(6,6,26,0.9)").attr("stroke-width", 1);
   tooltipEl.innerHTML = `<div class="tt-name" style="color:${color}">${escapeHtml(hit.name)}</div>` +
@@ -3653,11 +3949,11 @@ function openSidebar(obj) {
   const isParticle = c === "particle" || c === "composite" || c === "atomic";
   const isCosmicStructure = c === "galaxy" || c === "largescale";
 
-  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius(obj.logR + WIDTH_LOG_OFFSET);
+  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius((obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET);
   const m = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
   const rho = friendlyDensity(obj.logR, obj.logM, obj.logDensity);
 
-  const logR_m = obj.logR + WIDTH_LOG_OFFSET - 2;
+  const logR_m = (obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET - 2;
   const logM_kg = obj.logM - 3;
   const logNote = `(10<sup>${logR_m >= 0 ? logR_m.toFixed(1) : logR_m.toFixed(1)}</sup> m · 10<sup>${logM_kg >= 0 ? logM_kg.toFixed(1) : logM_kg.toFixed(1)}</sup> kg)`;
 
@@ -3685,12 +3981,12 @@ function openSidebar(obj) {
       <tr><td colspan="2" class="sb-log-note">(10<sup>${(obj.logR + WIDTH_LOG_OFFSET).toFixed(1)}</sup> cm · 10<sup>${(obj.logM + 32.75).toFixed(1)}</sup> eV)</td></tr>
       <tr><td colspan="2" class="sb-footnote">* Massless — vertical axis shows mass-equivalent energy E = hc/λ</td></tr>`;
   } else if (isEveryday) {
-    const sizeLabel = obj.logR < -1 ? "Size" : "Width";
+    const sizeLabel = obj.logRSpan != null ? "Longest side" : obj.logR < -1 ? "Size" : "Width";
     const massLabel = "Weight";
     rows = `
       <tr><td>${sizeLabel}</td><td>${r}</td></tr>
       <tr><td>${massLabel}</td><td>${m}</td></tr>
-      <tr><td>Density</td><td>${rho}</td></tr>
+      <tr><td>${obj.logRSpan != null ? "Bulk density" : "Density"}</td><td>${rho}</td></tr>
       <tr><td colspan="2" class="sb-log-note">${logNote}</td></tr>`;
   } else if (isParticle) {
     rows = `
@@ -3850,6 +4146,20 @@ function drawHighlight() {
 function drawAxes() {
   [axB, axT, axL, axR].forEach(g => g.selectAll("*").remove());
   const d = vd();
+  // Column layout + type (see axisLayout). Sizes go in as inline styles: a
+  // font-size attribute loses to any CSS rule.
+  const A = _axLayout;
+  const lS = A.fL, rS = A.fR;            // left / right column fit
+  const tS = A.sT * A.fT, bS = A.sB * A.fB; // top / bottom geometry scale
+  const fs = (px) => `${px.toFixed(2)}px`;
+  // Reference labels claim the vertical band their lines really cover; a
+  // label that would touch an already-placed one is skipped.
+  const bandsFree = (bands, p, lines, f) => {
+    const top = p - 0.75 * f - 2, bot = p + (lines - 1) * 1.1 * f + 0.3 * f + 2;
+    if (bands.some(([t, b]) => top < b && t < bot)) return false;
+    bands.push([top, bot]);
+    return true;
+  };
   const ppu = cw / (d.x1 - d.x0);
   const LOG_EV_OFFSET = 32.75;
 
@@ -3867,7 +4177,6 @@ function drawAxes() {
   else if (axisStep === 1 && 0.301 * ppu >= 22) minorStep = 0;
 
   const first = (lo, s) => Math.ceil(lo / s) * s;
-  const minUnitPx = 12;
 
   // Grid-unit mode: where decade lines are anchored, and how numbers read.
   const cfg = gridCfg();
@@ -3879,7 +4188,7 @@ function drawAxes() {
   const diagDx = 1;
   const diagDy = 3;
   const diagNorm = Math.sqrt(diagDx * diagDx + diagDy * diagDy);
-  const diagLen = 15;
+  const diagLen = 15 * tS;
 
   let lastDensityLabelP = Infinity;
   for (let logRho = -54; logRho <= 108; logRho += 9) {
@@ -3890,7 +4199,7 @@ function drawAxes() {
     if (p < 0 || p > cw) continue;
     // Zoomed out, consecutive 9-decade steps land a few px apart and the
     // rotated numbers pile into an unreadable bundle — enforce min spacing.
-    if (Math.abs(lastDensityLabelP - p) < 34) continue;
+    if (Math.abs(lastDensityLabelP - p) < 34 * tS) continue;
     lastDensityLabelP = p;
 
     const ex = p + (diagDx / diagNorm) * diagLen;
@@ -3903,32 +4212,32 @@ function drawAxes() {
       .attr("stroke-width", 0.5);
 
     const gL = logRho + 3;
-    const tx = ex + (diagDx / diagNorm) * 3;
-    const ty = ey - (diagDy / diagNorm) * 3;
+    const tx = ex + (diagDx / diagNorm) * 3 * tS;
+    const ty = ey - (diagDy / diagNorm) * 3 * tS;
     axT.append("text")
       .attr("class", "axis-label")
       .attr("x", tx).attr("y", ty)
       .attr("text-anchor", "start")
       .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
-      .attr("font-size", fscale(10)).attr("font-weight", 700)
+      .style("font-size", fs(10 * tS)).attr("font-weight", 700)
       .attr("fill", "rgba(255,255,255,0.55)")
       .attr("transform", `rotate(${densityAngle},${tx},${ty})`)
       .text(gL);
   }
 
-  axT.append("text").attr("x", cw - 5).attr("y", -38).attr("text-anchor", "end")
-    .attr("class", "axis-title").text("DENSITY");
+  axT.append("text").attr("x", cw - 5).attr("y", -38 * tS).attr("text-anchor", "end")
+    .attr("class", "axis-title").style("font-size", fs(A.title * A.fT)).text("DENSITY");
   // On mobile the pill stack occupies the top-left corner — shift TIME clear.
   // The top subtitles collide with the rotated density numbers on a narrow
   // screen, so they're desktop-only.
   const timeTitleX = _isMobile ? 62 : 5;
-  axT.append("text").attr("x", timeTitleX).attr("y", -38).attr("text-anchor", "start")
-    .attr("class", "axis-title").attr("letter-spacing", "3px").text("TIME");
+  axT.append("text").attr("x", timeTitleX).attr("y", -38 * tS).attr("text-anchor", "start")
+    .attr("class", "axis-title").style("font-size", fs(A.title * A.fT)).attr("letter-spacing", "3px").text("TIME");
   if (!_isMobile) {
-    axT.append("text").attr("x", cw - 5).attr("y", -26).attr("text-anchor", "end")
-      .attr("class", "axis-subtitle").text("10ⁿ g/L");
-    axT.append("text").attr("x", timeTitleX).attr("y", -26).attr("text-anchor", "start")
-      .attr("class", "axis-subtitle").text("10ⁿ s since Big Bang");
+    axT.append("text").attr("x", cw - 5).attr("y", -26 * tS).attr("text-anchor", "end")
+      .attr("class", "axis-subtitle").style("font-size", fs(A.sub * A.fT)).text("10ⁿ g/L");
+    axT.append("text").attr("x", timeTitleX).attr("y", -26 * tS).attr("text-anchor", "start")
+      .attr("class", "axis-subtitle").style("font-size", fs(A.sub * A.fT)).text("10ⁿ s since Big Bang");
   }
 
   // ─── BOTTOM: Big log numbers + two rows of width units ────
@@ -3958,8 +4267,8 @@ function drawAxes() {
         if (p < -1 || p > cw + 1) continue;
         axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 3)
           .attr("stroke", "rgba(255,255,255,0.10)");
-        axB.append("text").attr("x", p).attr("y", 14).attr("text-anchor", "middle")
-          .attr("class", "axis-label axis-minor").attr("font-size", fscale(9)).attr("font-weight", 400)
+        axB.append("text").attr("x", p).attr("y", 14 * bS).attr("text-anchor", "middle")
+          .attr("class", "axis-label axis-minor").style("font-size", fs(9 * bS)).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
@@ -3971,8 +4280,8 @@ function drawAxes() {
     if (p < -1 || p > cw + 1) continue;
     axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 5)
       .attr("stroke", "rgba(255,255,255,0.25)");
-    axB.append("text").attr("x", p).attr("y", 16).attr("text-anchor", "middle")
-      .attr("class", "axis-label").attr("font-size", fscale(13)).attr("font-weight", 700)
+    axB.append("text").attr("x", p).attr("y", 16 * bS).attr("text-anchor", "middle")
+      .attr("class", "axis-label").style("font-size", fs(13 * bS)).attr("font-weight", 700)
       .text(cfg.xNum(v));
   }
 
@@ -3981,12 +4290,12 @@ function drawAxes() {
     if (u.logR < d.x0 || u.logR > d.x1) return;
     const p = px(u.logR);
     if (p < -1 || p > cw + 1) return;
-    axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 28)
+    axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 26 * bS)
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
-    if (Math.abs(p - lastRow1Px) >= 40 && u.slug) {
+    if (Math.abs(p - lastRow1Px) >= 40 * bS * 1.25 && u.slug) {
       axB.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-        .attr("x", p).attr("y", 37).attr("text-anchor", "middle")
-        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(8))
+        .attr("x", p).attr("y", 37 * bS).attr("text-anchor", "middle")
+        .attr("font-family", AXIS_FONT).style("font-size", fs(10 * bS))
         .attr("fill", "rgba(255,130,130,0.6)")
         .text(u.label);
       lastRow1Px = p;
@@ -3998,27 +4307,28 @@ function drawAxes() {
     if (u.logR < d.x0 || u.logR > d.x1) return;
     const p = px(u.logR);
     if (p < -1 || p > cw + 1) return;
-    axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 48)
+    axB.append("line").attr("x1", p).attr("y1", 0).attr("x2", p).attr("y2", 46 * bS)
       .attr("stroke", "rgba(255,100,100,0.25)").attr("stroke-dasharray", "2 2");
     // On the compact mobile ruler the rotated row-2 labels run straight
     // through the centered WIDTH title — keep a clear zone around it.
     if (_isMobile && Math.abs(p - cw / 2) < 80) return;
-    if (Math.abs(p - lastRow2Px) >= 35 && u.slug) {
+    if (Math.abs(p - lastRow2Px) >= 35 * bS * 1.25 && u.slug) {
+      const y2 = 50 * bS;
       axB.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-        .attr("x", p + 2).attr("y", 50)
+        .attr("x", p + 2).attr("y", y2)
         .attr("text-anchor", "start")
-        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(7.5))
+        .attr("font-family", AXIS_FONT).style("font-size", fs(9.5 * bS))
         .attr("fill", "rgba(255,130,130,0.45)")
-        .attr("transform", `rotate(45,${p + 2},50)`)
+        .attr("transform", `rotate(45,${p + 2},${y2})`)
         .text(u.label);
       lastRow2Px = p;
     }
   });
 
-  axB.append("text").attr("x", cw / 2).attr("y", 65).attr("text-anchor", "middle")
-    .attr("class", "axis-title").text("WIDTH");
-  axB.append("text").attr("x", cw / 2).attr("y", 78).attr("text-anchor", "middle")
-    .attr("class", "axis-subtitle").text(cfg.bottomSub);
+  axB.append("text").attr("x", cw / 2).attr("y", 65 * bS).attr("text-anchor", "middle")
+    .attr("class", "axis-title").style("font-size", fs(A.title * A.fB)).text("WIDTH");
+  axB.append("text").attr("x", cw / 2).attr("y", 78 * bS).attr("text-anchor", "middle")
+    .attr("class", "axis-subtitle").style("font-size", fs(A.sub * A.fB)).text(cfg.bottomSub);
 
   // ─── LEFT: Energy / Temperature (capped at Planck energy) ─
   const leftMax = PLANCK_LOG_M;
@@ -4048,8 +4358,8 @@ function drawAxes() {
         if (p < -1 || p > ch + 1) continue;
         axL.append("line").attr("x1", -3).attr("y1", p).attr("x2", 0).attr("y2", p)
           .attr("stroke", "rgba(255,255,255,0.10)");
-        axL.append("text").attr("x", -10).attr("y", p + 3.5).attr("text-anchor", "middle")
-          .attr("class", "axis-label axis-minor").attr("font-size", fscale(9)).attr("font-weight", 400)
+        axL.append("text").attr("x", -A.numX * lS).attr("y", p + 0.35 * A.minor * lS).attr("text-anchor", "end")
+          .attr("class", "axis-label axis-minor").style("font-size", fs(A.minor * lS)).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
@@ -4061,53 +4371,50 @@ function drawAxes() {
     if (p < -1 || p > ch + 1) continue;
     axL.append("line").attr("x1", -5).attr("y1", p).attr("x2", 0).attr("y2", p)
       .attr("stroke", "rgba(255,255,255,0.25)");
-    axL.append("text").attr("x", -25).attr("y", p + 4.5).attr("text-anchor", "middle")
-      .attr("class", "axis-label").attr("font-size", fscale(11)).attr("font-weight", 700)
+    axL.append("text").attr("x", -A.numX * lS).attr("y", p + 0.35 * A.num * lS).attr("text-anchor", "end")
+      .attr("class", "axis-label").style("font-size", fs(A.num * lS)).attr("font-weight", 700)
       .text(cfg.energyNum(v));
   }
 
-  const leftCompact = _isSidebarOpen;
-  // Unit labels sit OUTBOARD of the exponent-number column (which is at x=-25)
-  // so the two don't overlap. Energy/temperature names get their own column.
-  const unitX = leftCompact ? -34 : -42;
-  const titleY = leftCompact ? -45 : -40;
+  // Unit labels sit OUTBOARD of the exponent-number column, in their own
+  // column sized by axisLayout; the rotated titles sit outboard of both.
+  const unitX = -A.refX * lS;
+  const refPx = A.ref * lS;
 
   // The outboard unit-link column and rotated titles need a wide margin —
   // the compact mobile ruler shows exponent numbers only.
-  let lastEnergyPy = -Infinity;
+  const bandsL = [];
   if (!_isMobile) ENERGY_UNITS.forEach(u => {
     if (u.logM < d.y0 || u.logM > Math.min(d.y1, leftMax)) return;
     const p = py(u.logM);
     if (p < 2 || p > ch - 2) return;
     axL.append("line").attr("x1", -3).attr("y1", p).attr("x2", 0).attr("y2", p)
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
-    if (Math.abs(p - lastEnergyPy) >= minUnitPx && u.slug) {
+    if (u.slug && bandsFree(bandsL, p, u.label.split("\n").length, refPx)) {
       const lines = u.label.split("\n");
       if (lines.length > 1) {
         const txt = axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-          .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
-          .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(leftCompact ? 8.5 : 9.5))
+          .attr("x", unitX).attr("y", p + 0.35 * refPx).attr("text-anchor", "end")
+          .attr("font-family", AXIS_FONT).style("font-size", fs(refPx))
           .attr("fill", "rgba(255,150,150,0.92)");
         lines.forEach((line, li) => {
           txt.append("tspan").attr("x", unitX).attr("dy", li === 0 ? 0 : "1.1em").text(line);
         });
       } else {
         axL.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-          .attr("x", unitX).attr("y", p + 3).attr("text-anchor", "end")
-          .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(leftCompact ? 8.5 : 9.5))
+          .attr("x", unitX).attr("y", p + 0.35 * refPx).attr("text-anchor", "end")
+          .attr("font-family", AXIS_FONT).style("font-size", fs(refPx))
           .attr("fill", "rgba(255,150,150,0.92)")
           .text(u.label);
       }
-      lastEnergyPy = p;
     }
   });
 
-  const leftTitleY = _isMobile ? -44 : titleY;
-  axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", leftTitleY)
-    .attr("text-anchor", "middle").attr("class", "axis-title").text(cfg.leftTitle);
+  axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", -A.L.title * lS)
+    .attr("text-anchor", "middle").attr("class", "axis-title").style("font-size", fs(A.title * lS)).text(cfg.leftTitle);
   if (!_isMobile) {
-    axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", titleY + 14)
-      .attr("text-anchor", "middle").attr("class", "axis-subtitle").text(cfg.leftSub);
+    axL.append("text").attr("transform", "rotate(-90)").attr("x", -ch / 2).attr("y", -A.L.sub * lS)
+      .attr("text-anchor", "middle").attr("class", "axis-subtitle").style("font-size", fs(A.sub * lS)).text(cfg.leftSub);
   }
 
   // ─── RIGHT: Mass ──────────────────────────────────────────
@@ -4138,8 +4445,8 @@ function drawAxes() {
         if (p < -1 || p > ch + 1) continue;
         axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 3).attr("y2", p)
           .attr("stroke", "rgba(255,255,255,0.10)");
-        axR.append("text").attr("x", 14).attr("y", p + 3.5).attr("text-anchor", "middle")
-          .attr("class", "axis-label axis-minor").attr("font-size", fscale(9)).attr("font-weight", 400)
+        axR.append("text").attr("x", A.numX * rS).attr("y", p + 0.35 * A.minor * rS).attr("text-anchor", "start")
+          .attr("class", "axis-label axis-minor").style("font-size", fs(A.minor * rS)).attr("font-weight", 400)
           .attr("fill", "rgba(255,255,255,0.5)")
           .text(n);
       }
@@ -4151,33 +4458,33 @@ function drawAxes() {
     if (p < -1 || p > ch + 1) continue;
     axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 5).attr("y2", p)
       .attr("stroke", "rgba(255,255,255,0.25)");
-    axR.append("text").attr("x", 28).attr("y", p + 4.5).attr("text-anchor", "middle")
-      .attr("class", "axis-label").attr("font-size", fscale(13)).attr("font-weight", 700)
+    axR.append("text").attr("x", A.numX * rS).attr("y", p + 0.35 * A.num * rS).attr("text-anchor", "start")
+      .attr("class", "axis-label").style("font-size", fs(A.num * rS)).attr("font-weight", 700)
       .text(cfg.massNum(v));
   }
 
-  let lastMassUnitPy = -Infinity;
+  const bandsR = [];
+  const refPxR = A.ref * rS;
   if (!_isMobile) MASS_UNITS.forEach(u => {
     if (u.logM < d.y0 || u.logM > d.y1) return;
     const p = py(u.logM);
     if (p < 2 || p > ch - 2) return;
     axR.append("line").attr("x1", 0).attr("y1", p).attr("x2", 3).attr("y2", p)
       .attr("stroke", "rgba(255,100,100,0.4)").attr("stroke-dasharray", "2 2");
-    if (Math.abs(p - lastMassUnitPy) >= minUnitPx && u.slug) {
+    if (u.slug && bandsFree(bandsR, p, u.label.split("\n").length, refPxR)) {
       axR.append("text").attr("class", "axis-unit-link").attr("data-slug", u.slug).attr("data-name", u.label)
-        .attr("x", 44).attr("y", p + 3).attr("text-anchor", "start")
-        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif").attr("font-size", fscale(9.5))
+        .attr("x", A.refX * rS).attr("y", p + 0.35 * refPxR).attr("text-anchor", "start")
+        .attr("font-family", AXIS_FONT).style("font-size", fs(refPxR))
         .attr("fill", "rgba(255,150,150,0.92)")
         .text(u.label);
-      lastMassUnitPy = p;
     }
   });
 
-  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", _isMobile ? -46 : -114)
-    .attr("text-anchor", "middle").attr("class", "axis-title").text("MASS");
+  axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -A.R.title * rS)
+    .attr("text-anchor", "middle").attr("class", "axis-title").style("font-size", fs(A.title * rS)).text("MASS");
   if (!_isMobile) {
-    axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -102)
-      .attr("text-anchor", "middle").attr("class", "axis-subtitle").text(cfg.rightSub);
+    axR.append("text").attr("transform", "rotate(90)").attr("x", ch / 2).attr("y", -A.R.sub * rS)
+      .attr("text-anchor", "middle").attr("class", "axis-subtitle").style("font-size", fs(A.sub * rS)).text(cfg.rightSub);
   }
 }
 
@@ -5256,15 +5563,17 @@ function updateClickTargets() {
     clickTargetContainer.appendChild(div);
   });
 
-  // Dark matter region click targets: overlay on the "POSSIBLE AREAS" label and region polygons
-  lDarkMatter.selectAll("text, polygon.dm-region").each(function() {
+  // Dark matter label click targets (WIMP, MACHO, and the primordial black holes'
+  // window, whose labels open the PBH article instead)
+  lDarkMatter.selectAll("text").each(function() {
+    const pbh = !!this.closest(".pbh-window");
     try {
       const bbox = this.getBBox();
       if (bbox.width < 2 || bbox.height < 2) return;
       const div = document.createElement("button");
       div.type = "button";
       div.className = "click-target";
-      div.setAttribute("aria-label", "Dark matter regions — learn more");
+      div.setAttribute("aria-label", pbh ? `${PBH_WINDOW.title} — learn more` : "Dark matter — learn more");
       div.style.left = (bbox.x + margin.left - 2) + "px";
       div.style.top = (bbox.y + margin.top - 2) + "px";
       div.style.width = (bbox.width + 4) + "px";
@@ -5273,7 +5582,8 @@ function updateClickTargets() {
 
       div.addEventListener("click", (e) => {
         e.stopPropagation();
-        openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+        if (pbh) openInfoPanel(PBH_WINDOW.slug, PBH_WINDOW.title);
+        else openInfoPanel("dark-matter-search", "The Search for Dark Matter");
         setSidebarOpen(true);
       });
 
@@ -5374,9 +5684,9 @@ _chartTapEl.addEventListener("pointerup", (e) => {
   });
   if (best) { selectObject(best); return; }
 
-  // 4. Dark-matter regions (their HTML click-targets are inert on touch)
-  if (under.some(el => el.classList?.contains("dm-region"))) {
-    openInfoPanel("dark-matter-search", "The Search for Dark Matter");
+  // 4. The primordial black holes' window (its HTML click-targets are inert on touch)
+  if (under.some(el => el.closest?.(".pbh-window"))) {
+    openInfoPanel(PBH_WINDOW.slug, PBH_WINDOW.title);
     setSidebarOpen(true);
     return;
   }
@@ -6295,13 +6605,45 @@ setGridUnit.addEventListener("change", () => {
 // =============================================================
 
 const PAN_STEP = 80;
+
+// Step jump (recording): type a tour step's number — "7", "07", "15" — then
+// Space. Digits wait in a short buffer; a lone 0 still resets the view
+// (Home does it instantly) unless another digit follows it.
+const STEP_DIGIT_MS = 1500;  // a typed number is forgotten after this
+const LONE_ZERO_MS = 450;    // how long a lone 0 waits for a second digit
+let _stepDigits = "", _stepDigitsTimer = null, _zeroResetTimer = null;
+const resetView = () =>
+  svg.transition().duration(_reduceMotion ? 0 : 500).call(zoomBehavior.transform, d3.zoomIdentity);
+function onStepDigit(digit) {
+  clearTimeout(_zeroResetTimer);
+  if (digit === "0" && !_stepDigits) _zeroResetTimer = setTimeout(resetView, LONE_ZERO_MS);
+  _stepDigits = (_stepDigits + digit).slice(-2);
+  clearTimeout(_stepDigitsTimer);
+  _stepDigitsTimer = setTimeout(() => { _stepDigits = ""; }, STEP_DIGIT_MS);
+}
+function jumpToTypedStep() {
+  clearTimeout(_zeroResetTimer);
+  clearTimeout(_stepDigitsTimer);
+  const n = parseInt(_stepDigits, 10);
+  _stepDigits = "";
+  if (!tourGoTo(n - 1)) console.log(`No tour step ${n}`);
+}
+
 document.addEventListener("keydown", (e) => {
   if (e.target.tagName === "INPUT") return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (/^[0-9]$/.test(e.key)) { onStepDigit(e.key); return; }
+  if (e.key === " " && _stepDigits) {
+    e.preventDefault(); // not a click on whatever button has focus
+    jumpToTypedStep();
+    return;
+  }
   // ? = Shift+/ on US keys; match the physical key too, so layouts that
   // report another character for it still open the card.
   if (e.key !== "?" && e.code === "Slash" && e.shiftKey) { setShortcutsOpen(shortcutsPanel.hidden); return; }
   // Arrow keys pan. Letter keys are recording shortcuts (see keyhint / docs):
-  //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations · H hide UI
+  //   W/S zoom · A/D step the tour pages · Z/X slow/speed animations
+  //   H hide UI (and log the whole tour script) · 07 + Space jump to tour step 7
   //   V cycle the recording stage: 1920×1080 → 9:16 phone (mobile layout) → off
   //   R reset all settings (and presenter state) to defaults
   //   L the original Lineweaver–Patel figure (hidden; also /classic/)
@@ -6319,8 +6661,8 @@ document.addEventListener("keydown", (e) => {
       svg.transition().duration(150).call(zoomBehavior.translateBy, 0, PAN_STEP); break;
     case "ArrowDown":
       svg.transition().duration(150).call(zoomBehavior.translateBy, 0, -PAN_STEP); break;
-    case "Home": case "0":
-      svg.transition().duration(_reduceMotion ? 0 : 500).call(zoomBehavior.transform, d3.zoomIdentity); break;
+    case "Home":
+      resetView(); break; // "0" too — see onStepDigit
 
     // ── Recording shortcuts ──────────────────────────────────────
     case "w": case "W":
@@ -6338,7 +6680,9 @@ document.addEventListener("keydown", (e) => {
       _animSpeed = Math.min(8, +(_animSpeed * 1.4).toFixed(3));
       console.log(`Animation speed: ${_animSpeed}×`); break;
     case "h": case "H":
-      document.body.classList.toggle("ui-hidden"); break;
+      // Hiding the UI = recording: print the tour script to read from.
+      if (document.body.classList.toggle("ui-hidden")) logAllSteps();
+      break;
     case "v": case "V":
       setViewportLock(!_viewportLock ? "landscape" : _viewportLock === "landscape" ? "portrait" : null);
       announce(_viewportLock ? `Viewport: ${_viewportLock} ${vpStage().W}×${vpStage().H}` : "Viewport unlocked");
@@ -6524,6 +6868,16 @@ function applyLayout({ resetZoom } = {}) {
 // redraw() here.
 let _lastVw = window.innerWidth, _lastVh = window.innerHeight;
 let _resizeTimer = null;
+// Moving between displays can change pixel density without changing CSS size.
+// Refresh image tiers even when the normal layout resize does not run.
+function watchIconPixelDensity() {
+  const query = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+  query.addEventListener("change", () => {
+    watchIconPixelDensity();
+    redraw();
+  }, { once: true });
+}
+watchIconPixelDensity();
 window.addEventListener("resize", () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(() => {
@@ -6562,6 +6916,7 @@ function openSearch() {
   searchBtn.setAttribute("aria-expanded", "true");
   searchInput.setAttribute("aria-expanded", "true");
   requestAnimationFrame(() => searchInput.focus());
+  ensureSearchCatalogue();
 }
 function closeSearch() {
   searchBox.classList.remove("expanded");
@@ -6666,26 +7021,42 @@ function getSearchRegions() {
 const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-searchInput.addEventListener("input", () => {
+let searchIndex = buildSearchIndex(OBJECTS, []);
+let searchCatalogueLoading = null;
+function ensureSearchCatalogue() {
+  if (searchCatalogueLoading) return;
+  searchCatalogueLoading = loadDust().then(() => {
+    searchIndex = buildSearchIndex(OBJECTS, dustSearchEntries());
+    if (searchBox.classList.contains("expanded")) renderSearchResults();
+  }).catch(error => {
+    searchCatalogueLoading = null;
+    console.warn("Search catalogue failed to load", error);
+    if (searchBox.classList.contains("expanded")) renderSearchResults(true);
+  });
+}
+
+function renderSearchResults(loadFailed = false) {
   const q = searchInput.value.trim().toLowerCase();
+  _searchActive = -1;
+  searchInput.removeAttribute("aria-activedescendant");
   if (q.length < 1) { searchResults.classList.remove("active"); return; }
 
-  const matches = OBJECTS.filter(o => o.name.toLowerCase().includes(q)).slice(0, 6);
+  const matches = searchObjects(searchIndex, q);
   const regions = getSearchRegions().filter(g => g.label.toLowerCase().includes(q)).slice(0, 3);
 
   // The UI must always respond — an empty dropdown reads as "search is broken"
   if (matches.length === 0 && regions.length === 0) {
-    searchResults.innerHTML = `<div class="search-empty">No matches for “${escapeHtml(searchInput.value.trim())}”</div>`;
+    searchResults.innerHTML = `<div class="search-empty">${loadFailed ? "Catalogue unavailable. Reopen search to retry." : !dustReady() ? "Loading catalogue…" : `No matches for “${escapeHtml(searchInput.value.trim())}”`}</div>`;
     searchResults.classList.add("active");
     return;
   }
 
-  searchResults.innerHTML = matches.map(o => {
-    const dotColor = SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff";
-    return `<button type="button" role="option" class="search-item" data-logr="${o.logR}" data-logm="${o.logM}">
+  searchResults.innerHTML = matches.map((o, index) => {
+    const dotColor = SUBCAT_COLORS[o.subcat || DUST_SOURCE_SUBCAT[o.sourceId]] || CATEGORIES[o.cat]?.color || "#fff";
+    return `<button type="button" role="option" class="search-item" data-result="${index}">
       <span class="search-dot" style="background:${dotColor}"></span>
-      <span class="search-name">${o.name}</span>
-      <span class="search-cat">${o.cat}</span>
+      <span class="search-name">${escapeHtml(o.name)}</span>
+      <span class="search-cat">${escapeHtml(o.kind || o.cat)}</span>
     </button>`;
   }).join("") + regions.map((g, i) => `
     <button type="button" role="option" class="search-item search-region" data-region="${i}">
@@ -6700,16 +7071,24 @@ searchInput.addEventListener("input", () => {
 
   searchResults.querySelectorAll(".search-item:not(.search-region)").forEach(el => {
     el.addEventListener("click", () => {
-      const logR = parseFloat(el.dataset.logr);
-      const logM = parseFloat(el.dataset.logm);
-      const obj = OBJECTS.find(o => o.logR === logR && o.logM === logM);
-      panToCoord(logR, logM);
-      if (obj) openSidebar(obj);
+      const obj = matches[+el.dataset.result];
+      focusDust(obj.dustIndex ?? null);
+      if (obj.dustIndex != null) {
+        closeSidebar();
+        _dustEnabled = true;
+        setDust.checked = true;
+        flyTo(obj.logR, obj.logM, Math.max(currentK, 12), 500, d3.easeCubicOut);
+        redraw();
+      } else {
+        panToCoord(obj.logR, obj.logM);
+        openSidebar(obj);
+      }
       closeSearch();
     });
   });
   searchResults.querySelectorAll(".search-region").forEach(el => {
     el.addEventListener("click", () => {
+      focusDust();
       const g = regions[+el.dataset.region];
       const pad = 1.5;
       const xs = g.members.map(m => m.logR), ys = g.members.map(m => m.logM);
@@ -6720,6 +7099,10 @@ searchInput.addEventListener("input", () => {
       closeSearch();
     });
   });
+}
+searchInput.addEventListener("input", () => {
+  ensureSearchCatalogue();
+  renderSearchResults();
 });
 
 // Keyboard: ArrowUp/Down move the active option, Enter activates it,
@@ -6857,6 +7240,14 @@ try {
     if (typeof saved.marginBottom === "number") _userMarginBottom = saved.marginBottom;
   }
 } catch (e) { /* ignore corrupt data */ }
+// The first layout ran before the saved settings were read: redo it so the
+// saved font size (axis type, column widths) and margins apply from the
+// first frame. Still pre-boot, so the zoom is the identity — copy the scales
+// rather than firing zoom events.
+measure();
+applyLayout();
+xS = xBase.copy();
+yS = yBase.copy();
 
 // OS reduced-motion preference: decorative animation defaults OFF unless the
 // user explicitly saved it on (their in-app choice wins over the OS default).

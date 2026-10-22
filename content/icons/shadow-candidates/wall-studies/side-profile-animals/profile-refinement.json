@@ -1,0 +1,21 @@
+{
+  "mode": "built-in image_gen",
+  "requests": [
+    {
+      "name": "elephant",
+      "transparent_background": true,
+      "referenced_image_paths": [
+        "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-6b162b0a-5a54-4a14-bd56-b18bea3d238b.png"
+      ],
+      "prompt": "Precise object edit: preserve this elephant's material, lighting, entire body silhouette, proportions, stance and transparent background. Correct ONLY the remaining frontal perspective: turn the head and shoulders to a strict left-facing 90-degree lateral profile, aligned exactly with the broadside body. See only near eye; far tusk mostly hidden behind near tusk, far cheek hidden. Trunk readable in side outline. The near ear rests against side of head, not flaring toward camera. View as a miniature on an invisible shelf just slightly below eye height, nearly orthographic. Keep four naturally staggered legs, detailed gray wrinkles, upper-left light. Ensure entire animal including tusk tips fits inside square canvas with 4% clear margin each side. Real transparent alpha; no shadow, background, text, ground or shelf."
+    },
+    {
+      "name": "hippo",
+      "transparent_background": true,
+      "referenced_image_paths": [
+        "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-4e5c9b8f-6ebf-4cc4-8109-145a6862aff5.png"
+      ],
+      "prompt": "Precise object edit: preserve this hippopotamus's material, lighting, entire body silhouette, proportions, stance and transparent background. Correct ONLY the head orientation: turn it away from the camera into a strict LEFT-FACING 90-DEGREE SIDE PROFILE, aligned exactly with the broadside body. Muzzle projects horizontally left; see only the near eye and near nostril, far eye/nostril occluded. Do NOT show the broad front surface of the muzzle facing us. Jawline is a long horizontal silhouette. Museum miniature on invisible shelf slightly below eye height, nearly orthographic. Keep natural gray pink skin folds, four naturally staggered feet, soft upper-left illumination, complete animal within square canvas with 4% clear margin. True alpha transparent background, no shadow, scenery, ground, shelf or text."
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 import sharp from "sharp";
 import { readdirSync, mkdirSync } from "fs";
 import { join, basename, extname } from "path";
+import { generateIconResolutions } from "./generate-icon-resolutions.mjs";
 
 // Source PNGs live in content/icons/src/; their webp counterparts are
 // regenerated into content/icons/ on every run. Particle icons (quarks,
@@ -11,7 +12,7 @@ import { join, basename, extname } from "path";
 // that slug; otherwise this script will silently overwrite the live webp.
 const SRC_DIR = "content/icons/src";
 const OUT_DIR = "content/icons";
-const SIZE = 128; // 128x128 px — crisp at 2x retina for 64px hover size
+const SIZE = 128; // Compatibility thumbnail; chart selects larger tiers for hover/Retina.
 const SKIP = ["sphere template.png"];
 
 mkdirSync(OUT_DIR, { recursive: true });
@@ -39,3 +40,4 @@ for (const file of files) {
 }
 
 console.log(`\nProcessed ${processed} icons.`);
+await generateIconResolutions();
