@@ -285,6 +285,7 @@ export async function startNarration(app) {
     const until = c.unitsUntil && cues.find(d => d.time > c.time && [].concat(d.at).includes(c.unitsUntil));
     return { t0: c.time, t1: until ? until.time : c.time + (c.unitsFor ?? 6) };
   });
+  const guided = highlights.filter(h => h.obj && h.label !== false);   // see drawGuides
   function unitsOpacity(t) {
     let o = 0;
     for (const k of keys) {
@@ -292,6 +293,8 @@ export async function startNarration(app) {
       o = Math.max(o, smooth((t - (k.t - 0.4)) / 0.4) * (1 - smooth((t - (k.end + 0.9)) / 0.9)));
     }
     for (const p of pins) o = Math.max(o, smooth((t - p.t0) / 0.4) * (1 - smooth((t - p.t1) / 0.9)));
+    // an object's guides point at the rulers, so the rulers come up with them
+    for (const h of guided) o = Math.max(o, smooth((t - h.t0) / 0.4) * (1 - smooth((t - h.t1) / 0.9)));
     return o * (1 - clamp01(classicOpacity(t) * 2));
   }
 
@@ -331,7 +334,9 @@ export async function startNarration(app) {
   //   focus?: [x, y] (0–1 in the image, where the Ken Burns push heads),
   //   place?: true | width (fraction of the screen, default 0.78), fadeIn?: s,
   //   lens?: { icon: [cx, cy, r], photo: [cx, cy, r], size: [w, h] }
-  //        | { map: [ar, ai, br, bi], r, at?: [x, y], size: [w, h] } }
+  //        | { map: [ar, ai, br, bi], r, at?: [x, y], size: [w, h] }
+  //        plus fill?: true | "cover", hold?: s (0.3), fillDur?: s (1.6) — then grow:
+  //        true = the disc to the screen's width, "cover" = the whole photo upright, edge to edge }
   // `lens`: no cut. The photo fades in through a round window laid exactly over the
   // object's own picture, scaled so the photo's disc (photo: px in the image) sits on
   // the picture's disc (icon: fractions of the icon) — like holding a lens to it.
@@ -356,9 +361,9 @@ export async function startNarration(app) {
   const photoBox = photoEl.querySelector(".np-imgs"), photoCap = photoEl.querySelector(".np-cap");
   let photoShown = null;
   function drawPhoto(t) {
-    const p = photos.find(q => t >= q.t0 && t < q.t1 + PHOTO_OUT);
-    // fadeIn: s, for a slower reveal than the default (a lens fading in)
-    const reveal = p ? smooth((t - p.t0) / (p.fadeIn ?? PHOTO_IN)) * (1 - smooth((t - p.t1) / PHOTO_OUT)) : 0;
+    const p = photos.find(q => t >= q.t0 && t < q.t1 + (q.fadeOut ?? PHOTO_OUT));
+    // fadeIn / fadeOut: s, for a slower reveal or return than the defaults
+    const reveal = p ? smooth((t - p.t0) / (p.fadeIn ?? PHOTO_IN)) * (1 - smooth((t - p.t1) / (p.fadeOut ?? PHOTO_OUT))) : 0;
     if (reveal <= 0.001) { photoEl.style.visibility = "hidden"; return; }
     const SW = layer.clientWidth, SH = layer.clientHeight;
     if (photoShown !== p) {
@@ -395,18 +400,48 @@ export async function startNarration(app) {
         ar = ir / pr; ai = 0; br = icx - pcx * ar; bi = icy - pcy * ar;
         qx = bx + bw * icx; qy = by + bh * icy; R = bw * ir * 1.03;
       }
-      photoEl.style.background = "transparent";
+      // screen = icon box ∘ similarity, as one CSS matrix on the full-size image
+      let mtx = [bw * ar, bh * ai, -bw * ai, bh * ar, bx + bw * br, by + bh * bi];
+      let fillK = 0;   // how far the fill has gone: the backdrop turns black with it
+      // fill: once the photo sits on the picture, it grows and moves to the middle
+      // until its disc spans the screen (over fillDur s, after a short hold)
+      const g = p.lens.fill ? d3.easeCubicInOut(clamp01((t - p.t0 - (p.fadeIn ?? PHOTO_IN) - (p.lens.hold ?? 0.3)) / (p.lens.fillDur ?? 1.6))) : 0;
+      if (p.lens.fill === "cover") {
+        // the whole photo, upright, covering the screen: turn, scale and slide from
+        // the lens (photo point under the lens centre → there) to the cover (photo
+        // centre → screen centre); scale interpolated in log, so the growth is even
+        const S0 = Math.hypot(mtx[0], mtx[1]), th0 = Math.atan2(mtx[1], mtx[0]);
+        const det = mtx[0] * mtx[3] - mtx[1] * mtx[2];
+        const dx = qx - mtx[4], dy = qy - mtx[5];
+        const P0 = [(mtx[3] * dx - mtx[2] * dy) / det, (-mtx[1] * dx + mtx[0] * dy) / det];   // photo px under the lens centre
+        const S1 = Math.max(SW / iw, SH / ih), P1 = [iw / 2, ih / 2], Q1 = [SW / 2, SH / 2];
+        const S = S0 * (S1 / S0) ** g, th = th0 * (1 - g);
+        const Px = P0[0] + (P1[0] - P0[0]) * g, Py = P0[1] + (P1[1] - P0[1]) * g;
+        const Qx = qx + (Q1[0] - qx) * g, Qy = qy + (Q1[1] - qy) * g;
+        const c = S * Math.cos(th), s = S * Math.sin(th);
+        mtx = [c, s, -s, c, Qx - c * Px + s * Py, Qy - s * Px - c * Py];
+        qx = Qx; qy = Qy; R = R + (Math.hypot(SW, SH) - R) * g; fillK = g;
+      } else if (p.lens.fill) {
+        const Rt = Math.min(SW * 0.47, SH * 0.36), cx2 = SW / 2, cy2 = SH * 0.44;
+        const R2 = R + (Rt - R) * g, nx = qx + (cx2 - qx) * g, ny = qy + (cy2 - qy) * g, k = R2 / R;
+        mtx = [k * mtx[0], k * mtx[1], k * mtx[2], k * mtx[3], nx + k * (mtx[4] - qx), ny + k * (mtx[5] - qy)];
+        qx = nx; qy = ny; R = R2; fillK = g;
+      }
+      // a filling lens takes the whole screen to black as it grows (whatever the cues
+      // underneath do); otherwise only the lens and the caption show
+      photoEl.style.background = fillK > 0 ? "#000" : "transparent";
       photoEl.style.clipPath = "none";
       photoEl.style.opacity = reveal.toFixed(3);
       // the lens, plus the caption's strip so the caption isn't masked away
       const cap = photoCap.getBoundingClientRect(), capY = (cap.y - lr.y) / scl - 6, capH = cap.height / scl + 12;
-      const m = `radial-gradient(circle ${R.toFixed(1)}px at ${qx.toFixed(1)}px ${qy.toFixed(1)}px, #000 88%, transparent 100%), linear-gradient(#000, #000)`;
+      const a = (Math.min(1, fillK * 2)).toFixed(3);
+      const m = `radial-gradient(circle ${R.toFixed(1)}px at ${qx.toFixed(1)}px ${qy.toFixed(1)}px, #000 88%, transparent 100%), linear-gradient(#000, #000)` +
+        (fillK > 0 ? `, linear-gradient(rgba(0,0,0,${a}), rgba(0,0,0,${a}))` : "");
       photoEl.style.maskImage = photoEl.style.webkitMaskImage = m;
-      photoEl.style.maskSize = photoEl.style.webkitMaskSize = `100% 100%, 100% ${capH.toFixed(1)}px`;
-      photoEl.style.maskPosition = photoEl.style.webkitMaskPosition = `0 0, 0 ${capY.toFixed(1)}px`;
+      photoEl.style.maskSize = photoEl.style.webkitMaskSize = `100% 100%, 100% ${capH.toFixed(1)}px` + (fillK > 0 ? ", 100% 100%" : "");
+      photoEl.style.maskPosition = photoEl.style.webkitMaskPosition = `0 0, 0 ${capY.toFixed(1)}px` + (fillK > 0 ? ", 0 0" : "");
       photoEl.style.maskRepeat = photoEl.style.webkitMaskRepeat = "no-repeat";
-      // screen = icon box ∘ similarity, as one CSS matrix on the full-size image
-      const mtx = [bw * ar, bh * ai, -bw * ai, bh * ar, bx + bw * br, by + bh * bi].map(v => +v.toFixed(5));
+      mtx = mtx.map(v => +v.toFixed(5));
       Object.assign(photoBox.style, { left: "0", top: "0", width: `${iw}px`, height: `${ih}px`, right: "auto", bottom: "auto",
         transformOrigin: "0 0", transform: `matrix(${mtx.join(",")})` });
       photoBox.querySelectorAll("img").forEach(im => { im.style.objectFit = "fill"; });

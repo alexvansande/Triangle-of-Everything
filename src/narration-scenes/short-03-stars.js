@@ -35,12 +35,12 @@ export default {
 
     // Jupiter and Saturn make their own heat
     { at: "saturn and jupiter", cam: { r: 9.8, m: 30.05, span: 1.5 }, hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", delay: 0.3 }] },
-    // no cut: zoom onto Jupiter, grow its picture in a spotlight, then the infrared photo
-    // fades in right over the planet (lens), its disc matched to the picture's
+    // no cut: zoom onto Jupiter, grow its picture as everything else goes black, then the
+    // infrared photo fades in right over the planet (lens, discs matched) and grows to fill
     { at: "more heat than they absorb", cam: { obj: "Jupiter", span: 0.45 }, dur: 1.4,
-      hl: [{ spot: "Jupiter", grow: 2, dim: 0.65 }] },
-    { at: "more heat than they absorb", offset: 1.3, photo: "jupiter-ir", obj: "Jupiter", dur: 4.4,
-      lens: { icon: [0.496, 0.5, 0.465], photo: [1791, 1677, 1651], size: [3600, 3353] },
+      hl: [{ spot: "Jupiter", grow: 2, dim: 1 }] },
+    { at: "more heat than they absorb", offset: 1.3, photo: "jupiter-ir", obj: "Jupiter", dur: 4.6,
+      lens: { icon: [0.496, 0.5, 0.465], photo: [1791, 1677, 1651], size: [3600, 3353], fill: true, hold: 0.3, fillDur: 1.8 },
       caption: "Jupiter in infrared · Gemini North · 2021 · glowing with its own heat" },
     { at: "compressing in their core", cam: { r: 9.8, m: 30.05, span: 1.5 },
       hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", label: "slowly contracting" }] },
@@ -82,12 +82,13 @@ export default {
     // the gas goes round again: stellar nurseries
     { at: "those nebulas expand", cam: { r: 18.1, m: 33.7, span: 2.8 },
       hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
-    // no cut: zoom onto the nursery, grow its picture in a spotlight, then Webb's
-    // Pillars fade in over it, rotated and scaled onto the picture's own pillars (lens)
+    // no cut: zoom onto the nursery, grow its picture as everything else goes black, then
+    // Webb's Pillars fade in over it (rotated and scaled onto its pillars), turn upright and
+    // grow to fill the screen, hold, and fade slowly back to the chart
     { at: "stellar nurseries", cam: { obj: "Stellar Nursery", span: 0.6 }, dur: 1.4,
-      hl: [{ spot: "Stellar Nursery", grow: 3, dim: 0.65 }] },
-    { at: "stellar nurseries", offset: 1.3, photo: "pillars", obj: "Stellar Nursery", dur: 4.2,
-      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600] },
+      hl: [{ spot: "Stellar Nursery", grow: 3, dim: 1 }] },
+    { at: "stellar nurseries", offset: 1.3, photo: "pillars", obj: "Stellar Nursery", dur: 6.2, fadeOut: 1.8,
+      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", hold: 0.3, fillDur: 1.8 },
       caption: "Pillars of Creation · Webb · 2022 · a stellar nursery" },
     { at: "protostars", cam: { r: 16.8, m: 34.6, span: 6.2 },
       hl: [{ obj: "Stellar Nursery", label: false }, { arrow: true, from: { obj: "Stellar Nursery" }, to: { obj: "Protostar" } }, { obj: "Protostar", delay: 0.6 }] },

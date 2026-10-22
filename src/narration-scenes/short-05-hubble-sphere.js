@@ -65,9 +65,9 @@ export default {
     // ── Bigger means emptier ─────────────────────────────────
     // no cut: the Pillars fade in over the nursery's own picture (lens), as in video 3
     { at: "new generation", cam: { obj: "Stellar Nursery", span: 0.6 }, dur: 1.4,
-      hl: [{ spot: "Stellar Nursery", grow: 3, dim: 0.65 }] },
-    { at: "new generation", offset: 1.3, photo: "pillars", obj: "Stellar Nursery", dur: 4.2,
-      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600] },
+      hl: [{ spot: "Stellar Nursery", grow: 3, dim: 1 }] },
+    { at: "new generation", offset: 1.3, photo: "pillars", obj: "Stellar Nursery", dur: 4.2, fadeOut: 1.8,
+      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", hold: 0.3, fillDur: 1.8 },
       caption: "Pillars of Creation · Webb · 2022 · where stars are born" },
     { at: "mostly made of empty space", cam: { r: 20, m: 40, span: 24 }, clear: true },
     { at: "globular clusters", hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
