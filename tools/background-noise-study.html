@@ -32,13 +32,13 @@ Click “Solo” on a panel to see it large at 16:9, then press <b>C</b> to hide
 <label>Zoom <input id="zoom" type="range" min="0" max="3.3" step=".001" value="1.4"><output id="zoomOut"></output></label>
 <button id="fly" aria-pressed="false">Fly in</button>
 <button id="anim" aria-pressed="true">Move</button>
-<label title="How fast the clouds change shape in place">Evolve <input id="speed" type="range" min="0" max="1" step=".01" value=".12"><output id="speedOut"></output></label>
-<label title="How fast the clouds flow. Each octave drifts its own way at a speed proportional to its size, so the motion looks the same at every zoom">Drift <input id="drift" type="range" min="0" max=".5" step=".005" value=".06"><output id="driftOut"></output></label>
-<label title="0 = swirl detail only, 1 = ridged veins only">Ridge mix <input id="ridge" type="range" min="0" max="1" step=".01" value=".5"><output id="ridgeOut"></output></label>
-<label>Warp <input id="warp" type="range" min="0" max="3" step=".01" value=".9"><output id="warpOut"></output></label>
-<label>Detail <input id="detail" type="range" min="0" max="1.5" step=".01" value=".55"><output id="detailOut"></output></label>
-<label title="How much contrast the finer octaves keep. 0 = every octave equally strong (rough, CMB-like); 1 = finer octaves fade (smooth clouds)">Smoothness <input id="rough" type="range" min="0" max="1" step=".01" value=".6"><output id="roughOut"></output></label>
-<label title="Largest scale the noise may touch, in source pixels. Larger = it starts reshaping the painting itself">Starts at <input id="start" type="range" min="0" max="4" step=".01" value="1"><output id="startOut"></output></label>
+<label title="How fast the clouds change shape in place">Evolve <input id="speed" type="range" min="0" max="1" step=".01" value=".24"><output id="speedOut"></output></label>
+<label title="How fast the clouds flow. Each octave drifts its own way at a speed proportional to its size, so the motion looks the same at every zoom">Drift <input id="drift" type="range" min="0" max=".5" step=".005" value=".095"><output id="driftOut"></output></label>
+<label title="0 = swirl detail only, 1 = ridged veins only">Ridge mix <input id="ridge" type="range" min="0" max="1" step=".01" value=".53"><output id="ridgeOut"></output></label>
+<label>Warp <input id="warp" type="range" min="0" max="3" step=".01" value=".51"><output id="warpOut"></output></label>
+<label>Detail <input id="detail" type="range" min="0" max="1.5" step=".01" value=".68"><output id="detailOut"></output></label>
+<label title="How much contrast the finer octaves keep. 0 = every octave equally strong (rough, CMB-like); 1 = finer octaves fade (smooth clouds)">Smoothness <input id="rough" type="range" min="0" max="1" step=".01" value="0"><output id="roughOut"></output></label>
+<label title="Largest scale the noise may touch, in source pixels. Larger = it starts reshaping the painting itself">Starts at <input id="start" type="range" min="0" max="4" step=".01" value="2.263"><output id="startOut"></output></label>
 <label>Base filter <select id="filter"><option value="1">B-spline (smooth)</option><option value="2">Catmull-Rom (sharp)</option><option value="0">Bilinear</option></select></label>
 <span id="readout"></span>
 </div>

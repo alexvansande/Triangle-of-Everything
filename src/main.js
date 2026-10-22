@@ -31,7 +31,6 @@ import introRaw from "../content/intro.md?raw";
 import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, tourGoTo, logAllSteps, isTourActive, closeTour } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
-import { createBgNoise } from "./bg-noise.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
 import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
@@ -5009,11 +5008,27 @@ miniSvg.on("click", (event) => {
 const _tileCache = new Map();
 let _bgTilesEnabled = true;
 
-// Experimental "infinite" background (bg-noise.js): a WebGL layer behind the
-// SVG replaces the tiles and the sidebar shows its controls instead of the
-// info panels. Opt in from Settings or with ?bgnoise in the URL.
-let _bgNoise = null;
-let _bgNoiseWanted = new URLSearchParams(location.search).has("bgnoise");
+// Fractal background (bg-noise.js): once you zoom past the painted tiles'
+// resolution, a WebGL layer behind the SVG crossfades in and keeps folding the
+// painting into finer detail. Nothing is fetched or run until then (and on the
+// site not before the user's first zoom, since the home view is already past
+// the tiles), and it stops entirely when you zoom back out. Settings toggle (+ opens its look
+// controls); ?bgnoise / ?bgnoise=0 override the saved choice. Narrations
+// (?narrate) default it on at full resolution; the site defaults it off and,
+// when enabled, renders at half resolution (~4× cheaper on the GPU).
+const _narrating = new URLSearchParams(location.search).has("narrate") ||
+  import.meta.env.MODE === "narration-preview";
+const BG_NOISE_DEFAULT_ON = _narrating;
+const BG_NOISE_PROFILE = _narrating ? {} : { res: 0.5 };
+const BG_NOISE_ON_AT = 1, BG_NOISE_OFF_AT = 0.7; // css px per source px (tiles run out at 1)
+const _bgNoiseUrl = new URLSearchParams(location.search).get("bgnoise"); // null | "" | "0" | "1"
+let _bgNoise = null;          // the layer, created on first zoom-in
+let _bgNoiseShown = false;    // currently replacing the tiles
+let _bgNoiseArmed = _narrating; // site: not at startup, only after the first zoom
+let _bgNoiseFadeTimer = 0;
+let _bgNoiseWanted = _bgNoiseUrl !== null ? _bgNoiseUrl !== "0" : BG_NOISE_DEFAULT_ON;
+let _bgNoiseMod = null;
+const loadBgNoise = () => (_bgNoiseMod ??= import("./bg-noise.js").then(m => { m.applyNoiseProfile(BG_NOISE_PROFILE); return m; }));
 
 /** Plot area and camera in source (z5) pixels, as drawTiles anchors them. */
 function bgNoiseView() {
@@ -5028,27 +5043,63 @@ function bgNoiseView() {
 
 function setBgNoise(on) {
   _bgNoiseWanted = on;
-  if (!tileMeta || !!_bgNoise === on) return; // loadTileMeta applies the wish later
-  if (on) {
-    _bgNoise = createBgNoise({ host: document.getElementById("chart"), panel: sidebarEl, meta: tileMeta, getView: bgNoiseView });
-    if (!_bgNoise) { _bgNoiseWanted = false; setBgNoiseChk.checked = false; return; } // no WebGL2
+  if (setBgNoiseChk) setBgNoiseChk.checked = on;
+  syncBgNoise();
+}
+
+// Tiles and SVG backdrops while the layer is up: the canvas sits behind the
+// SVG, so its black backdrops go and the tile layers fade out over it.
+function setBgNoiseBackdrop(noise) {
+  clearTimeout(_bgNoiseFadeTimer);
+  const tiles = [lTiles, lTilesBase];
+  if (noise) {
+    document.getElementById("chart").style.background = "#000";
+    svg.style("position", "relative");
+    svg.select("rect.svg-bg").attr("fill", "none");
+    clip.select("rect.bg-rect").attr("display", "none");
+    tiles.forEach(l => l.style("transition", "opacity 0.5s").style("opacity", 0));
+    _bgNoiseFadeTimer = setTimeout(() => tiles.forEach(l => l.style("display", "none")), 520);
   } else {
-    _bgNoise.destroy();
-    _bgNoise = null;
+    tiles.forEach(l => l.style("display", null));
+    lTiles.node().getBoundingClientRect(); // commit display before fading back in
+    tiles.forEach(l => l.style("opacity", 1));
+    _bgNoiseFadeTimer = setTimeout(() => {
+      tiles.forEach(l => l.style("transition", null).style("opacity", null));
+      document.getElementById("chart").style.background = "";
+      svg.style("position", null);
+      svg.select("rect.svg-bg").attr("fill", "#000000");
+      clip.select("rect.bg-rect").attr("display", null);
+    }, 520);
   }
-  document.body.classList.toggle("bgnoise-on", on);
-  // The canvas sits behind the SVG, so the SVG's own black backdrops must go
-  document.getElementById("chart").style.background = on ? "#000" : "";
-  svg.style("position", on ? "relative" : null);
-  svg.select("rect.svg-bg").attr("fill", on ? "none" : "#000000");
-  clip.select("rect.bg-rect").attr("display", on ? "none" : null);
-  if (on && !_isMobile) setSidebarOpen(true);
-  redraw();
+}
+
+/** Show the layer when enabled and zoomed past the tiles (with hysteresis). */
+async function syncBgNoise() {
+  const zoom = tileMeta ? Math.abs(xS(1) - xS(0)) / tileMeta.pxPerUnitX : 0;
+  const want = !!(_bgNoiseWanted && _bgNoiseArmed && tileMeta && _bgTilesEnabled && !_posterMargins &&
+    zoom >= (_bgNoiseShown ? BG_NOISE_OFF_AT : BG_NOISE_ON_AT));
+  if (want === _bgNoiseShown) return;
+  _bgNoiseShown = want;
+  if (!want) {
+    _bgNoise?.setVisible(false);
+    setBgNoiseBackdrop(false);
+    return;
+  }
+  if (!_bgNoise) {
+    const { createBgNoise } = await loadBgNoise();
+    if (!_bgNoiseShown || _bgNoise) { _bgNoise?.setVisible(_bgNoiseShown); return; } // changed while loading
+    _bgNoise = createBgNoise({
+      host: document.getElementById("chart"), meta: tileMeta, getView: bgNoiseView,
+      onShown: () => { if (_bgNoiseShown) setBgNoiseBackdrop(true); },
+    });
+    if (!_bgNoise) { _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
+  }
+  _bgNoise.setVisible(true);
 }
 
 function drawTiles() {
   lTiles.selectAll("*").remove();
-  if (!_bgTilesEnabled || !tileMeta || _bgNoise) return;
+  if (!_bgTilesEnabled || !tileMeta) return;
 
   const { tileSize, levels } = tileMeta;
   // Use a single px/unit for both axes so image pixels render isotropically
@@ -5147,7 +5198,7 @@ function drawTiles() {
  *  higher-res tiles load. Redrawn on zoom like regular tiles. */
 function drawBaseTiles() {
   lTilesBase.selectAll("*").remove();
-  if (!_bgTilesEnabled || !tileMeta || _bgNoise) return;
+  if (!_bgTilesEnabled || !tileMeta) return;
 
   const { tileSize, levels } = tileMeta;
   const base = levels[0]; // lowest resolution level
@@ -5203,7 +5254,7 @@ async function loadTileMeta() {
     tileMeta = await response.json();
     drawBaseTiles(); // draw low-res background immediately
     redraw();
-    if (_bgNoiseWanted) setBgNoise(true);
+    syncBgNoise();
   } catch (error) {
     console.warn("Failed to load tile metadata:", error);
   }
@@ -5214,6 +5265,7 @@ async function loadTileMeta() {
 // =============================================================
 
 function redraw() {
+  syncBgNoise();
   drawBaseTiles();
   drawTiles();
   redrawVectors();
@@ -5638,6 +5690,7 @@ const zoomBehavior = d3.zoom()
         }
         // Full SVG redraw every frame for smooth icon/label/grid transitions
         redrawVectorsLight();
+        syncBgNoise();
         updateReadout(null);
         rafPending = false;
       });
@@ -5650,6 +5703,7 @@ const zoomBehavior = d3.zoom()
     // Programmatic zooms (presets, search, tour) count once the user has
     // engaged; the boot intro's own zoom-out never does.
     if (!dustReady() && (event.sourceEvent || (_userEngaged && viewZoomedIn()))) ensureDust();
+    if (event.sourceEvent || _userEngaged) _bgNoiseArmed = true; // the fractal layer waits for a first zoom
     _zoomPrevTransform = null;
     lTiles.attr("transform", null);
     lTilesBase.attr("transform", null);
@@ -6283,7 +6337,8 @@ settingsBtn.addEventListener("click", () => {
 // close when clicking outside
 document.addEventListener("pointerdown", (e) => {
   if (settingsPanel.classList.contains("open") &&
-      !settingsPanel.contains(e.target) && e.target !== settingsBtn && !settingsBtn.contains(e.target)) {
+      !settingsPanel.contains(e.target) && e.target !== settingsBtn && !settingsBtn.contains(e.target) &&
+      !document.getElementById("bgnoise-box").contains(e.target)) {
     settingsPanel.classList.remove("open");
     settingsBtn.classList.remove("active");
     settingsBtn.setAttribute("aria-expanded", "false");
@@ -6328,12 +6383,29 @@ setBg.addEventListener("change", () => {
   saveSettings();
 });
 
-const setBgNoiseChk = document.getElementById("set-bgnoise");
+var setBgNoiseChk = document.getElementById("set-bgnoise"); // var: setBgNoise may run before this line
 setBgNoiseChk.checked = _bgNoiseWanted;
 setBgNoiseChk.addEventListener("change", () => {
+  _bgNoiseArmed = true; // switching it on by hand shows it right away
   setBgNoise(setBgNoiseChk.checked);
   saveSettings();
 });
+// "+" beside the toggle: floating look controls (mounted on first open)
+const bgNoiseBox = document.getElementById("bgnoise-box");
+const bgNoiseOpenBtn = document.getElementById("bgnoise-open");
+let _bgNoiseControlsMounted = false;
+async function setBgNoiseBoxOpen(open) {
+  bgNoiseBox.hidden = !open;
+  bgNoiseOpenBtn.setAttribute("aria-expanded", String(open));
+  if (open && !_bgNoiseControlsMounted) {
+    _bgNoiseControlsMounted = true;
+    (await loadBgNoise()).mountNoiseControls(document.getElementById("bgnoise-mount"));
+    syncBgNoise();
+  }
+}
+bgNoiseOpenBtn.addEventListener("click", () => setBgNoiseBoxOpen(bgNoiseBox.hidden));
+document.getElementById("bgnoise-close").addEventListener("click", () => setBgNoiseBoxOpen(false));
+bgNoiseBox.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); setBgNoiseBoxOpen(false); } });
 
 const setAnim = document.getElementById("set-anim");
 setAnim.addEventListener("change", () => {
@@ -6972,7 +7044,7 @@ try {
   const saved = JSON.parse(localStorage.getItem("tri-settings"));
   if (saved) {
     if (saved.bg === false) { setBg.checked = false; _bgTilesEnabled = false; redraw(); }
-    if (saved.bgNoise) { setBgNoiseChk.checked = true; setBgNoise(true); }
+    if (_bgNoiseUrl === null && typeof saved.bgNoise === "boolean") setBgNoise(saved.bgNoise);
     if (saved.anim === false) { setAnim.checked = false; _animDisabled = true; document.body.classList.add("anim-off"); }
     if (saved.labels === false) { setLabels.checked = false; _labelsEnabled = false; }
     if (saved.dust === false) { setDust.checked = false; _dustEnabled = false; }

@@ -33,9 +33,10 @@ export const NOISE_MODES = [
   [0, "Today (blurred tiles)"],
 ];
 
+// Tuned for the video: rough (CMB-like) octaves, gentle warp, detail from ~5 source px
 export const NOISE_DEFAULTS = {
-  mode: 8, move: true, speed: 0.12, drift: 0.06, ridge: 0.5, warp: 0.9,
-  detail: 0.55, smooth: 0.6, start: 1, filter: 1, res: 1,
+  mode: 8, move: true, speed: 0.24, drift: 0.095, ridge: 0.53, warp: 0.51,
+  detail: 0.68, smooth: 0, start: 2.263, filter: 1, res: 1,
 };
 
 const VS = `#version 300 es
@@ -271,8 +272,27 @@ export function liveOctaves(zoomDev, start) {
 }
 
 // =============================================================
-// App layer: tile window texture + render loop + control panel
+// App layer: shared params, tile window texture, render loop, controls
 // =============================================================
+
+/** Live look params, shared by the renderer and the controls. Only the values
+ *  a viewer changed are kept (per browser), so profile defaults still apply. */
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem("tri-bgnoise")) || {}; } catch { /* defaults */ }
+export const noiseParams = { ...NOISE_DEFAULTS, ...saved };
+const saveParams = () => {
+  saved = Object.fromEntries(Object.entries(noiseParams).filter(([k, v]) => v !== NOISE_DEFAULTS[k]));
+  try { localStorage.setItem("tri-bgnoise", JSON.stringify(saved)); } catch { /* private mode */ }
+};
+/** Override defaults for this page (e.g. half resolution on the website). */
+export function applyNoiseProfile(profile) {
+  Object.assign(NOISE_DEFAULTS, profile);
+  for (const k in profile) if (!(k in saved)) noiseParams[k] = profile[k];
+  for (const el of readouts) el.closest(".bgnoise-panel")?.dispatchEvent(new Event("bgnoise-sync"));
+}
+
+let active = null;      // the running layer, if any
+const readouts = new Set();
 
 const loadImg = src => new Promise(res => {
   const im = new Image();
@@ -280,26 +300,25 @@ const loadImg = src => new Promise(res => {
 });
 
 /**
- * createBgNoise({ host, panel, meta, getView })
+ * createBgNoise({ host, meta, getView, onShown }) → { setVisible, destroy } | null (no WebGL2)
+ * Starts hidden and idle. setVisible(true) runs the loop; the canvas fades in
+ * (and onShown fires) on the first frame drawn with the tile texture ready.
+ * setVisible(false) fades it out and stops all work.
  *  host    — element the canvas is inserted into (behind the chart SVG)
- *  panel   — element the controls are mounted into
  *  meta    — /tiles/meta.json
  *  getView — () => { left, top, w, h } css px of the plot area, plus
  *            { cx, cy } camera centre in source px and { zx, zy } css px per source px
  */
-export function createBgNoise({ host, panel, meta, getView }) {
+export function createBgNoise({ host, meta, getView, onShown }) {
   const canvas = document.createElement("canvas");
   canvas.className = "bgnoise-canvas";
   host.prepend(canvas);
   const r = createNoiseRenderer(canvas);
   if (!r) { canvas.remove(); return null; }
 
-  let params = { ...NOISE_DEFAULTS };
-  try { Object.assign(params, JSON.parse(localStorage.getItem("tri-bgnoise")) || {}); } catch { /* defaults */ }
-
   // ---- textures: whole image at z2 as fallback, a tile window at the needed level ----
   const T = meta.tileSize;
-  let win = null, building = false, alive = true;
+  let win = null, building = false, alive = true, dirty = true, visible = false, shown = false, stopTimer = 0;
   (async () => {
     const lv = meta.levels[2], cv = Object.assign(document.createElement("canvas"), { width: lv.w, height: lv.h });
     const cx = cv.getContext("2d");
@@ -307,7 +326,9 @@ export function createBgNoise({ host, panel, meta, getView }) {
       const c = k % lv.cols, rr = k / lv.cols | 0, im = await loadImg(`/tiles/z${lv.z}/tile_${c}_${rr}.webp`);
       if (im) cx.drawImage(im, c * T, rr * T);
     }));
-    if (alive) r.setTexture("base", cv, { x0: 0, y0: 0, scale: lv.scale, w: lv.w, h: lv.h });
+    if (!alive) return;
+    r.setTexture("base", cv, { x0: 0, y0: 0, scale: lv.scale, w: lv.w, h: lv.h });
+    dirty = true;
   })();
 
   function wantWindow(v) {
@@ -338,31 +359,66 @@ export function createBgNoise({ host, panel, meta, getView }) {
     r.setTexture("main", cv, { x0: c0 * T / lv.scale, y0: r0 * T / lv.scale, scale: lv.scale, w, h });
     win = { z: lv.z, c0, c1, r0, r1 };
     building = false;
+    dirty = true;
   }
 
-  // ---- loop ----
-  let time = 0, drift = 0, last = performance.now(), raf = 0;
+  // ---- loop: draws every frame while moving, otherwise only when the view or a param changes ----
+  let time = 0, drift = 0, last = performance.now(), raf = 0, lastKey = "";
   function frame(now) {
     raf = requestAnimationFrame(frame);
+    if (!visible) return;
     const dt = Math.min(0.1, (now - last) / 1000); last = now;
-    if (params.move) { time += dt * params.speed; drift = (drift + dt * params.drift) % 256; }
+    const p = noiseParams;
+    if (p.move) { time += dt * p.speed; drift = (drift + dt * p.drift) % 256; }
     const v = getView();
     if (!v || v.w < 2 || v.h < 2) return;
     const want = wantWindow(v);
     if (!building && !(win && win.z === want.lv.z && want.c0 >= win.c0 && want.c1 <= win.c1 && want.r0 >= win.r0 && want.r1 <= win.r1)) build(want);
-    const dpr = Math.min(2, devicePixelRatio || 1) * params.res;
+    const dpr = Math.min(2, devicePixelRatio || 1) * p.res;
+    const key = `${v.left},${v.top},${v.w},${v.h},${v.cx},${v.cy},${v.zx},${v.zy},${dpr}`;
+    if (!p.move && !dirty && key === lastKey) return;
+    lastKey = key; dirty = false;
     const st = canvas.style;
     if (st.left !== v.left + "px") st.left = v.left + "px";
     if (st.top !== v.top + "px") st.top = v.top + "px";
     if (st.width !== v.w + "px") st.width = v.w + "px";
     if (st.height !== v.h + "px") st.height = v.h + "px";
-    r.render({ ...params, w: Math.round(v.w * dpr), h: Math.round(v.h * dpr), cx: v.cx, cy: v.cy,
+    const drew = win && r.render({ ...p, w: Math.round(v.w * dpr), h: Math.round(v.h * dpr), cx: v.cx, cy: v.cy,
       zx: v.zx * dpr, zy: v.zy * dpr, zoomCss: Math.sqrt(v.zx * v.zy), time, drift });
-    if (readout) readout.textContent = `${Math.sqrt(v.zx * v.zy).toFixed(2)}× source pixels · tiles z${win?.z ?? "–"} · ${liveOctaves(Math.sqrt(v.zx * v.zy) * dpr, params.start)} octaves live`;
+    if (!drew) { dirty = true; return; }
+    if (!shown) { shown = true; canvas.classList.add("bgnoise-shown"); onShown?.(); }
+    const text = `${Math.sqrt(v.zx * v.zy).toFixed(2)}× source pixels · tiles z${win?.z ?? "–"} · ${liveOctaves(Math.sqrt(v.zx * v.zy) * dpr, p.start)} octaves live`;
+    for (const el of readouts) if (el.textContent !== text) el.textContent = text;
   }
-  raf = requestAnimationFrame(frame);
+  active = {
+    invalidate() { dirty = true; },
+    setVisible(v) {
+      if (v === visible || !alive) return;
+      visible = v;
+      clearTimeout(stopTimer);
+      if (v) {
+        if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
+        dirty = true;
+      } else {
+        shown = false;
+        canvas.classList.remove("bgnoise-shown");
+        // keep the last frame while it fades, then stop the loop entirely
+        stopTimer = setTimeout(() => { cancelAnimationFrame(raf); raf = 0; }, 600);
+      }
+    },
+    destroy() {
+      alive = false; cancelAnimationFrame(raf); clearTimeout(stopTimer);
+      canvas.remove();
+      r.gl.getExtension("WEBGL_lose_context")?.loseContext();
+      if (active === this) active = null;
+      for (const el of readouts) el.textContent = "Off";
+    },
+  };
+  return active;
+}
 
-  // ---- controls ----
+/** Mount the look controls into `container` (once); they edit noiseParams live. */
+export function mountNoiseControls(container) {
   const box = document.createElement("div");
   box.className = "bgnoise-panel";
   const range = (key, label, min, max, step, fmt, title = "") =>
@@ -370,8 +426,8 @@ export function createBgNoise({ host, panel, meta, getView }) {
     `<input class="bgnoise-range" type="range" data-k="${key}" min="${min}" max="${max}" step="${step}">` +
     `<output class="bgnoise-out" data-o="${key}" data-f="${fmt}"></output></label>`;
   box.innerHTML = `
-    <h2 class="bgnoise-title">Infinite background</h2>
-    <p class="bgnoise-note">Experimental. Zoom past the painted tiles (especially near the Hubble radius) and the painting keeps folding into finer detail.</p>
+    <h2 class="bgnoise-title">Fractal background</h2>
+    <p class="bgnoise-note">Zoom past the painted tiles (especially near the Hubble radius) and the painting keeps folding into finer detail.</p>
     <label class="bgnoise-row"><span class="bgnoise-label">Pattern</span>
       <select class="bgnoise-select" data-k="mode">${NOISE_MODES.map(([m, n]) => `<option value="${m}">${n}</option>`).join("")}</select></label>
     <label class="bgnoise-row bgnoise-check"><input type="checkbox" data-k="move"> <span class="bgnoise-label">Move over time</span></label>
@@ -387,34 +443,26 @@ export function createBgNoise({ host, panel, meta, getView }) {
     <label class="bgnoise-row"><span class="bgnoise-label">Resolution</span>
       <select class="bgnoise-select" data-k="res"><option value="1">Full</option><option value="0.75">75%</option><option value="0.5">50%</option></select></label>
     <button class="bgnoise-reset" type="button">Reset to defaults</button>
-    <p class="bgnoise-readout"></p>`;
-  panel.append(box);
-  const readout = box.querySelector(".bgnoise-readout");
+    <p class="bgnoise-readout">${active ? "" : "Off"}</p>`;
+  container.append(box);
+  readouts.add(box.querySelector(".bgnoise-readout"));
   const fmt = (f, v) => f === "px" ? (2 ** v).toFixed(1) + " px" : (+v).toFixed(+f);
   function sync() {
     for (const el of box.querySelectorAll("[data-k]")) {
       const k = el.dataset.k;
-      if (el.type === "checkbox") el.checked = !!params[k]; else el.value = params[k];
+      if (el.type === "checkbox") el.checked = !!noiseParams[k]; else el.value = noiseParams[k];
     }
-    for (const o of box.querySelectorAll("[data-o]")) o.textContent = fmt(o.dataset.f, params[o.dataset.o]);
+    for (const o of box.querySelectorAll("[data-o]")) o.textContent = fmt(o.dataset.f, noiseParams[o.dataset.o]);
+    active?.invalidate();
   }
+  box.addEventListener("bgnoise-sync", sync);
   box.addEventListener("input", e => {
     const k = e.target.dataset?.k; if (!k) return;
-    params[k] = e.target.type === "checkbox" ? e.target.checked : +e.target.value;
-    sync();
-    try { localStorage.setItem("tri-bgnoise", JSON.stringify(params)); } catch { /* private mode */ }
+    noiseParams[k] = e.target.type === "checkbox" ? e.target.checked : +e.target.value;
+    sync(); saveParams();
   });
   box.querySelector(".bgnoise-reset").onclick = () => {
-    params = { ...NOISE_DEFAULTS }; sync();
-    try { localStorage.removeItem("tri-bgnoise"); } catch { /* private mode */ }
+    Object.assign(noiseParams, NOISE_DEFAULTS); sync(); saveParams();
   };
   sync();
-
-  return {
-    destroy() {
-      alive = false; cancelAnimationFrame(raf);
-      canvas.remove(); box.remove();
-      r.gl.getExtension("WEBGL_lose_context")?.loseContext();
-    },
-  };
 }
