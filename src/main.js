@@ -4,6 +4,7 @@ import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
 import {STAR_BODY_FRAMES, BROWN_DWARFS, starBodyGeometry, starWallLight, stellarLightProfile} from "./star-light.js";
 import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
 import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
+import { mountRoundShadowControls } from "./round-shadow-controls.js";
 import { buildSearchIndex, searchObjects } from "./object-search.js";
 import { VisibilityMemory } from "./visibility-memory.js";
 import {
@@ -6534,6 +6535,7 @@ document.getElementById("zoom-reset").addEventListener("click", () =>
 // ---------- settings panel ----------
 const settingsBtn = document.getElementById("settings-btn");
 const settingsPanel = document.getElementById("settings-panel");
+mountRoundShadowControls(settingsPanel, redraw);
 settingsBtn.addEventListener("click", () => {
   const open = settingsPanel.classList.toggle("open");
   settingsBtn.classList.toggle("active", open);

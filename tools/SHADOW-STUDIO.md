@@ -1040,3 +1040,13 @@ remain unchanged.
 Noctiluca scintillans uses the shared scripted long-shadow preset generated
 from its actual alpha silhouette. It is removed from `shadows/round.json` so
 the chart and future batch generation use its custom shadow, not `_sphere.webp`.
+
+### Round shadow placement controls
+
+Settings → Spherical shadow position adjusts the shared round texture live.
+Horizontal and vertical offsets are percentages of the resting object diameter;
+negative values move west/north. Defaults are −5% on both axes, shifting the
+previous placement slightly northwest without changing hover travel. Custom
+shadows and lights are unaffected. Adjustments persist in this browser under
+`tri-round-shadow-offset`; Reset restores −5%, −5%. Ask for the two displayed
+values when adopting a visually tuned placement as the shared default.

@@ -1,3 +1,5 @@
+import { roundShadowOffset } from './round-shadow-controls.js';
+
 // Distances are in resting object diameters. Camera perspective and light
 // projection are independent: only depth is shared between the two models.
 export const WALL_SCENE = {
@@ -41,8 +43,8 @@ export function wallShadowImageGeometry({ sx, sy, r, anchorBase, registered, rou
   const size = 6 * state.radius;
   const south = anchorBase || registered ? 0 : 0.3 * r;
   return {
-    x: sx + off * Math.SQRT1_2 - size / 2,
-    y: sy + off * Math.SQRT1_2 + south - size / 2,
+    x: sx + off * Math.SQRT1_2 - size / 2 + (round ? roundShadowOffset.x / 100 * 2 * r : 0),
+    y: sy + off * Math.SQRT1_2 + south - size / 2 + (round ? roundShadowOffset.y / 100 * 2 * r : 0),
     width: size, height: size,
     opacity: (round ? ROUND_SHADOW_OPACITY : 0.85) * state.opacity, blur: state.blur,
   };
