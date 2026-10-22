@@ -37,7 +37,8 @@ boeing-747, pyramid-giza, supertanker, microchip, hippo, blue-whale, red-dwarf, 
 titanic, hoba, chelyabinsk, hms-victory, manneken-pis, uss-enterprise, the-little-mermaid,
 antarctic-ice-sheet, caspian-sea, lake-baikal, dead-sea, loch-ness,
 greenland-ice-sheet, big-ben, burj-khalifa, opportunity, ingenuity, sequoia,
-dji-mini-2, bust-of-queen-nefertiti, n1, saturn-v, great-sphinx, statue-of-unity, bennu
+dji-mini-2, bust-of-queen-nefertiti, n1, saturn-v, great-sphinx, statue-of-unity, bennu,
+caulobacter-vibrioides, mycoplasma-pneumoniae, escherichia-coli, staphylococcus-aureus, prochlorococcus-marinus
 
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
