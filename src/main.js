@@ -5397,25 +5397,19 @@ function drawTiles() {
 
   const screenPPU = Math.abs(px(1) - px(0));
 
-  // Deliberately soft background: accept a tile level up to BG_SOFTEN× coarser
-  // than the screen. The painted texture's fine grain read as noise competing
-  // with the real catalogue dots; upscaled (and blurred below) it stays as
-  // colour and mood without the grain — and fetches fewer bytes.
-  const BG_SOFTEN = 4;
+  // Match device pixels before resorting to fractal detail. Deliberately
+  // undersampling here made the painted view much softer than the fractal one.
+  const targetPPU = screenPPU * Math.min(2, window.devicePixelRatio || 1);
   let best = levels[0];
   for (const lv of levels) {
     const lvPPU = (lv.w / imgDataW);
     best = lv;
-    if (lvPPU * BG_SOFTEN >= screenPPU) break;
+    if (lvPPU >= targetPPU) break;
   }
 
-  // Detect over-zoom: when screen resolution exceeds the best tile level
-  const bestPPU = best.w / imgDataW;
-  const overZoom = screenPPU / bestPPU;
-  // One blur on the whole layer (not per tile): smooths the painted grain
-  // into colour, hides upscaling and tile seams, and costs one filter pass.
-  const blurPx = 0;
-  lTiles.style("filter", overZoom > 1.2 ? `blur(${Math.min(14, overZoom * 3).toFixed(1)}px)` : null);
+  // Browser interpolation handles zoom beyond the source resolution. Extra
+  // blur would erase available detail just before the fractal handoff.
+  lTiles.style("filter", null);
 
   // Poster mode: the tile layers sit outside the clip so the nebula also
   // covers the axis columns — cull against the padded range.
@@ -5455,17 +5449,13 @@ function drawTiles() {
         _tileCache.set(key, img);
       }
 
-      const tileImg = lTiles.append("image")
+      lTiles.append("image")
         .attr("href", href)
         .attr("x", sx).attr("y", sy)
         .attr("width", sw).attr("height", sh)
         .attr("preserveAspectRatio", "none")
         .attr("image-rendering", "auto");
 
-      // Apply blur when zoomed past tile resolution to hide pixelation
-      if (blurPx > 0) {
-        tileImg.style("filter", `blur(${blurPx.toFixed(1)}px)`);
-      }
     }
   }
 }

@@ -332,11 +332,12 @@ export function createBgNoise({ host, meta, getView, onShown }) {
   })();
 
   function wantWindow(v) {
-    // Same level choice as drawTiles (BG_SOFTEN = 4): the painting stays soft,
-    // the noise supplies the detail.
+    // Match drawTiles' source detail so switching renderers doesn't replace
+    // the painting with a coarser texture. Noise adds detail beyond the source.
     const zoomCss = Math.sqrt(v.zx * v.zy);
+    const targetScale = zoomCss * Math.min(2, devicePixelRatio || 1);
     let lv = meta.levels[0];
-    for (const l of meta.levels) { lv = l; if (l.scale * 4 >= zoomCss) break; }
+    for (const l of meta.levels) { lv = l; if (l.scale >= targetScale) break; }
     const hw = v.w / 2 / v.zx, hh = v.h / 2 / v.zy, s = lv.scale / T;
     const clampC = c => Math.max(0, Math.min(lv.cols - 1, c)), clampR = rr => Math.max(0, Math.min(lv.rows - 1, rr));
     return { lv, c0: clampC(Math.floor((v.cx - hw) * s)), c1: clampC(Math.floor((v.cx + hw) * s)),
