@@ -33,7 +33,8 @@ Masters in iCloud `Projects/triangle/illustrations/gen3/generated/`; the
 1-ml-of-water, 1-liter-of-water, 1-tonne-of-water, ant, elephant, eros,
 mt-everest, argentinosaurus, l-brown-dwarf, proxima-cen, sirius-a, vega,
 neutron-star, milky-way, eiffel-tower, pollen-grain, tyrannosaurus-rex, protostar,
-boeing-747, pyramid-giza, supertanker, microchip, hippo, blue-whale, red-dwarf, white-dwarf, t-brown-dwarf, wolf-rayet, beta-pictoris-b, ton-618, stellar-bh
+boeing-747, pyramid-giza, supertanker, microchip, hippo, blue-whale, red-dwarf, white-dwarf, t-brown-dwarf, wolf-rayet, beta-pictoris-b, ton-618, stellar-bh,
+titanic, hoba, chelyabinsk, hms-victory, manneken-pis, uss-enterprise, the-little-mermaid
 
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
