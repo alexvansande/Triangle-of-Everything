@@ -1,3 +1,5 @@
+import {BLACK_HOLE_FRAMES, BLACK_HOLE_SIZE_MULT} from "./black-hole-frames.js";
+import {blackHoleFilter} from "./black-hole-palette.js";
 import * as d3 from "d3";
 import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS,SPACE_ART_DEFS,spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
 import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
@@ -100,6 +102,7 @@ const ICON_SIZE_MULT = {
   "saturn": 2,
   "primordial-black-hole": 2, "3k-bh": 2, "stellar-bh": 2,
   "sgr-a": 2, "m87": 2, "ton-618": 2,
+  ...BLACK_HOLE_SIZE_MULT,
 };
 
 // Physical size scaling: for every 6 orders of magnitude in real radius,
@@ -111,7 +114,7 @@ function iconSizeMult(o) {
   const cat = o.catKey || o.cat;
   // Galaxies get a second 25% boost; extend this pass to diffuse large-scale
   // structures and black holes, keeping solid universe/void spheres unchanged.
-  const categoryScale = cat === "galaxy" ? 1.25 * 1.25
+  const categoryScale = BLACK_HOLE_FRAMES[o.slug] ? 1 : cat === "galaxy" ? 1.25 * 1.25
     : cat === "blackhole" || (cat === "largescale" && isDiffuseSpaceArt(cat, o.slug)) ? 1.25 : 1;
   return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
 }
@@ -2923,7 +2926,7 @@ function drawObjects() {
           .attr("class", "obj-icon")
           .attr("data-slug", o.slug)
           .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
-          .style("filter",softSpaceIcon(o)?`brightness(${SPACE_ART_BRIGHTNESS})`:null)
+          .style("filter",blackHoleFilter(o.slug)||(softSpaceIcon(o)?`brightness(${SPACE_ART_BRIGHTNESS})`:null))
           .attr("mask",softSpaceIcon(o)?spaceEdgeMask(o.slug):null)
           .node();
         imgEl.addEventListener("load", () => {
@@ -3014,6 +3017,7 @@ function drawObjects() {
     iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
     iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
     softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
+    iconFilterOf:(cat,name)=>blackHoleFilter(nameToSlug(name)),
     iconBrightnessOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name))?SPACE_ART_BRIGHTNESS:1,
   }, {
     // Catalogue pictures share the same hierarchy: all curated candidates
@@ -3071,6 +3075,16 @@ const SHADOW_PARTS = [
 // A small, fixed wall-plane bias balances the foreground parallax at the
 // southeast edge. Measure the body, excluding rings and other extensions.
 const SHADOW_SE_BIAS = 0.10;
+const LAKE_SHADOWS = new Set([
+  'loch-ness', 'caspian-sea', 'dead-sea', 'lake-baikal', 'lake-nyos',
+  'lake-superior', 'lake-tahoe', 'lake-victoria', 'sea-of-galilee',
+  'hallstatter-see', 'konigssee', 'titicaca',
+]);
+// Bring the entire optical layer 15% of the resting icon width closer on
+// each axis, without changing its caustics, scale or hover travel.
+function shadowPlacementBias(d) {
+  return LAKE_SHADOWS.has(d.name ? nameToSlug(d.name) : d.key) ? -0.05 : SHADOW_SE_BIAS;
+}
 let _shadowLift = null; // { key, k }: the hovered picture and how much it grew
 function shadowGeom(d, [, , c, px, a, b, op]) {
   const k = _shadowLift?.key === d.key ? _shadowLift.k : 1;
@@ -3147,7 +3161,7 @@ function drawIconShadows(shapes) {
     .each(function(d) {
       const g = d3.select(this);
       const body = 2 * d.r / (ICON_SIZE_MULT[d.name ? nameToSlug(d.name) : d.key] || 1);
-      const bias = d.glow && !d.img ? 0 : body * SHADOW_SE_BIAS;
+      const bias = d.glow && !d.img ? 0 : body * shadowPlacementBias(d);
       g.attr("transform", `translate(${bias},${bias})`);
       const glow = g.select("ellipse.sh-glow").attr("display", d.glow ? null : "none");
       if (d.glow) {
@@ -3173,7 +3187,7 @@ function liftShadow(key, k) {
   lShadows.selectAll("g.icon-shadow").filter(d => d.key === key).each(function(d) {
     const g = d3.select(this);
     if (d.glow) {
-      const light=starGlowGeom(d),bias=d.img?2*d.r/(ICON_SIZE_MULT[d.name?nameToSlug(d.name):d.key]||1)*SHADOW_SE_BIAS:0;
+      const light=starGlowGeom(d),bias=d.img?2*d.r/(ICON_SIZE_MULT[d.name?nameToSlug(d.name):d.key]||1)*shadowPlacementBias(d):0;
       applyShadowGeom(g.select("ellipse.sh-glow").interrupt().transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase), {...light,cx:light.cx-bias,cy:light.cy-bias});
       if(!d.img)return;
     }

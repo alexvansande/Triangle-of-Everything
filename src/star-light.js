@@ -1,3 +1,4 @@
+import {BLACK_HOLE_FRAMES} from './black-hole-frames.js';
 import frames from './star-body-frames.json' with { type: 'json' };
 
 // Measured visible disc centers/radii, excluding flares and transparent halos.
@@ -21,7 +22,7 @@ export function stellarLightProfile(slug,logM=33.3) {
     spread:Math.max(2.7,Math.min(3.65,3.1+.25*(mass-33.3)))};
 }
 export function starBodyGeometry(slug, x, y, size, growth=1) {
-  const frame=frames[slug]||nonLuminousFrames[slug];
+  const frame=frames[slug]||BLACK_HOLE_FRAMES[slug]||nonLuminousFrames[slug];
   if(!frame)return null;
   return {cx:x+(frame.cx-.5)*size*growth,cy:y+(frame.cy-.5)*size*growth,r:frame.r*size*growth};
 }

@@ -201,35 +201,69 @@
   },
   "caspian-sea": {
     "mode": "generated",
-    "source": "imagegen",
-    "registered": true,
+    "source": "alpha-long-caustic",
     "anchorBase": false,
     "flipY": false,
-    "generatedScale": 0.4,
-    "opacity": 0.5,
+    "opacity": 1,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 30,
-    "y": 30,
+    "x": 0,
+    "y": 0,
     "reviewed": true,
-    "updated": "2026-10-22T16:49:59.903Z",
-    "generator": "imagegen-lake-wall-v1"
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 448,
+        "y": 472
+      },
+      {
+        "x": 504,
+        "y": 534
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.378Z"
   },
   "dead-sea": {
     "mode": "generated",
-    "source": "imagegen",
-    "registered": true,
+    "source": "alpha-long-caustic",
     "anchorBase": false,
     "flipY": false,
-    "generatedScale": 0.4,
-    "opacity": 0.5,
+    "opacity": 1,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 30,
-    "y": 30,
+    "x": 0,
+    "y": 0,
     "reviewed": true,
-    "updated": "2026-10-22T16:50:00.110Z",
-    "generator": "imagegen-lake-wall-v1"
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 422,
+        "y": 440
+      },
+      {
+        "x": 502,
+        "y": 504
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.379Z"
   },
   "greenland-ice-sheet": {
     "mode": "long",
@@ -275,172 +309,333 @@
   },
   "hallstatter-see": {
     "mode": "generated",
-    "source": "imagegen",
-    "registered": true,
+    "source": "alpha-long-caustic",
     "anchorBase": false,
     "flipY": false,
-    "generatedScale": 0.4,
-    "opacity": 0.5,
-    "generatedBlur": 0,
-    "distance": 0,
-    "x": 30,
-    "y": 30,
-    "reviewed": true,
-    "updated": "2026-10-22T16:50:01.699Z",
-    "generator": "imagegen-lake-wall-v1"
-  },
-  "konigssee": {
-    "mode": "generated",
-    "source": "imagegen",
-    "registered": true,
-    "anchorBase": false,
-    "flipY": false,
-    "generatedScale": 0.4,
-    "opacity": 0.5,
-    "generatedBlur": 0,
-    "distance": 0,
-    "x": 30,
-    "y": 30,
-    "reviewed": true,
-    "updated": "2026-10-22T16:50:01.813Z",
-    "generator": "imagegen-lake-wall-v1"
-  },
-  "lake-baikal": {
-    "mode": "generated",
-    "source": "imagegen",
-    "registered": true,
-    "anchorBase": false,
-    "flipY": false,
-    "generatedScale": 0.4,
-    "opacity": 0.5,
-    "generatedBlur": 0,
-    "distance": 0,
-    "x": 30,
-    "y": 30,
-    "reviewed": true,
-    "updated": "2026-10-22T16:50:00.214Z",
-    "generator": "imagegen-lake-wall-v1"
-  },
-  "lake-nyos": {
-    "mode": "generated",
-    "source": "imagegen",
-    "registered": true,
-    "anchorBase": false,
-    "flipY": false,
-    "generatedScale": 0.4,
-    "opacity": 0.5,
-    "generatedBlur": 0,
-    "distance": 0,
-    "x": 30,
-    "y": 30,
-    "reviewed": true,
-    "updated": "2026-10-22T16:50:01.463Z",
-    "generator": "imagegen-lake-wall-v1"
-  },
-  "lake-superior": {
-    "mode": "generated",
-    "source": "imagegen",
-    "registered": true,
-    "anchorBase": false,
-    "flipY": false,
-    "generatedScale": 0.4,
-    "opacity": 0.5,
-    "generatedBlur": 0,
-    "distance": 0,
-    "x": 30,
-    "y": 30,
-    "reviewed": true,
-    "updated": "2026-10-22T16:50:00.413Z",
-    "generator": "imagegen-lake-wall-v1"
-  },
-  "lake-tahoe": {
-    "mode": "generated",
-    "source": "imagegen",
-    "registered": true,
-    "anchorBase": false,
-    "flipY": false,
-    "generatedScale": 0.4,
-    "opacity": 0.5,
-    "generatedBlur": 0,
-    "distance": 0,
-    "x": 30,
-    "y": 30,
-    "reviewed": true,
-    "updated": "2026-10-22T16:50:00.593Z",
-    "generator": "imagegen-lake-wall-v1"
-  },
-  "lake-victoria": {
-    "mode": "generated",
-    "source": "imagegen",
-    "registered": true,
-    "anchorBase": false,
-    "flipY": false,
-    "generatedScale": 0.4,
-    "opacity": 0.5,
-    "generatedBlur": 0,
-    "distance": 0,
-    "x": 30,
-    "y": 30,
-    "reviewed": true,
-    "updated": "2026-10-22T16:50:00.709Z",
-    "generator": "imagegen-lake-wall-v1"
-  },
-  "loch-ness": {
-    "opacity": 0.5,
+    "opacity": 1,
     "longLength": 0.8,
     "longGap": 0.06,
     "longAngle": 45,
     "longNear": 1.5,
     "longFar": 18,
     "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
     "generatedBlur": 0,
     "distance": 0,
-    "generatedScale": 0.4,
-    "depth": 1,
-    "height": 0,
-    "width": 1,
-    "blur": 12,
-    "fade": 0,
-    "x": -15,
-    "y": -15,
-    "mode": "generated",
-    "anchorBase": true,
+    "x": 0,
+    "y": 0,
     "reviewed": true,
-    "updated": "2026-10-22T12:46:03.299Z",
-    "source": "imagegen",
-    "flipY": false
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 450,
+        "y": 470
+      },
+      {
+        "x": 500,
+        "y": 554
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.399Z"
+  },
+  "konigssee": {
+    "mode": "generated",
+    "source": "alpha-long-caustic",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 1,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 0,
+    "y": 0,
+    "reviewed": true,
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 438,
+        "y": 452
+      },
+      {
+        "x": 488,
+        "y": 500
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.400Z"
+  },
+  "lake-baikal": {
+    "mode": "generated",
+    "source": "alpha-long-caustic",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 1,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 0,
+    "y": 0,
+    "reviewed": true,
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 462,
+        "y": 454
+      },
+      {
+        "x": 530,
+        "y": 514
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.380Z"
+  },
+  "lake-nyos": {
+    "mode": "generated",
+    "source": "alpha-long-caustic",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 1,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 0,
+    "y": 0,
+    "reviewed": true,
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 474,
+        "y": 462
+      },
+      {
+        "x": 502,
+        "y": 522
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.383Z"
+  },
+  "lake-superior": {
+    "mode": "generated",
+    "source": "alpha-long-caustic",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 1,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 0,
+    "y": 0,
+    "reviewed": true,
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 494,
+        "y": 444
+      },
+      {
+        "x": 540,
+        "y": 524
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.384Z"
+  },
+  "lake-tahoe": {
+    "mode": "generated",
+    "source": "alpha-long-caustic",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 1,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 0,
+    "y": 0,
+    "reviewed": true,
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 450,
+        "y": 466
+      },
+      {
+        "x": 518,
+        "y": 534
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.391Z"
+  },
+  "lake-victoria": {
+    "mode": "generated",
+    "source": "alpha-long-caustic",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 1,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 0,
+    "y": 0,
+    "reviewed": true,
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 430,
+        "y": 456
+      },
+      {
+        "x": 482,
+        "y": 524
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.395Z"
+  },
+  "loch-ness": {
+    "mode": "generated",
+    "source": "alpha-long-caustic",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 1,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 0,
+    "y": 0,
+    "reviewed": true,
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 444,
+        "y": 466
+      },
+      {
+        "x": 514,
+        "y": 524
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.375Z"
   },
   "sea-of-galilee": {
     "mode": "generated",
-    "source": "imagegen",
-    "registered": true,
+    "source": "alpha-long-caustic",
     "anchorBase": false,
     "flipY": false,
-    "generatedScale": 0.4,
-    "opacity": 0.5,
+    "opacity": 1,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 30,
-    "y": 30,
+    "x": 0,
+    "y": 0,
     "reviewed": true,
-    "updated": "2026-10-22T16:50:00.976Z",
-    "generator": "imagegen-lake-wall-v1"
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 450,
+        "y": 460
+      },
+      {
+        "x": 520,
+        "y": 518
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.398Z"
   },
   "titicaca": {
     "mode": "generated",
-    "source": "imagegen",
-    "registered": true,
+    "source": "alpha-long-caustic",
     "anchorBase": false,
     "flipY": false,
-    "generatedScale": 0.4,
-    "opacity": 0.5,
+    "opacity": 1,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "registered": true,
+    "bakedShadowOpacity": 0.5,
+    "generatedScale": 1,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 30,
-    "y": 30,
+    "x": 0,
+    "y": 0,
     "reviewed": true,
-    "updated": "2026-10-22T16:50:01.162Z",
-    "generator": "imagegen-lake-wall-v1"
+    "generator": "lake-long-caustic-v1",
+    "causticPoints": [
+      {
+        "x": 458,
+        "y": 466
+      },
+      {
+        "x": 506,
+        "y": 496
+      }
+    ],
+    "updated": "2026-10-22T19:44:16.406Z"
   },
   "asian-elephant": {
     "mode": "long",

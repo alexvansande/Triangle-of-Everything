@@ -2240,11 +2240,11 @@
     ]
   },
   "m87": {
-    "fingerprint": "e17d60712b7ea0631e9dbd815919f0f41e5a0a2f529afae972baaa8a46f7a46c",
+    "fingerprint": "a6c08b2f922234c6f967a81aeee3fbdfc1b4ef1e5c3c16d3561522efd6b6f485",
     "baseWidth": 128,
     "source": "content/icons/src/m87.png",
     "reason": "matching master",
-    "sourceDifference": 0.6960245768229166,
+    "sourceDifference": 0,
     "variants": [
       {
         "width": 256,
@@ -3189,11 +3189,11 @@
     ]
   },
   "sgr-a": {
-    "fingerprint": "f5480ba7841b3113da6a78ab286c651d4a6dce5384621419dc955117fe28dceb",
+    "fingerprint": "e8c02720fb7bb4389d3f10ccb529ffa47572ef4582fe0a1dc4799561714d0322",
     "baseWidth": 128,
     "source": "content/icons/src/sgr-a.png",
     "reason": "matching master",
-    "sourceDifference": 0.79534912109375,
+    "sourceDifference": 0,
     "variants": [
       {
         "width": 256,
@@ -3370,11 +3370,11 @@
     ]
   },
   "stellar-bh": {
-    "fingerprint": "ceaa9013ce4673a531026b7478d819b994a637c7ad4b357b0286fa5c950cd713",
+    "fingerprint": "a61ed4b7cb3798be34f6cdab8cce5e8d8a3ac5bd26216928d4551a6fa6706d75",
     "baseWidth": 128,
     "source": "content/icons/src/stellar-bh.png",
     "reason": "matching master",
-    "sourceDifference": 1.7214152018229167,
+    "sourceDifference": 0,
     "variants": [
       {
         "width": 256,
@@ -3383,6 +3383,10 @@
       {
         "width": 512,
         "path": "512/stellar-bh.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/stellar-bh.webp"
       }
     ]
   },
@@ -3652,11 +3656,11 @@
     ]
   },
   "ton-618": {
-    "fingerprint": "3769d2f18ef320e46e56c5b2db23c4ee7d86ba56d493e0e669c5439f84b3ad3f",
+    "fingerprint": "cc8a617dcd2e91be7bd88f84b1dd6f4285a16e15dc63c252a4dca1fd94030fc2",
     "baseWidth": 128,
     "source": "content/icons/src/ton-618.png",
     "reason": "matching master",
-    "sourceDifference": 1.9906209309895833,
+    "sourceDifference": 0,
     "variants": [
       {
         "width": 256,
@@ -3665,6 +3669,10 @@
       {
         "width": 512,
         "path": "512/ton-618.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ton-618.webp"
       }
     ]
   },

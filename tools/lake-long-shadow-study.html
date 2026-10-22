@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Lake long shadows</title><style>
+body{margin:0;background:#161223;color:#eee;font:15px system-ui}header{padding:20px;position:sticky;top:0;background:#161223;z-index:1}h1{font-size:21px;margin:0 0 10px}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;padding:16px}article{background:#252033;border-radius:10px;overflow:hidden}canvas{width:100%;display:block}footer{padding:12px}label{margin-right:20px}small{display:block;opacity:.7}
+</style></head><body><header><h1>Lake shadows · long cast with subtle caustics</h1><label><input id="objects" type="checkbox" checked>Show lakes</label><label><input id="hover" type="checkbox">Hover size</label><span>Previous on the left · new on the right</span></header><main></main><script type="module">
+import {wallShadowImageGeometry} from '/src/shadow-geometry.js';
+const root='/content/icons/shadow-candidates/lake-long-caustics',cards=[];
+const old=await(await fetch(root+'/previous/overrides.json')).json();
+const slugs=['lake-victoria','hallstatter-see','loch-ness','caspian-sea','dead-sea','lake-baikal','lake-nyos','lake-superior','lake-tahoe','sea-of-galilee','konigssee','titicaca'];
+const load=src=>new Promise((ok,no)=>{const im=new Image;im.onload=()=>ok(im);im.onerror=no;im.src=src});
+for(const slug of slugs){
+ const el=document.createElement('article');el.innerHTML=`<canvas width="800" height="440"></canvas><footer>${slug.replaceAll('-',' ')}<small>Same long-shadow preset as other objects; two localized neutral light patches</small></footer>`;document.querySelector('main').append(el);
+ const icon=await load('/content/icons/resolutions/512/'+slug+'.webp').catch(()=>load('/content/icons/'+slug+'.webp'));
+ const before=await load(root+'/previous/'+slug+'.webp'),after=await load('/content/icons/shadows/'+slug+'.webp');
+ const card={canvas:el.querySelector('canvas'),icon,before,after,slug};cards.push(card);draw(card);
+}
+function draw(card){const c=card.canvas.getContext('2d');c.fillStyle='#433193';c.fillRect(0,0,800,440);c.strokeStyle='#ffffff0a';for(let i=0;i<800;i+=40){c.beginPath();c.moveTo(i,0);c.lineTo(i,440);c.stroke()}for(let i=0;i<440;i+=40){c.beginPath();c.moveTo(0,i);c.lineTo(800,i);c.stroke()}
+ const size=180,growth=document.querySelector('#hover').checked?1.5:1;
+ for(let n=0;n<2;n++){const x=180+n*400,y=175,s=n?{registered:true}:old[card.slug],g=wallShadowImageGeometry({sx:x,sy:y,r:size/2,registered:s.registered||s.mode==='long',anchorBase:s.anchorBase},growth);c.globalAlpha=g.opacity;c.filter=`blur(${g.blur}px)`;c.drawImage(n?card.after:card.before,g.x-size*.05,g.y-size*.05,g.width,g.height);c.globalAlpha=1;c.filter='none';if(document.querySelector('#objects').checked)c.drawImage(card.icon,x-size*growth/2,y-size*growth/2,size*growth,size*growth)}
+}
+for(const id of ['objects','hover'])document.getElementById(id).onchange=()=>cards.forEach(draw);
+window.studyReady=()=>cards.length===slugs.length;
+</script></body></html>
