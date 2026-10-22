@@ -41,7 +41,8 @@ dji-mini-2, bust-of-queen-nefertiti, n1, saturn-v, great-sphinx, statue-of-unity
 caulobacter-vibrioides, mycoplasma-pneumoniae, escherichia-coli, staphylococcus-aureus, prochlorococcus-marinus,
 pseudomonas-aeruginosa, bacillus-subtilis, clostridium-botulinum, euglena-viridis, ceratium-hirundinella,
 noctiluca-scintillans, horse-chestnut-leaf-miner, clothes-moth,
-honey-bee, bumblebee, painted-lady, silkworm-moth, hedgehog, cane-toad, naked-mole-rat, meerkat, atlas-moth
+honey-bee, bumblebee, painted-lady, silkworm-moth, hedgehog, cane-toad, naked-mole-rat, meerkat, atlas-moth,
+curiosity, lion, flyer-i, hubble-space-telescope, benz-patent-motorwagen, concorde, union-pacific-big-boy, tiger-i, lockheed-sr-71-blackbird, asian-elephant, bismarck
 
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
