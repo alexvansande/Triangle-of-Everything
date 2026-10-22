@@ -1,0 +1,44 @@
+{
+  "mode": "built-in image_gen",
+  "selected": {
+    "hoba": "88abf31a-57ab-4295-ada3-5f6e176138c2",
+    "chelyabinsk": "3a053792-80b4-4f29-8eae-af8df23a77a0"
+  },
+  "checks": {
+    "hoba": {
+      "width": 1254,
+      "height": 1254,
+      "solidBounds": [
+        41,
+        394,
+        1212,
+        860
+      ],
+      "margins": [
+        41,
+        394,
+        41,
+        393
+      ],
+      "transparentFraction": 0.706670711140618
+    },
+    "chelyabinsk": {
+      "width": 1254,
+      "height": 1254,
+      "solidBounds": [
+        41,
+        199,
+        1212,
+        1054
+      ],
+      "margins": [
+        41,
+        199,
+        41,
+        199
+      ],
+      "transparentFraction": 0.5483435462659839
+    }
+  },
+  "shadowBatch": "2026-10-22T14-04-04-815Z"
+}

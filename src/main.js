@@ -1,4 +1,7 @@
 import * as d3 from "d3";
+import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
+import { buildSearchIndex, searchObjects } from "./object-search.js";
+import { VisibilityMemory } from "./visibility-memory.js";
 import {
   formatSci, friendlyRadius, friendlyMass, friendlyEnergy, isPhoton,
   friendlyWavelength, friendlyDensity, MASS_HOVER_UNITS, RADIUS_HOVER_UNITS,
@@ -6,7 +9,7 @@ import {
   formatLogSuper, densityToLogTime, friendlyTime, fmtTick,
 } from "./format.js";
 import {
-  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, STRINGS_ATOM_SLUGS,
+  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, iconUrlForSize, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
@@ -43,7 +46,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, t
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustOfCat, dustOfSrc, dustByName } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustOfCat, dustOfSrc, dustByName, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -88,6 +91,7 @@ const ICON_SIZE_MULT = {
   "saturn": 2,
   "primordial-black-hole": 2, "3k-bh": 2, "stellar-bh": 2,
   "sgr-a": 2, "m87": 2, "ton-618": 2,
+  "neutron-star": 2.5, // beams span the icon; the star is ~40% of it
 };
 
 // Physical size scaling: for every 6 orders of magnitude in real radius,
@@ -112,6 +116,7 @@ function nameToSlug(name) {
 }
 
 const OBJECTS = applyBulkObjects(objectsData).map(o => ({ ...o, slug: o.slug || nameToSlug(o.name) }));
+const CURATED_SLUGS = new Set(OBJECTS.map(o => o.slug)); // dust never shows a curated object's picture
 let tileMeta = null;
 
 // =============================================================
@@ -477,6 +482,26 @@ iconBgGrad.append("stop").attr("offset", "0%").attr("stop-color", "#000").attr("
 iconBgGrad.append("stop").attr("offset", "50%").attr("stop-color", "#000").attr("stop-opacity", 0.5);
 iconBgGrad.append("stop").attr("offset", "100%").attr("stop-color", "#000").attr("stop-opacity", 0);
 
+// Cast shadows under the pictures (drawIconShadows): blur sized to each
+// ellipse (objectBoundingBox), so one filter looks the same at every zoom.
+// The far ellipse is blurred more: the shadow softens as it leaves the object.
+// Dust dots' shadows: one path, a fixed 0.8 px blur (dots don't scale)
+defs.append("filter").attr("id", "dust-shadow-blur")
+  .attr("x", "-5%").attr("y", "-5%").attr("width", "110%").attr("height", "110%")
+  .append("feGaussianBlur").attr("stdDeviation", 0.8);
+// Stars' light pools (starGlowGeom): blur sized to the flat ellipse, softer
+// across than along, so the pool fades into the floor.
+defs.append("filter").attr("id", "star-glow")
+  .attr("primitiveUnits", "objectBoundingBox")
+  .attr("x", "-60%").attr("y", "-150%").attr("width", "220%").attr("height", "400%")
+  .append("feGaussianBlur").attr("stdDeviation", "0.14 0.3");
+[["icon-shadow-near", 0.08], ["icon-shadow-far", 0.16]].forEach(([id, sd]) => {
+  defs.append("filter").attr("id", id)
+    .attr("primitiveUnits", "objectBoundingBox")
+    .attr("x", "-60%").attr("y", "-60%").attr("width", "220%").attr("height", "220%")
+    .append("feGaussianBlur").attr("stdDeviation", sd);
+});
+
 function makeLinGrad(id, x1, y1, x2, y2, stops) {
   const g = defs.append("linearGradient").attr("id", id)
     .attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2);
@@ -598,6 +623,12 @@ const lDarkMatter = lContent.append("g");
 const lArrows     = lContent.append("g").style("mix-blend-mode", "screen");
 const lConnDots   = lContent.append("g").style("pointer-events", "none").style("mix-blend-mode", "screen");
 const lRegLabel   = lContent.append("g");
+// Pictures' cast shadows: under the dust, dots, labels and pictures alike
+const lShadows    = lContent.append("g").style("pointer-events", "none").attr("class", "icon-shadows");
+const SHADOWS = !new URLSearchParams(location.search).has("noshadows");
+// Stars' light pools: off for now, ?glow to try them
+const STAR_GLOWS = SHADOWS && new URLSearchParams(location.search).has("glow");
+const DUST_SHADOWS = SHADOWS && !new URLSearchParams(location.search).has("nodustshadows");
 // Catalogue "dust": thousands of faint real objects under the curated ones
 // (src/dust.js). Never interactive except for a hover name.
 const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
@@ -2031,6 +2062,7 @@ function catDisplayLabel(catKey) {
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
 const ICON_ROOM = 1.3;       // icons keep 30% of their radii clear between them
 let _iconShownPrev = new Set();
+const _objectVisibility = new VisibilityMemory();
 const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
 let _lastProjected = [];
@@ -2349,7 +2381,11 @@ function drawObjects() {
   lObjExtras.selectAll("*").remove();
   const d = vd();
   const icoSize = effectiveIconSize();
-  const pad = 5;
+  _objectVisibility.update([px(1)-px(0), py(1)-py(0)], JSON.stringify([
+    cw, ch, _iconSize, _fontScale, _iconsEnabled, _labelsEnabled,
+    _dustEnabled, dustReady(), _isMobile, _posterLabels, _atomIconsHidden,
+    _bigBangMode && [_bigBangObjectOverrides, _bigBangObjectOpacity],
+  ]));
 
   // Project all objects to screen, sorted by priority (low z = important)
   const projected = OBJECTS
@@ -2379,8 +2415,6 @@ function drawObjects() {
     })
     .filter(o =>
       o &&
-      o.sx >= -pad && o.sx <= cw + pad &&
-      o.sy >= -pad && o.sy <= ch + pad &&
       (!o.minK || currentK >= o.minK)
     )
     .sort((a, b) => {
@@ -2419,7 +2453,16 @@ function drawObjects() {
     o._showIcon = true; o._icoR = r;
     shownIcons.push(o);
   });
-  _iconShownPrev = new Set(shownIcons.map(o => o.slug));
+  // Decide against the whole curated collection, not the viewport contents.
+  // A neighbour crossing an edge cannot promote/demote a stationary object.
+  for (const o of projected) {
+    const saved = _objectVisibility.decisions.get(o.slug);
+    if (saved) {
+      o._showDot = saved.dot; o._showIcon = saved.icon;
+      if (o._showIcon) o._icoR = icoR(o);
+    } else _objectVisibility.decisions.set(o.slug, { dot:o._showDot, icon:o._showIcon });
+  }
+  _iconShownPrev = new Set(projected.filter(o=>o._showIcon).map(o=>o.slug));
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
   const th2 = _posterLabels ? -1 : CLUSTER_THRESHOLD * CLUSTER_THRESHOLD; // poster: no clusters
@@ -2795,7 +2838,10 @@ function drawObjects() {
   }
 
   // --- Render object dots, icons, and labels via keyed joins ---
-  const shownDots = projected.filter(o => o._showDot);
+  // Cull only after making visibility/layout decisions. Keep a generous
+  // margin so wide icons and labels slide through the edge rather than pop.
+  const shownDots = projected.filter(o => o._showDot &&
+    o.sx >= -256 && o.sx <= cw + 256 && o.sy >= -256 && o.sy <= ch + 256);
   const iconObjs = shownDots.filter(o => o._showIcon);
 
   // (1) Object groups: hit area + glow/dot, keyed by slug. Structure is
@@ -2847,7 +2893,6 @@ function drawObjects() {
         const imgEl = gg.append("image")
           .attr("class", "obj-icon")
           .attr("data-slug", o.slug)
-          .attr("href", ICON_BY_SLUG[o.slug])
           .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
           .node();
         imgEl.addEventListener("load", () => {
@@ -2869,6 +2914,7 @@ function drawObjects() {
         .attr("display", _loadedIconUrls.has(ICON_BY_SLUG[o.slug]) ? "none" : null)
         .attr("opacity", bbOp == null ? 0.85 : 0.85 * bbOp);
       gg.select(".obj-icon")
+        .attr("href", iconUrlForSize(o.slug, objIcoSize))
         .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2)
         .attr("width", objIcoSize).attr("height", objIcoSize)
         .attr("opacity", bbOp);
@@ -2904,16 +2950,26 @@ function drawObjects() {
     })
     .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
 
-  _lastProjected = shownDots;
+  _lastProjected = shownDots.filter(o => o.sx >= 0 && o.sx <= cw && o.sy >= 0 && o.sy <= ch);
 
   // Dust fills whatever room the curated objects leave — it never sits on
   // a curated dot, icon or visible label.
   drawDust(lDust, {
     px, py, cw, ch, mobile: _isMobile,
+    visibilityEpoch: _objectVisibility.epoch,
     hidden: !_dustEnabled || _bigBangMode,
     // a few dust names, map-style; not in the narrated videos or the poster
     labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fontScale: _fontScale,
     labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
+    // a famous named dot with a picture (content/icons/<its slug>.webp) can
+    // show it when there's room — not one a curated object already shows
+    iconOf: _iconsEnabled && !_posterLabels ? (name, size) => {
+      const slug = nameToSlug(name);
+      return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug, size) || null;
+    } : null,
+    // as iconSizeMult, per-object multipliers included
+    iconSizeAt: (logR, name) => icoSize * Math.pow(1.1, (logR + 3.5) / 6) * (ICON_SIZE_MULT[nameToSlug(name)] || 1) * (_iconSize / 100),
+    iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
   }, {
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
@@ -2927,6 +2983,157 @@ function drawObjects() {
     }),
   }, dustColor);
   lDustHover.selectAll("*").remove();
+  drawIconShadows([
+    // stars make light: a pool of their colour on the floor instead of a shadow
+    ...(STAR_GLOWS ? shownDots.filter(o => o._showIcon && (o.catKey || o.cat) === "star") : [])
+      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, glow: starTint(ICON_BY_SLUG[o.slug], o.color), glowUrl: ICON_BY_SLUG[o.slug] })),
+    ...(STAR_GLOWS ? dustIcons().filter(d => d.cat === "star") : [])
+      .map(d => ({ key: `dust:${d.i}`, ...d, glow: starTint(ICON_BY_SLUG[nameToSlug(d.name)], "#ffd27a"), glowUrl: ICON_BY_SLUG[nameToSlug(d.name)] })),
+    ...shownDots.filter(o => o._showIcon && !iconUsesScreenBlend(o))
+      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.registered || SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
+    ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
+  ]);
+  drawDustShadows();
+}
+
+/** Every dust dot casts a tiny soft shadow down-right (same light as the
+ *  pictures'), all in one blurred path under everything. */
+function drawDustShadows() {
+  const dots = DUST_SHADOWS && !_bigBangMode && _dustEnabled ? dustDots() : [];
+  const R = 1.4, DX = 3, DY = 4;
+  let d = "";
+  for (const q of dots) {
+    const x = q.sx + DX - R, y = q.sy + DY;
+    d += `M${x.toFixed(1)},${y.toFixed(1)}a${R},${R} 0 1,0 ${2 * R},0a${R},${R} 0 1,0 ${-2 * R},0`;
+  }
+  let p = lShadows.select("path.dust-shadows");
+  if (p.empty()) p = lShadows.insert("path", ":first-child").attr("class", "dust-shadows")
+    .attr("fill", "#000").attr("opacity", 0.4).attr("filter", "url(#dust-shadow-blur)");
+  p.attr("d", d || null);
+}
+
+/** Cast shadows fall on a poster behind the floating objects. Hover moves
+ *  the object toward the viewer: its shadow moves farther, grows and fades.
+ *  Image textures gain blur; fallback ellipse blur scales with their bounds. */
+const SHADOW_PARTS = [
+  // [class, filter, centre along the diagonal (× r) + px, half-length, half-width (× r), opacity]
+  ["sh-near", "icon-shadow-near", 1.1, 10, 1.05, 0.9, 0.28],
+  ["sh-far", "icon-shadow-far", 1.6, 16, 1.35, 1.05, 0.18],
+];
+let _shadowLift = null; // { key, k }: the hovered picture and how much it grew
+function shadowGeom(d, [, , c, px, a, b, op]) {
+  const k = _shadowLift?.key === d.key ? _shadowLift.k : 1;
+  const state = wallShadowState(d.r, k);
+  const r = state.radius;
+  const off = (c * d.r + px) * 0.85 + state.travel;
+  const cx = d.sx + off * Math.SQRT1_2, cy = d.sy + off * Math.SQRT1_2 + 0.3 * d.r;
+  return { cx, cy, rx: a * r, ry: b * r, transform: `rotate(45 ${cx} ${cy})`, opacity: op * state.opacity };
+}
+function shadowImgGeom(d) {
+  return wallShadowImageGeometry(d, _shadowLift?.key === d.key ? _shadowLift.k : 1);
+}
+function applyShadowImg(sel, g) {
+  sel.attr("x", g.x).attr("y", g.y).attr("width", g.width).attr("height", g.height).attr("opacity", g.opacity).style("filter", g.blur ? `blur(${g.blur}px)` : "none");
+}
+function applyShadowGeom(sel, g) {
+  sel.attr("cx", g.cx).attr("cy", g.cy).attr("rx", g.rx).attr("ry", g.ry)
+    .attr("transform", g.transform).attr("opacity", g.opacity);
+}
+/** A star's light pool: a flat ellipse of its colour on the floor under it —
+ *  a light source lights the ground beneath it rather than casting a shadow
+ *  away from the light. The pool is anchored: it sits low enough that even the
+ *  star grown on hover (setIconHover: to ≥ 64 px or 1.5×) never covers it, and
+ *  on hover it only spreads about its own centre and fades a little. Kept
+ *  faint: screen-blended at ~0.3, a hint of light, not a second object. */
+const STAR_GLOW = { width: 1.0, height: 0.24, spread: 1.3, gap: 0.08, opacity: 0.3 };
+function starGlowGeom(d) {
+  const lifted = _shadowLift?.key === d.key;
+  const kHover = Math.max(64, 4 * d.r * 0.75) / (2 * d.r);   // as setIconHover: max(64, size × 1.5) / size
+  const k = lifted ? kHover : 1, grow = lifted ? STAR_GLOW.spread : 1;
+  // the hovered pool's top edge clears the hovered star's bottom (icons fill 122/128 → 0.95 r)
+  const ryHover = STAR_GLOW.height * d.r * kHover * STAR_GLOW.spread;
+  const cy = d.sy + d.r * (0.95 * kHover + STAR_GLOW.gap) + ryHover;
+  return { cx: d.sx, cy, rx: STAR_GLOW.width * d.r * k * grow, ry: STAR_GLOW.height * d.r * k * grow,
+    transform: null, opacity: STAR_GLOW.opacity * (lifted ? 0.7 : 1) };
+}
+/** The colour of a star's light: the mean of its icon's bright pixels, sampled
+ *  once per icon (fallback until it has loaded). */
+const _starTints = new Map();
+function starTint(url, fallback) {
+  if (!url) return fallback;
+  const known = _starTints.get(url);
+  if (known) return known === "pending" ? fallback : known;
+  _starTints.set(url, "pending");
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement("canvas"); c.width = c.height = 24;
+    const cx = c.getContext("2d", { willReadFrequently: true });
+    cx.drawImage(img, 0, 0, 24, 24);
+    const px = cx.getImageData(0, 0, 24, 24).data;
+    let r = 0, g = 0, b = 0, n = 0;
+    for (let i = 0; i < px.length; i += 4) {
+      const w = px[i + 3] / 255 * Math.max(px[i], px[i + 1], px[i + 2]) / 255;  // bright, opaque pixels count most
+      r += px[i] * w; g += px[i + 1] * w; b += px[i + 2] * w; n += w;
+    }
+    if (!n) return;
+    // light carries the hue at full brightness; the pool's opacity keeps it faint
+    const m = Math.max(r, g, b) / n || 1, f = 255 / m;
+    _starTints.set(url, `rgb(${Math.round(r / n * f)},${Math.round(g / n * f)},${Math.round(b / n * f)})`);
+    lShadows.selectAll("g.icon-shadow").filter(d => d.glow).each(function(d) {
+      if (d.glowUrl === url) d3.select(this).select("ellipse.sh-glow").attr("fill", _starTints.get(url));
+    });
+  };
+  img.src = url;
+  return fallback;
+}
+function drawIconShadows(shapes) {
+  if (!SHADOWS || _bigBangMode) shapes = [];
+  lShadows.selectAll("g.icon-shadow")
+    .data(shapes, d => d.key)
+    .join(enter => {
+      const g = enter.append("g").attr("class", "icon-shadow");
+      SHADOW_PARTS.forEach(([cls, filter]) => g.append("ellipse").attr("class", cls)
+        .attr("fill", "#000").attr("filter", `url(#${filter})`));
+      g.append("image").attr("class", "sh-img").attr("preserveAspectRatio", "none");
+      g.append("ellipse").attr("class", "sh-glow").attr("filter", "url(#star-glow)")
+        .style("mix-blend-mode", "screen");
+      return g;
+    })
+    .each(function(d) {
+      const g = d3.select(this);
+      const glow = g.select("ellipse.sh-glow").attr("display", d.glow ? null : "none");
+      if (d.glow) {
+        g.selectAll("ellipse:not(.sh-glow)").attr("display", "none");
+        g.select("image.sh-img").attr("display", "none");
+        applyShadowGeom(glow.interrupt().attr("fill", d.glow), starGlowGeom(d));
+        return;
+      }
+      g.selectAll("ellipse:not(.sh-glow)").attr("display", d.img ? "none" : null);
+      const img = g.select("image.sh-img").attr("display", d.img ? null : "none");
+      if (d.img) {
+        if (img.attr("href") !== d.img) img.attr("href", d.img);
+        applyShadowImg(img.interrupt(), shadowImgGeom(d));
+        return;
+      }
+      SHADOW_PARTS.forEach(part => applyShadowGeom(g.select(`ellipse.${part[0]}`).interrupt(), shadowGeom(d, part)));
+    });
+}
+/** Ease one picture's shadow to its lifted (hover) or resting place. */
+function liftShadow(key, k) {
+  _shadowLift = k > 1 ? { key, k } : null;
+  lShadows.selectAll("g.icon-shadow").filter(d => d.key === key).each(function(d) {
+    const g = d3.select(this);
+    if (d.glow) {
+      applyShadowGeom(g.select("ellipse.sh-glow").interrupt().transition().duration(150), starGlowGeom(d));
+      return;
+    }
+    if (d.img) {
+      applyShadowImg(g.select("image.sh-img").interrupt().transition().duration(150), shadowImgGeom(d));
+      return;
+    }
+    SHADOW_PARTS.forEach(part => applyShadowGeom(
+      g.select(`ellipse.${part[0]}`).interrupt().transition().duration(150), shadowGeom(d, part)));
+  });
 }
 
 // Screen-blend decision is static per object — shared by enter and update.
@@ -2950,6 +3157,7 @@ function setIconHover(o, on) {
   // owned by the renderer (see .obj-icon in style.css for why).
   const k = on ? Math.max(64, base * 1.5) / base : 1;
   iconEl.style("transform", k === 1 ? null : `scale(${k})`);
+  liftShadow(o.slug, k);
   return true;
 }
 
@@ -3058,7 +3266,24 @@ svg.on("mousemove.tooltip", (e) => {
 // Curated objects sit above in the HTML click-target overlay, so they
 // always win; dust only answers when nothing else has the tooltip.
 let _dustTip = false;
+let _dustIconHover = null;   // index of the dust picture grown under the pointer
+/** Same growth as setIconHover (curated icons): to ≥ 64 px or 1.5×, shadow lifted. */
+function setDustIconHover(icon) {
+  const i = icon ? icon.i : null;
+  if (i === _dustIconHover) return;
+  if (_dustIconHover != null) {
+    setDustIconScale(lDust, _dustIconHover, 1);
+    liftShadow(`dust:${_dustIconHover}`, 1);
+  }
+  _dustIconHover = i;
+  if (icon) {
+    const base = 2 * icon.r, k = Math.max(64, base * 1.5) / base;
+    setDustIconScale(lDust, i, k);
+    liftShadow(`dust:${i}`, k);
+  }
+}
 function hideDustTip() {
+  setDustIconHover(null);
   if (!_dustTip) return;
   _dustTip = false;
   lDustHover.selectAll("*").remove();
@@ -3069,12 +3294,15 @@ svg.on("mousemove.dust", (e) => {
   if (_zooming || _touchMode || !_dustEnabled) return hideDustTip();
   if (!_dustTip && tooltipEl.classList.contains("visible")) return; // someone else's tooltip
   const [mx, my] = d3.pointer(e, chart.node());
-  const hit = pickDust(mx, my, 6);
-  if (!hit) return hideDustTip();
+  // a dust picture answers anywhere over it, like a curated icon
+  const icon = pickDustIcon(mx, my);
+  const hit = icon ? { ...pickDust(icon.sx, icon.sy, 1), name: icon.name } : pickDust(mx, my, 6);
+  if (!hit || !hit.source) return hideDustTip();
+  setDustIconHover(icon);
   const color = CATEGORIES[hit.cat]?.color || "#fff";
   lDustHover.selectAll("*").remove();
   if (COMPOSITION[hit.name]) showComposition(hit);
-  lDustHover.append("circle")
+  if (!icon) lDustHover.append("circle")
     .attr("cx", hit.sx).attr("cy", hit.sy).attr("r", 3.2)
     .attr("fill", color).attr("stroke", "rgba(6,6,26,0.9)").attr("stroke-width", 1);
   tooltipEl.innerHTML = `<div class="tt-name" style="color:${color}">${escapeHtml(hit.name)}</div>` +
@@ -6661,6 +6889,16 @@ function applyLayout({ resetZoom } = {}) {
 // redraw() here.
 let _lastVw = window.innerWidth, _lastVh = window.innerHeight;
 let _resizeTimer = null;
+// Moving between displays can change pixel density without changing CSS size.
+// Refresh image tiers even when the normal layout resize does not run.
+function watchIconPixelDensity() {
+  const query = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+  query.addEventListener("change", () => {
+    watchIconPixelDensity();
+    redraw();
+  }, { once: true });
+}
+watchIconPixelDensity();
 window.addEventListener("resize", () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(() => {
@@ -6702,6 +6940,7 @@ function openSearch() {
   searchBtn.setAttribute("aria-expanded", "true");
   searchInput.setAttribute("aria-expanded", "true");
   requestAnimationFrame(() => searchInput.focus());
+  ensureSearchCatalogue();
 }
 function closeSearch() {
   searchBox.classList.remove("expanded");
@@ -6806,26 +7045,42 @@ function getSearchRegions() {
 const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-searchInput.addEventListener("input", () => {
+let searchIndex = buildSearchIndex(OBJECTS, []);
+let searchCatalogueLoading = null;
+function ensureSearchCatalogue() {
+  if (searchCatalogueLoading) return;
+  searchCatalogueLoading = loadDust().then(() => {
+    searchIndex = buildSearchIndex(OBJECTS, dustSearchEntries());
+    if (searchBox.classList.contains("expanded")) renderSearchResults();
+  }).catch(error => {
+    searchCatalogueLoading = null;
+    console.warn("Search catalogue failed to load", error);
+    if (searchBox.classList.contains("expanded")) renderSearchResults(true);
+  });
+}
+
+function renderSearchResults(loadFailed = false) {
   const q = searchInput.value.trim().toLowerCase();
+  _searchActive = -1;
+  searchInput.removeAttribute("aria-activedescendant");
   if (q.length < 1) { searchResults.classList.remove("active"); return; }
 
-  const matches = OBJECTS.filter(o => o.name.toLowerCase().includes(q)).slice(0, 6);
+  const matches = searchObjects(searchIndex, q);
   const regions = getSearchRegions().filter(g => g.label.toLowerCase().includes(q)).slice(0, 3);
 
   // The UI must always respond — an empty dropdown reads as "search is broken"
   if (matches.length === 0 && regions.length === 0) {
-    searchResults.innerHTML = `<div class="search-empty">No matches for “${escapeHtml(searchInput.value.trim())}”</div>`;
+    searchResults.innerHTML = `<div class="search-empty">${loadFailed ? "Catalogue unavailable. Reopen search to retry." : !dustReady() ? "Loading catalogue…" : `No matches for “${escapeHtml(searchInput.value.trim())}”`}</div>`;
     searchResults.classList.add("active");
     return;
   }
 
-  searchResults.innerHTML = matches.map(o => {
-    const dotColor = SUBCAT_COLORS[o.subcat] || CATEGORIES[o.cat]?.color || "#fff";
-    return `<button type="button" role="option" class="search-item" data-logr="${o.logR}" data-logm="${o.logM}">
+  searchResults.innerHTML = matches.map((o, index) => {
+    const dotColor = SUBCAT_COLORS[o.subcat || DUST_SOURCE_SUBCAT[o.sourceId]] || CATEGORIES[o.cat]?.color || "#fff";
+    return `<button type="button" role="option" class="search-item" data-result="${index}">
       <span class="search-dot" style="background:${dotColor}"></span>
-      <span class="search-name">${o.name}</span>
-      <span class="search-cat">${o.cat}</span>
+      <span class="search-name">${escapeHtml(o.name)}</span>
+      <span class="search-cat">${escapeHtml(o.kind || o.cat)}</span>
     </button>`;
   }).join("") + regions.map((g, i) => `
     <button type="button" role="option" class="search-item search-region" data-region="${i}">
@@ -6840,16 +7095,24 @@ searchInput.addEventListener("input", () => {
 
   searchResults.querySelectorAll(".search-item:not(.search-region)").forEach(el => {
     el.addEventListener("click", () => {
-      const logR = parseFloat(el.dataset.logr);
-      const logM = parseFloat(el.dataset.logm);
-      const obj = OBJECTS.find(o => o.logR === logR && o.logM === logM);
-      panToCoord(logR, logM);
-      if (obj) openSidebar(obj);
+      const obj = matches[+el.dataset.result];
+      focusDust(obj.dustIndex ?? null);
+      if (obj.dustIndex != null) {
+        closeSidebar();
+        _dustEnabled = true;
+        setDust.checked = true;
+        flyTo(obj.logR, obj.logM, Math.max(currentK, 12), 500, d3.easeCubicOut);
+        redraw();
+      } else {
+        panToCoord(obj.logR, obj.logM);
+        openSidebar(obj);
+      }
       closeSearch();
     });
   });
   searchResults.querySelectorAll(".search-region").forEach(el => {
     el.addEventListener("click", () => {
+      focusDust();
       const g = regions[+el.dataset.region];
       const pad = 1.5;
       const xs = g.members.map(m => m.logR), ys = g.members.map(m => m.logM);
@@ -6860,6 +7123,10 @@ searchInput.addEventListener("input", () => {
       closeSearch();
     });
   });
+}
+searchInput.addEventListener("input", () => {
+  ensureSearchCatalogue();
+  renderSearchResults();
 });
 
 // Keyboard: ArrowUp/Down move the active option, Enter activates it,

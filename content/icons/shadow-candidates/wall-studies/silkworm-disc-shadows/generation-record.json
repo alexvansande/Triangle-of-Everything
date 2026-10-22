@@ -1,0 +1,10 @@
+{
+  "mode": "built-in image_gen",
+  "request": {
+    "transparent_background": true,
+    "referenced_image_paths": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/silkworm-moth.png"
+    ],
+    "prompt": "Use case: style-transfer. Make a single realistic silkworm moth Bombyx mori miniature specimen icon, preserving the reference's warm ivory/cream furry body, broad softly veined cream wings and two broad feathered antennae, but change camera to STRICT DORSAL TOP VIEW: directly looking at the insect's BACK, head pointing UP, long axis vertical, wings symmetrically spread left and right in the image plane like a specimen glued to a museum display wall. No perspective foreshortening or side view. Four natural wings: two larger forewings and smaller hindwings partially overlapping below; six anatomically plausible legs attached to thorax, two feathery antennae, dark small eyes. Keep body furry, wing texture delicate, leg joints believable. Detailed photoreal miniature illustration matching ant/bee/ladybug family, strong soft upper-left/front illumination with shaded lower-right relief and restrained violet ambient fill for a purple chart. One centered object, complete antennae/wings/feet, 92-94% longest canvas extent, square canvas with clear safety margins. True transparent PNG alpha background, NO cast shadow, wall, pins, shelf, glue, scenery, text or watermark. Only natural self-shading."
+  }
+}

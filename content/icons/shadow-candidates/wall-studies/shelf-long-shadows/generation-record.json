@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-22",
+  "tool": "image_gen.imagegen",
+  "jobs": [
+    {
+      "name": "sequoia",
+      "prompt": "Rendered miniature from a museum collection. Broad upper-left/front light, readable textured materials and dark recesses, gentle purple ambient bounce. Square genuine transparent PNG; complete isolated object, no cast shadow, wall, shelf, scenery, plinth or visible support. Center subject; longest solid dimension 93% of canvas, all extremities clear of edges. No text. Edit the sequoia in image 1 into a FRONT VIEW of a small realistic mature giant sequoia model on an invisible shelf just below eye level. Straight-on trunk, almost orthographic with very little perspective. Gently looking down only 5 degrees, no high aerial view. Preserve its character: massive reddish cinnamon deeply furrowed buttressed trunk, branching evergreen crown, rich green foliage and warm sunlit needles. Show complete root flare terminating naturally as a detached tree, no soil disk or ground. The canopy must look like a giant sequoia, not a stylized Christmas tree or tiny bonsai. Preserve dense irregular foliage but make trunk readable. Complete crown and roots unclipped.",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/sequoia.png"
+      ]
+    },
+    {
+      "name": "great-sphinx",
+      "prompt": "Rendered miniature from a museum collection. Broad upper-left/front light, readable textured materials and dark recesses, gentle purple ambient bounce. Square genuine transparent PNG; complete isolated object, no cast shadow, wall, shelf, scenery, plinth or visible support. Center subject; longest solid dimension 93% of canvas, all extremities clear of edges. No text. Edit Great Sphinx of Giza in image 1 into a true SIDE PROFILE, as a small museum souvenir displayed on an invisible shelf. Head faces SCREEN LEFT, elongated reclining lion body runs horizontally to the right; long forepaws extend left, tail curves along rear body. Exact side view, zero yaw toward camera: only profile of human face and nemes headdress, missing nose, one near-side flank dominant, far paws largely hidden directly behind near paws. Very weak perspective, slight downward view around 5 degrees, narrow top surfaces only. Preserve weathered golden limestone layers, erosion and carving detail, authentic proportions and integral narrow bedrock underside. No separate pedestal, no environment. Keep full forepaws and tail visible.",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/great-sphinx.png"
+      ]
+    },
+    {
+      "name": "titanic",
+      "prompt": "Rendered miniature from a museum collection. Broad upper-left/front light, readable textured materials and dark recesses, gentle purple ambient bounce. Square genuine transparent PNG; complete isolated object, no cast shadow, wall, shelf, scenery, plinth or visible support. Center subject; longest solid dimension 93% of canvas, all extremities clear of edges. No text. Edit Titanic in image 1 into a true SIDE ELEVATION of a detailed ship model displayed on an invisible shelf. Bow points SCREEN LEFT and stern SCREEN RIGHT. Hull perfectly horizontal, exactly broadside, almost orthographic. Just 3–5 degrees above the ship so only a narrow glimpse of deck, no three-quarter bow or stern view. Preserve complete recognizable RMS Titanic: black hull, red antifouling underside, white superstructure, FOUR evenly spaced buff funnels with black tops, two masts and fine rigging, lifeboats, rows of windows and portholes. All four funnels and both masts visible separately in profile. Full hull, keel and rudder visible, no sea, no waterline crop, no stands, no smoke. Full ship and rigging within square canvas, ship spans93% of width with thin horizontal profile; do not exaggerate height to fill square.",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/titanic.png"
+      ]
+    },
+    {
+      "name": "boeing-747",
+      "prompt": "Rendered miniature from a museum collection. Broad upper-left/front light, readable textured materials and dark recesses, gentle purple ambient bounce. Square genuine transparent PNG; complete isolated object, no cast shadow, wall, shelf, scenery, plinth or visible support. Center subject; longest solid dimension 93% of canvas, all extremities clear of edges. No text. Edit Boeing 747 in image 1 into a strict TOP VIEW, as a small airliner model pinned flat against a vertical museum display wall. Camera directly overhead perpendicular to wing plane, zero pitch/yaw, nearly orthographic. Nose points straight UP, tail DOWN, fuselage centered vertical; symmetrical left and right swept wings, four jet engines (two under each wing, visible only as appropriate from above), tailplane, dorsal vertical-fin ridge. Show ONLY top surfaces and no side-view nose, no underside, no three-quarter perspective. Preserve recognizable long 747 fuselage and upper-deck hump, white/light silver finish and deep navy tail, fine panel seams and wing details. No airline text or brand logos. No mounting pin, no cast shadow. Nose, wing tips and tail entirely within margins.",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/boeing-747.png"
+      ]
+    }
+  ]
+}

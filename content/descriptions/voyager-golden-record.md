@@ -1,0 +1,1 @@
+Voyager Golden Record: a 30-centimeter gold-plated copper phonograph record carried by both Voyager probes, launched in 1977. It holds greetings in 55 languages, music and 115 images, with instructions for playing it etched on its cover — now more than 20 billion kilometers away and leaving the Solar System.

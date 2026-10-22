@@ -1,0 +1,25 @@
+{
+  "tool": "built-in image_gen",
+  "reference": "1-ml-of-water.png",
+  "placement": "Preserve x=-90,y=-125,generatedScale=.42,anchorBase=false; opacity=1 for new darker artwork.",
+  "passes": [
+    {
+      "subject": "1-liter-of-water",
+      "prompt": "Use case: style-transfer. Edit target is image 1: an isolated fishbowl cast shadow and caustics layer. Image 2 is the approved 1ml droplet shadow COLOR AND TONAL reference. Recolor image 1 to exactly the deep purple tonal family of image 2. Preserve image 1's oval silhouette, orientation, framing, caustic line geometry and transparent edges. Replace the milky pale lavender all-over fill with very dark violet navy shadow in upper left fading to translucent saturated violet in lower right. Preserve selective luminous pale lavender almost-white caustic lines, similar brightness and restrained bloom to image 2, not a glowing opaque lavender disk. This is light and shadow projected onto a vertical purple wall (#433193), NOT a glass object itself, no bowl, no object, no floor. Background must be genuinely transparent, including outside soft shadow. The interior must retain semitransparent dark purple shadow, not become empty. Square output, same canvas composition as image 1. No text."
+    },
+    {
+      "subject": "1-tonne-of-water",
+      "prompt": "Use case: style-transfer. Edit target image 1 is the isolated shadow and caustics layer of a large glass cube containing one tonne of water. Image 2 is the approved 1ml droplet shadow COLOR AND TONAL reference. Match its colors and tonal contrast precisely. Preserve image 1's squared rounded-corner silhouette, down-right orientation, framing, thin complex caustic web geometry and transparent edges. Replace milky pale lavender all-over fill with very dark violet navy shadow in upper left fading to translucent saturated violet in lower right. Keep selective luminous pale lavender almost-white caustic lines, similar brightness and restrained bloom to image 2; most area should remain dark saturated purple, not a pale glowing panel. This is a flat light and shadow projection onto a vertical purple wall (#433193), NOT a solid or glass object itself. No cube, no object, no floor. Genuinely transparent background outside soft shadow and preserve semi-transparent shadow interior. Square canvas exactly same composition as image 1. No text."
+    },
+    {
+      "subject": "1-liter-of-water",
+      "prompt": "Edit image 1 (the oval fishbowl shadow layer), using image 2 only as exact tonal reference. Preserve the silhouette, caustic line network and all framing. Targeted correction: the broad lavender glow at the lower right is still far too bright. Eliminate that milky lavender background fill THROUGHOUT THE WHOLE SHADOW. Darken all broad fill areas, including the lower half and outer tip, to deep muted violet, approximately RGB 35,20,85 to 60,35,115. There should be no pastel blue or lavender disk. Keep the existing fine caustic lines luminous pale lavender, so that they alone provide bright highlights over dark violet. The reference image 2 has this dark violet body with bright selected streaks: match that tonal contrast. Soft semi-transparent outer edge. Genuine transparent background. Only shadow plus caustic light, no physical object. It will be composited onto a #433193 purple wall; broad areas should DARKEN that wall, only fine caustics should lighten it.",
+      "output": "1-liter-of-water-drop-color-match.png"
+    },
+    {
+      "subject": "1-tonne-of-water",
+      "prompt": "Edit image 1 (the squared water-tank shadow layer), using image 2 only as exact tonal reference. Preserve the silhouette, thin complex caustic line network and all framing. Targeted correction: the broad lavender glow at the lower right is still far too bright. Eliminate that milky lavender background fill THROUGHOUT THE WHOLE SHADOW. Darken all broad fill areas, including the lower half and outer tip, to deep muted violet, approximately RGB 35,20,85 to 60,35,115. There should be no pastel blue or lavender panel. Keep existing fine caustic lines luminous pale lavender, so that they alone provide bright highlights over dark violet. The reference image 2 has a dark violet body with bright selected streaks: match that tonal contrast. Important: soft blurred feathered semi-transparent outer shadow edge, fading smoothly to zero alpha. Genuine transparent background. Only shadow plus caustic light, no physical object. It will be composited onto a #433193 purple wall; broad areas should DARKEN that wall, only fine caustics should lighten it.",
+      "output": "1-tonne-of-water-drop-color-match.png"
+    }
+  ]
+}
