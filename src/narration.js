@@ -337,6 +337,8 @@ export async function startNarration(app) {
   //        | { map: [ar, ai, br, bi], r, at?: [x, y], size: [w, h] }
   //        plus fill?: true | "cover", hold?: s (0.3), fillDur?: s (1.6) — then grow:
   //        true = the disc to the screen's width, "cover" = the whole photo upright, edge to edge }
+  // A spot on the object + a photo with `lens` = a "dive" (video/plans/visual-rules.md §3),
+  // the default way to show a real photo of something that has a picture on the chart.
   // `lens`: no cut. The photo fades in through a round window laid exactly over the
   // object's own picture, scaled so the photo's disc (photo: px in the image) sits on
   // the picture's disc (icon: fractions of the icon) — like holding a lens to it.

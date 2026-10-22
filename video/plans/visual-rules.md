@@ -55,7 +55,34 @@ cutaways could go is `cutaways.md`; this file is the *why*.
 - **Keep busy frames lean**: drop a joke title or extra label if the frame already has a lot
   ("Here be dark matter?" was cut for this).
 
-## 3. Photo cutaways: when, and which
+## 3. Dives: the default way to show a real photo
+
+A **dive** (named by the author, 2026-10-22) shows a real photograph without cutting away
+from the chart: the camera zooms onto the object, its picture grows like the hover effect
+while everything around it dims (to black for the dramatic ones), and the photo fades in
+*on top of the picture*, scaled and turned so the photo's subject lands exactly on the
+icon's (a disc on a disc, the Pillars on the Pillars). It reads as holding a lens to the
+map. Optionally it then fills the screen, holds, and fades slowly back to the chart.
+
+- **Use a dive, not a photo cutaway, whenever the object has a picture on the chart.**
+  Plain cutaways (below) are left for things the chart can't show by itself.
+- **Current dives**: Jupiter in infrared (video 3, fills the width), the Pillars of
+  Creation (videos 3 and 5, upright and edge to edge), M87* (end of video 3, video 4,
+  video 5) and Sgr A* (video 4). The Eiffel Tower is a dive without a photo: zoom,
+  grow, dim.
+- **The dramatic version is preferred**: background to black, the photo grows to fill
+  the screen, holds for a while, and fades back slowly (`fadeOut` ~1.5–1.8 s). Camera
+  moves to the next shot can happen behind the black.
+- **Alignment is fitted, not eyeballed**: match features in the icon and the photo
+  (a planet's disc; the shadow and bright spots of a black hole's ring; the pillar tips),
+  fit a similarity (scale, rotation, offset), and check by blending the two images.
+  Refit whenever the icon is redrawn (the black holes were, on 2026-10-22).
+- Mechanics, in a scene: a cue with `cam: { obj, span: ~0.5 }` and
+  `hl: [{ spot: name, grow: 2–3, dim: 1 }]`, then a photo cue with `obj`, `fadeIn`,
+  `fadeOut` and `lens: { icon/photo | map, r, size, fill: true | "cover", hold, fillDur }`
+  (see `src/narration.js`, "photo cutaways" and drawSpot).
+
+## 4. Photo cutaways: when, and which
 
 Mechanics: `{ at, photo, caption: "what · who · when", obj, dur, fit, kb, focus, place }`
 in a scene (see `src/narration.js`, "photo cutaways"). Photos in
@@ -71,9 +98,9 @@ description).
   Video 2's "from lumpy to round" row (Hyperion → Vesta → Ceres → Pluto) went for
   this reason (author, 2026-10-22): the chart's ringed icons tell it.
 - **Nebulae and galaxies: a round window on the chart** over the object's dot
-  (`place: 0.7–0.86`), growing out of it, the chart still around it (the stellar nursery
-  with the Pillars, Andromeda, SMACS 0723, the Crab as a supernova remnant). The author
-  likes these best.
+  (`place: 0.7–0.86`), growing out of it, the chart still around it (Andromeda, SMACS
+  0723, the Crab as a supernova remnant), when there's no matching picture to dive into.
+  The Pillars, once a window, are now a dive.
 - **Only real photographs**: telescope, spacecraft or camera images, never artist's
   impressions or 3D renderings (the Laniakea "map" was dropped for this).
 - **Not busy**: no comparison figures with panels and text (Gliese 229B was dropped).
@@ -85,13 +112,13 @@ description).
   fluke) beats a wide one (whales from the air). Keep good wide images for a future
   horizontal version (`blue-whale.jpg`, noted in `video/photos/CREDITS.md`).
 
-## 4. Diagrams (next)
+## 5. Diagrams (next)
 
 White lines and dots on black, the key word in yellow, no more than three moving parts,
 4–8 s, handing back to the chart on the next camera move. Ideas in `cutaways.md`
 (the pixel grid for expansion, the cube law, degeneracy, the two horizons…).
 
-## 5. Audio and captions
+## 6. Audio and captions
 
 - Voice treatment: `enhance.py --plain` (high-pass + loudness only) for the Boya office
   recordings; the full chain sounded boxy. All takes at 1.1×.
