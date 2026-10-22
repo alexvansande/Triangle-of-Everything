@@ -1049,6 +1049,13 @@ the approved −25% placement correction and keeps it responsive to the round
 shadow controls. `SHADOWED_SCREEN_SPHERES` permits its shadow despite screen
 blending; `CUSTOM_AI_SHADOWS` preserves it during scripted regeneration.
 
+Laniakea now uses a 1254px regenerated master based on its previous asymmetric
+branching composition. Its golden/ivory filaments, clustered nodes and cooler
+distant strands match the interior of the approved universe marble. It retains
+screen blending, 5% brightness boost, feathered edges and no cast shadow. Chart
+tiers are 128/256/512/1024px. Previous artwork and the full built-in image-generation
+prompt are saved under `content/icons/candidates/laniakea-filaments/`.
+
 The final approved brightness boost is **5% (`brightness(1.05)`)**, replacing
 the earlier 25% experiment. The app (including dust icons) and comparison page
 share this setting. The smaller faint core, feathered edges and Pillars exception
