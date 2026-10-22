@@ -3044,6 +3044,16 @@ const SHADOW_PARTS = [
 // A small, fixed wall-plane bias balances the foreground parallax at the
 // southeast edge. Measure the body, excluding rings and other extensions.
 const SHADOW_SE_BIAS = 0.10;
+const LAKE_SHADOWS = new Set([
+  'loch-ness', 'caspian-sea', 'dead-sea', 'lake-baikal', 'lake-nyos',
+  'lake-superior', 'lake-tahoe', 'lake-victoria', 'sea-of-galilee',
+  'hallstatter-see', 'konigssee', 'titicaca',
+]);
+// Bring the entire optical layer 15% of the resting icon width closer on
+// each axis, without changing its caustics, scale or hover travel.
+function shadowPlacementBias(d) {
+  return LAKE_SHADOWS.has(d.name ? nameToSlug(d.name) : d.key) ? -0.05 : SHADOW_SE_BIAS;
+}
 let _shadowLift = null; // { key, k }: the hovered picture and how much it grew
 function shadowGeom(d, [, , c, px, a, b, op]) {
   const k = _shadowLift?.key === d.key ? _shadowLift.k : 1;
@@ -3120,7 +3130,7 @@ function drawIconShadows(shapes) {
     .each(function(d) {
       const g = d3.select(this);
       const body = 2 * d.r / (ICON_SIZE_MULT[d.name ? nameToSlug(d.name) : d.key] || 1);
-      const bias = d.glow && !d.img ? 0 : body * SHADOW_SE_BIAS;
+      const bias = d.glow && !d.img ? 0 : body * shadowPlacementBias(d);
       g.attr("transform", `translate(${bias},${bias})`);
       const glow = g.select("ellipse.sh-glow").attr("display", d.glow ? null : "none");
       if (d.glow) {
@@ -3146,7 +3156,7 @@ function liftShadow(key, k) {
   lShadows.selectAll("g.icon-shadow").filter(d => d.key === key).each(function(d) {
     const g = d3.select(this);
     if (d.glow) {
-      const light=starGlowGeom(d),bias=d.img?2*d.r/(ICON_SIZE_MULT[d.name?nameToSlug(d.name):d.key]||1)*SHADOW_SE_BIAS:0;
+      const light=starGlowGeom(d),bias=d.img?2*d.r/(ICON_SIZE_MULT[d.name?nameToSlug(d.name):d.key]||1)*shadowPlacementBias(d):0;
       applyShadowGeom(g.select("ellipse.sh-glow").interrupt().transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase), {...light,cx:light.cx-bias,cy:light.cy-bias});
       if(!d.img)return;
     }
