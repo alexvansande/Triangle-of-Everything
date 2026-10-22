@@ -59,7 +59,7 @@ const server = http.createServer(async (req, res) => {
     let file;
     if (url.pathname === '/') file = path.join(root, 'tools/shadow-studio.html');
     else if (url.pathname === '/wall-study') file = path.join(root, 'tools/shadow-wall-study.html');
-    else if (['/src/shadow-geometry.js', '/src/long-shadow.js'].includes(url.pathname)) file = path.join(root, url.pathname.slice(1));
+    else if (['/src/shadow-geometry.js', '/src/long-shadow.js', '/src/round-shadow-controls.js'].includes(url.pathname)) file = path.join(root, url.pathname.slice(1));
     else if (/^\/content\/icons\/(shadows\/)?[a-z0-9_-]+\.webp$/.test(url.pathname)) file = path.join(root, url.pathname.slice(1));
     else if (/^\/content\/icons\/shadow-candidates\/(wall-studies\/)?[a-z0-9_-]+\.png$/.test(url.pathname)) file = path.join(root, url.pathname.slice(1));
     else { res.writeHead(404); return res.end(); }

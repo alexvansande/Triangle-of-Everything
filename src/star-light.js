@@ -5,7 +5,7 @@ export const STAR_BODY_FRAMES = frames;
 // Screen-blended spheres can use an aligned opaque backing without emitting light.
 export const SHADOWED_SCREEN_SPHERES = new Set(['observable-universe']);
 const nonLuminousFrames = {
-  'observable-universe': {cx:0.50390625,cy:0.4921875,r:0.47265625},
+  'observable-universe': {cx:0.49920255,cy:0.49202552,r:0.476874},
 };
 export const BROWN_DWARFS = new Set(['y-brown-dwarf','t-brown-dwarf','l-brown-dwarf']);
 const BROWN_LIGHTS = {

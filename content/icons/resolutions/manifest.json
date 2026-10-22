@@ -2763,12 +2763,25 @@
     ]
   },
   "observable-universe": {
-    "fingerprint": "b3135a1857d65c70e2f191a4ac6fa092882c2811dd2c67046e452bc4714b35ed",
+    "fingerprint": "524409e8e324dbe4616b4438b9f553117bee1f15581d33a3fc3b03654ed28b8e",
     "baseWidth": 128,
-    "source": "content/icons/observable-universe.webp",
-    "reason": "source differs from current icon",
-    "sourceDifference": 6.17559814453125,
-    "variants": []
+    "source": "content/icons/src/observable universe.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7782389322916666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/observable-universe.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/observable-universe.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/observable-universe.webp"
+      }
+    ]
   },
   "opportunity": {
     "fingerprint": "f3970e0e6d4f78b6a929d403b4c8f3b56c37931765f18451d593fe4700bd10e7",

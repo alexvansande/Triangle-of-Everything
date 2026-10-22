@@ -1036,9 +1036,18 @@ Observable Universe is also exempt: its artwork depicts a defined sphere.
 The rectangular diffuse-photo feathering cut away its round rim and made it
 look square. Keep its original unmasked image and brightness. It now uses a
 measured, opaque black disc backing like the stars, synchronized with the image
-during hover, plus the shared spherical shadow at the approved −25% offsets.
-It emits no glow. `SHADOWED_SCREEN_SPHERES` explicitly allows its cast shadow
-despite screen blending; bulk generation preserves its shared-round treatment.
+during hover. The approved `selective-skin.png` cosmic marble is now the live
+icon: clear blue CMB patches reveal filaments beneath the continuous outer skin.
+Its original artwork is backed up in `candidates/observable-universe-marble/previous`.
+The 1254px master supplies 128/256/512/1024px chart versions.
+
+The marble has a separate AI-generated wall shadow with two small restrained
+refractive caustics, without a stellar glow. The raw transparent shadow lives at
+`shadow-candidates/observable-universe.png`; its registration uses the studio's
+768px canvas, scale .48, x145/y175 and opacity .55. `roundOffsetScale: 1` applies
+the approved −25% placement correction and keeps it responsive to the round
+shadow controls. `SHADOWED_SCREEN_SPHERES` permits its shadow despite screen
+blending; `CUSTOM_AI_SHADOWS` preserves it during scripted regeneration.
 
 The final approved brightness boost is **5% (`brightness(1.05)`)**, replacing
 the earlier 25% experiment. The app (including dust icons) and comparison page
