@@ -2944,33 +2944,50 @@ function drawObjects() {
 /** Soft cast shadows for the opaque pictures (glowing, screen-blended space
  *  art casts none): two ellipses running down-right at 45°, starting a few px
  *  past the object as if it floated just in front of the map, the far one
- *  longer and blurrier. Drawn under everything else (lShadows). */
+ *  longer and blurrier. Drawn under everything else (lShadows). A hovered
+ *  picture lifts (setIconHover): its shadow moves further out, grows with it
+ *  and fades. */
+const SHADOW_PARTS = [
+  // [class, filter, centre along the diagonal (× r) + px, half-length, half-width (× r), opacity]
+  ["sh-near", "icon-shadow-near", 1.1, 10, 0.62, 0.36, 0.28],
+  ["sh-far", "icon-shadow-far", 1.6, 16, 0.86, 0.44, 0.18],
+];
+let _shadowLift = null; // { key, k }: the hovered picture and how much it grew
+function shadowGeom(d, [, , c, px, a, b, op]) {
+  const k = _shadowLift?.key === d.key ? _shadowLift.k : 1;
+  const lift = k > 1 ? 1 : 0;
+  const r = d.r * k * (1 + 0.1 * lift);              // grows with the picture, a bit more
+  const off = (c * r + px) * (1 + 0.45 * lift);      // and falls further away
+  const cx = d.sx + off * Math.SQRT1_2, cy = d.sy + off * Math.SQRT1_2;
+  return { cx, cy, rx: a * r, ry: b * r, transform: `rotate(45 ${cx} ${cy})`, opacity: op * (1 - 0.45 * lift) };
+}
+function applyShadowGeom(sel, g) {
+  sel.attr("cx", g.cx).attr("cy", g.cy).attr("rx", g.rx).attr("ry", g.ry)
+    .attr("transform", g.transform).attr("opacity", g.opacity);
+}
 function drawIconShadows(shapes) {
   if (!SHADOWS || _bigBangMode) shapes = [];
-  const u = Math.SQRT1_2;
-  const parts = [
-    // [class, filter, centre along the diagonal (× r) + px, half-length, half-width (× r), opacity]
-    ["sh-near", "icon-shadow-near", 0.75, 6, 0.62, 0.36, 0.55],
-    ["sh-far", "icon-shadow-far", 1.15, 10, 0.86, 0.44, 0.35],
-  ];
   lShadows.selectAll("g.icon-shadow")
     .data(shapes, d => d.key)
     .join(enter => {
       const g = enter.append("g").attr("class", "icon-shadow");
-      parts.forEach(([cls, filter]) => g.append("ellipse").attr("class", cls)
+      SHADOW_PARTS.forEach(([cls, filter]) => g.append("ellipse").attr("class", cls)
         .attr("fill", "#000").attr("filter", `url(#${filter})`));
       return g;
     })
     .each(function(d) {
       const g = d3.select(this);
-      parts.forEach(([cls, , c, px, a, b, op]) => {
-        const off = c * d.r + px;
-        const cx = d.sx + off * u, cy = d.sy + off * u;
-        g.select(`ellipse.${cls}`)
-          .attr("cx", cx).attr("cy", cy).attr("rx", a * d.r).attr("ry", b * d.r)
-          .attr("transform", `rotate(45 ${cx} ${cy})`).attr("opacity", op);
-      });
+      SHADOW_PARTS.forEach(part => applyShadowGeom(g.select(`ellipse.${part[0]}`).interrupt(), shadowGeom(d, part)));
     });
+}
+/** Ease one picture's shadow to its lifted (hover) or resting place. */
+function liftShadow(key, k) {
+  _shadowLift = k > 1 ? { key, k } : null;
+  lShadows.selectAll("g.icon-shadow").filter(d => d.key === key).each(function(d) {
+    const g = d3.select(this);
+    SHADOW_PARTS.forEach(part => applyShadowGeom(
+      g.select(`ellipse.${part[0]}`).interrupt().transition().duration(150), shadowGeom(d, part)));
+  });
 }
 
 // Screen-blend decision is static per object — shared by enter and update.
@@ -2994,6 +3011,7 @@ function setIconHover(o, on) {
   // owned by the renderer (see .obj-icon in style.css for why).
   const k = on ? Math.max(64, base * 1.5) / base : 1;
   iconEl.style("transform", k === 1 ? null : `scale(${k})`);
+  liftShadow(o.slug, k);
   return true;
 }
 
