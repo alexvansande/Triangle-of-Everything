@@ -1,0 +1,13 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-22",
+  "status": "study-only-not-installed",
+  "registration": {
+    "canvas": 768,
+    "scale": 0.4,
+    "opacity": 0.5,
+    "x": 30,
+    "y": 30,
+    "registered": true
+  }
+}

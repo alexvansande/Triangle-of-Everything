@@ -22,6 +22,10 @@
 // =============================================================
 
 import dustUrl from "./dust.json?url";
+import {spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
+import {animateIconGrowth} from "./icon-hover.js";
+import {starBodyGeometry} from "./star-light.js";
+import { PARALLAX, planePoint, unprojectPlane, planeTransform, iconPoint } from "./parallax.js";
 import { applyBulkDust } from "./bulk-density.js";
 import { select as d3sel } from "d3";
 // The most recognisable objects of each mass band (three decades wide), picked
@@ -95,6 +99,15 @@ let _iconShapes = [];      // [{ i, name, sx, sy, r, blend }] of those pictures,
 let _visibilityEpoch = null;
 const _dotDecisions = new Map();
 const _nameDecisions = new Map(); // null means deliberately hidden, not undecided
+let _view = null;
+const _iconGrowth = new Map();
+const _loadedPictures = new Set();
+function iconClearance(radius, name) {
+  return _view.parallax ? PARALLAX.icon * (1 + PARALLAX.variation) * (_view.bodySizeAt?.(radius * 2, name) ?? radius * 2) : 0;
+}
+function picturePoint(p, k = _iconGrowth.get(p.i) || 1) {
+  return iconPoint(p.sx, p.sy, _view.cw, _view.ch, _view.bodySizeAt?.(p.r * 2, p.name) ?? p.r * 2, k, _view.parallax, _view.depthKeyOf?.(p.name) || p.name);
+}
 let _focused = null;
 let _searchEntries = null;
 
@@ -185,13 +198,14 @@ export function loadDust() {
  * @param colorOf  (catKey, sourceId) → css colour
  */
 export function drawDust(layer, view, blockers, colorOf) {
+  _view = view;
   if (_visibilityEpoch !== view.visibilityEpoch) {
     _visibilityEpoch = view.visibilityEpoch;
     _dotDecisions.clear(); _nameDecisions.clear();
   }
   _kept = [];
   _keptGrid = new Map();
-  if (!_data || view.hidden) { layer.selectAll("path, g.dust-named").remove(); _labelled = new Set(); _iconed = new Set(); _iconShapes = []; return; }
+  if (!_data || view.hidden) { view.iconLayer?.selectAll("g.dust-picture").remove(); _iconGrowth.clear(); layer.selectAll("path, g.dust-named").remove(); _labelled = new Set(); _iconed = new Set(); _iconShapes = []; return; }
 
   const { px, py, cw, ch } = view;
   const { r, m, src, rank, sources } = _data;
@@ -283,7 +297,8 @@ export function drawDust(layer, view, blockers, colorOf) {
       .attr("stroke-width", (g) => sources[g.s].cat === "blackhole" ? BH_TICK_W : DUST_R * 2)
       .attr("opacity", (g) => sources[g.s].cat === "blackhole" ? 0.85 : 0.7)
       .attr("stroke", (g) => colorOf(sources[g.s].cat, sources[g.s].id)))
-    .attr("d", (g) => g.d);
+    .attr("d", (g) => g.d)
+    .attr("transform", planeTransform(cw, ch, view.parallax ? PARALLAX.dust : 0));
 
   drawDustLabels(layer, view, occ, gw, gh, OC, colorOf);
 }
@@ -316,9 +331,9 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       ..._kept.filter(q => q.i !== _focused && !_nameDecisions.has(q.i))];
     const maxIcons = view.iconOf ? (view.mobile ? ICON_MAX_MOBILE : ICON_MAX_DESKTOP) : 0;
     let icons = 0;
-    const occupyIcon = (q, r) => {
+    const occupyIcon = (q, r, name) => {
       // Reserve existing and newly selected silhouettes equally.
-      const R = r + 1;
+      const R = r + iconClearance(r, name) + 1;
       for (let y = Math.max(0, Math.floor((q.sy - R) / OC)); y <= Math.min(gh - 1, Math.floor((q.sy + R) / OC)); y++) {
         const dy = Math.abs((y + 0.5) * OC - q.sy);
         if (dy > R) continue;
@@ -343,7 +358,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         const size = Math.max(64, view.iconSizeAt(_data.r[q.i], name));
         const url = view.iconOf?.(name, size);
         const icon = url ? { url, r: size / 2, name, blend: view.iconBlend?.(sources[src[q.i]].cat) } : null;
-        if (icon) { icons++; occupyIcon(q, icon.r); }
+        if (icon) { icons++; occupyIcon(q, icon.r, icon.name); }
         placed.push({ ...q, text: name, anchor: 'start', fs, icon });
         continue;
       }
@@ -355,7 +370,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
           const size = view.iconSizeAt(_data.r[q.i], saved.icon.name);
           p.icon = { ...saved.icon, r:size/2, url:view.iconOf(saved.icon.name,size) };
           icons++;
-          occupyIcon(q, p.icon.r);
+          occupyIcon(q, p.icon.r, p.icon.name);
         }
         placed.push(p);
         continue;
@@ -384,13 +399,13 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       const size = famous && icons < maxIcons ? view.iconSizeAt(_data.r[q.i], famous.label || names[q.i]) : 0;
       const url = famous && icons < maxIcons ? view.iconOf(famous.label || names[q.i], size) : null;
       if (url) {
-        const r = size / 2;
-        if (size >= (_iconed.has(q.i) ? ICON_KEEP : ICON_MIN) && freeDisc(q.sx, q.sy, r) &&
+        const r = size / 2, clearance = iconClearance(r, famous.label || names[q.i]);
+        if (size >= (_iconed.has(q.i) ? ICON_KEEP : ICON_MIN) && freeDisc(q.sx, q.sy, r + clearance) &&
             !placed.some((p) => p.icon && (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < ((p.icon.r + r) * ICON_ROOM) ** 2) &&
-            (anchor = side(r + 2))) {
+            (anchor = side(r + 4 + clearance))) {
           icon = { url, r, name: famous.label || names[q.i], blend: view.iconBlend?.(sources[src[q.i]].cat) };
           icons++;
-          occupyIcon(q, r);
+          occupyIcon(q, r, icon.name);
         }
       }
       if (!icon) anchor = side(6);
@@ -402,7 +417,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
   }
   _labelled = new Set(placed.map((p) => p.i));
   _iconed = new Set(placed.filter((p) => p.icon).map((p) => p.i));
-  _iconShapes = placed.filter((p) => p.icon).map((p) => ({ i: p.i, name: p.icon.name, cat: sources[src[p.i]].cat, sx: p.sx, sy: p.sy, r: p.icon.r, blend: p.icon.blend }));
+  _iconShapes = placed.filter((p) => p.icon).map((p) => ({ i: p.i, name: p.icon.name, cat: sources[src[p.i]].cat, logM:_data.m[p.i], sx: p.sx, sy: p.sy, r: p.icon.r, blend: p.icon.blend }));
   const color = (p) => (view.labelColorOf || colorOf)(sources[src[p.i]].cat, sources[src[p.i]].id);
   layer.selectAll("g.dust-named")
     .data(placed, (p) => p.i)
@@ -410,7 +425,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       const g = enter.append("g").attr("class", "dust-named");
       g.append("circle").attr("class", "dn-glow").attr("r", 6).attr("opacity", 0.1);
       g.append("circle").attr("class", "dn-dot").attr("r", 2.8).attr("opacity", 0.85);
-      g.append("image").attr("class", "dn-icon").attr("preserveAspectRatio", "xMidYMid meet");
+
       g.append("text")
         .attr("font-family", "Inter, sans-serif").attr("font-weight", 600).attr("letter-spacing", "0.5px")
         .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.85)")
@@ -420,20 +435,38 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     })
     .each(function (p) {
       const g = d3sel(this), c = color(p);
+      const dot = planePoint(p.sx, p.sy, view.cw, view.ch, view.parallax ? PARALLAX.dust : 0);
+      const label = planePoint(p.sx, p.sy, view.cw, view.ch, view.parallax ? PARALLAX.labels : 0);
+      g.selectAll("circle").attr("transform", `translate(${dot.x-p.sx},${dot.y-p.sy})`);
+      g.select("text").attr("transform", `translate(${label.x-p.sx},${label.y-p.sy})`);
       g.selectAll("circle").attr("cx", p.sx).attr("cy", p.sy).attr("fill", c)
         .attr("display", p.icon ? "none" : null);
-      const img = g.select("image.dn-icon").attr("display", p.icon ? null : "none");
-      if (p.icon) {
-        if (img.attr("href") !== p.icon.url) img.attr("href", p.icon.url);
-        img.attr("x", p.sx - p.icon.r).attr("y", p.sy - p.icon.r)
-          .attr("width", 2 * p.icon.r).attr("height", 2 * p.icon.r)
-          .style("mix-blend-mode", p.icon.blend ? "screen" : null);
-      }
-      const off = p.icon ? p.icon.r + 4 : 8;
+      const off = p.icon ? p.icon.r + 4 + iconClearance(p.icon.r, p.icon.name) : 8;
       g.select("text")
         .attr("x", p.sx + (p.anchor === "start" ? off : -off)).attr("y", p.sy)
         .attr("text-anchor", p.anchor).attr("font-size", p.fs)
         .attr("fill", c).text(p.text);
+    });
+  const imageLayer = view.iconLayer || layer;
+  imageLayer.selectAll("g.dust-picture").data(_iconShapes, p => p.i)
+    .join(enter => { const g = enter.append("g").attr("class", "dust-picture");
+      g.append("circle").attr("class","dn-body").attr("fill","#000");
+      g.append("image").attr("class", "dn-icon").attr("preserveAspectRatio", "xMidYMid meet")
+        .on("load",function(){_loadedPictures.add(this.getAttribute("href"));d3sel(this.parentNode).select(".dn-body").attr("visibility",null)}); return g; })
+    .each(function(p) {
+      const g = d3sel(this), point = picturePoint(p);
+      g.attr("transform", "translate(" + (point.x-p.sx) + "," + (point.y-p.sy) + ")");
+      const source = placed.find(q => q.i === p.i).icon;
+      const soft=view.softSpaceOf?.(p.cat,p.name);
+      const disc=starBodyGeometry(view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,_iconGrowth.get(p.i)||1)||(soft?spaceCoreGeometry(view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,_iconGrowth.get(p.i)||1):null);
+      g.select(".dn-body").attr("display",disc?null:"none").attr("fill",soft?"url(#space-core-gradient)":"#000")
+        .attr("visibility",_loadedPictures.has(source.url)?null:"hidden")
+        .attr("cx",disc?.cx??p.sx).attr("cy",disc?.cy??p.sy).attr("r",disc?.r??0);
+      g.select("image").style("transform",(_iconGrowth.get(p.i)||1)===1?null:`scale(${_iconGrowth.get(p.i)})`).attr("href", source.url)
+        .attr("x", p.sx-p.r).attr("y", p.sy-p.r).attr("width", p.r*2).attr("height", p.r*2)
+        .style("mix-blend-mode", p.blend ? "screen" : null)
+        .style("filter",`brightness(${view.iconBrightnessOf?.(p.cat,p.name)??1})`)
+        .attr("mask",soft?spaceEdgeMask(view.depthKeyOf?.(p.name)):null);
     });
 }
 
@@ -441,16 +474,28 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
 export function pickDustIcon(x, y) {
   let best = null, bestD = Infinity;
   for (const p of _iconShapes) {
-    const d = (p.sx - x) ** 2 + (p.sy - y) ** 2;
-    if (d <= p.r * p.r && d < bestD) { bestD = d; best = p; }
+    const point = picturePoint(p);
+    const d = (point.x - x) ** 2 + (point.y - y) ** 2;
+    const radius = p.r * (_iconGrowth.get(p.i) || 1);
+    if (d <= radius * radius && d < bestD) { bestD = d; best = p; }
   }
   return best;
 }
 
 /** Grow (k > 1) or restore (k = 1) dust picture i, as curated icons do on hover. */
 export function setDustIconScale(layer, i, k) {
-  layer.selectAll("g.dust-named").filter((p) => p.i === i).select("image.dn-icon")
-    .style("transform", k === 1 ? null : `scale(${k})`);
+  const group = layer.selectAll("g.dust-picture").filter(p => p.i === i);
+  if (k > 1) group.raise();
+  animateIconGrowth(group,k,(node,growth)=>{
+    const p=node.__data__,g=d3sel(node);
+    if(growth>1)_iconGrowth.set(i,growth);else _iconGrowth.delete(i);
+    const point=picturePoint(p,growth);
+    const disc=starBodyGeometry(_view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,growth)||(_view.softSpaceOf?.(p.cat,p.name)?spaceCoreGeometry(_view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,growth):null);
+    if(disc)g.select('.dn-body').attr('cx',disc.cx).attr('cy',disc.cy).attr('r',disc.r);
+    g.attr('transform',`translate(${point.x-p.sx},${point.y-p.sy})`);
+    g.select('.dn-icon').style('transform',growth===1?null:`scale(${growth})`);
+  },_view.reducedMotion);
+
 }
 
 /** The dust pictures drawn last frame: [{ i, name, sx, sy, r, blend }]. */
@@ -477,6 +522,7 @@ export function dustPositions(sourceId) {
 /** Nearest drawn dust dot within `radius` px of (x, y), or null. */
 export function pickDust(x, y, radius = 6) {
   if (!_data || !_kept.length) return null;
+  ({x,y} = unprojectPlane(x,y,_view.cw,_view.ch,_view.parallax ? PARALLAX.dust : 0));
   const G = DUST_GAP;
   const reach = Math.ceil(radius / G);
   const cx = Math.floor(x / G), cy = Math.floor(y / G);
@@ -498,7 +544,8 @@ export function pickDust(x, y, radius = 6) {
     name: _data.names[best.i],
     source: src.label,
     cat: src.cat,
-    sx: best.sx, sy: best.sy,
+    sx: planePoint(best.sx,best.sy,_view.cw,_view.ch,_view.parallax ? PARALLAX.dust : 0).x,
+    sy: planePoint(best.sx,best.sy,_view.cw,_view.ch,_view.parallax ? PARALLAX.dust : 0).y,
   };
 }
 

@@ -102,7 +102,7 @@
   { "name": "Supertanker",      "logR": 4.3,    "logM": 11.7, "rho": [0.5, 0.67, 0.85],   "cat": "macro", "subcat": "machine", "z": 5, "wiki": "Supertanker" },
   { "name": "Burj Khalifa",     "logR": 4.62,   "logM": 11.7, "rho": [0.25, 0.4, 0.6],   "cat": "macro", "subcat": "machine", "z": 5, "wiki": "Burj_Khalifa", "_note": "828 m tall (half = 414 m); ~500,000 t. Bulk density from ~1.2 million m³ enclosed (309,000 m² of floors at ~4 m)" },
   { "name": "Iceberg A-23a",    "logR": 5.81,   "logM": 18.0, "rho": 0.917,   "cat": "macro", "z": 4, "wiki": "Iceberg_A-23a" },
-  { "name": "Mt. Everest",      "logR": 5.65,    "logM": 18.0,   "cat": "macro", "z": 3, "wiki": "Mount_Everest" },
+  { "name": "Mt. Everest",      "logR": 5.65,    "logM": 18.0,   "cat": "macro", "z": 3, "wiki": "Mount_Everest", "_note": "Approximate inherited mass estimate, 10^18 g; no footprint, basal elevation, terrain-volume calculation or density source is documented. Icon cut-rock thickness is illustrative, not the volume used to calculate this mass. Needs a defined mountain boundary and basal surface before quantitative validation." },
 
   { "name": "Halley's Comet",   "logR": 5.74,   "logM": 17.34,  "cat": "planet", "subcat": "comet", "z": 5, "wiki": "Halley%27s_Comet" },
   { "name": "Deimos",           "logR": 5.79,   "logM": 18.18,  "cat": "planet", "subcat": "moon", "z": 5, "wiki": "Deimos_(moon)" },

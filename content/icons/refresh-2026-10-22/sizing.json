@@ -1,0 +1,578 @@
+{
+  "hedgehog": {
+    "source": "content/icons/refresh-2026-10-22/hedgehog-raw.png",
+    "solidSourceBox": [
+      33,
+      280,
+      1233,
+      996
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "meerkat": {
+    "source": "content/icons/refresh-2026-10-22/meerkat-raw.png",
+    "solidSourceBox": [
+      300,
+      25,
+      1134,
+      1211
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "atlas-moth": {
+    "source": "content/icons/refresh-2026-10-22/atlas-moth-raw.png",
+    "solidSourceBox": [
+      5,
+      134,
+      1249,
+      1107
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "clothes-moth": {
+    "source": "content/icons/refresh-2026-10-22/clothes-moth-raw.png",
+    "solidSourceBox": [
+      68,
+      42,
+      1182,
+      1223
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "honey-bee": {
+    "source": "content/icons/refresh-2026-10-22/honey-bee-raw.png",
+    "solidSourceBox": [
+      48,
+      46,
+      1204,
+      1190
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "horse-chestnut-leaf-miner": {
+    "source": "content/icons/refresh-2026-10-22/horse-chestnut-leaf-miner-raw.png",
+    "solidSourceBox": [
+      52,
+      69,
+      1202,
+      1191
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "painted-lady": {
+    "source": "content/icons/refresh-2026-10-22/painted-lady-raw.png",
+    "solidSourceBox": [
+      7,
+      126,
+      1247,
+      1101
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "bismarck": {
+    "source": "content/icons/refresh-2026-10-22/bismarck-raw.png",
+    "solidSourceBox": [
+      6,
+      436,
+      1247,
+      819
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "ever-given": {
+    "source": "content/icons/refresh-2026-10-22/ever-given-raw.png",
+    "solidSourceBox": [
+      14,
+      479,
+      1239,
+      807
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "kursk": {
+    "source": "content/icons/refresh-2026-10-22/kursk-raw.png",
+    "solidSourceBox": [
+      24,
+      434,
+      1229,
+      792
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "supertanker": {
+    "source": "content/icons/refresh-2026-10-22/supertanker-raw.png",
+    "solidSourceBox": [
+      14,
+      491,
+      1243,
+      824
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "uss-enterprise": {
+    "source": "content/icons/refresh-2026-10-22/uss-enterprise-raw.png",
+    "solidSourceBox": [
+      9,
+      393,
+      1242,
+      823
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "hms-victory": {
+    "source": "content/icons/refresh-2026-10-22/hms-victory-raw.png",
+    "solidSourceBox": [
+      15,
+      121,
+      1241,
+      1036
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "dji-mini-2": {
+    "source": "content/icons/refresh-2026-10-22/dji-mini-2-raw.png",
+    "solidSourceBox": [
+      18,
+      68,
+      1236,
+      1191
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "lockheed-sr-71-blackbird": {
+    "source": "content/icons/refresh-2026-10-22/lockheed-sr-71-blackbird-raw.png",
+    "solidSourceBox": [
+      91,
+      8,
+      1162,
+      1240
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "concorde": {
+    "source": "content/icons/refresh-2026-10-22/concorde-raw.png",
+    "solidSourceBox": [
+      205,
+      6,
+      1048,
+      1246
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "flyer-i": {
+    "source": "content/icons/refresh-2026-10-22/flyer-i-raw.png",
+    "solidSourceBox": [
+      18,
+      87,
+      1234,
+      1167
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "14-bis": {
+    "source": "content/icons/refresh-2026-10-22/14-bis-raw.png",
+    "solidSourceBox": [
+      28,
+      2,
+      1226,
+      1116
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "hubble-space-telescope": {
+    "source": "content/icons/refresh-2026-10-22/hubble-space-telescope-raw.png",
+    "solidSourceBox": [
+      20,
+      51,
+      1234,
+      1219
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "blue-whale": {
+    "source": "content/icons/refresh-2026-10-22/blue-whale-raw.png",
+    "solidSourceBox": [
+      23,
+      573,
+      1236,
+      840
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "caspian-sea": {
+    "source": "content/icons/refresh-2026-10-22/caspian-sea-raw.png",
+    "solidSourceBox": [
+      312,
+      33,
+      960,
+      1223
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "dead-sea": {
+    "source": "content/icons/refresh-2026-10-22/dead-sea-raw.png",
+    "solidSourceBox": [
+      476,
+      30,
+      839,
+      1212
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "lake-baikal": {
+    "source": "content/icons/refresh-2026-10-22/lake-baikal-raw.png",
+    "solidSourceBox": [
+      103,
+      31,
+      1161,
+      1237
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "lake-tahoe": {
+    "source": "content/icons/refresh-2026-10-22/lake-tahoe-raw.png",
+    "solidSourceBox": [
+      271,
+      13,
+      968,
+      1224
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "lake-victoria": {
+    "source": "content/icons/refresh-2026-10-22/lake-victoria-raw.png",
+    "solidSourceBox": [
+      70,
+      23,
+      1190,
+      1226
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "sea-of-galilee": {
+    "source": "content/icons/refresh-2026-10-22/sea-of-galilee-raw.png",
+    "solidSourceBox": [
+      283,
+      32,
+      980,
+      1221
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "titicaca": {
+    "source": "content/icons/refresh-2026-10-22/titicaca-raw.png",
+    "solidSourceBox": [
+      61,
+      56,
+      1228,
+      1191
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "benz-patent-motorwagen": {
+    "source": "content/icons/refresh-2026-10-22/benz-patent-motorwagen-raw.png",
+    "solidSourceBox": [
+      8,
+      160,
+      1249,
+      1056
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "curiosity": {
+    "source": "content/icons/refresh-2026-10-22/curiosity-raw.png",
+    "solidSourceBox": [
+      31,
+      126,
+      1234,
+      1126
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "opportunity": {
+    "source": "content/icons/refresh-2026-10-22/opportunity-raw.png",
+    "solidSourceBox": [
+      30,
+      91,
+      1231,
+      1144
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "tiger-i": {
+    "source": "content/icons/refresh-2026-10-22/tiger-i-raw.png",
+    "solidSourceBox": [
+      13,
+      171,
+      1608,
+      839
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "union-pacific-big-boy": {
+    "source": "content/icons/refresh-2026-10-22/union-pacific-big-boy-raw.png",
+    "solidSourceBox": [
+      6,
+      186,
+      2115,
+      584
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "helium-party-balloon": {
+    "source": "content/icons/refresh-2026-10-22/helium-party-balloon-raw.png",
+    "solidSourceBox": [
+      228,
+      14,
+      1024,
+      1234
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "weather-balloon": {
+    "source": "content/icons/refresh-2026-10-22/weather-balloon-raw.png",
+    "solidSourceBox": [
+      276,
+      23,
+      980,
+      1215
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "weather-balloon-near-burst": {
+    "source": "content/icons/refresh-2026-10-22/weather-balloon-near-burst-raw.png",
+    "solidSourceBox": [
+      106,
+      38,
+      1148,
+      1225
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "hot-air-balloon": {
+    "source": "content/icons/refresh-2026-10-22/hot-air-balloon-raw.png",
+    "solidSourceBox": [
+      151,
+      16,
+      1104,
+      1234
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "zeppelin-nt": {
+    "source": "content/icons/refresh-2026-10-22/zeppelin-nt-raw.png",
+    "solidSourceBox": [
+      30,
+      205,
+      1755,
+      711
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "mt-everest": {
+    "source": "content/icons/refresh-2026-10-22/mt-everest-raw.png",
+    "solidSourceBox": [
+      25,
+      120,
+      1238,
+      1178
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "grinnell-glacier": {
+    "source": "content/icons/refresh-2026-10-22/grinnell-glacier-raw.png",
+    "solidSourceBox": [
+      15,
+      34,
+      1239,
+      1220
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "lake-nyos": {
+    "source": "content/icons/refresh-2026-10-22/lake-nyos-raw.png",
+    "solidSourceBox": [
+      199,
+      52,
+      1068,
+      1199
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "hallstatter-see": {
+    "source": "content/icons/refresh-2026-10-22/hallstatter-see-raw.png",
+    "solidSourceBox": [
+      330,
+      40,
+      948,
+      1208
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "konigssee": {
+    "source": "content/icons/refresh-2026-10-22/konigssee-raw.png",
+    "solidSourceBox": [
+      418,
+      15,
+      864,
+      1228
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "lake-superior": {
+    "source": "content/icons/refresh-2026-10-22/lake-superior-raw.png",
+    "solidSourceBox": [
+      52,
+      363,
+      1223,
+      944
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "bagger-288": {
+    "source": "content/icons/refresh-2026-10-22/bagger-288-raw.png",
+    "solidSourceBox": [
+      29,
+      264,
+      1226,
+      990
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "ingenuity": {
+    "source": "content/icons/refresh-2026-10-22/ingenuity-raw.png",
+    "solidSourceBox": [
+      20,
+      56,
+      1229,
+      1164
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "soap-bubble": {
+    "source": "content/icons/refresh-2026-10-22/soap-bubble-raw.png",
+    "solidSourceBox": [
+      77,
+      83,
+      1177,
+      1164
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "statue-of-unity": {
+    "source": "content/icons/refresh-2026-10-22/statue-of-unity-raw.png",
+    "solidSourceBox": [
+      369,
+      1,
+      908,
+      1241
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "eois-stantonae": {
+    "source": "content/icons/refresh-2026-10-22/eois-stantonae-raw.png",
+    "solidSourceBox": [
+      12,
+      135,
+      1241,
+      1051
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  }
+}

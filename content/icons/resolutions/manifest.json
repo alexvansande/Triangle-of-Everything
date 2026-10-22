@@ -227,11 +227,11 @@
     ]
   },
   "atlas-moth": {
-    "fingerprint": "bfd274f2111c7b9c5dd21f7de055c6c605fd43f9acf33431d6c4995f52f40930",
+    "fingerprint": "57799be360cbde91cd509b5a913ef8fb598fc5a4a7320487e99b590886157412",
     "baseWidth": 128,
     "source": "content/icons/src/atlas-moth.png",
     "reason": "matching master",
-    "sourceDifference": 2.2863972981770835,
+    "sourceDifference": 3.52618408203125,
     "variants": [
       {
         "width": 256,
@@ -240,6 +240,10 @@
       {
         "width": 512,
         "path": "512/atlas-moth.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/atlas-moth.webp"
       }
     ]
   },
@@ -311,11 +315,11 @@
     ]
   },
   "bagger-288": {
-    "fingerprint": "1d6f2d0691fd2817983060890b34400d9eede4558eaabd6a3ab0e5517999409b",
+    "fingerprint": "68e6efba87f342d154846839182ee2b973a6af6843d4c76d4334a0fb19244759",
     "baseWidth": 128,
     "source": "content/icons/src/bagger-288.png",
     "reason": "matching master",
-    "sourceDifference": 1.4078369140625,
+    "sourceDifference": 1.3064371744791667,
     "variants": [
       {
         "width": 256,
@@ -324,6 +328,10 @@
       {
         "width": 512,
         "path": "512/bagger-288.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/bagger-288.webp"
       }
     ]
   },
@@ -366,11 +374,11 @@
     ]
   },
   "benz-patent-motorwagen": {
-    "fingerprint": "b2edf731676c5f6f788ba051445c20f77464fbac70861b088ec35fbce278128a",
+    "fingerprint": "98a2235adabd21ea4257565003fb9595265f9b8c0b3baba13db7538376a8df82",
     "baseWidth": 128,
     "source": "content/icons/src/benz-patent-motorwagen.png",
     "reason": "matching master",
-    "sourceDifference": 1.9024454752604167,
+    "sourceDifference": 1.4347941080729167,
     "variants": [
       {
         "width": 256,
@@ -379,6 +387,10 @@
       {
         "width": 512,
         "path": "512/benz-patent-motorwagen.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/benz-patent-motorwagen.webp"
       }
     ]
   },
@@ -463,11 +475,11 @@
     ]
   },
   "bismarck": {
-    "fingerprint": "4e18741cf0299cc25208f6bde8470d181a4d09c46106a0ca1efc24bc0c1418c7",
+    "fingerprint": "94718b932684dd1d2293f55081087947a57374fd29507783578883465b14d185",
     "baseWidth": 128,
     "source": "content/icons/src/bismarck.png",
     "reason": "matching master",
-    "sourceDifference": 1.1787923177083333,
+    "sourceDifference": 0.5042521158854166,
     "variants": [
       {
         "width": 256,
@@ -476,6 +488,10 @@
       {
         "width": 512,
         "path": "512/bismarck.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/bismarck.webp"
       }
     ]
   },
@@ -501,11 +517,11 @@
     ]
   },
   "blue-whale": {
-    "fingerprint": "282a15ab09249c0cf02f5f5dbf9dae0ec741833b485e897396bf5e6668b02d55",
+    "fingerprint": "7d706f678263f7ad17e6575b8a81072ead04431410e47d28b67b09a44f5cc3d3",
     "baseWidth": 128,
     "source": "content/icons/src/blue-whale.png",
     "reason": "matching master",
-    "sourceDifference": 0.8458251953125,
+    "sourceDifference": 0.3290812174479167,
     "variants": [
       {
         "width": 256,
@@ -514,6 +530,10 @@
       {
         "width": 512,
         "path": "512/blue-whale.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/blue-whale.webp"
       }
     ]
   },
@@ -678,11 +698,11 @@
     ]
   },
   "caspian-sea": {
-    "fingerprint": "749154e7766753d332cb32d50ef5ee65f4b11b048a7003532c47b5648db7023d",
+    "fingerprint": "624d60527ad57b4d26fd2809b25d2209e8ae8cd0d9f3cbd044799223d98c6a56",
     "baseWidth": 128,
     "source": "content/icons/src/caspian-sea.png",
     "reason": "matching master",
-    "sourceDifference": 2.7645670572916665,
+    "sourceDifference": 1.0178019205729167,
     "variants": [
       {
         "width": 256,
@@ -691,6 +711,10 @@
       {
         "width": 512,
         "path": "512/caspian-sea.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/caspian-sea.webp"
       }
     ]
   },
@@ -805,11 +829,11 @@
     ]
   },
   "clothes-moth": {
-    "fingerprint": "e7a3e4de60975864d87408f4ed7f4fe66a2fe4b3f8d205e828aad8705ebb5aa8",
+    "fingerprint": "2808bc99ef9d5ea224c9553e10c2c5dc2fd7cdcc2faeb01b59bc3931db97c026",
     "baseWidth": 128,
     "source": "content/icons/src/clothes-moth.png",
     "reason": "matching master",
-    "sourceDifference": 0.92852783203125,
+    "sourceDifference": 1.9256998697916667,
     "variants": [
       {
         "width": 256,
@@ -818,15 +842,19 @@
       {
         "width": 512,
         "path": "512/clothes-moth.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/clothes-moth.webp"
       }
     ]
   },
   "concorde": {
-    "fingerprint": "76966afc69bd6b583f522a4512e219d832aec0a77c966db3574941bdcd357a3c",
+    "fingerprint": "54f46380a74b4b936d39b22aac365d1b38a6aa4a27de20fd207436f97baa259d",
     "baseWidth": 128,
     "source": "content/icons/src/concorde.png",
     "reason": "matching master",
-    "sourceDifference": 0.6051025390625,
+    "sourceDifference": 0.5460205078125,
     "variants": [
       {
         "width": 256,
@@ -835,6 +863,10 @@
       {
         "width": 512,
         "path": "512/concorde.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/concorde.webp"
       }
     ]
   },
@@ -847,11 +879,11 @@
     "variants": []
   },
   "curiosity": {
-    "fingerprint": "3c3eb82eb2bceaafb91f818b08ec3402e937f4b07329412a3696f74f982a0116",
+    "fingerprint": "eb1ef3b096411523f43af74bd9e7d642b8063e25617432111c7786283f957a55",
     "baseWidth": 128,
     "source": "content/icons/src/curiosity.png",
     "reason": "matching master",
-    "sourceDifference": 1.2949625651041667,
+    "sourceDifference": 1.4369913736979167,
     "variants": [
       {
         "width": 256,
@@ -860,6 +892,10 @@
       {
         "width": 512,
         "path": "512/curiosity.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/curiosity.webp"
       }
     ]
   },
@@ -885,11 +921,11 @@
     ]
   },
   "dead-sea": {
-    "fingerprint": "a65ed2bc8d6fe7cfceae9b9633ef56a2cc2864dedf480ee094cc8182f7df1889",
+    "fingerprint": "a028bcafd1f54bfe50b729f5b54c240ee2e7486ae1ba640574857bcdbea7a7e0",
     "baseWidth": 128,
     "source": "content/icons/src/dead-sea.png",
     "reason": "matching master",
-    "sourceDifference": 2.5521647135416665,
+    "sourceDifference": 0.7092692057291666,
     "variants": [
       {
         "width": 256,
@@ -898,6 +934,10 @@
       {
         "width": 512,
         "path": "512/dead-sea.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/dead-sea.webp"
       }
     ]
   },
@@ -923,11 +963,11 @@
     ]
   },
   "dji-mini-2": {
-    "fingerprint": "6de076b061a356f523db430fb5fdb34e7966da4b9ccfd79b1eb760a121f10d03",
+    "fingerprint": "835cbb7775e9062680141d847e1973b487ad67752855fd9f995b731b46772786",
     "baseWidth": 128,
     "source": "content/icons/src/dji-mini-2.png",
     "reason": "matching master",
-    "sourceDifference": 0.64276123046875,
+    "sourceDifference": 0.85955810546875,
     "variants": [
       {
         "width": 256,
@@ -936,6 +976,10 @@
       {
         "width": 512,
         "path": "512/dji-mini-2.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/dji-mini-2.webp"
       }
     ]
   },
@@ -1070,11 +1114,11 @@
     ]
   },
   "eois-stantonae": {
-    "fingerprint": "e9e869114599eaff1b84ac099e32854117f475f46f0fc15535178cfd252a9471",
+    "fingerprint": "1628b3ac6df5a4fb32388bcf9ca1d8a990daf9e08fb5ddbc7cf784c0fa0d41d8",
     "baseWidth": 128,
     "source": "content/icons/src/eois-stantonae.png",
     "reason": "matching master",
-    "sourceDifference": 2.0641886393229165,
+    "sourceDifference": 2.7079671223958335,
     "variants": [
       {
         "width": 256,
@@ -1085,8 +1129,8 @@
         "path": "512/eois-stantonae.webp"
       },
       {
-        "width": 565,
-        "path": "565/eois-stantonae.webp"
+        "width": 1024,
+        "path": "1024/eois-stantonae.webp"
       }
     ]
   },
@@ -1167,11 +1211,11 @@
     ]
   },
   "ever-given": {
-    "fingerprint": "6d4ab5b0d13e7c086c1818bb67a7cc0a176c1b154791e791f5cbedd46024bff0",
+    "fingerprint": "7f7b5180d36a86a368a31bcae43ca97164972b43a690452ed061c53dbf4a85ab",
     "baseWidth": 128,
     "source": "content/icons/src/ever-given.png",
     "reason": "matching master",
-    "sourceDifference": 3.0074055989583335,
+    "sourceDifference": 1.55950927734375,
     "variants": [
       {
         "width": 256,
@@ -1180,15 +1224,19 @@
       {
         "width": 512,
         "path": "512/ever-given.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ever-given.webp"
       }
     ]
   },
   "flyer-i": {
-    "fingerprint": "44d9c8390b9de64718a1bda0a0c66d64c44a2dd63b2df164ad220b837b16bafb",
+    "fingerprint": "b014b8be00dc48cbe33491758bbce69c6e00e3b4cdc2fb59bc3954806b3b2694",
     "baseWidth": 128,
     "source": "content/icons/src/flyer-i.png",
     "reason": "matching master",
-    "sourceDifference": 1.57177734375,
+    "sourceDifference": 0.8776041666666666,
     "variants": [
       {
         "width": 256,
@@ -1197,6 +1245,10 @@
       {
         "width": 512,
         "path": "512/flyer-i.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/flyer-i.webp"
       }
     ]
   },
@@ -1428,11 +1480,11 @@
     ]
   },
   "grinnell-glacier": {
-    "fingerprint": "4d05743a09eae3b085f5564356591e6fb2400742bcb0c4ab270358f2b49d8a65",
+    "fingerprint": "8de010080813e7a580f4dc987cd1510107c7489a66cb8d88e28b9d81cc8e6811",
     "baseWidth": 128,
     "source": "content/icons/src/grinnell-glacier.png",
     "reason": "matching master",
-    "sourceDifference": 1.9944051106770833,
+    "sourceDifference": 1.8334554036458333,
     "variants": [
       {
         "width": 256,
@@ -1441,6 +1493,10 @@
       {
         "width": 512,
         "path": "512/grinnell-glacier.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/grinnell-glacier.webp"
       }
     ]
   },
@@ -1487,11 +1543,11 @@
     ]
   },
   "hallstatter-see": {
-    "fingerprint": "062db857683c48076b9e70ea721441b3cdceec6b29c6a167d4f24edcdc232fef",
+    "fingerprint": "fe82de77466925acb9be20a4c7953711e456a400c911a2c8b160e2c4253859ff",
     "baseWidth": 128,
     "source": "content/icons/src/hallstatter-see.png",
     "reason": "matching master",
-    "sourceDifference": 2.9207560221354165,
+    "sourceDifference": 0.8261311848958334,
     "variants": [
       {
         "width": 256,
@@ -1500,15 +1556,19 @@
       {
         "width": 512,
         "path": "512/hallstatter-see.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/hallstatter-see.webp"
       }
     ]
   },
   "hedgehog": {
-    "fingerprint": "b925993a0281e32ec24a0184c99883136b1aba0b94dd6132600693fd48da1683",
+    "fingerprint": "1ddc2b2c525ccfeda753bb9b1e35bd4bed89f3a958f14740f3977a1f5fb43e50",
     "baseWidth": 128,
     "source": "content/icons/src/hedgehog.png",
     "reason": "matching master",
-    "sourceDifference": 2.2331949869791665,
+    "sourceDifference": 1.3411051432291667,
     "variants": [
       {
         "width": 256,
@@ -1517,6 +1577,10 @@
       {
         "width": 512,
         "path": "512/hedgehog.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/hedgehog.webp"
       }
     ]
   },
@@ -1601,11 +1665,11 @@
     ]
   },
   "hms-victory": {
-    "fingerprint": "eefd92f135469aede33da5d1c2dd3c00508679c6885a6587c0bb252806fdcef4",
+    "fingerprint": "e3aaea0d4e9c739f13e05a8184db28f70ad657757b7b1a0fbae38f0b7147a7d7",
     "baseWidth": 128,
     "source": "content/icons/src/hms-victory.png",
     "reason": "matching master",
-    "sourceDifference": 2.9686482747395835,
+    "sourceDifference": 2.4134724934895835,
     "variants": [
       {
         "width": 256,
@@ -1614,6 +1678,10 @@
       {
         "width": 512,
         "path": "512/hms-victory.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/hms-victory.webp"
       }
     ]
   },
@@ -1639,11 +1707,11 @@
     ]
   },
   "honey-bee": {
-    "fingerprint": "da82db8c2146b37179c751dc12055241074a501a3e0f14e06adc0aa7d63a1a9f",
+    "fingerprint": "0a00cf781f7a147ac1b4efb72ed3faa39b448993f687dd0d7b02fcb38fea1ba7",
     "baseWidth": 128,
     "source": "content/icons/src/honey-bee.png",
     "reason": "matching master",
-    "sourceDifference": 1.7245890299479167,
+    "sourceDifference": 2.64849853515625,
     "variants": [
       {
         "width": 256,
@@ -1652,15 +1720,19 @@
       {
         "width": 512,
         "path": "512/honey-bee.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/honey-bee.webp"
       }
     ]
   },
   "horse-chestnut-leaf-miner": {
-    "fingerprint": "95b3406c0036110242b2cf3ee13cd88f4c4674cf3b1a428db7bbf0a259a3d3a1",
+    "fingerprint": "51c72d79a7f5de8cea19e419ec83fc27f50fd93aaf2bc9361f7a0e97d597184c",
     "baseWidth": 128,
     "source": "content/icons/src/horse-chestnut-leaf-miner.png",
     "reason": "matching master",
-    "sourceDifference": 0.89788818359375,
+    "sourceDifference": 2.0173746744791665,
     "variants": [
       {
         "width": 256,
@@ -1669,15 +1741,19 @@
       {
         "width": 512,
         "path": "512/horse-chestnut-leaf-miner.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/horse-chestnut-leaf-miner.webp"
       }
     ]
   },
   "hubble-space-telescope": {
-    "fingerprint": "b0d4773e939f40b509eaaa758c6f0403788ef2aba5ea72f940ebc89a877d1418",
+    "fingerprint": "e27cb86cf271623aded47092a70ceef3b27c77de601839308ba44788bb614b12",
     "baseWidth": 128,
     "source": "content/icons/src/hubble-space-telescope.png",
     "reason": "matching master",
-    "sourceDifference": 1.7510782877604167,
+    "sourceDifference": 1.49462890625,
     "variants": [
       {
         "width": 256,
@@ -1686,6 +1762,10 @@
       {
         "width": 512,
         "path": "512/hubble-space-telescope.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/hubble-space-telescope.webp"
       }
     ]
   },
@@ -1757,11 +1837,11 @@
     ]
   },
   "ingenuity": {
-    "fingerprint": "c9bfd836a0d030b3da76ee8ade955ebd7b46f996eaea57e0fb9a848688c262f3",
+    "fingerprint": "5b09a8a8305387e78a8a30f403440c92d7bafab76aad0768f7b94a8f7813d06a",
     "baseWidth": 128,
     "source": "content/icons/src/ingenuity.png",
     "reason": "matching master",
-    "sourceDifference": 0.819580078125,
+    "sourceDifference": 1.2019856770833333,
     "variants": [
       {
         "width": 256,
@@ -1770,6 +1850,10 @@
       {
         "width": 512,
         "path": "512/ingenuity.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ingenuity.webp"
       }
     ]
   },
@@ -1887,11 +1971,11 @@
     ]
   },
   "konigssee": {
-    "fingerprint": "b8ce9ad9f98332721469adab1a9a2c9cfe38b7cef8b139d1fe84515a7b1ff960",
+    "fingerprint": "074c7d3d9d233f46e66bcc8d0d806e6bf75d7fc4cd715a7e0c7781fecaac7b3e",
     "baseWidth": 128,
     "source": "content/icons/src/konigssee.png",
     "reason": "matching master",
-    "sourceDifference": 2.4667765299479165,
+    "sourceDifference": 0.5365397135416666,
     "variants": [
       {
         "width": 256,
@@ -1900,15 +1984,19 @@
       {
         "width": 512,
         "path": "512/konigssee.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/konigssee.webp"
       }
     ]
   },
   "kursk": {
-    "fingerprint": "73c1fbc151593e787d3f0d6dcdfbf9a60c1960b819620c451a63df4e627dff58",
+    "fingerprint": "dbe20a3f30e34bf3915f74be4bae2c0b5baf7c1d141e012a906ee6f5e92b89a2",
     "baseWidth": 128,
     "source": "content/icons/src/kursk.png",
     "reason": "matching master",
-    "sourceDifference": 0.6236775716145834,
+    "sourceDifference": 0.5377400716145834,
     "variants": [
       {
         "width": 256,
@@ -1917,6 +2005,10 @@
       {
         "width": 512,
         "path": "512/kursk.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/kursk.webp"
       }
     ]
   },
@@ -1959,11 +2051,11 @@
     ]
   },
   "lake-baikal": {
-    "fingerprint": "9dba0da0616cf25534d5d213f6c1ad0681493ba75c22ea98e95a138f493afb04",
+    "fingerprint": "2caf71b6aa5e3c7b5b94bbff6c7ae53c0c6244bb7570df6e48735e3ddc44c469",
     "baseWidth": 128,
     "source": "content/icons/src/lake-baikal.png",
     "reason": "matching master",
-    "sourceDifference": 2.00982666015625,
+    "sourceDifference": 0.8087972005208334,
     "variants": [
       {
         "width": 256,
@@ -1972,15 +2064,19 @@
       {
         "width": 512,
         "path": "512/lake-baikal.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lake-baikal.webp"
       }
     ]
   },
   "lake-nyos": {
-    "fingerprint": "39081e0779c3e4c0677ac651ae46f5414ed85140bec9137968144051584db49f",
+    "fingerprint": "ce7dd4ddba4ea5fb7e0490ed6a813fb6466d3a62cd3c3cd238c683c3ac1b2878",
     "baseWidth": 128,
     "source": "content/icons/src/lake-nyos.png",
     "reason": "matching master",
-    "sourceDifference": 2.3229777018229165,
+    "sourceDifference": 1.9603678385416667,
     "variants": [
       {
         "width": 256,
@@ -1989,15 +2085,19 @@
       {
         "width": 512,
         "path": "512/lake-nyos.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lake-nyos.webp"
       }
     ]
   },
   "lake-superior": {
-    "fingerprint": "8dfd372df145d68be22ee180da2f904f062904bcab3b5597fcd710a99866e272",
+    "fingerprint": "8e45ffd624ec71e862f4e500cbe3004e20b6bb35b1848512b4625751ee106d23",
     "baseWidth": 128,
     "source": "content/icons/src/lake-superior.png",
     "reason": "matching master",
-    "sourceDifference": 1.4592692057291667,
+    "sourceDifference": 1.1357421875,
     "variants": [
       {
         "width": 256,
@@ -2006,15 +2106,19 @@
       {
         "width": 512,
         "path": "512/lake-superior.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lake-superior.webp"
       }
     ]
   },
   "lake-tahoe": {
-    "fingerprint": "3155261e570f059eb6605fc1df4b16500a9ec4302c416842a95bd2ec87554da6",
+    "fingerprint": "00ba1e2d1b31a4e6faae5ca4ffd2fbdd0f8a4ce75d51327867d49eb92a53192d",
     "baseWidth": 128,
     "source": "content/icons/src/lake-tahoe.png",
     "reason": "matching master",
-    "sourceDifference": 2.4350179036458335,
+    "sourceDifference": 1.2721150716145833,
     "variants": [
       {
         "width": 256,
@@ -2023,15 +2127,19 @@
       {
         "width": 512,
         "path": "512/lake-tahoe.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lake-tahoe.webp"
       }
     ]
   },
   "lake-victoria": {
-    "fingerprint": "71573ed687485e45a3c2dc87f7e793f586c38ff345f4c294f01b291e19a2f9f0",
+    "fingerprint": "fd39e04ac459b83bbef9a443da3734bf89b79c42ac0582f2417f173d068b594c",
     "baseWidth": 128,
     "source": "content/icons/src/lake-victoria.png",
     "reason": "matching master",
-    "sourceDifference": 3.1712646484375,
+    "sourceDifference": 1.5430704752604167,
     "variants": [
       {
         "width": 256,
@@ -2040,15 +2148,19 @@
       {
         "width": 512,
         "path": "512/lake-victoria.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lake-victoria.webp"
       }
     ]
   },
   "laniakea-galaxy-supercluster": {
-    "fingerprint": "a08cbe989fec37131a1b5459d6a638220e3203cf36928fe067c613b81dd0a6dd",
+    "fingerprint": "1c11d1fd16bb057bcb2596ce13267ffce40c564bd236dc9d13dea4a197aca032",
     "baseWidth": 128,
     "source": "content/icons/src/laniakea-galaxy-supercluster.png",
     "reason": "matching master",
-    "sourceDifference": 1.69744873046875,
+    "sourceDifference": 0,
     "variants": [
       {
         "width": 256,
@@ -2107,11 +2219,11 @@
     ]
   },
   "lockheed-sr-71-blackbird": {
-    "fingerprint": "93fda19bfc08f083fb0f07eb88453d28651a0497b942a8cebc1d85ce18ac4825",
+    "fingerprint": "a4479dade13fa871eae1c456168e0d282b0278d9ac8b924a27cdea44354a8faa",
     "baseWidth": 128,
     "source": "content/icons/src/lockheed-sr-71-blackbird.png",
     "reason": "matching master",
-    "sourceDifference": 0.7482706705729166,
+    "sourceDifference": 0.8312174479166666,
     "variants": [
       {
         "width": 256,
@@ -2120,6 +2232,10 @@
       {
         "width": 512,
         "path": "512/lockheed-sr-71-blackbird.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lockheed-sr-71-blackbird.webp"
       }
     ]
   },
@@ -2191,11 +2307,11 @@
     "variants": []
   },
   "meerkat": {
-    "fingerprint": "97009c788ddfa26a779f26199dca6a14bf2b70de1d91177aee1db0c3e2bcd790",
+    "fingerprint": "d3e8cf098f2cf003678217bb1e645eb215fcf8015f79cf1e49dba7f3c06116ab",
     "baseWidth": 128,
     "source": "content/icons/src/meerkat.png",
     "reason": "matching master",
-    "sourceDifference": 1.1434529622395833,
+    "sourceDifference": 0.8139444986979166,
     "variants": [
       {
         "width": 256,
@@ -2204,6 +2320,10 @@
       {
         "width": 512,
         "path": "512/meerkat.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/meerkat.webp"
       }
     ]
   },
@@ -2360,11 +2480,11 @@
     ]
   },
   "mt-everest": {
-    "fingerprint": "1694e32333f230d9b0416a0eac418469d0d6ea2371cf9c73fa004fe92e6ac4fc",
+    "fingerprint": "b6edbe59e17406bf7a74009c3adad0299f380704cd740136d03089f4acba04dc",
     "baseWidth": 128,
     "source": "content/icons/src/mt-everest.png",
     "reason": "matching master",
-    "sourceDifference": 1.4988199869791667,
+    "sourceDifference": 2.2653605143229165,
     "variants": [
       {
         "width": 256,
@@ -2542,11 +2662,11 @@
     ]
   },
   "neutron-star": {
-    "fingerprint": "dfbd8f6da4825f3618349e74b9c8591035eccfd16c6b813fc3660db616ff6724",
+    "fingerprint": "cc6d951b30f478bf3ac1ed71f3f1594e44cf7df890deb3b48faf6d474cb9fe81",
     "baseWidth": 128,
     "source": "content/icons/src/neutron-star.png",
     "reason": "matching master",
-    "sourceDifference": 1.2499796549479167,
+    "sourceDifference": 3.3196004231770835,
     "variants": [
       {
         "width": 256,
@@ -2555,6 +2675,10 @@
       {
         "width": 512,
         "path": "512/neutron-star.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/neutron-star.webp"
       }
     ]
   },
@@ -2639,19 +2763,32 @@
     ]
   },
   "observable-universe": {
-    "fingerprint": "b3135a1857d65c70e2f191a4ac6fa092882c2811dd2c67046e452bc4714b35ed",
+    "fingerprint": "524409e8e324dbe4616b4438b9f553117bee1f15581d33a3fc3b03654ed28b8e",
     "baseWidth": 128,
-    "source": "content/icons/observable-universe.webp",
-    "reason": "source differs from current icon",
-    "sourceDifference": 6.17559814453125,
-    "variants": []
+    "source": "content/icons/src/observable universe.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7782389322916666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/observable-universe.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/observable-universe.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/observable-universe.webp"
+      }
+    ]
   },
   "opportunity": {
-    "fingerprint": "0a45d4dd33a74fc8e7c5e4798db96921ad27d2e03e00aa1b014cb8c7c9f3206e",
+    "fingerprint": "f3970e0e6d4f78b6a929d403b4c8f3b56c37931765f18451d593fe4700bd10e7",
     "baseWidth": 128,
     "source": "content/icons/src/opportunity.png",
     "reason": "matching master",
-    "sourceDifference": 1.7228597005208333,
+    "sourceDifference": 1.7349446614583333,
     "variants": [
       {
         "width": 256,
@@ -2660,6 +2797,10 @@
       {
         "width": 512,
         "path": "512/opportunity.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/opportunity.webp"
       }
     ]
   },
@@ -2685,11 +2826,11 @@
     ]
   },
   "painted-lady": {
-    "fingerprint": "690e88a32e6a949f275b10253eae375a236f8a5d1264f1206adc1478b7fa1e23",
+    "fingerprint": "abc3557beef20571fd5f31eec982b5e2f17e088423beef1bdeb9bf1f76e8f6ae",
     "baseWidth": 128,
     "source": "content/icons/src/painted-lady.png",
     "reason": "matching master",
-    "sourceDifference": 3.2788492838541665,
+    "sourceDifference": 2.98919677734375,
     "variants": [
       {
         "width": 256,
@@ -2698,6 +2839,10 @@
       {
         "width": 512,
         "path": "512/painted-lady.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/painted-lady.webp"
       }
     ]
   },
@@ -3002,11 +3147,11 @@
     ]
   },
   "sea-of-galilee": {
-    "fingerprint": "813ed24fae257b7ed7213b131c020063408df5f4ddff1378fa3676e68216c177",
+    "fingerprint": "2300639a9cf6657ab8e8fbaed423ccd22bc89563e6442d42a70becda59857e70",
     "baseWidth": 128,
     "source": "content/icons/src/sea-of-galilee.png",
     "reason": "matching master",
-    "sourceDifference": 2.3788859049479165,
+    "sourceDifference": 1.5505574544270833,
     "variants": [
       {
         "width": 256,
@@ -3015,6 +3160,10 @@
       {
         "width": 512,
         "path": "512/sea-of-galilee.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/sea-of-galilee.webp"
       }
     ]
   },
@@ -3200,11 +3349,11 @@
     ]
   },
   "statue-of-unity": {
-    "fingerprint": "9ee63acea87f7567b2af76f11c68743e1a6ecf88c43fd49b7b6cf5570d5bf04c",
+    "fingerprint": "d6594da6b8397446d86e5d60bffabb39af2cbc60fb4891afec0ded71f1a543d5",
     "baseWidth": 128,
     "source": "content/icons/src/statue-of-unity.png",
     "reason": "matching master",
-    "sourceDifference": 0.8853759765625,
+    "sourceDifference": 0.9383138020833334,
     "variants": [
       {
         "width": 256,
@@ -3213,6 +3362,10 @@
       {
         "width": 512,
         "path": "512/statue-of-unity.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/statue-of-unity.webp"
       }
     ]
   },
@@ -3301,11 +3454,11 @@
     ]
   },
   "supertanker": {
-    "fingerprint": "68ae5429e565a905ea5f993e231c9cca8f6e6a2d95912d4c5477e27de830f6c7",
+    "fingerprint": "c15215d21c06426793708241536771011920e0a069eb30881e050520e40c4d62",
     "baseWidth": 128,
     "source": "content/icons/src/supertanker.png",
     "reason": "matching master",
-    "sourceDifference": 1.5872599283854167,
+    "sourceDifference": 0.7997639973958334,
     "variants": [
       {
         "width": 256,
@@ -3314,6 +3467,10 @@
       {
         "width": 512,
         "path": "512/supertanker.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/supertanker.webp"
       }
     ]
   },
@@ -3411,11 +3568,11 @@
     ]
   },
   "tiger-i": {
-    "fingerprint": "5c118f89a7437c72c03728c7491b06352ec8b57a340135f467a2e038f6b34a81",
+    "fingerprint": "cdedab62a4cc8af4ed81ee1b9d3a2b53dcfed5d4508407138dca8ad8d5c11795",
     "baseWidth": 128,
     "source": "content/icons/src/tiger-i.png",
     "reason": "matching master",
-    "sourceDifference": 1.3072916666666667,
+    "sourceDifference": 0.7296346028645834,
     "variants": [
       {
         "width": 256,
@@ -3424,6 +3581,10 @@
       {
         "width": 512,
         "path": "512/tiger-i.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/tiger-i.webp"
       }
     ]
   },
@@ -3470,11 +3631,11 @@
     ]
   },
   "titicaca": {
-    "fingerprint": "cec6cbde9b6ba3b5271078e8de12f4cba79423a0a3ce5bf11fbdcf5d4f678a30",
+    "fingerprint": "576a427a4632577a8e2ea9a41a93a5bb1c7925aa1eb3723acbfb3cd9fcea0ea4",
     "baseWidth": 128,
     "source": "content/icons/src/titicaca.png",
     "reason": "matching master",
-    "sourceDifference": 2.9231363932291665,
+    "sourceDifference": 1.5069376627604167,
     "variants": [
       {
         "width": 256,
@@ -3483,6 +3644,10 @@
       {
         "width": 512,
         "path": "512/titicaca.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/titicaca.webp"
       }
     ]
   },
@@ -3601,11 +3766,11 @@
     ]
   },
   "union-pacific-big-boy": {
-    "fingerprint": "09aa80e438bba465369dc9e8945e591a77848c0c121bac0a396e3d0d08755ef1",
+    "fingerprint": "5cc7dcb4d06636736b5e2b34a50b31f37385620c1d21867080721b6071633252",
     "baseWidth": 128,
     "source": "content/icons/src/union-pacific-big-boy.png",
     "reason": "matching master",
-    "sourceDifference": 0.7837320963541666,
+    "sourceDifference": 0.4196980794270833,
     "variants": [
       {
         "width": 256,
@@ -3614,6 +3779,10 @@
       {
         "width": 512,
         "path": "512/union-pacific-big-boy.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/union-pacific-big-boy.webp"
       }
     ]
   },
@@ -3677,11 +3846,11 @@
     ]
   },
   "uss-enterprise": {
-    "fingerprint": "3ae283bd78fd17479a389fa69f56c8ec0f60f43551e1de463f503e78d8fdec65",
+    "fingerprint": "5f04f08c7d6eb0dce04faf7c3a217c41af156414ede9f961110bcaf51bb43143",
     "baseWidth": 128,
     "source": "content/icons/src/uss-enterprise.png",
     "reason": "matching master",
-    "sourceDifference": 1.04937744140625,
+    "sourceDifference": 0.51495361328125,
     "variants": [
       {
         "width": 256,
@@ -3690,6 +3859,10 @@
       {
         "width": 512,
         "path": "512/uss-enterprise.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/uss-enterprise.webp"
       }
     ]
   },
@@ -3935,6 +4108,153 @@
       {
         "width": 256,
         "path": "256/z-boson.webp"
+      }
+    ]
+  },
+  "14-bis": {
+    "fingerprint": "8fe07791f6d1072ac0f6e46cefd44858a32d4c09352ed9f5498734d2afddfdb8",
+    "baseWidth": 128,
+    "source": "content/icons/src/14-bis.png",
+    "reason": "matching master",
+    "sourceDifference": 1.0079549153645833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/14-bis.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/14-bis.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/14-bis.webp"
+      }
+    ]
+  },
+  "helium-party-balloon": {
+    "fingerprint": "c61da16be0d0c920bbdb1b4a13f4697b52385b4bc9d2104e122f3f1c15571d4e",
+    "baseWidth": 128,
+    "source": "content/icons/src/helium-party-balloon.png",
+    "reason": "matching master",
+    "sourceDifference": 0.90484619140625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/helium-party-balloon.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/helium-party-balloon.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/helium-party-balloon.webp"
+      }
+    ]
+  },
+  "hot-air-balloon": {
+    "fingerprint": "a83649067859c7eef3d0ed36744908d583fae340e7c2f2622fad28ec6c854ad3",
+    "baseWidth": 128,
+    "source": "content/icons/src/hot-air-balloon.png",
+    "reason": "matching master",
+    "sourceDifference": 2.0427042643229165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hot-air-balloon.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hot-air-balloon.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/hot-air-balloon.webp"
+      }
+    ]
+  },
+  "weather-balloon-near-burst": {
+    "fingerprint": "6f6b8cf24e8377e486016e260717d6ddcc4e57d86ecd57665ce2a4329e130ce3",
+    "baseWidth": 128,
+    "source": "content/icons/src/weather-balloon-near-burst.png",
+    "reason": "matching master",
+    "sourceDifference": 1.06451416015625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/weather-balloon-near-burst.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/weather-balloon-near-burst.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/weather-balloon-near-burst.webp"
+      }
+    ]
+  },
+  "weather-balloon": {
+    "fingerprint": "bf897f316a8861dda6d4d2b07948e3c7ac3c05bc7dd6a67499d310a299b767a7",
+    "baseWidth": 128,
+    "source": "content/icons/src/weather-balloon.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5211385091145834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/weather-balloon.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/weather-balloon.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/weather-balloon.webp"
+      }
+    ]
+  },
+  "zeppelin-nt": {
+    "fingerprint": "c8161f3db80cb2cd0ad563763e906d9ecbf1f52f5de4de579b923b5b257ffcb1",
+    "baseWidth": 128,
+    "source": "content/icons/src/zeppelin-nt.png",
+    "reason": "matching master",
+    "sourceDifference": 0.4245198567708333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/zeppelin-nt.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/zeppelin-nt.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/zeppelin-nt.webp"
+      }
+    ]
+  },
+  "soap-bubble": {
+    "fingerprint": "1e72c1aaaf7e76b284a84c7d34d3652d7f50c0d6d34725f5d25856ca122d5b9c",
+    "baseWidth": 128,
+    "source": "content/icons/src/soap-bubble.png",
+    "reason": "matching master",
+    "sourceDifference": 2.727783203125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/soap-bubble.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/soap-bubble.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/soap-bubble.webp"
       }
     ]
   }

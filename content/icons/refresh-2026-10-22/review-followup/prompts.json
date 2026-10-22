@@ -1,0 +1,28 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-22",
+  "jobs": [
+    {
+      "slug": "mt-everest-rock-cutout",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/mt-everest.png"
+      ],
+      "prompt": "Precise object edit of the provided Mount Everest miniature chart icon. Keep its recognizable snowy peak, ridges, rocky surface colors and upper-left illumination. Change the lower section: include a substantial solid piece of underlying Earth, as if the entire mountain and surrounding terrain were carved out of bedrock for a museum miniature. Add a thick rough hewn dark gray-brown rock cut section below the snow-covered terrain, about one quarter of the total subject height, with plausible restrained layers, fractures and chipped irregular bottom perimeter. Rock is attached continuously to terrain; not a plinth, not a soil garden, no flat pedestal, no lava or cave. Adjust the view to almost frontal miniature on an invisible shelf slightly below eye line, only modest visible terrain on top, no strong isometric angle. Complete compact floating cutout, nothing touches edges; longest subject span 90-93% of square image. Transparent PNG background, no ground, no cast shadow, no text. Geological miniature is illustrative rather than a measured cutaway. Preserve the mountain identity."
+    },
+    {
+      "slug": "soap-bubble-caustics",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/soap-bubble.png",
+        "/Users/avsa/Dev/Triangle/content/icons/shadows/_sphere.webp",
+        "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/1-ml-of-water.png"
+      ],
+      "prompt": "Generate a separate transparent PNG containing ONLY the wall shadow and light caustics of a single soap bubble. Reference 1 is the bubble object (do not render the bubble). Reference 2 is the chart's default spherical shadow, showing down-right light direction and gradual softening. Reference 3 is the water droplet optical wall shadow, for violet color and luminous lavender caustics. Imagine the bubble floating a short distance in front of a vertical purple #433193 wall, light from upper left; output only its projected optical effect, never paint the wall. Center the effect in the square canvas with its entire soft edge comfortably inside 12% clear margins. Round mildly elongated footprint tilted down-right, a very delicate dark violet crescent near the upper-left, much lighter than an opaque sphere's shadow, mostly transparent center. Selective pale lavender-white thin caustic arcs and one or two small subtle iridescent highlights along lower-right edge, soft feathered glow. A thin soap film surrounding air, much more transparent and weaker caustics than a solid water droplet. No bubble body, no second sphere, no heavy black disc, no ground plane or floor oval, no backdrop rectangle, no text. True transparency outside and through the optical layer, usable with normal alpha blending on the purple chart."
+    },
+    {
+      "slug": "eois-stantonae",
+      "prompt": "Use case: precise-object-edit. Input is a low resolution specimen photo with dorsal (LEFT) and ventral (RIGHT) views of an Eois moth. Produce ONE high resolution scientific specimen illustration based strictly on the LEFT/DORSAL specimen only. It is personally precious and exact identity matters: preserve the observed wing outline, proportions, spread-wing pose, irregular cream-yellow and ochre ground color, specific maroon/rust/dark brown patch positions and bands from the LEFT specimen. Do NOT borrow the right specimen's patterns. Four wings: tall pointed rounded triangular forewings slant upward-left/upward-right, each with a large dark maroon irregular outer-middle field, cream-ochre apical zones with fine dark specks; smaller scalloped pale cream-yellow hindwings below with many little irregular brown spots and an oblique dark inner band. Slender pale abdomen points down, dark transverse marks near its middle/lower portion; small ochre thorax/head, two very fine curved simple antennae. Preserve the reference's subtle left/right differences rather than inventing perfect symmetry. Top/dorsal view head up, front-facing flattened pinned specimen on an invisible museum display wall. Improve clarity of visible scale texture and clean contours without inventing new decorative eyespots, extra bands or extravagant antennae. Use realistic subtle upper-left light and restrained modeling with slightly shaded lower-right edges, high enough contrast to match premium realistic miniature insect chart icons, not dramatic glossy plastic. Full moth including antennae and wings isolated on true transparent background, no labels, no text, no other specimen, no ground, no pin, no cast shadow. Longest span around92% of square image; no clipping. Prioritize faithfulness to left reference over embellishment. This is an AI reconstruction, not recovered photographic detail.",
+      "reference": "eois-dorsal-reference.png",
+      "note": "User requested the left/dorsal specimen. Photo caption reads Eois ewa; chart label retained as requested. This reconstruction is not independent taxonomic validation or recovered photographic detail."
+    }
+  ]
+}

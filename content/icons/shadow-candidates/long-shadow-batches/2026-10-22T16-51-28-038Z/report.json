@@ -1,0 +1,52 @@
+{
+  "created": "2026-10-22T16-51-28-038Z",
+  "counts": {
+    "generate": 2,
+    "round": 0,
+    "caustics": 0,
+    "custom": 0,
+    "excluded": 0
+  },
+  "plan": [
+    {
+      "name": "mt-everest",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:51:28.689Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "eois-stantonae",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T16:51:28.800Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 // Shared by the generator and local editor. Mirrors chart blend exclusions.
 import { readFileSync } from 'node:fs';
 import sharp from 'sharp';
+import { SHADOWED_SCREEN_SPHERES } from '../src/star-light.js';
 const SCREEN_BLEND_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
 // The legacy black-hole icons can be absent from objects.json/dust-famous.
 const SCREEN_BLEND_SLUGS = new Set(["halleys-comet", "hale-bopp", "3k-bh", "primordial-black-hole"]);
@@ -29,6 +30,9 @@ export function iconCategories() {
 const categoryFor = iconCategories();
 export async function shadowExclusion(file) {
   const {slug, cat} = categoryFor(file);
+  if (SHADOWED_SCREEN_SPHERES.has(slug)) return null;
+  // Approved hybrid optical layers: faint cast shadow plus a central ember.
+  if (['y-brown-dwarf','t-brown-dwarf','l-brown-dwarf'].includes(slug)) return null;
   if (SCREEN_BLEND_CATS.has(cat) || SCREEN_BLEND_SLUGS.has(slug) || slug.includes('void')) return 'Screen-blended artwork has no shadow';
   // Catch unclassified opaque black-backed pictures too. Transparent black
   // pixels are not a black background: their alpha must also be opaque.

@@ -655,7 +655,8 @@ body.sidebar-open #scale-bar { left: 456px; }
      the x/y/width/height geometry: the renderer rewrites it every zoom
      frame (easing it makes icons trail the map), and corner-anchored
      interpolation makes the hover jump up-left before growing. */
-  transition: transform 0.15s;
+  /* A shared JS tween keeps size, black backing and parallax in lockstep. */
+  transition: none;
   transform-box: fill-box;
   transform-origin: center;
 }

@@ -1,0 +1,13 @@
+{
+  "rest": {
+    "mask": "url(#space-edge-mask)",
+    "fill": "url(#space-core-gradient)",
+    "ratio": 0.5599998002960611
+  },
+  "hover": {
+    "mask": "url(#space-edge-mask)",
+    "fill": "url(#space-core-gradient)",
+    "ratio": 0.5600001701181702
+  },
+  "errors": []
+}
