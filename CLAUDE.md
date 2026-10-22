@@ -2,7 +2,8 @@
 
 ## Narration (videos)
 - **Before changing a scene, camera move or cutaway, read `video/plans/visual-rules.md`**: the
-  author's rules for the videos (chart first, no full zoom-outs, which photos to use, audio checks).
+  author's rules for the videos (chart first, no full zoom-outs, dives before photo cutaways,
+  which photos to use, audio checks).
 - **Fact-check every new narration recording, always, without being asked.** Read
   the transcript against the chart and the physics, and write the findings in that
   recording's `video/sources/<date>/NOTES.md` under "Fact check": what's right, what's
