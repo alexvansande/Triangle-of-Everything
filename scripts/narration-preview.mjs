@@ -34,7 +34,7 @@ execFileSync("npx", ["vite", "build", "--mode", "narration-preview", "--base", "
 
 // ---------- trim what the player never loads ----------
 const rm = (p) => fs.rmSync(path.join(OUT, p), { recursive: true, force: true });
-["tiles/z5", "og", "og-preview.jpg", "hyperspirograph.html", "hiperspirograph.html", "spirograph-tour.md",
+["tiles/z5", "tiles/z4", "og", "og-preview.jpg", "hyperspirograph.html", "hiperspirograph.html", "spirograph-tour.md",
  "sw.js", "manifest.webmanifest", "CNAME", "favicon.png", "apple-touch-icon.png"].forEach(rm);
 // photos/ holds the cutaways' pictures, shared by every take
 for (const t of fs.readdirSync(path.join(OUT, "narration"))) if (!takes.includes(t) && t !== "photos") rm(`narration/${t}`);
