@@ -1171,3 +1171,6 @@ Prompts and provenance are alongside them. The review page is
 `/tools/black-hole-family.html`; `/tools/eht-icon-study.html` still compares
 all EHT reconstruction variants against observations. Existing black-hole
 size multipliers are retained.
+
+### Black hole artistic palette (2026-10-22)
+The four black holes use a reversible display grade in `src/black-hole-palette.js`, ordered by mass: stellar copper, Sagittarius A* amber, M87* pale blue, TON 618 blue. This is an artistic ordering, not a temperature measurement. The chart and both black-hole study pages share these filters. The EHT study grades observation and reconstruction identically to preserve the dissolve, and offers an original-palette toggle. Source observations and generated masters remain unchanged.

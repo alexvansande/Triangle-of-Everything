@@ -1,3 +1,4 @@
+import {blackHoleFilter} from "./black-hole-palette.js";
 import * as d3 from "d3";
 import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS,SPACE_ART_DEFS,spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
 import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
@@ -2898,7 +2899,7 @@ function drawObjects() {
           .attr("class", "obj-icon")
           .attr("data-slug", o.slug)
           .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
-          .style("filter",softSpaceIcon(o)?`brightness(${SPACE_ART_BRIGHTNESS})`:null)
+          .style("filter",blackHoleFilter(o.slug)||(softSpaceIcon(o)?`brightness(${SPACE_ART_BRIGHTNESS})`:null))
           .attr("mask",softSpaceIcon(o)?spaceEdgeMask(o.slug):null)
           .node();
         imgEl.addEventListener("load", () => {
@@ -2987,6 +2988,7 @@ function drawObjects() {
     iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
     iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
     softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
+    iconFilterOf:(cat,name)=>blackHoleFilter(nameToSlug(name)),
     iconBrightnessOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name))?SPACE_ART_BRIGHTNESS:1,
   }, {
     // Catalogue pictures share the same hierarchy: all curated candidates
