@@ -4,9 +4,9 @@ import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
 import {STAR_BODY_FRAMES, SHADOWED_SCREEN_SPHERES, BROWN_DWARFS, starBodyGeometry, starWallLight, stellarLightProfile} from "./star-light.js";
 import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
 import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
-import { mountRoundShadowControls } from "./round-shadow-controls.js";
 import { buildSearchIndex, searchObjects } from "./object-search.js";
 import { VisibilityMemory } from "./visibility-memory.js";
+import { priorityCircles } from "./visibility-hierarchy.js";
 import {
   formatSci, friendlyRadius, friendlyMass, friendlyEnergy, isPhoton,
   friendlyWavelength, friendlyDensity, MASS_HOVER_UNITS, RADIUS_HOVER_UNITS,
@@ -105,7 +105,12 @@ const ICON_SIZE_MULT = {
 function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
-  return sizeScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
+  const cat = o.catKey || o.cat;
+  // Galaxies get a second 25% boost; extend this pass to diffuse large-scale
+  // structures and black holes, keeping solid universe/void spheres unchanged.
+  const categoryScale = cat === "galaxy" ? 1.25 * 1.25
+    : cat === "blackhole" || (cat === "largescale" && isDiffuseSpaceArt(cat, o.slug)) ? 1.25 : 1;
+  return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
 }
 
 function nameToSlug(name) {
@@ -2073,7 +2078,6 @@ function catDisplayLabel(catKey) {
 
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
 const ICON_ROOM = 1.3;       // icons keep 30% of their radii clear between them
-let _iconShownPrev = new Set();
 const _objectVisibility = new VisibilityMemory();
 const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
@@ -2416,6 +2420,7 @@ function drawObjects() {
     cw, ch, _iconSize, _fontScale, _iconsEnabled, _labelsEnabled,
     _dustEnabled, dustReady(), _isMobile, _posterLabels, _atomIconsHidden,
     _bigBangMode && [_bigBangObjectOverrides, _bigBangObjectOpacity],
+    _iconOnly && [..._iconOnly], // a narration scene's picture set
   ]));
 
   // Project all objects to screen, sorted by priority (low z = important)
@@ -2455,34 +2460,18 @@ function drawObjects() {
       return aZ - bZ;
     });
 
-  // --- Dot clustering: hide dots only when circles truly overlap ---
-  const visibleDots = [];
-  projected.forEach(o => {
-    const dx2 = (s) => (s.sx - o.sx) ** 2 + (s.sy - o.sy) ** 2;
-    const tooClose = visibleDots.some(s => dx2(s) < DOT_MIN_DIST * DOT_MIN_DIST);
-    o._showDot = !tooClose;
-    if (o._showDot) visibleDots.push(o);
-  });
-
-  // --- Icon crowding, map-style: icons need room, measured by their real
-  // drawn sizes (iconSizeMult grows them with the object), so a crowded
-  // stretch (moons, dwarf planets) shows only its top-priority pictures and
-  // the rest appear as you zoom in. Priority: z, then last frame's icons. ---
-  const shownIcons = [];
+  // Reserve all higher-priority candidates, including hidden ones. Source
+  // order resolves equal priorities; last frame's winners never alter rank.
+  const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
-  const iconOrder = projected.filter(o => mapIconShown(o) && o._showDot)
-    .sort((a, b) => a.z - b.z || (_iconShownPrev.has(b.slug) - _iconShownPrev.has(a.slug)));
-  projected.forEach(o => { o._showIcon = false; });
-  iconOrder.forEach(o => {
-    const r = icoR(o);
-    const tooClose = shownIcons.some(s => {
-      // a narration scene picks its pictures (_iconOnly): only true overlaps hide one
-      const need = _iconOnly ? icoSize : (r + s._icoR) * ICON_ROOM;
-      return (s.sx - o.sx) ** 2 + (s.sy - o.sy) ** 2 < need * need;
-    });
-    if (tooClose) return;
-    o._showIcon = true; o._icoR = r;
-    shownIcons.push(o);
+  const iconOrder = projected.filter(mapIconShown);
+  // a narration scene picks its pictures (_iconOnly): only true overlaps hide one
+  const shownIcons = _iconOnly ? priorityCircles(iconOrder, () => icoSize / 2)
+    : priorityCircles(iconOrder, icoR, ICON_ROOM);
+  projected.forEach(o => {
+    o._showDot = visibleDots.has(o);
+    o._showIcon = o._showDot && shownIcons.has(o);
+    if (o._showIcon) o._icoR = icoR(o);
   });
   // Decide against the whole curated collection, not the viewport contents.
   // A neighbour crossing an edge cannot promote/demote a stationary object.
@@ -2493,7 +2482,6 @@ function drawObjects() {
       if (o._showIcon) o._icoR = icoR(o);
     } else _objectVisibility.decisions.set(o.slug, { dot:o._showDot, icon:o._showIcon });
   }
-  _iconShownPrev = new Set(projected.filter(o=>o._showIcon).map(o=>o.slug));
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
   const th2 = _posterLabels ? -1 : CLUSTER_THRESHOLD * CLUSTER_THRESHOLD; // poster: no clusters
@@ -3014,11 +3002,14 @@ function drawObjects() {
       return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug, size) || null;
     } : null,
     // as iconSizeMult, per-object multipliers included
-    iconSizeAt: (logR, name) => icoSize * Math.pow(1.1, (logR + 3.5) / 6) * (ICON_SIZE_MULT[nameToSlug(name)] || 1) * (_iconSize / 100),
+    iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
     iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
     softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
     iconBrightnessOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name))?SPACE_ART_BRIGHTNESS:1,
   }, {
+    // Catalogue pictures share the same hierarchy: all curated candidates
+    // outrank them, not just this frame's visible winners or moving labels.
+    priorityCircles: projected.map(o => ({sx:o.sx,sy:o.sy,r:mapIconShown(o)?icoR(o):DOT_MIN_DIST/2})),
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
     // Icons keep dust out with a CIRCLE, not their square box: a square gap
@@ -5322,7 +5313,7 @@ const _tileCache = new Map();
 let _bgTilesEnabled = true;
 
 // Fractal background (bg-noise.js): once you zoom past the painted tiles'
-// resolution, a WebGL layer behind the SVG crossfades in and keeps folding the
+// resolution, a WebGL layer inside the SVG crossfades in and keeps folding the
 // painting into finer detail. Nothing is fetched or run until then (and on the
 // site not before the user's first zoom, since the home view is already past
 // the tiles), and it stops entirely when you zoom back out. Settings toggle (+ opens its look
@@ -5336,6 +5327,7 @@ const BG_NOISE_PROFILE = _bgNoiseNarr ? {} : { res: 0.5 };
 const BG_NOISE_ON_AT = 1, BG_NOISE_OFF_AT = 0.7; // css px per source px (tiles run out at 1)
 const _bgNoiseUrl = new URLSearchParams(location.search).get("bgnoise"); // null | "" | "0" | "1"
 let _bgNoise = null;          // the layer, created on first zoom-in
+let _bgNoiseSurface = null;
 let _bgNoiseShown = false;    // currently replacing the tiles
 let _bgNoiseArmed = _bgNoiseNarr; // site: not at startup, only after the first zoom
 let _bgNoiseFadeTimer = 0;
@@ -5347,8 +5339,9 @@ const loadBgNoise = () => (_bgNoiseMod ??= import("./bg-noise.js").then(m => { m
 function bgNoiseView() {
   const ppu = tileMeta.pxPerUnitX;
   const logR = xS.invert(cw / 2), logM = yS.invert(ch / 2);
+  _bgNoiseSurface?.attr("width", cw).attr("height", ch);
   return {
-    left: margin.left, top: margin.top, w: cw, h: ch,
+    left: 0, top: 0, w: cw, h: ch,
     cx: 2114 + (logR - PLANCK_LOG_R) * ppu, cy: 5960 - (logM - PLANCK_LOG_M) * ppu,
     zx: Math.abs(xS(1) - xS(0)) / ppu, zy: Math.abs(yS(0) - yS(1)) / ppu,
   };
@@ -5360,16 +5353,12 @@ function setBgNoise(on) {
   syncBgNoise();
 }
 
-// Tiles and SVG backdrops while the layer is up: the canvas sits behind the
-// SVG, so its black backdrops go and the tile layers fade out over it.
+// Both backgrounds share the icons' clipped compositing group, so Screen
+// blends against the fractal pixels just as it does against the painted tiles.
 function setBgNoiseBackdrop(noise) {
   clearTimeout(_bgNoiseFadeTimer);
   const tiles = [lTiles, lTilesBase];
   if (noise) {
-    document.getElementById("chart").style.background = "#000";
-    svg.style("position", "relative");
-    svg.select("rect.svg-bg").attr("fill", "none");
-    clip.select("rect.bg-rect").attr("display", "none");
     tiles.forEach(l => l.style("transition", "opacity 0.5s").style("opacity", 0));
     _bgNoiseFadeTimer = setTimeout(() => tiles.forEach(l => l.style("display", "none")), 520);
   } else {
@@ -5378,10 +5367,6 @@ function setBgNoiseBackdrop(noise) {
     tiles.forEach(l => l.style("opacity", 1));
     _bgNoiseFadeTimer = setTimeout(() => {
       tiles.forEach(l => l.style("transition", null).style("opacity", null));
-      document.getElementById("chart").style.background = "";
-      svg.style("position", null);
-      svg.select("rect.svg-bg").attr("fill", "#000000");
-      clip.select("rect.bg-rect").attr("display", null);
     }, 520);
   }
 }
@@ -5401,11 +5386,18 @@ async function syncBgNoise() {
   if (!_bgNoise) {
     const { createBgNoise } = await loadBgNoise();
     if (!_bgNoiseShown || _bgNoise) { _bgNoise?.setVisible(_bgNoiseShown); return; } // changed while loading
+    // A sibling HTML canvas lies outside clip's isolated blending group.
+    // Embed it beneath the tiles instead, keeping all chart blends intact.
+    _bgNoiseSurface = clip.insert("foreignObject", () => lTilesBase.node())
+      .attr("class", "fractal-backdrop").attr("width", cw).attr("height", ch)
+      .style("pointer-events", "none");
+    const host = _bgNoiseSurface.append("xhtml:div")
+      .style("position", "relative").style("width", "100%").style("height", "100%").node();
     _bgNoise = createBgNoise({
-      host: document.getElementById("chart"), meta: tileMeta, getView: bgNoiseView,
+      host, meta: tileMeta, getView: bgNoiseView,
       onShown: () => { if (_bgNoiseShown) setBgNoiseBackdrop(true); },
     });
-    if (!_bgNoise) { _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
+    if (!_bgNoise) { _bgNoiseSurface.remove(); _bgNoiseSurface = null; _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
   }
   _bgNoise.setVisible(true);
 }
@@ -5433,30 +5425,27 @@ function drawTiles() {
 
   const screenPPU = Math.abs(px(1) - px(0));
 
-  // Deliberately soft background: accept a tile level up to BG_SOFTEN× coarser
-  // than the screen. The painted texture's fine grain read as noise competing
-  // with the real catalogue dots; upscaled (and blurred below) it stays as
-  // colour and mood without the grain — and fetches fewer bytes.
-  const BG_SOFTEN = 4;
+  // Match device pixels before resorting to fractal detail. Deliberately
+  // undersampling here made the painted view much softer than the fractal one.
+  const targetPPU = screenPPU * Math.min(2, window.devicePixelRatio || 1);
   let best = levels[0];
   for (const lv of levels) {
     const lvPPU = (lv.w / imgDataW);
     best = lv;
-    if (lvPPU * BG_SOFTEN >= screenPPU) break;
+    if (lvPPU >= targetPPU) break;
   }
 
-  // Detect over-zoom: when screen resolution exceeds the best tile level
-  const bestPPU = best.w / imgDataW;
-  const overZoom = screenPPU / bestPPU;
-  // One blur on the whole layer (not per tile): smooths the painted grain
-  // into colour, hides upscaling and tile seams, and costs one filter pass.
-  const blurPx = 0;
-  lTiles.style("filter", overZoom > 1.2 ? `blur(${Math.min(14, overZoom * 3).toFixed(1)}px)` : null);
-  // Narration videos: past what the painting can hold, fade it to a hint of colour
-  // instead of showing a blurred smear (full at 3× over-zoom, 15% by 10×).
-  const bgFade = _bgFadeDeep ? Math.max(0.15, Math.min(1, 1 - (overZoom - 3) / 7 * 0.85)) : 1;
-  lTiles.style("opacity", bgFade < 1 ? bgFade.toFixed(3) : null);
-  lTilesBase.style("opacity", bgFade < 1 ? bgFade.toFixed(3) : null);
+  // Browser interpolation handles zoom beyond the source resolution. Extra
+  // blur would erase available detail just before the fractal handoff.
+  lTiles.style("filter", null);
+  // Narration videos without the fractal layer: past what the painting can
+  // hold, fade it to a hint of colour (full at 3× over-zoom, 15% by 10×).
+  const overZoom = screenPPU / (best.w / imgDataW);
+  const bgFade = _bgFadeDeep && !_bgNoiseShown ? Math.max(0.15, Math.min(1, 1 - (overZoom - 3) / 7 * 0.85)) : 1;
+  if (!_bgNoiseShown) {
+    lTiles.style("opacity", bgFade < 1 ? bgFade.toFixed(3) : null);
+    lTilesBase.style("opacity", bgFade < 1 ? bgFade.toFixed(3) : null);
+  }
 
   // Poster mode: the tile layers sit outside the clip so the nebula also
   // covers the axis columns — cull against the padded range.
@@ -5496,17 +5485,13 @@ function drawTiles() {
         _tileCache.set(key, img);
       }
 
-      const tileImg = lTiles.append("image")
+      lTiles.append("image")
         .attr("href", href)
         .attr("x", sx).attr("y", sy)
         .attr("width", sw).attr("height", sh)
         .attr("preserveAspectRatio", "none")
         .attr("image-rendering", "auto");
 
-      // Apply blur when zoomed past tile resolution to hide pixelation
-      if (blurPx > 0) {
-        tileImg.style("filter", `blur(${blurPx.toFixed(1)}px)`);
-      }
     }
   }
 }
@@ -6658,7 +6643,6 @@ document.getElementById("zoom-reset").addEventListener("click", () =>
 // ---------- settings panel ----------
 const settingsBtn = document.getElementById("settings-btn");
 const settingsPanel = document.getElementById("settings-panel");
-mountRoundShadowControls(settingsPanel, redraw);
 settingsBtn.addEventListener("click", () => {
   const open = settingsPanel.classList.toggle("open");
   settingsBtn.classList.toggle("active", open);

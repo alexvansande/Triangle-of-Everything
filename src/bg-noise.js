@@ -36,7 +36,7 @@ export const NOISE_MODES = [
 // Tuned for the video: rough (CMB-like) octaves, gentle warp, detail from ~5 source px
 export const NOISE_DEFAULTS = {
   mode: 8, move: true, speed: 0.24, drift: 0.095, ridge: 0.53, warp: 0.51,
-  detail: 0.68, smooth: 0, start: 2.263, filter: 1, res: 1,
+  detail: 0.25, smooth: 0, start: 2.263, filter: 1, res: 1,
 };
 
 const VS = `#version 300 es
@@ -306,7 +306,7 @@ const loadImg = src => new Promise(res => {
  * Starts hidden and idle. setVisible(true) runs the loop; the canvas fades in
  * (and onShown fires) on the first frame drawn with the tile texture ready.
  * setVisible(false) fades it out and stops all work.
- *  host    — element the canvas is inserted into (behind the chart SVG)
+ *  host    — HTML element containing the canvas (in the chart's background foreignObject)
  *  meta    — /tiles/meta.json
  *  getView — () => { left, top, w, h } css px of the plot area, plus
  *            { cx, cy } camera centre in source px and { zx, zy } css px per source px
@@ -334,11 +334,12 @@ export function createBgNoise({ host, meta, getView, onShown }) {
   })();
 
   function wantWindow(v) {
-    // Same level choice as drawTiles (BG_SOFTEN = 4): the painting stays soft,
-    // the noise supplies the detail.
+    // Match drawTiles' source detail so switching renderers doesn't replace
+    // the painting with a coarser texture. Noise adds detail beyond the source.
     const zoomCss = Math.sqrt(v.zx * v.zy);
+    const targetScale = zoomCss * Math.min(2, devicePixelRatio || 1);
     let lv = meta.levels[0];
-    for (const l of meta.levels) { lv = l; if (l.scale * 4 >= zoomCss) break; }
+    for (const l of meta.levels) { lv = l; if (l.scale >= targetScale) break; }
     const hw = v.w / 2 / v.zx, hh = v.h / 2 / v.zy, s = lv.scale / T;
     const clampC = c => Math.max(0, Math.min(lv.cols - 1, c)), clampR = rr => Math.max(0, Math.min(lv.rows - 1, rr));
     return { lv, c0: clampC(Math.floor((v.cx - hw) * s)), c1: clampC(Math.floor((v.cx + hw) * s)),

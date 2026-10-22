@@ -426,6 +426,7 @@ body.sidebar-open #scrubber-panel { left: calc(50% + 220px); }
 #settings-panel {
   position: fixed; bottom: 140px; right: 14px;
   width: 220px;
+  max-height: calc(100dvh - 170px); overflow-y: auto;
   z-index: 60; /* above the chart-margin drag strips (50), so sliders get the drag */
   background: rgba(6,6,26,0.92);
   border: 1px solid rgba(255,255,255,0.1);

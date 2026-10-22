@@ -1036,8 +1036,13 @@ Observable Universe is also exempt: its artwork depicts a defined sphere.
 The rectangular diffuse-photo feathering cut away its round rim and made it
 look square. Keep its original unmasked image and brightness. It now uses a
 measured, opaque black disc backing like the stars, synchronized with the image
-during hover. The approved `selective-skin.png` cosmic marble is now the live
-icon: clear blue CMB patches reveal filaments beneath the continuous outer skin.
+during hover. The user approved the comparison version on October 22: the live
+icon is `translucent-skin.png`, identical to the supplied
+`ChatGPT Image Oct 22, 2026, 04_15_49 PM.png`. The previously approved
+`selective-skin.png` remains in `content/icons/candidates/observable-universe-marble/`
+for restoration: its clearer blue CMB patches reveal more of the inner filaments.
+The black backing is fitted to the comparison image's measured outline; the
+existing shadow and its settings are unchanged.
 Its original artwork is backed up in `candidates/observable-universe-marble/previous`.
 The 1254px master supplies 128/256/512/1024px chart versions.
 
@@ -1056,6 +1061,26 @@ distant strands match the interior of the approved universe marble. It retains
 screen blending, 5% brightness boost, feathered edges and no cast shadow. Chart
 tiers are 128/256/512/1024px. Previous artwork and the full built-in image-generation
 prompt are saved under `content/icons/candidates/laniakea-filaments/`.
+
+### Stable visibility hierarchy during zoom
+
+Icon selection uses `src/visibility-hierarchy.js`: every higher-priority
+candidate reserves space, including candidates hidden by an even higher rank.
+This prevents the greedy C-blocks-B-but-not-A cascade where A appears, B replaces
+it, then A returns as the zoom increases. Curated priority remains editorial `z`
+with the existing icon preference; equal priorities keep their source order,
+never the previous frame's winner. Selection considers the entire collection.
+
+Catalogue pictures follow curated objects, then their fixed famous rank and
+source order. Their eligibility no longer depends on incidental dot thinning,
+moving text or the old per-viewport picture quota. The existing 12% zoom decision
+memory remains, so panning and small zoom reversals retain decisions. Explicit
+search focus and the atomic-to-periodic-table presentation remain exceptions.
+
+Regression checks: `visibility-hierarchy.test.mjs`, `visibility-memory.test.mjs`,
+`check-zoom-visibility.mjs` and `check-pan-visibility.mjs`. Browser reports live
+under `docs/visibility-review/`. The zoom check covers both directions in human,
+planetary and cosmological regions, including catalogue pictures.
 
 The final approved brightness boost is **5% (`brightness(1.05)`)**, replacing
 the earlier 25% experiment. The app (including dust icons) and comparison page
