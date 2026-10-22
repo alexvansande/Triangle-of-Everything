@@ -239,6 +239,8 @@ const viewportLockScale = () => {
 let _showAxesMobile = false; // edge-to-edge by default; axes pill toggles unit margins
 const _isCoarse = !!window.matchMedia?.("(pointer: coarse)").matches;
 const _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+// Every iOS browser and in-app web view (whose UA has no "Safari"), plus Safari.
+const _isWebKit = /AppleWebKit/i.test(navigator.userAgent) && !/(Chrome|Chromium|Edg|Android)\b/i.test(navigator.userAgent);
 let _booted = false;
 
 const margin = { top: 55, right: 125, bottom: 80, left: SIDEBAR_W };
@@ -5395,9 +5397,13 @@ function setBgNoiseBackdrop(noise) {
 }
 
 /** Show the layer when enabled and zoomed past the tiles (with hysteresis). */
+// WebKit paints a canvas inside a foreignObject above every later SVG sibling,
+// so there the fractal covers the grid, dust and icons: keep the painted tiles
+// (?bgnoise=1 still forces it, for testing).
+const _bgNoiseBlocked = _isWebKit && _bgNoiseUrl !== "1";
 async function syncBgNoise() {
   const zoom = tileMeta ? Math.abs(xS(1) - xS(0)) / tileMeta.pxPerUnitX : 0;
-  const want = !!(_bgNoiseWanted && _bgNoiseArmed && tileMeta && _bgTilesEnabled && !_posterMargins &&
+  const want = !!(_bgNoiseWanted && !_bgNoiseBlocked && _bgNoiseArmed && tileMeta && _bgTilesEnabled && !_posterMargins &&
     zoom >= (_bgNoiseShown ? BG_NOISE_OFF_AT : BG_NOISE_ON_AT));
   if (want === _bgNoiseShown) return;
   _bgNoiseShown = want;
