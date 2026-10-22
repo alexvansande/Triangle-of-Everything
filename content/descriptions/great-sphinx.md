@@ -1,0 +1,1 @@
+Great Sphinx of Giza: a lion with a pharaoh's head, carved straight out of the limestone bedrock around 2500 BCE. At 73 meters long and 20 high, it is the largest sculpture made from a single piece of stone.
