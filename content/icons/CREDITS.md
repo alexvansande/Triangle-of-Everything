@@ -37,12 +37,12 @@ boeing-747, pyramid-giza, supertanker, microchip, hippo, blue-whale, red-dwarf, 
 titanic, hoba, chelyabinsk, hms-victory, manneken-pis, uss-enterprise, the-little-mermaid,
 antarctic-ice-sheet, caspian-sea, lake-baikal, dead-sea, loch-ness,
 greenland-ice-sheet, big-ben, burj-khalifa, opportunity, ingenuity, sequoia,
-dji-mini-2, bust-of-queen-nefertiti, n1, saturn-v, great-sphinx, statue-of-unity
+dji-mini-2, bust-of-queen-nefertiti, n1, saturn-v, great-sphinx, statue-of-unity, bennu
 
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
 human, red-blood-cell, grain-of-salt, penny,
-soccer-ball, observable-universe, void, itokawa, bennu,
+soccer-ball, observable-universe, void, itokawa,
 NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
 
 ## Downloaded from Space Agencies / Wikimedia
