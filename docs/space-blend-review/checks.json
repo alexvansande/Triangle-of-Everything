@@ -1,17 +1,13 @@
 {
-  "states": [
-    {
-      "trial": false,
-      "backing": 1,
-      "filter": "none",
-      "blend": "screen"
-    },
-    {
-      "trial": true,
-      "backing": 0,
-      "filter": "brightness(1.25)",
-      "blend": "screen"
-    }
-  ],
+  "rest": {
+    "mask": "url(#space-edge-mask)",
+    "fill": "url(#space-core-gradient)",
+    "ratio": 0.5599998002960611
+  },
+  "hover": {
+    "mask": "url(#space-edge-mask)",
+    "fill": "url(#space-core-gradient)",
+    "ratio": 0.5600001701181702
+  },
   "errors": []
 }

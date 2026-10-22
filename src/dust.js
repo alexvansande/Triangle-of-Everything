@@ -22,6 +22,7 @@
 // =============================================================
 
 import dustUrl from "./dust.json?url";
+import {spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
 import {animateIconGrowth} from "./icon-hover.js";
 import {starBodyGeometry} from "./star-light.js";
 import { PARALLAX, planePoint, unprojectPlane, planeTransform, iconPoint } from "./parallax.js";
@@ -456,14 +457,16 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       const g = d3sel(this), point = picturePoint(p);
       g.attr("transform", "translate(" + (point.x-p.sx) + "," + (point.y-p.sy) + ")");
       const source = placed.find(q => q.i === p.i).icon;
-      const disc=starBodyGeometry(view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,_iconGrowth.get(p.i)||1);
-      g.select(".dn-body").attr("display",disc?null:"none")
+      const soft=view.softSpaceOf?.(p.cat,p.name);
+      const disc=starBodyGeometry(view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,_iconGrowth.get(p.i)||1)||(soft?spaceCoreGeometry(view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,_iconGrowth.get(p.i)||1):null);
+      g.select(".dn-body").attr("display",disc?null:"none").attr("fill",soft?"url(#space-core-gradient)":"#000")
         .attr("visibility",_loadedPictures.has(source.url)?null:"hidden")
         .attr("cx",disc?.cx??p.sx).attr("cy",disc?.cy??p.sy).attr("r",disc?.r??0);
       g.select("image").style("transform",(_iconGrowth.get(p.i)||1)===1?null:`scale(${_iconGrowth.get(p.i)})`).attr("href", source.url)
         .attr("x", p.sx-p.r).attr("y", p.sy-p.r).attr("width", p.r*2).attr("height", p.r*2)
         .style("mix-blend-mode", p.blend ? "screen" : null)
-        .style("filter",`brightness(${view.iconBrightnessOf?.(p.cat,p.name)??1})`);
+        .style("filter",`brightness(${view.iconBrightnessOf?.(p.cat,p.name)??1})`)
+        .attr("mask",soft?spaceEdgeMask(view.depthKeyOf?.(p.name)):null);
     });
 }
 
@@ -487,7 +490,7 @@ export function setDustIconScale(layer, i, k) {
     const p=node.__data__,g=d3sel(node);
     if(growth>1)_iconGrowth.set(i,growth);else _iconGrowth.delete(i);
     const point=picturePoint(p,growth);
-    const disc=starBodyGeometry(_view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,growth);
+    const disc=starBodyGeometry(_view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,growth)||(_view.softSpaceOf?.(p.cat,p.name)?spaceCoreGeometry(_view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,growth):null);
     if(disc)g.select('.dn-body').attr('cx',disc.cx).attr('cy',disc.cy).attr('r',disc.r);
     g.attr('transform',`translate(${point.x-p.sx},${point.y-p.sy})`);
     g.select('.dn-icon').style('transform',growth===1?null:`scale(${growth})`);

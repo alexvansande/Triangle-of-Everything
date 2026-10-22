@@ -1006,3 +1006,19 @@ source images or alpha. The wall shows through faint details, giving a more
 luminous impression; photographic background noise and rectangular crop edges
 can also become more apparent, especially in Andromeda and Halley's Comet.
 The default chart remains unchanged pending comparison.
+
+### Smaller cores and feathered edges
+
+The diffuse-space comparison now retains a faint core backing: 56% of image
+width (previous broad backing 104%), with central opacity .35 fading through
+.15 to zero. Halley's backing follows its head at 24% of image width and uses
+a smaller 40% diameter. Both grow with the icon on the same hover clock.
+
+The outer 14% of each source rectangle is feathered on both axes. Masks use
+the measured alpha bounds in `src/space-art-frames.json` (alpha >16/255 on
+root chart WebPs), so transparent letterboxing does not hide a hard photo
+edge from the mask. Update these bounds when changing diffuse source artwork.
+`src/space-art.js` supplies matching SVG chart masks and CSS study masks.
+Brightness remains 1.25×. The comparison page and `?softspace` chart mode use
+the refined treatment; ordinary chart mode remains available for comparison.
+The source artwork is unchanged.

@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS} from "./space-art.js";
+import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS,SPACE_ART_DEFS,spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
 import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
 import {STAR_BODY_FRAMES, BROWN_DWARFS, starBodyGeometry, starWallLight, stellarLightProfile} from "./star-light.js";
 import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
@@ -462,6 +462,7 @@ function announce(text) {
 // decorative motion. The in-app "Show animations" checkbox still overrides.
 const _reduceMotion = !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 const defs = svg.append("defs");
+defs.node().insertAdjacentHTML("beforeend",SPACE_ART_DEFS);
 
 // Clip
 defs.append("clipPath").attr("id", "clip")
@@ -2896,7 +2897,7 @@ function drawObjects() {
       const g = enter.append("g").attr("class", "icon-g");
       g.each(function(o) {
         const gg = d3.select(this);
-        if (iconUsesScreenBlend(o) && !softSpaceIcon(o)) {
+        if (iconUsesScreenBlend(o)) {
           gg.append("circle").attr("class", "icon-bg").attr("fill", "url(#icon-bg-grad)");
         }
         // Fallback dot: icons fetch on demand, so on a cold cache the
@@ -2911,6 +2912,7 @@ function drawObjects() {
           .attr("data-slug", o.slug)
           .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
           .style("filter",softSpaceIcon(o)?`brightness(${SPACE_ART_BRIGHTNESS})`:null)
+          .attr("mask",softSpaceIcon(o)?spaceEdgeMask(o.slug):null)
           .node();
         imgEl.addEventListener("load", () => {
           _loadedIconUrls.add(ICON_BY_SLUG[o.slug]);
@@ -2926,11 +2928,11 @@ function drawObjects() {
       const objIcoSize = icoSize * iconSizeMult(o);
       const growth = this.__iconGrowth ?? 1;
       gg.attr("transform", parallaxTranslation(o, objectPicturePoint(o, growth)));
-      const bodyDisc=starBodyGeometry(o.slug,o.sx,o.sy,objIcoSize,growth);
+      const bodyDisc=iconBackingGeometry(o,objIcoSize,growth);
       gg.select(".icon-bg")
         .attr("cx",bodyDisc?.cx??o.sx).attr("cy",bodyDisc?.cy??o.sy)
         .attr("r",bodyDisc?.r??objIcoSize*.52).attr("opacity",bbOp)
-        .attr("fill",bodyDisc?"#000":"url(#icon-bg-grad)")
+        .attr("fill",softSpaceIcon(o)?"url(#space-core-gradient)":bodyDisc?"#000":"url(#icon-bg-grad)")
         .attr("display",bodyDisc&&!_loadedIconUrls.has(ICON_BY_SLUG[o.slug])?"none":null);
       gg.select(".icon-fallback-dot")
         .attr("cx", o.sx).attr("cy", o.sy)
@@ -2997,6 +2999,7 @@ function drawObjects() {
     // as iconSizeMult, per-object multipliers included
     iconSizeAt: (logR, name) => icoSize * Math.pow(1.1, (logR + 3.5) / 6) * (ICON_SIZE_MULT[nameToSlug(name)] || 1) * (_iconSize / 100),
     iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
+    softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
     iconBrightnessOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name))?SPACE_ART_BRIGHTNESS:1,
   }, {
     dots: shownDots,
@@ -3169,6 +3172,9 @@ function liftShadow(key, k) {
 // Screen-blend decision is static per object — shared by enter and update.
 const SCREEN_BLEND_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
 const SCREEN_BLEND_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
+function iconBackingGeometry(o,size,growth) {
+  return starBodyGeometry(o.slug,o.sx,o.sy,size,growth)||(softSpaceIcon(o)?spaceCoreGeometry(o.slug,o.sx,o.sy,size,growth):null);
+}
 function softSpaceIcon(o) {return _softSpace&&isDiffuseSpaceArt(o.catKey||o.cat,o.slug)}
 function iconUsesScreenBlend(o) {
   if (o.slug.includes("void")) return false;
@@ -3192,7 +3198,7 @@ function setIconHover(o, on) {
   animateIconGrowth(group,k,(node,growth)=>{
     const current=node.__data__,g=d3.select(node),size=effectiveIconSize()*iconSizeMult(current);
     g.select('.obj-icon').style('transform',growth===1?null:`scale(${growth})`);
-    const disc=starBodyGeometry(current.slug,current.sx,current.sy,size,growth);
+    const disc=iconBackingGeometry(current,size,growth);
     if(disc)g.select('.icon-bg').attr('cx',disc.cx).attr('cy',disc.cy).attr('r',disc.r);
     g.attr('transform',parallaxTranslation(current,objectPicturePoint(current,growth)));
   },_reduceMotion);
