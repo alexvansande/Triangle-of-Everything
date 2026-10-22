@@ -430,6 +430,7 @@ export async function startNarration(app) {
 
   // callout label fade: 0 = every chart label shown, 1 = only the highlighted objects'
   const grown = new Map(); // spotlit pictures grown, by name → factor
+  let nearbyOn = false;    // a `nearby` close-up is on (catalogue names shown)
   let labelFade = 0, labelFadeT = null, labelFadeSent = 0, labelFocusNames = [], labelFocusKey = "";
   function drawHighlights(t) {
     applyIcons(t);
@@ -497,7 +498,11 @@ export async function startNarration(app) {
     for (const [n, k] of grows) if (grown.get(n) !== k && app.growIcon?.(n, k)) grown.set(n, k);
     for (const n of [...grown.keys()]) if (!grows.has(n)) { grown.delete(n); app.growIcon?.(n, 1); }
     // The fade follows the narration clock (0.5 s), so the renderer's frames match playback.
-    const callout = !gHl.select("text").empty() || !gHlFree.select("text").empty();
+    // a close-up cue with `nearby: true` keeps its surroundings named: no fade, catalogue names on
+    const hlNow = hlCues.filter(c => c.time <= t).at(-1);
+    const nearby = !!hlNow?.nearby;
+    if (nearby !== nearbyOn) { nearbyOn = nearby; app.setDustLabels?.(nearby); }
+    const callout = !nearby && (!gHl.select("text").empty() || !gHlFree.select("text").empty());
     if (callout) labelFocusNames = live.filter(h => h.obj).map(h => h.obj);
     const dt = labelFadeT == null ? Infinity : Math.abs(t - labelFadeT);
     labelFadeT = t;

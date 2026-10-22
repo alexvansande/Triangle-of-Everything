@@ -70,13 +70,14 @@ export default {
         { obj: "USS Enterprise", place: "left", delay: 0.6 }, { obj: "Ever Given", delay: 0.9 }, { obj: "Kursk", place: "left", delay: 1.2 }] },
 
     // animals: bulk density puts them ON the line, so zoom in to see the side
+    // (the close-ups keep their neighbours named: nearby)
     { at: "much narrower range", cam: { r: 1.2, m: 3.8, span: 6 },
       hl: [WATER, { obj: "Ant" }, { obj: "Human", delay: 0.4 }, { obj: "Elephant", delay: 0.8 }, { obj: "Blue Whale", delay: 1.2 }] },
-    { at: ["hank green", "famous saying in biology"], cam: { obj: "Human", span: 0.12 }, dur: 1.5,
+    { at: ["hank green", "famous saying in biology"], cam: { obj: "Human", span: 0.12 }, dur: 1.5, nearby: true,
       hl: [WATER, { obj: "Human", label: "human · 0.985 g/cm³" }, { side: "right", label: "floats" }] },
-    { at: "some variation", cam: { obj: "Human", span: 0.5 }, hl: [WATER, { obj: "Human", label: "mostly water" }] },
-    { at: ["will be the hippo", "would be the hippo"], cam: { obj: "Hippopotamus", span: 3.5 }, dur: 1.5, hl: [{ obj: "Hippopotamus" }, WATER] },
-    { at: "aquatic animal", cam: { obj: "Hippopotamus", span: 0.1 }, dur: 2.5, hl: [{ obj: "Hippopotamus" }, WATER] },
+    { at: "some variation", cam: { obj: "Human", span: 0.5 }, nearby: true, hl: [WATER, { obj: "Human", label: "mostly water" }] },
+    { at: ["will be the hippo", "would be the hippo"], cam: { obj: "Hippopotamus", span: 3.5 }, dur: 1.5, nearby: true, hl: [{ obj: "Hippopotamus" }, WATER] },
+    { at: "aquatic animal", cam: { obj: "Hippopotamus", span: 0.1 }, dur: 2.5, nearby: true, hl: [{ obj: "Hippopotamus" }, WATER] },
     { at: "sinks to the bottom",
       hl: [{ obj: "Hippopotamus", label: "hippo · 1.05 g/cm³" }, WATER, { side: "left", label: "sinks" }] },
 

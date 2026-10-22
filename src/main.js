@@ -650,7 +650,7 @@ const DUST_SHADOWS = SHADOWS && !new URLSearchParams(location.search).has("nodus
 // (src/dust.js). Never interactive except for a hover name.
 const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
 const PARALLAX_OFF = new URLSearchParams(location.search).has("noparallax");
-const DUST_LABELS_OFF = NARR_PREVIEW || new URLSearchParams(location.search).has("narrate");
+let DUST_LABELS_OFF = NARR_PREVIEW || new URLSearchParams(location.search).has("narrate");
 lGrid.raise(); // grid plane sits in front of dust, behind labels and pictures
 lRegLabel.raise();
 const lDustHover  = lContent.append("g").style("pointer-events", "none");
@@ -7985,6 +7985,8 @@ if (_ogShot) {
       },
       /** Always the largest resolution of each picture (videos), then redraw. */
       setIconMaxRes(on = true) { setIconMaxRes(on); redraw(); },
+      /** Catalogue names on or off in a video (they're off by default there). */
+      setDustLabels(on) { if (DUST_LABELS_OFF === on) { DUST_LABELS_OFF = !on; redraw(); } },
       /** Icon size in percent of the app's default (videos), without saving it. */
       setIconScale(pct = 100) { if (_iconSize !== pct) { _iconSize = pct; redraw(); } },
       /** On-screen radius of an object's picture (0 when it shows as a dot). */
