@@ -1036,8 +1036,13 @@ Observable Universe is also exempt: its artwork depicts a defined sphere.
 The rectangular diffuse-photo feathering cut away its round rim and made it
 look square. Keep its original unmasked image and brightness. It now uses a
 measured, opaque black disc backing like the stars, synchronized with the image
-during hover. The approved `selective-skin.png` cosmic marble is now the live
-icon: clear blue CMB patches reveal filaments beneath the continuous outer skin.
+during hover. The user approved the comparison version on October 22: the live
+icon is `translucent-skin.png`, identical to the supplied
+`ChatGPT Image Oct 22, 2026, 04_15_49 PM.png`. The previously approved
+`selective-skin.png` remains in `content/icons/candidates/observable-universe-marble/`
+for restoration: its clearer blue CMB patches reveal more of the inner filaments.
+The black backing is fitted to the comparison image's measured outline; the
+existing shadow and its settings are unchanged.
 Its original artwork is backed up in `candidates/observable-universe-marble/previous`.
 The 1254px master supplies 128/256/512/1024px chart versions.
 
@@ -1056,6 +1061,26 @@ distant strands match the interior of the approved universe marble. It retains
 screen blending, 5% brightness boost, feathered edges and no cast shadow. Chart
 tiers are 128/256/512/1024px. Previous artwork and the full built-in image-generation
 prompt are saved under `content/icons/candidates/laniakea-filaments/`.
+
+### Stable visibility hierarchy during zoom
+
+Icon selection uses `src/visibility-hierarchy.js`: every higher-priority
+candidate reserves space, including candidates hidden by an even higher rank.
+This prevents the greedy C-blocks-B-but-not-A cascade where A appears, B replaces
+it, then A returns as the zoom increases. Curated priority remains editorial `z`
+with the existing icon preference; equal priorities keep their source order,
+never the previous frame's winner. Selection considers the entire collection.
+
+Catalogue pictures follow curated objects, then their fixed famous rank and
+source order. Their eligibility no longer depends on incidental dot thinning,
+moving text or the old per-viewport picture quota. The existing 12% zoom decision
+memory remains, so panning and small zoom reversals retain decisions. Explicit
+search focus and the atomic-to-periodic-table presentation remain exceptions.
+
+Regression checks: `visibility-hierarchy.test.mjs`, `visibility-memory.test.mjs`,
+`check-zoom-visibility.mjs` and `check-pan-visibility.mjs`. Browser reports live
+under `docs/visibility-review/`. The zoom check covers both directions in human,
+planetary and cosmological regions, including catalogue pictures.
 
 The final approved brightness boost is **5% (`brightness(1.05)`)**, replacing
 the earlier 25% experiment. The app (including dust icons) and comparison page
@@ -1077,3 +1102,90 @@ registration correction stays fixed during hover; its existing travel, blur and
 size behavior remain intact. Other custom shadows and lights are unaffected.
 Adjustments persist under `tri-round-shadow-offset-v2`; the new key retires
 earlier experimental settings. Reset restores −25%, −25%.
+
+### Installed lake long shadows with sparse caustics — October 22
+
+All 12 lake/sea shadows now use the same alpha-driven long cast as the other
+objects: length .8, gap .06, angle 45°, opacity .5, near blur 1.5 and far blur 18.
+Two small neutral ivory caustic patches are composited inside exposed shadow
+coverage. These reuse a new AI-generated light texture inspired by the approved
+Victoria glass study; they are restrained artistic highlights, not simulated
+refraction. The earlier lavender web exports have been replaced in the app.
+The closer lake-only placement bias remains -.05 body widths on each axis.
+
+Regenerate with `node scripts/generate-lake-shadows.mjs`. All previous exports,
+candidates, and settings are preserved under
+`content/icons/shadow-candidates/lake-long-caustics/previous/`. The same folder
+contains 768px masters, the light texture, and generation provenance. Studio
+candidates are full registered layers: scale 1, opacity 1, x=y=0 because shadow
+opacity is baked in. The general batch generator still protects these lakes.
+
+Review all 12 before/after pairs at `/tools/lake-long-shadow-study.html`, including
+object visibility and hover controls. This supersedes the earlier study-only
+status above. The individual study images remain archived as references.
+
+### EHT-based M87* and Sagittarius A* icon candidates — October 22
+
+The user requested imagined higher-resolution versions of the real EHT images,
+with matching framing for a smooth crossfade. They explicitly prefer an actual
+astronomical-photo appearance over cinematic/Interstellar styling. References
+are the existing EHT Collaboration CC BY 4.0 sidebar photos in content/images.
+Original observations and current chart icons remain unchanged for comparison.
+
+`content/icons/candidates/eht-reconstructions/` contains square-padded 1254px
+references, 1254px reconstructions, normalized icon exports at 128/256/512/1024,
+reference-derived crop rectangles and full generation prompts. The first,
+filament-heavy studies are archived; the final candidates use softer granular
+emission to match the broad intensity patterns. Added detail is artistic and
+must not be described as recovered observational information. Source geometry
+is matched visually, not an exact inverse reconstruction of EHT measurements.
+
+`/tools/eht-icon-study.html` provides a manual crossfade and animated dissolve,
+plus 128px Screen-blended previews on purple. Preserve the distinction between
+original observations and reconstructed illustration in credits and future use.
+
+EHT follow-up: user prefers the original swirl versions over the soft mottled
+pass. New `*-telescope.png` candidates extend those swirls with finer turbulent
+structure, small emission knots, dark lanes and a subordinate inner lensed arc.
+They retain the real EHT broad brightness distributions as artistic constraints.
+These represent imagined future radio/submillimeter detail at a safe distant
+viewpoint, not a claim about a visible-light telescope observation. They do not
+show a physical horizon surface. `/tools/eht-icon-study.html` now defaults to
+these candidates and lets the user select the original swirls or softer pass.
+Current chart icons are still unchanged pending selection.
+
+### Installed black hole family — October 22
+
+The user approved the finer telescope swirls for M87* and Sagittarius A*.
+Both now replace their chart icons, with high-resolution variants and the
+reference-derived square crops. Original EHT sidebar photographs stay intact.
+New stellar-bh and ton-618 illustrations use the same orange/amber swirl family
+at a more inclined angle: flattened disk, bent upper emission arc, subdued
+lower arc and dark central light-capture shadow. These two are illustrative,
+not resolved observations. Do not label the apparent dark rim as a directly
+visible Schwarzschild-radius surface. No jets or extra cast shadows were added.
+
+All four masters and 128/256/512/1024px variants are installed. Prior sources
+and root icons are backed up in `content/icons/candidates/black-hole-family/previous`.
+Prompts and provenance are alongside them. The review page is
+`/tools/black-hole-family.html`; `/tools/eht-icon-study.html` still compares
+all EHT reconstruction variants against observations. Existing black-hole
+size multipliers are retained.
+
+### Black hole artistic palette (2026-10-22)
+The four black holes use a reversible display grade in `src/black-hole-palette.js`, ordered by mass: stellar copper, Sagittarius A* amber, M87* pale blue, TON 618 blue. This is an artistic ordering, not a temperature measurement. The chart and both black-hole study pages share these filters. The EHT study grades observation and reconstruction identically to preserve the dissolve, and offers an original-palette toggle. Source observations and generated masters remain unchanged.
+
+### Approved black-hole family and future EHT zoom (2026-10-22)
+The four installed icons are stellar-bh (approved round cloudy ring, NOT the lower-observer alternative), sgr-a and m87 (approved telescope swirls), and ton-618 (inclined disk). Masters live in content/icons/src, with 128px root WebPs and 256/512/1024 tiers. Keep their original warm source palettes; src/black-hole-palette.js applies the shared artistic mass-ordered palette at display time.
+
+They use Screen blending over an opaque black circular backing, aligned to each dark core by src/black-hole-frames.js. The backing follows the same growth/parallax transform as stars, without adding a stellar wall glow. The core diameter is 90% of a standard object's nominal box, with the normal physical-size scaling retained; the surrounding luminous artwork is enlarged by .45/coreRadius. The old extra black-hole category boost is omitted for these four. The visible dark region is an apparent black-hole shadow, not the horizon's physical radius. Frame measurements are artistic registration, not scientific measurements.
+
+Preserved observational references for the planned zoom:
+- content/images/m87.webp and content/images/sgr-a.webp: original EHT images, unchanged.
+- content/icons/candidates/eht-reconstructions/m87-reference.png and sgr-a-reference.png: padded comparison references, unchanged.
+- The corresponding *-telescope.png files: full-frame imagined detail registered for the study dissolve.
+- icon-crops.json in that folder: crop rectangles used to create the installed icon masters. Apply those same crop coordinates to the padded references when aligning to chart icons; do not independently auto-crop either layer.
+- tools/eht-icon-study.html applies the same reversible palette to both observation and reconstruction; its original-palette switch restores source colors. Future zoom must share crop, core registration, scale, and palette between layers. Generated texture is imagined, not newly observed detail.
+- Reference credits: Event Horizon Telescope Collaboration, CC BY 4.0. M87: https://commons.wikimedia.org/wiki/File:Black_hole_-_Messier_87_crop_max_res.jpg ; Sgr A*: https://commons.wikimedia.org/wiki/File:EHT_Saggitarius_A_black_hole.tif
+
+The family study retains both cloudy-ring alternatives for comparison. Only the round, higher-observer variant is installed.
