@@ -45,6 +45,13 @@ const LABEL_GAP_DESKTOP = 110;  // px — clear radius around each labelled dot
 const LABEL_GAP_MOBILE = 90;
 const LABEL_FONT = 10;          // px, before the font-size setting — as curated labels
 const LABEL_MAX_CHARS = 24;    // longer names are skipped, not cut (~90% of names fit)
+// Named famous dots with a picture are promoted once more, map-style: the
+// picture replaces the dot when it would be big enough and has room.
+const ICON_MIN = 30;            // px — smallest picture a dot is promoted to
+const ICON_KEEP = 24;           // px — a promoted dot keeps its picture down to this
+const ICON_MAX_DESKTOP = 6;     // pictures on screen at most
+const ICON_MAX_MOBILE = 3;
+const ICON_ROOM = 1.3;          // pictures keep 30% of their radii clear between them
 // Catalogue designations (Gaia DR3 4057…, 2MASS J0523…, MD17 cloud 6573)
 // aren't worth reading.
 const ID_LIKE = /\d{5,}|^(Gaia|2MASS|TIC|KIC|EPIC|HIP|HD|TYC|WISE|SDSS|UGC|PGC|NGC|IC|GJ|LHS|NLTT|MD17)\b/i;
@@ -83,6 +90,7 @@ let _loading = null;
 let _kept = [];            // [{ i, sx, sy }] drawn this frame
 let _keptGrid = new Map(); // cell key → indices into _kept (hover lookup)
 let _labelled = new Set(); // dust indices labelled last frame: kept first, so labels don't flicker
+let _iconed = new Set();   // dust indices drawn as pictures last frame (ICON_KEEP applies)
 
 export function dustReady() { return !!_data; }
 
@@ -152,7 +160,7 @@ export function loadDust() {
 export function drawDust(layer, view, blockers, colorOf) {
   _kept = [];
   _keptGrid = new Map();
-  if (!_data || view.hidden) { layer.selectAll("path, g.dust-named").remove(); _labelled = new Set(); return; }
+  if (!_data || view.hidden) { layer.selectAll("path, g.dust-named").remove(); _labelled = new Set(); _iconed = new Set(); return; }
 
   const { px, py, cw, ch } = view;
   const { r, m, src, rank, sources } = _data;
@@ -241,7 +249,11 @@ export function drawDust(layer, view, blockers, colorOf) {
 /** Name a sparse few of the dots just drawn: greedy by priority (last
  *  frame's labels first, then the fixed random rank), each needing a clear
  *  radius from the others and a free spot for its text. A named dot is
- *  drawn like a curated object (glow, 2.8 px dot, bold label) — promoted. */
+ *  drawn like a curated object (glow, 2.8 px dot, bold label) — promoted.
+ *  A famous one with a picture (view.iconOf) is promoted again, like a map
+ *  label growing an icon: its picture replaces the dot when, at this zoom,
+ *  it would be at least ICON_MIN px, its disc is clear and its label still
+ *  fits beside it. */
 function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
   const { names, src, sources } = _data;
   const placed = [];
@@ -258,6 +270,19 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     };
     // _kept is already in rank order; last frame's labels go first
     const order = [..._kept.filter((q) => _labelled.has(q.i)), ..._kept.filter((q) => !_labelled.has(q.i))];
+    const maxIcons = view.iconOf ? (view.mobile ? ICON_MAX_MOBILE : ICON_MAX_DESKTOP) : 0;
+    let icons = 0;
+    const freeDisc = (cx, cy, r) => {
+      if (cx - r < 0 || cy - r < 0 || cx + r > view.cw || cy + r > view.ch) return false;
+      for (let y = Math.floor((cy - r) / OC); y <= Math.floor((cy + r) / OC); y++) {
+        const dy = Math.abs((y + 0.5) * OC - cy);
+        if (dy > r) continue;
+        const hw = Math.sqrt(r * r - dy * dy);
+        for (let x = Math.floor((cx - hw) / OC); x <= Math.floor((cx + hw) / OC); x++)
+          if (occ[y * gw + x]) return false;
+      }
+      return true;
+    };
     for (const q of order) {
       if (placed.length >= max) break;
       const so = sources[src[q.i]], famous = _data.fame.get(q.i);
@@ -275,14 +300,37 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       }
       if (placed.some((p) => (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < gap2)) continue;
       const w = text.length * fs * 0.62, h = fs * 1.2;
-      let anchor = null;
-      if (free(q.sx + 6, q.sy - h / 2, q.sx + 9 + w, q.sy + h / 2)) anchor = "start";
-      else if (free(q.sx - 9 - w, q.sy - h / 2, q.sx - 6, q.sy + h / 2)) anchor = "end";
+      // the text beside a dot (off = 6) or beside a picture of radius r (off = r + 2)
+      const side = (off) => free(q.sx + off, q.sy - h / 2, q.sx + off + 3 + w, q.sy + h / 2) ? "start"
+        : free(q.sx - off - 3 - w, q.sy - h / 2, q.sx - off, q.sy + h / 2) ? "end" : null;
+      let icon = null, anchor = null;
+      const url = famous && icons < maxIcons ? view.iconOf(famous.label || names[q.i]) : null;
+      if (url) {
+        const size = view.iconSizeAt(_data.r[q.i]);
+        const r = size / 2;
+        if (size >= (_iconed.has(q.i) ? ICON_KEEP : ICON_MIN) && freeDisc(q.sx, q.sy, r) &&
+            !placed.some((p) => p.icon && (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < ((p.icon.r + r) * ICON_ROOM) ** 2) &&
+            (anchor = side(r + 2))) {
+          icon = { url, r, blend: view.iconBlend?.(sources[src[q.i]].cat) };
+          icons++;
+          // later labels and pictures keep off it
+          const R = r + 1;
+          for (let y = Math.max(0, Math.floor((q.sy - R) / OC)); y <= Math.min(gh - 1, Math.floor((q.sy + R) / OC)); y++) {
+            const dy = Math.abs((y + 0.5) * OC - q.sy);
+            if (dy > R) continue;
+            const hw = Math.sqrt(R * R - dy * dy);
+            const a = Math.max(0, Math.floor((q.sx - hw) / OC)), b = Math.min(gw - 1, Math.floor((q.sx + hw) / OC));
+            if (b >= a) occ.fill(1, y * gw + a, y * gw + b + 1);
+          }
+        }
+      }
+      if (!icon) anchor = side(6);
       if (!anchor) continue;
-      placed.push({ i: q.i, sx: q.sx, sy: q.sy, text, anchor, fs });
+      placed.push({ i: q.i, sx: q.sx, sy: q.sy, text, anchor, fs, icon });
     }
   }
   _labelled = new Set(placed.map((p) => p.i));
+  _iconed = new Set(placed.filter((p) => p.icon).map((p) => p.i));
   const color = (p) => (view.labelColorOf || colorOf)(sources[src[p.i]].cat, sources[src[p.i]].id);
   layer.selectAll("g.dust-named")
     .data(placed, (p) => p.i)
@@ -290,6 +338,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       const g = enter.append("g").attr("class", "dust-named");
       g.append("circle").attr("class", "dn-glow").attr("r", 6).attr("opacity", 0.1);
       g.append("circle").attr("class", "dn-dot").attr("r", 2.8).attr("opacity", 0.85);
+      g.append("image").attr("class", "dn-icon").attr("preserveAspectRatio", "xMidYMid meet");
       g.append("text")
         .attr("font-family", "Inter, sans-serif").attr("font-weight", 600).attr("letter-spacing", "0.5px")
         .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.85)")
@@ -299,9 +348,18 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     })
     .each(function (p) {
       const g = d3sel(this), c = color(p);
-      g.selectAll("circle").attr("cx", p.sx).attr("cy", p.sy).attr("fill", c);
+      g.selectAll("circle").attr("cx", p.sx).attr("cy", p.sy).attr("fill", c)
+        .attr("display", p.icon ? "none" : null);
+      const img = g.select("image.dn-icon").attr("display", p.icon ? null : "none");
+      if (p.icon) {
+        if (img.attr("href") !== p.icon.url) img.attr("href", p.icon.url);
+        img.attr("x", p.sx - p.icon.r).attr("y", p.sy - p.icon.r)
+          .attr("width", 2 * p.icon.r).attr("height", 2 * p.icon.r)
+          .style("mix-blend-mode", p.icon.blend ? "screen" : null);
+      }
+      const off = p.icon ? p.icon.r + 4 : 8;
       g.select("text")
-        .attr("x", p.sx + (p.anchor === "start" ? 8 : -8)).attr("y", p.sy)
+        .attr("x", p.sx + (p.anchor === "start" ? off : -off)).attr("y", p.sy)
         .attr("text-anchor", p.anchor).attr("font-size", p.fs)
         .attr("fill", c).text(p.text);
     });

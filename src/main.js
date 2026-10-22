@@ -102,6 +102,7 @@ function nameToSlug(name) {
 }
 
 const OBJECTS = applyBulkObjects(objectsData).map(o => ({ ...o, slug: o.slug || nameToSlug(o.name) }));
+const CURATED_SLUGS = new Set(OBJECTS.map(o => o.slug)); // dust never shows a curated object's picture
 let tileMeta = null;
 
 // =============================================================
@@ -2899,6 +2900,14 @@ function drawObjects() {
     // a few dust names, map-style; not in the narrated videos or the poster
     labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fontScale: _fontScale,
     labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
+    // a famous named dot with a picture (content/icons/<its slug>.webp) can
+    // show it when there's room — not one a curated object already shows
+    iconOf: _iconsEnabled && !_posterLabels ? (name) => {
+      const slug = nameToSlug(name);
+      return CURATED_SLUGS.has(slug) ? null : ICON_BY_SLUG[slug] || null;
+    } : null,
+    iconSizeAt: (logR) => icoSize * Math.pow(1.1, (logR + 3.5) / 6) * (_iconSize / 100), // as iconSizeMult
+    iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
   }, {
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
