@@ -1102,3 +1102,24 @@ registration correction stays fixed during hover; its existing travel, blur and
 size behavior remain intact. Other custom shadows and lights are unaffected.
 Adjustments persist under `tri-round-shadow-offset-v2`; the new key retires
 earlier experimental settings. Reset restores −25%, −25%.
+
+### Installed lake long shadows with sparse caustics — October 22
+
+All 12 lake/sea shadows now use the same alpha-driven long cast as the other
+objects: length .8, gap .06, angle 45°, opacity .5, near blur 1.5 and far blur 18.
+Two small neutral ivory caustic patches are composited inside exposed shadow
+coverage. These reuse a new AI-generated light texture inspired by the approved
+Victoria glass study; they are restrained artistic highlights, not simulated
+refraction. The earlier lavender web exports have been replaced in the app.
+The closer lake-only placement bias remains -.05 body widths on each axis.
+
+Regenerate with `node scripts/generate-lake-shadows.mjs`. All previous exports,
+candidates, and settings are preserved under
+`content/icons/shadow-candidates/lake-long-caustics/previous/`. The same folder
+contains 768px masters, the light texture, and generation provenance. Studio
+candidates are full registered layers: scale 1, opacity 1, x=y=0 because shadow
+opacity is baked in. The general batch generator still protects these lakes.
+
+Review all 12 before/after pairs at `/tools/lake-long-shadow-study.html`, including
+object visibility and hover controls. This supersedes the earlier study-only
+status above. The individual study images remain archived as references.
