@@ -32,7 +32,7 @@ Masters in iCloud `Projects/triangle/illustrations/gen3/generated/`; the
 `src/` PNGs are those masters cropped so the subject fills 122 of 128 px.
 1-ml-of-water, 1-liter-of-water, 1-tonne-of-water, ant, elephant, eros,
 mt-everest, argentinosaurus, l-brown-dwarf, proxima-cen, sirius-a, vega,
-neutron-star, milky-way
+neutron-star, milky-way, eiffel-tower, pollen-grain, tyrannosaurus-rex
 
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
