@@ -6,7 +6,7 @@ import {
   formatLogSuper, densityToLogTime, friendlyTime, fmtTick,
 } from "./format.js";
 import {
-  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, STRINGS_ATOM_SLUGS,
+  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, SHADOW_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
@@ -2941,7 +2941,7 @@ function drawObjects() {
   lDustHover.selectAll("*").remove();
   drawIconShadows([
     ...shownDots.filter(o => o._showIcon && !iconUsesScreenBlend(o))
-      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2 })),
+      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug] })),
     ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d })),
   ]);
   drawDustShadows();
@@ -2984,6 +2984,22 @@ function shadowGeom(d, [, , c, px, a, b, op]) {
   const cx = d.sx + off * Math.SQRT1_2, cy = d.sy + off * Math.SQRT1_2 + 0.3 * r;
   return { cx, cy, rx: a * r, ry: b * r, transform: `rotate(45 ${cx} ${cy})`, opacity: op * (1 - 0.45 * lift) };
 }
+// A silhouette shadow image (SHADOW_BY_SLUG) spans SHADOW_SPAN × the icon box,
+// object centred; its stretch and blur are baked in, so it only needs moving.
+const SHADOW_SPAN = 3;           // keep in sync with SPAN in scripts/generate-shadows.mjs
+const SHADOW_IMG = { off: 1.0, south: 0.3, opacity: 0.85 };
+function shadowImgGeom(d) {
+  const k = _shadowLift?.key === d.key ? _shadowLift.k : 1;
+  const lift = k > 1 ? 1 : 0;
+  const r = d.r * k * (1 + 0.1 * lift);
+  const off = (SHADOW_IMG.off * r + 8) * (1 + 0.6 * lift);
+  const size = SHADOW_SPAN * 2 * r;
+  const cx = d.sx + off * Math.SQRT1_2, cy = d.sy + off * Math.SQRT1_2 + SHADOW_IMG.south * r;
+  return { x: cx - size / 2, y: cy - size / 2, width: size, height: size, opacity: SHADOW_IMG.opacity * (1 - 0.45 * lift) };
+}
+function applyShadowImg(sel, g) {
+  sel.attr("x", g.x).attr("y", g.y).attr("width", g.width).attr("height", g.height).attr("opacity", g.opacity);
+}
 function applyShadowGeom(sel, g) {
   sel.attr("cx", g.cx).attr("cy", g.cy).attr("rx", g.rx).attr("ry", g.ry)
     .attr("transform", g.transform).attr("opacity", g.opacity);
@@ -2996,10 +3012,18 @@ function drawIconShadows(shapes) {
       const g = enter.append("g").attr("class", "icon-shadow");
       SHADOW_PARTS.forEach(([cls, filter]) => g.append("ellipse").attr("class", cls)
         .attr("fill", "#000").attr("filter", `url(#${filter})`));
+      g.append("image").attr("class", "sh-img").attr("preserveAspectRatio", "none");
       return g;
     })
     .each(function(d) {
       const g = d3.select(this);
+      g.selectAll("ellipse").attr("display", d.img ? "none" : null);
+      const img = g.select("image.sh-img").attr("display", d.img ? null : "none");
+      if (d.img) {
+        if (img.attr("href") !== d.img) img.attr("href", d.img);
+        applyShadowImg(img.interrupt(), shadowImgGeom(d));
+        return;
+      }
       SHADOW_PARTS.forEach(part => applyShadowGeom(g.select(`ellipse.${part[0]}`).interrupt(), shadowGeom(d, part)));
     });
 }
@@ -3008,6 +3032,10 @@ function liftShadow(key, k) {
   _shadowLift = k > 1 ? { key, k } : null;
   lShadows.selectAll("g.icon-shadow").filter(d => d.key === key).each(function(d) {
     const g = d3.select(this);
+    if (d.img) {
+      applyShadowImg(g.select("image.sh-img").interrupt().transition().duration(150), shadowImgGeom(d));
+      return;
+    }
     SHADOW_PARTS.forEach(part => applyShadowGeom(
       g.select(`ellipse.${part[0]}`).interrupt().transition().duration(150), shadowGeom(d, part)));
   });
