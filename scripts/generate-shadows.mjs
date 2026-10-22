@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 // Cast shadows for the non-round icons, made from each icon's own silhouette
 // the way you'd do it by hand in an image editor:
-//   silhouette → rotate −45° (down-right becomes +x) → stretch along x →
-//   blur that grows with distance + fade to transparent → rotate back.
+//   silhouette → rotate −45° (down-right becomes +x) → mirror along x →
+//   stretch along x → blur that grows with distance + fade → rotate back.
+// The mirror reverses the shadow along the light only: the object's
+// down-right edge becomes the shadow's sharp near end (up-left), its top
+// lands at the shadow's right and its left at the shadow's bottom.
 // Output: content/icons/shadows/<slug>.webp, a square SHADOW_SPAN times the
 // icon's size with the object's centre at its centre. The map draws it under
 // everything, offset down-right (drawIconShadows in src/main.js).
 //
 //   node scripts/generate-shadows.mjs human hippo elephant …
-//   node scripts/generate-shadows.mjs --flip …   point-reflected silhouette
-//     (top-left of the object lands bottom-right), into shadows-flipped/
 import sharp from "sharp";
 import { mkdirSync } from "fs";
 
-const FLIP = process.argv.includes("--flip");
-const SRC = "content/icons/src", OUT = FLIP ? "content/icons/shadows-flipped" : "content/icons/shadows";
+const SRC = "content/icons/src", OUT = "content/icons/shadows";
 const ICON = 256;            // working size of the icon itself (px)
 const SPAN = 3;              // shadow canvas = SPAN × icon size (keep in sync with SHADOW_SPAN in main.js)
 const STRETCH = 1.6;         // along the light direction
@@ -33,12 +33,15 @@ async function shadow(slug) {
   const C = ICON * SPAN, pad = (C - ICON) / 2;
   const alpha = await sharp(`${SRC}/${slug}.png`).resize(ICON, ICON, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .ensureAlpha().extractChannel(3).raw().toBuffer();
-  const sil = await sharp(alpha, raw1(alpha, ICON, ICON)).rotate(FLIP ? 180 : 0)
+  const sil = await sharp(alpha, raw1(alpha, ICON, ICON))
     .extend({ top: pad, bottom: pad, left: pad, right: pad, background: "#000" }).extractChannel(0).raw().toBuffer();
 
-  // 2. rotate −45° (down-right → +x); sharp grows the canvas, centre stays put
-  const rot = await sharp(sil, raw1(sil, C, C)).rotate(-45, { background: "#000" }).extractChannel(0).raw().toBuffer({ resolveWithObject: true });
-  const R = rot.info.width;
+  // 2. rotate −45° (down-right → +x), then mirror along x; sharp grows the
+  //    canvas, centre stays put
+  //    (two pipelines: sharp would flop before rotating)
+  const rot0 = await sharp(sil, raw1(sil, C, C)).rotate(-45, { background: "#000" }).extractChannel(0).raw().toBuffer({ resolveWithObject: true });
+  const R = rot0.info.width;
+  const rot = { data: await sharp(rot0.data, raw1(rot0.data, R, R)).flop().extractChannel(0).raw().toBuffer() };
 
   // 3. stretch along x about the centre
   const W = Math.round(R * STRETCH);
@@ -73,4 +76,4 @@ async function shadow(slug) {
   console.log("shadow", slug);
 }
 
-for (const slug of process.argv.slice(2).filter(a => a !== "--flip")) await shadow(slug);
+for (const slug of process.argv.slice(2)) await shadow(slug);
