@@ -663,6 +663,8 @@ const lHighlight  = lContent.append("g").style("pointer-events", "none");
 const lCompose    = lContent.append("g").style("pointer-events", "none"); // hover "made of" lines
 const lAxisRef    = lContent.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
 const lWaterPhase = lContent.append("g"); // states-of-water inset (zooms with the map)
+// narration: guide lines from a talked-about object to the rulers, under its picture
+const lNarrGuides = lContent.append("g").style("pointer-events", "none").attr("class", "narr-guides");
 // Object labels live in lLabels, behind the foreground picture layer.
 
 // Film grain noise overlay (paper texture, controlled by Noise slider)
@@ -7985,6 +7987,14 @@ if (_ogShot) {
       },
       /** Always the largest resolution of each picture (videos), then redraw. */
       setIconMaxRes(on = true) { setIconMaxRes(on); redraw(); },
+      /** Guide lines in the chart, under the pictures: [{ x1, y1, x2, y2, color, opacity }]
+       *  in chart-local px (the narration converts from its own layer). */
+      drawGuides(lines = []) {
+        lNarrGuides.selectAll("line").data(lines).join("line")
+          .attr("x1", d => d.x1).attr("y1", d => d.y1).attr("x2", d => d.x2).attr("y2", d => d.y2)
+          .attr("stroke", d => d.color || "#fff").attr("stroke-width", 1.1).attr("stroke-dasharray", "4 4")
+          .attr("opacity", d => d.opacity ?? 0.55);
+      },
       /** Catalogue names on or off in a video (they're off by default there). */
       setDustLabels(on) { if (DUST_LABELS_OFF === on) { DUST_LABELS_OFF = !on; redraw(); } },
       /** Icon size in percent of the app's default (videos), without saving it. */

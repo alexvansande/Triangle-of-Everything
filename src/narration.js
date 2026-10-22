@@ -322,6 +322,7 @@ export async function startNarration(app) {
   const hlClip = nsvg.append("clipPath").attr("id", "narr-hl-clip").append("rect");
   const gHl = nsvg.append("g").attr("class", "narr-hl");
   const gHlFree = nsvg.append("g").attr("class", "narr-hl-free"); // axis bands: never clipped
+  const gGuides = nsvg.append("g").attr("class", "narr-guides");   // the guides' values, at the rulers
   const capEl = document.getElementById("narr-caption");
 
   // ---------- photo cutaways ----------
@@ -512,6 +513,7 @@ export async function startNarration(app) {
     for (const [n, k] of grows) if (grown.get(n) !== k && app.growIcon?.(n, k)) grown.set(n, k);
     for (const n of [...grown.keys()]) if (!grows.has(n)) { grown.delete(n); app.growIcon?.(n, 1); }
     // The fade follows the narration clock (0.5 s), so the renderer's frames match playback.
+    drawGuides(live, t);
     // a close-up cue with `nearby: true` keeps its surroundings named: no fade, catalogue names on
     const hlNow = hlCues.filter(c => c.time <= t).at(-1);
     const nearby = !!hlNow?.nearby;
@@ -657,6 +659,37 @@ export async function startNarration(app) {
     const anchor = place === "left" ? "end" : place === "right" ? "start" : "middle";
     el.append("text").attr("class", "narr-tag").attr("x", tx).attr("y", ty)
       .attr("text-anchor", anchor).attr("fill", col).text(label);
+  }
+  /** The object being talked about (the latest highlighted one with a callout):
+   *  dashed guides out to the mass ruler (right) and the size ruler (bottom),
+   *  drawn in the chart under its picture so they seem to leave its centre, and
+   *  its mass and size written at the rulers. */
+  function drawGuides(live, t) {
+    const cur = live.filter(h => h.obj && h.label !== false && t >= h.t0 && t < h.t1).sort((a, b) => a.t0 - b.t0).at(-1);
+    const o = cur && objByName.get(cur.obj);
+    gGuides.selectAll("*").remove();
+    if (!o) { app.drawGuides?.([]); return; }
+    const SW = layer.clientWidth, SH = layer.clientHeight, pl = app.plot();
+    const x = sx(o.logR), y = sy(o.logM), xR = massAxisX(SW) - 2, yB = SH * (SCENE.rulerY ?? RULER_Y) - 10;
+    const age = t - cur.t0, k = d3.easeCubicOut(clamp01(age / 0.7));
+    const op = 0.55 * smooth(age / 0.4) * (1 - smooth((t - cur.t1 + 0.4) / 0.4));
+    const L = (x2, y2) => ({ x1: x - pl.x, y1: y - pl.y, x2: x - pl.x + (x2 - x) * k, y2: y - pl.y + (y2 - y) * k, color: "#e8ecff", opacity: op });
+    app.drawGuides?.([L(xR, y), L(x, yB)]);
+    const a = clamp01((age - 0.5) / 0.4) * (1 - smooth((t - cur.t1 + 0.4) / 0.4));
+    if (a <= 0.01) return;
+    gGuides.append("text").attr("class", "narr-guide").attr("x", xR - 4).attr("y", y - 6).attr("text-anchor", "end")
+      .attr("opacity", a).text(valueLabel(o.logM, MASS_BASES));
+    gGuides.append("text").attr("class", "narr-guide").attr("x", x + 6).attr("y", yB - 6).attr("text-anchor", "start")
+      .attr("opacity", a).text(valueLabel(o.logR, SIZE_BASES));
+  }
+  /** "70 kg", "1.7 m": two significant figures in the ruler's units. */
+  function valueLabel(v, bases) {
+    const d = Math.floor(v + 1e-9);
+    let base = bases[0];
+    for (const b of bases) if (b[0] <= d) base = b;
+    const e = d - base[0], mant = +(10 ** (v - d)).toPrecision(2);
+    if (e > 5) return `${mant}×10${SUP(e)} ${base[1]}`;
+    return `${(+(mant * 10 ** e).toPrecision(2)).toLocaleString("en-US")} ${base[1]}`;
   }
   function linePath(pts) {
     return pts.map(([r, m]) => [sx(r), sy(m)]);
@@ -1438,6 +1471,7 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 #narr-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 #narr-svg text { font-family: Inter, system-ui, sans-serif; paint-order: stroke; stroke: rgba(0,0,0,0.85); stroke-width: 3px; stroke-linejoin: round; }
 .narr-tag { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; }
+#narr-svg text.narr-guide { font-size: 11px; font-weight: 600; fill: #e8ecff; letter-spacing: 0.03em; }
 .narr-cand { font-size: 15px; }
 body.narr-no-text #chart text { visibility: hidden; }
 /* a callout on screen: every other chart label fades (axis text and the highlighted objects' own stay) */

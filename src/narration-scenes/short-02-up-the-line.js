@@ -82,16 +82,14 @@ export default {
     { at: "sinks to the bottom",
       hl: [{ obj: "Hippopotamus", label: "hippo · 1.05 g/cm³" }, WATER, { side: "left", label: "sinks" }] },
 
-    // the biggest living things
-    { at: "larger animals", cam: { r: 2.7, m: 7.6, span: 4 }, hl: [WATER, { obj: "Elephant" }, { obj: "Blue Whale", delay: 0.5 }] },
-    { at: "dinosaurs", hl: [WATER, { obj: "Tyrannosaurus rex", label: "T. rex", place: "left" }, { obj: "Argentinosaurus", label: "Argentinosaurus", delay: 0.4 }] },
-    { at: "the blue whale", cam: { obj: "Blue Whale", span: 2.5 }, hl: [{ obj: "Blue Whale", label: "largest animal" }] },
-    { at: "the blue whale", offset: 0.6, photo: "blue-whale-fluke", obj: "Blue Whale", dur: 3.6, kb: [1.05, 1.2], focus: [0.5, 0.4], caption: "Blue whale · Gregory Smith · the largest animal that ever lived" },
-    { at: "the sequoia", hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
+    // the biggest living things: from here the camera pans slowly up the line (glide
+    // waypoints at their cue times) all the way to the round worlds
+    { at: "larger animals", cam: { r: 2.6, m: 7.3, span: PAN, glide: true }, hl: [WATER, { obj: "Elephant" }, { obj: "Blue Whale", delay: 0.5 }] },
+    { at: "dinosaurs", cam: { r: 2.95, m: 7.5, span: PAN, glide: true }, hl: [WATER, { obj: "Tyrannosaurus rex", label: "T. rex", place: "left" }, { obj: "Argentinosaurus", label: "Argentinosaurus", delay: 0.4 }] },
+    { at: "the blue whale", cam: { r: 3.15, m: 8.1, span: PAN, glide: true }, hl: [{ obj: "Blue Whale", label: "largest animal" }] },
+    { at: "the sequoia", cam: { r: 3.5, m: 8.9, span: PAN, glide: true }, hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // what we build
-    { at: "the sequoia", offset: 0.6, photo: "sequoia", obj: "Sequoia", dur: 3.4, kb: [1, 1.15], focus: [0.5, 0.3], caption: "Grizzly Giant sequoia · Yosemite · 2005" },
-    // engineering → planets: one slow pan up the line (glide waypoints at their cue times)
     { at: "engineering phase", cam: { r: 3.9, m: 10.2, span: PAN, glide: true }, dur: 2, clear: true,
       hl: [{ obj: "Boeing 747" }, { obj: "Supertanker", delay: 0.3 }] },
     { at: "the eiffel tower", cam: { r: 4.2, m: 10.6, span: PAN, glide: true }, hl: [{ obj: "Eiffel Tower" }] },
