@@ -7,6 +7,7 @@ import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
 import { mountRoundShadowControls } from "./round-shadow-controls.js";
 import { buildSearchIndex, searchObjects } from "./object-search.js";
 import { VisibilityMemory } from "./visibility-memory.js";
+import { priorityCircles } from "./visibility-hierarchy.js";
 import {
   formatSci, friendlyRadius, friendlyMass, friendlyEnergy, isPhoton,
   friendlyWavelength, friendlyDensity, MASS_HOVER_UNITS, RADIUS_HOVER_UNITS,
@@ -2059,7 +2060,6 @@ function catDisplayLabel(catKey) {
 
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
 const ICON_ROOM = 1.3;       // icons keep 30% of their radii clear between them
-let _iconShownPrev = new Set();
 const _objectVisibility = new VisibilityMemory();
 const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
@@ -2440,33 +2440,16 @@ function drawObjects() {
       return aZ - bZ;
     });
 
-  // --- Dot clustering: hide dots only when circles truly overlap ---
-  const visibleDots = [];
-  projected.forEach(o => {
-    const dx2 = (s) => (s.sx - o.sx) ** 2 + (s.sy - o.sy) ** 2;
-    const tooClose = visibleDots.some(s => dx2(s) < DOT_MIN_DIST * DOT_MIN_DIST);
-    o._showDot = !tooClose;
-    if (o._showDot) visibleDots.push(o);
-  });
-
-  // --- Icon crowding, map-style: icons need room, measured by their real
-  // drawn sizes (iconSizeMult grows them with the object), so a crowded
-  // stretch (moons, dwarf planets) shows only its top-priority pictures and
-  // the rest appear as you zoom in. Priority: z, then last frame's icons. ---
-  const shownIcons = [];
+  // Reserve all higher-priority candidates, including hidden ones. Source
+  // order resolves equal priorities; last frame's winners never alter rank.
+  const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
-  const iconOrder = projected.filter(o => mapIconShown(o) && o._showDot)
-    .sort((a, b) => a.z - b.z || (_iconShownPrev.has(b.slug) - _iconShownPrev.has(a.slug)));
-  projected.forEach(o => { o._showIcon = false; });
-  iconOrder.forEach(o => {
-    const r = icoR(o);
-    const tooClose = shownIcons.some(s => {
-      const need = (r + s._icoR) * ICON_ROOM;
-      return (s.sx - o.sx) ** 2 + (s.sy - o.sy) ** 2 < need * need;
-    });
-    if (tooClose) return;
-    o._showIcon = true; o._icoR = r;
-    shownIcons.push(o);
+  const iconOrder = projected.filter(mapIconShown);
+  const shownIcons = priorityCircles(iconOrder, icoR, ICON_ROOM);
+  projected.forEach(o => {
+    o._showDot = visibleDots.has(o);
+    o._showIcon = o._showDot && shownIcons.has(o);
+    if (o._showIcon) o._icoR = icoR(o);
   });
   // Decide against the whole curated collection, not the viewport contents.
   // A neighbour crossing an edge cannot promote/demote a stationary object.
@@ -2477,7 +2460,6 @@ function drawObjects() {
       if (o._showIcon) o._icoR = icoR(o);
     } else _objectVisibility.decisions.set(o.slug, { dot:o._showDot, icon:o._showIcon });
   }
-  _iconShownPrev = new Set(projected.filter(o=>o._showIcon).map(o=>o.slug));
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
   const th2 = _posterLabels ? -1 : CLUSTER_THRESHOLD * CLUSTER_THRESHOLD; // poster: no clusters
@@ -3003,6 +2985,9 @@ function drawObjects() {
     softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
     iconBrightnessOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name))?SPACE_ART_BRIGHTNESS:1,
   }, {
+    // Catalogue pictures share the same hierarchy: all curated candidates
+    // outrank them, not just this frame's visible winners or moving labels.
+    priorityCircles: projected.map(o => ({sx:o.sx,sy:o.sy,r:mapIconShown(o)?icoR(o):DOT_MIN_DIST/2})),
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
     // Icons keep dust out with a CIRCLE, not their square box: a square gap

@@ -1057,6 +1057,26 @@ screen blending, 5% brightness boost, feathered edges and no cast shadow. Chart
 tiers are 128/256/512/1024px. Previous artwork and the full built-in image-generation
 prompt are saved under `content/icons/candidates/laniakea-filaments/`.
 
+### Stable visibility hierarchy during zoom
+
+Icon selection uses `src/visibility-hierarchy.js`: every higher-priority
+candidate reserves space, including candidates hidden by an even higher rank.
+This prevents the greedy C-blocks-B-but-not-A cascade where A appears, B replaces
+it, then A returns as the zoom increases. Curated priority remains editorial `z`
+with the existing icon preference; equal priorities keep their source order,
+never the previous frame's winner. Selection considers the entire collection.
+
+Catalogue pictures follow curated objects, then their fixed famous rank and
+source order. Their eligibility no longer depends on incidental dot thinning,
+moving text or the old per-viewport picture quota. The existing 12% zoom decision
+memory remains, so panning and small zoom reversals retain decisions. Explicit
+search focus and the atomic-to-periodic-table presentation remain exceptions.
+
+Regression checks: `visibility-hierarchy.test.mjs`, `visibility-memory.test.mjs`,
+`check-zoom-visibility.mjs` and `check-pan-visibility.mjs`. Browser reports live
+under `docs/visibility-review/`. The zoom check covers both directions in human,
+planetary and cosmological regions, including catalogue pictures.
+
 The final approved brightness boost is **5% (`brightness(1.05)`)**, replacing
 the earlier 25% experiment. The app (including dust icons) and comparison page
 share this setting. The smaller faint core, feathered edges and Pillars exception
