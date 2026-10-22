@@ -31,6 +31,7 @@ import introRaw from "../content/intro.md?raw";
 import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, tourGoTo, logAllSteps, isTourActive, closeTour } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
+import { createBgNoise } from "./bg-noise.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
 import { loadDust, drawDust, pickDust, dustReady, dustPositions } from "./dust.js";
@@ -5008,9 +5009,46 @@ miniSvg.on("click", (event) => {
 const _tileCache = new Map();
 let _bgTilesEnabled = true;
 
+// Experimental "infinite" background (bg-noise.js): a WebGL layer behind the
+// SVG replaces the tiles and the sidebar shows its controls instead of the
+// info panels. Opt in from Settings or with ?bgnoise in the URL.
+let _bgNoise = null;
+let _bgNoiseWanted = new URLSearchParams(location.search).has("bgnoise");
+
+/** Plot area and camera in source (z5) pixels, as drawTiles anchors them. */
+function bgNoiseView() {
+  const ppu = tileMeta.pxPerUnitX;
+  const logR = xS.invert(cw / 2), logM = yS.invert(ch / 2);
+  return {
+    left: margin.left, top: margin.top, w: cw, h: ch,
+    cx: 2114 + (logR - PLANCK_LOG_R) * ppu, cy: 5960 - (logM - PLANCK_LOG_M) * ppu,
+    zx: Math.abs(xS(1) - xS(0)) / ppu, zy: Math.abs(yS(0) - yS(1)) / ppu,
+  };
+}
+
+function setBgNoise(on) {
+  _bgNoiseWanted = on;
+  if (!tileMeta || !!_bgNoise === on) return; // loadTileMeta applies the wish later
+  if (on) {
+    _bgNoise = createBgNoise({ host: document.getElementById("chart"), panel: sidebarEl, meta: tileMeta, getView: bgNoiseView });
+    if (!_bgNoise) { _bgNoiseWanted = false; setBgNoiseChk.checked = false; return; } // no WebGL2
+  } else {
+    _bgNoise.destroy();
+    _bgNoise = null;
+  }
+  document.body.classList.toggle("bgnoise-on", on);
+  // The canvas sits behind the SVG, so the SVG's own black backdrops must go
+  document.getElementById("chart").style.background = on ? "#000" : "";
+  svg.style("position", on ? "relative" : null);
+  svg.select("rect.svg-bg").attr("fill", on ? "none" : "#000000");
+  clip.select("rect.bg-rect").attr("display", on ? "none" : null);
+  if (on && !_isMobile) setSidebarOpen(true);
+  redraw();
+}
+
 function drawTiles() {
   lTiles.selectAll("*").remove();
-  if (!_bgTilesEnabled || !tileMeta) return;
+  if (!_bgTilesEnabled || !tileMeta || _bgNoise) return;
 
   const { tileSize, levels } = tileMeta;
   // Use a single px/unit for both axes so image pixels render isotropically
@@ -5109,7 +5147,7 @@ function drawTiles() {
  *  higher-res tiles load. Redrawn on zoom like regular tiles. */
 function drawBaseTiles() {
   lTilesBase.selectAll("*").remove();
-  if (!_bgTilesEnabled || !tileMeta) return;
+  if (!_bgTilesEnabled || !tileMeta || _bgNoise) return;
 
   const { tileSize, levels } = tileMeta;
   const base = levels[0]; // lowest resolution level
@@ -5165,6 +5203,7 @@ async function loadTileMeta() {
     tileMeta = await response.json();
     drawBaseTiles(); // draw low-res background immediately
     redraw();
+    if (_bgNoiseWanted) setBgNoise(true);
   } catch (error) {
     console.warn("Failed to load tile metadata:", error);
   }
@@ -6271,7 +6310,7 @@ document.addEventListener("pointerdown", (e) => {
 
 function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
-    bg: setBg.checked, anim: setAnim.checked,
+    bg: setBg.checked, anim: setAnim.checked, bgNoise: setBgNoiseChk.checked,
     labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
     dust: setDust.checked,
     fontSize: +setFontSize.value, boldHover: setBoldHover.checked,
@@ -6286,6 +6325,13 @@ const setBg = document.getElementById("set-bg");
 setBg.addEventListener("change", () => {
   _bgTilesEnabled = setBg.checked;
   redraw();
+  saveSettings();
+});
+
+const setBgNoiseChk = document.getElementById("set-bgnoise");
+setBgNoiseChk.checked = _bgNoiseWanted;
+setBgNoiseChk.addEventListener("change", () => {
+  setBgNoise(setBgNoiseChk.checked);
   saveSettings();
 });
 
@@ -6926,6 +6972,7 @@ try {
   const saved = JSON.parse(localStorage.getItem("tri-settings"));
   if (saved) {
     if (saved.bg === false) { setBg.checked = false; _bgTilesEnabled = false; redraw(); }
+    if (saved.bgNoise) { setBgNoiseChk.checked = true; setBgNoise(true); }
     if (saved.anim === false) { setAnim.checked = false; _animDisabled = true; document.body.classList.add("anim-off"); }
     if (saved.labels === false) { setLabels.checked = false; _labelsEnabled = false; }
     if (saved.dust === false) { setDust.checked = false; _dustEnabled = false; }
