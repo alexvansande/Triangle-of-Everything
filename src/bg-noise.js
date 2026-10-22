@@ -294,6 +294,8 @@ export function applyNoiseProfile(profile) {
 let active = null;      // the running layer, if any
 const readouts = new Set();
 
+// "/" on the site, "./" in the narration preview
+const BASE = import.meta.env.BASE_URL;
 const loadImg = src => new Promise(res => {
   const im = new Image();
   im.onload = () => res(im); im.onerror = () => res(null); im.src = src;
@@ -323,7 +325,7 @@ export function createBgNoise({ host, meta, getView, onShown }) {
     const lv = meta.levels[2], cv = Object.assign(document.createElement("canvas"), { width: lv.w, height: lv.h });
     const cx = cv.getContext("2d");
     await Promise.all([...Array(lv.cols * lv.rows)].map(async (_, k) => {
-      const c = k % lv.cols, rr = k / lv.cols | 0, im = await loadImg(`/tiles/z${lv.z}/tile_${c}_${rr}.webp`);
+      const c = k % lv.cols, rr = k / lv.cols | 0, im = await loadImg(`${BASE}tiles/z${lv.z}/tile_${c}_${rr}.webp`);
       if (im) cx.drawImage(im, c * T, rr * T);
     }));
     if (!alive) return;
@@ -351,7 +353,7 @@ export function createBgNoise({ host, meta, getView, onShown }) {
     const cv = Object.assign(document.createElement("canvas"), { width: w, height: h }), cx = cv.getContext("2d");
     const jobs = [];
     for (let rr = r0; rr <= r1; rr++) for (let c = c0; c <= c1; c++) jobs.push((async () => {
-      const im = await loadImg(`/tiles/z${lv.z}/tile_${c}_${rr}.webp`);
+      const im = await loadImg(`${BASE}tiles/z${lv.z}/tile_${c}_${rr}.webp`);
       if (im) cx.drawImage(im, (c - c0) * T, (rr - r0) * T);
     })());
     await Promise.all(jobs);
