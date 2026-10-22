@@ -25,7 +25,7 @@ amoeba, hemoglobin, dna, bacteriophage-t4, insulin, glucose, water-h2o
 mouse
 
 ### Other
-big-bang, tardigrade, sequoia
+big-bang, tardigrade
 
 ## AI-Generated, gen3 set (2026)
 Masters in iCloud `Projects/triangle/illustrations/gen3/generated/`; the
@@ -36,7 +36,7 @@ neutron-star, milky-way, eiffel-tower, pollen-grain, tyrannosaurus-rex, protosta
 boeing-747, pyramid-giza, supertanker, microchip, hippo, blue-whale, red-dwarf, white-dwarf, t-brown-dwarf, wolf-rayet, beta-pictoris-b, ton-618, stellar-bh,
 titanic, hoba, chelyabinsk, hms-victory, manneken-pis, uss-enterprise, the-little-mermaid,
 antarctic-ice-sheet, caspian-sea, lake-baikal, dead-sea, loch-ness,
-greenland-ice-sheet, big-ben, burj-khalifa, opportunity, ingenuity
+greenland-ice-sheet, big-ben, burj-khalifa, opportunity, ingenuity, sequoia
 
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
