@@ -1189,3 +1189,6 @@ Preserved observational references for the planned zoom:
 - Reference credits: Event Horizon Telescope Collaboration, CC BY 4.0. M87: https://commons.wikimedia.org/wiki/File:Black_hole_-_Messier_87_crop_max_res.jpg ; Sgr A*: https://commons.wikimedia.org/wiki/File:EHT_Saggitarius_A_black_hole.tif
 
 The family study retains both cloudy-ring alternatives for comparison. Only the round, higher-observer variant is installed.
+
+### Black-hole size correction (2026-10-22)
+Supersedes the core-equalizing multiplier above: all four now use a modest 1.45 artwork multiplier. Matching core diameter made the surrounding gas excessively large, especially TON 618. Backing circles remain aligned to their individual cores and grow with them. A shared radial opacity mask preserves the inner ring and fades outer gas to zero before the image boundary, in both curated and dust rendering. Source art and EHT references remain untouched.

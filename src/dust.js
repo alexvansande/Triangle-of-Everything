@@ -1,3 +1,4 @@
+import {blackHoleMask} from "./black-hole-frames.js";
 // =============================================================
 // DUST.JS — thousands of real catalogue objects as background texture
 // =============================================================
@@ -487,7 +488,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         .attr("x", p.sx-p.r).attr("y", p.sy-p.r).attr("width", p.r*2).attr("height", p.r*2)
         .style("mix-blend-mode", p.blend ? "screen" : null)
         .style("filter",view.iconFilterOf?.(p.cat,p.name)||`brightness(${view.iconBrightnessOf?.(p.cat,p.name)??1})`)
-        .attr("mask",soft?spaceEdgeMask(view.depthKeyOf?.(p.name)):null);
+        .attr("mask",blackHoleMask(view.depthKeyOf?.(p.name))||(soft?spaceEdgeMask(view.depthKeyOf?.(p.name)):null));
     });
 }
 

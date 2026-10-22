@@ -1,4 +1,4 @@
-import {BLACK_HOLE_FRAMES, BLACK_HOLE_SIZE_MULT} from "./black-hole-frames.js";
+import {BLACK_HOLE_FRAMES, BLACK_HOLE_SIZE_MULT, BLACK_HOLE_MASK_DEFS, blackHoleMask} from "./black-hole-frames.js";
 import {blackHoleFilter} from "./black-hole-palette.js";
 import * as d3 from "d3";
 import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS,SPACE_ART_DEFS,spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
@@ -485,7 +485,7 @@ function announce(text) {
 // decorative motion. The in-app "Show animations" checkbox still overrides.
 const _reduceMotion = !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 const defs = svg.append("defs");
-defs.node().insertAdjacentHTML("beforeend",SPACE_ART_DEFS);
+defs.node().insertAdjacentHTML("beforeend",SPACE_ART_DEFS+BLACK_HOLE_MASK_DEFS);
 
 // Clip
 defs.append("clipPath").attr("id", "clip")
@@ -2927,7 +2927,7 @@ function drawObjects() {
           .attr("data-slug", o.slug)
           .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
           .style("filter",blackHoleFilter(o.slug)||(softSpaceIcon(o)?`brightness(${SPACE_ART_BRIGHTNESS})`:null))
-          .attr("mask",softSpaceIcon(o)?spaceEdgeMask(o.slug):null)
+          .attr("mask",blackHoleMask(o.slug)||(softSpaceIcon(o)?spaceEdgeMask(o.slug):null))
           .node();
         imgEl.addEventListener("load", () => {
           _loadedIconUrls.add(ICON_BY_SLUG[o.slug]);
