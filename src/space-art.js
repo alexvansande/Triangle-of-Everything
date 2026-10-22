@@ -1,6 +1,6 @@
 import frames from './space-art-frames.json' with {type:'json'};
 // Comparison treatment for diffuse light, not solid stellar/planetary bodies.
-export const SPACE_ART_BRIGHTNESS = 1.25;
+export const SPACE_ART_BRIGHTNESS = 1.05;
 // Feather only the outer 14% on each axis: a circular crop would cut long tails.
 const stops = '<stop offset="0" stop-color="white" stop-opacity="0"/><stop offset=".06" stop-color="white" stop-opacity=".3"/><stop offset=".14" stop-color="white"/><stop offset=".86" stop-color="white"/><stop offset=".94" stop-color="white" stop-opacity=".3"/><stop offset="1" stop-color="white" stop-opacity="0"/>';
 export const SPACE_ART_DEFS = `
