@@ -93,7 +93,11 @@ for (const [file, entry] of Object.entries(iconResolutions)) {
     ].filter(v => v.url).sort((a,b) => a.width-b.width);
   }
 }
+// Videos: always the largest picture there is (grown pictures stay sharp).
+let _iconMaxRes = false;
+export function setIconMaxRes(on = true) { _iconMaxRes = on; }
 export function iconUrlForSize(slug, cssSize, dpr = globalThis.devicePixelRatio || 1) {
+  if (_iconMaxRes) return ICON_RESOLUTIONS_BY_SLUG[slug]?.at(-1)?.url || ICON_BY_SLUG[slug];
   return chooseIconResolution(ICON_RESOLUTIONS_BY_SLUG[slug], iconPixelRequirement(cssSize, dpr))?.url || ICON_BY_SLUG[slug];
 }
 

@@ -39,7 +39,7 @@ export default {
     { at: "this diagonal line", hl: [{ line: "water", label: "the diagonal" }] },
     { at: "one liter of water", cam: { obj: "1 Liter of Water", span: 4.5 },
       hl: [{ ...LITER, label: "1 liter · 1 kg · 10 cm" }] },
-    { at: "all three dimensions", cam: { r: 1.35, m: 4.6, span: 4.5 }, units: true, unitsFor: 10,
+    { at: "all three dimensions", cam: { r: 1.35, m: 4.6, span: 4.5 }, units: true, unitsUntil: "diagonal blue line",   // size and mass rulers through the cube law
       hl: [{ ...LITER, label: "10 cm" }] },
     // the grid's squares are decades: one square of size, then three of mass, counted
     // out beside the arrows, with the axis each move is measured on lit up

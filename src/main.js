@@ -14,7 +14,7 @@ import {
   formatLogSuper, densityToLogTime, friendlyTime, fmtTick,
 } from "./format.js";
 import {
-  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, iconUrlForSize, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
+  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, iconUrlForSize, setIconMaxRes, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
@@ -2899,8 +2899,10 @@ function drawObjects() {
 
   // (2) Icons: bg disc (screen-blend cats) + fallback dot + image, keyed by
   // slug in their own layer (above the noise overlay).
+  // Drawn least important first, so a higher-priority picture (a person)
+  // sits in front of a lower one (the water cube) where they overlap.
   lIcons.selectAll("g.icon-g")
-    .data(iconObjs, o => o.slug)
+    .data(iconObjs.slice().reverse(), o => o.slug)
     .join(enter => {
       const g = enter.append("g").attr("class", "icon-g");
       g.each(function(o) {
@@ -7970,13 +7972,19 @@ if (_ogShot) {
         const b = el.getBoundingClientRect();
         return b.width ? { x: b.x, y: b.y, w: b.width, h: b.height } : null;
       },
-      /** Grow an object's picture like the hover does, by k (1 restores it). */
+      /** Grow an object's picture like the hover does, by k (1 restores it); false if it has none drawn. */
       growIcon(name, k = 1) {
+        // "hover": the app's own hover growth (to ≥ 64 px or 1.5×)
         const o = _lastProjected.find(p => p.name === name);
-        if (o) { setIconHover(o, k > 1, k); return; }
+        if (o) return setIconHover(o, k === "hover" || k > 1, k === "hover" ? null : k);
         const d = dustIcons().find(p => p.name === name);
-        if (d) { setDustIconScale(lIcons, d.i, k); liftShadow(`dust:${d.i}`, k); }
+        if (!d) return false;
+        const f = k === "hover" ? Math.max(64, 3 * d.r) / (2 * d.r) : k;
+        setDustIconScale(lIcons, d.i, f); liftShadow(`dust:${d.i}`, f);
+        return true;
       },
+      /** Always the largest resolution of each picture (videos), then redraw. */
+      setIconMaxRes(on = true) { setIconMaxRes(on); redraw(); },
       /** Icon size in percent of the app's default (videos), without saving it. */
       setIconScale(pct = 100) { if (_iconSize !== pct) { _iconSize = pct; redraw(); } },
       /** On-screen radius of an object's picture (0 when it shows as a dot). */

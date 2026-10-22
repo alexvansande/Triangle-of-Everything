@@ -164,9 +164,10 @@ export async function startNarration(app) {
   // the paths' moving dots: as big as the catalogue dust (1.15 px), brighter
   // than in the app so they still read in a phone video
   app.setDots?.(SCENE.dots ?? { radius: 1.15, opacity: 1.7 });
-  app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);
-  // pictures twice the app's default size, so they read on a phone
-  app.setIconScale?.(SCENE.iconSize ?? 200);   // off: the author prefers the background kept on deep zooms
+  app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);   // off: the author prefers the background kept on deep zooms
+  // pictures 1.6× the app's default size, so they read on a phone
+  app.setIconScale?.(SCENE.iconSize ?? 160);
+  app.setIconMaxRes?.(true);   // grown pictures stay sharp
   // a scene that tells the primordial black hole window itself hides the map's
   // ready-made one, so no label shows before it's been talked about
   app.setPbhWindow?.(SCENE.pbhWindow !== false);
@@ -265,7 +266,11 @@ export async function startNarration(app) {
   }
 
   // ---------- unit rulers: up while the camera moves (or pinned) ----------
-  const pins = cues.filter(c => c.units).map(c => ({ t0: c.time, t1: c.time + (c.unitsFor ?? 6) }));
+  // unitsFor: seconds (6); unitsUntil: the `at` of a later cue to hold them up to
+  const pins = cues.filter(c => c.units).map(c => {
+    const until = c.unitsUntil && cues.find(d => d.time > c.time && [].concat(d.at).includes(c.unitsUntil));
+    return { t0: c.time, t1: until ? until.time : c.time + (c.unitsFor ?? 6) };
+  });
   function unitsOpacity(t) {
     let o = 0;
     for (const k of keys) {
@@ -485,8 +490,11 @@ export async function startNarration(app) {
     // Tower…); a spotlight grows its object's picture as a hover would.
     const named = live.flatMap(h => [h.obj, h.spot]).filter(n => n && objByName.get(n)?.dust);
     app.setDustPictures?.(named.length ? [...new Set(named)] : null);
-    const grows = new Map(live.filter(h => h.spot && t < h.t1).map(h => [h.spot, h.grow ?? 2.2]));
-    for (const [n, k] of grows) if (grown.get(n) !== k) { grown.set(n, k); app.growIcon?.(n, k); }
+    // grown pictures: a spotlight's (by its factor) and every highlighted object's (as on hover: "hover")
+    const grows = new Map(live.filter(h => h.obj && t >= h.t0 && t < h.t1).map(h => [h.obj, h.grow ?? "hover"]));
+    for (const h of live) if (h.spot && t < h.t1) grows.set(h.spot, h.grow ?? 2.2);
+    // (only marked done once the picture is there to grow, so a late picture still grows)
+    for (const [n, k] of grows) if (grown.get(n) !== k && app.growIcon?.(n, k)) grown.set(n, k);
     for (const n of [...grown.keys()]) if (!grows.has(n)) { grown.delete(n); app.growIcon?.(n, 1); }
     // The fade follows the narration clock (0.5 s), so the renderer's frames match playback.
     const callout = !gHl.select("text").empty() || !gHlFree.select("text").empty();
@@ -608,11 +616,19 @@ export async function startNarration(app) {
     const col = h.color || objColor(o);
     const pop = 0.6 + 0.4 * d3.easeBackOut(clamp01(age / 0.5));
     // 1.5× the old 17 px default, and always clear of the object's own picture
-    const R = Math.max((h.r || 17) * 1.5, (app.iconRadius?.(h.obj) || 0) + 8) * pop + 2 * Math.sin(age * 3.2);
-    // just the turning dashed ring: a solid ring and a tinted disc crowded the picture
-    el.append("circle").attr("class", "narr-ring").attr("cx", x).attr("cy", y).attr("r", R + 4).attr("fill", "none")
-      .attr("stroke", "#fff").attr("stroke-width", 1.4).attr("opacity", 0.9)
-      .attr("stroke-dasharray", "3 4").attr("stroke-dashoffset", -age * 6);
+    // An object with a picture is highlighted by growing it (the hover effect, see the
+    // highlight loop); only a plain dot gets the turning dashed ring.
+    const box = app.iconRect?.(h.obj);
+    let R;
+    if (box) {
+      const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
+      R = Math.max(box.w, box.h) / scl / 2 * 0.85 + 2;
+    } else {
+      R = (h.r || 17) * 1.5 * pop + 2 * Math.sin(age * 3.2);
+      el.append("circle").attr("class", "narr-ring").attr("cx", x).attr("cy", y).attr("r", R + 4).attr("fill", "none")
+        .attr("stroke", "#fff").attr("stroke-width", 1.4).attr("opacity", 0.9)
+        .attr("stroke-dasharray", "3 4").attr("stroke-dashoffset", -age * 6);
+    }
     if (h.label === false) return;
     const label = (h.label || o.name).toUpperCase();
     // default: centred above the ring, clear of the app's own label (right)
