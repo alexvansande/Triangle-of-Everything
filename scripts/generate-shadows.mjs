@@ -18,7 +18,7 @@ const SRC = "content/icons/src", OUT = "content/icons/shadows";
 const ICON = 256;            // working size of the icon itself (px)
 const SPAN = 3;              // shadow canvas = SPAN × icon size (keep in sync with SHADOW_SPAN in main.js)
 const STRETCH = 1.6;         // along the light direction
-const BLUR_NEAR = 4, BLUR_FAR = 26;   // px at ICON = 256
+const BLUR_NEAR = 8, BLUR_FAR = 40;   // px at ICON = 256
 const FADE = 0.75;           // how much of the shadow's opacity is gone at the far end
 const OUT_PX = 256;          // shipped size of the whole canvas
 
