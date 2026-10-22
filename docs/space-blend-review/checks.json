@@ -1,0 +1,17 @@
+{
+  "states": [
+    {
+      "trial": false,
+      "backing": 1,
+      "filter": "none",
+      "blend": "screen"
+    },
+    {
+      "trial": true,
+      "backing": 0,
+      "filter": "brightness(1.25)",
+      "blend": "screen"
+    }
+  ],
+  "errors": []
+}

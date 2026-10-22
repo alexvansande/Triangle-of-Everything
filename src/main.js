@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS} from "./space-art.js";
 import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
 import {STAR_BODY_FRAMES, BROWN_DWARFS, starBodyGeometry, starWallLight, stellarLightProfile} from "./star-light.js";
 import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
@@ -66,6 +67,7 @@ let _userEngaged = false; // set on first pointer/wheel/key input (deferred load
 // Uses log interpolation for a natural "approaching distant object" feel.
 // ?og-shot: headless mode used by scripts/build-pages.mjs to screenshot the
 // chart around each object for its preview image (see window.__toeOg below).
+const _softSpace = new URLSearchParams(location.search).has("softspace");
 const _ogShot = new URLSearchParams(location.search).has("og-shot");
 function effectiveIconSize() {
   const minK = 0.3, maxK = 800;
@@ -2894,7 +2896,7 @@ function drawObjects() {
       const g = enter.append("g").attr("class", "icon-g");
       g.each(function(o) {
         const gg = d3.select(this);
-        if (iconUsesScreenBlend(o)) {
+        if (iconUsesScreenBlend(o) && !softSpaceIcon(o)) {
           gg.append("circle").attr("class", "icon-bg").attr("fill", "url(#icon-bg-grad)");
         }
         // Fallback dot: icons fetch on demand, so on a cold cache the
@@ -2908,6 +2910,7 @@ function drawObjects() {
           .attr("class", "obj-icon")
           .attr("data-slug", o.slug)
           .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
+          .style("filter",softSpaceIcon(o)?`brightness(${SPACE_ART_BRIGHTNESS})`:null)
           .node();
         imgEl.addEventListener("load", () => {
           _loadedIconUrls.add(ICON_BY_SLUG[o.slug]);
@@ -2994,6 +2997,7 @@ function drawObjects() {
     // as iconSizeMult, per-object multipliers included
     iconSizeAt: (logR, name) => icoSize * Math.pow(1.1, (logR + 3.5) / 6) * (ICON_SIZE_MULT[nameToSlug(name)] || 1) * (_iconSize / 100),
     iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
+    iconBrightnessOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name))?SPACE_ART_BRIGHTNESS:1,
   }, {
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
@@ -3165,6 +3169,7 @@ function liftShadow(key, k) {
 // Screen-blend decision is static per object — shared by enter and update.
 const SCREEN_BLEND_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
 const SCREEN_BLEND_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
+function softSpaceIcon(o) {return _softSpace&&isDiffuseSpaceArt(o.catKey||o.cat,o.slug)}
 function iconUsesScreenBlend(o) {
   if (o.slug.includes("void")) return false;
   return SCREEN_BLEND_CATS.has(o.catKey || o.cat) || SCREEN_BLEND_SLUGS.has(o.slug);

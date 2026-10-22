@@ -989,3 +989,20 @@ The current column remains unchanged for comparison. The translation is in
 the preview rather than the PNG; carry it across when installing these layers
 (equivalent resting registration x=y≈-8 instead of 30 on the 768 px canvas,
 with the chart's usual +10% southeast bias).
+
+## Diffuse space-art comparison — 22 October 2026
+
+The user asked to try removing black backing discs behind galaxies, comets
+and similar diffuse artwork, with a modest brightness increase. This is an
+opt-in chart comparison: `?softspace` omits those backings and applies
+`brightness(1.25)` before screen blending. It affects galaxies, large-scale
+light structures, comets and explicitly listed nebular artwork in
+`src/space-art.js`; solid stars, planets, black holes and dark voids retain
+their existing treatment. Catalogue artwork gets the same brightness boost.
+
+`/tools/space-blend-study.html` compares four examples, with a brightness
+slider and links to both chart modes. It changes compositing only, not the
+source images or alpha. The wall shows through faint details, giving a more
+luminous impression; photographic background noise and rectangular crop edges
+can also become more apparent, especially in Andromeda and Halley's Comet.
+The default chart remains unchanged pending comparison.

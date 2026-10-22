@@ -462,7 +462,8 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         .attr("cx",disc?.cx??p.sx).attr("cy",disc?.cy??p.sy).attr("r",disc?.r??0);
       g.select("image").style("transform",(_iconGrowth.get(p.i)||1)===1?null:`scale(${_iconGrowth.get(p.i)})`).attr("href", source.url)
         .attr("x", p.sx-p.r).attr("y", p.sy-p.r).attr("width", p.r*2).attr("height", p.r*2)
-        .style("mix-blend-mode", p.blend ? "screen" : null);
+        .style("mix-blend-mode", p.blend ? "screen" : null)
+        .style("filter",`brightness(${view.iconBrightnessOf?.(p.cat,p.name)??1})`);
     });
 }
 
