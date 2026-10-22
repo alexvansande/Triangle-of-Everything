@@ -304,7 +304,7 @@ const loadImg = src => new Promise(res => {
  * Starts hidden and idle. setVisible(true) runs the loop; the canvas fades in
  * (and onShown fires) on the first frame drawn with the tile texture ready.
  * setVisible(false) fades it out and stops all work.
- *  host    — element the canvas is inserted into (behind the chart SVG)
+ *  host    — HTML element containing the canvas (in the chart's background foreignObject)
  *  meta    — /tiles/meta.json
  *  getView — () => { left, top, w, h } css px of the plot area, plus
  *            { cx, cy } camera centre in source px and { zx, zy } css px per source px

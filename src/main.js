@@ -5285,7 +5285,7 @@ const _tileCache = new Map();
 let _bgTilesEnabled = true;
 
 // Fractal background (bg-noise.js): once you zoom past the painted tiles'
-// resolution, a WebGL layer behind the SVG crossfades in and keeps folding the
+// resolution, a WebGL layer inside the SVG crossfades in and keeps folding the
 // painting into finer detail. Nothing is fetched or run until then (and on the
 // site not before the user's first zoom, since the home view is already past
 // the tiles), and it stops entirely when you zoom back out. Settings toggle (+ opens its look
@@ -5299,6 +5299,7 @@ const BG_NOISE_PROFILE = _narrating ? {} : { res: 0.5 };
 const BG_NOISE_ON_AT = 1, BG_NOISE_OFF_AT = 0.7; // css px per source px (tiles run out at 1)
 const _bgNoiseUrl = new URLSearchParams(location.search).get("bgnoise"); // null | "" | "0" | "1"
 let _bgNoise = null;          // the layer, created on first zoom-in
+let _bgNoiseSurface = null;
 let _bgNoiseShown = false;    // currently replacing the tiles
 let _bgNoiseArmed = _narrating; // site: not at startup, only after the first zoom
 let _bgNoiseFadeTimer = 0;
@@ -5310,8 +5311,9 @@ const loadBgNoise = () => (_bgNoiseMod ??= import("./bg-noise.js").then(m => { m
 function bgNoiseView() {
   const ppu = tileMeta.pxPerUnitX;
   const logR = xS.invert(cw / 2), logM = yS.invert(ch / 2);
+  _bgNoiseSurface?.attr("width", cw).attr("height", ch);
   return {
-    left: margin.left, top: margin.top, w: cw, h: ch,
+    left: 0, top: 0, w: cw, h: ch,
     cx: 2114 + (logR - PLANCK_LOG_R) * ppu, cy: 5960 - (logM - PLANCK_LOG_M) * ppu,
     zx: Math.abs(xS(1) - xS(0)) / ppu, zy: Math.abs(yS(0) - yS(1)) / ppu,
   };
@@ -5323,16 +5325,12 @@ function setBgNoise(on) {
   syncBgNoise();
 }
 
-// Tiles and SVG backdrops while the layer is up: the canvas sits behind the
-// SVG, so its black backdrops go and the tile layers fade out over it.
+// Both backgrounds share the icons' clipped compositing group, so Screen
+// blends against the fractal pixels just as it does against the painted tiles.
 function setBgNoiseBackdrop(noise) {
   clearTimeout(_bgNoiseFadeTimer);
   const tiles = [lTiles, lTilesBase];
   if (noise) {
-    document.getElementById("chart").style.background = "#000";
-    svg.style("position", "relative");
-    svg.select("rect.svg-bg").attr("fill", "none");
-    clip.select("rect.bg-rect").attr("display", "none");
     tiles.forEach(l => l.style("transition", "opacity 0.5s").style("opacity", 0));
     _bgNoiseFadeTimer = setTimeout(() => tiles.forEach(l => l.style("display", "none")), 520);
   } else {
@@ -5341,10 +5339,6 @@ function setBgNoiseBackdrop(noise) {
     tiles.forEach(l => l.style("opacity", 1));
     _bgNoiseFadeTimer = setTimeout(() => {
       tiles.forEach(l => l.style("transition", null).style("opacity", null));
-      document.getElementById("chart").style.background = "";
-      svg.style("position", null);
-      svg.select("rect.svg-bg").attr("fill", "#000000");
-      clip.select("rect.bg-rect").attr("display", null);
     }, 520);
   }
 }
@@ -5364,11 +5358,18 @@ async function syncBgNoise() {
   if (!_bgNoise) {
     const { createBgNoise } = await loadBgNoise();
     if (!_bgNoiseShown || _bgNoise) { _bgNoise?.setVisible(_bgNoiseShown); return; } // changed while loading
+    // A sibling HTML canvas lies outside clip's isolated blending group.
+    // Embed it beneath the tiles instead, keeping all chart blends intact.
+    _bgNoiseSurface = clip.insert("foreignObject", () => lTilesBase.node())
+      .attr("class", "fractal-backdrop").attr("width", cw).attr("height", ch)
+      .style("pointer-events", "none");
+    const host = _bgNoiseSurface.append("xhtml:div")
+      .style("position", "relative").style("width", "100%").style("height", "100%").node();
     _bgNoise = createBgNoise({
-      host: document.getElementById("chart"), meta: tileMeta, getView: bgNoiseView,
+      host, meta: tileMeta, getView: bgNoiseView,
       onShown: () => { if (_bgNoiseShown) setBgNoiseBackdrop(true); },
     });
-    if (!_bgNoise) { _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
+    if (!_bgNoise) { _bgNoiseSurface.remove(); _bgNoiseSurface = null; _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
   }
   _bgNoise.setVisible(true);
 }
