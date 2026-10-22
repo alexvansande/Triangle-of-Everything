@@ -217,7 +217,7 @@ export function drawDust(layer, view, blockers, colorOf) {
   if (view.labels && view.iconOf) {
     const candidates = [];
     for (const [i, famous] of _data.fame) {
-      const name = famous.label || _data.names[i], size = view.iconSizeAt(r[i], name);
+      const name = famous.label || _data.names[i], size = view.iconSizeAt(r[i], name, sources[src[i]].cat);
       const url = view.iconOf(name, size);
       if (url) candidates.push({i,name,url,rank:famous.rank,sx:px(r[i]),sy:py(m[i]),r:size/2,
         blend:view.iconBlend?.(sources[src[i]].cat)});
@@ -360,7 +360,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     for (const q of order) {
       if (q.i === _focused) {
         const name = _data.fame.get(q.i)?.label || names[q.i];
-        const size = Math.max(64, view.iconSizeAt(_data.r[q.i], name));
+        const size = Math.max(64, view.iconSizeAt(_data.r[q.i], name, sources[src[q.i]].cat));
         const url = view.iconOf?.(name, size);
         const icon = url ? { url, r: size / 2, name, blend: view.iconBlend?.(sources[src[q.i]].cat) } : null;
         if (icon) occupyIcon(q, icon.r, icon.name);
@@ -384,7 +384,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       if (saved) {
         const p = { ...saved, sx:q.sx, sy:q.sy };
         if (saved.icon) {
-          const size = view.iconSizeAt(_data.r[q.i], saved.icon.name);
+          const size = view.iconSizeAt(_data.r[q.i], saved.icon.name, sources[src[q.i]].cat);
           p.icon = { ...saved.icon, r:size/2, url:view.iconOf(saved.icon.name,size) };
           occupyIcon(q, p.icon.r, p.icon.name);
         }

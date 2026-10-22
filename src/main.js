@@ -4,7 +4,6 @@ import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
 import {STAR_BODY_FRAMES, SHADOWED_SCREEN_SPHERES, BROWN_DWARFS, starBodyGeometry, starWallLight, stellarLightProfile} from "./star-light.js";
 import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
 import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
-import { mountRoundShadowControls } from "./round-shadow-controls.js";
 import { buildSearchIndex, searchObjects } from "./object-search.js";
 import { VisibilityMemory } from "./visibility-memory.js";
 import { priorityCircles } from "./visibility-hierarchy.js";
@@ -95,7 +94,8 @@ const ICON_SIZE_MULT = {
 function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
-  return sizeScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
+  const galaxyScale = (o.catKey || o.cat) === "galaxy" ? 1.25 : 1;
+  return sizeScale * galaxyScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
 }
 
 function nameToSlug(name) {
@@ -2980,7 +2980,7 @@ function drawObjects() {
       return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug, size) || null;
     } : null,
     // as iconSizeMult, per-object multipliers included
-    iconSizeAt: (logR, name) => icoSize * Math.pow(1.1, (logR + 3.5) / 6) * (ICON_SIZE_MULT[nameToSlug(name)] || 1) * (_iconSize / 100),
+    iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
     iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
     softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
     iconBrightnessOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name))?SPACE_ART_BRIGHTNESS:1,
@@ -6614,7 +6614,6 @@ document.getElementById("zoom-reset").addEventListener("click", () =>
 // ---------- settings panel ----------
 const settingsBtn = document.getElementById("settings-btn");
 const settingsPanel = document.getElementById("settings-panel");
-mountRoundShadowControls(settingsPanel, redraw);
 settingsBtn.addEventListener("click", () => {
   const open = settingsPanel.classList.toggle("open");
   settingsBtn.classList.toggle("active", open);
