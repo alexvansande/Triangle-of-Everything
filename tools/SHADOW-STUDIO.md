@@ -1034,7 +1034,11 @@ them as an explicit exception.
 
 Observable Universe is also exempt: its artwork depicts a defined sphere.
 The rectangular diffuse-photo feathering cut away its round rim and made it
-look square. Keep its original unmasked image, brightness and backing.
+look square. Keep its original unmasked image and brightness. It now uses a
+measured, opaque black disc backing like the stars, synchronized with the image
+during hover, plus the shared spherical shadow at the approved −25% offsets.
+It emits no glow. `SHADOWED_SCREEN_SPHERES` explicitly allows its cast shadow
+despite screen blending; bulk generation preserves its shared-round treatment.
 
 The final approved brightness boost is **5% (`brightness(1.05)`)**, replacing
 the earlier 25% experiment. The app (including dust icons) and comparison page
