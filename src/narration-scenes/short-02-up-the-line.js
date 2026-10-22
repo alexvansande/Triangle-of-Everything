@@ -14,6 +14,7 @@ const CLOSE = { r: 1.7, m: 5.9, span: 9 };
 const LITER = { obj: "1 Liter of Water" }, TONNE = { obj: "1 Tonne of Water" };
 const RIGHT = { r: 1.79, m: 3 };            // the liter, one square to the right
 const WATER = { line: "water" };
+const PAN = 3;                              // span of the engineering → planets pan
 // one grid square (a decade of size × a decade of mass) with its bottom-left corner at (r, m)
 const SQ = (r, m, delay = 0) => ({ poly: [[r, m], [r + 1, m], [r + 1, m + 1], [r, m + 1]], fill: "#ffd54f", opacity: 0.35, delay });
 
@@ -90,27 +91,32 @@ export default {
 
     // what we build
     { at: "the sequoia", offset: 0.6, photo: "sequoia", obj: "Sequoia", dur: 3.4, kb: [1, 1.15], focus: [0.5, 0.3], caption: "Grizzly Giant sequoia · Yosemite · 2005" },
-    { at: "engineering phase", cam: { r: 3.7, m: 10, span: 3.5 }, clear: true,
+    // engineering → planets: one slow pan up the line (glide waypoints at their cue times)
+    { at: "engineering phase", cam: { r: 3.9, m: 10.2, span: PAN, glide: true }, dur: 2, clear: true,
       hl: [{ obj: "Boeing 747" }, { obj: "Supertanker", delay: 0.3 }] },
-    { at: "the eiffel tower", cam: { obj: "Eiffel Tower", span: 1.4 }, dur: 2, hl: [{ obj: "Eiffel Tower" }] },
-    { at: "very to the right", cam: { obj: "Eiffel Tower", dr: -0.4, span: 2.4 }, hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
+    { at: "the eiffel tower", cam: { r: 4.2, m: 10.6, span: PAN, glide: true }, hl: [{ obj: "Eiffel Tower" }] },
+    { at: "very to the right", hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
 
     // mountains, rocks and small moons
     // no photo: the tower's own picture, grown in a spotlight
-    { at: "lot of empty space", cam: { obj: "Eiffel Tower", span: 0.9 }, dur: 2.5, hl: [{ spot: "Eiffel Tower", grow: 2.2, dim: 0.6 }] },
-    { at: "the great pyramid", cam: { obj: "Great Pyramid", span: 2.5 }, hl: [{ obj: "Great Pyramid" }] },
-    { at: "hills and mountains", cam: { r: 5, m: 15.4, span: 4 }, hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Mt. Everest", delay: 0.3 }] },
+    { at: "lot of empty space", hl: [{ spot: "Eiffel Tower", grow: 2.2, dim: 0.6 }] },
+    { at: "the great pyramid", cam: { r: 4.4, m: 12.4, span: PAN, glide: true }, hl: [{ obj: "Great Pyramid" }] },
+    { at: "hills and mountains", cam: { r: 4.9, m: 14.4, span: PAN, glide: true }, hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Mt. Everest", delay: 0.3 }] },
     { at: "a mountain itself", hl: [{ obj: "Great Pyramid", label: "a mountain", place: "left" }, { obj: "Mt. Everest" }] },
-    { at: "mount everest is here", cam: { obj: "Mt. Everest", span: 2.5 }, hl: [{ obj: "Mt. Everest", label: "Everest" }] },
-    { at: "asteroids and comets", cam: { r: 5.9, m: 18.4, span: 3.5 },
+    { at: "mount everest is here", cam: { r: 5.5, m: 16.8, span: PAN, glide: true }, hl: [{ obj: "Mt. Everest", label: "Everest" }] },
+    // the lakes and the glacier sit below the line (wide and flat): the pan dips to them
+    { at: "lakes and glaciers", offset: 1.2, cam: { r: 5.2, m: 14.7, span: PAN, glide: true },
+      hl: [{ obj: "Königssee", label: "lakes", place: "right" }, { obj: "Hallstätter See", label: false, delay: 0.2 },
+        { obj: "Lake Nyos", label: false, delay: 0.4 }, { obj: "Grinnell Glacier", label: "glacier", place: "left", delay: 0.6 }] },
+    { at: "asteroids and comets", cam: { r: 5.75, m: 17.2, span: PAN, glide: true },
       hl: [{ obj: "Eros", label: "asteroids" }, { obj: "Halley's Comet", label: "comets", place: "left", delay: 0.4 }] },
-    { at: "small moons", cam: { obj: "Phobos", dr: -0.15, span: 1.7 }, dur: 6, drift: 0.02, hl: [{ obj: "Halley's Comet", place: "left" }, { obj: "Deimos", label: false }, { obj: "Phobos", label: "moons of Mars" }] },
+    { at: "small moons", cam: { r: 6.0, m: 18.5, span: PAN, glide: true }, hl: [{ obj: "Halley's Comet", place: "left" }, { obj: "Deimos", label: false }, { obj: "Phobos", label: "moons of Mars" }] },
 
     // round worlds
-    { at: "past hyperion", cam: { r: 7.4, m: 22.9, span: 4.5 },
+    { at: "past hyperion", cam: { r: 7.2, m: 22.2, span: PAN, glide: true },
       hl: [{ obj: "Hyperion", place: "left", label: "Hyperion · lumpy" }, { obj: "Vesta", delay: 0.4 }, { obj: "Mimas", delay: 0.8 }, { obj: "Ceres", delay: 1.2 }, { obj: "Pluto", delay: 1.6 }] },
-    { at: "force of gravity", hl: [{ obj: "Hyperion", place: "left" }, { obj: "Mimas" }, { obj: "Ceres" }, { obj: "Pluto", label: "round" }] },
-    { at: "treated like a liquid", hl: [{ obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
+    { at: "force of gravity", cam: { r: 7.6, m: 23.4, span: PAN, glide: true }, hl: [{ obj: "Hyperion", place: "left" }, { obj: "Mimas" }, { obj: "Ceres" }, { obj: "Pluto", label: "round" }] },
+    { at: "treated like a liquid", cam: { r: 7.9, m: 24.4, span: PAN, glide: true }, hl: [{ obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
 
     // atmospheres
     { at: "hill of mass", cam: { r: 8.6, m: 27.1, span: 3.4 }, clear: true },

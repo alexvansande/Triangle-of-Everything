@@ -197,20 +197,34 @@ export async function startNarration(app) {
 
   // ---------- camera timeline ----------
   const START = SCENE.start;
-  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam), dur: c.dur, drift: c.drift ?? 0.05, quiet: !!c.quiet }))
+  // cam.glide: a waypoint of one continuous pan. The camera passes through each
+  // glide point at its cue's time on a smooth (Catmull-Rom) curve, never holding,
+  // instead of flying and stopping at each one.
+  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam), dur: c.dur, drift: c.drift ?? 0.05,
+    quiet: !!c.quiet, glide: !!c.cam.glide }))
     .filter(k => k.to);
   for (let i = 0; i < keys.length; i++) {
-    const from = i === 0 ? START : camAt(keys[i].t, i - 1);
     const k = keys[i];
+    if (k.glide && keys[i - 1]?.glide) { k.end = k.t; continue; }   // reached by the pan itself
+    const from = i === 0 ? START : camAt(k.t, i - 1);
     k.from = from;
     k.interp = d3.interpolateZoom([from.r, from.m, from.span], [k.to.r, k.to.m, k.to.span]);
     if (k.dur == null) k.dur = Math.max(1.4, Math.min(3.6, k.interp.duration / 1000 * 0.8));
     k.end = k.t + k.dur;
   }
+  const P = (k) => [k.to.r, k.to.m, k.to.span];
   /** Camera at time t using key i (and the drift until key i+1). */
   function camAt(t, i) {
     if (i < 0) return START;
-    const k = keys[i];
+    const k = keys[i], nx = keys[i + 1];
+    if (k.glide && nx?.glide && t >= k.end) {
+      // the segment from this waypoint to the next, at the next one's cue time
+      const u = clamp01((t - k.end) / Math.max(0.1, nx.t - k.end));
+      const p0 = P(keys[i - 1]?.glide ? keys[i - 1] : k), p1 = P(k), p2 = P(nx), p3 = P(keys[i + 2]?.glide ? keys[i + 2] : nx);
+      const [r, m, span] = p1.map((_, j) => 0.5 * (2 * p1[j] + (p2[j] - p0[j]) * u +
+        (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * u * u + (3 * p1[j] - p0[j] - 3 * p2[j] + p3[j]) * u * u * u));
+      return { r, m, span, phase: "fly" };
+    }
     if (t < k.end) {
       const [r, m, span] = k.interp(d3.easeCubicInOut(clamp01((t - k.t) / k.dur)));
       return { r, m, span, phase: "fly" };
