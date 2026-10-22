@@ -1044,7 +1044,8 @@ The 1254px master supplies 128/256/512/1024px chart versions.
 The marble has a separate AI-generated wall shadow with two small restrained
 refractive caustics, without a stellar glow. The raw transparent shadow lives at
 `shadow-candidates/observable-universe.png`; its registration uses the studio's
-768px canvas, scale .48, x145/y175 and opacity .55. `roundOffsetScale: 1` applies
+768px canvas, scale .48, x145/y175 and opacity .80 (increased from .55 for the
+darker chart region). `roundOffsetScale: 1` applies
 the approved −25% placement correction and keeps it responsive to the round
 shadow controls. `SHADOWED_SCREEN_SPHERES` permits its shadow despite screen
 blending; `CUSTOM_AI_SHADOWS` preserves it during scripted regeneration.

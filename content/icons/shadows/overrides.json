@@ -1936,7 +1936,7 @@
     "registered": true,
     "anchorBase": false,
     "flipY": false,
-    "opacity": 0.55,
+    "opacity": 0.8,
     "generatedBlur": 0,
     "generatedScale": 0.48,
     "distance": 0,
@@ -1944,7 +1944,7 @@
     "y": 175,
     "roundOffsetScale": 1,
     "reviewed": true,
-    "updated": "2026-10-22T19:04:55.208Z",
+    "updated": "2026-10-22T19:10:44.060Z",
     "generator": "built-in-imagegen",
     "note": "Translucent CMB marble wall shadow with two subtle refracted highlights; follows round-shadow placement controls; preserve during scripted batches."
   }
