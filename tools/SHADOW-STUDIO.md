@@ -1036,8 +1036,13 @@ Observable Universe is also exempt: its artwork depicts a defined sphere.
 The rectangular diffuse-photo feathering cut away its round rim and made it
 look square. Keep its original unmasked image and brightness. It now uses a
 measured, opaque black disc backing like the stars, synchronized with the image
-during hover. The approved `selective-skin.png` cosmic marble is now the live
-icon: clear blue CMB patches reveal filaments beneath the continuous outer skin.
+during hover. For the user's temporary comparison on October 22, the live icon
+is now `translucent-skin.png`, identical to the supplied
+`ChatGPT Image Oct 22, 2026, 04_15_49 PM.png`. The previously approved
+`selective-skin.png` remains in `content/icons/candidates/observable-universe-marble/`
+for restoration: its clearer blue CMB patches reveal more of the inner filaments.
+The black backing is fitted to the comparison image's measured outline; the
+existing shadow and its settings are unchanged.
 Its original artwork is backed up in `candidates/observable-universe-marble/previous`.
 The 1254px master supplies 128/256/512/1024px chart versions.
 
