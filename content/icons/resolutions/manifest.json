@@ -3370,7 +3370,7 @@
     ]
   },
   "stellar-bh": {
-    "fingerprint": "2619087daab4b490a1b92e9596f961febe127f7dabb39dd2e4316cc849bd0575",
+    "fingerprint": "a61ed4b7cb3798be34f6cdab8cce5e8d8a3ac5bd26216928d4551a6fa6706d75",
     "baseWidth": 128,
     "source": "content/icons/src/stellar-bh.png",
     "reason": "matching master",
