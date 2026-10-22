@@ -1,4 +1,6 @@
 import * as d3 from "d3";
+import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
+import { VisibilityMemory } from "./visibility-memory.js";
 import {
   formatSci, friendlyRadius, friendlyMass, friendlyEnergy, isPhoton,
   friendlyWavelength, friendlyDensity, MASS_HOVER_UNITS, RADIUS_HOVER_UNITS,
@@ -6,7 +8,7 @@ import {
   formatLogSuper, densityToLogTime, friendlyTime, fmtTick,
 } from "./format.js";
 import {
-  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, SHADOW_BY_SLUG, STRINGS_ATOM_SLUGS,
+  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, iconUrlForSize, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
@@ -2045,6 +2047,7 @@ function catDisplayLabel(catKey) {
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
 const ICON_ROOM = 1.3;       // icons keep 30% of their radii clear between them
 let _iconShownPrev = new Set();
+const _objectVisibility = new VisibilityMemory();
 const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
 let _lastProjected = [];
@@ -2362,7 +2365,11 @@ function drawObjects() {
   lObjExtras.selectAll("*").remove();
   const d = vd();
   const icoSize = effectiveIconSize();
-  const pad = 5;
+  _objectVisibility.update([px(1)-px(0), py(1)-py(0)], JSON.stringify([
+    cw, ch, _iconSize, _fontScale, _iconsEnabled, _labelsEnabled,
+    _dustEnabled, dustReady(), _isMobile, _posterLabels, _atomIconsHidden,
+    _bigBangMode && [_bigBangObjectOverrides, _bigBangObjectOpacity],
+  ]));
 
   // Project all objects to screen, sorted by priority (low z = important)
   const projected = OBJECTS
@@ -2392,8 +2399,6 @@ function drawObjects() {
     })
     .filter(o =>
       o &&
-      o.sx >= -pad && o.sx <= cw + pad &&
-      o.sy >= -pad && o.sy <= ch + pad &&
       (!o.minK || currentK >= o.minK)
     )
     .sort((a, b) => {
@@ -2431,7 +2436,16 @@ function drawObjects() {
     o._showIcon = true; o._icoR = r;
     shownIcons.push(o);
   });
-  _iconShownPrev = new Set(shownIcons.map(o => o.slug));
+  // Decide against the whole curated collection, not the viewport contents.
+  // A neighbour crossing an edge cannot promote/demote a stationary object.
+  for (const o of projected) {
+    const saved = _objectVisibility.decisions.get(o.slug);
+    if (saved) {
+      o._showDot = saved.dot; o._showIcon = saved.icon;
+      if (o._showIcon) o._icoR = icoR(o);
+    } else _objectVisibility.decisions.set(o.slug, { dot:o._showDot, icon:o._showIcon });
+  }
+  _iconShownPrev = new Set(projected.filter(o=>o._showIcon).map(o=>o.slug));
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
   const th2 = _posterLabels ? -1 : CLUSTER_THRESHOLD * CLUSTER_THRESHOLD; // poster: no clusters
@@ -2807,7 +2821,10 @@ function drawObjects() {
   }
 
   // --- Render object dots, icons, and labels via keyed joins ---
-  const shownDots = projected.filter(o => o._showDot);
+  // Cull only after making visibility/layout decisions. Keep a generous
+  // margin so wide icons and labels slide through the edge rather than pop.
+  const shownDots = projected.filter(o => o._showDot &&
+    o.sx >= -256 && o.sx <= cw + 256 && o.sy >= -256 && o.sy <= ch + 256);
   const iconObjs = shownDots.filter(o => o._showIcon);
 
   // (1) Object groups: hit area + glow/dot, keyed by slug. Structure is
@@ -2859,7 +2876,6 @@ function drawObjects() {
         const imgEl = gg.append("image")
           .attr("class", "obj-icon")
           .attr("data-slug", o.slug)
-          .attr("href", ICON_BY_SLUG[o.slug])
           .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
           .node();
         imgEl.addEventListener("load", () => {
@@ -2881,6 +2897,7 @@ function drawObjects() {
         .attr("display", _loadedIconUrls.has(ICON_BY_SLUG[o.slug]) ? "none" : null)
         .attr("opacity", bbOp == null ? 0.85 : 0.85 * bbOp);
       gg.select(".obj-icon")
+        .attr("href", iconUrlForSize(o.slug, objIcoSize))
         .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2)
         .attr("width", objIcoSize).attr("height", objIcoSize)
         .attr("opacity", bbOp);
@@ -2916,21 +2933,22 @@ function drawObjects() {
     })
     .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
 
-  _lastProjected = shownDots;
+  _lastProjected = shownDots.filter(o => o.sx >= 0 && o.sx <= cw && o.sy >= 0 && o.sy <= ch);
 
   // Dust fills whatever room the curated objects leave — it never sits on
   // a curated dot, icon or visible label.
   drawDust(lDust, {
     px, py, cw, ch, mobile: _isMobile,
+    visibilityEpoch: _objectVisibility.epoch,
     hidden: !_dustEnabled || _bigBangMode,
     // a few dust names, map-style; not in the narrated videos or the poster
     labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fontScale: _fontScale,
     labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
     // a famous named dot with a picture (content/icons/<its slug>.webp) can
     // show it when there's room — not one a curated object already shows
-    iconOf: _iconsEnabled && !_posterLabels ? (name) => {
+    iconOf: _iconsEnabled && !_posterLabels ? (name, size) => {
       const slug = nameToSlug(name);
-      return CURATED_SLUGS.has(slug) ? null : ICON_BY_SLUG[slug] || null;
+      return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug, size) || null;
     } : null,
     // as iconSizeMult, per-object multipliers included
     iconSizeAt: (logR, name) => icoSize * Math.pow(1.1, (logR + 3.5) / 6) * (ICON_SIZE_MULT[nameToSlug(name)] || 1) * (_iconSize / 100),
@@ -2955,8 +2973,8 @@ function drawObjects() {
     ...(STAR_GLOWS ? dustIcons().filter(d => d.cat === "star") : [])
       .map(d => ({ key: `dust:${d.i}`, ...d, glow: starTint(ICON_BY_SLUG[nameToSlug(d.name)], "#ffd27a"), glowUrl: ICON_BY_SLUG[nameToSlug(d.name)] })),
     ...shownDots.filter(o => o._showIcon && !iconUsesScreenBlend(o))
-      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug] })),
-    ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)] })),
+      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
+    ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
   ]);
   drawDustShadows();
 }
@@ -2977,12 +2995,9 @@ function drawDustShadows() {
   p.attr("d", d || null);
 }
 
-/** Soft cast shadows for the opaque pictures (glowing, screen-blended space
- *  art casts none): two ellipses running down-right at 45°, starting a few px
- *  past the object as if it floated just in front of the map, the far one
- *  longer and blurrier. Drawn under everything else (lShadows). A hovered
- *  picture lifts (setIconHover): its shadow moves further out, grows with it
- *  and fades. */
+/** Cast shadows fall on a poster behind the floating objects. Hover moves
+ *  the object toward the viewer: its shadow moves farther, grows and fades.
+ *  Image textures gain blur; fallback ellipse blur scales with their bounds. */
 const SHADOW_PARTS = [
   // [class, filter, centre along the diagonal (× r) + px, half-length, half-width (× r), opacity]
   ["sh-near", "icon-shadow-near", 1.1, 10, 1.05, 0.9, 0.28],
@@ -2991,28 +3006,17 @@ const SHADOW_PARTS = [
 let _shadowLift = null; // { key, k }: the hovered picture and how much it grew
 function shadowGeom(d, [, , c, px, a, b, op]) {
   const k = _shadowLift?.key === d.key ? _shadowLift.k : 1;
-  const lift = k > 1 ? 1 : 0;
-  const r = d.r * k * (1 + 0.1 * lift);              // grows with the picture, a bit more
-  const off = (c * r + px) * (1 + 0.45 * lift);      // and falls further away
-  // down-right at 45°, nudged a little further south
-  const cx = d.sx + off * Math.SQRT1_2, cy = d.sy + off * Math.SQRT1_2 + 0.3 * r;
-  return { cx, cy, rx: a * r, ry: b * r, transform: `rotate(45 ${cx} ${cy})`, opacity: op * (1 - 0.45 * lift) };
+  const state = wallShadowState(d.r, k);
+  const r = state.radius;
+  const off = (c * d.r + px) * 0.85 + state.travel;
+  const cx = d.sx + off * Math.SQRT1_2, cy = d.sy + off * Math.SQRT1_2 + 0.3 * d.r;
+  return { cx, cy, rx: a * r, ry: b * r, transform: `rotate(45 ${cx} ${cy})`, opacity: op * state.opacity };
 }
-// A silhouette shadow image (SHADOW_BY_SLUG) spans SHADOW_SPAN × the icon box,
-// object centred; its stretch and blur are baked in, so it only needs moving.
-const SHADOW_SPAN = 3;           // keep in sync with SPAN in scripts/generate-shadows.mjs
-const SHADOW_IMG = { off: 2.0, south: 0.3, scale: 1.0, opacity: 0.85 };
 function shadowImgGeom(d) {
-  const k = _shadowLift?.key === d.key ? _shadowLift.k : 1;
-  const lift = k > 1 ? 1 : 0;
-  const r = d.r * k * (1 + 0.1 * lift);
-  const off = (SHADOW_IMG.off * r + 8) * (1 + 0.6 * lift);
-  const size = SHADOW_SPAN * 2 * r * SHADOW_IMG.scale;
-  const cx = d.sx + off * Math.SQRT1_2, cy = d.sy + off * Math.SQRT1_2 + SHADOW_IMG.south * r;
-  return { x: cx - size / 2, y: cy - size / 2, width: size, height: size, opacity: SHADOW_IMG.opacity * (1 - 0.45 * lift) };
+  return wallShadowImageGeometry(d, _shadowLift?.key === d.key ? _shadowLift.k : 1);
 }
 function applyShadowImg(sel, g) {
-  sel.attr("x", g.x).attr("y", g.y).attr("width", g.width).attr("height", g.height).attr("opacity", g.opacity);
+  sel.attr("x", g.x).attr("y", g.y).attr("width", g.width).attr("height", g.height).attr("opacity", g.opacity).style("filter", g.blur ? `blur(${g.blur}px)` : "none");
 }
 function applyShadowGeom(sel, g) {
   sel.attr("cx", g.cx).attr("cy", g.cy).attr("rx", g.rx).attr("ry", g.ry)
@@ -6854,6 +6858,16 @@ function applyLayout({ resetZoom } = {}) {
 // redraw() here.
 let _lastVw = window.innerWidth, _lastVh = window.innerHeight;
 let _resizeTimer = null;
+// Moving between displays can change pixel density without changing CSS size.
+// Refresh image tiers even when the normal layout resize does not run.
+function watchIconPixelDensity() {
+  const query = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+  query.addEventListener("change", () => {
+    watchIconPixelDensity();
+    redraw();
+  }, { once: true });
+}
+watchIconPixelDensity();
 window.addEventListener("resize", () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(() => {
@@ -7601,4 +7615,3 @@ if (_ogShot) {
       .filter(e => e.getAttribute("display") !== "none").length,
   };
 }
-

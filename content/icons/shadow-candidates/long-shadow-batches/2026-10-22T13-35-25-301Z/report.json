@@ -1,0 +1,51 @@
+{
+  "created": "2026-10-22T13-35-25-301Z",
+  "counts": {
+    "generate": 2,
+    "round": 0,
+    "caustics": 0,
+    "excluded": 0
+  },
+  "plan": [
+    {
+      "name": "hippo",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T13:35:25.936Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "elephant",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T13:35:26.043Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    }
+  ]
+}

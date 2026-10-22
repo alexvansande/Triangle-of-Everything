@@ -1,0 +1,171 @@
+{
+  "created": "2026-10-22T13-04-26-526Z",
+  "counts": {
+    "generate": 8,
+    "round": 0,
+    "caustics": 0,
+    "excluded": 0
+  },
+  "plan": [
+    {
+      "name": "lion",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T13:04:27.321Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "hippo",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T13:04:27.435Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "elephant",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T13:04:27.570Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "argentinosaurus",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T13:04:27.688Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "tyrannosaurus-rex",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T13:04:27.798Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "bust-of-queen-nefertiti",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T13:04:27.905Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "voyager-golden-record",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T13:04:28.024Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "pyramid-giza",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T13:04:28.132Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    }
+  ]
+}

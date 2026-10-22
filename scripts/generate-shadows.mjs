@@ -1,150 +1,105 @@
 #!/usr/bin/env node
-// Cast shadows for the non-round icons, made from each icon's own silhouette
-// the way you'd do it by hand in an image editor:
-//   silhouette → rotate −45° (down-right becomes +x) → mirror along x →
-//   stretch along x → blur that grows with distance + fade → rotate back.
-// The mirror reverses the shadow along the light only: the object's
-// down-right edge becomes the shadow's sharp near end (up-left), its top
-// lands at the shadow's right and its left at the shadow's bottom.
-// Output: content/icons/shadows/<slug>.webp, a square SHADOW_SPAN times the
-// icon's size with the object's centre at its centre. The map draws it under
-// everything, offset down-right (drawIconShadows in src/main.js).
-//
-//   node scripts/generate-shadows.mjs human hippo elephant …   (icon file names)
-//   node scripts/generate-shadows.mjs --all
-//     every opaque icon: round ones share _sphere.webp (listed in round.json),
-//     the rest get their own; screen-blended space art and voids get none.
-import sharp from "sharp";
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
+// Run from the repository root. Uses the SAME Canvas renderer as the studio.
+// node scripts/generate-shadows.mjs --all [--dry-run]
+// node scripts/generate-shadows.mjs elephant hippo
+// --reset-reviewed restores the common preset, never water caustics or spheres.
+import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
+import puppeteer from 'puppeteer-core';
+import { shadowExclusion } from './shadow-eligibility.mjs';
+import { LONG_SHADOW_PRESET } from '../src/long-shadow.js';
 
-const ICONS = "content/icons", OUT = "content/icons/shadows";
-const ICON = 256;            // working size of the icon itself (px)
-const SPAN = 3;              // shadow canvas = SPAN × icon size (keep in sync with SHADOW_SPAN in main.js)
-const STRETCH = 1.6;         // along the light direction
-const BLUR_NEAR = 8, BLUR_FAR = 40;   // px at ICON = 256
-const FADE = 0.75;           // how much of the shadow's opacity is gone at the far end
-const OUT_PX = 256;          // shipped size of the whole canvas
-
-mkdirSync(OUT, { recursive: true });
-
-// one-channel buffers; sharp turns them into colour when padding or rotating
-// over a background, so every step ends with extractChannel(0)
-const raw1 = (buf, w, h) => ({ raw: { width: w, height: h, channels: 1 } });
-
-// The shipped 128 px icon is plenty for a blurred shadow, and every icon has one.
-const iconAlpha = (file) => sharp(`${ICONS}/${file}.webp`)
-  .resize(ICON, ICON, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-  .ensureAlpha().extractChannel(3).raw().toBuffer();
-
-async function shadow(file, alphaBuf) {
-  // 1. silhouette (alpha → white on black), centred on a SPAN× canvas
-  const C = ICON * SPAN, pad = (C - ICON) / 2;
-  const alpha = alphaBuf || await iconAlpha(file);
-  const sil = await sharp(alpha, raw1(alpha, ICON, ICON))
-    .extend({ top: pad, bottom: pad, left: pad, right: pad, background: "#000" }).extractChannel(0).raw().toBuffer();
-
-  // 2. rotate −45° (down-right → +x), then mirror along x; sharp grows the
-  //    canvas, centre stays put
-  //    (two pipelines: sharp would flop before rotating)
-  const rot0 = await sharp(sil, raw1(sil, C, C)).rotate(-45, { background: "#000" }).extractChannel(0).raw().toBuffer({ resolveWithObject: true });
-  const R = rot0.info.width;
-  const rot = { data: await sharp(rot0.data, raw1(rot0.data, R, R)).flop().extractChannel(0).raw().toBuffer() };
-
-  // 3. stretch along x about the centre
-  const W = Math.round(R * STRETCH);
-  const str = await sharp(rot.data, raw1(rot.data, R, R)).resize(W, R, { fit: "fill" }).extractChannel(0).raw().toBuffer();
-
-  // 4. blur that grows along x, and a fade: mix a near and a far blur by
-  //    position across the stretched silhouette
-  const [near, far] = await Promise.all([BLUR_NEAR, BLUR_FAR].map(s =>
-    sharp(str, raw1(str, W, R)).blur(s).extractChannel(0).raw().toBuffer()));
-  let x0 = W, x1 = 0;
-  for (let y = 0; y < R; y++) for (let x = 0; x < W; x++) if (str[y * W + x] > 32) { if (x < x0) x0 = x; if (x > x1) x1 = x; }
-  const span = Math.max(1, x1 - x0);
-  const out = Buffer.alloc(W * R);
-  for (let y = 0; y < R; y++) for (let x = 0; x < W; x++) {
-    const t = Math.min(1, Math.max(0, (x - x0) / span));
-    const v = near[y * W + x] * (1 - t) + far[y * W + x] * t;
-    out[y * W + x] = Math.round(v * (1 - FADE * t));
-  }
-
-  // 5. rotate back (the stretch now runs down-right) and crop the SPAN×
-  //    square around the centre
-  const back = await sharp(out, raw1(out, W, R)).rotate(45, { background: "#000" }).extractChannel(0).raw().toBuffer({ resolveWithObject: true });
-  const BW = back.info.width, BH = back.info.height;
-  const crop = await sharp(back.data, raw1(back.data, BW, BH))
-    .extract({ left: Math.round((BW - C) / 2), top: Math.round((BH - C) / 2), width: C, height: C }).extractChannel(0).raw().toBuffer();
-
-  // alpha = shadow; colour black
-  const rgba = Buffer.alloc(C * C * 4);
-  for (let i = 0; i < C * C; i++) rgba[i * 4 + 3] = crop[i];
-  await sharp(rgba, { raw: { width: C, height: C, channels: 4 } })
-    .resize(OUT_PX, OUT_PX).webp({ quality: 80, alphaQuality: 80 }).toFile(`${OUT}/${file}.webp`);
-  console.log("shadow", file);
+export const CAUSTIC_SHADOWS = new Set(['1-ml-of-water', '1-liter-of-water', '1-tonne-of-water', 'loch-ness']);
+export function shadowAction(name, excluded, round) {
+  if (excluded) return 'excluded';
+  if (CAUSTIC_SHADOWS.has(name)) return 'caustics';
+  if (round.has(name) || name === '_sphere') return 'round';
+  return 'generate';
 }
 
-// --- --all: which icons are opaque, and which of those are round ----------
-// Mirrors src/main.js: screen-blended categories cast no shadow.
-const SCREEN_BLEND_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
-const SCREEN_BLEND_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
-const nameToSlug = (name) => name.toLowerCase()
-  .replace(/γ/g, "gamma").replace(/τ/g, "tau").replace(/μ/g, "mu")
-  .replace(/['’]/g, "").replace(/[*()]/g, "")
-  .replace(/ö/g, "o").replace(/ü/g, "u").replace(/ä/g, "a")
-  .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-
-function iconCategories() {
-  const assets = readFileSync("src/assets.js", "utf8");
-  const map = {};
-  for (const [, a, b] of assets.match(/ICON_SLUG_MAP = \{([\s\S]*?)\};/)[1].matchAll(/"([^"]+)":\s*"([^"]+)"/g)) map[a] = b;
-  const cat = {};
-  for (const o of JSON.parse(readFileSync("src/objects.json", "utf8"))) cat[o.slug || nameToSlug(o.name)] = o.cat;
-  const dust = JSON.parse(readFileSync("src/dust.json", "utf8"));
-  const srcCat = Object.fromEntries(dust.sources.map(s => [s.id, s.cat]));
-  for (const f of JSON.parse(readFileSync("src/dust-famous.json", "utf8"))) {
-    const slug = nameToSlug(f.label || f.name);
-    if (!(slug in cat)) cat[slug] = srcCat[f.source];
+async function main() {
+  const args = process.argv.slice(2), all = args.includes('--all');
+  if (args.some(a => a.startsWith('--') && !['--all', '--dry-run', '--reset-reviewed'].includes(a))) throw Error('Unknown option');
+  const icons = 'content/icons', out = `${icons}/shadows`, configPath = `${out}/overrides.json`;
+  const files = (await fs.readdir(icons)).filter(f => f.endsWith('.webp')).map(f => f.slice(0, -5)).sort();
+  const names = all ? files : [...new Set(args.filter(a => !a.startsWith('--')))];
+  if (!names.length) throw Error('Specify icon names or --all; add --dry-run to inspect the plan.');
+  for (const name of names) if (!files.includes(name)) throw Error(`Unknown icon: ${name}`);
+  const round = new Set(JSON.parse(await fs.readFile(`${out}/round.json`, 'utf8')));
+  const overrides = JSON.parse(await fs.readFile(configPath, 'utf8').catch(() => '{}'));
+  const plan = [];
+  for (const name of names) {
+    const reason = await shadowExclusion(name);
+    plan.push({ name, action: shadowAction(name, reason, round), ...(reason ? { reason } : {}) });
   }
-  return (file) => { const slug = map[file] || file; return { slug, cat: cat[slug] }; };
+  const counts = Object.fromEntries(['generate','round','caustics','excluded'].map(a => [a,plan.filter(p => p.action === a).length]));
+  console.log(JSON.stringify(counts));
+  if (args.includes('--dry-run')) { for (const p of plan) console.log(p.action, p.name); return; }
+  const executablePath = [process.env.PUPPETEER_EXECUTABLE_PATH, process.env.CHROME_PATH,
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser'].find(p => p && existsSync(p));
+  if (!executablePath) throw Error('Set CHROME_PATH to Chrome/Chromium; the studio renderer requires Canvas.');
+  const stamp = new Date().toISOString().replace(/[:.]/g,'-');
+  const archive = `${icons}/shadow-candidates/long-shadow-batches/${stamp}`;
+  await fs.mkdir(`${archive}/previous`, { recursive: true });
+  await fs.mkdir(`${archive}/prepared`, { recursive: true });
+  await fs.copyFile(configPath, `${archive}/previous/overrides.json`);
+  await fs.copyFile(`${out}/round.json`, `${archive}/previous/round.json`);
+  await fs.copyFile(`${out}/_sphere.webp`, `${archive}/previous/_sphere.webp`);
+  const renderer = await fs.readFile('src/long-shadow.js', 'utf8');
+  const browser = await puppeteer.launch({ executablePath, headless: true, args: ['--no-sandbox'] });
+  try {
+    const page = await browser.newPage();
+    await page.evaluate(async source => {
+      window.shadowRenderer = await import('data:text/javascript;base64,' + source);
+    }, Buffer.from(renderer).toString('base64'));
+    let count = 0;
+    for (const item of plan.filter(p => p.action === 'generate')) {
+      const previous = overrides[item.name];
+      const settings = { ...LONG_SHADOW_PRESET,
+        ...(previous?.mode === 'long' && !args.includes('--reset-reviewed') ? previous : {}),
+        mode: 'long', source: 'alpha-long-shadow', anchorBase: false, flipY: false,
+      };
+      const icon = (await fs.readFile(`${icons}/${item.name}.webp`)).toString('base64');
+      const png = Buffer.from(await page.evaluate(async ({icon, settings}) => {
+        const image = new Image(); image.src = 'data:image/webp;base64,' + icon; await image.decode();
+        const canvas = document.createElement('canvas'); canvas.width = canvas.height = 768;
+        window.shadowRenderer.drawLongShadow(canvas, image, settings);
+        return canvas.toDataURL('image/png').split(',')[1];
+      }, {icon, settings}), 'base64');
+      await fs.writeFile(`${archive}/${item.name}.png`, png);
+      const webp = await sharp(png).resize(256, 256).webp({ quality: 90, alphaQuality: 100 }).toBuffer();
+      await fs.writeFile(`${archive}/prepared/${item.name}.webp`, webp);
+      item.settings = { ...settings, reviewed: previous?.mode === 'long' && !!previous.reviewed,
+        updated: new Date().toISOString(), generator: 'studio-long-shadow-v1' };
+      if (++count % 20 === 0) console.log(`Rendered ${count}/${counts.generate}`);
+    }
+  } finally { await browser.close(); }
+  // Finish rendering before replacing anything. Preserve every previous file.
+  for (const item of plan) {
+    if (!['generate','excluded'].includes(item.action)) continue;
+    const dest = `${out}/${item.name}.webp`;
+    if (existsSync(dest)) await fs.copyFile(dest, `${archive}/previous/${item.name}.webp`);
+  }
+  for (const item of plan) {
+    const dest = `${out}/${item.name}.webp`;
+    if (item.action === 'generate') {
+      await fs.copyFile(`${archive}/prepared/${item.name}.webp`, dest);
+      overrides[item.name] = item.settings;
+    } else if (item.action === 'excluded') {
+      // Obsolete black-background shadows must not be picked up by the chart.
+      await fs.rm(dest, { force: true }); delete overrides[item.name];
+    }
+  }
+  const temporary = `${archive}/overrides.json`;
+  await fs.writeFile(temporary, JSON.stringify(overrides, null, 2) + '\n');
+  await fs.copyFile(temporary, configPath);
+  await fs.writeFile(`${archive}/report.json`, JSON.stringify({created:stamp,counts,plan},null,2)+'\n');
+  console.log(`Saved ${counts.generate} long shadows. Backup and PNG masters: ${archive}`);
 }
 
-// round = the silhouette nearly fills the circle across its box, and next to
-// nothing of it lies outside that circle (a square fills it too)
-function roundness(a) {
-  let x0 = ICON, y0 = ICON, x1 = -1, y1 = -1, n = 0;
-  for (let y = 0; y < ICON; y++) for (let x = 0; x < ICON; x++) if (a[y * ICON + x] > 128) {
-    n++; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
-  }
-  const cx = (x0 + x1 + 1) / 2, cy = (y0 + y1 + 1) / 2, r = Math.max(x1 - x0 + 1, y1 - y0 + 1) / 2;
-  let inside = 0, outside = 0, disc = 0;
-  for (let y = 0; y < ICON; y++) for (let x = 0; x < ICON; x++) {
-    const inC = Math.hypot(x + 0.5 - cx, y + 0.5 - cy) <= r;
-    if (inC) disc++;
-    if (a[y * ICON + x] > 128) inC ? inside++ : outside++;
-  }
-  return { fill: inside / disc, spill: outside / Math.max(1, n) };
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch(error => { console.error(error); process.exitCode = 1; });
 }
-
-async function all() {
-  mkdirSync(OUT, { recursive: true });
-  const catOf = iconCategories();
-  const round = [];
-  for (const f of readdirSync(ICONS).filter(f => f.endsWith(".webp")).map(f => f.replace(".webp", "")).sort()) {
-    const { slug, cat } = catOf(f);
-    if (!cat || SCREEN_BLEND_CATS.has(cat) || SCREEN_BLEND_SLUGS.has(slug) || slug.includes("void")) continue;
-    const a = await iconAlpha(f);
-    const { fill, spill } = roundness(a);
-    if (fill > 0.9 && spill < 0.03) { round.push(f); continue; }
-    await shadow(f, a);
-  }
-  // one shared shadow for every round thing: a disc filling the icon at 122/128
-  const disc = Buffer.alloc(ICON * ICON), R = ICON * 61 / 128;
-  for (let y = 0; y < ICON; y++) for (let x = 0; x < ICON; x++)
-    disc[y * ICON + x] = Math.hypot(x + 0.5 - ICON / 2, y + 0.5 - ICON / 2) <= R ? 255 : 0;
-  await shadow("_sphere", disc);
-  writeFileSync(`${OUT}/round.json`, JSON.stringify(round, null, 1) + "\n");
-  console.log(`${round.length} round icons share _sphere.webp`);
-}
-
-if (process.argv.includes("--all")) await all();
-else for (const f of process.argv.slice(2)) await shadow(f);

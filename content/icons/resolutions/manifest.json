@@ -1,0 +1,3925 @@
+{
+  "1-liter-of-water": {
+    "fingerprint": "80d661ecdb5d285c44d7af3679d073960ee5ca358f2fc41b94a39862cd3aae40",
+    "baseWidth": 128,
+    "source": "content/icons/src/1-liter-of-water.png",
+    "reason": "matching master",
+    "sourceDifference": 2.42340087890625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/1-liter-of-water.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/1-liter-of-water.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/1-liter-of-water.webp"
+      }
+    ]
+  },
+  "1-ml-of-water": {
+    "fingerprint": "2504c01026fc90031805b12abf68c468b7511cb1b644085bb8e4dc2086b334be",
+    "baseWidth": 128,
+    "source": "content/icons/src/1-ml-of-water.png",
+    "reason": "matching master",
+    "sourceDifference": 1.6176350911458333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/1-ml-of-water.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/1-ml-of-water.webp"
+      }
+    ]
+  },
+  "1-tonne-of-water": {
+    "fingerprint": "07998520d36c7ef6283d3a7d5a0c08618abae1938b3691c1ff2906eb40271540",
+    "baseWidth": 128,
+    "source": "content/icons/src/1-tonne-of-water.png",
+    "reason": "matching master",
+    "sourceDifference": 3.9134521484375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/1-tonne-of-water.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/1-tonne-of-water.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/1-tonne-of-water.webp"
+      }
+    ]
+  },
+  "3k-bh": {
+    "fingerprint": "3c07e1ae6a7e7da11d8a656ac98d73c531813e55feaf5b677800e426d72896c2",
+    "baseWidth": 128,
+    "source": "content/icons/src/3k-bh.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7050984700520834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/3k-bh.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/3k-bh.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/3k-bh.webp"
+      }
+    ]
+  },
+  "adenine-a": {
+    "fingerprint": "92e4226d37351e5383f584d2c0e42a502f279d481a4b81f123eb7fcd1991c26b",
+    "baseWidth": 128,
+    "source": "content/icons/src/adenine-a.png",
+    "reason": "matching master",
+    "sourceDifference": 1.355224609375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/adenine-a.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/adenine-a.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/adenine-a.webp"
+      }
+    ]
+  },
+  "am-radio": {
+    "fingerprint": "e05fd45929ad9d090de774864498abe90b918946fa7f3b885cad20c0f545821b",
+    "baseWidth": 512,
+    "source": "content/icons/am-radio.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/am-radio.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/am-radio.webp"
+      }
+    ]
+  },
+  "amoeba": {
+    "fingerprint": "f58eaae7da4cb4b99b73cae5e491da81f6217329dd54998720c2b1963f30ae4f",
+    "baseWidth": 128,
+    "source": "content/icons/src/amoeba.png",
+    "reason": "matching master",
+    "sourceDifference": 3.4751790364583335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/amoeba.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/amoeba.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/amoeba.webp"
+      }
+    ]
+  },
+  "andromeda-m31": {
+    "fingerprint": "c7f5911f6077afaf8867536989a6d23781b7f94f809ee4d6c7cdf9f64edbbbb2",
+    "baseWidth": 128,
+    "source": "content/icons/andromeda-m31.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 30.211405436197918,
+    "variants": []
+  },
+  "ant": {
+    "fingerprint": "524e87f3cad8eb918ee9afede21f184dfa27599e06d37c97339fb2fcd1275664",
+    "baseWidth": 128,
+    "source": "content/icons/src/ant.png",
+    "reason": "matching master",
+    "sourceDifference": 1.5309244791666667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ant.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ant.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ant.webp"
+      }
+    ]
+  },
+  "antarctic-ice-sheet": {
+    "fingerprint": "5c1f0316b2ce70808abf4619bdfdc21b333218afad4f77f567c708455195c0a4",
+    "baseWidth": 128,
+    "source": "content/icons/src/antarctic-ice-sheet.png",
+    "reason": "matching master",
+    "sourceDifference": 2.1332600911458335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/antarctic-ice-sheet.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/antarctic-ice-sheet.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/antarctic-ice-sheet.webp"
+      }
+    ]
+  },
+  "argentinosaurus": {
+    "fingerprint": "172a45fc3235cc0799ffef7abcf6c4fd896d911ad8097139fc6f12b1c8f733f1",
+    "baseWidth": 128,
+    "source": "content/icons/src/argentinosaurus.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7694295247395834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/argentinosaurus.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/argentinosaurus.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/argentinosaurus.webp"
+      }
+    ]
+  },
+  "asian-elephant": {
+    "fingerprint": "b534d395fa00dc41c5451c87c9a38cbb3e18180d0e941894bb40d968b8f7824a",
+    "baseWidth": 128,
+    "source": "content/icons/src/asian-elephant.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4387003580729167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/asian-elephant.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/asian-elephant.webp"
+      }
+    ]
+  },
+  "atlas-moth": {
+    "fingerprint": "bfd274f2111c7b9c5dd21f7de055c6c605fd43f9acf33431d6c4995f52f40930",
+    "baseWidth": 128,
+    "source": "content/icons/src/atlas-moth.png",
+    "reason": "matching master",
+    "sourceDifference": 2.2863972981770835,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/atlas-moth.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/atlas-moth.webp"
+      }
+    ]
+  },
+  "atp": {
+    "fingerprint": "ecc3b3c038a4907e93f6dc1624b30e1e7c1da56d8818e5d4813b61a1549730c1",
+    "baseWidth": 128,
+    "source": "content/icons/atp.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 19.197245279947918,
+    "variants": []
+  },
+  "bacillus-subtilis": {
+    "fingerprint": "a0d196d81216a36dcfe62784067102f0d3520abc7802d38d5a120b53d0b7c048",
+    "baseWidth": 128,
+    "source": "content/icons/src/bacillus-subtilis.png",
+    "reason": "matching master",
+    "sourceDifference": 0.8178507486979166,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bacillus-subtilis.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bacillus-subtilis.webp"
+      }
+    ]
+  },
+  "bacteria": {
+    "fingerprint": "6f8a6bffa144f3d56f62acac84433cc0db461e57ee98181b1c616f50d9c2e374",
+    "baseWidth": 128,
+    "source": "content/icons/src/bacteria.png",
+    "reason": "matching master",
+    "sourceDifference": 2.1957804361979165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bacteria.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bacteria.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/bacteria.webp"
+      }
+    ]
+  },
+  "bacteriophage-t4": {
+    "fingerprint": "299ff808eb52f41d07c55d42622251718f23cad363abb8f031eb6216342609d0",
+    "baseWidth": 128,
+    "source": "content/icons/src/bacteriophage-t4.png",
+    "reason": "matching master",
+    "sourceDifference": 1.92706298828125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bacteriophage-t4.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bacteriophage-t4.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/bacteriophage-t4.webp"
+      }
+    ]
+  },
+  "bagger-288": {
+    "fingerprint": "1d6f2d0691fd2817983060890b34400d9eede4558eaabd6a3ab0e5517999409b",
+    "baseWidth": 128,
+    "source": "content/icons/src/bagger-288.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4078369140625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bagger-288.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bagger-288.webp"
+      }
+    ]
+  },
+  "barnard-68": {
+    "fingerprint": "9707c05e34d9a9a6273e24c1959d75e3cf76680abffee82cd202a2b10d7646a1",
+    "baseWidth": 128,
+    "source": "content/icons/src/barnard-68.jpg",
+    "reason": "matching master",
+    "sourceDifference": 1.98504638671875,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/barnard-68.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/barnard-68.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/barnard-68.webp"
+      }
+    ]
+  },
+  "bennu": {
+    "fingerprint": "63df84158264888faf88001b063d2b3ce79d55a69ab63eee46577f26866b1c6d",
+    "baseWidth": 128,
+    "source": "content/icons/src/bennu.png",
+    "reason": "matching master",
+    "sourceDifference": 1.42730712890625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bennu.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bennu.webp"
+      }
+    ]
+  },
+  "benz-patent-motorwagen": {
+    "fingerprint": "b2edf731676c5f6f788ba051445c20f77464fbac70861b088ec35fbce278128a",
+    "baseWidth": 128,
+    "source": "content/icons/src/benz-patent-motorwagen.png",
+    "reason": "matching master",
+    "sourceDifference": 1.9024454752604167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/benz-patent-motorwagen.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/benz-patent-motorwagen.webp"
+      }
+    ]
+  },
+  "beta-pictoris-b": {
+    "fingerprint": "7e81daabc2d9cd2c48132f8155ecd63ffd58d41412460d9a4f3bbabcdf2a3877",
+    "baseWidth": 128,
+    "source": "content/icons/src/beta-pictoris-b.png",
+    "reason": "matching master",
+    "sourceDifference": 2.1549886067708335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/beta-pictoris-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/beta-pictoris-b.webp"
+      }
+    ]
+  },
+  "betelgeuse": {
+    "fingerprint": "248beb8b5ea72a120f701f9c45af7391f8df72fa887b71e066526df92d7ead83",
+    "baseWidth": 128,
+    "source": "content/icons/src/betelgeuse.png",
+    "reason": "matching master",
+    "sourceDifference": 2.85015869140625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/betelgeuse.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/betelgeuse.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/betelgeuse.webp"
+      }
+    ]
+  },
+  "big-bang": {
+    "fingerprint": "864e73395aab3d02f9427171b7c7a590d1a527d4fec5a91b6f4b8ea68129978c",
+    "baseWidth": 128,
+    "source": "content/icons/src/big-bang.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7298380533854167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/big-bang.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/big-bang.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/big-bang.webp"
+      }
+    ]
+  },
+  "big-ben": {
+    "fingerprint": "b0370e40075f9c30545779ef4ccf84c6e704eb29238c688f6cd018a273a5a0b1",
+    "baseWidth": 128,
+    "source": "content/icons/src/big-ben.png",
+    "reason": "matching master",
+    "sourceDifference": 1.0688883463541667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/big-ben.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/big-ben.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/big-ben.webp"
+      }
+    ]
+  },
+  "bismarck": {
+    "fingerprint": "4e18741cf0299cc25208f6bde8470d181a4d09c46106a0ca1efc24bc0c1418c7",
+    "baseWidth": 128,
+    "source": "content/icons/src/bismarck.png",
+    "reason": "matching master",
+    "sourceDifference": 1.1787923177083333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bismarck.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bismarck.webp"
+      }
+    ]
+  },
+  "blue-supergiant": {
+    "fingerprint": "aa1925e2d8df2d06577e98ba8c4b01f3d3ede9e055cae1f19ce3ba62826f20ac",
+    "baseWidth": 128,
+    "source": "content/icons/src/blue-supergiant.png",
+    "reason": "matching master",
+    "sourceDifference": 2.1833089192708335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/blue-supergiant.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/blue-supergiant.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/blue-supergiant.webp"
+      }
+    ]
+  },
+  "blue-whale": {
+    "fingerprint": "282a15ab09249c0cf02f5f5dbf9dae0ec741833b485e897396bf5e6668b02d55",
+    "baseWidth": 128,
+    "source": "content/icons/src/blue-whale.png",
+    "reason": "matching master",
+    "sourceDifference": 0.8458251953125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/blue-whale.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/blue-whale.webp"
+      }
+    ]
+  },
+  "boeing-747": {
+    "fingerprint": "4f5f67496444192f5a9e82c4084b07444d2e57098ed8e611221e331705e7bf09",
+    "baseWidth": 128,
+    "source": "content/icons/src/boeing-747.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7888590494791666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/boeing-747.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/boeing-747.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/boeing-747.webp"
+      }
+    ]
+  },
+  "bottom": {
+    "fingerprint": "93562fe0f43d2499e8e2db45bf3d1cfb597b716fbc31980ce35e06b4cde06610",
+    "baseWidth": 512,
+    "source": "content/icons/bottom.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/bottom.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/bottom.webp"
+      }
+    ]
+  },
+  "bumblebee": {
+    "fingerprint": "86b9b315f409870db0ffefdc46cf41e035c2808bac091b43700d3a0c19d25aff",
+    "baseWidth": 128,
+    "source": "content/icons/src/bumblebee.png",
+    "reason": "matching master",
+    "sourceDifference": 2.0956624348958335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bumblebee.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bumblebee.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/bumblebee.webp"
+      }
+    ]
+  },
+  "burj-khalifa": {
+    "fingerprint": "81fa358e3297b4c08e3c56e1eb31b55daf822a734a244b94d28836f9cd4c511a",
+    "baseWidth": 128,
+    "source": "content/icons/src/burj-khalifa.png",
+    "reason": "matching master",
+    "sourceDifference": 0.371826171875,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/burj-khalifa.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/burj-khalifa.webp"
+      }
+    ]
+  },
+  "bust-of-queen-nefertiti": {
+    "fingerprint": "4bba626a179f13aba723eb96c0ca4a198d7909b446ed6b9070cbe2d64adcbd4a",
+    "baseWidth": 128,
+    "source": "content/icons/src/bust-of-queen-nefertiti.png",
+    "reason": "matching master",
+    "sourceDifference": 2.2658894856770835,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bust-of-queen-nefertiti.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bust-of-queen-nefertiti.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/bust-of-queen-nefertiti.webp"
+      }
+    ]
+  },
+  "callisto": {
+    "fingerprint": "09e6a9ec8b9599316ae8b6a9b1b0702cc04113c5c5f9602c7f64e9c985d33890",
+    "baseWidth": 128,
+    "source": "content/icons/src/callisto.png",
+    "reason": "matching master",
+    "sourceDifference": 2.33197021484375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/callisto.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/callisto.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/callisto.webp"
+      }
+    ]
+  },
+  "cane-toad": {
+    "fingerprint": "84c737c4c1eec9c22a599d22e74ab9b9c42cfffde3f8ac70bd8c9d5ba98b233f",
+    "baseWidth": 128,
+    "source": "content/icons/src/cane-toad.png",
+    "reason": "matching master",
+    "sourceDifference": 1.759033203125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/cane-toad.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/cane-toad.webp"
+      }
+    ]
+  },
+  "carbon": {
+    "fingerprint": "95e9ec291c43ff27a579a973cf57674e7cbf1a933507e673f53ac8c0f5c2924c",
+    "baseWidth": 128,
+    "source": "content/icons/src/carbon.png",
+    "reason": "matching master",
+    "sourceDifference": 1.879638671875,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/carbon.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/carbon.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/carbon.webp"
+      }
+    ]
+  },
+  "caspian-sea": {
+    "fingerprint": "749154e7766753d332cb32d50ef5ee65f4b11b048a7003532c47b5648db7023d",
+    "baseWidth": 128,
+    "source": "content/icons/src/caspian-sea.png",
+    "reason": "matching master",
+    "sourceDifference": 2.7645670572916665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/caspian-sea.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/caspian-sea.webp"
+      }
+    ]
+  },
+  "caulobacter-vibrioides": {
+    "fingerprint": "b8ca4b56e9f87101f2768b594e24e20cfe604ea42714a4d8ea18eef9f6569821",
+    "baseWidth": 128,
+    "source": "content/icons/src/caulobacter-vibrioides.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7398885091145834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/caulobacter-vibrioides.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/caulobacter-vibrioides.webp"
+      }
+    ]
+  },
+  "ceratium-hirundinella": {
+    "fingerprint": "73771dc12c4cbcea96408e647a20dee536697eece31d5918b7e625d36d5bdd03",
+    "baseWidth": 128,
+    "source": "content/icons/src/ceratium-hirundinella.png",
+    "reason": "matching master",
+    "sourceDifference": 0.79669189453125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ceratium-hirundinella.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ceratium-hirundinella.webp"
+      }
+    ]
+  },
+  "ceres": {
+    "fingerprint": "fccdddd6e769fbcefd78dd26ac647c50611fcaa82506bbab263a677dd3294aa0",
+    "baseWidth": 128,
+    "source": "content/icons/src/ceres.png",
+    "reason": "matching master",
+    "sourceDifference": 1.165771484375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ceres.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ceres.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ceres.webp"
+      }
+    ]
+  },
+  "charm": {
+    "fingerprint": "23177f1ddceda5cddcdb24ec2fa06f53778a9dcfb647856687b4cbb94b591c3e",
+    "baseWidth": 512,
+    "source": "content/icons/charm.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/charm.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/charm.webp"
+      }
+    ]
+  },
+  "chelyabinsk": {
+    "fingerprint": "4f5d2dbbc30b4f3e11bdde3353b48b442ec31862f2e9173baa4d6d51862302cc",
+    "baseWidth": 128,
+    "source": "content/icons/src/chelyabinsk.png",
+    "reason": "matching master",
+    "sourceDifference": 1.6378377278645833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/chelyabinsk.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/chelyabinsk.webp"
+      }
+    ]
+  },
+  "clostridium-botulinum": {
+    "fingerprint": "1f1bdc3510e2f383f91b9f46fe81a2b0041858c28510dc23a2960b2d29cc59e3",
+    "baseWidth": 128,
+    "source": "content/icons/src/clostridium-botulinum.png",
+    "reason": "matching master",
+    "sourceDifference": 0.9607137044270834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/clostridium-botulinum.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/clostridium-botulinum.webp"
+      }
+    ]
+  },
+  "clothes-moth": {
+    "fingerprint": "e7a3e4de60975864d87408f4ed7f4fe66a2fe4b3f8d205e828aad8705ebb5aa8",
+    "baseWidth": 128,
+    "source": "content/icons/src/clothes-moth.png",
+    "reason": "matching master",
+    "sourceDifference": 0.92852783203125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/clothes-moth.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/clothes-moth.webp"
+      }
+    ]
+  },
+  "concorde": {
+    "fingerprint": "76966afc69bd6b583f522a4512e219d832aec0a77c966db3574941bdcd357a3c",
+    "baseWidth": 128,
+    "source": "content/icons/src/concorde.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6051025390625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/concorde.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/concorde.webp"
+      }
+    ]
+  },
+  "covid": {
+    "fingerprint": "4b26653935544b4cb1b6566fa1396b8de79c6248e330c5c1ceaec0f00c157387",
+    "baseWidth": 128,
+    "source": "content/icons/covid.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 9.518656412760416,
+    "variants": []
+  },
+  "curiosity": {
+    "fingerprint": "3c3eb82eb2bceaafb91f818b08ec3402e937f4b07329412a3696f74f982a0116",
+    "baseWidth": 128,
+    "source": "content/icons/src/curiosity.png",
+    "reason": "matching master",
+    "sourceDifference": 1.2949625651041667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/curiosity.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/curiosity.webp"
+      }
+    ]
+  },
+  "cytosine-c": {
+    "fingerprint": "21fded1ab2e3bcd5a068e52a6ab803241af270c2c133ddc4d4e69877653f4526",
+    "baseWidth": 128,
+    "source": "content/icons/src/cytosine-c.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3851114908854167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/cytosine-c.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/cytosine-c.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/cytosine-c.webp"
+      }
+    ]
+  },
+  "dead-sea": {
+    "fingerprint": "a65ed2bc8d6fe7cfceae9b9633ef56a2cc2864dedf480ee094cc8182f7df1889",
+    "baseWidth": 128,
+    "source": "content/icons/src/dead-sea.png",
+    "reason": "matching master",
+    "sourceDifference": 2.5521647135416665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/dead-sea.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/dead-sea.webp"
+      }
+    ]
+  },
+  "deimos": {
+    "fingerprint": "7f09b5a2320754a8f2eff013f568bed4664a023fceb143be810aacab8537e77d",
+    "baseWidth": 128,
+    "source": "content/icons/src/deimos.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4424235026041667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/deimos.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/deimos.webp"
+      },
+      {
+        "width": 592,
+        "path": "592/deimos.webp"
+      }
+    ]
+  },
+  "dji-mini-2": {
+    "fingerprint": "6de076b061a356f523db430fb5fdb34e7966da4b9ccfd79b1eb760a121f10d03",
+    "baseWidth": 128,
+    "source": "content/icons/src/dji-mini-2.png",
+    "reason": "matching master",
+    "sourceDifference": 0.64276123046875,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/dji-mini-2.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/dji-mini-2.webp"
+      }
+    ]
+  },
+  "dna": {
+    "fingerprint": "549f7228d8cfe577c56893e7658b987cebec0b28072649ddb75d468e95fd9750",
+    "baseWidth": 128,
+    "source": "content/icons/dna.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 31.059000651041668,
+    "variants": []
+  },
+  "down": {
+    "fingerprint": "d2508f946461f4da1c77f832eac0bdf5a7c73ed7b4c9daa1015b7a08e0ab50aa",
+    "baseWidth": 512,
+    "source": "content/icons/down.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/down.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/down.webp"
+      }
+    ]
+  },
+  "dwarf-galaxy": {
+    "fingerprint": "e985cc0176fe89e200e94f4c1146229f1038a93cb064e8f36de1e934c667360d",
+    "baseWidth": 128,
+    "source": "content/icons/dwarf-galaxy.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 10.887552897135416,
+    "variants": []
+  },
+  "earth": {
+    "fingerprint": "9ea5eb1ae319e43ff68b1aa1a4d0772db3d3a9477feea5da1b66bf17468b0bf7",
+    "baseWidth": 128,
+    "source": "content/icons/src/earth.png",
+    "reason": "matching master",
+    "sourceDifference": 2.2306111653645835,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/earth.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/earth.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/earth.webp"
+      }
+    ]
+  },
+  "eiffel-tower": {
+    "fingerprint": "58de21c8b7774536b87126d0d561ee7ddafee433e0b7dcfd3a9986fbb4cd6cbc",
+    "baseWidth": 128,
+    "source": "content/icons/src/eiffel-tower.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4197184244791667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/eiffel-tower.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/eiffel-tower.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/eiffel-tower.webp"
+      }
+    ]
+  },
+  "electron": {
+    "fingerprint": "63b8b7bc6c165110256804bf6b926ab19f00378e437c85e9641705ff7df17119",
+    "baseWidth": 512,
+    "source": "content/icons/electron.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/electron.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/electron.webp"
+      }
+    ]
+  },
+  "elephant": {
+    "fingerprint": "c0ac98893eccd1dba2d6356aaaf7d1aea63843e3c545b7d32fd4c1a4b6d60052",
+    "baseWidth": 128,
+    "source": "content/icons/src/elephant.png",
+    "reason": "matching master",
+    "sourceDifference": 1.2461954752604167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/elephant.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/elephant.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/elephant.webp"
+      }
+    ]
+  },
+  "enceladus": {
+    "fingerprint": "0e5b946ae94d6bf03019aae0b57c9efdae7d9c8821cc2d27140ddebb228fa6ad",
+    "baseWidth": 128,
+    "source": "content/icons/src/enceladus.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7259318033854167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/enceladus.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/enceladus.webp"
+      }
+    ]
+  },
+  "eois-stantonae": {
+    "fingerprint": "e9e869114599eaff1b84ac099e32854117f475f46f0fc15535178cfd252a9471",
+    "baseWidth": 128,
+    "source": "content/icons/src/eois-stantonae.png",
+    "reason": "matching master",
+    "sourceDifference": 2.0641886393229165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/eois-stantonae.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/eois-stantonae.webp"
+      },
+      {
+        "width": 565,
+        "path": "565/eois-stantonae.webp"
+      }
+    ]
+  },
+  "eros": {
+    "fingerprint": "dc0b8a7dbebd3b60e636fdf74b820df84cbe2d928656b75ba58fbb49cf6b3272",
+    "baseWidth": 128,
+    "source": "content/icons/src/eros.png",
+    "reason": "matching master",
+    "sourceDifference": 0.9097493489583334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/eros.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/eros.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/eros.webp"
+      }
+    ]
+  },
+  "escherichia-coli": {
+    "fingerprint": "494cc4b979e2de32fc1710c9581b496c1bb52d725e60cfafdb923916a15220c2",
+    "baseWidth": 128,
+    "source": "content/icons/src/escherichia-coli.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3471476236979167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/escherichia-coli.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/escherichia-coli.webp"
+      }
+    ]
+  },
+  "euglena-viridis": {
+    "fingerprint": "6ec3ee8da8fb0fef6640c04b5989ecdc4d26fa48e17b87f3c314ae16b3b0383b",
+    "baseWidth": 128,
+    "source": "content/icons/src/euglena-viridis.png",
+    "reason": "matching master",
+    "sourceDifference": 1.2866414388020833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/euglena-viridis.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/euglena-viridis.webp"
+      }
+    ]
+  },
+  "europa": {
+    "fingerprint": "ec9ff79d7a2094036a71559047136f7c6b8a182eb7ee022e6608ad17a5d3f4c9",
+    "baseWidth": 128,
+    "source": "content/icons/src/europa.png",
+    "reason": "matching master",
+    "sourceDifference": 1.9246012369791667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/europa.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/europa.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/europa.webp"
+      }
+    ]
+  },
+  "ever-given": {
+    "fingerprint": "6d4ab5b0d13e7c086c1818bb67a7cc0a176c1b154791e791f5cbedd46024bff0",
+    "baseWidth": 128,
+    "source": "content/icons/src/ever-given.png",
+    "reason": "matching master",
+    "sourceDifference": 3.0074055989583335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ever-given.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ever-given.webp"
+      }
+    ]
+  },
+  "flyer-i": {
+    "fingerprint": "44d9c8390b9de64718a1bda0a0c66d64c44a2dd63b2df164ad220b837b16bafb",
+    "baseWidth": 128,
+    "source": "content/icons/src/flyer-i.png",
+    "reason": "matching master",
+    "sourceDifference": 1.57177734375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/flyer-i.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/flyer-i.webp"
+      }
+    ]
+  },
+  "fm-radio": {
+    "fingerprint": "0160e0f2b27c3a09451eb81481deb05d3f7c6fa2c9c2a2203dd7ef7bd93772b6",
+    "baseWidth": 512,
+    "source": "content/icons/fm-radio.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/fm-radio.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/fm-radio.webp"
+      }
+    ]
+  },
+  "fullerene-c60": {
+    "fingerprint": "a6a2bc3b78329e257d7706e06b2e7d9d47dd0a36ce2ec5d56bf915f49e8e54c9",
+    "baseWidth": 128,
+    "source": "content/icons/src/fullerene-c60.png",
+    "reason": "matching master",
+    "sourceDifference": 2.9327799479166665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/fullerene-c60.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/fullerene-c60.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/fullerene-c60.webp"
+      }
+    ]
+  },
+  "galaxy-cluster": {
+    "fingerprint": "dd0922f372d1a014adac1c3ddcea72a049d3c890c0f8db916c59e6a5ce120cf6",
+    "baseWidth": 128,
+    "source": "content/icons/src/galaxy-cluster.png",
+    "reason": "matching master",
+    "sourceDifference": 1.1563517252604167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/galaxy-cluster.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/galaxy-cluster.webp"
+      }
+    ]
+  },
+  "gamma-ray": {
+    "fingerprint": "4ceaf3b4113745af5cf3408aec0ca44fe5fabf846d31c1fa813f53c266300864",
+    "baseWidth": 512,
+    "source": "content/icons/gamma-ray.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/gamma-ray.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/gamma-ray.webp"
+      }
+    ]
+  },
+  "ganymede": {
+    "fingerprint": "03b37563523c5a2b2675bea793b5f1c39756f56d65aa52ec5aa5188b9397cf83",
+    "baseWidth": 128,
+    "source": "content/icons/src/ganymede.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3598429361979167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ganymede.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ganymede.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ganymede.webp"
+      }
+    ]
+  },
+  "globular-cluster": {
+    "fingerprint": "7a0cb0cf2d061885c803a124914ccbd0da0912401016ccd08aa3bd777697e9f5",
+    "baseWidth": 128,
+    "source": "content/icons/globular-cluster.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 7.047119140625,
+    "variants": []
+  },
+  "glucose": {
+    "fingerprint": "87d767840727187166944c577ea31d2c783c3426e7de0a4d117e1399b4e8c617",
+    "baseWidth": 128,
+    "source": "content/icons/glucose.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 8.286295572916666,
+    "variants": []
+  },
+  "gluon": {
+    "fingerprint": "963b0984bd012be054e2df018f1cf257588fe6555aa81680d3c50447f15728b2",
+    "baseWidth": 512,
+    "source": "content/icons/gluon.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/gluon.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/gluon.webp"
+      }
+    ]
+  },
+  "gold": {
+    "fingerprint": "5e62587cd3b278848f4b0cd2f429de3878bb80abfc919f258bf74a0626f5e61f",
+    "baseWidth": 128,
+    "source": "content/icons/src/gold.png",
+    "reason": "matching master",
+    "sourceDifference": 2.5553792317708335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/gold.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/gold.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/gold.webp"
+      }
+    ]
+  },
+  "grain-of-salt": {
+    "fingerprint": "570cb050d7fbf32904142746fb8fa693562808b6660c9e3b476a80bd308268a6",
+    "baseWidth": 128,
+    "source": "content/icons/src/grain of salt.png",
+    "reason": "matching master",
+    "sourceDifference": 2.99859619140625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/grain-of-salt.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/grain-of-salt.webp"
+      },
+      {
+        "width": 883,
+        "path": "883/grain-of-salt.webp"
+      }
+    ]
+  },
+  "graviton": {
+    "fingerprint": "fac591676772ae5de051d4dbec9b356737651b4a3b8ca0b3de1b01bafdc5e09c",
+    "baseWidth": 512,
+    "source": "content/icons/graviton.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/graviton.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/graviton.webp"
+      }
+    ]
+  },
+  "great-sphinx": {
+    "fingerprint": "15646b04f36a970561f24f5f2f82972cb9b072141a4e51c32ed859a93bbd2abf",
+    "baseWidth": 128,
+    "source": "content/icons/src/great-sphinx.png",
+    "reason": "matching master",
+    "sourceDifference": 1.07952880859375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/great-sphinx.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/great-sphinx.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/great-sphinx.webp"
+      }
+    ]
+  },
+  "greenland-ice-sheet": {
+    "fingerprint": "42d7941d439a935948a498ee41c36347513d7b60eb40bf4fbe265913324c2ca5",
+    "baseWidth": 128,
+    "source": "content/icons/src/greenland-ice-sheet.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7951863606770833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/greenland-ice-sheet.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/greenland-ice-sheet.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/greenland-ice-sheet.webp"
+      }
+    ]
+  },
+  "grinnell-glacier": {
+    "fingerprint": "4d05743a09eae3b085f5564356591e6fb2400742bcb0c4ab270358f2b49d8a65",
+    "baseWidth": 128,
+    "source": "content/icons/src/grinnell-glacier.png",
+    "reason": "matching master",
+    "sourceDifference": 1.9944051106770833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/grinnell-glacier.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/grinnell-glacier.webp"
+      }
+    ]
+  },
+  "guanine-g": {
+    "fingerprint": "0a82357c312cac9e17ab96c345742a5216f5bd746656197e6fb072456bf7410e",
+    "baseWidth": 128,
+    "source": "content/icons/src/guanine-g.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7780965169270833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/guanine-g.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/guanine-g.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/guanine-g.webp"
+      }
+    ]
+  },
+  "halleys-comet": {
+    "fingerprint": "6b3bbb09f0f4d408bd5a0b82c2f2c315264139618a2eda7c61c9accdbc2478f6",
+    "baseWidth": 128,
+    "source": "content/icons/src/halleys-comet.jpg",
+    "reason": "matching master",
+    "sourceDifference": 1.7905476888020833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/halleys-comet.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/halleys-comet.webp"
+      },
+      {
+        "width": 908,
+        "path": "908/halleys-comet.webp"
+      }
+    ]
+  },
+  "hallstatter-see": {
+    "fingerprint": "062db857683c48076b9e70ea721441b3cdceec6b29c6a167d4f24edcdc232fef",
+    "baseWidth": 128,
+    "source": "content/icons/src/hallstatter-see.png",
+    "reason": "matching master",
+    "sourceDifference": 2.9207560221354165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hallstatter-see.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hallstatter-see.webp"
+      }
+    ]
+  },
+  "hedgehog": {
+    "fingerprint": "b925993a0281e32ec24a0184c99883136b1aba0b94dd6132600693fd48da1683",
+    "baseWidth": 128,
+    "source": "content/icons/src/hedgehog.png",
+    "reason": "matching master",
+    "sourceDifference": 2.2331949869791665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hedgehog.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hedgehog.webp"
+      }
+    ]
+  },
+  "helium": {
+    "fingerprint": "f90445e807012b31a678d75af1670a613a6abd7163f1d834a27312ac89faeead",
+    "baseWidth": 128,
+    "source": "content/icons/src/helium.png",
+    "reason": "matching master",
+    "sourceDifference": 1.5584309895833333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/helium.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/helium.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/helium.webp"
+      }
+    ]
+  },
+  "hemoglobin": {
+    "fingerprint": "77779016c0298326617804259457c693149ccfbde5b7805e1170dc8cfe675b98",
+    "baseWidth": 128,
+    "source": "content/icons/src/hemoglobin.png",
+    "reason": "matching master",
+    "sourceDifference": 3.8531494140625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hemoglobin.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hemoglobin.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/hemoglobin.webp"
+      }
+    ]
+  },
+  "higgs": {
+    "fingerprint": "e10aa9fbbd0edd8e55fc55f507055b865262b1554369fd22c25421bd3b14d2b5",
+    "baseWidth": 512,
+    "source": "content/icons/higgs.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/higgs.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/higgs.webp"
+      }
+    ]
+  },
+  "hippo": {
+    "fingerprint": "dded0a89f8e9d667179d7c387e351b7f95a13245b2b9c9fa6ef40978da36d418",
+    "baseWidth": 128,
+    "source": "content/icons/src/hippo.png",
+    "reason": "matching master",
+    "sourceDifference": 0.98541259765625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hippo.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hippo.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/hippo.webp"
+      }
+    ]
+  },
+  "hms-victory": {
+    "fingerprint": "eefd92f135469aede33da5d1c2dd3c00508679c6885a6587c0bb252806fdcef4",
+    "baseWidth": 128,
+    "source": "content/icons/src/hms-victory.png",
+    "reason": "matching master",
+    "sourceDifference": 2.9686482747395835,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hms-victory.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hms-victory.webp"
+      }
+    ]
+  },
+  "hoba": {
+    "fingerprint": "c06c93e447747a5d07691def55d4174ece8958fe35de60162cbee975602a5bcc",
+    "baseWidth": 128,
+    "source": "content/icons/src/hoba.png",
+    "reason": "matching master",
+    "sourceDifference": 1.49212646484375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hoba.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hoba.webp"
+      }
+    ]
+  },
+  "honey-bee": {
+    "fingerprint": "da82db8c2146b37179c751dc12055241074a501a3e0f14e06adc0aa7d63a1a9f",
+    "baseWidth": 128,
+    "source": "content/icons/src/honey-bee.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7245890299479167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/honey-bee.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/honey-bee.webp"
+      }
+    ]
+  },
+  "horse-chestnut-leaf-miner": {
+    "fingerprint": "95b3406c0036110242b2cf3ee13cd88f4c4674cf3b1a428db7bbf0a259a3d3a1",
+    "baseWidth": 128,
+    "source": "content/icons/src/horse-chestnut-leaf-miner.png",
+    "reason": "matching master",
+    "sourceDifference": 0.89788818359375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/horse-chestnut-leaf-miner.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/horse-chestnut-leaf-miner.webp"
+      }
+    ]
+  },
+  "hubble-space-telescope": {
+    "fingerprint": "b0d4773e939f40b509eaaa758c6f0403788ef2aba5ea72f940ebc89a877d1418",
+    "baseWidth": 128,
+    "source": "content/icons/src/hubble-space-telescope.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7510782877604167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hubble-space-telescope.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hubble-space-telescope.webp"
+      }
+    ]
+  },
+  "human": {
+    "fingerprint": "f12e3f97f79cad3b6c29ccd0459213ced4b18d6293bf2930b12255c7bef683da",
+    "baseWidth": 128,
+    "source": "content/icons/src/human.png",
+    "reason": "matching master",
+    "sourceDifference": 1.59503173828125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/human.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/human.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/human.webp"
+      }
+    ]
+  },
+  "hydrogen": {
+    "fingerprint": "1d7635a826414cfe9366c59b5c80f2f6ffb8b4d76f4b043a3502daccc6a3cffb",
+    "baseWidth": 128,
+    "source": "content/icons/src/hydrogen.png",
+    "reason": "matching master",
+    "sourceDifference": 1.6426188151041667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hydrogen.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hydrogen.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/hydrogen.webp"
+      }
+    ]
+  },
+  "hyperion": {
+    "fingerprint": "abeef62134b67f3939c0da8ea4890183f9a2824e6f5668a03df19417f5fdae0b",
+    "baseWidth": 128,
+    "source": "content/icons/hyperion.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 7.6412353515625,
+    "variants": []
+  },
+  "infrared": {
+    "fingerprint": "bc82fab69de176e1bbe90c83783061de7636e2af0f458e6b3be2e315a75a23b7",
+    "baseWidth": 512,
+    "source": "content/icons/infrared.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/infrared.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/infrared.webp"
+      }
+    ]
+  },
+  "ingenuity": {
+    "fingerprint": "c9bfd836a0d030b3da76ee8ade955ebd7b46f996eaea57e0fb9a848688c262f3",
+    "baseWidth": 128,
+    "source": "content/icons/src/ingenuity.png",
+    "reason": "matching master",
+    "sourceDifference": 0.819580078125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ingenuity.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ingenuity.webp"
+      }
+    ]
+  },
+  "insulin": {
+    "fingerprint": "b74c47b77cb69375595476eb0dc1f42f1980c642f6e8ed01fbafd86d4f4017d4",
+    "baseWidth": 128,
+    "source": "content/icons/src/insulin.png",
+    "reason": "matching master",
+    "sourceDifference": 3.0108439127604165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/insulin.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/insulin.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/insulin.webp"
+      }
+    ]
+  },
+  "io": {
+    "fingerprint": "0e9824abe8b7296e2937d241c3f24f7a774c75a1ea5a3d1160e0a2fbf2ef0185",
+    "baseWidth": 128,
+    "source": "content/icons/src/io.png",
+    "reason": "matching master",
+    "sourceDifference": 2.2335205078125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/io.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/io.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/io.webp"
+      }
+    ]
+  },
+  "iron": {
+    "fingerprint": "9077a95991d27f4016f5b84880224bbf1d4afa655e17e4835a54eb460bbe36e4",
+    "baseWidth": 128,
+    "source": "content/icons/src/iron.png",
+    "reason": "matching master",
+    "sourceDifference": 2.5906575520833335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/iron.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/iron.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/iron.webp"
+      }
+    ]
+  },
+  "itokawa": {
+    "fingerprint": "6ee2d4dd15fa1611e4277e984affd101f2283797db85f1f1aaecb6d441409e5f",
+    "baseWidth": 128,
+    "source": "content/icons/itokawa.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 7.072835286458333,
+    "variants": []
+  },
+  "jupiter": {
+    "fingerprint": "90f267c590bd1b7f3e9bcd1b99ec2e7d0e30196893f002f2d098dcc885293b23",
+    "baseWidth": 128,
+    "source": "content/icons/src/jupiter.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7543538411458333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/jupiter.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/jupiter.webp"
+      },
+      {
+        "width": 940,
+        "path": "940/jupiter.webp"
+      }
+    ]
+  },
+  "kepler-22b": {
+    "fingerprint": "bef32967171b4ef867ad2e891d519bd6791ad2612769f2b14365a7c5630b29a1",
+    "baseWidth": 128,
+    "source": "content/icons/src/kepler-22b.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7837727864583333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/kepler-22b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/kepler-22b.webp"
+      },
+      {
+        "width": 910,
+        "path": "910/kepler-22b.webp"
+      }
+    ]
+  },
+  "konigssee": {
+    "fingerprint": "b8ce9ad9f98332721469adab1a9a2c9cfe38b7cef8b139d1fe84515a7b1ff960",
+    "baseWidth": 128,
+    "source": "content/icons/src/konigssee.png",
+    "reason": "matching master",
+    "sourceDifference": 2.4667765299479165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/konigssee.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/konigssee.webp"
+      }
+    ]
+  },
+  "kursk": {
+    "fingerprint": "73c1fbc151593e787d3f0d6dcdfbf9a60c1960b819620c451a63df4e627dff58",
+    "baseWidth": 128,
+    "source": "content/icons/src/kursk.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6236775716145834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/kursk.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/kursk.webp"
+      }
+    ]
+  },
+  "l-brown-dwarf": {
+    "fingerprint": "24ec1fd1398c66edced4fd0d2cd91caaa3292aececa8e2bd544b46f0947029c5",
+    "baseWidth": 128,
+    "source": "content/icons/src/l-brown-dwarf.png",
+    "reason": "matching master",
+    "sourceDifference": 2.3465372721354165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/l-brown-dwarf.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/l-brown-dwarf.webp"
+      }
+    ]
+  },
+  "ladybug": {
+    "fingerprint": "1e4cb84a83cb962d768d7202c726950a7ef1b03781bd55735aa5224da3eb676e",
+    "baseWidth": 128,
+    "source": "content/icons/src/ladybug.png",
+    "reason": "matching master",
+    "sourceDifference": 2.6851806640625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ladybug.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ladybug.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ladybug.webp"
+      }
+    ]
+  },
+  "lake-baikal": {
+    "fingerprint": "9dba0da0616cf25534d5d213f6c1ad0681493ba75c22ea98e95a138f493afb04",
+    "baseWidth": 128,
+    "source": "content/icons/src/lake-baikal.png",
+    "reason": "matching master",
+    "sourceDifference": 2.00982666015625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lake-baikal.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lake-baikal.webp"
+      }
+    ]
+  },
+  "lake-nyos": {
+    "fingerprint": "39081e0779c3e4c0677ac651ae46f5414ed85140bec9137968144051584db49f",
+    "baseWidth": 128,
+    "source": "content/icons/src/lake-nyos.png",
+    "reason": "matching master",
+    "sourceDifference": 2.3229777018229165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lake-nyos.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lake-nyos.webp"
+      }
+    ]
+  },
+  "lake-superior": {
+    "fingerprint": "8dfd372df145d68be22ee180da2f904f062904bcab3b5597fcd710a99866e272",
+    "baseWidth": 128,
+    "source": "content/icons/src/lake-superior.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4592692057291667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lake-superior.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lake-superior.webp"
+      }
+    ]
+  },
+  "lake-tahoe": {
+    "fingerprint": "3155261e570f059eb6605fc1df4b16500a9ec4302c416842a95bd2ec87554da6",
+    "baseWidth": 128,
+    "source": "content/icons/src/lake-tahoe.png",
+    "reason": "matching master",
+    "sourceDifference": 2.4350179036458335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lake-tahoe.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lake-tahoe.webp"
+      }
+    ]
+  },
+  "lake-victoria": {
+    "fingerprint": "71573ed687485e45a3c2dc87f7e793f586c38ff345f4c294f01b291e19a2f9f0",
+    "baseWidth": 128,
+    "source": "content/icons/src/lake-victoria.png",
+    "reason": "matching master",
+    "sourceDifference": 3.1712646484375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lake-victoria.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lake-victoria.webp"
+      }
+    ]
+  },
+  "laniakea-galaxy-supercluster": {
+    "fingerprint": "a08cbe989fec37131a1b5459d6a638220e3203cf36928fe067c613b81dd0a6dd",
+    "baseWidth": 128,
+    "source": "content/icons/src/laniakea-galaxy-supercluster.png",
+    "reason": "matching master",
+    "sourceDifference": 1.69744873046875,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/laniakea-galaxy-supercluster.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/laniakea-galaxy-supercluster.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/laniakea-galaxy-supercluster.webp"
+      }
+    ]
+  },
+  "lion": {
+    "fingerprint": "ee64a809975d5235a93705c894c1aa6f38f08a2d8c635cb5a2e845a48f91f9a4",
+    "baseWidth": 128,
+    "source": "content/icons/src/lion.png",
+    "reason": "matching master",
+    "sourceDifference": 1.9873453776041667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lion.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lion.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lion.webp"
+      }
+    ]
+  },
+  "loch-ness": {
+    "fingerprint": "7fb305a1751ea24540f7a7cb317b3cb8b4a44dd0e611815d1d5188291621123a",
+    "baseWidth": 128,
+    "source": "content/icons/src/loch-ness.png",
+    "reason": "matching master",
+    "sourceDifference": 1.09320068359375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/loch-ness.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/loch-ness.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/loch-ness.webp"
+      }
+    ]
+  },
+  "lockheed-sr-71-blackbird": {
+    "fingerprint": "93fda19bfc08f083fb0f07eb88453d28651a0497b942a8cebc1d85ce18ac4825",
+    "baseWidth": 128,
+    "source": "content/icons/src/lockheed-sr-71-blackbird.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7482706705729166,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lockheed-sr-71-blackbird.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lockheed-sr-71-blackbird.webp"
+      }
+    ]
+  },
+  "m87": {
+    "fingerprint": "e17d60712b7ea0631e9dbd815919f0f41e5a0a2f529afae972baaa8a46f7a46c",
+    "baseWidth": 128,
+    "source": "content/icons/src/m87.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6960245768229166,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/m87.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/m87.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/m87.webp"
+      }
+    ]
+  },
+  "manneken-pis": {
+    "fingerprint": "2a25b7e5932a25c42fe225dfb945d42d6ed8ea23115b47a01c7dd4e26c920146",
+    "baseWidth": 128,
+    "source": "content/icons/src/manneken-pis.png",
+    "reason": "matching master",
+    "sourceDifference": 1.1045939127604167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/manneken-pis.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/manneken-pis.webp"
+      }
+    ]
+  },
+  "mars": {
+    "fingerprint": "ca3903d43d59fed5e9a1c5f30309fa66592d35bf5909a32d17e7ae9fb6c51ff8",
+    "baseWidth": 128,
+    "source": "content/icons/src/mars.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4817911783854167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/mars.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/mars.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/mars.webp"
+      }
+    ]
+  },
+  "mars3": {
+    "fingerprint": "9f01d9aa35adbf368804a6754f27e26ee57923ee242675283b03843728db5e7b",
+    "baseWidth": 128,
+    "source": "content/icons/mars3.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": []
+  },
+  "meerkat": {
+    "fingerprint": "97009c788ddfa26a779f26199dca6a14bf2b70de1d91177aee1db0c3e2bcd790",
+    "baseWidth": 128,
+    "source": "content/icons/src/meerkat.png",
+    "reason": "matching master",
+    "sourceDifference": 1.1434529622395833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/meerkat.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/meerkat.webp"
+      }
+    ]
+  },
+  "mercury": {
+    "fingerprint": "8fdfeead23be3af64df4bd15f50d8587ea6c110618569f48a55f6fb78cbc735c",
+    "baseWidth": 128,
+    "source": "content/icons/src/mercury.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3004353841145833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/mercury.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/mercury.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/mercury.webp"
+      }
+    ]
+  },
+  "meson": {
+    "fingerprint": "338078bb90e07ad8641d8ec080b344bd0d386c10443d9c25a68acbf14c5b9250",
+    "baseWidth": 512,
+    "source": "content/icons/meson.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/meson.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/meson.webp"
+      }
+    ]
+  },
+  "microchip": {
+    "fingerprint": "613a9bb0f0f3353c3d488b8af85a86872b867a04f4c1185034d3355994a4147f",
+    "baseWidth": 128,
+    "source": "content/icons/src/microchip.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4781697591145833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/microchip.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/microchip.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/microchip.webp"
+      }
+    ]
+  },
+  "microwave": {
+    "fingerprint": "10efc87f7c759d1be82a00fac5ea72425983d0f37163affe12822199880bd1c7",
+    "baseWidth": 512,
+    "source": "content/icons/microwave.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/microwave.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/microwave.webp"
+      }
+    ]
+  },
+  "milky-way": {
+    "fingerprint": "af3bbacb88fbf1655f21c54265861e2730e6c28022ff5c95028ff518e9cc7de6",
+    "baseWidth": 128,
+    "source": "content/icons/src/milky-way.png",
+    "reason": "matching master",
+    "sourceDifference": 2.5562540690104165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/milky-way.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/milky-way.webp"
+      }
+    ]
+  },
+  "mimas": {
+    "fingerprint": "99cc56bdad9a9e9051530cc0b942267bf70fec3ec978b320cabe571064ca7d28",
+    "baseWidth": 128,
+    "source": "content/icons/src/mimas.png",
+    "reason": "matching master",
+    "sourceDifference": 1.437255859375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/mimas.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/mimas.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/mimas.webp"
+      }
+    ]
+  },
+  "moon": {
+    "fingerprint": "268e5d339ff43962fadce822d5abff1165d23309d96b93a7e57e5f7385a35387",
+    "baseWidth": 128,
+    "source": "content/icons/src/moon.png",
+    "reason": "matching master",
+    "sourceDifference": 1.5023396809895833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/moon.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/moon.webp"
+      }
+    ]
+  },
+  "mouse": {
+    "fingerprint": "3146dda04d6c6ea301608bcbeb93e901f334a4b21797e96c11464c3d364ac14b",
+    "baseWidth": 128,
+    "source": "content/icons/src/mouse.png",
+    "reason": "matching master",
+    "sourceDifference": 4.333597819010417,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/mouse.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/mouse.webp"
+      },
+      {
+        "width": 762,
+        "path": "762/mouse.webp"
+      }
+    ]
+  },
+  "mt-everest": {
+    "fingerprint": "1694e32333f230d9b0416a0eac418469d0d6ea2371cf9c73fa004fe92e6ac4fc",
+    "baseWidth": 128,
+    "source": "content/icons/src/mt-everest.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4988199869791667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/mt-everest.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/mt-everest.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/mt-everest.webp"
+      }
+    ]
+  },
+  "muon": {
+    "fingerprint": "8817cbd48d7ef9ea0fa07137883222d8f2af5cca9db320f75f40fc1c253fb82f",
+    "baseWidth": 512,
+    "source": "content/icons/muon.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/muon.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/muon.webp"
+      }
+    ]
+  },
+  "mycoplasma-pneumoniae": {
+    "fingerprint": "c2b68b4dacb35b5f91b9d5648681e71656f02f03b0c8ab73b5c2dd2f80143542",
+    "baseWidth": 128,
+    "source": "content/icons/src/mycoplasma-pneumoniae.png",
+    "reason": "matching master",
+    "sourceDifference": 1.2465413411458333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/mycoplasma-pneumoniae.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/mycoplasma-pneumoniae.webp"
+      }
+    ]
+  },
+  "n1": {
+    "fingerprint": "7f2cbf26abaa4b12b659a8f0f21cd6898bcd69d65bbf9693926c230a51b090ad",
+    "baseWidth": 128,
+    "source": "content/icons/src/n1.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3490804036458333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/n1.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/n1.webp"
+      }
+    ]
+  },
+  "naked-mole-rat": {
+    "fingerprint": "628fd438af10e7608e84744f3b743dd824b7c3c984a3f936130740932f56f1f8",
+    "baseWidth": 128,
+    "source": "content/icons/src/naked-mole-rat.png",
+    "reason": "matching master",
+    "sourceDifference": 0.9782918294270834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/naked-mole-rat.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/naked-mole-rat.webp"
+      }
+    ]
+  },
+  "nebulae": {
+    "fingerprint": "df9d41ef58cdd52b52126d258716a5bd13393cd881bc3c1381f6fff0e0b9ecfc",
+    "baseWidth": 128,
+    "source": "content/icons/src/nebulae.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7130126953125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/nebulae.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/nebulae.webp"
+      }
+    ]
+  },
+  "neptune": {
+    "fingerprint": "69e3eee9c90e8bf10d85c608db095f0d9cc416310202032f03a41338634765d8",
+    "baseWidth": 128,
+    "source": "content/icons/src/neptune.png",
+    "reason": "matching master",
+    "sourceDifference": 0.9437052408854166,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/neptune.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/neptune.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/neptune.webp"
+      }
+    ]
+  },
+  "neutrino-e": {
+    "fingerprint": "1049cfd3284f533fa28608570608946063dfa33cea7e14bcf4f948cdc8c08a34",
+    "baseWidth": 512,
+    "source": "content/icons/neutrino-e.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/neutrino-e.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/neutrino-e.webp"
+      }
+    ]
+  },
+  "neutrino-mu": {
+    "fingerprint": "3662ae2ed3a68f2e1c5c1ab2c62d5a0d7e8c35f1dddff87cc3a4578a5662f2c0",
+    "baseWidth": 512,
+    "source": "content/icons/neutrino-mu.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/neutrino-mu.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/neutrino-mu.webp"
+      }
+    ]
+  },
+  "neutrino-tau": {
+    "fingerprint": "e554103b6f0b885122a255c2908201e027ed0fe8d97c51a8256fe70217e8dd49",
+    "baseWidth": 512,
+    "source": "content/icons/neutrino-tau.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/neutrino-tau.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/neutrino-tau.webp"
+      }
+    ]
+  },
+  "neutron-star": {
+    "fingerprint": "dfbd8f6da4825f3618349e74b9c8591035eccfd16c6b813fc3660db616ff6724",
+    "baseWidth": 128,
+    "source": "content/icons/src/neutron-star.png",
+    "reason": "matching master",
+    "sourceDifference": 1.2499796549479167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/neutron-star.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/neutron-star.webp"
+      }
+    ]
+  },
+  "neutron": {
+    "fingerprint": "dc61f1dcacbaa3704a3ba7809d098bd0a55dc65dad6e5527fdab9095fa9c795b",
+    "baseWidth": 512,
+    "source": "content/icons/neutron.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/neutron.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/neutron.webp"
+      }
+    ]
+  },
+  "ngc7538s-bubble-nebula": {
+    "fingerprint": "d2b11f6573817390a59d6ad24fa3f231c508c57e4444af4d53eb0c4626908743",
+    "baseWidth": 128,
+    "source": "content/icons/ngc7538s-bubble-nebula.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 29.786844889322918,
+    "variants": []
+  },
+  "ngc7635bubble-nebula": {
+    "fingerprint": "2b886f033c8fd4db434f36efd246c4ffb683bb09f8a1b7b2db2605db088d8ec8",
+    "baseWidth": 128,
+    "source": "content/icons/src/NGC_7635_Bubble Nebula.png",
+    "reason": "matching master",
+    "sourceDifference": 5.796956380208333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ngc7635bubble-nebula.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ngc7635bubble-nebula.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ngc7635bubble-nebula.webp"
+      }
+    ]
+  },
+  "noctiluca-scintillans": {
+    "fingerprint": "8877d87bea0054e198d0d1d0eba83662315cce42ad2445ea8b994a7aab23a5a1",
+    "baseWidth": 128,
+    "source": "content/icons/src/noctiluca-scintillans.png",
+    "reason": "matching master",
+    "sourceDifference": 2.6641031901041665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/noctiluca-scintillans.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/noctiluca-scintillans.webp"
+      }
+    ]
+  },
+  "nucleus": {
+    "fingerprint": "799ed6bf654d3686fd69ac574fa4610fa22737a16a4f621673de4820284d19a4",
+    "baseWidth": 512,
+    "source": "content/icons/nucleus.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/nucleus.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/nucleus.webp"
+      }
+    ]
+  },
+  "observable-universe": {
+    "fingerprint": "b3135a1857d65c70e2f191a4ac6fa092882c2811dd2c67046e452bc4714b35ed",
+    "baseWidth": 128,
+    "source": "content/icons/observable-universe.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 6.17559814453125,
+    "variants": []
+  },
+  "opportunity": {
+    "fingerprint": "0a45d4dd33a74fc8e7c5e4798db96921ad27d2e03e00aa1b014cb8c7c9f3206e",
+    "baseWidth": 128,
+    "source": "content/icons/src/opportunity.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7228597005208333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/opportunity.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/opportunity.webp"
+      }
+    ]
+  },
+  "oxygen": {
+    "fingerprint": "4603ef61ec5919d6f891b01dcf86d45c60246425baf98928ccb1ab8b117140a8",
+    "baseWidth": 128,
+    "source": "content/icons/src/oxygen.png",
+    "reason": "matching master",
+    "sourceDifference": 2.0810343424479165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/oxygen.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/oxygen.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/oxygen.webp"
+      }
+    ]
+  },
+  "painted-lady": {
+    "fingerprint": "690e88a32e6a949f275b10253eae375a236f8a5d1264f1206adc1478b7fa1e23",
+    "baseWidth": 128,
+    "source": "content/icons/src/painted-lady.png",
+    "reason": "matching master",
+    "sourceDifference": 3.2788492838541665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/painted-lady.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/painted-lady.webp"
+      }
+    ]
+  },
+  "penny": {
+    "fingerprint": "12e9d63f6237fefdbbf44a049b81d093942203799b7d16c6953c821f3069ba47",
+    "baseWidth": 128,
+    "source": "content/icons/src/penny.png",
+    "reason": "matching master",
+    "sourceDifference": 1.953369140625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/penny.webp"
+      },
+      {
+        "width": 300,
+        "path": "300/penny.webp"
+      }
+    ]
+  },
+  "phobos": {
+    "fingerprint": "7ae41ab5f4c2e5248b897a7ff6d479a4239185221c243f01f5d88696ef4756ad",
+    "baseWidth": 128,
+    "source": "content/icons/src/phobos.png",
+    "reason": "matching master",
+    "sourceDifference": 2.6077880859375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/phobos.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/phobos.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/phobos.webp"
+      }
+    ]
+  },
+  "planetary-nebula": {
+    "fingerprint": "752d4fdf01e9c2d46ba6e29cd586ed4e1b77f75f85f0d916f257ea5c889f5afa",
+    "baseWidth": 128,
+    "source": "content/icons/src/planetary-nebula.JPG",
+    "reason": "matching master",
+    "sourceDifference": 3.4062703450520835,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/planetary-nebula.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/planetary-nebula.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/planetary-nebula.webp"
+      }
+    ]
+  },
+  "pluto": {
+    "fingerprint": "de359d00223d9f09fa6e629b2909dc5e1c3026736bad634c5079f79d884a7679",
+    "baseWidth": 128,
+    "source": "content/icons/src/pluto.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3910929361979167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/pluto.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/pluto.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/pluto.webp"
+      }
+    ]
+  },
+  "pollen-grain": {
+    "fingerprint": "27b1b6ce9feb73671eb507c16e719dff4b67282dcb3088c667ae26100da29279",
+    "baseWidth": 128,
+    "source": "content/icons/src/pollen-grain.png",
+    "reason": "matching master",
+    "sourceDifference": 3.98651123046875,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/pollen-grain.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/pollen-grain.webp"
+      }
+    ]
+  },
+  "prochlorococcus-marinus": {
+    "fingerprint": "c30e37af4bfec05e6d24b996b5fc717230a7e776a758073c9046b98e1deafea8",
+    "baseWidth": 128,
+    "source": "content/icons/src/prochlorococcus-marinus.png",
+    "reason": "matching master",
+    "sourceDifference": 3.2862955729166665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/prochlorococcus-marinus.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/prochlorococcus-marinus.webp"
+      }
+    ]
+  },
+  "proton": {
+    "fingerprint": "d58a5611870988da6de286556a84f9e073ed9a64fdd902b31a095e482603076a",
+    "baseWidth": 512,
+    "source": "content/icons/proton.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/proton.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/proton.webp"
+      }
+    ]
+  },
+  "protostar": {
+    "fingerprint": "87aa58bce75e0d4fe383b00026c244406c79cb94d175d6e3d5925d41b10dc644",
+    "baseWidth": 128,
+    "source": "content/icons/src/protostar.png",
+    "reason": "matching master",
+    "sourceDifference": 1.5103352864583333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/protostar.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/protostar.webp"
+      }
+    ]
+  },
+  "proxima-cen": {
+    "fingerprint": "d57080049f7da6e35ae215c3785bedb6d219be4362345254be9282c9db367fc8",
+    "baseWidth": 128,
+    "source": "content/icons/src/proxima-cen.png",
+    "reason": "matching master",
+    "sourceDifference": 3.50775146484375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/proxima-cen.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/proxima-cen.webp"
+      }
+    ]
+  },
+  "pseudomonas-aeruginosa": {
+    "fingerprint": "e088083e5d57bd1f85482774f8d60628240903c67c01c4dc09e1c72cc898b29e",
+    "baseWidth": 128,
+    "source": "content/icons/src/pseudomonas-aeruginosa.png",
+    "reason": "matching master",
+    "sourceDifference": 0.85150146484375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/pseudomonas-aeruginosa.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/pseudomonas-aeruginosa.webp"
+      }
+    ]
+  },
+  "pyramid-giza": {
+    "fingerprint": "15d8efcdd7068879190b89d801aab9d29ecc3bcba9d48a20202204ac2e10a1c1",
+    "baseWidth": 128,
+    "source": "content/icons/src/pyramid-giza.png",
+    "reason": "matching master",
+    "sourceDifference": 1.2395222981770833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/pyramid-giza.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/pyramid-giza.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/pyramid-giza.webp"
+      }
+    ]
+  },
+  "red-blood-cell": {
+    "fingerprint": "bd33845740c6b6f7cf1735de80a9c4b9a2ef142619efd335091ca68b5487b099",
+    "baseWidth": 128,
+    "source": "content/icons/src/red blood cell.png",
+    "reason": "matching master",
+    "sourceDifference": 3.67095947265625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/red-blood-cell.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/red-blood-cell.webp"
+      },
+      {
+        "width": 702,
+        "path": "702/red-blood-cell.webp"
+      }
+    ]
+  },
+  "red-dwarf": {
+    "fingerprint": "17e1c9223b3ce954b5f617b4ea8fc3ad483dcaf900ecede192b1b7a249055545",
+    "baseWidth": 128,
+    "source": "content/icons/src/red-dwarf.png",
+    "reason": "matching master",
+    "sourceDifference": 3.8947550455729165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/red-dwarf.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/red-dwarf.webp"
+      }
+    ]
+  },
+  "red-giant": {
+    "fingerprint": "6ee1a631df2ab900cd07f0771847fd3bc0399c34faa759083487eecd62faf3b1",
+    "baseWidth": 128,
+    "source": "content/icons/src/red-giant.png",
+    "reason": "matching master",
+    "sourceDifference": 2.21441650390625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/red-giant.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/red-giant.webp"
+      },
+      {
+        "width": 822,
+        "path": "822/red-giant.webp"
+      }
+    ]
+  },
+  "saturn-v": {
+    "fingerprint": "ec9e411675dec6f975950b893545b2c74a232379baa71e10b5002631da19c396",
+    "baseWidth": 128,
+    "source": "content/icons/src/saturn-v.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3702189127604167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/saturn-v.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/saturn-v.webp"
+      }
+    ]
+  },
+  "saturn": {
+    "fingerprint": "cd8ee85cdfb5518cbaf1e3eee4e15d5ffcc7b00508e58aa56be7712d339d3682",
+    "baseWidth": 128,
+    "source": "content/icons/src/saturn.png",
+    "reason": "matching master",
+    "sourceDifference": 0.49481201171875,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/saturn.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/saturn.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/saturn.webp"
+      }
+    ]
+  },
+  "sea-of-galilee": {
+    "fingerprint": "813ed24fae257b7ed7213b131c020063408df5f4ddff1378fa3676e68216c177",
+    "baseWidth": 128,
+    "source": "content/icons/src/sea-of-galilee.png",
+    "reason": "matching master",
+    "sourceDifference": 2.3788859049479165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/sea-of-galilee.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/sea-of-galilee.webp"
+      }
+    ]
+  },
+  "sequoia": {
+    "fingerprint": "2186876b39a9c22cf6168307d689f99dfecae5a01efa28e521f20b31a47fde0e",
+    "baseWidth": 128,
+    "source": "content/icons/src/sequoia.png",
+    "reason": "matching master",
+    "sourceDifference": 2.5817057291666665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/sequoia.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/sequoia.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/sequoia.webp"
+      }
+    ]
+  },
+  "sgr-a": {
+    "fingerprint": "f5480ba7841b3113da6a78ab286c651d4a6dce5384621419dc955117fe28dceb",
+    "baseWidth": 128,
+    "source": "content/icons/src/sgr-a.png",
+    "reason": "matching master",
+    "sourceDifference": 0.79534912109375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/sgr-a.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/sgr-a.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/sgr-a.webp"
+      }
+    ]
+  },
+  "silkworm-moth": {
+    "fingerprint": "42d595fb4568e2f3c566f50ce272a7a7584a926c7f62e60046fe3122d5821d0c",
+    "baseWidth": 128,
+    "source": "content/icons/src/silkworm-moth.png",
+    "reason": "matching master",
+    "sourceDifference": 1.48895263671875,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/silkworm-moth.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/silkworm-moth.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/silkworm-moth.webp"
+      }
+    ]
+  },
+  "sirius-a": {
+    "fingerprint": "f65742840f14c31d002a1829dceeb37f8e7dcaa109c7aa0539c44ed9ccb701e7",
+    "baseWidth": 128,
+    "source": "content/icons/src/sirius-a.png",
+    "reason": "matching master",
+    "sourceDifference": 1.95208740234375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/sirius-a.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/sirius-a.webp"
+      }
+    ]
+  },
+  "sirius-b": {
+    "fingerprint": "54eccb27536beca70f7599b8a17d4fb66ec75cd03b307b17fb43b480a3a2128e",
+    "baseWidth": 128,
+    "source": "content/icons/src/sirius-b.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4982503255208333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/sirius-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/sirius-b.webp"
+      },
+      {
+        "width": 544,
+        "path": "544/sirius-b.webp"
+      }
+    ]
+  },
+  "smallest-primordial-bh": {
+    "fingerprint": "7e4fc3c6a1d817a5dca215f66b2b891c2c5881d8bdbcab89f834004284362010",
+    "baseWidth": 128,
+    "source": "content/icons/src/smallest-primordial-bh.png",
+    "reason": "matching master",
+    "sourceDifference": 0.9264322916666666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/smallest-primordial-bh.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/smallest-primordial-bh.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/smallest-primordial-bh.webp"
+      }
+    ]
+  },
+  "soccer-ball": {
+    "fingerprint": "e005c725489d3e22a96c55605ae5d24579d42f99618528ffd72a34a09485c503",
+    "baseWidth": 128,
+    "source": "content/icons/src/soccer-ball.png",
+    "reason": "matching master",
+    "sourceDifference": 1.2740071614583333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/soccer-ball.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/soccer-ball.webp"
+      },
+      {
+        "width": 856,
+        "path": "856/soccer-ball.webp"
+      }
+    ]
+  },
+  "sombrero-m104": {
+    "fingerprint": "2a72bd24b39034b17357cb629e16240ddff40a43c76f4f303968b5a5dc102d44",
+    "baseWidth": 128,
+    "source": "content/icons/src/sombrero-m104.jpg",
+    "reason": "matching master",
+    "sourceDifference": 0.9388224283854166,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/sombrero-m104.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/sombrero-m104.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/sombrero-m104.webp"
+      }
+    ]
+  },
+  "staphylococcus-aureus": {
+    "fingerprint": "870b5546668d4d5d8a2afa47f7baf22973bf1083cd9785e0a8e580291a02a6d0",
+    "baseWidth": 128,
+    "source": "content/icons/src/staphylococcus-aureus.png",
+    "reason": "matching master",
+    "sourceDifference": 2.27880859375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/staphylococcus-aureus.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/staphylococcus-aureus.webp"
+      }
+    ]
+  },
+  "statue-of-unity": {
+    "fingerprint": "9ee63acea87f7567b2af76f11c68743e1a6ecf88c43fd49b7b6cf5570d5bf04c",
+    "baseWidth": 128,
+    "source": "content/icons/src/statue-of-unity.png",
+    "reason": "matching master",
+    "sourceDifference": 0.8853759765625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/statue-of-unity.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/statue-of-unity.webp"
+      }
+    ]
+  },
+  "stellar-bh": {
+    "fingerprint": "ceaa9013ce4673a531026b7478d819b994a637c7ad4b357b0286fa5c950cd713",
+    "baseWidth": 128,
+    "source": "content/icons/src/stellar-bh.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7214152018229167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/stellar-bh.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/stellar-bh.webp"
+      }
+    ]
+  },
+  "stellar-nursery": {
+    "fingerprint": "56a6bf504ec8dcef003725e4115159c670f4aeed59a1ce6553671133d9c11289",
+    "baseWidth": 128,
+    "source": "content/icons/src/stellar-nursery.jpg",
+    "reason": "matching master",
+    "sourceDifference": 5.3408203125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/stellar-nursery.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/stellar-nursery.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/stellar-nursery.webp"
+      }
+    ]
+  },
+  "strange": {
+    "fingerprint": "de8ee0726773d702516fe39aec7667c951d9a7d4cbef2b4d6e1c35ce88ee7507",
+    "baseWidth": 512,
+    "source": "content/icons/strange.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/strange.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/strange.webp"
+      }
+    ]
+  },
+  "sun": {
+    "fingerprint": "948d3da5676443136a48fbdc94c6a439de00d98afe8fe10b684e1e891a166157",
+    "baseWidth": 128,
+    "source": "content/icons/sun.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 12.879984537760416,
+    "variants": []
+  },
+  "supernova-remnant": {
+    "fingerprint": "8371889ee19ce18066432d7c2dc7c8ae5b6f483af320dfed5fc82917b8312f01",
+    "baseWidth": 128,
+    "source": "content/icons/src/supernova-remnant.jpg",
+    "reason": "matching master",
+    "sourceDifference": 3.7781168619791665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/supernova-remnant.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/supernova-remnant.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/supernova-remnant.webp"
+      }
+    ]
+  },
+  "supertanker": {
+    "fingerprint": "68ae5429e565a905ea5f993e231c9cca8f6e6a2d95912d4c5477e27de830f6c7",
+    "baseWidth": 128,
+    "source": "content/icons/src/supertanker.png",
+    "reason": "matching master",
+    "sourceDifference": 1.5872599283854167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/supertanker.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/supertanker.webp"
+      }
+    ]
+  },
+  "t-brown-dwarf": {
+    "fingerprint": "575fb7acc3123711782e60c28a73281b7fb6b945b668a70ad4ce30a1336aa1b5",
+    "baseWidth": 128,
+    "source": "content/icons/src/t-brown-dwarf.png",
+    "reason": "matching master",
+    "sourceDifference": 2.2147013346354165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/t-brown-dwarf.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/t-brown-dwarf.webp"
+      }
+    ]
+  },
+  "tardigrade": {
+    "fingerprint": "a2cc484c55c72ba79ddb465ffc3c057893aa6706647f3a473e61df0ad2fde936",
+    "baseWidth": 128,
+    "source": "content/icons/src/tardigrade.png",
+    "reason": "matching master",
+    "sourceDifference": 2.2691853841145835,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/tardigrade.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/tardigrade.webp"
+      },
+      {
+        "width": 782,
+        "path": "782/tardigrade.webp"
+      }
+    ]
+  },
+  "tau": {
+    "fingerprint": "f81a3cdf87cd971ff1c84b536f3ebc67b5d22e1a01ae18fed424fa5f614857de",
+    "baseWidth": 512,
+    "source": "content/icons/tau.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/tau.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/tau.webp"
+      }
+    ]
+  },
+  "the-little-mermaid": {
+    "fingerprint": "023fb67a782c18d502f058c0e27820b103b45829d7d3151a84af2712d7b5500d",
+    "baseWidth": 128,
+    "source": "content/icons/src/the-little-mermaid.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3093668619791667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/the-little-mermaid.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/the-little-mermaid.webp"
+      }
+    ]
+  },
+  "thymine-t": {
+    "fingerprint": "d589c301a8845a5f594e2aa9ac6c6dd7a68639bd7170b926d34c3ba645e8698e",
+    "baseWidth": 128,
+    "source": "content/icons/src/thymine-t.png",
+    "reason": "matching master",
+    "sourceDifference": 1.5681559244791667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/thymine-t.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/thymine-t.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/thymine-t.webp"
+      }
+    ]
+  },
+  "tiger-i": {
+    "fingerprint": "5c118f89a7437c72c03728c7491b06352ec8b57a340135f467a2e038f6b34a81",
+    "baseWidth": 128,
+    "source": "content/icons/src/tiger-i.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3072916666666667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/tiger-i.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/tiger-i.webp"
+      }
+    ]
+  },
+  "titan": {
+    "fingerprint": "ace5cceaf1c57fb5472d44d29b0f293679d53e8942c37609174e1db1f5e4b74e",
+    "baseWidth": 128,
+    "source": "content/icons/src/titan.png",
+    "reason": "matching master",
+    "sourceDifference": 1.0630696614583333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/titan.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/titan.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/titan.webp"
+      }
+    ]
+  },
+  "titanic": {
+    "fingerprint": "87f0c257b368f635b4d9bb10f5e93c306e3922e8b53ec8a206b703883b7ccda3",
+    "baseWidth": 128,
+    "source": "content/icons/src/titanic.png",
+    "reason": "matching master",
+    "sourceDifference": 0.8131510416666666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/titanic.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/titanic.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/titanic.webp"
+      }
+    ]
+  },
+  "titicaca": {
+    "fingerprint": "cec6cbde9b6ba3b5271078e8de12f4cba79423a0a3ce5bf11fbdcf5d4f678a30",
+    "baseWidth": 128,
+    "source": "content/icons/src/titicaca.png",
+    "reason": "matching master",
+    "sourceDifference": 2.9231363932291665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/titicaca.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/titicaca.webp"
+      }
+    ]
+  },
+  "ton-618": {
+    "fingerprint": "3769d2f18ef320e46e56c5b2db23c4ee7d86ba56d493e0e669c5439f84b3ad3f",
+    "baseWidth": 128,
+    "source": "content/icons/src/ton-618.png",
+    "reason": "matching master",
+    "sourceDifference": 1.9906209309895833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ton-618.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ton-618.webp"
+      }
+    ]
+  },
+  "top": {
+    "fingerprint": "5c44db5c4e331602c199a5de1f34b1118667677cb7dccb2bba240a8ce3290e31",
+    "baseWidth": 512,
+    "source": "content/icons/top.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/top.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/top.webp"
+      }
+    ]
+  },
+  "triangulum-m33": {
+    "fingerprint": "7101ccf2fd7da9979b7023bc2542340e3b6a8d5d0475b96d58a8a5bc68fe00a5",
+    "baseWidth": 128,
+    "source": "content/icons/src/triangulum-m33.jpg",
+    "reason": "matching master",
+    "sourceDifference": 1.6558837890625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/triangulum-m33.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/triangulum-m33.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/triangulum-m33.webp"
+      }
+    ]
+  },
+  "triton": {
+    "fingerprint": "334bdfd0cdd0cbb9758231048e0e8b67f7c5848e5a921b42fb3fbfa58a2fb2f5",
+    "baseWidth": 128,
+    "source": "content/icons/src/triton.png",
+    "reason": "matching master",
+    "sourceDifference": 1.1224568684895833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/triton.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/triton.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/triton.webp"
+      }
+    ]
+  },
+  "tyrannosaurus-rex": {
+    "fingerprint": "0f24ec42de4cba577c2da9259da97d5d3251d2e7dccb12b6e12470bb52e9663b",
+    "baseWidth": 128,
+    "source": "content/icons/src/tyrannosaurus-rex.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7009684244791666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/tyrannosaurus-rex.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/tyrannosaurus-rex.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/tyrannosaurus-rex.webp"
+      }
+    ]
+  },
+  "ultraviolet": {
+    "fingerprint": "3b2d15bb8fcf832df58ebc2ee7d9cff0e179870a965b5702be54dcf95f627e8a",
+    "baseWidth": 512,
+    "source": "content/icons/ultraviolet.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/ultraviolet.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/ultraviolet.webp"
+      }
+    ]
+  },
+  "union-pacific-big-boy": {
+    "fingerprint": "09aa80e438bba465369dc9e8945e591a77848c0c121bac0a396e3d0d08755ef1",
+    "baseWidth": 128,
+    "source": "content/icons/src/union-pacific-big-boy.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7837320963541666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/union-pacific-big-boy.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/union-pacific-big-boy.webp"
+      }
+    ]
+  },
+  "up-quark": {
+    "fingerprint": "9fe35eb18418e3b6477425cd0dfd20a1d48f85ffcc2e1d78725f1b32b1850274",
+    "baseWidth": 512,
+    "source": "content/icons/up-quark.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/up-quark.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/up-quark.webp"
+      }
+    ]
+  },
+  "uranium": {
+    "fingerprint": "00b5df761825eddd00436abea85b0131a36749d90ad35ccf3f89f2d58e36d1f0",
+    "baseWidth": 128,
+    "source": "content/icons/src/uranium.png",
+    "reason": "matching master",
+    "sourceDifference": 2.6315104166666665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/uranium.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/uranium.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/uranium.webp"
+      }
+    ]
+  },
+  "uranus": {
+    "fingerprint": "aa3b2e5aa2cccd19110f095ce1349c9eabdbd2464ae4192264b041979992d295",
+    "baseWidth": 128,
+    "source": "content/icons/src/uranus.png",
+    "reason": "matching master",
+    "sourceDifference": 0.8824462890625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/uranus.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/uranus.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/uranus.webp"
+      }
+    ]
+  },
+  "uss-enterprise": {
+    "fingerprint": "3ae283bd78fd17479a389fa69f56c8ec0f60f43551e1de463f503e78d8fdec65",
+    "baseWidth": 128,
+    "source": "content/icons/src/uss-enterprise.png",
+    "reason": "matching master",
+    "sourceDifference": 1.04937744140625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/uss-enterprise.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/uss-enterprise.webp"
+      }
+    ]
+  },
+  "vega": {
+    "fingerprint": "1f1752e48bdb081285c4d4514c7494d9802f8ac2a14990d7231ee442c6076f6f",
+    "baseWidth": 128,
+    "source": "content/icons/src/vega.png",
+    "reason": "matching master",
+    "sourceDifference": 1.2419840494791667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/vega.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/vega.webp"
+      }
+    ]
+  },
+  "venus": {
+    "fingerprint": "44f71188855179fe0a08f6d4952daf6f67d1066b8e4205592366fe0a522bcc09",
+    "baseWidth": 128,
+    "source": "content/icons/src/venus.png",
+    "reason": "matching master",
+    "sourceDifference": 0.92828369140625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/venus.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/venus.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/venus.webp"
+      }
+    ]
+  },
+  "vesta": {
+    "fingerprint": "6f38ac54b755189c8facf8153a4062877a6a13d2cb66e8c9d1cb43fc4f985694",
+    "baseWidth": 128,
+    "source": "content/icons/vesta.webp",
+    "reason": "source differs from current icon",
+    "sourceDifference": 13.426737467447916,
+    "variants": []
+  },
+  "visible-light": {
+    "fingerprint": "9e3f3e892b96e0f536bb0db14a4d170befa7919671f5e2e68e01828c9e8e9614",
+    "baseWidth": 512,
+    "source": "content/icons/visible-light.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/visible-light.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/visible-light.webp"
+      }
+    ]
+  },
+  "void": {
+    "fingerprint": "e87a9a81b4c00930bf7bc5b6175cb76fed5431770fcd70cbb120dfe8f3f5695f",
+    "baseWidth": 128,
+    "source": "content/icons/src/void.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3390299479166667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/void.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/void.webp"
+      }
+    ]
+  },
+  "voyager-golden-record": {
+    "fingerprint": "0c5a6633d5ce6ac824d68c22de1f292a6511f27c58a29f9d748cb044e176bddf",
+    "baseWidth": 128,
+    "source": "content/icons/src/voyager-golden-record.png",
+    "reason": "matching master",
+    "sourceDifference": 2.0587972005208335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/voyager-golden-record.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/voyager-golden-record.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/voyager-golden-record.webp"
+      }
+    ]
+  },
+  "w-boson": {
+    "fingerprint": "a52dca1ce168f264f1488a2f1026962cdd99902beb314b3879490d4c351e2e3d",
+    "baseWidth": 512,
+    "source": "content/icons/w-boson.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/w-boson.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/w-boson.webp"
+      }
+    ]
+  },
+  "water-h2o": {
+    "fingerprint": "d89b85c23bd21c0a2c316dd29076acfa0b2f95818a243fecf1c4a89d2e9b7e04",
+    "baseWidth": 128,
+    "source": "content/icons/src/water-h2o.png",
+    "reason": "matching master",
+    "sourceDifference": 1.6846923828125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/water-h2o.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/water-h2o.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/water-h2o.webp"
+      }
+    ]
+  },
+  "white-dwarf": {
+    "fingerprint": "879bb017c778a4489de530d4695e183721f66394b3b6e54ac9b3b50bcbb4bdf6",
+    "baseWidth": 128,
+    "source": "content/icons/src/white-dwarf.png",
+    "reason": "matching master",
+    "sourceDifference": 2.07061767578125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/white-dwarf.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/white-dwarf.webp"
+      }
+    ]
+  },
+  "wolf-rayet": {
+    "fingerprint": "c412cd4fa51a8aeb8daa35d50def882c09b17267dff1ab7bdebcec5ead97c799",
+    "baseWidth": 128,
+    "source": "content/icons/src/wolf-rayet.png",
+    "reason": "matching master",
+    "sourceDifference": 3.708740234375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/wolf-rayet.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/wolf-rayet.webp"
+      }
+    ]
+  },
+  "x-and-y-bosons": {
+    "fingerprint": "e8598010b5a0132dc5dc897526c11fcc3a119ed0b38de736cc5b248d6891e1ac",
+    "baseWidth": 512,
+    "source": "content/icons/x-and-y-bosons.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/x-and-y-bosons.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/x-and-y-bosons.webp"
+      }
+    ]
+  },
+  "x-ray": {
+    "fingerprint": "24a5940d0bd42e2fce9e39fe777d011ba167c6e8d5ce55a89273659b5226d9e3",
+    "baseWidth": 512,
+    "source": "content/icons/x-ray.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/x-ray.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/x-ray.webp"
+      }
+    ]
+  },
+  "y-brown-dwarf": {
+    "fingerprint": "aabfc495d9e7e82be406e704c0f9a99ae18ecb52f8d87258863ee858470d557d",
+    "baseWidth": 128,
+    "source": "content/icons/src/y-brown-dwarf.png",
+    "reason": "matching master",
+    "sourceDifference": 1.212158203125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/y-brown-dwarf.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/y-brown-dwarf.webp"
+      },
+      {
+        "width": 896,
+        "path": "896/y-brown-dwarf.webp"
+      }
+    ]
+  },
+  "z-boson": {
+    "fingerprint": "0a4e1ffcc9823cb285eb57b661136cdc14db55a6a5eaa61b932c8df910d16a0f",
+    "baseWidth": 512,
+    "source": "content/icons/z-boson.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/z-boson.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/z-boson.webp"
+      }
+    ]
+  }
+}

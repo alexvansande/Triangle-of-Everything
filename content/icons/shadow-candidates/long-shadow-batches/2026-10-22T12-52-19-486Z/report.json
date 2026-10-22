@@ -1,0 +1,2626 @@
+{
+  "created": "2026-10-22T12-52-19-486Z",
+  "counts": {
+    "generate": 98,
+    "round": 26,
+    "caustics": 4,
+    "excluded": 89
+  },
+  "plan": [
+    {
+      "name": "1-liter-of-water",
+      "action": "caustics"
+    },
+    {
+      "name": "1-ml-of-water",
+      "action": "caustics"
+    },
+    {
+      "name": "1-tonne-of-water",
+      "action": "caustics"
+    },
+    {
+      "name": "3k-bh",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "adenine-a",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "am-radio",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "amoeba",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:20.197Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "andromeda-m31",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "ant",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:20.315Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "antarctic-ice-sheet",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "generatedBlur": 0,
+        "distance": 0,
+        "generatedScale": 0.5,
+        "depth": 1,
+        "height": 0,
+        "width": 1,
+        "blur": 12,
+        "fade": 0,
+        "x": 20,
+        "y": 20,
+        "reviewed": true,
+        "updated": "2026-10-22T12:52:20.456Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "argentinosaurus",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:20.580Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "asian-elephant",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:20.708Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "atlas-moth",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:20.824Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "atp",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "bacillus-subtilis",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:20.945Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "bacteria",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:21.055Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "bacteriophage-t4",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:21.172Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "bagger-288",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:21.282Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "barnard-68",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "bennu",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:21.387Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "benz-patent-motorwagen",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:21.498Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "beta-pictoris-b",
+      "action": "round"
+    },
+    {
+      "name": "betelgeuse",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "big-bang",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "big-ben",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "generatedBlur": 8,
+        "distance": 0,
+        "generatedScale": 0.4,
+        "depth": 0.15,
+        "height": 1.05,
+        "width": 0.7,
+        "blur": 14,
+        "fade": 0.4,
+        "x": -45,
+        "y": -65,
+        "reviewed": true,
+        "updated": "2026-10-22T12:52:21.602Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "bismarck",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:21.706Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "blue-supergiant",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "blue-whale",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:21.817Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "boeing-747",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "generatedBlur": 0,
+        "distance": 0,
+        "generatedScale": 0.5,
+        "depth": 0.35,
+        "height": 0.65,
+        "width": 0.9,
+        "blur": 13,
+        "fade": 0.4,
+        "x": 0,
+        "y": 0,
+        "reviewed": true,
+        "updated": "2026-10-22T12:52:21.929Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "bottom",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "bumblebee",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:22.035Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "burj-khalifa",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:22.138Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "bust-of-queen-nefertiti",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:22.240Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "callisto",
+      "action": "round"
+    },
+    {
+      "name": "cane-toad",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:22.342Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "carbon",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "caspian-sea",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:22.448Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "caulobacter-vibrioides",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:22.549Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "ceratium-hirundinella",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:22.651Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "ceres",
+      "action": "round"
+    },
+    {
+      "name": "charm",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "chelyabinsk",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:22.755Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "clostridium-botulinum",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:22.861Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "clothes-moth",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:22.967Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "concorde",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:23.073Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "covid",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:23.181Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "curiosity",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:23.289Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "cytosine-c",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "dead-sea",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:23.395Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "deimos",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:23.499Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "dji-mini-2",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:23.606Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "dna",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "down",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "dwarf-galaxy",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "earth",
+      "action": "round"
+    },
+    {
+      "name": "eiffel-tower",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "generatedBlur": 8,
+        "distance": 0,
+        "generatedScale": 0.4,
+        "depth": 0.15,
+        "height": 1.05,
+        "width": 0.7,
+        "blur": 14,
+        "fade": 0.4,
+        "x": -45,
+        "y": -65,
+        "reviewed": true,
+        "updated": "2026-10-22T12:52:23.712Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "electron",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "elephant",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:23.818Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "enceladus",
+      "action": "round"
+    },
+    {
+      "name": "eois-stantonae",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:23.924Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "eros",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:24.029Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "escherichia-coli",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:24.138Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "euglena-viridis",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:24.241Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "europa",
+      "action": "round"
+    },
+    {
+      "name": "ever-given",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:24.347Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "flyer-i",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:24.452Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "fm-radio",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "fullerene-c60",
+      "action": "excluded",
+      "reason": "Black-background artwork has no shadow"
+    },
+    {
+      "name": "galaxy-cluster",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "gamma-ray",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "ganymede",
+      "action": "round"
+    },
+    {
+      "name": "globular-cluster",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "glucose",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "gluon",
+      "action": "excluded",
+      "reason": "Black-background artwork has no shadow"
+    },
+    {
+      "name": "gold",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "grain-of-salt",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:24.556Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "graviton",
+      "action": "excluded",
+      "reason": "Black-background artwork has no shadow"
+    },
+    {
+      "name": "great-sphinx",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "generatedBlur": 0,
+        "distance": 0,
+        "generatedScale": 0.5,
+        "depth": 0.35,
+        "height": 0.65,
+        "width": 0.9,
+        "blur": 13,
+        "fade": 0.4,
+        "x": 0,
+        "y": 0,
+        "reviewed": true,
+        "updated": "2026-10-22T12:52:24.657Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "greenland-ice-sheet",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "generatedBlur": 0,
+        "distance": 0,
+        "generatedScale": 0.5,
+        "depth": 1,
+        "height": 0,
+        "width": 1,
+        "blur": 12,
+        "fade": 0,
+        "x": 20,
+        "y": 20,
+        "reviewed": true,
+        "updated": "2026-10-22T12:52:24.760Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "grinnell-glacier",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:24.864Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "guanine-g",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "halleys-comet",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "hallstatter-see",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:24.972Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "hedgehog",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:25.078Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "helium",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "hemoglobin",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "higgs",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "hippo",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:25.182Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "hms-victory",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:25.291Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "hoba",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:25.392Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "honey-bee",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:25.496Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "horse-chestnut-leaf-miner",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:25.600Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "hubble-space-telescope",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:25.702Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "human",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "generatedBlur": 8,
+        "distance": 0,
+        "generatedScale": 0.4,
+        "depth": 0.35,
+        "height": 0.65,
+        "width": 0.9,
+        "blur": 13,
+        "fade": 0.4,
+        "x": -45,
+        "y": -65,
+        "reviewed": true,
+        "updated": "2026-10-22T12:52:25.806Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "hydrogen",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "hyperion",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:25.909Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "infrared",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "ingenuity",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:26.022Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "insulin",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "io",
+      "action": "round"
+    },
+    {
+      "name": "iron",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "itokawa",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:26.127Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "jupiter",
+      "action": "round"
+    },
+    {
+      "name": "kepler-22b",
+      "action": "round"
+    },
+    {
+      "name": "konigssee",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:26.232Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "kursk",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:26.333Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "l-brown-dwarf",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "ladybug",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:26.440Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "lake-baikal",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:26.546Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "lake-nyos",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:26.649Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "lake-superior",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:26.750Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "lake-tahoe",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:26.853Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "lake-victoria",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:26.956Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "laniakea-galaxy-supercluster",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "lion",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:27.063Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "loch-ness",
+      "action": "caustics"
+    },
+    {
+      "name": "lockheed-sr-71-blackbird",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:27.168Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "m87",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "manneken-pis",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:27.269Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "mars",
+      "action": "round"
+    },
+    {
+      "name": "mars3",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:27.370Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "meerkat",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:27.474Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "mercury",
+      "action": "round"
+    },
+    {
+      "name": "meson",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "microchip",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:27.576Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "microwave",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "milky-way",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "mimas",
+      "action": "round"
+    },
+    {
+      "name": "moon",
+      "action": "round"
+    },
+    {
+      "name": "mouse",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:27.679Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "mt-everest",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:27.781Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "muon",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "mycoplasma-pneumoniae",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:27.883Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "n1",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:27.983Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "naked-mole-rat",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:28.089Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "nebulae",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "neptune",
+      "action": "round"
+    },
+    {
+      "name": "neutrino-e",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "neutrino-mu",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "neutrino-tau",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "neutron",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "neutron-star",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "ngc7538s-bubble-nebula",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "ngc7635bubble-nebula",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "noctiluca-scintillans",
+      "action": "round"
+    },
+    {
+      "name": "nucleus",
+      "action": "excluded",
+      "reason": "Black-background artwork has no shadow"
+    },
+    {
+      "name": "observable-universe",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "opportunity",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:28.196Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "oxygen",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "painted-lady",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:28.300Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "penny",
+      "action": "round"
+    },
+    {
+      "name": "phobos",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:28.402Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "planetary-nebula",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "pluto",
+      "action": "round"
+    },
+    {
+      "name": "pollen-grain",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:28.507Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "prochlorococcus-marinus",
+      "action": "round"
+    },
+    {
+      "name": "proton",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "protostar",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "proxima-cen",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "pseudomonas-aeruginosa",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:28.608Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "pyramid-giza",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:28.711Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "red-blood-cell",
+      "action": "round"
+    },
+    {
+      "name": "red-dwarf",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "red-giant",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "saturn",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:28.813Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "saturn-v",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:28.914Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "sea-of-galilee",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:29.018Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "sequoia",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "generatedBlur": 0,
+        "distance": 0,
+        "generatedScale": 0.5,
+        "depth": 0.15,
+        "height": 1.05,
+        "width": 0.7,
+        "blur": 14,
+        "fade": 0.4,
+        "x": 0,
+        "y": 0,
+        "reviewed": true,
+        "updated": "2026-10-22T12:52:29.126Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "sgr-a",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "silkworm-moth",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:29.231Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "sirius-a",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "sirius-b",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "smallest-primordial-bh",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "soccer-ball",
+      "action": "round"
+    },
+    {
+      "name": "sombrero-m104",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "staphylococcus-aureus",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:29.335Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "statue-of-unity",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:29.436Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "stellar-bh",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "stellar-nursery",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "strange",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "sun",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "supernova-remnant",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "supertanker",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:29.539Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "t-brown-dwarf",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "tardigrade",
+      "action": "round"
+    },
+    {
+      "name": "tau",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "the-little-mermaid",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:29.643Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "thymine-t",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "tiger-i",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:29.745Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "titan",
+      "action": "round"
+    },
+    {
+      "name": "titanic",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "generatedBlur": 0,
+        "distance": 0,
+        "generatedScale": 0.5,
+        "depth": 0.35,
+        "height": 0.65,
+        "width": 0.9,
+        "blur": 13,
+        "fade": 0.4,
+        "x": 60,
+        "y": 120,
+        "reviewed": true,
+        "updated": "2026-10-22T12:52:29.843Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "titicaca",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:29.947Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "ton-618",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "top",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "triangulum-m33",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "triton",
+      "action": "round"
+    },
+    {
+      "name": "tyrannosaurus-rex",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:30.051Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "ultraviolet",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "union-pacific-big-boy",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:30.157Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "up-quark",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "uranium",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "uranus",
+      "action": "round"
+    },
+    {
+      "name": "uss-enterprise",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:30.261Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "vega",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "venus",
+      "action": "round"
+    },
+    {
+      "name": "vesta",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:30.364Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "visible-light",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "void",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "voyager-golden-record",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-22T12:52:30.466Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "w-boson",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "water-h2o",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "white-dwarf",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "wolf-rayet",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "x-and-y-bosons",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "x-ray",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "y-brown-dwarf",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    },
+    {
+      "name": "z-boson",
+      "action": "excluded",
+      "reason": "Screen-blended artwork has no shadow"
+    }
+  ]
+}

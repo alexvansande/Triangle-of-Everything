@@ -1,0 +1,44 @@
+{
+  "hippo": {
+    "fingerprint": "9a8e8a7c86da8b8a2204bb6fdcde87621c27c0257922e05fed8f445261d83dce",
+    "baseWidth": 128,
+    "source": "content/icons/src/hippo.png",
+    "reason": "matching master",
+    "sourceDifference": 1.86895751953125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hippo.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hippo.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/hippo.webp"
+      }
+    ]
+  },
+  "elephant": {
+    "fingerprint": "d93af0ebe267c9203a35d7921e1941df03ef0deb5179288d5f65b5faa5dd78aa",
+    "baseWidth": 128,
+    "source": "content/icons/src/elephant.png",
+    "reason": "matching master",
+    "sourceDifference": 1.678955078125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/elephant.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/elephant.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/elephant.webp"
+      }
+    ]
+  }
+}

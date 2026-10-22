@@ -1,0 +1,23 @@
+{
+  "mode": "built-in image_gen",
+  "requests": [
+    {
+      "name": "hippo",
+      "prompt": "Use case: style-transfer. Asset: photoreal miniature animal icon for museum wall collection. Input1 is the existing animal for material and identity; input2 sphinx is CAMERA, ORIENTATION and lighting reference only, not animal material. Re-render animal in a LEFT-FACING SIDE PROFILE like that sphinx: head at left, tail at right, entire animal's long side facing viewer parallel to image plane. Camera only slightly above so a narrow amount of back/top is visible. Nearly orthographic long lens, no isometric, no three-quarter frontal head, no foreshortening. Natural standing pose, four legs with near/far feet subtly staggered and anatomically credible, all feet visible enough to read. Strong soft upper-left/front light, shaded lower-right relief, restrained violet bounce to sit on purple chart. Detailed lifelike skin and strong readable contrast. One centered animal on square REAL transparent PNG, longest solid extent about92-94%, clear margins. No ground, shelf, wall, plinth, scenery, text or cast shadow; only natural self-shading. Keep realistic animal coloration, not stone. Subject: adult hippopotamus with heavy barrel-shaped torso, broad low head held in true LEFT profile, mouth closed, small ears, short thick legs, tiny tail. Gray-brown slightly pink skin folds and pores, restrained satin sheen; no wet floor. Keep it calm and realistic, not a cartoon.",
+      "referenced_image_paths": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/hippo.png",
+        "/Users/avsa/Dev/Triangle/content/icons/src/great-sphinx.png"
+      ],
+      "transparent_background": true
+    },
+    {
+      "name": "elephant",
+      "prompt": "Use case: style-transfer. Asset: photoreal miniature animal icon for museum wall collection. Input1 is the existing animal for material and identity; input2 sphinx is CAMERA, ORIENTATION and lighting reference only, not animal material. Re-render animal in a LEFT-FACING SIDE PROFILE like that sphinx: head at left, tail at right, entire animal's long side facing viewer parallel to image plane. Camera only slightly above so a narrow amount of back/top is visible. Nearly orthographic long lens, no isometric, no three-quarter frontal head, no foreshortening. Natural standing pose, four legs with near/far feet subtly staggered and anatomically credible, all feet visible enough to read. Strong soft upper-left/front light, shaded lower-right relief, restrained violet bounce to sit on purple chart. Detailed lifelike skin and strong readable contrast. One centered animal on square REAL transparent PNG, longest solid extent about92-94%, clear margins. No ground, shelf, wall, plinth, scenery, text or cast shadow; only natural self-shading. Keep realistic animal coloration, not stone. Subject: adult African elephant, substantial natural gray wrinkled skin, large near ear seen side-on resting naturally against shoulder, tusks projecting to left, trunk hanging down and curling gently inward at tip for compact silhouette, tail on right. Head must stay in true LEFT profile, not turned to camera. Mature natural proportions and four believable columnar legs, avoid overlapping fused feet.",
+      "referenced_image_paths": [
+        "/Users/avsa/Dev/Triangle/content/icons/src/elephant.png",
+        "/Users/avsa/Dev/Triangle/content/icons/src/great-sphinx.png"
+      ],
+      "transparent_background": true
+    }
+  ]
+}

@@ -25,6 +25,9 @@ import imageManifest from "../content/images/manifest.json";
 // Spirograph state hashes for particles that can be opened in the 5D spirograph
 import hyperspirographStates from "../content/icons/hyperspirograph-states.json";
 import roundShadows from "../content/icons/shadows/round.json";
+import shadowOverrides from "../content/icons/shadows/overrides.json";
+import iconResolutions from "../content/icons/resolutions/manifest.json";
+import { iconPixelRequirement, chooseIconResolution } from "./icon-resolution.js";
 
 // Atoms whose sidebar image is a sphere-packed spirograph composite (built
 // from the hyperspirograph itself). These get a "Explore multidimensional
@@ -71,18 +74,44 @@ for (const [path, url] of Object.entries(iconUrls)) {
     ICON_BY_SLUG[slug] = url;
   }
 }
+// URLs are bundled eagerly, but browsers fetch only the selected tier. Budget
+// for hover here so the 150ms animation never has to wait for a larger image.
+const resolutionUrls = import.meta.glob("../content/icons/resolutions/*/*.webp", { query: "?url", import: "default", eager: true });
+export const ICON_RESOLUTIONS_BY_SLUG = {};
+for (const [file, entry] of Object.entries(iconResolutions)) {
+  const slugs = ICON_MULTI_MAP[file] || [ICON_SLUG_MAP[file] || file];
+  for (const slug of slugs) {
+    const base = ICON_BY_SLUG[slug];
+    if (!base) continue;
+    ICON_RESOLUTIONS_BY_SLUG[slug] = [
+      { width: entry.baseWidth, url: base },
+      ...entry.variants.map(v => ({ width: v.width, url: resolutionUrls[`../content/icons/resolutions/${v.path}`] })),
+    ].filter(v => v.url).sort((a,b) => a.width-b.width);
+  }
+}
+export function iconUrlForSize(slug, cssSize, dpr = globalThis.devicePixelRatio || 1) {
+  return chooseIconResolution(ICON_RESOLUTIONS_BY_SLUG[slug], iconPixelRequirement(cssSize, dpr))?.url || ICON_BY_SLUG[slug];
+}
+
 // Silhouette cast shadows for non-round icons (scripts/generate-shadows.mjs):
 // slug → url. Objects without one get the generic soft ellipses.
 // Round icons (round.json) all share _sphere.webp.
 const shadowUrls = import.meta.glob("../content/icons/shadows/*.webp", { query: "?url", import: "default", eager: true });
 export const SHADOW_BY_SLUG = {};
+export const SHADOW_SETTINGS_BY_SLUG = Object.fromEntries(
+  Object.entries(shadowOverrides).map(([file, settings]) => [ICON_SLUG_MAP[file] || file, settings]),
+);
 let sphereShadow = null;
 for (const [path, url] of Object.entries(shadowUrls)) {
   const file = path.replace(/^.*\//, "").replace(".webp", "");
   if (file === "_sphere") sphereShadow = url;
   else SHADOW_BY_SLUG[ICON_SLUG_MAP[file] || file] = url;
 }
-for (const file of roundShadows) SHADOW_BY_SLUG[ICON_SLUG_MAP[file] || file] = sphereShadow;
+for (const file of roundShadows) {
+  const slug = ICON_SLUG_MAP[file] || file;
+  SHADOW_BY_SLUG[slug] = sphereShadow;
+  SHADOW_SETTINGS_BY_SLUG[slug] = { mode: "shared" };
+}
 // Icon webps whose bytes have actually arrived (SVG <image> load events) —
 // gates the fallback dot rendered beneath each icon.
 export const _loadedIconUrls = new Set();

@@ -92,6 +92,9 @@ let _keptGrid = new Map(); // cell key → indices into _kept (hover lookup)
 let _labelled = new Set(); // dust indices labelled last frame: kept first, so labels don't flicker
 let _iconed = new Set();   // dust indices drawn as pictures last frame (ICON_KEEP applies)
 let _iconShapes = [];      // [{ i, name, sx, sy, r, blend }] of those pictures, for the map's cast shadows
+let _visibilityEpoch = null;
+const _dotDecisions = new Map();
+const _nameDecisions = new Map(); // null means deliberately hidden, not undecided
 
 export function dustReady() { return !!_data; }
 
@@ -159,6 +162,10 @@ export function loadDust() {
  * @param colorOf  (catKey, sourceId) → css colour
  */
 export function drawDust(layer, view, blockers, colorOf) {
+  if (_visibilityEpoch !== view.visibilityEpoch) {
+    _visibilityEpoch = view.visibilityEpoch;
+    _dotDecisions.clear(); _nameDecisions.clear();
+  }
   _kept = [];
   _keptGrid = new Map();
   if (!_data || view.hidden) { layer.selectAll("path, g.dust-named").remove(); _labelled = new Set(); _iconed = new Set(); _iconShapes = []; return; }
@@ -174,6 +181,7 @@ export function drawDust(layer, view, blockers, colorOf) {
   const fill = (x0, y0, x1, y1) => {
     const a = Math.max(0, Math.floor(x0 / OC)), b = Math.min(gw - 1, Math.floor(x1 / OC));
     const c = Math.max(0, Math.floor(y0 / OC)), d = Math.min(gh - 1, Math.floor(y1 / OC));
+    if (a > b || c > d) return;
     for (let y = c; y <= d; y++) occ.fill(1, y * gw + a, y * gw + b + 1);
   };
   for (const o of blockers.dots) fill(o.sx - CLEAR_DOT, o.sy - CLEAR_DOT, o.sx + CLEAR_DOT, o.sy + CLEAR_DOT);
@@ -200,16 +208,24 @@ export function drawDust(layer, view, blockers, colorOf) {
   // --- thinning: spatial hash with cell = DUST_GAP ---
   const G = DUST_GAP, G2 = G * G;
   const paths = new Map(); // srcIdx → path string parts
-  for (let k = 0; k < rank.length && _kept.length < cap; k++) {
-    const i = rank[k];
+  // Existing visible decisions reserve their space before new arrivals.
+  // Existing hidden decisions remain hidden until the next zoom epoch.
+  const order = [...rank.filter(i => _dotDecisions.get(i) === true),
+    ...rank.filter(i => !_dotDecisions.has(i))];
+  for (const i of order) {
+    const retained = _dotDecisions.get(i) === true;
+    const pad = retained ? 256 : 0;
     const sx = px(r[i]);
-    if (sx < 0 || sx > cw) continue;
+    if (sx < -pad || sx > cw + pad) continue;
     const sy = py(m[i]);
-    if (sy < 0 || sy > ch) continue;
-    if (occ[Math.floor(sy / OC) * gw + Math.floor(sx / OC)]) continue;
+    if (sy < -pad || sy > ch + pad) continue;
+    if (!retained) {
+      _dotDecisions.set(i, false);
+      if (_kept.length >= cap || occ[Math.floor(sy / OC) * gw + Math.floor(sx / OC)]) continue;
+    }
     const cx = Math.floor(sx / G), cy = Math.floor(sy / G);
     let clash = false;
-    for (let dy = -1; dy <= 1 && !clash; dy++) {
+    for (let dy = -1; !retained && dy <= 1 && !clash; dy++) {
       for (let dx = -1; dx <= 1; dx++) {
         const cell = _keptGrid.get((cx + dx) * 65536 + (cy + dy));
         if (!cell) continue;
@@ -221,6 +237,7 @@ export function drawDust(layer, view, blockers, colorOf) {
       }
     }
     if (clash) continue;
+    _dotDecisions.set(i, true);
     const key = cx * 65536 + cy;
     if (!_keptGrid.has(key)) _keptGrid.set(key, []);
     _keptGrid.get(key).push(_kept.length);
@@ -263,29 +280,52 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     const gap2 = (view.mobile ? LABEL_GAP_MOBILE : LABEL_GAP_DESKTOP) ** 2;
     const fs = LABEL_FONT * (view.fontScale || 1);
     const free = (x0, y0, x1, y1) => {
-      if (x0 < 0 || y0 < 0 || x1 > view.cw || y1 > view.ch) return false;
-      for (let y = Math.floor(y0 / OC); y <= Math.floor(y1 / OC); y++)
-        for (let x = Math.floor(x0 / OC); x <= Math.floor(x1 / OC); x++)
+      // The viewport clips artwork; its edge is not a visibility blocker.
+      for (let y = Math.max(0,Math.floor(y0 / OC)); y <= Math.min(gh-1,Math.floor(y1 / OC)); y++)
+        for (let x = Math.max(0,Math.floor(x0 / OC)); x <= Math.min(gw-1,Math.floor(x1 / OC)); x++)
           if (occ[y * gw + x]) return false;
       return true;
     };
     // _kept is already in rank order; last frame's labels go first
-    const order = [..._kept.filter((q) => _labelled.has(q.i)), ..._kept.filter((q) => !_labelled.has(q.i))];
+    const order = [..._kept.filter(q => _nameDecisions.get(q.i)), ..._kept.filter(q => !_nameDecisions.has(q.i))];
     const maxIcons = view.iconOf ? (view.mobile ? ICON_MAX_MOBILE : ICON_MAX_DESKTOP) : 0;
     let icons = 0;
+    const occupyIcon = (q, r) => {
+      // Reserve existing and newly selected silhouettes equally.
+      const R = r + 1;
+      for (let y = Math.max(0, Math.floor((q.sy - R) / OC)); y <= Math.min(gh - 1, Math.floor((q.sy + R) / OC)); y++) {
+        const dy = Math.abs((y + 0.5) * OC - q.sy);
+        if (dy > R) continue;
+        const hw = Math.sqrt(R * R - dy * dy);
+        const a = Math.max(0, Math.floor((q.sx - hw) / OC)), b = Math.min(gw - 1, Math.floor((q.sx + hw) / OC));
+        if (b >= a) occ.fill(1, y * gw + a, y * gw + b + 1);
+      }
+    };
     const freeDisc = (cx, cy, r) => {
-      if (cx - r < 0 || cy - r < 0 || cx + r > view.cw || cy + r > view.ch) return false;
-      for (let y = Math.floor((cy - r) / OC); y <= Math.floor((cy + r) / OC); y++) {
+      for (let y = Math.max(0,Math.floor((cy - r) / OC)); y <= Math.min(gh-1,Math.floor((cy + r) / OC)); y++) {
         const dy = Math.abs((y + 0.5) * OC - cy);
         if (dy > r) continue;
         const hw = Math.sqrt(r * r - dy * dy);
-        for (let x = Math.floor((cx - hw) / OC); x <= Math.floor((cx + hw) / OC); x++)
+        for (let x = Math.max(0,Math.floor((cx - hw) / OC)); x <= Math.min(gw-1,Math.floor((cx + hw) / OC)); x++)
           if (occ[y * gw + x]) return false;
       }
       return true;
     };
     for (const q of order) {
-      if (placed.length >= max) break;
+      const saved = _nameDecisions.get(q.i);
+      if (saved) {
+        const p = { ...saved, sx:q.sx, sy:q.sy };
+        if (saved.icon) {
+          const size = view.iconSizeAt(_data.r[q.i], saved.icon.name);
+          p.icon = { ...saved.icon, r:size/2, url:view.iconOf(saved.icon.name,size) };
+          icons++;
+          occupyIcon(q, p.icon.r);
+        }
+        placed.push(p);
+        continue;
+      }
+      _nameDecisions.set(q.i, null);
+      if (placed.length >= max) continue;
       const so = sources[src[q.i]], famous = _data.fame.get(q.i);
       let text;
       if (famous) {
@@ -305,29 +345,23 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       const side = (off) => free(q.sx + off, q.sy - h / 2, q.sx + off + 3 + w, q.sy + h / 2) ? "start"
         : free(q.sx - off - 3 - w, q.sy - h / 2, q.sx - off, q.sy + h / 2) ? "end" : null;
       let icon = null, anchor = null;
-      const url = famous && icons < maxIcons ? view.iconOf(famous.label || names[q.i]) : null;
+      const size = famous && icons < maxIcons ? view.iconSizeAt(_data.r[q.i], famous.label || names[q.i]) : 0;
+      const url = famous && icons < maxIcons ? view.iconOf(famous.label || names[q.i], size) : null;
       if (url) {
-        const size = view.iconSizeAt(_data.r[q.i], famous.label || names[q.i]);
         const r = size / 2;
         if (size >= (_iconed.has(q.i) ? ICON_KEEP : ICON_MIN) && freeDisc(q.sx, q.sy, r) &&
             !placed.some((p) => p.icon && (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < ((p.icon.r + r) * ICON_ROOM) ** 2) &&
             (anchor = side(r + 2))) {
           icon = { url, r, name: famous.label || names[q.i], blend: view.iconBlend?.(sources[src[q.i]].cat) };
           icons++;
-          // later labels and pictures keep off it
-          const R = r + 1;
-          for (let y = Math.max(0, Math.floor((q.sy - R) / OC)); y <= Math.min(gh - 1, Math.floor((q.sy + R) / OC)); y++) {
-            const dy = Math.abs((y + 0.5) * OC - q.sy);
-            if (dy > R) continue;
-            const hw = Math.sqrt(R * R - dy * dy);
-            const a = Math.max(0, Math.floor((q.sx - hw) / OC)), b = Math.min(gw - 1, Math.floor((q.sx + hw) / OC));
-            if (b >= a) occ.fill(1, y * gw + a, y * gw + b + 1);
-          }
+          occupyIcon(q, r);
         }
       }
       if (!icon) anchor = side(6);
       if (!anchor) continue;
-      placed.push({ i: q.i, sx: q.sx, sy: q.sy, text, anchor, fs, icon });
+      const placement = { i: q.i, sx: q.sx, sy: q.sy, text, anchor, fs, icon };
+      placed.push(placement);
+      _nameDecisions.set(q.i, placement);
     }
   }
   _labelled = new Set(placed.map((p) => p.i));

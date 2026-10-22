@@ -1,0 +1,10 @@
+[
+  {
+    "name": "sphere",
+    "prompt": "Edit target: reference sphere and shadow. Deliver ONLY its cast shadow as a separate transparent PNG. Remove the sphere entirely and reconstruct the portion of shadow it concealed. Keep the same low horizontal floor projection: compact flattened oval, dense near-black core, strong crisp near upper-left edge transitioning to progressively softer and more transparent down-right far edge. No sphere, no floor, no white or gray pixels, no rectangular backdrop. Neutral black shadow with opacity gradients on real alpha transparency. Center the complete shadow in square 1254x1254 canvas, leave generous clear margins, preserve the reference shape and contrast. This is an isolated shadow texture."
+  },
+  {
+    "name": "human",
+    "prompt": "Create an isolated cast SHADOW ONLY for a generic standing adult human, arms relaxed at sides, on an invisible horizontal carpet plane viewed isometrically from above. NO visible person. Real transparent PNG background, neutral black translucent shadow. Critical geometric direction: TWO FEET at the UPPER LEFT starting edge of shadow (around x380 y360), legs extend diagonally DOWN RIGHT into torso (x630 y630), shoulder shadow around x800 y800 and rounded HEAD at the FARTHEST LOWER RIGHT tip (x940 y940). Feet nearest to imagined person, head farthest away. The silhouette must be upside-down relative to an upright human picture: feet upper left, head bottom right, NOT head at top and feet at bottom. Compact moderately foreshortened floor projection, strong dark sharper feet and lower legs, progressively softer more transparent torso and head. Light from upper left. True 3D standing human cast shadow, not a side view standing silhouette. No person, no floor rectangle, no labels, no glow, no white highlights. Square1254x1254 with complete shadow centered clear margin. Same dark-core progressively blurred style as sphere reference."
+  }
+]
