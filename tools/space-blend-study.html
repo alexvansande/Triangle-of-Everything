@@ -5,13 +5,14 @@
 </style>
 <h1>A darker core, softer edges</h1>
 <p>Left: the original broad backing. Right: a small, faint backing under the core, brighter detail, and feathered image edges.</p>
-<div class="controls"><label>Brightness <input id="brightness" type="range" min="1" max="1.6" step=".05" value="1.25"> <output>1.25×</output></label><a href="/?softspace#21.5,39.7,31.59">Try it in the chart ↗</a><a href="/#21.5,39.7,31.59">Current chart ↗</a></div>
+<div class="controls"><label>Brightness <input id="brightness" type="range" min="1" max="1.6" step=".05" value="1.25"> <output>1.25×</output></label><a href="/#21.5,39.7,31.59">Open updated chart ↗</a><a href="/?legacyspace#21.5,39.7,31.59">Original treatment ↗</a></div>
 <main></main>
 <script type="module">
-import {SPACE_ART_BRIGHTNESS,spaceCoreGeometry,spaceEdgeCss} from '/src/space-art.js';
-for(const [slug,name] of [['milky-way','Milky Way'],['andromeda-m31','Andromeda'],['halleys-comet','Halley’s Comet'],['stellar-nursery','Stellar nursery']])for(const trial of [false,true]){
+import {SPACE_ART_BRIGHTNESS,spaceCoreGeometry,spaceEdgeCss,isDiffuseSpaceArt} from '/src/space-art.js';
+for(const [slug,name] of [['milky-way','Milky Way'],['andromeda-m31','Andromeda'],['halleys-comet','Halley’s Comet'],['stellar-nursery','Pillars of Creation']])for(const requestedTrial of [false,true]){
+ const trial=requestedTrial&&isDiffuseSpaceArt('galaxy',slug);
  const core=trial?spaceCoreGeometry(slug,0,0,240):{cx:0,cy:0,r:240*.52};
- const el=document.createElement('article');el.innerHTML=`<div class="scene"><div class="backing ${trial?'soft':''}" style="width:calc(var(--art-size) * ${core.r*2/240});height:calc(var(--art-size) * ${core.r*2/240});left:calc(50% + var(--art-size) * ${core.cx/240})"></div><img ${trial?'class="trial"':''} src="/content/icons/${slug}.webp" alt="${name}"></div><footer><h2>${name}</h2><small>${trial?'Faint core · feathered edges':'Original backing'}</small></footer>`;document.querySelector('main').append(el);
+ const el=document.createElement('article');el.innerHTML=`<div class="scene"><div class="backing ${trial?'soft':''}" style="width:calc(var(--art-size) * ${core.r*2/240});height:calc(var(--art-size) * ${core.r*2/240});left:calc(50% + var(--art-size) * ${core.cx/240})"></div><img ${trial?'class="trial"':''} src="/content/icons/${slug}.webp" alt="${name}"></div><footer><h2>${name}</h2><small>${trial?'Faint core · feathered edges':requestedTrial?'Original treatment retained':'Original backing'}</small></footer>`;document.querySelector('main').append(el);
  if(trial)el.querySelector('img').style.maskImage=spaceEdgeCss(slug);
 }
 const input=document.querySelector('input');input.value=SPACE_ART_BRIGHTNESS;

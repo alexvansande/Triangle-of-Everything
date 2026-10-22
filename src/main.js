@@ -67,7 +67,7 @@ let _userEngaged = false; // set on first pointer/wheel/key input (deferred load
 // Uses log interpolation for a natural "approaching distant object" feel.
 // ?og-shot: headless mode used by scripts/build-pages.mjs to screenshot the
 // chart around each object for its preview image (see window.__toeOg below).
-const _softSpace = new URLSearchParams(location.search).has("softspace");
+const _softSpace = !new URLSearchParams(location.search).has("legacyspace");
 const _ogShot = new URLSearchParams(location.search).has("og-shot");
 function effectiveIconSize() {
   const minK = 0.3, maxK = 800;

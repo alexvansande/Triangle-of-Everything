@@ -1022,3 +1022,12 @@ edge from the mask. Update these bounds when changing diffuse source artwork.
 Brightness remains 1.25×. The comparison page and `?softspace` chart mode use
 the refined treatment; ordinary chart mode remains available for comparison.
 The source artwork is unchanged.
+
+### Approved diffuse treatment, with a Pillars exception
+
+The user approved the smaller faint core and feathered edges, except for the
+Pillars of Creation (`stellar-nursery`). The new treatment is now the default
+for eligible diffuse artwork; `?legacyspace` restores the original treatment
+for comparison. `?softspace` links remain valid. The Pillars keep their original
+backing, brightness and unmasked image in both modes. The comparison page shows
+them as an explicit exception.
