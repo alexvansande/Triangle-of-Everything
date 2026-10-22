@@ -110,7 +110,7 @@ export default {
     { at: "represent event horizons", offset: 0.5, cam: { obj: "M87*", span: 0.6 }, dur: 2.2,
       hl: [{ ...SCHW, label: "event horizons" }, { spot: "M87*", grow: 3, dim: 0.65 }] },
     { at: "represent event horizons", offset: 2.6, photo: "m87", obj: "M87*", dur: 3.6, fadeIn: 1.4,
-      lens: { map: [0.00043284, -0.00002689, -0.308608, -0.209377], r: 0.46, size: [3600, 3600] },
+      lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600] },
       caption: "M87*'s event horizon · Event Horizon Telescope · 2019" },
     { at: "can never come out", cam: { r: 26.5, m: 54, span: 9 }, hl: [{ ...SCHW, label: "nothing gets out" }, { obj: HS, label: false }] },
     { at: "can never come in", hl: [SCHW, { obj: HS, label: "nothing gets in" }] },

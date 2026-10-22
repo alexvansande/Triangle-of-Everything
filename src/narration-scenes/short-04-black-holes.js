@@ -117,9 +117,9 @@ export default {
     // no cut: zoom onto Sgr A*, grow its picture in a spotlight, and the EHT photo fades in
     // over it (lens), its ring laid on the picture's photon ring round the shadow
     { at: ["4 million", "four million"], offset: 0.8, cam: { obj: "Sgr A*", span: 0.6 }, dur: 1.3,
-      hl: [{ spot: "Sgr A*", grow: 3, dim: 0.65 }] },
-    { at: ["4 million", "four million"], offset: 2.0, photo: "sgr-a", obj: "Sgr A*", dur: 3.4, fadeIn: 1.4,
-      lens: { map: [0.00016396, 0, 0.217726, 0.159126], r: 0.24, at: [0.512, 0.453], size: [3600, 3600] },
+      hl: [{ spot: "Sgr A*", grow: 3, dim: 1 }] },
+    { at: ["4 million", "four million"], offset: 2.0, photo: "sgr-a", obj: "Sgr A*", dur: 3.4, fadeIn: 0.9, fadeOut: 1.5,
+      lens: { map: [0.00038123, 0, -0.17691, -0.200666], r: 0.48, size: [3600, 3600], fill: "cover", hold: 0.2, fillDur: 1.2 },
       caption: "Sagittarius A*, our galaxy's black hole · Event Horizon Telescope · 2022" },
     { at: "become less dense", cam: { r: 13.5, m: 41.3, span: 14 }, hl: [SCHW, { line: "water", label: "water" }] },
     { at: "lighter than water", hl: [SCHW, { line: "water", label: "water" }, { side: "right", of: "water" },
@@ -127,9 +127,9 @@ export default {
     { at: "float on a pool", hl: [{ line: "water" }, { side: "right", of: "water" }, { obj: "M87*", label: "it would float" }, { obj: "Ton 618", label: false }] },
     { at: "m87", cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: "m87* · first photographed", place: "left" }] },
     // no cut: zoom onto M87*, grow its picture in a spotlight, and the EHT photo fades in over it (lens)
-    { at: "first one", cam: { obj: "M87*", span: 0.6 }, dur: 1.0, hl: [{ spot: "M87*", grow: 3, dim: 0.65 }] },
-    { at: "first one", offset: 0.9, photo: "m87", obj: "M87*", dur: 1.9, fadeIn: 1.0,
-      lens: { map: [0.00043284, -0.00002689, -0.308608, -0.209377], r: 0.46, size: [3600, 3600] },
+    { at: "first one", cam: { obj: "M87*", span: 0.6 }, dur: 0.8, hl: [{ spot: "M87*", grow: 3, dim: 1 }] },
+    { at: "first one", offset: 0.7, photo: "m87", obj: "M87*", dur: 2.4, fadeIn: 0.8, fadeOut: 1.5,
+      lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600], fill: "cover", hold: 0.1, fillDur: 1.1 },
       caption: "M87*, the first black hole ever photographed · Event Horizon Telescope · 2019" },
     { at: "largest black hole", cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "ton 618", place: "left" }] },
     { at: "our solar system", hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "horizon ≈ 40× neptune's orbit", place: "left" }] },

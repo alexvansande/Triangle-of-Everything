@@ -109,9 +109,9 @@ export default {
     // teaser for the black-hole video: no cut — zoom onto M87*, grow its picture in a
     // spotlight, and the Event Horizon Telescope photo slowly fades in over it (lens)
     { at: "collapse into a black hole", offset: 1.0, cam: { obj: "M87*", span: 0.6 }, dur: 1.2,
-      hl: [{ spot: "M87*", grow: 3, dim: 0.65 }] },
-    { at: "collapse into a black hole", offset: 1.9, photo: "m87", obj: "M87*", dur: 2.1, fadeIn: 1.4,
-      lens: { map: [0.00043284, -0.00002689, -0.308608, -0.209377], r: 0.46, size: [3600, 3600] },
+      hl: [{ spot: "M87*", grow: 3, dim: 1 }] },
+    { at: "collapse into a black hole", offset: 1.9, photo: "m87", obj: "M87*", dur: 2.6, fadeIn: 0.9, fadeOut: 1.5,
+      lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600], fill: "cover", hold: 0.2, fillDur: 1.2 },
       caption: "M87* · Event Horizon Telescope · 2019" },
     { at: "deserves a video", cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
       hl: [{ line: "schwarzschild" }, { obj: "Stellar BH", label: "next: black holes" }] },

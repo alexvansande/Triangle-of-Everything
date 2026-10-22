@@ -429,11 +429,13 @@ export async function startNarration(app) {
       }
       // a filling lens takes the whole screen to black as it grows (whatever the cues
       // underneath do); otherwise only the lens and the caption show
-      photoEl.style.background = fillK > 0 ? "#000" : "transparent";
+      photoEl.style.background = p.lens.fill ? "#000" : "transparent";
       photoEl.style.clipPath = "none";
       photoEl.style.opacity = reveal.toFixed(3);
       // the lens, plus the caption's strip so the caption isn't masked away
       const cap = photoCap.getBoundingClientRect(), capY = (cap.y - lr.y) / scl - 6, capH = cap.height / scl + 12;
+      // a filling lens goes to black with the photo's fade-in, before it grows
+      if (p.lens.fill) fillK = Math.max(fillK, 0.5 * smooth((t - p.t0) / (p.fadeIn ?? PHOTO_IN)));
       const a = (Math.min(1, fillK * 2)).toFixed(3);
       const m = `radial-gradient(circle ${R.toFixed(1)}px at ${qx.toFixed(1)}px ${qy.toFixed(1)}px, #000 88%, transparent 100%), linear-gradient(#000, #000)` +
         (fillK > 0 ? `, linear-gradient(rgba(0,0,0,${a}), rgba(0,0,0,${a}))` : "");
