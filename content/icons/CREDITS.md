@@ -44,7 +44,7 @@ noctiluca-scintillans, horse-chestnut-leaf-miner, clothes-moth,
 honey-bee, bumblebee, painted-lady, silkworm-moth, hedgehog, cane-toad, naked-mole-rat, meerkat, atlas-moth,
 curiosity, lion, flyer-i, hubble-space-telescope, benz-patent-motorwagen, concorde, union-pacific-big-boy, tiger-i, lockheed-sr-71-blackbird, asian-elephant, bismarck,
 ever-given, bagger-288, lake-nyos, konigssee, hallstatter-see, grinnell-glacier, titicaca,
-lake-tahoe, lake-superior, lake-victoria
+lake-tahoe, lake-superior, lake-victoria, voyager-golden-record
 
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,

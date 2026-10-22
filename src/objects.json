@@ -79,6 +79,7 @@
   { "name": "Flea",             "logR": -1,     "logM": -3.5, "rho": [1.0, 1.1, 1.2],   "cat": "macro", "z": 4, "wiki": "Flea" },
   { "name": "Penny",            "logR": -0.02,  "logM": 0.40, "rho": 7.15,   "cat": "macro", "subcat": "machine", "z": 5, "wiki": "Penny_(United_States_coin)" },
   { "name": "Soccer Ball",     "logR": 1.04,   "logM": 2.63,   "cat": "macro", "subcat": "machine", "z": 5, "wiki": "Association_football" },
+  { "name": "Voyager Golden Record", "logR": 1.18, "logM": 2.70, "rho": 8.9, "cat": "macro", "subcat": "machine", "z": 5, "wiki": "Voyager_Golden_Record", "_note": "30.5 cm (12 in) gold-plated copper disc (NASA). Mass is an ESTIMATE (~0.5 kg): no published figure; a ~1 mm copper disc of that size is ~0.65 kg. rho = copper" },
   { "name": "Mouse",            "logR": 0.5,    "logM": 1.3, "rho": [0.93, 0.98, 1.03],    "cat": "macro", "z": 5, "wiki": "House_mouse" },
   { "name": "Human",            "logR": 1.93,    "logM": 4.9, "rho": [0.95, 0.985, 1.07],    "cat": "macro", "z": 1.5, "wiki": "Human" },
   { "name": "Hippopotamus",     "logR": 1.95,   "logM": 6.50, "rho": [1.03, 1.05, 1.1],   "cat": "macro", "z": 4, "_note": "Hippos sink! In span mode logR is hand-set denser than water (logRho≈0.03); in bulk mode rho places it", "wiki": "Hippopotamus" },
