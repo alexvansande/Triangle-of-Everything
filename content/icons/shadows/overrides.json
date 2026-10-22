@@ -1867,5 +1867,50 @@
     "reviewed": true,
     "updated": "2026-10-22T16:51:57.174Z",
     "generator": "imagegen-bubble-wall-v1"
+  },
+  "y-brown-dwarf": {
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
+    "anchorBase": false,
+    "flipY": false,
+    "generatedScale": 0.52,
+    "opacity": 0.3,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 80,
+    "y": 80,
+    "reviewed": true,
+    "generator": "brown-dwarf-ember-wall-v1"
+  },
+  "t-brown-dwarf": {
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
+    "anchorBase": false,
+    "flipY": false,
+    "generatedScale": 0.52,
+    "opacity": 0.3,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 80,
+    "y": 80,
+    "reviewed": true,
+    "generator": "brown-dwarf-ember-wall-v1"
+  },
+  "l-brown-dwarf": {
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
+    "anchorBase": false,
+    "flipY": false,
+    "generatedScale": 0.52,
+    "opacity": 0.3,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 80,
+    "y": 80,
+    "reviewed": true,
+    "generator": "brown-dwarf-ember-wall-v1"
   }
 }

@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import {STAR_BODY_FRAMES, BROWN_DWARFS, starBodyGeometry, starWallLight} from "./star-light.js";
 import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
 import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
 import { buildSearchIndex, searchObjects } from "./object-search.js";
@@ -478,12 +479,15 @@ iconBgGrad.append("stop").attr("offset", "100%").attr("stop-color", "#000").attr
 defs.append("filter").attr("id", "dust-shadow-blur")
   .attr("x", "-5%").attr("y", "-5%").attr("width", "110%").attr("height", "110%")
   .append("feGaussianBlur").attr("stdDeviation", 0.8);
-// Stars' light pools (starGlowGeom): blur sized to the flat ellipse, softer
-// across than along, so the pool fades into the floor.
-defs.append("filter").attr("id", "star-glow")
-  .attr("primitiveUnits", "objectBoundingBox")
-  .attr("x", "-60%").attr("y", "-150%").attr("width", "220%").attr("height", "400%")
-  .append("feGaussianBlur").attr("stdDeviation", "0.14 0.3");
+// A circular wall-light falloff, tinted per star; no generated star textures.
+const starFade=defs.append("radialGradient").attr("id","star-wall-fade");
+for(const [offset,opacity] of [[0,1],[.18,.75],[.42,.34],[.68,.10],[1,0]])starFade.append("stop").attr("offset",offset).attr("stop-color","white").attr("stop-opacity",opacity);
+defs.append("mask").attr("id","star-wall-mask").attr("maskUnits","objectBoundingBox")
+  .attr("maskContentUnits","objectBoundingBox").attr("x",0).attr("y",0).attr("width",1).attr("height",1)
+  .append("rect").attr("width",1).attr("height",1).attr("fill","url(#star-wall-fade)");
+defs.append("filter").attr("id","star-glow").attr("primitiveUnits","objectBoundingBox")
+  .attr("x","-20%").attr("y","-20%").attr("width","140%").attr("height","140%")
+  .append("feGaussianBlur").attr("stdDeviation",.012);
 [["icon-shadow-near", 0.08], ["icon-shadow-far", 0.16]].forEach(([id, sd]) => {
   defs.append("filter").attr("id", id)
     .attr("primitiveUnits", "objectBoundingBox")
@@ -614,8 +618,8 @@ const lRegLabel   = lContent.append("g");
 // Pictures' cast shadows: under the dust, dots, labels and pictures alike
 const lShadows    = lContent.append("g").style("pointer-events", "none").attr("class", "icon-shadows");
 const SHADOWS = !new URLSearchParams(location.search).has("noshadows");
-// Stars' light pools: off for now, ?glow to try them
-const STAR_GLOWS = SHADOWS && new URLSearchParams(location.search).has("glow");
+// Approved circular wall lights; ?noglow is a comparison switch.
+const STAR_GLOWS = SHADOWS && !new URLSearchParams(location.search).has("noglow");
 const DUST_SHADOWS = SHADOWS && !new URLSearchParams(location.search).has("nodustshadows");
 // Catalogue "dust": thousands of faint real objects under the curated ones
 // (src/dust.js). Never interactive except for a hover name.
@@ -2907,6 +2911,7 @@ function drawObjects() {
         imgEl.addEventListener("load", () => {
           _loadedIconUrls.add(ICON_BY_SLUG[o.slug]);
           gg.select(".icon-fallback-dot").attr("display", "none");
+          gg.select(".icon-bg").attr("display", null);
         }, { once: true });
       });
       return g;
@@ -2917,9 +2922,12 @@ function drawObjects() {
       const objIcoSize = icoSize * iconSizeMult(o);
       const growth = _shadowLift?.key === o.slug ? _shadowLift.k : 1;
       gg.interrupt("depth").attr("transform", parallaxTranslation(o, objectPicturePoint(o, growth)));
-      gg.select(".icon-bg")
-        .attr("cx", o.sx).attr("cy", o.sy)
-        .attr("r", objIcoSize * 0.52).attr("opacity", bbOp);
+      const bodyDisc=starBodyGeometry(o.slug,o.sx,o.sy,objIcoSize,growth);
+      gg.select(".icon-bg").interrupt("body")
+        .attr("cx",bodyDisc?.cx??o.sx).attr("cy",bodyDisc?.cy??o.sy)
+        .attr("r",bodyDisc?.r??objIcoSize*.52).attr("opacity",bbOp)
+        .attr("fill",bodyDisc?"#000":"url(#icon-bg-grad)")
+        .attr("display",bodyDisc&&!_loadedIconUrls.has(ICON_BY_SLUG[o.slug])?"none":null);
       gg.select(".icon-fallback-dot")
         .attr("cx", o.sx).attr("cy", o.sy)
         .attr("display", _loadedIconUrls.has(ICON_BY_SLUG[o.slug]) ? "none" : null)
@@ -2998,11 +3006,16 @@ function drawObjects() {
   }, dustColor);
   lDustHover.selectAll("*").remove();
   drawIconShadows([
-    // stars make light: a pool of their colour on the floor instead of a shadow
-    ...(STAR_GLOWS ? shownDots.filter(o => o._showIcon && (o.catKey || o.cat) === "star") : [])
-      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, glow: starTint(ICON_BY_SLUG[o.slug], o.color), glowUrl: ICON_BY_SLUG[o.slug] })),
-    ...(STAR_GLOWS ? dustIcons().filter(d => d.cat === "star") : [])
-      .map(d => ({ key: `dust:${d.i}`, ...d, glow: starTint(ICON_BY_SLUG[nameToSlug(d.name)], "#ffd27a"), glowUrl: ICON_BY_SLUG[nameToSlug(d.name)] })),
+    // Round stellar bodies illuminate the wall. Brown dwarfs share a faint
+    // cast shadow with an embedded ember, instead of a full stellar glow.
+    ...(STAR_GLOWS ? shownDots.filter(o => o._showIcon && STAR_BODY_FRAMES[o.slug] && !BROWN_DWARFS.has(o.slug)) : [])
+      .map(o => ({key:o.slug,slug:o.slug,sx:o.sx,sy:o.sy,r:icoSize*iconSizeMult(o)/2,glow:starTint(ICON_BY_SLUG[o.slug],o.color),glowUrl:ICON_BY_SLUG[o.slug]})),
+    ...(STAR_GLOWS ? dustIcons().filter(d => STAR_BODY_FRAMES[nameToSlug(d.name)] && !BROWN_DWARFS.has(nameToSlug(d.name))) : [])
+      .map(d => ({key:`dust:${d.i}`,...d,slug:nameToSlug(d.name),glow:starTint(ICON_BY_SLUG[nameToSlug(d.name)],"#ffd27a"),glowUrl:ICON_BY_SLUG[nameToSlug(d.name)]})),
+    ...shownDots.filter(o=>o._showIcon&&BROWN_DWARFS.has(o.slug))
+      .map(o=>({key:o.slug,sx:o.sx,sy:o.sy,r:icoSize*iconSizeMult(o)/2,img:SHADOW_BY_SLUG[o.slug],registered:true})),
+    ...dustIcons().filter(d=>BROWN_DWARFS.has(nameToSlug(d.name)))
+      .map(d=>({key:`dust:${d.i}`,...d,img:SHADOW_BY_SLUG[nameToSlug(d.name)],registered:true})),
     ...shownDots.filter(o => o._showIcon && !iconUsesScreenBlend(o))
       .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.registered || SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
     ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
@@ -3056,22 +3069,9 @@ function applyShadowGeom(sel, g) {
   sel.attr("cx", g.cx).attr("cy", g.cy).attr("rx", g.rx).attr("ry", g.ry)
     .attr("transform", g.transform).attr("opacity", g.opacity);
 }
-/** A star's light pool: a flat ellipse of its colour on the floor under it —
- *  a light source lights the ground beneath it rather than casting a shadow
- *  away from the light. The pool is anchored: it sits low enough that even the
- *  star grown on hover (setIconHover: to ≥ 64 px or 1.5×) never covers it, and
- *  on hover it only spreads about its own centre and fades a little. Kept
- *  faint: screen-blended at ~0.3, a hint of light, not a second object. */
-const STAR_GLOW = { width: 1.0, height: 0.24, spread: 1.3, gap: 0.08, opacity: 0.3 };
+// The wall stays behind the source; hover enlarges and dims its circular light.
 function starGlowGeom(d) {
-  const lifted = _shadowLift?.key === d.key;
-  const kHover = Math.max(64, 4 * d.r * 0.75) / (2 * d.r);   // as setIconHover: max(64, size × 1.5) / size
-  const k = lifted ? kHover : 1, grow = lifted ? STAR_GLOW.spread : 1;
-  // the hovered pool's top edge clears the hovered star's bottom (icons fill 122/128 → 0.95 r)
-  const ryHover = STAR_GLOW.height * d.r * kHover * STAR_GLOW.spread;
-  const cy = d.sy + d.r * (0.95 * kHover + STAR_GLOW.gap) + ryHover;
-  return { cx: d.sx, cy, rx: STAR_GLOW.width * d.r * k * grow, ry: STAR_GLOW.height * d.r * k * grow,
-    transform: null, opacity: STAR_GLOW.opacity * (lifted ? 0.7 : 1) };
+  return starWallLight(d,_shadowLift?.key===d.key?_shadowLift.k:1);
 }
 /** The colour of a star's light: the mean of its icon's bright pixels, sampled
  *  once per icon (fallback until it has loaded). */
@@ -3112,7 +3112,7 @@ function drawIconShadows(shapes) {
       SHADOW_PARTS.forEach(([cls, filter]) => g.append("ellipse").attr("class", cls)
         .attr("fill", "#000").attr("filter", `url(#${filter})`));
       g.append("image").attr("class", "sh-img").attr("preserveAspectRatio", "none");
-      g.append("ellipse").attr("class", "sh-glow").attr("filter", "url(#star-glow)")
+      g.append("ellipse").attr("class", "sh-glow").attr("filter", "url(#star-glow)").attr("mask","url(#star-wall-mask)")
         .style("mix-blend-mode", "screen");
       return g;
     })
@@ -3178,6 +3178,9 @@ function setIconHover(o, on) {
   const k = on ? Math.max(64, base * 1.5) / base : 1;
   iconEl.style("transform", k === 1 ? null : `scale(${k})`);
   const group = d3.select(iconEl.node().parentNode);
+  const bodyDisc=starBodyGeometry(o.slug,o.sx,o.sy,base,k);
+  if(bodyDisc)group.select(".icon-bg").interrupt("body").transition("body").duration(_reduceMotion?0:150)
+    .attr("cx",bodyDisc.cx).attr("cy",bodyDisc.cy).attr("r",bodyDisc.r);
   if (on) group.raise();
   group.interrupt("depth").transition("depth").duration(_reduceMotion ? 0 : 150)
     .attr("transform", parallaxTranslation(o, objectPicturePoint(o, k)));

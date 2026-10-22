@@ -1,20 +1,40 @@
 # Shadow studio
 
-## Star wall-light trials — 22 October 2026
+## Star wall lights — accepted circular treatment, 22 October 2026
 
-Open `/tools/star-shine-study.html` on the Vite app (port 5173). Four candidates:
-Sun candle-gold, red-dwarf coral, brown-dwarf ember, and a smooth circular
-Sun gradient. PNGs and exact generation prompts are in `content/icons/light-studies/`.
-The first three were generated with the built-in image tool and preserve its
-transparent alpha. The gradient is procedural. These are review candidates;
-the default chart lighting has not been changed.
+Open `/tools/star-shine-study.html` on the Vite app (port 5173). Stars now use
+procedural circular gradients in both the study and the live chart. Earlier
+AI ray textures remain archived in `content/icons/light-studies/`; they are
+not used for the active stellar lights. `?noglow` disables stellar light pools
+for comparison without disabling object shadows.
 
-The preview uses the purple chart wall, selectable screen/overlay blending,
-light strength/spread controls, and optional stars/grid. Hover grows the star
-1.5×, expands the light 1.55× and divides its opacity by 1.55², with more blur.
-The light stays centred on the wall behind the star, not below it like a floor
-pool. Brown-dwarf light is smaller and fainter, and its opaque dark body keeps
-its normal blend. Uneven rays should remain gentle; avoid dramatic lens flares.
+The wall light stays at the source's resting anchor. At 1.5× icon magnification
+its radius grows 1.55× and its opacity falls to 1/1.55² of its resting value.
+Base diameter is 2.7× the image width, base opacity 0.22, with a smooth radial
+fade and soft blur. The chart samples each star's bright pixels for its tint.
+Light renders behind dust and labels, with screen blending. Camera parallax
+moves the foreground star independently of the wall pool.
+
+Opaque black backing discs follow measured visible stellar bodies, not image
+canvas centers. `src/star-body-frames.json` records normalized centers/radii;
+`src/star-light.js` shares backing geometry and wall-light behavior. Backings
+grow and move with the source on hover and wait for the artwork to load.
+Round Sun, dwarfs, giants, Sirius, Vega and neutron-star artwork use this
+backing. Protostars and other noncircular stellar scenes are excluded.
+
+Brown dwarfs use a separate AI-generated optical layer: a faint dark cast
+shadow with a small muted ember glow in its center. All three Y/T/L examples
+share `content/icons/light-studies/brown-dwarf-wall/`, including exact prompt,
+raw transparent output, normalized candidate and registered layer. Registration
+is scale 0.52, opacity 0.30, x=y=80 on a 768 px canvas; the chart applies its
+usual custom-shadow multiplier and southeast bias. This is a visual transition,
+not a calibrated temperature-to-luminosity model. Hover uses the independent
+wall-shadow projection (farther, larger, blurrier, dimmer), not the star pool's
+formula. No additional circular light is stacked behind these dwarfs.
+
+The generator protects the three brown-dwarf layers from silhouette replacement.
+Browser captures and measured rest/hover checks are in `docs/star-light-review/`;
+run `node scripts/check-star-lights.mjs` and `node --test scripts/star-light.test.mjs`.
 
 ## Camera parallax — 22 October 2026
 

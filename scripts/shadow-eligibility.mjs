@@ -29,6 +29,8 @@ export function iconCategories() {
 const categoryFor = iconCategories();
 export async function shadowExclusion(file) {
   const {slug, cat} = categoryFor(file);
+  // Approved hybrid optical layers: faint cast shadow plus a central ember.
+  if (['y-brown-dwarf','t-brown-dwarf','l-brown-dwarf'].includes(slug)) return null;
   if (SCREEN_BLEND_CATS.has(cat) || SCREEN_BLEND_SLUGS.has(slug) || slug.includes('void')) return 'Screen-blended artwork has no shadow';
   // Catch unclassified opaque black-backed pictures too. Transparent black
   // pixels are not a black background: their alpha must also be opaque.
