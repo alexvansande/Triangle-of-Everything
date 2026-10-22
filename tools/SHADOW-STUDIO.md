@@ -10,8 +10,11 @@ for comparison without disabling object shadows.
 
 The wall light stays at the source's resting anchor. At 1.5× icon magnification
 its radius grows 1.55× and its opacity falls to 1/1.55² of its resting value.
-Base diameter is 2.7× the image width, base opacity 0.22, with a smooth radial
-fade and soft blur. The chart samples each star's bright pixels for its tint.
+Base diameter and opacity now increase with chart log-mass: at solar mass
+3.1× image width and 0.40 opacity; diameter is bounded to 2.7–3.65× and opacity
+to 0.26–0.62. This is an artistic mass cue, not a physical luminosity model.
+The radial fade and soft blur are preserved. The chart samples each star's
+bright pixels for its tint.
 Light renders behind dust and labels, with screen blending. Camera parallax
 moves the foreground star independently of the wall pool.
 
@@ -30,11 +33,30 @@ is scale 0.52, opacity 0.30, x=y=80 on a 768 px canvas; the chart applies its
 usual custom-shadow multiplier and southeast bias. This is a visual transition,
 not a calibrated temperature-to-luminosity model. Hover uses the independent
 wall-shadow projection (farther, larger, blurrier, dimmer), not the star pool's
-formula. No additional circular light is stacked behind these dwarfs.
+formula. The transition now adds a warm circular aura behind the body: Y keeps the
+full shadow and a small red ember aura (1.9×, opacity .055); T uses 65% of the
+shadow and a wider orange aura (2.5×, .16); L uses 35% of the shadow and the
+widest amber aura (2.9×, .25). These are runtime multipliers in
+`stellarLightProfile`, not changes baked into the shared image. The aura stays
+centered on the wall while the separate cast shadow moves southeast on hover.
 
 The generator protects the three brown-dwarf layers from silhouette replacement.
 Browser captures and measured rest/hover checks are in `docs/star-light-review/`;
 run `node scripts/check-star-lights.mjs` and `node --test scripts/star-light.test.mjs`.
+
+## Synchronized hover movement — 22 October 2026
+
+`src/icon-hover.js` drives icon size, measured black backing disc, and depth
+translation from one growth value with a 240 ms cubic ease-out. CSS no longer
+animates the image independently. Both curated and catalogue pictures use
+this clock. Redraws retain the in-flight growth; reversals start at the actual
+current size. Reduced motion applies the endpoint immediately. Wall effects
+use the same duration/easing while retaining their independent projection.
+
+`node scripts/check-icon-hover.mjs` checks every-frame backing alignment,
+linear depth-versus-growth progress, reversal continuity, catalogue pictures,
+and reduced motion. The study includes all three brown-dwarf types; the live
+chart and study share the halo profiles from `src/star-light.js`.
 
 ## Camera parallax — 22 October 2026
 

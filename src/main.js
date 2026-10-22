@@ -1,5 +1,6 @@
 import * as d3 from "d3";
-import {STAR_BODY_FRAMES, BROWN_DWARFS, starBodyGeometry, starWallLight} from "./star-light.js";
+import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
+import {STAR_BODY_FRAMES, BROWN_DWARFS, starBodyGeometry, starWallLight, stellarLightProfile} from "./star-light.js";
 import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
 import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
 import { buildSearchIndex, searchObjects } from "./object-search.js";
@@ -2920,10 +2921,10 @@ function drawObjects() {
       const gg = d3.select(this);
       const bbOp = (_bigBangMode && o.bbOpacity < 1) ? o.bbOpacity : null;
       const objIcoSize = icoSize * iconSizeMult(o);
-      const growth = _shadowLift?.key === o.slug ? _shadowLift.k : 1;
-      gg.interrupt("depth").attr("transform", parallaxTranslation(o, objectPicturePoint(o, growth)));
+      const growth = this.__iconGrowth ?? 1;
+      gg.attr("transform", parallaxTranslation(o, objectPicturePoint(o, growth)));
       const bodyDisc=starBodyGeometry(o.slug,o.sx,o.sy,objIcoSize,growth);
-      gg.select(".icon-bg").interrupt("body")
+      gg.select(".icon-bg")
         .attr("cx",bodyDisc?.cx??o.sx).attr("cy",bodyDisc?.cy??o.sy)
         .attr("r",bodyDisc?.r??objIcoSize*.52).attr("opacity",bbOp)
         .attr("fill",bodyDisc?"#000":"url(#icon-bg-grad)")
@@ -2933,6 +2934,7 @@ function drawObjects() {
         .attr("display", _loadedIconUrls.has(ICON_BY_SLUG[o.slug]) ? "none" : null)
         .attr("opacity", bbOp == null ? 0.85 : 0.85 * bbOp);
       gg.select(".obj-icon")
+        .style("transform",growth===1?null:`scale(${growth})`)
         .attr("href", iconUrlForSize(o.slug, objIcoSize))
         .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2)
         .attr("width", objIcoSize).attr("height", objIcoSize)
@@ -2976,7 +2978,7 @@ function drawObjects() {
   // a curated dot, icon or visible label.
   drawDust(lDust, {
     px, py, cw, ch, mobile: _isMobile,
-    parallax: parallaxOn(), iconLayer: lIcons, depthKeyOf: nameToSlug,
+    parallax: parallaxOn(), reducedMotion:_reduceMotion, iconLayer: lIcons, depthKeyOf: nameToSlug,
     bodySizeAt: (size, name) => size / (ICON_SIZE_MULT[nameToSlug(name)] || 1),
     visibilityEpoch: _objectVisibility.epoch,
     hidden: !_dustEnabled || _bigBangMode,
@@ -3006,16 +3008,11 @@ function drawObjects() {
   }, dustColor);
   lDustHover.selectAll("*").remove();
   drawIconShadows([
-    // Round stellar bodies illuminate the wall. Brown dwarfs share a faint
-    // cast shadow with an embedded ember, instead of a full stellar glow.
-    ...(STAR_GLOWS ? shownDots.filter(o => o._showIcon && STAR_BODY_FRAMES[o.slug] && !BROWN_DWARFS.has(o.slug)) : [])
-      .map(o => ({key:o.slug,slug:o.slug,sx:o.sx,sy:o.sy,r:icoSize*iconSizeMult(o)/2,glow:starTint(ICON_BY_SLUG[o.slug],o.color),glowUrl:ICON_BY_SLUG[o.slug]})),
-    ...(STAR_GLOWS ? dustIcons().filter(d => STAR_BODY_FRAMES[nameToSlug(d.name)] && !BROWN_DWARFS.has(nameToSlug(d.name))) : [])
-      .map(d => ({key:`dust:${d.i}`,...d,slug:nameToSlug(d.name),glow:starTint(ICON_BY_SLUG[nameToSlug(d.name)],"#ffd27a"),glowUrl:ICON_BY_SLUG[nameToSlug(d.name)]})),
-    ...shownDots.filter(o=>o._showIcon&&BROWN_DWARFS.has(o.slug))
-      .map(o=>({key:o.slug,sx:o.sx,sy:o.sy,r:icoSize*iconSizeMult(o)/2,img:SHADOW_BY_SLUG[o.slug],registered:true})),
-    ...dustIcons().filter(d=>BROWN_DWARFS.has(nameToSlug(d.name)))
-      .map(d=>({key:`dust:${d.i}`,...d,img:SHADOW_BY_SLUG[nameToSlug(d.name)],registered:true})),
+    // Stellar light and the transitional brown-dwarf shadow share one key.
+    ...shownDots.filter(o=>o._showIcon&&STAR_BODY_FRAMES[o.slug]&&(STAR_GLOWS||BROWN_DWARFS.has(o.slug)))
+      .map(o=>stellarShadowData({key:o.slug,slug:o.slug,sx:o.sx,sy:o.sy,r:icoSize*iconSizeMult(o)/2,logM:o.logM},o.color)),
+    ...dustIcons().filter(d=>STAR_BODY_FRAMES[nameToSlug(d.name)]&&(STAR_GLOWS||BROWN_DWARFS.has(nameToSlug(d.name))))
+      .map(d=>stellarShadowData({key:`dust:${d.i}`,...d,slug:nameToSlug(d.name)},"#ffd27a")),
     ...shownDots.filter(o => o._showIcon && !iconUsesScreenBlend(o))
       .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.registered || SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
     ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
@@ -3060,7 +3057,8 @@ function shadowGeom(d, [, , c, px, a, b, op]) {
   return { cx, cy, rx: a * r, ry: b * r, transform: `rotate(45 ${cx} ${cy})`, opacity: op * state.opacity };
 }
 function shadowImgGeom(d) {
-  return wallShadowImageGeometry(d, _shadowLift?.key === d.key ? _shadowLift.k : 1);
+  const g=wallShadowImageGeometry(d, _shadowLift?.key === d.key ? _shadowLift.k : 1);
+  return {...g,opacity:g.opacity*(d.shadowStrength??1)};
 }
 function applyShadowImg(sel, g) {
   sel.attr("x", g.x).attr("y", g.y).attr("width", g.width).attr("height", g.height).attr("opacity", g.opacity).style("filter", g.blur ? `blur(${g.blur}px)` : "none");
@@ -3068,6 +3066,12 @@ function applyShadowImg(sel, g) {
 function applyShadowGeom(sel, g) {
   sel.attr("cx", g.cx).attr("cy", g.cy).attr("rx", g.rx).attr("ry", g.ry)
     .attr("transform", g.transform).attr("opacity", g.opacity);
+}
+function stellarShadowData(d,fallback) {
+  const profile=stellarLightProfile(d.slug,d.logM),brown=BROWN_DWARFS.has(d.slug);
+  return {...d,glow:STAR_GLOWS?(profile.color||starTint(ICON_BY_SLUG[d.slug],fallback)):null,
+    glowUrl:profile.color?null:ICON_BY_SLUG[d.slug],
+    img:brown?SHADOW_BY_SLUG[d.slug]:null,registered:brown,shadowStrength:profile.shadow};
 }
 // The wall stays behind the source; hover enlarges and dims its circular light.
 function starGlowGeom(d) {
@@ -3119,14 +3123,15 @@ function drawIconShadows(shapes) {
     .each(function(d) {
       const g = d3.select(this);
       const body = 2 * d.r / (ICON_SIZE_MULT[d.name ? nameToSlug(d.name) : d.key] || 1);
-      const bias = d.glow ? 0 : body * SHADOW_SE_BIAS;
+      const bias = d.glow && !d.img ? 0 : body * SHADOW_SE_BIAS;
       g.attr("transform", `translate(${bias},${bias})`);
       const glow = g.select("ellipse.sh-glow").attr("display", d.glow ? null : "none");
       if (d.glow) {
         g.selectAll("ellipse:not(.sh-glow)").attr("display", "none");
         g.select("image.sh-img").attr("display", "none");
-        applyShadowGeom(glow.interrupt().attr("fill", d.glow), starGlowGeom(d));
-        return;
+        const light=starGlowGeom(d);
+        applyShadowGeom(glow.interrupt().attr("fill", d.glow), {...light,cx:light.cx-bias,cy:light.cy-bias});
+        if(!d.img)return;
       }
       g.selectAll("ellipse:not(.sh-glow)").attr("display", d.img ? "none" : null);
       const img = g.select("image.sh-img").attr("display", d.img ? null : "none");
@@ -3144,15 +3149,16 @@ function liftShadow(key, k) {
   lShadows.selectAll("g.icon-shadow").filter(d => d.key === key).each(function(d) {
     const g = d3.select(this);
     if (d.glow) {
-      applyShadowGeom(g.select("ellipse.sh-glow").interrupt().transition().duration(150), starGlowGeom(d));
-      return;
+      const light=starGlowGeom(d),bias=d.img?2*d.r/(ICON_SIZE_MULT[d.name?nameToSlug(d.name):d.key]||1)*SHADOW_SE_BIAS:0;
+      applyShadowGeom(g.select("ellipse.sh-glow").interrupt().transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase), {...light,cx:light.cx-bias,cy:light.cy-bias});
+      if(!d.img)return;
     }
     if (d.img) {
-      applyShadowImg(g.select("image.sh-img").interrupt().transition().duration(150), shadowImgGeom(d));
+      applyShadowImg(g.select("image.sh-img").interrupt().transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase), shadowImgGeom(d));
       return;
     }
     SHADOW_PARTS.forEach(part => applyShadowGeom(
-      g.select(`ellipse.${part[0]}`).interrupt().transition().duration(150), shadowGeom(d, part)));
+      g.select(`ellipse.${part[0]}`).interrupt().transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase), shadowGeom(d, part)));
   });
 }
 
@@ -3176,14 +3182,15 @@ function setIconHover(o, on) {
   // Grow around the icon's center via CSS transform; geometry attrs stay
   // owned by the renderer (see .obj-icon in style.css for why).
   const k = on ? Math.max(64, base * 1.5) / base : 1;
-  iconEl.style("transform", k === 1 ? null : `scale(${k})`);
   const group = d3.select(iconEl.node().parentNode);
-  const bodyDisc=starBodyGeometry(o.slug,o.sx,o.sy,base,k);
-  if(bodyDisc)group.select(".icon-bg").interrupt("body").transition("body").duration(_reduceMotion?0:150)
-    .attr("cx",bodyDisc.cx).attr("cy",bodyDisc.cy).attr("r",bodyDisc.r);
   if (on) group.raise();
-  group.interrupt("depth").transition("depth").duration(_reduceMotion ? 0 : 150)
-    .attr("transform", parallaxTranslation(o, objectPicturePoint(o, k)));
+  animateIconGrowth(group,k,(node,growth)=>{
+    const current=node.__data__,g=d3.select(node),size=effectiveIconSize()*iconSizeMult(current);
+    g.select('.obj-icon').style('transform',growth===1?null:`scale(${growth})`);
+    const disc=starBodyGeometry(current.slug,current.sx,current.sy,size,growth);
+    if(disc)g.select('.icon-bg').attr('cx',disc.cx).attr('cy',disc.cy).attr('r',disc.r);
+    g.attr('transform',parallaxTranslation(current,objectPicturePoint(current,growth)));
+  },_reduceMotion);
   liftShadow(o.slug, k);
   return true;
 }
@@ -6697,13 +6704,13 @@ document.addEventListener("keydown", (e) => {
     case "-": case "_":
       svg.transition().duration(200).call(zoomBehavior.scaleBy, 1 / 1.4); break;
     case "ArrowLeft":
-      svg.transition().duration(150).call(zoomBehavior.translateBy, PAN_STEP, 0); break;
+      svg.transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase).call(zoomBehavior.translateBy, PAN_STEP, 0); break;
     case "ArrowRight":
-      svg.transition().duration(150).call(zoomBehavior.translateBy, -PAN_STEP, 0); break;
+      svg.transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase).call(zoomBehavior.translateBy, -PAN_STEP, 0); break;
     case "ArrowUp":
-      svg.transition().duration(150).call(zoomBehavior.translateBy, 0, PAN_STEP); break;
+      svg.transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase).call(zoomBehavior.translateBy, 0, PAN_STEP); break;
     case "ArrowDown":
-      svg.transition().duration(150).call(zoomBehavior.translateBy, 0, -PAN_STEP); break;
+      svg.transition().duration(_reduceMotion?0:ICON_HOVER_MS).ease(iconHoverEase).call(zoomBehavior.translateBy, 0, -PAN_STEP); break;
     case "Home":
       resetView(); break; // "0" too — see onStepDigit
 

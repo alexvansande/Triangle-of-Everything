@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {starBodyGeometry,starWallLight,BROWN_DWARFS} from '../src/star-light.js';
+import {starBodyGeometry,starWallLight,BROWN_DWARFS,stellarLightProfile} from '../src/star-light.js';
 import {shadowExclusion} from './shadow-eligibility.mjs';
 import {shadowAction} from './generate-shadows.mjs';
 
@@ -25,4 +25,16 @@ test('brown dwarfs preserve their hybrid shadow while ordinary stars stay exclud
   assert.equal(shadowAction(slug,null,new Set()),'custom');
  }
  assert.ok(await shadowExclusion('sun'));
+});
+test('brown dwarfs trade shadow for a broader brighter aura from Y to T to L',()=>{
+ const [y,t,l]=['y','t','l'].map(type=>stellarLightProfile(type+'-brown-dwarf'));
+ assert.ok(y.shadow>t.shadow&&t.shadow>l.shadow);
+ assert.ok(y.spread<t.spread&&t.spread<l.spread);
+ assert.ok(y.opacity<t.opacity&&t.opacity<l.opacity);
+});
+test('stellar halo intensity increases with chart mass and stays bounded',()=>{
+ const low=stellarLightProfile('red-dwarf',32.1),sun=stellarLightProfile('sun',33.3),high=stellarLightProfile('blue-supergiant',34.7);
+ assert.ok(low.opacity<sun.opacity&&sun.opacity<high.opacity);
+ assert.ok(stellarLightProfile('test',100).opacity<=.62);
+ assert.ok(Number.isFinite(stellarLightProfile('test',NaN).opacity));
 });

@@ -22,6 +22,7 @@
 // =============================================================
 
 import dustUrl from "./dust.json?url";
+import {animateIconGrowth} from "./icon-hover.js";
 import {starBodyGeometry} from "./star-light.js";
 import { PARALLAX, planePoint, unprojectPlane, planeTransform, iconPoint } from "./parallax.js";
 import { applyBulkDust } from "./bulk-density.js";
@@ -415,7 +416,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
   }
   _labelled = new Set(placed.map((p) => p.i));
   _iconed = new Set(placed.filter((p) => p.icon).map((p) => p.i));
-  _iconShapes = placed.filter((p) => p.icon).map((p) => ({ i: p.i, name: p.icon.name, cat: sources[src[p.i]].cat, sx: p.sx, sy: p.sy, r: p.icon.r, blend: p.icon.blend }));
+  _iconShapes = placed.filter((p) => p.icon).map((p) => ({ i: p.i, name: p.icon.name, cat: sources[src[p.i]].cat, logM:_data.m[p.i], sx: p.sx, sy: p.sy, r: p.icon.r, blend: p.icon.blend }));
   const color = (p) => (view.labelColorOf || colorOf)(sources[src[p.i]].cat, sources[src[p.i]].id);
   layer.selectAll("g.dust-named")
     .data(placed, (p) => p.i)
@@ -453,13 +454,13 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         .on("load",function(){_loadedPictures.add(this.getAttribute("href"));d3sel(this.parentNode).select(".dn-body").attr("visibility",null)}); return g; })
     .each(function(p) {
       const g = d3sel(this), point = picturePoint(p);
-      g.interrupt("depth").attr("transform", "translate(" + (point.x-p.sx) + "," + (point.y-p.sy) + ")");
+      g.attr("transform", "translate(" + (point.x-p.sx) + "," + (point.y-p.sy) + ")");
       const source = placed.find(q => q.i === p.i).icon;
       const disc=starBodyGeometry(view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,_iconGrowth.get(p.i)||1);
-      g.select(".dn-body").interrupt("body").attr("display",disc?null:"none")
+      g.select(".dn-body").attr("display",disc?null:"none")
         .attr("visibility",_loadedPictures.has(source.url)?null:"hidden")
         .attr("cx",disc?.cx??p.sx).attr("cy",disc?.cy??p.sy).attr("r",disc?.r??0);
-      g.select("image").attr("href", source.url)
+      g.select("image").style("transform",(_iconGrowth.get(p.i)||1)===1?null:`scale(${_iconGrowth.get(p.i)})`).attr("href", source.url)
         .attr("x", p.sx-p.r).attr("y", p.sy-p.r).attr("width", p.r*2).attr("height", p.r*2)
         .style("mix-blend-mode", p.blend ? "screen" : null);
     });
@@ -479,17 +480,18 @@ export function pickDustIcon(x, y) {
 
 /** Grow (k > 1) or restore (k = 1) dust picture i, as curated icons do on hover. */
 export function setDustIconScale(layer, i, k) {
-  if (k > 1) _iconGrowth.set(i, k); else _iconGrowth.delete(i);
   const group = layer.selectAll("g.dust-picture").filter(p => p.i === i);
   if (k > 1) group.raise();
-  group.each(function(p) {
-    const point = picturePoint(p, k);
-    const disc=starBodyGeometry(_view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,k);
-    if(disc)d3sel(this).select(".dn-body").interrupt("body").transition("body").duration(_view.parallax ? 150 : 0)
-      .attr("cx",disc.cx).attr("cy",disc.cy).attr("r",disc.r);
-    d3sel(this).interrupt("depth").transition("depth").duration(_view.parallax ? 150 : 0)
-      .attr("transform", `translate(${point.x-p.sx},${point.y-p.sy})`);
-  }).select("image.dn-icon").style("transform", k === 1 ? null : `scale(${k})`);
+  animateIconGrowth(group,k,(node,growth)=>{
+    const p=node.__data__,g=d3sel(node);
+    if(growth>1)_iconGrowth.set(i,growth);else _iconGrowth.delete(i);
+    const point=picturePoint(p,growth);
+    const disc=starBodyGeometry(_view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,growth);
+    if(disc)g.select('.dn-body').attr('cx',disc.cx).attr('cy',disc.cy).attr('r',disc.r);
+    g.attr('transform',`translate(${point.x-p.sx},${point.y-p.sy})`);
+    g.select('.dn-icon').style('transform',growth===1?null:`scale(${growth})`);
+  },_view.reducedMotion);
+
 }
 
 /** The dust pictures drawn last frame: [{ i, name, sx, sy, r, blend }]. */
