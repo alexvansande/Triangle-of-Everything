@@ -36,7 +36,7 @@ export const NOISE_MODES = [
 // Tuned for the video: rough (CMB-like) octaves, gentle warp, detail from ~5 source px
 export const NOISE_DEFAULTS = {
   mode: 8, move: true, speed: 0.24, drift: 0.095, ridge: 0.53, warp: 0.51,
-  detail: 0.68, smooth: 0, start: 2.263, filter: 1, res: 1,
+  detail: 0.25, smooth: 0, start: 2.263, filter: 1, res: 1,
 };
 
 const VS = `#version 300 es
