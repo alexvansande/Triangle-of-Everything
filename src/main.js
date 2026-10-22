@@ -94,8 +94,12 @@ const ICON_SIZE_MULT = {
 function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
-  const galaxyScale = (o.catKey || o.cat) === "galaxy" ? 1.25 : 1;
-  return sizeScale * galaxyScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
+  const cat = o.catKey || o.cat;
+  // Galaxies get a second 25% boost; extend this pass to diffuse large-scale
+  // structures and black holes, keeping solid universe/void spheres unchanged.
+  const categoryScale = cat === "galaxy" ? 1.25 * 1.25
+    : cat === "blackhole" || (cat === "largescale" && isDiffuseSpaceArt(cat, o.slug)) ? 1.25 : 1;
+  return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
 }
 
 function nameToSlug(name) {
