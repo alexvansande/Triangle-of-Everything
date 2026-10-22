@@ -2971,8 +2971,8 @@ function drawDustShadows() {
  *  and fades. */
 const SHADOW_PARTS = [
   // [class, filter, centre along the diagonal (× r) + px, half-length, half-width (× r), opacity]
-  ["sh-near", "icon-shadow-near", 1.1, 10, 0.62, 0.36, 0.28],
-  ["sh-far", "icon-shadow-far", 1.6, 16, 0.86, 0.44, 0.18],
+  ["sh-near", "icon-shadow-near", 1.1, 10, 1.05, 0.9, 0.28],
+  ["sh-far", "icon-shadow-far", 1.6, 16, 1.35, 1.05, 0.18],
 ];
 let _shadowLift = null; // { key, k }: the hovered picture and how much it grew
 function shadowGeom(d, [, , c, px, a, b, op]) {
