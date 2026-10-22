@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Star shines · wall-light study</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,sans-serif;background:#161221;color:#eee9f5;--wall:#392885;--line:#ffffff0a}*{box-sizing:border-box}body{margin:0;padding:28px;max-width:1500px;margin:auto}h1{margin:0;font-size:26px;font-weight:650}p{color:#b9b1cb;line-height:1.5;margin:10px 0 20px}header{display:flex;align-items:start;justify-content:space-between;gap:24px}a{color:#c5ef9c}button,select,input{font:inherit;accent-color:#c5ef9c}button,select{padding:8px 12px;border:1px solid #544762;background:#2b2339;color:inherit;border-radius:8px;cursor:pointer}button[aria-pressed=true]{border-color:#c5ef9c;color:#c5ef9c}button:focus-visible,.scene:focus-visible{outline:2px solid #c5ef9c;outline-offset:3px}.controls{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;margin:12px 0 22px;padding:16px;background:#211b2d;border-radius:12px}.controls label{display:flex;align-items:center;gap:9px;font-size:14px}.controls input[type=range]{width:115px}.controls output{min-width:35px;font-variant-numeric:tabular-nums}main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.card{background:#211b2d;border:1px solid #3a3049;border-radius:12px;overflow:hidden}.scene{height:330px;position:relative;isolation:isolate;overflow:hidden;cursor:pointer;background:linear-gradient(90deg,var(--line) 1px,transparent 1px),linear-gradient(var(--line) 1px,transparent 1px),var(--wall);background-size:48px 48px,48px 48px,auto}.shine,.aura,.star,.star-backing{position:absolute;left:50%;top:50%;pointer-events:none;user-select:none;transform:translate(-50%,-50%);object-fit:contain}.shine,.aura{width:300px;height:300px;mix-blend-mode:screen;opacity:.22;filter:blur(1.5px);transition:width .24s cubic-bezier(.333333,1,.666667,1),height .24s cubic-bezier(.333333,1,.666667,1),opacity .24s cubic-bezier(.333333,1,.666667,1),filter .24s cubic-bezier(.333333,1,.666667,1),left .24s cubic-bezier(.333333,1,.666667,1),top .24s cubic-bezier(.333333,1,.666667,1)}.star-backing{background:#000;border-radius:50%;mix-blend-mode:normal;transition:width .24s cubic-bezier(.333333,1,.666667,1),height .24s cubic-bezier(.333333,1,.666667,1),left .24s cubic-bezier(.333333,1,.666667,1),top .24s cubic-bezier(.333333,1,.666667,1)}.star{width:112px;height:112px;mix-blend-mode:screen;transition:width .24s cubic-bezier(.333333,1,.666667,1),height .24s cubic-bezier(.333333,1,.666667,1),left .24s cubic-bezier(.333333,1,.666667,1),top .24s cubic-bezier(.333333,1,.666667,1)}.state{position:absolute;top:14px;left:16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#d0c3ee99}.info{padding:15px 18px}.info h2{font-size:17px;margin:0 0 5px}.info p{font-size:13px;margin:0}.info a{float:right;font-size:12px;margin-left:10px}.badge{font-size:11px;color:#b6a6ce;font-weight:400;margin-left:8px}.notes{font-size:13px;margin-bottom:0}@media(max-width:700px){body{padding:16px}header{display:block}main{grid-template-columns:1fr}.scene{height:320px}.controls{gap:14px}.controls label{flex-wrap:wrap}}@media(prefers-reduced-motion:reduce){.shine,.aura,.star,.star-backing{transition:none}}
+</style></head><body>
+<header><div><h1>A little light on the wall</h1><p>Circular stellar lights and the Y → T → L brown-dwarf transition.<br>Hover or tap a sample: the star comes forward, its light spreads and dims.</p></div><button id="all" aria-pressed="false">Hover all</button></header>
+<div class="controls">
+<label>Blend <select id="blend"><option value="screen">Screen</option><option value="overlay">Overlay</option></select></label>
+<label>Light strength <input id="strength" type="range" min="0" max="2" value="1" step=".05"><output id="strengthOut">1.00×</output></label>
+<label>Spread <input id="spread" type="range" min="1.8" max="4" value="3.1" step=".1"><output id="spreadOut">3.1×</output></label>
+<label><input type="checkbox" id="objects" checked> Show stars</label>
+<label><input type="checkbox" id="grid" checked> Grid</label>
+<label>Wall <input type="color" id="wall" value="#392885"></label>
+<button id="reset">Reset</button>
+</div>
+<main id="samples"></main>
+<p class="notes">Black backing discs stay aligned as the stars grow. Light spreads and dims on hover. Y brown dwarfs keep the strongest shadow; T and L have progressively weaker shadows and larger warm auras. Stellar halos increase with chart mass, with a gentle upper limit. The chart uses the same light profiles.</p>
+<script type="module">
+import {STAR_BODY_FRAMES,starWallLight,stellarLightProfile} from '/src/star-light.js';
+import {wallShadowImageGeometry} from '/src/shadow-geometry.js';
+const root='/content/icons/light-studies/';
+const samples=[
+ {id:'sun',title:'Sun',slug:'sun',logM:33.3,color:'255,210,122',icon:'/content/icons/sun.webp',detail:'Candle-gold circular light.'},
+ {id:'red',title:'Red dwarf',slug:'red-dwarf',logM:32.1,color:'255,155,95',icon:'/content/icons/resolutions/512/red-dwarf.webp',detail:'A smaller, less intense red-orange halo.'},
+ ...[['y','Y',31.18],['ember','T',31.48],['l','L',31.9]].map(([id,type,logM])=>({id,title:type+' brown dwarf',slug:type.toLowerCase()+'-brown-dwarf',logM,file:'brown-dwarf-wall/registered.png',icon:'/content/icons/resolutions/512/'+type.toLowerCase()+'-brown-dwarf.webp',detail:type==='Y'?'Strongest shadow, smallest ember aura.':type==='T'?'35% less shadow, with a wider warm aura.':'65% less shadow, with the broadest amber aura.'})),
+ {id:'gradient',title:'Circular gradient',slug:'sun',logM:33.3,color:'255,210,122',icon:'/content/icons/sun.webp',detail:'Hide the stars to inspect the circular falloff.'}
+];
+const $=id=>document.getElementById(id);let all=false;
+for(const s of samples){const card=document.createElement('section');card.className='card';card.innerHTML=`<div class="scene" id="${s.id}" role="button" tabindex="0" aria-label="Preview ${s.title} approaching the viewer" aria-pressed="false">${s.file?`<div class="aura"></div><img class="shine" src="${root+s.file}" alt="">`:`<div class="shine"></div>`}<span class="star-backing" aria-hidden="true"></span><img class="star" src="${s.icon}" alt="${s.title==='Circular gradient'?'Sun':s.title}"><span class="state">At rest</span></div><div class="info">${s.file?`<a href="${root+s.file}" download>PNG ↓</a>`:""}<h2>${s.title}<span class="badge">${s.file?'AI SHADOW':'CIRCULAR'}</span></h2><p>${s.detail}</p></div>`;$('samples').append(card);s.el=$(s.id);s.over=false;s.pinned=false;
+ s.el.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch'){s.over=true;render()}});s.el.addEventListener('pointerleave',()=>{s.over=false;render()});s.el.addEventListener('click',()=>{s.pinned=!s.pinned;render()});s.el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();s.pinned=!s.pinned;render()}});
+}
+function render(){const strength=+$('strength').value,spread=+$('spread').value;$('strengthOut').textContent=strength.toFixed(2)+'×';$('spreadOut').textContent=spread.toFixed(1)+'×';document.documentElement.style.setProperty('--wall',$('wall').value);document.documentElement.style.setProperty('--line',$('grid').checked?'#ffffff0a':'transparent');$('all').setAttribute('aria-pressed',all);$('all').textContent=all?'Return all to rest':'Hover all';
+ for(const s of samples){
+  const hover=all||s.over||s.pinned,growth=hover?1.5:1,light=s.el.querySelector('.shine'),star=s.el.querySelector('.star');
+  const profile=stellarLightProfile(s.slug,s.logM),frame=STAR_BODY_FRAMES[s.slug],size=112*growth;
+  star.style.width=star.style.height=size+'px';star.style.visibility=$('objects').checked?'visible':'hidden';
+  const backing=s.el.querySelector('.star-backing');
+  backing.style.width=backing.style.height=(size*frame.r*2)+'px';
+  backing.style.left=`calc(50% + ${(frame.cx-.5)*size}px)`;backing.style.top=`calc(50% + ${(frame.cy-.5)*size}px)`;backing.style.visibility=star.style.visibility;
+  const pool=s.file?s.el.querySelector('.aura'):light,g=starWallLight({sx:0,sy:0,r:56,slug:s.slug,logM:s.logM},growth);
+  const color=profile.color?profile.color.slice(1).match(/../g).map(v=>parseInt(v,16)).join(','):s.color;
+  pool.style.width=pool.style.height=(g.rx*2*spread/3.1)+'px';pool.style.opacity=g.opacity*strength;
+  pool.style.left=`calc(50% + ${g.cx}px)`;pool.style.top=`calc(50% + ${g.cy}px)`;
+  pool.style.background=`radial-gradient(closest-side,rgba(${color},1) 0%,rgba(${color},.75) 18%,rgba(${color},.34) 42%,rgba(${color},.1) 68%,rgba(${color},0) 100%)`;
+  pool.style.mixBlendMode=$('blend').value;pool.style.filter='blur(2px)';
+  if(s.file){const shadow=wallShadowImageGeometry({sx:0,sy:0,r:56,registered:true},growth);
+   light.style.width=shadow.width+'px';light.style.height=shadow.height+'px';light.style.opacity=shadow.opacity*profile.shadow*strength;
+   light.style.left=`calc(50% + ${shadow.x+shadow.width/2+11.2}px)`;light.style.top=`calc(50% + ${shadow.y+shadow.height/2+11.2}px)`;
+   light.style.filter=`blur(${shadow.blur}px)`;light.style.mixBlendMode='normal';
+  }
+  s.el.querySelector('.state').textContent=hover?'Closer to you · wider, dimmer light':'At rest';s.el.setAttribute('aria-pressed',hover);
+ }
+}
+
+for(const id of ['strength','spread','objects','grid','blend','wall'])$(id).addEventListener('input',render);
+$('all').onclick=()=>{all=!all;render()};$('reset').onclick=()=>{all=false;for(const s of samples)s.pinned=s.over=false;$('strength').value=1;$('spread').value=3.1;$('blend').value='screen';$('wall').value='#392885';$('objects').checked=$('grid').checked=true;render()};render();
+</script></body></html>

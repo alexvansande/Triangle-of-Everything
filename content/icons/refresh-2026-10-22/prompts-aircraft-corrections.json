@@ -1,0 +1,65 @@
+[
+  {
+    "slug": "concorde",
+    "prompt": "Use case: scientific-educational. One highly detailed realistic miniature for a museum display chart. Real transparent PNG background. Reference Boeing 747 supplies ONLY the lighting, direct top-view camera and finish, not the design. DIRECT TOP/DORSAL view with front/nose pointing UP, entire object parallel to image plane like pinned to a wall. Near orthographic, no strong perspective. Warm upper-left/front key light, clear relief, darker lower-right, subtle violet reflected light. Complete silhouette centred in square image with 5% clear margins including propellers, antennae and wings; no cropping. NO ground, shelf, sky, smoke, text labels, scenery, cast shadow or other object. Subject: Concorde supersonic passenger jet: white slender needle fuselage, pointed nose, distinctive ogee delta wings, four underwing engines visible only where appropriate from above, dark navy tail fin, fine windows. Correct recognizable slender silhouette.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/boeing-747.png"
+    ]
+  },
+  {
+    "slug": "lockheed-sr-71-blackbird",
+    "prompt": "Use case: scientific-educational. One highly detailed realistic miniature for a museum display chart. Real transparent PNG background. Reference Boeing 747 supplies ONLY the lighting, direct top-view camera and finish, not the design. DIRECT TOP/DORSAL view with front/nose pointing UP, entire object parallel to image plane like pinned to a wall. Near orthographic, no strong perspective. Warm upper-left/front key light, clear relief, darker lower-right, subtle violet reflected light. Complete silhouette centred in square image with 5% clear margins including propellers, antennae and wings; no cropping. NO ground, shelf, sky, smoke, text labels, scenery, cast shadow or other object. Subject: Lockheed SR-71 Blackbird reconnaissance jet, long matte charcoal-black needle nose and fuselage chines, broad delta-like swept wings merging into two large engine nacelles, two inward-canted tail fins. Correct SR-71 planform, subtle panels with highlights so black surfaces remain readable.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/boeing-747.png"
+    ]
+  },
+  {
+    "slug": "flyer-i",
+    "prompt": "Use case: scientific-educational. One highly detailed realistic miniature for a museum display chart. Real transparent PNG background. Reference Boeing 747 supplies ONLY the lighting, direct top-view camera and finish, not the design. DIRECT TOP/DORSAL view with front/nose pointing UP, entire object parallel to image plane like pinned to a wall. Near orthographic, no strong perspective. Warm upper-left/front key light, clear relief, darker lower-right, subtle violet reflected light. Complete silhouette centred in square image with 5% clear margins including propellers, antennae and wings; no cropping. NO ground, shelf, sky, smoke, text labels, scenery, cast shadow or other object. Subject: 1903 Wright Flyer I, cream fabric biplane wings and delicate wooden struts, forward canard elevator and twin rear rudders, twin rear wooden pusher propellers, accurately visible top view of the original pioneer aircraft, no pilot. Not a modern single-wing airplane.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/boeing-747.png"
+    ]
+  },
+  {
+    "slug": "14-bis",
+    "prompt": "Use case: scientific-educational. One highly detailed realistic miniature for a museum display chart. Real transparent PNG background. Reference Boeing 747 supplies ONLY the lighting, direct top-view camera and finish, not the design. DIRECT TOP/DORSAL view with front/nose pointing UP, entire object parallel to image plane like pinned to a wall. Near orthographic, no strong perspective. Warm upper-left/front key light, clear relief, darker lower-right, subtle violet reflected light. Complete silhouette centred in square image with 5% clear margins including propellers, antennae and wings; no cropping. NO ground, shelf, sky, smoke, text labels, scenery, cast shadow or other object. Subject: Santos-Dumont 14-bis of 1906: distinctive cream fabric box-kite biplane wings, forward box-shaped canard/elevator at the nose pointing UP, long open bamboo/wooden fuselage behind canard, large cellular biplane wings aft, pusher propeller at rear. Faithful box-kite appearance and fragile braced structure, no cockpit canopy, no pilot.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/boeing-747.png"
+    ]
+  },
+  {
+    "slug": "dji-mini-2",
+    "prompt": "Use case: scientific-educational. One highly detailed realistic miniature for a museum display chart. Real transparent PNG background. Reference Boeing 747 supplies ONLY the lighting, direct top-view camera and finish, not the design. DIRECT TOP/DORSAL view with front/nose pointing UP, entire object parallel to image plane like pinned to a wall. Near orthographic, no strong perspective. Warm upper-left/front key light, clear relief, darker lower-right, subtle violet reflected light. Complete silhouette centred in square image with 5% clear margins including propellers, antennae and wings; no cropping. NO ground, shelf, sky, smoke, text labels, scenery, cast shadow or other object. Subject: DJI Mini 2 folding consumer quadcopter, arms unfolded, light grey compact body, four black two-bladed propellers on four arms, small front camera gimbal at image top. Correct Mini 2 proportions, no added obstacle sensors, propellers static and fully visible.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/boeing-747.png"
+    ]
+  },
+  {
+    "slug": "ingenuity",
+    "prompt": "Use case: scientific-educational. One highly detailed realistic miniature for a museum display chart. Real transparent PNG background. Reference Boeing 747 supplies ONLY the lighting, direct top-view camera and finish, not the design. DIRECT TOP/DORSAL view with front/nose pointing UP, entire object parallel to image plane like pinned to a wall. Near orthographic, no strong perspective. Warm upper-left/front key light, clear relief, darker lower-right, subtle violet reflected light. Complete silhouette centred in square image with 5% clear margins including propellers, antennae and wings; no cropping. NO ground, shelf, sky, smoke, text labels, scenery, cast shadow or other object. Subject: NASA Ingenuity Mars helicopter, direct top view of two counter-rotating two-blade rotors at differing angles, small rectangular dark solar panel on top, gold insulated central body, four very thin landing legs visible beyond body. No Mars surface. Scientific scale miniature with full blades in frame.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/boeing-747.png"
+    ]
+  },
+  {
+    "slug": "hubble-space-telescope",
+    "prompt": "Use case: scientific-educational. One highly detailed realistic miniature for a museum display chart. Real transparent PNG background. Reference Boeing 747 supplies ONLY the lighting, direct top-view camera and finish, not the design. DIRECT TOP/DORSAL view with front/nose pointing UP, entire object parallel to image plane like pinned to a wall. Near orthographic, no strong perspective. Warm upper-left/front key light, clear relief, darker lower-right, subtle violet reflected light. Complete silhouette centred in square image with 5% clear margins including propellers, antennae and wings; no cropping. NO ground, shelf, sky, smoke, text labels, scenery, cast shadow or other object. Subject: Hubble Space Telescope museum miniature, main silver cylindrical telescope body pointing up in the image plane, dark open aperture at top with aperture door, two blue rectangular solar panel wings extending left and right. Side surfaces visible slightly to convey cylinder, main body parallel to display wall, full appendages.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/boeing-747.png"
+    ]
+  },
+  {
+    "slug": "hms-victory",
+    "prompt": "Use case: precise-object-edit. Correct this HMS Victory museum miniature. REMOVE the golden screw propeller at lower right completely; HMS Victory is a sailing-only wooden ship, without ANY screw propeller or engine. Replace that small area with a historically plausible plain wooden stern and rudder continuing the wooden hull. Keep the existing broadside camera, bow left, three masts, furled sails, yellow and black gunport bands, rigging and all other details. Ensure complete ship including bowsprit and stern within generous transparent margins, longest side 90% of square canvas. No base or shadow. Preserve transparent alpha.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/hms-victory-raw.png"
+    ]
+  },
+  {
+    "slug": "blue-whale",
+    "prompt": "Use case: precise-object-edit. Preserve this realistic blue whale, its mottled skin, left-facing full side profile and lighting, but fit the COMPLETE tail and nose safely inside the transparent square canvas. Scale the complete subject down enough to leave 5% clear transparent margin at both left and right. Preserve natural whale anatomy with horizontal cetacean tail flukes viewed in slight perspective, not a vertical fish tail. Show the entire flukes without clipping. Keep floating, no water or background, no cast shadow.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/blue-whale-raw.png"
+    ]
+  }
+]

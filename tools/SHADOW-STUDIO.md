@@ -1,5 +1,91 @@
 # Shadow studio
 
+## Star wall lights — accepted circular treatment, 22 October 2026
+
+Open `/tools/star-shine-study.html` on the Vite app (port 5173). Stars now use
+procedural circular gradients in both the study and the live chart. Earlier
+AI ray textures remain archived in `content/icons/light-studies/`; they are
+not used for the active stellar lights. `?noglow` disables stellar light pools
+for comparison without disabling object shadows.
+
+The wall light stays at the source's resting anchor. At 1.5× icon magnification
+its radius grows 1.55× and its opacity falls to 1/1.55² of its resting value.
+Base diameter and opacity now increase with chart log-mass: at solar mass
+3.1× image width and 0.40 opacity; diameter is bounded to 2.7–3.65× and opacity
+to 0.26–0.62. This is an artistic mass cue, not a physical luminosity model.
+The radial fade and soft blur are preserved. The chart samples each star's
+bright pixels for its tint.
+Light renders behind dust and labels, with screen blending. Camera parallax
+moves the foreground star independently of the wall pool.
+
+Opaque black backing discs follow measured visible stellar bodies, not image
+canvas centers. `src/star-body-frames.json` records normalized centers/radii;
+`src/star-light.js` shares backing geometry and wall-light behavior. Backings
+grow and move with the source on hover and wait for the artwork to load.
+Round Sun, dwarfs, giants, Sirius, Vega and neutron-star artwork use this
+backing. Protostars and other noncircular stellar scenes are excluded.
+
+Brown dwarfs use a separate AI-generated optical layer: a faint dark cast
+shadow with a small muted ember glow in its center. All three Y/T/L examples
+share `content/icons/light-studies/brown-dwarf-wall/`, including exact prompt,
+raw transparent output, normalized candidate and registered layer. Registration
+is scale 0.52, opacity 0.30, x=y=80 on a 768 px canvas; the chart applies its
+usual custom-shadow multiplier and southeast bias. This is a visual transition,
+not a calibrated temperature-to-luminosity model. Hover uses the independent
+wall-shadow projection (farther, larger, blurrier, dimmer), not the star pool's
+formula. The transition now adds a warm circular aura behind the body: Y keeps the
+full shadow and a small red ember aura (1.9×, opacity .055); T uses 65% of the
+shadow and a wider orange aura (2.5×, .16); L uses 35% of the shadow and the
+widest amber aura (2.9×, .25). These are runtime multipliers in
+`stellarLightProfile`, not changes baked into the shared image. The aura stays
+centered on the wall while the separate cast shadow moves southeast on hover.
+
+The generator protects the three brown-dwarf layers from silhouette replacement.
+Browser captures and measured rest/hover checks are in `docs/star-light-review/`;
+run `node scripts/check-star-lights.mjs` and `node --test scripts/star-light.test.mjs`.
+
+## Synchronized hover movement — 22 October 2026
+
+`src/icon-hover.js` drives icon size, measured black backing disc, and depth
+translation from one growth value with a 240 ms cubic ease-out. CSS no longer
+animates the image independently. Both curated and catalogue pictures use
+this clock. Redraws retain the in-flight growth; reversals start at the actual
+current size. Reduced motion applies the endpoint immediately. Wall effects
+use the same duration/easing while retaining their independent projection.
+
+`node scripts/check-icon-hover.mjs` checks every-frame backing alignment,
+linear depth-versus-growth progress, reversal continuity, catalogue pictures,
+and reduced motion. The study includes all three brown-dwarf types; the live
+chart and study share the halo profiles from `src/star-light.js`.
+
+## Camera parallax — 22 October 2026
+
+The chart now has subtle depth while panning, including programmatic narration
+camera moves. Back to front: background/shadows, dust dots, labels/grid,
+normal icons, hovered icons. Shadows stay on the wall plane; they retain their
+existing hover growth/blur behavior independently of this parallax.
+The chart adds a fixed southeast bias of 10% of body diameter on each axis
+to all object cast shadows, balancing the foreground shift near the bottom-right
+corner. This translation is independent of pan and hover; ring extensions do
+not inflate it. Star light pools keep their existing placement.
+
+`src/parallax.js` is the shared projection. Dust shifts up to 2 px per axis and
+labels/grid up to 4 px at viewport edges. A normal icon's centre shifts at most
+about 28% of its body diameter from its true anchor. Each object has a stable
+identity-based depth variation of ±12%, producing at most 31.36% displacement
+from the anchor (62.72% total across the screen). The same slug has the same
+depth in curated and catalogue rendering, across pans, searches and reloads.
+Ring/jet size multipliers are excluded from the body diameter. Hover adds depth
+proportional to the existing growth. Text translates without changing size.
+
+Offsets depend on viewport position, never accumulated pan distance or speed,
+so reverse pans return exactly and narrated motion gets the same effect.
+Picking follows the projected artwork. Visibility decisions remain in anchored
+coordinates, and label clearance reserves the possible icon travel. Reduced
+motion, poster mode and Big Bang mode disable this effect; `?noparallax` is an
+explicit comparison switch. Geometry checks are in `scripts/parallax.test.mjs`;
+browser checks in `scripts/check-parallax.mjs` and `scripts/check-pan-visibility.mjs`.
+
 ## Big Ben shadow strength — 22 October 2026
 
 Big Ben's scripted shadow uses opacity 0.65 (previously 0.50), following
@@ -751,3 +837,243 @@ custom layer multiplier of 0.85, approximately matching the 0.45 shared shadow.
 
 `CUSTOM_AI_SHADOWS` protects Saturn from scripted batch regeneration,
 including `--reset-reviewed`. Adjust its candidate in the studio when needed.
+
+Position correction: compare Saturn's globe with an equally sized spherical
+planet, not its full ring span. The generated candidate's placement is now
+x=55, y=76 on the 768px studio canvas (previously 35,40), scale 0.42 and
+opacity 0.53 unchanged. This moves the central umbra down-right to match the
+shared sphere's resting separation. See `alignment-comparison.png` in the
+same archive for the old placement, corrected placement and Jupiter reference.
+
+Transparency correction: the user spotted gray fill between the ring bands.
+The built-in image editor repaired the candidate to use neutral near-black
+shadow pixels and transparent ring gaps instead of lavender/gray paint. The
+new master is installed with the same x=55, y=76, scale=0.42 and opacity=0.53.
+Raw output, prompt, previous candidate/export, and rest/hover chart captures
+are archived in `saturn-ring-shadow/transparency-fix/`. Preserve transparency
+in future edits: a lighter shadow region should reveal more wall, not add gray.
+
+## Illustration refresh batch — 22 October 2026
+
+The approved backlog produced 40 refreshed illustrations and seven new ones:
+14-bis, helium party balloon, weather balloon, near-burst weather balloon,
+hot-air balloon, Zeppelin NT and soap bubble. All are installed in the chart.
+The complete per-object status is in `docs/illustration-refresh-queue.json`.
+Review them at `/tools/illustration-refresh-review.html`, with a search field,
+shadow toggle, rest/hover comparison and links to each object's studio controls.
+
+Preserve the user's exclusions: no second elephant, rocket refresh, Burj Khalifa
+refresh, 1 ml droplet change, microorganism refresh, soccer ball change, Eros or
+Bennu change. Stars, atoms, particles and the remaining space illustrations
+were left alone during this batch. Rodina Glacier remains unresolved.
+
+The image service blocked four sculpture generations: Manneken Pis, the Little
+Mermaid, Venus of Willendorf and Venus de Milo. These are explicitly marked
+`generation-blocked`; previous artwork was retained wherever it existed.
+Do not describe them as completed or silently substitute unrelated figures.
+
+### Artwork, framing and shadows
+
+Use the wall-mounted miniature style: front-facing contours with minimal
+perspective and a little visible depth along the top. Animals face left in
+profile, ships and ground vehicles are side views, aircraft and winged insects
+are top views. The approved Titanic, 747 and Loch Ness remain style references.
+
+All 47 installed masters are transparent 1254×1254 PNGs, with their longest
+solid dimension about 92% of the canvas and at least 25 px of clear margin.
+The chart has 128, 256, 512 and 1024 px WebP exports. Generation prompts, raw
+results, source outlines, sizing checks and previous assets are archived in
+`content/icons/refresh-2026-10-22/`. Do not overwrite those previous assets.
+
+Thirty-six opaque/non-lake objects received scripted long wall shadows from
+their final alpha masks. Eleven lakes received separate AI-generated caustic
+layers. These lakes are now protected by `CAUSTIC_SHADOWS` in the batch shadow
+generator, alongside the approved water objects and Loch Ness. Saturn retains
+its separate AI-shadow protection.
+
+The eleven new lake candidates share one normalized preset: generated mode,
+registered=true, anchorBase=false, flipY=false, scale=0.4, opacity=0.5,
+extra blur=0, distance=0, x=88, y=88 on the 768 px studio canvas. These values
+are baked into the installed 256 px shadows. The chart's existing depth,
+opacity and southeast parallax compensation still apply at runtime.
+`scripts/install-lake-caustics.mjs` reproduces the export; don't apply its
+opacity or registration a second time in the renderer.
+
+### Lake outline provenance
+
+Caspian Sea, Dead Sea, Baikal, Superior, Tahoe, Victoria, Sea of Galilee and
+Titicaca use generalized 1:10m outlines from
+[Natural Earth](https://github.com/nvkelso/natural-earth-vector), public domain.
+They are shape references, not current surveys of changing water levels.
+
+The remaining outlines are © OpenStreetMap contributors, ODbL, retrieved
+22 October 2026: [Lake Nyos](https://www.openstreetmap.org/way/23126844),
+[Hallstätter See](https://www.openstreetmap.org/relation/21485), and
+[Königssee](https://www.openstreetmap.org/relation/56916).
+Their GeoJSON, SVG and PNG references and source metadata are saved in
+`content/icons/refresh-2026-10-22/outlines/`. Use these actual outlines for
+future revisions instead of asking the image model to invent the coastline.
+
+Browser review captures and the runtime mapping check are in
+`docs/illustration-refresh-review/`. The check covers all seven new chart
+entries, high-resolution selection, hover controls and a 390 px viewport.
+
+### Neutron star follow-up
+
+At the user's subsequent request, removed both polar jets from the neutron-star
+icon using built-in imagegen. The blue-white sphere and compact rim glow remain,
+with transparent 1254 px master and 128/256/512/1024 px chart exports. Removed
+the old 2.5× icon multiplier, which existed only to compensate for the beams.
+The prompt, generated result and previous artwork are archived in
+`content/icons/refresh-2026-10-22/neutron-star-no-jets/`. This is an explicit
+exception to the earlier instruction to leave star illustrations untouched.
+
+## Review follow-up — 22 October 2026
+
+- Halved all parallax displacement coefficients: dust 1 px, labels/grid 2 px,
+  icon 0.14 body lengths, hover contribution 0.10. The relative per-object depth
+  variation remains 12%. This changes camera parallax, not hover magnification
+  or the independent wall-light projection.
+- The star-shine study now has a normal-blend opaque black disc between each
+  light pool and star image. Disc sizes follow the visible body (Sun 86%, red
+  dwarf and brown dwarf 94% of image width), grow with hover and hide with
+  Show stars. Star surface colors screen against black; outer transparent
+  regions still reveal the wall and light pool. Chart star lighting is unchanged.
+- Eleven refreshed lake shadows moved from x=y=88 to x=y=30 on the studio's
+  768 px canvas, preserving scale 0.4, opacity 0.5 and the existing caustics.
+  This supersedes the earlier lake placement. Do not change the approved
+  droplet, bowl or Loch Ness settings to match this adjustment.
+- Soap bubble now uses a separate AI optical layer with a transparent center,
+  delicate violet shading and luminous arcs. It uses the same closer preset
+  as the lakes and is protected from scripted silhouette regeneration.
+- Everest now has a substantial fractured-rock base. Its cut is illustrative;
+  the inherited chart mass has no documented footprint or basal surface.
+  The description and data note disclose this; no numeric mass was changed.
+- The Eois illustration was reconstructed from the LEFT/dorsal specimen in
+  the user's photo, matching the existing chart icon's source. Preserve the
+  photo's markings rather than borrowing the ventral view. The photo caption
+  says Eois ewa while the existing chart label is Eois stantonae; this edit is
+  not a taxonomic determination. The original photo and the old chart master
+  are retained, and the new image is an AI reconstruction, not recovered detail.
+- Venus of Willendorf and Venus de Milo are omitted at the user's request.
+  They are no longer pending or shown as blocked in the refresh gallery.
+
+Prompts, original Eois reference and previous assets are in
+`content/icons/refresh-2026-10-22/review-followup/`. New installed masters are
+`content/icons/src/mt-everest.png` and `content/icons/src/eois-stantonae.png`;
+the optical candidate is `content/icons/shadow-candidates/soap-bubble.png`.
+The soap-bubble export is reproducible with
+`scripts/install-soap-bubble-caustics.mjs`. Browser captures are in
+`docs/illustration-refresh-review/followup/`.
+
+### Lake material study: darker glass with sparse light
+
+The user rejected the broad lavender caustic webs: thick blue resin/glass should
+read primarily as a shadow, with only one or two localized pale light patches.
+Two AI studies (Hallstätter See and Victoria) are saved under
+`content/icons/shadow-candidates/lake-resin-study/`, with full prompts, raw
+transparent outputs, normalized candidates and registered 768 px layers.
+Both use scale 0.4, opacity 0.5 and x=y=30, matching the current closer preset.
+The comparison is `/tools/lake-resin-study.html`, with current/proposed columns,
+a Show lakes checkbox to inspect the shadows alone, and hover comparison.
+These are studies only: active chart shadows have not been replaced. The
+proposed shadows have clearer contours and much less luminous area; assess
+edge softness as well as sparse highlight placement before adopting widely.
+
+The user liked the darker glass treatment but found the study shadows too far
+away. The proposed column now translates the optical layer northwest by 15%
+of the resting image width on each axis, relative to the previous preview.
+This reduces the combined baked registration and chart bias from about 22%
+to 7% per axis. Scale, opacity, caustics and hover separation are preserved.
+The current column remains unchanged for comparison. The translation is in
+the preview rather than the PNG; carry it across when installing these layers
+(equivalent resting registration x=y≈-8 instead of 30 on the 768 px canvas,
+with the chart's usual +10% southeast bias).
+
+## Diffuse space-art comparison — 22 October 2026
+
+The user asked to try removing black backing discs behind galaxies, comets
+and similar diffuse artwork, with a modest brightness increase. This is an
+opt-in chart comparison: `?softspace` omits those backings and applies
+`brightness(1.25)` before screen blending. It affects galaxies, large-scale
+light structures, comets and explicitly listed nebular artwork in
+`src/space-art.js`; solid stars, planets, black holes and dark voids retain
+their existing treatment. Catalogue artwork gets the same brightness boost.
+
+`/tools/space-blend-study.html` compares four examples, with a brightness
+slider and links to both chart modes. It changes compositing only, not the
+source images or alpha. The wall shows through faint details, giving a more
+luminous impression; photographic background noise and rectangular crop edges
+can also become more apparent, especially in Andromeda and Halley's Comet.
+The default chart remains unchanged pending comparison.
+
+### Smaller cores and feathered edges
+
+The diffuse-space comparison now retains a faint core backing: 56% of image
+width (previous broad backing 104%), with central opacity .35 fading through
+.15 to zero. Halley's backing follows its head at 24% of image width and uses
+a smaller 40% diameter. Both grow with the icon on the same hover clock.
+
+The outer 14% of each source rectangle is feathered on both axes. Masks use
+the measured alpha bounds in `src/space-art-frames.json` (alpha >16/255 on
+root chart WebPs), so transparent letterboxing does not hide a hard photo
+edge from the mask. Update these bounds when changing diffuse source artwork.
+`src/space-art.js` supplies matching SVG chart masks and CSS study masks.
+Brightness remains 1.25×. The comparison page and `?softspace` chart mode use
+the refined treatment; ordinary chart mode remains available for comparison.
+The source artwork is unchanged.
+
+### Approved diffuse treatment, with a Pillars exception
+
+The user approved the smaller faint core and feathered edges, except for the
+Pillars of Creation (`stellar-nursery`). The new treatment is now the default
+for eligible diffuse artwork; `?legacyspace` restores the original treatment
+for comparison. `?softspace` links remain valid. The Pillars keep their original
+backing, brightness and unmasked image in both modes. The comparison page shows
+them as an explicit exception.
+
+Observable Universe is also exempt: its artwork depicts a defined sphere.
+The rectangular diffuse-photo feathering cut away its round rim and made it
+look square. Keep its original unmasked image and brightness. It now uses a
+measured, opaque black disc backing like the stars, synchronized with the image
+during hover. The approved `selective-skin.png` cosmic marble is now the live
+icon: clear blue CMB patches reveal filaments beneath the continuous outer skin.
+Its original artwork is backed up in `candidates/observable-universe-marble/previous`.
+The 1254px master supplies 128/256/512/1024px chart versions.
+
+The marble has a separate AI-generated wall shadow with two small restrained
+refractive caustics, without a stellar glow. The raw transparent shadow lives at
+`shadow-candidates/observable-universe.png`; its registration uses the studio's
+768px canvas, scale .48, x145/y175 and opacity .80 (increased from .55 for the
+darker chart region). `roundOffsetScale: 1` applies
+the approved −25% placement correction and keeps it responsive to the round
+shadow controls. `SHADOWED_SCREEN_SPHERES` permits its shadow despite screen
+blending; `CUSTOM_AI_SHADOWS` preserves it during scripted regeneration.
+
+Laniakea now uses a 1254px regenerated master based on its previous asymmetric
+branching composition. Its golden/ivory filaments, clustered nodes and cooler
+distant strands match the interior of the approved universe marble. It retains
+screen blending, 5% brightness boost, feathered edges and no cast shadow. Chart
+tiers are 128/256/512/1024px. Previous artwork and the full built-in image-generation
+prompt are saved under `content/icons/candidates/laniakea-filaments/`.
+
+The final approved brightness boost is **5% (`brightness(1.05)`)**, replacing
+the earlier 25% experiment. The app (including dust icons) and comparison page
+share this setting. The smaller faint core, feathered edges and Pillars exception
+remain unchanged.
+
+Noctiluca scintillans uses the shared scripted long-shadow preset generated
+from its actual alpha silhouette. It is removed from `shadows/round.json` so
+the chart and future batch generation use its custom shadow, not `_sphere.webp`.
+
+### Round shadow placement controls
+
+Settings → Spherical shadow position adjusts the shared round texture live.
+Horizontal and vertical offsets are percentages of the resting object diameter;
+negative values move west/north. The user approved **−25% on both axes**.
+Saturn’s custom ring/globe shadow follows this same adjustment, measured against
+its globe diameter (half the full icon width, `roundOffsetScale: 0.5`). The
+registration correction stays fixed during hover; its existing travel, blur and
+size behavior remain intact. Other custom shadows and lights are unaffected.
+Adjustments persist under `tri-round-shadow-offset-v2`; the new key retires
+earlier experimental settings. Reset restores −25%, −25%.

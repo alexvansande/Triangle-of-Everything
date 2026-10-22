@@ -1,0 +1,11 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-22",
+  "reference": "previous-candidate.png",
+  "prompt": "prompt.txt",
+  "raw": "raw.png",
+  "installedCandidate": "content/icons/shadow-candidates/saturn.png",
+  "installedShadow": "content/icons/shadows/saturn.webp",
+  "registration": {"canvas":768,"scale":0.42,"opacity":0.53,"x":55,"y":76},
+  "correction": "Replace gray/lavender ring-gap fill with transparency and neutral near-black shadow pixels."
+}

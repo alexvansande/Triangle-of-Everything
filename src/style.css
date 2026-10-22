@@ -655,7 +655,8 @@ body.sidebar-open #scale-bar { left: 456px; }
      the x/y/width/height geometry: the renderer rewrites it every zoom
      frame (easing it makes icons trail the map), and corner-anchored
      interpolation makes the hover jump up-left before growing. */
-  transition: transform 0.15s;
+  /* A shared JS tween keeps size, black backing and parallax in lockstep. */
+  transition: none;
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -1528,3 +1529,45 @@ body.is-mobile .search-empty { padding: 14px 12px; font-size: 13px; }
   border: 0;
   padding: 0;
 }
+
+/* ---------- fractal background (bg-noise.js) ----------
+   PERF: every rule ends in an id or a bgnoise- class. */
+
+.bgnoise-canvas { position: absolute; pointer-events: none; opacity: 0; transition: opacity 0.5s; }
+.bgnoise-canvas.bgnoise-shown { opacity: 1; }
+#bgnoise-setting { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#bgnoise-open {
+  width: 20px; height: 20px; padding: 0; flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;
+  background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.7);
+  font: 500 14px/1 'Inter', sans-serif; cursor: pointer;
+}
+#bgnoise-open:hover, #bgnoise-open[aria-expanded="true"] { background: rgba(255,255,255,0.12); color: #fff; }
+#bgnoise-box {
+  position: fixed; bottom: 140px; right: 246px; z-index: 61;
+  width: min(320px, calc(var(--app-w, 100vw) - 32px)); max-height: calc(var(--app-h, 100vh) - 160px); overflow-y: auto;
+  background: rgba(6,6,26,0.92); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  font-family: 'Inter', sans-serif;
+}
+#bgnoise-box[hidden] { display: none; }
+body.ui-hidden #bgnoise-box { display: none !important; }
+body.is-mobile #bgnoise-box { right: 10px; bottom: calc(env(safe-area-inset-bottom, 0px) + 62px); }
+#bgnoise-close {
+  position: absolute; top: 8px; right: 10px; width: 24px; height: 24px;
+  background: none; border: 0; border-radius: 4px; padding: 0;
+  color: rgba(255,255,255,0.4); font-size: 16px; cursor: pointer;
+}
+#bgnoise-close:hover { color: #fff; }
+.bgnoise-panel { padding: 14px 16px 12px; color: rgba(255,255,255,0.85); font-size: 12px; }
+.bgnoise-title { margin: 0 0 4px; font-size: 14px; font-weight: 650; letter-spacing: 0.02em; }
+.bgnoise-note { margin: 0 0 12px; color: rgba(255,255,255,0.5); line-height: 1.45; font-size: 11px; }
+.bgnoise-row { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+.bgnoise-label { flex: 0 0 78px; color: rgba(255,255,255,0.7); }
+.bgnoise-check .bgnoise-label { flex: 1; }
+.bgnoise-range { flex: 1; min-width: 0; accent-color: #9944ff; }
+.bgnoise-out { flex: 0 0 46px; text-align: right; font-variant-numeric: tabular-nums; color: rgba(255,255,255,0.9); }
+.bgnoise-select { flex: 1; min-width: 0; padding: 4px 6px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: inherit; font: inherit; }
+.bgnoise-reset { margin-top: 4px; padding: 5px 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: inherit; font: inherit; cursor: pointer; }
+.bgnoise-readout { margin: 10px 0 0; font-size: 10.5px; color: rgba(255,255,255,0.4); font-variant-numeric: tabular-nums; }

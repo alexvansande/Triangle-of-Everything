@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lake shadows · glass study</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:24px;max-width:1300px;margin:auto;background:#171322;color:#eee8fa;font:16px system-ui}h1{font-size:25px;margin:0 0 8px}p{line-height:1.5;color:#c0b4d0;margin:8px 0 18px}.controls{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0}input{accent-color:#c7ed94}main{display:grid;grid-template-columns:1fr 1fr;gap:18px}article{border:1px solid #493a5b;border-radius:12px;overflow:hidden;background:#211b2e}canvas{display:block;width:100%;aspect-ratio:1}h2{font-size:17px;margin:0 0 4px}footer{padding:14px 18px}small{color:#c0b4d0}a{color:#c7ed94}canvas:focus-visible{outline:3px solid #c7ed94;outline-offset:-3px}@media(max-width:650px){body{padding:16px}main{grid-template-columns:1fr}}
+</style>
+<h1>Dark glass, a little focused light</h1>
+<p>Compare the current lavender web with a darker glass shadow and just a few small light patches. These are studies; the chart still uses the existing shadows.</p>
+<div class="controls"><label><input type="checkbox" id="objects" checked> Show lakes</label><label><input type="checkbox" id="hoverAll"> Hover all</label></div>
+<main></main>
+<script type="module">
+import {wallShadowImageGeometry} from '/src/shadow-geometry.js';
+const cards=[],root='/content/icons/shadow-candidates/lake-resin-study/';
+const load=src=>new Promise((resolve,reject)=>{const image=new Image;image.onload=()=>resolve(image);image.onerror=reject;image.src=src});
+for(const [slug,title] of [['hallstatter-see','Hallstätter See'],['lake-victoria','Lake Victoria']])for(const proposed of [false,true]){
+ const el=document.createElement('article');el.innerHTML=`<canvas width="640" height="640" tabindex="0" role="img" aria-label="${title}, ${proposed?'proposed glass shadow':'current shadow'}"></canvas><footer><h2>${title} · ${proposed?'Glass study':'Current'}</h2><small>${proposed?'Dark silhouette with localized pale caustics':'Lavender caustic web'}</small></footer>`;document.querySelector('main').append(el);
+ const card={canvas:el.querySelector('canvas'),hover:false,proposed};cards.push(card);
+ card.canvas.onpointerenter=card.canvas.onfocus=()=>{card.hover=true;draw(card)};card.canvas.onpointerleave=card.canvas.onblur=()=>{card.hover=false;draw(card)};
+ Promise.all([load('/content/icons/resolutions/512/'+slug+'.webp'),load(proposed?root+slug+'-registered.png':'/content/icons/shadows/'+slug+'.webp')]).then(([icon,shadow])=>{card.icon=icon;card.shadow=shadow;draw(card)}).catch(e=>{card.error=true;el.querySelector('small').textContent='Could not load this study';console.error(e)});
+}
+function draw(card){const c=card.canvas.getContext('2d');c.fillStyle='#433193';c.fillRect(0,0,640,640);c.strokeStyle='#ffffff0b';for(let n=0;n<640;n+=40){c.beginPath();c.moveTo(n,0);c.lineTo(n,640);c.moveTo(0,n);c.lineTo(640,n);c.stroke()}
+ const growth=card.hover||document.querySelector('#hoverAll').checked?1.5:1,body=215,g=wallShadowImageGeometry({sx:260,sy:245,r:body/2,registered:true},growth);
+ // The study texture already contains an offset. Bring the glass layer back
+ // toward its source by 15% of the body width on each axis; retain the shared
+ // wall separation added by hover. Keep the current column for comparison.
+ const offset=body*(card.proposed?-.05:.1);
+ if(card.shadow){c.globalAlpha=g.opacity;c.filter=`blur(${g.blur}px)`;c.drawImage(card.shadow,g.x+offset,g.y+offset,g.width,g.height);c.globalAlpha=1;c.filter='none'}
+ if(card.icon&&document.querySelector('#objects').checked)c.drawImage(card.icon,260-body*growth/2,245-body*growth/2,body*growth,body*growth);
+}
+for(const id of ['objects','hoverAll'])document.querySelector('#'+id).oninput=()=>cards.forEach(draw);
+window.studyReady=()=>cards.length===4&&cards.every(c=>c.icon&&c.shadow);
+</script></html>

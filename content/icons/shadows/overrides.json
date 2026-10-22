@@ -200,36 +200,36 @@
     "generator": "studio-long-shadow-v1"
   },
   "caspian-sea": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:22.448Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:49:59.903Z",
+    "generator": "imagegen-lake-wall-v1"
   },
   "dead-sea": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:23.395Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:50:00.110Z",
+    "generator": "imagegen-lake-wall-v1"
   },
   "greenland-ice-sheet": {
     "mode": "long",
@@ -270,120 +270,120 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:24.864Z",
+    "updated": "2026-10-22T16:34:27.500Z",
     "generator": "studio-long-shadow-v1"
   },
   "hallstatter-see": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:24.972Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:50:01.699Z",
+    "generator": "imagegen-lake-wall-v1"
   },
   "konigssee": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:26.232Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:50:01.813Z",
+    "generator": "imagegen-lake-wall-v1"
   },
   "lake-baikal": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:26.546Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:50:00.214Z",
+    "generator": "imagegen-lake-wall-v1"
   },
   "lake-nyos": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:26.649Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:50:01.463Z",
+    "generator": "imagegen-lake-wall-v1"
   },
   "lake-superior": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:26.750Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:50:00.413Z",
+    "generator": "imagegen-lake-wall-v1"
   },
   "lake-tahoe": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:26.853Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:50:00.593Z",
+    "generator": "imagegen-lake-wall-v1"
   },
   "lake-victoria": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:26.956Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:50:00.709Z",
+    "generator": "imagegen-lake-wall-v1"
   },
   "loch-ness": {
     "opacity": 0.5,
@@ -411,36 +411,36 @@
     "flipY": false
   },
   "sea-of-galilee": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:29.018Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:50:00.976Z",
+    "generator": "imagegen-lake-wall-v1"
   },
   "titicaca": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T12:52:29.947Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:50:01.162Z",
+    "generator": "imagegen-lake-wall-v1"
   },
   "asian-elephant": {
     "mode": "long",
@@ -503,7 +503,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:25.078Z",
+    "updated": "2026-10-22T16:34:27.738Z",
     "generator": "studio-long-shadow-v1"
   },
   "cane-toad": {
@@ -535,7 +535,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:27.474Z",
+    "updated": "2026-10-22T16:34:27.843Z",
     "generator": "studio-long-shadow-v1"
   },
   "1-ml-of-water": {
@@ -744,7 +744,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:20.824Z",
+    "updated": "2026-10-22T16:34:27.955Z",
     "generator": "studio-long-shadow-v1"
   },
   "bacillus-subtilis": {
@@ -808,7 +808,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:21.282Z",
+    "updated": "2026-10-22T16:34:28.527Z",
     "generator": "studio-long-shadow-v1"
   },
   "bennu": {
@@ -840,7 +840,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:21.498Z",
+    "updated": "2026-10-22T16:34:28.636Z",
     "generator": "studio-long-shadow-v1"
   },
   "bismarck": {
@@ -856,7 +856,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:21.706Z",
+    "updated": "2026-10-22T16:34:28.740Z",
     "generator": "studio-long-shadow-v1"
   },
   "blue-whale": {
@@ -872,7 +872,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:21.817Z",
+    "updated": "2026-10-22T16:34:27.624Z",
     "generator": "studio-long-shadow-v1"
   },
   "bumblebee": {
@@ -984,7 +984,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:22.967Z",
+    "updated": "2026-10-22T16:34:28.084Z",
     "generator": "studio-long-shadow-v1"
   },
   "concorde": {
@@ -1000,7 +1000,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:23.073Z",
+    "updated": "2026-10-22T16:34:28.845Z",
     "generator": "studio-long-shadow-v1"
   },
   "covid": {
@@ -1032,7 +1032,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:23.289Z",
+    "updated": "2026-10-22T16:34:28.957Z",
     "generator": "studio-long-shadow-v1"
   },
   "deimos": {
@@ -1064,7 +1064,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:23.606Z",
+    "updated": "2026-10-22T16:34:29.069Z",
     "generator": "studio-long-shadow-v1"
   },
   "eois-stantonae": {
@@ -1080,7 +1080,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:23.924Z",
+    "updated": "2026-10-22T16:51:28.800Z",
     "generator": "studio-long-shadow-v1"
   },
   "eros": {
@@ -1144,7 +1144,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:24.347Z",
+    "updated": "2026-10-22T16:34:29.176Z",
     "generator": "studio-long-shadow-v1"
   },
   "flyer-i": {
@@ -1160,7 +1160,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:24.452Z",
+    "updated": "2026-10-22T16:34:29.286Z",
     "generator": "studio-long-shadow-v1"
   },
   "grain-of-salt": {
@@ -1192,7 +1192,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:25.291Z",
+    "updated": "2026-10-22T16:34:29.397Z",
     "generator": "studio-long-shadow-v1"
   },
   "honey-bee": {
@@ -1208,7 +1208,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:25.496Z",
+    "updated": "2026-10-22T16:34:28.195Z",
     "generator": "studio-long-shadow-v1"
   },
   "horse-chestnut-leaf-miner": {
@@ -1224,7 +1224,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:25.600Z",
+    "updated": "2026-10-22T16:34:28.312Z",
     "generator": "studio-long-shadow-v1"
   },
   "hubble-space-telescope": {
@@ -1240,7 +1240,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:25.702Z",
+    "updated": "2026-10-22T16:34:29.505Z",
     "generator": "studio-long-shadow-v1"
   },
   "hyperion": {
@@ -1272,7 +1272,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:26.022Z",
+    "updated": "2026-10-22T16:34:29.617Z",
     "generator": "studio-long-shadow-v1"
   },
   "itokawa": {
@@ -1304,7 +1304,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:26.333Z",
+    "updated": "2026-10-22T16:34:29.723Z",
     "generator": "studio-long-shadow-v1"
   },
   "ladybug": {
@@ -1336,7 +1336,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:27.168Z",
+    "updated": "2026-10-22T16:34:29.853Z",
     "generator": "studio-long-shadow-v1"
   },
   "manneken-pis": {
@@ -1416,7 +1416,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:27.781Z",
+    "updated": "2026-10-22T16:51:28.689Z",
     "generator": "studio-long-shadow-v1"
   },
   "mycoplasma-pneumoniae": {
@@ -1464,7 +1464,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:28.196Z",
+    "updated": "2026-10-22T16:34:29.965Z",
     "generator": "studio-long-shadow-v1"
   },
   "painted-lady": {
@@ -1480,7 +1480,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:28.300Z",
+    "updated": "2026-10-22T16:34:28.421Z",
     "generator": "studio-long-shadow-v1"
   },
   "phobos": {
@@ -1548,6 +1548,7 @@
     "generator": "studio-long-shadow-v1"
   },
   "saturn": {
+    "roundOffsetScale": 0.5,
     "mode": "generated",
     "source": "imagegen",
     "registered": true,
@@ -1557,12 +1558,12 @@
     "generatedBlur": 0,
     "generatedScale": 0.42,
     "distance": 0,
-    "x": 35,
-    "y": 40,
+    "x": 55,
+    "y": 76,
     "reviewed": true,
-    "updated": "2026-10-22T14:18:24.554Z",
+    "updated": "2026-10-22T17:15:34.471Z",
     "generator": "built-in-imagegen",
-    "note": "AI ring and globe wall shadow; preserve during scripted batches."
+    "note": "AI ring/globe shadow with transparent ring gaps and neutral dark pixels; preserve during scripted batches."
   },
   "saturn-v": {
     "mode": "long",
@@ -1625,7 +1626,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:29.436Z",
+    "updated": "2026-10-22T16:34:30.475Z",
     "generator": "studio-long-shadow-v1"
   },
   "supertanker": {
@@ -1641,7 +1642,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:29.539Z",
+    "updated": "2026-10-22T16:34:30.067Z",
     "generator": "studio-long-shadow-v1"
   },
   "the-little-mermaid": {
@@ -1673,7 +1674,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:29.745Z",
+    "updated": "2026-10-22T16:34:30.169Z",
     "generator": "studio-long-shadow-v1"
   },
   "union-pacific-big-boy": {
@@ -1689,7 +1690,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:30.157Z",
+    "updated": "2026-10-22T16:34:30.271Z",
     "generator": "studio-long-shadow-v1"
   },
   "uss-enterprise": {
@@ -1705,7 +1706,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:30.261Z",
+    "updated": "2026-10-22T16:34:30.371Z",
     "generator": "studio-long-shadow-v1"
   },
   "vesta": {
@@ -1755,5 +1756,196 @@
     "reviewed": false,
     "updated": "2026-10-22T13:18:35.673Z",
     "generator": "studio-long-shadow-v1"
+  },
+  "14-bis": {
+    "mode": "long",
+    "source": "alpha-long-shadow",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 0.5,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "reviewed": false,
+    "updated": "2026-10-22T16:34:30.580Z",
+    "generator": "studio-long-shadow-v1"
+  },
+  "helium-party-balloon": {
+    "mode": "long",
+    "source": "alpha-long-shadow",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 0.5,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "reviewed": false,
+    "updated": "2026-10-22T16:34:30.683Z",
+    "generator": "studio-long-shadow-v1"
+  },
+  "weather-balloon": {
+    "mode": "long",
+    "source": "alpha-long-shadow",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 0.5,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "reviewed": false,
+    "updated": "2026-10-22T16:34:30.790Z",
+    "generator": "studio-long-shadow-v1"
+  },
+  "weather-balloon-near-burst": {
+    "mode": "long",
+    "source": "alpha-long-shadow",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 0.5,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "reviewed": false,
+    "updated": "2026-10-22T16:34:30.895Z",
+    "generator": "studio-long-shadow-v1"
+  },
+  "hot-air-balloon": {
+    "mode": "long",
+    "source": "alpha-long-shadow",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 0.5,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "reviewed": false,
+    "updated": "2026-10-22T16:34:30.999Z",
+    "generator": "studio-long-shadow-v1"
+  },
+  "zeppelin-nt": {
+    "mode": "long",
+    "source": "alpha-long-shadow",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 0.5,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "reviewed": false,
+    "updated": "2026-10-22T16:34:31.101Z",
+    "generator": "studio-long-shadow-v1"
+  },
+  "soap-bubble": {
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
+    "anchorBase": false,
+    "flipY": false,
+    "generatedScale": 0.4,
+    "opacity": 0.5,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:51:57.174Z",
+    "generator": "imagegen-bubble-wall-v1"
+  },
+  "y-brown-dwarf": {
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
+    "anchorBase": false,
+    "flipY": false,
+    "generatedScale": 0.52,
+    "opacity": 0.3,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 80,
+    "y": 80,
+    "reviewed": true,
+    "generator": "brown-dwarf-ember-wall-v1"
+  },
+  "t-brown-dwarf": {
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
+    "anchorBase": false,
+    "flipY": false,
+    "generatedScale": 0.52,
+    "opacity": 0.3,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 80,
+    "y": 80,
+    "reviewed": true,
+    "generator": "brown-dwarf-ember-wall-v1"
+  },
+  "l-brown-dwarf": {
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
+    "anchorBase": false,
+    "flipY": false,
+    "generatedScale": 0.52,
+    "opacity": 0.3,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 80,
+    "y": 80,
+    "reviewed": true,
+    "generator": "brown-dwarf-ember-wall-v1"
+  },
+  "noctiluca-scintillans": {
+    "mode": "long",
+    "source": "alpha-long-shadow",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 0.5,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "reviewed": false,
+    "updated": "2026-10-22T18:38:45.659Z",
+    "generator": "studio-long-shadow-v1"
+  },
+  "observable-universe": {
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 0.8,
+    "generatedBlur": 0,
+    "generatedScale": 0.48,
+    "distance": 0,
+    "x": 145,
+    "y": 175,
+    "roundOffsetScale": 1,
+    "reviewed": true,
+    "updated": "2026-10-22T19:10:44.060Z",
+    "generator": "built-in-imagegen",
+    "note": "Translucent CMB marble wall shadow with two subtle refracted highlights; follows round-shadow placement controls; preserve during scripted batches."
   }
 }

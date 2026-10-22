@@ -1,3 +1,5 @@
+import { roundShadowOffset } from './round-shadow-controls.js';
+
 // Distances are in resting object diameters. Camera perspective and light
 // projection are independent: only depth is shared between the two models.
 export const WALL_SCENE = {
@@ -33,16 +35,17 @@ export function wallShadowState(radius, growth = 1, scene = WALL_SCENE) {
 
 export const ROUND_SHADOW_OPACITY = 0.45;
 
-export function wallShadowImageGeometry({ sx, sy, r, anchorBase, registered, round }, growth = 1) {
+export function wallShadowImageGeometry({ sx, sy, r, anchorBase, registered, round, roundOffsetScale = 0 }, growth = 1) {
   const state = wallShadowState(r, growth);
   // Legacy base-anchored artwork already contains its registration offset.
   // Add wall separation, but do not apply the old texture offset a second time.
   const off = (registered ? 0 : (anchorBase ? 0.65 * r + 4 : 2 * r + 8) * 0.85) + state.travel;
   const size = 6 * state.radius;
   const south = anchorBase || registered ? 0 : 0.3 * r;
+  const offsetDiameter = 2 * r * (round ? 1 : roundOffsetScale);
   return {
-    x: sx + off * Math.SQRT1_2 - size / 2,
-    y: sy + off * Math.SQRT1_2 + south - size / 2,
+    x: sx + off * Math.SQRT1_2 - size / 2 + roundShadowOffset.x / 100 * offsetDiameter,
+    y: sy + off * Math.SQRT1_2 + south - size / 2 + roundShadowOffset.y / 100 * offsetDiameter,
     width: size, height: size,
     opacity: (round ? ROUND_SHADOW_OPACITY : 0.85) * state.opacity, blur: state.blur,
   };
