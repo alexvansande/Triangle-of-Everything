@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
 import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
 import { buildSearchIndex, searchObjects } from "./object-search.js";
 import { VisibilityMemory } from "./visibility-memory.js";
@@ -80,7 +81,6 @@ const ICON_SIZE_MULT = {
   "saturn": 2,
   "primordial-black-hole": 2, "3k-bh": 2, "stellar-bh": 2,
   "sgr-a": 2, "m87": 2, "ton-618": 2,
-  "neutron-star": 2.5, // beams span the icon; the star is ~40% of it
 };
 
 // Physical size scaling: for every 6 orders of magnitude in real radius,
@@ -620,7 +620,10 @@ const DUST_SHADOWS = SHADOWS && !new URLSearchParams(location.search).has("nodus
 // Catalogue "dust": thousands of faint real objects under the curated ones
 // (src/dust.js). Never interactive except for a hover name.
 const lDust       = lContent.append("g").style("pointer-events", "none").attr("class", "dust-layer");
+const PARALLAX_OFF = new URLSearchParams(location.search).has("noparallax");
 const DUST_LABELS_OFF = new URLSearchParams(location.search).has("narrate");
+lGrid.raise(); // grid plane sits in front of dust, behind labels and pictures
+lRegLabel.raise();
 const lDustHover  = lContent.append("g").style("pointer-events", "none");
 const lObj        = lContent.append("g");
 // Retained rendering split: extras (cluster/category/BH labels, ~20 nodes)
@@ -631,8 +634,7 @@ const lHighlight  = lContent.append("g").style("pointer-events", "none");
 const lCompose    = lContent.append("g").style("pointer-events", "none"); // hover "made of" lines
 const lAxisRef    = lContent.append("g").style("pointer-events", "none").attr("class", "axis-ref-lines");
 const lWaterPhase = lContent.append("g"); // states-of-water inset (zooms with the map)
-// (Object labels live in lLabels, declared below lIcons so text always
-// paints ABOVE icons — a glyph must never wash out a label.)
+// Object labels live in lLabels, behind the foreground picture layer.
 
 // Film grain noise overlay (paper texture, controlled by Noise slider)
 // TEMPORARILY DISABLED for testing — uncomment to restore
@@ -646,9 +648,8 @@ const lWaterPhase = lContent.append("g"); // states-of-water inset (zooms with t
 const grainRect = { attr: () => grainRect, style: () => grainRect }; // stub
 
 // Icon layer: rendered above noise for cleaner visibility
-const lIcons = clip.append("g").style("pointer-events", "none");
-// Object labels paint above the icons: readable text beats glyph art
 const lLabels = clip.append("g").style("pointer-events", "none");
+const lIcons = clip.append("g").attr("class", "picture-layer").style("pointer-events", "none");
 
 // Click capture now uses HTML overlays (see updateClickTargets)
 
@@ -807,6 +808,7 @@ function gridCfg() { return GRID_UNITS[_gridUnit] || GRID_UNITS.si; }
 const firstAligned = (lo, step, ref) => ref + Math.ceil((lo - ref) / step) * step;
 
 function drawGrid() {
+  lGrid.attr("transform", planeTransform(cw, ch, parallaxOn() ? PARALLAX.labels : 0));
   lGrid.selectAll("*").remove();
   const d = vd();
   const ppu = cw / (d.x1 - d.x0);
@@ -2030,6 +2032,7 @@ function drawRegionLabels() {
       .attr("transform", `rotate(${l.angle},${mx},${my})`)
       .text(l.text.toUpperCase());
   });
+  projectFreshLabels(lRegLabel);
 }
 
 // =============================================================
@@ -2353,6 +2356,25 @@ function mapIconShown(o) {
   return !(_atomIconsHidden && (o.catKey || o.cat) === "atomic"); // atoms and molecules
 }
 
+// Data/collision coordinates stay anchored; only presentation moves in depth.
+function parallaxOn() {
+  return !_reduceMotion && !_posterLabels && !_bigBangMode &&
+    !PARALLAX_OFF;
+}
+function depthPoint(o, depth) { return planePoint(o.sx, o.sy, cw, ch, parallaxOn() ? depth : 0); }
+function objectPicturePoint(o, growth = 1) {
+  const body = effectiveIconSize() * iconSizeMult(o) / (ICON_SIZE_MULT[o.slug] || 1);
+  return iconPoint(o.sx, o.sy, cw, ch, body, growth, parallaxOn(), o.slug);
+}
+// These annotation groups are rebuilt each frame; preserve rotations while
+// translating text anchors, without stretching type along with the grid.
+function projectFreshLabels(layer) {
+  layer.selectAll("text[x][y]").each(function() {
+    const text = d3.select(this), anchor = { sx: +text.attr("x"), sy: +text.attr("y") };
+    text.attr("transform", parallaxTranslation(anchor, depthPoint(anchor, PARALLAX.labels)) + " " + (text.attr("transform") || ""));
+  });
+}
+function parallaxTranslation(o, point) { return "translate(" + (point.x-o.sx) + "," + (point.y-o.sy) + ")"; }
 function drawObjects() {
   {
     const d = vd();
@@ -2529,7 +2551,7 @@ function drawObjects() {
   const iconRects = [];
   projected.forEach(o => {
     if (!o._showIcon) return;
-    const s = icoSize * iconSizeMult(o);
+    const s = icoSize * iconSizeMult(o) * (parallaxOn() ? 1 + 2 * PARALLAX.icon * (1 + PARALLAX.variation) / (ICON_SIZE_MULT[o.slug] || 1) : 1);
     iconRects.push({ x: o.sx - s / 2, y: o.sy - s / 2, w: s, h: s, owner: o });
   });
   const hitsIcons = (rect, owner) => iconRects.some(r =>
@@ -2592,7 +2614,7 @@ function drawObjects() {
     const labelH = _posterLabels ? _posterLabelSize + 3 : 13;
 
     // Icon-bearing objects push their own label just outside the glyph
-    const ownR = o._showIcon ? (icoSize * iconSizeMult(o)) / 2 : 0;
+    const ownR = o._showIcon ? icoSize * iconSizeMult(o) * (0.5 + (parallaxOn() ? PARALLAX.icon * (1 + PARALLAX.variation) / (ICON_SIZE_MULT[o.slug] || 1) : 0)) : 0;
     const positions = ownR > 8 ? [
       { dx: ownR + 4, dy: 3.5, anchor: "start" },
       { dx: -(ownR + 4), dy: 3.5, anchor: "end" },
@@ -2821,6 +2843,8 @@ function drawObjects() {
     }
   }
 
+  projectFreshLabels(lObjExtras);
+
   // --- Render object dots, icons, and labels via keyed joins ---
   // Cull only after making visibility/layout decisions. Keep a generous
   // margin so wide icons and labels slide through the edge rather than pop.
@@ -2847,6 +2871,7 @@ function drawObjects() {
     .attr("opacity", o => (_bigBangMode && o.bbOpacity < 1) ? o.bbOpacity : null)
     .each(function(o) {
       const g = d3.select(this);
+      g.attr("transform", parallaxTranslation(o, depthPoint(o, PARALLAX.dust)));
       const dotDisplay = o._showIcon ? "none" : null;
       g.select(".obj-hit").attr("cx", o.sx).attr("cy", o.sy);
       g.select(".obj-glow").attr("cx", o.sx).attr("cy", o.sy)
@@ -2890,6 +2915,8 @@ function drawObjects() {
       const gg = d3.select(this);
       const bbOp = (_bigBangMode && o.bbOpacity < 1) ? o.bbOpacity : null;
       const objIcoSize = icoSize * iconSizeMult(o);
+      const growth = _shadowLift?.key === o.slug ? _shadowLift.k : 1;
+      gg.interrupt("depth").attr("transform", parallaxTranslation(o, objectPicturePoint(o, growth)));
       gg.select(".icon-bg")
         .attr("cx", o.sx).attr("cy", o.sy)
         .attr("r", objIcoSize * 0.52).attr("opacity", bbOp);
@@ -2906,7 +2933,7 @@ function drawObjects() {
     .order();
 
   // (3) Labels: one text per object with paint-order (outline behind fill,
-  // replacing the shadow+fill pair), keyed by slug, above icons.
+  // replacing the shadow+fill pair), keyed by slug, behind icons.
   lLabels.selectAll("text.obj-label")
     .data(shownDots, o => o.slug)
     .join(enter => enter.append("text")
@@ -2918,6 +2945,7 @@ function drawObjects() {
       .attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
       .text(o => o.name))
+    .attr("transform", o => parallaxTranslation(o, depthPoint(o, PARALLAX.labels)))
     .attr("x", o => o.sx + o._labelPos.dx)
     .attr("y", o => o.sy + o._labelPos.dy)
     .attr("text-anchor", o => o._labelPos.anchor)
@@ -2940,6 +2968,8 @@ function drawObjects() {
   // a curated dot, icon or visible label.
   drawDust(lDust, {
     px, py, cw, ch, mobile: _isMobile,
+    parallax: parallaxOn(), iconLayer: lIcons, depthKeyOf: nameToSlug,
+    bodySizeAt: (size, name) => size / (ICON_SIZE_MULT[nameToSlug(name)] || 1),
     visibilityEpoch: _objectVisibility.epoch,
     hidden: !_dustEnabled || _bigBangMode,
     // a few dust names, map-style; not in the narrated videos or the poster
@@ -3004,6 +3034,9 @@ const SHADOW_PARTS = [
   ["sh-near", "icon-shadow-near", 1.1, 10, 1.05, 0.9, 0.28],
   ["sh-far", "icon-shadow-far", 1.6, 16, 1.35, 1.05, 0.18],
 ];
+// A small, fixed wall-plane bias balances the foreground parallax at the
+// southeast edge. Measure the body, excluding rings and other extensions.
+const SHADOW_SE_BIAS = 0.10;
 let _shadowLift = null; // { key, k }: the hovered picture and how much it grew
 function shadowGeom(d, [, , c, px, a, b, op]) {
   const k = _shadowLift?.key === d.key ? _shadowLift.k : 1;
@@ -3085,6 +3118,9 @@ function drawIconShadows(shapes) {
     })
     .each(function(d) {
       const g = d3.select(this);
+      const body = 2 * d.r / (ICON_SIZE_MULT[d.name ? nameToSlug(d.name) : d.key] || 1);
+      const bias = d.glow ? 0 : body * SHADOW_SE_BIAS;
+      g.attr("transform", `translate(${bias},${bias})`);
       const glow = g.select("ellipse.sh-glow").attr("display", d.glow ? null : "none");
       if (d.glow) {
         g.selectAll("ellipse:not(.sh-glow)").attr("display", "none");
@@ -3141,6 +3177,10 @@ function setIconHover(o, on) {
   // owned by the renderer (see .obj-icon in style.css for why).
   const k = on ? Math.max(64, base * 1.5) / base : 1;
   iconEl.style("transform", k === 1 ? null : `scale(${k})`);
+  const group = d3.select(iconEl.node().parentNode);
+  if (on) group.raise();
+  group.interrupt("depth").transition("depth").duration(_reduceMotion ? 0 : 150)
+    .attr("transform", parallaxTranslation(o, objectPicturePoint(o, k)));
   liftShadow(o.slug, k);
   return true;
 }
@@ -3256,13 +3296,13 @@ function setDustIconHover(icon) {
   const i = icon ? icon.i : null;
   if (i === _dustIconHover) return;
   if (_dustIconHover != null) {
-    setDustIconScale(lDust, _dustIconHover, 1);
+    setDustIconScale(lIcons, _dustIconHover, 1);
     liftShadow(`dust:${_dustIconHover}`, 1);
   }
   _dustIconHover = i;
   if (icon) {
     const base = 2 * icon.r, k = Math.max(64, base * 1.5) / base;
-    setDustIconScale(lDust, i, k);
+    setDustIconScale(lIcons, i, k);
     liftShadow(`dust:${i}`, k);
   }
 }
@@ -3280,7 +3320,8 @@ svg.on("mousemove.dust", (e) => {
   const [mx, my] = d3.pointer(e, chart.node());
   // a dust picture answers anywhere over it, like a curated icon
   const icon = pickDustIcon(mx, my);
-  const hit = icon ? { ...pickDust(icon.sx, icon.sy, 1), name: icon.name } : pickDust(mx, my, 6);
+  const anchor = icon && depthPoint(icon, PARALLAX.dust);
+  const hit = icon ? { ...pickDust(anchor.x, anchor.y, 1), name: icon.name } : pickDust(mx, my, 6);
   if (!hit || !hit.source) return hideDustTip();
   setDustIconHover(icon);
   const color = CATEGORIES[hit.cat]?.color || "#fff";
@@ -5484,8 +5525,9 @@ function updateClickTargets() {
     const size = objectHitSizePx(o, baseIco);
 
     // Convert SVG coords to page coords
-    const pageX = o.sx + margin.left;
-    const pageY = o.sy + margin.top;
+    const visual = o._showIcon ? objectPicturePoint(o) : depthPoint(o, PARALLAX.dust);
+    const pageX = visual.x + margin.left;
+    const pageY = visual.y + margin.top;
 
     const div = document.createElement("button");
     div.type = "button";
@@ -5526,7 +5568,8 @@ function updateClickTargets() {
   // per label after every gesture.
   if (_labelsEnabled) _lastProjected.forEach(obj => {
     if (!obj._showLabel || !obj._labelRect) return;
-    const r = obj._labelRect;
+    const point = depthPoint(obj, PARALLAX.labels);
+    const r = { ...obj._labelRect, x: obj._labelRect.x + point.x - obj.sx, y: obj._labelRect.y + point.y - obj.sy };
     const div = document.createElement("button");
     div.type = "button";
     div.className = "click-target click-target-label";
@@ -5672,7 +5715,8 @@ _chartTapEl.addEventListener("pointerup", (e) => {
   let best = null, bestD2 = Infinity;
   (_lastProjected || []).forEach(o => {
     const r = Math.max(22, objectHitSizePx(o, baseIco) / 2 + 8);
-    const ddx = o.sx - sx, ddy = o.sy - sy;
+    const point = o._showIcon ? objectPicturePoint(o) : depthPoint(o, PARALLAX.dust);
+    const ddx = point.x - sx, ddy = point.y - sy;
     const d2 = ddx * ddx + ddy * ddy;
     if (d2 < r * r && d2 < bestD2) { best = o; bestD2 = d2; }
   });
@@ -5780,6 +5824,11 @@ const zoomBehavior = d3.zoom()
     if (!_userZoomGesture) _tourBaseK = null;
     else if (_tourBaseK == null) _tourBaseK = currentK;
     _zooming = true;
+    if (_shadowLift) {
+      const o = _lastProjected.find(o => o.slug === _shadowLift.key);
+      if (o) setIconHover(o, false);
+    }
+    hideDustTip();
     clearClickTargets();
     hideComposition(); // hover lines would strand at pre-zoom coordinates
     // The hover hit-paths aren't rebuilt during the gesture (see

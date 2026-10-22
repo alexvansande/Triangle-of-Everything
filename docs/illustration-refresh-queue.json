@@ -1,0 +1,296 @@
+{
+  "date": "2026-10-22",
+  "source": "User-approved exclusions applied to icon-refresh-audit-2026-10-22.json",
+  "keepExisting": [
+    "asian-elephant",
+    "n1",
+    "saturn-v",
+    "burj-khalifa",
+    "1-ml-of-water",
+    "soccer-ball",
+    "bennu",
+    "eros",
+    "amoeba",
+    "bacteria",
+    "bacteriophage-t4",
+    "bacillus-subtilis",
+    "caulobacter-vibrioides",
+    "ceratium-hirundinella",
+    "clostridium-botulinum",
+    "covid",
+    "escherichia-coli",
+    "euglena-viridis",
+    "mycoplasma-pneumoniae",
+    "noctiluca-scintillans",
+    "prochlorococcus-marinus",
+    "pseudomonas-aeruginosa",
+    "staphylococcus-aureus",
+    "red-blood-cell",
+    "tardigrade",
+    "pollen-grain",
+    "adenine-a",
+    "atp",
+    "carbon",
+    "cytosine-c",
+    "dna",
+    "fullerene-c60",
+    "glucose",
+    "gold",
+    "guanine-g",
+    "helium",
+    "hemoglobin",
+    "hydrogen",
+    "insulin",
+    "iron",
+    "oxygen",
+    "thymine-t",
+    "uranium",
+    "water-h2o",
+    "am-radio",
+    "bottom",
+    "charm",
+    "down",
+    "electron",
+    "fm-radio",
+    "gamma-ray",
+    "gluon",
+    "graviton",
+    "higgs",
+    "infrared",
+    "meson",
+    "microwave",
+    "muon",
+    "neutrino-e",
+    "neutrino-mu",
+    "neutrino-tau",
+    "neutron",
+    "nucleus",
+    "proton",
+    "strange",
+    "tau",
+    "top",
+    "ultraviolet",
+    "up-quark",
+    "visible-light",
+    "w-boson",
+    "x-and-y-bosons",
+    "x-ray",
+    "z-boson"
+  ],
+  "refresh": [
+    {
+      "slug": "caspian-sea",
+      "status": "complete"
+    },
+    {
+      "slug": "dead-sea",
+      "status": "complete"
+    },
+    {
+      "slug": "lake-baikal",
+      "status": "complete"
+    },
+    {
+      "slug": "lake-nyos",
+      "status": "complete"
+    },
+    {
+      "slug": "lake-superior",
+      "status": "complete"
+    },
+    {
+      "slug": "lake-tahoe",
+      "status": "complete"
+    },
+    {
+      "slug": "lake-victoria",
+      "status": "complete"
+    },
+    {
+      "slug": "sea-of-galilee",
+      "status": "complete"
+    },
+    {
+      "slug": "hallstatter-see",
+      "status": "complete"
+    },
+    {
+      "slug": "konigssee",
+      "status": "complete"
+    },
+    {
+      "slug": "titicaca",
+      "status": "complete"
+    },
+    {
+      "slug": "mt-everest",
+      "status": "complete"
+    },
+    {
+      "slug": "grinnell-glacier",
+      "status": "complete"
+    },
+    {
+      "slug": "blue-whale",
+      "status": "complete"
+    },
+    {
+      "slug": "hedgehog",
+      "status": "complete"
+    },
+    {
+      "slug": "meerkat",
+      "status": "complete"
+    },
+    {
+      "slug": "atlas-moth",
+      "status": "complete"
+    },
+    {
+      "slug": "clothes-moth",
+      "status": "complete"
+    },
+    {
+      "slug": "honey-bee",
+      "status": "complete"
+    },
+    {
+      "slug": "horse-chestnut-leaf-miner",
+      "status": "complete"
+    },
+    {
+      "slug": "painted-lady",
+      "status": "complete"
+    },
+    {
+      "slug": "bagger-288",
+      "status": "complete"
+    },
+    {
+      "slug": "benz-patent-motorwagen",
+      "status": "complete"
+    },
+    {
+      "slug": "bismarck",
+      "status": "complete"
+    },
+    {
+      "slug": "concorde",
+      "status": "complete"
+    },
+    {
+      "slug": "curiosity",
+      "status": "complete"
+    },
+    {
+      "slug": "dji-mini-2",
+      "status": "complete"
+    },
+    {
+      "slug": "ever-given",
+      "status": "complete"
+    },
+    {
+      "slug": "flyer-i",
+      "status": "complete"
+    },
+    {
+      "slug": "hms-victory",
+      "status": "complete"
+    },
+    {
+      "slug": "hubble-space-telescope",
+      "status": "complete"
+    },
+    {
+      "slug": "ingenuity",
+      "status": "complete"
+    },
+    {
+      "slug": "kursk",
+      "status": "complete"
+    },
+    {
+      "slug": "lockheed-sr-71-blackbird",
+      "status": "complete"
+    },
+    {
+      "slug": "opportunity",
+      "status": "complete"
+    },
+    {
+      "slug": "supertanker",
+      "status": "complete"
+    },
+    {
+      "slug": "tiger-i",
+      "status": "complete"
+    },
+    {
+      "slug": "union-pacific-big-boy",
+      "status": "complete"
+    },
+    {
+      "slug": "uss-enterprise",
+      "status": "complete"
+    },
+    {
+      "slug": "manneken-pis",
+      "status": "generation-blocked",
+      "note": "Image service rejected the museum sculpture request. Existing artwork retained where present."
+    },
+    {
+      "slug": "statue-of-unity",
+      "status": "complete"
+    },
+    {
+      "slug": "the-little-mermaid",
+      "status": "generation-blocked",
+      "note": "Image service rejected the museum sculpture request. Existing artwork retained where present."
+    }
+  ],
+  "new": [
+    {
+      "slug": "14-bis",
+      "status": "complete"
+    },
+    {
+      "slug": "helium-party-balloon",
+      "status": "complete"
+    },
+    {
+      "slug": "weather-balloon",
+      "status": "complete"
+    },
+    {
+      "slug": "weather-balloon-near-burst",
+      "status": "complete"
+    },
+    {
+      "slug": "hot-air-balloon",
+      "status": "complete"
+    },
+    {
+      "slug": "zeppelin-nt",
+      "status": "complete"
+    },
+    {
+      "slug": "soap-bubble",
+      "status": "complete"
+    },
+    {
+      "slug": "venus-of-willendorf",
+      "status": "generation-blocked",
+      "note": "Image service rejected the museum sculpture request. Existing artwork retained where present."
+    },
+    {
+      "slug": "venus-de-milo",
+      "status": "generation-blocked",
+      "note": "Image service rejected the museum sculpture request. Existing artwork retained where present."
+    }
+  ],
+  "hold": {
+    "spaceIllustrations": "Left unchanged in this pass; optional clarification had no reply.",
+    "rodina-glacier": "Exact glacier identity remains unresolved."
+  }
+}

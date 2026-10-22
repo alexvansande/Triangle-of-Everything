@@ -16,10 +16,10 @@
     "generatedBlur": 0,
     "generatedScale": 0.42,
     "distance": 0,
-    "x": 35,
-    "y": 40,
+    "x": 55,
+    "y": 76,
     "reviewed": true,
-    "updated": "2026-10-22T14:18:24.554Z",
+    "updated": "2026-10-22T15:11:18.002Z",
     "generator": "built-in-imagegen",
     "note": "AI ring and globe wall shadow; preserve during scripted batches."
   }

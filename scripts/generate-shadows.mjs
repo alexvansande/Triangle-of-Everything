@@ -12,7 +12,11 @@ import puppeteer from 'puppeteer-core';
 import { shadowExclusion } from './shadow-eligibility.mjs';
 import { LONG_SHADOW_PRESET } from '../src/long-shadow.js';
 
-export const CAUSTIC_SHADOWS = new Set(['1-ml-of-water', '1-liter-of-water', '1-tonne-of-water', 'loch-ness']);
+export const CAUSTIC_SHADOWS = new Set([
+  '1-ml-of-water', '1-liter-of-water', '1-tonne-of-water', 'loch-ness',
+  'caspian-sea', 'dead-sea', 'lake-baikal', 'lake-nyos', 'lake-superior',
+  'lake-tahoe', 'lake-victoria', 'sea-of-galilee', 'hallstatter-see', 'konigssee', 'titicaca',
+]);
 export const CUSTOM_AI_SHADOWS = new Set(['saturn']);
 export function shadowAction(name, excluded, round) {
   if (excluded) return 'excluded';

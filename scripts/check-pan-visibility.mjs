@@ -1,5 +1,5 @@
 // Browser regression: run with the dev server active. Override CHART_URL/CHROME_PATH if needed.
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import fs from 'node:fs/promises';
 const b=await puppeteer.launch({executablePath:process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--no-sandbox']});
 try{

@@ -1,0 +1,331 @@
+[
+  {
+    "slug": "caspian-sea",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "dead-sea",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "lake-baikal",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "lake-nyos",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.9186602870813397
+  },
+  {
+    "slug": "lake-superior",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "lake-tahoe",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9210526315789473
+  },
+  {
+    "slug": "lake-victoria",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "sea-of-galilee",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "hallstatter-see",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "konigssee",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "titicaca",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "mt-everest",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "grinnell-glacier",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9210526315789473
+  },
+  {
+    "slug": "blue-whale",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "hedgehog",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "meerkat",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "atlas-moth",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "clothes-moth",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "honey-bee",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "horse-chestnut-leaf-miner",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "painted-lady",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "bagger-288",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "benz-patent-motorwagen",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "bismarck",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "concorde",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "curiosity",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "dji-mini-2",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "ever-given",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "flyer-i",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "hms-victory",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "hubble-space-telescope",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "ingenuity",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "kursk",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "lockheed-sr-71-blackbird",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "opportunity",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "supertanker",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "tiger-i",
+    "width": 1254,
+    "height": 1254,
+    "margin": 48,
+    "fill": 0.9226475279106858
+  },
+  {
+    "slug": "union-pacific-big-boy",
+    "width": 1254,
+    "height": 1254,
+    "margin": 47,
+    "fill": 0.9242424242424242
+  },
+  {
+    "slug": "uss-enterprise",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "statue-of-unity",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "14-bis",
+    "width": 1254,
+    "height": 1254,
+    "margin": 49,
+    "fill": 0.9202551834130781
+  },
+  {
+    "slug": "helium-party-balloon",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "weather-balloon",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "weather-balloon-near-burst",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "hot-air-balloon",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.919457735247209
+  },
+  {
+    "slug": "zeppelin-nt",
+    "width": 1254,
+    "height": 1254,
+    "margin": 48,
+    "fill": 0.9226475279106858
+  },
+  {
+    "slug": "soap-bubble",
+    "width": 1254,
+    "height": 1254,
+    "margin": 50,
+    "fill": 0.9186602870813397
+  }
+]

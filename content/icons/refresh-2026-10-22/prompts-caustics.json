@@ -1,0 +1,90 @@
+[
+  {
+    "slug": "caspian-sea",
+    "prompt": "Generate ONLY a separate cast-shadow and refracted-light layer for the lake miniature in reference 1. Reference 2 is ONLY the purple caustic color/contrast example; do NOT copy its shape or small framing. Output transparent PNG, NO object, NO raised edge, NO blue resin, NO background rectangle. Flat optical projection onto a VERTICAL museum display wall seen head-on, not a reflection on a floor. Preserve the first image's geographic silhouette, orientation, proportions and islands, but slightly soften and spread its outline. Center this optical imprint and fill 85-90% of the square canvas longest side with clear feathered margin. Light upper-left: deep translucent dark violet shadow in upper-left region, thin soft lavender-white caustic loops and irregular connected arcs across the lower-right region. Projected light mainly purple to blend over #433193. The underlying shadow should remain visible below the sparse light web. Stronger and more defined near upper-left, increasingly blurred and dimmer toward lower-right. No thick bright outline, no glossy object rim, no milky luminous fill. A flat shadow-and-caustics patch only.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/caspian-sea.png",
+      "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/loch-ness-shadow.png"
+    ]
+  },
+  {
+    "slug": "dead-sea",
+    "prompt": "Generate ONLY a separate cast-shadow and refracted-light layer for the lake miniature in reference 1. Reference 2 is ONLY the purple caustic color/contrast example; do NOT copy its shape or small framing. Output transparent PNG, NO object, NO raised edge, NO blue resin, NO background rectangle. Flat optical projection onto a VERTICAL museum display wall seen head-on, not a reflection on a floor. Preserve the first image's geographic silhouette, orientation, proportions and islands, but slightly soften and spread its outline. Center this optical imprint and fill 85-90% of the square canvas longest side with clear feathered margin. Light upper-left: deep translucent dark violet shadow in upper-left region, thin soft lavender-white caustic loops and irregular connected arcs across the lower-right region. Projected light mainly purple to blend over #433193. The underlying shadow should remain visible below the sparse light web. Stronger and more defined near upper-left, increasingly blurred and dimmer toward lower-right. No thick bright outline, no glossy object rim, no milky luminous fill. A flat shadow-and-caustics patch only.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/dead-sea.png",
+      "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/loch-ness-shadow.png"
+    ]
+  },
+  {
+    "slug": "lake-baikal",
+    "prompt": "Generate ONLY a separate cast-shadow and refracted-light layer for the lake miniature in reference 1. Reference 2 is ONLY the purple caustic color/contrast example; do NOT copy its shape or small framing. Output transparent PNG, NO object, NO raised edge, NO blue resin, NO background rectangle. Flat optical projection onto a VERTICAL museum display wall seen head-on, not a reflection on a floor. Preserve the first image's geographic silhouette, orientation, proportions and islands, but slightly soften and spread its outline. Center this optical imprint and fill 85-90% of the square canvas longest side with clear feathered margin. Light upper-left: deep translucent dark violet shadow in upper-left region, thin soft lavender-white caustic loops and irregular connected arcs across the lower-right region. Projected light mainly purple to blend over #433193. The underlying shadow should remain visible below the sparse light web. Stronger and more defined near upper-left, increasingly blurred and dimmer toward lower-right. No thick bright outline, no glossy object rim, no milky luminous fill. A flat shadow-and-caustics patch only.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/lake-baikal.png",
+      "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/loch-ness-shadow.png"
+    ]
+  },
+  {
+    "slug": "lake-superior",
+    "prompt": "Generate ONLY a separate cast-shadow and refracted-light layer for the lake miniature in reference 1. Reference 2 is ONLY the purple caustic color/contrast example; do NOT copy its shape or small framing. Output transparent PNG, NO object, NO raised edge, NO blue resin, NO background rectangle. Flat optical projection onto a VERTICAL museum display wall seen head-on, not a reflection on a floor. Preserve the first image's geographic silhouette, orientation, proportions and islands, but slightly soften and spread its outline. Center this optical imprint and fill 85-90% of the square canvas longest side with clear feathered margin. Light upper-left: deep translucent dark violet shadow in upper-left region, thin soft lavender-white caustic loops and irregular connected arcs across the lower-right region. Projected light mainly purple to blend over #433193. The underlying shadow should remain visible below the sparse light web. Stronger and more defined near upper-left, increasingly blurred and dimmer toward lower-right. No thick bright outline, no glossy object rim, no milky luminous fill. A flat shadow-and-caustics patch only.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/lake-superior.png",
+      "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/loch-ness-shadow.png"
+    ]
+  },
+  {
+    "slug": "lake-tahoe",
+    "prompt": "Generate ONLY a separate cast-shadow and refracted-light layer for the lake miniature in reference 1. Reference 2 is ONLY the purple caustic color/contrast example; do NOT copy its shape or small framing. Output transparent PNG, NO object, NO raised edge, NO blue resin, NO background rectangle. Flat optical projection onto a VERTICAL museum display wall seen head-on, not a reflection on a floor. Preserve the first image's geographic silhouette, orientation, proportions and islands, but slightly soften and spread its outline. Center this optical imprint and fill 85-90% of the square canvas longest side with clear feathered margin. Light upper-left: deep translucent dark violet shadow in upper-left region, thin soft lavender-white caustic loops and irregular connected arcs across the lower-right region. Projected light mainly purple to blend over #433193. The underlying shadow should remain visible below the sparse light web. Stronger and more defined near upper-left, increasingly blurred and dimmer toward lower-right. No thick bright outline, no glossy object rim, no milky luminous fill. A flat shadow-and-caustics patch only.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/lake-tahoe.png",
+      "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/loch-ness-shadow.png"
+    ]
+  },
+  {
+    "slug": "lake-victoria",
+    "prompt": "Generate ONLY a separate cast-shadow and refracted-light layer for the lake miniature in reference 1. Reference 2 is ONLY the purple caustic color/contrast example; do NOT copy its shape or small framing. Output transparent PNG, NO object, NO raised edge, NO blue resin, NO background rectangle. Flat optical projection onto a VERTICAL museum display wall seen head-on, not a reflection on a floor. Preserve the first image's geographic silhouette, orientation, proportions and islands, but slightly soften and spread its outline. Center this optical imprint and fill 85-90% of the square canvas longest side with clear feathered margin. Light upper-left: deep translucent dark violet shadow in upper-left region, thin soft lavender-white caustic loops and irregular connected arcs across the lower-right region. Projected light mainly purple to blend over #433193. The underlying shadow should remain visible below the sparse light web. Stronger and more defined near upper-left, increasingly blurred and dimmer toward lower-right. No thick bright outline, no glossy object rim, no milky luminous fill. A flat shadow-and-caustics patch only.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/lake-victoria.png",
+      "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/loch-ness-shadow.png"
+    ]
+  },
+  {
+    "slug": "sea-of-galilee",
+    "prompt": "Generate ONLY a separate cast-shadow and refracted-light layer for the lake miniature in reference 1. Reference 2 is ONLY the purple caustic color/contrast example; do NOT copy its shape or small framing. Output transparent PNG, NO object, NO raised edge, NO blue resin, NO background rectangle. Flat optical projection onto a VERTICAL museum display wall seen head-on, not a reflection on a floor. Preserve the first image's geographic silhouette, orientation, proportions and islands, but slightly soften and spread its outline. Center this optical imprint and fill 85-90% of the square canvas longest side with clear feathered margin. Light upper-left: deep translucent dark violet shadow in upper-left region, thin soft lavender-white caustic loops and irregular connected arcs across the lower-right region. Projected light mainly purple to blend over #433193. The underlying shadow should remain visible below the sparse light web. Stronger and more defined near upper-left, increasingly blurred and dimmer toward lower-right. No thick bright outline, no glossy object rim, no milky luminous fill. A flat shadow-and-caustics patch only.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/sea-of-galilee.png",
+      "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/loch-ness-shadow.png"
+    ]
+  },
+  {
+    "slug": "titicaca",
+    "prompt": "Generate ONLY a separate cast-shadow and refracted-light layer for the lake miniature in reference 1. Reference 2 is ONLY the purple caustic color/contrast example; do NOT copy its shape or small framing. Output transparent PNG, NO object, NO raised edge, NO blue resin, NO background rectangle. Flat optical projection onto a VERTICAL museum display wall seen head-on, not a reflection on a floor. Preserve the first image's geographic silhouette, orientation, proportions and islands, but slightly soften and spread its outline. Center this optical imprint and fill 85-90% of the square canvas longest side with clear feathered margin. Light upper-left: deep translucent dark violet shadow in upper-left region, thin soft lavender-white caustic loops and irregular connected arcs across the lower-right region. Projected light mainly purple to blend over #433193. The underlying shadow should remain visible below the sparse light web. Stronger and more defined near upper-left, increasingly blurred and dimmer toward lower-right. No thick bright outline, no glossy object rim, no milky luminous fill. A flat shadow-and-caustics patch only.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/titicaca.png",
+      "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/loch-ness-shadow.png"
+    ]
+  },
+  {
+    "slug": "lake-nyos",
+    "prompt": "Generate ONLY a separate cast-shadow and refracted-light layer for the lake miniature in reference 1. Reference 2 is ONLY the purple caustic color/contrast example; do NOT copy its shape or small framing. Output transparent PNG, NO object, NO raised edge, NO blue resin, NO background rectangle. Flat optical projection onto a VERTICAL museum display wall seen head-on, not a reflection on a floor. Preserve the first image's geographic silhouette, orientation, proportions and islands, but slightly soften and spread its outline. Center this optical imprint and fill 85-90% of the square canvas longest side with clear feathered margin. Light upper-left: deep translucent dark violet shadow in upper-left region, thin soft lavender-white caustic loops and irregular connected arcs across the lower-right region. Projected light mainly purple to blend over #433193. The underlying shadow should remain visible below the sparse light web. Stronger and more defined near upper-left, increasingly blurred and dimmer toward lower-right. No thick bright outline, no glossy object rim, no milky luminous fill. A flat shadow-and-caustics patch only.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/lake-nyos.png",
+      "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/loch-ness-shadow.png"
+    ]
+  },
+  {
+    "slug": "hallstatter-see",
+    "prompt": "Generate ONLY a separate cast-shadow and refracted-light layer for the lake miniature in reference 1. Reference 2 is ONLY the purple caustic color/contrast example; do NOT copy its shape or small framing. Output transparent PNG, NO object, NO raised edge, NO blue resin, NO background rectangle. Flat optical projection onto a VERTICAL museum display wall seen head-on, not a reflection on a floor. Preserve the first image's geographic silhouette, orientation, proportions and islands, but slightly soften and spread its outline. Center this optical imprint and fill 85-90% of the square canvas longest side with clear feathered margin. Light upper-left: deep translucent dark violet shadow in upper-left region, thin soft lavender-white caustic loops and irregular connected arcs across the lower-right region. Projected light mainly purple to blend over #433193. The underlying shadow should remain visible below the sparse light web. Stronger and more defined near upper-left, increasingly blurred and dimmer toward lower-right. No thick bright outline, no glossy object rim, no milky luminous fill. A flat shadow-and-caustics patch only.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/hallstatter-see.png",
+      "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/loch-ness-shadow.png"
+    ]
+  },
+  {
+    "slug": "konigssee",
+    "prompt": "Generate ONLY a separate cast-shadow and refracted-light layer for the lake miniature in reference 1. Reference 2 is ONLY the purple caustic color/contrast example; do NOT copy its shape or small framing. Output transparent PNG, NO object, NO raised edge, NO blue resin, NO background rectangle. Flat optical projection onto a VERTICAL museum display wall seen head-on, not a reflection on a floor. Preserve the first image's geographic silhouette, orientation, proportions and islands, but slightly soften and spread its outline. Center this optical imprint and fill 85-90% of the square canvas longest side with clear feathered margin. Light upper-left: deep translucent dark violet shadow in upper-left region, thin soft lavender-white caustic loops and irregular connected arcs across the lower-right region. Projected light mainly purple to blend over #433193. The underlying shadow should remain visible below the sparse light web. Stronger and more defined near upper-left, increasingly blurred and dimmer toward lower-right. No thick bright outline, no glossy object rim, no milky luminous fill. A flat shadow-and-caustics patch only.",
+    "refs": [
+      "/Users/avsa/Dev/Triangle/content/icons/src/konigssee.png",
+      "/Users/avsa/Dev/Triangle/content/icons/shadow-candidates/wall-studies/loch-ness-wall-front/loch-ness-shadow.png"
+    ]
+  }
+]

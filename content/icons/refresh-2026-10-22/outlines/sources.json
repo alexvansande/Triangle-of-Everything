@@ -1,0 +1,25 @@
+{
+  "source": "https://github.com/nvkelso/natural-earth-vector",
+  "files": [
+    "geojson/ne_10m_lakes.geojson",
+    "geojson/ne_10m_geography_marine_polys.geojson"
+  ],
+  "license": "Public domain",
+  "projection": "Local equirectangular, longitude multiplied by cosine of mean lake latitude; north up. Full contour retained at source map resolution.",
+  "note": "Natural Earth generalized shorelines; not a current survey of changing water levels.",
+  "lake-nyos": {
+    "url": "https://www.openstreetmap.org/way/23126844",
+    "license": "ODbL © OpenStreetMap contributors",
+    "retrieved": "2026-10-22"
+  },
+  "hallstatter-see": {
+    "url": "https://www.openstreetmap.org/relation/21485",
+    "license": "ODbL © OpenStreetMap contributors",
+    "retrieved": "2026-10-22"
+  },
+  "konigssee": {
+    "url": "https://www.openstreetmap.org/relation/56916",
+    "license": "ODbL © OpenStreetMap contributors",
+    "retrieved": "2026-10-22"
+  }
+}

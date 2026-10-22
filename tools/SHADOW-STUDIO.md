@@ -1,5 +1,49 @@
 # Shadow studio
 
+## Star wall-light trials — 22 October 2026
+
+Open `/tools/star-shine-study.html` on the Vite app (port 5173). Four candidates:
+Sun candle-gold, red-dwarf coral, brown-dwarf ember, and a smooth circular
+Sun gradient. PNGs and exact generation prompts are in `content/icons/light-studies/`.
+The first three were generated with the built-in image tool and preserve its
+transparent alpha. The gradient is procedural. These are review candidates;
+the default chart lighting has not been changed.
+
+The preview uses the purple chart wall, selectable screen/overlay blending,
+light strength/spread controls, and optional stars/grid. Hover grows the star
+1.5×, expands the light 1.55× and divides its opacity by 1.55², with more blur.
+The light stays centred on the wall behind the star, not below it like a floor
+pool. Brown-dwarf light is smaller and fainter, and its opaque dark body keeps
+its normal blend. Uneven rays should remain gentle; avoid dramatic lens flares.
+
+## Camera parallax — 22 October 2026
+
+The chart now has subtle depth while panning, including programmatic narration
+camera moves. Back to front: background/shadows, dust dots, labels/grid,
+normal icons, hovered icons. Shadows stay on the wall plane; they retain their
+existing hover growth/blur behavior independently of this parallax.
+The chart adds a fixed southeast bias of 10% of body diameter on each axis
+to all object cast shadows, balancing the foreground shift near the bottom-right
+corner. This translation is independent of pan and hover; ring extensions do
+not inflate it. Star light pools keep their existing placement.
+
+`src/parallax.js` is the shared projection. Dust shifts up to 2 px per axis and
+labels/grid up to 4 px at viewport edges. A normal icon's centre shifts at most
+about 28% of its body diameter from its true anchor. Each object has a stable
+identity-based depth variation of ±12%, producing at most 31.36% displacement
+from the anchor (62.72% total across the screen). The same slug has the same
+depth in curated and catalogue rendering, across pans, searches and reloads.
+Ring/jet size multipliers are excluded from the body diameter. Hover adds depth
+proportional to the existing growth. Text translates without changing size.
+
+Offsets depend on viewport position, never accumulated pan distance or speed,
+so reverse pans return exactly and narrated motion gets the same effect.
+Picking follows the projected artwork. Visibility decisions remain in anchored
+coordinates, and label clearance reserves the possible icon travel. Reduced
+motion, poster mode and Big Bang mode disable this effect; `?noparallax` is an
+explicit comparison switch. Geometry checks are in `scripts/parallax.test.mjs`;
+browser checks in `scripts/check-parallax.mjs` and `scripts/check-pan-visibility.mjs`.
+
 ## Big Ben shadow strength — 22 October 2026
 
 Big Ben's scripted shadow uses opacity 0.65 (previously 0.50), following
@@ -751,3 +795,85 @@ custom layer multiplier of 0.85, approximately matching the 0.45 shared shadow.
 
 `CUSTOM_AI_SHADOWS` protects Saturn from scripted batch regeneration,
 including `--reset-reviewed`. Adjust its candidate in the studio when needed.
+
+Position correction: compare Saturn's globe with an equally sized spherical
+planet, not its full ring span. The generated candidate's placement is now
+x=55, y=76 on the 768px studio canvas (previously 35,40), scale 0.42 and
+opacity 0.53 unchanged. This moves the central umbra down-right to match the
+shared sphere's resting separation. See `alignment-comparison.png` in the
+same archive for the old placement, corrected placement and Jupiter reference.
+
+## Illustration refresh batch — 22 October 2026
+
+The approved backlog produced 40 refreshed illustrations and seven new ones:
+14-bis, helium party balloon, weather balloon, near-burst weather balloon,
+hot-air balloon, Zeppelin NT and soap bubble. All are installed in the chart.
+The complete per-object status is in `docs/illustration-refresh-queue.json`.
+Review them at `/tools/illustration-refresh-review.html`, with a search field,
+shadow toggle, rest/hover comparison and links to each object's studio controls.
+
+Preserve the user's exclusions: no second elephant, rocket refresh, Burj Khalifa
+refresh, 1 ml droplet change, microorganism refresh, soccer ball change, Eros or
+Bennu change. Stars, atoms, particles and the remaining space illustrations
+were left alone during this batch. Rodina Glacier remains unresolved.
+
+The image service blocked four sculpture generations: Manneken Pis, the Little
+Mermaid, Venus of Willendorf and Venus de Milo. These are explicitly marked
+`generation-blocked`; previous artwork was retained wherever it existed.
+Do not describe them as completed or silently substitute unrelated figures.
+
+### Artwork, framing and shadows
+
+Use the wall-mounted miniature style: front-facing contours with minimal
+perspective and a little visible depth along the top. Animals face left in
+profile, ships and ground vehicles are side views, aircraft and winged insects
+are top views. The approved Titanic, 747 and Loch Ness remain style references.
+
+All 47 installed masters are transparent 1254×1254 PNGs, with their longest
+solid dimension about 92% of the canvas and at least 25 px of clear margin.
+The chart has 128, 256, 512 and 1024 px WebP exports. Generation prompts, raw
+results, source outlines, sizing checks and previous assets are archived in
+`content/icons/refresh-2026-10-22/`. Do not overwrite those previous assets.
+
+Thirty-six opaque/non-lake objects received scripted long wall shadows from
+their final alpha masks. Eleven lakes received separate AI-generated caustic
+layers. These lakes are now protected by `CAUSTIC_SHADOWS` in the batch shadow
+generator, alongside the approved water objects and Loch Ness. Saturn retains
+its separate AI-shadow protection.
+
+The eleven new lake candidates share one normalized preset: generated mode,
+registered=true, anchorBase=false, flipY=false, scale=0.4, opacity=0.5,
+extra blur=0, distance=0, x=88, y=88 on the 768 px studio canvas. These values
+are baked into the installed 256 px shadows. The chart's existing depth,
+opacity and southeast parallax compensation still apply at runtime.
+`scripts/install-lake-caustics.mjs` reproduces the export; don't apply its
+opacity or registration a second time in the renderer.
+
+### Lake outline provenance
+
+Caspian Sea, Dead Sea, Baikal, Superior, Tahoe, Victoria, Sea of Galilee and
+Titicaca use generalized 1:10m outlines from
+[Natural Earth](https://github.com/nvkelso/natural-earth-vector), public domain.
+They are shape references, not current surveys of changing water levels.
+
+The remaining outlines are © OpenStreetMap contributors, ODbL, retrieved
+22 October 2026: [Lake Nyos](https://www.openstreetmap.org/way/23126844),
+[Hallstätter See](https://www.openstreetmap.org/relation/21485), and
+[Königssee](https://www.openstreetmap.org/relation/56916).
+Their GeoJSON, SVG and PNG references and source metadata are saved in
+`content/icons/refresh-2026-10-22/outlines/`. Use these actual outlines for
+future revisions instead of asking the image model to invent the coastline.
+
+Browser review captures and the runtime mapping check are in
+`docs/illustration-refresh-review/`. The check covers all seven new chart
+entries, high-resolution selection, hover controls and a 390 px viewport.
+
+### Neutron star follow-up
+
+At the user's subsequent request, removed both polar jets from the neutron-star
+icon using built-in imagegen. The blue-white sphere and compact rim glow remain,
+with transparent 1254 px master and 128/256/512/1024 px chart exports. Removed
+the old 2.5× icon multiplier, which existed only to compensate for the beams.
+The prompt, generated result and previous artwork are archived in
+`content/icons/refresh-2026-10-22/neutron-star-no-jets/`. This is an explicit
+exception to the earlier instruction to leave star illustrations untouched.
