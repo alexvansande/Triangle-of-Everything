@@ -307,7 +307,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       let icon = null, anchor = null;
       const url = famous && icons < maxIcons ? view.iconOf(famous.label || names[q.i]) : null;
       if (url) {
-        const size = view.iconSizeAt(_data.r[q.i]);
+        const size = view.iconSizeAt(_data.r[q.i], famous.label || names[q.i]);
         const r = size / 2;
         if (size >= (_iconed.has(q.i) ? ICON_KEEP : ICON_MIN) && freeDisc(q.sx, q.sy, r) &&
             !placed.some((p) => p.icon && (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < ((p.icon.r + r) * ICON_ROOM) ** 2) &&
@@ -365,6 +365,22 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         .attr("text-anchor", p.anchor).attr("font-size", p.fs)
         .attr("fill", c).text(p.text);
     });
+}
+
+/** The dust picture under (x, y), if any: { i, name, sx, sy, r, blend }. */
+export function pickDustIcon(x, y) {
+  let best = null, bestD = Infinity;
+  for (const p of _iconShapes) {
+    const d = (p.sx - x) ** 2 + (p.sy - y) ** 2;
+    if (d <= p.r * p.r && d < bestD) { bestD = d; best = p; }
+  }
+  return best;
+}
+
+/** Grow (k > 1) or restore (k = 1) dust picture i, as curated icons do on hover. */
+export function setDustIconScale(layer, i, k) {
+  layer.selectAll("g.dust-named").filter((p) => p.i === i).select("image.dn-icon")
+    .style("transform", k === 1 ? null : `scale(${k})`);
 }
 
 /** The dust pictures drawn last frame: [{ i, name, sx, sy, r, blend }]. */

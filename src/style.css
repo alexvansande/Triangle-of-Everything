@@ -649,7 +649,8 @@ body.sidebar-open #scale-bar { left: 456px; }
 .obj-dot {
   transition: r 0.15s;
 }
-.obj-icon {
+.obj-icon,
+.dn-icon {
   /* Hover growth animates as a center-origin transform. Never transition
      the x/y/width/height geometry: the renderer rewrites it every zoom
      frame (easing it makes icons trail the map), and corner-anchored

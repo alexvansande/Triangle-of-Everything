@@ -33,7 +33,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, t
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustIcons, dustDots } from "./dust.js";
+import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustIcons, dustDots, pickDustIcon, setDustIconScale } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -2924,7 +2924,8 @@ function drawObjects() {
       const slug = nameToSlug(name);
       return CURATED_SLUGS.has(slug) ? null : ICON_BY_SLUG[slug] || null;
     } : null,
-    iconSizeAt: (logR) => icoSize * Math.pow(1.1, (logR + 3.5) / 6) * (_iconSize / 100), // as iconSizeMult
+    // as iconSizeMult, per-object multipliers included
+    iconSizeAt: (logR, name) => icoSize * Math.pow(1.1, (logR + 3.5) / 6) * (ICON_SIZE_MULT[nameToSlug(name)] || 1) * (_iconSize / 100),
     iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
   }, {
     dots: shownDots,
@@ -3171,7 +3172,24 @@ svg.on("mousemove.tooltip", (e) => {
 // Curated objects sit above in the HTML click-target overlay, so they
 // always win; dust only answers when nothing else has the tooltip.
 let _dustTip = false;
+let _dustIconHover = null;   // index of the dust picture grown under the pointer
+/** Same growth as setIconHover (curated icons): to ≥ 64 px or 1.5×, shadow lifted. */
+function setDustIconHover(icon) {
+  const i = icon ? icon.i : null;
+  if (i === _dustIconHover) return;
+  if (_dustIconHover != null) {
+    setDustIconScale(lDust, _dustIconHover, 1);
+    liftShadow(`dust:${_dustIconHover}`, 1);
+  }
+  _dustIconHover = i;
+  if (icon) {
+    const base = 2 * icon.r, k = Math.max(64, base * 1.5) / base;
+    setDustIconScale(lDust, i, k);
+    liftShadow(`dust:${i}`, k);
+  }
+}
 function hideDustTip() {
+  setDustIconHover(null);
   if (!_dustTip) return;
   _dustTip = false;
   lDustHover.selectAll("*").remove();
@@ -3182,12 +3200,15 @@ svg.on("mousemove.dust", (e) => {
   if (_zooming || _touchMode || !_dustEnabled) return hideDustTip();
   if (!_dustTip && tooltipEl.classList.contains("visible")) return; // someone else's tooltip
   const [mx, my] = d3.pointer(e, chart.node());
-  const hit = pickDust(mx, my, 6);
-  if (!hit) return hideDustTip();
+  // a dust picture answers anywhere over it, like a curated icon
+  const icon = pickDustIcon(mx, my);
+  const hit = icon ? { ...pickDust(icon.sx, icon.sy, 1), name: icon.name } : pickDust(mx, my, 6);
+  if (!hit || !hit.source) return hideDustTip();
+  setDustIconHover(icon);
   const color = CATEGORIES[hit.cat]?.color || "#fff";
   lDustHover.selectAll("*").remove();
   if (COMPOSITION[hit.name]) showComposition(hit);
-  lDustHover.append("circle")
+  if (!icon) lDustHover.append("circle")
     .attr("cx", hit.sx).attr("cy", hit.sy).attr("r", 3.2)
     .attr("fill", color).attr("stroke", "rgba(6,6,26,0.9)").attr("stroke-width", 1);
   tooltipEl.innerHTML = `<div class="tt-name" style="color:${color}">${escapeHtml(hit.name)}</div>` +
