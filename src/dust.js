@@ -91,7 +91,7 @@ let _kept = [];            // [{ i, sx, sy }] drawn this frame
 let _keptGrid = new Map(); // cell key → indices into _kept (hover lookup)
 let _labelled = new Set(); // dust indices labelled last frame: kept first, so labels don't flicker
 let _iconed = new Set();   // dust indices drawn as pictures last frame (ICON_KEEP applies)
-let _iconShapes = [];      // [{ i, sx, sy, r, blend }] of those pictures, for the map's cast shadows
+let _iconShapes = [];      // [{ i, name, sx, sy, r, blend }] of those pictures, for the map's cast shadows
 
 export function dustReady() { return !!_data; }
 
@@ -312,7 +312,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         if (size >= (_iconed.has(q.i) ? ICON_KEEP : ICON_MIN) && freeDisc(q.sx, q.sy, r) &&
             !placed.some((p) => p.icon && (p.sx - q.sx) ** 2 + (p.sy - q.sy) ** 2 < ((p.icon.r + r) * ICON_ROOM) ** 2) &&
             (anchor = side(r + 2))) {
-          icon = { url, r, blend: view.iconBlend?.(sources[src[q.i]].cat) };
+          icon = { url, r, name: famous.label || names[q.i], blend: view.iconBlend?.(sources[src[q.i]].cat) };
           icons++;
           // later labels and pictures keep off it
           const R = r + 1;
@@ -332,7 +332,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
   }
   _labelled = new Set(placed.map((p) => p.i));
   _iconed = new Set(placed.filter((p) => p.icon).map((p) => p.i));
-  _iconShapes = placed.filter((p) => p.icon).map((p) => ({ i: p.i, sx: p.sx, sy: p.sy, r: p.icon.r, blend: p.icon.blend }));
+  _iconShapes = placed.filter((p) => p.icon).map((p) => ({ i: p.i, name: p.icon.name, sx: p.sx, sy: p.sy, r: p.icon.r, blend: p.icon.blend }));
   const color = (p) => (view.labelColorOf || colorOf)(sources[src[p.i]].cat, sources[src[p.i]].id);
   layer.selectAll("g.dust-named")
     .data(placed, (p) => p.i)
@@ -367,7 +367,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     });
 }
 
-/** The dust pictures drawn last frame: [{ i, sx, sy, r, blend }]. */
+/** The dust pictures drawn last frame: [{ i, name, sx, sy, r, blend }]. */
 export function dustIcons() { return _iconShapes; }
 
 /** The dots drawn last frame: [{ i, sx, sy }] (the map casts their shadows). */

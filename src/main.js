@@ -2942,7 +2942,7 @@ function drawObjects() {
   drawIconShadows([
     ...shownDots.filter(o => o._showIcon && !iconUsesScreenBlend(o))
       .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug] })),
-    ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d })),
+    ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)] })),
   ]);
   drawDustShadows();
 }

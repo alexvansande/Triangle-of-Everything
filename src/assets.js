@@ -24,6 +24,7 @@ for (const [path, url] of Object.entries(imgUrls)) {
 import imageManifest from "../content/images/manifest.json";
 // Spirograph state hashes for particles that can be opened in the 5D spirograph
 import hyperspirographStates from "../content/icons/hyperspirograph-states.json";
+import roundShadows from "../content/icons/shadows/round.json";
 
 // Atoms whose sidebar image is a sphere-packed spirograph composite (built
 // from the hyperspirograph itself). These get a "Explore multidimensional
@@ -72,12 +73,16 @@ for (const [path, url] of Object.entries(iconUrls)) {
 }
 // Silhouette cast shadows for non-round icons (scripts/generate-shadows.mjs):
 // slug → url. Objects without one get the generic soft ellipses.
+// Round icons (round.json) all share _sphere.webp.
 const shadowUrls = import.meta.glob("../content/icons/shadows/*.webp", { query: "?url", import: "default", eager: true });
 export const SHADOW_BY_SLUG = {};
+let sphereShadow = null;
 for (const [path, url] of Object.entries(shadowUrls)) {
   const file = path.replace(/^.*\//, "").replace(".webp", "");
-  SHADOW_BY_SLUG[ICON_SLUG_MAP[file] || file] = url;
+  if (file === "_sphere") sphereShadow = url;
+  else SHADOW_BY_SLUG[ICON_SLUG_MAP[file] || file] = url;
 }
+for (const file of roundShadows) SHADOW_BY_SLUG[ICON_SLUG_MAP[file] || file] = sphereShadow;
 // Icon webps whose bytes have actually arrived (SVG <image> load events) —
 // gates the fallback dot rendered beneath each icon.
 export const _loadedIconUrls = new Set();
