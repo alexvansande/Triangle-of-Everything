@@ -1174,3 +1174,18 @@ size multipliers are retained.
 
 ### Black hole artistic palette (2026-10-22)
 The four black holes use a reversible display grade in `src/black-hole-palette.js`, ordered by mass: stellar copper, Sagittarius A* amber, M87* pale blue, TON 618 blue. This is an artistic ordering, not a temperature measurement. The chart and both black-hole study pages share these filters. The EHT study grades observation and reconstruction identically to preserve the dissolve, and offers an original-palette toggle. Source observations and generated masters remain unchanged.
+
+### Approved black-hole family and future EHT zoom (2026-10-22)
+The four installed icons are stellar-bh (approved round cloudy ring, NOT the lower-observer alternative), sgr-a and m87 (approved telescope swirls), and ton-618 (inclined disk). Masters live in content/icons/src, with 128px root WebPs and 256/512/1024 tiers. Keep their original warm source palettes; src/black-hole-palette.js applies the shared artistic mass-ordered palette at display time.
+
+They use Screen blending over an opaque black circular backing, aligned to each dark core by src/black-hole-frames.js. The backing follows the same growth/parallax transform as stars, without adding a stellar wall glow. The core diameter is 90% of a standard object's nominal box, with the normal physical-size scaling retained; the surrounding luminous artwork is enlarged by .45/coreRadius. The old extra black-hole category boost is omitted for these four. The visible dark region is an apparent black-hole shadow, not the horizon's physical radius. Frame measurements are artistic registration, not scientific measurements.
+
+Preserved observational references for the planned zoom:
+- content/images/m87.webp and content/images/sgr-a.webp: original EHT images, unchanged.
+- content/icons/candidates/eht-reconstructions/m87-reference.png and sgr-a-reference.png: padded comparison references, unchanged.
+- The corresponding *-telescope.png files: full-frame imagined detail registered for the study dissolve.
+- icon-crops.json in that folder: crop rectangles used to create the installed icon masters. Apply those same crop coordinates to the padded references when aligning to chart icons; do not independently auto-crop either layer.
+- tools/eht-icon-study.html applies the same reversible palette to both observation and reconstruction; its original-palette switch restores source colors. Future zoom must share crop, core registration, scale, and palette between layers. Generated texture is imagined, not newly observed detail.
+- Reference credits: Event Horizon Telescope Collaboration, CC BY 4.0. M87: https://commons.wikimedia.org/wiki/File:Black_hole_-_Messier_87_crop_max_res.jpg ; Sgr A*: https://commons.wikimedia.org/wiki/File:EHT_Saggitarius_A_black_hole.tif
+
+The family study retains both cloudy-ring alternatives for comparison. Only the round, higher-observer variant is installed.

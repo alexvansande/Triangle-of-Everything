@@ -1,3 +1,4 @@
+import {BLACK_HOLE_FRAMES, BLACK_HOLE_SIZE_MULT} from "./black-hole-frames.js";
 import {blackHoleFilter} from "./black-hole-palette.js";
 import * as d3 from "d3";
 import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS,SPACE_ART_DEFS,spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
@@ -87,6 +88,7 @@ const ICON_SIZE_MULT = {
   "saturn": 2,
   "primordial-black-hole": 2, "3k-bh": 2, "stellar-bh": 2,
   "sgr-a": 2, "m87": 2, "ton-618": 2,
+  ...BLACK_HOLE_SIZE_MULT,
 };
 
 // Physical size scaling: for every 6 orders of magnitude in real radius,
@@ -98,7 +100,7 @@ function iconSizeMult(o) {
   const cat = o.catKey || o.cat;
   // Galaxies get a second 25% boost; extend this pass to diffuse large-scale
   // structures and black holes, keeping solid universe/void spheres unchanged.
-  const categoryScale = cat === "galaxy" ? 1.25 * 1.25
+  const categoryScale = BLACK_HOLE_FRAMES[o.slug] ? 1 : cat === "galaxy" ? 1.25 * 1.25
     : cat === "blackhole" || (cat === "largescale" && isDiffuseSpaceArt(cat, o.slug)) ? 1.25 : 1;
   return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
 }
