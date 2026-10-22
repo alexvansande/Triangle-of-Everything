@@ -1548,6 +1548,7 @@
     "generator": "studio-long-shadow-v1"
   },
   "saturn": {
+    "roundOffsetScale": 0.5,
     "mode": "generated",
     "source": "imagegen",
     "registered": true,

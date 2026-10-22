@@ -3022,8 +3022,8 @@ function drawObjects() {
     ...dustIcons().filter(d=>STAR_BODY_FRAMES[nameToSlug(d.name)]&&(STAR_GLOWS||BROWN_DWARFS.has(nameToSlug(d.name))))
       .map(d=>stellarShadowData({key:`dust:${d.i}`,...d,slug:nameToSlug(d.name)},"#ffd27a")),
     ...shownDots.filter(o => o._showIcon && !iconUsesScreenBlend(o))
-      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.registered || SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
-    ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
+      .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", roundOffsetScale: SHADOW_SETTINGS_BY_SLUG[o.slug]?.roundOffsetScale, registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.registered || SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
+    ...dustIcons().filter(d => !d.blend).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", roundOffsetScale: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.roundOffsetScale, registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
   ]);
   drawDustShadows();
 }

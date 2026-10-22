@@ -1045,8 +1045,10 @@ the chart and future batch generation use its custom shadow, not `_sphere.webp`.
 
 Settings → Spherical shadow position adjusts the shared round texture live.
 Horizontal and vertical offsets are percentages of the resting object diameter;
-negative values move west/north. Defaults are −5% on both axes, shifting the
-previous placement slightly northwest without changing hover travel. Custom
-shadows and lights are unaffected. Adjustments persist in this browser under
-`tri-round-shadow-offset`; Reset restores −5%, −5%. Ask for the two displayed
-values when adopting a visually tuned placement as the shared default.
+negative values move west/north. The user approved **−25% on both axes**.
+Saturn’s custom ring/globe shadow follows this same adjustment, measured against
+its globe diameter (half the full icon width, `roundOffsetScale: 0.5`). The
+registration correction stays fixed during hover; its existing travel, blur and
+size behavior remain intact. Other custom shadows and lights are unaffected.
+Adjustments persist under `tri-round-shadow-offset-v2`; the new key retires
+earlier experimental settings. Reset restores −25%, −25%.

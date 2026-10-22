@@ -1,7 +1,8 @@
 // Offsets are percentages of the resting body diameter, so zoom and hover
-// preserve the same registration. Only the shared spherical texture uses them.
-const DEFAULT = { x: -5, y: -5 };
-const KEY = 'tri-round-shadow-offset';
+// preserve the same registration. Saturn also follows these offsets using
+// its globe diameter, excluding the rings.
+const DEFAULT = { x: -25, y: -25 };
+const KEY = 'tri-round-shadow-offset-v2';
 export const roundShadowOffset = { ...DEFAULT };
 const clamp = value => Math.max(-50, Math.min(50, Number(value)));
 
@@ -18,7 +19,7 @@ export function mountRoundShadowControls(panel, redraw) {
   controls.id = 'round-shadow-controls';
   controls.style.cssText = 'padding:8px 0;border-bottom:1px solid #ffffff25;margin-bottom:10px';
   controls.innerHTML = `<summary style="cursor:pointer">Spherical shadow position</summary>
-    <p class="setting-note">Adjust all round shadows live. Values are % of the object’s width. Saved in this browser.</p>
+    <p class="setting-note">Adjust round shadows and Saturn live. Values are % of the globe’s width. Saved in this browser.</p>
     <label class="setting-range"><span class="setting-range-label">West ← → East <output id="round-shadow-x-value"></output></span><input aria-label="Spherical shadow horizontal offset" id="round-shadow-x" type="range" min="-50" max="50" step="1"></label>
     <label class="setting-range"><span class="setting-range-label">North ↑ ↓ South <output id="round-shadow-y-value"></output></span><input aria-label="Spherical shadow vertical offset" id="round-shadow-y" type="range" min="-50" max="50" step="1"></label>
     <button type="button">Reset position</button>`;
