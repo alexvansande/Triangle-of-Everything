@@ -915,3 +915,17 @@ the optical candidate is `content/icons/shadow-candidates/soap-bubble.png`.
 The soap-bubble export is reproducible with
 `scripts/install-soap-bubble-caustics.mjs`. Browser captures are in
 `docs/illustration-refresh-review/followup/`.
+
+### Lake material study: darker glass with sparse light
+
+The user rejected the broad lavender caustic webs: thick blue resin/glass should
+read primarily as a shadow, with only one or two localized pale light patches.
+Two AI studies (Hallstätter See and Victoria) are saved under
+`content/icons/shadow-candidates/lake-resin-study/`, with full prompts, raw
+transparent outputs, normalized candidates and registered 768 px layers.
+Both use scale 0.4, opacity 0.5 and x=y=30, matching the current closer preset.
+The comparison is `/tools/lake-resin-study.html`, with current/proposed columns,
+a Show lakes checkbox to inspect the shadows alone, and hover comparison.
+These are studies only: active chart shadows have not been replaced. The
+proposed shadows have clearer contours and much less luminous area; assess
+edge softness as well as sparse highlight placement before adopting widely.
