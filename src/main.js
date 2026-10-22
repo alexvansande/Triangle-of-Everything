@@ -2958,7 +2958,8 @@ function shadowGeom(d, [, , c, px, a, b, op]) {
   const lift = k > 1 ? 1 : 0;
   const r = d.r * k * (1 + 0.1 * lift);              // grows with the picture, a bit more
   const off = (c * r + px) * (1 + 0.45 * lift);      // and falls further away
-  const cx = d.sx + off * Math.SQRT1_2, cy = d.sy + off * Math.SQRT1_2;
+  // down-right at 45°, nudged a little further south
+  const cx = d.sx + off * Math.SQRT1_2, cy = d.sy + off * Math.SQRT1_2 + 0.3 * r;
   return { cx, cy, rx: a * r, ry: b * r, transform: `rotate(45 ${cx} ${cy})`, opacity: op * (1 - 0.45 * lift) };
 }
 function applyShadowGeom(sel, g) {
