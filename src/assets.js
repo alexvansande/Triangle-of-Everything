@@ -72,10 +72,13 @@ for (const [path, url] of Object.entries(iconUrls)) {
 }
 // Silhouette cast shadows for non-round icons (scripts/generate-shadows.mjs):
 // slug → url. Objects without one get the generic soft ellipses.
-const shadowUrls = import.meta.glob("../content/icons/shadows/*.webp", { query: "?url", import: "default", eager: true });
+// ?shadowflip tries the point-reflected set (shadows-flipped/) instead.
+const shadowUrls = new URLSearchParams(location.search).has("shadowflip")
+  ? import.meta.glob("../content/icons/shadows-flipped/*.webp", { query: "?url", import: "default", eager: true })
+  : import.meta.glob("../content/icons/shadows/*.webp", { query: "?url", import: "default", eager: true });
 export const SHADOW_BY_SLUG = {};
 for (const [path, url] of Object.entries(shadowUrls)) {
-  const file = path.replace("../content/icons/shadows/", "").replace(".webp", "");
+  const file = path.replace(/^.*\//, "").replace(".webp", "");
   SHADOW_BY_SLUG[ICON_SLUG_MAP[file] || file] = url;
 }
 // Icon webps whose bytes have actually arrived (SVG <image> load events) —

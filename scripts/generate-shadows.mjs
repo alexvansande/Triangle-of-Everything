@@ -8,10 +8,13 @@
 // everything, offset down-right (drawIconShadows in src/main.js).
 //
 //   node scripts/generate-shadows.mjs human hippo elephant …
+//   node scripts/generate-shadows.mjs --flip …   point-reflected silhouette
+//     (top-left of the object lands bottom-right), into shadows-flipped/
 import sharp from "sharp";
 import { mkdirSync } from "fs";
 
-const SRC = "content/icons/src", OUT = "content/icons/shadows";
+const FLIP = process.argv.includes("--flip");
+const SRC = "content/icons/src", OUT = FLIP ? "content/icons/shadows-flipped" : "content/icons/shadows";
 const ICON = 256;            // working size of the icon itself (px)
 const SPAN = 3;              // shadow canvas = SPAN × icon size (keep in sync with SHADOW_SPAN in main.js)
 const STRETCH = 1.6;         // along the light direction
@@ -30,7 +33,7 @@ async function shadow(slug) {
   const C = ICON * SPAN, pad = (C - ICON) / 2;
   const alpha = await sharp(`${SRC}/${slug}.png`).resize(ICON, ICON, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .ensureAlpha().extractChannel(3).raw().toBuffer();
-  const sil = await sharp(alpha, raw1(alpha, ICON, ICON))
+  const sil = await sharp(alpha, raw1(alpha, ICON, ICON)).rotate(FLIP ? 180 : 0)
     .extend({ top: pad, bottom: pad, left: pad, right: pad, background: "#000" }).extractChannel(0).raw().toBuffer();
 
   // 2. rotate −45° (down-right → +x); sharp grows the canvas, centre stays put
@@ -70,4 +73,4 @@ async function shadow(slug) {
   console.log("shadow", slug);
 }
 
-for (const slug of process.argv.slice(2)) await shadow(slug);
+for (const slug of process.argv.slice(2).filter(a => a !== "--flip")) await shadow(slug);
