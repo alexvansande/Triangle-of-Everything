@@ -21,6 +21,7 @@
 //   &captions=0                 no captions
 //   &stage=landscape|none       recording stage (default: 9:16 phone)
 
+import { blackHoleFilter } from "./black-hole-palette.js";
 import * as d3 from "d3";
 import {
   HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
@@ -373,7 +374,7 @@ export async function startNarration(app) {
       photoBox.className = "np-imgs" + (p.names.length > 1 ? " np-stack" : "");
       photoBox.innerHTML = p.names.map((n, i) => `<figure><img src="${photoUrl(n)}" alt="">` +
         (p.labels?.[i] ? `<figcaption>${p.labels[i]}</figcaption>` : "") + `</figure>`).join("");
-      photoBox.querySelectorAll("img").forEach(im => { im.style.objectFit = p.fit || (p.names.length > 1 ? "contain" : "cover"); });
+      photoBox.querySelectorAll("img").forEach(im => { im.style.objectFit = p.fit || (p.names.length > 1 ? "contain" : "cover"); im.style.filter = ""; });
       const [what, ...rest] = (p.caption || "").split(" · ");
       photoCap.innerHTML = p.caption ? `<b>${what}</b>${rest.join(" · ")}` : "";
     }
@@ -448,7 +449,10 @@ export async function startNarration(app) {
       mtx = mtx.map(v => +v.toFixed(5));
       Object.assign(photoBox.style, { left: "0", top: "0", width: `${iw}px`, height: `${ih}px`, right: "auto", bottom: "auto",
         transformOrigin: "0 0", transform: `matrix(${mtx.join(",")})` });
-      photoBox.querySelectorAll("img").forEach(im => { im.style.objectFit = "fill"; });
+      // the photo takes its picture's colours (the black holes' mass-ordered palette),
+      // so the dive doesn't change hue as it lands
+      const tint = blackHoleFilter(objByName.get(p.obj)?.slug) || "";
+      photoBox.querySelectorAll("img").forEach(im => { im.style.objectFit = "fill"; im.style.filter = tint; });
       photoCap.style.opacity = (smooth((t - p.t0 - PHOTO_IN * 0.6) / 0.5) * (1 - smooth((t - p.t1 + 0.3) / 0.4))).toFixed(3);
       return;
     } else if (p.place) {
