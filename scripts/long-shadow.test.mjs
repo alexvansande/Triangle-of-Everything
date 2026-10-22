@@ -6,7 +6,7 @@ import { shadowAction } from './generate-shadows.mjs';
 
 test('bulk generation preserves caustics and spheres and excludes screen artwork',()=>{
  const round=new Set(['earth']);
- for(const name of ['1-ml-of-water','1-liter-of-water','1-tonne-of-water','loch-ness'])assert.equal(shadowAction(name,null,round),'caustics');
+ for(const name of ['1-ml-of-water','1-liter-of-water','1-tonne-of-water','loch-ness','soap-bubble','lake-baikal','caspian-sea'])assert.equal(shadowAction(name,null,round),'caustics');
  assert.equal(shadowAction('earth',null,round),'round');
  assert.equal(shadowAction('_sphere',null,round),'round');
  assert.equal(shadowAction('sun','Screen-blended artwork',round),'excluded');

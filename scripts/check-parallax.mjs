@@ -19,7 +19,7 @@ try {
    return {x:d.sx,y:d.sy,dx:m.e,dy:m.f,body:+image.getAttribute('width')/2,shadowX:shadow.sx,shadowY:shadow.sy,font:label.getBoundingClientRect().height};
   }));
  }
- for(const s of samples){assert.ok(Math.hypot(s.dx,s.dy)<=s.body*.28*1.12+1e-6);assert.equal(s.shadowX,s.x);assert.equal(s.shadowY,s.y)}
+ for(const s of samples){assert.ok(Math.hypot(s.dx,s.dy)<=s.body*.14*1.12+1e-6);assert.equal(s.shadowX,s.x);assert.equal(s.shadowY,s.y)}
  assert.ok(samples[0].dx<0&&samples[2].dx>0);assert.ok(Math.abs(samples[1].dx)<1e-6);assert.ok(Math.abs(samples[0].dx-samples[4].dx)<1e-6);
  assert.ok(Math.max(...samples.map(s=>s.font))-Math.min(...samples.map(s=>s.font))<.1,'labels must not scale');
  // A real pointer drag follows the same projection as camera/narration moves.

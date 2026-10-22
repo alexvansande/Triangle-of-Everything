@@ -277,20 +277,39 @@
     {
       "slug": "soap-bubble",
       "status": "complete"
-    },
-    {
-      "slug": "venus-of-willendorf",
-      "status": "generation-blocked",
-      "note": "Image service rejected the museum sculpture request. Existing artwork retained where present."
-    },
-    {
-      "slug": "venus-de-milo",
-      "status": "generation-blocked",
-      "note": "Image service rejected the museum sculpture request. Existing artwork retained where present."
     }
   ],
   "hold": {
     "spaceIllustrations": "Left unchanged in this pass; optional clarification had no reply.",
     "rodina-glacier": "Exact glacier identity remains unresolved."
-  }
+  },
+  "omitted": [
+    {
+      "slug": "venus-of-willendorf",
+      "status": "omitted-by-user",
+      "note": "User no longer wants this illustration."
+    },
+    {
+      "slug": "venus-de-milo",
+      "status": "omitted-by-user",
+      "note": "User no longer wants this illustration."
+    }
+  ],
+  "followups": [
+    {
+      "slug": "eois-stantonae",
+      "status": "complete",
+      "note": "Higher resolution reconstruction from user-selected left dorsal specimen; original photo archived."
+    },
+    {
+      "slug": "mt-everest",
+      "status": "complete",
+      "note": "Thicker illustrative bedrock cutout; no mass recalculation."
+    },
+    {
+      "slug": "soap-bubble",
+      "status": "complete",
+      "note": "Separate AI-generated optical wall layer."
+    }
+  ]
 }

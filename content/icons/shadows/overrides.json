@@ -209,10 +209,10 @@
     "opacity": 0.5,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 88,
-    "y": 88,
+    "x": 30,
+    "y": 30,
     "reviewed": true,
-    "updated": "2026-10-22T16:35:02.212Z",
+    "updated": "2026-10-22T16:49:59.903Z",
     "generator": "imagegen-lake-wall-v1"
   },
   "dead-sea": {
@@ -225,10 +225,10 @@
     "opacity": 0.5,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 88,
-    "y": 88,
+    "x": 30,
+    "y": 30,
     "reviewed": true,
-    "updated": "2026-10-22T16:35:02.283Z",
+    "updated": "2026-10-22T16:50:00.110Z",
     "generator": "imagegen-lake-wall-v1"
   },
   "greenland-ice-sheet": {
@@ -283,10 +283,10 @@
     "opacity": 0.5,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 88,
-    "y": 88,
+    "x": 30,
+    "y": 30,
     "reviewed": true,
-    "updated": "2026-10-22T16:35:02.973Z",
+    "updated": "2026-10-22T16:50:01.699Z",
     "generator": "imagegen-lake-wall-v1"
   },
   "konigssee": {
@@ -299,10 +299,10 @@
     "opacity": 0.5,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 88,
-    "y": 88,
+    "x": 30,
+    "y": 30,
     "reviewed": true,
-    "updated": "2026-10-22T16:35:03.027Z",
+    "updated": "2026-10-22T16:50:01.813Z",
     "generator": "imagegen-lake-wall-v1"
   },
   "lake-baikal": {
@@ -315,10 +315,10 @@
     "opacity": 0.5,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 88,
-    "y": 88,
+    "x": 30,
+    "y": 30,
     "reviewed": true,
-    "updated": "2026-10-22T16:35:02.357Z",
+    "updated": "2026-10-22T16:50:00.214Z",
     "generator": "imagegen-lake-wall-v1"
   },
   "lake-nyos": {
@@ -331,10 +331,10 @@
     "opacity": 0.5,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 88,
-    "y": 88,
+    "x": 30,
+    "y": 30,
     "reviewed": true,
-    "updated": "2026-10-22T16:35:02.897Z",
+    "updated": "2026-10-22T16:50:01.463Z",
     "generator": "imagegen-lake-wall-v1"
   },
   "lake-superior": {
@@ -347,10 +347,10 @@
     "opacity": 0.5,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 88,
-    "y": 88,
+    "x": 30,
+    "y": 30,
     "reviewed": true,
-    "updated": "2026-10-22T16:35:02.437Z",
+    "updated": "2026-10-22T16:50:00.413Z",
     "generator": "imagegen-lake-wall-v1"
   },
   "lake-tahoe": {
@@ -363,10 +363,10 @@
     "opacity": 0.5,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 88,
-    "y": 88,
+    "x": 30,
+    "y": 30,
     "reviewed": true,
-    "updated": "2026-10-22T16:35:02.522Z",
+    "updated": "2026-10-22T16:50:00.593Z",
     "generator": "imagegen-lake-wall-v1"
   },
   "lake-victoria": {
@@ -379,10 +379,10 @@
     "opacity": 0.5,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 88,
-    "y": 88,
+    "x": 30,
+    "y": 30,
     "reviewed": true,
-    "updated": "2026-10-22T16:35:02.618Z",
+    "updated": "2026-10-22T16:50:00.709Z",
     "generator": "imagegen-lake-wall-v1"
   },
   "loch-ness": {
@@ -420,10 +420,10 @@
     "opacity": 0.5,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 88,
-    "y": 88,
+    "x": 30,
+    "y": 30,
     "reviewed": true,
-    "updated": "2026-10-22T16:35:02.708Z",
+    "updated": "2026-10-22T16:50:00.976Z",
     "generator": "imagegen-lake-wall-v1"
   },
   "titicaca": {
@@ -436,10 +436,10 @@
     "opacity": 0.5,
     "generatedBlur": 0,
     "distance": 0,
-    "x": 88,
-    "y": 88,
+    "x": 30,
+    "y": 30,
     "reviewed": true,
-    "updated": "2026-10-22T16:35:02.797Z",
+    "updated": "2026-10-22T16:50:01.162Z",
     "generator": "imagegen-lake-wall-v1"
   },
   "asian-elephant": {
@@ -1080,7 +1080,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T12:52:23.924Z",
+    "updated": "2026-10-22T16:51:28.800Z",
     "generator": "studio-long-shadow-v1"
   },
   "eros": {
@@ -1416,7 +1416,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-22T16:34:27.394Z",
+    "updated": "2026-10-22T16:51:28.689Z",
     "generator": "studio-long-shadow-v1"
   },
   "mycoplasma-pneumoniae": {
@@ -1853,19 +1853,19 @@
     "generator": "studio-long-shadow-v1"
   },
   "soap-bubble": {
-    "mode": "long",
-    "source": "alpha-long-shadow",
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
     "anchorBase": false,
     "flipY": false,
+    "generatedScale": 0.4,
     "opacity": 0.5,
-    "longLength": 0.8,
-    "longGap": 0.06,
-    "longAngle": 45,
-    "longNear": 1.5,
-    "longFar": 18,
-    "longFade": 1,
-    "reviewed": false,
-    "updated": "2026-10-22T16:34:31.210Z",
-    "generator": "studio-long-shadow-v1"
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 30,
+    "y": 30,
+    "reviewed": true,
+    "updated": "2026-10-22T16:51:57.174Z",
+    "generator": "imagegen-bubble-wall-v1"
   }
 }

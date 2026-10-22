@@ -1,6 +1,6 @@
 // Screen-space depth, evaluated from the camera position every frame.
 // No velocity or accumulated drift: recorded and interactive pans agree.
-export const PARALLAX = Object.freeze({ dust: 2, labels: 4, icon: 0.28, hover: 0.20, variation: 0.12 });
+export const PARALLAX = Object.freeze({ dust: 1, labels: 2, icon: 0.14, hover: 0.10, variation: 0.12 });
 
 // Stable identity, not array order or frame randomness: the same miniature
 // keeps its depth through reloads, searches and camera reversals.

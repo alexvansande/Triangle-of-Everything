@@ -6,7 +6,7 @@ test('normal icons retain their anchor inside the body circle throughout the vie
   for (const [w,h] of [[390,844],[1440,900],[900,1440]]) for (const body of [14,64,200]) {
     for (let x=-200;x<w+200;x+=37) for(let y=-200;y<h+200;y+=41) {
       const p=iconPoint(x,y,w,h,body);
-      assert.ok(Math.hypot(p.x-x,p.y-y)<=body*0.28+1e-9);
+      assert.ok(Math.hypot(p.x-x,p.y-y)<=body*0.14+1e-9);
     }
     const a=iconPoint(0,h/2,w,h,body),b=iconPoint(w,h/2,w,h,body);
     assert.ok((b.x-w)-a.x<body);

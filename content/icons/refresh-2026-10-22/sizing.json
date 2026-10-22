@@ -446,10 +446,10 @@
   "mt-everest": {
     "source": "content/icons/refresh-2026-10-22/mt-everest-raw.png",
     "solidSourceBox": [
-      13,
-      69,
-      1244,
-      1195
+      25,
+      120,
+      1238,
+      1178
     ],
     "solidEdgePixels": 0,
     "canvas": 1254,
@@ -558,6 +558,18 @@
       1,
       908,
       1241
+    ],
+    "solidEdgePixels": 0,
+    "canvas": 1254,
+    "targetLongest": 1166
+  },
+  "eois-stantonae": {
+    "source": "content/icons/refresh-2026-10-22/eois-stantonae-raw.png",
+    "solidSourceBox": [
+      12,
+      135,
+      1241,
+      1051
     ],
     "solidEdgePixels": 0,
     "canvas": 1254,

@@ -1114,11 +1114,11 @@
     ]
   },
   "eois-stantonae": {
-    "fingerprint": "e9e869114599eaff1b84ac099e32854117f475f46f0fc15535178cfd252a9471",
+    "fingerprint": "1628b3ac6df5a4fb32388bcf9ca1d8a990daf9e08fb5ddbc7cf784c0fa0d41d8",
     "baseWidth": 128,
     "source": "content/icons/src/eois-stantonae.png",
     "reason": "matching master",
-    "sourceDifference": 2.0641886393229165,
+    "sourceDifference": 2.7079671223958335,
     "variants": [
       {
         "width": 256,
@@ -1129,8 +1129,8 @@
         "path": "512/eois-stantonae.webp"
       },
       {
-        "width": 565,
-        "path": "565/eois-stantonae.webp"
+        "width": 1024,
+        "path": "1024/eois-stantonae.webp"
       }
     ]
   },
@@ -2480,11 +2480,11 @@
     ]
   },
   "mt-everest": {
-    "fingerprint": "d43d15d5214ee027ee15535d2908944968e2f2a519e32fd0d2d903d53a41c4bc",
+    "fingerprint": "b6edbe59e17406bf7a74009c3adad0299f380704cd740136d03089f4acba04dc",
     "baseWidth": 128,
     "source": "content/icons/src/mt-everest.png",
     "reason": "matching master",
-    "sourceDifference": 1.9088338216145833,
+    "sourceDifference": 2.2653605143229165,
     "variants": [
       {
         "width": 256,

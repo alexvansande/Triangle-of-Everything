@@ -877,3 +877,41 @@ the old 2.5× icon multiplier, which existed only to compensate for the beams.
 The prompt, generated result and previous artwork are archived in
 `content/icons/refresh-2026-10-22/neutron-star-no-jets/`. This is an explicit
 exception to the earlier instruction to leave star illustrations untouched.
+
+## Review follow-up — 22 October 2026
+
+- Halved all parallax displacement coefficients: dust 1 px, labels/grid 2 px,
+  icon 0.14 body lengths, hover contribution 0.10. The relative per-object depth
+  variation remains 12%. This changes camera parallax, not hover magnification
+  or the independent wall-light projection.
+- The star-shine study now has a normal-blend opaque black disc between each
+  light pool and star image. Disc sizes follow the visible body (Sun 86%, red
+  dwarf and brown dwarf 94% of image width), grow with hover and hide with
+  Show stars. Star surface colors screen against black; outer transparent
+  regions still reveal the wall and light pool. Chart star lighting is unchanged.
+- Eleven refreshed lake shadows moved from x=y=88 to x=y=30 on the studio's
+  768 px canvas, preserving scale 0.4, opacity 0.5 and the existing caustics.
+  This supersedes the earlier lake placement. Do not change the approved
+  droplet, bowl or Loch Ness settings to match this adjustment.
+- Soap bubble now uses a separate AI optical layer with a transparent center,
+  delicate violet shading and luminous arcs. It uses the same closer preset
+  as the lakes and is protected from scripted silhouette regeneration.
+- Everest now has a substantial fractured-rock base. Its cut is illustrative;
+  the inherited chart mass has no documented footprint or basal surface.
+  The description and data note disclose this; no numeric mass was changed.
+- The Eois illustration was reconstructed from the LEFT/dorsal specimen in
+  the user's photo, matching the existing chart icon's source. Preserve the
+  photo's markings rather than borrowing the ventral view. The photo caption
+  says Eois ewa while the existing chart label is Eois stantonae; this edit is
+  not a taxonomic determination. The original photo and the old chart master
+  are retained, and the new image is an AI reconstruction, not recovered detail.
+- Venus of Willendorf and Venus de Milo are omitted at the user's request.
+  They are no longer pending or shown as blocked in the refresh gallery.
+
+Prompts, original Eois reference and previous assets are in
+`content/icons/refresh-2026-10-22/review-followup/`. New installed masters are
+`content/icons/src/mt-everest.png` and `content/icons/src/eois-stantonae.png`;
+the optical candidate is `content/icons/shadow-candidates/soap-bubble.png`.
+The soap-bubble export is reproducible with
+`scripts/install-soap-bubble-caustics.mjs`. Browser captures are in
+`docs/illustration-refresh-review/followup/`.
