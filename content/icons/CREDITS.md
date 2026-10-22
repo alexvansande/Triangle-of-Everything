@@ -9,20 +9,20 @@ neutrino-tau, neutrino-mu, neutrino-e, higgs, w-boson, z-boson,
 visible-light, gamma-ray, x-and-y-bosons
 
 ### Stars
-sun, red-giant, red-dwarf, blue-supergiant, wolf-rayet,
-betelgeuse, t-brown-dwarf, y-brown-dwarf, white-dwarf, sirius-b
+sun, red-giant, blue-supergiant,
+betelgeuse, y-brown-dwarf, sirius-b
 
 ### Black Holes
-smallest-primordial-bh, 3k-bh, stellar-bh, sgr-a, m87, ton-618
+smallest-primordial-bh, 3k-bh, sgr-a, m87
 
 ### Planets (AI-generated, later replaced by real photos for most)
-kepler-22b, beta-pictoris-b
+kepler-22b
 
 ### Micro/Bio (BioVisions style)
 amoeba, hemoglobin, dna, bacteriophage-t4, insulin, glucose, water-h2o
 
 ### Macro objects
-mouse, microchip, blue-whale, boeing-747, supertanker
+mouse
 
 ### Other
 big-bang, tardigrade, sequoia
@@ -32,11 +32,12 @@ Masters in iCloud `Projects/triangle/illustrations/gen3/generated/`; the
 `src/` PNGs are those masters cropped so the subject fills 122 of 128 px.
 1-ml-of-water, 1-liter-of-water, 1-tonne-of-water, ant, elephant, eros,
 mt-everest, argentinosaurus, l-brown-dwarf, proxima-cen, sirius-a, vega,
-neutron-star, milky-way, eiffel-tower, pollen-grain, tyrannosaurus-rex, protostar
+neutron-star, milky-way, eiffel-tower, pollen-grain, tyrannosaurus-rex, protostar,
+boeing-747, pyramid-giza, supertanker, microchip, hippo, blue-whale, red-dwarf, white-dwarf, t-brown-dwarf, wolf-rayet, beta-pictoris-b, ton-618, stellar-bh
 
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
-hippo, human, red-blood-cell, grain-of-salt, pyramid-giza, penny,
+human, red-blood-cell, grain-of-salt, penny,
 soccer-ball, observable-universe, void, itokawa, bennu,
 NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
 
