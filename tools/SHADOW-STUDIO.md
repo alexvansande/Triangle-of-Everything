@@ -1143,3 +1143,13 @@ is matched visually, not an exact inverse reconstruction of EHT measurements.
 `/tools/eht-icon-study.html` provides a manual crossfade and animated dissolve,
 plus 128px Screen-blended previews on purple. Preserve the distinction between
 original observations and reconstructed illustration in credits and future use.
+
+EHT follow-up: user prefers the original swirl versions over the soft mottled
+pass. New `*-telescope.png` candidates extend those swirls with finer turbulent
+structure, small emission knots, dark lanes and a subordinate inner lensed arc.
+They retain the real EHT broad brightness distributions as artistic constraints.
+These represent imagined future radio/submillimeter detail at a safe distant
+viewpoint, not a claim about a visible-light telescope observation. They do not
+show a physical horizon surface. `/tools/eht-icon-study.html` now defaults to
+these candidates and lets the user select the original swirls or softer pass.
+Current chart icons are still unchanged pending selection.
