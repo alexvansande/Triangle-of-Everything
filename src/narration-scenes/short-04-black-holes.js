@@ -126,8 +126,12 @@ export default {
       { obj: "Sgr A*", label: "denser than water", place: "left" }, { obj: "M87*", label: "lighter than water", delay: 0.6 }] },
     { at: "float on a pool", hl: [{ line: "water" }, { side: "right", of: "water" }, { obj: "M87*", label: "it would float" }, { obj: "Ton 618", label: false }] },
     { at: "m87", cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: "m87* · first photographed", place: "left" }] },
-    { at: "first one", offset: 0.3, photo: "m87", obj: "M87*", dur: 4.2, fit: "contain", kb: [1, 1.15], caption: "M87*, the first black hole ever photographed · Event Horizon Telescope · 2019" },
-    { at: "largest black hole", hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "ton 618", place: "left" }] },
+    // no cut: zoom onto M87*, grow its picture in a spotlight, and the EHT photo fades in over it (lens)
+    { at: "first one", cam: { obj: "M87*", span: 0.6 }, dur: 1.0, hl: [{ spot: "M87*", grow: 3, dim: 0.65 }] },
+    { at: "first one", offset: 0.9, photo: "m87", obj: "M87*", dur: 1.9, fadeIn: 1.0,
+      lens: { map: [0.00043284, -0.00002689, -0.308608, -0.209377], r: 0.46, size: [3600, 3600] },
+      caption: "M87*, the first black hole ever photographed · Event Horizon Telescope · 2019" },
+    { at: "largest black hole", cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "ton 618", place: "left" }] },
     { at: "our solar system", hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "horizon ≈ 40× neptune's orbit", place: "left" }] },
     { at: "60 billion", hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "~60 billion suns", place: "left" }] },
 

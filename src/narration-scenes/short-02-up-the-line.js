@@ -14,6 +14,8 @@ const CLOSE = { r: 1.7, m: 5.9, span: 9 };
 const LITER = { obj: "1 Liter of Water" }, TONNE = { obj: "1 Tonne of Water" };
 const RIGHT = { r: 1.79, m: 3 };            // the liter, one square to the right
 const WATER = { line: "water" };
+// one grid square (a decade of size × a decade of mass) with its bottom-left corner at (r, m)
+const SQ = (r, m, delay = 0) => ({ poly: [[r, m], [r + 1, m], [r + 1, m + 1], [r, m + 1]], fill: "#ffd54f", opacity: 0.35, delay });
 
 export default {
   title: "Water to brown dwarfs",
@@ -39,11 +41,16 @@ export default {
       hl: [{ ...LITER, label: "1 liter · 1 kg · 10 cm" }] },
     { at: "all three dimensions", cam: { r: 1.35, m: 4.6, span: 4.5 }, units: true, unitsFor: 10,
       hl: [{ ...LITER, label: "10 cm" }] },
+    // the grid's squares are decades: one square of size, then three of mass, counted
+    // out beside the arrows, with the axis each move is measured on lit up
     { at: "one square to the right",
-      hl: [{ ...LITER, label: "10 cm" }, { arrow: true, from: LITER, to: RIGHT, label: "×10 size" }] },
+      hl: [{ ...LITER, label: "10 cm" }, { arrow: true, from: LITER, to: RIGHT, label: "×10 size" },
+           SQ(0.79, 2), { axis: "bottom", label: "size ×10" }] },
     { at: "three squares up",
       hl: [{ ...LITER, label: "1 kg" }, { arrow: true, from: LITER, to: RIGHT, label: "×10 size", draw: 0.01 },
-           { arrow: true, from: RIGHT, to: TONNE, label: "×1000 volume" }] },
+           { ...SQ(0.79, 2), instant: true },
+           { arrow: true, from: RIGHT, to: TONNE, label: "×1000 volume" },
+           SQ(1.79, 3, 0.3), SQ(1.79, 4, 0.8), SQ(1.79, 5, 1.3), { axis: "left", label: "mass ×1000" }] },
     { at: "constant density",
       hl: [{ ...LITER, label: "1 kg" }, { ...TONNE, label: "1 tonne · 1 m" },
            { arrow: true, from: LITER, to: TONNE, label: "×10 size · ×1000 mass" }] },
