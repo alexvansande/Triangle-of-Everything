@@ -1192,3 +1192,8 @@ The family study retains both cloudy-ring alternatives for comparison. Only the 
 
 ### Black-hole size correction (2026-10-22)
 Supersedes the core-equalizing multiplier above: all four now use a modest 1.45 artwork multiplier. Matching core diameter made the surrounding gas excessively large, especially TON 618. Backing circles remain aligned to their individual cores and grow with them. A shared radial opacity mask preserves the inner ring and fades outer gas to zero before the image boundary, in both curated and dust rendering. Source art and EHT references remain untouched.
+
+### Icon ↔ dot transitions (2026-10-23)
+`src/icon-reveal.js` owns a reversible, approximately one-second SVG reveal wrapper used by curated and dust pictures. A circular clip contracts to the 2.8px named dot while image scale falls only to half size. The category-color cover fades in during the last portion; a small radius undershoot settles back to the dot. Enter reverses these phases, and changing visibility mid-animation reverses from current progress. Hover transforms remain on the inner artwork. Reduced-motion preference skips the animation.
+
+Icon shadows use the same reveal progress and shrink/fade toward a small black dot shadow. Curated named dots now have the missing small southeast shadows (dust dots already had a blurred path). Source image and custom shadow assets are unchanged. Visibility priorities still determine targets independently of animation.

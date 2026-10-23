@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-23",
+  "tool": "built-in image_gen",
+  "object": "1 mL Cube of Water",
+  "slug": "1-ml-cube-of-water",
+  "catalogue": "Confirmed on origin/main at 1a16e0a; not yet in gen3-icons catalogue",
+  "reference": "content/icons/src/1-ml-of-water.png",
+  "prompt": "Use case: scientific-educational chart icon. Edit the attached 1 mL water droplet into a cube-shaped droplet. Reference image is the exact material, palette, lighting and family to match. A single tiny 1mL volume of pure liquid water somehow constrained into a roughly cubic shape, with gently bulging nearly flat faces, rounded edges and generous smoothly rounded corners from surface tension. Clearly reads as a cube, NOT a sphere, NOT an ice cube, NOT a glass tank, no container, no seams, no rim, no wall thickness. Head-on front view as a miniature pinned on a wall slightly below eye level: front face nearly square, very mild perspective, a modest top face visible, little or no side face, not isometric. Preserve the reference's transparent watery material, delicate lavender/violet optical tint, soft white-lilac specular illumination from upper left, refracted arcs of light inside the lower part and along edges. Clear interior with subtle liquid optical distortions, no frost, no cracks, no snow, no heavy bubbles, no ocean ripples or large-scale surface texture. No objects, text, background, floor or cast shadow. Square 1254x1254 PNG, genuine transparent background outside subject; retain delicate translucency of water. Center outline; subject about 93-95% of square with at least 25px clear margin, no clipping. Highly polished realistic illustrated miniature, crisp enough for a 128px chart icon, same restrained contrast and color as reference."
+}
