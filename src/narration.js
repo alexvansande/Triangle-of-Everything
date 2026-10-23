@@ -377,6 +377,7 @@ export async function startNarration(app) {
   const gHl = nsvg.append("g").attr("class", "narr-hl");
   const gHlFree = nsvg.append("g").attr("class", "narr-hl-free"); // axis bands: never clipped
   const gGuides = nsvg.append("g").attr("class", "narr-guides");   // the guides' values, at the rulers
+  const gSketch = nsvg.append("g").attr("class", "narr-sketch");   // line drawings over a dived picture: stay up while the chart dims
   const capEl = document.getElementById("narr-caption");
 
   // ---------- photo cutaways ----------
@@ -405,7 +406,8 @@ export async function startNarration(app) {
   const PHOTO_IN = 0.9, PHOTO_OUT = 0.8;
 
   // ---------- dives: the camera trick ----------
-  // { at, dolly: name | { obj, grow?: × | "fill" (default), in?: s (2.4), out?: s (4) },
+  // { at, dolly: name | { obj, grow?: × | "fill" (default), size?: share of the screen's short side a
+  //   "fill" picture's radius reaches (0.4), in?: s (2.4), out?: s (4) },
   //   dur?: s held all the way in (4) }
   // The object comes towards the screen while the depths behind it fall back, the
   // further the faster (painting, then dust and lines, then the other pictures),
@@ -438,7 +440,7 @@ export async function startNarration(app) {
     const k = t < d.t1 ? d3.easeCubicInOut(clamp01((t - d.t0) / d.tin))
       : 1 - d3.easeCubicInOut(clamp01((t - d.t1) / d.tout));
     let grow = d.grow ?? "fill";
-    if (grow === "fill") grow = Math.max(1, Math.min(layer.clientWidth, layer.clientHeight) * 0.4 / (app.iconRadius?.(d.obj) || 20));
+    if (grow === "fill") grow = Math.max(1, Math.min(layer.clientWidth, layer.clientHeight) * (d.size ?? 0.4) / (app.iconRadius?.(d.obj) || 20));
     app.setDolly?.({ name: d.obj, k, grow });
     marks.forEach(g => g.style("opacity", (1 - k).toFixed(3)));
     dollyOn = true;
@@ -606,7 +608,14 @@ export async function startNarration(app) {
       drawAxis(el, h, age, fr);
     });
     swellAxisNumbers(fr ? axisHls : [], t);
-    join(gHl, live.filter(h => !h.axis)).each(function (h) {
+    // line drawings over a picture (a dive's): in their own layer, which doesn't dim with the chart
+    join(gSketch, live.filter(h => h.sketch)).each(function (h) {
+      const el = d3.select(this);
+      el.selectAll("*").remove();
+      el.attr("opacity", smooth((t - h.t0) / 0.3) * (1 - smooth((t - h.t1) / 0.6)));
+      drawSketch(el, h, t - h.t0);
+    });
+    join(gHl, live.filter(h => !h.axis && !h.sketch)).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
       const age = t - h.t0;
@@ -791,6 +800,26 @@ export async function startNarration(app) {
     const anchor = place === "left" ? "end" : place === "right" ? "start" : "middle";
     el.append("text").attr("class", "narr-tag").attr("x", tx).attr("y", ty)
       .attr("text-anchor", anchor).attr("fill", col).text(label);
+  }
+  /** A line drawing over an object's picture: { sketch: name, level: 0–2, draw?: s (0.9) }.
+   *  Level 0 is the pyramid the chart measures it by (its envelope); 1 and 2 are the next
+   *  steps of a Sierpinski triangle, carving the base and the middle out of it: the
+   *  fractal. The corners sit on the picture (`apex`, `base` as shares of its square). */
+  function drawSketch(el, h, age) {
+    const box = app.iconRect?.(h.sketch);
+    if (!box) return;
+    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
+    const X = (u) => (box.x - lr.x + u * box.w) / scl, Y = (v) => (box.y - lr.y + v * box.h) / scl;
+    const [ax, ay] = h.apex || [0.5, 0.03], [bl, br, by] = h.base || [0.215, 0.785, 0.96];
+    let tris = [[[X(ax), Y(ay)], [X(bl), Y(by)], [X(br), Y(by)]]];
+    const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+    for (let i = 0; i < (h.level || 0); i++)
+      tris = tris.flatMap(([a, b, c]) => [[a, mid(a, b), mid(a, c)], [mid(a, b), b, mid(b, c)], [mid(a, c), mid(b, c), c]]);
+    const d = tris.map(([a, b, c]) => `M${a}L${b}L${c}Z`).join("");
+    const k = d3.easeCubicOut(clamp01(age / (h.draw ?? 0.9)));
+    [[6, 0.18], [1.7, 0.95]].forEach(([w, o]) => el.append("path").attr("d", d).attr("fill", "none")
+      .attr("stroke", "#fff").attr("stroke-width", w).attr("opacity", o).attr("stroke-linejoin", "round")
+      .attr("pathLength", 1).attr("stroke-dasharray", `${k} 1`));
   }
   /** Every object being named gets a light blue halo behind its picture (like a
    *  star's wall glow, stronger), from its first mention: on in 0.5 s, held to
