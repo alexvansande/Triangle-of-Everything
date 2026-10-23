@@ -60,6 +60,22 @@ for (const t of takes) {
   meta.levels = meta.levels.filter(l => fs.existsSync(path.join(OUT, "tiles", `z${l.z}`)));
   fs.writeFileSync(mp, JSON.stringify(meta));
 }
+// The cutaway photos go out at 2000 px on the long side (up to 3600 px in the
+// repo, for the renders): a phone holding several decoded 3600 px photos runs
+// short of memory and starts dropping pictures and the WebGL background. The
+// player places a photo by its scene's pixel size, not the file's, so this
+// changes nothing on screen.
+{
+  const { default: sharp } = await import("sharp");
+  const dir = path.join(OUT, "narration", "photos");
+  for (const f of fs.existsSync(dir) ? fs.readdirSync(dir) : []) {
+    if (!/\.jpe?g$/i.test(f)) continue;
+    const fp = path.join(dir, f), meta = await sharp(fp).metadata();
+    if (Math.max(meta.width, meta.height) <= 2000) continue;
+    const buf = await sharp(fp).resize({ width: 2000, height: 2000, fit: "inside" }).jpeg({ quality: 82, mozjpeg: true }).toBuffer();
+    fs.writeFileSync(fp, buf);
+  }
+}
 // KaTeX ships woff2 + woff + ttf of every face; browsers take the woff2.
 for (const f of fs.readdirSync(path.join(OUT, "assets"))) if (/^KaTeX_.*\.(woff|ttf)$/.test(f)) rm(`assets/${f}`);
 
