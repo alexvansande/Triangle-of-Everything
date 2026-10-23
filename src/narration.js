@@ -168,8 +168,8 @@ export async function startNarration(app) {
   // than in the app so they still read in a phone video
   app.setDots?.(SCENE.dots ?? { radius: 1.15, opacity: 1.7 });
   app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);   // off: the author prefers the background kept on deep zooms
-  // pictures 1.6× the app's default size, so they read on a phone
-  app.setIconScale?.(SCENE.iconSize ?? 160);
+  // pictures 1.28× the app's default size, so they read on a phone (1.6× was too big)
+  app.setIconScale?.(SCENE.iconSize ?? 128);
   // Settings → Icons at "many" (the author's pick): pictures may nearly touch, smaller catalogue ones show
   app.setIconDensity?.(SCENE.iconDensity ?? 100);
   app.setIconForce?.(SCENE.forceIcons ?? null);   // pictures shown even where a nearer one would hide them
