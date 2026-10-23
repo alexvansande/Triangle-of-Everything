@@ -5513,7 +5513,7 @@ function bgNoiseView() {
   const logR = xS.invert(cw / 2), logM = yS.invert(ch / 2);
   _bgNoiseSurface?.attr("width", cw).attr("height", ch);
   return {
-    left: 0, top: 0, w: cw, h: ch,
+    left: _bgNoiseBehind ? margin.left : 0, top: _bgNoiseBehind ? margin.top : 0, w: cw, h: ch,
     cx: 2114 + (logR - PLANCK_LOG_R) * ppu, cy: 5960 - (logM - PLANCK_LOG_M) * ppu,
     zx: Math.abs(xS(1) - xS(0)) / ppu, zy: Math.abs(yS(0) - yS(1)) / ppu,
   };
@@ -5527,10 +5527,23 @@ function setBgNoise(on) {
 
 // Both backgrounds share the icons' clipped compositing group, so Screen
 // blends against the fractal pixels just as it does against the painted tiles.
+// WebKit paints a canvas inside a foreignObject above every later SVG sibling,
+// so there the fractal would cover the grid, dust and icons. It keeps the
+// canvas behind the whole SVG instead (the first placement): the SVG's black
+// backdrops go while the layer is up. Elsewhere it lives inside the chart.
+const _bgNoiseBehind = _isWebKit;
 function setBgNoiseBackdrop(noise) {
   clearTimeout(_bgNoiseFadeTimer);
   const tiles = [lTiles, lTilesBase];
+  const backdrops = (on) => {
+    if (!_bgNoiseBehind) return;
+    document.getElementById("chart").style.background = on ? "" : "#000";
+    svg.style("position", on ? null : "relative");
+    svg.select("rect.svg-bg").attr("fill", on ? "#000000" : "none");
+    clip.select("rect.bg-rect").attr("display", on ? null : "none");
+  };
   if (noise) {
+    backdrops(false);
     tiles.forEach(l => l.style("transition", "opacity 0.5s").style("opacity", 0));
     _bgNoiseFadeTimer = setTimeout(() => tiles.forEach(l => l.style("display", "none")), 520);
   } else {
@@ -5539,18 +5552,15 @@ function setBgNoiseBackdrop(noise) {
     tiles.forEach(l => l.style("opacity", 1));
     _bgNoiseFadeTimer = setTimeout(() => {
       tiles.forEach(l => l.style("transition", null).style("opacity", null));
+      backdrops(true);
     }, 520);
   }
 }
 
 /** Show the layer when enabled and zoomed past the tiles (with hysteresis). */
-// WebKit paints a canvas inside a foreignObject above every later SVG sibling,
-// so there the fractal covers the grid, dust and icons: keep the painted tiles
-// (?bgnoise=1 still forces it, for testing).
-const _bgNoiseBlocked = _isWebKit && _bgNoiseUrl !== "1";
 async function syncBgNoise() {
   const zoom = tileMeta ? Math.abs(xS(1) - xS(0)) / tileMeta.pxPerUnitX : 0;
-  const want = !!(_bgNoiseWanted && !_bgNoiseBlocked && _bgNoiseArmed && tileMeta && _bgTilesEnabled && !_posterMargins &&
+  const want = !!(_bgNoiseWanted && _bgNoiseArmed && tileMeta && _bgTilesEnabled && !_posterMargins &&
     zoom >= (_bgNoiseShown ? BG_NOISE_OFF_AT : BG_NOISE_ON_AT));
   if (want === _bgNoiseShown) return;
   _bgNoiseShown = want;
@@ -5563,17 +5573,25 @@ async function syncBgNoise() {
     const { createBgNoise } = await loadBgNoise();
     if (!_bgNoiseShown || _bgNoise) { _bgNoise?.setVisible(_bgNoiseShown); return; } // changed while loading
     // A sibling HTML canvas lies outside clip's isolated blending group.
-    // Embed it beneath the tiles instead, keeping all chart blends intact.
-    _bgNoiseSurface = dBack.insert("foreignObject", () => lTilesBase.node())
-      .attr("class", "fractal-backdrop").attr("width", cw).attr("height", ch)
-      .style("pointer-events", "none");
-    const host = _bgNoiseSurface.append("xhtml:div")
-      .style("position", "relative").style("width", "100%").style("height", "100%").node();
+    // Embed it beneath the tiles instead, keeping all chart blends intact
+    // (WebKit: behind the SVG, see _bgNoiseBehind).
+    let host = document.getElementById("chart");
+    if (!_bgNoiseBehind) {
+      _bgNoiseSurface = dBack.insert("foreignObject", () => lTilesBase.node())
+        .attr("class", "fractal-backdrop").attr("width", cw).attr("height", ch)
+        .style("pointer-events", "none");
+      host = _bgNoiseSurface.append("xhtml:div")
+        .style("position", "relative").style("width", "100%").style("height", "100%").node();
+    }
     _bgNoise = createBgNoise({
       host, meta: tileMeta, getView: bgNoiseView,
       onShown: () => { if (_bgNoiseShown) setBgNoiseBackdrop(true); },
+      onLost: () => {   // back to the tiles at once; the next zoom past them builds it anew
+        _bgNoise?.destroy(); _bgNoise = null; _bgNoiseSurface?.remove(); _bgNoiseSurface = null;
+        if (_bgNoiseShown) { _bgNoiseShown = false; setBgNoiseBackdrop(false); }
+      },
     });
-    if (!_bgNoise) { _bgNoiseSurface.remove(); _bgNoiseSurface = null; _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
+    if (!_bgNoise) { _bgNoiseSurface?.remove(); _bgNoiseSurface = null; _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
   }
   _bgNoise.setVisible(true);
 }

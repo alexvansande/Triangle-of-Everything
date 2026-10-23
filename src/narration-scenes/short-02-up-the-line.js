@@ -97,6 +97,7 @@ export default {
 
     // mountains, rocks and small moons
     // a dive without a photo: the tower comes towards the screen, the chart falls back
+    { at: "lot of empty space", cam: { obj: "Eiffel Tower", span: PAN }, dur: 2 },
     { at: "lot of empty space", dolly: { obj: "Eiffel Tower", in: 2, out: 3.5 }, dur: 2 },
     { at: "the great pyramid", cam: { r: 4.4, m: 12.4, span: PAN, glide: true }, hl: [{ obj: "Great Pyramid" }] },
     { at: "hills and mountains", cam: { r: 4.9, m: 14.4, span: PAN, glide: true }, hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Mt. Everest", delay: 0.3 }] },

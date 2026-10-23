@@ -342,12 +342,32 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     const max = view.mobile ? LABEL_MAX_MOBILE : LABEL_MAX_DESKTOP;
     const gap2 = (view.mobile ? LABEL_GAP_MOBILE : LABEL_GAP_DESKTOP) ** 2;
     const fs = LABEL_FONT * (view.fontScale || 1);
-    const free = (x0, y0, x1, y1) => {
+    // Names placed so far, so no two overlap (a name keeps its side across
+    // frames, but yields to an earlier one that now sits where it would go).
+    const labOcc = new Uint8Array(gw * gh);
+    const free = (x0, y0, x1, y1, grid = null) => {
       // The viewport clips artwork; its edge is not a visibility blocker.
       for (let y = Math.max(0,Math.floor(y0 / OC)); y <= Math.min(gh-1,Math.floor(y1 / OC)); y++)
         for (let x = Math.max(0,Math.floor(x0 / OC)); x <= Math.min(gw-1,Math.floor(x1 / OC)); x++)
-          if (occ[y * gw + x]) return false;
+          if ((grid ? grid[y * gw + x] : occ[y * gw + x] || labOcc[y * gw + x])) return false;
       return true;
+    };
+    const textBox = (q, anchor, off, w, h) => anchor === "start"
+      ? [q.sx + off, q.sy - h / 2, q.sx + off + 3 + w, q.sy + h / 2] : [q.sx - off - 3 - w, q.sy - h / 2, q.sx - off, q.sy + h / 2];
+    const takeText = (x0, y0, x1, y1) => {
+      const a = Math.max(0, Math.floor(x0 / OC)), b = Math.min(gw - 1, Math.floor(x1 / OC));
+      for (let y = Math.max(0, Math.floor(y0 / OC)); y <= Math.min(gh - 1, Math.floor(y1 / OC)); y++)
+        if (b >= a) labOcc.fill(1, y * gw + a, y * gw + b + 1);
+    };
+    // a remembered name: on its side if no earlier name is there, else the other, else unnamed this frame
+    const keepText = (p, off) => {
+      if (!p.text) return p;
+      const w = p.text.length * fs * 0.62, h = fs * 1.2;
+      for (const anchor of [p.anchor, p.anchor === "start" ? "end" : "start"]) {
+        const box = textBox(p, anchor, off, w, h);
+        if (free(...box, labOcc)) { takeText(...box); return anchor === p.anchor ? p : { ...p, anchor }; }
+      }
+      return { ...p, text: "" };
     };
     // Fixed-priority pictures precede incidental labels. Label collisions
     // can change the text side, but never demote a selected picture to a dot.
@@ -397,7 +417,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         const off=chosen.r+4+iconClearance(chosen.r,name),w=text.length*fs*.62,h=fs*1.2;
         const anchor=saved?.anchor || (free(q.sx+off,q.sy-h/2,q.sx+off+w,q.sy+h/2)?'start':'end');
         const placement={...q,text,anchor,fs,icon};
-        occupyIcon(q,icon.r,name);placed.push(placement);_nameDecisions.set(q.i,placement);
+        occupyIcon(q,icon.r,name);placed.push(keepText(placement,off));_nameDecisions.set(q.i,placement);
         continue;
       }
       const saved = _nameDecisions.get(q.i);
@@ -408,7 +428,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
           p.icon = { ...saved.icon, r:size/2, url:view.iconOf(saved.icon.name,size) };
           occupyIcon(q, p.icon.r, p.icon.name);
         }
-        placed.push(p);
+        placed.push(keepText(p, p.icon ? p.icon.r + 4 + iconClearance(p.icon.r, p.icon.name) : 6));
         continue;
       }
       _nameDecisions.set(q.i, null);
@@ -434,6 +454,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       const icon = null, anchor = side(6);
       if (!anchor) continue;
       const placement = { i: q.i, sx: q.sx, sy: q.sy, text, anchor, fs, icon };
+      takeText(...textBox(q, anchor, 6, w, h));
       placed.push(placement);
       _nameDecisions.set(q.i, placement);
     }
