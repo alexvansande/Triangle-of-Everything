@@ -23,7 +23,8 @@ const maxResolutionsOnly = () => {
 };
 
 export default defineConfig(({ mode }) => {
-  const preview = mode === "narration-preview";
+  // the narration preview and the site's on-device test build (scripts/device-preview.mjs)
+  const preview = mode === "narration-preview" || mode === "device-preview";
   return {
     plugins: preview ? [maxResolutionsOnly()] : [],
     build: {

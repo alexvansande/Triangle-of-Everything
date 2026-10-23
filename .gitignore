@@ -42,3 +42,4 @@ narration-frames/
 output/
 video/photos/originals/*
 !video/photos/originals/meta.json
+dist-device

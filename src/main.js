@@ -7996,7 +7996,7 @@ onFirstInteraction(() => {
 // Registered late and without clients.claim so the FIRST visit never pays
 // for interception or cache writes — the SW only serves later navigations.
 // Skipped in dev — it would fight Vite's HMR.
-if ("serviceWorker" in navigator && !import.meta.env.DEV && !NARR_PREVIEW) {
+if ("serviceWorker" in navigator && !import.meta.env.DEV && !NARR_PREVIEW && import.meta.env.MODE !== "device-preview") {
   window.addEventListener("load", () => {
     setTimeout(() => {
       navigator.serviceWorker.register("/sw.js").catch(() => { /* non-fatal */ });
