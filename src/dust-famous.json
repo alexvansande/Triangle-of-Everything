@@ -282,6 +282,7 @@
 {"band": 30, "rank": 8, "source": "exoplanet", "name": "WASP-121 b", "kind": "ultra-hot Jupiter"},
 {"band": 30, "rank": 9, "source": "debcat", "name": "Kepler-16 B", "kind": "red dwarf"},
 {"band": 30, "rank": 10, "source": "exoplanet", "name": "WASP-18 b", "kind": "hot Jupiter"},
+{"band": 30, "rank": 11, "source": "browndwarf", "name": "TOI-2490 b", "kind": "brown dwarf"},
 {"band": 36, "rank": 1, "source": "oc", "name": "Melotte 22", "label": "Pleiades", "kind": "star cluster"},
 {"band": 36, "rank": 2, "source": "oc", "name": "Westerlund 2", "kind": "young massive cluster"},
 {"band": 36, "rank": 3, "source": "oc", "name": "Trumpler 16", "kind": "cluster in the Carina Nebula"},

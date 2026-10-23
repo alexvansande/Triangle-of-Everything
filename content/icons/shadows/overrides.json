@@ -2161,5 +2161,21 @@
     "flipY": false,
     "reviewed": true,
     "updated": "2026-10-23T17:17:30.791Z"
+  },
+  "toi-2490-b": {
+    "mode": "generated",
+    "source": "imagegen",
+    "registered": true,
+    "anchorBase": false,
+    "flipY": false,
+    "generatedScale": 0.52,
+    "opacity": 0.3,
+    "generatedBlur": 0,
+    "distance": 0,
+    "x": 80,
+    "y": 80,
+    "reviewed": true,
+    "generator": "brown-dwarf-ember-wall-v1",
+    "reference": "l-brown-dwarf"
   }
 }

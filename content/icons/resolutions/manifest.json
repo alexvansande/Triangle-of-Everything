@@ -4298,5 +4298,26 @@
         "path": "1024/1-ml-cube-of-water.webp"
       }
     ]
+  },
+  "toi-2490-b": {
+    "fingerprint": "ad738c6afd82c4621ef8d21cb4e2415ec853dab491b59416568af044ec8e17f4",
+    "baseWidth": 128,
+    "source": "content/icons/src/toi-2490-b.png",
+    "reason": "matching master",
+    "sourceDifference": 3.9513956705729165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/toi-2490-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/toi-2490-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/toi-2490-b.webp"
+      }
+    ]
   }
 }

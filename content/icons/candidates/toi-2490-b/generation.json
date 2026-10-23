@@ -1,0 +1,8 @@
+{
+  "prompt": "Create new astronomy chart icon of TOI-2490 b brown dwarf as an artistic bridge between these two references: L brown dwarf cloudy banding and Proxima Centauri luminous granulation. Single centered round sphere 90% canvas width on true transparent background. Warm copper-orange and deep red surface with glowing amber fine granular mottled texture, MUCH subtler and fewer horizontal bands than reference1: three or four broad diffuse nearly horizontal cloud belts partly dissolving into fine cellular luminous eddies. No sharp parallel zebra stripes, no diagonal Jupiter ribbons. More luminous and finely textured than a brown gas giant but calmer and dimmer than reference2 Proxima. Small scattered dark active patches, restrained ember glow within cloud breaks, soft warm limb, no big solar flare or loops, no lava cracks, no giant storm eyes. Distributed self illumination with only mild spherical shading, not a sharply dark night hemisphere. Detailed natural astrophotographic texture with artistic warm false colors. Opaque round body and a very narrow subtle transparent outer glow, no background stars, no text, no cast shadow, no rings. It must be a distinctive original object, not either reference recolored.",
+  "references": [
+    "content/icons/src/l-brown-dwarf.png",
+    "content/icons/src/proxima-cen.png"
+  ],
+  "note": "Artistic warm false-color interpretation, not an observed surface. Uses existing catalogue coordinates. Faint L-dwarf ember shadow reused at 20% strength."
+}

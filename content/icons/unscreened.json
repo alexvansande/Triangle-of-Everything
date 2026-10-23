@@ -241,6 +241,10 @@
   "backing": "soft",
   "master": true
  },
+ "toi-2490-b": {
+  "backing": "body",
+  "master": true
+ },
  "ton-618": {
   "backing": "hole",
   "master": true
