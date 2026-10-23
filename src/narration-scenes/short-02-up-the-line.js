@@ -126,13 +126,16 @@ export default {
     { at: "the eiffel tower", cam: C(3.75, 10.05, 3.4), hl: [{ obj: "Eiffel Tower" }] },
     { at: "surprisingly light", cam: C(3.85, 10.0, 3.4), hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
     // a small dive (the tower comes up to a quarter of the screen, the chart dims), then
-    // three line drawings over it: the pyramid it's measured by, then the arch and the
-    // opening between the floors carved out of it, then tiny triangles, the lattice: the fractal
+    // three line drawings over it, each with its volume: the outline (the picture fades
+    // once it's drawn), the arch and the opening between the floors carved out, then the
+    // lattice, down to the iron itself: the fractal. Volumes for the real tower (10,100 t):
+    // the filled-in silhouette ~0.8 million m³; less the space under the arches and between
+    // the first two floors ~0.33 million; the iron at 7.8 t/m³, 1,300 m³
     { at: "surprisingly light", dolly: { obj: "Eiffel Tower", in: 1.8, out: 2.2, size: 0.24 }, dur: 6.1 },
-    { at: "also counting all", hl: [{ sketch: "Eiffel Tower", level: 0 }] },
+    { at: "also counting all", hl: [{ sketch: "Eiffel Tower", level: 0, volume: "≈ 800,000 m³", density: "10,100 t · 13 kg per m³" }] },
     { at: "the internal space", cam: C(3.86, 10.02, 3.4) },
-    { at: "in many ways", offset: -0.9, hl: [{ sketch: "Eiffel Tower", level: 1 }] },
-    { at: "fractal", hold: 1.4, hl: [{ sketch: "Eiffel Tower", level: 2, draw: 1.2 }] },
+    { at: "in many ways", offset: -0.9, hl: [{ sketch: "Eiffel Tower", level: 1, volume: "≈ 330,000 m³", density: "30 kg per m³" }] },
+    { at: "fractal", hold: 1.4, hl: [{ sketch: "Eiffel Tower", level: 2, draw: 1.2, volume: "1,300 m³ of iron", density: "7,800 kg per m³" }] },
     { at: "lots of big rocks", offset: -0.8, cam: C(3.92, 10.4, 3.6) },
 
     // rocks, lakes, asteroids and small moons

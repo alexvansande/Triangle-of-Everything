@@ -608,6 +608,13 @@ export async function startNarration(app) {
       drawAxis(el, h, age, fr);
     });
     swellAxisNumbers(fr ? axisHls : [], t);
+    // a sketched dive's picture fades once its outline is drawn, so the later drawings stand
+    // alone, and comes back after the last one
+    if (dollyOn) {
+      const sk = highlights.filter(h => h.sketch), first = sk[0], last = sk[sk.length - 1];
+      const f = first ? smooth((t - first.t0 - (first.draw ?? 0.9) - 0.2) / 0.6) * (1 - smooth((t - last.t1) / 0.5)) : 0;
+      app.setDollyOpacity?.(1 - f);
+    }
     // line drawings over a picture (a dive's): in their own layer, which doesn't dim with the chart
     join(gSketch, live.filter(h => h.sketch)).each(function (h) {
       const el = d3.select(this);
@@ -814,7 +821,8 @@ export async function startNarration(app) {
     gap: [[0.474, 0.605], [0.526, 0.605], [0.547, 0.69], [0.453, 0.69]],
   };
   function drawSketch(el, h, age) {
-    const box = app.iconRect?.(h.sketch);
+    // over a dive, the visible copy of the picture (the original stays put, hidden, smaller)
+    const box = (dollyOn && app.dollyRect?.()) || app.iconRect?.(h.sketch);
     if (!box) return;
     const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
     const X = (u) => (box.x - lr.x + u * box.w) / scl, Y = (v) => (box.y - lr.y + v * box.h) / scl;
@@ -858,6 +866,14 @@ export async function startNarration(app) {
       }
     }
     const k = d3.easeCubicOut(clamp01(age / (h.draw ?? 0.9)));
+    // its estimated volume and density, under the drawing
+    if (h.volume) {
+      const a = clamp01((age - 0.5) / 0.5), tx = X(0.5), ty = Y(1) + 22;
+      el.append("text").attr("class", "narr-sketch-num").attr("x", tx).attr("y", ty).attr("text-anchor", "middle")
+        .attr("opacity", a).text(h.volume);
+      if (h.density) el.append("text").attr("class", "narr-sketch-sub").attr("x", tx).attr("y", ty + 17).attr("text-anchor", "middle")
+        .attr("opacity", a).text(h.density);
+    }
     // the outline and holes with a soft glow; the lattice finer, so the tower shows through
     [[d, 6, 0.16], [d, 1.3, 0.95], [lattice, 0.8, 0.7]].forEach(([path, w, o]) => path && el.append("path").attr("d", path)
       .attr("fill", "none").attr("stroke", "#fff").attr("stroke-width", w).attr("opacity", o).attr("stroke-linejoin", "round")
@@ -1440,8 +1456,8 @@ export async function startNarration(app) {
   }
   function overlay() {
     drawUnits(curT);
+    drawDolly(curT);       // first, so drawings over a dive's picture measure this frame's copy
     drawHighlights(curT);
-    drawDolly(curT);
     drawPhoto(curT);
     drawCaption(curT);
   }
@@ -1727,6 +1743,8 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 #narr-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 #narr-svg text { font-family: Inter, system-ui, sans-serif; paint-order: stroke; stroke: rgba(0,0,0,0.85); stroke-width: 3px; stroke-linejoin: round; }
 .narr-tag { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; }
+#narr-svg text.narr-sketch-num { font-size: 15px; font-weight: 700; fill: #fff; letter-spacing: 0.03em; }
+#narr-svg text.narr-sketch-sub { font-size: 11.5px; font-weight: 600; fill: rgba(235,238,255,0.8); letter-spacing: 0.05em; }
 #narr-svg text.narr-guide { font-size: 11px; font-weight: 600; fill: #e8ecff; letter-spacing: 0.03em; }
 .narr-cand { font-size: 15px; }
 body.narr-no-text #chart text { visibility: hidden; }

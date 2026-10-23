@@ -3407,7 +3407,7 @@ function setDolly(d) {
     // the fractal layer comes back over the tiles it lent the dive
     _bgNoiseSurface?.style("opacity", null).style("display", null).attr("transform", null);
     if (_bgNoiseShown) [lTiles, lTilesBase].forEach(l => l.style("display", "none").style("opacity", 0));
-    dVeil.attr("display", "none"); dFocus.selectAll("*").remove();
+    dVeil.attr("display", "none"); dFocus.selectAll("*").remove(); dFocus.style("opacity", null);
     lAxesWrap.style("opacity", null);
     return;
   }
@@ -8373,6 +8373,13 @@ if (_ogShot) {
       },
       /** Catalogue names on or off in a video (they're off by default there). */
       setDustLabels(on) { if (DUST_LABELS_OFF === on) { DUST_LABELS_OFF = !on; redraw(); } },
+      /** The dive's picture: its box on screen (the visible copy), or null; and its opacity
+       *  (1 shows it, 0 hides it), so drawings over it can stand alone. */
+      dollyRect() {
+        const n = dFocus.select("image").node(), b = n?.getBoundingClientRect();
+        return b?.width ? { x: b.x, y: b.y, w: b.width, h: b.height } : null;
+      },
+      setDollyOpacity(v = 1) { dFocus.style("opacity", v < 0.999 ? v.toFixed(3) : null); },
       /** Pictures that show even where a nearer one would hide them (videos): names, or null. */
       setIconForce(names) { _iconForce = names?.length ? new Set(names) : null; redraw(); },
       /** Settings → Icons for a video (0–100, 100 = many), without saving it. */
