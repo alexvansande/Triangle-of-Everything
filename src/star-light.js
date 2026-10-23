@@ -1,6 +1,9 @@
 import {BLACK_HOLE_FRAMES} from './black-hole-frames.js';
 import frames from './star-body-frames.json' with { type: 'json' };
 
+// The red-dwarf artwork highlights this catalogue star rather than the generic point.
+frames['toi-700'] = frames['red-dwarf'];
+
 // Measured visible disc centers/radii, excluding flares and transparent halos.
 export const STAR_BODY_FRAMES = frames;
 // Screen-blended spheres can use an aligned opaque backing without emitting light.

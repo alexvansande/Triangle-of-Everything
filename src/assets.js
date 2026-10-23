@@ -40,6 +40,7 @@ export const STRINGS_ATOM_SLUGS = new Set([
 
 // Load object icons (small WebP, preloaded eagerly)
 export const ICON_SLUG_MAP = {
+  "red-dwarf":      "toi-700",
   "bacteria":       "bacterium",
   "covid":          "covid-virus",
   "grain-of-salt":  "grain-of-sand",
