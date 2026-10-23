@@ -109,9 +109,7 @@ export default {
       hl: [{ obj: "Boeing 747" }, { obj: "Supertanker", delay: 0.3 }] },
     { at: "the eiffel tower", cam: { r: 4.2, m: 10.6, span: PAN, glide: true }, hl: [{ obj: "Eiffel Tower" }] },
     { at: "surprisingly light", hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
-    // a dive without a photo: the tower comes towards the screen, the chart falls back
-    { at: "all the internal space", cam: { obj: "Eiffel Tower", span: PAN }, dur: 2 },
-    { at: "all the internal space", dolly: { obj: "Eiffel Tower", in: 2, out: 3.5 }, dur: 2 },
+    // (no dive for now, the author's call: it stays highlighted)
 
     // rocks, lakes, asteroids and small moons
     { at: "lots of big rocks", cam: { r: 4.4, m: 12.4, span: PAN, glide: true }, hl: [{ obj: "Great Pyramid" }] },
