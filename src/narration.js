@@ -363,10 +363,22 @@ export async function startNarration(app) {
   // Then it goes back the same way over `out`. A photo with `lens` on the same object,
   // timed inside the hold, lands on the grown picture (video/plans/visual-rules.md §3).
   // "fill": the object grows to 40% of the screen's short side.
-  const dollies = cues.filter(c => c.dolly).map(c => {
-    const d = typeof c.dolly === "string" ? { obj: c.dolly } : c.dolly, tin = d.in ?? 2.4;
-    return { ...d, t0: c.time, t1: c.time + tin + (c.dur ?? 4), tin, tout: d.out ?? 4 };
-  });
+  // A photo cue with `dive: { in?, out?, grow? }` is a whole dive in one cue: the dive
+  // starts at the cue, the photo fades in once everything behind has fully fallen
+  // back (in + 0.25 s), holds `dur`, fades out, and then the dive unwinds over `out`.
+  const DIVE_IN = 2, DIVE_OUT = 3.5, DIVE_LEAD = 0.25;
+  const diveLead = (c) => c.dive ? (c.dive.in ?? DIVE_IN) + DIVE_LEAD : 0;
+  const dollies = [
+    ...cues.filter(c => c.dolly).map(c => {
+      const d = typeof c.dolly === "string" ? { obj: c.dolly } : c.dolly, tin = d.in ?? 2.4;
+      return { ...d, t0: c.time, t1: c.time + tin + (c.dur ?? 4), tin, tout: d.out ?? 4 };
+    }),
+    ...cues.filter(c => c.photo && c.dive).map(c => {
+      const d = c.dive === true ? {} : c.dive, tin = d.in ?? DIVE_IN;
+      return { obj: c.obj, grow: d.grow, t0: c.time, tin, tout: d.out ?? DIVE_OUT,
+        t1: c.time + diveLead(c) + (c.dur ?? 6) + (c.fadeOut ?? PHOTO_OUT) };
+    }),
+  ];
   let dollyOn = false;
   function drawDolly(t) {
     const d = dollies.find(q => t >= q.t0 && t < q.t1 + q.tout);
@@ -383,7 +395,7 @@ export async function startNarration(app) {
   }
   const photoUrl = (n) => `${import.meta.env.BASE_URL}narration/photos/${n}.jpg`;
   const photos = cues.filter(c => c.photo).map(c => ({ ...c, names: [].concat(c.photo),
-    t0: c.time, t1: c.time + (c.dur ?? 6) }));
+    t0: c.time + diveLead(c), t1: c.time + diveLead(c) + (c.dur ?? 6) }));
   const photoImgs = new Map();
   for (const p of photos) for (const n of p.names) if (!photoImgs.has(n)) {
     const im = new Image(); im.decoding = "sync"; im.src = photoUrl(n); photoImgs.set(n, im);

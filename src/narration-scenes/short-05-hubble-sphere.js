@@ -63,10 +63,9 @@ export default {
       hl: [{ ...SN_SPLIT, draw: 0.01 }, { arrow: true, from: { obj: "Supernova Remnant" }, to: { obj: "Stellar Nursery" } }, { obj: "Stellar Nursery", label: "new stars", delay: 0.6 }] },
 
     // ── Bigger means emptier ─────────────────────────────────
-    // no cut: the Pillars fade in over the nursery's own picture (lens), as in video 3
-    { at: "new generation", cam: { obj: "Stellar Nursery", span: 0.6 }, dur: 1.4,
-      hl: [{ spot: "Stellar Nursery", grow: 3, dim: 1 }] },
-    { at: "new generation", offset: 1.3, photo: "pillars", obj: "Stellar Nursery", dur: 4.2, fadeOut: 1.8,
+    // a dive onto the nursery, the Pillars over its picture (lens), as in video 3
+    { at: "new generation", cam: { obj: "Stellar Nursery", span: 3 }, dur: 1.6 },
+    { at: "new generation", photo: "pillars", obj: "Stellar Nursery", dive: { in: 1.6, out: 2.5 }, dur: 2.4, fadeOut: 1.5,
       lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", hold: 0.3, fillDur: 1.8 },
       caption: "Pillars of Creation · Webb · 2022 · where stars are born" },
     { at: "mostly made of empty space", cam: { r: 20, m: 40, span: 24 }, clear: true },
@@ -105,11 +104,11 @@ export default {
     { at: "exactly on the black hole line", hl: [SCHW, { obj: HS, label: "on the black-hole line" }] },
     { at: "inside a black hole", hl: [SCHW, { obj: HS, label: "a black hole?" }] },
     { at: "represent event horizons", hl: [{ ...SCHW, label: "event horizons" }, { ...HUB, label: false }, { obj: HS, label: false }] },
-    // no cut: down the black-hole line to M87*, its picture grown in a spotlight, and the
-    // EHT photo fades in over it (lens); then back up to the Hubble sphere
-    { at: "represent event horizons", offset: 0.5, cam: { obj: "M87*", span: 0.6 }, dur: 2.2,
-      hl: [{ ...SCHW, label: "event horizons" }, { spot: "M87*", grow: 3, dim: 0.65 }] },
-    { at: "represent event horizons", offset: 2.6, photo: "m87", obj: "M87*", dur: 3.6, fadeIn: 1.4,
+    // down the black-hole line to M87*, a dive with the EHT photo over its picture (lens);
+    // then back up to the Hubble sphere
+    { at: "represent event horizons", offset: 0.5, cam: { obj: "M87*", span: 3 }, dur: 2.2,
+      hl: [{ ...SCHW, label: "event horizons" }] },
+    { at: "represent event horizons", offset: 2.7, photo: "m87", obj: "M87*", dive: { in: 1.6, out: 2 }, dur: 2.6, fadeIn: 1.4,
       lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600] },
       caption: "M87*'s event horizon · Event Horizon Telescope · 2019" },
     { at: "can never come out", cam: { r: 26.5, m: 54, span: 9 }, hl: [{ ...SCHW, label: "nothing gets out" }, { obj: HS, label: false }] },

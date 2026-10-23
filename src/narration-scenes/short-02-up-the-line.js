@@ -96,8 +96,8 @@ export default {
     { at: "very to the right", hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
 
     // mountains, rocks and small moons
-    // no photo: the tower's own picture, grown in a spotlight
-    { at: "lot of empty space", hl: [{ spot: "Eiffel Tower", grow: 2.2, dim: 0.6 }] },
+    // a dive without a photo: the tower comes towards the screen, the chart falls back
+    { at: "lot of empty space", dolly: { obj: "Eiffel Tower", in: 2, out: 3.5 }, dur: 2 },
     { at: "the great pyramid", cam: { r: 4.4, m: 12.4, span: PAN, glide: true }, hl: [{ obj: "Great Pyramid" }] },
     { at: "hills and mountains", cam: { r: 4.9, m: 14.4, span: PAN, glide: true }, hl: [{ obj: "Great Pyramid", place: "left" }, { obj: "Mt. Everest", delay: 0.3 }] },
     { at: "a mountain itself", hl: [{ obj: "Great Pyramid", label: "a mountain", place: "left" }, { obj: "Mt. Everest" }] },

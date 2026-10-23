@@ -4,7 +4,7 @@ import * as d3 from "d3";
 import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS,SPACE_ART_DEFS,spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
 import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
 import {STAR_BODY_FRAMES, SHADOWED_SCREEN_SPHERES, BROWN_DWARFS, starBodyGeometry, starWallLight, stellarLightProfile} from "./star-light.js";
-import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
+import { PARALLAX, planePoint, planeTransform, iconPoint, iconDepth } from "./parallax.js";
 import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
 import { buildSearchIndex, searchObjects } from "./object-search.js";
 import { VisibilityMemory } from "./visibility-memory.js";
@@ -3240,15 +3240,16 @@ function iconUsesScreenBlend(o) {
 // 1 / (1 + FALL), blurred and darkened; the object itself grows towards the
 // screen as a copy in front of them all (its own picture hides meanwhile).
 const DOLLY_DEPTHS = [
-  { outer: dBackF, inner: dBack, fall: 3, blur: 9, dark: 0.55 },
-  { outer: dMidF, inner: dMid, fall: 1.3, blur: 4.5, dark: 0.45 },
+  { outer: dBackF, inner: dBack, fall: 3, blur: 9, dark: 0.75, darkBy: 0.55 },
+  { outer: dMidF, inner: dMid, fall: 1.3, blur: 4.5, dark: 0.7, darkBy: 0.7 },
   { outer: dLabF, inner: dLab, fall: 0.8, blur: 0, dark: 0, fade: true },
   { outer: dIconF, inner: dIcon, fall: 0.8, blur: 0, dark: 0 },
 ];
-const DOLLY_VEIL = 0.6;    // over every depth, under the object
+// the mist (a veil over every depth, under the object) thickens from here to k = 1
+const DOLLY_MIST_FROM = 0.3;
 // The pictures blur one by one (a filter on their whole layer would cut the
 // screen-blended ones off from the painting); those only darken, under the veil.
-const DOLLY_ICON_BLUR = 3, DOLLY_ICON_DARK = 0.3;
+const DOLLY_ICON_BLUR = 3;
 const dollyIconFilter = defs.append("filter").attr("id", "dolly-fi").attr("x", "-50%").attr("y", "-50%")
   .attr("width", "200%").attr("height", "200%").attr("color-interpolation-filters", "sRGB");
 const dollyIconBlur = dollyIconFilter.append("feGaussianBlur").attr("stdDeviation", 0);
@@ -3274,6 +3275,11 @@ DOLLY_DEPTHS.forEach((L, i) => {
 function setDolly(d) {
   const k = d ? Math.max(0, Math.min(1, d.k ?? 0)) : 0;
   if (_dollyHidden) { _dollyHidden.style.visibility = ""; _dollyHidden = null; }
+  // each picture's own dolly transform comes off before the renderer's is read again
+  lIcons.selectAll(":scope > g").each(function () {
+    if (this.__dollyApplied && this.getAttribute("transform") === this.__dollyApplied) this.setAttribute("transform", this.__dollyBase);
+    this.__dollyApplied = null;
+  });
   if (k < 0.0005) {
     if (!_dolly) return;
     _dolly = null;
@@ -3298,8 +3304,12 @@ function setDolly(d) {
     .style("opacity", lend.toFixed(3)));
   _bgNoiseSurface?.style("opacity", (1 - lend).toFixed(3)).style("display", lend >= 1 ? "none" : null);
   const o = _lastProjected.find(p => p.name === d.name);
-  const icon = o && lIcons.select(`.obj-icon[data-slug="${o.slug}"]`).node();
-  const group = icon?.parentNode;
+  let icon = o && lIcons.select(`.obj-icon[data-slug="${o.slug}"]`).node();
+  if (!o) {   // a catalogue dot shown as its picture (the Eiffel Tower)
+    const dd = dustIcons().find(p => p.name === d.name);
+    icon = dd ? lIcons.selectAll("g.dust-picture").filter(p => p.i === dd.i).select(".dn-icon").node() : null;
+  }
+  const group = icon?.closest?.("g.dust-picture") || icon?.parentNode;
   // the object's point: where its picture is drawn (parallax included), else its dot
   let px = cw / 2, py = ch / 2;
   if (group) {
@@ -3308,22 +3318,35 @@ function setDolly(d) {
     px = (ib.x + ib.width / 2 - cb.x) / sc; py = (ib.y + ib.height / 2 - cb.y) / sc;
   } else if (o) { px = o.sx; py = o.sy; }
   const about = (s) => `translate(${px.toFixed(2)},${py.toFixed(2)}) scale(${s.toFixed(4)}) translate(${(-px).toFixed(2)},${(-py).toFixed(2)})`;
+  // Everything behind goes into a dark mist: the painting and the chart first,
+  // then the other pictures, all black by the time the dive is fully in.
+  const ease = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
+  const mist = ease((k - DOLLY_MIST_FROM) / (1 - DOLLY_MIST_FROM));
   DOLLY_DEPTHS.forEach((L) => {
-    L.inner.attr("transform", about(1 / (1 + L.fall * k)));
+    if (L.inner !== dIcon) L.inner.attr("transform", about(1 / (1 + L.fall * k)));
     if (L.fade) L.outer.style("opacity", (1 - k).toFixed(3));
     if (L.filter) {
       L.filter.attr("x", -40).attr("y", -40).attr("width", cw + 80).attr("height", ch + 80);
       L.blurEl.attr("stdDeviation", (L.blur * k).toFixed(2));
-      L.darkEls.forEach(e => e.attr("slope", (1 - L.dark * k).toFixed(3)));
+      L.darkEls.forEach(e => e.attr("slope", (1 - L.dark * ease(k / L.darkBy)).toFixed(3)));
       L.outer.attr("filter", `url(#${L.filter.attr("id")})`);
     }
   });
-  dVeil.attr("display", null).attr("width", cw).attr("height", ch).attr("opacity", (DOLLY_VEIL * k).toFixed(3));
+  dVeil.attr("display", null).attr("width", cw).attr("height", ch).attr("opacity", mist.toFixed(3));
   dollyIconBlur.attr("stdDeviation", (DOLLY_ICON_BLUR * k).toFixed(2));
-  dollyIconDark.forEach(e => e.attr("slope", (1 - DOLLY_ICON_DARK * k).toFixed(3)));
-  lIcons.selectAll(":scope > g").attr("filter", function (o) {
-    const screen = o?.slug ? iconUsesScreenBlend(o) : this.querySelector("[style*='screen']");
-    return screen ? null : "url(#dolly-fi)";
+  dollyIconDark.forEach(e => e.attr("slope", (1 - mist).toFixed(3)));
+  // The other pictures fall back one by one, each at its own parallax depth
+  // (iconDepth, exaggerated so the spread shows), blurring as they go.
+  const iconFall = DOLLY_DEPTHS.find(L => L.inner === dIcon).fall;
+  lIcons.selectAll(":scope > g").each(function (q) {
+    if (this === group) return;
+    const depth = q?.slug ? iconDepth(q.slug) : 1;
+    const base = this.getAttribute("transform") || "";
+    this.__dollyBase = base;
+    this.__dollyApplied = `${about(1 / (1 + iconFall * (1 + (depth - 1) * 4) * k))} ${base}`;
+    this.setAttribute("transform", this.__dollyApplied);
+    const screen = q?.slug ? iconUsesScreenBlend(q) : this.querySelector("[style*='screen']");
+    if (screen) this.removeAttribute("filter"); else this.setAttribute("filter", "url(#dolly-fi)");
   });
   const fe = 0.12 * Math.min(cw, ch) * Math.min(1, 2 * k);
   dollyMask.attr("x", -cw).attr("y", -ch).attr("width", 3 * cw).attr("height", 3 * ch);
@@ -3331,7 +3354,7 @@ function setDolly(d) {
   dollyFeatherBlur.attr("stdDeviation", fe.toFixed(1));
   dollyMaskRect.attr("x", fe).attr("y", fe).attr("width", Math.max(0, cw - 2 * fe)).attr("height", Math.max(0, ch - 2 * fe));
   dMid.attr("mask", "url(#dolly-mid-mask)");
-  lAxesWrap.style("opacity", (1 - 0.85 * k).toFixed(3));
+  lAxesWrap.style("opacity", (1 - k).toFixed(3));
   // the object: a copy of its picture group, grown about its point
   dFocus.selectAll("*").remove();
   if (!group) return;
@@ -8114,7 +8137,7 @@ if (_ogShot) {
       /** Screen box of an object's picture as drawn now (growth and parallax included), or null. */
       iconRect(name) {
         if (_dolly?.name === name) {
-          const c = dFocus.select(".obj-icon").node(), b = c?.getBoundingClientRect();
+          const c = dFocus.select(".obj-icon, .dn-icon").node(), b = c?.getBoundingClientRect();
           if (b?.width) return { x: b.x, y: b.y, w: b.width, h: b.height };
         }
         const o = _lastProjected.find(p => p.name === name);

@@ -35,12 +35,11 @@ export default {
 
     // Jupiter and Saturn make their own heat
     { at: "saturn and jupiter", cam: { r: 9.8, m: 30.05, span: 1.5 }, hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", delay: 0.3 }] },
-    // no cut, the camera trick: Jupiter comes towards the screen as the chart behind it
-    // falls back, blurs and darkens (dolly); the infrared photo fades in right over the
-    // grown planet (lens, discs matched), holds, fades out, and the dive slowly unwinds
+    // a dive (visual-rules.md §3): Jupiter comes towards the screen as the chart behind
+    // it falls back into a dark mist; the infrared photo fades in right over the grown
+    // planet (lens, discs matched), holds, fades out, and the dive slowly unwinds
     { at: "more heat than they absorb", cam: { obj: "Jupiter", span: 1.5 }, dur: 2 },
-    { at: "more heat than they absorb", dolly: { obj: "Jupiter", in: 2, out: 3.5 }, dur: 3.6 },
-    { at: "more heat than they absorb", offset: 2, photo: "jupiter-ir", obj: "Jupiter", dur: 2.6, fadeIn: 1, fadeOut: 1,
+    { at: "more heat than they absorb", photo: "jupiter-ir", obj: "Jupiter", dive: true, dur: 2.6, fadeIn: 1, fadeOut: 1,
       lens: { icon: [0.496, 0.5, 0.465], photo: [1791, 1677, 1651], size: [3600, 3353] },
       caption: "Jupiter in infrared · Gemini North · 2021 · glowing with its own heat" },
     { at: "compressing in their core", cam: { r: 9.8, m: 30.05, span: 1.5 },
@@ -83,12 +82,10 @@ export default {
     // the gas goes round again: stellar nurseries
     { at: "those nebulas expand", cam: { r: 18.1, m: 33.7, span: 2.8 },
       hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
-    // no cut: zoom onto the nursery, grow its picture as everything else goes black, then
-    // Webb's Pillars fade in over it (rotated and scaled onto its pillars), turn upright and
-    // grow to fill the screen, hold, and fade slowly back to the chart
-    { at: "stellar nurseries", cam: { obj: "Stellar Nursery", span: 0.6 }, dur: 1.4,
-      hl: [{ spot: "Stellar Nursery", grow: 3, dim: 1 }] },
-    { at: "stellar nurseries", offset: 1.3, photo: "pillars", obj: "Stellar Nursery", dur: 6.2, fadeOut: 1.8,
+    // a dive onto the nursery: Webb's Pillars fade in over its picture (rotated and scaled
+    // onto its pillars), turn upright and grow to fill the screen, hold, fade, unwind
+    { at: "stellar nurseries", cam: { obj: "Stellar Nursery", span: 2.8 }, dur: 1.8 },
+    { at: "stellar nurseries", photo: "pillars", obj: "Stellar Nursery", dive: { in: 1.8, out: 3 }, dur: 2.6, fadeOut: 1.5,
       lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", hold: 0.3, fillDur: 1.8 },
       caption: "Pillars of Creation · Webb · 2022 · a stellar nursery" },
     { at: "protostars", cam: { r: 16.8, m: 34.6, span: 6.2 },
@@ -107,14 +104,13 @@ export default {
       { line: "tov", label: "neutron star limit · ~2.2–2.3 Suns", delay: 0.8 }] },
     { at: "single spoonful", hl: [{ line: "tov" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "a teaspoon ≈ 2 billion tonnes", place: "right" }] },
     { at: "collapse into a black hole", hl: [{ line: "tov", label: "above it: black hole" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
-    // teaser for the black-hole video: no cut — zoom onto M87*, grow its picture in a
-    // spotlight, and the Event Horizon Telescope photo slowly fades in over it (lens)
-    { at: "collapse into a black hole", offset: 1.0, cam: { obj: "M87*", span: 0.6 }, dur: 1.2,
-      hl: [{ spot: "M87*", grow: 3, dim: 1 }] },
-    { at: "collapse into a black hole", offset: 1.9, photo: "m87", obj: "M87*", dur: 2.6, fadeIn: 0.9, fadeOut: 1.5,
+    // teaser for the black-hole video: over to M87*, then a quick dive with the Event
+    // Horizon Telescope photo over its picture (lens)
+    { at: "collapse into a black hole", offset: 1.0, cam: { obj: "M87*", span: 3 }, dur: 1.2 },
+    { at: "collapse into a black hole", offset: 2.2, photo: "m87", obj: "M87*", dive: { in: 1.2, out: 2 }, dur: 1.6, fadeIn: 0.9, fadeOut: 1,
       lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600], fill: "cover", hold: 0.2, fillDur: 1.2 },
       caption: "M87* · Event Horizon Telescope · 2019" },
-    { at: "deserves a video", cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
+    { at: "deserves a video", offset: 2.4, cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
       hl: [{ line: "schwarzschild" }, { obj: "Stellar BH", label: "next: black holes" }] },
   ],
 };
