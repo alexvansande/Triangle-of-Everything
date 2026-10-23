@@ -109,6 +109,7 @@ function picturePoint(p, k = _iconGrowth.get(p.i) || 1) {
   return iconPoint(p.sx, p.sy, _view.cw, _view.ch, _view.bodySizeAt?.(p.r * 2, p.name) ?? p.r * 2, k, _view.parallax, _view.depthKeyOf?.(p.name) || p.name);
 }
 let _focused = null;
+let _pictured = new Set(); // indices a narration scene shows as pictures (view.pictures)
 let _searchEntries = null;
 
 /** Search uses the same loaded, bulk-adjusted coordinates as the renderer. */
@@ -215,7 +216,8 @@ export function drawDust(layer, view, blockers, colorOf) {
   // thinning and labels. Hidden higher ranks still reserve their footprint;
   // neither a new label nor a viewport quota can replace an existing picture.
   _priorityIcons = new Map();
-  if (view.labels && view.iconOf) {
+  // (videos: view.fillPictures shows them without the names, packed by view.iconRoom)
+  if ((view.labels || view.fillPictures) && view.iconOf) {
     const candidates = [];
     for (const [i, famous] of _data.fame) {
       const name = famous.label || _data.names[i], size = view.iconSizeAt(r[i], name, sources[src[i]].cat);
@@ -224,12 +226,17 @@ export function drawDust(layer, view, blockers, colorOf) {
         blend:view.iconBlend?.(sources[src[i]].cat)});
     }
     candidates.sort((a,b) => a.rank-b.rank || a.i-b.i);
-    const selected = priorityCircles(candidates, p=>p.r, ICON_ROOM, blockers.priorityCircles || []);
+    const selected = priorityCircles(candidates, p=>p.r, view.iconRoom ?? ICON_ROOM, blockers.priorityCircles || []);
     for (const p of candidates) {
       if (!_priorityIconDecisions.has(p.i)) _priorityIconDecisions.set(p.i, selected.has(p) && p.r*2 >= ICON_MIN);
       if (_priorityIconDecisions.get(p.i)) _priorityIcons.set(p.i,p);
     }
   }
+  // Pictures a narration scene asks for by name (view.pictures): shown whatever
+  // the labels or the hierarchy say, like the focused dot.
+  _pictured = new Set();
+  if (view.pictures?.size && view.iconOf)
+    for (const [i, famous] of _data.fame) if (view.pictures.has(famous.label || _data.names[i])) _pictured.add(i);
 
   // --- occupancy grid of things dust must not touch ---
   const OC = 4; // px per occupancy cell
@@ -267,12 +274,14 @@ export function drawDust(layer, view, blockers, colorOf) {
   const paths = new Map(); // srcIdx → path string parts
   // Existing visible decisions reserve their space before new arrivals.
   // Existing hidden decisions remain hidden until the next zoom epoch.
+  const lead = (i) => i === _focused || _pictured.has(i);
   const order = [...(_focused == null ? [] : [_focused]),
-    ...[..._priorityIcons.keys()].filter(i=>i!==_focused),
-    ...rank.filter(i => i !== _focused && !_priorityIcons.has(i) && _dotDecisions.get(i) === true),
-    ...rank.filter(i => i !== _focused && !_priorityIcons.has(i) && !_dotDecisions.has(i))];
+    ...[..._pictured].filter(i => i !== _focused),
+    ...[..._priorityIcons.keys()].filter(i => !lead(i)),
+    ...rank.filter(i => !lead(i) && !_priorityIcons.has(i) && _dotDecisions.get(i) === true),
+    ...rank.filter(i => !lead(i) && !_priorityIcons.has(i) && !_dotDecisions.has(i))];
   for (const i of order) {
-    const retained = i === _focused || _priorityIcons.has(i) || _dotDecisions.get(i) === true;
+    const retained = lead(i) || _priorityIcons.has(i) || _dotDecisions.get(i) === true;
     const pad = retained ? 256 : 0;
     const sx = px(r[i]);
     if (sx < -pad || sx > cw + pad) continue;
@@ -330,23 +339,45 @@ export function drawDust(layer, view, blockers, colorOf) {
 function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
   const { names, src, sources } = _data;
   const placed = [];
-  if (view.labels || _focused != null) {
+  if (view.labels || view.fillPictures || _focused != null || _pictured.size) {
     const max = view.mobile ? LABEL_MAX_MOBILE : LABEL_MAX_DESKTOP;
     const gap2 = (view.mobile ? LABEL_GAP_MOBILE : LABEL_GAP_DESKTOP) ** 2;
     const fs = LABEL_FONT * (view.fontScale || 1);
-    const free = (x0, y0, x1, y1) => {
+    // Names placed so far, so no two overlap (a name keeps its side across
+    // frames, but yields to an earlier one that now sits where it would go).
+    const labOcc = new Uint8Array(gw * gh);
+    const free = (x0, y0, x1, y1, grid = null) => {
       // The viewport clips artwork; its edge is not a visibility blocker.
       for (let y = Math.max(0,Math.floor(y0 / OC)); y <= Math.min(gh-1,Math.floor(y1 / OC)); y++)
         for (let x = Math.max(0,Math.floor(x0 / OC)); x <= Math.min(gw-1,Math.floor(x1 / OC)); x++)
-          if (occ[y * gw + x]) return false;
+          if ((grid ? grid[y * gw + x] : occ[y * gw + x] || labOcc[y * gw + x])) return false;
       return true;
+    };
+    const textBox = (q, anchor, off, w, h) => anchor === "start"
+      ? [q.sx + off, q.sy - h / 2, q.sx + off + 3 + w, q.sy + h / 2] : [q.sx - off - 3 - w, q.sy - h / 2, q.sx - off, q.sy + h / 2];
+    const takeText = (x0, y0, x1, y1) => {
+      const a = Math.max(0, Math.floor(x0 / OC)), b = Math.min(gw - 1, Math.floor(x1 / OC));
+      for (let y = Math.max(0, Math.floor(y0 / OC)); y <= Math.min(gh - 1, Math.floor(y1 / OC)); y++)
+        if (b >= a) labOcc.fill(1, y * gw + a, y * gw + b + 1);
+    };
+    // a remembered name: on its side if no earlier name is there, else the other, else unnamed this frame
+    const keepText = (p, off) => {
+      if (!p.text) return p;
+      const w = p.text.length * fs * 0.62, h = fs * 1.2;
+      for (const anchor of [p.anchor, p.anchor === "start" ? "end" : "start"]) {
+        const box = textBox(p, anchor, off, w, h);
+        if (free(...box, labOcc)) { takeText(...box); return anchor === p.anchor ? p : { ...p, anchor }; }
+      }
+      return { ...p, text: "" };
     };
     // Fixed-priority pictures precede incidental labels. Label collisions
     // can change the text side, but never demote a selected picture to a dot.
+    const lead = (q) => q.i === _focused || _pictured.has(q.i);
     const order = [..._kept.filter(q => q.i === _focused),
-      ..._kept.filter(q => q.i !== _focused && _priorityIcons.has(q.i)),
-      ..._kept.filter(q => q.i !== _focused && !_priorityIcons.has(q.i) && _nameDecisions.get(q.i)),
-      ..._kept.filter(q => q.i !== _focused && !_priorityIcons.has(q.i) && !_nameDecisions.has(q.i))];
+      ..._kept.filter(q => q.i !== _focused && _pictured.has(q.i)),
+      ..._kept.filter(q => !lead(q) && _priorityIcons.has(q.i)),
+      ..._kept.filter(q => !lead(q) && !_priorityIcons.has(q.i) && _nameDecisions.get(q.i)),
+      ..._kept.filter(q => !lead(q) && !_priorityIcons.has(q.i) && !_nameDecisions.has(q.i))];
     const occupyIcon = (q, r, name) => {
       // Reserve existing and newly selected silhouettes equally.
       const R = r + iconClearance(r, name) + 1;
@@ -368,8 +399,17 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         placed.push({ ...q, text: name, anchor: 'start', fs, icon });
         continue;
       }
-      if (!view.labels) continue;
+      if (_pictured.has(q.i)) {
+        const name = _data.fame.get(q.i)?.label || names[q.i];
+        const size = view.iconSizeAt(_data.r[q.i], name, sources[src[q.i]].cat);
+        const url = view.iconOf?.(name, size);
+        const icon = url ? { url, r: size / 2, name, blend: view.iconBlend?.(sources[src[q.i]].cat) } : null;
+        if (icon) occupyIcon(q, icon.r, icon.name);
+        placed.push({ ...q, text: "", anchor: 'start', fs, icon });   // the scene names it
+        continue;
+      }
       const chosen = _priorityIcons.get(q.i);
+      if (!view.labels && !(view.fillPictures && chosen)) continue;
       if (chosen) {
         const famous=_data.fame.get(q.i), name=chosen.name;
         const text=famous.kind && !name.toLowerCase().includes(famous.kind.split(' ').pop()) ? `${name} (${famous.kind})` : name;
@@ -377,8 +417,8 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         const saved=_nameDecisions.get(q.i);
         const off=chosen.r+4+iconClearance(chosen.r,name),w=text.length*fs*.62,h=fs*1.2;
         const anchor=saved?.anchor || (free(q.sx+off,q.sy-h/2,q.sx+off+w,q.sy+h/2)?'start':'end');
-        const placement={...q,text,anchor,fs,icon};
-        occupyIcon(q,icon.r,name);placed.push(placement);_nameDecisions.set(q.i,placement);
+        const placement={...q,text:view.labels?text:"",anchor,fs,icon};   // a video's picture goes unnamed
+        occupyIcon(q,icon.r,name);placed.push(keepText(placement,off));_nameDecisions.set(q.i,placement);
         continue;
       }
       const saved = _nameDecisions.get(q.i);
@@ -389,7 +429,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
           p.icon = { ...saved.icon, r:size/2, url:view.iconOf(saved.icon.name,size) };
           occupyIcon(q, p.icon.r, p.icon.name);
         }
-        placed.push(p);
+        placed.push(keepText(p, p.icon ? p.icon.r + 4 + iconClearance(p.icon.r, p.icon.name) : 6));
         continue;
       }
       _nameDecisions.set(q.i, null);
@@ -415,6 +455,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       const icon = null, anchor = side(6);
       if (!anchor) continue;
       const placement = { i: q.i, sx: q.sx, sy: q.sy, text, anchor, fs, icon };
+      takeText(...textBox(q, anchor, 6, w, h));
       placed.push(placement);
       _nameDecisions.set(q.i, placement);
     }
@@ -429,7 +470,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       g.append("circle").attr("class", "dn-glow").attr("r", 6).attr("opacity", 0.1);
       g.append("circle").attr("class", "dn-dot").attr("r", 2.8).attr("opacity", 0.85);
 
-      g.append("text")
+      g.append("text").attr("class", "dust-name")
         .attr("font-family", "Inter, sans-serif").attr("font-weight", 600).attr("letter-spacing", "0.5px")
         .attr("paint-order", "stroke").attr("stroke", "rgba(6,6,26,0.85)")
         .attr("stroke-width", 3).attr("stroke-linejoin", "round")
@@ -550,6 +591,38 @@ export function pickDust(x, y, radius = 6) {
     sx: planePoint(best.sx,best.sy,_view.cw,_view.ch,_view.parallax ? PARALLAX.dust : 0).x,
     sy: planePoint(best.sx,best.sy,_view.cw,_view.ch,_view.parallax ? PARALLAX.dust : 0).y,
   };
+}
+
+/** Every dust dot of one category as [logR, logM] pairs (e.g. all the known
+ *  black holes, for the narration), or null before the dust has loaded. */
+const _byCat = new Map();
+export function dustOfCat(cat) {
+  if (!_data) return null;
+  if (_byCat.has(cat)) return _byCat.get(cat);
+  const out = [];
+  for (let i = 0; i < _data.src.length; i++)
+    if (_data.sources[_data.src[i]].cat === cat) out.push([_data.r[i], _data.m[i]]);
+  _byCat.set(cat, out);
+  return out;
+}
+
+/** Dots of the given catalogue sources (ids from dust.json's sources), as
+ *  [r, m, sourceId]. */
+export function dustOfSrc(ids) {
+  if (!_data) return null;
+  const want = new Set(ids), out = [];
+  for (let i = 0; i < _data.src.length; i++) {
+    const id = _data.sources[_data.src[i]].id;
+    if (want.has(id)) out.push([_data.r[i], _data.m[i], id]);
+  }
+  return out;
+}
+
+/** A catalogue dot by its shown name, where the map draws it: { r, m } or null. */
+export function dustByName(name) {
+  if (!_data) return null;
+  const i = _data.names.indexOf(name);
+  return i < 0 ? null : { r: _data.r[i], m: _data.m[i] };
 }
 
 /** Raw positions { r, m } (log radius, log mass) once loaded, else null. */
