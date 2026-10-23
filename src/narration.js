@@ -353,6 +353,34 @@ export async function startNarration(app) {
   // the chart itself, over the dot, with the chart still around it (nebulae, galaxies).
   // Files: public/narration/photos/<name>.jpg (credits in video/photos/CREDITS.md).
   const PHOTO_IN = 0.9, PHOTO_OUT = 0.8;
+
+  // ---------- dives: the camera trick ----------
+  // { at, dolly: name | { obj, grow?: × | "fill" (default), in?: s (2.4), out?: s (4) },
+  //   dur?: s held all the way in (4) }
+  // The object comes towards the screen while the depths behind it fall back, the
+  // further the faster (painting, then dust and lines, then the other pictures),
+  // blurring and darkening (app.setDolly): changing the zoom as the camera moves.
+  // Then it goes back the same way over `out`. A photo with `lens` on the same object,
+  // timed inside the hold, lands on the grown picture (video/plans/visual-rules.md §3).
+  // "fill": the object grows to 40% of the screen's short side.
+  const dollies = cues.filter(c => c.dolly).map(c => {
+    const d = typeof c.dolly === "string" ? { obj: c.dolly } : c.dolly, tin = d.in ?? 2.4;
+    return { ...d, t0: c.time, t1: c.time + tin + (c.dur ?? 4), tin, tout: d.out ?? 4 };
+  });
+  let dollyOn = false;
+  function drawDolly(t) {
+    const d = dollies.find(q => t >= q.t0 && t < q.t1 + q.tout);
+    // the narration's own marks (callouts, rulers) step back with the chart
+    const marks = [gHl, gHlFree, gGuides, gUnits];
+    if (!d) { if (dollyOn) { app.setDolly?.(null); marks.forEach(g => g.style("opacity", null)); dollyOn = false; } return; }
+    const k = t < d.t1 ? d3.easeCubicInOut(clamp01((t - d.t0) / d.tin))
+      : 1 - d3.easeCubicInOut(clamp01((t - d.t1) / d.tout));
+    let grow = d.grow ?? "fill";
+    if (grow === "fill") grow = Math.max(1, Math.min(layer.clientWidth, layer.clientHeight) * 0.4 / (app.iconRadius?.(d.obj) || 20));
+    app.setDolly?.({ name: d.obj, k, grow });
+    marks.forEach(g => g.style("opacity", (1 - k).toFixed(3)));
+    dollyOn = true;
+  }
   const photoUrl = (n) => `${import.meta.env.BASE_URL}narration/photos/${n}.jpg`;
   const photos = cues.filter(c => c.photo).map(c => ({ ...c, names: [].concat(c.photo),
     t0: c.time, t1: c.time + (c.dur ?? 6) }));
@@ -1252,6 +1280,7 @@ export async function startNarration(app) {
   function overlay() {
     drawUnits(curT);
     drawHighlights(curT);
+    drawDolly(curT);
     drawPhoto(curT);
     drawCaption(curT);
   }

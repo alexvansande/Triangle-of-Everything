@@ -35,12 +35,13 @@ export default {
 
     // Jupiter and Saturn make their own heat
     { at: "saturn and jupiter", cam: { r: 9.8, m: 30.05, span: 1.5 }, hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", delay: 0.3 }] },
-    // no cut: zoom onto Jupiter, grow its picture as everything else goes black, then the
-    // infrared photo fades in right over the planet (lens, discs matched) and grows to fill
-    { at: "more heat than they absorb", cam: { obj: "Jupiter", span: 0.45 }, dur: 1.4,
-      hl: [{ spot: "Jupiter", grow: 2, dim: 1 }] },
-    { at: "more heat than they absorb", offset: 1.3, photo: "jupiter-ir", obj: "Jupiter", dur: 4.6,
-      lens: { icon: [0.496, 0.5, 0.465], photo: [1791, 1677, 1651], size: [3600, 3353], fill: true, hold: 0.3, fillDur: 1.8 },
+    // no cut, the camera trick: Jupiter comes towards the screen as the chart behind it
+    // falls back, blurs and darkens (dolly); the infrared photo fades in right over the
+    // grown planet (lens, discs matched), holds, fades out, and the dive slowly unwinds
+    { at: "more heat than they absorb", cam: { obj: "Jupiter", span: 1.5 }, dur: 2 },
+    { at: "more heat than they absorb", dolly: { obj: "Jupiter", in: 2, out: 3.5 }, dur: 3.6 },
+    { at: "more heat than they absorb", offset: 2, photo: "jupiter-ir", obj: "Jupiter", dur: 2.6, fadeIn: 1, fadeOut: 1,
+      lens: { icon: [0.496, 0.5, 0.465], photo: [1791, 1677, 1651], size: [3600, 3353] },
       caption: "Jupiter in infrared · Gemini North · 2021 · glowing with its own heat" },
     { at: "compressing in their core", cam: { r: 9.8, m: 30.05, span: 1.5 },
       hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", label: "slowly contracting" }] },

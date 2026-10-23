@@ -624,14 +624,21 @@ const chart = svg.append("g").attr("transform", `translate(${margin.left},${marg
 const clip = chart.append("g").attr("clip-path", "url(#clip)");
 clip.append("rect").attr("class", "bg-rect").attr("width", cw).attr("height", ch).attr("fill", "#000000");
 
+// Dives (app.setDolly): each depth of the chart sits in a pair of groups, the
+// outer one blurred and darkened, the inner one scaled about the dived-into
+// object, so the depths fall back at different rates. Untouched otherwise.
+const dollyDepth = (parent) => { const f = parent.append("g"); return [f, f.append("g")]; };
+const [dBackF, dBack] = dollyDepth(clip);
+
 // Background tile layer (on top of gradient, below chart content)
-const lTilesBase = clip.append("g").style("pointer-events", "none"); // permanent low-res background
-const lTiles = clip.append("g").style("pointer-events", "none");
+const lTilesBase = dBack.append("g").style("pointer-events", "none"); // permanent low-res background
+const lTiles = dBack.append("g").style("pointer-events", "none");
 let _bgFadeDeep = false;   // narration: fade the over-zoomed painting (app.setBgFadeDeep)
 
 // Content wrapper: CSS-transformed during zoom for smooth panning
 // (instead of tearing down & rebuilding all DOM elements each frame)
-const lContent = clip.append("g");
+const [dMidF, dMid] = dollyDepth(clip);
+const lContent = dMid.append("g");
 
 // Layers (all inside lContent so they can be batch-transformed during zoom)
 const lRegion     = lContent.append("g");
@@ -684,8 +691,16 @@ const lNarrGuides = lContent.append("g").style("pointer-events", "none").attr("c
 const grainRect = { attr: () => grainRect, style: () => grainRect }; // stub
 
 // Icon layer: rendered above noise for cleaner visibility
-const lLabels = clip.append("g").style("pointer-events", "none");
-const lIcons = clip.append("g").attr("class", "picture-layer").style("pointer-events", "none");
+const [dLabF, dLab] = dollyDepth(clip);
+const lLabels = dLab.append("g").style("pointer-events", "none");
+const [dIconF, dIcon] = dollyDepth(clip);
+const lIcons = dIcon.append("g").attr("class", "picture-layer").style("pointer-events", "none");
+// a dive darkens everything behind its object (pictures too: a filter on their
+// layer would cut the screen-blended ones off from the painting behind them)
+const dVeil = clip.append("rect").attr("fill", "#05051a").attr("opacity", 0).attr("display", "none")
+  .style("pointer-events", "none");
+// a dive's own object, drawn in front of every depth as it comes towards the screen
+const dFocus = clip.append("g").attr("class", "picture-layer dolly-focus").style("pointer-events", "none");
 
 // Click capture now uses HTML overlays (see updateClickTargets)
 
@@ -3219,6 +3234,115 @@ function iconUsesScreenBlend(o) {
 /** Enlarge (on=true) or restore an object's icon on hover — shared by the
  *  SVG group handlers and the HTML click-target handlers. Returns whether
  *  the object currently renders an icon. */
+// ---- Dives: the camera trick (app.setDolly) ----
+// Depths (back to front): the painting, the chart (grid, dust, lines, dots),
+// the labels, the pictures. At k = 1 each is scaled about the object by
+// 1 / (1 + FALL), blurred and darkened; the object itself grows towards the
+// screen as a copy in front of them all (its own picture hides meanwhile).
+const DOLLY_DEPTHS = [
+  { outer: dBackF, inner: dBack, fall: 3, blur: 9, dark: 0.55 },
+  { outer: dMidF, inner: dMid, fall: 1.3, blur: 4.5, dark: 0.45 },
+  { outer: dLabF, inner: dLab, fall: 0.8, blur: 0, dark: 0, fade: true },
+  { outer: dIconF, inner: dIcon, fall: 0.8, blur: 0, dark: 0 },
+];
+const DOLLY_VEIL = 0.6;    // over every depth, under the object
+// The pictures blur one by one (a filter on their whole layer would cut the
+// screen-blended ones off from the painting); those only darken, under the veil.
+const DOLLY_ICON_BLUR = 3, DOLLY_ICON_DARK = 0.3;
+const dollyIconFilter = defs.append("filter").attr("id", "dolly-fi").attr("x", "-50%").attr("y", "-50%")
+  .attr("width", "200%").attr("height", "200%").attr("color-interpolation-filters", "sRGB");
+const dollyIconBlur = dollyIconFilter.append("feGaussianBlur").attr("stdDeviation", 0);
+const dollyIconDark = (() => { const ct = dollyIconFilter.append("feComponentTransfer");
+  return ["R", "G", "B"].map(c => ct.append(`feFunc${c}`).attr("type", "linear").attr("slope", 1)); })();
+let _dolly = null, _dollyHidden = null;
+// tiles drawn this far (px) around the screen while a dive is on (drawTiles)
+let _dollyPadPx = 0;
+// the chart depth only has what's on screen: its edges feather out as it falls back
+const dollyMask = defs.append("mask").attr("id", "dolly-mid-mask").attr("maskUnits", "userSpaceOnUse");
+const dollyFeather = defs.append("filter").attr("id", "dolly-feather").attr("filterUnits", "userSpaceOnUse");
+const dollyFeatherBlur = dollyFeather.append("feGaussianBlur").attr("stdDeviation", 0);
+const dollyMaskRect = dollyMask.append("rect").attr("fill", "#fff").attr("filter", "url(#dolly-feather)");
+DOLLY_DEPTHS.forEach((L, i) => {
+  if (!L.blur && !L.dark) return;
+  const f = defs.append("filter").attr("id", `dolly-f${i}`).attr("filterUnits", "userSpaceOnUse")
+    .attr("color-interpolation-filters", "sRGB");
+  L.blurEl = f.append("feGaussianBlur").attr("stdDeviation", 0).attr("edgeMode", "duplicate");
+  const ct = f.append("feComponentTransfer");
+  L.darkEls = ["R", "G", "B"].map(c => ct.append(`feFunc${c}`).attr("type", "linear").attr("slope", 1));
+  L.filter = f;
+});
+function setDolly(d) {
+  const k = d ? Math.max(0, Math.min(1, d.k ?? 0)) : 0;
+  if (_dollyHidden) { _dollyHidden.style.visibility = ""; _dollyHidden = null; }
+  if (k < 0.0005) {
+    if (!_dolly) return;
+    _dolly = null;
+    for (const L of DOLLY_DEPTHS) { L.outer.attr("filter", null).style("opacity", null); L.inner.attr("transform", null); }
+    dMid.attr("mask", null);
+    lIcons.selectAll(":scope > g").attr("filter", null);
+    _dollyPadPx = 0; drawTiles();
+    // the fractal layer comes back over the tiles it lent the dive
+    _bgNoiseSurface?.style("opacity", null).style("display", null);
+    if (_bgNoiseShown) [lTiles, lTilesBase].forEach(l => l.style("display", "none").style("opacity", 0));
+    dVeil.attr("display", "none"); dFocus.selectAll("*").remove();
+    lAxesWrap.style("opacity", null);
+    return;
+  }
+  _dolly = { name: d.name, k };
+  const pad = DOLLY_DEPTHS[0].fall * Math.max(cw, ch);
+  if (_dollyPadPx !== pad) { _dollyPadPx = pad; drawTiles(); }
+  // the painting behind a dive is the tiles (drawn wide), crossfading from the
+  // fractal layer, which only covers the screen; blurred, the two are alike
+  const lend = Math.min(1, k * 4);
+  if (_bgNoiseShown) [lTiles, lTilesBase].forEach(l => l.style("transition", null).style("display", null)
+    .style("opacity", lend.toFixed(3)));
+  _bgNoiseSurface?.style("opacity", (1 - lend).toFixed(3)).style("display", lend >= 1 ? "none" : null);
+  const o = _lastProjected.find(p => p.name === d.name);
+  const icon = o && lIcons.select(`.obj-icon[data-slug="${o.slug}"]`).node();
+  const group = icon?.parentNode;
+  // the object's point: where its picture is drawn (parallax included), else its dot
+  let px = cw / 2, py = ch / 2;
+  if (group) {
+    const ib = icon.getBoundingClientRect(), cb = clip.select("rect.bg-rect").node().getBoundingClientRect();
+    const sc = cb.width / cw || 1;
+    px = (ib.x + ib.width / 2 - cb.x) / sc; py = (ib.y + ib.height / 2 - cb.y) / sc;
+  } else if (o) { px = o.sx; py = o.sy; }
+  const about = (s) => `translate(${px.toFixed(2)},${py.toFixed(2)}) scale(${s.toFixed(4)}) translate(${(-px).toFixed(2)},${(-py).toFixed(2)})`;
+  DOLLY_DEPTHS.forEach((L) => {
+    L.inner.attr("transform", about(1 / (1 + L.fall * k)));
+    if (L.fade) L.outer.style("opacity", (1 - k).toFixed(3));
+    if (L.filter) {
+      L.filter.attr("x", -40).attr("y", -40).attr("width", cw + 80).attr("height", ch + 80);
+      L.blurEl.attr("stdDeviation", (L.blur * k).toFixed(2));
+      L.darkEls.forEach(e => e.attr("slope", (1 - L.dark * k).toFixed(3)));
+      L.outer.attr("filter", `url(#${L.filter.attr("id")})`);
+    }
+  });
+  dVeil.attr("display", null).attr("width", cw).attr("height", ch).attr("opacity", (DOLLY_VEIL * k).toFixed(3));
+  dollyIconBlur.attr("stdDeviation", (DOLLY_ICON_BLUR * k).toFixed(2));
+  dollyIconDark.forEach(e => e.attr("slope", (1 - DOLLY_ICON_DARK * k).toFixed(3)));
+  lIcons.selectAll(":scope > g").attr("filter", function (o) {
+    const screen = o?.slug ? iconUsesScreenBlend(o) : this.querySelector("[style*='screen']");
+    return screen ? null : "url(#dolly-fi)";
+  });
+  const fe = 0.12 * Math.min(cw, ch) * Math.min(1, 2 * k);
+  dollyMask.attr("x", -cw).attr("y", -ch).attr("width", 3 * cw).attr("height", 3 * ch);
+  dollyFeather.attr("x", -cw).attr("y", -ch).attr("width", 3 * cw).attr("height", 3 * ch);
+  dollyFeatherBlur.attr("stdDeviation", fe.toFixed(1));
+  dollyMaskRect.attr("x", fe).attr("y", fe).attr("width", Math.max(0, cw - 2 * fe)).attr("height", Math.max(0, ch - 2 * fe));
+  dMid.attr("mask", "url(#dolly-mid-mask)");
+  lAxesWrap.style("opacity", (1 - 0.85 * k).toFixed(3));
+  // the object: a copy of its picture group, grown about its point
+  dFocus.selectAll("*").remove();
+  if (!group) return;
+  const copy = group.cloneNode(true);
+  copy.removeAttribute("filter");
+  const grow = 1 + ((d.grow ?? 3) - 1) * k;
+  copy.setAttribute("transform", `${about(grow)} ${group.getAttribute("transform") || ""}`);
+  dFocus.node().appendChild(copy);
+  group.style.visibility = "hidden"; _dollyHidden = group;
+}
+
 function setIconHover(o, on, grow = null) {
   const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
   if (!iconEl.size()) return false;
@@ -5417,7 +5541,7 @@ async function syncBgNoise() {
     if (!_bgNoiseShown || _bgNoise) { _bgNoise?.setVisible(_bgNoiseShown); return; } // changed while loading
     // A sibling HTML canvas lies outside clip's isolated blending group.
     // Embed it beneath the tiles instead, keeping all chart blends intact.
-    _bgNoiseSurface = clip.insert("foreignObject", () => lTilesBase.node())
+    _bgNoiseSurface = dBack.insert("foreignObject", () => lTilesBase.node())
       .attr("class", "fractal-backdrop").attr("width", cw).attr("height", ch)
       .style("pointer-events", "none");
     const host = _bgNoiseSurface.append("xhtml:div")
@@ -5481,7 +5605,9 @@ function drawTiles() {
   const _vd = vd();
   const _padU = _posterMargins
     ? Math.max(margin.left, margin.right, margin.top, margin.bottom) / Math.abs(px(1) - px(0)) : 0;
-  const x0 = _vd.x0 - _padU, x1 = _vd.x1 + _padU, y0 = _vd.y0 - _padU, y1 = _vd.y1 + _padU;
+  // a dive pulls the painting back: draw what comes into view around the screen
+  const _dpx = _dollyPadPx / Math.abs(px(1) - px(0)), _dpy = _dollyPadPx / Math.abs(py(1) - py(0));
+  const x0 = _vd.x0 - _padU - _dpx, x1 = _vd.x1 + _padU + _dpx, y0 = _vd.y0 - _padU - _dpy, y1 = _vd.y1 + _padU + _dpy;
   // Data units per pixel at this zoom level (correct for partial edge tiles)
   const dppX = imgDataW / best.w;
   const dppY = imgDataH / best.h;
@@ -6492,7 +6618,7 @@ window.__poster = {
     // icon and label layers come out too: a clip-path isolates its group,
     // so screen-blended icons left inside would composite against nothing
     // and show their black squares.
-    if (lTiles.node().parentNode === clip.node()) {
+    if (lTiles.node().parentNode === dBack.node()) {
       const c = chart.node();
       c.insertBefore(lTilesBase.node(), clip.node());
       c.insertBefore(lTiles.node(), clip.node());
@@ -7987,6 +8113,10 @@ if (_ogShot) {
       },
       /** Screen box of an object's picture as drawn now (growth and parallax included), or null. */
       iconRect(name) {
+        if (_dolly?.name === name) {
+          const c = dFocus.select(".obj-icon").node(), b = c?.getBoundingClientRect();
+          if (b?.width) return { x: b.x, y: b.y, w: b.width, h: b.height };
+        }
         const o = _lastProjected.find(p => p.name === name);
         const el = o ? lIcons.select(`.obj-icon[data-slug="${o.slug}"]`).node()
           : (() => { const d = dustIcons().find(p => p.name === name); return d ? lIcons.selectAll("g.dust-picture").filter(p => p.i === d.i).select(".dn-icon").node() : null; })();
@@ -8005,6 +8135,10 @@ if (_ogShot) {
         setDustIconScale(lIcons, d.i, f); liftShadow(`dust:${d.i}`, f);
         return true;
       },
+      /** A dive's camera trick (videos): the object comes towards the screen while
+       *  every depth behind it falls back, the further the faster, and blurs and
+       *  darkens: { name, k: 0–1, grow: the object's size at k = 1 (×) }; null ends it. */
+      setDolly(d) { setDolly(d); },
       /** Always the largest resolution of each picture (videos), then redraw. */
       setIconMaxRes(on = true) { setIconMaxRes(on); redraw(); },
       /** Guide lines in the chart, under the pictures: [{ x1, y1, x2, y2, color, opacity }]

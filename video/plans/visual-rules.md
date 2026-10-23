@@ -64,9 +64,18 @@ while everything around it dims (to black for the dramatic ones), and the photo 
 icon's (a disc on a disc, the Pillars on the Pillars). It reads as holding a lens to the
 map. Optionally it then fills the screen, holds, and fades slowly back to the chart.
 
+- **How a dive moves (author, 2026-10-23, for every dive):** the camera trick of changing
+  the zoom while the camera moves. The object comes towards the screen and grows large,
+  while the depths behind it fall back at different rates (the background painting
+  zooms out the most, then the dust, lines and dots, then the other pictures), blurring
+  and darkening as they go. Then the photo fades in over the object for a few seconds,
+  fades out, and the same move runs slowly backwards. Mechanics: a `dolly` cue
+  (`{ obj, grow?, in, out }`, `dur` held all the way in) with a `lens` photo inside the
+  hold; see "dives: the camera trick" in `src/narration.js` and `setDolly` in `src/main.js`.
+  First tried on Jupiter in video 3.
 - **Use a dive, not a photo cutaway, whenever the object has a picture on the chart.**
   Plain cutaways (below) are left for things the chart can't show by itself.
-- **Current dives**: Jupiter in infrared (video 3, fills the width), the Pillars of
+- **Current dives**: Jupiter in infrared (video 3, the camera trick above), the Pillars of
   Creation (videos 3 and 5, upright and edge to edge), M87* (end of video 3, video 4,
   video 5) and Sgr A* (video 4). The Eiffel Tower is a dive without a photo: zoom,
   grow, dim.
