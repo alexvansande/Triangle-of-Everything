@@ -21,7 +21,7 @@ const b = await puppeteer.launch({ executablePath: CHROME, args: ["--no-sandbox"
 const p = await b.newPage();
 await p.setViewport({ width: 540, height: 960 });
 p.on("pageerror", e => console.log("page error:", e.message));
-await p.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "networkidle2" });
+await p.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 120000 });   // not networkidle: a close opening view never reports idle
 await p.waitForFunction("window.__narr", { timeout: 60000 });
 const missing = await p.evaluate("window.__narrMissing");
 console.log(missing.length ? `${take}: phrases not found: ${JSON.stringify(missing)}` : `${take}: every cue found`);

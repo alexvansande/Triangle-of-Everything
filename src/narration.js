@@ -170,6 +170,9 @@ export async function startNarration(app) {
   app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);   // off: the author prefers the background kept on deep zooms
   // pictures 1.6× the app's default size, so they read on a phone
   app.setIconScale?.(SCENE.iconSize ?? 160);
+  // Settings → Icons at "many" (the author's pick): pictures may nearly touch, smaller catalogue ones show
+  app.setIconDensity?.(SCENE.iconDensity ?? 100);
+  app.setIconForce?.(SCENE.forceIcons ?? null);   // pictures shown even where a nearer one would hide them
   app.setIconMaxRes?.(true);   // grown pictures stay sharp
   // a scene that tells the primordial black hole window itself hides the map's
   // ready-made one, so no label shows before it's been talked about
@@ -1348,6 +1351,8 @@ export async function startNarration(app) {
 
   window.__narr = {
     duration,
+    // where an object sits on the chart, [log r, log m] (for framing scenes)
+    where: (name) => { const o = objByName.get(name); return o ? [+o.logR.toFixed(2), +o.logM.toFixed(2)] : null; },
     cues: cues.map(c => ({ t: +c.time.toFixed(2), at: c.at })),
     // the scene's sound cues resolved to times, for scripts/narration-sound.mjs
     timeline: () => ({

@@ -73,8 +73,8 @@ async function loadKatex() {
 let _iconsEnabled = true;
 let _iconOnly = null;     // narration: a Set of the only object names that get their picture
 let _iconFill = false;    // narration: …or first, with every other picture that fits after them
+let _iconForce = null;    // narration: names whose picture shows even where a nearer one would hide it
 let _dustFill = false;    // narration: catalogue pictures without their names (the names stay off)
-const NARR_ICON_ROOM = 1.05;   // videos pack pictures closer than the site (5% of radii clear)
 let _labelFocus = null;   // narration: while a callout shows, only these objects keep their labels
 let _labelFocusKey = "";
 let _dustPictures = null; // narration: catalogue dots shown as their pictures (names)
@@ -137,6 +137,7 @@ const ICON_SIZE_MULT = {
 // pictures (a glow, not a silhouette) and unmeasured ones stay as they are.
 const AREA_REF = 0.6, AREA_POWER = 0.25, AREA_MIN = 0.9, AREA_MAX = 1.35;
 function iconAreaMult(slug) {
+  if (ICON_SIZE_MULT[slug]) return 1;   // sized by hand already (Saturn's rings)
   const c = ICON_COVERAGE[slug];
   if (!c || c >= 0.95) return 1;
   return Math.max(AREA_MIN, Math.min(AREA_MAX, (AREA_REF / c) ** AREA_POWER));
@@ -533,9 +534,10 @@ for(const [offset,opacity] of [[0,1],[.18,.75],[.42,.34],[.68,.10],[1,0]])starFa
 defs.append("mask").attr("id","star-wall-mask").attr("maskUnits","objectBoundingBox")
   .attr("maskContentUnits","objectBoundingBox").attr("x",0).attr("y",0).attr("width",1).attr("height",1)
   .append("rect").attr("width",1).attr("height",1).attr("fill","url(#star-wall-fade)");
-// the videos' halo behind a named object: a star's wall light, stronger and light blue
+// the videos' halo behind a named object: a pale lavender light in overlay blend, so
+// the purple under it brightens towards white without ever going flat white
 const narrHalo=defs.append("radialGradient").attr("id","narr-halo-fade");
-for(const [offset,opacity] of [[0,.95],[.3,.8],[.55,.42],[.8,.12],[1,0]])narrHalo.append("stop").attr("offset",offset).attr("stop-color","#9fd8ff").attr("stop-opacity",opacity);
+for(const [offset,opacity] of [[0,1],[.3,.9],[.55,.5],[.8,.15],[1,0]])narrHalo.append("stop").attr("offset",offset).attr("stop-color","#e4dcff").attr("stop-opacity",opacity);
 defs.append("filter").attr("id","star-glow").attr("primitiveUnits","objectBoundingBox")
   .attr("x","-20%").attr("y","-20%").attr("width","140%").attr("height","140%")
   .append("feGaussianBlur").attr("stdDeviation",.012);
@@ -2545,6 +2547,7 @@ function drawObjects() {
     _dustEnabled, dustReady(), _isMobile, _posterLabels, _atomIconsHidden,
     _bigBangMode && [_bigBangObjectOverrides, _bigBangObjectOpacity],
     _iconOnly && [..._iconOnly], // a narration scene's picture set
+    _iconForce && [..._iconForce],
   ]));
 
   // Project all objects to screen, sorted by priority (low z = important)
@@ -2595,9 +2598,12 @@ function drawObjects() {
     : priorityCircles(iconOrder, icoR, iconRoom());
   if (_iconOnly && _iconFill) {
     const others = projected.filter(o => !_iconOnly.has(o.name) && mapIconShown(o, true));
-    const extra = priorityCircles(others, icoR, NARR_ICON_ROOM, iconOrder.filter(o => shownIcons.has(o)));
+    const extra = priorityCircles(others, icoR, iconRoom(), iconOrder.filter(o => shownIcons.has(o)));
     shownIcons = new Set([...shownIcons, ...extra]);
   }
+  // forced pictures (videos: Venus behind Earth) show whatever they overlap;
+  // drawn least important first, they sit behind the picture they overlap
+  if (_iconForce) for (const o of iconOrder) if (_iconForce.has(o.name)) { shownIcons.add(o); visibleDots.add(o); }
   projected.forEach(o => {
     o._showDot = visibleDots.has(o);
     o._showIcon = o._showDot && shownIcons.has(o);
@@ -3126,7 +3132,7 @@ function drawObjects() {
     labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
     // a famous named dot with a picture (content/icons/<its slug>.webp) can
     // show it when there's room — not one a curated object already shows
-    iconRoom: _dustFill ? NARR_ICON_ROOM : iconRoom(), iconMin: dustIconMin(),   // Settings → Icons (videos: NARR_ICON_ROOM)
+    iconRoom: iconRoom(), iconMin: dustIconMin(),   // Settings → Icons (videos: setIconDensity)
     iconOf: _iconsEnabled && !_posterLabels ? (name, size) => {
       const slug = nameToSlug(name);
       return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug, size) || null;
@@ -8345,12 +8351,17 @@ if (_ogShot) {
       },
       /** Light blue halos behind named objects (videos): [{ x, y, r, opacity }] in chart-local px. */
       drawHalos(halos = []) {
-        lNarrGuides.selectAll("circle.narr-halo").data(halos).join("circle").attr("class", "narr-halo")
+        // two overlay passes: one lifts the purple only so far, the second brightens it again
+        lNarrGuides.selectAll("circle.narr-halo").data(halos.flatMap(d => [d, d])).join("circle").attr("class", "narr-halo")
           .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", d => d.r)
-          .attr("fill", "url(#narr-halo-fade)").attr("opacity", d => d.opacity);
+          .attr("fill", "url(#narr-halo-fade)").attr("opacity", d => d.opacity).style("mix-blend-mode", "overlay");
       },
       /** Catalogue names on or off in a video (they're off by default there). */
       setDustLabels(on) { if (DUST_LABELS_OFF === on) { DUST_LABELS_OFF = !on; redraw(); } },
+      /** Pictures that show even where a nearer one would hide them (videos): names, or null. */
+      setIconForce(names) { _iconForce = names?.length ? new Set(names) : null; redraw(); },
+      /** Settings → Icons for a video (0–100, 100 = many), without saving it. */
+      setIconDensity(d = ICON_DENSITY_DEFAULT) { if (_iconDensity !== d) { _iconDensity = d; _iconsEnabled = d > 0; redraw(); } },
       /** Icon size in percent of the app's default (videos), without saving it. */
       setIconScale(pct = 100) { if (_iconSize !== pct) { _iconSize = pct; redraw(); } },
       /** On-screen radius of an object's picture (0 when it shows as a dot). */

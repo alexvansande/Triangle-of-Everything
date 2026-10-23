@@ -69,7 +69,7 @@ async function renderRange(t0, t1, file, label) {
   await page.setViewport({ width: STAGE.W + 2 * STAGE.pad, height: STAGE.H + 2 * STAGE.pad, deviceScaleFactor: STAGE.dpr });
   page.on("pageerror", e => console.log(`[${label}] pageerror:`, e.message));
   await page.evaluateOnNewDocument(CLOCK_SHIM);
-  await page.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "networkidle2", timeout: 120000 });
+  await page.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 120000 });   // not networkidle: a close opening view never reports idle
   await page.waitForFunction("window.__narr", { timeout: 60000 });
   // let dust, icons and the first tiles arrive in real time, then stop the clock
   await page.evaluate(`window.__narr.renderAt(${t0}); window.__narr.settle(${t0})`);

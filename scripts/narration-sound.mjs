@@ -21,7 +21,7 @@ const b = await puppeteer.launch({ executablePath: process.env.CHROME || "/opt/p
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "narr-sound-"));
 for (const take of takes) {
   const p = await b.newPage();
-  await p.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "networkidle2" });
+  await p.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 120000 });   // not networkidle: a close opening view never reports idle
   await p.waitForFunction("window.__narr", { timeout: 60000 });
   const tl = await p.evaluate("window.__narr.timeline()");
   await p.close();
