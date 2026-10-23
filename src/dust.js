@@ -574,12 +574,33 @@ export function pickDust(x, y, radius = 6) {
   if (!best) return null;
   const src = _data.sources[_data.src[best.i]];
   return {
+    i: best.i,
     name: _data.names[best.i],
     source: src.label,
     cat: src.cat,
+    logR: _data.r[best.i], logM: _data.m[best.i],
     sx: planePoint(best.sx,best.sy,_view.cw,_view.ch,_view.parallax ? PARALLAX.dust : 0).x,
     sy: planePoint(best.sx,best.sy,_view.cw,_view.ch,_view.parallax ? PARALLAX.dust : 0).y,
   };
+}
+
+/** Where dust dot i is drawn now (chart px, its depth plane included), or null. */
+export function dustPoint(i) {
+  const icon = _iconShapes.find(p => p.i === i);
+  if (icon) return picturePoint(icon);
+  const q = _kept.find(q => q.i === i);
+  return q ? planePoint(q.sx, q.sy, _view.cw, _view.ch, _view.parallax ? PARALLAX.dust : 0) : null;
+}
+
+/** The named dust under (x, y): a picture, or a dot showing its name, within
+ *  `radius` px (a finger's reach); { i, name, logR, logM } or null. */
+export function pickNamedDust(x, y, radius = 22) {
+  if (!_data) return null;
+  let best = null, bestD = radius * radius;
+  const consider = (i, pt) => { const d = (pt.x - x) ** 2 + (pt.y - y) ** 2; if (d <= bestD) { bestD = d; best = i; } };
+  for (const p of _iconShapes) consider(p.i, picturePoint(p));
+  for (const q of _kept) if (_labelled.has(q.i)) consider(q.i, planePoint(q.sx, q.sy, _view.cw, _view.ch, _view.parallax ? PARALLAX.dust : 0));
+  return best == null ? null : { i: best, name: _data.fame.get(best)?.label || _data.names[best], logR: _data.r[best], logM: _data.m[best] };
 }
 
 /** Every dust dot of one category as [logR, logM] pairs (e.g. all the known

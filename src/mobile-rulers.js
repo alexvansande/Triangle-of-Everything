@@ -11,6 +11,8 @@
 // The axes button pins them (pin()), instead of opening solid margins.
 // While you're moving only the rulers show: the crosshair and guides are for a
 // still moment, on a tapped object or with the rulers pinned (author, 2026-10-23).
+// On desktop the chart has its axes, so a clicked dust dot gets just the
+// guides and values, out to the chart's edges (rulers() false).
 //
 // Positions are chart-local px; the map's own logR is a radius and the size
 // ruler reads the diameter, like the desktop axis (WIDTH_LOG_OFFSET).
@@ -67,7 +69,7 @@ const overlaps = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h
  * avoid(): screen boxes (chart px) the labels must stay out of.
  * focus(): { x, y } of the tapped object, or null for the screen's centre.
  */
-export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focus, onUnpin }) {
+export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focus, onUnpin, rulers = () => true }) {
   layer.attr("class", "mobile-rulers").style("opacity", 0);
   // soft dark bands behind the rulers, so their numbers read over any picture
   const defs = layer.append("defs");
@@ -122,9 +124,10 @@ export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focu
     const boxes = avoid();
     const { w, top, bottom } = frame();
     const f = focus(), centre = f || { x: w / 2, y: (top + bottom) / 2 };
+    const own = rulers();   // false: guides only, to the chart's own axes at its edges
     // the size ruler goes along the bottom, or the top when the object is down there
-    const atTop = !!f && f.y > bottom - 90;
-    const yB = Math.round(atTop ? top + 12 : bottom - 14), xSide = () => (energy ? 24 : w - 24);
+    const atTop = own && !!f && f.y > bottom - 90;
+    const yB = Math.round(!own ? bottom : atTop ? top + 12 : bottom - 14), xSide = () => (energy ? (own ? 24 : 0) : (own ? w - 24 : w));
     const logMc = ipy(centre.y);
     energy = energy ? logMc < ENERGY_BELOW + FLIP : logMc < ENERGY_BELOW - FLIP;
     const xS = xSide(), dir = energy ? 1 : -1;   // labels sit inward of the side ruler
@@ -140,7 +143,7 @@ export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focu
     };
 
     // guides first, their values claim their places before the ticks
-    const yTop = atTop ? yB + 26 : 60, ySideMax = atTop ? bottom - 10 : yB - 22;
+    const yTop = !own ? 14 : atTop ? yB + 26 : 60, ySideMax = !own ? yB - 14 : atTop ? bottom - 10 : yB - 22;
     if (!moving && (f || pinned)) {
       const gx = Math.max(0, Math.min(w, centre.x)), gy = Math.max(yTop, Math.min(ySideMax, centre.y));
       if (!f) layer.append("path").attr("class", "mr-cross")
@@ -151,6 +154,8 @@ export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focu
       text(xS + dir * 8, gy - 6, sideValue, energy ? "start" : "end", "mr-value");
       text(gx + 6, atTop ? yB + 30 : yB - 7, valueLabel(ipx(centre.x) + W_OFF, SIZE_BASES), "start", "mr-value");
     }
+
+    if (!own) return;
 
     // size, along the bottom
     layer.append("rect").attr("class", "mr-fade").attr("x", 0).attr("y", yB - 14).attr("width", w).attr("height", 32);

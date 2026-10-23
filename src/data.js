@@ -67,10 +67,6 @@ export const DE_SITTER_LOG_R = 28.2; // log₁₀(c/H∞) — asymptotic Hubble 
 // → logM = 3·logR + log(4π/3) + logρ
 // These diagonal lines (slope 3) are both density AND time markers.
 export const DENSITY_SPHERE_C = Math.log10(4 * Math.PI / 3);   // ≈ 0.622
-// A cube of width 2R (the axis reads width): logM = 3·logR + log 8 + logρ.
-// The water line uses this, so 1 g of water lands exactly on 1 cm, 1 kg on
-// 10 cm, 1 t on 1 m; the ball version is drawn dashed when zoomed in.
-export const DENSITY_CUBE_C = Math.log10(8);                    // ≈ 0.903
 export const densityLineM = (logR, logDensity) => 3 * logR + DENSITY_SPHERE_C + logDensity;
 export const densityLineR = (logM, logDensity) => (logM - DENSITY_SPHERE_C - logDensity) / 3;
 

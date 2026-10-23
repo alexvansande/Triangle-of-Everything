@@ -27,7 +27,7 @@ import {
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
-  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, ELEMENT_TYPES, elementType, PERIODIC_FAMILIES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, DENSITY_CUBE_C, EPOCH_BANDS,
+  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, ELEMENT_TYPES, elementType, PERIODIC_FAMILIES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   PBH_WINDOW, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
@@ -45,7 +45,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, t
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust } from "./dust.js";
+import { loadDust, drawDust, pickDust, pickNamedDust, dustPoint, dustReady, dustPositions, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -697,13 +697,17 @@ const whiteOverlay = clip.append("rect")
 
 // Axes outside clip (also wrapped for batch CSS-transform during zoom)
 const lAxesWrap = chart.append("g");
-// Phones: rulers that fade in while you pan, pinch or tap (src/mobile-rulers.js)
+// Phones: rulers that fade in while you pan, pinch or tap (src/mobile-rulers.js).
+// Desktop: the same guides, out to the chart's axes, from a clicked dust dot.
 const lMobileRulers = chart.append("g").style("pointer-events", "none");
-let _rulerFocus = null; // the tapped object the guides start from, or null for the centre
+// what the guides start from: a curated object, { dustIndex, logR, logM }, or null for the centre
+let _rulerFocus = null;
 const RULER_AVOID = "#search-box, #preset-bar, #sidebar-expand, #axes-toggle, #controls, #settings-btn, #tour-start-btn, #tour-header, #scale-bar";
 const mobileRulers = createMobileRulers({
   layer: lMobileRulers, px, py, ipx: (x) => xS.invert(x), ipy: (y) => yS.invert(y),
+  rulers: () => _isMobile,
   frame: () => {
+    if (!_isMobile) return { w: cw, h: ch, top: 0, bottom: ch };
     // above the object sheet or the tour card when one is up, and the bottom
     // buttons; below the search button
     const up = [_isSidebarOpen && "sidebar", document.body.classList.contains("touring") && "tour-box"].filter(Boolean);
@@ -722,6 +726,7 @@ const mobileRulers = createMobileRulers({
     .map(r => ({ x: r.left - margin.left - 4, y: r.top - margin.top - 4, w: r.width + 8, h: r.height + 8 })),
   focus: () => {
     if (!_rulerFocus) return null;
+    if (_rulerFocus.dustIndex != null) return dustPoint(_rulerFocus.dustIndex) || { x: px(_rulerFocus.logR), y: py(_rulerFocus.logM) };
     const o = _lastProjected.find(p => p.slug === _rulerFocus.slug);
     return o ? { x: o.sx, y: o.sy } : { x: px(_rulerFocus.logR), y: py(_rulerFocus.logM) };
   },
@@ -1700,11 +1705,11 @@ function drawDensityLines() {
   });
 
   for (let logRho = -54; logRho <= 108; logRho += 3) {
-    const isWater = logRho === 0;
-    const b = (isWater ? DENSITY_CUBE_C : DENSITY_SPHERE_C) + logRho;
+    const b = DENSITY_SPHERE_C + logRho;
     const seg = clipDensityLine(d, b);
     if (!seg) continue;
 
+    const isWater = logRho === 0;
     const isMajor = logRho % 9 === 0;
     const ln = lDensity.append("line")
       .attr("x1", px(seg.x1)).attr("y1", py(seg.y1))
@@ -1724,22 +1729,7 @@ function drawDensityLines() {
         .on("mouseleave", () => ln.classed("line-hot", false));
     }
   }
-  drawWaterBallLine(d);
   drawAirLine(d);
-}
-
-// Water as a ball (the old position of the water line), dashed, fading in
-// as you zoom like the air line.
-function drawWaterBallLine(d) {
-  const fade = Math.max(0, Math.min(1, (ch / (d.y1 - d.y0) - 14) / 10));
-  if (fade <= 0) return;
-  const seg = clipDensityLine(d, DENSITY_SPHERE_C);
-  if (!seg) return;
-  lDensity.append("line")
-    .attr("x1", px(seg.x1)).attr("y1", py(seg.y1))
-    .attr("x2", px(seg.x2)).attr("y2", py(seg.y2))
-    .attr("stroke", "#80deea").attr("stroke-width", 0.9)
-    .attr("stroke-dasharray", "6,5").attr("opacity", 0.35 * fade);
 }
 
 // Air at 1 atm (1.2 kg/m³, 20 °C), fading in as you zoom. Only from microbes
@@ -4334,7 +4324,7 @@ function drawAxes() {
 
   let lastDensityLabelP = Infinity;
   for (let logRho = -54; logRho <= 108; logRho += 9) {
-    const b = (logRho === 0 ? DENSITY_CUBE_C : DENSITY_SPHERE_C) + logRho;
+    const b = DENSITY_SPHERE_C + logRho;
     const logR_top = (d.y1 - b) / 3;
     if (logR_top < d.x0 - 1 || logR_top > d.x1 + 1) continue;
     const p = px(logR_top);
@@ -5332,7 +5322,7 @@ miniSvg.append("polygon")
 
 // Water density reference line (logRho = 0, slope 3 in logM vs logR)
 {
-  const waterB = DENSITY_CUBE_C; // logM = 3*logR + DENSITY_CUBE_C for water (cube)
+  const waterB = DENSITY_SPHERE_C; // logM = 3*logR + DENSITY_SPHERE_C for water
   // Clip to minimap data bounds
   const xMin = BOUNDS.x.min, xMax = BOUNDS.x.max;
   const yAtXmin = 3 * xMin + waterB, yAtXmax = 3 * xMax + waterB;
@@ -5938,6 +5928,12 @@ _chartTapEl.addEventListener("pointerup", (e) => {
   });
   if (best) { selectObject(best); return; }
 
+  // 3b. A named catalogue dot (or its picture): the rulers, with guides from it
+  if (mobileRulersOn()) {
+    const nd = pickNamedDust(sx, sy, 22);
+    if (nd) { _rulerFocus = { dustIndex: nd.i, logR: nd.logR, logM: nd.logM }; mobileRulers.show(); return; }
+  }
+
   // 4. The primordial black holes' window (its HTML click-targets are inert on touch)
   if (under.some(el => el.closest?.(".pbh-window"))) {
     openInfoPanel(PBH_WINDOW.slug, PBH_WINDOW.title);
@@ -5951,6 +5947,26 @@ _chartTapEl.addEventListener("pointerup", (e) => {
   if (under[0] && under[0] !== document.documentElement && under[0] !== document.body) {
     under[0].dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: e.clientX, clientY: e.clientY }));
   }
+}, { passive: true });
+
+// Desktop: a click on any catalogue dot (named or not) draws dashed guides from
+// it to the axes, with its values; moving the map or clicking elsewhere clears them.
+let _mouseDown = null;
+_chartTapEl.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "mouse" && e.button === 0) _mouseDown = { x: e.clientX, y: e.clientY, t: performance.now() };
+}, { passive: true });
+_chartTapEl.addEventListener("pointerup", (e) => {
+  if (e.pointerType !== "mouse" || !_mouseDown || _isMobile || !_dustEnabled) return;
+  const dx = e.clientX - _mouseDown.x, dy = e.clientY - _mouseDown.y, dt = performance.now() - _mouseDown.t;
+  _mouseDown = null;
+  if (dx * dx + dy * dy > 16 || dt > 500) return;  // a drag, not a click
+  if (e.target.closest?.(".click-target, button, a, input")) return;
+  const [mx, my] = d3.pointer(e, chart.node());
+  const icon = pickDustIcon(mx, my);
+  const anchor = icon && depthPoint(icon, PARALLAX.dust);
+  const hit = icon ? pickDust(anchor.x, anchor.y, 1) : pickDust(mx, my, 6);
+  if (hit) { _rulerFocus = { dustIndex: hit.i, logR: hit.logR, logM: hit.logM }; mobileRulers.pin(true); }
+  else if (mobileRulers.visible) { _rulerFocus = null; mobileRulers.pin(false); }
 }, { passive: true });
 
 function redrawVectors() {
@@ -6038,6 +6054,7 @@ const zoomBehavior = d3.zoom()
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
     _userZoomGesture = !!event.sourceEvent;
     if (_userZoomGesture && mobileRulersOn()) { _rulerFocus = null; mobileRulers.setMoving(true); mobileRulers.show(); }
+    else if (_userZoomGesture && !_isMobile && mobileRulers.visible) { _rulerFocus = null; mobileRulers.pin(false); }
     if (!_userZoomGesture) _tourBaseK = null;
     else if (_tourBaseK == null) _tourBaseK = currentK;
     _zooming = true;
