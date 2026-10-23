@@ -15,7 +15,7 @@ Rendered 2026-10-20 from 32bb067 (the branch tip after take 5), checked (length 
 | Take | Length | Status |
 |---|---|---|
 | short-01-hook | 1:13 | done, 1:16 with credits, 48 MB |
-| short-02-up-the-line | 4:39 | not rendered yet |
+| short-02-up-the-line | 4:29 | not rendered yet (re-cut 2026-10-23 from rec32) |
 | short-02-density | 1:48 | retired 2026-10-21 (replaced by short-02-up-the-line) |
 | short-03-planets | 3:34 | retired 2026-10-21 (replaced by short-02-up-the-line) |
 | short-03-stars | 3:10 | done, 3:13, 129 MB (rendered as short-04-stars; the MP4 in iCloud is renamed) |

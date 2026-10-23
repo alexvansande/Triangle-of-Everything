@@ -60,6 +60,8 @@ const LINES = {
   compton:       { pts: [[PLANCK_LOG_R, PLANCK_LOG_M], [H, comptonM(H)]], color: "#4dd0e1" },
   hubble:        { pts: [[H, comptonM(H)], [H, schwarzschildM(H)]], color: "#ffd54f" },
   water:         { pts: densitySegment(0), color: "#80deea" },
+  // air at 1 atm, as the map draws it: from microbes (1 µm) to Earth's size
+  air:           { pts: [-4, Math.log10(6.371e8)].map(r => [r, densityLineM(r, Math.log10(0.0012))]), color: "#b0bec5" },
   darkmatter:    { pts: densitySegment(-24), color: "#e1a6ff" },
   // the galaxies' line without their dark matter: ten times less dense
   luminous:      { pts: densitySegment(-25), color: "#80deea" },
