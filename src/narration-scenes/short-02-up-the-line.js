@@ -24,12 +24,14 @@ const UP = (r, span = 2.2) => ({ r, m: +(3 * r + 0.62).toFixed(2), span, glide: 
 // from the line's name on, the camera never stands still: one slow glide in to the penny,
 // the party balloon and Nefertiti, up to the airships, and on into the animals
 const C = (r, m, span) => ({ r, m, span, glide: true });
-// where planets turn from rocky to gassy: about 2 Earth masses (Chen & Kipping 2017,
-// 2.0 +0.7/-0.6), log m = 28.08; the exoplanet dots step to the right across it
-const ROCKY_GAS = { trend: [[8.55, 28.08], [9.75, 28.08]], color: "#80deea", label: "rocky → gas · ~2 Earths" };
+// rocky to gassy: the trend the exoplanet dots follow from the super-Earths (above
+// Kepler-22b) to just under Saturn, as the author drew it; past ~2 Earth masses
+// (Chen & Kipping 2017) planets hold on to gas and swell faster than they gain mass
+const ROCKY_GAS = { trend: [[8.97, 28.43], [9.93, 29.63]], color: "#4dd0e1" };
 // the pan from the round worlds to the brown dwarfs: waypoints at their cue times
 const G = (r, m) => ({ r, m, span: PAN, glide: true });
-// zoomed out at the split just enough for the red giant and the neutron star
+// from the brown dwarfs, one slow zoom out to the end: just enough for the red giant and
+// the neutron star
 const STARS = { r: 9.48, m: 32.7, span: 7.8 };
 const PAN = 2.2;                            // span of the rocks → round worlds pan (as wide as the animals')
 // one grid square (a decade of size × a decade of mass) with its bottom-left corner at (r, m)
@@ -119,23 +121,23 @@ export default {
     { at: "the largest tree", cam: UP(2.85, 2.2), hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // what we build
-    { at: "engineering projects", cam: UP(3.15, 2.6), dur: 2, clear: true,
+    { at: "engineering projects", cam: UP(3.15, 3.2), dur: 2, clear: true,
       hl: [{ obj: "Boeing 747" }, { obj: "Supertanker", delay: 0.3 }] },
-    { at: "the eiffel tower", cam: C(3.75, 10.05, 2.8), hl: [{ obj: "Eiffel Tower" }] },
-    { at: "surprisingly light", cam: C(3.8, 10.1, 2.8), hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
+    { at: "the eiffel tower", cam: C(3.75, 10.05, 3.4), hl: [{ obj: "Eiffel Tower" }] },
+    { at: "surprisingly light", cam: C(3.8, 10.15, 3.4), hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
     // (no dive for now, the author's call: it stays highlighted, in the frame's middle
     // third the whole time it's talked about)
-    { at: "all the internal space", cam: C(3.86, 10.15, 2.85) },
-    { at: "lots of big rocks", offset: -0.8, cam: C(3.92, 10.3, 2.9) },
+    { at: "all the internal space", cam: C(3.86, 10.25, 3.5) },
+    { at: "lots of big rocks", offset: -0.8, cam: C(3.92, 10.4, 3.6) },
 
     // rocks, lakes, asteroids and small moons
-    { at: "lots of big rocks", cam: C(4.0, 11.2, 3.1), hl: [{ obj: "Great Pyramid" }] },
-    { at: "a giant rock", cam: C(4.25, 12.6, 3.2), hl: [{ obj: "Great Pyramid", label: "a giant rock" }, { obj: "Mt. Everest", delay: 0.3 }] },
+    { at: "lots of big rocks", cam: C(4.05, 11.3, 3.9), hl: [{ obj: "Great Pyramid" }] },
+    { at: "a giant rock", cam: C(4.3, 12.6, 4.1), hl: [{ obj: "Great Pyramid", label: "a giant rock" }, { obj: "Mt. Everest", delay: 0.3 }] },
     // the lakes sit below the line (wide and flat): the pan dips to them
-    { at: "lakes and asteroids", cam: C(5.3, 15.8, 3.4),
+    { at: "lakes and asteroids", cam: C(5.2, 15.6, 4.4),
       hl: [{ obj: "Königssee", label: "lakes", place: "right" }, { obj: "Hallstätter See", label: false, delay: 0.2 },
         { obj: "Lake Nyos", label: false, delay: 0.4 }, { obj: "Eros", label: "asteroids", delay: 0.6 }] },
-    { at: "small moons", cam: C(6.0, 18.4, 3.2), hl: [{ obj: "Eros", place: "left" }, { obj: "Deimos", label: false }, { obj: "Phobos", label: "moons of Mars" }] },
+    { at: "small moons", cam: C(6.0, 18.4, 3.8), hl: [{ obj: "Eros", place: "left" }, { obj: "Deimos", label: false }, { obj: "Phobos", label: "moons of Mars" }] },
 
     // round worlds
     { at: "less and less potato", cam: { r: 7.2, m: 22.2, span: PAN, glide: true },
@@ -173,13 +175,13 @@ export default {
     { at: "around brown dwarfs", cam: G(9.85, 32.1),
       hl: [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "brown dwarfs" }] },
     // travel up each branch: the stars to the right, the dead stars to the left
-    { at: "veer to the right", cam: C(10.05, 32.3, 2.3),
+    { at: "veer to the right",
       hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" }] },
-    { at: "veer to the left", cam: C(9.75, 32.45, 2.4), hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
+    { at: "veer to the left", hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
       { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#90caf9" }] },
-    { at: "ordinary matter anymore", cam: STARS, dur: 4, hl: [{ obj: "L Brown Dwarf", label: "brown dwarfs" }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f", draw: 0.01 },
+    { at: "ordinary matter anymore", hl: [{ obj: "L Brown Dwarf", label: "brown dwarfs" }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f", draw: 0.01 },
       { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#90caf9", draw: 0.01 }] },
-    { at: "life and death of stars", hl: [{ obj: "Sun", label: "stars" }, { obj: "White Dwarf", label: "dead stars", place: "left" },
+    { at: "life and death of stars", cam: { ...STARS, glide: true }, drift: -0.04, hl: [{ obj: "Sun", label: "stars" }, { obj: "White Dwarf", label: "dead stars", place: "left" },
       { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f", draw: 0.01 },
       { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#90caf9", draw: 0.01 }] },
   ],

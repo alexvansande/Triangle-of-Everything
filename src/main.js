@@ -8368,7 +8368,7 @@ if (_ogShot) {
         // Safari draws SVG overlay as a plain fill (a white blot): one fainter plain pass there
         lNarrGuides.selectAll("circle.narr-halo").data(_isWebKit ? halos : halos.flatMap(d => [d, d])).join("circle").attr("class", "narr-halo")
           .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", d => d.r)
-          .attr("fill", "url(#narr-halo-fade)").attr("opacity", d => _isWebKit ? d.opacity * 0.4 : d.opacity)
+          .attr("fill", "url(#narr-halo-fade)").attr("opacity", d => d.opacity * (_isWebKit ? 0.3 : 0.7))
           .style("mix-blend-mode", _isWebKit ? null : "overlay");
       },
       /** Catalogue names on or off in a video (they're off by default there). */

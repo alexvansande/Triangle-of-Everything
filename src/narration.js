@@ -259,10 +259,22 @@ export async function startNarration(app) {
     const t1 = Math.min(hlCues[i + 1]?.time ?? Infinity, c.time + (c.hold ?? 14));
     c.hl.forEach((h, j) => highlights.push({ ...h, t0: c.time + (h.delay || 0), t1, id: `${i}-${j}` }));
   });
+  // An object named while the camera is still on its way there is highlighted from the
+  // moment it's well inside the frame (the middle 80%), not before.
+  for (const h of highlights) {
+    h.tc = h.t0;
+    const o = h.obj && objByName.get(h.obj);
+    if (!o) continue;
+    const pl = app.plot(), aspect = pl.h / pl.w;
+    for (let t = h.t0; t < h.t1; t += 0.1) {
+      const v = camera(t).view;
+      if (Math.abs(o.logR - v.r) < v.span * 0.4 && Math.abs(o.logM - v.m) < v.span * aspect * 0.4) { h.t0 = t; break; }
+    }
+  }
   // an object still named from the cue before keeps its first mention (`since`), so its
   // halo and guides don't start over at every cue
   for (const h of highlights) if (h.obj || h.line) {
-    const prev = highlights.find(q => q !== h && (h.obj ? q.obj === h.obj : q.line === h.line) && q.t0 < h.t0 && Math.abs(q.t1 - h.t0) < 0.6);
+    const prev = highlights.find(q => q !== h && (h.obj ? q.obj === h.obj : q.line === h.line) && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
     h.since = prev ? prev.since : h.t0;
   }
   // the water line lies under the pictures, except its first mention: brighter and
