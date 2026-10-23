@@ -58,6 +58,23 @@ async function loadKatex() {
 }
 
 let _iconsEnabled = true;
+// Settings → Icons, 0 (none) … 100 (many); 50 is the map's standard density.
+// It isn't a count: it sets how much room pictures keep around each other
+// (curated objects and catalogue pictures alike) and how small a catalogue
+// picture may be, and the visibility hierarchy shows whatever then fits.
+const ICON_DENSITY_DEFAULT = 50;
+let _iconDensity = ICON_DENSITY_DEFAULT;
+const lerp = (a, b, t) => a + (b - a) * Math.max(0, Math.min(1, t));
+/** Clear room between pictures, in radii: 2.6 near none, 1.3 standard, 0.9 at many (may touch). */
+function iconRoom() {
+  return _iconDensity <= ICON_DENSITY_DEFAULT ? lerp(2.6, 1.3, (_iconDensity - 5) / (ICON_DENSITY_DEFAULT - 5))
+    : lerp(1.3, 0.9, (_iconDensity - ICON_DENSITY_DEFAULT) / (100 - ICON_DENSITY_DEFAULT));
+}
+/** Smallest catalogue picture, px: 44 near none, 30 standard, 20 at many. */
+function dustIconMin() {
+  return _iconDensity <= ICON_DENSITY_DEFAULT ? lerp(44, 30, (_iconDensity - 5) / (ICON_DENSITY_DEFAULT - 5))
+    : lerp(30, 20, (_iconDensity - ICON_DENSITY_DEFAULT) / (100 - ICON_DENSITY_DEFAULT));
+}
 let _iconSize = 100;  // percent multiplier on top of zoom-derived effective size
 let _fontScale = 1;   // global text multiplier (settings "Font size" slider)
 const fscale = (px) => px * _fontScale;
@@ -2069,7 +2086,6 @@ function catDisplayLabel(catKey) {
 }
 
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
-const ICON_ROOM = 1.3;       // icons keep 30% of their radii clear between them
 const _objectVisibility = new VisibilityMemory();
 const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
@@ -2408,7 +2424,7 @@ function drawObjects() {
   const d = vd();
   const icoSize = effectiveIconSize();
   _objectVisibility.update([px(1)-px(0), py(1)-py(0)], JSON.stringify([
-    cw, ch, _iconSize, _fontScale, _iconsEnabled, _labelsEnabled,
+    cw, ch, _iconSize, _fontScale, _iconsEnabled, _iconDensity, _labelsEnabled,
     _dustEnabled, dustReady(), _isMobile, _posterLabels, _atomIconsHidden,
     _bigBangMode && [_bigBangObjectOverrides, _bigBangObjectOpacity],
   ]));
@@ -2455,7 +2471,7 @@ function drawObjects() {
   const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
   const iconOrder = projected.filter(mapIconShown);
-  const shownIcons = priorityCircles(iconOrder, icoR, ICON_ROOM);
+  const shownIcons = priorityCircles(iconOrder, icoR, iconRoom());
   projected.forEach(o => {
     o._showDot = visibleDots.has(o);
     o._showIcon = o._showDot && shownIcons.has(o);
@@ -2985,6 +3001,7 @@ function drawObjects() {
     labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
     // a famous named dot with a picture (content/icons/<its slug>.webp) can
     // show it when there's room — not one a curated object already shows
+    iconRoom: iconRoom(), iconMin: dustIconMin(),   // Settings → Icons
     iconOf: _iconsEnabled && !_posterLabels ? (name, size) => {
       const slug = nameToSlug(name);
       return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug, size) || null;
@@ -6684,7 +6701,7 @@ document.addEventListener("pointerdown", (e) => {
 function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked, bgNoise: setBgNoiseChk.checked,
-    labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
+    labels: setLabels.checked, icons: _iconDensity, iconSize: +setIconSize.value,
     dust: setDust.checked,
     fontSize: +setFontSize.value, boldHover: setBoldHover.checked,
     dotSize: +setDotSize.value, dotOpacity: +setDotOpacity.value,
@@ -6749,8 +6766,9 @@ setLabels.addEventListener("change", () => {
 });
 
 const setIcons = document.getElementById("set-icons");
-setIcons.addEventListener("change", () => {
-  _iconsEnabled = setIcons.checked;
+setIcons.addEventListener("input", () => {
+  _iconDensity = +setIcons.value;
+  _iconsEnabled = _iconDensity > 0;
   redraw();
   saveSettings();
 });
@@ -6953,7 +6971,7 @@ function resetAllSettings() {
     if (+el.value !== val) { el.value = val; el.dispatchEvent(new Event("input", { bubbles: true })); }
   };
   setChk(setBg, true); setChk(setAnim, true);
-  setChk(setLabels, true); setChk(setIcons, true);
+  setChk(setLabels, true); setRange(setIcons, ICON_DENSITY_DEFAULT);
   setChk(setBoldHover, false);
   setRange(setIconSize, 100); setRange(setFontSize, 100);
   setRange(setDotSize, 100); setRange(setDotOpacity, 100);
@@ -7405,7 +7423,9 @@ try {
     if (saved.anim === false) { setAnim.checked = false; _animDisabled = true; document.body.classList.add("anim-off"); }
     if (saved.labels === false) { setLabels.checked = false; _labelsEnabled = false; }
     if (saved.dust === false) { setDust.checked = false; _dustEnabled = false; }
-    if (saved.icons === false) { setIcons.checked = false; _iconsEnabled = false; }
+    // icons: a density 0–100 (an older true/false toggle: false → none)
+    const dens = saved.icons === false ? 0 : typeof saved.icons === "number" ? Math.max(0, Math.min(100, saved.icons)) : null;
+    if (dens !== null) { setIcons.value = dens; _iconDensity = dens; _iconsEnabled = dens > 0; }
     if (saved.gridUnit && GRID_UNITS[saved.gridUnit]) { _gridUnit = saved.gridUnit; setGridUnit.value = saved.gridUnit; }
     if (saved.iconSize > 0) {
       // Migration: old slider used 8-64 px range; new slider is 30-300 percent.

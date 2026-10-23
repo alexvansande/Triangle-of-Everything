@@ -228,7 +228,7 @@ export function drawDust(layer, view, blockers, colorOf) {
     candidates.sort((a,b) => a.rank-b.rank || a.i-b.i);
     const selected = priorityCircles(candidates, p=>p.r, view.iconRoom ?? ICON_ROOM, blockers.priorityCircles || []);
     for (const p of candidates) {
-      if (!_priorityIconDecisions.has(p.i)) _priorityIconDecisions.set(p.i, selected.has(p) && p.r*2 >= ICON_MIN);
+      if (!_priorityIconDecisions.has(p.i)) _priorityIconDecisions.set(p.i, selected.has(p) && p.r*2 >= (view.iconMin ?? ICON_MIN));
       if (_priorityIconDecisions.get(p.i)) _priorityIcons.set(p.i,p);
     }
   }
