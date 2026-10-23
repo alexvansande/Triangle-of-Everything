@@ -80,8 +80,7 @@ went silent after a minute when it ran out.
   history of our whole universe"; "hippopotamus" → "hippos"; "particles become each other" →
   "particles turn into each other"; "million stories" said three times → once, and "I could
   tell you stories about it all day".
-- **To check:** "why fire looks the way it does" has nothing on the chart yet (light's
-  wavelengths and star colours are there, a flame isn't). Keep it if a later video will add it.
+- "why fire looks the way it does": a later video covers fire (the author).
 - "photons or visible light or radio waves" → "photons, like visible light or radio waves" (light *is* photons).
 - "The horizontal axis is in size" → "is size"; "stars and planets and galaxies" → "planets, stars and galaxies" (small to big).
 - When recording: the quantum line is the triangle's lower-left edge, relativity the upper-left one.
