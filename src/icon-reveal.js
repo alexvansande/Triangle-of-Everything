@@ -27,11 +27,13 @@ export function revealIcon(node,visible,options){
     s.art.setAttribute('transform',`translate(${x} ${y}) scale(${a.scale}) translate(${-x} ${-y})`);
     s.art.setAttribute('opacity',shadow?s.p:1);
     for(const [k,v] of Object.entries({cx:x+(1-s.p)*(s.options.dx||0),cy:y+(1-s.p)*(s.options.dy||0),r,fill:color||'#fff',opacity:a.cover*(shadow?.35:.85)}))s.cover.setAttribute(k,v);
-    onProgress?.(s.p);
+    // only on a change: callers look their dots up, and this runs on every redraw
+    if(s.reported!==s.p){s.reported=s.p;onProgress?.(s.p);}
   };
   s.draw=draw;
   const target=visible?1:0;
-  if(s.target===target){draw();return;}
+  // a fully shown icon draws as plain art (no clip, cover or offset): nothing to redraw
+  if(s.target===target){if(!(target&&s.p>=1&&s.done))draw();s.done=target&&s.p>=1;return;}
   cancelAnimationFrame(s.raf);s.target=target;
   const start=s.p,t0=performance.now(),duration=options.reducedMotion?0:1000*Math.abs(target-start);
   const tick=now=>{

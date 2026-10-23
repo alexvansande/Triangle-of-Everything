@@ -3107,9 +3107,10 @@ function drawObjects() {
     ...dustIcons().filter(d => !d.blend || SHADOWED_SCREEN_SPHERES.has(nameToSlug(d.name))).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", roundOffsetScale: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.roundOffsetScale, registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
   ],new Map(projected.map(o=>[o.slug,o])));
   drawDustShadows();
+  const iconShadowKeys=new Set(lShadows.selectAll('g.icon-shadow').data().map(d=>d.key));
   lShadows.selectAll('circle.object-dot-shadow').data(SHADOWS&&!_bigBangMode?shownDots.filter(o=>!o._showIcon):[],o=>o.slug)
     .join('circle').attr('class','object-dot-shadow').attr('cx',o=>o.sx+3).attr('cy',o=>o.sy+4)
-    .attr('r',2.8).attr('fill','#000').attr('opacity',o=>lShadows.selectAll('g.icon-shadow').filter(d=>d.key===o.slug).empty()?.35:0).attr('filter','url(#dust-shadow-blur)');
+    .attr('r',2.8).attr('fill','#000').attr('opacity',o=>iconShadowKeys.has(o.slug)?0:.35).attr('filter','url(#dust-shadow-blur)');
 }
 
 function iconRevealOptions(o,node) {
