@@ -120,6 +120,7 @@ const ICON_SIZE_MULT = {
 // pictures (a glow, not a silhouette) and unmeasured ones stay as they are.
 const AREA_REF = 0.6, AREA_POWER = 0.25, AREA_MIN = 0.9, AREA_MAX = 1.35;
 function iconAreaMult(slug) {
+  if (ICON_SIZE_MULT[slug]) return 1;   // sized by hand already (Saturn's rings)
   const c = ICON_COVERAGE[slug];
   if (!c || c >= 0.95) return 1;
   return Math.max(AREA_MIN, Math.min(AREA_MAX, (AREA_REF / c) ** AREA_POWER));
