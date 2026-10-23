@@ -251,7 +251,7 @@ const viewportLockScale = () => {
   return Math.min(s.maxScale,
     (window.innerWidth - 2 * s.pad) / s.W, (window.innerHeight - 2 * s.pad) / s.H);
 };
-let _showAxesMobile = false; // edge-to-edge by default; axes pill toggles unit margins
+
 const _isCoarse = !!window.matchMedia?.("(pointer: coarse)").matches;
 const _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 // Every iOS browser and in-app web view (whose UA has no "Safari"), plus Safari.
@@ -388,21 +388,12 @@ function measure() {
   H = _posterStage ? _posterStage.H : _viewportLock ? vpStage().H : window.innerHeight;
   if (_isMobile) {
     // Edge-to-edge map on phones: the chart IS the screen and all UI floats
-    // above it. The axes pill (#axes-toggle) temporarily restores the unit
-    // margins so the axis numbers can be read, map-app style.
-    if (_showAxesMobile) {
-      // Compact ruler: exponent numbers + rotated axis titles fit; the
-      // outboard unit links and subtitles are skipped on mobile.
-      margin.left = 56;
-      margin.right = 58;
-      margin.top = 78;
-      margin.bottom = 92;
-    } else {
-      margin.left = 0;
-      margin.right = 0;
-      margin.top = 0;
-      margin.bottom = 0;
-    }
+    // above it. The rulers come up over it (src/mobile-rulers.js); the axes
+    // button pins them.
+    margin.left = 0;
+    margin.right = 0;
+    margin.top = 0;
+    margin.bottom = 0;
   } else {
     // Defaults: what the axis layout needs at the current type size. The
     // drag limits stretch to always allow at least that.
@@ -715,7 +706,8 @@ const mobileRulers = createMobileRulers({
   frame: () => {
     // above the object sheet or the tour card when one is up, and the bottom
     // buttons; below the search button
-    const sheetTop = Math.min(...["sidebar", "tour-box"].map(id => document.getElementById(id)?.getBoundingClientRect())
+    const up = [_isSidebarOpen && "sidebar", document.body.classList.contains("touring") && "tour-box"].filter(Boolean);
+    const sheetTop = Math.min(...up.map(id => document.getElementById(id)?.getBoundingClientRect())
       .filter(r => r && r.height > 0 && r.top < H - 40).map(r => r.top - margin.top), Infinity);
     return { w: cw, h: ch, top: 116, bottom: Math.min(ch - 96, sheetTop - 22) };
   },
@@ -733,8 +725,9 @@ const mobileRulers = createMobileRulers({
     const o = _lastProjected.find(p => p.slug === _rulerFocus.slug);
     return o ? { x: o.sx, y: o.sy } : { x: px(_rulerFocus.logR), y: py(_rulerFocus.logM) };
   },
+  onUnpin: () => setAxesButton(false),
 });
-const mobileRulersOn = () => _isMobile && !_showAxesMobile && !_posterStage && !document.body.classList.contains("narrating");
+const mobileRulersOn = () => _isMobile && !_posterStage && !document.body.classList.contains("narrating");
 const axB = lAxesWrap.append("g").attr("class", "axis-b");
 const axT = lAxesWrap.append("g").attr("class", "axis-t");
 const lDensityArrows = lAxesWrap.append("g");  // non-clipped, for density arrows & era labels on logM=56 line
@@ -6123,7 +6116,6 @@ const zoomBehavior = d3.zoom()
     if (_isSafari) grainRect.style("display", null);
     updateStartButtonLabel();
     scheduleClickTargets();
-    rearmAxesHideTimer(); // keep the mobile ruler up while actively zooming
 
     // Momentum pan: after a touch pan release, glide with decay (map-app
     // inertia). Only fires for pure pans (k stable) with real release speed;
@@ -7257,33 +7249,26 @@ function applyTitleLockups() {
 }
 (document.fonts?.ready || Promise.resolve()).then(applyTitleLockups);
 
-// Mobile axes pill: toggles the unit margins (and axis numbers) on and off
-// around the edge-to-edge map. relayout() keeps the view centered through
-// the margin change. The ruler auto-hides after a few idle seconds — the
-// timer re-arms on every zoom/pan end so it never vanishes mid-inspection.
+// Mobile axes button: pins the overlay rulers (src/mobile-rulers.js). They
+// unpin after a few idle seconds; the timer restarts on every pan or pinch,
+// so they never vanish mid-inspection.
 const AXES_AUTO_HIDE_MS = 8000;
-let _axesHideTimer = null;
-function setMobileAxes(on, { autoHide = true } = {}) {
-  _showAxesMobile = on;
-  if (on) mobileRulers.hide();
+function setAxesButton(on) {
   document.body.classList.toggle("mobile-axes-on", on);
   const btn = document.getElementById("axes-toggle");
   btn?.classList.toggle("active", on);
   btn?.setAttribute("aria-pressed", String(on));
-  clearTimeout(_axesHideTimer);
-  if (on && autoHide) _axesHideTimer = setTimeout(() => setMobileAxes(false), AXES_AUTO_HIDE_MS);
-  relayout();
 }
-function rearmAxesHideTimer() {
-  if (!_showAxesMobile) return;
-  clearTimeout(_axesHideTimer);
-  _axesHideTimer = setTimeout(() => setMobileAxes(false), AXES_AUTO_HIDE_MS);
+function setMobileAxes(on, { autoHide = true } = {}) {
+  setAxesButton(on);
+  if (on) _rulerFocus = null;
+  mobileRulers.pin(on, autoHide ? AXES_AUTO_HIDE_MS : Infinity);
 }
 document.getElementById("axes-toggle")?.addEventListener("click", (e) => {
-  // Keyboard activation (event.detail === 0) pins the ruler — a timer that
-  // yanks it away is hostile to keyboard and switch users. Pointer taps
-  // keep the 8s auto-hide.
-  setMobileAxes(!_showAxesMobile, { autoHide: e.detail !== 0 });
+  // Keyboard activation (event.detail === 0) pins the rulers for good — a
+  // timer that yanks them away is hostile to keyboard and switch users.
+  // Pointer taps keep the 8s auto-hide.
+  setMobileAxes(!mobileRulers.pinned, { autoHide: e.detail !== 0 });
 });
 
 searchBtn.addEventListener("click", () => {

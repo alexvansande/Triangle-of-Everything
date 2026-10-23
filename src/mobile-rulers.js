@@ -8,6 +8,7 @@
 // left, down among particles and atoms, where electronvolts are the unit),
 // with dashed guides from the screen's centre (or the tapped object) to both
 // and its values written at the rulers. They fade out a moment after you stop.
+// The axes button pins them (pin()), instead of opening solid margins.
 //
 // Positions are chart-local px; the map's own logR is a radius and the size
 // ruler reads the diameter, like the desktop axis (WIDTH_LOG_OFFSET).
@@ -64,7 +65,7 @@ const overlaps = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h
  * avoid(): screen boxes (chart px) the labels must stay out of.
  * focus(): { x, y } of the tapped object, or null for the screen's centre.
  */
-export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focus }) {
+export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focus, onUnpin }) {
   layer.attr("class", "mobile-rulers").style("opacity", 0);
   // soft dark bands behind the rulers, so their numbers read over any picture
   const defs = layer.append("defs");
@@ -76,23 +77,35 @@ export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focu
   band("mr-fade-r", 1, 0, [[0, 0], [1, 0.6]]);
   band("mr-fade-l", 1, 0, [[0, 0.6], [1, 0]]);
   let hideTimer = null, visible = false, energy = false;
+  let pinned = false, pinMs = Infinity;   // pinned by the axes button: up until unpinned (or pinMs idle)
 
+  // fade out after `ms` without movement; a pin with a time limit unpins then
+  function arm() {
+    clearTimeout(hideTimer);
+    const ms = pinned ? pinMs : HOLD_MS;
+    if (ms === Infinity) return;
+    hideTimer = setTimeout(() => {
+      if (pinned) { pinned = false; onUnpin?.(); }
+      hide();
+    }, ms);
+  }
   function show() {
     visible = true;
     layer.style("opacity", 1);
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(() => { visible = false; layer.style("opacity", 0); }, HOLD_MS);
+    arm();
     draw();
   }
   /** Still moving: hold them up a little longer (the next redraw draws them). */
-  function keep() {
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(() => { visible = false; layer.style("opacity", 0); }, HOLD_MS);
-  }
+  function keep() { arm(); }
   function hide() {
     clearTimeout(hideTimer);
     visible = false;
     layer.style("opacity", 0);
+  }
+  /** The axes button: keep them up (for `ms` of stillness, or until unpinned). */
+  function pin(on, ms = Infinity) {
+    pinned = on; pinMs = ms;
+    if (on) show(); else hide();
   }
 
   function draw() {
@@ -161,5 +174,5 @@ export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focu
     text(energy ? xS + 8 : xS - 8, atTop ? ySideMax : yTop + 4, energy ? "ENERGY ↑" : "MASS ↑", energy ? "start" : "end", "mr-name");
   }
 
-  return { show, keep, hide, draw, get visible() { return visible; } };
+  return { show, keep, hide, pin, draw, get visible() { return visible; }, get pinned() { return pinned; } };
 }
