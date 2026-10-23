@@ -269,8 +269,11 @@ export async function startNarration(app) {
     let v = true;
     for (const c of iconCues) if (c.time <= t) v = c.icons;
     const names = v === false ? [] : v === true ? sceneIcons : v;
-    const key = names ? names.join("|") : "*";
-    if (key !== iconsNow) { iconsNow = key; app.setIcons?.(names); }
+    // the scene's set comes first, with every other picture that fits after it
+    // (and the catalogue's own pictures); an explicit list or false stays as given
+    const fill = v === true;
+    const key = (names ? names.join("|") : "*") + (fill ? "+" : "");
+    if (key !== iconsNow) { iconsNow = key; app.setIcons?.(names, fill); app.setDustFill?.(fill); }
   }
 
   // ---------- object labels: a cue's `labels: false` hides them from then on ----------

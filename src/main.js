@@ -69,6 +69,9 @@ async function loadKatex() {
 
 let _iconsEnabled = true;
 let _iconOnly = null;     // narration: a Set of the only object names that get their picture
+let _iconFill = false;    // narration: …or first, with every other picture that fits after them
+let _dustFill = false;    // narration: catalogue pictures without their names (the names stay off)
+const NARR_ICON_ROOM = 1.05;   // videos pack pictures closer than the site (5% of radii clear)
 let _labelFocus = null;   // narration: while a callout shows, only these objects keep their labels
 let _labelFocusKey = "";
 let _dustPictures = null; // narration: catalogue dots shown as their pictures (names)
@@ -2401,9 +2404,9 @@ function labelAlongLine(pts, text, { id, off, obstacles, color, opacity }) {
 const ATOM_ICON_HIDE_PX_PER_DECADE = 150;
 let _atomIconsHidden = false;
 
-function mapIconShown(o) {
+function mapIconShown(o, anyName = false) {
   if (!_iconsEnabled || !ICON_BY_SLUG[o.slug]) return false;
-  if (_iconOnly && !_iconOnly.has(o.name)) return false;
+  if (_iconOnly && !anyName && !_iconOnly.has(o.name)) return false;
   if (_ogShot) return true; // preview cards always show the picture
   // projected objects carry the category key in catKey (cat is the style object)
   return !(_atomIconsHidden && (o.catKey || o.cat) === "atomic"); // atoms and molecules
@@ -2490,9 +2493,15 @@ function drawObjects() {
   const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
   const iconOrder = projected.filter(mapIconShown);
-  // a narration scene picks its pictures (_iconOnly): only true overlaps hide one
-  const shownIcons = _iconOnly ? priorityCircles(iconOrder, () => icoSize / 2)
+  // a narration scene picks its pictures (_iconOnly): only true overlaps hide one;
+  // with _iconFill every other picture that fits joins them, packed closer
+  let shownIcons = _iconOnly ? priorityCircles(iconOrder, () => icoSize / 2)
     : priorityCircles(iconOrder, icoR, ICON_ROOM);
+  if (_iconOnly && _iconFill) {
+    const others = projected.filter(o => !_iconOnly.has(o.name) && mapIconShown(o, true));
+    const extra = priorityCircles(others, icoR, NARR_ICON_ROOM, iconOrder.filter(o => shownIcons.has(o)));
+    shownIcons = new Set([...shownIcons, ...extra]);
+  }
   projected.forEach(o => {
     o._showDot = visibleDots.has(o);
     o._showIcon = o._showDot && shownIcons.has(o);
@@ -3023,6 +3032,7 @@ function drawObjects() {
     pictures: _dustPictures,
     // a few dust names, map-style; not in the narrated videos or the poster
     labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fontScale: _fontScale,
+    fillPictures: _dustFill && _iconsEnabled, iconRoom: _dustFill ? NARR_ICON_ROOM : undefined,
     labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
     // a famous named dot with a picture (content/icons/<its slug>.webp) can
     // show it when there's room — not one a curated object already shows
@@ -8148,7 +8158,9 @@ if (_ogShot) {
       setDots({ size = 1, opacity = 1, radius = null } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; _dotFixedR = radius; },
       /** Only these objects keep their picture (the rest are plain dots over
        *  the dust); null for all of them. */
-      setIcons(names) { _iconOnly = names ? new Set(names) : null; redraw(); },
+      /** Catalogue pictures in a video, without their names. */
+      setDustFill(on) { if (_dustFill !== !!on) { _dustFill = !!on; redraw(); } },
+      setIcons(names, fill = false) { _iconOnly = names ? new Set(names) : null; _iconFill = !!names && fill; redraw(); },
       /** Catalogue dots shown as their pictures, whatever the labels say (names; null for none). */
       setDustPictures(names) {
         const key = names ? names.join("|") : "";

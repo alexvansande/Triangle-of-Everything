@@ -216,7 +216,8 @@ export function drawDust(layer, view, blockers, colorOf) {
   // thinning and labels. Hidden higher ranks still reserve their footprint;
   // neither a new label nor a viewport quota can replace an existing picture.
   _priorityIcons = new Map();
-  if (view.labels && view.iconOf) {
+  // (videos: view.fillPictures shows them without the names, packed by view.iconRoom)
+  if ((view.labels || view.fillPictures) && view.iconOf) {
     const candidates = [];
     for (const [i, famous] of _data.fame) {
       const name = famous.label || _data.names[i], size = view.iconSizeAt(r[i], name, sources[src[i]].cat);
@@ -225,7 +226,7 @@ export function drawDust(layer, view, blockers, colorOf) {
         blend:view.iconBlend?.(sources[src[i]].cat)});
     }
     candidates.sort((a,b) => a.rank-b.rank || a.i-b.i);
-    const selected = priorityCircles(candidates, p=>p.r, ICON_ROOM, blockers.priorityCircles || []);
+    const selected = priorityCircles(candidates, p=>p.r, view.iconRoom ?? ICON_ROOM, blockers.priorityCircles || []);
     for (const p of candidates) {
       if (!_priorityIconDecisions.has(p.i)) _priorityIconDecisions.set(p.i, selected.has(p) && p.r*2 >= ICON_MIN);
       if (_priorityIconDecisions.get(p.i)) _priorityIcons.set(p.i,p);
@@ -338,7 +339,7 @@ export function drawDust(layer, view, blockers, colorOf) {
 function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
   const { names, src, sources } = _data;
   const placed = [];
-  if (view.labels || _focused != null || _pictured.size) {
+  if (view.labels || view.fillPictures || _focused != null || _pictured.size) {
     const max = view.mobile ? LABEL_MAX_MOBILE : LABEL_MAX_DESKTOP;
     const gap2 = (view.mobile ? LABEL_GAP_MOBILE : LABEL_GAP_DESKTOP) ** 2;
     const fs = LABEL_FONT * (view.fontScale || 1);
@@ -407,8 +408,8 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         placed.push({ ...q, text: "", anchor: 'start', fs, icon });   // the scene names it
         continue;
       }
-      if (!view.labels) continue;
       const chosen = _priorityIcons.get(q.i);
+      if (!view.labels && !(view.fillPictures && chosen)) continue;
       if (chosen) {
         const famous=_data.fame.get(q.i), name=chosen.name;
         const text=famous.kind && !name.toLowerCase().includes(famous.kind.split(' ').pop()) ? `${name} (${famous.kind})` : name;
@@ -416,7 +417,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         const saved=_nameDecisions.get(q.i);
         const off=chosen.r+4+iconClearance(chosen.r,name),w=text.length*fs*.62,h=fs*1.2;
         const anchor=saved?.anchor || (free(q.sx+off,q.sy-h/2,q.sx+off+w,q.sy+h/2)?'start':'end');
-        const placement={...q,text,anchor,fs,icon};
+        const placement={...q,text:view.labels?text:"",anchor,fs,icon};   // a video's picture goes unnamed
         occupyIcon(q,icon.r,name);placed.push(keepText(placement,off));_nameDecisions.set(q.i,placement);
         continue;
       }
