@@ -17,11 +17,13 @@ const CUBE = { obj: "1ml of water (cube)" }, ML = { obj: "1 mL of Water" };
 const LITER = { obj: "1 Liter of Water" }, TONNE = { obj: "1 Tonne of Water" };
 const RIGHT = { r: 0.793, m: 0 };           // the millilitre ball, one square to the right
 const WATER = { line: "water" }, AIR = { line: "air" };
-const WIDE = { r: 1.6, m: 5.4, span: 7 };    // the tonne, sink or float, the air line and the balloons in one view
+const WIDE = { r: 1.6, m: 5.4, span: 7 };    // the tonne step, with room around it
 // the slow pan up the line through the animals and what we build: a bit over two
 // decades wide, centred on the water line (m = 3r + 0.62)
 const UP = (r, span = 2.2) => ({ r, m: +(3 * r + 0.62).toFixed(2), span, glide: true });
-const AIRSHIPS = { r: 2.15, m: 3.8, span: 4.0 };   // the air line and the four balloons, closer
+// from the line's name on, the camera never stands still: one slow glide in to the penny,
+// the party balloon and Nefertiti, up to the airships, and on into the animals
+const C = (r, m, span) => ({ r, m, span, glide: true });
 // the pan from the round worlds to the brown dwarfs: waypoints at their cue times
 const G = (r, m) => ({ r, m, span: PAN, glide: true });
 // zoomed out at the split just enough for the red giant and the neutron star
@@ -81,30 +83,30 @@ export default {
     { at: "three units up", hl: [{ ...ML, place: "left" }, ...drawn(STEP_RIGHT), ...drawn(HEAVIER), { ...LITER, label: "3 squares up" }] },
     { at: "do that again", cam: WIDE, dur: 3, drift: 0.04, focus: [ML.obj, LITER.obj, TONNE.obj],
       hl: [{ ...ML, place: "left" }, { ...LITER, label: "1 kg", place: "left" }, { arrow: true, from: LITER, to: TONNE, label: "×10 size · ×1000 mass" }, { ...TONNE, label: "1 tonne", delay: 0.8 }] },
-    { at: "this diagonal line", focus: false,
+    { at: "this diagonal line", focus: false, cam: C(1.2, 3.6, 4.6),
       hl: [{ ...ML, label: false }, { ...LITER, label: false }, { ...TONNE, label: false }, WATER] },
-    { at: "density of water", hl: [{ line: "water", label: "density of water" }] },
+    { at: "density of water", cam: C(0.95, 3.0, 3.3), hl: [{ line: "water", label: "density of water" }] },
 
     // sink or float, in water and in air
-    { at: "denser than water", hl: [WATER, { side: "left", label: "sinks" }] },
-    { at: "made of stone",
-      hl: [WATER, { obj: "Chelyabinsk", label: "Chelyabinsk · stone" }, { obj: "Great Sphinx", label: "Sphinx · limestone", place: "left", delay: 0.4 }] },
-    { at: "of metal",
-      hl: [WATER, { obj: "Hoba", label: "Hoba meteorite · iron" }, { obj: "The Little Mermaid", label: "Little Mermaid · bronze", place: "left", delay: 0.4 }] },
-    { at: "to the right will float", hl: [WATER, { side: "left", label: "sinks" }, { side: "right", label: "floats" }] },
+    { at: "denser than water", cam: C(0.7, 2.35, 2.5), hl: [WATER, { side: "left", label: "sinks" }] },
+    { at: "made of stone", cam: C(0.68, 2.4, 2.45),
+      hl: [WATER, { obj: "Bust of Queen Nefertiti", label: "Nefertiti · limestone", place: "left" }] },
+    { at: "of metal", cam: C(0.7, 2.4, 2.4),
+      hl: [WATER, { obj: "Voyager Golden Record", label: "golden record · copper" }] },
+    { at: "to the right will float", cam: C(1.1, 3.4, 2.35), hl: [WATER, { side: "left", label: "sinks" }, { side: "right", label: "floats" }] },
     // the air line runs to the right of the water line, a thousand times less dense
-    { at: "density of air", cam: AIRSHIPS, dur: 3, hl: [WATER, { line: "air", label: "density of air" }] },
-    { at: "heavier than air", hl: [WATER, { ...AIR, label: "lighter than air →" }] },
-    { at: "lighter -than -air aircraft",
-      hl: [AIR, { obj: "Zeppelin NT" }, { obj: "Hot-air Balloon", delay: 0.3 }, { obj: "Weather Balloon", delay: 0.6 }, { obj: "Helium Party Balloon", delay: 0.9 }] },
-    { at: "balloons and zeppelins",
-      hl: [AIR, { obj: "Zeppelin NT", label: "zeppelin" }, { obj: "Hot-air Balloon", label: "balloons" }, { obj: "Weather Balloon", label: false }, { obj: "Helium Party Balloon", label: false }] },
+    { at: "density of air", cam: C(1.5, 4.2, 2.3), hl: [WATER, { line: "air", label: "density of air" }] },
+    { at: "heavier than air", cam: C(1.9, 5.0, 2.2), hl: [WATER, { ...AIR, label: "lighter than air →" }] },
+    { at: "lighter -than -air aircraft", cam: C(2.4, 5.8, 2.1),
+      hl: [AIR, { obj: "Zeppelin NT" }, { obj: "Hot-air Balloon", delay: 0.3 }] },
+    { at: "balloons and zeppelins", cam: C(2.45, 6.0, 2.0),
+      hl: [AIR, { obj: "Zeppelin NT", label: "zeppelin" }, { obj: "Hot-air Balloon", label: "balloon" }] },
 
-    // animals and what we build: back in to a bit over two decades wide, then one slow
-    // pan up the line (glide waypoints at their cue times) on to the round worlds
-    { at: "much narrower band", cam: UP(1.3, 1.5), dur: 4, hl: [WATER, { obj: "Human" }] },
-    { at: "mostly made of water", cam: UP(1.5, 1.5), hl: [WATER, { obj: "Human", label: "mostly water" }] },
-    { at: "heavier than others", cam: UP(1.75, 1.5), hl: [{ obj: "Hippopotamus" }, WATER] },
+    // animals and what we build: the glide carries on, a bit over a decade and a half
+    // wide, then up the line (waypoints at their cue times) on to the round worlds
+    { at: "much narrower band", cam: C(1.8, 6.0, 1.7), hl: [WATER, { obj: "Human" }] },
+    { at: "mostly made of water", cam: C(1.85, 6.15, 1.6), hl: [WATER, { obj: "Human", label: "mostly water" }] },
+    { at: "heavier than others", cam: C(1.92, 6.35, 1.5), hl: [{ obj: "Hippopotamus" }, WATER] },
     { at: "can't actually swim", cam: UP(1.95, 1.5),
       hl: [{ obj: "Hippopotamus", label: "hippo · 1.05 g/cm³" }, WATER, { side: "left", label: "sinks" }] },
 
@@ -165,9 +167,9 @@ export default {
     { at: "around brown dwarfs", cam: G(9.85, 32.1),
       hl: [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "brown dwarfs" }] },
     // travel up each branch: the stars to the right, the dead stars to the left
-    { at: "veer to the right",
+    { at: "veer to the right", cam: C(10.05, 32.3, 2.3),
       hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" }] },
-    { at: "veer to the left", hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
+    { at: "veer to the left", cam: C(9.75, 32.45, 2.4), hl: [{ obj: "L Brown Dwarf", label: false }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
       { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#90caf9" }] },
     { at: "ordinary matter anymore", cam: STARS, dur: 4, hl: [{ obj: "L Brown Dwarf", label: "brown dwarfs" }, { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f", draw: 0.01 },
       { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#90caf9", draw: 0.01 }] },
