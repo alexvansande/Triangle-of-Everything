@@ -1648,11 +1648,11 @@
     ]
   },
   "hippo": {
-    "fingerprint": "dded0a89f8e9d667179d7c387e351b7f95a13245b2b9c9fa6ef40978da36d418",
+    "fingerprint": "75546211d4a6c9567c4c95329e3140633b7c992ce262f74fb25aa0170ef57dba",
     "baseWidth": 128,
     "source": "content/icons/src/hippo.png",
     "reason": "matching master",
-    "sourceDifference": 0.98541259765625,
+    "sourceDifference": 0.3300577799479167,
     "variants": [
       {
         "width": 256,
