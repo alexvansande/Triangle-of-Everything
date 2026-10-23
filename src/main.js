@@ -26,7 +26,7 @@ import {
   PLANCK_TRUE_LOG_R, PLANCK_TRUE_LOG_M,
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
-  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, ELEMENT_TYPES, elementType, PERIODIC_FAMILIES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
+  CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, ELEMENT_TYPES, elementType, PERIODIC_FAMILIES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, DENSITY_CUBE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   PBH_WINDOW, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET,
@@ -1673,11 +1673,11 @@ function drawDensityLines() {
   });
 
   for (let logRho = -54; logRho <= 108; logRho += 3) {
-    const b = DENSITY_SPHERE_C + logRho;
+    const isWater = logRho === 0;
+    const b = (isWater ? DENSITY_CUBE_C : DENSITY_SPHERE_C) + logRho;
     const seg = clipDensityLine(d, b);
     if (!seg) continue;
 
-    const isWater = logRho === 0;
     const isMajor = logRho % 9 === 0;
     const ln = lDensity.append("line")
       .attr("x1", px(seg.x1)).attr("y1", py(seg.y1))
@@ -1697,7 +1697,22 @@ function drawDensityLines() {
         .on("mouseleave", () => ln.classed("line-hot", false));
     }
   }
+  drawWaterBallLine(d);
   drawAirLine(d);
+}
+
+// Water as a ball (the old position of the water line), dashed, fading in
+// as you zoom like the air line.
+function drawWaterBallLine(d) {
+  const fade = Math.max(0, Math.min(1, (ch / (d.y1 - d.y0) - 14) / 10));
+  if (fade <= 0) return;
+  const seg = clipDensityLine(d, DENSITY_SPHERE_C);
+  if (!seg) return;
+  lDensity.append("line")
+    .attr("x1", px(seg.x1)).attr("y1", py(seg.y1))
+    .attr("x2", px(seg.x2)).attr("y2", py(seg.y2))
+    .attr("stroke", "#80deea").attr("stroke-width", 0.9)
+    .attr("stroke-dasharray", "6,5").attr("opacity", 0.35 * fade);
 }
 
 // Air at 1 atm (1.2 kg/m³, 20 °C), fading in as you zoom. Only from microbes
@@ -4291,7 +4306,7 @@ function drawAxes() {
 
   let lastDensityLabelP = Infinity;
   for (let logRho = -54; logRho <= 108; logRho += 9) {
-    const b = DENSITY_SPHERE_C + logRho;
+    const b = (logRho === 0 ? DENSITY_CUBE_C : DENSITY_SPHERE_C) + logRho;
     const logR_top = (d.y1 - b) / 3;
     if (logR_top < d.x0 - 1 || logR_top > d.x1 + 1) continue;
     const p = px(logR_top);
@@ -5289,7 +5304,7 @@ miniSvg.append("polygon")
 
 // Water density reference line (logRho = 0, slope 3 in logM vs logR)
 {
-  const waterB = DENSITY_SPHERE_C; // logM = 3*logR + DENSITY_SPHERE_C for water
+  const waterB = DENSITY_CUBE_C; // logM = 3*logR + DENSITY_CUBE_C for water (cube)
   // Clip to minimap data bounds
   const xMin = BOUNDS.x.min, xMax = BOUNDS.x.max;
   const yAtXmin = 3 * xMin + waterB, yAtXmax = 3 * xMax + waterB;

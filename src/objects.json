@@ -68,9 +68,9 @@
   { "name": "Dust Mite",        "logR": -1.82,  "logM": -5.30, "rho": [1.0, 1.1, 1.2],  "cat": "micro", "z": 5, "wiki": "House_dust_mite" },
   { "name": "Tardigrade",       "logR": -1.60,  "logM": -5.82, "rho": [1.0, 1.05, 1.1],  "cat": "micro", "z": 4, "wiki": "Tardigrade" },
 
-  { "name": "1 mL of Water",    "logR": -0.21,  "logM": 0.0,    "cat": "macro", "z": 3, "logDensity": 0 },
-  { "name": "1 Liter of Water", "logR": 0.79,  "logM": 3.0,    "cat": "macro", "z": 3, "logDensity": 0 },
-  { "name": "1 Tonne of Water", "logR": 1.79,  "logM": 6.0,    "cat": "macro", "z": 3, "logDensity": 0 },
+  { "name": "1 mL of Water",    "logR": -0.301,  "logM": 0.0,    "cat": "macro", "z": 3, "logDensity": 0 },
+  { "name": "1 Liter of Water", "logR": 0.699, "logM": 3.0,    "cat": "macro", "z": 3, "logDensity": 0 },
+  { "name": "1 Tonne of Water", "logR": 1.699, "logM": 6.0,    "cat": "macro", "z": 3, "logDensity": 0 },
   { "name": "Microchip",        "logR": -0.65,  "logM": -1.0, "rho": [1.8, 2.1, 2.4],   "cat": "macro", "subcat": "machine", "z": 4, "wiki": "Integrated_circuit" },
   { "name": "Grain of Sand",    "logR": -1.7,   "logM": -3.8, "rho": 2.65,   "cat": "macro", "z": 5, "wiki": "Sand" },
   { "name": "Ladybug",          "logR": -0.46,  "logM": -1.70, "rho": [0.7, 0.9, 1.1],  "cat": "macro", "z": 5, "wiki": "Coccinellidae" },
