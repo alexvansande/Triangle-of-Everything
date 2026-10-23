@@ -395,11 +395,11 @@
     ]
   },
   "beta-pictoris-b": {
-    "fingerprint": "7e81daabc2d9cd2c48132f8155ecd63ffd58d41412460d9a4f3bbabcdf2a3877",
+    "fingerprint": "58f1cd47ca6f1ba4efa1ce060aa123ffeb3e18fd6b8d77f3f7a28dcc98fadaec",
     "baseWidth": 128,
     "source": "content/icons/src/beta-pictoris-b.png",
     "reason": "matching master",
-    "sourceDifference": 2.1549886067708335,
+    "sourceDifference": 0.7692464192708334,
     "variants": [
       {
         "width": 256,
@@ -408,6 +408,10 @@
       {
         "width": 512,
         "path": "512/beta-pictoris-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/beta-pictoris-b.webp"
       }
     ]
   },
@@ -3479,11 +3483,11 @@
     ]
   },
   "t-brown-dwarf": {
-    "fingerprint": "575fb7acc3123711782e60c28a73281b7fb6b945b668a70ad4ce30a1336aa1b5",
+    "fingerprint": "568f1b4a1a7e1ef939874b49c0342f8fa93d106eab4dcc92b2e67c82a1f9b3bb",
     "baseWidth": 128,
     "source": "content/icons/src/t-brown-dwarf.png",
     "reason": "matching master",
-    "sourceDifference": 2.2147013346354165,
+    "sourceDifference": 0.7684733072916666,
     "variants": [
       {
         "width": 256,
@@ -3492,6 +3496,10 @@
       {
         "width": 512,
         "path": "512/t-brown-dwarf.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/t-brown-dwarf.webp"
       }
     ]
   },
@@ -4082,11 +4090,11 @@
     ]
   },
   "y-brown-dwarf": {
-    "fingerprint": "ab1b5d10420647662610a482d5f539fae5a9adc01de883aad4551b130b0af6ae",
+    "fingerprint": "8bbdf764843d7283de06a9e7979d19bf8d2e8cf5e749297a03a662ddb81e4ccd",
     "baseWidth": 128,
     "source": "content/icons/src/y-brown-dwarf.png",
     "reason": "matching master",
-    "sourceDifference": 0.7906494140625,
+    "sourceDifference": 0.77618408203125,
     "variants": [
       {
         "width": 256,

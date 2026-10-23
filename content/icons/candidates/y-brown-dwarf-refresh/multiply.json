@@ -1,0 +1,7 @@
+{
+  "prompt": "Create a material-color-only UNLIT ALBEDO pass from this astronomy icon, for later multiplication by a real reference sphere. Remove all directional illumination, terminator, limb darkening, specular highlights and cast shadows. Equal average brightness across the entire circular surface, with detailed clouds still foreshortened near edges. Perfect centered round disc occupying 94% of square canvas. Fully opaque inside disc, genuinely transparent outside. No text, no external halo, no rim light. High resolution photographic cloud textures. Keep this super-Jupiter cloud-band structure but significantly warm its palette: rich copper, burnt orange, amber and reddish brown instead of dead gray/taupe. More evident restrained glowing orange heat coming through the bands and storm swirls. It should feel warmer and more alive than Jupiter yet cooler and less luminous than a red-orange T brown dwarf. No molten rock, no fiery cracks, no flames. Emission is distributed through cloud texture; no large-scale lighting gradient.",
+  "multiplyOpacity": 1,
+  "reference": "content/icons/src/sphere template.png",
+  "rebuild": "node scripts/multiply-kepler-sphere.mjs y-brown-dwarf 1",
+  "note": "Surface shading only. Existing cast-shadow and aura settings preserved. Thermal colors are artistic."
+}
