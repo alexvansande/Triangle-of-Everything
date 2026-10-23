@@ -1,5 +1,5 @@
 import {BLACK_HOLE_FRAMES, BLACK_HOLE_SIZE_MULT, BLACK_HOLE_MASK_DEFS, blackHoleMask} from "./black-hole-frames.js";
-import {blackHoleFilter} from "./black-hole-palette.js";
+import {blackHoleFilter, installBlackHoleTones} from "./black-hole-palette.js";
 import * as d3 from "d3";
 import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS,SPACE_ART_DEFS,spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
 import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
@@ -490,6 +490,7 @@ function announce(text) {
 // decorative motion. The in-app "Show animations" checkbox still overrides.
 const _reduceMotion = !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 const defs = svg.append("defs");
+installBlackHoleTones(defs);   // the black holes' colour ramps (pictures and dive photos)
 defs.node().insertAdjacentHTML("beforeend",SPACE_ART_DEFS+BLACK_HOLE_MASK_DEFS);
 
 // Clip

@@ -260,7 +260,9 @@ export async function startNarration(app) {
   // from that cue on; the scene's `icons` replaces the default set, and "all" keeps
   // the map's own icon visibility, as in the app)
   // (a dive's object counts as named: it needs its picture to come towards the screen)
-  const sceneIcons = SCENE.icons === "all" ? null : SCENE.icons ?? [...new Set([
+  // ("all" was the map's own visibility; now that every scene fills in the other
+  // pictures after its own, it works like the default, so named ones go first)
+  const sceneIcons = Array.isArray(SCENE.icons) ? SCENE.icons : [...new Set([
     ...cues.flatMap(c => (c.hl || []).flatMap(h => [h.obj, h.spot, h.arrow && h.from?.obj, h.arrow && h.to?.obj].filter(Boolean))),
     ...cues.flatMap(c => [c.dive && c.obj, c.dolly && (c.dolly.obj || c.dolly)].filter(n => typeof n === "string"))])];
   const iconCues = cues.filter(c => c.icons !== undefined);
