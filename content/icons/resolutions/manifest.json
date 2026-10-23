@@ -1950,11 +1950,11 @@
     ]
   },
   "kepler-22b": {
-    "fingerprint": "bef32967171b4ef867ad2e891d519bd6791ad2612769f2b14365a7c5630b29a1",
+    "fingerprint": "acebb283bdf80bba90c90c46b7e79fbe844862dd3f3527042c1e2a9f19746dec",
     "baseWidth": 128,
     "source": "content/icons/src/kepler-22b.png",
     "reason": "matching master",
-    "sourceDifference": 1.7837727864583333,
+    "sourceDifference": 0.7778523763020834,
     "variants": [
       {
         "width": 256,
@@ -1965,8 +1965,8 @@
         "path": "512/kepler-22b.webp"
       },
       {
-        "width": 910,
-        "path": "910/kepler-22b.webp"
+        "width": 1024,
+        "path": "1024/kepler-22b.webp"
       }
     ]
   },

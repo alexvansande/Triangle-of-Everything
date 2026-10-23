@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-23",
+  "tool": "built-in image_gen",
+  "prompt": "Generate a replacement Kepler-22b planet icon, scientific-educational artistic illustration, square1254x1254 transparent PNG. Image1 WHITE SPHERE is the STRICT illumination and spherical shading reference: match upper-left broad bright light, smoothly rolling midtones and soft darker lower-right region, including gently reflected fill, no sharply black night-side stripe. Preserve full circular silhouette. Image2 old Kepler22b is only a loose blue-green/cloud style reference; DO NOT copy its lighting, bright rim, huge glare or background. Research context: Kepler-22b is a roughly two-Earth-radius transiting planet orbiting a Sun-like star in about290days, composition and surface unknown. Depict explicitly an imaginative cloud-covered water-rich/sub-Neptune interpretation, not a known surface map. Deep muted teal-blue beneath finely textured white/ivory cloud systems, varied natural cloud streaks and several gentle weather swirls at different scales; avoid dozens of identical hurricanes, Earth continents, vegetation, cities, oceans asserted as fact. Convincing planet miniature in our consistent collection, head-on spherical disc. Shading must follow the white sphere regardless of cloud detail: brightest broad upper-left, a soft continuous diagonal roll into shade toward lower-right; no harsh vertical terminator, no entirely invisible hemisphere, no large circular specular hotspot, no neon atmospheric outline, no external halo or glow. Fine crisp atmospheric detail inside silhouette, no cast shadow baked in. No stars, space background, border, text. Real alpha0 transparency outside globe, opaque planet inside. Center sphere with diameter about1190px on1254canvas (~95%) and minimum25px clear margin all sides.",
+  "references": [
+    "content/icons/src/sphere template.png",
+    "previous.png"
+  ],
+  "research": [
+    "https://science.nasa.gov/exoplanet-catalog/kepler-22b/",
+    "https://exoplanetarchive.ipac.caltech.edu/overview/Kepler-22",
+    "https://arxiv.org/abs/1112.1640"
+  ],
+  "notes": "Cloud-covered blue-green appearance is an artistic interpretation; composition and surface unknown. Shared spherical cast shadow retained; replaced illumination baked into planet art."
+}
