@@ -126,13 +126,13 @@ export default {
     { at: "the eiffel tower", cam: C(3.75, 10.05, 3.4), hl: [{ obj: "Eiffel Tower" }] },
     { at: "surprisingly light", cam: C(3.85, 10.0, 3.4), hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
     // a small dive (the tower comes up to a quarter of the screen, the chart dims), then
-    // three line drawings over it: the pyramid it's measured by, and two Sierpinski steps
-    // carving the base and the middle out of it: the fractal
+    // three line drawings over it: the pyramid it's measured by, then the arch and the
+    // opening between the floors carved out of it, then tiny triangles, the lattice: the fractal
     { at: "surprisingly light", dolly: { obj: "Eiffel Tower", in: 1.8, out: 2.2, size: 0.24 }, dur: 6.1 },
     { at: "also counting all", hl: [{ sketch: "Eiffel Tower", level: 0 }] },
     { at: "the internal space", cam: C(3.86, 10.02, 3.4) },
     { at: "in many ways", offset: -0.9, hl: [{ sketch: "Eiffel Tower", level: 1 }] },
-    { at: "fractal", hold: 1.4, hl: [{ sketch: "Eiffel Tower", level: 2 }] },
+    { at: "fractal", hold: 1.4, hl: [{ sketch: "Eiffel Tower", level: 2, draw: 1.2 }] },
     { at: "lots of big rocks", offset: -0.8, cam: C(3.92, 10.4, 3.6) },
 
     // rocks, lakes, asteroids and small moons

@@ -801,23 +801,44 @@ export async function startNarration(app) {
     el.append("text").attr("class", "narr-tag").attr("x", tx).attr("y", ty)
       .attr("text-anchor", anchor).attr("fill", col).text(label);
   }
-  /** A line drawing over an object's picture: { sketch: name, level: 0–2, draw?: s (0.9) }.
-   *  Level 0 is the pyramid the chart measures it by (its envelope); 1 and 2 are the next
-   *  steps of a Sierpinski triangle, carving the base and the middle out of it: the
-   *  fractal. The corners sit on the picture (`apex`, `base` as shares of its square). */
+  /** A line drawing over an object's picture: { sketch: name, level: 0–2, draw?: s (0.9) },
+   *  drawn as the Eiffel Tower's (shares of its picture's square): level 0 the pyramid
+   *  the chart measures it by (its envelope); 1 carves the arch out of the base and the
+   *  opening between the first and second floors; 2 fills what's left with tiny
+   *  triangles, the lattice: the fractal. */
   function drawSketch(el, h, age) {
     const box = app.iconRect?.(h.sketch);
     if (!box) return;
     const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
     const X = (u) => (box.x - lr.x + u * box.w) / scl, Y = (v) => (box.y - lr.y + v * box.h) / scl;
-    const [ax, ay] = h.apex || [0.5, 0.03], [bl, br, by] = h.base || [0.215, 0.785, 0.96];
-    let tris = [[[X(ax), Y(ay)], [X(bl), Y(by)], [X(br), Y(by)]]];
-    const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
-    for (let i = 0; i < (h.level || 0); i++)
-      tris = tris.flatMap(([a, b, c]) => [[a, mid(a, b), mid(a, c)], [mid(a, b), b, mid(b, c)], [mid(a, c), mid(b, c), c]]);
-    const d = tris.map(([a, b, c]) => `M${a}L${b}L${c}Z`).join("");
+    const P = ([u, v]) => `${X(u).toFixed(1)},${Y(v).toFixed(1)}`;
+    const A = [0.5, 0.03], B = [0.215, 0.96], C = [0.785, 0.96];        // apex, base left and right
+    const edge = (v, side) => 0.5 + (side * (C[0] - 0.5)) * (v - A[1]) / (B[1] - A[1]);
+    const ARCH = { c: [0.5, 0.96], r: 0.18 };                               // under the first floor
+    const GAP = [[edge(0.71, -1) + 0.07, 0.71], [edge(0.71, 1) - 0.07, 0.71], [edge(0.56, 1) - 0.05, 0.56], [edge(0.56, -1) + 0.05, 0.56]];
+    const inGap = ([u, v]) => v < 0.71 && v > 0.56 && u > GAP[0][0] + (GAP[3][0] - GAP[0][0]) * (0.71 - v) / 0.15
+      && u < GAP[1][0] + (GAP[2][0] - GAP[1][0]) * (0.71 - v) / 0.15;
+    const inArch = ([u, v]) => v < ARCH.c[1] && Math.hypot(u - ARCH.c[0], v - ARCH.c[1]) < ARCH.r;
+    let d = `M${P(A)}L${P(B)}L${P(C)}Z`;
+    if ((h.level || 0) >= 1) {
+      const r = ARCH.r * box.w / scl;
+      d += `M${P([ARCH.c[0] - ARCH.r, ARCH.c[1]])}A${r.toFixed(1)},${r.toFixed(1)} 0 0 1 ${P([ARCH.c[0] + ARCH.r, ARCH.c[1]])}`;
+      d += `M${GAP.map(P).join("L")}Z`;
+    }
+    if ((h.level || 0) >= 2) {
+      // the lattice: the triangle cut into N rows of tiny triangles, the holes left open
+      const N = 14, lerp = (p, q, f) => [p[0] + (q[0] - p[0]) * f, p[1] + (q[1] - p[1]) * f];
+      const V = (i, j) => lerp(lerp(A, B, i / N), lerp(A, C, i / N), i ? j / i : 0);
+      for (let i = 0; i < N; i++) for (let j = 0; j <= i; j++) {
+        for (const t of [[V(i, j), V(i + 1, j), V(i + 1, j + 1)], j < i ? [V(i, j), V(i + 1, j + 1), V(i, j + 1)] : null]) {
+          if (!t) continue;
+          const c = [(t[0][0] + t[1][0] + t[2][0]) / 3, (t[0][1] + t[1][1] + t[2][1]) / 3];
+          if (!inArch(c) && !inGap(c)) d += `M${t.map(P).join("L")}Z`;
+        }
+      }
+    }
     const k = d3.easeCubicOut(clamp01(age / (h.draw ?? 0.9)));
-    [[6, 0.18], [1.7, 0.95]].forEach(([w, o]) => el.append("path").attr("d", d).attr("fill", "none")
+    [[6, 0.16], [1.5, 0.95]].forEach(([w, o]) => el.append("path").attr("d", d).attr("fill", "none")
       .attr("stroke", "#fff").attr("stroke-width", w).attr("opacity", o).attr("stroke-linejoin", "round")
       .attr("pathLength", 1).attr("stroke-dasharray", `${k} 1`));
   }
