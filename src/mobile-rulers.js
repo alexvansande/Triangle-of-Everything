@@ -9,6 +9,8 @@
 // with dashed guides from the screen's centre (or the tapped object) to both
 // and its values written at the rulers. They fade out a moment after you stop.
 // The axes button pins them (pin()), instead of opening solid margins.
+// While you're moving only the rulers show: the crosshair and guides are for a
+// still moment, on a tapped object or with the rulers pinned (author, 2026-10-23).
 //
 // Positions are chart-local px; the map's own logR is a radius and the size
 // ruler reads the diameter, like the desktop axis (WIDTH_LOG_OFFSET).
@@ -77,7 +79,7 @@ export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focu
   band("mr-fade-r", 1, 0, [[0, 0], [1, 0.6]]);
   band("mr-fade-l", 1, 0, [[0, 0.6], [1, 0]]);
   let hideTimer = null, visible = false, energy = false;
-  let pinned = false, pinMs = Infinity;   // pinned by the axes button: up until unpinned (or pinMs idle)
+  let pinned = false, pinMs = Infinity, moving = false;   // pinned by the axes button: up until unpinned (or pinMs idle)
 
   // fade out after `ms` without movement; a pin with a time limit unpins then
   function arm() {
@@ -101,6 +103,12 @@ export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focu
     clearTimeout(hideTimer);
     visible = false;
     layer.style("opacity", 0);
+  }
+  /** A pan or pinch starts (true) or ends (false): no guides while moving. */
+  function setMoving(on) {
+    if (moving === on) return;
+    moving = on;
+    if (visible) draw();
   }
   /** The axes button: keep them up (for `ms` of stillness, or until unpinned). */
   function pin(on, ms = Infinity) {
@@ -133,14 +141,16 @@ export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focu
 
     // guides first, their values claim their places before the ticks
     const yTop = atTop ? yB + 26 : 60, ySideMax = atTop ? bottom - 10 : yB - 22;
-    const gx = Math.max(0, Math.min(w, centre.x)), gy = Math.max(yTop, Math.min(ySideMax, centre.y));
-    if (!focus()) layer.append("path").attr("class", "mr-cross")
-      .attr("d", `M${gx - 7},${gy}H${gx + 7}M${gx},${gy - 7}V${gy + 7}`);
-    layer.append("line").attr("class", "mr-guide").attr("x1", gx).attr("y1", gy).attr("x2", xS).attr("y2", gy);
-    layer.append("line").attr("class", "mr-guide").attr("x1", gx).attr("y1", gy).attr("x2", gx).attr("y2", yB);
-    const sideValue = energy ? valueLabel(logMc + EV_PER_G, ENERGY_BASES) : valueLabel(logMc, MASS_BASES);
-    text(xS + dir * 8, gy - 6, sideValue, energy ? "start" : "end", "mr-value");
-    text(gx + 6, atTop ? yB + 30 : yB - 7, valueLabel(ipx(centre.x) + W_OFF, SIZE_BASES), "start", "mr-value");
+    if (!moving && (f || pinned)) {
+      const gx = Math.max(0, Math.min(w, centre.x)), gy = Math.max(yTop, Math.min(ySideMax, centre.y));
+      if (!f) layer.append("path").attr("class", "mr-cross")
+        .attr("d", `M${gx - 7},${gy}H${gx + 7}M${gx},${gy - 7}V${gy + 7}`);
+      layer.append("line").attr("class", "mr-guide").attr("x1", gx).attr("y1", gy).attr("x2", xS).attr("y2", gy);
+      layer.append("line").attr("class", "mr-guide").attr("x1", gx).attr("y1", gy).attr("x2", gx).attr("y2", yB);
+      const sideValue = energy ? valueLabel(logMc + EV_PER_G, ENERGY_BASES) : valueLabel(logMc, MASS_BASES);
+      text(xS + dir * 8, gy - 6, sideValue, energy ? "start" : "end", "mr-value");
+      text(gx + 6, atTop ? yB + 30 : yB - 7, valueLabel(ipx(centre.x) + W_OFF, SIZE_BASES), "start", "mr-value");
+    }
 
     // size, along the bottom
     layer.append("rect").attr("class", "mr-fade").attr("x", 0).attr("y", yB - 14).attr("width", w).attr("height", 32);
@@ -174,5 +184,5 @@ export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focu
     text(energy ? xS + 8 : xS - 8, atTop ? ySideMax : yTop + 4, energy ? "ENERGY ↑" : "MASS ↑", energy ? "start" : "end", "mr-name");
   }
 
-  return { show, keep, hide, pin, draw, get visible() { return visible; }, get pinned() { return pinned; } };
+  return { show, keep, hide, pin, draw, setMoving, get visible() { return visible; }, get pinned() { return pinned; } };
 }

@@ -6037,7 +6037,7 @@ const zoomBehavior = d3.zoom()
   .on("start", (event) => {
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
     _userZoomGesture = !!event.sourceEvent;
-    if (_userZoomGesture && mobileRulersOn()) { _rulerFocus = null; mobileRulers.show(); }
+    if (_userZoomGesture && mobileRulersOn()) { _rulerFocus = null; mobileRulers.setMoving(true); mobileRulers.show(); }
     if (!_userZoomGesture) _tourBaseK = null;
     else if (_tourBaseK == null) _tourBaseK = currentK;
     _zooming = true;
@@ -6123,6 +6123,7 @@ const zoomBehavior = d3.zoom()
     // re-trigger.
     const s = _panSamples;
     _panSamples = [];
+    let gliding = false;
     if (s.length >= 2) {
       const last = s[s.length - 1];
       const ref = [...s].reverse().find(p => last.t - p.t >= 40) || s[0];
@@ -6133,6 +6134,7 @@ const zoomBehavior = d3.zoom()
         const speed = Math.hypot(vx, vy);
         if (speed > 0.35 && !_reduceMotion) {
           const glide = Math.min(speed * 300, 700); // px of decay travel
+          gliding = true;
           svg.transition("inertia").duration(600).ease(d3.easeCubicOut)
             .call(zoomBehavior.translateBy,
               (vx / speed) * glide / last.k,
@@ -6140,6 +6142,8 @@ const zoomBehavior = d3.zoom()
         }
       }
     }
+    // the rulers' guides come back once the map is still (after the glide's own end)
+    if (!gliding) mobileRulers.setMoving(false);
   });
 
 svg.call(zoomBehavior);
