@@ -33,10 +33,11 @@ export const NOISE_MODES = [
   [0, "Today (blurred tiles)"],
 ];
 
-// Tuned for the video: rough (CMB-like) octaves, gentle warp, detail from ~5 source px
+// Tuned for the video (the author's pick, 2026-10-23): a moderate warp with faint,
+// soft added detail, slowly evolving, from ~5 source px
 export const NOISE_DEFAULTS = {
-  mode: 8, move: true, speed: 0.24, drift: 0.095, ridge: 0.53, warp: 0.51,
-  detail: 0.25, smooth: 0, start: 2.263, filter: 1, res: 1,
+  mode: 8, move: true, speed: 0.09, drift: 0.095, ridge: 0.53, warp: 1,
+  detail: 0.04, smooth: 1, start: 4.8, filter: 1, res: 1,
 };
 
 const VS = `#version 300 es
@@ -294,6 +295,8 @@ export function applyNoiseProfile(profile) {
 let active = null;      // the running layer, if any
 const readouts = new Set();
 
+// "/" on the site, "./" in the narration preview
+const BASE = import.meta.env.BASE_URL;
 const loadImg = src => new Promise(res => {
   const im = new Image();
   im.onload = () => res(im); im.onerror = () => res(null); im.src = src;
@@ -306,15 +309,19 @@ const loadImg = src => new Promise(res => {
  * setVisible(false) fades it out and stops all work.
  *  host    — HTML element containing the canvas (in the chart's background foreignObject)
  *  meta    — /tiles/meta.json
+ *  onLost  — the GL context was lost (the canvas is blank); the caller destroys it
  *  getView — () => { left, top, w, h } css px of the plot area, plus
  *            { cx, cy } camera centre in source px and { zx, zy } css px per source px
  */
-export function createBgNoise({ host, meta, getView, onShown }) {
+export function createBgNoise({ host, meta, getView, onShown, onLost }) {
   const canvas = document.createElement("canvas");
   canvas.className = "bgnoise-canvas";
   host.prepend(canvas);
   const r = createNoiseRenderer(canvas);
   if (!r) { canvas.remove(); return null; }
+  // A phone short of memory can take the GL context away: the canvas goes
+  // blank, so hand the background back to the painted tiles (onLost).
+  canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); if (alive) onLost?.(); });
 
   // ---- textures: whole image at z2 as fallback, a tile window at the needed level ----
   const T = meta.tileSize;
@@ -323,7 +330,7 @@ export function createBgNoise({ host, meta, getView, onShown }) {
     const lv = meta.levels[2], cv = Object.assign(document.createElement("canvas"), { width: lv.w, height: lv.h });
     const cx = cv.getContext("2d");
     await Promise.all([...Array(lv.cols * lv.rows)].map(async (_, k) => {
-      const c = k % lv.cols, rr = k / lv.cols | 0, im = await loadImg(`/tiles/z${lv.z}/tile_${c}_${rr}.webp`);
+      const c = k % lv.cols, rr = k / lv.cols | 0, im = await loadImg(`${BASE}tiles/z${lv.z}/tile_${c}_${rr}.webp`);
       if (im) cx.drawImage(im, c * T, rr * T);
     }));
     if (!alive) return;
@@ -352,7 +359,7 @@ export function createBgNoise({ host, meta, getView, onShown }) {
     const cv = Object.assign(document.createElement("canvas"), { width: w, height: h }), cx = cv.getContext("2d");
     const jobs = [];
     for (let rr = r0; rr <= r1; rr++) for (let c = c0; c <= c1; c++) jobs.push((async () => {
-      const im = await loadImg(`/tiles/z${lv.z}/tile_${c}_${rr}.webp`);
+      const im = await loadImg(`${BASE}tiles/z${lv.z}/tile_${c}_${rr}.webp`);
       if (im) cx.drawImage(im, (c - c0) * T, (rr - r0) * T);
     })());
     await Promise.all(jobs);

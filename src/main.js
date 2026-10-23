@@ -1,10 +1,12 @@
 import {revealIcon,exitReveal} from "./icon-reveal.js";
 import {BLACK_HOLE_FRAMES, BLACK_HOLE_SIZE_MULT, BLACK_HOLE_MASK_DEFS, blackHoleMask} from "./black-hole-frames.js";
-import {blackHoleFilter} from "./black-hole-palette.js";
+import {installBlackHoleTones} from "./black-hole-palette.js";
+import {LUMINOUS_CATS, isLuminousArt} from "./luminous-art.js";
+import {createMobileRulers} from "./mobile-rulers.js";
 import * as d3 from "d3";
-import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS,SPACE_ART_DEFS,spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
+import {isDiffuseSpaceArt,SPACE_ART_DEFS,spaceEdgeMask} from "./space-art.js";
 import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
-import {STAR_BODY_FRAMES, SHADOWED_SCREEN_SPHERES, BROWN_DWARFS, starBodyGeometry, starWallLight, stellarLightProfile} from "./star-light.js";
+import {STAR_BODY_FRAMES, SHADOWED_SCREEN_SPHERES, BROWN_DWARFS, starWallLight, stellarLightProfile} from "./star-light.js";
 import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
 import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
 import { buildSearchIndex, searchObjects } from "./object-search.js";
@@ -17,7 +19,7 @@ import {
   formatLogSuper, densityToLogTime, friendlyTime, fmtTick,
 } from "./format.js";
 import {
-  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, iconUrlForSize, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
+  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, ICON_COVERAGE, iconUrlForSize, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
@@ -44,7 +46,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, t
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, dustReady, dustPositions, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust } from "./dust.js";
+import { loadDust, drawDust, pickDust, pickNamedDust, dustPoint, dustReady, dustPositions, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -59,6 +61,23 @@ async function loadKatex() {
 }
 
 let _iconsEnabled = true;
+// Settings → Icons, 0 (none) … 100 (many); 50 is the map's standard density.
+// It isn't a count: it sets how much room pictures keep around each other
+// (curated objects and catalogue pictures alike) and how small a catalogue
+// picture may be, and the visibility hierarchy shows whatever then fits.
+const ICON_DENSITY_DEFAULT = 50;
+let _iconDensity = ICON_DENSITY_DEFAULT;
+const lerp = (a, b, t) => a + (b - a) * Math.max(0, Math.min(1, t));
+/** Clear room between pictures, in radii: 2.6 near none, 1.3 standard, 0.9 at many (may touch). */
+function iconRoom() {
+  return _iconDensity <= ICON_DENSITY_DEFAULT ? lerp(2.6, 1.3, (_iconDensity - 5) / (ICON_DENSITY_DEFAULT - 5))
+    : lerp(1.3, 0.9, (_iconDensity - ICON_DENSITY_DEFAULT) / (100 - ICON_DENSITY_DEFAULT));
+}
+/** Smallest catalogue picture, px: 44 near none, 30 standard, 20 at many. */
+function dustIconMin() {
+  return _iconDensity <= ICON_DENSITY_DEFAULT ? lerp(44, 30, (_iconDensity - 5) / (ICON_DENSITY_DEFAULT - 5))
+    : lerp(30, 20, (_iconDensity - ICON_DENSITY_DEFAULT) / (100 - ICON_DENSITY_DEFAULT));
+}
 let _iconSize = 100;  // percent multiplier on top of zoom-derived effective size
 let _fontScale = 1;   // global text multiplier (settings "Font size" slider)
 const fscale = (px) => px * _fontScale;
@@ -95,6 +114,17 @@ const ICON_SIZE_MULT = {
 // Physical size scaling: for every 6 orders of magnitude in real radius,
 // icon grows 10%. Observable universe icons are ~2.5x larger than instanton icons.
 // Centered around logR ≈ -3.5 (midpoint of the full range).
+// Pictures that fill little of their square (a hippo, the Eiffel Tower) look
+// smaller than ones that fill it (a cube of water): part-compensate by covered
+// area (content/icons/coverage.json, scripts/icon-coverage.mjs). Luminous
+// pictures (a glow, not a silhouette) and unmeasured ones stay as they are.
+const AREA_REF = 0.6, AREA_POWER = 0.25, AREA_MIN = 0.9, AREA_MAX = 1.35;
+function iconAreaMult(slug) {
+  if (ICON_SIZE_MULT[slug]) return 1;   // sized by hand already (Saturn's rings)
+  const c = ICON_COVERAGE[slug];
+  if (!c || c >= 0.95) return 1;
+  return Math.max(AREA_MIN, Math.min(AREA_MAX, (AREA_REF / c) ** AREA_POWER));
+}
 function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
@@ -103,7 +133,7 @@ function iconSizeMult(o) {
   // structures and black holes, keeping solid universe/void spheres unchanged.
   const categoryScale = BLACK_HOLE_FRAMES[o.slug] ? 1 : cat === "galaxy" ? 1.25 * 1.25
     : cat === "blackhole" || (cat === "largescale" && isDiffuseSpaceArt(cat, o.slug)) ? 1.25 : 1;
-  return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
+  return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * iconAreaMult(o.slug) * (_iconSize / 100);
 }
 
 function nameToSlug(name) {
@@ -223,9 +253,11 @@ const viewportLockScale = () => {
   return Math.min(s.maxScale,
     (window.innerWidth - 2 * s.pad) / s.W, (window.innerHeight - 2 * s.pad) / s.H);
 };
-let _showAxesMobile = false; // edge-to-edge by default; axes pill toggles unit margins
+
 const _isCoarse = !!window.matchMedia?.("(pointer: coarse)").matches;
 const _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+// Every iOS browser and in-app web view (whose UA has no "Safari"), plus Safari.
+const _isWebKit = /AppleWebKit/i.test(navigator.userAgent) && !/(Chrome|Chromium|Edg|Android)\b/i.test(navigator.userAgent);
 let _booted = false;
 
 const margin = { top: 55, right: 125, bottom: 80, left: SIDEBAR_W };
@@ -358,21 +390,12 @@ function measure() {
   H = _posterStage ? _posterStage.H : _viewportLock ? vpStage().H : window.innerHeight;
   if (_isMobile) {
     // Edge-to-edge map on phones: the chart IS the screen and all UI floats
-    // above it. The axes pill (#axes-toggle) temporarily restores the unit
-    // margins so the axis numbers can be read, map-app style.
-    if (_showAxesMobile) {
-      // Compact ruler: exponent numbers + rotated axis titles fit; the
-      // outboard unit links and subtitles are skipped on mobile.
-      margin.left = 56;
-      margin.right = 58;
-      margin.top = 78;
-      margin.bottom = 92;
-    } else {
-      margin.left = 0;
-      margin.right = 0;
-      margin.top = 0;
-      margin.bottom = 0;
-    }
+    // above it. The rulers come up over it (src/mobile-rulers.js); the axes
+    // button pins them.
+    margin.left = 0;
+    margin.right = 0;
+    margin.top = 0;
+    margin.bottom = 0;
   } else {
     // Defaults: what the axis layout needs at the current type size. The
     // drag limits stretch to always allow at least that.
@@ -472,6 +495,7 @@ function announce(text) {
 // decorative motion. The in-app "Show animations" checkbox still overrides.
 const _reduceMotion = !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 const defs = svg.append("defs");
+installBlackHoleTones(defs);   // the black holes' colour ramps
 defs.node().insertAdjacentHTML("beforeend",SPACE_ART_DEFS+BLACK_HOLE_MASK_DEFS);
 
 // Clip
@@ -479,12 +503,6 @@ defs.append("clipPath").attr("id", "clip")
   .append("rect").attr("width", cw).attr("height", ch);
 
 // --- gradients ---
-
-// Soft black disc for screen-blend icon backgrounds
-const iconBgGrad = defs.append("radialGradient").attr("id", "icon-bg-grad");
-iconBgGrad.append("stop").attr("offset", "0%").attr("stop-color", "#000").attr("stop-opacity", 0.8);
-iconBgGrad.append("stop").attr("offset", "50%").attr("stop-color", "#000").attr("stop-opacity", 0.5);
-iconBgGrad.append("stop").attr("offset", "100%").attr("stop-color", "#000").attr("stop-opacity", 0);
 
 // Cast shadows under the pictures (drawIconShadows): blur sized to each
 // ellipse (objectBoundingBox), so one filter looks the same at every zoom.
@@ -681,6 +699,42 @@ const whiteOverlay = clip.append("rect")
 
 // Axes outside clip (also wrapped for batch CSS-transform during zoom)
 const lAxesWrap = chart.append("g");
+// Phones: rulers that fade in while you pan, pinch or tap (src/mobile-rulers.js).
+// Desktop: the same guides, out to the chart's axes, from a clicked dust dot.
+const lMobileRulers = chart.append("g").style("pointer-events", "none");
+// what the guides start from: a curated object, { dustIndex, logR, logM }, or null for the centre
+let _rulerFocus = null;
+const RULER_AVOID = "#search-box, #preset-bar, #sidebar-expand, #axes-toggle, #controls, #settings-btn, #tour-start-btn, #tour-header, #scale-bar";
+const mobileRulers = createMobileRulers({
+  layer: lMobileRulers, px, py, ipx: (x) => xS.invert(x), ipy: (y) => yS.invert(y),
+  rulers: () => _isMobile,
+  frame: () => {
+    if (!_isMobile) return { w: cw, h: ch, top: 0, bottom: ch };
+    // above the object sheet or the tour card when one is up, and the bottom
+    // buttons; below the search button
+    const up = [_isSidebarOpen && "sidebar", document.body.classList.contains("touring") && "tour-box"].filter(Boolean);
+    const sheetTop = Math.min(...up.map(id => document.getElementById(id)?.getBoundingClientRect())
+      .filter(r => r && r.height > 0 && r.top < H - 40).map(r => r.top - margin.top), Infinity);
+    return { w: cw, h: ch, top: 116, bottom: Math.min(ch - 96, sheetTop - 22) };
+  },
+  avoid: () => [...document.querySelectorAll(RULER_AVOID)]
+    .filter(e => {   // shown, counting faded-out parents (the title lockup's)
+      if (getComputedStyle(e).visibility === "hidden") return false;
+      let o = 1;
+      for (let x = e; x && o > 0.1; x = x.parentElement) o *= +getComputedStyle(x).opacity;
+      return o > 0.1;
+    })
+    .map(e => e.getBoundingClientRect()).filter(r => r.width > 0 && r.height > 0)
+    .map(r => ({ x: r.left - margin.left - 4, y: r.top - margin.top - 4, w: r.width + 8, h: r.height + 8 })),
+  focus: () => {
+    if (!_rulerFocus) return null;
+    if (_rulerFocus.dustIndex != null) return dustPoint(_rulerFocus.dustIndex) || { x: px(_rulerFocus.logR), y: py(_rulerFocus.logM) };
+    const o = _lastProjected.find(p => p.slug === _rulerFocus.slug);
+    return o ? { x: o.sx, y: o.sy } : { x: px(_rulerFocus.logR), y: py(_rulerFocus.logM) };
+  },
+  onUnpin: () => setAxesButton(false),
+});
+const mobileRulersOn = () => _isMobile && !_posterStage && !document.body.classList.contains("narrating");
 const axB = lAxesWrap.append("g").attr("class", "axis-b");
 const axT = lAxesWrap.append("g").attr("class", "axis-t");
 const lDensityArrows = lAxesWrap.append("g");  // non-clipped, for density arrows & era labels on logM=56 line
@@ -854,14 +908,18 @@ function drawGrid() {
       else if (level.spacing > 12)  { opacity = 0.10; width = 0.6; }
       else { opacity = 0.05; width = 0.4; }
     } else if (level.step === 1) {
-      if (level.spacing > 200) { opacity = 0.16; width = 0.6; }
+      // zoomed far in, the decade and log lines are the main way to read the
+      // map, so they keep strengthening (author, 2026-10-23)
+      if (level.spacing > 600) { opacity = 0.26; width = 0.8; }
+      else if (level.spacing > 200) { opacity = 0.18; width = 0.65; }
       else if (level.spacing > 80)  { opacity = 0.12; width = 0.5; }
       else if (level.spacing > 30)  { opacity = 0.08; width = 0.4; }
       else if (level.spacing > 12)  { opacity = 0.05; width = 0.35; }
       else { opacity = 0.025; width = 0.25; }
     } else {
-      if (level.spacing > 200) { opacity = 0.08; width = 0.5; }
-      else if (level.spacing > 80)  { opacity = 0.05; width = 0.4; }
+      if (level.spacing > 260) { opacity = 0.2; width = 0.65; }
+      else if (level.spacing > 160) { opacity = 0.14; width = 0.55; }
+      else if (level.spacing > 80)  { opacity = 0.07; width = 0.45; }
       else if (level.spacing > 30)  { opacity = 0.03; width = 0.3; }
       else if (level.spacing > 12)  { opacity = 0.015; width = 0.2; }
       else { opacity = 0.008; width = 0.15; }
@@ -1673,6 +1731,44 @@ function drawDensityLines() {
         .on("mouseleave", () => ln.classed("line-hot", false));
     }
   }
+  drawAirLine(d);
+}
+
+// Air at 1 atm (1.2 kg/m³, 20 °C), fading in as you zoom. Only from microbes
+// to Earth's size: much bigger than that and a ball of air can't stay at
+// sea-level pressure (it squeezes itself under its own weight).
+const AIR_LOG_RHO = Math.log10(0.0012);
+const AIR_LOGR = [-4, Math.log10(6.371e8)];   // 1 µm … Earth's radius, in cm
+function drawAirLine(d) {
+  const ppuY = ch / (d.y1 - d.y0);
+  const fade = Math.max(0, Math.min(1, (ppuY - 14) / 10));
+  if (fade <= 0) return;
+  const b = DENSITY_SPHERE_C + AIR_LOG_RHO;
+  const r0 = Math.max(AIR_LOGR[0], d.x0, (d.y0 - b) / 3);
+  const r1 = Math.min(AIR_LOGR[1], d.x1, (d.y1 - b) / 3);
+  if (r0 >= r1) return;
+  const x1 = px(r0), y1 = py(3 * r0 + b), x2 = px(r1), y2 = py(3 * r1 + b);
+  const color = "rgba(176,190,197,0.75)";
+  const g = lDensity.append("g").attr("opacity", fade);
+  g.append("line")
+    .attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2)
+    .attr("stroke", color).attr("stroke-width", 0.8).attr("stroke-dasharray", "5 4")
+    .append("title").text("Air at 1 atm, 1.2 kg/m³: a ball on this line weighs as much as the air it pushes aside");
+
+  // label near the upper end of what's on screen, along the line
+  const len = Math.hypot(x2 - x1, y2 - y1);
+  if (len < 120) return;
+  const t = Math.max(0.1, 1 - 70 / len);
+  const lx = x1 + (x2 - x1) * t, ly = y1 + (y2 - y1) * t;
+  const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+  const label = (paint) => g.append("text")
+    .attr("x", lx).attr("y", ly - 4).attr("text-anchor", "end")
+    .attr("transform", `rotate(${angle},${lx},${ly})`)
+    .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+    .attr("font-size", fscale(10)).attr("letter-spacing", "0.5px")
+    .call(paint).text("air · 1 atm");
+  label(s => s.attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)").attr("stroke-width", 3).attr("stroke-linejoin", "round"));
+  label(s => s.attr("fill", color));
 }
 
 // =============================================================
@@ -2067,7 +2163,6 @@ function catDisplayLabel(catKey) {
 }
 
 const DOT_MIN_DIST = 6;      // px — hide dot only when circles overlap
-const ICON_ROOM = 1.3;       // icons keep 30% of their radii clear between them
 const _objectVisibility = new VisibilityMemory();
 const CLUSTER_THRESHOLD = 26; // px — objects within this form a cluster; smaller = more individual/specific labels
 
@@ -2406,7 +2501,7 @@ function drawObjects() {
   const d = vd();
   const icoSize = effectiveIconSize();
   _objectVisibility.update([px(1)-px(0), py(1)-py(0)], JSON.stringify([
-    cw, ch, _iconSize, _fontScale, _iconsEnabled, _labelsEnabled,
+    cw, ch, _iconSize, _fontScale, _iconsEnabled, _iconDensity, _labelsEnabled,
     _dustEnabled, dustReady(), _isMobile, _posterLabels, _atomIconsHidden,
     _bigBangMode && [_bigBangObjectOverrides, _bigBangObjectOpacity],
   ]));
@@ -2453,7 +2548,7 @@ function drawObjects() {
   const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
   const iconOrder = projected.filter(mapIconShown);
-  const shownIcons = priorityCircles(iconOrder, icoR, ICON_ROOM);
+  const shownIcons = priorityCircles(iconOrder, icoR, iconRoom());
   projected.forEach(o => {
     o._showDot = visibleDots.has(o);
     o._showIcon = o._showDot && shownIcons.has(o);
@@ -2880,35 +2975,30 @@ function drawObjects() {
     })
     .order();
 
-  // (2) Icons: bg disc (screen-blend cats) + fallback dot + image, keyed by
-  // slug in their own layer (above the noise overlay).
+  // (2) Icons: fallback dot + image, keyed by slug in their own layer (above
+  // the noise overlay). Luminous pictures carry their dark backing inside the
+  // picture (src/luminous-art.js), so every icon is drawn the same way.
   lIcons.selectAll("g.icon-g")
     .data(iconObjs, o => o.slug)
     .join(enter => {
       const g = enter.append("g").attr("class", "icon-g");
       g.each(function(o) {
         const gg = d3.select(this);
-        if (iconUsesScreenBlend(o)) {
-          gg.append("circle").attr("class", "icon-bg").attr("fill", "url(#icon-bg-grad)");
-        }
         // Fallback dot: icons fetch on demand, so on a cold cache the
         // <image> is empty until its webp arrives — the dot keeps the
-        // object visible. It must HIDE once the image loads: screen-blend
-        // icons brighten what's beneath instead of covering it, so a
-        // still-visible dot glows through them permanently.
+        // object visible. It must HIDE once the image loads: a glow's faint
+        // edge doesn't cover what's beneath, so a still-visible dot would
+        // show through it permanently.
         gg.append("circle").attr("class", "icon-fallback-dot")
           .attr("r", 2.8).attr("fill", o.color);
         const imgEl = gg.append("image")
           .attr("class", "obj-icon")
           .attr("data-slug", o.slug)
-          .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
-          .style("filter",blackHoleFilter(o.slug)||(softSpaceIcon(o)?`brightness(${SPACE_ART_BRIGHTNESS})`:null))
           .attr("mask",blackHoleMask(o.slug)||(softSpaceIcon(o)?spaceEdgeMask(o.slug):null))
           .node();
         imgEl.addEventListener("load", () => {
           _loadedIconUrls.add(ICON_BY_SLUG[o.slug]);
           gg.select(".icon-fallback-dot").attr("display", "none");
-          gg.select(".icon-bg").attr("display", null);
         }, { once: true });
       });
       return g;
@@ -2923,12 +3013,6 @@ function drawObjects() {
       const objIcoSize = icoSize * iconSizeMult(o);
       const growth = this.__iconGrowth ?? 1;
       gg.attr("transform", parallaxTranslation(o, objectPicturePoint(o, growth)));
-      const bodyDisc=iconBackingGeometry(o,objIcoSize,growth);
-      gg.select(".icon-bg")
-        .attr("cx",bodyDisc?.cx??o.sx).attr("cy",bodyDisc?.cy??o.sy)
-        .attr("r",bodyDisc?.r??objIcoSize*.52).attr("opacity",bbOp)
-        .attr("fill",softSpaceIcon(o)?"url(#space-core-gradient)":bodyDisc?"#000":"url(#icon-bg-grad)")
-        .attr("display",bodyDisc&&!_loadedIconUrls.has(ICON_BY_SLUG[o.slug])?"none":null);
       gg.select(".icon-fallback-dot")
         .attr("cx", o.sx).attr("cy", o.sy)
         .attr("display", _loadedIconUrls.has(ICON_BY_SLUG[o.slug]) ? "none" : null)
@@ -2988,16 +3072,15 @@ function drawObjects() {
     labelColorOf: (cat, id) => SUBCAT_COLORS[DUST_SOURCE_SUBCAT[id]] || CATEGORIES[cat]?.color || "#fff",
     // a famous named dot with a picture (content/icons/<its slug>.webp) can
     // show it when there's room — not one a curated object already shows
+    iconRoom: iconRoom(), iconMin: dustIconMin(),   // Settings → Icons
     iconOf: _iconsEnabled && !_posterLabels ? (name, size) => {
       const slug = nameToSlug(name);
       return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug, size) || null;
     } : null,
     // as iconSizeMult, per-object multipliers included
     iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
-    iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
+    iconBlend: (cat) => LUMINOUS_CATS.has(cat),   // luminous: no cast shadow
     softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
-    iconFilterOf:(cat,name)=>blackHoleFilter(nameToSlug(name)),
-    iconBrightnessOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name))?SPACE_ART_BRIGHTNESS:1,
   }, {
     // Catalogue pictures share the same hierarchy: all curated candidates
     // outrank them, not just this frame's visible winners or moving labels.
@@ -3005,12 +3088,12 @@ function drawObjects() {
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
     // Icons keep dust out with a CIRCLE, not their square box: a square gap
-    // shows as an empty frame around soft, glowing screen-blend art (globular
-    // cluster, nebulae). Screen-blend art fades out well inside its box, so
+    // shows as an empty frame around soft, glowing luminous art (globular
+    // cluster, nebulae). Luminous art fades out well inside its box, so
     // its circle is tighter; dust under the faint halo glows through it.
     circles: shownDots.filter(o => o._showIcon).map(o => {
       const size = icoSize * iconSizeMult(o);
-      return { sx: o.sx, sy: o.sy, r: size * (iconUsesScreenBlend(o) ? 0.32 : 0.5) };
+      return { sx: o.sx, sy: o.sy, r: size * (iconIsLuminous(o) ? 0.32 : 0.5) };
     }),
   }, dustColor);
   lDustHover.selectAll("*").remove();
@@ -3020,14 +3103,15 @@ function drawObjects() {
       .map(o=>stellarShadowData({key:o.slug,slug:o.slug,sx:o.sx,sy:o.sy,r:icoSize*iconSizeMult(o)/2,logM:o.logM},o.color)),
     ...dustIcons().filter(d=>STAR_BODY_FRAMES[nameToSlug(d.name)]&&(STAR_GLOWS||BROWN_DWARFS.has(nameToSlug(d.name))))
       .map(d=>stellarShadowData({key:`dust:${d.i}`,...d,slug:nameToSlug(d.name)},"#ffd27a")),
-    ...shownDots.filter(o => o._showIcon && (!iconUsesScreenBlend(o) || SHADOWED_SCREEN_SPHERES.has(o.slug)))
+    ...shownDots.filter(o => o._showIcon && (!iconIsLuminous(o) || SHADOWED_SCREEN_SPHERES.has(o.slug)))
       .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", roundOffsetScale: SHADOW_SETTINGS_BY_SLUG[o.slug]?.roundOffsetScale, registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.registered || SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
     ...dustIcons().filter(d => !d.blend || SHADOWED_SCREEN_SPHERES.has(nameToSlug(d.name))).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", roundOffsetScale: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.roundOffsetScale, registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
   ],new Map(projected.map(o=>[o.slug,o])));
   drawDustShadows();
+  const iconShadowKeys=new Set(lShadows.selectAll('g.icon-shadow').data().map(d=>d.key));
   lShadows.selectAll('circle.object-dot-shadow').data(SHADOWS&&!_bigBangMode?shownDots.filter(o=>!o._showIcon):[],o=>o.slug)
     .join('circle').attr('class','object-dot-shadow').attr('cx',o=>o.sx+3).attr('cy',o=>o.sy+4)
-    .attr('r',2.8).attr('fill','#000').attr('opacity',o=>lShadows.selectAll('g.icon-shadow').filter(d=>d.key===o.slug).empty()?.35:0).attr('filter','url(#dust-shadow-blur)');
+    .attr('r',2.8).attr('fill','#000').attr('opacity',o=>iconShadowKeys.has(o.slug)?0:.35).attr('filter','url(#dust-shadow-blur)');
 }
 
 function iconRevealOptions(o,node) {
@@ -3198,17 +3282,8 @@ function liftShadow(key, k) {
   });
 }
 
-// Screen-blend decision is static per object — shared by enter and update.
-const SCREEN_BLEND_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
-const SCREEN_BLEND_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
-function iconBackingGeometry(o,size,growth) {
-  return starBodyGeometry(o.slug,o.sx,o.sy,size,growth)||(softSpaceIcon(o)?spaceCoreGeometry(o.slug,o.sx,o.sy,size,growth):null);
-}
 function softSpaceIcon(o) {return _softSpace&&isDiffuseSpaceArt(o.catKey||o.cat,o.slug)}
-function iconUsesScreenBlend(o) {
-  if (o.slug.includes("void")) return false;
-  return SCREEN_BLEND_CATS.has(o.catKey || o.cat) || SCREEN_BLEND_SLUGS.has(o.slug);
-}
+const iconIsLuminous = (o) => isLuminousArt(o.catKey || o.cat, o.slug);
 
 // Hover handlers for the persistent object groups (datum-based, attached
 // once at enter — the join rebinds fresh data to the same nodes each frame).
@@ -3227,8 +3302,6 @@ function setIconHover(o, on) {
   animateIconGrowth(group,k,(node,growth)=>{
     const current=node.__data__,g=d3.select(node),size=effectiveIconSize()*iconSizeMult(current);
     g.select('.obj-icon').style('transform',growth===1?null:`scale(${growth})`);
-    const disc=iconBackingGeometry(current,size,growth);
-    if(disc)g.select('.icon-bg').attr('cx',disc.cx).attr('cy',disc.cy).attr('r',disc.r);
     g.attr('transform',parallaxTranslation(current,objectPicturePoint(current,growth)));
   },_reduceMotion);
   liftShadow(o.slug, k);
@@ -4230,6 +4303,7 @@ function drawHighlight() {
 
 function drawAxes() {
   [axB, axT, axL, axR].forEach(g => g.selectAll("*").remove());
+  if (mobileRulers.visible) { lMobileRulers.raise(); mobileRulers.draw(); }
   const d = vd();
   // Column layout + type (see axisLayout). Sizes go in as inline styles: a
   // font-size attribute loses to any CSS rule.
@@ -5356,7 +5430,7 @@ function bgNoiseView() {
   const logR = xS.invert(cw / 2), logM = yS.invert(ch / 2);
   _bgNoiseSurface?.attr("width", cw).attr("height", ch);
   return {
-    left: 0, top: 0, w: cw, h: ch,
+    left: _bgNoiseBehind ? margin.left : 0, top: _bgNoiseBehind ? margin.top : 0, w: cw, h: ch,
     cx: 2114 + (logR - PLANCK_LOG_R) * ppu, cy: 5960 - (logM - PLANCK_LOG_M) * ppu,
     zx: Math.abs(xS(1) - xS(0)) / ppu, zy: Math.abs(yS(0) - yS(1)) / ppu,
   };
@@ -5370,10 +5444,23 @@ function setBgNoise(on) {
 
 // Both backgrounds share the icons' clipped compositing group, so Screen
 // blends against the fractal pixels just as it does against the painted tiles.
+// WebKit paints a canvas inside a foreignObject above every later SVG sibling,
+// so there the fractal would cover the grid, dust and icons. It keeps the
+// canvas behind the whole SVG instead (the first placement): the SVG's black
+// backdrops go while the layer is up. Elsewhere it lives inside the chart.
+const _bgNoiseBehind = _isWebKit;
 function setBgNoiseBackdrop(noise) {
   clearTimeout(_bgNoiseFadeTimer);
   const tiles = [lTiles, lTilesBase];
+  const backdrops = (on) => {
+    if (!_bgNoiseBehind) return;
+    document.getElementById("chart").style.background = on ? "" : "#000";
+    svg.style("position", on ? null : "relative");
+    svg.select("rect.svg-bg").attr("fill", on ? "#000000" : "none");
+    clip.select("rect.bg-rect").attr("display", on ? null : "none");
+  };
   if (noise) {
+    backdrops(false);
     tiles.forEach(l => l.style("transition", "opacity 0.5s").style("opacity", 0));
     _bgNoiseFadeTimer = setTimeout(() => tiles.forEach(l => l.style("display", "none")), 520);
   } else {
@@ -5382,6 +5469,7 @@ function setBgNoiseBackdrop(noise) {
     tiles.forEach(l => l.style("opacity", 1));
     _bgNoiseFadeTimer = setTimeout(() => {
       tiles.forEach(l => l.style("transition", null).style("opacity", null));
+      backdrops(true);
     }, 520);
   }
 }
@@ -5402,17 +5490,25 @@ async function syncBgNoise() {
     const { createBgNoise } = await loadBgNoise();
     if (!_bgNoiseShown || _bgNoise) { _bgNoise?.setVisible(_bgNoiseShown); return; } // changed while loading
     // A sibling HTML canvas lies outside clip's isolated blending group.
-    // Embed it beneath the tiles instead, keeping all chart blends intact.
-    _bgNoiseSurface = clip.insert("foreignObject", () => lTilesBase.node())
-      .attr("class", "fractal-backdrop").attr("width", cw).attr("height", ch)
-      .style("pointer-events", "none");
-    const host = _bgNoiseSurface.append("xhtml:div")
-      .style("position", "relative").style("width", "100%").style("height", "100%").node();
+    // Embed it beneath the tiles instead, keeping all chart blends intact
+    // (WebKit: behind the SVG, see _bgNoiseBehind).
+    let host = document.getElementById("chart");
+    if (!_bgNoiseBehind) {
+      _bgNoiseSurface = clip.insert("foreignObject", () => lTilesBase.node())
+        .attr("class", "fractal-backdrop").attr("width", cw).attr("height", ch)
+        .style("pointer-events", "none");
+      host = _bgNoiseSurface.append("xhtml:div")
+        .style("position", "relative").style("width", "100%").style("height", "100%").node();
+    }
     _bgNoise = createBgNoise({
       host, meta: tileMeta, getView: bgNoiseView,
       onShown: () => { if (_bgNoiseShown) setBgNoiseBackdrop(true); },
+      onLost: () => {   // back to the tiles at once; the next zoom past them builds it anew
+        _bgNoise?.destroy(); _bgNoise = null; _bgNoiseSurface?.remove(); _bgNoiseSurface = null;
+        if (_bgNoiseShown) { _bgNoiseShown = false; setBgNoiseBackdrop(false); }
+      },
     });
-    if (!_bgNoise) { _bgNoiseSurface.remove(); _bgNoiseSurface = null; _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
+    if (!_bgNoise) { _bgNoiseSurface?.remove(); _bgNoiseSurface = null; _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
   }
   _bgNoise.setVisible(true);
 }
@@ -5800,6 +5896,11 @@ function selectObject(o) {
   _sidebarManuallyExpanded = false;
   openSidebar(o);
   setSidebarOpen(true);
+  if (mobileRulersOn()) {
+    _rulerFocus = o;
+    requestAnimationFrame(() => mobileRulers.show());
+    setTimeout(() => mobileRulers.visible && mobileRulers.draw(), 450); // once the sheet is up
+  }
 }
 
 // Tap detection: taps hit-test labels and projected objects directly
@@ -5854,6 +5955,12 @@ _chartTapEl.addEventListener("pointerup", (e) => {
   });
   if (best) { selectObject(best); return; }
 
+  // 3b. A named catalogue dot (or its picture): the rulers, with guides from it
+  if (mobileRulersOn()) {
+    const nd = pickNamedDust(sx, sy, 22);
+    if (nd) { _rulerFocus = { dustIndex: nd.i, logR: nd.logR, logM: nd.logM }; mobileRulers.show(); return; }
+  }
+
   // 4. The primordial black holes' window (its HTML click-targets are inert on touch)
   if (under.some(el => el.closest?.(".pbh-window"))) {
     openInfoPanel(PBH_WINDOW.slug, PBH_WINDOW.title);
@@ -5867,6 +5974,26 @@ _chartTapEl.addEventListener("pointerup", (e) => {
   if (under[0] && under[0] !== document.documentElement && under[0] !== document.body) {
     under[0].dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: e.clientX, clientY: e.clientY }));
   }
+}, { passive: true });
+
+// Desktop: a click on any catalogue dot (named or not) draws dashed guides from
+// it to the axes, with its values; moving the map or clicking elsewhere clears them.
+let _mouseDown = null;
+_chartTapEl.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "mouse" && e.button === 0) _mouseDown = { x: e.clientX, y: e.clientY, t: performance.now() };
+}, { passive: true });
+_chartTapEl.addEventListener("pointerup", (e) => {
+  if (e.pointerType !== "mouse" || !_mouseDown || _isMobile || !_dustEnabled) return;
+  const dx = e.clientX - _mouseDown.x, dy = e.clientY - _mouseDown.y, dt = performance.now() - _mouseDown.t;
+  _mouseDown = null;
+  if (dx * dx + dy * dy > 16 || dt > 500) return;  // a drag, not a click
+  if (e.target.closest?.(".click-target, button, a, input")) return;
+  const [mx, my] = d3.pointer(e, chart.node());
+  const icon = pickDustIcon(mx, my);
+  const anchor = icon && depthPoint(icon, PARALLAX.dust);
+  const hit = icon ? pickDust(anchor.x, anchor.y, 1) : pickDust(mx, my, 6);
+  if (hit) { _rulerFocus = { dustIndex: hit.i, logR: hit.logR, logM: hit.logM }; mobileRulers.pin(true); }
+  else if (mobileRulers.visible) { _rulerFocus = null; mobileRulers.pin(false); }
 }, { passive: true });
 
 function redrawVectors() {
@@ -5953,6 +6080,8 @@ const zoomBehavior = d3.zoom()
   .on("start", (event) => {
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
     _userZoomGesture = !!event.sourceEvent;
+    if (_userZoomGesture && mobileRulersOn()) { _rulerFocus = null; mobileRulers.setMoving(true); mobileRulers.show(); }
+    else if (_userZoomGesture && !_isMobile && mobileRulers.visible) { _rulerFocus = null; mobileRulers.pin(false); }
     if (!_userZoomGesture) _tourBaseK = null;
     else if (_tourBaseK == null) _tourBaseK = currentK;
     _zooming = true;
@@ -5977,6 +6106,7 @@ const zoomBehavior = d3.zoom()
   .on("zoom", (event) => {
     const t = event.transform;
     currentK = t.k;
+    if (_userZoomGesture && mobileRulers.visible) mobileRulers.keep();
     if (_userZoomGesture && _tourBaseK && isTourActive() &&
         Math.abs(Math.log(t.k / _tourBaseK)) > Math.log(TOUR_DISMISS_ZOOM)) {
       closeTour();
@@ -6030,7 +6160,6 @@ const zoomBehavior = d3.zoom()
     if (_isSafari) grainRect.style("display", null);
     updateStartButtonLabel();
     scheduleClickTargets();
-    rearmAxesHideTimer(); // keep the mobile ruler up while actively zooming
 
     // Momentum pan: after a touch pan release, glide with decay (map-app
     // inertia). Only fires for pure pans (k stable) with real release speed;
@@ -6038,6 +6167,7 @@ const zoomBehavior = d3.zoom()
     // re-trigger.
     const s = _panSamples;
     _panSamples = [];
+    let gliding = false;
     if (s.length >= 2) {
       const last = s[s.length - 1];
       const ref = [...s].reverse().find(p => last.t - p.t >= 40) || s[0];
@@ -6048,6 +6178,7 @@ const zoomBehavior = d3.zoom()
         const speed = Math.hypot(vx, vy);
         if (speed > 0.35 && !_reduceMotion) {
           const glide = Math.min(speed * 300, 700); // px of decay travel
+          gliding = true;
           svg.transition("inertia").duration(600).ease(d3.easeCubicOut)
             .call(zoomBehavior.translateBy,
               (vx / speed) * glide / last.k,
@@ -6055,6 +6186,8 @@ const zoomBehavior = d3.zoom()
         }
       }
     }
+    // the rulers' guides come back once the map is still (after the glide's own end)
+    if (!gliding) mobileRulers.setMoving(false);
   });
 
 svg.call(zoomBehavior);
@@ -6684,7 +6817,7 @@ document.addEventListener("pointerdown", (e) => {
 function saveSettings() {
   localStorage.setItem("tri-settings", JSON.stringify({
     bg: setBg.checked, anim: setAnim.checked, bgNoise: setBgNoiseChk.checked,
-    labels: setLabels.checked, icons: setIcons.checked, iconSize: +setIconSize.value,
+    labels: setLabels.checked, icons: _iconDensity, iconSize: +setIconSize.value,
     dust: setDust.checked,
     fontSize: +setFontSize.value, boldHover: setBoldHover.checked,
     dotSize: +setDotSize.value, dotOpacity: +setDotOpacity.value,
@@ -6749,8 +6882,9 @@ setLabels.addEventListener("change", () => {
 });
 
 const setIcons = document.getElementById("set-icons");
-setIcons.addEventListener("change", () => {
-  _iconsEnabled = setIcons.checked;
+setIcons.addEventListener("input", () => {
+  _iconDensity = +setIcons.value;
+  _iconsEnabled = _iconDensity > 0;
   redraw();
   saveSettings();
 });
@@ -6953,7 +7087,7 @@ function resetAllSettings() {
     if (+el.value !== val) { el.value = val; el.dispatchEvent(new Event("input", { bubbles: true })); }
   };
   setChk(setBg, true); setChk(setAnim, true);
-  setChk(setLabels, true); setChk(setIcons, true);
+  setChk(setLabels, true); setRange(setIcons, ICON_DENSITY_DEFAULT);
   setChk(setBoldHover, false);
   setRange(setIconSize, 100); setRange(setFontSize, 100);
   setRange(setDotSize, 100); setRange(setDotOpacity, 100);
@@ -7163,32 +7297,26 @@ function applyTitleLockups() {
 }
 (document.fonts?.ready || Promise.resolve()).then(applyTitleLockups);
 
-// Mobile axes pill: toggles the unit margins (and axis numbers) on and off
-// around the edge-to-edge map. relayout() keeps the view centered through
-// the margin change. The ruler auto-hides after a few idle seconds — the
-// timer re-arms on every zoom/pan end so it never vanishes mid-inspection.
+// Mobile axes button: pins the overlay rulers (src/mobile-rulers.js). They
+// unpin after a few idle seconds; the timer restarts on every pan or pinch,
+// so they never vanish mid-inspection.
 const AXES_AUTO_HIDE_MS = 8000;
-let _axesHideTimer = null;
-function setMobileAxes(on, { autoHide = true } = {}) {
-  _showAxesMobile = on;
+function setAxesButton(on) {
   document.body.classList.toggle("mobile-axes-on", on);
   const btn = document.getElementById("axes-toggle");
   btn?.classList.toggle("active", on);
   btn?.setAttribute("aria-pressed", String(on));
-  clearTimeout(_axesHideTimer);
-  if (on && autoHide) _axesHideTimer = setTimeout(() => setMobileAxes(false), AXES_AUTO_HIDE_MS);
-  relayout();
 }
-function rearmAxesHideTimer() {
-  if (!_showAxesMobile) return;
-  clearTimeout(_axesHideTimer);
-  _axesHideTimer = setTimeout(() => setMobileAxes(false), AXES_AUTO_HIDE_MS);
+function setMobileAxes(on, { autoHide = true } = {}) {
+  setAxesButton(on);
+  if (on) _rulerFocus = null;
+  mobileRulers.pin(on, autoHide ? AXES_AUTO_HIDE_MS : Infinity);
 }
 document.getElementById("axes-toggle")?.addEventListener("click", (e) => {
-  // Keyboard activation (event.detail === 0) pins the ruler — a timer that
-  // yanks it away is hostile to keyboard and switch users. Pointer taps
-  // keep the 8s auto-hide.
-  setMobileAxes(!_showAxesMobile, { autoHide: e.detail !== 0 });
+  // Keyboard activation (event.detail === 0) pins the rulers for good — a
+  // timer that yanks them away is hostile to keyboard and switch users.
+  // Pointer taps keep the 8s auto-hide.
+  setMobileAxes(!mobileRulers.pinned, { autoHide: e.detail !== 0 });
 });
 
 searchBtn.addEventListener("click", () => {
@@ -7405,7 +7533,9 @@ try {
     if (saved.anim === false) { setAnim.checked = false; _animDisabled = true; document.body.classList.add("anim-off"); }
     if (saved.labels === false) { setLabels.checked = false; _labelsEnabled = false; }
     if (saved.dust === false) { setDust.checked = false; _dustEnabled = false; }
-    if (saved.icons === false) { setIcons.checked = false; _iconsEnabled = false; }
+    // icons: a density 0–100 (an older true/false toggle: false → none)
+    const dens = saved.icons === false ? 0 : typeof saved.icons === "number" ? Math.max(0, Math.min(100, saved.icons)) : null;
+    if (dens !== null) { setIcons.value = dens; _iconDensity = dens; _iconsEnabled = dens > 0; }
     if (saved.gridUnit && GRID_UNITS[saved.gridUnit]) { _gridUnit = saved.gridUnit; setGridUnit.value = saved.gridUnit; }
     if (saved.iconSize > 0) {
       // Migration: old slider used 8-64 px range; new slider is 30-300 percent.

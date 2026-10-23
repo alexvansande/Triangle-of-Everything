@@ -130,6 +130,22 @@ for (const o of candidates) {
   }
 }
 
+// ---- Luminous pictures must be converted ----
+// A star, particle or nebula icon still on its black square would show that
+// square: the map no longer screen-blends them (src/luminous-art.js).
+{
+  const { readdirSync } = await import("node:fs");
+  const { iconCategories } = await import("./shadow-eligibility.mjs");
+  const { isLuminousArt } = await import("../src/luminous-art.js");
+  const icons = join(__dirname, "../content/icons");
+  const done = JSON.parse(readFileSync(join(icons, "unscreened.json"), "utf8"));
+  const categoryFor = iconCategories();
+  for (const f of readdirSync(icons).filter((f) => f.endsWith(".webp")).map((f) => f.slice(0, -5))) {
+    const { slug, cat } = categoryFor(f);
+    if (isLuminousArt(cat, slug) && !done[f]) errors.push(`${f}: luminous icon not converted (node scripts/unscreen-icons.mjs ${f})`);
+  }
+}
+
 // ---- Report ----
 console.log(`Checked ${objects.length} objects.\n`);
 

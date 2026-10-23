@@ -6,10 +6,10 @@ try{
  const p=await b.newPage();await p.setViewport({width:1200,height:950});const errors=[];p.on('pageerror',e=>{errors.push(e.message);console.error(e.stack)});
  await p.goto('http://127.0.0.1:5173/?og-shot',{waitUntil:'networkidle0'});await p.waitForFunction(()=>window.__toeOg?.ready());
  await p.evaluate(()=>{const v=window.__toeOg.plot();window.__toeOg.place('sun',110,v.w*.75,v.h*.65)});
- await p.waitForFunction(()=>document.querySelector('.obj-icon[data-slug="sun"]')?.parentNode.querySelector('.icon-bg')?.getAttribute('display')!=='none');
+ await p.waitForFunction(()=>document.querySelector('.obj-icon[data-slug="sun"]')?.parentNode.querySelector('.icon-fallback-dot')?.getAttribute('display')==='none');
  await p.waitForSelector('.click-target[data-slug="sun"]');
  const frames=await p.evaluate(async()=>{
-  const im=document.querySelector('.obj-icon[data-slug="sun"]'),g=im.parentNode,c=g.querySelector('.icon-bg'),hit=document.querySelector('.click-target[data-slug="sun"]');
+  const im=document.querySelector('.obj-icon[data-slug="sun"]'),g=im.parentNode,c=im,hit=document.querySelector('.click-target[data-slug="sun"]');
   const read=()=>{const a=im.getBoundingClientRect(),b=c.getBoundingClientRect(),m=g.transform.baseVal.consolidate().matrix;return{k:g.__iconGrowth??1,width:a.width,ratio:b.width/a.width,dx:b.x+b.width/2-a.x-a.width/2,dy:b.y+b.height/2-a.y-a.height/2,x:m.e,y:m.f}};
   const samples=[read()];hit.dispatchEvent(new MouseEvent('mouseenter'));const start=performance.now();
   await new Promise(resolve=>{function frame(){samples.push(read());if(performance.now()-start<330)requestAnimationFrame(frame);else resolve()}requestAnimationFrame(frame)});
@@ -18,7 +18,7 @@ try{
  assert.ok(frames.length>5);const first=frames[0],last=frames.at(-1);assert.ok(last.k>1.49);
  for(let i=0;i<frames.length;i++){
   const f=frames[i],t=(f.k-1)/(last.k-1);
-  assert.ok(Math.abs(f.ratio-first.ratio)<.001,'backing and icon must match every frame');
+  assert.ok(Math.abs(f.ratio-first.ratio)<.001,'icon must keep its shape every frame');
   assert.ok(Math.abs(f.dx/f.width-first.dx/first.width)<.001);
   assert.ok(Math.abs(f.dy/f.width-first.dy/first.width)<.001);
   assert.ok(Math.abs(f.x-(first.x+(last.x-first.x)*t))<.02,'parallax and size must share progress');

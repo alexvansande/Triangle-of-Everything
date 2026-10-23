@@ -2,12 +2,14 @@
 import { readFileSync } from 'node:fs';
 import sharp from 'sharp';
 import { SHADOWED_SCREEN_SPHERES } from '../src/star-light.js';
-const SCREEN_BLEND_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
+import { LUMINOUS_CATS, LUMINOUS_SLUGS } from '../src/luminous-art.js';
+const SCREEN_BLEND_CATS = LUMINOUS_CATS;
 // The legacy black-hole icons can be absent from objects.json/dust-famous.
-const SCREEN_BLEND_SLUGS = new Set(["halleys-comet", "hale-bopp", "3k-bh", "primordial-black-hole"]);
+const SCREEN_BLEND_SLUGS = new Set([...LUMINOUS_SLUGS, "3k-bh", "primordial-black-hole"]);
 const nameToSlug = (name) => name.toLowerCase()
   .replace(/γ/g, "gamma").replace(/τ/g, "tau").replace(/μ/g, "mu")
   .replace(/['’]/g, "").replace(/[*()]/g, "")
+  .replace(/[₀-₉]/g, (d) => String(d.charCodeAt(0) - 0x2080))
   .replace(/ö/g, "o").replace(/ü/g, "u").replace(/ä/g, "a")
   .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -33,7 +35,7 @@ export async function shadowExclusion(file) {
   if (SHADOWED_SCREEN_SPHERES.has(slug)) return null;
   // Approved hybrid optical layers: faint cast shadow plus a central ember.
   if (['y-brown-dwarf','t-brown-dwarf','l-brown-dwarf'].includes(slug)) return null;
-  if (SCREEN_BLEND_CATS.has(cat) || SCREEN_BLEND_SLUGS.has(slug) || slug.includes('void')) return 'Screen-blended artwork has no shadow';
+  if (SCREEN_BLEND_CATS.has(cat) || SCREEN_BLEND_SLUGS.has(slug) || slug.includes('void')) return 'Luminous artwork has no shadow';
   // Catch unclassified opaque black-backed pictures too. Transparent black
   // pixels are not a black background: their alpha must also be opaque.
   const {data, info} = await sharp(`content/icons/${file}.webp`).resize(16,16).ensureAlpha().raw().toBuffer({resolveWithObject:true});

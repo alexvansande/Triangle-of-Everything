@@ -80,11 +80,11 @@
     ]
   },
   "adenine-a": {
-    "fingerprint": "92e4226d37351e5383f584d2c0e42a502f279d481a4b81f123eb7fcd1991c26b",
+    "fingerprint": "4b01fa9c988143c6f909290930c5098e82d789ced2fbce1c0109291ae1141e07",
     "baseWidth": 128,
     "source": "content/icons/src/adenine-a.png",
     "reason": "matching master",
-    "sourceDifference": 1.355224609375,
+    "sourceDifference": 2.0457763671875,
     "variants": [
       {
         "width": 256,
@@ -101,7 +101,7 @@
     ]
   },
   "am-radio": {
-    "fingerprint": "e05fd45929ad9d090de774864498abe90b918946fa7f3b885cad20c0f545821b",
+    "fingerprint": "5c8a99935387415b2959b5e3bbd8c1f2a4b05ae17851182c64b56d885bdfe5fc",
     "baseWidth": 512,
     "source": "content/icons/am-radio.webp",
     "reason": "no larger source",
@@ -139,11 +139,11 @@
     ]
   },
   "andromeda-m31": {
-    "fingerprint": "c7f5911f6077afaf8867536989a6d23781b7f94f809ee4d6c7cdf9f64edbbbb2",
+    "fingerprint": "643534e70f95c9b2ae8b1493ff08ea65bc8706c792a686d13323acd28463e052",
     "baseWidth": 128,
     "source": "content/icons/andromeda-m31.webp",
     "reason": "source differs from current icon",
-    "sourceDifference": 30.211405436197918,
+    "sourceDifference": 75.77522786458333,
     "variants": []
   },
   "ant": {
@@ -248,11 +248,11 @@
     ]
   },
   "atp": {
-    "fingerprint": "ecc3b3c038a4907e93f6dc1624b30e1e7c1da56d8818e5d4813b61a1549730c1",
+    "fingerprint": "189b3cf4c9f84c867e7f73eda7baff13ed3bc24ffa71d0f476cbc95a797b187b",
     "baseWidth": 128,
     "source": "content/icons/atp.webp",
     "reason": "source differs from current icon",
-    "sourceDifference": 19.197245279947918,
+    "sourceDifference": 62.600626627604164,
     "variants": []
   },
   "bacillus-subtilis": {
@@ -336,11 +336,11 @@
     ]
   },
   "barnard-68": {
-    "fingerprint": "9707c05e34d9a9a6273e24c1959d75e3cf76680abffee82cd202a2b10d7646a1",
+    "fingerprint": "78e95d3d091863d3204fce6cbe6b9ea07f6c1763a55b78f42d4f9b015f2690d9",
     "baseWidth": 128,
     "source": "content/icons/src/barnard-68.jpg",
     "reason": "matching master",
-    "sourceDifference": 1.98504638671875,
+    "sourceDifference": 1.6327921549479167,
     "variants": [
       {
         "width": 256,
@@ -416,11 +416,11 @@
     ]
   },
   "betelgeuse": {
-    "fingerprint": "248beb8b5ea72a120f701f9c45af7391f8df72fa887b71e066526df92d7ead83",
+    "fingerprint": "50e05689d50470931757e3143fe0851b10e3db9cc7ee857ab21ab57ee2101002",
     "baseWidth": 128,
     "source": "content/icons/src/betelgeuse.png",
     "reason": "matching master",
-    "sourceDifference": 2.85015869140625,
+    "sourceDifference": 3.0454915364583335,
     "variants": [
       {
         "width": 256,
@@ -437,11 +437,11 @@
     ]
   },
   "big-bang": {
-    "fingerprint": "864e73395aab3d02f9427171b7c7a590d1a527d4fec5a91b6f4b8ea68129978c",
+    "fingerprint": "43da1703ae2b03767fa987310bef7a7f990f00d87d17c391ca90c38321138e42",
     "baseWidth": 128,
     "source": "content/icons/src/big-bang.png",
     "reason": "matching master",
-    "sourceDifference": 1.7298380533854167,
+    "sourceDifference": 1.7452189127604167,
     "variants": [
       {
         "width": 256,
@@ -500,11 +500,11 @@
     ]
   },
   "blue-supergiant": {
-    "fingerprint": "aa1925e2d8df2d06577e98ba8c4b01f3d3ede9e055cae1f19ce3ba62826f20ac",
+    "fingerprint": "214f9b2423ae96f006a9403ab2f912298452aedbf504c394565cb4686245d84e",
     "baseWidth": 128,
     "source": "content/icons/src/blue-supergiant.png",
     "reason": "matching master",
-    "sourceDifference": 2.1833089192708335,
+    "sourceDifference": 2.7181803385416665,
     "variants": [
       {
         "width": 256,
@@ -563,7 +563,7 @@
     ]
   },
   "bottom": {
-    "fingerprint": "93562fe0f43d2499e8e2db45bf3d1cfb597b716fbc31980ce35e06b4cde06610",
+    "fingerprint": "03fb20f55c52e5d5d9d6ff60ab52139209f64468e7eaa3649fec97d286f28cf0",
     "baseWidth": 512,
     "source": "content/icons/bottom.webp",
     "reason": "no larger source",
@@ -681,11 +681,11 @@
     ]
   },
   "carbon": {
-    "fingerprint": "95e9ec291c43ff27a579a973cf57674e7cbf1a933507e673f53ac8c0f5c2924c",
+    "fingerprint": "e14a8289d611efdd80430f1e9518ac302f4bb8028ab35a3b13f7ef408ee728b9",
     "baseWidth": 128,
     "source": "content/icons/src/carbon.png",
     "reason": "matching master",
-    "sourceDifference": 1.879638671875,
+    "sourceDifference": 2.4117024739583335,
     "variants": [
       {
         "width": 256,
@@ -778,7 +778,7 @@
     ]
   },
   "charm": {
-    "fingerprint": "23177f1ddceda5cddcdb24ec2fa06f53778a9dcfb647856687b4cbb94b591c3e",
+    "fingerprint": "f14c6707173d49786c1208a07abd90710f5f146311bd285d0aa5bf53ce26254d",
     "baseWidth": 512,
     "source": "content/icons/charm.webp",
     "reason": "no larger source",
@@ -904,11 +904,11 @@
     ]
   },
   "cytosine-c": {
-    "fingerprint": "21fded1ab2e3bcd5a068e52a6ab803241af270c2c133ddc4d4e69877653f4526",
+    "fingerprint": "53fb7c147b15463d6ab143f050bd3c450913cc0dcebbfc6bfcfe003ddfd81b4c",
     "baseWidth": 128,
     "source": "content/icons/src/cytosine-c.png",
     "reason": "matching master",
-    "sourceDifference": 1.3851114908854167,
+    "sourceDifference": 2.1545206705729165,
     "variants": [
       {
         "width": 256,
@@ -988,15 +988,15 @@
     ]
   },
   "dna": {
-    "fingerprint": "549f7228d8cfe577c56893e7658b987cebec0b28072649ddb75d468e95fd9750",
+    "fingerprint": "ed9dba2c5b2129804b71caccc6e07aca81543ac30b7ba69e3d32d73565b91b6c",
     "baseWidth": 128,
     "source": "content/icons/dna.webp",
     "reason": "source differs from current icon",
-    "sourceDifference": 31.059000651041668,
+    "sourceDifference": 62.496134440104164,
     "variants": []
   },
   "down": {
-    "fingerprint": "d2508f946461f4da1c77f832eac0bdf5a7c73ed7b4c9daa1015b7a08e0ab50aa",
+    "fingerprint": "0394740a9089a34573b2874e6c874cb18fc3ec535f65afa78dcc25cba5669b4f",
     "baseWidth": 512,
     "source": "content/icons/down.webp",
     "reason": "no larger source",
@@ -1013,11 +1013,11 @@
     ]
   },
   "dwarf-galaxy": {
-    "fingerprint": "e985cc0176fe89e200e94f4c1146229f1038a93cb064e8f36de1e934c667360d",
+    "fingerprint": "d65ac0bb6b053fe36639bb7ad466df4053cdb4d0b85d97c19336188a307a17f9",
     "baseWidth": 128,
     "source": "content/icons/dwarf-galaxy.webp",
     "reason": "source differs from current icon",
-    "sourceDifference": 10.887552897135416,
+    "sourceDifference": 78.31207275390625,
     "variants": []
   },
   "earth": {
@@ -1063,7 +1063,7 @@
     ]
   },
   "electron": {
-    "fingerprint": "63b8b7bc6c165110256804bf6b926ab19f00378e437c85e9641705ff7df17119",
+    "fingerprint": "e1d8f821f4134ad20b7cca789216ef0c89e2752dc611160d385187ef60158e9b",
     "baseWidth": 512,
     "source": "content/icons/electron.webp",
     "reason": "no larger source",
@@ -1257,7 +1257,7 @@
     ]
   },
   "fm-radio": {
-    "fingerprint": "0160e0f2b27c3a09451eb81481deb05d3f7c6fa2c9c2a2203dd7ef7bd93772b6",
+    "fingerprint": "f79327de4eb4d290dec4e7629db59bd40544da14b5fe1a87c3a6f6ccdf63b90e",
     "baseWidth": 512,
     "source": "content/icons/fm-radio.webp",
     "reason": "no larger source",
@@ -1274,11 +1274,11 @@
     ]
   },
   "fullerene-c60": {
-    "fingerprint": "a6a2bc3b78329e257d7706e06b2e7d9d47dd0a36ce2ec5d56bf915f49e8e54c9",
+    "fingerprint": "509a7c2fca85121ad6f3b588481300877fe4183938bce123b83000193e309aed",
     "baseWidth": 128,
     "source": "content/icons/src/fullerene-c60.png",
     "reason": "matching master",
-    "sourceDifference": 2.9327799479166665,
+    "sourceDifference": 3.1578369140625,
     "variants": [
       {
         "width": 256,
@@ -1295,11 +1295,11 @@
     ]
   },
   "galaxy-cluster": {
-    "fingerprint": "dd0922f372d1a014adac1c3ddcea72a049d3c890c0f8db916c59e6a5ce120cf6",
+    "fingerprint": "e65551211407b6694958e3910a6cf03838b3536ab945af8f7d9b030504aab1ad",
     "baseWidth": 128,
     "source": "content/icons/src/galaxy-cluster.png",
     "reason": "matching master",
-    "sourceDifference": 1.1563517252604167,
+    "sourceDifference": 1.4175618489583333,
     "variants": [
       {
         "width": 256,
@@ -1312,7 +1312,7 @@
     ]
   },
   "gamma-ray": {
-    "fingerprint": "4ceaf3b4113745af5cf3408aec0ca44fe5fabf846d31c1fa813f53c266300864",
+    "fingerprint": "66f0e847dbb703323ad6239109a08d6b7a6636dc37c4cd25bcabe120e52cbff7",
     "baseWidth": 512,
     "source": "content/icons/gamma-ray.webp",
     "reason": "no larger source",
@@ -1350,19 +1350,19 @@
     ]
   },
   "globular-cluster": {
-    "fingerprint": "7a0cb0cf2d061885c803a124914ccbd0da0912401016ccd08aa3bd777697e9f5",
+    "fingerprint": "24bb96e539e9385b4b3a30a515d465131fe6e25da99df6fdcac2123e62875872",
     "baseWidth": 128,
     "source": "content/icons/globular-cluster.webp",
     "reason": "source differs from current icon",
-    "sourceDifference": 7.047119140625,
+    "sourceDifference": 74.1849365234375,
     "variants": []
   },
   "glucose": {
-    "fingerprint": "87d767840727187166944c577ea31d2c783c3426e7de0a4d117e1399b4e8c617",
+    "fingerprint": "f398f7e93314c44cc6a9c763bb22b4e23bd42633fc9797b6501eb3156eb0ffba",
     "baseWidth": 128,
     "source": "content/icons/glucose.webp",
     "reason": "source differs from current icon",
-    "sourceDifference": 8.286295572916666,
+    "sourceDifference": 58.949808756510414,
     "variants": []
   },
   "gluon": {
@@ -1383,11 +1383,11 @@
     ]
   },
   "gold": {
-    "fingerprint": "5e62587cd3b278848f4b0cd2f429de3878bb80abfc919f258bf74a0626f5e61f",
+    "fingerprint": "d9b4b10c75696458dd256305ef231a3ce7b69cf7aa88bccabec2c70b78cdfc24",
     "baseWidth": 128,
     "source": "content/icons/src/gold.png",
     "reason": "matching master",
-    "sourceDifference": 2.5553792317708335,
+    "sourceDifference": 3.2374064127604165,
     "variants": [
       {
         "width": 256,
@@ -1505,11 +1505,11 @@
     ]
   },
   "guanine-g": {
-    "fingerprint": "0a82357c312cac9e17ab96c345742a5216f5bd746656197e6fb072456bf7410e",
+    "fingerprint": "78164344618044c4499f5510da68e4999af919e26532d0c92b7f57963de056e7",
     "baseWidth": 128,
     "source": "content/icons/src/guanine-g.png",
     "reason": "matching master",
-    "sourceDifference": 1.7780965169270833,
+    "sourceDifference": 2.3920084635416665,
     "variants": [
       {
         "width": 256,
@@ -1526,11 +1526,11 @@
     ]
   },
   "halleys-comet": {
-    "fingerprint": "6b3bbb09f0f4d408bd5a0b82c2f2c315264139618a2eda7c61c9accdbc2478f6",
+    "fingerprint": "991e833b6536a198f1e793528c946d7ba59cb7cc8d8c1fce18fd52e9dfea32db",
     "baseWidth": 128,
     "source": "content/icons/src/halleys-comet.jpg",
     "reason": "matching master",
-    "sourceDifference": 1.7905476888020833,
+    "sourceDifference": 1.7918497721354167,
     "variants": [
       {
         "width": 256,
@@ -1589,11 +1589,11 @@
     ]
   },
   "helium": {
-    "fingerprint": "f90445e807012b31a678d75af1670a613a6abd7163f1d834a27312ac89faeead",
+    "fingerprint": "26ee691a2882ee21eb2848749a92748a70bf0f425a5de80d4ce086c83ec0bd11",
     "baseWidth": 128,
     "source": "content/icons/src/helium.png",
     "reason": "matching master",
-    "sourceDifference": 1.5584309895833333,
+    "sourceDifference": 2.16436767578125,
     "variants": [
       {
         "width": 256,
@@ -1610,11 +1610,11 @@
     ]
   },
   "hemoglobin": {
-    "fingerprint": "77779016c0298326617804259457c693149ccfbde5b7805e1170dc8cfe675b98",
+    "fingerprint": "2580fbdf58e1391c8c352244c4d6a510517204d0c08a27eab41acc96e19baf2d",
     "baseWidth": 128,
     "source": "content/icons/src/hemoglobin.png",
     "reason": "matching master",
-    "sourceDifference": 3.8531494140625,
+    "sourceDifference": 4.13958740234375,
     "variants": [
       {
         "width": 256,
@@ -1631,7 +1631,7 @@
     ]
   },
   "higgs": {
-    "fingerprint": "e10aa9fbbd0edd8e55fc55f507055b865262b1554369fd22c25421bd3b14d2b5",
+    "fingerprint": "cea53b786b4b2e03b650a2948e7abe3c86b43bfc009326618a388f8341693067",
     "baseWidth": 512,
     "source": "content/icons/higgs.webp",
     "reason": "no larger source",
@@ -1795,11 +1795,11 @@
     ]
   },
   "hydrogen": {
-    "fingerprint": "1d7635a826414cfe9366c59b5c80f2f6ffb8b4d76f4b043a3502daccc6a3cffb",
+    "fingerprint": "0c54ef04a51a4535000e7de0606976f5a1c042bf524a90772796e185a1240b90",
     "baseWidth": 128,
     "source": "content/icons/src/hydrogen.png",
     "reason": "matching master",
-    "sourceDifference": 1.6426188151041667,
+    "sourceDifference": 2.0453694661458335,
     "variants": [
       {
         "width": 256,
@@ -1824,7 +1824,7 @@
     "variants": []
   },
   "infrared": {
-    "fingerprint": "bc82fab69de176e1bbe90c83783061de7636e2af0f458e6b3be2e315a75a23b7",
+    "fingerprint": "c301f8ec7e9f2ca62b5502b6690d6ac5c8874e31ade0f0edb4f3ec151f4c6e40",
     "baseWidth": 512,
     "source": "content/icons/infrared.webp",
     "reason": "no larger source",
@@ -1862,11 +1862,11 @@
     ]
   },
   "insulin": {
-    "fingerprint": "b74c47b77cb69375595476eb0dc1f42f1980c642f6e8ed01fbafd86d4f4017d4",
+    "fingerprint": "bc5bfcb490198f0893b5fdc185a35a6e629c9ccac03c2635e3365de739cb2f6b",
     "baseWidth": 128,
     "source": "content/icons/src/insulin.png",
     "reason": "matching master",
-    "sourceDifference": 3.0108439127604165,
+    "sourceDifference": 4.120625813802083,
     "variants": [
       {
         "width": 256,
@@ -1904,11 +1904,11 @@
     ]
   },
   "iron": {
-    "fingerprint": "9077a95991d27f4016f5b84880224bbf1d4afa655e17e4835a54eb460bbe36e4",
+    "fingerprint": "edb7f441815af42232d413411fc7dce1e00c152d893e0f1a2a85bf30c13c3647",
     "baseWidth": 128,
     "source": "content/icons/src/iron.png",
     "reason": "matching master",
-    "sourceDifference": 2.5906575520833335,
+    "sourceDifference": 3.14056396484375,
     "variants": [
       {
         "width": 256,
@@ -2017,11 +2017,11 @@
     ]
   },
   "l-brown-dwarf": {
-    "fingerprint": "24ec1fd1398c66edced4fd0d2cd91caaa3292aececa8e2bd544b46f0947029c5",
+    "fingerprint": "105058527604494d1fe235baf702f6bc1a3e775500ba1fcf12fcc4e8cfd71533",
     "baseWidth": 128,
     "source": "content/icons/src/l-brown-dwarf.png",
     "reason": "matching master",
-    "sourceDifference": 2.3465372721354165,
+    "sourceDifference": 2.6169026692708335,
     "variants": [
       {
         "width": 256,
@@ -2160,11 +2160,11 @@
     ]
   },
   "laniakea-galaxy-supercluster": {
-    "fingerprint": "1c11d1fd16bb057bcb2596ce13267ffce40c564bd236dc9d13dea4a197aca032",
+    "fingerprint": "c55ebd2a6f12406b6954785088a1ecfb626c702e8d17a19a9051270e67e6424a",
     "baseWidth": 128,
     "source": "content/icons/src/laniakea-galaxy-supercluster.png",
     "reason": "matching master",
-    "sourceDifference": 0,
+    "sourceDifference": 2.62896728515625,
     "variants": [
       {
         "width": 256,
@@ -2244,11 +2244,11 @@
     ]
   },
   "m87": {
-    "fingerprint": "a6c08b2f922234c6f967a81aeee3fbdfc1b4ef1e5c3c16d3561522efd6b6f485",
+    "fingerprint": "ff6297ba535a89c21fc23329499e45c01daccf693e9cd7b6073351b65ec046c4",
     "baseWidth": 128,
     "source": "content/icons/src/m87.png",
     "reason": "matching master",
-    "sourceDifference": 0,
+    "sourceDifference": 2.9949544270833335,
     "variants": [
       {
         "width": 256,
@@ -2353,7 +2353,7 @@
     ]
   },
   "meson": {
-    "fingerprint": "338078bb90e07ad8641d8ec080b344bd0d386c10443d9c25a68acbf14c5b9250",
+    "fingerprint": "e29132ca439be720f36a51c4fd99bc33b7e34a355cc446500aded3151588c27e",
     "baseWidth": 512,
     "source": "content/icons/meson.webp",
     "reason": "no larger source",
@@ -2391,7 +2391,7 @@
     ]
   },
   "microwave": {
-    "fingerprint": "10efc87f7c759d1be82a00fac5ea72425983d0f37163affe12822199880bd1c7",
+    "fingerprint": "a5e6a8265f5451879a2669545980e55c51799453d801850a92874a41e5ab8234",
     "baseWidth": 512,
     "source": "content/icons/microwave.webp",
     "reason": "no larger source",
@@ -2408,11 +2408,11 @@
     ]
   },
   "milky-way": {
-    "fingerprint": "af3bbacb88fbf1655f21c54265861e2730e6c28022ff5c95028ff518e9cc7de6",
+    "fingerprint": "b4970bee0014a6bb40637d31be7f441380e479e76062068d57262fd2f1e58621",
     "baseWidth": 128,
     "source": "content/icons/src/milky-way.png",
     "reason": "matching master",
-    "sourceDifference": 2.5562540690104165,
+    "sourceDifference": 2.5903116861979165,
     "variants": [
       {
         "width": 256,
@@ -2505,7 +2505,7 @@
     ]
   },
   "muon": {
-    "fingerprint": "8817cbd48d7ef9ea0fa07137883222d8f2af5cca9db320f75f40fc1c253fb82f",
+    "fingerprint": "fa9148eb34d04664df096678db8af3a1276072c4eadeb78631a80af9207a4161",
     "baseWidth": 512,
     "source": "content/icons/muon.webp",
     "reason": "no larger source",
@@ -2577,11 +2577,11 @@
     ]
   },
   "nebulae": {
-    "fingerprint": "df9d41ef58cdd52b52126d258716a5bd13393cd881bc3c1381f6fff0e0b9ecfc",
+    "fingerprint": "784a7985e5d7d7e702a37f90d4421c52c5faedce59e3252672f182cc9f4cc317",
     "baseWidth": 128,
     "source": "content/icons/src/nebulae.png",
     "reason": "matching master",
-    "sourceDifference": 1.7130126953125,
+    "sourceDifference": 2.1250406901041665,
     "variants": [
       {
         "width": 256,
@@ -2615,7 +2615,7 @@
     ]
   },
   "neutrino-e": {
-    "fingerprint": "1049cfd3284f533fa28608570608946063dfa33cea7e14bcf4f948cdc8c08a34",
+    "fingerprint": "4581601942a7a0bae993423aeaa47b98bf6a336e0def0e9bec06db468a52a197",
     "baseWidth": 512,
     "source": "content/icons/neutrino-e.webp",
     "reason": "no larger source",
@@ -2632,7 +2632,7 @@
     ]
   },
   "neutrino-mu": {
-    "fingerprint": "3662ae2ed3a68f2e1c5c1ab2c62d5a0d7e8c35f1dddff87cc3a4578a5662f2c0",
+    "fingerprint": "67804109841d57a607a09a204ddcebb2602deb64fe83bb03605b971272936acc",
     "baseWidth": 512,
     "source": "content/icons/neutrino-mu.webp",
     "reason": "no larger source",
@@ -2649,7 +2649,7 @@
     ]
   },
   "neutrino-tau": {
-    "fingerprint": "e554103b6f0b885122a255c2908201e027ed0fe8d97c51a8256fe70217e8dd49",
+    "fingerprint": "39019fa992fbd32aeb7affe120d6df0d35b319fdb09d6e54370ca2e5d3a46258",
     "baseWidth": 512,
     "source": "content/icons/neutrino-tau.webp",
     "reason": "no larger source",
@@ -2666,11 +2666,11 @@
     ]
   },
   "neutron-star": {
-    "fingerprint": "cc6d951b30f478bf3ac1ed71f3f1594e44cf7df890deb3b48faf6d474cb9fe81",
+    "fingerprint": "39abdd3f56c3a65c5a555a67b6757eb1352be3871ee7a6668fa8d1615d928607",
     "baseWidth": 128,
     "source": "content/icons/src/neutron-star.png",
     "reason": "matching master",
-    "sourceDifference": 3.3196004231770835,
+    "sourceDifference": 3.7050577799479165,
     "variants": [
       {
         "width": 256,
@@ -2687,7 +2687,7 @@
     ]
   },
   "neutron": {
-    "fingerprint": "dc61f1dcacbaa3704a3ba7809d098bd0a55dc65dad6e5527fdab9095fa9c795b",
+    "fingerprint": "4b4419e2caeb0e9e99c67741a1d63e1ad5f8a73d6e9fb4021869fe9e0877fa9f",
     "baseWidth": 512,
     "source": "content/icons/neutron.webp",
     "reason": "no larger source",
@@ -2704,19 +2704,19 @@
     ]
   },
   "ngc7538s-bubble-nebula": {
-    "fingerprint": "d2b11f6573817390a59d6ad24fa3f231c508c57e4444af4d53eb0c4626908743",
+    "fingerprint": "d17dd8117c349559496cfce22a5e55b90e4afe97a9ad49355573c6bdbc98b3a2",
     "baseWidth": 128,
     "source": "content/icons/ngc7538s-bubble-nebula.webp",
     "reason": "source differs from current icon",
-    "sourceDifference": 29.786844889322918,
+    "sourceDifference": 41.64093017578125,
     "variants": []
   },
   "ngc7635bubble-nebula": {
-    "fingerprint": "2b886f033c8fd4db434f36efd246c4ffb683bb09f8a1b7b2db2605db088d8ec8",
+    "fingerprint": "5f475bab1cf8883c43919a31cfae47c7fb303b3ad2b2681f82bab8f8d97174ba",
     "baseWidth": 128,
     "source": "content/icons/src/NGC_7635_Bubble Nebula.png",
     "reason": "matching master",
-    "sourceDifference": 5.796956380208333,
+    "sourceDifference": 1.8552042643229167,
     "variants": [
       {
         "width": 256,
@@ -2767,11 +2767,11 @@
     ]
   },
   "observable-universe": {
-    "fingerprint": "b56021bb114bfc3fbe4872049f47b5ef5b1febd1e3e6b99d69ae9b2124a86ca7",
+    "fingerprint": "fb760ce88cd7ee3310fecde0c04ca86477cb34a37c9279a7b54ba87b95f12d93",
     "baseWidth": 128,
     "source": "content/icons/src/observable universe.png",
     "reason": "matching master",
-    "sourceDifference": 0.765380859375,
+    "sourceDifference": 6.891805013020833,
     "variants": [
       {
         "width": 256,
@@ -2809,11 +2809,11 @@
     ]
   },
   "oxygen": {
-    "fingerprint": "4603ef61ec5919d6f891b01dcf86d45c60246425baf98928ccb1ab8b117140a8",
+    "fingerprint": "2150e15d1bb94ff9c88826b3f22e5c047b532aa24f1bdb0e1d4b44daed9a0df3",
     "baseWidth": 128,
     "source": "content/icons/src/oxygen.png",
     "reason": "matching master",
-    "sourceDifference": 2.0810343424479165,
+    "sourceDifference": 2.5301717122395835,
     "variants": [
       {
         "width": 256,
@@ -2889,11 +2889,11 @@
     ]
   },
   "planetary-nebula": {
-    "fingerprint": "752d4fdf01e9c2d46ba6e29cd586ed4e1b77f75f85f0d916f257ea5c889f5afa",
+    "fingerprint": "e79a0fa39d333adff96a5d8bb0747b227ae765befe838c8e68cc026314cf9ce6",
     "baseWidth": 128,
     "source": "content/icons/src/planetary-nebula.JPG",
     "reason": "matching master",
-    "sourceDifference": 3.4062703450520835,
+    "sourceDifference": 1.2593994140625,
     "variants": [
       {
         "width": 256,
@@ -2965,7 +2965,7 @@
     ]
   },
   "proton": {
-    "fingerprint": "d58a5611870988da6de286556a84f9e073ed9a64fdd902b31a095e482603076a",
+    "fingerprint": "95988df91cb70d4f63fd9cf7975090ccfaabf552ceb803ca25b3e40fd36114e6",
     "baseWidth": 512,
     "source": "content/icons/proton.webp",
     "reason": "no larger source",
@@ -2982,11 +2982,11 @@
     ]
   },
   "protostar": {
-    "fingerprint": "87aa58bce75e0d4fe383b00026c244406c79cb94d175d6e3d5925d41b10dc644",
+    "fingerprint": "250b351500a8f3d9f10833f4b2797f0134c7c091617554651d1609e7d88b0cc2",
     "baseWidth": 128,
     "source": "content/icons/src/protostar.png",
     "reason": "matching master",
-    "sourceDifference": 1.5103352864583333,
+    "sourceDifference": 2.4032389322916665,
     "variants": [
       {
         "width": 256,
@@ -2999,11 +2999,11 @@
     ]
   },
   "proxima-cen": {
-    "fingerprint": "d57080049f7da6e35ae215c3785bedb6d219be4362345254be9282c9db367fc8",
+    "fingerprint": "f239795407e3312d718d3c7c208a82ff0ccc211d47d52c4a20171065c72e004d",
     "baseWidth": 128,
     "source": "content/icons/src/proxima-cen.png",
     "reason": "matching master",
-    "sourceDifference": 3.50775146484375,
+    "sourceDifference": 3.9537353515625,
     "variants": [
       {
         "width": 256,
@@ -3075,11 +3075,11 @@
     ]
   },
   "red-dwarf": {
-    "fingerprint": "17e1c9223b3ce954b5f617b4ea8fc3ad483dcaf900ecede192b1b7a249055545",
+    "fingerprint": "36da1e293aa30b6d19f019a473be7f74713adbff2dfb93c3feb9ce9de4588df4",
     "baseWidth": 128,
     "source": "content/icons/src/red-dwarf.png",
     "reason": "matching master",
-    "sourceDifference": 3.8947550455729165,
+    "sourceDifference": 4.260111490885417,
     "variants": [
       {
         "width": 256,
@@ -3092,11 +3092,11 @@
     ]
   },
   "red-giant": {
-    "fingerprint": "6ee1a631df2ab900cd07f0771847fd3bc0399c34faa759083487eecd62faf3b1",
+    "fingerprint": "2cb9a65dc78a2c3fe16bcd579084777359307ed88e5749cba0fd2a5c726d5efa",
     "baseWidth": 128,
     "source": "content/icons/src/red-giant.png",
     "reason": "matching master",
-    "sourceDifference": 2.21441650390625,
+    "sourceDifference": 2.5940348307291665,
     "variants": [
       {
         "width": 256,
@@ -3193,11 +3193,11 @@
     ]
   },
   "sgr-a": {
-    "fingerprint": "e8c02720fb7bb4389d3f10ccb529ffa47572ef4582fe0a1dc4799561714d0322",
+    "fingerprint": "1a228e87ca78583da7f5834ee5e24a31bc980bbc698abfc03c3fa4bb831128ea",
     "baseWidth": 128,
     "source": "content/icons/src/sgr-a.png",
     "reason": "matching master",
-    "sourceDifference": 0,
+    "sourceDifference": 2.6393229166666665,
     "variants": [
       {
         "width": 256,
@@ -3235,11 +3235,11 @@
     ]
   },
   "sirius-a": {
-    "fingerprint": "f65742840f14c31d002a1829dceeb37f8e7dcaa109c7aa0539c44ed9ccb701e7",
+    "fingerprint": "d7207e346e4eb40266f09ef369b8b3ba8f6e3724f1e60df47da8870c9e5652af",
     "baseWidth": 128,
     "source": "content/icons/src/sirius-a.png",
     "reason": "matching master",
-    "sourceDifference": 1.95208740234375,
+    "sourceDifference": 2.42730712890625,
     "variants": [
       {
         "width": 256,
@@ -3252,11 +3252,11 @@
     ]
   },
   "sirius-b": {
-    "fingerprint": "54eccb27536beca70f7599b8a17d4fb66ec75cd03b307b17fb43b480a3a2128e",
+    "fingerprint": "b770a5e81a2342f6fb8d46929cc2408d45a69252c3878ac16fef6c27ffe97243",
     "baseWidth": 128,
     "source": "content/icons/src/sirius-b.png",
     "reason": "matching master",
-    "sourceDifference": 1.4982503255208333,
+    "sourceDifference": 1.8640543619791667,
     "variants": [
       {
         "width": 256,
@@ -3315,11 +3315,11 @@
     ]
   },
   "sombrero-m104": {
-    "fingerprint": "2a72bd24b39034b17357cb629e16240ddff40a43c76f4f303968b5a5dc102d44",
+    "fingerprint": "4625a852ad310f43b41f90b45ceb7e70b6a767ca0a1c978715aae2afb811ed49",
     "baseWidth": 128,
     "source": "content/icons/src/sombrero-m104.jpg",
     "reason": "matching master",
-    "sourceDifference": 0.9388224283854166,
+    "sourceDifference": 1.3992716471354167,
     "variants": [
       {
         "width": 256,
@@ -3374,11 +3374,11 @@
     ]
   },
   "stellar-bh": {
-    "fingerprint": "a61ed4b7cb3798be34f6cdab8cce5e8d8a3ac5bd26216928d4551a6fa6706d75",
+    "fingerprint": "b4939827edb077c4e3612be0edccc306fa901875a4365bb4169fa5025a9e5dd6",
     "baseWidth": 128,
     "source": "content/icons/src/stellar-bh.png",
     "reason": "matching master",
-    "sourceDifference": 0,
+    "sourceDifference": 1.6176961263020833,
     "variants": [
       {
         "width": 256,
@@ -3395,11 +3395,11 @@
     ]
   },
   "stellar-nursery": {
-    "fingerprint": "56a6bf504ec8dcef003725e4115159c670f4aeed59a1ce6553671133d9c11289",
+    "fingerprint": "e4a72af9a110cc901858a189cbc3cb5d213d34e694910d5de87f2b4db4c36d11",
     "baseWidth": 128,
     "source": "content/icons/src/stellar-nursery.jpg",
     "reason": "matching master",
-    "sourceDifference": 5.3408203125,
+    "sourceDifference": 1.7787679036458333,
     "variants": [
       {
         "width": 256,
@@ -3416,7 +3416,7 @@
     ]
   },
   "strange": {
-    "fingerprint": "de8ee0726773d702516fe39aec7667c951d9a7d4cbef2b4d6e1c35ce88ee7507",
+    "fingerprint": "f8e6ab47648fd86fb549f9c5f4e1b78d2a0e2bfc60ffcd2650e71624ac51d53c",
     "baseWidth": 512,
     "source": "content/icons/strange.webp",
     "reason": "no larger source",
@@ -3433,19 +3433,19 @@
     ]
   },
   "sun": {
-    "fingerprint": "948d3da5676443136a48fbdc94c6a439de00d98afe8fe10b684e1e891a166157",
+    "fingerprint": "d96d56b54c3b6ce01696b4a0b0eadd629b7ee16f9bdd43ee1ff1e3f63769f5f0",
     "baseWidth": 128,
     "source": "content/icons/sun.webp",
     "reason": "source differs from current icon",
-    "sourceDifference": 12.879984537760416,
+    "sourceDifference": 25.297566731770832,
     "variants": []
   },
   "supernova-remnant": {
-    "fingerprint": "8371889ee19ce18066432d7c2dc7c8ae5b6f483af320dfed5fc82917b8312f01",
+    "fingerprint": "2d6adda4d61e2730e8ee264f2c2a4014af1d3e5f1e50c5e2a1fb4a646ace0003",
     "baseWidth": 128,
     "source": "content/icons/src/supernova-remnant.jpg",
     "reason": "matching master",
-    "sourceDifference": 3.7781168619791665,
+    "sourceDifference": 3.81427001953125,
     "variants": [
       {
         "width": 256,
@@ -3525,7 +3525,7 @@
     ]
   },
   "tau": {
-    "fingerprint": "f81a3cdf87cd971ff1c84b536f3ebc67b5d22e1a01ae18fed424fa5f614857de",
+    "fingerprint": "6a4ca11c1921f07c0a7e3d5bd290a00c43c28c3ea9a3eb23e416eba5e2324da6",
     "baseWidth": 512,
     "source": "content/icons/tau.webp",
     "reason": "no larger source",
@@ -3559,11 +3559,11 @@
     ]
   },
   "thymine-t": {
-    "fingerprint": "d589c301a8845a5f594e2aa9ac6c6dd7a68639bd7170b926d34c3ba645e8698e",
+    "fingerprint": "510feccab2a80bab69019dca82ef77c5aad2fd6858c2e5ad2f886e28abe964a4",
     "baseWidth": 128,
     "source": "content/icons/src/thymine-t.png",
     "reason": "matching master",
-    "sourceDifference": 1.5681559244791667,
+    "sourceDifference": 2.2357177734375,
     "variants": [
       {
         "width": 256,
@@ -3664,11 +3664,11 @@
     ]
   },
   "ton-618": {
-    "fingerprint": "cc8a617dcd2e91be7bd88f84b1dd6f4285a16e15dc63c252a4dca1fd94030fc2",
+    "fingerprint": "5ed919fadeedd0ec198d4ed5b7e61b1d6f5fa6ea790bddae714572cc8e5b9db1",
     "baseWidth": 128,
     "source": "content/icons/src/ton-618.png",
     "reason": "matching master",
-    "sourceDifference": 0,
+    "sourceDifference": 0.5681559244791666,
     "variants": [
       {
         "width": 256,
@@ -3685,7 +3685,7 @@
     ]
   },
   "top": {
-    "fingerprint": "5c44db5c4e331602c199a5de1f34b1118667677cb7dccb2bba240a8ce3290e31",
+    "fingerprint": "4713ab0d690036cf2c5e3d47458505b2e23843801b46c3ee3a16de40f230cc6e",
     "baseWidth": 512,
     "source": "content/icons/top.webp",
     "reason": "no larger source",
@@ -3702,11 +3702,11 @@
     ]
   },
   "triangulum-m33": {
-    "fingerprint": "7101ccf2fd7da9979b7023bc2542340e3b6a8d5d0475b96d58a8a5bc68fe00a5",
+    "fingerprint": "a8a07e358496d09b2911f836c45ac296ad11ba7afe078164bf7c777fd41d3cdd",
     "baseWidth": 128,
     "source": "content/icons/src/triangulum-m33.jpg",
     "reason": "matching master",
-    "sourceDifference": 1.6558837890625,
+    "sourceDifference": 1.364501953125,
     "variants": [
       {
         "width": 256,
@@ -3765,7 +3765,7 @@
     ]
   },
   "ultraviolet": {
-    "fingerprint": "3b2d15bb8fcf832df58ebc2ee7d9cff0e179870a965b5702be54dcf95f627e8a",
+    "fingerprint": "0ab6f52245e1edb4143cb33dbe273d1bbdcf7b24f753619a3f8abfd2cfdf63f2",
     "baseWidth": 512,
     "source": "content/icons/ultraviolet.webp",
     "reason": "no larger source",
@@ -3803,7 +3803,7 @@
     ]
   },
   "up-quark": {
-    "fingerprint": "9fe35eb18418e3b6477425cd0dfd20a1d48f85ffcc2e1d78725f1b32b1850274",
+    "fingerprint": "7d67cea1f96ec58a37b8a16de925628648b7992232bbc60926577d56ec5b0907",
     "baseWidth": 512,
     "source": "content/icons/up-quark.webp",
     "reason": "no larger source",
@@ -3820,11 +3820,11 @@
     ]
   },
   "uranium": {
-    "fingerprint": "00b5df761825eddd00436abea85b0131a36749d90ad35ccf3f89f2d58e36d1f0",
+    "fingerprint": "16e5a74176d56a1ffe6c2cb5981affad7eed3907914ec19594822b4dd6bc173e",
     "baseWidth": 128,
     "source": "content/icons/src/uranium.png",
     "reason": "matching master",
-    "sourceDifference": 2.6315104166666665,
+    "sourceDifference": 3.31024169921875,
     "variants": [
       {
         "width": 256,
@@ -3883,11 +3883,11 @@
     ]
   },
   "vega": {
-    "fingerprint": "1f1752e48bdb081285c4d4514c7494d9802f8ac2a14990d7231ee442c6076f6f",
+    "fingerprint": "2d6e4c85ff4d9d9ab1723773c9bb5c134b860027519a7d93e0166902d5221e73",
     "baseWidth": 128,
     "source": "content/icons/src/vega.png",
     "reason": "matching master",
-    "sourceDifference": 1.2419840494791667,
+    "sourceDifference": 1.5720621744791667,
     "variants": [
       {
         "width": 256,
@@ -3929,7 +3929,7 @@
     "variants": []
   },
   "visible-light": {
-    "fingerprint": "9e3f3e892b96e0f536bb0db14a4d170befa7919671f5e2e68e01828c9e8e9614",
+    "fingerprint": "b0ab7a1df0720caaa16f2baa0ef145b324da527ea28afdfbd854f5760011bc4f",
     "baseWidth": 512,
     "source": "content/icons/visible-light.webp",
     "reason": "no larger source",
@@ -3984,7 +3984,7 @@
     ]
   },
   "w-boson": {
-    "fingerprint": "a52dca1ce168f264f1488a2f1026962cdd99902beb314b3879490d4c351e2e3d",
+    "fingerprint": "9eb0374ecb2584137c75959db86dd9b60acd05843ab2bd1c71eac0fcfefbdcc4",
     "baseWidth": 512,
     "source": "content/icons/w-boson.webp",
     "reason": "no larger source",
@@ -4001,11 +4001,11 @@
     ]
   },
   "water-h2o": {
-    "fingerprint": "d89b85c23bd21c0a2c316dd29076acfa0b2f95818a243fecf1c4a89d2e9b7e04",
+    "fingerprint": "df3c76784200b60357e54e2d5f33b8a55c099b4c96ee49d9c4c6468d42687b85",
     "baseWidth": 128,
     "source": "content/icons/src/water-h2o.png",
     "reason": "matching master",
-    "sourceDifference": 1.6846923828125,
+    "sourceDifference": 2.3192342122395835,
     "variants": [
       {
         "width": 256,
@@ -4022,11 +4022,11 @@
     ]
   },
   "white-dwarf": {
-    "fingerprint": "879bb017c778a4489de530d4695e183721f66394b3b6e54ac9b3b50bcbb4bdf6",
+    "fingerprint": "ab6bc8fd828ab6d19e097e4781bdf30cf6505f8c3138b8928509fcd37fb5e9e2",
     "baseWidth": 128,
     "source": "content/icons/src/white-dwarf.png",
     "reason": "matching master",
-    "sourceDifference": 2.07061767578125,
+    "sourceDifference": 2.4814453125,
     "variants": [
       {
         "width": 256,
@@ -4039,11 +4039,11 @@
     ]
   },
   "wolf-rayet": {
-    "fingerprint": "c412cd4fa51a8aeb8daa35d50def882c09b17267dff1ab7bdebcec5ead97c799",
+    "fingerprint": "7b4e451173ceaf58b7a6882375dcf2bdff770574a390d2b29119961f33f6d07c",
     "baseWidth": 128,
     "source": "content/icons/src/wolf-rayet.png",
     "reason": "matching master",
-    "sourceDifference": 3.708740234375,
+    "sourceDifference": 4.025899251302083,
     "variants": [
       {
         "width": 256,
@@ -4056,7 +4056,7 @@
     ]
   },
   "x-and-y-bosons": {
-    "fingerprint": "e8598010b5a0132dc5dc897526c11fcc3a119ed0b38de736cc5b248d6891e1ac",
+    "fingerprint": "d6bd31211c03c2409402e7f4816071663a960350164f10716c023d18ec428e57",
     "baseWidth": 512,
     "source": "content/icons/x-and-y-bosons.webp",
     "reason": "no larger source",
@@ -4073,7 +4073,7 @@
     ]
   },
   "x-ray": {
-    "fingerprint": "24a5940d0bd42e2fce9e39fe777d011ba167c6e8d5ce55a89273659b5226d9e3",
+    "fingerprint": "b7e0b8b438de1b090a5390047d5ab2f8698c54147bd3cc288f861bcbed7cb164",
     "baseWidth": 512,
     "source": "content/icons/x-ray.webp",
     "reason": "no larger source",
@@ -4111,7 +4111,7 @@
     ]
   },
   "z-boson": {
-    "fingerprint": "0a4e1ffcc9823cb285eb57b661136cdc14db55a6a5eaa61b932c8df910d16a0f",
+    "fingerprint": "24889f1459e8bfd1b539edd2de40a4057703a6252740d860dada5b216ea6a561",
     "baseWidth": 512,
     "source": "content/icons/z-boson.webp",
     "reason": "no larger source",
