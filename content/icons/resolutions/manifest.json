@@ -1950,11 +1950,11 @@
     ]
   },
   "kepler-22b": {
-    "fingerprint": "acebb283bdf80bba90c90c46b7e79fbe844862dd3f3527042c1e2a9f19746dec",
+    "fingerprint": "5f56c8e288e02e1dc6364e4aad1eee7432731e9a15a80842083e3e198a98ba85",
     "baseWidth": 128,
     "source": "content/icons/src/kepler-22b.png",
     "reason": "matching master",
-    "sourceDifference": 0.7778523763020834,
+    "sourceDifference": 0.7506306966145834,
     "variants": [
       {
         "width": 256,
