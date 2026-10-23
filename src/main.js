@@ -1,6 +1,7 @@
 import {BLACK_HOLE_FRAMES, BLACK_HOLE_SIZE_MULT, BLACK_HOLE_MASK_DEFS, blackHoleMask} from "./black-hole-frames.js";
 import {installBlackHoleTones} from "./black-hole-palette.js";
 import {LUMINOUS_CATS, isLuminousArt} from "./luminous-art.js";
+import {createMobileRulers} from "./mobile-rulers.js";
 import * as d3 from "d3";
 import {isDiffuseSpaceArt,SPACE_ART_DEFS,spaceEdgeMask} from "./space-art.js";
 import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
@@ -705,6 +706,35 @@ const whiteOverlay = clip.append("rect")
 
 // Axes outside clip (also wrapped for batch CSS-transform during zoom)
 const lAxesWrap = chart.append("g");
+// Phones: rulers that fade in while you pan, pinch or tap (src/mobile-rulers.js)
+const lMobileRulers = chart.append("g").style("pointer-events", "none");
+let _rulerFocus = null; // the tapped object the guides start from, or null for the centre
+const RULER_AVOID = "#search-box, #preset-bar, #sidebar-expand, #axes-toggle, #controls, #settings-btn, #tour-start-btn, #tour-header, #scale-bar";
+const mobileRulers = createMobileRulers({
+  layer: lMobileRulers, px, py, ipx: (x) => xS.invert(x), ipy: (y) => yS.invert(y),
+  frame: () => {
+    // above the object sheet or the tour card when one is up, and the bottom
+    // buttons; below the search button
+    const sheetTop = Math.min(...["sidebar", "tour-box"].map(id => document.getElementById(id)?.getBoundingClientRect())
+      .filter(r => r && r.height > 0 && r.top < H - 40).map(r => r.top - margin.top), Infinity);
+    return { w: cw, h: ch, top: 116, bottom: Math.min(ch - 96, sheetTop - 22) };
+  },
+  avoid: () => [...document.querySelectorAll(RULER_AVOID)]
+    .filter(e => {   // shown, counting faded-out parents (the title lockup's)
+      if (getComputedStyle(e).visibility === "hidden") return false;
+      let o = 1;
+      for (let x = e; x && o > 0.1; x = x.parentElement) o *= +getComputedStyle(x).opacity;
+      return o > 0.1;
+    })
+    .map(e => e.getBoundingClientRect()).filter(r => r.width > 0 && r.height > 0)
+    .map(r => ({ x: r.left - margin.left - 4, y: r.top - margin.top - 4, w: r.width + 8, h: r.height + 8 })),
+  focus: () => {
+    if (!_rulerFocus) return null;
+    const o = _lastProjected.find(p => p.slug === _rulerFocus.slug);
+    return o ? { x: o.sx, y: o.sy } : { x: px(_rulerFocus.logR), y: py(_rulerFocus.logM) };
+  },
+});
+const mobileRulersOn = () => _isMobile && !_showAxesMobile && !_posterStage && !document.body.classList.contains("narrating");
 const axB = lAxesWrap.append("g").attr("class", "axis-b");
 const axT = lAxesWrap.append("g").attr("class", "axis-t");
 const lDensityArrows = lAxesWrap.append("g");  // non-clipped, for density arrows & era labels on logM=56 line
@@ -878,14 +908,18 @@ function drawGrid() {
       else if (level.spacing > 12)  { opacity = 0.10; width = 0.6; }
       else { opacity = 0.05; width = 0.4; }
     } else if (level.step === 1) {
-      if (level.spacing > 200) { opacity = 0.16; width = 0.6; }
+      // zoomed far in, the decade and log lines are the main way to read the
+      // map, so they keep strengthening (author, 2026-10-23)
+      if (level.spacing > 600) { opacity = 0.26; width = 0.8; }
+      else if (level.spacing > 200) { opacity = 0.18; width = 0.65; }
       else if (level.spacing > 80)  { opacity = 0.12; width = 0.5; }
       else if (level.spacing > 30)  { opacity = 0.08; width = 0.4; }
       else if (level.spacing > 12)  { opacity = 0.05; width = 0.35; }
       else { opacity = 0.025; width = 0.25; }
     } else {
-      if (level.spacing > 200) { opacity = 0.08; width = 0.5; }
-      else if (level.spacing > 80)  { opacity = 0.05; width = 0.4; }
+      if (level.spacing > 260) { opacity = 0.2; width = 0.65; }
+      else if (level.spacing > 160) { opacity = 0.14; width = 0.55; }
+      else if (level.spacing > 80)  { opacity = 0.07; width = 0.45; }
       else if (level.spacing > 30)  { opacity = 0.03; width = 0.3; }
       else if (level.spacing > 12)  { opacity = 0.015; width = 0.2; }
       else { opacity = 0.008; width = 0.15; }
@@ -4259,6 +4293,7 @@ function drawHighlight() {
 
 function drawAxes() {
   [axB, axT, axL, axR].forEach(g => g.selectAll("*").remove());
+  if (mobileRulers.visible) { lMobileRulers.raise(); mobileRulers.draw(); }
   const d = vd();
   // Column layout + type (see axisLayout). Sizes go in as inline styles: a
   // font-size attribute loses to any CSS rule.
@@ -5851,6 +5886,11 @@ function selectObject(o) {
   _sidebarManuallyExpanded = false;
   openSidebar(o);
   setSidebarOpen(true);
+  if (mobileRulersOn()) {
+    _rulerFocus = o;
+    requestAnimationFrame(() => mobileRulers.show());
+    setTimeout(() => mobileRulers.visible && mobileRulers.draw(), 450); // once the sheet is up
+  }
 }
 
 // Tap detection: taps hit-test labels and projected objects directly
@@ -6004,6 +6044,7 @@ const zoomBehavior = d3.zoom()
   .on("start", (event) => {
     _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
     _userZoomGesture = !!event.sourceEvent;
+    if (_userZoomGesture && mobileRulersOn()) { _rulerFocus = null; mobileRulers.show(); }
     if (!_userZoomGesture) _tourBaseK = null;
     else if (_tourBaseK == null) _tourBaseK = currentK;
     _zooming = true;
@@ -6028,6 +6069,7 @@ const zoomBehavior = d3.zoom()
   .on("zoom", (event) => {
     const t = event.transform;
     currentK = t.k;
+    if (_userZoomGesture && mobileRulers.visible) mobileRulers.keep();
     if (_userZoomGesture && _tourBaseK && isTourActive() &&
         Math.abs(Math.log(t.k / _tourBaseK)) > Math.log(TOUR_DISMISS_ZOOM)) {
       closeTour();
@@ -7223,6 +7265,7 @@ const AXES_AUTO_HIDE_MS = 8000;
 let _axesHideTimer = null;
 function setMobileAxes(on, { autoHide = true } = {}) {
   _showAxesMobile = on;
+  if (on) mobileRulers.hide();
   document.body.classList.toggle("mobile-axes-on", on);
   const btn = document.getElementById("axes-toggle");
   btn?.classList.toggle("active", on);

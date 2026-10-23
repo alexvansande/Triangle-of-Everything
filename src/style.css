@@ -1572,3 +1572,19 @@ body.is-mobile #bgnoise-box { right: 10px; bottom: calc(env(safe-area-inset-bott
 .bgnoise-select { flex: 1; min-width: 0; padding: 4px 6px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: inherit; font: inherit; }
 .bgnoise-reset { margin-top: 4px; padding: 5px 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: inherit; font: inherit; cursor: pointer; }
 .bgnoise-readout { margin: 10px 0 0; font-size: 10.5px; color: rgba(255,255,255,0.4); font-variant-numeric: tabular-nums; }
+
+/* Phones: rulers that fade in while you pan, pinch or tap (src/mobile-rulers.js) */
+.mobile-rulers { transition: opacity 0.45s ease; }
+.mobile-rulers .mr-fade { fill: url(#mr-fade-h); }
+.mobile-rulers .mr-fade-r { fill: url(#mr-fade-r); }
+.mobile-rulers .mr-fade-l { fill: url(#mr-fade-l); }
+.mobile-rulers .mr-axis { stroke: rgba(255, 255, 255, 0.55); stroke-width: 1; }
+.mobile-rulers .mr-tick { stroke: rgba(255, 255, 255, 0.75); stroke-width: 1; }
+.mobile-rulers .mr-guide { stroke: #e8ecff; stroke-width: 1.1; stroke-dasharray: 4 4; opacity: 0.6; }
+.mobile-rulers .mr-cross { stroke: #e8ecff; stroke-width: 1.4; opacity: 0.8; fill: none; }
+.mobile-rulers text { font-family: Inter, sans-serif; paint-order: stroke; stroke: rgba(6, 6, 26, 0.85); stroke-width: 3px; stroke-linejoin: round; }
+.mobile-rulers .mr-unit { fill: rgba(255, 255, 255, 0.92); font-size: 9.5px; font-weight: 600; }
+.mobile-rulers .mr-minor { fill: rgba(255, 255, 255, 0.6); font-size: 8.5px; font-weight: 500; }
+.mobile-rulers .mr-value { fill: #fff; font-size: 11.5px; font-weight: 700; letter-spacing: 0.02em; }
+.mobile-rulers .mr-name { fill: rgba(255, 255, 255, 0.7); font-size: 9px; font-weight: 700; letter-spacing: 0.12em; }
+@media (prefers-reduced-motion: reduce) { .mobile-rulers { transition: none; } }
