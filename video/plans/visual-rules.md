@@ -29,6 +29,15 @@ cutaways could go is `cutaways.md`; this file is the *why*.
 - **Zoom in close enough** to see the objects and their catalogue dots (the Eiffel Tower,
   the pyramid, ships, statues; scenes can target catalogue dots by name: `{ obj: "Titanic" }`).
   Gas giants: close enough to see the other giant planets' dots around Jupiter and Saturn.
+- **The camera never stands still** (2026-10-23): outside the set pieces that explain a step
+  (video 2's millilitre → litre → tonne), it's one slow glide of pans and zooms, waypoints
+  at their cue times (`cam: { …, glide: true }`), not flights that stop at each object.
+  A pan up the line runs a bit over two decades wide on a phone frame (1.5 for the animals,
+  so catalogue pictures like the lion find room), never with dives or close-up stops.
+- **Named objects get a halo, not a hover**: a lavender glow behind the picture (two overlay
+  passes; one fainter plain pass in Safari) for a few seconds; with only one object named,
+  the dashed guides to its mass and diameter too. While a step is explained, a cue's
+  `focus: [names]` fades every other object.
 - **Replace long holds with slow moves** (a 3–7 s pan or push between the objects being
   named), e.g. Mercury → Mars → Earth for atmospheres, a push onto Phobos and Deimos.
 - **The background painting stays on**, even blurred, on deep zooms (an automatic fade-out
