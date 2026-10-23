@@ -1,9 +1,10 @@
 import {BLACK_HOLE_FRAMES, BLACK_HOLE_SIZE_MULT, BLACK_HOLE_MASK_DEFS, blackHoleMask} from "./black-hole-frames.js";
-import {blackHoleFilter, installBlackHoleTones} from "./black-hole-palette.js";
+import {installBlackHoleTones} from "./black-hole-palette.js";
+import {LUMINOUS_CATS, isLuminousArt} from "./luminous-art.js";
 import * as d3 from "d3";
-import {isDiffuseSpaceArt,SPACE_ART_BRIGHTNESS,SPACE_ART_DEFS,spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
+import {isDiffuseSpaceArt,SPACE_ART_DEFS,spaceEdgeMask} from "./space-art.js";
 import {animateIconGrowth, ICON_HOVER_MS, iconHoverEase} from "./icon-hover.js";
-import {STAR_BODY_FRAMES, SHADOWED_SCREEN_SPHERES, BROWN_DWARFS, starBodyGeometry, starWallLight, stellarLightProfile} from "./star-light.js";
+import {STAR_BODY_FRAMES, SHADOWED_SCREEN_SPHERES, BROWN_DWARFS, starWallLight, stellarLightProfile} from "./star-light.js";
 import { PARALLAX, planePoint, planeTransform, iconPoint } from "./parallax.js";
 import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
 import { buildSearchIndex, searchObjects } from "./object-search.js";
@@ -113,8 +114,8 @@ const ICON_SIZE_MULT = {
 // Centered around logR ≈ -3.5 (midpoint of the full range).
 // Pictures that fill little of their square (a hippo, the Eiffel Tower) look
 // smaller than ones that fill it (a cube of water): part-compensate by covered
-// area (content/icons/coverage.json, scripts/icon-coverage.mjs). Opaque squares
-// (screen-blended art on black) and unmeasured pictures stay as they are.
+// area (content/icons/coverage.json, scripts/icon-coverage.mjs). Luminous
+// pictures (a glow, not a silhouette) and unmeasured ones stay as they are.
 const AREA_REF = 0.6, AREA_POWER = 0.25, AREA_MIN = 0.9, AREA_MAX = 1.35;
 function iconAreaMult(slug) {
   const c = ICON_COVERAGE[slug];
@@ -508,12 +509,6 @@ defs.append("clipPath").attr("id", "clip")
   .append("rect").attr("width", cw).attr("height", ch);
 
 // --- gradients ---
-
-// Soft black disc for screen-blend icon backgrounds
-const iconBgGrad = defs.append("radialGradient").attr("id", "icon-bg-grad");
-iconBgGrad.append("stop").attr("offset", "0%").attr("stop-color", "#000").attr("stop-opacity", 0.8);
-iconBgGrad.append("stop").attr("offset", "50%").attr("stop-color", "#000").attr("stop-opacity", 0.5);
-iconBgGrad.append("stop").attr("offset", "100%").attr("stop-color", "#000").attr("stop-opacity", 0);
 
 // Cast shadows under the pictures (drawIconShadows): blur sized to each
 // ellipse (objectBoundingBox), so one filter looks the same at every zoom.
@@ -2946,35 +2941,30 @@ function drawObjects() {
     })
     .order();
 
-  // (2) Icons: bg disc (screen-blend cats) + fallback dot + image, keyed by
-  // slug in their own layer (above the noise overlay).
+  // (2) Icons: fallback dot + image, keyed by slug in their own layer (above
+  // the noise overlay). Luminous pictures carry their dark backing inside the
+  // picture (src/luminous-art.js), so every icon is drawn the same way.
   lIcons.selectAll("g.icon-g")
     .data(iconObjs, o => o.slug)
     .join(enter => {
       const g = enter.append("g").attr("class", "icon-g");
       g.each(function(o) {
         const gg = d3.select(this);
-        if (iconUsesScreenBlend(o)) {
-          gg.append("circle").attr("class", "icon-bg").attr("fill", "url(#icon-bg-grad)");
-        }
         // Fallback dot: icons fetch on demand, so on a cold cache the
         // <image> is empty until its webp arrives — the dot keeps the
-        // object visible. It must HIDE once the image loads: screen-blend
-        // icons brighten what's beneath instead of covering it, so a
-        // still-visible dot glows through them permanently.
+        // object visible. It must HIDE once the image loads: a glow's faint
+        // edge doesn't cover what's beneath, so a still-visible dot would
+        // show through it permanently.
         gg.append("circle").attr("class", "icon-fallback-dot")
           .attr("r", 2.8).attr("fill", o.color);
         const imgEl = gg.append("image")
           .attr("class", "obj-icon")
           .attr("data-slug", o.slug)
-          .style("mix-blend-mode", iconUsesScreenBlend(o) ? "screen" : null)
-          .style("filter",blackHoleFilter(o.slug)||(softSpaceIcon(o)?`brightness(${SPACE_ART_BRIGHTNESS})`:null))
           .attr("mask",blackHoleMask(o.slug)||(softSpaceIcon(o)?spaceEdgeMask(o.slug):null))
           .node();
         imgEl.addEventListener("load", () => {
           _loadedIconUrls.add(ICON_BY_SLUG[o.slug]);
           gg.select(".icon-fallback-dot").attr("display", "none");
-          gg.select(".icon-bg").attr("display", null);
         }, { once: true });
       });
       return g;
@@ -2985,12 +2975,6 @@ function drawObjects() {
       const objIcoSize = icoSize * iconSizeMult(o);
       const growth = this.__iconGrowth ?? 1;
       gg.attr("transform", parallaxTranslation(o, objectPicturePoint(o, growth)));
-      const bodyDisc=iconBackingGeometry(o,objIcoSize,growth);
-      gg.select(".icon-bg")
-        .attr("cx",bodyDisc?.cx??o.sx).attr("cy",bodyDisc?.cy??o.sy)
-        .attr("r",bodyDisc?.r??objIcoSize*.52).attr("opacity",bbOp)
-        .attr("fill",softSpaceIcon(o)?"url(#space-core-gradient)":bodyDisc?"#000":"url(#icon-bg-grad)")
-        .attr("display",bodyDisc&&!_loadedIconUrls.has(ICON_BY_SLUG[o.slug])?"none":null);
       gg.select(".icon-fallback-dot")
         .attr("cx", o.sx).attr("cy", o.sy)
         .attr("display", _loadedIconUrls.has(ICON_BY_SLUG[o.slug]) ? "none" : null)
@@ -3056,10 +3040,8 @@ function drawObjects() {
     } : null,
     // as iconSizeMult, per-object multipliers included
     iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
-    iconBlend: (cat) => SCREEN_BLEND_CATS.has(cat),
+    iconBlend: (cat) => LUMINOUS_CATS.has(cat),   // luminous: no cast shadow
     softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
-    iconFilterOf:(cat,name)=>blackHoleFilter(nameToSlug(name)),
-    iconBrightnessOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name))?SPACE_ART_BRIGHTNESS:1,
   }, {
     // Catalogue pictures share the same hierarchy: all curated candidates
     // outrank them, not just this frame's visible winners or moving labels.
@@ -3067,12 +3049,12 @@ function drawObjects() {
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
     // Icons keep dust out with a CIRCLE, not their square box: a square gap
-    // shows as an empty frame around soft, glowing screen-blend art (globular
-    // cluster, nebulae). Screen-blend art fades out well inside its box, so
+    // shows as an empty frame around soft, glowing luminous art (globular
+    // cluster, nebulae). Luminous art fades out well inside its box, so
     // its circle is tighter; dust under the faint halo glows through it.
     circles: shownDots.filter(o => o._showIcon).map(o => {
       const size = icoSize * iconSizeMult(o);
-      return { sx: o.sx, sy: o.sy, r: size * (iconUsesScreenBlend(o) ? 0.32 : 0.5) };
+      return { sx: o.sx, sy: o.sy, r: size * (iconIsLuminous(o) ? 0.32 : 0.5) };
     }),
   }, dustColor);
   lDustHover.selectAll("*").remove();
@@ -3082,7 +3064,7 @@ function drawObjects() {
       .map(o=>stellarShadowData({key:o.slug,slug:o.slug,sx:o.sx,sy:o.sy,r:icoSize*iconSizeMult(o)/2,logM:o.logM},o.color)),
     ...dustIcons().filter(d=>STAR_BODY_FRAMES[nameToSlug(d.name)]&&(STAR_GLOWS||BROWN_DWARFS.has(nameToSlug(d.name))))
       .map(d=>stellarShadowData({key:`dust:${d.i}`,...d,slug:nameToSlug(d.name)},"#ffd27a")),
-    ...shownDots.filter(o => o._showIcon && (!iconUsesScreenBlend(o) || SHADOWED_SCREEN_SPHERES.has(o.slug)))
+    ...shownDots.filter(o => o._showIcon && (!iconIsLuminous(o) || SHADOWED_SCREEN_SPHERES.has(o.slug)))
       .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", roundOffsetScale: SHADOW_SETTINGS_BY_SLUG[o.slug]?.roundOffsetScale, registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.registered || SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
     ...dustIcons().filter(d => !d.blend || SHADOWED_SCREEN_SPHERES.has(nameToSlug(d.name))).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", roundOffsetScale: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.roundOffsetScale, registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
   ]);
@@ -3241,17 +3223,8 @@ function liftShadow(key, k) {
   });
 }
 
-// Screen-blend decision is static per object — shared by enter and update.
-const SCREEN_BLEND_CATS = new Set(["remnant", "galaxy", "largescale", "star", "particle", "composite", "blackhole", "atomic"]);
-const SCREEN_BLEND_SLUGS = new Set(["halleys-comet", "hale-bopp"]);
-function iconBackingGeometry(o,size,growth) {
-  return starBodyGeometry(o.slug,o.sx,o.sy,size,growth)||(softSpaceIcon(o)?spaceCoreGeometry(o.slug,o.sx,o.sy,size,growth):null);
-}
 function softSpaceIcon(o) {return _softSpace&&isDiffuseSpaceArt(o.catKey||o.cat,o.slug)}
-function iconUsesScreenBlend(o) {
-  if (o.slug.includes("void")) return false;
-  return SCREEN_BLEND_CATS.has(o.catKey || o.cat) || SCREEN_BLEND_SLUGS.has(o.slug);
-}
+const iconIsLuminous = (o) => isLuminousArt(o.catKey || o.cat, o.slug);
 
 // Hover handlers for the persistent object groups (datum-based, attached
 // once at enter — the join rebinds fresh data to the same nodes each frame).
@@ -3270,8 +3243,6 @@ function setIconHover(o, on) {
   animateIconGrowth(group,k,(node,growth)=>{
     const current=node.__data__,g=d3.select(node),size=effectiveIconSize()*iconSizeMult(current);
     g.select('.obj-icon').style('transform',growth===1?null:`scale(${growth})`);
-    const disc=iconBackingGeometry(current,size,growth);
-    if(disc)g.select('.icon-bg').attr('cx',disc.cx).attr('cy',disc.cy).attr('r',disc.r);
     g.attr('transform',parallaxTranslation(current,objectPicturePoint(current,growth)));
   },_reduceMotion);
   liftShadow(o.slug, k);
