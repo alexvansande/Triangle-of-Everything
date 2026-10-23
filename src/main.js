@@ -1,3 +1,4 @@
+import {revealIcon,exitReveal} from "./icon-reveal.js";
 import {BLACK_HOLE_FRAMES, BLACK_HOLE_SIZE_MULT, BLACK_HOLE_MASK_DEFS, blackHoleMask} from "./black-hole-frames.js";
 import {blackHoleFilter} from "./black-hole-palette.js";
 import * as d3 from "d3";
@@ -2911,7 +2912,11 @@ function drawObjects() {
         }, { once: true });
       });
       return g;
-    })
+    }, update=>update, exit=>exitReveal(exit,(o,node)=>{
+      const current=projected.find(q=>q.slug===o.slug);
+      if(current){const picture=objectPicturePoint(current,node.__iconGrowth??1);d3.select(node).attr('transform',`translate(${picture.x-o.sx},${picture.y-o.sy})`);}
+      return iconRevealOptions(o,node);
+    }))
     .each(function(o) {
       const gg = d3.select(this);
       const bbOp = (_bigBangMode && o.bbOpacity < 1) ? o.bbOpacity : null;
@@ -2934,6 +2939,7 @@ function drawObjects() {
         .attr("x", o.sx - objIcoSize / 2).attr("y", o.sy - objIcoSize / 2)
         .attr("width", objIcoSize).attr("height", objIcoSize)
         .attr("opacity", bbOp);
+      revealIcon(this,true,iconRevealOptions(o,this));
     })
     .order();
 
@@ -3017,8 +3023,18 @@ function drawObjects() {
     ...shownDots.filter(o => o._showIcon && (!iconUsesScreenBlend(o) || SHADOWED_SCREEN_SPHERES.has(o.slug)))
       .map(o => ({ key: o.slug, sx: o.sx, sy: o.sy, r: icoSize * iconSizeMult(o) / 2, img: SHADOW_BY_SLUG[o.slug], round: SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "shared", roundOffsetScale: SHADOW_SETTINGS_BY_SLUG[o.slug]?.roundOffsetScale, registered: SHADOW_SETTINGS_BY_SLUG[o.slug]?.registered || SHADOW_SETTINGS_BY_SLUG[o.slug]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[o.slug]?.anchorBase })),
     ...dustIcons().filter(d => !d.blend || SHADOWED_SCREEN_SPHERES.has(nameToSlug(d.name))).map(d => ({ key: `dust:${d.i}`, ...d, img: SHADOW_BY_SLUG[nameToSlug(d.name)], round: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "shared", roundOffsetScale: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.roundOffsetScale, registered: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.registered || SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.mode === "long", anchorBase: SHADOW_SETTINGS_BY_SLUG[nameToSlug(d.name)]?.anchorBase })),
-  ]);
+  ],new Map(projected.map(o=>[o.slug,o])));
   drawDustShadows();
+  lShadows.selectAll('circle.object-dot-shadow').data(SHADOWS&&!_bigBangMode?shownDots.filter(o=>!o._showIcon):[],o=>o.slug)
+    .join('circle').attr('class','object-dot-shadow').attr('cx',o=>o.sx+3).attr('cy',o=>o.sy+4)
+    .attr('r',2.8).attr('fill','#000').attr('opacity',o=>lShadows.selectAll('g.icon-shadow').filter(d=>d.key===o.slug).empty()?.35:0).attr('filter','url(#dust-shadow-blur)');
+}
+
+function iconRevealOptions(o,node) {
+  const picture=objectPicturePoint(o,node.__iconGrowth??1),dot=depthPoint(o,PARALLAX.dust);
+  return {x:o.sx,y:o.sy,dx:dot.x-picture.x,dy:dot.y-picture.y,size:effectiveIconSize()*iconSizeMult(o),color:o.color,reducedMotion:_reduceMotion,
+    onProgress:p=>{lObjMain.selectAll('g.obj-g').filter(d=>d.slug===o.slug).selectAll('.obj-dot,.obj-glow').style('opacity',p<1?0:null);},
+    onDone:()=>{lObjMain.selectAll('g.obj-g').filter(d=>d.slug===o.slug).selectAll('.obj-dot,.obj-glow').style('opacity',null);}};
 }
 
 /** Every dust dot casts a tiny soft shadow down-right (same light as the
@@ -3118,7 +3134,12 @@ function starTint(url, fallback) {
   img.src = url;
   return fallback;
 }
-function drawIconShadows(shapes) {
+function shadowRevealOptions(d){
+  const body=2*d.r/(ICON_SIZE_MULT[d.name?nameToSlug(d.name):d.key]||1);
+  const bias=d.glow&&!d.img?0:body*shadowPlacementBias(d);
+  return {x:d.sx+3-bias,y:d.sy+4-bias,size:6*d.r,dot:2.8,color:'#000',shadow:true,reducedMotion:_reduceMotion,onDone:()=>lShadows.selectAll('circle.object-dot-shadow').filter(o=>o.slug===d.key).attr('opacity',.35)};
+}
+function drawIconShadows(shapes,positions=new Map()) {
   if (!SHADOWS || _bigBangMode) shapes = [];
   lShadows.selectAll("g.icon-shadow")
     .data(shapes, d => d.key)
@@ -3130,7 +3151,11 @@ function drawIconShadows(shapes) {
       g.append("ellipse").attr("class", "sh-glow").attr("filter", "url(#star-glow)").attr("mask","url(#star-wall-mask)")
         .style("mix-blend-mode", "screen");
       return g;
-    })
+    },update=>update,exit=>exitReveal(exit,(d,node)=>{
+      const current=positions.get(d.key),opts=shadowRevealOptions(d);
+      if(current){const bias=d.sx+3-opts.x;d3.select(node).attr('transform',`translate(${bias+current.sx-d.sx},${bias+current.sy-d.sy})`);}
+      return opts;
+    }))
     .each(function(d) {
       const g = d3.select(this);
       const body = 2 * d.r / (ICON_SIZE_MULT[d.name ? nameToSlug(d.name) : d.key] || 1);
@@ -3152,7 +3177,7 @@ function drawIconShadows(shapes) {
         return;
       }
       SHADOW_PARTS.forEach(part => applyShadowGeom(g.select(`ellipse.${part[0]}`).interrupt(), shadowGeom(d, part)));
-    });
+    }).each(function(d){revealIcon(this,true,shadowRevealOptions(d));});
 }
 /** Ease one picture's shadow to its lifted (hover) or resting place. */
 function liftShadow(key, k) {
@@ -3197,7 +3222,7 @@ function setIconHover(o, on) {
   // Grow around the icon's center via CSS transform; geometry attrs stay
   // owned by the renderer (see .obj-icon in style.css for why).
   const k = on ? Math.max(64, base * 1.5) / base : 1;
-  const group = d3.select(iconEl.node().parentNode);
+  const group = d3.select(iconEl.node().closest("g.icon-g"));
   if (on) group.raise();
   animateIconGrowth(group,k,(node,growth)=>{
     const current=node.__data__,g=d3.select(node),size=effectiveIconSize()*iconSizeMult(current);
