@@ -216,7 +216,7 @@
 {"band": 6, "rank": 15, "source": "vehicle", "name": "DeLorean DMC-12", "kind": "sports car"},
 {"band": 6, "rank": 16, "source": "spacecraft", "name": "Skylab", "kind": "space station"},
 {"band": 6, "rank": 17, "source": "armour", "name": "M1 Abrams", "kind": "tank"},
-{"band": 6, "rank": 18, "source": "artefact", "name": "Big Ben", "kind": "bell"},
+{"band": 6, "rank": 18, "source": "artefact", "name": "Big Ben", "kind": "clock tower"},
 {"band": 6, "rank": 19, "source": "aircraft", "name": "Antonov An-225 Mriya", "kind": "cargo plane"},
 {"band": 6, "rank": 20, "source": "vehicle", "name": "Aston Martin DB5", "kind": "sports car"},
 {"band": 6, "rank": 21, "source": "artefact", "name": "Cloud Gate", "kind": "sculpture"},

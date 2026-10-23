@@ -27,6 +27,7 @@ import hyperspirographStates from "../content/icons/hyperspirograph-states.json"
 import roundShadows from "../content/icons/shadows/round.json";
 import shadowOverrides from "../content/icons/shadows/overrides.json";
 import iconResolutions from "../content/icons/resolutions/manifest.json";
+import iconCoverage from "../content/icons/coverage.json";
 import { iconPixelRequirement, chooseIconResolution } from "./icon-resolution.js";
 
 // Atoms whose sidebar image is a sphere-packed spirograph composite (built
@@ -69,6 +70,8 @@ export const ICON_MULTI_MAP = {
 const NO_ICON = new Set(["wolf-rayet"]);
 export const iconUrls = import.meta.glob("../content/icons/*.webp", { query: "?url", import: "default", eager: true });
 export const ICON_BY_SLUG = {};
+// How much of its square each picture covers (scripts/icon-coverage.mjs), by slug
+export const ICON_COVERAGE = {};
 for (const [path, url] of Object.entries(iconUrls)) {
   const iconFile = path.replace("../content/icons/", "").replace(".webp", "");
   if (ICON_MULTI_MAP[iconFile]) {
@@ -78,6 +81,10 @@ for (const [path, url] of Object.entries(iconUrls)) {
     if (!NO_ICON.has(slug)) ICON_BY_SLUG[slug] = url;
   }
 }
+for (const [file, c] of Object.entries(iconCoverage)) {
+  for (const slug of ICON_MULTI_MAP[file] || [ICON_SLUG_MAP[file] || file]) ICON_COVERAGE[slug] = c;
+}
+
 // URLs are bundled eagerly, but browsers fetch only the selected tier. Budget
 // for hover here so the 150ms animation never has to wait for a larger image.
 const resolutionUrls = import.meta.glob("../content/icons/resolutions/*/*.webp", { query: "?url", import: "default", eager: true });

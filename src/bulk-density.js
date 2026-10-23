@@ -75,10 +75,25 @@ export const DUST_SHAPE = {
   artefact: [2, 30],           // Tsar Bell ~2, Eiffel Tower ~11, long bridges ~30+
 };
 const ARTEFACT_MAX_RHO = 8;    // g/cm³, about bronze
-// Hand-set bulk densities for famous dots, instead of the random spread above.
-// Eiffel Tower: ~10,100 t in its outer envelope, holes and the arch under it
-// included: a curved pyramid 125 m square and 300 m tall, about 1.5 million m³.
-const DUST_RHO_NAMED = { "Eiffel Tower": 0.007 };
+// The airiest built structure is about the Eiffel Tower (below). Anything
+// placed lighter than that has a catalogue mass of one part of it (a bell, a
+// mast) or a length far beyond its bulk (a footbridge); either way it would
+// sit among the balloons and airships, lighter than air. Floor it here.
+const ARTEFACT_MIN_RHO = 0.005;
+
+// Artefacts known better than the catalogue: `rho` = bulk density of the
+// envelope, `m` = mass in g (replacing the catalogue's).
+const ARTEFACT_NAMED = {
+  // 10,100 t inside its pyramid envelope (125 m square base, 300 m tall,
+  // ~1.56 million m³)
+  "Eiffel Tower": { rho: 0.0065 },
+  // The catalogue's 13.7 t is the bell; the picture and size are the tower.
+  // Elizabeth Tower: ~2,600 m³ of brick (×1.9 t/m³ ≈ 4,900 t) and ~850 m³ of
+  // stone (×2.3 ≈ 2,000 t), plus the iron spire, the 5 t clock and the bells:
+  // ~7,000 t, an estimate (no official total; UK Parliament facts and
+  // figures). In its 12.2 m square, 96 m envelope that's ~0.5 g/cm³.
+  "Big Ben": { m: 7e9, rho: 0.5 },
+};
 
 const logBall = (logM, rho) => (logM - DENSITY_SPHERE_C - Math.log10(rho)) / 3;
 
@@ -132,15 +147,17 @@ export function applyBulkDust(r, m, src, sources, rawNames) {
     }
     let logRho;
     const bounding = m[i] - 3 * r[i] - DENSITY_SPHERE_C;
-    const named = DUST_RHO_NAMED[rawNames[i]];
+    const named = shape && ARTEFACT_NAMED[rawNames[i]];
     if (named) {
-      r[i] = logBall(m[i], named);
+      if (named.m) m[i] = Math.log10(named.m);
+      r[i] = logBall(m[i], named.rho);
       continue;
     }
     if (shape) {
       // a compact item (a bell) can't be packed much tighter: cap at ~bronze
       const cap = Math.max(1, ARTEFACT_MAX_RHO / 10 ** bounding);
-      logRho = bounding + logUniform(Math.min(shape[0], cap), Math.min(shape[1], cap), u);
+      logRho = Math.max(Math.log10(ARTEFACT_MIN_RHO),
+        bounding + logUniform(Math.min(shape[0], cap), Math.min(shape[1], cap), u));
     } else {
       logRho = Array.isArray(rho) ? logUniform(rho[0], rho[1], u) : Math.log10(rho);
     }

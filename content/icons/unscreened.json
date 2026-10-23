@@ -1,0 +1,299 @@
+{
+ "adenine-a": {
+  "backing": "soft",
+  "master": true
+ },
+ "am-radio": {
+  "backing": "soft"
+ },
+ "andromeda-m31": {
+  "backing": "core"
+ },
+ "atp": {
+  "backing": "soft"
+ },
+ "barnard-68": {
+  "backing": "soft",
+  "master": true
+ },
+ "betelgeuse": {
+  "backing": "body",
+  "master": true
+ },
+ "big-bang": {
+  "backing": "soft",
+  "master": true
+ },
+ "blue-supergiant": {
+  "backing": "body",
+  "master": true
+ },
+ "bottom": {
+  "backing": "soft"
+ },
+ "carbon": {
+  "backing": "soft",
+  "master": true
+ },
+ "charm": {
+  "backing": "soft"
+ },
+ "cytosine-c": {
+  "backing": "soft",
+  "master": true
+ },
+ "dna": {
+  "backing": "soft"
+ },
+ "down": {
+  "backing": "soft"
+ },
+ "dwarf-galaxy": {
+  "backing": "core"
+ },
+ "electron": {
+  "backing": "soft"
+ },
+ "fm-radio": {
+  "backing": "soft"
+ },
+ "fullerene-c60": {
+  "backing": "soft",
+  "master": true
+ },
+ "galaxy-cluster": {
+  "backing": "core",
+  "master": true
+ },
+ "gamma-ray": {
+  "backing": "soft"
+ },
+ "globular-cluster": {
+  "backing": "core"
+ },
+ "glucose": {
+  "backing": "soft"
+ },
+ "gold": {
+  "backing": "soft",
+  "master": true
+ },
+ "guanine-g": {
+  "backing": "soft",
+  "master": true
+ },
+ "halleys-comet": {
+  "backing": "core",
+  "master": true
+ },
+ "helium": {
+  "backing": "soft",
+  "master": true
+ },
+ "hemoglobin": {
+  "backing": "soft",
+  "master": true
+ },
+ "higgs": {
+  "backing": "soft"
+ },
+ "hydrogen": {
+  "backing": "soft",
+  "master": true
+ },
+ "infrared": {
+  "backing": "soft"
+ },
+ "insulin": {
+  "backing": "soft",
+  "master": true
+ },
+ "iron": {
+  "backing": "soft",
+  "master": true
+ },
+ "l-brown-dwarf": {
+  "backing": "body",
+  "master": true
+ },
+ "laniakea-galaxy-supercluster": {
+  "backing": "core",
+  "master": true
+ },
+ "m87": {
+  "backing": "hole",
+  "master": true
+ },
+ "meson": {
+  "backing": "soft"
+ },
+ "microwave": {
+  "backing": "soft"
+ },
+ "milky-way": {
+  "backing": "core",
+  "master": true
+ },
+ "muon": {
+  "backing": "soft"
+ },
+ "nebulae": {
+  "backing": "core",
+  "master": true
+ },
+ "neutrino-e": {
+  "backing": "soft"
+ },
+ "neutrino-mu": {
+  "backing": "soft"
+ },
+ "neutrino-tau": {
+  "backing": "soft"
+ },
+ "neutron": {
+  "backing": "soft"
+ },
+ "neutron-star": {
+  "backing": "body",
+  "master": true
+ },
+ "ngc7538s-bubble-nebula": {
+  "backing": "core"
+ },
+ "ngc7635bubble-nebula": {
+  "backing": "core",
+  "master": true
+ },
+ "observable-universe": {
+  "backing": "body",
+  "master": true
+ },
+ "oxygen": {
+  "backing": "soft",
+  "master": true
+ },
+ "planetary-nebula": {
+  "backing": "core",
+  "master": true
+ },
+ "proton": {
+  "backing": "soft"
+ },
+ "protostar": {
+  "backing": "soft",
+  "master": true
+ },
+ "proxima-cen": {
+  "backing": "body",
+  "master": true
+ },
+ "red-dwarf": {
+  "backing": "body",
+  "master": true
+ },
+ "red-giant": {
+  "backing": "body",
+  "master": true
+ },
+ "sgr-a": {
+  "backing": "hole",
+  "master": true
+ },
+ "sirius-a": {
+  "backing": "body",
+  "master": true
+ },
+ "sirius-b": {
+  "backing": "body",
+  "master": true
+ },
+ "sombrero-m104": {
+  "backing": "core",
+  "master": true
+ },
+ "stellar-bh": {
+  "backing": "hole",
+  "master": true
+ },
+ "stellar-nursery": {
+  "backing": "soft",
+  "master": true
+ },
+ "strange": {
+  "backing": "soft"
+ },
+ "sun": {
+  "backing": "body"
+ },
+ "supernova-remnant": {
+  "backing": "core",
+  "master": true
+ },
+ "t-brown-dwarf": {
+  "backing": "body",
+  "master": true
+ },
+ "tau": {
+  "backing": "soft"
+ },
+ "thymine-t": {
+  "backing": "soft",
+  "master": true
+ },
+ "ton-618": {
+  "backing": "hole",
+  "master": true
+ },
+ "top": {
+  "backing": "soft"
+ },
+ "triangulum-m33": {
+  "backing": "core",
+  "master": true
+ },
+ "ultraviolet": {
+  "backing": "soft"
+ },
+ "up-quark": {
+  "backing": "soft"
+ },
+ "uranium": {
+  "backing": "soft",
+  "master": true
+ },
+ "vega": {
+  "backing": "body",
+  "master": true
+ },
+ "visible-light": {
+  "backing": "soft"
+ },
+ "w-boson": {
+  "backing": "soft"
+ },
+ "water-h2o": {
+  "backing": "soft",
+  "master": true
+ },
+ "white-dwarf": {
+  "backing": "body",
+  "master": true
+ },
+ "wolf-rayet": {
+  "backing": "body",
+  "master": true
+ },
+ "x-and-y-bosons": {
+  "backing": "soft"
+ },
+ "x-ray": {
+  "backing": "soft"
+ },
+ "y-brown-dwarf": {
+  "backing": "body",
+  "master": true
+ },
+ "z-boson": {
+  "backing": "soft"
+ }
+}

@@ -23,10 +23,9 @@ import {blackHoleMask} from "./black-hole-frames.js";
 // =============================================================
 
 import dustUrl from "./dust.json?url";
-import {spaceCoreGeometry,spaceEdgeMask} from "./space-art.js";
+import {spaceEdgeMask} from "./space-art.js";
 import {animateIconGrowth} from "./icon-hover.js";
 import {priorityCircles} from "./visibility-hierarchy.js";
-import {starBodyGeometry} from "./star-light.js";
 import { PARALLAX, planePoint, unprojectPlane, planeTransform, iconPoint } from "./parallax.js";
 import { applyBulkDust } from "./bulk-density.js";
 import { select as d3sel } from "d3";
@@ -95,13 +94,12 @@ let _keptGrid = new Map(); // cell key → indices into _kept (hover lookup)
 let _labelled = new Set(); // dust indices labelled last frame: kept first, so labels don't flicker
 let _priorityIcons = new Map(); // fixed-rank catalogue pictures, independent of dot/label thinning
 const _priorityIconDecisions = new Map();
-let _iconShapes = [];      // [{ i, name, sx, sy, r, blend }] of those pictures, for the map's cast shadows
+let _iconShapes = [];      // [{ i, name, sx, sy, r, blend }] of those pictures, for the map's cast shadows; blend = luminous (no shadow)
 let _visibilityEpoch = null;
 const _dotDecisions = new Map();
 const _nameDecisions = new Map(); // null means deliberately hidden, not undecided
 let _view = null;
 const _iconGrowth = new Map();
-const _loadedPictures = new Set();
 function iconClearance(radius, name) {
   return _view.parallax ? PARALLAX.icon * (1 + PARALLAX.variation) * (_view.bodySizeAt?.(radius * 2, name) ?? radius * 2) : 0;
 }
@@ -228,7 +226,7 @@ export function drawDust(layer, view, blockers, colorOf) {
     candidates.sort((a,b) => a.rank-b.rank || a.i-b.i);
     const selected = priorityCircles(candidates, p=>p.r, view.iconRoom ?? ICON_ROOM, blockers.priorityCircles || []);
     for (const p of candidates) {
-      if (!_priorityIconDecisions.has(p.i)) _priorityIconDecisions.set(p.i, selected.has(p) && p.r*2 >= ICON_MIN);
+      if (!_priorityIconDecisions.has(p.i)) _priorityIconDecisions.set(p.i, selected.has(p) && p.r*2 >= (view.iconMin ?? ICON_MIN));
       if (_priorityIconDecisions.get(p.i)) _priorityIcons.set(p.i,p);
     }
   }
@@ -493,23 +491,16 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     });
   const imageLayer = view.iconLayer || layer;
   imageLayer.selectAll("g.dust-picture").data(_iconShapes, p => p.i)
+    // luminous pictures carry their dark backing inside the picture (src/luminous-art.js)
     .join(enter => { const g = enter.append("g").attr("class", "dust-picture");
-      g.append("circle").attr("class","dn-body").attr("fill","#000");
-      g.append("image").attr("class", "dn-icon").attr("preserveAspectRatio", "xMidYMid meet")
-        .on("load",function(){_loadedPictures.add(this.getAttribute("href"));d3sel(this.parentNode).select(".dn-body").attr("visibility",null)}); return g; })
+      g.append("image").attr("class", "dn-icon").attr("preserveAspectRatio", "xMidYMid meet"); return g; })
     .each(function(p) {
       const g = d3sel(this), point = picturePoint(p);
       g.attr("transform", "translate(" + (point.x-p.sx) + "," + (point.y-p.sy) + ")");
       const source = placed.find(q => q.i === p.i).icon;
       const soft=view.softSpaceOf?.(p.cat,p.name);
-      const disc=starBodyGeometry(view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,_iconGrowth.get(p.i)||1)||(soft?spaceCoreGeometry(view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,_iconGrowth.get(p.i)||1):null);
-      g.select(".dn-body").attr("display",disc?null:"none").attr("fill",soft?"url(#space-core-gradient)":"#000")
-        .attr("visibility",_loadedPictures.has(source.url)?null:"hidden")
-        .attr("cx",disc?.cx??p.sx).attr("cy",disc?.cy??p.sy).attr("r",disc?.r??0);
       g.select("image").style("transform",(_iconGrowth.get(p.i)||1)===1?null:`scale(${_iconGrowth.get(p.i)})`).attr("href", source.url)
         .attr("x", p.sx-p.r).attr("y", p.sy-p.r).attr("width", p.r*2).attr("height", p.r*2)
-        .style("mix-blend-mode", p.blend ? "screen" : null)
-        .style("filter",view.iconFilterOf?.(p.cat,p.name)||`brightness(${view.iconBrightnessOf?.(p.cat,p.name)??1})`)
         .attr("mask",blackHoleMask(view.depthKeyOf?.(p.name))||(soft?spaceEdgeMask(view.depthKeyOf?.(p.name)):null));
     });
 }
@@ -534,8 +525,6 @@ export function setDustIconScale(layer, i, k) {
     const p=node.__data__,g=d3sel(node);
     if(growth>1)_iconGrowth.set(i,growth);else _iconGrowth.delete(i);
     const point=picturePoint(p,growth);
-    const disc=starBodyGeometry(_view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,growth)||(_view.softSpaceOf?.(p.cat,p.name)?spaceCoreGeometry(_view.depthKeyOf?.(p.name),p.sx,p.sy,p.r*2,growth):null);
-    if(disc)g.select('.dn-body').attr('cx',disc.cx).attr('cy',disc.cy).attr('r',disc.r);
     g.attr('transform',`translate(${point.x-p.sx},${point.y-p.sy})`);
     g.select('.dn-icon').style('transform',growth===1?null:`scale(${growth})`);
   },_view.reducedMotion);
@@ -585,12 +574,33 @@ export function pickDust(x, y, radius = 6) {
   if (!best) return null;
   const src = _data.sources[_data.src[best.i]];
   return {
+    i: best.i,
     name: _data.names[best.i],
     source: src.label,
     cat: src.cat,
+    logR: _data.r[best.i], logM: _data.m[best.i],
     sx: planePoint(best.sx,best.sy,_view.cw,_view.ch,_view.parallax ? PARALLAX.dust : 0).x,
     sy: planePoint(best.sx,best.sy,_view.cw,_view.ch,_view.parallax ? PARALLAX.dust : 0).y,
   };
+}
+
+/** Where dust dot i is drawn now (chart px, its depth plane included), or null. */
+export function dustPoint(i) {
+  const icon = _iconShapes.find(p => p.i === i);
+  if (icon) return picturePoint(icon);
+  const q = _kept.find(q => q.i === i);
+  return q ? planePoint(q.sx, q.sy, _view.cw, _view.ch, _view.parallax ? PARALLAX.dust : 0) : null;
+}
+
+/** The named dust under (x, y): a picture, or a dot showing its name, within
+ *  `radius` px (a finger's reach); { i, name, logR, logM } or null. */
+export function pickNamedDust(x, y, radius = 22) {
+  if (!_data) return null;
+  let best = null, bestD = radius * radius;
+  const consider = (i, pt) => { const d = (pt.x - x) ** 2 + (pt.y - y) ** 2; if (d <= bestD) { bestD = d; best = i; } };
+  for (const p of _iconShapes) consider(p.i, picturePoint(p));
+  for (const q of _kept) if (_labelled.has(q.i)) consider(q.i, planePoint(q.sx, q.sy, _view.cw, _view.ch, _view.parallax ? PARALLAX.dust : 0));
+  return best == null ? null : { i: best, name: _data.fame.get(best)?.label || _data.names[best], logR: _data.r[best], logM: _data.m[best] };
 }
 
 /** Every dust dot of one category as [logR, logM] pairs (e.g. all the known
