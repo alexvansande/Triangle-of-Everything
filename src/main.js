@@ -8337,6 +8337,12 @@ if (_ogShot) {
           .attr("stroke", d => d.color || "#fff").attr("stroke-width", 1.1).attr("stroke-dasharray", "4 4")
           .attr("opacity", d => d.opacity ?? 0.55);
       },
+      /** Highlighted lines drawn under the pictures (videos): [{ d, color, width, opacity, dash }], chart-local px. */
+      drawUnderLines(lines = []) {
+        lNarrGuides.selectAll("path.narr-under").data(lines).join("path").attr("class", "narr-under")
+          .attr("d", d => d.d).attr("fill", "none").attr("stroke", d => d.color).attr("stroke-width", d => d.width)
+          .attr("opacity", d => d.opacity).attr("stroke-linecap", "round").attr("stroke-dasharray", d => d.dash);
+      },
       /** Light blue halos behind named objects (videos): [{ x, y, r, opacity }] in chart-local px. */
       drawHalos(halos = []) {
         lNarrGuides.selectAll("circle.narr-halo").data(halos).join("circle").attr("class", "narr-halo")

@@ -258,10 +258,14 @@ export async function startNarration(app) {
   });
   // an object still named from the cue before keeps its first mention (`since`), so its
   // halo and guides don't start over at every cue
-  for (const h of highlights) if (h.obj) {
-    const prev = highlights.find(q => q.obj === h.obj && q !== h && q.t0 < h.t0 && Math.abs(q.t1 - h.t0) < 0.6);
+  for (const h of highlights) if (h.obj || h.line) {
+    const prev = highlights.find(q => q !== h && (h.obj ? q.obj === h.obj : q.line === h.line) && q.t0 < h.t0 && Math.abs(q.t1 - h.t0) < 0.6);
     h.since = prev ? prev.since : h.t0;
   }
+  // the water line lies under the pictures, except its first mention: brighter and
+  // thicker over them for WATER_GLOW s, then down to its place (drawLine)
+  const firstWater = highlights.find(h => h.line === "water")?.t0;
+  const WATER_GLOW = 2;
 
   // ---------- icons: only the objects the scene points at keep their picture ----------
   // (a cue's `icons`: false for none, true for the scene's set, or a list of names,
@@ -581,6 +585,7 @@ export async function startNarration(app) {
       if (h.split) op = t >= h.t0 ? 1 - smooth((t - h.t1) / 0.5) : 0;
       else if (h.swing && h.core && t >= h.t1 && highlights.some(q => q.split && Math.abs(q.t0 - h.t1) < 0.05)) op = 0;
       el.attr("opacity", op);
+      h.op = op;
       if (h.obj) drawObj(el, h, age);
       else if (h.spot) drawSpot(el, h, age);
       else if (h.line) drawLine(el, LINES[h.line], h, age);
@@ -614,6 +619,7 @@ export async function startNarration(app) {
     // The fade follows the narration clock (0.5 s), so the renderer's frames match playback.
     drawHalos(live, t);
     drawGuides(live, t);
+    app.drawUnderLines?.(underLines.splice(0));
     // a close-up cue with `nearby: true` keeps its surroundings named: no fade, catalogue names on
     const hlNow = hlCues.filter(c => c.time <= t).at(-1);
     const nearby = !!hlNow?.nearby;
@@ -807,6 +813,7 @@ export async function startNarration(app) {
   function linePath(pts) {
     return pts.map(([r, m]) => [sx(r), sy(m)]);
   }
+  const underLines = [];   // the water line's strokes for under the pictures, this frame
   function drawLine(el, L, h, age) {
     if (!L || !L.pts.length) return;
     const p = linePath(L.pts);
@@ -815,10 +822,19 @@ export async function startNarration(app) {
     const prog = d3.easeCubicOut(clamp01(age / (h.draw ?? 1.3)));
     const d = "M" + p.map(q => q.join(",")).join("L");
     const col = h.color || L.color;
-    [[12, 0.12], [6, 0.25], [2.4, 1]].forEach(([w, o]) => {
+    const strokes = [[12, 0.12], [6, 0.25], [2.4, 1]];
+    const dash = `${len * prog} ${len + 10}`;
+    // the water line: over the pictures only while its first mention glows
+    const glow = h.line !== "water" ? 1 : h.since === firstWater ? 1 - smooth((curT - h.since - WATER_GLOW) / 0.6) : 0;
+    if (h.line === "water") {
+      const pl = app.plot(), dl = "M" + p.map(([x, y]) => `${x - pl.x},${y - pl.y}`).join("L");
+      if (glow < 1) strokes.forEach(([w, o]) => underLines.push({ d: dl, color: col, width: w, opacity: o * (1 - glow) * (h.op ?? 1), dash }));
+    }
+    const thick = h.line === "water" ? 1.6 : 1;
+    if (glow > 0.001) strokes.forEach(([w, o]) => {
       el.append("path").attr("d", d).attr("fill", "none").attr("stroke", col)
-        .attr("stroke-width", w).attr("opacity", o).attr("stroke-linecap", "round")
-        .attr("stroke-dasharray", `${len * prog} ${len + 10}`);
+        .attr("stroke-width", w * thick).attr("opacity", o * glow).attr("stroke-linecap", "round")
+        .attr("stroke-dasharray", dash);
     });
     if (h.label) {
       // label at the on-screen middle of the visible part of the line

@@ -47,13 +47,13 @@ export default {
     { at: "those diagonal lines", hl: [{ line: "water", label: "the diagonal" }] },
 
     // a millilitre of water: a cube 1 cm wide, then the same water as a ball
-    { at: "in the metric system", cam: { obj: "1ml of water (cube)", dr: 0.05, span: 1.4 }, units: true, unitsUntil: "that's okay",
+    { at: "in the metric system", cam: { obj: "1ml of water (cube)", dr: 0.047, span: 0.3 }, units: true, unitsUntil: "that's okay",
       hl: [{ ...CUBE, label: "1 mL · 1 gram" }] },
     { at: "fill a cube", hl: [{ ...CUBE, label: "a cube 1 cm wide" }] },
     { at: "measuring size as a sphere",
-      hl: [{ ...CUBE, label: "cube · 1 cm", place: "left" }, { arrow: true, from: CUBE, to: ML, color: "#80deea" }, { ...ML, label: "ball · 1.24 cm", delay: 0.6 }] },
+      hl: [{ ...CUBE, label: "cube · 1 cm" }, { arrow: true, from: CUBE, to: ML, color: "#80deea" }, { ...ML, label: "ball · 1.24 cm", delay: 0.6 }] },
     { at: "a little bit to the side",
-      hl: [{ ...CUBE, label: "cube", place: "left" }, { arrow: true, from: CUBE, to: ML, color: "#80deea", draw: 0.01 }, { ...ML, label: "a little to the side" }] },
+      hl: [{ ...CUBE, label: "cube" }, { arrow: true, from: CUBE, to: ML, color: "#80deea", draw: 0.01 }, { ...ML, label: "a little to the side" }] },
 
     // walking up the line: the grid's squares are decades, counted out beside the
     // arrows, with the axis each move is measured on lit up
