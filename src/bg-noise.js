@@ -33,10 +33,10 @@ export const NOISE_MODES = [
   [0, "Today (blurred tiles)"],
 ];
 
-// Tuned for the video (the author's pick, 2026-10-23): a strong warp with faint,
+// Tuned for the video (the author's pick, 2026-10-23): a moderate warp with faint,
 // soft added detail, slowly evolving, from ~5 source px
 export const NOISE_DEFAULTS = {
-  mode: 8, move: true, speed: 0.09, drift: 0.095, ridge: 0.53, warp: 3,
+  mode: 8, move: true, speed: 0.09, drift: 0.095, ridge: 0.53, warp: 1,
   detail: 0.04, smooth: 1, start: 4.8, filter: 1, res: 1,
 };
 
