@@ -3075,11 +3075,11 @@
     ]
   },
   "red-dwarf": {
-    "fingerprint": "36da1e293aa30b6d19f019a473be7f74713adbff2dfb93c3feb9ce9de4588df4",
+    "fingerprint": "f23c4d74323f7249d349ecef816320432a00b3705bf3582a5f1e01a46f58ffe8",
     "baseWidth": 128,
     "source": "content/icons/src/red-dwarf.png",
     "reason": "matching master",
-    "sourceDifference": 4.260111490885417,
+    "sourceDifference": 3.9466349283854165,
     "variants": [
       {
         "width": 256,
@@ -3088,6 +3088,10 @@
       {
         "width": 512,
         "path": "512/red-dwarf.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/red-dwarf.webp"
       }
     ]
   },
