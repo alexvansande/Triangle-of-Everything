@@ -4082,11 +4082,11 @@
     ]
   },
   "y-brown-dwarf": {
-    "fingerprint": "aabfc495d9e7e82be406e704c0f9a99ae18ecb52f8d87258863ee858470d557d",
+    "fingerprint": "ab1b5d10420647662610a482d5f539fae5a9adc01de883aad4551b130b0af6ae",
     "baseWidth": 128,
     "source": "content/icons/src/y-brown-dwarf.png",
     "reason": "matching master",
-    "sourceDifference": 1.212158203125,
+    "sourceDifference": 0.7906494140625,
     "variants": [
       {
         "width": 256,
@@ -4097,8 +4097,8 @@
         "path": "512/y-brown-dwarf.webp"
       },
       {
-        "width": 896,
-        "path": "896/y-brown-dwarf.webp"
+        "width": 1024,
+        "path": "1024/y-brown-dwarf.webp"
       }
     ]
   },
