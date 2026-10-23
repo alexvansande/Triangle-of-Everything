@@ -463,7 +463,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       g.append("circle").attr("class","dn-body").attr("fill","#000");
       g.append("image").attr("class", "dn-icon").attr("preserveAspectRatio", "xMidYMid meet")
         .on("load",function(){_loadedPictures.add(this.getAttribute("href"));d3sel(this.closest(".dust-picture")).select(".dn-body").attr("visibility",null)}); return g; },update=>update,exit=>exitReveal(exit,(p,node)=>{
-      const now={...p,sx:px(_data.r[p.i]),sy:py(_data.m[p.i])};const point=picturePoint(now);
+      const now={...p,sx:view.px(_data.r[p.i]),sy:view.py(_data.m[p.i])};const point=picturePoint(now);
       d3sel(node).attr('transform',`translate(${point.x-p.sx},${point.y-p.sy})`);
       return dustRevealOptions(p);
     }))
