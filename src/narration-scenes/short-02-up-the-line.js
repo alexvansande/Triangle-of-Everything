@@ -13,7 +13,7 @@
 
 // Microchip (−0.65, −1) to the Great Pyramid (4.1, 12.8): the diagonal alone
 const CLOSE = { r: 1.7, m: 5.9, span: 9 };
-const CUBE = { obj: "1 mL Cube of Water" }, ML = { obj: "1 mL of Water" };
+const CUBE = { obj: "1ml of water (cube)" }, ML = { obj: "1 mL of Water" };
 const LITER = { obj: "1 Liter of Water" }, TONNE = { obj: "1 Tonne of Water" };
 const RIGHT = { r: 0.793, m: 0 };           // the millilitre ball, one square to the right
 const WATER = { line: "water" }, AIR = { line: "air" };
@@ -22,6 +22,7 @@ const PAN = 3;                              // span of the engineering → plane
 const SQ = (r, m, delay = 0) => ({ poly: [[r, m], [r + 1, m], [r + 1, m + 1], [r, m + 1]], fill: "#ffd54f", opacity: 0.35, delay });
 const STEP_RIGHT = [{ arrow: true, from: ML, to: RIGHT, label: "×10 size" }, SQ(-0.207, -1)];
 const STEP_UP = [{ arrow: true, from: RIGHT, to: LITER, label: "×1000 volume" }, SQ(0.793, 0, 0.3), SQ(0.793, 1, 0.8), SQ(0.793, 2, 1.3)];
+const HEAVIER = [{ ...STEP_UP[0], label: "×1000 heavier" }, ...STEP_UP.slice(1)];   // the same step, once it's a kilogram
 const drawn = (list) => list.map(h => h.arrow ? { ...h, draw: 0.01 } : { ...h, instant: true, delay: 0 });
 
 export default {
@@ -46,7 +47,7 @@ export default {
     { at: "those diagonal lines", hl: [{ line: "water", label: "the diagonal" }] },
 
     // a millilitre of water: a cube 1 cm wide, then the same water as a ball
-    { at: "in the metric system", cam: { obj: "1 mL Cube of Water", dr: 0.05, span: 1.4 }, units: true, unitsUntil: "that's okay",
+    { at: "in the metric system", cam: { obj: "1ml of water (cube)", dr: 0.05, span: 1.4 }, units: true, unitsUntil: "that's okay",
       hl: [{ ...CUBE, label: "1 mL · 1 gram" }] },
     { at: "fill a cube", hl: [{ ...CUBE, label: "a cube 1 cm wide" }] },
     { at: "measuring size as a sphere",
@@ -61,10 +62,10 @@ export default {
     { at: "one unit to the side",
       hl: [{ ...ML, label: "1 mL" }, ...STEP_RIGHT, { axis: "bottom", label: "size ×10" }] },
     { at: "volume by a thousand",
-      hl: [{ ...ML, label: "1 mL" }, ...drawn(STEP_RIGHT), ...STEP_UP, { axis: "left", label: "volume ×1000" }] },
+      hl: [{ ...ML, label: "1 mL" }, ...drawn(STEP_RIGHT), ...STEP_UP] },
     { at: "means one kilogram",
-      hl: [{ ...ML, label: "1 mL", place: "left" }, ...drawn(STEP_RIGHT), ...drawn(STEP_UP), { ...LITER, label: "1 liter · 1 kg" }] },
-    { at: "three units up", hl: [{ ...ML, place: "left" }, ...drawn(STEP_RIGHT), ...drawn(STEP_UP), { ...LITER, label: "3 squares up" }, { axis: "left", label: "mass ×1000" }] },
+      hl: [{ ...ML, label: "1 mL", place: "left" }, ...drawn(STEP_RIGHT), ...drawn(HEAVIER), { ...LITER, label: "1 liter · 1 kg" }] },
+    { at: "three units up", hl: [{ ...ML, place: "left" }, ...drawn(STEP_RIGHT), ...drawn(HEAVIER), { ...LITER, label: "3 squares up" }] },
     { at: "do that again", cam: { r: 1.0, m: 3.2, span: 6.5 },
       hl: [{ ...ML, place: "left" }, { ...LITER, label: "1 kg", place: "left" }, { arrow: true, from: LITER, to: TONNE, label: "×10 size · ×1000 mass" }, { ...TONNE, label: "1 tonne", delay: 0.8 }] },
     { at: "this diagonal line", cam: { r: 2, m: 6.5, span: 16 },

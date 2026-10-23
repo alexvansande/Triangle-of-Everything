@@ -533,6 +533,9 @@ for(const [offset,opacity] of [[0,1],[.18,.75],[.42,.34],[.68,.10],[1,0]])starFa
 defs.append("mask").attr("id","star-wall-mask").attr("maskUnits","objectBoundingBox")
   .attr("maskContentUnits","objectBoundingBox").attr("x",0).attr("y",0).attr("width",1).attr("height",1)
   .append("rect").attr("width",1).attr("height",1).attr("fill","url(#star-wall-fade)");
+// the videos' halo behind a named object: a star's wall light, stronger and light blue
+const narrHalo=defs.append("radialGradient").attr("id","narr-halo-fade");
+for(const [offset,opacity] of [[0,.95],[.3,.8],[.55,.42],[.8,.12],[1,0]])narrHalo.append("stop").attr("offset",offset).attr("stop-color","#9fd8ff").attr("stop-opacity",opacity);
 defs.append("filter").attr("id","star-glow").attr("primitiveUnits","objectBoundingBox")
   .attr("x","-20%").attr("y","-20%").attr("width","140%").attr("height","140%")
   .append("feGaussianBlur").attr("stdDeviation",.012);
@@ -8332,6 +8335,12 @@ if (_ogShot) {
           .attr("x1", d => d.x1).attr("y1", d => d.y1).attr("x2", d => d.x2).attr("y2", d => d.y2)
           .attr("stroke", d => d.color || "#fff").attr("stroke-width", 1.1).attr("stroke-dasharray", "4 4")
           .attr("opacity", d => d.opacity ?? 0.55);
+      },
+      /** Light blue halos behind named objects (videos): [{ x, y, r, opacity }] in chart-local px. */
+      drawHalos(halos = []) {
+        lNarrGuides.selectAll("circle.narr-halo").data(halos).join("circle").attr("class", "narr-halo")
+          .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", d => d.r)
+          .attr("fill", "url(#narr-halo-fade)").attr("opacity", d => d.opacity);
       },
       /** Catalogue names on or off in a video (they're off by default there). */
       setDustLabels(on) { if (DUST_LABELS_OFF === on) { DUST_LABELS_OFF = !on; redraw(); } },

@@ -256,6 +256,12 @@ export async function startNarration(app) {
     const t1 = Math.min(hlCues[i + 1]?.time ?? Infinity, c.time + (c.hold ?? 14));
     c.hl.forEach((h, j) => highlights.push({ ...h, t0: c.time + (h.delay || 0), t1, id: `${i}-${j}` }));
   });
+  // an object still named from the cue before keeps its first mention (`since`), so its
+  // halo and guides don't start over at every cue
+  for (const h of highlights) if (h.obj) {
+    const prev = highlights.find(q => q.obj === h.obj && q !== h && q.t0 < h.t0 && Math.abs(q.t1 - h.t0) < 0.6);
+    h.since = prev ? prev.since : h.t0;
+  }
 
   // ---------- icons: only the objects the scene points at keep their picture ----------
   // (a cue's `icons`: false for none, true for the scene's set, or a list of names,
@@ -598,13 +604,15 @@ export async function startNarration(app) {
     // Tower…); a spotlight grows its object's picture as a hover would.
     const named = live.flatMap(h => [h.obj, h.spot]).filter(n => n && objByName.get(n)?.dust);
     app.setDustPictures?.(named.length ? [...new Set(named)] : null);
-    // grown pictures: a spotlight's (by its factor) and every highlighted object's (as on hover: "hover")
-    const grows = new Map(live.filter(h => h.obj && t >= h.t0 && t < h.t1).map(h => [h.obj, h.grow ?? "hover"]));
+    // grown pictures: a spotlight's (by its factor), and an object's only when its cue asks
+    // (`grow`); a named object gets a halo instead (drawHalos)
+    const grows = new Map(live.filter(h => h.obj && h.grow && t >= h.t0 && t < h.t1).map(h => [h.obj, h.grow]));
     for (const h of live) if (h.spot && t < h.t1) grows.set(h.spot, h.grow ?? 2.2);
     // (only marked done once the picture is there to grow, so a late picture still grows)
     for (const [n, k] of grows) if (grown.get(n) !== k && app.growIcon?.(n, k)) grown.set(n, k);
     for (const n of [...grown.keys()]) if (!grows.has(n)) { grown.delete(n); app.growIcon?.(n, 1); }
     // The fade follows the narration clock (0.5 s), so the renderer's frames match playback.
+    drawHalos(live, t);
     drawGuides(live, t);
     // a close-up cue with `nearby: true` keeps its surroundings named: no fade, catalogue names on
     const hlNow = hlCues.filter(c => c.time <= t).at(-1);
@@ -729,19 +737,13 @@ export async function startNarration(app) {
     const col = h.color || objColor(o);
     const pop = 0.6 + 0.4 * d3.easeBackOut(clamp01(age / 0.5));
     // 1.5× the old 17 px default, and always clear of the object's own picture
-    // An object with a picture is highlighted by growing it (the hover effect, see the
-    // highlight loop); only a plain dot gets the turning dashed ring.
+    // The object itself is marked by its halo (drawHalos); this only places the tag.
     const box = app.iconRect?.(h.obj);
     let R;
     if (box) {
       const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
       R = Math.max(box.w, box.h) / scl / 2 * 0.85 + 2;
-    } else {
-      R = (h.r || 17) * 1.5 * pop + 2 * Math.sin(age * 3.2);
-      el.append("circle").attr("class", "narr-ring").attr("cx", x).attr("cy", y).attr("r", R + 4).attr("fill", "none")
-        .attr("stroke", "#fff").attr("stroke-width", 1.4).attr("opacity", 0.9)
-        .attr("stroke-dasharray", "3 4").attr("stroke-dashoffset", -age * 6);
-    }
+    } else R = (h.r || 17) * 1.5 * pop;
     if (h.label === false) return;
     const label = (h.label || o.name).toUpperCase();
     // default: centred above the ring, clear of the app's own label (right)
@@ -752,18 +754,37 @@ export async function startNarration(app) {
     el.append("text").attr("class", "narr-tag").attr("x", tx).attr("y", ty)
       .attr("text-anchor", anchor).attr("fill", col).text(label);
   }
-  /** The object being talked about (the latest highlighted one with a callout):
-   *  dashed guides out to the mass ruler (right) and the size ruler (bottom),
-   *  drawn in the chart under its picture so they seem to leave its centre, and
-   *  its mass and size written at the rulers. */
+  /** Every object being named gets a light blue halo behind its picture (like a
+   *  star's wall glow, stronger), from its first mention: on in 0.5 s, held to
+   *  HALO_HOLD, then fading over HALO_FADE, or sooner when its highlight ends. */
+  const HALO_HOLD = 2.5, HALO_FADE = 1.5;
+  function drawHalos(live, t) {
+    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth, pl = app.plot();
+    const halos = new Map();
+    for (const h of live) {
+      const o = h.obj && objByName.get(h.obj);
+      if (!o || h.halo === false || t < h.t0) continue;
+      const a = smooth((t - h.since) / 0.5) * (1 - smooth((t - h.since - HALO_HOLD) / HALO_FADE)) * (1 - smooth((t - h.t1) / 0.5));
+      if (a <= 0.005 || (halos.get(h.obj)?.opacity ?? 0) >= a) continue;
+      const box = app.iconRect?.(h.obj);
+      const x = box ? (box.x + box.w / 2 - lr.x) / scl : sx(o.logR), y = box ? (box.y + box.h / 2 - lr.y) / scl : sy(o.logM);
+      const r = box ? Math.max(box.w, box.h) / scl * 0.95 + 10 : 30;
+      halos.set(h.obj, { x: x - pl.x, y: y - pl.y, r, opacity: a });
+    }
+    app.drawHalos?.([...halos.values()]);
+  }
+  /** When a single object is being named: dashed guides out to the mass ruler
+   *  (right) and the size ruler (bottom), drawn in the chart under its picture so
+   *  they seem to leave its centre, and its mass and diameter written at the rulers. */
   function drawGuides(live, t) {
-    const cur = live.filter(h => h.obj && h.label !== false && t >= h.t0 && t < h.t1).sort((a, b) => a.t0 - b.t0).at(-1);
+    const on = live.filter(h => h.obj && t >= h.t0 && t < h.t1);
+    const cur = new Set(on.map(h => h.obj)).size === 1 ? on.filter(h => h.label !== false).at(-1) : null;
     const o = cur && objByName.get(cur.obj);
     gGuides.selectAll("*").remove();
     if (!o) { app.drawGuides?.([]); return; }
     const SW = layer.clientWidth, SH = layer.clientHeight, pl = app.plot();
     const x = sx(o.logR), y = sy(o.logM), xR = massAxisX(SW) - 2, yB = SH * (SCENE.rulerY ?? RULER_Y) - 10;
-    const age = t - cur.t0, k = d3.easeCubicOut(clamp01(age / 0.7));
+    const age = t - cur.since, k = d3.easeCubicOut(clamp01(age / 0.7));
     const op = 0.55 * smooth(age / 0.4) * (1 - smooth((t - cur.t1 + 0.4) / 0.4));
     const L = (x2, y2) => ({ x1: x - pl.x, y1: y - pl.y, x2: x - pl.x + (x2 - x) * k, y2: y - pl.y + (y2 - y) * k, color: "#e8ecff", opacity: op });
     app.drawGuides?.([L(xR, y), L(x, yB)]);
@@ -772,7 +793,7 @@ export async function startNarration(app) {
     gGuides.append("text").attr("class", "narr-guide").attr("x", xR - 4).attr("y", y - 6).attr("text-anchor", "end")
       .attr("opacity", a).text(valueLabel(o.logM, MASS_BASES));
     gGuides.append("text").attr("class", "narr-guide").attr("x", x + 6).attr("y", yB - 6).attr("text-anchor", "start")
-      .attr("opacity", a).text(valueLabel(o.logR, SIZE_BASES));
+      .attr("opacity", a).text(valueLabel(o.logR + W_OFF, SIZE_BASES));
   }
   /** "70 kg", "1.7 m": two significant figures in the ruler's units. */
   function valueLabel(v, bases) {
