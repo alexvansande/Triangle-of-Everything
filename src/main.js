@@ -6224,6 +6224,7 @@ function redrawVectors() {
   if (_posterNoText) posterHideText(); // wordless print: see window.__poster
   updateMinimap();
   updateScaleBar();
+  if (_objFocus) applyObjFocus();
   _narrRedrawHook?.();
 }
 
@@ -6262,6 +6263,7 @@ function redrawVectorsLight() {
   drawAxes();
   updateMinimap();
   updateScaleBar();
+  if (_objFocus) applyObjFocus();
   _narrRedrawHook?.();
 }
 
@@ -6272,6 +6274,16 @@ function redrawVectorsLight() {
 let currentK = 1;
 let rafPending = false;
 let _narrRedrawHook = null; // narration overlay redraw (src/narration.js)
+// narration: every object but these (names) fades (body.narr-obj-focus, --narr-obj-fade)
+let _objFocus = null;
+function applyObjFocus() {
+  const keep = o => !!_objFocus?.has(o?.name);
+  lIcons.selectAll("g.icon-g").classed("narr-keep", keep);
+  lObjMain.selectAll("g.obj-g").classed("narr-keep", keep);
+  lLabels.selectAll("text.obj-label").classed("narr-keep", keep);
+  const slugs = new Set(OBJECTS.filter(keep).map(o => o.slug));
+  lShadows.selectAll("g.icon-shadow").classed("narr-keep", d => slugs.has(d?.key));
+}
 let _zoomPrevTransform = null;  // track previous transform for CSS offset
 let _zooming = false;
 let _panSamples = [];           // recent touch-pan positions for momentum
@@ -8351,10 +8363,12 @@ if (_ogShot) {
       },
       /** Light blue halos behind named objects (videos): [{ x, y, r, opacity }] in chart-local px. */
       drawHalos(halos = []) {
-        // two overlay passes: one lifts the purple only so far, the second brightens it again
-        lNarrGuides.selectAll("circle.narr-halo").data(halos.flatMap(d => [d, d])).join("circle").attr("class", "narr-halo")
+        // two overlay passes: one lifts the purple only so far, the second brightens it again.
+        // Safari draws SVG overlay as a plain fill (a white blot): one fainter plain pass there
+        lNarrGuides.selectAll("circle.narr-halo").data(_isWebKit ? halos : halos.flatMap(d => [d, d])).join("circle").attr("class", "narr-halo")
           .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", d => d.r)
-          .attr("fill", "url(#narr-halo-fade)").attr("opacity", d => d.opacity).style("mix-blend-mode", "overlay");
+          .attr("fill", "url(#narr-halo-fade)").attr("opacity", d => _isWebKit ? d.opacity * 0.4 : d.opacity)
+          .style("mix-blend-mode", _isWebKit ? null : "overlay");
       },
       /** Catalogue names on or off in a video (they're off by default there). */
       setDustLabels(on) { if (DUST_LABELS_OFF === on) { DUST_LABELS_OFF = !on; redraw(); } },
@@ -8382,6 +8396,15 @@ if (_ogShot) {
         }
         document.body.classList.toggle("narr-label-focus", on);
         document.body.style.setProperty("--narr-label-fade", on ? amount.toFixed(3) : "0");
+      },
+      /** Fade every object (pictures, dots, shadows, names, catalogue dust) but these
+       *  names by `amount` (0–1, on the narration clock); null brings them all back. */
+      setObjectFocus(names, amount = 1) {
+        const on = !!names?.length && amount > 0.001;
+        const key = on ? names.join("|") : "";
+        if (key !== (_objFocus ? [..._objFocus].join("|") : "")) { _objFocus = on ? new Set(names) : null; applyObjFocus(); }
+        document.body.classList.toggle("narr-obj-focus", on);
+        document.body.style.setProperty("--narr-obj-fade", on ? amount.toFixed(3) : "0");
       },
       /** Show or hide the map's own primordial black hole window and its labels. */
       setPbhWindow(show) { _pbhWindowHidden = !show; redraw(); },

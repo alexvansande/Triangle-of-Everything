@@ -59,7 +59,7 @@ export default {
     { at: "those diagonal lines", hl: [{ line: "water", label: "the diagonal" }] },
 
     // a millilitre of water: a cube 1 cm wide, then the same water as a ball
-    { at: "in the metric system", cam: { obj: "1ml of water (cube)", dr: 0.047, span: 0.3 }, units: true, unitsUntil: "that's okay",
+    { at: "in the metric system", cam: { obj: "1ml of water (cube)", dr: 0.033, span: 0.3 }, units: true, unitsUntil: "that's okay",
       hl: [{ ...CUBE, label: "1 mL · 1 gram" }] },
     { at: "fill a cube", hl: [{ ...CUBE, label: "a cube 1 cm wide" }] },
     { at: "measuring size as a sphere",
@@ -69,7 +69,7 @@ export default {
 
     // walking up the line: the grid's squares are decades, counted out beside the
     // arrows, with the axis each move is measured on lit up
-    { at: "multiply all three sides", cam: { r: 0.3, m: 1.5, span: 2.7 }, units: true, unitsUntil: "density of water",
+    { at: "multiply all three sides", cam: { r: 0.3, m: 1.5, span: 2.7 }, focus: [ML.obj, LITER.obj], units: true, unitsUntil: "density of water",
       hl: [{ ...ML, label: "1 mL · 1 cm" }] },
     { at: "one unit to the side",
       hl: [{ ...ML, label: "1 mL" }, ...STEP_RIGHT, { axis: "bottom", label: "size ×10" }] },
@@ -78,9 +78,9 @@ export default {
     { at: "means one kilogram",
       hl: [{ ...ML, label: "1 mL", place: "left" }, ...drawn(STEP_RIGHT), ...drawn(HEAVIER), { ...LITER, label: "1 liter · 1 kg" }] },
     { at: "three units up", hl: [{ ...ML, place: "left" }, ...drawn(STEP_RIGHT), ...drawn(HEAVIER), { ...LITER, label: "3 squares up" }] },
-    { at: "do that again", cam: WIDE, dur: 3, drift: 0.04,
+    { at: "do that again", cam: WIDE, dur: 3, drift: 0.04, focus: [ML.obj, LITER.obj, TONNE.obj],
       hl: [{ ...ML, place: "left" }, { ...LITER, label: "1 kg", place: "left" }, { arrow: true, from: LITER, to: TONNE, label: "×10 size · ×1000 mass" }, { ...TONNE, label: "1 tonne", delay: 0.8 }] },
-    { at: "this diagonal line",
+    { at: "this diagonal line", focus: false,
       hl: [{ ...ML, label: false }, { ...LITER, label: false }, { ...TONNE, label: false }, WATER] },
     { at: "density of water", hl: [{ line: "water", label: "density of water" }] },
 

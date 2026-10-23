@@ -293,6 +293,22 @@ export async function startNarration(app) {
     if (key !== iconsNow) { iconsNow = key; app.setIcons?.(names, fill); app.setDustFill?.(fill); }
   }
 
+  // ---------- object focus: a cue's `focus: [names]` fades every other object from then
+  // on (to FOCUS_FADE, over 0.6 s), `focus: false` brings them back ----------
+  const focusCues = cues.filter(c => c.focus !== undefined);
+  const FOCUS_FADE = 0.88;
+  function applyFocus(t) {
+    let cur = null, prev = null;
+    for (const c of focusCues) if (c.time <= t) { prev = cur; cur = c; }
+    if (!cur) return app.setObjectFocus?.(null);
+    const k = smooth((t - cur.time) / 0.6);
+    if (cur.focus) {
+      // from one focus set to another: straight over, no fade back up in between
+      app.setObjectFocus?.(cur.focus, FOCUS_FADE * (prev?.focus ? 1 : k));
+    } else if (prev?.focus) app.setObjectFocus?.(k < 1 ? prev.focus : null, FOCUS_FADE * (1 - k));
+    else app.setObjectFocus?.(null);
+  }
+
   // ---------- object labels: a cue's `labels: false` hides them from then on ----------
   const labelCues = cues.filter(c => c.labels !== undefined);
   let labelsNow;
@@ -554,6 +570,7 @@ export async function startNarration(app) {
   let labelFade = 0, labelFadeT = null, labelFadeSent = 0, labelFocusNames = [], labelFocusKey = "";
   function drawHighlights(t) {
     applyIcons(t);
+    applyFocus(t);
     applyLabels(t);
     // over the classic figure, keep highlights inside its plot frame
     const fr = classicOpacity(t) > 0.5 ? classicFrameClient() : null;
@@ -1609,6 +1626,10 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 #narr-svg text.narr-guide { font-size: 11px; font-weight: 600; fill: #e8ecff; letter-spacing: 0.03em; }
 .narr-cand { font-size: 15px; }
 body.narr-no-text #chart text { visibility: hidden; }
+/* a cue's focus: every other object fades (pictures, dots, shadows, names, catalogue dust) */
+body.narr-obj-focus #chart :is(g.icon-g, g.obj-g, g.icon-shadow, text.obj-label):not(.narr-keep),
+body.narr-obj-focus #chart :is(.dust-layer, g.dust-picture, .dust-shadows, .dust-named, .dust-name) {
+  opacity: calc(1 - var(--narr-obj-fade, 0)) !important; }
 /* a callout on screen: every other chart label fades (axis text and the highlighted objects' own stay) */
 body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.axis-label):not(.axis-title):not(.axis-subtitle):not(.axis-unit-link) {
   /* multiplies with each label's own opacity, so faint ones never brighten mid-fade */
