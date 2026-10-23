@@ -4265,5 +4265,26 @@
         "path": "1024/soap-bubble.webp"
       }
     ]
+  },
+  "1-ml-cube-of-water": {
+    "fingerprint": "8f3aadd3e24ff0a65f86bf5e9d86200151b9ff4ef340c898f238ddb54f8e24ba",
+    "baseWidth": 128,
+    "source": "content/icons/src/1-ml-cube-of-water.png",
+    "reason": "matching master",
+    "sourceDifference": 0.8319498697916666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/1-ml-cube-of-water.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/1-ml-cube-of-water.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/1-ml-cube-of-water.webp"
+      }
+    ]
   }
 }
