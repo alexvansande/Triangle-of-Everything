@@ -1404,6 +1404,26 @@ export async function startNarration(app) {
   const srcFor = () => base + (take.mix && soundOn() ? take.mix : take.audio);
   audio.src = srcFor();
   audio.preload = "auto";
+  // Then the whole file, played from memory: Safari streams long audio by byte
+  // ranges, and a host that answers a range with the file from its start (the
+  // preview's) made the voice jump back to the beginning about two minutes in,
+  // while the picture carried on.
+  const blobs = app.audioBlobs || (app.audioBlobs = new Map());
+  const wholeFile = (url) => {
+    if (!blobs.has(url)) blobs.set(url, fetch(url).then(r => r.ok ? r.blob() : null)
+      .then(b => b ? URL.createObjectURL(b) : url).catch(() => url));
+    return blobs.get(url);
+  };
+  const toWholeFile = () => {
+    const url = srcFor();
+    wholeFile(url).then(u => {
+      if (u === url || srcFor() !== url || audio.src === u) return;
+      const at = audio.currentTime, playing = !audio.paused;
+      audio.src = u; audio.playbackRate = audio.defaultPlaybackRate;
+      if (at > 0 || playing) audio.addEventListener("loadedmetadata", () => { audio.currentTime = at; if (playing) audio.play().catch(() => {}); }, { once: true });
+    });
+  };
+  toWholeFile();
   // Speed: the pitch stays put (the browser time-stretches); every frame
   // follows audio.currentTime, so the camera and captions keep in step.
   // The buttons count from the pace it was spoken at: a take sped up to 1.2×
@@ -1534,6 +1554,7 @@ export async function startNarration(app) {
     const at = audio.currentTime, playing = !audio.paused;
     audio.src = srcFor(); audio.playbackRate = audio.defaultPlaybackRate;
     audio.addEventListener("loadedmetadata", () => { audio.currentTime = at; if (playing) audio.play().catch(() => {}); }, { once: true });
+    toWholeFile();
   }, on);
   const showAuto = () => {
     autoEl.textContent = `Autoplay ${autoplayOn() ? "on" : "off"}`;

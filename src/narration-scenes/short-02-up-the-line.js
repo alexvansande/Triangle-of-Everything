@@ -20,7 +20,8 @@ const WATER = { line: "water" }, AIR = { line: "air" };
 const WIDE = { r: 1.6, m: 5.4, span: 7 };    // the tonne, sink or float, the air line and the balloons in one view
 // the slow pan up the line through the animals and what we build: a bit over two
 // decades wide, centred on the water line (m = 3r + 0.62)
-const UP = (r) => ({ r, m: +(3 * r + 0.62).toFixed(2), span: 2.2, glide: true });
+const UP = (r, span = 2.2) => ({ r, m: +(3 * r + 0.62).toFixed(2), span, glide: true });
+const AIRSHIPS = { r: 2.15, m: 3.8, span: 4.0 };   // the air line and the four balloons, closer
 // the pan from the round worlds to the brown dwarfs: waypoints at their cue times
 const G = (r, m) => ({ r, m, span: PAN, glide: true });
 // zoomed out at the split just enough for the red giant and the neutron star
@@ -92,7 +93,7 @@ export default {
       hl: [WATER, { obj: "Hoba", label: "Hoba meteorite · iron" }, { obj: "The Little Mermaid", label: "Little Mermaid · bronze", place: "left", delay: 0.4 }] },
     { at: "to the right will float", hl: [WATER, { side: "left", label: "sinks" }, { side: "right", label: "floats" }] },
     // the air line runs to the right of the water line, a thousand times less dense
-    { at: "density of air", hl: [WATER, { line: "air", label: "density of air" }] },
+    { at: "density of air", cam: AIRSHIPS, dur: 3, hl: [WATER, { line: "air", label: "density of air" }] },
     { at: "heavier than air", hl: [WATER, { ...AIR, label: "lighter than air →" }] },
     { at: "lighter -than -air aircraft",
       hl: [AIR, { obj: "Zeppelin NT" }, { obj: "Hot-air Balloon", delay: 0.3 }, { obj: "Weather Balloon", delay: 0.6 }, { obj: "Helium Party Balloon", delay: 0.9 }] },
@@ -101,19 +102,19 @@ export default {
 
     // animals and what we build: back in to a bit over two decades wide, then one slow
     // pan up the line (glide waypoints at their cue times) on to the round worlds
-    { at: "much narrower band", cam: UP(1.3), dur: 4, hl: [WATER, { obj: "Human" }] },
-    { at: "mostly made of water", cam: UP(1.5), hl: [WATER, { obj: "Human", label: "mostly water" }] },
-    { at: "heavier than others", cam: UP(1.75), hl: [{ obj: "Hippopotamus" }, WATER] },
-    { at: "can't actually swim", cam: UP(1.95),
+    { at: "much narrower band", cam: UP(1.3, 1.5), dur: 4, hl: [WATER, { obj: "Human" }] },
+    { at: "mostly made of water", cam: UP(1.5, 1.5), hl: [WATER, { obj: "Human", label: "mostly water" }] },
+    { at: "heavier than others", cam: UP(1.75, 1.5), hl: [{ obj: "Hippopotamus" }, WATER] },
+    { at: "can't actually swim", cam: UP(1.95, 1.5),
       hl: [{ obj: "Hippopotamus", label: "hippo · 1.05 g/cm³" }, WATER, { side: "left", label: "sinks" }] },
 
-    { at: "heavier and heavier animals", cam: UP(2.1), hl: [WATER, { obj: "Elephant", label: "elephants" }] },
-    { at: "dinosaurs", cam: UP(2.3), hl: [WATER, { obj: "Tyrannosaurus rex", label: "T. rex", place: "left" }, { obj: "Argentinosaurus", label: "Argentinosaurus", delay: 0.4 }] },
-    { at: "the blue whale", cam: UP(2.55), hl: [{ obj: "Blue Whale", label: "largest animal ever" }] },
-    { at: "the largest tree", cam: UP(2.85), hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
+    { at: "heavier and heavier animals", cam: UP(2.1, 1.5), hl: [WATER, { obj: "Elephant", label: "elephants" }] },
+    { at: "dinosaurs", cam: UP(2.3, 1.6), hl: [WATER, { obj: "Tyrannosaurus rex", label: "T. rex", place: "left" }, { obj: "Argentinosaurus", label: "Argentinosaurus", delay: 0.4 }] },
+    { at: "the blue whale", cam: UP(2.55, 1.7), hl: [{ obj: "Blue Whale", label: "largest animal ever" }] },
+    { at: "the largest tree", cam: UP(2.85, 1.8), hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // what we build
-    { at: "engineering projects", cam: UP(3.2), dur: 2, clear: true,
+    { at: "engineering projects", cam: UP(3.2, 2.0), dur: 2, clear: true,
       hl: [{ obj: "Boeing 747" }, { obj: "Supertanker", delay: 0.3 }] },
     { at: "the eiffel tower", cam: UP(3.5), hl: [{ obj: "Eiffel Tower" }] },
     { at: "surprisingly light", hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
