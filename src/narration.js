@@ -802,44 +802,65 @@ export async function startNarration(app) {
       .attr("text-anchor", anchor).attr("fill", col).text(label);
   }
   /** A line drawing over an object's picture: { sketch: name, level: 0–2, draw?: s (0.9) },
-   *  drawn as the Eiffel Tower's (shares of its picture's square): level 0 the pyramid
-   *  the chart measures it by (its envelope); 1 carves the arch out of the base and the
-   *  opening between the first and second floors; 2 fills what's left with tiny
-   *  triangles, the lattice: the fractal. */
+   *  drawn as the Eiffel Tower's, traced from its picture (shares of the picture's square):
+   *  level 0 the outline, the legs' outer curve (the envelope the chart measures it by);
+   *  1 adds the arch under the first floor and the opening between the first and second
+   *  floors; 2 fills what's left with the lattice, cross-braced panels: the fractal. */
+  const EIFFEL = {
+    // the outer curve, platforms left out: [height, half width]
+    prof: [[0.033, 0.004], [0.1, 0.013], [0.2, 0.031], [0.3, 0.036], [0.4, 0.047], [0.5, 0.064],
+      [0.6, 0.095], [0.675, 0.125], [0.8, 0.19], [0.85, 0.222], [0.9, 0.251], [0.966, 0.296]],
+    arch: { c: [0.5, 0.966], r: 0.16 },
+    gap: [[0.474, 0.605], [0.526, 0.605], [0.547, 0.69], [0.453, 0.69]],
+  };
   function drawSketch(el, h, age) {
     const box = app.iconRect?.(h.sketch);
     if (!box) return;
     const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
     const X = (u) => (box.x - lr.x + u * box.w) / scl, Y = (v) => (box.y - lr.y + v * box.h) / scl;
     const P = ([u, v]) => `${X(u).toFixed(1)},${Y(v).toFixed(1)}`;
-    const A = [0.5, 0.03], B = [0.215, 0.96], C = [0.785, 0.96];        // apex, base left and right
-    const edge = (v, side) => 0.5 + (side * (C[0] - 0.5)) * (v - A[1]) / (B[1] - A[1]);
-    const ARCH = { c: [0.5, 0.96], r: 0.18 };                               // under the first floor
-    const GAP = [[edge(0.71, -1) + 0.07, 0.71], [edge(0.71, 1) - 0.07, 0.71], [edge(0.56, 1) - 0.05, 0.56], [edge(0.56, -1) + 0.05, 0.56]];
-    const inGap = ([u, v]) => v < 0.71 && v > 0.56 && u > GAP[0][0] + (GAP[3][0] - GAP[0][0]) * (0.71 - v) / 0.15
-      && u < GAP[1][0] + (GAP[2][0] - GAP[1][0]) * (0.71 - v) / 0.15;
-    const inArch = ([u, v]) => v < ARCH.c[1] && Math.hypot(u - ARCH.c[0], v - ARCH.c[1]) < ARCH.r;
-    let d = `M${P(A)}L${P(B)}L${P(C)}Z`;
+    const { prof, arch, gap } = EIFFEL;
+    const half = (v) => {
+      if (v <= prof[0][0]) return prof[0][1];
+      for (let i = 1; i < prof.length; i++) if (v <= prof[i][0]) {
+        const [v0, w0] = prof[i - 1], [v1, w1] = prof[i];
+        return w0 + (w1 - w0) * (v - v0) / (v1 - v0);
+      }
+      return prof[prof.length - 1][1];
+    };
+    const outline = [...prof.slice().reverse().map(([v, w]) => [0.5 - w, v]), ...prof.slice(1).map(([v, w]) => [0.5 + w, v])];
+    let d = d3.line().x(p => X(p[0])).y(p => Y(p[1])).curve(d3.curveCatmullRom.alpha(0.5))(outline) + "Z";
+    const inGap = ([u, v]) => v > gap[0][1] && v < gap[2][1] && (() => {
+      const f = (v - gap[0][1]) / (gap[2][1] - gap[0][1]);
+      return u > gap[0][0] + (gap[3][0] - gap[0][0]) * f && u < gap[1][0] + (gap[2][0] - gap[1][0]) * f;
+    })();
+    const inArch = ([u, v]) => v < arch.c[1] && Math.hypot(u - arch.c[0], v - arch.c[1]) < arch.r;
     if ((h.level || 0) >= 1) {
-      const r = ARCH.r * box.w / scl;
-      d += `M${P([ARCH.c[0] - ARCH.r, ARCH.c[1]])}A${r.toFixed(1)},${r.toFixed(1)} 0 0 1 ${P([ARCH.c[0] + ARCH.r, ARCH.c[1]])}`;
-      d += `M${GAP.map(P).join("L")}Z`;
+      const r = arch.r * box.w / scl;
+      d += `M${P([arch.c[0] - arch.r, arch.c[1]])}A${r.toFixed(1)},${r.toFixed(1)} 0 0 1 ${P([arch.c[0] + arch.r, arch.c[1]])}`;
+      d += `M${gap.map(P).join("L")}Z`;
     }
+    let lattice = "";
     if ((h.level || 0) >= 2) {
-      // the lattice: the triangle cut into N rows of tiny triangles, the holes left open
-      const N = 14, lerp = (p, q, f) => [p[0] + (q[0] - p[0]) * f, p[1] + (q[1] - p[1]) * f];
-      const V = (i, j) => lerp(lerp(A, B, i / N), lerp(A, C, i / N), i ? j / i : 0);
-      for (let i = 0; i < N; i++) for (let j = 0; j <= i; j++) {
-        for (const t of [[V(i, j), V(i + 1, j), V(i + 1, j + 1)], j < i ? [V(i, j), V(i + 1, j + 1), V(i, j + 1)] : null]) {
-          if (!t) continue;
-          const c = [(t[0][0] + t[1][0] + t[2][0]) / 3, (t[0][1] + t[1][1] + t[2][1]) / 3];
-          if (!inArch(c) && !inGap(c)) d += `M${t.map(P).join("L")}Z`;
+      // the lattice: bands up the tower, each cut into panels about as wide as they're
+      // tall, each panel with its X brace; the arch and the opening left open
+      const top = 0.1, bottom = prof[prof.length - 1][0], rows = 16;
+      for (let i = 0; i < rows; i++) {
+        const v0 = bottom - (bottom - top) * i / rows, v1 = bottom - (bottom - top) * (i + 1) / rows;
+        const w = half((v0 + v1) / 2) * 2, n = Math.max(1, Math.round(w / (v0 - v1)));
+        for (let j = 0; j < n; j++) {
+          const q = [[0.5 - half(v0) + 2 * half(v0) * j / n, v0], [0.5 - half(v0) + 2 * half(v0) * (j + 1) / n, v0],
+            [0.5 - half(v1) + 2 * half(v1) * (j + 1) / n, v1], [0.5 - half(v1) + 2 * half(v1) * j / n, v1]];
+          const c = [(q[0][0] + q[1][0] + q[2][0] + q[3][0]) / 4, (v0 + v1) / 2];
+          if (inArch(c) || inGap(c)) continue;
+          lattice += `M${q.map(P).join("L")}ZM${P(q[0])}L${P(q[2])}M${P(q[1])}L${P(q[3])}`;
         }
       }
     }
     const k = d3.easeCubicOut(clamp01(age / (h.draw ?? 0.9)));
-    [[6, 0.16], [1.5, 0.95]].forEach(([w, o]) => el.append("path").attr("d", d).attr("fill", "none")
-      .attr("stroke", "#fff").attr("stroke-width", w).attr("opacity", o).attr("stroke-linejoin", "round")
+    // the outline and holes with a soft glow; the lattice finer, so the tower shows through
+    [[d, 6, 0.16], [d, 1.3, 0.95], [lattice, 0.8, 0.7]].forEach(([path, w, o]) => path && el.append("path").attr("d", path)
+      .attr("fill", "none").attr("stroke", "#fff").attr("stroke-width", w).attr("opacity", o).attr("stroke-linejoin", "round")
       .attr("pathLength", 1).attr("stroke-dasharray", `${k} 1`));
   }
   /** Every object being named gets a light blue halo behind its picture (like a
