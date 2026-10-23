@@ -55,18 +55,35 @@ went silent after a minute when it ran out.
 >
 > That's because this chart is also a chart of energy, and the bottom axis doubles as a wavelength.
 >
-> So in a way, this chart contains all of science. Astronomy is up at the top, engineering is here, biology goes all the way down here, and then chemistry and particle physics. This line at the bottom is quantum mechanics, the one at the top is relativity, and they meet at this point. What is that point?
+> So in a way, this chart contains all of science. Astronomy is up at the top, engineering is here, biology goes all the way down here, and then chemistry and particle physics.
 >
-> Then you notice that across the chart there are some diagonal lines, measured in seconds, all the way up to now. That's the time since the Big Bang. So relativity and quantum mechanics meet at the Big Bang.
+> And the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity. And where those two lines meet is... the Big Bang?
 >
-> This is the triangle of everything. Let me take you on a tour, because it is simply fascinating.
+> Notice that along the top there are all these diagonal lines, and they're all measured in seconds. That's because the top of the chart isn't a history of things, but a history of time: the history of our whole universe.
+>
+> I call this the triangle of everything, and as you zoom in, it tells you a million stories. About airplanes, hippos and gravity. About how stars evolve, how particles turn into each other, and why balloons float. It even contains the periodic table, and it tells you why fire looks the way it does.
+>
+> I could tell you stories about it all day, and that's what I intend to do. Follow me for the triangle of everything.
 
 ### What changed
-- New fifth paragraph (the author's, 2026-10-23): the sciences across the chart. It replaces "And it gets even crazier… they connect in this one point".
+- New fifth paragraph (the author's, 2026-10-23): the sciences across the chart.
+- New sixth to eighth paragraphs (the author's, 2026-10-23): the triangle's three sides, the
+  diagonals in seconds as the history of time, and a new ending ("it tells you a million
+  stories… Follow me for the triangle of everything"). They replace "And it gets even
+  crazier… they connect in this one point", "Then you realize… joining at the Big Bang" and
+  "let me take you a tour around".
+- **Fact fix in the new part:** relativity is the **top-left** edge (the black-hole line), not
+  the bottom right; quantum mechanics is the bottom-left edge; the right edge is the size of
+  the universe (the Hubble radius). The two left edges meet at the Planck point.
+- Light edits to the new part: "surrounded… limited by those three sides" → "bounded by three
+  sides"; "from on the top" → "along the top"; "it's history of our whole universe" → "the
+  history of our whole universe"; "hippopotamus" → "hippos"; "particles become each other" →
+  "particles turn into each other"; "million stories" said three times → once, and "I could
+  tell you stories about it all day".
+- **To check:** "why fire looks the way it does" has nothing on the chart yet (light's
+  wavelengths and star colours are there, a flame isn't). Keep it if a later video will add it.
 - "photons or visible light or radio waves" → "photons, like visible light or radio waves" (light *is* photons).
-- "The horizontal axis is in size" → "is size"; "take you a tour around" → "take you on a tour".
-- "stars and planets and galaxies" → "planets, stars and galaxies" (small to big).
-- "out of all those points there are some diagonal lines" → "across the chart there are some diagonal lines".
+- "The horizontal axis is in size" → "is size"; "stars and planets and galaxies" → "planets, stars and galaxies" (small to big).
 - When recording: the quantum line is the triangle's lower-left edge, relativity the upper-left one.
 
 ---
