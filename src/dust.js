@@ -1,3 +1,4 @@
+import {revealIcon,exitReveal} from "./icon-reveal.js";
 import {blackHoleMask} from "./black-hole-frames.js";
 // =============================================================
 // DUST.JS — thousands of real catalogue objects as background texture
@@ -459,7 +460,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
     }
   }
   _labelled = new Set(placed.map((p) => p.i));
-  _iconShapes = placed.filter((p) => p.icon).map((p) => ({ i: p.i, name: p.icon.name, cat: sources[src[p.i]].cat, logM:_data.m[p.i], sx: p.sx, sy: p.sy, r: p.icon.r, blend: p.icon.blend }));
+  _iconShapes = placed.filter((p) => p.icon).map((p) => ({ i: p.i, name: p.icon.name, cat: sources[src[p.i]].cat, logM:_data.m[p.i], sx: p.sx, sy: p.sy, r: p.icon.r, blend: p.icon.blend, color:(view.labelColorOf || colorOf)(sources[src[p.i]].cat,sources[src[p.i]].id) }));
   const color = (p) => (view.labelColorOf || colorOf)(sources[src[p.i]].cat, sources[src[p.i]].id);
   layer.selectAll("g.dust-named")
     .data(placed, (p) => p.i)
@@ -489,11 +490,21 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
         .attr("text-anchor", p.anchor).attr("font-size", p.fs)
         .attr("fill", c).text(p.text);
     });
+  const dustRevealOptions=p=>{
+    const picture=picturePoint(p),dot=planePoint(p.sx,p.sy,view.cw,view.ch,view.parallax?PARALLAX.dust:0);
+    return {x:p.sx,y:p.sy,dx:dot.x-picture.x,dy:dot.y-picture.y,size:p.r*2,color:p.color||"#aaa",dot:2.8,reducedMotion:view.reducedMotion,
+      onProgress:t=>layer.selectAll('g.dust-named').filter(q=>q.i===p.i).selectAll('circle').style('opacity',t<1?0:null),
+      onDone:()=>layer.selectAll('g.dust-named').filter(q=>q.i===p.i).selectAll('circle').style('opacity',null)};
+  };
   const imageLayer = view.iconLayer || layer;
   imageLayer.selectAll("g.dust-picture").data(_iconShapes, p => p.i)
     // luminous pictures carry their dark backing inside the picture (src/luminous-art.js)
     .join(enter => { const g = enter.append("g").attr("class", "dust-picture");
-      g.append("image").attr("class", "dn-icon").attr("preserveAspectRatio", "xMidYMid meet"); return g; })
+      g.append("image").attr("class", "dn-icon").attr("preserveAspectRatio", "xMidYMid meet"); return g; },update=>update,exit=>exitReveal(exit,(p,node)=>{
+      const now={...p,sx:view.px(_data.r[p.i]),sy:view.py(_data.m[p.i])};const point=picturePoint(now);
+      d3sel(node).attr('transform',`translate(${point.x-p.sx},${point.y-p.sy})`);
+      return dustRevealOptions(p);
+    }))
     .each(function(p) {
       const g = d3sel(this), point = picturePoint(p);
       g.attr("transform", "translate(" + (point.x-p.sx) + "," + (point.y-p.sy) + ")");
@@ -502,6 +513,7 @@ function drawDustLabels(layer, view, occ, gw, gh, OC, colorOf) {
       g.select("image").style("transform",(_iconGrowth.get(p.i)||1)===1?null:`scale(${_iconGrowth.get(p.i)})`).attr("href", source.url)
         .attr("x", p.sx-p.r).attr("y", p.sy-p.r).attr("width", p.r*2).attr("height", p.r*2)
         .attr("mask",blackHoleMask(view.depthKeyOf?.(p.name))||(soft?spaceEdgeMask(view.depthKeyOf?.(p.name)):null));
+      revealIcon(this,true,dustRevealOptions(p));
     });
 }
 
