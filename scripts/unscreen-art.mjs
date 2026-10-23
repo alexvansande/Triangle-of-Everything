@@ -14,6 +14,9 @@
 //   - diffuse nebulae, galaxies, comets: the faint dark core, and the 1.05×
 //     brightness they were drawn with;
 //   - everything else: the soft dark disc (0.8 → 0 at 0.52 of the picture).
+// The faintest haze fades out and the outer few percent are feathered, so no
+// picture shows the edge of its square; a few get a palette (black holes by
+// mass, the Sun so its dark spots read red).
 import sharp from 'sharp';
 import { starBodyGeometry } from '../src/star-light.js';
 import { isDiffuseSpaceArt, spaceCoreGeometry, SPACE_ART_BRIGHTNESS } from '../src/space-art.js';
@@ -22,9 +25,21 @@ import { BLACK_HOLE_PALETTE } from '../src/black-hole-palette.js';
 const BODY_INSET = 0.016;   // of the picture's width: how far inside a star's outline its black body stops
 const BODY_BLUR = 0.01;     // softness of that edge
 const HOLE_SOFT = 0.12;     // of the shadow radius, inward
-// Dividing by a small opacity turns dim noise into bright speckle that WebP
-// stores badly: below this opacity the colour eases into a blurred version.
-const FAINT = 0.3, FAINT_BLUR = 1 / 256;   // blur sigma, of the picture's width
+// Below this opacity, haze fades out: lossy alpha would round it up to a
+// visible ~7% tint over the whole square. Judged on the light around each
+// pixel (blurred by HAZE_BLUR of the width), so the fade follows the glow's
+// shape instead of cutting a jagged contour through noise; a pixel clearly
+// brighter than that (a lone star) keeps its light.
+const HAZE = 0.06, HAZE_BLUR = 0.012;
+// Feathered border, of the picture's width (stars' bodies come close to it).
+// Round glows (particles, atoms, the Big Bang) fade on a circle instead, from
+// GLOW_FADE of the half-width out, so they don't end in a rounded square.
+const EDGE = 0.05, EDGE_BODY = 0.02, GLOW_FADE = 0.8;
+// Gradient maps, dark → bright, applied to the picture's brightness first.
+const PALETTES = {
+  ...Object.fromEntries(Object.entries(BLACK_HOLE_PALETTE).map(([slug, { ramp }]) => [slug, ramp])),
+  sun: ['#4a0600', '#8f1600', '#d23c08', '#f7841c', '#ffc54a', '#fff2c0'],
+};
 // Their bright, faint glow costs more bytes at the usual WebP settings.
 export const UNSCREENED_WEBP = { quality: 85, alphaQuality: 60, effort: 6 };
 
@@ -98,34 +113,36 @@ export async function convert(input, slug, cat, max = Infinity) {
   const N = Math.min(max, Math.max(W, H));
   const src = await sharp(input).ensureAlpha().resize(N, N, { fit: 'contain', background: '#0000' }).raw().toBuffer();
   const backing = backingFor(slug, cat, src, N);
-  const lut = BLACK_HOLE_PALETTE[slug] && rampLut(BLACK_HOLE_PALETTE[slug].ramp);
+  const lut = PALETTES[slug] && rampLut(PALETTES[slug]);
+  const edge = (backing.kind === 'body' ? EDGE_BODY : EDGE) * N, round = backing.kind === 'soft';
   const gain = backing.gain || 1, out = Buffer.alloc(N * N * 4);
-  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-    const i = (y * N + x) * 4, a0 = src[i + 3] / 255;
-    let r = src[i], g = src[i + 1], b = src[i + 2];
+  // light as screen saw it: premultiplied by the picture's own alpha
+  const light = new Float32Array(N * N * 3), level = Buffer.alloc(N * N);
+  for (let i = 0; i < N * N; i++) {
+    const a0 = src[i * 4 + 3] / 255;
+    let r = src[i * 4], g = src[i * 4 + 1], b = src[i * 4 + 2];
     if (lut) { const l = Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b); r = lut[l * 3]; g = lut[l * 3 + 1]; b = lut[l * 3 + 2]; }
-    // light as screen saw it: premultiplied by the picture's own alpha
-    r = Math.min(1, r / 255 * a0 * gain); g = Math.min(1, g / 255 * a0 * gain); b = Math.min(1, b / 255 * a0 * gain);
+    light[i * 3] = Math.min(1, r / 255 * a0 * gain); light[i * 3 + 1] = Math.min(1, g / 255 * a0 * gain); light[i * 3 + 2] = Math.min(1, b / 255 * a0 * gain);
+    level[i] = Math.round(255 * Math.max(light[i * 3], light[i * 3 + 1], light[i * 3 + 2]));
+  }
+  const around = await sharp(level, { raw: { width: N, height: N, channels: 1 } }).blur(Math.max(0.3, HAZE_BLUR * N)).raw().toBuffer();
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const p = y * N + x, i = p * 4;
+    let r = light[p * 3], g = light[p * 3 + 1], b = light[p * 3 + 2];
     let a = Math.max(r, g, b);
+    // fade the haze and the border (opacity only: the colour stays)
+    const border = round
+      ? smooth((1 - Math.hypot(x + .5 - N / 2, y + .5 - N / 2) / (N / 2)) / (1 - GLOW_FADE))
+      : smooth(Math.min(x + .5, y + .5, N - x - .5, N - y - .5) / edge);
+    const fade = smooth(Math.max(around[p] / 255, a - HAZE) / HAZE) * border;
+    r *= fade; g *= fade; b *= fade; a *= fade;
     let fr = a ? r / a : 0, fg = a ? g / a : 0, fb = a ? b / a : 0;
-    const back = backing.at(x, y);
+    const back = backing.at(x, y) * border;
     if (back > 0) {
       const ao = a + back * (1 - a);
       fr *= a / ao; fg *= a / ao; fb *= a / ao; a = ao;
     }
     out[i] = Math.round(fr * 255); out[i + 1] = Math.round(fg * 255); out[i + 2] = Math.round(fb * 255); out[i + 3] = Math.round(a * 255);
   }
-  return { kind: backing.kind, image: sharp(await smoothFaint(out, N), { raw: { width: N, height: N, channels: 4 } }) };
-}
-
-async function smoothFaint(px, N) {
-  const pm = Buffer.alloc(N * N * 4);
-  for (let i = 0; i < N * N; i++) { const a = px[i * 4 + 3]; for (let j = 0; j < 3; j++) pm[i * 4 + j] = Math.round(px[i * 4 + j] * a / 255); pm[i * 4 + 3] = a; }
-  const bl = await sharp(pm, { raw: { width: N, height: N, channels: 4 } }).blur(Math.max(0.3, FAINT_BLUR * N)).raw().toBuffer();
-  for (let i = 0; i < N * N; i++) {
-    const a = px[i * 4 + 3] / 255; if (a >= FAINT) continue;
-    const t = a / FAINT, ba = bl[i * 4 + 3];
-    for (let j = 0; j < 3; j++) { const f = ba ? Math.min(255, bl[i * 4 + j] * 255 / ba) : 0; px[i * 4 + j] = Math.round(f + (px[i * 4 + j] - f) * t); }
-  }
-  return px;
+  return { kind: backing.kind, image: sharp(out, { raw: { width: N, height: N, channels: 4 } }) };
 }

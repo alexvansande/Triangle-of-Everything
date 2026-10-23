@@ -34,7 +34,7 @@ export async function generateIconResolutions(requested = []) {
     const sourceFile = sources.get(name);
     let source = sourceFile ? await fs.readFile(`${ROOT}/src/${sourceFile}`) : null;
     const unscreen = unscreened[name]?.master && source;
-    const fingerprint = hash(Buffer.concat([Buffer.from(unscreen ? 'resolution-v1 unscreen-v1' : 'resolution-v1'), live, source || Buffer.alloc(0)]));
+    const fingerprint = hash(Buffer.concat([Buffer.from(unscreen ? 'resolution-v1 unscreen-v2' : 'resolution-v1'), live, source || Buffer.alloc(0)]));
     if (manifest[name]?.fingerprint === fingerprint) continue;
     if (unscreen) { const { slug, cat } = categoryFor(name); source = await (await convert(source, slug, cat, 1024)).image.png().toBuffer(); }
     const base = await sharp(live).metadata();
