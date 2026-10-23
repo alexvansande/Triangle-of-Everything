@@ -16,7 +16,7 @@ import {
   formatLogSuper, densityToLogTime, friendlyTime, fmtTick,
 } from "./format.js";
 import {
-  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, iconUrlForSize, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
+  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, ICON_COVERAGE, iconUrlForSize, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
@@ -111,6 +111,16 @@ const ICON_SIZE_MULT = {
 // Physical size scaling: for every 6 orders of magnitude in real radius,
 // icon grows 10%. Observable universe icons are ~2.5x larger than instanton icons.
 // Centered around logR ≈ -3.5 (midpoint of the full range).
+// Pictures that fill little of their square (a hippo, the Eiffel Tower) look
+// smaller than ones that fill it (a cube of water): part-compensate by covered
+// area (content/icons/coverage.json, scripts/icon-coverage.mjs). Opaque squares
+// (screen-blended art on black) and unmeasured pictures stay as they are.
+const AREA_REF = 0.6, AREA_POWER = 0.25, AREA_MIN = 0.9, AREA_MAX = 1.35;
+function iconAreaMult(slug) {
+  const c = ICON_COVERAGE[slug];
+  if (!c || c >= 0.95) return 1;
+  return Math.max(AREA_MIN, Math.min(AREA_MAX, (AREA_REF / c) ** AREA_POWER));
+}
 function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
@@ -119,7 +129,7 @@ function iconSizeMult(o) {
   // structures and black holes, keeping solid universe/void spheres unchanged.
   const categoryScale = BLACK_HOLE_FRAMES[o.slug] ? 1 : cat === "galaxy" ? 1.25 * 1.25
     : cat === "blackhole" || (cat === "largescale" && isDiffuseSpaceArt(cat, o.slug)) ? 1.25 : 1;
-  return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * (_iconSize / 100);
+  return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * iconAreaMult(o.slug) * (_iconSize / 100);
 }
 
 function nameToSlug(name) {
