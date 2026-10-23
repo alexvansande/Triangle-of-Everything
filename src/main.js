@@ -1702,6 +1702,44 @@ function drawDensityLines() {
         .on("mouseleave", () => ln.classed("line-hot", false));
     }
   }
+  drawAirLine(d);
+}
+
+// Air at 1 atm (1.2 kg/m³, 20 °C), fading in as you zoom. Only from microbes
+// to Earth's size: much bigger than that and a ball of air can't stay at
+// sea-level pressure (it squeezes itself under its own weight).
+const AIR_LOG_RHO = Math.log10(0.0012);
+const AIR_LOGR = [-4, Math.log10(6.371e8)];   // 1 µm … Earth's radius, in cm
+function drawAirLine(d) {
+  const ppuY = ch / (d.y1 - d.y0);
+  const fade = Math.max(0, Math.min(1, (ppuY - 14) / 10));
+  if (fade <= 0) return;
+  const b = DENSITY_SPHERE_C + AIR_LOG_RHO;
+  const r0 = Math.max(AIR_LOGR[0], d.x0, (d.y0 - b) / 3);
+  const r1 = Math.min(AIR_LOGR[1], d.x1, (d.y1 - b) / 3);
+  if (r0 >= r1) return;
+  const x1 = px(r0), y1 = py(3 * r0 + b), x2 = px(r1), y2 = py(3 * r1 + b);
+  const color = "rgba(176,190,197,0.75)";
+  const g = lDensity.append("g").attr("opacity", fade);
+  g.append("line")
+    .attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2)
+    .attr("stroke", color).attr("stroke-width", 0.8).attr("stroke-dasharray", "5 4")
+    .append("title").text("Air at 1 atm, 1.2 kg/m³: a ball on this line weighs as much as the air it pushes aside");
+
+  // label near the upper end of what's on screen, along the line
+  const len = Math.hypot(x2 - x1, y2 - y1);
+  if (len < 120) return;
+  const t = Math.max(0.1, 1 - 70 / len);
+  const lx = x1 + (x2 - x1) * t, ly = y1 + (y2 - y1) * t;
+  const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+  const label = (paint) => g.append("text")
+    .attr("x", lx).attr("y", ly - 4).attr("text-anchor", "end")
+    .attr("transform", `rotate(${angle},${lx},${ly})`)
+    .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
+    .attr("font-size", fscale(10)).attr("letter-spacing", "0.5px")
+    .call(paint).text("air · 1 atm");
+  label(s => s.attr("fill", "none").attr("stroke", "rgba(6,6,26,0.85)").attr("stroke-width", 3).attr("stroke-linejoin", "round"));
+  label(s => s.attr("fill", color));
 }
 
 // =============================================================
