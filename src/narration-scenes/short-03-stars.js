@@ -106,11 +106,11 @@ export default {
     { at: "collapse into a black hole", hl: [{ line: "tov", label: "above it: black hole" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
     // teaser for the black-hole video: over to M87*, then a quick dive with the Event
     // Horizon Telescope photo over its picture (lens)
-    { at: "collapse into a black hole", offset: 1.0, cam: { obj: "M87*", span: 3 }, dur: 1.2 },
-    { at: "collapse into a black hole", offset: 2.2, photo: "m87", obj: "M87*", dive: { in: 1.2, out: 2 }, dur: 1.6, fadeIn: 0.9, fadeOut: 1,
+    { at: "collapse into a black hole", offset: 0.6, cam: { obj: "M87*", span: 3 }, dur: 1 },
+    { at: "collapse into a black hole", offset: 1.4, photo: "m87", obj: "M87*", dive: { in: 1, out: 1 }, dur: 1.2, fadeIn: 0.6, fadeOut: 0.7,
       lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600], fill: "cover", hold: 0.2, fillDur: 1.2 },
       caption: "M87* · Event Horizon Telescope · 2019" },
-    { at: "deserves a video", offset: 2.4, cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
+    { at: "deserves a video", offset: 1.3, cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
       hl: [{ line: "schwarzschild" }, { obj: "Stellar BH", label: "next: black holes" }] },
   ],
 };

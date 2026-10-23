@@ -3288,7 +3288,7 @@ function setDolly(d) {
     lIcons.selectAll(":scope > g").attr("filter", null);
     _dollyPadPx = 0; drawTiles();
     // the fractal layer comes back over the tiles it lent the dive
-    _bgNoiseSurface?.style("opacity", null).style("display", null);
+    _bgNoiseSurface?.style("opacity", null).style("display", null).attr("transform", null);
     if (_bgNoiseShown) [lTiles, lTilesBase].forEach(l => l.style("display", "none").style("opacity", 0));
     dVeil.attr("display", "none"); dFocus.selectAll("*").remove();
     lAxesWrap.style("opacity", null);
@@ -3332,6 +3332,9 @@ function setDolly(d) {
       L.outer.attr("filter", `url(#${L.filter.attr("id")})`);
     }
   });
+  // the fractal canvas only covers the screen: it stays put (undoing its depth's
+  // scale) while the tiles fall back around it, or its edge would show
+  _bgNoiseSurface?.attr("transform", about(1 + DOLLY_DEPTHS[0].fall * k));
   dVeil.attr("display", null).attr("width", cw).attr("height", ch).attr("opacity", mist.toFixed(3));
   dollyIconBlur.attr("stdDeviation", (DOLLY_ICON_BLUR * k).toFixed(2));
   dollyIconDark.forEach(e => e.attr("slope", (1 - mist).toFixed(3)));

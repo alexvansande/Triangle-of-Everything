@@ -104,7 +104,7 @@ try {
   for (const k of info) {
     const p = await b.newPage();
     await p.setViewport({ width: 540, height: 960 });
-    await p.goto(`${BASE}/?narrate=${k.id}&render=1&captions=0&stage=none`, { waitUntil: "networkidle2", timeout: 180000 });
+    await p.goto(`${BASE}/?narrate=${k.id}&render=1&captions=0&stage=none`, { waitUntil: "load", timeout: 180000 });
     await p.waitForFunction("window.__narr", { timeout: 60000 });
     await p.evaluate(`window.__narr.renderAt(${k.thumbAt}); window.__narr.settle(${k.thumbAt})`);
     for (let i = 0; i < 20 && await p.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 150));
