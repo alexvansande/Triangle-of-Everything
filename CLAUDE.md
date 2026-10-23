@@ -9,6 +9,9 @@
   recording's `video/sources/<date>/NOTES.md` under "Fact check": what's right, what's
   wrong (with the fix and a suggested re-wording), and what's only imprecise. Tell the
   author the wrong ones before or alongside cutting the audio.
+- **Scripts to record**: `video/scripts/recording-scripts.md` has every video's narration as cut
+  now and the lightly edited script to re-record (with what changed). Keep it up to date when a
+  take is replaced or the author changes a line.
 - How the narration pipeline works (cut lists, voice treatment, tempo, scenes, sound,
   preview): `docs/narration.md` and `video/README.md`.
 - Recordings from 2026-10-19 on play at 1.1× (`scripts/narration-tempo.py --tempo 1.1`), the old video 5 takes at 1.2×, 5b and 5c at 1.3×, 5d (now video 4, `short-04-black-holes`) at 1.1× (the author prefers its rhythm), all with atempo (rubberband sounded like a tin can);
