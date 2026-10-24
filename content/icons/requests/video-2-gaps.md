@@ -33,18 +33,18 @@ Trasimeno, Neusiedl Lake and Lake Mead). Draw these first, then the lakes.
 | Object | Slug | What to draw |
 |---|---|---|
 | Comet 67P | `comet-67p` | The "rubber duck" comet: two lobes joined by a neck, dark grey, cliffs and boulders, faint jets. ESA's Rosetta photos are CC BY-SA, not public domain, so generate it. Reference: `halleys-comet`, `itokawa`. |
-| Didymos | `didymos` | Real photo: DART's last full view of Didymos (NASA/Johns Hopkins APL, public domain), the round "spinning top" with its equatorial ridge; composite like Iapetus. |
+| Didymos | `didymos` | The round "spinning top" asteroid with an equatorial ridge, grey, boulder-strewn. DART's photo was too noisy on its dark side to cut out (and may show its moon Dimorphos: check the shape against the spinning top). Reference photo: `references/didymos.jpg`. |
 | Ryugu | `ryugu` | The dark "spinning top" asteroid, a diamond outline with a ridge round its equator, covered in boulders. JAXA photos aren't public domain, so generate it. Reference: `bennu`. |
-| Dinkinesh | `dinkinesh` | Real photo: Lucy's view of Dinkinesh (NASA/Goddard/SwRI/Johns Hopkins APL, public domain), small and lumpy, the trough and ridge; composite like Iapetus. |
+| Dinkinesh | `dinkinesh` | Small lumpy asteroid with a trough and a ridge round it, grey (Lucy, 2023). Its public-domain NASA photo couldn't be downloaded yet (Wikimedia throttling): `152830 Dinkinesh.png` on Commons. |
 | Crater Lake | `crater-lake` | The round deep-blue caldera lake from above, Wizard Island near one edge. Reference: `lake-baikal`. |
 | Great Salt Lake | `great-salt-lake` | From above, the causeway splitting it into a pink-red north arm and a blue-green south arm. |
 | Lake Erie | `lake-erie` | The long shallow lake from above, green-blue. |
 | Vatnajökull | `vatnajokull` | Iceland's ice cap from above, white with grey outlet glaciers. Reference: `greenland-ice-sheet`. |
 | Lake Tanganyika | `lake-tanganyika` | The long narrow rift lake from above, very dark blue. |
-| Nix | `nix` | Small elongated grey-white moon of Pluto, one reddish crater. Reference: `phobos`. |
+| Nix | `nix` | Small elongated grey-white moon of Pluto, one reddish crater. New Horizons' photo is only half lit, so draw the whole body. Reference: `phobos`. Reference photo: `references/nix.jpg`. |
 | 21 Lutetia | `21-lutetia` | Big lumpy grey asteroid, one huge smooth crater bowl, as Rosetta saw it. Reference: `eros`. |
 | 16 Psyche | `16-psyche` | Potato-shaped metallic-grey asteroid with a faint sheen, two large shallow craters. Reference: `eros`. |
-| Amalthea | `amalthea` | Elongated dark-red moon of Jupiter. Reference: `phobos`. |
+| Amalthea | `amalthea` | Elongated dark-red moon of Jupiter, a rubble pile with a few bright streaks. The real photos are too blurry to use as the picture. Reference: `phobos`. Reference photo: `references/amalthea.jpg`. |
 
 ## 3. Round worlds and rocky planets (171–223 s)
 

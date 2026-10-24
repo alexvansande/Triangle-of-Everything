@@ -4572,6 +4572,27 @@
       }
     ]
   },
+  "oberon": {
+    "fingerprint": "62cc9a38142c16e9cbd690559a0d21a7d3894e3f2c5f160bffbfa34cb4c635b6",
+    "baseWidth": 128,
+    "source": "content/icons/src/oberon.png",
+    "reason": "matching master",
+    "sourceDifference": 1.6613972981770833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/oberon.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/oberon.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/oberon.webp"
+      }
+    ]
+  },
   "toi-2490-b": {
     "fingerprint": "ad738c6afd82c4621ef8d21cb4e2415ec853dab491b59416568af044ec8e17f4",
     "baseWidth": 128,

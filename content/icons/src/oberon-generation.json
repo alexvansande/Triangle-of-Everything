@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-24",
+  "tool": "photo composite (scripts/compose-real-body.py), not generated",
+  "object": "oberon",
+  "slug": "oberon",
+  "source": "NASA/JPL (Voyager 2, PIA00034, 'Oberon at Voyager Closest Approach'), public domain; NASA Image Library images-assets.nasa.gov/image/PIA00034",
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/oberon.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4); the disc is only ~290 px in the photo, so the master is soft up close"
+}
