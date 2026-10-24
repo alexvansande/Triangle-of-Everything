@@ -101,6 +101,15 @@
     <button id="spin">Pause spin</button>
     <button id="labels">Hide labels</button>
   </div>
+  <div class="row">
+    <label for="between">Between layers</label>
+    <select id="between">
+      <option value="0">None</option>
+      <option value="1">1</option>
+      <option value="3" selected>3</option>
+      <option value="7">7</option>
+    </select>
+  </div>
   <div class="row spread">
     <label for="spread">Spread</label>
     <input id="spread" type="range" min="0" max="1" step="0.01" value="1">
@@ -204,6 +213,31 @@ const frag = /* glsl */ `
     gl_FragColor = vec4(clamp(tint * (a * gain + rim * 0.2) * opacity, 0.0, 1.0), 1.0);
   }`;
 
+// An in-between shell cross-fades from shell A's map (mixF = 0) to shell
+// B's (mixF = 1); `fade` dims the ones that run in from the centre or out
+// past the last shell. No rim: they're there for volume, not outline.
+const fragBetween = /* glsl */ `
+  uniform sampler2D mapA, mapB; uniform vec3 tintA, tintB, cut;
+  uniform vec4 levA, levB; // gain, gamma, floor, white
+  uniform float opA, opB, onA, onB, mixF, fade, weight;
+  varying vec2 vUv; varying vec3 vWorld;
+  float tone(sampler2D m, vec4 lev) {
+    vec3 c = texture2D(m, vUv).rgb;
+    float lum = max(c.r, max(c.g, c.b));
+    return lev.x * pow(clamp((lum - lev.z) / (lev.w - lev.z), 0.0, 1.0), lev.y);
+  }
+  void main() {
+    if (vWorld.x > cut.x && vWorld.y > cut.y && vWorld.z > cut.z) discard;
+    vec3 col = tintA * tone(mapA, levA) * opA * onA * (1.0 - mixF)
+             + tintB * tone(mapB, levB) * opB * onB * mixF;
+    gl_FragColor = vec4(clamp(col * fade * weight, 0.0, 1.0), 1.0);
+  }`;
+
+// every sphere hangs off one group, so the spin turns the maps while the
+// cut (in world space) stays put
+const globe = new THREE.Group();
+scene.add(globe);
+
 const loader = new THREE.TextureLoader();
 const R0 = 1.6, DR = 0.8;
 const shells = [];
@@ -226,7 +260,7 @@ LAYERS.forEach((L, i) => {
       map: { value: tex }, tint: { value: new THREE.Color(L.color) }, cut: cutUniform,
       gain: { value: L.gain }, gamma: { value: L.gamma }, floorLevel: { value: L.floor },
       whiteLevel: { value: L.white ?? 1 },
-      opacity: { value: 1 },
+      opacity: { value: 1 }, on: { value: 1 },
     },
     side: THREE.DoubleSide,
     transparent: true,
@@ -241,15 +275,66 @@ LAYERS.forEach((L, i) => {
   // SphereGeometry puts u = 0.5 at +x; turn it so the Galactic Centre
   // (map centre) faces the cut wedge's corner.
   mesh.rotation.y = Math.PI / 4;
-  scene.add(mesh);
+  globe.add(mesh);
 
   const label = document.createElement("div");
   label.className = "label";
   label.style.color = L.color;
   label.innerHTML = `${L.name}<small>${L.band.split(" · ")[0]}</small>`;
   document.body.appendChild(label);
-  shells.push({ L, mesh, mat, base: radius, radius, label });
+  shells.push({ L, mesh, mat, base: radius, radius, label,
+    levels: new THREE.Vector4(L.gain, L.gamma, L.floor, L.white ?? 1) });
 });
+
+// ---------- in-between shells ----------
+const SCREEN = {
+  transparent: true, depthWrite: false, blending: THREE.CustomBlending,
+  blendEquation: THREE.AddEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcColorFactor,
+};
+const unitSphere = new THREE.SphereGeometry(1, 128, 64);
+let between = [];
+function buildBetween(k) {
+  between.forEach((b) => { globe.remove(b.mesh); b.mat.dispose(); });
+  between = [];
+  // dimmer when there are more of them, so each gap glows about the same
+  const weight = 1.3 / (k + 1);
+  const n = shells.length;
+  // gaps: centre → first shell, each pair, last shell → beyond
+  for (let g = 0; g <= n; g++) {
+    const A = shells[Math.max(0, g - 1)], B = shells[Math.min(n - 1, g)];
+    const kind = g === 0 ? "in" : g === n ? "out" : "mid";
+    for (let j = 1; j <= k; j++) {
+      const f = j / (k + 1);
+      const mat = new THREE.ShaderMaterial({
+        vertexShader: vert, fragmentShader: fragBetween, ...SCREEN,
+        side: backBox.checked ? THREE.DoubleSide : THREE.FrontSide,
+        uniforms: {
+          mapA: A.mat.uniforms.map, mapB: B.mat.uniforms.map,
+          tintA: A.mat.uniforms.tint, tintB: B.mat.uniforms.tint, cut: cutUniform,
+          levA: { value: A.levels }, levB: { value: B.levels },
+          opA: A.mat.uniforms.opacity, opB: B.mat.uniforms.opacity,
+          onA: A.mat.uniforms.on, onB: B.mat.uniforms.on,
+          mixF: { value: kind === "mid" ? f : 0 },
+          fade: { value: kind === "in" ? f : kind === "out" ? 1 - f : 1 },
+          weight: { value: weight },
+        },
+      });
+      const mesh = new THREE.Mesh(unitSphere, mat);
+      mesh.rotation.y = Math.PI / 4;
+      globe.add(mesh);
+      between.push({ mesh, mat, A, B, f, kind });
+    }
+  }
+  placeBetween();
+}
+function placeBetween() {
+  between.forEach((b) => {
+    const r = b.kind === "in" ? b.A.radius * b.f
+      : b.kind === "out" ? b.A.radius + 0.5 * DR * spread * b.f
+      : b.A.radius + (b.B.radius - b.A.radius) * b.f;
+    b.mesh.scale.setScalar(Math.max(r, 0.01));
+  });
+}
 
 // ---------- panel ----------
 const spectrum = document.getElementById("spectrum");
@@ -269,7 +354,10 @@ shells.forEach((s) => {
   el.innerHTML = `<input type="checkbox" checked><div class="name">${s.L.name}</div>
     <div class="meta">${s.L.meta}</div><input type="range" min="0" max="2" step="0.01" value="1">`;
   const [box, range] = el.querySelectorAll("input");
-  box.onchange = () => { s.mesh.visible = s.edges.visible = box.checked; };
+  box.onchange = () => {
+    s.mesh.visible = s.edges.visible = box.checked;
+    s.mat.uniforms.on.value = box.checked ? 1 : 0;
+  };
   range.oninput = () => { s.mat.uniforms.opacity.value = +range.value; };
   list.appendChild(el);
 });
@@ -284,7 +372,7 @@ function applyCut() {
 }
 cutSelect.onchange = cutOnBox.onchange = applyCut;
 const backBox = document.getElementById("back");
-backBox.onchange = () => shells.forEach((s) => {
+backBox.onchange = () => [...shells, ...between].forEach((s) => {
   s.mat.side = backBox.checked ? THREE.DoubleSide : THREE.FrontSide;
   s.mat.needsUpdate = true;
 });
@@ -355,6 +443,7 @@ function setSpread(t) {
     s.edges.visible = s.mesh.visible;
   });
   spreadOut.value = `${Math.round(t * 100)}%`;
+  placeBetween();
 }
 const spreadInput = document.getElementById("spread");
 const spreadOut = document.getElementById("spread-out");
@@ -366,6 +455,11 @@ setSpread(+spreadInput.value);
 const startParams = new URLSearchParams(location.search);
 if (startParams.get("cut") === "off") { cutOnBox.checked = false; applyCut(); }
 if (startParams.get("back") === "off") { backBox.checked = false; backBox.onchange(); }
+// ?between=0|1|3|7
+const betweenSelect = document.getElementById("between");
+if (["0", "1", "3", "7"].includes(startParams.get("between"))) betweenSelect.value = startParams.get("between");
+betweenSelect.onchange = () => buildBetween(+betweenSelect.value);
+buildBetween(+betweenSelect.value);
 
 // ---------- labels: a ladder up the cut's vertical edge ----------
 const v = new THREE.Vector3();
@@ -392,7 +486,7 @@ addEventListener("resize", () => {
 const clock = new THREE.Clock();
 function frame() {
   const dt = clock.getDelta();
-  if (spinning) shells.forEach((s) => (s.mesh.rotation.y += dt * 0.05));
+  if (spinning) globe.rotation.y += dt * 0.05;
   controls.update();
   renderer.render(scene, camera);
   placeLabels();
