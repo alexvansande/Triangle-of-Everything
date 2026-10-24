@@ -451,6 +451,50 @@ const GAIA_SHELLS = [
   { id: "gaia-far", label: "3,000–30,000 ly", where: "parallax BETWEEN 0.1087 AND 1.087 AND parallax_over_error > 5" },
 ];
 
+// ---------- merged onion: distance shells coloured by wavelength ----------
+// Each shell is pre-blended into one RGB map: every part is reduced to one
+// brightness channel (black/white points + curve), tinted with its band's
+// hue and screen-blended, as the spectral page does live.
+const BAND_HUE = { gamma: 300, xray: 240, visible: 180, nearIR: 150, midIR: 135, farIR: 120, radio: 60, microwave: 0 };
+const MERGED = [
+  { id: "merged-1", parts: [{ map: "stars", band: "visible", floor: 0.02, white: 0.85, gamma: 0.8, gain: 1.3 }] },
+  { id: "merged-2", parts: [{ map: "gaia-near", band: "visible", floor: 0.22, white: 0.85, gamma: 1, gain: 1.4 }] },
+  { id: "merged-3", parts: [
+    { map: "gaia-far", band: "visible", floor: 0.35, white: 0.98, gamma: 1.3, gain: 0.7 },
+    { map: "dust-log", band: "farIR", floor: 0.03, white: 0.85, gamma: 1.1, gain: 0.8 },
+    { map: "hydrogen-log", band: "radio", floor: 0.06, white: 0.9, gamma: 1.1, gain: 0.7 },
+    { map: "xray", band: "xray", floor: 0.16, white: 0.85, gamma: 0.8, gain: 1.4 },
+    { map: "gamma", band: "gamma", floor: 0.11, white: 0.85, gamma: 0.8, gain: 1.3 },
+  ] },
+  { id: "merged-4", parts: [{ map: "galaxies", band: "nearIR", floor: 0.02, white: 0.75, gamma: 0.8, gain: 1.3 }] },
+  { id: "merged-5", parts: [{ map: "quasars", band: "midIR", floor: 0.08, white: 0.36, gamma: 1.1, gain: 0.85 }] },
+  { id: "merged-6", parts: [{ map: "cmb-mono", band: "microwave", floor: 0.2, white: 0.97, gamma: 1, gain: 0.8 }] },
+];
+
+function hslRgb(h, s, l) {
+  const k = (n) => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+  return [0, 8, 4].map((n) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1)));
+}
+
+async function mergedShell({ id, parts }) {
+  const acc = new Float32Array(W * H * 3); // screen blend: 1 − Π(1 − c)
+  acc.fill(1);
+  for (const p of parts) {
+    const { data, info } = await sharp(join(OUT, `${p.map}.jpg`)).removeAlpha().resize(W, H).raw()
+      .toBuffer({ resolveWithObject: true });
+    const tint = hslRgb(BAND_HUE[p.band], 0.9, 0.62);
+    for (let i = 0, j = 0; i < W * H; i++, j += info.channels) {
+      const lum = Math.max(data[j], data[j + 1] ?? 0, data[j + 2] ?? 0) / 255;
+      const a = p.gain * Math.pow(Math.max(0, Math.min(1, (lum - p.floor) / (p.white - p.floor))), p.gamma);
+      for (let k = 0; k < 3; k++) acc[3 * i + k] *= 1 - Math.min(1, tint[k] * a);
+    }
+  }
+  const out = Buffer.alloc(W * H * 3);
+  for (let i = 0; i < out.length; i++) out[i] = Math.round(255 * (1 - acc[i]));
+  await sharp(out, { raw: { width: W, height: H, channels: 3 } }).jpeg({ quality: 90 })
+    .toFile(join(OUT, `${id}.jpg`));
+}
+
 console.log("Survey maps (HiPS):");
 for (const s of SURVEYS.filter((s) => want(s.id))) {
   await survey(s);
@@ -462,5 +506,10 @@ if (want("galaxies")) console.log(`  ✓ galaxies ${await galaxies()} 2MRS galax
 if (want("quasars")) console.log(`  ✓ quasars  ${await quasars()} Quaia quasars`);
 for (const g of GAIA_SHELLS.filter((g) => want(g.id))) {
   console.log(`  ✓ ${g.id} ${await gaiaShell(g.id, g.where)} Gaia DR3 stars at ${g.label}`);
+}
+// merged shells last: they are built from the maps above
+for (const m of MERGED.filter((m) => want(m.id) || want("merged"))) {
+  await mergedShell(m);
+  console.log(`  ✓ ${m.id} (${m.parts.map((p) => p.map).join(" + ")})`);
 }
 console.log(`Wrote ${OUT}`);
