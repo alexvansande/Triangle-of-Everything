@@ -4783,11 +4783,11 @@
     ]
   },
   "big-rock-okotoks": {
-    "fingerprint": "d1820cd35a31233c98801d79475592808a5aa1070f9afe59d5e625fd4e92ed79",
+    "fingerprint": "79b83c7b394abe3593e5e7929a1c69a5c87aa2987f42b4c1a5de479551571555",
     "baseWidth": 128,
     "source": "content/icons/src/big-rock-okotoks.png",
     "reason": "matching master",
-    "sourceDifference": 0.4085693359375,
+    "sourceDifference": 0.4946695963541667,
     "variants": [
       {
         "width": 256,
@@ -4846,11 +4846,11 @@
     ]
   },
   "devils-tower": {
-    "fingerprint": "dc9a24557d122006a19919a6bdf17638c6bfb4305d050184145db174b792edfd",
+    "fingerprint": "c506f6fa72ff9abb14138cc2b14aee208ff7a741d2dfd706be1870fa7b8c5235",
     "baseWidth": 128,
     "source": "content/icons/src/devils-tower.png",
     "reason": "matching master",
-    "sourceDifference": 0.5588582356770834,
+    "sourceDifference": 0.64752197265625,
     "variants": [
       {
         "width": 256,
@@ -4951,11 +4951,11 @@
     ]
   },
   "morro-do-pai-inacio": {
-    "fingerprint": "045b87581ee8dc5591fbd6e2f71b97932ed832b74b553f1d0bfbf08abb80073d",
+    "fingerprint": "69c97420d78fbfc4946375a7266a797e2524ad1fe5029ad9637cc32c5eb97134",
     "baseWidth": 128,
     "source": "content/icons/src/morro-do-pai-inacio.png",
     "reason": "matching master",
-    "sourceDifference": 0.49591064453125,
+    "sourceDifference": 0.6299641927083334,
     "variants": [
       {
         "width": 256,
@@ -5056,11 +5056,11 @@
     ]
   },
   "totem-pole-monument-valley": {
-    "fingerprint": "f4ab2a4b282160d43781cc703f34bee3cef334eb006c354a6877737b13f90446",
+    "fingerprint": "15886e58026b5425c716f2715068853cf8ed660e444da9ed16143b84be192cb6",
     "baseWidth": 128,
     "source": "content/icons/src/totem-pole-monument-valley.png",
     "reason": "matching master",
-    "sourceDifference": 0.3058064778645833,
+    "sourceDifference": 0.32666015625,
     "variants": [
       {
         "width": 256,
@@ -5077,11 +5077,11 @@
     ]
   },
   "uluru": {
-    "fingerprint": "0adf0050c38c76110bcb71a86b4a5b208d22bfe0f36128d321bad0635cf15eee",
+    "fingerprint": "e8d0722780bce2b7ff866dfe81fdaf41e0f4cc6c504e115e4e0bfabc845aa5ac",
     "baseWidth": 128,
     "source": "content/icons/src/uluru.png",
     "reason": "matching master",
-    "sourceDifference": 0.27880859375,
+    "sourceDifference": 0.3485310872395833,
     "variants": [
       {
         "width": 256,
@@ -5119,11 +5119,11 @@
     ]
   },
   "west-mitten-butte": {
-    "fingerprint": "f86e5881da27332d8e3736b3032b6db6ee3f088a77f0503e7bc636e70bbfe54d",
+    "fingerprint": "6edfccd67b666924580a08fe6a65f4c4ef08d1ec2e4497448b97ae784c42d509",
     "baseWidth": 128,
     "source": "content/icons/src/west-mitten-butte.png",
     "reason": "matching master",
-    "sourceDifference": 0.4666341145833333,
+    "sourceDifference": 0.5904541015625,
     "variants": [
       {
         "width": 256,

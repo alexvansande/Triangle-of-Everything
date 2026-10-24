@@ -18,6 +18,14 @@ upper left, restrained palette, no ground, no background, no text, no cast shado
 1254×1254 PNG with a genuine transparent background; subject about 93–95% of the square,
 at least 25 px clear margin. Crisp enough to read at 128 px.
 
+Rock formations must read as complete floating volumes lifted from the ground: retain
+the recognizable upper formation, and finish the lower edge with a modest irregular,
+fractured rock underside. No flat photo-cutout ground edge or thin grass carpet. Keep
+the near-front view slightly below eye level; do not tilt upward to expose the bottom.
+Lighting is explicitly screen northwest (upper left), with darker right faces and
+undersides, regardless of the original photograph's sun direction. The added lower
+volume is illustrative; it does not change the catalogue's stated size/mass scope.
+
 | Gap | Object | Slug | What to draw |
 |---|---|---|---|
 | ~~a 5 kg meteorite~~ | ~~**Peekskill** (12.4 kg, hit a parked Chevrolet Malibu in New York, 1992)~~ | ~~`peekskill`~~ | ~~A fist-sized ordinary-chondrite stone: dark brown-black fusion crust, one broken face showing grey speckled interior with tiny metal flecks. Reference style: `chelyabinsk`, `hoba`.~~ |
