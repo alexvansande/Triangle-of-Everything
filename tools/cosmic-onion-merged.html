@@ -56,6 +56,7 @@
     vertical-align: middle; margin-left: 5px; opacity: 0.8; }
   .label small { display: block; font-weight: 400; color: #c3c7d4; margin-right: 19px; font-size: 10.5px; }
   body.log-radius .label small { display: none; } /* shells crowd at the rim in log mode */
+  .hint { color: var(--dim); font-size: 11px; }
   .orbit-label { position: absolute; transform: translate(6px, -50%); pointer-events: none; white-space: nowrap;
     font-size: 10.5px; text-shadow: 0 0 3px var(--sky), 0 0 6px var(--sky); }
   .decade { position: absolute; transform: translate(8px, -50%); pointer-events: none; white-space: nowrap;
@@ -144,8 +145,24 @@
   </div>
   <div class="row spread" id="scale-row" hidden>
     <label class="check"><input id="scale-on" type="checkbox"> Scale zoom</label>
-    <input id="scale" type="range" min="-4.5" max="10.66" step="0.01" value="10.66" aria-label="Distance at the outer sphere (log ly)">
+    <input id="scale" type="range" min="-7.6" max="10.66" step="0.01" value="10.66" aria-label="Distance at the outer sphere (log ly)">
     <output id="scale-out" for="scale">46 billion ly</output>
+  </div>
+  <div class="row" id="jump-row" hidden>
+    <label for="jump">Go to</label>
+    <select id="jump">
+      <option value="">…</option>
+      <option value="10.66">The universe (46 billion ly)</option>
+      <option value="9.3">Cosmic web (2 billion ly)</option>
+      <option value="5">Milky Way (100,000 ly)</option>
+      <option value="3">Our neighbourhood (1,000 ly)</option>
+      <option value="2.7">Nearby stars (500 ly)</option>
+      <option value="0.5">Oort Cloud (3 ly)</option>
+      <option value="-3.35">Outer planets (60 AU)</option>
+      <option value="-4.4">Inner planets (2.5 AU)</option>
+      <option value="-6.3">The Sun (10 R☉)</option>
+    </select>
+    <span class="hint">+ / − keys zoom</span>
   </div>
   <div class="row spread">
     <label for="spread">Spread</label>
@@ -736,7 +753,8 @@ function applyLinear() {
   ORBITS.forEach((o) => {
     o.radius = linRadius(Math.log10(o.au) + AU_LOG_LY);
     o.line.scale.setScalar(o.radius);
-    o.line.visible = linRaw(Math.log10(o.au) + AU_LOG_LY) > 0.02;
+    const raw = linRaw(Math.log10(o.au) + AU_LOG_LY);
+    o.line.visible = raw > 0.02 && raw <= BG; // no giant rings round the camera
   });
   updateLinTicks();
   scaleOut.value = `to ${fmtLy(10 ** viewLog)}`;
@@ -745,6 +763,7 @@ function setRadiusMode(mode) {
   radiusMode = mode;
   document.body.classList.toggle("log-radius", mode !== "even");
   document.getElementById("scale-row").hidden = mode !== "linear";
+  document.getElementById("jump-row").hidden = !(mode === "linear" && scaleZoom);
   controls.enableZoom = !(mode === "linear" && scaleZoom);
   if (mode === "linear") {
     applyLinear();
@@ -771,6 +790,18 @@ function setRadiusMode(mode) {
 const scaleInput = document.getElementById("scale");
 const scaleOut = document.getElementById("scale-out");
 const scaleOnBox = document.getElementById("scale-on");
+// a smooth glide to a target scale (Go to menu, + / − keys)
+let viewTarget = null;
+function glideTo(x) {
+  if (!scaleZoom) { scaleOnBox.checked = scaleZoom = true; setRadiusMode(radiusMode); }
+  viewTarget = Math.min(LOG_MAX, Math.max(+scaleInput.min, x));
+}
+function stepGlide(dt) {
+  if (viewTarget === null) return;
+  const d = viewTarget - viewLog;
+  if (Math.abs(d) < 0.003) { setViewLog(viewTarget); viewTarget = null; return; }
+  setViewLog(viewLog + d * Math.min(1, dt * 2.2));
+}
 function setViewLog(x) {
   viewLog = Math.min(LOG_MAX, Math.max(+scaleInput.min, x));
   scaleInput.value = viewLog;
@@ -787,7 +818,8 @@ scaleOnBox.onchange = () => {
 renderer.domElement.addEventListener("wheel", (e) => {
   if (!(radiusMode === "linear" && scaleZoom)) return;
   e.preventDefault();
-  setViewLog(viewLog + e.deltaY * (e.ctrlKey ? 0.012 : 0.0025));
+  viewTarget = null;
+  setViewLog(viewLog + e.deltaY * (e.ctrlKey ? 0.03 : 0.004));
 }, { passive: false });
 const pinch = new Map();
 let pinchDist = 0;
@@ -798,12 +830,22 @@ renderer.domElement.addEventListener("pointermove", (e) => {
   if (pinch.size !== 2 || !(radiusMode === "linear" && scaleZoom)) return;
   const [a, b] = [...pinch.values()];
   const dist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
-  if (pinchDist) setViewLog(viewLog - 4 * Math.log10(dist / pinchDist));
+  if (pinchDist) { viewTarget = null; setViewLog(viewLog - 8 * Math.log10(dist / pinchDist)); }
   pinchDist = dist;
 });
 const endPinch = (e) => { pinch.delete(e.pointerId); pinchDist = 0; };
 renderer.domElement.addEventListener("pointerup", endPinch);
 renderer.domElement.addEventListener("pointercancel", endPinch);
+const jumpSelect = document.getElementById("jump");
+jumpSelect.onchange = () => {
+  if (jumpSelect.value !== "") glideTo(+jumpSelect.value);
+  jumpSelect.value = "";
+};
+addEventListener("keydown", (e) => {
+  if (radiusMode !== "linear" || !scaleZoom || e.target.closest?.("input, select")) return;
+  if (e.key === "+" || e.key === "=") glideTo((viewTarget ?? viewLog) - 0.5);
+  if (e.key === "-" || e.key === "_") glideTo((viewTarget ?? viewLog) + 0.5);
+});
 const radiusSelect = document.getElementById("radius");
 radiusSelect.onchange = () => setRadiusMode(radiusSelect.value);
 const spreadParam = new URLSearchParams(location.search).get("spread");
@@ -889,6 +931,7 @@ const clock = new THREE.Clock();
 function frame() {
   const dt = clock.getDelta();
   if (spinning) globe.rotation.y += dt * 0.05;
+  stepGlide(dt);
   updateVolume();
   controls.update();
   renderer.render(scene, camera);
