@@ -139,6 +139,7 @@
       <option value="even">Even spacing</option>
       <option value="log">Log distance (ly)</option>
       <option value="sun">Log from the Sun (R☉)</option>
+      <option value="linear">Linear (billion ly)</option>
     </select>
   </div>
   <div class="row spread">
@@ -188,8 +189,8 @@ const LAYERS = [
     color: "hsl(0, 0%, 92%)", gain: 0.5, logLy: 4.48 }, // five maps blended: dim it so inner shells show
   { id: "merged-4", name: "Galaxies", band: "30 million–1 billion ly · near-IR: 43,000 galaxies, 2MRS",
     color: hsl(55), logLy: 9.0 },
-  { id: "merged-5", name: "Quasars", band: "1–12 billion ly · mid-IR selected: 756,000 quasars, Quaia",
-    color: hsl(42), logLy: 10.08 },
+  { id: "merged-5", name: "Quasars", band: "1.4–24 billion ly (where they are now) · mid-IR selected: 756,000 quasars, Quaia",
+    color: hsl(42), logLy: 10.38 },
   { id: "merged-6", name: "Cosmic microwave background", band: "46 billion ly · microwave: the oldest light, Planck",
     color: hsl(12), logLy: 10.66 },
 ];
@@ -447,6 +448,14 @@ function updateVolume() {
   volume.visible = rays > 0;
 }
 
+// a shell shows when its checkbox is on and the radius mode doesn't hide it
+// (linear mode hides the shells too small to be a pixel)
+function refreshShell(s) {
+  const on = s.userOn !== false && !s.modeHidden;
+  s.mesh.visible = s.edges.visible = on;
+  s.mat.uniforms.on.value = on ? 1 : 0;
+}
+
 // ---------- panel ----------
 const spectrum = document.getElementById("spectrum");
 const bandList = document.getElementById("bands");
@@ -470,8 +479,8 @@ shells.forEach((s) => {
     <div class="meta">${s.L.meta}</div><input type="range" min="0" max="2" step="0.01" value="1">`;
   const [box, range] = el.querySelectorAll("input");
   box.onchange = () => {
-    s.mesh.visible = s.edges.visible = box.checked;
-    s.mat.uniforms.on.value = box.checked ? 1 : 0;
+    s.userOn = box.checked;
+    refreshShell(s);
   };
   range.oninput = () => { s.mat.uniforms.opacity.value = +range.value; };
   list.appendChild(el);
@@ -657,11 +666,25 @@ const discFill = new THREE.Mesh(
     side: THREE.DoubleSide, depthWrite: false }));
 eclipticPlane.add(discFill);
 
+// "linear": radius proportional to (comoving) distance, the CMB's 46 billion
+// ly on the outer sphere; anything under a thousandth of that is hidden
+const linRadius = (logLy) => OUTER * 10 ** (logLy - LOG_MAX);
+const linTicks = [10, 20, 30, 40].map((gly) => {
+  const el = document.createElement("div");
+  el.className = "decade";
+  el.textContent = `${gly} billion ly`;
+  document.body.appendChild(el);
+  return { r: OUTER * (gly * 1e9) / 10 ** LOG_MAX, el };
+});
 function setRadiusMode(mode) {
   radiusMode = mode;
   document.body.classList.toggle("log-radius", mode !== "even");
-  shells.forEach((s) => (s.base =
-    mode === "log" ? logRadius(s.L.logLy) : mode === "sun" ? sunRadius(s.L.logLy + LY_IN_RSUN) : s.even));
+  shells.forEach((s) => {
+    s.base = mode === "log" ? logRadius(s.L.logLy) : mode === "sun" ? sunRadius(s.L.logLy + LY_IN_RSUN)
+      : mode === "linear" ? Math.max(linRadius(s.L.logLy), 0.01) : s.even;
+    s.modeHidden = mode === "linear" && linRadius(s.L.logLy) < OUTER * 1e-3;
+    refreshShell(s);
+  });
   sun.visible = ecliptic.visible = mode === "sun";
   const unit = mode === "sun" ? "R☉" : "ly";
   decades.forEach(({ d, el }) => (el.textContent = `${pow10(d)} ${unit}`));
@@ -677,7 +700,7 @@ const startParams = new URLSearchParams(location.search);
 if (startParams.get("cut") === "off") { cutOnBox.checked = false; applyCut(); }
 if (startParams.get("back") === "off") { backBox.checked = false; backBox.onchange(); }
 // ?radius=log
-if (["log", "sun"].includes(startParams.get("radius"))) {
+if (["log", "sun", "linear"].includes(startParams.get("radius"))) {
   radiusSelect.value = startParams.get("radius");
   setRadiusMode(radiusSelect.value);
 }
@@ -705,12 +728,20 @@ function placeLabels() {
     s.label.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
   });
   // decade ticks up the same edge, on the other side, only while the radii are true log distances
-  const showTicks = showLabels && cutOn && radiusMode !== "even" && spread > 0.999;
+  const showTicks = showLabels && cutOn && radiusMode !== "even" && radiusMode !== "linear" && spread > 0.999;
   decades.forEach(({ d, el }) => {
     const on = showTicks && (radiusMode === "sun" ? d % 2 === 0 : d <= LOG_MAX);
     el.style.display = on ? "block" : "none";
     if (!on) return;
     v.set(0, radiusMode === "sun" ? sunRadius(d) : logRadius(d), 0).project(camera);
+    el.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
+    el.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
+  });
+  linTicks.forEach(({ r, el }) => {
+    const on = showLabels && cutOn && radiusMode === "linear" && spread > 0.999;
+    el.style.display = on ? "block" : "none";
+    if (!on) return;
+    v.set(0, r, 0).project(camera);
     el.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
     el.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
   });
