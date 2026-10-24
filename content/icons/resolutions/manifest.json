@@ -4559,5 +4559,26 @@
         "path": "1024/umbriel.webp"
       }
     ]
+  },
+  "oberon": {
+    "fingerprint": "62cc9a38142c16e9cbd690559a0d21a7d3894e3f2c5f160bffbfa34cb4c635b6",
+    "baseWidth": 128,
+    "source": "content/icons/src/oberon.png",
+    "reason": "matching master",
+    "sourceDifference": 1.6613972981770833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/oberon.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/oberon.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/oberon.webp"
+      }
+    ]
   }
 }

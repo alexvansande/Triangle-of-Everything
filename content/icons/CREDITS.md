@@ -84,6 +84,7 @@ NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
 | 253-mathilde | NASA/JHU APL (NEAR Shoemaker) | Public domain | Wikimedia: 253_Mathilde_NASA.png; composited by `scripts/compose-real-body.py` |
 | gaspra | NASA/JPL (Galileo) | Public domain | Wikimedia: Galileo_Gaspra_Mosaic.jpg; composited by `scripts/compose-real-body.py` |
 | ida | NASA/JPL (Galileo) | Public domain | Wikimedia: 243_ida.jpg; composited by `scripts/compose-real-body.py` |
+| oberon | NASA/JPL (Voyager 2, PIA00034) | Public domain | NASA Image Library: PIA00034; composited by `scripts/compose-real-body.py` |
 | hyperion | NASA/JPL/Space Science Institute | Public domain | Wikimedia: Hyperion_true.jpg |
 | deimos | NASA/JPL-Caltech/University of Arizona | Public domain | Wikimedia: Deimos-MRO.jpg |
 | vesta | NASA/JPL-Caltech/UCLA/MPS/DLR/IDA | Public domain | Wikimedia: Vesta_full_mosaic.jpg |
