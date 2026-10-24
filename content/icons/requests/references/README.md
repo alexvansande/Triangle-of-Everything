@@ -21,6 +21,7 @@ kept if one is ever shown as is.
 | `sylacauga-meteorite.jpg` | [2024-10-21 - Tuscaloosa, AL, USA - Hodges (Sylacauga) Meteorite (cropped).jpg](https://commons.wikimedia.org/wiki/File:2024-10-21_-_Tuscaloosa,_AL,_USA_-_Hodges_(Sylacauga)_Meteorite_(cropped).jpg) | Kai NeSmith | CC BY 4.0 |
 | `totem-pole-monument-valley.jpg` | [Totem Pole, Monument Valley (15633047928).jpg](https://commons.wikimedia.org/wiki/File:Totem_Pole,_Monument_Valley_(15633047928).jpg) | Andy  Morffew from Itchen Abbas, Hampshire, UK | CC BY 2.0 |
 | `west-mitten-butte.jpg` | [West Mitten Butte, East Mitten Butte, and Merrick Butte (Unsplash).jpg](https://commons.wikimedia.org/wiki/File:West_Mitten_Butte,_East_Mitten_Butte,_and_Merrick_Butte_(Unsplash).jpg) | Jasper van der Meij jaspervandermeij | CC0 |
+| `uluru.jpg` | [Uluru (Helicopter view)-crop.jpg](https://commons.wikimedia.org/wiki/File:Uluru_(Helicopter_view)-crop.jpg) | see Commons page | Public domain |
 | `nix.jpg` | Pluto's Moon Nix, Half Illuminated (PIA20287) | NASA/JHU APL/SwRI (New Horizons) | Public domain |
 | `didymos.jpg` | Didymos from DART DRACO | NASA/JHU APL (DART) | Public domain |
 | `amalthea.jpg` | Bright Streak on Amalthea (PIA02532) | NASA/JPL/Cornell (Galileo) | Public domain |
