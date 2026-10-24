@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-24",
+  "tool": "photo composite (scripts/compose-real-body.py), not generated",
+  "object": "phoebe",
+  "slug": "phoebe",
+  "source": "NASA/JPL/Space Science Institute (Cassini), public domain; Wikimedia Commons: Phoebe cassini full.jpg",
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/phoebe.png irregular (cut out, turned so the lit side faces the upper left; no added shading)"
+}

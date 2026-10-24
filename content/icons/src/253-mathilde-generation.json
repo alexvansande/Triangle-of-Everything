@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-24",
+  "tool": "photo composite (scripts/compose-real-body.py), not generated",
+  "object": "253-mathilde",
+  "slug": "253-mathilde",
+  "source": "NASA/JHU APL (NEAR Shoemaker), public domain; Wikimedia Commons: 253 Mathilde NASA.png",
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/253-mathilde.png irregular (cut out, turned so the lit side faces the upper left; no added shading)"
+}

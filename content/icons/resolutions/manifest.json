@@ -4307,5 +4307,257 @@
         "path": "1024/iapetus.webp"
       }
     ]
+  },
+  "253-mathilde": {
+    "fingerprint": "6d28aef3479e9668e50afbd8e4fd451668473537f41f2a2ccc2679d8937c3c4f",
+    "baseWidth": 128,
+    "source": "content/icons/src/253-mathilde.png",
+    "reason": "matching master",
+    "sourceDifference": 0.8424275716145834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/253-mathilde.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/253-mathilde.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/253-mathilde.webp"
+      }
+    ]
+  },
+  "ariel": {
+    "fingerprint": "84ef867eb39228778834e27a4fd78c9b1653fc6bbf2bea3aafe04aaa4005f4ca",
+    "baseWidth": 128,
+    "source": "content/icons/src/ariel.png",
+    "reason": "matching master",
+    "sourceDifference": 1.0685221354166667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ariel.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ariel.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ariel.webp"
+      }
+    ]
+  },
+  "charon": {
+    "fingerprint": "77d0bbb072e163dcf9e6ef3d2d3bef31e88f7c4248dd8d5ce2c8f375366f4eb5",
+    "baseWidth": 128,
+    "source": "content/icons/src/charon.png",
+    "reason": "matching master",
+    "sourceDifference": 1.2203369140625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/charon.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/charon.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/charon.webp"
+      }
+    ]
+  },
+  "dione": {
+    "fingerprint": "d1c78d3c7a53ebfe361bbb0377790ac8d255945550f43c3060b241933fbdacda",
+    "baseWidth": 128,
+    "source": "content/icons/src/dione.png",
+    "reason": "matching master",
+    "sourceDifference": 1.2078043619791667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/dione.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/dione.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/dione.webp"
+      }
+    ]
+  },
+  "gaspra": {
+    "fingerprint": "a79c5725380a1d1fe6994e31733c66d005eacd2cdc1d0c586884ecc4a5be3ff8",
+    "baseWidth": 128,
+    "source": "content/icons/src/gaspra.png",
+    "reason": "matching master",
+    "sourceDifference": 1.0531209309895833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/gaspra.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/gaspra.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/gaspra.webp"
+      }
+    ]
+  },
+  "ida": {
+    "fingerprint": "637c37843afa7134116de604d27cb051dfdeedd59470e7ad818f4a11295f59c2",
+    "baseWidth": 128,
+    "source": "content/icons/src/ida.png",
+    "reason": "matching master",
+    "sourceDifference": 0.9262898763020834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ida.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ida.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ida.webp"
+      }
+    ]
+  },
+  "miranda": {
+    "fingerprint": "95797f70f2520cd839557f407bc3cb283b41c1645e75189516c9d1b785ef2331",
+    "baseWidth": 128,
+    "source": "content/icons/src/miranda.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4334513346354167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/miranda.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/miranda.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/miranda.webp"
+      }
+    ]
+  },
+  "phoebe": {
+    "fingerprint": "52d9a2c600790bc41c62a8ea4d9b6cc09df826a0bb5edb4ef8f92faa69b01559",
+    "baseWidth": 128,
+    "source": "content/icons/src/phoebe.png",
+    "reason": "matching master",
+    "sourceDifference": 1.1585286458333333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/phoebe.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/phoebe.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/phoebe.webp"
+      }
+    ]
+  },
+  "rhea": {
+    "fingerprint": "bedcea84e5a7d0d4f8322fc0d6f50818ae68dd47b03b253808539e6c57dc03d4",
+    "baseWidth": 128,
+    "source": "content/icons/src/rhea.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4195353190104167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/rhea.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/rhea.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/rhea.webp"
+      }
+    ]
+  },
+  "tethys": {
+    "fingerprint": "b70f64021c6768cc1ef4bc6245b28088569d9abbd3d834e3b78d90daf40b08dc",
+    "baseWidth": 128,
+    "source": "content/icons/src/tethys.png",
+    "reason": "matching master",
+    "sourceDifference": 1.39501953125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/tethys.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/tethys.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/tethys.webp"
+      }
+    ]
+  },
+  "titania": {
+    "fingerprint": "6674aa5bc7d0be13cc0b1e800ca054a6d76222c8a2bab8554769e31d4cc9f64f",
+    "baseWidth": 128,
+    "source": "content/icons/src/titania.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3201700846354167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/titania.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/titania.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/titania.webp"
+      }
+    ]
+  },
+  "umbriel": {
+    "fingerprint": "448cbe2ec798e27f7eb41854965fe697bd8c35f7093aea52b6bbd5db4fe9906b",
+    "baseWidth": 128,
+    "source": "content/icons/src/umbriel.png",
+    "reason": "matching master",
+    "sourceDifference": 1.33209228515625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/umbriel.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/umbriel.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/umbriel.webp"
+      }
+    ]
   }
 }

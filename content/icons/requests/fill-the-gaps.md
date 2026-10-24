@@ -22,7 +22,6 @@ at least 25 px clear margin. Crisp enough to read at 128 px.
 | a 20 t animal | **Sperm whale** (about 15 t, big males 45 t) | `sperm-whale` | Side view, the huge blunt square head, wrinkled dark grey skin, small lower jaw, nose to the left. Reference style: `blue-whale`. |
 | a 30 t animal | **Humpback whale** (30 t) | `humpback-whale` | Side view with the long white pectoral fins spread, knobbly head, dark back, white throat grooves. Reference style: `blue-whale`. |
 | a 100 Gt object | **Lake Geneva** (89 km³, 89 Gt of water) | `lake-geneva` | The crescent-shaped lake seen from above as a deep blue water body with a thin shoreline, like the other lakes. Reference style: `lake-baikal`, `konigssee`. |
-| 100,000–1,000,000 Gt | **253 Mathilde** (about 10²⁰ g; 53 km, one of the darkest asteroids, a porous rubble pile) | `253-mathilde` | A lumpy, almost black asteroid covered in huge craters, as NEAR photographed it in 1997. Reference style: `eros`, `bennu`. |
 | between Mars and Venus | **TRAPPIST-1 e** (0.7 Earth masses, in its star's habitable zone) | `trappist-1-e` | An artist's rocky planet with a thin atmosphere, lit deep red-orange by a dim red-dwarf sun from the upper left, possible dark oceans and pale clouds. Reference style: `kepler-22b`, `earth`. |
 
-Between Ceres and Pluto: done with the real Iapetus (Cassini photo, shaded with the sphere template, 2026-10-24), not a generated picture.
+Between Ceres and Pluto: done with the real Iapetus (Cassini photo, shaded with the sphere template, 2026-10-24), not a generated picture. 100,000–1,000,000 Gt: 253 Mathilde, from NEAR's photo, the same way.
