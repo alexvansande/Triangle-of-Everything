@@ -1,3 +1,5 @@
+> First macro batch installed 2026-10-23: Spirit of St. Louis, polar bear, sperm whale, humpback whale. See tools/macro-request-review.html. Remaining rows are still pending.
+
 # Picture requests: filling the chart's gaps (2026-10-23)
 
 Catalogue objects in parts of the chart with no pictures, picked by the author's

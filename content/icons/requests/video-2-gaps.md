@@ -1,3 +1,5 @@
+> Opening moth illustrations installed 2026-10-23. Macro work takes priority over the space order below.
+
 # Picture requests: video 2's empty stretches (2026-10-24)
 
 Where video 2 ("Up the line") runs thin. Measured every 2 s on the current cut: how many

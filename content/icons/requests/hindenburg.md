@@ -1,3 +1,5 @@
+> Installed 2026-10-23 with matching long shadow. Side profile follows the established display style; no below-eye viewpoint. Historical hull and four-engine arrangement corrected after first render.
+
 # Picture request: Hindenburg
 
 - **Object**: Hindenburg (LZ 129), `slug: hindenburg`, added to `src/objects.json` on 2026-10-23 without a picture.

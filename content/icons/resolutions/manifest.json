@@ -4592,5 +4592,173 @@
         "path": "1024/toi-2490-b.webp"
       }
     ]
+  },
+  "codling-moth": {
+    "fingerprint": "4034c06026d8c1cb030a1205e8ce18eca69ed1ac5d6e7dc104573cfbdfaf0dba",
+    "baseWidth": 128,
+    "source": "content/icons/src/codling-moth.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5622355143229166,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/codling-moth.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/codling-moth.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/codling-moth.webp"
+      }
+    ]
+  },
+  "hindenburg": {
+    "fingerprint": "a49de4830dc7a75d51c9396dc3dafd9f08b34ac2514453b76abcb92df61b9a4b",
+    "baseWidth": 128,
+    "source": "content/icons/src/hindenburg.png",
+    "reason": "matching master",
+    "sourceDifference": 0.19551595052083334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hindenburg.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hindenburg.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/hindenburg.webp"
+      }
+    ]
+  },
+  "humpback-whale": {
+    "fingerprint": "bc19c73f8635c6153404d9a222e60ed1614f93a858ee614b985b9db1da26a72b",
+    "baseWidth": 128,
+    "source": "content/icons/src/humpback-whale.png",
+    "reason": "matching master",
+    "sourceDifference": 0.22458902994791666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/humpback-whale.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/humpback-whale.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/humpback-whale.webp"
+      }
+    ]
+  },
+  "polar-bear": {
+    "fingerprint": "87f9219615f4163638d4707864e3469b1667ec1a9927801d3ebfbbb95623b6ce",
+    "baseWidth": 128,
+    "source": "content/icons/src/polar-bear.png",
+    "reason": "matching master",
+    "sourceDifference": 0.4258219401041667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/polar-bear.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/polar-bear.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/polar-bear.webp"
+      }
+    ]
+  },
+  "sperm-whale": {
+    "fingerprint": "7e4612318cb068aaf3df4a665a915d2c739326705efa69089b01ab928a48c1ff",
+    "baseWidth": 128,
+    "source": "content/icons/src/sperm-whale.png",
+    "reason": "matching master",
+    "sourceDifference": 0.19342041015625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/sperm-whale.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/sperm-whale.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/sperm-whale.webp"
+      }
+    ]
+  },
+  "spirit-of-st-louis": {
+    "fingerprint": "f187f53b440d0916043915ee6a76306ca2dadca088cc90706f588a8afbd05410",
+    "baseWidth": 128,
+    "source": "content/icons/src/spirit-of-st-louis.png",
+    "reason": "matching master",
+    "sourceDifference": 0.33984375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/spirit-of-st-louis.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/spirit-of-st-louis.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/spirit-of-st-louis.webp"
+      }
+    ]
+  },
+  "tomato-leaf-miner": {
+    "fingerprint": "b7998b45ed39118301ae2927e344417f6ef5f3aa246a3db26efa1816cbb4ef77",
+    "baseWidth": 128,
+    "source": "content/icons/src/tomato-leaf-miner.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5277913411458334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/tomato-leaf-miner.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/tomato-leaf-miner.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/tomato-leaf-miner.webp"
+      }
+    ]
+  },
+  "wax-moth": {
+    "fingerprint": "db62a410105e2d62542579df489eea9cc8ddc310d3b0d0ae9d8f79d868abae9a",
+    "baseWidth": 128,
+    "source": "content/icons/src/wax-moth.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5415852864583334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/wax-moth.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/wax-moth.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/wax-moth.webp"
+      }
+    ]
   }
 }
