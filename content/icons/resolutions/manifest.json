@@ -5537,5 +5537,68 @@
         "path": "1024/perseus-cluster.webp"
       }
     ]
+  },
+  "abell-1689": {
+    "fingerprint": "24e78e27db087f1354639cd3ad7c826f83e000a51866448186da30c53f505e6b",
+    "baseWidth": 128,
+    "source": "content/icons/src/abell-1689.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7345377604166667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/abell-1689.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/abell-1689.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/abell-1689.webp"
+      }
+    ]
+  },
+  "macs-j0717": {
+    "fingerprint": "177e4d40b7889613c701d499a580a1c6d07b22edb36661f7d2f75d3318511587",
+    "baseWidth": 128,
+    "source": "content/icons/src/macs-j0717.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3945719401041667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/macs-j0717.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/macs-j0717.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/macs-j0717.webp"
+      }
+    ]
+  },
+  "train-wreck-cluster": {
+    "fingerprint": "f75d3b88056490d5b12c51219d6a04832d4020a7f80fcb398088c69bf9e7c57c",
+    "baseWidth": 128,
+    "source": "content/icons/src/train-wreck-cluster.png",
+    "reason": "matching master",
+    "sourceDifference": 1.8421834309895833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/train-wreck-cluster.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/train-wreck-cluster.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/train-wreck-cluster.webp"
+      }
+    ]
   }
 }

@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-24",
+  "tool": "real photograph, not generated",
+  "object": "abell-1689",
+  "slug": "abell-1689",
+  "source": "NASA, ESA, the Hubble Heritage Team (STScI/AURA) and others; NASA Image Library GSFC_20171208_Archive_e002174, 'Galaxy Cluster Abell 1689'; public domain (NASA)",
+  "shows": "Hubble visible light: the cluster's galaxies, with arcs of lensed background galaxies",
+  "steps": "square crop centred on the cluster, 1024 px; soft round fade to black at the edge; then node scripts/generate-icon-resolutions.mjs <slug> and node scripts/unscreen-icons.mjs <slug>"
+}
