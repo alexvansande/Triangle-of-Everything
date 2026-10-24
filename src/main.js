@@ -75,6 +75,7 @@ let _iconsEnabled = true;
 let _iconOnly = null;     // narration: a Set of the only object names that get their picture
 let _iconFill = false;    // narration: …or first, with every other picture that fits after them
 let _iconForce = null;    // narration: names whose picture shows even where a nearer one would hide it
+let _iconHide = null;     // narration: names whose picture never shows (they pile onto a neighbour)
 let _dustFill = false;    // narration: catalogue pictures without their names (the names stay off)
 let _labelFocus = null;   // narration: while a callout shows, only these objects keep their labels
 let _labelFocusKey = "";
@@ -2549,6 +2550,7 @@ function drawObjects() {
     _bigBangMode && [_bigBangObjectOverrides, _bigBangObjectOpacity],
     _iconOnly && [..._iconOnly], // a narration scene's picture set
     _iconForce && [..._iconForce],
+    _iconHide && [..._iconHide],
   ]));
 
   // Project all objects to screen, sorted by priority (low z = important)
@@ -2593,30 +2595,32 @@ function drawObjects() {
   // order resolves equal priorities; last frame's winners never alter rank.
   const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
-  const iconOrder = projected.filter(mapIconShown);
+  const iconOrder = projected.filter(o => mapIconShown(o) && !_iconHide?.has(o.name));
   // a narration scene picks its pictures (_iconOnly): only true overlaps hide one;
   // with _iconFill every other picture that fits joins them, packed closer
+  // Catalogue photographs also reserve space ahead of generated featured icons.
+  const cataloguePhotos = () => dustPictureCandidates({
+    px, py, hidden: !_dustEnabled || _bigBangMode,
+    labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fillPictures: !!_iconFill,
+    iconOf: _iconsEnabled && !_posterLabels ? (name,size) => {
+      const slug=nameToSlug(name);
+      return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug,size) || null;
+    } : null,
+    iconSizeAt: (logR,name,cat) => icoSize * iconSizeMult({logR,slug:nameToSlug(name),cat}),
+    imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
+  }).filter(p=>p.imagePriority===0 && p.r*2>=dustIconMin());
   let shownIcons;
   if (_iconOnly) {
     shownIcons = priorityCircles(iconOrder, () => icoSize / 2);
     if (_iconFill) {
-      const others = projected.filter(o => !_iconOnly.has(o.name) && mapIconShown(o, true));
-      const extra = priorityCircles(others, icoR, iconRoom(), iconOrder.filter(o => shownIcons.has(o)));
+      // the rest fill in around the named ones, real photographs ahead of generated art
+      const others = [...projected.filter(o => !_iconOnly.has(o.name) && !_iconHide?.has(o.name) && mapIconShown(o, true)), ...cataloguePhotos().filter(p => !_iconHide?.has(p.name))]
+        .sort((a,b)=>a.imagePriority-b.imagePriority);
+      const extra = priorityCircles(others, o=>o.r ?? icoR(o), iconRoom(), iconOrder.filter(o => shownIcons.has(o)));
       shownIcons = new Set([...shownIcons, ...extra]);
     }
   } else {
-    // Catalogue photographs also reserve space ahead of generated featured icons.
-    const cataloguePhotos = dustPictureCandidates({
-      px, py, hidden: !_dustEnabled || _bigBangMode,
-      labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels,
-      iconOf: _iconsEnabled && !_posterLabels ? (name,size) => {
-        const slug=nameToSlug(name);
-        return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug,size) || null;
-      } : null,
-      iconSizeAt: (logR,name,cat) => icoSize * iconSizeMult({logR,slug:nameToSlug(name),cat}),
-      imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
-    }).filter(p=>p.imagePriority===0 && p.r*2>=dustIconMin());
-    const combined = [...iconOrder,...cataloguePhotos].sort((a,b)=>a.imagePriority-b.imagePriority);
+    const combined = [...iconOrder,...cataloguePhotos()].sort((a,b)=>a.imagePriority-b.imagePriority);
     shownIcons = priorityCircles(combined, o=>o.r ?? icoR(o), iconRoom());
   }
   // forced pictures (videos: Venus behind Earth) show whatever they overlap;
@@ -8401,6 +8405,7 @@ if (_ogShot) {
       setDollyOpacity(v = 1) { dFocus.style("opacity", v < 0.999 ? v.toFixed(3) : null); },
       /** Pictures that show even where a nearer one would hide them (videos): names, or null. */
       setIconForce(names) { _iconForce = names?.length ? new Set(names) : null; redraw(); },
+      setIconHide(names) { _iconHide = names?.length ? new Set(names) : null; redraw(); },
       /** Settings → Icons for a video (0–100, 100 = many), without saving it. */
       setIconDensity(d = ICON_DENSITY_DEFAULT) { if (_iconDensity !== d) { _iconDensity = d; _iconsEnabled = d > 0; redraw(); } },
       /** Icon size in percent of the app's default (videos), without saving it. */
