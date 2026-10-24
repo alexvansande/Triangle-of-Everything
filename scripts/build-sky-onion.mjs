@@ -397,6 +397,60 @@ async function quasars() {
 const ONLY = process.argv.find((a) => a.startsWith("--only="))?.slice(7).split(",");
 const want = (id) => !ONLY || ONLY.includes(id);
 
+// Stars in a distance range: Gaia DR3 star counts per HEALPix cell, counted
+// on the Gaia archive's server. Its sync queries stop at 50,000 rows, so the
+// sky is fetched in chunks of cells (a cell's source_ids are contiguous).
+const GAIA_LEVEL = 7; // 196,608 cells of ~0.46°
+async function gaiaCounts(where, file) {
+  const cells = 12 * 4 ** GAIA_LEVEL, chunk = 49152;
+  const counts = new Float64Array(cells);
+  const shift = 2n ** BigInt(35 + 2 * (12 - GAIA_LEVEL));
+  for (let a = 0; a < cells; a += chunk) {
+    const query =
+      `SELECT GAIA_HEALPIX_INDEX(${GAIA_LEVEL}, source_id) AS hpx, COUNT(*) AS n FROM gaiadr3.gaia_source ` +
+      `WHERE ${where} AND source_id >= ${BigInt(a) * shift} AND source_id < ${BigInt(a + chunk) * shift} GROUP BY hpx`;
+    const url = "https://gea.esac.esa.int/tap-server/tap/sync?" +
+      new URLSearchParams({ REQUEST: "doQuery", LANG: "ADQL", FORMAT: "csv", QUERY: query });
+    const lines = readFileSync(await download(url, `${file}-${a}.csv`), "utf8").trim().split("\n").slice(1);
+    for (const line of lines) {
+      const [hpx, n] = line.split(",").map(Number);
+      counts[hpx] = n;
+    }
+  }
+  return counts;
+}
+
+// Gaia's HEALPix cells are NESTED in ICRS; sample them onto the galactic
+// grid, log-stretch the counts and soften the cell edges.
+async function gaiaShell(id, where) {
+  const counts = await gaiaCounts(where, id);
+  const nside = 2 ** GAIA_LEVEL;
+  const vals = new Float32Array(W * H);
+  for (let y = 0; y < H; y++) {
+    const b = (0.5 - (y + 0.5) / H) * Math.PI;
+    for (let x = 0; x < W; x++) {
+      const l = (0.5 - (x + 0.5) / W) * 2 * Math.PI;
+      const gx = Math.cos(b) * Math.cos(l), gy = Math.cos(b) * Math.sin(l), gz = Math.sin(b);
+      const vx = G[0][0] * gx + G[1][0] * gy + G[2][0] * gz;
+      const vy = G[0][1] * gx + G[1][1] * gy + G[2][1] * gz;
+      const vz = G[0][2] * gx + G[1][2] * gy + G[2][2] * gz;
+      const [face, ix, iy] = ang2xyf(nside, vz, Math.atan2(vy, vx));
+      vals[y * W + x] = Math.log10(1 + counts[face * nside * nside + interleave(ix, iy)]);
+    }
+  }
+  const out = Buffer.alloc(W * H * 3);
+  restretch(vals, out, [1, 99.9]);
+  await sharp(out, { raw: { width: W, height: H, channels: 3 } }).blur(2).jpeg({ quality: 88 })
+    .toFile(join(OUT, `${id}.jpg`));
+  return counts.reduce((a, b) => a + b, 0);
+}
+
+// distance shells for the distance onion (1 ly = 0.3066 pc; parallax mas = 1000 / pc)
+const GAIA_SHELLS = [
+  { id: "gaia-near", label: "330–3,000 ly", where: "parallax BETWEEN 1.087 AND 9.88 AND parallax_over_error > 5" },
+  { id: "gaia-far", label: "3,000–30,000 ly", where: "parallax BETWEEN 0.1087 AND 1.087 AND parallax_over_error > 5" },
+];
+
 console.log("Survey maps (HiPS):");
 for (const s of SURVEYS.filter((s) => want(s.id))) {
   await survey(s);
@@ -406,4 +460,7 @@ console.log("Catalogue layers:");
 if (want("stars")) console.log(`  ✓ stars    ${await nearbyStars()} Hipparcos stars within ~330 ly`);
 if (want("galaxies")) console.log(`  ✓ galaxies ${await galaxies()} 2MRS galaxies`);
 if (want("quasars")) console.log(`  ✓ quasars  ${await quasars()} Quaia quasars`);
+for (const g of GAIA_SHELLS.filter((g) => want(g.id))) {
+  console.log(`  ✓ ${g.id} ${await gaiaShell(g.id, g.where)} Gaia DR3 stars at ${g.label}`);
+}
 console.log(`Wrote ${OUT}`);
