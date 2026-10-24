@@ -53,11 +53,10 @@ export default {
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   forceIcons: ["Venus"],   // shown behind Earth at the pan's zoom
   // "lots of engineering and big rocks": rocks, hills and monuments go first on the
-  // pyramid's screen, ahead of the ships and lakes (not Stonehenge or the Baalbek
-  // stone, which pile onto the sequoia, nor Devils Tower or West Mitten, which pile
-  // onto the asteroid above the pyramid)
-  alsoIcons: ["Big Rock (Okotoks)", "Totem Pole (Monument Valley)", "Colosseum", "Morro do Pai Inácio", "Uluru"],
-  hideIcons: ["Stonehenge", "Stone of the Pregnant Woman", "Devils Tower", "West Mitten Butte"],
+  // pyramid's screen, ahead of the ships and lakes (where one would overlap a picture
+  // already there, it gives way)
+  alsoIcons: ["Big Rock (Okotoks)", "Totem Pole (Monument Valley)", "Colosseum", "Morro do Pai Inácio", "Uluru",
+    "Stonehenge", "Stone of the Pregnant Woman", "Devils Tower", "West Mitten Butte"],
   backing: "Soaring",
   sound: [
     { at: "to the right will float", fx: "bubble", offset: 0.9 },

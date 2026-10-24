@@ -2596,8 +2596,9 @@ function drawObjects() {
   const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
   const iconOrder = projected.filter(o => mapIconShown(o) && !_iconHide?.has(o.name));
-  // a narration scene picks its pictures (_iconOnly): only true overlaps hide one;
-  // with _iconFill every other picture that fits joins them, packed closer
+  // a narration scene picks its pictures (_iconOnly): one that overlaps a more
+  // important one hides (two pictures never overlap unless forced, below); with
+  // _iconFill every other picture that fits joins them, at the density's room
   // Catalogue photographs also reserve space ahead of generated featured icons.
   const cataloguePhotos = () => dustPictureCandidates({
     px, py, hidden: !_dustEnabled || _bigBangMode,
@@ -2611,7 +2612,7 @@ function drawObjects() {
   }).filter(p=>p.imagePriority===0 && p.r*2>=dustIconMin());
   let shownIcons;
   if (_iconOnly) {
-    shownIcons = priorityCircles(iconOrder, () => icoSize / 2);
+    shownIcons = priorityCircles(iconOrder, icoR);
     if (_iconFill) {
       // the rest fill in around the named ones, real photographs ahead of generated art
       const others = [...projected.filter(o => !_iconOnly.has(o.name) && !_iconHide?.has(o.name) && mapIconShown(o, true)), ...cataloguePhotos().filter(p => !_iconHide?.has(p.name))]
@@ -3167,7 +3168,9 @@ function drawObjects() {
   }, {
     // Catalogue pictures share the same hierarchy: all curated candidates
     // outrank them, not just this frame's visible winners or moving labels.
-    priorityCircles: projected.map(o => ({sx:o.sx,sy:o.sy,r:mapIconShown(o)?icoR(o):DOT_MIN_DIST/2,imagePriority:o.imagePriority})),
+    // a picture already showing always keeps its room (pictures never overlap); hidden
+    // ones keep theirs by priority, so a real photo can still take a generated one's place
+    priorityCircles: projected.map(o => ({sx:o.sx,sy:o.sy,r:o._showIcon || mapIconShown(o)?icoR(o):DOT_MIN_DIST/2,imagePriority:o._showIcon ? -Infinity : o.imagePriority})),
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
     // Icons keep dust out with a CIRCLE, not their square box: a square gap

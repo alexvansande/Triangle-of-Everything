@@ -171,7 +171,7 @@ export async function startNarration(app) {
   // pictures 1.28× the app's default size, so they read on a phone (1.6× was too big)
   app.setIconScale?.(SCENE.iconSize ?? 128);
   // Settings → Icons at "many" (the author's pick): pictures may nearly touch, smaller catalogue ones show
-  app.setIconDensity?.(SCENE.iconDensity ?? 80);   // a little under "many": fewer overlaps
+  app.setIconDensity?.(SCENE.iconDensity ?? 60);   // a little over standard: pictures keep clear of each other
   app.setIconForce?.(SCENE.forceIcons ?? null);   // pictures shown even where a nearer one would hide them
   app.setIconHide?.(SCENE.hideIcons ?? null);     // pictures never shown in this scene
   app.setIconMaxRes?.(true);   // grown pictures stay sharp

@@ -38,6 +38,11 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   passes; one fainter plain pass in Safari) for a few seconds; with only one object named,
   the dashed guides to its mass and diameter too. While a step is explained, a cue's
   `focus: [names]` fades every other object.
+- **Two pictures never overlap** (2026-10-24) unless a scene asks for it (`forceIcons`,
+  e.g. Venus behind Earth): the less important one gives way, named ones included. The
+  videos' picture density is a little over standard (60), so pictures keep clear room
+  around them; a scene's `alsoIcons` puts pictures first without forcing them. Real space
+  photographs take room before generated pictures.
 - **Replace long holds with slow moves** (a 3–7 s pan or push between the objects being
   named), e.g. Mercury → Mars → Earth for atmospheres, a push onto Phobos and Deimos.
 - **The background painting stays on**, even blurred, on deep zooms (an automatic fade-out
