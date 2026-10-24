@@ -3099,7 +3099,9 @@ function drawObjects() {
   }, {
     // Catalogue pictures share the same hierarchy: all curated candidates
     // outrank them, not just this frame's visible winners or moving labels.
-    priorityCircles: projected.map(o => ({sx:o.sx,sy:o.sy,r:mapIconShown(o)?icoR(o):DOT_MIN_DIST/2,imagePriority:o.imagePriority})),
+    // a picture already showing always keeps its room (pictures never overlap); hidden
+    // ones keep theirs by priority, so a real photo can still take a generated one's place
+    priorityCircles: projected.map(o => ({sx:o.sx,sy:o.sy,r:o._showIcon || mapIconShown(o)?icoR(o):DOT_MIN_DIST/2,imagePriority:o._showIcon ? -Infinity : o.imagePriority})),
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
     // Icons keep dust out with a CIRCLE, not their square box: a square gap

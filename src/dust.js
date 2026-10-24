@@ -232,9 +232,12 @@ export function drawDust(layer, view, blockers, colorOf) {
   if ((view.labels || view.fillPictures) && view.iconOf) {
     const candidates = dustPictureCandidates(view);
     const selected = priorityCircles(candidates, p=>p.r, view.iconRoom ?? ICON_ROOM, blockers.priorityCircles || []);
+    // a remembered picture still gives way to a picture showing now (pictures never overlap)
+    const showing = (blockers.priorityCircles || []).filter(o => o.imagePriority === -Infinity);
+    const overlapsShowing = p => showing.some(o => (p.sx-o.sx)**2 + (p.sy-o.sy)**2 < (p.r+o.r)**2);
     for (const p of candidates) {
       if (!_priorityIconDecisions.has(p.i)) _priorityIconDecisions.set(p.i, selected.has(p) && p.r*2 >= (view.iconMin ?? ICON_MIN));
-      if (_priorityIconDecisions.get(p.i)) _priorityIcons.set(p.i,p);
+      if (_priorityIconDecisions.get(p.i) && !overlapsShowing(p)) _priorityIcons.set(p.i,p);
     }
   }
   // Pictures a narration scene asks for by name (view.pictures): shown whatever
