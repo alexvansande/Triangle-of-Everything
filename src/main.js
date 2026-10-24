@@ -769,9 +769,9 @@ function vd() {
 // =============================================================
 
 // Space darkens with mass, so the nebulae, galaxies and clusters (pictures with soft,
-// glowing edges) stand out: from the stars (no darkening at 10^32 g) to 60% by the
-// galaxies (10^45 g) and beyond. A gradient in chart space: it stays put as you pan.
-const SPACE_DARK = { from: 32, mid: 37, to: 45, midK: 0.42, toK: 0.6, color: "#03021a" };
+// glowing edges) stand out: from the stars (no darkening at 10^32 g), half by the nebulae
+// (10^35 g), 70% from the dwarf galaxies (10^41 g) on. A gradient in chart space: it stays put as you pan.
+const SPACE_DARK = { from: 32, mid: 35, to: 41, midK: 0.5, toK: 0.7, color: "#03021a" };
 const spaceDarkGrad = defs.append("linearGradient").attr("id", "space-dark")
   .attr("gradientUnits", "userSpaceOnUse").attr("x1", 0).attr("x2", 0);
 [[0, 0], [(SPACE_DARK.mid - SPACE_DARK.from) / (SPACE_DARK.to - SPACE_DARK.from), SPACE_DARK.midK], [1, SPACE_DARK.toK]]
