@@ -18,6 +18,7 @@
     "perf:compare": "node scripts/perf-compare.mjs",
     "audit:assets": "node scripts/asset-audit.mjs",
     "build:dust": "node scripts/build-dust.mjs",
+    "build:sky-onion": "node scripts/build-sky-onion.mjs",
     "poster": "node scripts/poster.mjs"
   },
   "dependencies": {

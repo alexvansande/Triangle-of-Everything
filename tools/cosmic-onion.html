@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cosmic Onion</title>
+<!--
+  The whole observable universe as nested, see-through spheres: the nearest
+  stars in the middle, the cosmic microwave background on the outside.
+  Every shell is a real all-sky map in galactic coordinates (north galactic
+  pole up). Build the maps first:  npm run build:sky-onion
+  Then:  npm run dev  →  http://localhost:5173/tools/cosmic-onion.html
+  Add ?still for a clean poster frame (no controls, labels kept).
+-->
+<style>
+  :root { --fg: #e9ecf5; --dim: #8d93a8; --panel: rgba(10, 12, 20, 0.78); --line: rgba(255,255,255,0.12); }
+  html, body { margin: 0; height: 100%; background: #000; color: var(--fg);
+    font: 13px/1.35 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+  canvas { display: block; }
+  #title { position: absolute; left: 20px; top: 16px; pointer-events: none; }
+  #title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: 0.02em; }
+  #title p { margin: 2px 0 0; color: var(--dim); }
+  #panel { position: absolute; right: 12px; top: 12px; width: 300px; max-height: calc(100% - 24px);
+    overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; backdrop-filter: blur(6px); }
+  #panel h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); margin: 4px 0 8px; }
+  .layer { display: grid; grid-template-columns: 16px 1fr; gap: 2px 8px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .layer input[type=checkbox] { margin: 2px 0 0; accent-color: var(--c); }
+  .layer .name { font-weight: 600; color: var(--c); }
+  .layer .meta { grid-column: 2; color: var(--dim); font-size: 11.5px; }
+  .layer input[type=range] { grid-column: 2; width: 100%; accent-color: var(--c); height: 14px; }
+  .row { display: flex; gap: 6px; align-items: center; margin: 6px 0; flex-wrap: wrap; }
+  .row label { color: var(--dim); }
+  button, select { background: #1b1f2e; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font: inherit; cursor: pointer; }
+  .label { position: absolute; transform: translate(calc(-100% - 4px), -50%); white-space: nowrap; pointer-events: none;
+    font-size: 12px; font-weight: 600; text-align: right; line-height: 1.15;
+    text-shadow: 0 0 3px #000, 0 0 6px #000, 0 0 10px #000; }
+  .label::after { content: ""; display: inline-block; width: 14px; height: 1px; background: currentColor;
+    vertical-align: middle; margin-left: 5px; opacity: 0.8; }
+  .label small { display: block; font-weight: 400; color: #c3c7d4; margin-right: 19px; font-size: 10.5px; }
+  #missing { position: absolute; inset: 0; display: none; place-items: center; text-align: center; color: var(--dim); }
+  body.still #panel { display: none; }
+  @media (max-width: 700px) {
+    #panel { top: auto; bottom: 0; right: 0; left: 0; width: auto; max-height: 40%; border-radius: 10px 10px 0 0; }
+    .label small { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="title">
+  <h1>The Cosmic Onion</h1>
+  <p>Real all-sky maps, nearest at the centre, oldest light on the outside</p>
+</div>
+<div id="panel">
+  <div class="row">
+    <label for="cut">Cutaway</label>
+    <select id="cut">
+      <option value="octant">Octant</option>
+      <option value="quarter">Quarter</option>
+      <option value="half">Half</option>
+      <option value="none">None</option>
+    </select>
+    <button id="spin">Pause spin</button>
+    <button id="labels">Hide labels</button>
+  </div>
+  <h2>Shells, inside → out</h2>
+  <div id="layers"></div>
+</div>
+<div id="missing"><div>Sky maps not found.<br>Run <code>npm run build:sky-onion</code> first.</div></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const STILL = new URLSearchParams(location.search).has("still");
+if (STILL) document.body.classList.add("still");
+
+// Inside → out. `mono` maps are single-band and get tinted; `gamma` and
+// `floor` pull a map's dark sky down to transparent; `gain` is brightness.
+const LAYERS = [
+  { id: "stars", name: "Nearby stars", meta: "within ~330 light-years · Hipparcos, visible light",
+    color: "#ffe9b8", gain: 1.3, gamma: 0.9, floor: 0.02 },
+  { id: "milkyway", name: "Milky Way", meta: "stars ~1,000–50,000 ly · Mellinger, visible light",
+    color: "#f3d7a8", gain: 1.4, gamma: 1.4, floor: 0.16 },
+  { id: "halpha", name: "Glowing hydrogen", meta: "ionised gas clouds · Hα 656 nm, Finkbeiner",
+    color: "#ff5a7a", mono: true, gain: 1.6, gamma: 1.4, floor: 0.08 },
+  { id: "dust", name: "Cold dust", meta: "dust lanes of the Galaxy · far-infrared 350 µm, Planck",
+    color: "#ff9a4a", mono: true, gain: 1.2, gamma: 1.6, floor: 0.12 },
+  { id: "hydrogen", name: "Neutral hydrogen", meta: "the Galaxy's gas disc · 21 cm radio, HI4PI",
+    color: "#5fd0ff", mono: true, gain: 1.0, gamma: 1.8, floor: 0.2 },
+  { id: "xray", name: "Hot gas & X-rays", meta: "X-ray binaries, hot-gas bubbles · MAXI, 0.7–7 keV",
+    color: "#b58cff", gain: 1.5, gamma: 1.4, floor: 0.12 },
+  { id: "gamma", name: "Gamma rays", meta: "Galactic plane + distant blazars · Fermi-LAT",
+    color: "#ff6be0", gain: 1.4, gamma: 1.2, floor: 0.05 },
+  { id: "galaxies", name: "Galaxies", meta: "~43,000 galaxies out to ~1 billion ly · 2MRS, colour = distance",
+    color: "#8fe3ff", gain: 1.6, gamma: 0.9, floor: 0.02 },
+  { id: "quasars", name: "Quasars", meta: "~750,000 quasars, 1–12 billion ly · Quaia, colour = redshift",
+    color: "#ff8fb0", gain: 1.4, gamma: 0.9, floor: 0.02 },
+  { id: "cmb", name: "Cosmic microwave background", meta: "light from 380,000 yr after the Big Bang · Planck",
+    color: "#ffb347", gain: 1.0, gamma: 1.0, floor: 0.0, opaque: true },
+];
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+document.body.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 0.1, 200);
+camera.position.set(17.5, 8.5, 17.5);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.minDistance = 4;
+controls.maxDistance = 60;
+
+// A shell is drawn in camera-independent "cut" space: anything inside the
+// cut wedge (an octant, quarter or half facing the start view) is discarded.
+const CUTS = { none: [9, 9, 9], octant: [0, 0, 0], quarter: [0, -9, 0], half: [0, -9, -9] };
+const cutUniform = { value: new THREE.Vector3(...CUTS.octant) };
+
+const vert = /* glsl */ `
+  varying vec2 vUv; varying vec3 vWorld; varying vec3 vNormal;
+  void main() {
+    vUv = uv;
+    vec4 w = modelMatrix * vec4(position, 1.0);
+    vWorld = w.xyz;
+    vNormal = normalize(mat3(modelMatrix) * normal);
+    gl_Position = projectionMatrix * viewMatrix * w;
+  }`;
+const frag = /* glsl */ `
+  uniform sampler2D map; uniform vec3 tint; uniform vec3 cut;
+  uniform float gain, gamma, floorLevel, opacity, mono, opaque, backGain;
+  varying vec2 vUv; varying vec3 vWorld; varying vec3 vNormal;
+  void main() {
+    // the cut wedge: every coordinate beyond its threshold
+    if (vWorld.x > cut.x && vWorld.y > cut.y && vWorld.z > cut.z) discard;
+    vec3 c = texture2D(map, vUv).rgb;
+    float lum = max(c.r, max(c.g, c.b));
+    float a = pow(clamp((lum - floorLevel) / (1.0 - floorLevel), 0.0, 1.0), gamma);
+    vec3 col = mono > 0.5 ? tint * a : c * (lum > 0.0 ? a / lum : 0.0);
+    // faint rim so each shell's outline stays readable
+    vec3 V = normalize(cameraPosition - vWorld);
+    float rim = pow(1.0 - abs(dot(normalize(vNormal), V)), 4.0);
+    col = col * gain + tint * rim * 0.22;
+    if (!gl_FrontFacing) col *= backGain;
+    // the CMB's inside is only a dim backdrop, so the inner shells read
+    if (opaque > 0.5) gl_FragColor = vec4(c * gain * (gl_FrontFacing ? 1.0 : 0.22), opacity);
+    else gl_FragColor = vec4(col * opacity, 1.0);
+  }`;
+
+const loader = new THREE.TextureLoader();
+const R0 = 1.1, DR = 0.5;
+const shells = [];
+let missing = 0;
+
+LAYERS.forEach((L, i) => {
+  const radius = R0 + DR * i;
+  const tex = loader.load(`./cosmic-onion/${L.id}.jpg`, undefined, undefined, () => {
+    if (++missing === LAYERS.length) document.getElementById("missing").style.display = "grid";
+  });
+  tex.colorSpace = THREE.SRGBColorSpace;
+  // The maps are drawn as seen from inside (l grows to the left); seen
+  // from outside a sphere that is mirrored, so flip u.
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.repeat.x = -1;
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const mat = new THREE.ShaderMaterial({
+    vertexShader: vert, fragmentShader: frag,
+    uniforms: {
+      map: { value: tex }, tint: { value: new THREE.Color(L.color) }, cut: cutUniform,
+      gain: { value: L.gain }, gamma: { value: L.gamma }, floorLevel: { value: L.floor },
+      opacity: { value: 1 }, mono: { value: L.mono ? 1 : 0 }, opaque: { value: L.opaque ? 1 : 0 },
+      backGain: { value: 1 },
+    },
+    side: THREE.DoubleSide,
+    transparent: true,
+    depthWrite: !!L.opaque,
+    blending: L.opaque ? THREE.NormalBlending : THREE.AdditiveBlending,
+  });
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 192, 96), mat);
+  // SphereGeometry puts u = 0.5 at +x; turn it so the Galactic Centre
+  // (map centre) faces the cut wedge's corner.
+  mesh.rotation.y = Math.PI / 4;
+  mesh.renderOrder = L.opaque ? 0 : 1;
+  scene.add(mesh);
+
+  const label = document.createElement("div");
+  label.className = "label";
+  label.style.color = L.color;
+  label.innerHTML = `${L.name}<small>${L.meta.split(" · ")[0]}</small>`;
+  document.body.appendChild(label);
+  shells.push({ L, mesh, mat, radius, label });
+});
+
+// ---------- panel ----------
+const list = document.getElementById("layers");
+shells.forEach((s) => {
+  const el = document.createElement("div");
+  el.className = "layer";
+  el.style.setProperty("--c", s.L.color);
+  el.innerHTML = `<input type="checkbox" checked><div class="name">${s.L.name}</div>
+    <div class="meta">${s.L.meta}</div><input type="range" min="0" max="2" step="0.01" value="1">`;
+  const [box, range] = el.querySelectorAll("input");
+  box.onchange = () => { s.mesh.visible = box.checked; };
+  range.oninput = () => { s.mat.uniforms.opacity.value = +range.value; };
+  list.appendChild(el);
+});
+document.getElementById("cut").onchange = (e) => {
+  cutUniform.value.set(...CUTS[e.target.value]);
+  buildEdges();
+};
+let spinning = !STILL;
+const spinBtn = document.getElementById("spin");
+spinBtn.onclick = () => { spinning = !spinning; spinBtn.textContent = spinning ? "Pause spin" : "Spin"; };
+let showLabels = true;
+const labelsBtn = document.getElementById("labels");
+labelsBtn.onclick = () => { showLabels = !showLabels; labelsBtn.textContent = showLabels ? "Hide labels" : "Show labels"; };
+
+// ---------- cut edges: where each shell meets the cut planes ----------
+const edges = new THREE.Group();
+scene.add(edges);
+function buildEdges() {
+  edges.clear();
+  const c = cutUniform.value.toArray();
+  if (c[0] > 1) return;
+  shells.forEach((s) => {
+    const mat = new THREE.LineBasicMaterial({ color: s.L.color, transparent: true, opacity: 0.85 });
+    // for each cut plane (axis = 0), trace the circle and keep the part
+    // that borders the removed wedge
+    for (let axis = 0; axis < 3; axis++) {
+      if (c[axis] !== 0) continue;
+      let run = [];
+      for (let k = 0; k <= 360; k++) {
+        const a = (k * Math.PI) / 180, p = [0, 0, 0];
+        const [u, w] = [(axis + 1) % 3, (axis + 2) % 3];
+        p[u] = s.radius * Math.cos(a);
+        p[w] = s.radius * Math.sin(a);
+        const inside = p[u] >= c[u] - 1e-9 && p[w] >= c[w] - 1e-9;
+        if (inside) run.push(new THREE.Vector3(...p));
+        if ((!inside || k === 360) && run.length > 1) {
+          edges.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(run), mat));
+        }
+        if (!inside) run = [];
+      }
+    }
+  });
+}
+buildEdges();
+
+// ---------- labels: a ladder up the cut's vertical edge ----------
+const v = new THREE.Vector3();
+function placeLabels() {
+  const cutOn = cutUniform.value.x < 1;
+  shells.forEach((s) => {
+    const show = showLabels && s.mesh.visible && cutOn;
+    s.label.style.display = show ? "block" : "none";
+    if (!show) return;
+    v.set(0, s.radius, 0).project(camera);
+    s.label.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
+    s.label.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
+  });
+}
+
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+const clock = new THREE.Clock();
+function frame() {
+  const dt = clock.getDelta();
+  if (spinning) shells.forEach((s) => (s.mesh.rotation.y += dt * 0.05));
+  controls.update();
+  renderer.render(scene, camera);
+  placeLabels();
+}
+if (STILL) {
+  // poster mode: one frame once every map is in (?still&w=…&h=… for size)
+  THREE.DefaultLoadingManager.onLoad = () => {
+    frame();
+    window.__stillDone = true;
+  };
+} else {
+  renderer.setAnimationLoop(frame);
+}
+</script>
+</body>
+</html>

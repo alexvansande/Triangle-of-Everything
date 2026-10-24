@@ -19,6 +19,8 @@ scripts/**/*.pdf
 
 # Raw catalogue downloads for the dust layer (re-fetched by npm run build:dust)
 scripts/dust/.cache/
+# Raw downloads for the cosmic-onion sky layers (re-fetched by npm run build:sky-onion)
+scripts/sky/.cache/
 
 # Poster renders (scripts/poster.mjs output)
 posters/
