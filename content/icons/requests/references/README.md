@@ -28,6 +28,8 @@ kept if one is ever shown as is.
 
 ## Additional macro references (2026-10-24)
 
+- `stonehenge.jpg`: [Stonehenge2007 07 30](https://commons.wikimedia.org/wiki/File:Stonehenge2007_07_30.jpg), garethwiscombe, [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). Used to generate an isolated, relit illustration of the surviving stones; original photograph retained here with attribution.
+
 - `peekskill.jpg`: [NASA APOD, The Car, the Hole, and the Peekskill Meteorite](https://science.nasa.gov/image-article/apod-2006-november-19-the-car-the-hole-and-the-peekskill-meteorite/), original `peekskill_thomas_big.jpg`. Used for the stone at the bottom of the photo, not the car. Reference only; retain the original source credit when reproducing the photo.
 - `crater-lake.jpg`: [Aerial Crater Lake](https://commons.wikimedia.org/wiki/File:Aerial_Crater_Lake.jpg), Mike Doukas / USGS, 2005, public domain. Photograph looks east from the west; illustration is reoriented north up.
 - `iceland-from-space.png`: [Iceland from space](https://commons.wikimedia.org/wiki/File:Iceland-from-space.png), used for the outline of the southeastern Vatnajökull ice cap only. See source page for attribution.

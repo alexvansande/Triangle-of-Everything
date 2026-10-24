@@ -5138,5 +5138,26 @@
         "path": "1024/west-mitten-butte.webp"
       }
     ]
+  },
+  "stonehenge": {
+    "fingerprint": "8b92b9e9e3a9ad593944ebb88e42d95a6575fe7af04896c86f8a5e5148281d30",
+    "baseWidth": 128,
+    "source": "content/icons/src/stonehenge.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3208211263020833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/stonehenge.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/stonehenge.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/stonehenge.webp"
+      }
+    ]
   }
 }

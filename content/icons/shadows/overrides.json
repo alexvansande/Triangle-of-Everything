@@ -2662,5 +2662,21 @@
       }
     ],
     "updated": "2026-10-24T10:44:10.542Z"
+  },
+  "stonehenge": {
+    "mode": "long",
+    "source": "alpha-long-shadow",
+    "anchorBase": false,
+    "flipY": false,
+    "opacity": 0.5,
+    "longLength": 0.8,
+    "longGap": 0.06,
+    "longAngle": 45,
+    "longNear": 1.5,
+    "longFar": 18,
+    "longFade": 1,
+    "reviewed": false,
+    "updated": "2026-10-24T10:51:29.028Z",
+    "generator": "studio-long-shadow-v1"
   }
 }
