@@ -455,7 +455,10 @@ const GAIA_SHELLS = [
 // Each shell is pre-blended into one RGB map: every part is reduced to one
 // brightness channel (black/white points + curve), tinted with its band's
 // hue and screen-blended, as the spectral page does live.
-const BAND_HUE = { gamma: 300, xray: 240, visible: 180, nearIR: 150, midIR: 135, farIR: 120, radio: 60, microwave: 0 };
+// Hues extend the rainbow past both ends: visible light keeps its own
+// colour (550 nm = green), longer waves run yellow → orange → red, shorter
+// ones blue → violet.
+const BAND_HUE = { gamma: 270, xray: 225, visible: 120, nearIR: 55, midIR: 42, farIR: 30, microwave: 12, radio: 0 };
 const MERGED = [
   { id: "merged-1", parts: [{ map: "stars", band: "visible", floor: 0.02, white: 0.85, gamma: 0.8, gain: 1.3 }] },
   { id: "merged-2", parts: [{ map: "gaia-near", band: "visible", floor: 0.22, white: 0.85, gamma: 1, gain: 1.4 }] },
