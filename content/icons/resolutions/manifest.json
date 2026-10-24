@@ -4321,11 +4321,11 @@
     ]
   },
   "253-mathilde": {
-    "fingerprint": "6d28aef3479e9668e50afbd8e4fd451668473537f41f2a2ccc2679d8937c3c4f",
+    "fingerprint": "88164732b192401b85675d80da73d7d63ea857162936df5d9ce008c44cf871ee",
     "baseWidth": 128,
     "source": "content/icons/src/253-mathilde.png",
     "reason": "matching master",
-    "sourceDifference": 0.8424275716145834,
+    "sourceDifference": 0.7593994140625,
     "variants": [
       {
         "width": 256,
@@ -4405,11 +4405,11 @@
     ]
   },
   "gaspra": {
-    "fingerprint": "a79c5725380a1d1fe6994e31733c66d005eacd2cdc1d0c586884ecc4a5be3ff8",
+    "fingerprint": "3c34baf38e7965c6e44155349562fcad8529fe73338e1bb04a18bb08de9e1fa8",
     "baseWidth": 128,
     "source": "content/icons/src/gaspra.png",
     "reason": "matching master",
-    "sourceDifference": 1.0531209309895833,
+    "sourceDifference": 0.4992268880208333,
     "variants": [
       {
         "width": 256,
@@ -4426,11 +4426,11 @@
     ]
   },
   "ida": {
-    "fingerprint": "637c37843afa7134116de604d27cb051dfdeedd59470e7ad818f4a11295f59c2",
+    "fingerprint": "88e111fa382f7c69abbcab25345c12ac86c454941cd813f6f80c47b86853203a",
     "baseWidth": 128,
     "source": "content/icons/src/ida.png",
     "reason": "matching master",
-    "sourceDifference": 0.9262898763020834,
+    "sourceDifference": 0.4211222330729167,
     "variants": [
       {
         "width": 256,
@@ -4468,11 +4468,11 @@
     ]
   },
   "phoebe": {
-    "fingerprint": "52d9a2c600790bc41c62a8ea4d9b6cc09df826a0bb5edb4ef8f92faa69b01559",
+    "fingerprint": "9633adbd00cf9437f8ce7e25159d14a6035acd1990582f451294f6891fb01281",
     "baseWidth": 128,
     "source": "content/icons/src/phoebe.png",
     "reason": "matching master",
-    "sourceDifference": 1.1585286458333333,
+    "sourceDifference": 0.7637939453125,
     "variants": [
       {
         "width": 256,
