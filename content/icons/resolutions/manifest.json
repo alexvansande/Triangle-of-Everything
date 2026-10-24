@@ -5474,5 +5474,68 @@
         "path": "1024/wasp-39-b.webp"
       }
     ]
+  },
+  "bullet-cluster": {
+    "fingerprint": "ee8352bf1cc97150944bb7af220929c1041ce116c1f82f0ba6594e6dcc026adc",
+    "baseWidth": 128,
+    "source": "content/icons/src/bullet-cluster.png",
+    "reason": "matching master",
+    "sourceDifference": 1.9868367513020833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bullet-cluster.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bullet-cluster.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/bullet-cluster.webp"
+      }
+    ]
+  },
+  "pandoras-cluster": {
+    "fingerprint": "2b418322a7182a7377050893881650af59fd676ac98ee8b0b7e179b10e75ed64",
+    "baseWidth": 128,
+    "source": "content/icons/src/pandoras-cluster.png",
+    "reason": "matching master",
+    "sourceDifference": 1.19580078125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/pandoras-cluster.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/pandoras-cluster.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/pandoras-cluster.webp"
+      }
+    ]
+  },
+  "perseus-cluster": {
+    "fingerprint": "66ee57116dda28c47a37a4d57d5a5dc21cbac37217610d98c888b0bbd6b7e62a",
+    "baseWidth": 128,
+    "source": "content/icons/src/perseus-cluster.png",
+    "reason": "matching master",
+    "sourceDifference": 2.4445393880208335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/perseus-cluster.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/perseus-cluster.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/perseus-cluster.webp"
+      }
+    ]
   }
 }

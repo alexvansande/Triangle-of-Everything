@@ -31,6 +31,10 @@
  "bottom": {
   "backing": "soft"
  },
+ "bullet-cluster": {
+  "backing": "core",
+  "master": true
+ },
  "carbon": {
   "backing": "soft",
   "master": true
@@ -170,6 +174,14 @@
  },
  "oxygen": {
   "backing": "soft",
+  "master": true
+ },
+ "pandoras-cluster": {
+  "backing": "core",
+  "master": true
+ },
+ "perseus-cluster": {
+  "backing": "core",
   "master": true
  },
  "planetary-nebula": {
