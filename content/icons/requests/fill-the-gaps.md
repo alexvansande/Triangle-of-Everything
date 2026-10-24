@@ -20,12 +20,12 @@ at least 25 px clear margin. Crisp enough to read at 128 px.
 
 | Gap | Object | Slug | What to draw |
 |---|---|---|---|
-| a 5 kg meteorite | **Peekskill** (12.4 kg, hit a parked Chevrolet Malibu in New York, 1992) | `peekskill` | A fist-sized ordinary-chondrite stone: dark brown-black fusion crust, one broken face showing grey speckled interior with tiny metal flecks. Reference style: `chelyabinsk`, `hoba`. |
-| a 1–10 t airplane | **Spirit of St. Louis** (2.4 t loaded, Lindbergh, 1927) | `spirit-of-st-louis` | The silver Ryan NYP monoplane, high wing, no front windows (periscope), "NX-211" on the wing, three-quarter side view, nose to the left. Reference style: `flyer-i`, `concorde`. |
-| a half-ton animal | **Polar bear** (about 400 kg; males up to 700) | `polar-bear` | A walking adult polar bear, side view, cream-white fur with soft blue shadows. Reference style: `lion`. |
-| a 20 t animal | **Sperm whale** (about 15 t, big males 45 t) | `sperm-whale` | Side view, the huge blunt square head, wrinkled dark grey skin, small lower jaw, nose to the left. Reference style: `blue-whale`. |
-| a 30 t animal | **Humpback whale** (30 t) | `humpback-whale` | Side view with the long white pectoral fins spread, knobbly head, dark back, white throat grooves. Reference style: `blue-whale`. |
-| a 100 Gt object | **Lake Geneva** (89 km³, 89 Gt of water) | `lake-geneva` | The crescent-shaped lake seen from above as a deep blue water body with a thin shoreline, like the other lakes. Reference style: `lake-baikal`, `konigssee`. |
+| ~~a 5 kg meteorite~~ | ~~**Peekskill** (12.4 kg, hit a parked Chevrolet Malibu in New York, 1992)~~ | ~~`peekskill`~~ | ~~A fist-sized ordinary-chondrite stone: dark brown-black fusion crust, one broken face showing grey speckled interior with tiny metal flecks. Reference style: `chelyabinsk`, `hoba`.~~ |
+| ~~a 1–10 t airplane~~ | ~~**Spirit of St. Louis** (2.4 t loaded, Lindbergh, 1927)~~ | ~~`spirit-of-st-louis`~~ | ~~The silver Ryan NYP monoplane, high wing, no front windows (periscope), "NX-211" on the wing, three-quarter side view, nose to the left. Reference style: `flyer-i`, `concorde`.~~ |
+| ~~a half-ton animal~~ | ~~**Polar bear** (about 400 kg; males up to 700)~~ | ~~`polar-bear`~~ | ~~A walking adult polar bear, side view, cream-white fur with soft blue shadows. Reference style: `lion`.~~ |
+| ~~a 20 t animal~~ | ~~**Sperm whale** (about 15 t, big males 45 t)~~ | ~~`sperm-whale`~~ | ~~Side view, the huge blunt square head, wrinkled dark grey skin, small lower jaw, nose to the left. Reference style: `blue-whale`.~~ |
+| ~~a 30 t animal~~ | ~~**Humpback whale** (30 t)~~ | ~~`humpback-whale`~~ | ~~Side view with the long white pectoral fins spread, knobbly head, dark back, white throat grooves. Reference style: `blue-whale`.~~ |
+| ~~a 100 Gt object~~ | ~~**Lake Geneva** (89 km³, 89 Gt of water)~~ | ~~`lake-geneva`~~ | ~~The crescent-shaped lake seen from above as a deep blue water body with a thin shoreline, like the other lakes. Reference style: `lake-baikal`, `konigssee`.~~ |
 | between Mars and Venus | **TRAPPIST-1 e** (0.7 Earth masses, in its star's habitable zone) | `trappist-1-e` | An artist's rocky planet with a thin atmosphere, lit deep red-orange by a dim red-dwarf sun from the upper left, possible dark oceans and pale clouds. Reference style: `kepler-22b`, `earth`. |
 
 Between Ceres and Pluto: done with the real Iapetus (Cassini photo, shaded with the sphere template, 2026-10-24), not a generated picture. 100,000–1,000,000 Gt: 253 Mathilde, from NEAR's photo, the same way.

@@ -21,9 +21,9 @@ file names and steps as `fill-the-gaps.md` (slug = file name).
 
 | Object | Slug | What to draw |
 |---|---|---|
-| Codling moth | `codling-moth` | Small grey-brown moth, wings folded tent-like, the coppery eye-spot at each wing tip. Reference: `clothes-moth`. |
-| Wax moth | `wax-moth` | Greater wax moth, dull grey-brown, wings folded flat. Reference: `clothes-moth`. |
-| Tomato leaf miner | `tomato-leaf-miner` | Tiny silver-grey moth with long antennae swept back, speckled wings. Reference: `clothes-moth`. |
+| ~~Codling moth~~ | ~~`codling-moth`~~ | ~~Small grey-brown moth, wings folded tent-like, the coppery eye-spot at each wing tip. Reference: `clothes-moth`.~~ |
+| ~~Wax moth~~ | ~~`wax-moth`~~ | ~~Greater wax moth, dull grey-brown, wings folded flat. Reference: `clothes-moth`.~~ |
+| ~~Tomato leaf miner~~ | ~~`tomato-leaf-miner`~~ | ~~Tiny silver-grey moth with long antennae swept back, speckled wings. Reference: `clothes-moth`.~~ |
 
 ## 2. Rocks, lakes, small moons (153–171 s)
 
@@ -38,11 +38,11 @@ Trasimeno, Neusiedl Lake and Lake Mead). Draw these first, then the lakes.
 | Didymos | `didymos` | The round "spinning top" asteroid with an equatorial ridge, grey, boulder-strewn. DART's photo was too noisy on its dark side to cut out (and may show its moon Dimorphos: check the shape against the spinning top). Reference photo: `references/didymos.jpg`. |
 | Ryugu | `ryugu` | The dark "spinning top" asteroid, a diamond outline with a ridge round its equator, covered in boulders. JAXA photos aren't public domain, so generate it. Reference: `bennu`. |
 | Dinkinesh | `dinkinesh` | Small lumpy asteroid with a trough and a ridge round it, grey (Lucy, 2023). Its public-domain NASA photo couldn't be downloaded yet (Wikimedia throttling): `152830 Dinkinesh.png` on Commons. |
-| Crater Lake | `crater-lake` | The round deep-blue caldera lake from above, Wizard Island near one edge. Reference: `lake-baikal`. |
-| Great Salt Lake | `great-salt-lake` | From above, the causeway splitting it into a pink-red north arm and a blue-green south arm. |
-| Lake Erie | `lake-erie` | The long shallow lake from above, green-blue. |
-| Vatnajökull | `vatnajokull` | Iceland's ice cap from above, white with grey outlet glaciers. Reference: `greenland-ice-sheet`. |
-| Lake Tanganyika | `lake-tanganyika` | The long narrow rift lake from above, very dark blue. |
+| ~~Crater Lake~~ | ~~`crater-lake`~~ | ~~The round deep-blue caldera lake from above, Wizard Island near one edge. Reference: `lake-baikal`.~~ |
+| ~~Great Salt Lake~~ | ~~`great-salt-lake`~~ | ~~From above, the causeway splitting it into a pink-red north arm and a blue-green south arm.~~ |
+| ~~Lake Erie~~ | ~~`lake-erie`~~ | ~~The long shallow lake from above, green-blue.~~ |
+| ~~Vatnajökull~~ | ~~`vatnajokull`~~ | ~~Iceland's ice cap from above, white with grey outlet glaciers. Reference: `greenland-ice-sheet`.~~ |
+| ~~Lake Tanganyika~~ | ~~`lake-tanganyika`~~ | ~~The long narrow rift lake from above, very dark blue.~~ |
 | Nix | `nix` | Small elongated grey-white moon of Pluto, one reddish crater. New Horizons' photo is only half lit, so draw the whole body. Reference: `phobos`. Reference photo: `references/nix.jpg`. |
 | 21 Lutetia | `21-lutetia` | Big lumpy grey asteroid, one huge smooth crater bowl, as Rosetta saw it. Reference: `eros`. |
 | 16 Psyche | `16-psyche` | Potato-shaped metallic-grey asteroid with a faint sheen, two large shallow craters. Reference: `eros`. |
