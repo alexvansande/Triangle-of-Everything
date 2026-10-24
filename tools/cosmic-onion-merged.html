@@ -144,7 +144,7 @@
     </select>
   </div>
   <div class="row spread" id="scale-row" hidden>
-    <label class="check"><input id="scale-on" type="checkbox"> Scale zoom</label>
+    <label for="scale">Scale</label>
     <input id="scale" type="range" min="-7.6" max="10.66" step="0.01" value="10.66" aria-label="Distance at the outer sphere (log ly)">
     <output id="scale-out" for="scale">46 billion ly</output>
   </div>
@@ -696,11 +696,11 @@ eclipticPlane.add(discFill);
 // ly on the outer sphere; anything under a thousandth of that is hidden
 // "linear": radius proportional to (comoving) distance. `viewLog` is log10 of
 // the distance (ly) that lands on the outer sphere: 46 billion ly normally;
-// with Scale zoom on, pinch / scroll moves it down to a few AU. Anything
+// pinch / scroll move it in log steps down to a few solar radii. Anything
 // bigger than the view is pushed, in order, onto a far background; anything
 // under a thousandth of it is hidden.
 let viewLog = LOG_MAX;
-let scaleZoom = false;
+let scaleZoom = false; // on whenever the radius mode is linear
 const AU_LOG_LY = -4.801, RSUN_LOG_LY = -LY_IN_RSUN;
 // past 1.5× the view a shell becomes background: it jumps out beyond the
 // camera (which never goes past 60) and stays in order there
@@ -763,8 +763,10 @@ function setRadiusMode(mode) {
   radiusMode = mode;
   document.body.classList.toggle("log-radius", mode !== "even");
   document.getElementById("scale-row").hidden = mode !== "linear";
-  document.getElementById("jump-row").hidden = !(mode === "linear" && scaleZoom);
-  controls.enableZoom = !(mode === "linear" && scaleZoom);
+  // linear distances always zoom through scales (log steps); other modes move the camera
+  scaleZoom = mode === "linear";
+  document.getElementById("jump-row").hidden = !scaleZoom;
+  controls.enableZoom = !scaleZoom;
   if (mode === "linear") {
     applyLinear();
   } else {
@@ -789,11 +791,9 @@ function setRadiusMode(mode) {
 }
 const scaleInput = document.getElementById("scale");
 const scaleOut = document.getElementById("scale-out");
-const scaleOnBox = document.getElementById("scale-on");
 // a smooth glide to a target scale (Go to menu, + / − keys)
 let viewTarget = null;
 function glideTo(x) {
-  if (!scaleZoom) { scaleOnBox.checked = scaleZoom = true; setRadiusMode(radiusMode); }
   viewTarget = Math.min(LOG_MAX, Math.max(+scaleInput.min, x));
 }
 function stepGlide(dt) {
@@ -808,18 +808,13 @@ function setViewLog(x) {
   if (radiusMode === "linear") { applyLinear(); setSpread(spread); }
 }
 scaleInput.oninput = () => setViewLog(+scaleInput.value);
-scaleOnBox.onchange = () => {
-  scaleZoom = scaleOnBox.checked;
-  if (!scaleZoom) setViewLog(LOG_MAX);
-  setRadiusMode(radiusMode);
-};
-// with Scale zoom on, the wheel / trackpad pinch / two-finger pinch rescale
+// in linear mode the wheel / trackpad pinch / two-finger pinch rescale
 // the universe (log steps) instead of moving the camera
 renderer.domElement.addEventListener("wheel", (e) => {
   if (!(radiusMode === "linear" && scaleZoom)) return;
   e.preventDefault();
   viewTarget = null;
-  setViewLog(viewLog + e.deltaY * (e.ctrlKey ? 0.03 : 0.004));
+  setViewLog(viewLog + e.deltaY * (e.ctrlKey ? 0.04 : 0.004));
 }, { passive: false });
 const pinch = new Map();
 let pinchDist = 0;
@@ -830,7 +825,7 @@ renderer.domElement.addEventListener("pointermove", (e) => {
   if (pinch.size !== 2 || !(radiusMode === "linear" && scaleZoom)) return;
   const [a, b] = [...pinch.values()];
   const dist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
-  if (pinchDist) { viewTarget = null; setViewLog(viewLog - 8 * Math.log10(dist / pinchDist)); }
+  if (pinchDist) { viewTarget = null; setViewLog(viewLog - 10 * Math.log10(dist / pinchDist)); }
   pinchDist = dist;
 });
 const endPinch = (e) => { pinch.delete(e.pointerId); pinchDist = 0; };
@@ -856,11 +851,11 @@ const startParams = new URLSearchParams(location.search);
 if (startParams.get("cut") === "off") { cutOnBox.checked = false; applyCut(); }
 if (startParams.get("back") === "off") { backBox.checked = false; backBox.onchange(); }
 // ?radius=log
-// ?scale=<log10 ly at the outer sphere> turns Scale zoom on
+// ?scale=<log10 ly at the outer sphere> starts in linear mode at that scale
 if (startParams.has("scale")) {
-  scaleOnBox.checked = scaleZoom = true;
   viewLog = Math.min(LOG_MAX, +startParams.get("scale"));
   scaleInput.value = viewLog;
+  if (!startParams.has("radius")) { radiusSelect.value = "linear"; setRadiusMode("linear"); }
 }
 if (["log", "sun", "linear"].includes(startParams.get("radius"))) {
   radiusSelect.value = startParams.get("radius");
