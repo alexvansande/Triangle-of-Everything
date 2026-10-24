@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-24",
+  "tool": "photo composite (scripts/compose-real-body.py), not generated",
+  "object": "charon",
+  "slug": "charon",
+  "source": "NASA/Johns Hopkins APL/SwRI (New Horizons), public domain; Wikimedia Commons: Charon in True Color - High-Res.jpg",
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/charon.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)"
+}

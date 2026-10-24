@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-24",
+  "tool": "photo composite (scripts/compose-real-body.py), not generated",
+  "object": "dione",
+  "slug": "dione",
+  "source": "NASA/JPL/Space Science Institute (Cassini mosaic), public domain; Wikimedia Commons: Dione Trailing Hemisphere 2.png",
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/dione.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)"
+}

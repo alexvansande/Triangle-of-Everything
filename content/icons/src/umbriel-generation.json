@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-24",
+  "tool": "photo composite (scripts/compose-real-body.py), not generated",
+  "object": "umbriel",
+  "slug": "umbriel",
+  "source": "NASA/JPL/USGS (Voyager 2), public domain; Wikimedia Commons: Umbriel usgsx2.jpg",
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/umbriel.png round --grey (turned so the sun is upper left, shaded with the sphere template at strength 1.4) ; the USGS rendering's blue false-colour tint dropped to grey"
+}

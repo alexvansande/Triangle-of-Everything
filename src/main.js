@@ -3089,11 +3089,12 @@ function drawObjects() {
     rects: _labelsEnabled ? placedLabels : [],
     // Icons keep dust out with a CIRCLE, not their square box: a square gap
     // shows as an empty frame around soft, glowing luminous art (globular
-    // cluster, nebulae). Luminous art fades out well inside its box, so
-    // its circle is tighter; dust under the faint halo glows through it.
+    // cluster, nebulae). The circle covers the core of the body only (Saturn's
+    // ball, not its rings), so dust still shows close around a picture's edge;
+    // luminous art fades out well inside its box, so its circle is tighter.
     circles: shownDots.filter(o => o._showIcon).map(o => {
-      const size = icoSize * iconSizeMult(o);
-      return { sx: o.sx, sy: o.sy, r: size * (iconIsLuminous(o) ? 0.32 : 0.5) };
+      const body = icoSize * iconSizeMult(o) / (ICON_SIZE_MULT[o.slug] || 1);
+      return { sx: o.sx, sy: o.sy, r: body * (iconIsLuminous(o) ? 0.26 : 0.38) };
     }),
   }, dustColor);
   lDustHover.selectAll("*").remove();
