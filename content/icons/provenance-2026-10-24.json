@@ -233,5 +233,20 @@
     "category": "photo-guided-ai",
     "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
     "record": "content/icons/src/west-mitten-butte-generation.json"
+  },
+  "bullet-cluster": {
+    "category": "photo-adjusted",
+    "description": "A real photograph, cropped to the object, faded at its edge and made transparent (scripts/unscreen-art.mjs); no generated pixels.",
+    "record": "content/icons/src/bullet-cluster-generation.json"
+  },
+  "pandoras-cluster": {
+    "category": "photo-adjusted",
+    "description": "A real photograph, cropped to the object, faded at its edge and made transparent (scripts/unscreen-art.mjs); no generated pixels.",
+    "record": "content/icons/src/pandoras-cluster-generation.json"
+  },
+  "perseus-cluster": {
+    "category": "photo-adjusted",
+    "description": "A real photograph, cropped to the object, faded at its edge and made transparent (scripts/unscreen-art.mjs); no generated pixels.",
+    "record": "content/icons/src/perseus-cluster-generation.json"
   }
 }

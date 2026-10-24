@@ -85,6 +85,9 @@ NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
 | gaspra | NASA/JPL (Galileo) | Public domain | Wikimedia: Galileo_Gaspra_Mosaic.jpg; composited by `scripts/compose-real-body.py` |
 | ida | NASA/JPL (Galileo) | Public domain | Wikimedia: 243_ida.jpg; composited by `scripts/compose-real-body.py` |
 | oberon | NASA/JPL (Voyager 2, PIA00034) | Public domain | NASA Image Library: PIA00034; composited by `scripts/compose-real-body.py` |
+| bullet-cluster | NASA/CXC/CfA/M.Markevitch et al. (X-ray); NASA/STScI, Magellan/U.Arizona/D.Clowe et al. (optical, lensing map) | Public domain | Chandra photo album 1E 0657-56 (2006): chandra.harvard.edu/photo/2006/1e0657/1e0657_scale.jpg; cropped, edge-faded, made transparent |
+| pandoras-cluster | NASA, ESA, J. Lotz, M. Mountain, A. Koekemoer and the HFF Team (STScI) | Public domain | NASA Image Library PIA17569, Hubble Frontier Field Abell 2744; cropped, edge-faded, made transparent |
+| perseus-cluster | NASA/CXC/GSFC/S.A. Walker et al. (X-ray, processed to bring out the wave) | Public domain | NASA Image Library GSFC_20171208_Archive_e000078, 'Gigantic Wave Discovered in Perseus Galaxy Cluster'; cropped, edge-faded, made transparent |
 | hyperion | NASA/JPL/Space Science Institute | Public domain | Wikimedia: Hyperion_true.jpg |
 | deimos | NASA/JPL-Caltech/University of Arizona | Public domain | Wikimedia: Deimos-MRO.jpg |
 | vesta | NASA/JPL-Caltech/UCLA/MPS/DLR/IDA | Public domain | Wikimedia: Vesta_full_mosaic.jpg |
