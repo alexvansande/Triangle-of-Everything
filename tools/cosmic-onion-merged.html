@@ -105,11 +105,21 @@
   <div class="row">
     <label for="between">Between layers</label>
     <select id="between">
-      <option value="0">None</option>
+      <option value="0" selected>None</option>
       <option value="1">1</option>
-      <option value="3" selected>3</option>
+      <option value="3">3</option>
       <option value="7">7</option>
     </select>
+  </div>
+  <div class="row spread">
+    <label for="surfaces">Surfaces</label>
+    <input id="surfaces" type="range" min="0" max="1" step="0.01" value="1">
+    <output id="surfaces-out" for="surfaces">100%</output>
+  </div>
+  <div class="row spread">
+    <label for="rays">Rays</label>
+    <input id="rays" type="range" min="0" max="2" step="0.01" value="1">
+    <output id="rays-out" for="rays">1.00</output>
   </div>
   <div class="row spread">
     <label for="halo">Outer halo</label>
@@ -200,7 +210,9 @@ const cutUniform = { value: new THREE.Vector3(...CUTS.octant) };
 const vert = /* glsl */ `
   varying vec2 vUv; varying vec3 vWorld; varying vec3 vNormal;
   void main() {
-    vUv = uv;
+    // the maps are drawn as seen from inside (l grows to the left); seen
+    // from outside the sphere that is mirrored, so flip u
+    vUv = vec2(1.0 - uv.x, uv.y);
     vec4 w = modelMatrix * vec4(position, 1.0);
     vWorld = w.xyz;
     vNormal = normalize(mat3(modelMatrix) * normal);
@@ -208,7 +220,7 @@ const vert = /* glsl */ `
   }`;
 const frag = /* glsl */ `
   uniform sampler2D map; uniform vec3 tint; uniform vec3 cut;
-  uniform float gain, gamma, floorLevel, whiteLevel, opacity;
+  uniform float gain, gamma, floorLevel, whiteLevel, opacity, surface;
   varying vec2 vUv; varying vec3 vWorld; varying vec3 vNormal;
   void main() {
     // the cut wedge: every coordinate beyond its threshold
@@ -219,7 +231,7 @@ const frag = /* glsl */ `
     vec3 V = normalize(cameraPosition - vWorld);
     float rim = pow(1.0 - abs(dot(normalize(vNormal), V)), 4.0);
     // screen blending needs colours inside 0…1
-    gl_FragColor = vec4(clamp((c * gain + tint * rim * 0.2) * opacity, 0.0, 1.0), 1.0);
+    gl_FragColor = vec4(clamp((c * gain + tint * rim * 0.2) * opacity * surface, 0.0, 1.0), 1.0);
   }`;
 
 // An in-between shell cross-fades from shell A's map (mixF = 0) to shell
@@ -243,6 +255,9 @@ const fragBetween = /* glsl */ `
 const globe = new THREE.Group();
 scene.add(globe);
 
+// "Surfaces" slider: fades every shell's own sphere (not the rays)
+const surfaceUniform = { value: 1 };
+
 const loader = new THREE.TextureLoader();
 const R0 = 1.6, DR = 0.8;
 const shells = [];
@@ -254,10 +269,6 @@ LAYERS.forEach((L, i) => {
     if (++missing === LAYERS.length) document.getElementById("missing").style.display = "grid";
   });
   tex.colorSpace = THREE.SRGBColorSpace;
-  // The maps are drawn as seen from inside (l grows to the left); seen
-  // from outside a sphere that is mirrored, so flip u.
-  tex.wrapS = THREE.RepeatWrapping;
-  tex.repeat.x = -1;
   tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
   const mat = new THREE.ShaderMaterial({
     vertexShader: vert, fragmentShader: frag,
@@ -265,7 +276,7 @@ LAYERS.forEach((L, i) => {
       map: { value: tex }, tint: { value: new THREE.Color(L.color) }, cut: cutUniform,
       gain: { value: L.gain }, gamma: { value: L.gamma }, floorLevel: { value: L.floor },
       whiteLevel: { value: L.white ?? 1 },
-      opacity: { value: 1 }, on: { value: 1 },
+      opacity: { value: 1 }, on: { value: 1 }, surface: surfaceUniform,
     },
     side: THREE.DoubleSide,
     transparent: true,
@@ -343,6 +354,80 @@ function placeBetween() {
     b.mesh.scale.setScalar(Math.max(r, 0.01));
     b.mesh.visible = b.kind !== "out" || halo > 0;
   });
+}
+
+// ---------- rays: a ray-marched volume ----------
+// One sphere encloses everything; for each pixel the shader steps along the
+// view ray, and at each point emits the sky maps' colour in that direction,
+// cross-faded between the two shells either side of that radius (fading in
+// from the centre, and out over the halo past the last shell). Brightness
+// depends only on direction, so every bright pixel becomes a radial ray.
+const STEPS = innerWidth < 700 ? 48 : 96;
+const fragVolume = /* glsl */ `
+  uniform sampler2D m0, m1, m2, m3, m4, m5;
+  uniform float r[6];   // current shell radii
+  uniform float g[6];   // gain × brightness × on, per shell
+  uniform float rMax, haloLen, spin, density;
+  uniform vec3 cut;
+  varying vec3 vWorld;
+  // weight of shell i at radius x: a tent between its neighbours
+  float tent(float x, float lo, float mid, float hi) {
+    if (x <= lo || x >= hi) return 0.0;
+    return x < mid ? (x - lo) / max(mid - lo, 1e-4) : (hi - x) / max(hi - mid, 1e-4);
+  }
+  // squared: bright features become rays while the diffuse glow stays faint
+  vec3 tap(sampler2D m, vec2 uv) { vec3 c = textureLod(m, uv, 1.0).rgb; return c * c; }
+  void main() {
+    vec3 ro = cameraPosition, rd = normalize(vWorld - cameraPosition);
+    float b = dot(ro, rd), c = dot(ro, ro) - rMax * rMax, h = b * b - c;
+    if (h < 0.0) discard;
+    float t0 = max(-b - sqrt(h), 0.0), t1 = -b + sqrt(h);
+    float dt = (t1 - t0) / float(${STEPS});
+    vec3 acc = vec3(0.0);
+    float cs = cos(spin), sn = sin(spin);
+    for (int k = 0; k < ${STEPS}; k++) {
+      vec3 p = ro + rd * (t0 + (float(k) + 0.5) * dt);
+      if (p.x > cut.x && p.y > cut.y && p.z > cut.z) continue;
+      float x = length(p);
+      if (x < 1e-3) continue;
+      // into the maps' frame: undo the spin, then the same uv as the spheres
+      vec3 q = vec3(cs * p.x - sn * p.z, p.y, sn * p.x + cs * p.z) / x;
+      float phi = atan(q.z, -q.x);
+      vec2 uv = vec2(1.0 - fract(phi / 6.2831853), 1.0 - acos(clamp(q.y, -1.0, 1.0)) / 3.1415927);
+      float w;
+      w = tent(x, 0.0, r[0], r[1]);                     if (w > 0.0) acc += w * g[0] * tap(m0, uv);
+      w = tent(x, r[0], r[1], r[2]);                    if (w > 0.0) acc += w * g[1] * tap(m1, uv);
+      w = tent(x, r[1], r[2], r[3]);                    if (w > 0.0) acc += w * g[2] * tap(m2, uv);
+      w = tent(x, r[2], r[3], r[4]);                    if (w > 0.0) acc += w * g[3] * tap(m3, uv);
+      w = tent(x, r[3], r[4], r[5]);                    if (w > 0.0) acc += w * g[4] * tap(m4, uv);
+      w = tent(x, r[4], r[5], r[5] + max(haloLen, 1e-3)); if (w > 0.0) acc += w * g[5] * tap(m5, uv);
+    }
+    gl_FragColor = vec4(clamp(acc * dt * density, 0.0, 1.0), 1.0);
+  }`;
+const volumeMat = new THREE.ShaderMaterial({
+  vertexShader: vert, fragmentShader: fragVolume, ...SCREEN, side: THREE.BackSide,
+  uniforms: {
+    ...Object.fromEntries(shells.map((s, i) => [`m${i}`, s.mat.uniforms.map])),
+    r: { value: new Array(6).fill(1) }, g: { value: new Array(6).fill(1) },
+    rMax: { value: 10 }, haloLen: { value: 1 }, spin: { value: 0 }, density: { value: 0.3 }, cut: cutUniform,
+  },
+});
+const volume = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 32), volumeMat);
+scene.add(volume);
+let rays = 1;
+function updateVolume() {
+  const u = volumeMat.uniforms;
+  shells.forEach((s, i) => {
+    u.r.value[i] = s.radius;
+    u.g.value[i] = s.L.gain * s.mat.uniforms.opacity.value * s.mat.uniforms.on.value;
+  });
+  u.haloLen.value = halo * DR;
+  u.rMax.value = shells[shells.length - 1].radius + halo * DR + 0.05;
+  volume.scale.setScalar(u.rMax.value);
+  // the spheres sit at rotation π/4 inside the spinning globe
+  u.spin.value = globe.rotation.y + Math.PI / 4;
+  u.density.value = 1.2 * rays;
+  volume.visible = rays > 0;
 }
 
 // ---------- panel ----------
@@ -449,6 +534,18 @@ const OUTER = R0 + DR * (LAYERS.length - 1);
 let spread = 1;
 // outer halo depth, in shell gaps (0 = off)
 let halo = 2;
+const surfacesInput = document.getElementById("surfaces");
+const surfacesOut = document.getElementById("surfaces-out");
+surfacesInput.oninput = () => {
+  surfaceUniform.value = +surfacesInput.value;
+  surfacesOut.value = `${Math.round(100 * surfaceUniform.value)}%`;
+};
+const raysInput = document.getElementById("rays");
+const raysOut = document.getElementById("rays-out");
+raysInput.oninput = () => {
+  rays = +raysInput.value;
+  raysOut.value = rays === 0 ? "off" : rays.toFixed(2);
+};
 const haloInput = document.getElementById("halo");
 const haloOut = document.getElementById("halo-out");
 haloInput.oninput = () => {
@@ -477,6 +574,10 @@ setSpread(+spreadInput.value);
 const startParams = new URLSearchParams(location.search);
 if (startParams.get("cut") === "off") { cutOnBox.checked = false; applyCut(); }
 if (startParams.get("back") === "off") { backBox.checked = false; backBox.onchange(); }
+// ?surfaces=0…1 and ?rays=0…2
+for (const [key, input] of [["surfaces", surfacesInput], ["rays", raysInput]]) {
+  if (startParams.has(key)) { input.value = startParams.get(key); input.oninput(); }
+}
 // ?between=0|1|3|7
 const betweenSelect = document.getElementById("between");
 if (["0", "1", "3", "7"].includes(startParams.get("between"))) betweenSelect.value = startParams.get("between");
@@ -509,6 +610,7 @@ const clock = new THREE.Clock();
 function frame() {
   const dt = clock.getDelta();
   if (spinning) globe.rotation.y += dt * 0.05;
+  updateVolume();
   controls.update();
   renderer.render(scene, camera);
   placeLabels();

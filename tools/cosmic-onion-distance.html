@@ -192,7 +192,9 @@ const cutUniform = { value: new THREE.Vector3(...CUTS.octant) };
 const vert = /* glsl */ `
   varying vec2 vUv; varying vec3 vWorld; varying vec3 vNormal;
   void main() {
-    vUv = uv;
+    // the maps are drawn as seen from inside (l grows to the left); seen
+    // from outside the sphere that is mirrored, so flip u
+    vUv = vec2(1.0 - uv.x, uv.y);
     vec4 w = modelMatrix * vec4(position, 1.0);
     vWorld = w.xyz;
     vNormal = normalize(mat3(modelMatrix) * normal);
@@ -252,10 +254,6 @@ LAYERS.forEach((L, i) => {
     if (++missing === LAYERS.length) document.getElementById("missing").style.display = "grid";
   });
   tex.colorSpace = THREE.SRGBColorSpace;
-  // The maps are drawn as seen from inside (l grows to the left); seen
-  // from outside a sphere that is mirrored, so flip u.
-  tex.wrapS = THREE.RepeatWrapping;
-  tex.repeat.x = -1;
   tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
   const mat = new THREE.ShaderMaterial({
     vertexShader: vert, fragmentShader: frag,
