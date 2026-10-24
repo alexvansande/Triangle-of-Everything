@@ -127,10 +127,12 @@ function iconAreaMult(slug) {
   return Math.max(AREA_MIN, Math.min(AREA_MAX, (AREA_REF / c) ** AREA_POWER));
 }
 // How much room a picture keeps from others (pictures never overlap): its drawn radius,
-// less for one that leaves most of its square empty (Saturn's rings, a cluster's
-// faint halo, the Eiffel Tower's sides), from content/icons/coverage.json
+// less for a glow that leaves most of its square empty (a galaxy cluster's faint halo,
+// a nebula) and for Saturn's rings, from content/icons/coverage.json. Solid things
+// (rocks, towers, animals) keep their whole square, sparse or not.
 const ROOM_REF = 0.6, ROOM_MIN = 0.6;
-function iconRoomMult(slug) {
+function iconRoomMult(slug, cat) {
+  if (!ICON_SIZE_MULT[slug] && !isLuminousArt(cat, slug)) return 1;
   const c = ICON_COVERAGE[slug];
   return c ? Math.max(ROOM_MIN, Math.min(1, Math.sqrt(c / ROOM_REF))) : 1;
 }
@@ -2557,7 +2559,7 @@ function drawObjects() {
   // order resolves equal priorities; last frame's winners never alter rank.
   const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
-  const roomR = (o) => icoR(o) * iconRoomMult(o.slug);   // for overlaps, not drawing
+  const roomR = (o) => icoR(o) * iconRoomMult(o.slug, o.catKey || o.cat);   // for overlaps, not drawing
   const iconOrder = projected.filter(mapIconShown);
   // Catalogue photographs also reserve space ahead of generated featured icons.
   const cataloguePhotos = dustPictureCandidates({
@@ -2569,7 +2571,7 @@ function drawObjects() {
     } : null,
     iconSizeAt: (logR,name,cat) => icoSize * iconSizeMult({logR,slug:nameToSlug(name),cat}),
     imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
-    roomOf: (name) => iconRoomMult(nameToSlug(name)),
+    roomOf: (name, cat) => iconRoomMult(nameToSlug(name), cat),
   }).filter(p=>p.imagePriority===0 && p.r*2>=dustIconMin());
   const combined = [...iconOrder,...cataloguePhotos].sort((a,b)=>a.imagePriority-b.imagePriority);
   const shownIcons = priorityCircles(combined, o=>o.room ?? roomR(o), iconRoom());
@@ -3103,7 +3105,7 @@ function drawObjects() {
     } : null,
     // as iconSizeMult, per-object multipliers included
     iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
-    roomOf: (name) => iconRoomMult(nameToSlug(name)),
+    roomOf: (name, cat) => iconRoomMult(nameToSlug(name), cat),
     imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
     iconBlend: (cat) => LUMINOUS_CATS.has(cat),   // luminous: no cast shadow
     softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
