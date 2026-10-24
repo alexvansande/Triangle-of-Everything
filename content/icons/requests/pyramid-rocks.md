@@ -1,3 +1,5 @@
+> All macro illustration requests in this file installed 2026-10-24 with matching wall shadows. Space requests remain pending. See `tools/macro-request-review.html` and `docs/macro-request-batch.json`.
+
 # Picture requests: rocks, a hill and the Colosseum around the pyramid (2026-10-24)
 
 Video 2 says "lots of engineering and big rocks" over the Great Pyramid's screen (10⁹–10¹⁶ g),

@@ -1,6 +1,6 @@
 {
-  "date": "2026-10-23",
-  "status": "first batch installed; remaining macro requests pending",
+  "date": "2026-10-24",
+  "status": "All 25 macro illustrations installed; space requests remain deferred.",
   "source": "content/icons/requests",
   "order": "Macro objects first; all space objects last.",
   "completed": [
@@ -11,10 +11,7 @@
     "spirit-of-st-louis",
     "codling-moth",
     "wax-moth",
-    "tomato-leaf-miner"
-  ],
-  "remainingMacro": [
-    "peekskill",
+    "tomato-leaf-miner",
     "stone-of-the-pregnant-woman",
     "big-rock-okotoks",
     "colosseum",
@@ -23,13 +20,17 @@
     "totem-pole-monument-valley",
     "west-mitten-butte",
     "morro-do-pai-inacio",
+    "sylacauga-meteorite",
+    "paro-moai",
     "lake-geneva",
-    "crater-lake",
-    "great-salt-lake",
     "lake-erie",
-    "vatnajokull",
-    "lake-tanganyika"
+    "lake-tanganyika",
+    "great-salt-lake",
+    "peekskill",
+    "crater-lake",
+    "vatnajokull"
   ],
+  "remainingMacro": [],
   "photoPolicy": "For photographed bodies preserve observed shape/features, relight to match reference and isolate from space. Reconstruct hidden detail only as necessary. Benben Saxum and other space objects deferred.",
   "records": [
     {
@@ -79,6 +80,131 @@
       "ref": "clothes-moth",
       "prompt": "Scientific chart icon, highly detailed realistic museum miniature, isolated on genuinely transparent square background. Match reference material rendering and soft upper-left lighting. Head-on near-orthographic view as if pinned on a wall slightly below eye level; no dramatic perspective, no floor, no cast shadow, no scenery, no text except explicitly requested markings. Entire subject centered, longest dimension 90% of canvas with 5% CLEAR margin on all sides, no clipping. Tomato leaf miner Tuta absoluta small slender moth in TOP dorsal view head up, narrow folded silver-grey forewings sprinkled with small dark flecks, fine fringes, slender antennae swept backward beside body, six delicate legs. Less broad wings than clothes moth, silver grey not gold.",
       "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-cc918d77-9002-4d28-87f1-6ae1088acce9.png"
+    },
+    {
+      "slug": "stone-of-the-pregnant-woman",
+      "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. Extract the monumental long squared limestone quarry block, one end slightly raised, pale honey cream, chisel marks. Remove surrounding quarry, keep block's long side facing viewer and a little top visible.",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/stone-of-the-pregnant-woman.jpg",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-b1a73d04-e5b3-4826-87ff-4726cbe7c9b5.png"
+    },
+    {
+      "slug": "big-rock-okotoks",
+      "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. The two adjoining halves of the split quartzite erratic, faithfully preserve jagged layered outline and fissure, grey pink stone with lichen, no landscape.",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/big-rock-okotoks.jpg",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-2f51d541-7669-4781-8d83-dd5cb4d07920.png"
+    },
+    {
+      "slug": "colosseum",
+      "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. The real ruined Roman amphitheatre, intact tall outer arcade left and lower broken rings right. Very modest three-quarter angle and slight top visibility, no dramatic aerial perspective. Warm travertine, realistic tiny arches, no surrounding city.",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/colosseum.jpg",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-4a3c0c3b-1ccd-4dd2-8ade-42a1f9f55ca2.png"
+    },
+    {
+      "slug": "devils-tower",
+      "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. Devils Tower isolated, broad flat-topped grey brown columnar volcanic tower, strong vertical polygonal columns, modest short rubble skirt. Reference landscape shows distant object; faithfully reconstruct that recognizable tower without surrounding landscape.",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/devils-tower.jpg",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-56a34f13-b5bf-46f8-b60e-b6e83295abab.png"
+    },
+    {
+      "slug": "uluru",
+      "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. Uluru isolated, long low rounded red sandstone monolith with distinctive furrows and irregular rounded summit from reference, modest rocky foot only. Front elevation with small amount of top visible, not aerial.",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/uluru.jpg",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-96097536-2444-445b-99aa-e9ecc1016943.png"
+    },
+    {
+      "slug": "totem-pole-monument-valley",
+      "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. Only the very slender tall sandstone needle on LEFT in reference, its small tapered rubble foot. Exclude the other rock group at right. Maintain extremely slender proportions and layered orange sandstone.",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/totem-pole-monument-valley.jpg",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-a81552b2-d37b-4b58-ac49-e4753002edc7.png"
+    },
+    {
+      "slug": "west-mitten-butte",
+      "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. Only West Mitten Butte, the nearest LEFT butte in photo. Flat topped massive sandstone block with narrow separated thumb spire at RIGHT, short sloping talus skirt; no other buttes or terrain.",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/west-mitten-butte.jpg",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-65fc0a39-bf8c-414f-aeae-a435e51fe10c.png"
+    },
+    {
+      "slug": "morro-do-pai-inacio",
+      "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. The photographed mesa of Chapada Diamantina, preserve paired irregular summit silhouette, grey ochre sandstone cliffs, scrub green summit and sloping lower foot. Isolate small geological cutout, no broad landscape.",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/morro-do-pai-inacio.jpg",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-054484cb-4687-49f1-b4b9-f9de542a5fa5.png"
+    },
+    {
+      "slug": "sylacauga-meteorite",
+      "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. Precisely the photographed Hodges meteorite stone, preserve irregular rounded block outline, dark fusion crust and flat broken facet. Remove black support stand and museum plinth entirely. Do not make a cube or invent craters.",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/sylacauga-meteorite.jpg",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-a12691a3-245e-47dd-a2ba-5e32df9ad1a8.png"
+    },
+    {
+      "slug": "paro-moai",
+      "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. Reconstruct the photographed fallen Paro moai standing upright, use reference for tuff texture and long proportions. Full body front view slight top visible, elongated head, heavy brow long straight nose long ears pursed lips, arms carved along torso and hands low belly. Grey brown weathered volcanic tuff. No pedestal, no red topknot, no invented decoration.",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/paro-moai.jpg",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-91706214-2023-4413-99b7-ead25a12a5bd.png"
+    },
+    {
+      "slug": "lake-geneva",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-geneva.png",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-geneva.png"
+      ],
+      "prompt": "Create Lake Geneva miniature ONLY using attached exact north-up geographic silhouette. STRICT shape preservation: broad curved crescent runs mostly LEFT TO RIGHT, with tapered southwestern tail at LOWER LEFT. Do NOT rotate the silhouette, do NOT make a long vertical lake, do NOT draw Baikal. Replace the flat blue fill with detailed deep-blue translucent resin water, tiny ripples and restrained cyan rim reflections, while preserving the outline precisely. Map-like head-on wall-mounted cutout, no perspective compression, tiny thickness along TOP rim only, upper-left white light. No surrounding land, no labels, no cast shadow. Genuine transparent square background replacing white, 6% clear margin.",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-10fb662e-f50f-41d3-882a-96a38c9aa05a.png"
+    },
+    {
+      "slug": "lake-erie",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-erie.png",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-erie.png",
+        "/Users/avsa/Dev/Triangle/content/icons/src/lake-baikal.png"
+      ],
+      "prompt": "Scientific chart miniature icon on genuine transparent square background. Reference 1 is the EXACT geographic silhouette and orientation to preserve, north UP, do not tilt/foreshorten it. Reference 2 is material style only, not shape. Lake Erie, green blue shallow water, preserve islands and outline. Render just the lake water as a finely rippled translucent colored resin cutout mounted on a wall, front-on almost orthographic. Subtle tiny thickness visible at TOP rim only, no thickness below. Soft upper-left lighting, restrained cyan rim reflections, detailed fine ripples at map scale. No surrounding land, no base, no cast shadow, no text. Entire silhouette centered with 6% clear margin.",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-d37ccfae-b62d-46d9-97db-a958cd95d2d2.png"
+    },
+    {
+      "slug": "lake-tanganyika",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-tanganyika.png",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-tanganyika.png",
+        "/Users/avsa/Dev/Triangle/content/icons/src/lake-baikal.png"
+      ],
+      "prompt": "Scientific chart miniature icon on genuine transparent square background. Reference 1 is the EXACT geographic silhouette and orientation to preserve, north UP, do not tilt/foreshorten it. Reference 2 is material style only, not shape. Lake Tanganyika, very dark blue rift lake, preserve narrow north-south contour. Render just the lake water as a finely rippled translucent colored resin cutout mounted on a wall, front-on almost orthographic. Subtle tiny thickness visible at TOP rim only, no thickness below. Soft upper-left lighting, restrained cyan rim reflections, detailed fine ripples at map scale. No surrounding land, no base, no cast shadow, no text. Entire silhouette centered with 6% clear margin.",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-4c9a62d7-428b-4413-b8be-78b9967aa75f.png"
+    },
+    {
+      "slug": "great-salt-lake",
+      "ref": "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/great-salt-lake.png",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/great-salt-lake.png",
+        "/Users/avsa/Dev/Triangle/content/icons/src/lake-baikal.png"
+      ],
+      "prompt": "Scientific chart miniature icon on genuine transparent square background. Reference 1 is the EXACT geographic silhouette and orientation to preserve, north UP, do not tilt/foreshorten it. Reference 2 is material style only, not shape. Great Salt Lake. Preserve outline and islands. Thin east-west causeway separates dusty pink-red NORTH arm from muted blue-green SOUTH arm; not a rainbow. Render just the lake water as a finely rippled translucent colored resin cutout mounted on a wall, front-on almost orthographic. Subtle tiny thickness visible at TOP rim only, no thickness below. Soft upper-left lighting, restrained cyan rim reflections, detailed fine ripples at map scale. No surrounding land, no base, no cast shadow, no text. Entire silhouette centered with 6% clear margin.",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-5aca97de-9579-4a53-ae86-0c5faba8e56e.png"
+    },
+    {
+      "slug": "peekskill",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/requests/references/peekskill.jpg"
+      ],
+      "prompt": "Scientific chart icon, isolated genuine transparent background. Reconstruct ONLY the actual Peekskill meteorite stone lying on floor at bottom of reference photo, not car or anything else. Preserve rounded irregular tapered outline and pale grey broken patches amid dark brown-black fusion crust. Small speckled interior detail, no invented craters. Relight with soft upper-left light in realistic museum miniature house style, front view slightly from above. Entire stone centered and large with 6% margin, no floor, shadow, support, text.",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-773fab81-b09d-4ccc-b23c-c2676c072ce1.png"
+    },
+    {
+      "slug": "crater-lake",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/requests/references/crater-lake.jpg",
+        "/Users/avsa/Dev/Triangle/content/icons/src/lake-baikal.png"
+      ],
+      "prompt": "Scientific chart icon, isolated on genuine transparent square canvas. Render Crater Lake Oregon water ONLY plus tiny Wizard Island near WEST edge. First photo is geographic reference (viewed from WEST looking east); reorient lake to north-UP true overhead map view, near-round irregular caldera shoreline. Second image is blue resin miniature STYLE reference only. Deep cobalt translucent resin water with very fine ripples and cyan restrained rim highlights, tiny green rocky Wizard Island at left. No enclosing mountains/caldera walls, no land terrain or floor. Front-facing wall-mounted map cutout, no perspective foreshortening, tiny thickness visible along TOP rim only, upper-left lighting, NO cast shadow. 6% clear margins.",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-6344ccf5-e434-4a9a-9beb-2e46e2143605.png"
+    },
+    {
+      "slug": "vatnajokull",
+      "refs": [
+        "/Users/avsa/Dev/Triangle/content/icons/requests/references/iceland-from-space.png",
+        "/Users/avsa/Dev/Triangle/content/icons/requests/references/vatnajokull.png"
+      ],
+      "prompt": "Scientific chart icon, isolated genuine transparent square background. Vatnajokull ice cap miniature viewed straight overhead north-UP as a relief map glued to a wall. First reference gives geography: extract ONLY the large white ice cap at SOUTHEAST of Iceland, not whole Iceland and not separate glaciers westwards. Preserve its irregular broad outline and many outlet glacier tongues. Second reference is local glacier texture, use very small realistic crevasses and grey volcanic ash streaks on white snow and pale blue ice at outlet margins. Full ice cap fits canvas, modest relief and tiny depth at TOP edges only, no rocky base, no landscape, no map labels, no cast shadow. Soft upper-left illumination, museum miniature realism, 6% clear margins.",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-c3e1dff9-52dd-41b8-9456-6c5c1a9338ec.png"
     }
   ]
 }

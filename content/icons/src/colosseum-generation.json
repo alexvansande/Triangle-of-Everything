@@ -1,0 +1,8 @@
+{
+  "slug": "colosseum",
+  "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. The real ruined Roman amphitheatre, intact tall outer arcade left and lower broken rings right. Very modest three-quarter angle and slight top visibility, no dramatic aerial perspective. Warm travertine, realistic tiny arches, no surrounding city.",
+  "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/colosseum.jpg",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-4a3c0c3b-1ccd-4dd2-8ade-42a1f9f55ca2.png",
+  "method": "built-in image_gen",
+  "date": "2026-10-24"
+}

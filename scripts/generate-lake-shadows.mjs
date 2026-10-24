@@ -4,13 +4,15 @@ import fs from 'node:fs/promises';
 import sharp from 'sharp';
 import puppeteer from 'puppeteer-core';
 import {LONG_SHADOW_PRESET} from '../src/long-shadow.js';
-const lakes=['loch-ness','caspian-sea','dead-sea','lake-baikal','lake-nyos','lake-superior','lake-tahoe','lake-victoria','sea-of-galilee','hallstatter-see','konigssee','titicaca'];
+const allLakes=['loch-ness','caspian-sea','dead-sea','lake-baikal','lake-nyos','lake-superior','lake-tahoe','lake-victoria','sea-of-galilee','hallstatter-see','konigssee','titicaca','lake-geneva','lake-erie','lake-tanganyika','great-salt-lake','crater-lake'];
+const lakes=process.argv.length>2?[...new Set(process.argv.slice(2))]:allLakes;
+for(const slug of lakes)if(!allLakes.includes(slug))throw Error(`Unknown lake: ${slug}`);
 const root='content/icons/shadow-candidates/lake-long-caustics';
 const config='content/icons/shadows/overrides.json';
 const overrides=JSON.parse(await fs.readFile(config,'utf8'));
 const light=(await fs.readFile(`${root}/caustic-light.png`)).toString('base64');
 await fs.mkdir(`${root}/previous`,{recursive:true});
-async function preserve(from,to){await fs.copyFile(from,to,1).catch(e=>{if(e.code!=='EEXIST')throw e})}
+async function preserve(from,to){await fs.copyFile(from,to,1).catch(e=>{if(e.code!=='EEXIST'&&e.code!=='ENOENT')throw e})}
 await preserve(config,`${root}/previous/overrides.json`);
 const renderer=Buffer.from(await fs.readFile('src/long-shadow.js')).toString('base64');
 const browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--no-sandbox']});

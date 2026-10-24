@@ -1,3 +1,5 @@
+> All macro illustration requests in this file installed 2026-10-24 with matching wall shadows. Space requests remain pending. See `tools/macro-request-review.html` and `docs/macro-request-batch.json`.
+
 > Opening moth illustrations installed 2026-10-23. Macro work takes priority over the space order below.
 
 # Picture requests: video 2's empty stretches (2026-10-24)

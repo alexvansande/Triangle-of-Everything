@@ -1,0 +1,12 @@
+{
+  "slug": "lake-erie",
+  "ref": "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-erie.png",
+  "refs": [
+    "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-erie.png",
+    "/Users/avsa/Dev/Triangle/content/icons/src/lake-baikal.png"
+  ],
+  "prompt": "Scientific chart miniature icon on genuine transparent square background. Reference 1 is the EXACT geographic silhouette and orientation to preserve, north UP, do not tilt/foreshorten it. Reference 2 is material style only, not shape. Lake Erie, green blue shallow water, preserve islands and outline. Render just the lake water as a finely rippled translucent colored resin cutout mounted on a wall, front-on almost orthographic. Subtle tiny thickness visible at TOP rim only, no thickness below. Soft upper-left lighting, restrained cyan rim reflections, detailed fine ripples at map scale. No surrounding land, no base, no cast shadow, no text. Entire silhouette centered with 6% clear margin.",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-d37ccfae-b62d-46d9-97db-a958cd95d2d2.png",
+  "method": "built-in image_gen",
+  "date": "2026-10-24"
+}

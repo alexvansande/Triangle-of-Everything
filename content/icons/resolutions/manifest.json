@@ -4781,5 +4781,362 @@
         "path": "1024/wax-moth.webp"
       }
     ]
+  },
+  "big-rock-okotoks": {
+    "fingerprint": "d1820cd35a31233c98801d79475592808a5aa1070f9afe59d5e625fd4e92ed79",
+    "baseWidth": 128,
+    "source": "content/icons/src/big-rock-okotoks.png",
+    "reason": "matching master",
+    "sourceDifference": 0.4085693359375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/big-rock-okotoks.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/big-rock-okotoks.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/big-rock-okotoks.webp"
+      }
+    ]
+  },
+  "colosseum": {
+    "fingerprint": "69222f4e2bdd910bfd2a6c5ff06f6a6963b3d0724feb9f88bdd4b18f10cf1e27",
+    "baseWidth": 128,
+    "source": "content/icons/src/colosseum.png",
+    "reason": "matching master",
+    "sourceDifference": 0.71337890625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/colosseum.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/colosseum.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/colosseum.webp"
+      }
+    ]
+  },
+  "crater-lake": {
+    "fingerprint": "12932c849b73c39be890d865959b10f89228f2a57a7f8ead827f13a75030199e",
+    "baseWidth": 128,
+    "source": "content/icons/src/crater-lake.png",
+    "reason": "matching master",
+    "sourceDifference": 0.4775390625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/crater-lake.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/crater-lake.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/crater-lake.webp"
+      }
+    ]
+  },
+  "devils-tower": {
+    "fingerprint": "dc9a24557d122006a19919a6bdf17638c6bfb4305d050184145db174b792edfd",
+    "baseWidth": 128,
+    "source": "content/icons/src/devils-tower.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5588582356770834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/devils-tower.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/devils-tower.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/devils-tower.webp"
+      }
+    ]
+  },
+  "great-salt-lake": {
+    "fingerprint": "32a50ace4d25f7f89672c4f00746d07736dd83b5ae800e836348b2e395fca9d7",
+    "baseWidth": 128,
+    "source": "content/icons/src/great-salt-lake.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3927205403645833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/great-salt-lake.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/great-salt-lake.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/great-salt-lake.webp"
+      }
+    ]
+  },
+  "lake-erie": {
+    "fingerprint": "2097da349af58d3258f2f343beeabfe7a38c4ceda83950aedb008df849d00e82",
+    "baseWidth": 128,
+    "source": "content/icons/src/lake-erie.png",
+    "reason": "matching master",
+    "sourceDifference": 0.21824137369791666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lake-erie.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lake-erie.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lake-erie.webp"
+      }
+    ]
+  },
+  "lake-geneva": {
+    "fingerprint": "74a2f3f2b3e8948c6cf30c35c815e7992c915d43e449f88c011ed7b1ebe93413",
+    "baseWidth": 128,
+    "source": "content/icons/src/lake-geneva.png",
+    "reason": "matching master",
+    "sourceDifference": 0.16941324869791666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lake-geneva.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lake-geneva.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lake-geneva.webp"
+      }
+    ]
+  },
+  "lake-tanganyika": {
+    "fingerprint": "147ab712e0705a3d013d6fc01ec38b930c978af044ceb02fcb90357ba7e87f75",
+    "baseWidth": 128,
+    "source": "content/icons/src/lake-tanganyika.png",
+    "reason": "matching master",
+    "sourceDifference": 0.14798990885416666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lake-tanganyika.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lake-tanganyika.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lake-tanganyika.webp"
+      }
+    ]
+  },
+  "morro-do-pai-inacio": {
+    "fingerprint": "045b87581ee8dc5591fbd6e2f71b97932ed832b74b553f1d0bfbf08abb80073d",
+    "baseWidth": 128,
+    "source": "content/icons/src/morro-do-pai-inacio.png",
+    "reason": "matching master",
+    "sourceDifference": 0.49591064453125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/morro-do-pai-inacio.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/morro-do-pai-inacio.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/morro-do-pai-inacio.webp"
+      }
+    ]
+  },
+  "paro-moai": {
+    "fingerprint": "3c7dec082291876c9e5e54feb820e5bd55238c6639ef666ec1b185072d94a684",
+    "baseWidth": 128,
+    "source": "content/icons/src/paro-moai.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3551228841145833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/paro-moai.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/paro-moai.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/paro-moai.webp"
+      }
+    ]
+  },
+  "peekskill": {
+    "fingerprint": "aea5befb0e68327d89d616ddff66fe7fd469071f4f7eb712dfe3d897943c39ba",
+    "baseWidth": 128,
+    "source": "content/icons/src/peekskill.png",
+    "reason": "matching master",
+    "sourceDifference": 0.49810791015625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/peekskill.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/peekskill.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/peekskill.webp"
+      }
+    ]
+  },
+  "stone-of-the-pregnant-woman": {
+    "fingerprint": "63e5949904c59c4b078bcfe0c9e338ffddd7b5be812bc8b45269029514d1cc26",
+    "baseWidth": 128,
+    "source": "content/icons/src/stone-of-the-pregnant-woman.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3638712565104167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/stone-of-the-pregnant-woman.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/stone-of-the-pregnant-woman.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/stone-of-the-pregnant-woman.webp"
+      }
+    ]
+  },
+  "sylacauga-meteorite": {
+    "fingerprint": "10a38a8432c70eacd6a4d16094642c0b18c6d062f6219dc76317023800498c8d",
+    "baseWidth": 128,
+    "source": "content/icons/src/sylacauga-meteorite.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5291341145833334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/sylacauga-meteorite.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/sylacauga-meteorite.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/sylacauga-meteorite.webp"
+      }
+    ]
+  },
+  "totem-pole-monument-valley": {
+    "fingerprint": "f4ab2a4b282160d43781cc703f34bee3cef334eb006c354a6877737b13f90446",
+    "baseWidth": 128,
+    "source": "content/icons/src/totem-pole-monument-valley.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3058064778645833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/totem-pole-monument-valley.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/totem-pole-monument-valley.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/totem-pole-monument-valley.webp"
+      }
+    ]
+  },
+  "uluru": {
+    "fingerprint": "0adf0050c38c76110bcb71a86b4a5b208d22bfe0f36128d321bad0635cf15eee",
+    "baseWidth": 128,
+    "source": "content/icons/src/uluru.png",
+    "reason": "matching master",
+    "sourceDifference": 0.27880859375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/uluru.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/uluru.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/uluru.webp"
+      }
+    ]
+  },
+  "vatnajokull": {
+    "fingerprint": "ea93da97a3ec9f2364212fb5171de3ed0a163c30ead9d7b5ae937146f13493c9",
+    "baseWidth": 128,
+    "source": "content/icons/src/vatnajokull.png",
+    "reason": "matching master",
+    "sourceDifference": 0.60137939453125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/vatnajokull.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/vatnajokull.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/vatnajokull.webp"
+      }
+    ]
+  },
+  "west-mitten-butte": {
+    "fingerprint": "f86e5881da27332d8e3736b3032b6db6ee3f088a77f0503e7bc636e70bbfe54d",
+    "baseWidth": 128,
+    "source": "content/icons/src/west-mitten-butte.png",
+    "reason": "matching master",
+    "sourceDifference": 0.4666341145833333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/west-mitten-butte.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/west-mitten-butte.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/west-mitten-butte.webp"
+      }
+    ]
   }
 }

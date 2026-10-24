@@ -25,3 +25,13 @@ kept if one is ever shown as is.
 | `nix.jpg` | Pluto's Moon Nix, Half Illuminated (PIA20287) | NASA/JHU APL/SwRI (New Horizons) | Public domain |
 | `didymos.jpg` | Didymos from DART DRACO | NASA/JHU APL (DART) | Public domain |
 | `amalthea.jpg` | Bright Streak on Amalthea (PIA02532) | NASA/JPL/Cornell (Galileo) | Public domain |
+
+## Additional macro references (2026-10-24)
+
+- `peekskill.jpg`: [NASA APOD, The Car, the Hole, and the Peekskill Meteorite](https://science.nasa.gov/image-article/apod-2006-november-19-the-car-the-hole-and-the-peekskill-meteorite/), original `peekskill_thomas_big.jpg`. Used for the stone at the bottom of the photo, not the car. Reference only; retain the original source credit when reproducing the photo.
+- `crater-lake.jpg`: [Aerial Crater Lake](https://commons.wikimedia.org/wiki/File:Aerial_Crater_Lake.jpg), Mike Doukas / USGS, 2005, public domain. Photograph looks east from the west; illustration is reoriented north up.
+- `iceland-from-space.png`: [Iceland from space](https://commons.wikimedia.org/wiki/File:Iceland-from-space.png), used for the outline of the southeastern Vatnajökull ice cap only. See source page for attribution.
+- `vatnajokull.png`: [Vatnajökull National Park](https://www.vatnajokulsthjodgardur.is/en/melting-glaciers/vatnajokullglacier), glacier texture reference only; not an overhead outline.
+- Geneva, Erie, Tanganyika and Great Salt Lake use Natural Earth public-domain geographic outlines saved in `content/icons/refresh-2026-10-22/outlines/` (GeoJSON, SVG and PNG). These are generalized mapped shorelines, not current water-level surveys.
+
+Generated illustration prompts and exact input paths are saved beside each master in `content/icons/src/*-generation.json` and in `docs/macro-request-batch.json`. All images were made with the built-in image generation tool; shadows use the existing long-shadow renderer, with the approved caustic texture for lakes. Paro is an interpretive upright reconstruction from the fallen statue reference.
