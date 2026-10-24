@@ -142,6 +142,11 @@
       <option value="linear">Linear (billion ly)</option>
     </select>
   </div>
+  <div class="row spread" id="scale-row" hidden>
+    <label class="check"><input id="scale-on" type="checkbox"> Scale zoom</label>
+    <input id="scale" type="range" min="-4.5" max="10.66" step="0.01" value="10.66" aria-label="Distance at the outer sphere (log ly)">
+    <output id="scale-out" for="scale">46 billion ly</output>
+  </div>
   <div class="row spread">
     <label for="spread">Spread</label>
     <input id="spread" type="range" min="0" max="1" step="0.01" value="1">
@@ -205,7 +210,7 @@ renderer.setSize(innerWidth, innerHeight);
 document.body.prepend(renderer.domElement);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 0.1, 200);
+const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 0.1, 400);
 camera.position.set(17.5, 8.5, 17.5);
 // back the camera off on tall, narrow screens so the whole sphere fits across
 function fitCamera() {
@@ -236,7 +241,7 @@ const vert = /* glsl */ `
   }`;
 const frag = /* glsl */ `
   uniform sampler2D map; uniform vec3 tint; uniform vec3 cut;
-  uniform float gain, gamma, floorLevel, whiteLevel, opacity, surface;
+  uniform float gain, gamma, floorLevel, whiteLevel, opacity, surface, fadeBg;
   varying vec2 vUv; varying vec3 vWorld; varying vec3 vNormal;
   void main() {
     // the cut wedge: every coordinate beyond its threshold
@@ -247,7 +252,7 @@ const frag = /* glsl */ `
     vec3 V = normalize(cameraPosition - vWorld);
     float rim = pow(1.0 - abs(dot(normalize(vNormal), V)), 4.0);
     // screen blending needs colours inside 0…1
-    gl_FragColor = vec4(clamp((c * gain + tint * rim * 0.2) * opacity * surface, 0.0, 1.0), 1.0);
+    gl_FragColor = vec4(clamp((c * gain + tint * rim * 0.2) * opacity * surface * fadeBg, 0.0, 1.0), 1.0);
   }`;
 
 // An in-between shell cross-fades from shell A's map (mixF = 0) to shell
@@ -292,7 +297,7 @@ LAYERS.forEach((L, i) => {
       map: { value: tex }, tint: { value: new THREE.Color(L.color) }, cut: cutUniform,
       gain: { value: L.gain }, gamma: { value: L.gamma }, floorLevel: { value: L.floor },
       whiteLevel: { value: L.white ?? 1 },
-      opacity: { value: 1 }, on: { value: 1 }, surface: surfaceUniform,
+      opacity: { value: 1 }, on: { value: 1 }, surface: surfaceUniform, fadeBg: { value: 1 },
     },
     side: THREE.DoubleSide,
     transparent: true,
@@ -368,7 +373,7 @@ function placeBetween() {
       : b.kind === "out" ? b.A.radius + halo * DR * b.f
       : b.A.radius + (b.B.radius - b.A.radius) * b.f;
     b.mesh.scale.setScalar(Math.max(r, 0.01));
-    b.mesh.visible = b.kind !== "out" || halo > 0;
+    b.mesh.visible = (b.kind !== "out" || halo > 0) && !b.A.inBg && !b.B.inBg;
   });
 }
 
@@ -434,15 +439,17 @@ let rays = 1;
 function updateVolume() {
   const u = volumeMat.uniforms;
   shells.forEach((s, i) => {
-    u.r.value[i] = s.radius;
-    u.g.value[i] = s.L.gain * s.mat.uniforms.opacity.value * s.mat.uniforms.on.value;
+    u.r.value[i] = s.inBg ? BG : s.radius; // rays stop where the background begins
+    u.g.value[i] = s.inBg ? 0 : s.L.gain * s.mat.uniforms.opacity.value * s.mat.uniforms.on.value;
   });
   u.haloLen.value = halo * DR;
-  u.rMax.value = shells[shells.length - 1].radius + halo * DR + 0.05;
+  u.rMax.value = Math.min(shells[shells.length - 1].radius + halo * DR + 0.05, 1.2 * BG);
   volume.scale.setScalar(u.rMax.value);
   // the spheres sit at rotation π/4 inside the spinning globe
   u.spin.value = globe.rotation.y + Math.PI / 4;
-  u.density.value = 1.2 * rays;
+  // rays brighten with path length, so keep them even when shells grow
+  const biggest = Math.max(...shells.filter((s) => !s.inBg && s.mesh.visible).map((s) => s.radius), OUTER);
+  u.density.value = 1.2 * rays * (OUTER / biggest);
   // Sun mode: keep the solar system clear; rays start at the Oort Cloud's edge
   u.rIn.value = radiusMode === "sun" ? ORBITS[ORBITS.length - 1].radius : 0;
   volume.visible = rays > 0;
@@ -652,6 +659,8 @@ ORBITS.forEach((o) => {
   const line = new THREE.Line(circleGeom, new THREE.LineBasicMaterial({
     color: o.color, transparent: true, opacity: o.faint ? 0.45 : 0.9 }));
   line.scale.setScalar(o.radius);
+  o.line = line;
+  o.sunR = o.radius;
   eclipticPlane.add(line);
   o.label = document.createElement("div");
   o.label.className = "orbit-label";
@@ -668,28 +677,133 @@ eclipticPlane.add(discFill);
 
 // "linear": radius proportional to (comoving) distance, the CMB's 46 billion
 // ly on the outer sphere; anything under a thousandth of that is hidden
-const linRadius = (logLy) => OUTER * 10 ** (logLy - LOG_MAX);
-const linTicks = [10, 20, 30, 40].map((gly) => {
+// "linear": radius proportional to (comoving) distance. `viewLog` is log10 of
+// the distance (ly) that lands on the outer sphere: 46 billion ly normally;
+// with Scale zoom on, pinch / scroll moves it down to a few AU. Anything
+// bigger than the view is pushed, in order, onto a far background; anything
+// under a thousandth of it is hidden.
+let viewLog = LOG_MAX;
+let scaleZoom = false;
+const AU_LOG_LY = -4.801, RSUN_LOG_LY = -LY_IN_RSUN;
+// past 1.5× the view a shell becomes background: it jumps out beyond the
+// camera (which never goes past 60) and stays in order there
+const BG = 1.5 * OUTER;
+const compress = (r) => (r <= BG ? r : Math.min(70 + 40 * Math.log10(r / BG), 320));
+const linRaw = (logLy) => OUTER * 10 ** (logLy - viewLog);
+const linRadius = (logLy) => compress(linRaw(logLy));
+// ticks at round distances that fit the current view
+const linTicks = Array.from({ length: 5 }, () => {
   const el = document.createElement("div");
   el.className = "decade";
-  el.textContent = `${gly} billion ly`;
   document.body.appendChild(el);
-  return { r: OUTER * (gly * 1e9) / 10 ** LOG_MAX, el };
+  return { r: 0, el, on: false };
 });
+function fmtLy(ly) {
+  const au = ly / 10 ** AU_LOG_LY;
+  if (au < 1000) return `${+au.toPrecision(3)} AU`;
+  for (const [f, u] of [[1e9, "billion ly"], [1e6, "million ly"], [1e3, "thousand ly"]]) {
+    if (ly >= f) return `${+(ly / f).toPrecision(3)} ${u}`;
+  }
+  return `${+ly.toPrecision(3)} ly`;
+}
+function updateLinTicks() {
+  const view = 10 ** viewLog, step0 = view / 4, mag = 10 ** Math.floor(Math.log10(step0));
+  const step = [1, 2, 5, 10].map((m) => m * mag).find((x) => x >= step0 * 0.8);
+  linTicks.forEach((t, i) => {
+    const ly = step * (i + 1);
+    t.on = ly < view * 0.98;
+    t.r = OUTER * ly / view;
+    t.el.textContent = fmtLy(ly);
+  });
+}
+function applyLinear() {
+  shells.forEach((s) => {
+    s.base = Math.max(linRadius(s.L.logLy), 0.01);
+    s.modeHidden = linRaw(s.L.logLy) < OUTER * 1e-3;
+    // background shells dim the further they lie beyond the view
+    const raw = linRaw(s.L.logLy);
+    s.mat.uniforms.fadeBg.value = raw <= BG ? 1 : Math.max(0.06, (BG / raw) ** 0.3);
+    s.inBg = raw > BG;
+    refreshShell(s);
+  });
+  // the solar system, to scale, once it's big enough to see
+  const show = scaleZoom;
+  const sunR = linRaw(RSUN_LOG_LY);
+  sun.visible = show && sunR > 0.004;
+  sun.scale.setScalar(Math.max(sunR, 1e-4) / sunRadius(0));
+  ecliptic.visible = show && linRaw(Math.log10(30) + AU_LOG_LY) > 0.01;
+  discFill.visible = false;
+  ORBITS.forEach((o) => {
+    o.radius = linRadius(Math.log10(o.au) + AU_LOG_LY);
+    o.line.scale.setScalar(o.radius);
+    o.line.visible = linRaw(Math.log10(o.au) + AU_LOG_LY) > 0.02;
+  });
+  updateLinTicks();
+  scaleOut.value = `to ${fmtLy(10 ** viewLog)}`;
+}
 function setRadiusMode(mode) {
   radiusMode = mode;
   document.body.classList.toggle("log-radius", mode !== "even");
-  shells.forEach((s) => {
-    s.base = mode === "log" ? logRadius(s.L.logLy) : mode === "sun" ? sunRadius(s.L.logLy + LY_IN_RSUN)
-      : mode === "linear" ? Math.max(linRadius(s.L.logLy), 0.01) : s.even;
-    s.modeHidden = mode === "linear" && linRadius(s.L.logLy) < OUTER * 1e-3;
-    refreshShell(s);
-  });
-  sun.visible = ecliptic.visible = mode === "sun";
+  document.getElementById("scale-row").hidden = mode !== "linear";
+  controls.enableZoom = !(mode === "linear" && scaleZoom);
+  if (mode === "linear") {
+    applyLinear();
+  } else {
+    shells.forEach((s) => {
+      s.base = mode === "log" ? logRadius(s.L.logLy) : mode === "sun" ? sunRadius(s.L.logLy + LY_IN_RSUN) : s.even;
+      s.modeHidden = false;
+      s.inBg = false;
+      s.mat.uniforms.fadeBg.value = 1;
+      refreshShell(s);
+    });
+    sun.scale.setScalar(1);
+    sun.visible = ecliptic.visible = discFill.visible = mode === "sun";
+    ORBITS.forEach((o) => {
+      o.radius = o.sunR;
+      o.line.scale.setScalar(o.radius);
+      o.line.visible = true;
+    });
+  }
   const unit = mode === "sun" ? "R☉" : "ly";
   decades.forEach(({ d, el }) => (el.textContent = `${pow10(d)} ${unit}`));
   setSpread(spread);
 }
+const scaleInput = document.getElementById("scale");
+const scaleOut = document.getElementById("scale-out");
+const scaleOnBox = document.getElementById("scale-on");
+function setViewLog(x) {
+  viewLog = Math.min(LOG_MAX, Math.max(+scaleInput.min, x));
+  scaleInput.value = viewLog;
+  if (radiusMode === "linear") { applyLinear(); setSpread(spread); }
+}
+scaleInput.oninput = () => setViewLog(+scaleInput.value);
+scaleOnBox.onchange = () => {
+  scaleZoom = scaleOnBox.checked;
+  if (!scaleZoom) setViewLog(LOG_MAX);
+  setRadiusMode(radiusMode);
+};
+// with Scale zoom on, the wheel / trackpad pinch / two-finger pinch rescale
+// the universe (log steps) instead of moving the camera
+renderer.domElement.addEventListener("wheel", (e) => {
+  if (!(radiusMode === "linear" && scaleZoom)) return;
+  e.preventDefault();
+  setViewLog(viewLog + e.deltaY * (e.ctrlKey ? 0.012 : 0.0025));
+}, { passive: false });
+const pinch = new Map();
+let pinchDist = 0;
+renderer.domElement.addEventListener("pointerdown", (e) => pinch.set(e.pointerId, e));
+renderer.domElement.addEventListener("pointermove", (e) => {
+  if (!pinch.has(e.pointerId)) return;
+  pinch.set(e.pointerId, e);
+  if (pinch.size !== 2 || !(radiusMode === "linear" && scaleZoom)) return;
+  const [a, b] = [...pinch.values()];
+  const dist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  if (pinchDist) setViewLog(viewLog - 4 * Math.log10(dist / pinchDist));
+  pinchDist = dist;
+});
+const endPinch = (e) => { pinch.delete(e.pointerId); pinchDist = 0; };
+renderer.domElement.addEventListener("pointerup", endPinch);
+renderer.domElement.addEventListener("pointercancel", endPinch);
 const radiusSelect = document.getElementById("radius");
 radiusSelect.onchange = () => setRadiusMode(radiusSelect.value);
 const spreadParam = new URLSearchParams(location.search).get("spread");
@@ -700,6 +814,12 @@ const startParams = new URLSearchParams(location.search);
 if (startParams.get("cut") === "off") { cutOnBox.checked = false; applyCut(); }
 if (startParams.get("back") === "off") { backBox.checked = false; backBox.onchange(); }
 // ?radius=log
+// ?scale=<log10 ly at the outer sphere> turns Scale zoom on
+if (startParams.has("scale")) {
+  scaleOnBox.checked = scaleZoom = true;
+  viewLog = Math.min(LOG_MAX, +startParams.get("scale"));
+  scaleInput.value = viewLog;
+}
 if (["log", "sun", "linear"].includes(startParams.get("radius"))) {
   radiusSelect.value = startParams.get("radius");
   setRadiusMode(radiusSelect.value);
@@ -720,7 +840,7 @@ function placeLabels() {
   const cutOn = cutUniform.value.x < 1;
   shells.forEach((s) => {
     // squeezed shells would stack their labels on one spot
-    const show = showLabels && s.mesh.visible && cutOn && spread >= 0.3;
+    const show = showLabels && s.mesh.visible && cutOn && spread >= 0.3 && !s.inBg;
     s.label.style.display = show ? "block" : "none";
     if (!show) return;
     v.set(0, s.radius, 0).project(camera);
@@ -737,8 +857,8 @@ function placeLabels() {
     el.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
     el.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
   });
-  linTicks.forEach(({ r, el }) => {
-    const on = showLabels && cutOn && radiusMode === "linear" && spread > 0.999;
+  linTicks.forEach(({ r, el, on: fits }) => {
+    const on = fits && showLabels && cutOn && radiusMode === "linear" && spread > 0.999;
     el.style.display = on ? "block" : "none";
     if (!on) return;
     v.set(0, r, 0).project(camera);
@@ -747,7 +867,7 @@ function placeLabels() {
   });
   // planet names on their orbits, at a fixed point on the disc
   ORBITS.forEach((o, i) => {
-    const on = showLabels && ecliptic.visible;
+    const on = showLabels && ecliptic.visible && o.line.visible;
     o.label.style.display = on ? "block" : "none";
     if (!on) return;
     const a = 0.5 * i; // spread round the disc so names don't stack
