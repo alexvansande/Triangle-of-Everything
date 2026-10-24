@@ -144,6 +144,14 @@ function iconAreaMult(slug) {
   if (!c || c >= 0.95) return 1;
   return Math.max(AREA_MIN, Math.min(AREA_MAX, (AREA_REF / c) ** AREA_POWER));
 }
+// How much room a picture keeps from others (pictures never overlap): its drawn radius,
+// less for one that leaves most of its square empty (Saturn's rings, a cluster's
+// faint halo, the Eiffel Tower's sides), from content/icons/coverage.json
+const ROOM_REF = 0.6, ROOM_MIN = 0.6;
+function iconRoomMult(slug) {
+  const c = ICON_COVERAGE[slug];
+  return c ? Math.max(ROOM_MIN, Math.min(1, Math.sqrt(c / ROOM_REF))) : 1;
+}
 function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
@@ -2595,6 +2603,7 @@ function drawObjects() {
   // order resolves equal priorities; last frame's winners never alter rank.
   const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
+  const roomR = (o) => icoR(o) * iconRoomMult(o.slug);   // for overlaps, not drawing
   const iconOrder = projected.filter(o => mapIconShown(o) && !_iconHide?.has(o.name));
   // a narration scene picks its pictures (_iconOnly): one that overlaps a more
   // important one hides (two pictures never overlap unless forced, below); with
@@ -2609,22 +2618,23 @@ function drawObjects() {
     } : null,
     iconSizeAt: (logR,name,cat) => icoSize * iconSizeMult({logR,slug:nameToSlug(name),cat}),
     imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
+    roomOf: (name) => iconRoomMult(nameToSlug(name)),
   }).filter(p=>p.imagePriority===0 && p.r*2>=dustIconMin());
   let shownIcons;
   if (_iconOnly) {
-    shownIcons = priorityCircles(iconOrder, icoR);
+    shownIcons = priorityCircles(iconOrder, roomR);
     if (_iconFill) {
       // the rest fill in around the named ones, real photographs ahead of generated art
       const others = [...projected.filter(o => !_iconOnly.has(o.name) && !_iconHide?.has(o.name) && mapIconShown(o, true)), ...cataloguePhotos().filter(p => !_iconHide?.has(p.name))]
         .sort((a,b)=>a.imagePriority-b.imagePriority);
       // (the named ones showing block outright: a photo doesn't land on a named picture)
       const named = iconOrder.filter(o => shownIcons.has(o)).map(o => ({ ...o, imagePriority: -Infinity }));
-      const extra = priorityCircles(others, o=>o.r ?? icoR(o), iconRoom(), named);
+      const extra = priorityCircles(others, o=>o.room ?? roomR(o), iconRoom(), named);
       shownIcons = new Set([...shownIcons, ...extra]);
     }
   } else {
     const combined = [...iconOrder,...cataloguePhotos()].sort((a,b)=>a.imagePriority-b.imagePriority);
-    shownIcons = priorityCircles(combined, o=>o.r ?? icoR(o), iconRoom());
+    shownIcons = priorityCircles(combined, o=>o.room ?? roomR(o), iconRoom());
   }
   // forced pictures (videos: Venus behind Earth) show whatever they overlap;
   // drawn least important first, they sit behind the picture they overlap
@@ -3164,6 +3174,7 @@ function drawObjects() {
     } : null,
     // as iconSizeMult, per-object multipliers included
     iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
+    roomOf: (name) => iconRoomMult(nameToSlug(name)),
     imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
     iconBlend: (cat) => LUMINOUS_CATS.has(cat),   // luminous: no cast shadow
     softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
@@ -3172,7 +3183,7 @@ function drawObjects() {
     // outrank them, not just this frame's visible winners or moving labels.
     // a picture already showing always keeps its room (pictures never overlap); hidden
     // ones keep theirs by priority, so a real photo can still take a generated one's place
-    priorityCircles: projected.map(o => ({sx:o.sx,sy:o.sy,r:o._showIcon || mapIconShown(o)?icoR(o):DOT_MIN_DIST/2,imagePriority:o._showIcon ? -Infinity : o.imagePriority})),
+    priorityCircles: projected.map(o => ({sx:o.sx,sy:o.sy,r:o._showIcon || mapIconShown(o)?roomR(o):DOT_MIN_DIST/2,imagePriority:o._showIcon ? -Infinity : o.imagePriority})),
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
     // Icons keep dust out with a CIRCLE, not their square box: a square gap
