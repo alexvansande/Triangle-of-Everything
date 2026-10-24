@@ -231,6 +231,10 @@ export function drawDust(layer, view, blockers, colorOf) {
   // (videos: view.fillPictures shows them without the names, packed by view.iconRoom)
   if ((view.labels || view.fillPictures) && view.iconOf) {
     const candidates = dustPictureCandidates(view);
+    if (view.pictureChoice) {
+      // chosen by the map in one pass with the objects' pictures
+      for (const p of candidates) if (view.pictureChoice.has(p.i)) _priorityIcons.set(p.i, p);
+    } else {
     const selected = priorityCircles(candidates, p=>p.room ?? p.r, view.iconRoom ?? ICON_ROOM, blockers.priorityCircles || []);
     // a remembered picture still gives way to a picture showing now (pictures never overlap)
     const showing = (blockers.priorityCircles || []).filter(o => o.imagePriority === -Infinity);
@@ -238,6 +242,7 @@ export function drawDust(layer, view, blockers, colorOf) {
     for (const p of candidates) {
       if (!_priorityIconDecisions.has(p.i)) _priorityIconDecisions.set(p.i, selected.has(p) && p.r*2 >= (view.iconMin ?? ICON_MIN));
       if (_priorityIconDecisions.get(p.i) && !overlapsShowing(p)) _priorityIcons.set(p.i,p);
+    }
     }
   }
   // Pictures a narration scene asks for by name (view.pictures): shown whatever

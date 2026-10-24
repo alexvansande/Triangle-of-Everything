@@ -154,6 +154,9 @@ function iconRoomMult(slug, cat) {
   const c = ICON_COVERAGE[slug];
   return c ? Math.max(ROOM_MIN, Math.min(1, Math.sqrt(c / ROOM_REF))) : 1;
 }
+// A catalogue dot's rank in its band (1 = its most famous) on the objects' z scale
+function dustImportance(rank) { return rank <= 1 ? 3 : rank <= 3 ? 3.5 : rank <= 10 ? 4 : 5; }
+let _dustPictureChoice = null;   // catalogue pictures the one picture pass chose (indices)
 function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
@@ -2622,11 +2625,13 @@ function drawObjects() {
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
   const roomR = (o) => icoR(o) * iconRoomMult(o.slug, o.catKey || o.cat);   // for overlaps, not drawing
   const iconOrder = projected.filter(o => mapIconShown(o) && !_iconHide?.has(o.name));
-  // a narration scene picks its pictures (_iconOnly): one that overlaps a more
-  // important one hides (two pictures never overlap unless forced, below); with
-  // _iconFill every other picture that fits joins them, at the density's room
-  // Catalogue photographs also reserve space ahead of generated featured icons.
-  const cataloguePhotos = () => dustPictureCandidates({
+  // One pass for every picture, hand-placed or from the catalogue: real photographs
+  // first, then importance on one scale (an object's z; a catalogue dot's rank in its
+  // band, mapped onto z), the hand-placed one first on a tie; two never overlap. In a
+  // narration scene (_iconOnly) the pictures it names come first, one giving way only
+  // to a more important named one it overlaps; with _iconFill every other picture that
+  // fits joins them, at the density's room. Forced ones (Venus behind Earth) show anyway.
+  const dustPics = dustPictureCandidates({
     px, py, hidden: !_dustEnabled || _bigBangMode,
     labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels, fillPictures: !!_iconFill,
     iconOf: _iconsEnabled && !_posterLabels ? (name,size) => {
@@ -2636,23 +2641,25 @@ function drawObjects() {
     iconSizeAt: (logR,name,cat) => icoSize * iconSizeMult({logR,slug:nameToSlug(name),cat}),
     imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
     roomOf: (name, cat) => iconRoomMult(nameToSlug(name), cat),
-  }).filter(p=>p.imagePriority===0 && p.r*2>=dustIconMin());
-  let shownIcons;
-  if (_iconOnly) {
-    shownIcons = priorityCircles(iconOrder, roomR);
-    if (_iconFill) {
-      // the rest fill in around the named ones, real photographs ahead of generated art
-      const others = [...projected.filter(o => !_iconOnly.has(o.name) && !_iconHide?.has(o.name) && mapIconShown(o, true)), ...cataloguePhotos().filter(p => !_iconHide?.has(p.name))]
-        .sort((a,b)=>a.imagePriority-b.imagePriority);
-      // (the named ones showing block outright: a photo doesn't land on a named picture)
-      const named = iconOrder.filter(o => shownIcons.has(o)).map(o => ({ ...o, imagePriority: -Infinity }));
-      const extra = priorityCircles(others, o=>o.room ?? roomR(o), iconRoom(), named);
-      shownIcons = new Set([...shownIcons, ...extra]);
-    }
-  } else {
-    const combined = [...iconOrder,...cataloguePhotos()].sort((a,b)=>a.imagePriority-b.imagePriority);
-    shownIcons = priorityCircles(combined, o=>o.room ?? roomR(o), iconRoom());
-  }
+  }).filter(p => p.r*2 >= dustIconMin() && !_iconHide?.has(p.name));
+  const asObj = (o) => ({ o, sx:o.sx, sy:o.sy, room:roomR(o), imagePriority:o.imagePriority, importance:o.z ?? 3, curated:0 });
+  const asDust = (p) => ({ p, sx:p.sx, sy:p.sy, room:p.room ?? p.r, imagePriority:p.imagePriority, importance:dustImportance(p.rank), curated:1 });
+  const byRank = (a,b) => a.imagePriority-b.imagePriority || a.importance-b.importance || a.curated-b.curated;
+  const named = _iconOnly ? [...iconOrder.map(asObj), ...dustPics.filter(p => _dustPictures?.has(p.name)).map(asDust)].sort(byRank) : [];
+  const rest = (!_iconOnly ? [...iconOrder.map(asObj), ...dustPics.map(asDust)]
+    : _iconFill ? [...projected.filter(o => !_iconOnly.has(o.name) && !_iconHide?.has(o.name) && mapIconShown(o, true)).map(asObj),
+        ...dustPics.filter(p => !_dustPictures?.has(p.name)).map(asDust)]
+    : []).sort(byRank);
+  const room = iconRoom();
+  const chosen = priorityCircles(named, c => c.room);
+  // (the named ones showing block outright: no picture lands on a named one)
+  const namedShown = named.filter(c => chosen.has(c)).map(c => ({ ...c, imagePriority: -Infinity }));
+  for (const c of priorityCircles(rest, c => c.room, room, namedShown)) chosen.add(c);
+  // (a picture that lost only to hidden ones fills the hole, clear of every one showing)
+  for (const c of rest) if (!chosen.has(c) && ![...chosen].some(o => (c.sx-o.sx)**2 + (c.sy-o.sy)**2 < ((c.room+o.room)*room)**2)) chosen.add(c);
+  const pictures = [...named, ...rest];
+  const shownIcons = new Set(pictures.filter(c => c.o && chosen.has(c)).map(c => c.o));
+  const dustChosen = pictures.filter(c => c.p && chosen.has(c));
   // forced pictures (videos: Venus behind Earth) show whatever they overlap;
   // drawn least important first, they sit behind the picture they overlap
   if (_iconForce) for (const o of iconOrder) if (_iconForce.has(o.name)) { shownIcons.add(o); visibleDots.add(o); }
@@ -2670,6 +2677,9 @@ function drawObjects() {
       if (o._showIcon) o._icoR = icoR(o);
     } else _objectVisibility.decisions.set(o.slug, { dot:o._showDot, icon:o._showIcon });
   }
+  // (an object kept by the visibility memory still wins its place)
+  const showingObjects = projected.filter(o => o._showIcon).map(o => ({ sx:o.sx, sy:o.sy, r:roomR(o) }));
+  _dustPictureChoice = new Set(dustChosen.filter(c => !showingObjects.some(o => (c.sx-o.sx)**2 + (c.sy-o.sy)**2 < (c.room+o.r)**2)).map(c => c.p.i));
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
   const th2 = _posterLabels ? -1 : CLUSTER_THRESHOLD * CLUSTER_THRESHOLD; // poster: no clusters
@@ -3193,6 +3203,7 @@ function drawObjects() {
     iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
     roomOf: (name, cat) => iconRoomMult(nameToSlug(name), cat),
     imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
+    pictureChoice: _dustPictureChoice,   // chosen with the objects' pictures, in one pass
     iconBlend: (cat) => LUMINOUS_CATS.has(cat),   // luminous: no cast shadow
     softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
   }, {
