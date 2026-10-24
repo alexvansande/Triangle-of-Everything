@@ -23,10 +23,17 @@ file names and steps as `fill-the-gaps.md` (slug = file name).
 
 ## 2. Rocks, lakes, small moons (153–171 s)
 
-Lake Geneva and 253 Mathilde are already in `fill-the-gaps.md`; these go around them.
+Lake Geneva and 253 Mathilde are already in `fill-the-gaps.md`; these go around them. So the
+range isn't all lakes, Itokawa (picture already there), Didymos, Ryugu, Dinkinesh and Comet 67P
+now sit among the lakes in `src/dust-famous.json` (replacing Lake Toplitz, Phewa Lake, Lake
+Trasimeno, Neusiedl Lake and Lake Mead). Draw these first, then the lakes.
 
 | Object | Slug | What to draw |
 |---|---|---|
+| Comet 67P | `comet-67p` | The "rubber duck" comet: two lobes joined by a neck, dark grey, cliffs and boulders, faint jets. ESA's Rosetta photos are CC BY-SA, not public domain, so generate it. Reference: `halleys-comet`, `itokawa`. |
+| Didymos | `didymos` | Real photo: DART's last full view of Didymos (NASA/Johns Hopkins APL, public domain), the round "spinning top" with its equatorial ridge; composite like Iapetus. |
+| Ryugu | `ryugu` | The dark "spinning top" asteroid, a diamond outline with a ridge round its equator, covered in boulders. JAXA photos aren't public domain, so generate it. Reference: `bennu`. |
+| Dinkinesh | `dinkinesh` | Real photo: Lucy's view of Dinkinesh (NASA/Goddard/SwRI/Johns Hopkins APL, public domain), small and lumpy, the trough and ridge; composite like Iapetus. |
 | Crater Lake | `crater-lake` | The round deep-blue caldera lake from above, Wizard Island near one edge. Reference: `lake-baikal`. |
 | Great Salt Lake | `great-salt-lake` | From above, the causeway splitting it into a pink-red north arm and a blue-green south arm. |
 | Lake Erie | `lake-erie` | The long shallow lake from above, green-blue. |
@@ -40,7 +47,9 @@ Lake Geneva and 253 Mathilde are already in `fill-the-gaps.md`; these go around 
 
 ## 3. Round worlds and rocky planets (171–223 s)
 
-Iapetus and TRAPPIST-1 e are already in `fill-the-gaps.md`.
+TRAPPIST-1 e is already in `fill-the-gaps.md`; Iapetus now has its picture (a real Cassini photo).
+Real moons and asteroids: prefer a public-domain NASA photo composited like Iapetus
+(`scripts/compose-iapetus.py`) over a generated picture.
 
 | Object | Slug | What to draw |
 |---|---|---|

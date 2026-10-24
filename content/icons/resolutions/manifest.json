@@ -4286,5 +4286,26 @@
         "path": "1024/1-ml-cube-of-water.webp"
       }
     ]
+  },
+  "iapetus": {
+    "fingerprint": "b49c65e77cdc3b3b173cff4a9ee21f4ceb605929eba9c986f28cac7b7275cc82",
+    "baseWidth": 128,
+    "source": "content/icons/src/iapetus.png",
+    "reason": "matching master",
+    "sourceDifference": 1.6811116536458333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/iapetus.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/iapetus.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/iapetus.webp"
+      }
+    ]
   }
 }
