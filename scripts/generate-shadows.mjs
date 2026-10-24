@@ -18,7 +18,7 @@ export const CAUSTIC_SHADOWS = new Set([
   'lake-tahoe', 'lake-victoria', 'sea-of-galilee', 'hallstatter-see', 'konigssee', 'titicaca',
   'lake-geneva', 'lake-erie', 'lake-tanganyika', 'great-salt-lake', 'crater-lake',
 ]);
-export const CUSTOM_AI_SHADOWS = new Set(['saturn','observable-universe','y-brown-dwarf','t-brown-dwarf','l-brown-dwarf','toi-2490-b']);
+export const CUSTOM_AI_SHADOWS = new Set(['saturn','observable-universe','y-brown-dwarf','t-brown-dwarf','l-brown-dwarf','toi-2490-b','stonehenge']);
 export function shadowAction(name, excluded, round) {
   if (excluded) return 'excluded';
   if (CAUSTIC_SHADOWS.has(name)) return 'caustics';

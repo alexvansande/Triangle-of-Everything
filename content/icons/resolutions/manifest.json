@@ -5140,11 +5140,11 @@
     ]
   },
   "stonehenge": {
-    "fingerprint": "8b92b9e9e3a9ad593944ebb88e42d95a6575fe7af04896c86f8a5e5148281d30",
+    "fingerprint": "d307f2e808bb5e367582c730170ccee4b6deb62ac2338b4b287f3a1208a5912c",
     "baseWidth": 128,
     "source": "content/icons/src/stonehenge.png",
     "reason": "matching master",
-    "sourceDifference": 0.3208211263020833,
+    "sourceDifference": 0.505859375,
     "variants": [
       {
         "width": 256,

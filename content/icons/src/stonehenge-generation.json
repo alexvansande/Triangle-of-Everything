@@ -1,9 +1,9 @@
 {
-  "slug": "stonehenge",
-  "prompt": "Scientific educational chart icon of Stonehenge, faithful realistic miniature of its PRESENT DAY ruined stone circle based on the reference photograph. Preserve actual relative arrangements and distinctive shapes of the grey sarsen uprights and horizontal lintels in this view, with smaller stones visible between them; do not invent complete circular ring of lintels or make identical portal arches. Near-front view like museum miniature sitting on invisible shelf slightly below viewer eye level, show a tiny amount of stone tops, minimal perspective; whole broad low stone arrangement. Weathered rough grey sandstone with subtle lichen, restrained warm-grey colors, soft studio key light from upper LEFT. Genuinely transparent square background. No grass or earth base, no sky or ground, no people or fence, no cast shadow, no text, no watermark. Full group centered horizontally and vertically, about 92% canvas width with clear margin. Isolate only stones, including low fallen stones within circle, not foreground detached rocks outside circle. Detailed material readable at icon size.",
-  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-332f0374-1989-41da-99c6-7b209e29ac8d.png",
-  "method": "built-in image_gen",
+  "name": "elevated",
+  "prompt": "Edit the supplied Stonehenge museum miniature. Preserve realistic weathered grey sarsen stone materials, lichen, present-day ruined arrangement (not a reconstructed complete ring), irregular lintels and uprights, and inner/fallen stones. Change camera elevation only; show the full stone group, on transparent background with no ground, grass, pedestal, cast shadow, labels or scenery. Lighting must come from screen northwest/upper left, darker right faces. Orthographic-like long lens, restrained perspective, detailed photoreal miniature, 6% clear margins. Raise viewer slightly above the tallest lintels, looking downward around 20 degrees. Clearly see upper stone surfaces and a little of the interior circle, but retain a predominantly front view. The group has depth, not a single wall of stones.",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-46c52813-d0b4-4460-977c-36e2ce5a5a63.png",
   "date": "2026-10-24",
-  "reference": "content/icons/requests/references/stonehenge.jpg",
-  "referenceCredit": "garethwiscombe, CC BY 2.0, https://commons.wikimedia.org/wiki/File:Stonehenge2007_07_30.jpg"
+  "reference": "content/icons/src/stonehenge.png",
+  "slug": "stonehenge",
+  "selected": "Option A, elevated view"
 }
