@@ -71,7 +71,7 @@ NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
 | callisto | NASA/JPL/DLR | Public domain | Wikimedia: Callisto.jpg |
 | triton | NASA/JPL | Public domain | Wikimedia: Triton_moon_mosaic_Voyager_2.jpg |
 | mimas | NASA/JPL-Caltech/Space Science Institute | Public domain | Wikimedia: Mimas_Cassini.jpg |
-| iapetus | NASA/JPL/Space Science Institute (Cassini, PIA08384) | Public domain | Wikimedia: Iapetus_as_seen_by_the_Cassini_probe_-_20071008.jpg; turned 180° and shaded with `src/sphere template.png` by `scripts/compose-iapetus.py` |
+| iapetus | NASA/JPL/Space Science Institute (Cassini, PIA08384) | Public domain | Wikimedia: Iapetus_as_seen_by_the_Cassini_probe_-_20071008.jpg; turned 113° and shaded (strength 1.4) with `src/sphere template.png` by `scripts/compose-iapetus.py` |
 | hyperion | NASA/JPL/Space Science Institute | Public domain | Wikimedia: Hyperion_true.jpg |
 | deimos | NASA/JPL-Caltech/University of Arizona | Public domain | Wikimedia: Deimos-MRO.jpg |
 | vesta | NASA/JPL-Caltech/UCLA/MPS/DLR/IDA | Public domain | Wikimedia: Vesta_full_mosaic.jpg |
