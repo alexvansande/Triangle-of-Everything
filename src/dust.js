@@ -131,6 +131,19 @@ export function focusDust(index = null) {
 
 export function dustReady() { return !!_data; }
 
+export function dustPictureCandidates(view) {
+  if (!_data || view.hidden || !view.iconOf || !(view.labels || view.fillPictures)) return [];
+  const {r,m,src,sources} = _data;
+  const candidates = [];
+  for (const [i,famous] of _data.fame) {
+    const name=famous.label || _data.names[i], cat=sources[src[i]].cat;
+    const size=view.iconSizeAt(r[i],name,cat), url=view.iconOf(name,size);
+    if (url) candidates.push({i,name,url,rank:famous.rank,sx:view.px(r[i]),sy:view.py(m[i]),r:size/2,
+      imagePriority:view.imagePriorityOf?.(name,cat) ?? 1,blend:view.iconBlend?.(cat)});
+  }
+  return candidates.sort((a,b)=>a.imagePriority-b.imagePriority || a.rank-b.rank || a.i-b.i);
+}
+
 /** Lazy-load the catalogue (≈300 KB gzipped) off the critical path. */
 export function loadDust() {
   if (_loading) return _loading;
@@ -217,14 +230,7 @@ export function drawDust(layer, view, blockers, colorOf) {
   _priorityIcons = new Map();
   // (videos: view.fillPictures shows them without the names, packed by view.iconRoom)
   if ((view.labels || view.fillPictures) && view.iconOf) {
-    const candidates = [];
-    for (const [i, famous] of _data.fame) {
-      const name = famous.label || _data.names[i], size = view.iconSizeAt(r[i], name, sources[src[i]].cat);
-      const url = view.iconOf(name, size);
-      if (url) candidates.push({i,name,url,rank:famous.rank,sx:px(r[i]),sy:py(m[i]),r:size/2,
-        blend:view.iconBlend?.(sources[src[i]].cat)});
-    }
-    candidates.sort((a,b) => a.rank-b.rank || a.i-b.i);
+    const candidates = dustPictureCandidates(view);
     const selected = priorityCircles(candidates, p=>p.r, view.iconRoom ?? ICON_ROOM, blockers.priorityCircles || []);
     for (const p of candidates) {
       if (!_priorityIconDecisions.has(p.i)) _priorityIconDecisions.set(p.i, selected.has(p) && p.r*2 >= (view.iconMin ?? ICON_MIN));
