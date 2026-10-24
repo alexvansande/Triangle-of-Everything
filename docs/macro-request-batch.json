@@ -95,9 +95,16 @@
     },
     {
       "slug": "colosseum",
-      "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. The real ruined Roman amphitheatre, intact tall outer arcade left and lower broken rings right. Very modest three-quarter angle and slight top visibility, no dramatic aerial perspective. Warm travertine, realistic tiny arches, no surrounding city.",
-      "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/colosseum.jpg",
-      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-4a3c0c3b-1ccd-4dd2-8ade-42a1f9f55ca2.png"
+      "prompt": "Scientific educational chart icon: correct the Colosseum architecture by rendering the COMPLETE real Colosseum as a realistic miniature, genuine transparent background. References: image1 real exterior color and wall detail; image2 aerial photograph shows correct complete oval building volume and concentric walls; image3 real buttress construction. NOT an aerial composition: camera slightly above eye line of a miniature on invisible shelf, mostly FRONT elevation, tiny amount of top visible, long lens near orthographic. Whole amphitheatre must be BROAD AND LOW, about 3.3 times as wide as its full height, not a tall cropped fragment. Preserved highest outer wall at LEFT, ending in a clear vertical brick buttress; lower exposed continuous inner ring at RIGHT following same coherent ellipse, visibly recessed a little from outer ring. Maintain exactly three stacked arcaded storeys plus a shorter solid attic on preserved outer wall. Right exposed inner wall is a simple coherent continuous two-tier arcade with low weathered upper parapet, consistently aligned piers and arches, no random stacks of little walls, no diagonal terraces, no mashed arches or disconnected columns, no invented staircase facade. Clear believable occlusion and wall thickness. Use reference photos to faithfully reconstruct missing visually hidden areas, do not blend views into a collage. Warm restrained travertine and muted brown brick, crisp tiny stone detail, soft white key light from upper LEFT. No ground, pedestal, trees, people, sky, city, cast shadow, text, watermark. Center full building in square canvas at 92% width with clear transparent margin all sides.",
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-d037dc78-96a3-474c-b71b-c3a15b4ee953.png",
+      "method": "built-in image_gen",
+      "date": "2026-10-24",
+      "references": [
+        "content/icons/requests/references/colosseum.jpg",
+        "https://services.meteored.com/img/article/roma-perche-una-parte-del-colosseo-e-crollata-e-l-altra-e-rimasta-in-piedi-il-motivo-e-sorprendente-1733398774345_1280.jpg",
+        "https://www.romeartlover.it/Vasi33f4.jpg"
+      ],
+      "note": "Corrected overlapping invented terraces to coherent two-tier exposed inner arcade. Previous master retained in Git."
     },
     {
       "slug": "devils-tower",

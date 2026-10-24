@@ -4804,11 +4804,11 @@
     ]
   },
   "colosseum": {
-    "fingerprint": "69222f4e2bdd910bfd2a6c5ff06f6a6963b3d0724feb9f88bdd4b18f10cf1e27",
+    "fingerprint": "d3b63ff3d02ecd35fcc6fe4bbca0b626188ea4032383942fc2f4cc4cbc26dfb8",
     "baseWidth": 128,
     "source": "content/icons/src/colosseum.png",
     "reason": "matching master",
-    "sourceDifference": 0.71337890625,
+    "sourceDifference": 0.5123697916666666,
     "variants": [
       {
         "width": 256,
