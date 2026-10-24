@@ -1,0 +1,10 @@
+{
+  "prompt": "Create ONLY a soft cast shadow layer for the Stonehenge miniature in image 1. Image 2 shows its circular plan more clearly. Imagine light from NW/upper left sees the stone group largely from ABOVE: the shadow must read as a roughly circular, slightly oval broken ring of individual blocky stones and lintels, with an open center and a few inner horseshoe stone shapes. NOT a side-view skyline, not an extruded rectangular slab. Render flat shadow silhouette only, no visible stone texture or 3D lit objects. Neutral near-black translucent shadow, softly blurred edges with slightly stronger northwest edges and softer fainter southeast edges. Transparent gaps between the stones and in the center. Shadow centered, full oval plan occupying 85% canvas width and about 70% height; nothing cropped. Genuinely transparent background, no floor, no purple/grey backdrop, no white glow, no text. We will position the shadow southeast behind the actual icon in code.",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-76aa5533-4d97-4efc-bf45-3a585602ec8e.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "references": [
+    "elevated.png",
+    "birds-eye.png"
+  ]
+}

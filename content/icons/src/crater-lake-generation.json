@@ -1,0 +1,16 @@
+{
+  "slug": "crater-lake",
+  "refs": [
+    "/Users/avsa/Dev/Triangle/content/icons/requests/references/crater-lake.jpg",
+    "/Users/avsa/Dev/Triangle/content/icons/src/lake-baikal.png"
+  ],
+  "prompt": "Scientific chart icon, isolated on genuine transparent square canvas. Render Crater Lake Oregon water ONLY plus tiny Wizard Island near WEST edge. First photo is geographic reference (viewed from WEST looking east); reorient lake to north-UP true overhead map view, near-round irregular caldera shoreline. Second image is blue resin miniature STYLE reference only. Deep cobalt translucent resin water with very fine ripples and cyan restrained rim highlights, tiny green rocky Wizard Island at left. No enclosing mountains/caldera walls, no land terrain or floor. Front-facing wall-mounted map cutout, no perspective foreshortening, tiny thickness visible along TOP rim only, upper-left lighting, NO cast shadow. 6% clear margins.",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-6344ccf5-e434-4a9a-9beb-2e46e2143605.png",
+  "method": "built-in image_gen",
+  "date": "2026-10-24",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/crater-lake-generation.json"
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "created": "2026-10-24T10-57-12-496Z",
+  "counts": {
+    "generate": 6,
+    "round": 0,
+    "caustics": 0,
+    "custom": 0,
+    "excluded": 0
+  },
+  "plan": [
+    {
+      "name": "uluru",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T10:57:18.380Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "devils-tower",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T10:57:18.494Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "big-rock-okotoks",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T10:57:18.625Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "totem-pole-monument-valley",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T10:57:18.741Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "west-mitten-butte",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T10:57:18.846Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "morro-do-pai-inacio",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T10:57:18.959Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    }
+  ]
+}

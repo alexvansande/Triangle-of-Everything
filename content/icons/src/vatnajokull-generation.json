@@ -1,0 +1,16 @@
+{
+  "slug": "vatnajokull",
+  "refs": [
+    "/Users/avsa/Dev/Triangle/content/icons/requests/references/iceland-from-space.png",
+    "/Users/avsa/Dev/Triangle/content/icons/requests/references/vatnajokull.png"
+  ],
+  "prompt": "Scientific chart icon, isolated genuine transparent square background. Vatnajokull ice cap miniature viewed straight overhead north-UP as a relief map glued to a wall. First reference gives geography: extract ONLY the large white ice cap at SOUTHEAST of Iceland, not whole Iceland and not separate glaciers westwards. Preserve its irregular broad outline and many outlet glacier tongues. Second reference is local glacier texture, use very small realistic crevasses and grey volcanic ash streaks on white snow and pale blue ice at outlet margins. Full ice cap fits canvas, modest relief and tiny depth at TOP edges only, no rocky base, no landscape, no map labels, no cast shadow. Soft upper-left illumination, museum miniature realism, 6% clear margins.",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-c3e1dff9-52dd-41b8-9456-6c5c1a9338ec.png",
+  "method": "built-in image_gen",
+  "date": "2026-10-24",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/vatnajokull-generation.json"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "nix",
+  "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Use the supplied NASA photo for actual elongated irregular grey-white moon Nix shape and proportions; restore hidden dark half conservatively. One subtly reddish crater region, not a huge red spot. Preserve observed features, do not make a sphere.",
+  "refs": [
+    "content/icons/requests/references/nix.jpg"
+  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-17d20052-8900-4573-8232-c215c8b9dfc9.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/nix-generation.json"
+  }
+}

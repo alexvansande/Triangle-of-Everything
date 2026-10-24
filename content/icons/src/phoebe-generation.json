@@ -1,8 +1,17 @@
 {
-  "date": "2026-10-24",
-  "tool": "photo composite (scripts/compose-real-body.py), not generated",
-  "object": "phoebe",
   "slug": "phoebe",
-  "source": "NASA/JPL/Space Science Institute (Cassini), public domain; Wikimedia Commons: Phoebe cassini full.jpg",
-  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/phoebe.png irregular (cut out, turned so the lit side faces the upper left; no added shading)"
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-32326f1b-760b-4864-b245-9f1d67c63ea4.png",
+  "prompt": "Use case: precise-object-edit. Edit target image 1 is the current chart icon; image 2 is its original spacecraft photo, used for authentic shape and terrain reference. Phoebe: complete its almost spherical, subtly irregular body where the current cutout has lost the dark hemisphere. Preserve recognizable large crater locations. Soft opaque dark lower-right terrain, not a crescent or missing side. Keep the orientation of image 1. Preserve observed proportions and recognizable surface features, infer hidden terrain conservatively only to complete the body. Relight with a soft key coming from NORTHWEST / upper LEFT of the image, brightest upper-left and softly shaded lower-right, with enough fill to read the opaque dark side. Do not copy the original photo's right-side lighting. High quality realistic museum specimen rendering, crisp fine craters without inventing flamboyant terrain. Single isolated complete body centered, 93–95% square occupancy, genuine transparent background. No ground, no cast shadow, no stars, no text, no glow. The entire body including shadowed terrain must remain opaque. Correct this draft's silhouette: Phoebe is nearly round, not a jagged egg with mountain peaks. Fill the large V notch at the top into a softly curved rounded lunar limb, keep minor crater rim irregularity only. Preserve the cratered face and NW lighting.",
+  "refs": [
+    "content/icons/studies/real-photo-touch-ups/phoebe-before.png",
+    "content/icons/requests/references/phoebe.jpg"
+  ],
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Photo-constrained reconstruction; unlit surface detail is inferred, not observed.",
+  "provenance": {
+    "category": "photo-ai-reconstruction",
+    "description": "AI reconstruction from a mission photograph and its cutout. Missing dark terrain and fine detail are inferred.",
+    "record": "content/icons/src/phoebe-generation.json"
+  }
 }

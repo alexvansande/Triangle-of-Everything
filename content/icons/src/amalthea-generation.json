@@ -1,0 +1,16 @@
+{
+  "slug": "amalthea",
+  "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Use the supplied Galileo views as shape reference for ONE complete moon Amalthea, elongated irregular body, dark rusty red material with a few pale bright streaks and shallow craters. Ref is grayscale: render dark muted red, not grey. Infer unresolved detail conservatively, preserve proportions, no duplicated body.",
+  "refs": [
+    "content/icons/requests/references/amalthea.jpg"
+  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-924efb49-61fa-43f3-9dd8-bd2f4d6bb073.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/amalthea-generation.json"
+  }
+}

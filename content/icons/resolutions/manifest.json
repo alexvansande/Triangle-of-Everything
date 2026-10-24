@@ -395,11 +395,11 @@
     ]
   },
   "beta-pictoris-b": {
-    "fingerprint": "7e81daabc2d9cd2c48132f8155ecd63ffd58d41412460d9a4f3bbabcdf2a3877",
+    "fingerprint": "58f1cd47ca6f1ba4efa1ce060aa123ffeb3e18fd6b8d77f3f7a28dcc98fadaec",
     "baseWidth": 128,
     "source": "content/icons/src/beta-pictoris-b.png",
     "reason": "matching master",
-    "sourceDifference": 2.1549886067708335,
+    "sourceDifference": 0.7692464192708334,
     "variants": [
       {
         "width": 256,
@@ -408,6 +408,10 @@
       {
         "width": 512,
         "path": "512/beta-pictoris-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/beta-pictoris-b.webp"
       }
     ]
   },
@@ -1644,11 +1648,11 @@
     ]
   },
   "hippo": {
-    "fingerprint": "dded0a89f8e9d667179d7c387e351b7f95a13245b2b9c9fa6ef40978da36d418",
+    "fingerprint": "75546211d4a6c9567c4c95329e3140633b7c992ce262f74fb25aa0170ef57dba",
     "baseWidth": 128,
     "source": "content/icons/src/hippo.png",
     "reason": "matching master",
-    "sourceDifference": 0.98541259765625,
+    "sourceDifference": 0.3300577799479167,
     "variants": [
       {
         "width": 256,
@@ -1950,11 +1954,11 @@
     ]
   },
   "kepler-22b": {
-    "fingerprint": "bef32967171b4ef867ad2e891d519bd6791ad2612769f2b14365a7c5630b29a1",
+    "fingerprint": "5f56c8e288e02e1dc6364e4aad1eee7432731e9a15a80842083e3e198a98ba85",
     "baseWidth": 128,
     "source": "content/icons/src/kepler-22b.png",
     "reason": "matching master",
-    "sourceDifference": 1.7837727864583333,
+    "sourceDifference": 0.7506306966145834,
     "variants": [
       {
         "width": 256,
@@ -1965,8 +1969,8 @@
         "path": "512/kepler-22b.webp"
       },
       {
-        "width": 910,
-        "path": "910/kepler-22b.webp"
+        "width": 1024,
+        "path": "1024/kepler-22b.webp"
       }
     ]
   },
@@ -3071,11 +3075,11 @@
     ]
   },
   "red-dwarf": {
-    "fingerprint": "36da1e293aa30b6d19f019a473be7f74713adbff2dfb93c3feb9ce9de4588df4",
+    "fingerprint": "f23c4d74323f7249d349ecef816320432a00b3705bf3582a5f1e01a46f58ffe8",
     "baseWidth": 128,
     "source": "content/icons/src/red-dwarf.png",
     "reason": "matching master",
-    "sourceDifference": 4.260111490885417,
+    "sourceDifference": 3.9466349283854165,
     "variants": [
       {
         "width": 256,
@@ -3084,6 +3088,10 @@
       {
         "width": 512,
         "path": "512/red-dwarf.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/red-dwarf.webp"
       }
     ]
   },
@@ -3479,11 +3487,11 @@
     ]
   },
   "t-brown-dwarf": {
-    "fingerprint": "ec59497621b049aa401ccf5c9381dcaca0b5278517c33c89d0f3257df791490c",
+    "fingerprint": "568f1b4a1a7e1ef939874b49c0342f8fa93d106eab4dcc92b2e67c82a1f9b3bb",
     "baseWidth": 128,
     "source": "content/icons/src/t-brown-dwarf.png",
     "reason": "matching master",
-    "sourceDifference": 2.45037841796875,
+    "sourceDifference": 0.7684733072916666,
     "variants": [
       {
         "width": 256,
@@ -3492,6 +3500,10 @@
       {
         "width": 512,
         "path": "512/t-brown-dwarf.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/t-brown-dwarf.webp"
       }
     ]
   },
@@ -4082,11 +4094,11 @@
     ]
   },
   "y-brown-dwarf": {
-    "fingerprint": "11b83d9a430b39a0847b5b3fd3f086159b4759c58d457328c5c5e1ab5ba8a4e8",
+    "fingerprint": "8bbdf764843d7283de06a9e7979d19bf8d2e8cf5e749297a03a662ddb81e4ccd",
     "baseWidth": 128,
     "source": "content/icons/src/y-brown-dwarf.png",
     "reason": "matching master",
-    "sourceDifference": 1.4945475260416667,
+    "sourceDifference": 0.77618408203125,
     "variants": [
       {
         "width": 256,
@@ -4097,8 +4109,8 @@
         "path": "512/y-brown-dwarf.webp"
       },
       {
-        "width": 896,
-        "path": "896/y-brown-dwarf.webp"
+        "width": 1024,
+        "path": "1024/y-brown-dwarf.webp"
       }
     ]
   },
@@ -4309,11 +4321,11 @@
     ]
   },
   "253-mathilde": {
-    "fingerprint": "6d28aef3479e9668e50afbd8e4fd451668473537f41f2a2ccc2679d8937c3c4f",
+    "fingerprint": "8c324b15c32394af28b2bf438c6181860cb36f30ea22acb9079ea163a87b9b70",
     "baseWidth": 128,
     "source": "content/icons/src/253-mathilde.png",
     "reason": "matching master",
-    "sourceDifference": 0.8424275716145834,
+    "sourceDifference": 0.7145182291666666,
     "variants": [
       {
         "width": 256,
@@ -4330,11 +4342,11 @@
     ]
   },
   "ariel": {
-    "fingerprint": "84ef867eb39228778834e27a4fd78c9b1653fc6bbf2bea3aafe04aaa4005f4ca",
+    "fingerprint": "f8cdb45ce888e4ea85e63003560d7e82823a35257e39eda291b1d4c7b11b049d",
     "baseWidth": 128,
     "source": "content/icons/src/ariel.png",
     "reason": "matching master",
-    "sourceDifference": 1.0685221354166667,
+    "sourceDifference": 0.7961222330729166,
     "variants": [
       {
         "width": 256,
@@ -4393,11 +4405,11 @@
     ]
   },
   "gaspra": {
-    "fingerprint": "a79c5725380a1d1fe6994e31733c66d005eacd2cdc1d0c586884ecc4a5be3ff8",
+    "fingerprint": "3c34baf38e7965c6e44155349562fcad8529fe73338e1bb04a18bb08de9e1fa8",
     "baseWidth": 128,
     "source": "content/icons/src/gaspra.png",
     "reason": "matching master",
-    "sourceDifference": 1.0531209309895833,
+    "sourceDifference": 0.4992268880208333,
     "variants": [
       {
         "width": 256,
@@ -4414,11 +4426,11 @@
     ]
   },
   "ida": {
-    "fingerprint": "637c37843afa7134116de604d27cb051dfdeedd59470e7ad818f4a11295f59c2",
+    "fingerprint": "88e111fa382f7c69abbcab25345c12ac86c454941cd813f6f80c47b86853203a",
     "baseWidth": 128,
     "source": "content/icons/src/ida.png",
     "reason": "matching master",
-    "sourceDifference": 0.9262898763020834,
+    "sourceDifference": 0.4211222330729167,
     "variants": [
       {
         "width": 256,
@@ -4456,11 +4468,11 @@
     ]
   },
   "phoebe": {
-    "fingerprint": "52d9a2c600790bc41c62a8ea4d9b6cc09df826a0bb5edb4ef8f92faa69b01559",
+    "fingerprint": "9633adbd00cf9437f8ce7e25159d14a6035acd1990582f451294f6891fb01281",
     "baseWidth": 128,
     "source": "content/icons/src/phoebe.png",
     "reason": "matching master",
-    "sourceDifference": 1.1585286458333333,
+    "sourceDifference": 0.7637939453125,
     "variants": [
       {
         "width": 256,
@@ -4519,11 +4531,11 @@
     ]
   },
   "titania": {
-    "fingerprint": "6674aa5bc7d0be13cc0b1e800ca054a6d76222c8a2bab8554769e31d4cc9f64f",
+    "fingerprint": "2eb303f0fbc2ad7bfda42d39b97a553aac20273910916623b7a87c7f93b9c067",
     "baseWidth": 128,
     "source": "content/icons/src/titania.png",
     "reason": "matching master",
-    "sourceDifference": 1.3201700846354167,
+    "sourceDifference": 0.7789713541666666,
     "variants": [
       {
         "width": 256,
@@ -4578,6 +4590,888 @@
       {
         "width": 1024,
         "path": "1024/oberon.webp"
+      }
+    ]
+  },
+  "toi-2490-b": {
+    "fingerprint": "ad738c6afd82c4621ef8d21cb4e2415ec853dab491b59416568af044ec8e17f4",
+    "baseWidth": 128,
+    "source": "content/icons/src/toi-2490-b.png",
+    "reason": "matching master",
+    "sourceDifference": 3.9513956705729165,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/toi-2490-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/toi-2490-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/toi-2490-b.webp"
+      }
+    ]
+  },
+  "codling-moth": {
+    "fingerprint": "4034c06026d8c1cb030a1205e8ce18eca69ed1ac5d6e7dc104573cfbdfaf0dba",
+    "baseWidth": 128,
+    "source": "content/icons/src/codling-moth.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5622355143229166,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/codling-moth.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/codling-moth.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/codling-moth.webp"
+      }
+    ]
+  },
+  "hindenburg": {
+    "fingerprint": "a49de4830dc7a75d51c9396dc3dafd9f08b34ac2514453b76abcb92df61b9a4b",
+    "baseWidth": 128,
+    "source": "content/icons/src/hindenburg.png",
+    "reason": "matching master",
+    "sourceDifference": 0.19551595052083334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/hindenburg.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/hindenburg.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/hindenburg.webp"
+      }
+    ]
+  },
+  "humpback-whale": {
+    "fingerprint": "bc19c73f8635c6153404d9a222e60ed1614f93a858ee614b985b9db1da26a72b",
+    "baseWidth": 128,
+    "source": "content/icons/src/humpback-whale.png",
+    "reason": "matching master",
+    "sourceDifference": 0.22458902994791666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/humpback-whale.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/humpback-whale.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/humpback-whale.webp"
+      }
+    ]
+  },
+  "polar-bear": {
+    "fingerprint": "87f9219615f4163638d4707864e3469b1667ec1a9927801d3ebfbbb95623b6ce",
+    "baseWidth": 128,
+    "source": "content/icons/src/polar-bear.png",
+    "reason": "matching master",
+    "sourceDifference": 0.4258219401041667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/polar-bear.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/polar-bear.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/polar-bear.webp"
+      }
+    ]
+  },
+  "sperm-whale": {
+    "fingerprint": "7e4612318cb068aaf3df4a665a915d2c739326705efa69089b01ab928a48c1ff",
+    "baseWidth": 128,
+    "source": "content/icons/src/sperm-whale.png",
+    "reason": "matching master",
+    "sourceDifference": 0.19342041015625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/sperm-whale.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/sperm-whale.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/sperm-whale.webp"
+      }
+    ]
+  },
+  "spirit-of-st-louis": {
+    "fingerprint": "f187f53b440d0916043915ee6a76306ca2dadca088cc90706f588a8afbd05410",
+    "baseWidth": 128,
+    "source": "content/icons/src/spirit-of-st-louis.png",
+    "reason": "matching master",
+    "sourceDifference": 0.33984375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/spirit-of-st-louis.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/spirit-of-st-louis.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/spirit-of-st-louis.webp"
+      }
+    ]
+  },
+  "tomato-leaf-miner": {
+    "fingerprint": "b7998b45ed39118301ae2927e344417f6ef5f3aa246a3db26efa1816cbb4ef77",
+    "baseWidth": 128,
+    "source": "content/icons/src/tomato-leaf-miner.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5277913411458334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/tomato-leaf-miner.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/tomato-leaf-miner.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/tomato-leaf-miner.webp"
+      }
+    ]
+  },
+  "wax-moth": {
+    "fingerprint": "db62a410105e2d62542579df489eea9cc8ddc310d3b0d0ae9d8f79d868abae9a",
+    "baseWidth": 128,
+    "source": "content/icons/src/wax-moth.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5415852864583334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/wax-moth.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/wax-moth.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/wax-moth.webp"
+      }
+    ]
+  },
+  "big-rock-okotoks": {
+    "fingerprint": "79b83c7b394abe3593e5e7929a1c69a5c87aa2987f42b4c1a5de479551571555",
+    "baseWidth": 128,
+    "source": "content/icons/src/big-rock-okotoks.png",
+    "reason": "matching master",
+    "sourceDifference": 0.4946695963541667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/big-rock-okotoks.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/big-rock-okotoks.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/big-rock-okotoks.webp"
+      }
+    ]
+  },
+  "colosseum": {
+    "fingerprint": "d3b63ff3d02ecd35fcc6fe4bbca0b626188ea4032383942fc2f4cc4cbc26dfb8",
+    "baseWidth": 128,
+    "source": "content/icons/src/colosseum.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5123697916666666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/colosseum.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/colosseum.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/colosseum.webp"
+      }
+    ]
+  },
+  "crater-lake": {
+    "fingerprint": "12932c849b73c39be890d865959b10f89228f2a57a7f8ead827f13a75030199e",
+    "baseWidth": 128,
+    "source": "content/icons/src/crater-lake.png",
+    "reason": "matching master",
+    "sourceDifference": 0.4775390625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/crater-lake.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/crater-lake.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/crater-lake.webp"
+      }
+    ]
+  },
+  "devils-tower": {
+    "fingerprint": "c506f6fa72ff9abb14138cc2b14aee208ff7a741d2dfd706be1870fa7b8c5235",
+    "baseWidth": 128,
+    "source": "content/icons/src/devils-tower.png",
+    "reason": "matching master",
+    "sourceDifference": 0.64752197265625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/devils-tower.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/devils-tower.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/devils-tower.webp"
+      }
+    ]
+  },
+  "great-salt-lake": {
+    "fingerprint": "32a50ace4d25f7f89672c4f00746d07736dd83b5ae800e836348b2e395fca9d7",
+    "baseWidth": 128,
+    "source": "content/icons/src/great-salt-lake.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3927205403645833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/great-salt-lake.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/great-salt-lake.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/great-salt-lake.webp"
+      }
+    ]
+  },
+  "lake-erie": {
+    "fingerprint": "2097da349af58d3258f2f343beeabfe7a38c4ceda83950aedb008df849d00e82",
+    "baseWidth": 128,
+    "source": "content/icons/src/lake-erie.png",
+    "reason": "matching master",
+    "sourceDifference": 0.21824137369791666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lake-erie.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lake-erie.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lake-erie.webp"
+      }
+    ]
+  },
+  "lake-geneva": {
+    "fingerprint": "74a2f3f2b3e8948c6cf30c35c815e7992c915d43e449f88c011ed7b1ebe93413",
+    "baseWidth": 128,
+    "source": "content/icons/src/lake-geneva.png",
+    "reason": "matching master",
+    "sourceDifference": 0.16941324869791666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lake-geneva.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lake-geneva.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lake-geneva.webp"
+      }
+    ]
+  },
+  "lake-tanganyika": {
+    "fingerprint": "147ab712e0705a3d013d6fc01ec38b930c978af044ceb02fcb90357ba7e87f75",
+    "baseWidth": 128,
+    "source": "content/icons/src/lake-tanganyika.png",
+    "reason": "matching master",
+    "sourceDifference": 0.14798990885416666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/lake-tanganyika.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/lake-tanganyika.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/lake-tanganyika.webp"
+      }
+    ]
+  },
+  "morro-do-pai-inacio": {
+    "fingerprint": "6586cc631b7552306086bd27cfb26e581c3fe398038b72ab8202e7567183ce6c",
+    "baseWidth": 128,
+    "source": "content/icons/src/morro-do-pai-inacio.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7179361979166666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/morro-do-pai-inacio.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/morro-do-pai-inacio.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/morro-do-pai-inacio.webp"
+      }
+    ]
+  },
+  "paro-moai": {
+    "fingerprint": "3c7dec082291876c9e5e54feb820e5bd55238c6639ef666ec1b185072d94a684",
+    "baseWidth": 128,
+    "source": "content/icons/src/paro-moai.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3551228841145833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/paro-moai.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/paro-moai.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/paro-moai.webp"
+      }
+    ]
+  },
+  "peekskill": {
+    "fingerprint": "aea5befb0e68327d89d616ddff66fe7fd469071f4f7eb712dfe3d897943c39ba",
+    "baseWidth": 128,
+    "source": "content/icons/src/peekskill.png",
+    "reason": "matching master",
+    "sourceDifference": 0.49810791015625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/peekskill.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/peekskill.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/peekskill.webp"
+      }
+    ]
+  },
+  "stone-of-the-pregnant-woman": {
+    "fingerprint": "63e5949904c59c4b078bcfe0c9e338ffddd7b5be812bc8b45269029514d1cc26",
+    "baseWidth": 128,
+    "source": "content/icons/src/stone-of-the-pregnant-woman.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3638712565104167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/stone-of-the-pregnant-woman.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/stone-of-the-pregnant-woman.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/stone-of-the-pregnant-woman.webp"
+      }
+    ]
+  },
+  "sylacauga-meteorite": {
+    "fingerprint": "10a38a8432c70eacd6a4d16094642c0b18c6d062f6219dc76317023800498c8d",
+    "baseWidth": 128,
+    "source": "content/icons/src/sylacauga-meteorite.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5291341145833334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/sylacauga-meteorite.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/sylacauga-meteorite.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/sylacauga-meteorite.webp"
+      }
+    ]
+  },
+  "totem-pole-monument-valley": {
+    "fingerprint": "15886e58026b5425c716f2715068853cf8ed660e444da9ed16143b84be192cb6",
+    "baseWidth": 128,
+    "source": "content/icons/src/totem-pole-monument-valley.png",
+    "reason": "matching master",
+    "sourceDifference": 0.32666015625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/totem-pole-monument-valley.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/totem-pole-monument-valley.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/totem-pole-monument-valley.webp"
+      }
+    ]
+  },
+  "uluru": {
+    "fingerprint": "e8d0722780bce2b7ff866dfe81fdaf41e0f4cc6c504e115e4e0bfabc845aa5ac",
+    "baseWidth": 128,
+    "source": "content/icons/src/uluru.png",
+    "reason": "matching master",
+    "sourceDifference": 0.3485310872395833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/uluru.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/uluru.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/uluru.webp"
+      }
+    ]
+  },
+  "vatnajokull": {
+    "fingerprint": "ea93da97a3ec9f2364212fb5171de3ed0a163c30ead9d7b5ae937146f13493c9",
+    "baseWidth": 128,
+    "source": "content/icons/src/vatnajokull.png",
+    "reason": "matching master",
+    "sourceDifference": 0.60137939453125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/vatnajokull.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/vatnajokull.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/vatnajokull.webp"
+      }
+    ]
+  },
+  "west-mitten-butte": {
+    "fingerprint": "6edfccd67b666924580a08fe6a65f4c4ef08d1ec2e4497448b97ae784c42d509",
+    "baseWidth": 128,
+    "source": "content/icons/src/west-mitten-butte.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5904541015625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/west-mitten-butte.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/west-mitten-butte.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/west-mitten-butte.webp"
+      }
+    ]
+  },
+  "stonehenge": {
+    "fingerprint": "d307f2e808bb5e367582c730170ccee4b6deb62ac2338b4b287f3a1208a5912c",
+    "baseWidth": 128,
+    "source": "content/icons/src/stonehenge.png",
+    "reason": "matching master",
+    "sourceDifference": 0.505859375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/stonehenge.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/stonehenge.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/stonehenge.webp"
+      }
+    ]
+  },
+  "16-psyche": {
+    "fingerprint": "f16b4f0fdf811a20ab7dd29d5689449dfdf8dd4bc9e524666046342c9018e38f",
+    "baseWidth": 128,
+    "source": "content/icons/src/16-psyche.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6165974934895834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/16-psyche.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/16-psyche.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/16-psyche.webp"
+      }
+    ]
+  },
+  "21-lutetia": {
+    "fingerprint": "9535fde12f0c893869722719d9dca3118bb0e10ee829de0722b24f5e923f791e",
+    "baseWidth": 128,
+    "source": "content/icons/src/21-lutetia.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7109781901041666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/21-lutetia.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/21-lutetia.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/21-lutetia.webp"
+      }
+    ]
+  },
+  "55-cnc-e": {
+    "fingerprint": "a0b72c7d3c3ac5b172af83a9ed24b84d62a12c7b3545c9d1a868216b7412af18",
+    "baseWidth": 128,
+    "source": "content/icons/src/55-cnc-e.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7848103841145834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/55-cnc-e.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/55-cnc-e.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/55-cnc-e.webp"
+      }
+    ]
+  },
+  "amalthea": {
+    "fingerprint": "28ec1dc7ffd31762be555e5009fd267e9a44341ca8400ab7d1248d905f7364db",
+    "baseWidth": 128,
+    "source": "content/icons/src/amalthea.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6472574869791666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/amalthea.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/amalthea.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/amalthea.webp"
+      }
+    ]
+  },
+  "benben-saxum-bennu": {
+    "fingerprint": "c2d092381065487d6af6a9075d23f15203a3e373a37f81366563e2d125f66a3d",
+    "baseWidth": 128,
+    "source": "content/icons/src/benben-saxum-bennu.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5685628255208334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/benben-saxum-bennu.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/benben-saxum-bennu.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/benben-saxum-bennu.webp"
+      }
+    ]
+  },
+  "comet-67p": {
+    "fingerprint": "e1d6791aebb88b03a8358d625f6908df642b3226ef63d863b461b62a2dabbf7d",
+    "baseWidth": 128,
+    "source": "content/icons/src/comet-67p.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5579427083333334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/comet-67p.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/comet-67p.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/comet-67p.webp"
+      }
+    ]
+  },
+  "didymos": {
+    "fingerprint": "3b8b2ac259ff480694346cefbfb066d13c5b8a2f1efee7f72d3f565e98455d16",
+    "baseWidth": 128,
+    "source": "content/icons/src/didymos.png",
+    "reason": "matching master",
+    "sourceDifference": 0.62603759765625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/didymos.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/didymos.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/didymos.webp"
+      }
+    ]
+  },
+  "dinkinesh": {
+    "fingerprint": "44436d83723c8c381e7be119bdea7bb72bf7a959d69e94a865d21356c9d799fb",
+    "baseWidth": 128,
+    "source": "content/icons/src/dinkinesh.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6767781575520834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/dinkinesh.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/dinkinesh.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/dinkinesh.webp"
+      }
+    ]
+  },
+  "k2-18-b": {
+    "fingerprint": "535d92efc0c74bf50ae6f805eff77371e4125ad67a53af42f685a641367fc304",
+    "baseWidth": 128,
+    "source": "content/icons/src/k2-18-b.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7273763020833334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/k2-18-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/k2-18-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/k2-18-b.webp"
+      }
+    ]
+  },
+  "kelt-9-b": {
+    "fingerprint": "508fd6781d68be117a5da4a5518d04477aded0e2064dbc21d47721c54515f292",
+    "baseWidth": 128,
+    "source": "content/icons/src/kelt-9-b.png",
+    "reason": "matching master",
+    "sourceDifference": 0.80194091796875,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/kelt-9-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/kelt-9-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/kelt-9-b.webp"
+      }
+    ]
+  },
+  "nix": {
+    "fingerprint": "c445d77693a0cfb88f3de2363dc01b622bbe21ab4552357a76c42b2cbc4bad4f",
+    "baseWidth": 128,
+    "source": "content/icons/src/nix.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6009318033854166,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/nix.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/nix.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/nix.webp"
+      }
+    ]
+  },
+  "ryugu": {
+    "fingerprint": "69ad04c747f7bcc572fbd70a25207cc93f70ad65ceafef03a01816290e0ea261",
+    "baseWidth": 128,
+    "source": "content/icons/src/ryugu.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6575927734375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ryugu.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ryugu.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ryugu.webp"
+      }
+    ]
+  },
+  "trappist-1-e": {
+    "fingerprint": "f6f8d3585f418dfb168e1afdd04a18520d4dbe6037973735d4d211ee246791ee",
+    "baseWidth": 128,
+    "source": "content/icons/src/trappist-1-e.png",
+    "reason": "matching master",
+    "sourceDifference": 0.8019612630208334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/trappist-1-e.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/trappist-1-e.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/trappist-1-e.webp"
+      }
+    ]
+  },
+  "wasp-12-b": {
+    "fingerprint": "fa16f3803ccd47d373ed5faba51d152b92e097c30b2be2cd682cda11ed188f5d",
+    "baseWidth": 128,
+    "source": "content/icons/src/wasp-12-b.png",
+    "reason": "matching master",
+    "sourceDifference": 0.76824951171875,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/wasp-12-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/wasp-12-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/wasp-12-b.webp"
+      }
+    ]
+  },
+  "wasp-39-b": {
+    "fingerprint": "334086a7568ff0af2f350fd329804e7cc70bcd6cbabd1d6e1d40751b81094268",
+    "baseWidth": 128,
+    "source": "content/icons/src/wasp-39-b.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7885945638020834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/wasp-39-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/wasp-39-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/wasp-39-b.webp"
       }
     ]
   }

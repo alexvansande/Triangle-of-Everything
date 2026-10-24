@@ -1,0 +1,8 @@
+{
+  "prompt": "Generate a distinct red dwarf star astronomy icon for a scientific scale chart. Reference 1 is the Sun: use its photographic fine magnetic surface texture and intricate small plasma loops as rendering-quality reference. Reference 2 is an L brown dwarf: use it only as the cooler end of the palette transition. This new RED DWARF must sit visually between the cloudy ember brown dwarf and golden Sun, unmistakably a star with a self-luminous photosphere, NOT a striped gas giant and not a copy of Proxima Centauri. Deep warm red-orange, vermilion, copper and amber glowing granular surface, intricate tiny convection cells, several broad softly mottled darker active regions and just a few restrained tangled magnetic arcs. Distributed glow across whole globe, mild limb darkening only, no external directional light or planet terminator. More restrained than a blazing yellow Sun: no white-hot giant flare, no familiar single upper-left loop, no dramatic fire trails, no lava cracks. Distinct asymmetric pattern of dark starspots, a subtle delicate low prominence on lower-right limb at most. Centered round opaque stellar body about 88% of square frame, small soft transparent warm rim fading away before canvas edges, genuinely transparent background. High-resolution natural solar-observatory photographic appearance with artistic warm false-color treatment, no labels, no background stars.",
+  "references": [
+    "content/icons/src/sun.png",
+    "content/icons/src/l-brown-dwarf.png"
+  ],
+  "note": "Distinct artistic red dwarf, solar magnetic surface detail with warmer red-orange false color. Not a photograph or a claim of measured visible colors. Installed using existing unscreen conversion and resolution pipeline."
+}

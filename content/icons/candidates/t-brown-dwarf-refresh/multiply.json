@@ -1,0 +1,7 @@
+{
+  "prompt": "Create a material-color-only UNLIT ALBEDO pass from this astronomy icon, for later multiplication by a real reference sphere. Remove all directional illumination, terminator, limb darkening, specular highlights and cast shadows. Equal average brightness across the entire circular surface, with detailed clouds still foreshortened near edges. Perfect centered round disc occupying 94% of square canvas. Fully opaque inside disc, genuinely transparent outside. No text, no external halo, no rim light. High resolution photographic cloud textures. Preserve the existing dark red, burnt orange and glowing ember cloud-band identity. Remove baked directional shadow while retaining brighter self-luminous orange cloud patches and dark red bands as material variations. A warm self-luminous cloudy brown dwarf, no flames or lava. Do not cool its color or wash it out.",
+  "multiplyOpacity": 0.4,
+  "reference": "content/icons/src/sphere template.png",
+  "rebuild": "node scripts/multiply-kepler-sphere.mjs t-brown-dwarf 0.4",
+  "note": "Surface shading only. Existing cast-shadow and aura settings preserved. Thermal colors are artistic."
+}

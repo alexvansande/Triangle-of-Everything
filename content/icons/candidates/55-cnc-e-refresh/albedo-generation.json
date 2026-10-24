@@ -1,0 +1,7 @@
+{
+  "slug": "55-cnc-e",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-231feb8e-4a06-4634-8f03-e2ef6accb0f1.png",
+  "prompt": "Edit this 55-cnc-e artist illustration into an UNSHADED ALBEDO DISC for later multiplication with our standard white sphere lighting template. Preserve its distinctive surface/cloud patterns and color palette. Remove ALL directional illumination, all dark right/lower hemisphere shading, bright left highlights and rim glow. Uniform ambient exposure edge to edge, including right and bottom. Keep spherical projected texture foreshortening but no globe lighting gradient: a perfectly circular flat color-texture disc with a crisp alpha edge. Center 94% square, transparent background, no shadow outside. Keep dark volcanic crust and bright orange lava cracks distributed across the entire disc; these are surface colors/emission, not directional lighting.",
+  "date": "2026-10-24",
+  "method": "built-in image_gen"
+}

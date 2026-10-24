@@ -1,0 +1,16 @@
+{
+  "slug": "21-lutetia",
+  "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Draw ONE whole Lutetia asteroid from upper-right whole-body view of supplied ESA four-view montage. Preserve distinctive asymmetrical lumpy silhouette, large smooth crater bowl and the uneven notch/shoulder at right. Muted grey, not white chalk. No four-view montage, no duplicate body.",
+  "refs": [
+    "content/icons/requests/references/21-lutetia.jpg"
+  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-ad3467cb-7906-47ee-a275-c3b67583bd74.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/21-lutetia-generation.json"
+  }
+}

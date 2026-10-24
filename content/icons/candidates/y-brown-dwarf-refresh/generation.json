@@ -1,0 +1,9 @@
+{
+  "prompt": "Create a high quality astronomy chart icon of a cool Y-class brown dwarf: a dark super-Jupiter, not a star or lava planet. Use the attached white sphere strictly as the reference for spherical illumination: broad soft upper-left light, smooth diagonal shading toward lower right, subtle reflected fill at the lower edge. Single perfectly round centered globe filling 94% of square canvas, front view, actual transparent background. Atmosphere has richly detailed but restrained broad zonal bands in smoky taupe, umber, muted ochre, charcoal brown and slate gray, intricate realistic wispy cloud eddies and a few storm ovals. A very faint deep copper/ember warmth peeks through a few cloudy bands, especially on the darker hemisphere, artistic infrared thermal impression. Most surface is opaque cloudy giant planet. No bright fiery cracks, no neon rim, no corona, no external halo, no rings, no stars, no text, no cast shadow baked into artwork. Keep entire globe readable with upper-left brighter and lower-right softly darker, never a sharply cut black crescent. Scientific illustration with photographic texture and subtle museum miniature lighting, consistent with reference sphere. Transparent outside globe only.",
+  "reference": "content/icons/src/sphere template.png",
+  "research": [
+    "https://www.jpl.nasa.gov/news/nasas-wise-mission-discovers-coolest-class-of-stars/",
+    "https://science.nasa.gov/universe/exoplanets/astronomers-find-water-clouds-in-cold-jupiter-like-object/"
+  ],
+  "interpretation": "Cloudy super-Jupiter appearance. Restrained copper glow is an artistic infrared thermal cue, not observed visible-light detail. Existing custom ember cast shadow retained; Y keeps full shadow strength and weakest brown-dwarf aura."
+}

@@ -12,6 +12,7 @@ import { wallShadowState, wallShadowImageGeometry } from "./shadow-geometry.js";
 import { buildSearchIndex, searchObjects } from "./object-search.js";
 import { VisibilityMemory } from "./visibility-memory.js";
 import { priorityCircles } from "./visibility-hierarchy.js";
+import { spaceImagePriority } from "./space-image-priority.js";
 import {
   formatSci, friendlyRadius, friendlyMass, friendlyEnergy, isPhoton,
   friendlyWavelength, friendlyDensity, MASS_HOVER_UNITS, RADIUS_HOVER_UNITS,
@@ -56,7 +57,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, t
 import { initTimeScrubber } from "./time-scrubber.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
-import { loadDust, drawDust, pickDust, pickNamedDust, dustPoint, dustReady, dustPositions, dustOfCat, dustOfSrc, dustByName, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust } from "./dust.js";
+import { loadDust, drawDust, pickDust, pickNamedDust, dustPoint, dustReady, dustPositions, dustOfCat, dustOfSrc, dustByName, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust, dustPictureCandidates } from "./dust.js";
 // KaTeX: lazy-loaded on first use (saves ~1.6 MB from initial bundle)
 let _katex = null;
 async function loadKatex() {
@@ -2569,6 +2570,7 @@ function drawObjects() {
         ...o,
         logR, logM,
         catKey: o.cat,
+        imagePriority: mapIconShown(o) ? spaceImagePriority(o.slug, o.cat) : 1,
         sx: px(logR),
         sy: py(logM),
         cat: CATEGORIES[o.cat],
@@ -2584,7 +2586,7 @@ function drawObjects() {
       // Icon objects get a slight priority boost (lower z = shown first)
       const aZ = mapIconShown(a) ? a.z - 0.5 : a.z;
       const bZ = mapIconShown(b) ? b.z - 0.5 : b.z;
-      return aZ - bZ;
+      return a.imagePriority - b.imagePriority || aZ - bZ;
     });
 
   // Reserve all higher-priority candidates, including hidden ones. Source
@@ -2594,12 +2596,28 @@ function drawObjects() {
   const iconOrder = projected.filter(mapIconShown);
   // a narration scene picks its pictures (_iconOnly): only true overlaps hide one;
   // with _iconFill every other picture that fits joins them, packed closer
-  let shownIcons = _iconOnly ? priorityCircles(iconOrder, () => icoSize / 2)
-    : priorityCircles(iconOrder, icoR, iconRoom());
-  if (_iconOnly && _iconFill) {
-    const others = projected.filter(o => !_iconOnly.has(o.name) && mapIconShown(o, true));
-    const extra = priorityCircles(others, icoR, iconRoom(), iconOrder.filter(o => shownIcons.has(o)));
-    shownIcons = new Set([...shownIcons, ...extra]);
+  let shownIcons;
+  if (_iconOnly) {
+    shownIcons = priorityCircles(iconOrder, () => icoSize / 2);
+    if (_iconFill) {
+      const others = projected.filter(o => !_iconOnly.has(o.name) && mapIconShown(o, true));
+      const extra = priorityCircles(others, icoR, iconRoom(), iconOrder.filter(o => shownIcons.has(o)));
+      shownIcons = new Set([...shownIcons, ...extra]);
+    }
+  } else {
+    // Catalogue photographs also reserve space ahead of generated featured icons.
+    const cataloguePhotos = dustPictureCandidates({
+      px, py, hidden: !_dustEnabled || _bigBangMode,
+      labels: _labelsEnabled && !DUST_LABELS_OFF && !_posterLabels,
+      iconOf: _iconsEnabled && !_posterLabels ? (name,size) => {
+        const slug=nameToSlug(name);
+        return CURATED_SLUGS.has(slug) ? null : iconUrlForSize(slug,size) || null;
+      } : null,
+      iconSizeAt: (logR,name,cat) => icoSize * iconSizeMult({logR,slug:nameToSlug(name),cat}),
+      imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
+    }).filter(p=>p.imagePriority===0 && p.r*2>=dustIconMin());
+    const combined = [...iconOrder,...cataloguePhotos].sort((a,b)=>a.imagePriority-b.imagePriority);
+    shownIcons = priorityCircles(combined, o=>o.r ?? icoR(o), iconRoom());
   }
   // forced pictures (videos: Venus behind Earth) show whatever they overlap;
   // drawn least important first, they sit behind the picture they overlap
@@ -3139,12 +3157,13 @@ function drawObjects() {
     } : null,
     // as iconSizeMult, per-object multipliers included
     iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
+    imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
     iconBlend: (cat) => LUMINOUS_CATS.has(cat),   // luminous: no cast shadow
     softSpaceOf:(cat,name)=>_softSpace&&isDiffuseSpaceArt(cat,nameToSlug(name)),
   }, {
     // Catalogue pictures share the same hierarchy: all curated candidates
     // outrank them, not just this frame's visible winners or moving labels.
-    priorityCircles: projected.map(o => ({sx:o.sx,sy:o.sy,r:mapIconShown(o)?icoR(o):DOT_MIN_DIST/2})),
+    priorityCircles: projected.map(o => ({sx:o.sx,sy:o.sy,r:mapIconShown(o)?icoR(o):DOT_MIN_DIST/2,imagePriority:o.imagePriority})),
     dots: shownDots,
     rects: _labelsEnabled ? placedLabels : [],
     // Icons keep dust out with a CIRCLE, not their square box: a square gap

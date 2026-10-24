@@ -1,0 +1,14 @@
+{
+  "slug": "morro-do-pai-inacio",
+  "prompt": "Edit this existing Morro do Pai Inácio museum miniature. Change ONLY the camera elevation: raise the observer slightly and look down about 15–20 degrees so we see a modest but clearly visible portion of the top summit plateau. Keep the same frontal azimuth, near-orthographic front composition, recognizable two rock masses with intervening notch, layered sandstone cliffs, vegetation, natural colors, overall proportions, and fractured floating rock base. Not a bird's-eye view: front cliff faces remain dominant, only a little more summit surface is revealed. Preserve NW upper-left key lighting and subtle readable fill on dark sides. Complete isolated solid rock cutout, genuinely transparent background, no scenery, ground plane, cast shadow, text or supports. Subject fills 94% of square longest dimension, nothing clipped.",
+  "ref": "content/icons/candidates/morro-do-pai-inacio-angle/before.png",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-b1482fe0-174d-46b0-b1a6-be4dcd2d18f5.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Slightly elevated camera reveals summit top while preserving frontal azimuth, floating base and NW light. Photo-guided AI; newly exposed terrain is inferred.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/morro-do-pai-inacio-generation.json"
+  }
+}

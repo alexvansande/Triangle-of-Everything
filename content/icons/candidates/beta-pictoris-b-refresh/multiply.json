@@ -1,0 +1,7 @@
+{
+  "prompt": "Create a material-color-only UNLIT ALBEDO pass from this astronomy icon, for later multiplication by a real reference sphere. Remove all directional illumination, terminator, limb darkening, specular highlights and cast shadows. Equal average brightness across the entire circular surface, with detailed clouds still foreshortened near edges. Perfect centered round disc occupying 94% of square canvas. Fully opaque inside disc, genuinely transparent outside. No text, no external halo, no rim light. High resolution photographic cloud textures. Preserve this warm ochre, cream and slate gray gas giant's swirling zonal bands, storm ovals and color identity. Render all bands equally well lit even on the right side. No added emission.",
+  "multiplyOpacity": 1,
+  "reference": "content/icons/src/sphere template.png",
+  "rebuild": "node scripts/multiply-kepler-sphere.mjs beta-pictoris-b 1",
+  "note": "Surface shading only. Existing cast-shadow and aura settings preserved. Thermal colors are artistic."
+}

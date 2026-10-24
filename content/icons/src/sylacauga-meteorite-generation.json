@@ -1,0 +1,13 @@
+{
+  "slug": "sylacauga-meteorite",
+  "prompt": "Scientific-educational chart icon. Realistic detailed museum miniature pinned on an invisible wall, front elevation nearly orthographic, eye slightly above subject so just a little top surface shows. Upper-left soft white key light, readable shaded right face. Isolated genuinely transparent background; no cast shadow, no floor, no sky, no people, no text. Whole object centered in square canvas with 6% clear margin, no clipping. Preserve reference shape, proportions, color and geology; not a generic substitute. Precisely the photographed Hodges meteorite stone, preserve irregular rounded block outline, dark fusion crust and flat broken facet. Remove black support stand and museum plinth entirely. Do not make a cube or invent craters.",
+  "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/sylacauga-meteorite.jpg",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-a12691a3-245e-47dd-a2ba-5e32df9ad1a8.png",
+  "method": "built-in image_gen",
+  "date": "2026-10-24",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/sylacauga-meteorite-generation.json"
+  }
+}

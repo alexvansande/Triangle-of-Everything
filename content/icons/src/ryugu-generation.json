@@ -1,0 +1,18 @@
+{
+  "slug": "ryugu",
+  "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Use the supplied Hayabusa2 photograph to preserve actual Ryugu whole-body diamond/spinning-top outline, broad equatorial ridge and prominent north polar boulder. Dark grey rubble pile, boulders and rough regolith, faithfully retain recognizable features. Remove timestamp and all credits from illustration, relight upper-left, conservatively fill dark portions.",
+  "refs": [
+    "content/icons/requests/references/ryugu.jpg"
+  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-c6efea34-d938-4f31-90cd-fc8c06141fff.png",
+  "initialFile": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-c759ed78-16d1-4dd7-a56d-f138f3607231.png",
+  "relightPrompt": "Relight this Ryugu asteroid illustration; exact silhouette, north polar boulder, ridge, orientation and terrain positions unchanged. Current right-side light is WRONG. Replace with soft studio light from screen UPPER LEFT / NORTHWEST (10 o'clock), clearly bright left upper slopes and dark right lower slopes. Left edge must not remain black; lower-right is darkest. Preserve charcoal-grey surface color, reveal whole object with subtle fill. No mirror or rotation, no extra objects, no text, no cast shadow. Transparent background.",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/ryugu-generation.json"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "slug": "wasp-12-b",
+  "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Artist interpretation of WASP-12 b: very dark charcoal-plum hot gas giant with barely visible smooth bands, slightly egg-shaped tidal stretching along horizontal axis, gentle warm upper-left illumination and subtle thin atmospheric edge. Not a black silhouette. White sphere reference for lighting.",
+  "refs": [
+    "content/icons/src/sphere template.png"
+  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-7398514c-35ef-4727-9902-e2dffbb2f3c0.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/wasp-12-b-generation.json"
+  },
+  "lighting": {
+    "method": "albedo multiplied by reference sphere",
+    "strength": 1,
+    "albedo": "content/icons/candidates/wasp-12-b-refresh/albedo.png",
+    "reference": "content/icons/src/sphere template.png",
+    "script": "scripts/multiply-kepler-sphere.mjs",
+    "prompt": "Edit this wasp-12-b artist illustration into an UNSHADED ALBEDO DISC for later multiplication with our standard white sphere lighting template. Preserve its distinctive surface/cloud patterns and color palette. Remove ALL directional illumination, all dark right/lower hemisphere shading, bright left highlights and rim glow. Uniform ambient exposure edge to edge, including right and bottom. Keep spherical projected texture foreshortening but no globe lighting gradient: a perfectly circular flat color-texture disc with a crisp alpha edge. Center 94% square, transparent background, no shadow outside. Rebuild the existing dark oval as a complete circular disc of muted burgundy/copper cloudy gas, with equal exposure and visible subtle swirls across the entire circle. No black hemisphere.",
+    "generatedFile": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-3b3e4d21-b714-4455-a2c4-892b5e610dd0.png",
+    "date": "2026-10-24"
+  }
+}

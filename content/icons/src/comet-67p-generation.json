@@ -1,0 +1,17 @@
+{
+  "slug": "comet-67p",
+  "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Reconstruct whole comet 67P with its two recognizable unequal lobes and narrow neck, as a complete floating object. Use first ESA view for overall bilobed shape (clarify the hidden neck) and second for craggy cliff texture. Dark grey rocky dusty surface, no snow. Only very faint short jets near neck fading into transparency, no long tail. Do not produce a crop of cliffs or disconnected rocks.",
+  "refs": [
+    "content/icons/requests/references/comet-67p-whole.jpg",
+    "content/icons/requests/references/comet-67p.jpg"
+  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-ceb4029d-cacd-4d42-a293-290c585cd52b.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/comet-67p-generation.json"
+  }
+}

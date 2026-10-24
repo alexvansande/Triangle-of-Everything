@@ -4,5 +4,10 @@
   "object": "charon",
   "slug": "charon",
   "source": "NASA/Johns Hopkins APL/SwRI (New Horizons), public domain; Wikimedia Commons: Charon in True Color - High-Res.jpg",
-  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/charon.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)"
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/charon.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)",
+  "provenance": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/charon-generation.json"
+  }
 }

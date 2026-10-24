@@ -1,0 +1,16 @@
+{
+  "slug": "lake-geneva",
+  "ref": "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-geneva.png",
+  "refs": [
+    "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-geneva.png"
+  ],
+  "prompt": "Create Lake Geneva miniature ONLY using attached exact north-up geographic silhouette. STRICT shape preservation: broad curved crescent runs mostly LEFT TO RIGHT, with tapered southwestern tail at LOWER LEFT. Do NOT rotate the silhouette, do NOT make a long vertical lake, do NOT draw Baikal. Replace the flat blue fill with detailed deep-blue translucent resin water, tiny ripples and restrained cyan rim reflections, while preserving the outline precisely. Map-like head-on wall-mounted cutout, no perspective compression, tiny thickness along TOP rim only, upper-left white light. No surrounding land, no labels, no cast shadow. Genuine transparent square background replacing white, 6% clear margin.",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-10fb662e-f50f-41d3-882a-96a38c9aa05a.png",
+  "method": "built-in image_gen",
+  "date": "2026-10-24",
+  "provenance": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/lake-geneva-generation.json"
+  }
+}

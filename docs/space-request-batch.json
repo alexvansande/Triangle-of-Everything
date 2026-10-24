@@ -1,0 +1,128 @@
+{
+  "date": "2026-10-24",
+  "records": [
+    {
+      "slug": "nix",
+      "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Use the supplied NASA photo for actual elongated irregular grey-white moon Nix shape and proportions; restore hidden dark half conservatively. One subtly reddish crater region, not a huge red spot. Preserve observed features, do not make a sphere.",
+      "refs": [
+        "content/icons/requests/references/nix.jpg"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-17d20052-8900-4573-8232-c215c8b9dfc9.png"
+    },
+    {
+      "slug": "amalthea",
+      "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Use the supplied Galileo views as shape reference for ONE complete moon Amalthea, elongated irregular body, dark rusty red material with a few pale bright streaks and shallow craters. Ref is grayscale: render dark muted red, not grey. Infer unresolved detail conservatively, preserve proportions, no duplicated body.",
+      "refs": [
+        "content/icons/requests/references/amalthea.jpg"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-924efb49-61fa-43f3-9dd8-bd2f4d6bb073.png"
+    },
+    {
+      "slug": "trappist-1-e",
+      "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Artist interpretation of TRAPPIST-1 e: rocky planet, muted dark oceans, rusty land and pale thin cloud wisps, thin atmosphere, subtle deep red-orange illumination. No Earth continent shapes. Reference white sphere controls shading exactly, not surface color.",
+      "refs": [
+        "content/icons/src/sphere template.png"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-a034fc57-ad8b-41c7-8645-481488b475e8.png"
+    },
+    {
+      "slug": "k2-18-b",
+      "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Artist interpretation of K2-18 b: spherical hazy sub-Neptune, deep blue water-world appearance with diffuse pale clouds, subtle reddish key-light tint, thin atmospheric edge. No definite continents or visible surface claims. Reference white sphere is shading only.",
+      "refs": [
+        "content/icons/src/sphere template.png"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-700778b9-2b0e-4f0e-9c6b-d0362ead41e4.png"
+    },
+    {
+      "slug": "55-cnc-e",
+      "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Artist interpretation of 55 Cancri e: black rocky lava planet with restrained glowing orange cracks and patches, mostly solid dark surface, smooth sphere silhouette. No ejections or rings. Follow white sphere lighting, with modest self-emission in fissures.",
+      "refs": [
+        "content/icons/src/sphere template.png"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-9903f6ed-f0d4-4bca-909c-ff109a9597f0.png"
+    },
+    {
+      "slug": "wasp-39-b",
+      "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Artist interpretation of WASP-39 b: puffy spherical warm gas giant with tan, muted orange and cream cloud bands and subtle turbulence. Soft atmospheric edge. White sphere reference controls illumination only.",
+      "refs": [
+        "content/icons/src/sphere template.png"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-863573ab-d6ad-4dad-bc2b-be1c8692012d.png"
+    },
+    {
+      "slug": "kelt-9-b",
+      "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Artist interpretation of KELT-9 b: ultra-hot gas giant, bright ivory to pale orange heated atmosphere, subtly banded surface and a few faint wisps trailing lower-right close to body. Clearly round planet not a star explosion. Reference sphere controls upper-left key and lower-right shading, somewhat softened by self-emission.",
+      "refs": [
+        "content/icons/src/sphere template.png"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-b0443ed2-2c8b-4287-a883-44e40418d9f0.png"
+    },
+    {
+      "slug": "wasp-12-b",
+      "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Artist interpretation of WASP-12 b: very dark charcoal-plum hot gas giant with barely visible smooth bands, slightly egg-shaped tidal stretching along horizontal axis, gentle warm upper-left illumination and subtle thin atmospheric edge. Not a black silhouette. White sphere reference for lighting.",
+      "refs": [
+        "content/icons/src/sphere template.png"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-7398514c-35ef-4727-9902-e2dffbb2f3c0.png"
+    },
+    {
+      "slug": "benben-saxum-bennu",
+      "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Draw ONLY the large angular boulder indicated by the Benben arrow in NASA's map, not the asteroid nor the surrounding terrain. Isolate and reconstruct its hidden underside as solid rock. Preserve the squat rough block with irregular facets and dark charcoal-grey color. No arrows or lettering.",
+      "refs": [
+        "content/icons/requests/references/benben-features.png"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-26bec56e-aefb-4514-bf30-479bba100c3e.png"
+    },
+    {
+      "slug": "didymos",
+      "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Draw Didymos, NOT Dimorphos. Supplied image is surface texture reference ONLY (it likely depicts its moonlet). The requested body is a round oblate spinning-top asteroid with broad equatorial ridge, grey boulder-strewn surface, shallow depressions, subtle slightly pointed poles. Not a cube, not the lumpy elongated moonlet. Whole body, ridge visible from slightly above equatorial plane.",
+      "refs": [
+        "content/icons/requests/references/didymos.jpg"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-73cf5016-2ad4-42ab-90e8-079cd884bd4b.png"
+    },
+    {
+      "slug": "dinkinesh",
+      "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Draw ONLY the larger primary Dinkinesh from supplied Lucy reference; omit the small satellite lower right. Preserve its observed squat asymmetrical spinning-top silhouette, equatorial ridge, trough and grey rough surface. Relight upper-left, infer unlit edge conservatively.",
+      "refs": [
+        "content/icons/requests/references/dinkinesh.png"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-cc4417ce-2c71-4dd4-91b1-48922f5320b6.png",
+      "initialFile": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-eee49d44-81a5-4a48-86b8-7af0c9194ba0.png",
+      "relightPrompt": "Relight this isolated Dinkinesh asteroid illustration. Preserve its exact silhouette, orientation, trough, equatorial ridge, all terrain positions and proportions. The current light from the RIGHT is WRONG. Fully replace illumination: strongest light comes from screen UPPER LEFT (10 o'clock); left-facing facets are brightest, right-facing facets and lower-right rim are substantially darker. Left rim must NOT remain the dark side. Soft studio light and slight fill reveal whole body. No mirror/rotation; change light only. Transparent background, no cast shadow, no text, no other object."
+    },
+    {
+      "slug": "21-lutetia",
+      "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Draw ONE whole Lutetia asteroid from upper-right whole-body view of supplied ESA four-view montage. Preserve distinctive asymmetrical lumpy silhouette, large smooth crater bowl and the uneven notch/shoulder at right. Muted grey, not white chalk. No four-view montage, no duplicate body.",
+      "refs": [
+        "content/icons/requests/references/21-lutetia.jpg"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-ad3467cb-7906-47ee-a275-c3b67583bd74.png"
+    },
+    {
+      "slug": "16-psyche",
+      "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Artist's interpretation of asteroid 16 Psyche: asymmetric potato-shaped rocky metallic-grey body with subtle muted sheen, two broad shallow crater depressions, pitted old surface. Not shiny polished metal, no gold, no glowing cracks. Entire floating rock, grey meteorite texture.",
+      "refs": [],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-79552a71-edcb-4953-bb13-83ecc7354c48.png"
+    },
+    {
+      "slug": "ryugu",
+      "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Use the supplied Hayabusa2 photograph to preserve actual Ryugu whole-body diamond/spinning-top outline, broad equatorial ridge and prominent north polar boulder. Dark grey rubble pile, boulders and rough regolith, faithfully retain recognizable features. Remove timestamp and all credits from illustration, relight upper-left, conservatively fill dark portions.",
+      "refs": [
+        "content/icons/requests/references/ryugu.jpg"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-c6efea34-d938-4f31-90cd-fc8c06141fff.png",
+      "initialFile": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-c759ed78-16d1-4dd7-a56d-f138f3607231.png",
+      "relightPrompt": "Preserve shape and terrain; relight from upper left, darker lower right. Transparent background."
+    },
+    {
+      "slug": "comet-67p",
+      "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Reconstruct whole comet 67P with its two recognizable unequal lobes and narrow neck, as a complete floating object. Use first ESA view for overall bilobed shape (clarify the hidden neck) and second for craggy cliff texture. Dark grey rocky dusty surface, no snow. Only very faint short jets near neck fading into transparency, no long tail. Do not produce a crop of cliffs or disconnected rocks.",
+      "refs": [
+        "content/icons/requests/references/comet-67p-whole.jpg",
+        "content/icons/requests/references/comet-67p.jpg"
+      ],
+      "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-ceb4029d-cacd-4d42-a293-290c585cd52b.png"
+    }
+  ]
+}

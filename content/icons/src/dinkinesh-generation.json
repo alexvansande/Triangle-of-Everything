@@ -1,0 +1,18 @@
+{
+  "slug": "dinkinesh",
+  "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Draw ONLY the larger primary Dinkinesh from supplied Lucy reference; omit the small satellite lower right. Preserve its observed squat asymmetrical spinning-top silhouette, equatorial ridge, trough and grey rough surface. Relight upper-left, infer unlit edge conservatively.",
+  "refs": [
+    "content/icons/requests/references/dinkinesh.png"
+  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-cc4417ce-2c71-4dd4-91b1-48922f5320b6.png",
+  "initialFile": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-eee49d44-81a5-4a48-86b8-7af0c9194ba0.png",
+  "relightPrompt": "Relight this isolated Dinkinesh asteroid illustration. Preserve its exact silhouette, orientation, trough, equatorial ridge, all terrain positions and proportions. The current light from the RIGHT is WRONG. Fully replace illumination: strongest light comes from screen UPPER LEFT (10 o'clock); left-facing facets are brightest, right-facing facets and lower-right rim are substantially darker. Left rim must NOT remain the dark side. Soft studio light and slight fill reveal whole body. No mirror/rotation; change light only. Transparent background, no cast shadow, no text, no other object.",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/dinkinesh-generation.json"
+  }
+}

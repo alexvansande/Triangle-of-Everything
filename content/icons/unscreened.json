@@ -231,13 +231,18 @@
  },
  "t-brown-dwarf": {
   "backing": "body",
-  "master": true
+  "master": false,
+  "nativeTransparent": true
  },
  "tau": {
   "backing": "soft"
  },
  "thymine-t": {
   "backing": "soft",
+  "master": true
+ },
+ "toi-2490-b": {
+  "backing": "body",
   "master": true
  },
  "ton-618": {
@@ -291,7 +296,8 @@
  },
  "y-brown-dwarf": {
   "backing": "body",
-  "master": true
+  "master": false,
+  "nativeTransparent": true
  },
  "z-boson": {
   "backing": "soft"

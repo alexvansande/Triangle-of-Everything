@@ -1,0 +1,32 @@
+{
+  "created": "2026-10-24T12-15-07-538Z",
+  "counts": {
+    "generate": 1,
+    "round": 0,
+    "caustics": 0,
+    "custom": 0,
+    "excluded": 0
+  },
+  "plan": [
+    {
+      "name": "253-mathilde",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T12:15:08.828Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    }
+  ]
+}

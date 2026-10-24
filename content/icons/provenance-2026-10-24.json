@@ -1,0 +1,237 @@
+{
+  "stonehenge": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/stonehenge-generation.json"
+  },
+  "16-psyche": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/16-psyche-generation.json"
+  },
+  "21-lutetia": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/21-lutetia-generation.json"
+  },
+  "253-mathilde": {
+    "category": "photo-ai-reconstruction",
+    "description": "AI reconstruction from a mission photograph and its cutout. Missing dark terrain and fine detail are inferred.",
+    "record": "content/icons/src/253-mathilde-generation.json"
+  },
+  "55-cnc-e": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/55-cnc-e-generation.json"
+  },
+  "amalthea": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/amalthea-generation.json"
+  },
+  "ariel": {
+    "category": "photo-ai-reconstruction",
+    "description": "Voyager photo-based AI edit with subtle SE backlight and inferred dark-side terrain. Visible photographed geography guided the edit; added detail is not observed.",
+    "record": "content/icons/src/ariel-generation.json"
+  },
+  "benben-saxum-bennu": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/benben-saxum-bennu-generation.json"
+  },
+  "big-rock-okotoks": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/big-rock-okotoks-generation.json"
+  },
+  "charon": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/charon-generation.json"
+  },
+  "colosseum": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/colosseum-generation.json"
+  },
+  "comet-67p": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/comet-67p-generation.json"
+  },
+  "crater-lake": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/crater-lake-generation.json"
+  },
+  "devils-tower": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/devils-tower-generation.json"
+  },
+  "didymos": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/didymos-generation.json"
+  },
+  "dinkinesh": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/dinkinesh-generation.json"
+  },
+  "dione": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/dione-generation.json"
+  },
+  "gaspra": {
+    "category": "photo-ai-reconstruction",
+    "description": "AI reconstruction from a mission photograph and its cutout. Missing dark terrain and fine detail are inferred.",
+    "record": "content/icons/src/gaspra-generation.json"
+  },
+  "great-salt-lake": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/great-salt-lake-generation.json"
+  },
+  "iapetus": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/iapetus-generation.json"
+  },
+  "ida": {
+    "category": "photo-ai-reconstruction",
+    "description": "AI reconstruction from a mission photograph and its cutout. Missing dark terrain and fine detail are inferred.",
+    "record": "content/icons/src/ida-generation.json"
+  },
+  "k2-18-b": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/k2-18-b-generation.json"
+  },
+  "kelt-9-b": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/kelt-9-b-generation.json"
+  },
+  "lake-erie": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/lake-erie-generation.json"
+  },
+  "lake-geneva": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/lake-geneva-generation.json"
+  },
+  "lake-tanganyika": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/lake-tanganyika-generation.json"
+  },
+  "miranda": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/miranda-generation.json"
+  },
+  "morro-do-pai-inacio": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/morro-do-pai-inacio-generation.json"
+  },
+  "nix": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/nix-generation.json"
+  },
+  "oberon": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/oberon-generation.json"
+  },
+  "paro-moai": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/paro-moai-generation.json"
+  },
+  "peekskill": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/peekskill-generation.json"
+  },
+  "phoebe": {
+    "category": "photo-ai-reconstruction",
+    "description": "AI reconstruction from a mission photograph and its cutout. Missing dark terrain and fine detail are inferred.",
+    "record": "content/icons/src/phoebe-generation.json"
+  },
+  "rhea": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/rhea-generation.json"
+  },
+  "ryugu": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/ryugu-generation.json"
+  },
+  "stone-of-the-pregnant-woman": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/stone-of-the-pregnant-woman-generation.json"
+  },
+  "sylacauga-meteorite": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/sylacauga-meteorite-generation.json"
+  },
+  "tethys": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/tethys-generation.json"
+  },
+  "titania": {
+    "category": "photo-ai-reconstruction",
+    "description": "Voyager photo-based AI edit with subtle SE backlight and inferred dark-side terrain. Visible photographed geography guided the edit; added detail is not observed.",
+    "record": "content/icons/src/titania-generation.json"
+  },
+  "totem-pole-monument-valley": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/totem-pole-monument-valley-generation.json"
+  },
+  "trappist-1-e": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/trappist-1-e-generation.json"
+  },
+  "uluru": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/uluru-generation.json"
+  },
+  "umbriel": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/umbriel-generation.json"
+  },
+  "vatnajokull": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/vatnajokull-generation.json"
+  },
+  "wasp-12-b": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/wasp-12-b-generation.json"
+  },
+  "wasp-39-b": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/wasp-39-b-generation.json"
+  },
+  "west-mitten-butte": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/west-mitten-butte-generation.json"
+  }
+}

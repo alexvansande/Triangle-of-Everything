@@ -1,8 +1,13 @@
 {
-  "date": "2026-10-24",
-  "tool": "photo composite (scripts/compose-real-body.py), not generated",
-  "object": "253-mathilde",
   "slug": "253-mathilde",
-  "source": "NASA/JHU APL (NEAR Shoemaker), public domain; Wikimedia Commons: 253 Mathilde NASA.png",
-  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/253-mathilde.png irregular (cut out, turned so the lit side faces the upper left; no added shading)"
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-3a4788ba-1b8b-46a4-a57e-38dfc3f0c01d.png",
+  "prompt": "Edit the annotated Mathilde asteroid image from the user. The red line specifies the desired complete outer silhouette of the dark side. Extend solid opaque dark rocky terrain all the way to that red line on the right and lower-right, filling BOTH empty black crescent areas between existing body and red line. This must become a whole chunky asteroid, not a shell, hook, or bitten-out silhouette. Preserve the existing illuminated left surface and giant recessed crater, orientation and recognizable crater features. The new rightmost terrain should be very dark charcoal with subtle readable crater texture, continuous with the shadowed bowl, dark but fully opaque. NW upper-left key light unchanged. Remove the red annotation completely. Outside the completed asteroid use genuine transparency, no backdrop or cast shadow. Keep complete body comfortably inside square frame. This is conservative artistic reconstruction of unseen terrain.",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Revised to user's annotated silhouette. Dark hemisphere is opaque; unseen terrain inferred.",
+  "provenance": {
+    "category": "photo-ai-reconstruction",
+    "description": "AI reconstruction from a mission photograph and its cutout. Missing dark terrain and fine detail are inferred.",
+    "record": "content/icons/src/253-mathilde-generation.json"
+  }
 }

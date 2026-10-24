@@ -1,0 +1,216 @@
+{
+  "created": "2026-10-24T11-44-35-312Z",
+  "counts": {
+    "generate": 9,
+    "round": 6,
+    "caustics": 0,
+    "custom": 0,
+    "excluded": 0
+  },
+  "plan": [
+    {
+      "name": "nix",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T11:44:40.544Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "amalthea",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T11:44:40.658Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "trappist-1-e",
+      "action": "round"
+    },
+    {
+      "name": "k2-18-b",
+      "action": "round"
+    },
+    {
+      "name": "55-cnc-e",
+      "action": "round"
+    },
+    {
+      "name": "wasp-39-b",
+      "action": "round"
+    },
+    {
+      "name": "kelt-9-b",
+      "action": "round"
+    },
+    {
+      "name": "wasp-12-b",
+      "action": "round"
+    },
+    {
+      "name": "benben-saxum-bennu",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T11:44:40.788Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "didymos",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T11:44:40.902Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "dinkinesh",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T11:44:41.007Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "21-lutetia",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T11:44:41.114Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "16-psyche",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T11:44:41.228Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "ryugu",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T11:44:41.333Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    },
+    {
+      "name": "comet-67p",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-24T11:44:41.439Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    }
+  ]
+}

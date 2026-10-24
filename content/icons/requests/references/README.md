@@ -29,3 +29,26 @@ kept if one is ever shown as is.
 | `253-mathilde.jpg` | [253 Mathilde NASA.png](https://commons.wikimedia.org/wiki/File:253_Mathilde_NASA.png) | NASA/JHU APL (NEAR Shoemaker) | Public domain |
 | `gaspra.jpg` | [Galileo Gaspra Mosaic.jpg](https://commons.wikimedia.org/wiki/File:Galileo_Gaspra_Mosaic.jpg) | NASA/JPL (Galileo) | Public domain |
 | `ida.jpg` | [243 ida.jpg](https://commons.wikimedia.org/wiki/File:243_ida.jpg) | NASA/JPL (Galileo) | Public domain |
+
+## Additional macro references (2026-10-24)
+
+- `stonehenge.jpg`: [Stonehenge2007 07 30](https://commons.wikimedia.org/wiki/File:Stonehenge2007_07_30.jpg), garethwiscombe, [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). Used to generate an isolated, relit illustration of the surviving stones; original photograph retained here with attribution.
+
+- `peekskill.jpg`: [NASA APOD, The Car, the Hole, and the Peekskill Meteorite](https://science.nasa.gov/image-article/apod-2006-november-19-the-car-the-hole-and-the-peekskill-meteorite/), original `peekskill_thomas_big.jpg`. Used for the stone at the bottom of the photo, not the car. Reference only; retain the original source credit when reproducing the photo.
+- `crater-lake.jpg`: [Aerial Crater Lake](https://commons.wikimedia.org/wiki/File:Aerial_Crater_Lake.jpg), Mike Doukas / USGS, 2005, public domain. Photograph looks east from the west; illustration is reoriented north up.
+- `iceland-from-space.png`: [Iceland from space](https://commons.wikimedia.org/wiki/File:Iceland-from-space.png), used for the outline of the southeastern Vatnajökull ice cap only. See source page for attribution.
+- `vatnajokull.png`: [Vatnajökull National Park](https://www.vatnajokulsthjodgardur.is/en/melting-glaciers/vatnajokullglacier), glacier texture reference only; not an overhead outline.
+- Geneva, Erie, Tanganyika and Great Salt Lake use Natural Earth public-domain geographic outlines saved in `content/icons/refresh-2026-10-22/outlines/` (GeoJSON, SVG and PNG). These are generalized mapped shorelines, not current water-level surveys.
+
+Generated illustration prompts and exact input paths are saved beside each master in `content/icons/src/*-generation.json` and in `docs/macro-request-batch.json`. All images were made with the built-in image generation tool; shadows use the existing long-shadow renderer, with the approved caustic texture for lakes. Paro is an interpretive upright reconstruction from the fallen statue reference.
+
+## Additional space references (2026-10-24)
+
+- `dinkinesh.png`: [Lucy first look](https://www.nasa.gov/image-article/nasas-lucy-spacecraft-discovers-2nd-asteroid-during-dinkinesh-flyby/), NASA/Goddard/SwRI/Johns Hopkins APL/NOIRLab. Primary body only; satellite excluded from illustration.
+- `benben-features.png`: [Bennu named features](https://www.nasa.gov/missions/first-official-names-given-to-features-on-asteroid-bennu/), NASA/Goddard/University of Arizona. Benben's labeled boulder is the reference, not the surrounding surface.
+- `21-lutetia.jpg`: [Rosetta Lutetia sequence](https://www.esa.int/ESA_Multimedia/Images/2010/07/Asteroid_Lutetia2), ESA/OSIRIS team. Four-view reference only; illustration uses one complete body.
+- `comet-67p.jpg`: [Comet cliffs](https://www.esa.int/ESA_Multimedia/Images/2016/07/Comet_cliffs), ESA/Rosetta/NavCam, CC BY-SA IGO 3.0. Texture reference.
+- `comet-67p-whole.jpg`: [CometWatch 15 August](https://blogs.esa.int/rosetta/2014/08/16/cometwatch-15-august/), ESA/Rosetta/NavCam. Shape reference; consult source's reuse terms for the photograph.
+- `ryugu.jpg`: [Ryugu with north polar boulder](https://www.esa.int/ESA_Multimedia/Images/2019/02/Asteroid_Ryugu_with_north_polar_boulder), JAXA/U. Tokyo/Kochi U./Rikkyo U./Nagoya U./Chiba Inst. Tech./Meiji U./U. Aizu/AIST. Reference only.
+
+The provided `didymos.jpg` appears to depict Dimorphos. It was used for texture only; Didymos follows the spinning-top shape specified in the request and [NASA's description](https://science.nasa.gov/solar-system/asteroids/didymos/). Exoplanets and Psyche are artist interpretations. Unresolved detail and hidden surfaces in other generated images are inferred, not new observational evidence.

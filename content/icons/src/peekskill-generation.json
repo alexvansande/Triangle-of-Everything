@@ -1,0 +1,15 @@
+{
+  "slug": "peekskill",
+  "refs": [
+    "/Users/avsa/Dev/Triangle/content/icons/requests/references/peekskill.jpg"
+  ],
+  "prompt": "Scientific chart icon, isolated genuine transparent background. Reconstruct ONLY the actual Peekskill meteorite stone lying on floor at bottom of reference photo, not car or anything else. Preserve rounded irregular tapered outline and pale grey broken patches amid dark brown-black fusion crust. Small speckled interior detail, no invented craters. Relight with soft upper-left light in realistic museum miniature house style, front view slightly from above. Entire stone centered and large with 6% margin, no floor, shadow, support, text.",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-773fab81-b09d-4ccc-b23c-c2676c072ce1.png",
+  "method": "built-in image_gen",
+  "date": "2026-10-24",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/peekskill-generation.json"
+  }
+}

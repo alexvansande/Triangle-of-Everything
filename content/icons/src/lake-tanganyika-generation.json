@@ -1,0 +1,17 @@
+{
+  "slug": "lake-tanganyika",
+  "ref": "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-tanganyika.png",
+  "refs": [
+    "/Users/avsa/Dev/Triangle/content/icons/refresh-2026-10-22/outlines/lake-tanganyika.png",
+    "/Users/avsa/Dev/Triangle/content/icons/src/lake-baikal.png"
+  ],
+  "prompt": "Scientific chart miniature icon on genuine transparent square background. Reference 1 is the EXACT geographic silhouette and orientation to preserve, north UP, do not tilt/foreshorten it. Reference 2 is material style only, not shape. Lake Tanganyika, very dark blue rift lake, preserve narrow north-south contour. Render just the lake water as a finely rippled translucent colored resin cutout mounted on a wall, front-on almost orthographic. Subtle tiny thickness visible at TOP rim only, no thickness below. Soft upper-left lighting, restrained cyan rim reflections, detailed fine ripples at map scale. No surrounding land, no base, no cast shadow, no text. Entire silhouette centered with 6% clear margin.",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-4c9a62d7-428b-4413-b8be-78b9967aa75f.png",
+  "method": "built-in image_gen",
+  "date": "2026-10-24",
+  "provenance": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/lake-tanganyika-generation.json"
+  }
+}
