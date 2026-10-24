@@ -289,9 +289,12 @@ export async function startNarration(app) {
   // (a dive's object counts as named: it needs its picture to come towards the screen)
   // ("all" was the map's own visibility; now that every scene fills in the other
   // pictures after its own, it works like the default, so named ones go first)
+  // (the scene's `alsoIcons` join the default set after the named ones: pictures it
+  // wants first on screen without naming them)
   const sceneIcons = Array.isArray(SCENE.icons) ? SCENE.icons : [...new Set([
     ...cues.flatMap(c => (c.hl || []).flatMap(h => [h.obj, h.spot, h.arrow && h.from?.obj, h.arrow && h.to?.obj].filter(Boolean))),
-    ...cues.flatMap(c => [c.dive && c.obj, c.dolly && (c.dolly.obj || c.dolly)].filter(n => typeof n === "string"))])];
+    ...cues.flatMap(c => [c.dive && c.obj, c.dolly && (c.dolly.obj || c.dolly)].filter(n => typeof n === "string")),
+    ...(SCENE.alsoIcons || [])])];
   const iconCues = cues.filter(c => c.icons !== undefined);
   let iconsNow;
   function applyIcons(t) {
