@@ -119,19 +119,21 @@ if (STILL) document.body.classList.add("still");
 // though 21 cm radio is lower in frequency. Colours are the six evenly spaced
 // hues in order (magenta, blue, cyan, green, yellow, red), one per shell.
 // `gamma` and `floor` pull a map's dark sky down to transparent; `gain` is brightness.
+// floor/white: each map's sky background and its brightest ~0.2%, measured
+// from the map (area-weighted percentiles), so every shell uses its full range.
 const LAYERS = [
   { id: "gamma", name: "Gamma rays", band: "~1 GeV · cosmic rays hitting gas, blazars, Fermi-LAT",
-    gain: 1.4, gamma: 1.2, floor: 0.05 },
+    gain: 1.4, gamma: 0.8, floor: 0.11, white: 0.85 },
   { id: "xray", name: "X-rays", band: "0.7–7 keV · hot gas, X-ray binaries, MAXI",
-    gain: 1.5, gamma: 1.4, floor: 0.12 },
+    gain: 1.4, gamma: 0.8, floor: 0.16, white: 0.85 },
   { id: "milkyway", name: "Visible light", band: "550 nm · Milky Way stars, Mellinger",
-    gain: 1.9, gamma: 1.3, floor: 0.14 },
-  { id: "dust", name: "Far-infrared", band: "350 µm · cold dust, Planck 857 GHz",
-    gain: 1.8, gamma: 1.4, floor: 0.08 },
-  { id: "hydrogen", name: "Radio", band: "21 cm · neutral hydrogen, HI4PI",
-    gain: 1.7, gamma: 1.5, floor: 0.12 },
+    gain: 1.35, gamma: 0.9, floor: 0.16, white: 0.62 },
+  { id: "dust-log", name: "Far-infrared", band: "350 µm · cold dust, Planck 857 GHz (log scale)",
+    gain: 0.9, gamma: 1.1, floor: 0.03, white: 0.85 },
+  { id: "hydrogen-log", name: "Radio", band: "21 cm · neutral hydrogen, HI4PI (log scale)",
+    gain: 0.85, gamma: 1.1, floor: 0.06, white: 0.9 },
   { id: "cmb-mono", name: "Microwaves", band: "2 mm · the cosmic microwave background, Planck",
-    gain: 0.9, gamma: 1.5, floor: 0.5 },
+    gain: 0.6, gamma: 1.0, floor: 0.2, white: 0.97 },
 ];
 LAYERS.forEach((L, i) => {
   L.hue = 300 - 60 * i; // magenta → red
@@ -174,7 +176,7 @@ const vert = /* glsl */ `
   }`;
 const frag = /* glsl */ `
   uniform sampler2D map; uniform vec3 tint; uniform vec3 cut;
-  uniform float gain, gamma, floorLevel, opacity;
+  uniform float gain, gamma, floorLevel, whiteLevel, opacity;
   varying vec2 vUv; varying vec3 vWorld; varying vec3 vNormal;
   void main() {
     // the cut wedge: every coordinate beyond its threshold
@@ -182,7 +184,7 @@ const frag = /* glsl */ `
     // one channel: the map's brightness, whatever colours it came in
     vec3 c = texture2D(map, vUv).rgb;
     float lum = max(c.r, max(c.g, c.b));
-    float a = pow(clamp((lum - floorLevel) / (1.0 - floorLevel), 0.0, 1.0), gamma);
+    float a = pow(clamp((lum - floorLevel) / (whiteLevel - floorLevel), 0.0, 1.0), gamma);
     // faint rim so each shell's outline stays readable
     vec3 V = normalize(cameraPosition - vWorld);
     float rim = pow(1.0 - abs(dot(normalize(vNormal), V)), 4.0);
@@ -211,6 +213,7 @@ LAYERS.forEach((L, i) => {
     uniforms: {
       map: { value: tex }, tint: { value: new THREE.Color(L.color) }, cut: cutUniform,
       gain: { value: L.gain }, gamma: { value: L.gamma }, floorLevel: { value: L.floor },
+      whiteLevel: { value: L.white ?? 1 },
       opacity: { value: 1 },
     },
     side: THREE.DoubleSide,

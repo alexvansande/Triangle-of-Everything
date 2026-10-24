@@ -60,6 +60,10 @@ const SURVEYS = [
   { id: "halpha", base: "https://alasky.cds.unistra.fr/FinkbeinerHalpha" },
   { id: "hydrogen", base: "https://alasky.cds.unistra.fr/HI4PI/P_HI4PI_NHI" },
   { id: "dust", base: "https://alasky.cds.unistra.fr/PLANCK/R3/HFI_SkyMap_857_R3" },
+  // log-stretched twins from the float data, for the spectral onion: these
+  // maps span ~4 decades, and a linear 8-bit stretch leaves half the sky at 1–4
+  { id: "hydrogen-log", base: "https://alasky.cds.unistra.fr/HI4PI/P_HI4PI_NHI", fits: true, log: true, stretch: [1, 99.9] },
+  { id: "dust-log", base: "https://alasky.cds.unistra.fr/PLANCK/R3/HFI_SkyMap_857_R3", fits: true, log: true, stretch: [1, 99.9] },
   // MAXI SSC soft X-rays (0.7–7 keV): X-ray binaries and the Galaxy's hot-gas bubbles.
   // JAXA rate-limits tile requests, hence the low concurrency.
   { id: "xray", base: "https://data.darts.isas.jaxa.jp/pub/HiPS/MAXI-SSC_Image", concurrency: 3 },
@@ -101,9 +105,11 @@ async function hipsProperties(base) {
   );
 }
 
-// Optional tone curve: map the [lo, hi] percentiles of `vals` to 0…1,
-// then write grey or a colour ramp into `out` (and grey into `mono`).
-function restretch(vals, out, [plo, phi], ramp, mono) {
+// Optional tone curve: map the [lo, hi] percentiles of `vals` to 0…1 (in
+// log space when `log`), then write grey or a colour ramp into `out` (and
+// grey into `mono`).
+function restretch(vals, out, [plo, phi], ramp, mono, log) {
+  if (log) for (let i = 0; i < vals.length; i++) vals[i] = vals[i] > 0 ? Math.log10(vals[i]) : NaN;
   const sample = [];
   for (let i = 0; i < vals.length; i += 97) if (Number.isFinite(vals[i])) sample.push(vals[i]);
   sample.sort((a, b) => a - b);
@@ -169,7 +175,7 @@ async function loadTiles(base, id, order, ext, fits, concurrency) {
   return tiles;
 }
 
-async function survey({ id, base, stretch, ramp, fits, concurrency = 12 }) {
+async function survey({ id, base, stretch, ramp, fits, log, concurrency = 12 }) {
   const props = await hipsProperties(base);
   const w = +props.hips_tile_width, m = Math.log2(w);
   const order = Math.max(0, Math.min(+props.hips_order, TARGET_ORDER - m));
@@ -206,7 +212,7 @@ async function survey({ id, base, stretch, ramp, fits, concurrency = 12 }) {
   }
   // a coloured map also gets a plain single-channel twin (<id>-mono.jpg)
   const mono = ramp ? Buffer.alloc(W * H) : null;
-  if (vals) restretch(vals, out, stretch, ramp, mono);
+  if (vals) restretch(vals, out, stretch, ramp, mono, log);
   if (mono) {
     await sharp(mono, { raw: { width: W, height: H, channels: 1 } }).jpeg({ quality: 88 })
       .toFile(join(OUT, `${id}-mono.jpg`));
