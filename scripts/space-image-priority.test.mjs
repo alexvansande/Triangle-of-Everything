@@ -5,7 +5,7 @@ import {priorityCircles} from '../src/visibility-hierarchy.js';
 
 test('photos outrank generated artwork, including AI reconstructions of photos',()=>{
   for(const slug of ['earth','jupiter','iapetus','charon']) assert.equal(tier(slug,'planet'),0);
-  for(const slug of ['kepler-22b','55-cnc-e','phoebe','253-mathilde','ida','gaspra']) assert.equal(tier(slug,'planet'),2);
+  for(const slug of ['kepler-22b','55-cnc-e','phoebe','253-mathilde','ida','gaspra','titania','ariel']) assert.equal(tier(slug,'planet'),2);
   assert.equal(tier('m87','blackhole'),2); // Current icon is generated, despite an observed reference.
   assert.equal(tier('andromeda-m31','galaxy'),0);
   assert.equal(tier('not-documented','planet'),1);

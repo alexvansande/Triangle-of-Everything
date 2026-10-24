@@ -10,7 +10,7 @@ This inventory covers all 47 images in today’s gallery. Photo-guided AI images
 | 253-mathilde | photo-ai-reconstruction | [record](../content/icons/src/253-mathilde-generation.json) |
 | 55-cnc-e | ai-generated | [record](../content/icons/src/55-cnc-e-generation.json) |
 | amalthea | photo-guided-ai | [record](../content/icons/src/amalthea-generation.json) |
-| ariel | photo-adjusted | [record](../content/icons/src/ariel-generation.json) |
+| ariel | photo-ai-reconstruction | [record](../content/icons/src/ariel-generation.json) |
 | benben-saxum-bennu | photo-guided-ai | [record](../content/icons/src/benben-saxum-bennu-generation.json) |
 | big-rock-okotoks | photo-guided-ai | [record](../content/icons/src/big-rock-okotoks-generation.json) |
 | charon | photo-adjusted | [record](../content/icons/src/charon-generation.json) |
@@ -42,7 +42,7 @@ This inventory covers all 47 images in today’s gallery. Photo-guided AI images
 | stone-of-the-pregnant-woman | photo-guided-ai | [record](../content/icons/src/stone-of-the-pregnant-woman-generation.json) |
 | sylacauga-meteorite | photo-guided-ai | [record](../content/icons/src/sylacauga-meteorite-generation.json) |
 | tethys | photo-adjusted | [record](../content/icons/src/tethys-generation.json) |
-| titania | photo-adjusted | [record](../content/icons/src/titania-generation.json) |
+| titania | photo-ai-reconstruction | [record](../content/icons/src/titania-generation.json) |
 | totem-pole-monument-valley | photo-guided-ai | [record](../content/icons/src/totem-pole-monument-valley-generation.json) |
 | trappist-1-e | ai-generated | [record](../content/icons/src/trappist-1-e-generation.json) |
 | uluru | photo-guided-ai | [record](../content/icons/src/uluru-generation.json) |
@@ -70,3 +70,7 @@ Stonehenge uses an AI-generated object and a separate crisp black overhead silho
 ## Space image visibility priority
 
 `src/space-image-priority.js` ranks documented space photographs and scripted photo adjustments before unknown provenance, then generated art (including photo-guided AI and AI reconstructions). Current per-image provenance overrides legacy credits in `content/icons/space-image-priority.json`; original NASA credits do not make a subsequently generated replacement a photograph. New space artwork must receive a provenance entry or an explicit legacy-list update. Editorial order remains the tie-breaker within a tier. Both featured and catalogue icon selection apply the tiers; catalogue photographs reserve space before generated featured icons. Explicit focus/narration picture requests retain their existing forced-display behavior.
+
+## Object lighting notes: Titania and Ariel
+
+Both now use Voyager-photo-based AI edits with conservatively inferred dark-side terrain. Keep the photographed canyons and craters as the guide. Our display convention uses a dominant NW key plus weak neutral SE backlight/fill: the dark side stays much darker, but its terrain and circular rim remain faintly readable. Avoid a glowing outline or atmosphere. These are hybrid illustrations, not untouched mission photographs, and receive generated-image visibility priority. Original photo composites are preserved in `content/icons/candidates/titania-backlight/` and `ariel-backlight/`. Their wall shadows use the standard sphere.

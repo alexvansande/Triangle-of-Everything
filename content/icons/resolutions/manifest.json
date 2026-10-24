@@ -4342,11 +4342,11 @@
     ]
   },
   "ariel": {
-    "fingerprint": "84ef867eb39228778834e27a4fd78c9b1653fc6bbf2bea3aafe04aaa4005f4ca",
+    "fingerprint": "f8cdb45ce888e4ea85e63003560d7e82823a35257e39eda291b1d4c7b11b049d",
     "baseWidth": 128,
     "source": "content/icons/src/ariel.png",
     "reason": "matching master",
-    "sourceDifference": 1.0685221354166667,
+    "sourceDifference": 0.7961222330729166,
     "variants": [
       {
         "width": 256,
@@ -4531,11 +4531,11 @@
     ]
   },
   "titania": {
-    "fingerprint": "6674aa5bc7d0be13cc0b1e800ca054a6d76222c8a2bab8554769e31d4cc9f64f",
+    "fingerprint": "2eb303f0fbc2ad7bfda42d39b97a553aac20273910916623b7a87c7f93b9c067",
     "baseWidth": 128,
     "source": "content/icons/src/titania.png",
     "reason": "matching master",
-    "sourceDifference": 1.3201700846354167,
+    "sourceDifference": 0.7789713541666666,
     "variants": [
       {
         "width": 256,

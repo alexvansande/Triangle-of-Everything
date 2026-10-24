@@ -1,13 +1,21 @@
 {
-  "date": "2026-10-24",
-  "tool": "photo composite (scripts/compose-real-body.py), not generated",
-  "object": "ariel",
   "slug": "ariel",
+  "object": "ariel",
+  "date": "2026-10-24",
+  "method": "built-in image_gen photo-based dark-side edit",
   "source": "NASA/JPL (Voyager 2), public domain; Wikimedia Commons: Ariel (moon).jpg",
-  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/ariel.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)",
+  "originalProcessing": "python3 scripts/compose-real-body.py <photo> content/icons/src/ariel.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)",
+  "originalMaster": "content/icons/candidates/ariel-backlight/photo-before.png",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-eb2ca2a0-5ff4-4582-96ef-3edafcc60841.png",
+  "prompt": "Precise restrained photo-based edit of ariel, a moon of Uranus. Preserve the existing photographed sunlit terrain, craters and canyon locations, orientation, grayscale color, circular globe size, and dominant NW upper-left key lighting. Change only the currently pitch-black lower-right hemisphere: complete its opaque spherical surface with very subtle inferred continuation of the cratered icy terrain and canyons, visible under weak neutral soft backlight/fill. The dark side must remain clearly much darker than the sunlit side, but not pure black, with a faint soft rim at the SE edge to define the complete circular body. No glowing neon outline, no atmosphere, no halo. House-style museum sphere lit from NW with weak reflected fill from SE. Do not replace visible photographed features with a different moon. Entire circle opaque, outside circle genuine transparency. Single full globe centered on square, 94% occupancy. No cast shadow, text, stars or background.",
   "provenance": {
-    "category": "photo-adjusted",
-    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "category": "photo-ai-reconstruction",
+    "description": "Voyager photo-based AI edit with subtle SE backlight and inferred dark-side terrain. Visible photographed geography guided the edit; added detail is not observed.",
     "record": "content/icons/src/ariel-generation.json"
-  }
+  },
+  "notes": [
+    "House lighting: dominant NW key with weak neutral SE backlight/fill, so dark surfaces remain readable instead of completely black.",
+    "Backlight is restrained; no luminous halo or atmospheric glow.",
+    "Dark-side craters and canyons are artistic inference, not newly resolved Voyager observations."
+  ]
 }
