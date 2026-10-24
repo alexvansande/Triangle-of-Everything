@@ -2617,7 +2617,9 @@ function drawObjects() {
       // the rest fill in around the named ones, real photographs ahead of generated art
       const others = [...projected.filter(o => !_iconOnly.has(o.name) && !_iconHide?.has(o.name) && mapIconShown(o, true)), ...cataloguePhotos().filter(p => !_iconHide?.has(p.name))]
         .sort((a,b)=>a.imagePriority-b.imagePriority);
-      const extra = priorityCircles(others, o=>o.r ?? icoR(o), iconRoom(), iconOrder.filter(o => shownIcons.has(o)));
+      // (the named ones showing block outright: a photo doesn't land on a named picture)
+      const named = iconOrder.filter(o => shownIcons.has(o)).map(o => ({ ...o, imagePriority: -Infinity }));
+      const extra = priorityCircles(others, o=>o.r ?? icoR(o), iconRoom(), named);
       shownIcons = new Set([...shownIcons, ...extra]);
     }
   } else {
