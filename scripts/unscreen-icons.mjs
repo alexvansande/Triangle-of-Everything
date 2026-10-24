@@ -14,6 +14,11 @@
 //   node scripts/unscreen-icons.mjs            # all luminous icons not yet converted
 //   node scripts/unscreen-icons.mjs sun vega   # just these
 //   node scripts/unscreen-icons.mjs --again    # reconvert every converted icon
+//
+// A new luminous picture with a master (a galaxy cluster photo on black): save the
+// master in src/ and a plain 128 px copy as the live icon, run
+// `node scripts/generate-icon-resolutions.mjs <slug>` first (so the tiers know the
+// master matches), then this with the slug; the other way round leaves it at 128 px.
 import fs from 'node:fs/promises';
 import sharp from 'sharp';
 import { iconCategories } from './shadow-eligibility.mjs';
