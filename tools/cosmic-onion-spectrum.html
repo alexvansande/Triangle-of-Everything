@@ -7,8 +7,8 @@
 <!--
   The sky in six wavelengths as nested, see-through spheres. Each map is
   reduced to one brightness channel and drawn in a single colour set by its
-  frequency on a log scale: violet for gamma rays down to red for 21 cm
-  radio. Shells are screen-blended. Companion to cosmic-onion.html and uses
+  frequency rank: six evenly spaced hues from magenta (gamma rays, the
+  innermost shell) to red (microwaves, the outermost). Shells are screen-blended. Companion to cosmic-onion.html and uses
   the same maps:  npm run build:sky-onion
   Then:  npm run dev  →  http://localhost:5173/tools/cosmic-onion-spectrum.html
   Add ?still for a clean poster frame (no controls, labels kept).
@@ -57,8 +57,9 @@
   .label small { display: block; font-weight: 400; color: #c3c7d4; margin-right: 19px; font-size: 10.5px; }
   #spectrum { position: relative; height: 26px; margin: 2px 0 0; }
   #spectrum .bar { position: absolute; left: 0; right: 0; top: 9px; height: 8px; border-radius: 4px;
-    background: linear-gradient(90deg, hsl(0 90% 60%), hsl(60 90% 60%), hsl(120 90% 60%), hsl(180 90% 60%), hsl(240 90% 60%), hsl(270 90% 60%)); }
-  #spectrum .tick { position: absolute; top: 4px; width: 2px; height: 18px; margin-left: -1px; background: var(--fg); border-radius: 1px; }
+    background: linear-gradient(90deg, hsl(0 90% 62%), hsl(60 90% 62%), hsl(120 90% 62%), hsl(180 90% 62%), hsl(240 90% 62%), hsl(300 90% 62%)); }
+  #spectrum .tick { position: absolute; top: 5px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%;
+    border: 2px solid var(--sky); box-sizing: border-box; }
   .scale { display: flex; justify-content: space-between; color: var(--dim); font-size: 11px; margin-bottom: 8px; }
   #missing { position: absolute; inset: 0; display: none; place-items: center; text-align: center; color: var(--dim); }
   body.still #panel, body.still #toggle, body.still #status { display: none; }
@@ -93,9 +94,9 @@
     <button id="spin">Pause spin</button>
     <button id="labels">Hide labels</button>
   </div>
-  <h2>Colour = frequency</h2>
+  <h2>Colour = frequency, low → high</h2>
   <div id="spectrum" aria-hidden="true"><div class="bar"></div></div>
-  <div class="scale"><span>radio · 10⁹ Hz</span><span>gamma · 10²³ Hz</span></div>
+  <div class="scale"><span>microwave &amp; radio</span><span>gamma rays</span></div>
   <h2>Shells, inside → out</h2>
   <div id="layers"></div>
 </div>
@@ -114,28 +115,27 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 const STILL = new URLSearchParams(location.search).has("still");
 if (STILL) document.body.classList.add("still");
 
-// Inside → out (roughly by distance; the CMB stays outermost). `logHz` is
-// the band's typical frequency; it alone sets the shell's colour.
+// Inside → out by frequency, highest first; the CMB is kept outermost even
+// though 21 cm radio is lower in frequency. Colours are the six evenly spaced
+// hues in order (magenta, blue, cyan, green, yellow, red), one per shell.
 // `gamma` and `floor` pull a map's dark sky down to transparent; `gain` is brightness.
 const LAYERS = [
-  { id: "milkyway", name: "Visible light", band: "550 nm · Milky Way stars, Mellinger",
-    logHz: 14.74, gain: 1.9, gamma: 1.3, floor: 0.14 },
-  { id: "dust", name: "Far-infrared", band: "350 µm · cold dust, Planck 857 GHz",
-    logHz: 11.93, gain: 1.8, gamma: 1.4, floor: 0.08 },
-  { id: "hydrogen", name: "Radio", band: "21 cm · neutral hydrogen, HI4PI",
-    logHz: 9.15, gain: 1.7, gamma: 1.5, floor: 0.12 },
-  { id: "xray", name: "X-rays", band: "0.7–7 keV · hot gas, X-ray binaries, MAXI",
-    logHz: 17.7, gain: 1.5, gamma: 1.4, floor: 0.12 },
   { id: "gamma", name: "Gamma rays", band: "~1 GeV · cosmic rays hitting gas, blazars, Fermi-LAT",
-    logHz: 23.4, gain: 1.4, gamma: 1.2, floor: 0.05 },
+    gain: 1.4, gamma: 1.2, floor: 0.05 },
+  { id: "xray", name: "X-rays", band: "0.7–7 keV · hot gas, X-ray binaries, MAXI",
+    gain: 1.5, gamma: 1.4, floor: 0.12 },
+  { id: "milkyway", name: "Visible light", band: "550 nm · Milky Way stars, Mellinger",
+    gain: 1.9, gamma: 1.3, floor: 0.14 },
+  { id: "dust", name: "Far-infrared", band: "350 µm · cold dust, Planck 857 GHz",
+    gain: 1.8, gamma: 1.4, floor: 0.08 },
+  { id: "hydrogen", name: "Radio", band: "21 cm · neutral hydrogen, HI4PI",
+    gain: 1.7, gamma: 1.5, floor: 0.12 },
   { id: "cmb-mono", name: "Microwaves", band: "2 mm · the cosmic microwave background, Planck",
-    logHz: 11.2, gain: 0.9, gamma: 1.5, floor: 0.5 },
+    gain: 0.9, gamma: 1.5, floor: 0.5 },
 ];
-// log frequency → hue: 21 cm radio = red (0°) … gamma = violet (270°)
-const LOG_MIN = 9.15, LOG_MAX = 23.4;
-const spectrumT = (logHz) => (logHz - LOG_MIN) / (LOG_MAX - LOG_MIN);
-LAYERS.forEach((L) => {
-  L.color = `hsl(${Math.round(270 * spectrumT(L.logHz))}, 90%, 62%)`; // commas: three.js parses only this form
+LAYERS.forEach((L, i) => {
+  L.hue = 300 - 60 * i; // magenta → red
+  L.color = `hsl(${L.hue}, 90%, 62%)`; // commas: three.js parses only this form
   L.meta = L.band;
 });
 
@@ -241,7 +241,8 @@ const spectrum = document.getElementById("spectrum");
 LAYERS.forEach((L) => {
   const tick = document.createElement("div");
   tick.className = "tick";
-  tick.style.left = `${100 * spectrumT(L.logHz)}%`;
+  tick.style.left = `${(100 * (LAYERS.length - 1 - LAYERS.indexOf(L))) / (LAYERS.length - 1)}%`;
+  tick.style.background = L.color;
   tick.title = L.name;
   spectrum.appendChild(tick);
 });
