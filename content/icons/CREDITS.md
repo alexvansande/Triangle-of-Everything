@@ -88,6 +88,9 @@ NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
 | bullet-cluster | NASA/CXC/CfA/M.Markevitch et al. (X-ray); NASA/STScI, Magellan/U.Arizona/D.Clowe et al. (optical, lensing map) | Public domain | Chandra photo album 1E 0657-56 (2006): chandra.harvard.edu/photo/2006/1e0657/1e0657_scale.jpg; cropped, edge-faded, made transparent |
 | pandoras-cluster | NASA, ESA, J. Lotz, M. Mountain, A. Koekemoer and the HFF Team (STScI) | Public domain | NASA Image Library PIA17569, Hubble Frontier Field Abell 2744; cropped, edge-faded, made transparent |
 | perseus-cluster | NASA/CXC/GSFC/S.A. Walker et al. (X-ray, processed to bring out the wave) | Public domain | NASA Image Library GSFC_20171208_Archive_e000078, 'Gigantic Wave Discovered in Perseus Galaxy Cluster'; cropped, edge-faded, made transparent |
+| abell-1689 | NASA, ESA, the Hubble Heritage Team (STScI/AURA) and others | Public domain | NASA Image Library GSFC_20171208_Archive_e002174, 'Galaxy Cluster Abell 1689'; cropped, edge-faded, made transparent |
+| macs-j0717 | NASA, ESA, J. Lotz and the HFF Team (STScI) | Public domain | NASA Image Library hubble-spies-big-bang-frontiers_22202541749_o, Hubble Frontier Fields MACSJ0717.5+3745; cropped, edge-faded, made transparent |
+| train-wreck-cluster | NASA, ESA, CFHT, CXO, M.J. Jee (UC Davis), A. Mahdavi (San Francisco State) | Public domain | NASA Image Library GSFC_20171208_Archive_e001774, 'Dark Matter Core Defies Explanation' (Abell 520, 2012); cropped, edge-faded, made transparent |
 | hyperion | NASA/JPL/Space Science Institute | Public domain | Wikimedia: Hyperion_true.jpg |
 | deimos | NASA/JPL-Caltech/University of Arizona | Public domain | Wikimedia: Deimos-MRO.jpg |
 | vesta | NASA/JPL-Caltech/UCLA/MPS/DLR/IDA | Public domain | Wikimedia: Vesta_full_mosaic.jpg |

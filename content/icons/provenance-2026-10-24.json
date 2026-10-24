@@ -248,5 +248,20 @@
     "category": "photo-adjusted",
     "description": "Real Chandra X-ray data (about ten days of exposure), not visible light: false colour for X-ray brightness, and an edge-enhancing filter (the 2017 release) that draws the filaments and the wave. Cropped and made transparent; no generated pixels.",
     "record": "content/icons/src/perseus-cluster-generation.json"
+  },
+  "abell-1689": {
+    "category": "photo-adjusted",
+    "description": "Hubble visible-light image (close to what a camera sees). Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/abell-1689-generation.json"
+  },
+  "macs-j0717": {
+    "category": "photo-adjusted",
+    "description": "Hubble visible-light image (close to what a camera sees). Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/macs-j0717-generation.json"
+  },
+  "train-wreck-cluster": {
+    "category": "photo-adjusted",
+    "description": "Composite of real data: green is hot gas in Chandra X-rays, blue is a mass map from gravitational lensing (not light), orange is the galaxies' starlight. Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/train-wreck-cluster-generation.json"
   }
 }

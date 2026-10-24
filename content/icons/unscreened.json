@@ -1,4 +1,8 @@
 {
+ "abell-1689": {
+  "backing": "core",
+  "master": true
+ },
  "adenine-a": {
   "backing": "soft",
   "master": true
@@ -126,6 +130,10 @@
  },
  "m87": {
   "backing": "hole",
+  "master": true
+ },
+ "macs-j0717": {
+  "backing": "core",
   "master": true
  },
  "meson": {
@@ -263,6 +271,10 @@
  },
  "top": {
   "backing": "soft"
+ },
+ "train-wreck-cluster": {
+  "backing": "core",
+  "master": true
  },
  "triangulum-m33": {
   "backing": "core",
