@@ -4288,11 +4288,11 @@
     ]
   },
   "iapetus": {
-    "fingerprint": "b49c65e77cdc3b3b173cff4a9ee21f4ceb605929eba9c986f28cac7b7275cc82",
+    "fingerprint": "dce612401fc5a3ee60f31616c4c32af977deeef4bde34b7267fb61bb7aa1b77e",
     "baseWidth": 128,
     "source": "content/icons/src/iapetus.png",
     "reason": "matching master",
-    "sourceDifference": 1.6811116536458333,
+    "sourceDifference": 1.67596435546875,
     "variants": [
       {
         "width": 256,

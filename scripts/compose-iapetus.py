@@ -1,4 +1,4 @@
-# Iapetus icon (python3 scripts/compose-iapetus.py <photo> "content/icons/src/sphere template.png" <out.png> 113 1.0): Cassini PIA08384 (public domain) cut to its disc, turned so the photo's thin
+# Iapetus icon (python3 scripts/compose-iapetus.py <photo> "content/icons/src/sphere template.png" <out.png> 180 1.0): Cassini PIA08384 (public domain) cut to its disc, turned so the photo's thin
 # night edge sits on the shadow side, then shaded with content/icons/src/sphere template.png.
 import sys, numpy as np
 from PIL import Image, ImageDraw
