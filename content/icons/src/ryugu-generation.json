@@ -9,5 +9,10 @@
   "relightPrompt": "Relight this Ryugu asteroid illustration; exact silhouette, north polar boulder, ridge, orientation and terrain positions unchanged. Current right-side light is WRONG. Replace with soft studio light from screen UPPER LEFT / NORTHWEST (10 o'clock), clearly bright left upper slopes and dark right lower slopes. Left edge must not remain black; lower-right is darkest. Preserve charcoal-grey surface color, reveal whole object with subtle fill. No mirror or rotation, no extra objects, no text, no cast shadow. Transparent background.",
   "date": "2026-10-24",
   "method": "built-in image_gen",
-  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs."
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/ryugu-generation.json"
+  }
 }

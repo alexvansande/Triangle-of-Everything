@@ -9,5 +9,10 @@
   "relightPrompt": "Relight this isolated Dinkinesh asteroid illustration. Preserve its exact silhouette, orientation, trough, equatorial ridge, all terrain positions and proportions. The current light from the RIGHT is WRONG. Fully replace illumination: strongest light comes from screen UPPER LEFT (10 o'clock); left-facing facets are brightest, right-facing facets and lower-right rim are substantially darker. Left rim must NOT remain the dark side. Soft studio light and slight fill reveal whole body. No mirror/rotation; change light only. Transparent background, no cast shadow, no text, no other object.",
   "date": "2026-10-24",
   "method": "built-in image_gen",
-  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs."
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/dinkinesh-generation.json"
+  }
 }

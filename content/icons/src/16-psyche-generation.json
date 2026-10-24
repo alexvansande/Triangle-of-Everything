@@ -5,5 +5,10 @@
   "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-79552a71-edcb-4953-bb13-83ecc7354c48.png",
   "date": "2026-10-24",
   "method": "built-in image_gen",
-  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs."
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/16-psyche-generation.json"
+  }
 }

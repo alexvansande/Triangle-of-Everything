@@ -8,5 +8,10 @@
   ],
   "date": "2026-10-24",
   "method": "built-in image_gen",
-  "note": "Photo-constrained reconstruction; unlit surface detail is inferred, not observed."
+  "note": "Photo-constrained reconstruction; unlit surface detail is inferred, not observed.",
+  "provenance": {
+    "category": "photo-ai-reconstruction",
+    "description": "AI reconstruction from a mission photograph and its cutout. Missing dark terrain and fine detail are inferred.",
+    "record": "content/icons/src/ida-generation.json"
+  }
 }

@@ -4,5 +4,10 @@
   "object": "titania",
   "slug": "titania",
   "source": "NASA/JPL (Voyager 2, PIA00039), public domain; Wikimedia Commons: PIA00039 Titania.jpg",
-  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/titania.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)"
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/titania.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)",
+  "provenance": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/titania-generation.json"
+  }
 }

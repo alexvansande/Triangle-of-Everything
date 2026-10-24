@@ -4,5 +4,10 @@
   "ref": "/Users/avsa/Dev/Triangle/content/icons/requests/references/stone-of-the-pregnant-woman.jpg",
   "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-b1a73d04-e5b3-4826-87ff-4726cbe7c9b5.png",
   "method": "built-in image_gen",
-  "date": "2026-10-24"
+  "date": "2026-10-24",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/stone-of-the-pregnant-woman-generation.json"
+  }
 }

@@ -1,0 +1,16 @@
+{
+  "slug": "wasp-39-b",
+  "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Artist interpretation of WASP-39 b: puffy spherical warm gas giant with tan, muted orange and cream cloud bands and subtle turbulence. Soft atmospheric edge. White sphere reference controls illumination only.",
+  "refs": [
+    "content/icons/src/sphere template.png"
+  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-863573ab-d6ad-4dad-bc2b-be1c8692012d.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/wasp-39-b-generation.json"
+  }
+}

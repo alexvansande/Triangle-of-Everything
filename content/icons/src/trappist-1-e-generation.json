@@ -7,5 +7,20 @@
   "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-a034fc57-ad8b-41c7-8645-481488b475e8.png",
   "date": "2026-10-24",
   "method": "built-in image_gen",
-  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs."
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs.",
+  "provenance": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/trappist-1-e-generation.json"
+  },
+  "lighting": {
+    "method": "albedo multiplied by reference sphere",
+    "strength": 1,
+    "albedo": "content/icons/candidates/trappist-1-e-refresh/albedo.png",
+    "reference": "content/icons/src/sphere template.png",
+    "script": "scripts/multiply-kepler-sphere.mjs",
+    "prompt": "Edit this trappist-1-e artist illustration into an UNSHADED ALBEDO DISC for later multiplication with our standard white sphere lighting template. Preserve its distinctive surface/cloud patterns and color palette. Remove ALL directional illumination, all dark right/lower hemisphere shading, bright left highlights and rim glow. Uniform ambient exposure edge to edge, including right and bottom. Keep spherical projected texture foreshortening but no globe lighting gradient: a perfectly circular flat color-texture disc with a crisp alpha edge. Center 94% square, transparent background, no shadow outside. ",
+    "generatedFile": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-6354549f-9e6d-4ba3-b035-0f05fac85406.png",
+    "date": "2026-10-24"
+  }
 }

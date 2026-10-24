@@ -1,12 +1,13 @@
 {
   "slug": "253-mathilde",
-  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-a52a3dc4-39ca-4ad0-b400-4d59bd5e17a7.png",
-  "prompt": "Use case: precise-object-edit. Edit target image 1 is the current chart icon; image 2 is its original spacecraft photo, used for authentic shape and terrain reference. 253 Mathilde: restore the giant shadowed crater as an opaque recessed crater bowl, not a transparent bite or hook-shaped silhouette. Preserve lumpy body and enormous craters. Charcoal-dark rock. Keep the orientation of image 1. Preserve observed proportions and recognizable surface features, infer hidden terrain conservatively only to complete the body. Relight with a soft key coming from NORTHWEST / upper LEFT of the image, brightest upper-left and softly shaded lower-right, with enough fill to read the opaque dark side. Do not copy the original photo's right-side lighting. High quality realistic museum specimen rendering, crisp fine craters without inventing flamboyant terrain. Single isolated complete body centered, 93–95% square occupancy, genuine transparent background. No ground, no cast shadow, no stars, no text, no glow. The entire body including shadowed terrain must remain opaque. Correct this draft's contour: remove the thin projecting shard at the bottom and fill the sharply bitten right outline into a broad subtly concave crater rim. This is a solid compact irregular asteroid with a giant recessed bowl, not a broken shell. Darken the light surface to charcoal grey, preserving readable NW light and shaded bowl.",
-  "refs": [
-    "content/icons/studies/real-photo-touch-ups/253-mathilde-before.png",
-    "content/icons/requests/references/253-mathilde.jpg"
-  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-3a4788ba-1b8b-46a4-a57e-38dfc3f0c01d.png",
+  "prompt": "Edit the annotated Mathilde asteroid image from the user. The red line specifies the desired complete outer silhouette of the dark side. Extend solid opaque dark rocky terrain all the way to that red line on the right and lower-right, filling BOTH empty black crescent areas between existing body and red line. This must become a whole chunky asteroid, not a shell, hook, or bitten-out silhouette. Preserve the existing illuminated left surface and giant recessed crater, orientation and recognizable crater features. The new rightmost terrain should be very dark charcoal with subtle readable crater texture, continuous with the shadowed bowl, dark but fully opaque. NW upper-left key light unchanged. Remove the red annotation completely. Outside the completed asteroid use genuine transparency, no backdrop or cast shadow. Keep complete body comfortably inside square frame. This is conservative artistic reconstruction of unseen terrain.",
   "date": "2026-10-24",
   "method": "built-in image_gen",
-  "note": "Photo-constrained reconstruction; unlit surface detail is inferred, not observed."
+  "note": "Revised to user's annotated silhouette. Dark hemisphere is opaque; unseen terrain inferred.",
+  "provenance": {
+    "category": "photo-ai-reconstruction",
+    "description": "AI reconstruction from a mission photograph and its cutout. Missing dark terrain and fine detail are inferred.",
+    "record": "content/icons/src/253-mathilde-generation.json"
+  }
 }

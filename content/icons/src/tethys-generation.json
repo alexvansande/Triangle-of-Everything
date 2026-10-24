@@ -4,5 +4,10 @@
   "object": "tethys",
   "slug": "tethys",
   "source": "NASA/JPL/Space Science Institute (Cassini, PIA07738), public domain; Wikimedia Commons: Tethys PIA07738.jpg",
-  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/tethys.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)"
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/tethys.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)",
+  "provenance": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/tethys-generation.json"
+  }
 }

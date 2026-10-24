@@ -9,5 +9,10 @@
     "https://services.meteored.com/img/article/roma-perche-una-parte-del-colosseo-e-crollata-e-l-altra-e-rimasta-in-piedi-il-motivo-e-sorprendente-1733398774345_1280.jpg",
     "https://www.romeartlover.it/Vasi33f4.jpg"
   ],
-  "note": "Corrected overlapping invented terraces to coherent two-tier exposed inner arcade. Previous master retained in Git."
+  "note": "Corrected overlapping invented terraces to coherent two-tier exposed inner arcade. Previous master retained in Git.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/colosseum-generation.json"
+  }
 }

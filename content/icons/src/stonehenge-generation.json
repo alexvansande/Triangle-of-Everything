@@ -5,5 +5,10 @@
   "date": "2026-10-24",
   "reference": "content/icons/src/stonehenge.png",
   "slug": "stonehenge",
-  "selected": "Option A, elevated view"
+  "selected": "Option A, elevated view",
+  "provenance": {
+    "category": "ai-generated",
+    "description": "Generated illustration, not a resolved photograph. Geographic outlines or artistic references may constrain the design.",
+    "record": "content/icons/src/stonehenge-generation.json"
+  }
 }

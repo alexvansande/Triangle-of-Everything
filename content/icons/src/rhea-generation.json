@@ -4,5 +4,10 @@
   "object": "rhea",
   "slug": "rhea",
   "source": "NASA/JPL/Space Science Institute (Cassini, PIA07763), public domain; Wikimedia Commons: PIA07763 Rhea full globe5.jpg",
-  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/rhea.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)"
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/rhea.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)",
+  "provenance": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/rhea-generation.json"
+  }
 }

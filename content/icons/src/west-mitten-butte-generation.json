@@ -5,5 +5,10 @@
   "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-cfa1f5fb-cc3c-4a3b-826e-25eae9db1e1a.png",
   "date": "2026-10-24",
   "method": "built-in image_gen",
-  "note": "Floating rock underside and explicit NW lighting. Added underside is illustrative, not a revision to catalogue physical measurements. Previous source retained in Git."
+  "note": "Floating rock underside and explicit NW lighting. Added underside is illustrative, not a revision to catalogue physical measurements. Previous source retained in Git.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/west-mitten-butte-generation.json"
+  }
 }

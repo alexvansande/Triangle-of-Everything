@@ -4321,11 +4321,11 @@
     ]
   },
   "253-mathilde": {
-    "fingerprint": "88164732b192401b85675d80da73d7d63ea857162936df5d9ce008c44cf871ee",
+    "fingerprint": "8c324b15c32394af28b2bf438c6181860cb36f30ea22acb9079ea163a87b9b70",
     "baseWidth": 128,
     "source": "content/icons/src/253-mathilde.png",
     "reason": "matching master",
-    "sourceDifference": 0.7593994140625,
+    "sourceDifference": 0.7145182291666666,
     "variants": [
       {
         "width": 256,
@@ -5203,11 +5203,11 @@
     ]
   },
   "55-cnc-e": {
-    "fingerprint": "3344268444fcda833a8aa972c0e43e0185bc4077b57c61d2b188aba6c64d6514",
+    "fingerprint": "a0b72c7d3c3ac5b172af83a9ed24b84d62a12c7b3545c9d1a868216b7412af18",
     "baseWidth": 128,
     "source": "content/icons/src/55-cnc-e.png",
     "reason": "matching master",
-    "sourceDifference": 0.7596232096354166,
+    "sourceDifference": 0.7848103841145834,
     "variants": [
       {
         "width": 256,
@@ -5329,11 +5329,11 @@
     ]
   },
   "k2-18-b": {
-    "fingerprint": "e5ab23cdf6b47becd1547730c98c7ca373b47cd098ef3ef07e902de108c0904f",
+    "fingerprint": "535d92efc0c74bf50ae6f805eff77371e4125ad67a53af42f685a641367fc304",
     "baseWidth": 128,
     "source": "content/icons/src/k2-18-b.png",
     "reason": "matching master",
-    "sourceDifference": 0.77978515625,
+    "sourceDifference": 0.7273763020833334,
     "variants": [
       {
         "width": 256,
@@ -5350,11 +5350,11 @@
     ]
   },
   "kelt-9-b": {
-    "fingerprint": "62320ee5d7a34182fe5c1476fc245882084e4f477b351ddc2bfbdb643006ae5a",
+    "fingerprint": "508fd6781d68be117a5da4a5518d04477aded0e2064dbc21d47721c54515f292",
     "baseWidth": 128,
     "source": "content/icons/src/kelt-9-b.png",
     "reason": "matching master",
-    "sourceDifference": 0.7585042317708334,
+    "sourceDifference": 0.80194091796875,
     "variants": [
       {
         "width": 256,
@@ -5413,11 +5413,11 @@
     ]
   },
   "trappist-1-e": {
-    "fingerprint": "1ae932988ecc303ca0d5f80f21bc17af04154c8712cd38e8de5527abf8e4b38e",
+    "fingerprint": "f6f8d3585f418dfb168e1afdd04a18520d4dbe6037973735d4d211ee246791ee",
     "baseWidth": 128,
     "source": "content/icons/src/trappist-1-e.png",
     "reason": "matching master",
-    "sourceDifference": 0.7887166341145834,
+    "sourceDifference": 0.8019612630208334,
     "variants": [
       {
         "width": 256,
@@ -5434,11 +5434,11 @@
     ]
   },
   "wasp-12-b": {
-    "fingerprint": "57f054a77668c3c56eb4e86184b91347bb2042a41e8d12c461c9ddfee99fd0a5",
+    "fingerprint": "fa16f3803ccd47d373ed5faba51d152b92e097c30b2be2cd682cda11ed188f5d",
     "baseWidth": 128,
     "source": "content/icons/src/wasp-12-b.png",
     "reason": "matching master",
-    "sourceDifference": 0.6880086263020834,
+    "sourceDifference": 0.76824951171875,
     "variants": [
       {
         "width": 256,
@@ -5455,11 +5455,11 @@
     ]
   },
   "wasp-39-b": {
-    "fingerprint": "0cdf537fe87f26c1136d8bfef0c34bef90c1e48bce8a4a1d9d8247abd0125543",
+    "fingerprint": "334086a7568ff0af2f350fd329804e7cc70bcd6cbabd1d6e1d40751b81094268",
     "baseWidth": 128,
     "source": "content/icons/src/wasp-39-b.png",
     "reason": "matching master",
-    "sourceDifference": 0.8069661458333334,
+    "sourceDifference": 0.7885945638020834,
     "variants": [
       {
         "width": 256,

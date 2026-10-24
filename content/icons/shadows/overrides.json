@@ -2676,9 +2676,12 @@
     "x": 44,
     "y": 54,
     "reviewed": true,
-    "generator": "stonehenge-overhead-shadow-v1",
-    "note": "NW light projects a broken circular plan of the stone group toward SE. Preserve during scripted shadow batches.",
-    "updated": "2026-10-24T11:50:12.267Z"
+    "generator": "stonehenge-overhead-shadow-v2",
+    "stretchSE": 1.65,
+    "blurNear": 2,
+    "blurFar": 18,
+    "note": "NW light projects the broken circular plan, stretched southeast with progressively softer edges. Preserve during scripted shadow batches.",
+    "updated": "2026-10-24T12:23:54.947Z"
   },
   "nix": {
     "mode": "long",
@@ -2853,7 +2856,7 @@
     "longFar": 18,
     "longFade": 1,
     "reviewed": false,
-    "updated": "2026-10-24T11:56:50.266Z",
+    "updated": "2026-10-24T12:15:08.828Z",
     "generator": "studio-long-shadow-v1"
   },
   "gaspra": {

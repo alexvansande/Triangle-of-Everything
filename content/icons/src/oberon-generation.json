@@ -4,5 +4,10 @@
   "object": "oberon",
   "slug": "oberon",
   "source": "NASA/JPL (Voyager 2, PIA00034, 'Oberon at Voyager Closest Approach'), public domain; NASA Image Library images-assets.nasa.gov/image/PIA00034",
-  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/oberon.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4); the disc is only ~290 px in the photo, so the master is soft up close"
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/oberon.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4); the disc is only ~290 px in the photo, so the master is soft up close",
+  "provenance": {
+    "category": "photo-adjusted",
+    "description": "Original mission photograph with scripted crop, alpha, rotation and/or lighting adjustments; no generative reconstruction.",
+    "record": "content/icons/src/oberon-generation.json"
+  }
 }
