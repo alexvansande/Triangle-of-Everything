@@ -55,6 +55,11 @@
   .label::after { content: ""; display: inline-block; width: 14px; height: 1px; background: currentColor;
     vertical-align: middle; margin-left: 5px; opacity: 0.8; }
   .label small { display: block; font-weight: 400; color: #c3c7d4; margin-right: 19px; font-size: 10.5px; }
+  body.log-radius .label small { display: none; } /* shells crowd at the rim in log mode */
+  .decade { position: absolute; transform: translate(8px, -50%); pointer-events: none; white-space: nowrap;
+    font-size: 10.5px; color: var(--dim); font-variant-numeric: tabular-nums; text-shadow: 0 0 3px var(--sky), 0 0 6px var(--sky); }
+  .decade::before { content: ""; display: inline-block; width: 8px; height: 1px; background: currentColor;
+    vertical-align: middle; margin-right: 4px; }
   #spectrum { position: relative; height: 26px; margin: 2px 0 0; }
   #spectrum .bar { position: absolute; left: 0; right: 0; top: 9px; height: 8px; border-radius: 4px;
     background: linear-gradient(90deg, hsl(0 90% 62%), hsl(60 90% 62%), hsl(120 90% 62%), hsl(180 90% 62%), hsl(225 90% 62%), hsl(270 90% 62%)); }
@@ -126,6 +131,13 @@
     <input id="halo" type="range" min="0" max="4" step="0.05" value="2">
     <output id="halo-out" for="halo">2 gaps</output>
   </div>
+  <div class="row">
+    <label for="radius">Radius</label>
+    <select id="radius">
+      <option value="even">Even spacing</option>
+      <option value="log">Log distance (ly)</option>
+    </select>
+  </div>
   <div class="row spread">
     <label for="spread">Spread</label>
     <input id="spread" type="range" min="0" max="1" step="0.01" value="1">
@@ -166,17 +178,17 @@ const hsl = (h, l = 62) => `hsl(${h}, 90%, ${l}%)`; // commas: three.js parses o
 // `color` only tints its label, outline and edge.
 const LAYERS = [
   { id: "merged-1", name: "Nearby stars", band: "under 330 ly · visible: 23,000 Hipparcos stars",
-    color: hsl(120) },
+    color: hsl(120), logLy: 2.52 },
   { id: "merged-2", name: "Local Milky Way", band: "330–3,000 ly · visible: 57 million Gaia stars",
-    color: hsl(120) },
+    color: hsl(120), logLy: 3.48 },
   { id: "merged-3", name: "The Galaxy", band: "3,000–30,000 ly · visible: 134 million Gaia stars; plus the whole-sky dust (far-IR), hydrogen (radio), hot gas (X-ray) and gamma rays, which come mostly from inside the Galaxy",
-    color: "hsl(0, 0%, 92%)", gain: 0.5 }, // five maps blended: dim it so inner shells show
+    color: "hsl(0, 0%, 92%)", gain: 0.5, logLy: 4.48 }, // five maps blended: dim it so inner shells show
   { id: "merged-4", name: "Galaxies", band: "30 million–1 billion ly · near-IR: 43,000 galaxies, 2MRS",
-    color: hsl(55) },
+    color: hsl(55), logLy: 9.0 },
   { id: "merged-5", name: "Quasars", band: "1–12 billion ly · mid-IR selected: 756,000 quasars, Quaia",
-    color: hsl(42) },
+    color: hsl(42), logLy: 10.08 },
   { id: "merged-6", name: "Cosmic microwave background", band: "46 billion ly · microwave: the oldest light, Planck",
-    color: hsl(12) },
+    color: hsl(12), logLy: 10.66 },
 ];
 LAYERS.forEach((L) => {
   L.meta = L.band;
@@ -298,7 +310,7 @@ LAYERS.forEach((L, i) => {
   label.style.color = L.color;
   label.innerHTML = `${L.name}<small>${L.band.split(" · ")[0]}</small>`;
   document.body.appendChild(label);
-  shells.push({ L, mesh, mat, base: radius, radius, label,
+  shells.push({ L, mesh, mat, base: radius, even: radius, geomR: radius, radius, label,
     levels: new THREE.Vector4(L.gain, L.gamma, L.floor, L.white ?? 1) });
 });
 
@@ -557,7 +569,7 @@ function setSpread(t) {
   spread = t;
   shells.forEach((s) => {
     s.radius = OUTER - (OUTER - s.base) * t;
-    s.mesh.scale.setScalar(s.radius / s.base);
+    s.mesh.scale.setScalar(s.radius / s.geomR);
     s.edges.scale.setScalar(s.radius);
     s.edges.visible = s.mesh.visible;
   });
@@ -567,6 +579,27 @@ function setSpread(t) {
 const spreadInput = document.getElementById("spread");
 const spreadOut = document.getElementById("spread-out");
 spreadInput.oninput = () => setSpread(+spreadInput.value);
+// ---------- radius: even spacing, or each shell at log10 of its outer distance in ly ----------
+// 1 ly (10⁰) sits at the centre and the CMB (10¹⁰·⁶⁶ ly) on the outer sphere
+const LOG_MAX = LAYERS[LAYERS.length - 1].logLy;
+const logRadius = (logLy) => (OUTER * logLy) / LOG_MAX;
+let radiusMode = "even";
+const SUP = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+const decades = Array.from({ length: Math.floor(LOG_MAX) + 1 }, (_, d) => {
+  const el = document.createElement("div");
+  el.className = "decade";
+  el.textContent = `10${String(d).split("").map((c) => SUP[c]).join("")} ly`;
+  document.body.appendChild(el);
+  return { d, el };
+});
+function setRadiusMode(mode) {
+  radiusMode = mode;
+  document.body.classList.toggle("log-radius", mode === "log");
+  shells.forEach((s) => (s.base = mode === "log" ? logRadius(s.L.logLy) : s.even));
+  setSpread(spread);
+}
+const radiusSelect = document.getElementById("radius");
+radiusSelect.onchange = () => setRadiusMode(radiusSelect.value);
 const spreadParam = new URLSearchParams(location.search).get("spread");
 if (spreadParam !== null) spreadInput.value = spreadParam;
 setSpread(+spreadInput.value);
@@ -574,6 +607,8 @@ setSpread(+spreadInput.value);
 const startParams = new URLSearchParams(location.search);
 if (startParams.get("cut") === "off") { cutOnBox.checked = false; applyCut(); }
 if (startParams.get("back") === "off") { backBox.checked = false; backBox.onchange(); }
+// ?radius=log
+if (startParams.get("radius") === "log") { radiusSelect.value = "log"; setRadiusMode("log"); }
 // ?surfaces=0…1 and ?rays=0…2
 for (const [key, input] of [["surfaces", surfacesInput], ["rays", raysInput]]) {
   if (startParams.has(key)) { input.value = startParams.get(key); input.oninput(); }
@@ -596,6 +631,15 @@ function placeLabels() {
     v.set(0, s.radius, 0).project(camera);
     s.label.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
     s.label.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
+  });
+  // decade ticks up the same edge, on the other side, only while the radii are true log distances
+  const showTicks = showLabels && cutOn && radiusMode === "log" && spread > 0.999;
+  decades.forEach(({ d, el }) => {
+    el.style.display = showTicks ? "block" : "none";
+    if (!showTicks) return;
+    v.set(0, logRadius(d), 0).project(camera);
+    el.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
+    el.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
   });
 }
 
