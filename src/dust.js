@@ -652,7 +652,9 @@ export function dustOfSrc(ids) {
 /** A catalogue dot by its shown name, where the map draws it: { r, m } or null. */
 export function dustByName(name) {
   if (!_data) return null;
-  const i = _data.names.indexOf(name);
+  let i = _data.names.indexOf(name);
+  // a named dot also answers to its label (the Bullet Cluster is "RXCJ0658.5-5556")
+  if (i < 0) for (const [j, f] of _data.fame) if (f.label === name) { i = j; break; }
   return i < 0 ? null : { r: _data.r[i], m: _data.m[i] };
 }
 

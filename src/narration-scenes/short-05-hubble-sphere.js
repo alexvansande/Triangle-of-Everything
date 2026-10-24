@@ -76,8 +76,10 @@ export default {
     { at: "the milky way", hl: [{ obj: "Milky Way" }, { obj: "Andromeda (M31)", delay: 0.6 }] },
     { at: "its sister", photo: "andromeda", obj: "Andromeda (M31)", place: 0.86, dur: 5, kb: [1, 1.3], caption: "Andromeda · Brody Wesner · 2025 · 2.5 million light-years away" },
     { at: "local group", hl: [{ obj: "Milky Way", label: false }, { obj: "Andromeda (M31)", label: "local group" }] },
-    { at: "galaxy clusters are even", cam: { r: 24, m: 46.5, span: 10 }, hl: [{ obj: "Galaxy Cluster", label: "emptier still" }] },
-    { at: "galaxy clusters are even", offset: 0.8, photo: "smacs", obj: "Galaxy Cluster", place: 0.8, dur: 5, kb: [1, 1.4], caption: "Galaxy cluster SMACS 0723 · Webb · 2022" },
+    // the Bullet Cluster's real picture stands for the galaxy clusters (the generic one gives way)
+    { at: "galaxy clusters are even", cam: { r: 24, m: 46.5, span: 10 }, hl: [{ obj: "Bullet Cluster", label: "emptier still" }] },
+    { at: "galaxy clusters are even", offset: 0.8, photo: "smacs", obj: "Bullet Cluster", place: 0.8, dur: 5, kb: [1, 1.4], caption: "Galaxy cluster SMACS 0723 · Webb · 2022" },
+    { at: "empty space in between", hl: [{ obj: "Bullet Cluster", label: "Bullet Cluster" }] },
     { at: "superclusters", cam: { r: 26.2, m: 49.5, span: 7 }, hl: [{ obj: "Laniakea", label: "superclusters" }] },
     { at: "laniakea", hl: [{ obj: "Laniakea", label: "Laniakea · 100,000 galaxies" }] },
     { at: "those are the voids", hl: [{ obj: "Laniakea", label: false }, { obj: "Boötes Void", label: "voids" }, { obj: "KBC Void", label: false, delay: 0.4 }] },
