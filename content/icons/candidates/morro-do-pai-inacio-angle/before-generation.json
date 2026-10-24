@@ -1,0 +1,14 @@
+{
+  "slug": "morro-do-pai-inacio",
+  "prompt": "Edit this morro do pai inacio illustration. Keep its recognizable upper silhouette, geological features, scale proportions and nearly front-on museum-miniature view. TWO REQUIRED CHANGES: (1) replace the flat photo-cutout ground edge with a complete volumetric ROCK bottom, as though this entire formation was carefully lifted out of the earth and is now floating. Add a modest exposed irregular fractured lower rock mass (about 12–18% of existing object height), naturally tapering/rounding under the form with broken facets and believable geological texture; a solid object with thickness, not a paper cutout, not a flat rectangular plinth, not a huge fantasy pointed floating island. No grass carpet terminating in a razor edge, no horizon strip. Keep original upper shape recognizable. (2) Completely RELIGHT from screen UPPER LEFT / NORTHWEST only: upper-left facing facets brightest, right-facing surfaces and bottom darker, soft neutral studio key light with restrained ambient fill. Remove any upper-right sunlight from input. Bottom is shaded but retains readable rock texture. Preserve natural material color, not orange lighting. Camera remains slightly above object, do not tilt to look up at underside; show lower fractured side volume naturally. Truly transparent background, no floor, no cast shadow, no scenery, text or supports. Center complete object in square with at least 6% clear margin; no clipping.",
+  "ref": "/Users/avsa/Dev/Triangle/content/icons/src/morro-do-pai-inacio.png",
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-475fbccc-5ce5-4038-bcd4-cc952d187b11.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Floating rock underside and explicit NW lighting. Added underside is illustrative, not a revision to catalogue physical measurements. Previous source retained in Git.",
+  "provenance": {
+    "category": "photo-guided-ai",
+    "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
+    "record": "content/icons/src/morro-do-pai-inacio-generation.json"
+  }
+}

@@ -4951,11 +4951,11 @@
     ]
   },
   "morro-do-pai-inacio": {
-    "fingerprint": "69c97420d78fbfc4946375a7266a797e2524ad1fe5029ad9637cc32c5eb97134",
+    "fingerprint": "6586cc631b7552306086bd27cfb26e581c3fe398038b72ab8202e7567183ce6c",
     "baseWidth": 128,
     "source": "content/icons/src/morro-do-pai-inacio.png",
     "reason": "matching master",
-    "sourceDifference": 0.6299641927083334,
+    "sourceDifference": 0.7179361979166666,
     "variants": [
       {
         "width": 256,
