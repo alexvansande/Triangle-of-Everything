@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-24",
+  "tool": "photo composite (scripts/compose-real-body.py), not generated",
+  "object": "ida",
+  "slug": "ida",
+  "source": "NASA/JPL (Galileo), public domain; Wikimedia Commons: 243 ida.jpg",
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/ida.png irregular (cut out, turned so the lit side faces the upper left; no added shading)"
+}

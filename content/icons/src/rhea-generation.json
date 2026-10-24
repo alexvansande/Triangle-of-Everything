@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-24",
+  "tool": "photo composite (scripts/compose-real-body.py), not generated",
+  "object": "rhea",
+  "slug": "rhea",
+  "source": "NASA/JPL/Space Science Institute (Cassini, PIA07763), public domain; Wikimedia Commons: PIA07763 Rhea full globe5.jpg",
+  "steps": "python3 scripts/compose-real-body.py <photo> content/icons/src/rhea.png round (turned so the sun is upper left, shaded with the sphere template at strength 1.4)"
+}

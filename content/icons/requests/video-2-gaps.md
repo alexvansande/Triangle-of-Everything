@@ -41,7 +41,6 @@ Trasimeno, Neusiedl Lake and Lake Mead). Draw these first, then the lakes.
 | Lake Tanganyika | `lake-tanganyika` | The long narrow rift lake from above, very dark blue. |
 | Nix | `nix` | Small elongated grey-white moon of Pluto, one reddish crater. Reference: `phobos`. |
 | 21 Lutetia | `21-lutetia` | Big lumpy grey asteroid, one huge smooth crater bowl, as Rosetta saw it. Reference: `eros`. |
-| Phoebe | `phoebe` | Dark, almost round moon of Saturn covered in craters, a few bright crater walls. Reference: `hyperion`. |
 | 16 Psyche | `16-psyche` | Potato-shaped metallic-grey asteroid with a faint sheen, two large shallow craters. Reference: `eros`. |
 | Amalthea | `amalthea` | Elongated dark-red moon of Jupiter. Reference: `phobos`. |
 
@@ -53,12 +52,6 @@ Real moons and asteroids: prefer a public-domain NASA photo composited like Iape
 
 | Object | Slug | What to draw |
 |---|---|---|
-| Charon | `charon` | Grey moon of Pluto with the dark red polar cap (Mordor Macula). Reference: `mimas`. |
-| Tethys | `tethys` | Icy white moon of Saturn, the huge Odysseus crater and the Ithaca Chasma canyon. |
-| Dione | `dione` | Icy moon with bright wispy cliffs across one hemisphere. |
-| Rhea | `rhea` | Icy, heavily cratered, one bright rayed crater. |
-| Titania | `titania` | Uranus's largest moon, grey with long canyons. |
-| Miranda | `miranda` | The patchwork moon: grooved "racetrack" regions and the Verona Rupes cliff. |
 | K2-18 b | `k2-18-b` | Artist's sub-Neptune, deep blue hazy water world, lit red by a red dwarf. Reference: `kepler-22b`. |
 | 55 Cnc e | `55-cnc-e` | Artist's lava world, glowing orange cracks on a black surface. |
 
@@ -69,6 +62,9 @@ Real moons and asteroids: prefer a public-domain NASA photo composited like Iape
 | WASP-39 b | `wasp-39-b` | Artist's puffy warm gas giant, tan-orange bands, JWST's first CO₂ planet. Reference: `jupiter`. |
 | KELT-9 b | `kelt-9-b` | Artist's ultra-hot Jupiter, glowing white-orange day side, wisps blowing off. |
 | WASP-12 b | `wasp-12-b` | Artist's very dark hot Jupiter, slightly egg-shaped (tidally stretched). |
+
+Done from real NASA photos (2026-10-24, `scripts/compose-real-body.py`): Phoebe, Charon,
+Tethys, Dione, Rhea, Titania, Miranda, plus Ariel, Umbriel, Gaspra, Ida and 253 Mathilde.
 
 ## Order
 

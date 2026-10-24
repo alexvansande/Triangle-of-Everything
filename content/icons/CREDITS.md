@@ -72,6 +72,18 @@ NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
 | triton | NASA/JPL | Public domain | Wikimedia: Triton_moon_mosaic_Voyager_2.jpg |
 | mimas | NASA/JPL-Caltech/Space Science Institute | Public domain | Wikimedia: Mimas_Cassini.jpg |
 | iapetus | NASA/JPL/Space Science Institute (Cassini, PIA08384) | Public domain | Wikimedia: Iapetus_as_seen_by_the_Cassini_probe_-_20071008.jpg; turned 113° and shaded (strength 1.4) with `src/sphere template.png` by `scripts/compose-iapetus.py` |
+| charon | NASA/Johns Hopkins APL/SwRI (New Horizons) | Public domain | Wikimedia: Charon_in_True_Color_-_High-Res.jpg; composited by `scripts/compose-real-body.py` |
+| tethys | NASA/JPL/Space Science Institute (Cassini, PIA07738) | Public domain | Wikimedia: Tethys_PIA07738.jpg; composited by `scripts/compose-real-body.py` |
+| dione | NASA/JPL/Space Science Institute (Cassini mosaic) | Public domain | Wikimedia: Dione_Trailing_Hemisphere_2.png; composited by `scripts/compose-real-body.py` |
+| rhea | NASA/JPL/Space Science Institute (Cassini, PIA07763) | Public domain | Wikimedia: PIA07763_Rhea_full_globe5.jpg; composited by `scripts/compose-real-body.py` |
+| titania | NASA/JPL (Voyager 2, PIA00039) | Public domain | Wikimedia: PIA00039_Titania.jpg; composited by `scripts/compose-real-body.py` |
+| ariel | NASA/JPL (Voyager 2) | Public domain | Wikimedia: Ariel_(moon).jpg; composited by `scripts/compose-real-body.py` |
+| umbriel | NASA/JPL/USGS (Voyager 2) | Public domain | Wikimedia: Umbriel_usgsx2.jpg; composited by `scripts/compose-real-body.py` |
+| miranda | NASA/JPL (Voyager 2) | Public domain | Wikimedia: Miranda_as_seen_by_Voyager_2_-_GPN-2003-000005_(cropped).jpg; composited by `scripts/compose-real-body.py` |
+| phoebe | NASA/JPL/Space Science Institute (Cassini) | Public domain | Wikimedia: Phoebe_cassini_full.jpg; composited by `scripts/compose-real-body.py` |
+| 253-mathilde | NASA/JHU APL (NEAR Shoemaker) | Public domain | Wikimedia: 253_Mathilde_NASA.png; composited by `scripts/compose-real-body.py` |
+| gaspra | NASA/JPL (Galileo) | Public domain | Wikimedia: Galileo_Gaspra_Mosaic.jpg; composited by `scripts/compose-real-body.py` |
+| ida | NASA/JPL (Galileo) | Public domain | Wikimedia: 243_ida.jpg; composited by `scripts/compose-real-body.py` |
 | hyperion | NASA/JPL/Space Science Institute | Public domain | Wikimedia: Hyperion_true.jpg |
 | deimos | NASA/JPL-Caltech/University of Arizona | Public domain | Wikimedia: Deimos-MRO.jpg |
 | vesta | NASA/JPL-Caltech/UCLA/MPS/DLR/IDA | Public domain | Wikimedia: Vesta_full_mosaic.jpg |
