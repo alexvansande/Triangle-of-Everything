@@ -102,8 +102,8 @@ async function hipsProperties(base) {
 }
 
 // Optional tone curve: map the [lo, hi] percentiles of `vals` to 0…1,
-// then write grey or a colour ramp into `out`.
-function restretch(vals, out, [plo, phi], ramp) {
+// then write grey or a colour ramp into `out` (and grey into `mono`).
+function restretch(vals, out, [plo, phi], ramp, mono) {
   const sample = [];
   for (let i = 0; i < vals.length; i += 97) if (Number.isFinite(vals[i])) sample.push(vals[i]);
   sample.sort((a, b) => a - b);
@@ -113,6 +113,7 @@ function restretch(vals, out, [plo, phi], ramp) {
     const t = Number.isFinite(vals[i]) ? Math.max(0, Math.min(1, (vals[i] - lo) / (hi - lo))) : 0;
     const c = ramp ? lerpRamp(RAMPS[ramp], t) : [t, t, t];
     for (let k = 0; k < 3; k++) out[3 * i + k] = Math.round(255 * c[k]);
+    if (mono) mono[i] = Math.round(255 * t);
   }
 }
 
@@ -203,7 +204,13 @@ async function survey({ id, base, stretch, ramp, fits, concurrency = 12 }) {
       else for (let k = 0; k < 3; k++) out[3 * (y * W + x) + k] = tile.data[src + (tile.ch >= 3 ? k : 0)];
     }
   }
-  if (vals) restretch(vals, out, stretch, ramp);
+  // a coloured map also gets a plain single-channel twin (<id>-mono.jpg)
+  const mono = ramp ? Buffer.alloc(W * H) : null;
+  if (vals) restretch(vals, out, stretch, ramp, mono);
+  if (mono) {
+    await sharp(mono, { raw: { width: W, height: H, channels: 1 } }).jpeg({ quality: 88 })
+      .toFile(join(OUT, `${id}-mono.jpg`));
+  }
   await sharp(out, { raw: { width: W, height: H, channels: 3 } }).jpeg({ quality: 88 })
     .toFile(join(OUT, `${id}.jpg`));
 }
