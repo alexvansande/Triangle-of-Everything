@@ -236,17 +236,17 @@
   },
   "bullet-cluster": {
     "category": "photo-adjusted",
-    "description": "A real photograph, cropped to the object, faded at its edge and made transparent (scripts/unscreen-art.mjs); no generated pixels.",
+    "description": "Composite of real data: pink is hot gas in Chandra X-rays, blue is a mass map from gravitational lensing (not light), over a Hubble/Magellan optical image. Cropped, edge-faded and made transparent; no generated pixels.",
     "record": "content/icons/src/bullet-cluster-generation.json"
   },
   "pandoras-cluster": {
     "category": "photo-adjusted",
-    "description": "A real photograph, cropped to the object, faded at its edge and made transparent (scripts/unscreen-art.mjs); no generated pixels.",
+    "description": "Hubble visible-light image (close to what a camera sees). Cropped, edge-faded and made transparent; no generated pixels.",
     "record": "content/icons/src/pandoras-cluster-generation.json"
   },
   "perseus-cluster": {
     "category": "photo-adjusted",
-    "description": "A real photograph, cropped to the object, faded at its edge and made transparent (scripts/unscreen-art.mjs); no generated pixels.",
+    "description": "Real Chandra X-ray data (about ten days of exposure), not visible light: false colour for X-ray brightness, and an edge-enhancing filter (the 2017 release) that draws the filaments and the wave. Cropped and made transparent; no generated pixels.",
     "record": "content/icons/src/perseus-cluster-generation.json"
   }
 }
