@@ -130,7 +130,7 @@ function iconAreaMult(slug) {
 // less for a glow that leaves most of its square empty (a galaxy cluster's faint halo,
 // a nebula) and for Saturn's rings, from content/icons/coverage.json. Solid things
 // (rocks, towers, animals) keep their whole square, sparse or not.
-const ROOM_REF = 0.6, ROOM_MIN = 0.6;
+const ROOM_REF = 0.6, ROOM_MIN = 0.45;
 function iconRoomMult(slug, cat) {
   if (!ICON_SIZE_MULT[slug] && !isLuminousArt(cat, slug)) return 1;
   const c = ICON_COVERAGE[slug];
@@ -768,10 +768,25 @@ function vd() {
 // Draw: Subtle region tints (underneath the triangle overlay)
 // =============================================================
 
+// Space darkens with mass, so the nebulae, galaxies and clusters (pictures with soft,
+// glowing edges) stand out: from the stars (no darkening at 10^32 g) to 60% by the
+// galaxies (10^45 g) and beyond. A gradient in chart space: it stays put as you pan.
+const SPACE_DARK = { from: 32, mid: 37, to: 45, midK: 0.42, toK: 0.6, color: "#03021a" };
+const spaceDarkGrad = defs.append("linearGradient").attr("id", "space-dark")
+  .attr("gradientUnits", "userSpaceOnUse").attr("x1", 0).attr("x2", 0);
+[[0, 0], [(SPACE_DARK.mid - SPACE_DARK.from) / (SPACE_DARK.to - SPACE_DARK.from), SPACE_DARK.midK], [1, SPACE_DARK.toK]]
+  .forEach(([o, k]) => spaceDarkGrad.append("stop").attr("offset", o).attr("stop-color", SPACE_DARK.color).attr("stop-opacity", k));
+
 function drawRegions() {
   lRegion.selectAll("*").remove();
   const d = vd();
   const B = { x: { min: d.x0 - 20, max: d.x1 + 20 }, y: { min: d.y0 - 20, max: d.y1 + 20 } };
+
+  if (B.y.max > SPACE_DARK.from) {
+    spaceDarkGrad.attr("y1", py(SPACE_DARK.from)).attr("y2", py(SPACE_DARK.to));
+    lRegion.append("rect").attr("x", px(B.x.min)).attr("width", px(B.x.max) - px(B.x.min))
+      .attr("y", py(B.y.max)).attr("height", py(B.y.min) - py(B.y.max)).attr("fill", "url(#space-dark)");
+  }
 
   // Gravity forbidden — very subtle red tint
   const sy0 = schwarzschildM(B.x.min), sy1 = schwarzschildM(B.x.max);
