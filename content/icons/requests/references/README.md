@@ -25,3 +25,7 @@ kept if one is ever shown as is.
 | `nix.jpg` | Pluto's Moon Nix, Half Illuminated (PIA20287) | NASA/JHU APL/SwRI (New Horizons) | Public domain |
 | `didymos.jpg` | Didymos from DART DRACO | NASA/JHU APL (DART) | Public domain |
 | `amalthea.jpg` | Bright Streak on Amalthea (PIA02532) | NASA/JPL/Cornell (Galileo) | Public domain |
+| `phoebe.jpg` | [Phoebe cassini full.jpg](https://commons.wikimedia.org/wiki/File:Phoebe_cassini_full.jpg) | NASA/JPL/Space Science Institute (Cassini) | Public domain |
+| `253-mathilde.jpg` | [253 Mathilde NASA.png](https://commons.wikimedia.org/wiki/File:253_Mathilde_NASA.png) | NASA/JHU APL (NEAR Shoemaker) | Public domain |
+| `gaspra.jpg` | [Galileo Gaspra Mosaic.jpg](https://commons.wikimedia.org/wiki/File:Galileo_Gaspra_Mosaic.jpg) | NASA/JPL (Galileo) | Public domain |
+| `ida.jpg` | [243 ida.jpg](https://commons.wikimedia.org/wiki/File:243_ida.jpg) | NASA/JPL (Galileo) | Public domain |
