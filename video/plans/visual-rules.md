@@ -43,6 +43,9 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   videos' picture density is a little over standard (60), so pictures keep clear room
   around them; a scene's `alsoIcons` puts pictures first without forcing them. Real space
   photographs take room before generated pictures.
+- **Space is darker** (2026-10-24): the chart darkens with mass from the stars up (half by
+  10^35 g, 70% from 10^41 g), and soft-edged space pictures (galaxies, clusters, nebulae)
+  may sit closer together than solid things: they keep as little as 45% of their room.
 - **Replace long holds with slow moves** (a 3–7 s pan or push between the objects being
   named), e.g. Mercury → Mars → Earth for atmospheres, a push onto Phobos and Deimos.
 - **The background painting stays on**, even blurred, on deep zooms (an automatic fade-out
