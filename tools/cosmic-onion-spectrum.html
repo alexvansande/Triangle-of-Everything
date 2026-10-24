@@ -61,6 +61,9 @@
   #spectrum .tick { position: absolute; top: 5px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%;
     border: 2px solid var(--sky); box-sizing: border-box; }
   .scale { display: flex; justify-content: space-between; color: var(--dim); font-size: 11px; margin-bottom: 8px; }
+  .row label.check { color: var(--fg); display: inline-flex; gap: 5px; align-items: center; cursor: pointer; }
+  .row label.check input { margin: 0; accent-color: var(--fg); }
+  select:disabled { opacity: 0.45; cursor: default; }
   .spread input { flex: 1; min-width: 0; accent-color: var(--fg); }
   .spread output { width: 3.2em; text-align: right; color: var(--dim); font-variant-numeric: tabular-nums; }
   #missing { position: absolute; inset: 0; display: none; place-items: center; text-align: center; color: var(--dim); }
@@ -86,13 +89,15 @@
 <button id="toggle" aria-controls="panel" aria-expanded="false">Layers</button>
 <div id="panel">
   <div class="row">
-    <label for="cut">Cutaway</label>
-    <select id="cut">
+    <label class="check"><input id="cut-on" type="checkbox" checked> Cutaway</label>
+    <select id="cut" aria-label="Cutaway shape">
       <option value="octant">Octant</option>
       <option value="quarter">Quarter</option>
       <option value="half">Half</option>
-      <option value="none">None</option>
     </select>
+    <label class="check"><input id="back" type="checkbox" checked> Back faces</label>
+  </div>
+  <div class="row">
     <button id="spin">Pause spin</button>
     <button id="labels">Hide labels</button>
   </div>
@@ -268,10 +273,21 @@ shells.forEach((s) => {
   range.oninput = () => { s.mat.uniforms.opacity.value = +range.value; };
   list.appendChild(el);
 });
-document.getElementById("cut").onchange = (e) => {
-  cutUniform.value.set(...CUTS[e.target.value]);
+// cutaway on/off keeps the chosen shape; back faces off draws only the
+// sky side of each shell that faces you
+const cutSelect = document.getElementById("cut");
+const cutOnBox = document.getElementById("cut-on");
+function applyCut() {
+  cutUniform.value.set(...CUTS[cutOnBox.checked ? cutSelect.value : "none"]);
+  cutSelect.disabled = !cutOnBox.checked;
   buildEdges();
-};
+}
+cutSelect.onchange = cutOnBox.onchange = applyCut;
+const backBox = document.getElementById("back");
+backBox.onchange = () => shells.forEach((s) => {
+  s.mat.side = backBox.checked ? THREE.DoubleSide : THREE.FrontSide;
+  s.mat.needsUpdate = true;
+});
 let spinning = !STILL && !matchMedia("(prefers-reduced-motion: reduce)").matches;
 const spinBtn = document.getElementById("spin");
 if (!spinning) spinBtn.textContent = "Spin";
@@ -346,6 +362,10 @@ spreadInput.oninput = () => setSpread(+spreadInput.value);
 const spreadParam = new URLSearchParams(location.search).get("spread");
 if (spreadParam !== null) spreadInput.value = spreadParam;
 setSpread(+spreadInput.value);
+// ?cut=off and ?back=off start with those switched off
+const startParams = new URLSearchParams(location.search);
+if (startParams.get("cut") === "off") { cutOnBox.checked = false; applyCut(); }
+if (startParams.get("back") === "off") { backBox.checked = false; backBox.onchange(); }
 
 // ---------- labels: a ladder up the cut's vertical edge ----------
 const v = new THREE.Vector3();
