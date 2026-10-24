@@ -1,4 +1,4 @@
-> All macro illustration requests in this file installed 2026-10-24 with matching wall shadows. Space requests remain pending. See `tools/macro-request-review.html` and `docs/macro-request-batch.json`.
+> All macro illustration requests in this file installed 2026-10-24 with matching wall shadows. Space requests completed 2026-10-24; see `tools/space-request-review.html`. See `tools/macro-request-review.html` and `docs/macro-request-batch.json`.
 
 # Picture requests: rocks, a hill and the Colosseum around the pyramid (2026-10-24)
 
@@ -12,7 +12,7 @@ catalogue dot. Style, sizes and steps as in `fill-the-gaps.md`; save as
 |---|---|---|---|
 | ~~Stone of the Pregnant Woman~~ | ~~~1,000 t~~ | ~~`stone-of-the-pregnant-woman`~~ | ~~The huge squared limestone block lying tilted out of its quarry floor, one end raised, pale honey-cream stone, tool marks. Reference: `pyramid-giza`. Reference photo: `references/stone-of-the-pregnant-woman.jpg`.~~ |
 | ~~Big Rock (Okotoks)~~ | ~~16,500 t~~ | ~~`big-rock-okotoks`~~ | ~~A lone grey-pink quartzite boulder split in two, on no ground, lichen patches. Reference: `hoba`. Reference photo: `references/big-rock-okotoks.jpg`.~~ |
-| Benben Saxum (Bennu) | ~90,000 t | `benben-saxum-bennu` | The tallest boulder on asteroid Bennu: a dark, rough, angular rock, charcoal grey. Reference: `bennu`. |
+| ~~Benben Saxum (Bennu)~~ | ~~~90,000 t~~ | ~~`benben-saxum-bennu`~~ | ~~The tallest boulder on asteroid Bennu: a dark, rough, angular rock, charcoal grey. Reference: `bennu`.~~ |
 | ~~Colosseum~~ | ~~~400,000 t~~ | ~~`colosseum`~~ | ~~The amphitheatre in three-quarter view from slightly above, the intact four-storey outer wall on the left and the broken inner rings on the right, warm travertine. Reference: `pyramid-giza`, `eiffel-tower`. Reference photo: `references/colosseum.jpg`.~~ |
 | ~~Devils Tower~~ | ~~~23 million t~~ | ~~`devils-tower`~~ | ~~The flat-topped column of grey-brown hexagonal columns rising from a skirt of broken rubble, side view. Reference: `mt-everest`. Reference photo: `references/devils-tower.jpg`.~~ |
 | ~~Uluru~~ | ~~~2.6 billion t~~ | ~~`uluru`~~ | ~~The long rounded red monolith, side view, vertical furrows down its flanks, warm orange-red, on no ground. Reference: `mt-everest`. Reference photo: `references/uluru.jpg`.~~ |

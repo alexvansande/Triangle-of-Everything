@@ -1,0 +1,11 @@
+{
+  "slug": "trappist-1-e",
+  "prompt": "Create a polished realistic illustrated miniature for our scientific chart. Isolated complete object on genuinely transparent square background, no ground, no space/stars backdrop, no labels, no cast shadow. Subject 94% of square's longest dimension, 3% clear margins. Soft studio key from screen UPPER LEFT/NW, smoothly darker lower-right, enough fill to read whole silhouette. Restrained natural palette and fine readable detail. Artist interpretation of TRAPPIST-1 e: rocky planet, muted dark oceans, rusty land and pale thin cloud wisps, thin atmosphere, subtle deep red-orange illumination. No Earth continent shapes. Reference white sphere controls shading exactly, not surface color.",
+  "refs": [
+    "content/icons/src/sphere template.png"
+  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-a034fc57-ad8b-41c7-8645-481488b475e8.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs."
+}

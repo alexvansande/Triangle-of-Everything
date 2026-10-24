@@ -1,4 +1,5 @@
 [
+ "55-cnc-e",
  "beta-pictoris-b",
  "callisto",
  "ceres",
@@ -8,6 +9,8 @@
  "ganymede",
  "io",
  "jupiter",
+ "k2-18-b",
+ "kelt-9-b",
  "kepler-22b",
  "mars",
  "mercury",
@@ -20,7 +23,10 @@
  "soccer-ball",
  "tardigrade",
  "titan",
+ "trappist-1-e",
  "triton",
  "uranus",
- "venus"
+ "venus",
+ "wasp-12-b",
+ "wasp-39-b"
 ]

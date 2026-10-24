@@ -1,4 +1,4 @@
-> All macro illustration requests in this file installed 2026-10-24 with matching wall shadows. Space requests remain pending. See `tools/macro-request-review.html` and `docs/macro-request-batch.json`.
+> All macro illustration requests in this file installed 2026-10-24 with matching wall shadows. Space requests completed 2026-10-24; see `tools/space-request-review.html`. See `tools/macro-request-review.html` and `docs/macro-request-batch.json`.
 
 > First macro batch installed 2026-10-23: Spirit of St. Louis, polar bear, sperm whale, humpback whale. See tools/macro-request-review.html. Remaining rows are still pending.
 
@@ -34,6 +34,6 @@ volume is illustrative; it does not change the catalogue's stated size/mass scop
 | ~~a 20 t animal~~ | ~~**Sperm whale** (about 15 t, big males 45 t)~~ | ~~`sperm-whale`~~ | ~~Side view, the huge blunt square head, wrinkled dark grey skin, small lower jaw, nose to the left. Reference style: `blue-whale`.~~ |
 | ~~a 30 t animal~~ | ~~**Humpback whale** (30 t)~~ | ~~`humpback-whale`~~ | ~~Side view with the long white pectoral fins spread, knobbly head, dark back, white throat grooves. Reference style: `blue-whale`.~~ |
 | ~~a 100 Gt object~~ | ~~**Lake Geneva** (89 km³, 89 Gt of water)~~ | ~~`lake-geneva`~~ | ~~The crescent-shaped lake seen from above as a deep blue water body with a thin shoreline, like the other lakes. Reference style: `lake-baikal`, `konigssee`.~~ |
-| between Mars and Venus | **TRAPPIST-1 e** (0.7 Earth masses, in its star's habitable zone) | `trappist-1-e` | An artist's rocky planet with a thin atmosphere, lit deep red-orange by a dim red-dwarf sun from the upper left, possible dark oceans and pale clouds. Reference style: `kepler-22b`, `earth`. |
+| ~~between Mars and Venus~~ | ~~**TRAPPIST-1 e** (0.7 Earth masses, in its star's habitable zone)~~ | ~~`trappist-1-e`~~ | ~~An artist's rocky planet with a thin atmosphere, lit deep red-orange by a dim red-dwarf sun from the upper left, possible dark oceans and pale clouds. Reference style: `kepler-22b`, `earth`.~~ |
 
 Between Ceres and Pluto: done with the real Iapetus (Cassini photo, shaded with the sphere template, 2026-10-24), not a generated picture. 100,000–1,000,000 Gt: 253 Mathilde, from NEAR's photo, the same way.

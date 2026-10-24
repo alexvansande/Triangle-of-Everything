@@ -1,0 +1,11 @@
+{
+  "slug": "didymos",
+  "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Draw Didymos, NOT Dimorphos. Supplied image is surface texture reference ONLY (it likely depicts its moonlet). The requested body is a round oblate spinning-top asteroid with broad equatorial ridge, grey boulder-strewn surface, shallow depressions, subtle slightly pointed poles. Not a cube, not the lumpy elongated moonlet. Whole body, ridge visible from slightly above equatorial plane.",
+  "refs": [
+    "content/icons/requests/references/didymos.jpg"
+  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-73cf5016-2ad4-42ab-90e8-079cd884bd4b.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs."
+}

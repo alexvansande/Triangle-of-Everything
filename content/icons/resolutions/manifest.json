@@ -5159,5 +5159,320 @@
         "path": "1024/stonehenge.webp"
       }
     ]
+  },
+  "16-psyche": {
+    "fingerprint": "f16b4f0fdf811a20ab7dd29d5689449dfdf8dd4bc9e524666046342c9018e38f",
+    "baseWidth": 128,
+    "source": "content/icons/src/16-psyche.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6165974934895834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/16-psyche.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/16-psyche.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/16-psyche.webp"
+      }
+    ]
+  },
+  "21-lutetia": {
+    "fingerprint": "9535fde12f0c893869722719d9dca3118bb0e10ee829de0722b24f5e923f791e",
+    "baseWidth": 128,
+    "source": "content/icons/src/21-lutetia.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7109781901041666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/21-lutetia.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/21-lutetia.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/21-lutetia.webp"
+      }
+    ]
+  },
+  "55-cnc-e": {
+    "fingerprint": "3344268444fcda833a8aa972c0e43e0185bc4077b57c61d2b188aba6c64d6514",
+    "baseWidth": 128,
+    "source": "content/icons/src/55-cnc-e.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7596232096354166,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/55-cnc-e.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/55-cnc-e.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/55-cnc-e.webp"
+      }
+    ]
+  },
+  "amalthea": {
+    "fingerprint": "28ec1dc7ffd31762be555e5009fd267e9a44341ca8400ab7d1248d905f7364db",
+    "baseWidth": 128,
+    "source": "content/icons/src/amalthea.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6472574869791666,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/amalthea.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/amalthea.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/amalthea.webp"
+      }
+    ]
+  },
+  "benben-saxum-bennu": {
+    "fingerprint": "c2d092381065487d6af6a9075d23f15203a3e373a37f81366563e2d125f66a3d",
+    "baseWidth": 128,
+    "source": "content/icons/src/benben-saxum-bennu.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5685628255208334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/benben-saxum-bennu.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/benben-saxum-bennu.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/benben-saxum-bennu.webp"
+      }
+    ]
+  },
+  "comet-67p": {
+    "fingerprint": "e1d6791aebb88b03a8358d625f6908df642b3226ef63d863b461b62a2dabbf7d",
+    "baseWidth": 128,
+    "source": "content/icons/src/comet-67p.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5579427083333334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/comet-67p.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/comet-67p.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/comet-67p.webp"
+      }
+    ]
+  },
+  "didymos": {
+    "fingerprint": "3b8b2ac259ff480694346cefbfb066d13c5b8a2f1efee7f72d3f565e98455d16",
+    "baseWidth": 128,
+    "source": "content/icons/src/didymos.png",
+    "reason": "matching master",
+    "sourceDifference": 0.62603759765625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/didymos.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/didymos.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/didymos.webp"
+      }
+    ]
+  },
+  "dinkinesh": {
+    "fingerprint": "44436d83723c8c381e7be119bdea7bb72bf7a959d69e94a865d21356c9d799fb",
+    "baseWidth": 128,
+    "source": "content/icons/src/dinkinesh.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6767781575520834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/dinkinesh.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/dinkinesh.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/dinkinesh.webp"
+      }
+    ]
+  },
+  "k2-18-b": {
+    "fingerprint": "e5ab23cdf6b47becd1547730c98c7ca373b47cd098ef3ef07e902de108c0904f",
+    "baseWidth": 128,
+    "source": "content/icons/src/k2-18-b.png",
+    "reason": "matching master",
+    "sourceDifference": 0.77978515625,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/k2-18-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/k2-18-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/k2-18-b.webp"
+      }
+    ]
+  },
+  "kelt-9-b": {
+    "fingerprint": "62320ee5d7a34182fe5c1476fc245882084e4f477b351ddc2bfbdb643006ae5a",
+    "baseWidth": 128,
+    "source": "content/icons/src/kelt-9-b.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7585042317708334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/kelt-9-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/kelt-9-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/kelt-9-b.webp"
+      }
+    ]
+  },
+  "nix": {
+    "fingerprint": "c445d77693a0cfb88f3de2363dc01b622bbe21ab4552357a76c42b2cbc4bad4f",
+    "baseWidth": 128,
+    "source": "content/icons/src/nix.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6009318033854166,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/nix.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/nix.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/nix.webp"
+      }
+    ]
+  },
+  "ryugu": {
+    "fingerprint": "69ad04c747f7bcc572fbd70a25207cc93f70ad65ceafef03a01816290e0ea261",
+    "baseWidth": 128,
+    "source": "content/icons/src/ryugu.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6575927734375,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/ryugu.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/ryugu.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/ryugu.webp"
+      }
+    ]
+  },
+  "trappist-1-e": {
+    "fingerprint": "1ae932988ecc303ca0d5f80f21bc17af04154c8712cd38e8de5527abf8e4b38e",
+    "baseWidth": 128,
+    "source": "content/icons/src/trappist-1-e.png",
+    "reason": "matching master",
+    "sourceDifference": 0.7887166341145834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/trappist-1-e.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/trappist-1-e.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/trappist-1-e.webp"
+      }
+    ]
+  },
+  "wasp-12-b": {
+    "fingerprint": "57f054a77668c3c56eb4e86184b91347bb2042a41e8d12c461c9ddfee99fd0a5",
+    "baseWidth": 128,
+    "source": "content/icons/src/wasp-12-b.png",
+    "reason": "matching master",
+    "sourceDifference": 0.6880086263020834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/wasp-12-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/wasp-12-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/wasp-12-b.webp"
+      }
+    ]
+  },
+  "wasp-39-b": {
+    "fingerprint": "0cdf537fe87f26c1136d8bfef0c34bef90c1e48bce8a4a1d9d8247abd0125543",
+    "baseWidth": 128,
+    "source": "content/icons/src/wasp-39-b.png",
+    "reason": "matching master",
+    "sourceDifference": 0.8069661458333334,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/wasp-39-b.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/wasp-39-b.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/wasp-39-b.webp"
+      }
+    ]
   }
 }

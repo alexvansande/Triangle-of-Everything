@@ -1,0 +1,11 @@
+{
+  "slug": "benben-saxum-bennu",
+  "prompt": "Scientific chart isolated realistic miniature, genuinely transparent square background, no ground or scenery, no stars, text, border or cast shadow. Single complete object 94% of square longest dimension with 3% margin. Soft northwest/UPPER LEFT studio illumination, darker lower-right, readable complete silhouette. Neutral restrained colors, detailed but not exaggerated. Draw ONLY the large angular boulder indicated by the Benben arrow in NASA's map, not the asteroid nor the surrounding terrain. Isolate and reconstruct its hidden underside as solid rock. Preserve the squat rough block with irregular facets and dark charcoal-grey color. No arrows or lettering.",
+  "refs": [
+    "content/icons/requests/references/benben-features.png"
+  ],
+  "file": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-26bec56e-aefb-4514-bf30-479bba100c3e.png",
+  "date": "2026-10-24",
+  "method": "built-in image_gen",
+  "note": "Interpretive illustration. Mission photos constrain observed shapes; unresolved and unlit detail is inferred. Exoplanets and Psyche are artist interpretations, not resolved photographs."
+}
