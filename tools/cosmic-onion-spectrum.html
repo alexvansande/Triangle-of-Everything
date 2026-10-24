@@ -61,6 +61,8 @@
   #spectrum .tick { position: absolute; top: 5px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%;
     border: 2px solid var(--sky); box-sizing: border-box; }
   .scale { display: flex; justify-content: space-between; color: var(--dim); font-size: 11px; margin-bottom: 8px; }
+  .spread input { flex: 1; min-width: 0; accent-color: var(--fg); }
+  .spread output { width: 3.2em; text-align: right; color: var(--dim); font-variant-numeric: tabular-nums; }
   #missing { position: absolute; inset: 0; display: none; place-items: center; text-align: center; color: var(--dim); }
   body.still #panel, body.still #toggle, body.still #status { display: none; }
   @media (max-width: 700px) {
@@ -93,6 +95,11 @@
     </select>
     <button id="spin">Pause spin</button>
     <button id="labels">Hide labels</button>
+  </div>
+  <div class="row spread">
+    <label for="spread">Spread</label>
+    <input id="spread" type="range" min="0" max="1" step="0.01" value="1">
+    <output id="spread-out" for="spread">100%</output>
   </div>
   <h2>Colour = frequency, low → high</h2>
   <div id="spectrum" aria-hidden="true"><div class="bar"></div></div>
@@ -236,7 +243,7 @@ LAYERS.forEach((L, i) => {
   label.style.color = L.color;
   label.innerHTML = `${L.name}<small>${L.band.split(" · ")[0]}</small>`;
   document.body.appendChild(label);
-  shells.push({ L, mesh, mat, radius, label });
+  shells.push({ L, mesh, mat, base: radius, radius, label });
 });
 
 // ---------- panel ----------
@@ -257,7 +264,7 @@ shells.forEach((s) => {
   el.innerHTML = `<input type="checkbox" checked><div class="name">${s.L.name}</div>
     <div class="meta">${s.L.meta}</div><input type="range" min="0" max="2" step="0.01" value="1">`;
   const [box, range] = el.querySelectorAll("input");
-  box.onchange = () => { s.mesh.visible = box.checked; };
+  box.onchange = () => { s.mesh.visible = s.edges.visible = box.checked; };
   range.oninput = () => { s.mat.uniforms.opacity.value = +range.value; };
   list.appendChild(el);
 });
@@ -284,13 +291,19 @@ const labelsBtn = document.getElementById("labels");
 labelsBtn.onclick = () => { showLabels = !showLabels; labelsBtn.textContent = showLabels ? "Hide labels" : "Show labels"; };
 
 // ---------- cut edges: where each shell meets the cut planes ----------
+// traced on a unit sphere and scaled to each shell, so the spread slider
+// only rescales them
 const edges = new THREE.Group();
 scene.add(edges);
 function buildEdges() {
   edges.clear();
   const c = cutUniform.value.toArray();
-  if (c[0] > 1) return;
   shells.forEach((s) => {
+    s.edges = new THREE.Group();
+    s.edges.scale.setScalar(s.radius);
+    s.edges.visible = s.mesh.visible;
+    edges.add(s.edges);
+    if (c[0] > 1) return;
     const mat = new THREE.LineBasicMaterial({ color: s.L.color, transparent: true, opacity: 0.85 });
     // for each cut plane (axis = 0), trace the circle and keep the part
     // that borders the removed wedge
@@ -300,12 +313,12 @@ function buildEdges() {
       for (let k = 0; k <= 360; k++) {
         const a = (k * Math.PI) / 180, p = [0, 0, 0];
         const [u, w] = [(axis + 1) % 3, (axis + 2) % 3];
-        p[u] = s.radius * Math.cos(a);
-        p[w] = s.radius * Math.sin(a);
+        p[u] = Math.cos(a);
+        p[w] = Math.sin(a);
         const inside = p[u] >= c[u] - 1e-9 && p[w] >= c[w] - 1e-9;
         if (inside) run.push(new THREE.Vector3(...p));
         if ((!inside || k === 360) && run.length > 1) {
-          edges.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(run), mat));
+          s.edges.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(run), mat));
         }
         if (!inside) run = [];
       }
@@ -314,12 +327,33 @@ function buildEdges() {
 }
 buildEdges();
 
+// ---------- spread: 1 = shells at their own radii, 0 = all on the outer sphere ----------
+const OUTER = R0 + DR * (LAYERS.length - 1);
+let spread = 1;
+function setSpread(t) {
+  spread = t;
+  shells.forEach((s) => {
+    s.radius = OUTER - (OUTER - s.base) * t;
+    s.mesh.scale.setScalar(s.radius / s.base);
+    s.edges.scale.setScalar(s.radius);
+    s.edges.visible = s.mesh.visible;
+  });
+  spreadOut.value = `${Math.round(t * 100)}%`;
+}
+const spreadInput = document.getElementById("spread");
+const spreadOut = document.getElementById("spread-out");
+spreadInput.oninput = () => setSpread(+spreadInput.value);
+const spreadParam = new URLSearchParams(location.search).get("spread");
+if (spreadParam !== null) spreadInput.value = spreadParam;
+setSpread(+spreadInput.value);
+
 // ---------- labels: a ladder up the cut's vertical edge ----------
 const v = new THREE.Vector3();
 function placeLabels() {
   const cutOn = cutUniform.value.x < 1;
   shells.forEach((s) => {
-    const show = showLabels && s.mesh.visible && cutOn;
+    // squeezed shells would stack their labels on one spot
+    const show = showLabels && s.mesh.visible && cutOn && spread >= 0.3;
     s.label.style.display = show ? "block" : "none";
     if (!show) return;
     v.set(0, s.radius, 0).project(camera);
