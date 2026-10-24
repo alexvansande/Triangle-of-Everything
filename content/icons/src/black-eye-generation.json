@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-24",
+  "tool": "real photograph, not generated",
+  "object": "black-eye",
+  "slug": "black-eye",
+  "source": "NASA and The Hubble Heritage Team (AURA/STScI); Wikimedia Commons: Blackeyegalaxy.jpg; public domain",
+  "shows": "Hubble visible light: the dark band is dust",
+  "steps": "crop around the object, fade on the ellipse inscribed in the photo (no edges left), pad to a 1024 px square; then node scripts/generate-icon-resolutions.mjs <slug> and node scripts/unscreen-icons.mjs <slug>"
+}

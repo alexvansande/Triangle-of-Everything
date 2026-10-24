@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-24",
+  "tool": "real photograph, not generated",
+  "object": "centaurus-a",
+  "slug": "centaurus-a",
+  "source": "Chandra photo album 2008 (chandra.harvard.edu/photo/2008/cena), NASA/CXC/CfA/R.Kraft et al., ESO/WFI, MPIfR/ESO/APEX; public domain",
+  "shows": "composite of real data: X-ray jet and lobes (Chandra, blue), radio lobes (orange), starlight",
+  "steps": "crop around the object, fade on the ellipse inscribed in the photo (no edges left), pad to a 1024 px square; then node scripts/generate-icon-resolutions.mjs <slug> and node scripts/unscreen-icons.mjs <slug>"
+}
