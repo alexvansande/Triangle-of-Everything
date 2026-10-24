@@ -1492,6 +1492,8 @@ export async function startNarration(app) {
   window.__narr = {
     duration,
     // where an object sits on the chart, [log r, log m] (for framing scenes)
+    // the camera at time t: { r, m, span } (for checking framing)
+    view: (t) => { const v = camera(t).view; return { r: v.r, m: v.m, span: v.span }; },
     where: (name) => { const o = objByName.get(name); return o ? [+o.logR.toFixed(2), +o.logM.toFixed(2)] : null; },
     cues: cues.map(c => ({ t: +c.time.toFixed(2), at: c.at })),
     // the scene's sound cues resolved to times, for scripts/narration-sound.mjs
