@@ -619,7 +619,11 @@ export async function startNarration(app) {
     join(gSketch, live.filter(h => h.sketch)).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
-      el.attr("opacity", smooth((t - h.t0) / 0.3) * (1 - smooth((t - h.t1) / 0.6)));
+      // one level hands straight over to the next (same towers, same places); only the
+      // first fades in and the last fades out
+      const next = highlights.some(q => q.sketch === h.sketch && Math.abs(q.t0 - h.t1) < 0.05);
+      const prev = highlights.some(q => q.sketch === h.sketch && Math.abs(q.t1 - h.t0) < 0.05);
+      el.attr("opacity", (prev ? 1 : smooth((t - h.t0) / 0.3)) * (next ? (t < h.t1 ? 1 : 0) : 1 - smooth((t - h.t1) / 0.6)));
       drawSketch(el, h, t - h.t0);
     });
     join(gHl, live.filter(h => !h.axis && !h.sketch)).each(function (h) {
@@ -820,13 +824,9 @@ export async function startNarration(app) {
     arch: { c: [0.5, 0.966], r: 0.16 },
     gap: [[0.474, 0.605], [0.526, 0.605], [0.547, 0.69], [0.453, 0.69]],
   };
-  function drawSketch(el, h, age) {
-    // over a dive, the visible copy of the picture (the original stays put, hidden, smaller)
-    const box = (dollyOn && app.dollyRect?.()) || app.iconRect?.(h.sketch);
-    if (!box) return;
-    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
-    const X = (u) => (box.x - lr.x + u * box.w) / scl, Y = (v) => (box.y - lr.y + v * box.h) / scl;
-    const P = ([u, v]) => `${X(u).toFixed(1)},${Y(v).toFixed(1)}`;
+  // tower i of the row, as drawn: 0 the outline, 1 carved, 2 the lattice
+  function towerPath(level, M) {
+    const P = ([u, v]) => { const [x, y] = M(u, v); return `${x.toFixed(1)},${y.toFixed(1)}`; };
     const { prof, arch, gap } = EIFFEL;
     const half = (v) => {
       if (v <= prof[0][0]) return prof[0][1];
@@ -837,25 +837,25 @@ export async function startNarration(app) {
       return prof[prof.length - 1][1];
     };
     const outline = [...prof.slice().reverse().map(([v, w]) => [0.5 - w, v]), ...prof.slice(1).map(([v, w]) => [0.5 + w, v])];
-    let d = d3.line().x(p => X(p[0])).y(p => Y(p[1])).curve(d3.curveCatmullRom.alpha(0.5))(outline) + "Z";
+    const d = d3.line().x(p => M(p[0], p[1])[0]).y(p => M(p[0], p[1])[1]).curve(d3.curveCatmullRom.alpha(0.5))(outline) + "Z";
     const inGap = ([u, v]) => v > gap[0][1] && v < gap[2][1] && (() => {
       const f = (v - gap[0][1]) / (gap[2][1] - gap[0][1]);
       return u > gap[0][0] + (gap[3][0] - gap[0][0]) * f && u < gap[1][0] + (gap[2][0] - gap[1][0]) * f;
     })();
     const inArch = ([u, v]) => v < arch.c[1] && Math.hypot(u - arch.c[0], v - arch.c[1]) < arch.r;
-    if ((h.level || 0) >= 1) {
-      const r = arch.r * box.w / scl;
-      d += `M${P([arch.c[0] - arch.r, arch.c[1]])}A${r.toFixed(1)},${r.toFixed(1)} 0 0 1 ${P([arch.c[0] + arch.r, arch.c[1]])}`;
-      d += `M${gap.map(P).join("L")}Z`;
+    let holes = "", lattice = "";
+    if (level >= 1) {
+      const [x0] = M(arch.c[0] - arch.r, arch.c[1]), [x1] = M(arch.c[0] + arch.r, arch.c[1]), r = ((x1 - x0) / 2).toFixed(1);
+      holes += `M${P([arch.c[0] - arch.r, arch.c[1]])}A${r},${r} 0 0 1 ${P([arch.c[0] + arch.r, arch.c[1]])}`;
+      holes += `M${gap.map(P).join("L")}Z`;
     }
-    let lattice = "";
-    if ((h.level || 0) >= 2) {
-      // the lattice: bands up the tower, each cut into panels about as wide as they're
-      // tall, each panel with its X brace; the arch and the opening left open
+    if (level >= 2) {
+      // bands up the tower, each cut into panels about as wide as they're tall, each with
+      // its X brace; the arch and the opening left open
       const top = 0.1, bottom = prof[prof.length - 1][0], rows = 16;
       for (let i = 0; i < rows; i++) {
         const v0 = bottom - (bottom - top) * i / rows, v1 = bottom - (bottom - top) * (i + 1) / rows;
-        const w = half((v0 + v1) / 2) * 2, n = Math.max(1, Math.round(w / (v0 - v1)));
+        const n = Math.max(1, Math.round(half((v0 + v1) / 2) * 2 / (v0 - v1)));
         for (let j = 0; j < n; j++) {
           const q = [[0.5 - half(v0) + 2 * half(v0) * j / n, v0], [0.5 - half(v0) + 2 * half(v0) * (j + 1) / n, v0],
             [0.5 - half(v1) + 2 * half(v1) * (j + 1) / n, v1], [0.5 - half(v1) + 2 * half(v1) * j / n, v1]];
@@ -865,19 +865,43 @@ export async function startNarration(app) {
         }
       }
     }
-    const k = d3.easeCubicOut(clamp01(age / (h.draw ?? 0.9)));
-    // its estimated volume and density, under the drawing
-    if (h.volume) {
-      const a = clamp01((age - 0.5) / 0.5), tx = X(0.5), ty = Y(1) + 22;
-      el.append("text").attr("class", "narr-sketch-num").attr("x", tx).attr("y", ty).attr("text-anchor", "middle")
-        .attr("opacity", a).text(h.volume);
-      if (h.density) el.append("text").attr("class", "narr-sketch-sub").attr("x", tx).attr("y", ty + 17).attr("text-anchor", "middle")
-        .attr("opacity", a).text(h.density);
+    return { outline: d, holes, lattice };
+  }
+  /** The tower's steps side by side: { sketch: name, level: 0–2, draw?: s, labels: [[volume,
+   *  density], …] }. Level n shows n + 1 towers in a row, the outline, carved, the lattice;
+   *  going up a level, the row slides apart and the new tower splits off the last one and
+   *  draws in. Placed on the dive's visible picture, a little smaller as the row grows. */
+  function drawSketch(el, h, age) {
+    // over a dive, the visible copy of the picture (the original stays put, hidden, smaller)
+    const box = (dollyOn && app.dollyRect?.()) || app.iconRect?.(h.sketch);
+    if (!box) return;
+    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
+    const X = (u) => (box.x - lr.x + u * box.w) / scl, Y = (v) => (box.y - lr.y + v * box.h) / scl;
+    const L = h.level || 0, n = L + 1, W = layer.clientWidth;
+    const size = (m) => [1, 0.82, 0.68][m - 1] ?? 0.68;
+    const gapPx = (m) => Math.min(W / 3.1, box.w / scl * 0.85);
+    const slot = (i, m) => (i - (m - 1) / 2) * gapPx(m);
+    const slide = d3.easeCubicInOut(clamp01(age / 0.8));
+    const cx = X(0.5), baseY = Y(0.966);
+    for (let i = 0; i < n; i++) {
+      // where it starts: its place in the row before (the new one, at the last tower's)
+      const from = L === 0 ? 0 : slot(Math.min(i, L - 1), L), to = slot(i, n);
+      const dx = from + (to - from) * slide;
+      const s = L === 0 ? 1 : size(L) + (size(n) - size(L)) * slide;
+      const M = (u, v) => [cx + (X(u) - cx) * s + dx, baseY - (baseY - Y(v)) * s];
+      const { outline, holes, lattice } = towerPath(i, M);
+      const fresh = i === L, k = fresh ? d3.easeCubicOut(clamp01(age / (h.draw ?? 0.9))) : 1;
+      const g = el.append("g");
+      [[outline + holes, 6, 0.16], [outline + holes, 1.3, 0.95], [lattice, 0.8, 0.7]].forEach(([path, w, o]) => path && g.append("path")
+        .attr("d", path).attr("fill", "none").attr("stroke", "#fff").attr("stroke-width", w).attr("opacity", o)
+        .attr("stroke-linejoin", "round").attr("pathLength", 1).attr("stroke-dasharray", `${k} 1`));
+      const lab = h.labels?.[i];
+      if (lab) {
+        const a = fresh ? clamp01((age - 0.5) / 0.5) : 1, tx = cx + dx, ty = baseY + 22;
+        g.append("text").attr("class", "narr-sketch-num").attr("x", tx).attr("y", ty).attr("text-anchor", "middle").attr("opacity", a).text(lab[0]);
+        if (lab[1]) g.append("text").attr("class", "narr-sketch-sub").attr("x", tx).attr("y", ty + 17).attr("text-anchor", "middle").attr("opacity", a).text(lab[1]);
+      }
     }
-    // the outline and holes with a soft glow; the lattice finer, so the tower shows through
-    [[d, 6, 0.16], [d, 1.3, 0.95], [lattice, 0.8, 0.7]].forEach(([path, w, o]) => path && el.append("path").attr("d", path)
-      .attr("fill", "none").attr("stroke", "#fff").attr("stroke-width", w).attr("opacity", o).attr("stroke-linejoin", "round")
-      .attr("pathLength", 1).attr("stroke-dasharray", `${k} 1`));
   }
   /** Every object being named gets a light blue halo behind its picture (like a
    *  star's wall glow, stronger), from its first mention: on in 0.5 s, held to
