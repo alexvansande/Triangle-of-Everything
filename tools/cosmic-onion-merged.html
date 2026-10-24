@@ -56,6 +56,8 @@
     vertical-align: middle; margin-left: 5px; opacity: 0.8; }
   .label small { display: block; font-weight: 400; color: #c3c7d4; margin-right: 19px; font-size: 10.5px; }
   body.log-radius .label small { display: none; } /* shells crowd at the rim in log mode */
+  .orbit-label { position: absolute; transform: translate(6px, -50%); pointer-events: none; white-space: nowrap;
+    font-size: 10.5px; text-shadow: 0 0 3px var(--sky), 0 0 6px var(--sky); }
   .decade { position: absolute; transform: translate(8px, -50%); pointer-events: none; white-space: nowrap;
     font-size: 10.5px; color: var(--dim); font-variant-numeric: tabular-nums; text-shadow: 0 0 3px var(--sky), 0 0 6px var(--sky); }
   .decade::before { content: ""; display: inline-block; width: 8px; height: 1px; background: currentColor;
@@ -136,6 +138,7 @@
     <select id="radius">
       <option value="even">Even spacing</option>
       <option value="log">Log distance (ly)</option>
+      <option value="sun">Log from the Sun (R☉)</option>
     </select>
   </div>
   <div class="row spread">
@@ -379,7 +382,7 @@ const fragVolume = /* glsl */ `
   uniform sampler2D m0, m1, m2, m3, m4, m5;
   uniform float r[6];   // current shell radii
   uniform float g[6];   // gain × brightness × on, per shell
-  uniform float rMax, haloLen, spin, density;
+  uniform float rMax, haloLen, spin, density, rIn;
   uniform vec3 cut;
   varying vec3 vWorld;
   // weight of shell i at radius x: a tent between its neighbours
@@ -407,7 +410,7 @@ const fragVolume = /* glsl */ `
       float phi = atan(q.z, -q.x);
       vec2 uv = vec2(1.0 - fract(phi / 6.2831853), 1.0 - acos(clamp(q.y, -1.0, 1.0)) / 3.1415927);
       float w;
-      w = tent(x, 0.0, r[0], r[1]);                     if (w > 0.0) acc += w * g[0] * tap(m0, uv);
+      w = tent(x, rIn, r[0], r[1]);                     if (w > 0.0) acc += w * g[0] * tap(m0, uv);
       w = tent(x, r[0], r[1], r[2]);                    if (w > 0.0) acc += w * g[1] * tap(m1, uv);
       w = tent(x, r[1], r[2], r[3]);                    if (w > 0.0) acc += w * g[2] * tap(m2, uv);
       w = tent(x, r[2], r[3], r[4]);                    if (w > 0.0) acc += w * g[3] * tap(m3, uv);
@@ -421,7 +424,7 @@ const volumeMat = new THREE.ShaderMaterial({
   uniforms: {
     ...Object.fromEntries(shells.map((s, i) => [`m${i}`, s.mat.uniforms.map])),
     r: { value: new Array(6).fill(1) }, g: { value: new Array(6).fill(1) },
-    rMax: { value: 10 }, haloLen: { value: 1 }, spin: { value: 0 }, density: { value: 0.3 }, cut: cutUniform,
+    rMax: { value: 10 }, haloLen: { value: 1 }, rIn: { value: 0 }, spin: { value: 0 }, density: { value: 0.3 }, cut: cutUniform,
   },
 });
 const volume = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 32), volumeMat);
@@ -439,6 +442,8 @@ function updateVolume() {
   // the spheres sit at rotation π/4 inside the spinning globe
   u.spin.value = globe.rotation.y + Math.PI / 4;
   u.density.value = 1.2 * rays;
+  // Sun mode: keep the solar system clear; rays start at the Oort Cloud's edge
+  u.rIn.value = radiusMode === "sun" ? ORBITS[ORBITS.length - 1].radius : 0;
   volume.visible = rays > 0;
 }
 
@@ -579,23 +584,87 @@ function setSpread(t) {
 const spreadInput = document.getElementById("spread");
 const spreadOut = document.getElementById("spread-out");
 spreadInput.oninput = () => setSpread(+spreadInput.value);
-// ---------- radius: even spacing, or each shell at log10 of its outer distance in ly ----------
-// 1 ly (10⁰) sits at the centre and the CMB (10¹⁰·⁶⁶ ly) on the outer sphere
+// ---------- radius: even spacing, or log distance ----------
+// "log": each shell at log10 of its outer distance in ly; 1 ly (10⁰) at the
+// centre, the CMB (10¹⁰·⁶⁶ ly) on the outer sphere.
+// "sun": log10 of distance in solar radii, from 0.1 R☉ (10⁻¹) at the centre,
+// so the Sun's surface (10⁰ R☉) is a visible ball, out to the CMB at 10¹⁷·⁸ R☉.
 const LOG_MAX = LAYERS[LAYERS.length - 1].logLy;
+const LY_IN_RSUN = 7.1335; // log10(1 ly / 696,000 km)
+const AU_IN_RSUN = 2.3325; // log10(1 AU / 696,000 km)
+const SUN_MIN = -1, SUN_MAX = LOG_MAX + LY_IN_RSUN;
 const logRadius = (logLy) => (OUTER * logLy) / LOG_MAX;
+const sunRadius = (logRs) => (OUTER * (logRs - SUN_MIN)) / (SUN_MAX - SUN_MIN);
 let radiusMode = "even";
-const SUP = "⁰¹²³⁴⁵⁶⁷⁸⁹";
-const decades = Array.from({ length: Math.floor(LOG_MAX) + 1 }, (_, d) => {
+const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+const pow10 = (d) => `10${String(d).split("").map((c) => SUP[c]).join("")}`;
+const decades = Array.from({ length: Math.floor(SUN_MAX) + 1 }, (_, d) => {
   const el = document.createElement("div");
   el.className = "decade";
-  el.textContent = `10${String(d).split("").map((c) => SUP[c]).join("")} ly`;
   document.body.appendChild(el);
   return { d, el };
 });
+
+// the Sun: a plain ball of 1 R☉, only in "sun" mode
+const sun = new THREE.Mesh(new THREE.SphereGeometry(sunRadius(0), 64, 32),
+  new THREE.MeshBasicMaterial({ color: 0xfff1c4 }));
+sun.renderOrder = -1;
+sun.visible = false;
+scene.add(sun);
+
+// the ecliptic disc: planet orbits as log-radius circles, in the real
+// ecliptic plane (north ecliptic pole at l = 96.38°, b = 29.81°), turning
+// with the sky. Same galactic → sphere-local mapping as the maps' uv.
+const galToLocal = (l, b) => new THREE.Vector3(
+  Math.cos(b) * Math.cos(l), Math.sin(b), -Math.cos(b) * Math.sin(l));
+const ORBITS = [
+  { name: "Mercury", au: 0.387, color: "#b9b4ad" }, { name: "Venus", au: 0.723, color: "#f1d9a0" },
+  { name: "Earth", au: 1, color: "#6fb4ff" }, { name: "Mars", au: 1.524, color: "#ff8a5c" },
+  { name: "Jupiter", au: 5.203, color: "#e7c18f" }, { name: "Saturn", au: 9.537, color: "#f3dc95" },
+  { name: "Uranus", au: 19.19, color: "#9fe8f0" }, { name: "Neptune", au: 30.07, color: "#6f8dff" },
+  { name: "Kuiper Belt", au: 50, color: "#8f95ab", faint: true },
+  { name: "Heliopause", au: 120, color: "#8f95ab", faint: true },
+  { name: "Oort Cloud (inner)", au: 2000, color: "#6c7186", faint: true },
+  { name: "Oort Cloud (outer)", au: 100000, color: "#6c7186", faint: true },
+];
+const ecliptic = new THREE.Group();
+ecliptic.rotation.y = Math.PI / 4; // like every sphere inside the globe
+globe.add(ecliptic);
+const eclipticPlane = new THREE.Group();
+eclipticPlane.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0),
+  galToLocal(96.38 * Math.PI / 180, 29.81 * Math.PI / 180).normalize());
+ecliptic.add(eclipticPlane);
+ecliptic.visible = false;
+const circle = Array.from({ length: 257 }, (_, k) =>
+  new THREE.Vector3(Math.cos((k / 256) * 2 * Math.PI), 0, Math.sin((k / 256) * 2 * Math.PI)));
+const circleGeom = new THREE.BufferGeometry().setFromPoints(circle);
+ORBITS.forEach((o) => {
+  o.radius = sunRadius(Math.log10(o.au) + AU_IN_RSUN);
+  const line = new THREE.Line(circleGeom, new THREE.LineBasicMaterial({
+    color: o.color, transparent: true, opacity: o.faint ? 0.45 : 0.9 }));
+  line.scale.setScalar(o.radius);
+  eclipticPlane.add(line);
+  o.label = document.createElement("div");
+  o.label.className = "orbit-label";
+  o.label.style.color = o.color;
+  o.label.textContent = o.name;
+  document.body.appendChild(o.label);
+});
+// a faint fill across the planets' part of the disc
+const discFill = new THREE.Mesh(
+  new THREE.RingGeometry(sunRadius(0), ORBITS[7].radius, 128, 1).rotateX(-Math.PI / 2),
+  new THREE.MeshBasicMaterial({ color: 0xffe6b0, transparent: true, opacity: 0.06,
+    side: THREE.DoubleSide, depthWrite: false }));
+eclipticPlane.add(discFill);
+
 function setRadiusMode(mode) {
   radiusMode = mode;
-  document.body.classList.toggle("log-radius", mode === "log");
-  shells.forEach((s) => (s.base = mode === "log" ? logRadius(s.L.logLy) : s.even));
+  document.body.classList.toggle("log-radius", mode !== "even");
+  shells.forEach((s) => (s.base =
+    mode === "log" ? logRadius(s.L.logLy) : mode === "sun" ? sunRadius(s.L.logLy + LY_IN_RSUN) : s.even));
+  sun.visible = ecliptic.visible = mode === "sun";
+  const unit = mode === "sun" ? "R☉" : "ly";
+  decades.forEach(({ d, el }) => (el.textContent = `${pow10(d)} ${unit}`));
   setSpread(spread);
 }
 const radiusSelect = document.getElementById("radius");
@@ -608,7 +677,10 @@ const startParams = new URLSearchParams(location.search);
 if (startParams.get("cut") === "off") { cutOnBox.checked = false; applyCut(); }
 if (startParams.get("back") === "off") { backBox.checked = false; backBox.onchange(); }
 // ?radius=log
-if (startParams.get("radius") === "log") { radiusSelect.value = "log"; setRadiusMode("log"); }
+if (["log", "sun"].includes(startParams.get("radius"))) {
+  radiusSelect.value = startParams.get("radius");
+  setRadiusMode(radiusSelect.value);
+}
 // ?surfaces=0…1 and ?rays=0…2
 for (const [key, input] of [["surfaces", surfacesInput], ["rays", raysInput]]) {
   if (startParams.has(key)) { input.value = startParams.get(key); input.oninput(); }
@@ -633,13 +705,25 @@ function placeLabels() {
     s.label.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
   });
   // decade ticks up the same edge, on the other side, only while the radii are true log distances
-  const showTicks = showLabels && cutOn && radiusMode === "log" && spread > 0.999;
+  const showTicks = showLabels && cutOn && radiusMode !== "even" && spread > 0.999;
   decades.forEach(({ d, el }) => {
-    el.style.display = showTicks ? "block" : "none";
-    if (!showTicks) return;
-    v.set(0, logRadius(d), 0).project(camera);
+    const on = showTicks && (radiusMode === "sun" ? d % 2 === 0 : d <= LOG_MAX);
+    el.style.display = on ? "block" : "none";
+    if (!on) return;
+    v.set(0, radiusMode === "sun" ? sunRadius(d) : logRadius(d), 0).project(camera);
     el.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
     el.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
+  });
+  // planet names on their orbits, at a fixed point on the disc
+  ORBITS.forEach((o, i) => {
+    const on = showLabels && ecliptic.visible;
+    o.label.style.display = on ? "block" : "none";
+    if (!on) return;
+    const a = 0.5 * i; // spread round the disc so names don't stack
+    v.set(Math.cos(a) * o.radius, 0, Math.sin(a) * o.radius);
+    eclipticPlane.localToWorld(v).project(camera);
+    o.label.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
+    o.label.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
   });
 }
 
