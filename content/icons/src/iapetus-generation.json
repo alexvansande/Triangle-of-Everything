@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-24",
+  "tool": "photo composite (scripts/compose-iapetus.py), not generated",
+  "object": "Iapetus",
+  "slug": "iapetus",
+  "source": "NASA/JPL/Space Science Institute, Cassini, 10 Sep 2007 (PIA08384), public domain; Wikimedia Commons: Iapetus_as_seen_by_the_Cassini_probe_-_20071008.jpg (3840 px)",
+  "steps": "Least-squares circle on the sunlit limb (centre 1908.9, 1906.3; radius 1647.7 px); crop so the disc spans 970 of 1024 px like mimas.png; turn 113° so the photo's thin night edge falls on the shadow side (light from the upper left, as the other icons); clean circular alpha; multiply by content/icons/src/sphere template.png stretched over the disc, strength 1.0."
+}

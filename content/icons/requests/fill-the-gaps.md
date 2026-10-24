@@ -1,6 +1,6 @@
 # Picture requests: filling the chart's gaps (2026-10-23)
 
-Eight catalogue objects in parts of the chart with no pictures, picked by the author's
+Catalogue objects in parts of the chart with no pictures, picked by the author's
 list of gaps. All are already catalogue dots; Peekskill, the two whales and 253 Mathilde
 were added to `src/dust-famous.json` so their pictures show. A catalogue picture is found
 by the slug of its famous label (or its name), so save each as
@@ -23,7 +23,6 @@ at least 25 px clear margin. Crisp enough to read at 128 px.
 | a 30 t animal | **Humpback whale** (30 t) | `humpback-whale` | Side view with the long white pectoral fins spread, knobbly head, dark back, white throat grooves. Reference style: `blue-whale`. |
 | a 100 Gt object | **Lake Geneva** (89 km³, 89 Gt of water) | `lake-geneva` | The crescent-shaped lake seen from above as a deep blue water body with a thin shoreline, like the other lakes. Reference style: `lake-baikal`, `konigssee`. |
 | 100,000–1,000,000 Gt | **253 Mathilde** (about 10²⁰ g; 53 km, one of the darkest asteroids, a porous rubble pile) | `253-mathilde` | A lumpy, almost black asteroid covered in huge craters, as NEAR photographed it in 1997. Reference style: `eros`, `bennu`. |
-| between Ceres and Pluto | **Iapetus** (1.8 × 10²⁴ g, moon of Saturn) | `iapetus` | A round moon, one hemisphere dark brown-black and the other bright white, with the ridge running round its equator (the "walnut" ridge). Reference style: `mimas`, `enceladus`. |
 | between Mars and Venus | **TRAPPIST-1 e** (0.7 Earth masses, in its star's habitable zone) | `trappist-1-e` | An artist's rocky planet with a thin atmosphere, lit deep red-orange by a dim red-dwarf sun from the upper left, possible dark oceans and pale clouds. Reference style: `kepler-22b`, `earth`. |
 
-Charon (moon of Pluto) is the alternative for "between Ceres and Pluto" if Iapetus doesn't work.
+Between Ceres and Pluto: done with the real Iapetus (Cassini photo, shaded with the sphere template, 2026-10-24), not a generated picture.
