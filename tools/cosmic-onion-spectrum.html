@@ -111,6 +111,11 @@
     </select>
   </div>
   <div class="row spread">
+    <label for="halo">Outer halo</label>
+    <input id="halo" type="range" min="0" max="4" step="0.05" value="2">
+    <output id="halo-out" for="halo">2 gaps</output>
+  </div>
+  <div class="row spread">
     <label for="spread">Spread</label>
     <input id="spread" type="range" min="0" max="1" step="0.01" value="1">
     <output id="spread-out" for="spread">100%</output>
@@ -299,12 +304,15 @@ function buildBetween(k) {
   // dimmer when there are more of them, so each gap glows about the same
   const weight = 1.3 / (k + 1);
   const n = shells.length;
-  // gaps: centre → first shell, each pair, last shell → beyond
+  // gaps: centre → first shell and each pair (k each), then the outer
+  // halo: HALO_N shells expanding past the last one and darkening
+  const HALO_N = 8;
   for (let g = 0; g <= n; g++) {
     const A = shells[Math.max(0, g - 1)], B = shells[Math.min(n - 1, g)];
     const kind = g === 0 ? "in" : g === n ? "out" : "mid";
-    for (let j = 1; j <= k; j++) {
-      const f = j / (k + 1);
+    const count = kind === "out" ? HALO_N : k;
+    for (let j = 1; j <= count; j++) {
+      const f = j / (count + 1);
       const mat = new THREE.ShaderMaterial({
         vertexShader: vert, fragmentShader: fragBetween, ...SCREEN,
         side: backBox.checked ? THREE.DoubleSide : THREE.FrontSide,
@@ -315,8 +323,8 @@ function buildBetween(k) {
           opA: A.mat.uniforms.opacity, opB: B.mat.uniforms.opacity,
           onA: A.mat.uniforms.on, onB: B.mat.uniforms.on,
           mixF: { value: kind === "mid" ? f : 0 },
-          fade: { value: kind === "in" ? f : kind === "out" ? 1 - f : 1 },
-          weight: { value: weight },
+          fade: { value: kind === "in" ? f : kind === "out" ? Math.pow(1 - f, 1.2) : 1 },
+          weight: { value: kind === "out" ? 4 / (HALO_N + 1) : weight },
         },
       });
       const mesh = new THREE.Mesh(unitSphere, mat);
@@ -330,9 +338,10 @@ function buildBetween(k) {
 function placeBetween() {
   between.forEach((b) => {
     const r = b.kind === "in" ? b.A.radius * b.f
-      : b.kind === "out" ? b.A.radius + 0.5 * DR * spread * b.f
+      : b.kind === "out" ? b.A.radius + halo * DR * b.f
       : b.A.radius + (b.B.radius - b.A.radius) * b.f;
     b.mesh.scale.setScalar(Math.max(r, 0.01));
+    b.mesh.visible = b.kind !== "out" || halo > 0;
   });
 }
 
@@ -434,6 +443,15 @@ buildEdges();
 // ---------- spread: 1 = shells at their own radii, 0 = all on the outer sphere ----------
 const OUTER = R0 + DR * (LAYERS.length - 1);
 let spread = 1;
+// outer halo depth, in shell gaps (0 = off)
+let halo = 2;
+const haloInput = document.getElementById("halo");
+const haloOut = document.getElementById("halo-out");
+haloInput.oninput = () => {
+  halo = +haloInput.value;
+  haloOut.value = halo === 0 ? "off" : `${+halo.toFixed(1)} gaps`;
+  placeBetween();
+};
 function setSpread(t) {
   spread = t;
   shells.forEach((s) => {
