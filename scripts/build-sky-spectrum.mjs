@@ -452,6 +452,80 @@ for (let y = 0; y < DH; y++) for (let x = 0; x < DW; x++) {
 await sharp(depth, { raw: { width: DW, height: DH, channels: 3 } }).blur(1.2).png().toFile(join(OUT, "depth.png"));
 console.log(`depth.png: starlight from ${starRows.length} Gaia cells, dust from ${dustLd.filter(Number.isFinite).length} cells`);
 
+// ---------- depth distributions: not one distance per direction, but how the light spreads ----------
+// depthq.png holds, for each direction, the log distance (ly) below which
+// 1/12, 3/12 … 11/12 of a kind's light comes from (six quantiles), so the
+// page's Cloud can give each point its own distance from that spread:
+//   starlight — Gaia stars' G flux by GSP-Phot distance (reaches tens of kly)
+//   dust      — where the same stars' extinction (A_G) rises with distance
+//   halo      — modelled: synchrotron from an exponential disc (scale length
+//               10 kpc, height 1 kpc), integrated along the line of sight
+// Six 512×256 tiles of three quantiles each: starlight (tiles 0–1), dust
+// (2–3), halo (4–5); tile t sits at column t % 2, row ⌊t / 2⌋.
+const QL = 5, QBIN = 0.25, QB0 = 4, QNB = 19; // log10 ly bins 1.0 … 5.75
+const qRows = await gaiaChunks(QL, 20,
+  `FLOOR(LOG10(distance_gspphot * 3.26156) / ${QBIN}) AS bin, SUM(phot_g_mean_flux) AS f, AVG(ag_gspphot) AS ag, COUNT(*) AS n`,
+  "distance_gspphot > 0 AND phot_g_mean_flux > 0", "hpx, bin", "dist-hist");
+const QC = 12 * 4 ** QL, qFlux = new Float64Array(QC * QNB), qAg = new Float32Array(QC * QNB).fill(NaN), qN = new Float32Array(QC * QNB);
+for (const r of qRows) {
+  const k = r.bin - QB0;
+  if (k < 0 || k >= QNB) continue;
+  qFlux[r.hpx * QNB + k] = r.f; qN[r.hpx * QNB + k] = r.n;
+  if (Number.isFinite(r.ag) && r.n >= 5) qAg[r.hpx * QNB + k] = r.ag;
+}
+const binLd = (k) => (QB0 + k + 0.5) * QBIN; // bin centre, log10 ly
+const QS = [1, 3, 5, 7, 9, 11].map((x) => x / 12);
+// quantiles of a weight per bin (log distance, linear within each bin)
+function quantiles(w) {
+  const tot = w.reduce((a, b) => a + b, 0);
+  if (!(tot > 0)) return null;
+  const out = [];
+  let acc = 0, k = 0;
+  for (const q of QS) {
+    while (k < w.length - 1 && acc + w[k] < q * tot) acc += w[k++];
+    const f = w[k] > 0 ? Math.min(1, Math.max(0, (q * tot - acc) / w[k])) : 0.5;
+    out.push((QB0 + k + f) * QBIN);
+  }
+  return out;
+}
+const starQ = new Array(QC).fill(null), dustQ = new Array(QC).fill(null);
+for (let c = 0; c < QC; c++) {
+  const f = Array.from({ length: QNB }, (_, k) => qFlux[c * QNB + k]);
+  if (f.reduce((a, b) => a + b, 0) > 0 && qN.slice(c * QNB, (c + 1) * QNB).reduce((a, b) => a + b, 0) >= 20) starQ[c] = quantiles(f);
+  // dust: the rise of the running maximum of mean extinction, bin by bin
+  let prev = 0;
+  const dA = Array.from({ length: QNB }, (_, k) => {
+    const a = qAg[c * QNB + k];
+    if (!Number.isFinite(a)) return 0;
+    const cum = Math.max(prev, a), d = cum - prev;
+    prev = cum;
+    return d;
+  });
+  if (prev > 0.05) dustQ[c] = quantiles(dA);
+}
+// synchrotron disc model along a line of sight (l, b in radians)
+const R0 = 8.18, RS = 10, HZ = 1; // kpc
+function haloQ(l, b) {
+  const w = Array.from({ length: QNB }, (_, k) => {
+    const s = 10 ** binLd(k) / 3261.56; // kpc
+    const x = s * Math.cos(b) * Math.cos(l), y = s * Math.cos(b) * Math.sin(l), z = s * Math.sin(b);
+    const R = Math.hypot(R0 - x, y);
+    return R > 20 ? 0 : Math.exp(-(R - R0) / RS - Math.abs(z) / HZ) * s; // per log bin: emissivity × length
+  });
+  return quantiles(w);
+}
+const QW = 512, QH = 256, depthq = Buffer.alloc(QW * 2 * QH * 3 * 3);
+for (let y = 0; y < QH; y++) for (let x = 0; x < QW; x++) {
+  const l = gridL(x, QW), b = gridB(y, QH), cell = healpixCell(QL, l, b), d = diffuseAt(l, b);
+  const sets = [starQ[cell] ?? QS.map(() => d.stars), dustQ[cell] ?? QS.map(() => d.dust), haloQ(l, b) ?? QS.map(() => d.halo)];
+  sets.forEach((qs, kind) => qs.forEach((ld, j) => {
+    const t = kind * 2 + Math.floor(j / 3), col = t % 2, row = Math.floor(t / 2);
+    depthq[3 * ((row * QH + y) * QW * 2 + col * QW + x) + (j % 3)] = enc(ld);
+  }));
+}
+await sharp(depthq, { raw: { width: QW * 2, height: QH * 3, channels: 3 } }).png().toFile(join(OUT, "depthq.png"));
+console.log(`depthq.png: starlight spread in ${starQ.filter(Boolean).length} cells, dust in ${dustQ.filter(Boolean).length} of ${QC}`);
+
 // ---------- high-energy depth from catalogued sources ----------
 // Each source is painted as the band's point-spread function times its flux;
 // a pixel takes the distance of the source that dominates it, if that source
@@ -545,7 +619,7 @@ const radioPix = withSrc.filter((v, i) => (v - noSrc[i]) / v >= RADIO_OWN).lengt
 console.log(`radio-sources.png: ${owned} of the ${radioPix} pixels where radio galaxies give a third of the light or more, placed by catalogue`);
 
 writeFileSync(join(OUT, "bands.json"), JSON.stringify({
-  width: W, height: H, packs, depth: "depth.png", sourceDepth: "sources.png", radioDepth: "radio-sources.png", cmb: "cmb.png", background, depthScale: 11, sources: sourceNote,
+  width: W, height: H, packs, depth: "depth.png", sourceDepth: "sources.png", radioDepth: "radio-sources.png", cmb: "cmb.png", depthQuantiles: "depthq.png", background, depthScale: 11, sources: sourceNote,
   depthKinds: Object.keys(DEPTH_KIND),
   bands: BANDS.map(({ id, name, wave, what, source, empty }, i) =>
     ({ id, name, wave, what, source, empty: !!empty, pack: Math.floor(i / 3), channel: i % 3, depth: DEPTH_KIND[depthOf(id)] })),

@@ -16,6 +16,9 @@
   Sky only: a distance window drops every band's light whose depth (where
   along the line of sight it comes from) falls outside it, in every view.
   Inside also shows Earth at the centre, in the same bands, the sky behind it.
+  In the Cloud each point takes its own distance from its direction's spread
+  of starlight, dust and halo light (six quantiles per direction), so the
+  Galaxy shows its depth, not one average per direction.
   In the Cloud, microwave and X-ray light is split into a background that
   carries on behind the disc — the CMB (Planck's component-separated map) at
   46 Gly, the cosmic X-ray background (uniform, dimmed by the Galaxy's gas) at
@@ -416,12 +419,12 @@
     // whose depth is outside the window; L = light-weighted depth of what's kept
     const shared = `
       ${meta.packs.map((_, i) => `uniform sampler2D p${i};`).join("\n")}
-      uniform sampler2D depthMap, sourceMap, radioMap, cmbMap;
+      uniform sampler2D depthMap, sourceMap, radioMap, cmbMap, depthQ;
       uniform float wR[${P * 3}], wG[${P * 3}], wB[${P * 3}];
       uniform int kind[${P * 3}];
       uniform float dLo, dHi, lonSign;
       uniform float bgLevel[${P * 3}], bgSigma[${P * 3}]; // X-ray background per band (0 for others)
-      uniform bool useDepth;
+      uniform bool useDepth, hasQ;
       vec2 dirUV(vec3 n) {
         float l = atan(-n.z, n.x), b = asin(clamp(n.y, -1.0, 1.0));
         return vec2(fract(0.5 + lonSign * l / 6.2831853), 0.5 - b / 3.1415927);
@@ -431,7 +434,21 @@
       // carries on behind the disc: for microwave the CMB (Planck's
       // component-separated map, 46 Gly), for X-ray the cosmic X-ray background
       // (uniform, dimmed by the Galaxy's gas, at z ≈ 1)
-      void bands(vec2 uv, float lod, int layer, out vec3 col, out float L, out float kept) {
+      // the Cloud's per-point distance for starlight (0), dust (1) or the halo
+      // (2): six quantiles of each kind's light per direction (depthq.png),
+      // read at this point's own q in 0…1, linear between (and past) them
+      float qv(int kind, int j, vec2 uv) {
+        int t = kind * 2 + j / 3;
+        vec2 inset = clamp(uv, vec2(0.5 / 512.0, 0.5 / 256.0), vec2(1.0 - 0.5 / 512.0, 1.0 - 0.5 / 256.0));
+        vec3 c = textureLod(depthQ, (vec2(float(t % 2), float(t / 2)) + inset) / vec2(2.0, 3.0), 0.0).rgb;
+        return (j % 3 == 0 ? c.r : j % 3 == 1 ? c.g : c.b) * 11.0;
+      }
+      float qDepth(int kind, vec2 uv, float q) {
+        float f = q * 6.0 - 0.5;
+        int j0 = clamp(int(floor(f)), 0, 4);
+        return mix(qv(kind, j0, uv), qv(kind, j0 + 1, uv), f - float(j0));
+      }
+      void bands(vec2 uv, float lod, int layer, float q, out vec3 col, out float L, out float kept) {
         float v[${P * 3}];
         vec3 t;
         ${meta.packs.map((_, i) => `t = textureLod(p${i}, uv, lod).rgb; v[${3 * i}] = t.r; v[${3 * i + 1}] = t.g; v[${3 * i + 2}] = t.b;`).join("\n        ")}
@@ -442,6 +459,7 @@
           depth[0] = dm.r; depth[1] = dm.g; depth[2] = dm.b;
           depth[6] = sm.r; depth[7] = sm.g; depth[8] = sm.b;
           depth[9] = textureLod(radioMap, uv, 0.0).r * 11.0;
+          if (layer >= 0 && hasQ) { depth[0] = qDepth(0, uv, q); depth[1] = qDepth(1, uv, q); depth[2] = qDepth(2, uv, q); }
         }
         // how much of a microwave band is foreground (bright dust or synchrotron)
         float fg3 = smoothstep(0.35, 0.75, v[${I857}]), fg4 = smoothstep(0.3, 0.65, v[${I408}]);
@@ -517,7 +535,7 @@
           uv = dirUV(turn(normalize(vec3(p * zoom, -1.0))));
         }
         vec3 col; float L, kept;
-        bands(uv, lod, -1, col, L, kept);
+        bands(uv, lod, -1, 0.5, col, L, kept);
         o = vec4(pow(clamp(col * gain, 0.0, 1.0), vec3(gam)) * edge, 1.0);
       }`);
     // Cloud (sky): points spread evenly over the sky, each at radius = log of
@@ -546,7 +564,7 @@
         // a share pCmb of the points carry the CMB alone, the rest everything
         // else; each brightened by its share so the total stays the same
         int layer = useDepth && hash(i + 0.91) < pCmb ? 1 : 0;
-        bands(dirUV(d), 1.0, layer, col, L, kept);
+        bands(dirUV(d), 1.0, layer, hash(i + 0.57), col, L, kept);
         col *= layer == 1 ? 1.0 / pCmb : 1.0 / (1.0 - pCmb);
         float r, vis = 1.0;
         if (rmode == 0) r = L <= LGAL ? 0.8 * clamp((L - LMIN) / (LGAL - LMIN), 0.0, 1.0) : 0.8 + 0.2 * clamp((L - LGAL) / (LMAX - LGAL), 0.0, 1.0);
@@ -689,7 +707,8 @@
       hasDepth && meta.sourceDepth ? loadTex(`./${T.dir}/${meta.sourceDepth}`, P + 1, false, true) : Promise.resolve(),
       hasDepth && meta.radioDepth ? loadTex(`./${T.dir}/${meta.radioDepth}`, P + 2, false, true) : Promise.resolve(),
       hasDepth && meta.cmb ? loadTex(`./${T.dir}/${meta.cmb}`, P + 3, false) : Promise.resolve(),
-      ...(hasDepth ? OBJ.flatMap((ob, oi) => ob.meta.packs.map((f, i) => loadTex(`./${ob.dir}/${f}`, P + 4 + OBJ_PACKS * oi + i, true))) : []),
+      hasDepth && meta.depthQuantiles ? loadTex(`./${T.dir}/${meta.depthQuantiles}`, P + 4, false) : Promise.resolve(),
+      ...(hasDepth ? OBJ.flatMap((ob, oi) => ob.meta.packs.map((f, i) => loadTex(`./${ob.dir}/${f}`, P + 5 + OBJ_PACKS * oi + i, true))) : []),
     ]);
     if (session.signal.aborted) return;
     const BG_LEVEL = new Float32Array(P * 3), BG_SIGMA = new Float32Array(P * 3);
@@ -703,6 +722,8 @@
       gl.uniform1i(gl.getUniformLocation(p, "sourceMap"), hasDepth && meta.sourceDepth ? P + 1 : 0);
       gl.uniform1i(gl.getUniformLocation(p, "radioMap"), hasDepth && meta.radioDepth ? P + 2 : 0);
       gl.uniform1i(gl.getUniformLocation(p, "cmbMap"), hasDepth && meta.cmb ? P + 3 : 0);
+      gl.uniform1i(gl.getUniformLocation(p, "depthQ"), hasDepth && meta.depthQuantiles ? P + 4 : 0);
+      gl.uniform1i(gl.getUniformLocation(p, "hasQ"), hasDepth && meta.depthQuantiles ? 1 : 0);
       gl.uniform1fv(gl.getUniformLocation(p, "bgLevel"), BG_LEVEL);
       gl.uniform1fv(gl.getUniformLocation(p, "bgSigma"), BG_SIGMA);
       gl.uniform1iv(gl.getUniformLocation(p, "kind"), kinds);
@@ -711,7 +732,7 @@
       if (!p) return;
       gl.useProgram(p);
       // unused samplers point at this object's first pack; their bands carry no weight
-      for (let i = 0; i < OBJ_PACKS; i++) gl.uniform1i(gl.getUniformLocation(p, `o${i}`), P + 4 + OBJ_PACKS * oi + Math.min(i, OBJ[oi].meta.packs.length - 1));
+      for (let i = 0; i < OBJ_PACKS; i++) gl.uniform1i(gl.getUniformLocation(p, `o${i}`), P + 5 + OBJ_PACKS * oi + Math.min(i, OBJ[oi].meta.packs.length - 1));
     });
     status.textContent = `${N} bands`;
 

@@ -17,6 +17,7 @@
  "sourceDepth": "sources.png",
  "radioDepth": "radio-sources.png",
  "cmb": "cmb.png",
+ "depthQuantiles": "depthq.png",
  "background": {
   "xsoft": {
    "level": 0.1725,
