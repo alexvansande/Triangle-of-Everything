@@ -15,6 +15,7 @@
  ],
  "depth": "depth.png",
  "sourceDepth": "sources.png",
+ "radioDepth": "radio-sources.png",
  "depthScale": 11,
  "sources": {
   "xray": {
@@ -34,6 +35,12 @@
    "named galaxy": 3,
    "parallax": 11,
    "binary catalogue": 6
+  },
+  "radio": {
+   "photometric redshift": 270,
+   "redshift": 1196,
+   "no distance": 667,
+   "distance": 2
   }
  },
  "depthKinds": [
@@ -45,19 +52,20 @@
   "none",
   "xray",
   "gamma-lo",
-  "gamma-hi"
+  "gamma-hi",
+  "radio"
  ],
  "bands": [
   {
    "id": "radio408",
    "name": "Radio 408 MHz",
    "wave": "73 cm",
-   "what": "synchrotron from cosmic-ray electrons",
+   "what": "synchrotron from cosmic-ray electrons, radio galaxies",
    "source": "Haslam et al., reprocessed 2014",
    "empty": false,
    "pack": 0,
    "channel": 0,
-   "depth": 2
+   "depth": 9
   },
   {
    "id": "hi21",

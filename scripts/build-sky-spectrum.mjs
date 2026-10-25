@@ -35,8 +35,11 @@ mkdirSync(OUT, { recursive: true });
 // Planck maps hold CMB fluctuations around zero, so they get asinh (log-like
 // for the bright plane, linear and signed near zero) instead of log.
 const A = "https://alasky.cds.unistra.fr", IRAP = "https://cade.irap.omp.eu/documents/Ancillary/4Aladin";
+const LAMBDA = "https://lambda.gsfc.nasa.gov/data/foregrounds/haslam_2014";
 const BANDS = [
-  { id: "radio408", name: "Radio 408 MHz", wave: "73 cm", what: "synchrotron from cosmic-ray electrons", source: "Haslam et al., reprocessed 2014", base: `${A}/Haslam408_2014`, stretch: "log" },
+  // the destriped map with its radio galaxies kept (LAMBDA "ds"); the
+  // source-subtracted twin ("dsds") tells the depth map which pixels they own
+  { id: "radio408", name: "Radio 408 MHz", wave: "73 cm", what: "synchrotron from cosmic-ray electrons, radio galaxies", source: "Haslam et al., reprocessed 2014", healpix: `${LAMBDA}/haslam408_ds_Remazeilles2014.fits`, stretch: "log" },
   { id: "hi21", name: "21 cm hydrogen", wave: "21 cm", what: "neutral hydrogen gas", source: "HI4PI", base: `${A}/HI4PI/P_HI4PI_NHI`, stretch: "log" },
   { id: "p030", name: "Planck 30 GHz", wave: "1 cm", what: "synchrotron, free-free, CMB", source: "Planck LFI R3", base: `${A}/PLANCK/R3/LFI_SkyMap_30_R3`, stretch: "asinh" },
   { id: "p044", name: "Planck 44 GHz", wave: "6.8 mm", what: "CMB and Galactic plane", source: "Planck LFI R3", base: `${A}/PLANCK/R3/LFI_SkyMap_44_R3`, stretch: "asinh" },
@@ -146,6 +149,40 @@ function readFitsTile(path) {
   return f;
 }
 
+// HEALPix RING pixel index (galactic all-sky maps from LAMBDA come this way)
+function ringPix(nside, z, phi) {
+  const za = Math.abs(z), tt = ((phi / (Math.PI / 2)) % 4 + 4) % 4;
+  if (za <= 2 / 3) {
+    const t1 = nside * (0.5 + tt), t2 = nside * z * 0.75;
+    const jp = Math.floor(t1 - t2), jm = Math.floor(t1 + t2);
+    const ir = nside + 1 + jp - jm, kshift = 1 - (ir & 1);
+    const ip = ((Math.floor((jp + jm - nside + kshift + 1) / 2) % (4 * nside)) + 4 * nside) % (4 * nside);
+    return 2 * nside * (nside - 1) + (ir - 1) * 4 * nside + ip;
+  }
+  const tp = tt - Math.floor(tt), tmp = nside * Math.sqrt(3 * (1 - za));
+  const jp = Math.floor(tp * tmp), jm = Math.floor((1 - tp) * tmp), ir = jp + jm + 1;
+  const ip = Math.floor(tt * ir) % (4 * ir);
+  return z > 0 ? 2 * ir * (ir - 1) + ip : 12 * nside * nside - 2 * ir * (ir + 1) + ip;
+}
+// a RING-ordered, galactic HEALPix FITS table (one float column) on the w × h grid
+async function healpixMap(url, file, w = W, h = H) {
+  const buf = readFileSync(await download(url, file));
+  const card = (k) => buf.toString("latin1", 0, 2880 * 8).match(new RegExp(`${k}\\s*=\\s*'?([^'/]+)`))?.[1].trim();
+  if (card("ORDERING") !== "RING" || card("COORDSYS") !== "GALACTIC") throw new Error(`${file}: not a galactic RING map`);
+  const nside = +card("NSIDE");
+  let off = 0, ends = 0; // primary header, then the table header: data starts after the second END
+  for (; ends < 2; off += 2880) if (/^END\s*$/m.test(buf.toString("latin1", off, off + 2880).match(/.{80}/g).join("\n"))) ends++;
+  const vals = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) {
+    const b = (0.5 - (y + 0.5) / h) * Math.PI;
+    for (let x = 0; x < w; x++) {
+      const v = buf.readFloatBE(off + 4 * ringPix(nside, Math.sin(b), (0.5 - (x + 0.5) / w) * 2 * Math.PI));
+      vals[y * w + x] = v < -1e30 ? NaN : v;
+    }
+  }
+  return vals;
+}
+
 // Fetch one band's tiles (FITS when the survey has them, else its images)
 // and resample onto the grid. Returns one float value per output pixel.
 async function reproject(band) {
@@ -247,7 +284,9 @@ for (const band of BANDS) {
     console.log(`  · ${band.id} (cached)`);
     continue;
   }
-  const { vals, order, fits } = await reproject(band);
+  const { vals, order, fits } = band.healpix
+    ? { vals: await healpixMap(band.healpix, `lambda/${band.id}.fits`), order: "HEALPix", fits: true }
+    : await reproject(band);
   const g = normalise(vals, band.stretch, band.lo);
   writeFileSync(file, g);
   await sharp(Buffer.from(g), { raw: { width: W, height: H, channels: 1 } }).resize(512, 256).png()
@@ -278,16 +317,17 @@ for (let p = 0; p * 3 < BANDS.length; p++) {
 // sources.png (1024×512, same grid) places the X-ray and gamma bands
 // by catalogued sources with measured distances:
 //   R  X-ray (MAXI)       G  gamma 0.3–1 GeV       B  gamma 3–300 GeV
+// radio-sources.png (1024×512, grey) does the same for the radio galaxies at 408 MHz.
 // Each band names its depth kind; the page mixes them by what each pixel shows.
 // Microwave bands are CMB (46 Gly) except where the Galaxy is bright; the page
 // blends that per pixel from the 857 GHz (dust) and 408 MHz (synchrotron) maps.
-const DEPTH_KIND = { stars: 0, dust: 1, halo: 2, "cmb-dust": 3, "cmb-halo": 4, none: 5, xray: 6, "gamma-lo": 7, "gamma-hi": 8 };
+const DEPTH_KIND = { stars: 0, dust: 1, halo: 2, "cmb-dust": 3, "cmb-halo": 4, none: 5, xray: 6, "gamma-lo": 7, "gamma-hi": 8, radio: 9 };
 const depthOf = (id) =>
   ["rp", "g", "bp", "j", "k", "w1", "w2"].includes(id) ? "stars"
   : ["hi21", "p353", "p545", "p857", "a160", "a140", "a90", "a65", "w4", "w3"].includes(id) ? "dust"
   : ["p070", "p100", "p143", "p217"].includes(id) ? "cmb-dust"
   : ["p030", "p044"].includes(id) ? "cmb-halo"
-  : ["xsoft", "xhard"].includes(id) ? "xray"
+  : ["xsoft", "xhard"].includes(id) ? "xray" : id === "radio408" ? "radio"
   : id === "gamma1" ? "gamma-lo" : id === "gamma2" ? "gamma-hi"
   : id === "uv" ? "none" : "halo";
 
@@ -385,7 +425,7 @@ console.log(`depth.png: starlight from ${starRows.length} Gaia cells, dust from 
 // hitting gas, so the dust/gas depth. The diffuse level rises toward the
 // plane for gamma, where the gas glow is bright.
 mkdirSync(join(CACHE, "sources"), { recursive: true });
-const { xray, gamma } = await sourceCatalogues(download);
+const { xray, gamma, radio } = await sourceCatalogues(download);
 const SW = 1024, SH = 512, CXB = comovingLd(1);
 const toGal = (ra, de) => {
   const a = (ra * Math.PI) / 180, d = (de * Math.PI) / 180;
@@ -398,13 +438,14 @@ const CHANNELS = [
   { list: gamma, flux: (s) => s.f1, sigma: 1.0, plane: 20 },
   { list: gamma, flux: (s) => s.f2, sigma: 0.35, plane: 8 },
 ];
-const best = CHANNELS.map(() => ({ w: new Float32Array(SW * SH), ld: new Float32Array(SW * SH).fill(NaN) }));
-CHANNELS.forEach((c, ci) => {
-  c.floor = quantile(c.list.map(c.flux), 0.3) * Math.exp(-0.5);
-  const reach = (3 * c.sigma * Math.PI) / 180, k = 1 / (2 * ((c.sigma * Math.PI) / 180) ** 2);
+// per pixel, the distance of the source whose blurred flux is largest there
+function paint(c) {
+  const out = { w: new Float32Array(SW * SH), ld: new Float32Array(SW * SH).fill(NaN) };
   for (const s of c.list) {
     const F = c.flux(s);
     if (!(F > 0)) continue;
+    const sigma = Math.hypot(c.sigma, s.size ?? 0); // extended sources spread wider
+    const reach = (3 * sigma * Math.PI) / 180, k = 1 / (2 * ((sigma * Math.PI) / 180) ** 2);
     const g = toGal(s.ra, s.de), b0 = Math.asin(g[2]), l0 = Math.atan2(g[1], g[0]);
     const y0 = Math.max(0, Math.floor((0.5 - (b0 + reach) / Math.PI) * SH)), y1 = Math.min(SH - 1, Math.ceil((0.5 - (b0 - reach) / Math.PI) * SH));
     const cosb = Math.cos(Math.min(Math.PI / 2, Math.abs(b0) + reach));
@@ -418,10 +459,15 @@ CHANNELS.forEach((c, ci) => {
         const r = Math.acos(Math.min(1, dot));
         if (r > reach) continue;
         const w = F * Math.exp(-k * r * r), i = y * SW + x;
-        if (w > best[ci].w[i]) { best[ci].w[i] = w; best[ci].ld[i] = s.ld; }
+        if (w > out.w[i]) { out.w[i] = w; out.ld[i] = s.ld; }
       }
     }
   }
+  return out;
+}
+const best = CHANNELS.map((c) => {
+  c.floor = quantile(c.list.map(c.flux), 0.3) * Math.exp(-0.5);
+  return paint(c);
 });
 const sources = Buffer.alloc(SW * SH * 3);
 for (let y = 0; y < SH; y++) {
@@ -437,11 +483,32 @@ for (let y = 0; y < SH; y++) {
 }
 await sharp(sources, { raw: { width: SW, height: SH, channels: 3 } }).png().toFile(join(OUT, "sources.png"));
 const tally = (l) => l.reduce((m, s) => ((m[s.how || "no distance"] = (m[s.how || "no distance"] || 0) + 1), m), {});
-const sourceNote = { xray: tally(xray), gamma: tally(gamma) };
+
+// radio 408 MHz: the map with sources minus its source-subtracted twin
+// (Remazeilles et al. removed every extragalactic source above 2 Jy) is the
+// radio galaxies' own light. Where that is at least RADIO_OWN of a pixel, the
+// pixel goes to the catalogued galaxy that dominates it; elsewhere the
+// synchrotron glow stays in the halo model.
+const RADIO_OWN = 1 / 3;
+const withSrc = await healpixMap(`${LAMBDA}/haslam408_ds_Remazeilles2014.fits`, "lambda/radio408.fits", SW, SH);
+const noSrc = await healpixMap(`${LAMBDA}/haslam408_dsds_Remazeilles2014.fits`, "lambda/radio408-dsds.fits", SW, SH);
+const radioBest = paint({ list: radio, flux: (s) => s.f, sigma: 56 / 60 / 2.355 });
+const radioDepth = Buffer.alloc(SW * SH);
+let owned = 0;
+for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) {
+  const i = y * SW + x, frac = (withSrc[i] - noSrc[i]) / withSrc[i];
+  const own = frac >= RADIO_OWN && Number.isFinite(radioBest.ld[i]);
+  owned += own;
+  radioDepth[i] = enc(own ? radioBest.ld[i] : diffuseAt(gridL(x, SW), gridB(y, SH)).halo);
+}
+await sharp(radioDepth, { raw: { width: SW, height: SH, channels: 1 } }).png().toFile(join(OUT, "radio-sources.png"));
+const sourceNote = { xray: tally(xray), gamma: tally(gamma), radio: tally(radio) };
 console.log("sources.png:", JSON.stringify(sourceNote));
+const radioPix = withSrc.filter((v, i) => (v - noSrc[i]) / v >= RADIO_OWN).length;
+console.log(`radio-sources.png: ${owned} of the ${radioPix} pixels where radio galaxies give a third of the light or more, placed by catalogue`);
 
 writeFileSync(join(OUT, "bands.json"), JSON.stringify({
-  width: W, height: H, packs, depth: "depth.png", sourceDepth: "sources.png", depthScale: 11, sources: sourceNote,
+  width: W, height: H, packs, depth: "depth.png", sourceDepth: "sources.png", radioDepth: "radio-sources.png", depthScale: 11, sources: sourceNote,
   depthKinds: Object.keys(DEPTH_KIND),
   bands: BANDS.map(({ id, name, wave, what, source, empty }, i) =>
     ({ id, name, wave, what, source, empty: !!empty, pack: Math.floor(i / 3), channel: i % 3, depth: DEPTH_KIND[depthOf(id)] })),

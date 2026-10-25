@@ -1,11 +1,12 @@
 // =============================================================
-// source-depth.mjs — measured distances for X-ray and gamma-ray sources
+// source-depth.mjs — measured distances for radio, X-ray and gamma-ray sources
 // =============================================================
-// Used by build-sky-spectrum.mjs to place the high-energy bands' light where
-// the catalogued sources actually are, instead of in a halo model.
+// Used by build-sky-spectrum.mjs to place the radio galaxies' and the
+// high-energy bands' light where the catalogued sources actually are,
+// instead of in a halo model.
 //
 // Every source gets a distance from a measurement, or none:
-//   - galaxies, AGN, blazars, clusters: redshift → comoving distance (flat
+//   - galaxies, AGN, blazars, clusters, radio galaxies: redshift → comoving distance (flat
 //     ΛCDM, H0 70, Ωm 0.3), or a published distance in Mpc for nearby ones;
 //   - pulsars and pulsar wind nebulae: the ATNF catalogue's best distance;
 //   - X-ray binaries: the Avakyan et al. (2023) LMXB catalogue's distance;
@@ -21,7 +22,11 @@
 //   Swift-BAT 105-month (Oh et al. 2018, J/ApJS/235/4), MCXC (Piffaretti et
 //   al. 2011, J/A+A/534/A109), Fermi 4FGL-DR4 (IX/72), 4LAC (Ajello et al.
 //   2020, J/ApJ/892/105), ATNF (B/psr), LMXBcat (J/A+A/675/A199),
-//   Harris (VII/202), Gaia DR3 (I/355).
+//   Harris (VII/202), Gaia DR3 (I/355); radio: G4Jy (White et al. 2020,
+//   redshifts from the 2025 release, J/MNRAS/547/G446; south of +30°),
+//   3CR (Spinrad et al. 1985, J/PASP/97/932; north of −5°), plus four that
+//   G4Jy leaves out: Centaurus A and Fornax A (3.8 and 20.8 Mpc, from
+//   Cepheids, red giants and supernovae), Hydra A and Pictor A (redshifts).
 // =============================================================
 
 const VIZIER = "https://tapvizier.cds.unistra.fr/TAPVizieR/tap/sync";
@@ -185,5 +190,29 @@ export async function sourceCatalogues(download) {
   }
   const gPlx = await gaiaParallax(gNeedGaia, "gaia-4fgl");
   for (const [s, ld] of gPlx) { s.ld = ld; s.how = "parallax"; }
-  return { xray, gamma };
+
+  // ---------- radio: G4Jy (151 MHz) and 3CRR (178 MHz), scaled to 408 MHz ----------
+  // spectral index −0.8, typical of radio lobes; the flux only ranks sources
+  const to408 = (jy, mhz) => jy * (408 / mhz) ** -0.8;
+  const radio = [];
+  const g4 = await tap(`SELECT G4Jy, NED, RAJ2000, DEJ2000, RAHdeg, DEHdeg, Fint151, zspDESI, zspWARNDESI, zspMisc, zNED, zphMisc, zphLSDR8south, zphANNwiseScos FROM "J/MNRAS/547/G446/catalog"`, "g4jy");
+  for (const r of g4) {
+    const ra = Number.isFinite(num(r.RAHdeg)) ? +r.RAHdeg : +r.RAJ2000;
+    const de = Number.isFinite(num(r.DEHdeg)) ? +r.DEHdeg : +r.DEJ2000;
+    const spec = [num(r.zspDESI) > 0 && num(r.zspWARNDESI) === 0 ? +r.zspDESI : NaN, num(r.zspMisc), num(r.zNED)].find((z) => z > 0);
+    const phot = [num(r.zphMisc), num(r.zphLSDR8south), num(r.zphANNwiseScos)].find((z) => z > 0);
+    const z = spec ?? phot;
+    radio.push({ ra, de, f: to408(+r.Fint151, 151), ld: z > 0 ? comovingLd(z) : NaN, how: spec ? "redshift" : phot ? "photometric redshift" : "", name: r.NED || r.G4Jy });
+  }
+  const c3 = await tap(`SELECT "3CR", z, "S(178)", "_RA.icrs", "_DE.icrs" FROM "J/PASP/97/932/3cr" WHERE z > 0`, "3cr");
+  for (const r of c3) {
+    radio.push({ ra: +r._RA_icrs, de: +r._DE_icrs, f: to408(+r["S(178)"], 178), ld: comovingLd(+r.z), how: "redshift", name: `3C ${+r["3CR"]}` });
+  }
+  // the great southern radio galaxies G4Jy leaves out;
+  // size: rough extent of their lobes, added to the beam (degrees)
+  radio.push({ ra: 201.3651, de: -43.0191, f: 2500, ld: kpcLd(3800), how: "distance", name: "Centaurus A", size: 2.5 });
+  radio.push({ ra: 50.6738, de: -37.2083, f: 330, ld: kpcLd(20800), how: "distance", name: "Fornax A", size: 0.4 });
+  radio.push({ ra: 139.5236, de: -12.0955, f: 115, ld: comovingLd(0.0549), how: "redshift", name: "Hydra A" });
+  radio.push({ ra: 79.9572, de: -45.779, f: 166, ld: comovingLd(0.0351), how: "redshift", name: "Pictor A" });
+  return { xray, gamma, radio };
 }

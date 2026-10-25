@@ -315,7 +315,7 @@
     // whose depth is outside the window; L = light-weighted depth of what's kept
     const shared = `
       ${meta.packs.map((_, i) => `uniform sampler2D p${i};`).join("\n")}
-      uniform sampler2D depthMap, sourceMap;
+      uniform sampler2D depthMap, sourceMap, radioMap;
       uniform float wR[${P * 3}], wG[${P * 3}], wB[${P * 3}];
       uniform int kind[${P * 3}];
       uniform float dLo, dHi, lonSign;
@@ -328,12 +328,13 @@
         float v[${P * 3}];
         vec3 t;
         ${meta.packs.map((_, i) => `t = textureLod(p${i}, uv, lod).rgb; v[${3 * i}] = t.r; v[${3 * i + 1}] = t.g; v[${3 * i + 2}] = t.b;`).join("\n        ")}
-        float depth[9] = float[9](0.0, 0.0, 0.0, 10.66, 10.66, 0.0, 0.0, 0.0, 0.0);
+        float depth[10] = float[10](0.0, 0.0, 0.0, 10.66, 10.66, 0.0, 0.0, 0.0, 0.0, 0.0);
         if (useDepth) {
           vec3 dm = textureLod(depthMap, uv, 0.0).rgb * 11.0;
           vec3 sm = textureLod(sourceMap, uv, 0.0).rgb * 11.0;
           depth[0] = dm.r; depth[1] = dm.g; depth[2] = dm.b;
           depth[6] = sm.r; depth[7] = sm.g; depth[8] = sm.b;
+          depth[9] = textureLod(radioMap, uv, 0.0).r * 11.0;
           depth[3] = mix(10.66, dm.g, smoothstep(0.35, 0.75, v[${I857}]));
           depth[4] = mix(10.66, dm.b, smoothstep(0.3, 0.65, v[${I408}]));
         }
@@ -430,7 +431,7 @@
     gl.bindVertexArray(gl.createVertexArray());
 
     // textures: packs on units 0…P-1, depth on unit P, catalogued-source depth
-    // on P+1 (nearest-pixel: each pixel holds one source's distance, never a blend)
+    // on P+1 and P+2 (radio); nearest-pixel: each holds one source's distance, never a blend
     const progs = [quad, cloud].filter(Boolean);
     const loadTex = (src, unit, mip, nearest) => new Promise((resolve) => {
       const img = new Image();
@@ -452,6 +453,7 @@
       ...meta.packs.map((f, i) => loadTex(`./${T.dir}/${f}`, i, true).then(() => (status.textContent = `Loading maps… ${++loaded} of ${P}`))),
       hasDepth ? loadTex(`./${T.dir}/${meta.depth}`, P, false) : Promise.resolve(),
       hasDepth && meta.sourceDepth ? loadTex(`./${T.dir}/${meta.sourceDepth}`, P + 1, false, true) : Promise.resolve(),
+      hasDepth && meta.radioDepth ? loadTex(`./${T.dir}/${meta.radioDepth}`, P + 2, false, true) : Promise.resolve(),
     ]);
     if (session.signal.aborted) return;
     const kinds = new Int32Array(P * 3).fill(5);
@@ -461,6 +463,7 @@
       meta.packs.forEach((_, i) => gl.uniform1i(gl.getUniformLocation(p, `p${i}`), i));
       gl.uniform1i(gl.getUniformLocation(p, "depthMap"), hasDepth ? P : 0);
       gl.uniform1i(gl.getUniformLocation(p, "sourceMap"), hasDepth && meta.sourceDepth ? P + 1 : 0);
+      gl.uniform1i(gl.getUniformLocation(p, "radioMap"), hasDepth && meta.radioDepth ? P + 2 : 0);
       gl.uniform1iv(gl.getUniformLocation(p, "kind"), kinds);
     });
     status.textContent = `${N} bands`;
