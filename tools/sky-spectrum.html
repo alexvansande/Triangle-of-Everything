@@ -93,7 +93,7 @@
   #radius { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); bottom: 8px; z-index: 1; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
     max-width: calc(100% - 32px); font-size: 12px; color: var(--dim); }
   #radius[hidden], #radius [hidden] { display: none; }
-  #radius label { display: inline-flex; gap: 6px; align-items: center; }
+  #radius label { display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
   #radius input[type=range] { width: 160px; accent-color: var(--fg); }
   #radius output { font-family: var(--mono); color: var(--fg); white-space: nowrap; }
   #rings { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
@@ -111,6 +111,7 @@
     #regions div[data-short]::before { font-size: 9px; }
     .zone { font-size: 8.5px; }
     #readout { gap: 8px; font-size: 10.5px; }
+    #radius { gap: 6px 8px; font-size: 11px; } #radius input[type=range] { width: 96px; }
   }
 </style>
 </head>
@@ -231,19 +232,43 @@
       const m = str.replace(/~/g, "").match(/([\d.]+)(?:\s*–\s*([\d.]+))?\s*(fm|nm|µm|mm|cm|m)\b/);
       return m ? Math.sqrt(+m[1] * +(m[2] ?? m[1])) * UNIT_M[m[3]] : NaN;
     }
-    // position on this bar of any wavelength: between the two bands around it,
-    // in log wavelength (the bar runs from long to short)
-    const barLog = B.map((b) => Math.log10(waveM(b.wave)));
+    // position on this bar of any wavelength. Each slot owns a range of
+    // wavelengths, split at the geometric midpoints between neighbours, except
+    // that the visible slots take the colours they play in natural colour:
+    // red 600–700 nm, green 500–600, blue 400–500 (Gaia's real passbands are
+    // much wider; RP runs to 1,050 nm, which would put near-infrared in red)
+    const NATURAL_EDGE = { rp: [700e-9, 600e-9], g: [600e-9, 500e-9], bp: [500e-9, 400e-9] };
+    const rep = B.map((b) => Math.log10(waveM(b.wave)));
+    const edges = [];   // edges[i]: log wavelength between slot i and i + 1
+    for (let i = 0; i < N - 1; i++) {
+      const nat = NATURAL_EDGE[B[i].id]?.[1] ?? NATURAL_EDGE[B[i + 1].id]?.[0];
+      edges.push(nat ? Math.log10(nat) : (rep[i] + rep[i + 1]) / 2);
+    }
     function barPos(m) {
       const x = Math.log10(m);
-      if (x >= barLog[0]) return 0;
-      for (let i = 0; i < N - 1; i++) if (x >= barLog[i + 1]) return i + (barLog[i] - x) / (barLog[i] - barLog[i + 1]);
+      for (let i = 0; i < N; i++) {
+        const hi = i ? edges[i - 1] : 2 * rep[0] - edges[0], lo = i < N - 1 ? edges[i] : 2 * rep[N - 1] - edges[N - 2];
+        if (x >= lo || i === N - 1) return Math.min(N - 1, Math.max(0, i - 0.5 + (hi - x) / (hi - lo)));
+      }
       return N - 1;
     }
-    // selector weights for another target's bands: a Gaussian at each band's
-    // place on the bar; where several crowd under one channel they share it
-    function objWeights(pos, p) {
-      const g = pos.map((x) => Math.exp(-((x - p) ** 2) / (2 * sigma() ** 2)));
+    // another target's band: the span of the bar it covers (its wavelength
+    // range; the Sun's photosphere image stands for all of visible light)
+    const SPAN_M = { hmi: [400e-9, 700e-9] };
+    function barSpan(b) {
+      const [x, y] = SPAN_M[b.id] ?? (() => {
+        const m = b.wave.replace(/~/g, "").match(/([\d.]+)(?:\s*–\s*([\d.]+))?\s*(fm|nm|µm|mm|cm|m)\b/);
+        return [+m[1] * UNIT_M[m[3]], +(m[2] ?? m[1]) * UNIT_M[m[3]]];
+      })();
+      return [barPos(Math.max(x, y)), barPos(Math.min(x, y))];
+    }
+    // selector weights for those bands: the channel's response at the nearest
+    // point of each band's span, a little narrower than the sky's so that
+    // neighbouring bands don't bleed in; where several crowd under one
+    // channel they share it
+    function objWeights(spans, p) {
+      const so = 0.6 * sigma();
+      const g = spans.map(([a, b]) => { const d = p < a ? a - p : p > b ? p - b : 0; return Math.exp(-(d * d) / (2 * so * so)); });
       const sum = g.reduce((a, b) => a + b, 0);
       return g.map((x) => (sum > 1 ? x / sum : x));
     }
@@ -874,7 +899,7 @@
           const p = centre === 0 ? earthGlobe : sunDisc, ob = OBJ[centre];
           gl.useProgram(p);
           const E = (n) => gl.getUniformLocation(p, n);
-          const pos = ob.pos ??= ob.meta.bands.map((b) => barPos(waveM(b.wave)));
+          const pos = ob.spans ??= ob.meta.bands.map(barSpan);
           const pad = (x) => { const a = new Float32Array(OBJ_MAX); a.set(x); return a; };
           gl.uniform1fv(E("oR"), pad(objWeights(pos, c - s)));
           gl.uniform1fv(E("oG"), pad(objWeights(pos, c)));
