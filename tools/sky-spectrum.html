@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sky Spectrum</title>
+<!--
+  The whole sky seen through a movable RGB "eye". 27 all-sky maps, radio to
+  gamma rays, each normalised to 0…1 (build: npm run build:sky-spectrum).
+  The rainbow selector on the spectrum bar places the red, green and blue
+  channels: slide it to shift all three along the spectrum, drag its ends to
+  spread them apart. Each channel is a soft (Gaussian) average of the bands
+  near its position, wider as the selector stretches; weights sum to one, so
+  brightness stays even. Bands are evenly spaced on the bar, not to scale.
+  Then:  npm run dev  →  http://localhost:5173/tools/sky-spectrum.html
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
+<style>
+  /* One dark instrument: spectrum bar and selector on top, the sky map filling the rest. */
+  :root {
+    --sky: #000; --fg: #e9ecf5; --dim: #8f95ab; --line: rgba(205, 215, 255, 0.14); --panel: #0b0d15;
+    --display: "Instrument Serif", Georgia, serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  html, body { margin: 0; height: 100%; background: var(--sky); color: var(--fg); font: 13px/1.35 var(--body); }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  header { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 4px max(16px, env(safe-area-inset-left, 0px)); }
+  header h1 { margin: 0; font: 400 30px/1 var(--display); }
+  header p { margin: 0; color: var(--dim); }
+  .controls { margin-left: auto; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .controls label { color: var(--dim); display: inline-flex; gap: 6px; align-items: center; }
+  .controls input[type=range] { width: 110px; accent-color: var(--fg); }
+  button { background: #191d2b; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; font: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+  /* spectrum bar: equal slots, regions above, selector on top */
+  #barwrap { overflow-x: auto; padding: 4px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+  #bar { position: relative; min-width: 760px; user-select: none; touch-action: none; }
+  #regions { display: flex; height: 18px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); }
+  #regions div { border-left: 1px solid var(--line); padding-left: 4px; overflow: hidden; white-space: nowrap; }
+  #slots { display: flex; height: 64px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; position: relative; }
+  #slots .slot { flex: 1; border-left: 1px solid var(--line); position: relative; min-width: 0; }
+  #slots .slot:first-child { border-left: 0; }
+  #slots .slot span { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%) rotate(180deg);
+    writing-mode: vertical-rl; white-space: nowrap; max-height: 56px; overflow: hidden; text-overflow: ellipsis;
+    font-size: 9.5px; color: var(--dim); }
+  #slots .slot.empty { background: repeating-linear-gradient(45deg, transparent 0 4px, rgba(255,255,255,0.05) 4px 8px); }
+  #curves { position: absolute; inset: 18px 0 0 0; width: 100%; height: 64px; pointer-events: none; }
+  #selector { position: absolute; top: 18px; height: 64px; border-radius: 6px; cursor: grab;
+    background: linear-gradient(90deg, rgba(255,40,40,0.38), rgba(40,255,60,0.38), rgba(60,90,255,0.38));
+    box-shadow: 0 0 0 1.5px rgba(255,255,255,0.75) inset; }
+  #selector:active { cursor: grabbing; }
+  #selector .grip { position: absolute; top: 0; bottom: 0; width: 14px; cursor: ew-resize; }
+  #selector .grip::after { content: ""; position: absolute; top: 18px; bottom: 18px; left: 5px; width: 4px; border-radius: 2px; background: #fff; }
+  #selector .grip.r { left: -7px; } #selector .grip.b { right: -7px; }
+  #readout { display: flex; gap: 18px; flex-wrap: wrap; padding: 6px 0 4px; font: 11.5px/1.3 var(--mono); }
+  #readout .ch { min-width: 0; }
+  #readout b { font-weight: 600; }
+
+  #stage { flex: 1; min-height: 0; display: grid; place-items: center; padding: 6px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  #sky { max-width: 100%; max-height: 100%; aspect-ratio: 2 / 1; width: 100%; border-radius: 4px; background: #000; }
+  #status { color: var(--dim); font-size: 12px; }
+  footer { padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); color: var(--dim); font-size: 11px; }
+  @media (max-width: 700px) { header h1 { font-size: 24px; } .controls { margin-left: 0; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sky Spectrum</h1>
+  <p>Slide the rainbow to see the sky with different eyes. Drag its ends to stretch it.</p>
+  <div class="controls">
+    <label>Exposure <input id="exposure" type="range" min="0.3" max="3" step="0.01" value="1"></label>
+    <label>Contrast <input id="contrast" type="range" min="0.4" max="2.5" step="0.01" value="1"></label>
+    <button id="reset">Visible light</button>
+    <span id="status" role="status">Loading maps…</span>
+  </div>
+</header>
+<div id="barwrap">
+  <div id="bar">
+    <div id="regions"></div>
+    <div id="slots"></div>
+    <canvas id="curves"></canvas>
+    <div id="selector" tabindex="0" aria-label="RGB selector: arrows move it, shift+arrows stretch it">
+      <div class="grip r"></div><div class="grip b"></div>
+    </div>
+  </div>
+  <div id="readout"></div>
+</div>
+<div id="stage"><canvas id="sky"></canvas></div>
+<footer>Galactic coordinates, Galactic Centre in the middle. Bands are evenly spaced on the bar, not to scale. Each band is normalised to its own brightness range.</footer>
+
+<script>
+(async () => {
+  const meta = await (await fetch("./sky-spectrum/bands.json")).json();
+  const B = meta.bands, N = B.length;
+  const REGIONS = [
+    ["Radio", (b) => ["radio408", "hi21"].includes(b.id)],
+    ["Microwave", (b) => /^p0|^p1|^p2/.test(b.id)],
+    ["Far-IR", (b) => ["p353", "p545", "p857", "iris100", "iris60"].includes(b.id)],
+    ["Mid-IR", (b) => /^w/.test(b.id)],
+    ["Near-IR", (b) => ["k", "j"].includes(b.id)],
+    ["Visible", (b) => ["rp", "g", "bp"].includes(b.id)],
+    ["UV", (b) => b.id === "uv"],
+    ["X-ray", (b) => /^x/.test(b.id)],
+    ["Gamma", (b) => /^gamma/.test(b.id)],
+  ];
+
+  // ---------- bar ----------
+  const slots = document.getElementById("slots"), regions = document.getElementById("regions");
+  B.forEach((b) => {
+    const el = document.createElement("div");
+    el.className = "slot" + (b.empty ? " empty" : "");
+    el.title = `${b.name} · ${b.wave} · ${b.what} · ${b.source}`;
+    el.innerHTML = `<span>${b.name.replace(/^(Planck|IRAS|WISE|2MASS|Gaia) /, "")}</span>`;
+    slots.appendChild(el);
+  });
+  REGIONS.forEach(([name, test]) => {
+    const n = B.filter(test).length;
+    const el = document.createElement("div");
+    el.style.flex = n;
+    el.textContent = name;
+    regions.appendChild(el);
+  });
+
+  // ---------- selector state: centre c (green) and half-span s, in band units ----------
+  const VIS = { c: B.findIndex((b) => b.id === "g"), s: 1 };
+  let c = VIS.c, s = VIS.s;
+  const sigma = () => Math.max(0.35, 0.45 * s);
+  function weights(p) {
+    const w = B.map((_, i) => Math.exp(-((i - p) ** 2) / (2 * sigma() ** 2)));
+    const sum = w.reduce((a, b) => a + b, 0);
+    // empty bands keep their share (and read black): the gap stays honest
+    return w.map((x, i) => (B[i].empty ? 0 : x / sum));
+  }
+  const sel = document.getElementById("selector"), bar = document.getElementById("bar");
+  const slotW = () => slots.getBoundingClientRect().width / N;
+  const curves = document.getElementById("curves");
+  function layout() {
+    const w = slotW();
+    // red edge sits on the red channel's slot centre, blue edge on blue's
+    sel.style.left = `${(c - s + 0.5) * w - 10}px`;
+    sel.style.width = `${2 * s * w + 20}px`;
+    drawCurves();
+    readout();
+    draw();
+  }
+  function drawCurves() {
+    const r = slots.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+    curves.width = r.width * dpr; curves.height = r.height * dpr;
+    const g = curves.getContext("2d");
+    g.scale(dpr, dpr);
+    [["#ff4a4a", c - s], ["#4aff63", c], ["#5b7cff", c + s]].forEach(([col, p]) => {
+      g.beginPath();
+      for (let x = 0; x <= r.width; x += 2) {
+        const i = x / slotW() - 0.5;
+        const y = r.height - 6 - (r.height - 14) * Math.exp(-((i - p) ** 2) / (2 * sigma() ** 2));
+        x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
+      }
+      g.strokeStyle = col; g.lineWidth = 1.5; g.stroke();
+    });
+  }
+  function readout() {
+    const el = document.getElementById("readout");
+    el.innerHTML = "";
+    [["R", "#ff6b6b", c - s], ["G", "#6bff7f", c], ["B", "#7d97ff", c + s]].forEach(([n, col, p]) => {
+      const all = weights(p).map((x, i) => [x, B[i]]);
+      const w = all.reduce((a, [x]) => a + x, 0) < 0.05 ? []
+        : all.filter(([x]) => x > 0.01).sort((a, b) => b[0] - a[0]).slice(0, 3);
+      const d = document.createElement("div");
+      d.className = "ch";
+      d.innerHTML = `<b style="color:${col}">${n}</b> ` + (w.length ? w.map(([x, b]) => `${b.name} ${Math.round(100 * x)}%`).join(" · ") : "<span style='color:var(--dim)'>nothing (no data here)</span>");
+      el.appendChild(d);
+    });
+  }
+
+  // drag: body moves, grips stretch (symmetrically about the centre)
+  let drag = null;
+  sel.addEventListener("pointerdown", (e) => {
+    const grip = e.target.closest(".grip");
+    drag = { x: e.clientX, c, s, mode: grip ? (grip.classList.contains("r") ? "r" : "b") : "move" };
+    sel.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  sel.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const d = (e.clientX - drag.x) / slotW();
+    if (drag.mode === "move") c = drag.c + d;
+    else s = drag.s + (drag.mode === "b" ? d : -d);
+    clamp();
+    layout();
+  });
+  sel.addEventListener("pointerup", () => (drag = null));
+  sel.addEventListener("keydown", (e) => {
+    const step = e.altKey ? 0.1 : 0.5;
+    if (e.key === "ArrowLeft") e.shiftKey ? (s -= step) : (c -= step);
+    else if (e.key === "ArrowRight") e.shiftKey ? (s += step) : (c += step);
+    else return;
+    e.preventDefault();
+    clamp();
+    layout();
+  });
+  function clamp() {
+    s = Math.max(0.25, Math.min((N - 1) / 2, s));
+    c = Math.max(s, Math.min(N - 1 - s, c));
+  }
+  document.getElementById("reset").onclick = () => { c = VIS.c; s = VIS.s; layout(); };
+
+  // ---------- WebGL: all bands in, three weighted sums out ----------
+  const canvas = document.getElementById("sky");
+  const gl = canvas.getContext("webgl2", { preserveDrawingBuffer: true });
+  const P = meta.packs.length;
+  const fs = `#version 300 es
+    precision highp float;
+    in vec2 uv; out vec4 o;
+    ${meta.packs.map((_, i) => `uniform sampler2D p${i};`).join("\n")}
+    uniform float wR[${P * 3}], wG[${P * 3}], wB[${P * 3}];
+    uniform float gain, gam;
+    void main() {
+      vec3 col = vec3(0.0), t;
+      ${meta.packs.map((_, i) => `t = texture(p${i}, uv).rgb;
+      col += vec3(dot(t, vec3(wR[${3 * i}], wR[${3 * i + 1}], wR[${3 * i + 2}])),
+                  dot(t, vec3(wG[${3 * i}], wG[${3 * i + 1}], wG[${3 * i + 2}])),
+                  dot(t, vec3(wB[${3 * i}], wB[${3 * i + 1}], wB[${3 * i + 2}])));`).join("\n")}
+      o = vec4(pow(clamp(col * gain, 0.0, 1.0), vec3(gam)), 1.0);
+    }`;
+  const vs = `#version 300 es
+    out vec2 uv;
+    void main() {
+      vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
+      uv = vec2(p.x, 1.0 - p.y); // p runs 0…1 across the screen (0…2 off it)
+      gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
+    }`;
+  const sh = (type, src) => {
+    const x = gl.createShader(type); gl.shaderSource(x, src); gl.compileShader(x);
+    if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x));
+    return x;
+  };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  gl.bindVertexArray(gl.createVertexArray());
+
+  const status = document.getElementById("status");
+  let loaded = 0;
+  await Promise.all(meta.packs.map((file, i) => new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const tex = gl.createTexture();
+      gl.activeTexture(gl.TEXTURE0 + i);
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB8, gl.RGB, gl.UNSIGNED_BYTE, img);
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.uniform1i(gl.getUniformLocation(prog, `p${i}`), i);
+      status.textContent = `Loading maps… ${++loaded} of ${meta.packs.length}`;
+      resolve();
+    };
+    img.src = `./sky-spectrum/${file}`;
+  })));
+  status.textContent = `${N} bands`;
+
+  const exposure = document.getElementById("exposure"), contrast = document.getElementById("contrast");
+  exposure.oninput = contrast.oninput = () => draw();
+  let ready = true;
+  function draw() {
+    if (!ready) return;
+    const r = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    const pad = (w) => { const a = new Float32Array(P * 3); a.set(w); return a; };
+    gl.uniform1fv(gl.getUniformLocation(prog, "wR"), pad(weights(c - s)));
+    gl.uniform1fv(gl.getUniformLocation(prog, "wG"), pad(weights(c)));
+    gl.uniform1fv(gl.getUniformLocation(prog, "wB"), pad(weights(c + s)));
+    gl.uniform1f(gl.getUniformLocation(prog, "gain"), +exposure.value);
+    gl.uniform1f(gl.getUniformLocation(prog, "gam"), +contrast.value);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  addEventListener("resize", layout);
+  // ?c=<band index>&s=<half-span> start somewhere else on the spectrum
+  const q = new URLSearchParams(location.search);
+  if (q.has("c")) c = +q.get("c");
+  if (q.has("s")) s = +q.get("s");
+  clamp();
+  layout();
+  window.__stillDone = true;
+})();
+</script>
+</body>
+</html>

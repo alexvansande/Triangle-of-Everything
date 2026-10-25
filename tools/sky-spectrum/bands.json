@@ -1,0 +1,287 @@
+{
+ "width": 2048,
+ "height": 1024,
+ "packs": [
+  "pack-0.jpg",
+  "pack-1.jpg",
+  "pack-2.jpg",
+  "pack-3.jpg",
+  "pack-4.jpg",
+  "pack-5.jpg",
+  "pack-6.jpg",
+  "pack-7.jpg",
+  "pack-8.jpg"
+ ],
+ "bands": [
+  {
+   "id": "radio408",
+   "name": "Radio 408 MHz",
+   "wave": "73 cm",
+   "what": "synchrotron from cosmic-ray electrons",
+   "source": "Haslam et al., reprocessed 2014",
+   "empty": false,
+   "pack": 0,
+   "channel": 0
+  },
+  {
+   "id": "hi21",
+   "name": "21 cm hydrogen",
+   "wave": "21 cm",
+   "what": "neutral hydrogen gas",
+   "source": "HI4PI",
+   "empty": false,
+   "pack": 0,
+   "channel": 1
+  },
+  {
+   "id": "p030",
+   "name": "Planck 30 GHz",
+   "wave": "1 cm",
+   "what": "synchrotron, free-free, CMB",
+   "source": "Planck LFI R3",
+   "empty": false,
+   "pack": 0,
+   "channel": 2
+  },
+  {
+   "id": "p044",
+   "name": "Planck 44 GHz",
+   "wave": "6.8 mm",
+   "what": "CMB and Galactic plane",
+   "source": "Planck LFI R3",
+   "empty": false,
+   "pack": 1,
+   "channel": 0
+  },
+  {
+   "id": "p070",
+   "name": "Planck 70 GHz",
+   "wave": "4.3 mm",
+   "what": "CMB",
+   "source": "Planck LFI R3",
+   "empty": false,
+   "pack": 1,
+   "channel": 1
+  },
+  {
+   "id": "p100",
+   "name": "Planck 100 GHz",
+   "wave": "3 mm",
+   "what": "CMB, CO gas",
+   "source": "Planck HFI R3",
+   "empty": false,
+   "pack": 1,
+   "channel": 2
+  },
+  {
+   "id": "p143",
+   "name": "Planck 143 GHz",
+   "wave": "2.1 mm",
+   "what": "CMB",
+   "source": "Planck HFI R3",
+   "empty": false,
+   "pack": 2,
+   "channel": 0
+  },
+  {
+   "id": "p217",
+   "name": "Planck 217 GHz",
+   "wave": "1.4 mm",
+   "what": "CMB and dust",
+   "source": "Planck HFI R3",
+   "empty": false,
+   "pack": 2,
+   "channel": 1
+  },
+  {
+   "id": "p353",
+   "name": "Planck 353 GHz",
+   "wave": "850 µm",
+   "what": "cold dust",
+   "source": "Planck HFI R3",
+   "empty": false,
+   "pack": 2,
+   "channel": 2
+  },
+  {
+   "id": "p545",
+   "name": "Planck 545 GHz",
+   "wave": "550 µm",
+   "what": "cold dust",
+   "source": "Planck HFI R3",
+   "empty": false,
+   "pack": 3,
+   "channel": 0
+  },
+  {
+   "id": "p857",
+   "name": "Planck 857 GHz",
+   "wave": "350 µm",
+   "what": "cold dust",
+   "source": "Planck HFI R3",
+   "empty": false,
+   "pack": 3,
+   "channel": 1
+  },
+  {
+   "id": "iris100",
+   "name": "IRAS 100 µm",
+   "wave": "100 µm",
+   "what": "dust, star-forming clouds",
+   "source": "IRIS (IRAS reprocessed)",
+   "empty": false,
+   "pack": 3,
+   "channel": 2
+  },
+  {
+   "id": "iris60",
+   "name": "IRAS 60 µm",
+   "wave": "60 µm",
+   "what": "warm dust",
+   "source": "IRIS (IRAS reprocessed)",
+   "empty": false,
+   "pack": 4,
+   "channel": 0
+  },
+  {
+   "id": "w4",
+   "name": "WISE W4",
+   "wave": "22 µm",
+   "what": "warm dust, star formation",
+   "source": "AllWISE",
+   "empty": false,
+   "pack": 4,
+   "channel": 1
+  },
+  {
+   "id": "w3",
+   "name": "WISE W3",
+   "wave": "12 µm",
+   "what": "PAH molecules, zodiacal dust",
+   "source": "AllWISE",
+   "empty": false,
+   "pack": 4,
+   "channel": 2
+  },
+  {
+   "id": "w2",
+   "name": "WISE W2",
+   "wave": "4.6 µm",
+   "what": "cool stars",
+   "source": "AllWISE",
+   "empty": false,
+   "pack": 5,
+   "channel": 0
+  },
+  {
+   "id": "w1",
+   "name": "WISE W1",
+   "wave": "3.4 µm",
+   "what": "old stars",
+   "source": "AllWISE",
+   "empty": false,
+   "pack": 5,
+   "channel": 1
+  },
+  {
+   "id": "k",
+   "name": "2MASS K",
+   "wave": "2.2 µm",
+   "what": "stars through the dust",
+   "source": "2MASS",
+   "empty": false,
+   "pack": 5,
+   "channel": 2
+  },
+  {
+   "id": "j",
+   "name": "2MASS J",
+   "wave": "1.25 µm",
+   "what": "stars",
+   "source": "2MASS",
+   "empty": false,
+   "pack": 6,
+   "channel": 0
+  },
+  {
+   "id": "rp",
+   "name": "Gaia RP (red)",
+   "wave": "640–1050 nm",
+   "what": "starlight",
+   "source": "Gaia DR3 flux map",
+   "empty": false,
+   "pack": 6,
+   "channel": 1
+  },
+  {
+   "id": "g",
+   "name": "Gaia G (green)",
+   "wave": "330–1050 nm",
+   "what": "starlight",
+   "source": "Gaia DR3 flux map",
+   "empty": false,
+   "pack": 6,
+   "channel": 2
+  },
+  {
+   "id": "bp",
+   "name": "Gaia BP (blue)",
+   "wave": "330–680 nm",
+   "what": "starlight",
+   "source": "Gaia DR3 flux map",
+   "empty": false,
+   "pack": 7,
+   "channel": 0
+  },
+  {
+   "id": "uv",
+   "name": "Ultraviolet",
+   "wave": "10–330 nm",
+   "what": "no all-sky map exists",
+   "source": "—",
+   "empty": true,
+   "pack": 7,
+   "channel": 1
+  },
+  {
+   "id": "xsoft",
+   "name": "X-ray 0.7–7 keV",
+   "wave": "0.2–2 nm",
+   "what": "hot gas, X-ray binaries",
+   "source": "MAXI SSC",
+   "empty": false,
+   "pack": 7,
+   "channel": 2
+  },
+  {
+   "id": "xhard",
+   "name": "X-ray 2–20 keV",
+   "wave": "0.06–0.6 nm",
+   "what": "X-ray binaries, clusters",
+   "source": "MAXI GSC",
+   "empty": false,
+   "pack": 8,
+   "channel": 0
+  },
+  {
+   "id": "gamma1",
+   "name": "Gamma 0.3–1 GeV",
+   "wave": "~1 fm",
+   "what": "cosmic rays hitting gas",
+   "source": "Fermi-LAT",
+   "empty": false,
+   "pack": 8,
+   "channel": 1
+  },
+  {
+   "id": "gamma2",
+   "name": "Gamma 3–300 GeV",
+   "wave": "~0.01 fm",
+   "what": "pulsars, blazars",
+   "source": "Fermi-LAT",
+   "empty": false,
+   "pack": 8,
+   "channel": 2
+  }
+ ]
+}
