@@ -22,8 +22,9 @@
   Earth is drawn at the centre, as now: axis to the pole, turned and sunlit;
   between Earth's and the Sun's radius, the Sun; both in the selector's
   wavelengths) or Linear (radius ∝ distance, where zooming moves the scale
-  through powers of ten). Rings mark distances: orbits in the ecliptic, stars
-  and galaxies in the galactic plane (?rings=0 hides them).
+  through powers of ten). A ruler from the centre gives the scale: units below,
+  places above (the Oort Cloud, the Milky Way…); the Moon's and Earth's orbits
+  are drawn as rings in the ecliptic (?rings=0 hides ruler and rings).
   ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
   ?radius=custom|log|linear  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
 -->
@@ -97,9 +98,11 @@
   #radius input[type=range] { width: 160px; accent-color: var(--fg); }
   #radius output { font-family: var(--mono); color: var(--fg); white-space: nowrap; }
   #rings { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-  #rings div { position: absolute; font: 10.5px/1 var(--mono); color: rgba(233, 236, 245, 0.7); white-space: nowrap; transform: translate(4px, -50%);
-    text-shadow: 0 0 3px #000, 0 0 3px #000; }
-  #rings div.ecl { color: rgba(255, 214, 140, 0.8); } #rings div.gal { color: rgba(160, 200, 255, 0.8); }
+  #rings svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  #rings text { font: 10.5px var(--mono); fill: rgba(233, 236, 245, 0.75); paint-order: stroke; stroke: #000; stroke-width: 3px; }
+  #rings text.ref { fill: rgba(255, 214, 140, 0.9); }
+  #rings line, #rings path { stroke: rgba(233, 236, 245, 0.55); stroke-width: 1; }
+  #rings .span { stroke: rgba(255, 214, 140, 0.7); stroke-width: 3; stroke-linecap: round; }
   footer { padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); color: var(--dim); font-size: 11px; }
   @media (max-width: 700px) {
     header h1 { font-size: 24px; } header p { display: none; } .controls { margin-left: 0; gap: 8px; }
@@ -154,7 +157,7 @@
     </span>
     <label id="unitBox">1 unit <input id="unit" type="range" min="-10" max="10" step="0.01" value="0" aria-label="Log scale unit"> <output id="unitOut"></output></label>
     <span id="linBox">radius 1 = <output id="linOut"></output> · scroll or pinch to zoom</span>
-    <label><input id="ringsOn" type="checkbox" checked> Rings</label>
+    <label><input id="ringsOn" type="checkbox" checked> Scale</label>
   </div>
 </div>
 <footer class="pad" id="foot"></footer>
@@ -765,18 +768,26 @@
       return { gmst, sun: [Math.cos(lam), Math.cos(eps) * Math.sin(lam), Math.sin(eps) * Math.sin(lam)] };
     })();
     const L_SUN = Math.log10(696000 / 9.4607e12);
-    // reference rings (log10 ly): Earth- and Sun-sized circles, orbits in the
-    // ecliptic, then stars, the Galaxy and beyond in the galactic plane
+    // the Moon's and Earth's orbits as rings in the ecliptic
     const KM = (x) => Math.log10(x / 9.4607e12), AU = (x) => Math.log10(x * 1.5813e-5), LYL = (x) => Math.log10(x);
-    // [name, log10 ly, plane, label rank: 1 always tried first, 3 only with room]
-    const RINGS = [
-      ["Earth radius", KM(6371), "ecl", 1], ["Sun radius", L_SUN, "ecl", 1], ["Moon", KM(384400), "ecl", 1],
-      ["Mercury", AU(0.387), "ecl", 3], ["Venus", AU(0.723), "ecl", 3], ["1 AU · Earth–Sun", AU(1), "ecl", 1], ["Mars", AU(1.52), "ecl", 3],
-      ["Jupiter", AU(5.2), "ecl", 2], ["Saturn", AU(9.58), "ecl", 3], ["Uranus", AU(19.2), "ecl", 3], ["Neptune", AU(30.1), "ecl", 1],
-      ["Heliopause", AU(120), "ecl", 2], ["1 light-year", 0, "gal", 1], ["Proxima Centauri", LYL(4.24), "gal", 2], ["Sirius", LYL(8.6), "gal", 3],
-      ["Pleiades", LYL(444), "gal", 3], ["Orion Nebula", LYL(1344), "gal", 2], ["Galactic Centre", LYL(26700), "gal", 1], ["Milky Way edge", LYL(5.5e4), "gal", 3],
-      ["Large Magellanic Cloud", LYL(1.6e5), "gal", 2], ["Andromeda", LYL(2.5e6), "gal", 1], ["Virgo Cluster", LYL(5.4e7), "gal", 2],
-      ["Coma Cluster", LYL(3.2e8), "gal", 3], ["z = 1", 10.03, "gal", 2], ["z = 3", 10.35, "gal", 3], ["CMB", 10.66, "gal", 1],
+    const RINGS = [["Moon", KM(384400), "ecl"], ["Earth's orbit", AU(1), "ecl"]];
+    // the ruler: a straight line from the centre to the right, the same scale
+    // as the cloud's radius (it is the same in every direction). Units below,
+    // with a tick at every power of ten of light years; places above.
+    // [log10 ly, label, rank: 1 is kept first where labels would overlap]
+    const LS = 299792.458;
+    const UNITS = [
+      [KM(1000), "1,000 km", 2], [KM(1e4), "10,000 km", 3], [KM(1e5), "100,000 km", 3], [KM(LS), "1 light-second", 1],
+      [KM(60 * LS), "1 light-minute", 1], [KM(3600 * LS), "1 light-hour", 1], [KM(86400 * LS), "1 light-day", 2], [KM(30 * 86400 * LS), "1 light-month", 3],
+      [0, "1 ly", 1], [1, "10 ly", 2], [2, "100 ly", 1], [3, "1,000 ly", 2], [4, "10,000 ly", 1], [5, "100,000 ly", 2],
+      [6, "1 million ly", 1], [7, "10 million ly", 2], [8, "100 million ly", 1], [9, "1 billion ly", 2], [10, "10 billion ly", 1],
+    ];
+    // places: a point, or a span [from, to] drawn as a bar
+    const PLACES = [
+      [KM(384400), "Moon", 1], [AU(1), "Sun", 1], [AU(5.2), "Jupiter", 3], [AU(30.1), "Neptune", 2], [[AU(30), AU(50)], "Kuiper Belt", 3],
+      [AU(120), "Heliopause", 2], [[AU(2000), AU(100000)], "Oort Cloud", 1], [LYL(4.24), "Proxima Centauri", 1], [LYL(444), "Pleiades", 3],
+      [LYL(1344), "Orion Nebula", 2], [LYL(26700), "Galactic Centre", 1], [[LYL(1), LYL(5.5e4)], "Milky Way", 2], [LYL(1.6e5), "Large Magellanic Cloud", 2],
+      [LYL(2.5e6), "Andromeda", 1], [LYL(5.4e7), "Virgo Cluster", 2], [LYL(2.5e8), "Laniakea Supercluster", 3], [10.03, "z = 1", 2], [10.66, "CMB", 1],
     ];
     // planes in cloud coordinates (cloud d = galactic (x, z, −y)); the ecliptic
     // pole is at galactic l 96.38°, b 29.81°
@@ -804,15 +815,7 @@
       gl.uniformMatrix4fv(U("viewProj"), false, VP);
       gl.uniform1f(U("spinA"), spinA);
       gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
-      const cs = Math.cos(spinA), sn = Math.sin(spinA), dpr = w / canvas.getBoundingClientRect().width;
-      const project = (p) => {
-        const x = cs * p[0] + sn * p[2], y = p[1], z = -sn * p[0] + cs * p[2];
-        const cx = VP[0] * x + VP[4] * y + VP[8] * z + VP[12], cy = VP[1] * x + VP[5] * y + VP[9] * z + VP[13], cw = VP[3] * x + VP[7] * y + VP[11] * z + VP[15];
-        return cw <= 0 ? null : [(cx / cw * 0.5 + 0.5) * w / dpr, (0.5 - cy / cw * 0.5) * h / dpr];
-      };
-      const html = [], taken = [], cands = [];
-      for (const [name, L, plane, rank] of RINGS) {
-        if ((centre === 0 && L === RINGS[0][1]) || (centre === 1 && L === L_SUN)) continue; // the globe or disc is its own outline
+      for (const [, L, plane] of RINGS) {
         const r = radiusOf(L);
         if (r === null || r <= 0) continue;
         const [ax, ay] = PLANES[plane];
@@ -820,24 +823,39 @@
         const fade = rmode === 2 ? Math.max(0, Math.min(1, (2.6 - r) / 0.6)) : 1;
         gl.uniform3fv(U("col"), RING_COL[plane].map((x) => x * fade));
         gl.drawArrays(gl.LINE_LOOP, 0, 160);
-        // the label sits at the ring's right-most point on screen
-        let best = null;
-        for (let k = 0; k < 64; k++) {
-          const a = (2 * Math.PI * k) / 64, sp = project([0, 1, 2].map((i) => r * (Math.cos(a) * ax[i] + Math.sin(a) * ay[i])));
-          if (sp && (!best || sp[0] > best[0])) best = sp;
-        }
-        if (best && fade > 0.3) cands.push({ name, plane, rank, fade, x: best[0], y: best[1], wd: 6.4 * name.length + 12 });
       }
-      // most important first; a label only goes where it overlaps no other
-      const W_ = w / dpr, H_ = h / dpr;
-      cands.sort((a, b) => a.rank - b.rank);
-      for (const c of cands) {
-        if (c.x < 0 || c.x + c.wd > W_ - 8 || c.y < 40 || c.y > H_ - 40) continue;
-        if (taken.some((t) => Math.abs(t.y - c.y) < 14 && c.x < t.x + t.wd && t.x < c.x + c.wd)) continue;
-        taken.push(c);
-        html.push(`<div class="${c.plane}" style="left:${c.x.toFixed(1)}px;top:${c.y.toFixed(1)}px;opacity:${c.fade.toFixed(2)}">${c.name}</div>`);
+      // the ruler, in screen space: the plane through the centre facing the
+      // camera keeps distances in proportion, so radius r is r × k pixels
+      const dpr = w / canvas.getBoundingClientRect().width, W_ = w / dpr, H_ = h / dpr;
+      const ox = W_ / 2, oy = H_ / 2, k = (H_ / 2) / Math.tan(20 * Math.PI / 180) / (3.2 / view.zoom);
+      const xOf = (L) => { const r = radiusOf(L); return r === null || r <= 0 ? null : ox + r * k; };
+      const inView = (x) => x !== null && x > ox + 2 && x < W_ - 6;
+      const out = [], tw = (t) => 6.4 * t.length + 8;
+      let xEnd = Math.min(W_ - 6, ox + (rmode === 2 ? 2.6 : 1) * k);
+      out.push(`<line x1="${ox}" y1="${oy}" x2="${xEnd.toFixed(1)}" y2="${oy}"/>`);
+      for (let L = -10; L <= 10; L++) { const x = xOf(L); if (inView(x)) out.push(`<line x1="${x.toFixed(1)}" y1="${oy - 3}" x2="${x.toFixed(1)}" y2="${oy + 3}"/>`); }
+      // units below: most important first, none overlapping
+      const placed = [];
+      for (const [L, name] of [...UNITS].sort((a, b) => a[2] - b[2])) {
+        const x = xOf(L);
+        if (!inView(x)) continue;
+        const a = x - tw(name) / 2, b = x + tw(name) / 2;
+        if (a < ox + 4 || b > W_ - 4 || placed.some(([p, q]) => a < q && p < b)) continue;
+        placed.push([a, b]);
+        out.push(`<line x1="${x.toFixed(1)}" y1="${oy}" x2="${x.toFixed(1)}" y2="${oy + 7}"/><text x="${x.toFixed(1)}" y="${oy + 19}" text-anchor="middle">${name}</text>`);
       }
-      ringLabels.innerHTML = html.join("");
+      // places above, slanted so neighbours can sit close; a place needs 13 px to itself
+      const taken = [];
+      for (const [L, name] of [...PLACES].sort((a, b) => a[2] - b[2])) {
+        const span = Array.isArray(L), x0 = xOf(span ? L[0] : L), x1 = span ? xOf(L[1]) : x0;
+        const x = span ? (x1 === null ? null : (Math.max(x0 ?? ox, ox) + Math.min(x1, xEnd)) / 2) : x0;
+        if (!inView(x) || taken.some((t) => Math.abs(t - x) < 13)) continue;
+        taken.push(x);
+        if (span) out.push(`<line class="span" x1="${Math.max(x0 ?? ox, ox + 2).toFixed(1)}" y1="${oy - 6}" x2="${Math.min(x1, xEnd).toFixed(1)}" y2="${oy - 6}"/>`);
+        else out.push(`<line x1="${x.toFixed(1)}" y1="${oy - 9}" x2="${x.toFixed(1)}" y2="${oy}"/>`);
+        out.push(`<text class="ref" transform="translate(${x.toFixed(1)} ${oy - 12}) rotate(-40)">${name}</text>`);
+      }
+      ringLabels.innerHTML = `<svg viewBox="0 0 ${W_.toFixed(0)} ${H_.toFixed(0)}">${out.join("")}</svg>`;
       gl.disable(gl.BLEND);
     }
     const CAM = { r: [1, 0, 0], u: [0, 1, 0], f: [0, 0, -1] };
