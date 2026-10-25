@@ -16,6 +16,10 @@
 //   - VIIRS city lights (2012 composite; its dark-blue landscape is removed
 //     by keeping only how much redder than blue each pixel is) and the GPM GMI
 //     microwave composite (89–166 GHz, read as its brightness).
+// Microwave and radio from AMSU-A on NOAA-15 (23.8, 50.3, 57.3 and 89 GHz)
+// and SMAP (1.41 GHz). Three stretches of the spectrum have no global map,
+// so their bands are modelled and named so: 408 MHz from SMAP, the far-IR
+// and 3–5 µm from the 11 µm heat map.
 // Gaps between orbits are filled from the same layer on the nearest other
 // day within three days either side (12–18 June), then anything still empty
 // is filled in smoothly from around it. The polar night (no sunlight all day)
@@ -195,9 +199,23 @@ const FILLED = ` (gaps from ${dayOf(-3)} to ${dayOf(3)})`;
 const MODIS = `MODIS Terra corrected reflectance, ${DATE}${FILLED}`;
 const t31Read = (path) => unpalette(path, `${CM}/MODIS_Brightness_Temp_Band31.xml`, "t31-colormap.xml");
 const uvaiRead = (path) => unpalette(path, `${CM}/OMI_UV_Aerosol_Index.xml`, "uvai-colormap.xml");
+const amsuRead = (path) => unpalette(path, `${CM}/AMSU_Brightness_Temp.xml`, "amsu-colormap.xml");
+const smapRead = (path) => unpalette(path, `${CM}/SMAP_Brightness_Temp.xml`, "smap-colormap.xml");
+const AMSU = (ch) => `AMSUA_NOAA15_Brightness_Temp_Channel_${ch}`;
+const AMSU_SRC = `AMSU-A on NOAA-15, ${DATE}${FILLED}`;
+// the bands with no data of their own, modelled from neighbours (labelled so)
+const T11 = await band(T31, t31Read, false), SMAP = await band("SMAP_L3_Passive_Brightness_Temp_H", smapRead, false);
 const BANDS = [
-  { id: "gmi", name: "Microwave 89–166 GHz", wave: "2–3 mm", what: "rain, ice clouds, sea ice (GMI colour composite, read as brightness)", source: `GPM GMI, ${DATE}${FILLED}`, region: "Microwave", vals: await band(GMI, luminance, false), stretch: "lin" },
-  { id: "t11", name: "Thermal 11 µm", wave: "11 µm", what: "heat: warm ground bright, cold cloud tops dark", source: `MODIS Terra band 31, ${DATE}${FILLED}`, region: "Thermal IR", vals: await band(T31, t31Read, false), stretch: "lin" },
+  { id: "radio", name: "Radio 408 MHz (modelled)", wave: "30–75 cm", what: "Earth's own radio glow, much like at 21 cm: modelled from the SMAP map", source: "model, from SMAP 1.41 GHz", region: "Radio", vals: SMAP, stretch: "lin" },
+  { id: "smap", name: "Radio 1.41 GHz", wave: "21 cm", what: "warm dry land bright; oceans dark; wet soil and salt water darker", source: `SMAP, ${DATE}${FILLED}`, region: "Radio", vals: SMAP, stretch: "lin" },
+  { id: "amsu1", name: "Microwave 23.8 GHz", wave: "1.26 cm", what: "water vapour (a weak water line): humid tropics bright over the dark ocean", source: AMSU_SRC, region: "Microwave", vals: await band(AMSU(1), amsuRead, false), stretch: "lin" },
+  { id: "amsu3", name: "Microwave 50.3 GHz", wave: "6.0 mm", what: "the lower air and the ground together", source: AMSU_SRC, region: "Microwave", vals: await band(AMSU(3), amsuRead, false), stretch: "lin" },
+  { id: "amsu9", name: "Microwave 57.3 GHz", wave: "5.2 mm", what: "oxygen glow from the lower stratosphere (~17 km): the air, not the ground", source: AMSU_SRC, region: "Microwave", vals: await band(AMSU(9), amsuRead, false), stretch: "lin" },
+  { id: "amsu15", name: "Microwave 89 GHz", wave: "3.4 mm", what: "ground and clouds; ice in storm tops scatters dark", source: AMSU_SRC, region: "Microwave", vals: await band(AMSU(15), amsuRead, false), stretch: "lin" },
+  { id: "gmi", name: "Microwave 89–166 GHz", wave: "1.8–3.4 mm", what: "rain, ice clouds, sea ice (GMI colour composite, read as brightness)", source: `GPM GMI, ${DATE}${FILLED}`, region: "Microwave", vals: await band(GMI, luminance, false), stretch: "lin" },
+  { id: "fir", name: "Far-IR (modelled)", wave: "20 µm–1.5 mm", what: "Earth's heat glow beyond 20 µm, where the air itself absorbs and glows: modelled from the 11 µm map", source: "model, from MODIS 11 µm", region: "Far-IR", vals: T11, stretch: "lin" },
+  { id: "t11", name: "Thermal 11 µm", wave: "11 µm", what: "heat: warm ground bright, cold cloud tops dark", source: `MODIS Terra band 31, ${DATE}${FILLED}`, region: "Thermal IR", vals: T11, stretch: "lin" },
+  { id: "mir", name: "Mid-IR 3–5 µm (modelled)", wave: "3–5 µm", what: "heat glow, plus some reflected sunlight by day: modelled from the 11 µm map", source: "model, from MODIS 11 µm", region: "Mid-IR", vals: T11, stretch: "lin" },
   { id: "b7", name: "SWIR 2.13 µm", wave: "2.13 µm", what: "dry land bright, water and ice dark", source: MODIS, region: "Near-IR", vals: await band(B721, (p) => channel(p, 0), true), stretch: "lin" },
   { id: "b6", name: "SWIR 1.64 µm", wave: "1.64 µm", what: "snow and ice dark, water clouds bright", source: MODIS, region: "Near-IR", vals: await band(B367, (p) => channel(p, 1), true), stretch: "lin" },
   { id: "b2", name: "Near-IR 858 nm", wave: "858 nm", what: "plants bright, water black", source: MODIS, region: "Near-IR", vals: await band(B721, (p) => channel(p, 1), true), stretch: "lin" },

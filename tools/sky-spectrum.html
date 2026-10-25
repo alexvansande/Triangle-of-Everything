@@ -171,7 +171,7 @@
     sun: { dir: "sun-spectrum", title: "Sun Spectrum", views: ["Disc"], wrap: false,
       foot: "18 December 2015, 02:44 UTC · Nobeyama 17 GHz, ALMA 1.25 mm, SDO HMI and AIA · solar north up. Scroll or pinch to zoom, drag to pan." },
     earth: { dir: "earth-spectrum", title: "Earth Spectrum", views: ["Globe", "Map"], wrap: true, lonSign: 1,
-      foot: "15 June 2024 · MODIS Terra, GPM GMI, OMI; city lights from 2012. Gaps between orbits are filled from 12–18 June, anything still missing is smoothed in from around it (GMI stops at ±68° latitude); the far south is in polar night." },
+      foot: "15 June 2024 · MODIS Terra, AMSU-A (NOAA-15), GPM GMI, SMAP, OMI; city lights from 2012. Gaps between orbits are filled from 12–18 June, anything still missing is smoothed in from around it (GMI stops at ±68° latitude); the far south is in polar night. Three bands with no data are modelled and say so: 408 MHz (from SMAP), far-IR and 3–5 µm (from 11 µm)." },
   };
   // fallback region rules for the sky's bands.json, which predates "region"
   const SKY_REGIONS = [
@@ -232,10 +232,14 @@
     // a band's wavelength in metres, from strings like "73 cm", "330–680 nm", "~1 fm"
     // (a range counts as its geometric mean)
     const UNIT_M = { fm: 1e-15, nm: 1e-9, "µm": 1e-6, mm: 1e-3, cm: 1e-2, m: 1 };
-    function waveM(str) {
-      const m = str.replace(/~/g, "").match(/([\d.]+)(?:\s*–\s*([\d.]+))?\s*(fm|nm|µm|mm|cm|m)\b/);
-      return m ? Math.sqrt(+m[1] * +(m[2] ?? m[1])) * UNIT_M[m[3]] : NaN;
+    // the ends of a wavelength string in metres: "21 cm", "330–680 nm", "20 µm–1.5 mm"
+    function waveEnds(str) {
+      const m = str.replace(/~/g, "").match(/([\d.]+)\s*(fm|nm|µm|mm|cm|m)?(?:\s*–\s*([\d.]+))?\s*(fm|nm|µm|mm|cm|m)\b/);
+      if (!m) return [NaN, NaN];
+      const a = +m[1] * UNIT_M[m[2] ?? m[4]];
+      return [a, m[3] ? +m[3] * UNIT_M[m[4]] : a];
     }
+    const waveM = (str) => { const [a, b] = waveEnds(str); return Math.sqrt(a * b); };
     // position on this bar of any wavelength. Each slot owns a range of
     // wavelengths, split at the geometric midpoints between neighbours, except
     // that the visible slots take the colours they play in natural colour:
@@ -260,13 +264,11 @@
     // range; the Sun's photosphere image stands for all of visible light)
     const SPAN_M = { hmi: [400e-9, 700e-9] };
     function barSpan(b) {
-      const [x, y] = SPAN_M[b.id] ?? (() => {
-        const m = b.wave.replace(/~/g, "").match(/([\d.]+)(?:\s*–\s*([\d.]+))?\s*(fm|nm|µm|mm|cm|m)\b/);
-        return [+m[1] * UNIT_M[m[3]], +(m[2] ?? m[1]) * UNIT_M[m[3]]];
-      })();
+      const [x, y] = SPAN_M[b.id] ?? waveEnds(b.wave);
       // and, like the sky's own bands, fully the slot it falls in
       const lo = barPos(Math.max(x, y)), hi = barPos(Math.min(x, y)), slot = Math.round((lo + hi) / 2);
-      return [Math.min(lo, slot - 0.3), Math.max(hi, slot + 0.3)];
+      // (to its edges, so bands in neighbouring slots meet with no dark gap)
+      return [Math.min(lo, slot - 0.5), Math.max(hi, slot + 0.5)];
     }
     // selector weights for those bands: the channel's response at the nearest
     // point of each band's span, a little narrower than the sky's so that
@@ -529,7 +531,7 @@
     //   lights); axis to the celestial pole, turned for the moment the page opened.
     //   Sun (unit between Earth's and the Sun's radius): the Sun target's
     //   images as a flat disc facing the camera, solar north up.
-    const OBJ_MAX = 12;
+    const OBJ_PACKS = 6, OBJ_MAX = 3 * OBJ_PACKS; // up to 18 bands each for Earth and the Sun
     const fullTri = `#version 300 es
       void main() { vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }`;
     const objCommon = `
@@ -537,7 +539,7 @@
       uniform mat4 viewProj;
       uniform vec2 res;
       uniform float oR[${OBJ_MAX}], oG[${OBJ_MAX}], oB[${OBJ_MAX}], gain, gam;
-      uniform sampler2D o0, o1, o2, o3;
+      uniform sampler2D ${Array.from({ length: OBJ_PACKS }, (_, i) => `o${i}`).join(", ")};
       out vec4 o;
       vec3 ray(out vec3 ro) {
         mat4 inv = inverse(viewProj);
@@ -548,10 +550,7 @@
       }
       void objBands(vec2 uv, float lod, out float v[${OBJ_MAX}]) {
         vec3 t;
-        t = textureLod(o0, uv, lod).rgb; v[0] = t.r; v[1] = t.g; v[2] = t.b;
-        t = textureLod(o1, uv, lod).rgb; v[3] = t.r; v[4] = t.g; v[5] = t.b;
-        t = textureLod(o2, uv, lod).rgb; v[6] = t.r; v[7] = t.g; v[8] = t.b;
-        t = textureLod(o3, uv, lod).rgb; v[9] = t.r; v[10] = t.g; v[11] = t.b;
+        ${Array.from({ length: OBJ_PACKS }, (_, i) => `t = textureLod(o${i}, uv, lod).rgb; v[${3 * i}] = t.r; v[${3 * i + 1}] = t.g; v[${3 * i + 2}] = t.b;`).join("\n        ")}
       }
       vec3 mixBands(float v[${OBJ_MAX}], float shade[${OBJ_MAX}]) {
         vec3 c = vec3(0.0);
@@ -645,7 +644,7 @@
       hasDepth ? loadTex(`./${T.dir}/${meta.depth}`, P, false) : Promise.resolve(),
       hasDepth && meta.sourceDepth ? loadTex(`./${T.dir}/${meta.sourceDepth}`, P + 1, false, true) : Promise.resolve(),
       hasDepth && meta.radioDepth ? loadTex(`./${T.dir}/${meta.radioDepth}`, P + 2, false, true) : Promise.resolve(),
-      ...(hasDepth ? OBJ.flatMap((ob, oi) => ob.meta.packs.map((f, i) => loadTex(`./${ob.dir}/${f}`, P + 4 + 4 * oi + i, true))) : []),
+      ...(hasDepth ? OBJ.flatMap((ob, oi) => ob.meta.packs.map((f, i) => loadTex(`./${ob.dir}/${f}`, P + 4 + OBJ_PACKS * oi + i, true))) : []),
     ]);
     if (session.signal.aborted) return;
     const kinds = new Int32Array(P * 3).fill(5);
@@ -661,7 +660,8 @@
     [earthGlobe, sunDisc].forEach((p, oi) => {
       if (!p) return;
       gl.useProgram(p);
-      for (let i = 0; i < 4; i++) gl.uniform1i(gl.getUniformLocation(p, `o${i}`), P + 4 + 4 * oi + i);
+      // unused samplers point at this object's first pack; their bands carry no weight
+      for (let i = 0; i < OBJ_PACKS; i++) gl.uniform1i(gl.getUniformLocation(p, `o${i}`), P + 4 + OBJ_PACKS * oi + Math.min(i, OBJ[oi].meta.packs.length - 1));
     });
     status.textContent = `${N} bands`;
 
