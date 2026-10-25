@@ -15,6 +15,7 @@
   stays even. Bands are evenly spaced on the bar, not to scale.
   Sky only: a distance window drops every band's light whose depth (where
   along the line of sight it comes from) falls outside it, in every view.
+  Inside also shows Earth at the centre, in the same bands, the sky behind it.
   Then:  npm run dev  →  http://localhost:5173/tools/sky-spectrum.html
   Cloud radius: Custom (Milky Way on the inner 80%, log; the rest on the outer
   20%), Log (radius ∝ log distance in units from 1,000 km to billions of ly;
@@ -848,6 +849,49 @@
       ringLabels.innerHTML = `<svg viewBox="0 0 ${W_.toFixed(0)} ${H_.toFixed(0)}">${out.join("")}</svg>`;
       gl.disable(gl.BLEND);
     }
+    // Earth (0) or the Sun (1) at the centre, radius rO, about px pixels across
+    // on screen, through the current selector
+    function drawCentre(centre, VP, w, h, rO, px, spinAngle) {
+      const p = centre === 0 ? earthGlobe : sunDisc, ob = OBJ[centre];
+      gl.useProgram(p);
+      const E = (n) => gl.getUniformLocation(p, n);
+      const pos = ob.spans ??= ob.meta.bands.map(barSpan);
+      const groups = ob.meta.bands.map((b) => (b.id === "lights" ? 1 : 0)); // left out below; it mustn't take a share
+      const pad = (x) => { const a = new Float32Array(OBJ_MAX); a.set(x); return a; };
+      gl.uniform1fv(E("oR"), pad(objWeights(pos, c - s, groups)));
+      gl.uniform1fv(E("oG"), pad(objWeights(pos, c, groups)));
+      gl.uniform1fv(E("oB"), pad(objWeights(pos, c + s, groups)));
+      gl.uniform1f(E("gain"), +exposure.value); gl.uniform1f(E("gam"), +contrast.value);
+      gl.uniformMatrix4fv(E("viewProj"), false, VP);
+      gl.uniform2f(E("res"), w, h);
+      if (centre === 0) {
+        gl.uniformMatrix3fv(E("galToEq"), false, GAL_TO_EQ);
+        gl.uniform1f(E("rE"), rO); gl.uniform1f(E("spinA"), spinAngle); gl.uniform1f(E("gmst"), GMST);
+        gl.uniform1f(E("elod"), Math.max(0, Math.log2(2048 / Math.max(1, 3 * px))));
+        gl.uniform1fv(E("use"), Float32Array.from({ length: OBJ_MAX }, (_, k) => (ob.meta.bands[k] && ob.meta.bands[k].id !== "lights" ? 1 : 0)));
+      } else {
+        gl.uniform3fv(E("camR"), CAM.r); gl.uniform3fv(E("camU"), CAM.u); gl.uniform3fv(E("camF"), CAM.f);
+        gl.uniform1f(E("rS"), rO);
+        gl.uniform1f(E("slod"), Math.max(0, Math.log2(1024 / Math.max(1, 2.7 * px))));
+      }
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    // Inside: Earth floats at the centre of the view, the sky (at infinity)
+    // behind it. The camera sits behind Earth along the view direction, far
+    // enough that Earth spans EARTH_INSIDE radians in radius
+    const EARTH_INSIDE = 0.16;
+    function insideViewProj(w, h) {
+      const cp = Math.cos(view.pitch), sp = Math.sin(view.pitch), cy = Math.cos(view.yaw), sy = Math.sin(view.yaw);
+      const turn = ([x, y, z]) => { const y1 = cp * y - sp * z, z1 = sp * y + cp * z; return [cy * x + sy * z1, y1, -sy * x + cy * z1]; };
+      const f = turn([0, 0, -1]), u = turn([0, 1, 0]), r = turn([1, 0, 0]), D = 1 / Math.sin(EARTH_INSIDE);
+      const eye = f.map((x) => -x * D), dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+      const V = [r[0], u[0], -f[0], 0, r[1], u[1], -f[1], 0, r[2], u[2], -f[2], 0, -dot(r, eye), -dot(u, eye), dot(f, eye), 1];
+      const t = 1 / view.zoom, a = w / h, n = 0.05, fa = 100;
+      const Pm = [t / a, 0, 0, 0, 0, t, 0, 0, 0, 0, (fa + n) / (n - fa), -1, 0, 0, (2 * fa * n) / (n - fa), 0];
+      const M = new Float32Array(16);
+      for (let cc = 0; cc < 4; cc++) for (let rr = 0; rr < 4; rr++) { let sum = 0; for (let k = 0; k < 4; k++) sum += Pm[k * 4 + rr] * V[cc * 4 + k]; M[cc * 4 + rr] = sum; }
+      return M;
+    }
     const CAM = { r: [1, 0, 0], u: [0, 1, 0], f: [0, 0, -1] };
     function cloudViewProj(w, h) {
       const dist = 3.2 / view.zoom, cp = Math.cos(view.pitch);
@@ -904,31 +948,8 @@
         const centre = rmode !== 1 ? null : lu < L_EARTH ? 0 : lu < L_SUN ? 1 : null;
         gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.depthMask(true);
         if (centre !== null) {
-          const p = centre === 0 ? earthGlobe : sunDisc, ob = OBJ[centre];
-          gl.useProgram(p);
-          const E = (n) => gl.getUniformLocation(p, n);
-          const pos = ob.spans ??= ob.meta.bands.map(barSpan);
-          const groups = ob.meta.bands.map((b) => (b.id === "lights" ? 1 : 0)); // left out below; it mustn't take a share
-          const pad = (x) => { const a = new Float32Array(OBJ_MAX); a.set(x); return a; };
-          gl.uniform1fv(E("oR"), pad(objWeights(pos, c - s, groups)));
-          gl.uniform1fv(E("oG"), pad(objWeights(pos, c, groups)));
-          gl.uniform1fv(E("oB"), pad(objWeights(pos, c + s, groups)));
-          gl.uniform1f(E("gain"), +exposure.value); gl.uniform1f(E("gam"), +contrast.value);
-          gl.uniformMatrix4fv(E("viewProj"), false, VP);
-          gl.uniform2f(E("res"), w, h);
           const rO = rOf(centre === 0 ? L_EARTH : L_SUN);
-          const px = rO * h * view.zoom / 3.2 / Math.tan(20 * Math.PI / 180); // rough screen radius
-          if (centre === 0) {
-            gl.uniformMatrix3fv(E("galToEq"), false, GAL_TO_EQ);
-            gl.uniform1f(E("rE"), rO); gl.uniform1f(E("spinA"), spinA); gl.uniform1f(E("gmst"), GMST);
-            gl.uniform1f(E("elod"), Math.max(0, Math.log2(2048 / Math.max(1, 3 * px))));
-            gl.uniform1fv(E("use"), Float32Array.from({ length: OBJ_MAX }, (_, k) => (ob.meta.bands[k] && ob.meta.bands[k].id !== "lights" ? 1 : 0)));
-          } else {
-            gl.uniform3fv(E("camR"), CAM.r); gl.uniform3fv(E("camU"), CAM.u); gl.uniform3fv(E("camF"), CAM.f);
-            gl.uniform1f(E("rS"), rO);
-            gl.uniform1f(E("slod"), Math.max(0, Math.log2(1024 / Math.max(1, 2.7 * px))));
-          }
-          gl.drawArrays(gl.TRIANGLES, 0, 3);
+          drawCentre(centre, VP, w, h, rO, rO * h * view.zoom / 3.2 / Math.tan(20 * Math.PI / 180), spinA);
         }
         gl.depthMask(false);
         drawRings(VP, w, h, centre);
@@ -952,6 +973,7 @@
         : (Math.min(w / aspect, h) * view.zoom * aspect) / meta.width;
       gl.uniform1f(U("lod"), Math.max(0, -Math.log2(pxPerTex)));
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      if (mode === 1 && earthGlobe) drawCentre(0, insideViewProj(w, h), w, h, 1, h * Math.tan(EARTH_INSIDE) / view.zoom, 0);
     }
     let last = performance.now();
     const tick = (now) => {
