@@ -16,6 +16,8 @@
   Sky only: a distance window drops every band's light whose depth (where
   along the line of sight it comes from) falls outside it, in every view.
   Inside also shows Earth at the centre, in the same bands, the sky behind it.
+  Zooming out past Inside's widest view hands over to the Cloud (log scale,
+  Earth at the centre, same size, same side); zooming in on Earth returns.
   Then:  npm run dev  →  http://localhost:5173/tools/sky-spectrum.html
   Cloud radius: Custom (Milky Way on the inner 80%, log; the rest on the outer
   20%), Log (radius ∝ log distance in units from 1,000 km to billions of ly;
@@ -716,8 +718,33 @@
     }
     radiusBox.querySelectorAll("#rmodes button").forEach((b) => on(b, "click", () => setRadius(+b.dataset.r)));
     on(unit, "input", () => { showScale(); draw(); });
+    // Cloud zoom at which Earth looks as big as in Inside at zoom zIn (and back)
+    const earthR = () => (L_EARTH - +unit.value) / (10.66 - +unit.value);
+    const zMatch = (z) => (3.2 * Math.tan(20 * Math.PI / 180) * Math.tan(EARTH_INSIDE)) / (earthR() * z);
+    function switchView(m, v) {
+      fade = { mode, view: { ...view }, spinA, t0: performance.now() };
+      mode = m; view = v;
+      radiusBox.hidden = m !== 3;
+      if (m !== 3) ringLabels.hidden = true;
+      viewBox.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.mode === m));
+      draw();
+    }
     const zoomBy = (f) => {
       if (mode === 3 && rmode === 2) { lz = Math.max(LZ_MIN, Math.min(LZ_MAX, lz - 4 * Math.log10(f))); showScale(); draw(); return; }
+      if (cloud && !fade && mode === 1 && f < 1 && view.zoom / f > ZOOM[1][1]) {
+        // out of Inside: the Cloud on the log scale with Earth at the centre
+        if (rmode !== 1 || +unit.value >= L_EARTH) { unit.value = unit.min; setRadius(1); }
+        spin = false; spinA = 0;
+        switchView(3, { yaw: view.yaw, pitch: -view.pitch, zoom: zMatch(ZOOM[1][1]) });
+        return;
+      }
+      if (cloud && !fade && mode === 3 && rmode === 1 && +unit.value < L_EARTH && f > 1 && view.zoom * f > 1.5 * zMatch(ZOOM[1][1])) {
+        // in on Earth: back to Inside, seen from the same side
+        spin = false;
+        const zIn = Math.max(ZOOM[1][0], (3.2 * Math.tan(20 * Math.PI / 180) * Math.tan(EARTH_INSIDE)) / (earthR() * view.zoom * f));
+        switchView(1, { yaw: view.yaw - spinA, pitch: -view.pitch, zoom: zIn });
+        return;
+      }
       const [lo, hi] = ZOOM[mode]; view.zoom = Math.max(lo, Math.min(hi, mode === 1 ? view.zoom / f : view.zoom * f)); draw();
     };
     on(canvas, "wheel", (e) => { e.preventDefault(); zoomBy(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015))); }, { passive: false });
@@ -874,7 +901,9 @@
         gl.uniform1f(E("rS"), rO);
         gl.uniform1f(E("slod"), Math.max(0, Math.log2(1024 / Math.max(1, 2.7 * px))));
       }
+      over();
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      gl.disable(gl.BLEND);
     }
     // Inside: Earth floats at the centre of the view, the sky (at infinity)
     // behind it. The camera sits behind Earth along the view direction, far
@@ -926,12 +955,42 @@
       gl.uniform1f(U("lonSign"), T.lonSign ?? 0);
       return U;
     }
+    // Inside ⇄ Cloud: zooming out of Inside past its widest view hands over to
+    // the Cloud (log scale, Earth at the centre) with Earth the same size and
+    // seen from the same side; zooming back in on Earth returns. The view being
+    // left is drawn over the new one, fading out.
+    const FADE_MS = 900;
+    let fade = null, fadeA = 1;
+    const over = () => { // opaque drawing, faded by fadeA
+      if (fadeA >= 1) { gl.disable(gl.BLEND); return; }
+      gl.enable(gl.BLEND); gl.blendColor(0, 0, 0, fadeA); gl.blendFunc(gl.CONSTANT_ALPHA, gl.ONE_MINUS_CONSTANT_ALPHA);
+    };
+    const additive = () => { // points and lines, faded by fadeA
+      gl.enable(gl.BLEND);
+      if (fadeA >= 1) gl.blendFunc(gl.ONE, gl.ONE);
+      else { gl.blendColor(0, 0, 0, fadeA); gl.blendFunc(gl.CONSTANT_ALPHA, gl.ONE); }
+    };
     function draw() {
       if (session.signal.aborted) return;
       const r = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
       const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
       gl.viewport(0, 0, w, h);
+      fadeA = 1;
+      renderMode(mode, w, h, dpr);
+      if (!fade) return;
+      const t = (performance.now() - fade.t0) / FADE_MS;
+      if (t >= 1) { fade = null; return; }
+      // the view being left, on top, fading out
+      const keep = [view, spinA];
+      [view, spinA] = [fade.view, fade.spinA];
+      fadeA = 1 - t * t * (3 - 2 * t);
+      renderMode(fade.mode, w, h, dpr);
+      [view, spinA] = keep;
+      fadeA = 1;
+      gl.disable(gl.BLEND);
+    }
+    function renderMode(mode, w, h, dpr) {
       if (mode === 3 && cloud) {
         gl.useProgram(cloud);
         const U = common(cloud);
@@ -942,7 +1001,7 @@
         gl.uniform1f(U("lu"), +unit.value);
         gl.uniform1f(U("lz"), lz);
         gl.uniformMatrix4fv(U("viewProj"), false, VP);
-        gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.clearColor(0, 0, 0, 1); gl.clear(fadeA < 1 ? gl.DEPTH_BUFFER_BIT : gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         // Earth or Sun first, writing depth, so the points behind are hidden
         const lu = +unit.value, rOf = (L) => (L - lu) / (10.66 - lu);
         const centre = rmode !== 1 ? null : lu < L_EARTH ? 0 : lu < L_SUN ? 1 : null;
@@ -952,14 +1011,14 @@
           drawCentre(centre, VP, w, h, rO, rO * h * view.zoom / 3.2 / Math.tan(20 * Math.PI / 180), spinA);
         }
         gl.depthMask(false);
-        drawRings(VP, w, h, centre);
+        if (fadeA >= 1) drawRings(VP, w, h, centre);
         gl.useProgram(cloud);
-        gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+        additive();
         gl.drawArrays(gl.POINTS, 0, CLOUD_N);
         gl.disable(gl.BLEND); gl.disable(gl.DEPTH_TEST); gl.depthMask(true);
         return;
       }
-      ringLabels.hidden = true;
+      if (fadeA >= 1) ringLabels.hidden = true;
       gl.useProgram(quad);
       const U = common(quad);
       const aspect = meta.width / meta.height;
@@ -972,6 +1031,7 @@
       const pxPerTex = mode === 0 ? (view.zoom * h / 2) / (meta.width / (2 * Math.PI)) : mode === 1 ? (h / 2 / view.zoom) / (meta.width / (2 * Math.PI))
         : (Math.min(w / aspect, h) * view.zoom * aspect) / meta.width;
       gl.uniform1f(U("lod"), Math.max(0, -Math.log2(pxPerTex)));
+      over();
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       if (mode === 1 && earthGlobe) drawCentre(0, insideViewProj(w, h), w, h, 1, h * Math.tan(EARTH_INSIDE) / view.zoom, 0);
     }
@@ -981,6 +1041,7 @@
       const dt = (now - last) / 1000; last = now;
       if (spin && mode === 0) { view.yaw += dt * 0.08; draw(); }
       if (spin && mode === 3) { spinA += dt * 0.06; draw(); }
+      else if (fade) draw();
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
