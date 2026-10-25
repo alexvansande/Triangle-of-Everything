@@ -10,7 +10,8 @@
   "pack-5.jpg",
   "pack-6.jpg",
   "pack-7.jpg",
-  "pack-8.jpg"
+  "pack-8.jpg",
+  "pack-9.jpg"
  ],
  "bands": [
   {
@@ -124,24 +125,44 @@
    "channel": 1
   },
   {
-   "id": "iris100",
-   "name": "IRAS 100 µm",
-   "wave": "100 µm",
-   "what": "dust, star-forming clouds",
-   "source": "IRIS (IRAS reprocessed)",
+   "id": "a160",
+   "name": "AKARI 160 µm",
+   "wave": "160 µm",
+   "what": "cold dust",
+   "source": "AKARI FIS all-sky survey",
    "empty": false,
    "pack": 3,
    "channel": 2
   },
   {
-   "id": "iris60",
-   "name": "IRAS 60 µm",
-   "wave": "60 µm",
-   "what": "warm dust",
-   "source": "IRIS (IRAS reprocessed)",
+   "id": "a140",
+   "name": "AKARI 140 µm",
+   "wave": "140 µm",
+   "what": "cold dust",
+   "source": "AKARI FIS all-sky survey",
    "empty": false,
    "pack": 4,
    "channel": 0
+  },
+  {
+   "id": "a90",
+   "name": "AKARI 90 µm",
+   "wave": "90 µm",
+   "what": "dust, star-forming clouds",
+   "source": "AKARI FIS all-sky survey",
+   "empty": false,
+   "pack": 4,
+   "channel": 1
+  },
+  {
+   "id": "a65",
+   "name": "AKARI 65 µm",
+   "wave": "65 µm",
+   "what": "warm dust",
+   "source": "AKARI FIS all-sky survey",
+   "empty": false,
+   "pack": 4,
+   "channel": 2
   },
   {
    "id": "w4",
@@ -150,8 +171,8 @@
    "what": "warm dust, star formation",
    "source": "AllWISE",
    "empty": false,
-   "pack": 4,
-   "channel": 1
+   "pack": 5,
+   "channel": 0
   },
   {
    "id": "w3",
@@ -160,8 +181,8 @@
    "what": "PAH molecules, zodiacal dust",
    "source": "AllWISE",
    "empty": false,
-   "pack": 4,
-   "channel": 2
+   "pack": 5,
+   "channel": 1
   },
   {
    "id": "w2",
@@ -171,7 +192,7 @@
    "source": "AllWISE",
    "empty": false,
    "pack": 5,
-   "channel": 0
+   "channel": 2
   },
   {
    "id": "w1",
@@ -180,8 +201,8 @@
    "what": "old stars",
    "source": "AllWISE",
    "empty": false,
-   "pack": 5,
-   "channel": 1
+   "pack": 6,
+   "channel": 0
   },
   {
    "id": "k",
@@ -190,8 +211,8 @@
    "what": "stars through the dust",
    "source": "2MASS",
    "empty": false,
-   "pack": 5,
-   "channel": 2
+   "pack": 6,
+   "channel": 1
   },
   {
    "id": "j",
@@ -201,7 +222,7 @@
    "source": "2MASS",
    "empty": false,
    "pack": 6,
-   "channel": 0
+   "channel": 2
   },
   {
    "id": "rp",
@@ -210,8 +231,8 @@
    "what": "starlight",
    "source": "Gaia DR3 flux map",
    "empty": false,
-   "pack": 6,
-   "channel": 1
+   "pack": 7,
+   "channel": 0
   },
   {
    "id": "g",
@@ -220,8 +241,8 @@
    "what": "starlight",
    "source": "Gaia DR3 flux map",
    "empty": false,
-   "pack": 6,
-   "channel": 2
+   "pack": 7,
+   "channel": 1
   },
   {
    "id": "bp",
@@ -231,7 +252,7 @@
    "source": "Gaia DR3 flux map",
    "empty": false,
    "pack": 7,
-   "channel": 0
+   "channel": 2
   },
   {
    "id": "uv",
@@ -240,8 +261,8 @@
    "what": "no all-sky map exists",
    "source": "—",
    "empty": true,
-   "pack": 7,
-   "channel": 1
+   "pack": 8,
+   "channel": 0
   },
   {
    "id": "xsoft",
@@ -250,8 +271,8 @@
    "what": "hot gas, X-ray binaries",
    "source": "MAXI SSC",
    "empty": false,
-   "pack": 7,
-   "channel": 2
+   "pack": 8,
+   "channel": 1
   },
   {
    "id": "xhard",
@@ -261,7 +282,7 @@
    "source": "MAXI GSC",
    "empty": false,
    "pack": 8,
-   "channel": 0
+   "channel": 2
   },
   {
    "id": "gamma1",
@@ -270,8 +291,8 @@
    "what": "cosmic rays hitting gas",
    "source": "Fermi-LAT",
    "empty": false,
-   "pack": 8,
-   "channel": 1
+   "pack": 9,
+   "channel": 0
   },
   {
    "id": "gamma2",
@@ -280,8 +301,8 @@
    "what": "pulsars, blazars",
    "source": "Fermi-LAT",
    "empty": false,
-   "pack": 8,
-   "channel": 2
+   "pack": 9,
+   "channel": 1
   }
  ]
 }

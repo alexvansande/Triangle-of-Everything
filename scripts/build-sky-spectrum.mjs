@@ -46,8 +46,11 @@ const BANDS = [
   { id: "p353", name: "Planck 353 GHz", wave: "850 µm", what: "cold dust", source: "Planck HFI R3", base: `${A}/PLANCK/R3/HFI_SkyMap_353_R3`, stretch: "asinh" },
   { id: "p545", name: "Planck 545 GHz", wave: "550 µm", what: "cold dust", source: "Planck HFI R3", base: `${A}/PLANCK/R3/HFI_SkyMap_545_R3`, stretch: "log" },
   { id: "p857", name: "Planck 857 GHz", wave: "350 µm", what: "cold dust", source: "Planck HFI R3", base: `${A}/PLANCK/R3/HFI_SkyMap_857_R3`, stretch: "log" },
-  { id: "iris100", name: "IRAS 100 µm", wave: "100 µm", what: "dust, star-forming clouds", source: "IRIS (IRAS reprocessed)", base: `${IRAP}/IRIS_04`, stretch: "log" },
-  { id: "iris60", name: "IRAS 60 µm", wave: "60 µm", what: "warm dust", source: "IRIS (IRAS reprocessed)", base: `${IRAP}/IRIS_03`, stretch: "log" },
+  // AKARI (2006–07) rather than IRAS: IRAS left two strips of sky unobserved
+  { id: "a160", name: "AKARI 160 µm", wave: "160 µm", what: "cold dust", source: "AKARI FIS all-sky survey", base: `${A}/AKARI-FIS/N160`, stretch: "log" },
+  { id: "a140", name: "AKARI 140 µm", wave: "140 µm", what: "cold dust", source: "AKARI FIS all-sky survey", base: `${A}/AKARI-FIS/WideL`, stretch: "log" },
+  { id: "a90", name: "AKARI 90 µm", wave: "90 µm", what: "dust, star-forming clouds", source: "AKARI FIS all-sky survey", base: `${A}/AKARI-FIS/WideS`, stretch: "log" },
+  { id: "a65", name: "AKARI 65 µm", wave: "65 µm", what: "warm dust", source: "AKARI FIS all-sky survey", base: `${A}/AKARI-FIS/N60`, stretch: "asinh" }, // faint and noisy: dips below zero near the ecliptic poles,
   { id: "w4", name: "WISE W4", wave: "22 µm", what: "warm dust, star formation", source: "AllWISE", base: `${A}/AllWISE/W4`, stretch: "log" },
   { id: "w3", name: "WISE W3", wave: "12 µm", what: "PAH molecules, zodiacal dust", source: "AllWISE", base: `${A}/AllWISE/W3`, stretch: "log" },
   { id: "w2", name: "WISE W2", wave: "4.6 µm", what: "cool stars", source: "AllWISE", base: `${A}/AllWISE/W2`, stretch: "log", minOrder: 1, lo: 0.45 },

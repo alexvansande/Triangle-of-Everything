@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sky Spectrum</title>
 <!--
-  The whole sky seen through a movable RGB "eye". 27 all-sky maps, radio to
+  The whole sky seen through a movable RGB "eye". 29 all-sky maps, radio to
   gamma rays, each normalised to 0…1 (build: npm run build:sky-spectrum).
   The rainbow selector on the spectrum bar places the red, green and blue
   channels: slide it to shift all three along the spectrum, drag its ends to
@@ -112,7 +112,7 @@
   const REGIONS = [
     ["Radio", (b) => ["radio408", "hi21"].includes(b.id)],
     ["Microwave", (b) => /^p0|^p1|^p2/.test(b.id)],
-    ["Far-IR", (b) => ["p353", "p545", "p857", "iris100", "iris60"].includes(b.id)],
+    ["Far-IR", (b) => ["p353", "p545", "p857", "a160", "a140", "a90", "a65"].includes(b.id)],
     ["Mid-IR", (b) => /^w/.test(b.id)],
     ["Near-IR", (b) => ["k", "j"].includes(b.id)],
     ["Visible", (b) => ["rp", "g", "bp"].includes(b.id)],
