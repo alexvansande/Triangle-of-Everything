@@ -264,8 +264,8 @@
         return [+m[1] * UNIT_M[m[3]], +(m[2] ?? m[1]) * UNIT_M[m[3]]];
       })();
       // and, like the sky's own bands, fully the slot it falls in
-      const a = barPos(Math.max(x, y)), b = barPos(Math.min(x, y)), slot = Math.round((a + b) / 2);
-      return [Math.min(a, slot - 0.3), Math.max(b, slot + 0.3)];
+      const lo = barPos(Math.max(x, y)), hi = barPos(Math.min(x, y)), slot = Math.round((lo + hi) / 2);
+      return [Math.min(lo, slot - 0.3), Math.max(hi, slot + 0.3)];
     }
     // selector weights for those bands: the channel's response at the nearest
     // point of each band's span, a little narrower than the sky's so that
@@ -275,8 +275,8 @@
     function objWeights(spans, p, groups = []) {
       const so = 0.45 * sigma();
       const g = spans.map(([a, b]) => { const d = p < a ? a - p : p > b ? p - b : 0; return Math.exp(-(d * d) / (2 * so * so)); });
-      const sum = {}; // only bands well inside the channel crowd it; faint tails just add
-      g.forEach((x, i) => (sum[groups[i] ?? 0] = (sum[groups[i] ?? 0] ?? 0) + (x > 0.5 ? x : 0)));
+      const sum = {};
+      g.forEach((x, i) => (sum[groups[i] ?? 0] = (sum[groups[i] ?? 0] ?? 0) + x));
       return g.map((x, i) => { const t = sum[groups[i] ?? 0]; return t > 1 ? x / t : x; });
     }
     const sel = document.getElementById("selector"), curves = document.getElementById("curves");
