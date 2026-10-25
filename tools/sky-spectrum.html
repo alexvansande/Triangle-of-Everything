@@ -630,13 +630,13 @@
       gl.uniform1i(gl.getUniformLocation(p, "depthMap"), hasDepth ? P : 0);
       gl.uniform1i(gl.getUniformLocation(p, "sourceMap"), hasDepth && meta.sourceDepth ? P + 1 : 0);
       gl.uniform1i(gl.getUniformLocation(p, "radioMap"), hasDepth && meta.radioDepth ? P + 2 : 0);
+      gl.uniform1iv(gl.getUniformLocation(p, "kind"), kinds);
     });
     [earthGlobe, sunDisc].forEach((p, oi) => {
       if (!p) return;
       gl.useProgram(p);
       for (let i = 0; i < 4; i++) gl.uniform1i(gl.getUniformLocation(p, `o${i}`), P + 4 + 4 * oi + i);
       if (p === earthGlobe) gl.uniform1i(gl.getUniformLocation(p, "marble"), P + 3);
-      gl.uniform1iv(gl.getUniformLocation(p, "kind"), kinds);
     });
     status.textContent = `${N} bands`;
 
@@ -743,14 +743,15 @@
     // reference rings (log10 ly): Earth- and Sun-sized circles, orbits in the
     // ecliptic, then stars, the Galaxy and beyond in the galactic plane
     const KM = (x) => Math.log10(x / 9.4607e12), AU = (x) => Math.log10(x * 1.5813e-5), LYL = (x) => Math.log10(x);
+    // [name, log10 ly, plane, label rank: 1 always tried first, 3 only with room]
     const RINGS = [
-      ["Earth radius", KM(6371), "ecl"], ["Sun radius", L_SUN, "ecl"], ["Moon", KM(384400), "ecl"],
-      ["Mercury", AU(0.387), "ecl"], ["Venus", AU(0.723), "ecl"], ["1 AU · Earth–Sun", AU(1), "ecl"], ["Mars", AU(1.52), "ecl"],
-      ["Jupiter", AU(5.2), "ecl"], ["Saturn", AU(9.58), "ecl"], ["Uranus", AU(19.2), "ecl"], ["Neptune", AU(30.1), "ecl"],
-      ["Heliopause", AU(120), "ecl"], ["1 light-year", 0, "gal"], ["Proxima Centauri", LYL(4.24), "gal"], ["Sirius", LYL(8.6), "gal"],
-      ["Pleiades", LYL(444), "gal"], ["Orion Nebula", LYL(1344), "gal"], ["Galactic Centre", LYL(26700), "gal"], ["Milky Way edge", LYL(5.5e4), "gal"],
-      ["Large Magellanic Cloud", LYL(1.6e5), "gal"], ["Andromeda", LYL(2.5e6), "gal"], ["Virgo Cluster", LYL(5.4e7), "gal"],
-      ["Coma Cluster", LYL(3.2e8), "gal"], ["z = 1", 10.03, "gal"], ["z = 3", 10.35, "gal"], ["CMB", 10.66, "gal"],
+      ["Earth radius", KM(6371), "ecl", 1], ["Sun radius", L_SUN, "ecl", 1], ["Moon", KM(384400), "ecl", 1],
+      ["Mercury", AU(0.387), "ecl", 3], ["Venus", AU(0.723), "ecl", 3], ["1 AU · Earth–Sun", AU(1), "ecl", 1], ["Mars", AU(1.52), "ecl", 3],
+      ["Jupiter", AU(5.2), "ecl", 2], ["Saturn", AU(9.58), "ecl", 3], ["Uranus", AU(19.2), "ecl", 3], ["Neptune", AU(30.1), "ecl", 1],
+      ["Heliopause", AU(120), "ecl", 2], ["1 light-year", 0, "gal", 1], ["Proxima Centauri", LYL(4.24), "gal", 2], ["Sirius", LYL(8.6), "gal", 3],
+      ["Pleiades", LYL(444), "gal", 3], ["Orion Nebula", LYL(1344), "gal", 2], ["Galactic Centre", LYL(26700), "gal", 1], ["Milky Way edge", LYL(5.5e4), "gal", 3],
+      ["Large Magellanic Cloud", LYL(1.6e5), "gal", 2], ["Andromeda", LYL(2.5e6), "gal", 1], ["Virgo Cluster", LYL(5.4e7), "gal", 2],
+      ["Coma Cluster", LYL(3.2e8), "gal", 3], ["z = 1", 10.03, "gal", 2], ["z = 3", 10.35, "gal", 3], ["CMB", 10.66, "gal", 1],
     ];
     // planes in cloud coordinates (cloud d = galactic (x, z, −y)); the ecliptic
     // pole is at galactic l 96.38°, b 29.81°
@@ -784,8 +785,8 @@
         const cx = VP[0] * x + VP[4] * y + VP[8] * z + VP[12], cy = VP[1] * x + VP[5] * y + VP[9] * z + VP[13], cw = VP[3] * x + VP[7] * y + VP[11] * z + VP[15];
         return cw <= 0 ? null : [(cx / cw * 0.5 + 0.5) * w / dpr, (0.5 - cy / cw * 0.5) * h / dpr];
       };
-      const html = [], taken = [];
-      for (const [name, L, plane] of RINGS) {
+      const html = [], taken = [], cands = [];
+      for (const [name, L, plane, rank] of RINGS) {
         if ((centre === 0 && L === RINGS[0][1]) || (centre === 1 && L === L_SUN)) continue; // the globe or disc is its own outline
         const r = radiusOf(L);
         if (r === null || r <= 0) continue;
@@ -794,18 +795,22 @@
         const fade = rmode === 2 ? Math.max(0, Math.min(1, (2.6 - r) / 0.6)) : 1;
         gl.uniform3fv(U("col"), RING_COL[plane].map((x) => x * fade));
         gl.drawArrays(gl.LINE_LOOP, 0, 160);
-        // label at the right-most free spot along the ring, inside the view
-        const wd = 6.4 * name.length + 10, W_ = w / dpr, H_ = h / dpr; // label width estimate (px)
-        const spots = [];
+        // the label sits at the ring's right-most point on screen
+        let best = null;
         for (let k = 0; k < 64; k++) {
           const a = (2 * Math.PI * k) / 64, sp = project([0, 1, 2].map((i) => r * (Math.cos(a) * ax[i] + Math.sin(a) * ay[i])));
-          if (sp && sp[0] > 0 && sp[0] + wd < W_ - 8 && sp[1] > 40 && sp[1] < H_ - 40) spots.push(sp);
+          if (sp && (!best || sp[0] > best[0])) best = sp;
         }
-        spots.sort((p1, p2) => p2[0] - p1[0]);
-        const best = spots.find((sp) => !taken.some(([x, y, tw]) => Math.abs(y - sp[1]) < 13 && sp[0] < x + tw && x < sp[0] + wd));
-        if (!best) continue;
-        taken.push([best[0], best[1], wd]);
-        html.push(`<div class="${plane}" style="left:${best[0].toFixed(1)}px;top:${best[1].toFixed(1)}px;opacity:${fade.toFixed(2)}">${name}</div>`);
+        if (best && fade > 0.3) cands.push({ name, plane, rank, fade, x: best[0], y: best[1], wd: 6.4 * name.length + 12 });
+      }
+      // most important first; a label only goes where it overlaps no other
+      const W_ = w / dpr, H_ = h / dpr;
+      cands.sort((a, b) => a.rank - b.rank);
+      for (const c of cands) {
+        if (c.x < 0 || c.x + c.wd > W_ - 8 || c.y < 40 || c.y > H_ - 40) continue;
+        if (taken.some((t) => Math.abs(t.y - c.y) < 14 && c.x < t.x + t.wd && t.x < c.x + c.wd)) continue;
+        taken.push(c);
+        html.push(`<div class="${c.plane}" style="left:${c.x.toFixed(1)}px;top:${c.y.toFixed(1)}px;opacity:${c.fade.toFixed(2)}">${c.name}</div>`);
       }
       ringLabels.innerHTML = html.join("");
       gl.disable(gl.BLEND);
