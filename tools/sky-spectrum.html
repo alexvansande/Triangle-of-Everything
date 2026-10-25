@@ -16,7 +16,12 @@
   Sky only: a distance window drops every band's light whose depth (where
   along the line of sight it comes from) falls outside it, in every view.
   Then:  npm run dev  →  http://localhost:5173/tools/sky-spectrum.html
+  Cloud radius: Custom (Milky Way on the inner 80%, log; the rest on the outer
+  20%), Log (radius ∝ log distance in units from the Sun's radius to billions
+  of ly; anything nearer than one unit is hidden) or Linear (radius ∝ distance,
+  where zooming moves the scale through powers of ten).
   ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
+  ?radius=custom|log|linear  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
@@ -80,6 +85,13 @@
   #stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; display: block; }
   #views { position: absolute; top: 8px; right: max(16px, env(safe-area-inset-right, 0px)); z-index: 1; }
   #status { color: var(--dim); font-size: 12px; }
+  /* Cloud radius scale: bottom-left of the view */
+  #radius { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); bottom: 8px; z-index: 1; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    max-width: calc(100% - 32px); font-size: 12px; color: var(--dim); }
+  #radius[hidden], #radius [hidden] { display: none; }
+  #radius label { display: inline-flex; gap: 6px; align-items: center; }
+  #radius input[type=range] { width: 160px; accent-color: var(--fg); }
+  #radius output { font-family: var(--mono); color: var(--fg); white-space: nowrap; }
   footer { padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); color: var(--dim); font-size: 11px; }
   @media (max-width: 700px) {
     header h1 { font-size: 24px; } header p { display: none; } .controls { margin-left: 0; gap: 8px; }
@@ -124,7 +136,16 @@
   </div>
   <div id="dreadout" hidden></div>
 </div>
-<div id="stage"><div id="views" class="seg" role="group" aria-label="View"></div></div>
+<div id="stage">
+  <div id="views" class="seg" role="group" aria-label="View"></div>
+  <div id="radius" hidden>
+    <span class="seg" id="rmodes" role="group" aria-label="Radius scale">
+      <button data-r="0" title="Milky Way on the inner 80% (log), everything beyond on the outer 20%">Custom</button><button data-r="1" title="Radius grows with log distance from the chosen unit">Log</button><button data-r="2" title="Radius proportional to distance; zoom moves through powers of ten">Linear</button>
+    </span>
+    <label id="unitBox">1 unit <input id="unit" type="range" min="-7.13" max="10" step="0.01" value="0" aria-label="Log scale unit"> <output id="unitOut"></output></label>
+    <span id="linBox">radius 1 = <output id="linOut"></output> · scroll or pinch to zoom</span>
+  </div>
+</div>
 <footer class="pad" id="foot"></footer>
 
 <script>
@@ -406,6 +427,8 @@
       ${shared}
       uniform mat4 viewProj;
       uniform float gain, gam, size, spinA;
+      uniform int rmode;      // 0 custom broken axis, 1 log from a unit, 2 linear
+      uniform float lu, lz;   // log10 ly of the log unit; log10 ly at radius 1 (linear)
       out vec3 vCol;
       const float N = ${CLOUD_N}.0, LMIN = 2.0, LGAL = 4.8, LMAX = 10.66;
       float hash(float n) { return fract(sin(n * 12.9898) * 43758.5453); }
@@ -418,12 +441,15 @@
         d = normalize(d + sqrt(12.566 / N) * (vec3(hash(i), hash(i + 0.37), hash(i + 0.71)) - 0.5));
         vec3 col; float L, kept;
         bands(dirUV(d), 1.0, col, L, kept);
-        float r = L <= LGAL ? 0.8 * clamp((L - LMIN) / (LGAL - LMIN), 0.0, 1.0) : 0.8 + 0.2 * clamp((L - LGAL) / (LMAX - LGAL), 0.0, 1.0);
+        float r, vis = 1.0;
+        if (rmode == 0) r = L <= LGAL ? 0.8 * clamp((L - LMIN) / (LGAL - LMIN), 0.0, 1.0) : 0.8 + 0.2 * clamp((L - LGAL) / (LMAX - LGAL), 0.0, 1.0);
+        else if (rmode == 1) { r = (L - lu) / (LMAX - lu); vis = step(0.0, r); r = max(r, 0.0); } // nearer than 1 unit: hidden
+        else { r = pow(10.0, L - lz); vis = 1.0 - smoothstep(2.0, 3.0, r); } // fade out before passing the camera
         r *= 1.0 + 0.01 * (hash(i + 0.13) - 0.5);
         float cs = cos(spinA), sn = sin(spinA);
         gl_Position = viewProj * vec4(r * vec3(cs * d.x + sn * d.z, d.y, -sn * d.x + cs * d.z), 1.0);
-        gl_PointSize = kept > 1e-4 ? size : 0.0;
-        vCol = pow(clamp(col * gain, 0.0, 1.0), vec3(gam));
+        gl_PointSize = kept > 1e-4 && vis > 0.0 ? size : 0.0;
+        vCol = vis * pow(clamp(col * gain, 0.0, 1.0), vec3(gam));
       }`, `#version 300 es
       precision highp float;
       in vec3 vCol; out vec4 o;
@@ -484,10 +510,41 @@
     let mode = VIEW_ID[T.views[0]], view = { ...STARTV[mode] }, spin = !matchMedia("(prefers-reduced-motion: reduce)").matches && !q.has("still");
     function setMode(m) {
       mode = m; view = { ...STARTV[m] };
+      radiusBox.hidden = m !== 3;
       viewBox.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.mode === m));
       draw();
     }
-    const zoomBy = (f) => { const [lo, hi] = ZOOM[mode]; view.zoom = Math.max(lo, Math.min(hi, mode === 1 ? view.zoom / f : view.zoom * f)); draw(); };
+    // Cloud radius scale (sky): custom axis, log from a chosen unit, or linear with
+    // a log zoom — each zoom step multiplies the scale, so the solar neighbourhood
+    // to the CMB is about 40 scroll notches
+    const LZ_MIN = 0, LZ_MAX = 10.7, R_NAMES = ["custom", "log", "linear"];
+    let rmode = Math.max(0, R_NAMES.indexOf(first ? q.get("radius") : "")), lz = LZ_MAX;
+    if (first && q.has("lz")) lz = Math.max(LZ_MIN, Math.min(LZ_MAX, +q.get("lz")));
+    const radiusBox = document.getElementById("radius"), unit = document.getElementById("unit");
+    if (first && q.has("unit")) unit.value = q.get("unit");
+    const fmtScale = (L) => {
+      const ly = 10 ** L;
+      if (ly < 1e-5) return `${+(ly / 7.355e-8).toPrecision(2)} R☉`;
+      if (ly < 0.05) return `${+(ly / 1.581e-5).toPrecision(2)} AU`;
+      return fmtLy(L);
+    };
+    function setRadius(m) {
+      rmode = m;
+      radiusBox.querySelectorAll("#rmodes button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.r === m));
+      document.getElementById("unitBox").hidden = m !== 1;
+      document.getElementById("linBox").hidden = m !== 2;
+      showScale(); draw();
+    }
+    function showScale() {
+      document.getElementById("unitOut").textContent = `= ${fmtScale(+unit.value)}`;
+      document.getElementById("linOut").textContent = fmtScale(lz);
+    }
+    radiusBox.querySelectorAll("#rmodes button").forEach((b) => on(b, "click", () => setRadius(+b.dataset.r)));
+    on(unit, "input", () => { showScale(); draw(); });
+    const zoomBy = (f) => {
+      if (mode === 3 && rmode === 2) { lz = Math.max(LZ_MIN, Math.min(LZ_MAX, lz - 4 * Math.log10(f))); showScale(); draw(); return; }
+      const [lo, hi] = ZOOM[mode]; view.zoom = Math.max(lo, Math.min(hi, mode === 1 ? view.zoom / f : view.zoom * f)); draw();
+    };
     on(canvas, "wheel", (e) => { e.preventDefault(); zoomBy(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015))); }, { passive: false });
     const pts = new Map();
     let pinchD = 0;
@@ -560,6 +617,9 @@
         const U = common(cloud);
         gl.uniform1f(U("size"), Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom)));
         gl.uniform1f(U("spinA"), spinA);
+        gl.uniform1i(U("rmode"), rmode);
+        gl.uniform1f(U("lu"), +unit.value);
+        gl.uniform1f(U("lz"), lz);
         gl.uniformMatrix4fv(U("viewProj"), false, cloudViewProj(w, h));
         gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
         gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
@@ -597,6 +657,7 @@
       if (T.views.includes(want)) mode = VIEW_ID[want];
     }
     setMode(mode);
+    setRadius(rmode);
     clamp(); layoutSelector(); layoutDist(); draw();
     window.__stillDone = true;
   }
