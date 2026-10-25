@@ -133,6 +133,12 @@ for (const b of BANDS) {
   await sharp(Buffer.from(b.grey), { raw: { width: W, height: H, channels: 1 } }).resize(512, 256).png().toFile(join(CACHE, `${b.id}-preview.png`));
   console.log(`  ✓ ${b.id}`);
 }
+// a gap-free natural-colour Earth (Blue Marble: Next Generation, cloud-free
+// monthly mosaics) for the globe at the centre of the Sky Spectrum's Cloud
+await sharp(await download("https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?" + new URLSearchParams({
+  SERVICE: "WMS", REQUEST: "GetMap", VERSION: "1.3.0", LAYERS: "BlueMarble_NextGeneration", CRS: "EPSG:4326",
+  BBOX: "-90,-180,90,180", WIDTH: W, HEIGHT: H, FORMAT: "image/jpeg",
+}), "blue-marble.jpg")).jpeg({ quality: 85 }).toFile(join(OUT, "globe.jpg"));
 const packs = await writePacks(OUT, W, H, BANDS, {
   target: "earth", date: DATE, start: { c: BANDS.findIndex((b) => b.id === "b4"), s: 1 },
   frame: "Longitude −180° to 180°, north up",

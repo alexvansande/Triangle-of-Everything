@@ -17,11 +17,12 @@
   along the line of sight it comes from) falls outside it, in every view.
   Then:  npm run dev  →  http://localhost:5173/tools/sky-spectrum.html
   Cloud radius: Custom (Milky Way on the inner 80%, log; the rest on the outer
-  20%), Log (radius ∝ log distance in units from the Sun's radius to billions
-  of ly; anything nearer than one unit is hidden) or Linear (radius ∝ distance,
+  20%), Log (radius ∝ log distance in units from 1,000 km to billions of ly;
+  anything nearer than one unit is hidden; with a unit below Earth's radius,
+  Earth is drawn at the centre, as now: axis to the pole, turned and sunlit) or Linear (radius ∝ distance,
   where zooming moves the scale through powers of ten).
   ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
-  ?radius=custom|log|linear  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)
+  ?radius=custom|log|linear  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
@@ -142,7 +143,7 @@
     <span class="seg" id="rmodes" role="group" aria-label="Radius scale">
       <button data-r="0" title="Milky Way on the inner 80% (log), everything beyond on the outer 20%">Custom</button><button data-r="1" title="Radius grows with log distance from the chosen unit">Log</button><button data-r="2" title="Radius proportional to distance; zoom moves through powers of ten">Linear</button>
     </span>
-    <label id="unitBox">1 unit <input id="unit" type="range" min="-7.13" max="10" step="0.01" value="0" aria-label="Log scale unit"> <output id="unitOut"></output></label>
+    <label id="unitBox">1 unit <input id="unit" type="range" min="-10" max="10" step="0.01" value="0" aria-label="Log scale unit"> <output id="unitOut"></output></label>
     <span id="linBox">radius 1 = <output id="linOut"></output> · scroll or pinch to zoom</span>
   </div>
 </div>
@@ -454,11 +455,45 @@
       precision highp float;
       in vec3 vCol; out vec4 o;
       void main() { float a = smoothstep(0.5, 0.15, length(gl_PointCoord - 0.5)); o = vec4(vCol * a * 0.14, 1.0); }`) : null;
+    // Earth at the centre of the Cloud's log scale, when the unit is smaller than
+    // its radius: a ray-cast globe (NASA Blue Marble), axis pointing at the
+    // celestial pole, turned and lit for the moment the page opened
+    const earthGlobe = hasDepth ? link(`#version 300 es
+      void main() { vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }`,
+    `#version 300 es
+      precision highp float;
+      uniform mat4 viewProj;
+      uniform mat3 galToEq;
+      uniform vec2 res;
+      uniform vec3 sunEq;
+      uniform float rE, spinA, gmst, elod;
+      uniform sampler2D earthMap;
+      out vec4 o;
+      void main() {
+        mat4 inv = inverse(viewProj);
+        vec2 ndc = gl_FragCoord.xy / res * 2.0 - 1.0;
+        vec4 a = inv * vec4(ndc, -1.0, 1.0), b = inv * vec4(ndc, 1.0, 1.0);
+        vec3 ro = a.xyz / a.w, rd = normalize(b.xyz / b.w - ro);
+        float bq = dot(ro, rd), h = bq * bq - dot(ro, ro) + rE * rE;
+        if (h < 0.0) discard;
+        float t = -bq - sqrt(h);
+        if (t < 0.0) discard;
+        vec3 pw = ro + t * rd, n = pw / rE;
+        float cs = cos(spinA), sn = sin(spinA);
+        vec3 d = vec3(cs * n.x - sn * n.z, n.y, sn * n.x + cs * n.z); // undo the cloud's spin
+        vec3 v = galToEq * vec3(d.x, -d.z, d.y);                       // galactic → equatorial
+        float lon = atan(v.y, v.x) - gmst, lat = asin(clamp(v.z, -1.0, 1.0));
+        vec3 col = textureLod(earthMap, vec2(fract(lon / 6.2831853 + 0.5), 0.5 - lat / 3.1415927), elod).rgb;
+        float day = mix(0.12, 1.0, smoothstep(-0.1, 0.15, dot(v, sunEq)));
+        o = vec4(col * day, 1.0);
+        vec4 cp = viewProj * vec4(pw, 1.0);
+        gl_FragDepth = 0.5 + 0.5 * cp.z / cp.w;
+      }`) : null;
     gl.bindVertexArray(gl.createVertexArray());
 
     // textures: packs on units 0…P-1, depth on unit P, catalogued-source depth
     // on P+1 and P+2 (radio); nearest-pixel: each holds one source's distance, never a blend
-    const progs = [quad, cloud].filter(Boolean);
+    const progs = [quad, cloud, earthGlobe].filter(Boolean);
     const loadTex = (src, unit, mip, nearest) => new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
@@ -480,6 +515,7 @@
       hasDepth ? loadTex(`./${T.dir}/${meta.depth}`, P, false) : Promise.resolve(),
       hasDepth && meta.sourceDepth ? loadTex(`./${T.dir}/${meta.sourceDepth}`, P + 1, false, true) : Promise.resolve(),
       hasDepth && meta.radioDepth ? loadTex(`./${T.dir}/${meta.radioDepth}`, P + 2, false, true) : Promise.resolve(),
+      hasDepth ? loadTex("./earth-spectrum/globe.jpg", P + 3, true) : Promise.resolve(),
     ]);
     if (session.signal.aborted) return;
     const kinds = new Int32Array(P * 3).fill(5);
@@ -490,6 +526,7 @@
       gl.uniform1i(gl.getUniformLocation(p, "depthMap"), hasDepth ? P : 0);
       gl.uniform1i(gl.getUniformLocation(p, "sourceMap"), hasDepth && meta.sourceDepth ? P + 1 : 0);
       gl.uniform1i(gl.getUniformLocation(p, "radioMap"), hasDepth && meta.radioDepth ? P + 2 : 0);
+      gl.uniform1i(gl.getUniformLocation(p, "earthMap"), hasDepth ? P + 3 : 0);
       gl.uniform1iv(gl.getUniformLocation(p, "kind"), kinds);
     });
     status.textContent = `${N} bands`;
@@ -506,7 +543,7 @@
     });
     viewBox.hidden = T.views.length < 2;
     const STARTV = { 0: { yaw: Math.PI / 2, pitch: 0, zoom: 0.85 }, 1: { yaw: -Math.PI / 2, pitch: 0, zoom: 1 }, 2: { yaw: 0, pitch: 0, zoom: 1, panX: 0, panY: 0 }, 3: { yaw: 0.6, pitch: 0.35, zoom: 1.3 } };
-    const ZOOM = { 0: [0.3, 8], 1: [0.08, 2.5], 2: [1, 12], 3: [0.25, 12] };
+    const ZOOM = { 0: [0.3, 8], 1: [0.08, 2.5], 2: [1, 12], 3: [0.25, 60] };
     let mode = VIEW_ID[T.views[0]], view = { ...STARTV[mode] }, spin = !matchMedia("(prefers-reduced-motion: reduce)").matches && !q.has("still");
     function setMode(m) {
       mode = m; view = { ...STARTV[m] };
@@ -522,8 +559,10 @@
     if (first && q.has("lz")) lz = Math.max(LZ_MIN, Math.min(LZ_MAX, +q.get("lz")));
     const radiusBox = document.getElementById("radius"), unit = document.getElementById("unit");
     if (first && q.has("unit")) unit.value = q.get("unit");
+    const L_EARTH = Math.log10(6371 / 9.4607e12); // Earth's radius in ly
     const fmtScale = (L) => {
       const ly = 10 ** L;
+      if (ly < 1e-8) return `${(+(ly * 9.4607e12).toPrecision(2)).toLocaleString("en-US")} km`;
       if (ly < 1e-5) return `${+(ly / 7.355e-8).toPrecision(2)} R☉`;
       if (ly < 0.05) return `${+(ly / 1.581e-5).toPrecision(2)} AU`;
       return fmtLy(L);
@@ -536,7 +575,7 @@
       showScale(); draw();
     }
     function showScale() {
-      document.getElementById("unitOut").textContent = `= ${fmtScale(+unit.value)}`;
+      document.getElementById("unitOut").textContent = `= ${fmtScale(+unit.value)}${+unit.value < L_EARTH ? " · Earth at the centre" : ""}`;
       document.getElementById("linOut").textContent = fmtScale(lz);
     }
     radiusBox.querySelectorAll("#rmodes button").forEach((b) => on(b, "click", () => setRadius(+b.dataset.r)));
@@ -574,6 +613,21 @@
     const up = (e) => { pts.delete(e.pointerId); pinchD = 0; };
     on(canvas, "pointerup", up); on(canvas, "pointercancel", up);
 
+    // galactic → equatorial (the transpose of the ICRS → galactic rotation),
+    // laid out column by column for uniformMatrix3fv
+    const GAL_TO_EQ = new Float32Array([
+      -0.0548755604, -0.8734370902, -0.4838350155,
+      0.4941094279, -0.4448296300, 0.7469822445,
+      -0.8676661490, -0.1980763734, 0.4559837762,
+    ]);
+    // Earth's turn (sidereal angle) and the Sun's direction, for the moment the page opened
+    const SKY_NOW = (() => {
+      const days = Date.now() / 864e5 + 2440587.5 - 2451545.0;
+      const gmst = 2 * Math.PI * ((0.779057273264 + 1.00273781191135448 * days) % 1);
+      const rad = Math.PI / 180, g = (357.528 + 0.9856003 * days) * rad;
+      const lam = (280.46 + 0.9856474 * days) * rad + (1.915 * Math.sin(g) + 0.02 * Math.sin(2 * g)) * rad, eps = 23.439 * rad;
+      return { gmst, sun: [Math.cos(lam), Math.cos(eps) * Math.sin(lam), Math.sin(eps) * Math.sin(lam)] };
+    })();
     function cloudViewProj(w, h) {
       const dist = 3.2 / view.zoom, cp = Math.cos(view.pitch);
       const eye = [dist * cp * Math.sin(view.yaw), dist * Math.sin(view.pitch), dist * cp * Math.cos(view.yaw)];
@@ -615,16 +669,34 @@
       if (mode === 3 && cloud) {
         gl.useProgram(cloud);
         const U = common(cloud);
-        gl.uniform1f(U("size"), Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom)));
+        const VP = cloudViewProj(w, h);
+        gl.uniform1f(U("size"), Math.min(6 * dpr, Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom))));
         gl.uniform1f(U("spinA"), spinA);
         gl.uniform1i(U("rmode"), rmode);
         gl.uniform1f(U("lu"), +unit.value);
         gl.uniform1f(U("lz"), lz);
-        gl.uniformMatrix4fv(U("viewProj"), false, cloudViewProj(w, h));
-        gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.uniformMatrix4fv(U("viewProj"), false, VP);
+        gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        // Earth first, writing depth, so the points behind it are hidden
+        const rE = (L_EARTH - +unit.value) / (10.66 - +unit.value);
+        if (rmode === 1 && rE > 0) {
+          gl.useProgram(earthGlobe);
+          const E = (n) => gl.getUniformLocation(earthGlobe, n);
+          gl.uniformMatrix4fv(E("viewProj"), false, VP);
+          gl.uniformMatrix3fv(E("galToEq"), false, GAL_TO_EQ);
+          gl.uniform2f(E("res"), w, h);
+          gl.uniform3fv(E("sunEq"), SKY_NOW.sun);
+          gl.uniform1f(E("rE"), rE); gl.uniform1f(E("spinA"), spinA); gl.uniform1f(E("gmst"), SKY_NOW.gmst);
+          const px = rE * h * view.zoom / 3.2 / Math.tan(20 * Math.PI / 180); // rough screen radius
+          gl.uniform1f(E("elod"), Math.max(0, Math.log2(2048 / Math.max(1, 3 * px))));
+          gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LESS); gl.depthMask(true);
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+          gl.depthMask(false);
+          gl.useProgram(cloud);
+        }
         gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
         gl.drawArrays(gl.POINTS, 0, CLOUD_N);
-        gl.disable(gl.BLEND);
+        gl.disable(gl.BLEND); gl.disable(gl.DEPTH_TEST); gl.depthMask(true);
         return;
       }
       gl.useProgram(quad);
@@ -657,6 +729,7 @@
       if (T.views.includes(want)) mode = VIEW_ID[want];
     }
     setMode(mode);
+    if (first && q.has("zoom")) { const [lo, hi] = ZOOM[mode]; view.zoom = Math.max(lo, Math.min(hi, +q.get("zoom"))); }
     setRadius(rmode);
     clamp(); layoutSelector(); layoutDist(); draw();
     window.__stillDone = true;
