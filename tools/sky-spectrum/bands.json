@@ -14,14 +14,38 @@
   "pack-9.jpg"
  ],
  "depth": "depth.png",
+ "sourceDepth": "sources.png",
  "depthScale": 11,
+ "sources": {
+  "xray": {
+   "redshift": 2775,
+   "no distance": 371,
+   "parallax": 103,
+   "binary catalogue": 103,
+   "pulsar": 22,
+   "galactic centre": 1
+  },
+  "gamma": {
+   "typical": 2356,
+   "redshift": 1633,
+   "no distance": 3020,
+   "pulsar": 157,
+   "distance": 9,
+   "named galaxy": 3,
+   "parallax": 11,
+   "binary catalogue": 6
+  }
+ },
  "depthKinds": [
   "stars",
   "dust",
   "halo",
   "cmb-dust",
   "cmb-halo",
-  "none"
+  "none",
+  "xray",
+  "gamma-lo",
+  "gamma-hi"
  ],
  "bands": [
   {
@@ -308,7 +332,7 @@
    "empty": false,
    "pack": 8,
    "channel": 1,
-   "depth": 2
+   "depth": 6
   },
   {
    "id": "xhard",
@@ -319,7 +343,7 @@
    "empty": false,
    "pack": 8,
    "channel": 2,
-   "depth": 2
+   "depth": 6
   },
   {
    "id": "gamma1",
@@ -330,7 +354,7 @@
    "empty": false,
    "pack": 9,
    "channel": 0,
-   "depth": 2
+   "depth": 7
   },
   {
    "id": "gamma2",
@@ -341,7 +365,7 @@
    "empty": false,
    "pack": 9,
    "channel": 1,
-   "depth": 2
+   "depth": 8
   }
  ]
 }

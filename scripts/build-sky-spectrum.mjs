@@ -19,6 +19,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import sharp from "sharp";
+import { sourceCatalogues, comovingLd } from "./sky/source-depth.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = join(ROOT, "scripts/sky/.cache/spectrum");
@@ -273,16 +274,21 @@ for (let p = 0; p * 3 < BANDS.length; p++) {
 // depth.png (512×256, same galactic grid) holds log10(distance in ly) / 11 × 255:
 //   R  starlight — Gaia stars' G-flux-weighted mean log distance per sky cell
 //   G  dust      — where Gaia stars' extinction rises along the line of sight
-//   B  halo      — a thick-disc model (scale height 1 kpc): diffuse synchrotron, X-ray, gamma
+//   B  halo      — a thick-disc model (scale height 1 kpc): diffuse synchrotron
+// sources.png (1024×512, same grid) places the X-ray and gamma bands
+// by catalogued sources with measured distances:
+//   R  X-ray (MAXI)       G  gamma 0.3–1 GeV       B  gamma 3–300 GeV
 // Each band names its depth kind; the page mixes them by what each pixel shows.
 // Microwave bands are CMB (46 Gly) except where the Galaxy is bright; the page
 // blends that per pixel from the 857 GHz (dust) and 408 MHz (synchrotron) maps.
-const DEPTH_KIND = { stars: 0, dust: 1, halo: 2, "cmb-dust": 3, "cmb-halo": 4, none: 5 };
+const DEPTH_KIND = { stars: 0, dust: 1, halo: 2, "cmb-dust": 3, "cmb-halo": 4, none: 5, xray: 6, "gamma-lo": 7, "gamma-hi": 8 };
 const depthOf = (id) =>
   ["rp", "g", "bp", "j", "k", "w1", "w2"].includes(id) ? "stars"
   : ["hi21", "p353", "p545", "p857", "a160", "a140", "a90", "a65", "w4", "w3"].includes(id) ? "dust"
   : ["p070", "p100", "p143", "p217"].includes(id) ? "cmb-dust"
   : ["p030", "p044"].includes(id) ? "cmb-halo"
+  : ["xsoft", "xhard"].includes(id) ? "xray"
+  : id === "gamma1" ? "gamma-lo" : id === "gamma2" ? "gamma-hi"
   : id === "uv" ? "none" : "halo";
 
 const DW = 512, DH = 256;
@@ -335,37 +341,107 @@ for (let c = 0; c < dustLd.length; c++) {
   if (den > 0.05) dustLd[c] = num / den;
 }
 
-// resample onto the galactic grid; fill gaps with a disc model
-const depth = Buffer.alloc(DW * DH * 3);
-const enc = (ld) => Math.round(255 * Math.max(0, Math.min(1, ld / 11)));
+// the diffuse depths at a galactic direction (l, b in radians): starlight,
+// dust (Gaia where measured, else a disc model) and the halo model
 const LY = Math.log10(3.26156);
-for (let y = 0; y < DH; y++) {
-  const b = (0.5 - (y + 0.5) / DH) * Math.PI, sb = Math.max(0.03, Math.abs(Math.sin(b)));
-  for (let x = 0; x < DW; x++) {
-    const l = (0.5 - (x + 0.5) / DW) * 2 * Math.PI;
-    const gx = Math.cos(b) * Math.cos(l), gy = Math.cos(b) * Math.sin(l), gz = Math.sin(b);
-    const vx = G[0][0] * gx + G[1][0] * gy + G[2][0] * gz;
-    const vy = G[0][1] * gx + G[1][1] * gy + G[2][1] * gz;
-    const vz = G[0][2] * gx + G[1][2] * gy + G[2][2] * gz;
-    const cell = (level) => {
-      const ns = 2 ** level, [f, ix, iy] = ang2xyf(ns, vz, Math.atan2(vy, vx));
-      return f * ns * ns + interleave(ix, iy);
-    };
-    // models (pc): dust layer ~100 pc thick, halo ~1 kpc, both capped in the plane
-    const dustModel = Math.log10(Math.min(100 / sb, 3000) * 0.6) + LY;
-    const haloModel = Math.log10(Math.min(1000 / sb, 15000) * 0.6) + LY;
-    const st = starLd[cell(STAR_LEVEL)], du = dustLd[cell(DUST_LEVEL)];
-    const i = 3 * (y * DW + x);
-    depth[i] = enc(Number.isFinite(st) ? st : dustModel);
-    depth[i + 1] = enc(Number.isFinite(du) ? du : dustModel);
-    depth[i + 2] = enc(haloModel);
-  }
+const healpixCell = (level, l, b) => {
+  const gx = Math.cos(b) * Math.cos(l), gy = Math.cos(b) * Math.sin(l), gz = Math.sin(b);
+  const vx = G[0][0] * gx + G[1][0] * gy + G[2][0] * gz;
+  const vy = G[0][1] * gx + G[1][1] * gy + G[2][1] * gz;
+  const vz = G[0][2] * gx + G[1][2] * gy + G[2][2] * gz;
+  const ns = 2 ** level, [f, ix, iy] = ang2xyf(ns, vz, Math.atan2(vy, vx));
+  return f * ns * ns + interleave(ix, iy);
+};
+function diffuseAt(l, b) {
+  const sb = Math.max(0.03, Math.abs(Math.sin(b)));
+  // models (pc): dust layer ~100 pc thick, halo ~1 kpc, both capped in the plane
+  const dustModel = Math.log10(Math.min(100 / sb, 3000) * 0.6) + LY;
+  const st = starLd[healpixCell(STAR_LEVEL, l, b)], du = dustLd[healpixCell(DUST_LEVEL, l, b)];
+  return {
+    stars: Number.isFinite(st) ? st : dustModel,
+    dust: Number.isFinite(du) ? du : dustModel,
+    halo: Math.log10(Math.min(1000 / sb, 15000) * 0.6) + LY,
+  };
+}
+const gridL = (x, w) => (0.5 - (x + 0.5) / w) * 2 * Math.PI;
+const gridB = (y, h) => (0.5 - (y + 0.5) / h) * Math.PI;
+const enc = (ld) => Math.round(255 * Math.max(0, Math.min(1, ld / 11)));
+
+const depth = Buffer.alloc(DW * DH * 3);
+for (let y = 0; y < DH; y++) for (let x = 0; x < DW; x++) {
+  const d = diffuseAt(gridL(x, DW), gridB(y, DH)), i = 3 * (y * DW + x);
+  depth[i] = enc(d.stars); depth[i + 1] = enc(d.dust); depth[i + 2] = enc(d.halo);
 }
 await sharp(depth, { raw: { width: DW, height: DH, channels: 3 } }).blur(1.2).png().toFile(join(OUT, "depth.png"));
 console.log(`depth.png: starlight from ${starRows.length} Gaia cells, dust from ${dustLd.filter(Number.isFinite).length} cells`);
 
+// ---------- high-energy depth from catalogued sources ----------
+// Each source is painted as the band's point-spread function times its flux;
+// a pixel takes the distance of the source that dominates it, if that source
+// outshines the band's diffuse level there. Sources with no distance still
+// compete (an unidentified source keeps its pixels diffuse). Diffuse light:
+// X-ray — the Galactic ridge (starlight depth) within 6° of the plane, the
+// cosmic X-ray background (AGN near z ≈ 1) elsewhere; gamma — cosmic rays
+// hitting gas, so the dust/gas depth. The diffuse level rises toward the
+// plane for gamma, where the gas glow is bright.
+mkdirSync(join(CACHE, "sources"), { recursive: true });
+const { xray, gamma } = await sourceCatalogues(download);
+const SW = 1024, SH = 512, CXB = comovingLd(1);
+const toGal = (ra, de) => {
+  const a = (ra * Math.PI) / 180, d = (de * Math.PI) / 180;
+  const v = [Math.cos(d) * Math.cos(a), Math.cos(d) * Math.sin(a), Math.sin(d)];
+  return [0, 1, 2].map((r) => G[r][0] * v[0] + G[r][1] * v[1] + G[r][2] * v[2]);
+};
+const quantile = (vals, q) => { const s = vals.filter((v) => v > 0).sort((a, b) => a - b); return s[Math.floor(q * (s.length - 1))]; };
+const CHANNELS = [
+  { list: xray, flux: (s) => s.f, sigma: 0.8, plane: 0 },
+  { list: gamma, flux: (s) => s.f1, sigma: 1.0, plane: 20 },
+  { list: gamma, flux: (s) => s.f2, sigma: 0.35, plane: 8 },
+];
+const best = CHANNELS.map(() => ({ w: new Float32Array(SW * SH), ld: new Float32Array(SW * SH).fill(NaN) }));
+CHANNELS.forEach((c, ci) => {
+  c.floor = quantile(c.list.map(c.flux), 0.3) * Math.exp(-0.5);
+  const reach = (3 * c.sigma * Math.PI) / 180, k = 1 / (2 * ((c.sigma * Math.PI) / 180) ** 2);
+  for (const s of c.list) {
+    const F = c.flux(s);
+    if (!(F > 0)) continue;
+    const g = toGal(s.ra, s.de), b0 = Math.asin(g[2]), l0 = Math.atan2(g[1], g[0]);
+    const y0 = Math.max(0, Math.floor((0.5 - (b0 + reach) / Math.PI) * SH)), y1 = Math.min(SH - 1, Math.ceil((0.5 - (b0 - reach) / Math.PI) * SH));
+    const cosb = Math.cos(Math.min(Math.PI / 2, Math.abs(b0) + reach));
+    const dx = cosb > reach / Math.PI ? Math.ceil((reach / cosb / (2 * Math.PI)) * SW) : SW / 2;
+    const xc = Math.round((0.5 - l0 / (2 * Math.PI)) * SW - 0.5);
+    for (let y = y0; y <= y1; y++) {
+      const b = gridB(y, SH);
+      for (let xx = xc - dx; xx <= xc + dx; xx++) {
+        const x = ((xx % SW) + SW) % SW, l = gridL(x, SW);
+        const dot = Math.cos(b) * Math.cos(l) * g[0] + Math.cos(b) * Math.sin(l) * g[1] + Math.sin(b) * g[2];
+        const r = Math.acos(Math.min(1, dot));
+        if (r > reach) continue;
+        const w = F * Math.exp(-k * r * r), i = y * SW + x;
+        if (w > best[ci].w[i]) { best[ci].w[i] = w; best[ci].ld[i] = s.ld; }
+      }
+    }
+  }
+});
+const sources = Buffer.alloc(SW * SH * 3);
+for (let y = 0; y < SH; y++) {
+  const b = gridB(y, SH), nearPlane = Math.exp(-Math.abs(b) / ((5 * Math.PI) / 180));
+  for (let x = 0; x < SW; x++) {
+    const d = diffuseAt(gridL(x, SW), b), i = y * SW + x;
+    const diffuse = [Math.abs(b) < (6 * Math.PI) / 180 ? d.stars : CXB, d.dust, d.dust];
+    CHANNELS.forEach((c, ci) => {
+      const own = best[ci].w[i] > c.floor * (1 + c.plane * nearPlane) && Number.isFinite(best[ci].ld[i]);
+      sources[3 * i + ci] = enc(own ? best[ci].ld[i] : diffuse[ci]);
+    });
+  }
+}
+await sharp(sources, { raw: { width: SW, height: SH, channels: 3 } }).png().toFile(join(OUT, "sources.png"));
+const tally = (l) => l.reduce((m, s) => ((m[s.how || "no distance"] = (m[s.how || "no distance"] || 0) + 1), m), {});
+const sourceNote = { xray: tally(xray), gamma: tally(gamma) };
+console.log("sources.png:", JSON.stringify(sourceNote));
+
 writeFileSync(join(OUT, "bands.json"), JSON.stringify({
-  width: W, height: H, packs, depth: "depth.png", depthScale: 11,
+  width: W, height: H, packs, depth: "depth.png", sourceDepth: "sources.png", depthScale: 11, sources: sourceNote,
   depthKinds: Object.keys(DEPTH_KIND),
   bands: BANDS.map(({ id, name, wave, what, source, empty }, i) =>
     ({ id, name, wave, what, source, empty: !!empty, pack: Math.floor(i / 3), channel: i % 3, depth: DEPTH_KIND[depthOf(id)] })),

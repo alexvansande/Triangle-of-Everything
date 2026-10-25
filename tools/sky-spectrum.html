@@ -315,7 +315,7 @@
     // whose depth is outside the window; L = light-weighted depth of what's kept
     const shared = `
       ${meta.packs.map((_, i) => `uniform sampler2D p${i};`).join("\n")}
-      uniform sampler2D depthMap;
+      uniform sampler2D depthMap, sourceMap;
       uniform float wR[${P * 3}], wG[${P * 3}], wB[${P * 3}];
       uniform int kind[${P * 3}];
       uniform float dLo, dHi, lonSign;
@@ -328,10 +328,12 @@
         float v[${P * 3}];
         vec3 t;
         ${meta.packs.map((_, i) => `t = textureLod(p${i}, uv, lod).rgb; v[${3 * i}] = t.r; v[${3 * i + 1}] = t.g; v[${3 * i + 2}] = t.b;`).join("\n        ")}
-        float depth[6] = float[6](0.0, 0.0, 0.0, 10.66, 10.66, 0.0);
+        float depth[9] = float[9](0.0, 0.0, 0.0, 10.66, 10.66, 0.0, 0.0, 0.0, 0.0);
         if (useDepth) {
           vec3 dm = textureLod(depthMap, uv, 0.0).rgb * 11.0;
+          vec3 sm = textureLod(sourceMap, uv, 0.0).rgb * 11.0;
           depth[0] = dm.r; depth[1] = dm.g; depth[2] = dm.b;
+          depth[6] = sm.r; depth[7] = sm.g; depth[8] = sm.b;
           depth[3] = mix(10.66, dm.g, smoothstep(0.35, 0.75, v[${I857}]));
           depth[4] = mix(10.66, dm.b, smoothstep(0.3, 0.65, v[${I408}]));
         }
@@ -427,16 +429,18 @@
       void main() { float a = smoothstep(0.5, 0.15, length(gl_PointCoord - 0.5)); o = vec4(vCol * a * 0.14, 1.0); }`) : null;
     gl.bindVertexArray(gl.createVertexArray());
 
-    // textures: packs on units 0…P-1, depth on unit P
+    // textures: packs on units 0…P-1, depth on unit P, catalogued-source depth
+    // on P+1 (nearest-pixel: each pixel holds one source's distance, never a blend)
     const progs = [quad, cloud].filter(Boolean);
-    const loadTex = (src, unit, mip) => new Promise((resolve) => {
+    const loadTex = (src, unit, mip, nearest) => new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
         gl.activeTexture(gl.TEXTURE0 + unit);
         gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB8, gl.RGB, gl.UNSIGNED_BYTE, img);
         if (mip) gl.generateMipmap(gl.TEXTURE_2D);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mip ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mip ? gl.LINEAR_MIPMAP_LINEAR : nearest ? gl.NEAREST : gl.LINEAR);
+        if (nearest) gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, T.wrap ? gl.REPEAT : gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         resolve();
@@ -447,6 +451,7 @@
     await Promise.all([
       ...meta.packs.map((f, i) => loadTex(`./${T.dir}/${f}`, i, true).then(() => (status.textContent = `Loading maps… ${++loaded} of ${P}`))),
       hasDepth ? loadTex(`./${T.dir}/${meta.depth}`, P, false) : Promise.resolve(),
+      hasDepth && meta.sourceDepth ? loadTex(`./${T.dir}/${meta.sourceDepth}`, P + 1, false, true) : Promise.resolve(),
     ]);
     if (session.signal.aborted) return;
     const kinds = new Int32Array(P * 3).fill(5);
@@ -455,6 +460,7 @@
       gl.useProgram(p);
       meta.packs.forEach((_, i) => gl.uniform1i(gl.getUniformLocation(p, `p${i}`), i));
       gl.uniform1i(gl.getUniformLocation(p, "depthMap"), hasDepth ? P : 0);
+      gl.uniform1i(gl.getUniformLocation(p, "sourceMap"), hasDepth && meta.sourceDepth ? P + 1 : 0);
       gl.uniform1iv(gl.getUniformLocation(p, "kind"), kinds);
     });
     status.textContent = `${N} bands`;
