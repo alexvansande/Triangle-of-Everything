@@ -269,9 +269,105 @@ for (let p = 0; p * 3 < BANDS.length; p++) {
     .jpeg({ quality: 90, chromaSubsampling: "4:4:4" }).toFile(join(OUT, file));
   packs.push(file);
 }
+// ---------- depth: where along the line of sight each band's light comes from ----------
+// depth.png (512×256, same galactic grid) holds log10(distance in ly) / 11 × 255:
+//   R  starlight — Gaia stars' G-flux-weighted mean log distance per sky cell
+//   G  dust      — where Gaia stars' extinction rises along the line of sight
+//   B  halo      — a thick-disc model (scale height 1 kpc): diffuse synchrotron, X-ray, gamma
+// Each band names its depth kind; the page mixes them by what each pixel shows.
+// Microwave bands are CMB (46 Gly) except where the Galaxy is bright; the page
+// blends that per pixel from the 857 GHz (dust) and 408 MHz (synchrotron) maps.
+const DEPTH_KIND = { stars: 0, dust: 1, halo: 2, "cmb-dust": 3, "cmb-halo": 4, none: 5 };
+const depthOf = (id) =>
+  ["rp", "g", "bp", "j", "k", "w1", "w2"].includes(id) ? "stars"
+  : ["hi21", "p353", "p545", "p857", "a160", "a140", "a90", "a65", "w4", "w3"].includes(id) ? "dust"
+  : ["p070", "p100", "p143", "p217"].includes(id) ? "cmb-dust"
+  : ["p030", "p044"].includes(id) ? "cmb-halo"
+  : id === "uv" ? "none" : "halo";
+
+const DW = 512, DH = 256;
+const GAIA = "https://gea.esac.esa.int/tap-server/tap/sync";
+async function gaiaChunks(level, perCell, select, where, groupBy, file) {
+  const cells = 12 * 4 ** level, chunk = Math.floor(49000 / perCell);
+  const span = 2n ** BigInt(35 + 2 * (12 - level)); // source_ids per cell
+  const rows = [];
+  for (let a = 0; a < cells; a += chunk) {
+    const b = Math.min(cells, a + chunk);
+    const q = `SELECT GAIA_HEALPIX_INDEX(${level}, source_id) AS hpx, ${select} FROM gaiadr3.gaia_source ` +
+      `WHERE ${where} AND source_id >= ${BigInt(a) * span} AND source_id < ${BigInt(b) * span} GROUP BY ${groupBy}`;
+    const url = `${GAIA}?` + new URLSearchParams({ REQUEST: "doQuery", LANG: "ADQL", FORMAT: "csv", QUERY: q });
+    const path = await download(url, `depth/${file}-${a}.csv`);
+    const [head, ...lines] = readFileSync(path, "utf8").trim().split("\n");
+    const cols = head.split(",");
+    for (const l of lines) rows.push(Object.fromEntries(l.split(",").map((v, i) => [cols[i], +v])));
+  }
+  return rows;
+}
+mkdirSync(join(CACHE, "depth"), { recursive: true });
+
+// starlight: flux-weighted mean log10 distance (ly) per level-6 cell
+const STAR_LEVEL = 6;
+const starRows = await gaiaChunks(STAR_LEVEL, 1,
+  "SUM(phot_g_mean_flux * LOG10(3261.56 / parallax)) / SUM(phot_g_mean_flux) AS ld, COUNT(*) AS n",
+  "parallax_over_error > 5", "hpx", "stars");
+const starLd = new Float32Array(12 * 4 ** STAR_LEVEL).fill(NaN);
+starRows.forEach((r) => { if (r.n >= 5) starLd[r.hpx] = r.ld; });
+
+// dust: mean GSP-Phot extinction of stars in 8 distance bins (31 pc … 3.2 kpc)
+// per level-5 cell; the dust sits where the extinction rises
+const DUST_LEVEL = 5, NB = 8;
+const dustRows = await gaiaChunks(DUST_LEVEL, NB,
+  "FLOOR((LOG10(1000 / parallax) - 1.5) / 0.25) AS bin, AVG(ag_gspphot) AS ag, COUNT(*) AS n",
+  "parallax_over_error > 5 AND ag_gspphot IS NOT NULL AND parallax < 31.6 AND parallax > 0.316", "hpx, bin", "dust");
+const agCell = new Float32Array(12 * 4 ** DUST_LEVEL * NB).fill(NaN);
+dustRows.forEach((r) => { if (r.bin >= 0 && r.bin < NB && r.n >= 3) agCell[r.hpx * NB + r.bin] = r.ag; });
+const dustLd = new Float32Array(12 * 4 ** DUST_LEVEL).fill(NaN);
+for (let c = 0; c < dustLd.length; c++) {
+  let prev = 0, num = 0, den = 0;
+  for (let k = 0; k < NB; k++) {
+    const a = agCell[c * NB + k];
+    if (!Number.isFinite(a)) continue;
+    const cum = Math.max(prev, a), dA = cum - prev;
+    num += dA * (1.5 + 0.25 * (k + 0.5) + Math.log10(3.26156)); // bin centre, log10 ly
+    den += dA;
+    prev = cum;
+  }
+  if (den > 0.05) dustLd[c] = num / den;
+}
+
+// resample onto the galactic grid; fill gaps with a disc model
+const depth = Buffer.alloc(DW * DH * 3);
+const enc = (ld) => Math.round(255 * Math.max(0, Math.min(1, ld / 11)));
+const LY = Math.log10(3.26156);
+for (let y = 0; y < DH; y++) {
+  const b = (0.5 - (y + 0.5) / DH) * Math.PI, sb = Math.max(0.03, Math.abs(Math.sin(b)));
+  for (let x = 0; x < DW; x++) {
+    const l = (0.5 - (x + 0.5) / DW) * 2 * Math.PI;
+    const gx = Math.cos(b) * Math.cos(l), gy = Math.cos(b) * Math.sin(l), gz = Math.sin(b);
+    const vx = G[0][0] * gx + G[1][0] * gy + G[2][0] * gz;
+    const vy = G[0][1] * gx + G[1][1] * gy + G[2][1] * gz;
+    const vz = G[0][2] * gx + G[1][2] * gy + G[2][2] * gz;
+    const cell = (level) => {
+      const ns = 2 ** level, [f, ix, iy] = ang2xyf(ns, vz, Math.atan2(vy, vx));
+      return f * ns * ns + interleave(ix, iy);
+    };
+    // models (pc): dust layer ~100 pc thick, halo ~1 kpc, both capped in the plane
+    const dustModel = Math.log10(Math.min(100 / sb, 3000) * 0.6) + LY;
+    const haloModel = Math.log10(Math.min(1000 / sb, 15000) * 0.6) + LY;
+    const st = starLd[cell(STAR_LEVEL)], du = dustLd[cell(DUST_LEVEL)];
+    const i = 3 * (y * DW + x);
+    depth[i] = enc(Number.isFinite(st) ? st : dustModel);
+    depth[i + 1] = enc(Number.isFinite(du) ? du : dustModel);
+    depth[i + 2] = enc(haloModel);
+  }
+}
+await sharp(depth, { raw: { width: DW, height: DH, channels: 3 } }).blur(1.2).png().toFile(join(OUT, "depth.png"));
+console.log(`depth.png: starlight from ${starRows.length} Gaia cells, dust from ${dustLd.filter(Number.isFinite).length} cells`);
+
 writeFileSync(join(OUT, "bands.json"), JSON.stringify({
-  width: W, height: H, packs,
+  width: W, height: H, packs, depth: "depth.png", depthScale: 11,
+  depthKinds: Object.keys(DEPTH_KIND),
   bands: BANDS.map(({ id, name, wave, what, source, empty }, i) =>
-    ({ id, name, wave, what, source, empty: !!empty, pack: Math.floor(i / 3), channel: i % 3 })),
+    ({ id, name, wave, what, source, empty: !!empty, pack: Math.floor(i / 3), channel: i % 3, depth: DEPTH_KIND[depthOf(id)] })),
 }, null, 1));
 console.log(`Wrote ${packs.length} packs for ${BANDS.length} bands to ${OUT}`);

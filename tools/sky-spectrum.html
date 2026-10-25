@@ -100,7 +100,7 @@
 <div id="stage">
   <canvas id="sky"></canvas>
   <div id="views" role="group" aria-label="View">
-    <button data-mode="0" aria-pressed="true">Globe</button><button data-mode="1" aria-pressed="false">Inside</button><button data-mode="2" aria-pressed="false">Map</button>
+    <button data-mode="0" aria-pressed="true">Globe</button><button data-mode="1" aria-pressed="false">Inside</button><button data-mode="2" aria-pressed="false">Map</button><button data-mode="3" aria-pressed="false">Cloud</button>
   </div>
 </div>
 <footer>Drag to turn, scroll or pinch to zoom. Galactic coordinates; the Map view has the Galactic Centre in the middle. Bands are evenly spaced on the bar, not to scale, each normalised to its own brightness range.</footer>
@@ -288,6 +288,82 @@
   gl.useProgram(prog);
   gl.bindVertexArray(gl.createVertexArray());
 
+  // ---------- Cloud: every point of the sky at the distance its light comes from ----------
+  // CLOUD_N points spread evenly over the sky (a Fibonacci lattice, made from
+  // gl_VertexID, so no buffers). Each reads every band in its direction, mixes
+  // R, G, B as the map does, and sits at radius = log10(distance): the depth of
+  // each band's kind (starlight, dust, halo, CMB), weighted by how much of the
+  // point's light that band gives.
+  const CLOUD_N = innerWidth < 700 ? 250000 : 500000;
+  const KINDS = meta.bands.map((b) => b.depth);
+  const I857 = meta.bands.findIndex((b) => b.id === "p857"), I408 = meta.bands.findIndex((b) => b.id === "radio408");
+  const cloudVs = `#version 300 es
+    precision highp float;
+    ${meta.packs.map((_, i) => `uniform sampler2D p${i};`).join("\n")}
+    uniform sampler2D depthMap;
+    uniform float wR[${P * 3}], wG[${P * 3}], wB[${P * 3}];
+    uniform int kind[${P * 3}];
+    uniform mat4 viewProj;
+    uniform float gain, gam, size, spinA;
+    out vec3 vCol;
+    // broken depth axis: the Milky Way (100–60,000 ly) gets the inner 80 % of the
+    // radius, everything beyond (galaxies … the CMB) the outer 20 %
+    const float N = ${CLOUD_N}.0, LMIN = 2.0, LGAL = 4.8, LMAX = 10.66, CMB = 10.66, R = 1.0;
+    float hash(float n) { return fract(sin(n * 12.9898) * 43758.5453); }
+    vec2 dirUV(vec3 n) {
+      float l = atan(-n.z, n.x), b = asin(clamp(n.y, -1.0, 1.0));
+      return vec2(fract(0.5 - l / 6.2831853), 0.5 - b / 3.1415927);
+    }
+    void main() {
+      float i = float(gl_VertexID);
+      // golden-angle longitude from exact integer maths: i × 2³²/φ keeps the
+      // fraction that a float product of i × 2.4 rad would lose (grid lines)
+      float y = 1.0 - 2.0 * (i + 0.5) / N, rr = sqrt(1.0 - y * y);
+      float ph = 6.2831853 * float((uint(gl_VertexID) * 2654435769u) >> 8u) / 16777216.0;
+      vec3 d = vec3(cos(ph) * rr, y, sin(ph) * rr);
+      // jitter each point within its lattice cell so no grid lines show
+      float cell = sqrt(12.566 / N);
+      d = normalize(d + cell * (vec3(hash(i), hash(i + 0.37), hash(i + 0.71)) - 0.5));
+      vec2 uv = dirUV(d);
+      float v[${P * 3}];
+      vec3 t;
+      ${meta.packs.map((_, i) => `t = textureLod(p${i}, uv, 1.0).rgb; v[${3 * i}] = t.r; v[${3 * i + 1}] = t.g; v[${3 * i + 2}] = t.b;`).join("\n      ")}
+      vec3 col = vec3(0.0);
+      float kw[6] = float[6](0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+      for (int k = 0; k < ${P * 3}; k++) {
+        col += v[k] * vec3(wR[k], wG[k], wB[k]);
+        kw[kind[k]] += v[k] * (wR[k] + wG[k] + wB[k]);
+      }
+      vec3 dm = textureLod(depthMap, uv, 0.0).rgb * ${meta.depthScale.toFixed(1)};
+      float gal857 = smoothstep(0.35, 0.75, v[${I857}]), gal408 = smoothstep(0.3, 0.65, v[${I408}]);
+      float depth[6] = float[6](dm.r, dm.g, dm.b, mix(CMB, dm.g, gal857), mix(CMB, dm.b, gal408), 0.0);
+      float num = 0.0, den = 0.0;
+      for (int k = 0; k < 5; k++) { num += kw[k] * depth[k]; den += kw[k]; }
+      float L = den > 1e-4 ? num / den : LMAX;
+      float r = R * (L <= LGAL ? 0.8 * clamp((L - LMIN) / (LGAL - LMIN), 0.0, 1.0)
+                               : 0.8 + 0.2 * clamp((L - LGAL) / (LMAX - LGAL), 0.0, 1.0));
+      r *= 1.0 + 0.01 * (hash(i + 0.13) - 0.5);
+      // the cloud turns with the spin; cos/sin of the spin angle about the pole
+      float cs = cos(spinA), sn = sin(spinA);
+      vec3 p = r * vec3(cs * d.x + sn * d.z, d.y, -sn * d.x + cs * d.z);
+      gl_Position = viewProj * vec4(p, 1.0);
+      gl_PointSize = size;
+      vCol = pow(clamp(col * gain, 0.0, 1.0), vec3(gam)) * (den > 1e-4 ? 1.0 : 0.0);
+    }`;
+  const cloudFs = `#version 300 es
+    precision highp float;
+    in vec3 vCol; out vec4 o;
+    void main() {
+      vec2 c = gl_PointCoord - 0.5;
+      float a = smoothstep(0.5, 0.15, length(c));
+      o = vec4(vCol * a * 0.14, 1.0);
+    }`;
+  const cloudProg = gl.createProgram();
+  gl.attachShader(cloudProg, sh(gl.VERTEX_SHADER, cloudVs));
+  gl.attachShader(cloudProg, sh(gl.FRAGMENT_SHADER, cloudFs));
+  gl.linkProgram(cloudProg);
+  if (!gl.getProgramParameter(cloudProg, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(cloudProg));
+
   const status = document.getElementById("status");
   let loaded = 0;
   await Promise.all(meta.packs.map((file, i) => new Promise((resolve) => {
@@ -302,11 +378,33 @@
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.uniform1i(gl.getUniformLocation(prog, `p${i}`), i);
+      gl.useProgram(cloudProg);
+      gl.uniform1i(gl.getUniformLocation(cloudProg, `p${i}`), i);
+      gl.useProgram(prog);
       status.textContent = `Loading maps… ${++loaded} of ${meta.packs.length}`;
       resolve();
     };
     img.src = `./sky-spectrum/${file}`;
   })));
+  await new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      gl.activeTexture(gl.TEXTURE0 + P);
+      gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB8, gl.RGB, gl.UNSIGNED_BYTE, img);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.useProgram(cloudProg);
+      gl.uniform1i(gl.getUniformLocation(cloudProg, "depthMap"), P);
+      const kinds = new Int32Array(P * 3).fill(5);
+      kinds.set(KINDS);
+      gl.uniform1iv(gl.getUniformLocation(cloudProg, "kind"), kinds);
+      gl.useProgram(prog);
+      resolve();
+    };
+    img.src = `./sky-spectrum/${meta.depth}`;
+  });
   status.textContent = `${N} bands`;
 
   const exposure = document.getElementById("exposure"), contrast = document.getElementById("contrast");
@@ -315,7 +413,8 @@
   // ---------- view: Globe (0), Inside (1), Map (2) ----------
   // yaw/pitch turn the sky; zoom is the globe's radius (in half-heights),
   // the inside view's tan(fov/2), or the map's scale
-  const START = [{ yaw: Math.PI / 2, pitch: 0, zoom: 0.85 }, { yaw: -Math.PI / 2, pitch: 0, zoom: 1.0 }, { yaw: 0, pitch: 0, zoom: 1 }];
+  const START = [{ yaw: Math.PI / 2, pitch: 0, zoom: 0.85 }, { yaw: -Math.PI / 2, pitch: 0, zoom: 1.0 }, { yaw: 0, pitch: 0, zoom: 1 },
+    { yaw: 0.6, pitch: 0.35, zoom: 1.3 }]; // cloud: orbit angles, zoom = 1 / camera distance
   let mode = 0, view = { ...START[0] }, spin = !matchMedia("(prefers-reduced-motion: reduce)").matches;
   function setMode(m) {
     mode = m;
@@ -324,7 +423,7 @@
     draw();
   }
   document.querySelectorAll("#views button").forEach((b) => (b.onclick = () => setMode(+b.dataset.mode)));
-  const ZOOM = [[0.3, 8], [0.08, 2.5], [1, 8]];
+  const ZOOM = [[0.3, 8], [0.08, 2.5], [1, 8], [0.25, 12]];
   function zoomBy(f) {
     const [lo, hi] = ZOOM[mode];
     // globe and map grow when zooming in; the inside view narrows its field
@@ -347,7 +446,10 @@
     }
     const k = (mode === 1 ? 2 * view.zoom : 2 / view.zoom) / canvas.getBoundingClientRect().height;
     const dx = (e.clientX - prev.clientX) * k, dy = (e.clientY - prev.clientY) * k;
-    if (mode === 2) {
+    if (mode === 3) {
+      // orbit the cloud
+      view.yaw -= dx * view.zoom; view.pitch = Math.max(-1.5, Math.min(1.5, view.pitch + dy * view.zoom));
+    } else if (mode === 2) {
       // pan the flat map sideways (wraps round), in map widths
       const rr = canvas.getBoundingClientRect();
       view.yaw += (e.clientX - prev.clientX) / (2 * Math.min(rr.width / 2, rr.height) * view.zoom);
@@ -364,6 +466,47 @@
 
   let ready = true;
   const U = (n) => gl.getUniformLocation(prog, n);
+  // orbit camera for the cloud: perspective × look-at-origin
+  function cloudViewProj(w, h) {
+    const dist = 3.2 / view.zoom, cp = Math.cos(view.pitch);
+    const eye = [dist * cp * Math.sin(view.yaw), dist * Math.sin(view.pitch), dist * cp * Math.cos(view.yaw)];
+    const f = eye.map((x) => -x / dist); // forward
+    const up = [0, 1, 0];
+    const sx = [f[1] * up[2] - f[2] * up[1], f[2] * up[0] - f[0] * up[2], f[0] * up[1] - f[1] * up[0]];
+    const sl = Math.hypot(...sx); sx.forEach((_, i) => (sx[i] /= sl));
+    const u = [sx[1] * f[2] - sx[2] * f[1], sx[2] * f[0] - sx[0] * f[2], sx[0] * f[1] - sx[1] * f[0]];
+    const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const V = [sx[0], u[0], -f[0], 0, sx[1], u[1], -f[1], 0, sx[2], u[2], -f[2], 0, -dot(sx, eye), -dot(u, eye), dot(f, eye), 1];
+    const fov = 40 * Math.PI / 180, t = 1 / Math.tan(fov / 2), a = w / h, n = 0.01, fa = 100;
+    const Pm = [t / a, 0, 0, 0, 0, t, 0, 0, 0, 0, (fa + n) / (n - fa), -1, 0, 0, (2 * fa * n) / (n - fa), 0];
+    const M = new Float32Array(16);
+    for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) {
+      let sum = 0;
+      for (let k = 0; k < 4; k++) sum += Pm[k * 4 + r] * V[c * 4 + k];
+      M[c * 4 + r] = sum;
+    }
+    return M;
+  }
+  let spinA = 0;
+  function drawCloud(w, h, dpr, pad) {
+    gl.useProgram(cloudProg);
+    const C = (n) => gl.getUniformLocation(cloudProg, n);
+    gl.uniform1fv(C("wR"), pad(weights(c - s)));
+    gl.uniform1fv(C("wG"), pad(weights(c)));
+    gl.uniform1fv(C("wB"), pad(weights(c + s)));
+    gl.uniform1f(C("gain"), +exposure.value);
+    gl.uniform1f(C("gam"), +contrast.value);
+    gl.uniform1f(C("size"), Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom)));
+    gl.uniform1f(C("spinA"), spinA);
+    gl.uniformMatrix4fv(C("viewProj"), false, cloudViewProj(w, h));
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE); // additive: overlapping points add up
+    gl.drawArrays(gl.POINTS, 0, CLOUD_N);
+    gl.disable(gl.BLEND);
+    gl.useProgram(prog);
+  }
   function draw() {
     if (!ready) return;
     const r = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
@@ -371,6 +514,7 @@
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
     gl.viewport(0, 0, w, h);
     const pad = (x) => { const a = new Float32Array(P * 3); a.set(x); return a; };
+    if (mode === 3) return drawCloud(w, h, dpr, pad);
     gl.uniform1fv(U("wR"), pad(weights(c - s)));
     gl.uniform1fv(U("wG"), pad(weights(c)));
     gl.uniform1fv(U("wB"), pad(weights(c + s)));
@@ -391,6 +535,7 @@
   (function tick(now) {
     const dt = (now - last) / 1000; last = now;
     if (spin && mode === 0) { view.yaw += dt * 0.08; draw(); }
+    if (spin && mode === 3) { spinA += dt * 0.06; draw(); }
     requestAnimationFrame(tick);
   })(last);
   addEventListener("resize", layout);
@@ -398,7 +543,7 @@
   const q = new URLSearchParams(location.search);
   if (q.has("c")) c = +q.get("c");
   if (q.has("s")) s = +q.get("s");
-  const VIEWS = { globe: 0, inside: 1, map: 2 };
+  const VIEWS = { globe: 0, inside: 1, map: 2, cloud: 3 };
   if (q.get("view") in VIEWS) setMode(VIEWS[q.get("view")]);
   if (q.has("still")) spin = false;
   clamp();

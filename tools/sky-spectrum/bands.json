@@ -13,6 +13,16 @@
   "pack-8.jpg",
   "pack-9.jpg"
  ],
+ "depth": "depth.png",
+ "depthScale": 11,
+ "depthKinds": [
+  "stars",
+  "dust",
+  "halo",
+  "cmb-dust",
+  "cmb-halo",
+  "none"
+ ],
  "bands": [
   {
    "id": "radio408",
@@ -22,7 +32,8 @@
    "source": "Haslam et al., reprocessed 2014",
    "empty": false,
    "pack": 0,
-   "channel": 0
+   "channel": 0,
+   "depth": 2
   },
   {
    "id": "hi21",
@@ -32,7 +43,8 @@
    "source": "HI4PI",
    "empty": false,
    "pack": 0,
-   "channel": 1
+   "channel": 1,
+   "depth": 1
   },
   {
    "id": "p030",
@@ -42,7 +54,8 @@
    "source": "Planck LFI R3",
    "empty": false,
    "pack": 0,
-   "channel": 2
+   "channel": 2,
+   "depth": 4
   },
   {
    "id": "p044",
@@ -52,7 +65,8 @@
    "source": "Planck LFI R3",
    "empty": false,
    "pack": 1,
-   "channel": 0
+   "channel": 0,
+   "depth": 4
   },
   {
    "id": "p070",
@@ -62,7 +76,8 @@
    "source": "Planck LFI R3",
    "empty": false,
    "pack": 1,
-   "channel": 1
+   "channel": 1,
+   "depth": 3
   },
   {
    "id": "p100",
@@ -72,7 +87,8 @@
    "source": "Planck HFI R3",
    "empty": false,
    "pack": 1,
-   "channel": 2
+   "channel": 2,
+   "depth": 3
   },
   {
    "id": "p143",
@@ -82,7 +98,8 @@
    "source": "Planck HFI R3",
    "empty": false,
    "pack": 2,
-   "channel": 0
+   "channel": 0,
+   "depth": 3
   },
   {
    "id": "p217",
@@ -92,7 +109,8 @@
    "source": "Planck HFI R3",
    "empty": false,
    "pack": 2,
-   "channel": 1
+   "channel": 1,
+   "depth": 3
   },
   {
    "id": "p353",
@@ -102,7 +120,8 @@
    "source": "Planck HFI R3",
    "empty": false,
    "pack": 2,
-   "channel": 2
+   "channel": 2,
+   "depth": 1
   },
   {
    "id": "p545",
@@ -112,7 +131,8 @@
    "source": "Planck HFI R3",
    "empty": false,
    "pack": 3,
-   "channel": 0
+   "channel": 0,
+   "depth": 1
   },
   {
    "id": "p857",
@@ -122,7 +142,8 @@
    "source": "Planck HFI R3",
    "empty": false,
    "pack": 3,
-   "channel": 1
+   "channel": 1,
+   "depth": 1
   },
   {
    "id": "a160",
@@ -132,7 +153,8 @@
    "source": "AKARI FIS all-sky survey",
    "empty": false,
    "pack": 3,
-   "channel": 2
+   "channel": 2,
+   "depth": 1
   },
   {
    "id": "a140",
@@ -142,7 +164,8 @@
    "source": "AKARI FIS all-sky survey",
    "empty": false,
    "pack": 4,
-   "channel": 0
+   "channel": 0,
+   "depth": 1
   },
   {
    "id": "a90",
@@ -152,7 +175,8 @@
    "source": "AKARI FIS all-sky survey",
    "empty": false,
    "pack": 4,
-   "channel": 1
+   "channel": 1,
+   "depth": 1
   },
   {
    "id": "a65",
@@ -162,7 +186,8 @@
    "source": "AKARI FIS all-sky survey",
    "empty": false,
    "pack": 4,
-   "channel": 2
+   "channel": 2,
+   "depth": 1
   },
   {
    "id": "w4",
@@ -172,7 +197,8 @@
    "source": "AllWISE",
    "empty": false,
    "pack": 5,
-   "channel": 0
+   "channel": 0,
+   "depth": 1
   },
   {
    "id": "w3",
@@ -182,7 +208,8 @@
    "source": "AllWISE",
    "empty": false,
    "pack": 5,
-   "channel": 1
+   "channel": 1,
+   "depth": 1
   },
   {
    "id": "w2",
@@ -192,7 +219,8 @@
    "source": "AllWISE",
    "empty": false,
    "pack": 5,
-   "channel": 2
+   "channel": 2,
+   "depth": 0
   },
   {
    "id": "w1",
@@ -202,7 +230,8 @@
    "source": "AllWISE",
    "empty": false,
    "pack": 6,
-   "channel": 0
+   "channel": 0,
+   "depth": 0
   },
   {
    "id": "k",
@@ -212,7 +241,8 @@
    "source": "2MASS",
    "empty": false,
    "pack": 6,
-   "channel": 1
+   "channel": 1,
+   "depth": 0
   },
   {
    "id": "j",
@@ -222,7 +252,8 @@
    "source": "2MASS",
    "empty": false,
    "pack": 6,
-   "channel": 2
+   "channel": 2,
+   "depth": 0
   },
   {
    "id": "rp",
@@ -232,7 +263,8 @@
    "source": "Gaia DR3 flux map",
    "empty": false,
    "pack": 7,
-   "channel": 0
+   "channel": 0,
+   "depth": 0
   },
   {
    "id": "g",
@@ -242,7 +274,8 @@
    "source": "Gaia DR3 flux map",
    "empty": false,
    "pack": 7,
-   "channel": 1
+   "channel": 1,
+   "depth": 0
   },
   {
    "id": "bp",
@@ -252,7 +285,8 @@
    "source": "Gaia DR3 flux map",
    "empty": false,
    "pack": 7,
-   "channel": 2
+   "channel": 2,
+   "depth": 0
   },
   {
    "id": "uv",
@@ -262,7 +296,8 @@
    "source": "—",
    "empty": true,
    "pack": 8,
-   "channel": 0
+   "channel": 0,
+   "depth": 5
   },
   {
    "id": "xsoft",
@@ -272,7 +307,8 @@
    "source": "MAXI SSC",
    "empty": false,
    "pack": 8,
-   "channel": 1
+   "channel": 1,
+   "depth": 2
   },
   {
    "id": "xhard",
@@ -282,7 +318,8 @@
    "source": "MAXI GSC",
    "empty": false,
    "pack": 8,
-   "channel": 2
+   "channel": 2,
+   "depth": 2
   },
   {
    "id": "gamma1",
@@ -292,7 +329,8 @@
    "source": "Fermi-LAT",
    "empty": false,
    "pack": 9,
-   "channel": 0
+   "channel": 0,
+   "depth": 2
   },
   {
    "id": "gamma2",
@@ -302,7 +340,8 @@
    "source": "Fermi-LAT",
    "empty": false,
    "pack": 9,
-   "channel": 1
+   "channel": 1,
+   "depth": 2
   }
  ]
 }
