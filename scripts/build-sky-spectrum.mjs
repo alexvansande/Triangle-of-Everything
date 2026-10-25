@@ -309,6 +309,24 @@ for (let p = 0; p * 3 < BANDS.length; p++) {
     .jpeg({ quality: 90, chromaSubsampling: "4:4:4" }).toFile(join(OUT, file));
   packs.push(file);
 }
+// ---------- the CMB alone ----------
+// Planck's component-separated CMB (SMICA, release 3): the nine frequency maps
+// combined so that only the CMB is left, including an estimate behind the
+// Galactic plane. The page's Cloud puts this at 46 Gly, under the microwave
+// bands' foreground, so the CMB shell carries on behind the disc.
+{
+  const file = join(CACHE, "cmb.grey");
+  let g;
+  if (existsSync(file) && !REFRESH) g = new Uint8Array(readFileSync(file));
+  else {
+    const { vals } = await reproject({ id: "cmb", base: `${A}/PLANCK/R3/CMB-smica-R3`, stretch: "lin" });
+    g = normalise(vals, "lin", 0.01);
+    writeFileSync(file, g);
+  }
+  await sharp(Buffer.from(g), { raw: { width: W, height: H, channels: 1 } }).resize(W / 2, H / 2).png().toFile(join(OUT, "cmb.png"));
+  console.log("cmb.png: Planck SMICA CMB");
+}
+
 // ---------- depth: where along the line of sight each band's light comes from ----------
 // depth.png (512×256, same galactic grid) holds log10(distance in ly) / 11 × 255:
 //   R  starlight — Gaia stars' G-flux-weighted mean log distance per sky cell
@@ -508,7 +526,7 @@ const radioPix = withSrc.filter((v, i) => (v - noSrc[i]) / v >= RADIO_OWN).lengt
 console.log(`radio-sources.png: ${owned} of the ${radioPix} pixels where radio galaxies give a third of the light or more, placed by catalogue`);
 
 writeFileSync(join(OUT, "bands.json"), JSON.stringify({
-  width: W, height: H, packs, depth: "depth.png", sourceDepth: "sources.png", radioDepth: "radio-sources.png", depthScale: 11, sources: sourceNote,
+  width: W, height: H, packs, depth: "depth.png", sourceDepth: "sources.png", radioDepth: "radio-sources.png", cmb: "cmb.png", depthScale: 11, sources: sourceNote,
   depthKinds: Object.keys(DEPTH_KIND),
   bands: BANDS.map(({ id, name, wave, what, source, empty }, i) =>
     ({ id, name, wave, what, source, empty: !!empty, pack: Math.floor(i / 3), channel: i % 3, depth: DEPTH_KIND[depthOf(id)] })),

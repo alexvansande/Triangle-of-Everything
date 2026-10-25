@@ -16,6 +16,7 @@
  "depth": "depth.png",
  "sourceDepth": "sources.png",
  "radioDepth": "radio-sources.png",
+ "cmb": "cmb.png",
  "depthScale": 11,
  "sources": {
   "xray": {
