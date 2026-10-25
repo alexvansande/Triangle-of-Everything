@@ -1,0 +1,129 @@
+{
+ "width": 2048,
+ "height": 1024,
+ "packs": [
+  "pack-0.jpg",
+  "pack-1.jpg",
+  "pack-2.jpg",
+  "pack-3.jpg"
+ ],
+ "target": "earth",
+ "date": "2024-06-15",
+ "start": {
+  "c": 7,
+  "s": 1
+ },
+ "frame": "Longitude −180° to 180°, north up",
+ "bands": [
+  {
+   "id": "gmi",
+   "name": "Microwave 89–166 GHz",
+   "wave": "2–3 mm",
+   "what": "rain, ice clouds, sea ice (GMI colour composite, read as brightness)",
+   "source": "GPM GMI, 2024-06-15",
+   "region": "Microwave",
+   "empty": false,
+   "pack": 0,
+   "channel": 0
+  },
+  {
+   "id": "t11",
+   "name": "Thermal 11 µm",
+   "wave": "11 µm",
+   "what": "heat: warm ground bright, cold cloud tops dark",
+   "source": "MODIS Terra band 31, 2024-06-15",
+   "region": "Thermal IR",
+   "empty": false,
+   "pack": 0,
+   "channel": 1
+  },
+  {
+   "id": "b7",
+   "name": "SWIR 2.13 µm",
+   "wave": "2.13 µm",
+   "what": "dry land bright, water and ice dark",
+   "source": "MODIS Terra corrected reflectance, 2024-06-15",
+   "region": "Near-IR",
+   "empty": false,
+   "pack": 0,
+   "channel": 2
+  },
+  {
+   "id": "b6",
+   "name": "SWIR 1.64 µm",
+   "wave": "1.64 µm",
+   "what": "snow and ice dark, water clouds bright",
+   "source": "MODIS Terra corrected reflectance, 2024-06-15",
+   "region": "Near-IR",
+   "empty": false,
+   "pack": 1,
+   "channel": 0
+  },
+  {
+   "id": "b2",
+   "name": "Near-IR 858 nm",
+   "wave": "858 nm",
+   "what": "plants bright, water black",
+   "source": "MODIS Terra corrected reflectance, 2024-06-15",
+   "region": "Near-IR",
+   "empty": false,
+   "pack": 1,
+   "channel": 1
+  },
+  {
+   "id": "lights",
+   "name": "Night lights",
+   "wave": "500–900 nm",
+   "what": "cities, fires and gas flares at night (2012 composite)",
+   "source": "VIIRS city lights",
+   "region": "Visible",
+   "empty": false,
+   "pack": 1,
+   "channel": 2
+  },
+  {
+   "id": "b1",
+   "name": "Red 645 nm",
+   "wave": "645 nm",
+   "what": "red light",
+   "source": "MODIS Terra corrected reflectance, 2024-06-15",
+   "region": "Visible",
+   "empty": false,
+   "pack": 2,
+   "channel": 0
+  },
+  {
+   "id": "b4",
+   "name": "Green 555 nm",
+   "wave": "555 nm",
+   "what": "green light",
+   "source": "MODIS Terra corrected reflectance, 2024-06-15",
+   "region": "Visible",
+   "empty": false,
+   "pack": 2,
+   "channel": 1
+  },
+  {
+   "id": "b3",
+   "name": "Blue 469 nm",
+   "wave": "469 nm",
+   "what": "blue light, scattered by air",
+   "source": "MODIS Terra corrected reflectance, 2024-06-15",
+   "region": "Visible",
+   "empty": false,
+   "pack": 2,
+   "channel": 2
+  },
+  {
+   "id": "uvai",
+   "name": "UV aerosol index",
+   "wave": "354–388 nm",
+   "what": "smoke and dust absorbing ultraviolet",
+   "source": "OMI, 2024-06-15",
+   "region": "UV",
+   "empty": false,
+   "pack": 3,
+   "channel": 0
+  }
+ ]
+}

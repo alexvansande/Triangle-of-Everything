@@ -21,6 +21,8 @@
     "build:sky-onion": "node scripts/build-sky-onion.mjs",
     "build:sky-spectrum": "node scripts/build-sky-spectrum.mjs",
     "build:sky-points": "node scripts/build-sky-points.mjs",
+    "build:earth-spectrum": "node scripts/build-earth-spectrum.mjs",
+    "build:sun-spectrum": "node scripts/build-sun-spectrum.mjs",
     "poster": "node scripts/poster.mjs"
   },
   "dependencies": {

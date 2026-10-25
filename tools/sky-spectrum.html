@@ -5,19 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sky Spectrum</title>
 <!--
-  The whole sky seen through a movable RGB "eye". 29 all-sky maps, radio to
-  gamma rays, each normalised to 0…1 (build: npm run build:sky-spectrum).
+  The sky, the Sun or the Earth seen through a movable RGB "eye". Each target
+  is a set of single-band maps (radio → gamma), each normalised to 0…1:
+    npm run build:sky-spectrum · build:sun-spectrum · build:earth-spectrum
   The rainbow selector on the spectrum bar places the red, green and blue
   channels: slide it to shift all three along the spectrum, drag its ends to
-  spread them apart. Each channel is a soft (Gaussian) average of the bands
-  near its position, wider as the selector stretches; weights sum to one, so
-  brightness stays even. Bands are evenly spaced on the bar, not to scale.
+  spread them. Each channel is a soft (Gaussian) average of the bands near its
+  position, wider as the selector stretches; weights sum to one, so brightness
+  stays even. Bands are evenly spaced on the bar, not to scale.
+  Sky only: a distance window drops every band's light whose depth (where
+  along the line of sight it comes from) falls outside it, in every view.
   Then:  npm run dev  →  http://localhost:5173/tools/sky-spectrum.html
+  ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
 <style>
-  /* One dark instrument: spectrum bar and selector on top, the sky map filling the rest. */
+  /* One dark instrument: spectrum and distance bars on top, the view filling the rest. */
   :root {
     --sky: #000; --fg: #e9ecf5; --dim: #8f95ab; --line: rgba(205, 215, 255, 0.14); --panel: #0b0d15;
     --display: "Instrument Serif", Georgia, serif;
@@ -27,528 +31,569 @@
   }
   html, body { margin: 0; height: 100%; background: var(--sky); color: var(--fg); font: 13px/1.35 var(--body); }
   body { display: flex; flex-direction: column; overflow: hidden; }
-  header { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
-    padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 4px max(16px, env(safe-area-inset-left, 0px)); }
+  .pad { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; padding-top: calc(10px + env(safe-area-inset-top, 0px)); padding-bottom: 4px; }
   header h1 { margin: 0; font: 400 30px/1 var(--display); }
   header p { margin: 0; color: var(--dim); }
-  .controls { margin-left: auto; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .controls { margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
   .controls label { color: var(--dim); display: inline-flex; gap: 6px; align-items: center; }
-  .controls input[type=range] { width: 110px; accent-color: var(--fg); }
+  .controls input[type=range] { width: 96px; accent-color: var(--fg); }
   button { background: #191d2b; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; font: inherit; cursor: pointer; }
-  button:focus-visible, input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .seg { display: inline-flex; }
+  .seg button { border-radius: 0; }
+  .seg button:first-child { border-radius: 6px 0 0 6px; } .seg button:last-child { border-radius: 0 6px 6px 0; }
+  .seg button[aria-pressed="true"] { background: var(--fg); color: var(--sky); }
 
-  /* spectrum bar: equal slots, regions above, selector on top */
-  #barwrap { overflow-x: auto; padding: 4px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
-  #bar { position: relative; min-width: 760px; user-select: none; touch-action: none; }
-  #regions { display: flex; height: 18px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); }
-  #regions div { border-left: 1px solid var(--line); padding-left: 4px; overflow: hidden; white-space: nowrap; }
+  /* spectrum bar: equal slots, regions above, selector on top; fits the width */
+  #bar { position: relative; user-select: none; touch-action: none; margin-top: 4px; }
+  #regions { display: flex; height: 18px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--dim); }
+  #regions div { border-left: 1px solid var(--line); padding-left: 4px; overflow: hidden; white-space: nowrap; min-width: 0; }
   #slots { display: flex; height: 64px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; position: relative; }
   #slots .slot { flex: 1; border-left: 1px solid var(--line); position: relative; min-width: 0; }
   #slots .slot:first-child { border-left: 0; }
   #slots .slot span { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%) rotate(180deg);
-    writing-mode: vertical-rl; white-space: nowrap; max-height: 56px; overflow: hidden; text-overflow: ellipsis;
-    font-size: 9.5px; color: var(--dim); }
+    writing-mode: vertical-rl; white-space: nowrap; max-height: 56px; overflow: hidden; text-overflow: ellipsis; font-size: 9.5px; color: var(--dim); }
   #slots .slot.empty { background: repeating-linear-gradient(45deg, transparent 0 4px, rgba(255,255,255,0.05) 4px 8px); }
-  #curves { position: absolute; inset: 18px 0 0 0; width: 100%; height: 64px; pointer-events: none; }
-  #selector { position: absolute; top: 18px; height: 64px; border-radius: 6px; cursor: grab;
-    background: linear-gradient(90deg, rgba(255,40,40,0.38), rgba(40,255,60,0.38), rgba(60,90,255,0.38));
-    box-shadow: 0 0 0 1.5px rgba(255,255,255,0.75) inset; }
-  #selector:active { cursor: grabbing; }
-  #selector .grip { position: absolute; top: 0; bottom: 0; width: 14px; cursor: ew-resize; }
-  #selector .grip::after { content: ""; position: absolute; top: 18px; bottom: 18px; left: 5px; width: 4px; border-radius: 2px; background: #fff; }
-  #selector .grip.r { left: -7px; } #selector .grip.b { right: -7px; }
-  /* one fixed line per channel, so the readout never reflows the sky below it */
-  #readout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; height: 1.3em;
-    padding: 6px 0 4px; font: 11.5px/1.3 var(--mono); }
+  #curves { position: absolute; left: 0; top: 18px; width: 100%; height: 64px; pointer-events: none; }
+  .win { position: absolute; border-radius: 6px; cursor: grab; touch-action: none; box-shadow: 0 0 0 1.5px rgba(255,255,255,0.8) inset; }
+  .win:active { cursor: grabbing; }
+  .win .grip { position: absolute; top: 0; bottom: 0; width: 22px; cursor: ew-resize; }
+  .win .grip::after { content: ""; position: absolute; top: 25%; bottom: 25%; left: 9px; width: 4px; border-radius: 2px; background: #fff; }
+  .win .grip.a { left: -11px; } .win .grip.b { right: -11px; }
+  #selector { top: 18px; height: 64px; background: linear-gradient(90deg, rgba(255,40,40,0.38), rgba(40,255,60,0.38), rgba(60,90,255,0.38)); }
+  #readout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; height: 1.3em; padding: 5px 0 2px; font: 11.5px/1.3 var(--mono); }
   #readout .ch { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #readout b { font-weight: 600; }
 
-  #stage { flex: 1; min-height: 0; position: relative; }
-  #sky { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
-  #sky:active { cursor: grabbing; }
-  #views { position: absolute; top: 8px; right: max(16px, env(safe-area-inset-right, 0px)); display: flex; gap: 0; z-index: 1; }
-  #views button { border-radius: 0; }
-  #views button:first-child { border-radius: 6px 0 0 6px; } #views button:last-child { border-radius: 0 6px 6px 0; }
-  #views button[aria-pressed="true"] { background: var(--fg); color: var(--sky); }
+  /* distance bar (sky only) */
+  #dist { position: relative; height: 44px; margin-top: 4px; user-select: none; touch-action: none; }
+  #dist[hidden] { display: none; }
+  #dtrack { position: absolute; left: 0; right: 0; top: 14px; height: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+  .zone { position: absolute; top: 0; height: 13px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--dim);
+    border-left: 1px solid var(--line); padding-left: 4px; white-space: nowrap; overflow: hidden; }
+  .dtick { position: absolute; top: 33px; font: 10px var(--mono); color: var(--dim); transform: translateX(-50%); white-space: nowrap; }
+  #dwin { top: 14px; height: 18px; background: rgba(255,255,255,0.14); }
+  #dreadout { height: 1.3em; padding: 0 0 2px; font: 11.5px/1.3 var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--dim); }
+  #dreadout[hidden] { display: none; }
+
+  #stage { flex: 1; min-height: 0; position: relative; margin-top: 4px; }
+  #stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; display: block; }
+  #views { position: absolute; top: 8px; right: max(16px, env(safe-area-inset-right, 0px)); z-index: 1; }
   #status { color: var(--dim); font-size: 12px; }
-  footer { padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); color: var(--dim); font-size: 11px; }
-  @media (max-width: 700px) { header h1 { font-size: 24px; } .controls { margin-left: 0; } }
+  footer { padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); color: var(--dim); font-size: 11px; }
+  @media (max-width: 700px) {
+    header h1 { font-size: 24px; } header p { display: none; } .controls { margin-left: 0; gap: 8px; }
+    .controls input[type=range] { width: 70px; }
+    #slots .slot span { display: none; }   /* too narrow for names: the readout names the bands */
+    #slots { height: 48px; } #selector, #curves { height: 48px; }
+    #regions { font-size: 9px; letter-spacing: 0; }
+    #regions div[data-short]::before { content: attr(data-short); } #regions div[data-short] { font-size: 0; }
+    #regions div[data-short]::before { font-size: 9px; }
+    .zone { font-size: 8.5px; }
+    #readout { gap: 8px; font-size: 10.5px; }
+  }
 </style>
 </head>
 <body>
-<header>
-  <h1>Sky Spectrum</h1>
-  <p>Slide the rainbow to see the sky with different eyes. Drag its ends to stretch it.</p>
+<header class="pad">
+  <h1 id="h1">Sky Spectrum</h1>
+  <p id="sub">Slide the rainbow to see with different eyes. Drag its ends to stretch it.</p>
   <div class="controls">
+    <span class="seg" id="targets" role="group" aria-label="Target">
+      <button data-target="sky" aria-pressed="true">Sky</button><button data-target="sun" aria-pressed="false">Sun</button><button data-target="earth" aria-pressed="false">Earth</button>
+    </span>
     <label>Exposure <input id="exposure" type="range" min="0.3" max="3" step="0.01" value="1"></label>
     <label>Contrast <input id="contrast" type="range" min="0.4" max="2.5" step="0.01" value="1"></label>
-    <button id="reset">Visible light</button>
-    <span id="status" role="status">Loading maps…</span>
+    <button id="reset">Natural colour</button>
+    <span id="status" role="status">Loading…</span>
   </div>
 </header>
-<div id="barwrap">
+<div class="pad">
   <div id="bar">
     <div id="regions"></div>
     <div id="slots"></div>
     <canvas id="curves"></canvas>
-    <div id="selector" tabindex="0" aria-label="RGB selector: arrows move it, shift+arrows stretch it">
-      <div class="grip r"></div><div class="grip b"></div>
-    </div>
+    <div id="selector" class="win" tabindex="0" aria-label="RGB selector: arrows move it, shift+arrows stretch it"><div class="grip a"></div><div class="grip b"></div></div>
   </div>
   <div id="readout"></div>
-</div>
-<div id="stage">
-  <canvas id="sky"></canvas>
-  <div id="views" role="group" aria-label="View">
-    <button data-mode="0" aria-pressed="true">Globe</button><button data-mode="1" aria-pressed="false">Inside</button><button data-mode="2" aria-pressed="false">Map</button><button data-mode="3" aria-pressed="false">Cloud</button>
+  <div id="dist" hidden>
+    <div id="zones"></div>
+    <div id="dtrack"></div>
+    <div id="dwin" class="win" tabindex="0" aria-label="Distance window: arrows move it, shift+arrows stretch it"><div class="grip a"></div><div class="grip b"></div></div>
+    <div id="dticks"></div>
   </div>
+  <div id="dreadout" hidden></div>
 </div>
-<footer>Drag to turn, scroll or pinch to zoom. Galactic coordinates; the Map view has the Galactic Centre in the middle. Bands are evenly spaced on the bar, not to scale, each normalised to its own brightness range.</footer>
+<div id="stage"><div id="views" class="seg" role="group" aria-label="View"></div></div>
+<footer class="pad" id="foot"></footer>
 
 <script>
-(async () => {
-  const meta = await (await fetch("./sky-spectrum/bands.json")).json();
-  const B = meta.bands, N = B.length;
-  const REGIONS = [
-    ["Radio", (b) => ["radio408", "hi21"].includes(b.id)],
-    ["Microwave", (b) => /^p0|^p1|^p2/.test(b.id)],
-    ["Far-IR", (b) => ["p353", "p545", "p857", "a160", "a140", "a90", "a65"].includes(b.id)],
-    ["Mid-IR", (b) => /^w/.test(b.id)],
-    ["Near-IR", (b) => ["k", "j"].includes(b.id)],
-    ["Visible", (b) => ["rp", "g", "bp"].includes(b.id)],
-    ["UV", (b) => b.id === "uv"],
-    ["X-ray", (b) => /^x/.test(b.id)],
-    ["Gamma", (b) => /^gamma/.test(b.id)],
-  ];
-
-  // ---------- bar ----------
-  const slots = document.getElementById("slots"), regions = document.getElementById("regions");
-  B.forEach((b) => {
-    const el = document.createElement("div");
-    el.className = "slot" + (b.empty ? " empty" : "");
-    el.title = `${b.name} · ${b.wave} · ${b.what} · ${b.source}`;
-    el.innerHTML = `<span>${b.name.replace(/^(Planck|IRAS|WISE|2MASS|Gaia) /, "")}</span>`;
-    slots.appendChild(el);
-  });
-  REGIONS.forEach(([name, test]) => {
-    const n = B.filter(test).length;
-    const el = document.createElement("div");
-    el.style.flex = n;
-    el.textContent = name;
-    regions.appendChild(el);
-  });
-
-  // ---------- selector state: centre c (green) and half-span s, in band units ----------
-  const VIS = { c: B.findIndex((b) => b.id === "g"), s: 1 };
-  let c = VIS.c, s = VIS.s;
-  const sigma = () => Math.max(0.35, 0.45 * s);
-  function weights(p) {
-    const w = B.map((_, i) => Math.exp(-((i - p) ** 2) / (2 * sigma() ** 2)));
-    const sum = w.reduce((a, b) => a + b, 0);
-    // empty bands keep their share (and read black): the gap stays honest
-    return w.map((x, i) => (B[i].empty ? 0 : x / sum));
-  }
-  const sel = document.getElementById("selector"), bar = document.getElementById("bar");
-  const slotW = () => slots.getBoundingClientRect().width / N;
-  const curves = document.getElementById("curves");
-  function layout() {
-    const w = slotW();
-    // red edge sits on the red channel's slot centre, blue edge on blue's
-    sel.style.left = `${(c - s + 0.5) * w - 10}px`;
-    sel.style.width = `${2 * s * w + 20}px`;
-    drawCurves();
-    readout();
-    draw();
-  }
-  function drawCurves() {
-    const r = slots.getBoundingClientRect(), dpr = devicePixelRatio || 1;
-    curves.width = r.width * dpr; curves.height = r.height * dpr;
-    const g = curves.getContext("2d");
-    g.scale(dpr, dpr);
-    [["#ff4a4a", c - s], ["#4aff63", c], ["#5b7cff", c + s]].forEach(([col, p]) => {
-      g.beginPath();
-      for (let x = 0; x <= r.width; x += 2) {
-        const i = x / slotW() - 0.5;
-        const y = r.height - 6 - (r.height - 14) * Math.exp(-((i - p) ** 2) / (2 * sigma() ** 2));
-        x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
-      }
-      g.strokeStyle = col; g.lineWidth = 1.5; g.stroke();
-    });
-  }
-  function readout() {
-    const el = document.getElementById("readout");
-    el.innerHTML = "";
-    [["R", "#ff6b6b", c - s], ["G", "#6bff7f", c], ["B", "#7d97ff", c + s]].forEach(([n, col, p]) => {
-      const all = weights(p).map((x, i) => [x, B[i]]);
-      const w = all.reduce((a, [x]) => a + x, 0) < 0.05 ? []
-        : all.filter(([x]) => x > 0.01).sort((a, b) => b[0] - a[0]).slice(0, 3);
-      const d = document.createElement("div");
-      d.className = "ch";
-      d.innerHTML = `<b style="color:${col}">${n}</b> ` + (w.length ? w.map(([x, b]) => `${b.name} ${Math.round(100 * x)}%`).join(" · ") : "<span style='color:var(--dim)'>nothing (no data here)</span>");
-      el.appendChild(d);
-    });
-  }
-
-  // drag: body moves, grips stretch (symmetrically about the centre)
-  let drag = null;
-  sel.addEventListener("pointerdown", (e) => {
-    const grip = e.target.closest(".grip");
-    drag = { x: e.clientX, c, s, mode: grip ? (grip.classList.contains("r") ? "r" : "b") : "move" };
-    sel.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
-  sel.addEventListener("pointermove", (e) => {
-    if (!drag) return;
-    const d = (e.clientX - drag.x) / slotW();
-    if (drag.mode === "move") c = drag.c + d;
-    else s = drag.s + (drag.mode === "b" ? d : -d);
-    clamp();
-    layout();
-  });
-  sel.addEventListener("pointerup", () => (drag = null));
-  sel.addEventListener("keydown", (e) => {
-    const step = e.altKey ? 0.1 : 0.5;
-    if (e.key === "ArrowLeft") e.shiftKey ? (s -= step) : (c -= step);
-    else if (e.key === "ArrowRight") e.shiftKey ? (s += step) : (c += step);
-    else return;
-    e.preventDefault();
-    clamp();
-    layout();
-  });
-  function clamp() {
-    s = Math.max(0.25, Math.min((N - 1) / 2, s));
-    c = Math.max(s, Math.min(N - 1 - s, c));
-  }
-  document.getElementById("reset").onclick = () => { c = VIS.c; s = VIS.s; layout(); };
-
-  // ---------- WebGL: all bands in, three weighted sums out ----------
-  const canvas = document.getElementById("sky");
-  const gl = canvas.getContext("webgl2", { preserveDrawingBuffer: true });
-  const P = meta.packs.length;
-  // Every pixel is ray-cast: Globe = the sky on a sphere seen from outside
-  // (orthographic), Inside = standing at the centre looking out (perspective),
-  // Map = the flat equirectangular image. All three end in a galactic
-  // direction → (l, b) → the shared map uv.
-  const fs = `#version 300 es
-    precision highp float;
-    out vec4 o;
-    ${meta.packs.map((_, i) => `uniform sampler2D p${i};`).join("\n")}
-    uniform float wR[${P * 3}], wG[${P * 3}], wB[${P * 3}];
-    uniform float gain, gam, yaw, pitch, zoom, lod;
-    uniform vec2 res;
-    uniform int mode;
-    vec3 turn(vec3 v) {
-      float cp = cos(pitch), sp = sin(pitch), cy = cos(yaw), sy = sin(yaw);
-      v = vec3(v.x, cp * v.y - sp * v.z, sp * v.y + cp * v.z);
-      return vec3(cy * v.x + sy * v.z, v.y, -sy * v.x + cy * v.z);
-    }
-    // galactic direction → map uv (l grows to the left on the map, b = +90 at the top)
-    vec2 dirUV(vec3 n) {
-      float l = atan(-n.z, n.x), b = asin(clamp(n.y, -1.0, 1.0));
-      return vec2(fract(0.5 - l / 6.2831853), 0.5 - b / 3.1415927);
-    }
-    void main() {
-      vec2 p = (gl_FragCoord.xy - 0.5 * res) / (0.5 * res.y);
-      vec2 uv;
-      float edge = 1.0;
-      if (mode == 2) {
-        float sc = min(res.x * 0.5, res.y) * zoom;
-        vec2 q = (gl_FragCoord.xy - 0.5 * res) / sc;
-        if (abs(q.x) > 1.0 || abs(q.y) > 0.5) { o = vec4(0.0, 0.0, 0.0, 1.0); return; }
-        uv = vec2(fract(0.5 + 0.5 * q.x - yaw), 0.5 - q.y); // yaw = sideways pan, in map widths
-      } else if (mode == 0) {
-        float d2 = dot(p, p) / (zoom * zoom);
-        if (d2 > 1.0) { o = vec4(vec3(0.05, 0.06, 0.1) * exp(-40.0 * (sqrt(d2) - 1.0)), 1.0); return; }
-        uv = dirUV(turn(vec3(p / zoom, sqrt(1.0 - d2))));
-        edge = smoothstep(1.0, 0.985, d2); // soft limb, no jagged edge
-      } else {
-        uv = dirUV(turn(normalize(vec3(p * zoom, -1.0))));
-      }
-      vec3 col = vec3(0.0), t;
-      ${meta.packs.map((_, i) => `t = textureLod(p${i}, uv, lod).rgb;
-      col += vec3(dot(t, vec3(wR[${3 * i}], wR[${3 * i + 1}], wR[${3 * i + 2}])),
-                  dot(t, vec3(wG[${3 * i}], wG[${3 * i + 1}], wG[${3 * i + 2}])),
-                  dot(t, vec3(wB[${3 * i}], wB[${3 * i + 1}], wB[${3 * i + 2}])));`).join("\n")}
-      o = vec4(pow(clamp(col * gain, 0.0, 1.0), vec3(gam)) * edge, 1.0);
-    }`;
-  const vs = `#version 300 es
-    void main() {
-      vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
-      gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
-    }`;
-  const sh = (type, src) => {
-    const x = gl.createShader(type); gl.shaderSource(x, src); gl.compileShader(x);
-    if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x));
-    return x;
+(() => {
+  const TARGETS = {
+    sky: { dir: "sky-spectrum", title: "Sky Spectrum", views: ["Globe", "Inside", "Map", "Cloud"], wrap: true, lonSign: -1,
+      foot: "Drag to turn, scroll or pinch to zoom. Galactic coordinates; the Map has the Galactic Centre in the middle. Bands evenly spaced on the bar, not to scale, each normalised to its own brightness range. The distance window drops light from outside its range." },
+    sun: { dir: "sun-spectrum", title: "Sun Spectrum", views: ["Disc"], wrap: false,
+      foot: "18 December 2015, 02:44 UTC · Nobeyama 17 GHz, ALMA 1.25 mm, SDO HMI and AIA · solar north up. Scroll or pinch to zoom, drag to pan." },
+    earth: { dir: "earth-spectrum", title: "Earth Spectrum", views: ["Globe", "Map"], wrap: true, lonSign: 1,
+      foot: "15 June 2024 · MODIS Terra, GPM GMI, OMI; city lights from 2012. One day of polar orbits: black wedges are gaps between passes, the far south is in polar night." },
   };
-  const prog = gl.createProgram();
-  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
-  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
-  gl.linkProgram(prog);
-  gl.useProgram(prog);
-  gl.bindVertexArray(gl.createVertexArray());
-
-  // ---------- Cloud: every point of the sky at the distance its light comes from ----------
-  // CLOUD_N points spread evenly over the sky (a Fibonacci lattice, made from
-  // gl_VertexID, so no buffers). Each reads every band in its direction, mixes
-  // R, G, B as the map does, and sits at radius = log10(distance): the depth of
-  // each band's kind (starlight, dust, halo, CMB), weighted by how much of the
-  // point's light that band gives.
-  const CLOUD_N = innerWidth < 700 ? 250000 : 500000;
-  const KINDS = meta.bands.map((b) => b.depth);
-  const I857 = meta.bands.findIndex((b) => b.id === "p857"), I408 = meta.bands.findIndex((b) => b.id === "radio408");
-  const cloudVs = `#version 300 es
-    precision highp float;
-    ${meta.packs.map((_, i) => `uniform sampler2D p${i};`).join("\n")}
-    uniform sampler2D depthMap;
-    uniform float wR[${P * 3}], wG[${P * 3}], wB[${P * 3}];
-    uniform int kind[${P * 3}];
-    uniform mat4 viewProj;
-    uniform float gain, gam, size, spinA;
-    out vec3 vCol;
-    // broken depth axis: the Milky Way (100–60,000 ly) gets the inner 80 % of the
-    // radius, everything beyond (galaxies … the CMB) the outer 20 %
-    const float N = ${CLOUD_N}.0, LMIN = 2.0, LGAL = 4.8, LMAX = 10.66, CMB = 10.66, R = 1.0;
-    float hash(float n) { return fract(sin(n * 12.9898) * 43758.5453); }
-    vec2 dirUV(vec3 n) {
-      float l = atan(-n.z, n.x), b = asin(clamp(n.y, -1.0, 1.0));
-      return vec2(fract(0.5 - l / 6.2831853), 0.5 - b / 3.1415927);
-    }
-    void main() {
-      float i = float(gl_VertexID);
-      // golden-angle longitude from exact integer maths: i × 2³²/φ keeps the
-      // fraction that a float product of i × 2.4 rad would lose (grid lines)
-      float y = 1.0 - 2.0 * (i + 0.5) / N, rr = sqrt(1.0 - y * y);
-      float ph = 6.2831853 * float((uint(gl_VertexID) * 2654435769u) >> 8u) / 16777216.0;
-      vec3 d = vec3(cos(ph) * rr, y, sin(ph) * rr);
-      // jitter each point within its lattice cell so no grid lines show
-      float cell = sqrt(12.566 / N);
-      d = normalize(d + cell * (vec3(hash(i), hash(i + 0.37), hash(i + 0.71)) - 0.5));
-      vec2 uv = dirUV(d);
-      float v[${P * 3}];
-      vec3 t;
-      ${meta.packs.map((_, i) => `t = textureLod(p${i}, uv, 1.0).rgb; v[${3 * i}] = t.r; v[${3 * i + 1}] = t.g; v[${3 * i + 2}] = t.b;`).join("\n      ")}
-      vec3 col = vec3(0.0);
-      float kw[6] = float[6](0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-      for (int k = 0; k < ${P * 3}; k++) {
-        col += v[k] * vec3(wR[k], wG[k], wB[k]);
-        kw[kind[k]] += v[k] * (wR[k] + wG[k] + wB[k]);
-      }
-      vec3 dm = textureLod(depthMap, uv, 0.0).rgb * ${meta.depthScale.toFixed(1)};
-      float gal857 = smoothstep(0.35, 0.75, v[${I857}]), gal408 = smoothstep(0.3, 0.65, v[${I408}]);
-      float depth[6] = float[6](dm.r, dm.g, dm.b, mix(CMB, dm.g, gal857), mix(CMB, dm.b, gal408), 0.0);
-      float num = 0.0, den = 0.0;
-      for (int k = 0; k < 5; k++) { num += kw[k] * depth[k]; den += kw[k]; }
-      float L = den > 1e-4 ? num / den : LMAX;
-      float r = R * (L <= LGAL ? 0.8 * clamp((L - LMIN) / (LGAL - LMIN), 0.0, 1.0)
-                               : 0.8 + 0.2 * clamp((L - LGAL) / (LMAX - LGAL), 0.0, 1.0));
-      r *= 1.0 + 0.01 * (hash(i + 0.13) - 0.5);
-      // the cloud turns with the spin; cos/sin of the spin angle about the pole
-      float cs = cos(spinA), sn = sin(spinA);
-      vec3 p = r * vec3(cs * d.x + sn * d.z, d.y, -sn * d.x + cs * d.z);
-      gl_Position = viewProj * vec4(p, 1.0);
-      gl_PointSize = size;
-      vCol = pow(clamp(col * gain, 0.0, 1.0), vec3(gam)) * (den > 1e-4 ? 1.0 : 0.0);
-    }`;
-  const cloudFs = `#version 300 es
-    precision highp float;
-    in vec3 vCol; out vec4 o;
-    void main() {
-      vec2 c = gl_PointCoord - 0.5;
-      float a = smoothstep(0.5, 0.15, length(c));
-      o = vec4(vCol * a * 0.14, 1.0);
-    }`;
-  const cloudProg = gl.createProgram();
-  gl.attachShader(cloudProg, sh(gl.VERTEX_SHADER, cloudVs));
-  gl.attachShader(cloudProg, sh(gl.FRAGMENT_SHADER, cloudFs));
-  gl.linkProgram(cloudProg);
-  if (!gl.getProgramParameter(cloudProg, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(cloudProg));
-
-  const status = document.getElementById("status");
-  let loaded = 0;
-  await Promise.all(meta.packs.map((file, i) => new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const tex = gl.createTexture();
-      gl.activeTexture(gl.TEXTURE0 + i);
-      gl.bindTexture(gl.TEXTURE_2D, tex);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB8, gl.RGB, gl.UNSIGNED_BYTE, img);
-      gl.generateMipmap(gl.TEXTURE_2D);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.uniform1i(gl.getUniformLocation(prog, `p${i}`), i);
-      gl.useProgram(cloudProg);
-      gl.uniform1i(gl.getUniformLocation(cloudProg, `p${i}`), i);
-      gl.useProgram(prog);
-      status.textContent = `Loading maps… ${++loaded} of ${meta.packs.length}`;
-      resolve();
-    };
-    img.src = `./sky-spectrum/${file}`;
-  })));
-  await new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      gl.activeTexture(gl.TEXTURE0 + P);
-      gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB8, gl.RGB, gl.UNSIGNED_BYTE, img);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.useProgram(cloudProg);
-      gl.uniform1i(gl.getUniformLocation(cloudProg, "depthMap"), P);
-      const kinds = new Int32Array(P * 3).fill(5);
-      kinds.set(KINDS);
-      gl.uniform1iv(gl.getUniformLocation(cloudProg, "kind"), kinds);
-      gl.useProgram(prog);
-      resolve();
-    };
-    img.src = `./sky-spectrum/${meta.depth}`;
-  });
-  status.textContent = `${N} bands`;
-
-  const exposure = document.getElementById("exposure"), contrast = document.getElementById("contrast");
-  exposure.oninput = contrast.oninput = () => draw();
-
-  // ---------- view: Globe (0), Inside (1), Map (2) ----------
-  // yaw/pitch turn the sky; zoom is the globe's radius (in half-heights),
-  // the inside view's tan(fov/2), or the map's scale
-  const START = [{ yaw: Math.PI / 2, pitch: 0, zoom: 0.85 }, { yaw: -Math.PI / 2, pitch: 0, zoom: 1.0 }, { yaw: 0, pitch: 0, zoom: 1 },
-    { yaw: 0.6, pitch: 0.35, zoom: 1.3 }]; // cloud: orbit angles, zoom = 1 / camera distance
-  let mode = 0, view = { ...START[0] }, spin = !matchMedia("(prefers-reduced-motion: reduce)").matches;
-  function setMode(m) {
-    mode = m;
-    view = { ...START[m] };
-    document.querySelectorAll("#views button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.mode == m));
-    draw();
-  }
-  document.querySelectorAll("#views button").forEach((b) => (b.onclick = () => setMode(+b.dataset.mode)));
-  const ZOOM = [[0.3, 8], [0.08, 2.5], [1, 8], [0.25, 12]];
-  function zoomBy(f) {
-    const [lo, hi] = ZOOM[mode];
-    // globe and map grow when zooming in; the inside view narrows its field
-    view.zoom = Math.max(lo, Math.min(hi, mode === 1 ? view.zoom / f : view.zoom * f));
-    draw();
-  }
-  canvas.addEventListener("wheel", (e) => { e.preventDefault(); zoomBy(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015))); }, { passive: false });
-  const pts = new Map();
-  let pinchD = 0;
-  canvas.addEventListener("pointerdown", (e) => { canvas.setPointerCapture(e.pointerId); pts.set(e.pointerId, e); spin = false; });
-  canvas.addEventListener("pointermove", (e) => {
-    const prev = pts.get(e.pointerId);
-    if (!prev) return;
-    pts.set(e.pointerId, e);
-    if (pts.size === 2) {
-      const [a, b] = [...pts.values()], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
-      if (pinchD) zoomBy(d / pinchD);
-      pinchD = d;
-      return;
-    }
-    const k = (mode === 1 ? 2 * view.zoom : 2 / view.zoom) / canvas.getBoundingClientRect().height;
-    const dx = (e.clientX - prev.clientX) * k, dy = (e.clientY - prev.clientY) * k;
-    if (mode === 3) {
-      // orbit the cloud
-      view.yaw -= dx * view.zoom; view.pitch = Math.max(-1.5, Math.min(1.5, view.pitch + dy * view.zoom));
-    } else if (mode === 2) {
-      // pan the flat map sideways (wraps round), in map widths
-      const rr = canvas.getBoundingClientRect();
-      view.yaw += (e.clientX - prev.clientX) / (2 * Math.min(rr.width / 2, rr.height) * view.zoom);
-    } else {
-      // drag moves the sky with the pointer
-      view.yaw += mode === 0 ? -dx : dx;
-      view.pitch = Math.max(-1.55, Math.min(1.55, view.pitch + (mode === 0 ? -dy : dy)));
-    }
-    draw();
-  });
-  const up = (e) => { pts.delete(e.pointerId); pinchD = 0; };
-  canvas.addEventListener("pointerup", up);
-  canvas.addEventListener("pointercancel", up);
-
-  let ready = true;
-  const U = (n) => gl.getUniformLocation(prog, n);
-  // orbit camera for the cloud: perspective × look-at-origin
-  function cloudViewProj(w, h) {
-    const dist = 3.2 / view.zoom, cp = Math.cos(view.pitch);
-    const eye = [dist * cp * Math.sin(view.yaw), dist * Math.sin(view.pitch), dist * cp * Math.cos(view.yaw)];
-    const f = eye.map((x) => -x / dist); // forward
-    const up = [0, 1, 0];
-    const sx = [f[1] * up[2] - f[2] * up[1], f[2] * up[0] - f[0] * up[2], f[0] * up[1] - f[1] * up[0]];
-    const sl = Math.hypot(...sx); sx.forEach((_, i) => (sx[i] /= sl));
-    const u = [sx[1] * f[2] - sx[2] * f[1], sx[2] * f[0] - sx[0] * f[2], sx[0] * f[1] - sx[1] * f[0]];
-    const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-    const V = [sx[0], u[0], -f[0], 0, sx[1], u[1], -f[1], 0, sx[2], u[2], -f[2], 0, -dot(sx, eye), -dot(u, eye), dot(f, eye), 1];
-    const fov = 40 * Math.PI / 180, t = 1 / Math.tan(fov / 2), a = w / h, n = 0.01, fa = 100;
-    const Pm = [t / a, 0, 0, 0, 0, t, 0, 0, 0, 0, (fa + n) / (n - fa), -1, 0, 0, (2 * fa * n) / (n - fa), 0];
-    const M = new Float32Array(16);
-    for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) {
-      let sum = 0;
-      for (let k = 0; k < 4; k++) sum += Pm[k * 4 + r] * V[c * 4 + k];
-      M[c * 4 + r] = sum;
-    }
-    return M;
-  }
-  let spinA = 0;
-  function drawCloud(w, h, dpr, pad) {
-    gl.useProgram(cloudProg);
-    const C = (n) => gl.getUniformLocation(cloudProg, n);
-    gl.uniform1fv(C("wR"), pad(weights(c - s)));
-    gl.uniform1fv(C("wG"), pad(weights(c)));
-    gl.uniform1fv(C("wB"), pad(weights(c + s)));
-    gl.uniform1f(C("gain"), +exposure.value);
-    gl.uniform1f(C("gam"), +contrast.value);
-    gl.uniform1f(C("size"), Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom)));
-    gl.uniform1f(C("spinA"), spinA);
-    gl.uniformMatrix4fv(C("viewProj"), false, cloudViewProj(w, h));
-    gl.clearColor(0, 0, 0, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ONE); // additive: overlapping points add up
-    gl.drawArrays(gl.POINTS, 0, CLOUD_N);
-    gl.disable(gl.BLEND);
-    gl.useProgram(prog);
-  }
-  function draw() {
-    if (!ready) return;
-    const r = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
-    const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
-    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
-    gl.viewport(0, 0, w, h);
-    const pad = (x) => { const a = new Float32Array(P * 3); a.set(x); return a; };
-    if (mode === 3) return drawCloud(w, h, dpr, pad);
-    gl.uniform1fv(U("wR"), pad(weights(c - s)));
-    gl.uniform1fv(U("wG"), pad(weights(c)));
-    gl.uniform1fv(U("wB"), pad(weights(c + s)));
-    gl.uniform1f(U("gain"), +exposure.value);
-    gl.uniform1f(U("gam"), +contrast.value);
-    gl.uniform2f(U("res"), w, h);
-    gl.uniform1i(U("mode"), mode);
-    gl.uniform1f(U("yaw"), view.yaw);
-    gl.uniform1f(U("pitch"), view.pitch);
-    gl.uniform1f(U("zoom"), view.zoom);
-    // mip level from texels per screen pixel, so the sphere doesn't shimmer
-    const texPerRad = meta.width / (2 * Math.PI);
-    const pxPerRad = mode === 0 ? view.zoom * h / 2 : mode === 1 ? h / 2 / view.zoom : Math.min(w / 2, h) * view.zoom / Math.PI;
-    gl.uniform1f(U("lod"), Math.max(0, Math.log2(texPerRad / pxPerRad)));
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-  }
-  let last = performance.now();
-  (function tick(now) {
-    const dt = (now - last) / 1000; last = now;
-    if (spin && mode === 0) { view.yaw += dt * 0.08; draw(); }
-    if (spin && mode === 3) { spinA += dt * 0.06; draw(); }
-    requestAnimationFrame(tick);
-  })(last);
-  addEventListener("resize", layout);
-  // ?c=<band index>&s=<half-span> start somewhere else on the spectrum; ?view=globe|inside|map
+  // fallback region rules for the sky's bands.json, which predates "region"
+  const SKY_REGIONS = [
+    ["Radio", (b) => ["radio408", "hi21"].includes(b.id)], ["Microwave", (b) => /^p0|^p1|^p2/.test(b.id)],
+    ["Far-IR", (b) => ["p353", "p545", "p857", "a160", "a140", "a90", "a65"].includes(b.id)], ["Mid-IR", (b) => /^w/.test(b.id)],
+    ["Near-IR", (b) => ["k", "j"].includes(b.id)], ["Visible", (b) => ["rp", "g", "bp"].includes(b.id)],
+    ["UV", (b) => b.id === "uv"], ["X-ray", (b) => /^x/.test(b.id)], ["Gamma", (b) => /^gamma/.test(b.id)],
+  ];
+  const SHORT = { Radio: "Rad", Microwave: "µW", "Far-IR": "FIR", "Mid-IR": "MIR", "Near-IR": "NIR", "Thermal IR": "TIR", Visible: "Vis", "X-ray": "X", Gamma: "γ", EUV: "EUV", UV: "UV" };
   const q = new URLSearchParams(location.search);
-  if (q.has("c")) c = +q.get("c");
-  if (q.has("s")) s = +q.get("s");
-  const VIEWS = { globe: 0, inside: 1, map: 2, cloud: 3 };
-  if (q.get("view") in VIEWS) setMode(VIEWS[q.get("view")]);
-  if (q.has("still")) spin = false;
-  clamp();
-  layout();
-  window.__stillDone = true;
+  let session = null;
+
+  async function boot(target, first) {
+    session?.abort();
+    session = new AbortController();
+    const on = (el, ev, fn, opts = {}) => el.addEventListener(ev, fn, { ...opts, signal: session.signal });
+    const T = TARGETS[target];
+    document.querySelectorAll("#targets button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.target === target));
+    document.getElementById("h1").textContent = T.title;
+    document.getElementById("foot").textContent = T.foot;
+    const status = document.getElementById("status");
+    status.textContent = "Loading…";
+    const meta = await (await fetch(`./${T.dir}/bands.json`)).json();
+    const B = meta.bands, N = B.length, P = meta.packs.length;
+    const hasDepth = !!meta.depth;
+
+    // ---------- spectrum bar ----------
+    const slots = document.getElementById("slots"), regions = document.getElementById("regions");
+    slots.innerHTML = ""; regions.innerHTML = "";
+    B.forEach((b) => {
+      const el = document.createElement("div");
+      el.className = "slot" + (b.empty ? " empty" : "");
+      el.title = `${b.name} · ${b.wave} · ${b.what} · ${b.source}`;
+      el.innerHTML = `<span>${b.name.replace(/^(Planck|IRAS|WISE|2MASS|Gaia|AKARI) /, "")}</span>`;
+      slots.appendChild(el);
+    });
+    const regionOf = (b) => b.region ?? SKY_REGIONS.find(([, t]) => t(b))?.[0] ?? "";
+    for (let i = 0; i < N;) {
+      let j = i;
+      while (j < N && regionOf(B[j]) === regionOf(B[i])) j++;
+      const el = document.createElement("div");
+      el.style.flex = j - i;
+      el.textContent = regionOf(B[i]);
+      if (SHORT[regionOf(B[i])]) el.dataset.short = SHORT[regionOf(B[i])];
+      regions.appendChild(el);
+      i = j;
+    }
+
+    // ---------- RGB selector: centre c (green) and half-span s, in band units ----------
+    const START = meta.start ?? { c: B.findIndex((b) => b.id === "g"), s: 1 };
+    let c = first && q.has("c") ? +q.get("c") : START.c, s = first && q.has("s") ? +q.get("s") : START.s;
+    const sigma = () => Math.max(0.35, 0.45 * s);
+    function weights(p) {
+      const w = B.map((_, i) => Math.exp(-((i - p) ** 2) / (2 * sigma() ** 2)));
+      const sum = w.reduce((a, b) => a + b, 0);
+      return w.map((x, i) => (B[i].empty ? 0 : x / sum)); // empty bands keep their share and read black
+    }
+    const sel = document.getElementById("selector"), curves = document.getElementById("curves");
+    const slotW = () => slots.getBoundingClientRect().width / N;
+    function clamp() { s = Math.max(0.25, Math.min((N - 1) / 2, s)); c = Math.max(s, Math.min(N - 1 - s, c)); }
+    function drawCurves() {
+      const r = slots.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+      curves.width = r.width * dpr; curves.height = r.height * dpr;
+      const g = curves.getContext("2d");
+      g.scale(dpr, dpr);
+      [["#ff4a4a", c - s], ["#4aff63", c], ["#5b7cff", c + s]].forEach(([col, p]) => {
+        g.beginPath();
+        for (let x = 0; x <= r.width; x += 2) {
+          const y = r.height - 6 - (r.height - 14) * Math.exp(-((x / slotW() - 0.5 - p) ** 2) / (2 * sigma() ** 2));
+          x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
+        }
+        g.strokeStyle = col; g.lineWidth = 1.5; g.stroke();
+      });
+    }
+    function readout() {
+      const el = document.getElementById("readout");
+      el.innerHTML = "";
+      [["R", "#ff6b6b", c - s], ["G", "#6bff7f", c], ["B", "#7d97ff", c + s]].forEach(([n, col, p]) => {
+        const all = weights(p).map((x, i) => [x, B[i]]);
+        const w = all.reduce((a, [x]) => a + x, 0) < 0.05 ? [] : all.filter(([x]) => x > 0.01).sort((a, b) => b[0] - a[0]).slice(0, 3);
+        const d = document.createElement("div");
+        d.className = "ch";
+        d.innerHTML = `<b style="color:${col}">${n}</b> ` + (w.length ? w.map(([x, b]) => `${b.name} ${Math.round(100 * x)}%`).join(" · ") : "<span style='color:var(--dim)'>nothing (no data here)</span>");
+        el.appendChild(d);
+      });
+    }
+    function layoutSelector() {
+      const w = slotW();
+      sel.style.left = `${(c - s + 0.5) * w - 10}px`;
+      sel.style.width = `${2 * s * w + 20}px`;
+      drawCurves(); readout();
+    }
+    // drag helper shared by both windows: body moves, grips stretch
+    function draggable(el, get, set, unit) {
+      let drag = null;
+      on(el, "pointerdown", (e) => {
+        const g = e.target.closest(".grip");
+        drag = { x: e.clientX, v: get(), mode: g ? (g.classList.contains("a") ? "a" : "b") : "move" };
+        el.setPointerCapture(e.pointerId); e.preventDefault();
+      });
+      on(el, "pointermove", (e) => { if (drag) set(drag.v, drag.mode, (e.clientX - drag.x) / unit()); });
+      on(el, "pointerup", () => (drag = null));
+      on(el, "pointercancel", () => (drag = null));
+    }
+    draggable(sel, () => ({ c, s }), (v, mode, d) => {
+      if (mode === "move") c = v.c + d; else s = v.s + (mode === "b" ? d : -d);
+      clamp(); layoutSelector(); draw();
+    }, slotW);
+    on(sel, "keydown", (e) => {
+      const step = e.altKey ? 0.1 : 0.5;
+      if (e.key === "ArrowLeft") e.shiftKey ? (s -= step) : (c -= step);
+      else if (e.key === "ArrowRight") e.shiftKey ? (s += step) : (c += step);
+      else return;
+      e.preventDefault(); clamp(); layoutSelector(); draw();
+    });
+    on(document.getElementById("reset"), "click", () => { c = START.c; s = START.s; layoutSelector(); draw(); });
+
+    // ---------- distance window (sky): log10 ly, light outside is dropped ----------
+    const DMIN = 1.5, DMAX = 11;
+    let dlo = DMIN, dhi = DMAX;
+    if (first && q.has("dlo")) dlo = +q.get("dlo");
+    if (first && q.has("dhi")) dhi = +q.get("dhi");
+    const dist = document.getElementById("dist"), dwin = document.getElementById("dwin"), dread = document.getElementById("dreadout");
+    dist.hidden = dread.hidden = !hasDepth;
+    const dW = () => dist.clientWidth;
+    const dx = (L) => ((L - DMIN) / (DMAX - DMIN)) * dW();
+    function fmtLy(L) {
+      const ly = 10 ** L;
+      for (const [f, u] of [[1e9, " billion ly"], [1e6, " million ly"], [1e3, ",000 ly"]]) if (ly >= f) return `${+(ly / f).toPrecision(2)}${u}`;
+      return `${+ly.toPrecision(2)} ly`;
+    }
+    if (hasDepth) {
+      const zones = document.getElementById("zones"), ticks = document.getElementById("dticks");
+      zones.innerHTML = ticks.innerHTML = "";
+      [[1.5, 2.6, "Near"], [2.6, 4.8, "Milky Way"], [4.8, 10.3, "Beyond the Galaxy"], [10.3, 11, "CMB"]].forEach(([a, b, n]) => {
+        const el = document.createElement("div"); el.className = "zone"; el.textContent = n; el.dataset.a = a; el.dataset.b = b; zones.appendChild(el);
+      });
+      [[2, "100 ly"], [3, "1k"], [4, "10k"], [6, "1M"], [8, "100M"], [10, "10G ly"]].forEach(([L, t]) => {
+        const el = document.createElement("div"); el.className = "dtick"; el.textContent = t; el.dataset.l = L; ticks.appendChild(el);
+      });
+    }
+    function layoutDist() {
+      if (!hasDepth) return;
+      document.querySelectorAll(".zone").forEach((el) => { el.style.left = `${dx(+el.dataset.a)}px`; el.style.width = `${dx(+el.dataset.b) - dx(+el.dataset.a)}px`; });
+      document.querySelectorAll(".dtick").forEach((el) => (el.style.left = `${dx(+el.dataset.l)}px`));
+      dwin.style.left = `${dx(dlo)}px`; dwin.style.width = `${Math.max(10, dx(dhi) - dx(dlo))}px`;
+      const all = dlo <= DMIN + 0.01 && dhi >= DMAX - 0.01;
+      dread.textContent = all ? "Distance: everything (drag the window or its ends to keep only light from some distances)"
+        : `Distance: light from ${fmtLy(dlo)} to ${fmtLy(dhi)} only`;
+    }
+    if (hasDepth) {
+      draggable(dwin, () => ({ dlo, dhi }), (v, mode, d) => {
+        const w = v.dhi - v.dlo;
+        if (mode === "move") { dlo = Math.max(DMIN, Math.min(DMAX - w, v.dlo + d)); dhi = dlo + w; }
+        else if (mode === "a") dlo = Math.max(DMIN, Math.min(dhi - 0.1, v.dlo + d));
+        else dhi = Math.min(DMAX, Math.max(dlo + 0.1, v.dhi + d));
+        layoutDist(); draw();
+      }, () => dW() / (DMAX - DMIN));
+      on(dwin, "keydown", (e) => {
+        const step = e.altKey ? 0.05 : 0.25, w = dhi - dlo;
+        if (e.key === "ArrowLeft") { if (e.shiftKey) dhi = Math.max(dlo + 0.1, dhi - step); else { dlo = Math.max(DMIN, dlo - step); dhi = dlo + w; } }
+        else if (e.key === "ArrowRight") { if (e.shiftKey) dhi = Math.min(DMAX, dhi + step); else { dhi = Math.min(DMAX, dhi + step); dlo = dhi - w; } }
+        else return;
+        e.preventDefault(); layoutDist(); draw();
+      });
+    }
+
+    // ---------- WebGL ----------
+    const stage = document.getElementById("stage");
+    stage.querySelector("canvas")?.remove();
+    const canvas = document.createElement("canvas");
+    stage.prepend(canvas);
+    const gl = canvas.getContext("webgl2", { preserveDrawingBuffer: true });
+    const KINDS = B.map((b) => b.depth ?? 5);
+    const I857 = Math.max(0, B.findIndex((b) => b.id === "p857")), I408 = Math.max(0, B.findIndex((b) => b.id === "radio408"));
+    // shared GLSL: sample every band at uv, mix R/G/B, and (sky) drop light
+    // whose depth is outside the window; L = light-weighted depth of what's kept
+    const shared = `
+      ${meta.packs.map((_, i) => `uniform sampler2D p${i};`).join("\n")}
+      uniform sampler2D depthMap;
+      uniform float wR[${P * 3}], wG[${P * 3}], wB[${P * 3}];
+      uniform int kind[${P * 3}];
+      uniform float dLo, dHi, lonSign;
+      uniform bool useDepth;
+      vec2 dirUV(vec3 n) {
+        float l = atan(-n.z, n.x), b = asin(clamp(n.y, -1.0, 1.0));
+        return vec2(fract(0.5 + lonSign * l / 6.2831853), 0.5 - b / 3.1415927);
+      }
+      void bands(vec2 uv, float lod, out vec3 col, out float L, out float kept) {
+        float v[${P * 3}];
+        vec3 t;
+        ${meta.packs.map((_, i) => `t = textureLod(p${i}, uv, lod).rgb; v[${3 * i}] = t.r; v[${3 * i + 1}] = t.g; v[${3 * i + 2}] = t.b;`).join("\n        ")}
+        float depth[6] = float[6](0.0, 0.0, 0.0, 10.66, 10.66, 0.0);
+        if (useDepth) {
+          vec3 dm = textureLod(depthMap, uv, 0.0).rgb * 11.0;
+          depth[0] = dm.r; depth[1] = dm.g; depth[2] = dm.b;
+          depth[3] = mix(10.66, dm.g, smoothstep(0.35, 0.75, v[${I857}]));
+          depth[4] = mix(10.66, dm.b, smoothstep(0.3, 0.65, v[${I408}]));
+        }
+        col = vec3(0.0); L = 0.0; kept = 0.0;
+        for (int k = 0; k < ${P * 3}; k++) {
+          float d = depth[kind[k]];
+          float m = useDepth ? step(dLo, d) * step(d, dHi) : 1.0;
+          vec3 w = vec3(wR[k], wG[k], wB[k]) * v[k] * m;
+          col += w;
+          float s = w.r + w.g + w.b;
+          L += s * d; kept += s;
+        }
+        L = kept > 1e-5 ? L / kept : 10.66;
+      }`;
+    const sh = (type, src) => {
+      const x = gl.createShader(type); gl.shaderSource(x, src); gl.compileShader(x);
+      if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x));
+      return x;
+    };
+    const link = (vs, fs) => {
+      const p = gl.createProgram();
+      gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+      return p;
+    };
+    // flat views: every pixel ray-cast — Globe (outside, orthographic),
+    // Inside (perspective from the centre), Map (the flat image, any aspect)
+    const quad = link(`#version 300 es
+      void main() { vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }`,
+    `#version 300 es
+      precision highp float;
+      out vec4 o;
+      ${shared}
+      uniform float gain, gam, yaw, pitch, zoom, lod, aspect, panX, panY;
+      uniform vec2 res;
+      uniform int mode;
+      vec3 turn(vec3 v) {
+        float cp = cos(pitch), sp = sin(pitch), cy = cos(yaw), sy = sin(yaw);
+        v = vec3(v.x, cp * v.y - sp * v.z, sp * v.y + cp * v.z);
+        return vec3(cy * v.x + sy * v.z, v.y, -sy * v.x + cy * v.z);
+      }
+      void main() {
+        vec2 p = (gl_FragCoord.xy - 0.5 * res) / (0.5 * res.y);
+        vec2 uv; float edge = 1.0;
+        if (mode == 2) {
+          float sc = min(res.x / aspect, res.y) * zoom;
+          vec2 q = (gl_FragCoord.xy - 0.5 * res) / sc - vec2(panX, panY);
+          if (abs(q.x) > 0.5 * aspect || abs(q.y) > 0.5) { o = vec4(0.0, 0.0, 0.0, 1.0); return; }
+          uv = vec2(0.5 + q.x / aspect, 0.5 - q.y);
+          if (lonSign != 0.0) uv.x = fract(uv.x - yaw);
+        } else if (mode == 0) {
+          float d2 = dot(p, p) / (zoom * zoom);
+          if (d2 > 1.0) { o = vec4(vec3(0.05, 0.06, 0.1) * exp(-40.0 * (sqrt(d2) - 1.0)), 1.0); return; }
+          uv = dirUV(turn(vec3(p / zoom, sqrt(1.0 - d2))));
+          edge = smoothstep(1.0, 0.985, d2);
+        } else {
+          uv = dirUV(turn(normalize(vec3(p * zoom, -1.0))));
+        }
+        vec3 col; float L, kept;
+        bands(uv, lod, col, L, kept);
+        o = vec4(pow(clamp(col * gain, 0.0, 1.0), vec3(gam)) * edge, 1.0);
+      }`);
+    // Cloud (sky): points spread evenly over the sky, each at radius = log of
+    // the distance its kept light comes from (broken axis: the Milky Way gets
+    // the inner 80 %); points with nothing left in the window vanish
+    const CLOUD_N = innerWidth < 700 ? 250000 : 500000;
+    const cloud = hasDepth ? link(`#version 300 es
+      precision highp float;
+      ${shared}
+      uniform mat4 viewProj;
+      uniform float gain, gam, size, spinA;
+      out vec3 vCol;
+      const float N = ${CLOUD_N}.0, LMIN = 2.0, LGAL = 4.8, LMAX = 10.66;
+      float hash(float n) { return fract(sin(n * 12.9898) * 43758.5453); }
+      void main() {
+        float i = float(gl_VertexID);
+        // golden-angle longitude from exact integer maths (a float i × 2.4 rad loses it)
+        float y = 1.0 - 2.0 * (i + 0.5) / N, rr = sqrt(1.0 - y * y);
+        float ph = 6.2831853 * float((uint(gl_VertexID) * 2654435769u) >> 8u) / 16777216.0;
+        vec3 d = vec3(cos(ph) * rr, y, sin(ph) * rr);
+        d = normalize(d + sqrt(12.566 / N) * (vec3(hash(i), hash(i + 0.37), hash(i + 0.71)) - 0.5));
+        vec3 col; float L, kept;
+        bands(dirUV(d), 1.0, col, L, kept);
+        float r = L <= LGAL ? 0.8 * clamp((L - LMIN) / (LGAL - LMIN), 0.0, 1.0) : 0.8 + 0.2 * clamp((L - LGAL) / (LMAX - LGAL), 0.0, 1.0);
+        r *= 1.0 + 0.01 * (hash(i + 0.13) - 0.5);
+        float cs = cos(spinA), sn = sin(spinA);
+        gl_Position = viewProj * vec4(r * vec3(cs * d.x + sn * d.z, d.y, -sn * d.x + cs * d.z), 1.0);
+        gl_PointSize = kept > 1e-4 ? size : 0.0;
+        vCol = pow(clamp(col * gain, 0.0, 1.0), vec3(gam));
+      }`, `#version 300 es
+      precision highp float;
+      in vec3 vCol; out vec4 o;
+      void main() { float a = smoothstep(0.5, 0.15, length(gl_PointCoord - 0.5)); o = vec4(vCol * a * 0.14, 1.0); }`) : null;
+    gl.bindVertexArray(gl.createVertexArray());
+
+    // textures: packs on units 0…P-1, depth on unit P
+    const progs = [quad, cloud].filter(Boolean);
+    const loadTex = (src, unit, mip) => new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        gl.activeTexture(gl.TEXTURE0 + unit);
+        gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB8, gl.RGB, gl.UNSIGNED_BYTE, img);
+        if (mip) gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mip ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, T.wrap ? gl.REPEAT : gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        resolve();
+      };
+      img.src = src;
+    });
+    let loaded = 0;
+    await Promise.all([
+      ...meta.packs.map((f, i) => loadTex(`./${T.dir}/${f}`, i, true).then(() => (status.textContent = `Loading maps… ${++loaded} of ${P}`))),
+      hasDepth ? loadTex(`./${T.dir}/${meta.depth}`, P, false) : Promise.resolve(),
+    ]);
+    if (session.signal.aborted) return;
+    const kinds = new Int32Array(P * 3).fill(5);
+    kinds.set(KINDS);
+    progs.forEach((p) => {
+      gl.useProgram(p);
+      meta.packs.forEach((_, i) => gl.uniform1i(gl.getUniformLocation(p, `p${i}`), i));
+      gl.uniform1i(gl.getUniformLocation(p, "depthMap"), hasDepth ? P : 0);
+      gl.uniform1iv(gl.getUniformLocation(p, "kind"), kinds);
+    });
+    status.textContent = `${N} bands`;
+
+    // ---------- views ----------
+    const VIEW_ID = { Globe: 0, Inside: 1, Map: 2, Disc: 2, Cloud: 3 };
+    const viewBox = document.getElementById("views");
+    viewBox.innerHTML = "";
+    T.views.forEach((name) => {
+      const b = document.createElement("button");
+      b.textContent = name; b.dataset.mode = VIEW_ID[name];
+      on(b, "click", () => setMode(VIEW_ID[name]));
+      viewBox.appendChild(b);
+    });
+    viewBox.hidden = T.views.length < 2;
+    const STARTV = { 0: { yaw: Math.PI / 2, pitch: 0, zoom: 0.85 }, 1: { yaw: -Math.PI / 2, pitch: 0, zoom: 1 }, 2: { yaw: 0, pitch: 0, zoom: 1, panX: 0, panY: 0 }, 3: { yaw: 0.6, pitch: 0.35, zoom: 1.3 } };
+    const ZOOM = { 0: [0.3, 8], 1: [0.08, 2.5], 2: [1, 12], 3: [0.25, 12] };
+    let mode = VIEW_ID[T.views[0]], view = { ...STARTV[mode] }, spin = !matchMedia("(prefers-reduced-motion: reduce)").matches && !q.has("still");
+    function setMode(m) {
+      mode = m; view = { ...STARTV[m] };
+      viewBox.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.mode === m));
+      draw();
+    }
+    const zoomBy = (f) => { const [lo, hi] = ZOOM[mode]; view.zoom = Math.max(lo, Math.min(hi, mode === 1 ? view.zoom / f : view.zoom * f)); draw(); };
+    on(canvas, "wheel", (e) => { e.preventDefault(); zoomBy(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015))); }, { passive: false });
+    const pts = new Map();
+    let pinchD = 0;
+    on(canvas, "pointerdown", (e) => { canvas.setPointerCapture(e.pointerId); pts.set(e.pointerId, e); spin = false; });
+    on(canvas, "pointermove", (e) => {
+      const prev = pts.get(e.pointerId);
+      if (!prev) return;
+      pts.set(e.pointerId, e);
+      if (pts.size === 2) {
+        const [a, b] = [...pts.values()], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        if (pinchD) zoomBy(d / pinchD);
+        pinchD = d; return;
+      }
+      const rr = canvas.getBoundingClientRect();
+      const ddx = e.clientX - prev.clientX, ddy = e.clientY - prev.clientY;
+      if (mode === 2) {
+        const sc = Math.min(rr.width / (meta.width / meta.height), rr.height) * view.zoom;
+        if (T.wrap) view.yaw += ddx / (sc * (meta.width / meta.height)); else view.panX += ddx / sc;
+        view.panY -= ddy / sc;
+      } else {
+        const k = (mode === 1 ? 2 * view.zoom : 2 / view.zoom) / rr.height;
+        if (mode === 3) { view.yaw -= ddx * k * view.zoom; view.pitch = Math.max(-1.5, Math.min(1.5, view.pitch + ddy * k * view.zoom)); }
+        else { view.yaw += (mode === 0 ? -ddx : ddx) * k; view.pitch = Math.max(-1.55, Math.min(1.55, view.pitch + (mode === 0 ? -ddy : ddy) * k)); }
+      }
+      draw();
+    });
+    const up = (e) => { pts.delete(e.pointerId); pinchD = 0; };
+    on(canvas, "pointerup", up); on(canvas, "pointercancel", up);
+
+    function cloudViewProj(w, h) {
+      const dist = 3.2 / view.zoom, cp = Math.cos(view.pitch);
+      const eye = [dist * cp * Math.sin(view.yaw), dist * Math.sin(view.pitch), dist * cp * Math.cos(view.yaw)];
+      const f = eye.map((x) => -x / dist);
+      const sx = [-f[2], 0, f[0]]; // forward × up (0, 1, 0)
+      const sl = Math.hypot(...sx); sx.forEach((_, i) => (sx[i] /= sl));
+      const u = [sx[1] * f[2] - sx[2] * f[1], sx[2] * f[0] - sx[0] * f[2], sx[0] * f[1] - sx[1] * f[0]];
+      const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+      const V = [sx[0], u[0], -f[0], 0, sx[1], u[1], -f[1], 0, sx[2], u[2], -f[2], 0, -dot(sx, eye), -dot(u, eye), dot(f, eye), 1];
+      const t = 1 / Math.tan(20 * Math.PI / 180), a = w / h, n = 0.01, fa = 100;
+      const Pm = [t / a, 0, 0, 0, 0, t, 0, 0, 0, 0, (fa + n) / (n - fa), -1, 0, 0, (2 * fa * n) / (n - fa), 0];
+      const M = new Float32Array(16);
+      for (let cc = 0; cc < 4; cc++) for (let r = 0; r < 4; r++) { let sum = 0; for (let k = 0; k < 4; k++) sum += Pm[k * 4 + r] * V[cc * 4 + k]; M[cc * 4 + r] = sum; }
+      return M;
+    }
+    const exposure = document.getElementById("exposure"), contrast = document.getElementById("contrast");
+    on(exposure, "input", () => draw()); on(contrast, "input", () => draw());
+    let spinA = 0;
+    function common(p) {
+      const U = (n) => gl.getUniformLocation(p, n);
+      const pad = (x) => { const a = new Float32Array(P * 3); a.set(x); return a; };
+      gl.uniform1fv(U("wR"), pad(weights(c - s)));
+      gl.uniform1fv(U("wG"), pad(weights(c)));
+      gl.uniform1fv(U("wB"), pad(weights(c + s)));
+      gl.uniform1f(U("gain"), +exposure.value);
+      gl.uniform1f(U("gam"), +contrast.value);
+      gl.uniform1f(U("dLo"), dlo <= DMIN + 0.01 ? -99 : dlo);
+      gl.uniform1f(U("dHi"), dhi >= DMAX - 0.01 ? 99 : dhi);
+      gl.uniform1i(U("useDepth"), hasDepth ? 1 : 0);
+      gl.uniform1f(U("lonSign"), T.lonSign ?? 0);
+      return U;
+    }
+    function draw() {
+      if (session.signal.aborted) return;
+      const r = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+      const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      gl.viewport(0, 0, w, h);
+      if (mode === 3 && cloud) {
+        gl.useProgram(cloud);
+        const U = common(cloud);
+        gl.uniform1f(U("size"), Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom)));
+        gl.uniform1f(U("spinA"), spinA);
+        gl.uniformMatrix4fv(U("viewProj"), false, cloudViewProj(w, h));
+        gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+        gl.drawArrays(gl.POINTS, 0, CLOUD_N);
+        gl.disable(gl.BLEND);
+        return;
+      }
+      gl.useProgram(quad);
+      const U = common(quad);
+      const aspect = meta.width / meta.height;
+      gl.uniform2f(U("res"), w, h);
+      gl.uniform1i(U("mode"), mode);
+      gl.uniform1f(U("yaw"), view.yaw); gl.uniform1f(U("pitch"), view.pitch); gl.uniform1f(U("zoom"), view.zoom);
+      gl.uniform1f(U("aspect"), aspect);
+      gl.uniform1f(U("panX"), view.panX ?? 0); gl.uniform1f(U("panY"), view.panY ?? 0);
+      // mip level from texels per screen pixel, so nothing shimmers
+      const pxPerTex = mode === 0 ? (view.zoom * h / 2) / (meta.width / (2 * Math.PI)) : mode === 1 ? (h / 2 / view.zoom) / (meta.width / (2 * Math.PI))
+        : (Math.min(w / aspect, h) * view.zoom * aspect) / meta.width;
+      gl.uniform1f(U("lod"), Math.max(0, -Math.log2(pxPerTex)));
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    let last = performance.now();
+    const tick = (now) => {
+      if (session.signal.aborted) return;
+      const dt = (now - last) / 1000; last = now;
+      if (spin && mode === 0) { view.yaw += dt * 0.08; draw(); }
+      if (spin && mode === 3) { spinA += dt * 0.06; draw(); }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    on(window, "resize", () => { layoutSelector(); layoutDist(); draw(); });
+
+    if (first && q.has("view")) {
+      const want = q.get("view")[0].toUpperCase() + q.get("view").slice(1);
+      if (T.views.includes(want)) mode = VIEW_ID[want];
+    }
+    setMode(mode);
+    clamp(); layoutSelector(); layoutDist(); draw();
+    window.__stillDone = true;
+  }
+
+  document.querySelectorAll("#targets button").forEach((b) => b.addEventListener("click", () => boot(b.dataset.target, false)));
+  boot(TARGETS[q.get("target")] ? q.get("target") : "sky", true);
 })();
 </script>
 </body>
