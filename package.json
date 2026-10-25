@@ -20,6 +20,7 @@
     "build:dust": "node scripts/build-dust.mjs",
     "build:sky-onion": "node scripts/build-sky-onion.mjs",
     "build:sky-spectrum": "node scripts/build-sky-spectrum.mjs",
+    "build:sky-points": "node scripts/build-sky-points.mjs",
     "poster": "node scripts/poster.mjs"
   },
   "dependencies": {
