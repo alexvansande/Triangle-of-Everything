@@ -57,12 +57,19 @@
   #selector .grip { position: absolute; top: 0; bottom: 0; width: 14px; cursor: ew-resize; }
   #selector .grip::after { content: ""; position: absolute; top: 18px; bottom: 18px; left: 5px; width: 4px; border-radius: 2px; background: #fff; }
   #selector .grip.r { left: -7px; } #selector .grip.b { right: -7px; }
-  #readout { display: flex; gap: 18px; flex-wrap: wrap; padding: 6px 0 4px; font: 11.5px/1.3 var(--mono); }
-  #readout .ch { min-width: 0; }
+  /* one fixed line per channel, so the readout never reflows the sky below it */
+  #readout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; height: 1.3em;
+    padding: 6px 0 4px; font: 11.5px/1.3 var(--mono); }
+  #readout .ch { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #readout b { font-weight: 600; }
 
-  #stage { flex: 1; min-height: 0; display: grid; place-items: center; padding: 6px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
-  #sky { max-width: 100%; max-height: 100%; aspect-ratio: 2 / 1; width: 100%; border-radius: 4px; background: #000; }
+  #stage { flex: 1; min-height: 0; position: relative; }
+  #sky { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+  #sky:active { cursor: grabbing; }
+  #views { position: absolute; top: 8px; right: max(16px, env(safe-area-inset-right, 0px)); display: flex; gap: 0; z-index: 1; }
+  #views button { border-radius: 0; }
+  #views button:first-child { border-radius: 6px 0 0 6px; } #views button:last-child { border-radius: 0 6px 6px 0; }
+  #views button[aria-pressed="true"] { background: var(--fg); color: var(--sky); }
   #status { color: var(--dim); font-size: 12px; }
   footer { padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); color: var(--dim); font-size: 11px; }
   @media (max-width: 700px) { header h1 { font-size: 24px; } .controls { margin-left: 0; } }
@@ -90,8 +97,13 @@
   </div>
   <div id="readout"></div>
 </div>
-<div id="stage"><canvas id="sky"></canvas></div>
-<footer>Galactic coordinates, Galactic Centre in the middle. Bands are evenly spaced on the bar, not to scale. Each band is normalised to its own brightness range.</footer>
+<div id="stage">
+  <canvas id="sky"></canvas>
+  <div id="views" role="group" aria-label="View">
+    <button data-mode="0" aria-pressed="true">Globe</button><button data-mode="1" aria-pressed="false">Inside</button><button data-mode="2" aria-pressed="false">Map</button>
+  </div>
+</div>
+<footer>Drag to turn, scroll or pinch to zoom. Galactic coordinates; the Map view has the Galactic Centre in the middle. Bands are evenly spaced on the bar, not to scale, each normalised to its own brightness range.</footer>
 
 <script>
 (async () => {
@@ -213,25 +225,55 @@
   const canvas = document.getElementById("sky");
   const gl = canvas.getContext("webgl2", { preserveDrawingBuffer: true });
   const P = meta.packs.length;
+  // Every pixel is ray-cast: Globe = the sky on a sphere seen from outside
+  // (orthographic), Inside = standing at the centre looking out (perspective),
+  // Map = the flat equirectangular image. All three end in a galactic
+  // direction → (l, b) → the shared map uv.
   const fs = `#version 300 es
     precision highp float;
-    in vec2 uv; out vec4 o;
+    out vec4 o;
     ${meta.packs.map((_, i) => `uniform sampler2D p${i};`).join("\n")}
     uniform float wR[${P * 3}], wG[${P * 3}], wB[${P * 3}];
-    uniform float gain, gam;
+    uniform float gain, gam, yaw, pitch, zoom, lod;
+    uniform vec2 res;
+    uniform int mode;
+    vec3 turn(vec3 v) {
+      float cp = cos(pitch), sp = sin(pitch), cy = cos(yaw), sy = sin(yaw);
+      v = vec3(v.x, cp * v.y - sp * v.z, sp * v.y + cp * v.z);
+      return vec3(cy * v.x + sy * v.z, v.y, -sy * v.x + cy * v.z);
+    }
+    // galactic direction → map uv (l grows to the left on the map, b = +90 at the top)
+    vec2 dirUV(vec3 n) {
+      float l = atan(-n.z, n.x), b = asin(clamp(n.y, -1.0, 1.0));
+      return vec2(fract(0.5 - l / 6.2831853), 0.5 - b / 3.1415927);
+    }
     void main() {
+      vec2 p = (gl_FragCoord.xy - 0.5 * res) / (0.5 * res.y);
+      vec2 uv;
+      float edge = 1.0;
+      if (mode == 2) {
+        float sc = min(res.x * 0.5, res.y) * zoom;
+        vec2 q = (gl_FragCoord.xy - 0.5 * res) / sc;
+        if (abs(q.x) > 1.0 || abs(q.y) > 0.5) { o = vec4(0.0, 0.0, 0.0, 1.0); return; }
+        uv = vec2(fract(0.5 + 0.5 * q.x - yaw), 0.5 - q.y); // yaw = sideways pan, in map widths
+      } else if (mode == 0) {
+        float d2 = dot(p, p) / (zoom * zoom);
+        if (d2 > 1.0) { o = vec4(vec3(0.05, 0.06, 0.1) * exp(-40.0 * (sqrt(d2) - 1.0)), 1.0); return; }
+        uv = dirUV(turn(vec3(p / zoom, sqrt(1.0 - d2))));
+        edge = smoothstep(1.0, 0.985, d2); // soft limb, no jagged edge
+      } else {
+        uv = dirUV(turn(normalize(vec3(p * zoom, -1.0))));
+      }
       vec3 col = vec3(0.0), t;
-      ${meta.packs.map((_, i) => `t = texture(p${i}, uv).rgb;
+      ${meta.packs.map((_, i) => `t = textureLod(p${i}, uv, lod).rgb;
       col += vec3(dot(t, vec3(wR[${3 * i}], wR[${3 * i + 1}], wR[${3 * i + 2}])),
                   dot(t, vec3(wG[${3 * i}], wG[${3 * i + 1}], wG[${3 * i + 2}])),
                   dot(t, vec3(wB[${3 * i}], wB[${3 * i + 1}], wB[${3 * i + 2}])));`).join("\n")}
-      o = vec4(pow(clamp(col * gain, 0.0, 1.0), vec3(gam)), 1.0);
+      o = vec4(pow(clamp(col * gain, 0.0, 1.0), vec3(gam)) * edge, 1.0);
     }`;
   const vs = `#version 300 es
-    out vec2 uv;
     void main() {
       vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);
-      uv = vec2(p.x, 1.0 - p.y); // p runs 0…1 across the screen (0…2 off it)
       gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);
     }`;
   const sh = (type, src) => {
@@ -269,25 +311,96 @@
 
   const exposure = document.getElementById("exposure"), contrast = document.getElementById("contrast");
   exposure.oninput = contrast.oninput = () => draw();
+
+  // ---------- view: Globe (0), Inside (1), Map (2) ----------
+  // yaw/pitch turn the sky; zoom is the globe's radius (in half-heights),
+  // the inside view's tan(fov/2), or the map's scale
+  const START = [{ yaw: Math.PI / 2, pitch: 0, zoom: 0.85 }, { yaw: -Math.PI / 2, pitch: 0, zoom: 1.0 }, { yaw: 0, pitch: 0, zoom: 1 }];
+  let mode = 0, view = { ...START[0] }, spin = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function setMode(m) {
+    mode = m;
+    view = { ...START[m] };
+    document.querySelectorAll("#views button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.mode == m));
+    draw();
+  }
+  document.querySelectorAll("#views button").forEach((b) => (b.onclick = () => setMode(+b.dataset.mode)));
+  const ZOOM = [[0.3, 8], [0.08, 2.5], [1, 8]];
+  function zoomBy(f) {
+    const [lo, hi] = ZOOM[mode];
+    // globe and map grow when zooming in; the inside view narrows its field
+    view.zoom = Math.max(lo, Math.min(hi, mode === 1 ? view.zoom / f : view.zoom * f));
+    draw();
+  }
+  canvas.addEventListener("wheel", (e) => { e.preventDefault(); zoomBy(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015))); }, { passive: false });
+  const pts = new Map();
+  let pinchD = 0;
+  canvas.addEventListener("pointerdown", (e) => { canvas.setPointerCapture(e.pointerId); pts.set(e.pointerId, e); spin = false; });
+  canvas.addEventListener("pointermove", (e) => {
+    const prev = pts.get(e.pointerId);
+    if (!prev) return;
+    pts.set(e.pointerId, e);
+    if (pts.size === 2) {
+      const [a, b] = [...pts.values()], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      if (pinchD) zoomBy(d / pinchD);
+      pinchD = d;
+      return;
+    }
+    const k = (mode === 1 ? 2 * view.zoom : 2 / view.zoom) / canvas.getBoundingClientRect().height;
+    const dx = (e.clientX - prev.clientX) * k, dy = (e.clientY - prev.clientY) * k;
+    if (mode === 2) {
+      // pan the flat map sideways (wraps round), in map widths
+      const rr = canvas.getBoundingClientRect();
+      view.yaw += (e.clientX - prev.clientX) / (2 * Math.min(rr.width / 2, rr.height) * view.zoom);
+    } else {
+      // drag moves the sky with the pointer
+      view.yaw += mode === 0 ? -dx : dx;
+      view.pitch = Math.max(-1.55, Math.min(1.55, view.pitch + (mode === 0 ? -dy : dy)));
+    }
+    draw();
+  });
+  const up = (e) => { pts.delete(e.pointerId); pinchD = 0; };
+  canvas.addEventListener("pointerup", up);
+  canvas.addEventListener("pointercancel", up);
+
   let ready = true;
+  const U = (n) => gl.getUniformLocation(prog, n);
   function draw() {
     if (!ready) return;
     const r = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
-    canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    const pad = (w) => { const a = new Float32Array(P * 3); a.set(w); return a; };
-    gl.uniform1fv(gl.getUniformLocation(prog, "wR"), pad(weights(c - s)));
-    gl.uniform1fv(gl.getUniformLocation(prog, "wG"), pad(weights(c)));
-    gl.uniform1fv(gl.getUniformLocation(prog, "wB"), pad(weights(c + s)));
-    gl.uniform1f(gl.getUniformLocation(prog, "gain"), +exposure.value);
-    gl.uniform1f(gl.getUniformLocation(prog, "gam"), +contrast.value);
+    const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    gl.viewport(0, 0, w, h);
+    const pad = (x) => { const a = new Float32Array(P * 3); a.set(x); return a; };
+    gl.uniform1fv(U("wR"), pad(weights(c - s)));
+    gl.uniform1fv(U("wG"), pad(weights(c)));
+    gl.uniform1fv(U("wB"), pad(weights(c + s)));
+    gl.uniform1f(U("gain"), +exposure.value);
+    gl.uniform1f(U("gam"), +contrast.value);
+    gl.uniform2f(U("res"), w, h);
+    gl.uniform1i(U("mode"), mode);
+    gl.uniform1f(U("yaw"), view.yaw);
+    gl.uniform1f(U("pitch"), view.pitch);
+    gl.uniform1f(U("zoom"), view.zoom);
+    // mip level from texels per screen pixel, so the sphere doesn't shimmer
+    const texPerRad = meta.width / (2 * Math.PI);
+    const pxPerRad = mode === 0 ? view.zoom * h / 2 : mode === 1 ? h / 2 / view.zoom : Math.min(w / 2, h) * view.zoom / Math.PI;
+    gl.uniform1f(U("lod"), Math.max(0, Math.log2(texPerRad / pxPerRad)));
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
+  let last = performance.now();
+  (function tick(now) {
+    const dt = (now - last) / 1000; last = now;
+    if (spin && mode === 0) { view.yaw += dt * 0.08; draw(); }
+    requestAnimationFrame(tick);
+  })(last);
   addEventListener("resize", layout);
-  // ?c=<band index>&s=<half-span> start somewhere else on the spectrum
+  // ?c=<band index>&s=<half-span> start somewhere else on the spectrum; ?view=globe|inside|map
   const q = new URLSearchParams(location.search);
   if (q.has("c")) c = +q.get("c");
   if (q.has("s")) s = +q.get("s");
+  const VIEWS = { globe: 0, inside: 1, map: 2 };
+  if (q.get("view") in VIEWS) setMode(VIEWS[q.get("view")]);
+  if (q.has("still")) spin = false;
   clamp();
   layout();
   window.__stillDone = true;
