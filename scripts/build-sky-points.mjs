@@ -14,7 +14,8 @@
 // Because every Gaia bin holds about the same number of stars, the cloud
 // shows where stars are, not how many: near bins are thinned far more.
 //
-// Output: tools/sky-points/points.bin (packed arrays) + points.json.
+// Output: tools/sky-points/points.txt (packed arrays, base64 so any static
+// host serves it) + points.json.
 // =============================================================
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
@@ -195,7 +196,7 @@ pts.forEach((p, i) => {
 });
 const parts = [dirA, logA, auxA, typeA];
 const buf = Buffer.concat(parts.map((a) => Buffer.from(a.buffer)));
-writeFileSync(join(OUT, "points.bin"), buf);
+writeFileSync(join(OUT, "points.txt"), buf.toString("base64"));
 let o = 0;
 const layout = parts.map((a) => { const r = { offset: o, length: a.length }; o += a.byteLength; return r; });
 writeFileSync(join(OUT, "points.json"), JSON.stringify({

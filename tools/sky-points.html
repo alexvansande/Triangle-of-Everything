@@ -8,7 +8,7 @@
   Every object with a measured distance as one dot, in its true direction,
   at a radius set by the log of its distance: Hipparcos and Gaia stars,
   2MRS galaxies, Quaia quasars, the CMB as a faint outer sphere.
-  Build the points first:  npm run build:sky-points
+  Build the points first:  npm run build:sky-points  (points.txt + points.json)
   Then:  npm run dev  →  http://localhost:5173/tools/sky-points.html
   The distance bar's window picks a range: dots inside light up, coloured
   across the window (near = violet, far = red); the rest fade to ghosts.
@@ -97,7 +97,9 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 const STILL = new URLSearchParams(location.search).has("still");
 const meta = await (await fetch("./sky-points/points.json")).json();
-const raw = await (await fetch("./sky-points/points.bin")).arrayBuffer();
+// packed arrays, base64 text so any static host serves them
+const b64 = await (await fetch("./sky-points/points.txt")).text();
+const raw = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer;
 const N = meta.count;
 const dirs = new Int16Array(raw, meta.dir.offset, meta.dir.length);
 const logs = new Uint16Array(raw, meta.logd.offset, meta.logd.length);
