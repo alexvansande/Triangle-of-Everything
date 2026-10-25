@@ -16,9 +16,10 @@
   Sky only: a distance window drops every band's light whose depth (where
   along the line of sight it comes from) falls outside it, in every view.
   Inside also shows Earth at the centre, in the same bands, the sky behind it.
-  In the Cloud, microwave light is split: the CMB (Planck's component-separated
-  map, which carries on behind the disc) sits at 46 Gly, the dust and
-  synchrotron share at Galactic depth, so the CMB shell is whole.
+  In the Cloud, microwave and X-ray light is split into a background that
+  carries on behind the disc — the CMB (Planck's component-separated map) at
+  46 Gly, the cosmic X-ray background (uniform, dimmed by the Galaxy's gas) at
+  z ≈ 1 — and everything in front at its own depth.
   Zooming out past Inside's widest view hands over to the Cloud (log scale,
   Earth at the centre, same size, same side); zooming in on Earth returns.
   Then:  npm run dev  →  http://localhost:5173/tools/sky-spectrum.html
@@ -413,14 +414,17 @@
       uniform float wR[${P * 3}], wG[${P * 3}], wB[${P * 3}];
       uniform int kind[${P * 3}];
       uniform float dLo, dHi, lonSign;
+      uniform float bgLevel[${P * 3}], bgSigma[${P * 3}]; // X-ray background per band (0 for others)
       uniform bool useDepth;
       vec2 dirUV(vec3 n) {
         float l = atan(-n.z, n.x), b = asin(clamp(n.y, -1.0, 1.0));
         return vec2(fract(0.5 + lonSign * l / 6.2831853), 0.5 - b / 3.1415927);
       }
       // layer: -1 everything (flat views); in the Cloud, 0 is every band's own
-      // light with the microwave bands' CMB share taken out, 1 is the CMB alone
-      // (Planck's component-separated map, which carries on behind the disc)
+      // light with its background taken out, 1 is the background alone, which
+      // carries on behind the disc: for microwave the CMB (Planck's
+      // component-separated map, 46 Gly), for X-ray the cosmic X-ray background
+      // (uniform, dimmed by the Galaxy's gas, at z ≈ 1)
       void bands(vec2 uv, float lod, int layer, out vec3 col, out float L, out float kept) {
         float v[${P * 3}];
         vec3 t;
@@ -436,6 +440,7 @@
         // how much of a microwave band is foreground (bright dust or synchrotron)
         float fg3 = smoothstep(0.35, 0.75, v[${I857}]), fg4 = smoothstep(0.3, 0.65, v[${I408}]);
         float cmbV = layer == 1 && useDepth ? textureLod(cmbMap, uv, 0.0).r : 0.0;
+        float sinB = abs(cos(3.1415927 * uv.y)), nH = min(3e20 / max(sinB, 1e-3), 5e22);
         if (useDepth && layer < 0) {
           depth[3] = mix(10.66, depth[1], fg3);
           depth[4] = mix(10.66, depth[2], fg4);
@@ -446,11 +451,13 @@
         col = vec3(0.0); L = 0.0; kept = 0.0;
         for (int k = 0; k < ${P * 3}; k++) {
           int kd = kind[k];
-          bool cmbKind = kd == 3 || kd == 4;
-          if (layer == 1 && !cmbKind) continue;
-          if (layer == 1) v[k] = cmbV;
+          bool cmbKind = kd == 3 || kd == 4, cxbKind = bgLevel[k] > 0.0;
+          float cxb = cxbKind ? bgLevel[k] * exp(-nH * bgSigma[k]) : 0.0;
+          if (layer == 1 && !cmbKind && !cxbKind) continue;
+          if (layer == 1) v[k] = cmbKind ? cmbV : cxb;
           else if (layer == 0 && cmbKind) v[k] *= kd == 3 ? fg3 : fg4;
-          float d = depth[kd];
+          else if (layer == 0 && cxbKind) v[k] = max(v[k] - cxb, 0.0);
+          float d = layer == 1 && cxbKind ? 10.03 : depth[kd];
           float m = useDepth ? step(dLo, d) * step(d, dHi) : 1.0;
           vec3 w = vec3(wR[k], wG[k], wB[k]) * v[k] * m;
           col += w;
@@ -674,6 +681,8 @@
       ...(hasDepth ? OBJ.flatMap((ob, oi) => ob.meta.packs.map((f, i) => loadTex(`./${ob.dir}/${f}`, P + 4 + OBJ_PACKS * oi + i, true))) : []),
     ]);
     if (session.signal.aborted) return;
+    const BG_LEVEL = new Float32Array(P * 3), BG_SIGMA = new Float32Array(P * 3);
+    B.forEach((b, k) => { const bg = meta.background?.[b.id]; if (bg) { BG_LEVEL[k] = bg.level; BG_SIGMA[k] = bg.sigma; } });
     const kinds = new Int32Array(P * 3).fill(5);
     kinds.set(KINDS);
     progs.forEach((p) => {
@@ -683,6 +692,8 @@
       gl.uniform1i(gl.getUniformLocation(p, "sourceMap"), hasDepth && meta.sourceDepth ? P + 1 : 0);
       gl.uniform1i(gl.getUniformLocation(p, "radioMap"), hasDepth && meta.radioDepth ? P + 2 : 0);
       gl.uniform1i(gl.getUniformLocation(p, "cmbMap"), hasDepth && meta.cmb ? P + 3 : 0);
+      gl.uniform1fv(gl.getUniformLocation(p, "bgLevel"), BG_LEVEL);
+      gl.uniform1fv(gl.getUniformLocation(p, "bgSigma"), BG_SIGMA);
       gl.uniform1iv(gl.getUniformLocation(p, "kind"), kinds);
     });
     [earthGlobe, sunDisc].forEach((p, oi) => {
@@ -1024,11 +1035,11 @@
         gl.uniform1f(U("size"), Math.min(6 * dpr, Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom))));
         gl.uniform1f(U("spinA"), spinA);
         gl.uniform1i(U("rmode"), rmode);
-        // CMB points in proportion to the selector's weight on CMB-carrying
-        // bands (at most half, so the foreground keeps enough points)
+        // background points in proportion to the selector's weight on bands
+        // with a background (at most half, so the foreground keeps enough points)
         const wsum = (k) => weights(c - s)[k] + weights(c)[k] + weights(c + s)[k];
         let wc = 0, wall = 0;
-        KINDS.forEach((kd, k) => { const x = wsum(k); wall += x; if (kd === 3 || kd === 4) wc += x; });
+        KINDS.forEach((kd, k) => { const x = wsum(k); wall += x; if (kd === 3 || kd === 4 || BG_LEVEL[k] > 0) wc += x; });
         gl.uniform1f(U("pCmb"), meta.cmb && wall > 0 ? 0.5 * wc / wall : 0);
         gl.uniform1f(U("lu"), +unit.value);
         gl.uniform1f(U("lz"), lz);

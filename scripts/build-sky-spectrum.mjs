@@ -327,6 +327,25 @@ for (let p = 0; p * 3 < BANDS.length; p++) {
   console.log("cmb.png: Planck SMICA CMB");
 }
 
+// ---------- the cosmic X-ray background ----------
+// Nearly uniform, so modelled as each X-ray band's level away from the plane
+// (median over |b| > 30°, in the band's own 0…1 scale); the page dims it by a
+// gas column toward the plane, N_H ≈ min(3e20 / |sin b|, 5e22) cm⁻², with a
+// cross-section per band for its typical energy (photoelectric absorption:
+// ~2 keV for MAXI SSC, ~6 keV for MAXI GSC).
+const CXB_SIGMA = { xsoft: 5e-23, xhard: 2.5e-24 };
+const background = {};
+for (const [id, sigma] of Object.entries(CXB_SIGMA)) {
+  const g = grey[BANDS.findIndex((b) => b.id === id)], hi = [];
+  for (let y = 0; y < H; y++) {
+    if (Math.abs(90 - ((y + 0.5) / H) * 180) < 30) continue;
+    for (let x = 0; x < W; x += 3) hi.push(g[y * W + x]);
+  }
+  hi.sort((a, b) => a - b);
+  background[id] = { level: +(hi[hi.length >> 1] / 255).toFixed(4), sigma };
+}
+console.log("CXB levels:", JSON.stringify(background));
+
 // ---------- depth: where along the line of sight each band's light comes from ----------
 // depth.png (512×256, same galactic grid) holds log10(distance in ly) / 11 × 255:
 //   R  starlight — Gaia stars' G-flux-weighted mean log distance per sky cell
@@ -526,7 +545,7 @@ const radioPix = withSrc.filter((v, i) => (v - noSrc[i]) / v >= RADIO_OWN).lengt
 console.log(`radio-sources.png: ${owned} of the ${radioPix} pixels where radio galaxies give a third of the light or more, placed by catalogue`);
 
 writeFileSync(join(OUT, "bands.json"), JSON.stringify({
-  width: W, height: H, packs, depth: "depth.png", sourceDepth: "sources.png", radioDepth: "radio-sources.png", cmb: "cmb.png", depthScale: 11, sources: sourceNote,
+  width: W, height: H, packs, depth: "depth.png", sourceDepth: "sources.png", radioDepth: "radio-sources.png", cmb: "cmb.png", background, depthScale: 11, sources: sourceNote,
   depthKinds: Object.keys(DEPTH_KIND),
   bands: BANDS.map(({ id, name, wave, what, source, empty }, i) =>
     ({ id, name, wave, what, source, empty: !!empty, pack: Math.floor(i / 3), channel: i % 3, depth: DEPTH_KIND[depthOf(id)] })),
