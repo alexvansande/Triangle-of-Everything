@@ -170,7 +170,7 @@
     sun: { dir: "sun-spectrum", title: "Sun Spectrum", views: ["Disc"], wrap: false,
       foot: "18 December 2015, 02:44 UTC · Nobeyama 17 GHz, ALMA 1.25 mm, SDO HMI and AIA · solar north up. Scroll or pinch to zoom, drag to pan." },
     earth: { dir: "earth-spectrum", title: "Earth Spectrum", views: ["Globe", "Map"], wrap: true, lonSign: 1,
-      foot: "15 June 2024 · MODIS Terra, GPM GMI, OMI; city lights from 2012. One day of polar orbits: black wedges are gaps between passes, the far south is in polar night." },
+      foot: "15 June 2024 · MODIS Terra, GPM GMI, OMI; city lights from 2012. Gaps between orbits are filled from 12–18 June, anything still missing is smoothed in from around it (GMI stops at ±68° latitude); the far south is in polar night." },
   };
   // fallback region rules for the sky's bands.json, which predates "region"
   const SKY_REGIONS = [
@@ -263,17 +263,21 @@
         const m = b.wave.replace(/~/g, "").match(/([\d.]+)(?:\s*–\s*([\d.]+))?\s*(fm|nm|µm|mm|cm|m)\b/);
         return [+m[1] * UNIT_M[m[3]], +(m[2] ?? m[1]) * UNIT_M[m[3]]];
       })();
-      return [barPos(Math.max(x, y)), barPos(Math.min(x, y))];
+      // and, like the sky's own bands, fully the slot it falls in
+      const a = barPos(Math.max(x, y)), b = barPos(Math.min(x, y)), slot = Math.round((a + b) / 2);
+      return [Math.min(a, slot - 0.3), Math.max(b, slot + 0.3)];
     }
     // selector weights for those bands: the channel's response at the nearest
     // point of each band's span, a little narrower than the sky's so that
     // neighbouring bands don't bleed in; where several crowd under one
-    // channel they share it
-    function objWeights(spans, p) {
-      const so = 0.6 * sigma();
+    // channel they share it — within their group: bands that never show at
+    // the same time (Earth's night lights and its daylight bands) don't share
+    function objWeights(spans, p, groups = []) {
+      const so = 0.45 * sigma();
       const g = spans.map(([a, b]) => { const d = p < a ? a - p : p > b ? p - b : 0; return Math.exp(-(d * d) / (2 * so * so)); });
-      const sum = g.reduce((a, b) => a + b, 0);
-      return g.map((x) => (sum > 1 ? x / sum : x));
+      const sum = {}; // only bands well inside the channel crowd it; faint tails just add
+      g.forEach((x, i) => (sum[groups[i] ?? 0] = (sum[groups[i] ?? 0] ?? 0) + (x > 0.5 ? x : 0)));
+      return g.map((x, i) => { const t = sum[groups[i] ?? 0]; return t > 1 ? x / t : x; });
     }
     const sel = document.getElementById("selector"), curves = document.getElementById("curves");
     const slotW = () => slots.getBoundingClientRect().width / N;
@@ -520,9 +524,9 @@
     // spectrum bar at its own wavelength (interpolated in log wavelength between
     // the sky's bands) and takes the selector's weight there.
     //   Earth (unit below Earth's radius): a ray-cast globe from the Earth
-    //   target's bands, with NASA Blue Marble for red, green and blue (no orbit
-    //   gaps); axis to the celestial pole, turned and sunlit for the moment the
-    //   page opened: reflected bands go dark at night, city lights only show there.
+    //   target's bands; axis to the celestial pole, turned and sunlit for the
+    //   moment the page opened: reflected bands go dark at night, city lights
+    //   only show there.
     //   Sun (unit between Earth's and the Sun's radius): the Sun target's
     //   images as a flat disc facing the camera, solar north up.
     const OBJ_MAX = 12;
@@ -560,7 +564,6 @@
       uniform vec3 sunEq;
       uniform float rE, spinA, gmst, elod;
       uniform int lit[${OBJ_MAX}];  // 0 emitted, 1 reflected sunlight, 2 night only
-      uniform sampler2D marble;
       void main() {
         vec3 ro, rd = ray(ro);
         float bq = dot(ro, rd), h = bq * bq - dot(ro, ro) + rE * rE;
@@ -575,8 +578,6 @@
         vec2 uv = vec2(fract(lon / 6.2831853 + 0.5), 0.5 - lat / 3.1415927);
         float vals[${OBJ_MAX}], shade[${OBJ_MAX}];
         objBands(uv, elod, vals);
-        vec3 bm = textureLod(marble, uv, elod).rgb;
-        vals[6] = bm.r; vals[7] = bm.g; vals[8] = bm.b;                // Blue Marble for the visible bands
         float day = smoothstep(-0.1, 0.15, dot(v, sunEq));
         for (int k = 0; k < ${OBJ_MAX}; k++) shade[k] = lit[k] == 1 ? mix(0.06, 1.0, day) : lit[k] == 2 ? 1.0 - day : 1.0;
         o = vec4(mixBands(vals, shade), 1.0);
@@ -646,7 +647,6 @@
       hasDepth ? loadTex(`./${T.dir}/${meta.depth}`, P, false) : Promise.resolve(),
       hasDepth && meta.sourceDepth ? loadTex(`./${T.dir}/${meta.sourceDepth}`, P + 1, false, true) : Promise.resolve(),
       hasDepth && meta.radioDepth ? loadTex(`./${T.dir}/${meta.radioDepth}`, P + 2, false, true) : Promise.resolve(),
-      hasDepth ? loadTex("./earth-spectrum/globe.jpg", P + 3, true) : Promise.resolve(),
       ...(hasDepth ? OBJ.flatMap((ob, oi) => ob.meta.packs.map((f, i) => loadTex(`./${ob.dir}/${f}`, P + 4 + 4 * oi + i, true))) : []),
     ]);
     if (session.signal.aborted) return;
@@ -664,7 +664,6 @@
       if (!p) return;
       gl.useProgram(p);
       for (let i = 0; i < 4; i++) gl.uniform1i(gl.getUniformLocation(p, `o${i}`), P + 4 + 4 * oi + i);
-      if (p === earthGlobe) gl.uniform1i(gl.getUniformLocation(p, "marble"), P + 3);
     });
     status.textContent = `${N} bands`;
 
@@ -918,10 +917,12 @@
           gl.useProgram(p);
           const E = (n) => gl.getUniformLocation(p, n);
           const pos = ob.spans ??= ob.meta.bands.map(barSpan);
+          const LIT = { gmi: 0, t11: 0, lights: 2 }, lit = ob.meta.bands.map((b) => (centre === 0 ? LIT[b.id] ?? 1 : 0));
+          const groups = lit.map((l) => (l === 2 ? 1 : 0));
           const pad = (x) => { const a = new Float32Array(OBJ_MAX); a.set(x); return a; };
-          gl.uniform1fv(E("oR"), pad(objWeights(pos, c - s)));
-          gl.uniform1fv(E("oG"), pad(objWeights(pos, c)));
-          gl.uniform1fv(E("oB"), pad(objWeights(pos, c + s)));
+          gl.uniform1fv(E("oR"), pad(objWeights(pos, c - s, groups)));
+          gl.uniform1fv(E("oG"), pad(objWeights(pos, c, groups)));
+          gl.uniform1fv(E("oB"), pad(objWeights(pos, c + s, groups)));
           gl.uniform1f(E("gain"), +exposure.value); gl.uniform1f(E("gam"), +contrast.value);
           gl.uniformMatrix4fv(E("viewProj"), false, VP);
           gl.uniform2f(E("res"), w, h);
@@ -932,8 +933,7 @@
             gl.uniform3fv(E("sunEq"), SKY_NOW.sun);
             gl.uniform1f(E("rE"), rO); gl.uniform1f(E("spinA"), spinA); gl.uniform1f(E("gmst"), SKY_NOW.gmst);
             gl.uniform1f(E("elod"), Math.max(0, Math.log2(2048 / Math.max(1, 3 * px))));
-            const LIT = { gmi: 0, t11: 0, lights: 2 };
-            gl.uniform1iv(E("lit"), Int32Array.from({ length: OBJ_MAX }, (_, k) => ob.meta.bands[k] ? LIT[ob.meta.bands[k].id] ?? 1 : 0));
+            gl.uniform1iv(E("lit"), Int32Array.from({ length: OBJ_MAX }, (_, k) => lit[k] ?? 0));
           } else {
             gl.uniform3fv(E("camR"), CAM.r); gl.uniform3fv(E("camU"), CAM.u); gl.uniform3fv(E("camF"), CAM.f);
             gl.uniform1f(E("rS"), rO);

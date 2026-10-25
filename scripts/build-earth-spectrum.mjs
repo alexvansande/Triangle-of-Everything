@@ -16,7 +16,10 @@
 //   - VIIRS city lights (2012 composite; its dark-blue landscape is removed
 //     by keeping only how much redder than blue each pixel is) and the GPM GMI
 //     microwave composite (89–166 GHz, read as its brightness).
-// Gaps (between orbits, polar night, swath edges) stay black.
+// Gaps between orbits are filled from the same layer on the nearest other
+// day within three days either side (12–18 June), then anything still empty
+// is filled in smoothly from around it. The polar night (no sunlight all day)
+// stays black in the bands that are reflected sunlight.
 // =============================================================
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
@@ -84,10 +87,11 @@ async function unpalette(path, colormapUrl, cacheName) {
   for (const m of xml.matchAll(/<ColorMapEntry rgb="(\d+),(\d+),(\d+)"[^>]*?(?:nodata="true"[^>]*)?\/>/g)) {
     const entry = m[0];
     if (/nodata="true"/.test(entry)) continue;
-    const val = entry.match(/ value="[\[(]?(-?[\d.]+)(?:,(-?[\d.]+|INF))?/);
+    const val = entry.match(/ value="[\[(]?(-?[\d.]+|-INF)(?:,(-?[\d.]+|INF))?/);
     if (!val) continue;
-    const lo = +val[1], hi = val[2] && val[2] !== "INF" ? +val[2] : lo;
-    table.set((+m[1] << 16) | (+m[2] << 8) | +m[3], (lo + hi) / 2);
+    // open-ended classes ("[-INF,0.5)", "[40,INF)") take their finite end
+    const lo = val[1] === "-INF" ? NaN : +val[1], hi = val[2] && val[2] !== "INF" ? +val[2] : lo;
+    table.set((+m[1] << 16) | (+m[2] << 8) | +m[3], Number.isNaN(lo) ? hi : (lo + hi) / 2);
   }
   const d = await rgba(path), v = new Float32Array(W * H).fill(NaN);
   for (let i = 0; i < W * H; i++) {
@@ -100,12 +104,84 @@ async function unpalette(path, colormapUrl, cacheName) {
   return v;
 }
 
-const TRUE = await gibs("MODIS_Terra_CorrectedReflectance_TrueColor"); // R b1 645, G b4 555, B b3 469
-const B721 = await gibs("MODIS_Terra_CorrectedReflectance_Bands721"); // R b7 2.13 µm, G b2 858, B b1
-const B367 = await gibs("MODIS_Terra_CorrectedReflectance_Bands367"); // R b3, G b6 1.64 µm, B b7
-const T31 = await gibs("MODIS_Terra_Brightness_Temp_Band31_Day");
-const GMI = await gibs("GMI_Brightness_Temp_Asc");
-const UVAI = await gibs("OMI_UV_Aerosol_Index");
+// one band from a daily layer: the main date first, then each gap from the
+// nearest other day that has it
+const OFFSETS = [0, -1, 1, -2, 2, -3, 3];
+const dayOf = (off) => new Date(Date.parse(DATE) + off * 864e5).toISOString().slice(0, 10);
+// swath edges are dark but not empty: shave EDGE pixels off every gap
+const EDGE = 2;
+function widenGaps(v) {
+  const gap = v.map(Number.isNaN);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (!gap[y * W + x]) continue;
+    for (let dy = -EDGE; dy <= EDGE; dy++) for (let dx = -EDGE; dx <= EDGE; dx++) {
+      const yy = y + dy;
+      if (yy >= 0 && yy < H) v[yy * W + ((x + dx + W) % W)] = NaN;
+    }
+  }
+  return v;
+}
+async function daily(layer, read) {
+  let v = null;
+  for (const off of OFFSETS) {
+    const vals = widenGaps(await read(await gibs(layer, dayOf(off))));
+    if (!v) { v = vals; continue; }
+    for (let i = 0; i < v.length; i++) if (Number.isNaN(v[i])) v[i] = vals[i];
+  }
+  return v;
+}
+const gapShare = (v) => v.reduce((n, x) => n + Number.isNaN(x), 0) / v.length;
+
+// no sunlight all day: noon Sun below the horizon, for every day used
+// (declination at least 23.0° in mid-June, so south of −67°)
+const POLAR_NIGHT_LAT = -67;
+function polarNight(v) {
+  for (let y = 0; y < H; y++) {
+    if (90 - ((y + 0.5) / H) * 180 > POLAR_NIGHT_LAT) continue;
+    for (let x = 0; x < W; x++) v[y * W + x] = 0;
+  }
+  return v;
+}
+// fill what is still empty from around it: average down a pyramid (ignoring
+// empty pixels) until nothing is empty, then bring the coarse values back up
+// into the holes only; longitude wraps
+function inpaint(v, w = W, h = H) {
+  if (!v.some(Number.isNaN) || w < 2 || h < 2) return v;
+  const cw = w >> 1, ch = h >> 1, coarse = new Float32Array(cw * ch);
+  for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) {
+    let sum = 0, n = 0;
+    for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+      const val = v[(2 * y + dy) * w + 2 * x + dx];
+      if (!Number.isNaN(val)) { sum += val; n++; }
+    }
+    coarse[y * cw + x] = n ? sum / n : NaN;
+  }
+  inpaint(coarse, cw, ch);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (!Number.isNaN(v[y * w + x])) continue;
+    // bilinear from the coarse level, wrapping in longitude
+    const fx = (x + 0.5) / 2 - 0.5, fy = Math.min(ch - 1, Math.max(0, (y + 0.5) / 2 - 0.5));
+    const x0 = Math.floor(fx), y0 = Math.floor(fy), tx = fx - x0, ty = fy - y0, y1 = Math.min(ch - 1, y0 + 1);
+    const at = (xx, yy) => coarse[yy * cw + ((xx % cw) + cw) % cw];
+    v[y * w + x] = (at(x0, y0) * (1 - tx) + at(x0 + 1, y0) * tx) * (1 - ty) + (at(x0, y1) * (1 - tx) + at(x0 + 1, y1) * tx) * ty;
+  }
+  return v;
+}
+// a daily band, gap-filled: reflected bands keep the polar night black
+async function band(layer, read, reflected) {
+  const v = await daily(layer, read), before = gapShare(await read(await gibs(layer, DATE)));
+  const after = gapShare(v);
+  if (reflected) polarNight(v);
+  inpaint(v);
+  console.log(`  ${layer}: ${(100 * before).toFixed(1)}% empty on ${DATE}, ${(100 * after).toFixed(1)}% after ±3 days, rest inpainted`);
+  return v;
+}
+const TRUE = "MODIS_Terra_CorrectedReflectance_TrueColor"; // R b1 645, G b4 555, B b3 469
+const B721 = "MODIS_Terra_CorrectedReflectance_Bands721"; // R b7 2.13 µm, G b2 858, B b1
+const B367 = "MODIS_Terra_CorrectedReflectance_Bands367"; // R b3, G b6 1.64 µm, B b7
+const T31 = "MODIS_Terra_Brightness_Temp_Band31_Day";
+const GMI = "GMI_Brightness_Temp_Asc";
+const UVAI = "OMI_UV_Aerosol_Index";
 const LIGHTS = await gibs("VIIRS_CityLights_2012", null);
 // lights are yellow-white, the landscape behind them blue: keep red minus blue
 async function lightsOnly(path) {
@@ -115,30 +191,27 @@ async function lightsOnly(path) {
 }
 const CM = "https://gibs.earthdata.nasa.gov/colormaps/v1.3";
 
-const MODIS = "MODIS Terra corrected reflectance, " + DATE;
+const FILLED = ` (gaps from ${dayOf(-3)} to ${dayOf(3)})`;
+const MODIS = `MODIS Terra corrected reflectance, ${DATE}${FILLED}`;
+const t31Read = (path) => unpalette(path, `${CM}/MODIS_Brightness_Temp_Band31.xml`, "t31-colormap.xml");
+const uvaiRead = (path) => unpalette(path, `${CM}/OMI_UV_Aerosol_Index.xml`, "uvai-colormap.xml");
 const BANDS = [
-  { id: "gmi", name: "Microwave 89–166 GHz", wave: "2–3 mm", what: "rain, ice clouds, sea ice (GMI colour composite, read as brightness)", source: `GPM GMI, ${DATE}`, region: "Microwave", vals: await luminance(GMI), stretch: "lin" },
-  { id: "t11", name: "Thermal 11 µm", wave: "11 µm", what: "heat: warm ground bright, cold cloud tops dark", source: `MODIS Terra band 31, ${DATE}`, region: "Thermal IR", vals: await unpalette(T31, `${CM}/MODIS_Brightness_Temp_Band31.xml`, "t31-colormap.xml"), stretch: "lin" },
-  { id: "b7", name: "SWIR 2.13 µm", wave: "2.13 µm", what: "dry land bright, water and ice dark", source: MODIS, region: "Near-IR", vals: await channel(B721, 0), stretch: "lin" },
-  { id: "b6", name: "SWIR 1.64 µm", wave: "1.64 µm", what: "snow and ice dark, water clouds bright", source: MODIS, region: "Near-IR", vals: await channel(B367, 1), stretch: "lin" },
-  { id: "b2", name: "Near-IR 858 nm", wave: "858 nm", what: "plants bright, water black", source: MODIS, region: "Near-IR", vals: await channel(B721, 1), stretch: "lin" },
+  { id: "gmi", name: "Microwave 89–166 GHz", wave: "2–3 mm", what: "rain, ice clouds, sea ice (GMI colour composite, read as brightness)", source: `GPM GMI, ${DATE}${FILLED}`, region: "Microwave", vals: await band(GMI, luminance, false), stretch: "lin" },
+  { id: "t11", name: "Thermal 11 µm", wave: "11 µm", what: "heat: warm ground bright, cold cloud tops dark", source: `MODIS Terra band 31, ${DATE}${FILLED}`, region: "Thermal IR", vals: await band(T31, t31Read, false), stretch: "lin" },
+  { id: "b7", name: "SWIR 2.13 µm", wave: "2.13 µm", what: "dry land bright, water and ice dark", source: MODIS, region: "Near-IR", vals: await band(B721, (p) => channel(p, 0), true), stretch: "lin" },
+  { id: "b6", name: "SWIR 1.64 µm", wave: "1.64 µm", what: "snow and ice dark, water clouds bright", source: MODIS, region: "Near-IR", vals: await band(B367, (p) => channel(p, 1), true), stretch: "lin" },
+  { id: "b2", name: "Near-IR 858 nm", wave: "858 nm", what: "plants bright, water black", source: MODIS, region: "Near-IR", vals: await band(B721, (p) => channel(p, 1), true), stretch: "lin" },
   { id: "lights", name: "Night lights", wave: "500–900 nm", what: "cities, fires and gas flares at night (2012 composite)", source: "VIIRS city lights", region: "Visible", vals: await lightsOnly(LIGHTS), stretch: "lin", hi: 0.9995 },
-  { id: "b1", name: "Red 645 nm", wave: "645 nm", what: "red light", source: MODIS, region: "Visible", vals: await channel(TRUE, 0), stretch: "lin" },
-  { id: "b4", name: "Green 555 nm", wave: "555 nm", what: "green light", source: MODIS, region: "Visible", vals: await channel(TRUE, 1), stretch: "lin" },
-  { id: "b3", name: "Blue 469 nm", wave: "469 nm", what: "blue light, scattered by air", source: MODIS, region: "Visible", vals: await channel(TRUE, 2), stretch: "lin" },
-  { id: "uvai", name: "UV aerosol index", wave: "354–388 nm", what: "smoke and dust absorbing ultraviolet", source: `OMI, ${DATE}`, region: "UV", vals: await unpalette(UVAI, `${CM}/OMI_UV_Aerosol_Index.xml`, "uvai-colormap.xml"), stretch: "lin" },
+  { id: "b1", name: "Red 645 nm", wave: "645 nm", what: "red light", source: MODIS, region: "Visible", vals: await band(TRUE, (p) => channel(p, 0), true), stretch: "lin" },
+  { id: "b4", name: "Green 555 nm", wave: "555 nm", what: "green light", source: MODIS, region: "Visible", vals: await band(TRUE, (p) => channel(p, 1), true), stretch: "lin" },
+  { id: "b3", name: "Blue 469 nm", wave: "469 nm", what: "blue light, scattered by air", source: MODIS, region: "Visible", vals: await band(TRUE, (p) => channel(p, 2), true), stretch: "lin" },
+  { id: "uvai", name: "UV aerosol index", wave: "354–388 nm", what: "smoke and dust absorbing ultraviolet", source: `OMI, ${DATE}${FILLED}`, region: "UV", vals: await band(UVAI, uvaiRead, true), stretch: "lin" },
 ];
 for (const b of BANDS) {
   b.grey = normalise(b.vals, b.stretch, 0.01, b.hi ?? 0.998);
   await sharp(Buffer.from(b.grey), { raw: { width: W, height: H, channels: 1 } }).resize(512, 256).png().toFile(join(CACHE, `${b.id}-preview.png`));
   console.log(`  ✓ ${b.id}`);
 }
-// a gap-free natural-colour Earth (Blue Marble: Next Generation, cloud-free
-// monthly mosaics) for the globe at the centre of the Sky Spectrum's Cloud
-await sharp(await download("https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?" + new URLSearchParams({
-  SERVICE: "WMS", REQUEST: "GetMap", VERSION: "1.3.0", LAYERS: "BlueMarble_NextGeneration", CRS: "EPSG:4326",
-  BBOX: "-90,-180,90,180", WIDTH: W, HEIGHT: H, FORMAT: "image/jpeg",
-}), "blue-marble.jpg")).jpeg({ quality: 85 }).toFile(join(OUT, "globe.jpg"));
 const packs = await writePacks(OUT, W, H, BANDS, {
   target: "earth", date: DATE, start: { c: BANDS.findIndex((b) => b.id === "b4"), s: 1 },
   frame: "Longitude −180° to 180°, north up",
