@@ -93,7 +93,15 @@ class Source:
                     keep = int(maxp * SR) // 2; out.append(x[last:k * f + keep]); last = j * f - keep
                 k = j
             else: k += 1
-        out.append(x[last:]); return np.concatenate(out)
+        out.append(x[last:])
+        # fade each join (10 ms out, 10 ms in, inside the kept quiet): a raw splice leaves a
+        # step in the waveform, a tick that the 1.1× stretch smears into a garble
+        r = int(0.01 * SR); ramp = np.linspace(1, 0, r, dtype=np.float32)
+        for i in range(len(out) - 1):
+            if len(out[i]) > r and len(out[i + 1]) > r:
+                out[i] = out[i].copy(); out[i][-r:] *= ramp
+                out[i + 1] = out[i + 1].copy(); out[i + 1][:r] *= ramp[::-1]
+        return np.concatenate(out)
 
 def tempo(x, SR, factor):
     import subprocess

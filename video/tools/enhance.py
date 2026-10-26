@@ -51,10 +51,18 @@ def room_ir(seed):
 
 def main(src, out, plain=False):
     if plain:
-        # "plain" (--plain): only a high-pass and loudness, no EQ, denoiser, compressor or
+        # "plain" (--plain): only a high-pass and level, no EQ, denoiser, compressor or
         # room. The author's pick for the quiet, clean Boya takes of 2026-10-21 (treatment
         # "D" of that day's A/B): the full chain sounded boxy on them.
-        ff("-i", src, "-af", "highpass=f=80:poles=2,loudnorm=I=-16:TP=-1.5", "-ar", str(SR), "-c:a", "pcm_s24le", out + ".wav")
+        # The level is one fixed gain to −16 LUFS, then a look-ahead limiter for the peaks
+        # (2026-10-26): one-pass loudnorm rides its gain, and on these peaky takes it
+        # clamped down 2–6 dB in 50 ms every second or two, a metallic garble at 1.1×.
+        hp = "highpass=f=80:poles=2"
+        m = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", src, "-af", hp + ",ebur128", "-f", "null", "-"],
+                           capture_output=True, text=True).stderr
+        lufs = float(m[m.rindex("I:"):].split()[1])
+        ff("-i", src, "-af", f"{hp},volume={-16 - lufs:.1f}dB,alimiter=limit=0.84:attack=5:release=80:level=false",
+           "-ar", str(SR), "-c:a", "pcm_s24le", out + ".wav")
     else:
         full(src, out)
     ff("-i", out + ".wav", "-c:a", "aac", "-b:a", "192k", out + ".m4a")
