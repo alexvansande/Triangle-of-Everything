@@ -40,7 +40,8 @@ export default {
   ],
 
   cues: [
-    { at: "most interesting chart", cam: { r: 6, m: 8, span: 96 }, dur: 5, drift: 0.03 },
+    // the paper's title on its own, then the figure fades in under it
+    { at: "most interesting chart", cam: { r: 6, m: 8, span: 96 }, dur: 5, drift: 0.03, plotIn: { delay: 1.2, dur: 2 } },
 
     // the diagonal, bottom to top
     { at: "this diagonal line", cam: { r: 3, m: 4, span: 60 }, hl: [{ line: "water", label: "the diagonal" }] },
@@ -59,7 +60,7 @@ export default {
     // energy and wavelength
     // "…a chart of energy": the figure turns white with Einstein's equation for 2 s, the energy
     // and mass axes lit either side, a double arrow between them
-    { at: "also a chart of energy", cam: FIG, dur: 2, hl: [{ axis: "left", label: "energy" }, { axis: "right", label: "mass" },
+    { at: "also a chart of energy", cam: FIG, dur: 2, header: false, hl: [{ axis: "left", label: "energy" }, { axis: "right", label: "mass" },
       { card: "E = mc²", hold: 2, arrow: true, caption: "Mass and energy are equivalent" }] },
     { at: "bottom axis", hl: [{ axis: "bottom", label: "size" }] },
     { at: "as wavelength", hl: [{ axis: "bottom", label: "wavelength" }] },

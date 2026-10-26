@@ -405,7 +405,7 @@ function build() {
     .on("click", () => svg.transition().duration(1200).call(zoom.transform, fig3Transform()));
   layers.axes = svg.append("g").attr("class", "cl-axes");
   layers.titles = svg.append("g").attr("class", "cl-text");
-  layers.legend = svg.append("g");
+  layers.legend = svg.append("g").attr("class", "cl-legend");
 
   // static object marks — positions set in render()
   layers.dots.selectAll("circle.cl-obj").data(OBJECTS).join("circle")
@@ -594,7 +594,7 @@ function render(t) {
         .style("opacity", opacity(d));
     });
   layers.blobs.style("opacity", 1 - fade);
-  layers.legend.style("opacity", Math.max(0, Math.min(1, (2 - k) / 0.8)))
+  layers.legend.style("opacity", Math.max(0, Math.min(1, (2 - k) / 0.8)) * narrPlot)
     .style("display", k >= 2 ? "none" : null);
 
   // the Fig. 3 window
@@ -974,7 +974,10 @@ export function classicAxisNumbers() {
 // exactly on the map during the cross-fade, not just the one at the centre.
 const ISO_Y = FRAME_PPD_X / ((FRAME.y1 - FRAME.y0) / (M_DOM[1] - M_DOM[0]));
 
-export function narrClassic(opacity, view) {
+// parts: { plot, header } (0–1), the figure and the paper's title block above it on
+// their own (a video can open on the title alone, then bring the figure in).
+let narrPlot = 1;
+export function narrClassic(opacity, view, parts = {}) {
   if (opacity <= 0) {
     if (root) { root.hidden = true; root.classList.remove("shown"); svg.style("transform", null); }
     return;
@@ -983,6 +986,10 @@ export function narrClassic(opacity, view) {
   root.style.transition = "none";
   if (root.hidden) { root.hidden = false; root.classList.add("shown"); layoutNames(); }
   root.style.opacity = opacity;
+  const op = (v) => (v ?? 1) >= 1 ? null : String(v);
+  narrPlot = parts.plot ?? 1;   // the legend keeps its own zoom fade (render), times this
+  svg.selectAll(":scope > :not(defs):not(.cl-header):not(.cl-legend)").style("opacity", op(parts.plot));
+  svg.select(".cl-header").style("opacity", op(parts.header));
   if (!view) return;
   svg.style("transform", `scaleY(${ISO_Y})`);   // about its centre: the camera's centre
   const ctm = svg.node().getScreenCTM();

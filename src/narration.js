@@ -360,6 +360,23 @@ export async function startNarration(app) {
     }
   }
 
+  // ---------- the classic figure's parts: `plotIn: { delay, dur }` keeps the figure
+  // hidden under the paper's title block until the cue's time + delay, then fades it in;
+  // `header: false` fades the title block out from a cue (true brings it back) ----------
+  const plotIn = cues.find(c => c.plotIn);
+  const headerCues = cues.filter(c => c.header !== undefined);
+  const HEADER_FADE = 0.6;
+  function classicParts(t) {
+    const p = plotIn && plotIn.plotIn;
+    const plot = p ? smooth((t - plotIn.time - (p.delay ?? 0)) / (p.dur ?? 1.5)) : 1;
+    let header = 1;
+    for (const c of headerCues) if (c.time <= t) {
+      const f = smooth((t - c.time) / HEADER_FADE);
+      header = c.header ? Math.max(header, f) : Math.min(header, 1 - f);
+    }
+    return { plot, header };
+  }
+
   // ---------- unit rulers: up while the camera moves (or pinned) ----------
   // unitsFor: seconds (6); unitsUntil: the `at` of a later cue to hold them up to
   const pins = cues.filter(c => c.units).map(c => {
@@ -825,6 +842,11 @@ export async function startNarration(app) {
     el.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH)
       .attr("fill", `url(#${id})`).attr("opacity", smooth(age / 0.8));
   }
+  const bare = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
+  function ownLabelShown(o, label) {
+    const t = [...document.querySelectorAll("#chart text.obj-label")].find(n => n.__data__?.name === o.name);
+    return !!t && bare(t.textContent) === bare(label) && t.getAttribute("display") !== "none";
+  }
   function drawObj(el, h, age) {
     const o = objByName.get(h.obj);
     if (!o) return;
@@ -841,6 +863,8 @@ export async function startNarration(app) {
     } else R = (h.r || 17) * 1.5 * pop;
     if (h.label === false) return;
     const label = (h.label || o.name).toUpperCase();
+    // no tag that only repeats the object's own label on the chart, while that shows
+    if (ownLabelShown(o, label)) return;
     // default: centred above the ring, clear of the app's own label (right)
     const place = h.place || "above";
     const tx = place === "left" ? x - R - 8 : place === "right" ? x + R + 8 : x;
@@ -1568,7 +1592,7 @@ export async function startNarration(app) {
     creditsEl.style.visibility = co_ > 0 ? "visible" : "hidden";
     const { view, key } = camera(t);
     const co = classicOpacity(t);
-    narrClassic(co, co > 0 ? view : null);
+    narrClassic(co, co > 0 ? view : null, classicParts(t));
     // end the gesture once on arrival (full redraw + tiles); otherwise keep it open
     const arriving = view.phase === "hold" && (lastPhase === "fly" || key !== lastKey);
     app.setCamera(view, !arriving);

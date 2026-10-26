@@ -290,9 +290,14 @@ Cue fields
            names) fades in once the cue's camera arrives; false fades it out
   spectrum true: the spectrum's sine wave, likewise (it isn't redrawn while the
            camera moves, so end it with a cue before the next flight)
+  plotIn   { delay, dur }: over the classic figure, only the paper's title block
+           shows until the cue's time + delay (s), then the figure fades in over dur
+  header   false: the classic figure's title block fades out from the cue (true: back)
   drift    slow zoom-in while holding, as a fraction (default 0.05)
   hl       highlights, shown until the next cue with hl/clear:
              { obj: "Name", label?, place?: "left"|"below", color? }
+             (no tag when its text, or the name by default, only repeats the
+             object's own label on the chart while that label shows)
              { line: "schwarzschild"|"compton"|"hubble"|"water"|
                      "darkmatter"|"mainsequence"|"triangle"|
                      "chandrasekhar"|"tov", label? }
