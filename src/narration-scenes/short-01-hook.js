@@ -4,7 +4,7 @@
 // across the chart, the three sides (the size of the universe, quantum
 // mechanics, relativity) meeting at the Big Bang, and time on the diagonals;
 // then the cross-fade into the map on "…the triangle of everything", a quick
-// tour of its stories, and the author's outro on the whole triangle.
+// tour of its stories, and the author's outro over one slow zoom out.
 // Recorded 2026-10-26 (rec34; video/short-01-hook/). The 2026-10-07 cut and
 // its scene are in git history.
 // =============================================================
@@ -18,6 +18,14 @@ const PLANCK = { r: -30, m: -3, span: 30 };   // where quantum meets relativity
 const QUANTUM = { line: "compton", label: "quantum mechanics" };
 const RELATIVITY = { line: "schwarzschild", label: "relativity" };
 const UNIVERSE = { line: "hubble", label: "size of the universe" };
+// the sciences across the chart: loops round each one's objects (centre and half-axes in decades)
+const SCIENCE = (r, m, rx, ry, label, place = "right") => ({ ellipse: [r, m, rx, ry], label, place });
+const ASTRO = SCIENCE(17, 38, 5.5, 13, "astronomy");
+const ENGINEERING = SCIENCE(5.4, 14, 2.6, 4.2, "engineering");
+const BIOLOGY = SCIENCE(-0.6, -1.8, 3.2, 11, "biology", "left");
+const CHEMISTRY = SCIENCE(-6.2, -21, 2.4, 3.6, "chemistry", "right");
+const PARTICLES = SCIENCE(-15.5, -23, 3.2, 4, "particle physics", "below");
+const drawn = (list) => list.map(h => ({ ...h, draw: 0.01 }));   // already drawn: no regrowing
 
 export default {
   title: "The hook",
@@ -53,13 +61,13 @@ export default {
     { at: "bottom axis", hl: [{ axis: "bottom", label: "size" }] },
     { at: "as wavelength", hl: [{ axis: "bottom", label: "wavelength" }] },
 
-    // all of science, top to bottom
+    // all of science, top to bottom: a loop round each one as it's named, the earlier ones kept
     { at: "all of science", cam: FIG, dur: 2, clear: true },
-    { at: "astronomy", cam: { r: 18, m: 40, span: 46 } },
-    { at: "engineering is here", cam: { r: 3, m: 7, span: 30 } },
-    { at: "biology", cam: { r: -3, m: -9, span: 30 } },
-    { at: "chemistry", cam: { r: -8, m: -22, span: 30 } },
-    { at: "particle physics", cam: { r: -13, m: -26, span: 30 } },
+    { at: "astronomy", hl: [ASTRO] },
+    { at: "engineering is here", hl: [...drawn([ASTRO]), ENGINEERING] },
+    { at: "biology", hl: [...drawn([ASTRO, ENGINEERING]), BIOLOGY] },
+    { at: "chemistry", hl: [...drawn([ASTRO, ENGINEERING, BIOLOGY]), CHEMISTRY] },
+    { at: "particle physics", hl: [...drawn([ASTRO, ENGINEERING, BIOLOGY, CHEMISTRY]), PARTICLES] },
 
     // the three sides, and where the two left ones meet
     { at: "bounded by three sides", cam: FIG, dur: 2.4, hl: [{ line: "triangle" }] },
@@ -93,7 +101,7 @@ export default {
       hl: [{ obj: "Hydrogen" }, { obj: "Carbon", delay: 0.2 }, { obj: "Iron", delay: 0.4 }, { obj: "Gold", delay: 0.6 }] },
     { at: "why fire looks", cam: { obj: "Visible Light", span: 9 }, dur: 1.6, hl: [{ obj: "Visible Light", label: "light" }] },
 
-    // the outro, on the whole triangle
-    { at: "obsessed", cam: MAP, dur: 3, drift: 0.03, clear: true, hl: [{ line: "triangle" }] },
+    // the outro: one slow zoom out from the last shot, to the end
+    { at: "obsessed", cam: { obj: "Visible Light", span: 40 }, dur: 24, drift: 0, clear: true },
   ],
 };

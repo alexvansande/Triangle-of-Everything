@@ -12,11 +12,12 @@
 PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
 
 EDL = [
- ("rec34", "open", 31.14, 36.06),       # Look, this is the most interesting chart in all of physics.   (the cut-off tries and "you have to see this… the most interesting science chart I've ever seen" left out)
+ ("rec34", "open", 33.18, 36.06, {"s": 33.05}),  # This is the most interesting chart in all of physics.   (the "cha-cha-cha" before it, heard as "Look", the cut-off tries and "you have to see this… the most interesting science chart I've ever seen" left out)
  ("rec34", "diag", 50.90, 62.82, {"s": 55.55}),  # The first thing you'll probably notice is this diagonal line, with everything from bacteria to humans to planets, stars and galaxies.   ("The first thing you probably notice is that," left out)
  ("rec34", "axes", 64.14, 71.60, {"e": 71.93}),  # The vertical axis is mass, the horizontal axis is size, so this is a chart of mass versus size, right? Yeah,
  ("rec34", "axes", 71.98, 80.52, {"s": 72.13, "gap": 0.12}),  # but it's so much more than that, because it also includes things that don't have mass at all. Photons, visible light, radio waves.   (a second "yeah" left out)
- ("rec34", "energy", 91.16, 98.96),     # That's because this chart is also a chart of energy, and the bottom axis doubles as wavelength.   (the first try, "…because mass and energy are equivalent", left out)
+ ("rec34", "energy", 82.34, 85.50, {"e": 86.3}),  # That's because this chart is also a chart of energy,   (the first try, clean; its "…because mass and energy are equivalent" left out)
+ ("rec34", "energy", 96.76, 98.96, {"s": 96.72, "gap": 0.15}),  # and the bottom axis doubles as wavelength.   (the second try's "That's because this… that's… because…" left out)
  ("rec34", "science", 112.04, 123.98, {"s": 114.2}),  # So in a way, this chart contains all of science. Astronomy is up at the top, engineering is here, biology goes all the way down to here,   (the third try; two earlier ones left out)
  ("rec34", "science", 127.26, 128.74),  # and then chemistry and particle physics.   (the first "and then chemistry," left out)
  ("rec34", "sides", 129.92, 140.22),    # And the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity.

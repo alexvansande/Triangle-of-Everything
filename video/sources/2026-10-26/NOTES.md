@@ -64,9 +64,13 @@ This is in the Google Drive "Recordings" folder: 5:00, AAC mono. It's a full run
 retakes, and a new outro that replaces "Follow me for the triangle of everything". The
 author wanted no follow-and-subscribe feel. The mic stayed on.
 
-Cut: `video/short-01-hook/edl.py`, 13 clips. The take runs 5:00, the cut 2:11, and it plays in 1:59 at 1.1×.
+Cut: `video/short-01-hook/edl.py`, 14 clips. The take runs 5:00, the cut 2:08, and it plays in 1:57 at 1.1×.
+Second pass (the author's notes): it now opens on "This is…", without the "cha-cha-cha" before
+it (Whisper heard it as "Look,"). The energy line is spliced so the second try's "That's
+because this… that's… because…" is gone: "That's because this chart is also a chart of energy,"
+from the first try, then "and the bottom axis doubles as wavelength." from the second.
 Picks:
-- The opening is "Look, this is the most interesting chart in all of physics". "You have to see
+- The opening is "This is the most interesting chart in all of physics". "You have to see
   this… the most interesting science chart I've ever seen" is left out.
 - "All of science" is the third try.
 - The outro is "I've been obsessed about this chart for many years now… precisely what I
@@ -78,6 +82,8 @@ Picks:
 
 Caption words corrected:
 - "short" → "chart" (throughout)
+- "Photons, visible light, radio waves" → "Photons: visible light, radio waves" (the author's
+  reading: light and radio waves as kinds of photons)
 - "a history of fame/thing" → "things". It's worth a listen at 1:13 at 1.1×.
 
 ### Fact check
@@ -90,6 +96,5 @@ Caption words corrected:
   physics can describe, so "where those two lines meet is the Big Bang" is fair for a
   hook.
 - **Right:** the diagonals along the top are times since the Big Bang, in seconds.
-- **Imprecise, fine as said:** "Photons, visible light, radio waves" lists light and radio
-  waves next to photons, but they *are* photons. The script's "photons, like visible light or
-  radio waves" would be exact.
+- **Right:** "Photons: visible light, radio waves". The caption's colon makes light and radio
+  waves kinds of photons, as they are.
