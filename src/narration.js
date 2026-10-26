@@ -217,7 +217,8 @@ export async function startNarration(app) {
     k.from = from;
     if (k.whip) {
       // cam.whip: a fast straight move at close zoom, with no zooming out on the way. It
-      // overshoots a touch and settles back (an elastic bump); the motion blur is in renderAt
+      // overshoots a touch and settles back (an elastic bump). Motion blur comes from the
+      // renderer's sub-frames (scripts/narration-render.mjs --subframes), not from the page
       const back = d3.easeBackOut.overshoot(k.overshoot ?? 1.3), ls0 = Math.log(from.span), ls1 = Math.log(k.to.span);
       k.interp = (p) => [from.r + (k.to.r - from.r) * back(p), from.m + (k.to.m - from.m) * back(p),
         Math.exp(ls0 + (ls1 - ls0) * d3.easeCubicInOut(p))];
@@ -242,7 +243,7 @@ export async function startNarration(app) {
     if (t < k.end) {
       const p = clamp01((t - k.t) / k.dur);
       const [r, m, span] = k.interp(k.whip ? p : d3.easeCubicInOut(p));
-      return { r, m, span, phase: "fly", whip: k.whip };
+      return { r, m, span, phase: "fly" };
     }
     const next = keys[i + 1]?.t ?? k.end + 20;
     const f = clamp01((t - k.end) / Math.max(1, next - k.end));
@@ -1549,31 +1550,8 @@ export async function startNarration(app) {
     // end the gesture once on arrival (full redraw + tiles); otherwise keep it open
     const arriving = view.phase === "hold" && (lastPhase === "fly" || key !== lastKey);
     app.setCamera(view, !arriving);
-    motionBlur(t, view);
     lastKey = key; lastPhase = view.phase;
     overlay();
-  }
-  // Motion blur on a whip move: the chart and the overlay smear along the direction of
-  // travel, in proportion to how far the view moves on screen in a frame (1/30 s).
-  const blurDefs = d3.select(document.body).append("svg").attr("width", 0).attr("height", 0)
-    .style("position", "absolute").append("defs");
-  const blurFe = blurDefs.append("filter").attr("id", "narr-mblur").attr("x", "-5%").attr("y", "-5%")
-    .attr("width", "110%").attr("height", "110%").append("feGaussianBlur").attr("stdDeviation", "0 0");
-  const blurIds = ["chart", "classic", "narr-svg"];   // looked up each time: the classic figure is built later
-  let blurOn = false;
-  function motionBlur(t, view) {
-    let sx_ = 0, sy_ = 0;
-    if (view.whip) {
-      const prev = camera(Math.max(0, t - 1 / 30)).view, pl = app.plot();
-      sx_ = Math.min(24, Math.abs(view.r - prev.r) / view.span * pl.w * 0.35);
-      sy_ = Math.min(24, Math.abs(view.m - prev.m) / (view.span * pl.h / pl.w) * pl.h * 0.35);
-    }
-    const on = sx_ + sy_ > 0.6;
-    if (on) blurFe.attr("stdDeviation", `${sx_.toFixed(1)} ${sy_.toFixed(1)}`);
-    if (on !== blurOn) {
-      blurIds.forEach(id => { const el = document.getElementById(id); if (el) el.style.filter = on ? "url(#narr-mblur)" : ""; });
-      blurOn = on;
-    }
   }
   function overlay() {
     drawUnits(curT);

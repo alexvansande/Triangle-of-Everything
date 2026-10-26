@@ -282,7 +282,8 @@ Cue fields
   cam      { r, m, span } — log radius [cm], log mass [g], decades across
            the screen width — or { obj: "Name", span, dr, dm }
            cam.whip: a fast straight move at close zoom (no zoom out on the way),
-           with motion blur and a small elastic overshoot (default dur 0.6 s;
+           with a small elastic overshoot (default dur 0.6 s; the render's
+           sub-frames blur it;
            cam.overshoot sets the bump, default 1.3)
   dur      flight seconds (default: from the distance travelled)
   drift    slow zoom-in while holding, as a fraction (default 0.05)
