@@ -57,8 +57,10 @@ export default {
     { at: "photons", cam: { r: -9, m: -27, span: 22 } },
 
     // energy and wavelength
-    // "…a chart of energy": a white flash with Einstein's equation for 2 s, then the energy axis
-    { at: "also a chart of energy", cam: FIG, dur: 2, hl: [{ axis: "left", label: "energy" }, { card: "E = mc²", hold: 2 }] },
+    // "…a chart of energy": the figure turns white with Einstein's equation for 2 s, the energy
+    // and mass axes lit either side, a double arrow between them
+    { at: "also a chart of energy", cam: FIG, dur: 2, hl: [{ axis: "left", label: "energy" }, { axis: "right", label: "mass" },
+      { card: "E = mc²", hold: 2, arrow: true, caption: "Mass and energy are equivalent" }] },
     { at: "bottom axis", hl: [{ axis: "bottom", label: "size" }] },
     { at: "as wavelength", hl: [{ axis: "bottom", label: "wavelength" }] },
 

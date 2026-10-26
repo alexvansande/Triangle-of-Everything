@@ -291,8 +291,10 @@ Cue fields
              { side: "left"|"right", of?: "water", label? }
              { side: "above"|"below", mass: logM, label? } — one side of a level
                of constant mass, the level drawn dashed (video 2's round-world line)
-             { card: "E = mc²", hold?: 2, bg?: "#fff" } — the screen fades to a
-               full card with the text (an equation), holds, and fades back
+             { card: "E = mc²", hold?: 2, bg?: "#fff", arrow?, caption? } — the
+               screen (over the classic figure, its plot frame, so the axes stay)
+               fades to a card with the text, holds, and fades back; arrow: a
+               double arrow between the side axes, caption under it
              { density: logRho, label? } — a line of constant density (log g/cm³);
                "\n" in a line label stacks it
              { arrow: true, from: {obj}|{r,m}, to: {obj}|{r,m,mark}, label? }

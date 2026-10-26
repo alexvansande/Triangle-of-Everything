@@ -609,7 +609,7 @@ export async function startNarration(app) {
       const el = d3.select(this);
       el.selectAll("*").remove();
       const age = t - h.t0;
-      if (h.card) { el.attr("opacity", 1); drawCard(el, h, age); return; }
+      if (h.card) { el.attr("opacity", 1); drawCard(el, h, age, fr); return; }
       el.attr("opacity", smooth(age / 0.45) * (1 - smooth((t - h.t1) / 0.5)));
       drawAxis(el, h, age, fr);
     });
@@ -1331,21 +1331,40 @@ export async function startNarration(app) {
       .attr("text-anchor", "middle").attr("opacity", op);
     h.title.split("\n").forEach((ln, i) => t.append("tspan").attr("x", SW / 2).attr("dy", i ? "1.0em" : 0).text(ln.toUpperCase()));
   }
-  /** A full-screen card: { card: "E = mc²", hold?: 2, bg?: "#fff", color? } — the screen
-   *  fades to the card's colour, holds the text (an equation: serif italic, a trailing
-   *  "²" set as a superscript) for `hold` seconds, and fades back to the chart. */
-  function drawCard(el, h, age) {
-    const SW = layer.clientWidth, SH = layer.clientHeight, hold = h.hold ?? 2;
-    const op = smooth(age / 0.35) * (1 - smooth((age - 0.35 - hold) / 0.45));
+  /** A card: { card: "E = mc²", hold?: 2, bg?: "#fff", arrow?: true, caption? } — the screen
+   *  fades to the card's colour, holds the text (an equation: serif italic, a trailing "²"
+   *  set as a superscript) for `hold` seconds, and fades back to the chart. Over the classic
+   *  figure only its plot frame turns white, so the axes beside it stay readable; `arrow`
+   *  draws a double arrow between them (left axis ↔ right axis) under the text, and `caption`
+   *  goes under the arrow. */
+  function drawCard(el, h, age, fr) {
+    let X = 0, Y = 0, W = layer.clientWidth, H = layer.clientHeight;
+    if (fr) {
+      const lr = layer.getBoundingClientRect(), sc = lr.width / layer.clientWidth;
+      X = (fr.x - lr.x) / sc; Y = (fr.y - lr.y) / sc; W = fr.w / sc; H = fr.h / sc;
+    }
+    const hold = h.hold ?? 2, op = smooth(age / 0.35) * (1 - smooth((age - 0.35 - hold) / 0.45));
     if (op <= 0) return;
-    el.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH)
+    const ink = h.color || "#111";
+    el.append("rect").attr("x", X).attr("y", Y).attr("width", W).attr("height", H)
       .attr("fill", h.bg || "#fff").attr("opacity", op);
     const sup = h.card.endsWith("²"), body = sup ? h.card.slice(0, -1) : h.card;
-    const fs = Math.min(SW * 0.17, SH * 0.12);
-    const t = el.append("text").attr("x", SW / 2).attr("y", SH * 0.47 + fs * 0.35).attr("text-anchor", "middle")
-      .attr("fill", h.color || "#111").attr("opacity", op).style("font", `italic ${fs}px "Times New Roman", Georgia, serif`);
+    const fs = Math.min(W * 0.2, H * 0.12), cx = X + W / 2, ty = Y + H * 0.42 + fs * 0.35;
+    const t = el.append("text").attr("x", cx).attr("y", ty).attr("text-anchor", "middle")
+      .attr("fill", ink).attr("opacity", op).style("font", `italic ${fs}px "Times New Roman", Georgia, serif`).style("stroke", "none");
     t.append("tspan").text(body);
     if (sup) t.append("tspan").attr("dy", -fs * 0.42).style("font-size", `${fs * 0.6}px`).text("2");
+    if (h.arrow) {
+      const ay = ty + fs * 0.75, x1 = X + 10, x2 = X + W - 10, k = 12;
+      const g = el.append("g").attr("stroke", ink).attr("stroke-width", 2.5).attr("fill", "none")
+        .attr("stroke-linecap", "round").attr("stroke-linejoin", "round").attr("opacity", op);
+      g.append("line").attr("x1", x1).attr("x2", x2).attr("y1", ay).attr("y2", ay);
+      g.append("path").attr("d", `M${x1 + k},${ay - k * 0.7}L${x1},${ay}L${x1 + k},${ay + k * 0.7}`);
+      g.append("path").attr("d", `M${x2 - k},${ay - k * 0.7}L${x2},${ay}L${x2 - k},${ay + k * 0.7}`);
+    }
+    if (h.caption) el.append("text").attr("x", cx).attr("y", ty + fs * (h.arrow ? 1.35 : 0.8)).attr("text-anchor", "middle")
+      .attr("fill", ink).attr("opacity", op).style("font", `600 ${Math.max(15, fs * 0.2)}px Inter, system-ui, sans-serif`)
+      .style("stroke", "none").text(h.caption);
   }
   /** A labelled point: { mark: [r, m], label, color? } (a candidate with no object of its own) */
   function drawMark(el, h, age) {
