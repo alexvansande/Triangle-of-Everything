@@ -101,11 +101,12 @@ export default {
       hl: [{ obj: "Proton" }, { obj: "Neutron", label: false }, { obj: "Electron", delay: 0.3 }] },
     { at: "why balloons float", cam: { r: 2.1, m: 3.6, span: 9, whip: true },
       hl: [{ line: "air" }, { obj: "Helium Party Balloon" }, { obj: "Hot-air Balloon", delay: 0.3 }] },
-    { at: "the periodic table", cam: { r: -8, m: -22.6, span: 6, whip: true },
-      hl: [{ obj: "Hydrogen" }, { obj: "Carbon", delay: 0.2 }, { obj: "Iron", delay: 0.4 }, { obj: "Gold", delay: 0.6 }] },
-    { at: "why fire looks", cam: { obj: "Visible Light", span: 9, whip: true }, hl: [{ obj: "Visible Light", label: "light" }] },
+    // the chart's own overlays here, not pictures: the periodic table's grid, then the spectrum's sine wave
+    { at: "the periodic table", cam: { r: -8.1, m: -22.6, span: 2.6, whip: true }, clear: true, periodic: true },
+    { at: "why fire looks", cam: { obj: "Visible Light", span: 9, whip: true }, periodic: false, spectrum: true },
 
     // the outro: one slow zoom out from the last shot, to the end
+    { at: "I've been", spectrum: false },   // the wave goes before the camera moves (it isn't redrawn mid-move)
     { at: "obsessed", cam: { obj: "Visible Light", span: 40 }, dur: 24, drift: 0, clear: true },
   ],
 };

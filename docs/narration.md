@@ -284,8 +284,12 @@ Cue fields
            cam.whip: a fast straight move at close zoom (no zoom out on the way),
            with a small elastic overshoot (default dur 0.6 s; the render's
            sub-frames blur it;
-           cam.overshoot sets the bump, default 1.3)
+           cam.overshoot sets the bump, default 0.7, about 1.5 % of the move)
   dur      flight seconds (default: from the distance travelled)
+  periodic true: the map's periodic table (rows, columns, type rings, family
+           names) fades in once the cue's camera arrives; false fades it out
+  spectrum true: the spectrum's sine wave, likewise (it isn't redrawn while the
+           camera moves, so end it with a cue before the next flight)
   drift    slow zoom-in while holding, as a fraction (default 0.05)
   hl       highlights, shown until the next cue with hl/clear:
              { obj: "Name", label?, place?: "left"|"below", color? }

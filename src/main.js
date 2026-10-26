@@ -328,6 +328,9 @@ let _posterMargins = null; // explicit axis columns, set by window.__poster
 let _posterStage = null;   // fixed {W, H} stage in CSS px, set by window.__poster
 let _posterNoText = false; // hide every label, number and annotation layer
 let _posterArrows = false; // draw every connection path as static arrows
+// Videos: the periodic table's lines and the spectrum's sine wave shown by the
+// narration (0–1, faded on its clock), without the box or a hover
+let _narrPeriodic = 0, _narrSpectrum = 0;
 let _posterLabels = false; // strict, measured object labels for the vector overlay
 let _posterLabelSize = 11; // CSS px
 const _posterLabelFont = "'Helvetica Neue', Helvetica, Arial, sans-serif";
@@ -2363,7 +2366,8 @@ function drawPeriodicLayer(obstacles) {
     drawTitle(cx, ty, "middle");
     break;
   }
-  if (!_periodicOn) return;
+  if (!_periodicOn && !_narrPeriodic) return;
+  if (!_periodicOn) gLines.attr("opacity", _narrPeriodic);
 
   // Grid lines, neutral; the colour is in the rings
   for (const l of lines) {
@@ -2394,7 +2398,7 @@ function drawPeriodicLayer(obstacles) {
       .flatMap((l) => l.zs).filter((z) => !f.type || elementType(z) === f.type);
     labelAlongLine(zs.map((z) => at.get(z)), f.label.toUpperCase(), {
       id: `periodic-family-${i}`, off: -10, obstacles,
-      color: f.type ? TYPE_COLOR[f.type] : color, opacity: f.type ? 0.85 : 0.6,
+      color: f.type ? TYPE_COLOR[f.type] : color, opacity: (f.type ? 0.85 : 0.6) * (_periodicOn ? 1 : _narrPeriodic),
     });
   });
 }
@@ -5310,9 +5314,11 @@ function drawConnections() {
   // Poster arrows (window.__poster): every path shown at every zoom, lines
   // strong enough to print, arrowheads instead of the animated dots.
   // A hovered composition line (cp._into) skips the ambient fade.
-  const lineOp = (cp) => _posterArrows ? Math.min(1, cp.style.lineOpacity * 4)
+  const narrWave = (cp) => _narrSpectrum > 0 && cp.family === "spectrum";
+  // a video's wave is drawn as strong as the poster's: the hover strength is lost on a phone
+  const lineOp = (cp) => _posterArrows || narrWave(cp) ? Math.min(1, cp.style.lineOpacity * 4)
     : cp.style.lineOpacity * (cp._into ? 1 : cp._opacity);
-  const lineW = (cp) => cp.style.lineWidth * (_posterArrows ? 1.4 : 1);
+  const lineW = (cp) => cp.style.lineWidth * (_posterArrows ? 1.4 : narrWave(cp) ? 1.8 : 1);
   _connPaths.forEach(cp => {
     cp._opacity = _posterArrows ? 1 : connectionOpacity(cp, view);
     cp._visible = cp._opacity > 0.01;
@@ -5321,7 +5327,7 @@ function drawConnections() {
     // Composition paths keep a hidden line even outside their ambient zoom
     // range: hovering the whole reveals it (showComposition) at any zoom, at
     // full strength — the ambient fade is for the dots, not a hovered line.
-    if (!cp._visible && !cp._into) return;
+    if (!cp._visible && !cp._into && !narrWave(cp)) return;
 
     // Decay and combines paths use bezier curves (alternating anchor/control points)
     const isBezier = cp.family === "decay" || cp.family === "combines";
@@ -5329,8 +5335,8 @@ function drawConnections() {
     // Draw visible line (hidden by default, revealed on hover)
     const lineGroup = lArrows.append("g")
       .attr("class", "conn-line")
-      .attr("opacity", _posterArrows ? 1 : 0)
-      .style("transition", "opacity 0.3s")
+      .attr("opacity", _posterArrows ? 1 : narrWave(cp) ? _narrSpectrum : 0)
+      .style("transition", narrWave(cp) ? null : "opacity 0.3s")
       .style("pointer-events", "none");
     cp._lineGroup = lineGroup;
 
@@ -8482,6 +8488,10 @@ if (_ogShot) {
         document.body.classList.toggle("narr-obj-focus", on);
         document.body.style.setProperty("--narr-obj-fade", on ? amount.toFixed(3) : "0");
       },
+      /** The periodic table's lines, rings and family names (0–1), without its box. */
+      setPeriodic(a = 0) { if (a !== _narrPeriodic) { _narrPeriodic = a; redraw(); } },
+      /** The spectrum path's sine wave (0–1), as a hover shows it. */
+      setSpectrum(a = 0) { if (a !== _narrSpectrum) { _narrSpectrum = a; redraw(); } },
       /** Show or hide the map's own primordial black hole window and its labels. */
       setPbhWindow(show) { _pbhWindowHidden = !show; redraw(); },
       setStage(mode) { if (mode !== _viewportLock) setViewportLock(mode); },

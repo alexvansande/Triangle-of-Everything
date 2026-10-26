@@ -219,7 +219,7 @@ export async function startNarration(app) {
       // cam.whip: a fast straight move at close zoom, with no zooming out on the way. It
       // overshoots a touch and settles back (an elastic bump). Motion blur comes from the
       // renderer's sub-frames (scripts/narration-render.mjs --subframes), not from the page
-      const back = d3.easeBackOut.overshoot(k.overshoot ?? 1.3), ls0 = Math.log(from.span), ls1 = Math.log(k.to.span);
+      const back = d3.easeBackOut.overshoot(k.overshoot ?? 0.7), ls0 = Math.log(from.span), ls1 = Math.log(k.to.span);
       k.interp = (p) => [from.r + (k.to.r - from.r) * back(p), from.m + (k.to.m - from.m) * back(p),
         Math.exp(ls0 + (ls1 - ls0) * d3.easeCubicInOut(p))];
       if (k.dur == null) k.dur = 0.6;
@@ -341,6 +341,23 @@ export async function startNarration(app) {
     let v = true;
     for (const c of labelCues) if (c.time <= t) v = c.labels;
     if (v !== labelsNow) { labelsNow = v; app.setLabels?.(v); }
+  }
+
+  // ---------- chart overlays: `periodic` / `spectrum: true` from a cue on, false to end ----------
+  // (the periodic table's lines; the spectrum's sine wave). Each fades in once
+  // its cue's camera has arrived (the wave isn't redrawn mid-move); out from its cue.
+  const OVERLAY_FADE = 0.4;
+  const overlays = ["periodic", "spectrum"].map(key => ({ key, set: key === "periodic" ? "setPeriodic" : "setSpectrum",
+    cues: cues.filter(c => c[key] !== undefined).map(c => ({ on: !!c[key], t: c[key] && keys.find(k => k.t === c.time)?.end || c.time })) }));
+  function applyOverlays(t) {
+    for (const o of overlays) {
+      let a = 0;
+      for (const c of o.cues) if (c.t <= t) {
+        const f = clamp01((t - c.t) / OVERLAY_FADE);
+        a = c.on ? Math.max(a, f) : Math.min(a, 1 - f);
+      }
+      app[o.set]?.(+a.toFixed(3));
+    }
   }
 
   // ---------- unit rulers: up while the camera moves (or pinned) ----------
@@ -603,6 +620,7 @@ export async function startNarration(app) {
     applyIcons(t);
     applyFocus(t);
     applyLabels(t);
+    applyOverlays(t);
     // over the classic figure, keep highlights inside its plot frame
     const fr = classicOpacity(t) > 0.5 ? classicFrameClient() : null;
     if (fr) {
