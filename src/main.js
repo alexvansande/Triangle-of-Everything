@@ -4095,14 +4095,14 @@ function openSidebar(obj) {
     const [c, s] = spectrumBand;
     const view = `c=${c}&s=${s}`;
     const iframe = document.createElement("iframe");
-    iframe.src = `/spectrum/index.html?embed=1&${view}`;
+    iframe.src = `${import.meta.env.BASE_URL}spectrum/index.html?embed=1&${view}`;
     iframe.style.cssText = "width:100%;aspect-ratio:1/1.15;border:0;display:block;background:#000;border-radius:8px;";
     iframe.loading = "lazy";
     iframe.title = `${obj.name} — the sky across the electromagnetic spectrum`;
     sbImage.appendChild(iframe);
     const explore = document.createElement("a");
     explore.className = "sb-spiro-explore";
-    explore.href = `/spectrum/index.html?${view}`;
+    explore.href = `${import.meta.env.BASE_URL}spectrum/index.html?${view}`;
     explore.target = "_blank";
     explore.rel = "noopener";
     explore.textContent = "🌈 Explore the electromagnetic spectrum →";
