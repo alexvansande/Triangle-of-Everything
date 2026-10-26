@@ -16,6 +16,8 @@
   Sky only: a distance window drops every band's light whose depth (where
   along the line of sight it comes from) falls outside it, in every view.
   Inside also shows Earth at the centre, in the same bands, the sky behind it.
+  The Cloud's light adds up in a floating-point buffer and is shown through a
+  log tone map ("Lift faint"), so sparse far points show beside the bright centre.
   In the Cloud each point takes its own distance from its direction's spread
   of starlight, dust and halo light (six quantiles per direction), so the
   Galaxy shows its depth, not one average per direction.
@@ -37,7 +39,7 @@
   Cloud and the Milky Way (an off-centre circle, each edge point at its own
   log distance), each while it is a sensible size on screen (?rings=0 hides them).
   ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
-  ?radius=custom|log|linear  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
+  ?lift= (0…1, log tone map of the Cloud's light)  ?radius=custom|log|linear  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
@@ -179,6 +181,7 @@
         <button data-lz="1.5">Nearby stars</button><button data-lz="3.5">Our arm</button><button data-lz="4.9">Milky Way</button><button data-lz="6.6">Local Group</button><button data-lz="8.4">Supercluster</button><button data-lz="10.7">Universe</button>
       </span>
     </span>
+    <label title="Log-compress the cloud's light: faint far points show, the bright centre saturates gently">Lift faint <input id="lift" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="Lift faint points"></label>
     <label><input id="ringsOn" type="checkbox" checked> Scale</label>
   </div>
 </div>
@@ -595,6 +598,7 @@
     //   Sun (unit between Earth's and the Sun's radius): the Sun target's
     //   images as a flat disc facing the camera, solar north up.
     const OBJ_PACKS = 6, OBJ_MAX = 3 * OBJ_PACKS; // up to 18 bands each for Earth and the Sun
+    const ACC_UNIT = P + 5 + 2 * OBJ_PACKS;       // the Cloud's light buffer, read by the tone map
     const fullTri = `#version 300 es
       void main() { vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }`;
     const objCommon = `
@@ -640,7 +644,7 @@
         float vals[${OBJ_MAX}], shade[${OBJ_MAX}];
         objBands(uv, elod, vals);
         for (int k = 0; k < ${OBJ_MAX}; k++) shade[k] = use[k];
-        o = vec4(mixBands(vals, shade), 1.0);
+        o = vec4(mixBands(vals, shade), 4.0); // > 1 marks it for the tone map (clamps to 1 on screen)
         vec4 cp = viewProj * vec4(pw, 1.0);
         gl_FragDepth = 0.5 + 0.5 * cp.z / cp.w;
       }`) : null;
@@ -658,10 +662,47 @@
         float vals[${OBJ_MAX}], shade[${OBJ_MAX}];
         objBands(vec2(0.5 + 0.5 * q.x, 0.5 - 0.5 * q.y), slod, vals);
         for (int k = 0; k < ${OBJ_MAX}; k++) shade[k] = 1.0;
-        o = vec4(mixBands(vals, shade), 1.0);
+        o = vec4(mixBands(vals, shade), 4.0); // > 1 marks it for the tone map (clamps to 1 on screen)
         if (length(pw) < rS) { vec4 cp = viewProj * vec4(pw, 1.0); gl_FragDepth = 0.5 + 0.5 * cp.z / cp.w; }
         else gl_FragDepth = 1.0;
       }`) : null;
+    // the Cloud is drawn into a floating-point buffer, its light adding up
+    // freely, then shown through a log tone map ("Lift faint"): out =
+    // log(1 + k·m) / log(1 + k) of each pixel's brightest channel m, hue kept,
+    // so a lone far point lifts into view while the crowded centre saturates
+    // gently. Earth and the Sun (marked in alpha) are shown as they are.
+    const hdr = !!gl.getExtension("EXT_color_buffer_float");
+    const tonemap = hasDepth && hdr ? link(fullTri, `#version 300 es
+      precision highp float;
+      uniform sampler2D acc;
+      uniform float lift;
+      out vec4 o;
+      void main() {
+        vec4 c = texelFetch(acc, ivec2(gl_FragCoord.xy), 0);
+        if (c.a >= 3.0) { o = vec4(min(c.rgb, vec3(1.0)), 1.0); return; }
+        float m = max(c.r, max(c.g, c.b));
+        float t = lift > 0.0 ? log(1.0 + lift * m) / log(1.0 + lift) : m;
+        vec3 rgb = m > 0.0 ? min(c.rgb * (t / m), vec3(1.0)) : vec3(0.0);
+        o = vec4(rgb, max(rgb.r, max(rgb.g, rgb.b)));
+      }`) : null;
+    let accFbo = null, accTex = null, accDepth = null, accW = 0, accH = 0;
+    function accTarget(w, h) {
+      if (accFbo && accW === w && accH === h) return accFbo;
+      accW = w; accH = h;
+      accFbo ??= gl.createFramebuffer(); accTex ??= gl.createTexture(); accDepth ??= gl.createRenderbuffer();
+      gl.activeTexture(gl.TEXTURE0 + ACC_UNIT);
+      gl.bindTexture(gl.TEXTURE_2D, accTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.HALF_FLOAT, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.bindRenderbuffer(gl.RENDERBUFFER, accDepth);
+      gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, w, h);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, accFbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, accTex, 0);
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, accDepth);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      return accFbo;
+    }
     // 3D discs (the Sun's path, the Oort Cloud, the Milky Way): positions come
     // from a buffer, already placed on the current distance scale; they turn
     // with the cloud
@@ -793,6 +834,9 @@
     }
     radiusBox.querySelectorAll("#rmodes button").forEach((b) => on(b, "click", () => setRadius(+b.dataset.r)));
     on(unit, "input", () => { showScale(); draw(); });
+    const lift = document.getElementById("lift");
+    if (first && q.has("lift")) lift.value = q.get("lift");
+    on(lift, "input", () => draw());
     // Linear "go to": glide the scale there, evenly in powers of ten
     let glide = null;
     document.querySelectorAll("#goto button").forEach((b) => on(b, "click", () => {
@@ -1131,6 +1175,9 @@
         gl.uniform1f(U("lu"), +unit.value);
         gl.uniform1f(U("lz"), lz);
         gl.uniformMatrix4fv(U("viewProj"), false, VP);
+        // into the light buffer at full strength; the fade (if any) applies when shown
+        const shownA = fadeA;
+        if (tonemap) { gl.bindFramebuffer(gl.FRAMEBUFFER, accTarget(w, h)); fadeA = 1; }
         gl.clearColor(0, 0, 0, 0); gl.clear(fadeA < 1 ? gl.DEPTH_BUFFER_BIT : gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         // Earth or Sun first, writing depth, so the points behind are hidden
         const lu = +unit.value, rOf = (L) => (L - lu) / (10.66 - lu);
@@ -1141,11 +1188,25 @@
           drawCentre(centre, VP, w, h, rO, rO * h * view.zoom / 3.2 / Math.tan(20 * Math.PI / 180), spinA);
         }
         gl.depthMask(false);
-        if (fadeA >= 1) drawRings(VP, w, h, centre);
         gl.useProgram(cloud);
         additive();
         gl.drawArrays(gl.POINTS, 0, CLOUD_N);
         gl.disable(gl.BLEND); gl.disable(gl.DEPTH_TEST); gl.depthMask(true);
+        if (tonemap) {
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+          fadeA = shownA;
+          gl.useProgram(tonemap);
+          gl.activeTexture(gl.TEXTURE0 + ACC_UNIT);
+          gl.bindTexture(gl.TEXTURE_2D, accTex);
+          gl.uniform1i(gl.getUniformLocation(tonemap, "acc"), ACC_UNIT);
+          const v = +lift.value;
+          gl.uniform1f(gl.getUniformLocation(tonemap, "lift"), v > 0 ? 10 ** (3 * v) - 1 : 0);
+          over();
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+          gl.disable(gl.BLEND);
+        }
+        // circles and discs are guides, not light: drawn after the tone map
+        if (shownA >= 1) drawRings(VP, w, h, centre);
         return;
       }
       if (fadeA >= 1) ringLabels.hidden = ringText.hidden = true;
