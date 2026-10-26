@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-device/
 .DS_Store
 *.local
 .env
