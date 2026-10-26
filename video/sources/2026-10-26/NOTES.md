@@ -90,6 +90,7 @@ Picks:
 
 Caption words corrected:
 - "short" → "chart" (throughout)
+- "where those two lines meet is the Big Bang." → "…is… the Big Bang?" (said as a question)
 - "Photons, visible light, radio waves" → "Photons: visible light, radio waves" (the author's
   reading: light and radio waves as kinds of photons)
 - "a history of fame/thing" → "things". It's worth a listen at 1:13 at 1.1×.
