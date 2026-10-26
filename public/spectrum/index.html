@@ -188,7 +188,7 @@
 </div>
 <div id="options" class="pad">
   <span class="seg" id="explore" role="group" aria-label="Look from">
-    <button data-x="earth" title="The sky from just outside Earth, Earth floating in the middle">Earth</button><button data-x="sun" title="The Sun over the band of the Milky Way">Sun</button><button data-x="galaxy" title="The Milky Way around us in 3D, to scale">Galaxy</button><button data-x="universe" title="The whole universe in 3D by log distance, Earth in the middle">Universe</button>
+    <button data-x="earth" title="The sky from just outside Earth, Earth floating in the middle">Earth</button><button data-x="sun" title="The Sun in front of the sky">Sun</button><button data-x="galaxy" title="The Milky Way around us in 3D, to scale">Galaxy</button><button data-x="universe" title="The whole universe in 3D by log distance, Earth in the middle">Universe</button>
   </span>
   <button id="reset">Natural colour</button>
   <div id="radius" hidden>
@@ -545,7 +545,6 @@
       out vec4 o;
       ${shared}
       uniform float gain, gam, yaw, pitch, zoom, lod, aspect, panX, panY;
-      uniform float band; // Map: keep only |b| below this (degrees), fading out to 1.8×; 0 = all
       uniform vec2 res;
       uniform int mode;
       vec3 turn(vec3 v) {
@@ -562,7 +561,6 @@
           if (abs(q.x) > 0.5 * aspect || abs(q.y) > 0.5) { o = vec4(0.0, 0.0, 0.0, 1.0); return; }
           uv = vec2(0.5 + q.x / aspect, 0.5 - q.y);
           if (lonSign != 0.0) uv.x = fract(uv.x - yaw);
-          if (band > 0.0) edge = 1.0 - smoothstep(band, 1.8 * band, abs(0.5 - uv.y) * 180.0);
         } else if (mode == 0) {
           float d2 = dot(p, p) / (zoom * zoom);
           if (d2 > 1.0) { o = vec4(vec3(0.05, 0.06, 0.1) * exp(-40.0 * (sqrt(d2) - 1.0)), 1.0); return; }
@@ -707,7 +705,10 @@
         float vals[${OBJ_MAX}], shade[${OBJ_MAX}];
         objBands(vec2(0.5 + 0.5 * q.x, 0.5 - 0.5 * q.y), slod, vals);
         for (int k = 0; k < ${OBJ_MAX}; k++) shade[k] = 1.0;
-        o = vec4(mixBands(vals, shade) * smoothstep(1.0, 0.8, length(q)), 1.0);
+        // premultiplied: a dark disc just past the limb hides the stars behind
+        // the Sun; the corona beyond it adds over them
+        float r = length(q);
+        o = vec4(mixBands(vals, shade) * smoothstep(1.0, 0.8, r), smoothstep(0.765, 0.745, r));
       }`) : null;
     // the Cloud is drawn into a floating-point buffer, its light adding up
     // freely, then shown through a log tone map ("Lift faint"): out =
@@ -901,7 +902,7 @@
     }));
     const EXPLORE_FOOT = {
       earth: "Earth from just outside, the sky behind it, both in the selector's light. Drag to turn, scroll or pinch to zoom; zoom out to leave for the universe.",
-      sun: "The Sun (SDO, ALMA and Nobeyama, 18 December 2015) over the band of the Milky Way, both in the selector's light. Drag to slide along the band.",
+      sun: "The Sun (SDO, ALMA and Nobeyama, 18 December 2015) in front of the sky, both in the selector's light. Drag to move across the sky.",
       galaxy: "The Milky Way around us in 3D, to scale: every point at the distance its light comes from. Drag to turn, scroll or pinch to zoom.",
       universe: "Everything in the selector's light by log distance: Earth in the middle, the cosmic microwave background at the edge. Drag to turn, scroll or pinch to zoom.",
     };
@@ -915,7 +916,7 @@
     function setExplore(x, quiet) {
       explore = x; glide = null;
       if (x === "earth") setMode(1);
-      else if (x === "sun") { setMode(2); view.zoom = 1.8; }
+      else if (x === "sun") { setMode(2); view.zoom = 1; } // draw() raises it to fill the view
       else if (x === "galaxy") { setMode(3); lz = 4.6; setRadius(2); }
       else { setMode(3); if (+unit.value >= L_EARTH) unit.value = unit.min; setRadius(1); }
       markExplore();
@@ -1301,12 +1302,17 @@
       gl.useProgram(quad);
       const U = common(quad);
       const aspect = meta.width / meta.height;
+      // the Sun's sky fills the view, cropping the map's top and bottom or sides
+      if (mode === 2 && explore === "sun") {
+        view.zoom = Math.max(view.zoom, Math.max(w / aspect, h) / Math.min(w / aspect, h));
+        const lim = Math.max(0, 0.5 - 0.5 * h / (Math.min(w / aspect, h) * view.zoom));
+        view.panY = Math.max(-lim, Math.min(lim, view.panY ?? 0));
+      }
       gl.uniform2f(U("res"), w, h);
       gl.uniform1i(U("mode"), mode);
       gl.uniform1f(U("yaw"), view.yaw); gl.uniform1f(U("pitch"), view.pitch); gl.uniform1f(U("zoom"), view.zoom);
       gl.uniform1f(U("aspect"), aspect);
       gl.uniform1f(U("panX"), view.panX ?? 0); gl.uniform1f(U("panY"), view.panY ?? 0);
-      gl.uniform1f(U("band"), mode === 2 && explore === "sun" ? 12 : 0);
       // mip level from texels per screen pixel, so nothing shimmers
       const pxPerTex = mode === 0 ? (view.zoom * h / 2) / (meta.width / (2 * Math.PI)) : mode === 1 ? (h / 2 / view.zoom) / (meta.width / (2 * Math.PI))
         : (Math.min(w / aspect, h) * view.zoom * aspect) / meta.width;
@@ -1318,7 +1324,7 @@
         const E = objUniforms(sunFlat, 1), rad = 0.26 * Math.min(w, h);
         gl.uniform2f(E("cen"), w / 2, h / 2); gl.uniform1f(E("rad"), rad);
         gl.uniform1f(E("slod"), Math.max(0, Math.log2(1024 / (2 * rad))));
-        gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_COLOR); // screen
+        gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
         gl.disable(gl.BLEND);
       }
