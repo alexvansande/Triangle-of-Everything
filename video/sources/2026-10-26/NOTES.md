@@ -58,12 +58,13 @@ The new parts:
   rec32.
 - Mars ("almost none") is no longer in the take, so its cue is gone.
 - **The round-world line** (scene only, added at the author's request): a dashed level at
-  5×10²³ g, "chemical bonds dominate" below and "gravity dominates" above, between Vesta
+  5×10²³ g, "electromagnetism dominates (chemical bonds)" below and "gravity dominates" above, between Vesta
   (2.6×10²³ g, lumpy) and Ceres (9.4×10²³ g, round). It holds for rocky bodies. Icy moons turn
   round lighter, because ice is softer: Mimas (3.7×10²² g) is round. The "potato" shot leaves Mimas out
-  so the chart doesn't contradict the line. "Chemical bonds" are the electromagnetic force
-  between atoms (not the weak force); "electromagnetism" would be the force's name, if
-  the author wants one.
+  so the chart doesn't contradict the line. Below it, a body's shape is held by its material strength
+  (chemical bonds: the electromagnetic force between atoms, not the weak force); above it,
+  self-gravity crushes the body round (hydrostatic equilibrium). Strictly, "dominates its
+  shape": gravity still holds a small asteroid together as a pile, it just can't reshape it.
 
 ## rec34: "New hook.m4a" (video 1)
 
