@@ -1041,11 +1041,17 @@ export async function startNarration(app) {
     el.append("line").attr("x1", plot.x).attr("x2", plot.x + plot.w).attr("y1", y).attr("y2", y)
       .attr("stroke", "#fff").attr("stroke-width", 2).attr("stroke-dasharray", "8 6").attr("opacity", 0.8);
     if (!h.label) return;
-    // "\n" stacks the label; it sits just off the level, on its own side
-    const lines = h.label.split("\n"), x = plot.x + plot.w * (h.labelX ?? 0.5);
+    // "\n" stacks the label; it sits just off the level, on its own side, with an optional
+    // smaller note under it (note: "line\nline")
+    const lines = h.label.split("\n"), notes = h.note ? h.note.split("\n") : [];
+    const x = plot.x + plot.w * (h.labelX ?? 0.5), LH = 22, NH = 16;
+    const y0 = up ? y - 18 - (lines.length - 1) * LH - notes.length * NH : y + 38;
     const t = el.append("text").attr("class", "narr-sidelabel").attr("x", x)
-      .attr("y", up ? y - 18 - (lines.length - 1) * 22 : y + 38).attr("text-anchor", "middle").attr("fill", col);
-    lines.forEach((ln, i) => t.append("tspan").attr("x", x).attr("dy", i ? 22 : 0).text(ln.toUpperCase()));
+      .attr("y", y0).attr("text-anchor", "middle").attr("fill", col);
+    lines.forEach((ln, i) => t.append("tspan").attr("x", x).attr("dy", i ? LH : 0).text(ln.toUpperCase()));
+    const n = el.append("text").attr("class", "narr-sidenote").attr("x", x)
+      .attr("y", y0 + (lines.length - 1) * LH + NH + 2).attr("text-anchor", "middle").attr("fill", col);
+    notes.forEach((ln, i) => n.append("tspan").attr("x", x).attr("dy", i ? NH : 0).text(ln));
   }
   /** Every catalogue dot of one category ({ dust: "blackhole", label? }), or of
    *  some sources ({ dust: "galaxy", src: ["galaxy", "cluster"] }): a small ring
@@ -1848,6 +1854,7 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
 .narr-linelabel { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; }
 .narr-axislabel { font-family: "Barlow Condensed", Inter, sans-serif !important; font-size: 22px; font-weight: 700; letter-spacing: 0.12em; }
 .narr-sidelabel { font-size: 15px; font-weight: 800; letter-spacing: 0.22em; }
+.narr-sidenote { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; }
 .narr-axis { stroke: rgba(255,255,255,0.45); stroke-width: 1; }
 .narr-tick { stroke: rgba(255,255,255,0.9); stroke-width: 1.2; }
 .narr-unit { fill: rgba(255,255,255,0.92); font-size: 9.5px; font-weight: 600; }

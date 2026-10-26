@@ -36,9 +36,9 @@ const STARS = { r: 9.48, m: 32.7, span: 7.8 };
 const PAN = 2.2;
 // what holds a body's shape, either side of the round-world mass (between Vesta and Ceres)
 const ROUND_M = 23.7;
-// below it a body's shape is held by its material strength, which is electromagnetic (chemical
-// bonds, electric forces between atoms); above it self-gravity crushes it round
-const BONDS = { side: "below", mass: ROUND_M, label: "electromagnetism\ndominates\n(chemical bonds)", labelX: 0.76 };
+// below it a body's shape is held by its material strength, all of it electromagnetic (chemical
+// bonds, crystal stiffness, friction between grains); above it self-gravity crushes it round
+const BONDS = { side: "below", mass: ROUND_M, label: "electromagnetism\ndominates", note: "(chemical bonds, crystal\nstiffness, friction, etc.)", labelX: 0.74 };
 const GRAVITY = { side: "above", mass: ROUND_M, label: "gravity\ndominates", labelX: 0.76 };                            // span of the rocks → round worlds pan (as wide as the animals')
 // one grid square (a decade of size × a decade of mass) with its bottom-left corner at (r, m)
 const SQ = (r, m, delay = 0) => ({ poly: [[r, m], [r + 1, m], [r + 1, m + 1], [r, m + 1]], fill: "#ffd54f", opacity: 0.35, delay });

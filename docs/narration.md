@@ -289,7 +289,7 @@ Cue fields
                      "darkmatter"|"mainsequence"|"triangle"|
                      "chandrasekhar"|"tov", label? }
              { side: "left"|"right", of?: "water", label? }
-             { side: "above"|"below", mass: logM, label? } — one side of a level
+             { side: "above"|"below", mass: logM, label?, note? } — one side of a level
                of constant mass, the level drawn dashed (video 2's round-world line)
              { card: "E = mc²", hold?: 2, bg?: "#fff", arrow?, caption? } — the
                screen (over the classic figure, its plot frame, so the axes stay)
