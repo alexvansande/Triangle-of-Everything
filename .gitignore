@@ -43,3 +43,4 @@ output/
 video/photos/originals/*
 !video/photos/originals/meta.json
 dist-device
+!video/web/*.mp4
