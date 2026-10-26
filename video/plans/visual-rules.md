@@ -46,6 +46,11 @@ cutaways could go is `cutaways.md`; this file is the *why*.
 - **Space is darker** (2026-10-24): the chart darkens with mass from the stars up (half by
   10^35 g, 70% from 10^41 g), and soft-edged space pictures (galaxies, clusters, nebulae)
   may sit closer together than solid things: they keep as little as 45% of their room.
+- **Lists get whips** (2026-10-26): when the narration runs through a list of places on the chart
+  (the hook's sciences, its "million stories"), zoom in on the first and then whip straight to
+  each next one at the same close zoom (`cam: { …, whip: true }`): a fast move (~0.6 s) with
+  motion blur and a small elastic bump on landing, no zooming out in between. Then one slow
+  zoom out at the end.
 - **Replace long holds with slow moves** (a 3–7 s pan or push between the objects being
   named), e.g. Mercury → Mars → Earth for atmospheres, a push onto Phobos and Deimos.
 - **The background painting stays on**, even blurred, on deep zooms (an automatic fade-out
