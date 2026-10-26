@@ -1,34 +1,29 @@
-# short-01-hook: the opening hook as a vertical short, cut from the
-# 2026-10-07 morning recordings (raw files live in iCloud):
-#   rec2 = Link_office_mall_2.m4a (the intro, several passes)
-#   rec7 = wavelength.m4a (iCloud, 1:18, 48 kHz; the mass/size → energy → wavelength
-#          lines, replacing rec4's, which had the air conditioner under them)
-# (source, beat, first-word start, last-word start, {optional exact s/e}) in
-# source seconds; the builder snaps each cut to the nearest real silence.
-# rec6 = "O2 Corporate & Offices 2.m4a" (Google Drive, 48 kHz lossless; mic about
-# 10 cm away, off to the side). It is 4–8 dB darker above 1.2 kHz than rec3;
-# this EQ matches it to rec3 within about ±2 dB.
-# rec7 (close, quiet room) has a honk at 1 kHz and is thin at 1.2–2 kHz next to
-# rec2/rec6; this EQ (fitted on third-octave averages) matches it within
-# ±0.3 dB above 250 Hz. In the edit, rec7's clips also carry 4 s of rec6's
-# room tone (same cleanup, −55 → −59.5 dB), so the background doesn't drop out.
-SOURCE_FX = {"rec6": "equalizer=f=1400:t=q:w=1.2:g=4,highshelf=f=4500:t=q:w=0.6:g=7",
-             "rec7": "equalizer=f=180:t=q:w=1.2:g=-4,highshelf=f=3000:t=q:w=0.6:g=4,highshelf=f=11000:t=q:w=0.7:g=-2.5,firequalizer=gain_entry='entry(100,0.51);entry(125,0.48);entry(160,-1.09);entry(200,-1.25);entry(250,-1.61);entry(315,0.52);entry(400,2.91);entry(500,-1.16);entry(630,1.46);entry(800,3.33);entry(1000,-5.05);entry(1250,3.87);entry(1600,4.70);entry(2000,4.72);entry(2500,-3.36);entry(3150,-3.60);entry(4000,2.30);entry(5000,0.07);entry(6300,-0.89);entry(8000,1.76);entry(10000,-2.80);entry(12500,-1.94);entry(16000,-1.26)'"}
+# short-01-hook: the opening hook as a vertical short.
+# rec34 = "New hook.m4a" (Google Drive "Recordings", 2026-10-26, 5:00, AAC mono).
+# One take of the new script (video/scripts/recording-scripts.md) with retakes:
+# the sciences across the chart, the three sides, time on the diagonals, the
+# million stories, and the author's new outro in place of "follow me for…".
+# It replaces the 2026-10-07 cut from rec2 + rec6 + rec7 (in git history).
+# Treatment: enhance.py --plain, 1.1x. Build: see video/short-01-hook/README.md.
+# (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds.
+# Where Whisper (medium.en) merged a restart into one long word, `s` is the
+# real start of the retake, found from the speech runs.
+
+PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
 
 EDL = [
- ("rec2", "open", 48.52, 52.66),    # This is the most interesting chart in all of physics.
- ("rec2", "diag", 63.18, 73.36),    # The first thing you probably noticed ... stars and planets and galaxies.
- ("rec2", "axes", 96.32, 98.66),    # The vertical axis is mass,
- ("rec2", "axes", 100.84, 104.62),  # the horizontal axis is in size.
- ("rec7", "axes", 39.24, 43.80, {"s": 40.62}),  # So this is a chart of mass versus size, right? (Whisper puts "So" late; a false-start "so" at 37.6 is left out)
- ("rec7", "more", 44.72, 53.64),    # Yeah, but it's so much more than that actually ... visible light, or radio waves.
- ("rec7", "energy", 54.68, 58.18),  # This is because this chart is also a chart of energy.
- ("rec7", "energy", 69.30, 72.42),  # And the bottom axis doubles as a wavelength.
- ("rec6", "time", 133.08, 134.88),  # it gets even crazier
- ("rec6", "time", 142.52, 149.20, {"e": 149.42}),  # because on the bottom left, we have quantum mechanics, on the top left, we have relativity and they connect in
- ("rec6", "time", 151.94, 152.32, {"gap": 0.08}),  # this one point.
- ("rec6", "time", 153.94, 154.74),  # What is that point?
- ("rec6", "time", 155.22, 166.54),  # And then you realize ... diagonal lines ... measured in seconds until they get to now. That is time since the Big Bang.
- ("rec6", "time", 167.58, 171.10),  # So relativity and quantum mechanics are joining at the Big Bang.
- ("rec2", "end", 214.08, 220.98, {"e": 222.40, "gap": 1.0}), # This is the triangle of everything, and let me take you a tour around because it is simply fascinating.
+ ("rec34", "open", 31.14, 36.06),       # Look, this is the most interesting chart in all of physics.   (the cut-off tries and "you have to see this… the most interesting science chart I've ever seen" left out)
+ ("rec34", "diag", 50.90, 62.82, {"s": 55.55}),  # The first thing you'll probably notice is this diagonal line, with everything from bacteria to humans to planets, stars and galaxies.   ("The first thing you probably notice is that," left out)
+ ("rec34", "axes", 64.14, 71.60, {"e": 71.93}),  # The vertical axis is mass, the horizontal axis is size, so this is a chart of mass versus size, right? Yeah,
+ ("rec34", "axes", 71.98, 80.52, {"s": 72.13, "gap": 0.12}),  # but it's so much more than that, because it also includes things that don't have mass at all. Photons, visible light, radio waves.   (a second "yeah" left out)
+ ("rec34", "energy", 91.16, 98.96),     # That's because this chart is also a chart of energy, and the bottom axis doubles as wavelength.   (the first try, "…because mass and energy are equivalent", left out)
+ ("rec34", "science", 112.04, 123.98, {"s": 114.2}),  # So in a way, this chart contains all of science. Astronomy is up at the top, engineering is here, biology goes all the way down to here,   (the third try; two earlier ones left out)
+ ("rec34", "science", 127.26, 128.74),  # and then chemistry and particle physics.   (the first "and then chemistry," left out)
+ ("rec34", "sides", 129.92, 140.22),    # And the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity.
+ ("rec34", "sides", 141.52, 144.72),    # And where those two lines meet is the Big Bang.
+ ("rec34", "time", 147.38, 165.40, {"s": 150.55}),  # Notice that along the top there are all these diagonal lines, and they are all measured in seconds. That's because the top of the chart isn't a history of things, but a history of time, the history of our whole universe.   (the first "Notice that along the top there are," left out)
+ ("rec34", "stories", 173.88, 193.44),  # I call this the triangle of everything, and as you zoom in it tells you a million stories: about airplanes, hippos and gravity, about how stars evolve, how particles turn into each other, and why balloons float. It even contains the periodic table, and it tells you why fire looks the way it does.   (the first try, "a million story", left out)
+ # the outro (the author's, 2026-10-26), in place of "So follow me for the triangle of everything" (3:16)
+ ("rec34", "outro", 250.70, 269.30),    # I've been obsessed about this chart for many years now, and I've put hours and hours trying to visualize it in different ways, and seeing all the stories it contains. I could talk about it all day, and that's precisely what I intend to do in this series of videos.   (three earlier tries, 3:28–4:04, left out)
+ ("rec34", "outro", 288.94, 292.80, {"s": 288.98}),  # I sincerely hope you find it as fascinating as I do.   ("I hope you like it. I hope you love it.", "By the end of them, I hope you appreciate this." and "I hope," left out)
 ]
