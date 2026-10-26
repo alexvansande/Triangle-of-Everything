@@ -108,6 +108,8 @@
   #radius label { display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
   #radius input[type=range] { width: 160px; accent-color: var(--fg); }
   #radius output { font-family: var(--mono); color: var(--fg); white-space: nowrap; }
+  #linBox { display: inline-flex; gap: 6px 10px; align-items: center; flex-wrap: wrap; }
+  #goto { flex-wrap: wrap; } #goto button { padding: 3px 7px; font-size: 12px; white-space: nowrap; }
   /* Cloud scale: unit circles behind the canvas (it is transparent where
      there is nothing), their labels and the discs' names in front */
   #rings, #ringText { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
@@ -172,7 +174,11 @@
       <button data-r="0" title="Milky Way on the inner 80% (log), everything beyond on the outer 20%">Custom</button><button data-r="1" title="Radius grows with log distance from the chosen unit">Log</button><button data-r="2" title="Radius proportional to distance; zoom moves through powers of ten">Linear</button>
     </span>
     <label id="unitBox">1 unit <input id="unit" type="range" min="-10" max="10" step="0.01" value="0" aria-label="Log scale unit"> <output id="unitOut"></output></label>
-    <span id="linBox">radius 1 = <output id="linOut"></output> · scroll or pinch to zoom</span>
+    <span id="linBox">radius 1 = <output id="linOut"></output> · scroll or pinch to zoom
+      <span class="seg" id="goto" role="group" aria-label="Go to">
+        <button data-lz="1.5">Nearby stars</button><button data-lz="3.5">Our arm</button><button data-lz="4.9">Milky Way</button><button data-lz="6.6">Local Group</button><button data-lz="8.4">Supercluster</button><button data-lz="10.7">Universe</button>
+      </span>
+    </span>
     <label><input id="ringsOn" type="checkbox" checked> Scale</label>
   </div>
 </div>
@@ -787,6 +793,11 @@
     }
     radiusBox.querySelectorAll("#rmodes button").forEach((b) => on(b, "click", () => setRadius(+b.dataset.r)));
     on(unit, "input", () => { showScale(); draw(); });
+    // Linear "go to": glide the scale there, evenly in powers of ten
+    let glide = null;
+    document.querySelectorAll("#goto button").forEach((b) => on(b, "click", () => {
+      glide = { from: lz, to: +b.dataset.lz, t0: performance.now(), ms: 600 + 350 * Math.abs(+b.dataset.lz - lz) };
+    }));
     // Cloud zoom at which Earth looks as big as in Inside at zoom zIn (and back)
     const earthR = () => (L_EARTH - +unit.value) / (10.66 - +unit.value);
     const zMatch = (z) => (3.2 * Math.tan(20 * Math.PI / 180) * Math.tan(EARTH_INSIDE)) / (earthR() * z);
@@ -799,6 +810,7 @@
       draw();
     }
     const zoomBy = (f) => {
+      if (mode === 3 && rmode === 2) glide = null;
       if (mode === 3 && rmode === 2) { lz = Math.max(LZ_MIN, Math.min(LZ_MAX, lz - 4 * Math.log10(f))); showScale(); draw(); return; }
       if (cloud && !fade && mode === 1 && f < 1 && view.zoom / f > ZOOM[1][1]) {
         // out of Inside: the Cloud on the log scale with Earth at the centre
@@ -1160,6 +1172,12 @@
       if (spin && mode === 0) { view.yaw += dt * 0.08; draw(); }
       if (spin && mode === 3) { spinA += dt * 0.06; draw(); }
       else if (fade) draw();
+      if (glide) {
+        const t = Math.min(1, (now - glide.t0) / glide.ms), e = t * t * (3 - 2 * t);
+        lz = glide.from + (glide.to - glide.from) * e;
+        if (t >= 1) glide = null;
+        showScale(); draw();
+      }
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
