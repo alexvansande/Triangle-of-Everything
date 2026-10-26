@@ -101,7 +101,7 @@
     ]
   },
   "am-radio": {
-    "fingerprint": "5c8a99935387415b2959b5e3bbd8c1f2a4b05ae17851182c64b56d885bdfe5fc",
+    "fingerprint": "c979179450c631d3e6287f67a01ea6fe897592d17c37476457a8008865d862a0",
     "baseWidth": 512,
     "source": "content/icons/am-radio.webp",
     "reason": "no larger source",
@@ -1257,7 +1257,7 @@
     ]
   },
   "fm-radio": {
-    "fingerprint": "f79327de4eb4d290dec4e7629db59bd40544da14b5fe1a87c3a6f6ccdf63b90e",
+    "fingerprint": "998d26053d1c3ed5c99e2a66839df08b7a1a808d205817b172c705b75ef17f84",
     "baseWidth": 512,
     "source": "content/icons/fm-radio.webp",
     "reason": "no larger source",
@@ -1312,7 +1312,7 @@
     ]
   },
   "gamma-ray": {
-    "fingerprint": "66f0e847dbb703323ad6239109a08d6b7a6636dc37c4cd25bcabe120e52cbff7",
+    "fingerprint": "c125b3010c5dcdf18dad1b5e172d63d09beadd05cc4ff76730f1c84163b293c1",
     "baseWidth": 512,
     "source": "content/icons/gamma-ray.webp",
     "reason": "no larger source",
@@ -1824,7 +1824,7 @@
     "variants": []
   },
   "infrared": {
-    "fingerprint": "c301f8ec7e9f2ca62b5502b6690d6ac5c8874e31ade0f0edb4f3ec151f4c6e40",
+    "fingerprint": "3b8e178f475e7813721399a6d4964f538096b2cde1c60976e74a1e632b0f8ab4",
     "baseWidth": 512,
     "source": "content/icons/infrared.webp",
     "reason": "no larger source",
@@ -2391,7 +2391,7 @@
     ]
   },
   "microwave": {
-    "fingerprint": "a5e6a8265f5451879a2669545980e55c51799453d801850a92874a41e5ab8234",
+    "fingerprint": "280112a5d90a3ee1e08485e22816d6b51991b5a80ecc2c1ce480d8f2e1a52316",
     "baseWidth": 512,
     "source": "content/icons/microwave.webp",
     "reason": "no larger source",
@@ -3769,7 +3769,7 @@
     ]
   },
   "ultraviolet": {
-    "fingerprint": "0ab6f52245e1edb4143cb33dbe273d1bbdcf7b24f753619a3f8abfd2cfdf63f2",
+    "fingerprint": "32192832296461e960e234fa4c555e966a5adaa0de2328eba495b864b0194fa4",
     "baseWidth": 512,
     "source": "content/icons/ultraviolet.webp",
     "reason": "no larger source",
@@ -3933,7 +3933,7 @@
     "variants": []
   },
   "visible-light": {
-    "fingerprint": "b0ab7a1df0720caaa16f2baa0ef145b324da527ea28afdfbd854f5760011bc4f",
+    "fingerprint": "75e5dd39242f37d47b7bc270846e7a77c33939ab3d6cfc2284f4dcafe7d3a11f",
     "baseWidth": 512,
     "source": "content/icons/visible-light.webp",
     "reason": "no larger source",
@@ -4077,7 +4077,7 @@
     ]
   },
   "x-ray": {
-    "fingerprint": "b7e0b8b438de1b090a5390047d5ab2f8698c54147bd3cc288f861bcbed7cb164",
+    "fingerprint": "a53eb75878f97a6b07efbe71167e6d35b0470809dc23c070b46e05a620892abc",
     "baseWidth": 512,
     "source": "content/icons/x-ray.webp",
     "reason": "no larger source",
@@ -5598,6 +5598,108 @@
       {
         "width": 1024,
         "path": "1024/train-wreck-cluster.webp"
+      }
+    ]
+  },
+  "21-cm-line": {
+    "fingerprint": "7698b3b5e6035a68d1067b919f9a079fe8ccc045c27ecdf2fd80bc7ae2706ddb",
+    "baseWidth": 512,
+    "source": "content/icons/21-cm-line.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/21-cm-line.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/21-cm-line.webp"
+      }
+    ]
+  },
+  "far-infrared": {
+    "fingerprint": "092777a868a13e7b232aee4a54eaf95d33604bc44f8842a8f6ae62c76db72fdc",
+    "baseWidth": 512,
+    "source": "content/icons/far-infrared.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/far-infrared.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/far-infrared.webp"
+      }
+    ]
+  },
+  "gev-gamma-ray": {
+    "fingerprint": "4e9a5ab6bda98a67c39dd1957eb7a55ebf0ed55f8cf308ee26d6f411abf55064",
+    "baseWidth": 512,
+    "source": "content/icons/gev-gamma-ray.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/gev-gamma-ray.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/gev-gamma-ray.webp"
+      }
+    ]
+  },
+  "near-infrared": {
+    "fingerprint": "650ca191fdeedfdfa338acb1a27317b7c41a74b0bf6768e60fc497132de89432",
+    "baseWidth": 512,
+    "source": "content/icons/near-infrared.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/near-infrared.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/near-infrared.webp"
+      }
+    ]
+  },
+  "soft-x-ray": {
+    "fingerprint": "49d1dbedf2a0eb0bc237c92a28ba1231ee715cec01c507108d4009387abef94f",
+    "baseWidth": 512,
+    "source": "content/icons/soft-x-ray.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/soft-x-ray.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/soft-x-ray.webp"
+      }
+    ]
+  },
+  "submillimetre": {
+    "fingerprint": "3ee3ef5f4491295a766706d06dc0b64b94069fd4e2517a82661b4daf7df13c8c",
+    "baseWidth": 512,
+    "source": "content/icons/submillimetre.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/submillimetre.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/submillimetre.webp"
       }
     ]
   }

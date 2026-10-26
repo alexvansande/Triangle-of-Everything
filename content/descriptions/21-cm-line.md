@@ -1,0 +1,1 @@
+The 21 cm line: radio waves given off when the electron in a hydrogen atom flips its spin. Each atom does it once in about ten million years, but there is so much hydrogen that it maps the gas of the whole Milky Way.

@@ -1,0 +1,1 @@
+Soft X-rays: around a nanometre long, given off by gas at millions of degrees. They are easily absorbed, so the Galaxy's own gas dims them, while from beyond it comes a faint, even glow made by millions of distant black holes.

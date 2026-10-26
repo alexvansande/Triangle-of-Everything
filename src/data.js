@@ -302,6 +302,7 @@ export const CONNECTION_PATHS = [
     family: "spectrum",
     description: "The electromagnetic spectrum — from gamma rays to radio waves, all photons travel at the speed of light",
     points: [
+      { logR: -13.21, logM: -23.75 },
       { logR: -10.3, logM: -26.66 },
       { logR: -8.3,  logM: -28.66 },
       { logR: -5.3,  logM: -31.66 },

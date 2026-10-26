@@ -39,7 +39,7 @@
   Cloud and the Milky Way (an off-centre circle, each edge point at its own
   log distance), each while it is a sensible size on screen (?rings=0 hides them).
   ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
-  ?lift= (0…1, log tone map of the Cloud's light)  ?radius=custom|log|linear  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
+  ?lift= (0…1, log tone map of the Cloud's light)  ?radius=custom|log|linear  ?dot= (point size ×)  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
@@ -258,10 +258,12 @@
     const UNIT_M = { fm: 1e-15, nm: 1e-9, "µm": 1e-6, mm: 1e-3, cm: 1e-2, m: 1 };
     // the ends of a wavelength string in metres: "21 cm", "330–680 nm", "20 µm–1.5 mm"
     function waveEnds(str) {
-      const m = str.replace(/~/g, "").match(/([\d.]+)\s*(fm|nm|µm|mm|cm|m)?(?:\s*–\s*([\d.]+))?\s*(fm|nm|µm|mm|cm|m)\b/);
-      if (!m) return [NaN, NaN];
-      const a = +m[1] * UNIT_M[m[2] ?? m[4]];
-      return [a, m[3] ? +m[3] * UNIT_M[m[4]] : a];
+      // each side of the dash is "number [unit]"; a side without a unit takes the other's
+      const parts = str.replace(/~/g, "").split("–").map((t) => t.trim().match(/^([\d.]+)\s*(fm|nm|µm|mm|cm|m)?$/));
+      if (parts.some((m) => !m)) return [NaN, NaN];
+      const unit = parts[parts.length - 1][2];
+      const [a, b = a] = parts.map((m) => +m[1] * UNIT_M[m[2] ?? unit]);
+      return [a, b];
     }
     const waveM = (str) => { const [a, b] = waveEnds(str); return Math.sqrt(a * b); };
     // position on this bar of any wavelength. Each slot owns a range of
@@ -587,7 +589,8 @@
       }`, `#version 300 es
       precision highp float;
       in vec3 vCol; out vec4 o;
-      void main() { float a = smoothstep(0.5, 0.15, length(gl_PointCoord - 0.5)); vec3 c = vCol * a * 0.14; o = vec4(c, max(c.r, max(c.g, c.b))); }`) : null;
+      uniform float dotGain; // bigger dots, dimmer each: the same light per area
+      void main() { float a = smoothstep(0.5, 0.15, length(gl_PointCoord - 0.5)); vec3 c = vCol * a * 0.14 * dotGain; o = vec4(c, max(c.r, max(c.g, c.b))); }`) : null;
     // Earth and Sun at the centre of the Cloud's log scale, seen through the
     // same RGB selector as the sky: each of their bands sits on the sky's
     // spectrum bar at its own wavelength (interpolated in log wavelength between
@@ -813,7 +816,9 @@
     let rmode = Math.max(0, R_NAMES.indexOf(first ? q.get("radius") : "")), lz = LZ_MAX;
     if (first && q.has("lz")) lz = Math.max(LZ_MIN, Math.min(LZ_MAX, +q.get("lz")));
     const radiusBox = document.getElementById("radius"), unit = document.getElementById("unit");
-    if (first && q.has("unit")) unit.value = q.get("unit");
+    // a link may set the unit below the slider's range (a bigger Earth, for icons)
+    if (first && q.has("unit")) { if (+q.get("unit") < +unit.min) unit.min = q.get("unit"); unit.value = q.get("unit"); }
+    const DOT = first && q.has("dot") ? Math.max(0.5, Math.min(6, +q.get("dot"))) : 1; // point size multiplier (?dot=)
     const L_EARTH = Math.log10(6371 / 9.4607e12), L_SUN_R = Math.log10(696000 / 9.4607e12); // radii in log10 ly
     const fmtScale = (L) => {
       const ly = 10 ** L;
@@ -1165,7 +1170,8 @@
         gl.useProgram(cloud);
         const U = common(cloud);
         const VP = cloudViewProj(w, h);
-        gl.uniform1f(U("size"), Math.min(6 * dpr, Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom))));
+        gl.uniform1f(U("size"), DOT * Math.min(6 * dpr, Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom))));
+        gl.uniform1f(U("dotGain"), 1 / (DOT * DOT));
         gl.uniform1f(U("spinA"), spinA);
         gl.uniform1i(U("rmode"), rmode);
         // background points in proportion to the selector's weight on bands

@@ -1,4 +1,7 @@
 {
+ "21-cm-line": {
+  "backing": "soft"
+ },
  "abell-1689": {
   "backing": "core",
   "master": true
@@ -62,6 +65,9 @@
  "electron": {
   "backing": "soft"
  },
+ "far-infrared": {
+  "backing": "soft"
+ },
  "fm-radio": {
   "backing": "soft"
  },
@@ -74,6 +80,9 @@
   "master": true
  },
  "gamma-ray": {
+  "backing": "soft"
+ },
+ "gev-gamma-ray": {
   "backing": "soft"
  },
  "globular-cluster": {
@@ -147,6 +156,9 @@
   "master": true
  },
  "muon": {
+  "backing": "soft"
+ },
+ "near-infrared": {
   "backing": "soft"
  },
  "nebulae": {
@@ -227,6 +239,9 @@
   "backing": "body",
   "master": true
  },
+ "soft-x-ray": {
+  "backing": "soft"
+ },
  "sombrero-m104": {
   "backing": "core",
   "master": true
@@ -240,6 +255,9 @@
   "master": true
  },
  "strange": {
+  "backing": "soft"
+ },
+ "submillimetre": {
   "backing": "soft"
  },
  "sun": {

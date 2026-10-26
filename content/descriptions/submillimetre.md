@@ -1,0 +1,1 @@
+Submillimetre waves: just under a millimetre, between far-infrared and microwaves. The coldest dust in the Galaxy glows here, and so do distant galaxies whose young starlight has been absorbed by dust and given off again.
