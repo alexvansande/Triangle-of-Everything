@@ -1,5 +1,5 @@
 // =============================================================
-// build-sun-spectrum.mjs — the Sun band by band, for tools/sky-spectrum.html (Sun)
+// build-sun-spectrum.mjs — the Sun band by band, for public/spectrum/index.html (Sun)
 // =============================================================
 // Run:  npm run build:sun-spectrum              (uses cached downloads)
 //       npm run build:sun-spectrum -- --refresh
@@ -23,7 +23,7 @@ import { normalise, writePacks } from "./sky/spectrum-pack.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = join(ROOT, "scripts/sky/.cache/sun");
-const OUT = join(ROOT, "tools/sun-spectrum");
+const OUT = join(ROOT, "public/spectrum/sun-spectrum");
 const REFRESH = process.argv.includes("--refresh");
 const DATE = "2015-12-18T02:44:33Z";
 const N = 1024;

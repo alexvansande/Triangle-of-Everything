@@ -147,6 +147,16 @@ function iconSizeMult(o) {
   return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * iconAreaMult(o.slug) * (_iconSize / 100);
 }
 
+// Photons → where the spectrum explorer (/spectrum/) opens: the selector's
+// centre c and spread s on its band bar (the sky's bands, radio → gamma), the
+// same view their map icons were rendered from.
+const SPECTRUM_BANDS = {
+  "am-radio": [0.25, 0.25], "fm-radio": [0.25, 0.25], "21-cm-line": [1, 1], "microwave": [3, 1],
+  "submillimetre": [8, 1], "far-infrared": [13, 1], "infrared": [16, 1], "near-infrared": [19, 1],
+  "visible-light": [22, 1], "ultraviolet": [23.5, 1], "soft-x-ray": [25, 1], "x-ray": [26, 1],
+  "gamma-ray": [26.5, 1], "gev-gamma-ray": [27, 1],
+};
+
 function nameToSlug(name) {
   return name
     .toLowerCase()
@@ -4077,7 +4087,27 @@ function openSidebar(obj) {
   const imgMeta = imageManifest[slug];
   // For particles with a Hyperspirograph state, embed the live spirograph instead
   const spiroState = hyperspirographStates[slug];
-  if (spiroState) {
+  // Photons open the electromagnetic-spectrum explorer at their own band
+  const spectrumBand = SPECTRUM_BANDS[slug];
+  sbImage.classList.toggle("sb-image-app", !!spectrumBand); // the explorer sets its own height
+  if (spectrumBand) {
+    sbImage.innerHTML = "";
+    const [c, s] = spectrumBand;
+    const view = `view=cloud&radius=log&unit=-14&bright=log&lift=0.5&c=${c}&s=${s}`;
+    const iframe = document.createElement("iframe");
+    iframe.src = `/spectrum/index.html?embed=1&dot=1.5&rings=0&${view.replace("lift=0.5", "lift=0.35")}`;
+    iframe.style.cssText = "width:100%;aspect-ratio:1/1.15;border:0;display:block;background:#000;border-radius:8px;";
+    iframe.loading = "lazy";
+    iframe.title = `${obj.name} — the sky across the electromagnetic spectrum`;
+    sbImage.appendChild(iframe);
+    const explore = document.createElement("a");
+    explore.className = "sb-spiro-explore";
+    explore.href = `/spectrum/index.html?${view}`;
+    explore.target = "_blank";
+    explore.rel = "noopener";
+    explore.textContent = "🌈 Explore the electromagnetic spectrum →";
+    sbImage.appendChild(explore);
+  } else if (spiroState) {
     sbImage.innerHTML = "";
     const iframe = document.createElement("iframe");
     iframe.src = `/hyperspirograph.html?embed=1#${spiroState}`;

@@ -1,5 +1,5 @@
 // Shared by the Earth and Sun spectrum builds: normalise a band to 0…1 and
-// pack three bands per RGB image, in the format tools/sky-spectrum.html reads.
+// pack three bands per RGB image, in the format public/spectrum/index.html reads.
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";

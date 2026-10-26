@@ -27,7 +27,8 @@
   z ≈ 1 — and everything in front at its own depth.
   Zooming out past Inside's widest view hands over to the Cloud (log scale,
   Earth at the centre, same size, same side); zooming in on Earth returns.
-  Then:  npm run dev  →  http://localhost:5173/tools/sky-spectrum.html
+  Then:  npm run dev  →  http://localhost:5173/spectrum/  (the chart opens it from
+  every photon: embedded in the sidebar with ?embed=1, or full in a new tab)
   Cloud radius: Custom (Milky Way on the inner 80%, log; the rest on the outer
   20%), Log (radius ∝ log distance in units from 1,000 km to billions of ly;
   anything nearer than one unit is hidden; with a unit below Earth's radius,
@@ -38,7 +39,7 @@
   ten of distance; translucent discs show the Sun's yearly path, the Oort
   Cloud and the Milky Way (an off-centre circle, each edge point at its own
   log distance), each while it is a sensible size on screen (?rings=0 hides them).
-  ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
+  ?embed=1 (bar and view only, for the chart's sidebar)  ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
   ?bright=lin|log  ?lift= (0…1, how strong the log brightness is)  ?radius=custom|log|linear  ?dot= (point size ×)  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -123,6 +124,17 @@
   #ringText text.ref { fill: rgba(255, 214, 140, 0.9); }
   #ringText circle { fill: rgba(255, 214, 140, 0.9); }
   footer { padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); color: var(--dim); font-size: 11px; }
+  /* embedded in the chart's sidebar (?embed=1): just the spectrum bar and the view */
+  body.embed header, body.embed #dist, body.embed #dreadout, body.embed footer,
+  body.embed #radius, body.embed #views { display: none !important; }
+  body.embed .pad { padding-left: 8px; padding-right: 8px; }
+  body.embed #bar { margin-top: 6px; }
+  body.embed #slots .slot span { display: none; }
+  body.embed #slots, body.embed #selector, body.embed #curves { height: 40px; }
+  body.embed #regions { font-size: 9px; letter-spacing: 0; }
+  body.embed #regions div[data-short]::before { content: attr(data-short); font-size: 9px; } body.embed #regions div[data-short] { font-size: 0; }
+  body.embed #readout { font-size: 10px; gap: 6px; }
+  body.embed #stage { margin-top: 0; }
   @media (max-width: 700px) {
     header h1 { font-size: 24px; } header p { display: none; } .controls { margin-left: 0; gap: 8px; }
     .controls input[type=range] { width: 70px; }
@@ -209,6 +221,7 @@
   ];
   const SHORT = { Radio: "Rad", Microwave: "µW", "Far-IR": "FIR", "Mid-IR": "MIR", "Near-IR": "NIR", "Thermal IR": "TIR", Visible: "Vis", "X-ray": "X", Gamma: "γ", EUV: "EUV", UV: "UV" };
   const q = new URLSearchParams(location.search);
+  if (q.get("embed") === "1") document.body.classList.add("embed");
   let session = null;
 
   async function boot(target, first) {

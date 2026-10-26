@@ -1,5 +1,5 @@
 // =============================================================
-// build-sky-spectrum.mjs — whole-sky maps band by band, for tools/sky-spectrum.html
+// build-sky-spectrum.mjs — whole-sky maps band by band, for public/spectrum/index.html
 // =============================================================
 // Run:  npm run build:sky-spectrum              (uses cached downloads)
 //       npm run build:sky-spectrum -- --refresh (re-download everything)
@@ -23,7 +23,7 @@ import { sourceCatalogues, comovingLd } from "./sky/source-depth.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = join(ROOT, "scripts/sky/.cache/spectrum");
-const OUT = join(ROOT, "tools/sky-spectrum");
+const OUT = join(ROOT, "public/spectrum/sky-spectrum");
 const REFRESH = process.argv.includes("--refresh");
 const W = 2048, H = 1024;
 const TARGET_ORDER = 9; // HEALPix nside 512 ≈ 7′, about one output pixel

@@ -1,5 +1,5 @@
 // =============================================================
-// build-earth-spectrum.mjs — Earth band by band, for tools/sky-spectrum.html (Earth)
+// build-earth-spectrum.mjs — Earth band by band, for public/spectrum/index.html (Earth)
 // =============================================================
 // Run:  npm run build:earth-spectrum              (uses cached downloads)
 //       npm run build:earth-spectrum -- --refresh
@@ -34,7 +34,7 @@ import { normalise, writePacks } from "./sky/spectrum-pack.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = join(ROOT, "scripts/sky/.cache/earth");
-const OUT = join(ROOT, "tools/earth-spectrum");
+const OUT = join(ROOT, "public/spectrum/earth-spectrum");
 const REFRESH = process.argv.includes("--refresh");
 const DATE = "2024-06-15";
 const W = 2048, H = 1024;
