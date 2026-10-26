@@ -101,7 +101,7 @@
     ]
   },
   "am-radio": {
-    "fingerprint": "c979179450c631d3e6287f67a01ea6fe897592d17c37476457a8008865d862a0",
+    "fingerprint": "156b5c653c78ed45ce1912518ddc442ad27bcc8871036821e8038d29e00ae917",
     "baseWidth": 512,
     "source": "content/icons/am-radio.webp",
     "reason": "no larger source",
@@ -1257,7 +1257,7 @@
     ]
   },
   "fm-radio": {
-    "fingerprint": "998d26053d1c3ed5c99e2a66839df08b7a1a808d205817b172c705b75ef17f84",
+    "fingerprint": "523681283af1911ed86401b4b53b64b76d7c0f64d11fcd2358e990dbb11537b3",
     "baseWidth": 512,
     "source": "content/icons/fm-radio.webp",
     "reason": "no larger source",
@@ -1312,7 +1312,7 @@
     ]
   },
   "gamma-ray": {
-    "fingerprint": "c125b3010c5dcdf18dad1b5e172d63d09beadd05cc4ff76730f1c84163b293c1",
+    "fingerprint": "bf8e47aa56ce2a5050d1b97e5179c9fa74fe039c0fcf2c57c72cb3f513fc4880",
     "baseWidth": 512,
     "source": "content/icons/gamma-ray.webp",
     "reason": "no larger source",
@@ -1824,7 +1824,7 @@
     "variants": []
   },
   "infrared": {
-    "fingerprint": "3b8e178f475e7813721399a6d4964f538096b2cde1c60976e74a1e632b0f8ab4",
+    "fingerprint": "9f042c742a0801a3fb823c329abc7ffbded610bfbb241db9a57ad2bb4267e1b1",
     "baseWidth": 512,
     "source": "content/icons/infrared.webp",
     "reason": "no larger source",
@@ -2391,7 +2391,7 @@
     ]
   },
   "microwave": {
-    "fingerprint": "280112a5d90a3ee1e08485e22816d6b51991b5a80ecc2c1ce480d8f2e1a52316",
+    "fingerprint": "c5a802c2a72bd2cae886f419f236d1889c4bae587fcf8ab6a0b4d780377df1e6",
     "baseWidth": 512,
     "source": "content/icons/microwave.webp",
     "reason": "no larger source",
@@ -3769,7 +3769,7 @@
     ]
   },
   "ultraviolet": {
-    "fingerprint": "32192832296461e960e234fa4c555e966a5adaa0de2328eba495b864b0194fa4",
+    "fingerprint": "95228f0a0cae28f7d591586d77da9d0ea6b4efc284741b4f90208af72d682946",
     "baseWidth": 512,
     "source": "content/icons/ultraviolet.webp",
     "reason": "no larger source",
@@ -3933,7 +3933,7 @@
     "variants": []
   },
   "visible-light": {
-    "fingerprint": "75e5dd39242f37d47b7bc270846e7a77c33939ab3d6cfc2284f4dcafe7d3a11f",
+    "fingerprint": "e0dc791941bca4236b70fd609eae805120ed9824c1fbd9893e59cf5707cbadc8",
     "baseWidth": 512,
     "source": "content/icons/visible-light.webp",
     "reason": "no larger source",
@@ -4077,7 +4077,7 @@
     ]
   },
   "x-ray": {
-    "fingerprint": "a53eb75878f97a6b07efbe71167e6d35b0470809dc23c070b46e05a620892abc",
+    "fingerprint": "ac0a1053b1793ef499da551dd63b86e571388af1afdf3d08a4b118e82408c62c",
     "baseWidth": 512,
     "source": "content/icons/x-ray.webp",
     "reason": "no larger source",
@@ -5602,7 +5602,7 @@
     ]
   },
   "21-cm-line": {
-    "fingerprint": "7698b3b5e6035a68d1067b919f9a079fe8ccc045c27ecdf2fd80bc7ae2706ddb",
+    "fingerprint": "781adb829a6a07c3cfa90b8147eaed2884ea69f80be78b3275bdb947d0a6bbe5",
     "baseWidth": 512,
     "source": "content/icons/21-cm-line.webp",
     "reason": "no larger source",
@@ -5619,7 +5619,7 @@
     ]
   },
   "far-infrared": {
-    "fingerprint": "092777a868a13e7b232aee4a54eaf95d33604bc44f8842a8f6ae62c76db72fdc",
+    "fingerprint": "25530d1f682abb1d564b3bb77f26914da8e9cc3dfa2caa954e5c977021d28cdb",
     "baseWidth": 512,
     "source": "content/icons/far-infrared.webp",
     "reason": "no larger source",
@@ -5636,7 +5636,7 @@
     ]
   },
   "gev-gamma-ray": {
-    "fingerprint": "4e9a5ab6bda98a67c39dd1957eb7a55ebf0ed55f8cf308ee26d6f411abf55064",
+    "fingerprint": "83970960f3bf838d307139d63a459839a8a84e7a3e9a2b725473be947c54fbeb",
     "baseWidth": 512,
     "source": "content/icons/gev-gamma-ray.webp",
     "reason": "no larger source",
@@ -5653,7 +5653,7 @@
     ]
   },
   "near-infrared": {
-    "fingerprint": "650ca191fdeedfdfa338acb1a27317b7c41a74b0bf6768e60fc497132de89432",
+    "fingerprint": "e12745b4b7e4d547fb315b2c573c1ed47ed0fb4fd024496902934c05976df1f4",
     "baseWidth": 512,
     "source": "content/icons/near-infrared.webp",
     "reason": "no larger source",
@@ -5670,7 +5670,7 @@
     ]
   },
   "soft-x-ray": {
-    "fingerprint": "49d1dbedf2a0eb0bc237c92a28ba1231ee715cec01c507108d4009387abef94f",
+    "fingerprint": "0c9a86e685300056b913e5cefec26bf00e26312de59b6516682b8505c7896d32",
     "baseWidth": 512,
     "source": "content/icons/soft-x-ray.webp",
     "reason": "no larger source",
@@ -5687,7 +5687,7 @@
     ]
   },
   "submillimetre": {
-    "fingerprint": "3ee3ef5f4491295a766706d06dc0b64b94069fd4e2517a82661b4daf7df13c8c",
+    "fingerprint": "701234bd393b84a83561212c4eccd608d198e8a72a3cc99ea3c43e5de93e744f",
     "baseWidth": 512,
     "source": "content/icons/submillimetre.webp",
     "reason": "no larger source",

@@ -39,7 +39,7 @@
   Cloud and the Milky Way (an off-centre circle, each edge point at its own
   log distance), each while it is a sensible size on screen (?rings=0 hides them).
   ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
-  ?lift= (0…1, log tone map of the Cloud's light)  ?radius=custom|log|linear  ?dot= (point size ×)  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
+  ?bright=lin|log  ?lift= (0…1, how strong the log brightness is)  ?radius=custom|log|linear  ?dot= (point size ×)  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
@@ -181,7 +181,10 @@
         <button data-lz="1.5">Nearby stars</button><button data-lz="3.5">Our arm</button><button data-lz="4.9">Milky Way</button><button data-lz="6.6">Local Group</button><button data-lz="8.4">Supercluster</button><button data-lz="10.7">Universe</button>
       </span>
     </span>
-    <label title="Log-compress the cloud's light: faint far points show, the bright centre saturates gently">Lift faint <input id="lift" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="Lift faint points"></label>
+    <span class="seg" id="bright" role="group" aria-label="Brightness">
+      <button data-b="lin" title="Light adds up as it is: the crowded centre dominates">Linear</button><button data-b="log" title="Log-compress the light: faint far points show, the bright centre saturates gently">Log</button>
+    </span>
+    <label id="liftBox" title="How strongly the log brightness lifts faint points">Lift faint <input id="lift" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="Lift faint points"></label>
     <label><input id="ringsOn" type="checkbox" checked> Scale</label>
   </div>
 </div>
@@ -841,8 +844,17 @@
     }
     radiusBox.querySelectorAll("#rmodes button").forEach((b) => on(b, "click", () => setRadius(+b.dataset.r)));
     on(unit, "input", () => { showScale(); draw(); });
+    // brightness: linear (light adds up as it is) or log (lifted by "Lift faint")
     const lift = document.getElementById("lift");
     if (first && q.has("lift")) lift.value = q.get("lift");
+    let brightLog = first && q.get("bright") === "lin" ? false : !(first && q.get("lift") === "0");
+    function setBright(log) {
+      brightLog = log;
+      document.querySelectorAll("#bright button").forEach((b) => b.setAttribute("aria-pressed", (b.dataset.b === "log") === log));
+      document.getElementById("liftBox").hidden = !log;
+      draw();
+    }
+    document.querySelectorAll("#bright button").forEach((b) => on(b, "click", () => setBright(b.dataset.b === "log")));
     on(lift, "input", () => draw());
     // Linear "go to": glide the scale there, evenly in powers of ten
     let glide = null;
@@ -1207,7 +1219,7 @@
           gl.activeTexture(gl.TEXTURE0 + ACC_UNIT);
           gl.bindTexture(gl.TEXTURE_2D, accTex);
           gl.uniform1i(gl.getUniformLocation(tonemap, "acc"), ACC_UNIT);
-          const v = +lift.value;
+          const v = brightLog ? +lift.value : 0;
           gl.uniform1f(gl.getUniformLocation(tonemap, "lift"), v > 0 ? 10 ** (3 * v) - 1 : 0);
           over();
           gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -1259,6 +1271,7 @@
     setMode(mode);
     if (first && q.has("zoom")) { const [lo, hi] = ZOOM[mode]; view.zoom = Math.max(lo, Math.min(hi, +q.get("zoom"))); }
     setRadius(rmode);
+    setBright(brightLog);
     clamp(); layoutSelector(); layoutDist(); draw();
     window.__stillDone = true;
   }
