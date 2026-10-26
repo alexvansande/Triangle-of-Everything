@@ -281,6 +281,9 @@ Cue fields
   atEnd    anchor to the phrase's last word instead
   cam      { r, m, span } — log radius [cm], log mass [g], decades across
            the screen width — or { obj: "Name", span, dr, dm }
+           cam.whip: a fast straight move at close zoom (no zoom out on the way),
+           with motion blur and a small elastic overshoot (default dur 0.6 s;
+           cam.overshoot sets the bump, default 1.3)
   dur      flight seconds (default: from the distance travelled)
   drift    slow zoom-in while holding, as a fraction (default 0.05)
   hl       highlights, shown until the next cue with hl/clear:

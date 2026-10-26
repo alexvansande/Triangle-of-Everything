@@ -208,14 +208,21 @@ export async function startNarration(app) {
   // glide point at its cue's time on a smooth (Catmull-Rom) curve, never holding,
   // instead of flying and stopping at each one.
   const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam), dur: c.dur, drift: c.drift ?? 0.05,
-    quiet: !!c.quiet, glide: !!c.cam.glide }))
+    quiet: !!c.quiet, glide: !!c.cam.glide, whip: !!c.cam.whip, overshoot: c.cam.overshoot }))
     .filter(k => k.to);
   for (let i = 0; i < keys.length; i++) {
     const k = keys[i];
     if (k.glide && keys[i - 1]?.glide) { k.end = k.t; continue; }   // reached by the pan itself
     const from = i === 0 ? START : camAt(k.t, i - 1);
     k.from = from;
-    k.interp = d3.interpolateZoom([from.r, from.m, from.span], [k.to.r, k.to.m, k.to.span]);
+    if (k.whip) {
+      // cam.whip: a fast straight move at close zoom, with no zooming out on the way. It
+      // overshoots a touch and settles back (an elastic bump); the motion blur is in renderAt
+      const back = d3.easeBackOut.overshoot(k.overshoot ?? 1.3), ls0 = Math.log(from.span), ls1 = Math.log(k.to.span);
+      k.interp = (p) => [from.r + (k.to.r - from.r) * back(p), from.m + (k.to.m - from.m) * back(p),
+        Math.exp(ls0 + (ls1 - ls0) * d3.easeCubicInOut(p))];
+      if (k.dur == null) k.dur = 0.6;
+    } else k.interp = d3.interpolateZoom([from.r, from.m, from.span], [k.to.r, k.to.m, k.to.span]);
     if (k.dur == null) k.dur = Math.max(1.4, Math.min(3.6, k.interp.duration / 1000 * 0.8));
     k.end = k.t + k.dur;
   }
@@ -233,8 +240,9 @@ export async function startNarration(app) {
       return { r, m, span, phase: "fly" };
     }
     if (t < k.end) {
-      const [r, m, span] = k.interp(d3.easeCubicInOut(clamp01((t - k.t) / k.dur)));
-      return { r, m, span, phase: "fly" };
+      const p = clamp01((t - k.t) / k.dur);
+      const [r, m, span] = k.interp(k.whip ? p : d3.easeCubicInOut(p));
+      return { r, m, span, phase: "fly", whip: k.whip };
     }
     const next = keys[i + 1]?.t ?? k.end + 20;
     const f = clamp01((t - k.end) / Math.max(1, next - k.end));
@@ -1541,8 +1549,31 @@ export async function startNarration(app) {
     // end the gesture once on arrival (full redraw + tiles); otherwise keep it open
     const arriving = view.phase === "hold" && (lastPhase === "fly" || key !== lastKey);
     app.setCamera(view, !arriving);
+    motionBlur(t, view);
     lastKey = key; lastPhase = view.phase;
     overlay();
+  }
+  // Motion blur on a whip move: the chart and the overlay smear along the direction of
+  // travel, in proportion to how far the view moves on screen in a frame (1/30 s).
+  const blurDefs = d3.select(document.body).append("svg").attr("width", 0).attr("height", 0)
+    .style("position", "absolute").append("defs");
+  const blurFe = blurDefs.append("filter").attr("id", "narr-mblur").attr("x", "-5%").attr("y", "-5%")
+    .attr("width", "110%").attr("height", "110%").append("feGaussianBlur").attr("stdDeviation", "0 0");
+  const blurIds = ["chart", "classic", "narr-svg"];   // looked up each time: the classic figure is built later
+  let blurOn = false;
+  function motionBlur(t, view) {
+    let sx_ = 0, sy_ = 0;
+    if (view.whip) {
+      const prev = camera(Math.max(0, t - 1 / 30)).view, pl = app.plot();
+      sx_ = Math.min(24, Math.abs(view.r - prev.r) / view.span * pl.w * 0.35);
+      sy_ = Math.min(24, Math.abs(view.m - prev.m) / (view.span * pl.h / pl.w) * pl.h * 0.35);
+    }
+    const on = sx_ + sy_ > 0.6;
+    if (on) blurFe.attr("stdDeviation", `${sx_.toFixed(1)} ${sy_.toFixed(1)}`);
+    if (on !== blurOn) {
+      blurIds.forEach(id => { const el = document.getElementById(id); if (el) el.style.filter = on ? "url(#narr-mblur)" : ""; });
+      blurOn = on;
+    }
   }
   function overlay() {
     drawUnits(curT);

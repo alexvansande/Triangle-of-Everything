@@ -64,13 +64,14 @@ export default {
     { at: "bottom axis", hl: [{ axis: "bottom", label: "size" }] },
     { at: "as wavelength", hl: [{ axis: "bottom", label: "wavelength" }] },
 
-    // all of science, top to bottom: a loop round each one as it's named, the earlier ones kept
+    // all of science, top to bottom: the camera whips from one to the next, close in, each
+    // getting its loop as it's named (the earlier ones kept)
     { at: "all of science", cam: FIG, dur: 2, clear: true },
-    { at: "astronomy", hl: [ASTRO] },
-    { at: "engineering is here", hl: [...drawn([ASTRO]), ENGINEERING] },
-    { at: "biology", hl: [...drawn([ASTRO, ENGINEERING]), BIOLOGY] },
-    { at: "chemistry", hl: [...drawn([ASTRO, ENGINEERING, BIOLOGY]), CHEMISTRY] },
-    { at: "particle physics", hl: [...drawn([ASTRO, ENGINEERING, BIOLOGY, CHEMISTRY]), PARTICLES] },
+    { at: "astronomy", cam: { r: 17, m: 38, span: 34 }, dur: 1.2, hl: [ASTRO] },
+    { at: "engineering is here", cam: { r: 5.4, m: 14, span: 26, whip: true }, hl: [...drawn([ASTRO]), ENGINEERING] },
+    { at: "biology", cam: { r: -0.6, m: -2, span: 30, whip: true }, hl: [...drawn([ASTRO, ENGINEERING]), BIOLOGY] },
+    { at: "chemistry", cam: { r: -6.2, m: -21, span: 22, whip: true }, hl: [...drawn([ASTRO, ENGINEERING, BIOLOGY]), CHEMISTRY] },
+    { at: "particle physics", cam: { r: -15.5, m: -23, span: 22, whip: true }, hl: [...drawn([ASTRO, ENGINEERING, BIOLOGY, CHEMISTRY]), PARTICLES] },
 
     // the three sides, and where the two left ones meet
     { at: "bounded by three sides", cam: FIG, dur: 2.4, hl: [{ line: "triangle" }] },
@@ -89,20 +90,20 @@ export default {
     { at: "the triangle of everything", offset: -0.6, classic: "out", fade: 3, cam: MAP, dur: 3.4, drift: 0.04,
       hl: [{ line: "triangle", delay: 1.4 }] },
 
-    // a few of its stories, a quick hop each
-    // the plane and the hippo share a shot: "hippos" and "gravity" are a breath apart
+    // a few of its stories: in close on the first, then a whip from each to the next
+    // (the plane and the hippo share a shot: "hippos" and "gravity" are a breath apart)
     { at: "about airplanes", cam: { r: 2.75, m: 7.5, span: 9 }, dur: 2.2, clear: true, hl: [{ obj: "Boeing 747", label: "airplanes" }] },
     { at: "hippos", hl: [{ obj: "Boeing 747", label: "airplanes" }, { obj: "Hippopotamus", label: "hippos" }] },
-    { at: "and gravity", cam: { r: 8.5, m: 26.8, span: 9 }, dur: 1.4, hl: [{ obj: "Moon" }, { obj: "Earth", label: "gravity" }] },
-    { at: "how stars evolve", cam: { r: 11.6, m: 33.5, span: 11 }, dur: 1.4,
+    { at: "and gravity", cam: { r: 8.5, m: 26.8, span: 9, whip: true }, hl: [{ obj: "Moon" }, { obj: "Earth", label: "gravity" }] },
+    { at: "how stars evolve", cam: { r: 11.6, m: 33.5, span: 11, whip: true },
       hl: [{ obj: "Protostar" }, { obj: "Sun", delay: 0.3 }, { obj: "Red Giant", delay: 0.6 }, { obj: "White Dwarf", delay: 0.9 }] },
-    { at: "particles turn into", cam: { r: -11.8, m: -25.4, span: 11 }, dur: 1.8,
+    { at: "particles turn into", cam: { r: -11.8, m: -25.4, span: 11, whip: true },
       hl: [{ obj: "Proton" }, { obj: "Neutron", label: false }, { obj: "Electron", delay: 0.3 }] },
-    { at: "why balloons float", cam: { r: 2.1, m: 3.6, span: 9 }, dur: 1.8,
+    { at: "why balloons float", cam: { r: 2.1, m: 3.6, span: 9, whip: true },
       hl: [{ line: "air" }, { obj: "Helium Party Balloon" }, { obj: "Hot-air Balloon", delay: 0.3 }] },
-    { at: "the periodic table", cam: { r: -8, m: -22.6, span: 6 }, dur: 1.8,
+    { at: "the periodic table", cam: { r: -8, m: -22.6, span: 6, whip: true },
       hl: [{ obj: "Hydrogen" }, { obj: "Carbon", delay: 0.2 }, { obj: "Iron", delay: 0.4 }, { obj: "Gold", delay: 0.6 }] },
-    { at: "why fire looks", cam: { obj: "Visible Light", span: 9 }, dur: 1.6, hl: [{ obj: "Visible Light", label: "light" }] },
+    { at: "why fire looks", cam: { obj: "Visible Light", span: 9, whip: true }, hl: [{ obj: "Visible Light", label: "light" }] },
 
     // the outro: one slow zoom out from the last shot, to the end
     { at: "obsessed", cam: { obj: "Visible Light", span: 40 }, dur: 24, drift: 0, clear: true },
