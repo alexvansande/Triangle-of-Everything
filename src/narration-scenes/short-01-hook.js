@@ -57,7 +57,8 @@ export default {
     { at: "photons", cam: { r: -9, m: -27, span: 22 } },
 
     // energy and wavelength
-    { at: "also a chart of energy", cam: FIG, dur: 2, hl: [{ axis: "left", label: "energy" }] },
+    // "…a chart of energy": a white flash with Einstein's equation for 2 s, then the energy axis
+    { at: "also a chart of energy", cam: FIG, dur: 2, hl: [{ axis: "left", label: "energy" }, { card: "E = mc²", hold: 2 }] },
     { at: "bottom axis", hl: [{ axis: "bottom", label: "size" }] },
     { at: "as wavelength", hl: [{ axis: "bottom", label: "wavelength" }] },
 

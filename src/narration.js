@@ -604,10 +604,12 @@ export async function startNarration(app) {
       return g.enter().append("g").attr("class", "hl").merge(g);
     };
     const axisHls = live.filter(h => h.axis);
-    join(gHlFree, axisHls).each(function (h) {
+    // axis highlights and full-screen cards stay unclipped, over the classic figure too
+    join(gHlFree, live.filter(h => h.axis || h.card)).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
       const age = t - h.t0;
+      if (h.card) { el.attr("opacity", 1); drawCard(el, h, age); return; }
       el.attr("opacity", smooth(age / 0.45) * (1 - smooth((t - h.t1) / 0.5)));
       drawAxis(el, h, age, fr);
     });
@@ -630,7 +632,7 @@ export async function startNarration(app) {
       el.attr("opacity", (prev ? 1 : smooth((t - h.t0) / 0.3)) * (next ? (t < h.t1 ? 1 : 0) : 1 - smooth((t - h.t1) / 0.6)));
       drawSketch(el, h, t - h.t0);
     });
-    join(gHl, live.filter(h => !h.axis && !h.sketch)).each(function (h) {
+    join(gHl, live.filter(h => !h.axis && !h.card && !h.sketch)).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
       const age = t - h.t0;
@@ -1009,6 +1011,7 @@ export async function startNarration(app) {
     return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
   }
   function drawSide(el, h) {
+    if (h.mass != null) return drawMassSide(el, h);
     // shade one side of a line (default the water line) across the screen
     const L = LINES[h.of || "water"].pts;
     const [a, b] = [L[0], L[L.length - 1]];
@@ -1025,6 +1028,24 @@ export async function startNarration(app) {
         .attr("x", plot.x + plot.w * (h.side === "right" ? 0.78 : 0.22)).attr("y", plot.y + plot.h * (h.labelY ?? 0.3))
         .attr("text-anchor", "middle").attr("fill", col).text(h.label.toUpperCase());
     }
+  }
+  /** One side of a level of constant mass, across the screen: { side: "above"|"below",
+   *  mass: logM, label? }, shaded like the water line's sides, with the level drawn
+   *  as a line and the label just off it on that side. */
+  function drawMassSide(el, h, age) {
+    const plot = app.plot(), y = sy(h.mass), up = h.side === "above";
+    const col = h.color || (up ? "#4fc3f7" : "#ffab40");
+    const y2 = up ? plot.y : plot.y + plot.h;
+    el.append("rect").attr("x", plot.x).attr("width", plot.w).attr("y", Math.min(y, y2))
+      .attr("height", Math.abs(y2 - y)).attr("fill", col).attr("opacity", 0.13);
+    el.append("line").attr("x1", plot.x).attr("x2", plot.x + plot.w).attr("y1", y).attr("y2", y)
+      .attr("stroke", "#fff").attr("stroke-width", 2).attr("stroke-dasharray", "8 6").attr("opacity", 0.8);
+    if (!h.label) return;
+    // "\n" stacks the label; it sits just off the level, on its own side
+    const lines = h.label.split("\n"), x = plot.x + plot.w * (h.labelX ?? 0.5);
+    const t = el.append("text").attr("class", "narr-sidelabel").attr("x", x)
+      .attr("y", up ? y - 18 - (lines.length - 1) * 22 : y + 38).attr("text-anchor", "middle").attr("fill", col);
+    lines.forEach((ln, i) => t.append("tspan").attr("x", x).attr("dy", i ? 22 : 0).text(ln.toUpperCase()));
   }
   /** Every catalogue dot of one category ({ dust: "blackhole", label? }), or of
    *  some sources ({ dust: "galaxy", src: ["galaxy", "cluster"] }): a small ring
@@ -1309,6 +1330,22 @@ export async function startNarration(app) {
     const t = el.append("text").attr("class", h.small ? "narr-note" : "narr-title").attr("x", SW / 2).attr("y", SH * (h.y ?? 0.4))
       .attr("text-anchor", "middle").attr("opacity", op);
     h.title.split("\n").forEach((ln, i) => t.append("tspan").attr("x", SW / 2).attr("dy", i ? "1.0em" : 0).text(ln.toUpperCase()));
+  }
+  /** A full-screen card: { card: "E = mc²", hold?: 2, bg?: "#fff", color? } — the screen
+   *  fades to the card's colour, holds the text (an equation: serif italic, a trailing
+   *  "²" set as a superscript) for `hold` seconds, and fades back to the chart. */
+  function drawCard(el, h, age) {
+    const SW = layer.clientWidth, SH = layer.clientHeight, hold = h.hold ?? 2;
+    const op = smooth(age / 0.35) * (1 - smooth((age - 0.35 - hold) / 0.45));
+    if (op <= 0) return;
+    el.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH)
+      .attr("fill", h.bg || "#fff").attr("opacity", op);
+    const sup = h.card.endsWith("²"), body = sup ? h.card.slice(0, -1) : h.card;
+    const fs = Math.min(SW * 0.17, SH * 0.12);
+    const t = el.append("text").attr("x", SW / 2).attr("y", SH * 0.47 + fs * 0.35).attr("text-anchor", "middle")
+      .attr("fill", h.color || "#111").attr("opacity", op).style("font", `italic ${fs}px "Times New Roman", Georgia, serif`);
+    t.append("tspan").text(body);
+    if (sup) t.append("tspan").attr("dy", -fs * 0.42).style("font-size", `${fs * 0.6}px`).text("2");
   }
   /** A labelled point: { mark: [r, m], label, color? } (a candidate with no object of its own) */
   function drawMark(el, h, age) {

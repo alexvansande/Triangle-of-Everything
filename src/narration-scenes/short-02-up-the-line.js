@@ -33,7 +33,11 @@ const G = (r, m) => ({ r, m, span: PAN, glide: true });
 // from the brown dwarfs, one slow zoom out to the end: just enough for the red giant and
 // the neutron star
 const STARS = { r: 9.48, m: 32.7, span: 7.8 };
-const PAN = 2.2;                            // span of the rocks → round worlds pan (as wide as the animals')
+const PAN = 2.2;
+// what holds a body's shape, either side of the round-world mass (between Vesta and Ceres)
+const ROUND_M = 23.7;
+const BONDS = { side: "below", mass: ROUND_M, label: "chemical bonds\ndominate", labelX: 0.76 };
+const GRAVITY = { side: "above", mass: ROUND_M, label: "gravity\ndominates", labelX: 0.76 };                            // span of the rocks → round worlds pan (as wide as the animals')
 // one grid square (a decade of size × a decade of mass) with its bottom-left corner at (r, m)
 const SQ = (r, m, delay = 0) => ({ poly: [[r, m], [r + 1, m], [r + 1, m + 1], [r, m + 1]], fill: "#ffd54f", opacity: 0.35, delay });
 const STEP_RIGHT = [{ arrow: true, from: ML, to: RIGHT, label: "×10 size" }, SQ(-0.207, -1)];
@@ -154,10 +158,12 @@ export default {
 
     // round worlds
     { at: "less potato", cam: { r: 7.2, m: 22.2, span: PAN, glide: true },
-      hl: [{ obj: "Hyperion", place: "left", label: "Hyperion · lumpy" }, { obj: "Vesta", delay: 0.4 }, { obj: "Mimas", delay: 0.8 }, { obj: "Ceres", delay: 1.2 }, { obj: "Pluto", delay: 1.6 }] },
-    { at: "chemical bonds", cam: { r: 7.6, m: 23.4, span: PAN, glide: true }, hl: [{ obj: "Hyperion", place: "left", label: "held by its bonds" }, { obj: "Mimas" }, { obj: "Ceres" }, { obj: "Pluto" }] },
-    { at: "gravity takes over", cam: { r: 7.9, m: 24.4, span: PAN, glide: true }, hl: [{ obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
-    { at: "shapes planets", cam: G(8.15, 25.2), clear: true },
+      hl: [{ obj: "Hyperion", place: "left", label: "Hyperion · lumpy" }, { obj: "Vesta", delay: 0.4 }, { obj: "Ceres", delay: 0.8 }, { obj: "Pluto", delay: 1.2 }] },
+    // the line between them: the last lumpy asteroid (Vesta) and the first round one (Ceres).
+    // Icy moons round up lighter (ice is softer than rock): Mimas is round below it, so it's left out here
+    { at: "chemical bonds", cam: { r: 7.45, m: 23.62, span: PAN, glide: true }, hl: [BONDS, { obj: "Hyperion", place: "left" }, { obj: "Vesta", label: "Vesta · lumpy" }] },
+    { at: "gravity takes over", cam: { r: 7.6, m: 23.72, span: PAN, glide: true }, hl: [BONDS, GRAVITY, { obj: "Vesta", label: "Vesta · lumpy" }, { obj: "Ceres", label: "Ceres · round", delay: 0.3 }] },
+    { at: "shapes planets", cam: G(7.8, 23.95), hl: [BONDS, GRAVITY, { obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
 
     // atmospheres
     { at: "mercury nor the moon", cam: G(8.35, 26.1), hl: [{ obj: "Moon", label: "Moon · none", place: "left" }, { obj: "Mercury", label: "Mercury · none", place: "left" }] },
