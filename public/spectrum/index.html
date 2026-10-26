@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sky Spectrum</title>
+<title>Electromagnetic Spectrum</title>
 <!--
   The sky, the Sun or the Earth seen through a movable RGB "eye". Each target
   is a set of single-band maps (radio → gamma), each normalised to 0…1:
@@ -104,9 +104,11 @@
   #stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; display: block; z-index: 1; }
   #views { position: absolute; top: 8px; right: max(16px, env(safe-area-inset-right, 0px)); z-index: 3; }
   #status { color: var(--dim); font-size: 12px; }
-  /* Cloud radius scale: bottom-left of the view */
-  #radius { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); bottom: 8px; z-index: 3; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-    max-width: calc(100% - 32px); font-size: 12px; color: var(--dim); }
+  /* simple options under the view: where to look from, natural colour and,
+     for Galaxy and Universe, the 3D view's scale and brightness */
+  #targets, .controls label, #dist, #dreadout, #views { display: none !important; }
+  #options { display: flex; gap: 8px 14px; align-items: center; flex-wrap: wrap; padding-top: 8px; padding-bottom: 6px; }
+  #radius { display: flex; gap: 8px 10px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--dim); }
   #radius[hidden], #radius [hidden] { display: none; }
   #radius label { display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
   #radius input[type=range] { width: 160px; accent-color: var(--fg); }
@@ -126,7 +128,8 @@
   footer { padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); color: var(--dim); font-size: 11px; }
   /* embedded in the chart's sidebar (?embed=1): just the spectrum bar and the view */
   body.embed header, body.embed #dist, body.embed #dreadout, body.embed footer,
-  body.embed #radius, body.embed #views { display: none !important; }
+  body.embed #radius, body.embed #views, body.embed #reset { display: none !important; }
+  body.embed #options { padding: 6px 8px; } body.embed #explore button { padding: 3px 8px; font-size: 12px; }
   body.embed .pad { padding-left: 8px; padding-right: 8px; }
   body.embed #bar { margin-top: 6px; }
   body.embed #slots .slot span { display: none; }
@@ -151,7 +154,7 @@
 </head>
 <body>
 <header class="pad">
-  <h1 id="h1">Sky Spectrum</h1>
+  <h1 id="h1">Electromagnetic Spectrum</h1>
   <p id="sub">Slide the rainbow to see with different eyes. Drag its ends to stretch it.</p>
   <div class="controls">
     <span class="seg" id="targets" role="group" aria-label="Target">
@@ -159,7 +162,6 @@
     </span>
     <label>Exposure <input id="exposure" type="range" min="0.3" max="3" step="0.01" value="1"></label>
     <label>Contrast <input id="contrast" type="range" min="0.4" max="2.5" step="0.01" value="1"></label>
-    <button id="reset">Natural colour</button>
     <span id="status" role="status">Loading…</span>
   </div>
 </header>
@@ -183,6 +185,12 @@
   <div id="rings"></div>
   <div id="ringText"></div>
   <div id="views" class="seg" role="group" aria-label="View"></div>
+</div>
+<div id="options" class="pad">
+  <span class="seg" id="explore" role="group" aria-label="Look from">
+    <button data-x="earth" title="The sky from just outside Earth, Earth floating in the middle">Earth</button><button data-x="sun" title="The Sun over the band of the Milky Way">Sun</button><button data-x="galaxy" title="The Milky Way around us in 3D, to scale">Galaxy</button><button data-x="universe" title="The whole universe in 3D by log distance, Earth in the middle">Universe</button>
+  </span>
+  <button id="reset">Natural colour</button>
   <div id="radius" hidden>
     <span class="seg" id="rmodes" role="group" aria-label="Radius scale">
       <button data-r="0" title="Milky Way on the inner 80% (log), everything beyond on the outer 20%">Custom</button><button data-r="1" title="Radius grows with log distance from the chosen unit">Log</button><button data-r="2" title="Radius proportional to distance; zoom moves through powers of ten">Linear</button>
@@ -205,7 +213,7 @@
 <script>
 (() => {
   const TARGETS = {
-    sky: { dir: "sky-spectrum", title: "Sky Spectrum", views: ["Globe", "Inside", "Map", "Cloud"], wrap: true, lonSign: -1,
+    sky: { dir: "sky-spectrum", title: "Electromagnetic Spectrum", views: ["Globe", "Inside", "Map", "Cloud"], wrap: true, lonSign: -1,
       foot: "Drag to turn, scroll or pinch to zoom. Galactic coordinates; the Map has the Galactic Centre in the middle. Bands evenly spaced on the bar, not to scale, each normalised to its own brightness range. The distance window drops light from outside its range." },
     sun: { dir: "sun-spectrum", title: "Sun Spectrum", views: ["Disc"], wrap: false,
       foot: "18 December 2015, 02:44 UTC · Nobeyama 17 GHz, ALMA 1.25 mm, SDO HMI and AIA · solar north up. Scroll or pinch to zoom, drag to pan." },
@@ -537,6 +545,7 @@
       out vec4 o;
       ${shared}
       uniform float gain, gam, yaw, pitch, zoom, lod, aspect, panX, panY;
+      uniform float band; // Map: keep only |b| below this (degrees), fading out to 1.8×; 0 = all
       uniform vec2 res;
       uniform int mode;
       vec3 turn(vec3 v) {
@@ -553,6 +562,7 @@
           if (abs(q.x) > 0.5 * aspect || abs(q.y) > 0.5) { o = vec4(0.0, 0.0, 0.0, 1.0); return; }
           uv = vec2(0.5 + q.x / aspect, 0.5 - q.y);
           if (lonSign != 0.0) uv.x = fract(uv.x - yaw);
+          if (band > 0.0) edge = 1.0 - smoothstep(band, 1.8 * band, abs(0.5 - uv.y) * 180.0);
         } else if (mode == 0) {
           float d2 = dot(p, p) / (zoom * zoom);
           if (d2 > 1.0) { o = vec4(vec3(0.05, 0.06, 0.1) * exp(-40.0 * (sqrt(d2) - 1.0)), 1.0); return; }
@@ -685,6 +695,20 @@
         if (length(pw) < rS) { vec4 cp = viewProj * vec4(pw, 1.0); gl_FragDepth = 0.5 + 0.5 * cp.z / cp.w; }
         else gl_FragDepth = 1.0;
       }`) : null;
+    // Sun view: the Sun's images (in the selector's wavelengths) as a flat
+    // picture at the centre of the view, screen-blended over the map
+    const sunFlat = hasDepth ? link(fullTri, `#version 300 es
+      ${objCommon}
+      uniform vec2 cen;
+      uniform float rad, slod;
+      void main() {
+        vec2 q = (gl_FragCoord.xy - cen) / rad;
+        if (abs(q.x) > 1.0 || abs(q.y) > 1.0) discard;
+        float vals[${OBJ_MAX}], shade[${OBJ_MAX}];
+        objBands(vec2(0.5 + 0.5 * q.x, 0.5 - 0.5 * q.y), slod, vals);
+        for (int k = 0; k < ${OBJ_MAX}; k++) shade[k] = 1.0;
+        o = vec4(mixBands(vals, shade) * smoothstep(1.0, 0.8, length(q)), 1.0);
+      }`) : null;
     // the Cloud is drawn into a floating-point buffer, its light adding up
     // freely, then shown through a log tone map ("Lift faint"): out =
     // log(1 + k·m) / log(1 + k) of each pixel's brightest channel m, hue kept,
@@ -752,7 +776,7 @@
     // Earth's and the Sun's own bands (Cloud only)
     const OBJ = hasDepth ? await Promise.all(["earth-spectrum", "sun-spectrum"].map(async (dir) =>
       ({ dir, meta: await (await fetch(`./${dir}/bands.json`)).json() }))) : [];
-    const progs = [quad, cloud, earthGlobe, sunDisc].filter(Boolean);
+    const progs = [quad, cloud, earthGlobe, sunDisc, sunFlat].filter(Boolean);
     const loadTex = (src, unit, mip, nearest) => new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
@@ -796,8 +820,9 @@
       gl.uniform1fv(gl.getUniformLocation(p, "bgSigma"), BG_SIGMA);
       gl.uniform1iv(gl.getUniformLocation(p, "kind"), kinds);
     });
-    [earthGlobe, sunDisc].forEach((p, oi) => {
+    [earthGlobe, sunDisc, sunFlat].forEach((p, i) => {
       if (!p) return;
+      const oi = Math.min(i, 1);
       gl.useProgram(p);
       // unused samplers point at this object's first pack; their bands carry no weight
       for (let i = 0; i < OBJ_PACKS; i++) gl.uniform1i(gl.getUniformLocation(p, `o${i}`), P + 5 + OBJ_PACKS * oi + Math.min(i, OBJ[oi].meta.packs.length - 1));
@@ -874,12 +899,36 @@
     document.querySelectorAll("#goto button").forEach((b) => on(b, "click", () => {
       glide = { from: lz, to: +b.dataset.lz, t0: performance.now(), ms: 600 + 350 * Math.abs(+b.dataset.lz - lz) };
     }));
+    const EXPLORE_FOOT = {
+      earth: "Earth from just outside, the sky behind it, both in the selector's light. Drag to turn, scroll or pinch to zoom; zoom out to leave for the universe.",
+      sun: "The Sun (SDO, ALMA and Nobeyama, 18 December 2015) over the band of the Milky Way, both in the selector's light. Drag to slide along the band.",
+      galaxy: "The Milky Way around us in 3D, to scale: every point at the distance its light comes from. Drag to turn, scroll or pinch to zoom.",
+      universe: "Everything in the selector's light by log distance: Earth in the middle, the cosmic microwave background at the edge. Drag to turn, scroll or pinch to zoom.",
+    };
+    let explore = null;
+    function markExplore() {
+      if (explore === null || !EXPLORE_FOOT[explore]) explore = mode === 1 ? "earth" : mode === 3 ? (rmode === 2 ? "galaxy" : "universe") : mode === 2 ? "sun" : null;
+      document.querySelectorAll("#explore button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.x === explore));
+      document.getElementById("options").hidden = !hasDepth;
+      if (hasDepth && explore) document.getElementById("foot").textContent = EXPLORE_FOOT[explore] + " Bands are evenly spaced on the bar, not to scale.";
+    }
+    function setExplore(x, quiet) {
+      explore = x; glide = null;
+      if (x === "earth") setMode(1);
+      else if (x === "sun") { setMode(2); view.zoom = 1.8; }
+      else if (x === "galaxy") { setMode(3); lz = 4.6; setRadius(2); }
+      else { setMode(3); if (+unit.value >= L_EARTH) unit.value = unit.min; setRadius(1); }
+      markExplore();
+      if (!quiet) draw();
+    }
+    document.querySelectorAll("#explore button").forEach((b) => on(b, "click", () => setExplore(b.dataset.x)));
     // Cloud zoom at which Earth looks as big as in Inside at zoom zIn (and back)
     const earthR = () => (L_EARTH - +unit.value) / (10.66 - +unit.value);
     const zMatch = (z) => (3.2 * Math.tan(20 * Math.PI / 180) * Math.tan(EARTH_INSIDE)) / (earthR() * z);
     function switchView(m, v) {
       fade = { mode, view: { ...view }, spinA, t0: performance.now() };
       mode = m; view = v;
+      explore = m === 3 ? "universe" : "earth"; markExplore();
       radiusBox.hidden = m !== 3;
       if (m !== 3) ringLabels.hidden = ringText.hidden = true;
       viewBox.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.mode === m));
@@ -1078,8 +1127,9 @@
     }
     // Earth (0) or the Sun (1) at the centre, radius rO, about px pixels across
     // on screen, through the current selector
-    function drawCentre(centre, VP, w, h, rO, px, spinAngle) {
-      const p = centre === 0 ? earthGlobe : sunDisc, ob = OBJ[centre];
+    // Earth's (0) or the Sun's (1) bands, weighted by the selector, for program p
+    function objUniforms(p, centre) {
+      const ob = OBJ[centre];
       gl.useProgram(p);
       const E = (n) => gl.getUniformLocation(p, n);
       const pos = ob.spans ??= ob.meta.bands.map(barSpan);
@@ -1089,6 +1139,11 @@
       gl.uniform1fv(E("oG"), pad(objWeights(pos, c, groups)));
       gl.uniform1fv(E("oB"), pad(objWeights(pos, c + s, groups)));
       gl.uniform1f(E("gain"), +exposure.value); gl.uniform1f(E("gam"), +contrast.value);
+      return E;
+    }
+    function drawCentre(centre, VP, w, h, rO, px, spinAngle) {
+      const p = centre === 0 ? earthGlobe : sunDisc, ob = OBJ[centre];
+      const E = objUniforms(p, centre);
       gl.uniformMatrix4fv(E("viewProj"), false, VP);
       gl.uniform2f(E("res"), w, h);
       if (centre === 0) {
@@ -1251,6 +1306,7 @@
       gl.uniform1f(U("yaw"), view.yaw); gl.uniform1f(U("pitch"), view.pitch); gl.uniform1f(U("zoom"), view.zoom);
       gl.uniform1f(U("aspect"), aspect);
       gl.uniform1f(U("panX"), view.panX ?? 0); gl.uniform1f(U("panY"), view.panY ?? 0);
+      gl.uniform1f(U("band"), mode === 2 && explore === "sun" ? 12 : 0);
       // mip level from texels per screen pixel, so nothing shimmers
       const pxPerTex = mode === 0 ? (view.zoom * h / 2) / (meta.width / (2 * Math.PI)) : mode === 1 ? (h / 2 / view.zoom) / (meta.width / (2 * Math.PI))
         : (Math.min(w / aspect, h) * view.zoom * aspect) / meta.width;
@@ -1258,6 +1314,14 @@
       over();
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       if (mode === 1 && earthGlobe) drawCentre(0, insideViewProj(w, h), w, h, 1, h * Math.tan(EARTH_INSIDE) / view.zoom, 0);
+      if (mode === 2 && explore === "sun" && sunFlat) {
+        const E = objUniforms(sunFlat, 1), rad = 0.26 * Math.min(w, h);
+        gl.uniform2f(E("cen"), w / 2, h / 2); gl.uniform1f(E("rad"), rad);
+        gl.uniform1f(E("slod"), Math.max(0, Math.log2(1024 / (2 * rad))));
+        gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_COLOR); // screen
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        gl.disable(gl.BLEND);
+      }
     }
     let last = performance.now();
     const tick = (now) => {
@@ -1285,6 +1349,9 @@
     if (first && q.has("zoom")) { const [lo, hi] = ZOOM[mode]; view.zoom = Math.max(lo, Math.min(hi, +q.get("zoom"))); }
     setRadius(rmode);
     setBright(brightLog);
+    // Earth · Sun · Galaxy · Universe: the four ways in (an old ?view= link keeps its view)
+    if (hasDepth && !(first && q.has("view"))) setExplore(first && EXPLORE_FOOT[q.get("mode")] ? q.get("mode") : "earth", true);
+    else markExplore();
     clamp(); layoutSelector(); layoutDist(); draw();
     window.__stillDone = true;
   }

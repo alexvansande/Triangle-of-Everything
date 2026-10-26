@@ -4093,9 +4093,9 @@ function openSidebar(obj) {
   if (spectrumBand) {
     sbImage.innerHTML = "";
     const [c, s] = spectrumBand;
-    const view = `view=cloud&radius=log&unit=-14&bright=log&lift=0.5&c=${c}&s=${s}`;
+    const view = `c=${c}&s=${s}`;
     const iframe = document.createElement("iframe");
-    iframe.src = `/spectrum/index.html?embed=1&dot=1.5&rings=0&${view.replace("lift=0.5", "lift=0.35")}`;
+    iframe.src = `/spectrum/index.html?embed=1&${view}`;
     iframe.style.cssText = "width:100%;aspect-ratio:1/1.15;border:0;display:block;background:#000;border-radius:8px;";
     iframe.loading = "lazy";
     iframe.title = `${obj.name} — the sky across the electromagnetic spectrum`;
