@@ -66,7 +66,7 @@ export default {
     // a dive onto the nursery, the Pillars over its picture (lens), as in video 3
     { at: "new generation", cam: { obj: "Stellar Nursery", span: 3 }, dur: 1.6 },
     { at: "new generation", photo: "pillars", obj: "Stellar Nursery", dive: { in: 1.6, out: 2.5 }, dur: 2.4, fadeOut: 1.5,
-      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", hold: 0.3, fillDur: 1.8 },
+      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", turn: 0, hold: 0.3, fillDur: 1.8 },   // turn 0: Webb's pillars lean ~40°; kept tilted so they stay upright like the icon's
       caption: "Pillars of Creation · Webb · 2022 · where stars are born" },
     { at: "mostly made of empty space", cam: { r: 20, m: 40, span: 24 }, clear: true },
     { at: "globular clusters", hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },

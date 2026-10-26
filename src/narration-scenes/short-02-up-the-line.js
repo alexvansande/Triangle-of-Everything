@@ -36,6 +36,12 @@ const STARS = { r: 9.48, m: 32.7, span: 7.8 };
 const PAN = 2.2;
 // what holds a body's shape, either side of the round-world mass (between Vesta and Ceres)
 const ROUND_M = 23.7;
+// the rocky worlds that keep an atmosphere of heavy gases (N₂, O₂, CO₂) but lose hydrogen and
+// helium: from Mars (6×10²⁶ g, a thin one) to about 2 Earth masses (~10²⁸ g), past which planets
+// start holding on to hydrogen and puff up. Titan (10²⁶ g) has one too, being so cold:
+// "for its temperature"
+const AIR_BAND = { poly: [[-40, 26.8], [60, 26.8], [60, 28.08], [-40, 28.08]], fill: "#66bb6a", opacity: 0.16,
+  label: "rocky worlds\nwith air", labelAt: [9.55, 27.0], labelColor: "#a5d6a7" };
 // below it a body's shape is held by its material strength, all of it electromagnetic (chemical
 // bonds, crystal stiffness, friction between grains); above it self-gravity crushes it round
 const BONDS = { side: "below", mass: ROUND_M, label: "electromagnetism\ndominates", note: "(chemical bonds, crystal\nstiffness, friction, etc.)", labelX: 0.74 };
@@ -142,11 +148,13 @@ export default {
     // the floors), which splits again into the lattice, down to the iron: the fractal. Volumes for the real tower (10,100 t):
     // the filled-in silhouette ~0.8 million m³; less the space under the arches and between
     // the first two floors ~0.33 million; the iron at 7.8 t/m³, 1,300 m³
-    { at: "surprisingly light", dolly: { obj: "Eiffel Tower", in: 1.8, out: 1.8, size: 0.24 }, dur: 6.8 },
+    { at: "surprisingly light", dolly: { obj: "Eiffel Tower", in: 1.8, out: 1.8, size: 0.24 }, dur: 8.6 },
     { at: "also counting all", hl: [{ sketch: "Eiffel Tower", level: 0, labels: [["≈ 800,000 m³", "13 kg per m³"]] }] },
     { at: "space inside it", cam: C(3.86, 10.02, 3.4) },
     { at: "in many ways", offset: -0.9, hl: [{ sketch: "Eiffel Tower", level: 1, labels: [["≈ 800,000 m³", "13 kg per m³"], ["≈ 330,000 m³", "30 kg per m³"]] }] },
-    { at: "fractal", hold: 2.0, hl: [{ sketch: "Eiffel Tower", level: 2, draw: 1.2, labels: [["≈ 800,000 m³", "13 kg per m³"], ["≈ 330,000 m³", "30 kg per m³"], ["1,300 m³ of iron", "7,800 kg per m³"]] }] },
+    // the iron lattice, the third shape, on "…the Eiffel Tower is somewhat": this take pauses
+    // before "a fractal", and the dive (held 8.6 s) only unwinds from "fractal"
+    { at: "is somewhat", hold: 3.2, hl: [{ sketch: "Eiffel Tower", level: 2, draw: 1.2, labels: [["≈ 800,000 m³", "13 kg per m³"], ["≈ 330,000 m³", "30 kg per m³"], ["1,300 m³ of iron", "7,800 kg per m³"]] }] },
     { at: "lots of big rocks", offset: -0.8, cam: C(3.92, 10.4, 3.6) },
 
     // rocks, lakes, asteroids and small moons
@@ -180,9 +188,9 @@ export default {
     { at: "a gas giant", cam: G(9.45, 29.0),
       hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn", label: "gas giants" }, { obj: "Jupiter", label: false }] },
     // back to Earth: just enough gravity for its air, not enough for hydrogen
-    { at: "goldilocks zone", cam: G(8.85, 27.75), hl: [{ obj: "Mars", label: false }, { obj: "Earth", label: "Goldilocks zone" }, { obj: "Venus", place: "left", label: false }] },
-    { at: "oxygen and nitrogen", cam: G(8.9, 27.9), hl: [{ obj: "Earth", label: "keeps oxygen, nitrogen" }] },
-    { at: "not enough to hold", cam: G(9.0, 28.1), hl: [{ obj: "Earth", label: "loses hydrogen, helium" }] },
+    { at: "goldilocks zone", cam: G(8.85, 27.6), hl: [AIR_BAND, { obj: "Mars", label: false }, { obj: "Earth", label: "Goldilocks zone" }, { obj: "Venus", place: "left", label: false }] },
+    { at: "oxygen and nitrogen", cam: G(8.9, 27.7), hl: [{ ...AIR_BAND, instant: true }, { obj: "Earth", label: "keeps oxygen, nitrogen" }] },
+    { at: "not enough to hold", cam: G(9.0, 27.9), hl: [{ ...AIR_BAND, instant: true }, { obj: "Earth", label: "loses hydrogen, helium" }] },
     { at: "following the rocky planets", cam: G(9.5, 29.15), hl: [ROCKY_GAS, WATER, { obj: "Earth", label: "rocky planets", place: "left" }, { obj: "Venus", label: false, place: "left" }] },
     { at: "mostly made of gas", cam: G(9.6, 29.5), hl: [{ ...ROCKY_GAS, draw: 0.01 }, WATER, { obj: "Earth", place: "left" }, { obj: "Neptune", place: "left" }, { obj: "Saturn", delay: 0.3 }, { obj: "Jupiter", label: "mostly gas", delay: 0.6 }] },
     { at: "less dense than water", cam: G(9.75, 30.1), hl: [WATER, { obj: "Saturn", label: "Saturn · would float", place: "left" }] },

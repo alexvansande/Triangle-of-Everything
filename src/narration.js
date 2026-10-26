@@ -401,7 +401,8 @@ export async function startNarration(app) {
   //   lens?: { icon: [cx, cy, r], photo: [cx, cy, r], size: [w, h] }
   //        | { map: [ar, ai, br, bi], r, at?: [x, y], size: [w, h] }
   //        plus fill?: true | "cover", hold?: s (0.3), fillDur?: s (1.6) — then grow:
-  //        true = the disc to the screen's width, "cover" = the whole photo upright, edge to edge }
+  //        true = the disc to the screen's width, "cover" = the whole photo upright, edge to edge;
+  //        turn?: 0–1, how much of the way upright a "cover" photo turns (default 1) }
   // A spot on the object + a photo with `lens` = a "dive" (video/plans/visual-rules.md §3),
   // the default way to show a real photo of something that has a picture on the chart.
   // `lens`: no cut. The photo fades in through a round window laid exactly over the
@@ -522,8 +523,11 @@ export async function startNarration(app) {
         const det = mtx[0] * mtx[3] - mtx[1] * mtx[2];
         const dx = qx - mtx[4], dy = qy - mtx[5];
         const P0 = [(mtx[3] * dx - mtx[2] * dy) / det, (-mtx[1] * dx + mtx[0] * dy) / det];   // photo px under the lens centre
-        const S1 = Math.max(SW / iw, SH / ih), P1 = [iw / 2, ih / 2], Q1 = [SW / 2, SH / 2];
-        const S = S0 * (S1 / S0) ** g, th = th0 * (1 - g);
+        // turn: how much of the way upright it turns (default all of it); what's left of the
+        // tilt needs a bigger photo to still cover the screen
+        const thEnd = th0 * (1 - (p.lens.turn ?? 1)), cE = Math.abs(Math.cos(thEnd)), sE = Math.abs(Math.sin(thEnd));
+        const S1 = Math.max((SW * cE + SH * sE) / iw, (SW * sE + SH * cE) / ih), P1 = [iw / 2, ih / 2], Q1 = [SW / 2, SH / 2];
+        const S = S0 * (S1 / S0) ** g, th = th0 + (thEnd - th0) * g;
         const Px = P0[0] + (P1[0] - P0[0]) * g, Py = P0[1] + (P1[1] - P0[1]) * g;
         const Qx = qx + (Q1[0] - qx) * g, Qy = qy + (Q1[1] - qy) * g;
         const c = S * Math.cos(th), s = S * Math.sin(th);
@@ -1662,13 +1666,26 @@ export async function startNarration(app) {
     if (!audio.paused) raf = requestAnimationFrame(loop);
   };
   const hint = (text) => { ui.querySelector("span").textContent = text; };
+  let playTry = 0;
   const play = () => {
     stopCountdown();
     ui.classList.add("hidden"); layer.classList.remove("paused");
     cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
-    // blocked (no tap yet on this page): back to the play button
-    audio.play().catch(() => { ui.classList.remove("hidden"); layer.classList.add("paused"); hint("tap to play"); });
+    // blocked (no tap yet on this page): back to the play button. Only for the latest
+    // try, and only if nothing is playing: autoplay's attempt can fail after a tap has
+    // already started the sound, which used to bring the controls back over the video
+    const n = ++playTry;
+    audio.play().catch(() => {
+      if (n !== playTry || !audio.paused) return;
+      ui.classList.remove("hidden"); layer.classList.add("paused"); hint("tap to play");
+    });
   };
+  // the sound actually started (it can lag behind play()): controls away, and the frame
+  // loop running (its first frame may have seen the audio still paused and stopped)
+  audio.addEventListener("playing", () => {
+    ui.classList.add("hidden"); layer.classList.remove("paused");
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
+  }, on);
   const pause = () => { audio.pause(); ui.classList.remove("hidden"); layer.classList.add("paused"); hint("paused · tap to resume"); window.__narr.settle(audio.currentTime); };
   layer.classList.add("paused");
   const seek = (t) => {
