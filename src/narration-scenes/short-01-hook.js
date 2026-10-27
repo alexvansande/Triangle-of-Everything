@@ -5,8 +5,8 @@
 // mechanics, relativity) meeting at the Big Bang, and time on the diagonals;
 // then the cross-fade into the map on "…the triangle of everything", a quick
 // tour of its stories, and the author's outro over one slow zoom out.
-// Recorded 2026-10-26 (rec34; video/short-01-hook/). The 2026-10-07 cut and
-// its scene are in git history.
+// Recorded 2026-10-27 (rec35; video/short-01-hook/). The earlier cuts and
+// their scenes are in git history.
 // =============================================================
 // Field reference: docs/narration.md, "Scene fields". Axis highlights: { axis: side }.
 // The classic figure here has energy (GeV) on the left, mass (g) on the
@@ -75,7 +75,7 @@ export default {
     // getting its loop as it's named (the earlier ones kept)
     { at: "all of science", cam: FIG, dur: 2, clear: true },
     { at: "astronomy", cam: { r: 17, m: 38, span: 34 }, dur: 1.2, hl: [ASTRO] },
-    { at: "engineering is here", cam: { r: 5.4, m: 14, span: 26, whip: true }, hl: [...drawn([ASTRO]), ENGINEERING] },
+    { at: "engineering is", cam: { r: 5.4, m: 14, span: 26, whip: true }, hl: [...drawn([ASTRO]), ENGINEERING] },
     { at: "biology", cam: { r: -0.6, m: -2, span: 30, whip: true }, hl: [...drawn([ASTRO, ENGINEERING]), BIOLOGY] },
     { at: "chemistry", cam: { r: -6.2, m: -21, span: 22, whip: true }, hl: [...drawn([ASTRO, ENGINEERING, BIOLOGY]), CHEMISTRY] },
     { at: "particle physics", cam: { r: -15.5, m: -23, span: 22, whip: true }, hl: [...drawn([ASTRO, ENGINEERING, BIOLOGY, CHEMISTRY]), PARTICLES] },
@@ -85,12 +85,12 @@ export default {
     { at: "on the right", hl: [UNIVERSE] },
     { at: "quantum mechanics", hl: [UNIVERSE, QUANTUM] },
     { at: "relativity", hl: [UNIVERSE, QUANTUM, RELATIVITY] },
-    { at: "those two lines meet", cam: PLANCK, dur: 2.4, hl: [{ line: "compton" }, { line: "schwarzschild" }] },
+    { at: "where those lines meet", cam: PLANCK, dur: 2.4, hl: [{ line: "compton" }, { line: "schwarzschild" }] },
 
     // time on the diagonals along the top
     { at: "along the top", cam: { r: 22, m: 50, span: 44 }, clear: true },
     { at: "measured in seconds", cam: { r: 27, m: 60, span: 22 } },
-    { at: "a history of time", cam: { r: 22, m: 52, span: 40 } },
+    { at: "how things are", cam: { r: 22, m: 52, span: 40 } },
     { at: "our whole universe", cam: { r: 6, m: 14, span: 80 }, dur: 3 },
 
     // into the map

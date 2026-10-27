@@ -7,7 +7,21 @@ The Whisper word timings (medium.en, `scripts/narration-take.py`'s settings) are
 
 This is in the Google Drive "Recordings" folder: 5:13, AAC mono. It's a full run of the hook
 script with retakes, opening with a mic test (0:00–0:17) and ending with several tries at a new
-outro line. Not cut yet: the author is recording another take.
+outro line.
+
+Cut: `video/short-01-hook/edl.py`, 11 clips. The take runs 5:13, the cut 2:01, and it plays in
+1:50 at 1.1×. Picks: the opening with "In my opinion"; "Probably the first thing you notice…"
+("This is the," left out); "etc." after "radio waves" left out; the third "all of science"; the
+second "Notice that along the top…" and the last "that's because the top axis isn't about how
+things are but when"; the second "I call this the triangle of everything"; the outro up to "I
+sincerely hope you find this as fascinating as I do". The tries at a new last line after it
+(3:52–5:10) are left out.
+
+Caption words corrected: "visible lights" → "light"; "the sides of the universe" → "size"; "where
+those line meets is actually the Big Bang" → "where those lines meet is actually… the Big Bang?!"
+(the author's "?!"); "gravities" → "gravity"; "all the story" → "stories"; punctuation through the
+middle stretch, which Whisper ran together. The scene's cues "engineering is here", "those two
+lines meet" and "a history of time" are re-keyed to the new words; every cue resolves.
 
 Tries worth noting:
 - Opening (0:17): "In my opinion, this is the most interesting chart in all of physics."

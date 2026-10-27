@@ -20,7 +20,7 @@ went silent after a minute when it ran out.
 
 | Video | Take | Plays now |
 |---|---|---|
-| 1 · the hook | `short-01-hook` | 1:59 (re-recorded 2026-10-26, rec34) |
+| 1 · the hook | `short-01-hook` | 1:50 (re-recorded 2026-10-27, rec35) |
 | 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | 3:57 (re-recorded 2026-10-26, rec33) |
 | 3 · planets into stars | `short-03-stars` | 2:13 (re-recorded 2026-10-27, rec36) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 5:40 |
@@ -31,19 +31,25 @@ went silent after a minute when it ran out.
 ## 1 · The hook (`short-01-hook`)
 
 ### As cut now
-(rec2, rec6 and rec7, 2026-10-07; "shard" in the transcript is "chart")
+(rec35, 2026-10-27, plays at 1.1×)
 
-> This is the most interesting chart in all of physics.
+> In my opinion, this is the most interesting chart in all of physics.
 >
-> The first thing you'll probably notice is that we have this diagonal line with everything from bacteria to humans to stars and planets and galaxies.
+> Probably the first thing you notice here is this diagonal line with everything from bacteria to humans to planets, stars and galaxies.
 >
-> The vertical axis is mass. The horizontal axis is in size. So this is a chart of mass versus size, right? Yeah, but it's so much more than that actually because it also includes some things that don't have mass, like photons or visible light or radio waves.
+> Vertical axis is mass, horizontal axis is size. So this is a log chart of mass versus size, right? Yeah, but it's so much more than that. Because it also includes things that don't have mass at all. Photons, like visible light, radio waves.
 >
-> This is because this shard is also a shard of energy and the bottom axis doubles as a wavelength.
+> That's because this chart is also a chart of energy, and the bottom axis doubles as wavelength.
 >
-> And it gets even crazier because on the bottom left we have quantum mechanics, on the top left we have relativity and they connect in this one point,
+> So in a way, this chart contains all of science. Astronomy is up here at the top, engineering is down there, biology all the way down here, and then we have chemistry and particle physics.
 >
-> what is that point? And then you realize that out of all those points there are some diagonal lines and they are being measured in seconds until they get to now. That is time since the big bang. So relativity and quantum mechanics are joining at the big bang. This is the triangle of everything, and let me take you a tour around, because it is simply fascinating.
+> But the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity. And where those lines meet is actually… the Big Bang?!
+>
+> Notice that along the top there are all the diagonal lines and they are all measured in seconds. That's because the top axis isn't about how things are, but when: it's a history of our whole universe.
+>
+> I call this the triangle of everything, and as you zoom in, it tells you a million stories about airplanes and hippos and gravity, about how stars evolve, how particles turn into each other, why balloons float, even contains the periodic table, and tells you why fire looks the way it does.
+>
+> I've been obsessed about this chart for many years now and I've put hours and hours trying to visualize it in different ways and seeing all the stories it contains. I could talk about them for hours, and that's precisely what I intend to do in this series of videos. I sincerely hope you find this as fascinating as I do.
 
 ### Script to record
 

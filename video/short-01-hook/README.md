@@ -1,16 +1,16 @@
 # short-01-hook
 
-The opening hook as a vertical short (1:59 at 1.1×), cut from the 2026-10-26
-recording of the new script. It plays as `?narrate=short-01-hook`, with the
-scene in `src/narration-scenes/short-01-hook.js`. The 2026-10-07 cut (rec2,
-rec6, rec7) is in git history.
+The opening hook as a vertical short (1:50 at 1.1×), cut from the 2026-10-27
+re-recording of the script. It plays as `?narrate=short-01-hook`, with the
+scene in `src/narration-scenes/short-01-hook.js`. The earlier cuts (rec34 of
+2026-10-26; rec2, rec6, rec7 of 2026-10-07) are in git history.
 
 | Source | Raw file (Google Drive "Recordings") | Setup |
 |---|---|---|
-| `rec34` | `New hook.m4a` (5:00) | AAC mono; one take with retakes, and the new outro |
+| `rec35` | `Hook re record.m4a` (5:13) | AAC mono; one take with retakes, after a mic test |
 
 The Whisper word timings of the raw file (medium.en) are in
-`video/sources/2026-10-26/`, with the review notes and fact check. `edl.py` lists the kept clips, and `cuts.csv` is
+`video/sources/2026-10-27/`, with the review notes and fact check. `edl.py` lists the kept clips, and `cuts.csv` is
 where each one landed in the edit. Video 2 (`video/short-02-up-the-line/`, rec33) is built the
 same way.
 
@@ -18,8 +18,8 @@ same way.
 
 ```bash
 W=/some/scratch; mkdir -p $W/audio
-ffmpeg -i "New hook.m4a" -ac 1 -ar 48000 -c:a pcm_s16le $W/audio/rec34.wav
-cp video/sources/2026-10-26/rec34.words.json $W/
+ffmpeg -i "Hook re record.m4a" -ac 1 -ar 48000 -c:a pcm_s16le $W/audio/rec35.wav
+cp video/sources/2026-10-27/rec35.words.json $W/
 python3 video/tools/build.py $W video/short-01-hook/edl.py                 # → $W/audio/edit_raw.wav, $W/cuts.csv
 python3 video/tools/enhance.py $W/audio/edit_raw.wav $W/audio/edit --plain   # cleanup, −16 LUFS
 ```
