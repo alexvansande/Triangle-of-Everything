@@ -21,7 +21,7 @@ EDL = [
  ("rec34", "science", 112.04, 123.98, {"s": 114.2}),  # So in a way, this chart contains all of science. Astronomy is up at the top, engineering is here, biology goes all the way down to here,   (the third try; two earlier ones left out)
  ("rec34", "science", 127.26, 128.74),  # and then chemistry and particle physics.   (the first "and then chemistry," left out)
  ("rec34", "sides", 129.92, 140.22),    # And the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity.
- ("rec34", "sides", 141.52, 144.72),    # And where those two lines meet is… the Big Bang?
+ ("rec34", "sides", 141.52, 144.72),    # And where those two lines meet is… the Big Bang?!
  ("rec34", "time", 147.38, 165.40, {"s": 150.55}),  # Notice that along the top there are all these diagonal lines, and they are all measured in seconds. That's because the top of the chart isn't a history of things, but a history of time, the history of our whole universe.   (the first "Notice that along the top there are," left out)
  ("rec34", "stories", 173.88, 193.44),  # I call this the triangle of everything, and as you zoom in it tells you a million stories: about airplanes, hippos and gravity, about how stars evolve, how particles turn into each other, and why balloons float. It even contains the periodic table, and it tells you why fire looks the way it does.   (the first try, "a million story", left out)
  # the outro (the author's, 2026-10-26), in place of "So follow me for the triangle of everything" (3:16)

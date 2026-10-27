@@ -57,7 +57,7 @@ went silent after a minute when it ran out.
 >
 > So in a way, this chart contains all of science. Astronomy is up at the top, engineering is here, biology goes all the way down here, and then chemistry and particle physics.
 >
-> And the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity. And where those two lines meet is... the Big Bang?
+> And the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity. And where those two lines meet is... the Big Bang?!
 >
 > Notice that along the top there are all these diagonal lines, and they're all measured in seconds. That's because the top of the chart isn't a history of things, but a history of time: the history of our whole universe.
 >
