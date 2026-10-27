@@ -218,13 +218,18 @@ window.__narrTakes = ${JSON.stringify(info.map(k => ({ id: k.id, title: k.title 
 (function () {
   var playing = location.hash.length > 1;
   document.getElementById(playing ? "narr-back" : "narr-grid").hidden = false;
-  // the dates in the viewer's own time zone
+  // the dates in the viewer's own time zone: today as "2 hours ago", then "yesterday", then the date
+  var now = new Date(), day = function (d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
   document.querySelectorAll("#narr-grid time[data-fmt]").forEach(function (t) {
     var d = new Date(t.getAttribute("datetime"));
     if (isNaN(d)) return;
-    t.textContent = t.dataset.fmt === "day"
-      ? d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
-      : d.toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    var days = Math.round((day(now) - day(d)) / 864e5), mins = Math.max(0, Math.floor((now - d) / 6e4));
+    t.title = d.toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    t.textContent = days <= 0
+      ? (mins < 1 ? "just now" : mins < 60 ? mins + (mins === 1 ? " minute" : " minutes") + " ago"
+        : Math.floor(mins / 60) + (mins < 120 ? " hour" : " hours") + " ago")
+      : days === 1 ? "yesterday"
+      : t.dataset.fmt === "day" ? d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : t.title;
   });
   // the back button doesn't start or pause the player underneath
   document.getElementById("narr-back").addEventListener("click", function (e) { e.stopPropagation(); });
