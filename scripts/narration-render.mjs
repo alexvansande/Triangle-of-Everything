@@ -87,7 +87,7 @@ async function renderRange(t0, t1, file, label) {
   await page.setViewport({ width: STAGE.W + 2 * STAGE.pad, height: STAGE.H + 2 * STAGE.pad, deviceScaleFactor: STAGE.dpr });
   page.on("pageerror", e => console.log(`[${label}] pageerror:`, e.message));
   await page.evaluateOnNewDocument(CLOCK_SHIM);
-  await page.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 120000 });   // not networkidle: a close opening view never reports idle
+  await page.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 600000 });   // not networkidle: a close opening view never reports idle
   await page.waitForFunction("window.__narr", { timeout: 60000 });
   // let dust, icons and the first tiles arrive in real time, then stop the clock
   await page.evaluate(`window.__narr.renderAt(${t0}); window.__narr.settle(${t0})`);
@@ -179,7 +179,9 @@ for (let i = 0; i < WORKERS; i++) {
   parts.push({ a: Math.round(a * FPS) / FPS, b: Math.round(b * FPS) / FPS, file: path.join(TMP, `part${i}.mp4`) });
 }
 console.log(`rendering ${take} ${from}s–${to}s at ${FPS} fps${SUB > 1 ? ` (${SUB} sub-frames, shutter ${SHUTTER})` : ""} with ${WORKERS} worker(s) → ${OUT}`);
-await Promise.all(parts.map((p, i) => renderRange(p.a, p.b, p.file, `w${i}`)));
+// the workers start a few seconds apart: all of them loading the dev server's unbundled
+// modules at once timed out at 8 workers (2026-10-27); the first one warms its cache
+await Promise.all(parts.map((p, i) => new Promise(r => setTimeout(r, i * 6000)).then(() => renderRange(p.a, p.b, p.file, `w${i}`))));
 fs.writeFileSync(path.join(TMP, "list.txt"), parts.map(p => `file '${p.file}'`).join("\n"));
 // the voice with its sound design (narration-sound.mjs) if the take has one; --voice-only for the bare voice
 const audio = `public/narration/${take}/${meta.mix && !process.argv.includes("--voice-only") ? meta.mix : meta.audio}`;
