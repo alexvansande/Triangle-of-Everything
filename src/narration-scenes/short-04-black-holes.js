@@ -47,6 +47,14 @@ const DM_CANDS = [
 // the source of the macro areas, quietly under the title
 const DM_SOURCE = { title: "after Sidhu, Scherrer & Starkman (2019),\n\u201cDeath and serious injury by dark matter\u201d", small: true, y: 0.7 };
 const DM_PBH = { mark: [-8.3, 19.5], label: "primordial black holes?", place: "right", color: "#ff8fa8" };
+// all four candidates at once (WIMPs at the bottom left, MACHOs at the top right), with a
+// "Dark matter?" up in the empty corner above the black-hole line and arrows out to each
+const DM_WIDE = { r: -3, m: 2, span: 52 };
+const DM_HUB = (delay = 0) => [{ text: "dark matter?", at: [-5, 36], delay },
+  ...[{ obj: "WIMP*" }, { r: 10, m: 32 }, { r: -1, m: 9 }, { r: -8.3, m: 19.5 }].map((to, i) =>
+    ({ arrow: true, from: { r: -5, m: 34 }, to, color: "#ffe9a3", delay: delay + 0.5 + 0.35 * i }))];
+// close on the crossed-off corner: ancient crystals and the injuries
+const DM_CLOSE = { r: -5.5, m: 2.5, span: 17 };
 const still = (h) => ({ ...h, instant: true, delay: 0 });
 const GAL = { dust: "galaxy", src: ["galaxy", "cluster"], color: "#80deea", sweep: 1.2, r: 2.2 };
 // drawn down through the galaxy cloud as it drops a decade in mass
@@ -65,7 +73,7 @@ export default {
   backing: "Mesmerize",
   sound: [
     { at: "becomes a black hole", fx: "drop", atEnd: true, offset: -0.3 },
-    { at: "big enough pool", fx: "bubble", offset: 0.2 },
+    { at: "pool big enough", fx: "bubble", offset: 0.2 },
   ],
 
   captionFixes: { shard: "chart", protostores: "protostars" },
@@ -124,12 +132,14 @@ export default {
     { at: "get less dense", cam: { r: 13.5, m: 41.3, span: 14 }, hl: [SCHW, { line: "water", label: "water" }] },
     { at: "less dense than water", hl: [SCHW, { line: "water", label: "water" }, { side: "right", of: "water" },
       { obj: "Sgr A*", label: "denser than water", place: "left" }, { obj: "M87*", label: "lighter than water", delay: 0.6 }] },
-    { at: "big enough pool", hl: [{ line: "water" }, { side: "right", of: "water" }, { obj: "M87*", label: "it would float" }, { obj: "Ton 618", label: false }] },
+    { at: "pool big enough", hl: [{ line: "water" }, { side: "right", of: "water" }, { obj: "M87*", label: "it would float" }, { obj: "Ton 618", label: false }] },
     { at: "m87", cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: "m87* · first photographed", place: "left" }] },
     // a dive onto M87*, the EHT photo over its picture (lens)
     { at: "first one", cam: { obj: "M87*", span: 3 }, dur: 1.4 },
-    { at: "first one", photo: "m87", obj: "M87*", dive: { in: 1.4, out: 2.5 }, dur: 2, fadeIn: 0.8, fadeOut: 1.2,
-      lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600], fill: "cover", hold: 0.1, fillDur: 1.1 },
+    // the photo comes in during the approach and grows straight on to fill the screen (one
+    // move, the author's note of 2026-10-27), then holds
+    { at: "first one", photo: "m87", obj: "M87*", dive: { in: 1.4, out: 2.5, photoAt: 0.4 }, dur: 3.4, fadeIn: 0.9, fadeOut: 1.2,
+      lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600], fill: "cover", hold: 0, fillDur: 1.5 },
       caption: "M87*, the first black hole ever photographed · Event Horizon Telescope · 2019" },
     { at: "largest black hole", cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "ton 618", place: "left" }] },
     { at: "orbits of our planets", hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "horizon ≈ 40× neptune's orbit", place: "left" }] },
@@ -140,7 +150,7 @@ export default {
     { at: "with enough pressure", cam: { r: 3, m: 28, span: 24 }, dur: 6,
       hl: [SCHW, { obj: "Earth" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), label: "squeeze to 9 mm", delay: 0.6 }] },
     { at: "number one", cam: { obj: "Stellar BH", span: 8 }, hl: [{ obj: "Stellar BH", label: "collapsed stars" }] },
-    { at: "moments after the big bang", cam: { r: -8, m: 18, span: 34 }, clear: true },
+    { at: "moments of the big bang", cam: { r: -8, m: 18, span: 34 }, clear: true },
     // the early universe as a density line: ~1e40 g/cm³ about 1e-17 s in, which meets
     // the black-hole line at ~3e21 g (a lump of it the size of its own horizon collapses)
     { at: "soup of very hot", hl: [SCHW, { density: 40, label: "the whole universe\nwas in a hot dense state" }] },
@@ -173,11 +183,11 @@ export default {
       hl: [{ ...DROP_ARROW, delay: 0.5, draw: 2 }, { ...GAL_DROP, label: "without dark matter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only", delay: 2 }] },
     { at: ["ten times", "10 times"], hl: [{ ...DROP_ARROW, draw: 0.01 }, { ...GAL_DROP, shiftAt: -10, label: "about 10× lighter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
     // a slow pull back from the galaxies to the candidates
-    { at: "something invisible", cam: { r: -2.5, m: 1.5, span: 40 }, dur: 4, quiet: true, labels: false, clear: true,
+    { at: "something invisible", cam: DM_WIDE, dur: 4, drift: 0, quiet: true, labels: false, clear: true,
       hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1.2 + 0.5 * i }))] },
-    // primordial black holes join the candidates on "…if it's tiny black holes"
-    { at: "plenty of candidates", cam: { r: -2.3, m: 1.8, span: 39 }, dur: 7, drift: 0, quiet: true,
-      hl: [SCHW, ...DM_CANDS.map(still), { ...DM_PBH, delay: 2.2 }, { window: W5, cuts: [ML, HAW], delay: 2.6 }] },
+    // the candidates, pointed out; primordial black holes join on "…if it's tiny black holes"
+    { at: "plenty of candidates", hl: [SCHW, ...DM_CANDS.map(still), ...DM_HUB(0),
+      { ...DM_PBH, delay: 2.4 }, { window: W5, cuts: [ML, HAW], delay: 2.8 }] },
     { at: "so we keep looking", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 3, labels: true, clear: true,
       hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
     { at: "research on neutron stars", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 5, clear: true,
@@ -192,20 +202,27 @@ export default {
     // ── Crossed off: the search for dark matter, area by area (the addendum, rec41) ──
     // back out to the candidates; each area of the chart that has been ruled out comes in as
     // it's named, and stays (later cues list the earlier ones as `still`, so nothing regrows)
-    { at: "or maybe not", cam: { r: -2.3, m: 1.8, span: 39 }, dur: 4, drift: 0, quiet: true, labels: false, clear: true,
-      hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1 + 0.5 * i }))] },
-    { at: "not only on the black hole line",
-      hl: [SCHW, ...DM_CANDS.map(still), DM_PBH, { window: W5, cuts: [ML, HAW] }] },
+    { at: "or maybe not", cam: DM_WIDE, dur: 4, drift: 0, quiet: true, labels: false, clear: true,
+      hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1 + 0.5 * i })), { ...DM_PBH, delay: 2.5 }, { window: W5, cuts: [ML, HAW], delay: 2.5 }] },
+    // a screen with little else going on: dark matter, if it's real, is one of these
+    { at: "somewhere on this chart", hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] }, ...DM_HUB(0)] },
+    // then a slow zoom in, arriving on the crossed-off corner as it's named
+    { at: "not only on the black hole line", cam: DM_CLOSE, dur: 4.5, drift: 0, quiet: true,
+      hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] }] },
     { at: "lumps about this size", hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
       { ...DM_SOURCE, delay: 0.6 }, { ...DM_MICA, delay: 0.2 }] },
     { at: "were around here", hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
       still(DM_SOURCE), still(DM_MICA), { ...DM_HURT, delay: 0.1 }] },
-    { at: "scratching off areas", hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
-      still(DM_SOURCE), still(DM_MICA), still(DM_HURT), { ...DM_WD, delay: 0.1 }, { ...DM_CMB, delay: 1.2 }] },
+    // "the collective effort…": a slow zoom back out while the rest of what's been ruled out
+    // comes in, one area at a time, across the whole sentence
+    { at: "the search for dark matter", cam: DM_WIDE, dur: 8, drift: 0, quiet: true,
+      hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
+        still(DM_SOURCE), still(DM_MICA), still(DM_HURT), { ...DM_WD, delay: 0.8 }, { ...DM_CMB, delay: 3.2 },
+        { window: W5, cuts: [QSO, CMB, GW, ML, HAW], delay: 5.4 }] },
     // radiation era: ρ ≈ 4.5e5 g/cm³ / t² (t in s); 1e44 g/cm³ at ~1e-19 s, which meets the
     // black-hole line at ~2e19 g, in the window
-    { at: "first moments of our history", cam: { r: -8.6, m: 19.4, span: 12 }, labels: true, clear: true,
+    { at: "first nanoseconds of our history", cam: { r: -8.6, m: 19.4, span: 12 }, labels: true, clear: true,
       hl: [{ density: 44, label: "density of universe\nfirst instants after big bang" }] },
-    { at: "everything else", cam: FULL, dur: 11, drift: 0, quiet: true, labels: false, clear: true },
+    { at: "the galaxies the stars", cam: FULL, dur: 11, drift: 0, quiet: true, labels: false, clear: true },
   ],
 };

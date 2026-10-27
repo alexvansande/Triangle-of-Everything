@@ -464,11 +464,12 @@ export async function startNarration(app) {
   // Then it goes back the same way over `out`. A photo with `lens` on the same object,
   // timed inside the hold, lands on the grown picture (video/plans/visual-rules.md §3).
   // "fill": the object grows to 40% of the screen's short side.
-  // A photo cue with `dive: { in?, out?, grow? }` is a whole dive in one cue: the dive
-  // starts at the cue, the photo fades in once everything behind has fully fallen
-  // back (in + 0.25 s), holds `dur`, fades out, and then the dive unwinds over `out`.
+  // A photo cue with `dive: { in?, out?, grow?, photoAt? }` is a whole dive in one cue: the
+  // dive starts at the cue, the photo fades in once everything behind has fully fallen
+  // back (in + 0.25 s; or `photoAt` s after the cue, so it's already coming in during the
+  // approach), holds `dur`, fades out, and then the dive unwinds over `out`.
   const DIVE_IN = 2, DIVE_OUT = 3.5, DIVE_LEAD = 0.25;
-  const diveLead = (c) => c.dive ? (c.dive.in ?? DIVE_IN) + DIVE_LEAD : 0;
+  const diveLead = (c) => !c.dive ? 0 : c.dive.photoAt ?? (c.dive.in ?? DIVE_IN) + DIVE_LEAD;
   const dollies = [
     ...cues.filter(c => c.dolly).map(c => {
       const d = typeof c.dolly === "string" ? { obj: c.dolly } : c.dolly, tin = d.in ?? 2.4;
@@ -775,6 +776,7 @@ export async function startNarration(app) {
       else if (h.ellipse) drawEllipse(el, h, age);
       else if (h.window) drawWindow(el, h, age);
       else if (h.cross) drawCross(el, h, age);
+      else if (h.text) drawText(el, h, age);
     });
     // While a callout is on screen, the chart's other labels step back: only the
     // highlighted objects keep theirs (the rest come back between callouts).
@@ -1503,6 +1505,12 @@ export async function startNarration(app) {
     el.append("text").attr("class", "narr-tag narr-cand").attr("x", place === "left" ? x - 16 : x + 16).attr("y", y + 5)
       .attr("text-anchor", place === "left" ? "end" : "start").attr("fill", col).attr("opacity", op).text((h.label || "").toUpperCase());
   }
+  /** A big free-standing word on the chart: { text, at: [r, m], color? } (a hub that arrows point out from) */
+  function drawText(el, h, age) {
+    el.append("text").attr("class", "narr-tag narr-hub").attr("x", sx(h.at[0])).attr("y", sy(h.at[1]))
+      .attr("text-anchor", "middle").attr("fill", h.color || "#ffe9a3").attr("opacity", h.instant ? 1 : smooth(age / 0.6))
+      .text(h.text.toUpperCase());
+  }
   function drawArrow(el, h, age) {
     const from = h.from.obj ? objByName.get(h.from.obj) : null;
     const to = h.to.obj ? objByName.get(h.to.obj) : null;
@@ -1977,6 +1985,7 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 #narr-svg text.narr-sketch-sub { font-size: 11.5px; font-weight: 600; fill: rgba(235,238,255,0.8); letter-spacing: 0.05em; }
 #narr-svg text.narr-guide { font-size: 11px; font-weight: 600; fill: #e8ecff; letter-spacing: 0.03em; }
 .narr-cand { font-size: 15px; }
+.narr-hub { font-size: 30px; letter-spacing: 0.06em; }
 body.narr-no-text #chart text { visibility: hidden; }
 /* a cue's focus: every other object fades (pictures, dots, shadows, names, catalogue dust) */
 body.narr-obj-focus #chart :is(g.icon-g, g.obj-g, g.icon-shadow, text.obj-label):not(.narr-keep),

@@ -334,6 +334,8 @@ Cue fields
                one and grows in. trace: a faint line along the first window
              { cross: { r, m }, mass?, size? } — a dot with dashed guides to the
                mass ruler (right) and the size ruler (bottom), labelled
+             { text: "Dark matter?", at: [r, m], color? } — a big free-standing word,
+               a hub for arrows to point out from
            any item can take delay (s) to stagger
   clear    end the current highlights
   units    pin the unit rulers on (they also show during every move)

@@ -101,6 +101,9 @@ map. Optionally it then fills the screen, holds, and fades slowly back to the ch
   Creation (videos 3 and 5, upright and edge to edge), M87* (end of video 3, video 4,
   video 5) and Sgr A* (video 4). The Eiffel Tower is a dive without a photo: zoom,
   grow, dim.
+- **One move, no wait** (author, 2026-10-27, on M87*): the photo is already fading in while the
+  camera approaches (`dive.photoAt`, ~0.4 s after the cue) and grows straight on to fill the
+  screen; a pause on arrival and then a second zoom read as two moves.
 - **The dramatic version is preferred**: background to black, the photo grows to fill
   the screen, holds for a while, and fades back slowly (`fadeOut` ~1.5–1.8 s). Camera
   moves to the next shot can happen behind the black.

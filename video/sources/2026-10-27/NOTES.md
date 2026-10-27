@@ -188,3 +188,72 @@ small treble lift (`SOURCE_FX`) to match rec38; "Look, or maybe not" comes from 
 try, "And like" before "they looked" is left out. The scene draws each crossed-off area of the
 dark matter figure as it's named (crystals, injuries, then white dwarfs and the microwave
 background on "scratching off areas").
+
+## rec40: "Hubble sphere.aifc" (video 5)
+
+In iCloud `Projects/triangle/recordings/` (home): 15:35, lossless AIFF-C (QuickTime's Maximum
+setting), a handheld mic. One run of the video 5 script with many retakes, and notes to the
+editor in the take:
+- **Mic hand and aircon (0:00–0:34):** the author asked whether holding the mic in the right or
+  the left hand made a difference, and whether the aircon could be heard. Measured: with the
+  aircon on, the floor is about 3.5 dB higher (−75.5 vs −79 dBFS), the hum 7 dB stronger at
+  200–2,000 Hz; turned off from 0:24. The right hand came out about 3.7 dB louder and brighter
+  (+5 dB at 4–8 kHz), the mic more on-axis. A stand or a clip would avoid handling noise.
+- **The opening (1:21):** "I really like this opening, let's try to keep that, unless we are
+  already using it": "Anything that has ever existed can be plotted in this chart." Video 4 opens
+  with nearly the same line, so the cut keeps the script's "You could try to fit everything…".
+- **Punctuation (3:01):** "the skeleton of dead stars" ends with a colon, not a full stop, before
+  "white dwarfs, neutron stars, and finally black holes".
+
+Cut: `video/short-05-hubble-sphere/edl.py`. Picks: the second super-Jupiter (the author stumbled
+on the first); the third try at "black holes are the first limit…", which adds "or to the left of
+it"; the second "That gas just spreads out…"; "It's weird to talk about nothing as an object"
+from the voids' several tries; "But yeah," and "Okay" left out; the eighth try at "Those two
+lines…"; the new bridge, "There's another interesting thing. We sort of know what someone sitting
+on the edge of a galaxy far, far away would see, because we are sort of seeing it right now",
+before the observable universe; the last of many tries at "it's not just one object…".
+
+### Fact check
+
+- **Right:** a log chart of mass and size; everything made of matter on one density diagonal
+  from a mouse to the blue whale, Everest to a moon, a meteorite to a Jupiter-sized planet; a
+  super-Jupiter of 10 Jupiter masses has about Jupiter's diameter; after the brown dwarfs the line
+  splits, the dead stars on the left; black holes on the Schwarzschild line, and nothing above or
+  to the left of it.
+- **Right:** dying stars become red giants or explode as supernovae, and the gas feeds new
+  stars; bigger is emptier from globular clusters to galaxies, clusters and superclusters;
+  Laniakea, about 100,000 galaxies; voids are underdense, not empty, so they have mass.
+- **Right:** the speed of light is the limit for travel through space, not for the stretching
+  of space; at the Hubble line things recede at the speed of light; the Hubble sphere grows, so
+  light sent from just beyond it can still reach us; the cosmic event horizon, a little further
+  out, is the true limit.
+- **Wording:** "nothing that happens **here** can ever affect us" means there (beyond the
+  horizon), as in the script; the captions say what's spoken.
+- **Right:** the mass inside the Hubble sphere at the critical density puts it exactly on the
+  black-hole line (2GM/c² = c/H); a black hole's horizon depends on its mass, the Hubble sphere on
+  the expansion rate, which depends on the density; the universe may be infinite and much the same
+  everywhere.
+- **Imprecise:** "46 billion light years… That's like more than double the size of the Hubble
+  sphere". The observable universe's radius (46 billion light-years) is a bit over three times
+  the Hubble radius (about 14.4 billion). "…more than three times the size" would be exact.
+- **Right:** galaxies inside the observable universe are already beyond reach even at the speed of
+  light (past the event horizon, about 16.5 billion light-years now); the observable universe
+  isn't one object; its distance is where those galaxies are now, while their light left long ago.
+- **Loose, fine for the line:** "We sort of know what someone at the edge would see, because we
+  are sort of seeing it right now": we see a similar universe in every direction, which is what
+  they would see too.
+
+### Video 4, second cut (the author's review, 2026-10-27)
+
+- **One take:** "Let's avoid mixing takes": rec37's lines sounded different. The cut is now rec38
+  throughout, plus rec41 for the addendum; rec38's stumbles are cut around ("they form in
+  stellar, they form in stellar nurseries", "they live their life on the main, then they will
+  live…", a trailing "like"), and its "a millionth of a second in" is left out of the soup line.
+  Its ending says "the first nanoseconds of our history" (the window's black holes formed far
+  earlier, within those nanoseconds; fine as said).
+- **No breath** before the first word.
+- **Natural speed:** the home takes play at 1.0× (no tempo): 5:37.
+- The scene: the M87* dive's photo comes in during the approach (`dive.photoAt`) and grows
+  straight to full screen; the dark matter candidates on a wider view with a "Dark matter?" hub
+  and arrows; a slow zoom in onto the crystals and injuries; a slow zoom back out on "the search
+  for dark matter…" with the other ruled-out areas coming in one by one.
