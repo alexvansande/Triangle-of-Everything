@@ -270,6 +270,11 @@ so a short's scene can import the matching section from another scene.
 
 Scene-level: `pbhWindow: false` hides the map's own primordial black hole window
 (and its "ruled out by" labels) for a scene that draws the window itself.
+`cover: { src, size: [w, h], frame: [x0, y0, x1, y1], r: [r0, r1], m: [m0, m1], dur, fade, bg }` opens a take
+over the classic figure on a picture of the page it comes from (`src` in
+`public/narration/photos/`, `size` its pixels): fitted to the stage's width over `bg`,
+it zooms in from the start for `dur` s until its plot (`frame`, measured on the picture,
+spanning log radius `r` and log mass `m`) lies on the redrawn figure's, then fades over `fade` s (the hook's AJP cover).
 
 A scene is `src/narration-scenes/<take>.js`; a take picks it with `"scene"` in its
 words.json (default: the take's own name).
@@ -290,9 +295,8 @@ Cue fields
            names) fades in once the cue's camera arrives; false fades it out
   spectrum true: the spectrum's sine wave, likewise (it isn't redrawn while the
            camera moves, so end it with a cue before the next flight)
-  plotIn   { delay, dur }: over the classic figure, only the paper's title block
-           shows until the cue's time + delay (s), then the figure fades in over dur
-  header   false: the classic figure's title block fades out from the cue (true: back)
+  header   false: the classic figure's title block fades out from the cue; true
+           fades it in (hidden from the start if the first header cue is true)
   drift    slow zoom-in while holding, as a fraction (default 0.05)
   hl       highlights, shown until the next cue with hl/clear:
              { obj: "Name", label?, place?: "left"|"below", color? }

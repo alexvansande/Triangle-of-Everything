@@ -31,6 +31,9 @@ export default {
   title: "The hook",
   blurb: "The classic chart, and why it's much more than mass versus size.",
   start: FIG,
+  // the paper's journal cover (AJP 91 (10), Oct 2023): it zooms in until its chart lies on the
+  // redrawn one, by the end of "…in all of physics", then fades; the plot frame measured on it
+  cover: { src: "ajp-cover-2023-10", size: [1500, 2000], frame: [426, 703, 1164, 1688.5], r: [-40, 55], m: [-54, 68], dur: 3.5, fade: 0.9, bg: "#fbea16" },
 
   captionFixes: { short: "chart", shard: "chart", lights: "light" },
 
@@ -40,8 +43,9 @@ export default {
   ],
 
   cues: [
-    // the paper's title on its own, then the figure fades in under it
-    { at: "most interesting chart", cam: { r: 6, m: 8, span: 96 }, dur: 5, drift: 0.03, plotIn: { delay: 1.2, dur: 2 } },
+    // over the journal cover (scene `cover`); the paper's title comes in once it has gone
+    { at: "most interesting chart", cam: { r: 6, m: 8, span: 96 }, dur: 5, drift: 0.03 },
+    { at: "the first thing", header: true },
 
     // the diagonal, bottom to top
     { at: "this diagonal line", cam: { r: 3, m: 4, span: 60 }, hl: [{ line: "water", label: "the diagonal" }] },

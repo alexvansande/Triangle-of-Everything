@@ -7,6 +7,7 @@ video description of every video that shows them, like the music.
 
 | Name | Credit | Licence | Source |
 |---|---|---|---|
+| ajp-cover-2023-10 | Cover of the American Journal of Physics 91 (10), October 2023 (AAPT); the figure is Fig. 2 of Lineweaver & Patel | © AAPT, all rights reserved | supplied by the author (the hook's opening) |
 | andromeda | Brody Wesner | CC0 | [Andromeda_Galaxy_2025.png](https://commons.wikimedia.org/wiki/File:Andromeda_Galaxy_2025.png) |
 | betelgeuse | ALMA (ESO/NAOJ/NRAO)/E. O’Gorman/P. Kervella | CC BY 4.0 | [Betelgeuse_captured_by_ALMA.jpg](https://commons.wikimedia.org/wiki/File:Betelgeuse_captured_by_ALMA.jpg) |
 | blue-whale | NOAA Photo Library | Public domain | [Anim1754_-_Flickr_-_NOAA_Photo_Library.jpg](https://commons.wikimedia.org/wiki/File:Anim1754_-_Flickr_-_NOAA_Photo_Library.jpg) |   (kept for a future horizontal version)

@@ -405,7 +405,7 @@ function build() {
     .on("click", () => svg.transition().duration(1200).call(zoom.transform, fig3Transform()));
   layers.axes = svg.append("g").attr("class", "cl-axes");
   layers.titles = svg.append("g").attr("class", "cl-text");
-  layers.legend = svg.append("g").attr("class", "cl-legend");
+  layers.legend = svg.append("g");
 
   // static object marks — positions set in render()
   layers.dots.selectAll("circle.cl-obj").data(OBJECTS).join("circle")
@@ -594,7 +594,7 @@ function render(t) {
         .style("opacity", opacity(d));
     });
   layers.blobs.style("opacity", 1 - fade);
-  layers.legend.style("opacity", Math.max(0, Math.min(1, (2 - k) / 0.8)) * narrPlot)
+  layers.legend.style("opacity", Math.max(0, Math.min(1, (2 - k) / 0.8)))
     .style("display", k >= 2 ? "none" : null);
 
   // the Fig. 3 window
@@ -950,6 +950,15 @@ export function classicFrameClient() {
     w: ctm.a * (FRAME.x1 - FRAME.x0), h: ctm.d * (FRAME.y1 - FRAME.y0) };
 }
 
+// Narration player: where a point of the figure (log radius, log mass) is on screen,
+// in client px, with the figure's current zoom (null before it is drawn).
+export function classicProject(r, m) {
+  const ctm = svg?.node().getScreenCTM();
+  if (!ctm) return null;
+  const t = d3.zoomTransform(svg.node()), fx = t.applyX(x0(r)), fy = t.applyY(y0(m));
+  return { x: ctm.a * fx + ctm.e, y: ctm.d * fy + ctm.f };
+}
+
 // Narration player: the axis numbers ("left" | "right" | "top" | "bottom" in
 // data-side) and a layer just beneath them for glows, in figure px, with a
 // soft-blur filter "#cl-glow-blur" for it.
@@ -974,9 +983,8 @@ export function classicAxisNumbers() {
 // exactly on the map during the cross-fade, not just the one at the centre.
 const ISO_Y = FRAME_PPD_X / ((FRAME.y1 - FRAME.y0) / (M_DOM[1] - M_DOM[0]));
 
-// parts: { plot, header } (0–1), the figure and the paper's title block above it on
-// their own (a video can open on the title alone, then bring the figure in).
-let narrPlot = 1;
+// parts: { header } (0–1), the paper's title block above the figure on its own (a
+// video can bring it in after an opening of its own).
 export function narrClassic(opacity, view, parts = {}) {
   if (opacity <= 0) {
     if (root) { root.hidden = true; root.classList.remove("shown"); svg.style("transform", null); }
@@ -987,8 +995,6 @@ export function narrClassic(opacity, view, parts = {}) {
   if (root.hidden) { root.hidden = false; root.classList.add("shown"); layoutNames(); }
   root.style.opacity = opacity;
   const op = (v) => (v ?? 1) >= 1 ? null : String(v);
-  narrPlot = parts.plot ?? 1;   // the legend keeps its own zoom fade (render), times this
-  svg.selectAll(":scope > :not(defs):not(.cl-header):not(.cl-legend)").style("opacity", op(parts.plot));
   svg.select(".cl-header").style("opacity", op(parts.header));
   if (!view) return;
   svg.style("transform", `scaleY(${ISO_Y})`);   // about its centre: the camera's centre

@@ -28,7 +28,7 @@ import {
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
   RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES,
 } from "./data.js";
-import { narrClassic, classicFrameClient, classicAxisNumbers } from "./classic.js";
+import { narrClassic, classicFrameClient, classicAxisNumbers, classicProject } from "./classic.js";
 // Scene scripts, one per file in ./narration-scenes/ (lazy chunks)
 const SCENES = import.meta.glob("./narration-scenes/*.js");
 let SCENE;
@@ -360,21 +360,17 @@ export async function startNarration(app) {
     }
   }
 
-  // ---------- the classic figure's parts: `plotIn: { delay, dur }` keeps the figure
-  // hidden under the paper's title block until the cue's time + delay, then fades it in;
-  // `header: false` fades the title block out from a cue (true brings it back) ----------
-  const plotIn = cues.find(c => c.plotIn);
+  // ---------- the classic figure's title block: `header: false` fades it out from a
+  // cue, `true` fades it in (hidden from the start when the first such cue is a true) ----------
   const headerCues = cues.filter(c => c.header !== undefined);
   const HEADER_FADE = 0.6;
   function classicParts(t) {
-    const p = plotIn && plotIn.plotIn;
-    const plot = p ? smooth((t - plotIn.time - (p.delay ?? 0)) / (p.dur ?? 1.5)) : 1;
-    let header = 1;
+    let header = headerCues[0]?.header ? 0 : 1;
     for (const c of headerCues) if (c.time <= t) {
       const f = smooth((t - c.time) / HEADER_FADE);
       header = c.header ? Math.max(header, f) : Math.min(header, 1 - f);
     }
-    return { plot, header };
+    return { header };
   }
 
   // ---------- unit rulers: up while the camera moves (or pinned) ----------
@@ -401,7 +397,7 @@ export async function startNarration(app) {
   layer.id = "narr-layer";
   if (!RENDER) layer.classList.add("live");     // the player's own UI (renders have none)
   const track = SCENE.backing && (typeof SCENE.backing === "string" ? SCENE.backing : SCENE.backing.track);
-  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-photo"><div class="np-imgs"></div><div class="np-cap"></div></div><div id="narr-caption"></div>` + creditsHTML(track) +
+  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-cover" hidden><img alt=""></div><div id="narr-photo"><div class="np-imgs"></div><div class="np-cap"></div></div><div id="narr-caption"></div>` + creditsHTML(track) +
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
       <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div>
       <a id="narr-next" href="#" hidden></a>
@@ -499,6 +495,39 @@ export async function startNarration(app) {
   const photoImgs = new Map();
   for (const p of photos) for (const n of p.names) if (!photoImgs.has(n)) {
     const im = new Image(); im.decoding = "sync"; im.src = photoUrl(n); photoImgs.set(n, im);
+  }
+  // ---------- the opening cover (scene `cover: { src, size: [w, h], frame: [x0, y0, x1, y1],
+  // r: [r0, r1], m: [m0, m1], dur, fade, bg }`): a picture of the page the classic figure
+  // comes from (a journal cover), across the stage's width over its own colour, zooms in
+  // from the start for `dur` s until its plot (`frame` in its px, spanning log radius r
+  // and log mass m) lies on the redrawn figure's, then fades over `fade` s, leaving the
+  // figure in its place ----------
+  const COVER = SCENE.cover;
+  const coverEl = document.getElementById("narr-cover"), coverImg = coverEl.querySelector("img");
+  if (COVER) { coverEl.hidden = false; coverEl.style.background = COVER.bg || "#000"; coverImg.src = photoUrl(COVER.src);
+    Object.assign(coverImg.style, { width: `${COVER.size[0]}px`, height: `${COVER.size[1]}px` }); }
+  function drawCover(t) {
+    if (!COVER) return;
+    const a = 1 - smooth((t - COVER.dur) / (COVER.fade ?? 0.8));
+    // the corners of the figure's plot, as the redrawn figure shows them now
+    const p0 = a > 0.001 && classicOpacity(t) > 0 ? classicProject(COVER.r[0], COVER.m[1]) : null;
+    const p1 = p0 && classicProject(COVER.r[1], COVER.m[0]);
+    coverEl.style.visibility = p1 ? "visible" : "hidden";
+    if (!p1) return;
+    const fr = { x: p0.x, y: p0.y, w: p1.x - p0.x, h: p1.y - p0.y };
+    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
+    const SW = layer.clientWidth, SH = layer.clientHeight;
+    const [w, h] = COVER.size, [x0, y0, x1, y1] = COVER.frame;
+    const s0 = SW / w;                                       // the whole cover across the width
+    const sx1 = fr.w / scl / (x1 - x0), sy1 = fr.h / scl / (y1 - y0);   // its frame on the figure's
+    const k = smooth(t / COVER.dur);
+    const sx = s0 * (sx1 / s0) ** k, sy = s0 * (sy1 / s0) ** k;          // a steady zoom
+    // the frame's centre travels in a straight line on screen
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    const px = (1 - k) * (cx * s0) + k * ((fr.x - lr.x) / scl + fr.w / scl / 2);
+    const py = (1 - k) * ((SH - h * s0) / 2 + cy * s0) + k * ((fr.y - lr.y) / scl + fr.h / scl / 2);
+    coverImg.style.transform = `translate(${(px - cx * sx).toFixed(2)}px, ${(py - cy * sy).toFixed(2)}px) scale(${sx.toFixed(5)}, ${sy.toFixed(5)})`;
+    coverEl.style.opacity = a.toFixed(3);
   }
   const photoEl = document.getElementById("narr-photo");
   const photoBox = photoEl.querySelector(".np-imgs"), photoCap = photoEl.querySelector(".np-cap");
@@ -1604,6 +1633,7 @@ export async function startNarration(app) {
     drawDolly(curT);       // first, so drawings over a dive's picture measure this frame's copy
     drawHighlights(curT);
     drawPhoto(curT);
+    drawCover(curT);
     drawCaption(curT);
   }
   app.onRedraw(() => { gHl && overlay(); });
@@ -1635,7 +1665,8 @@ export async function startNarration(app) {
     camera: (t) => camera(t).view,
     pending: () => app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
       [...photoImgs.values()].filter(im => !im.complete).length +
-      [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length,
+      [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length +
+      (COVER && !coverImg.complete ? 1 : 0),
     audio: base + take.audio,
   };
   if (RENDER) return;
@@ -1935,6 +1966,8 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
   letter-spacing: 0.01em; color: #fff;
   -webkit-text-stroke: 6px #000; paint-order: stroke fill; }
 #narr-caption span { color: #fff; }
+#narr-cover { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+#narr-cover img { position: absolute; left: 0; top: 0; transform-origin: 0 0; max-width: none; }
 #narr-photo { position: absolute; inset: 0; background: #000; overflow: hidden; visibility: hidden; pointer-events: none; }
 #narr-photo .np-imgs { position: absolute; inset: 0; will-change: transform; }
 #narr-photo figure { position: absolute; inset: 0; margin: 0; }
