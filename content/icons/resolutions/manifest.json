@@ -563,7 +563,7 @@
     ]
   },
   "bottom": {
-    "fingerprint": "03fb20f55c52e5d5d9d6ff60ab52139209f64468e7eaa3649fec97d286f28cf0",
+    "fingerprint": "9422c8cf588d5d3c2dc2c2e5fb1f344f64bd984be33e8cb182059cd23f083348",
     "baseWidth": 512,
     "source": "content/icons/bottom.webp",
     "reason": "no larger source",
@@ -778,7 +778,7 @@
     ]
   },
   "charm": {
-    "fingerprint": "f14c6707173d49786c1208a07abd90710f5f146311bd285d0aa5bf53ce26254d",
+    "fingerprint": "a70ca06db31fb18c666070716f9a32c042c98c8de28c3f8a63719b100770d68d",
     "baseWidth": 512,
     "source": "content/icons/charm.webp",
     "reason": "no larger source",
@@ -996,7 +996,7 @@
     "variants": []
   },
   "down": {
-    "fingerprint": "0394740a9089a34573b2874e6c874cb18fc3ec535f65afa78dcc25cba5669b4f",
+    "fingerprint": "e62cff50aec585b2db1fc6184fe2358d589f26076e595b6a93b96b802514827d",
     "baseWidth": 512,
     "source": "content/icons/down.webp",
     "reason": "no larger source",
@@ -1063,7 +1063,7 @@
     ]
   },
   "electron": {
-    "fingerprint": "e1d8f821f4134ad20b7cca789216ef0c89e2752dc611160d385187ef60158e9b",
+    "fingerprint": "e7c3e6d7d39cc7de600d3f48bd93fa5304b7ffbcb407043d0bf1312dd52da711",
     "baseWidth": 512,
     "source": "content/icons/electron.webp",
     "reason": "no larger source",
@@ -1631,7 +1631,7 @@
     ]
   },
   "higgs": {
-    "fingerprint": "cea53b786b4b2e03b650a2948e7abe3c86b43bfc009326618a388f8341693067",
+    "fingerprint": "5bc8756cf0d1d3810ea6f4d58202e7dc924bee4a96e3560dcd1dc2011aec5df1",
     "baseWidth": 512,
     "source": "content/icons/higgs.webp",
     "reason": "no larger source",
@@ -2353,7 +2353,7 @@
     ]
   },
   "meson": {
-    "fingerprint": "e29132ca439be720f36a51c4fd99bc33b7e34a355cc446500aded3151588c27e",
+    "fingerprint": "cdd914dddfb687f91c32ddba449870fc8c84bfa0df9119ba20f6b8ad6cfd97c3",
     "baseWidth": 512,
     "source": "content/icons/meson.webp",
     "reason": "no larger source",
@@ -2505,7 +2505,7 @@
     ]
   },
   "muon": {
-    "fingerprint": "fa9148eb34d04664df096678db8af3a1276072c4eadeb78631a80af9207a4161",
+    "fingerprint": "9ed6a862b5c1bf324dd8e7c436f6a18e5ac59b1c3babf811bf2111962e6a7e2c",
     "baseWidth": 512,
     "source": "content/icons/muon.webp",
     "reason": "no larger source",
@@ -2615,7 +2615,7 @@
     ]
   },
   "neutrino-e": {
-    "fingerprint": "4581601942a7a0bae993423aeaa47b98bf6a336e0def0e9bec06db468a52a197",
+    "fingerprint": "058457f95c63a13a92e2624b880b7e2cf0d7aec50c9377306b66d4b4ed014362",
     "baseWidth": 512,
     "source": "content/icons/neutrino-e.webp",
     "reason": "no larger source",
@@ -2632,7 +2632,7 @@
     ]
   },
   "neutrino-mu": {
-    "fingerprint": "67804109841d57a607a09a204ddcebb2602deb64fe83bb03605b971272936acc",
+    "fingerprint": "8089661f206754f33dcae1286b4d8248aefbaf732b8ac2159d468f76bf2880a9",
     "baseWidth": 512,
     "source": "content/icons/neutrino-mu.webp",
     "reason": "no larger source",
@@ -2649,7 +2649,7 @@
     ]
   },
   "neutrino-tau": {
-    "fingerprint": "39019fa992fbd32aeb7affe120d6df0d35b319fdb09d6e54370ca2e5d3a46258",
+    "fingerprint": "a5b2602b37c683db571810000b72d37f65fd18ab0bb254b34eb8c4f76726da93",
     "baseWidth": 512,
     "source": "content/icons/neutrino-tau.webp",
     "reason": "no larger source",
@@ -2687,7 +2687,7 @@
     ]
   },
   "neutron": {
-    "fingerprint": "4b4419e2caeb0e9e99c67741a1d63e1ad5f8a73d6e9fb4021869fe9e0877fa9f",
+    "fingerprint": "19edd1059d0963323dcfccea1a6399bd09d9797447a213e563205de1335ced8f",
     "baseWidth": 512,
     "source": "content/icons/neutron.webp",
     "reason": "no larger source",
@@ -2965,7 +2965,7 @@
     ]
   },
   "proton": {
-    "fingerprint": "95988df91cb70d4f63fd9cf7975090ccfaabf552ceb803ca25b3e40fd36114e6",
+    "fingerprint": "74cfdcf869d0f1c19f07239f89909151cde1f1904a876315a3f842dd378c5fcd",
     "baseWidth": 512,
     "source": "content/icons/proton.webp",
     "reason": "no larger source",
@@ -3420,7 +3420,7 @@
     ]
   },
   "strange": {
-    "fingerprint": "f8e6ab47648fd86fb549f9c5f4e1b78d2a0e2bfc60ffcd2650e71624ac51d53c",
+    "fingerprint": "eda4537659a5d369b0211e16884a326be5e3e72d50a021c871dd81b47d524e5e",
     "baseWidth": 512,
     "source": "content/icons/strange.webp",
     "reason": "no larger source",
@@ -3529,7 +3529,7 @@
     ]
   },
   "tau": {
-    "fingerprint": "6a4ca11c1921f07c0a7e3d5bd290a00c43c28c3ea9a3eb23e416eba5e2324da6",
+    "fingerprint": "d75533de1e11c3671e78e3dd5d6b0413c9c23cf587b4abdbc2e1dfe90a380ca7",
     "baseWidth": 512,
     "source": "content/icons/tau.webp",
     "reason": "no larger source",
@@ -3689,7 +3689,7 @@
     ]
   },
   "top": {
-    "fingerprint": "4713ab0d690036cf2c5e3d47458505b2e23843801b46c3ee3a16de40f230cc6e",
+    "fingerprint": "12d369e3757c4d6dae4c1eb5d0aa118e8f576a5d1896ba3b2abaa9f604b14587",
     "baseWidth": 512,
     "source": "content/icons/top.webp",
     "reason": "no larger source",
@@ -3807,7 +3807,7 @@
     ]
   },
   "up-quark": {
-    "fingerprint": "7d67cea1f96ec58a37b8a16de925628648b7992232bbc60926577d56ec5b0907",
+    "fingerprint": "7999ad3f9313266bb31b8d105d3f60babc352156412e26ff6c89b8720cb62f12",
     "baseWidth": 512,
     "source": "content/icons/up-quark.webp",
     "reason": "no larger source",
@@ -3988,7 +3988,7 @@
     ]
   },
   "w-boson": {
-    "fingerprint": "9eb0374ecb2584137c75959db86dd9b60acd05843ab2bd1c71eac0fcfefbdcc4",
+    "fingerprint": "ff33fe02db5de43d82abc987db0cfca3cbec00431df3a7d979dbb42542e290f9",
     "baseWidth": 512,
     "source": "content/icons/w-boson.webp",
     "reason": "no larger source",
@@ -4115,7 +4115,7 @@
     ]
   },
   "z-boson": {
-    "fingerprint": "24889f1459e8bfd1b539edd2de40a4057703a6252740d860dada5b216ea6a561",
+    "fingerprint": "508ab71844472ebc116cebf832a48ddc0a26ef7157e25271a05f7e58b9cfae6b",
     "baseWidth": 512,
     "source": "content/icons/z-boson.webp",
     "reason": "no larger source",

@@ -55,6 +55,7 @@ import introRaw from "../content/intro.md?raw";
 import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, tourGoTo, logAllSteps, isTourActive, closeTour } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
+import { startHopfIcons } from "./hopf-icons.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
 import { loadDust, drawDust, pickDust, pickNamedDust, dustPoint, dustReady, dustPositions, dustOfCat, dustOfSrc, dustByName, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust, dustPictureCandidates } from "./dust.js";
@@ -6563,6 +6564,8 @@ const zoomBehavior = d3.zoom()
 svg.call(zoomBehavior);
 // Safari's trackpad pinch, also over the click-target overlay above the map
 enableTrackpadPinch(svg.node(), [svg.node(), clickTargetContainer]);
+// particles drawn live as Hopf fibrations over their still pictures
+startHopfIcons(document.getElementById("chart"));
 
 // Trackpad two-finger drag pans; pinch and mouse wheel zoom (trackpad-pan.js).
 // Wraps the start/end listeners above, so it must come after them.
