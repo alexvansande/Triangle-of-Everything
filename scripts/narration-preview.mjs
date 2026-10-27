@@ -17,6 +17,12 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
+// ISO date of the last commit (touching `paths`, if given); "" outside a git checkout
+function gitDate(...paths) {
+  try { return execFileSync("git", ["log", "-1", "--format=%cI", "--", ...paths], { encoding: "utf8" }).trim(); }
+  catch { return ""; }
+}
+
 // OUT: where it goes (the site's build puts it in an unlisted folder of dist/, see
 // package.json); AUDIO=m4a keeps the takes' own audio (only claude.ai pages need MP3)
 const OUT = process.env.OUT || "dist-preview";
@@ -97,7 +103,8 @@ for (const t of takes) {
   const first = take.words.map(w => w[0]).join(" ").match(/^.*?[.?!](\s|$)/)?.[0].trim() ?? "";
   const music = scene.backing && (typeof scene.backing === "string" ? scene.backing : scene.backing.track);
   info.push({ id: t, title: scene.title || t, blurb: scene.blurb || first, duration: take.duration, music,
-    thumbAt: scene.thumb ?? take.duration * 0.4, num: (t.match(/\d+/) || [""])[0] });
+    thumbAt: scene.thumb ?? take.duration * 0.4, num: (t.match(/\d+/) || [""])[0],
+    updated: gitDate(...["audio.m4a", "words.json"].map(f => `public/narration/${t}/${f}`), `src/narration-scenes/${take.scene || t}.js`) });
 }
 // A still of each take from the dev server, if one is running
 try {
@@ -123,6 +130,11 @@ try {
 // without a dev server (the site's build), the stills kept in public/narration/<take>/thumb.jpg
 for (const k of info) if (!k.thumb && fs.existsSync(path.join(OUT, "narration", k.id, "thumb.jpg"))) k.thumb = `narration/${k.id}/thumb.jpg`;
 
+// "Last updated": the commit the build comes from, and each take's last change
+// (its audio, captions or scene; not the still). Needs the git history: the deploy
+// checks out with fetch-depth 0
+const built = gitDate() || new Date().toISOString();
+const commit = (() => { try { return execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim(); } catch { return ""; } })();
 const esc = (x) => String(x).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const mmss = (d) => `${Math.floor(d / 60)}:${String(Math.round(d % 60)).padStart(2, "0")}`;
 const cards = info.map(k => `
@@ -130,7 +142,8 @@ const cards = info.map(k => `
       <span class="ng-thumb">${k.thumb ? `<img src="${k.thumb}" alt="" loading="lazy">` : ""}
         <span class="ng-num">${esc(k.num)}</span><span class="ng-len">${mmss(k.duration)}</span><span class="ng-play" aria-hidden="true"></span></span>
       <span class="ng-title">${esc(k.title)}</span>
-      <span class="ng-blurb">${esc(k.blurb)}</span>${k.music ? `
+      <span class="ng-blurb">${esc(k.blurb)}</span>${k.updated ? `
+      <span class="ng-updated">Updated <time datetime="${k.updated}" data-fmt="day">${k.updated.slice(0, 10)}</time></span>` : ""}${k.music ? `
       <span class="ng-music">♪ “${esc(k.music)}” Kevin MacLeod (incompetech.com)</span>` : ""}
     </a>`).join("");
 html = html.replace("</body>", `<section id="narr-grid" hidden aria-label="Narration previews">
@@ -138,6 +151,7 @@ html = html.replace("</body>", `<section id="narr-grid" hidden aria-label="Narra
     <p class="ng-eyebrow">The Triangle of Everything</p>
     <h1>Narration previews</h1>
     <p class="ng-note">${info.length} vertical shorts, played live from the map with their audio. Tap one to watch it, then tap the screen to pause. With autoplay on, each one rolls into the next.</p>
+    <p class="ng-stamp">Last updated <time datetime="${built}" data-fmt="time">${built.slice(0, 16).replace("T", " ")} UTC</time>${commit ? ` · ${esc(commit)}` : ""}</p>
     <a class="ng-all" href="#${esc(info[0].id)}">Play all · ${mmss(info.reduce((s, k) => s + k.duration, 0))}</a>
   </header>
   <div class="ng-grid">${cards}
@@ -187,6 +201,8 @@ html = html.replace("</body>", `<section id="narr-grid" hidden aria-label="Narra
 .ng-title { font: 700 22px/1 var(--ng-display); text-transform: uppercase; letter-spacing: 0.01em; }
 .ng-blurb { font-size: 13px; line-height: 1.4; color: var(--ng-muted); }
 .ng-music { font-size: 11.5px; line-height: 1.35; color: var(--ng-accent); opacity: 0.85; }
+.ng-stamp { margin: 8px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--ng-muted); font-variant-numeric: tabular-nums; }
+.ng-updated { font-size: 11.5px; line-height: 1.35; color: var(--ng-muted); }
 .ng-credits { max-width: 960px; margin: 26px auto 0; font-size: 12px; line-height: 1.5; color: var(--ng-muted); }
 .ng-credits a { color: var(--ng-fg); }
 #narr-back { position: fixed; z-index: 100001; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 10px;
@@ -202,6 +218,14 @@ window.__narrTakes = ${JSON.stringify(info.map(k => ({ id: k.id, title: k.title 
 (function () {
   var playing = location.hash.length > 1;
   document.getElementById(playing ? "narr-back" : "narr-grid").hidden = false;
+  // the dates in the viewer's own time zone
+  document.querySelectorAll("#narr-grid time[data-fmt]").forEach(function (t) {
+    var d = new Date(t.getAttribute("datetime"));
+    if (isNaN(d)) return;
+    t.textContent = t.dataset.fmt === "day"
+      ? d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
+      : d.toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  });
   // the back button doesn't start or pause the player underneath
   document.getElementById("narr-back").addEventListener("click", function (e) { e.stopPropagation(); });
 })();
