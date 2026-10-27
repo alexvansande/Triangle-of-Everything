@@ -13,7 +13,12 @@ re-rendering.
   re-decides every picture when its visibility context changes (`_objectVisibility` in
   `src/main.js`: the canvas size, `dustReady()`, the scene's picture sets, labels on/off), so a
   window resize (a phone's address bar), or the catalogue finishing loading, would do it. Need:
-  where it was watched (site or local, phone or Mac) and what the pop looks like.
+  where it was watched (site or local, phone or Mac) and what the pop looks like. The author:
+  on the Mac, on the local videos page. Driving video 2 in real time at 1280×800 and logging
+  every picture by name: around the hippo nothing re-grows; at 75–76 s ("made of stone… and
+  metal") 7 pictures leave and come straight back, growing in again from a dot. Possible fix:
+  a picture that comes back while it's still fading out reverses its fade instead of
+  re-growing (the icon join in `src/main.js` makes a new node, starting from a dot).
 
 ## Fixed
 
