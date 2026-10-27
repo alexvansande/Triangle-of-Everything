@@ -1,6 +1,7 @@
 # Music credits
 
-Background tracks for the narration, all by Kevin MacLeod, from
+Background tracks for the narration: every track of Kevin MacLeod's album
+*Mesmerize* (2016), in album order below, from
 [incompetech.com](https://incompetech.com), under
 [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 (free, commercial use included, as long as the music is credited).
@@ -14,14 +15,20 @@ Licensed under Creative Commons: By Attribution 4.0
 https://creativecommons.org/licenses/by/4.0/
 ```
 
-| Track | Used in | File | Length |
-|---|---|---|---|
-| Space X-plorers | short-01-hook | `space explorers.mp3` | 1:42 |
-| Dreamer | (retired-02-density) | `Dreamer.mp3` | 3:24 |
-| Soaring | short-02-up-the-line | `Soaring.mp3` | 6:20 |
-| Immersed | short-03-stars | `Immersed.mp3` | 4:09 |
-| Fresh Air | short-05-hubble-sphere | `Fresh Air.mp3` | 4:54 |
-| Mesmerize | short-05-black-holes | `Mesmerize.mp3` | 7:04 |
+| # | Track | Used in | File | Length |
+|---|---|---|---|---|
+| 1 | Fretless | | `Fretless.mp3` | 5:36 |
+| 2 | Immersed | short-03-stars | `Immersed.mp3` | 4:09 |
+| 3 | Dreamer | (retired-02-density) | `Dreamer.mp3` | 3:24 |
+| 4 | Promises to Keep | | `Promises to Keep.mp3` | 5:04 |
+| 5 | Fresh Air | short-05-hubble-sphere | `Fresh Air.mp3` | 4:54 |
+| 6 | Soaring | short-02-up-the-line | `Soaring.mp3` | 6:20 |
+| 7 | Relaxing Piano Music | | `Relaxing Piano Music.mp3` | 24:54 |
+| 8 | Space X-plorers | short-01-hook | `space explorers.mp3` | 1:42 |
+| 9 | Universal | | `Universal.mp3` | 4:30 |
+| 10 | Daytime TV Theme | | `Daytime TV Theme.mp3` | 0:48 |
+| 11 | Mesmerize | short-04-black-holes | `Mesmerize.mp3` | 7:04 |
+| 12 | In the West | | `In The West.mp3` | 0:39 |
 
 The music is mixed under the voice: lowered, faded in and out, ducked while
 the narrator talks, and around the scenes' own sound effects. Its
