@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-24",
+  "tool": "real photograph, not generated",
+  "object": "westerlund-2",
+  "slug": "westerlund-2",
+  "source": "NASA Image Library GSFC_20171208_Archive_e000742 (Hubble 25th anniversary, NASA, ESA, Hubble Heritage Team, A. Nota, Westerlund 2 Science Team); public domain",
+  "shows": "Hubble visible and near-infrared light",
+  "steps": "crop around the object, fade on the ellipse inscribed in the photo (no edges left), pad to a 1024 px square; then node scripts/generate-icon-resolutions.mjs <slug> and node scripts/unscreen-icons.mjs <slug>"
+}

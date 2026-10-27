@@ -20,8 +20,8 @@ went silent after a minute when it ran out.
 
 | Video | Take | Plays now |
 |---|---|---|
-| 1 · the hook | `short-01-hook` | 1:12 |
-| 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | 4:26 |
+| 1 · the hook | `short-01-hook` | 1:59 (re-recorded 2026-10-26, rec34) |
+| 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | 3:57 (re-recorded 2026-10-26, rec33) |
 | 3 · planets into stars | `short-03-stars` | 3:08 |
 | 4 · black holes and dark matter | `short-04-black-holes` | 5:40 |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 7:06 |
@@ -64,6 +64,10 @@ went silent after a minute when it ran out.
 > I call this the triangle of everything, and as you zoom in, it tells you a million stories. About airplanes, hippos and gravity. About how stars evolve, how particles turn into each other, and why balloons float. It even contains the periodic table, and it tells you why fire looks the way it does.
 >
 > I could tell you stories about it all day, and that's what I intend to do. Follow me for the triangle of everything.
+
+Recorded 2026-10-26 (rec34) with the author's new outro in place of the last paragraph: "I've
+been obsessed about this chart for many years now… that's precisely what I intend to do in this
+series of videos. I sincerely hope you find it as fascinating as I do." (no "follow me").
 
 ### What changed
 - New fifth paragraph (the author's, 2026-10-23): the sciences across the chart.

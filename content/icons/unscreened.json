@@ -31,8 +31,16 @@
   "backing": "soft",
   "master": true
  },
+ "black-eye": {
+  "backing": "core",
+  "master": true
+ },
  "blue-supergiant": {
   "backing": "body",
+  "master": true
+ },
+ "bodes-galaxy": {
+  "backing": "core",
   "master": true
  },
  "bottom": {
@@ -46,8 +54,16 @@
   "backing": "soft",
   "master": true
  },
+ "centaurus-a": {
+  "backing": "core",
+  "master": true
+ },
  "charm": {
   "backing": "soft"
+ },
+ "cigar-galaxy": {
+  "backing": "core",
+  "master": true
  },
  "cytosine-c": {
   "backing": "soft",
@@ -208,6 +224,10 @@
   "backing": "core",
   "master": true
  },
+ "pleiades": {
+  "backing": "core",
+  "master": true
+ },
  "proton": {
   "backing": "soft"
  },
@@ -320,6 +340,14 @@
  },
  "water-h2o": {
   "backing": "soft",
+  "master": true
+ },
+ "westerlund-2": {
+  "backing": "core",
+  "master": true
+ },
+ "whirlpool": {
+  "backing": "core",
   "master": true
  },
  "white-dwarf": {

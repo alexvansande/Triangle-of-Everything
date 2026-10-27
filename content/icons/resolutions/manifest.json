@@ -5601,6 +5601,153 @@
       }
     ]
   },
+  "black-eye": {
+    "fingerprint": "40e8130e2e55537f0bc1501d540ae984970806d7987a1778c240378e5e59d412",
+    "baseWidth": 128,
+    "source": "content/icons/src/black-eye.png",
+    "reason": "matching master",
+    "sourceDifference": 1.6888631184895833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/black-eye.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/black-eye.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/black-eye.webp"
+      }
+    ]
+  },
+  "bodes-galaxy": {
+    "fingerprint": "028c3d21b0315de5708c9e037bd2c5ff85db4f51ea6c478e7964d831dd90719e",
+    "baseWidth": 128,
+    "source": "content/icons/src/bodes-galaxy.png",
+    "reason": "matching master",
+    "sourceDifference": 1.145751953125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bodes-galaxy.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bodes-galaxy.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/bodes-galaxy.webp"
+      }
+    ]
+  },
+  "centaurus-a": {
+    "fingerprint": "d94703d3acb17810710ec1abe5bd54db7660b136f12de0da9f3165a2262c3c81",
+    "baseWidth": 128,
+    "source": "content/icons/src/centaurus-a.png",
+    "reason": "matching master",
+    "sourceDifference": 1.5013020833333333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/centaurus-a.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/centaurus-a.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/centaurus-a.webp"
+      }
+    ]
+  },
+  "cigar-galaxy": {
+    "fingerprint": "c9cfda636571802a0d1dec3d21ffef18f7bb2d59aeb4415981cc2e16d692b668",
+    "baseWidth": 128,
+    "source": "content/icons/src/cigar-galaxy.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4624430338541667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/cigar-galaxy.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/cigar-galaxy.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/cigar-galaxy.webp"
+      }
+    ]
+  },
+  "pleiades": {
+    "fingerprint": "2430e0e3c07d0ffa3162d7f430c855d3bf7f0ab561e4c3c93314d2a86aa374c0",
+    "baseWidth": 128,
+    "source": "content/icons/src/pleiades.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3664754231770833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/pleiades.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/pleiades.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/pleiades.webp"
+      }
+    ]
+  },
+  "westerlund-2": {
+    "fingerprint": "bfc3b5fe986b37e707ff909314a66154cf9f36b87231c060b933e3a511e8fed9",
+    "baseWidth": 128,
+    "source": "content/icons/src/westerlund-2.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7270100911458333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/westerlund-2.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/westerlund-2.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/westerlund-2.webp"
+      }
+    ]
+  },
+  "whirlpool": {
+    "fingerprint": "13839b17ebb6ef7d978c37d35989823af41a64c6963bb1ecbc0e2d3ce54ac65d",
+    "baseWidth": 128,
+    "source": "content/icons/src/whirlpool.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4363199869791667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/whirlpool.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/whirlpool.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/whirlpool.webp"
+      }
+    ]
+  },
   "21-cm-line": {
     "fingerprint": "781adb829a6a07c3cfa90b8147eaed2884ea69f80be78b3275bdb947d0a6bbe5",
     "baseWidth": 512,
