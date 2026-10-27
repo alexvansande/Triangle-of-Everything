@@ -2,7 +2,7 @@
 # Render every short whose full render is older than what it's made of, then make its web
 # copy and a dated copy for iCloud. Meant to run unattended (overnight):
 #   caffeinate -i scripts/narration-render-stale.sh [take …]   # default: every public/narration/short-*
-# Needs the dev server on :5184 (URL= to change) and Google Chrome (CHROME=).
+# Needs the dev server on :5184 (URL= to change) and Google Chrome (CHROME=); WORKERS= Chrome workers (8).
 #
 # A take is stale when its render (output/videos/<take>.mp4, never in git) is older than the
 # last commit touching its audio, captions or scene, or the code and pictures every short
@@ -39,7 +39,7 @@ for t in $takes; do
     echo "= $t: render up to date"
   else
     echo "=== $t $(date +%H:%M:%S)"
-    if node scripts/narration-render.mjs "$t" --url "$URL" --workers 5 --subframes 12 --chrome "$CHROME" \
+    if node scripts/narration-render.mjs "$t" --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" \
         --out "output/videos/$t.new.mp4" > "output/videos/$t.log" 2>&1; then
       mv "output/videos/$t.new.mp4" "$out"
     else

@@ -30,6 +30,14 @@ const BASE = opt("url", "http://localhost:5173");
 const FPS = +opt("fps", 30);
 const WORKERS = +opt("workers", 3);
 const SUB = Math.max(1, Math.round(+opt("subframes", 4)));
+// --adaptive (default on with sub-frames; --adaptive 0 for every frame in full): a frame where
+// nothing moves across the shutter gets one capture, not SUB of them. Two tiny captures at the
+// shutter's ends decide: if under 0.1% of their pixels change, the average would be that one
+// picture anyway. Captures are JPEG (q 95) by default, ~3× faster than PNG (--capture png);
+// averaging the sub-frames smooths the JPEG grain. Most frames hold or glide, so this is several
+// times faster than blurring every frame (2026-10-27: 95% of the time was the PNG captures)
+const ADAPTIVE = opt("adaptive", "1") !== "0";
+const CAPTURE = opt("capture", "jpeg");
 const SHUTTER = +opt("shutter", 0.5);
 const OUT = path.resolve(opt("out", `narration-${take}.mp4`));
 const CHROME = opt("chrome", "/opt/pw-browsers/chromium-1194/chrome-linux/chrome");
@@ -95,7 +103,16 @@ async function renderRange(t0, t1, file, label) {
     ...(SUB > 1 ? ["-f", "rawvideo", "-pix_fmt", "rgb24", "-s", `${W}x${H}`] : ["-f", "image2pipe"]), "-framerate", String(FPS),
     "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", String(FPS), file],
     { stdio: ["pipe", "inherit", "inherit"] });
-  const shot = async () => (await cdp.send("Page.captureScreenshot", { format: SUB > 1 ? "png" : "jpeg", quality: SUB > 1 ? undefined : 92, clip, captureBeyondViewport: false })).data;
+  const shot = async () => (await cdp.send("Page.captureScreenshot", { format: SUB > 1 ? CAPTURE : "jpeg", quality: SUB > 1 ? (CAPTURE === "png" ? undefined : 95) : 92, clip, captureBeyondViewport: false })).data;
+  // a tiny capture (1/8 size) for the adaptive check
+  const tiny = async () => sharp(Buffer.from((await cdp.send("Page.captureScreenshot", { format: "jpeg", quality: 80,
+    clip: { ...clip, scale: clip.scale / 8 }, captureBeyondViewport: false })).data, "base64")).removeAlpha().raw().toBuffer();
+  const moves = (a, b) => {
+    let n = 0;
+    for (let j = 0; j < a.length; j += 3) if (Math.abs(a[j] - b[j]) > 12 || Math.abs(a[j + 1] - b[j + 1]) > 12 || Math.abs(a[j + 2] - b[j + 2]) > 12) n++;
+    return n > a.length / 3 * 0.001;
+  };
+  let single = 0;
   const acc = SUB > 1 ? new Uint32Array(W * H * 3) : null;
   const n0 = Math.round(t0 * FPS), n1 = Math.round(t1 * FPS);
   const started = Date.now();
@@ -108,6 +125,27 @@ async function renderRange(t0, t1, file, label) {
       for (let i = 0; i < 8 && await page.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 120));
       frame = Buffer.from(await shot(), "base64");
     } else {
+      // still across the shutter? one capture (the clock still steps a whole frame)
+      let still = false;
+      if (ADAPTIVE) {
+        const half = 0.5 * (1 - 1 / SUB) * SHUTTER / FPS;
+        await page.evaluate(`window.__narr.renderAt(${t - half})`);
+        const a = await tiny();
+        await page.evaluate(`window.__narr.renderAt(${t + half})`);
+        still = !moves(a, await tiny());
+      }
+      if (still) {
+        await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
+        for (let i = 0; i < 8 && await page.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 120));
+        frame = await sharp(Buffer.from(await shot(), "base64")).removeAlpha().resize(W, H).raw().toBuffer();
+        single++;
+        if (!ff.stdin.write(frame)) await new Promise(r => ff.stdin.once("drain", r));
+        if ((n - n0) % (FPS * 10) === 0) {
+          const done = n - n0 + 1, rate = done / ((Date.now() - started) / 1000);
+          console.log(`[${label}] t=${t.toFixed(1)}s  ${done}/${n1 - n0} frames  ${rate.toFixed(1)} fps  eta ${((n1 - n) / rate / 60).toFixed(1)} min  (${Math.round(100 * single / done)}% still)`);
+        }
+        continue;
+      }
       // the sub-frames, centred on t across the shutter, averaged
       acc.fill(0);
       for (let k = 0; k < SUB; k++) {
@@ -123,7 +161,7 @@ async function renderRange(t0, t1, file, label) {
     if (!ff.stdin.write(frame)) await new Promise(r => ff.stdin.once("drain", r));
     if ((n - n0) % (FPS * 10) === 0) {
       const done = n - n0 + 1, rate = done / ((Date.now() - started) / 1000);
-      console.log(`[${label}] t=${t.toFixed(1)}s  ${done}/${n1 - n0} frames  ${rate.toFixed(1)} fps  eta ${((n1 - n) / rate / 60).toFixed(1)} min`);
+      console.log(`[${label}] t=${t.toFixed(1)}s  ${done}/${n1 - n0} frames  ${rate.toFixed(1)} fps  eta ${((n1 - n) / rate / 60).toFixed(1)} min  (${Math.round(100 * single / done)}% still)`);
     }
   }
   ff.stdin.end();
