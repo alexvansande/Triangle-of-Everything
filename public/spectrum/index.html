@@ -126,6 +126,7 @@
   #ringText text.ref { fill: rgba(255, 214, 140, 0.9); }
   #ringText circle { fill: rgba(255, 214, 140, 0.9); }
   footer { padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); color: var(--dim); font-size: 11px; }
+  body.app header { padding-right: 56px; }
   /* embedded in the chart's sidebar (?embed=1): just the spectrum bar and the view */
   body.embed header, body.embed #dist, body.embed #dreadout, body.embed footer,
   body.embed #radius, body.embed #views, body.embed #reset { display: none !important; }
@@ -230,6 +231,11 @@
   const SHORT = { Radio: "Rad", Microwave: "µW", "Far-IR": "FIR", "Mid-IR": "MIR", "Near-IR": "NIR", "Thermal IR": "TIR", Visible: "Vis", "X-ray": "X", Gamma: "γ", EUV: "EUV", UV: "UV" };
   const q = new URLSearchParams(location.search);
   if (q.get("embed") === "1") document.body.classList.add("embed");
+  // opened over the chart (?app=1): room for its close button, and Escape here closes it too
+  if (q.get("app") === "1" && window.parent !== window) {
+    document.body.classList.add("app");
+    addEventListener("keydown", (e) => { if (e.key === "Escape") parent.postMessage({ type: "close-app" }, "*"); });
+  }
   let session = null;
 
   async function boot(target, first) {

@@ -4106,6 +4106,12 @@ function openSidebar(obj) {
     explore.target = "_blank";
     explore.rel = "noopener";
     explore.textContent = "🌈 Explore the electromagnetic spectrum →";
+    // a plain click opens it over the chart; modified clicks still get a tab
+    explore.addEventListener("click", (e) => {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      openAppOverlay(`${explore.href}&app=1`, "Electromagnetic Spectrum");
+    });
     sbImage.appendChild(explore);
   } else if (spiroState) {
     sbImage.innerHTML = "";
@@ -4261,6 +4267,41 @@ function openSidebar(obj) {
   setSidebarOpen(true);
   if (_booted) { clearTimeout(hashTimer); saveHash(); }
 }
+
+// Mini apps (the spectrum explorer) open full-screen over the chart rather
+// than in a new tab. Back, Escape (in the app too) or × closes it.
+let appOverlay = null;
+function openAppOverlay(src, title) {
+  if (appOverlay) return;
+  const el = document.createElement("div");
+  el.id = "app-overlay";
+  el.setAttribute("role", "dialog");
+  el.setAttribute("aria-modal", "true");
+  el.setAttribute("aria-label", title);
+  const frame = document.createElement("iframe");
+  frame.src = src;
+  frame.title = title;
+  const close = document.createElement("button");
+  close.className = "app-overlay-close";
+  close.setAttribute("aria-label", `Close ${title}`);
+  close.textContent = "×";
+  close.addEventListener("click", () => closeAppOverlay());
+  el.append(frame, close);
+  document.body.appendChild(el);
+  appOverlay = { el, frame };
+  history.pushState({ appOverlay: true }, "");
+  frame.focus();
+}
+function closeAppOverlay(fromHistory = false) {
+  if (!appOverlay) return;
+  appOverlay.el.remove();
+  appOverlay = null;
+  if (!fromHistory && history.state?.appOverlay) history.back();
+}
+window.addEventListener("popstate", () => { if (appOverlay) closeAppOverlay(true); });
+window.addEventListener("message", (e) => {
+  if (appOverlay && e.source === appOverlay.frame.contentWindow && e.data?.type === "close-app") closeAppOverlay();
+});
 
 function closeSidebar() {
   selectedObj = null;
@@ -7525,7 +7566,9 @@ document.addEventListener("keydown", (e) => {
     openSearch();
   }
   if (e.key === "Escape") {
-    if (!shortcutsPanel.hidden) {
+    if (appOverlay) {
+      closeAppOverlay();
+    } else if (!shortcutsPanel.hidden) {
       setShortcutsOpen(false);
     } else if (selectedObj) {
       closeSidebar();
