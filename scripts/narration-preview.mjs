@@ -5,6 +5,7 @@
 //
 //   node scripts/narration-preview.mjs                 # every take with audio
 //   node scripts/narration-preview.mjs short-01-hook short-02-density
+//   OUT=dist/<folder> AUDIO=m4a node scripts/narration-preview.mjs   # the site's copy (npm run build)
 //
 // Output: dist-preview/ — page.html (body-only page for hosts that wrap it in
 // their own skeleton), index.html (the normal page) and the files both use.
@@ -16,7 +17,10 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-const OUT = "dist-preview";
+// OUT: where it goes (the site's build puts it in an unlisted folder of dist/, see
+// package.json); AUDIO=m4a keeps the takes' own audio (only claude.ai pages need MP3)
+const OUT = process.env.OUT || "dist-preview";
+const MP3 = process.env.AUDIO !== "m4a";
 const NARR = "public/narration";
 const withAudio = (t) => {
   try { return fs.existsSync(path.join(NARR, t, JSON.parse(fs.readFileSync(path.join(NARR, t, "words.json"))).audio)); }
@@ -39,7 +43,7 @@ const rm = (p) => fs.rmSync(path.join(OUT, p), { recursive: true, force: true })
 // photos/ holds the cutaways' pictures, shared by every take
 for (const t of fs.readdirSync(path.join(OUT, "narration"))) if (!takes.includes(t) && t !== "photos") rm(`narration/${t}`);
 // The audio goes out as MP3: some hosts (claude.ai pages) don't serve .m4a.
-for (const t of takes) {
+for (const t of MP3 ? takes : []) {
   const dir = path.join(OUT, "narration", t), wj = path.join(dir, "words.json");
   const take = JSON.parse(fs.readFileSync(wj, "utf8"));
   const out = { ...take };
@@ -84,7 +88,7 @@ let html = fs.readFileSync(path.join(OUT, "index.html"), "utf8")
   .replace(/<link rel="(icon|apple-touch-icon|manifest)"[^>]*>\n?/g, "")
   .replace(/<meta (name|property)="(og|twitter):[^>]*>\n?/g, "")
   .replace(/<script data-goatcounter[^>]*><\/script>\n?/, "")   // no analytics from previews
-  .replace(/<title>[^<]*<\/title>/, "<title>Triangle Narration Preview</title>");
+  .replace(/<title>[^<]*<\/title>/, `<title>Triangle Narration Preview</title>\n<meta name="robots" content="noindex, nofollow">`);
 // ---------- the grid of takes ----------
 const info = [];
 for (const t of takes) {
@@ -115,7 +119,9 @@ try {
     k.thumb = `narration/${k.id}/thumb.jpg`;
   }
   await b.close();
-} catch (e) { console.warn(`no stills (${e.message.split("\n")[0]}); is the dev server running?`); }
+} catch (e) { console.warn(`no new stills (${e.message.split("\n")[0]}); is the dev server running?`); }
+// without a dev server (the site's build), the stills kept in public/narration/<take>/thumb.jpg
+for (const k of info) if (!k.thumb && fs.existsSync(path.join(OUT, "narration", k.id, "thumb.jpg"))) k.thumb = `narration/${k.id}/thumb.jpg`;
 
 const esc = (x) => String(x).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const mmss = (d) => `${Math.floor(d / 60)}:${String(Math.round(d % 60)).padStart(2, "0")}`;
