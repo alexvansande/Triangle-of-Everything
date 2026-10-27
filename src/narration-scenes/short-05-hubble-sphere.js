@@ -1,6 +1,6 @@
 // =============================================================
-// Scene: short-05-hubble-sphere — video 5 (video 6 until 2026-10-21), re-recorded in the
-// author's own words (rec29–31, 2026-10-21; video/short-05-hubble-sphere/). One density
+// Scene: short-05-hubble-sphere — video 5, re-recorded at home on 2026-10-27 (rec40;
+// video/short-05-hubble-sphere/; the rec29–31 take of 2026-10-21 is in git history). One density
 // line and the split; dead stars and the Schwarzschild limit; stars and nebulae; bigger
 // means emptier up to Laniakea and the voids; the second edge, expansion and the Hubble
 // line; the cosmic event horizon; the Hubble sphere on the black-hole line and why it
@@ -65,19 +65,24 @@ export default {
     // ── Bigger means emptier ─────────────────────────────────
     // a dive onto the nursery, the Pillars over its picture (lens), as in video 3
     { at: "new generation", cam: { obj: "Stellar Nursery", span: 3 }, dur: 1.6 },
-    { at: "new generation", photo: "pillars", obj: "Stellar Nursery", dive: { in: 1.6, out: 2.5 }, dur: 2.4, fadeOut: 1.5,
-      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", turn: 0, hold: 0.3, fillDur: 1.8 },   // turn 0: Webb's pillars lean ~40°; kept tilted so they stay upright like the icon's
+    // the photo already coming in on the approach; the dive unwinds behind it while it fills the
+    // screen (dive.under), so it fades straight back to the chart: no zoom back out (author, 2026-10-27)
+    { at: "new generation", photo: "pillars", obj: "Stellar Nursery", dive: { in: 1.6, out: 2.5, photoAt: 0.4, under: true }, dur: 4.2, fadeIn: 0.9, fadeOut: 1.5,
+      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", turn: 0, hold: 0, fillDur: 1.6 },   // turn 0: Webb's pillars lean ~40°; kept tilted so they stay upright like the icon's
       caption: "Pillars of Creation · Webb · 2022 · where stars are born" },
     { at: "mostly empty space", cam: { r: 20, m: 40, span: 24 }, clear: true },
     { at: "globular clusters", hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
+    // from the dwarf galaxies up through the Milky Way and the Local Group to the clusters:
+    // one steady, gentle move instead of three zooms (author, 2026-10-27)
+    { at: "dwarf galaxies", cam: { r: 24, m: 46.5, span: 10 }, dur: 16.5, ease: "gentle", drift: 0 },
     { at: "dwarf galaxies", photo: "lmc", obj: "Dwarf Galaxy", place: 0.7, dur: 4, kb: [1, 1.25], caption: "Large Magellanic Cloud · a dwarf galaxy · Spitzer" },
     { at: "the less dense it is", hl: [{ obj: "Nebulae", label: "nebula" }, { obj: "Globular Cluster", label: false }, { obj: "Milky Way", label: false }] },
-    { at: "empty space between its stars", cam: { obj: "Milky Way", span: 7 }, hl: [{ obj: "Milky Way", label: "~1 atom per cm³" }] },
+    { at: "empty space between its stars", hl: [{ obj: "Milky Way", label: "~1 atom per cm³" }] },
     { at: "the milky way", hl: [{ obj: "Milky Way" }, { obj: "Andromeda (M31)", delay: 0.6 }] },
     { at: "its sister", photo: "andromeda", obj: "Andromeda (M31)", place: 0.86, dur: 5, kb: [1, 1.3], caption: "Andromeda · Brody Wesner · 2025 · 2.5 million light-years away" },
     { at: "local group", hl: [{ obj: "Milky Way", label: false }, { obj: "Andromeda (M31)", label: "local group" }] },
     // the Bullet Cluster's real picture stands for the galaxy clusters (the generic one gives way)
-    { at: "galaxy clusters are even", cam: { r: 24, m: 46.5, span: 10 }, hl: [{ obj: "Bullet Cluster", label: "emptier still" }] },
+    { at: "galaxy clusters are even", hl: [{ obj: "Bullet Cluster", label: "emptier still" }] },
     { at: "galaxy clusters are even", offset: 0.8, photo: "smacs", obj: "Bullet Cluster", place: 0.8, dur: 5, kb: [1, 1.4], caption: "Galaxy cluster SMACS 0723 · Webb · 2022" },
     { at: "empty space between them", hl: [{ obj: "Bullet Cluster", label: "Bullet Cluster" }] },
     { at: "superclusters", cam: { r: 26.2, m: 49.5, span: 7 }, hl: [{ obj: "Laniakea", label: "superclusters" }] },
@@ -90,19 +95,23 @@ export default {
     { at: "that's the hubble sphere", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "Hubble sphere" }] },
     { at: "speed limit", cam: { r: 24.5, m: 50, span: 16 }, hl: [{ ...HUB, label: "nothing travels faster than light" }] },
     { at: "space itself", hl: [{ ...HUB, label: "but space can outrun light" }] },
-    { at: "pixels", hl: [HUB, { obj: "Laniakea", label: "more space between, not motion" }] },
+    // a picture gaining pixels: each one becomes 3 × 3, the old one in the middle (author, 2026-10-27)
+    { at: "pixels", hl: [HUB, { pixels: { n: 7, cell: 8, steps: [3.3, 6.4] } }] },
     { at: "the further away", hl: [HUB, { obj: "Laniakea", label: false }, { arrow: true, from: { obj: "Laniakea" }, to: { obj: HS }, label: "farther, faster" }] },
     { at: "speed of light", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "Hubble sphere · 14 billion ly" }] },
 
     // ── The cosmic event horizon ─────────────────────────────
     { at: "could never reach us", hl: [HUB, { obj: HS, label: "never reaches us?" }] },
     { at: "itself is growing", hl: [HUB, { obj: HS, label: "the sphere grows · its light gets here" }] },
-    { at: "second edge a little", cam: { r: 28.0, m: 55.8, span: 5 }, hl: [HUB, { obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: EH, label: "cosmic event horizon · 16 billion ly" }] },
-    { at: "true edge", hl: [HUB, { obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: EH, label: "the edge of our universe" }] },
-    { at: "limit of the unknowable", hl: [HUB, { obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: EH, label: "the unknowable" }] },
+    // close in on the horizon's own dot; the chart's name for the Hubble-sphere dot ("Observable
+    // Universe") is hidden here so it isn't read as this one (author, 2026-10-27)
+    { at: "second edge a little", cam: { r: 28.12, m: 56.0, span: 1.4 }, dur: 2.4, labels: false,
+      hl: [HUB, { obj: HS, label: "Hubble sphere", place: "below" }, { arrow: true, from: { obj: HS }, to: EH, delay: 0.6 }, { mark: [EH.r, EH.m], label: "cosmic event horizon", place: "left", delay: 1.2 }] },
+    { at: "true edge", hl: [HUB, { obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: EH, draw: 0.01 }, { mark: [EH.r, EH.m], label: "the edge of our universe", place: "left", instant: true }] },
+    { at: "limit of the unknowable", hl: [HUB, { obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: EH, draw: 0.01 }, { mark: [EH.r, EH.m], label: "the unknowable", place: "left", instant: true }] },
 
     // ── On the black-hole line ───────────────────────────────
-    { at: "add up everything", cam: { r: 26.5, m: 54, span: 9 }, clear: true, hl: [{ obj: HS, label: "everything inside the Hubble sphere" }] },
+    { at: "add up everything", cam: { r: 26.5, m: 54, span: 9 }, labels: true, clear: true, hl: [{ obj: HS, label: "everything inside the Hubble sphere" }] },
     { at: "right on the black hole line", hl: [SCHW, { obj: HS, label: "on the black-hole line" }] },
     { at: "inside a black hole", hl: [SCHW, { obj: HS, label: "a black hole?" }] },
     { at: "kind of an horizon", hl: [{ ...SCHW, label: "event horizons" }, { ...HUB, label: false }, { obj: HS, label: false }] },
@@ -136,6 +145,8 @@ export default {
     { at: "outside our triangle", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "outside the triangle" }] },
     { at: "never been able to reach each other", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "where they would be now" }] },
     { at: "history of our own past", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "a history of our own past" }] },
-    { at: "early universe", photo: "cmb", dur: 4, fit: "contain", kb: [1, 1.2], caption: "The cosmic microwave background · WMAP · 2012 · the oldest light" },
+    // the Deep Field again for the last lines, the galaxies beyond our reach (the author prefers it
+    // to the microwave background here, 2026-10-27)
+    { at: "history of our own past", offset: 1.2, photo: "xdf", dur: 9, kb: [1, 1.45], caption: "Hubble eXtreme Deep Field · 2012 · galaxies as they were, up to 13 billion years ago" },
   ],
 };

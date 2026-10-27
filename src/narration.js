@@ -464,7 +464,7 @@ export async function startNarration(app) {
   // Then it goes back the same way over `out`. A photo with `lens` on the same object,
   // timed inside the hold, lands on the grown picture (video/plans/visual-rules.md §3).
   // "fill": the object grows to 40% of the screen's short side.
-  // A photo cue with `dive: { in?, out?, grow?, photoAt? }` is a whole dive in one cue: the
+  // A photo cue with `dive: { in?, out?, grow?, photoAt?, under? }` is a whole dive in one cue: the
   // dive starts at the cue, the photo fades in once everything behind has fully fallen
   // back (in + 0.25 s; or `photoAt` s after the cue, so it's already coming in during the
   // approach), holds `dur`, fades out, and then the dive unwinds over `out`.
@@ -475,10 +475,13 @@ export async function startNarration(app) {
       const d = typeof c.dolly === "string" ? { obj: c.dolly } : c.dolly, tin = d.in ?? 2.4;
       return { ...d, t0: c.time, t1: c.time + tin + (c.dur ?? 4), tin, tout: d.out ?? 4 };
     }),
+    // `dive.under`: the dive unwinds behind its photo while it still fills the screen, so
+    // the chart is back to normal by the time the photo fades (no zoom back out to watch)
     ...cues.filter(c => c.photo && c.dive).map(c => {
-      const d = c.dive === true ? {} : c.dive, tin = d.in ?? DIVE_IN;
-      return { obj: c.obj, grow: d.grow, t0: c.time, tin, tout: d.out ?? DIVE_OUT,
-        t1: c.time + diveLead(c) + (c.dur ?? 6) + (c.fadeOut ?? PHOTO_OUT) };
+      const d = c.dive === true ? {} : c.dive, tin = d.in ?? DIVE_IN, tout = d.out ?? DIVE_OUT;
+      const held = c.time + diveLead(c) + (c.dur ?? 6);
+      return { obj: c.obj, grow: d.grow, t0: c.time, tin, tout,
+        t1: d.under ? Math.max(c.time + tin, held - tout) : held + (c.fadeOut ?? PHOTO_OUT) };
     }),
   ];
   let dollyOn = false;
@@ -777,6 +780,7 @@ export async function startNarration(app) {
       else if (h.window) drawWindow(el, h, age);
       else if (h.cross) drawCross(el, h, age);
       else if (h.text) drawText(el, h, age);
+      else if (h.pixels) drawPixels(el, h, age);
     });
     // While a callout is on screen, the chart's other labels step back: only the
     // highlighted objects keep theirs (the rest come back between callouts).
@@ -1508,6 +1512,34 @@ export async function startNarration(app) {
     const place = h.place || "right";
     el.append("text").attr("class", "narr-tag narr-cand").attr("x", place === "left" ? x - 16 : x + 16).attr("y", y + 5)
       .attr("text-anchor", place === "left" ? "end" : "start").attr("fill", col).attr("opacity", op).text((h.label || "").toUpperCase());
+  }
+  /** Expansion as a picture gaining pixels: { pixels: { n?, steps: [s, …], seed? } }. A small
+   *  black image with a few lit pixels; at each step (seconds after the cue) every pixel becomes
+   *  3 × 3, the old one kept in the centre and the new ones black, so the lit pixels spread
+   *  apart while each stays the same size: new space between them, nothing moving through it. */
+  function drawPixels(el, h, age) {
+    const o = h.pixels, n = o.n ?? 9, c = (n - 1) / 2, cell = o.cell ?? 12;
+    let seed = o.seed ?? 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const cols = ["#ffd54f", "#ffffff", "#80deea", "#ff8a80", "#b39ddb"], lit = [];
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (rnd() < 0.2) lit.push([i - c, j - c, cols[Math.floor(rnd() * cols.length)]]);
+    // the spread: ×3 per step, eased over 1.2 s
+    let k = 1;
+    for (const st of o.steps || []) k *= 1 + 2 * d3.easeCubicInOut(clamp01((age - st) / 1.2));
+    const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH * 0.42;
+    const half = (c + 0.5) * cell * k, op = smooth(age / 0.5);
+    const g = el.append("g").attr("opacity", op);
+    g.append("rect").attr("x", cx - half).attr("y", cy - half).attr("width", 2 * half).attr("height", 2 * half).attr("fill", "#000")
+      .attr("stroke", "rgba(255,255,255,0.55)").attr("stroke-width", 1.5);
+    // the grid of pixels, a pixel apart however far it has spread (clipped to the screen)
+    const lines = [], m = Math.ceil(half / cell);
+    for (let i = -m; i <= m; i++) {
+      const x = cx + (i + (n % 2 ? 0.5 : 0)) * cell, y = cy + (i + (n % 2 ? 0.5 : 0)) * cell;
+      if (Math.abs(x - cx) <= half && x > -2 && x < SW + 2) lines.push(`M${x},${Math.max(0, cy - half)}V${Math.min(SH, cy + half)}`);
+      if (Math.abs(y - cy) <= half && y > -2 && y < SH + 2) lines.push(`M${Math.max(0, cx - half)},${y}H${Math.min(SW, cx + half)}`);
+    }
+    g.append("path").attr("d", lines.join("")).attr("stroke", "rgba(255,255,255,0.16)").attr("stroke-width", 1).attr("fill", "none");
+    for (const [i, j, col] of lit)
+      g.append("rect").attr("x", cx + i * cell * k - cell / 2).attr("y", cy + j * cell * k - cell / 2).attr("width", cell).attr("height", cell).attr("fill", col);
   }
   /** A big free-standing word on the chart: { text, at: [r, m], color? } (a hub that arrows point out from) */
   function drawText(el, h, age) {
