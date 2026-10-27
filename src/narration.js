@@ -1124,15 +1124,19 @@ export async function startNarration(app) {
     }
   }
   function clipMid(p, plot) {
-    // middle of the line segment that is on screen (first→last vertex)
-    const [a, b] = [p[0], p[p.length - 1]];
-    const ts = [];
-    for (let i = 0; i <= 200; i++) {
-      const u = i / 200, x = a[0] + (b[0] - a[0]) * u, y = a[1] + (b[1] - a[1]) * u;
-      if (x > plot.x + 30 && x < plot.x + plot.w - 30 && y > plot.y + plot.h * 0.18 && y < plot.y + plot.h * 0.7) ts.push(u);
+    // middle of the line segment that is on screen (first→last vertex), inside the band
+    // the labels keep to. Clipped exactly (Liang–Barsky), so the label slides with the
+    // camera: sampling the whole line in steps made it hop once zoomed in
+    const [a, b] = [p[0], p[p.length - 1]], dx = b[0] - a[0], dy = b[1] - a[1];
+    const x0 = plot.x + 30, x1 = plot.x + plot.w - 30, y0 = plot.y + plot.h * 0.18, y1 = plot.y + plot.h * 0.7;
+    let lo = 0, hi = 1;
+    for (const [q, r] of [[-dx, a[0] - x0], [dx, x1 - a[0]], [-dy, a[1] - y0], [dy, y1 - a[1]]]) {
+      if (q === 0) { if (r < 0) { lo = 1; hi = 0; } continue; }
+      const u = r / q;
+      if (q < 0) lo = Math.max(lo, u); else hi = Math.min(hi, u);
     }
-    const u = ts.length ? (ts[0] + ts[ts.length - 1]) / 2 : 0.5;
-    return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+    const u = lo <= hi ? (lo + hi) / 2 : 0.5;
+    return [a[0] + dx * u, a[1] + dy * u];
   }
   function drawSide(el, h) {
     if (h.mass != null) return drawMassSide(el, h);

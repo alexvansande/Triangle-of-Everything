@@ -6,13 +6,22 @@ re-rendering.
 
 ## Open
 
-- **Video 2, "this creates a diagonal line, the density of water"** (2026-10-27): the camera
-  makes a weird, quick, sudden jump. Two camera cues a moment apart
-  (`short-02-up-the-line.js`, "draw a diagonal line" then "density of water") make two short
-  flights; it should be one slow move.
-- **Labels on the diagonal lines jump in steps** (2026-10-27), seen on the density of air line and
-  the black hole line: the label should stay centred on the visible part of the line, or at least
-  glide smoothly to its new place, never hop.
 - **Video 2, "the hippo can't swim"** (2026-10-27): all the pictures seem to pop up again (their
   grow-in animation replays). Reported before on "the hippo" and "you can see that on the line"
-  (2026-10-26), and not reproduced then on the current code.
+  (2026-10-26). Not reproduced: playing 100–112 s in real time in headless Chrome, only 2–4
+  pictures enter or leave around the hippo (the camera moving), not all of them. The chart
+  re-decides every picture when its visibility context changes (`_objectVisibility` in
+  `src/main.js`: the canvas size, `dustReady()`, the scene's picture sets, labels on/off), so a
+  window resize (a phone's address bar), or the catalogue finishing loading, would do it. Need:
+  where it was watched (site or local, phone or Mac) and what the pop looks like.
+
+## Fixed
+
+- **Video 2, "this creates a diagonal line, the density of water"** (2026-10-27): the camera
+  made a sudden hop. The "draw a diagonal line" glide point was reached by a 1.4 s flight, which
+  left 0.3 s before the next glide point ("density of water"): 6.4 screen widths a second.
+  That point is gone; the glide runs on to "denser than water" (peak 1.9).
+- **Labels on the diagonal lines jumped in steps** (2026-10-27, the density of air and black hole
+  lines): `clipMid` in `src/narration.js` found the visible middle of the line from 200 samples
+  along its whole length, which are hundreds of pixels apart when zoomed in. Now the line is
+  clipped exactly (Liang–Barsky): the air label's 19 px hops on 10 frames are gone.

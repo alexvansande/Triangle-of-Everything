@@ -107,7 +107,9 @@ export default {
       hl: [{ ...ML, place: "left" }, { ...LITER, label: "1 kg", place: "left" }, { arrow: true, from: LITER, to: TONNE, label: "×10 size · ×1000 mass" }, { ...TONNE, label: "1 tonne", delay: 0.8 }] },
     { at: "draw a diagonal line", focus: false, cam: C(1.2, 3.6, 4.6),
       hl: [{ ...ML, label: false }, { ...LITER, label: false }, { ...TONNE, label: false }, WATER] },
-    { at: "density of water", cam: C(0.95, 3.0, 3.3), hl: [{ line: "water", label: "density of water" }] },
+    // no camera point here: it came 0.3 s after the flight into the glide ended, a sudden hop
+    // (the author's note, 2026-10-27); the glide runs on to "denser than water"
+    { at: "density of water", hl: [{ line: "water", label: "density of water" }] },
 
     // sink or float, in water and in air
     { at: "denser than water", cam: C(0.7, 2.35, 2.5), hl: [WATER, { side: "left", label: "sinks" }] },
