@@ -207,7 +207,12 @@ export async function startNarration(app) {
   // cam.glide: a waypoint of one continuous pan. The camera passes through each
   // glide point at its cue's time on a smooth (Catmull-Rom) curve, never holding,
   // instead of flying and stopping at each one.
-  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam), dur: c.dur, drift: c.drift ?? 0.05,
+  // dur: "end" flies until the end card has covered the picture (it fades in over
+  // speechEnd + 0.15…0.65 s); ease: "gentle" (sine) keeps a long move
+  // close to an even pace instead of the default cubic's slow-fast-slow
+  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam),
+    dur: c.dur === "end" ? speechEnd + (CREDITS ? 0.65 : 0) - c.time : c.dur, drift: c.drift ?? 0.05,
+    ease: c.ease === "gentle" ? d3.easeSinInOut : d3.easeCubicInOut,
     quiet: !!c.quiet, glide: !!c.cam.glide, whip: !!c.cam.whip, overshoot: c.cam.overshoot }))
     .filter(k => k.to);
   for (let i = 0; i < keys.length; i++) {
@@ -242,7 +247,7 @@ export async function startNarration(app) {
     }
     if (t < k.end) {
       const p = clamp01((t - k.t) / k.dur);
-      const [r, m, span] = k.interp(k.whip ? p : d3.easeCubicInOut(p));
+      const [r, m, span] = k.interp(k.whip ? p : k.ease(p));
       return { r, m, span, phase: "fly" };
     }
     const next = keys[i + 1]?.t ?? k.end + 20;

@@ -112,8 +112,8 @@ export default {
     { at: "the periodic table", cam: { r: -8.1, m: -22.6, span: 2.6, whip: true }, clear: true, periodic: true },
     { at: "why fire looks", cam: { obj: "Visible Light", span: 9, whip: true }, periodic: false, spectrum: true },
 
-    // the outro: one slow zoom out from the last shot, to the end
+    // the outro: one slow, even zoom out from the last shot to the whole triangle, arriving as the end card covers it
     { at: "I've been", spectrum: false },   // the wave goes before the camera moves (it isn't redrawn mid-move)
-    { at: "obsessed", cam: { obj: "Visible Light", span: 40 }, dur: 24, drift: 0, clear: true },
+    { at: "obsessed", cam: MAP, dur: "end", ease: "gentle", drift: 0, clear: true },
   ],
 };

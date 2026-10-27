@@ -293,6 +293,8 @@ Cue fields
            sub-frames blur it;
            cam.overshoot sets the bump, default 0.7, about 1.5 % of the move)
   dur      flight seconds (default: from the distance travelled)
+           "end": fly until the end card covers the picture (the last word, + 0.65 s)
+  ease     "gentle": sine easing, a near-even pace for long moves (default cubic in-out)
   periodic true: the map's periodic table (rows, columns, type rings, family
            names) fades in once the cue's camera arrives; false fades it out
   spectrum true: the spectrum's sine wave, likewise (it isn't redrawn while the
