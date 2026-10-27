@@ -18,24 +18,26 @@ EDL = [
  ("rec40", "recap", 36.80, 45.90),    # You could try to fit everything that has ever existed into one image, and probably the best way to do it is a log chart of mass and size.   (the author's preferred "Anything that has ever existed can be plotted in this chart" opens video 4 already)
  ("rec40", "recap", 122.64, 129.18),  # Do that, and every object around you will fall on this diagonal line. That's the density of things made of matter.   (a first try breaks off at "on the,")
  ("rec40", "recap", 132.04, 143.12),  # That stays true from the smallest mouse to the giant blue whale, from Mount Everest to a moon, from a meteorite to a Jupiter-sized planet. After that, though, the trend changes.   (a first "That stays true from the," left out)
- ("rec40", "recap", 145.06, 150.44, {"s": 144.15}),  # A super-Jupiter, ten times Jupiter's mass, is still about the same diameter.   (the first try; the second starts "with, with, with… a super, a super…")
+ ("rec40", "recap", 145.06, 149.94, {"s": 145.70, "e": 150.44}),  # A super-Jupiter, ten times Jupiter's mass, is still about the same   (a first "a supter Jupite…" left out; the second try starts "with, with, with… a super, a super…")
+ ("rec40", "recap", 150.44, 150.44, {"s": 150.86, "e": 151.56, "gap": 0.1}),  # diameter.   (the pause before it shortened)
  # the split and the first edge
  ("rec40", "split", 165.68, 177.22),  # And then, after brown dwarfs, the line splits. To the left, it's not ordinary matter anymore: it's the skeleton of dead stars: white dwarfs, neutron stars, and finally black holes.
- ("rec40", "split", 223.36, 244.60),  # And black holes are the first limit in our attempt to draw every possible object, because anything that gets too small or too massive becomes a black hole. And because all black holes live on this diagonal line, called the Schwarzschild radius, nothing in our universe can be above or to the left of it.   (the third try)
+ ("rec40", "split", 227.74, 244.60, {"s": 227.18}),  # ("And black holes," and a 3 s gap left out) Black holes are the first limit in our attempt to draw every possible object, because anything that gets too small or too massive becomes a black hole. And because all black holes live on this diagonal line, called the Schwarzschild radius, nothing in our universe can be above or to the left of it.   (the third try)
  ("rec40", "stars", 247.00, 252.82),  # So, to the right we have stars. When they die, they become red giants, or go pop and explode as supernovae.
  ("rec40", "stars", 265.70, 273.00),  # That gas just spreads out into space, meets other supernova remnants, and makes conditions for a new generation of stars to form.   (the second try)
  # bigger means emptier
  ("rec40", "empty", 274.88, 287.82),  # Now at this scale, things are mostly empty space: globular clusters, dwarf galaxies, galaxies. The bigger something is, the less dense it is. A galaxy is mostly empty space between its stars.
  ("rec40", "empty", 292.54, 296.92, {"s": 290.80}),  # (a first "Here's our own," left out) Here's our own galaxy, the Milky Way, and its sister, Andromeda. We live in a local group of galaxies.
  ("rec40", "empty", 298.42, 316.84),  # Galaxy clusters are even less dense, because now it's the galaxies plus all the empty space between them. And above that are the largest structures we know of, the superclusters, which come in the shapes of filaments. We live in one called Laniakea, made of about a hundred thousand galaxies.
- ("rec40", "voids", 339.82, 342.14),  # There's still something larger, actually: voids.   (two earlier tries and a first "There's" left out)
+ ("rec40", "voids", 339.82, 342.14, {"s": 340.23}),  # There's still something larger, actually: voids.   (two earlier tries, a lip noise and a first "There's" left out)
  ("rec40", "voids", 343.54, 345.14),  # Voids are just empty regions of space.
  ("rec40", "voids", 364.52, 366.12, {"s": 363.40}),  # It's weird to talk about nothing as an object.   (several tries left out)
  ("rec40", "voids", 368.42, 375.24),  # It's not completely empty. It's just emptier than the space around it. They do have mass, and they do fit in this chart.
  # the second edge
  ("rec40", "edge", 380.44, 381.62, {"s": 380.58}),   # What about anything bigger?   ("Okay." left out)
  ("rec40", "edge", 382.88, 391.60),   # If you try to go any bigger, then you reach the second edge, the limit beyond which nothing can be larger. That's the Hubble sphere.
- ("rec40", "edge", 392.94, 403.52),   # The speed of light isn't really about light, it's the speed limit for anything traveling through space. But space itself can stretch faster than that.
+ ("rec40", "edge", 392.94, 398.12, {"e": 398.72}),   # The speed of light isn't really about light, it's the speed limit for anything traveling through space.
+ ("rec40", "edge", 400.92, 403.52, {"gap": 0.45}),   # But space itself can stretch faster than that.   (a 2.3 s pause before it shortened)
  ("rec40", "edge", 404.24, 420.24),   # The universe is expanding, not like a ball blowing into something, but because new space is made everywhere, as if you kept adding more pixels inside every pixel. It's like raising the resolution of an image: you take one pixel and turn it into four.   (two more tries at the last line left out)
  ("rec40", "edge", 427.36, 435.96),   # That means that the further away something is, the faster it's moving away from us. And at the Hubble line, things are moving away from us at the speed of light.
  ("rec40", "edge", 436.84, 439.14),   # You'd think that means that the light could never reach us.
@@ -47,7 +49,8 @@ EDL = [
  ("rec40", "bh", 491.44, 494.34, {"s": 491.45}),     # What does that mean? Are we living inside a black hole?   ("Okay," left out)
  ("rec40", "bh", 500.38, 500.38, {"s": 501.18, "e": 503.30}),  # Both are kind of an horizon.   (two tries before it and one after left out)
  ("rec40", "bh", 518.54, 528.06),     # The Schwarzschild radius is the limit where light that goes in can never come out. The cosmic horizon is the limit where nothing outside can ever come in.   (a first try left out)
- ("rec40", "bh", 529.00, 541.84),     # And both depend on mass. The size of a black hole's event horizon depends on the black hole's mass, and the size of our Hubble sphere depends on how fast the universe expands, which depends on the mass that is inside it.
+ ("rec40", "bh", 529.00, 531.46, {"e": 531.43}),   # And both depend on mass. The size of
+ ("rec40", "bh", 531.66, 541.84, {"s": 531.64, "gap": 0.02}),  # ("a… ah" left out) black hole's event horizon depends on the black hole's mass, and the size of our Hubble sphere depends on how fast the universe expands, which depends on the mass that is inside it.
  ("rec40", "bh", 542.66, 565.80),     # But that's where the similarities end. A black hole is an object with a definite center. Our universe is just that: it's our universe, it's not the universe. If you sat in a galaxy at the edge of our universe, you probably wouldn't see empty space on the other side. You would see our galaxy in one direction, and a trillion more galaxies in all the others.
  ("rec40", "bh", 570.00, 576.26),     # And as far as we've been able to measure, it may well be infinite, and it will probably look roughly the same everywhere.   (a first try left out)
  ("rec40", "limits", 628.06, 637.28),  # Those two lines, the Hubble radius and the black hole line, they represent the upper limits on how big and how massive something can be in the universe.   (the eighth try)

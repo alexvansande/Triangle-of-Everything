@@ -336,6 +336,9 @@ Cue fields
                mass ruler (right) and the size ruler (bottom), labelled
              { text: "Dark matter?", at: [r, m], color? } — a big free-standing word,
                a hub for arrows to point out from
+             { pixels: { steps: [s, …], n?, cell?, seed? } } — expansion as an image gaining
+               pixels: a black n×n image (9) with a few lit pixels; at each step every pixel
+               becomes 3×3, the old one in the centre, so the lit ones spread apart
            any item can take delay (s) to stagger
   clear    end the current highlights
   units    pin the unit rulers on (they also show during every move)
