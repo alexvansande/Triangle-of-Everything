@@ -93,6 +93,11 @@ let html = fs.readFileSync(path.join(OUT, "index.html"), "utf8")
   .replace(/<title>[^<]*<\/title>/, `<title>Triangle Narration Preview</title>\n<meta name="robots" content="noindex, nofollow">`);
 // ---------- the grid of takes ----------
 const info = await takeInfo(takes, OUT);
+// the rendered videos go next to the page, in rendered/ (the grid's "Rendered video")
+for (const k of info) if (k.video) {
+  fs.mkdirSync(path.join(OUT, "rendered"), { recursive: true });
+  fs.copyFileSync(k.video, path.join(OUT, "rendered", `${k.id}.mp4`));
+}
 // A still of each take from the dev server, if one is running
 try {
   const BASE = process.env.BASE || "http://localhost:5173";
