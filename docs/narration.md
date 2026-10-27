@@ -43,7 +43,8 @@ down 5 s and starts the next short **in place**, on the same audio element, so
 phones keep playing without another tap. The "Autoplay on/off" chip on the
 pause screen switches it; `&autoplay=0` starts with it off.
 
-**Speed**: the shorts' audio is sped up with the pitch kept, to **1.2×** for the 2026-10-07 recordings and **1.1×** from the 2026-10-19 ones (`--tempo 1.1`)
+**Speed**: from video 7 (2026-10-27) on, takes are **not** sped up: they play as recorded (the author no
+longer wants it). Before that, the shorts' audio was sped up with the pitch kept, to **1.2×** for the 2026-10-07 recordings and **1.1×** from the 2026-10-19 ones (`--tempo 1.1`)
 (`scripts/narration-tempo.py`, with ffmpeg's atempo: rubberband made the voice sound like a phone or a tin can; it also scales the word timings and writes
 `"tempo": 1.2` into words.json), so renders come out at 1.2× too. The pause
 screen's 1× to 1.5× (`[` and `]` on a keyboard, `&speed=` in the URL) count
@@ -299,6 +300,15 @@ Cue fields
            names) fades in once the cue's camera arrives; false fades it out
   spectrum true: the spectrum's sine wave, likewise (it isn't redrawn while the
            camera moves, so end it with a cue before the next flight)
+  explorer the spectrum explorer (public/spectrum/, ?video=1) over the chart, set
+           as a pure function of t (the scene's `explorer` is its state at t = 0):
+             show: true|false (fade s, default 1.2); view "inside"|"cloud",
+             radius "custom"|"log"|"linear", bright "lin"|"log", rings: switch
+             at the cue; c, s (RGB selector, in bands of the sky's bar: natural
+             colour c 22, s 1), yaw, pitch, zoom, spinA, gmst, unit, lz, exposure,
+             contrast, lift: glide over dur s (default 2.5); spin: rad/s, turns
+             Earth (Inside) or the Cloud for as long as it's on
+           (draft-06-wavelengths is the worked example)
   header   false: the classic figure's title block fades out from the cue; true
            fades it in (hidden from the start if the first header cue is true)
   drift    slow zoom-in while holding, as a fraction (default 0.05)

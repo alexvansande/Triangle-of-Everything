@@ -155,7 +155,8 @@ White lines and dots on black, the key word in yellow, no more than three moving
 ## 6. Audio and captions
 
 - Voice treatment: `enhance.py --plain` (high-pass + loudness only) for the Boya office
-  recordings; the full chain sounded boxy. All takes at 1.1×.
+  recordings; the full chain sounded boxy. No speed-up from video 7 on (author, 2026-10-27):
+  new takes play as recorded; the older ones keep their 1.1×.
 - **After every edit, re-check the cut for false starts, repeated words, ums, coughs and
   clipped word ends**: transcribe each clip with a filler-friendly prompt and compare with
   the expected text (`stutter.py`-style), and look at the energy around each cut point.
