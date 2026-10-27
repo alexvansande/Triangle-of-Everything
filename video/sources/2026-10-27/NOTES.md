@@ -108,31 +108,34 @@ resolves. The fork's camera move is 3 s now (it had 6 s before the next cue in t
   a teaspoon of neutron star weighs about 2 billion tonnes, a mountain's worth; a still bigger
   core collapses into a black hole.
 
-## rec37, rec38, rec39: video 4, re-recorded at home
+## rec44, rec43, rec45: video 4, re-recorded at home
+
+(Numbered rec43–rec45 so as not to clash with the video 6 and 7 recordings, rec38, rec39 and
+rec42, numbered in another session the same day.)
 
 The author's first home recordings (QuickTime, AAC 48 kHz, in iCloud
 `Projects/triangle/recordings/`; the car takes are the Google Drive ones). Whisper word timings:
-`rec37.words.json`, `rec38.words.json`, `rec39.words.json`.
+`rec44.words.json`, `rec43.words.json`, `rec45.words.json`.
 
-- **rec37**, "New Black holes take.m4a" (7:32): the whole video 4 script with retakes, after a mic
+- **rec44**, "New Black holes take.m4a" (7:32): the whole video 4 script with retakes, after a mic
   test. Complete, though the author thought it hadn't recorded.
-- **rec38**, "New Black holes take 3.m4a" (6:41): the whole script again.
-- **rec39**, "more on dark matter search.m4a" (2:05): a new passage after "…something completely
+- **rec43**, "New Black holes take 3.m4a" (6:41): the whole script again.
+- **rec45**, "more on dark matter search.m4a" (2:05): a new passage after "…something completely
   different": dark matter, if it's real, is somewhere on this chart, and people have crossed off
   areas of it (ancient crystals, people's heads exploding).
 
 How the rooms compare (same measurements on the car takes rec35 and rec36): the home noise floor is
 about 3.5 dB lower (−81.5 vs −78 dBFS), with a little more room tail, more air above 8 kHz, and in
-rec37 about 3 dB more at 100–300 Hz (closer to the mic). rec37 gets `SOURCE_FX` (−3 dB at 180 Hz,
-+3.5 dB) to match rec38.
+rec44 about 3 dB more at 100–300 Hz (closer to the mic). rec44 gets `SOURCE_FX` (−3 dB at 180 Hz,
++3.5 dB) to match rec43.
 
 Cut: `video/short-04-black-holes/edl.py`, 25 clips; the cut runs 5:52 and plays in about 5:20 at
-1.1×. Mostly rec38; rec37 for the stars (rec38's has long hesitations), "They'd float if you had a
-big enough pool", the soup (rec38's adds "a millionth of a second in", see below) and the ending
-(rec38's tries say "the first nanoseconds" and stumble); rec39 for the new passage. Repeats the
+1.1×. Mostly rec43; rec44 for the stars (rec43's has long hesitations), "They'd float if you had a
+big enough pool", the soup (rec43's adds "a millionth of a second in", see below) and the ending
+(rec43's tries say "the first nanoseconds" and stumble); rec45 for the new passage. Repeats the
 long-form transcript hid, found by re-transcribing every clip, and left out: "…it's a white dwarf.
 Depending on its mass…", "they're thought to be, they're thought to be", "but it's still possible
-that what we think of, but…", "Look, or maybe not" (rec38's own "Or maybe not…" is used), and "But
+that what we think of, but…", "Look, or maybe not" (rec43's own "Or maybe not…" is used), and "But
 if it's, but if it's…".
 
 ### Fact check
@@ -148,13 +151,13 @@ if it's, but if it's…".
   about 60 billion Suns.
 - **Imprecise:** "their masses go from a few Suns to millions of Suns", then TON 618 at 60
   billion. "…to billions of Suns" would match.
-- **Wrong, left out of the cut:** rec38's "the very first moments of the Big Bang, like a
+- **Wrong, left out of the cut:** rec43's "the very first moments of the Big Bang, like a
   millionth of a second in". A primordial black hole forms with about the mass inside the horizon
   at the time, ~10¹⁵ g × (t / 10⁻²³ s): a millionth of a second makes ones of about the Sun's
   mass, not the asteroid-to-moon masses of the window (10¹⁷–10²² g, formed ~10⁻²¹–10⁻¹⁶ s in).
-  rec37's "the very first moments after the Big Bang" is used.
-- **Imprecise, left out:** rec38's "in the first nanoseconds of our history" (the window's ones
-  formed far earlier); rec37's "first moments" is used.
+  rec44's "the very first moments after the Big Bang" is used.
+- **Imprecise, left out:** rec43's "in the first nanoseconds of our history" (the window's ones
+  formed far earlier); rec44's "first moments" is used.
 - **Right:** quasars, the microwave background, gravitational waves and microlensing have all
   narrowed the window; the small ones would have evaporated by Hawking radiation; a small moon's
   mass (Hyperion, 5.6×10²¹ g) makes a horizon ~17 nm across, virus-sized; an asteroid's (Eros,
@@ -162,12 +165,12 @@ if it's, but if it's…".
   dark; neutron-star studies may close the window further (contested).
 - **Imprecise (as in the script):** "we wouldn't need any new particle": true of the particle,
   but making that many in the early universe still needs something unusual.
-- **rec39, imprecise:** "if it's not just an error in the mathematics". The alternative to dark
+- **rec45, imprecise:** "if it's not just an error in the mathematics". The alternative to dark
   matter is a different law of gravity (modified gravity), not a maths mistake. Suggested: "Maybe
   it isn't a thing at all, and we just have gravity wrong."
-- **rec39, right:** macroscopic dark matter of some masses would have left tracks in ancient mica
+- **rec45, right:** macroscopic dark matter of some masses would have left tracks in ancient mica
   crystals, and none are seen (Price & Salamon 1986; Jacobs, Starkman & Lynn 2015).
-- **rec39, dramatized:** "people's heads would just be randomly exploding, and they took the
+- **rec45, dramatized:** "people's heads would just be randomly exploding, and they took the
   trouble of looking into death records". Sidhu, Scherrer & Starkman (2019) say a dark matter lump
   of that size and mass passing through someone would leave a wound like a gunshot's; they didn't
   search death records, they argued such unexplained wounds would have been reported in
@@ -183,8 +186,8 @@ if it's, but if it's…".
 "dark matter addendumd.aifc" (1:27, lossless AIFF-C from QuickTime's Maximum setting), the
 passage re-recorded from the fact check's suggestion: "we just have gravity wrong", "tracks in the
 crystals of ancient rocks", "like being shot by a bullet out of nowhere", "they looked at medical
-records: never happened". It replaces rec39 in the cut (28 clips, 5:43; 5:11 at 1.1×), with a
-small treble lift (`SOURCE_FX`) to match rec38; "Look, or maybe not" comes from rec41's second
+records: never happened". It replaces rec45 in the cut (28 clips, 5:43; 5:11 at 1.1×), with a
+small treble lift (`SOURCE_FX`) to match rec43; "Look, or maybe not" comes from rec41's second
 try, "And like" before "they looked" is left out. The scene draws each crossed-off area of the
 dark matter figure as it's named (crystals, injuries, then white dwarfs and the microwave
 background on "scratching off areas").
@@ -245,8 +248,8 @@ before the observable universe; the last of many tries at "it's not just one obj
 
 ### Video 4, second cut (the author's review, 2026-10-27)
 
-- **One take:** "Let's avoid mixing takes": rec37's lines sounded different. The cut is now rec38
-  throughout, plus rec41 for the addendum; rec38's stumbles are cut around ("they form in
+- **One take:** "Let's avoid mixing takes": rec44's lines sounded different. The cut is now rec43
+  throughout, plus rec41 for the addendum; rec43's stumbles are cut around ("they form in
   stellar, they form in stellar nurseries", "they live their life on the main, then they will
   live…", a trailing "like"), and its "a millionth of a second in" is left out of the soup line.
   Its ending says "the first nanoseconds of our history" (the window's black holes formed far
@@ -257,6 +260,201 @@ before the observable universe; the last of many tries at "it's not just one obj
   straight to full screen; the dark matter candidates on a wider view with a "Dark matter?" hub
   and arrows; a slow zoom in onto the crystals and injuries; a slow zoom back out on "the search
   for dark matter…" with the other ruled-out areas coming in one by one.
+## rec38: "Draft for the video 6, the tiny universe.aifc" (video 6, draft)
+
+In iCloud `Projects/Triangle/recordings`: 15:14, 48 kHz stereo PCM. A **draft of ideas**, not a
+take to cut: the author talks through the chart from humans down to the Compton line, ending on
+gamma rays as the hook for a video on wavelengths. Opens with notes to the editor (0:00–0:38).
+Transcript: `rec38.transcript.txt`; word timings: `rec38.words.json` (medium.en with a
+filler-friendly prompt; times are on the raw recording, no tempo). It's numbered rec38 so the
+"Hubble sphere.aifc" recorded just before it can be rec37.
+
+The story built from it and the script to record are in `video/scripts/recording-scripts.md`
+under "6 · The tiny world".
+
+What's in it, in order (raw times):
+- 0:40 Recap: the two edges so far, and a third, the limit of how small something can be. "But
+  let's start with us." (1:16) is a good line.
+- 1:22 The human: size and mass, log rounding, "we assume everything is spherical" ("the famous
+  spherical cow": Whisper heard "spherical call").
+- 2:12–2:51 Water and air density lines (sink/float, balloons, soap bubbles).
+- 2:58 Down the animals: tiny moths, ants, a grain of sand, amoebas and tardigrades, pollen.
+- 3:38–4:13 Aside on units (kilogram, pound, ounce, gram; why metric fits the grid).
+- 4:16 Red blood cell, bacteria; 4:40 where biology ends and chemistry starts: viruses, prions.
+- 5:19 The kingdom of molecules: ribosome, ferritin, antibodies, haemoglobin, DNA and its four
+  bases, simpler molecules, water, atoms.
+- 5:56–6:23 Aside: microbiology sits just left of the water line, which is why centrifuges work.
+- 6:46 Atoms: mass from the nucleus, size from the electrons; hydrogen → helium → lithium; the
+  sawtooth that is the periodic table; alkali metals; palladium is weird; lanthanides, gold,
+  silver; heavy and radioactive elements; oganesson.
+- 10:15 The hook: follow the line down and you reach the third edge, the Compton line.
+- 10:43 Units become electron-volts over c²: E = mc².
+- 11:37 Why nothing can be smaller than its wavelength (squeezing it makes particle–antiparticle
+  pairs).
+- 12:50 The water line meets the Compton line near X-rays and gamma rays; gamma rays as the
+  energy of matter (said twice; the second, 14:30–15:10, is cleaner); the hook to wavelengths.
+
+### Fact check
+
+Checked against the chart (`src/objects.json`, the element dust in `src/dust.json`) and the
+physics.
+
+**Wrong** (fix before recording):
+- **Sink and float are swapped.** "Everything to the right, like the rocks and the golden
+  record, will sink, and everything to the left… will float" (2:20 and again at 2:38). On this
+  chart left of the water line is denser (smaller for its mass): it sinks; right floats, as video
+  2 says. Suggested: "Everything to the left of it is denser than water, and sinks, like this
+  meteorite. Everything to the right floats, like a soccer ball."
+- **The Golden Record is a bad example of sinking.** It's copper, so it really sinks, but the
+  chart measures it as a ball as wide as the disc, so it sits on the *floating* side. Either drop
+  it or use it on purpose for the spherical cow: "the Voyager Golden Record is solid copper, but
+  as a ball as wide as the disc it would float."
+- **Soap bubbles don't float.** They sit right on the air line (log mass −1.70 against −1.76 for
+  air): about as dense as air, a touch heavier, which is why they drift and slowly sink. Party
+  balloons ("portable" in the transcript) are the ones lighter than air. Suggested: "Party
+  balloons float in air. Soap bubbles sit right on the line: that's why they drift."
+- **"Water balloons… will float"** (2:27): a water balloon is water, so it's on the line.
+  Drop it.
+- **Red blood cell: "one picometre… one picogram"** (4:16). It's about 7–8 micrometres across
+  (the chart's radius is 3.7 µm) and weighs about 30 picograms. Suggested: "a red blood cell,
+  about seven thousandths of a millimetre across." (The chart has it at 10⁻¹⁰ g = 100 pg, about
+  3–4× too heavy; a catalogue fix to log mass ≈ −10.6 is worth considering.)
+- **Helium is four times hydrogen's mass, not twice** (7:13). Helium has two protons *and* two
+  neutrons; the chart shows it 0.6 decades (4×) above hydrogen. Suggested: "Add a second proton,
+  with two neutrons to hold it together, and you get helium: four times the mass."
+- **Heavy elements aren't made in the cores of stars** (9:25, "uranium… only formed in the core
+  of stars"). Fusion in star cores stops at iron. Gold and uranium come from neutron-star mergers
+  and supernovae (the r-process) and from dying giant stars (the s-process). Suggested: "Up to
+  iron, elements are forged in the cores of stars. Everything heavier, like gold or uranium, takes
+  something more violent: exploding stars and colliding neutron stars."
+- **Wavelength is *inversely* proportional to energy, not directly** (11:45). Later (12:13) the
+  draft gets it right ("inversely proportional to the mass"). Suggested: "the more energy
+  something has, the shorter its wavelength."
+- **"Gamma rays are what you get when you convert energy to matter"** (14:46) is backwards:
+  matter to energy. And the crossing is not *because* gamma rays are the energy of matter: see
+  the next point for what the chart really shows.
+
+**Imprecise:**
+- **Why the water line meets the Compton line near gamma rays.** The crossing is at about 66 keV,
+  where X-rays turn into gamma rays (log size −9.5, log mass −27.9). That is mostly a coincidence
+  of where ordinary density happens to sit; nothing nuclear sets it. What *is* exact, and makes a
+  better hook: **every particle and every photon sits on the Compton line itself.** The chart puts
+  a particle at its (reduced) Compton wavelength ħ/mc and light at its (reduced) wavelength ħc/E,
+  so size × mass is the same constant for all of them (log R + log M = −37.45: the electron, the
+  gamma ray, the X-ray, visible light, FM radio). The third edge is lined with light, from radio
+  waves at the top to gamma rays at the bottom. And an electron meeting its antiparticle turns into
+  two gamma rays of exactly the electron's energy, which land on the electron's own dot (511 keV).
+  That's "matter becomes gamma rays", said right. Gamma rays in radioactivity come from the
+  nucleus settling down, because nuclear energies are around a million electron-volts.
+- **"Squeeze it and it becomes a particle–antiparticle pair and disappears"** (12:35). The
+  particle doesn't vanish: the energy you put in makes *new* pairs, so you no longer have one
+  particle in a small box but a crowd of them. Suggested: "squeeze it any tighter and the energy
+  you put in just makes new particles: pairs of matter and antimatter."
+- **"Nothing can cross this"**: nothing sits on the far side of it; things are fine on the big
+  side. Suggested: "nothing can be smaller than its own wavelength."
+- **The black hole line, "which nothing can be more massive"** (0:58): more massive *for its
+  size*. Suggested: "the black hole line: nothing can be more massive for its size."
+- **"We measure atoms in electron-volts"** (10:50). Atoms are usually weighed in daltons (atomic
+  mass units); electron-volts over c² are for particles. Suggested: "down here, physicists stop
+  weighing things in grams and start using electron-volts."
+- **The human: "roughly one metre… two metres, a hundred kilos"** (1:22–1:51). The chart's size is a
+  radius: 85 cm, half a 1.7 m person's height, and 80 kg. Fine on a log chart, but say it once,
+  clearly: "This is a human: about two metres tall, and around a hundred kilos. On a log chart
+  that's close enough."
+- **"We assume all sizes are spherical"**: the chart uses half the longest dimension as the
+  radius (a human is not a sphere of water, which would be only 53 cm wide). The spherical cow
+  joke still fits.
+- **Viruses: "Biologists don't consider them alive"**: it's debated. "Most biologists don't
+  count them as alive."
+- **Prions "able to multiply themselves"**: they don't copy themselves; a misfolded prion makes
+  normal proteins fold the same wrong way. Prions and **ferritin** are not on the chart (it has
+  the ribosome, antibody, haemoglobin, insulin, DNA, ATP, fullerene, glucose and the four bases).
+- **"DNA is made of those four molecules"**: its code is written in four bases, on a backbone of
+  sugar and phosphate. And the chart's DNA dot is a short stretch, about one turn of the helix
+  (~10 base pairs, 6,700 daltons), not a chromosome.
+- **Centrifuges**: right that cells, viruses and organelles are denser than water (about 1.05–1.4
+  g/cm³), so they settle. On the chart that shows for bacteria and viruses; the red blood cell and
+  the ribosome land on or just right of the line because the chart measures them as balls (a cell
+  is a flat disc).
+
+**Right:**
+- An atom's mass is almost all nucleus and its size is the electron cloud. Helium is smaller than
+  hydrogen (its doubled charge pulls the electrons in), and across each period atoms get heavier
+  but smaller, then the next alkali metal balloons out with a new shell: the sawtooth on the chart
+  is the periodic table.
+- **Palladium is weird**, and the chart shows it: its calculated radius (log −8.23) is much
+  smaller than rhodium's or silver's (−7.83, −7.84), out towards the noble gases. It's the only
+  element that leaves its period's new outer (5s) shell empty: its ten outer electrons sit in a
+  full inner (4d) shell, so it's nearly as compact as a noble gas.
+- Oganesson (element 118) is the heaviest element ever made, a few atoms at a time; everything
+  past bismuth is radioactive.
+- Electron-volts over c² are a unit of mass via E = mc².
+- You can't confine something to less than its Compton wavelength: it takes energy around mc²,
+  enough to make new particles. The Compton wavelength is inversely proportional to mass, which is
+  why the line slopes the way it does.
+- The water line does meet the Compton line between the X-ray and gamma-ray dots.
+
+**Wording:** "spherical call" → cow; "portable" → party balloons; "red-blue cell" → red blood
+cell; "bacterias" → bacteria; "what makes everyone DNA" → "what makes every one of us: DNA";
+"alkenine" → alkali metals; "a Ganesan" → oganesson; "rabbit road" → rabbit hole; "relieve" →
+release.
+
+## rec39: "wavelengths take 2.aifc" (video 6)
+
+In iCloud `Projects/Triangle/recordings`: 15:17, 48 kHz stereo PCM. One take of the video 6
+script (`video/scripts/recording-scripts.md`) with retakes. At 11:54 the author drops the
+script's electron ending for radioactivity ("I wanna talk about radioactivity… a much cooler
+story") and records that instead (13:18–14:16). 8:33–8:48 has stray audio from something else
+playing ("the story is short, we've lost everything that exists…"), left out. "wavelengths take
+1.aifc" (7 min, 17:53) is not used. Transcript: `rec39.transcript.txt`; word timings:
+`rec39.words.json`.
+
+Cut: `video/short-06-tiny-world/edl.py`, 44 clips. The take runs 15:17, the cut 6:24, and it
+plays in 5:49 at 1.1×. The full Whisper pass dropped "a centrifuge works. Spin them fast
+enough" (3:01–3:06) and heard "You can squeeze" for "can't"; a re-listen of those seconds has
+both right, and both are in the cut. Picks are noted clip by clip in the EDL.
+
+Caption words corrected: "theory" → series; "math" → mass; "boxing by" → boxed in by; "shard"
+→ chart; "fuels" → fills; "denser on sinks" → and sinks; "bend" → band; "this malus insect" →
+the smallest insects; "red-blued" → red blood; "7,000th" → seven thousandths; "than bacteria"
+→ Then; "a thousand viruses" → cells and viruses; "the factory of the beauty of proteins" → that
+builds your proteins; "It's code" → Its; "clouds" → cloud; "four times mass" → the mass;
+"electron" → electrons; "in the wall" → on; "weighting" → weighing; "divided" → Divide it;
+"You can squeeze" → can't; "we are following" → were; "density water line" → density of water
+line; "comes at the" → comes as; a stray "Okay," and a doubled "and" Whisper added; "That's a
+story" → the story; "X -rays" → X-rays. The black-hole clip opens on "nothing" (Whisper
+heard a "For" before it); the captions start at "Nothing".
+
+### Fact check
+
+The take follows the fact-checked script, so most of it is right as read. New in it:
+
+- **Wording:** "from radio waves **up** here to gamma rays **down** here" is backwards against
+  the picture: on the chart radio waves sit at the bottom right of the Compton line and gamma
+  rays higher up, towards the top left. Suggested for a re-record: "from radio waves down here
+  to gamma rays up here."
+- **Imprecise: the radioactivity ending.** Right that a decaying nucleus ends up a little
+  lighter, a bit of its mass turned into energy, and that nuclear gamma rays are what comes out
+  (their energies, about 0.1–10 MeV, are nuclear energy levels). Three things are loose:
+  - Most of a decay's energy goes into the alpha or beta particle's motion, and many decays send
+    out no gamma ray at all. "It emits a little bit of gamma rays" can stay.
+  - "Which is right here" points at the crossing (about 66 keV, where X-rays turn into gamma
+    rays). Decay gamma rays mostly sit a little higher up the line: the chart's "Gamma Ray" dot
+    is 1.2 MeV.
+  - Put right after "it crosses the Compton line right here", it reads as if that's *why* the
+    water line crosses there. It's mostly a coincidence (see rec38's fact check).
+
+  It works as a hook. If re-recorded, a tighter line: "When a radioactive atom decays, the
+  pieces weigh a little less than the atom did. That bit of mass becomes energy, and some of it
+  flies out as gamma rays, right up here."
+- **Right:** helium four times the mass of hydrogen and smaller; lithium's new shell; the
+  sawtooth as the periodic table; palladium's empty outer shell (the only element whose ground
+  state has no electron in its period's new s shell: [Kr] 4d¹⁰); iron as the last element fused
+  in stars' cores, heavier ones from supernovae and neutron-star mergers; everything past bismuth
+  radioactive; oganesson the heaviest made; eV/c² and E = mc²; you can't squeeze something below
+  its wavelength without making new particle–antiparticle pairs; the Compton wavelength shrinks
+  as mass grows.
+
 ## rec42: "wavelengths take 1.aifc" (video 7)
 
 This is in iCloud `Projects/triangle/recordings` (recorded **at home**): 6:59, PCM 48 kHz, the same

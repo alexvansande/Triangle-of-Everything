@@ -1,5 +1,5 @@
 // =============================================================
-// Scene: short-04-black-holes — video 4, re-recorded at home on 2026-10-27 (rec37, rec38 and
+// Scene: short-04-black-holes — video 4, re-recorded at home on 2026-10-27 (rec44, rec43 and
 // the dark matter addendum rec41; video/short-04-black-holes/). The earlier take (rec24,
 // 2026-10-20) and its scene are in git history.
 // The top-left limit and its 45° slope, TON 618, the primordial black hole window,
