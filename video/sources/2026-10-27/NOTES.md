@@ -107,3 +107,84 @@ resolves. The fork's camera move is 3 s now (it had 6 s before the next cue in t
   supernova leaves a white dwarf; in a supernova's core, protons and electrons become neutrons;
   a teaspoon of neutron star weighs about 2 billion tonnes, a mountain's worth; a still bigger
   core collapses into a black hole.
+
+## rec37, rec38, rec39: video 4, re-recorded at home
+
+The author's first home recordings (QuickTime, AAC 48 kHz, in iCloud
+`Projects/triangle/recordings/`; the car takes are the Google Drive ones). Whisper word timings:
+`rec37.words.json`, `rec38.words.json`, `rec39.words.json`.
+
+- **rec37**, "New Black holes take.m4a" (7:32): the whole video 4 script with retakes, after a mic
+  test. Complete, though the author thought it hadn't recorded.
+- **rec38**, "New Black holes take 3.m4a" (6:41): the whole script again.
+- **rec39**, "more on dark matter search.m4a" (2:05): a new passage after "…something completely
+  different": dark matter, if it's real, is somewhere on this chart, and people have crossed off
+  areas of it (ancient crystals, people's heads exploding).
+
+How the rooms compare (same measurements on the car takes rec35 and rec36): the home noise floor is
+about 3.5 dB lower (−81.5 vs −78 dBFS), with a little more room tail, more air above 8 kHz, and in
+rec37 about 3 dB more at 100–300 Hz (closer to the mic). rec37 gets `SOURCE_FX` (−3 dB at 180 Hz,
++3.5 dB) to match rec38.
+
+Cut: `video/short-04-black-holes/edl.py`, 25 clips; the cut runs 5:52 and plays in about 5:20 at
+1.1×. Mostly rec38; rec37 for the stars (rec38's has long hesitations), "They'd float if you had a
+big enough pool", the soup (rec38's adds "a millionth of a second in", see below) and the ending
+(rec38's tries say "the first nanoseconds" and stumble); rec39 for the new passage. Repeats the
+long-form transcript hid, found by re-transcribing every clip, and left out: "…it's a white dwarf.
+Depending on its mass…", "they're thought to be, they're thought to be", "but it's still possible
+that what we think of, but…", "Look, or maybe not" (rec38's own "Or maybe not…" is used), and "But
+if it's, but if it's…".
+
+### Fact check
+
+- **Right:** the life cycle (nurseries, protostars, the main sequence, red giants shedding their
+  outer layers, white dwarfs, neutron stars, black holes); black holes all on the Schwarzschild
+  line, the top-left limit; a singularity of zero size with an event horizon whose radius is
+  proportional to the mass, hence the 45° line.
+- **Right:** known black holes formed in collapsing stellar cores or grew by swallowing gas and
+  merging; Sgr A* has about 4 million Suns; the supermassive ones have a mean density inside the
+  horizon below water's (from about 10⁸ Suns); M87* was the first photographed; TON 618's horizon
+  (a radius of about 1,300 AU) is far bigger than the planets' orbits (Neptune: 30 AU), with
+  about 60 billion Suns.
+- **Imprecise:** "their masses go from a few Suns to millions of Suns", then TON 618 at 60
+  billion. "…to billions of Suns" would match.
+- **Wrong, left out of the cut:** rec38's "the very first moments of the Big Bang, like a
+  millionth of a second in". A primordial black hole forms with about the mass inside the horizon
+  at the time, ~10¹⁵ g × (t / 10⁻²³ s): a millionth of a second makes ones of about the Sun's
+  mass, not the asteroid-to-moon masses of the window (10¹⁷–10²² g, formed ~10⁻²¹–10⁻¹⁶ s in).
+  rec37's "the very first moments after the Big Bang" is used.
+- **Imprecise, left out:** rec38's "in the first nanoseconds of our history" (the window's ones
+  formed far earlier); rec37's "first moments" is used.
+- **Right:** quasars, the microwave background, gravitational waves and microlensing have all
+  narrowed the window; the small ones would have evaporated by Hawking radiation; a small moon's
+  mass (Hyperion, 5.6×10²¹ g) makes a horizon ~17 nm across, virus-sized; an asteroid's (Eros,
+  6.7×10¹⁸ g) about a fifth of an atom; galaxies weigh up to ~10× what we see; most matter is
+  dark; neutron-star studies may close the window further (contested).
+- **Imprecise (as in the script):** "we wouldn't need any new particle": true of the particle,
+  but making that many in the early universe still needs something unusual.
+- **rec39, imprecise:** "if it's not just an error in the mathematics". The alternative to dark
+  matter is a different law of gravity (modified gravity), not a maths mistake. Suggested: "Maybe
+  it isn't a thing at all, and we just have gravity wrong."
+- **rec39, right:** macroscopic dark matter of some masses would have left tracks in ancient mica
+  crystals, and none are seen (Price & Salamon 1986; Jacobs, Starkman & Lynn 2015).
+- **rec39, dramatized:** "people's heads would just be randomly exploding, and they took the
+  trouble of looking into death records". Sidhu, Scherrer & Starkman (2019) say a dark matter lump
+  of that size and mass passing through someone would leave a wound like a gunshot's; they didn't
+  search death records, they argued such unexplained wounds would have been reported in
+  well-monitored countries, and none have. The author keeps the exploding heads (the paper's
+  gunshot comparison); suggested re-record: "…every now and then someone's head would just
+  randomly explode, like being shot by a bullet out of nowhere. And in all our medical records,
+  that has never happened."
+- **Right:** "the search for dark matter is the collective effort of a lot of people scratching
+  off areas of this map".
+
+### rec41: the addendum again, corrected
+
+"dark matter addendumd.aifc" (1:27, lossless AIFF-C from QuickTime's Maximum setting), the
+passage re-recorded from the fact check's suggestion: "we just have gravity wrong", "tracks in the
+crystals of ancient rocks", "like being shot by a bullet out of nowhere", "they looked at medical
+records: never happened". It replaces rec39 in the cut (28 clips, 5:43; 5:11 at 1.1×), with a
+small treble lift (`SOURCE_FX`) to match rec38; "Look, or maybe not" comes from rec41's second
+try, "And like" before "they looked" is left out. The scene draws each crossed-off area of the
+dark matter figure as it's named (crystals, injuries, then white dwarfs and the microwave
+background on "scratching off areas").
