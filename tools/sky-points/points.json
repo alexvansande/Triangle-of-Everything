@@ -1,0 +1,33 @@
+{
+ "count": 433169,
+ "logMin": -2,
+ "logMax": 12,
+ "dir": {
+  "offset": 0,
+  "length": 1299507
+ },
+ "logd": {
+  "offset": 2599014,
+  "length": 433169
+ },
+ "aux": {
+  "offset": 3465352,
+  "length": 433169
+ },
+ "type": {
+  "offset": 3898521,
+  "length": 433169
+ },
+ "types": [
+  "Hipparcos star",
+  "Gaia star",
+  "2MRS galaxy",
+  "Quaia quasar"
+ ],
+ "counts": [
+  141,
+  238437,
+  43421,
+  151170
+ ]
+}

@@ -85,6 +85,21 @@ NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
 | gaspra | NASA/JPL (Galileo) | Public domain | Wikimedia: Galileo_Gaspra_Mosaic.jpg; composited by `scripts/compose-real-body.py` |
 | ida | NASA/JPL (Galileo) | Public domain | Wikimedia: 243_ida.jpg; composited by `scripts/compose-real-body.py` |
 | oberon | NASA/JPL (Voyager 2, PIA00034) | Public domain | NASA Image Library: PIA00034; composited by `scripts/compose-real-body.py` |
+| bullet-cluster | NASA/CXC/CfA/M.Markevitch et al. (X-ray); NASA/STScI, Magellan/U.Arizona/D.Clowe et al. (optical, lensing map) | Public domain | Chandra photo album 1E 0657-56 (2006): chandra.harvard.edu/photo/2006/1e0657/1e0657_scale.jpg; cropped, edge-faded, made transparent |
+| pandoras-cluster | NASA, ESA, J. Lotz, M. Mountain, A. Koekemoer and the HFF Team (STScI) | Public domain | NASA Image Library PIA17569, Hubble Frontier Field Abell 2744; cropped, edge-faded, made transparent |
+| perseus-cluster | NASA/CXC/GSFC/S.A. Walker et al. (X-ray, processed to bring out the wave) | Public domain | NASA Image Library GSFC_20171208_Archive_e000078, 'Gigantic Wave Discovered in Perseus Galaxy Cluster'; cropped, edge-faded, made transparent |
+| abell-1689 | NASA, ESA, the Hubble Heritage Team (STScI/AURA) and others | Public domain | NASA Image Library GSFC_20171208_Archive_e002174, 'Galaxy Cluster Abell 1689'; cropped, edge-faded, made transparent |
+| macs-j0717 | NASA, ESA, J. Lotz and the HFF Team (STScI) | Public domain | NASA Image Library hubble-spies-big-bang-frontiers_22202541749_o, Hubble Frontier Fields MACSJ0717.5+3745; cropped, edge-faded, made transparent |
+| train-wreck-cluster | NASA, ESA, CFHT, CXO, M.J. Jee (UC Davis), A. Mahdavi (San Francisco State) | Public domain | NASA Image Library GSFC_20171208_Archive_e001774, 'Dark Matter Core Defies Explanation' (Abell 520, 2012); cropped, edge-faded, made transparent |
+| pleiades | NASA, ESA, AURA/Caltech, Palomar Observatory
+
+The science team consists of: D. Soderblom and E. Nelan (STScI), F. Benedict and B. Arth | Public domain | Wikimedia Commons: Pleiades_large.jpg; cropped, edge-faded, made transparent |
+| westerlund-2 | NASA Image Library GSFC_20171208_Archive_e000742 (Hubble 25th anniversary | Public domain | NASA Image Library GSFC_20171208_Archive_e000742 (Hubble 25th anniversary, NASA, ESA, Hubble Heritage Team, A. Nota, Westerlund 2 Science Team); cropped, edge-faded, made transparent |
+| cigar-galaxy | NASA, ESA, and The Hubble Heritage Team (STScI/AURA) | Public domain | Wikimedia Commons: M82_HST_ACS_2006-14-a-large_web.jpg; cropped, edge-faded, made transparent |
+| whirlpool | NASA and <a href="//commons.wikimedia.org/wiki/European_Space_Agency" title="European Spa | Public domain | Wikimedia Commons: Messier51_sRGB.jpg; cropped, edge-faded, made transparent |
+| bodes-galaxy | NASA, ESA and the Hubble Heritage Team (STScI/AURA) | Public domain | Wikimedia Commons: Messier_81_HST.jpg; cropped, edge-faded, made transparent |
+| black-eye | NASA and The Hubble Heritage Team (AURA/STScI) | Public domain | Wikimedia Commons: Blackeyegalaxy.jpg; cropped, edge-faded, made transparent |
+| centaurus-a | Chandra photo album 2008 (chandra.harvard.edu/photo/2008/cena) | Public domain | Chandra photo album 2008 (chandra.harvard.edu/photo/2008/cena), NASA/CXC/CfA/R.Kraft et al., ESO/WFI, MPIfR/ESO/APEX; cropped, edge-faded, made transparent |
 | hyperion | NASA/JPL/Space Science Institute | Public domain | Wikimedia: Hyperion_true.jpg |
 | deimos | NASA/JPL-Caltech/University of Arizona | Public domain | Wikimedia: Deimos-MRO.jpg |
 | vesta | NASA/JPL-Caltech/UCLA/MPS/DLR/IDA | Public domain | Wikimedia: Vesta_full_mosaic.jpg |

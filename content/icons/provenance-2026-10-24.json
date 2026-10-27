@@ -233,5 +233,70 @@
     "category": "photo-guided-ai",
     "description": "AI-rendered illustration guided by reference photos for shape, color and proportions; output pixels are generated and hidden detail may be inferred.",
     "record": "content/icons/src/west-mitten-butte-generation.json"
+  },
+  "bullet-cluster": {
+    "category": "photo-adjusted",
+    "description": "Composite of real data: pink is hot gas in Chandra X-rays, blue is a mass map from gravitational lensing (not light), over a Hubble/Magellan optical image. Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/bullet-cluster-generation.json"
+  },
+  "pandoras-cluster": {
+    "category": "photo-adjusted",
+    "description": "Hubble visible-light image (close to what a camera sees). Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/pandoras-cluster-generation.json"
+  },
+  "perseus-cluster": {
+    "category": "photo-adjusted",
+    "description": "Real Chandra X-ray data (about ten days of exposure), not visible light: false colour for X-ray brightness, and an edge-enhancing filter (the 2017 release) that draws the filaments and the wave. Cropped and made transparent; no generated pixels.",
+    "record": "content/icons/src/perseus-cluster-generation.json"
+  },
+  "abell-1689": {
+    "category": "photo-adjusted",
+    "description": "Hubble visible-light image (close to what a camera sees). Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/abell-1689-generation.json"
+  },
+  "macs-j0717": {
+    "category": "photo-adjusted",
+    "description": "Hubble visible-light image (close to what a camera sees). Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/macs-j0717-generation.json"
+  },
+  "train-wreck-cluster": {
+    "category": "photo-adjusted",
+    "description": "Composite of real data: green is hot gas in Chandra X-rays, blue is a mass map from gravitational lensing (not light), orange is the galaxies' starlight. Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/train-wreck-cluster-generation.json"
+  },
+  "pleiades": {
+    "category": "photo-adjusted",
+    "description": "Visible-light photograph (close to what a camera sees). Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/pleiades-generation.json"
+  },
+  "westerlund-2": {
+    "category": "photo-adjusted",
+    "description": "Hubble visible and near-infrared image. Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/westerlund-2-generation.json"
+  },
+  "cigar-galaxy": {
+    "category": "photo-adjusted",
+    "description": "Hubble visible-light image, hydrogen glow in red. Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/cigar-galaxy-generation.json"
+  },
+  "whirlpool": {
+    "category": "photo-adjusted",
+    "description": "Hubble visible-light image. Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/whirlpool-generation.json"
+  },
+  "bodes-galaxy": {
+    "category": "photo-adjusted",
+    "description": "Hubble visible-light image. Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/bodes-galaxy-generation.json"
+  },
+  "black-eye": {
+    "category": "photo-adjusted",
+    "description": "Hubble visible-light image. Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/black-eye-generation.json"
+  },
+  "centaurus-a": {
+    "category": "photo-adjusted",
+    "description": "Composite of real data in false colour: Chandra X-rays (the jet), radio (the lobes) and visible light. Cropped, edge-faded and made transparent; no generated pixels.",
+    "record": "content/icons/src/centaurus-a-generation.json"
   }
 }

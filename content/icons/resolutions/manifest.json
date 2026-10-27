@@ -101,7 +101,7 @@
     ]
   },
   "am-radio": {
-    "fingerprint": "5c8a99935387415b2959b5e3bbd8c1f2a4b05ae17851182c64b56d885bdfe5fc",
+    "fingerprint": "156b5c653c78ed45ce1912518ddc442ad27bcc8871036821e8038d29e00ae917",
     "baseWidth": 512,
     "source": "content/icons/am-radio.webp",
     "reason": "no larger source",
@@ -1257,7 +1257,7 @@
     ]
   },
   "fm-radio": {
-    "fingerprint": "f79327de4eb4d290dec4e7629db59bd40544da14b5fe1a87c3a6f6ccdf63b90e",
+    "fingerprint": "523681283af1911ed86401b4b53b64b76d7c0f64d11fcd2358e990dbb11537b3",
     "baseWidth": 512,
     "source": "content/icons/fm-radio.webp",
     "reason": "no larger source",
@@ -1312,7 +1312,7 @@
     ]
   },
   "gamma-ray": {
-    "fingerprint": "66f0e847dbb703323ad6239109a08d6b7a6636dc37c4cd25bcabe120e52cbff7",
+    "fingerprint": "bf8e47aa56ce2a5050d1b97e5179c9fa74fe039c0fcf2c57c72cb3f513fc4880",
     "baseWidth": 512,
     "source": "content/icons/gamma-ray.webp",
     "reason": "no larger source",
@@ -1824,7 +1824,7 @@
     "variants": []
   },
   "infrared": {
-    "fingerprint": "c301f8ec7e9f2ca62b5502b6690d6ac5c8874e31ade0f0edb4f3ec151f4c6e40",
+    "fingerprint": "9f042c742a0801a3fb823c329abc7ffbded610bfbb241db9a57ad2bb4267e1b1",
     "baseWidth": 512,
     "source": "content/icons/infrared.webp",
     "reason": "no larger source",
@@ -2391,7 +2391,7 @@
     ]
   },
   "microwave": {
-    "fingerprint": "a5e6a8265f5451879a2669545980e55c51799453d801850a92874a41e5ab8234",
+    "fingerprint": "c5a802c2a72bd2cae886f419f236d1889c4bae587fcf8ab6a0b4d780377df1e6",
     "baseWidth": 512,
     "source": "content/icons/microwave.webp",
     "reason": "no larger source",
@@ -3769,7 +3769,7 @@
     ]
   },
   "ultraviolet": {
-    "fingerprint": "0ab6f52245e1edb4143cb33dbe273d1bbdcf7b24f753619a3f8abfd2cfdf63f2",
+    "fingerprint": "95228f0a0cae28f7d591586d77da9d0ea6b4efc284741b4f90208af72d682946",
     "baseWidth": 512,
     "source": "content/icons/ultraviolet.webp",
     "reason": "no larger source",
@@ -3933,7 +3933,7 @@
     "variants": []
   },
   "visible-light": {
-    "fingerprint": "b0ab7a1df0720caaa16f2baa0ef145b324da527ea28afdfbd854f5760011bc4f",
+    "fingerprint": "e0dc791941bca4236b70fd609eae805120ed9824c1fbd9893e59cf5707cbadc8",
     "baseWidth": 512,
     "source": "content/icons/visible-light.webp",
     "reason": "no larger source",
@@ -4077,7 +4077,7 @@
     ]
   },
   "x-ray": {
-    "fingerprint": "b7e0b8b438de1b090a5390047d5ab2f8698c54147bd3cc288f861bcbed7cb164",
+    "fingerprint": "ac0a1053b1793ef499da551dd63b86e571388af1afdf3d08a4b118e82408c62c",
     "baseWidth": 512,
     "source": "content/icons/x-ray.webp",
     "reason": "no larger source",
@@ -5472,6 +5472,381 @@
       {
         "width": 1024,
         "path": "1024/wasp-39-b.webp"
+      }
+    ]
+  },
+  "bullet-cluster": {
+    "fingerprint": "ee8352bf1cc97150944bb7af220929c1041ce116c1f82f0ba6594e6dcc026adc",
+    "baseWidth": 128,
+    "source": "content/icons/src/bullet-cluster.png",
+    "reason": "matching master",
+    "sourceDifference": 1.9868367513020833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bullet-cluster.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bullet-cluster.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/bullet-cluster.webp"
+      }
+    ]
+  },
+  "pandoras-cluster": {
+    "fingerprint": "2b418322a7182a7377050893881650af59fd676ac98ee8b0b7e179b10e75ed64",
+    "baseWidth": 128,
+    "source": "content/icons/src/pandoras-cluster.png",
+    "reason": "matching master",
+    "sourceDifference": 1.19580078125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/pandoras-cluster.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/pandoras-cluster.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/pandoras-cluster.webp"
+      }
+    ]
+  },
+  "perseus-cluster": {
+    "fingerprint": "66ee57116dda28c47a37a4d57d5a5dc21cbac37217610d98c888b0bbd6b7e62a",
+    "baseWidth": 128,
+    "source": "content/icons/src/perseus-cluster.png",
+    "reason": "matching master",
+    "sourceDifference": 2.4445393880208335,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/perseus-cluster.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/perseus-cluster.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/perseus-cluster.webp"
+      }
+    ]
+  },
+  "abell-1689": {
+    "fingerprint": "24e78e27db087f1354639cd3ad7c826f83e000a51866448186da30c53f505e6b",
+    "baseWidth": 128,
+    "source": "content/icons/src/abell-1689.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7345377604166667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/abell-1689.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/abell-1689.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/abell-1689.webp"
+      }
+    ]
+  },
+  "macs-j0717": {
+    "fingerprint": "177e4d40b7889613c701d499a580a1c6d07b22edb36661f7d2f75d3318511587",
+    "baseWidth": 128,
+    "source": "content/icons/src/macs-j0717.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3945719401041667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/macs-j0717.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/macs-j0717.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/macs-j0717.webp"
+      }
+    ]
+  },
+  "train-wreck-cluster": {
+    "fingerprint": "f75d3b88056490d5b12c51219d6a04832d4020a7f80fcb398088c69bf9e7c57c",
+    "baseWidth": 128,
+    "source": "content/icons/src/train-wreck-cluster.png",
+    "reason": "matching master",
+    "sourceDifference": 1.8421834309895833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/train-wreck-cluster.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/train-wreck-cluster.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/train-wreck-cluster.webp"
+      }
+    ]
+  },
+  "black-eye": {
+    "fingerprint": "40e8130e2e55537f0bc1501d540ae984970806d7987a1778c240378e5e59d412",
+    "baseWidth": 128,
+    "source": "content/icons/src/black-eye.png",
+    "reason": "matching master",
+    "sourceDifference": 1.6888631184895833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/black-eye.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/black-eye.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/black-eye.webp"
+      }
+    ]
+  },
+  "bodes-galaxy": {
+    "fingerprint": "028c3d21b0315de5708c9e037bd2c5ff85db4f51ea6c478e7964d831dd90719e",
+    "baseWidth": 128,
+    "source": "content/icons/src/bodes-galaxy.png",
+    "reason": "matching master",
+    "sourceDifference": 1.145751953125,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/bodes-galaxy.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/bodes-galaxy.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/bodes-galaxy.webp"
+      }
+    ]
+  },
+  "centaurus-a": {
+    "fingerprint": "d94703d3acb17810710ec1abe5bd54db7660b136f12de0da9f3165a2262c3c81",
+    "baseWidth": 128,
+    "source": "content/icons/src/centaurus-a.png",
+    "reason": "matching master",
+    "sourceDifference": 1.5013020833333333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/centaurus-a.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/centaurus-a.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/centaurus-a.webp"
+      }
+    ]
+  },
+  "cigar-galaxy": {
+    "fingerprint": "c9cfda636571802a0d1dec3d21ffef18f7bb2d59aeb4415981cc2e16d692b668",
+    "baseWidth": 128,
+    "source": "content/icons/src/cigar-galaxy.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4624430338541667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/cigar-galaxy.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/cigar-galaxy.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/cigar-galaxy.webp"
+      }
+    ]
+  },
+  "pleiades": {
+    "fingerprint": "2430e0e3c07d0ffa3162d7f430c855d3bf7f0ab561e4c3c93314d2a86aa374c0",
+    "baseWidth": 128,
+    "source": "content/icons/src/pleiades.png",
+    "reason": "matching master",
+    "sourceDifference": 1.3664754231770833,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/pleiades.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/pleiades.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/pleiades.webp"
+      }
+    ]
+  },
+  "westerlund-2": {
+    "fingerprint": "bfc3b5fe986b37e707ff909314a66154cf9f36b87231c060b933e3a511e8fed9",
+    "baseWidth": 128,
+    "source": "content/icons/src/westerlund-2.png",
+    "reason": "matching master",
+    "sourceDifference": 1.7270100911458333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/westerlund-2.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/westerlund-2.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/westerlund-2.webp"
+      }
+    ]
+  },
+  "whirlpool": {
+    "fingerprint": "13839b17ebb6ef7d978c37d35989823af41a64c6963bb1ecbc0e2d3ce54ac65d",
+    "baseWidth": 128,
+    "source": "content/icons/src/whirlpool.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4363199869791667,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/whirlpool.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/whirlpool.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/whirlpool.webp"
+      }
+    ]
+  },
+  "21-cm-line": {
+    "fingerprint": "781adb829a6a07c3cfa90b8147eaed2884ea69f80be78b3275bdb947d0a6bbe5",
+    "baseWidth": 512,
+    "source": "content/icons/21-cm-line.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/21-cm-line.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/21-cm-line.webp"
+      }
+    ]
+  },
+  "far-infrared": {
+    "fingerprint": "25530d1f682abb1d564b3bb77f26914da8e9cc3dfa2caa954e5c977021d28cdb",
+    "baseWidth": 512,
+    "source": "content/icons/far-infrared.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/far-infrared.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/far-infrared.webp"
+      }
+    ]
+  },
+  "gev-gamma-ray": {
+    "fingerprint": "83970960f3bf838d307139d63a459839a8a84e7a3e9a2b725473be947c54fbeb",
+    "baseWidth": 512,
+    "source": "content/icons/gev-gamma-ray.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/gev-gamma-ray.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/gev-gamma-ray.webp"
+      }
+    ]
+  },
+  "near-infrared": {
+    "fingerprint": "e12745b4b7e4d547fb315b2c573c1ed47ed0fb4fd024496902934c05976df1f4",
+    "baseWidth": 512,
+    "source": "content/icons/near-infrared.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/near-infrared.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/near-infrared.webp"
+      }
+    ]
+  },
+  "soft-x-ray": {
+    "fingerprint": "0c9a86e685300056b913e5cefec26bf00e26312de59b6516682b8505c7896d32",
+    "baseWidth": 512,
+    "source": "content/icons/soft-x-ray.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/soft-x-ray.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/soft-x-ray.webp"
+      }
+    ]
+  },
+  "submillimetre": {
+    "fingerprint": "701234bd393b84a83561212c4eccd608d198e8a72a3cc99ea3c43e5de93e744f",
+    "baseWidth": 512,
+    "source": "content/icons/submillimetre.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/submillimetre.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/submillimetre.webp"
       }
     ]
   }

@@ -1,0 +1,1380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Electromagnetic Spectrum</title>
+<!--
+  The sky, the Sun or the Earth seen through a movable RGB "eye". Each target
+  is a set of single-band maps (radio → gamma), each normalised to 0…1:
+    npm run build:sky-spectrum · build:sun-spectrum · build:earth-spectrum
+  The rainbow selector on the spectrum bar places the red, green and blue
+  channels: slide it to shift all three along the spectrum, drag its ends to
+  spread them. Each channel is a soft (Gaussian) average of the bands near its
+  position, wider as the selector stretches; weights sum to one, so brightness
+  stays even. Bands are evenly spaced on the bar, not to scale.
+  Sky only: a distance window drops every band's light whose depth (where
+  along the line of sight it comes from) falls outside it, in every view.
+  Inside also shows Earth at the centre, in the same bands, the sky behind it.
+  The Cloud's light adds up in a floating-point buffer and is shown linearly by
+  default, so the outer shell (CMB) reads as dots; Log brightness ("Lift faint")
+  opts into a log tone map that lifts sparse far points beside the bright centre.
+  In the Cloud each point takes its own distance from its direction's spread
+  of starlight, dust and halo light (six quantiles per direction), so the
+  Galaxy shows its depth, not one average per direction.
+  In the Cloud, microwave and X-ray light is split into a background that
+  carries on behind the disc — the CMB (Planck's component-separated map) at
+  46 Gly, the cosmic X-ray background (uniform, dimmed by the Galaxy's gas) at
+  z ≈ 1 — and everything in front at its own depth.
+  Zooming out past Inside's widest view hands over to the Cloud (log scale,
+  Earth at the centre, same size, same side); zooming in on Earth returns.
+  Then:  npm run dev  →  http://localhost:5173/spectrum/  (the chart opens it from
+  every photon: embedded in the sidebar with ?embed=1, or full in a new tab)
+  Cloud radius: Custom (Milky Way on the inner 80%, log; the rest on the outer
+  20%), Log (radius ∝ log distance in units from 1,000 km to billions of ly;
+  anything nearer than one unit is hidden; with a unit below Earth's radius,
+  Earth is drawn at the centre: axis to the pole, turned for now, all daylit;
+  between Earth's and the Sun's radius, the Sun; both in the selector's
+  wavelengths) or Linear (radius ∝ distance, where zooming moves the scale
+  through powers of ten). Concentric circles behind the cloud mark powers of
+  ten of distance; translucent discs show the Sun's yearly path, the Oort
+  Cloud and the Milky Way (an off-centre circle, each edge point at its own
+  log distance), each while it is a sensible size on screen (?rings=0 hides them).
+  ?embed=1 (bar and view only, for the chart's sidebar)  ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
+  ?bright=lin|log  ?lift= (0…1, how strong the log brightness is)  ?radius=custom|log|linear  ?dot= (point size ×)  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
+<style>
+  /* One dark instrument: spectrum and distance bars on top, the view filling the rest. */
+  :root {
+    --sky: #000; --fg: #e9ecf5; --dim: #8f95ab; --line: rgba(205, 215, 255, 0.14); --panel: #0b0d15;
+    --display: "Instrument Serif", Georgia, serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  html, body { margin: 0; height: 100%; background: var(--sky); color: var(--fg); font: 13px/1.35 var(--body); }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  .pad { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; padding-top: calc(10px + env(safe-area-inset-top, 0px)); padding-bottom: 4px; }
+  header h1 { margin: 0; font: 400 30px/1 var(--display); }
+  header p { margin: 0; color: var(--dim); }
+  .controls { margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .controls label { color: var(--dim); display: inline-flex; gap: 6px; align-items: center; }
+  .controls input[type=range] { width: 96px; accent-color: var(--fg); }
+  button { background: #191d2b; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; font: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .seg { display: inline-flex; }
+  .seg button { border-radius: 0; }
+  .seg button:first-child { border-radius: 6px 0 0 6px; } .seg button:last-child { border-radius: 0 6px 6px 0; }
+  .seg button[aria-pressed="true"] { background: var(--fg); color: var(--sky); }
+
+  /* spectrum bar: equal slots, regions above, selector on top; fits the width */
+  #bar { position: relative; user-select: none; touch-action: none; margin-top: 4px; }
+  #regions { display: flex; height: 18px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--dim); }
+  #regions div { border-left: 1px solid var(--line); padding-left: 4px; overflow: hidden; white-space: nowrap; min-width: 0; }
+  #slots { display: flex; height: 64px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; position: relative; }
+  #slots .slot { flex: 1; border-left: 1px solid var(--line); position: relative; min-width: 0; }
+  #slots .slot:first-child { border-left: 0; }
+  #slots .slot span { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%) rotate(180deg);
+    writing-mode: vertical-rl; white-space: nowrap; max-height: 56px; overflow: hidden; text-overflow: ellipsis; font-size: 9.5px; color: var(--dim); }
+  #slots .slot.empty { background: repeating-linear-gradient(45deg, transparent 0 4px, rgba(255,255,255,0.05) 4px 8px); }
+  #curves { position: absolute; left: 0; top: 18px; width: 100%; height: 64px; pointer-events: none; }
+  .win { position: absolute; border-radius: 6px; cursor: grab; touch-action: none; box-shadow: 0 0 0 1.5px rgba(255,255,255,0.8) inset; }
+  .win:active { cursor: grabbing; }
+  .win .grip { position: absolute; top: 0; bottom: 0; width: 22px; cursor: ew-resize; }
+  .win .grip::after { content: ""; position: absolute; top: 25%; bottom: 25%; left: 9px; width: 4px; border-radius: 2px; background: #fff; }
+  .win .grip.a { left: -11px; } .win .grip.b { right: -11px; }
+  #selector { top: 18px; height: 64px; background: linear-gradient(90deg, rgba(255,40,40,0.38), rgba(40,255,60,0.38), rgba(60,90,255,0.38)); }
+  #readout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; height: 1.3em; padding: 5px 0 2px; font: 11.5px/1.3 var(--mono); }
+  #readout .ch { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* distance bar (sky only) */
+  #dist { position: relative; height: 44px; margin-top: 4px; user-select: none; touch-action: none; }
+  #dist[hidden] { display: none; }
+  #dtrack { position: absolute; left: 0; right: 0; top: 14px; height: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+  .zone { position: absolute; top: 0; height: 13px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--dim);
+    border-left: 1px solid var(--line); padding-left: 4px; white-space: nowrap; overflow: hidden; }
+  .dtick { position: absolute; top: 33px; font: 10px var(--mono); color: var(--dim); transform: translateX(-50%); white-space: nowrap; }
+  #dwin { top: 14px; height: 18px; background: rgba(255,255,255,0.14); }
+  #dreadout { height: 1.3em; padding: 0 0 2px; font: 11.5px/1.3 var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--dim); }
+  #dreadout[hidden] { display: none; }
+
+  #stage { flex: 1; min-height: 0; position: relative; margin-top: 4px; }
+  #stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; display: block; z-index: 1; }
+  #views { position: absolute; top: 8px; right: max(16px, env(safe-area-inset-right, 0px)); z-index: 3; }
+  #status { color: var(--dim); font-size: 12px; }
+  /* simple options under the view: where to look from, natural colour and,
+     for Galaxy and Universe, the 3D view's scale and brightness */
+  #targets, .controls label, #dist, #dreadout, #views { display: none !important; }
+  #options { display: flex; gap: 8px 14px; align-items: center; flex-wrap: wrap; padding-top: 8px; padding-bottom: 6px; }
+  #radius { display: flex; gap: 8px 10px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--dim); }
+  #radius[hidden], #radius [hidden] { display: none; }
+  #radius label { display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
+  #radius input[type=range] { width: 160px; accent-color: var(--fg); }
+  #radius output { font-family: var(--mono); color: var(--fg); white-space: nowrap; }
+  #linBox { display: inline-flex; gap: 6px 10px; align-items: center; flex-wrap: wrap; }
+  #goto { flex-wrap: wrap; } #goto button { padding: 3px 7px; font-size: 12px; white-space: nowrap; }
+  /* Cloud scale: unit circles behind the canvas (it is transparent where
+     there is nothing), their labels and the discs' names in front */
+  #rings, #ringText { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  #rings { z-index: 0; } #ringText { z-index: 2; }
+  #rings svg, #ringText svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  #rings circle { fill: none; stroke: rgba(233, 236, 245, 0.13); stroke-width: 1; }
+  #rings circle.major { stroke: rgba(233, 236, 245, 0.3); }
+  #ringText text { font: 10.5px var(--mono); fill: rgba(233, 236, 245, 0.7); paint-order: stroke; stroke: #000; stroke-width: 3px; }
+  #ringText text.ref { fill: rgba(255, 214, 140, 0.9); }
+  #ringText circle { fill: rgba(255, 214, 140, 0.9); }
+  footer { padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); color: var(--dim); font-size: 11px; }
+  body.app header { padding-right: 56px; }
+  /* embedded in the chart's sidebar (?embed=1): just the spectrum bar and the view */
+  body.embed header, body.embed #dist, body.embed #dreadout, body.embed footer,
+  body.embed #radius, body.embed #views, body.embed #reset { display: none !important; }
+  body.embed #options { padding: 6px 8px; } body.embed #explore button { padding: 3px 8px; font-size: 12px; }
+  body.embed .pad { padding-left: 8px; padding-right: 8px; }
+  body.embed #bar { margin-top: 6px; }
+  body.embed #slots .slot span { display: none; }
+  body.embed #slots, body.embed #selector, body.embed #curves { height: 40px; }
+  body.embed #regions { font-size: 9px; letter-spacing: 0; }
+  body.embed #regions div[data-short]::before { content: attr(data-short); font-size: 9px; } body.embed #regions div[data-short] { font-size: 0; }
+  body.embed #readout { font-size: 10px; gap: 6px; }
+  body.embed #stage { margin-top: 0; }
+  @media (max-width: 700px) {
+    header h1 { font-size: 24px; } header p { display: none; } .controls { margin-left: 0; gap: 8px; }
+    .controls input[type=range] { width: 70px; }
+    #slots .slot span { display: none; }   /* too narrow for names: the readout names the bands */
+    #slots { height: 48px; } #selector, #curves { height: 48px; }
+    #regions { font-size: 9px; letter-spacing: 0; }
+    #regions div[data-short]::before { content: attr(data-short); } #regions div[data-short] { font-size: 0; }
+    #regions div[data-short]::before { font-size: 9px; }
+    .zone { font-size: 8.5px; }
+    #readout { gap: 8px; font-size: 10.5px; }
+    #radius { gap: 6px 8px; font-size: 11px; } #radius input[type=range] { width: 96px; }
+  }
+</style>
+</head>
+<body>
+<header class="pad">
+  <h1 id="h1">Electromagnetic Spectrum</h1>
+  <p id="sub">Slide the rainbow to see with different eyes. Drag its ends to stretch it.</p>
+  <div class="controls">
+    <span class="seg" id="targets" role="group" aria-label="Target">
+      <button data-target="sky" aria-pressed="true">Sky</button><button data-target="sun" aria-pressed="false">Sun</button><button data-target="earth" aria-pressed="false">Earth</button>
+    </span>
+    <label>Exposure <input id="exposure" type="range" min="0.3" max="3" step="0.01" value="1"></label>
+    <label>Contrast <input id="contrast" type="range" min="0.4" max="2.5" step="0.01" value="1"></label>
+    <span id="status" role="status">Loading…</span>
+  </div>
+</header>
+<div class="pad">
+  <div id="bar">
+    <div id="regions"></div>
+    <div id="slots"></div>
+    <canvas id="curves"></canvas>
+    <div id="selector" class="win" tabindex="0" aria-label="RGB selector: arrows move it, shift+arrows stretch it"><div class="grip a"></div><div class="grip b"></div></div>
+  </div>
+  <div id="readout"></div>
+  <div id="dist" hidden>
+    <div id="zones"></div>
+    <div id="dtrack"></div>
+    <div id="dwin" class="win" tabindex="0" aria-label="Distance window: arrows move it, shift+arrows stretch it"><div class="grip a"></div><div class="grip b"></div></div>
+    <div id="dticks"></div>
+  </div>
+  <div id="dreadout" hidden></div>
+</div>
+<div id="stage">
+  <div id="rings"></div>
+  <div id="ringText"></div>
+  <div id="views" class="seg" role="group" aria-label="View"></div>
+</div>
+<div id="options" class="pad">
+  <span class="seg" id="explore" role="group" aria-label="Look from">
+    <button data-x="earth" title="The sky from just outside Earth, Earth floating in the middle">Earth</button><button data-x="sun" title="The Sun in front of the sky">Sun</button><button data-x="galaxy" title="The Milky Way around us in 3D, to scale">Galaxy</button><button data-x="universe" title="The whole universe in 3D by log distance, Earth in the middle">Universe</button>
+  </span>
+  <button id="reset">Natural colour</button>
+  <div id="radius" hidden>
+    <span class="seg" id="rmodes" role="group" aria-label="Radius scale">
+      <button data-r="0" title="Milky Way on the inner 80% (log), everything beyond on the outer 20%">Custom</button><button data-r="1" title="Radius grows with log distance from the chosen unit">Log</button><button data-r="2" title="Radius proportional to distance; zoom moves through powers of ten">Linear</button>
+    </span>
+    <label id="unitBox">1 unit <input id="unit" type="range" min="-10" max="10" step="0.01" value="0" aria-label="Log scale unit"> <output id="unitOut"></output></label>
+    <span id="linBox">radius 1 = <output id="linOut"></output> · scroll or pinch to zoom
+      <span class="seg" id="goto" role="group" aria-label="Go to">
+        <button data-lz="1.5">Nearby stars</button><button data-lz="3.5">Our arm</button><button data-lz="4.9">Milky Way</button><button data-lz="6.6">Local Group</button><button data-lz="8.4">Supercluster</button><button data-lz="10.7">Universe</button>
+      </span>
+    </span>
+    <span class="seg" id="bright" role="group" aria-label="Brightness">
+      <button data-b="lin" title="Light adds up as it is: the crowded centre dominates">Linear</button><button data-b="log" title="Log-compress the light: faint far points show, the bright centre saturates gently">Log</button>
+    </span>
+    <label id="liftBox" title="How strongly the log brightness lifts faint points">Lift faint <input id="lift" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="Lift faint points"></label>
+    <label><input id="ringsOn" type="checkbox" checked> Scale</label>
+  </div>
+</div>
+<footer class="pad" id="foot"></footer>
+
+<script>
+(() => {
+  const TARGETS = {
+    sky: { dir: "sky-spectrum", title: "Electromagnetic Spectrum", views: ["Globe", "Inside", "Map", "Cloud"], wrap: true, lonSign: -1,
+      foot: "Drag to turn, scroll or pinch to zoom. Galactic coordinates; the Map has the Galactic Centre in the middle. Bands evenly spaced on the bar, not to scale, each normalised to its own brightness range. The distance window drops light from outside its range." },
+    sun: { dir: "sun-spectrum", title: "Sun Spectrum", views: ["Disc"], wrap: false,
+      foot: "18 December 2015, 02:44 UTC · Nobeyama 17 GHz, ALMA 1.25 mm, SDO HMI and AIA · solar north up. Scroll or pinch to zoom, drag to pan." },
+    earth: { dir: "earth-spectrum", title: "Earth Spectrum", views: ["Globe", "Map"], wrap: true, lonSign: 1,
+      foot: "15 June 2024 · MODIS Terra, AMSU-A (NOAA-15), GPM GMI, SMAP, OMI; city lights from 2012. Gaps between orbits are filled from 12–18 June, anything still missing is smoothed in from around it (GMI stops at ±68° latitude); the far south is in polar night. Three bands with no data are modelled and say so: 408 MHz (from SMAP), far-IR and 3–5 µm (from 11 µm)." },
+  };
+  // fallback region rules for the sky's bands.json, which predates "region"
+  const SKY_REGIONS = [
+    ["Radio", (b) => ["radio408", "hi21"].includes(b.id)], ["Microwave", (b) => /^p0|^p1|^p2/.test(b.id)],
+    ["Far-IR", (b) => ["p353", "p545", "p857", "a160", "a140", "a90", "a65"].includes(b.id)], ["Mid-IR", (b) => /^w/.test(b.id)],
+    ["Near-IR", (b) => ["k", "j"].includes(b.id)], ["Visible", (b) => ["rp", "g", "bp"].includes(b.id)],
+    ["UV", (b) => b.id === "uv"], ["X-ray", (b) => /^x/.test(b.id)], ["Gamma", (b) => /^gamma/.test(b.id)],
+  ];
+  const SHORT = { Radio: "Rad", Microwave: "µW", "Far-IR": "FIR", "Mid-IR": "MIR", "Near-IR": "NIR", "Thermal IR": "TIR", Visible: "Vis", "X-ray": "X", Gamma: "γ", EUV: "EUV", UV: "UV" };
+  const q = new URLSearchParams(location.search);
+  if (q.get("embed") === "1") document.body.classList.add("embed");
+  // opened over the chart (?app=1): room for its close button, and Escape here closes it too
+  if (q.get("app") === "1" && window.parent !== window) {
+    document.body.classList.add("app");
+    addEventListener("keydown", (e) => { if (e.key === "Escape") parent.postMessage({ type: "close-app" }, "*"); });
+  }
+  let session = null;
+
+  async function boot(target, first) {
+    session?.abort();
+    session = new AbortController();
+    const on = (el, ev, fn, opts = {}) => el.addEventListener(ev, fn, { ...opts, signal: session.signal });
+    const T = TARGETS[target];
+    document.querySelectorAll("#targets button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.target === target));
+    document.getElementById("h1").textContent = T.title;
+    document.getElementById("foot").textContent = T.foot;
+    const status = document.getElementById("status");
+    status.textContent = "Loading…";
+    const meta = await (await fetch(`./${T.dir}/bands.json`)).json();
+    const B = meta.bands, N = B.length, P = meta.packs.length;
+    const hasDepth = !!meta.depth;
+
+    // ---------- spectrum bar ----------
+    const slots = document.getElementById("slots"), regions = document.getElementById("regions");
+    slots.innerHTML = ""; regions.innerHTML = "";
+    B.forEach((b) => {
+      const el = document.createElement("div");
+      el.className = "slot" + (b.empty ? " empty" : "");
+      el.title = `${b.name} · ${b.wave} · ${b.what} · ${b.source}`;
+      el.innerHTML = `<span>${b.name.replace(/^(Planck|IRAS|WISE|2MASS|Gaia|AKARI) /, "")}</span>`;
+      slots.appendChild(el);
+    });
+    const regionOf = (b) => b.region ?? SKY_REGIONS.find(([, t]) => t(b))?.[0] ?? "";
+    for (let i = 0; i < N;) {
+      let j = i;
+      while (j < N && regionOf(B[j]) === regionOf(B[i])) j++;
+      const el = document.createElement("div");
+      el.style.flex = j - i;
+      el.textContent = regionOf(B[i]);
+      if (SHORT[regionOf(B[i])]) el.dataset.short = SHORT[regionOf(B[i])];
+      regions.appendChild(el);
+      i = j;
+    }
+
+    // ---------- RGB selector: centre c (green) and half-span s, in band units ----------
+    const START = meta.start ?? { c: B.findIndex((b) => b.id === "g"), s: 1 };
+    let c = first && q.has("c") ? +q.get("c") : START.c, s = first && q.has("s") ? +q.get("s") : START.s;
+    const sigma = () => Math.max(0.35, 0.45 * s);
+    function weights(p) {
+      const w = B.map((_, i) => Math.exp(-((i - p) ** 2) / (2 * sigma() ** 2)));
+      const sum = w.reduce((a, b) => a + b, 0);
+      return w.map((x, i) => (B[i].empty ? 0 : x / sum)); // empty bands keep their share and read black
+    }
+    // a band's wavelength in metres, from strings like "73 cm", "330–680 nm", "~1 fm"
+    // (a range counts as its geometric mean)
+    const UNIT_M = { fm: 1e-15, nm: 1e-9, "µm": 1e-6, mm: 1e-3, cm: 1e-2, m: 1 };
+    // the ends of a wavelength string in metres: "21 cm", "330–680 nm", "20 µm–1.5 mm"
+    function waveEnds(str) {
+      // each side of the dash is "number [unit]"; a side without a unit takes the other's
+      const parts = str.replace(/~/g, "").split("–").map((t) => t.trim().match(/^([\d.]+)\s*(fm|nm|µm|mm|cm|m)?$/));
+      if (parts.some((m) => !m)) return [NaN, NaN];
+      const unit = parts[parts.length - 1][2];
+      const [a, b = a] = parts.map((m) => +m[1] * UNIT_M[m[2] ?? unit]);
+      return [a, b];
+    }
+    const waveM = (str) => { const [a, b] = waveEnds(str); return Math.sqrt(a * b); };
+    // position on this bar of any wavelength. Each slot owns a range of
+    // wavelengths, split at the geometric midpoints between neighbours, except
+    // that the visible slots take the colours they play in natural colour:
+    // red 600–700 nm, green 500–600, blue 400–500 (Gaia's real passbands are
+    // much wider; RP runs to 1,050 nm, which would put near-infrared in red)
+    const NATURAL_EDGE = { rp: [700e-9, 600e-9], g: [600e-9, 500e-9], bp: [500e-9, 400e-9] };
+    const rep = B.map((b) => Math.log10(waveM(b.wave)));
+    const edges = [];   // edges[i]: log wavelength between slot i and i + 1
+    for (let i = 0; i < N - 1; i++) {
+      const nat = NATURAL_EDGE[B[i].id]?.[1] ?? NATURAL_EDGE[B[i + 1].id]?.[0];
+      edges.push(nat ? Math.log10(nat) : (rep[i] + rep[i + 1]) / 2);
+    }
+    function barPos(m) {
+      const x = Math.log10(m);
+      for (let i = 0; i < N; i++) {
+        const hi = i ? edges[i - 1] : 2 * rep[0] - edges[0], lo = i < N - 1 ? edges[i] : 2 * rep[N - 1] - edges[N - 2];
+        if (x >= lo || i === N - 1) return Math.min(N - 1, Math.max(0, i - 0.5 + (hi - x) / (hi - lo)));
+      }
+      return N - 1;
+    }
+    // another target's band: the span of the bar it covers (its wavelength
+    // range; the Sun's photosphere image stands for all of visible light)
+    const SPAN_M = { hmi: [400e-9, 700e-9] };
+    function barSpan(b) {
+      const [x, y] = SPAN_M[b.id] ?? waveEnds(b.wave);
+      // and, like the sky's own bands, fully the slot it falls in
+      const lo = barPos(Math.max(x, y)), hi = barPos(Math.min(x, y)), slot = Math.round((lo + hi) / 2);
+      // (to its edges, so bands in neighbouring slots meet with no dark gap)
+      return [Math.min(lo, slot - 0.5), Math.max(hi, slot + 0.5)];
+    }
+    // selector weights for those bands: the channel's response at the nearest
+    // point of each band's span, a little narrower than the sky's so that
+    // neighbouring bands don't bleed in; where several crowd under one
+    // channel they share it — within their group: bands that never show at
+    // the same time (Earth's night lights and its daylight bands) don't share
+    function objWeights(spans, p, groups = []) {
+      const so = 0.45 * sigma();
+      const g = spans.map(([a, b]) => { const d = p < a ? a - p : p > b ? p - b : 0; return Math.exp(-(d * d) / (2 * so * so)); });
+      const sum = {};
+      g.forEach((x, i) => (sum[groups[i] ?? 0] = (sum[groups[i] ?? 0] ?? 0) + x));
+      return g.map((x, i) => { const t = sum[groups[i] ?? 0]; return t > 1 ? x / t : x; });
+    }
+    const sel = document.getElementById("selector"), curves = document.getElementById("curves");
+    const slotW = () => slots.getBoundingClientRect().width / N;
+    function clamp() { s = Math.max(0.25, Math.min((N - 1) / 2, s)); c = Math.max(s, Math.min(N - 1 - s, c)); }
+    function drawCurves() {
+      const r = slots.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+      curves.width = r.width * dpr; curves.height = r.height * dpr;
+      const g = curves.getContext("2d");
+      g.scale(dpr, dpr);
+      [["#ff4a4a", c - s], ["#4aff63", c], ["#5b7cff", c + s]].forEach(([col, p]) => {
+        g.beginPath();
+        for (let x = 0; x <= r.width; x += 2) {
+          const y = r.height - 6 - (r.height - 14) * Math.exp(-((x / slotW() - 0.5 - p) ** 2) / (2 * sigma() ** 2));
+          x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
+        }
+        g.strokeStyle = col; g.lineWidth = 1.5; g.stroke();
+      });
+    }
+    function readout() {
+      const el = document.getElementById("readout");
+      el.innerHTML = "";
+      [["R", "#ff6b6b", c - s], ["G", "#6bff7f", c], ["B", "#7d97ff", c + s]].forEach(([n, col, p]) => {
+        const all = weights(p).map((x, i) => [x, B[i]]);
+        const w = all.reduce((a, [x]) => a + x, 0) < 0.05 ? [] : all.filter(([x]) => x > 0.01).sort((a, b) => b[0] - a[0]).slice(0, 3);
+        const d = document.createElement("div");
+        d.className = "ch";
+        d.innerHTML = `<b style="color:${col}">${n}</b> ` + (w.length ? w.map(([x, b]) => `${b.name} ${Math.round(100 * x)}%`).join(" · ") : "<span style='color:var(--dim)'>nothing (no data here)</span>");
+        el.appendChild(d);
+      });
+    }
+    function layoutSelector() {
+      const w = slotW();
+      sel.style.left = `${(c - s + 0.5) * w - 10}px`;
+      sel.style.width = `${2 * s * w + 20}px`;
+      drawCurves(); readout();
+    }
+    // drag helper shared by both windows: body moves, grips stretch
+    function draggable(el, get, set, unit) {
+      let drag = null;
+      on(el, "pointerdown", (e) => {
+        const g = e.target.closest(".grip");
+        drag = { x: e.clientX, v: get(), mode: g ? (g.classList.contains("a") ? "a" : "b") : "move" };
+        el.setPointerCapture(e.pointerId); e.preventDefault();
+      });
+      on(el, "pointermove", (e) => { if (drag) set(drag.v, drag.mode, (e.clientX - drag.x) / unit()); });
+      on(el, "pointerup", () => (drag = null));
+      on(el, "pointercancel", () => (drag = null));
+    }
+    draggable(sel, () => ({ c, s }), (v, mode, d) => {
+      if (mode === "move") c = v.c + d; else s = v.s + (mode === "b" ? d : -d);
+      clamp(); layoutSelector(); draw();
+    }, slotW);
+    on(sel, "keydown", (e) => {
+      const step = e.altKey ? 0.1 : 0.5;
+      if (e.key === "ArrowLeft") e.shiftKey ? (s -= step) : (c -= step);
+      else if (e.key === "ArrowRight") e.shiftKey ? (s += step) : (c += step);
+      else return;
+      e.preventDefault(); clamp(); layoutSelector(); draw();
+    });
+    on(document.getElementById("reset"), "click", () => { c = START.c; s = START.s; layoutSelector(); draw(); });
+
+    // ---------- distance window (sky): log10 ly, light outside is dropped ----------
+    const DMIN = 1.5, DMAX = 11;
+    let dlo = DMIN, dhi = DMAX;
+    if (first && q.has("dlo")) dlo = +q.get("dlo");
+    if (first && q.has("dhi")) dhi = +q.get("dhi");
+    const dist = document.getElementById("dist"), dwin = document.getElementById("dwin"), dread = document.getElementById("dreadout");
+    dist.hidden = dread.hidden = !hasDepth;
+    const dW = () => dist.clientWidth;
+    const dx = (L) => ((L - DMIN) / (DMAX - DMIN)) * dW();
+    function fmtLy(L) {
+      const ly = 10 ** L;
+      for (const [f, u] of [[1e9, " billion ly"], [1e6, " million ly"], [1e3, ",000 ly"]]) if (ly >= f) return `${+(ly / f).toPrecision(2)}${u}`;
+      return `${+ly.toPrecision(2)} ly`;
+    }
+    if (hasDepth) {
+      const zones = document.getElementById("zones"), ticks = document.getElementById("dticks");
+      zones.innerHTML = ticks.innerHTML = "";
+      [[1.5, 2.6, "Near"], [2.6, 4.8, "Milky Way"], [4.8, 10.3, "Beyond the Galaxy"], [10.3, 11, "CMB"]].forEach(([a, b, n]) => {
+        const el = document.createElement("div"); el.className = "zone"; el.textContent = n; el.dataset.a = a; el.dataset.b = b; zones.appendChild(el);
+      });
+      [[2, "100 ly"], [3, "1k"], [4, "10k"], [6, "1M"], [8, "100M"], [10, "10G ly"]].forEach(([L, t]) => {
+        const el = document.createElement("div"); el.className = "dtick"; el.textContent = t; el.dataset.l = L; ticks.appendChild(el);
+      });
+    }
+    function layoutDist() {
+      if (!hasDepth) return;
+      document.querySelectorAll(".zone").forEach((el) => { el.style.left = `${dx(+el.dataset.a)}px`; el.style.width = `${dx(+el.dataset.b) - dx(+el.dataset.a)}px`; });
+      document.querySelectorAll(".dtick").forEach((el) => (el.style.left = `${dx(+el.dataset.l)}px`));
+      dwin.style.left = `${dx(dlo)}px`; dwin.style.width = `${Math.max(10, dx(dhi) - dx(dlo))}px`;
+      const all = dlo <= DMIN + 0.01 && dhi >= DMAX - 0.01;
+      dread.textContent = all ? "Distance: everything (drag the window or its ends to keep only light from some distances)"
+        : `Distance: light from ${fmtLy(dlo)} to ${fmtLy(dhi)} only`;
+    }
+    if (hasDepth) {
+      draggable(dwin, () => ({ dlo, dhi }), (v, mode, d) => {
+        const w = v.dhi - v.dlo;
+        if (mode === "move") { dlo = Math.max(DMIN, Math.min(DMAX - w, v.dlo + d)); dhi = dlo + w; }
+        else if (mode === "a") dlo = Math.max(DMIN, Math.min(dhi - 0.1, v.dlo + d));
+        else dhi = Math.min(DMAX, Math.max(dlo + 0.1, v.dhi + d));
+        layoutDist(); draw();
+      }, () => dW() / (DMAX - DMIN));
+      on(dwin, "keydown", (e) => {
+        const step = e.altKey ? 0.05 : 0.25, w = dhi - dlo;
+        if (e.key === "ArrowLeft") { if (e.shiftKey) dhi = Math.max(dlo + 0.1, dhi - step); else { dlo = Math.max(DMIN, dlo - step); dhi = dlo + w; } }
+        else if (e.key === "ArrowRight") { if (e.shiftKey) dhi = Math.min(DMAX, dhi + step); else { dhi = Math.min(DMAX, dhi + step); dlo = dhi - w; } }
+        else return;
+        e.preventDefault(); layoutDist(); draw();
+      });
+    }
+
+    // ---------- WebGL ----------
+    const stage = document.getElementById("stage");
+    stage.querySelector("canvas")?.remove();
+    const canvas = document.createElement("canvas");
+    stage.prepend(canvas);
+    const gl = canvas.getContext("webgl2", { preserveDrawingBuffer: true });
+    const KINDS = B.map((b) => b.depth ?? 5);
+    const I857 = Math.max(0, B.findIndex((b) => b.id === "p857")), I408 = Math.max(0, B.findIndex((b) => b.id === "radio408"));
+    // shared GLSL: sample every band at uv, mix R/G/B, and (sky) drop light
+    // whose depth is outside the window; L = light-weighted depth of what's kept
+    const shared = `
+      ${meta.packs.map((_, i) => `uniform sampler2D p${i};`).join("\n")}
+      uniform sampler2D depthMap, sourceMap, radioMap, cmbMap, depthQ;
+      uniform float wR[${P * 3}], wG[${P * 3}], wB[${P * 3}];
+      uniform int kind[${P * 3}];
+      uniform float dLo, dHi, lonSign;
+      uniform float bgLevel[${P * 3}], bgSigma[${P * 3}]; // X-ray background per band (0 for others)
+      uniform bool useDepth, hasQ;
+      vec2 dirUV(vec3 n) {
+        float l = atan(-n.z, n.x), b = asin(clamp(n.y, -1.0, 1.0));
+        return vec2(fract(0.5 + lonSign * l / 6.2831853), 0.5 - b / 3.1415927);
+      }
+      // layer: -1 everything (flat views); in the Cloud, 0 is every band's own
+      // light with its background taken out, 1 is the background alone, which
+      // carries on behind the disc: for microwave the CMB (Planck's
+      // component-separated map, 46 Gly), for X-ray the cosmic X-ray background
+      // (uniform, dimmed by the Galaxy's gas, at z ≈ 1)
+      // the Cloud's per-point distance for starlight (0), dust (1) or the halo
+      // (2): six quantiles of each kind's light per direction (depthq.png),
+      // read at this point's own q in 0…1, linear between (and past) them
+      float qv(int kind, int j, vec2 uv) {
+        int t = kind * 2 + j / 3;
+        vec2 inset = clamp(uv, vec2(0.5 / 512.0, 0.5 / 256.0), vec2(1.0 - 0.5 / 512.0, 1.0 - 0.5 / 256.0));
+        vec3 c = textureLod(depthQ, (vec2(float(t % 2), float(t / 2)) + inset) / vec2(2.0, 3.0), 0.0).rgb;
+        return (j % 3 == 0 ? c.r : j % 3 == 1 ? c.g : c.b) * 11.0;
+      }
+      float qDepth(int kind, vec2 uv, float q) {
+        float f = q * 6.0 - 0.5;
+        int j0 = clamp(int(floor(f)), 0, 4);
+        return mix(qv(kind, j0, uv), qv(kind, j0 + 1, uv), f - float(j0));
+      }
+      void bands(vec2 uv, float lod, int layer, float q, out vec3 col, out float L, out float kept) {
+        float v[${P * 3}];
+        vec3 t;
+        ${meta.packs.map((_, i) => `t = textureLod(p${i}, uv, lod).rgb; v[${3 * i}] = t.r; v[${3 * i + 1}] = t.g; v[${3 * i + 2}] = t.b;`).join("\n        ")}
+        float depth[10] = float[10](0.0, 0.0, 0.0, 10.66, 10.66, 0.0, 0.0, 0.0, 0.0, 0.0);
+        if (useDepth) {
+          vec3 dm = textureLod(depthMap, uv, 0.0).rgb * 11.0;
+          vec3 sm = textureLod(sourceMap, uv, 0.0).rgb * 11.0;
+          depth[0] = dm.r; depth[1] = dm.g; depth[2] = dm.b;
+          depth[6] = sm.r; depth[7] = sm.g; depth[8] = sm.b;
+          depth[9] = textureLod(radioMap, uv, 0.0).r * 11.0;
+          if (layer >= 0 && hasQ) { depth[0] = qDepth(0, uv, q); depth[1] = qDepth(1, uv, q); depth[2] = qDepth(2, uv, q); }
+        }
+        // how much of a microwave band is foreground (bright dust or synchrotron)
+        float fg3 = smoothstep(0.35, 0.75, v[${I857}]), fg4 = smoothstep(0.3, 0.65, v[${I408}]);
+        float cmbV = layer == 1 && useDepth ? textureLod(cmbMap, uv, 0.0).r : 0.0;
+        float sinB = abs(cos(3.1415927 * uv.y)), nH = min(3e20 / max(sinB, 1e-3), 5e22);
+        if (useDepth && layer < 0) {
+          depth[3] = mix(10.66, depth[1], fg3);
+          depth[4] = mix(10.66, depth[2], fg4);
+        } else if (useDepth) {
+          depth[3] = layer == 1 ? 10.66 : depth[1];
+          depth[4] = layer == 1 ? 10.66 : depth[2];
+        }
+        col = vec3(0.0); L = 0.0; kept = 0.0;
+        for (int k = 0; k < ${P * 3}; k++) {
+          int kd = kind[k];
+          bool cmbKind = kd == 3 || kd == 4, cxbKind = bgLevel[k] > 0.0;
+          float cxb = cxbKind ? bgLevel[k] * exp(-nH * bgSigma[k]) : 0.0;
+          if (layer == 1 && !cmbKind && !cxbKind) continue;
+          if (layer == 1) v[k] = cmbKind ? cmbV : cxb;
+          else if (layer == 0 && cmbKind) v[k] *= kd == 3 ? fg3 : fg4;
+          else if (layer == 0 && cxbKind) v[k] = max(v[k] - cxb, 0.0);
+          float d = layer == 1 && cxbKind ? 10.03 : depth[kd];
+          float m = useDepth ? step(dLo, d) * step(d, dHi) : 1.0;
+          vec3 w = vec3(wR[k], wG[k], wB[k]) * v[k] * m;
+          col += w;
+          float s = w.r + w.g + w.b;
+          L += s * d; kept += s;
+        }
+        L = kept > 1e-5 ? L / kept : 10.66;
+      }`;
+    const sh = (type, src) => {
+      const x = gl.createShader(type); gl.shaderSource(x, src); gl.compileShader(x);
+      if (!gl.getShaderParameter(x, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(x));
+      return x;
+    };
+    const link = (vs, fs) => {
+      const p = gl.createProgram();
+      gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+      return p;
+    };
+    // flat views: every pixel ray-cast — Globe (outside, orthographic),
+    // Inside (perspective from the centre), Map (the flat image, any aspect)
+    const quad = link(`#version 300 es
+      void main() { vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }`,
+    `#version 300 es
+      precision highp float;
+      out vec4 o;
+      ${shared}
+      uniform float gain, gam, yaw, pitch, zoom, lod, aspect, panX, panY;
+      uniform vec2 res;
+      uniform int mode;
+      vec3 turn(vec3 v) {
+        float cp = cos(pitch), sp = sin(pitch), cy = cos(yaw), sy = sin(yaw);
+        v = vec3(v.x, cp * v.y - sp * v.z, sp * v.y + cp * v.z);
+        return vec3(cy * v.x + sy * v.z, v.y, -sy * v.x + cy * v.z);
+      }
+      void main() {
+        vec2 p = (gl_FragCoord.xy - 0.5 * res) / (0.5 * res.y);
+        vec2 uv; float edge = 1.0;
+        if (mode == 2) {
+          float sc = min(res.x / aspect, res.y) * zoom;
+          vec2 q = (gl_FragCoord.xy - 0.5 * res) / sc - vec2(panX, panY);
+          if (abs(q.x) > 0.5 * aspect || abs(q.y) > 0.5) { o = vec4(0.0, 0.0, 0.0, 1.0); return; }
+          uv = vec2(0.5 + q.x / aspect, 0.5 - q.y);
+          if (lonSign != 0.0) uv.x = fract(uv.x - yaw);
+        } else if (mode == 0) {
+          float d2 = dot(p, p) / (zoom * zoom);
+          if (d2 > 1.0) { o = vec4(vec3(0.05, 0.06, 0.1) * exp(-40.0 * (sqrt(d2) - 1.0)), 1.0); return; }
+          uv = dirUV(turn(vec3(p / zoom, sqrt(1.0 - d2))));
+          edge = smoothstep(1.0, 0.985, d2);
+        } else {
+          uv = dirUV(turn(normalize(vec3(p * zoom, -1.0))));
+        }
+        vec3 col; float L, kept;
+        bands(uv, lod, -1, 0.5, col, L, kept);
+        o = vec4(pow(clamp(col * gain, 0.0, 1.0), vec3(gam)) * edge, 1.0);
+      }`);
+    // Cloud (sky): points spread evenly over the sky, each at radius = log of
+    // the distance its kept light comes from (broken axis: the Milky Way gets
+    // the inner 80 %); points with nothing left in the window vanish
+    const CLOUD_N = innerWidth < 700 ? 250000 : 500000;
+    const cloud = hasDepth ? link(`#version 300 es
+      precision highp float;
+      ${shared}
+      uniform mat4 viewProj;
+      uniform float gain, gam, size, spinA;
+      uniform int rmode;      // 0 custom broken axis, 1 log from a unit, 2 linear
+      uniform float pCmb;     // share of points that carry the CMB alone
+      uniform float lu, lz;   // log10 ly of the log unit; log10 ly at radius 1 (linear)
+      out vec3 vCol;
+      const float N = ${CLOUD_N}.0, LMIN = 2.0, LGAL = 4.8, LMAX = 10.66;
+      float hash(float n) { return fract(sin(n * 12.9898) * 43758.5453); }
+      void main() {
+        float i = float(gl_VertexID);
+        // golden-angle longitude from exact integer maths (a float i × 2.4 rad loses it)
+        float y = 1.0 - 2.0 * (i + 0.5) / N, rr = sqrt(1.0 - y * y);
+        float ph = 6.2831853 * float((uint(gl_VertexID) * 2654435769u) >> 8u) / 16777216.0;
+        vec3 d = vec3(cos(ph) * rr, y, sin(ph) * rr);
+        d = normalize(d + sqrt(12.566 / N) * (vec3(hash(i), hash(i + 0.37), hash(i + 0.71)) - 0.5));
+        vec3 col; float L, kept;
+        // a share pCmb of the points carry the CMB alone, the rest everything
+        // else; each brightened by its share so the total stays the same
+        int layer = useDepth && hash(i + 0.91) < pCmb ? 1 : 0;
+        bands(dirUV(d), 1.0, layer, hash(i + 0.57), col, L, kept);
+        col *= layer == 1 ? 1.0 / pCmb : 1.0 / (1.0 - pCmb);
+        float r, vis = 1.0;
+        if (rmode == 0) r = L <= LGAL ? 0.8 * clamp((L - LMIN) / (LGAL - LMIN), 0.0, 1.0) : 0.8 + 0.2 * clamp((L - LGAL) / (LMAX - LGAL), 0.0, 1.0);
+        else if (rmode == 1) { r = (L - lu) / (LMAX - lu); vis = step(0.0, r); r = max(r, 0.0); } // nearer than 1 unit: hidden
+        else { r = pow(10.0, L - lz); vis = 1.0 - smoothstep(2.0, 3.0, r); } // fade out before passing the camera
+        r *= 1.0 + 0.01 * (hash(i + 0.13) - 0.5);
+        float cs = cos(spinA), sn = sin(spinA);
+        gl_Position = viewProj * vec4(r * vec3(cs * d.x + sn * d.z, d.y, -sn * d.x + cs * d.z), 1.0);
+        gl_PointSize = kept > 1e-4 && vis > 0.0 ? size : 0.0;
+        vCol = vis * pow(clamp(col * gain, 0.0, 1.0), vec3(gam));
+      }`, `#version 300 es
+      precision highp float;
+      in vec3 vCol; out vec4 o;
+      uniform float dotGain; // bigger dots, dimmer each: the same light per area
+      void main() { float a = smoothstep(0.5, 0.15, length(gl_PointCoord - 0.5)); vec3 c = vCol * a * 0.14 * dotGain; o = vec4(c, max(c.r, max(c.g, c.b))); }`) : null;
+    // Earth and Sun at the centre of the Cloud's log scale, seen through the
+    // same RGB selector as the sky: each of their bands sits on the sky's
+    // spectrum bar at its own wavelength (interpolated in log wavelength between
+    // the sky's bands) and takes the selector's weight there.
+    //   Earth (unit below Earth's radius): a ray-cast globe from the Earth
+    //   target's bands, all daylit like the maps themselves (so no night
+    //   lights); axis to the celestial pole, turned for the moment the page opened.
+    //   Sun (unit between Earth's and the Sun's radius): the Sun target's
+    //   images as a flat disc facing the camera, solar north up.
+    const OBJ_PACKS = 6, OBJ_MAX = 3 * OBJ_PACKS; // up to 18 bands each for Earth and the Sun
+    const ACC_UNIT = P + 5 + 2 * OBJ_PACKS;       // the Cloud's light buffer, read by the tone map
+    const fullTri = `#version 300 es
+      void main() { vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }`;
+    const objCommon = `
+      precision highp float;
+      uniform mat4 viewProj;
+      uniform vec2 res;
+      uniform float oR[${OBJ_MAX}], oG[${OBJ_MAX}], oB[${OBJ_MAX}], gain, gam;
+      uniform sampler2D ${Array.from({ length: OBJ_PACKS }, (_, i) => `o${i}`).join(", ")};
+      out vec4 o;
+      vec3 ray(out vec3 ro) {
+        mat4 inv = inverse(viewProj);
+        vec2 ndc = gl_FragCoord.xy / res * 2.0 - 1.0;
+        vec4 a = inv * vec4(ndc, -1.0, 1.0), b = inv * vec4(ndc, 1.0, 1.0);
+        ro = a.xyz / a.w;
+        return normalize(b.xyz / b.w - ro);
+      }
+      void objBands(vec2 uv, float lod, out float v[${OBJ_MAX}]) {
+        vec3 t;
+        ${Array.from({ length: OBJ_PACKS }, (_, i) => `t = textureLod(o${i}, uv, lod).rgb; v[${3 * i}] = t.r; v[${3 * i + 1}] = t.g; v[${3 * i + 2}] = t.b;`).join("\n        ")}
+      }
+      vec3 mixBands(float v[${OBJ_MAX}], float shade[${OBJ_MAX}]) {
+        vec3 c = vec3(0.0);
+        for (int k = 0; k < ${OBJ_MAX}; k++) c += vec3(oR[k], oG[k], oB[k]) * v[k] * shade[k];
+        return pow(clamp(c * gain, 0.0, 1.0), vec3(gam));
+      }`;
+    const earthGlobe = hasDepth ? link(fullTri, `#version 300 es
+      ${objCommon}
+      uniform mat3 galToEq;
+      uniform float rE, spinA, gmst, elod;
+      uniform float use[${OBJ_MAX}];  // 0 leaves a band out (night lights: the globe is all day)
+      void main() {
+        vec3 ro, rd = ray(ro);
+        float bq = dot(ro, rd), h = bq * bq - dot(ro, ro) + rE * rE;
+        if (h < 0.0) discard;
+        float t = -bq - sqrt(h);
+        if (t < 0.0) discard;
+        vec3 pw = ro + t * rd, n = pw / rE;
+        float cs = cos(spinA), sn = sin(spinA);
+        vec3 d = vec3(cs * n.x - sn * n.z, n.y, sn * n.x + cs * n.z); // undo the cloud's spin
+        vec3 v = galToEq * vec3(d.x, -d.z, d.y);                       // galactic → equatorial
+        float lon = atan(v.y, v.x) - gmst, lat = asin(clamp(v.z, -1.0, 1.0));
+        vec2 uv = vec2(fract(lon / 6.2831853 + 0.5), 0.5 - lat / 3.1415927);
+        float vals[${OBJ_MAX}], shade[${OBJ_MAX}];
+        objBands(uv, elod, vals);
+        for (int k = 0; k < ${OBJ_MAX}; k++) shade[k] = use[k];
+        o = vec4(mixBands(vals, shade), 4.0); // > 1 marks it for the tone map (clamps to 1 on screen)
+        vec4 cp = viewProj * vec4(pw, 1.0);
+        gl_FragDepth = 0.5 + 0.5 * cp.z / cp.w;
+      }`) : null;
+    const sunDisc = hasDepth ? link(fullTri, `#version 300 es
+      ${objCommon}
+      uniform vec3 camR, camU, camF;
+      uniform float rS, slod;
+      void main() {
+        vec3 ro, rd = ray(ro);
+        float t = -dot(ro, camF) / dot(rd, camF);
+        if (t < 0.0) discard;
+        vec3 pw = ro + t * rd;
+        vec2 q = vec2(dot(pw, camR), dot(pw, camU)) / rS * 0.75;      // the disc fills 3/4 of the image's half-width
+        if (abs(q.x) > 1.0 || abs(q.y) > 1.0) discard;
+        float vals[${OBJ_MAX}], shade[${OBJ_MAX}];
+        objBands(vec2(0.5 + 0.5 * q.x, 0.5 - 0.5 * q.y), slod, vals);
+        for (int k = 0; k < ${OBJ_MAX}; k++) shade[k] = 1.0;
+        o = vec4(mixBands(vals, shade), 4.0); // > 1 marks it for the tone map (clamps to 1 on screen)
+        if (length(pw) < rS) { vec4 cp = viewProj * vec4(pw, 1.0); gl_FragDepth = 0.5 + 0.5 * cp.z / cp.w; }
+        else gl_FragDepth = 1.0;
+      }`) : null;
+    // Sun view: the Sun's images (in the selector's wavelengths) as a flat
+    // picture at the centre of the view, screen-blended over the map
+    const sunFlat = hasDepth ? link(fullTri, `#version 300 es
+      ${objCommon}
+      uniform vec2 cen;
+      uniform float rad, slod;
+      void main() {
+        vec2 q = (gl_FragCoord.xy - cen) / rad;
+        if (abs(q.x) > 1.0 || abs(q.y) > 1.0) discard;
+        float vals[${OBJ_MAX}], shade[${OBJ_MAX}];
+        objBands(vec2(0.5 + 0.5 * q.x, 0.5 - 0.5 * q.y), slod, vals);
+        for (int k = 0; k < ${OBJ_MAX}; k++) shade[k] = 1.0;
+        // premultiplied: a dark disc just past the limb hides the stars behind
+        // the Sun; the corona beyond it adds over them
+        float r = length(q);
+        o = vec4(mixBands(vals, shade) * smoothstep(1.0, 0.8, r), smoothstep(0.765, 0.745, r));
+      }`) : null;
+    // the Cloud is drawn into a floating-point buffer, its light adding up
+    // freely, then shown through a log tone map ("Lift faint"): out =
+    // log(1 + k·m) / log(1 + k) of each pixel's brightest channel m, hue kept,
+    // so a lone far point lifts into view while the crowded centre saturates
+    // gently. Earth and the Sun (marked in alpha) are shown as they are.
+    const hdr = !!gl.getExtension("EXT_color_buffer_float");
+    const tonemap = hasDepth && hdr ? link(fullTri, `#version 300 es
+      precision highp float;
+      uniform sampler2D acc;
+      uniform float lift;
+      out vec4 o;
+      void main() {
+        vec4 c = texelFetch(acc, ivec2(gl_FragCoord.xy), 0);
+        if (c.a >= 3.0) { o = vec4(min(c.rgb, vec3(1.0)), 1.0); return; }
+        // a black point first, so faint haze (map noise, near-dark tails) stays
+        // black while real points, even lone far ones, lift
+        float m0 = max(c.r, max(c.g, c.b)), m = max(m0 - 0.003, 0.0);
+        float t = lift > 0.0 ? log(1.0 + lift * m) / log(1.0 + lift) : m;
+        vec3 rgb = m > 0.0 ? min(c.rgb * (t / m0), vec3(1.0)) : vec3(0.0);
+        o = vec4(rgb, max(rgb.r, max(rgb.g, rgb.b)));
+      }`) : null;
+    let accFbo = null, accTex = null, accDepth = null, accW = 0, accH = 0;
+    function accTarget(w, h) {
+      if (accFbo && accW === w && accH === h) return accFbo;
+      accW = w; accH = h;
+      accFbo ??= gl.createFramebuffer(); accTex ??= gl.createTexture(); accDepth ??= gl.createRenderbuffer();
+      gl.activeTexture(gl.TEXTURE0 + ACC_UNIT);
+      gl.bindTexture(gl.TEXTURE_2D, accTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.HALF_FLOAT, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.bindRenderbuffer(gl.RENDERBUFFER, accDepth);
+      gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, w, h);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, accFbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, accTex, 0);
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, accDepth);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      return accFbo;
+    }
+    // 3D discs (the Sun's path, the Oort Cloud, the Milky Way): positions come
+    // from a buffer, already placed on the current distance scale; they turn
+    // with the cloud
+    const discProg = hasDepth ? link(`#version 300 es
+      layout(location = 0) in vec3 pos;
+      uniform mat4 viewProj;
+      uniform float spinA;
+      void main() {
+        float cs = cos(spinA), sn = sin(spinA);
+        gl_Position = viewProj * vec4(cs * pos.x + sn * pos.z, pos.y, -sn * pos.x + cs * pos.z, 1.0);
+      }`, `#version 300 es
+      precision highp float;
+      uniform vec3 col;
+      out vec4 o;
+      void main() { o = vec4(col, max(col.r, max(col.g, col.b))); }`) : null;
+    const discVAO = gl.createVertexArray(), discBuf = gl.createBuffer();
+    gl.bindVertexArray(discVAO);
+    gl.bindBuffer(gl.ARRAY_BUFFER, discBuf);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+    const pointVAO = gl.createVertexArray();
+    gl.bindVertexArray(pointVAO);
+
+    // textures: packs on units 0…P-1, depth on unit P, catalogued-source depth
+    // on P+1 and P+2 (radio); nearest-pixel: each holds one source's distance, never a blend
+    // Earth's and the Sun's own bands (Cloud only)
+    const OBJ = hasDepth ? await Promise.all(["earth-spectrum", "sun-spectrum"].map(async (dir) =>
+      ({ dir, meta: await (await fetch(`./${dir}/bands.json`)).json() }))) : [];
+    const progs = [quad, cloud, earthGlobe, sunDisc, sunFlat].filter(Boolean);
+    const loadTex = (src, unit, mip, nearest) => new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        gl.activeTexture(gl.TEXTURE0 + unit);
+        gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB8, gl.RGB, gl.UNSIGNED_BYTE, img);
+        if (mip) gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mip ? gl.LINEAR_MIPMAP_LINEAR : nearest ? gl.NEAREST : gl.LINEAR);
+        if (nearest) gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, T.wrap ? gl.REPEAT : gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        resolve();
+      };
+      img.src = src;
+    });
+    let loaded = 0;
+    await Promise.all([
+      ...meta.packs.map((f, i) => loadTex(`./${T.dir}/${f}`, i, true).then(() => (status.textContent = `Loading maps… ${++loaded} of ${P}`))),
+      hasDepth ? loadTex(`./${T.dir}/${meta.depth}`, P, false) : Promise.resolve(),
+      hasDepth && meta.sourceDepth ? loadTex(`./${T.dir}/${meta.sourceDepth}`, P + 1, false, true) : Promise.resolve(),
+      hasDepth && meta.radioDepth ? loadTex(`./${T.dir}/${meta.radioDepth}`, P + 2, false, true) : Promise.resolve(),
+      hasDepth && meta.cmb ? loadTex(`./${T.dir}/${meta.cmb}`, P + 3, false) : Promise.resolve(),
+      hasDepth && meta.depthQuantiles ? loadTex(`./${T.dir}/${meta.depthQuantiles}`, P + 4, false) : Promise.resolve(),
+      ...(hasDepth ? OBJ.flatMap((ob, oi) => ob.meta.packs.map((f, i) => loadTex(`./${ob.dir}/${f}`, P + 5 + OBJ_PACKS * oi + i, true))) : []),
+    ]);
+    if (session.signal.aborted) return;
+    const BG_LEVEL = new Float32Array(P * 3), BG_SIGMA = new Float32Array(P * 3);
+    B.forEach((b, k) => { const bg = meta.background?.[b.id]; if (bg) { BG_LEVEL[k] = bg.level; BG_SIGMA[k] = bg.sigma; } });
+    const kinds = new Int32Array(P * 3).fill(5);
+    kinds.set(KINDS);
+    progs.forEach((p) => {
+      gl.useProgram(p);
+      meta.packs.forEach((_, i) => gl.uniform1i(gl.getUniformLocation(p, `p${i}`), i));
+      gl.uniform1i(gl.getUniformLocation(p, "depthMap"), hasDepth ? P : 0);
+      gl.uniform1i(gl.getUniformLocation(p, "sourceMap"), hasDepth && meta.sourceDepth ? P + 1 : 0);
+      gl.uniform1i(gl.getUniformLocation(p, "radioMap"), hasDepth && meta.radioDepth ? P + 2 : 0);
+      gl.uniform1i(gl.getUniformLocation(p, "cmbMap"), hasDepth && meta.cmb ? P + 3 : 0);
+      gl.uniform1i(gl.getUniformLocation(p, "depthQ"), hasDepth && meta.depthQuantiles ? P + 4 : 0);
+      gl.uniform1i(gl.getUniformLocation(p, "hasQ"), hasDepth && meta.depthQuantiles ? 1 : 0);
+      gl.uniform1fv(gl.getUniformLocation(p, "bgLevel"), BG_LEVEL);
+      gl.uniform1fv(gl.getUniformLocation(p, "bgSigma"), BG_SIGMA);
+      gl.uniform1iv(gl.getUniformLocation(p, "kind"), kinds);
+    });
+    [earthGlobe, sunDisc, sunFlat].forEach((p, i) => {
+      if (!p) return;
+      const oi = Math.min(i, 1);
+      gl.useProgram(p);
+      // unused samplers point at this object's first pack; their bands carry no weight
+      for (let i = 0; i < OBJ_PACKS; i++) gl.uniform1i(gl.getUniformLocation(p, `o${i}`), P + 5 + OBJ_PACKS * oi + Math.min(i, OBJ[oi].meta.packs.length - 1));
+    });
+    status.textContent = `${N} bands`;
+
+    // ---------- views ----------
+    const VIEW_ID = { Globe: 0, Inside: 1, Map: 2, Disc: 2, Cloud: 3 };
+    const viewBox = document.getElementById("views");
+    viewBox.innerHTML = "";
+    T.views.forEach((name) => {
+      const b = document.createElement("button");
+      b.textContent = name; b.dataset.mode = VIEW_ID[name];
+      on(b, "click", () => setMode(VIEW_ID[name]));
+      viewBox.appendChild(b);
+    });
+    viewBox.hidden = T.views.length < 2;
+    const STARTV = { 0: { yaw: Math.PI / 2, pitch: 0, zoom: 0.85 }, 1: { yaw: -Math.PI / 2, pitch: 0, zoom: 1 }, 2: { yaw: 0, pitch: 0, zoom: 1, panX: 0, panY: 0 }, 3: { yaw: 0.6, pitch: 0.35, zoom: 1.3 } };
+    const ZOOM = { 0: [0.3, 8], 1: [0.08, 2.5], 2: [1, 12], 3: [0.25, 60] };
+    let mode = VIEW_ID[T.views[0]], view = { ...STARTV[mode] }, spin = !matchMedia("(prefers-reduced-motion: reduce)").matches && !q.has("still");
+    function setMode(m) {
+      mode = m; view = { ...STARTV[m] };
+      radiusBox.hidden = m !== 3;
+      if (m !== 3) ringLabels.hidden = ringText.hidden = true;
+      viewBox.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.mode === m));
+      draw();
+    }
+    // Cloud radius scale (sky): custom axis, log from a chosen unit, or linear with
+    // a log zoom — each zoom step multiplies the scale, so the solar neighbourhood
+    // to the CMB is about 40 scroll notches
+    const LZ_MIN = 0, LZ_MAX = 10.7, R_NAMES = ["custom", "log", "linear"];
+    let rmode = Math.max(0, R_NAMES.indexOf(first ? q.get("radius") : "")), lz = LZ_MAX;
+    if (first && q.has("lz")) lz = Math.max(LZ_MIN, Math.min(LZ_MAX, +q.get("lz")));
+    const radiusBox = document.getElementById("radius"), unit = document.getElementById("unit");
+    // a link may set the unit below the slider's range (a bigger Earth, for icons)
+    if (first && q.has("unit")) { if (+q.get("unit") < +unit.min) unit.min = q.get("unit"); unit.value = q.get("unit"); }
+    const DOT = first && q.has("dot") ? Math.max(0.5, Math.min(6, +q.get("dot"))) : 1; // point size multiplier (?dot=)
+    const L_EARTH = Math.log10(6371 / 9.4607e12), L_SUN_R = Math.log10(696000 / 9.4607e12); // radii in log10 ly
+    const fmtScale = (L) => {
+      const ly = 10 ** L;
+      if (ly < 1e-8) return `${(+(ly * 9.4607e12).toPrecision(2)).toLocaleString("en-US")} km`;
+      if (ly < 1e-5) return `${+(ly / 7.355e-8).toPrecision(2)} R☉`;
+      if (ly < 0.05) return `${+(ly / 1.581e-5).toPrecision(2)} AU`;
+      return fmtLy(L);
+    };
+    function setRadius(m) {
+      rmode = m;
+      radiusBox.querySelectorAll("#rmodes button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.r === m));
+      document.getElementById("unitBox").hidden = m !== 1;
+      document.getElementById("linBox").hidden = m !== 2;
+      showScale(); draw();
+    }
+    function showScale() {
+      const lu = +unit.value;
+      document.getElementById("unitOut").textContent = `= ${fmtScale(lu)}${lu < L_EARTH ? " · Earth at the centre" : lu < L_SUN_R ? " · the Sun at the centre" : ""}`;
+      document.getElementById("linOut").textContent = fmtScale(lz);
+    }
+    radiusBox.querySelectorAll("#rmodes button").forEach((b) => on(b, "click", () => setRadius(+b.dataset.r)));
+    on(unit, "input", () => { showScale(); draw(); });
+    // brightness: linear (light adds up as it is) or log (lifted by "Lift faint")
+    const lift = document.getElementById("lift");
+    if (first && q.has("lift")) lift.value = q.get("lift");
+    let brightLog = first && q.get("bright") === "log"; // linear by default: the outer shell (CMB) reads as dots
+    function setBright(log) {
+      brightLog = log;
+      document.querySelectorAll("#bright button").forEach((b) => b.setAttribute("aria-pressed", (b.dataset.b === "log") === log));
+      document.getElementById("liftBox").hidden = !log;
+      draw();
+    }
+    document.querySelectorAll("#bright button").forEach((b) => on(b, "click", () => setBright(b.dataset.b === "log")));
+    on(lift, "input", () => draw());
+    // Linear "go to": glide the scale there, evenly in powers of ten
+    let glide = null;
+    document.querySelectorAll("#goto button").forEach((b) => on(b, "click", () => {
+      glide = { from: lz, to: +b.dataset.lz, t0: performance.now(), ms: 600 + 350 * Math.abs(+b.dataset.lz - lz) };
+    }));
+    const EXPLORE_FOOT = {
+      earth: "Earth from just outside, the sky behind it, both in the selector's light. Drag to turn, scroll or pinch to zoom; zoom out to leave for the universe.",
+      sun: "The Sun (SDO, ALMA and Nobeyama, 18 December 2015) in front of the sky, both in the selector's light. Drag to move across the sky.",
+      galaxy: "The Milky Way around us in 3D, to scale: every point at the distance its light comes from. Drag to turn, scroll or pinch to zoom.",
+      universe: "Everything in the selector's light by log distance: Earth in the middle, the cosmic microwave background at the edge. Drag to turn, scroll or pinch to zoom.",
+    };
+    let explore = null;
+    function markExplore() {
+      if (explore === null || !EXPLORE_FOOT[explore]) explore = mode === 1 ? "earth" : mode === 3 ? (rmode === 2 ? "galaxy" : "universe") : mode === 2 ? "sun" : null;
+      document.querySelectorAll("#explore button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.x === explore));
+      document.getElementById("options").hidden = !hasDepth;
+      if (hasDepth && explore) document.getElementById("foot").textContent = EXPLORE_FOOT[explore] + " Bands are evenly spaced on the bar, not to scale.";
+    }
+    function setExplore(x, quiet) {
+      explore = x; glide = null;
+      if (x === "earth") setMode(1);
+      else if (x === "sun") { setMode(2); view.zoom = 1; } // draw() raises it to fill the view
+      else if (x === "galaxy") { setMode(3); lz = 4.6; setRadius(2); }
+      else { setMode(3); if (+unit.value >= L_EARTH) unit.value = unit.min; setRadius(1); }
+      markExplore();
+      if (!quiet) draw();
+    }
+    document.querySelectorAll("#explore button").forEach((b) => on(b, "click", () => setExplore(b.dataset.x)));
+    // Cloud zoom at which Earth looks as big as in Inside at zoom zIn (and back)
+    const earthR = () => (L_EARTH - +unit.value) / (10.66 - +unit.value);
+    const zMatch = (z) => (3.2 * Math.tan(20 * Math.PI / 180) * Math.tan(EARTH_INSIDE)) / (earthR() * z);
+    function switchView(m, v) {
+      fade = { mode, view: { ...view }, spinA, t0: performance.now() };
+      mode = m; view = v;
+      explore = m === 3 ? "universe" : "earth"; markExplore();
+      radiusBox.hidden = m !== 3;
+      if (m !== 3) ringLabels.hidden = ringText.hidden = true;
+      viewBox.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.mode === m));
+      draw();
+    }
+    const zoomBy = (f) => {
+      if (mode === 3 && rmode === 2) glide = null;
+      if (mode === 3 && rmode === 2) { lz = Math.max(LZ_MIN, Math.min(LZ_MAX, lz - 4 * Math.log10(f))); showScale(); draw(); return; }
+      if (cloud && !fade && mode === 1 && f < 1 && view.zoom / f > ZOOM[1][1]) {
+        // out of Inside: the Cloud on the log scale with Earth at the centre
+        if (rmode !== 1 || +unit.value >= L_EARTH) { unit.value = unit.min; setRadius(1); }
+        spin = false; spinA = 0;
+        switchView(3, { yaw: view.yaw, pitch: -view.pitch, zoom: zMatch(ZOOM[1][1]) });
+        return;
+      }
+      if (cloud && !fade && mode === 3 && rmode === 1 && +unit.value < L_EARTH && f > 1 && view.zoom * f > 1.5 * zMatch(ZOOM[1][1])) {
+        // in on Earth: back to Inside, seen from the same side
+        spin = false;
+        const zIn = Math.max(ZOOM[1][0], (3.2 * Math.tan(20 * Math.PI / 180) * Math.tan(EARTH_INSIDE)) / (earthR() * view.zoom * f));
+        switchView(1, { yaw: view.yaw - spinA, pitch: -view.pitch, zoom: zIn });
+        return;
+      }
+      const [lo, hi] = ZOOM[mode]; view.zoom = Math.max(lo, Math.min(hi, mode === 1 ? view.zoom / f : view.zoom * f)); draw();
+    };
+    on(canvas, "wheel", (e) => { e.preventDefault(); zoomBy(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015))); }, { passive: false });
+    const pts = new Map();
+    let pinchD = 0;
+    on(canvas, "pointerdown", (e) => { canvas.setPointerCapture(e.pointerId); pts.set(e.pointerId, e); spin = false; });
+    on(canvas, "pointermove", (e) => {
+      const prev = pts.get(e.pointerId);
+      if (!prev) return;
+      pts.set(e.pointerId, e);
+      if (pts.size === 2) {
+        const [a, b] = [...pts.values()], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        if (pinchD) zoomBy(d / pinchD);
+        pinchD = d; return;
+      }
+      const rr = canvas.getBoundingClientRect();
+      const ddx = e.clientX - prev.clientX, ddy = e.clientY - prev.clientY;
+      if (mode === 2) {
+        const sc = Math.min(rr.width / (meta.width / meta.height), rr.height) * view.zoom;
+        if (T.wrap) view.yaw += ddx / (sc * (meta.width / meta.height)); else view.panX += ddx / sc;
+        view.panY -= ddy / sc;
+      } else {
+        const k = (mode === 1 ? 2 * view.zoom : 2 / view.zoom) / rr.height;
+        if (mode === 3) { view.yaw -= ddx * k * view.zoom; view.pitch = Math.max(-1.5, Math.min(1.5, view.pitch + ddy * k * view.zoom)); }
+        else { view.yaw += (mode === 0 ? -ddx : ddx) * k; view.pitch = Math.max(-1.55, Math.min(1.55, view.pitch + (mode === 0 ? -ddy : ddy) * k)); }
+      }
+      draw();
+    });
+    const up = (e) => { pts.delete(e.pointerId); pinchD = 0; };
+    on(canvas, "pointerup", up); on(canvas, "pointercancel", up);
+
+    // galactic → equatorial (the transpose of the ICRS → galactic rotation),
+    // laid out column by column for uniformMatrix3fv
+    const GAL_TO_EQ = new Float32Array([
+      -0.0548755604, -0.8734370902, -0.4838350155,
+      0.4941094279, -0.4448296300, 0.7469822445,
+      -0.8676661490, -0.1980763734, 0.4559837762,
+    ]);
+    // Earth's turn (sidereal angle) for the moment the page opened
+    const GMST = 2 * Math.PI * ((0.779057273264 + 1.00273781191135448 * (Date.now() / 864e5 + 2440587.5 - 2451545.0)) % 1);
+    const L_SUN = Math.log10(696000 / 9.4607e12);
+    const KM = (x) => Math.log10(x / 9.4607e12), AU = (x) => Math.log10(x * 1.5813e-5), LYL = (x) => Math.log10(x);
+    // unit circles behind the cloud: one at every power of ten of light years,
+    // these labelled [log10 ly, label, rank: 1 is kept first where labels overlap]
+    const LS = 299792.458;
+    const UNITS = [
+      [KM(1000), "1,000 km", 2], [KM(1e4), "10,000 km", 3], [KM(1e5), "100,000 km", 3], [KM(LS), "1 light-second", 1],
+      [KM(60 * LS), "1 light-minute", 1], [KM(3600 * LS), "1 light-hour", 1], [KM(86400 * LS), "1 light-day", 2], [KM(30 * 86400 * LS), "1 light-month", 3],
+      [0, "1 ly", 1], [1, "10 ly", 2], [2, "100 ly", 1], [3, "1,000 ly", 2], [4, "10,000 ly", 1], [5, "100,000 ly", 2],
+      [6, "1 million ly", 1], [7, "10 million ly", 2], [8, "100 million ly", 1], [9, "1 billion ly", 2], [10, "10 billion ly", 1],
+    ];
+    // planes in cloud coordinates (cloud d = galactic (x, z, −y)); the ecliptic
+    // pole is at galactic l 96.38°, b 29.81°
+    const toCloud = (l, b) => { const r = Math.PI / 180; return [Math.cos(b * r) * Math.cos(l * r), Math.sin(b * r), -Math.cos(b * r) * Math.sin(l * r)]; };
+    const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+    const norm = (a) => { const l = Math.hypot(...a); return a.map((x) => x / l); };
+    const eclN = toCloud(96.38, 29.81), eclX = norm(cross([0, 1, 0], eclN)), eclY = cross(eclN, eclX);
+    const PLANES = { gal: [[1, 0, 0], [0, 0, 1]], ecl: [eclX, eclY] };
+    const ringLabels = document.getElementById("rings"), ringsOn = document.getElementById("ringsOn");
+    if (first && (q.get("rings") === "0" || (q.get("embed") === "1" && q.get("rings") !== "1"))) ringsOn.checked = false; // too busy when small
+    on(ringsOn, "change", () => draw());
+    // radius of a log distance in the current scale, or null when off the chart
+    function radiusOf(L) {
+      if (rmode === 0) return L < 2 ? null : L <= 4.8 ? 0.8 * (L - 2) / 2.8 : 0.8 + 0.2 * Math.min(1, (L - 4.8) / (10.66 - 4.8));
+      if (rmode === 1) { const lu = +unit.value; return L < lu ? null : (L - lu) / (10.66 - lu); }
+      const r = 10 ** (L - lz);
+      return r > 2.6 || r < 0.004 ? null : r;
+    }
+    const ringText = document.getElementById("ringText");
+    const MW = { gc: 26700, edge: 50000 }; // ly: distance to the Galactic Centre, disc radius
+    const GC_DIR = toCloud(0, 0);
+    // a point at log distance L in cloud direction dir, on the current scale (or null)
+    const placeAt = (dir, L) => { const r = radiusOf(L); return r === null ? null : dir.map((x) => x * r); };
+    // the discs: [name, triangles, outline] in cloud coordinates
+    function discs() {
+      const N = 120, out = [];
+      const [ex, ey] = PLANES.ecl;
+      const ecl = (a) => [0, 1, 2].map((i) => Math.cos(a) * ex[i] + Math.sin(a) * ey[i]);
+      // centred on us, between log distances L0 (or the centre) and L1
+      const ring = (name, L0, L1) => {
+        const r1 = radiusOf(L1);
+        if (r1 === null) return;
+        const r0 = L0 === null ? 0 : radiusOf(L0) ?? 0, tri = [], edge = [];
+        for (let k = 0; k < N; k++) {
+          const a = ecl((2 * Math.PI * k) / N), b = ecl((2 * Math.PI * (k + 1)) / N);
+          const ai = a.map((x) => x * r0), ao = a.map((x) => x * r1), bi = b.map((x) => x * r0), bo = b.map((x) => x * r1);
+          tri.push(...ai, ...ao, ...bo, ...ai, ...bo, ...bi);
+          edge.push(...ao);
+        }
+        out.push({ name, tri, edge, rOut: r1 });
+      };
+      ring("the Sun's path · 1 AU", null, AU(1));
+      ring("Oort Cloud", AU(2000), AU(1e5));
+      // the Milky Way: a circle of radius MW.edge around the Galactic Centre,
+      // each edge point at its own direction and log distance from us
+      const pts = [];
+      for (let k = 0; k < N; k++) {
+        const a = (2 * Math.PI * k) / N;
+        const gx = MW.gc + MW.edge * Math.cos(a), gy = MW.edge * Math.sin(a), d = Math.hypot(gx, gy);
+        const p = placeAt([gx / d, 0, -gy / d], Math.log10(d));
+        if (!p) return out;
+        pts.push(p);
+      }
+      // we are inside it: a fan from the centre out to its edge
+      const tri = [], edge = pts.flat(), rOut = Math.max(...pts.map((p) => Math.hypot(...p)));
+      pts.forEach((p, k) => tri.push(0, 0, 0, ...p, ...pts[(k + 1) % N]));
+      out.push({ name: "Milky Way", tri, edge, rOut, gc: placeAt(GC_DIR, Math.log10(MW.gc)) });
+      return out;
+    }
+    function drawRings(VP, w, h, centre) {
+      ringLabels.hidden = ringText.hidden = !ringsOn.checked;
+      if (!ringsOn.checked) return;
+      const dpr = w / canvas.getBoundingClientRect().width, W_ = w / dpr, H_ = h / dpr;
+      const cx = W_ / 2, cy = H_ / 2, D = 3.2 / view.zoom, T = Math.tan(20 * Math.PI / 180);
+      const k = (H_ / 2) / T / D; // px per unit of radius, in the plane through the centre
+      // a sphere of radius r around the centre shows as a circle of this radius
+      const circleR = (r) => (r >= 0.98 * D ? null : (H_ / 2) * Math.tan(Math.asin(r / D)) / T);
+      const back = [], front = [], taken = [];
+      const free = (x, y, wd) => !taken.some((t) => Math.abs(t.y - y) < 13 && x < t.x + t.wd && t.x < x + wd);
+      for (let L = -10; L <= 10; L++) {
+        const r = radiusOf(L), R = r === null ? null : circleR(r);
+        if (R !== null && R > 3) back.push(`<circle cx="${cx}" cy="${cy}" r="${R.toFixed(1)}"/>`);
+      }
+      // labelled circles, along the upper-right diagonal
+      for (const [L, name] of [...UNITS].sort((a, b) => a[2] - b[2])) {
+        const r = radiusOf(L), R = r === null ? null : circleR(r);
+        if (R === null || R < 8) continue;
+        const x = cx + R * Math.SQRT1_2 + 3, y = cy - R * Math.SQRT1_2 - 3, wd = 6.4 * name.length + 8;
+        if (x + wd > W_ - 4 || y < 14 || !free(x, y, wd)) continue;
+        taken.push({ x, y, wd });
+        back.push(`<circle class="major" cx="${cx}" cy="${cy}" r="${R.toFixed(1)}"/>`);
+        front.push(`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}">${name}</text>`);
+      }
+      // the discs, where they are a sensible size on screen (fading at the ends)
+      const cs = Math.cos(spinA), sn = Math.sin(spinA);
+      const project = (p) => {
+        const x = cs * p[0] + sn * p[2], y = p[1], z = -sn * p[0] + cs * p[2];
+        const px = VP[0] * x + VP[4] * y + VP[8] * z + VP[12], py = VP[1] * x + VP[5] * y + VP[9] * z + VP[13], pw = VP[3] * x + VP[7] * y + VP[11] * z + VP[15];
+        return pw <= 0 ? null : [(px / pw * 0.5 + 0.5) * W_, (0.5 - py / pw * 0.5) * H_];
+      };
+      gl.useProgram(discProg);
+      gl.bindVertexArray(discVAO);
+      gl.bindBuffer(gl.ARRAY_BUFFER, discBuf);
+      const U = (n) => gl.getUniformLocation(discProg, n);
+      gl.uniformMatrix4fv(U("viewProj"), false, VP);
+      gl.uniform1f(U("spinA"), spinA);
+      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+      for (const d of discs()) {
+        const Rs = d.rOut * k, fade = Math.min(1, Math.max(0, Math.log2(Rs / 12)), Math.max(0, Math.log2((3 * H_) / Rs)));
+        if (fade <= 0) continue;
+        const col = d.name === "Milky Way" ? [0.16, 0.22, 0.34] : [0.34, 0.26, 0.12];
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(d.tri), gl.DYNAMIC_DRAW);
+        gl.uniform3fv(U("col"), col.map((x) => x * 0.22 * fade));
+        gl.drawArrays(gl.TRIANGLES, 0, d.tri.length / 3);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(d.edge), gl.DYNAMIC_DRAW);
+        gl.uniform3fv(U("col"), col.map((x) => x * 1.6 * fade));
+        gl.drawArrays(gl.LINE_LOOP, 0, d.edge.length / 3);
+        // its name at its right-most point
+        let best = null;
+        for (let i = 0; i < d.edge.length; i += 9) { const sp = project(d.edge.slice(i, i + 3)); if (sp && (!best || sp[0] > best[0])) best = sp; }
+        const wd = 6.4 * d.name.length + 8;
+        if (best && best[0] + wd < W_ - 4 && free(best[0] + 4, best[1], wd)) {
+          taken.push({ x: best[0] + 4, y: best[1], wd });
+          front.push(`<text class="ref" x="${(best[0] + 4).toFixed(1)}" y="${(best[1] + 4).toFixed(1)}" opacity="${fade.toFixed(2)}">${d.name}</text>`);
+        }
+        const g = d.gc && project(d.gc);
+        if (g) front.push(`<circle cx="${g[0].toFixed(1)}" cy="${g[1].toFixed(1)}" r="2.5" opacity="${fade.toFixed(2)}"/><text class="ref" x="${(g[0] - 5).toFixed(1)}" y="${(g[1] + 15).toFixed(1)}" text-anchor="end" opacity="${fade.toFixed(2)}">Galactic Centre</text>`);
+      }
+      gl.disable(gl.BLEND);
+      gl.bindVertexArray(pointVAO);
+      const svg = (body) => `<svg viewBox="0 0 ${W_.toFixed(0)} ${H_.toFixed(0)}">${body}</svg>`;
+      ringLabels.innerHTML = svg(back.join(""));
+      ringText.innerHTML = svg(front.join(""));
+    }
+    // Earth (0) or the Sun (1) at the centre, radius rO, about px pixels across
+    // on screen, through the current selector
+    // Earth's (0) or the Sun's (1) bands, weighted by the selector, for program p
+    function objUniforms(p, centre) {
+      const ob = OBJ[centre];
+      gl.useProgram(p);
+      const E = (n) => gl.getUniformLocation(p, n);
+      const pos = ob.spans ??= ob.meta.bands.map(barSpan);
+      const groups = ob.meta.bands.map((b) => (b.id === "lights" ? 1 : 0)); // left out below; it mustn't take a share
+      const pad = (x) => { const a = new Float32Array(OBJ_MAX); a.set(x); return a; };
+      gl.uniform1fv(E("oR"), pad(objWeights(pos, c - s, groups)));
+      gl.uniform1fv(E("oG"), pad(objWeights(pos, c, groups)));
+      gl.uniform1fv(E("oB"), pad(objWeights(pos, c + s, groups)));
+      gl.uniform1f(E("gain"), +exposure.value); gl.uniform1f(E("gam"), +contrast.value);
+      return E;
+    }
+    function drawCentre(centre, VP, w, h, rO, px, spinAngle) {
+      const p = centre === 0 ? earthGlobe : sunDisc, ob = OBJ[centre];
+      const E = objUniforms(p, centre);
+      gl.uniformMatrix4fv(E("viewProj"), false, VP);
+      gl.uniform2f(E("res"), w, h);
+      if (centre === 0) {
+        gl.uniformMatrix3fv(E("galToEq"), false, GAL_TO_EQ);
+        gl.uniform1f(E("rE"), rO); gl.uniform1f(E("spinA"), spinAngle); gl.uniform1f(E("gmst"), GMST);
+        gl.uniform1f(E("elod"), Math.max(0, Math.log2(2048 / Math.max(1, 3 * px))));
+        gl.uniform1fv(E("use"), Float32Array.from({ length: OBJ_MAX }, (_, k) => (ob.meta.bands[k] && ob.meta.bands[k].id !== "lights" ? 1 : 0)));
+      } else {
+        gl.uniform3fv(E("camR"), CAM.r); gl.uniform3fv(E("camU"), CAM.u); gl.uniform3fv(E("camF"), CAM.f);
+        gl.uniform1f(E("rS"), rO);
+        gl.uniform1f(E("slod"), Math.max(0, Math.log2(1024 / Math.max(1, 2.7 * px))));
+      }
+      over();
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      gl.disable(gl.BLEND);
+    }
+    // Inside: Earth floats at the centre of the view, the sky (at infinity)
+    // behind it. The camera sits behind Earth along the view direction, far
+    // enough that Earth spans EARTH_INSIDE radians in radius
+    const EARTH_INSIDE = 0.16;
+    function insideViewProj(w, h) {
+      const cp = Math.cos(view.pitch), sp = Math.sin(view.pitch), cy = Math.cos(view.yaw), sy = Math.sin(view.yaw);
+      const turn = ([x, y, z]) => { const y1 = cp * y - sp * z, z1 = sp * y + cp * z; return [cy * x + sy * z1, y1, -sy * x + cy * z1]; };
+      const f = turn([0, 0, -1]), u = turn([0, 1, 0]), r = turn([1, 0, 0]), D = 1 / Math.sin(EARTH_INSIDE);
+      const eye = f.map((x) => -x * D), dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+      const V = [r[0], u[0], -f[0], 0, r[1], u[1], -f[1], 0, r[2], u[2], -f[2], 0, -dot(r, eye), -dot(u, eye), dot(f, eye), 1];
+      const t = 1 / view.zoom, a = w / h, n = 0.05, fa = 100;
+      const Pm = [t / a, 0, 0, 0, 0, t, 0, 0, 0, 0, (fa + n) / (n - fa), -1, 0, 0, (2 * fa * n) / (n - fa), 0];
+      const M = new Float32Array(16);
+      for (let cc = 0; cc < 4; cc++) for (let rr = 0; rr < 4; rr++) { let sum = 0; for (let k = 0; k < 4; k++) sum += Pm[k * 4 + rr] * V[cc * 4 + k]; M[cc * 4 + rr] = sum; }
+      return M;
+    }
+    const CAM = { r: [1, 0, 0], u: [0, 1, 0], f: [0, 0, -1] };
+    function cloudViewProj(w, h) {
+      const dist = 3.2 / view.zoom, cp = Math.cos(view.pitch);
+      const eye = [dist * cp * Math.sin(view.yaw), dist * Math.sin(view.pitch), dist * cp * Math.cos(view.yaw)];
+      const f = eye.map((x) => -x / dist);
+      const sx = [-f[2], 0, f[0]]; // forward × up (0, 1, 0)
+      const sl = Math.hypot(...sx); sx.forEach((_, i) => (sx[i] /= sl));
+      const u = [sx[1] * f[2] - sx[2] * f[1], sx[2] * f[0] - sx[0] * f[2], sx[0] * f[1] - sx[1] * f[0]];
+      CAM.r = sx; CAM.u = u; CAM.f = f;
+      const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+      const V = [sx[0], u[0], -f[0], 0, sx[1], u[1], -f[1], 0, sx[2], u[2], -f[2], 0, -dot(sx, eye), -dot(u, eye), dot(f, eye), 1];
+      const t = 1 / Math.tan(20 * Math.PI / 180), a = w / h, n = 0.01, fa = 100;
+      const Pm = [t / a, 0, 0, 0, 0, t, 0, 0, 0, 0, (fa + n) / (n - fa), -1, 0, 0, (2 * fa * n) / (n - fa), 0];
+      const M = new Float32Array(16);
+      for (let cc = 0; cc < 4; cc++) for (let r = 0; r < 4; r++) { let sum = 0; for (let k = 0; k < 4; k++) sum += Pm[k * 4 + r] * V[cc * 4 + k]; M[cc * 4 + r] = sum; }
+      return M;
+    }
+    const exposure = document.getElementById("exposure"), contrast = document.getElementById("contrast");
+    on(exposure, "input", () => draw()); on(contrast, "input", () => draw());
+    let spinA = 0;
+    function common(p) {
+      const U = (n) => gl.getUniformLocation(p, n);
+      const pad = (x) => { const a = new Float32Array(P * 3); a.set(x); return a; };
+      gl.uniform1fv(U("wR"), pad(weights(c - s)));
+      gl.uniform1fv(U("wG"), pad(weights(c)));
+      gl.uniform1fv(U("wB"), pad(weights(c + s)));
+      gl.uniform1f(U("gain"), +exposure.value);
+      gl.uniform1f(U("gam"), +contrast.value);
+      gl.uniform1f(U("dLo"), dlo <= DMIN + 0.01 ? -99 : dlo);
+      gl.uniform1f(U("dHi"), dhi >= DMAX - 0.01 ? 99 : dhi);
+      gl.uniform1i(U("useDepth"), hasDepth ? 1 : 0);
+      gl.uniform1f(U("lonSign"), T.lonSign ?? 0);
+      return U;
+    }
+    // Inside ⇄ Cloud: zooming out of Inside past its widest view hands over to
+    // the Cloud (log scale, Earth at the centre) with Earth the same size and
+    // seen from the same side; zooming back in on Earth returns. The view being
+    // left is drawn over the new one, fading out.
+    const FADE_MS = 900;
+    let fade = null, fadeA = 1;
+    const over = () => { // opaque drawing, faded by fadeA
+      if (fadeA >= 1) { gl.disable(gl.BLEND); return; }
+      gl.enable(gl.BLEND); gl.blendColor(0, 0, 0, fadeA); gl.blendFunc(gl.CONSTANT_ALPHA, gl.ONE_MINUS_CONSTANT_ALPHA);
+    };
+    const additive = () => { // points and lines, faded by fadeA
+      gl.enable(gl.BLEND);
+      if (fadeA >= 1) gl.blendFunc(gl.ONE, gl.ONE);
+      else { gl.blendColor(0, 0, 0, fadeA); gl.blendFunc(gl.CONSTANT_ALPHA, gl.ONE); }
+    };
+    function draw() {
+      if (session.signal.aborted) return;
+      const r = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+      const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      gl.viewport(0, 0, w, h);
+      fadeA = 1;
+      renderMode(mode, w, h, dpr);
+      if (!fade) return;
+      const t = (performance.now() - fade.t0) / FADE_MS;
+      if (t >= 1) { fade = null; return; }
+      // the view being left, on top, fading out
+      const keep = [view, spinA];
+      [view, spinA] = [fade.view, fade.spinA];
+      fadeA = 1 - t * t * (3 - 2 * t);
+      renderMode(fade.mode, w, h, dpr);
+      [view, spinA] = keep;
+      fadeA = 1;
+      gl.disable(gl.BLEND);
+    }
+    function renderMode(mode, w, h, dpr) {
+      if (mode === 3 && cloud) {
+        gl.useProgram(cloud);
+        const U = common(cloud);
+        const VP = cloudViewProj(w, h);
+        gl.uniform1f(U("size"), DOT * Math.min(6 * dpr, Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom))));
+        // the same points crowd a small view, so each is dimmer there (down to
+        // 0.35×), keeping the shells dotted instead of summing to solid white
+        const small = Math.max(0.35, Math.min(1, Math.sqrt(w * h) / (700 * dpr)));
+        gl.uniform1f(U("dotGain"), small / (DOT * DOT));
+        gl.uniform1f(U("spinA"), spinA);
+        gl.uniform1i(U("rmode"), rmode);
+        // background points in proportion to the selector's weight on bands
+        // with a background (at most half, so the foreground keeps enough points)
+        const wsum = (k) => weights(c - s)[k] + weights(c)[k] + weights(c + s)[k];
+        let wc = 0, wall = 0;
+        KINDS.forEach((kd, k) => { const x = wsum(k); wall += x; if (kd === 3 || kd === 4 || BG_LEVEL[k] > 0) wc += x; });
+        gl.uniform1f(U("pCmb"), meta.cmb && wall > 0 ? 0.5 * wc / wall : 0);
+        gl.uniform1f(U("lu"), +unit.value);
+        gl.uniform1f(U("lz"), lz);
+        gl.uniformMatrix4fv(U("viewProj"), false, VP);
+        // into the light buffer at full strength; the fade (if any) applies when shown
+        const shownA = fadeA;
+        if (tonemap) { gl.bindFramebuffer(gl.FRAMEBUFFER, accTarget(w, h)); fadeA = 1; }
+        gl.clearColor(0, 0, 0, 0); gl.clear(fadeA < 1 ? gl.DEPTH_BUFFER_BIT : gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        // Earth or Sun first, writing depth, so the points behind are hidden
+        const lu = +unit.value, rOf = (L) => (L - lu) / (10.66 - lu);
+        const centre = rmode !== 1 ? null : lu < L_EARTH ? 0 : lu < L_SUN ? 1 : null;
+        gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.depthMask(true);
+        if (centre !== null) {
+          const rO = rOf(centre === 0 ? L_EARTH : L_SUN);
+          drawCentre(centre, VP, w, h, rO, rO * h * view.zoom / 3.2 / Math.tan(20 * Math.PI / 180), spinA);
+        }
+        gl.depthMask(false);
+        gl.useProgram(cloud);
+        additive();
+        gl.drawArrays(gl.POINTS, 0, CLOUD_N);
+        gl.disable(gl.BLEND); gl.disable(gl.DEPTH_TEST); gl.depthMask(true);
+        if (tonemap) {
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+          fadeA = shownA;
+          gl.useProgram(tonemap);
+          gl.activeTexture(gl.TEXTURE0 + ACC_UNIT);
+          gl.bindTexture(gl.TEXTURE_2D, accTex);
+          gl.uniform1i(gl.getUniformLocation(tonemap, "acc"), ACC_UNIT);
+          const v = brightLog ? +lift.value : 0;
+          gl.uniform1f(gl.getUniformLocation(tonemap, "lift"), v > 0 ? 10 ** (3 * v) - 1 : 0);
+          over();
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+          gl.disable(gl.BLEND);
+        }
+        // circles and discs are guides, not light: drawn after the tone map
+        if (shownA >= 1) drawRings(VP, w, h, centre);
+        return;
+      }
+      if (fadeA >= 1) ringLabels.hidden = ringText.hidden = true;
+      gl.useProgram(quad);
+      const U = common(quad);
+      const aspect = meta.width / meta.height;
+      // the Sun's sky fills the view, cropping the map's top and bottom or sides
+      if (mode === 2 && explore === "sun") {
+        view.zoom = Math.max(view.zoom, Math.max(w / aspect, h) / Math.min(w / aspect, h));
+        const lim = Math.max(0, 0.5 - 0.5 * h / (Math.min(w / aspect, h) * view.zoom));
+        view.panY = Math.max(-lim, Math.min(lim, view.panY ?? 0));
+      }
+      gl.uniform2f(U("res"), w, h);
+      gl.uniform1i(U("mode"), mode);
+      gl.uniform1f(U("yaw"), view.yaw); gl.uniform1f(U("pitch"), view.pitch); gl.uniform1f(U("zoom"), view.zoom);
+      gl.uniform1f(U("aspect"), aspect);
+      gl.uniform1f(U("panX"), view.panX ?? 0); gl.uniform1f(U("panY"), view.panY ?? 0);
+      // mip level from texels per screen pixel, so nothing shimmers
+      const pxPerTex = mode === 0 ? (view.zoom * h / 2) / (meta.width / (2 * Math.PI)) : mode === 1 ? (h / 2 / view.zoom) / (meta.width / (2 * Math.PI))
+        : (Math.min(w / aspect, h) * view.zoom * aspect) / meta.width;
+      gl.uniform1f(U("lod"), Math.max(0, -Math.log2(pxPerTex)));
+      over();
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      if (mode === 1 && earthGlobe) drawCentre(0, insideViewProj(w, h), w, h, 1, h * Math.tan(EARTH_INSIDE) / view.zoom, 0);
+      if (mode === 2 && explore === "sun" && sunFlat) {
+        const E = objUniforms(sunFlat, 1), rad = 0.26 * Math.min(w, h);
+        gl.uniform2f(E("cen"), w / 2, h / 2); gl.uniform1f(E("rad"), rad);
+        gl.uniform1f(E("slod"), Math.max(0, Math.log2(1024 / (2 * rad))));
+        gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        gl.disable(gl.BLEND);
+      }
+    }
+    let last = performance.now();
+    const tick = (now) => {
+      if (session.signal.aborted) return;
+      const dt = (now - last) / 1000; last = now;
+      if (spin && mode === 0) { view.yaw += dt * 0.08; draw(); }
+      if (spin && mode === 3) { spinA += dt * 0.06; draw(); }
+      else if (fade) draw();
+      if (glide) {
+        const t = Math.min(1, (now - glide.t0) / glide.ms), e = t * t * (3 - 2 * t);
+        lz = glide.from + (glide.to - glide.from) * e;
+        if (t >= 1) glide = null;
+        showScale(); draw();
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    on(window, "resize", () => { layoutSelector(); layoutDist(); draw(); });
+
+    if (first && q.has("view")) {
+      const want = q.get("view")[0].toUpperCase() + q.get("view").slice(1);
+      if (T.views.includes(want)) mode = VIEW_ID[want];
+    }
+    setMode(mode);
+    if (first && q.has("zoom")) { const [lo, hi] = ZOOM[mode]; view.zoom = Math.max(lo, Math.min(hi, +q.get("zoom"))); }
+    setRadius(rmode);
+    setBright(brightLog);
+    // Earth · Sun · Galaxy · Universe: the four ways in (an old ?view= link keeps its view)
+    if (hasDepth && !(first && q.has("view"))) setExplore(first && EXPLORE_FOOT[q.get("mode")] ? q.get("mode") : "earth", true);
+    else markExplore();
+    clamp(); layoutSelector(); layoutDist(); draw();
+    window.__stillDone = true;
+  }
+
+  document.querySelectorAll("#targets button").forEach((b) => b.addEventListener("click", () => boot(b.dataset.target, false)));
+  boot(TARGETS[q.get("target")] ? q.get("target") : "sky", true);
+})();
+</script>
+</body>
+</html>

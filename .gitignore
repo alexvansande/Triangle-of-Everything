@@ -1,5 +1,8 @@
 node_modules/
 dist/
+dist-device/
+dist-preview
+dist-explore
 .DS_Store
 *.local
 .env
@@ -19,6 +22,28 @@ scripts/**/*.pdf
 
 # Raw catalogue downloads for the dust layer (re-fetched by npm run build:dust)
 scripts/dust/.cache/
+# Raw downloads for the cosmic-onion sky layers (re-fetched by npm run build:sky-onion)
+scripts/sky/.cache/
 
 # Poster renders (scripts/poster.mjs output)
 posters/
+
+# Narration media: recordings and renders live outside git (iCloud).
+*.m4a
+*.wav
+*.mp3
+*.flac
+*.mp4
+# The exceptions: the shorts' audio and mix, so they play out of the box
+!public/narration/short-*/audio.m4a
+!public/narration/short-*/mix.m4a
+.narr-render-*/
+__pycache__/
+narration-frames/
+
+# rendered videos (local only; copies go to iCloud)
+output/
+video/photos/originals/*
+!video/photos/originals/meta.json
+dist-device
+!video/web/*.mp4

@@ -58,13 +58,17 @@ export const ICON_SLUG_MAP = {
 };
 // Icons that map to multiple objects (same icon, different slugs)
 export const ICON_MULTI_MAP = {
-  "void": ["bo-tes-void", "eridanus-supervoid", "kbc-void"],
+  "void": ["bootes-void", "eridanus-supervoid", "kbc-void"],
   "neutrino-tau": ["neutrino"],  // Neutrino (τ) — shares slug with μ
 };
 // Eager `?url` glob inlines the 130 icon URLs into the bundle as plain
 // strings — no per-icon JS wrapper chunk, no upfront image fetches. The
 // browser fetches each webp on demand the first time its <image> renders
 // (map-tile-style pop-in); a gentle warmup prefetches the rest after boot.
+// Objects drawn as a plain named dot even though an icon file exists: the dot's
+// position is the point (a Wolf-Rayet star is a stripped core, left of the
+// main sequence), and the painted icon hid it.
+const NO_ICON = new Set(["wolf-rayet"]);
 export const iconUrls = import.meta.glob("../content/icons/*.webp", { query: "?url", import: "default", eager: true });
 export const ICON_BY_SLUG = {};
 // How much of its square each picture covers (scripts/icon-coverage.mjs), by slug
@@ -75,7 +79,7 @@ for (const [path, url] of Object.entries(iconUrls)) {
     ICON_MULTI_MAP[iconFile].forEach(s => { ICON_BY_SLUG[s] = url; });
   } else {
     const slug = ICON_SLUG_MAP[iconFile] || iconFile;
-    ICON_BY_SLUG[slug] = url;
+    if (!NO_ICON.has(slug)) ICON_BY_SLUG[slug] = url;
   }
 }
 for (const [file, c] of Object.entries(iconCoverage)) {
@@ -97,7 +101,11 @@ for (const [file, entry] of Object.entries(iconResolutions)) {
     ].filter(v => v.url).sort((a,b) => a.width-b.width);
   }
 }
+// Videos: always the largest picture there is (grown pictures stay sharp).
+let _iconMaxRes = false;
+export function setIconMaxRes(on = true) { _iconMaxRes = on; }
 export function iconUrlForSize(slug, cssSize, dpr = globalThis.devicePixelRatio || 1) {
+  if (_iconMaxRes) return ICON_RESOLUTIONS_BY_SLUG[slug]?.at(-1)?.url || ICON_BY_SLUG[slug];
   return chooseIconResolution(ICON_RESOLUTIONS_BY_SLUG[slug], iconPixelRequirement(cssSize, dpr))?.url || ICON_BY_SLUG[slug];
 }
 

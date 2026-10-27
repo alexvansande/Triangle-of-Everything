@@ -1,0 +1,1 @@
+GeV gamma rays: a billion times more energetic than visible light. The Fermi telescope sees the sky glowing with them where cosmic rays strike interstellar gas, and in pinpoints from pulsars and from blazars, black-hole jets aimed almost straight at us.

@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Distance Cloud</title>
+<!--
+  Every object with a measured distance as one dot, in its true direction,
+  at a radius set by the log of its distance: Hipparcos and Gaia stars,
+  2MRS galaxies, Quaia quasars, the CMB as a faint outer sphere.
+  Build the points first:  npm run build:sky-points  (points.txt + points.json)
+  Then:  npm run dev  →  http://localhost:5173/tools/sky-points.html
+  The distance bar's window picks a range: dots inside light up, coloured
+  across the window (near = violet, far = red); the rest fade to ghosts.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
+<style>
+  /* One dark instrument: distance bar on top, the 3D cloud filling the rest. */
+  :root {
+    --sky: #000; --fg: #e9ecf5; --dim: #8f95ab; --line: rgba(205, 215, 255, 0.14); --panel: #0b0d15;
+    --display: "Instrument Serif", Georgia, serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  html, body { margin: 0; height: 100%; background: var(--sky); color: var(--fg); font: 13px/1.35 var(--body); }
+  body { display: flex; flex-direction: column; overflow: hidden; }
+  header { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 4px max(16px, env(safe-area-inset-left, 0px)); }
+  header h1 { margin: 0; font: 400 30px/1 var(--display); }
+  header p { margin: 0; color: var(--dim); }
+  .controls { margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .controls label { color: var(--dim); display: inline-flex; gap: 6px; align-items: center; }
+  .controls input[type=range] { width: 90px; accent-color: var(--fg); }
+  button, select { background: #191d2b; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; font: inherit; cursor: pointer; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+  #barwrap { padding: 4px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+  #bar { position: relative; height: 66px; user-select: none; touch-action: none; }
+  #track { position: absolute; left: 0; right: 0; top: 18px; height: 34px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  #hist { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .zone { position: absolute; top: 0; height: 16px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim);
+    border-left: 1px solid var(--line); padding-left: 4px; white-space: nowrap; overflow: hidden; }
+  .tick { position: absolute; top: 54px; font: 10.5px var(--mono); color: var(--dim); transform: translateX(-50%); white-space: nowrap; }
+  #win { position: absolute; top: 18px; height: 34px; border-radius: 6px; cursor: grab;
+    background: linear-gradient(90deg, rgba(150,80,255,0.35), rgba(60,120,255,0.35), rgba(40,220,200,0.35), rgba(120,255,60,0.35), rgba(255,220,40,0.35), rgba(255,60,40,0.35));
+    box-shadow: 0 0 0 1.5px rgba(255,255,255,0.8) inset; }
+  #win:active { cursor: grabbing; }
+  #win .grip { position: absolute; top: 0; bottom: 0; width: 14px; cursor: ew-resize; }
+  #win .grip::after { content: ""; position: absolute; top: 8px; bottom: 8px; left: 5px; width: 4px; border-radius: 2px; background: #fff; }
+  #win .grip.a { left: -7px; } #win .grip.b { right: -7px; }
+  #readout { height: 1.4em; padding: 4px 0; font: 11.5px/1.4 var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--fg); }
+  #readout span { color: var(--dim); }
+
+  #stage { flex: 1; min-height: 0; position: relative; }
+  #stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
+  #status { color: var(--dim); font-size: 12px; }
+  footer { padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); color: var(--dim); font-size: 11px; }
+  @media (max-width: 700px) { header h1 { font-size: 24px; } .controls { margin-left: 0; } .zone { font-size: 9px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Distance Cloud</h1>
+  <p>Every dot is an object with a measured distance. Drag the window to pick a range.</p>
+  <div class="controls">
+    <label>Colour <select id="colour"><option value="0">By distance</option><option value="1">Natural</option></select></label>
+    <label>Ghosts <input id="ghost" type="range" min="0" max="0.4" step="0.01" value="0.08"></label>
+    <label>Dots <input id="size" type="range" min="0.5" max="4" step="0.05" value="1.5"></label>
+    <label><input id="cmb" type="checkbox" checked> CMB</label>
+    <button id="spin">Pause spin</button>
+    <span id="status" role="status">Loading…</span>
+  </div>
+</header>
+<div id="barwrap">
+  <div id="bar">
+    <div id="zones"></div>
+    <div id="track"><canvas id="hist"></canvas></div>
+    <div id="win" tabindex="0" aria-label="Distance window: arrows move it, shift+arrows stretch it"><div class="grip a"></div><div class="grip b"></div></div>
+    <div id="ticks"></div>
+  </div>
+  <div id="readout"></div>
+</div>
+<div id="stage"></div>
+<footer>Radius = log₁₀ of distance (1 ly at the centre, the CMB's 46 billion ly at the edge). Gaia is sampled evenly per distance bin, so density shows where stars are, not how many. Galaxies and quasars at comoving distance.</footer>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const STILL = new URLSearchParams(location.search).has("still");
+const meta = await (await fetch("./sky-points/points.json")).json();
+// packed arrays, base64 text so any static host serves them
+const b64 = await (await fetch("./sky-points/points.txt")).text();
+const raw = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer;
+const N = meta.count;
+const dirs = new Int16Array(raw, meta.dir.offset, meta.dir.length);
+const logs = new Uint16Array(raw, meta.logd.offset, meta.logd.length);
+const aux = new Uint8Array(raw, meta.aux.offset, meta.aux.length);
+const types = new Uint8Array(raw, meta.type.offset, meta.type.length);
+const logOf = (i) => meta.logMin + (logs[i] / 65535) * (meta.logMax - meta.logMin);
+
+// ---------- distance scale: radius ∝ log10(ly), 10⁰ at the centre ----------
+const L0 = 0, L1 = 10.66, R = 6; // the CMB's 46 billion ly sits at R
+const ZONES = [
+  [0, "Sun's neighbourhood"], [2.5, "Milky Way"], [4.6, "(the gap)"], [7.3, "Galaxies"], [9.1, "Quasars"], [10.45, "CMB"],
+];
+
+// ---------- 3D ----------
+const stage = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+stage.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 200);
+camera.position.set(12, 8, 18); // far enough to frame the whole 46 Gly sphere
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.minDistance = 0.5;
+controls.maxDistance = 60;
+
+const geom = new THREE.BufferGeometry();
+geom.setAttribute("position", new THREE.BufferAttribute(new Float32Array(3 * N), 3)); // filled by the shader; keeps bounds sane
+geom.setAttribute("dir", new THREE.BufferAttribute(dirs, 3, true));
+geom.setAttribute("logn", new THREE.BufferAttribute(logs, 1, true));
+geom.setAttribute("aux", new THREE.BufferAttribute(aux, 1, true));
+geom.setAttribute("kind", new THREE.BufferAttribute(new Float32Array(types), 1));
+geom.boundingSphere = new THREE.Sphere(new THREE.Vector3(), R * 1.2);
+
+const uniforms = {
+  lo: { value: 2 }, hi: { value: 4.5 }, ghost: { value: 0.08 }, size: { value: 1.5 },
+  colourMode: { value: 0 }, dpr: { value: renderer.getPixelRatio() },
+  logMin: { value: meta.logMin }, logMax: { value: meta.logMax },
+};
+const pointsMat = new THREE.ShaderMaterial({
+  uniforms,
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  vertexShader: /* glsl */ `
+    attribute vec3 dir; attribute float logn, aux, kind;
+    uniform float lo, hi, ghost, size, colourMode, dpr, logMin, logMax;
+    varying vec3 vCol; varying float vA;
+    vec3 hue(float h) { // 0 = red … 0.75 = violet
+      return clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+    }
+    vec3 starColour(float a) { // BP−RP: blue-white → white → orange
+      float c = a * 4.0 - 0.4;
+      return mix(vec3(0.62, 0.74, 1.0), mix(vec3(1.0), vec3(1.0, 0.62, 0.32), clamp((c - 0.8) / 1.8, 0.0, 1.0)), clamp((c + 0.2) / 1.0, 0.0, 1.0));
+    }
+    void main() {
+      float L = mix(logMin, logMax, logn);
+      float r = ${R.toFixed(1)} * clamp((L - ${L0.toFixed(1)}) / ${(L1 - L0).toFixed(2)}, 0.0, 1.0);
+      vec4 mv = modelViewMatrix * vec4(normalize(dir) * r, 1.0);
+      gl_Position = projectionMatrix * mv;
+      float t = (L - lo) / max(hi - lo, 1e-3);
+      float inside = step(0.0, t) * step(t, 1.0);
+      if (colourMode < 0.5) vCol = hue(0.75 * (1.0 - clamp(t, 0.0, 1.0))); // near violet → far red
+      else vCol = kind < 1.5 ? starColour(aux) : kind < 2.5 ? vec3(1.0, 0.85, 0.6) : vec3(0.7, 0.85, 1.0);
+      vA = mix(ghost, 1.0, inside);
+      gl_PointSize = size * dpr * mix(0.7, 1.0, inside);
+    }`,
+  fragmentShader: /* glsl */ `
+    varying vec3 vCol; varying float vA;
+    void main() {
+      vec2 c = gl_PointCoord - 0.5;
+      float a = smoothstep(0.5, 0.2, length(c)) * vA;
+      if (a < 0.003) discard;
+      gl_FragColor = vec4(vCol * a, 1.0);
+    }`,
+});
+const cloud = new THREE.Points(geom, pointsMat);
+cloud.frustumCulled = false;
+const sky = new THREE.Group(); // spins; the cloud and CMB share it
+sky.add(cloud);
+scene.add(sky);
+
+// the Sun at the centre, and the CMB as a faint sphere at 46 billion ly
+const sunDot = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 8), new THREE.MeshBasicMaterial({ color: 0xfff1c4 }));
+sky.add(sunDot);
+const cmbTex = new THREE.TextureLoader().load("./sky-points/cmb.jpg");
+const cmbMat = new THREE.ShaderMaterial({
+  uniforms: { map: { value: cmbTex }, amt: { value: 0.22 } },
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+  vertexShader: `varying vec2 vUv; void main() { vUv = vec2(1.0 - uv.x, uv.y); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `uniform sampler2D map; uniform float amt; varying vec2 vUv;
+    void main() { gl_FragColor = vec4(texture2D(map, vUv).rgb * amt * (gl_FrontFacing ? 0.5 : 1.0), 1.0); }`,
+});
+const cmb = new THREE.Mesh(new THREE.SphereGeometry(R, 96, 48), cmbMat);
+sky.add(cmb);
+
+// ---------- distance bar ----------
+const bar = document.getElementById("bar"), win = document.getElementById("win");
+const xOf = (L) => ((L - L0) / (L1 - L0)) * bar.clientWidth;
+const LOf = (x) => L0 + (x / bar.clientWidth) * (L1 - L0);
+ZONES.forEach(([L, name], i) => {
+  const el = document.createElement("div");
+  el.className = "zone";
+  el.textContent = name;
+  el.dataset.l = L; el.dataset.r = ZONES[i + 1]?.[0] ?? L1;
+  document.getElementById("zones").appendChild(el);
+});
+const TICKS = [[0, "1 ly"], [2, "100 ly"], [4, "10k ly"], [6, "1M ly"], [8, "100M ly"], [10, "10G ly"]];
+TICKS.forEach(([L, t]) => {
+  const el = document.createElement("div");
+  el.className = "tick"; el.textContent = t; el.dataset.l = L;
+  document.getElementById("ticks").appendChild(el);
+});
+
+// histogram of objects per log-distance step, by type, drawn in the track
+const BINS = 160, hist = [0, 1, 2, 3].map(() => new Float32Array(BINS));
+for (let i = 0; i < N; i++) {
+  const b = Math.floor(((logOf(i) - L0) / (L1 - L0)) * BINS);
+  if (b >= 0 && b < BINS) hist[types[i]][b]++;
+}
+function drawHist() {
+  const c = document.getElementById("hist"), r = c.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+  c.width = r.width * dpr; c.height = r.height * dpr;
+  const g = c.getContext("2d");
+  g.scale(dpr, dpr);
+  const max = Math.max(...hist.flatMap((h) => [...h]));
+  const COL = ["#ffe0a8", "#ffe0a8", "#ffd27a", "#9fc4ff"];
+  hist.forEach((h, t) => {
+    g.fillStyle = COL[t]; g.globalAlpha = 0.45;
+    for (let b = 0; b < BINS; b++) {
+      if (!h[b]) continue;
+      const v = Math.sqrt(h[b] / max) * (r.height - 4);
+      g.fillRect((b / BINS) * r.width, r.height - v, r.width / BINS + 0.5, v);
+    }
+  });
+}
+
+let lo = 2, hi = 4.5;
+function fmtLy(L) {
+  const ly = 10 ** L;
+  for (const [f, u] of [[1e9, " billion ly"], [1e6, " million ly"], [1e3, ",000 ly"]]) if (ly >= f) return `${+(ly / f).toPrecision(2)}${u}`;
+  return `${+ly.toPrecision(2)} ly`;
+}
+function layout() {
+  win.style.left = `${xOf(lo)}px`;
+  win.style.width = `${Math.max(8, xOf(hi) - xOf(lo))}px`;
+  document.querySelectorAll(".zone").forEach((el) => {
+    el.style.left = `${xOf(+el.dataset.l)}px`; el.style.width = `${xOf(+el.dataset.r) - xOf(+el.dataset.l)}px`;
+  });
+  document.querySelectorAll(".tick").forEach((el) => (el.style.left = `${xOf(+el.dataset.l)}px`));
+  uniforms.lo.value = lo; uniforms.hi.value = hi;
+  // what's inside the window
+  const n = [0, 0, 0, 0];
+  for (let i = 0; i < N; i++) { const L = logOf(i); if (L >= lo && L <= hi) n[types[i]]++; }
+  const parts = [[n[0] + n[1], "stars"], [n[2], "galaxies"], [n[3], "quasars"]].filter(([k]) => k).map(([k, w]) => `${k.toLocaleString()} ${w}`);
+  document.getElementById("readout").innerHTML = `${fmtLy(lo)} – ${fmtLy(hi)} <span>· ${parts.join(" · ") || "nothing measured at these distances"}</span>`;
+}
+let drag = null;
+win.addEventListener("pointerdown", (e) => {
+  const g = e.target.closest(".grip");
+  drag = { x: e.clientX, lo, hi, mode: g ? (g.classList.contains("a") ? "a" : "b") : "move" };
+  win.setPointerCapture(e.pointerId); e.preventDefault();
+});
+win.addEventListener("pointermove", (e) => {
+  if (!drag) return;
+  const d = ((e.clientX - drag.x) / bar.clientWidth) * (L1 - L0);
+  if (drag.mode === "move") { const w = drag.hi - drag.lo; lo = Math.max(L0, Math.min(L1 - w, drag.lo + d)); hi = lo + w; }
+  else if (drag.mode === "a") lo = Math.max(L0, Math.min(hi - 0.05, drag.lo + d));
+  else hi = Math.min(L1, Math.max(lo + 0.05, drag.hi + d));
+  layout();
+});
+win.addEventListener("pointerup", () => (drag = null));
+win.addEventListener("keydown", (e) => {
+  const step = e.altKey ? 0.05 : 0.25, w = hi - lo;
+  if (e.key === "ArrowLeft") { if (e.shiftKey) hi = Math.max(lo + 0.05, hi - step); else { lo = Math.max(L0, lo - step); hi = lo + w; } }
+  else if (e.key === "ArrowRight") { if (e.shiftKey) hi = Math.min(L1, hi + step); else { hi = Math.min(L1, hi + step); lo = hi - w; } }
+  else return;
+  e.preventDefault(); layout();
+});
+// click the track to centre the window there
+document.getElementById("track").addEventListener("pointerdown", (e) => {
+  const w = hi - lo, L = LOf(e.clientX - bar.getBoundingClientRect().left);
+  lo = Math.max(L0, Math.min(L1 - w, L - w / 2)); hi = lo + w; layout();
+});
+
+// ---------- controls ----------
+document.getElementById("colour").onchange = (e) => (uniforms.colourMode.value = +e.target.value);
+document.getElementById("ghost").oninput = (e) => (uniforms.ghost.value = +e.target.value);
+document.getElementById("size").oninput = (e) => (uniforms.size.value = +e.target.value);
+document.getElementById("cmb").onchange = (e) => (cmb.visible = e.target.checked);
+let spinning = !STILL && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+const spinBtn = document.getElementById("spin");
+spinBtn.textContent = spinning ? "Pause spin" : "Spin";
+spinBtn.onclick = () => { spinning = !spinning; spinBtn.textContent = spinning ? "Pause spin" : "Spin"; };
+
+function resize() {
+  const r = stage.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false);
+  camera.aspect = r.width / r.height; camera.updateProjectionMatrix();
+  drawHist(); layout();
+}
+addEventListener("resize", resize);
+// ?lo=&hi= (log10 ly) start with another window
+const q = new URLSearchParams(location.search);
+if (q.has("lo")) lo = +q.get("lo");
+if (q.has("hi")) hi = +q.get("hi");
+resize();
+document.getElementById("status").textContent = `${N.toLocaleString()} objects`;
+
+const clock = new THREE.Clock();
+function frame() {
+  const dt = clock.getDelta();
+  if (spinning) sky.rotation.y += dt * 0.04;
+  controls.update();
+  renderer.render(scene, camera);
+}
+if (STILL) {
+  THREE.DefaultLoadingManager.onLoad = () => { frame(); window.__stillDone = true; };
+} else renderer.setAnimationLoop(frame);
+</script>
+</body>
+</html>

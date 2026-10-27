@@ -1,0 +1,151 @@
+{
+ "width": 1024,
+ "height": 1024,
+ "packs": [
+  "pack-0.jpg",
+  "pack-1.jpg",
+  "pack-2.jpg",
+  "pack-3.jpg"
+ ],
+ "target": "sun",
+ "date": "2015-12-18T02:44:33Z",
+ "start": {
+  "c": 3,
+  "s": 1.5
+ },
+ "frame": "Solar north up, 2.5″ per pixel",
+ "bands": [
+  {
+   "id": "norh",
+   "name": "Radio 17 GHz",
+   "wave": "1.76 cm",
+   "what": "upper chromosphere; active regions and filaments",
+   "source": "Nobeyama Radioheliograph",
+   "region": "Radio",
+   "empty": false,
+   "pack": 0,
+   "channel": 0
+  },
+  {
+   "id": "alma",
+   "name": "ALMA 1.25 mm",
+   "wave": "1.25 mm",
+   "what": "chromosphere temperature",
+   "source": "ALMA (ESO), Dec 2015",
+   "region": "Microwave",
+   "empty": false,
+   "pack": 0,
+   "channel": 1
+  },
+  {
+   "id": "hmi",
+   "name": "Visible 617 nm",
+   "wave": "617 nm",
+   "what": "photosphere: sunspots, limb darkening",
+   "source": "HMI continuum, SDO, 18 Dec 2015",
+   "region": "Visible",
+   "empty": false,
+   "pack": 0,
+   "channel": 2
+  },
+  {
+   "id": "a1700",
+   "name": "UV 1700 Å",
+   "wave": "170 nm",
+   "what": "top of the photosphere",
+   "source": "AIA 1700, SDO, 18 Dec 2015",
+   "region": "UV",
+   "empty": false,
+   "pack": 1,
+   "channel": 0
+  },
+  {
+   "id": "a1600",
+   "name": "UV 1600 Å",
+   "wave": "160 nm",
+   "what": "upper photosphere, transition region",
+   "source": "AIA 1600, SDO, 18 Dec 2015",
+   "region": "UV",
+   "empty": false,
+   "pack": 1,
+   "channel": 1
+  },
+  {
+   "id": "a335",
+   "name": "EUV 335 Å",
+   "wave": "33.5 nm",
+   "what": "active-region corona, 2.5 million °C",
+   "source": "AIA 335, SDO, 18 Dec 2015",
+   "region": "EUV",
+   "empty": false,
+   "pack": 1,
+   "channel": 2
+  },
+  {
+   "id": "a304",
+   "name": "EUV 304 Å",
+   "wave": "30.4 nm",
+   "what": "chromosphere, 50,000 °C",
+   "source": "AIA 304, SDO, 18 Dec 2015",
+   "region": "EUV",
+   "empty": false,
+   "pack": 2,
+   "channel": 0
+  },
+  {
+   "id": "a211",
+   "name": "EUV 211 Å",
+   "wave": "21.1 nm",
+   "what": "active-region corona, 2 million °C",
+   "source": "AIA 211, SDO, 18 Dec 2015",
+   "region": "EUV",
+   "empty": false,
+   "pack": 2,
+   "channel": 1
+  },
+  {
+   "id": "a193",
+   "name": "EUV 193 Å",
+   "wave": "19.3 nm",
+   "what": "corona 1.5 million °C, coronal holes",
+   "source": "AIA 193, SDO, 18 Dec 2015",
+   "region": "EUV",
+   "empty": false,
+   "pack": 2,
+   "channel": 2
+  },
+  {
+   "id": "a171",
+   "name": "EUV 171 Å",
+   "wave": "17.1 nm",
+   "what": "quiet corona 0.6 million °C, loops",
+   "source": "AIA 171, SDO, 18 Dec 2015",
+   "region": "EUV",
+   "empty": false,
+   "pack": 3,
+   "channel": 0
+  },
+  {
+   "id": "a131",
+   "name": "EUV 131 Å",
+   "wave": "13.1 nm",
+   "what": "flaring plasma, 10 million °C",
+   "source": "AIA 131, SDO, 18 Dec 2015",
+   "region": "EUV",
+   "empty": false,
+   "pack": 3,
+   "channel": 1
+  },
+  {
+   "id": "a094",
+   "name": "EUV 94 Å",
+   "wave": "9.4 nm",
+   "what": "hot corona, 6 million °C",
+   "source": "AIA 94, SDO, 18 Dec 2015",
+   "region": "EUV",
+   "empty": false,
+   "pack": 3,
+   "channel": 2
+  }
+ ]
+}

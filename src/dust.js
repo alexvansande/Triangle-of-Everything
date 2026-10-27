@@ -139,7 +139,7 @@ export function dustPictureCandidates(view) {
     const name=famous.label || _data.names[i], cat=sources[src[i]].cat;
     const size=view.iconSizeAt(r[i],name,cat), url=view.iconOf(name,size);
     if (url) candidates.push({i,name,url,rank:famous.rank,sx:view.px(r[i]),sy:view.py(m[i]),r:size/2,
-      imagePriority:view.imagePriorityOf?.(name,cat) ?? 1,blend:view.iconBlend?.(cat)});
+      imagePriority:view.imagePriorityOf?.(name,cat) ?? 1,room:size/2*(view.roomOf?.(name, cat) ?? 1),blend:view.iconBlend?.(cat)});
   }
   return candidates.sort((a,b)=>a.imagePriority-b.imagePriority || a.rank-b.rank || a.i-b.i);
 }
@@ -231,10 +231,18 @@ export function drawDust(layer, view, blockers, colorOf) {
   // (videos: view.fillPictures shows them without the names, packed by view.iconRoom)
   if ((view.labels || view.fillPictures) && view.iconOf) {
     const candidates = dustPictureCandidates(view);
-    const selected = priorityCircles(candidates, p=>p.r, view.iconRoom ?? ICON_ROOM, blockers.priorityCircles || []);
+    if (view.pictureChoice) {
+      // chosen by the map in one pass with the objects' pictures
+      for (const p of candidates) if (view.pictureChoice.has(p.i)) _priorityIcons.set(p.i, p);
+    } else {
+    const selected = priorityCircles(candidates, p=>p.room ?? p.r, view.iconRoom ?? ICON_ROOM, blockers.priorityCircles || []);
+    // a remembered picture still gives way to a picture showing now (pictures never overlap)
+    const showing = (blockers.priorityCircles || []).filter(o => o.imagePriority === -Infinity);
+    const overlapsShowing = p => showing.some(o => (p.sx-o.sx)**2 + (p.sy-o.sy)**2 < ((p.room ?? p.r)+o.r)**2);
     for (const p of candidates) {
       if (!_priorityIconDecisions.has(p.i)) _priorityIconDecisions.set(p.i, selected.has(p) && p.r*2 >= (view.iconMin ?? ICON_MIN));
-      if (_priorityIconDecisions.get(p.i)) _priorityIcons.set(p.i,p);
+      if (_priorityIconDecisions.get(p.i) && !overlapsShowing(p)) _priorityIcons.set(p.i,p);
+    }
     }
   }
   // Pictures a narration scene asks for by name (view.pictures): shown whatever
@@ -649,7 +657,9 @@ export function dustOfSrc(ids) {
 /** A catalogue dot by its shown name, where the map draws it: { r, m } or null. */
 export function dustByName(name) {
   if (!_data) return null;
-  const i = _data.names.indexOf(name);
+  let i = _data.names.indexOf(name);
+  // a named dot also answers to its label (the Bullet Cluster is "RXCJ0658.5-5556")
+  if (i < 0) for (const [j, f] of _data.fame) if (f.label === name) { i = j; break; }
   return i < 0 ? null : { r: _data.r[i], m: _data.m[i] };
 }
 

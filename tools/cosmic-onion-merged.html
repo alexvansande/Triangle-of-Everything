@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Onion</title>
+<!--
+  Distance onion and spectral onion merged: each shell is a distance range,
+  and inside it every map is tinted by its wavelength (gamma magenta, X-ray
+  blue, visible green, near/mid/far-infrared yellow to orange, microwave
+  red-orange, radio red: the rainbow extended past both ends), screen-blended. The shells are pre-blended RGB maps
+  (merged-1…6.jpg) so the page draws one sphere per shell.
+  Maps:  npm run build:sky-onion   (the merged shells build last)
+  Then:  npm run dev  →  http://localhost:5173/tools/cosmic-onion-merged.html
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+  /* One dark sky world: a full-bleed WebGL scene, title top-left, layer panel docked right (a drawer on phones). */
+  :root {
+    --sky: #000; --fg: #e9ecf5; --dim: #8f95ab; --panel: rgba(9, 11, 19, 0.8);
+    --line: rgba(205, 215, 255, 0.13); --control: #191d2b;
+    --display: "Instrument Serif", Georgia, serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: dark;
+  }
+  html, body { margin: 0; height: 100%; background: var(--sky); color: var(--fg);
+    font: 13px/1.35 var(--body); overflow: hidden; }
+  canvas { display: block; touch-action: none; }
+  #title { position: absolute; left: max(20px, env(safe-area-inset-left, 0px)); top: calc(14px + env(safe-area-inset-top, 0px));
+    pointer-events: none; max-width: calc(100% - 40px); }
+  #title h1 { margin: 0; font: 400 34px/1 var(--display); letter-spacing: 0.01em; text-wrap: balance; }
+  #title p { margin: 4px 0 0; color: var(--dim); }
+  #status { margin-top: 6px; color: var(--dim); font-size: 12px; font-variant-numeric: tabular-nums; }
+  #panel { position: absolute; right: max(12px, env(safe-area-inset-right, 0px)); top: calc(12px + env(safe-area-inset-top, 0px));
+    width: 300px; max-height: calc(100% - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; backdrop-filter: blur(6px); box-sizing: border-box; }
+  #panel h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); margin: 4px 0 8px; }
+  .layer { display: grid; grid-template-columns: 16px 1fr; gap: 2px 8px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .layer input[type=checkbox] { margin: 2px 0 0; accent-color: var(--c); }
+  .layer .name { font-weight: 600; color: var(--c); }
+  .layer .meta { grid-column: 2; color: var(--dim); font-size: 11.5px; }
+  .layer input[type=range] { grid-column: 2; width: 100%; accent-color: var(--c); height: 14px; margin: 2px 0 0; }
+  .row { display: flex; gap: 6px; align-items: center; margin: 6px 0; flex-wrap: wrap; }
+  .row label { color: var(--dim); }
+  button, select { background: var(--control); color: var(--fg); border: 1px solid var(--line); border-radius: 6px;
+    padding: 5px 9px; font: inherit; cursor: pointer; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  #toggle { display: none; position: absolute; right: max(12px, env(safe-area-inset-right, 0px));
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 2; }
+  .label { position: absolute; transform: translate(calc(-100% - 4px), -50%); white-space: nowrap; pointer-events: none;
+    font-size: 12px; font-weight: 600; text-align: right; line-height: 1.15;
+    text-shadow: 0 0 3px var(--sky), 0 0 6px var(--sky), 0 0 10px var(--sky); }
+  .label::after { content: ""; display: inline-block; width: 14px; height: 1px; background: currentColor;
+    vertical-align: middle; margin-left: 5px; opacity: 0.8; }
+  .label small { display: block; font-weight: 400; color: #c3c7d4; margin-right: 19px; font-size: 10.5px; }
+  body.log-radius .label small { display: none; } /* shells crowd at the rim in log mode */
+  .hint { color: var(--dim); font-size: 11px; }
+  .orbit-label { position: absolute; transform: translate(6px, -50%); pointer-events: none; white-space: nowrap;
+    font-size: 10.5px; text-shadow: 0 0 3px var(--sky), 0 0 6px var(--sky); }
+  .decade { position: absolute; transform: translate(8px, -50%); pointer-events: none; white-space: nowrap;
+    font-size: 10.5px; color: var(--dim); font-variant-numeric: tabular-nums; text-shadow: 0 0 3px var(--sky), 0 0 6px var(--sky); }
+  .decade::before { content: ""; display: inline-block; width: 8px; height: 1px; background: currentColor;
+    vertical-align: middle; margin-right: 4px; }
+  #spectrum { position: relative; height: 26px; margin: 2px 0 0; }
+  #spectrum .bar { position: absolute; left: 0; right: 0; top: 9px; height: 8px; border-radius: 4px;
+    background: linear-gradient(90deg, hsl(0 90% 62%), hsl(60 90% 62%), hsl(120 90% 62%), hsl(180 90% 62%), hsl(225 90% 62%), hsl(270 90% 62%)); }
+  #spectrum .tick { position: absolute; top: 5px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%;
+    border: 2px solid var(--sky); box-sizing: border-box; }
+  .bands { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 11px; margin-bottom: 8px; }
+  .scale { display: flex; justify-content: space-between; color: var(--dim); font-size: 11px; margin-bottom: 8px; }
+  .row label.check { color: var(--fg); display: inline-flex; gap: 5px; align-items: center; cursor: pointer; }
+  .row label.check input { margin: 0; accent-color: var(--fg); }
+  select:disabled { opacity: 0.45; cursor: default; }
+  .spread input { flex: 1; min-width: 0; accent-color: var(--fg); }
+  .spread output { width: 3.2em; text-align: right; color: var(--dim); font-variant-numeric: tabular-nums; }
+  #missing { position: absolute; inset: 0; display: none; place-items: center; text-align: center; color: var(--dim); }
+  body.still #panel, body.still #toggle, body.still #status { display: none; }
+  @media (max-width: 700px) {
+    #title h1 { font-size: 28px; }
+    #toggle { display: block; }
+    #panel { top: auto; bottom: 0; right: 0; left: 0; width: auto; max-height: 55%; border-radius: 12px 12px 0 0;
+      padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+      padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+    body:not(.panel-open) #panel { display: none; }
+    .label small { display: none; }
+    .label { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<div id="title">
+  <h1>The Deep Onion</h1>
+  <p>Shells by distance, colours by wavelength</p>
+  <div id="status" role="status">Loading sky maps…</div>
+</div>
+<button id="toggle" aria-controls="panel" aria-expanded="false">Layers</button>
+<div id="panel">
+  <div class="row">
+    <label class="check"><input id="cut-on" type="checkbox" checked> Cutaway</label>
+    <select id="cut" aria-label="Cutaway shape">
+      <option value="octant">Octant</option>
+      <option value="quarter">Quarter</option>
+      <option value="half">Half</option>
+    </select>
+    <label class="check"><input id="back" type="checkbox" checked> Back faces</label>
+  </div>
+  <div class="row">
+    <button id="spin">Pause spin</button>
+    <button id="labels">Hide labels</button>
+  </div>
+  <div class="row">
+    <label for="between">Between layers</label>
+    <select id="between">
+      <option value="0" selected>None</option>
+      <option value="1">1</option>
+      <option value="3">3</option>
+      <option value="7">7</option>
+    </select>
+  </div>
+  <div class="row spread">
+    <label for="surfaces">Surfaces</label>
+    <input id="surfaces" type="range" min="0" max="1" step="0.01" value="1">
+    <output id="surfaces-out" for="surfaces">100%</output>
+  </div>
+  <div class="row spread">
+    <label for="rays">Rays</label>
+    <input id="rays" type="range" min="0" max="2" step="0.01" value="1">
+    <output id="rays-out" for="rays">1.00</output>
+  </div>
+  <div class="row spread">
+    <label for="halo">Outer halo</label>
+    <input id="halo" type="range" min="0" max="4" step="0.05" value="2">
+    <output id="halo-out" for="halo">2 gaps</output>
+  </div>
+  <div class="row">
+    <label for="radius">Radius</label>
+    <select id="radius">
+      <option value="even">Even spacing</option>
+      <option value="log">Log distance (ly)</option>
+      <option value="sun">Log from the Sun (R☉)</option>
+      <option value="linear">Linear (billion ly)</option>
+    </select>
+  </div>
+  <div class="row spread" id="scale-row" hidden>
+    <label for="scale">Scale</label>
+    <input id="scale" type="range" min="-7.6" max="10.66" step="0.01" value="10.66" aria-label="Distance at the outer sphere (log ly)">
+    <output id="scale-out" for="scale">46 billion ly</output>
+  </div>
+  <div class="row" id="jump-row" hidden>
+    <label for="jump">Go to</label>
+    <select id="jump">
+      <option value="">…</option>
+      <option value="10.66">The universe (46 billion ly)</option>
+      <option value="9.3">Cosmic web (2 billion ly)</option>
+      <option value="5">Milky Way (100,000 ly)</option>
+      <option value="3">Our neighbourhood (1,000 ly)</option>
+      <option value="2.7">Nearby stars (500 ly)</option>
+      <option value="0.5">Oort Cloud (3 ly)</option>
+      <option value="-3.35">Outer planets (60 AU)</option>
+      <option value="-4.4">Inner planets (2.5 AU)</option>
+      <option value="-6.3">The Sun (10 R☉)</option>
+    </select>
+    <span class="hint">+ / − keys zoom</span>
+  </div>
+  <div class="row spread">
+    <label for="spread">Spread</label>
+    <input id="spread" type="range" min="0" max="1" step="0.01" value="1">
+    <output id="spread-out" for="spread">100%</output>
+  </div>
+  <h2>Colour = wavelength</h2>
+  <div id="spectrum" aria-hidden="true"><div class="bar"></div></div>
+  <div id="bands" class="bands"></div>
+  <h2>Shells, inside → out</h2>
+  <div id="layers"></div>
+</div>
+<div id="missing"><div>Sky maps not found.<br>Run <code>npm run build:sky-onion</code> first.</div></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const STILL = new URLSearchParams(location.search).has("still");
+if (STILL) document.body.classList.add("still");
+
+// Wavelength colours extend the rainbow past both ends: visible light keeps
+// its own colour (550 nm = green), longer waves run yellow → orange → red,
+// shorter ones blue → violet. Long → short, left → right on the bar.
+const BANDS = [
+  { name: "radio", hue: 0 }, { name: "microwave", hue: 12 }, { name: "far-IR", hue: 30 },
+  { name: "mid-IR", hue: 42 }, { name: "near-IR", hue: 55 }, { name: "visible", hue: 120 },
+  { name: "X-ray", hue: 225 }, { name: "gamma", hue: 270 },
+];
+const hsl = (h, l = 62) => `hsl(${h}, 90%, ${l}%)`; // commas: three.js parses only this form
+
+// Inside → out by distance. Each shell's map is pre-blended in colour;
+// `color` only tints its label, outline and edge.
+const LAYERS = [
+  { id: "merged-1", name: "Nearby stars", band: "under 330 ly · visible: 23,000 Hipparcos stars",
+    color: hsl(120), logLy: 2.52 },
+  { id: "merged-2", name: "Local Milky Way", band: "330–3,000 ly · visible: 57 million Gaia stars",
+    color: hsl(120), logLy: 3.48 },
+  { id: "merged-3", name: "The Galaxy", band: "3,000–30,000 ly · visible: 134 million Gaia stars; plus the whole-sky dust (far-IR), hydrogen (radio), hot gas (X-ray) and gamma rays, which come mostly from inside the Galaxy",
+    color: "hsl(0, 0%, 92%)", gain: 0.5, logLy: 4.48 }, // five maps blended: dim it so inner shells show
+  { id: "merged-4", name: "Galaxies", band: "30 million–1 billion ly · near-IR: 43,000 galaxies, 2MRS",
+    color: hsl(55), logLy: 9.0 },
+  { id: "merged-5", name: "Quasars", band: "1.4–24 billion ly (where they are now) · mid-IR selected: 756,000 quasars, Quaia",
+    color: hsl(42), logLy: 10.38 },
+  { id: "merged-6", name: "Cosmic microwave background", band: "46 billion ly · microwave: the oldest light, Planck",
+    color: hsl(12), logLy: 10.66 },
+];
+LAYERS.forEach((L) => {
+  L.meta = L.band;
+  Object.assign(L, { gain: L.gain ?? 1, gamma: 1, floor: 0, white: 1 });
+});
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+document.body.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 0.1, 400);
+camera.position.set(17.5, 8.5, 17.5);
+// back the camera off on tall, narrow screens so the whole sphere fits across
+function fitCamera() {
+  const d = 26.3 * Math.max(1, 0.95 / camera.aspect);
+  camera.position.setLength(d);
+}
+fitCamera();
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.minDistance = 4;
+controls.maxDistance = 60;
+
+// A shell is drawn in camera-independent "cut" space: anything inside the
+// cut wedge (an octant, quarter or half facing the start view) is discarded.
+const CUTS = { none: [9, 9, 9], octant: [0, 0, 0], quarter: [0, -9, 0], half: [0, -9, -9] };
+const cutUniform = { value: new THREE.Vector3(...CUTS.octant) };
+
+const vert = /* glsl */ `
+  varying vec2 vUv; varying vec3 vWorld; varying vec3 vNormal;
+  void main() {
+    // the maps are drawn as seen from inside (l grows to the left); seen
+    // from outside the sphere that is mirrored, so flip u
+    vUv = vec2(1.0 - uv.x, uv.y);
+    vec4 w = modelMatrix * vec4(position, 1.0);
+    vWorld = w.xyz;
+    vNormal = normalize(mat3(modelMatrix) * normal);
+    gl_Position = projectionMatrix * viewMatrix * w;
+  }`;
+const frag = /* glsl */ `
+  uniform sampler2D map; uniform vec3 tint; uniform vec3 cut;
+  uniform float gain, gamma, floorLevel, whiteLevel, opacity, surface, fadeBg;
+  varying vec2 vUv; varying vec3 vWorld; varying vec3 vNormal;
+  void main() {
+    // the cut wedge: every coordinate beyond its threshold
+    if (vWorld.x > cut.x && vWorld.y > cut.y && vWorld.z > cut.z) discard;
+    // the shell map is already coloured by wavelength
+    vec3 c = texture2D(map, vUv).rgb;
+    // faint rim so each shell's outline stays readable
+    vec3 V = normalize(cameraPosition - vWorld);
+    float rim = pow(1.0 - abs(dot(normalize(vNormal), V)), 4.0);
+    // screen blending needs colours inside 0…1
+    gl_FragColor = vec4(clamp((c * gain + tint * rim * 0.2) * opacity * surface * fadeBg, 0.0, 1.0), 1.0);
+  }`;
+
+// An in-between shell cross-fades from shell A's map (mixF = 0) to shell
+// B's (mixF = 1); `fade` dims the ones that run in from the centre or out
+// past the last shell. No rim: they're there for volume, not outline.
+const fragBetween = /* glsl */ `
+  uniform sampler2D mapA, mapB; uniform vec3 tintA, tintB, cut;
+  uniform vec4 levA, levB; // gain, gamma, floor, white
+  uniform float opA, opB, onA, onB, mixF, fade, weight;
+  varying vec2 vUv; varying vec3 vWorld;
+  void main() {
+    if (vWorld.x > cut.x && vWorld.y > cut.y && vWorld.z > cut.z) discard;
+    // coloured shell maps: cross-fade them as they are (levA.x = gain)
+    vec3 col = texture2D(mapA, vUv).rgb * levA.x * opA * onA * (1.0 - mixF)
+             + texture2D(mapB, vUv).rgb * levB.x * opB * onB * mixF;
+    gl_FragColor = vec4(clamp(col * fade * weight, 0.0, 1.0), 1.0);
+  }`;
+
+// every sphere hangs off one group, so the spin turns the maps while the
+// cut (in world space) stays put
+const globe = new THREE.Group();
+scene.add(globe);
+
+// "Surfaces" slider: fades every shell's own sphere (not the rays)
+const surfaceUniform = { value: 1 };
+
+const loader = new THREE.TextureLoader();
+const R0 = 1.6, DR = 0.8;
+const shells = [];
+let missing = 0;
+
+LAYERS.forEach((L, i) => {
+  const radius = R0 + DR * i;
+  const tex = loader.load(`./cosmic-onion/${L.id}.jpg`, undefined, undefined, () => {
+    if (++missing === LAYERS.length) document.getElementById("missing").style.display = "grid";
+  });
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const mat = new THREE.ShaderMaterial({
+    vertexShader: vert, fragmentShader: frag,
+    uniforms: {
+      map: { value: tex }, tint: { value: new THREE.Color(L.color) }, cut: cutUniform,
+      gain: { value: L.gain }, gamma: { value: L.gamma }, floorLevel: { value: L.floor },
+      whiteLevel: { value: L.white ?? 1 },
+      opacity: { value: 1 }, on: { value: 1 }, surface: surfaceUniform, fadeBg: { value: 1 },
+    },
+    side: THREE.DoubleSide,
+    transparent: true,
+    depthWrite: false,
+    // screen: result = src + dst·(1 − src), so overlaps brighten without clipping
+    blending: THREE.CustomBlending,
+    blendEquation: THREE.AddEquation,
+    blendSrc: THREE.OneFactor,
+    blendDst: THREE.OneMinusSrcColorFactor,
+  });
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 192, 96), mat);
+  // SphereGeometry puts u = 0.5 at +x; turn it so the Galactic Centre
+  // (map centre) faces the cut wedge's corner.
+  mesh.rotation.y = Math.PI / 4;
+  globe.add(mesh);
+
+  const label = document.createElement("div");
+  label.className = "label";
+  label.style.color = L.color;
+  label.innerHTML = `${L.name}<small>${L.band.split(" · ")[0]}</small>`;
+  document.body.appendChild(label);
+  shells.push({ L, mesh, mat, base: radius, even: radius, geomR: radius, radius, label,
+    levels: new THREE.Vector4(L.gain, L.gamma, L.floor, L.white ?? 1) });
+});
+
+// ---------- in-between shells ----------
+const SCREEN = {
+  transparent: true, depthWrite: false, blending: THREE.CustomBlending,
+  blendEquation: THREE.AddEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcColorFactor,
+};
+const unitSphere = new THREE.SphereGeometry(1, 128, 64);
+let between = [];
+function buildBetween(k) {
+  between.forEach((b) => { globe.remove(b.mesh); b.mat.dispose(); });
+  between = [];
+  // dimmer when there are more of them, so each gap glows about the same
+  const weight = 1.3 / (k + 1);
+  const n = shells.length;
+  // gaps: centre → first shell and each pair (k each), then the outer
+  // halo: HALO_N shells expanding past the last one and darkening
+  const HALO_N = 8;
+  for (let g = 0; g <= n; g++) {
+    const A = shells[Math.max(0, g - 1)], B = shells[Math.min(n - 1, g)];
+    const kind = g === 0 ? "in" : g === n ? "out" : "mid";
+    const count = kind === "out" ? HALO_N : k;
+    for (let j = 1; j <= count; j++) {
+      const f = j / (count + 1);
+      const mat = new THREE.ShaderMaterial({
+        vertexShader: vert, fragmentShader: fragBetween, ...SCREEN,
+        side: backBox.checked ? THREE.DoubleSide : THREE.FrontSide,
+        uniforms: {
+          mapA: A.mat.uniforms.map, mapB: B.mat.uniforms.map,
+          tintA: A.mat.uniforms.tint, tintB: B.mat.uniforms.tint, cut: cutUniform,
+          levA: { value: A.levels }, levB: { value: B.levels },
+          opA: A.mat.uniforms.opacity, opB: B.mat.uniforms.opacity,
+          onA: A.mat.uniforms.on, onB: B.mat.uniforms.on,
+          mixF: { value: kind === "mid" ? f : 0 },
+          fade: { value: kind === "in" ? f : kind === "out" ? Math.pow(1 - f, 1.2) : 1 },
+          weight: { value: kind === "out" ? 4 / (HALO_N + 1) : weight },
+        },
+      });
+      const mesh = new THREE.Mesh(unitSphere, mat);
+      mesh.rotation.y = Math.PI / 4;
+      globe.add(mesh);
+      between.push({ mesh, mat, A, B, f, kind });
+    }
+  }
+  placeBetween();
+}
+function placeBetween() {
+  between.forEach((b) => {
+    const r = b.kind === "in" ? b.A.radius * b.f
+      : b.kind === "out" ? b.A.radius + halo * DR * b.f
+      : b.A.radius + (b.B.radius - b.A.radius) * b.f;
+    b.mesh.scale.setScalar(Math.max(r, 0.01));
+    b.mesh.visible = (b.kind !== "out" || halo > 0) && !b.A.inBg && !b.B.inBg;
+  });
+}
+
+// ---------- rays: a ray-marched volume ----------
+// One sphere encloses everything; for each pixel the shader steps along the
+// view ray, and at each point emits the sky maps' colour in that direction,
+// cross-faded between the two shells either side of that radius (fading in
+// from the centre, and out over the halo past the last shell). Brightness
+// depends only on direction, so every bright pixel becomes a radial ray.
+const STEPS = innerWidth < 700 ? 48 : 96;
+const fragVolume = /* glsl */ `
+  uniform sampler2D m0, m1, m2, m3, m4, m5;
+  uniform float r[6];   // current shell radii
+  uniform float g[6];   // gain × brightness × on, per shell
+  uniform float rMax, haloLen, spin, density, rIn;
+  uniform vec3 cut;
+  varying vec3 vWorld;
+  // weight of shell i at radius x: a tent between its neighbours
+  float tent(float x, float lo, float mid, float hi) {
+    if (x <= lo || x >= hi) return 0.0;
+    return x < mid ? (x - lo) / max(mid - lo, 1e-4) : (hi - x) / max(hi - mid, 1e-4);
+  }
+  // squared: bright features become rays while the diffuse glow stays faint
+  vec3 tap(sampler2D m, vec2 uv) { vec3 c = textureLod(m, uv, 1.0).rgb; return c * c; }
+  void main() {
+    vec3 ro = cameraPosition, rd = normalize(vWorld - cameraPosition);
+    float b = dot(ro, rd), c = dot(ro, ro) - rMax * rMax, h = b * b - c;
+    if (h < 0.0) discard;
+    float t0 = max(-b - sqrt(h), 0.0), t1 = -b + sqrt(h);
+    float dt = (t1 - t0) / float(${STEPS});
+    vec3 acc = vec3(0.0);
+    float cs = cos(spin), sn = sin(spin);
+    for (int k = 0; k < ${STEPS}; k++) {
+      vec3 p = ro + rd * (t0 + (float(k) + 0.5) * dt);
+      if (p.x > cut.x && p.y > cut.y && p.z > cut.z) continue;
+      float x = length(p);
+      if (x < 1e-3) continue;
+      // into the maps' frame: undo the spin, then the same uv as the spheres
+      vec3 q = vec3(cs * p.x - sn * p.z, p.y, sn * p.x + cs * p.z) / x;
+      float phi = atan(q.z, -q.x);
+      vec2 uv = vec2(1.0 - fract(phi / 6.2831853), 1.0 - acos(clamp(q.y, -1.0, 1.0)) / 3.1415927);
+      float w;
+      w = tent(x, rIn, r[0], r[1]);                     if (w > 0.0) acc += w * g[0] * tap(m0, uv);
+      w = tent(x, r[0], r[1], r[2]);                    if (w > 0.0) acc += w * g[1] * tap(m1, uv);
+      w = tent(x, r[1], r[2], r[3]);                    if (w > 0.0) acc += w * g[2] * tap(m2, uv);
+      w = tent(x, r[2], r[3], r[4]);                    if (w > 0.0) acc += w * g[3] * tap(m3, uv);
+      w = tent(x, r[3], r[4], r[5]);                    if (w > 0.0) acc += w * g[4] * tap(m4, uv);
+      w = tent(x, r[4], r[5], r[5] + max(haloLen, 1e-3)); if (w > 0.0) acc += w * g[5] * tap(m5, uv);
+    }
+    gl_FragColor = vec4(clamp(acc * dt * density, 0.0, 1.0), 1.0);
+  }`;
+const volumeMat = new THREE.ShaderMaterial({
+  vertexShader: vert, fragmentShader: fragVolume, ...SCREEN, side: THREE.BackSide,
+  uniforms: {
+    ...Object.fromEntries(shells.map((s, i) => [`m${i}`, s.mat.uniforms.map])),
+    r: { value: new Array(6).fill(1) }, g: { value: new Array(6).fill(1) },
+    rMax: { value: 10 }, haloLen: { value: 1 }, rIn: { value: 0 }, spin: { value: 0 }, density: { value: 0.3 }, cut: cutUniform,
+  },
+});
+const volume = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 32), volumeMat);
+scene.add(volume);
+let rays = 1;
+function updateVolume() {
+  const u = volumeMat.uniforms;
+  shells.forEach((s, i) => {
+    u.r.value[i] = s.inBg ? BG : s.radius; // rays stop where the background begins
+    u.g.value[i] = s.inBg ? 0 : s.L.gain * s.mat.uniforms.opacity.value * s.mat.uniforms.on.value;
+  });
+  u.haloLen.value = halo * DR;
+  u.rMax.value = Math.min(shells[shells.length - 1].radius + halo * DR + 0.05, 1.2 * BG);
+  volume.scale.setScalar(u.rMax.value);
+  // the spheres sit at rotation π/4 inside the spinning globe
+  u.spin.value = globe.rotation.y + Math.PI / 4;
+  // rays brighten with path length, so keep them even when shells grow
+  const biggest = Math.max(...shells.filter((s) => !s.inBg && s.mesh.visible).map((s) => s.radius), OUTER);
+  u.density.value = 1.2 * rays * (OUTER / biggest);
+  // Sun mode: keep the solar system clear; rays start at the Oort Cloud's edge
+  u.rIn.value = radiusMode === "sun" ? ORBITS[ORBITS.length - 1].radius : 0;
+  volume.visible = rays > 0;
+}
+
+// a shell shows when its checkbox is on and the radius mode doesn't hide it
+// (linear mode hides the shells too small to be a pixel)
+function refreshShell(s) {
+  const on = s.userOn !== false && !s.modeHidden;
+  s.mesh.visible = s.edges.visible = on;
+  s.mat.uniforms.on.value = on ? 1 : 0;
+}
+
+// ---------- panel ----------
+const spectrum = document.getElementById("spectrum");
+const bandList = document.getElementById("bands");
+BANDS.forEach((b) => {
+  const tick = document.createElement("div");
+  tick.className = "tick";
+  tick.style.left = `${(100 * b.hue) / 270}%`;
+  tick.style.background = hsl(b.hue);
+  spectrum.appendChild(tick);
+  const name = document.createElement("span");
+  name.textContent = b.name;
+  name.style.color = hsl(b.hue, 70);
+  bandList.appendChild(name);
+});
+const list = document.getElementById("layers");
+shells.forEach((s) => {
+  const el = document.createElement("div");
+  el.className = "layer";
+  el.style.setProperty("--c", s.L.color);
+  el.innerHTML = `<input type="checkbox" checked><div class="name">${s.L.name}</div>
+    <div class="meta">${s.L.meta}</div><input type="range" min="0" max="2" step="0.01" value="1">`;
+  const [box, range] = el.querySelectorAll("input");
+  box.onchange = () => {
+    s.userOn = box.checked;
+    refreshShell(s);
+  };
+  range.oninput = () => { s.mat.uniforms.opacity.value = +range.value; };
+  list.appendChild(el);
+});
+// cutaway on/off keeps the chosen shape; back faces off draws only the
+// sky side of each shell that faces you
+const cutSelect = document.getElementById("cut");
+const cutOnBox = document.getElementById("cut-on");
+function applyCut() {
+  cutUniform.value.set(...CUTS[cutOnBox.checked ? cutSelect.value : "none"]);
+  cutSelect.disabled = !cutOnBox.checked;
+  buildEdges();
+}
+cutSelect.onchange = cutOnBox.onchange = applyCut;
+const backBox = document.getElementById("back");
+backBox.onchange = () => [...shells, ...between].forEach((s) => {
+  s.mat.side = backBox.checked ? THREE.DoubleSide : THREE.FrontSide;
+  s.mat.needsUpdate = true;
+});
+let spinning = !STILL && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+const spinBtn = document.getElementById("spin");
+if (!spinning) spinBtn.textContent = "Spin";
+const toggle = document.getElementById("toggle");
+toggle.onclick = () => {
+  const open = document.body.classList.toggle("panel-open");
+  toggle.setAttribute("aria-expanded", open);
+  toggle.textContent = open ? "Close" : "Layers";
+};
+const status = document.getElementById("status");
+THREE.DefaultLoadingManager.onProgress = (_, done, total) => {
+  status.textContent = done < total ? `Loading sky maps… ${done} of ${total}` : "Drag to turn · scroll or pinch to zoom";
+};
+spinBtn.onclick = () => { spinning = !spinning; spinBtn.textContent = spinning ? "Pause spin" : "Spin"; };
+let showLabels = true;
+const labelsBtn = document.getElementById("labels");
+labelsBtn.onclick = () => { showLabels = !showLabels; labelsBtn.textContent = showLabels ? "Hide labels" : "Show labels"; };
+
+// ---------- cut edges: where each shell meets the cut planes ----------
+// traced on a unit sphere and scaled to each shell, so the spread slider
+// only rescales them
+const edges = new THREE.Group();
+scene.add(edges);
+function buildEdges() {
+  edges.clear();
+  const c = cutUniform.value.toArray();
+  shells.forEach((s) => {
+    s.edges = new THREE.Group();
+    s.edges.scale.setScalar(s.radius);
+    s.edges.visible = s.mesh.visible;
+    edges.add(s.edges);
+    if (c[0] > 1) return;
+    const mat = new THREE.LineBasicMaterial({ color: s.L.color, transparent: true, opacity: 0.85 });
+    // for each cut plane (axis = 0), trace the circle and keep the part
+    // that borders the removed wedge
+    for (let axis = 0; axis < 3; axis++) {
+      if (c[axis] !== 0) continue;
+      let run = [];
+      for (let k = 0; k <= 360; k++) {
+        const a = (k * Math.PI) / 180, p = [0, 0, 0];
+        const [u, w] = [(axis + 1) % 3, (axis + 2) % 3];
+        p[u] = Math.cos(a);
+        p[w] = Math.sin(a);
+        const inside = p[u] >= c[u] - 1e-9 && p[w] >= c[w] - 1e-9;
+        if (inside) run.push(new THREE.Vector3(...p));
+        if ((!inside || k === 360) && run.length > 1) {
+          s.edges.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(run), mat));
+        }
+        if (!inside) run = [];
+      }
+    }
+  });
+}
+buildEdges();
+
+// ---------- spread: 1 = shells at their own radii, 0 = all on the outer sphere ----------
+const OUTER = R0 + DR * (LAYERS.length - 1);
+let spread = 1;
+// outer halo depth, in shell gaps (0 = off)
+let halo = 2;
+const surfacesInput = document.getElementById("surfaces");
+const surfacesOut = document.getElementById("surfaces-out");
+surfacesInput.oninput = () => {
+  surfaceUniform.value = +surfacesInput.value;
+  surfacesOut.value = `${Math.round(100 * surfaceUniform.value)}%`;
+};
+const raysInput = document.getElementById("rays");
+const raysOut = document.getElementById("rays-out");
+raysInput.oninput = () => {
+  rays = +raysInput.value;
+  raysOut.value = rays === 0 ? "off" : rays.toFixed(2);
+};
+const haloInput = document.getElementById("halo");
+const haloOut = document.getElementById("halo-out");
+haloInput.oninput = () => {
+  halo = +haloInput.value;
+  haloOut.value = halo === 0 ? "off" : `${+halo.toFixed(1)} gaps`;
+  placeBetween();
+};
+function setSpread(t) {
+  spread = t;
+  shells.forEach((s) => {
+    s.radius = OUTER - (OUTER - s.base) * t;
+    s.mesh.scale.setScalar(s.radius / s.geomR);
+    s.edges.scale.setScalar(s.radius);
+    s.edges.visible = s.mesh.visible;
+  });
+  spreadOut.value = `${Math.round(t * 100)}%`;
+  placeBetween();
+}
+const spreadInput = document.getElementById("spread");
+const spreadOut = document.getElementById("spread-out");
+spreadInput.oninput = () => setSpread(+spreadInput.value);
+// ---------- radius: even spacing, or log distance ----------
+// "log": each shell at log10 of its outer distance in ly; 1 ly (10⁰) at the
+// centre, the CMB (10¹⁰·⁶⁶ ly) on the outer sphere.
+// "sun": log10 of distance in solar radii, from 0.1 R☉ (10⁻¹) at the centre,
+// so the Sun's surface (10⁰ R☉) is a visible ball, out to the CMB at 10¹⁷·⁸ R☉.
+const LOG_MAX = LAYERS[LAYERS.length - 1].logLy;
+const LY_IN_RSUN = 7.1335; // log10(1 ly / 696,000 km)
+const AU_IN_RSUN = 2.3325; // log10(1 AU / 696,000 km)
+const SUN_MIN = -1, SUN_MAX = LOG_MAX + LY_IN_RSUN;
+const logRadius = (logLy) => (OUTER * logLy) / LOG_MAX;
+const sunRadius = (logRs) => (OUTER * (logRs - SUN_MIN)) / (SUN_MAX - SUN_MIN);
+let radiusMode = "even";
+const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+const pow10 = (d) => `10${String(d).split("").map((c) => SUP[c]).join("")}`;
+const decades = Array.from({ length: Math.floor(SUN_MAX) + 1 }, (_, d) => {
+  const el = document.createElement("div");
+  el.className = "decade";
+  document.body.appendChild(el);
+  return { d, el };
+});
+
+// the Sun: a plain ball of 1 R☉, only in "sun" mode
+const sun = new THREE.Mesh(new THREE.SphereGeometry(sunRadius(0), 64, 32),
+  new THREE.MeshBasicMaterial({ color: 0xfff1c4 }));
+sun.renderOrder = -1;
+sun.visible = false;
+scene.add(sun);
+
+// the ecliptic disc: planet orbits as log-radius circles, in the real
+// ecliptic plane (north ecliptic pole at l = 96.38°, b = 29.81°), turning
+// with the sky. Same galactic → sphere-local mapping as the maps' uv.
+const galToLocal = (l, b) => new THREE.Vector3(
+  Math.cos(b) * Math.cos(l), Math.sin(b), -Math.cos(b) * Math.sin(l));
+const ORBITS = [
+  { name: "Mercury", au: 0.387, color: "#b9b4ad" }, { name: "Venus", au: 0.723, color: "#f1d9a0" },
+  { name: "Earth", au: 1, color: "#6fb4ff" }, { name: "Mars", au: 1.524, color: "#ff8a5c" },
+  { name: "Jupiter", au: 5.203, color: "#e7c18f" }, { name: "Saturn", au: 9.537, color: "#f3dc95" },
+  { name: "Uranus", au: 19.19, color: "#9fe8f0" }, { name: "Neptune", au: 30.07, color: "#6f8dff" },
+  { name: "Kuiper Belt", au: 50, color: "#8f95ab", faint: true },
+  { name: "Heliopause", au: 120, color: "#8f95ab", faint: true },
+  { name: "Oort Cloud (inner)", au: 2000, color: "#6c7186", faint: true },
+  { name: "Oort Cloud (outer)", au: 100000, color: "#6c7186", faint: true },
+];
+const ecliptic = new THREE.Group();
+ecliptic.rotation.y = Math.PI / 4; // like every sphere inside the globe
+globe.add(ecliptic);
+const eclipticPlane = new THREE.Group();
+eclipticPlane.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0),
+  galToLocal(96.38 * Math.PI / 180, 29.81 * Math.PI / 180).normalize());
+ecliptic.add(eclipticPlane);
+ecliptic.visible = false;
+const circle = Array.from({ length: 257 }, (_, k) =>
+  new THREE.Vector3(Math.cos((k / 256) * 2 * Math.PI), 0, Math.sin((k / 256) * 2 * Math.PI)));
+const circleGeom = new THREE.BufferGeometry().setFromPoints(circle);
+ORBITS.forEach((o) => {
+  o.radius = sunRadius(Math.log10(o.au) + AU_IN_RSUN);
+  const line = new THREE.Line(circleGeom, new THREE.LineBasicMaterial({
+    color: o.color, transparent: true, opacity: o.faint ? 0.45 : 0.9 }));
+  line.scale.setScalar(o.radius);
+  o.line = line;
+  o.sunR = o.radius;
+  eclipticPlane.add(line);
+  o.label = document.createElement("div");
+  o.label.className = "orbit-label";
+  o.label.style.color = o.color;
+  o.label.textContent = o.name;
+  document.body.appendChild(o.label);
+});
+// a faint fill across the planets' part of the disc
+const discFill = new THREE.Mesh(
+  new THREE.RingGeometry(sunRadius(0), ORBITS[7].radius, 128, 1).rotateX(-Math.PI / 2),
+  new THREE.MeshBasicMaterial({ color: 0xffe6b0, transparent: true, opacity: 0.06,
+    side: THREE.DoubleSide, depthWrite: false }));
+eclipticPlane.add(discFill);
+
+// "linear": radius proportional to (comoving) distance, the CMB's 46 billion
+// ly on the outer sphere; anything under a thousandth of that is hidden
+// "linear": radius proportional to (comoving) distance. `viewLog` is log10 of
+// the distance (ly) that lands on the outer sphere: 46 billion ly normally;
+// pinch / scroll move it in log steps down to a few solar radii. Anything
+// bigger than the view is pushed, in order, onto a far background; anything
+// under a thousandth of it is hidden.
+let viewLog = LOG_MAX;
+let scaleZoom = false; // on whenever the radius mode is linear
+const AU_LOG_LY = -4.801, RSUN_LOG_LY = -LY_IN_RSUN;
+// past 1.5× the view a shell becomes background: it jumps out beyond the
+// camera (which never goes past 60) and stays in order there
+const BG = 1.5 * OUTER;
+const compress = (r) => (r <= BG ? r : Math.min(70 + 40 * Math.log10(r / BG), 320));
+const linRaw = (logLy) => OUTER * 10 ** (logLy - viewLog);
+const linRadius = (logLy) => compress(linRaw(logLy));
+// ticks at round distances that fit the current view
+const linTicks = Array.from({ length: 5 }, () => {
+  const el = document.createElement("div");
+  el.className = "decade";
+  document.body.appendChild(el);
+  return { r: 0, el, on: false };
+});
+function fmtLy(ly) {
+  const au = ly / 10 ** AU_LOG_LY;
+  if (au < 1000) return `${+au.toPrecision(3)} AU`;
+  for (const [f, u] of [[1e9, "billion ly"], [1e6, "million ly"], [1e3, "thousand ly"]]) {
+    if (ly >= f) return `${+(ly / f).toPrecision(3)} ${u}`;
+  }
+  return `${+ly.toPrecision(3)} ly`;
+}
+function updateLinTicks() {
+  const view = 10 ** viewLog, step0 = view / 4, mag = 10 ** Math.floor(Math.log10(step0));
+  const step = [1, 2, 5, 10].map((m) => m * mag).find((x) => x >= step0 * 0.8);
+  linTicks.forEach((t, i) => {
+    const ly = step * (i + 1);
+    t.on = ly < view * 0.98;
+    t.r = OUTER * ly / view;
+    t.el.textContent = fmtLy(ly);
+  });
+}
+function applyLinear() {
+  shells.forEach((s) => {
+    s.base = Math.max(linRadius(s.L.logLy), 0.01);
+    s.modeHidden = linRaw(s.L.logLy) < OUTER * 1e-3;
+    // background shells dim the further they lie beyond the view
+    const raw = linRaw(s.L.logLy);
+    s.mat.uniforms.fadeBg.value = raw <= BG ? 1 : Math.max(0.06, (BG / raw) ** 0.3);
+    s.inBg = raw > BG;
+    refreshShell(s);
+  });
+  // the solar system, to scale, once it's big enough to see
+  const show = scaleZoom;
+  const sunR = linRaw(RSUN_LOG_LY);
+  sun.visible = show && sunR > 0.004;
+  sun.scale.setScalar(Math.max(sunR, 1e-4) / sunRadius(0));
+  ecliptic.visible = show && linRaw(Math.log10(30) + AU_LOG_LY) > 0.01;
+  discFill.visible = false;
+  ORBITS.forEach((o) => {
+    o.radius = linRadius(Math.log10(o.au) + AU_LOG_LY);
+    o.line.scale.setScalar(o.radius);
+    const raw = linRaw(Math.log10(o.au) + AU_LOG_LY);
+    o.line.visible = raw > 0.02 && raw <= BG; // no giant rings round the camera
+  });
+  updateLinTicks();
+  scaleOut.value = `to ${fmtLy(10 ** viewLog)}`;
+}
+function setRadiusMode(mode) {
+  radiusMode = mode;
+  document.body.classList.toggle("log-radius", mode !== "even");
+  document.getElementById("scale-row").hidden = mode !== "linear";
+  // linear distances always zoom through scales (log steps); other modes move the camera
+  scaleZoom = mode === "linear";
+  document.getElementById("jump-row").hidden = !scaleZoom;
+  controls.enableZoom = !scaleZoom;
+  if (mode === "linear") {
+    applyLinear();
+  } else {
+    shells.forEach((s) => {
+      s.base = mode === "log" ? logRadius(s.L.logLy) : mode === "sun" ? sunRadius(s.L.logLy + LY_IN_RSUN) : s.even;
+      s.modeHidden = false;
+      s.inBg = false;
+      s.mat.uniforms.fadeBg.value = 1;
+      refreshShell(s);
+    });
+    sun.scale.setScalar(1);
+    sun.visible = ecliptic.visible = discFill.visible = mode === "sun";
+    ORBITS.forEach((o) => {
+      o.radius = o.sunR;
+      o.line.scale.setScalar(o.radius);
+      o.line.visible = true;
+    });
+  }
+  const unit = mode === "sun" ? "R☉" : "ly";
+  decades.forEach(({ d, el }) => (el.textContent = `${pow10(d)} ${unit}`));
+  setSpread(spread);
+}
+const scaleInput = document.getElementById("scale");
+const scaleOut = document.getElementById("scale-out");
+// a smooth glide to a target scale (Go to menu, + / − keys)
+let viewTarget = null;
+function glideTo(x) {
+  viewTarget = Math.min(LOG_MAX, Math.max(+scaleInput.min, x));
+}
+function stepGlide(dt) {
+  if (viewTarget === null) return;
+  const d = viewTarget - viewLog;
+  if (Math.abs(d) < 0.003) { setViewLog(viewTarget); viewTarget = null; return; }
+  setViewLog(viewLog + d * Math.min(1, dt * 2.2));
+}
+function setViewLog(x) {
+  viewLog = Math.min(LOG_MAX, Math.max(+scaleInput.min, x));
+  scaleInput.value = viewLog;
+  if (radiusMode === "linear") { applyLinear(); setSpread(spread); }
+}
+scaleInput.oninput = () => setViewLog(+scaleInput.value);
+// in linear mode the wheel / trackpad pinch / two-finger pinch rescale
+// the universe (log steps) instead of moving the camera
+renderer.domElement.addEventListener("wheel", (e) => {
+  if (!(radiusMode === "linear" && scaleZoom)) return;
+  e.preventDefault();
+  viewTarget = null;
+  setViewLog(viewLog + e.deltaY * (e.ctrlKey ? 0.04 : 0.004));
+}, { passive: false });
+const pinch = new Map();
+let pinchDist = 0;
+renderer.domElement.addEventListener("pointerdown", (e) => pinch.set(e.pointerId, e));
+renderer.domElement.addEventListener("pointermove", (e) => {
+  if (!pinch.has(e.pointerId)) return;
+  pinch.set(e.pointerId, e);
+  if (pinch.size !== 2 || !(radiusMode === "linear" && scaleZoom)) return;
+  const [a, b] = [...pinch.values()];
+  const dist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  if (pinchDist) { viewTarget = null; setViewLog(viewLog - 10 * Math.log10(dist / pinchDist)); }
+  pinchDist = dist;
+});
+const endPinch = (e) => { pinch.delete(e.pointerId); pinchDist = 0; };
+renderer.domElement.addEventListener("pointerup", endPinch);
+renderer.domElement.addEventListener("pointercancel", endPinch);
+const jumpSelect = document.getElementById("jump");
+jumpSelect.onchange = () => {
+  if (jumpSelect.value !== "") glideTo(+jumpSelect.value);
+  jumpSelect.value = "";
+};
+addEventListener("keydown", (e) => {
+  if (radiusMode !== "linear" || !scaleZoom || e.target.closest?.("input, select")) return;
+  if (e.key === "+" || e.key === "=") glideTo((viewTarget ?? viewLog) - 0.5);
+  if (e.key === "-" || e.key === "_") glideTo((viewTarget ?? viewLog) + 0.5);
+});
+const radiusSelect = document.getElementById("radius");
+radiusSelect.onchange = () => setRadiusMode(radiusSelect.value);
+const spreadParam = new URLSearchParams(location.search).get("spread");
+if (spreadParam !== null) spreadInput.value = spreadParam;
+setSpread(+spreadInput.value);
+// ?cut=off and ?back=off start with those switched off
+const startParams = new URLSearchParams(location.search);
+if (startParams.get("cut") === "off") { cutOnBox.checked = false; applyCut(); }
+if (startParams.get("back") === "off") { backBox.checked = false; backBox.onchange(); }
+// ?radius=log
+// ?scale=<log10 ly at the outer sphere> starts in linear mode at that scale
+if (startParams.has("scale")) {
+  viewLog = Math.min(LOG_MAX, +startParams.get("scale"));
+  scaleInput.value = viewLog;
+  if (!startParams.has("radius")) { radiusSelect.value = "linear"; setRadiusMode("linear"); }
+}
+if (["log", "sun", "linear"].includes(startParams.get("radius"))) {
+  radiusSelect.value = startParams.get("radius");
+  setRadiusMode(radiusSelect.value);
+}
+// ?surfaces=0…1 and ?rays=0…2
+for (const [key, input] of [["surfaces", surfacesInput], ["rays", raysInput]]) {
+  if (startParams.has(key)) { input.value = startParams.get(key); input.oninput(); }
+}
+// ?between=0|1|3|7
+const betweenSelect = document.getElementById("between");
+if (["0", "1", "3", "7"].includes(startParams.get("between"))) betweenSelect.value = startParams.get("between");
+betweenSelect.onchange = () => buildBetween(+betweenSelect.value);
+buildBetween(+betweenSelect.value);
+
+// ---------- labels: a ladder up the cut's vertical edge ----------
+const v = new THREE.Vector3();
+function placeLabels() {
+  const cutOn = cutUniform.value.x < 1;
+  shells.forEach((s) => {
+    // squeezed shells would stack their labels on one spot
+    const show = showLabels && s.mesh.visible && cutOn && spread >= 0.3 && !s.inBg;
+    s.label.style.display = show ? "block" : "none";
+    if (!show) return;
+    v.set(0, s.radius, 0).project(camera);
+    s.label.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
+    s.label.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
+  });
+  // decade ticks up the same edge, on the other side, only while the radii are true log distances
+  const showTicks = showLabels && cutOn && radiusMode !== "even" && radiusMode !== "linear" && spread > 0.999;
+  decades.forEach(({ d, el }) => {
+    const on = showTicks && (radiusMode === "sun" ? d % 2 === 0 : d <= LOG_MAX);
+    el.style.display = on ? "block" : "none";
+    if (!on) return;
+    v.set(0, radiusMode === "sun" ? sunRadius(d) : logRadius(d), 0).project(camera);
+    el.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
+    el.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
+  });
+  linTicks.forEach(({ r, el, on: fits }) => {
+    const on = fits && showLabels && cutOn && radiusMode === "linear" && spread > 0.999;
+    el.style.display = on ? "block" : "none";
+    if (!on) return;
+    v.set(0, r, 0).project(camera);
+    el.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
+    el.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
+  });
+  // planet names on their orbits, at a fixed point on the disc
+  ORBITS.forEach((o, i) => {
+    const on = showLabels && ecliptic.visible && o.line.visible;
+    o.label.style.display = on ? "block" : "none";
+    if (!on) return;
+    const a = 0.5 * i; // spread round the disc so names don't stack
+    v.set(Math.cos(a) * o.radius, 0, Math.sin(a) * o.radius);
+    eclipticPlane.localToWorld(v).project(camera);
+    o.label.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
+    o.label.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
+  });
+}
+
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  fitCamera();
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+const clock = new THREE.Clock();
+function frame() {
+  const dt = clock.getDelta();
+  if (spinning) globe.rotation.y += dt * 0.05;
+  stepGlide(dt);
+  updateVolume();
+  controls.update();
+  renderer.render(scene, camera);
+  placeLabels();
+}
+if (STILL) {
+  // poster mode: one frame once every map is in (?still&w=…&h=… for size)
+  THREE.DefaultLoadingManager.onLoad = () => {
+    frame();
+    window.__stillDone = true;
+  };
+} else {
+  renderer.setAnimationLoop(frame);
+}
+</script>
+</body>
+</html>

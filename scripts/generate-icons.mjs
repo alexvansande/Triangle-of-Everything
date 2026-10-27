@@ -248,7 +248,8 @@ const ICON_SPECS = [
 
   // === BLACK HOLES ===
   { slug: "sgr-a", prompt: PROMPTS.blackhole("Sagittarius A*") },
-  { slug: "m87", prompt: PROMPTS.blackhole("M87*, famous first black hole photograph style") },
+  // m87: not generated; content/icons/m87.webp is cropped from the real Event Horizon
+  // Telescope image (content/images/m87.webp, EHT Collaboration, CC BY 4.0)
   { slug: "ton-618", prompt: PROMPTS.blackhole("TON 618, ultramassive") },
   { slug: "smallest-primordial-bh", prompt: `Tiny primordial black hole, extremely small event horizon with faint Hawking radiation glow, ${GLOW_STYLE}` },
 

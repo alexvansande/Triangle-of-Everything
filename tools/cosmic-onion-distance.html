@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Distance Onion</title>
+<!--
+  The universe in six distance shells: each shell is a whole-sky map of
+  only what lies in its distance range, from stars within 330 light-years
+  to the cosmic microwave background. Each map is one brightness channel in
+  one colour, magenta (nearest) to red (farthest), screen-blended, with the
+  same controls as cosmic-onion-spectrum.html. Shell size is distance rank,
+  not to scale. Maps:  npm run build:sky-onion
+  Then:  npm run dev  →  http://localhost:5173/tools/cosmic-onion-distance.html
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+  /* One dark sky world: a full-bleed WebGL scene, title top-left, layer panel docked right (a drawer on phones). */
+  :root {
+    --sky: #000; --fg: #e9ecf5; --dim: #8f95ab; --panel: rgba(9, 11, 19, 0.8);
+    --line: rgba(205, 215, 255, 0.13); --control: #191d2b;
+    --display: "Instrument Serif", Georgia, serif;
+    --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: dark;
+  }
+  html, body { margin: 0; height: 100%; background: var(--sky); color: var(--fg);
+    font: 13px/1.35 var(--body); overflow: hidden; }
+  canvas { display: block; touch-action: none; }
+  #title { position: absolute; left: max(20px, env(safe-area-inset-left, 0px)); top: calc(14px + env(safe-area-inset-top, 0px));
+    pointer-events: none; max-width: calc(100% - 40px); }
+  #title h1 { margin: 0; font: 400 34px/1 var(--display); letter-spacing: 0.01em; text-wrap: balance; }
+  #title p { margin: 4px 0 0; color: var(--dim); }
+  #status { margin-top: 6px; color: var(--dim); font-size: 12px; font-variant-numeric: tabular-nums; }
+  #panel { position: absolute; right: max(12px, env(safe-area-inset-right, 0px)); top: calc(12px + env(safe-area-inset-top, 0px));
+    width: 300px; max-height: calc(100% - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; backdrop-filter: blur(6px); box-sizing: border-box; }
+  #panel h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dim); margin: 4px 0 8px; }
+  .layer { display: grid; grid-template-columns: 16px 1fr; gap: 2px 8px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .layer input[type=checkbox] { margin: 2px 0 0; accent-color: var(--c); }
+  .layer .name { font-weight: 600; color: var(--c); }
+  .layer .meta { grid-column: 2; color: var(--dim); font-size: 11.5px; }
+  .layer input[type=range] { grid-column: 2; width: 100%; accent-color: var(--c); height: 14px; margin: 2px 0 0; }
+  .row { display: flex; gap: 6px; align-items: center; margin: 6px 0; flex-wrap: wrap; }
+  .row label { color: var(--dim); }
+  button, select { background: var(--control); color: var(--fg); border: 1px solid var(--line); border-radius: 6px;
+    padding: 5px 9px; font: inherit; cursor: pointer; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  #toggle { display: none; position: absolute; right: max(12px, env(safe-area-inset-right, 0px));
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 2; }
+  .label { position: absolute; transform: translate(calc(-100% - 4px), -50%); white-space: nowrap; pointer-events: none;
+    font-size: 12px; font-weight: 600; text-align: right; line-height: 1.15;
+    text-shadow: 0 0 3px var(--sky), 0 0 6px var(--sky), 0 0 10px var(--sky); }
+  .label::after { content: ""; display: inline-block; width: 14px; height: 1px; background: currentColor;
+    vertical-align: middle; margin-left: 5px; opacity: 0.8; }
+  .label small { display: block; font-weight: 400; color: #c3c7d4; margin-right: 19px; font-size: 10.5px; }
+  #spectrum { position: relative; height: 26px; margin: 2px 0 0; }
+  #spectrum .bar { position: absolute; left: 0; right: 0; top: 9px; height: 8px; border-radius: 4px;
+    background: linear-gradient(90deg, hsl(0 90% 62%), hsl(60 90% 62%), hsl(120 90% 62%), hsl(180 90% 62%), hsl(240 90% 62%), hsl(300 90% 62%)); }
+  #spectrum .tick { position: absolute; top: 5px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%;
+    border: 2px solid var(--sky); box-sizing: border-box; }
+  .scale { display: flex; justify-content: space-between; color: var(--dim); font-size: 11px; margin-bottom: 8px; }
+  .row label.check { color: var(--fg); display: inline-flex; gap: 5px; align-items: center; cursor: pointer; }
+  .row label.check input { margin: 0; accent-color: var(--fg); }
+  select:disabled { opacity: 0.45; cursor: default; }
+  .spread input { flex: 1; min-width: 0; accent-color: var(--fg); }
+  .spread output { width: 3.2em; text-align: right; color: var(--dim); font-variant-numeric: tabular-nums; }
+  #missing { position: absolute; inset: 0; display: none; place-items: center; text-align: center; color: var(--dim); }
+  body.still #panel, body.still #toggle, body.still #status { display: none; }
+  @media (max-width: 700px) {
+    #title h1 { font-size: 28px; }
+    #toggle { display: block; }
+    #panel { top: auto; bottom: 0; right: 0; left: 0; width: auto; max-height: 55%; border-radius: 12px 12px 0 0;
+      padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+      padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+    body:not(.panel-open) #panel { display: none; }
+    .label small { display: none; }
+    .label { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<div id="title">
+  <h1>The Distance Onion</h1>
+  <p>The whole sky sliced by distance, from nearby stars to the oldest light</p>
+  <div id="status" role="status">Loading sky maps…</div>
+</div>
+<button id="toggle" aria-controls="panel" aria-expanded="false">Layers</button>
+<div id="panel">
+  <div class="row">
+    <label class="check"><input id="cut-on" type="checkbox" checked> Cutaway</label>
+    <select id="cut" aria-label="Cutaway shape">
+      <option value="octant">Octant</option>
+      <option value="quarter">Quarter</option>
+      <option value="half">Half</option>
+    </select>
+    <label class="check"><input id="back" type="checkbox" checked> Back faces</label>
+  </div>
+  <div class="row">
+    <button id="spin">Pause spin</button>
+    <button id="labels">Hide labels</button>
+  </div>
+  <div class="row">
+    <label for="between">Between layers</label>
+    <select id="between">
+      <option value="0">None</option>
+      <option value="1">1</option>
+      <option value="3" selected>3</option>
+      <option value="7">7</option>
+    </select>
+  </div>
+  <div class="row spread">
+    <label for="halo">Outer halo</label>
+    <input id="halo" type="range" min="0" max="4" step="0.05" value="2">
+    <output id="halo-out" for="halo">2 gaps</output>
+  </div>
+  <div class="row spread">
+    <label for="spread">Spread</label>
+    <input id="spread" type="range" min="0" max="1" step="0.01" value="1">
+    <output id="spread-out" for="spread">100%</output>
+  </div>
+  <h2>Colour = distance, far → near</h2>
+  <div id="spectrum" aria-hidden="true"><div class="bar"></div></div>
+  <div class="scale"><span>46 billion ly</span><span>here</span></div>
+  <h2>Shells, inside → out</h2>
+  <div id="layers"></div>
+</div>
+<div id="missing"><div>Sky maps not found.<br>Run <code>npm run build:sky-onion</code> first.</div></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const STILL = new URLSearchParams(location.search).has("still");
+if (STILL) document.body.classList.add("still");
+
+// Inside → out by distance. Colours are the six evenly spaced hues in order
+// (magenta, blue, cyan, green, yellow, red), nearest to farthest.
+// floor/white: each map's sky background and its brightest ~0.2%, measured
+// from the map (area-weighted percentiles), so every shell uses its full range.
+const LAYERS = [
+  { id: "stars", name: "Nearby stars", band: "under 330 ly · 23,000 stars with parallaxes, Hipparcos",
+    gain: 1.3, gamma: 0.8, floor: 0.02, white: 0.85 },
+  { id: "gaia-near", name: "Local Milky Way", band: "330–3,000 ly · 57 million stars, Gaia DR3",
+    gain: 1.5, gamma: 1.0, floor: 0.22, white: 0.85 },
+  { id: "gaia-far", name: "Galactic disc", band: "3,000–30,000 ly · 134 million stars, Gaia DR3",
+    gain: 0.7, gamma: 1.3, floor: 0.35, white: 0.98 },
+  { id: "galaxies", name: "Galaxies", band: "30 million–1 billion ly · 43,000 galaxies, 2MRS",
+    gain: 1.3, gamma: 0.8, floor: 0.02, white: 0.75 },
+  { id: "quasars", name: "Quasars", band: "1–12 billion ly · 756,000 quasars, Quaia",
+    gain: 1.5, gamma: 0.9, floor: 0.06, white: 0.3 },
+  { id: "cmb-mono", name: "Cosmic microwave background", band: "46 billion ly · oldest light, Planck",
+    gain: 0.6, gamma: 1.0, floor: 0.2, white: 0.97 },
+];
+LAYERS.forEach((L, i) => {
+  L.hue = 300 - 60 * i; // magenta → red
+  L.color = `hsl(${L.hue}, 90%, 62%)`; // commas: three.js parses only this form
+  L.meta = L.band;
+});
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+document.body.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, innerWidth / innerHeight, 0.1, 200);
+camera.position.set(17.5, 8.5, 17.5);
+// back the camera off on tall, narrow screens so the whole sphere fits across
+function fitCamera() {
+  const d = 26.3 * Math.max(1, 0.95 / camera.aspect);
+  camera.position.setLength(d);
+}
+fitCamera();
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.minDistance = 4;
+controls.maxDistance = 60;
+
+// A shell is drawn in camera-independent "cut" space: anything inside the
+// cut wedge (an octant, quarter or half facing the start view) is discarded.
+const CUTS = { none: [9, 9, 9], octant: [0, 0, 0], quarter: [0, -9, 0], half: [0, -9, -9] };
+const cutUniform = { value: new THREE.Vector3(...CUTS.octant) };
+
+const vert = /* glsl */ `
+  varying vec2 vUv; varying vec3 vWorld; varying vec3 vNormal;
+  void main() {
+    // the maps are drawn as seen from inside (l grows to the left); seen
+    // from outside the sphere that is mirrored, so flip u
+    vUv = vec2(1.0 - uv.x, uv.y);
+    vec4 w = modelMatrix * vec4(position, 1.0);
+    vWorld = w.xyz;
+    vNormal = normalize(mat3(modelMatrix) * normal);
+    gl_Position = projectionMatrix * viewMatrix * w;
+  }`;
+const frag = /* glsl */ `
+  uniform sampler2D map; uniform vec3 tint; uniform vec3 cut;
+  uniform float gain, gamma, floorLevel, whiteLevel, opacity;
+  varying vec2 vUv; varying vec3 vWorld; varying vec3 vNormal;
+  void main() {
+    // the cut wedge: every coordinate beyond its threshold
+    if (vWorld.x > cut.x && vWorld.y > cut.y && vWorld.z > cut.z) discard;
+    // one channel: the map's brightness, whatever colours it came in
+    vec3 c = texture2D(map, vUv).rgb;
+    float lum = max(c.r, max(c.g, c.b));
+    float a = pow(clamp((lum - floorLevel) / (whiteLevel - floorLevel), 0.0, 1.0), gamma);
+    // faint rim so each shell's outline stays readable
+    vec3 V = normalize(cameraPosition - vWorld);
+    float rim = pow(1.0 - abs(dot(normalize(vNormal), V)), 4.0);
+    // screen blending needs colours inside 0…1
+    gl_FragColor = vec4(clamp(tint * (a * gain + rim * 0.2) * opacity, 0.0, 1.0), 1.0);
+  }`;
+
+// An in-between shell cross-fades from shell A's map (mixF = 0) to shell
+// B's (mixF = 1); `fade` dims the ones that run in from the centre or out
+// past the last shell. No rim: they're there for volume, not outline.
+const fragBetween = /* glsl */ `
+  uniform sampler2D mapA, mapB; uniform vec3 tintA, tintB, cut;
+  uniform vec4 levA, levB; // gain, gamma, floor, white
+  uniform float opA, opB, onA, onB, mixF, fade, weight;
+  varying vec2 vUv; varying vec3 vWorld;
+  float tone(sampler2D m, vec4 lev) {
+    vec3 c = texture2D(m, vUv).rgb;
+    float lum = max(c.r, max(c.g, c.b));
+    return lev.x * pow(clamp((lum - lev.z) / (lev.w - lev.z), 0.0, 1.0), lev.y);
+  }
+  void main() {
+    if (vWorld.x > cut.x && vWorld.y > cut.y && vWorld.z > cut.z) discard;
+    vec3 col = tintA * tone(mapA, levA) * opA * onA * (1.0 - mixF)
+             + tintB * tone(mapB, levB) * opB * onB * mixF;
+    gl_FragColor = vec4(clamp(col * fade * weight, 0.0, 1.0), 1.0);
+  }`;
+
+// every sphere hangs off one group, so the spin turns the maps while the
+// cut (in world space) stays put
+const globe = new THREE.Group();
+scene.add(globe);
+
+const loader = new THREE.TextureLoader();
+const R0 = 1.6, DR = 0.8;
+const shells = [];
+let missing = 0;
+
+LAYERS.forEach((L, i) => {
+  const radius = R0 + DR * i;
+  const tex = loader.load(`./cosmic-onion/${L.id}.jpg`, undefined, undefined, () => {
+    if (++missing === LAYERS.length) document.getElementById("missing").style.display = "grid";
+  });
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const mat = new THREE.ShaderMaterial({
+    vertexShader: vert, fragmentShader: frag,
+    uniforms: {
+      map: { value: tex }, tint: { value: new THREE.Color(L.color) }, cut: cutUniform,
+      gain: { value: L.gain }, gamma: { value: L.gamma }, floorLevel: { value: L.floor },
+      whiteLevel: { value: L.white ?? 1 },
+      opacity: { value: 1 }, on: { value: 1 },
+    },
+    side: THREE.DoubleSide,
+    transparent: true,
+    depthWrite: false,
+    // screen: result = src + dst·(1 − src), so overlaps brighten without clipping
+    blending: THREE.CustomBlending,
+    blendEquation: THREE.AddEquation,
+    blendSrc: THREE.OneFactor,
+    blendDst: THREE.OneMinusSrcColorFactor,
+  });
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 192, 96), mat);
+  // SphereGeometry puts u = 0.5 at +x; turn it so the Galactic Centre
+  // (map centre) faces the cut wedge's corner.
+  mesh.rotation.y = Math.PI / 4;
+  globe.add(mesh);
+
+  const label = document.createElement("div");
+  label.className = "label";
+  label.style.color = L.color;
+  label.innerHTML = `${L.name}<small>${L.band.split(" · ")[0]}</small>`;
+  document.body.appendChild(label);
+  shells.push({ L, mesh, mat, base: radius, radius, label,
+    levels: new THREE.Vector4(L.gain, L.gamma, L.floor, L.white ?? 1) });
+});
+
+// ---------- in-between shells ----------
+const SCREEN = {
+  transparent: true, depthWrite: false, blending: THREE.CustomBlending,
+  blendEquation: THREE.AddEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcColorFactor,
+};
+const unitSphere = new THREE.SphereGeometry(1, 128, 64);
+let between = [];
+function buildBetween(k) {
+  between.forEach((b) => { globe.remove(b.mesh); b.mat.dispose(); });
+  between = [];
+  // dimmer when there are more of them, so each gap glows about the same
+  const weight = 1.3 / (k + 1);
+  const n = shells.length;
+  // gaps: centre → first shell and each pair (k each), then the outer
+  // halo: HALO_N shells expanding past the last one and darkening
+  const HALO_N = 8;
+  for (let g = 0; g <= n; g++) {
+    const A = shells[Math.max(0, g - 1)], B = shells[Math.min(n - 1, g)];
+    const kind = g === 0 ? "in" : g === n ? "out" : "mid";
+    const count = kind === "out" ? HALO_N : k;
+    for (let j = 1; j <= count; j++) {
+      const f = j / (count + 1);
+      const mat = new THREE.ShaderMaterial({
+        vertexShader: vert, fragmentShader: fragBetween, ...SCREEN,
+        side: backBox.checked ? THREE.DoubleSide : THREE.FrontSide,
+        uniforms: {
+          mapA: A.mat.uniforms.map, mapB: B.mat.uniforms.map,
+          tintA: A.mat.uniforms.tint, tintB: B.mat.uniforms.tint, cut: cutUniform,
+          levA: { value: A.levels }, levB: { value: B.levels },
+          opA: A.mat.uniforms.opacity, opB: B.mat.uniforms.opacity,
+          onA: A.mat.uniforms.on, onB: B.mat.uniforms.on,
+          mixF: { value: kind === "mid" ? f : 0 },
+          fade: { value: kind === "in" ? f : kind === "out" ? Math.pow(1 - f, 1.2) : 1 },
+          weight: { value: kind === "out" ? 4 / (HALO_N + 1) : weight },
+        },
+      });
+      const mesh = new THREE.Mesh(unitSphere, mat);
+      mesh.rotation.y = Math.PI / 4;
+      globe.add(mesh);
+      between.push({ mesh, mat, A, B, f, kind });
+    }
+  }
+  placeBetween();
+}
+function placeBetween() {
+  between.forEach((b) => {
+    const r = b.kind === "in" ? b.A.radius * b.f
+      : b.kind === "out" ? b.A.radius + halo * DR * b.f
+      : b.A.radius + (b.B.radius - b.A.radius) * b.f;
+    b.mesh.scale.setScalar(Math.max(r, 0.01));
+    b.mesh.visible = b.kind !== "out" || halo > 0;
+  });
+}
+
+// ---------- panel ----------
+const spectrum = document.getElementById("spectrum");
+LAYERS.forEach((L) => {
+  const tick = document.createElement("div");
+  tick.className = "tick";
+  tick.style.left = `${(100 * (LAYERS.length - 1 - LAYERS.indexOf(L))) / (LAYERS.length - 1)}%`;
+  tick.style.background = L.color;
+  tick.title = L.name;
+  spectrum.appendChild(tick);
+});
+const list = document.getElementById("layers");
+shells.forEach((s) => {
+  const el = document.createElement("div");
+  el.className = "layer";
+  el.style.setProperty("--c", s.L.color);
+  el.innerHTML = `<input type="checkbox" checked><div class="name">${s.L.name}</div>
+    <div class="meta">${s.L.meta}</div><input type="range" min="0" max="2" step="0.01" value="1">`;
+  const [box, range] = el.querySelectorAll("input");
+  box.onchange = () => {
+    s.mesh.visible = s.edges.visible = box.checked;
+    s.mat.uniforms.on.value = box.checked ? 1 : 0;
+  };
+  range.oninput = () => { s.mat.uniforms.opacity.value = +range.value; };
+  list.appendChild(el);
+});
+// cutaway on/off keeps the chosen shape; back faces off draws only the
+// sky side of each shell that faces you
+const cutSelect = document.getElementById("cut");
+const cutOnBox = document.getElementById("cut-on");
+function applyCut() {
+  cutUniform.value.set(...CUTS[cutOnBox.checked ? cutSelect.value : "none"]);
+  cutSelect.disabled = !cutOnBox.checked;
+  buildEdges();
+}
+cutSelect.onchange = cutOnBox.onchange = applyCut;
+const backBox = document.getElementById("back");
+backBox.onchange = () => [...shells, ...between].forEach((s) => {
+  s.mat.side = backBox.checked ? THREE.DoubleSide : THREE.FrontSide;
+  s.mat.needsUpdate = true;
+});
+let spinning = !STILL && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+const spinBtn = document.getElementById("spin");
+if (!spinning) spinBtn.textContent = "Spin";
+const toggle = document.getElementById("toggle");
+toggle.onclick = () => {
+  const open = document.body.classList.toggle("panel-open");
+  toggle.setAttribute("aria-expanded", open);
+  toggle.textContent = open ? "Close" : "Layers";
+};
+const status = document.getElementById("status");
+THREE.DefaultLoadingManager.onProgress = (_, done, total) => {
+  status.textContent = done < total ? `Loading sky maps… ${done} of ${total}` : "Drag to turn · scroll or pinch to zoom";
+};
+spinBtn.onclick = () => { spinning = !spinning; spinBtn.textContent = spinning ? "Pause spin" : "Spin"; };
+let showLabels = true;
+const labelsBtn = document.getElementById("labels");
+labelsBtn.onclick = () => { showLabels = !showLabels; labelsBtn.textContent = showLabels ? "Hide labels" : "Show labels"; };
+
+// ---------- cut edges: where each shell meets the cut planes ----------
+// traced on a unit sphere and scaled to each shell, so the spread slider
+// only rescales them
+const edges = new THREE.Group();
+scene.add(edges);
+function buildEdges() {
+  edges.clear();
+  const c = cutUniform.value.toArray();
+  shells.forEach((s) => {
+    s.edges = new THREE.Group();
+    s.edges.scale.setScalar(s.radius);
+    s.edges.visible = s.mesh.visible;
+    edges.add(s.edges);
+    if (c[0] > 1) return;
+    const mat = new THREE.LineBasicMaterial({ color: s.L.color, transparent: true, opacity: 0.85 });
+    // for each cut plane (axis = 0), trace the circle and keep the part
+    // that borders the removed wedge
+    for (let axis = 0; axis < 3; axis++) {
+      if (c[axis] !== 0) continue;
+      let run = [];
+      for (let k = 0; k <= 360; k++) {
+        const a = (k * Math.PI) / 180, p = [0, 0, 0];
+        const [u, w] = [(axis + 1) % 3, (axis + 2) % 3];
+        p[u] = Math.cos(a);
+        p[w] = Math.sin(a);
+        const inside = p[u] >= c[u] - 1e-9 && p[w] >= c[w] - 1e-9;
+        if (inside) run.push(new THREE.Vector3(...p));
+        if ((!inside || k === 360) && run.length > 1) {
+          s.edges.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(run), mat));
+        }
+        if (!inside) run = [];
+      }
+    }
+  });
+}
+buildEdges();
+
+// ---------- spread: 1 = shells at their own radii, 0 = all on the outer sphere ----------
+const OUTER = R0 + DR * (LAYERS.length - 1);
+let spread = 1;
+// outer halo depth, in shell gaps (0 = off)
+let halo = 2;
+const haloInput = document.getElementById("halo");
+const haloOut = document.getElementById("halo-out");
+haloInput.oninput = () => {
+  halo = +haloInput.value;
+  haloOut.value = halo === 0 ? "off" : `${+halo.toFixed(1)} gaps`;
+  placeBetween();
+};
+function setSpread(t) {
+  spread = t;
+  shells.forEach((s) => {
+    s.radius = OUTER - (OUTER - s.base) * t;
+    s.mesh.scale.setScalar(s.radius / s.base);
+    s.edges.scale.setScalar(s.radius);
+    s.edges.visible = s.mesh.visible;
+  });
+  spreadOut.value = `${Math.round(t * 100)}%`;
+  placeBetween();
+}
+const spreadInput = document.getElementById("spread");
+const spreadOut = document.getElementById("spread-out");
+spreadInput.oninput = () => setSpread(+spreadInput.value);
+const spreadParam = new URLSearchParams(location.search).get("spread");
+if (spreadParam !== null) spreadInput.value = spreadParam;
+setSpread(+spreadInput.value);
+// ?cut=off and ?back=off start with those switched off
+const startParams = new URLSearchParams(location.search);
+if (startParams.get("cut") === "off") { cutOnBox.checked = false; applyCut(); }
+if (startParams.get("back") === "off") { backBox.checked = false; backBox.onchange(); }
+// ?between=0|1|3|7
+const betweenSelect = document.getElementById("between");
+if (["0", "1", "3", "7"].includes(startParams.get("between"))) betweenSelect.value = startParams.get("between");
+betweenSelect.onchange = () => buildBetween(+betweenSelect.value);
+buildBetween(+betweenSelect.value);
+
+// ---------- labels: a ladder up the cut's vertical edge ----------
+const v = new THREE.Vector3();
+function placeLabels() {
+  const cutOn = cutUniform.value.x < 1;
+  shells.forEach((s) => {
+    // squeezed shells would stack their labels on one spot
+    const show = showLabels && s.mesh.visible && cutOn && spread >= 0.3;
+    s.label.style.display = show ? "block" : "none";
+    if (!show) return;
+    v.set(0, s.radius, 0).project(camera);
+    s.label.style.left = `${(v.x * 0.5 + 0.5) * innerWidth}px`;
+    s.label.style.top = `${(-v.y * 0.5 + 0.5) * innerHeight}px`;
+  });
+}
+
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  fitCamera();
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+const clock = new THREE.Clock();
+function frame() {
+  const dt = clock.getDelta();
+  if (spinning) globe.rotation.y += dt * 0.05;
+  controls.update();
+  renderer.render(scene, camera);
+  placeLabels();
+}
+if (STILL) {
+  // poster mode: one frame once every map is in (?still&w=…&h=… for size)
+  THREE.DefaultLoadingManager.onLoad = () => {
+    frame();
+    window.__stillDone = true;
+  };
+} else {
+  renderer.setAnimationLoop(frame);
+}
+</script>
+</body>
+</html>

@@ -5,7 +5,8 @@
   "scripts": {
     "shadow-studio": "node scripts/shadow-studio.mjs",
     "dev": "vite",
-    "build": "vite build && node scripts/build-pages.mjs",
+    "build": "vite build && node scripts/build-pages.mjs && npm run build:videos",
+    "build:videos": "OUT=dist/videos-3v63rqq1 AUDIO=m4a node scripts/narration-preview.mjs",
     "preview": "vite preview",
     "tile": "node scripts/tile-image.mjs",
     "fetch-images": "node scripts/fetch-images.mjs",
@@ -18,6 +19,11 @@
     "perf:compare": "node scripts/perf-compare.mjs",
     "audit:assets": "node scripts/asset-audit.mjs",
     "build:dust": "node scripts/build-dust.mjs",
+    "build:sky-onion": "node scripts/build-sky-onion.mjs",
+    "build:sky-spectrum": "node scripts/build-sky-spectrum.mjs",
+    "build:sky-points": "node scripts/build-sky-points.mjs",
+    "build:earth-spectrum": "node scripts/build-earth-spectrum.mjs",
+    "build:sun-spectrum": "node scripts/build-sun-spectrum.mjs",
     "poster": "node scripts/poster.mjs"
   },
   "dependencies": {

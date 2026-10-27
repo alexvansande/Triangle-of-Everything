@@ -38,8 +38,12 @@ self.addEventListener("fetch", (e) => {
     e.respondWith(
       fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put("/", copy));
+          // only the chart's own pages stand in for "/" offline, not the
+          // mini apps it embeds (/spectrum/, /hyperspirograph.html)
+          if (!url.pathname.startsWith("/spectrum/") && !url.pathname.endsWith(".html")) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put("/", copy));
+          }
           return res;
         })
         .catch(() => caches.match("/"))
