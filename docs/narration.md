@@ -270,11 +270,11 @@ so a short's scene can import the matching section from another scene.
 
 Scene-level: `pbhWindow: false` hides the map's own primordial black hole window
 (and its "ruled out by" labels) for a scene that draws the window itself.
-`cover: { src, size: [w, h], frame: [x0, y0, x1, y1], r: [r0, r1], m: [m0, m1], hole: [x0, y0, x1, y1], dur, fade, bg }`
+`cover: { src, size: [w, h], frame: [x0, y0, x1, y1], r: [r0, r1], m: [m0, m1], hole: [x0, y0, x1, y1], from, dur, fade, bg, surround }`
 opens a take over the classic figure on a picture of the page it comes from (`src` in
 `public/narration/photos/`, `size` its pixels) with the figure's box (`hole`) cut out,
-so the live figure shows through it, whole and as laid out. Both start across the
-stage's width over `bg` and zoom in together for `dur` s until the picture's plot
+so the live figure shows through it, whole and as laid out. Both start at `from` of
+the stage's width (default 1), centred on `surround` (the stage's dark), and zoom in together for `dur` s until the picture's plot
 (`frame`, spanning log radius `r` and log mass `m`) fills the screen; then the picture
 fades over `fade` s and the figure's camera eases into the scene's (the hook's AJP cover).
 

@@ -497,10 +497,10 @@ export async function startNarration(app) {
     const im = new Image(); im.decoding = "sync"; im.src = photoUrl(n); photoImgs.set(n, im);
   }
   // ---------- the opening cover (scene `cover: { src, size: [w, h], frame: [x0, y0, x1, y1],
-  // r: [r0, r1], m: [m0, m1], hole: [x0, y0, x1, y1], dur, fade, bg }`): a picture of the
+  // r: [r0, r1], m: [m0, m1], hole: [x0, y0, x1, y1], from, dur, fade, bg, surround }`): a picture of the
   // page the classic figure comes from (a journal cover) with the figure's box (`hole`, in
-  // its px) cut out, so the live figure shows through it. It starts across the stage's
-  // width over its own colour and zooms in for `dur` s, the figure's camera following it
+  // its px) cut out, so the live figure shows through it. It starts at `from` of the
+  // stage's width (1), centred on `surround`, and zooms in for `dur` s, the figure's camera following it
   // (its plot, `frame`, spans log radius r and log mass m), until the plot is where the
   // scene's camera has it at `dur`; then the cover keeps to the figure and fades over
   // `fade` s. While it zooms the figure is shown whole, as laid out (as on the page), and
@@ -513,9 +513,10 @@ export async function startNarration(app) {
   if (COVER) {
     const [w, h] = COVER.size, [a, b, c, d] = COVER.hole;
     coverEl.hidden = false; coverEl.style.background = "none"; coverImg.src = photoUrl(COVER.src);
-    // its colour carries on past its edges (a shadow's spread), so it fills any stage
-    const F = 1e5, bg = COVER.bg || "#000";
-    Object.assign(coverImg.style, { width: `${w}px`, height: `${h}px`, background: bg, boxShadow: `0 0 0 ${F}px ${bg}`,
+    // around it the dark of the stage (a shadow's spread), where it starts small, far off
+    const F = 1e5;
+    Object.assign(coverImg.style, { width: `${w}px`, height: `${h}px`, background: COVER.bg || "#000",
+      boxShadow: `0 0 0 ${F}px ${COVER.surround || "#05051a"}`,
       clipPath: `polygon(evenodd, ${-F}px ${-F}px, ${F}px ${-F}px, ${F}px ${F}px, ${-F}px ${F}px, ${-F}px ${-F}px, ` +
         `${a}px ${b}px, ${c}px ${b}px, ${c}px ${d}px, ${a}px ${d}px, ${a}px ${b}px)` });
   }
@@ -534,10 +535,10 @@ export async function startNarration(app) {
     const v = t < COVER.dur ? classicFullView() : classicView;
     if (!v) return null;
     const ppd1 = W / v.span;
-    const s0 = SW / w, s1 = ppd1 / ppdX, k = smooth(clamp01(t / COVER.dur));
+    const s0 = SW / w * (COVER.from ?? 1), s1 = ppd1 / ppdX, k = smooth(clamp01(t / COVER.dur));
     const sx = s0 * (s1 / s0) ** k, ppd = sx * ppdX;                            // a steady zoom
     // the plot's centre travels in a straight line on screen
-    const px = (1 - k) * (cx * s0) + k * (ccx + (rc - v.r) * ppd1);
+    const px = (1 - k) * (SW / 2 + (cx - w / 2) * s0) + k * (ccx + (rc - v.r) * ppd1);
     const py = (1 - k) * ((SH - h * s0 * asp) / 2 + cy * s0 * asp) + k * (ccy - (mc - v.m) * ppd1);
     // the figure, at the end's camera, carried from the end's place to the cover's now
     const f = sx / s1, ex = ccx + (rc - v.r) * ppd1, ey = ccy - (mc - v.m) * ppd1;

@@ -33,9 +33,9 @@ export default {
   start: FIG,
   // the paper's journal cover (AJP 91 (10), Oct 2023), its chart cut out and the live figure
   // in its place: it zooms in over "…in all of physics" until the chart fills the screen, then
-  // fades; the plot frame and the white box measured on the picture
+  // fades; it starts small, from afar. The plot frame and the white box measured on the picture
   cover: { src: "ajp-cover-2023-10", size: [1500, 2000], frame: [426, 703, 1164, 1688.5], r: [-40, 55], m: [-54, 68],
-    hole: [229.5, 605.5, 1270, 1773.5], dur: 3.5, fade: 0.9, bg: "#fbea16" },
+    hole: [229.5, 605.5, 1270, 1773.5], from: 0.42, dur: 5.6, fade: 0.9, bg: "#fbea16" },
 
   captionFixes: { short: "chart", shard: "chart", lights: "light" },
 
@@ -45,12 +45,12 @@ export default {
   ],
 
   cues: [
-    // over the journal cover (scene `cover`); the paper's title comes in once it has gone
+    // over the journal cover (scene `cover`); the paper's title comes in once it has gone,
+    // on "this diagonal line"
     { at: "most interesting chart", cam: { r: 6, m: 8, span: 96 }, dur: 5, drift: 0.03 },
-    { at: "the first thing", header: true },
 
     // the diagonal, bottom to top
-    { at: "this diagonal line", cam: { r: 3, m: 4, span: 60 }, hl: [{ line: "water", label: "the diagonal" }] },
+    { at: "this diagonal line", header: true, cam: { r: 3, m: 4, span: 60 }, hl: [{ line: "water", label: "the diagonal" }] },
     { at: "from bacteria", cam: { r: -3.5, m: -9, span: 30 }, hl: [{ line: "water" }] },
     { at: "to humans", cam: { r: 1, m: 2, span: 30 }, hl: [{ line: "water" }] },
     { at: "to planets", cam: { r: 9, m: 28, span: 34 }, clear: true },
