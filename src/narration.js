@@ -1063,7 +1063,7 @@ export async function startNarration(app) {
     const a = clamp01((age - 0.5) / 0.4) * (1 - smooth((t - cur.t1 + 0.4) / 0.4));
     if (a <= 0.01) return;
     gGuides.append("text").attr("class", "narr-guide").attr("x", xR - 4).attr("y", y - 6).attr("text-anchor", "end")
-      .attr("opacity", a).text(valueLabel(o.logM, MASS_BASES));
+      .attr("opacity", a).text(o.logM < ENERGY_BELOW ? `${valueLabel(o.logM + EV_PER_G, ENERGY_BASES)}/c²` : valueLabel(o.logM, MASS_BASES));
     gGuides.append("text").attr("class", "narr-guide").attr("x", x + 6).attr("y", yB - 6).attr("text-anchor", "start")
       .attr("opacity", a).text(valueLabel(o.logR + W_OFF, SIZE_BASES));
   }
@@ -1532,8 +1532,10 @@ export async function startNarration(app) {
   // 100 kg between 1 kg and 1 tonne), and 2–9× inside a decade when zoomed in far
   // enough to see the log lines (20 kg, 30 kg…). The named units go first and win.
   // Prefix bases in log10 of the ruler's unit (grams; centimetres of diameter).
-  const MASS_BASES = [[-12, "pg"], [-9, "ng"], [-6, "μg"], [-3, "mg"], [0, "g"], [3, "kg"], [6, "t"], [9, "kt"], [12, "Mt"], [15, "Gt"]];
+  const MASS_BASES = [[-18, "ag"], [-15, "fg"], [-12, "pg"], [-9, "ng"], [-6, "μg"], [-3, "mg"], [0, "g"], [3, "kg"], [6, "t"], [9, "kt"], [12, "Mt"], [15, "Gt"]];
   const SIZE_BASES = [[-13, "fm"], [-10, "pm"], [-7, "nm"], [-4, "μm"], [-1, "mm"], [0, "cm"], [2, "m"], [5, "km"]];
+  const ENERGY_BASES = [[-3, "meV"], [0, "eV"], [3, "keV"], [6, "MeV"], [9, "GeV"], [12, "TeV"], [15, "PeV"], [18, "EeV"]];
+  const EV_PER_G = 32.75, ENERGY_BELOW = -18;   // log10 of 1 g × c² in eV; where the mass ruler turns to eV/c²
   const SUP = (n) => String(n).replace(/./g, c => "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"["0123456789-".indexOf(c)]);
   function tickLabel(v, bases) {          // v = log10 of the value in the base unit
     const d = Math.floor(v + 1e-9), k = Math.round(10 ** (v - d));
@@ -1603,7 +1605,15 @@ export async function startNarration(app) {
     }
     const mppd = Math.abs(sy(1) - sy(0)), iy = (y) => (y - sy(0)) / (sy(1) - sy(0));
     const mA = iy(SH * 0.1), mB = iy(yR - 24);
-    for (const tk of fillTicks(Math.min(mA, mB), Math.max(mA, mB), mppd, MASS_BASES)) {
+    // below about a large molecule's mass, grams run out of prefixes ("0 pg"): ticks in
+    // eV/c² instead, on round energies, as the map's own ruler does (mobile-rulers.js)
+    const mLo = Math.min(mA, mB), mHi = Math.max(mA, mB);
+    const massTicks = [
+      ...fillTicks(Math.max(mLo, ENERGY_BELOW), mHi, mppd, MASS_BASES),
+      ...fillTicks(mLo + EV_PER_G, Math.min(mHi, ENERGY_BELOW) + EV_PER_G, mppd, ENERGY_BASES)
+        .map(tk => ({ ...tk, at: tk.at - EV_PER_G, label: `${tk.label}/c²` })),
+    ];
+    for (const tk of massTicks) {
       const y = sy(tk.at);
       if (y < SH * 0.1 || y > yR - 24) continue;
       if (placedY.some(p => Math.abs(p - y) < 17)) continue;

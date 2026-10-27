@@ -25,6 +25,7 @@ went silent after a minute when it ran out.
 | 3 · planets into stars | `short-03-stars` | 2:13 (re-recorded 2026-10-27, rec36) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 5:40 |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 7:06 |
+| 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:49 (recorded 2026-10-27, rec39) |
 
 ---
 
@@ -346,6 +347,104 @@ series of videos. I sincerely hope you find it as fascinating as I do." (no "fol
 - "that object is a little bit an illusion… where would those objects be right now if they were not out of our reach" → "it isn't one object: its far sides have never been able to reach each other… what we see is the light they sent long ago" (the observable universe isn't an illusion: those galaxies really are that far away now).
 - "a local group" → "the Local Group" if you like the proper name; "in the edge" → "at the edge"; "100,000 galaxies" → "about a hundred thousand".
 
+
+## 6 · The tiny world: from us to the Compton line (`short-06-tiny-world`)
+
+### As cut now
+(rec39, 2026-10-27: the script below, read with retakes, and a radioactivity ending in place of the electron one)
+
+> In this series, we've been drawing everything in the universe in one chart, mass against size. And everything ends up boxed in by three edges. We've seen two of them. First is the black hole line. Nothing can be more massive for any given size: there's there's a limit for how massive you can be until you become a black hole. And then the second is the Hubble radius. Nothing can be bigger than that. Today I want to explore the third side, the limit of how small something can be. So let's start with us. This is a human, about two meters tall and around a hundred kilos. On a log chart that's close enough. And notice that we measure everything as if they were spheres. We use the metric units here because they fit the grid so neatly, but really every unit fits in this chart. One gram of water fills one cubic centimeter, so water lands on this one diagonal line. Everything to the left is denser and sinks, like this meteorite. Everything to the right floats, like a soccer ball. Most animals live on the narrow band along that line because we are mostly made of water. As we go down we reach the smallest insects: ants, ladybugs, tiny moths. This is a single grain of sand. And now we're among the microorganisms, tardigrades, amoebas, and a grain of pollen. Further down, now a red blood cell, about seven thousandths of a millimeter across. Then bacteria. Notice that almost all of microbiology sits just a little to the left of the water line. That's actually useful. That's why a centrifuge works. Spin them fast enough, and cells and viruses, being denser than water, sink to the bottom. Now this is where biology ends and chemistry begins. Viruses sit right in between. Most biologists don't count them as alive, but they are far more than just a molecule. And now we are in the kingdom of molecules: the ribosome, the factory that builds your proteins, antibodies, hemoglobin, which carries oxygen in your blood, and what makes every one of us: DNA. Its code written with just these four molecules. Then we have simpler and simpler molecules like sugar and water until we reach the atoms. Here's hydrogen. For any atom, the mass comes almost all from its nucleus, but the size comes from its cloud of electrons. Add a second proton, with two neutrons to hold it together, and you get helium: four times the mass. But that extra charge pulls the electrons in closer, so helium is actually smaller. Add one more and you get lithium, and its third electron has to start a new shell, so it balloons out: now it's bigger. And notice that that keeps happening. With every proton, atoms get heavier and smaller and smaller until a new shell starts and they balloon out again: bigger and smaller, over and over, at regular intervals. That's why we get a periodic table. That thing you saw on the wall in your chemistry class isn't just arbitrary: you can see it right here, drawn by the atoms themselves. The alkali metals ballooning out at the start of every row, and the noble gases tucked in at the end. Some atoms are just a little weird. Palladium jumps over towards the noble gases. It's the only element that leaves its new outer shell completely empty. Its outer electrons all huddle in a full inner shell instead, so it's almost as compact as a noble gas. Down here are the lanthanides, gold and silver. Up to iron, elements are forged in the cores of stars. Everything heavier, like gold or uranium, takes something even more violent: exploding stars and colliding neutron stars. Past here, every element is radioactive, and this is oganesson, the heaviest element we've ever made, just a few atoms at a time. So what happens if we keep following the line down? We reach the third and final edge of the triangle: the Compton line. Down here, physicists stop weighing things in grams. They use electron volts, which is a unit of energy. Divide it by the speed of light squared, and you get mass. That's Einstein: E equals mc squared. Deep down, mass and energy are the same. And everything with energy also has a wavelength. The more energy, the faster it oscillates and the shorter its wavelength. You can't squeeze something smaller than that. To squeeze it, you have to add energy, and if you squeeze it any tighter, that energy you put in just makes new particles, pairs of matter and antimatter. So nothing can be smaller than its own wavelength, and the heavier something is, the smaller that limit gets, which is why this line looks this way, and it's why no object can cross to the other side, it's the quantum limit of our triangle. So here's something very cool. Everything on this line is either a particle or light. Every particle sits here at its own wavelength, and so does light. Every kind of it, from radio waves up to gamma rays down here. Now here's an interesting question. Remember that line we were following, the density of water line, the line of ordinary stuff, just matter? It crosses the Compton line right here, right where gamma rays become X-rays. When a radioactive atom decays into another, it emits a little bit of gamma rays. That's because it's converting a little bit of matter into energy, and that energy comes as gamma ray radiation, which is right here. That's matter turning into light. And light itself can also tell us a very interesting story about the universe and our place in it. That's the story of wavelengths of light, which is a great story for the next video.
+
+### Draft
+(rec38, 2026-10-27, 15 min of ideas: transcript and fact check in
+`video/sources/2026-10-27/`.) Not cut: it's a think-aloud, with two passages to fix (sink/float
+swapped, wavelength "directly" proportional) and the ending said three ways. The script below
+keeps its order and the author's lines where they work, fixes the facts, and drops what video 2
+already did (the sink-or-float set piece gets one line).
+
+The story in one breath: we've seen the edges for *too massive* and *too big*; now the third,
+*too small*. Start at a human and walk down the diagonal: insects, microbes, the point where
+biology hands over to chemistry, molecules, atoms, the periodic table drawn by the chart itself.
+Keep going and the line runs into a wall: the Compton line, where squeezing makes new particles.
+And the wall is lined with light. Where ordinary matter meets it: gamma rays. Hook to the
+wavelengths video.
+
+About 870 words: roughly 5½ minutes spoken, 5 minutes at 1.1×.
+
+### Script to record
+
+**The third edge**
+> In this series we've been drawing everything in the universe on one chart: mass against size. And everything ends up boxed in by three edges. We've seen two of them. The black hole line: nothing can be more massive for its size. And the Hubble radius: nothing can be bigger. Today, the third one: the limit of how *small* something can be.
+>
+> But let's start with us.
+
+**A human, a spherical cow**
+> This is a human: about two metres tall, and around a hundred kilos. On a log chart, that's close enough. And notice we measure everything as if it were a ball. The famous spherical cow.
+>
+> We use metric units here because they fit the grid so neatly. One gram of water fills one cubic centimetre, so water lands on this one diagonal line. Everything to its left is denser and sinks, like this meteorite. Everything to the right floats, like a soccer ball.
+
+**Down through the small animals**
+> Most animals live on a narrow band along that line, because we're mostly water. As we go down, we reach the smallest insects: ants, ladybugs, tiny moths. This is a single grain of sand. And now we're among the microorganisms: tardigrades, amoebas, and a grain of pollen.
+>
+> Further down, a red blood cell, about seven thousandths of a millimetre across. Then bacteria. And notice that almost all of microbiology sits just a little to the left of the water line. That's actually useful: it's why a centrifuge works. Spin them fast enough and cells and viruses, being denser than water, sink to the bottom.
+
+**Where biology hands over to chemistry**
+> This is where biology ends and chemistry begins. Viruses sit right in between. Most biologists don't count them as alive, but they're far more than just a molecule.
+>
+> And now we're in the kingdom of molecules. The ribosome, the factory that builds our proteins. Antibodies. Haemoglobin, which carries oxygen in your blood. And what makes every one of us: DNA, its code written with just these four molecules. Then simpler and simpler molecules, sugar, water, until we reach the atoms.
+
+**Atoms and the periodic table**
+> Here's hydrogen. For any atom, the mass comes almost all from its nucleus, but the size comes from its cloud of electrons.
+>
+> Add a second proton, with two neutrons to hold it together, and you get helium: four times the mass. But that extra charge pulls the electrons in closer, so helium is actually *smaller*. Add one more and you get lithium, and its third electron has to start a new shell, so it balloons out.
+>
+> And that keeps happening. With every proton, atoms get heavier, and smaller, and smaller, until a new shell starts and they balloon out again. Bigger and smaller, over and over, at regular intervals. Those intervals are the periodic table. The table you saw in chemistry class isn't arbitrary: you can see it right here, drawn by the atoms themselves. The alkali metals, ballooning out at the start of every row. The noble gases, tucked in at the end.
+>
+> And some atoms are a little weird. Palladium jumps over towards the noble gases. It's the only element that leaves its new outer shell completely empty: its outer electrons all huddle in a full inner shell instead, so it's almost as compact as a noble gas.
+>
+> Down here are the lanthanides, gold and silver. Up to iron, elements are forged in the cores of stars. Everything heavier, like gold or uranium, takes something more violent: exploding stars and colliding neutron stars. Past here, every element is radioactive. And this is oganesson, the heaviest element we've ever made, a few atoms at a time.
+
+**The wall**
+> So what happens if we keep following the line down? We reach the third and final edge of the triangle: the Compton line.
+>
+> Down here, physicists stop weighing things in grams. They use electron-volts, which is a unit of energy. Divide it by the speed of light squared, and you get a mass. That's Einstein: E equals m c squared. Down this rabbit hole, mass and energy are the same thing.
+>
+> And everything with energy also has a wavelength. The more energy, the faster it oscillates, and the shorter its wavelength. You can't squeeze something smaller than that. To squeeze it, you'd have to add energy, and squeeze it any tighter and the energy you put in just makes new particles: pairs of matter and antimatter. So nothing can be smaller than its own wavelength. And the heavier something is, the smaller that limit gets, which is why the line slopes this way. That's the quantum limit.
+
+**Where matter meets light**
+> And here's something interesting. Everything on this line is either a particle or light. Every particle sits here, at its own wavelength. And so does light, every kind of it, from radio waves up here to gamma rays down here.
+>
+> Now follow the water line, the line of ordinary stuff, all the way down. It hits the edge right where X-rays turn into gamma rays. And right next to that is the electron. When an electron meets its antimatter twin, they turn completely into energy: two gamma rays, each with exactly the electron's energy, landing right on the electron's dot. That's matter turning into light.
+>
+> And that's another story, about all the wavelengths of light. Which is a story for the next video.
+
+### What changed
+- **Fact fixes** (from the fact check): sink and float the right way round (left sinks); the
+  soap bubbles, water balloons and Golden Record dropped; red blood cell ~7 µm, not "one
+  picometre, one picogram"; helium four times hydrogen's mass, not twice; heavy elements from
+  exploding stars and neutron-star mergers, not star cores; wavelength *inversely* proportional
+  to energy; matter → energy (the draft said energy → matter); squeezing makes new pairs rather
+  than the particle "disappearing"; "more massive for its size".
+- **New ending**: the draft explained the water line meeting the Compton line near gamma rays as
+  "gamma rays are the energy of matter". The crossing is near 66 keV, the X-ray/gamma border, but
+  that part is a coincidence. What the chart shows exactly is that every particle and photon sits
+  on the Compton line, and an electron–positron pair becomes gamma rays on the electron's own dot.
+  The script uses that; it's also the way into the wavelengths video. If you'd rather keep
+  radioactivity: "When a nucleus settles down after decaying, it lets go of the extra energy as
+  gamma rays: nuclear energies are about a million electron-volts."
+- **Dropped**: prions (not on the chart, and they don't copy themselves: they make other proteins
+  misfold), ferritin (not on the chart), the units aside as its own passage (now one sentence),
+  most of the density-lines passage (video 2 does it), the "we assume everything's a sphere" said
+  twice.
+- **Added**: lithium's new shell, the alkali metals and noble gases as the two ends of the
+  sawtooth, why palladium is weird, the ribosome and haemoglobin in a few words, why the line
+  slopes.
+- From the draft, kept close to your words: "let's start with us", "the famous spherical cow",
+  "where biology ends and chemistry begins", "the kingdom of molecules", "what makes every one
+  of us: DNA", "the table you saw in chemistry class isn't random", "palladium is weird",
+  "down this rabbit hole", "that's Einstein".
+
+---
 
 ## 7 · Wavelengths (`short-07-wavelengths`)
 

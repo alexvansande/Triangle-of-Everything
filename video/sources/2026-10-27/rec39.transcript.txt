@@ -1,0 +1,180 @@
+[    7.7]  In this series, we've been drawing everything in the universe in one chart, math against size.
+[   14.9]  Everything ends up boxed by, and everything ends up boxed in by three edges.
+[   20.3]  We've seen two of them.
+[   22.2]  First is the black hole line.
+[   23.6]  for any given size nothing can for nothing can be more massive for any
+[   34.3]  given size there's a limit for how massive you can be until you become a
+[   39.0]  black hole and then the second is the Hubble radius nothing can be bigger than
+[   44.1]  that today I want to explore the third side the limit of how small
+[   49.5]  something can be. This is the triangle of everything. This is the triangle of
+[   57.3]  everything and today we will be exploring the third size, the limit of
+[   61.6]  how small something can be. So let's start with us. This is a human about two
+[   67.6]  meters tall around... This is a human about two meters tall and around 100
+[   72.8]  kilos. On a log chart that's close enough. And notice that we measure
+[   77.3]  everything as if they were spheres. Notice that we are measuring mass is
+[   87.1]  for practice and notice that for size we are measuring everything assuming
+[   92.7]  that they are spheres. We are using the metric system, we are using metric
+[   98.7]  units here because they fit the grid so neatly but there are, we use metric
+[  105.3]  units here because they fit the grid so neatly.
+[  112.6]  We use the metric units here because they fit the grid so neatly, but really every
+[  118.2]  unit fits in this chart.
+[  120.7]  One gram of water fills one cubic centimeter, so water lands on this one diagonal line.
+[  126.5]  Everything to the left is denser and sinks, like this meteorite.
+[  130.3]  Everything to the right floats.
+[  132.3]  Everything to the right floats like a soccer ball.
+[  137.1]  Most animals live on the narrow bend along that line because we are mostly made of water.
+[  142.9]  As we go down we reach this malus insect, ants, ladybugs, tiny moths.
+[  148.4]  This is a single grain of sand, and now we are among the microorganisms.
+[  154.1]  Now we are among the microorganisms, tardigrades, meebs, and a grain of pollen.
+[  159.8]  Further down, a red-blue cell. About seven. Further down, now a red-blue cell. About seven
+[  170.5]  thousandths of a millimeter across than bacteria. Notice that almost all of microbiology sits
+[  177.9]  just a little to the left of the water line. That's actually useful. That's why
+[  185.8]  and cells and viruses being denser than water sink to the bottom.
+[  192.1]  Now this is where biology ends and chemistry begins. Viruses sit right in between. Most
+[  198.4]  biologists don't count them as alive but they are far more than just a molecule.
+[  203.2]  And now we are in the kingdom of molecules, the ribosome factory of the beauty of proteins,
+[  210.1]  antibodies, hemoglobin, which carries oxygen in your blood, and what makes
+[  215.7]  every one of us DNA. It's code written with just these four molecules, then and
+[  225.4]  what makes every one of us DNA. It's code written with just these four
+[  230.3]  molecules. Then we have simpler and simpler molecules like sugar and water
+[  236.3]  until we reach the atoms. Here's hydrogen. For any atom, the mass comes almost all from
+[  243.8]  its nuclei, but the size comes from its cloud of electrons. Add a second proton
+[  258.0]  with the two neutrons holding it together.
+[  272.5]  Okay, sorry, where am I?
+[  280.4]  Here's hydrogen. For any atom, the mass comes almost all from its nucleus,
+[  286.6]  but the size comes from its clouds of electrons.
+[  291.0]  Add the second proton with two neutrons to hold it together,
+[  294.1]  and you get helium, four times mass.
+[  297.3]  But that extra charge pulls the electron in closer, so it yields.
+[  301.9]  But that extra charge pulls the electron in closer,
+[  305.2]  so helium is actually smaller.
+[  307.7]  Add one more and you get lithium,
+[  310.0]  and its third electron has to start a new shell,
+[  313.2]  so it balloons out, now it's bigger.
+[  315.7]  And notice that that keeps happening, with every proton, atoms get heavier and smaller
+[  322.0]  and smaller until a new shell starts and they balloon out again, bigger and smaller
+[  327.6]  over and over at regular intervals.
+[  330.9]  Those intervals are bigger and smaller over and over at periodic intervals.
+[  337.5]  Those intervals are bigger and smaller over and over at periodic intervals, that's why
+[  349.1]  we get a periodic table.
+[  353.8]  That thing you saw in the wall in your chemistry class isn't just arbitrary, you
+[  359.3]  can see it right here drawn by the atoms themselves.
+[  363.9]  The alkali metal ballooning out is saying here the alkali metals are ballooning out
+[  371.8]  at the start of every row.
+[  373.3]  The noble gases tuck that.
+[  376.3]  The alkali metals, the alkali metals ballooning out at the start of every row and the
+[  381.8]  noble gases tucked in at the end.
+[  386.3]  Some atoms are a little weird.
+[  388.3]  Palladium jumps out.
+[  390.5]  Some atoms are just a little weird.
+[  392.4]  palladium jumps over towards the noble gases. It's the only element that leaves its new outer shell
+[  398.8]  completely empty. Its outer electrons all huddle in a full inner shell instead, so it's almost as
+[  406.8]  compact as a noble gas. Down here are the lanthanides, gold and silver. Up to iron,
+[  413.8]  elements are forged in the core of stars. Up to iron, elements are forged in the cores
+[  419.5]  of stars. Everything heavier, like gold or uranium, takes something even more
+[  425.4]  violent, exploding stars and colliding neutron stars. Past here every element
+[  432.6]  is radioactive, and this is oganesson, the heaviest element we've ever made, just
+[  439.3]  a few atoms at a time. So what happens if you keep following the line
+[  446.7]  down. We reach the third and final edge of the triangle, the Kontol line. Down here physicists
+[  454.9]  stop weighting things in grams. They use electron volts, which is a unit of energy, divided by the
+[  461.3]  speed of light squared and you get mass. That's Einstein. E equals mc squared.
+[  469.0]  Down in this habit, down in this rabbit row, mass and energy, down here, mass and energy
+[  476.6]  are the same thing.
+[  479.4]  Deep down, mass and energy are the same.
+[  485.1]  And everything with energy also has a wavelength.
+[  488.6]  The more energy, the faster it oscillates and the shorter its wavelength.
+[  493.3]  You can squeeze something smaller than that.
+[  495.7]  to squeeze it you'd have to add energy to squeeze it you'd have to add energy
+[  502.3]  and squeeze it any tighter and the energy you just put in just make new
+[  506.1]  particles pairs of matter and antimatter so really nothing can be smaller than
+[  511.1]  it's own wavelength.
+[  513.1]  And the heavier something is-
+[  514.2]  The story is short,
+[  515.3]  we've lost everything that exists.
+[  518.2]  And that's a lot of mass and size.
+[  521.5]  And in the last video, we saw that-
+[  523.9]  Sorry, I don't know why this happened.
+[  526.9]  It, like a second audio came in.
+[  530.0]  To squeeze it, you'd have to add energy
+[  532.3]  and to squeeze it any tighter
+[  534.0]  and the energy would just but make you...
+[  537.3]  To squeeze it, you have to add energy
+[  539.2]  and if you squeeze it any tighter, that energy you put in just makes new particles,
+[  544.8]  pairs of matters and antimatter. So nothing really can be smaller than its own wavelength,
+[  551.8]  meaning that no object can cross the Compton Line. That's forbidden by quantum.
+[  558.7]  So nothing can be smaller than its own wavelength, meaning that nothing can cross,
+[  565.9]  Meaning that no object can ever cross the quantum line.
+[  569.6]  That's why it's the edge of the triangle.
+[  574.3]  And the heavier something is,
+[  575.6]  the smaller that limit gets,
+[  577.4]  which is why the lines looks this way.
+[  580.2]  That's the quantum limit.
+[  583.6]  Okay, no, I'll grab it.
+[  585.5]  So nothing can be smaller than its own wavelength.
+[  588.8]  And the heavier something is,
+[  590.5]  the smaller that limit gets,
+[  592.0]  which is why this line looks this way.
+[  594.4]  And it's why no object can cross to the other side.
+[  598.4]  It's the quantum limit of our triangle.
+[  603.7]  But here's an interesting question.
+[  613.3]  Now here's an interesting question.
+[  615.4]  What happens if we follow the matter line,
+[  618.1]  the line of ordinary stuff, all the way down?
+[  620.6]  it hits the edge right here.
+[  636.5]  So here's something very cool.
+[  638.8]  Everything in this line is either a particle or light,
+[  641.6]  which is photon, which is maybe a particle, maybe not.
+[  647.8]  And every particle sits here at its own wavelength.
+[  653.2]  Everything on this line is a particle, right?
+[  655.6]  And there's light, which kind of is, kind of is not.
+[  660.3]  But every particle sits here at its own wavelength, and so does light.
+[  664.8]  Every kind of it, from radio waves up to gamma rays down here.
+[  669.7]  Now, here's a very cool question.
+[  672.2]  Here's the water line, the line again of ordinary stuff, of matter. What happens
+[  678.9]  with extended down? It hits the edge right where x-ray turns into
+[  686.9]  gamma rays and next right hits the edge right where x-rays turn into
+[  696.6]  gamma rays and right next to that is the electron. When an electron meets
+[  701.6]  its antimatter twin, they turn completely into energy.
+[  705.3]  Two gamma rays, each which exactly
+[  707.6]  one electron will land energy.
+[  714.2]  Now, I don't wanna talk about electron, man.
+[  716.4]  I wanna talk about radioactivity.
+[  718.4]  I think it's a much cooler story, right?
+[  721.1]  Isn't that how water matter becomes light?
+[  725.3]  I'm gonna record your thing.
+[  737.4]  Here's an interesting question, right?
+[  739.4]  Remember that line we were following before, the waterline, which is really the density
+[  744.0]  of all just ordinary matter?
+[  752.8]  Well, where does it go?
+[  757.2]  Well, where does it cross the Compton Line?
+[  759.5]  you can see that it crosses right here where x-ray turns into gamma rays.
+[  765.6]  There's a reason for that. This is where the... there's a reason for that.
+[  776.9]  When one atom like uranium becomes another, when a
+[  787.1]  radiative when a radioactive atom degrades into another, when matter becomes energy?
+[  797.9]  Now here's an interesting question.
+[  800.0]  Remember that line we were following, the density water line, the line of ordinary stuff, just matter.
+[  806.9]  It crosses the Compton line right here,
+[  810.4]  right where gamma rays and x-rays are,
+[  814.2]  right where gamma rays become x-rays.
+[  819.2]  When a radioactive atom decays into another,
+[  824.3]  it emits a little bit of gamma rays.
+[  827.0]  That's because it's turning some of its matter
+[  830.0]  into energy and that energy comes out
+[  833.6]  at this amount of energy.
+[  838.4]  That's because it's converting a little bit of matter
+[  842.2]  and that's because it's converting a little bit
+[  845.3]  of matter into energy, and that energy
+[  848.5]  comes at the gamma ray radiation, which is right here.
+[  855.6]  That's matter turning into light.
+[  862.1]  And light itself will also tell us a whole different story.
+[  872.3]  And light itself can tell us a story, a story about the universe, a story of...
+[  878.8]  And light itself can tell us...
+[  883.1]  And light itself can tell us another story.
+[  886.9]  That's a story of the universe.
+[  889.7]  That's...
+[  890.3]  And light itself can also tell us a story.
+[  893.1]  That's a story of the size...
+[  896.8]  And Light Self can also tell us a very interesting story about the universe and our place in
+[  903.0]  it.
+[  903.8]  That's the story of Wavelengths of Light, which is for another video.
+[  908.9]  That's the story of Wavelengths of Light, which is a great story for the next video.
