@@ -56,7 +56,7 @@ export function friendlyEnergy(logM) {
 }
 
 export function isPhoton(obj) {
-  return Math.abs(obj.logM + obj.logR + 36.656) < 0.5;
+  return obj.photon === true;
 }
 
 export function friendlyWavelength(logR) {
