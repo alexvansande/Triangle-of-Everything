@@ -43,7 +43,8 @@ down 5 s and starts the next short **in place**, on the same audio element, so
 phones keep playing without another tap. The "Autoplay on/off" chip on the
 pause screen switches it; `&autoplay=0` starts with it off.
 
-**Speed**: the shorts' audio is sped up with the pitch kept, to **1.2×** for the 2026-10-07 recordings and **1.1×** from the 2026-10-19 ones (`--tempo 1.1`)
+**Speed**: from video 7 (2026-10-27) on, takes are **not** sped up: they play as recorded (the author no
+longer wants it). Before that, the shorts' audio was sped up with the pitch kept, to **1.2×** for the 2026-10-07 recordings and **1.1×** from the 2026-10-19 ones (`--tempo 1.1`)
 (`scripts/narration-tempo.py`, with ffmpeg's atempo: rubberband made the voice sound like a phone or a tin can; it also scales the word timings and writes
 `"tempo": 1.2` into words.json), so renders come out at 1.2× too. The pause
 screen's 1× to 1.5× (`[` and `]` on a keyboard, `&speed=` in the URL) count

@@ -107,3 +107,97 @@ resolves. The fork's camera move is 3 s now (it had 6 s before the next cue in t
   supernova leaves a white dwarf; in a supernova's core, protons and electrons become neutrons;
   a teaspoon of neutron star weighs about 2 billion tonnes, a mountain's worth; a still bigger
   core collapses into a black hole.
+
+## rec42: "wavelengths take 1.aifc" (video 7)
+
+This is in iCloud `Projects/triangle/recordings` (recorded **at home**): 6:59, PCM 48 kHz, the same
+voice on both channels. It's one run of the draft script in `video/plans/wavelengths.md` with
+retakes, a new passage on why the Compton line runs at 45°, and a spoken note about the visuals.
+The Whisper word timings (medium.en, filler-friendly prompt) are `rec42.words.json` and
+`rec42.transcript.txt`.
+
+Cut: `video/short-07-wavelengths/edl.py`, 32 clips. The take runs 6:59 and the cut 4:18. It plays
+**as recorded, with no speed-up** (the author, 2026-10-27: new takes aren't sped up any more).
+Picks:
+- The opening is the second try ("I've been exploring this chart…"). The mic check ("first
+  recording for video 7, I guess?") and "And we," are left out.
+- "Gamma rays are photons, they are particles of light" is the second try. The first breaks
+  off into "uh…".
+- A "yeah" between "shorter wavelength" and "less energy" is left out.
+- The Compton line: "That's why the Compton line runs at a 45-degree angle" (second try), then
+  "at this scale we look at energy instead of mass, they are the same, and we look at wavelength
+  instead of size. And the more energy, the shorter wavelength. And that's one of the limits of
+  our triangle." The restarts in between are left out, along with "so almost everything falls
+  into the downward 45-degree line. That's a contour line. That's also the limit of how any".
+- The spoken note (1:59–2:42) and the retakes of "This is the Earth" are left out (the note is
+  below).
+- "It's a label your brain puts on a wavelength" is the second try; the first says "puts out".
+- Infrared: "Now let's go all the way back down to infrared" (second try), then "Warm land
+  glows, cold cloud tops are dark" (the last of four tries).
+- "Not all light comes from the same place" is the second try. "So let's try to put, see them in
+  a log scale…" and "It's the only way to be able to see different kinds" are left out.
+- "Every wavelength is a different window" is the first try.
+
+The cut was re-transcribed clip by clip and is clean: no false starts, repeats or ums left.
+
+Caption words corrected: "Gamma rays or photons are" → "Gamma rays are photons, they're" (the
+audio has the latter); "wavelength as instead of size" → "wavelength instead of size" (a filler
+"as", too joined-up to cut); "the answer on," → "to:"; "or air" → "our air"; "X-rays and Earth go
+dark, or atmospheres stop" → "X-rays, Earth goes dark: our atmosphere stops"; "the most energetic
+lighter is" → "light there is"; "smashes" → "smash"; "called the cold clouds" → "cold clouds"; "sea,
+ice" → "sea ice"; "moon orbit" → "Moon's orbit"; "sun" → "Sun"; "the star around us" → "stars";
+"galaxy magnetic" → "galaxy's magnetic"; "An X-ray" → "And X-rays".
+
+### The author's note in the take (1:59–2:42), done
+
+> instead of having that visualizer on top, I want the ranges to be shown on the Compton line…
+> we show the visualizer on the back. We hide the elements. We hide the labels. We hide the
+> background. We just show the visualizer with the Compton line, and as you go through the
+> Compton line, it shows the labels, but also the colors… the colors we see.
+
+Done: from "Now let's go back to visible light", the explorer fills the screen behind the chart's
+Compton line. Its own spectrum bar is hidden, and everything else on the chart goes. The line
+carries the colours we see (380–750 nm, as a rainbow), the selector's red, green and blue ranges
+glowing at their wavelengths, and the photons' names, which light up as a range passes them. The
+chart's camera follows the selector along the line: close in (3 decades across) for the colours,
+since visible light is a sliver of the line to scale, and wider for gamma rays and radio.
+
+### Fact check
+
+- **Right:** gamma rays are photons; every photon is the same kind of particle, differing only in
+  energy; more energy, shorter wavelength (E = hc/λ).
+- **Right:** "the Compton line runs at a 45-degree angle": mass goes as 1/size along it (slope −1 on
+  log-log axes with equal decades, which the chart has), and photons sit on it by their energy
+  (as mass, E/c²) and wavelength. "One of the limits of our triangle": it's the quantum edge,
+  since nothing can be pinned down smaller than its own Compton wavelength.
+- **Imprecise:** "at this scale we look at energy instead of mass, they are the same". They're
+  equivalent (E = mc²), which is how photons, with no rest mass, get a place on the mass axis.
+  Suggested: "…we look at energy instead of mass (E = mc², they're equivalent)…".
+- **Right:** three kinds of colour sensors (cones); infrared as red, red as green, green as blue is
+  a one-step shift towards longer wavelengths; plants reflect strongly in the near-infrared; bees see
+  ultraviolet.
+- **Imprecise:** "Not if you're talking about bees" works as a joke, but bees don't see red at all
+  (their cones peak in UV, blue and green), so "the red we see" doesn't exist for them.
+- **Right:** in ultraviolet, Earth shows smoke and dust (OMI's aerosol index).
+- **Imprecise (the draft script's wording):** "There's no full map of the sky in ultraviolet, our air
+  blocks it, so you have to go to space to see it." The air is why UV astronomy happens in space,
+  but it isn't why there's no full map: space telescopes (GALEX) have mapped most of the sky, just
+  not all of it. Suggested: "There's no complete map of the sky in ultraviolet: our air blocks it,
+  and no space telescope has covered the whole sky yet."
+- **Right:** X-rays: the atmosphere stops them; hot gas at millions of degrees; X-ray binaries ("pairs
+  of stars where one is eating the other"). Gamma rays: the Galactic plane glows where cosmic rays
+  hit gas, plus pulsars and blazars.
+- **Right:** thermal infrared: warm land bright, cold cloud tops dark. Near-infrared passes
+  through the dust towards the Galactic Centre. Far-infrared shows the cold dust where stars form.
+  Microwaves: Earth's water vapour, rain and sea ice, and the sky's cosmic microwave background.
+- **Imprecise:** "Further up, X-rays, Earth goes dark". Spoken as "X-rays and Earth go dark";
+  captioned with the meaning.
+- **Right:** the Moon's orbit is 1.28 light-seconds; the Sun 8.3 light-minutes; the nearest
+  stars a few light-years (Proxima, 4.2).
+- **Right:** visible light from stars nearby; infrared further through the dust; radio from
+  cosmic-ray electrons in the galaxy's magnetic field and from radio galaxies billions of
+  light-years away; microwaves from the edge (the CMB). **Imprecise:** "X-rays and gamma rays
+  from the most violent things": true of the sources, but the diffuse gamma glow is cosmic rays
+  hitting ordinary gas.
+- **Wording:** "light-second", "light-minutes", "light-years" (hyphenated in print);
+  "Moon's orbit".

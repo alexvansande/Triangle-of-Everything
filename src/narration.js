@@ -26,7 +26,7 @@ import * as d3 from "d3";
 import {
   HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
-  RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES,
+  RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES, PHOTON_LAMBDA_OFFSET,
 } from "./data.js";
 import { narrClassic, classicFrameClient, classicAxisNumbers, classicRect, classicScreen, classicFullView } from "./classic.js";
 // Scene scripts, one per file in ./narration-scenes/ (lazy chunks)
@@ -1658,6 +1658,10 @@ export async function startNarration(app) {
   //   contrast, lift: glide there from wherever they are, over `dur` s (default 2.5)
   //   spin: a turn rate (rad/s) that never stops while it's on: Earth turning on its
   //   axis in Inside (added to gmst), the whole Cloud turning (added to spinA)
+  //   line: 0–1 (default 1), the Compton line drawn over the explorer as its spectrum
+  //   bar (the author's note, 2026-10-27): the line where the chart's camera puts it,
+  //   the colours we see on it, the selector's red, green and blue ranges glowing on
+  //   it, and the photons' names lighting up as the ranges pass them
   const SPEC_KEYS = cues.filter(c => c.explorer);
   const SPEC = SCENE.explorer || SPEC_KEYS.length ? { ...(SCENE.explorer || {}) } : null;
   let specFrame = null, specLastT = NaN;
@@ -1665,7 +1669,7 @@ export async function startNarration(app) {
   const SPEC_LOG = new Set(["zoom"]);   // glides evenly in powers of ten
   const specSegs = {}, specSwitch = {};
   if (SPEC) {
-    const init = { show: false, spin: 0, ...SPEC };
+    const init = { show: false, spin: 0, line: 1, ...SPEC };
     const at = (f, t) => {
       const segs = specSegs[f];
       if (!segs) return init[f];
@@ -1692,13 +1696,13 @@ export async function startNarration(app) {
       const st = {};
       for (const f of SPEC_SWITCH) { let v = init[f]; for (const k of specSwitch[f] || []) if (k.t <= t) v = k.v; if (v !== undefined) st[f] = v; }
       for (const f of new Set([...Object.keys(init), ...Object.keys(specSegs)])) {
-        if (SPEC_SWITCH.includes(f) || f === "spin" || f === "show") continue;
+        if (SPEC_SWITCH.includes(f) || f === "spin" || f === "show" || f === "line") continue;
         const v = at(f, t);
         if (v !== undefined) st[f] = v;
       }
       const a = turned(t);
       if (a) { if ((st.view ?? "inside") === "cloud") st.spinA = (st.spinA ?? 0) + a; else st.gmst = (st.gmst ?? 0) + a; }
-      return { show: smooth(at("show", t)), st };
+      return { show: smooth(at("show", t)), line: clamp01(at("line", t)), st };
     };
   }
   let specEl = null;
@@ -1715,9 +1719,76 @@ export async function startNarration(app) {
     }, on);
   }
   const specReady = () => !specEl || !!specEl.contentWindow?.spectrumVideo;
+  // the sky's bands (the explorer's bar): each one's wavelength, so a selector
+  // position (in bands) lands on the Compton line
+  const specBands = SPEC ? await fetch(`${import.meta.env.BASE_URL}spectrum/sky-spectrum/bands.json`).then(r => r.json()).then(m => m.bands).catch(() => null) : null;
+  const UNIT_M = { fm: 1e-15, nm: 1e-9, "µm": 1e-6, mm: 1e-3, cm: 1e-2, m: 1 };
+  const waveLog = (str) => {   // log10 of a band's wavelength in cm ("21 cm", "330–680 nm", "~1 fm": a range's geometric mean)
+    const parts = str.replace(/~/g, "").split("–").map(x => x.trim().match(/^([\d.]+)\s*(fm|nm|µm|mm|cm|m)?$/));
+    if (parts.some(x => !x)) return NaN;
+    const unit = parts[parts.length - 1][2];
+    const ls = parts.map(x => Math.log10(+x[1] * UNIT_M[x[2] ?? unit] * 100));
+    return ls.reduce((a, b) => a + b, 0) / ls.length;
+  };
+  const bandLam = specBands ? specBands.map(b => waveLog(b.wave)) : [];
+  const lamAt = (p) => {   // selector position (bands) → log10 λ (cm), straight between band centres, on past the ends
+    const n = bandLam.length, i = Math.max(0, Math.min(n - 2, Math.floor(p)));
+    return bandLam[i] + (bandLam[i + 1] - bandLam[i]) * (p - i);
+  };
+  const posAt = (L) => {   // and back: log10 λ → selector position
+    const n = bandLam.length;
+    for (let i = 0; i < n - 1; i++) if ((L <= bandLam[i] && L >= bandLam[i + 1]) || i === n - 2)
+      return i + (L - bandLam[i]) / (bandLam[i + 1] - bandLam[i]);
+    return 0;
+  };
+  // a chart point on the Compton line for a wavelength (photons sit at λ/2π)
+  const linePt = (L) => { const r = L - PHOTON_LAMBDA_OFFSET; return [sx(r), sy(comptonM(r))]; };
+  const PHOTONS = app.objects.filter(o => o.photon).map(o => ({ name: o.name, L: o.logR + PHOTON_LAMBDA_OFFSET }));
+  // the colours we see, along 380–750 nm
+  const seen = (nm) => {
+    const h = Math.max(0, Math.min(270, 270 * (1 - (nm - 400) / 300)));
+    const edge = nm < 420 ? (nm - 380) / 40 : nm > 700 ? (750 - nm) / 50 : 1;
+    return d3.hsl(h, 1, 0.55, Math.max(0, Math.min(1, edge))).toString();
+  };
+  const gSpec = nsvg.insert("g", ":first-child").attr("class", "narr-spec");
+  const CHANNELS = [["#ff3b3b", -1], ["#3bff5a", 0], ["#4a7bff", 1]];
+  function drawSpecLine(t, a, st) {
+    gSpec.selectAll("*").remove();
+    gSpec.attr("opacity", a);
+    if (a <= 0 || !bandLam.length) return;
+    // the whole line across the screen, then the visible band in its own colours
+    const [x0, y0] = linePt(-16), [x1, y1] = linePt(8);
+    gSpec.append("line").attr("x1", x0).attr("y1", y0).attr("x2", x1).attr("y2", y1).attr("class", "narr-spec-line");
+    for (let nm = 380; nm < 750; nm += 10) {
+      const [ax, ay] = linePt(Math.log10(nm * 1e-7)), [bx, by] = linePt(Math.log10((nm + 10) * 1e-7));
+      gSpec.append("line").attr("x1", ax).attr("y1", ay).attr("x2", bx).attr("y2", by).attr("stroke", seen(nm + 5)).attr("class", "narr-spec-seen");
+    }
+    // the selector's three ranges, as soft glows on the line
+    const c = st.c, sp = st.s ?? 1, sig = Math.max(0.35, 0.45 * sp);
+    for (const [col, k] of CHANNELS) {
+      const p = c + k * sp, [ax, ay] = linePt(lamAt(p - sig)), [bx, by] = linePt(lamAt(p + sig)), [mx, my] = linePt(lamAt(p));
+      // (visible light is a sliver of the line, to scale: a halo keeps each range readable)
+      gSpec.append("circle").attr("cx", mx).attr("cy", my).attr("r", 15).attr("fill", col).attr("class", "narr-spec-halo");
+      gSpec.append("line").attr("x1", ax).attr("y1", ay).attr("x2", bx).attr("y2", by).attr("stroke", col).attr("class", "narr-spec-ch");
+      gSpec.append("circle").attr("cx", mx).attr("cy", my).attr("r", 4.5).attr("fill", col).attr("class", "narr-spec-dot");
+    }
+    // the photons: a dot each, and their names while a range is on them
+    for (const ph of PHOTONS) {
+      const [x, y] = linePt(ph.L), q = posAt(ph.L);
+      const d = Math.min(...CHANNELS.map(([, k]) => Math.abs(q - (c + k * sp))));
+      const on = 1 - smooth((d - sig) / 1.2);
+      gSpec.append("circle").attr("cx", x).attr("cy", y).attr("r", 2.6).attr("class", "narr-spec-ph").attr("opacity", 0.45 + 0.55 * on);
+      // names above the line, to its right; near the right edge, to its left
+      const left = x > nsvg.node().clientWidth - 8.5 * ph.name.length - 20;
+      if (on > 0.01) gSpec.append("text").attr("x", left ? x - 9 : x + 9).attr("y", y - 7).attr("text-anchor", left ? "end" : "start")
+        .attr("class", "narr-spec-name").attr("opacity", on).text(ph.name);
+    }
+  }
   function drawSpectrum(t) {
-    if (!specFrame || t === specLastT) return;
-    const { show, st } = specFrame(t);
+    if (!specFrame) return;
+    const { show, line, st } = specFrame(t);
+    drawSpecLine(t, show * line, st);   // follows the chart's camera, so every frame
+    if (t === specLastT) return;
     specEl.style.opacity = show;
     specEl.style.visibility = show > 0 ? "visible" : "hidden";
     const api = specEl.contentWindow?.spectrumVideo;
@@ -2083,6 +2154,13 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
   -webkit-text-stroke: 6px #000; paint-order: stroke fill; }
 #narr-caption span { color: #fff; }
 #narr-cover { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+#narr-layer .narr-spec-line { stroke: #fff; stroke-width: 2; opacity: 0.6; }
+#narr-layer .narr-spec-seen { stroke-width: 5; stroke-linecap: butt; }
+#narr-layer .narr-spec-ch { stroke-width: 16; stroke-linecap: round; opacity: 0.5; mix-blend-mode: screen; }
+#narr-layer .narr-spec-dot { stroke: #000; stroke-width: 1; }
+#narr-layer .narr-spec-halo { opacity: 0.35; filter: blur(6px); mix-blend-mode: screen; }
+#narr-layer .narr-spec-ph { fill: #fff; }
+#narr-layer .narr-spec-name { fill: #fff; font: 600 15px "IBM Plex Sans", "Helvetica Neue", sans-serif; paint-order: stroke; stroke: #000; stroke-width: 3px; }
 #narr-spectrum { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; pointer-events: none; visibility: hidden; opacity: 0; }
 #narr-cover img { position: absolute; left: 0; top: 0; transform-origin: 0 0; max-width: none; }
 #narr-photo { position: absolute; inset: 0; background: #000; overflow: hidden; visibility: hidden; pointer-events: none; }

@@ -1,8 +1,12 @@
-# Wavelengths (plan, 2026-10-27)
+# Wavelengths (plan, 2026-10-27): video 7, `short-07-wavelengths`
+
+Recorded the same day (rec42) and cut; the take, its notes and fact check are in
+`video/short-07-wavelengths/` and `video/sources/2026-10-27/NOTES.md`. The author's note in the
+take changed the look: the explorer runs behind the chart's Compton line, which is its spectrum
+bar (no bar on top). What follows is the plan as written before the take.
 
 The video right after the one on the microscopic world (the Compton line, matter breaking
-down into gamma rays). From the author's outline of 2026-10-27. Number to be set once the
-microscopic video has one.
+down into gamma rays). From the author's outline of 2026-10-27. It's video 7.
 
 Almost all of it plays in the **spectrum explorer** (`public/spectrum/index.html`), not on
 the chart: the chart opens and hands over, the explorer carries the rest. That's new for

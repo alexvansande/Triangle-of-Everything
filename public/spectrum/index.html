@@ -41,7 +41,7 @@
   Cloud and the Milky Way (an off-centre circle, each edge point at its own
   log distance), each while it is a sensible size on screen (?rings=0 hides them).
   ?embed=1 (bar and view only, for the chart's sidebar)  ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
-  ?video=1 (narrated videos: only the spectrum bar and the view, nothing moves by
+  ?video=1 (narrated videos: only the view (&bar=1: and the spectrum bar), nothing moves by
   itself; the narration sets every frame with window.spectrumVideo.set({…}) or a
   {type: "spectrum-state", state} message; see setVideo below)
   ?bright=lin|log  ?lift= (0…1, how strong the log brightness is)  ?radius=custom|log|linear  ?dot= (point size ×)  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
@@ -146,7 +146,8 @@
   /* driven by a narrated video (?video=1): the spectrum bar over the view, nothing else */
   body.video header, body.video #readout, body.video #dist, body.video #dreadout, body.video footer,
   body.video #options, body.video #views, body.video .grip { display: none !important; }
-  body.video #bar { margin-top: 10vh; }   /* below a phone app's top bar */
+  body.video:not(.bar) #bar { display: none; }   /* a video draws its own bar: the chart's Compton line */
+  body.video.bar #bar { margin-top: 10vh; }   /* ?bar=1: the explorer's own, below a phone app's top bar */
   body.video #slots .slot span { display: none; }
   body.video #regions { font-size: 12px; letter-spacing: 0.04em; }
   body.video #stage { margin-top: 0; }
@@ -244,6 +245,7 @@
   if (q.get("embed") === "1") document.body.classList.add("embed");
   const VIDEO = q.get("video") === "1";
   if (VIDEO) document.body.classList.add("video");
+  if (VIDEO && q.get("bar") === "1") document.body.classList.add("bar");
   // opened over the chart (?app=1): room for its close button, and Escape here closes it too
   if (q.get("app") === "1" && window.parent !== window) {
     document.body.classList.add("app");
