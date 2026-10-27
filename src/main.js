@@ -29,7 +29,9 @@ import {
 // preview (scripts/narration-preview.mjs), which runs from a sub-folder.
 const BASE = import.meta.env.BASE_URL;
 // The narration preview: the player only, no address-bar sync or service worker.
-const NARR_PREVIEW = import.meta.env.MODE === "narration-preview";
+// The dev server serves the same page at /videos/ (vite.config.js).
+const NARR_PREVIEW = import.meta.env.MODE === "narration-preview" ||
+  (import.meta.env.DEV && /^\/videos\/?$/.test(location.pathname));
 // Built with relative paths (--base ./) to run from a sub-folder, like a
 // claude.ai page: the URL path isn't ours, so only the hash is kept in sync —
 // rewriting the path to "/" would break every relative asset (map tiles…).
@@ -5756,8 +5758,7 @@ let _bgTilesEnabled = true;
 // controls); ?bgnoise / ?bgnoise=0 override the saved choice. Narrations
 // (?narrate) default it on at full resolution; the site defaults it off and,
 // when enabled, renders at half resolution (~4× cheaper on the GPU).
-const _bgNoiseNarr = new URLSearchParams(location.search).has("narrate") ||
-  import.meta.env.MODE === "narration-preview";
+const _bgNoiseNarr = new URLSearchParams(location.search).has("narrate") || NARR_PREVIEW;
 const BG_NOISE_DEFAULT_ON = _bgNoiseNarr;
 const BG_NOISE_PROFILE = _bgNoiseNarr ? {} : { res: 0.5 };
 const BG_NOISE_ON_AT = 1, BG_NOISE_OFF_AT = 0.7; // css px per source px (tiles run out at 1)
