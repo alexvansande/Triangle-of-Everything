@@ -16,8 +16,9 @@
   Sky only: a distance window drops every band's light whose depth (where
   along the line of sight it comes from) falls outside it, in every view.
   Inside also shows Earth at the centre, in the same bands, the sky behind it.
-  The Cloud's light adds up in a floating-point buffer and is shown through a
-  log tone map ("Lift faint"), so sparse far points show beside the bright centre.
+  The Cloud's light adds up in a floating-point buffer and is shown linearly by
+  default, so the outer shell (CMB) reads as dots; Log brightness ("Lift faint")
+  opts into a log tone map that lifts sparse far points beside the bright centre.
   In the Cloud each point takes its own distance from its direction's spread
   of starlight, dust and halo light (six quantiles per direction), so the
   Galaxy shows its depth, not one average per direction.
