@@ -22,6 +22,13 @@ const PH = { r: 28.64, m: 57.49, mark: true };       // particle horizon = obser
 // a dying massive star: the core collapses to a neutron star, the layers blow out as a supernova
 const SN_SPLIT = { split: { from: { obj: "Red Giant" }, core: { obj: "PSR J0030+0451" }, shell: { obj: "Supernova Remnant" } } };
 const OU = { ellipse: [PH.r, PH.m, 0.09, 0.09], rot: 0, place: "above" };   // a ring on that dot, for its label
+// the whole universe on a log scale (the spectrum explorer's Cloud, log radius from 1,000 km,
+// as in video 7), false colour: red microwave, green far infrared, blue visible light
+const LOG_UNIT = Math.log10(1000 / 9.4607e12);
+const UNIVERSE_COLOURS = { c: 13, s: 8.5 };
+const UNIVERSE_LABELS = { "1 ly": "1 light-year", "Proxima Centauri · 4.2 light-years": "nearby stars", "1,000 ly": "1,000 light-years",
+  "Milky Way": "our galaxy", "1 million ly": "1 million light-years", "1 billion ly": "1 billion light-years", edge: "edge of the observable universe" };
+const UNIVERSE_KEY = { key: [["microwave", "#ff6b5e"], ["far infrared", "#7ddc6f"], ["visible light", "#7fa2ff"]], y: 0.7 };   // above the captions, clear of the ring labels
 
 export default {
   title: "The Hubble sphere",
@@ -30,6 +37,10 @@ export default {
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Fresh Air",
+
+  // the explorer's state at t = 0, hidden until "…seeing it right now" (no Compton line over it)
+  explorer: { view: "cloud", radius: "log", unit: LOG_UNIT, rings: true, bright: "lin", labels: UNIVERSE_LABELS,
+    yaw: 3.74, pitch: 0.5, spinA: 0, zoom: 8, line: 0, ...UNIVERSE_COLOURS },
 
   captionFixes: { hobo: "Hubble", mouth: "mouse", subtor: "super", chaos: "scale", finely: "finally",
     math: "mass", shard: "chart", radio: "radius", plop: "pop" },
@@ -139,9 +150,13 @@ export default {
     { at: "upper limits", hl: [{ line: "triangle" }] },
     // the label sits on the observable universe's own dot, not on the arrow
     { at: "another interesting thing", cam: { r: 28.2, m: 56.4, span: 5 }, clear: true, hl: [{ obj: HS, label: false }] },
-    { at: "46 billion", hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH }, { ...OU, label: "observable universe · 46 billion ly" }] },
-    { at: "outside of our reach", hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH }, { ...OU, label: "beyond our reach" }] },
-    { at: "outside of our reach", offset: 0.4, photo: "xdf", dur: 6, kb: [1, 1.5], caption: "Hubble eXtreme Deep Field · 2012 · galaxies as they were, up to 13 billion years ago" },
+    // ── The whole universe on a log scale (author, 2026-10-27) ──
+    // from Earth out to the edge of the observable universe in one slow zoom, turning slowly,
+    // a few distances named, and what the colours stand for
+    { at: "seeing it right now", clear: true, hold: 22, hl: [UNIVERSE_KEY], explorer: { show: true, fade: 1.6, spin: 0.03 } },
+    { at: "seeing it right now", offset: 0.4, explorer: { zoom: 0.75, dur: 21 } },
+    { at: "put all of that observable", explorer: { show: false, fade: 1.4 }, cam: { r: 28.2, m: 56.4, span: 5 }, dur: 0.01, clear: true,
+      hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH, delay: 1.2 }, { ...OU, label: "observable universe · 46 billion ly", delay: 1.6 }] },
     { at: "outside our triangle", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "outside the triangle" }] },
     { at: "never been able to reach each other", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "where they would be now" }] },
     { at: "history of our own past", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "a history of our own past" }] },

@@ -303,7 +303,9 @@ Cue fields
   explorer the spectrum explorer (public/spectrum/, ?video=1) over the chart, set
            as a pure function of t (the scene's `explorer` is its state at t = 0):
              show: true|false (fade s, default 1.2); view "inside"|"cloud",
-             radius "custom"|"log"|"linear", bright "lin"|"log", rings: switch
+             radius "custom"|"log"|"linear", bright "lin"|"log", rings, labels
+             ({ "ring or marker name": "shown as" }: only those labels, renamed;
+             "edge": a ring at the observable universe's edge): switch
              at the cue; c, s (RGB selector, in bands of the sky's bar: natural
              colour c 22, s 1), yaw, pitch, zoom, spinA, gmst, unit, lz, exposure,
              contrast, lift: glide over dur s (default 2.5); spin: rad/s, turns
@@ -346,6 +348,8 @@ Cue fields
                mass ruler (right) and the size ruler (bottom), labelled
              { text: "Dark matter?", at: [r, m], color? } — a big free-standing word,
                a hub for arrows to point out from
+             { key: [["microwave", "#ff6b5e"], …], title? } — a colour key near the
+               top, for a false-colour view (the explorer's RGB)
              { pixels: { steps: [s, …], n?, cell?, seed? } } — expansion as an image gaining
                pixels: a black n×n image (9) with a few lit pixels; at each step every pixel
                becomes 3×3, the old one in the centre, so the lit ones spread apart

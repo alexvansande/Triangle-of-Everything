@@ -781,6 +781,7 @@ export async function startNarration(app) {
       else if (h.cross) drawCross(el, h, age);
       else if (h.text) drawText(el, h, age);
       else if (h.pixels) drawPixels(el, h, age);
+      else if (h.key) drawKey(el, h, age);
     });
     // While a callout is on screen, the chart's other labels step back: only the
     // highlighted objects keep theirs (the rest come back between callouts).
@@ -1513,6 +1514,19 @@ export async function startNarration(app) {
     el.append("text").attr("class", "narr-tag narr-cand").attr("x", place === "left" ? x - 16 : x + 16).attr("y", y + 5)
       .attr("text-anchor", place === "left" ? "end" : "start").attr("fill", col).attr("opacity", op).text((h.label || "").toUpperCase());
   }
+  /** A colour key: { key: [["microwave", "#ff6b5e"], …], title?, y? (share of the height, 0.1) }, for a false-colour view */
+  function drawKey(el, h, age) {
+    const SW = layer.clientWidth, SH = layer.clientHeight, op = h.instant ? 1 : smooth(age / 0.6);
+    const rows = h.key, y0 = SH * (h.y ?? 0.1), lh = 19;
+    const g = el.append("g").attr("opacity", op);
+    if (h.title) g.append("text").attr("class", "narr-tag").attr("x", SW / 2).attr("y", y0 - 10).attr("text-anchor", "middle")
+      .attr("fill", "#e9ecf5").text(h.title.toUpperCase());
+    rows.forEach(([name, col], i) => {
+      const y = y0 + i * lh + 8;
+      g.append("rect").attr("x", SW / 2 - 70).attr("y", y - 9).attr("width", 12).attr("height", 12).attr("rx", 2).attr("fill", col);
+      g.append("text").attr("class", "narr-tag").attr("x", SW / 2 - 50).attr("y", y + 1.5).attr("fill", col).text(name.toUpperCase());
+    });
+  }
   /** Expansion as a picture gaining pixels: { pixels: { n?, steps: [s, …], seed? } }. A small
    *  black image with a few lit pixels; at each step (seconds after the cue) every pixel becomes
    *  3 × 3, the old one kept in the centre and the new ones black, so the lit pixels spread
@@ -1700,7 +1714,8 @@ export async function startNarration(app) {
   // (not `spectrum`, which is the chart's sine wave along the photons)
   // a pure function of t like everything else here:
   //   show: true | false (fades over `fade` s, default 1.2) · view "inside" | "cloud"
-  //   radius "custom" | "log" | "linear" · bright "lin" | "log" · rings: switch at the cue
+  //   radius "custom" | "log" | "linear" · bright "lin" | "log" · rings · labels ({ name:
+  //   "shown as" }: only those ring and marker labels; "edge": the observable universe's): switch at the cue
   //   c, s (the RGB selector, in bands of the sky's bar: natural colour is c 22, s 1),
   //   yaw, pitch, zoom (Inside: zoom is the field of view, smaller is closer;
   //   Cloud: bigger is closer), spinA, gmst (Earth's turn), unit, lz, exposure,
@@ -1714,7 +1729,7 @@ export async function startNarration(app) {
   const SPEC_KEYS = cues.filter(c => c.explorer);
   const SPEC = SCENE.explorer || SPEC_KEYS.length ? { ...(SCENE.explorer || {}) } : null;
   let specFrame = null, specLastT = NaN;
-  const SPEC_SWITCH = ["view", "radius", "bright", "rings"];
+  const SPEC_SWITCH = ["view", "radius", "bright", "rings", "labels"];
   const SPEC_LOG = new Set(["zoom"]);   // glides evenly in powers of ten
   const specSegs = {}, specSwitch = {};
   if (SPEC) {

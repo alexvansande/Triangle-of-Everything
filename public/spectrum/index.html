@@ -1032,6 +1032,11 @@
     const eclN = toCloud(96.38, 29.81), eclX = norm(cross([0, 1, 0], eclN)), eclY = cross(eclN, eclX);
     const PLANES = { gal: [[1, 0, 0], [0, 0, 1]], ecl: [eclX, eclY] };
     const ringLabels = document.getElementById("rings"), ringsOn = document.getElementById("ringsOn");
+    // a video's own set of labels (?video=1, labels: { "ring or marker name": "shown as" }): only
+    // those show, renamed; "edge" adds the observable universe's edge as a labelled ring
+    let videoLabels = null;
+    const vlab = (name) => videoLabels ? (videoLabels[name] || null) : name;
+    const EDGE = [Math.log10(4.65e10), "edge", 1];
     if (first && (q.get("rings") === "0" || (q.get("embed") === "1" && q.get("rings") !== "1"))) ringsOn.checked = false; // too busy when small
     on(ringsOn, "change", () => draw());
     // radius of a log distance in the current scale, or null when off the chart
@@ -1100,11 +1105,27 @@
         if (R !== null && R > 3) back.push(`<circle cx="${cx}" cy="${cy}" r="${R.toFixed(1)}"/>`);
       }
       // labelled circles, along the upper-right diagonal
-      for (const [L, name] of [...UNITS].sort((a, b) => a[2] - b[2])) {
+      for (const [L, raw] of [...UNITS, ...(videoLabels?.edge ? [EDGE] : [])].sort((a, b) => a[2] - b[2])) {
+        const name = vlab(raw);
+        if (!name) continue;
         const r = radiusOf(L), R = r === null ? null : circleR(r);
         if (R === null || R < 8) continue;
-        const x = cx + R * Math.SQRT1_2 + 3, y = cy - R * Math.SQRT1_2 - 3, wd = 6.4 * name.length + 8;
-        if (x + wd > W_ - 4 || y < 14 || !free(x, y, wd)) continue;
+        let x = cx + R * Math.SQRT1_2 + 3, y = cy - R * Math.SQRT1_2 - 3;
+        const wd = 6.4 * name.length + 8;
+        // a video's own labels (a phone-width frame, rings wider than it): the first spot on
+        // the ring, from the upper right round to the upper left, where the label fits
+        if (videoLabels) {
+          const fits = (px, py) => px >= 4 && px + wd <= W_ - 4 && py >= 14 && py <= H_ - 4 && free(px, py, wd);
+          let spot = null;
+          for (const deg of [45, 60, 75, 30, 90, 105, 120, 135, 15, 150, 165]) {
+            const a = deg * Math.PI / 180, px = cx + R * Math.cos(a), py = cy - R * Math.sin(a) - 3;
+            const lx = Math.cos(a) >= 0 ? px + 3 : px - 3 - wd;
+            if (fits(lx, py)) { spot = [lx, py]; break; }
+          }
+          if (!spot) continue;
+          [x, y] = spot;
+        }
+        if (x < 4 || x + wd > W_ - 4 || y < 14 || !free(x, y, wd)) continue;
         taken.push({ x, y, wd });
         back.push(`<circle class="major" cx="${cx}" cy="${cy}" r="${R.toFixed(1)}"/>`);
         front.push(`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}">${name}</text>`);
@@ -1136,10 +1157,11 @@
         // its name at its right-most point
         let best = null;
         for (let i = 0; i < d.edge.length; i += 9) { const sp = project(d.edge.slice(i, i + 3)); if (sp && (!best || sp[0] > best[0])) best = sp; }
-        const wd = 6.4 * d.name.length + 8;
-        if (best && best[0] + wd < W_ - 4 && free(best[0] + 4, best[1], wd)) {
+        const dn = vlab(d.name), wd = 6.4 * (dn || "").length + 8;
+        if (!dn) {}
+        else if (best && best[0] + wd < W_ - 4 && free(best[0] + 4, best[1], wd)) {
           taken.push({ x: best[0] + 4, y: best[1], wd });
-          front.push(`<text class="ref" x="${(best[0] + 4).toFixed(1)}" y="${(best[1] + 4).toFixed(1)}" opacity="${fade.toFixed(2)}">${d.name}</text>`);
+          front.push(`<text class="ref" x="${(best[0] + 4).toFixed(1)}" y="${(best[1] + 4).toFixed(1)}" opacity="${fade.toFixed(2)}">${dn}</text>`);
         } else if (d.name !== "Milky Way") {
           // no room on the right (a narrow phone frame): centred over its top-most point
           let top = null;
@@ -1147,19 +1169,19 @@
           const x = top && Math.max(4, Math.min(W_ - 4 - wd, top[0] - wd / 2));
           if (top && top[1] > 20 && free(x, top[1] - 6, wd)) {
             taken.push({ x, y: top[1] - 6, wd });
-            front.push(`<text class="ref" x="${(x + wd / 2).toFixed(1)}" y="${(top[1] - 6).toFixed(1)}" text-anchor="middle" opacity="${fade.toFixed(2)}">${d.name}</text>`);
+            front.push(`<text class="ref" x="${(x + wd / 2).toFixed(1)}" y="${(top[1] - 6).toFixed(1)}" text-anchor="middle" opacity="${fade.toFixed(2)}">${dn}</text>`);
           }
         }
         const g = d.gc && project(d.gc);
-        if (g) front.push(`<circle cx="${g[0].toFixed(1)}" cy="${g[1].toFixed(1)}" r="2.5" opacity="${fade.toFixed(2)}"/><text class="ref" x="${(g[0] - 5).toFixed(1)}" y="${(g[1] + 15).toFixed(1)}" text-anchor="end" opacity="${fade.toFixed(2)}">Galactic Centre</text>`);
+        if (g && vlab("Galactic Centre")) front.push(`<circle cx="${g[0].toFixed(1)}" cy="${g[1].toFixed(1)}" r="2.5" opacity="${fade.toFixed(2)}"/><text class="ref" x="${(g[0] - 5).toFixed(1)}" y="${(g[1] + 15).toFixed(1)}" text-anchor="end" opacity="${fade.toFixed(2)}">${vlab("Galactic Centre")}</text>`);
       }
       // Proxima, while its distance is a sensible size on screen
       const pr = radiusOf(PROXIMA.L), pp = pr === null ? null : project(placeAt(PROXIMA.dir, PROXIMA.L));
-      if (pp) {
+      if (pp && vlab(PROXIMA.name)) {
         const Rs = pr * k, fade = Math.min(1, Math.max(0, Math.log2(Rs / 12)), Math.max(0, Math.log2((3 * H_) / Rs)));
-        const wd = 6.4 * PROXIMA.name.length + 8, left = pp[0] + wd > W_ - 4;
+        const wd = 6.4 * vlab(PROXIMA.name).length + 8, left = pp[0] + wd > W_ - 4;
         if (fade > 0 && pp[0] > 0 && pp[0] < W_ && pp[1] > 0 && pp[1] < H_)
-          front.push(`<circle cx="${pp[0].toFixed(1)}" cy="${pp[1].toFixed(1)}" r="2.5" opacity="${fade.toFixed(2)}"/><text class="ref" x="${(pp[0] + (left ? -6 : 6)).toFixed(1)}" y="${(pp[1] + 4).toFixed(1)}"${left ? ' text-anchor="end"' : ""} opacity="${fade.toFixed(2)}">${PROXIMA.name}</text>`);
+          front.push(`<circle cx="${pp[0].toFixed(1)}" cy="${pp[1].toFixed(1)}" r="2.5" opacity="${fade.toFixed(2)}"/><text class="ref" x="${(pp[0] + (left ? -6 : 6)).toFixed(1)}" y="${(pp[1] + 4).toFixed(1)}"${left ? ' text-anchor="end"' : ""} opacity="${fade.toFixed(2)}">${vlab(PROXIMA.name)}</text>`);
       }
       gl.disable(gl.BLEND);
       gl.bindVertexArray(pointVAO);
@@ -1410,6 +1432,7 @@
     //   yaw, pitch, zoom (camera) · spinA (the Cloud's turn) · gmst (Earth's turn, rad)
     //   radius "custom" | "log" | "linear" · unit (log10 ly) · lz (log10 ly at radius 1)
     //   exposure, contrast · bright "lin" | "log" · lift · rings (bool)
+    //   labels: { name: "shown as" } only these ring and marker labels, renamed (null: all)
     function setVideo(st) {
       if (session.signal.aborted) return false;
       if (st.view != null) {
@@ -1427,6 +1450,7 @@
       if (st.bright != null) brightLog = st.bright === "log";
       if (st.lift != null) lift.value = st.lift;
       if (st.rings != null) ringsOn.checked = !!st.rings;
+      if (st.labels !== undefined) videoLabels = st.labels;
       if (st.c != null || st.s != null) { c = st.c ?? c; s = st.s ?? s; clamp(); layoutSelector(); }
       showScale(); draw();
       return true;
