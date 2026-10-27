@@ -950,13 +950,26 @@ export function classicFrameClient() {
     w: ctm.a * (FRAME.x1 - FRAME.x0), h: ctm.d * (FRAME.y1 - FRAME.y0) };
 }
 
-// Narration player: where a point of the figure (log radius, log mass) is on screen,
-// in client px, with the figure's current zoom (null before it is drawn).
-export function classicProject(r, m) {
-  const ctm = svg?.node().getScreenCTM();
-  if (!ctm) return null;
-  const t = d3.zoomTransform(svg.node()), fx = t.applyX(x0(r)), fy = t.applyY(y0(m));
-  return { x: ctm.a * fx + ctm.e, y: ctm.d * fy + ctm.f };
+// Narration player: the figure's box on screen as narrClassic last placed it, client px
+// (null before it is drawn); a narration camera's centre is its centre and its span
+// counts across its width.
+export function classicRect() { return narrRect; }
+// Narration player: move and scale the whole figure on screen (layer px, about its
+// centre) after narrClassic has placed it, frame and axes included, e.g. to carry it
+// with a picture zooming in; narrClassic's next call resets it.
+export function classicScreen(f, dx, dy) {
+  svg?.style("transform", `translate(${dx}px, ${dy}px) scale(${f}) scaleY(${ISO_Y})`);
+}
+let narrRect = null;
+// Narration player: the camera that shows the figure as laid out, unzoomed: the whole
+// frame, its axes and the title block, as on the page (null before it is drawn).
+export function classicFullView() {
+  if (!svg) return null;
+  svg.style("transform", `scaleY(${ISO_Y})`);
+  const ctm = svg.node().getScreenCTM(), rect = svg.node().getBoundingClientRect();
+  if (!ctm || !rect.width) return null;
+  const fx = (rect.left + rect.width / 2 - ctm.e) / ctm.a, fy = (rect.top + rect.height / 2 - ctm.f) / ctm.d;
+  return { r: x0.invert(fx), m: y0.invert(fy), span: rect.width / (ctm.a * FRAME_PPD_X) };
 }
 
 // Narration player: the axis numbers ("left" | "right" | "top" | "bottom" in
@@ -1000,7 +1013,7 @@ export function narrClassic(opacity, view, parts = {}) {
   svg.style("transform", `scaleY(${ISO_Y})`);   // about its centre: the camera's centre
   const ctm = svg.node().getScreenCTM();
   if (!ctm) return;
-  const rect = svg.node().getBoundingClientRect();
+  const rect = narrRect = svg.node().getBoundingClientRect();
   const k = (rect.width / view.span) / (ctm.a * FRAME_PPD_X);
   // The figure point under the screen centre (screen → figure coordinates)
   const fx = (rect.left + rect.width / 2 - ctm.e) / ctm.a;

@@ -31,9 +31,11 @@ export default {
   title: "The hook",
   blurb: "The classic chart, and why it's much more than mass versus size.",
   start: FIG,
-  // the paper's journal cover (AJP 91 (10), Oct 2023): it zooms in until its chart lies on the
-  // redrawn one, by the end of "…in all of physics", then fades; the plot frame measured on it
-  cover: { src: "ajp-cover-2023-10", size: [1500, 2000], frame: [426, 703, 1164, 1688.5], r: [-40, 55], m: [-54, 68], dur: 3.5, fade: 0.9, bg: "#fbea16" },
+  // the paper's journal cover (AJP 91 (10), Oct 2023), its chart cut out and the live figure
+  // in its place: it zooms in over "…in all of physics" until the chart fills the screen, then
+  // fades; the plot frame and the white box measured on the picture
+  cover: { src: "ajp-cover-2023-10", size: [1500, 2000], frame: [426, 703, 1164, 1688.5], r: [-40, 55], m: [-54, 68],
+    hole: [229.5, 605.5, 1270, 1773.5], dur: 3.5, fade: 0.9, bg: "#fbea16" },
 
   captionFixes: { short: "chart", shard: "chart", lights: "light" },
 

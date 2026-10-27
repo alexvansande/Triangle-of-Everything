@@ -28,7 +28,7 @@ import {
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
   RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES,
 } from "./data.js";
-import { narrClassic, classicFrameClient, classicAxisNumbers, classicProject } from "./classic.js";
+import { narrClassic, classicFrameClient, classicAxisNumbers, classicRect, classicScreen, classicFullView } from "./classic.js";
 // Scene scripts, one per file in ./narration-scenes/ (lazy chunks)
 const SCENES = import.meta.glob("./narration-scenes/*.js");
 let SCENE;
@@ -497,36 +497,68 @@ export async function startNarration(app) {
     const im = new Image(); im.decoding = "sync"; im.src = photoUrl(n); photoImgs.set(n, im);
   }
   // ---------- the opening cover (scene `cover: { src, size: [w, h], frame: [x0, y0, x1, y1],
-  // r: [r0, r1], m: [m0, m1], dur, fade, bg }`): a picture of the page the classic figure
-  // comes from (a journal cover), across the stage's width over its own colour, zooms in
-  // from the start for `dur` s until its plot (`frame` in its px, spanning log radius r
-  // and log mass m) lies on the redrawn figure's, then fades over `fade` s, leaving the
-  // figure in its place ----------
+  // r: [r0, r1], m: [m0, m1], hole: [x0, y0, x1, y1], dur, fade, bg }`): a picture of the
+  // page the classic figure comes from (a journal cover) with the figure's box (`hole`, in
+  // its px) cut out, so the live figure shows through it. It starts across the stage's
+  // width over its own colour and zooms in for `dur` s, the figure's camera following it
+  // (its plot, `frame`, spans log radius r and log mass m), until the plot is where the
+  // scene's camera has it at `dur`; then the cover keeps to the figure and fades over
+  // `fade` s. While it zooms the figure is shown whole, as laid out (as on the page), and
+  // scaled on screen with the cover (its frame and axes don't zoom with the camera); then
+  // its camera eases into the scene's over COVER_BLEND s ----------
+  const COVER_BLEND = 1.5;
+  let classicView = null;   // the figure's camera as last drawn
   const COVER = SCENE.cover;
   const coverEl = document.getElementById("narr-cover"), coverImg = coverEl.querySelector("img");
-  if (COVER) { coverEl.hidden = false; coverEl.style.background = COVER.bg || "#000"; coverImg.src = photoUrl(COVER.src);
-    Object.assign(coverImg.style, { width: `${COVER.size[0]}px`, height: `${COVER.size[1]}px` }); }
+  if (COVER) {
+    const [w, h] = COVER.size, [a, b, c, d] = COVER.hole;
+    coverEl.hidden = false; coverEl.style.background = "none"; coverImg.src = photoUrl(COVER.src);
+    // its colour carries on past its edges (a shadow's spread), so it fills any stage
+    const F = 1e5, bg = COVER.bg || "#000";
+    Object.assign(coverImg.style, { width: `${w}px`, height: `${h}px`, background: bg, boxShadow: `0 0 0 ${F}px ${bg}`,
+      clipPath: `polygon(evenodd, ${-F}px ${-F}px, ${F}px ${-F}px, ${F}px ${F}px, ${-F}px ${F}px, ${-F}px ${-F}px, ` +
+        `${a}px ${b}px, ${c}px ${b}px, ${c}px ${d}px, ${a}px ${d}px, ${a}px ${b}px)` });
+  }
+  /** The cover's place at t (layer px: scales sx, sy and offset tx, ty), and the figure's
+   *  view that puts the plot under the cover's own; null without a figure to follow. */
+  function coverPose(t) {
+    const rect = classicRect();
+    if (!rect?.width) return null;
+    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
+    const SW = layer.clientWidth, SH = layer.clientHeight;
+    const [w, h] = COVER.size, [x0, y0, x1, y1] = COVER.frame, [r0, r1] = COVER.r, [m0, m1] = COVER.m;
+    const ppdX = (x1 - x0) / (r1 - r0), asp = ppdX / ((y1 - y0) / (m1 - m0));   // its decades made square
+    const W = rect.width / scl, ccx = (rect.x + rect.width / 2 - lr.x) / scl, ccy = (rect.y + rect.height / 2 - lr.y) / scl;
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, rc = (r0 + r1) / 2, mc = (m0 + m1) / 2;
+    // the end: the plot as the figure shows it at `dur` (whole), and after it as it moves on
+    const v = t < COVER.dur ? classicFullView() : classicView;
+    if (!v) return null;
+    const ppd1 = W / v.span;
+    const s0 = SW / w, s1 = ppd1 / ppdX, k = smooth(clamp01(t / COVER.dur));
+    const sx = s0 * (s1 / s0) ** k, ppd = sx * ppdX;                            // a steady zoom
+    // the plot's centre travels in a straight line on screen
+    const px = (1 - k) * (cx * s0) + k * (ccx + (rc - v.r) * ppd1);
+    const py = (1 - k) * ((SH - h * s0 * asp) / 2 + cy * s0 * asp) + k * (ccy - (mc - v.m) * ppd1);
+    // the figure, at the end's camera, carried from the end's place to the cover's now
+    const f = sx / s1, ex = ccx + (rc - v.r) * ppd1, ey = ccy - (mc - v.m) * ppd1;
+    return { sx, sy: sx * asp, tx: px - cx * sx, ty: py - cy * sx * asp,
+      fig: { f, dx: px - ccx - f * (ex - ccx), dy: py - ccy - f * (ey - ccy) } };
+  }
+  function coverView(t) {
+    if (!COVER || t >= COVER.dur + COVER_BLEND) return null;
+    const full = classicFullView();
+    if (!full || t < COVER.dur) return full;
+    const k = smooth((t - COVER.dur) / COVER_BLEND), v = camera(t).view;
+    return { r: full.r + (v.r - full.r) * k, m: full.m + (v.m - full.m) * k, span: full.span * (v.span / full.span) ** k };
+  }
   function drawCover(t) {
     if (!COVER) return;
     const a = 1 - smooth((t - COVER.dur) / (COVER.fade ?? 0.8));
-    // the corners of the figure's plot, as the redrawn figure shows them now
-    const p0 = a > 0.001 && classicOpacity(t) > 0 ? classicProject(COVER.r[0], COVER.m[1]) : null;
-    const p1 = p0 && classicProject(COVER.r[1], COVER.m[0]);
-    coverEl.style.visibility = p1 ? "visible" : "hidden";
-    if (!p1) return;
-    const fr = { x: p0.x, y: p0.y, w: p1.x - p0.x, h: p1.y - p0.y };
-    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
-    const SW = layer.clientWidth, SH = layer.clientHeight;
-    const [w, h] = COVER.size, [x0, y0, x1, y1] = COVER.frame;
-    const s0 = SW / w;                                       // the whole cover across the width
-    const sx1 = fr.w / scl / (x1 - x0), sy1 = fr.h / scl / (y1 - y0);   // its frame on the figure's
-    const k = smooth(t / COVER.dur);
-    const sx = s0 * (sx1 / s0) ** k, sy = s0 * (sy1 / s0) ** k;          // a steady zoom
-    // the frame's centre travels in a straight line on screen
-    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-    const px = (1 - k) * (cx * s0) + k * ((fr.x - lr.x) / scl + fr.w / scl / 2);
-    const py = (1 - k) * ((SH - h * s0) / 2 + cy * s0) + k * ((fr.y - lr.y) / scl + fr.h / scl / 2);
-    coverImg.style.transform = `translate(${(px - cx * sx).toFixed(2)}px, ${(py - cy * sy).toFixed(2)}px) scale(${sx.toFixed(5)}, ${sy.toFixed(5)})`;
+    const p = a > 0.001 && classicOpacity(t) > 0 ? coverPose(t) : null;
+    coverEl.style.visibility = p ? "visible" : "hidden";
+    if (!p) return;
+    coverImg.style.transform = `translate(${p.tx.toFixed(2)}px, ${p.ty.toFixed(2)}px) scale(${p.sx.toFixed(5)}, ${p.sy.toFixed(5)})`;
+    if (t < COVER.dur) classicScreen(p.fig.f.toFixed(5), p.fig.dx.toFixed(2), p.fig.dy.toFixed(2));
     coverEl.style.opacity = a.toFixed(3);
   }
   const photoEl = document.getElementById("narr-photo");
@@ -1621,7 +1653,8 @@ export async function startNarration(app) {
     creditsEl.style.visibility = co_ > 0 ? "visible" : "hidden";
     const { view, key } = camera(t);
     const co = classicOpacity(t);
-    narrClassic(co, co > 0 ? view : null, classicParts(t));
+    classicView = co > 0 ? coverView(t) || view : null;
+    narrClassic(co, classicView, classicParts(t));
     // end the gesture once on arrival (full redraw + tiles); otherwise keep it open
     const arriving = view.phase === "hold" && (lastPhase === "fly" || key !== lastKey);
     app.setCamera(view, !arriving);
