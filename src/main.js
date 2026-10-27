@@ -6512,6 +6512,7 @@ const zoomBehavior = d3.zoom()
         syncBgNoise();
         updateReadout(null);
         rafPending = false;
+        _hopfIcons?.draw();  // live icons follow this frame's positions, not the last one's
       });
     }
   })
@@ -6565,7 +6566,9 @@ svg.call(zoomBehavior);
 // Safari's trackpad pinch, also over the click-target overlay above the map
 enableTrackpadPinch(svg.node(), [svg.node(), clickTargetContainer]);
 // particles drawn live as Hopf fibrations over their still pictures
-startHopfIcons(document.getElementById("chart"));
+// (the chart draws them itself right after a pan/zoom redraw, so they don't trail a frame behind)
+let _hopfIcons = null;
+startHopfIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _hopfIcons = h; });
 
 // Trackpad two-finger drag pans; pinch and mouse wheel zoom (trackpad-pan.js).
 // Wraps the start/end listeners above, so it must come after them.

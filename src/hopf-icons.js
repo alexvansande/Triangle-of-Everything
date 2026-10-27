@@ -13,7 +13,10 @@ const HIDDEN = "hopf-live";
 // nucleons: the bigger the icon on screen, the finer the probe
 const resolutionAt = px => Math.max(0, Math.min(1, Math.log2(px / 24) / Math.log2(600 / 24)));
 
-export async function startHopfIcons(chartEl) {
+// While the chart has a pan/zoom redraw queued (busy), the loop skips and the
+// chart calls draw() right after it redraws: run before it, the icons would
+// copy the previous frame's boxes and trail the drag by a frame.
+export async function startHopfIcons(chartEl, { busy = () => false } = {}) {
   if (new URLSearchParams(location.search).get("hopf") === "0") return;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   let core, renderer;
@@ -62,8 +65,7 @@ export async function startHopfIcons(chartEl) {
   };
 
   let time = 0, prev = performance.now();
-  function frame(now) {
-    requestAnimationFrame(frame);
+  function draw(now = performance.now()) {
     const dt = Math.min(0.1, (now - prev) / 1000);
     prev = now;
     time += dt;
@@ -101,5 +103,10 @@ export async function startHopfIcons(chartEl) {
     }
     ctx.restore();
   }
-  requestAnimationFrame(frame);
+  function loop(now) {
+    requestAnimationFrame(loop);
+    if (!busy()) draw(now);
+  }
+  requestAnimationFrame(loop);
+  return { draw };
 }
