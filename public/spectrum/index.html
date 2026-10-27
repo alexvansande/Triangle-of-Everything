@@ -886,7 +886,7 @@
     // brightness: linear (light adds up as it is) or log (lifted by "Lift faint")
     const lift = document.getElementById("lift");
     if (first && q.has("lift")) lift.value = q.get("lift");
-    let brightLog = first && q.get("bright") === "lin" ? false : !(first && q.get("lift") === "0");
+    let brightLog = first && q.get("bright") === "log"; // linear by default: the outer shell (CMB) reads as dots
     function setBright(log) {
       brightLog = log;
       document.querySelectorAll("#bright button").forEach((b) => b.setAttribute("aria-pressed", (b.dataset.b === "log") === log));
@@ -1011,7 +1011,7 @@
     const eclN = toCloud(96.38, 29.81), eclX = norm(cross([0, 1, 0], eclN)), eclY = cross(eclN, eclX);
     const PLANES = { gal: [[1, 0, 0], [0, 0, 1]], ecl: [eclX, eclY] };
     const ringLabels = document.getElementById("rings"), ringsOn = document.getElementById("ringsOn");
-    if (first && q.get("rings") === "0") ringsOn.checked = false;
+    if (first && (q.get("rings") === "0" || (q.get("embed") === "1" && q.get("rings") !== "1"))) ringsOn.checked = false; // too busy when small
     on(ringsOn, "change", () => draw());
     // radius of a log distance in the current scale, or null when off the chart
     function radiusOf(L) {
@@ -1252,7 +1252,10 @@
         const U = common(cloud);
         const VP = cloudViewProj(w, h);
         gl.uniform1f(U("size"), DOT * Math.min(6 * dpr, Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom))));
-        gl.uniform1f(U("dotGain"), 1 / (DOT * DOT));
+        // the same points crowd a small view, so each is dimmer there (down to
+        // 0.35×), keeping the shells dotted instead of summing to solid white
+        const small = Math.max(0.35, Math.min(1, Math.sqrt(w * h) / (700 * dpr)));
+        gl.uniform1f(U("dotGain"), small / (DOT * DOT));
         gl.uniform1f(U("spinA"), spinA);
         gl.uniform1i(U("rmode"), rmode);
         // background points in proportion to the selector's weight on bands
