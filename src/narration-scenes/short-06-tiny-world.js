@@ -36,6 +36,10 @@ export default {
   thumb: 193,   // the periodic table drawn by the atoms
   captionFixes: { math: "mass", shard: "chart" },
 
+  // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md). Fretless (5:31 of
+  // music) comes in as the trip down starts, so its own ending lands on the credits
+  backing: { track: "Fretless", delay: 21 },
+
   cues: [
     // ── The three edges ──────────────────────────────────────
     { at: "in this series", offset: -0.4, cam: FULL, dur: 9, drift: 0.02, hl: [{ line: "triangle", delay: 1.5 }] },
