@@ -42,7 +42,7 @@ import {
   CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, ELEMENT_TYPES, elementType, PERIODIC_FAMILIES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
   REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   PBH_WINDOW, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
-  WIDTH_LOG_OFFSET,
+  WIDTH_LOG_OFFSET, PHOTON_LAMBDA_OFFSET,
 } from "./data.js";
 import objectsData from "./objects.json";
 import { applyBulkObjects } from "./bulk-density.js";
@@ -3653,9 +3653,8 @@ const tooltipEl = document.getElementById("tooltip");
 
 function showTooltip(event, obj, cat) {
   const photon = isPhoton(obj);
-  // Photons are plotted at half a wavelength so the width ruler reads λ;
-  // the offset restores the true wavelength for display.
-  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius((obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET);
+  // Photons sit on the Compton line at radius λ/2π; the offset restores λ.
+  const r = photon ? friendlyWavelength(obj.logR + PHOTON_LAMBDA_OFFSET) : friendlyRadius((obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET);
   const rLabel = photon ? "wavelength" : obj.logRSpan != null ? "longest side" : "width";
   const mLabel = photon ? "energy" : "mass";
   const mVal = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
@@ -4410,7 +4409,7 @@ function openSidebar(obj) {
   const isParticle = c === "particle" || c === "composite" || c === "atomic";
   const isCosmicStructure = c === "galaxy" || c === "largescale";
 
-  const r = photon ? friendlyWavelength(obj.logR + WIDTH_LOG_OFFSET) : friendlyRadius((obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET);
+  const r = photon ? friendlyWavelength(obj.logR + PHOTON_LAMBDA_OFFSET) : friendlyRadius((obj.logRSpan ?? obj.logR) + WIDTH_LOG_OFFSET);
   const m = photon ? friendlyEnergy(obj.logM) : friendlyMass(obj.logM);
   const rho = friendlyDensity(obj.logR, obj.logM, obj.logDensity);
 
@@ -4439,7 +4438,7 @@ function openSidebar(obj) {
       <tr><td>Wavelength</td><td>${r}</td></tr>
       <tr><td>Energy</td><td>${m}</td></tr>
       <tr><td>Mass equiv.</td><td>${friendlyMass(obj.logM)} *</td></tr>
-      <tr><td colspan="2" class="sb-log-note">(10<sup>${(obj.logR + WIDTH_LOG_OFFSET).toFixed(1)}</sup> cm · 10<sup>${(obj.logM + 32.75).toFixed(1)}</sup> eV)</td></tr>
+      <tr><td colspan="2" class="sb-log-note">(10<sup>${(obj.logR + PHOTON_LAMBDA_OFFSET).toFixed(1)}</sup> cm · 10<sup>${(obj.logM + 32.75).toFixed(1)}</sup> eV)</td></tr>
       <tr><td colspan="2" class="sb-footnote">* Massless — vertical axis shows mass-equivalent energy E = hc/λ</td></tr>`;
   } else if (isEveryday) {
     const sizeLabel = obj.logRSpan != null ? "Longest side" : obj.logR < -1 ? "Size" : "Width";
@@ -5439,7 +5438,9 @@ function drawConnections() {
           const [fx, fy] = getPathScreenPos(cp, Math.min(1, t + 0.005));
           const dx = fx - sx, dy = fy - sy;
           const l = Math.hypot(dx, dy) || 1;
-          const off = Math.sin(phase(t)) * AMP;
+          // the path lies on the Compton line: the wave swings out to the allowed
+          // side only (larger size and mass: right and up on screen), never below it
+          const off = (1 + Math.sin(phase(t))) * AMP / 2 * (dx + dy > 0 ? -1 : 1);   // (−dy, dx) points down-left when the path runs down-right
           return [sx + (-dy / l) * off, sy + (dx / l) * off];
         };
         for (let i = 0; i < SEG_COUNT; i++) {
@@ -5538,23 +5539,24 @@ function getPathScreenPos(cp, t, ppu) {
   return [px(pos.logR), py(pos.logM)];
 }
 
-const EM_PATH_GAP_DEX = 0.49; // the em-spectrum path's points sit 0.49 dex above the Compton line
 function applyEmWave(cp, t, sx, sy, timestamp, ppu) {
   if (cp.family !== "spectrum") return [sx, sy];
   const tFwd = Math.min(1, t + 0.005);
   const [fsx, fsy] = getPathScreenPos(cp, tFwd, ppu);
   const tdx = fsx - sx, tdy = fsy - sy;
   const tlen = Math.sqrt(tdx * tdx + tdy * tdy) || 1;
-  const perpX = -tdy / tlen, perpY = tdx / tlen;
+  // the normal pointing to the allowed side (right and up on screen)
+  const flip = tdx + tdy < 0 ? -1 : 1;
+  const perpX = flip * tdy / tlen, perpY = -flip * tdx / tlen;
 
   const freq = 28 * Math.max(0.12, 1 - t * 0.88);
-  // The path runs half a decade above the Compton line. Zoomed out that gap
-  // is a few px, so the wave is capped to stay inside it: no dot crosses into
-  // the quantum-forbidden side.
-  const gapPx = EM_PATH_GAP_DEX * ppu * Math.SQRT1_2 - ((_dotFixedR ?? cp.style.dotSize * _dotSizeMult) + 0.5);
-  const amplitude = Math.max(0, Math.min(6 + t * 10, gapPx));
-  const phase = t * freq * Math.PI * 2 - timestamp * 0.0004;
-  return [sx + perpX * Math.sin(phase) * amplitude, sy + perpY * Math.sin(phase) * amplitude];
+  // The path lies on the Compton line, so the dots swing out from it to the
+  // allowed side only, clear of the line by their own radius: no dot crosses
+  // into the quantum-forbidden side.
+  const amplitude = 6 + t * 10;
+  const clear = (_dotFixedR ?? cp.style.dotSize * _dotSizeMult) + 0.5;
+  const off = clear + (1 + Math.sin(t * freq * Math.PI * 2 - timestamp * 0.0004)) * amplitude / 2;
+  return [sx + perpX * off, sy + perpY * off];
 }
 
 function animateConnections(timestamp) {

@@ -20,9 +20,9 @@ went silent after a minute when it ran out.
 
 | Video | Take | Plays now |
 |---|---|---|
-| 1 · the hook | `short-01-hook` | 1:59 (re-recorded 2026-10-26, rec34) |
+| 1 · the hook | `short-01-hook` | 1:50 (re-recorded 2026-10-27, rec35) |
 | 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | 3:57 (re-recorded 2026-10-26, rec33) |
-| 3 · planets into stars | `short-03-stars` | 3:08 |
+| 3 · planets into stars | `short-03-stars` | 2:13 (re-recorded 2026-10-27, rec36) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 5:40 |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 7:06 |
 
@@ -31,19 +31,25 @@ went silent after a minute when it ran out.
 ## 1 · The hook (`short-01-hook`)
 
 ### As cut now
-(rec2, rec6 and rec7, 2026-10-07; "shard" in the transcript is "chart")
+(rec35, 2026-10-27, plays at 1.1×)
 
-> This is the most interesting chart in all of physics.
+> In my opinion, this is the most interesting chart in all of physics.
 >
-> The first thing you'll probably notice is that we have this diagonal line with everything from bacteria to humans to stars and planets and galaxies.
+> Probably the first thing you notice here is this diagonal line with everything from bacteria to humans to planets, stars and galaxies.
 >
-> The vertical axis is mass. The horizontal axis is in size. So this is a chart of mass versus size, right? Yeah, but it's so much more than that actually because it also includes some things that don't have mass, like photons or visible light or radio waves.
+> Vertical axis is mass, horizontal axis is size. So this is a log chart of mass versus size, right? Yeah, but it's so much more than that. Because it also includes things that don't have mass at all. Photons, like visible light, radio waves.
 >
-> This is because this shard is also a shard of energy and the bottom axis doubles as a wavelength.
+> That's because this chart is also a chart of energy, and the bottom axis doubles as wavelength.
 >
-> And it gets even crazier because on the bottom left we have quantum mechanics, on the top left we have relativity and they connect in this one point,
+> So in a way, this chart contains all of science. Astronomy is up here at the top, engineering is down there, biology all the way down here, and then we have chemistry and particle physics.
 >
-> what is that point? And then you realize that out of all those points there are some diagonal lines and they are being measured in seconds until they get to now. That is time since the big bang. So relativity and quantum mechanics are joining at the big bang. This is the triangle of everything, and let me take you a tour around, because it is simply fascinating.
+> But the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity. And where those lines meet is actually… the Big Bang?!
+>
+> Notice that along the top there are all the diagonal lines and they are all measured in seconds. That's because the top axis isn't about how things are, but when: it's a history of our whole universe.
+>
+> I call this the triangle of everything, and as you zoom in, it tells you a million stories about airplanes and hippos and gravity, about how stars evolve, how particles turn into each other, why balloons float, even contains the periodic table, and tells you why fire looks the way it does.
+>
+> I've been obsessed about this chart for many years now and I've put hours and hours trying to visualize it in different ways and seeing all the stories it contains. I could talk about them for hours, and that's precisely what I intend to do in this series of videos. I sincerely hope you find this as fascinating as I do.
 
 ### Script to record
 
@@ -57,7 +63,7 @@ went silent after a minute when it ran out.
 >
 > So in a way, this chart contains all of science. Astronomy is up at the top, engineering is here, biology goes all the way down here, and then chemistry and particle physics.
 >
-> And the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity. And where those two lines meet is... the Big Bang?
+> And the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity. And where those two lines meet is... the Big Bang?!
 >
 > Notice that along the top there are all these diagonal lines, and they're all measured in seconds. That's because the top of the chart isn't a history of things, but a history of time: the history of our whole universe.
 >
@@ -158,19 +164,19 @@ series of videos. I sincerely hope you find it as fascinating as I do." (no "fol
 ## 3 · Planets into stars (`short-03-stars`)
 
 ### As cut now
-(rec16 and rec17, 2026-10-19)
+(rec36, 2026-10-27, plays at 1.1×)
 
-> We tend to think of stars and planets as completely different categories, but that's not really true.
+> We tend to think of stars and planets as completely different things, but that's not really true. In our own solar system, Jupiter and Saturn give off more heat than they get from the Sun, mostly because their own mass keeps squeezing their cores. And as mass grows, so does the pressure in the core.
 >
-> In fact, Saturn and Jupiter in our solar system, they generate more heat than they absorb from the sun, mostly due to their mass compressing in their core.
+> Until some point, they become brown dwarfs. Brown dwarfs are really in-betweens, not quite stars, not quite planets. They're just massive enough to fuse a rare kind of hydrogen called deuterium, but not ordinary hydrogen. Deuterium is so rare that brown dwarfs just can't keep shining on like stars.
 >
-> And as that mass increases, so does the core pressure.
+> But add a little bit more mass and you get the split you see on this chart. Once the pressure in the core is high enough to fuse ordinary hydrogen, that fusion releases some energy that creates a force that will push the star outwards, making it bigger, and it will move into this other diagonal line that we call the main sequence, where stars spend most of their lives.
 >
-> Until at some point, they become brown dwarfs. Brown dwarfs are those really in-between objects who are not really stars, but not really planets. They are massive enough that they can start fusing hydrogen, but not all hydrogen, only those in the form of deuterium, which is only a minuscule portion of it. That sort of hydrogen is so rare that brown dwarfs don't have enough energy to sustain themselves as stars but once we increase that mass even further then we have this bifurcation that we see on this graph. What is happening is that once the core pressure is strong enough then it can fuse all of the hydrogen and then that really starts releasing a massive amount of energy and there's an internal pressure that pushes the objects to be bigger in diameter and they start following this other diagonal line which we call the main sequence of stars in which most stars will live most of their lives on until the hydrogen is depleted and then what will happen is that as their fuel for fusion is depleted then they will start collapsing and expanding and collapsing and expanding and the object will split in two. The outer layers will become a supernova or a planetary nebula and the inner core will become a very dense object.
+> Until the hydrogen runs out, and then as the fuel for fusion is used up, the star collapses and then expands again and collapses and expands and splits in two. The outer layers are blown away as supernova or planetary nebula, and the inner core becomes a very dense object.
 >
-> And as those supernovas and those nebulas expand, they will join together with others and they will create what we call stellar nurseries where those huge clouds of gas will then be attracted and compress again into protostars and then stars again and the cycle begins.
+> As those supernova and nebulae spread out, they meet others, and together they make what we call stellar nurseries. Huge clouds of gas that pull together, collapse into protostars, and then into stars again, and the cycle begins.
 >
-> And what about the core? Well something interesting happens with the core. If a star isn't massive enough to go supernova, then after the fuel is depleted, all that's left is a white dwarf. But if it's big enough to go supernova, then the pressure inside the core of that supernova will be so large that the protons and the electrons themselves will be squished together into a neutron, and it will create a neutron star, an object so dense that a single spoonful of it would weigh the same as a mountain on Earth. And if the star is any bigger than that, then the core would collapse into a black hole, an object so crazy that it deserves a video on itself.
+> And what about the dense core I told you about? Something really interesting happens here. If a star isn't massive enough to go supernova, then once fuel runs out, what's left is a white dwarf. But if it's big enough to go supernova, the pressure in its core is so huge that protons and electrons get squeezed together into neutrons, and it becomes a neutron star, so dense that a single spoonful would weigh as much as a mountain. And if the star is any bigger still, the core collapses into a black hole, an object so strange that it deserves a video of its own.
 
 ### Script to record
 

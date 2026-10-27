@@ -1,15 +1,12 @@
 source,beat,out_start,out_end,src_start,src_end,text
-rec34,open,0.00,4.05,33.05,37.10,this is the most interesting short in all of physics.
-rec34,diag,4.65,12.73,55.55,63.62,"The first thing you'll probably notice is this diagonal line, with everything from bacteria to humans to planets, stars and galaxies."
-rec34,axes,13.33,21.30,63.95,71.93,"The vertical axis is mass, the horizontal axis is size, so this is a chart of mass versus size, right? Yeah,"
-rec34,axes,21.43,30.37,72.13,81.16,"but it's so much more than that because it also includes things that don't have mass at all. Photons, visible light, radio waves."
-rec34,energy,30.97,34.74,82.32,86.30,That's because this chart is also short of energy
-rec34,energy,34.89,37.78,96.72,99.61,and the bottom axis doubles as wavelength.
-rec34,science,38.38,48.55,114.20,124.37,"astronomy is up at the top, engineering is here, biology goes all the way down to here,"
-rec34,science,48.83,51.32,126.97,129.47,"and then chemistry and particle physics,"
-rec34,sides,51.92,63.15,129.71,140.94,"and the whole thing is bounded by three sides, On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity."
-rec34,sides,63.43,67.40,141.17,145.27,And where those two lines meet is the Big Bang.
-rec34,time,68.00,83.72,150.55,166.38,"Notice that along the top there are all these diagonal lines, and they are all measured in seconds. That's because the top of the short isn't a history of thing, but a history of time, the history of our whole universe."
-rec34,stories,84.32,104.22,174.05,193.95,"I call this the triangle of everything, and as you zoom in it tells you a million stories about airplanes, hippos, and gravity, about how stars evolve, how particles turn into each other, and why balloons float. It even contains the periodic table and it tells you why fire looks the way it does."
-rec34,outro,104.82,123.25,250.90,269.84,"I've been obsessed about this chart for many years now, and I've put hours and hours trying to visualize it in different ways and seeing all the stories it contains. I could talk about it all day and that's precisely what I intend to do in this series of videos."
-rec34,outro,123.53,127.66,288.98,293.23,I sincerely hope you find it as fascinating as I do.
+rec35,open,0.00,4.19,18.12,22.31,"In my opinion, this is the most interesting chart in all of physics."
+rec35,diag,4.79,14.02,29.90,39.81,"probably the first thing you notice here is this diagonal line with everything from bacteria to humans, to planets, stars and galaxies."
+rec35,axes,14.62,31.12,41.33,57.95,"Vertical axis is mass, horizontal axis is size. So this is a log chart of mass versus size, right? Yeah, but it's so much more than that, because it also includes things that don't have mass at all. Photons, like visible lights, radio waves,"
+rec35,energy,31.73,38.39,60.79,67.55,"That's because this chart is also a chart of energy, and the bottom axis doubles as wavelength."
+rec35,science,38.99,50.02,86.36,97.39,"So in a way this chart contains all science, astronomy is up here at the top, engineering is down there, biology all the way down here, and then we have chemistry and particle physics."
+rec35,sides,50.62,63.84,100.02,113.87,But the whole thing is bounded by three sides on the right the size of the universe on the bottom left quantum mechanics on the top left relativity and where those line meets is actually the big bang
+rec35,time,64.44,69.84,126.85,132.25,notice that along the top there are all the diagonal lines and they're all measured in seconds.
+rec35,time,70.12,78.26,162.99,171.28,that's because the top axis isn't about how things are but when it's a history of our whole universe
+rec35,stories,78.86,97.63,182.88,201.88,"call this the triangle of everything, and as you zoom in, it tells you a million stories about airplanes and hippos and gravities, about how stars evolve, how particles turn into each other, why balloons float, even contains the periodic table and tells you why fire looks the way it does."
+rec35,outro,98.23,108.61,204.65,215.04,"I've been obsessed about this chart for many years now, and I've put hours and hours trying to visualize it in different ways and seeing all the story it contains."
+rec35,outro,108.89,120.92,217.22,229.51,I could talk about them for hours and that's precisely what I intend to do in this series of videos. I sincerely hope you find this as fascinating as I do.

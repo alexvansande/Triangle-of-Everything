@@ -25,12 +25,13 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import opentype from "opentype.js";
-import { friendlyRadius, friendlyMass, friendlyDensity } from "../src/format.js";
+import { friendlyRadius, friendlyMass, friendlyDensity, friendlyWavelength, friendlyEnergy } from "../src/format.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = join(ROOT, "dist");
 const SITE = "https://triangleofeverything.com";
 const WIDTH_LOG_OFFSET = Math.log10(2); // radius → width, as in the app
+const PHOTON_LAMBDA_OFFSET = Math.log10(2 * Math.PI); // a photon's radius is λ/2π (src/data.js)
 
 const CAT_LABEL = {
   particle: "Particle", composite: "Composite particle", atomic: "Atoms & molecules",
@@ -156,8 +157,10 @@ function cardLayout(page) {
   let rows;
   if (page.obj) {
     const o = page.obj;
-    rows = [`width   ≈ ${friendlyRadius(o.logR + WIDTH_LOG_OFFSET)}`, `mass    ≈ ${friendlyMass(o.logM)}`];
-    if (!(Math.abs(o.logM + o.logR + 36.656) < 0.5)) rows.push(`density ≈ ${friendlyDensity(o.logR, o.logM, o.logDensity)}`);
+    rows = o.photon
+      ? [`wavelength ≈ ${friendlyWavelength(o.logR + PHOTON_LAMBDA_OFFSET)}`, `energy     ≈ ${friendlyEnergy(o.logM)}`]
+      : [`width   ≈ ${friendlyRadius(o.logR + WIDTH_LOG_OFFSET)}`, `mass    ≈ ${friendlyMass(o.logM)}`];
+    if (!o.photon) rows.push(`density ≈ ${friendlyDensity(o.logR, o.logM, o.logDensity)}`);
   } else {
     rows = wrap(summary(page.md, 150), "inter400", 24, MAXW, 3);
   }
@@ -338,7 +341,9 @@ writeFileSync(join(DIST, "404.html"), template); // unknown paths still load the
 
 function pageHtml(page) {
   const title = `${page.name} — The Triangle of Everything`;
-  const facts = page.obj
+  const facts = page.obj?.photon
+    ? `Wavelength ≈ ${friendlyWavelength(page.obj.logR + PHOTON_LAMBDA_OFFSET)}, energy ≈ ${friendlyEnergy(page.obj.logM)}. `
+    : page.obj
     ? `Width ≈ ${friendlyRadius(page.obj.logR + WIDTH_LOG_OFFSET)}, mass ≈ ${friendlyMass(page.obj.logM)}. `
     : "";
   const desc = (page.md ? summary(page.md) : `${facts}See ${page.name} on an interactive chart of every object by mass and size.`);

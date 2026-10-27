@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0       # the videos page's "last updated" dates come from git history
+          filter: blob:none    # history without old file contents
       - uses: actions/setup-node@v4
         with:
           node-version: 20

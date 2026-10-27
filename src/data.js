@@ -44,6 +44,10 @@ export const schwarzschildM = (logR) => logR - SCHWARZSCHILD_C;
 // Compton: given mass → wavelength, or wavelength → mass
 export const comptonR = (logM) => -logM + COMPTON_C;
 export const comptonM = (logR) => -logR + COMPTON_C;
+// Photons sit ON the Compton line, like the particles: radius = reduced
+// wavelength ƛ = λ/2π = ħc/E. Their true wavelength is logR + this (×2π);
+// the width ruler (×2) reads λ/π for them.
+export const PHOTON_LAMBDA_OFFSET = Math.log10(2 * Math.PI); // ≈ 0.798
 
 // Planck scale — where Schwarzschild and Compton lines cross.
 // These are the chart's own Planck units, defined with the coupling 2G —
@@ -302,16 +306,16 @@ export const CONNECTION_PATHS = [
     family: "spectrum",
     description: "The electromagnetic spectrum — from gamma rays to radio waves, all photons travel at the speed of light",
     points: [
-      { logR: -13.21, logM: -23.75 },
-      { logR: -10.3, logM: -26.66 },
-      { logR: -8.3,  logM: -28.66 },
-      { logR: -5.3,  logM: -31.66 },
-      { logR: -4.56, logM: -32.40 },
-      { logR: -3.3,  logM: -33.66 },
-      { logR: -1.3,  logM: -35.66 },
-      { logR: -0.3,  logM: -36.66 },
-      { logR: 2.18,  logM: -39.14 },
-      { logR: 4.18,  logM: -41.14 },
+      { logR: -13.703, logM: -23.75 },
+      { logR: -10.793, logM: -26.66 },
+      { logR: -8.793, logM: -28.66 },
+      { logR: -5.793, logM: -31.66 },
+      { logR: -5.053, logM: -32.40 },
+      { logR: -3.793, logM: -33.66 },
+      { logR: -1.793, logM: -35.66 },
+      { logR: -0.793, logM: -36.66 },
+      { logR: 1.687, logM: -39.14 },
+      { logR: 3.687, logM: -41.14 },
     ],
     zoomRange: [0.8, 800],
     style: {

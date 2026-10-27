@@ -123,15 +123,19 @@ const c3MeetsCompton = (c3) => { const r = (CP_C - c3) / 4; return [r, CP_C - r]
 const ROT_BH = -Math.atan(12.443 / 12.053) * 180 / Math.PI; // −45.9°: m ∝ r
 const ROT_ISO = -Math.atan(3 * 12.443 / 12.053) * 180 / Math.PI; // −72.1°: m ∝ r³
 
+// Two-line labels share one anchor (the middle of the pair) so their lines
+// move together when zooming instead of drifting apart.
+const GRAVITY_MID = [674.5, 487.5], QUANTUM_MID = [566.5, 1474.5];
+
 const LABELS = [
   // big region words
   { t: "sub − Planckian unknown", at: [367, 586], size: 69.3, rot: -90, anchor: "middle", weight: 370 },
-  { t: "forbidden by", at: [652, 457], size: 82.3, rot: -43.9, anchor: "middle", weight: 370 },
-  { t: "gravity", at: [697, 518], size: 87.5, rot: -43.9, anchor: "middle", weight: 370 },
+  { t: "forbidden by", at: [652, 457], obj: GRAVITY_MID, size: 82.3, rot: -43.9, anchor: "middle", weight: 370 },
+  { t: "gravity", at: [697, 518], obj: GRAVITY_MID, size: 87.5, rot: -43.9, anchor: "middle", weight: 370 },
   { t: "black holes", at: [511, 907], size: 52, rot: ROT_BH, anchor: "middle", weight: 370 },
   { t: "Compton limit", at: [599, 1331], size: 55.4, rot: 43.9, anchor: "middle", weight: 370 },
-  { t: "quantum", at: [594, 1450], size: 86.9, rot: 43.9, anchor: "middle", weight: 370 },
-  { t: "uncertainty", at: [539, 1499], size: 86.9, rot: 43.9, anchor: "middle", weight: 370 },
+  { t: "quantum", at: [594, 1450], obj: QUANTUM_MID, size: 86.9, rot: 43.9, anchor: "middle", weight: 370 },
+  { t: "uncertainty", at: [539, 1499], obj: QUANTUM_MID, size: 86.9, rot: 43.9, anchor: "middle", weight: 370 },
   { t: "QG", at: [338, 1064], size: 36.1, anchor: "middle", fill: "#fff" },
   { t: "instanton", at: [390, 1118], size: 28.6, anchor: "middle" },
   { t: "QGP", at: [725, 978], size: 36, rot: -70.1, anchor: "middle" },
