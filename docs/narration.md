@@ -297,6 +297,15 @@ Cue fields
            names) fades in once the cue's camera arrives; false fades it out
   spectrum true: the spectrum's sine wave, likewise (it isn't redrawn while the
            camera moves, so end it with a cue before the next flight)
+  explorer the spectrum explorer (public/spectrum/, ?video=1) over the chart, set
+           as a pure function of t (the scene's `explorer` is its state at t = 0):
+             show: true|false (fade s, default 1.2); view "inside"|"cloud",
+             radius "custom"|"log"|"linear", bright "lin"|"log", rings: switch
+             at the cue; c, s (RGB selector, in bands of the sky's bar: natural
+             colour c 22, s 1), yaw, pitch, zoom, spinA, gmst, unit, lz, exposure,
+             contrast, lift: glide over dur s (default 2.5); spin: rad/s, turns
+             Earth (Inside) or the Cloud for as long as it's on
+           (draft-06-wavelengths is the worked example)
   header   false: the classic figure's title block fades out from the cue; true
            fades it in (hidden from the start if the first header cue is true)
   drift    slow zoom-in while holding, as a fraction (default 0.05)

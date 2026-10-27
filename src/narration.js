@@ -1644,6 +1644,87 @@ export async function startNarration(app) {
     });
   }
 
+  // ---------- the spectrum explorer (public/spectrum/, ?video=1) ----------
+  // A scene can play over the electromagnetic-spectrum explorer instead of the chart.
+  // The explorer opens full-frame in an iframe under the captions; the scene's
+  // `explorer` (the state at t = 0, hidden) and each cue's `explorer: { … }` set it,
+  // (not `spectrum`, which is the chart's sine wave along the photons)
+  // a pure function of t like everything else here:
+  //   show: true | false (fades over `fade` s, default 1.2) · view "inside" | "cloud"
+  //   radius "custom" | "log" | "linear" · bright "lin" | "log" · rings: switch at the cue
+  //   c, s (the RGB selector, in bands of the sky's bar: natural colour is c 22, s 1),
+  //   yaw, pitch, zoom (Inside: zoom is the field of view, smaller is closer;
+  //   Cloud: bigger is closer), spinA, gmst (Earth's turn), unit, lz, exposure,
+  //   contrast, lift: glide there from wherever they are, over `dur` s (default 2.5)
+  //   spin: a turn rate (rad/s) that never stops while it's on: Earth turning on its
+  //   axis in Inside (added to gmst), the whole Cloud turning (added to spinA)
+  const SPEC_KEYS = cues.filter(c => c.explorer);
+  const SPEC = SCENE.explorer || SPEC_KEYS.length ? { ...(SCENE.explorer || {}) } : null;
+  let specFrame = null, specLastT = NaN;
+  const SPEC_SWITCH = ["view", "radius", "bright", "rings"];
+  const SPEC_LOG = new Set(["zoom"]);   // glides evenly in powers of ten
+  const specSegs = {}, specSwitch = {};
+  if (SPEC) {
+    const init = { show: false, spin: 0, ...SPEC };
+    const at = (f, t) => {
+      const segs = specSegs[f];
+      if (!segs) return init[f];
+      let v = init[f];
+      for (const g of segs) {
+        if (g.t0 > t) break;
+        const p = d3.easeCubicInOut(clamp01((t - g.t0) / g.dur));
+        v = SPEC_LOG.has(f) ? Math.exp(Math.log(g.from) + (Math.log(g.to) - Math.log(g.from)) * p) : g.from + (g.to - g.from) * p;
+      }
+      return v;
+    };
+    for (const c of SPEC_KEYS) for (const [f, to] of Object.entries(c.explorer)) {
+      if (f === "dur" || f === "fade") continue;
+      if (SPEC_SWITCH.includes(f)) { (specSwitch[f] ||= []).push({ t: c.time, v: to }); continue; }
+      const dur = f === "show" ? (c.explorer.fade ?? 1.2) : (c.explorer.dur ?? 2.5);
+      const from = at(f, c.time) ?? (f === "zoom" ? 1 : 0);
+      (specSegs[f] ||= []).push({ t0: c.time, dur, from: f === "show" ? +from : from, to: f === "show" ? +to : to });
+    }
+    // the spin's turn so far, summed in 1/50 s steps once
+    const STEP = 0.02, turn = [0];
+    for (let i = 1; i * STEP <= duration + 1; i++) turn.push(turn[i - 1] + at("spin", (i - 0.5) * STEP) * STEP);
+    const turned = (t) => { const x = clamp01(t / (duration + 1)) * (duration + 1) / STEP, i = Math.floor(x); return turn[i] + ((turn[i + 1] ?? turn[i]) - turn[i]) * (x - i); };
+    specFrame = (t) => {
+      const st = {};
+      for (const f of SPEC_SWITCH) { let v = init[f]; for (const k of specSwitch[f] || []) if (k.t <= t) v = k.v; if (v !== undefined) st[f] = v; }
+      for (const f of new Set([...Object.keys(init), ...Object.keys(specSegs)])) {
+        if (SPEC_SWITCH.includes(f) || f === "spin" || f === "show") continue;
+        const v = at(f, t);
+        if (v !== undefined) st[f] = v;
+      }
+      const a = turned(t);
+      if (a) { if ((st.view ?? "inside") === "cloud") st.spinA = (st.spinA ?? 0) + a; else st.gmst = (st.gmst ?? 0) + a; }
+      return { show: smooth(at("show", t)), st };
+    };
+  }
+  let specEl = null;
+  if (SPEC) {
+    specEl = document.createElement("iframe");
+    specEl.id = "narr-spectrum";
+    specEl.title = "The electromagnetic spectrum";
+    specEl.src = `${import.meta.env.BASE_URL}spectrum/index.html?video=1&target=sky&view=${SPEC.view || "inside"}`;
+    layer.insertBefore(specEl, layer.firstChild);   // under the drawings and captions
+    specEl.addEventListener("load", () => {
+      // the explorer boots after its data loads: hand it this frame once it's ready
+      const wait = () => specEl.contentWindow?.spectrumVideo ? (specLastT = NaN, drawSpectrum(curT)) : setTimeout(wait, 50);
+      wait();
+    }, on);
+  }
+  const specReady = () => !specEl || !!specEl.contentWindow?.spectrumVideo;
+  function drawSpectrum(t) {
+    if (!specFrame || t === specLastT) return;
+    const { show, st } = specFrame(t);
+    specEl.style.opacity = show;
+    specEl.style.visibility = show > 0 ? "visible" : "hidden";
+    const api = specEl.contentWindow?.spectrumVideo;
+    // set it while it shows, and once while hidden so it's ready to fade in
+    if (api && (show > 0 || !(specLastT >= 0))) { api.set(st); specLastT = t; }
+  }
+
   // ---------- frame ----------
   let lastKey = -2, lastPhase = null;
   const creditsEl = document.getElementById("narr-credits");
@@ -1668,6 +1749,7 @@ export async function startNarration(app) {
     drawHighlights(curT);
     drawPhoto(curT);
     drawCover(curT);
+    drawSpectrum(curT);
     drawCaption(curT);
   }
   app.onRedraw(() => { gHl && overlay(); });
@@ -1700,7 +1782,7 @@ export async function startNarration(app) {
     pending: () => app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
       [...photoImgs.values()].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length +
-      (COVER && !coverImg.complete ? 1 : 0),
+      (COVER && !coverImg.complete ? 1 : 0) + (specReady() ? 0 : 1),
     audio: base + take.audio,
   };
   if (RENDER) return;
@@ -2001,6 +2083,7 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
   -webkit-text-stroke: 6px #000; paint-order: stroke fill; }
 #narr-caption span { color: #fff; }
 #narr-cover { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+#narr-spectrum { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; pointer-events: none; visibility: hidden; opacity: 0; }
 #narr-cover img { position: absolute; left: 0; top: 0; transform-origin: 0 0; max-width: none; }
 #narr-photo { position: absolute; inset: 0; background: #000; overflow: hidden; visibility: hidden; pointer-events: none; }
 #narr-photo .np-imgs { position: absolute; inset: 0; will-change: transform; }
