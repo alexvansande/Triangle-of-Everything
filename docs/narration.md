@@ -296,6 +296,9 @@ Cue fields
   dur      flight seconds (default: from the distance travelled)
            "end": fly until the end card covers the picture (the last word, + 0.65 s)
   ease     "gentle": sine easing, a near-even pace for long moves (default cubic in-out)
+  swap     { "Name": "icon-file" }: from this cue on, the object is drawn with that
+           picture from content/icons/ instead of its own (video 6's spherical cow);
+           false puts the objects' own pictures back
   periodic true: the map's periodic table (rows, columns, type rings, family
            names) fades in once the cue's camera arrives; false fades it out
   spectrum true: the spectrum's sine wave, likewise (it isn't redrawn while the

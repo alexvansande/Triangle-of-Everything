@@ -42,7 +42,9 @@ export default {
 
   cues: [
     // ── The three edges ──────────────────────────────────────
-    { at: "in this series", offset: -0.4, cam: FULL, dur: 9, drift: 0.02, hl: [{ line: "triangle", delay: 1.5 }] },
+    // the cow is drawn as the physicist's spherical cow the whole video (an easter egg for
+    // "as if they were spheres")
+    { at: "in this series", offset: -0.4, swap: { Cow: "cow-spherical" }, cam: FULL, dur: 9, drift: 0.02, hl: [{ line: "triangle", delay: 1.5 }] },
     { at: "first is the black hole line", cam: C(-8, 6, 70), hl: [{ ...SCHW, label: "edge 1 · black holes" }] },
     { at: "there's a limit", hl: [SCHW, { side: "left", of: "schwarzschild", label: "nothing" }] },
     { at: "the second is the hubble radius", cam: C(3, 8, 70), hl: [{ ...HUBBLE, label: "edge 2 · the Hubble radius" }] },
@@ -54,7 +56,9 @@ export default {
     // ── A human, a ball, metric units ────────────────────────
     { at: "this is a human", cam: C(1.9, 4.8, 2.6), hl: [{ obj: "Human", label: "~2 m · ~100 kg" }] },
     { at: "close enough", hl: [{ obj: "Human", label: "rounded: it's a log chart" }] },
-    { at: "as if they were spheres", cam: C(1.85, 4.6, 2.4), hl: [{ obj: "Human", label: "measured as a ball" }] },
+    { at: "we measure everything", cam: C(1.95, 5.1, 2.4),
+      hl: [{ obj: "Human", label: false }, { obj: "Cow", label: "the spherical cow", delay: 0.4 }] },
+    { at: "as if they were spheres", hl: [{ obj: "Human", label: "measured as a ball" }, { obj: "Cow", label: "the spherical cow" }] },
     { at: "we use the metric units", cam: C(1.2, 3.0, 3.4), units: true, unitsUntil: "one diagonal line", clear: true },
     { at: "every unit fits", cam: C(0.9, 2.4, 3.6) },
     { at: "one gram of water", cam: C(0.3, 1.4, 2.6), hl: [{ obj: "1 mL of Water", label: "1 gram · 1 cm³" }] },

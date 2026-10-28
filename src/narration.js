@@ -354,6 +354,17 @@ export async function startNarration(app) {
   const OVERLAY_FADE = 0.4;
   const overlays = ["periodic", "spectrum"].map(key => ({ key, set: key === "periodic" ? "setPeriodic" : "setSpectrum",
     cues: cues.filter(c => c[key] !== undefined).map(c => ({ on: !!c[key], t: c[key] && keys.find(k => k.t === c.time)?.end || c.time })) }));
+  // ---------- swapped pictures: `swap: { "Cow": "cow-spherical" }` from a cue on (an object
+  // drawn with another icon file's picture), `swap: false` back to its own ----------
+  const swapCues = cues.filter(c => c.swap !== undefined);
+  let swapNow = "";
+  function applySwap(t) {
+    let map = null;
+    for (const c of swapCues) if (c.time <= t) map = c.swap || null;
+    const slugs = map && Object.fromEntries(Object.entries(map).map(([name, file]) => [objByName.get(name)?.slug, file]).filter(([s]) => s));
+    const key = JSON.stringify(slugs);
+    if (key !== swapNow) { swapNow = key; app.setIconSwap?.(slugs); }
+  }
   function applyOverlays(t) {
     for (const o of overlays) {
       let a = 0;
@@ -710,6 +721,7 @@ export async function startNarration(app) {
     applyFocus(t);
     applyLabels(t);
     applyOverlays(t);
+    applySwap(t);
     // over the classic figure, keep highlights inside its plot frame
     const fr = classicOpacity(t) > 0.5 ? classicFrameClient() : null;
     if (fr) {

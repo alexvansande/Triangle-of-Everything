@@ -20,7 +20,7 @@ import {
   formatLogSuper, densityToLogTime, friendlyTime, fmtTick,
 } from "./format.js";
 import {
-  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, ICON_COVERAGE, iconUrlForSize, setIconMaxRes, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
+  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, ICON_COVERAGE, iconUrlForSize, setIconMaxRes, setIconSwap, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
@@ -8503,6 +8503,8 @@ if (_ogShot) {
       setDolly(d) { setDolly(d); },
       /** Always the largest resolution of each picture (videos), then redraw. */
       setIconMaxRes(on = true) { setIconMaxRes(on); redraw(); },
+      /** Draw objects with another picture for a while (videos): { slug: icon file }, or null. */
+      setIconSwap(map) { setIconSwap(map); redraw(); },
       /** Guide lines in the chart, under the pictures: [{ x1, y1, x2, y2, color, opacity }]
        *  in chart-local px (the narration converts from its own layer). */
       drawGuides(lines = []) {
