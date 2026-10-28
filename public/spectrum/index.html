@@ -681,6 +681,23 @@
       uniform mat3 galToEq;
       uniform float rE, spinA, gmst, elod;
       uniform float use[${OBJ_MAX}];  // 0 leaves a band out (night lights: the globe is all day)
+      uniform float aurora;           // a video's auroral X-ray ovals (0–1, off by default; see setVideo)
+      // Earth's own X-rays: bremsstrahlung from auroral electrons ~100 km up (imaged by PIXIE on
+      // Polar), two ovals near 70° magnetic latitude, round the geomagnetic poles (80.7°N, 72.7°W).
+      // A model, not data: no global X-ray map of Earth exists
+      float auroraGlow(float lon, float lat) {
+        const vec3 MN = vec3(0.04837, -0.15510, 0.98671);
+        vec3 e = vec3(cos(lat) * cos(lon), cos(lat) * sin(lon), sin(lat));
+        vec3 ex = normalize(cross(vec3(0.0, 0.0, 1.0), MN)), ey = cross(MN, ex);
+        float g = 0.0;
+        for (int k = 0; k < 2; k++) {
+          vec3 m = k == 0 ? MN : -MN;
+          float ml = degrees(asin(clamp(dot(e, m), -1.0, 1.0))), mlon = atan(dot(e, ey), dot(e, ex));
+          float c = 69.0 + 2.5 * cos(mlon + 0.6), w = 5.0 + 1.5 * sin(mlon * 2.0 + 1.3);   // uneven, as real ovals are
+          g += exp(-pow((ml - c) / w, 2.0)) * (0.65 + 0.35 * sin(mlon * 3.0 + 0.4));
+        }
+        return g;
+      }
       void main() {
         vec3 ro, rd = ray(ro);
         float bq = dot(ro, rd), h = bq * bq - dot(ro, ro) + rE * rE;
@@ -697,6 +714,8 @@
         objBands(uv, elod, vals);
         for (int k = 0; k < ${OBJ_MAX}; k++) shade[k] = use[k];
         o = vec4(mixBands(vals, shade), 4.0); // > 1 marks it for the tone map (clamps to 1 on screen)
+        // (a thin glowing layer: seen edge-on at the limb, the light adds up along a longer path)
+        if (aurora > 0.0) o.rgb = min(o.rgb + aurora * auroraGlow(lon, lat) * min(3.0, 0.5 / max(0.08, -dot(rd, n))) * vec3(0.95, 0.85, 1.0), vec3(1.0));
         vec4 cp = viewProj * vec4(pw, 1.0);
         gl_FragDepth = 0.5 + 0.5 * cp.z / cp.w;
       }`) : null;
@@ -1096,6 +1115,8 @@
     }
     let vcam = null;   // a video's one camera for Inside and the Cloud (setVideo, below)
     let guideA = 1;    // a video's fade of the rings, discs and their names (0–1), to let the dots show
+    let auroraA = 0;   // a video's auroral X-ray ovals on Earth (0–1; the globe's auroraGlow)
+    let ringsLabelled = false;   // a video's rings: "labelled": only the rings and discs it names
     const LBL = VIDEO ? 15 / 10.5 : 1;   // label widths scale with the video's bigger names
     function drawRings(VP, w, h, centre) {
       ringLabels.hidden = ringText.hidden = !ringsOn.checked;
@@ -1107,16 +1128,17 @@
       const circleR = (r) => (r >= 0.98 * D ? null : (H_ / 2) * Math.tan(Math.asin(r / D)) / T);
       const back = [], front = [], taken = [];
       const free = (x, y, wd) => !taken.some((t) => Math.abs(t.y - y) < 13 && x < t.x + t.wd && t.x < x + wd);
-      for (let L = -10; L <= 10; L++) {
+      if (!ringsLabelled) for (let L = -10; L <= 10; L++) {
         const r = radiusOf(L), R = r === null ? null : circleR(r);
         if (R !== null && R > 3) back.push(`<circle cx="${cx}" cy="${cy}" r="${R.toFixed(1)}"/>`);
       }
-      // labelled circles, along the upper-right diagonal
-      for (const [L, raw] of [...UNITS, ...(videoLabels?.edge ? [EDGE] : [])].sort((a, b) => a[2] - b[2])) {
+      // labelled circles, along the upper-right diagonal (a video's "Earth": one on its surface)
+      const EARTH_RING = [L_EARTH, "Earth", 0];
+      for (const [L, raw] of [...UNITS, ...(videoLabels?.edge ? [EDGE] : []), ...(videoLabels?.Earth ? [EARTH_RING] : [])].sort((a, b) => a[2] - b[2])) {
         const name = vlab(raw);
         if (!name) continue;
         const r = radiusOf(L), R = r === null ? null : circleR(r);
-        if (R === null || R < 8) continue;
+        if (R === null || R < (raw === "Earth" ? 3 : 8)) continue;
         let x = cx + R * Math.SQRT1_2 + 3, y = cy - R * Math.SQRT1_2 - 3;
         const wd = 6.4 * LBL * name.length + 8;
         // a video's own labels (a phone-width frame, rings wider than it): the first spot on
@@ -1153,7 +1175,7 @@
       gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
       for (const d of discs()) {
         const Rs = d.rOut * k, fade = Math.min(1, Math.max(0, Math.log2(Rs / 12)), Math.max(0, Math.log2((3 * H_) / Rs)));
-        if (fade <= 0) continue;
+        if (fade <= 0 || (ringsLabelled && !vlab(d.name))) continue;
         const col = d.name === "Milky Way" ? [0.16, 0.22, 0.34] : [0.34, 0.26, 0.12];
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(d.tri), gl.DYNAMIC_DRAW);
         gl.uniform3fv(U("col"), col.map((x) => x * 0.22 * fade * guideA));
@@ -1224,6 +1246,7 @@
         gl.uniform1f(E("rE"), rO); gl.uniform1f(E("spinA"), spinAngle); gl.uniform1f(E("gmst"), GMST);
         gl.uniform1f(E("elod"), Math.max(0, Math.log2(2048 / Math.max(1, 3 * px))));
         gl.uniform1fv(E("use"), Float32Array.from({ length: OBJ_MAX }, (_, k) => (ob.meta.bands[k] && ob.meta.bands[k].id !== "lights" ? 1 : 0)));
+        gl.uniform1f(E("aurora"), auroraA);
       } else {
         gl.uniform3fv(E("camR"), CAM.r); gl.uniform3fv(E("camU"), CAM.u); gl.uniform3fv(E("camF"), CAM.f);
         gl.uniform1f(E("rS"), rO);
@@ -1458,8 +1481,11 @@
     //   it, yaw/pitch/orbit mean the same in both, so Earth stays put across a switch)
     //   from, fromA: another view drawn over this one at that alpha (a cross-fade)
     //   radius "custom" | "log" | "linear" · unit (log10 ly) · lz (log10 ly at radius 1)
-    //   exposure, contrast · bright "lin" | "log" · lift · rings (bool)
-    //   labels: { name: "shown as" } only these ring and marker labels, renamed (null: all)
+    //   exposure, contrast · bright "lin" | "log" · lift · rings (bool, or "labelled": only the
+    //   rings and discs that have a label in `labels`, no plain power-of-ten rings)
+    //   labels: { name: "shown as" } only these ring and marker labels, renamed (null: all);
+    //   "edge": a ring at the observable universe's edge; "Earth": a ring on Earth's surface
+    //   aurora (0–1): Earth's auroral X-ray ovals, a model (the globe's auroraGlow)
     //   guides (0–1): the rings, discs and their names faded, so the dots show through
     const camFor = (m) => m === 3
       ? { yaw: vcam.yaw, pitch: -vcam.pitch, orbit: vcam.orbit, zoom: (3.2 * Math.tan(20 * Math.PI / 180) * Math.tan(EARTH_INSIDE)) / (earthR() * vcam.ezoom) }
@@ -1489,7 +1515,8 @@
       if (st.contrast != null) contrast.value = st.contrast;
       if (st.bright != null) brightLog = st.bright === "log";
       if (st.lift != null) lift.value = st.lift;
-      if (st.rings != null) ringsOn.checked = !!st.rings;
+      if (st.rings != null) { ringsOn.checked = !!st.rings; ringsLabelled = st.rings === "labelled"; }
+      if (st.aurora != null) auroraA = Math.max(0, Math.min(1, st.aurora));
       if (st.c != null || st.s != null) { c = st.c ?? c; s = st.s ?? s; clamp(); layoutSelector(); }
       showScale(); draw();
       return true;

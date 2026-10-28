@@ -40,19 +40,26 @@ const DM_CMB = { poly: [[-3.42, 0], [30, 0], [30, 25], [9.08, 25]], hatch: true,
   label: "ruled out by the\nmicrowave background", labelAt: [6.5, 4.5], labelColor: "#e0e3f0" };
 // the candidates, as questions
 const DM_CANDS = [
-  { obj: "WIMP*", label: "WIMPs?", place: "right" },
+  // (a mark like the others at WIMP*'s place, not the object's own smaller tag: the author's
+  // note, 2026-10-28, "WIMPs is smaller than the rest")
+  { mark: [-16.2, -21.25], label: "WIMPs?", place: "right" },
   { mark: [10, 32], label: "MACHOs?", place: "left" },
   { mark: [-1, 9], label: "macro dark matter?", place: "left", color: "#ffe9a3" },
 ];
 // the source of the macro areas, quietly under the title
 const DM_SOURCE = { title: "after Sidhu, Scherrer & Starkman (2019),\n\u201cDeath and serious injury by dark matter\u201d", small: true, y: 0.7 };
 const DM_PBH = { mark: [-8.3, 19.5], label: "primordial black holes?", place: "right", color: "#ff8fa8" };
-// all four candidates at once (WIMPs at the bottom left, MACHOs at the top right), with a
-// "Dark matter?" up in the empty corner above the black-hole line and arrows out to each
+// all four candidates at once (WIMPs at the bottom left, MACHOs at the top right), with
+// "Here be dark matter?" in the empty middle of the frame, left of the everyday objects'
+// density line, between ~1 pg and 1 lb and ~1 fm and 1 cm (the author's note, 2026-10-28;
+// it was "Dark matter?" up in the corner above the black-hole line), arrows out to each
+// from the title's edge
 const DM_WIDE = { r: -3, m: 2, span: 52 };
-const DM_HUB = (delay = 0) => [{ text: "dark matter?", at: [-5, 36], delay },
-  ...[{ obj: "WIMP*" }, { r: 10, m: 32 }, { r: -1, m: 9 }, { r: -8.3, m: 19.5 }].map((to, i) =>
-    ({ arrow: true, from: { r: -5, m: 34 }, to, color: "#ffe9a3", delay: delay + 0.5 + 0.35 * i }))];
+const DM_TITLE = [-11.85, -3.8];
+const DM_HUB = (delay = 0) => [{ text: "here be\ndark matter?", at: DM_TITLE, size: 24, delay },
+  ...[[{ r: -11.85, m: -6.2 }, { r: -16.2, m: -21.25 }], [{ r: -10.6, m: -1.1 }, { r: -8.3, m: 19.5 }],
+    [{ r: -7.2, m: -1.1 }, { r: 10, m: 32 }], [{ r: -5, m: -1.3 }, { r: -1, m: 9 }]].map(([from, to], i) =>
+    ({ arrow: true, from, to, color: "#ffe9a3", delay: delay + 0.5 + 0.35 * i }))];
 // close on the crossed-off corner: ancient crystals and the injuries
 const DM_CLOSE = { r: -5.5, m: 2.5, span: 17 };
 const still = (h) => ({ ...h, instant: true, delay: 0 });
@@ -186,7 +193,7 @@ export default {
     { at: "something invisible", cam: DM_WIDE, dur: 4, drift: 0, quiet: true, labels: false, clear: true,
       hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1.2 + 0.5 * i }))] },
     // the candidates, pointed out; primordial black holes join on "…if it's tiny black holes"
-    { at: "plenty of candidates", hl: [SCHW, ...DM_CANDS.map(still), ...DM_HUB(0),
+    { at: "plenty of candidates", hl: [SCHW, ...DM_HUB(0), ...DM_CANDS.map(still),
       { ...DM_PBH, delay: 2.4 }, { window: W5, cuts: [ML, HAW], delay: 2.8 }] },
     { at: "so we keep looking", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 3, labels: true, clear: true,
       hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
@@ -205,7 +212,7 @@ export default {
     { at: "or maybe not", cam: DM_WIDE, dur: 4, drift: 0, quiet: true, labels: false, clear: true,
       hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1 + 0.5 * i })), { ...DM_PBH, delay: 2.5 }, { window: W5, cuts: [ML, HAW], delay: 2.5 }] },
     // a screen with little else going on: dark matter, if it's real, is one of these
-    { at: "somewhere on this chart", hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] }, ...DM_HUB(0)] },
+    { at: "somewhere on this chart", hl: [SCHW, ...DM_HUB(0), ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] }] },
     // then a slow zoom in, arriving on the crossed-off corner as it's named
     { at: "not only on the black hole line", cam: DM_CLOSE, dur: 4.5, drift: 0, quiet: true,
       hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] }] },

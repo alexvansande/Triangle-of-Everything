@@ -1662,11 +1662,15 @@ export async function startNarration(app) {
         .attr("fill", col || "#0d0f16").attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1).attr("opacity", a);
     }
   }
-  /** A big free-standing word on the chart: { text, at: [r, m], color? } (a hub that arrows point out from) */
+  /** A big free-standing word on the chart: { text, at: [r, m], color?, size? (px, 30) } (a hub that
+   *  arrows point out from); "\n" stacks lines, centred on `at` */
   function drawText(el, h, age) {
-    el.append("text").attr("class", "narr-tag narr-hub").attr("x", sx(h.at[0])).attr("y", sy(h.at[1]))
-      .attr("text-anchor", "middle").attr("fill", h.color || "#ffe9a3").attr("opacity", h.instant ? 1 : smooth(age / 0.6))
-      .text(h.text.toUpperCase());
+    const t = el.append("text").attr("class", "narr-tag narr-hub").attr("x", sx(h.at[0])).attr("y", sy(h.at[1]))
+      .attr("text-anchor", "middle").attr("fill", h.color || "#ffe9a3").attr("opacity", h.instant ? 1 : smooth(age / 0.6));
+    if (h.size) t.style("font-size", `${h.size}px`);
+    const lines = h.text.toUpperCase().split("\n");
+    if (lines.length === 1) { t.text(lines[0]); return; }
+    lines.forEach((s, i) => t.append("tspan").attr("x", sx(h.at[0])).attr("dy", i ? "1.15em" : `${-0.575 * (lines.length - 1)}em`).text(s));
   }
   function drawArrow(el, h, age) {
     const from = h.from.obj ? objByName.get(h.from.obj) : null;
