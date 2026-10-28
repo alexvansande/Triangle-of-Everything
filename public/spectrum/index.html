@@ -1096,6 +1096,8 @@
     }
     let vcam = null;   // a video's one camera for Inside and the Cloud (setVideo, below)
     let guideA = 1;    // a video's fade of the rings, discs and their names (0–1), to let the dots show
+    let namesA = null; // a video's fade of the names alone (0–1), in place of guideA once set
+    let videoDot = 1;  // a video's dot size (×), each dot as bright as before: stronger dots
     const LBL = VIDEO ? 15 / 10.5 : 1;   // label widths scale with the video's bigger names
     function drawRings(VP, w, h, centre) {
       ringLabels.hidden = ringText.hidden = !ringsOn.checked;
@@ -1336,7 +1338,7 @@
         gl.useProgram(cloud);
         const U = common(cloud);
         const VP = cloudViewProj(w, h);
-        gl.uniform1f(U("size"), DOT * Math.min(6 * dpr, Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom))));
+        gl.uniform1f(U("size"), DOT * videoDot * Math.min(6 * dpr, Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom))));
         // the same points crowd a small view, so each is dimmer there (down to
         // 0.35×), keeping the shells dotted instead of summing to solid white
         const small = Math.max(0.35, Math.min(1, Math.sqrt(w * h) / (700 * dpr)));
@@ -1461,6 +1463,7 @@
     //   exposure, contrast · bright "lin" | "log" · lift · rings (bool)
     //   labels: { name: "shown as" } only these ring and marker labels, renamed (null: all)
     //   guides (0–1): the rings, discs and their names faded, so the dots show through
+    //   names (0–1): the names alone faded (once set, in place of guides) · dot: the dots' size (×), as bright each
     const camFor = (m) => m === 3
       ? { yaw: vcam.yaw, pitch: -vcam.pitch, orbit: vcam.orbit, zoom: (3.2 * Math.tan(20 * Math.PI / 180) * Math.tan(EARTH_INSIDE)) / (earthR() * vcam.ezoom) }
       : { yaw: vcam.yaw, pitch: vcam.pitch, orbit: vcam.orbit, zoom: vcam.ezoom };
@@ -1479,7 +1482,10 @@
       if (st.ezoom != null) vcam = { yaw: st.yaw ?? view.yaw, pitch: st.pitch ?? 0, ezoom: st.ezoom, orbit: st.orbit ?? 0 };
       if (vcam) view = camFor(mode);
       if (st.labels !== undefined) videoLabels = st.labels;
-      if (st.guides != null) { guideA = Math.max(0, Math.min(1, st.guides)); ringLabels.style.opacity = ringText.style.opacity = guideA; }
+      if (st.guides != null) guideA = Math.max(0, Math.min(1, st.guides));
+      if (st.names != null) namesA = Math.max(0, Math.min(1, st.names));
+      if (st.guides != null || st.names != null) { ringLabels.style.opacity = guideA; ringText.style.opacity = namesA ?? guideA; }
+      if (st.dot != null) videoDot = Math.max(0.5, Math.min(4, st.dot));
       // a cross-fade from another view (st.from) over this one, at alpha st.fromA
       const fm = st.from && VIEW_ID[st.from[0].toUpperCase() + st.from.slice(1)];
       fade = fm != null && fm !== mode && st.fromA > 0 && vcam ? { mode: fm, view: camFor(fm), spinA, a: Math.min(1, st.fromA) } : null;
