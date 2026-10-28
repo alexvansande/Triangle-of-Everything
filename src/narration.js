@@ -301,7 +301,7 @@ export async function startNarration(app) {
   }
   // (and a lit path named again doesn't draw itself on again)
   for (const h of highlights) if (h.path) {
-    const key = JSON.stringify(h.path);
+    const key = JSON.stringify([h.path, h.from, h.to]);
     const prev = highlights.find(q => q !== h && q.path && JSON.stringify(q.path) === key && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
     h.since = prev ? prev.since : h.t0;
   }
@@ -889,7 +889,7 @@ export async function startNarration(app) {
     // The fade follows the narration clock (0.5 s), so the renderer's frames match playback.
     drawHalos(live, t);
     drawGuides(live, t);
-    app.drawUnderLines?.(underLines.splice(0));
+    app.drawUnderLines?.(underLines.splice(0), underDots.splice(0));
     // a close-up cue with `nearby: true` keeps its surroundings named: no fade, catalogue names on
     const hlNow = hlCues.filter(c => c.time <= t).at(-1);
     const nearby = !!hlNow?.nearby;
@@ -1322,6 +1322,7 @@ export async function startNarration(app) {
     return pts.map(([r, m]) => [sx(r), sy(m)]);
   }
   const underLines = [];   // the water line's strokes for under the pictures, this frame
+  const underDots = [];    // a lit path's dots, with its line
   function drawLine(el, L, h, age) {
     if (!L || !L.pts.length) return;
     const p = linePath(L.pts);
@@ -1366,7 +1367,21 @@ export async function startNarration(app) {
     const pl = app.plot(), prog = d3.easeCubicOut(clamp01((curT - (h.since ?? h.t0)) / (h.draw ?? 1.2)));
     const SPACE = 44, SPEED = 60;   // px between the bright dots; px/s
     const list = app.connPaths?.(h.path) || [];
+    // `from` / `to` (object names): only the stretch of the path between them
+    const near = (pts, name, i0 = 0) => {
+      const o = objByName.get(name);
+      if (!o) return -1;
+      const X = sx(o.logR) - pl.x, Y = sy(o.logM) - pl.y;
+      let best = -1, bd = Infinity;
+      for (let i = i0; i < pts.length; i++) { const dd = Math.hypot(pts[i][0] - X, pts[i][1] - Y); if (dd < bd) { bd = dd; best = i; } }
+      return best;
+    };
     for (const cp of list) {
+      if (h.from || h.to) {
+        const i0 = h.from ? Math.max(0, near(cp.pts, h.from)) : 0;
+        const i1 = h.to ? near(cp.pts, h.to, i0) : cp.pts.length - 1;
+        cp.pts = cp.pts.slice(i0, (i1 < 0 ? cp.pts.length - 1 : i1) + 1);
+      }
       const p = cp.pts.map(([x, y]) => [x + pl.x, y + pl.y]);
       const cum = [0];
       for (let i = 1; i < p.length; i++) cum.push(cum[i - 1] + Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]));
@@ -1376,7 +1391,10 @@ export async function startNarration(app) {
         : (cp.color || "#fff").replace(/rgba\(([^,]+),([^,]+),([^,]+),[^)]+\)/, "rgb($1,$2,$3)"));
       const dash = `${len * prog} ${len + 10}`;
       const dl = "M" + cp.pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join("L");
-      [[12, 0.16], [6, 0.32], [2.4, 0.95]].forEach(([w, o]) =>
+      // the line glows like a named object's halo (blurred lavender, overlay), the path's
+      // own colour over it (author, 2026-10-28: "highlight them more")
+      underLines.push({ d: dl, color: "#e4dcff", width: 26, opacity: 0.8 * (h.op ?? 1), dash, halo: true });
+      [[6, 0.35], [2.6, 1]].forEach(([w, o]) =>
         underLines.push({ d: dl, color: rgb, width: w, opacity: o * (h.op ?? 1), dash }));
       const at = (s) => {
         let i = d3.bisectLeft(cum, s);
@@ -1386,8 +1404,11 @@ export async function startNarration(app) {
       };
       for (let s = (curT * SPEED) % SPACE; s < len * prog; s += SPACE) {
         const [x, y] = at(s), edge = Math.min(1, s / 18, (len - s) / 18);
-        el.append("circle").attr("cx", x).attr("cy", y).attr("r", 7).attr("fill", rgb).attr("opacity", 0.28 * edge);
-        el.append("circle").attr("cx", x).attr("cy", y).attr("r", 2.8).attr("fill", "#fff").attr("opacity", edge);
+        // (twice the size they were: the author, 2026-10-28; in the chart with the line,
+        // so a dive carries them back with it)
+        const op = h.op ?? 1;
+        underDots.push({ x: x - pl.x, y: y - pl.y, r: 14, color: rgb, opacity: 0.24 * edge * op },
+          { x: x - pl.x, y: y - pl.y, r: 5.6, color: "#fff", opacity: edge * op });
       }
       if (h.label && cp === list[0]) {
         const [x, y] = at(len / 2);

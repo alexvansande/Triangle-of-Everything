@@ -43,6 +43,15 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   videos' picture density is a little over standard (60), so pictures keep clear room
   around them; a scene's `alsoIcons` puts pictures first without forcing them. Real space
   photographs take room before generated pictures.
+- **Pictures sized by what they show** (author, 2026-10-28): galaxies and nebulae are the
+  chart's best pictures (real photographs, soft-edged), particles are small abstract glyphs.
+  One smooth curve over log size (`iconSizeCurve` in `src/main.js`, two logistic steps) on
+  top of the old sizing: particles (quarks, leptons, bosons, protons; under ~1e-11 cm) 0.5×,
+  atoms and x-rays ~0.9×, everyday things, light from UV to radio, planets and stars ~1×,
+  supergiants 1.1×, planetary nebulae 1.5×, nebulae 1.7–1.8×, globular clusters 1.95×,
+  galaxies 2.1–2.2×, clusters and up 2.3×. The site's map too. A glow's room from its
+  neighbours grows only by the square root of that, so the bigger galaxies still leave room
+  for each other (soft edges may touch).
 - **Space is darker** (2026-10-24): the chart darkens with mass from the stars up (half by
   10^35 g, 70% from 10^41 g), and soft-edged space pictures (galaxies, clusters, nebulae)
   may sit closer together than solid things: they keep as little as 45% of their room.
@@ -68,6 +77,12 @@ cutaways could go is `cutaways.md`; this file is the *why*.
 - **Axis talk shows the real axes**: mass on the right (as in the map), size along the bottom,
   with the numbered rulers pinned while they're named.
 
+- **Lit paths, strong** (author, 2026-10-28): when the narration talks about what a path's
+  moving dots show (a star collapsing and swelling, the split, supernovae, the nebulae making
+  nurseries, protostars, the core to a black hole, black holes merging), light that path
+  (`{ path }`, `from`/`to` for a stretch) instead of drawing an arrow along it: the line glows
+  with the named objects' halo treatment (blurred lavender, overlay) and its dots are twice
+  the old size.
 - **Highlight what the chart actually shows.** Super-Jupiters and brown dwarfs sit in one
   column at Jupiter's size; Beta Pictoris b is a young, inflated planet drawn wider, so don't
   point at it as "same size": draw a vertical trend line up the column (`trend: [[r, m], …]`),
@@ -103,6 +118,13 @@ map. Optionally it then fills the screen, holds, and fades slowly back to the ch
   (`{ obj, grow?, in, out }`, `dur` held all the way in) with a `lens` photo inside the
   hold; see "dives: the camera trick" in `src/narration.js` and `setDolly` in `src/main.js`.
   First tried on Jupiter in video 3.
+- **The other pictures come along** (author, 2026-10-28, after video 3: "it will help with the
+  idea that we are approaching the main object in a 3D space"): during a dive the pictures
+  around the object grow too, by a share of its growth (its growth to the power 0.12 far
+  away, up to ~0.42 right beside it, a little more for the ones nearer in the parallax), and
+  spread out from it as much, like things passing by on the way in, while the painting and
+  the chart still fall back. Their halos and cast shadows fade as they set off (they stay in
+  the chart's depth). `setDolly` in `src/main.js` (`DOLLY_ICON_SHARE`).
 - **Use a dive, not a photo cutaway, whenever the object has a picture on the chart.**
   Plain cutaways (below) are left for things the chart can't show by itself.
 - **Current dives**: Jupiter in infrared (video 3, the camera trick above), the Pillars of

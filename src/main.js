@@ -154,14 +154,33 @@ function iconAreaMult(slug) {
 // a nebula) and for Saturn's rings, from content/icons/coverage.json. Solid things
 // (rocks, towers, animals) keep their whole square, sparse or not.
 const ROOM_REF = 0.6, ROOM_MIN = 0.45;
-function iconRoomMult(slug, cat) {
+// A glow's room also keeps only the square root of what the size curve (iconSizeCurve)
+// added: the space photographs grew so they'd show larger, not so fewer would fit.
+function iconRoomMult(slug, cat, logR = null) {
   if (!ICON_SIZE_MULT[slug] && !isLuminousArt(cat, slug)) return 1;
   const c = ICON_COVERAGE[slug];
-  return c ? Math.max(ROOM_MIN, Math.min(1, Math.sqrt(c / ROOM_REF))) : 1;
+  const grown = logR == null ? 1 : 1 / Math.sqrt(Math.max(1, iconSizeCurve(logR)));
+  return (c ? Math.max(ROOM_MIN, Math.min(1, Math.sqrt(c / ROOM_REF))) : 1) * grown;
 }
 // A catalogue dot's rank in its band (1 = its most famous) on the objects' z scale
 function dustImportance(rank) { return rank <= 1 ? 3 : rank <= 3 ? 3.5 : rank <= 10 ? 4 : 5; }
 let _dustPictureChoice = null;   // catalogue pictures the one picture pass chose (indices)
+// The pictures' size by what they show (author, 2026-10-28): the space photographs
+// (nebulae, galaxies, clusters) are the chart's best pictures and soft-edged, so they get
+// more room; particles are small abstract glyphs and get less; everyday things, planets
+// and stars stay about as they were. One smooth curve over log r (cm), two logistic steps:
+//   f(r) = (0.5 + 0.5·σ((r + 9.5) / 0.6)) · (1 + 1.3·σ((r − 18) / 1.8))
+// ≈ 0.5 for particles (quarks, leptons, bosons, protons: r < 1e-11 cm; the electron 0.59),
+// 0.9 x-rays and atoms, 1.00 everyday things and planets, 1.03 the Sun, 1.1 supergiants,
+// 1.5 planetary nebulae, 1.7-1.8 nebulae, 1.95 globular clusters, 2.1-2.2 galaxies,
+// 2.3 clusters and up. Purely by size: light from x-rays to radio and the neutrinos, drawn at
+// their wavelength, keep their size (they're video 7's subject).
+const SIZE_CURVE = { lo: 0.5, loAt: -9.5, loW: 0.6, hi: 1.3, hiAt: 18, hiW: 1.8 };
+const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+function iconSizeCurve(logR) {
+  const C = SIZE_CURVE;
+  return (C.lo + (1 - C.lo) * sigmoid((logR - C.loAt) / C.loW)) * (1 + C.hi * sigmoid((logR - C.hiAt) / C.hiW));
+}
 function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
@@ -172,7 +191,7 @@ function iconSizeMult(o) {
     : cat === "blackhole" || (cat === "largescale" && isDiffuseSpaceArt(cat, o.slug)) ? 1.25 : 1;
   // (a video's boost for the big things, ramping in over the decade around `from`)
   const boost = _iconBoost ? 1 + (_iconBoost.k - 1) * Math.max(0, Math.min(1, logR - _iconBoost.from + 0.5)) : 1;
-  return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * iconAreaMult(o.slug) * (_iconSize / 100) * boost;
+  return sizeScale * categoryScale * iconSizeCurve(logR) * (ICON_SIZE_MULT[o.slug] || 1) * iconAreaMult(o.slug) * (_iconSize / 100) * boost;
 }
 
 // Photons → where the spectrum explorer (/spectrum/) opens: the selector's
@@ -571,6 +590,10 @@ defs.append("mask").attr("id","star-wall-mask").attr("maskUnits","objectBounding
   .append("rect").attr("width",1).attr("height",1).attr("fill","url(#star-wall-fade)");
 // the videos' halo behind a named object: a pale lavender light in overlay blend, so
 // the purple under it brightens towards white without ever going flat white
+// (a lit path's halo: its wide stroke blurred, over the whole chart's extent)
+defs.append("filter").attr("id","narr-line-halo").attr("filterUnits","userSpaceOnUse")
+  .attr("x",-20000).attr("y",-20000).attr("width",40000).attr("height",40000)
+  .append("feGaussianBlur").attr("stdDeviation",7);
 const narrHalo=defs.append("radialGradient").attr("id","narr-halo-fade");
 for(const [offset,opacity] of [[0,1],[.3,.9],[.55,.5],[.8,.15],[1,0]])narrHalo.append("stop").attr("offset",offset).attr("stop-color","#e4dcff").attr("stop-opacity",opacity);
 defs.append("filter").attr("id","star-glow").attr("primitiveUnits","objectBoundingBox")
@@ -2645,7 +2668,7 @@ function drawObjects() {
   // order resolves equal priorities; last frame's winners never alter rank.
   const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
-  const roomR = (o) => icoR(o) * iconRoomMult(o.slug, o.catKey || o.cat);   // for overlaps, not drawing
+  const roomR = (o) => icoR(o) * iconRoomMult(o.slug, o.catKey || o.cat, o.logR);   // for overlaps, not drawing
   const iconOrder = projected.filter(o => mapIconShown(o) && !_iconHide?.has(o.name));
   // One pass for every picture, hand-placed or from the catalogue: real photographs
   // first, then importance on one scale (an object's z; a catalogue dot's rank in its
@@ -2662,7 +2685,7 @@ function drawObjects() {
     } : null,
     iconSizeAt: (logR,name,cat) => icoSize * iconSizeMult({logR,slug:nameToSlug(name),cat}),
     imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
-    roomOf: (name, cat) => iconRoomMult(nameToSlug(name), cat),
+    roomOf: (name, cat, logR) => iconRoomMult(nameToSlug(name), cat, logR),
   }).filter(p => p.r*2 >= dustIconMin() && !_iconHide?.has(p.name));
   const asObj = (o) => ({ o, sx:o.sx, sy:o.sy, room:roomR(o), imagePriority:o.imagePriority, importance:o.z ?? 3, curated:0 });
   const asDust = (p) => ({ p, sx:p.sx, sy:p.sy, room:p.room ?? p.r, imagePriority:p.imagePriority, importance:dustImportance(p.rank), curated:1 });
@@ -3223,7 +3246,7 @@ function drawObjects() {
     } : null,
     // as iconSizeMult, per-object multipliers included
     iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
-    roomOf: (name, cat) => iconRoomMult(nameToSlug(name), cat),
+    roomOf: (name, cat, logR) => iconRoomMult(nameToSlug(name), cat, logR),
     imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
     pictureChoice: _dustPictureChoice,   // chosen with the objects' pictures, in one pass
     iconBlend: (cat) => LUMINOUS_CATS.has(cat),   // luminous: no cast shadow
@@ -3456,12 +3479,18 @@ const DOLLY_MIST_FROM = 0.3;
 // The pictures blur one by one (a filter on their whole layer would cut the
 // screen-blended ones off from the painting); those only darken, under the veil.
 const DOLLY_ICON_BLUR = 3;
+// The other pictures grow by the object's growth to the power share: share =
+// [0] far from it on screen, + [1] right beside it (a gaussian over half the screen).
+const DOLLY_ICON_SHARE = [0.12, 0.3];
 const dollyIconFilter = defs.append("filter").attr("id", "dolly-fi").attr("x", "-50%").attr("y", "-50%")
   .attr("width", "200%").attr("height", "200%").attr("color-interpolation-filters", "sRGB");
 const dollyIconBlur = dollyIconFilter.append("feGaussianBlur").attr("stdDeviation", 0);
 const dollyIconDark = (() => { const ct = dollyIconFilter.append("feComponentTransfer");
   return ["R", "G", "B"].map(c => ct.append(`feFunc${c}`).attr("type", "linear").attr("slope", 1)); })();
 let _dolly = null, _dollyHidden = null;
+// named objects' halos (narration drawHalos) fade as a dive starts (setDolly)
+let _haloDolly = 1;
+const haloOpacity = (d) => d.opacity * (_isWebKit ? 0.3 : 0.7) * _haloDolly;
 // tiles drawn this far (px) around the screen while a dive is on (drawTiles)
 let _dollyPadPx = 0;
 // the chart depth only has what's on screen: its edges feather out as it falls back
@@ -3498,6 +3527,7 @@ function setDolly(d) {
     if (_bgNoiseShown) [lTiles, lTilesBase].forEach(l => l.style("display", "none").style("opacity", 0));
     dVeil.attr("display", "none"); dFocus.selectAll("*").remove(); dFocus.style("opacity", null);
     lAxesWrap.style("opacity", null);
+    lShadows.style("opacity", null); _haloDolly = 1; lNarrGuides.selectAll("circle.narr-halo").attr("opacity", haloOpacity);
     return;
   }
   _dolly = { name: d.name, k };
@@ -3544,15 +3574,27 @@ function setDolly(d) {
   dVeil.attr("display", null).attr("width", cw).attr("height", ch).attr("opacity", mist.toFixed(3));
   dollyIconBlur.attr("stdDeviation", (DOLLY_ICON_BLUR * k).toFixed(2));
   dollyIconDark.forEach(e => e.attr("slope", (1 - mist).toFixed(3)));
-  // The other pictures fall back one by one, each at its own parallax depth
-  // (iconDepth, exaggerated so the spread shows), blurring as they go.
-  const iconFall = DOLLY_DEPTHS.find(L => L.inner === dIcon).fall;
+  // The other pictures come towards the screen too, less than the object (author,
+  // 2026-10-28: "as if approaching it in 3D"): each grows by a share of the object's
+  // growth, and its place spreads out from the object as much, the share largest
+  // for the pictures nearest the object on screen and a little more for the ones
+  // standing nearer in the parallax (iconDepth); blurring and darkening as they go.
+  const growNow = 1 + ((d.grow ?? 3) - 1) * k;
+  const near = 0.5 * Math.min(cw, ch);
+  const cb0 = clip.select("rect.bg-rect").node().getBoundingClientRect(), sc0 = cb0.width / cw || 1;
   lIcons.selectAll(":scope > g").each(function (q) {
     if (this === group) return;
-    const depth = q?.slug ? iconDepth(q.slug) : 1;
     const base = this.getAttribute("transform") || "";
+    const b = this.getBoundingClientRect();
+    if (!b.width) return;
+    const cx = (b.x + b.width / 2 - cb0.x) / sc0, cy = (b.y + b.height / 2 - cb0.y) / sc0;
+    const n = Math.exp(-(((cx - px) ** 2 + (cy - py) ** 2) / (near * near)));
+    const dz = q?.slug ? (iconDepth(q.slug) - 1) / (PARALLAX.variation || 1) : 0;
+    const share = Math.max(0.08, Math.min(0.5, DOLLY_ICON_SHARE[0] + DOLLY_ICON_SHARE[1] * n + 0.05 * dz));
+    const s = growNow ** share;
+    const tx = px + (cx - px) * s, ty = py + (cy - py) * s;
     this.__dollyBase = base;
-    this.__dollyApplied = `${about(1 / (1 + iconFall * (1 + (depth - 1) * 4) * k))} ${base}`;
+    this.__dollyApplied = `translate(${tx.toFixed(2)},${ty.toFixed(2)}) scale(${s.toFixed(4)}) translate(${(-cx).toFixed(2)},${(-cy).toFixed(2)}) ${base}`;
     this.setAttribute("transform", this.__dollyApplied);
     this.setAttribute("filter", "url(#dolly-fi)");   // (no picture is screen-blended any more: src/luminous-art.js)
   });
@@ -3563,6 +3605,11 @@ function setDolly(d) {
   dollyMaskRect.attr("x", fe).attr("y", fe).attr("width", Math.max(0, cw - 2 * fe)).attr("height", Math.max(0, ch - 2 * fe));
   dMid.attr("mask", "url(#dolly-mid-mask)");
   lAxesWrap.style("opacity", (1 - k).toFixed(3));
+  // the pictures' shadows and halos stay in the chart's depth while the pictures come
+  // forward: they go before the two part
+  _haloDolly = 1 - ease(k / 0.12);
+  lShadows.style("opacity", _haloDolly.toFixed(3));
+  lNarrGuides.selectAll("circle.narr-halo").attr("opacity", haloOpacity);
   // the object: a copy of its picture group, grown about its point
   dFocus.selectAll("*").remove();
   if (!group) return;
@@ -8588,10 +8635,18 @@ if (_ogShot) {
           .attr("opacity", d => d.opacity ?? 0.55);
       },
       /** Highlighted lines drawn under the pictures (videos): [{ d, color, width, opacity, dash }], chart-local px. */
-      drawUnderLines(lines = []) {
-        lNarrGuides.selectAll("path.narr-under").data(lines).join("path").attr("class", "narr-under")
+      drawUnderLines(lines = [], dots = []) {
+        // `halo: true`: a lit path's glow, drawn like the named objects' halo: a wide
+        // lavender stroke, blurred, in two overlay passes (one fainter plain pass in Safari)
+        const all = lines.flatMap(d => !d.halo ? [d] : _isWebKit ? [{ ...d, opacity: d.opacity * 0.3 }] : [d, d]);
+        lNarrGuides.selectAll("path.narr-under").data(all).join("path").attr("class", "narr-under")
           .attr("d", d => d.d).attr("fill", "none").attr("stroke", d => d.color).attr("stroke-width", d => d.width)
-          .attr("opacity", d => d.opacity).attr("stroke-linecap", "round").attr("stroke-dasharray", d => d.dash);
+          .attr("opacity", d => d.opacity).attr("stroke-linecap", "round").attr("stroke-dasharray", d => d.dash)
+          .attr("filter", d => d.halo ? "url(#narr-line-halo)" : null)
+          .style("mix-blend-mode", d => d.halo && !_isWebKit ? "overlay" : null);
+        lNarrGuides.selectAll("circle.narr-under-dot").data(dots).join("circle").attr("class", "narr-under-dot")
+          .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", d => d.r).attr("fill", d => d.color).attr("opacity", d => d.opacity)
+          .raise();
       },
       /** Light blue halos behind named objects (videos): [{ x, y, r, opacity }] in chart-local px. */
       drawHalos(halos = []) {
@@ -8599,7 +8654,7 @@ if (_ogShot) {
         // Safari draws SVG overlay as a plain fill (a white blot): one fainter plain pass there
         lNarrGuides.selectAll("circle.narr-halo").data(_isWebKit ? halos : halos.flatMap(d => [d, d])).join("circle").attr("class", "narr-halo")
           .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", d => d.r)
-          .attr("fill", "url(#narr-halo-fade)").attr("opacity", d => d.opacity * (_isWebKit ? 0.3 : 0.7))
+          .attr("fill", "url(#narr-halo-fade)").attr("opacity", haloOpacity)
           .style("mix-blend-mode", _isWebKit ? null : "overlay");
       },
       /** Catalogue names on or off in a video (they're off by default there). */

@@ -449,13 +449,16 @@ Cue fields
                one and grows in. trace: a faint line along the first window
              { cross: { r, m }, mass?, size? } — a dot with dashed guides to the
                mass ruler (right) and the size ruler (bottom), labelled
-             { path: "DNA" | "stellar-high-mass" | [..], label?, color? } — moving-dot
+             { path: "DNA" | "stellar-high-mass" | [..], from?, to?, label?, color? } — moving-dot
                connection paths lit up (CONNECTION_PATHS and the "made of" paths in
                src/data.js): by id, or every path building that whole (DNA ← its four
-               bases); a bright line drawn on under the pictures, white dots streaming
-               along it the way the chart's dots go. Use it whenever the narration
-               talks about what a path shows (a star's life, a decay, what a thing is
-               made of)
+               bases); drawn on under the pictures with the named objects' halo treatment
+               (a wide lavender stroke, blurred, two overlay passes) under the path's own
+               colour, and big white dots (twice the old size) streaming along it the way
+               the chart's dots go. from / to (object names): only the stretch of the path
+               between them (the low-mass life `to: "Protostar"` for "nursery → protostar").
+               Use it whenever the narration talks about what a path shows (a star's life,
+               a decay, what a thing is made of), in place of an arrow along the same path
              { text: "Dark matter?", at: [r, m], color?, size? } — a big free-standing word ("\n" stacks lines),
                a hub for arrows to point out from
              { key: [["microwave", "#ff6b5e"], …], title? } — a colour key near the
@@ -474,8 +477,9 @@ Cue fields
            picture (a scene's `icons: [...]` replaces that set)
 
 Scene-level: dots: { size, opacity } for the paths' moving dots (default 2.4, 1.7);
-iconBoost: { from: log r, k } pictures of things that big and up drawn k× larger (video 5:
-nebulae and up); hideLabels: [names] objects whose own chart label never shows
+iconBoost: { from: log r, k } pictures of things that big and up drawn k× larger, on top of
+the chart's own size curve (main.js iconSizeCurve, which already draws nebulae 1.6–1.8× and
+galaxies 2.1–2.3×; no scene uses it now: video 5's 1.4× came off with that curve); hideLabels: [names] objects whose own chart label never shows
 
 Sound cues (optional `sound: [...]`, read by scripts/narration-sound.mjs;
 keep them rare). Each names a phrase like a cue does:
