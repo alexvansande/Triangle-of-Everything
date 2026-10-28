@@ -75,7 +75,11 @@ cutaways could go is `cutaways.md`; this file is the *why*.
 - **A movement gets a clear arrow**: when the galaxies drop a decade, a bold solid arrow
   (`solid: true, width`) in clear space beside them, not a thin dashed one over the dots.
 - **Keep busy frames lean**: drop a joke title or extra label if the frame already has a lot
-  ("Here be dark matter?" was cut for this).
+  (an early "Here be dark matter?" was cut for this). It's back as the title of video 4's
+  dark-matter screen (author, 2026-10-28): "Here be dark matter?" replaces the "Dark matter?"
+  that sat up in the corner, placed in the empty middle of the frame (left of the everyday
+  objects, between ~1 pg and 1 lb), where there's room for it. All the candidate labels
+  ("WIMPs?" too) share one size and style.
 
 ## 3. Dives: the default way to show a real photo
 
