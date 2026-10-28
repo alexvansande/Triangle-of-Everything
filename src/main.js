@@ -79,6 +79,8 @@ let _iconOnly = null;     // narration: a Set of the only object names that get 
 let _iconFill = false;    // narration: …or first, with every other picture that fits after them
 let _iconForce = null;    // narration: names whose picture shows even where a nearer one would hide it
 let _iconHide = null;     // narration: names whose picture never shows (they pile onto a neighbour)
+let _iconBoost = null;    // narration: { from: log r, k } pictures of things that big and up drawn k× larger
+let _labelHide = null;    // narration: names whose own chart label never shows in that scene
 let _dustFill = false;    // narration: catalogue pictures without their names (the names stay off)
 let _labelFocus = null;   // narration: while a callout shows, only these objects keep their labels
 let _labelFocusKey = "";
@@ -168,7 +170,9 @@ function iconSizeMult(o) {
   // structures and black holes, keeping solid universe/void spheres unchanged.
   const categoryScale = BLACK_HOLE_FRAMES[o.slug] ? 1 : cat === "galaxy" ? 1.25 * 1.25
     : cat === "blackhole" || (cat === "largescale" && isDiffuseSpaceArt(cat, o.slug)) ? 1.25 : 1;
-  return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * iconAreaMult(o.slug) * (_iconSize / 100);
+  // (a video's boost for the big things, ramping in over the decade around `from`)
+  const boost = _iconBoost ? 1 + (_iconBoost.k - 1) * Math.max(0, Math.min(1, logR - _iconBoost.from + 0.5)) : 1;
+  return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * iconAreaMult(o.slug) * (_iconSize / 100) * boost;
 }
 
 // Photons → where the spectrum explorer (/spectrum/) opens: the selector's
@@ -2596,6 +2600,7 @@ function drawObjects() {
     _iconOnly && [..._iconOnly], // a narration scene's picture set
     _iconForce && [..._iconForce],
     _iconHide && [..._iconHide],
+    _iconBoost && [_iconBoost.from, _iconBoost.k],
   ]));
 
   // Project all objects to screen, sorted by priority (low z = important)
@@ -3192,7 +3197,7 @@ function drawObjects() {
         .attr("stroke-width", 2.5)
         .text(o.name.toUpperCase());
     })
-    .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
+    .attr("display", o => (_labelsEnabled && o._showLabel && !_labelHide?.has(o.name)) ? null : "none");
 
   _lastProjected = shownDots.filter(o => o.sx >= 0 && o.sx <= cw && o.sy >= 0 && o.sy <= ch);
 
@@ -8497,6 +8502,28 @@ if (_ogShot) {
         const b = el.getBoundingClientRect();
         return b.width ? { x: b.x, y: b.y, w: b.width, h: b.height } : null;
       },
+      /** The file an object's (or catalogue dot's) picture is drawn from now, or null. */
+      iconHref(name) {
+        const o = _lastProjected.find(p => p.name === name), d = !o && dustIcons().find(p => p.name === name);
+        const el = o ? lIcons.select(`.obj-icon[data-slug="${o.slug}"]`).node()
+          : d ? lIcons.selectAll("g.dust-picture").filter(p => p.i === d.i).select(".dn-icon").node() : null;
+        return el?.getAttribute("href") || null;
+      },
+      /** A video's close-up on one picture (the narration's `trace`): every layer of the chart
+       *  but the grid, the density diagonals (water, air) and the catalogue dots fades by
+       *  `amount` (0–1), the other pictures too; `keep` (a name) keeps its picture, drawn at
+       *  `keepOpacity`. Called every frame while it's on; amount 0 puts everything back. */
+      setIsolate(amount = 0, keep = null, keepOpacity = 1) {
+        const on = amount > 0.001 || keepOpacity < 0.999, o = amount > 0.001 ? (1 - amount).toFixed(3) : null;
+        [lRegion, lTriOverlay, lBound, lBigBangEras, lEnergyBands, lDarkMatter, lArrows, lConnDots, lRegLabel,
+          lShadows, lDustHover, lObj, lHighlight, lCompose, lAxisRef, lWaterPhase, lLabels].forEach(l => l.style("opacity", o));
+        const ob = on && keep && _lastProjected.find(p => p.name === keep), d = on && keep && !ob && dustIcons().find(p => p.name === keep);
+        const kept = ob ? lIcons.select(`.obj-icon[data-slug="${ob.slug}"]`).node()?.closest("g.icon-g")
+          : d ? lIcons.selectAll("g.dust-picture").filter(p => p.i === d.i).node() : null;
+        lIcons.selectAll(":scope > g").style("opacity", function () {
+          return this === kept ? (keepOpacity < 0.999 ? Math.max(0, keepOpacity).toFixed(3) : null) : o;
+        });
+      },
       /** Grow an object's picture like the hover does, by k (1 restores it); false if it has none drawn. */
       growIcon(name, k = 1, instant = false) {
         // "hover": the app's own hover growth (to ≥ 64 px or 1.5×). instant: this size now,
@@ -8552,6 +8579,10 @@ if (_ogShot) {
       /** Pictures that show even where a nearer one would hide them (videos): names, or null. */
       setIconForce(names) { _iconForce = names?.length ? new Set(names) : null; redraw(); },
       setIconHide(names) { _iconHide = names?.length ? new Set(names) : null; redraw(); },
+      /** Pictures of things from log r `from` up drawn k× larger (videos): { from, k }, or null. */
+      setIconBoost(b) { _iconBoost = b?.k && b.k !== 1 ? { from: b.from ?? 18, k: b.k } : null; redraw(); },
+      /** Objects whose own chart label never shows (videos): names, or null. */
+      setLabelHide(names) { _labelHide = names?.length ? new Set(names) : null; redraw(); },
       /** Settings → Icons for a video (0–100, 100 = many), without saving it. */
       setIconDensity(d = ICON_DENSITY_DEFAULT) { if (_iconDensity !== d) { _iconDensity = d; _iconsEnabled = d > 0; redraw(); } },
       /** Icon size in percent of the app's default (videos), without saving it. */

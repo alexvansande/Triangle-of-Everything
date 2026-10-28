@@ -55,6 +55,14 @@ Tries worth noting:
 - **Wording:** "gravities" → "gravity"; "visible lights" → "visible light"; "where those line
   meets" → "where those two lines meet".
 
+### Clean-up, 2026-10-28
+
+Re-checked the cut clip by clip with Whisper (medium.en, a filler-friendly prompt, word timestamps) and the energy between words. No false starts, repeated words or ums are left. One
+comma pause the PAUSES cap missed (room noise over the threshold) is cut down with build.py's new
+`cut` span: "it's so much more than that, | because it also includes" (0:51 in rec35), 0.48 s →
+about 0.3 s (`cut` 51.25–51.43). The take is 110.2 s at 1.1× (was 110.4 s). Captions carried
+over unchanged (`video/tools/transfer-captions.py`); every cue resolves.
+
 ## rec36: "Brown dwarfs to black holes.m4a" (video 3)
 
 This is in the Google Drive "Recordings" folder: 4:45, AAC mono. It's a full run of the video 3
@@ -107,6 +115,19 @@ resolves. The fork's camera move is 3 s now (it had 6 s before the next cue in t
   supernova leaves a white dwarf; in a supernova's core, protons and electrons become neutrons;
   a teaspoon of neutron star weighs about 2 billion tonnes, a mountain's worth; a still bigger
   core collapses into a black hole.
+
+### Clean-up, 2026-10-28
+
+Re-checked the cut clip by clip with Whisper (medium.en, a filler-friendly prompt, word timestamps) and the energy between words. No false starts, repeated words or ums are left (the "then, …
+once fuel runs out" hesitation is a breath at the comma, kept). Three mid-phrase pauses the
+PAUSES cap missed (a breath or room noise over the threshold) are cut down with build.py's new
+`cut` spans (times in the raw recording):
+- "Deuterium is so rare | that brown dwarfs" (1:26): 0.34 s → about 0.18 s (`cut` 86.30–86.46)
+- "the pressure in its core is so huge | that protons" (4:18): 0.38 s → about 0.18 s (258.20–258.40)
+- "a single spoonful would | weigh as much as a mountain" (4:28): 0.34 s → about 0.14 s (268.60–268.78)
+
+The take is 132.9 s at 1.1× (was 133.4 s). Captions carried over unchanged
+(`video/tools/transfer-captions.py`); every cue resolves.
 
 ## rec44, rec43, rec45: video 4, re-recorded at home
 
@@ -269,6 +290,19 @@ before the observable universe; the last of many tries at "it's not just one obj
   the dots show, and out completely (with the colour key) for the end, the dots brighter.
 - The mix was rebuilt under the new cut (still "Fresh Air").
 
+### Clean-up, 2026-10-28 (video 5)
+
+Re-checked the cut clip by clip with Whisper (medium.en, a filler-friendly prompt, word timestamps), the energy and voicing between words. rec40 isn't at hand (iCloud), so the EDL can't be rebuilt: the fixes are `POST_CUTS` in `edl.py` (spans of the edit), cut out of the finished audio with the new `video/tools/postcut.py` (15 ms cross-fades), then re-transcribed and the corrected captions carried over unchanged (`video/tools/transfer-captions.py`). No false starts, repeated words or ums are left (the 0.6 s before
+"right on the black hole line" is a reveal, kept). Five pauses the PAUSES cap missed (a breath or the
+room kept them over the silence threshold), in the old take's time:
+- 1:02 "the Schwarzschild radius, | nothing in our universe": 0.44 s at the comma → 0.24 s
+- 1:48 "the galaxies plus | all the empty space": 0.4 s mid-phrase → 0.16 s
+- 5:50 "the light they sent | long ago": 0.38 s → 0.18 s
+- 5:59 "where your neighbors are, and | more like a history": 0.36 s → 0.12 s
+- 6:06 "the early universe and | of galaxies": 0.32 s → 0.18 s
+
+The take is 370.2 s (was 371.3 s), at natural speed. Every cue resolves; mix rebuilt.
+
 ### Video 4, second cut (the author's review, 2026-10-27)
 
 - **One take:** "Let's avoid mixing takes": rec44's lines sounded different. The cut is now rec43
@@ -283,6 +317,24 @@ before the observable universe; the last of many tries at "it's not just one obj
   straight to full screen; the dark matter candidates on a wider view with a "Dark matter?" hub
   and arrows; a slow zoom in onto the crystals and injuries; a slow zoom back out on "the search
   for dark matter…" with the other ruled-out areas coming in one by one.
+
+### Clean-up, 2026-10-28 (video 4)
+
+Re-checked the cut clip by clip with Whisper (medium.en, a filler-friendly prompt, word timestamps;
+small.en and the plain prompt where the filler prompt made Whisper invent "Hmmm"s), the energy and
+voicing between words. rec43 and rec41 aren't at hand (iCloud), so the fix is a `POST_CUTS` span in
+`edl.py`, cut out of the finished audio with the new `video/tools/postcut.py`, re-transcribed, and
+the corrected captions carried over unchanged (`video/tools/transfer-captions.py`). No false
+starts, repeated words or ums (Whisper's "Well," before "Most objects", "Maybe?" before "They're
+thought to be", "which Which" and "Okay, so we keep looking" aren't in the audio: silence, a breath,
+one "which" and an "s"). One pause the PAUSES cap missed is cut down: 4:25 "what we think of as
+empty space | is full of little objects", 0.38 s → 0.18 s. The take is 337.0 s (was 337.2 s), at
+natural speed. Every cue resolves; mix rebuilt.
+
+`cuts.csv` was still the first cut's (rec44 + rec43, 28 rows); it is now rebuilt from the take's
+words aligned to the EDL's clips (out and source times are each clip's first and last matched word,
+not the exact cut points; where Whisper heard a clip's first words differently, its row starts a
+little late).
 
 ## rec38: "Draft for the video 6, the tiny universe.aifc" (video 6, draft)
 
@@ -483,6 +535,18 @@ The take follows the fact-checked script, so most of it is right as read. New in
   its wavelength without making new particle–antiparticle pairs; the Compton wavelength shrinks
   as mass grows.
 
+### Clean-up, 2026-10-28
+
+Re-checked the cut clip by clip with Whisper (medium.en, a filler-friendly prompt, word timestamps), the energy and voicing between words. rec39 isn't at hand (iCloud), so the EDL can't be rebuilt: the fixes are `POST_CUTS` in `edl.py` (spans of the edit), cut out of the finished audio with the new `video/tools/postcut.py` (15 ms cross-fades), then re-transcribed and the corrected captions carried over unchanged (`video/tools/transfer-captions.py`). Found and cut (old take's time, at 1.1×):
+- 2:52 a false start: "That thing you saw in, | that thing you saw on the wall…" (Whisper's long-form
+  pass had folded it into one long "on"); the first try is out.
+- 3:55 a false start: "Down here, physicists, | down here, physicists stop weighing…" (hidden in a
+  2 s "stop"); the first try is out.
+- 5:20 an "mm" (a clipped "and", 0.3 s) at the start of "That's because it's converting…".
+The "Okay," Whisper hears before "So here's something very cool" and the "Well," before "The alkali
+metals" are breaths (unvoiced), left in. No long pauses left over. The take is 340.2 s at 1.1× (was
+344.1 s); every cue resolves; mix rebuilt.
+
 ## rec42: "wavelengths take 1.aifc" (video 7)
 
 This is in iCloud `Projects/triangle/recordings` (recorded **at home**): 6:59, PCM 48 kHz, the same
@@ -612,3 +676,12 @@ since visible light is a sliver of the line to scale, and wider for gamma rays a
   - Everything else matches: natural colour; plants red in near-infrared; Earth black in X-rays
     and gamma rays; hot gas and X-ray sources; the galactic plane in gamma rays; warm ground and
     cold cloud tops at 11 µm; cold dust; the CMB; each distance named while it's said.
+
+### Clean-up, 2026-10-28
+
+Re-checked the cut clip by clip with Whisper (medium.en, a filler-friendly prompt, word timestamps), the energy and voicing between words. rec42 isn't at hand (iCloud), so the EDL can't be rebuilt: the fixes are `POST_CUTS` in `edl.py` (spans of the edit), cut out of the finished audio with the new `video/tools/postcut.py` (15 ms cross-fades), then re-transcribed and the corrected captions carried over unchanged (`video/tools/transfer-captions.py`). No false starts, repeated words or ums. Whisper's "exists in, as a log"
+is the "s" of "exists" (a hiss at 10 kHz), its "Well," before "now let's go" is a drawn-out "Now,",
+and the long "Well…" before "not if you're talking about bees" is said that way: all kept. One
+pause the PAUSES cap missed is cut down: 2:01 "so you have to go to space to see it. | Further up",
+0.8 s → 0.5 s. The take is 256.1 s (was 256.4 s), played as recorded; every cue resolves (no mix:
+the scene has no sound).

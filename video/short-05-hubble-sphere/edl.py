@@ -62,3 +62,14 @@ EDL = [
  ("rec40", "observable", 878.16, 891.84, {"s": 877.80}),  # That's because it's not just one object: its far sides have never been able to reach each other. And that distance is where those galaxies are right now, but what we see is the light they sent long ago, when they were much closer.   (the last of many tries; "That's because it's not, like, one," left out)
  ("rec40", "observable", 893.88, 910.22),  # So, the observable universe is less like a view of where your neighbors are, and more like a history of our own past. It tells us the story of the early universe, and of galaxies that are already far beyond our own reach.
 ]
+
+# The clean-up of 2026-10-28 (video/sources/2026-10-27/NOTES.md): pauses the PAUSES cap missed
+# (a breath or the room kept them over the silence threshold), cut out of the finished edit with
+# video/tools/postcut.py, since rec40 isn't at hand to rebuild. Spans of the edit, in seconds.
+POST_CUTS = [
+ (62.14, 62.34),    # "the Schwarzschild radius, | nothing in our universe": 0.44 s at the comma → 0.24
+ (108.38, 108.60),  # "the galaxies plus | all the empty space": 0.4 s mid-phrase → 0.16
+ (350.48, 350.68),  # "the light they sent | long ago": 0.38 s → 0.18
+ (359.56, 359.80),  # "where your neighbors are, and | more like a history": 0.36 s → 0.12
+ (366.32, 366.46),  # "the early universe and | of galaxies": 0.32 s → 0.18
+]

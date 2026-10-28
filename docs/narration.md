@@ -379,8 +379,10 @@ Cue fields
              camera about Earth's axis, so Earth stays put across a switch),
              gmst, unit, lz, exposure, contrast, lift, aurora (0–1: Earth's
              auroral X-ray ovals, a model), guides (0–1: the rings,
-             discs and names faded so the dots show): glide over dur s (default
-             2.5); spin: rad/s, added to the orbit with ezoom (the camera going
+             discs and names faded so the dots show), names (0–1: the names alone,
+             once set in place of guides), dot (the dots' size ×, each as bright):
+             glide over dur s (default 2.5; ease "in"|"out"|"linear" chains glides
+             into one move, default cubic in-out); spin: rad/s, added to the orbit with ezoom (the camera going
              round a still Earth); without, turns Earth (Inside) or the Cloud
            (short-07-wavelengths is the worked example; in the explorer page,
            spectrumVideo.mix() lists the bands under each channel, to check the
@@ -394,10 +396,26 @@ Cue fields
              object's own label on the chart while that label shows)
              { line: "schwarzschild"|"compton"|"hubble"|"water"|
                      "darkmatter"|"mainsequence"|"triangle"|
-                     "chandrasekhar"|"tov", label? }
+                     "chandrasekhar"|"tov"|"eventhorizon", label? }
+               (eventhorizon: the cosmic event horizon, a vertical line like the
+               Hubble line, at 16.7 billion ly)
              { side: "left"|"right", of?: "water", label? }
              { side: "above"|"below", mass: logM, label?, note? } — one side of a level
-               of constant mass, the level drawn dashed (video 2's round-world line)
+               of constant mass, the level drawn dashed (video 2's round-world line);
+               labelCenter: true puts the label (and note) in the middle of that side's
+               rectangle as it is on screen, at labelSize px (default 22)
+             { poly: [[r, m], …], fill?, opacity?, label?, note?, labelAt?: [r, m],
+               labelCenter?, labelSize? } — a region; labelCenter: its label in the middle
+               of the region as it is on screen (video 2's Goldilocks zone)
+             { trace: name, step, grow?, shapes: [{ at?: { rho } | { r }, holes?, lattice?,
+               label?: [line, small line], place? }, …], draw?, move? } — a close-up that
+               measures one thing several ways (video 2's Eiffel Tower), over consecutive
+               cues, one step each: step -1 every other chart element fades but the grid,
+               the density diagonals and the catalogue dots, the picture grows to `grow`;
+               step 0 its outline (from the picture's alpha) is traced and the picture fades;
+               step n a faint copy slides to shape n's place (same mass, at.rho a bulk density
+               in g/cm³) and draws its openings (holes) or the tower's lattice. Everything
+               comes back after the last of those cues
              { card: "E = mc²", hold?: 2, bg?: "#fff", arrow?, caption? } — the
                screen (over the classic figure, its plot frame, so the axes stay)
                fades to a card with the text, holds, and fades back; arrow: a
@@ -436,13 +454,17 @@ Cue fields
                becomes 3×3, the old one in the centre, so the lit ones spread apart
            any item can take delay (s) to stagger
   clear    end the current highlights
+  density  from this cue on, the pictures' density (Settings → Icons; above 100 they
+           may overlap more: video 5's pan up the galaxies); null back to the scene's
   units    pin the unit rulers on (they also show during every move)
   classic  "out" — cross-fade from the classic figure to the map (fade s)
   icons    from this cue on: false (no pictures), true (the scene's set) or a
            list of names. By default only objects some cue highlights keep their
            picture (a scene's `icons: [...]` replaces that set)
 
-Scene-level: dots: { size, opacity } for the paths' moving dots (default 2.4, 1.7)
+Scene-level: dots: { size, opacity } for the paths' moving dots (default 2.4, 1.7);
+iconBoost: { from: log r, k } pictures of things that big and up drawn k× larger (video 5:
+nebulae and up); hideLabels: [names] objects whose own chart label never shows
 
 Sound cues (optional `sound: [...]`, read by scripts/narration-sound.mjs;
 keep them rare). Each names a phrase like a cue does:

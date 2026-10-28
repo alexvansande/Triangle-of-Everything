@@ -74,6 +74,10 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   no label.
 - **A movement gets a clear arrow**: when the galaxies drop a decade, a bold solid arrow
   (`solid: true, width`) in clear space beside them, not a thin dashed one over the dots.
+- **Region names sit in their region** (author, 2026-10-28): "gravity dominates",
+  "electromagnetism dominates" and "Goldilocks zone" go in the middle of the rectangle they
+  name, as it is on screen at that moment, and large (`labelCenter`, `labelSize` on a
+  `side` or `poly` highlight), not tucked against an edge.
 - **Keep busy frames lean**: drop a joke title or extra label if the frame already has a lot
   (an early "Here be dark matter?" was cut for this). It's back as the title of video 4's
   dark-matter screen (author, 2026-10-28): "Here be dark matter?" replaces the "Dark matter?"
@@ -103,8 +107,16 @@ map. Optionally it then fills the screen, holds, and fades slowly back to the ch
   Plain cutaways (below) are left for things the chart can't show by itself.
 - **Current dives**: Jupiter in infrared (video 3, the camera trick above), the Pillars of
   Creation (videos 3 and 5, upright and edge to edge), M87* (end of video 3, video 4,
-  video 5) and Sgr A* (video 4). The Eiffel Tower is a dive without a photo: zoom,
-  grow, dim.
+  video 5) and Sgr A* (video 4).
+- **Not a dive: the Eiffel Tower** (author, 2026-10-28). When the point is *where* a thing
+  lands on the chart, stay on the chart: zoom onto the tower and grow its picture while every
+  other element fades, leaving only the grid, the water and air lines and the catalogue dots;
+  trace its outline and fade the picture; then a faint copy of the outline slides to where a
+  second way of measuring its volume puts it, and another to the third, each labelled (the
+  envelope with the air in it, 6.5 kg/m³, where the chart has it; the silhouette without the
+  arches, 30 kg/m³; the iron alone, 7,800 kg/m³, left of the water line). Then the chart
+  comes back. Mechanics: the `trace` highlight (`docs/narration.md`), replacing the old dive
+  with its row of sketched towers.
 - **One move, no wait** (author, 2026-10-27, on M87*): the photo is already fading in while the
   camera approaches (`dive.photoAt`, ~0.4 s after the cue) and grows straight on to fill the
   screen; a pause on arrival and then a second zoom read as two moves.

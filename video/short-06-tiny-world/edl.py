@@ -58,3 +58,12 @@ EDL = [
  ("rec39", "end", 896.80, 902.96),    # And light itself can also tell us a very interesting story, about the universe and our place in it.   (the sixth try)
  ("rec39", "end", 908.88, 913.54),    # That's the story of wavelengths of light, which is a great story for the next video.
 ]
+
+# The clean-up of 2026-10-28 (video/sources/2026-10-27/NOTES.md): a false start and an "mm" the
+# long-form transcript hid, cut out of the finished edit with video/tools/postcut.py, since rec39
+# isn't at hand to rebuild. Spans of the edit (before the 1.1x tempo), in seconds.
+POST_CUTS = [
+ (189.38, 190.96),  # "That thing you saw in," (the false start before "That thing you saw on the wall")
+ (258.61, 260.65),  # "Down here, physicists," (the false start before "Down here, physicists stop weighing")
+ (352.22, 352.77),  # the "mm" (a clipped "and") before "That's because it's converting"
+]
