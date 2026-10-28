@@ -16,7 +16,7 @@ EDL = [
  ("rec39", "edges", 7.70, 13.38),     # In this series, we've been drawing everything in the universe in one chart, mass against size.
  ("rec39", "edges", 17.60, 19.54),    # Everything ends up boxed in by three edges.   (the second try)
  ("rec39", "edges", 20.32, 23.16),    # We've seen two of them. First is the black hole line.
- ("rec39", "edges", 28.90, 39.16),    # Nothing can be more massive for any given size: there's a limit for how massive you can be until you become a black hole.   (the false starts before it left out; the pause after "for" capped)
+ ("rec39", "edges", 33.90, 39.16, {"s": 33.55}),    # For any given size, there's a limit for how massive you can be until you become a black hole.   (the author's cut, 2026-10-27: "nothing can be more massive" before it said the same thing; the false starts left out)
  ("rec39", "edges", 39.44, 44.12),    # And then the second is the Hubble radius: nothing can be bigger than that.
  ("rec39", "edges", 44.54, 50.24),    # Today I want to explore the third side, the limit of how small something can be.   (the first try; the second says "size")
  ("rec39", "human", 63.92, 64.68),    # So let's start with us.
@@ -28,7 +28,7 @@ EDL = [
  ("rec39", "small", 137.06, 147.24),  # Most animals live on a narrow band along that line, because we are mostly made of water. As we go down we reach the smallest insects: ants, ladybugs, tiny moths.
  ("rec39", "small", 148.38, 150.10),  # This is a single grain of sand.
  ("rec39", "small", 154.10, 158.56),  # Now we are among the microorganisms: tardigrades, amoebas, and a grain of pollen.
- ("rec39", "small", 163.80, 173.22),  # Further down, now a red blood cell, about seven thousandths of a millimeter across. Then bacteria.   (the second try; the pause before "About" capped)
+ ("rec39", "small", 163.80, 173.22, {"s": 166.45}),  # Further down, now a red blood cell, about seven thousandths of a millimeter across. Then bacteria.   (the third "further down": the second breaks off at "red blood" and was in the first cut)
  ("rec39", "small", 174.60, 189.58),  # Notice that almost all of microbiology sits just a little to the left of the water line. That's actually useful. That's why a centrifuge works. Spin them fast enough and cells and viruses, being denser than water, sink to the bottom.   (the full Whisper pass dropped "a centrifuge works. Spin them fast enough"; a re-listen has it)
  ("rec39", "chem", 192.08, 202.10),   # Now this is where biology ends and chemistry begins. Viruses sit right in between. Most biologists don't count them as alive, but they are far more than just a molecule.
  ("rec39", "chem", 203.24, 205.04),   # And now we are in the kingdom of molecules:

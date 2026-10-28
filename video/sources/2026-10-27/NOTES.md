@@ -409,8 +409,12 @@ playing ("the story is short, we've lost everything that exists…"), left out. 
 1.aifc" (7 min, 17:53) is not used. Transcript: `rec39.transcript.txt`; word timings:
 `rec39.words.json`.
 
-Cut: `video/short-06-tiny-world/edl.py`, 44 clips. The take runs 15:17, the cut 6:24, and it
-plays in 5:49 at 1.1×. The full Whisper pass dropped "a centrifuge works. Spin them fast
+Cut: `video/short-06-tiny-world/edl.py`, 44 clips. The take runs 15:17, the cut 6:18, and it
+plays in 5:44 at 1.1×. Re-cut the same evening on the author's notes: "Nothing can be more
+massive" before "for any given size, there's a limit…" said the same thing twice (the first
+left out), and the red blood cell clip still held a "Further down, now a red blood—" that
+breaks off (now from the third "further down"). The music went from Fretless ("too happy
+dancy") to Relaxing Piano Music. The full Whisper pass dropped "a centrifuge works. Spin them fast
 enough" (3:01–3:06) and heard "You can squeeze" for "can't"; a re-listen of those seconds has
 both right, and both are in the cut. Picks are noted clip by clip in the EDL.
 
