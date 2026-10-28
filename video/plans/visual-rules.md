@@ -152,6 +152,12 @@ White lines and dots on black, the key word in yellow, no more than three moving
 4–8 s, handing back to the chart on the next camera move. Ideas in `cutaways.md`
 (the pixel grid for expansion, the cube law, degeneracy, the two horizons…).
 
+- **A diagram that stands for a metaphor plays on its own** (author, 2026-10-27): the pixels
+  for expansion go full screen over black, with no chart behind and no border that grows (a
+  growing border is the balloon again); the new pixels fade in between the old ones.
+- **In the universe-on-a-log-scale view, the guides step back**: rings and names faint once it
+  opens (explorer `guides`), and gone at the end, the dots brighter.
+
 ## 6. Audio and captions
 
 - Voice treatment: `enhance.py --plain` (high-pass + loudness only) for the Boya office

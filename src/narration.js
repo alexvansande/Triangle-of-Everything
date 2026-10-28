@@ -1528,33 +1528,39 @@ export async function startNarration(app) {
       g.append("text").attr("class", "narr-tag").attr("x", SW / 2 - 50).attr("y", y + 1.5).attr("fill", col).text(name.toUpperCase());
     });
   }
-  /** Expansion as a picture gaining pixels: { pixels: { n?, steps: [s, …], seed? } }. A small
-   *  black image with a few lit pixels; at each step (seconds after the cue) every pixel becomes
-   *  3 × 3, the old one kept in the centre and the new ones black, so the lit pixels spread
-   *  apart while each stays the same size: new space between them, nothing moving through it. */
+  /** Expansion as a picture gaining pixels: { pixels: { steps: [s, …], cell?, seed? } }, on its
+   *  own over a black screen (no chart behind) and full screen, so no border is seen growing (the
+   *  author's note, 2026-10-27: a border expanding is the balloon metaphor again). A picture of
+   *  a few lit pixels; at each step (seconds after the cue) every pixel becomes 2 × 2, "one pixel
+   *  into four": the old one keeps its place in the corner, the lit ones spread apart while
+   *  staying the same size, and the new pixels fade in, dark, in the gaps that open between them. */
   function drawPixels(el, h, age) {
-    const o = h.pixels, n = o.n ?? 9, c = (n - 1) / 2, cell = o.cell ?? 12;
-    let seed = o.seed ?? 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    const cols = ["#ffd54f", "#ffffff", "#80deea", "#ff8a80", "#b39ddb"], lit = [];
-    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (rnd() < 0.2) lit.push([i - c, j - c, cols[Math.floor(rnd() * cols.length)]]);
-    // the spread: ×3 per step, eased over 1.2 s
-    let k = 1;
-    for (const st of o.steps || []) k *= 1 + 2 * d3.easeCubicInOut(clamp01((age - st) / 1.2));
-    const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH * 0.42;
-    const half = (c + 0.5) * cell * k, op = smooth(age / 0.5);
-    const g = el.append("g").attr("opacity", op);
-    g.append("rect").attr("x", cx - half).attr("y", cy - half).attr("width", 2 * half).attr("height", 2 * half).attr("fill", "#000")
-      .attr("stroke", "rgba(255,255,255,0.55)").attr("stroke-width", 1.5);
-    // the grid of pixels, a pixel apart however far it has spread (clipped to the screen)
-    const lines = [], m = Math.ceil(half / cell);
-    for (let i = -m; i <= m; i++) {
-      const x = cx + (i + (n % 2 ? 0.5 : 0)) * cell, y = cy + (i + (n % 2 ? 0.5 : 0)) * cell;
-      if (Math.abs(x - cx) <= half && x > -2 && x < SW + 2) lines.push(`M${x},${Math.max(0, cy - half)}V${Math.min(SH, cy + half)}`);
-      if (Math.abs(y - cy) <= half && y > -2 && y < SH + 2) lines.push(`M${Math.max(0, cx - half)},${y}H${Math.min(SW, cx + half)}`);
+    const o = h.pixels, cell = o.cell ?? 16, steps = o.steps || [], seed = o.seed ?? 7;
+    const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH / 2;
+    // how far each step has gone (0–1, eased over 1.2 s), and the spread so far
+    const prog = steps.map(st => d3.easeCubicInOut(clamp01((age - st) / 1.2)));
+    let L = 0; while (L < steps.length && prog[L] > 0) L++;            // steps begun
+    const k = prog.reduce((a, p) => a * (1 + p), 1);                   // ×2 per step
+    // pixels at the current level: index (p, q) sits at p · cell · k / 2^L from the centre
+    const sp = cell * k / 2 ** L;
+    const lit = (i, j) => {   // the original picture: a few lit pixels, colours from a hash
+      const hsh = Math.abs(Math.sin(i * 127.1 + j * 311.7 + seed) * 43758.5453) % 1;
+      return hsh < 0.13 ? ["#ffd54f", "#ffffff", "#80deea", "#ff8a80", "#b39ddb"][Math.floor(hsh / 0.026)] : null;
+    };
+    const tz = (n) => { let z = 0; n = Math.abs(n); if (!n) return 99; while (n % 2 === 0) { n /= 2; z++; } return z; };
+    const g = el.append("g").attr("opacity", smooth(age / 0.6));
+    g.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH).attr("fill", "#000");
+    const pm = Math.ceil((SW / 2 + cell) / sp), qm = Math.ceil((SH / 2 + cell) / sp);
+    for (let p = -pm; p <= pm; p++) for (let q = -qm; q <= qm; q++) {
+      const x = cx + p * sp - cell / 2, y = cy + q * sp - cell / 2;
+      // born at the step after which p and q were last both on the coarser grid
+      const born = L - Math.min(L, tz(p), tz(q));                       // 0: an original pixel
+      const col = born === 0 ? lit(p / 2 ** L, q / 2 ** L) : null;
+      const a = born === 0 ? 1 : smooth((age - steps[born - 1] - 0.3) / 1.0);
+      if (a <= 0) continue;
+      g.append("rect").attr("x", x + 0.5).attr("y", y + 0.5).attr("width", cell - 1).attr("height", cell - 1)
+        .attr("fill", col || "#0d0f16").attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1).attr("opacity", a);
     }
-    g.append("path").attr("d", lines.join("")).attr("stroke", "rgba(255,255,255,0.16)").attr("stroke-width", 1).attr("fill", "none");
-    for (const [i, j, col] of lit)
-      g.append("rect").attr("x", cx + i * cell * k - cell / 2).attr("y", cy + j * cell * k - cell / 2).attr("width", cell).attr("height", cell).attr("fill", col);
   }
   /** A big free-standing word on the chart: { text, at: [r, m], color? } (a hub that arrows point out from) */
   function drawText(el, h, age) {
@@ -1731,7 +1737,8 @@ export async function startNarration(app) {
   //   yaw, pitch, orbit, ezoom: one camera for Inside and the Cloud, so Earth stays put
   //   when the view switches (ezoom is Earth's size as Inside's field of view, smaller
   //   is closer; orbit turns the camera about Earth's axis, Earth and the sky together),
-  //   gmst (Earth's turn), unit, lz, exposure, contrast, lift: glide there from wherever
+  //   gmst (Earth's turn), unit, lz, exposure, contrast, lift, guides (0–1, the Cloud's rings,
+  //   discs and names faded so the dots show): glide there from wherever
   //   they are, over `dur` s (default 2.5)
   //   spin: a turn rate (rad/s) that never stops while it's on. With ezoom it's added to
   //   the orbit: Earth stays still and the camera goes round it (the author's note,

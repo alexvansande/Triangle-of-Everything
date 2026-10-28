@@ -246,6 +246,29 @@ before the observable universe; the last of many tries at "it's not just one obj
   are sort of seeing it right now": we see a similar universe in every direction, which is what
   they would see too.
 
+### Review notes (author, 2026-10-27, evening), done
+
+- **Words cut in the middle:** every cut was checked against the raw take's loudness. Three
+  landed on speech and are fixed in `edl.py`: "It's weird to talk about nothing as an object"
+  started on the tail of the "as" before it (now in the silence before "it's"); "Both are kind
+  of an horizon" started inside "both" and ended on half a "the", which the captions showed as
+  "done" (now the last, clean try: "Both are kind of horizons"); and "the size of | black hole's"
+  was cut inside joined-up speech, losing the "of" (now one clip: there was no "a… ah" between
+  them, the "of" runs straight into "black"). The rest start and end in silence. 6:11 now.
+- **The white dwarf's name** sat between the neutron star and the white dwarf (and, as "no normal
+  matter", on the red dwarf below): now above its own dot.
+- **After the Pillars:** close in (about 5 decades across) and one slow glide up the line from
+  object to object (globular clusters, dwarf galaxies, the Milky Way, Andromeda, the Bullet
+  Cluster, Laniakea, the voids), instead of a wide view and quicker moves.
+- **The pixels** play on their own, full screen over black (no chart, no border growing): one
+  pixel into four on "raising the resolution" and "turn it into four", the new pixels fading in,
+  dark, in the gaps between the lit ones.
+- **"If you sat in a galaxy at the edge"**: a galaxy is named (the Sombrero stands in for any),
+  then our own.
+- **The universe on a log scale**: the rings, discs and names fade to 40 % soon after it opens, so
+  the dots show, and out completely (with the colour key) for the end, the dots brighter.
+- The mix was rebuilt under the new cut (still "Fresh Air").
+
 ### Video 4, second cut (the author's review, 2026-10-27)
 
 - **One take:** "Let's avoid mixing takes": rec44's lines sounded different. The cut is now rec43
@@ -260,6 +283,7 @@ before the observable universe; the last of many tries at "it's not just one obj
   straight to full screen; the dark matter candidates on a wider view with a "Dark matter?" hub
   and arrows; a slow zoom in onto the crystals and injuries; a slow zoom back out on "the search
   for dark matter…" with the other ruled-out areas coming in one by one.
+
 ## rec38: "Draft for the video 6, the tiny universe.aifc" (video 6, draft)
 
 In iCloud `Projects/Triangle/recordings`: 15:14, 48 kHz stereo PCM. A **draft of ideas**, not a

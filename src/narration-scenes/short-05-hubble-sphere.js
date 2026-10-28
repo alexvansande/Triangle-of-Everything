@@ -40,7 +40,7 @@ export default {
 
   // the explorer's state at t = 0, hidden until "…seeing it right now" (no Compton line over it)
   explorer: { view: "cloud", radius: "log", unit: LOG_UNIT, rings: true, bright: "lin", labels: UNIVERSE_LABELS,
-    yaw: 3.74, pitch: 0.5, spinA: 0, zoom: 8, line: 0, ...UNIVERSE_COLOURS },
+    yaw: 3.74, pitch: 0.5, spinA: 0, zoom: 8, line: 0, guides: 1, exposure: 1, ...UNIVERSE_COLOURS },
 
   captionFixes: { hobo: "Hubble", mouth: "mouse", subtor: "super", chaos: "scale", finely: "finally",
     math: "mass", shard: "chart", radio: "radius", plop: "pop" },
@@ -58,9 +58,10 @@ export default {
     { at: "trend changes", cam: { r: 9.88, m: 30.7, span: 2.6 }, hl: [{ obj: "Jupiter", label: "Jupiter size" }] },
     { at: "times jupiter's mass", hl: [{ obj: "Jupiter", label: false, place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" }] },
     { at: "after brown dwarfs", cam: { r: 10, m: 32.5, span: 9 }, hl: [{ obj: "L Brown Dwarf", label: "brown dwarfs" }] },
-    { at: "to the left", cam: { r: 7, m: 33.5, span: 16 }, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "White Dwarf", label: "no normal matter", place: "below" }] },
+    { at: "to the left", cam: { r: 7, m: 33.5, span: 16 }, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "White Dwarf", label: "no normal matter", place: "above" }] },
     { at: "dead stars",
-      hl: [{ obj: "White Dwarf", place: "left" }, { obj: "PSR J0030+0451", label: "neutron star", place: "left", delay: 0.8 }, { obj: "Stellar BH", label: "black hole", delay: 1.6 }] },
+      // (the white dwarf's name above its own dot: on the left it read as the neutron star's, below it sat on the red dwarf)
+      hl: [{ obj: "White Dwarf", place: "above" }, { obj: "PSR J0030+0451", label: "neutron star", place: "left", delay: 0.8 }, { obj: "Stellar BH", label: "black hole", delay: 1.6 }] },
     { at: "first limit", cam: { r: 11.5, m: 40, span: 16 }, dur: 3,
       hl: [{ ...SCHW, label: "edge 1" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: false, delay: 0.4 }, { obj: "M87*", label: false, delay: 0.8 }, { obj: "Ton 618", label: false, delay: 1.2 }] },
     { at: "called the schwarzschild", hl: [{ ...SCHW, label: "Schwarzschild radius" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: "black holes live on it" }, { obj: "M87*", label: false }, { obj: "Ton 618", label: false }] },
@@ -81,24 +82,24 @@ export default {
     { at: "new generation", photo: "pillars", obj: "Stellar Nursery", dive: { in: 1.6, out: 2.5, photoAt: 0.4, under: true }, dur: 4.2, fadeIn: 0.9, fadeOut: 1.5,
       lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", turn: 0, hold: 0, fillDur: 1.6 },   // turn 0: Webb's pillars lean ~40°; kept tilted so they stay upright like the icon's
       caption: "Pillars of Creation · Webb · 2022 · where stars are born" },
-    { at: "mostly empty space", cam: { r: 20, m: 40, span: 24 }, clear: true },
-    { at: "globular clusters", hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
-    // from the dwarf galaxies up through the Milky Way and the Local Group to the clusters:
-    // one steady, gentle move instead of three zooms (author, 2026-10-27)
-    { at: "dwarf galaxies", cam: { r: 24, m: 46.5, span: 10 }, dur: 16.5, ease: "gentle", drift: 0 },
+    // after the Pillars, close in (about 5 decades across) and one slow glide up the line, object
+    // to object, instead of a wide view and quicker jumps (author, 2026-10-27, evening)
+    { at: "mostly empty space", cam: { obj: "Stellar Nursery", span: 5.5 }, dur: 2.5, clear: true },
+    { at: "globular clusters", cam: { obj: "Globular Cluster", span: 5.5, glide: true }, hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
+    { at: "dwarf galaxies", cam: { obj: "Dwarf Galaxy", span: 5.5, glide: true } },
     { at: "dwarf galaxies", photo: "lmc", obj: "Dwarf Galaxy", place: 0.7, dur: 4, kb: [1, 1.25], caption: "Large Magellanic Cloud · a dwarf galaxy · Spitzer" },
-    { at: "the less dense it is", hl: [{ obj: "Nebulae", label: "nebula" }, { obj: "Globular Cluster", label: false }, { obj: "Milky Way", label: false }] },
+    { at: "the less dense it is", cam: { r: 21.8, m: 42.6, span: 5.5, glide: true }, hl: [{ obj: "Globular Cluster", label: false }, { obj: "Dwarf Galaxy", label: false }, { obj: "Milky Way", label: false }] },   // (the nebula, a decade down, is out of this closer frame)
     { at: "empty space between its stars", hl: [{ obj: "Milky Way", label: "~1 atom per cm³" }] },
-    { at: "the milky way", hl: [{ obj: "Milky Way" }, { obj: "Andromeda (M31)", delay: 0.6 }] },
+    { at: "the milky way", cam: { obj: "Milky Way", span: 5.5, glide: true }, hl: [{ obj: "Milky Way" }, { obj: "Andromeda (M31)", delay: 0.6 }] },
     { at: "its sister", photo: "andromeda", obj: "Andromeda (M31)", place: 0.86, dur: 5, kb: [1, 1.3], caption: "Andromeda · Brody Wesner · 2025 · 2.5 million light-years away" },
-    { at: "local group", hl: [{ obj: "Milky Way", label: false }, { obj: "Andromeda (M31)", label: "local group" }] },
+    { at: "local group", cam: { obj: "Andromeda (M31)", span: 5.5, glide: true }, hl: [{ obj: "Milky Way", label: false }, { obj: "Andromeda (M31)", label: "local group" }] },
     // the Bullet Cluster's real picture stands for the galaxy clusters (the generic one gives way)
-    { at: "galaxy clusters are even", hl: [{ obj: "Bullet Cluster", label: "emptier still" }] },
+    { at: "galaxy clusters are even", cam: { obj: "Bullet Cluster", span: 5.5, glide: true }, hl: [{ obj: "Bullet Cluster", label: "emptier still" }] },
     { at: "galaxy clusters are even", offset: 0.8, photo: "smacs", obj: "Bullet Cluster", place: 0.8, dur: 5, kb: [1, 1.4], caption: "Galaxy cluster SMACS 0723 · Webb · 2022" },
     { at: "empty space between them", hl: [{ obj: "Bullet Cluster", label: "Bullet Cluster" }] },
-    { at: "superclusters", cam: { r: 26.2, m: 49.5, span: 7 }, hl: [{ obj: "Laniakea", label: "superclusters" }] },
+    { at: "superclusters", cam: { obj: "Laniakea", span: 5.5, glide: true }, hl: [{ obj: "Laniakea", label: "superclusters" }] },
     { at: "laniakea", hl: [{ obj: "Laniakea", label: "Laniakea · 100,000 galaxies" }] },
-    { at: "larger actually voids", hl: [{ obj: "Laniakea", label: false }, { obj: "Boötes Void", label: "voids" }, { obj: "KBC Void", label: false, delay: 0.4 }] },
+    { at: "larger actually voids", cam: { obj: "Boötes Void", span: 6, glide: true }, hl: [{ obj: "Laniakea", label: false }, { obj: "Boötes Void", label: "voids" }, { obj: "KBC Void", label: false, delay: 0.4 }] },
     { at: "not completely empty", hl: [{ obj: "Boötes Void", label: "emptier than average" }, { obj: "KBC Void", label: false }] },
 
     // ── The second edge ──────────────────────────────────────
@@ -106,8 +107,9 @@ export default {
     { at: "that's the hubble sphere", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "Hubble sphere" }] },
     { at: "speed limit", cam: { r: 24.5, m: 50, span: 16 }, hl: [{ ...HUB, label: "nothing travels faster than light" }] },
     { at: "space itself", hl: [{ ...HUB, label: "but space can outrun light" }] },
-    // a picture gaining pixels: each one becomes 3 × 3, the old one in the middle (author, 2026-10-27)
-    { at: "pixels", hl: [HUB, { pixels: { n: 7, cell: 8, steps: [3.3, 6.4] } }] },
+    // a picture gaining pixels, on its own and full screen (no chart, no border growing): each
+    // pixel becomes four, the new ones fading in between ("raising the resolution", "into four")
+    { at: "pixels", hl: [{ pixels: { cell: 16, steps: [2.9, 6.3] } }] },
     { at: "the further away", hl: [HUB, { obj: "Laniakea", label: false }, { arrow: true, from: { obj: "Laniakea" }, to: { obj: HS }, label: "farther, faster" }] },
     { at: "speed of light", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "Hubble sphere · 14 billion ly" }] },
 
@@ -125,13 +127,13 @@ export default {
     { at: "add up everything", cam: { r: 26.5, m: 54, span: 9 }, labels: true, clear: true, hl: [{ obj: HS, label: "everything inside the Hubble sphere" }] },
     { at: "right on the black hole line", hl: [SCHW, { obj: HS, label: "on the black-hole line" }] },
     { at: "inside a black hole", hl: [SCHW, { obj: HS, label: "a black hole?" }] },
-    { at: "kind of an horizon", hl: [{ ...SCHW, label: "event horizons" }, { ...HUB, label: false }, { obj: HS, label: false }] },
+    { at: "kind of horizons", hl: [{ ...SCHW, label: "event horizons" }, { ...HUB, label: false }, { obj: HS, label: false }] },
     // down the black-hole line to M87*, a dive with the EHT photo over its picture (lens);
     // then back up to the Hubble sphere
-    { at: "kind of an horizon", offset: 0.5, cam: { obj: "M87*", span: 3 }, dur: 2.2,
+    { at: "kind of horizons", offset: 0.5, cam: { obj: "M87*", span: 3 }, dur: 2.2,
       hl: [{ ...SCHW, label: "event horizons" }] },
     // the photo already coming in during the dive (dive.photoAt; the author's note on video 4's)
-    { at: "kind of an horizon", offset: 2.3, photo: "m87", obj: "M87*", dive: { in: 1.6, out: 2, photoAt: 0.4 }, dur: 2.6, fadeIn: 0.9,
+    { at: "kind of horizons", offset: 2.3, photo: "m87", obj: "M87*", dive: { in: 1.6, out: 2, photoAt: 0.4 }, dur: 2.6, fadeIn: 0.9,
       lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600] },
       caption: "M87*'s event horizon · Event Horizon Telescope · 2019" },
     { at: "can never come out", cam: { r: 26.5, m: 54, span: 9 }, hl: [{ ...SCHW, label: "nothing gets out" }, { obj: HS, label: false }] },
@@ -142,7 +144,10 @@ export default {
 
     // ── Our universe ─────────────────────────────────────────
     { at: "it's our universe", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "our universe" }] },
-    { at: "on the other side", hl: [HUB, { obj: HS, label: "everyone has their own" }] },
+    // a galaxy at the edge of our universe (the Sombrero stands in for any of them), and ours
+    { at: "sat in a galaxy", cam: { r: 25, m: 50, span: 12 }, dur: 3, hl: [HUB, { obj: HS, label: false }, { obj: "Sombrero (M104)", label: "a galaxy at the edge" }] },
+    { at: "on the other side", hl: [HUB, { obj: HS, label: "everyone has their own" }, { obj: "Sombrero (M104)", label: false }] },
+    { at: "our galaxy in one direction", hl: [HUB, { obj: HS, label: false }, { obj: "Sombrero (M104)", label: false }, { obj: "Milky Way", label: "our galaxy" }] },
     { at: "may well be infinite", cam: { r: 27, m: 54, span: 10 }, hl: [HUB, { side: "right", of: "hubble" }, { obj: HS, label: "beyond: probably more of the same" }] },
 
     // ── The two limits, and the observable universe ──────────
@@ -155,6 +160,9 @@ export default {
     // a few distances named, and what the colours stand for
     { at: "seeing it right now", clear: true, hold: 22, hl: [UNIVERSE_KEY], explorer: { show: true, fade: 1.6, spin: 0.03 } },
     { at: "seeing it right now", offset: 0.4, explorer: { zoom: 0.75, dur: 21 } },
+    // the rings and names fainter so the dots show, then gone, the dots brighter (author, 2026-10-27)
+    { at: "seeing it right now", offset: 2.5, explorer: { guides: 0.4, dur: 3 } },
+    { at: "live forever", offset: -2.5, clear: true, explorer: { guides: 0, exposure: 1.7, dur: 3 } },   // (the colour key goes too)
     { at: "put all of that observable", explorer: { show: false, fade: 1.4 }, cam: { r: 28.2, m: 56.4, span: 5 }, dur: 0.01, clear: true,
       hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH, delay: 1.2 }, { ...OU, label: "observable universe · 46 billion ly", delay: 1.6 }] },
     { at: "outside our triangle", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "outside the triangle" }] },

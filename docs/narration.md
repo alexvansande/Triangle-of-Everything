@@ -311,7 +311,8 @@ Cue fields
              s 1), yaw, pitch, orbit, ezoom (one camera for Inside and the Cloud:
              ezoom is Earth's size as Inside's field of view, orbit turns the
              camera about Earth's axis, so Earth stays put across a switch),
-             gmst, unit, lz, exposure, contrast, lift: glide over dur s (default
+             gmst, unit, lz, exposure, contrast, lift, guides (0–1: the rings,
+             discs and names faded so the dots show): glide over dur s (default
              2.5); spin: rad/s, added to the orbit with ezoom (the camera going
              round a still Earth); without, turns Earth (Inside) or the Cloud
            (short-07-wavelengths is the worked example; in the explorer page,
