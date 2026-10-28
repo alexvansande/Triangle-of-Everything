@@ -41,16 +41,22 @@ const ROUND_M = 23.7;
 // start holding on to hydrogen and puff up. Titan (10²⁶ g) has one too, being so cold:
 // "for its temperature"
 const AIR_BAND = { poly: [[-40, 26.8], [60, 26.8], [60, 28.08], [-40, 28.08]], fill: "#66bb6a", opacity: 0.16,
-  label: "rocky worlds\nwith air", labelAt: [9.55, 27.0], labelColor: "#a5d6a7" };
+  label: "Goldilocks zone", note: "rocky worlds with air", labelCenter: true, labelSize: 28, labelColor: "#a5d6a7" };
 // below it a body's shape is held by its material strength, all of it electromagnetic (chemical
 // bonds, crystal stiffness, friction between grains); above it self-gravity crushes it round
-const BONDS = { side: "below", mass: ROUND_M, label: "electromagnetism\ndominates", note: "(chemical bonds, crystal\nstiffness, friction, etc.)", labelX: 0.74 };
-const GRAVITY = { side: "above", mass: ROUND_M, label: "gravity\ndominates", labelX: 0.76 };                            // span of the rocks → round worlds pan (as wide as the animals')
+const BONDS = { side: "below", mass: ROUND_M, label: "electromagnetism\ndominates", note: "(chemical bonds, crystal\nstiffness, friction, etc.)", labelCenter: true, labelSize: 26 };
+const GRAVITY = { side: "above", mass: ROUND_M, label: "gravity\ndominates", labelCenter: true, labelSize: 26 };                            // span of the rocks → round worlds pan (as wide as the animals')
 // one grid square (a decade of size × a decade of mass) with its bottom-left corner at (r, m)
 const SQ = (r, m, delay = 0) => ({ poly: [[r, m], [r + 1, m], [r + 1, m + 1], [r, m + 1]], fill: "#ffd54f", opacity: 0.35, delay });
 const STEP_RIGHT = [{ arrow: true, from: ML, to: RIGHT, label: "×10 size" }, SQ(-0.207, -1)];
 const STEP_UP = [{ arrow: true, from: RIGHT, to: LITER, label: "×1000 volume" }, SQ(0.793, 0, 0.3), SQ(0.793, 1, 0.8), SQ(0.793, 2, 1.3)];
 const HEAVIER = [{ ...STEP_UP[0], label: "×1000 heavier" }, ...STEP_UP.slice(1)];   // the same step, once it's a kilogram
+// the Eiffel Tower's close-up (its cues): its outline, then two copies at the other volumes
+const EIFFEL = { trace: "Eiffel Tower", grow: 2.6, shapes: [
+  { label: ["≈ 1.6 million m³", "6.5 kg per m³"], place: "above" },
+  { at: { rho: 0.0306 }, holes: true, label: ["≈ 330,000 m³", "30 kg per m³"], place: "below" },
+  { at: { rho: 7.8 }, holes: true, lattice: true, label: ["1,300 m³ of iron", "7,800 kg per m³"], place: "below" }] };
+const EIFFEL_LINES = [{ line: "water", label: "water" }, { line: "air", label: "air" }];
 const drawn = (list) => list.map(h => h.arrow ? { ...h, draw: 0.01 } : { ...h, instant: true, delay: 0 });
 
 export default {
@@ -143,21 +149,26 @@ export default {
     { at: "to engineering", cam: UP(3.15, 3.2), dur: 2, clear: true,
       hl: [{ obj: "Boeing 747" }, { obj: "Supertanker", delay: 0.3 }] },
     { at: "the eiffel tower", cam: C(3.75, 10.05, 3.4), hl: [{ obj: "Eiffel Tower" }] },
-    { at: "surprisingly light", cam: C(3.85, 10.0, 3.4), hl: [WATER, { obj: "Eiffel Tower", label: "Eiffel Tower · mostly air" }] },
-    // a small dive (the tower comes up to a quarter of the screen, the chart dims), then
-    // the tower's steps side by side, each with its volume: its outline (the picture fades
-    // once it's drawn), which splits in two, the copy carved (the arch, the opening between
-    // the floors), which splits again into the lattice, down to the iron: the fractal. Volumes for the real tower (10,100 t):
-    // the filled-in silhouette ~0.8 million m³; less the space under the arches and between
-    // the first two floors ~0.33 million; the iron at 7.8 t/m³, 1,300 m³
-    { at: "surprisingly light", dolly: { obj: "Eiffel Tower", in: 1.8, out: 1.8, size: 0.24 }, dur: 8.6 },
-    { at: "also counting all", hl: [{ sketch: "Eiffel Tower", level: 0, labels: [["≈ 800,000 m³", "13 kg per m³"]] }] },
-    { at: "space inside it", cam: C(3.86, 10.02, 3.4) },
-    { at: "in many ways", offset: -0.9, hl: [{ sketch: "Eiffel Tower", level: 1, labels: [["≈ 800,000 m³", "13 kg per m³"], ["≈ 330,000 m³", "30 kg per m³"]] }] },
-    // the iron lattice, the third shape, on "…the Eiffel Tower is somewhat": this take pauses
-    // before "a fractal", and the dive (held 8.6 s) only unwinds from "fractal"
-    { at: "is somewhat", hold: 3.2, hl: [{ sketch: "Eiffel Tower", level: 2, draw: 1.2, labels: [["≈ 800,000 m³", "13 kg per m³"], ["≈ 330,000 m³", "30 kg per m³"], ["1,300 m³ of iron", "7,800 kg per m³"]] }] },
-    { at: "lots of big rocks", offset: -0.8, cam: C(3.92, 10.4, 3.6) },
+    // the close-up (the author, 2026-10-28, in place of the dive): the camera zooms onto the
+    // tower, its picture grows, and everything else on the chart fades but the grid, the water
+    // and air lines and the catalogue dots; its outline is traced and the picture fades; then
+    // a copy of the outline moves to where a second way of measuring its volume puts it on
+    // the chart, and another to the third. Same mass (10,100 t), three volumes:
+    //   1. everything inside its envelope, the air too: ~1.56 million m³ (a 125 m square base,
+    //      300 m tall), 6.5 kg per m³: where the chart puts it (src/bulk-density.js), near the air line;
+    //   2. its silhouette without the space under the arches and between the first two floors:
+    //      ~330,000 m³, 30 kg per m³;
+    //   3. the iron alone, at 7.8 t per m³: 1,300 m³, left of the water line (it would sink).
+    { at: "surprisingly light", cam: { obj: "Eiffel Tower", dm: 0.02, span: 1.3 }, quiet: true, dur: 2.4, drift: 0.04,
+      hl: [{ ...EIFFEL, step: -1 }, ...EIFFEL_LINES] },
+    { at: "also counting all", hl: [{ ...EIFFEL, step: 0 }, ...EIFFEL_LINES] },
+    // (the first copy lands only a fifth of a decade to the left: a closer look, then out
+    // enough for the iron, the outlines shrinking to make room)
+    { at: "in many ways", cam: { r: 3.76, m: 10.03, span: 1.1 }, quiet: true, dur: 1.6, drift: 0.03,
+      hl: [{ ...EIFFEL, step: 1, grow: 1.7, draw: 0.9 }, ...EIFFEL_LINES] },
+    // the iron lattice, the third shape: "fractal"
+    { at: "fractal", offset: -0.6, cam: { r: 3.38, m: 10.02, span: 1.7 }, quiet: true, dur: 1.4, drift: 0.03,
+      hl: [{ ...EIFFEL, step: 2, grow: 1.1, move: 1.1 }, ...EIFFEL_LINES] },
 
     // rocks, lakes, asteroids and small moons
     { at: "lots of big rocks", cam: C(4.05, 11.3, 3.9), hl: [{ obj: "Great Pyramid" }] },
@@ -190,7 +201,7 @@ export default {
     { at: "a gas giant", cam: G(9.45, 29.0),
       hl: [{ obj: "Neptune", place: "left" }, { obj: "Saturn", label: "gas giants" }, { obj: "Jupiter", label: false }] },
     // back to Earth: just enough gravity for its air, not enough for hydrogen
-    { at: "goldilocks zone", cam: G(8.85, 27.6), hl: [AIR_BAND, { obj: "Mars", label: false }, { obj: "Earth", label: "Goldilocks zone" }, { obj: "Venus", place: "left", label: false }] },
+    { at: "goldilocks zone", cam: G(8.85, 27.6), hl: [AIR_BAND, { obj: "Mars", label: false }, { obj: "Earth", label: false }, { obj: "Venus", place: "left", label: false }] },
     { at: "oxygen and nitrogen", cam: G(8.9, 27.7), hl: [{ ...AIR_BAND, instant: true }, { obj: "Earth", label: "keeps oxygen, nitrogen" }] },
     { at: "not enough to hold", cam: G(9.0, 27.9), hl: [{ ...AIR_BAND, instant: true }, { obj: "Earth", label: "loses hydrogen, helium" }] },
     { at: "following the rocky planets", cam: G(9.5, 29.15), hl: [ROCKY_GAS, WATER, { obj: "Earth", label: "rocky planets", place: "left" }, { obj: "Venus", label: false, place: "left" }] },

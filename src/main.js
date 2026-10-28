@@ -8502,6 +8502,28 @@ if (_ogShot) {
         const b = el.getBoundingClientRect();
         return b.width ? { x: b.x, y: b.y, w: b.width, h: b.height } : null;
       },
+      /** The file an object's (or catalogue dot's) picture is drawn from now, or null. */
+      iconHref(name) {
+        const o = _lastProjected.find(p => p.name === name), d = !o && dustIcons().find(p => p.name === name);
+        const el = o ? lIcons.select(`.obj-icon[data-slug="${o.slug}"]`).node()
+          : d ? lIcons.selectAll("g.dust-picture").filter(p => p.i === d.i).select(".dn-icon").node() : null;
+        return el?.getAttribute("href") || null;
+      },
+      /** A video's close-up on one picture (the narration's `trace`): every layer of the chart
+       *  but the grid, the density diagonals (water, air) and the catalogue dots fades by
+       *  `amount` (0–1), the other pictures too; `keep` (a name) keeps its picture, drawn at
+       *  `keepOpacity`. Called every frame while it's on; amount 0 puts everything back. */
+      setIsolate(amount = 0, keep = null, keepOpacity = 1) {
+        const on = amount > 0.001 || keepOpacity < 0.999, o = amount > 0.001 ? (1 - amount).toFixed(3) : null;
+        [lRegion, lTriOverlay, lBound, lBigBangEras, lEnergyBands, lDarkMatter, lArrows, lConnDots, lRegLabel,
+          lShadows, lDustHover, lObj, lHighlight, lCompose, lAxisRef, lWaterPhase, lLabels].forEach(l => l.style("opacity", o));
+        const ob = on && keep && _lastProjected.find(p => p.name === keep), d = on && keep && !ob && dustIcons().find(p => p.name === keep);
+        const kept = ob ? lIcons.select(`.obj-icon[data-slug="${ob.slug}"]`).node()?.closest("g.icon-g")
+          : d ? lIcons.selectAll("g.dust-picture").filter(p => p.i === d.i).node() : null;
+        lIcons.selectAll(":scope > g").style("opacity", function () {
+          return this === kept ? (keepOpacity < 0.999 ? Math.max(0, keepOpacity).toFixed(3) : null) : o;
+        });
+      },
       /** Grow an object's picture like the hover does, by k (1 restores it); false if it has none drawn. */
       growIcon(name, k = 1, instant = false) {
         // "hover": the app's own hover growth (to ≥ 64 px or 1.5×). instant: this size now,

@@ -401,7 +401,21 @@ Cue fields
                Hubble line, at 16.7 billion ly)
              { side: "left"|"right", of?: "water", label? }
              { side: "above"|"below", mass: logM, label?, note? } — one side of a level
-               of constant mass, the level drawn dashed (video 2's round-world line)
+               of constant mass, the level drawn dashed (video 2's round-world line);
+               labelCenter: true puts the label (and note) in the middle of that side's
+               rectangle as it is on screen, at labelSize px (default 22)
+             { poly: [[r, m], …], fill?, opacity?, label?, note?, labelAt?: [r, m],
+               labelCenter?, labelSize? } — a region; labelCenter: its label in the middle
+               of the region as it is on screen (video 2's Goldilocks zone)
+             { trace: name, step, grow?, shapes: [{ at?: { rho } | { r }, holes?, lattice?,
+               label?: [line, small line], place? }, …], draw?, move? } — a close-up that
+               measures one thing several ways (video 2's Eiffel Tower), over consecutive
+               cues, one step each: step -1 every other chart element fades but the grid,
+               the density diagonals and the catalogue dots, the picture grows to `grow`;
+               step 0 its outline (from the picture's alpha) is traced and the picture fades;
+               step n a faint copy slides to shape n's place (same mass, at.rho a bulk density
+               in g/cm³) and draws its openings (holes) or the tower's lattice. Everything
+               comes back after the last of those cues
              { card: "E = mc²", hold?: 2, bg?: "#fff", arrow?, caption? } — the
                screen (over the classic figure, its plot frame, so the axes stay)
                fades to a card with the text, holds, and fades back; arrow: a
