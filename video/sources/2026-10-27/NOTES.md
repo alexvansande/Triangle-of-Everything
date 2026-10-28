@@ -318,6 +318,24 @@ The take is 370.2 s (was 371.3 s), at natural speed. Every cue resolves; mix reb
   and arrows; a slow zoom in onto the crystals and injuries; a slow zoom back out on "the search
   for dark matter…" with the other ruled-out areas coming in one by one.
 
+### Clean-up, 2026-10-28 (video 4)
+
+Re-checked the cut clip by clip with Whisper (medium.en, a filler-friendly prompt, word timestamps;
+small.en and the plain prompt where the filler prompt made Whisper invent "Hmmm"s), the energy and
+voicing between words. rec43 and rec41 aren't at hand (iCloud), so the fix is a `POST_CUTS` span in
+`edl.py`, cut out of the finished audio with the new `video/tools/postcut.py`, re-transcribed, and
+the corrected captions carried over unchanged (`video/tools/transfer-captions.py`). No false
+starts, repeated words or ums (Whisper's "Well," before "Most objects", "Maybe?" before "They're
+thought to be", "which Which" and "Okay, so we keep looking" aren't in the audio: silence, a breath,
+one "which" and an "s"). One pause the PAUSES cap missed is cut down: 4:25 "what we think of as
+empty space | is full of little objects", 0.38 s → 0.18 s. The take is 337.0 s (was 337.2 s), at
+natural speed. Every cue resolves; mix rebuilt.
+
+`cuts.csv` was still the first cut's (rec44 + rec43, 28 rows); it is now rebuilt from the take's
+words aligned to the EDL's clips (out and source times are each clip's first and last matched word,
+not the exact cut points; where Whisper heard a clip's first words differently, its row starts a
+little late).
+
 ## rec38: "Draft for the video 6, the tiny universe.aifc" (video 6, draft)
 
 In iCloud `Projects/Triangle/recordings`: 15:14, 48 kHz stereo PCM. A **draft of ideas**, not a

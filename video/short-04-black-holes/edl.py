@@ -54,3 +54,10 @@ EDL = [
  ("rec43", "end", 387.30, 390.44),    # most of the matter that exists just collapsed into black holes.   ("like, most of everything," left out)
  ("rec43", "end", 391.20, 397.10),    # And we, like everything, the galaxies, the stars, everything we know of, are just a lucky few survivors.
 ]
+
+# The clean-up of 2026-10-28 (video/sources/2026-10-27/NOTES.md): one pause the PAUSES cap missed
+# (room noise over the silence threshold), cut out of the finished edit with video/tools/postcut.py,
+# since rec43 isn't at hand to rebuild. Spans of the edit, in seconds.
+POST_CUTS = [
+ (264.86, 265.06),  # "what we think of as empty space | is full of little objects": 0.38 s → 0.18
+]
