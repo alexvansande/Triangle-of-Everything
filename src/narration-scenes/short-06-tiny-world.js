@@ -106,7 +106,7 @@ export default {
     { at: "here's hydrogen", cam: C(-8.25, -23.5, 1.2), clear: true, hl: [{ obj: "Hydrogen" }] },
     // out to the nuclei, at the same mass a hundred thousand times smaller, and back in
     // (the author, 2026-10-28)
-    { at: "the mass comes almost all", cam: { r: -10.65, m: -23.1, span: 8.6 }, dur: 1.8,
+    { at: "for any atom the mass", cam: { r: -10.65, m: -23.1, span: 8.6 }, dur: 1.4,
       hl: [{ obj: "Hydrogen", label: "mass: the nucleus" }, { dust: "nucleus", src: ["nucleus"], color: "#ffb74d", sweep: 0.8, delay: 0.6 },
         { arrow: true, solid: true, width: 3, from: { obj: "Hydrogen" }, to: { obj: "Proton" }, delay: 0.8 },
         { obj: "Proton", label: "its nucleus", delay: 1.6 }] },
