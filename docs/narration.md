@@ -227,7 +227,9 @@ per second per worker on a 4-core box, so a 13-minute take needs roughly an hour
   take to the queue whenever they change it (CLAUDE.md). A note `# <take> changed: 1:20-1:45, …` re-renders
   only those stretches and splices them into the last render, when the audio hasn't changed
   (`scripts/narration-render-partial.py`); otherwise the whole take renders. With nothing to render for 14 days it
-  uninstalls itself; `scripts/launchd/install.sh` puts it back. Log: `output/videos/nightly.log`.
+  uninstalls itself; `scripts/launchd/install.sh` puts it back. It renders the most changed first (a whole take by its length, a
+  partial one by its noted seconds). A take counts as out of date only through its own audio,
+  captions or scene; a shared-code change reaches a take only through the queue. Log: `output/videos/nightly.log`.
 - Pace (2026-10-27, M1 Max): about one 5-minute video per hour or two with motion blur. The
   author releases about one video a week, so one or two renders a night is plenty; render in
   number order.

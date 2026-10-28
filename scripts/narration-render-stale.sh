@@ -11,8 +11,10 @@
 # and its length still matches; otherwise the whole take renders.
 #
 # A take is stale when its render (output/videos/<take>.mp4, never in git) is older than the
-# last commit touching its audio, captions or scene, or the code and pictures every short
-# draws with (src/, content/, public/hopf/, the cutaway photos). The old render stays in
+# last commit touching its own audio, captions or scene. A change to the code and pictures every
+# short draws with (src/, content/, the photos) doesn't count by itself: most only add an opt-in
+# cue field, and sessions push several a day, so each would re-render every take. The session
+# that makes one queues the takes it changes (CLAUDE.md). The old render stays in
 # place until the new one has finished. Then:
 #   video/web/<take>.mp4   the site's copy (720×1280, H.264 two-pass, ~19.5 MB; see video/web/README.md)
 #   $ICLOUD/<take>-<date>.mp4   the full render, dated
@@ -39,8 +41,7 @@ web() {   # full render → the site's copy, sized just under 20 MiB
 for t in $takes; do
   [ -f "public/narration/$t/words.json" ] || { echo "- $t: no take"; continue; }
   out=output/videos/$t.mp4
-  changed=$(git log -1 --format=%ct -- "public/narration/$t" "src/narration-scenes/$t.js" src ':!src/narration-scenes' \
-    content public/hopf public/narration/photos)
+  changed=$(git log -1 --format=%ct -- "public/narration/$t" "src/narration-scenes/$t.js")
   queued=$(grep -qx "$t" video/render-queue.txt 2>/dev/null && echo 1)
   if [ -z "$queued" ] && [ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${changed:-0}" ]; then
     echo "= $t: render up to date"; [ -n "$DRY" ] && continue

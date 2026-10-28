@@ -42,8 +42,17 @@ if ! curl -s -o /dev/null --max-time 5 http://localhost:5184/; then
   log "started the dev server (pid $started)"
 fi
 
-# in number order
-WORKERS=${WORKERS:-4} caffeinate -i nice -n 10 scripts/narration-overnight.sh $(echo "$stale" | sort)
+# the most changed first (the author's rule, 2026-10-28): a whole take (no "changed:" note in the
+# queue) by its length, a partial one by the seconds its note covers
+weight() {
+  note=$(sed -n "s/^# $1 changed: //p" video/render-queue.txt 2>/dev/null | head -1)
+  [ -n "$note" ] && echo "$note" | tr ',;' '\n\n' | awk -F'[-–]' 'function s(x){gsub(/ /,"",x); n=split(x,a,":"); return n>1?a[1]*60+a[2]:x}
+    NF==2{t+=s($2)-s($1)} END{print t+0}' && return
+  python3 -c "import json;m=json.load(open('public/narration/$1/words.json'));print(m['duration'])"
+}
+order=$(for t in $stale; do echo "$(weight "$t") $t"; done | sort -rn | cut -d' ' -f2)
+log "order: $(echo $order)"
+WORKERS=${WORKERS:-4} caffeinate -i nice -n 10 scripts/narration-overnight.sh $order
 
 # (npx starts vite as a child: stop whatever holds the port, but only if we started it)
 [ -n "$started" ] && { lsof -ti tcp:5184 | xargs kill 2>/dev/null; kill "$started" 2>/dev/null; log "stopped the dev server"; }
