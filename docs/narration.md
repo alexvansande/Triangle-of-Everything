@@ -209,6 +209,17 @@ every frame is exact no matter how slow the machine is. That's about 10 frames
 per second per worker on a 4-core box, so a 13-minute take needs roughly an hour
 (without motion blur; with it, see below).
 
+The fractal background (`src/bg-noise.js`, the WebGL layer that takes over from the
+painting when you zoom past its pixels) needs WebGL2 in the render's Chrome. Until
+2026-10-28 a Chrome without it rendered the plain painting with no warning: every
+rendered video so far lacked the fractal (blocky painting at the deepest zooms). The
+renderer now launches Chrome with `--ignore-gpu-blocklist --enable-unsafe-swiftshader`
+(software GL when there's no GPU to use; recent Chromes no longer fall back to it by
+themselves), logs the GL it got (`[w0] WebGL2: …`), and stops if there's none
+(`--no-fractal` renders anyway). The layer's clouds evolve by the narration's t, not by
+real frames, so the live player and every worker draw the same picture for the same t,
+and `window.__narr.pending()` counts the layer until it has drawn.
+
 ### Batches and publishing
 
 - `scripts/narration-render-stale.sh [take …]` renders each take whose full render

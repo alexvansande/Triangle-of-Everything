@@ -2218,6 +2218,7 @@ export async function startNarration(app) {
     const arriving = view.phase === "hold" && (lastPhase === "fly" || key !== lastKey);
     app.setCamera(view, !arriving);
     lastKey = key; lastPhase = view.phase;
+    app.bgNoiseTime(t);    // the fractal background, drawn for this t (its clouds evolve by t)
     overlay();
   }
   function overlay() {
@@ -2254,12 +2255,14 @@ export async function startNarration(app) {
       }),
     }),
     renderAt,
-    settle(t) { const { view } = camera(t); app.setCamera(view, false); overlay(); },
+    settle(t) { const { view } = camera(t); app.setCamera(view, false); app.bgNoiseSettle(); overlay(); },
     camera: (t) => camera(t).view,
     pending: () => app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
       [...photoImgs.values()].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length +
-      (COVER && !coverImg.complete ? 1 : 0) + (specReady() ? 0 : 1) + tracesPending(),
+      (COVER && !coverImg.complete ? 1 : 0) + (specReady() ? 0 : 1) + tracesPending() + app.bgNoisePending(),
+    // the fractal background: { wanted, shown, failed, lost } (failed: "no WebGL2"; lost: GL contexts lost), for the renderer's log
+    bgNoise: () => app.bgNoiseStatus(),
     audio: base + take.audio,
   };
   if (RENDER) return;

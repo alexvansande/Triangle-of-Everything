@@ -2,7 +2,11 @@
 //
 //   npm run dev                                   # in another terminal
 //   node scripts/narration-render.mjs short-01-hook [--from 0] [--to 60] [--fps 30] [--workers 3] [--out narration.mp4]
-//          [--subframes 4] [--shutter 0.5]
+//          [--subframes 4] [--shutter 0.5] [--no-fractal]
+//
+// The fractal background (src/bg-noise.js) needs WebGL2: the renderer checks for it first and
+// stops if this Chrome has none (--no-fractal renders without it). Its clouds evolve by the
+// narration's t, so every worker draws the same frame for the same t.
 //
 // Frame-exact: the page runs on a virtual clock (performance.now, Date.now,
 // requestAnimationFrame, setTimeout and CSS animations are all stepped by
@@ -88,7 +92,10 @@ for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"]) process.on(sig, async () => {
 async function renderRange(t0, t1, file, label) {
   const browser = await puppeteer.launch({
     executablePath: CHROME,
-    args: ["--no-sandbox", "--mute-audio", "--disable-background-timer-throttling", "--disable-renderer-backgrounding"],
+    // WebGL for the fractal background (bg-noise.js): on the GPU if Chrome will use it, else
+    // Chrome's software GL (SwiftShader), which recent Chromes no longer fall back to by themselves
+    args: ["--no-sandbox", "--mute-audio", "--disable-background-timer-throttling", "--disable-renderer-backgrounding",
+      "--ignore-gpu-blocklist", "--enable-unsafe-swiftshader"],
   });
   browsers.add(browser);
   const page = await browser.newPage();
@@ -97,9 +104,27 @@ async function renderRange(t0, t1, file, label) {
   await page.evaluateOnNewDocument(CLOCK_SHIM);
   await page.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 600000 });   // not networkidle: a close opening view never reports idle
   await page.waitForFunction("window.__narr", { timeout: 60000 });
-  // let dust, icons and the first tiles arrive in real time, then stop the clock
+  // the fractal background needs WebGL2: without it the page quietly shows the plain painting
+  // instead (2026-10-28: the videos had no fractal), so say which GL this Chrome has, and stop
+  const gl = await page.evaluate(() => {
+    const g = document.createElement("canvas").getContext("webgl2");
+    if (!g) return null;
+    const info = g.getExtension("WEBGL_debug_renderer_info");
+    const name = info ? g.getParameter(info.UNMASKED_RENDERER_WEBGL) : "WebGL2";
+    g.getExtension("WEBGL_lose_context")?.loseContext();
+    return name;
+  });
+  if (label === "w0") console.log(`[${label}] WebGL2: ${gl ?? "none"}`);
+  if (!gl && !args.includes("--no-fractal")) {
+    await browser.close(); browsers.delete(browser);
+    throw new Error(`[${label}] no WebGL2 in ${CHROME}: the fractal background can't draw. ` +
+      "Try another --chrome, or pass --no-fractal to render without it");
+  }
+  // let dust, icons, the first tiles and the fractal background arrive in real time, then
+  // finish any crossfade (a worker starting deep in a zoom shows the layer fully up) and stop the clock
   await page.evaluate(`window.__narr.renderAt(${t0}); window.__narr.settle(${t0})`);
   for (let i = 0; i < 60 && await page.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 250));
+  await page.evaluate(`window.__narr.renderAt(${t0}); window.__narr.settle(${t0})`);
   await page.evaluate("window.__vclock.freeze()");
   const clip = await page.evaluate(() => {
     const r = document.getElementById("narr-layer").getBoundingClientRect();
@@ -120,6 +145,13 @@ async function renderRange(t0, t1, file, label) {
     for (let j = 0; j < a.length; j += 3) if (Math.abs(a[j] - b[j]) > 12 || Math.abs(a[j + 1] - b[j + 1]) > 12 || Math.abs(a[j + 2] - b[j + 2]) > 12) n++;
     return n > a.length / 3 * 0.001;
   };
+  // give arriving tiles, icons and the fractal's textures a moment (real time) — they'd pop in
+  // otherwise — then draw the same t again so the frame has them
+  const waitPending = async (t) => {
+    let waited = false;
+    for (let i = 0; i < 8 && await page.evaluate("window.__narr.pending()"); i++) { waited = true; await new Promise(r => setTimeout(r, 120)); }
+    if (waited) await page.evaluate(`window.__narr.renderAt(${t})`);
+  };
   let single = 0;
   const acc = SUB > 1 ? new Uint32Array(W * H * 3) : null;
   const n0 = Math.round(t0 * FPS), n1 = Math.round(t1 * FPS);
@@ -129,8 +161,7 @@ async function renderRange(t0, t1, file, label) {
     let frame;
     if (SUB === 1) {
       await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
-      // give arriving tiles/icons a moment (real time) — they'd pop in otherwise
-      for (let i = 0; i < 8 && await page.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 120));
+      await waitPending(t);
       frame = Buffer.from(await shot(), "base64");
     } else {
       // still across the shutter? one capture (the clock still steps a whole frame)
@@ -144,7 +175,7 @@ async function renderRange(t0, t1, file, label) {
       }
       if (still) {
         await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
-        for (let i = 0; i < 8 && await page.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 120));
+        await waitPending(t);
         frame = await sharp(Buffer.from(await shot(), "base64")).removeAlpha().resize(W, H).raw().toBuffer();
         single++;
         if (!ff.stdin.write(frame)) await new Promise(r => ff.stdin.once("drain", r));
@@ -159,7 +190,7 @@ async function renderRange(t0, t1, file, label) {
       for (let k = 0; k < SUB; k++) {
         const ts = t + ((k + 0.5) / SUB - 0.5) * SHUTTER / FPS;
         await page.evaluate(`window.__narr.renderAt(${ts}); window.__vclock.step(${1000 / FPS / SUB})`);
-        for (let i = 0; i < 8 && await page.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 120));
+        await waitPending(ts);
         const px = await sharp(Buffer.from(await shot(), "base64")).removeAlpha().resize(W, H).raw().toBuffer();
         for (let j = 0; j < px.length; j++) acc[j] += px[j];
       }
@@ -172,6 +203,8 @@ async function renderRange(t0, t1, file, label) {
       console.log(`[${label}] t=${t.toFixed(1)}s  ${done}/${n1 - n0} frames  ${rate.toFixed(1)} fps  eta ${((n1 - n) / rate / 60).toFixed(1)} min  (${Math.round(100 * single / done)}% still)`);
     }
   }
+  const bg = await page.evaluate("window.__narr.bgNoise?.()");
+  if (bg?.failed || bg?.lost) console.log(`[${label}] WARNING fractal background: ${bg.failed || ""}${bg.lost ? ` ${bg.lost} GL context(s) lost (frames fell back to the painting)` : ""}`);
   ff.stdin.end();
   await new Promise(r => ff.on("close", r));
   await browser.close();

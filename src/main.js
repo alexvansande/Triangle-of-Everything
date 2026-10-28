@@ -5774,6 +5774,10 @@ let _bgNoiseSurface = null;
 let _bgNoiseShown = false;    // currently replacing the tiles
 let _bgNoiseArmed = _bgNoiseNarr; // site: not at startup, only after the first zoom
 let _bgNoiseFadeTimer = 0;
+let _bgNoiseFadeEnd = null;   // the crossfade's last step, run early by bgNoiseSettle
+let _bgNoiseT = null;         // narration: the audio time the clouds evolve by (bgNoiseTime)
+let _bgNoiseFailed = "";      // why the layer couldn't run (no WebGL2), for the renderer's log
+let _bgNoiseLost = 0;         // GL contexts lost (the layer rebuilt), for the renderer's log
 let _bgNoiseWanted = _bgNoiseUrl !== null ? _bgNoiseUrl !== "0" : BG_NOISE_DEFAULT_ON;
 let _bgNoiseMod = null;
 const loadBgNoise = () => (_bgNoiseMod ??= import("./bg-noise.js").then(m => { m.applyNoiseProfile(BG_NOISE_PROFILE); return m; }));
@@ -5813,20 +5817,34 @@ function setBgNoiseBackdrop(noise) {
     svg.select("rect.svg-bg").attr("fill", on ? "#000000" : "none");
     clip.select("rect.bg-rect").attr("display", on ? null : "none");
   };
+  const end = (fn) => { _bgNoiseFadeEnd = fn; _bgNoiseFadeTimer = setTimeout(() => { _bgNoiseFadeEnd = null; fn(); }, 520); };
   if (noise) {
     backdrops(false);
     tiles.forEach(l => l.style("transition", "opacity 0.5s").style("opacity", 0));
-    _bgNoiseFadeTimer = setTimeout(() => tiles.forEach(l => l.style("display", "none")), 520);
+    end(() => tiles.forEach(l => l.style("display", "none")));
   } else {
     tiles.forEach(l => l.style("display", null));
     lTiles.node().getBoundingClientRect(); // commit display before fading back in
     tiles.forEach(l => l.style("opacity", 1));
-    _bgNoiseFadeTimer = setTimeout(() => {
+    end(() => {
       tiles.forEach(l => l.style("transition", null).style("opacity", null));
       backdrops(true);
-    }, 520);
+    });
   }
 }
+/** Narration: draw the layer now for audio time t (its clouds evolve by t). */
+function bgNoiseTime(t) {
+  _bgNoiseT = t;
+  _bgNoise?.draw();
+}
+/** Narration seek / a render's first frame: finish a running crossfade at once, so a
+ *  render worker starting deep in a zoom shows the layer as a player that got there would. */
+function bgNoiseSettle() {
+  if (_bgNoiseFadeEnd) { clearTimeout(_bgNoiseFadeTimer); const fn = _bgNoiseFadeEnd; _bgNoiseFadeEnd = null; fn(); }
+  document.querySelectorAll(".bgnoise-canvas").forEach(c => c.getAnimations().forEach(a => { try { a.finish(); } catch { /* idle */ } }));
+}
+/** 1 while the layer should be up but isn't drawn yet (module, tiles), for a render to wait on. */
+const bgNoisePending = () => (_bgNoiseShown && (!_bgNoise || _bgNoise.pending()) ? 1 : 0);
 
 /** Show the layer when enabled and zoomed past the tiles (with hysteresis). */
 async function syncBgNoise() {
@@ -5855,16 +5873,21 @@ async function syncBgNoise() {
         .style("position", "relative").style("width", "100%").style("height", "100%").node();
     }
     _bgNoise = createBgNoise({
-      host, meta: tileMeta, getView: bgNoiseView,
+      host, meta: tileMeta, getView: bgNoiseView, getTime: () => _bgNoiseT,
       onShown: () => { if (_bgNoiseShown) setBgNoiseBackdrop(true); },
       onLost: () => {   // back to the tiles at once; the next zoom past them builds it anew
+        _bgNoiseLost++; console.warn("Fractal background: WebGL context lost");
         _bgNoise?.destroy(); _bgNoise = null; _bgNoiseSurface?.remove(); _bgNoiseSurface = null;
         if (_bgNoiseShown) { _bgNoiseShown = false; setBgNoiseBackdrop(false); }
       },
     });
-    if (!_bgNoise) { _bgNoiseSurface?.remove(); _bgNoiseSurface = null; _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
+    if (!_bgNoise) { // no WebGL2
+      _bgNoiseFailed = "no WebGL2"; console.warn("Fractal background off: no WebGL2");
+      _bgNoiseSurface?.remove(); _bgNoiseSurface = null; _bgNoiseShown = false; setBgNoise(false); return;
+    }
   }
   _bgNoise.setVisible(true);
+  _bgNoise.draw();
 }
 
 function drawTiles() {
@@ -8460,6 +8483,9 @@ if (_ogShot) {
        *  multiplier, an opacity multiplier, or a fixed radius in px. */
       /** Fade the background painting at zooms deeper than its resolution (videos). */
       setBgFadeDeep(on = true) { _bgFadeDeep = on; drawTiles(); },
+      /** The fractal background (bg-noise.js): its clock, a crossfade cut short, whether it's still loading. */
+      bgNoiseTime, bgNoiseSettle, bgNoisePending,
+      bgNoiseStatus: () => ({ wanted: _bgNoiseWanted, shown: _bgNoiseShown, failed: _bgNoiseFailed, lost: _bgNoiseLost }),
       /** Object labels on or off (videos: a quiet closing shot). */
       setLabels(on = true) {
         // off also hides the chart's other text (band and path names) for a clean shot
