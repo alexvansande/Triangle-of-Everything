@@ -246,6 +246,10 @@ per second per worker on a 4-core box, so a 13-minute take needs roughly an hour
   Chromes running, orphaned, still drawing: the next run crawled (load average ~300) until
   they were killed. The renderer now closes its browsers on SIGINT/SIGTERM; after a crash,
   look for `puppeteer_dev_chrome_profile` processes whose parent is 1 and kill them.
+- **Render overnight, with the Mac idle.** The night of 2026-10-27 (adaptive blur, JPEG, 4 workers):
+  12–19 s of rendering per second of video with nobody at the Mac (video 3, 2:16, in 30 min;
+  video 5, 6:15, in 78 min); about 24 s/s that evening while the author was using it. Whatever
+  is on screen shares the same GPU.
 - **Run one heavy job at a time.** Whisper transcriptions, other sessions' renders and sound
   mixes all slow a render a lot; the first hook render of the day took 67 minutes for 113 s
   under that load.
