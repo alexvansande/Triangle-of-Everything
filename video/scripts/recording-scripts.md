@@ -21,11 +21,11 @@ went silent after a minute when it ran out.
 | Video | Take | Plays now |
 |---|---|---|
 | 1 · the hook | `short-01-hook` | 1:50 (re-recorded 2026-10-27, rec35) |
-| 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | 3:57 (re-recorded 2026-10-26, rec33) |
+| 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | 4:19 (re-recorded 2026-10-26, rec33, natural speed) |
 | 3 · planets into stars | `short-03-stars` | 2:13 (re-recorded 2026-10-27, rec36) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 5:37 (re-recorded at home 2026-10-27, rec43 + addendum rec41, natural speed) |
-| 5 · the Hubble sphere | `short-05-hubble-sphere` | 6:18 (re-recorded at home 2026-10-27, rec40, natural speed) |
-| 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:44 (recorded 2026-10-27, rec39) |
+| 5 · the Hubble sphere | `short-05-hubble-sphere` | 6:10 (re-recorded at home 2026-10-27, rec40, natural speed) |
+| 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
 
 ---
 

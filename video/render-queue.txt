@@ -5,3 +5,4 @@
 # rendered video is published. Lines starting with # are notes.
 short-01-hook
 short-03-stars
+short-02-up-the-line
