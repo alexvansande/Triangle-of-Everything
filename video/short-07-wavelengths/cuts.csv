@@ -18,18 +18,18 @@ rec42,eyes,72.60,75.43,185.69,188.53,It's a label your brain puts on a wavelengt
 rec42,eyes,75.71,80.83,189.18,194.30,"We have three kinds of color sensor in our eyes and we call what they see red, green and blue."
 rec42,eyes,81.11,92.73,194.78,206.39,"If our eyes were tuned just a little bit differently, we would see infrared as red, red as green and green as blue. Look, the forest light up because plants reflect a lot of infrared."
 rec42,eyes,93.01,108.09,206.68,221.84,"Or we could shift the other way, like a bee does and see ultraviolet as blue. So here we have the answer on, is the red we see the same as the red that everyone sees? Well, not if you're talking about bees."
-rec42,up,108.69,136.90,222.70,250.91,"Now let's keep going. In ultraviolet, Earth shows its smoke and dust. There's no full map of the sky in ultraviolet, or air blocks it, so you have to go to space to see it. Further up, X -rays and Earth go dark, or atmospheres stop X -rays completely, which is lucky for us. But the sky lights up with hot gas at millions of degrees, and pairs of stars where one is eating the other."
-rec42,up,137.18,151.15,251.78,265.76,"In gamma rays, the most energetic lighter is, we see the plane of our galaxy glowing where cosmic rays smashes into gas and spinning dead stars and the cores of distant galaxies giant black holes at the center."
-rec42,down,151.75,156.75,270.33,275.79,now let's go all the way back down to infrared or as we see heat
-rec42,down,157.03,160.85,285.08,288.90,cold cloud tops are dark.
-rec42,down,161.13,170.74,289.12,298.80,"In the sky infrared goes straight to the dust that hides the center of our galaxy and we see the stars behind it. Further down we see the dust itself,"
-rec42,down,171.02,186.44,300.12,315.58,"cold clouds where the new stars are born. And in microwaves, Earth shows its water, vapor, rain, sea, ice, and the sky is filled with the oldest light in the universe, the afterglow of the Big Bang."
-rec42,far,187.04,191.38,321.06,325.41,and that's an interesting part because not all light comes from the same place.
-rec42,far,191.66,195.55,339.71,343.60,So let's put everything in a log scale like we're doing in a shark.
-rec42,far,195.83,198.87,351.06,354.09,It's the only way we can see the whole universe.
-rec42,far,199.15,202.04,354.50,357.38,"So if Earth is this big, that's the moon orbit,"
-rec42,far,202.32,210.98,359.58,368.24,"just over one light second away, then the sun eight light minutes away, and then they close the stars a few light years away."
-rec42,far,211.26,220.32,368.66,377.72,"Zoom out further and the sky becomes a cloud of dots, the star around us, then our galaxy and then the entire observable universe."
-rec42,again,220.92,249.32,378.89,407.71,"Now let's go through the spectrum again. Visible light comes mostly from stars in our own neighborhood of the galaxy. Infrared reach further through the dust. Radio shows or galaxy magnetic fields and galaxies billions of light years away. Microwave comes from the very edge, the oldest light there is. An X -ray and gamma rays from the most violent things in the universe, exploding stars and feeding black holes."
-rec42,end,249.92,252.80,408.67,411.56,"Every wavelength is a different window,"
-rec42,end,253.08,255.93,414.56,417.40,And each one shows a different universe.
+rec42,up,108.69,136.60,222.70,250.91,"Now let's keep going. In ultraviolet, Earth shows its smoke and dust. There's no full map of the sky in ultraviolet, or air blocks it, so you have to go to space to see it. Further up, X -rays and Earth go dark, or atmospheres stop X -rays completely, which is lucky for us. But the sky lights up with hot gas at millions of degrees, and pairs of stars where one is eating the other."
+rec42,up,136.88,150.85,251.78,265.76,"In gamma rays, the most energetic lighter is, we see the plane of our galaxy glowing where cosmic rays smashes into gas and spinning dead stars and the cores of distant galaxies giant black holes at the center."
+rec42,down,151.45,156.45,270.33,275.79,now let's go all the way back down to infrared or as we see heat
+rec42,down,156.73,160.55,285.08,288.90,cold cloud tops are dark.
+rec42,down,160.83,170.44,289.12,298.80,"In the sky infrared goes straight to the dust that hides the center of our galaxy and we see the stars behind it. Further down we see the dust itself,"
+rec42,down,170.72,186.14,300.12,315.58,"cold clouds where the new stars are born. And in microwaves, Earth shows its water, vapor, rain, sea, ice, and the sky is filled with the oldest light in the universe, the afterglow of the Big Bang."
+rec42,far,186.74,191.08,321.06,325.41,and that's an interesting part because not all light comes from the same place.
+rec42,far,191.36,195.25,339.71,343.60,So let's put everything in a log scale like we're doing in a shark.
+rec42,far,195.53,198.57,351.06,354.09,It's the only way we can see the whole universe.
+rec42,far,198.85,201.74,354.50,357.38,"So if Earth is this big, that's the moon orbit,"
+rec42,far,202.02,210.68,359.58,368.24,"just over one light second away, then the sun eight light minutes away, and then they close the stars a few light years away."
+rec42,far,210.96,220.02,368.66,377.72,"Zoom out further and the sky becomes a cloud of dots, the star around us, then our galaxy and then the entire observable universe."
+rec42,again,220.62,249.02,378.89,407.71,"Now let's go through the spectrum again. Visible light comes mostly from stars in our own neighborhood of the galaxy. Infrared reach further through the dust. Radio shows or galaxy magnetic fields and galaxies billions of light years away. Microwave comes from the very edge, the oldest light there is. An X -ray and gamma rays from the most violent things in the universe, exploding stars and feeding black holes."
+rec42,end,249.62,252.50,408.67,411.56,"Every wavelength is a different window,"
+rec42,end,252.78,255.63,414.56,417.40,And each one shows a different universe.

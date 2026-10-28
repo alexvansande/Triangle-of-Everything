@@ -47,3 +47,10 @@ EDL = [
  ("rec42", "end", 408.76, 410.78),    # Every wavelength is a different window,   (the first try)
  ("rec42", "end", 414.76, 416.50),    # and each one shows a different universe.
 ]
+
+# The clean-up of 2026-10-28 (video/sources/2026-10-27/NOTES.md): one pause the PAUSES cap missed
+# (room noise over the silence threshold), cut out of the finished edit with video/tools/postcut.py,
+# since rec42 isn't at hand to rebuild. Spans of the edit, in seconds.
+POST_CUTS = [
+ (121.20, 121.50),  # "so you have to go to space to see it. | Further up": 0.8 s → 0.5
+]
