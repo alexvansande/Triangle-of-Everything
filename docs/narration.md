@@ -224,7 +224,9 @@ per second per worker on a 4-core box, so a 13-minute take needs roughly an hour
 - **Every night at 23:50** (`scripts/narration-nightly.sh`, a launchd agent installed with
   `scripts/launchd/install.sh`): it merges main, renders every take listed in
   `video/render-queue.txt` or out of date, publishes them, and clears the queue. Sessions add a
-  take to the queue whenever they change it (CLAUDE.md). With nothing to render for 14 days it
+  take to the queue whenever they change it (CLAUDE.md). A note `# <take> changed: 1:20-1:45, …` re-renders
+  only those stretches and splices them into the last render, when the audio hasn't changed
+  (`scripts/narration-render-partial.py`); otherwise the whole take renders. With nothing to render for 14 days it
   uninstalls itself; `scripts/launchd/install.sh` puts it back. Log: `output/videos/nightly.log`.
 - Pace (2026-10-27, M1 Max): about one 5-minute video per hour or two with motion blur. The
   author releases about one video a week, so one or two renders a night is plenty; render in

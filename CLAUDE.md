@@ -23,6 +23,11 @@
   commit, and push it to `main`. The nightly render (23:50, `scripts/narration-nightly.sh`)
   renders the queued takes, publishes them to the videos page's "Rendered video" and clears them.
   A change to code every video shares (`src/narration.js`, the map) queues all of them.
+  **If only the picture changed** (not the audio, captions' timing or the cut), also add a note line
+  with the playback times whose picture changed, e.g. `# short-04-black-holes changed: 1:20-1:45, 3:00-3:30`
+  (the author's idea, 2026-10-28): the nightly then re-renders only those stretches and splices them
+  into the last render (`scripts/narration-render-partial.py`). Be generous: everything a changed cue
+  touches, up to the next cue. No note when the audio changed: that needs the whole take.
 - **Scripts to record**: `video/scripts/recording-scripts.md` has every video's narration as cut
   now and the lightly edited script to re-record (with what changed). Keep it up to date when a
   take is replaced or the author changes a line.

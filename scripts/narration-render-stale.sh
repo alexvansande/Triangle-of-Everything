@@ -5,7 +5,10 @@
 # Needs the dev server on :5184 (URL= to change) and Google Chrome (CHROME=); WORKERS= Chrome workers (8).
 # DRY=1: only list the out-of-date takes ("stale <take>"), render nothing.
 # A take listed in video/render-queue.txt renders even if it looks up to date, and comes off
-# the list once it has.
+# the list once it has. A note "# <take> changed: 1:20-1:45, 3:00-3:30" there (the playback
+# times whose picture changed) re-renders only those stretches and splices them into the last
+# render (scripts/narration-render-partial.py), when the take's audio is older than that render
+# and its length still matches; otherwise the whole take renders.
 #
 # A take is stale when its render (output/videos/<take>.mp4, never in git) is older than the
 # last commit touching its audio, captions or scene, or the code and pictures every short
@@ -45,11 +48,22 @@ for t in $takes; do
     echo "stale $t"; continue
   else
     echo "=== $t $(date +%H:%M:%S)"
-    if node scripts/narration-render.mjs "$t" --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" \
+    # only the stretches noted in the queue, if the audio hasn't changed since the last render
+    note=$(sed -n "s/^# $t changed: //p" video/render-queue.txt 2>/dev/null | head -1)
+    voice=$(git log -1 --format=%ct -- "public/narration/$t/audio.m4a" "public/narration/$t/mix.m4a" "public/narration/$t/words.json")
+    partial=""
+    if [ -n "$note" ] && [ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${voice:-0}" ]; then
+      echo "  only $note"
+      python3 scripts/narration-render-partial.py "$t" "$note" --old "$out" --out "output/videos/$t.new.mp4" \
+        --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" > "output/videos/$t.log" 2>&1 && partial=1 ||
+        echo "  partial render didn't apply (output/videos/$t.log): rendering it whole"
+    fi
+    if [ -n "$partial" ] || node scripts/narration-render.mjs "$t" --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" \
         --out "output/videos/$t.new.mp4" > "output/videos/$t.log" 2>&1; then
       mv "output/videos/$t.new.mp4" "$out"
-      # off the render queue (video/render-queue.txt): the publish commits it with the web copy
+      # off the render queue (video/render-queue.txt), with its note: the publish commits it with the web copy
       [ -n "$queued" ] && sed -i '' "/^$t\$/d" video/render-queue.txt
+      sed -i '' "/^# $t changed: /d" video/render-queue.txt
     else
       echo "! $t: render failed (output/videos/$t.log)"; continue
     fi
