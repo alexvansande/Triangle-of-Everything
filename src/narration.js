@@ -2268,6 +2268,17 @@ export async function startNarration(app) {
   if (RENDER) return;
 
   // ---------- live player ----------
+  // every picture the scene names, fetched now: on a phone the camera can otherwise reach an
+  // object before its picture has downloaded (the renderer waits for them, the live player can't)
+  {
+    const names = [];
+    const walk = (v) => {
+      if (Array.isArray(v)) v.forEach(walk);
+      else if (v && typeof v === "object") { if (typeof v.obj === "string") names.push(v.obj); Object.values(v).forEach(walk); }
+    };
+    walk(SCENE.cues);
+    app.prefetchIcons?.(names);
+  }
   // One audio element for every take (app.audio): once a tap has started it,
   // mobile browsers let it play the next take without another tap.
   const audio = app.audio || new Audio();

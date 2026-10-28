@@ -140,7 +140,7 @@ export default {
     { at: "can't actually swim", cam: UP(1.95, 1.5),
       hl: [{ obj: "Hippopotamus", label: "hippo · 1.05 g/cm³" }, WATER, { side: "left", label: "sinks" }] },
 
-    { at: "heavier and heavier animals", cam: UP(2.1, 1.5), hl: [WATER, { obj: "Elephant", label: "elephants" }] },
+    { at: ["heavier animals", "heavier and heavier animals"], cam: UP(2.1, 1.5), hl: [WATER, { obj: "Elephant", label: "elephants" }] },
     { at: "argentinosaurus", cam: UP(2.3, 1.6), hl: [WATER, { obj: "Elephant", place: "left" }, { obj: "Argentinosaurus", label: "Argentinosaurus", delay: 0.2 }] },
     { at: "the blue whale", cam: UP(2.55, 1.9), hl: [{ obj: "Blue Whale", label: "largest animal ever" }] },
     { at: "the largest tree", cam: UP(2.85, 2.2), hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
@@ -208,7 +208,6 @@ export default {
     { at: ["planets are mostly gas", "mostly made of gas"], cam: G(9.6, 29.5), hl: [{ ...ROCKY_GAS, draw: 0.01 }, WATER, { obj: "Earth", place: "left" }, { obj: "Neptune", place: "left" }, { obj: "Saturn", delay: 0.3 }, { obj: "Jupiter", label: "mostly gas", delay: 0.6 }] },
     { at: "less dense than water", cam: G(9.75, 30.1), hl: [WATER, { obj: "Saturn", label: "Saturn · would float", place: "left" }] },
     { at: "as dense as wood", hl: [WATER, { obj: "Saturn", label: "Saturn · like wood", place: "left" }] },
-    { at: "as dense as honey", hl: [WATER, { obj: "Saturn", label: false, place: "left" }, { obj: "Jupiter", label: "Jupiter · like honey" }] },
 
     // super-Jupiters and degenerate matter
     { at: ["trend suddenly stops", "trend stops"], cam: G(9.85, 30.6),

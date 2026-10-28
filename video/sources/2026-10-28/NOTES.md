@@ -10,11 +10,13 @@ the car**. It re-records the paragraphs marked for it in the script of 2026-10-2
 and Jupiter, the electrons that push back, and the split; plus a retake of the animals. After a mic test
 (0:00–0:20).
 
-Cut: `video/short-02-up-the-line/edl.py`, 24 clips with rec33 (2026-10-26, at home). The author can hear a
-switch between recordings, so the cut switches as little as the two takes allow: five times. rec33 keeps
-the opening, the water and air lines and the animals (rec46's animal retake would add two switches and isn't
-better), and the round worlds through the Goldilocks zone (not in rec46). The cut runs 4:28 at natural speed
-(no speed-up), with the 2026-10-26 treatment (80 Hz high-pass, one gain to a −1 dBFS peak).
+Cut: `video/short-02-up-the-line/edl.py`, 24 clips with rec33 (2026-10-26, at home), five switches between
+them. rec33 keeps the opening, the water and air lines and the small animals, and the round worlds through
+the Goldilocks zone (not in rec46). The author first worried the switches would show; after hearing the cut
+he couldn't tell them apart (both his usual car setup), so the second pass (same day) takes rec46 wherever
+it's better: the elephants, the Argentinosaurus, the blue whale and the sequoia now come from it. The cut
+runs 4:28 at natural speed (no speed-up), with the 2026-10-26 treatment (80 Hz high-pass, one gain to a
+−1 dBFS peak).
 
 Matching the car to the home take (measured on the speech): rec46 was 4.2 dB quieter, ~1.5 dB thinner below
 500 Hz and 2–4 dB brighter above 2 kHz, with the same noise floor; `SOURCE_FX` brings it within ~1 dB in every
@@ -26,14 +28,18 @@ second walk ("one step to the side" left out) and "That's three units up" withou
 "Past living things… surprisingly light", then the third "counting all the space inside it" with the volumes,
 the second "iron alone… definitely sink", and "In many ways…" without its first start; the rocks; Saturn
 without the first "You can see it on the chart, most of these dots,"; "Jupiter is roughly as dense as honey"
-(", but the trend stops here" and the aside about maple syrup left out); the trend, the push back, the split.
+(", but the trend stops here" and the aside about maple syrup left out); the trend, the push back, the split. Second pass: "As we go up, we will see heavier animals like the elephants.
+The largest animal ever on land was the Argentinosaurus, but the largest animal ever is still around, and that's
+the blue whale" (without its restart), then "But if we talk about the largest tree, then that's the sequoia,
+which is much bigger" (the last of three tries). "Jupiter is roughly as dense as honey" is out (the author
+doesn't like it), and so is its label.
 
 Caption words corrected: "are in cubes" → "aren't cubes" (checked twice); "10 cm", "1 liter", "1 kg", "max
 axis" → spelled out, "mass axis"; "1 .5 million" → "one and a half million"; "gold -lock" → "Goldilocks";
 "then as an Earth" → "Venus and Earth"; "And more mass and the object get denser" → "Add more mass, and the
 object gets denser"; punctuation where Whisper ran sentences together. Thirteen cues were re-keyed to the new
 words (each keeps the old phrase as a fallback); the Eiffel Tower's second and third outlines now land on
-"leave out the arch" and "the iron alone"; new labels "Saturn · like wood" and "Jupiter · like honey".
+"leave out the arch" and "the iron alone"; a new label "Saturn · like wood".
 
 ### Fact check
 
@@ -45,8 +51,9 @@ words (each keeps the old phrase as a fallback); the Eiffel Tower's second and t
   without the arch and the gaps "about five times" smaller (330,000 m³: 4.7×); the iron alone, 1,300 m³, "a
   cube 11 metres wide" (10.9 m), denser than water, so it would sink.
 - **Right:** Saturn, 0.69 g/cm³, "roughly as dense as wood" (pine ~0.5, oak ~0.75): it would float.
-- **Roughly right:** "Jupiter is roughly as dense as honey": Jupiter 1.33 g/cm³, honey about 1.4 (maple syrup,
-  1.33, is the closer match). Fine as "roughly".
+- **Right:** "the largest animal ever on land was the Argentinosaurus" (about 70 t; estimates vary) and the blue
+  whale the largest animal ever; the sequoia (~2,000 t) "much bigger" than the whale (~150 t).
+- (Not used: "Jupiter is roughly as dense as honey", roughly right: 1.33 against honey's ~1.4.)
 - **Right:** objects 10 and even 80 times Jupiter's mass stay about Jupiter's size; the electrons, squeezed out
   of their atoms, push back (degeneracy pressure), so more mass makes them denser, not bigger.
 - Nothing wrong in the parts used.

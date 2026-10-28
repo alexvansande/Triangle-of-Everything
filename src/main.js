@@ -8528,6 +8528,15 @@ if (_ogShot) {
         const b = el.getBoundingClientRect();
         return b.width ? { x: b.x, y: b.y, w: b.width, h: b.height } : null;
       },
+      /** Start downloading the pictures of these objects (names) at about cssSize, so a video
+       *  doesn't reach an object before its picture has arrived (phones on a slow network). */
+      prefetchIcons(names, cssSize = 120) {
+        for (const name of new Set(names)) {
+          const o = OBJECTS.find(p => p.name === name);
+          const url = o && iconUrlForSize(o.slug, cssSize);
+          if (url) { const im = new Image(); im.decoding = "async"; im.src = url; }
+        }
+      },
       /** The file an object's (or catalogue dot's) picture is drawn from now, or null. */
       iconHref(name) {
         const o = _lastProjected.find(p => p.name === name), d = !o && dustIcons().find(p => p.name === name);

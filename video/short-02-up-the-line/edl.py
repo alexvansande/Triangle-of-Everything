@@ -2,17 +2,18 @@
 # rec33 = "Video 2 new take.m4a" (Google Drive "Recordings", 2026-10-26, 8:14, AAC mono; at home).
 # rec46 = "Video 2 new take" (Google Drive "Recordings", 2026-10-28, 5:57, ALAC 48 kHz; in the car):
 # the author's re-recording of the paragraphs marked for it (the cube and the balls, the walk up,
-# the Eiffel Tower's three volumes, the rocks, Saturn and Jupiter, the electrons that push back,
-# the split). The author can hear a switch between recordings, so the cut keeps to as few as
-# the two takes allow (five): rec33 for the opening, the water and air lines and the animals
-# (rec46's animal lines would add two switches for nothing better), and for the round worlds up
-# to the Goldilocks zone (not in rec46); rec46 for the rest.
+# the Eiffel Tower's three volumes, the rocks, Saturn, the electrons that push back,
+# the split), and the animals. The author can't hear the switches between the two (both his usual
+# car setup, 2026-10-28), so rec46 is used wherever it's better: rec33 keeps the opening, the water
+# and air lines and the small animals, and the round worlds up to the Goldilocks zone (not in
+# rec46); rec46 the rest, from the elephants on. "Jupiter is roughly as dense as honey" is left out
+# (the author, 2026-10-28).
 # rec46 is matched to rec33 (SOURCE_FX, measured on the speech: 4.2 dB quieter, ~1.5 dB thinner
 # below 500 Hz, 2–4 dB brighter above 2 kHz; within ~1 dB after). The walk up was spoken louder
 # than the rest: −1.5 dB on those three clips, so the switch back to rec33 doesn't jump.
 # Treatment: the 2026-10-26 natural-speed test (80 Hz high-pass, one gain to a −1 dBFS peak), no
 # speed-up. Build: see video/short-01-hook/README.md.
-# (source, beat, first-word start, last-word start, {s, e, gap, cut}) in source seconds.
+# (source, beat, first-word start, last-word start, {s, e, gap, cut, gain}) in source seconds.
 # Where Whisper (medium.en) merged a restart into one long word, `s` is the real
 # start of the retake, found from the speech runs.
 
@@ -36,7 +37,8 @@ EDL = [
  # animals
  ("rec33", "animals", 228.82, 237.24), # Most animals though live in a much narrower band. That's because we are mostly made of water. Some of us are a little denser than others.   (the second try: the first has "some of us a lot…")
  ("rec33", "animals", 220.64, 224.38), # The hippo, for example, can't actually swim. It just bounces along the riverbed.   (from the first try: the second has "…bounces around the riverbed")
- ("rec33", "big", 262.32, 277.96),     # As we go up, we see heavier and heavier animals, like elephants, or the Argentinosaurus, the largest animal ever to walk the Earth. However, the largest animal ever is still with us: that's the blue whale. And a little bit above that, that's the largest tree, the sequoia.   (two tries, "the dinosaurs" and "tyrannosaurs", 4:04–4:21, left out)
+ ("rec46", "big", 142.96, 154.88, {"s": 142.05}),  # As we go up, we will see heavier animals like the elephants. The largest animal ever on land was the Argentinosaurus, but the largest animal ever is still around, and that's the blue whale.   (the author prefers rec46's Argentinosaurus, 2026-10-28; two earlier tries, "…is dead" and a restart, left out)
+ ("rec46", "big", 168.52, 173.52),     # But if we talk about the largest tree, then that's the sequoia, which is much bigger.   (the last of three tries)
  # what we build: the Eiffel Tower's three volumes (rec46)
  ("rec46", "built", 181.08, 187.40),   # Past living things, and we get to engineering. Notice that the Eiffel Tower is surprisingly light for its size.
  ("rec46", "built", 197.24, 209.30),   # That's because we're also counting all the space inside it. Its whole shape, air included, is about one and a half million cubic metres. Leave out the arch and the gaps, and it shrinks about five times.   (the third try; "…its whole air" and a second try left out)
@@ -49,7 +51,6 @@ EDL = [
  ("rec33", "round", 393.48, 409.76, {"s": 399.65}),  # So Earth lives in a kind of gravitational Goldilocks zone: just enough mass, for its temperature, to hold on to oxygen and nitrogen, not enough to hold on to hydrogen and helium.   (the first try, cut off at "just enough mass,", left out)
  # gas giants (rec46 from here to the end)
  ("rec46", "giants", 265.58, 283.28, {"s": 268.98}),  # You can see it on the chart: most of these dots stop following the rocky planets on the left and move to the right, where planets are mostly gas. Saturn is actually less dense than water, roughly as dense as wood, and it would float like a log.   (the first "You can see it on the chart, most of these dots," left out)
- ("rec46", "giants", 289.48, 292.08, {"e": 292.75}),  # Jupiter is roughly as dense as honey.   (", but the trend stops here", and the aside about maple syrup, left out)
  # super-Jupiters and degenerate matter
  ("rec46", "jupiter", 307.82, 323.96), # Then the trend suddenly stops. You can't get a planet much bigger than Jupiter. Objects 10 times, even 80 times more massive are still roughly Jupiter-sized. That's because the pressure in their core is so high that electrons are squeezed out of their atoms, and they push back.
  ("rec46", "jupiter", 328.06, 330.86), # Add more mass, and the object gets denser, not bigger.
