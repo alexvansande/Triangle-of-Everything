@@ -206,7 +206,52 @@ node scripts/narration-render.mjs short-01-hook --workers 3 --out short-01-hook.
 
 The page runs on a virtual clock that the script steps one frame at a time, so
 every frame is exact no matter how slow the machine is. That's about 10 frames
-per second per worker on a 4-core box, so a 13-minute take needs roughly an hour.
+per second per worker on a 4-core box, so a 13-minute take needs roughly an hour
+(without motion blur; with it, see below).
+
+### Batches and publishing
+
+- `scripts/narration-render-stale.sh [take …]` renders each take whose full render
+  (`output/videos/<take>.mp4`, never in git) is older than the last commit touching its
+  audio, captions or scene, or the code and pictures every short draws with. Then it makes
+  the web copy (`video/web/<take>.mp4`, ~19.5 MB) and a dated copy in iCloud
+  `output videos/`. The old render stays until the new one finishes.
+- `scripts/narration-overnight.sh [take …]` does that take by take and publishes each one as it
+  finishes: merges main, renders, commits the web copy, runs the site build and pushes to main
+  (the videos page's "Rendered video" switch picks it up on deploy). A merge that conflicts is
+  undone, not forced. Run it as `caffeinate -i nice -n 10 scripts/narration-overnight.sh`, from a
+  session that stays open, with the "shorts" dev server (:5184) up.
+- Pace (2026-10-27, M1 Max): about one 5-minute video per hour or two with motion blur. The
+  author releases about one video a week, so one or two renders a night is plenty; render in
+  number order.
+
+### Rendering faster: what we measured (2026-10-27, M1 Max, 1080×1920, 12 sub-frames)
+
+- **The capture is the cost, not the drawing.** Per sub-frame: `renderAt` 16 ms; a PNG capture
+  (`Page.captureScreenshot`) 295 ms; JPEG at q95 106 ms; WebP 169 ms. With 12 PNG sub-frames
+  a frame took ~3.6 s, 95% of it encoding and decoding pictures.
+- **Blur only what moves** (`--adaptive`, on by default): two tiny captures (1/8 size) at the
+  shutter's ends; if under 0.1% of pixels differ by more than 12 levels, the frame gets one
+  capture instead of 12. 40–70% of a video's frames are still. Everything that moves (whips,
+  dives, the explorer turning, karaoke words changing) still gets full blur.
+- **JPEG q95 captures** (`--capture jpeg`, the default): ~3× faster than PNG, and averaging the
+  sub-frames hides the JPEG grain. Together: ~4× faster per worker on a stretch with a dive
+  (10 s of video in 229 s with 2 workers).
+- **More workers stop helping early.** Each worker is a whole Chrome drawing WebGL and
+  compositing a 1080×1920 page; they share one GPU. 2 workers made ~1.3 frames/s in all,
+  8 workers ~1.6. More than 3–4 mostly adds contention (load average in the 20s–40s).
+- **Start workers apart.** Eight Chromes loading the dev server's unbundled modules at once
+  all timed out (120 s). They now start 6 s apart and get 10 minutes to load.
+- **Stopping a render must close its Chromes.** Killing the node process left its puppeteer
+  Chromes running, orphaned, still drawing: the next run crawled (load average ~300) until
+  they were killed. The renderer now closes its browsers on SIGINT/SIGTERM; after a crash,
+  look for `puppeteer_dev_chrome_profile` processes whose parent is 1 and kill them.
+- **Run one heavy job at a time.** Whisper transcriptions, other sessions' renders and sound
+  mixes all slow a render a lot; the first hook render of the day took 67 minutes for 113 s
+  under that load.
+- Ideas not tried yet: fewer sub-frames for slow motion (6 is likely enough for glides; 12 for
+  whips), a static production build served instead of the dev server (faster page loads), and
+  capturing at a lower JPEG quality for the sub-frames only.
 
 ## Notes for the next take (from the take 2 review)
 

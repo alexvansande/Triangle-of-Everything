@@ -78,11 +78,19 @@ const CLOCK_SHIM = `(() => {
   };
 })();`;
 
+// every worker's Chrome, closed if the render is stopped: killing only this process left them
+// running, orphaned and still drawing, which starved the next render (2026-10-27)
+const browsers = new Set();
+for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"]) process.on(sig, async () => {
+  await Promise.allSettled([...browsers].map(b => b.close()));
+  process.exit(130);
+});
 async function renderRange(t0, t1, file, label) {
   const browser = await puppeteer.launch({
     executablePath: CHROME,
     args: ["--no-sandbox", "--mute-audio", "--disable-background-timer-throttling", "--disable-renderer-backgrounding"],
   });
+  browsers.add(browser);
   const page = await browser.newPage();
   await page.setViewport({ width: STAGE.W + 2 * STAGE.pad, height: STAGE.H + 2 * STAGE.pad, deviceScaleFactor: STAGE.dpr });
   page.on("pageerror", e => console.log(`[${label}] pageerror:`, e.message));
@@ -167,6 +175,7 @@ async function renderRange(t0, t1, file, label) {
   ff.stdin.end();
   await new Promise(r => ff.on("close", r));
   await browser.close();
+  browsers.delete(browser);
 }
 
 const meta = JSON.parse(fs.readFileSync(`public/narration/${take}/words.json`, "utf8"));
