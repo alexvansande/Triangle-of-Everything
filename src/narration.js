@@ -207,7 +207,12 @@ export async function startNarration(app) {
   // cam.glide: a waypoint of one continuous pan. The camera passes through each
   // glide point at its cue's time on a smooth (Catmull-Rom) curve, never holding,
   // instead of flying and stopping at each one.
-  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam), dur: c.dur, drift: c.drift ?? 0.05,
+  // dur: "end" flies until the end card has covered the picture (it fades in over
+  // speechEnd + 0.15…0.65 s); ease: "gentle" (sine) keeps a long move
+  // close to an even pace instead of the default cubic's slow-fast-slow
+  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam),
+    dur: c.dur === "end" ? speechEnd + (CREDITS ? 0.65 : 0) - c.time : c.dur, drift: c.drift ?? 0.05,
+    ease: c.ease === "gentle" ? d3.easeSinInOut : d3.easeCubicInOut,
     quiet: !!c.quiet, glide: !!c.cam.glide, whip: !!c.cam.whip, overshoot: c.cam.overshoot }))
     .filter(k => k.to);
   for (let i = 0; i < keys.length; i++) {
@@ -242,7 +247,7 @@ export async function startNarration(app) {
     }
     if (t < k.end) {
       const p = clamp01((t - k.t) / k.dur);
-      const [r, m, span] = k.interp(k.whip ? p : d3.easeCubicInOut(p));
+      const [r, m, span] = k.interp(k.whip ? p : k.ease(p));
       return { r, m, span, phase: "fly" };
     }
     const next = keys[i + 1]?.t ?? k.end + 20;
@@ -460,20 +465,24 @@ export async function startNarration(app) {
   // Then it goes back the same way over `out`. A photo with `lens` on the same object,
   // timed inside the hold, lands on the grown picture (video/plans/visual-rules.md §3).
   // "fill": the object grows to 40% of the screen's short side.
-  // A photo cue with `dive: { in?, out?, grow? }` is a whole dive in one cue: the dive
-  // starts at the cue, the photo fades in once everything behind has fully fallen
-  // back (in + 0.25 s), holds `dur`, fades out, and then the dive unwinds over `out`.
+  // A photo cue with `dive: { in?, out?, grow?, photoAt?, under? }` is a whole dive in one cue: the
+  // dive starts at the cue, the photo fades in once everything behind has fully fallen
+  // back (in + 0.25 s; or `photoAt` s after the cue, so it's already coming in during the
+  // approach), holds `dur`, fades out, and then the dive unwinds over `out`.
   const DIVE_IN = 2, DIVE_OUT = 3.5, DIVE_LEAD = 0.25;
-  const diveLead = (c) => c.dive ? (c.dive.in ?? DIVE_IN) + DIVE_LEAD : 0;
+  const diveLead = (c) => !c.dive ? 0 : c.dive.photoAt ?? (c.dive.in ?? DIVE_IN) + DIVE_LEAD;
   const dollies = [
     ...cues.filter(c => c.dolly).map(c => {
       const d = typeof c.dolly === "string" ? { obj: c.dolly } : c.dolly, tin = d.in ?? 2.4;
       return { ...d, t0: c.time, t1: c.time + tin + (c.dur ?? 4), tin, tout: d.out ?? 4 };
     }),
+    // `dive.under`: the dive unwinds behind its photo while it still fills the screen, so
+    // the chart is back to normal by the time the photo fades (no zoom back out to watch)
     ...cues.filter(c => c.photo && c.dive).map(c => {
-      const d = c.dive === true ? {} : c.dive, tin = d.in ?? DIVE_IN;
-      return { obj: c.obj, grow: d.grow, t0: c.time, tin, tout: d.out ?? DIVE_OUT,
-        t1: c.time + diveLead(c) + (c.dur ?? 6) + (c.fadeOut ?? PHOTO_OUT) };
+      const d = c.dive === true ? {} : c.dive, tin = d.in ?? DIVE_IN, tout = d.out ?? DIVE_OUT;
+      const held = c.time + diveLead(c) + (c.dur ?? 6);
+      return { obj: c.obj, grow: d.grow, t0: c.time, tin, tout,
+        t1: d.under ? Math.max(c.time + tin, held - tout) : held + (c.fadeOut ?? PHOTO_OUT) };
     }),
   ];
   let dollyOn = false;
@@ -771,6 +780,9 @@ export async function startNarration(app) {
       else if (h.ellipse) drawEllipse(el, h, age);
       else if (h.window) drawWindow(el, h, age);
       else if (h.cross) drawCross(el, h, age);
+      else if (h.text) drawText(el, h, age);
+      else if (h.pixels) drawPixels(el, h, age);
+      else if (h.key) drawKey(el, h, age);
     });
     // While a callout is on screen, the chart's other labels step back: only the
     // highlighted objects keep theirs (the rest come back between callouts).
@@ -1064,7 +1076,7 @@ export async function startNarration(app) {
     const a = clamp01((age - 0.5) / 0.4) * (1 - smooth((t - cur.t1 + 0.4) / 0.4));
     if (a <= 0.01) return;
     gGuides.append("text").attr("class", "narr-guide").attr("x", xR - 4).attr("y", y - 6).attr("text-anchor", "end")
-      .attr("opacity", a).text(valueLabel(o.logM, MASS_BASES));
+      .attr("opacity", a).text(o.logM < ENERGY_BELOW ? `${valueLabel(o.logM + EV_PER_G, ENERGY_BASES)}/c²` : valueLabel(o.logM, MASS_BASES));
     gGuides.append("text").attr("class", "narr-guide").attr("x", x + 6).attr("y", yB - 6).attr("text-anchor", "start")
       .attr("opacity", a).text(valueLabel(o.logR + W_OFF, SIZE_BASES));
   }
@@ -1118,15 +1130,19 @@ export async function startNarration(app) {
     }
   }
   function clipMid(p, plot) {
-    // middle of the line segment that is on screen (first→last vertex)
-    const [a, b] = [p[0], p[p.length - 1]];
-    const ts = [];
-    for (let i = 0; i <= 200; i++) {
-      const u = i / 200, x = a[0] + (b[0] - a[0]) * u, y = a[1] + (b[1] - a[1]) * u;
-      if (x > plot.x + 30 && x < plot.x + plot.w - 30 && y > plot.y + plot.h * 0.18 && y < plot.y + plot.h * 0.7) ts.push(u);
+    // middle of the line segment that is on screen (first→last vertex), inside the band
+    // the labels keep to. Clipped exactly (Liang–Barsky), so the label slides with the
+    // camera: sampling the whole line in steps made it hop once zoomed in
+    const [a, b] = [p[0], p[p.length - 1]], dx = b[0] - a[0], dy = b[1] - a[1];
+    const x0 = plot.x + 30, x1 = plot.x + plot.w - 30, y0 = plot.y + plot.h * 0.18, y1 = plot.y + plot.h * 0.7;
+    let lo = 0, hi = 1;
+    for (const [q, r] of [[-dx, a[0] - x0], [dx, x1 - a[0]], [-dy, a[1] - y0], [dy, y1 - a[1]]]) {
+      if (q === 0) { if (r < 0) { lo = 1; hi = 0; } continue; }
+      const u = r / q;
+      if (q < 0) lo = Math.max(lo, u); else hi = Math.min(hi, u);
     }
-    const u = ts.length ? (ts[0] + ts[ts.length - 1]) / 2 : 0.5;
-    return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+    const u = lo <= hi ? (lo + hi) / 2 : 0.5;
+    return [a[0] + dx * u, a[1] + dy * u];
   }
   function drawSide(el, h) {
     if (h.mass != null) return drawMassSide(el, h);
@@ -1499,6 +1515,53 @@ export async function startNarration(app) {
     el.append("text").attr("class", "narr-tag narr-cand").attr("x", place === "left" ? x - 16 : x + 16).attr("y", y + 5)
       .attr("text-anchor", place === "left" ? "end" : "start").attr("fill", col).attr("opacity", op).text((h.label || "").toUpperCase());
   }
+  /** A colour key: { key: [["microwave", "#ff6b5e"], …], title?, y? (share of the height, 0.1) }, for a false-colour view */
+  function drawKey(el, h, age) {
+    const SW = layer.clientWidth, SH = layer.clientHeight, op = h.instant ? 1 : smooth(age / 0.6);
+    const rows = h.key, y0 = SH * (h.y ?? 0.1), lh = 19;
+    const g = el.append("g").attr("opacity", op);
+    if (h.title) g.append("text").attr("class", "narr-tag").attr("x", SW / 2).attr("y", y0 - 10).attr("text-anchor", "middle")
+      .attr("fill", "#e9ecf5").text(h.title.toUpperCase());
+    rows.forEach(([name, col], i) => {
+      const y = y0 + i * lh + 8;
+      g.append("rect").attr("x", SW / 2 - 70).attr("y", y - 9).attr("width", 12).attr("height", 12).attr("rx", 2).attr("fill", col);
+      g.append("text").attr("class", "narr-tag").attr("x", SW / 2 - 50).attr("y", y + 1.5).attr("fill", col).text(name.toUpperCase());
+    });
+  }
+  /** Expansion as a picture gaining pixels: { pixels: { n?, steps: [s, …], seed? } }. A small
+   *  black image with a few lit pixels; at each step (seconds after the cue) every pixel becomes
+   *  3 × 3, the old one kept in the centre and the new ones black, so the lit pixels spread
+   *  apart while each stays the same size: new space between them, nothing moving through it. */
+  function drawPixels(el, h, age) {
+    const o = h.pixels, n = o.n ?? 9, c = (n - 1) / 2, cell = o.cell ?? 12;
+    let seed = o.seed ?? 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const cols = ["#ffd54f", "#ffffff", "#80deea", "#ff8a80", "#b39ddb"], lit = [];
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (rnd() < 0.2) lit.push([i - c, j - c, cols[Math.floor(rnd() * cols.length)]]);
+    // the spread: ×3 per step, eased over 1.2 s
+    let k = 1;
+    for (const st of o.steps || []) k *= 1 + 2 * d3.easeCubicInOut(clamp01((age - st) / 1.2));
+    const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH * 0.42;
+    const half = (c + 0.5) * cell * k, op = smooth(age / 0.5);
+    const g = el.append("g").attr("opacity", op);
+    g.append("rect").attr("x", cx - half).attr("y", cy - half).attr("width", 2 * half).attr("height", 2 * half).attr("fill", "#000")
+      .attr("stroke", "rgba(255,255,255,0.55)").attr("stroke-width", 1.5);
+    // the grid of pixels, a pixel apart however far it has spread (clipped to the screen)
+    const lines = [], m = Math.ceil(half / cell);
+    for (let i = -m; i <= m; i++) {
+      const x = cx + (i + (n % 2 ? 0.5 : 0)) * cell, y = cy + (i + (n % 2 ? 0.5 : 0)) * cell;
+      if (Math.abs(x - cx) <= half && x > -2 && x < SW + 2) lines.push(`M${x},${Math.max(0, cy - half)}V${Math.min(SH, cy + half)}`);
+      if (Math.abs(y - cy) <= half && y > -2 && y < SH + 2) lines.push(`M${Math.max(0, cx - half)},${y}H${Math.min(SW, cx + half)}`);
+    }
+    g.append("path").attr("d", lines.join("")).attr("stroke", "rgba(255,255,255,0.16)").attr("stroke-width", 1).attr("fill", "none");
+    for (const [i, j, col] of lit)
+      g.append("rect").attr("x", cx + i * cell * k - cell / 2).attr("y", cy + j * cell * k - cell / 2).attr("width", cell).attr("height", cell).attr("fill", col);
+  }
+  /** A big free-standing word on the chart: { text, at: [r, m], color? } (a hub that arrows point out from) */
+  function drawText(el, h, age) {
+    el.append("text").attr("class", "narr-tag narr-hub").attr("x", sx(h.at[0])).attr("y", sy(h.at[1]))
+      .attr("text-anchor", "middle").attr("fill", h.color || "#ffe9a3").attr("opacity", h.instant ? 1 : smooth(age / 0.6))
+      .text(h.text.toUpperCase());
+  }
   function drawArrow(el, h, age) {
     const from = h.from.obj ? objByName.get(h.from.obj) : null;
     const to = h.to.obj ? objByName.get(h.to.obj) : null;
@@ -1533,8 +1596,10 @@ export async function startNarration(app) {
   // 100 kg between 1 kg and 1 tonne), and 2–9× inside a decade when zoomed in far
   // enough to see the log lines (20 kg, 30 kg…). The named units go first and win.
   // Prefix bases in log10 of the ruler's unit (grams; centimetres of diameter).
-  const MASS_BASES = [[-12, "pg"], [-9, "ng"], [-6, "μg"], [-3, "mg"], [0, "g"], [3, "kg"], [6, "t"], [9, "kt"], [12, "Mt"], [15, "Gt"]];
+  const MASS_BASES = [[-18, "ag"], [-15, "fg"], [-12, "pg"], [-9, "ng"], [-6, "μg"], [-3, "mg"], [0, "g"], [3, "kg"], [6, "t"], [9, "kt"], [12, "Mt"], [15, "Gt"]];
   const SIZE_BASES = [[-13, "fm"], [-10, "pm"], [-7, "nm"], [-4, "μm"], [-1, "mm"], [0, "cm"], [2, "m"], [5, "km"]];
+  const ENERGY_BASES = [[-3, "meV"], [0, "eV"], [3, "keV"], [6, "MeV"], [9, "GeV"], [12, "TeV"], [15, "PeV"], [18, "EeV"]];
+  const EV_PER_G = 32.75, ENERGY_BELOW = -18;   // log10 of 1 g × c² in eV; where the mass ruler turns to eV/c²
   const SUP = (n) => String(n).replace(/./g, c => "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"["0123456789-".indexOf(c)]);
   function tickLabel(v, bases) {          // v = log10 of the value in the base unit
     const d = Math.floor(v + 1e-9), k = Math.round(10 ** (v - d));
@@ -1604,7 +1669,15 @@ export async function startNarration(app) {
     }
     const mppd = Math.abs(sy(1) - sy(0)), iy = (y) => (y - sy(0)) / (sy(1) - sy(0));
     const mA = iy(SH * 0.1), mB = iy(yR - 24);
-    for (const tk of fillTicks(Math.min(mA, mB), Math.max(mA, mB), mppd, MASS_BASES)) {
+    // below about a large molecule's mass, grams run out of prefixes ("0 pg"): ticks in
+    // eV/c² instead, on round energies, as the map's own ruler does (mobile-rulers.js)
+    const mLo = Math.min(mA, mB), mHi = Math.max(mA, mB);
+    const massTicks = [
+      ...fillTicks(Math.max(mLo, ENERGY_BELOW), mHi, mppd, MASS_BASES),
+      ...fillTicks(mLo + EV_PER_G, Math.min(mHi, ENERGY_BELOW) + EV_PER_G, mppd, ENERGY_BASES)
+        .map(tk => ({ ...tk, at: tk.at - EV_PER_G, label: `${tk.label}/c²` })),
+    ];
+    for (const tk of massTicks) {
       const y = sy(tk.at);
       if (y < SH * 0.1 || y > yR - 24) continue;
       if (placedY.some(p => Math.abs(p - y) < 17)) continue;
@@ -1652,16 +1725,17 @@ export async function startNarration(app) {
   // (not `spectrum`, which is the chart's sine wave along the photons)
   // a pure function of t like everything else here:
   //   show: true | false (fades over `fade` s, default 1.2) · view "inside" | "cloud"
-  //   radius "custom" | "log" | "linear" · bright "lin" | "log" · rings: switch at the cue
+  //   radius "custom" | "log" | "linear" · bright "lin" | "log" · rings · labels ({ name:
+  //   "shown as" }: only those ring and marker labels; "edge": the observable universe's): switch at the cue
   //   c, s (the RGB selector, in bands of the sky's bar: natural colour is c 22, s 1),
   //   yaw, pitch, orbit, ezoom: one camera for Inside and the Cloud, so Earth stays put
   //   when the view switches (ezoom is Earth's size as Inside's field of view, smaller
   //   is closer; orbit turns the camera about Earth's axis, Earth and the sky together),
   //   gmst (Earth's turn), unit, lz, exposure, contrast, lift: glide there from wherever
   //   they are, over `dur` s (default 2.5)
-  //   spin: a turn rate (rad/s) that never stops while it's on, added to the orbit:
-  //   Earth stays still and the camera goes round it (the author's note, 2026-10-27)
-  //   labels: the Cloud's names to show (a switch: ["moon"], [] for none)
+  //   spin: a turn rate (rad/s) that never stops while it's on. With ezoom it's added to
+  //   the orbit: Earth stays still and the camera goes round it (the author's note,
+  //   2026-10-27); without, Earth turns on its axis in Inside (gmst), the Cloud turns (spinA)
   //   xfade: with a view switch, the old view fades out over it over this many seconds
   //   line: 0–1 (default 1), the Compton line drawn over the explorer as its spectrum
   //   bar (the author's note, 2026-10-27): the line where the chart's camera puts it,
@@ -1713,7 +1787,10 @@ export async function startNarration(app) {
         if (v !== undefined) st[f] = v;
       }
       const a = turned(t);
-      if (a) st.orbit = (st.orbit ?? 0) + a;
+      if (a) {
+        if (init.ezoom != null) st.orbit = (st.orbit ?? 0) + a;
+        else if ((st.view ?? "inside") === "cloud") st.spinA = (st.spinA ?? 0) + a; else st.gmst = (st.gmst ?? 0) + a;
+      }
       return { show: smooth(at("show", t)), line: clamp01(at("line", t)), st };
     };
   }
@@ -2137,6 +2214,7 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 #narr-svg text.narr-sketch-sub { font-size: 11.5px; font-weight: 600; fill: rgba(235,238,255,0.8); letter-spacing: 0.05em; }
 #narr-svg text.narr-guide { font-size: 11px; font-weight: 600; fill: #e8ecff; letter-spacing: 0.03em; }
 .narr-cand { font-size: 15px; }
+.narr-hub { font-size: 30px; letter-spacing: 0.06em; }
 body.narr-no-text #chart text { visibility: hidden; }
 /* a cue's focus: every other object fades (pictures, dots, shadows, names, catalogue dust) */
 body.narr-obj-focus #chart :is(g.icon-g, g.obj-g, g.icon-shadow, text.obj-label):not(.narr-keep),

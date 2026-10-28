@@ -42,7 +42,7 @@ __pycache__/
 narration-frames/
 
 # rendered videos (local only; copies go to iCloud)
-output/
+/output
 video/photos/originals/*
 !video/photos/originals/meta.json
 dist-device

@@ -29,7 +29,9 @@ import {
 // preview (scripts/narration-preview.mjs), which runs from a sub-folder.
 const BASE = import.meta.env.BASE_URL;
 // The narration preview: the player only, no address-bar sync or service worker.
-const NARR_PREVIEW = import.meta.env.MODE === "narration-preview";
+// The dev server serves the same page at /videos/ (vite.config.js).
+const NARR_PREVIEW = import.meta.env.MODE === "narration-preview" ||
+  (import.meta.env.DEV && /^\/videos\/?$/.test(location.pathname));
 // Built with relative paths (--base ./) to run from a sub-folder, like a
 // claude.ai page: the URL path isn't ours, so only the hash is kept in sync —
 // rewriting the path to "/" would break every relative asset (map tiles…).
@@ -55,6 +57,7 @@ import introRaw from "../content/intro.md?raw";
 import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, tourGoTo, logAllSteps, isTourActive, closeTour } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
+import { startHopfIcons } from "./hopf-icons.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
 import { loadDust, drawDust, pickDust, pickNamedDust, dustPoint, dustReady, dustPositions, dustOfCat, dustOfSrc, dustByName, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust, dustPictureCandidates } from "./dust.js";
@@ -5756,8 +5759,7 @@ let _bgTilesEnabled = true;
 // controls); ?bgnoise / ?bgnoise=0 override the saved choice. Narrations
 // (?narrate) default it on at full resolution; the site defaults it off and,
 // when enabled, renders at half resolution (~4× cheaper on the GPU).
-const _bgNoiseNarr = new URLSearchParams(location.search).has("narrate") ||
-  import.meta.env.MODE === "narration-preview";
+const _bgNoiseNarr = new URLSearchParams(location.search).has("narrate") || NARR_PREVIEW;
 const BG_NOISE_DEFAULT_ON = _bgNoiseNarr;
 const BG_NOISE_PROFILE = _bgNoiseNarr ? {} : { res: 0.5 };
 const BG_NOISE_ON_AT = 1, BG_NOISE_OFF_AT = 0.7; // css px per source px (tiles run out at 1)
@@ -6513,6 +6515,7 @@ const zoomBehavior = d3.zoom()
         syncBgNoise();
         updateReadout(null);
         rafPending = false;
+        _hopfIcons?.draw();  // live icons follow this frame's positions, not the last one's
       });
     }
   })
@@ -6565,6 +6568,10 @@ const zoomBehavior = d3.zoom()
 svg.call(zoomBehavior);
 // Safari's trackpad pinch, also over the click-target overlay above the map
 enableTrackpadPinch(svg.node(), [svg.node(), clickTargetContainer]);
+// particles drawn live as Hopf fibrations over their still pictures
+// (the chart draws them itself right after a pan/zoom redraw, so they don't trail a frame behind)
+let _hopfIcons = null;
+startHopfIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _hopfIcons = h; });
 
 // Trackpad two-finger drag pans; pinch and mouse wheel zoom (trackpad-pan.js).
 // Wraps the start/end listeners above, so it must come after them.

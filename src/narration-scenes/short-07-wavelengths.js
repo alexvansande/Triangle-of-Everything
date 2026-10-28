@@ -47,7 +47,7 @@ export default {
   icons: ["GeV Gamma Ray", "Gamma Ray", "X-ray", "Ultraviolet", "Visible Light", "Infrared", "Microwave", "21 cm Line", "FM Radio", "AM Radio"],
 
   // the explorer's state at t = 0 (hidden until a cue shows it): Earth in natural colour
-  explorer: { ...EARTH, c: BAND.visible, s: 1, exposure: 0.9, rings: false, labels: [], spin: ORBIT_RATE },
+  explorer: { ...EARTH, c: BAND.visible, s: 1, exposure: 0.9, rings: false, labels: {}, spin: ORBIT_RATE },
 
   cues: [
     // ── One kind of stuff ─────────────────────────────────────
@@ -97,12 +97,12 @@ export default {
     { at: "not all light comes", cam: LINEVIEW, dur: 3, explorer: { c: BAND.visible, dur: 2.5 } },
     { at: "put everything in a log scale", explorer: { view: "cloud", xfade: 4, radius: "log", unit: LOG_UNIT, bright: "lin", line: 0.35, dur: 3 } },
     { at: "the only way we can see", explorer: { rings: true } },
-    { at: "the Moon's orbit", explorer: { ezoom: 1.86, dur: 3, labels: ["moon"] } },
-    { at: "Then the Sun", explorer: { ezoom: 2.5, dur: 2.5, labels: ["sun"] } },
-    { at: "the closest stars", explorer: { ezoom: 3.3, dur: 3, labels: ["proxima"] } },
-    { at: "Zoom out further", explorer: { ezoom: 3.9, dur: 3, labels: [] } },
-    { at: "then our galaxy", explorer: { ezoom: 5.6, dur: 2.5, labels: ["milkyway"] } },
-    { at: "entire observable universe", explorer: { ezoom: 8.8, dur: 5, labels: [] } },
+    { at: "the Moon's orbit", explorer: { ezoom: 1.86, dur: 3, labels: { "the Moon's orbit · 1.3 light-seconds": "the Moon's orbit · 1.3 light-seconds" } } },
+    { at: "Then the Sun", explorer: { ezoom: 2.5, dur: 2.5, labels: { "the Sun's path · 8 light-minutes": "the Sun's path · 8 light-minutes" } } },
+    { at: "the closest stars", explorer: { ezoom: 3.3, dur: 3, labels: { "Proxima Centauri · 4.2 light-years": "Proxima Centauri · 4.2 light-years" } } },
+    { at: "Zoom out further", explorer: { ezoom: 3.9, dur: 3, labels: {} } },
+    { at: "then our galaxy", explorer: { ezoom: 5.6, dur: 2.5, labels: { "Milky Way": "Milky Way" } } },
+    { at: "entire observable universe", explorer: { ezoom: 8.8, dur: 5, labels: {} } },
 
     // ── Every wavelength from its own place ───────────────────
     { at: "through the spectrum again", explorer: { c: BAND.visible, line: 1, dur: 1.5 } },

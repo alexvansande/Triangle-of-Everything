@@ -294,6 +294,8 @@ Cue fields
            sub-frames blur it;
            cam.overshoot sets the bump, default 0.7, about 1.5 % of the move)
   dur      flight seconds (default: from the distance travelled)
+           "end": fly until the end card covers the picture (the last word, + 0.65 s)
+  ease     "gentle": sine easing, a near-even pace for long moves (default cubic in-out)
   periodic true: the map's periodic table (rows, columns, type rings, family
            names) fades in once the cue's camera arrives; false fades it out
   spectrum true: the spectrum's sine wave, likewise (it isn't redrawn while the
@@ -302,15 +304,16 @@ Cue fields
            as a pure function of t (the scene's `explorer` is its state at t = 0):
              show: true|false (fade s, default 1.2); view "inside"|"cloud",
              radius "custom"|"log"|"linear", bright "lin"|"log", rings, labels
-             (the Cloud's names to show: ["moon"], [] for none): switch at the
+             ({ "ring or marker name": "shown as" }: only those labels, renamed;
+             "edge": a ring at the observable universe's edge): switch at the
              cue, and xfade: s with a view switch cross-fades from the old view;
              c, s (RGB selector, in bands of the sky's bar: natural colour c 22,
              s 1), yaw, pitch, orbit, ezoom (one camera for Inside and the Cloud:
              ezoom is Earth's size as Inside's field of view, orbit turns the
              camera about Earth's axis, so Earth stays put across a switch),
              gmst, unit, lz, exposure, contrast, lift: glide over dur s (default
-             2.5); spin: rad/s added to the orbit, the camera going round a still
-             Earth, Earth and sky turning together
+             2.5); spin: rad/s, added to the orbit with ezoom (the camera going
+             round a still Earth); without, turns Earth (Inside) or the Cloud
            (short-07-wavelengths is the worked example; in the explorer page,
            spectrumVideo.mix() lists the bands under each channel, to check the
            words against the picture)
@@ -349,6 +352,13 @@ Cue fields
                one and grows in. trace: a faint line along the first window
              { cross: { r, m }, mass?, size? } — a dot with dashed guides to the
                mass ruler (right) and the size ruler (bottom), labelled
+             { text: "Dark matter?", at: [r, m], color? } — a big free-standing word,
+               a hub for arrows to point out from
+             { key: [["microwave", "#ff6b5e"], …], title? } — a colour key near the
+               top, for a false-colour view (the explorer's RGB)
+             { pixels: { steps: [s, …], n?, cell?, seed? } } — expansion as an image gaining
+               pixels: a black n×n image (9) with a few lit pixels; at each step every pixel
+               becomes 3×3, the old one in the centre, so the lit ones spread apart
            any item can take delay (s) to stagger
   clear    end the current highlights
   units    pin the unit rulers on (they also show during every move)

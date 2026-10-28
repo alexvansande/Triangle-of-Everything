@@ -408,30 +408,35 @@ def lufs(x):
 # ---------- backing track: a real piece of music under the whole take ----------
 # Kevin MacLeod's tracks (incompetech.com, CC BY 4.0; video/music/CREDITS.md,
 # fetched by video/music/fetch.sh). The scene names one: backing: "Dreamer" or
-# { track, offset (s into the track), gain (dB) }. It sits about 9 LU under the
+# { track, offset (s into the track), delay (s into the take before it starts), gain (dB) }. It sits about 9 LU under the
 # voice on its own (about 19 dB under it while it talks, ducked 8 dB), fades in over 2 s and
 # out over the last 3, and steps aside for cue music (out 2 s before, back after;
 # after a "cut", a few seconds later).
-TRACKS = {"Immersed": "Immersed.mp3", "Dreamer": "Dreamer.mp3", "Fresh Air": "Fresh Air.mp3",
-          "Soaring": "Soaring.mp3", "Space X-plorers": "space explorers.mp3", "Mesmerize": "Mesmerize.mp3"}
+# The whole album Mesmerize (2016); a file name works too.
+TRACKS = {"Fretless": "Fretless.mp3", "Immersed": "Immersed.mp3", "Dreamer": "Dreamer.mp3",
+          "Promises to Keep": "Promises to Keep.mp3", "Fresh Air": "Fresh Air.mp3", "Soaring": "Soaring.mp3",
+          "Relaxing Piano Music": "Relaxing Piano Music.mp3", "Space X-plorers": "space explorers.mp3",
+          "Universal": "Universal.mp3", "Daytime TV Theme": "Daytime TV Theme.mp3", "Mesmerize": "Mesmerize.mp3",
+          "In the West": "In The West.mp3"}
 bk = TL.get("backing")
 if bk:
     bk = {"track": bk} if isinstance(bk, str) else bk
     path = os.path.join(os.path.dirname(__file__), "..", "video", "music", TRACKS.get(bk["track"], bk["track"]))
     if not os.path.exists(path): sys.exit(f"  backing track missing: {path} (run video/music/fetch.sh)")
-    off = bk.get("offset", 0)
+    off, dly = bk.get("offset", 0), bk.get("delay", 0)
     raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", str(off), "-i", path, "-t", str(TC + 1), "-ac", "2", "-ar", str(SR),
                           "-f", "f32le", "-"], capture_output=True, check=True).stdout
     trk = np.frombuffer(raw, np.float32).astype(np.float64).reshape(-1, 2).T
+    trk = np.pad(trk, ((0, 0), (int(dly * SR), 0)))                     # a late start: a track whose own ending should land on the credits
     trk = np.pad(trk, ((0, 0), (0, max(0, M - trk.shape[1]))))[:, :M]
     k = np.arange(M) / SR
-    g = np.minimum(1, k / 2) * np.clip((TC - k) / 2.5, 0, 1)          # out by the end of the credits
+    g = np.clip((k - dly) / 2, 0, 1) * np.clip((TC - k) / 2.5, 0, 1)          # out by the end of the credits
     for s0, e0, cut in cue_music:
         out_from, back = s0 - 2, (e0 + 4 if cut else e0 + 1)
         g *= np.clip(np.maximum((out_from - k) / 2, (k - back) / 3), 0, 1)
     talk_k = np.clip((20 * np.log10(follower(voice, 0.08, 0.5) + 1e-9) + 48) / 18, 0, 1)
     duck = db(-8 * np.concatenate([talk_k, np.zeros(M - N)]))
-    level = db(lufs(voice[None]) - 9 - lufs(trk[:, :N]) + bk.get("gain", 0))
+    level = db(lufs(voice[None]) - 9 - lufs(trk[:, int(dly * SR):N]) + bk.get("gain", 0))
     music += trk * g * duck * level
     done.append(f"backing \"{bk['track']}\"")
 
