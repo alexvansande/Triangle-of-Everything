@@ -4,3 +4,4 @@
 # plus any whose render is older than its last change, and removes each line once its
 # rendered video is published. Lines starting with # are notes.
 short-05-hubble-sphere
+# short-05-hubble-sphere changed: 0:00-6:15
