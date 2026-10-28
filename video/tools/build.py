@@ -6,7 +6,8 @@ WORKDIR holds audio/<source>.wav (48 kHz mono) and <source>.words.json
 for every source the EDL names. Writes WORKDIR/audio/edit_raw.wav and
 WORKDIR/cuts.csv; then run video/tools/enhance.py on edit_raw.wav.
 
-EDL entries: (source, beat, first-word start, last-word start, {s, e, gap})
+EDL entries: (source, beat, first-word start, last-word start, {s, e, gap, cut})
+(cut: [(t0, t1), …], source spans left out from inside the clip.)
 SOURCE_FX (optional): {source: ffmpeg filter}, applied to that recording first.
 in source seconds. Cuts snap to the nearest real silence unless s/e are
 given; gap overrides the pause before a clip (default 0.28 s inside a
@@ -119,7 +120,19 @@ for item in EDL:
     name, beat, ws, we = item[:4]; ov = item[4] if len(item) > 4 else {}
     S = sources[name]; w0, w1 = S.by_start[round(ws, 2)], S.by_start[round(we, 2)]
     s = ov.get("s") or S.start_cut(w0); e = ov.get("e") or S.end_cut(w1)
-    clip = S.cap_pauses(S.a[int(s * SR):int(e * SR)], s)
+    # "cut": [(t0, t1), …] source spans taken out of the clip (a hesitation the pause cap
+    # missed because a breath or the room kept it above the silence threshold, an "um");
+    # each piece is capped on its own, then joined with 10 ms fades
+    keep, a0 = [], s
+    for c0, c1 in sorted(ov.get("cut", [])):
+        keep.append((a0, c0)); a0 = c1
+    keep.append((a0, e))
+    parts = [S.cap_pauses(S.a[int(p0 * SR):int(p1 * SR)], p0) for p0, p1 in keep]
+    r = int(0.01 * SR); ramp = np.linspace(1, 0, r, dtype=np.float32)
+    for i in range(len(parts) - 1):
+        parts[i] = parts[i].copy(); parts[i][-r:] *= ramp
+        parts[i + 1] = parts[i + 1].copy(); parts[i + 1][:r] *= ramp[::-1]
+    clip = np.concatenate(parts)
     if name in SOURCE_TEMPO: clip = tempo(clip, SR, SOURCE_TEMPO[name])
     clip = fade(clip, SR)
     gap = 0.0 if prev is None else ov.get("gap", GAP_BEAT if beat != prev else GAP_SAME)

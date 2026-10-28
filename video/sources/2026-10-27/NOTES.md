@@ -55,6 +55,14 @@ Tries worth noting:
 - **Wording:** "gravities" → "gravity"; "visible lights" → "visible light"; "where those line
   meets" → "where those two lines meet".
 
+### Clean-up, 2026-10-28
+
+Re-checked the cut clip by clip with Whisper (medium.en, a filler-friendly prompt, word timestamps) and the energy between words. No false starts, repeated words or ums are left. One
+comma pause the PAUSES cap missed (room noise over the threshold) is cut down with build.py's new
+`cut` span: "it's so much more than that, | because it also includes" (0:51 in rec35), 0.48 s →
+about 0.3 s (`cut` 51.25–51.43). The take is 110.2 s at 1.1× (was 110.4 s). Captions carried
+over unchanged (`video/tools/transfer-captions.py`); every cue resolves.
+
 ## rec36: "Brown dwarfs to black holes.m4a" (video 3)
 
 This is in the Google Drive "Recordings" folder: 4:45, AAC mono. It's a full run of the video 3
@@ -107,6 +115,19 @@ resolves. The fork's camera move is 3 s now (it had 6 s before the next cue in t
   supernova leaves a white dwarf; in a supernova's core, protons and electrons become neutrons;
   a teaspoon of neutron star weighs about 2 billion tonnes, a mountain's worth; a still bigger
   core collapses into a black hole.
+
+### Clean-up, 2026-10-28
+
+Re-checked the cut clip by clip with Whisper (medium.en, a filler-friendly prompt, word timestamps) and the energy between words. No false starts, repeated words or ums are left (the "then, …
+once fuel runs out" hesitation is a breath at the comma, kept). Three mid-phrase pauses the
+PAUSES cap missed (a breath or room noise over the threshold) are cut down with build.py's new
+`cut` spans (times in the raw recording):
+- "Deuterium is so rare | that brown dwarfs" (1:26): 0.34 s → about 0.18 s (`cut` 86.30–86.46)
+- "the pressure in its core is so huge | that protons" (4:18): 0.38 s → about 0.18 s (258.20–258.40)
+- "a single spoonful would | weigh as much as a mountain" (4:28): 0.34 s → about 0.14 s (268.60–268.78)
+
+The take is 132.9 s at 1.1× (was 133.4 s). Captions carried over unchanged
+(`video/tools/transfer-captions.py`); every cue resolves.
 
 ## rec44, rec43, rec45: video 4, re-recorded at home
 
