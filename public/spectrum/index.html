@@ -128,6 +128,7 @@
   #rings circle.major { stroke: rgba(233, 236, 245, 0.3); }
   #ringText text { font: 10.5px var(--mono); fill: rgba(233, 236, 245, 0.7); paint-order: stroke; stroke: #000; stroke-width: 3px; }
   #ringText text.ref { fill: rgba(255, 214, 140, 0.9); }
+  body.video #ringText text { font-size: 15px; }   /* a video's names, readable on a phone */
   #ringText circle { fill: rgba(255, 214, 140, 0.9); }
   footer { padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); color: var(--dim); font-size: 11px; }
   body.app header { padding-right: 56px; }
@@ -565,13 +566,16 @@
       precision highp float;
       out vec4 o;
       ${shared}
-      uniform float gain, gam, yaw, pitch, zoom, lod, aspect, panX, panY;
+      uniform float gain, gam, yaw, pitch, zoom, lod, aspect, panX, panY, orbit;
       uniform vec2 res;
       uniform int mode;
       vec3 turn(vec3 v) {
         float cp = cos(pitch), sp = sin(pitch), cy = cos(yaw), sy = sin(yaw);
         v = vec3(v.x, cp * v.y - sp * v.z, sp * v.y + cp * v.z);
-        return vec3(cy * v.x + sy * v.z, v.y, -sy * v.x + cy * v.z);
+        v = vec3(cy * v.x + sy * v.z, v.y, -sy * v.x + cy * v.z);
+        // the orbit about Earth's axis (orbitBy below)
+        vec3 k = vec3(-0.48372, 0.45599, -0.74698);
+        return v * cos(orbit) + cross(k, v) * sin(orbit) + k * dot(k, v) * (1.0 - cos(orbit));
       }
       void main() {
         vec2 p = (gl_FragCoord.xy - 0.5 * res) / (0.5 * res.y);
@@ -1054,7 +1058,7 @@
       const [ex, ey] = PLANES.ecl;
       const ecl = (a) => [0, 1, 2].map((i) => Math.cos(a) * ex[i] + Math.sin(a) * ey[i]);
       // centred on us, between log distances L0 (or the centre) and L1
-      const ring = (name, L0, L1) => {
+      const ring = (name, L0, L1, id) => {
         const r1 = radiusOf(L1);
         if (r1 === null) return;
         const r0 = L0 === null ? 0 : radiusOf(L0) ?? 0, tri = [], edge = [];
@@ -1064,11 +1068,11 @@
           tri.push(...ai, ...ao, ...bo, ...ai, ...bo, ...bi);
           edge.push(...ao);
         }
-        out.push({ name, tri, edge, rOut: r1 });
+        out.push({ name, id, tri, edge, rOut: r1 });
       };
-      ring("the Moon's orbit · 1.3 light-seconds", null, KM(384400));
-      ring("the Sun's path · 8 light-minutes", null, AU(1));
-      ring("Oort Cloud", AU(2000), AU(1e5));
+      ring("the Moon's orbit · 1.3 light-seconds", null, KM(384400), "moon");
+      ring("the Sun's path · 8 light-minutes", null, AU(1), "sun");
+      ring("Oort Cloud", AU(2000), AU(1e5), "oort");
       // the Milky Way: a circle of radius MW.edge around the Galactic Centre,
       // each edge point at its own direction and log distance from us
       const pts = [];
@@ -1082,9 +1086,11 @@
       // we are inside it: a fan from the centre out to its edge
       const tri = [], edge = pts.flat(), rOut = Math.max(...pts.map((p) => Math.hypot(...p)));
       pts.forEach((p, k) => tri.push(0, 0, 0, ...p, ...pts[(k + 1) % N]));
-      out.push({ name: "Milky Way", tri, edge, rOut, gc: placeAt(GC_DIR, Math.log10(MW.gc)) });
+      out.push({ name: "Milky Way", id: "milkyway", tri, edge, rOut, gc: placeAt(GC_DIR, Math.log10(MW.gc)) });
       return out;
     }
+    let vcam = null, videoLabels = null;   // set by a video (setVideo, below)
+    const LBL = VIDEO ? 15 / 10.5 : 1;   // label widths scale with the video's bigger names
     function drawRings(VP, w, h, centre) {
       ringLabels.hidden = ringText.hidden = !ringsOn.checked;
       if (!ringsOn.checked) return;
@@ -1100,10 +1106,11 @@
         if (R !== null && R > 3) back.push(`<circle cx="${cx}" cy="${cy}" r="${R.toFixed(1)}"/>`);
       }
       // labelled circles, along the upper-right diagonal
-      for (const [L, name] of [...UNITS].sort((a, b) => a[2] - b[2])) {
+      const labelOn = (id) => !videoLabels || videoLabels.includes(id);
+      for (const [L, name] of labelOn("units") ? [...UNITS].sort((a, b) => a[2] - b[2]) : []) {
         const r = radiusOf(L), R = r === null ? null : circleR(r);
         if (R === null || R < 8) continue;
-        const x = cx + R * Math.SQRT1_2 + 3, y = cy - R * Math.SQRT1_2 - 3, wd = 6.4 * name.length + 8;
+        const x = cx + R * Math.SQRT1_2 + 3, y = cy - R * Math.SQRT1_2 - 3, wd = 6.4 * LBL * name.length + 8;
         if (x + wd > W_ - 4 || y < 14 || !free(x, y, wd)) continue;
         taken.push({ x, y, wd });
         back.push(`<circle class="major" cx="${cx}" cy="${cy}" r="${R.toFixed(1)}"/>`);
@@ -1136,11 +1143,12 @@
         // its name at its right-most point
         let best = null;
         for (let i = 0; i < d.edge.length; i += 9) { const sp = project(d.edge.slice(i, i + 3)); if (sp && (!best || sp[0] > best[0])) best = sp; }
-        const wd = 6.4 * d.name.length + 8;
-        if (best && best[0] + wd < W_ - 4 && free(best[0] + 4, best[1], wd)) {
+        const wd = 6.4 * LBL * d.name.length + 8;
+        if (!labelOn(d.id)) { /* a video names only what is being talked about */ }
+        else if (best && best[0] + wd < W_ - 4 && free(best[0] + 4, best[1], wd)) {
           taken.push({ x: best[0] + 4, y: best[1], wd });
           front.push(`<text class="ref" x="${(best[0] + 4).toFixed(1)}" y="${(best[1] + 4).toFixed(1)}" opacity="${fade.toFixed(2)}">${d.name}</text>`);
-        } else if (d.name !== "Milky Way") {
+        } else if (d.name !== "Milky Way" || videoLabels) {
           // no room on the right (a narrow phone frame): centred over its top-most point
           let top = null;
           for (let i = 0; i < d.edge.length; i += 9) { const sp = project(d.edge.slice(i, i + 3)); if (sp && (!top || sp[1] < top[1])) top = sp; }
@@ -1151,15 +1159,17 @@
           }
         }
         const g = d.gc && project(d.gc);
-        if (g) front.push(`<circle cx="${g[0].toFixed(1)}" cy="${g[1].toFixed(1)}" r="2.5" opacity="${fade.toFixed(2)}"/><text class="ref" x="${(g[0] - 5).toFixed(1)}" y="${(g[1] + 15).toFixed(1)}" text-anchor="end" opacity="${fade.toFixed(2)}">Galactic Centre</text>`);
+        if (g && labelOn("gc")) front.push(`<circle cx="${g[0].toFixed(1)}" cy="${g[1].toFixed(1)}" r="2.5" opacity="${fade.toFixed(2)}"/><text class="ref" x="${(g[0] - 5).toFixed(1)}" y="${(g[1] + 15).toFixed(1)}" text-anchor="end" opacity="${fade.toFixed(2)}">Galactic Centre</text>`);
       }
       // Proxima, while its distance is a sensible size on screen
       const pr = radiusOf(PROXIMA.L), pp = pr === null ? null : project(placeAt(PROXIMA.dir, PROXIMA.L));
-      if (pp) {
+      if (pp && labelOn("proxima")) {
         const Rs = pr * k, fade = Math.min(1, Math.max(0, Math.log2(Rs / 12)), Math.max(0, Math.log2((3 * H_) / Rs)));
-        const wd = 6.4 * PROXIMA.name.length + 8, left = pp[0] + wd > W_ - 4;
+        const wd = 6.4 * LBL * PROXIMA.name.length + 8, left = pp[0] + wd > W_ - 4, above = left && pp[0] - wd < 4;
+        // to its right, else its left, else (a narrow frame) centred above it, kept on screen
+        const tx = above ? Math.max(4 + wd / 2, Math.min(W_ - 4 - wd / 2, pp[0])) : pp[0] + (left ? -6 : 6), ty = above ? pp[1] - 10 : pp[1] + 4;
         if (fade > 0 && pp[0] > 0 && pp[0] < W_ && pp[1] > 0 && pp[1] < H_)
-          front.push(`<circle cx="${pp[0].toFixed(1)}" cy="${pp[1].toFixed(1)}" r="2.5" opacity="${fade.toFixed(2)}"/><text class="ref" x="${(pp[0] + (left ? -6 : 6)).toFixed(1)}" y="${(pp[1] + 4).toFixed(1)}"${left ? ' text-anchor="end"' : ""} opacity="${fade.toFixed(2)}">${PROXIMA.name}</text>`);
+          front.push(`<circle cx="${pp[0].toFixed(1)}" cy="${pp[1].toFixed(1)}" r="2.5" opacity="${fade.toFixed(2)}"/><text class="ref" x="${tx.toFixed(1)}" y="${ty.toFixed(1)}"${above ? ' text-anchor="middle"' : left ? ' text-anchor="end"' : ""} opacity="${fade.toFixed(2)}">${PROXIMA.name}</text>`);
       }
       gl.disable(gl.BLEND);
       gl.bindVertexArray(pointVAO);
@@ -1206,10 +1216,21 @@
     // behind it. The camera sits behind Earth along the view direction, far
     // enough that Earth spans EARTH_INSIDE radians in radius
     const EARTH_INSIDE = 0.16;
+    // a camera orbit about Earth's axis (videos, view.orbit in radians): Earth and the sky
+    // turn together on screen, and the camera keeps its latitude, so the poles stay put.
+    // The north celestial pole in cloud coordinates (galactic l 122.93°, b 27.13°)
+    const NCP = [-0.48372, 0.45599, -0.74698];
+    const orbitBy = (a) => (v) => {
+      if (!a) return v;
+      const c = Math.cos(a), s = Math.sin(a), k = NCP, d = k[0] * v[0] + k[1] * v[1] + k[2] * v[2];
+      const x = [k[1] * v[2] - k[2] * v[1], k[2] * v[0] - k[0] * v[2], k[0] * v[1] - k[1] * v[0]];
+      return v.map((vi, i) => vi * c + x[i] * s + k[i] * d * (1 - c));
+    };
     function insideViewProj(w, h) {
       const cp = Math.cos(view.pitch), sp = Math.sin(view.pitch), cy = Math.cos(view.yaw), sy = Math.sin(view.yaw);
       const turn = ([x, y, z]) => { const y1 = cp * y - sp * z, z1 = sp * y + cp * z; return [cy * x + sy * z1, y1, -sy * x + cy * z1]; };
-      const f = turn([0, 0, -1]), u = turn([0, 1, 0]), r = turn([1, 0, 0]), D = 1 / Math.sin(EARTH_INSIDE);
+      const orb = orbitBy(view.orbit);
+      const f = orb(turn([0, 0, -1])), u = orb(turn([0, 1, 0])), r = orb(turn([1, 0, 0])), D = 1 / Math.sin(EARTH_INSIDE);
       const eye = f.map((x) => -x * D), dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
       const V = [r[0], u[0], -f[0], 0, r[1], u[1], -f[1], 0, r[2], u[2], -f[2], 0, -dot(r, eye), -dot(u, eye), dot(f, eye), 1];
       const t = 1 / view.zoom, a = w / h, n = 0.05, fa = 100;
@@ -1221,11 +1242,13 @@
     const CAM = { r: [1, 0, 0], u: [0, 1, 0], f: [0, 0, -1] };
     function cloudViewProj(w, h) {
       const dist = 3.2 / view.zoom, cp = Math.cos(view.pitch);
-      const eye = [dist * cp * Math.sin(view.yaw), dist * Math.sin(view.pitch), dist * cp * Math.cos(view.yaw)];
-      const f = eye.map((x) => -x / dist);
-      const sx = [-f[2], 0, f[0]]; // forward × up (0, 1, 0)
-      const sl = Math.hypot(...sx); sx.forEach((_, i) => (sx[i] /= sl));
-      const u = [sx[1] * f[2] - sx[2] * f[1], sx[2] * f[0] - sx[0] * f[2], sx[0] * f[1] - sx[1] * f[0]];
+      const orb = orbitBy(view.orbit);
+      const eye0 = [dist * cp * Math.sin(view.yaw), dist * Math.sin(view.pitch), dist * cp * Math.cos(view.yaw)];
+      const f0 = eye0.map((x) => -x / dist);
+      const sx0 = [-f0[2], 0, f0[0]]; // forward × up (0, 1, 0)
+      const sl = Math.hypot(...sx0); sx0.forEach((_, i) => (sx0[i] /= sl));
+      const u0 = [sx0[1] * f0[2] - sx0[2] * f0[1], sx0[2] * f0[0] - sx0[0] * f0[2], sx0[0] * f0[1] - sx0[1] * f0[0]];
+      const eye = orb(eye0), f = orb(f0), sx = orb(sx0), u = orb(u0);
       CAM.r = sx; CAM.u = u; CAM.f = f;
       const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
       const V = [sx[0], u[0], -f[0], 0, sx[1], u[1], -f[1], 0, sx[2], u[2], -f[2], 0, -dot(sx, eye), -dot(u, eye), dot(f, eye), 1];
@@ -1276,12 +1299,12 @@
       fadeA = 1;
       renderMode(mode, w, h, dpr);
       if (!fade) return;
-      const t = (performance.now() - fade.t0) / FADE_MS;
+      const t = fade.a != null ? 1 - fade.a : (performance.now() - fade.t0) / FADE_MS;   // (a video sets the alpha itself)
       if (t >= 1) { fade = null; return; }
       // the view being left, on top, fading out
       const keep = [view, spinA];
       [view, spinA] = [fade.view, fade.spinA];
-      fadeA = 1 - t * t * (3 - 2 * t);
+      fadeA = fade.a ?? 1 - t * t * (3 - 2 * t);
       renderMode(fade.mode, w, h, dpr);
       [view, spinA] = keep;
       fadeA = 1;
@@ -1355,6 +1378,7 @@
       gl.uniform2f(U("res"), w, h);
       gl.uniform1i(U("mode"), mode);
       gl.uniform1f(U("yaw"), view.yaw); gl.uniform1f(U("pitch"), view.pitch); gl.uniform1f(U("zoom"), view.zoom);
+      gl.uniform1f(U("orbit"), view.orbit ?? 0);
       gl.uniform1f(U("aspect"), aspect);
       gl.uniform1f(U("panX"), view.panX ?? 0); gl.uniform1f(U("panY"), view.panY ?? 0);
       // mip level from texels per screen pixel, so nothing shimmers
@@ -1379,7 +1403,7 @@
       const dt = (now - last) / 1000; last = now;
       if (spin && mode === 0) { view.yaw += dt * 0.08; draw(); }
       if (spin && mode === 3) { spinA += dt * 0.06; draw(); }
-      else if (fade) draw();
+      else if (fade && fade.a == null) draw();
       if (glide) {
         const t = Math.min(1, (now - glide.t0) / glide.ms), e = t * t * (3 - 2 * t);
         lz = glide.from + (glide.to - glide.from) * e;
@@ -1408,8 +1432,16 @@
     // audio time, so a render can step frame by frame. Every field is optional:
     //   view "inside" | "cloud" · c, s (selector, in bands of the sky's bar)
     //   yaw, pitch, zoom (camera) · spinA (the Cloud's turn) · gmst (Earth's turn, rad)
+    //   orbit (rad): the camera turned about Earth's axis, Earth and the sky together
+    //   ezoom: one camera for Inside and the Cloud (Earth's size as Inside's zoom; with
+    //   it, yaw/pitch/orbit mean the same in both, so Earth stays put across a switch)
+    //   from, fromA: another view drawn over this one at that alpha (a cross-fade)
+    //   labels: the Cloud's names to show (null: all): units moon sun oort milkyway gc proxima
     //   radius "custom" | "log" | "linear" · unit (log10 ly) · lz (log10 ly at radius 1)
     //   exposure, contrast · bright "lin" | "log" · lift · rings (bool)
+    const camFor = (m) => m === 3
+      ? { yaw: vcam.yaw, pitch: -vcam.pitch, orbit: vcam.orbit, zoom: (3.2 * Math.tan(20 * Math.PI / 180) * Math.tan(EARTH_INSIDE)) / (earthR() * vcam.ezoom) }
+      : { yaw: vcam.yaw, pitch: vcam.pitch, orbit: vcam.orbit, zoom: vcam.ezoom };
     function setVideo(st) {
       if (session.signal.aborted) return false;
       if (st.view != null) {
@@ -1419,7 +1451,15 @@
       if (st.radius != null && R_NAMES.indexOf(st.radius) >= 0 && R_NAMES.indexOf(st.radius) !== rmode) setRadius(R_NAMES.indexOf(st.radius));
       if (st.unit != null) { if (st.unit < +unit.min) unit.min = st.unit; unit.value = st.unit; }
       if (st.lz != null) { lz = Math.max(LZ_MIN, Math.min(LZ_MAX, st.lz)); glide = null; }
-      for (const k of ["yaw", "pitch", "zoom"]) if (st[k] != null) view[k] = st[k];
+      for (const k of ["yaw", "pitch", "zoom", "orbit"]) if (st[k] != null) view[k] = st[k];
+      // one camera for both Earth views: ezoom is Earth's size as Inside's field of view
+      // (Cloud: the zoom that shows Earth as big), and the Cloud's pitch is turned to match
+      if (st.ezoom != null) vcam = { yaw: st.yaw ?? view.yaw, pitch: st.pitch ?? 0, ezoom: st.ezoom, orbit: st.orbit ?? 0 };
+      if (vcam) view = camFor(mode);
+      if (st.labels !== undefined) videoLabels = st.labels;
+      // a cross-fade from another view (st.from) over this one, at alpha st.fromA
+      const fm = st.from && VIEW_ID[st.from[0].toUpperCase() + st.from.slice(1)];
+      fade = fm != null && fm !== mode && st.fromA > 0 && vcam ? { mode: fm, view: camFor(fm), spinA, a: Math.min(1, st.fromA) } : null;
       if (st.spinA != null) spinA = st.spinA;
       if (st.gmst != null) GMST = st.gmst;
       if (st.exposure != null) exposure.value = st.exposure;
@@ -1431,7 +1471,15 @@
       showScale(); draw();
       return true;
     }
-    window.spectrumVideo = { set: setVideo, target };
+    // what each channel shows right now (for checking a video's words against its pictures):
+    // the bands under red, green and blue, with their shares, for the sky and for Earth
+    const mix = () => [["red", c - s], ["green", c], ["blue", c + s]].map(([ch, p]) => {
+      const sky = weights(p).map((x, i) => [B[i].name, +x.toFixed(2)]).filter(([, x]) => x > 0.05);
+      const ob = OBJ[0], earth = !ob ? [] : objWeights(ob.spans ??= ob.meta.bands.map(barSpan), p, ob.meta.bands.map((b) => (b.id === "lights" ? 1 : 0)))
+        .map((x, i) => [ob.meta.bands[i].name, +x.toFixed(2)]).filter(([n, x]) => x > 0.05 && !/Night/.test(n));
+      return { ch, sky, earth };
+    });
+    window.spectrumVideo = { set: setVideo, target, mix };
     window.__stillDone = true;
   }
 

@@ -198,7 +198,14 @@ const CM = "https://gibs.earthdata.nasa.gov/colormaps/v1.3";
 const FILLED = ` (gaps from ${dayOf(-3)} to ${dayOf(3)})`;
 const MODIS = `MODIS Terra corrected reflectance, ${DATE}${FILLED}`;
 const t31Read = (path) => unpalette(path, `${CM}/MODIS_Brightness_Temp_Band31.xml`, "t31-colormap.xml");
-const uvaiRead = (path) => unpalette(path, `${CM}/OMI_UV_Aerosol_Index.xml`, "uvai-colormap.xml");
+// OMI's map ends at about 78°N in a ring of index 3–4.5 all the way round, with a flat
+// 0.5 fill north of it: the edge of its coverage, not aerosols. Left empty (inpainted)
+const UVAI_NORTH = 78;
+const uvaiRead = async (path) => {
+  const v = await unpalette(path, `${CM}/OMI_UV_Aerosol_Index.xml`, "uvai-colormap.xml");
+  for (let y = 0; y < H && 90 - ((y + 0.5) / H) * 180 > UVAI_NORTH; y++) v.fill(NaN, y * W, (y + 1) * W);
+  return v;
+};
 const amsuRead = (path) => unpalette(path, `${CM}/AMSU_Brightness_Temp.xml`, "amsu-colormap.xml");
 const smapRead = (path) => unpalette(path, `${CM}/SMAP_Brightness_Temp.xml`, "smap-colormap.xml");
 const AMSU = (ch) => `AMSUA_NOAA15_Brightness_Temp_Channel_${ch}`;

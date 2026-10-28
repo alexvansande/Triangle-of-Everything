@@ -389,7 +389,8 @@ export async function startNarration(app) {
     for (const p of pins) o = Math.max(o, smooth((t - p.t0) / 0.4) * (1 - smooth((t - p.t1) / 0.9)));
     // an object's guides point at the rulers, so the rulers come up with them
     for (const h of guided) o = Math.max(o, smooth((t - h.t0) / 0.4) * (1 - smooth((t - h.t1) / 0.9)));
-    return o * (1 - clamp01(classicOpacity(t) * 2));
+    // (and never over the spectrum explorer: it has no chart axes)
+    return o * (1 - clamp01(classicOpacity(t) * 2)) * (1 - (specFrame ? specFrame(t).show : 0));
   }
 
   // ---------- DOM ----------
@@ -1653,11 +1654,15 @@ export async function startNarration(app) {
   //   show: true | false (fades over `fade` s, default 1.2) · view "inside" | "cloud"
   //   radius "custom" | "log" | "linear" · bright "lin" | "log" · rings: switch at the cue
   //   c, s (the RGB selector, in bands of the sky's bar: natural colour is c 22, s 1),
-  //   yaw, pitch, zoom (Inside: zoom is the field of view, smaller is closer;
-  //   Cloud: bigger is closer), spinA, gmst (Earth's turn), unit, lz, exposure,
-  //   contrast, lift: glide there from wherever they are, over `dur` s (default 2.5)
-  //   spin: a turn rate (rad/s) that never stops while it's on: Earth turning on its
-  //   axis in Inside (added to gmst), the whole Cloud turning (added to spinA)
+  //   yaw, pitch, orbit, ezoom: one camera for Inside and the Cloud, so Earth stays put
+  //   when the view switches (ezoom is Earth's size as Inside's field of view, smaller
+  //   is closer; orbit turns the camera about Earth's axis, Earth and the sky together),
+  //   gmst (Earth's turn), unit, lz, exposure, contrast, lift: glide there from wherever
+  //   they are, over `dur` s (default 2.5)
+  //   spin: a turn rate (rad/s) that never stops while it's on, added to the orbit:
+  //   Earth stays still and the camera goes round it (the author's note, 2026-10-27)
+  //   labels: the Cloud's names to show (a switch: ["moon"], [] for none)
+  //   xfade: with a view switch, the old view fades out over it over this many seconds
   //   line: 0–1 (default 1), the Compton line drawn over the explorer as its spectrum
   //   bar (the author's note, 2026-10-27): the line where the chart's camera puts it,
   //   the colours we see on it, the selector's red, green and blue ranges glowing on
@@ -1665,8 +1670,8 @@ export async function startNarration(app) {
   const SPEC_KEYS = cues.filter(c => c.explorer);
   const SPEC = SCENE.explorer || SPEC_KEYS.length ? { ...(SCENE.explorer || {}) } : null;
   let specFrame = null, specLastT = NaN;
-  const SPEC_SWITCH = ["view", "radius", "bright", "rings"];
-  const SPEC_LOG = new Set(["zoom"]);   // glides evenly in powers of ten
+  const SPEC_SWITCH = ["view", "radius", "bright", "rings", "labels"];
+  const SPEC_LOG = new Set(["zoom", "ezoom"]);   // glides evenly in powers of ten
   const specSegs = {}, specSwitch = {};
   if (SPEC) {
     const init = { show: false, spin: 0, line: 1, ...SPEC };
@@ -1682,8 +1687,8 @@ export async function startNarration(app) {
       return v;
     };
     for (const c of SPEC_KEYS) for (const [f, to] of Object.entries(c.explorer)) {
-      if (f === "dur" || f === "fade") continue;
-      if (SPEC_SWITCH.includes(f)) { (specSwitch[f] ||= []).push({ t: c.time, v: to }); continue; }
+      if (f === "dur" || f === "fade" || f === "xfade") continue;
+      if (SPEC_SWITCH.includes(f)) { (specSwitch[f] ||= []).push({ t: c.time, v: to, xfade: c.explorer.xfade }); continue; }
       const dur = f === "show" ? (c.explorer.fade ?? 1.2) : (c.explorer.dur ?? 2.5);
       const from = at(f, c.time) ?? (f === "zoom" ? 1 : 0);
       (specSegs[f] ||= []).push({ t0: c.time, dur, from: f === "show" ? +from : from, to: f === "show" ? +to : to });
@@ -1695,13 +1700,20 @@ export async function startNarration(app) {
     specFrame = (t) => {
       const st = {};
       for (const f of SPEC_SWITCH) { let v = init[f]; for (const k of specSwitch[f] || []) if (k.t <= t) v = k.v; if (v !== undefined) st[f] = v; }
+      // a cross-fade out of the view before the last switch
+      let prev = init.view ?? "inside";
+      for (const k of specSwitch.view || []) {
+        if (k.t > t) break;
+        if (k.xfade && t < k.t + k.xfade) { st.from = prev; st.fromA = 1 - smooth((t - k.t) / k.xfade); }
+        prev = k.v;
+      }
       for (const f of new Set([...Object.keys(init), ...Object.keys(specSegs)])) {
         if (SPEC_SWITCH.includes(f) || f === "spin" || f === "show" || f === "line") continue;
         const v = at(f, t);
         if (v !== undefined) st[f] = v;
       }
       const a = turned(t);
-      if (a) { if ((st.view ?? "inside") === "cloud") st.spinA = (st.spinA ?? 0) + a; else st.gmst = (st.gmst ?? 0) + a; }
+      if (a) st.orbit = (st.orbit ?? 0) + a;
       return { show: smooth(at("show", t)), line: clamp01(at("line", t)), st };
     };
   }

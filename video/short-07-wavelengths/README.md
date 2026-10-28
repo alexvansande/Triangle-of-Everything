@@ -1,6 +1,6 @@
 # short-07-wavelengths
 
-Video 7, wavelengths (4:18, played as recorded with no speed-up), cut from rec42 of 2026-10-27. It plays as
+Video 7, wavelengths (4:16, played as recorded with no speed-up), cut from rec42 of 2026-10-27. It plays as
 `?narrate=short-07-wavelengths`, with the scene in `src/narration-scenes/short-07-wavelengths.js`;
 the plan is `video/plans/wavelengths.md`. Most of it runs in the spectrum explorer
 (`public/spectrum/`, `?video=1`) behind the chart's Compton line (the scene's `explorer` cues).

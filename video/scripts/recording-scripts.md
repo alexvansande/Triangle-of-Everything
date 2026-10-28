@@ -380,3 +380,41 @@ Only if a line is re-recorded; the cut works as it is. Lightly edited from the t
 - "There's no full map of the sky in ultraviolet, our air blocks it, so you have to go to space to see it" → "…our air blocks it, and no space telescope has covered the whole sky yet" (the air isn't why there's no full map).
 - "Further up, X-rays and Earth go dark" → "Further up, in X-rays, Earth goes dark"; "or as we see heat" → "where we see heat".
 - "X-rays and gamma rays from the most violent things" → "…come from…".
+
+### What you see (lines to say over the pictures, if you re-record)
+Checked frame by frame on 2026-10-27 against the explorer's own band list: in each beat, which
+bands make the red, green and blue on screen. Say them in your own words; each is optional.
+- **Visible light (1:04):** "What you see here is Earth in the light our eyes see, and behind
+  it the Milky Way as the Gaia telescope sees it."
+- **Infrared as red (1:24–1:33):** "What you see here in red on Earth are plants: forests and
+  farmland, bright in near-infrared. That's the Amazon. Red light now shows as green, and green as
+  blue." (The sky's red is near-infrared starlight, 1.25 µm.)
+- **The bee's shift (1:36–2:02):** "What you see here in purple on Earth is smoke and dust:
+  they absorb ultraviolet. And the sky goes yellow because its blue is empty: there's no full
+  ultraviolet map of the sky." (Earth's ultraviolet is OMI's aerosol index, a measurement, not a
+  photo.)
+- **X-rays (2:02–2:17):** "Earth is black: no X-rays from it here. The bright spots in the sky
+  are X-ray sources, hot gas and stars eating their partners: softer X-rays in red, harder in
+  blue."
+- **Gamma rays (2:17–2:32):** "That glowing band is the plane of our galaxy, where cosmic rays
+  hit gas; the bright dots are pulsars and distant galaxies with feeding black holes." (Red is
+  the hardest X-rays; green and blue are gamma rays.)
+- **Heat (2:32–2:41):** "What you see bright on Earth is warm ground; the dark swirls are cold
+  cloud tops." (Thermal infrared at 11 µm; the sky is the WISE mid-infrared, warm dust along the
+  galaxy.)
+- **Through the dust (2:42–2:48):** "That bright band behind Earth is the centre of our galaxy,
+  seen through the dust in near-infrared." (The camera now has the Galactic Centre behind Earth
+  at this line.)
+- **Cold dust (2:49–2:55):** "The band is cold dust, the clouds where stars are born." (Planck
+  857 GHz and AKARI 140–160 µm.)
+- **Microwaves (2:56–3:08):** "On Earth, what you see in blue is rain, ice clouds and sea ice;
+  red is the glow of the air's oxygen. The mottled sky behind is the afterglow of the Big Bang,
+  with the galaxy across it." (Water vapour's own band, 23.8 GHz, is in the radio beat, not
+  here: say "rain and ice" rather than "vapour" over this frame.)
+- **The log scale (3:13–3:39):** "This ring is the Moon's orbit… this one the Sun's path… that
+  dot is Proxima Centauri… this disc is our galaxy… and the shell around everything is the edge
+  of the observable universe." (Each name shows only while it's said.)
+- **Again, by distance (3:42–4:07):** "Visible light: the white shell close in, stars in our
+  neighbourhood. Infrared, the blue shell, further out. Radio, in green, reaches out to distant
+  galaxies. Microwaves sit right at the edge. And X-rays and gamma rays come from far galaxies
+  with feeding black holes."

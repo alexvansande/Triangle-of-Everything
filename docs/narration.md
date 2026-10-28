@@ -301,12 +301,19 @@ Cue fields
   explorer the spectrum explorer (public/spectrum/, ?video=1) over the chart, set
            as a pure function of t (the scene's `explorer` is its state at t = 0):
              show: true|false (fade s, default 1.2); view "inside"|"cloud",
-             radius "custom"|"log"|"linear", bright "lin"|"log", rings: switch
-             at the cue; c, s (RGB selector, in bands of the sky's bar: natural
-             colour c 22, s 1), yaw, pitch, zoom, spinA, gmst, unit, lz, exposure,
-             contrast, lift: glide over dur s (default 2.5); spin: rad/s, turns
-             Earth (Inside) or the Cloud for as long as it's on
-           (draft-06-wavelengths is the worked example)
+             radius "custom"|"log"|"linear", bright "lin"|"log", rings, labels
+             (the Cloud's names to show: ["moon"], [] for none): switch at the
+             cue, and xfade: s with a view switch cross-fades from the old view;
+             c, s (RGB selector, in bands of the sky's bar: natural colour c 22,
+             s 1), yaw, pitch, orbit, ezoom (one camera for Inside and the Cloud:
+             ezoom is Earth's size as Inside's field of view, orbit turns the
+             camera about Earth's axis, so Earth stays put across a switch),
+             gmst, unit, lz, exposure, contrast, lift: glide over dur s (default
+             2.5); spin: rad/s added to the orbit, the camera going round a still
+             Earth, Earth and sky turning together
+           (short-07-wavelengths is the worked example; in the explorer page,
+           spectrumVideo.mix() lists the bands under each channel, to check the
+           words against the picture)
   header   false: the classic figure's title block fades out from the cue; true
            fades it in (hidden from the start if the first header cue is true)
   drift    slow zoom-in while holding, as a fraction (default 0.05)

@@ -201,3 +201,32 @@ since visible light is a sliver of the line to scale, and wider for gamma rays a
   hitting ordinary gas.
 - **Wording:** "light-second", "light-minutes", "light-years" (hyphenated in print);
   "Moon's orbit".
+
+### Second pass (the author's notes of 2026-10-27, evening)
+
+- **Fillers and false starts:** re-transcribed clip by clip. Two false starts were left in and
+  are now cut: a stray "of" before "instead of size" (raw 96.24–96.64) and a cut-off "cold—"
+  before "cold clouds" (raw 299.14–299.6). "Infrared, or, as we see, heat" stays (phrasing, not
+  a filler). The cut is 4:16. The captions keep their corrections.
+- **The north pole glowing in X-rays was not aurorae.** Earth has no X-ray band in the explorer.
+  The selector's red channel at c = 25.5 sat half on the ultraviolet slot, and OMI's aerosol-index
+  map ends at about 78°N in a ring of index 3–4.5 all the way round (the edge of its coverage), with
+  a flat fill north of it. The build now leaves OMI north of 78°N empty (inpainted, like any gap:
+  `scripts/build-earth-spectrum.mjs`), and the X-ray beat uses a narrower selector (s = 0.5) so all
+  three channels are X-rays and Earth is truly dark. Real Earth does glow faintly in X-rays
+  (aurorae), but no global map of it exists.
+- **Frame check against the words** (every beat rendered and read against the explorer's band
+  mix; the "what you see" lines are in `video/scripts/recording-scripts.md`):
+  - "In ultraviolet, Earth shows its smoke and dust": the selector had moved on to c = 23.6, where
+    the sky's blue was 62 % X-rays while the words say there's no UV sky map. It now holds at the
+    bee's shift (blue = Earth's UV aerosol index and the sky's empty UV slot).
+  - "Infrared goes straight through the dust that hides the center of our galaxy": the camera
+    was looking at the anticentre. Earth's turn is re-phased (its picture is all daylight, so the
+    turn is free): the Galactic Centre is behind Earth at that line, the galactic plane behind it
+    for gamma rays and cold dust, and the Amazon still faces us at "the forests light up".
+  - "Earth shows its water: vapor, rain, sea ice": the microwave beat shows rain, ice clouds and
+    sea ice (GMI 89–166 GHz) and the air's oxygen (57 GHz); water vapour's band (23.8 GHz) only
+    comes up in the radio beat. Imprecise, not wrong; a re-wording is in the script.
+  - Everything else matches: natural colour; plants red in near-infrared; Earth black in X-rays
+    and gamma rays; hot gas and X-ray sources; the galactic plane in gamma rays; warm ground and
+    cold cloud tops at 11 µm; cold dust; the CMB; each distance named while it's said.
