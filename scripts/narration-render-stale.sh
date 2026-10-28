@@ -43,7 +43,7 @@ for t in $takes; do
     content public/hopf public/narration/photos)
   queued=$(grep -qx "$t" video/render-queue.txt 2>/dev/null && echo 1)
   if [ -z "$queued" ] && [ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${changed:-0}" ]; then
-    echo "= $t: render up to date"
+    echo "= $t: render up to date"; [ -n "$DRY" ] && continue
   elif [ -n "$DRY" ]; then
     echo "stale $t"; continue
   else
