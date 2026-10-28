@@ -3,6 +3,9 @@
 # copy and a dated copy for iCloud. Meant to run unattended (overnight):
 #   caffeinate -i scripts/narration-render-stale.sh [take …]   # default: every public/narration/short-*
 # Needs the dev server on :5184 (URL= to change) and Google Chrome (CHROME=); WORKERS= Chrome workers (8).
+# DRY=1: only list the out-of-date takes ("stale <take>"), render nothing.
+# A take listed in video/render-queue.txt renders even if it looks up to date, and comes off
+# the list once it has.
 #
 # A take is stale when its render (output/videos/<take>.mp4, never in git) is older than the
 # last commit touching its audio, captions or scene, or the code and pictures every short
@@ -35,13 +38,18 @@ for t in $takes; do
   out=output/videos/$t.mp4
   changed=$(git log -1 --format=%ct -- "public/narration/$t" "src/narration-scenes/$t.js" src ':!src/narration-scenes' \
     content public/hopf public/narration/photos)
-  if [ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${changed:-0}" ]; then
+  queued=$(grep -qx "$t" video/render-queue.txt 2>/dev/null && echo 1)
+  if [ -z "$queued" ] && [ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${changed:-0}" ]; then
     echo "= $t: render up to date"
+  elif [ -n "$DRY" ]; then
+    echo "stale $t"; continue
   else
     echo "=== $t $(date +%H:%M:%S)"
     if node scripts/narration-render.mjs "$t" --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" \
         --out "output/videos/$t.new.mp4" > "output/videos/$t.log" 2>&1; then
       mv "output/videos/$t.new.mp4" "$out"
+      # off the render queue (video/render-queue.txt): the publish commits it with the web copy
+      [ -n "$queued" ] && sed -i '' "/^$t\$/d" video/render-queue.txt
     else
       echo "! $t: render failed (output/videos/$t.log)"; continue
     fi

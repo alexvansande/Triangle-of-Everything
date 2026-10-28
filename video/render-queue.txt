@@ -1,0 +1,5 @@
+# Videos waiting for a re-render, one take per line (e.g. short-04-black-holes).
+# Every session that changes a video adds its take here in the same commit (CLAUDE.md).
+# The nightly render (scripts/narration-nightly.sh, 23:50) renders every take listed here,
+# plus any whose render is older than its last change, and removes each line once its
+# rendered video is published. Lines starting with # are notes.

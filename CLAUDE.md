@@ -17,6 +17,12 @@
   no longer fits (one version holds at most 512 files; the build has more). Don't touch the
   rendered videos (`video/web/`, the preview's "Rendered video" switch): they're rendered in a
   local session.
+- **Queue every changed video for a re-render** (the author's rule, 2026-10-28): when you change a
+  video (its audio, captions, scene, mix, or the chart code or pictures it shows), add its take
+  name (e.g. `short-04-black-holes`) on its own line to `video/render-queue.txt` in the same
+  commit, and push it to `main`. The nightly render (23:50, `scripts/narration-nightly.sh`)
+  renders the queued takes, publishes them to the videos page's "Rendered video" and clears them.
+  A change to code every video shares (`src/narration.js`, the map) queues all of them.
 - **Scripts to record**: `video/scripts/recording-scripts.md` has every video's narration as cut
   now and the lightly edited script to re-record (with what changed). Keep it up to date when a
   take is replaced or the author changes a line.

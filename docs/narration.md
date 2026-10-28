@@ -221,6 +221,11 @@ per second per worker on a 4-core box, so a 13-minute take needs roughly an hour
   (the videos page's "Rendered video" switch picks it up on deploy). A merge that conflicts is
   undone, not forced. Run it as `caffeinate -i nice -n 10 scripts/narration-overnight.sh`, from a
   session that stays open, with the "shorts" dev server (:5184) up.
+- **Every night at 23:50** (`scripts/narration-nightly.sh`, a launchd agent installed with
+  `scripts/launchd/install.sh`): it merges main, renders every take listed in
+  `video/render-queue.txt` or out of date, publishes them, and clears the queue. Sessions add a
+  take to the queue whenever they change it (CLAUDE.md). With nothing to render for 14 days it
+  uninstalls itself; `scripts/launchd/install.sh` puts it back. Log: `output/videos/nightly.log`.
 - Pace (2026-10-27, M1 Max): about one 5-minute video per hour or two with motion blur. The
   author releases about one video a week, so one or two renders a night is plenty; render in
   number order.
