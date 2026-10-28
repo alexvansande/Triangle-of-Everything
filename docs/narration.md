@@ -365,15 +365,18 @@ Cue fields
   explorer the spectrum explorer (public/spectrum/, ?video=1) over the chart, set
            as a pure function of t (the scene's `explorer` is its state at t = 0):
              show: true|false (fade s, default 1.2); view "inside"|"cloud",
-             radius "custom"|"log"|"linear", bright "lin"|"log", rings, labels
+             radius "custom"|"log"|"linear", bright "lin"|"log", rings (or
+             "labelled": only the rings and discs named in labels), labels
              ({ "ring or marker name": "shown as" }: only those labels, renamed;
-             "edge": a ring at the observable universe's edge): switch at the
+             "edge": a ring at the observable universe's edge, "Earth": one on
+             Earth's surface): switch at the
              cue, and xfade: s with a view switch cross-fades from the old view;
              c, s (RGB selector, in bands of the sky's bar: natural colour c 22,
              s 1), yaw, pitch, orbit, ezoom (one camera for Inside and the Cloud:
              ezoom is Earth's size as Inside's field of view, orbit turns the
              camera about Earth's axis, so Earth stays put across a switch),
-             gmst, unit, lz, exposure, contrast, lift, guides (0–1: the rings,
+             gmst, unit, lz, exposure, contrast, lift, aurora (0–1: Earth's
+             auroral X-ray ovals, a model), guides (0–1: the rings,
              discs and names faded so the dots show): glide over dur s (default
              2.5); spin: rad/s, added to the orbit with ezoom (the camera going
              round a still Earth); without, turns Earth (Inside) or the Cloud
@@ -422,7 +425,7 @@ Cue fields
                along it the way the chart's dots go. Use it whenever the narration
                talks about what a path shows (a star's life, a decay, what a thing is
                made of)
-             { text: "Dark matter?", at: [r, m], color? } — a big free-standing word,
+             { text: "Dark matter?", at: [r, m], color?, size? } — a big free-standing word ("\n" stacks lines),
                a hub for arrows to point out from
              { key: [["microwave", "#ff6b5e"], …], title? } — a colour key near the
                top, for a false-colour view (the explorer's RGB)

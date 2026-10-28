@@ -485,7 +485,8 @@ bands make the red, green and blue on screen. Say them in your own words; each i
   they absorb ultraviolet. And the sky goes yellow because its blue is empty: there's no full
   ultraviolet map of the sky." (Earth's ultraviolet is OMI's aerosol index, a measurement, not a
   photo.)
-- **X-rays (2:02–2:17):** "Earth is black: no X-rays from it here. The bright spots in the sky
+- **X-rays (2:02–2:17):** "Earth is black, but for the faint glow of the aurorae round the north
+  pole (a model: no X-ray map of Earth exists). The bright spots in the sky
   are X-ray sources, hot gas and stars eating their partners: softer X-rays in red, harder in
   blue."
 - **Gamma rays (2:17–2:32):** "That glowing band is the plane of our galaxy, where cosmic rays
@@ -505,7 +506,9 @@ bands make the red, green and blue on screen. Say them in your own words; each i
   here: say "rain and ice" rather than "vapour" over this frame.)
 - **The log scale (3:13–3:39):** "This ring is the Moon's orbit… this one the Sun's path… that
   dot is Proxima Centauri… this disc is our galaxy… and the shell around everything is the edge
-  of the observable universe." (Each name shows only while it's said.)
+  of the observable universe." (Each name shows only while it's said, up to "zoom out further";
+  from there only the labelled circles, Earth, the nearby stars, the Milky Way and the observable
+  universe, which stay to the end: author, 2026-10-28.)
 - **Again, by distance (3:42–4:07):** "Visible light: the white shell close in, stars in our
   neighbourhood. Infrared, the blue shell, further out. Radio, in green, reaches out to distant
   galaxies. Microwaves sit right at the edge. And X-rays and gamma rays come from far galaxies

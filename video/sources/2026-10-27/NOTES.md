@@ -590,6 +590,13 @@ since visible light is a sliver of the line to scale, and wider for gamma rays a
   `scripts/build-earth-spectrum.mjs`), and the X-ray beat uses a narrower selector (s = 0.5) so all
   three channels are X-rays and Earth is truly dark. Real Earth does glow faintly in X-rays
   (aurorae), but no global map of it exists.
+  - 2026-10-28: the author missed that glow ("it used to show something in the northern sector
+    circle, which I assumed were the auroras; now there's nothing"). It's back as what he took it
+    for: the explorer draws modelled auroral X-ray ovals (bremsstrahlung from auroral electrons
+    ~100 km up, as PIXIE on Polar imaged them; ~70° magnetic latitude round the geomagnetic poles,
+    brighter edge-on at the limb), turned on by the scene's `aurora: 1` at "Further up" and off at
+    "In gamma rays". The words ("Earth goes dark") still hold: only a thin arc at the north limb
+    glows.
 - **Frame check against the words** (every beat rendered and read against the explorer's band
   mix; the "what you see" lines are in `video/scripts/recording-scripts.md`):
   - "In ultraviolet, Earth shows its smoke and dust": the selector had moved on to c = 23.6, where
