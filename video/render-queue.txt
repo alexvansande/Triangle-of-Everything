@@ -12,3 +12,5 @@ short-04-black-holes
 # short-04-black-holes changed: 3:58-5:24
 short-07-wavelengths
 # short-07-wavelengths changed: 2:01-2:21, 3:30-4:17
+short-05-hubble-sphere
+# short-05-hubble-sphere changed: 0:00-6:15

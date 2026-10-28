@@ -69,6 +69,11 @@ const LINES = {
   chandrasekhar: { pts: REFERENCE_LINES.find(l => l.label.startsWith("Chandrasekhar")).points.map(p => [p.logR, p.logM]), color: "#90caf9" },
   tov:           { pts: REFERENCE_LINES.find(l => l.label.startsWith("TOV")).points.map(p => [p.logR, p.logM]), color: "#ff8a80" },
 };
+// the cosmic event horizon (16.7 billion ly comoving today), drawn like the Hubble line a
+// little to its right, up to where a sphere of the universe's mean density that big sits
+// (drawn top down, so its name sits on its right, clear of the Hubble line)
+const EH_LOG_R = Math.log10(16.7e9 * 9.4607e17);
+LINES.eventhorizon = { pts: [[EH_LOG_R, densityLineM(EH_LOG_R, -29.05)], [EH_LOG_R, comptonM(EH_LOG_R)]], color: "#ffab40" };
 LINES.triangle = { pts: [...LINES.schwarzschild.pts, [H, comptonM(H)], LINES.schwarzschild.pts[0]], color: "#ffffff" };
 
 // ---------- scene resolution: phrases → times ----------
@@ -174,6 +179,8 @@ export async function startNarration(app) {
   app.setIconDensity?.(SCENE.iconDensity ?? 60);   // a little over standard: pictures keep clear of each other
   app.setIconForce?.(SCENE.forceIcons ?? null);   // pictures shown even where a nearer one would hide them
   app.setIconHide?.(SCENE.hideIcons ?? null);     // pictures never shown in this scene
+  app.setIconBoost?.(SCENE.iconBoost ?? null);    // { from: log r, k }: pictures of the big things k× larger
+  app.setLabelHide?.(SCENE.hideLabels ?? null);   // objects whose own chart label never shows
   app.setIconMaxRes?.(true);   // grown pictures stay sharp
   // a scene that tells the primordial black hole window itself hides the map's
   // ready-made one, so no label shows before it's been talked about
@@ -343,6 +350,16 @@ export async function startNarration(app) {
       app.setObjectFocus?.(cur.focus, FOCUS_FADE * (prev?.focus ? 1 : k));
     } else if (prev?.focus) app.setObjectFocus?.(k < 1 ? prev.focus : null, FOCUS_FADE * (1 - k));
     else app.setObjectFocus?.(null);
+  }
+
+  // ---------- picture density: a cue's `density` (Settings → Icons, 0–100+; above 100 the
+  // pictures may overlap more) from then on, `density: null` back to the scene's ----------
+  const densityCues = cues.filter(c => c.density !== undefined);
+  function applyDensity(t) {
+    if (!densityCues.length) return;
+    let v = null;
+    for (const c of densityCues) if (c.time <= t) v = c.density;
+    app.setIconDensity?.(v ?? SCENE.iconDensity ?? 60);
   }
 
   // ---------- object labels: a cue's `labels: false` hides them from then on ----------
@@ -761,6 +778,7 @@ export async function startNarration(app) {
   let labelFade = 0, labelFadeT = null, labelFadeSent = 0, labelFocusNames = [], labelFocusKey = "";
   function drawHighlights(t) {
     applyIcons(t);
+    applyDensity(t);
     applyFocus(t);
     applyLabels(t);
     applyOverlays(t);
@@ -1857,6 +1875,9 @@ export async function startNarration(app) {
   let specFrame = null, specLastT = NaN;
   const SPEC_SWITCH = ["view", "radius", "bright", "rings", "labels"];
   const SPEC_LOG = new Set(["zoom", "ezoom"]);   // glides evenly in powers of ten
+  // a cue's `ease` for its glides (default cubic in-out): "in", "out" or "linear", to chain
+  // several glides into one move without stopping at each
+  const SPEC_EASE = { in: d3.easeQuadIn, out: d3.easeQuadOut, linear: d3.easeLinear };
   const specSegs = {}, specSwitch = {};
   if (SPEC) {
     const init = { show: false, spin: 0, line: 1, ...SPEC };
@@ -1866,17 +1887,17 @@ export async function startNarration(app) {
       let v = init[f];
       for (const g of segs) {
         if (g.t0 > t) break;
-        const p = d3.easeCubicInOut(clamp01((t - g.t0) / g.dur));
+        const p = (SPEC_EASE[g.ease] || d3.easeCubicInOut)(clamp01((t - g.t0) / g.dur));
         v = SPEC_LOG.has(f) ? Math.exp(Math.log(g.from) + (Math.log(g.to) - Math.log(g.from)) * p) : g.from + (g.to - g.from) * p;
       }
       return v;
     };
     for (const c of SPEC_KEYS) for (const [f, to] of Object.entries(c.explorer)) {
-      if (f === "dur" || f === "fade" || f === "xfade") continue;
+      if (f === "dur" || f === "fade" || f === "xfade" || f === "ease") continue;
       if (SPEC_SWITCH.includes(f)) { (specSwitch[f] ||= []).push({ t: c.time, v: to, xfade: c.explorer.xfade }); continue; }
       const dur = f === "show" ? (c.explorer.fade ?? 1.2) : (c.explorer.dur ?? 2.5);
       const from = at(f, c.time) ?? (f === "zoom" ? 1 : 0);
-      (specSegs[f] ||= []).push({ t0: c.time, dur, from: f === "show" ? +from : from, to: f === "show" ? +to : to });
+      (specSegs[f] ||= []).push({ t0: c.time, dur, from: f === "show" ? +from : from, to: f === "show" ? +to : to, ease: c.explorer.ease });
     }
     // the spin's turn so far, summed in 1/50 s steps once
     const STEP = 0.02, turn = [0];
