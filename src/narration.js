@@ -292,6 +292,12 @@ export async function startNarration(app) {
     const prev = highlights.find(q => q !== h && (h.obj ? q.obj === h.obj : q.line === h.line) && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
     h.since = prev ? prev.since : h.t0;
   }
+  // (and a lit path named again doesn't draw itself on again)
+  for (const h of highlights) if (h.path) {
+    const key = JSON.stringify(h.path);
+    const prev = highlights.find(q => q !== h && q.path && JSON.stringify(q.path) === key && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
+    h.since = prev ? prev.since : h.t0;
+  }
   // the water line lies under the pictures, except its first mention: brighter and
   // thicker over them for WATER_GLOW s, then down to its place (drawLine)
   const firstWater = highlights.find(h => h.line === "water")?.t0;
@@ -356,14 +362,50 @@ export async function startNarration(app) {
     cues: cues.filter(c => c[key] !== undefined).map(c => ({ on: !!c[key], t: c[key] && keys.find(k => k.t === c.time)?.end || c.time })) }));
   // ---------- swapped pictures: `swap: { "Cow": "cow-spherical" }` from a cue on (an object
   // drawn with another icon file's picture), `swap: false` back to its own ----------
+  // `pop: true` on a swap cue: the picture pops into its new one (shrinks, swaps at its
+  // smallest, springs back past its size and settles), with a ring bursting out of it
   const swapCues = cues.filter(c => c.swap !== undefined);
+  const POP_SWAP = 0.14, POP_END = 1.2;
+  const swapAt = (c) => c.time + (c.pop ? POP_SWAP : 0);
+  const popScale = (u) => u < 0 || u >= POP_END ? 1
+    : u < POP_SWAP ? 1 - 0.45 * d3.easeQuadIn(u / POP_SWAP)
+    : 1 - 0.45 * Math.exp(-3.4 * (u - POP_SWAP)) * Math.cos(13 * (u - POP_SWAP));
   let swapNow = "";
+  const popping = new Set();
   function applySwap(t) {
     let map = null;
-    for (const c of swapCues) if (c.time <= t) map = c.swap || null;
+    for (const c of swapCues) if (swapAt(c) <= t) map = c.swap || null;
     const slugs = map && Object.fromEntries(Object.entries(map).map(([name, file]) => [objByName.get(name)?.slug, file]).filter(([s]) => s));
     const key = JSON.stringify(slugs);
     if (key !== swapNow) { swapNow = key; app.setIconSwap?.(slugs); }
+    const now = new Map();
+    for (const c of swapCues) if (c.pop && c.swap) for (const name of Object.keys(c.swap)) {
+      const k = popScale(t - c.time);
+      if (k !== 1) now.set(name, k);
+    }
+    for (const [name, k] of now) { app.growIcon?.(name, k, true); popping.add(name); }
+    for (const name of [...popping]) if (!now.has(name)) { popping.delete(name); app.growIcon?.(name, 1, true); }
+  }
+  /** The pop's ring: a white circle bursting out of the picture as it swaps. */
+  function drawPops(t) {
+    gPop.selectAll("*").remove();
+    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
+    for (const c of swapCues) if (c.pop && c.swap) for (const name of Object.keys(c.swap)) {
+      const u = (t - swapAt(c)) / 0.55;
+      if (u < 0 || u > 1) continue;
+      const box = app.iconRect?.(name), o = objByName.get(name);
+      if (!o) continue;
+      const x = box ? (box.x + box.w / 2 - lr.x) / scl : sx(o.logR), y = box ? (box.y + box.h / 2 - lr.y) / scl : sy(o.logM);
+      const r0 = box ? Math.max(box.w, box.h) / scl * 0.5 : 24, e = d3.easeCubicOut(u);
+      gPop.append("circle").attr("cx", x).attr("cy", y).attr("r", r0 * (0.9 + 1.4 * e)).attr("fill", "none")
+        .attr("stroke", "#fff").attr("stroke-width", 5 * (1 - u) + 0.5).attr("opacity", 0.9 * (1 - u));
+      for (let i = 0; i < 8; i++) {   // little rays, like a cartoon pop
+        const a = i * Math.PI / 4 + Math.PI / 8, ra = r0 * (1.25 + 1.3 * e), rb = r0 * (1.5 + 1.7 * e);
+        gPop.append("line").attr("x1", x + ra * Math.cos(a)).attr("y1", y + ra * Math.sin(a))
+          .attr("x2", x + rb * Math.cos(a)).attr("y2", y + rb * Math.sin(a))
+          .attr("stroke", "#ffe9a3").attr("stroke-width", 3).attr("stroke-linecap", "round").attr("opacity", 1 - u);
+      }
+    }
   }
   function applyOverlays(t) {
     for (const o of overlays) {
@@ -438,6 +480,7 @@ export async function startNarration(app) {
   const gHlFree = nsvg.append("g").attr("class", "narr-hl-free"); // axis bands: never clipped
   const gGuides = nsvg.append("g").attr("class", "narr-guides");   // the guides' values, at the rulers
   const gSketch = nsvg.append("g").attr("class", "narr-sketch");   // line drawings over a dived picture: stay up while the chart dims
+  const gPop = nsvg.append("g").attr("class", "narr-pop");         // a swap cue's pop (drawPops)
   const capEl = document.getElementById("narr-caption");
 
   // ---------- photo cutaways ----------
@@ -722,6 +765,7 @@ export async function startNarration(app) {
     applyLabels(t);
     applyOverlays(t);
     applySwap(t);
+    drawPops(t);
     // over the classic figure, keep highlights inside its plot frame
     const fr = classicOpacity(t) > 0.5 ? classicFrameClient() : null;
     if (fr) {
@@ -774,6 +818,11 @@ export async function startNarration(app) {
       // stars, one still moving, which read as a jump)
       if (h.split) op = t >= h.t0 ? 1 - smooth((t - h.t1) / 0.5) : 0;
       else if (h.swing && h.core && t >= h.t1 && highlights.some(q => q.split && Math.abs(q.t0 - h.t1) < 0.05)) op = 0;
+      // a lit path named again by the next cue hands straight over, no fade between them
+      if (h.path) {
+        if (h.since < h.t0 - 0.01) op = t >= h.t0 ? 1 - smooth((t - h.t1) / 0.5) : 0;
+        if (t >= h.t1 && highlights.some(q => q !== h && q.path && q.since === h.since && q.t0 > h.t0)) op = 0;
+      }
       el.attr("opacity", op);
       h.op = op;
       if (h.obj) drawObj(el, h, age);
@@ -795,6 +844,7 @@ export async function startNarration(app) {
       else if (h.text) drawText(el, h, age);
       else if (h.pixels) drawPixels(el, h, age);
       else if (h.key) drawKey(el, h, age);
+      else if (h.path) drawPath(el, h, age);
     });
     // While a callout is on screen, the chart's other labels step back: only the
     // highlighted objects keep theirs (the rest come back between callouts).
@@ -1139,6 +1189,44 @@ export async function startNarration(app) {
         .attr("transform", `translate(${mid[0]},${mid[1]}) rotate(${a2}) translate(0,${-10 - 13 * (lines.length - 1)})`)
         .attr("text-anchor", "middle").attr("fill", col).attr("opacity", prog);
       lines.forEach((ln, i) => t.append("tspan").attr("x", 0).attr("dy", i ? "1.2em" : 0).text(ln));
+    }
+  }
+  /** A connection path lit up: { path: "DNA" | id | [ids or wholes], label?, color? } —
+   *  every moving-dot path with that id, or building that whole (the paths from DNA's four
+   *  bases into DNA; a star's life, "stellar-high-mass"), drawn on as a glowing line under
+   *  the pictures, with bright dots streaming along it the way the chart's own dots go. */
+  function drawPath(el, h, age) {
+    const pl = app.plot(), prog = d3.easeCubicOut(clamp01((curT - (h.since ?? h.t0)) / (h.draw ?? 1.2)));
+    const SPACE = 44, SPEED = 60;   // px between the bright dots; px/s
+    const list = app.connPaths?.(h.path) || [];
+    for (const cp of list) {
+      const p = cp.pts.map(([x, y]) => [x + pl.x, y + pl.y]);
+      const cum = [0];
+      for (let i = 1; i < p.length; i++) cum.push(cum[i - 1] + Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]));
+      const len = cum.at(-1);
+      if (len < 4) continue;
+      const rgb = h.color || (cp.family === "spectrum" ? "#ffffff"
+        : (cp.color || "#fff").replace(/rgba\(([^,]+),([^,]+),([^,]+),[^)]+\)/, "rgb($1,$2,$3)"));
+      const dash = `${len * prog} ${len + 10}`;
+      const dl = "M" + cp.pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join("L");
+      [[12, 0.16], [6, 0.32], [2.4, 0.95]].forEach(([w, o]) =>
+        underLines.push({ d: dl, color: rgb, width: w, opacity: o * (h.op ?? 1), dash }));
+      const at = (s) => {
+        let i = d3.bisectLeft(cum, s);
+        i = Math.max(1, Math.min(p.length - 1, i));
+        const f = (s - cum[i - 1]) / ((cum[i] - cum[i - 1]) || 1);
+        return [p[i - 1][0] + (p[i][0] - p[i - 1][0]) * f, p[i - 1][1] + (p[i][1] - p[i - 1][1]) * f];
+      };
+      for (let s = (curT * SPEED) % SPACE; s < len * prog; s += SPACE) {
+        const [x, y] = at(s), edge = Math.min(1, s / 18, (len - s) / 18);
+        el.append("circle").attr("cx", x).attr("cy", y).attr("r", 7).attr("fill", rgb).attr("opacity", 0.28 * edge);
+        el.append("circle").attr("cx", x).attr("cy", y).attr("r", 2.8).attr("fill", "#fff").attr("opacity", edge);
+      }
+      if (h.label && cp === list[0]) {
+        const [x, y] = at(len / 2);
+        el.append("text").attr("class", "narr-tag").attr("x", x + 10).attr("y", y).attr("fill", rgb).attr("opacity", prog)
+          .text(h.label.toUpperCase());
+      }
     }
   }
   function clipMid(p, plot) {

@@ -3569,7 +3569,7 @@ function setDolly(d) {
   group.style.visibility = "hidden"; _dollyHidden = group;
 }
 
-function setIconHover(o, on, grow = null) {
+function setIconHover(o, on, grow = null, instant = false) {
   const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
   if (!iconEl.size()) return false;
   const base = effectiveIconSize() * iconSizeMult(o);
@@ -3582,7 +3582,7 @@ function setIconHover(o, on, grow = null) {
     const current=node.__data__,g=d3.select(node),size=effectiveIconSize()*iconSizeMult(current);
     g.select('.obj-icon').style('transform',growth===1?null:`scale(${growth})`);
     g.attr('transform',parallaxTranslation(current,objectPicturePoint(current,growth)));
-  },_reduceMotion);
+  },_reduceMotion || instant);
   liftShadow(o.slug, k);
   return true;
 }
@@ -8462,6 +8462,17 @@ if (_ogShot) {
         if (_labelsEnabled !== on) { _labelsEnabled = on; redraw(); }
       },
       setDots({ size = 1, opacity = 1, radius = null } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; _dotFixedR = radius; },
+      /** Connection paths (the moving dots' curves) for a video to highlight: every path
+       *  whose id or whole (`_into`, what it builds) is in `sel`, sampled at n + 1 points
+       *  along its curve, chart-local px: [{ id, family, color, into, pts: [[x, y], …] }]. */
+      connPaths(sel, n = 96) {
+        if (!_connPaths) return [];
+        const want = new Set([].concat(sel));
+        return _connPaths.filter(cp => want.has(cp.id) || want.has(cp._into)).map(cp => ({
+          id: cp.id, family: cp.family, color: cp.style.color, into: cp._into,
+          pts: Array.from({ length: n + 1 }, (_, i) => getPathScreenPos(cp, i / n)),
+        }));
+      },
       /** Only these objects keep their picture (the rest are plain dots over
        *  the dust); null for all of them. */
       /** Catalogue pictures in a video, without their names. */
@@ -8487,10 +8498,11 @@ if (_ogShot) {
         return b.width ? { x: b.x, y: b.y, w: b.width, h: b.height } : null;
       },
       /** Grow an object's picture like the hover does, by k (1 restores it); false if it has none drawn. */
-      growIcon(name, k = 1) {
-        // "hover": the app's own hover growth (to ≥ 64 px or 1.5×)
+      growIcon(name, k = 1, instant = false) {
+        // "hover": the app's own hover growth (to ≥ 64 px or 1.5×). instant: this size now,
+        // no 240 ms ease, smaller than 1 too (a video's frame-by-frame pop)
         const o = _lastProjected.find(p => p.name === name);
-        if (o) return setIconHover(o, k === "hover" || k > 1, k === "hover" ? null : k);
+        if (o) return setIconHover(o, k === "hover" || (instant ? k !== 1 : k > 1), k === "hover" ? null : k, instant);
         const d = dustIcons().find(p => p.name === name);
         if (!d) return false;
         const f = k === "hover" ? Math.max(64, 3 * d.r) / (2 * d.r) : k;

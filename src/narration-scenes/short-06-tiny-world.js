@@ -42,23 +42,23 @@ export default {
 
   cues: [
     // ── The three edges ──────────────────────────────────────
-    // the cow is drawn as the physicist's spherical cow the whole video (an easter egg for
-    // "as if they were spheres")
-    { at: "in this series", offset: -0.4, swap: { Cow: "cow-spherical" }, cam: FULL, dur: 9, drift: 0.02, hl: [{ line: "triangle", delay: 1.5 }] },
+    { at: "in this series", offset: -0.4, cam: FULL, dur: 9, drift: 0.02, hl: [{ line: "triangle", delay: 1.5 }] },
     { at: "first is the black hole line", cam: C(-8, 6, 70), hl: [{ ...SCHW, label: "edge 1 · black holes" }] },
     { at: "there's a limit", hl: [SCHW, { side: "left", of: "schwarzschild", label: "nothing" }] },
     { at: "the second is the hubble radius", cam: C(3, 8, 70), hl: [{ ...HUBBLE, label: "edge 2 · the Hubble radius" }] },
     { at: "nothing can be bigger", hl: [HUBBLE, { side: "right", of: "hubble", label: "nothing" }] },
     { at: "the third side", cam: C(-5, -14, 62), hl: [{ ...COMPTON, label: "edge 3 · how small" }] },
-    // in to us, slowly
-    { at: "start with us", cam: { obj: "Human", span: 3 }, dur: 8, clear: true, hl: [{ obj: "Human", delay: 5 }] },
+    // in to us and the cow (its own picture), slowly: one long push, still drifting in when
+    // the cow pops into the physicist's spherical cow (the author, 2026-10-28)
+    { at: "start with us", cam: { r: 1.58, m: 5.36, span: 2.0 }, dur: 8, ease: "gentle", drift: 0.2, clear: true, hl: [{ obj: "Human", delay: 5 }] },
 
     // ── A human, a ball, metric units ────────────────────────
-    { at: "this is a human", cam: C(1.9, 4.8, 2.6), hl: [{ obj: "Human", label: "~2 m · ~100 kg" }] },
+    { at: "this is a human", hl: [{ obj: "Human", label: "~2 m · ~100 kg" }] },
     { at: "close enough", hl: [{ obj: "Human", label: "rounded: it's a log chart" }] },
-    { at: "we measure everything", cam: C(1.95, 5.1, 2.4),
-      hl: [{ obj: "Human", label: false }, { obj: "Cow", label: "the spherical cow", delay: 0.4 }] },
-    { at: "as if they were spheres", hl: [{ obj: "Human", label: "measured as a ball" }, { obj: "Cow", label: "the spherical cow" }] },
+    { at: "we measure everything", hl: [{ obj: "Human", label: false }, { obj: "Cow", label: false, delay: 0.2 }] },
+    // the easter egg: from here on the cow is drawn as a sphere, popping into it
+    { at: "as if they were spheres", offset: 0.7, swap: { Cow: "cow-spherical" }, pop: true,
+      hl: [{ obj: "Human", label: "measured as a ball" }, { obj: "Cow", label: "the spherical cow", delay: 0.35 }] },
     { at: "we use the metric units", cam: C(1.2, 3.0, 3.4), units: true, unitsUntil: "one diagonal line", clear: true },
     { at: "every unit fits", cam: C(0.9, 2.4, 3.6) },
     { at: "one gram of water", cam: C(0.3, 1.4, 2.6), hl: [{ obj: "1 mL of Water", label: "1 gram · 1 cm³" }] },
@@ -77,12 +77,16 @@ export default {
     { at: "grain of pollen", cam: DOWN(-2.6), hl: [WATER, { obj: "Pollen Grain" }] },
     { at: "red blood cell", cam: DOWN(-3.3), hl: [WATER, { obj: "Red Blood Cell", label: "~7 thousandths of a mm" }] },
     { at: "then bacteria", cam: DOWN(-4.0, 2), hl: [WATER, { obj: "Bacterium" }] },
-    { at: "almost all of microbiology", cam: DOWN(-4.4, 2.6),
-      hl: [WATER, { side: "left", label: "denser than water" }, { obj: "Bacterium", label: false }, { obj: "COVID Virus", label: false, delay: 0.4 }] },
-    { at: "centrifuge works", hl: [WATER, { side: "left", label: "sinks in a centrifuge" }, { obj: "Bacterium", label: false }, { obj: "COVID Virus", label: false }] },
+    // close in on the bacteria (the author, 2026-10-28): cells are ~5–10% denser than water,
+    // a hundredth of a decade left of the line, so it takes a deep zoom to see the gap
+    { at: "almost all of microbiology", cam: C(-4.24, -12.05, 0.9),
+      hl: [WATER, { side: "left", label: "denser than water" }, { obj: "Bacterium", label: false }] },
+    { at: "a little to the left", cam: C(-4.225, -12.02, 0.32) },
+    { at: "centrifuge works", cam: C(-4.222, -12.0, 0.26), hl: [WATER, { side: "left", label: "sinks in a centrifuge" }, { obj: "Bacterium", label: false }] },
+    { at: "denser than water sink", cam: C(-4.225, -12.02, 0.3) },
 
     // ── Biology hands over to chemistry ──────────────────────
-    { at: "where biology ends", cam: DOWN(-5.1, 2), clear: true,
+    { at: "where biology ends", cam: { r: -5.1, m: +(3 * -5.1 + 0.62).toFixed(2), span: 2 }, dur: 2.6, clear: true,
       hl: [{ obj: "Bacterium", label: "biology", place: "left" }, { obj: "Ribosome", label: "chemistry", delay: 1.2 }] },
     { at: "viruses sit right in between", hl: [{ obj: "COVID Virus", label: false }, { obj: "Influenza", label: false, delay: 0.3 }, { obj: "Bacteriophage T4", label: "viruses", delay: 0.6 }] },
     { at: "far more than just a molecule", hl: [{ obj: "Bacteriophage T4", label: "not quite alive" }, { obj: "COVID Virus", label: false }] },
@@ -90,13 +94,24 @@ export default {
     { at: "builds your proteins", hl: [{ obj: "Ribosome", label: "builds proteins" }] },
     { at: "antibodies", cam: DOWN(-6.35, 2), hl: [{ obj: "Ribosome", label: false }, { obj: "Antibody (IgG)", label: "antibody" }] },
     { at: "hemoglobin", hl: [{ obj: "Antibody (IgG)", label: false }, { obj: "Hemoglobin", label: "carries oxygen" }] },
-    { at: "every one of us", cam: DOWN(-6.9, 1.6), hl: [{ obj: "DNA" }] },
-    { at: "four molecules", cam: C(-7.5, -21.7, 1.7), hl: few(BASES, "A · T · C · G", 0.3) },
-    { at: "simpler and simpler", cam: C(-7.7, -22.0, 1.4), hl: [{ obj: "Glucose", label: "sugar" }, { obj: "Water (H₂O)", label: "water", delay: 0.8 }] },
+    // DNA and the paths from its four bases lit up (the author, 2026-10-28: highlight the
+    // moving dots' paths to what a thing is made of)
+    { at: "every one of us", cam: C(-7.05, -20.6, 1.7), hl: [{ obj: "DNA" }] },
+    { at: "us dna", offset: 0.15, hl: [{ obj: "DNA" }, { path: "DNA" }] },
+    { at: "four molecules", cam: C(-7.3, -21.1, 1.8), hl: [{ path: "DNA" }, { obj: "DNA", label: false }, ...few(BASES, "A · T · C · G", 0.3)] },
+    { at: "simpler and simpler", cam: C(-7.7, -22.0, 1.4),
+      hl: [{ obj: "Glucose", label: "sugar" }, { obj: "Water (H₂O)", label: "water", delay: 0.8 }] },
 
     // ── Atoms and the periodic table ─────────────────────────
     { at: "here's hydrogen", cam: C(-8.25, -23.5, 1.2), clear: true, hl: [{ obj: "Hydrogen" }] },
-    { at: "the mass comes almost all", hl: [{ obj: "Hydrogen", label: "mass: the nucleus" }] },
+    // out to the nuclei, at the same mass a hundred thousand times smaller, and back in
+    // (the author, 2026-10-28)
+    { at: "the mass comes almost all", cam: { r: -10.65, m: -23.1, span: 8.6 }, dur: 1.8,
+      hl: [{ obj: "Hydrogen", label: "mass: the nucleus" }, { dust: "nucleus", src: ["nucleus"], color: "#ffb74d", sweep: 0.8, delay: 0.6 },
+        { arrow: true, solid: true, width: 3, from: { obj: "Hydrogen" }, to: { obj: "Proton" }, delay: 0.8 },
+        { obj: "Proton", label: "its nucleus", delay: 1.6 }] },
+    { at: "but the size comes", offset: -0.1, cam: { r: -8.3, m: -23.55, span: 1.2 }, dur: 1.8,
+      hl: [{ obj: "Hydrogen", label: "size: the electrons" }] },
     { at: "cloud of electrons", hl: [{ obj: "Hydrogen", label: "size: the electrons" }] },
     { at: "you get helium", cam: C(-8.4, -23.3, 1.3),
       hl: [{ obj: "Hydrogen", label: false }, { arrow: true, from: { obj: "Hydrogen" }, to: { obj: "Helium" } }, { obj: "Helium", label: "4× the mass", delay: 0.7 }] },
@@ -115,15 +130,18 @@ export default {
     { at: "a little weird", cam: C(-8.0, -21.75, 1.4), hl: [{ obj: "Rhodium", label: false }, { obj: "Silver", label: false }] },
     { at: "palladium jumps over", hl: [{ obj: "Rhodium", label: false }, { obj: "Silver", label: false }, { obj: "Palladium", label: "palladium" }] },
     { at: "almost as compact", hl: [{ obj: "Palladium", label: "nearly a noble gas" }, ...few(NOBLE.slice(1, 4), false, 0.2)] },
-    { at: "the lanthanides", periodic: false, cam: C(-7.8, -21.6, 1.5), hl: [{ obj: "Lanthanum", label: "lanthanides" }, { obj: "Gold", delay: 0.6 }, { obj: "Silver", delay: 0.9 }] },
+    { at: "the lanthanides", cam: C(-7.8, -21.6, 1.5), hl: [{ obj: "Lanthanum", label: "lanthanides" }, { obj: "Gold", delay: 0.6 }, { obj: "Silver", delay: 0.9 }] },
     { at: "up to iron", cam: C(-7.85, -21.8, 1.8), hl: [{ obj: "Iron", label: "made in stars' cores" }] },
     { at: "gold or uranium", hl: [{ obj: "Iron", label: false }, { obj: "Gold", place: "left" }, { obj: "Uranium", delay: 0.4 }] },
     { at: "colliding neutron stars", hl: [{ obj: "Gold", label: false }, { obj: "Uranium", label: "exploding stars, neutron stars" }] },
     { at: "every element is radioactive", cam: C(-7.75, -21.4, 1.4), hl: [{ obj: "Uranium", label: "radioactive" }, { obj: "Radon", label: false }] },
-    { at: "this is oganesson", hl: [{ obj: "Oganesson", label: "heaviest ever made" }] },
+    // the periodic table stays up, with oganesson in the frame, until its sentence ends;
+    // only then does the camera follow the line on (the author, 2026-10-28)
+    { at: "this is oganesson", cam: C(-7.86, -21.36, 1.25), hl: [{ obj: "Oganesson", label: "heaviest ever made" }] },
+    { at: "a few atoms at a time", cam: C(-7.88, -21.33, 1.12) },
 
     // ── The wall: the Compton line ───────────────────────────
-    { at: "keep following the line", cam: DOWN(-9.0, 3), dur: 4, clear: true, hl: [WATER] },
+    { at: "keep following the line", periodic: false, cam: { r: -9.0, m: +(3 * -9.0 + 0.62).toFixed(2), span: 3 }, dur: 2.3, clear: true, hl: [WATER] },
     { at: "final edge", cam: C(-9.6, -27.5, 4.4), hl: [WATER, { ...COMPTON, label: "edge 3 · the Compton line" }] },
     { at: "electron volts", units: true, unitsFor: 8, hl: [COMPTON, { obj: "Electron", label: "electron" }] },
     { at: "that's einstein", hl: [{ card: "E = mc²", hold: 2.2 }] },
@@ -134,7 +152,8 @@ export default {
     { at: "makes new particles", hl: [COMPTON, { side: "left", of: "compton", label: "new pairs" }, { obj: "Electron", label: "e⁻ e⁺ pairs" }] },
     { at: "nothing can be smaller than its own", hl: [{ ...COMPTON, label: "the quantum limit" }] },
     { at: "heavier something is", cam: C(-11.2, -26.0, 5.5), hl: [COMPTON, { obj: "Electron", label: false }, { obj: "Proton", label: "heavier: smaller", delay: 0.4 }] },
-    { at: "cross to the other side", hl: [COMPTON, { side: "left", of: "compton", label: "nothing" }] },
+    // "nothing here" written on the forbidden side, below and left of the line (the author, 2026-10-28)
+    { at: "no object can cross", hl: [COMPTON, { side: "left", of: "compton" }, { text: "nothing here", at: [-11.9, -28.8], color: "#4dd0e1", delay: 0.3 }] },
     { at: "quantum limit of our triangle", hl: [{ ...COMPTON, label: "edge 3" }] },
 
     // ── Particles and light, all on the line ─────────────────
