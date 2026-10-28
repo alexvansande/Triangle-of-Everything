@@ -2,44 +2,44 @@ source,beat,out_start,out_end,src_start,src_end,text
 rec39,edges,0.00,6.25,7.91,14.15,"In this series, we've been drawing everything in the universe in one chart, math against size."
 rec39,edges,6.53,9.36,17.30,20.12,everything ends up boxed in by three edges.
 rec39,edges,9.63,13.05,20.36,23.77,We've seen two of them. First is the black hole line.
-rec39,edges,13.33,22.15,28.60,39.60,nothing can be more massive for any given size there's a limit for how massive you can be until you become a black hole
-rec39,edges,22.43,26.74,40.27,44.57,and then the second is the Hubble radius nothing can be bigger than that
-rec39,edges,27.02,32.60,45.01,50.64,today I want to explore the third side the limit of how small something can be.
-rec39,human,33.20,34.59,63.87,65.25,So let's start with us.
-rec39,human,34.87,41.04,69.51,75.68,This is a human about two meters tall and around 100 kilos. On a log chart that's close enough.
-rec39,human,41.32,45.08,76.03,79.78,And notice that we measure everything as if they were spheres.
-rec39,units,45.68,52.88,112.50,119.97,"We use the metric units here because they fit the grid so neatly, but really every unit fits in this chart."
-rec39,units,53.16,62.76,120.56,130.16,"One gram of water fills one cubic centimeter, so water lands on this one diagonal line. Everything to the left is denser and sinks, like this meteorite."
-rec39,units,63.04,65.79,132.42,135.17,Everything to the right floats like a soccer ball.
-rec39,small,66.39,77.44,136.72,147.84,"Most animals live on the narrow bend along that line because we are mostly made of water. As we go down we reach this malus insect, ants, ladybugs, tiny moths."
-rec39,small,77.72,80.06,148.32,150.66,"This is a single grain of sand,"
-rec39,small,80.34,85.65,153.84,159.16,"Now we are among the microorganisms, tardigrades, meebs, and a grain of pollen."
-rec39,small,85.93,95.98,163.89,174.08,"Further down, now a red -blue cell. About seven thousandths of a millimeter across than bacteria."
-rec39,small,96.26,111.98,174.42,190.15,Notice that almost all of microbiology sits just a little to the left of the water line. That's actually useful. That's why and cells and viruses being denser than water sink to the bottom.
-rec39,chem,112.58,123.57,191.77,202.75,Now this is where biology ends and chemistry begins. Viruses sit right in between. Most biologists don't count them as alive but they are far more than just a molecule.
-rec39,chem,123.85,127.01,202.93,206.09,"And now we are in the kingdom of molecules,"
-rec39,chem,127.29,135.10,206.39,214.20,"the ribosome factory of the beauty of proteins, antibodies, hemoglobin, which carries oxygen in your blood,"
-rec39,chem,135.38,147.93,225.05,238.30,what makes every one of us DNA. It's code written with just these four molecules. Then we have simpler and simpler molecules like sugar and water until we reach the atoms.
-rec39,atoms,148.53,162.81,282.42,296.72,"Here's hydrogen. For any atom, the mass comes almost all from its nucleus, but the size comes from its clouds of electrons. Add the second proton with two neutrons to hold it together, and you get helium, four times mass."
-rec39,atoms,163.09,191.05,301.89,330.38,"But that extra charge pulls the electron in closer, so helium is actually smaller. Add one more and you get lithium, and its third electron has to start a new shell, so it balloons out, now it's bigger. And notice that that keeps happening, with every proton, atoms get heavier and smaller and smaller until a new shell starts and they balloon out again, bigger and smaller over and over at regular intervals."
-rec39,atoms,191.33,194.41,348.36,351.44,that's why we get a periodic table.
-rec39,atoms,194.69,204.09,353.71,363.12,"That thing you saw in the wall in your chemistry class isn't just arbitrary, you can see it right here drawn by the atoms themselves."
-rec39,atoms,204.37,210.59,377.39,383.97,the alkali metals ballooning out at the start of every row and the noble gases tucked in at the end.
-rec39,atoms,210.87,232.25,390.44,412.18,"Some atoms are just a little weird. palladium jumps over towards the noble gases. It's the only element that leaves its new outer shell completely empty. Its outer electrons all huddle in a full inner shell instead, so it's almost as compact as a noble gas. Down here are the lanthanides, gold and silver."
-rec39,atoms,232.53,249.42,416.31,433.49,"Up to iron, elements are forged in the cores of stars. Everything heavier, like gold or uranium, takes something even more violent, exploding stars and colliding neutron stars. Past here every element is radioactive,"
-rec39,atoms,249.70,256.45,434.39,441.25,"and this is oganesson, the heaviest element we've ever made, just a few atoms at a time."
-rec39,edge,257.05,263.83,444.07,451.22,"So what happens if you keep following the line down. We reach the third and final edge of the triangle, the Kontol line."
-rec39,edge,264.11,279.14,451.78,466.94,"Down here physicists stop weighting things in grams. They use electron volts, which is a unit of energy, divided by the speed of light squared and you get mass. That's Einstein. E equals mc squared."
-rec39,edge,279.42,283.24,479.38,483.20,"Deep down, mass and energy are the same."
-rec39,edge,283.52,294.27,485.08,495.83,"And everything with energy also has a wavelength. The more energy, the faster it oscillates and the shorter its wavelength. You can squeeze something smaller than that."
-rec39,edge,294.55,304.67,537.33,547.46,"To squeeze it, you have to add energy and if you squeeze it any tighter, that energy you put in just makes new particles, pairs of matters and antimatter."
-rec39,edge,304.95,320.42,585.91,601.43,"So nothing can be smaller than its own wavelength. And the heavier something is, the smaller that limit gets, which is why this line looks this way. And it's why no object can cross to the other side. It's the quantum limit of our triangle."
-rec39,light,321.02,326.48,636.30,641.76,"So here's something very cool. Everything in this line is either a particle or light,"
-rec39,light,326.76,335.11,660.56,668.91,"every particle sits here at its own wavelength, and so does light. Every kind of it, from radio waves up to gamma rays down here."
-rec39,gamma,335.71,347.35,797.95,809.58,"Now here's an interesting question. Remember that line we were following, the density water line, the line of ordinary stuff, just matter. It crosses the Compton line right here,"
-rec39,gamma,347.63,350.39,814.24,817.00,right where gamma rays become x -rays.
-rec39,gamma,350.67,357.31,819.73,826.78,"When a radioactive atom decays into another, it emits a little bit of gamma rays."
-rec39,gamma,357.59,367.25,842.76,852.75,"that's because it's converting a little bit of matter into energy, and that energy comes at the gamma ray radiation, which is right here."
-rec39,gamma,367.53,370.69,855.45,858.61,That's matter turning into light.
-rec39,end,371.29,377.39,897.20,903.29,And Light Self can also tell us a very interesting story about the universe and our place in it.
-rec39,end,377.67,383.30,908.54,914.17,"That's the story of Wavelengths of Light, which is a great story for the next video."
+rec39,edges,13.33,19.39,33.55,39.60,any given size there's a limit for how massive you can be until you become a black hole
+rec39,edges,19.67,23.98,40.27,44.57,and then the second is the Hubble radius nothing can be bigger than that
+rec39,edges,24.26,29.84,45.01,50.64,today I want to explore the third side the limit of how small something can be.
+rec39,human,30.44,31.83,63.87,65.25,So let's start with us.
+rec39,human,32.11,38.28,69.51,75.68,This is a human about two meters tall and around 100 kilos. On a log chart that's close enough.
+rec39,human,38.56,42.31,76.03,79.78,And notice that we measure everything as if they were spheres.
+rec39,units,42.91,50.12,112.50,119.97,"We use the metric units here because they fit the grid so neatly, but really every unit fits in this chart."
+rec39,units,50.40,59.99,120.56,130.16,"One gram of water fills one cubic centimeter, so water lands on this one diagonal line. Everything to the left is denser and sinks, like this meteorite."
+rec39,units,60.27,63.02,132.42,135.17,Everything to the right floats like a soccer ball.
+rec39,small,63.62,74.68,136.72,147.84,"Most animals live on the narrow bend along that line because we are mostly made of water. As we go down we reach this malus insect, ants, ladybugs, tiny moths."
+rec39,small,74.96,77.29,148.32,150.66,"This is a single grain of sand,"
+rec39,small,77.57,82.89,153.84,159.16,"Now we are among the microorganisms, tardigrades, meebs, and a grain of pollen."
+rec39,small,83.17,90.66,166.45,174.08,"Further down, now a red -blue cell. About seven thousandths of a millimeter across than bacteria."
+rec39,small,90.94,106.66,174.42,190.15,Notice that almost all of microbiology sits just a little to the left of the water line. That's actually useful. That's why and cells and viruses being denser than water sink to the bottom.
+rec39,chem,107.26,118.25,191.77,202.75,Now this is where biology ends and chemistry begins. Viruses sit right in between. Most biologists don't count them as alive but they are far more than just a molecule.
+rec39,chem,118.53,121.69,202.93,206.09,"And now we are in the kingdom of molecules,"
+rec39,chem,121.97,129.78,206.39,214.20,"the ribosome factory of the beauty of proteins, antibodies, hemoglobin, which carries oxygen in your blood,"
+rec39,chem,130.06,142.61,225.05,238.30,what makes every one of us DNA. It's code written with just these four molecules. Then we have simpler and simpler molecules like sugar and water until we reach the atoms.
+rec39,atoms,143.21,157.50,282.42,296.72,"Here's hydrogen. For any atom, the mass comes almost all from its nucleus, but the size comes from its clouds of electrons. Add the second proton with two neutrons to hold it together, and you get helium, four times mass."
+rec39,atoms,157.78,185.73,301.89,330.38,"But that extra charge pulls the electron in closer, so helium is actually smaller. Add one more and you get lithium, and its third electron has to start a new shell, so it balloons out, now it's bigger. And notice that that keeps happening, with every proton, atoms get heavier and smaller and smaller until a new shell starts and they balloon out again, bigger and smaller over and over at regular intervals."
+rec39,atoms,186.01,189.09,348.36,351.44,that's why we get a periodic table.
+rec39,atoms,189.37,198.77,353.71,363.12,"That thing you saw in the wall in your chemistry class isn't just arbitrary, you can see it right here drawn by the atoms themselves."
+rec39,atoms,199.05,205.27,377.39,383.97,the alkali metals ballooning out at the start of every row and the noble gases tucked in at the end.
+rec39,atoms,205.55,226.93,390.44,412.18,"Some atoms are just a little weird. palladium jumps over towards the noble gases. It's the only element that leaves its new outer shell completely empty. Its outer electrons all huddle in a full inner shell instead, so it's almost as compact as a noble gas. Down here are the lanthanides, gold and silver."
+rec39,atoms,227.21,244.10,416.31,433.49,"Up to iron, elements are forged in the cores of stars. Everything heavier, like gold or uranium, takes something even more violent, exploding stars and colliding neutron stars. Past here every element is radioactive,"
+rec39,atoms,244.38,251.13,434.39,441.25,"and this is oganesson, the heaviest element we've ever made, just a few atoms at a time."
+rec39,edge,251.73,258.51,444.07,451.22,"So what happens if you keep following the line down. We reach the third and final edge of the triangle, the Kontol line."
+rec39,edge,258.79,273.82,451.78,466.94,"Down here physicists stop weighting things in grams. They use electron volts, which is a unit of energy, divided by the speed of light squared and you get mass. That's Einstein. E equals mc squared."
+rec39,edge,274.10,277.92,479.38,483.20,"Deep down, mass and energy are the same."
+rec39,edge,278.20,288.95,485.08,495.83,"And everything with energy also has a wavelength. The more energy, the faster it oscillates and the shorter its wavelength. You can squeeze something smaller than that."
+rec39,edge,289.23,299.35,537.33,547.46,"To squeeze it, you have to add energy and if you squeeze it any tighter, that energy you put in just makes new particles, pairs of matters and antimatter."
+rec39,edge,299.63,315.10,585.91,601.43,"So nothing can be smaller than its own wavelength. And the heavier something is, the smaller that limit gets, which is why this line looks this way. And it's why no object can cross to the other side. It's the quantum limit of our triangle."
+rec39,light,315.70,321.16,636.30,641.76,"So here's something very cool. Everything in this line is either a particle or light,"
+rec39,light,321.44,329.79,660.56,668.91,"every particle sits here at its own wavelength, and so does light. Every kind of it, from radio waves up to gamma rays down here."
+rec39,gamma,330.39,342.03,797.95,809.58,"Now here's an interesting question. Remember that line we were following, the density water line, the line of ordinary stuff, just matter. It crosses the Compton line right here,"
+rec39,gamma,342.31,345.07,814.24,817.00,right where gamma rays become x -rays.
+rec39,gamma,345.35,351.99,819.73,826.78,"When a radioactive atom decays into another, it emits a little bit of gamma rays."
+rec39,gamma,352.27,361.93,842.76,852.75,"that's because it's converting a little bit of matter into energy, and that energy comes at the gamma ray radiation, which is right here."
+rec39,gamma,362.21,365.37,855.45,858.61,That's matter turning into light.
+rec39,end,365.97,372.07,897.20,903.29,And Light Self can also tell us a very interesting story about the universe and our place in it.
+rec39,end,372.35,377.98,908.54,914.17,"That's the story of Wavelengths of Light, which is a great story for the next video."

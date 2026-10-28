@@ -36,15 +36,15 @@ export default {
   thumb: 193,   // the periodic table drawn by the atoms
   captionFixes: { math: "mass", shard: "chart" },
 
-  // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md). Fretless (5:31 of
-  // music) comes in as the trip down starts, so its own ending lands on the credits
-  backing: { track: "Fretless", delay: 21 },
+  // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md). Fretless was too
+  // happy and dancy for this one (the author, 2026-10-27); the album's calmest track instead
+  backing: "Relaxing Piano Music",
 
   cues: [
     // ── The three edges ──────────────────────────────────────
     { at: "in this series", offset: -0.4, cam: FULL, dur: 9, drift: 0.02, hl: [{ line: "triangle", delay: 1.5 }] },
     { at: "first is the black hole line", cam: C(-8, 6, 70), hl: [{ ...SCHW, label: "edge 1 · black holes" }] },
-    { at: "nothing can be more massive", hl: [SCHW, { side: "left", of: "schwarzschild", label: "nothing" }] },
+    { at: "there's a limit", hl: [SCHW, { side: "left", of: "schwarzschild", label: "nothing" }] },
     { at: "the second is the hubble radius", cam: C(3, 8, 70), hl: [{ ...HUBBLE, label: "edge 2 · the Hubble radius" }] },
     { at: "nothing can be bigger", hl: [HUBBLE, { side: "right", of: "hubble", label: "nothing" }] },
     { at: "the third side", cam: C(-5, -14, 62), hl: [{ ...COMPTON, label: "edge 3 · how small" }] },
