@@ -355,6 +355,9 @@ Cue fields
   swap     { "Name": "icon-file" }: from this cue on, the object is drawn with that
            picture from content/icons/ instead of its own (video 6's spherical cow);
            false puts the objects' own pictures back
+  pop      true, with swap: the picture pops into the new one (shrinks, swaps at its
+           smallest 0.14 s after the cue, springs back past its size and settles in
+           ~1.2 s) with a white ring and rays bursting out of it (video 6's cow)
   periodic true: the map's periodic table (rows, columns, type rings, family
            names) fades in once the cue's camera arrives; false fades it out
   spectrum true: the spectrum's sine wave, likewise (it isn't redrawn while the
@@ -412,6 +415,13 @@ Cue fields
                one and grows in. trace: a faint line along the first window
              { cross: { r, m }, mass?, size? } — a dot with dashed guides to the
                mass ruler (right) and the size ruler (bottom), labelled
+             { path: "DNA" | "stellar-high-mass" | [..], label?, color? } — moving-dot
+               connection paths lit up (CONNECTION_PATHS and the "made of" paths in
+               src/data.js): by id, or every path building that whole (DNA ← its four
+               bases); a bright line drawn on under the pictures, white dots streaming
+               along it the way the chart's dots go. Use it whenever the narration
+               talks about what a path shows (a star's life, a decay, what a thing is
+               made of)
              { text: "Dark matter?", at: [r, m], color? } — a big free-standing word,
                a hub for arrows to point out from
              { key: [["microwave", "#ff6b5e"], …], title? } — a colour key near the
