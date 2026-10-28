@@ -1,0 +1,1 @@
+A domestic cow, represented here by an approximate adult mass of 600 kg and a body length of 2.4 metres. Actual size varies with breed and age. The alternate spherical illustration plays on the physicist’s “spherical cow”: simplifying a complicated real-world system into an idealised model. Both illustrations are AI-generated.

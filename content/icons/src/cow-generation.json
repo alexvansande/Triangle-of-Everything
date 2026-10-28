@@ -1,0 +1,11 @@
+{
+  "slug": "cow",
+  "date": "2026-10-27",
+  "category": "ai-generated",
+  "tool": "image_gen",
+  "prompt": "Create a high quality realistic miniature animal catalogue illustration of one adult black-and-white Holstein cow. Full body standing calmly, strict left-facing side view with very slight view of its back from above, near orthographic. Anatomically natural female cow with four legs, hooves, pink muzzle, small udder and tail. Reference elephant supplies ONLY the photographic miniature rendering style, viewpoint and upper-left lighting, not anatomy. Soft strong NW studio key, subtle neutral lower-right fill so shadows retain detail. Fine short fur, natural black patches on white. Isolated on genuinely transparent background, no ground, no floor shadow, no pedestal, no text. Entire cow fits with 4% margins, square image.",
+  "source": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-839a4f6d-a43c-46de-8144-6d88d9b70fc6.png",
+  "object": "cow",
+  "variant": "standard",
+  "notes": "Generated illustration, not a photograph. Normal cow is the chart default; spherical cow is an alternate for later narration. Upper-left lighting and transparent background."
+}
