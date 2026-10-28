@@ -1,0 +1,11 @@
+{
+  "slug": "cow-spherical",
+  "date": "2026-10-27",
+  "category": "ai-generated",
+  "tool": "image_gen",
+  "prompt": "Generate a spherical cow, the physics joke, as a realistic photographic miniature icon. Reference 1 is the normal cow: retain its black-white Holstein coat, pink muzzle and recognizable face. Reference 2 is the required SPHERICAL BODY GEOMETRY AND LIGHTING: genuinely round ball body, not an ordinary fat cow or oval torso, upper-left bright and lower-right shaded with subtle fill. A huge perfect spherical fur-covered torso with black-white patches, a small natural cow head projecting at the upper-left facing LEFT, two ears, four very small stubby cow legs/hooves underneath and a small tail at right. Sophisticated lifelike materials, not cartoon eyes. Near orthographic camera slightly above, like a miniature mounted on a museum wall. Full object centered within 94% square canvas. Genuinely transparent background, no floor, no cast shadow, no text. Strong rounded shading as sphere reference while keeping dark fur readable.",
+  "source": "/Users/avsa/.codex/generated_images/01a1607e-3fee-78b2-8c34-3e30226cd029/exec-fc8f1933-b861-43d8-a8cf-f3e332c26a74.png",
+  "object": "cow",
+  "variant": "spherical",
+  "notes": "Generated illustration, not a photograph. Normal cow is the chart default; spherical cow is an alternate for later narration. Upper-left lighting and transparent background."
+}

@@ -5849,5 +5849,47 @@
         "path": "256/submillimetre.webp"
       }
     ]
+  },
+  "cow-spherical": {
+    "fingerprint": "fb2ac35bac1100e277ef27366b2e5cef1e221d5a41c52a1070cf0dcac6551a79",
+    "baseWidth": 128,
+    "source": "content/icons/src/cow-spherical.png",
+    "reason": "matching master",
+    "sourceDifference": 0.5864461263020834,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/cow-spherical.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/cow-spherical.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/cow-spherical.webp"
+      }
+    ]
+  },
+  "cow": {
+    "fingerprint": "dc2375f1ae40c87babd176e283dcd1e3bdcc320f981c3ebee62b2a91d93f254e",
+    "baseWidth": 128,
+    "source": "content/icons/src/cow.png",
+    "reason": "matching master",
+    "sourceDifference": 0.4889729817708333,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/cow.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/cow.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/cow.webp"
+      }
+    ]
   }
 }

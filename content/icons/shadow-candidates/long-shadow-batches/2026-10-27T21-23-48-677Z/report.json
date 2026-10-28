@@ -1,0 +1,32 @@
+{
+  "created": "2026-10-27T21-23-48-677Z",
+  "counts": {
+    "generate": 1,
+    "round": 0,
+    "caustics": 0,
+    "custom": 0,
+    "excluded": 0
+  },
+  "plan": [
+    {
+      "name": "cow",
+      "action": "generate",
+      "settings": {
+        "mode": "long",
+        "source": "alpha-long-shadow",
+        "anchorBase": false,
+        "flipY": false,
+        "opacity": 0.5,
+        "longLength": 0.8,
+        "longGap": 0.06,
+        "longAngle": 45,
+        "longNear": 1.5,
+        "longFar": 18,
+        "longFade": 1,
+        "reviewed": false,
+        "updated": "2026-10-27T21:23:49.463Z",
+        "generator": "studio-long-shadow-v1"
+      }
+    }
+  ]
+}
