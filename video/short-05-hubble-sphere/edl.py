@@ -31,7 +31,7 @@ EDL = [
  ("rec40", "empty", 298.42, 316.84),  # Galaxy clusters are even less dense, because now it's the galaxies plus all the empty space between them. And above that are the largest structures we know of, the superclusters, which come in the shapes of filaments. We live in one called Laniakea, made of about a hundred thousand galaxies.
  ("rec40", "voids", 339.82, 342.14, {"s": 340.23}),  # There's still something larger, actually: voids.   (two earlier tries, a lip noise and a first "There's" left out)
  ("rec40", "voids", 343.54, 345.14),  # Voids are just empty regions of space.
- ("rec40", "voids", 364.52, 366.12, {"s": 363.40}),  # It's weird to talk about nothing as an object.   (several tries left out)
+ ("rec40", "voids", 364.52, 366.12, {"s": 364.22}),  # It's weird to talk about nothing as an object.   (several tries left out; starts in the silence before "it's", not on the end of the "as" before it)
  ("rec40", "voids", 368.42, 375.24),  # It's not completely empty. It's just emptier than the space around it. They do have mass, and they do fit in this chart.
  # the second edge
  ("rec40", "edge", 380.44, 381.62, {"s": 380.58}),   # What about anything bigger?   ("Okay." left out)
@@ -47,10 +47,9 @@ EDL = [
  # are we inside a black hole?
  ("rec40", "bh", 483.46, 490.28),     # Now add up everything we know exists in the Hubble sphere, and here's where it lands on our chart: right on the black hole line.   (a first try left out)
  ("rec40", "bh", 491.44, 494.34, {"s": 491.45}),     # What does that mean? Are we living inside a black hole?   ("Okay," left out)
- ("rec40", "bh", 500.38, 500.38, {"s": 501.18, "e": 503.30}),  # Both are kind of an horizon.   (two tries before it and one after left out)
+ ("rec40", "bh", 505.52, 506.52, {"s": 509.64, "e": 511.80}),  # Both are kind of horizons.   (the last, clean try; the earlier ones cut into "both" and into the "the" after it)
  ("rec40", "bh", 518.54, 528.06),     # The Schwarzschild radius is the limit where light that goes in can never come out. The cosmic horizon is the limit where nothing outside can ever come in.   (a first try left out)
- ("rec40", "bh", 529.00, 531.46, {"e": 531.43}),   # And both depend on mass. The size of
- ("rec40", "bh", 531.66, 541.84, {"s": 531.64, "gap": 0.02}),  # ("a… ah" left out) black hole's event horizon depends on the black hole's mass, and the size of our Hubble sphere depends on how fast the universe expands, which depends on the mass that is inside it.
+  ("rec40", "bh", 529.00, 541.84),   # And both depend on mass. The size of a black hole's event horizon depends on the black hole's mass, and the size of our Hubble sphere depends on how fast the universe expands, which depends on the mass that is inside it.
  ("rec40", "bh", 542.66, 565.80),     # But that's where the similarities end. A black hole is an object with a definite center. Our universe is just that: it's our universe, it's not the universe. If you sat in a galaxy at the edge of our universe, you probably wouldn't see empty space on the other side. You would see our galaxy in one direction, and a trillion more galaxies in all the others.
  ("rec40", "bh", 570.00, 576.26),     # And as far as we've been able to measure, it may well be infinite, and it will probably look roughly the same everywhere.   (a first try left out)
  ("rec40", "limits", 628.06, 637.28),  # Those two lines, the Hubble radius and the black hole line, they represent the upper limits on how big and how massive something can be in the universe.   (the eighth try)

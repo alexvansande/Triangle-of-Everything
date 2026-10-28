@@ -17,13 +17,13 @@ https://creativecommons.org/licenses/by/4.0/
 
 | # | Track | Used in | File | Length |
 |---|---|---|---|---|
-| 1 | Fretless | short-06-tiny-world | `Fretless.mp3` | 5:36 |
+| 1 | Fretless | (tried on short-06: too dancy) | `Fretless.mp3` | 5:36 |
 | 2 | Immersed | short-03-stars | `Immersed.mp3` | 4:09 |
 | 3 | Dreamer | (retired-02-density) | `Dreamer.mp3` | 3:24 |
 | 4 | Promises to Keep | | `Promises to Keep.mp3` | 5:04 |
 | 5 | Fresh Air | short-05-hubble-sphere | `Fresh Air.mp3` | 4:54 |
 | 6 | Soaring | short-02-up-the-line | `Soaring.mp3` | 6:20 |
-| 7 | Relaxing Piano Music | | `Relaxing Piano Music.mp3` | 24:54 |
+| 7 | Relaxing Piano Music | short-06-tiny-world | `Relaxing Piano Music.mp3` | 24:54 |
 | 8 | Space X-plorers | short-01-hook | `space explorers.mp3` | 1:42 |
 | 9 | Universal | | `Universal.mp3` | 4:30 |
 | 10 | Daytime TV Theme | | `Daytime TV Theme.mp3` | 0:48 |

@@ -5,7 +5,7 @@
 # 6:59, PCM 48 kHz, the same voice on both channels): one take of the draft script in
 # video/plans/wavelengths.md with retakes, a new passage on why the Compton line runs at
 # 45°, and a spoken note for the visuals (1:59–2:42, left out; in the NOTES).
-# Treatment: enhance.py --plain, 1.1x. Build: see video/short-01-hook/README.md.
+# Treatment: enhance.py --plain, played as recorded (no tempo). Build: see video/short-01-hook/README.md.
 # (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds;
 # the builder snaps each cut to the nearest real silence.
 
@@ -20,7 +20,8 @@ EDL = [
  ("rec42", "same", 60.58, 62.18, {"s": 60.88}),     # less energy, longer wavelength.   (a "yeah" before it left out)
  ("rec42", "same", 63.50, 68.74),     # That's the line they make on the chart, from gamma rays here all the way to radio waves.
  ("rec42", "line", 72.64, 76.88),     # That's why the Compton line runs at a 45 degree angle,   (the second try)
- ("rec42", "line", 90.08, 97.66),     # at this scale we look at energy instead of mass, they are the same, and we look at wavelength instead of size.   (the restarts before it left out)
+ ("rec42", "line", 90.08, 95.36, {"e": 96.18}),     # at this scale we look at energy instead of mass, they are the same, and we look at wavelength   (the restarts before it left out)
+ ("rec42", "line", 95.94, 97.66, {"s": 97.18}),     # instead of size.   (a false start, "of", before it left out: 96.24–96.64)
  ("rec42", "line", 98.98, 100.52),    # And the more energy, the shorter wavelength.
  ("rec42", "line", 111.64, 114.32),   # And that's one of the limits of our triangle.   ("almost everything falls into…", "a contour line", "the limit of how any" left out)
  ("rec42", "eyes", 116.60, 118.14),   # Now let's go back to visible light.
@@ -34,7 +35,8 @@ EDL = [
  ("rec42", "up", 251.76, 265.30),     # In gamma rays, the most energetic light there is, … giant black holes at the center.
  ("rec42", "down", 270.51, 275.08),   # Now let's go all the way back down to infrared, where we see heat.   (the first try breaks off)
  ("rec42", "down", 286.86, 288.34, {"s": 285.08}),   # Warm land glows, cold cloud tops are dark.   (the last try, said in what Whisper heard as a pause; "warm lands glow…" before it left out)
- ("rec42", "down", 289.14, 315.10),   # In the sky infrared goes straight through the dust… the afterglow of the Big Bang.
+ ("rec42", "down", 289.14, 298.02, {"e": 298.80}),   # In the sky infrared goes straight through the dust… Further down, we see the dust itself,
+ ("rec42", "down", 299.30, 315.10, {"s": 300.12}),   # cold clouds where new stars are born… the afterglow of the Big Bang.   (a false start, "cold—", before it left out: 299.14–299.6)
  ("rec42", "far", 321.16, 324.74),    # And that's an interesting part, because not all light comes from the same place.   (the second try)
  ("rec42", "far", 339.36, 343.00),    # So let's put everything in a log scale like we're doing in the chart.
  ("rec42", "far", 351.02, 353.38),    # It's the only way we can see the whole universe.

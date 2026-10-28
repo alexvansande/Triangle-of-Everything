@@ -341,6 +341,9 @@ Cue fields
   dur      flight seconds (default: from the distance travelled)
            "end": fly until the end card covers the picture (the last word, + 0.65 s)
   ease     "gentle": sine easing, a near-even pace for long moves (default cubic in-out)
+  swap     { "Name": "icon-file" }: from this cue on, the object is drawn with that
+           picture from content/icons/ instead of its own (video 6's spherical cow);
+           false puts the objects' own pictures back
   periodic true: the map's periodic table (rows, columns, type rings, family
            names) fades in once the cue's camera arrives; false fades it out
   spectrum true: the spectrum's sine wave, likewise (it isn't redrawn while the
@@ -350,12 +353,19 @@ Cue fields
              show: true|false (fade s, default 1.2); view "inside"|"cloud",
              radius "custom"|"log"|"linear", bright "lin"|"log", rings, labels
              ({ "ring or marker name": "shown as" }: only those labels, renamed;
-             "edge": a ring at the observable universe's edge): switch
-             at the cue; c, s (RGB selector, in bands of the sky's bar: natural
-             colour c 22, s 1), yaw, pitch, zoom, spinA, gmst, unit, lz, exposure,
-             contrast, lift: glide over dur s (default 2.5); spin: rad/s, turns
-             Earth (Inside) or the Cloud for as long as it's on
-           (draft-06-wavelengths is the worked example)
+             "edge": a ring at the observable universe's edge): switch at the
+             cue, and xfade: s with a view switch cross-fades from the old view;
+             c, s (RGB selector, in bands of the sky's bar: natural colour c 22,
+             s 1), yaw, pitch, orbit, ezoom (one camera for Inside and the Cloud:
+             ezoom is Earth's size as Inside's field of view, orbit turns the
+             camera about Earth's axis, so Earth stays put across a switch),
+             gmst, unit, lz, exposure, contrast, lift, guides (0–1: the rings,
+             discs and names faded so the dots show): glide over dur s (default
+             2.5); spin: rad/s, added to the orbit with ezoom (the camera going
+             round a still Earth); without, turns Earth (Inside) or the Cloud
+           (short-07-wavelengths is the worked example; in the explorer page,
+           spectrumVideo.mix() lists the bands under each channel, to check the
+           words against the picture)
   header   false: the classic figure's title block fades out from the cue; true
            fades it in (hidden from the start if the first header cue is true)
   drift    slow zoom-in while holding, as a fraction (default 0.05)

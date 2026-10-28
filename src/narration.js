@@ -354,6 +354,17 @@ export async function startNarration(app) {
   const OVERLAY_FADE = 0.4;
   const overlays = ["periodic", "spectrum"].map(key => ({ key, set: key === "periodic" ? "setPeriodic" : "setSpectrum",
     cues: cues.filter(c => c[key] !== undefined).map(c => ({ on: !!c[key], t: c[key] && keys.find(k => k.t === c.time)?.end || c.time })) }));
+  // ---------- swapped pictures: `swap: { "Cow": "cow-spherical" }` from a cue on (an object
+  // drawn with another icon file's picture), `swap: false` back to its own ----------
+  const swapCues = cues.filter(c => c.swap !== undefined);
+  let swapNow = "";
+  function applySwap(t) {
+    let map = null;
+    for (const c of swapCues) if (c.time <= t) map = c.swap || null;
+    const slugs = map && Object.fromEntries(Object.entries(map).map(([name, file]) => [objByName.get(name)?.slug, file]).filter(([s]) => s));
+    const key = JSON.stringify(slugs);
+    if (key !== swapNow) { swapNow = key; app.setIconSwap?.(slugs); }
+  }
   function applyOverlays(t) {
     for (const o of overlays) {
       let a = 0;
@@ -394,7 +405,8 @@ export async function startNarration(app) {
     for (const p of pins) o = Math.max(o, smooth((t - p.t0) / 0.4) * (1 - smooth((t - p.t1) / 0.9)));
     // an object's guides point at the rulers, so the rulers come up with them
     for (const h of guided) o = Math.max(o, smooth((t - h.t0) / 0.4) * (1 - smooth((t - h.t1) / 0.9)));
-    return o * (1 - clamp01(classicOpacity(t) * 2));
+    // (and never over the spectrum explorer: it has no chart axes)
+    return o * (1 - clamp01(classicOpacity(t) * 2)) * (1 - (specFrame ? specFrame(t).show : 0));
   }
 
   // ---------- DOM ----------
@@ -709,6 +721,7 @@ export async function startNarration(app) {
     applyFocus(t);
     applyLabels(t);
     applyOverlays(t);
+    applySwap(t);
     // over the classic figure, keep highlights inside its plot frame
     const fr = classicOpacity(t) > 0.5 ? classicFrameClient() : null;
     if (fr) {
@@ -1527,33 +1540,39 @@ export async function startNarration(app) {
       g.append("text").attr("class", "narr-tag").attr("x", SW / 2 - 50).attr("y", y + 1.5).attr("fill", col).text(name.toUpperCase());
     });
   }
-  /** Expansion as a picture gaining pixels: { pixels: { n?, steps: [s, …], seed? } }. A small
-   *  black image with a few lit pixels; at each step (seconds after the cue) every pixel becomes
-   *  3 × 3, the old one kept in the centre and the new ones black, so the lit pixels spread
-   *  apart while each stays the same size: new space between them, nothing moving through it. */
+  /** Expansion as a picture gaining pixels: { pixels: { steps: [s, …], cell?, seed? } }, on its
+   *  own over a black screen (no chart behind) and full screen, so no border is seen growing (the
+   *  author's note, 2026-10-27: a border expanding is the balloon metaphor again). A picture of
+   *  a few lit pixels; at each step (seconds after the cue) every pixel becomes 2 × 2, "one pixel
+   *  into four": the old one keeps its place in the corner, the lit ones spread apart while
+   *  staying the same size, and the new pixels fade in, dark, in the gaps that open between them. */
   function drawPixels(el, h, age) {
-    const o = h.pixels, n = o.n ?? 9, c = (n - 1) / 2, cell = o.cell ?? 12;
-    let seed = o.seed ?? 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    const cols = ["#ffd54f", "#ffffff", "#80deea", "#ff8a80", "#b39ddb"], lit = [];
-    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (rnd() < 0.2) lit.push([i - c, j - c, cols[Math.floor(rnd() * cols.length)]]);
-    // the spread: ×3 per step, eased over 1.2 s
-    let k = 1;
-    for (const st of o.steps || []) k *= 1 + 2 * d3.easeCubicInOut(clamp01((age - st) / 1.2));
-    const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH * 0.42;
-    const half = (c + 0.5) * cell * k, op = smooth(age / 0.5);
-    const g = el.append("g").attr("opacity", op);
-    g.append("rect").attr("x", cx - half).attr("y", cy - half).attr("width", 2 * half).attr("height", 2 * half).attr("fill", "#000")
-      .attr("stroke", "rgba(255,255,255,0.55)").attr("stroke-width", 1.5);
-    // the grid of pixels, a pixel apart however far it has spread (clipped to the screen)
-    const lines = [], m = Math.ceil(half / cell);
-    for (let i = -m; i <= m; i++) {
-      const x = cx + (i + (n % 2 ? 0.5 : 0)) * cell, y = cy + (i + (n % 2 ? 0.5 : 0)) * cell;
-      if (Math.abs(x - cx) <= half && x > -2 && x < SW + 2) lines.push(`M${x},${Math.max(0, cy - half)}V${Math.min(SH, cy + half)}`);
-      if (Math.abs(y - cy) <= half && y > -2 && y < SH + 2) lines.push(`M${Math.max(0, cx - half)},${y}H${Math.min(SW, cx + half)}`);
+    const o = h.pixels, cell = o.cell ?? 16, steps = o.steps || [], seed = o.seed ?? 7;
+    const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH / 2;
+    // how far each step has gone (0–1, eased over 1.2 s), and the spread so far
+    const prog = steps.map(st => d3.easeCubicInOut(clamp01((age - st) / 1.2)));
+    let L = 0; while (L < steps.length && prog[L] > 0) L++;            // steps begun
+    const k = prog.reduce((a, p) => a * (1 + p), 1);                   // ×2 per step
+    // pixels at the current level: index (p, q) sits at p · cell · k / 2^L from the centre
+    const sp = cell * k / 2 ** L;
+    const lit = (i, j) => {   // the original picture: a few lit pixels, colours from a hash
+      const hsh = Math.abs(Math.sin(i * 127.1 + j * 311.7 + seed) * 43758.5453) % 1;
+      return hsh < 0.13 ? ["#ffd54f", "#ffffff", "#80deea", "#ff8a80", "#b39ddb"][Math.floor(hsh / 0.026)] : null;
+    };
+    const tz = (n) => { let z = 0; n = Math.abs(n); if (!n) return 99; while (n % 2 === 0) { n /= 2; z++; } return z; };
+    const g = el.append("g").attr("opacity", smooth(age / 0.6));
+    g.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH).attr("fill", "#000");
+    const pm = Math.ceil((SW / 2 + cell) / sp), qm = Math.ceil((SH / 2 + cell) / sp);
+    for (let p = -pm; p <= pm; p++) for (let q = -qm; q <= qm; q++) {
+      const x = cx + p * sp - cell / 2, y = cy + q * sp - cell / 2;
+      // born at the step after which p and q were last both on the coarser grid
+      const born = L - Math.min(L, tz(p), tz(q));                       // 0: an original pixel
+      const col = born === 0 ? lit(p / 2 ** L, q / 2 ** L) : null;
+      const a = born === 0 ? 1 : smooth((age - steps[born - 1] - 0.3) / 1.0);
+      if (a <= 0) continue;
+      g.append("rect").attr("x", x + 0.5).attr("y", y + 0.5).attr("width", cell - 1).attr("height", cell - 1)
+        .attr("fill", col || "#0d0f16").attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1).attr("opacity", a);
     }
-    g.append("path").attr("d", lines.join("")).attr("stroke", "rgba(255,255,255,0.16)").attr("stroke-width", 1).attr("fill", "none");
-    for (const [i, j, col] of lit)
-      g.append("rect").attr("x", cx + i * cell * k - cell / 2).attr("y", cy + j * cell * k - cell / 2).attr("width", cell).attr("height", cell).attr("fill", col);
   }
   /** A big free-standing word on the chart: { text, at: [r, m], color? } (a hub that arrows point out from) */
   function drawText(el, h, age) {
@@ -1727,11 +1746,16 @@ export async function startNarration(app) {
   //   radius "custom" | "log" | "linear" · bright "lin" | "log" · rings · labels ({ name:
   //   "shown as" }: only those ring and marker labels; "edge": the observable universe's): switch at the cue
   //   c, s (the RGB selector, in bands of the sky's bar: natural colour is c 22, s 1),
-  //   yaw, pitch, zoom (Inside: zoom is the field of view, smaller is closer;
-  //   Cloud: bigger is closer), spinA, gmst (Earth's turn), unit, lz, exposure,
-  //   contrast, lift: glide there from wherever they are, over `dur` s (default 2.5)
-  //   spin: a turn rate (rad/s) that never stops while it's on: Earth turning on its
-  //   axis in Inside (added to gmst), the whole Cloud turning (added to spinA)
+  //   yaw, pitch, orbit, ezoom: one camera for Inside and the Cloud, so Earth stays put
+  //   when the view switches (ezoom is Earth's size as Inside's field of view, smaller
+  //   is closer; orbit turns the camera about Earth's axis, Earth and the sky together),
+  //   gmst (Earth's turn), unit, lz, exposure, contrast, lift, guides (0–1, the Cloud's rings,
+  //   discs and names faded so the dots show): glide there from wherever
+  //   they are, over `dur` s (default 2.5)
+  //   spin: a turn rate (rad/s) that never stops while it's on. With ezoom it's added to
+  //   the orbit: Earth stays still and the camera goes round it (the author's note,
+  //   2026-10-27); without, Earth turns on its axis in Inside (gmst), the Cloud turns (spinA)
+  //   xfade: with a view switch, the old view fades out over it over this many seconds
   //   line: 0–1 (default 1), the Compton line drawn over the explorer as its spectrum
   //   bar (the author's note, 2026-10-27): the line where the chart's camera puts it,
   //   the colours we see on it, the selector's red, green and blue ranges glowing on
@@ -1740,7 +1764,7 @@ export async function startNarration(app) {
   const SPEC = SCENE.explorer || SPEC_KEYS.length ? { ...(SCENE.explorer || {}) } : null;
   let specFrame = null, specLastT = NaN;
   const SPEC_SWITCH = ["view", "radius", "bright", "rings", "labels"];
-  const SPEC_LOG = new Set(["zoom"]);   // glides evenly in powers of ten
+  const SPEC_LOG = new Set(["zoom", "ezoom"]);   // glides evenly in powers of ten
   const specSegs = {}, specSwitch = {};
   if (SPEC) {
     const init = { show: false, spin: 0, line: 1, ...SPEC };
@@ -1756,8 +1780,8 @@ export async function startNarration(app) {
       return v;
     };
     for (const c of SPEC_KEYS) for (const [f, to] of Object.entries(c.explorer)) {
-      if (f === "dur" || f === "fade") continue;
-      if (SPEC_SWITCH.includes(f)) { (specSwitch[f] ||= []).push({ t: c.time, v: to }); continue; }
+      if (f === "dur" || f === "fade" || f === "xfade") continue;
+      if (SPEC_SWITCH.includes(f)) { (specSwitch[f] ||= []).push({ t: c.time, v: to, xfade: c.explorer.xfade }); continue; }
       const dur = f === "show" ? (c.explorer.fade ?? 1.2) : (c.explorer.dur ?? 2.5);
       const from = at(f, c.time) ?? (f === "zoom" ? 1 : 0);
       (specSegs[f] ||= []).push({ t0: c.time, dur, from: f === "show" ? +from : from, to: f === "show" ? +to : to });
@@ -1769,13 +1793,23 @@ export async function startNarration(app) {
     specFrame = (t) => {
       const st = {};
       for (const f of SPEC_SWITCH) { let v = init[f]; for (const k of specSwitch[f] || []) if (k.t <= t) v = k.v; if (v !== undefined) st[f] = v; }
+      // a cross-fade out of the view before the last switch
+      let prev = init.view ?? "inside";
+      for (const k of specSwitch.view || []) {
+        if (k.t > t) break;
+        if (k.xfade && t < k.t + k.xfade) { st.from = prev; st.fromA = 1 - smooth((t - k.t) / k.xfade); }
+        prev = k.v;
+      }
       for (const f of new Set([...Object.keys(init), ...Object.keys(specSegs)])) {
         if (SPEC_SWITCH.includes(f) || f === "spin" || f === "show" || f === "line") continue;
         const v = at(f, t);
         if (v !== undefined) st[f] = v;
       }
       const a = turned(t);
-      if (a) { if ((st.view ?? "inside") === "cloud") st.spinA = (st.spinA ?? 0) + a; else st.gmst = (st.gmst ?? 0) + a; }
+      if (a) {
+        if (init.ezoom != null) st.orbit = (st.orbit ?? 0) + a;
+        else if ((st.view ?? "inside") === "cloud") st.spinA = (st.spinA ?? 0) + a; else st.gmst = (st.gmst ?? 0) + a;
+      }
       return { show: smooth(at("show", t)), line: clamp01(at("line", t)), st };
     };
   }
