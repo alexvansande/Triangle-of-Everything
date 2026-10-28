@@ -23,23 +23,23 @@ rec39,chem,130.06,142.61,225.05,238.30,what makes every one of us DNA. It's code
 rec39,atoms,143.21,157.50,282.42,296.72,"Here's hydrogen. For any atom, the mass comes almost all from its nucleus, but the size comes from its clouds of electrons. Add the second proton with two neutrons to hold it together, and you get helium, four times mass."
 rec39,atoms,157.78,185.73,301.89,330.38,"But that extra charge pulls the electron in closer, so helium is actually smaller. Add one more and you get lithium, and its third electron has to start a new shell, so it balloons out, now it's bigger. And notice that that keeps happening, with every proton, atoms get heavier and smaller and smaller until a new shell starts and they balloon out again, bigger and smaller over and over at regular intervals."
 rec39,atoms,186.01,189.09,348.36,351.44,that's why we get a periodic table.
-rec39,atoms,189.37,198.77,353.71,363.12,"That thing you saw in the wall in your chemistry class isn't just arbitrary, you can see it right here drawn by the atoms themselves."
-rec39,atoms,199.05,205.27,377.39,383.97,the alkali metals ballooning out at the start of every row and the noble gases tucked in at the end.
-rec39,atoms,205.55,226.93,390.44,412.18,"Some atoms are just a little weird. palladium jumps over towards the noble gases. It's the only element that leaves its new outer shell completely empty. Its outer electrons all huddle in a full inner shell instead, so it's almost as compact as a noble gas. Down here are the lanthanides, gold and silver."
-rec39,atoms,227.21,244.10,416.31,433.49,"Up to iron, elements are forged in the cores of stars. Everything heavier, like gold or uranium, takes something even more violent, exploding stars and colliding neutron stars. Past here every element is radioactive,"
-rec39,atoms,244.38,251.13,434.39,441.25,"and this is oganesson, the heaviest element we've ever made, just a few atoms at a time."
-rec39,edge,251.73,258.51,444.07,451.22,"So what happens if you keep following the line down. We reach the third and final edge of the triangle, the Kontol line."
-rec39,edge,258.79,273.82,451.78,466.94,"Down here physicists stop weighting things in grams. They use electron volts, which is a unit of energy, divided by the speed of light squared and you get mass. That's Einstein. E equals mc squared."
-rec39,edge,274.10,277.92,479.38,483.20,"Deep down, mass and energy are the same."
-rec39,edge,278.20,288.95,485.08,495.83,"And everything with energy also has a wavelength. The more energy, the faster it oscillates and the shorter its wavelength. You can squeeze something smaller than that."
-rec39,edge,289.23,299.35,537.33,547.46,"To squeeze it, you have to add energy and if you squeeze it any tighter, that energy you put in just makes new particles, pairs of matters and antimatter."
-rec39,edge,299.63,315.10,585.91,601.43,"So nothing can be smaller than its own wavelength. And the heavier something is, the smaller that limit gets, which is why this line looks this way. And it's why no object can cross to the other side. It's the quantum limit of our triangle."
-rec39,light,315.70,321.16,636.30,641.76,"So here's something very cool. Everything in this line is either a particle or light,"
-rec39,light,321.44,329.79,660.56,668.91,"every particle sits here at its own wavelength, and so does light. Every kind of it, from radio waves up to gamma rays down here."
-rec39,gamma,330.39,342.03,797.95,809.58,"Now here's an interesting question. Remember that line we were following, the density water line, the line of ordinary stuff, just matter. It crosses the Compton line right here,"
-rec39,gamma,342.31,345.07,814.24,817.00,right where gamma rays become x -rays.
-rec39,gamma,345.35,351.99,819.73,826.78,"When a radioactive atom decays into another, it emits a little bit of gamma rays."
-rec39,gamma,352.27,361.93,842.76,852.75,"that's because it's converting a little bit of matter into energy, and that energy comes at the gamma ray radiation, which is right here."
-rec39,gamma,362.21,365.37,855.45,858.61,That's matter turning into light.
-rec39,end,365.97,372.07,897.20,903.29,And Light Self can also tell us a very interesting story about the universe and our place in it.
-rec39,end,372.35,377.98,908.54,914.17,"That's the story of Wavelengths of Light, which is a great story for the next video."
+rec39,atoms,189.37,197.19,353.71,363.12,"That thing you saw in the wall in your chemistry class isn't just arbitrary, you can see it right here drawn by the atoms themselves."
+rec39,atoms,197.47,203.69,377.39,383.97,the alkali metals ballooning out at the start of every row and the noble gases tucked in at the end.
+rec39,atoms,203.97,225.35,390.44,412.18,"Some atoms are just a little weird. palladium jumps over towards the noble gases. It's the only element that leaves its new outer shell completely empty. Its outer electrons all huddle in a full inner shell instead, so it's almost as compact as a noble gas. Down here are the lanthanides, gold and silver."
+rec39,atoms,225.63,242.52,416.31,433.49,"Up to iron, elements are forged in the cores of stars. Everything heavier, like gold or uranium, takes something even more violent, exploding stars and colliding neutron stars. Past here every element is radioactive,"
+rec39,atoms,242.80,249.55,434.39,441.25,"and this is oganesson, the heaviest element we've ever made, just a few atoms at a time."
+rec39,edge,250.15,256.93,444.07,451.22,"So what happens if you keep following the line down. We reach the third and final edge of the triangle, the Kontol line."
+rec39,edge,257.03,270.20,451.78,466.94,"Down here physicists stop weighting things in grams. They use electron volts, which is a unit of energy, divided by the speed of light squared and you get mass. That's Einstein. E equals mc squared."
+rec39,edge,270.48,274.30,479.38,483.20,"Deep down, mass and energy are the same."
+rec39,edge,274.58,285.33,485.08,495.83,"And everything with energy also has a wavelength. The more energy, the faster it oscillates and the shorter its wavelength. You can squeeze something smaller than that."
+rec39,edge,285.61,295.73,537.33,547.46,"To squeeze it, you have to add energy and if you squeeze it any tighter, that energy you put in just makes new particles, pairs of matters and antimatter."
+rec39,edge,296.01,311.48,585.91,601.43,"So nothing can be smaller than its own wavelength. And the heavier something is, the smaller that limit gets, which is why this line looks this way. And it's why no object can cross to the other side. It's the quantum limit of our triangle."
+rec39,light,312.08,317.54,636.30,641.76,"So here's something very cool. Everything in this line is either a particle or light,"
+rec39,light,317.82,326.17,660.56,668.91,"every particle sits here at its own wavelength, and so does light. Every kind of it, from radio waves up to gamma rays down here."
+rec39,gamma,326.77,338.41,797.95,809.58,"Now here's an interesting question. Remember that line we were following, the density water line, the line of ordinary stuff, just matter. It crosses the Compton line right here,"
+rec39,gamma,338.69,341.45,814.24,817.00,right where gamma rays become x -rays.
+rec39,gamma,341.73,348.37,819.73,826.78,"When a radioactive atom decays into another, it emits a little bit of gamma rays."
+rec39,gamma,348.60,357.76,842.76,852.75,"that's because it's converting a little bit of matter into energy, and that energy comes at the gamma ray radiation, which is right here."
+rec39,gamma,358.04,361.20,855.45,858.61,That's matter turning into light.
+rec39,end,361.80,367.90,897.20,903.29,And Light Self can also tell us a very interesting story about the universe and our place in it.
+rec39,end,368.18,373.81,908.54,914.17,"That's the story of Wavelengths of Light, which is a great story for the next video."

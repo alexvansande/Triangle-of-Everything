@@ -6,3 +6,6 @@
 short-01-hook
 short-03-stars
 short-02-up-the-line
+short-05-hubble-sphere
+short-06-tiny-world
+short-07-wavelengths
