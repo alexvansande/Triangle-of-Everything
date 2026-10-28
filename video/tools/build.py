@@ -134,6 +134,7 @@ for item in EDL:
         parts[i + 1] = parts[i + 1].copy(); parts[i + 1][:r] *= ramp[::-1]
     clip = np.concatenate(parts)
     if name in SOURCE_TEMPO: clip = tempo(clip, SR, SOURCE_TEMPO[name])
+    if "gain" in ov: clip = clip * np.float32(10 ** (ov["gain"] / 20))   # dB, to even out a clip spoken louder or softer
     clip = fade(clip, SR)
     gap = 0.0 if prev is None else ov.get("gap", GAP_BEAT if beat != prev else GAP_SAME)
     out.append(np.zeros(int(gap * SR), np.float32)); t += gap

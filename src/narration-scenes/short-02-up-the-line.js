@@ -6,7 +6,7 @@
 // dinosaurs, the whale and the sequoia; the Eiffel Tower, the pyramid, lakes,
 // asteroids and small moons; round worlds; atmospheres, the Goldilocks zone, gas giants, Saturn;
 // super-Jupiters and degenerate matter; the split at the brown dwarfs.
-// Recorded 2026-10-26 (rec33; video/short-02-up-the-line/), re-keyed to its words;
+// Recorded 2026-10-26 (rec33) and 2026-10-28 (rec46, the re-recorded paragraphs; video/short-02-up-the-line/);
 // the 2026-10-23 cut (rec32) and the 2026-10-21 one (rec27 + rec28) are in git history.
 // =============================================================
 // Field reference: docs/narration.md, "Scene fields".
@@ -93,22 +93,22 @@ export default {
     { at: "in the metric system", cam: { obj: "1ml of water (cube)", dr: 0.033, span: 0.3 }, units: true, unitsUntil: "that's okay",
       hl: [{ ...CUBE, label: "1 mL · 1 gram" }] },
     { at: "fill a cube", hl: [{ ...CUBE, label: "a cube 1 cm wide" }] },
-    { at: "measure sizes as spheres",
+    { at: ["as if they were a ball", "measure sizes as spheres"],
       hl: [{ ...CUBE, label: "cube · 1 cm" }, { arrow: true, from: CUBE, to: ML, color: "#80deea" }, { ...ML, label: "ball · 1.24 cm", delay: 0.6 }] },
-    { at: "a little bit to the side",
+    { at: ["a tiny bit to the right", "a little bit to the side"],
       hl: [{ ...CUBE, label: "cube" }, { arrow: true, from: CUBE, to: ML, color: "#80deea", draw: 0.01 }, { ...ML, label: "a little to the side" }] },
 
     // walking up the line: the grid's squares are decades, counted out beside the
     // arrows, with the axis each move is measured on lit up
-    { at: "multiply all three sides", cam: { r: 0.3, m: 1.5, span: 2.7 }, focus: [ML.obj, LITER.obj], units: true, unitsUntil: "density of water",
+    { at: ["make every side", "multiply all three sides"], cam: { r: 0.3, m: 1.5, span: 2.7 }, focus: [ML.obj, LITER.obj], units: true, unitsUntil: "density of water",
       hl: [{ ...ML, label: "1 mL · 1 cm" }] },
-    { at: "one step to the side",
+    { at: ["one unit to the right", "one step to the side"],
       hl: [{ ...ML, label: "1 mL" }, ...STEP_RIGHT, { axis: "bottom", label: "size ×10" }] },
-    { at: "volume by a thousand",
+    { at: ["volume grows a thousand", "volume by a thousand"],
       hl: [{ ...ML, label: "1 mL" }, ...drawn(STEP_RIGHT), ...STEP_UP] },
-    { at: "that's one kilogram",
+    { at: ["weighs one kilogram", "that's one kilogram"],
       hl: [{ ...ML, label: "1 mL", place: "left" }, ...drawn(STEP_RIGHT), ...drawn(HEAVIER), { ...LITER, label: "1 liter · 1 kg" }] },
-    { at: "three steps up", hl: [{ ...ML, place: "left" }, ...drawn(STEP_RIGHT), ...drawn(HEAVIER), { ...LITER, label: "3 squares up" }] },
+    { at: ["three units up", "three steps up"], hl: [{ ...ML, place: "left" }, ...drawn(STEP_RIGHT), ...drawn(HEAVIER), { ...LITER, label: "3 squares up" }] },
     { at: "do it again", cam: WIDE, dur: 3, drift: 0.04, focus: [ML.obj, LITER.obj, TONNE.obj],
       hl: [{ ...ML, place: "left" }, { ...LITER, label: "1 kg", place: "left" }, { arrow: true, from: LITER, to: TONNE, label: "×10 size · ×1000 mass" }, { ...TONNE, label: "1 tonne", delay: 0.8 }] },
     { at: "draw a diagonal line", focus: false, cam: C(1.2, 3.6, 4.6),
@@ -127,7 +127,7 @@ export default {
     // the air line runs to the right of the water line, a thousand times less dense
     { at: "density of air", cam: C(1.5, 4.2, 2.3), hl: [WATER, { line: "air", label: "density of air" }] },
     { at: "heavier than air", cam: C(1.9, 5.0, 2.2), hl: [WATER, { ...AIR, label: "lighter than air →" }] },
-    { at: "lighter than air aircraft", cam: C(2.4, 5.8, 2.1),
+    { at: ["as the name says", "lighter than air aircraft"], cam: C(2.4, 5.8, 2.1),
       hl: [AIR, { obj: "Zeppelin NT" }, { obj: "Hot-air Balloon", delay: 0.3 }] },
     { at: "balloons and zeppelins", cam: C(2.45, 6.0, 2.0),
       hl: [AIR, { obj: "Zeppelin NT", label: "zeppelin" }, { obj: "Hot-air Balloon", label: "balloon" }] },
@@ -164,15 +164,15 @@ export default {
     { at: "also counting all", hl: [{ ...EIFFEL, step: 0 }, ...EIFFEL_LINES] },
     // (the first copy lands only a fifth of a decade to the left: a closer look, then out
     // enough for the iron, the outlines shrinking to make room)
-    { at: "in many ways", cam: { r: 3.76, m: 10.03, span: 1.1 }, quiet: true, dur: 1.6, drift: 0.03,
+    { at: ["leave out the arch", "in many ways"], cam: { r: 3.76, m: 10.03, span: 1.1 }, quiet: true, dur: 1.6, drift: 0.03,
       hl: [{ ...EIFFEL, step: 1, grow: 1.7, draw: 0.9 }, ...EIFFEL_LINES] },
-    // the iron lattice, the third shape: "fractal"
-    { at: "fractal", offset: -0.6, cam: { r: 3.38, m: 10.02, span: 1.7 }, quiet: true, dur: 1.4, drift: 0.03,
+    // the iron lattice, the third shape (rec46 names each volume as it lands, 2026-10-28)
+    { at: ["the iron alone", "fractal"], offset: -0.3, cam: { r: 3.38, m: 10.02, span: 1.7 }, quiet: true, dur: 1.4, drift: 0.03,
       hl: [{ ...EIFFEL, step: 2, grow: 1.1, move: 1.1 }, ...EIFFEL_LINES] },
 
     // rocks, lakes, asteroids and small moons
-    { at: "lots of big rocks", cam: C(4.05, 11.3, 3.9), hl: [{ obj: "Great Pyramid" }] },
-    { at: "both categories", cam: C(4.3, 12.6, 4.1), hl: [{ obj: "Great Pyramid", label: "rock and building" }, { obj: "Mt. Everest", delay: 0.3 }] },
+    { at: ["big rocks and big", "lots of big rocks"], cam: C(4.05, 11.3, 3.9), hl: [{ obj: "Great Pyramid" }] },
+    { at: ["a little bit of both", "both categories"], cam: C(4.3, 12.6, 4.1), hl: [{ obj: "Great Pyramid", label: "rock and building" }, { obj: "Mt. Everest", delay: 0.3 }] },
     // the lakes sit below the line (wide and flat): the pan dips to them
     { at: "lakes and asteroids", cam: C(5.2, 15.6, 4.4),
       hl: [{ obj: "Königssee", label: "lakes", place: "right" }, { obj: "Hallstätter See", label: false, delay: 0.2 },
@@ -205,15 +205,17 @@ export default {
     { at: "oxygen and nitrogen", cam: G(8.9, 27.7), hl: [{ ...AIR_BAND, instant: true }, { obj: "Earth", label: "keeps oxygen, nitrogen" }] },
     { at: "not enough to hold", cam: G(9.0, 27.9), hl: [{ ...AIR_BAND, instant: true }, { obj: "Earth", label: "loses hydrogen, helium" }] },
     { at: "following the rocky planets", cam: G(9.5, 29.15), hl: [ROCKY_GAS, WATER, { obj: "Earth", label: "rocky planets", place: "left" }, { obj: "Venus", label: false, place: "left" }] },
-    { at: "mostly made of gas", cam: G(9.6, 29.5), hl: [{ ...ROCKY_GAS, draw: 0.01 }, WATER, { obj: "Earth", place: "left" }, { obj: "Neptune", place: "left" }, { obj: "Saturn", delay: 0.3 }, { obj: "Jupiter", label: "mostly gas", delay: 0.6 }] },
+    { at: ["planets are mostly gas", "mostly made of gas"], cam: G(9.6, 29.5), hl: [{ ...ROCKY_GAS, draw: 0.01 }, WATER, { obj: "Earth", place: "left" }, { obj: "Neptune", place: "left" }, { obj: "Saturn", delay: 0.3 }, { obj: "Jupiter", label: "mostly gas", delay: 0.6 }] },
     { at: "less dense than water", cam: G(9.75, 30.1), hl: [WATER, { obj: "Saturn", label: "Saturn · would float", place: "left" }] },
+    { at: "as dense as wood", hl: [WATER, { obj: "Saturn", label: "Saturn · like wood", place: "left" }] },
+    { at: "as dense as honey", hl: [WATER, { obj: "Saturn", label: false, place: "left" }, { obj: "Jupiter", label: "Jupiter · like honey" }] },
 
     // super-Jupiters and degenerate matter
-    { at: "trend stops", cam: G(9.85, 30.6),
+    { at: ["trend suddenly stops", "trend stops"], cam: G(9.85, 30.6),
       hl: [WATER, { obj: "Saturn", label: false, place: "left" }, { obj: "Jupiter", label: false }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", delay: 0.6 }] },
     { at: "still roughly", cam: G(9.85, 30.9), hl: [{ obj: "Jupiter", label: "Jupiter size", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
     { at: "pressure in their core", cam: G(9.85, 31.2), hl: [{ obj: "Jupiter", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
-    { at: "degenerate matter", cam: G(9.85, 31.6), hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
+    { at: ["they push back", "degenerate matter"], cam: G(9.85, 31.6), hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
       { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "degenerate matter" }] },
 
     // the split
