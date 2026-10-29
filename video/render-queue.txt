@@ -7,6 +7,5 @@
 #   # short-04-black-holes changed: 1:20-1:45, 3:00-3:30
 # and only those stretches re-render, spliced into the last render (narration-render-partial.py).
 short-01-hook
-short-02-up-the-line
 short-03-stars
 short-07-wavelengths
