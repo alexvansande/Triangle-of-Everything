@@ -1384,6 +1384,12 @@
       spin = false; spinA = 0; glide = null; fade = null;
       draw();
     };
+    // and read back: the view as it stands, to hand to a page that drives it
+    window.spectrumState = () => ({
+      target, view: Object.keys(VIEW_ID).find((k) => VIEW_ID[k] === mode).toLowerCase(), explore, c: +c.toFixed(2), s: +s.toFixed(2),
+      yaw: +view.yaw.toFixed(3), pitch: +view.pitch.toFixed(3), zoom: +view.zoom.toFixed(3),
+      radius: R_NAMES[rmode], lz: +lz.toFixed(2), unit: +unit.value, bright: brightLog ? "log" : "linear", lift: +lift.value, dlo, dhi,
+    });
     window.__stillDone = true;
   }
 
