@@ -23,6 +23,7 @@
 
 import { blackHoleFilter } from "./black-hole-palette.js";
 import * as d3 from "d3";
+import { iconUrls } from "./assets.js";
 import {
   HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
@@ -884,6 +885,7 @@ export async function startNarration(app) {
       else if (h.window) drawWindow(el, h, age);
       else if (h.cross) drawCross(el, h, age);
       else if (h.text) drawText(el, h, age);
+      else if (h.pic) drawPic(el, h, age);
       else if (h.pixels) drawPixels(el, h, age);
       else if (h.key) drawKey(el, h, age);
       else if (h.path) drawPath(el, h, age);
@@ -1915,6 +1917,23 @@ export async function startNarration(app) {
     if (lines.length === 1) { t.text(lines[0]); return; }
     lines.forEach((s, i) => t.append("tspan").attr("x", sx(h.at[0])).attr("dy", i ? "1.15em" : `${-0.575 * (lines.length - 1)}em`).text(s));
   }
+  /** A particle's picture anywhere on the chart: { pic: "deuterium", at: [r, m], size? (px, 140),
+   *  label?, sub? }. The still content/icons/<pic>.webp, which the videos draw live and
+   *  animated (src/hopf-icons.js, any Hopf particle id), the label and sub-line under it. */
+  function drawPic(el, h, age) {
+    const size = h.size ?? 140, x = sx(h.at[0]), y = sy(h.at[1]);
+    const a = h.instant ? 1 : smooth(age / 0.8), grow = 0.85 + 0.15 * a;
+    el.append("image").attr("class", "narr-pic").attr("data-slug", h.pic)
+      .attr("href", iconUrls[`../content/icons/${h.pic}.webp`] || "")
+      .attr("x", x - size * grow / 2).attr("y", y - size * grow / 2).attr("width", size * grow).attr("height", size * grow)
+      .attr("opacity", a);
+    const lines = [h.label && [h.label.toUpperCase(), h.color || "#ffe9a3", null], h.sub && [h.sub, "#d8dde8", "13px"]].filter(Boolean);
+    lines.forEach(([text, fill, fs], i) => {
+      const t = el.append("text").attr("class", "narr-tag").attr("x", x).attr("y", y + size / 2 + 18 + 18 * i)
+        .attr("text-anchor", "middle").attr("fill", fill).attr("opacity", a).text(text);
+      if (fs) t.style("font-size", fs).style("letter-spacing", "0.02em").style("font-weight", 600);
+    });
+  }
   function drawArrow(el, h, age) {
     const from = h.from.obj ? objByName.get(h.from.obj) : null;
     const to = h.to.obj ? objByName.get(h.to.obj) : null;
@@ -2295,6 +2314,7 @@ export async function startNarration(app) {
       }),
     }),
     renderAt,
+    now: () => curT,     // the take's time on screen (the live Hopf pictures animate by it)
     settle(t) { const { view } = camera(t); app.setCamera(view, false); app.bgNoiseSettle(); overlay(); },
     camera: (t) => camera(t).view,
     pending: () => app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +

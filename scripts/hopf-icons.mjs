@@ -3,16 +3,19 @@
 // particle in public/hopf/hopf-core.js (CHART_ICONS) to a 512px transparent
 // webp in content/icons/, then regenerates the resolution tiers.
 // Needs the dev server (npm run dev) and Playwright (PLAYWRIGHT_PATH for a global install).
+// Pass icon files to render only those (node scripts/hopf-icons.mjs proton neutron);
+// PORT for a dev server on another port.
 import sharp from "sharp";
 import { generateIconResolutions } from "./generate-icon-resolutions.mjs";
 const pwPath = process.env.PLAYWRIGHT_PATH || "playwright";
 const pw = (await import(pwPath)).default ?? await import(pwPath);
 
-const browser = await pw.chromium.launch({ args: ["--use-angle=metal", "--enable-gpu"] });
+const only = process.argv.slice(2);
+const browser = await pw.chromium.launch({ args: process.platform === "darwin" ? ["--use-angle=metal", "--enable-gpu"] : ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
 const page = await browser.newPage();
 page.on("pageerror", e => console.error("PAGE ERROR:", e.message));
-await page.goto("http://localhost:5173/hopf.html?focus=none", { waitUntil: "networkidle" });
-const shots = await page.evaluate(async () => {
+await page.goto(`http://localhost:${process.env.PORT || 5173}/hopf.html?focus=none`, { waitUntil: "networkidle" });
+const shots = await page.evaluate(async only => {
   const { PARTICLES, Renderer, HopfView, CHART_ICONS } = await import("/hopf/hopf-core.js");
   const renderer = new Renderer({ alpha: true });
   const px = 512;
@@ -20,6 +23,7 @@ const shots = await page.evaluate(async () => {
   const out = {};
   const opts = { drift: true, flow: true, width: 1, bloom: 0.9, exposure: 1.1, core: 0.8 };
   for (const { id, file, res } of Object.values(CHART_ICONS)) {
+    if (only.length && !only.includes(file)) continue;
     const view = new HopfView(renderer, null, PARTICLES.find(p => p.id === id));
     if (res !== undefined) view.res = res;
     view.yaw = 0.6;
@@ -32,10 +36,10 @@ const shots = await page.evaluate(async () => {
     out[file] = c.toDataURL("image/png");
   }
   return out;
-});
+}, only);
 await browser.close();
 for (const [file, url] of Object.entries(shots)) {
   await sharp(Buffer.from(url.split(",")[1], "base64")).webp({ quality: 90, alphaQuality: 100 }).toFile(`content/icons/${file}.webp`);
   console.log(`  ${file}.webp`);
 }
-await generateIconResolutions();
+await generateIconResolutions(only);
