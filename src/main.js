@@ -133,6 +133,7 @@ const ICON_SIZE_MULT = {
   "primordial-black-hole": 2, "3k-bh": 2, "stellar-bh": 2,
   "sgr-a": 2, "m87": 2, "ton-618": 2,
   ...BLACK_HOLE_SIZE_MULT,
+  "m87": BLACK_HOLE_SIZE_MULT["m87"] * 2,   // its artwork reads much smaller than the other black holes' (the author, 2026-10-29)
 };
 
 // Physical size scaling: for every 6 orders of magnitude in real radius,

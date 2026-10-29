@@ -63,7 +63,7 @@ export default {
   // (the nebulae and everything bigger are drawn larger by the chart's own size curve now,
   // main.js iconSizeCurve: 1.6-2.3x; the scene's 1.4x iconBoost came off so it isn't doubled)
   // Laniakea's picture shows even where the Boötes Void's would hide it, in front of it
-  forceIcons: ["Laniakea"],
+  forceIcons: ["Laniakea", "Ton 618"],   // TON 618 beside the (larger, 2026-10-29) M87*
   // no "Observable Universe" name on the Hubble sphere's dot (author, 2026-10-28)
   hideLabels: ["Observable Universe"],
 

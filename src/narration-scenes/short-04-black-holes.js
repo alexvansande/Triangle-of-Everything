@@ -74,7 +74,7 @@ export default {
   icons: "all",
   blurb: "The top-left limit and why it is 45°, TON 618, the window for primordial black holes, galaxies without their dark matter, and the lucky few survivors.",
   start: FULL,
-  forceIcons: ["Sun"],   // the Sun's picture in "squeeze the Sun into a black hole", where nearby stars would otherwise win the room
+  forceIcons: ["Sun", "Ton 618"],   // the Sun's picture in "squeeze the Sun into a black hole", where nearby stars would otherwise win the room; TON 618 beside the (larger) M87*
   pbhWindow: false,   // the window is drawn as it's told (window highlight), not the map's
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
@@ -149,9 +149,9 @@ export default {
     { at: ["first black hole ever", "first one"], photo: "m87", obj: "M87*", dive: { in: 1.4, out: 2.5, photoAt: 0.4 }, dur: 3.4, fadeIn: 0.9, fadeOut: 1.2,
       lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600], fill: "cover", hold: 0, fillDur: 1.5 },
       caption: "M87*, the first black hole ever photographed · Event Horizon Telescope · 2019" },
-    { at: ["one of the largest", "largest black hole"], cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "ton 618", place: "left" }] },
-    { at: ["orbits of every planet", "orbits of our planets"], hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "horizon ≈ 40× neptune's orbit", place: "left" }] },
-    { at: ["in our solar system", "60 billion"], hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "~60 billion suns", place: "left" }] },
+    { at: ["one of the largest", "largest black hole"], cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "ton 618", place: "above" }] },
+    { at: ["orbits of every planet", "orbits of our planets"], hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "horizon ≈ 40× neptune's orbit", place: "above" }] },
+    { at: ["in our solar system", "60 billion"], hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "~60 billion suns", place: "above" }] },
 
     // ── The small ones ───────────────────────────────────────
     { at: "but how small", cam: { r: -2, m: 25, span: 28 }, dur: 4, clear: true, hl: [{ ...SCHW, label: "the smallest" }] },

@@ -6,3 +6,6 @@
 # When only the picture changed (the audio is the same), add the playback times that changed:
 #   # short-04-black-holes changed: 1:20-1:45, 3:00-3:30
 # and only those stretches re-render, spliced into the last render (narration-render-partial.py).
+short-03-stars
+# short-03-stars changed: 2:05-2:16
+short-05-hubble-sphere
