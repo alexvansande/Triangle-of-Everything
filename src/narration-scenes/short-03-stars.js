@@ -16,8 +16,13 @@ const LOW = { path: "stellar-low-mass" }, HIGH = { path: "stellar-high-mass" };
 // the cycle, lit from the split on (not during the collapse and swell: the author, 2026-10-29):
 // star → red giant → nebula and dense core, nebula → nursery → protostar → star
 const CYCLE = [LOW, { path: ["nebula-to-nursery", "remnant-to-nursery"] }];
-// what deuterium is (the author, 2026-10-29), in the empty sky beside the brown dwarfs
-const DEUT = { text: "deuterium\n1 proton + 1 neutron", at: [9.55, 31.0], size: 20, color: "#ffcc80", delay: 0.3 };
+// what deuterium is (the author, 2026-10-29), in the empty sky beside the brown dwarfs:
+// hydrogen and deuterium side by side, drawn live (Hopf atoms, src/hopf-icons.js), the
+// same electron around one proton, and around a proton and a neutron
+const DEUT = [
+  { pic: "hydrogen", at: [9.335, 31.9], size: 92, label: "hydrogen", sub: "1 proton", color: "#ffe9a3", delay: 0.2 },
+  { pic: "deuterium", at: [9.335, 31.37], size: 92, label: "deuterium", sub: "1 proton + 1 neutron", color: "#ffcc80", delay: 0.6 },
+];
 const FORK = [
   { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
   // the left branch is not where brown dwarfs go: white dwarfs are the cores of dead stars (end of the video)
@@ -61,8 +66,8 @@ export default {
     { at: "brown dwarfs are really", cam: { r: 9.9, m: 31.35, span: 1.8 },
       hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "L Brown Dwarf", label: "brown dwarf" }, { obj: "Proxima Cen", label: "star", delay: 0.5 }] },
     { at: "massive enough to fuse", hl: [{ obj: "Jupiter", place: "left" }, ...BD, { obj: "L Brown Dwarf", label: "fuses a little" }] },
-    { at: "called deuterium", hl: [...BD, { obj: "L Brown Dwarf", label: "deuterium only" }, DEUT] },
-    { at: "deuterium is so rare", hl: [...BD, { obj: "L Brown Dwarf", label: "1 hydrogen in ~40,000" }, { ...DEUT, delay: 0 }] },
+    { at: "called deuterium", hl: [...BD, { obj: "L Brown Dwarf", label: "deuterium only" }, ...DEUT] },
+    { at: "deuterium is so rare", hl: [...BD, { obj: "L Brown Dwarf", label: "1 hydrogen in ~40,000" }, ...DEUT.map(d => ({ ...d, delay: 0 }))] },
     { at: "shining on like stars", hl: [...BD, { obj: "L Brown Dwarf", label: "never a star" }, { obj: "Proxima Cen", label: false }] },
 
     // the fork: stars to the right, white dwarfs to the left
