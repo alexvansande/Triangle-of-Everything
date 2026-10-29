@@ -328,9 +328,9 @@ const turn = (v, ay, ax) => {
 const addv = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 const mixc = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
 
-// A neutral nucleon's ball is grey: colour charge still cancels to white
-// inside, but with no electric charge it is drawn without the proton's
-// coloured fringes, and its flux tubes are washed toward grey too.
+// The coloured fringes stand for electric charge: the proton's +1 splits its
+// R, G and B shells wide apart, the neutron's 0 leaves only a faint, muted
+// fringe on a dimmer grey ball. Colour charge cancels to white in both.
 const NEUTRAL = rgb(150, 155, 165);
 const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
   id, name, family: 'Composites',
@@ -385,13 +385,13 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
         const ay = TAU * hash(c * 7 + si, j), ax = Math.acos(2 * hash(j, c * 13 + si) - 1);
         fibers.push({
           glow: true, open: false, spin: 0, flat: 1, width: 0.11 + 0.07 * rho,
-          intensity: () => 0.034 * st.lo * (1.25 - 0.55 * rho),
+          intensity: () => (neutral ? 0.01 : 0.026) * st.lo * (1.25 - 0.55 * rho),
           curve: u => {
             const r = rho * (1 + st.ab * (c - 1) * 0.6 + 0.03 * st.ab * 4 * Math.sin(st.t * (1.1 + 0.3 * c) + j));
             const off = scale([Math.cos(st.t * 0.7 + c * TAU / 3), 0.4 * Math.sin(st.t * 0.9 + c), Math.sin(st.t * 0.7 + c * TAU / 3)], st.ab * 0.5);
             return addv(off, turn([r * Math.cos(TAU * u), 0, r * Math.sin(TAU * u)], ay + 0.05 * st.t, ax));
           },
-          color: () => neutral ? mixc(PURE[c], NEUTRAL, 0.88) : PURE[c],
+          color: () => neutral ? mixc(PURE[c], NEUTRAL, 0.7) : PURE[c],
         });
       }
     });
@@ -430,7 +430,7 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
       st.lo = 0.12 + 0.88 * (1 - smooth(0.12, 0.42, res)); // the ball never quite goes: the quarks stay inside it
       st.mid = smooth(0.12, 0.42, res) * (1 - 0.55 * smooth(0.62, 0.95, res));
       st.hi = smooth(0.5, 0.92, res);
-      st.ab = neutral ? 0.02 : 0.05 + 0.1 * smooth(0.05, 0.35, res);
+      st.ab = (neutral ? 0.35 : 1.7) * (0.05 + 0.1 * smooth(0.05, 0.35, res));
       st.qv = smooth(0.02, 0.25, st.mid);
       st.qs = 1 - 0.35 * smooth(0.6, 1, res); // finer probes, smaller quarks: still unresolved points
       // quarks: fast, tangled orbits around 120°-spaced homes in a slowly turning triangle
@@ -518,28 +518,57 @@ const PHASE_PLUS = cyclic([rgb(70, 220, 255), rgb(40, 130, 255), rgb(90, 180, 25
 const PHASE_MINUS = cyclic([rgb(150, 90, 255), rgb(200, 100, 255), rgb(120, 80, 255)]);
 const ORBITAL_NAMES = { 0: 's', 1: 'p', 2: 'd', 3: 'f' };
 
-function atom(id, name, sub, why, [n, l, m], nucleus, current) {
+// Distances are drawn on a log scale, one ruler shared by every atom, so the
+// nucleus (femtometres) and the orbital (a tenth of a nanometre) both show and
+// their sizes stay honest: a point at physical radius r sits at
+// log(1 + r/r₀) / log(1 + R/r₀), with r₀ = 0.1 fm and R the 4f orbital's
+// edge. Faint rings in the equatorial plane mark each power of ten. The
+// nucleus is the exception: out to the deuteron's edge (~2.8 fm) one linear
+// scale, so a proton is the same size in every atom and the deuteron's edge
+// sits on the ruler.
+const BOHR_FM = 52917.7, LOG_R0 = 0.1;
+const LOG_RMAX = orbitalExtent(4, 3) * BOHR_FM, LOG_SPAN = Math.log10(1 + LOG_RMAX / LOG_R0);
+const toLog = r => Math.log10(1 + r / LOG_R0) / LOG_SPAN;
+const fromLog = x => LOG_R0 * (10 ** (x * LOG_SPAN) - 1);
+const DECADES = [[1, '1 fm'], [10, '10 fm'], [100, '100 fm'], [1e3, '1 pm'], [1e4, '10 pm'], [1e5, '100 pm'], [1e6, '1 nm']];
+// nucleon charge radius, and the deuteron's proton and neutron ~3.9 fm apart
+const NUCLEON_FM = 0.84, DEUTERON_HALF_FM = 1.97;
+
+function atom(id, name, sub, why, [n, l, m], nucleus, current, logScale = false) {
   const orb = ORBITAL_NAMES[l] + (l === 0 ? '' : m === 0 ? ['', 'z', 'z²', 'z³'][l] : l === 2 ? 'xz' : '');
   return {
     id, name: `${name} · ${n}${orb}`, sub, current, family: 'Atoms',
-    chips: [['Orbital', `${n}${orb} · n=${n}, l=${l}, m=${m}`], ['Lines', 'electron (1,−1) Hopf circles'], ['Brightness', '|ψ| where each passes'],
-      ['Nucleus', nucleus.length > 1 ? 'p + n, ~10⁵× too big' : 'p, ~10⁵× too big']],
+    chips: [['Orbital', `${n}${orb} · n=${n}, l=${l}, m=${m}`], ['Lines', 'electron (1,−1) Hopf circles'], ['Brightness', 'chance the electron is there'],
+      logScale ? ['Scale', 'log radius, rings every ×10'] : ['Nucleus', '~10⁵× too big']],
     why,
-    N: 120, pitch: 0.35, view: [], drift: [],
+    N: 120, pitch: 0.6, view: [], drift: [],
     additive: false, frame: { center: [0, 0, 0], radius: 1.05 },
+    ticks: logScale ? DECADES.map(([fm, label]) => [label, toLog(fm)]) : [],
     make() {
-      const psi = orbital(n, l, m), E = orbitalExtent(n, l), spins = m === 0;
-      // orbital coordinates: z is the Hopf picture's vertical axis
-      const at = p => psi(p[0] * E, p[2] * E, p[1] * E);
+      const psi = orbital(n, l, m), spins = m === 0;
+      // display point → physical point in Bohr radii; orbital z is the picture's vertical.
+      // Linear: the orbital's 99% radius fills the ball.
+      const E = orbitalExtent(n, l);
+      const at = p => {
+        const r = Math.hypot(...p), k = !logScale ? E : r ? fromLog(r) / BOHR_FM / r : 0;
+        return psi(p[0] * k, p[2] * k, p[1] * k);
+      };
+      // chance of finding the electron per unit of picture volume: |ψ|² times
+      // how much real volume the log scale squeezes into it, r² dr / (x² dx)
+      const chance = (p, v) => {
+        if (!logScale) return v * v;
+        const x = Math.hypot(...p), r = fromLog(x);
+        return x ? v * v * r * r * (r + LOG_R0) / (x * x) : 0;
+      };
       let peak = 0;
       for (let i = 0; i < 40; i++) for (let j = 0; j < 40; j++) for (let k = 0; k < 40; k++) {
         const p = [i, j, k].map(v => (v + 0.5) / 20 - 1);
-        if (Math.hypot(...p) < 1) peak = Math.max(peak, Math.abs(at(p)));
+        if (Math.hypot(...p) < 1) peak = Math.max(peak, chance(p, at(p)));
       }
-      // nucleons, shrunk and placed at the centre
-      const NS = 0.2, nuc = nucleus.map((P, k) => ({
-        made: P.make(), off: nucleus.length > 1 ? [(k ? 1 : -1) * 0.62 * NS, 0, 0] : [0, 0, 0],
-      }));
+      // the nucleus: its outer edge on the log ruler, nucleons linear inside it
+      const pair = nucleus.length > 1, edgeFm = DEUTERON_HALF_FM + NUCLEON_FM;
+      const perFm = logScale ? toLog(edgeFm) / edgeFm : 0.2 / NUCLEON_FM, NS = NUCLEON_FM * perFm;
+      const nuc = nucleus.map((P, k) => ({ made: P.make(), off: pair ? [(k ? 1 : -1) * DEUTERON_HALF_FM * perFm, 0, 0] : [0, 0, 0] }));
       const wrap = (f, { off }) => Object.create(f, {
         curve: { value: u => addv(off, scale(f.curve(u), NS)) },
         width: { get: () => f.width * NS },
@@ -563,24 +592,32 @@ function atom(id, name, sub, why, [n, l, m], nucleus, current) {
             return stereo([ce * Math.cos(a), ce * Math.sin(a), se * Math.cos(th), -se * Math.sin(th)], 1);
           },
           field: q => {
-            const v = at(q) / peak, r = Math.hypot(...q);
+            const v = at(q), r = Math.hypot(...q);
             return [v >= 0 ? PHASE_PLUS(tone) : PHASE_MINUS(tone),
-              1.4 * Math.abs(v) ** 1.5 * (1 + r * r) ** 2 / 4 * (1 - smooth(0.8, 1, r)) * smooth(0.1, 0.22, r)];
+              (logScale ? 0.6 * (chance(q, v) / peak) ** 0.8 * (1 - smooth(0.93, 1, r))
+                : 1.4 * (chance(q, v) / peak) ** 0.75 * (1 - smooth(0.8, 1, r)) * smooth(0.1, 0.22, r)) * (1 + r * r) ** 2 / 4];
           },
           color: () => PHASE_PLUS(tone),
         });
       }
-      const step = t => { for (const N of nuc) N.made.step(t, 0.3); };
+      // the ruler
+      for (const [, x] of this.ticks) fibers.push({
+        glow: true, spin: 0, flat: 1, width: 0.004, intensity: 0.35,
+        curve: u => [x * Math.cos(TAU * u), 0, x * Math.sin(TAU * u)],
+        color: () => PALE,
+      });
+      const step = t => { for (const N of nuc) N.made.step(t, 0.15); };
       return { fibers, solidCount, step };
     },
   };
 }
-const ATOM_WHY = 'The electron is not a ball circling the nucleus: it is spread over an orbital, |ψ|², a fixed shape for each energy level (n), angular momentum (l, the letter s, p, d, f) and orientation (m). Here the orbital is woven from the electron\'s own Hopf circles, each lit by how likely the electron is to be where it passes; violet marks where ψ is negative. Every orbital is drawn the same size: really an n = 2 orbital is about 4× the n = 1, and n = 3 about 9×.';
+const ATOM_WHY = 'The electron is not a ball circling the nucleus: it is spread over an orbital, |ψ|², a fixed shape for each energy level (n), angular momentum (l, the letter s, p, d, f) and orientation (m). Here the orbital is woven from the electron\'s own Hopf circles, each lit by the chance of finding the electron where it passes; violet marks where ψ is negative. Distance from the centre is on a log scale, the rings marking 1 fm, 10 fm … 1 nm, so the nucleus, about 100,000 times smaller than the orbital, still shows, and every size is true on that ruler. The dark between them is honest too: the inner decades hold almost no volume, so the electron is almost never there.';
+const ORBITAL_WHY = 'An excited electron\'s orbital, woven from its own Hopf circles, each lit by |ψ|² where it passes; violet marks where ψ is negative. Drawn to linear scale so the shape shows (the log ruler of the hydrogen picture flattens it onto a shell), and every orbital at the same size: really they grow as n², so 3d is about 9× the 1s.';
 const ATOMS = [
-  atom('hydrogen', 'Hydrogen', 'Hydrogen-1: one proton, one electron', ATOM_WHY + ' Ground state: 1s, a sphere densest at the nucleus.', [1, 0, 0], [PROTON_SCALE], '/content/icons/hydrogen.webp'),
-  atom('deuterium', 'Deuterium', 'Hydrogen-2: a proton and a neutron, one electron', ATOM_WHY + ' The extra neutron leaves the electron almost untouched: the 1s orbital is the same to 0.03% (the reduced mass).', [1, 0, 0], [PROTON_SCALE, NEUTRON_SCALE]),
+  atom('hydrogen', 'Hydrogen', 'Hydrogen-1: one proton, one electron', ATOM_WHY + ' Ground state: 1s, a sphere densest at the nucleus, though so little volume is there that the electron is mostly found near 50 pm.', [1, 0, 0], [PROTON_SCALE], '/content/icons/hydrogen.webp', true),
+  atom('deuterium', 'Deuterium', 'Hydrogen-2: a proton and a neutron, one electron', ATOM_WHY + ' The extra neutron leaves the electron almost untouched: the 1s orbital is the same to 0.03% (the reduced mass).', [1, 0, 0], [PROTON_SCALE, NEUTRON_SCALE], undefined, true),
   ...[[2, 0, 0], [2, 1, 0], [3, 1, 0], [3, 2, 0], [3, 2, 1], [4, 3, 0]].map(q =>
-    atom(`hydrogen-${q.join('')}`, 'Hydrogen', 'Excited hydrogen', ATOM_WHY, q, [PROTON_SCALE])),
+    atom(`hydrogen-${q.join('')}`, 'Hydrogen', 'Excited hydrogen', ORBITAL_WHY, q, [PROTON_SCALE])),
 ];
 
 export const PARTICLES = [
