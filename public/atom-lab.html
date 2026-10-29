@@ -169,6 +169,15 @@ const ALL = SUBJECTS.map(s => s[0]);
 const VIEW_DEFAULT = { rotate: 0.12, bloom: 0.9, exposure: 1.1, width: 1, core: 0.8, drift: true, flow: true, labels: true };
 const LOOK_DEFAULT = structuredClone(LOOK);
 const VIEW = structuredClone(VIEW_DEFAULT);
+// the lab's own starting look (the author's hydrogen, 2026-10-29): what a first
+// visit opens with and Reset returns to. The shared defaults in hopf-core.js,
+// which the chart's live icons read, stay as they are.
+const HOME = { look: {
+  probe: 0, protonFringe: 4, neutronFringe: 0, protonBall: 0.056, neutronBall: 0.043, neutronGrey: 0.46, quarks: 1.65,
+  nucleusGain: 5.3, logScale: true, nucleusShare: 0.39, linearNucleus: 0.18, rings: 0, cloudFibers: 180, cloudGain: 2.75,
+  cloudContrast: 1.15, cloudWidth: 0.005, dashes: 12, dashLength: 1, dashSpeed: 3, spin: 0.6, plusColor: '#46dcff',
+  minusColor: '#9a5aff', coreColor: '#f0e6ff', hColor: '#006eff', orbital: '1s', showNucleus: true, showCloud: true, electronGain: 1,
+}, view: { rotate: 0.24, bloom: 1, exposure: 1.1, width: 0.55, core: 0.75, drift: true, flow: true, labels: false } };
 const gev = r => 0.1 * 1000 ** r;
 const fmtGev = r => { const g = gev(r); return `${g < 1 ? g.toFixed(2) : g < 10 ? g.toFixed(1) : g.toFixed(0)} GeV`; };
 
@@ -235,7 +244,9 @@ function apply(state) {
   if (ALL.includes(state.subject)) subject = state.subject;
   return true;
 }
-try { apply(JSON.parse(localStorage.getItem(KEY))); } catch {}
+let remembered = false;
+try { remembered = apply(JSON.parse(localStorage.getItem(KEY))); } catch {}
+if (!remembered) apply(HOME);
 const fromHash = location.hash.slice(1);
 if (ALL.includes(fromHash)) subject = fromHash;
 
@@ -424,11 +435,13 @@ document.getElementById('paste').addEventListener('click', () => {
 document.getElementById('reset').addEventListener('click', () => {
   Object.assign(LOOK, structuredClone(LOOK_DEFAULT));
   Object.assign(VIEW, structuredClone(VIEW_DEFAULT));
+  apply(HOME);
   syncAll(); rebuild(); save();
 });
 
 // saved looks: each sets every control and its subject, over the defaults
 const PRESETS = [
+  ['Hydrogen 1s', { subject: 'hydrogen', ...HOME }],
   ['Deuterium 3p', { subject: 'deuterium', look: {
     probe: 0, protonFringe: 4, neutronFringe: 0.35, protonBall: 0.056, neutronBall: 0.02, neutronGrey: 0.41, quarks: 0.85,
     nucleusGain: 2.25, logScale: true, nucleusShare: 0.39, linearNucleus: 0.18, rings: 0, cloudFibers: 180, cloudGain: 2.75,
