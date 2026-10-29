@@ -78,6 +78,7 @@ let _iconsEnabled = true;
 let _iconOnly = null;     // narration: a Set of the only object names that get their picture
 let _iconFill = false;    // narration: …or first, with every other picture that fits after them
 let _iconForce = null;    // narration: names whose picture shows even where a nearer one would hide it
+let _iconFirst = null;    // narration: names whose picture comes first; the others give way where they overlap
 let _iconHide = null;     // narration: names whose picture never shows (they pile onto a neighbour)
 let _iconBoost = null;    // narration: { from: log r, k } pictures of things that big and up drawn k× larger
 let _labelHide = null;    // narration: names whose own chart label never shows in that scene
@@ -2690,11 +2691,13 @@ function drawObjects() {
   }).filter(p => p.r*2 >= dustIconMin() && !_iconHide?.has(p.name));
   const asObj = (o) => ({ o, sx:o.sx, sy:o.sy, room:roomR(o), imagePriority:o.imagePriority, importance:o.z ?? 3, curated:0 });
   const asDust = (p) => ({ p, sx:p.sx, sy:p.sy, room:p.room ?? p.r, imagePriority:p.imagePriority, importance:dustImportance(p.rank), curated:1 });
-  const byRank = (a,b) => a.imagePriority-b.imagePriority || a.importance-b.importance || a.curated-b.curated;
-  const named = _iconOnly ? [...iconOrder.map(asObj), ...dustPics.filter(p => _dustPictures?.has(p.name)).map(asDust)].sort(byRank) : [];
+  const first = (c) => _iconFirst?.has(c.o ? c.o.name : c.p.name) ? 0 : 1;
+  const byRank = (a,b) => first(a)-first(b) || a.imagePriority-b.imagePriority || a.importance-b.importance || a.curated-b.curated;
+  const isNamedDust = (p) => _dustPictures?.has(p.name) || _iconFirst?.has(p.name);
+  const named = _iconOnly ? [...iconOrder.map(asObj), ...dustPics.filter(isNamedDust).map(asDust)].sort(byRank) : [];
   const rest = (!_iconOnly ? [...iconOrder.map(asObj), ...dustPics.map(asDust)]
     : _iconFill ? [...projected.filter(o => !_iconOnly.has(o.name) && !_iconHide?.has(o.name) && mapIconShown(o, true)).map(asObj),
-        ...dustPics.filter(p => !_dustPictures?.has(p.name)).map(asDust)]
+        ...dustPics.filter(p => !isNamedDust(p)).map(asDust)]
     : []).sort(byRank);
   const room = iconRoom();
   const chosen = priorityCircles(named, c => c.room);
@@ -8685,6 +8688,7 @@ if (_ogShot) {
       setDollyOpacity(v = 1) { dFocus.style("opacity", v < 0.999 ? v.toFixed(3) : null); },
       /** Pictures that show even where a nearer one would hide them (videos): names, or null. */
       setIconForce(names) { _iconForce = names?.length ? new Set(names) : null; redraw(); },
+      setIconFirst(names) { _iconFirst = names?.length ? new Set(names) : null; redraw(); },
       setIconHide(names) { _iconHide = names?.length ? new Set(names) : null; redraw(); },
       /** Pictures of things from log r `from` up drawn k× larger (videos): { from, k }, or null. */
       setIconBoost(b) { _iconBoost = b?.k && b.k !== 1 ? { from: b.from ?? 18, k: b.k } : null; redraw(); },

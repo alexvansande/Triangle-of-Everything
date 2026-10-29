@@ -341,9 +341,9 @@ export async function startNarration(app) {
     const fill = v === true;
     const key = (names ? names.join("|") : "*") + (fill ? "+" : "");
     if (key !== iconsNow) { iconsNow = key; app.setIcons?.(names, fill); app.setDustFill?.(fill); }
-    // a cue's `forceIcons` / `hideIcons` / `hideLabels` replace the scene's from that cue on (null: the scene's
+    // a cue's `forceIcons` / `hideIcons` / `hideLabels` / `firstIcons` replace the scene's from that cue on (null: the scene's
     // again): the 1 mL ball hidden until it's talked about, the animals put first (video 2)
-    for (const [k, set, now] of [["forceIcons", app.setIconForce, iconForceNow], ["hideIcons", app.setIconHide, iconHideNow], ["hideLabels", app.setLabelHide, labelHideNow]]) {
+    for (const [k, set, now] of [["forceIcons", app.setIconForce, iconForceNow], ["hideIcons", app.setIconHide, iconHideNow], ["hideLabels", app.setLabelHide, labelHideNow], ["firstIcons", app.setIconFirst, iconFirstNow]]) {
       let v = SCENE[k] ?? null;
       for (const c of cues) if (c[k] !== undefined && c.time <= t) v = c[k] ?? SCENE[k] ?? null;
       const key = v ? v.join("|") : "";
@@ -351,7 +351,7 @@ export async function startNarration(app) {
     }
   }
   const iconForceNow = { key: (SCENE.forceIcons ?? []).join("|") }, iconHideNow = { key: (SCENE.hideIcons ?? []).join("|") },
-    labelHideNow = { key: (SCENE.hideLabels ?? []).join("|") };
+    labelHideNow = { key: (SCENE.hideLabels ?? []).join("|") }, iconFirstNow = { key: (SCENE.firstIcons ?? []).join("|") };
 
   // ---------- object focus: a cue's `focus: [names]` fades every other object from then
   // on (to FOCUS_FADE, over 0.6 s), `focus: false` brings them back ----------
@@ -1412,7 +1412,8 @@ export async function startNarration(app) {
       // own colour over it (author, 2026-10-28: "highlight them more")
       // (discreet, like the objects' halos: the author, 2026-10-29)
       underLines.push({ d: dl, color: "#e4dcff", width: 16, opacity: 0.55 * (h.op ?? 1), dash, halo: true });
-      [[4, 0.15], [1.4, 0.5]].forEach(([w, o]) =>
+      // (the glow does the work: the line itself at 10%, the author, 2026-10-29)
+      [[1.4, 0.1]].forEach(([w, o]) =>
         underLines.push({ d: dl, color: rgb, width: w, opacity: o * (h.op ?? 1), dash }));
       const at = (s) => {
         let i = d3.bisectLeft(cum, s);

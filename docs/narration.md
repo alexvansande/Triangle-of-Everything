@@ -453,8 +453,8 @@ Cue fields
                connection paths lit up (CONNECTION_PATHS and the "made of" paths in
                src/data.js): by id, or every path building that whole (DNA ← its four
                bases); drawn on under the pictures with the named objects' halo treatment
-               (a lavender stroke, blurred, two overlay passes; discreet) under a thin line
-               in the path's own colour, and the chart's own moving dots on it grown 3× and
+               (a lavender stroke, blurred, two overlay passes; discreet) over a thin line
+               in the path's own colour at 10%, and the chart's own moving dots on it grown 3× and
                brighter (app.setDotBoost; kept visible at any zoom while lit). Not dots of
                its own: evenly spaced ones read as a subway line (the author, 2026-10-29). from / to (object names): only the stretch of the path
                between them (the low-mass life `to: "Protostar"` for "nursery → protostar").
@@ -476,10 +476,11 @@ Cue fields
   icons    from this cue on: false (no pictures), true (the scene's set) or a
            list of names. By default only objects some cue highlights keep their
            picture (a scene's `icons: [...]` replaces that set)
-  forceIcons / hideIcons / hideLabels   from this cue on, replace the scene's lists (names;
-           [] for none, null back to the scene's): video 2 hides the 1 mL ball until "ball"
-           and puts the animals first at "most animals". forceIcons takes catalogue
-           pictures by their label too ("Lion")
+  forceIcons / firstIcons / hideIcons / hideLabels   from this cue on, replace the scene's
+           lists (names; [] for none, null back to the scene's): video 2 hides the 1 mL ball
+           until "ball" and puts the animals first at "most animals". firstIcons: ranked first,
+           so other pictures give way where they overlap (and show where there's room).
+           Both take catalogue pictures by their label too ("Lion")
 
 Scene-level: dots: { size, opacity } for the paths' moving dots (default 2.4, 1.7);
 iconBoost: { from: log r, k } pictures of things that big and up drawn k× larger, on top of

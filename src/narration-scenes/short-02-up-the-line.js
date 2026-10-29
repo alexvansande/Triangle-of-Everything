@@ -138,9 +138,9 @@ export default {
 
     // animals and what we build: the glide carries on, a bit over a decade and a half
     // wide, then up the line (waypoints at their cue times) on to the round worlds
-    // "most animals": the animals first, even overlapping a little, and the tonne of water out of
-    // their way (the author, 2026-10-29); back to the scene's own from the engineering on
-    { at: "most animals", hideIcons: ["1 Tonne of Water", "1 Liter of Water"], hideLabels: ["1 Tonne of Water", "1 Liter of Water"], forceIcons: ANIMALS },
+    // "most animals": the animals first, even overlapping a little; the tonne of water only where
+    // there's room left (the author, 2026-10-29); back to the scene's own from the engineering on
+    { at: "most animals", firstIcons: ANIMALS.slice(1), forceIcons: ANIMALS },
     { at: "much narrower band", cam: C(1.8, 6.0, 1.7), hl: [WATER, { obj: "Human" }] },
     { at: "mostly made of water", cam: C(1.85, 6.15, 1.6), hl: [WATER, { obj: "Human", label: "mostly water" }] },
     { at: "denser than others", cam: C(1.92, 6.35, 1.5), hl: [{ obj: "Hippopotamus" }, WATER] },
@@ -153,7 +153,7 @@ export default {
     { at: "the largest tree", cam: UP(2.85, 2.2), hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // what we build
-    { at: "to engineering", cam: UP(3.15, 3.2), dur: 2, clear: true, hideIcons: [], hideLabels: null, forceIcons: null,
+    { at: "to engineering", cam: UP(3.15, 3.2), dur: 2, clear: true, hideIcons: [], firstIcons: null, forceIcons: null,
       hl: [{ obj: "Boeing 747" }, { obj: "Supertanker", delay: 0.3 }] },
     { at: "the eiffel tower", cam: C(3.75, 10.05, 3.4), hl: [{ obj: "Eiffel Tower" }] },
     // the close-up (the author, 2026-10-28, in place of the dive): the camera zooms onto the
