@@ -445,33 +445,28 @@
   },
   "helium": {
     "file": "helium.webp",
-    "credit": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
-    "license": "GFDL 1.2",
-    "source": "https://commons.wikimedia.org/wiki/File:Helium_discharge_tube.jpg"
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
+    "license": "Public Domain"
   },
   "oxygen": {
     "file": "oxygen.webp",
-    "credit": "Oriel Joyce Flecker",
-    "license": "PD-US",
-    "source": "https://en.wikipedia.org/wiki/File:A_setup_for_preparation_of_Oxygen.jpg"
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
+    "license": "Public Domain"
   },
   "iron": {
     "file": "iron.webp",
-    "credit": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
-    "license": "FAL",
-    "source": "https://commons.wikimedia.org/wiki/File:Iron_electrolytic_and_1cm3_cube.jpg"
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
+    "license": "Public Domain"
   },
   "uranium": {
     "file": "uranium.webp",
-    "credit": "Unspecified",
-    "license": "Public domain",
-    "source": "https://commons.wikimedia.org/wiki/File:HEUraniumC.jpg"
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
+    "license": "Public Domain"
   },
   "oganesson": {
     "file": "oganesson.webp",
-    "credit": "Unknown",
-    "license": "Public domain",
-    "source": "https://commons.wikimedia.org/wiki/File:Square-planar-3D-balls.png"
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
+    "license": "Public Domain"
   },
   "dna": {
     "file": "dna.webp",
@@ -612,37 +607,37 @@
   },
   "glucose": {
     "file": "glucose.webp",
-    "credit": "Generated Image",
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
     "license": "Public Domain"
   },
   "adenine-a": {
     "file": "adenine-a.webp",
-    "credit": "Generated Image",
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
     "license": "Public Domain"
   },
   "guanine-g": {
     "file": "guanine-g.webp",
-    "credit": "Generated Image",
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
     "license": "Public Domain"
   },
   "cytosine-c": {
     "file": "cytosine-c.webp",
-    "credit": "Generated Image",
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
     "license": "Public Domain"
   },
   "thymine-t": {
     "file": "thymine-t.webp",
-    "credit": "Generated Image",
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
     "license": "Public Domain"
   },
   "atp": {
     "file": "atp.webp",
-    "credit": "Generated Image",
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
     "license": "Public Domain"
   },
   "fullerene-c60": {
     "file": "fullerene-c60.webp",
-    "credit": "Generated Image",
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
     "license": "Public Domain"
   },
   "m87": {
@@ -776,5 +771,25 @@
     "credit": "Photo used with the author's permission",
     "license": "With permission",
     "source": "https://doi.org/10.1038/s41598-026-41222-x"
+  },
+  "hydrogen": {
+    "file": "hydrogen.webp",
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
+    "license": "Public Domain"
+  },
+  "carbon": {
+    "file": "carbon.webp",
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
+    "license": "Public Domain"
+  },
+  "gold": {
+    "file": "gold.webp",
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
+    "license": "Public Domain"
+  },
+  "water-h2o": {
+    "file": "water-h2o.webp",
+    "credit": "Rendered from the Hopf model (Triangle of Everything)",
+    "license": "Public Domain"
   }
 }
