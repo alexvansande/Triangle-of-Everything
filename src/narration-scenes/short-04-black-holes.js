@@ -166,7 +166,7 @@ export default {
     { at: ["instants after the big bang", "moments after the big bang", "moments of the big bang"], cam: { r: -8, m: 18, span: 34 }, clear: true },
     // the early universe as a density line: ~1e40 g/cm³ about 1e-17 s in, which meets
     // the black-hole line at ~3e21 g (a lump of it the size of its own horizon collapses)
-    { at: ["super dense soup", "hot dense soup", "soup of very hot"], hl: [SCHW, { density: 40, label: "the whole universe\nwas in a hot dense state" }] },
+    { at: ["super dense soup", "hot dense soup", "soup of very hot"], hl: [SCHW, { density: 40, label: "\u266B\uFE0E the whole universe\nwas in a hot dense state \u266A\uFE0E" }] },
     // the window narrowing as each survey is named: a red band along the
     // Schwarzschild line from the Planck mass to ~1e5 Suns, cut down to what's
     // still open (log10 g; docs/dark-matter-constraints.md)
@@ -198,10 +198,11 @@ export default {
     // a slow pull back from the galaxies to the candidates
     { at: "something invisible", cam: DM_WIDE, dur: 4, drift: 0, quiet: true, labels: false, clear: true,
       hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1.2 + 0.5 * i }))] },
-    // the candidates, pointed out; primordial black holes join on "…if it's tiny black holes"
-    { at: ["we don't know what it is", "plenty of candidates"], hl: [SCHW, ...DM_HUB(0), ...DM_CANDS.map(still),
-      { ...DM_PBH, delay: 2.4 }, { window: W5, cuts: [ML, HAW], delay: 2.8 }] },
-    { at: ["if they are just tiny black holes", "if it's tiny black holes", "so we keep looking"], cam: { r: -8.6, m: 19.4, span: 12 }, dur: 3, labels: true, clear: true,
+    // no "here be dark matter?" here: it blinked by in under 2 s, and the later one stays (the
+    // author, 2026-10-29); a slow pan instead, from the candidates on to the window it's heading for
+    { at: ["we don't know what it is", "plenty of candidates"], cam: { r: -8.6, m: 19.4, span: 12 }, dur: 5, drift: 0, quiet: true,
+      hl: [SCHW, ...DM_CANDS.map(still), { ...DM_PBH, delay: 0.4 }, { window: W5, cuts: [ML, HAW], delay: 0.8 }] },
+    { at: ["if they are just tiny black holes", "if it's tiny black holes", "so we keep looking"], labels: true, clear: true,
       hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
         { at: ["any new particles", "what we think of as empty space"], cam: { r: -7.4, m: 20.6, span: 10 }, dur: 9, drift: 0.01, hl: [{ window: W5, from: W6, trace: W0, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
 
@@ -231,8 +232,9 @@ export default {
         { window: W5, cuts: [QSO, CMB, GW, ML, HAW], delay: 5.4 }] },
     // radiation era: ρ ≈ 4.5e5 g/cm³ / t² (t in s); 1e44 g/cm³ at ~1e-19 s, which meets the
     // black-hole line at ~2e19 g, in the window
-    { at: ["very first moments of our history", "first nanoseconds of our history"], cam: { r: -8.6, m: 19.4, span: 12 }, labels: true, clear: true,
+    // from "the very first moments" to the end, one slow zoom out to the whole triangle, the early
+    // universe's density line kept on all the way (the author, 2026-10-29)
+    { at: ["very first moments of our history", "first nanoseconds of our history"], cam: FULL, dur: 15, drift: 0, quiet: true, labels: false, clear: true, hold: 20,
       hl: [{ density: 44, label: "density of universe\nfirst instants after big bang" }] },
-    { at: "the galaxies the stars", cam: FULL, dur: 11, drift: 0, quiet: true, labels: false, clear: true },
   ],
 };

@@ -167,9 +167,13 @@ const SUBJECTS = [
   ['carbon', 'carbon', 'Carbon'], ['oxygen', 'oxygen', 'Oxygen'], ['iron', 'iron', 'Iron'], ['gold', 'gold', 'Gold'],
   ['uranium', 'uranium', 'Uranium'], ['water', 'water', 'Water'], ['glucose', 'glucose', 'Glucose'],
   ['adenine', 'adenine-a', 'Adenine'], ['atp', 'atp', 'ATP'], ['c60', 'fullerene-c60', 'C₆₀'],
+  ['dna', 'dna', 'DNA'], ['insulin', 'insulin', 'Insulin'], ['hemoglobin', 'hemoglobin', 'Hemoglobin'],
+  ['antibody', 'antibody-igg', 'Antibody'], ['ribosome', 'ribosome', 'Ribosome'],
 ];
 const NUCLEONS = ['proton', 'neutron'], MOLECULES = ['glucose', 'adenine', 'atp', 'c60'];
 const ATOMS = ['hydrogen', 'deuterium', 'helium', 'carbon', 'oxygen', 'iron', 'gold', 'uranium', 'water', ...MOLECULES];
+// too many atoms for a cloud each: backbone tubes and a glow per atom
+const BIG = ['dna', 'insulin', 'hemoglobin', 'antibody', 'ribosome'];
 const ALL = SUBJECTS.map(s => s[0]);
 // page-level settings: camera and light
 const VIEW_DEFAULT = { rotate: 0.12, bloom: 0.9, exposure: 1.1, width: 1, core: 0.8, drift: true, flow: true, labels: true };
@@ -226,6 +230,11 @@ const GROUPS = [
     { k: 'linearNucleus', label: 'Nucleus size at linear scale', min: 0.02, max: 0.6, step: 0.01, rebuild: true, fmt: v => `${Math.round(v * 100)}%` },
     { k: 'rings', label: 'Ring brightness', min: 0, max: 1, step: 0.01 },
     { k: 'labels', label: 'Ring labels', type: 'check', store: VIEW },
+  ] },
+  { name: 'Big molecules', note: 'DNA and the proteins', used: BIG, rows: [
+    { k: 'backbone', label: 'Backbone brightness', min: 0, max: 3, step: 0.05 },
+    { k: 'backboneWidth', label: 'Backbone width', min: 0.001, max: 0.03, step: 0.0005 },
+    { k: 'sparkle', label: 'Atom glows', min: 0, max: 3, step: 0.05 },
   ] },
   { name: 'Electron', note: 'the particle on its own', used: ['electron'], rows: [
     { k: 'electronGain', label: 'Torus brightness', min: 0, max: 3, step: 0.05 },

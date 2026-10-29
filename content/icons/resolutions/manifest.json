@@ -985,12 +985,21 @@
     ]
   },
   "dna": {
-    "fingerprint": "ed9dba2c5b2129804b71caccc6e07aca81543ac30b7ba69e3d32d73565b91b6c",
-    "baseWidth": 128,
+    "fingerprint": "141dec5cb3a51e319e2415e37fb659fa96be7172677c0266ad995979abff0957",
+    "baseWidth": 512,
     "source": "content/icons/dna.webp",
-    "reason": "source differs from current icon",
-    "sourceDifference": 62.496134440104164,
-    "variants": []
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/dna.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/dna.webp"
+      }
+    ]
   },
   "down": {
     "fingerprint": "e62cff50aec585b2db1fc6184fe2358d589f26076e595b6a93b96b802514827d",
@@ -1600,23 +1609,19 @@
     ]
   },
   "hemoglobin": {
-    "fingerprint": "2580fbdf58e1391c8c352244c4d6a510517204d0c08a27eab41acc96e19baf2d",
-    "baseWidth": 128,
-    "source": "content/icons/src/hemoglobin.png",
-    "reason": "matching master",
-    "sourceDifference": 4.13958740234375,
+    "fingerprint": "13f16eef6902c9c2e0ed6cf0898c05019929aff65d775878c7c75004828b368b",
+    "baseWidth": 512,
+    "source": "content/icons/hemoglobin.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/hemoglobin.webp"
+      },
       {
         "width": 256,
         "path": "256/hemoglobin.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/hemoglobin.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/hemoglobin.webp"
       }
     ]
   },
@@ -1848,23 +1853,19 @@
     ]
   },
   "insulin": {
-    "fingerprint": "bc5bfcb490198f0893b5fdc185a35a6e629c9ccac03c2635e3365de739cb2f6b",
-    "baseWidth": 128,
-    "source": "content/icons/src/insulin.png",
-    "reason": "matching master",
-    "sourceDifference": 4.120625813802083,
+    "fingerprint": "8d590b12cf3ab440eb015dac5a75a70ebd544860bb4a62151605c7a8a0b8e6bb",
+    "baseWidth": 512,
+    "source": "content/icons/insulin.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/insulin.webp"
+      },
       {
         "width": 256,
         "path": "256/insulin.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/insulin.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/insulin.webp"
       }
     ]
   },
@@ -5889,6 +5890,40 @@
       {
         "width": 256,
         "path": "256/oganesson.webp"
+      }
+    ]
+  },
+  "antibody-igg": {
+    "fingerprint": "b41610e0af422b4a1e5f53048a3a81c73d73819ebad9816878caa6b20d4b2c31",
+    "baseWidth": 512,
+    "source": "content/icons/antibody-igg.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/antibody-igg.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/antibody-igg.webp"
+      }
+    ]
+  },
+  "ribosome": {
+    "fingerprint": "59144361965ad978eead2e01b6d1ea2e673b0dbf4c71a6bb9a1dbaeefad45993",
+    "baseWidth": 512,
+    "source": "content/icons/ribosome.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/ribosome.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/ribosome.webp"
       }
     ]
   }

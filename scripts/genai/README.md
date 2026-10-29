@@ -1,5 +1,10 @@
 # Big molecules by image generator
 
+**Not in use (2026-10-29):** the big molecules are now rendered directly too, as
+glowing backbones with a little glow per atom (`scripts/molecules/build-big-molecules.mjs`,
+`bigMolecule()` in `public/hopf/hopf-core.js`). This pipeline stays for a generated
+version, should one be wanted.
+
 The chart's atoms and small molecules are rendered directly from the Hopf model
 (`public/hopf/hopf-core.js`: `scripts/hopf-icons.mjs --sidebar`). Molecules with
 thousands of atoms (DNA, insulin, hemoglobin, the antibody, the ribosome) are too
