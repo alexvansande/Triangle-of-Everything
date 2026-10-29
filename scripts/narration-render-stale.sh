@@ -45,26 +45,41 @@ for t in $takes; do
   out=output/videos/$t.mp4
   changed=$(git log -1 --format=%ct -- "public/narration/$t" "src/narration-scenes/$t.js")
   queued=$(grep -qx "$t" video/render-queue.txt 2>/dev/null && echo 1)
+  note=$(sed -n "s/^# $t changed: //p" video/render-queue.txt 2>/dev/null | head -1)
   if [ -z "$queued" ] && [ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${changed:-0}" ]; then
     echo "= $t: render up to date"; [ -n "$DRY" ] && continue
-  elif [ -n "$DRY" ]; then
-    echo "stale $t"; continue
   else
-    echo "=== $t $(date +%H:%M:%S)"
-    # only the stretches noted in the queue, if the audio hasn't changed since the last render
-    note=$(sed -n "s/^# $t changed: //p" video/render-queue.txt 2>/dev/null | head -1)
-    voice=$(git log -1 --format=%ct -- "public/narration/$t/audio.m4a" "public/narration/$t/mix.m4a" "public/narration/$t/words.json")
-    partial=""
-    if [ -n "$note" ] && [ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${voice:-0}" ]; then
-      echo "  only $note"
-      python3 scripts/narration-render-partial.py "$t" "$note" --old "$out" --out "output/videos/$t.new.mp4" \
-        --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" > "output/videos/$t.log" 2>&1 && partial=1 ||
-        echo "  partial render didn't apply (output/videos/$t.log): rendering it whole"
+    # what changed since the render (scripts/narration-render-diff.mjs: none, audio, partial or full)
+    diff=$(node scripts/narration-render-diff.mjs "$t" 2>/dev/null || echo '{"kind":"full","why":"the diff failed"}')
+    j() { echo "$diff" | python3 -c "import json,sys;v=json.load(sys.stdin).get('$1','');print(v if not isinstance(v,bool) else ('1' if v else ''))"; }
+    kind=$(j kind); ranges=$(j ranges)
+    if [ -n "$queued" ]; then   # a session queued it: its note's stretches, or whole after a shared change
+      if [ -n "$note" ] && [ "$kind" != full ]; then kind=partial; ranges="${ranges:+$ranges, }$note"
+      elif [ -z "$note" ] && [ -n "$(j shared)" ]; then kind=full
+      elif [ -z "$note" ] && [ "$kind" = none ]; then kind=full   # queued with nothing to show for it: trust the session
+      fi
     fi
-    if [ -n "$partial" ] || node scripts/narration-render.mjs "$t" --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" \
-        --out "output/videos/$t.new.mp4" > "output/videos/$t.log" 2>&1; then
-      mv "output/videos/$t.new.mp4" "$out"
-      # off the render queue (video/render-queue.txt), with its note: the publish commits it with the web copy
+    if [ -n "$DRY" ]; then [ "$kind" = none ] && echo "= $t: only notes changed" || echo "stale $t $kind $ranges"; continue; fi
+    echo "=== $t $(date +%H:%M:%S): $kind${ranges:+ ($ranges)} — $(j why)"
+    head=$(git rev-parse HEAD)
+    ok=""
+    case "$kind" in
+      none) touch "$out"; ok=keep ;;
+      audio)   # the same frames, the new sound
+        a=$(python3 -c "import json;m=json.load(open('public/narration/$t/words.json'));print(m.get('mix') or m['audio'])")
+        ffmpeg -hide_banner -loglevel error -y -i "$out" -i "public/narration/$t/$a" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k \
+          -af apad -t "$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$out")" "output/videos/$t.new.mp4" && ok=1 ;;
+      partial)
+        python3 scripts/narration-render-partial.py "$t" "$ranges" --old "$out" --out "output/videos/$t.new.mp4" \
+          --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" > "output/videos/$t.log" 2>&1 && ok=1 ||
+          echo "  partial render didn't apply (output/videos/$t.log): rendering it whole" ;;
+    esac
+    [ -n "$ok" ] || { node scripts/narration-render.mjs "$t" --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" \
+        --out "output/videos/$t.new.mp4" > "output/videos/$t.log" 2>&1 && ok=1; }
+    if [ -n "$ok" ]; then
+      [ "$ok" = keep ] || mv "output/videos/$t.new.mp4" "$out"
+      echo "$head" > "output/videos/$t.commit"   # the next diff starts here
+      # off the render queue (video/render-queue.txt), with its notes: the publish commits it with the web copy
       [ -n "$queued" ] && sed -i '' "/^$t\$/d" video/render-queue.txt
       sed -i '' "/^# $t changed: /d;/^# next: $t$/d" video/render-queue.txt
     else

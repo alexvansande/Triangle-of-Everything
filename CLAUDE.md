@@ -32,6 +32,10 @@
   (the author's idea, 2026-10-28): the nightly then re-renders only those stretches and splices them
   into the last render (`scripts/narration-render-partial.py`). Be generous: everything a changed cue
   touches, up to the next cue. No note when the audio changed: that needs the whole take.
+  Either way the render first diffs the take against the commit of its last render
+  (`scripts/narration-render-diff.mjs`, the author's rule, 2026-10-29): only notes changed keeps the
+  render, only the sound swaps the audio track, changed cues re-render their stretches, and a
+  changed timing renders it whole. A queued take without a note renders whole after a shared change.
 - **Scripts to record**: `video/scripts/recording-scripts.md` has every video's narration as cut
   now and the lightly edited script to re-record (with what changed). Keep it up to date when a
   take is replaced or the author changes a line.
