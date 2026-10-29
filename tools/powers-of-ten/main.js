@@ -3,13 +3,14 @@
 // The centre never moves: a hydrogen atom in a DNA base pair, in an amoeba, in a
 // drop of dew on a ladybug on the General Sherman tree. At the top the spectrum
 // page's Cloud (public/spectrum, ?bare=1) takes over for the microwave sky.
-//   ?s=  ?grid=0  ?labels=0  ?ui=0  ?stage=9x16|16x9|1x1  ?plates=1 (use video/powers-of-ten/plates/)
+//   ?s=  ?grid=0  ?labels=0  ?ui=0  ?stage=9x16|16x9|1x1  ?plates=1 (use video/powers-of-ten/plates/)  ?crossings=0
 import { ramp, clamp, LY, AU, cameraAt } from "./math.js";
 import { smallLayers } from "./small.js";
 import { microLayers } from "./micro.js";
 import { macroLayers } from "./macro.js";
 import { spaceLayers } from "./space.js";
 import { platesLayer } from "./plates.js";
+import { crossingsLayer } from "./crossings.js";
 
 const S_MIN = -35.3, S_MAX = 27.6;
 const q = new URLSearchParams(location.search);
@@ -28,8 +29,11 @@ const micro = microLayers();
 const macro = macroLayers();
 const space = spaceLayers(macro.globe);
 const plates = await platesLayer(q.get("plates") === "1");
-// biggest first, so smaller things paint over what holds them
-const layers = [...space, ...macro.layers, ...micro, ...small.reverse()];
+// biggest first, so smaller things paint over what holds them; what we cross, nearest the camera, last
+const layers = [...space, ...macro.layers, ...micro, ...small.reverse(), crossingsLayer(q.get("crossings") !== "0")];
+// the whole picture rolls round the line of sight at the same rate at every scale,
+// a little over one turn from the Planck length to the CMB: we fall down a spiral
+const ROLL = 5 * Math.PI / 180; // per decade, anticlockwise as we zoom out
 
 // ---------- the spectrum Cloud, for the last decades ----------
 // on its log scale (1 unit = 950 km, Earth at the centre, the CMB at radius 1),
@@ -42,16 +46,25 @@ const CLOUD_END = { unit: -10, c: 11.3, s: 11.3, yaw: 0.402, pitch: 0.389, dlo: 
 // shell (radius ~0.7 on this scale) and ends where the CMB's sphere spans 78% of the
 // frame's shorter side, as in the author's view; the Cloud's field of view is 40° tall
 const CLOUD_FLY = [25.9, S_MAX], DIST0 = 0.68, FILL = 0.78;
-function driveCloud(s, W, H) {
+// the Cloud's frame is a square as wide as the stage's diagonal, so it can roll with
+// the picture without showing its corners
+let frameSize = "";
+function driveCloud(s, W, H, Dg, roll, dpr) {
   const a = ramp(s, 25.9, 26.6);
   frame.style.opacity = a;
   frame.style.visibility = a > 0 ? "visible" : "hidden";
+  const size = `${Dg / dpr}px/${(W - Dg) / 2 / dpr}px/${(H - Dg) / 2 / dpr}px`;
+  if (size !== frameSize) {
+    frameSize = size;
+    Object.assign(frame.style, { inset: "auto", width: `${Dg / dpr}px`, height: `${Dg / dpr}px`, left: `${(W - Dg) / 2 / dpr}px`, top: `${(H - Dg) / 2 / dpr}px` });
+  }
+  frame.style.transform = `rotate(${roll}rad)`;
   const ctl = frame.contentWindow?.spectrumControl;
   if (!a || !ctl) return;
-  const dEnd = 1 / Math.sin(Math.atan(FILL * (Math.min(W, H) / H) * Math.tan(20 * Math.PI / 180)));
+  const dEnd = 1 / Math.sin(Math.atan(FILL * (Math.min(W, H) / Dg) * Math.tan(20 * Math.PI / 180)));
   const t = ramp(s, ...CLOUD_FLY), dist = Math.exp(Math.log(DIST0) + (Math.log(dEnd) - Math.log(DIST0)) * t);
-  // turning as it goes (80°), for the depth, and still at the end
-  ctl({ universe: true, ...CLOUD_END, zoom: 3.2 / dist, yaw: CLOUD_END.yaw + 1.4 * (1 - t) });
+  // turning a little as it goes (35°), for the depth, and still at the end
+  ctl({ universe: true, ...CLOUD_END, zoom: 3.2 / dist, yaw: CLOUD_END.yaw + 0.6 * (1 - t) });
 }
 
 // ---------- drawing ----------
@@ -61,11 +74,14 @@ function render(t) {
   const box = stage.getBoundingClientRect();
   const W = Math.round(box.width * dpr), H = Math.round(box.height * dpr);
   if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
-  const s = state.s, F = 10 ** s, min = Math.min(W, H), k = min / F, cx = W / 2, cy = H / 2;
+  // the layers draw on a square as wide as the diagonal (so the roll never shows its
+  // corners), centred on the stage and turned with it
+  const s = state.s, Dg = Math.ceil(Math.hypot(W, H)), roll = -ROLL * s, rc = Math.cos(roll), rs = Math.sin(roll);
+  const F = 10 ** s, min = Math.min(W, H), k = min / F, cx = Dg / 2, cy = Dg / 2;
   const basis = cameraAt(s);
   labels.length = 0;
   const cam = {
-    ctx, W, H, min, dpr, s, F, k, cx, cy, t, cam: basis,
+    ctx, W: Dg, H: Dg, min, dpr, s, F, k, cx, cy, t, cam: basis,
     P: ([x, y]) => [cx + x * k, cy + y * k],
     proj: (p) => [cx + k * (p[0] * basis.r[0] + p[1] * basis.r[1] + p[2] * basis.r[2]), cy - k * (p[0] * basis.u[0] + p[1] * basis.u[1] + p[2] * basis.u[2])],
     label: (x, y, text, a) => labels.push([cx + x * k, cy + y * k, text, a]),
@@ -73,9 +89,10 @@ function render(t) {
   };
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, W, H);
-  driveCloud(s, W, H);
+  driveCloud(s, W, H, Dg, roll, dpr);
   ctx.fillStyle = `rgba(0,0,0,${1 - ramp(s, 25.9, 26.6)})`;
   ctx.fillRect(0, 0, W, H);
+  ctx.setTransform(rc, rs, -rs, rc, W / 2 - rc * cx + rs * cy, H / 2 - rs * cx - rc * cy);
   const hide = plates.covers(s);
   for (const L of layers) {
     if (s < L.range[0] || s > L.range[1] || hide.has(L.name)) continue;
@@ -86,8 +103,11 @@ function render(t) {
     if (L.name === "earth") plates.draw(cam); // the image pass sits between the globe and the small world
   }
   if (state.grid) drawGrid(cam);
-  if (state.labels) for (const [x, y, text, a] of labels) {
+  // the names stay upright, where the turned picture puts them
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (state.labels) for (const [lx, ly, text, a] of labels) {
     if (a <= 0.02) continue;
+    const x = W / 2 + rc * (lx - cx) - rs * (ly - cy), y = H / 2 + rs * (lx - cx) + rc * (ly - cy);
     ctx.globalAlpha = Math.min(1, a);
     ctx.font = `${13 * dpr}px "IBM Plex Sans", system-ui, sans-serif`;
     ctx.textAlign = "center"; ctx.textBaseline = "bottom";
@@ -105,7 +125,7 @@ function drawGrid(cam) {
   if (fade <= 0) return;
   const { ctx, W, H, k, cx, cy, min, s, dpr } = cam;
   for (let g = Math.floor(s) - 2; g <= Math.floor(s) + 1; g++) {
-    const d = 10 ** g * k, w = d / min, a = fade * 0.22 * ramp(w, 0.008, 0.05) * (1 - ramp(w, 0.55, 1.1));
+    const d = 10 ** g * k, w = d / min, a = fade * 0.1 * ramp(w, 0.008, 0.05) * (1 - ramp(w, 0.55, 1.1));
     if (a <= 0.005) continue;
     ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = dpr;
     ctx.beginPath();

@@ -44,8 +44,14 @@ plane, so the galaxies' flows lie flat.
 | 16 … 22 | stars: Hipparcos (nearest) and Gaia | data (`tools/sky-points`) |
 | 19.5 … 24.5 | the Milky Way: ~55k glowing points (bar, bulge, four arms, the old disc), turning with the camera | code (`milkyWayModel` in `space.js`), a rough model |
 | 21.5 … 25 | the Local Group, 28 galaxies at their real positions | code |
-| 23 … 26.5 | 2MRS galaxies as a cosmic web: each linked to its nearest neighbours (positions untouched), coloured by the attractor they flow to (a rough Laniakea); the camera turns 150° round the vertical as it zooms out, tipping 15° and back, so depth shows | code, toy model |
+| 23 … 26.5 | 2MRS galaxies as a cosmic web: each linked to its nearest neighbours (positions untouched), coloured by the attractor they flow to (a rough Laniakea); the camera keeps turning round the vertical (10° a decade from the stars out, tipping 8° and back), so depth shows | code, toy model |
 | 26 … 27.6 | the spectrum page's Cloud on its log scale, the whole spectrum bar, the CMB's light alone with a glow on each dot: the camera flies backwards and turns, so the CMB comes past from behind, ending on the author's view | `public/spectrum` (`?bare=1`, `spectrumControl`) |
+
+The whole picture also rolls round the line of sight, 5° a decade at every scale (a
+little over one turn from the Planck length to the CMB), so the zoom reads as a fall down
+a spiral, and at seven boundaries (the nuclear envelope, the cell, the dew drop, the
+canopy, the clouds, the Oort cloud, the Milky Way) soft things near the camera fly past
+(`crossings.js`, `?crossings=0` to leave them out).
 
 ## The image pass (DNA → Earth)
 

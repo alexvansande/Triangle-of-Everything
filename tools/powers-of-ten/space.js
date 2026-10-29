@@ -378,8 +378,7 @@ function withGlow(cam, strength, draw) {
   qctx.imageSmoothingQuality = ectx.imageSmoothingQuality = "high";
   qctx.drawImage(g, 0, 0, w4, h4); ectx.drawImage(q, 0, 0, w16, h16);
   const ctx = cam.ctx;
-  ctx.save();
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.save(); // (in the frame's own turn: the buffers are drawn in its coordinates)
   ctx.drawImage(g, 0, 0);
   ctx.globalCompositeOperation = "lighter"; ctx.imageSmoothingQuality = "high";
   ctx.globalAlpha = 0.7 * strength; ctx.drawImage(q, 0, 0, W, H);

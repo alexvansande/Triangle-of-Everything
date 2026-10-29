@@ -113,7 +113,7 @@ export function microLayers() {
       const ctx = cam.ctx, u = 1e-9 * cam.k;
       const width = 2 + 22 * ramp(cam.s, -7.3, -6.0);
       ctx.save();
-      ctx.setTransform(u, 0, 0, u, cam.cx, cam.cy);
+      ctx.translate(cam.cx, cam.cy); ctx.scale(u, u);
       ctx.lineJoin = ctx.lineCap = "round";
       ctx.lineWidth = Math.max(width, 1.1 * cam.dpr / u);
       for (const w of walks) {

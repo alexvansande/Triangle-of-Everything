@@ -116,15 +116,15 @@ const K1 = basis(ECL_POLE, K0.u);
 const K2 = basis(GAL_POLE, K1.u);
 const K3 = basis(SG_POLE, GAL_POLE);
 const KEYS = [[7.6, K0], [9.6, K1], [15.0, K1], [16.8, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
-// from the stars out the camera turns round the vertical, tipping a little and
-// back, so depth shows as it moves (parallax): 70° through the stars and the
-// Milky Way (which ends up seen from 70° off its pole), then 150° more through the
-// cosmic web; the Cloud that follows has its own camera
-const TURNS = [[17.0, 22.8, 70], [22.6, 26.6, 150]], TILT = [17.0, 26.6, 15];
+// from the stars out the camera turns round the vertical at a steady 10° a decade
+// (eased in over the first), tipping 8° and back, so depth shows as it moves
+// (parallax); the roll round the line of sight, the same at every scale, is the
+// whole picture's (ROLL in main.js); the Cloud that follows has its own camera
+const TURN = { from: 16.5, rate: 10 }, TILT = [17.0, 26.6, 8];
 export function cameraAt(s) {
-  const b = keyed(s);
-  if (s <= TURNS[0][0]) return b;
-  const th = D * TURNS.reduce((sum, [a, z, deg]) => sum + deg * ramp(s, a, z), 0);
+  const b = keyed(s), x = s - TURN.from;
+  if (x <= 0) return b;
+  const th = D * TURN.rate * (x < 1 ? x * x / 2 : x - 0.5);
   const ph = TILT[2] * D * Math.sin(Math.PI * clamp((s - TILT[0]) / (TILT[1] - TILT[0])));
   const c = Math.cos(th), sn = Math.sin(th);
   const r = add(mul(b.r, c), mul(b.n, sn)), n = sub(mul(b.n, c), mul(b.r, sn));
