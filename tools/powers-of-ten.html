@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Powers of Ten</title>
+<!--
+  A powers-of-ten zoom for video 7, from the Planck length to the microwave sky,
+  always centred on one hydrogen atom on a ladybug's back. Rough: the stretch
+  from DNA to the Earth is drawn to be re-rendered in one style (see
+  video/powers-of-ten/README.md). Code in tools/powers-of-ten/.
+  Scroll, pinch or ←/→ (shift: ½ decade) to zoom; space to play outwards.
+  ?s=  ?grid=0  ?labels=0  ?ui=0  ?stage=9x16|16x9|1x1  ?plates=1
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
+<style>
+  :root { --fg: #ece9e1; --dim: #8f95ab; --line: rgba(205, 215, 255, 0.16); --panel: rgba(8, 10, 18, 0.82); color-scheme: dark; }
+  html, body { margin: 0; height: 100%; background: #000; color: var(--fg); font: 13px/1.35 "IBM Plex Sans", system-ui, sans-serif; overflow: hidden; }
+  body { display: grid; place-items: center; }
+  #stage { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #000; touch-action: none; }
+  body[data-stage="9x16"] #stage { height: 100vh; width: calc(100vh * 9 / 16); max-width: 100vw; }
+  body[data-stage="16x9"] #stage { width: 100vw; height: calc(100vw * 9 / 16); max-height: 100vh; }
+  body[data-stage="1x1"] #stage { width: min(100vw, 100vh); height: min(100vw, 100vh); }
+  #stage canvas, #stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  #stage iframe { pointer-events: none; visibility: hidden; }
+  #hud { position: absolute; left: max(16px, env(safe-area-inset-left)); bottom: calc(76px + env(safe-area-inset-bottom)); pointer-events: none; text-shadow: 0 1px 4px #000; }
+  #counter { font: 400 22px/1 "IBM Plex Mono", ui-monospace, monospace; }
+  #plain { color: var(--dim); margin-top: 4px; }
+  #bar { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 10px max(16px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); background: var(--panel); border-top: 1px solid var(--line); }
+  #bar input[type=range] { flex: 1 1 220px; min-width: 0; accent-color: #f2c66d; }
+  #bar button, #bar select { background: #151a2a; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; font: inherit; cursor: pointer; }
+  #bar button[aria-pressed=true] { background: #3a3220; border-color: #f2c66d; }
+  #bar label { color: var(--dim); display: flex; gap: 4px; align-items: center; }
+  body.bare #bar, body.bare #hud { display: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <iframe id="cloud" src="/spectrum/index.html?bare=1&rings=0&still=1&view=cloud&radius=linear&lz=10" title="The microwave sky" tabindex="-1"></iframe>
+  <canvas id="view"></canvas>
+  <div id="hud"><div id="counter"></div><div id="plain"></div></div>
+  <div id="bar">
+    <button data-play="-1" title="Zoom in">◀ In</button><button data-play="0" title="Stop">■</button><button data-play="1" title="Zoom out (space)">Out ▶</button>
+    <select id="speed" aria-label="Speed"><option value="0.25">¼ decade/s</option><option value="0.5">½ decade/s</option><option value="1" selected>1 decade/s</option><option value="2">2 decades/s</option><option value="4">4 decades/s</option></select>
+    <input id="s" type="range" step="0.001" aria-label="Frame width, log10 metres">
+    <label><input id="gridOn" type="checkbox"> Grid</label>
+    <label><input id="labelsOn" type="checkbox"> Names</label>
+    <select id="stageSel" aria-label="Frame"><option value="fill">Fill</option><option value="9x16">9:16</option><option value="16x9">16:9</option><option value="1x1">1:1</option></select>
+  </div>
+</div>
+<script type="module" src="./powers-of-ten/main.js"></script>
+</body>
+</html>

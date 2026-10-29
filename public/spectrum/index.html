@@ -140,6 +140,9 @@
   body.embed #regions div[data-short]::before { content: attr(data-short); font-size: 9px; } body.embed #regions div[data-short] { font-size: 0; }
   body.embed #readout { font-size: 10px; gap: 6px; }
   body.embed #stage { margin-top: 0; }
+  /* ?bare=1: the view alone, for pages that drive it (spectrumControl) */
+  body.bare > :not(#stage):not(script), body.bare #rings, body.bare #ringText, body.bare #views { display: none !important; }
+  body.bare #stage { margin: 0; }
   @media (max-width: 700px) {
     header h1 { font-size: 24px; } header p { display: none; } .controls { margin-left: 0; gap: 8px; }
     .controls input[type=range] { width: 70px; }
@@ -232,6 +235,7 @@
   const SHORT = { Radio: "Rad", Microwave: "µW", "Far-IR": "FIR", "Mid-IR": "MIR", "Near-IR": "NIR", "Thermal IR": "TIR", Visible: "Vis", "X-ray": "X", Gamma: "γ", EUV: "EUV", UV: "UV" };
   const q = new URLSearchParams(location.search);
   if (q.get("embed") === "1") document.body.classList.add("embed");
+  if (q.get("bare") === "1") document.body.classList.add("bare");
   // opened over the chart (?app=1): room for its close button, and Escape here closes it too
   if (q.get("app") === "1" && window.parent !== window) {
     document.body.classList.add("app");
@@ -1369,6 +1373,17 @@
     if (hasDepth && !(first && q.has("view"))) setExplore(first && EXPLORE_FOOT[q.get("mode")] ? q.get("mode") : "earth", true);
     else markExplore();
     clamp(); layoutSelector(); layoutDist(); draw();
+    // driven from outside (tools/powers-of-ten.html): the Cloud on its linear scale,
+    // lz (log10 ly at radius 1), the view's yaw, pitch and zoom, the selector (c, s)
+    window.spectrumControl = (o) => {
+      if (o.galaxy && !(mode === 3 && rmode === 2)) setExplore("galaxy", true);
+      if (o.lz !== undefined) lz = Math.max(LZ_MIN, Math.min(LZ_MAX, o.lz));
+      for (const k of ["yaw", "pitch", "zoom"]) if (o[k] !== undefined) view[k] = o[k];
+      if (o.c !== undefined) { c = o.c; s = o.s ?? s; clamp(); layoutSelector(); }
+      if (o.log !== undefined) setBright(o.log);
+      spin = false; spinA = 0; glide = null; fade = null;
+      draw();
+    };
     window.__stillDone = true;
   }
 

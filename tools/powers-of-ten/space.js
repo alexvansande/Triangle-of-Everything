@@ -1,0 +1,299 @@
+// tools/powers-of-ten/space.js — the code-drawn top of the zoom, one 3D scene
+// seen straight on (orthographic) by a camera that turns from looking down on
+// the tree, to the ecliptic, to the Galaxy, to the supergalactic plane:
+// the Moon's orbit, the planets (positions for 2026-10-29), the Kuiper belt,
+// the Oort cloud (a model: it's never been seen), the stars (Hipparcos and
+// Gaia, tools/sky-points), the Milky Way (a picture for now), the Local Group,
+// and the galaxies around us (2MRS) coloured by which great attractor they
+// flow towards — a rough Laniakea, from a few point masses, not Cosmicflows.
+import {
+  ramp, win, rng, gauss, add, sub, mul, dot, lb, AU, LY, KPC, MPC, R_EARTH,
+  PLANETS, SUN, EARTH_C, MOON, eclAxes, eclToGal,
+} from "./math.js";
+import { image } from "./micro.js";
+
+const icon = (name) => image(`/content/icons/${name}.webp`);
+const ready = (img) => img.complete && img.naturalWidth > 0;
+
+export function spaceLayers(globe) {
+  const imgs = Object.fromEntries(["moon", "sun", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "milky-way", "andromeda-m31", "triangulum-m33", "dwarf-galaxy"].map((n) => [n, icon(n)]));
+  const ring = (cam, c, e1, e2, rad, style, width = 1) => {
+    const ctx = cam.ctx;
+    ctx.strokeStyle = style; ctx.lineWidth = width * cam.dpr;
+    ctx.beginPath();
+    for (let i = 0; i <= 160; i++) {
+      const t = i / 160 * 2 * Math.PI, [x, y] = cam.proj(add(c, add(mul(e1, rad * Math.cos(t)), mul(e2, rad * Math.sin(t)))));
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.stroke();
+  };
+  const body = (cam, img, p, r, minPx, a, glow) => {
+    const [x, y] = cam.proj(p), rr = Math.max(minPx * cam.dpr, r * cam.k), ctx = cam.ctx;
+    if (x < -rr || x > cam.W + rr || y < -rr || y > cam.H + rr) return [x, y, rr];
+    ctx.globalAlpha = a;
+    if (glow) {
+      const g = ctx.createRadialGradient(x, y, 0, x, y, rr * 4);
+      g.addColorStop(0, glow); g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rr * 4, 0, 7); ctx.fill();
+    }
+    if (img && ready(img) && rr > 2.5) ctx.drawImage(img, x - rr, y - rr, 2 * rr, 2 * rr);
+    else { ctx.fillStyle = "#ddd"; ctx.beginPath(); ctx.arc(x, y, rr, 0, 7); ctx.fill(); }
+    ctx.globalAlpha = 1;
+    return [x, y, rr];
+  };
+
+  // ---------- Earth, the Moon and its orbit ----------
+  const earthMoon = {
+    name: "earth & moon", range: [7.5, 11.5],
+    draw(cam) {
+      const a = 1 - ramp(cam.s, 10.6, 11.2);
+      if (a <= 0.01) return;
+      const [x, y] = cam.proj(EARTH_C), rr = Math.max(1.5 * cam.dpr, R_EARTH * cam.k);
+      if (globe.ready) { const c = globe.render(R_EARTH * 1.02); cam.ctx.globalAlpha = a; cam.ctx.drawImage(c, x - rr * 1.02, y - rr * 1.02, rr * 2.04, rr * 2.04); cam.ctx.globalAlpha = 1; }
+      ring(cam, EARTH_C, eclAxes.x, eclAxes.y, 3.844e8, `rgba(200,210,230,${0.5 * a * ramp(cam.s, 7.9, 8.4)})`);
+      const [mx, my] = body(cam, imgs.moon, MOON, 1.737e6, 1.2, a * ramp(cam.s, 7.8, 8.2));
+      cam.labelPx(x, y - rr - 10 * cam.dpr, "Earth", a * ramp(cam.s, 8.3, 8.6) * (1 - ramp(cam.s, 10.2, 10.6)));
+      cam.labelPx(mx, my - 10 * cam.dpr, "the Moon", a * ramp(cam.s, 8.3, 8.6) * (1 - ramp(cam.s, 9.8, 10.2)));
+    },
+  };
+
+  // ---------- the Sun and the planets ----------
+  const solar = {
+    name: "planets", range: [9, 16.5],
+    draw(cam) {
+      const a = 1 - ramp(cam.s, 15.2, 16.0);
+      if (a <= 0.01) return;
+      for (const p of PLANETS) {
+        const ra = p.a * cam.k;
+        if (ra < 3 || ra > 4 * cam.min) continue;
+        const oa = a * ramp(ra, 3, 12) * (1 - ramp(ra, 1.5 * cam.min, 4 * cam.min));
+        ring(cam, SUN, eclAxes.x, eclAxes.y, p.a, `rgba(170,190,230,${0.45 * oa})`);
+        if (p.name === "Earth") continue;
+        const [x, y] = body(cam, imgs[p.name.toLowerCase()], add(SUN, p.pos), p.r, 1.4, oa);
+        cam.labelPx(x, y - 9 * cam.dpr, p.name, oa * ramp(ra, 30, 60));
+      }
+      const [x, y] = body(cam, imgs.sun, SUN, 6.96e8, 2.2, a * ramp(cam.s, 9.4, 9.9), "rgba(255,210,120,0.45)");
+      cam.labelPx(x, y - 12 * cam.dpr, "the Sun", a * ramp(cam.s, 10.6, 11) * (1 - ramp(cam.s, 14.2, 14.6)));
+    },
+  };
+
+  // ---------- the Kuiper belt, the heliosphere, the Oort cloud (a model) ----------
+  const icy = (() => {
+    const r = rng(77), out = [];
+    for (let i = 0; i < 2500; i++) { const d = (30 + 20 * r()) * AU, t = r() * 7; out.push({ p: add(SUN, eclToGal([d * Math.cos(t), d * Math.sin(t), gauss(r) * 2 * AU])), kind: 0 }); }
+    for (let i = 0; i < 14000; i++) {
+      const outer = r() < 0.6, d = (outer ? 2e4 * Math.pow(5, r()) : 2e3 * Math.pow(10, r())) * AU;
+      const z = 2 * r() - 1, ph = r() * 7, q = Math.sqrt(1 - z * z), flat = outer ? 1 : 0.35;
+      out.push({ p: add(SUN, eclToGal([d * q * Math.cos(ph), d * q * Math.sin(ph), d * z * flat])), kind: 1 });
+    }
+    return out;
+  })();
+  const comets = {
+    name: "kuiper & oort", range: [12, 18.6],
+    draw(cam) {
+      const ka = win(cam.s, 12.4, 13.0, 15.0, 15.6), oa = win(cam.s, 14.3, 15.0, 17.4, 18.2), ctx = cam.ctx, sz = 1.2 * cam.dpr;
+      if (ka + oa <= 0.01) return;
+      ctx.fillStyle = "rgba(170,205,255,1)";
+      for (const c of icy) {
+        const al = c.kind ? oa * 0.55 : ka * 0.8;
+        if (al <= 0.01) continue;
+        const [x, y] = cam.proj(c.p);
+        if (x < 0 || x > cam.W || y < 0 || y > cam.H) continue;
+        ctx.globalAlpha = al; ctx.fillRect(x, y, sz, sz);
+      }
+      ctx.globalAlpha = 1;
+      const hp = win(cam.s, 13.1, 13.6, 15.2, 15.7);
+      if (hp > 0.01) ring(cam, SUN, cam.cam.r, cam.cam.u, 120 * AU, `rgba(120,200,255,${0.35 * hp})`, 1.5);
+      const [x, y] = cam.proj(SUN);
+      cam.labelPx(x, y - 33 * AU * cam.k, "Kuiper belt", ka * ramp(cam.s, 13.2, 13.5) * (1 - ramp(cam.s, 14.4, 14.8)));
+      cam.labelPx(x, y - 3e4 * AU * cam.k, "Oort cloud (a model: never seen)", oa * ramp(cam.s, 15.6, 15.9) * (1 - ramp(cam.s, 16.9, 17.3)));
+    },
+  };
+
+  // ---------- stars: Hipparcos (nearest) and Gaia, tools/sky-points ----------
+  const stars = { name: "stars", range: [15.6, 22.6], data: null, draw(cam) { drawPoints(cam, this.data, win(cam.s, 15.9, 16.5, 21.6, 22.4), 1.3, 0.004); } };
+  const NAMED = [["Proxima Centauri", 313.94, -1.93, 4.24], ["Alpha Centauri", 315.73, -0.68, 4.37], ["Barnard's Star", 31.0, 14.1, 5.96], ["Sirius", 227.23, -8.89, 8.6], ["Vega", 67.45, 19.24, 25], ["Betelgeuse", 199.79, -8.96, 550], ["Deneb", 84.28, 1.99, 2600]];
+  const named = {
+    name: "named stars", range: [16, 21],
+    draw(cam) {
+      const a = win(cam.s, 16.6, 16.9, 20.4, 20.8);
+      if (a <= 0.01) return;
+      for (const [n, l, b, d] of NAMED) {
+        const pd = d * LY * cam.k;
+        if (pd < 25 || pd > 0.6 * cam.min) continue;
+        const [x, y] = cam.proj(lb(l, b, d * LY));
+        cam.labelPx(x, y - 8 * cam.dpr, n, a * ramp(pd, 25, 60) * (1 - ramp(pd, 0.4 * cam.min, 0.6 * cam.min)));
+      }
+    },
+  };
+
+  // ---------- the Milky Way: a picture laid on the galactic plane (to replace) ----------
+  const GC = lb(0, 0, 8.2 * KPC), MW_SIDE = 34 * KPC;
+  const milkyWay = {
+    name: "milky way", range: [19.2, 25],
+    draw(cam) {
+      const img = imgs["milky-way"], side = MW_SIDE * cam.k;
+      const a = ramp(cam.s, 19.6, 20.4) * (1 - ramp(cam.s, 24.4, 24.9));
+      if (a <= 0.01 || !ready(img)) return;
+      const o = cam.proj(sub(GC, [MW_SIDE / 2, MW_SIDE / 2, 0]));
+      const ex = sub(cam.proj(add(GC, [MW_SIDE / 2, -MW_SIDE / 2, 0])), o), ey = sub(cam.proj(add(GC, [-MW_SIDE / 2, MW_SIDE / 2, 0])), o);
+      const ctx = cam.ctx;
+      ctx.save(); ctx.globalAlpha = a * 0.95;
+      ctx.setTransform(ex[0] / img.naturalWidth, ex[1] / img.naturalWidth, ey[0] / img.naturalHeight, ey[1] / img.naturalHeight, o[0], o[1]);
+      ctx.drawImage(img, 0, 0); ctx.restore();
+      const [x, y] = cam.proj(GC);
+      cam.labelPx(x, y - 0.4 * side, "the Milky Way", a * ramp(cam.s, 20.5, 20.8) * (1 - ramp(cam.s, 22.2, 22.6)));
+      const [sx, sy] = cam.proj([0, 0, 0]);
+      cam.labelPx(sx, sy + 14 * cam.dpr, "the Sun is here", a * ramp(cam.s, 20.5, 20.8) * (1 - ramp(cam.s, 21.6, 22)));
+    },
+  };
+
+  // ---------- the Local Group (positions: McConnachie 2012, rounded) ----------
+  const LG = [
+    ["Andromeda", 121.17, -21.57, 765, 46, "andromeda-m31"], ["Triangulum", 133.61, -31.33, 840, 18, "triangulum-m33"],
+    ["Large Magellanic Cloud", 280.47, -32.89, 50, 10, "dwarf-galaxy"], ["Small Magellanic Cloud", 302.8, -44.3, 62, 6, "dwarf-galaxy"],
+    ["M32", 121.15, -21.98, 785, 2.5], ["NGC 205", 120.72, -21.14, 824, 4], ["NGC 6822", 25.34, -18.4, 459, 2.5], ["IC 10", 118.97, -3.34, 794, 2],
+    ["IC 1613", 129.73, -60.58, 755, 3], ["WLM", 75.86, -73.62, 933, 3], ["Leo I", 225.99, 49.11, 254, 1], ["Leo II", 220.17, 67.23, 233, 0.6],
+    ["Sculptor", 287.53, -83.16, 86, 0.8], ["Fornax", 237.1, -65.65, 147, 1.4], ["Draco", 86.37, 34.72, 76, 0.6], ["Ursa Minor", 104.97, 44.8, 76, 0.6],
+    ["Carina", 260.11, -22.22, 105, 0.6], ["Sextans", 243.5, 42.27, 86, 0.8], ["Sagittarius dwarf", 5.57, -14.17, 26, 3], ["Pegasus dIrr", 94.77, -43.55, 920, 1.5],
+    ["Leo A", 196.9, 52.42, 798, 1.5], ["NGC 3109", 262.1, 23.07, 1300, 6], ["Sextans A", 246.15, 39.88, 1430, 2.5], ["Sextans B", 233.2, 43.78, 1430, 2],
+    ["NGC 147", 119.82, -14.25, 712, 3], ["NGC 185", 120.79, -14.48, 616, 2.5], ["Andromeda II", 128.87, -29.15, 652, 1.5], ["Phoenix", 272.16, -68.95, 415, 1],
+  ].map(([name, l, b, d, size, img]) => ({ name, p: lb(l, b, d * KPC), r: size * KPC / 2, img: imgs[img ?? "dwarf-galaxy"], big: size > 9 }));
+  const localGroup = {
+    name: "local group", range: [21, 25.6],
+    draw(cam) {
+      const a = win(cam.s, 21.6, 22.3, 24.6, 25.2);
+      if (a <= 0.01) return;
+      for (const g of LG) {
+        const [x, y, rr] = body(cam, g.img, g.p, g.r, 1.2, a * 0.95);
+        cam.labelPx(x, y - rr - 6 * cam.dpr, g.name, a * (g.big ? 1 : 0.6) * ramp(cam.s, 22.4, 22.7) * (1 - ramp(cam.s, g.big ? 23.8 : 22.8, g.big ? 24.2 : 23.0)));
+      }
+    },
+  };
+
+  // ---------- galaxies (2MRS) and the flows: a rough Laniakea ----------
+  const ATTRACTORS = [
+    { name: "Great Attractor · Laniakea", l: 325.3, b: -7.3, d: 68, m: 1.0, eps: 35, col: [255, 196, 90] },
+    { name: "Shapley", l: 311.5, b: 30.7, d: 200, m: 3.0, eps: 50, col: [190, 140, 255] },
+    { name: "Perseus–Pisces", l: 150.6, b: -13.3, d: 73, m: 0.8, eps: 30, col: [110, 170, 255] },
+    { name: "Coma", l: 58.1, b: 88.0, d: 100, m: 0.6, eps: 25, col: [120, 230, 160] },
+    { name: "Hercules", l: 31.5, b: 44.5, d: 150, m: 0.5, eps: 30, col: [255, 130, 150] },
+  ].map((A) => ({ ...A, p: lb(A.l, A.b, A.d) }));
+  const galaxies = { name: "galaxies", range: [22.6, 27.4], data: null, flows: [], draw(cam) { drawGalaxies(cam, this, win(cam.s, 23.0, 23.6, 26.1, 26.7)); } };
+  const LABELS = [["Virgo cluster", 283.8, 74.5, 16.5], ["Laniakea", 325.3, -7.3, 68], ["Shapley", 311.5, 30.7, 200], ["Perseus–Pisces", 150.6, -13.3, 73], ["Coma", 58.1, 88, 100]];
+  const groupLabels = {
+    name: "cluster names", range: [23.5, 26.5],
+    draw(cam) {
+      const a = win(cam.s, 24.0, 24.3, 25.7, 26.1);
+      if (a <= 0.01) return;
+      for (const [n, l, b, d] of LABELS) { const [x, y] = cam.proj(lb(l, b, d * MPC)); cam.labelPx(x, y, n, a * (n === "Virgo cluster" ? 1 - ramp(cam.s, 24.8, 25.1) : ramp(cam.s, 24.6, 24.9))); }
+    },
+  };
+
+  // the catalogue: 5.8 MB of packed points (see scripts/build-sky-points.mjs)
+  (async () => {
+    try {
+      const meta = await (await fetch("/tools/sky-points/points.json")).json();
+      const raw = Uint8Array.from(atob(await (await fetch("/tools/sky-points/points.txt")).text()), (c) => c.charCodeAt(0)).buffer;
+      const dirs = new Int16Array(raw, meta.dir.offset, meta.dir.length), logs = new Uint16Array(raw, meta.logd.offset, meta.logd.length);
+      const aux = new Uint8Array(raw, meta.aux.offset, meta.aux.length), types = new Uint8Array(raw, meta.type.offset, meta.type.length);
+      // 2MRS distances come from a redshift table in steps of z = 0.001 (~4.3 Mpc), which draws
+      // them as shells: each galaxy is spread across its step
+      const STEP_LY = 0.001 * (299792.458 / 70) * MPC / LY, jit = rng(5);
+      const pick = (want) => {
+        const idx = [];
+        for (let i = 0; i < meta.count; i++) if (want(types[i])) idx.push(i);
+        const ly = (i) => 10 ** (meta.logMin + (logs[i] / 65535) * (meta.logMax - meta.logMin));
+        idx.sort((a, b) => logs[a] - logs[b]);
+        const n = idx.length, pos = new Float32Array(3 * n), dist = new Float32Array(n), col = new Uint8Array(n), kind = new Uint8Array(n);
+        idx.forEach((i, j) => {
+          // the viewer frame (x → GC, y → NGP, z → l = 270°) back to galactic, in light-years
+          const d = ly(i) + (types[i] === 2 ? (jit() - 0.5) * STEP_LY : 0), v = [dirs[3 * i] / 32767, dirs[3 * i + 1] / 32767, dirs[3 * i + 2] / 32767];
+          pos[3 * j] = v[0] * d; pos[3 * j + 1] = -v[2] * d; pos[3 * j + 2] = v[1] * d;
+          dist[j] = d; col[j] = aux[i]; kind[j] = types[i];
+        });
+        return { n, pos, dist, col, kind };
+      };
+      stars.data = pick((t) => t <= 1);
+      galaxies.data = pick((t) => t === 2);
+      basins(galaxies, ATTRACTORS);
+    } catch (e) { console.warn("sky points unavailable:", e); }
+  })();
+
+  return [earthMoon, solar, comets, stars, named, milkyWay, localGroup, galaxies, groupLabels];
+}
+
+// stars as points: the ones within a few frame-widths, at most ~30k a frame
+function drawPoints(cam, data, a, size, inner) {
+  if (!data || a <= 0.01) return;
+  const F = cam.F / LY, ctx = cam.ctx, { r, u } = cam.cam, kl = cam.k * LY;
+  const lo = lowerBound(data.dist, inner * F), hi = lowerBound(data.dist, 3 * F), stride = Math.max(1, Math.ceil((hi - lo) / 30000));
+  for (let j = lo; j < hi; j += stride) {
+    const x = cam.cx + kl * (data.pos[3 * j] * r[0] + data.pos[3 * j + 1] * r[1] + data.pos[3 * j + 2] * r[2]);
+    const y = cam.cy - kl * (data.pos[3 * j] * u[0] + data.pos[3 * j + 1] * u[1] + data.pos[3 * j + 2] * u[2]);
+    if (x < 0 || x > cam.W || y < 0 || y > cam.H) continue;
+    const c = data.col[j] / 255 * 4 - 0.4, near = data.kind[j] === 0;
+    ctx.fillStyle = c < 0.3 ? "#aac4ff" : c < 1.0 ? "#fff6e8" : "#ffc28a";
+    ctx.globalAlpha = a * (near ? 1 : 0.75);
+    const s = (near ? 2.4 : size) * cam.dpr;
+    ctx.fillRect(x - s / 2, y - s / 2, s, s);
+  }
+  ctx.globalAlpha = 1;
+}
+function lowerBound(arr, v) { let lo = 0, hi = arr.length; while (lo < hi) { const m = (lo + hi) >> 1; if (arr[m] < v) lo = m + 1; else hi = m; } return lo; }
+
+// each galaxy rolls downhill to one attractor (softened point masses, Mpc)
+function basins(g, ATT) {
+  const { n, pos } = g.data, MPC_LY = MPC / LY, basin = new Uint8Array(n), r = rng(91);
+  const grad = (p) => {
+    const f = [0, 0, 0];
+    for (const A of ATT) {
+      const d = sub(A.p, p), q = dot(d, d) + A.eps * A.eps, w = A.m / (q * Math.sqrt(q));
+      f[0] += d[0] * w; f[1] += d[1] * w; f[2] += d[2] * w;
+    }
+    return f;
+  };
+  for (let j = 0; j < n; j++) {
+    let p = [pos[3 * j] / MPC_LY, pos[3 * j + 1] / MPC_LY, pos[3 * j + 2] / MPC_LY];
+    const keep = r() < 0.03 && Math.hypot(...p) < 250, path = keep ? [p] : null;
+    for (let s = 0; s < 160; s++) {
+      const f = grad(p), l = Math.hypot(...f);
+      if (l < 1e-12) break;
+      p = add(p, mul(f, 2 / l));
+      if (path && s % 3 === 0) path.push(p);
+    }
+    let best = 0, bd = Infinity;
+    ATT.forEach((A, i) => { const d = Math.hypot(...sub(A.p, p)) / A.eps; if (d < bd) { bd = d; best = i; } });
+    basin[j] = best;
+    if (path) g.flows.push({ path: path.map((q) => mul(q, MPC)), basin: best });
+  }
+  g.basin = basin; g.att = ATT;
+}
+function drawGalaxies(cam, g, a) {
+  if (!g.data || !g.basin || a <= 0.01) return;
+  const { n, pos } = g.data, ctx = cam.ctx, { r, u, n: nv } = cam.cam, kl = cam.k * LY, F = cam.F / LY, s = 1.6 * cam.dpr;
+  const hi = lowerBound(g.data.dist, 2.5 * F);
+  for (let j = 0; j < hi; j++) {
+    const X = pos[3 * j], Y = pos[3 * j + 1], Z = pos[3 * j + 2];
+    const depth = (X * nv[0] + Y * nv[1] + Z * nv[2]) / (0.35 * F);
+    const da = Math.exp(-depth * depth);
+    if (da < 0.05) continue;
+    const x = cam.cx + kl * (X * r[0] + Y * r[1] + Z * r[2]), y = cam.cy - kl * (X * u[0] + Y * u[1] + Z * u[2]);
+    if (x < 0 || x > cam.W || y < 0 || y > cam.H) continue;
+    const c = g.att[g.basin[j]].col;
+    ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+    ctx.globalAlpha = a * da * 0.85;
+    ctx.fillRect(x - s / 2, y - s / 2, s, s);
+  }
+  // flow lines, fading towards where they started
+  const fa = a * ramp(cam.s, 24.2, 24.7);
+  if (fa > 0.01) {
+    ctx.lineWidth = 1 * cam.dpr;
+    for (const f of g.flows) {
+      const c = g.att[f.basin].col;
+      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.35 * fa})`;
+      ctx.beginPath(); f.path.forEach((p, i) => { const [x, y] = cam.proj(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
