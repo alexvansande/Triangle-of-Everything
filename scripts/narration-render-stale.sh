@@ -66,7 +66,7 @@ for t in $takes; do
       mv "output/videos/$t.new.mp4" "$out"
       # off the render queue (video/render-queue.txt), with its note: the publish commits it with the web copy
       [ -n "$queued" ] && sed -i '' "/^$t\$/d" video/render-queue.txt
-      sed -i '' "/^# $t changed: /d" video/render-queue.txt
+      sed -i '' "/^# $t changed: /d;/^# next: $t$/d" video/render-queue.txt
     else
       echo "! $t: render failed (output/videos/$t.log)"; continue
     fi

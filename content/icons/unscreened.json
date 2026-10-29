@@ -131,8 +131,7 @@
   "backing": "soft"
  },
  "hydrogen": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "infrared": {
   "backing": "soft"

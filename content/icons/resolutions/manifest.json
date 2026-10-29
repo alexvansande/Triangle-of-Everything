@@ -1063,7 +1063,7 @@
     ]
   },
   "electron": {
-    "fingerprint": "e7c3e6d7d39cc7de600d3f48bd93fa5304b7ffbcb407043d0bf1312dd52da711",
+    "fingerprint": "031b097f958ad2ec20c2ff66dc90b6da977c9e9e045616634cb85db90c73351b",
     "baseWidth": 512,
     "source": "content/icons/electron.webp",
     "reason": "no larger source",
@@ -1795,23 +1795,19 @@
     ]
   },
   "hydrogen": {
-    "fingerprint": "0c54ef04a51a4535000e7de0606976f5a1c042bf524a90772796e185a1240b90",
-    "baseWidth": 128,
-    "source": "content/icons/src/hydrogen.png",
-    "reason": "matching master",
-    "sourceDifference": 2.0453694661458335,
+    "fingerprint": "6613374ccae88f6b64f4f7d26dc9e471fb302ebe7f99613ba274051d69b69440",
+    "baseWidth": 512,
+    "source": "content/icons/hydrogen.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/hydrogen.webp"
+      },
       {
         "width": 256,
         "path": "256/hydrogen.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/hydrogen.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/hydrogen.webp"
       }
     ]
   },
@@ -2687,7 +2683,7 @@
     ]
   },
   "neutron": {
-    "fingerprint": "19edd1059d0963323dcfccea1a6399bd09d9797447a213e563205de1335ced8f",
+    "fingerprint": "15a1528328993f437967e82a0deb951fd4df2902630a7e9f86893a6353df9528",
     "baseWidth": 512,
     "source": "content/icons/neutron.webp",
     "reason": "no larger source",
@@ -2965,7 +2961,7 @@
     ]
   },
   "proton": {
-    "fingerprint": "74cfdcf869d0f1c19f07239f89909151cde1f1904a876315a3f842dd378c5fcd",
+    "fingerprint": "7058d344a8d19cc68df49ea7a312e504a92fbcdada973f7add03cd43e97f3cbd",
     "baseWidth": 512,
     "source": "content/icons/proton.webp",
     "reason": "no larger source",
@@ -5889,6 +5885,23 @@
       {
         "width": 1024,
         "path": "1024/cow.webp"
+      }
+    ]
+  },
+  "deuterium": {
+    "fingerprint": "086659853582b46ec00ef428570e87f19327847c6e4a7af1c9e4ed640cd5b0ba",
+    "baseWidth": 512,
+    "source": "content/icons/deuterium.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/deuterium.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/deuterium.webp"
       }
     ]
   }
