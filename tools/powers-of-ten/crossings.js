@@ -6,6 +6,7 @@
 // they rush outwards past us. Soft and blurred, for the feeling of passing
 // through, not as objects to look at. ?crossings=0 leaves them out.
 import { ramp, rng } from "./math.js";
+import { image } from "./micro.js";
 
 // s: where the boundary is crossed (log10 m); col: rgb; size: a particle's width
 // in frame widths at the crossing; n: how many; op: how opaque; kind: blob (soft) or ring (a bubble)
@@ -21,6 +22,24 @@ const CROSSINGS = [
 // how much faster than the scene they move: nearer the camera
 const NEAR = 2.2;
 
+// and catalogue objects flying past, near where they really are (s: log10 m of the
+// frame as we pass them, about their distance from us), for a sense of scale and of
+// depth, like the opening of Contact; size: their width in frame widths as they pass
+const FLYBYS = [
+  [11.1, "eros", "433 Eros", 0.16], [11.55, "vesta", "Vesta", 0.2], [11.7, "ceres", "Ceres", 0.22],
+  [12.1, "comet-67p", "Comet 67P", 0.14], [12.45, "halleys-comet", "Halley's Comet", 0.2],
+  [12.8, "pluto", "Pluto", 0.22], [12.9, "charon", "Charon", 0.13],
+  [16.9, "sirius-a", "Sirius", 0.18, true], [17.35, "vega", "Vega", 0.16, true],
+  [18.55, "pleiades", "the Pleiades", 0.3, true], [18.7, "betelgeuse", "Betelgeuse", 0.18, true],
+  [18.85, "planetary-nebula", "the Helix Nebula", 0.24, true], [19.1, "nebulae", "the Orion Nebula", 0.32, true],
+  [19.8, "ngc7635bubble-nebula", "the Bubble Nebula", 0.22, true], [20.3, "globular-cluster", "M13", 0.2, true],
+  [23.05, "bodes-galaxy", "Bode's Galaxy", 0.24, true], [23.1, "cigar-galaxy", "the Cigar Galaxy", 0.2, true],
+  [23.3, "whirlpool", "the Whirlpool", 0.26, true], [23.45, "sombrero-m104", "the Sombrero", 0.24, true],
+  [23.7, "m87", "M87", 0.2, true], [24.4, "perseus-cluster", "the Perseus Cluster", 0.3, true],
+  [25.5, "bullet-cluster", "the Bullet Cluster", 0.3, true],
+];
+const NEAR_FLY = 1.7;
+
 export function crossingsLayer(on) {
   const r = rng(404);
   const sets = CROSSINGS.map((c) => ({
@@ -32,6 +51,11 @@ export function crossingsLayer(on) {
     }),
     sprite: null,
   }));
+  const flys = FLYBYS.map(([s, file, name, size, light], i) => {
+    // round the frame by the golden angle, so neighbours pass on different sides
+    const ang = i * 2.39996 + 0.7, rad = 0.5 + 0.3 * r();
+    return { s, name, size, light, img: image(`/content/icons/${file}.webp`), x: rad * Math.cos(ang), y: rad * Math.sin(ang) };
+  });
   const sprite = (c) => {
     if (c.sprite) return c.sprite;
     const S = 128, cv = document.createElement("canvas"); cv.width = cv.height = S;
@@ -46,7 +70,7 @@ export function crossingsLayer(on) {
     return (c.sprite = cv);
   };
   return {
-    name: "crossings", range: [-6.5, 22.5],
+    name: "crossings", range: [-6.5, 26.5],
     draw(cam) {
       if (!on) return;
       const ctx = cam.ctx, half = cam.min / 2;
@@ -64,6 +88,19 @@ export function crossingsLayer(on) {
           ctx.globalAlpha = a;
           ctx.drawImage(img, x - size / 2, y - size / 2, size, size);
         }
+      }
+      for (const o of flys) {
+        const d = cam.s - o.s;
+        if (d < -0.5 || d > 0.95 || !o.img.complete || !o.img.naturalWidth) continue;
+        const f = 10 ** (-NEAR_FLY * d), w = o.size * cam.min * f, h = w * o.img.naturalHeight / o.img.naturalWidth;
+        const x = cam.cx + o.x * half * 1.7 * f, y = cam.cy + o.y * half * 1.7 * f;
+        const a = ramp(d, -0.45, -0.15) * (1 - ramp(d, 0.5, 0.9)) * ramp(w, 3, 14);
+        if (a <= 0.01 || x + w < 0 || x - w > cam.W || y + h < 0 || y - h > cam.H) continue;
+        ctx.globalAlpha = a;
+        if (o.light) ctx.globalCompositeOperation = "lighter";
+        ctx.drawImage(o.img, x - w / 2, y - h / 2, w, h);
+        ctx.globalCompositeOperation = "source-over";
+        cam.labelPx(x, y + h / 2 + 14 * cam.dpr, o.name, a * ramp(w, 30, 60) * (1 - ramp(w, 0.6 * cam.min, 0.9 * cam.min)));
       }
       ctx.globalAlpha = 1;
     },

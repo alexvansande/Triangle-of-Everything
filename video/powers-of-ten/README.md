@@ -51,7 +51,12 @@ The whole picture also rolls round the line of sight, 5° a decade at every scal
 little over one turn from the Planck length to the CMB), so the zoom reads as a fall down
 a spiral, and at seven boundaries (the nuclear envelope, the cell, the dew drop, the
 canopy, the clouds, the Oort cloud, the Milky Way) soft things near the camera fly past
-(`crossings.js`, `?crossings=0` to leave them out).
+(`crossings.js`, `?crossings=0` to leave them out). Catalogue objects fly past near where
+they really are, for scale and depth like the opening of *Contact*: Eros, Vesta, Ceres, two
+comets, Pluto and Charon; Sirius, Vega, the Pleiades, Betelgeuse, the Helix, Orion and
+Bubble nebulae, M13; Bode's, the Cigar, the Whirlpool, the Sombrero, M87, the Perseus and
+Bullet clusters. The solar system is seen from 20° off the ecliptic's pole, tipping to 45°
+and turning 40° as we pass the planets, before the turn to the Galaxy's plane.
 
 ## The image pass (DNA → Earth)
 
