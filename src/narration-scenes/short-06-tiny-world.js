@@ -103,7 +103,9 @@ export default {
     // down: its four bases into it, then the atoms into one base and into sugar and water
     { at: "every one of us", cam: C(-7.05, -20.6, 1.7), hl: [{ obj: "DNA" }] },
     { at: "us dna", offset: 0.15, cam: C(-6.5, -19.1, 2.6), hl: [{ obj: "DNA", label: "in every living thing" }, P("made-of:DNA>Bacterium")] },
-    { at: "four molecules", cam: C(-7.3, -21.1, 1.8), hl: [P("DNA"), { obj: "DNA", label: false }, ...few(BASES, "A · T · C · G", 0.3)] },
+    // in close on the four bases (within 0.06 decades of each other) so each is named (the author, 2026-10-29)
+    { at: "four molecules", cam: C(-7.53, -21.67, 0.36), hl: [P("DNA"), { obj: "DNA", label: false },
+      ...BASES.map((obj, i) => ({ obj, label: ["adenine · A", "thymine · T", "cytosine · C", "guanine · G"][i], place: ["right", "left", "below", "above"][i], delay: i * 0.3 }))] },
     { at: "simpler and simpler", cam: C(-7.7, -22.0, 1.4),
       hl: [P("Glucose"), { obj: "Glucose", label: "sugar" }, P("Water (H₂O)", 0.8), { obj: "Water (H₂O)", label: "water", delay: 0.8 }] },
     { at: "until we reach the atoms", hl: [P("Adenine (A)"), { obj: "Adenine (A)", label: "a base", place: "right" },
@@ -152,7 +154,8 @@ export default {
     // ── The wall: the Compton line ───────────────────────────
     { at: "keep following the line", periodic: false, cam: { r: -9.0, m: +(3 * -9.0 + 0.62).toFixed(2), span: 3 }, dur: 2.3, clear: true, hl: [WATER] },
     { at: "final edge", cam: C(-9.6, -27.5, 4.4), hl: [WATER, { ...COMPTON, label: "edge 3 · the Compton line" }] },
-    { at: "electron volts", units: true, unitsFor: 8, hl: [COMPTON, { obj: "Electron", label: "electron" }] },
+    // the energy ruler on the left from here on, for the particles and light (the author, 2026-10-29)
+    { at: "electron volts", units: true, unitsFor: 8, energyAxis: true, hl: [COMPTON, { obj: "Electron", label: "electron" }] },
     { at: "that's einstein", hl: [{ card: "E = mc²", hold: 2.2 }] },
     { at: "deep down", hl: [COMPTON, { obj: "Electron", label: false }] },
     { at: "also has a wavelength", cam: C(-9.9, -27.3, 3.6), hl: [COMPTON, { obj: "Electron", label: "its wavelength" }] },
@@ -172,7 +175,8 @@ export default {
     { at: "every particle sits here", hl: [COMPTON, ...few(PARTICLES, "particles", 0.3), P(["up-to-proton", "down-to-proton"], 1.2)] },
     { at: "so does light", spectrum: true, hl: [COMPTON, ...few(LIGHT, "light", 0.25)] },
     { at: "radio waves", hl: [COMPTON, { obj: "FM Radio", label: "radio" }] },
-    { at: "gamma rays down here", hl: [COMPTON, { obj: "FM Radio", label: false }, { obj: "Gamma Ray", label: "gamma rays" }] },
+    // (the narration's "down here" is cut: gamma rays are up the line, the author's note 2026-10-29)
+    { at: ["up to gamma rays", "gamma rays"], hl: [COMPTON, { obj: "FM Radio", label: false }, { obj: "Gamma Ray", label: "gamma rays" }] },
 
     // ── Where matter meets light ─────────────────────────────
     { at: "interesting question", spectrum: false, cam: DOWN(-8.6, 6), dur: 3, clear: true, hl: [{ ...WATER, label: "ordinary matter" }] },

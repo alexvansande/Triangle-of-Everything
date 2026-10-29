@@ -490,6 +490,8 @@ Cue fields
   icons    from this cue on: false (no pictures), true (the scene's set) or a
            list of names. By default only objects some cue highlights keep their
            picture (a scene's `icons: [...]` replaces that set)
+  energyAxis  true: from this cue on, the energy ruler on the left (eV, the mass ruler's heights
+           read as E = mc²), false to take it away
   forceIcons / firstIcons / hideIcons / hideLabels   from this cue on, replace the scene's
            lists (names; [] for none, null back to the scene's): video 2 hides the 1 mL ball
            until "ball" and puts the animals first at "most animals". firstIcons: ranked first,
