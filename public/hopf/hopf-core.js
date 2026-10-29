@@ -69,7 +69,8 @@ const ROWS = 5;
 // closing mismatch spread evenly, so the only twist left is the one we add
 // on purpose: spin × 2π over one loop. Spin ½ closes as a Möbius band.
 // A fiber with its own `curve(u, flow)` skips S³ and gives 3D points directly;
-// with `open` it is not closed into a loop.
+// with `open` it is not closed into a loop. One with `field(point, time)` takes
+// its [colour, intensity] from where each sample sits, not from u.
 function sampleFiber(f, M, flow, N, widthScale, radius, time, out, rowBase, W) {
   const P = [], T = [];
   for (let i = 0; i <= N; i++) {
@@ -101,10 +102,11 @@ function sampleFiber(f, M, flow, N, widthScale, radius, time, out, rowBase, W) {
     const twist = mismatch * u + f.spin * TAU * u + (f.twistPhase || 0);
     const r = norm(spinAbout(R[i], T[i], twist));
     const b = cross(T[i], r);
-    const front = f.color(u, time);
+    const lit = f.field && f.field(P[i], time);
+    const front = lit ? lit[0] : f.color(u, time);
     const back = f.back ? f.back(u, time) : front;
     const hw = f.width * widthScale * (f.taper ? f.taper(u) : 1);
-    const I = typeof f.intensity === 'function' ? f.intensity(u, time) : f.intensity;
+    const I = lit ? lit[1] : typeof f.intensity === 'function' ? f.intensity(u, time) : f.intensity;
     const rows = [
       [P[i][0], P[i][1], P[i][2], hw],
       [r[0], r[1], r[2], flat],
@@ -326,12 +328,19 @@ const turn = (v, ay, ax) => {
 const addv = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 const mixc = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
 
-const nucleonScale = (id, name, current, QUARKS) => ({
+// A neutral nucleon's ball is grey: colour charge still cancels to white
+// inside, but with no electric charge it is drawn without the proton's
+// coloured fringes, and its flux tubes are washed toward grey too.
+const NEUTRAL = rgb(150, 155, 165);
+const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
   id, name, family: 'Composites',
   sub: 'What a nucleon looks like depends on how finely you probe it',
   current,
   chips: [['Low', 'fuzzy colourless ball'], ['Mid', '3 quarks + flux-tube Y'], ['High', 'gluon & quark sea'], ['Colour', 'swapped, never located']],
-  why: 'Drag the slider from coarse to fine. Seen coarsely the proton is one fuzzy ball with no colour: red, green and blue light add to white, fringing where the colour field fluctuates. Look closer and three point-like quarks resolve, racing around inside a gluon field that holds about 99% of the mass. Each flash between two quarks is a gluon swapping their colours, so there is always one of each but never a fixed red one. Finest of all, the proton is mostly a fizzing sea of gluons and quark–antiquark pairs.',
+  why: (neutral
+    ? 'Drag the slider from coarse to fine. The neutron is drawn grey: it has no electric charge (+⅔ − ⅓ − ⅓ = 0), where the proton\'s +1 is drawn as coloured fringes. Look closer'
+    : 'Drag the slider from coarse to fine. Seen coarsely the proton is one fuzzy ball with no colour: red, green and blue light add to white, fringing where the colour field fluctuates. Look closer')
+    + ' and three point-like quarks resolve, racing around inside a gluon field that holds about 99% of the mass. Each flash between two quarks is a gluon swapping their colours, so there is always one of each but never a fixed red one. Finest of all, the nucleon is mostly a fizzing sea of gluons and quark–antiquark pairs.',
   N: 220, pitch: 0.35, view: [], drift: [],
   additive: false, frame: { center: [0, 0, 0], radius: 1.05 },
   resolution: 0.5,
@@ -352,7 +361,7 @@ const nucleonScale = (id, name, current, QUARKS) => ({
       intensity: () => 0.9 * st.mid,
       taper: u => Math.pow(Math.sin(Math.PI * u), 0.3),
       curve: u => mixc(st.Q[k] || [0, 0, 0], st.J, u),
-      color: () => qColor(k),
+      color: () => neutral ? mixc(qColor(k), NEUTRAL, 0.6) : qColor(k),
       leg: true,
     });
     // the gluon that carries a colour swap: a quick wavy flash between two quarks
@@ -382,7 +391,7 @@ const nucleonScale = (id, name, current, QUARKS) => ({
             const off = scale([Math.cos(st.t * 0.7 + c * TAU / 3), 0.4 * Math.sin(st.t * 0.9 + c), Math.sin(st.t * 0.7 + c * TAU / 3)], st.ab * 0.5);
             return addv(off, turn([r * Math.cos(TAU * u), 0, r * Math.sin(TAU * u)], ay + 0.05 * st.t, ax));
           },
-          color: () => PURE[c],
+          color: () => neutral ? mixc(PURE[c], NEUTRAL, 0.88) : PURE[c],
         });
       }
     });
@@ -421,7 +430,7 @@ const nucleonScale = (id, name, current, QUARKS) => ({
       st.lo = 0.12 + 0.88 * (1 - smooth(0.12, 0.42, res)); // the ball never quite goes: the quarks stay inside it
       st.mid = smooth(0.12, 0.42, res) * (1 - 0.55 * smooth(0.62, 0.95, res));
       st.hi = smooth(0.5, 0.92, res);
-      st.ab = 0.05 + 0.1 * smooth(0.05, 0.35, res);
+      st.ab = neutral ? 0.02 : 0.05 + 0.1 * smooth(0.05, 0.35, res);
       st.qv = smooth(0.02, 0.25, st.mid);
       st.qs = 1 - 0.35 * smooth(0.6, 1, res); // finer probes, smaller quarks: still unresolved points
       // quarks: fast, tangled orbits around 120°-spaced homes in a slowly turning triangle
@@ -469,7 +478,110 @@ const nucleonScale = (id, name, current, QUARKS) => ({
   },
 });
 const PROTON_SCALE = nucleonScale('proton-scale', 'Proton · by resolution', '/content/icons/proton.webp', [[2, 3], [2, 3], [-1, 3]]);
-const NEUTRON_SCALE = nucleonScale('neutron-scale', 'Neutron · by resolution', '/content/icons/neutron.webp', [[2, 3], [-1, 3], [-1, 3]]);
+const NEUTRON_SCALE = nucleonScale('neutron-scale', 'Neutron · by resolution', '/content/icons/neutron.webp', [[2, 3], [-1, 3], [-1, 3]], true);
+
+// Atoms: a nucleus (the nucleon pictures above, shrunk) inside the electron's
+// orbital. The orbital is woven from the electron's own (1,−1) Hopf circles,
+// the ones its torus is made of: each circle through the ball around the
+// nucleus is lit by |ψ|² where it passes, so the true hydrogen orbital shape
+// (lobes, nodes) is carved out of the fibration. The circles turn slowly about the
+// orbital's axis, so light streams through a cloud that itself stays still.
+// Hydrogen orbitals ψ_nlm in real form, r in Bohr radii, z the vertical axis.
+function laguerre(k, a, x) {
+  if (k === 0) return 1;
+  let L0 = 1, L1 = 1 + a - x;
+  for (let i = 1; i < k; i++) [L0, L1] = [L1, ((2 * i + 1 + a - x) * L1 - (i + a) * L0) / (i + 1)];
+  return L1;
+}
+function legendre(l, m, x) {
+  let pmm = 1;
+  const s = Math.sqrt(Math.max(0, 1 - x * x));
+  for (let i = 1; i <= m; i++) pmm *= (2 * i - 1) * s;
+  if (l === m) return pmm;
+  let pm1 = x * (2 * m + 1) * pmm;
+  for (let ll = m + 2; ll <= l; ll++) [pmm, pm1] = [pm1, ((2 * ll - 1) * x * pm1 - (ll + m - 1) * pmm) / (ll - m)];
+  return pm1;
+}
+const orbital = (n, l, m) => (x, y, z) => {
+  const r = Math.hypot(x, y, z), rho = 2 * r / n;
+  const ang = legendre(l, Math.abs(m), r ? z / r : 1) * (m > 0 ? Math.cos(m * Math.atan2(y, x)) : m < 0 ? Math.sin(-m * Math.atan2(y, x)) : 1);
+  return rho ** l * Math.exp(-rho / 2) * laguerre(n - l - 1, 2 * l + 1, rho) * ang;
+};
+// radius holding 99% of the electron, from the radial distribution r²R²
+function orbitalExtent(n, l) {
+  const R = orbital(n, l, 0), dr = 0.02, P = [];
+  let tot = 0;
+  for (let r = dr; r < 12 * n * n; r += dr) { const v = r * R(0, 0, r); tot += v * v; P.push(tot); }
+  return dr * (P.findIndex(v => v > 0.99 * tot) + 1);
+}
+const PHASE_PLUS = cyclic([rgb(70, 220, 255), rgb(40, 130, 255), rgb(90, 180, 255)]);
+const PHASE_MINUS = cyclic([rgb(150, 90, 255), rgb(200, 100, 255), rgb(120, 80, 255)]);
+const ORBITAL_NAMES = { 0: 's', 1: 'p', 2: 'd', 3: 'f' };
+
+function atom(id, name, sub, why, [n, l, m], nucleus, current) {
+  const orb = ORBITAL_NAMES[l] + (l === 0 ? '' : m === 0 ? ['', 'z', 'z²', 'z³'][l] : l === 2 ? 'xz' : '');
+  return {
+    id, name: `${name} · ${n}${orb}`, sub, current, family: 'Atoms',
+    chips: [['Orbital', `${n}${orb} · n=${n}, l=${l}, m=${m}`], ['Lines', 'electron (1,−1) Hopf circles'], ['Brightness', '|ψ| where each passes'],
+      ['Nucleus', nucleus.length > 1 ? 'p + n, ~10⁵× too big' : 'p, ~10⁵× too big']],
+    why,
+    N: 120, pitch: 0.35, view: [], drift: [],
+    additive: false, frame: { center: [0, 0, 0], radius: 1.05 },
+    make() {
+      const psi = orbital(n, l, m), E = orbitalExtent(n, l), spins = m === 0;
+      // orbital coordinates: z is the Hopf picture's vertical axis
+      const at = p => psi(p[0] * E, p[2] * E, p[1] * E);
+      let peak = 0;
+      for (let i = 0; i < 40; i++) for (let j = 0; j < 40; j++) for (let k = 0; k < 40; k++) {
+        const p = [i, j, k].map(v => (v + 0.5) / 20 - 1);
+        if (Math.hypot(...p) < 1) peak = Math.max(peak, Math.abs(at(p)));
+      }
+      // nucleons, shrunk and placed at the centre
+      const NS = 0.2, nuc = nucleus.map((P, k) => ({
+        made: P.make(), off: nucleus.length > 1 ? [(k ? 1 : -1) * 0.62 * NS, 0, 0] : [0, 0, 0],
+      }));
+      const wrap = (f, { off }) => Object.create(f, {
+        curve: { value: u => addv(off, scale(f.curve(u), NS)) },
+        width: { get: () => f.width * NS },
+      });
+      const fibers = [];
+      for (const N of nuc) fibers.push(...N.made.fibers.slice(0, N.made.solidCount).map(f => wrap(f, N)));
+      const solidCount = fibers.length;
+      for (const N of nuc) fibers.push(...N.made.fibers.slice(N.made.solidCount).map(f => wrap(f, N)));
+      // the electron: (1,−1) circles over evenly spread base points, so they
+      // fill S³ evenly. The ball r < 1 is the hemisphere w < 0, exactly half of
+      // every great circle (θ from 0 to π), and the projection packs their
+      // length 4/(1 + r²)² times denser toward the centre, which the brightness undoes.
+      const FIBERS = 170;
+      for (let k = 0; k < FIBERS; k++) {
+        const eta = Math.acos(1 - 2 * (k + 0.5) / FIBERS) / 2, xi1 = k * Math.PI * (3 - Math.sqrt(5)), tone = hash(k, 5);
+        const ce = Math.cos(eta), se = Math.sin(eta);
+        fibers.push({
+          open: true, spin: 0.5, flat: 1, width: 0.009,
+          curve: (u, flow) => {
+            const th = Math.PI * u, a = xi1 + th + (spins ? 1.5 * flow : 0);
+            return stereo([ce * Math.cos(a), ce * Math.sin(a), se * Math.cos(th), -se * Math.sin(th)], 1);
+          },
+          field: q => {
+            const v = at(q) / peak, r = Math.hypot(...q);
+            return [v >= 0 ? PHASE_PLUS(tone) : PHASE_MINUS(tone),
+              1.4 * Math.abs(v) ** 1.5 * (1 + r * r) ** 2 / 4 * (1 - smooth(0.8, 1, r)) * smooth(0.1, 0.22, r)];
+          },
+          color: () => PHASE_PLUS(tone),
+        });
+      }
+      const step = t => { for (const N of nuc) N.made.step(t, 0.3); };
+      return { fibers, solidCount, step };
+    },
+  };
+}
+const ATOM_WHY = 'The electron is not a ball circling the nucleus: it is spread over an orbital, |ψ|², a fixed shape for each energy level (n), angular momentum (l, the letter s, p, d, f) and orientation (m). Here the orbital is woven from the electron\'s own Hopf circles, each lit by how likely the electron is to be where it passes; violet marks where ψ is negative. Every orbital is drawn the same size: really an n = 2 orbital is about 4× the n = 1, and n = 3 about 9×.';
+const ATOMS = [
+  atom('hydrogen', 'Hydrogen', 'Hydrogen-1: one proton, one electron', ATOM_WHY + ' Ground state: 1s, a sphere densest at the nucleus.', [1, 0, 0], [PROTON_SCALE], '/content/icons/hydrogen.webp'),
+  atom('deuterium', 'Deuterium', 'Hydrogen-2: a proton and a neutron, one electron', ATOM_WHY + ' The extra neutron leaves the electron almost untouched: the 1s orbital is the same to 0.03% (the reduced mass).', [1, 0, 0], [PROTON_SCALE, NEUTRON_SCALE]),
+  ...[[2, 0, 0], [2, 1, 0], [3, 1, 0], [3, 2, 0], [3, 2, 1], [4, 3, 0]].map(q =>
+    atom(`hydrogen-${q.join('')}`, 'Hydrogen', 'Excited hydrogen', ATOM_WHY, q, [PROTON_SCALE])),
+];
 
 export const PARTICLES = [
   quark('up', 'Up', '/content/icons/up-quark.webp', true, 1),
@@ -593,6 +705,7 @@ export const PARTICLES = [
   PROTON_SCALE,
   NEUTRON_SCALE,
   ...COMPOSITES,
+  ...ATOMS,
 ];
 
 // =============================================================
