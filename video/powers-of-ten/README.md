@@ -45,7 +45,7 @@ plane, so the galaxies' flows lie flat.
 | 19.5 … 24.5 | the Milky Way | **placeholder** `milky-way.webp`, laid on the galactic plane; to generate |
 | 21.5 … 25 | the Local Group, 28 galaxies at their real positions | code |
 | 23 … 26.5 | 2MRS galaxies as a cosmic web: each linked to its nearest neighbours (positions untouched), coloured by the attractor they flow to (a rough Laniakea); the camera swings 40° and back so depth shows | code, toy model |
-| 26 … 27.6 | the spectrum page's Cloud: visible light, then the Planck bands, then the CMB sphere | `public/spectrum` (`?bare=1`, `spectrumControl`) |
+| 26 … 27.6 | the spectrum page's Cloud on its log scale, the whole spectrum bar: the camera flies backwards out of it, so the Milky Way, the superclusters and the CMB come past from behind, ending on the author's view | `public/spectrum` (`?bare=1`, `spectrumControl`) |
 
 ## The image pass (DNA → Earth)
 
@@ -85,6 +85,7 @@ The options are `--from`, `--to`, `--step`, `--names` (adds the names, for refer
   at 34 kpc across, centred on the Galactic Centre, with the Sun 8.2 kpc out.
 - **Laniakea** is five softened point masses. Replace it with Cosmicflows-4 (the plan's
   "supercluster visualizer").
-- **The CMB's colours**: the selector slides from Gaia G to Planck 143 GHz and spreads
-  out (`driveCloud` in `main.js`). Tune it to the look you like in the spectrum page.
+- **The CMB's view** is the author's pick (2026-10-29), from the spectrum page's View code:
+  `CLOUD_END` in `main.js`. On a log scale the frame-width counter and the grid no longer mean
+  what they say past 10²⁶ m.
 - **Timing**: none yet. `window.zoom.set(s)` is the hook for a narration scene.

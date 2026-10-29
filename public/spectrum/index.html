@@ -1373,10 +1373,13 @@
     if (hasDepth && !(first && q.has("view"))) setExplore(first && EXPLORE_FOOT[q.get("mode")] ? q.get("mode") : "earth", true);
     else markExplore();
     clamp(); layoutSelector(); layoutDist(); draw();
-    // driven from outside (tools/powers-of-ten.html): the Cloud on its linear scale,
-    // lz (log10 ly at radius 1), the view's yaw, pitch and zoom, the selector (c, s)
+    // driven from outside (tools/powers-of-ten.html): the Cloud on its linear scale
+    // (galaxy) or its log one (universe; unit, log10 ly), lz (log10 ly at radius 1),
+    // the view's yaw, pitch and zoom, the selector (c, s)
     window.spectrumControl = (o) => {
       if (o.galaxy && !(mode === 3 && rmode === 2)) setExplore("galaxy", true);
+      if (o.universe && !(mode === 3 && rmode === 1)) setExplore("universe", true);
+      if (o.unit !== undefined && o.unit !== +unit.value) { if (o.unit < +unit.min) unit.min = o.unit; unit.value = o.unit; showScale(); }
       if (o.lz !== undefined) lz = Math.max(LZ_MIN, Math.min(LZ_MAX, o.lz));
       for (const k of ["yaw", "pitch", "zoom"]) if (o[k] !== undefined) view[k] = o[k];
       if (o.c !== undefined) { c = o.c; s = o.s ?? s; clamp(); layoutSelector(); }

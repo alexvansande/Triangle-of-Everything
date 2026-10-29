@@ -4,7 +4,7 @@
 // drop of dew on a ladybug on the General Sherman tree. At the top the spectrum
 // page's Cloud (public/spectrum, ?bare=1) takes over for the microwave sky.
 //   ?s=  ?grid=0  ?labels=0  ?ui=0  ?stage=9x16|16x9|1x1  ?plates=1 (use video/powers-of-ten/plates/)
-import { ramp, clamp, LY, AU, cameraAt, FINAL_VIEW } from "./math.js";
+import { ramp, clamp, LY, AU, cameraAt } from "./math.js";
 import { smallLayers } from "./small.js";
 import { microLayers } from "./micro.js";
 import { macroLayers } from "./macro.js";
@@ -32,25 +32,25 @@ const plates = await platesLayer(q.get("plates") === "1");
 const layers = [...space, ...macro.layers, ...micro, ...small.reverse()];
 
 // ---------- the spectrum Cloud, for the last decades ----------
-let cloudBands = null;
-fetch("/spectrum/sky-spectrum/bands.json").then((r) => r.json()).then((m) => {
-  const vis = m.bands.findIndex((b) => b.id === "g"), mw = m.bands.findIndex((b) => b.id === "p143");
-  cloudBands = { vis: vis < 0 ? m.start?.c ?? 0 : vis, mw: mw < 0 ? 2 : mw };
-}).catch(() => {});
-const nc = [FINAL_VIEW.n[0], FINAL_VIEW.n[2], -FINAL_VIEW.n[1]]; // galactic → the Cloud's (x, z, −y)
-const CLOUD_VIEW = { yaw: Math.atan2(nc[0], nc[2]), pitch: Math.asin(nc[1]) };
+// on its log scale (1 unit = 950 km, Earth at the centre, the CMB at radius 1),
+// the whole spectrum bar in its light: the camera flies backwards out of it, so the
+// stars, the Milky Way, the superclusters and last the CMB come past it from
+// behind, and settles on the author's view (2026-10-29)
+const CLOUD_END = { unit: -10, c: 11.3, s: 11.3, yaw: 0.402, pitch: 0.389 };
+// the camera sits 3.2 / zoom from the centre; it starts just inside the Milky Way's
+// shell (radius ~0.7 on this scale) and ends where the CMB's sphere spans 78% of the
+// frame's shorter side, as in the author's view; the Cloud's field of view is 40° tall
+const CLOUD_FLY = [25.9, 27.4], DIST0 = 0.68, FILL = 0.78;
 function driveCloud(s, W, H) {
   const a = ramp(s, 25.9, 26.6);
   frame.style.opacity = a;
   frame.style.visibility = a > 0 ? "visible" : "hidden";
   const ctl = frame.contentWindow?.spectrumControl;
   if (!a || !ctl) return;
-  // the Cloud's camera sees 2·1.165·10^lz light-years top to bottom at zoom 1
-  const lz = s - Math.log10(LY * 2.329) + Math.log10(H / Math.min(W, H));
-  const o = { galaxy: true, lz: Math.min(10.7, lz), zoom: lz > 10.7 ? Math.max(0.25, 10 ** (10.7 - lz)) : 1, ...CLOUD_VIEW };
-  // visible light, then the Planck bands, spread so the Galaxy's own microwave glow shows in colour over the CMB
-  if (cloudBands) { const t = ramp(s, 26.2, 26.9); o.c = cloudBands.vis + (cloudBands.mw - cloudBands.vis) * t; o.s = 1 + 1.2 * t; }
-  ctl(o);
+  const dEnd = 1 / Math.sin(Math.atan(FILL * (Math.min(W, H) / H) * Math.tan(20 * Math.PI / 180)));
+  const t = ramp(s, ...CLOUD_FLY), dist = Math.exp(Math.log(DIST0) + (Math.log(dEnd) - Math.log(DIST0)) * t);
+  // turning a little as it goes, for the depth, and still at the end
+  ctl({ universe: true, ...CLOUD_END, zoom: 3.2 / dist, yaw: CLOUD_END.yaw + 0.5 * (1 - t) ** 2 });
 }
 
 // ---------- drawing ----------
