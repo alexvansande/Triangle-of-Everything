@@ -183,23 +183,27 @@ const GROUPS = [
     { k: 'showNucleus', label: 'Show nucleus', type: 'check', used: ATOMS },
   ] },
   { name: 'Electron cloud', note: 'atoms and water', used: ATOMS, rows: [
-    { k: 'orbital', label: 'Hydrogen orbital', type: 'select', options: Object.keys(ORBITALS), rebuild: true, used: ['hydrogen', 'deuterium'] },
+    { k: 'orbital', label: 'Hydrogen electron state', type: 'select', rebuild: true, used: ['hydrogen', 'deuterium'],
+      // energy of level n: −13.6 eV / n²
+      options: Object.entries(ORBITALS).map(([o, [n]]) => [o, n === 1 ? `${o} · ground state` : `${o} · excited, ${(-13.6 / n / n).toFixed(2)} eV`]) },
     { k: 'cloudFibers', label: 'Hopf circles', min: 30, max: 400, step: 10, rebuild: true },
     { k: 'cloudGain', label: 'Brightness', min: 0, max: 8, step: 0.05 },
     { k: 'cloudContrast', label: 'Contrast', min: 0.3, max: 3, step: 0.05 },
     { k: 'cloudWidth', label: 'Line width', min: 0.002, max: 0.03, step: 0.0005 },
     { k: 'dashes', label: 'Dashes per circle (0 = whole)', min: 0, max: 12, step: 1 },
-    { k: 'dashSharp', label: 'Dash shortness', min: 1, max: 24, step: 0.5 },
+    { k: 'dashLength', label: 'Dash length', min: 0.02, max: 1, step: 0.01, fmt: v => v >= 1 ? 'whole' : `${Math.round(v * 100)}%` },
     { k: 'dashSpeed', label: 'Dash speed', min: -3, max: 3, step: 0.05 },
     { k: 'spin', label: 'Circle spin', min: -5, max: 5, step: 0.1 },
     { k: 'plusColor', label: 'Electron colour (ψ > 0)', type: 'color' },
     { k: 'minusColor', label: 'Negative phase (ψ < 0)', type: 'color', used: ['hydrogen', 'deuterium'] },
     { k: 'coreColor', label: 'Inner-shell colour', type: 'color', used: ['oxygen', 'water'] },
+    { k: 'hColor', label: 'Hydrogens\' electrons', type: 'color', used: ['water'] },
     { k: 'showCloud', label: 'Show cloud', type: 'check' },
   ] },
   { name: 'Scale', note: 'atoms and water', used: ATOMS, rows: [
     { k: 'logScale', label: 'Log scale', type: 'check', rebuild: true },
     { k: 'nucleusShare', label: 'Room for the nucleus', min: 0.05, max: 0.8, step: 0.01, rebuild: true, fmt: v => `${Math.round(v * 100)}%` },
+    { k: 'linearNucleus', label: 'Nucleus size at linear scale', min: 0.02, max: 0.6, step: 0.01, rebuild: true, fmt: v => `${Math.round(v * 100)}%` },
     { k: 'rings', label: 'Ring brightness', min: 0, max: 1, step: 0.01 },
     { k: 'labels', label: 'Ring labels', type: 'check', store: VIEW },
   ] },
@@ -247,7 +251,7 @@ for (const g of GROUPS) {
     if (type === 'range') row.innerHTML = `${label}<output></output><input id="${id}" type="range" min="${r.min}" max="${r.max}" step="${r.step}">`;
     else if (type === 'check') row.innerHTML = `${label}<input id="${id}" type="checkbox">`;
     else if (type === 'color') row.innerHTML = `${label}<input id="${id}" type="color">`;
-    else row.innerHTML = `${label}<select id="${id}">${r.options.map(o => `<option>${o}</option>`).join('')}</select>`;
+    else row.innerHTML = `${label}<select id="${id}">${r.options.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select>`;
     const el = row.querySelector(`#${id}`), out = row.querySelector('output');
     const show = () => { if (out) out.textContent = r.fmt ? r.fmt(store[r.k]) : +(+store[r.k]).toFixed(4); };
     const sync = () => {
