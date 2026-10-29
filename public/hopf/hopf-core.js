@@ -11,6 +11,7 @@
 // times around the tube (q-fold symmetric); p/q is read as the electric charge.
 // (0,1) are meridian rings of the torus: none of them link, the neutral case.
 // =============================================================
+import { MOLECULES } from './molecules.js';
 const TAU = Math.PI * 2;
 
 function fiberPoint(f, th) {
@@ -770,7 +771,7 @@ function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, bal
         b.peak = pk;
       }
       // linear scale: keep the cloud off the (exaggerated) nuclei
-      const nucR = logScale ? 0 : Math.max(...nuc.map(N => Math.hypot(...N.off)).filter(r => r < perFm * linEdge)) + NS;
+      const nucR = logScale ? 0 : Math.max(0, ...nuc.map(N => Math.hypot(...N.off)).filter(r => r < perFm * linEdge)) + NS;
       // tabulated once on a grid over the ball, then read back trilinearly.
       // Brightness is scaled to the densest point you can see: at linear scale
       // not the core electrons hidden under the drawn nucleus
@@ -904,6 +905,46 @@ function element([Z, A, id, name, note]) {
     // many shells pile up toward white: heavier atoms a little dimmer
     style: Z > 10 ? { cloudGain: 2.75 / (1 + 0.25 * Math.log2(Z / 10)) } : {} });
 }
+// Molecules: atoms at their real 3D positions (public/hopf/molecules.js, from
+// PubChem), one cloud for all their valence electrons (each atom's outer shell,
+// summed: the cores are too small to see at this scale), and each nucleus a
+// small glowing dot in its element's colour (its nucleons would be invisible).
+const ELEMENT_DOT = { H: '#ffffff', C: '#c9bfa8', N: '#6f8fff', O: '#ff5a48', P: '#ffa030', S: '#ffd93a' };
+const DOT_SIZE = { H: 0.3 };
+const Z_OF = { H: 1, C: 6, N: 7, O: 8, P: 15, S: 16 };
+const DOTS = Object.fromEntries(Object.keys(ELEMENT_DOT).map(el => [el, { id: `dot-${el}`, make: () => ({
+  solidCount: 0, step() {},
+  fibers: [0, 1, 2].map(k => ({
+    glow: true, spin: 0, flat: 1, width: 0.4 * (DOT_SIZE[el] ?? 0.45) / 0.45, intensity: 0.06,
+    curve: u => turn(scale([Math.cos(TAU * u), 0, Math.sin(TAU * u)], DOT_SIZE[el] ?? 0.45), k * TAU / 3, 1.1 * k),
+    color: () => hexColor(ELEMENT_DOT[el]),
+  })),
+}) }]));
+const ANGSTROM_FM = 1e5;
+const MOLECULE_WHY = 'A molecule\'s outer electrons, woven from the electron\'s own Hopf circles, each lit by the electron density where it passes; the dots are the nuclei, in their elements\' colours (carbon pale, oxygen red, nitrogen blue, phosphorus orange, hydrogen white). The atoms sit at their real 3D positions (PubChem). The cloud is the sum of each atom\'s own outer shell: real bonding shifts a little of it into the bonds, which this does not show. Drawn to scale, so the nuclei, really 100,000 times smaller than the cloud, are shown much too big.';
+function molecule([id, name, sub, note]) {
+  const atoms = MOLECULES[id], R = Math.max(...atoms.map(a => Math.hypot(a[1], a[2], a[3]))) + 1.3;
+  const counts = {};
+  for (const [e] of atoms) counts[e] = (counts[e] || 0) + 1;
+  const formula = Object.entries(counts).map(([e, n]) => e + (n > 1 ? String(n).split('').map(d => '₀₁₂₃₄₅₆₇₈₉'[d]).join('') : '')).join('');
+  return atom({ id, name, sub, why: MOLECULE_WHY + (note ? ' ' + note : ''),
+    chips: [['Formula', formula], ['Atoms', `${atoms.length}`], ['Cloud', 'outer electrons, summed'], ['Scale', 'linear']],
+    nuclei: atoms.map(([e, x, y, z]) => [DOTS[e], [x * ANGSTROM_FM, y * ANGSTROM_FM, z * ANGSTROM_FM]]),
+    electrons: atoms.flatMap(([e, x, y, z]) => {
+      const els = electronsOf(Z_OF[e], [x * ANGSTROM_FM, y * ANGSTROM_FM, z * ANGSTROM_FM]), outer = Math.max(...els.map(t => t.n));
+      return els.filter(t => t.n === outer).map(t => ({ ...t, h: e === 'H' }));
+    }),
+    extentA0: R / 0.529177, style: { logScale: false } });
+}
+const SMALL_MOLECULES = [
+  ['glucose', 'Glucose', 'C₆H₁₂O₆, the sugar cells burn, in its ring form', 'In water nearly all glucose closes into this six-membered ring (β-D-glucopyranose).'],
+  ['adenine-a', 'Adenine (A)', 'A DNA base: pairs with thymine', ''],
+  ['guanine-g', 'Guanine (G)', 'A DNA base: pairs with cytosine', ''],
+  ['cytosine-c', 'Cytosine (C)', 'A DNA base: pairs with guanine', ''],
+  ['thymine-t', 'Thymine (T)', 'A DNA base: pairs with adenine', ''],
+  ['atp', 'ATP', 'Adenosine triphosphate, the cell\'s energy currency', 'The energy is released by breaking off the last of its three phosphates.'],
+  ['fullerene-c60', 'Fullerene C₆₀', 'Sixty carbons in a football: 12 pentagons, 20 hexagons', 'Bonds 1.42 Å on average (they alternate 1.40 and 1.45); the cage is 7 Å across, hollow inside.'],
+];
 const ATOMS = [
   atom({ id: 'hydrogen', name: 'Hydrogen', sub: 'Hydrogen-1: one proton, one electron', current: '/content/icons/hydrogen.webp',
     chips: [['Electron', '1 · ground state 1s'], ['Lines', 'electron (1,−1) Hopf circles'], ['Scale', 'log radius, rings every ×10']],
@@ -926,6 +967,7 @@ const ATOMS = [
     nuclei: [...O16, ...WATER_H.map(p => [PROTON_SCALE, p])],
     electrons: [...electronsOf(8), ...WATER_H.map(at => ({ n: 1, l: 0, m: 0, Z: 1, occ: 1, h: true, at }))], extentA0: OH_FM / BOHR_FM + 3,
     balls: WATER_BALLS }),
+  ...SMALL_MOLECULES.map(molecule),
   ...['2s', '2p', '3p', '3d z²', '3d xz', '4f z³'].map(o => {
     const [n, l, m] = ORBITALS[o];
     return atom({ id: `hydrogen-${n}${l}${m}`, name: `Hydrogen · ${o}`, sub: 'Excited hydrogen', why: ORBITAL_WHY,
