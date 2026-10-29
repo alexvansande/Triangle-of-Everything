@@ -341,7 +341,17 @@ export async function startNarration(app) {
     const fill = v === true;
     const key = (names ? names.join("|") : "*") + (fill ? "+" : "");
     if (key !== iconsNow) { iconsNow = key; app.setIcons?.(names, fill); app.setDustFill?.(fill); }
+    // a cue's `forceIcons` / `hideIcons` / `hideLabels` replace the scene's from that cue on (null: the scene's
+    // again): the 1 mL ball hidden until it's talked about, the animals put first (video 2)
+    for (const [k, set, now] of [["forceIcons", app.setIconForce, iconForceNow], ["hideIcons", app.setIconHide, iconHideNow], ["hideLabels", app.setLabelHide, labelHideNow]]) {
+      let v = SCENE[k] ?? null;
+      for (const c of cues) if (c[k] !== undefined && c.time <= t) v = c[k] ?? SCENE[k] ?? null;
+      const key = v ? v.join("|") : "";
+      if (key !== now.key) { now.key = key; set?.(v); }
+    }
   }
+  const iconForceNow = { key: (SCENE.forceIcons ?? []).join("|") }, iconHideNow = { key: (SCENE.hideIcons ?? []).join("|") },
+    labelHideNow = { key: (SCENE.hideLabels ?? []).join("|") };
 
   // ---------- object focus: a cue's `focus: [names]` fades every other object from then
   // on (to FOCUS_FADE, over 0.6 s), `focus: false` brings them back ----------
@@ -516,7 +526,8 @@ export async function startNarration(app) {
   //        | { map: [ar, ai, br, bi], r, at?: [x, y], size: [w, h] }
   //        plus fill?: true | "cover", hold?: s (0.3), fillDur?: s (1.6) — then grow:
   //        true = the disc to the screen's width, "cover" = the whole photo upright, edge to edge;
-  //        turn?: 0–1, how much of the way upright a "cover" photo turns (default 1) }
+  //        turn?: 0–1, how much of the way upright a "cover" photo turns (default 1),
+  //        back?: s, a filled photo shrinks back onto the picture over its last `back` s before it fades }
   // A spot on the object + a photo with `lens` = a "dive" (video/plans/visual-rules.md §3),
   // the default way to show a real photo of something that has a picture on the chart.
   // `lens`: no cut. The photo fades in through a round window laid exactly over the
@@ -698,7 +709,10 @@ export async function startNarration(app) {
       let fillK = 0;   // how far the fill has gone: the backdrop turns black with it
       // fill: once the photo sits on the picture, it grows and moves to the middle
       // until its disc spans the screen (over fillDur s, after a short hold)
-      const g = p.lens.fill ? d3.easeCubicInOut(clamp01((t - p.t0 - (p.fadeIn ?? PHOTO_IN) - (p.lens.hold ?? 0.3)) / (p.lens.fillDur ?? 1.6))) : 0;
+      // back: s — and before it fades, it shrinks back onto the picture the same way (the
+      // dive in reversed: the author, 2026-10-29), so the fade lands on the picture as it was
+      const back = p.lens.back ? 1 - d3.easeCubicInOut(clamp01((t - p.t1 + p.lens.back) / p.lens.back)) : 1;
+      const g = p.lens.fill ? back * d3.easeCubicInOut(clamp01((t - p.t0 - (p.fadeIn ?? PHOTO_IN) - (p.lens.hold ?? 0.3)) / (p.lens.fillDur ?? 1.6))) : 0;
       if (p.lens.fill === "cover") {
         // the whole photo, upright, covering the screen: turn, scale and slide from
         // the lens (photo point under the lens centre → there) to the cover (photo
@@ -731,7 +745,7 @@ export async function startNarration(app) {
       // the lens, plus the caption's strip so the caption isn't masked away
       const cap = photoCap.getBoundingClientRect(), capY = (cap.y - lr.y) / scl - 6, capH = cap.height / scl + 12;
       // a filling lens goes to black with the photo's fade-in, before it grows
-      if (p.lens.fill) fillK = Math.max(fillK, 0.5 * smooth((t - p.t0) / (p.fadeIn ?? PHOTO_IN)));
+      if (p.lens.fill) fillK = Math.max(fillK, 0.5 * back * smooth((t - p.t0) / (p.fadeIn ?? PHOTO_IN)));
       const a = (Math.min(1, fillK * 2)).toFixed(3);
       const m = `radial-gradient(circle ${R.toFixed(1)}px at ${qx.toFixed(1)}px ${qy.toFixed(1)}px, #000 88%, transparent 100%), linear-gradient(#000, #000)` +
         (fillK > 0 ? `, linear-gradient(rgba(0,0,0,${a}), rgba(0,0,0,${a}))` : "");
@@ -890,6 +904,7 @@ export async function startNarration(app) {
     drawHalos(live, t);
     drawGuides(live, t);
     app.drawUnderLines?.(underLines.splice(0), underDots.splice(0));
+    app.setDotBoost?.(pathBoosts.splice(0));
     // a close-up cue with `nearby: true` keeps its surroundings named: no fade, catalogue names on
     const hlNow = hlCues.filter(c => c.time <= t).at(-1);
     const nearby = !!hlNow?.nearby;
@@ -1322,7 +1337,8 @@ export async function startNarration(app) {
     return pts.map(([r, m]) => [sx(r), sy(m)]);
   }
   const underLines = [];   // the water line's strokes for under the pictures, this frame
-  const underDots = [];    // a lit path's dots, with its line
+  const underDots = [];    // dots drawn with the under-lines
+  const pathBoosts = [];   // lit paths whose own moving dots grow, this frame
   function drawLine(el, L, h, age) {
     if (!L || !L.pts.length) return;
     const p = linePath(L.pts);
@@ -1365,7 +1381,6 @@ export async function startNarration(app) {
    *  the pictures, with bright dots streaming along it the way the chart's own dots go. */
   function drawPath(el, h, age) {
     const pl = app.plot(), prog = d3.easeCubicOut(clamp01((curT - (h.since ?? h.t0)) / (h.draw ?? 1.2)));
-    const SPACE = 44, SPEED = 60;   // px between the bright dots; px/s
     const list = app.connPaths?.(h.path) || [];
     // `from` / `to` (object names): only the stretch of the path between them
     const near = (pts, name, i0 = 0) => {
@@ -1380,7 +1395,9 @@ export async function startNarration(app) {
       if (h.from || h.to) {
         const i0 = h.from ? Math.max(0, near(cp.pts, h.from)) : 0;
         const i1 = h.to ? near(cp.pts, h.to, i0) : cp.pts.length - 1;
-        cp.pts = cp.pts.slice(i0, (i1 < 0 ? cp.pts.length - 1 : i1) + 1);
+        const n = cp.pts.length - 1, j1 = i1 < 0 ? n : i1;
+        cp.pts = cp.pts.slice(i0, j1 + 1);
+        cp.t0 = i0 / n; cp.t1 = j1 / n;
       }
       const p = cp.pts.map(([x, y]) => [x + pl.x, y + pl.y]);
       const cum = [0];
@@ -1393,8 +1410,9 @@ export async function startNarration(app) {
       const dl = "M" + cp.pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join("L");
       // the line glows like a named object's halo (blurred lavender, overlay), the path's
       // own colour over it (author, 2026-10-28: "highlight them more")
-      underLines.push({ d: dl, color: "#e4dcff", width: 26, opacity: 0.8 * (h.op ?? 1), dash, halo: true });
-      [[6, 0.35], [2.6, 1]].forEach(([w, o]) =>
+      // (discreet, like the objects' halos: the author, 2026-10-29)
+      underLines.push({ d: dl, color: "#e4dcff", width: 16, opacity: 0.55 * (h.op ?? 1), dash, halo: true });
+      [[4, 0.15], [1.4, 0.5]].forEach(([w, o]) =>
         underLines.push({ d: dl, color: rgb, width: w, opacity: o * (h.op ?? 1), dash }));
       const at = (s) => {
         let i = d3.bisectLeft(cum, s);
@@ -1402,14 +1420,9 @@ export async function startNarration(app) {
         const f = (s - cum[i - 1]) / ((cum[i] - cum[i - 1]) || 1);
         return [p[i - 1][0] + (p[i][0] - p[i - 1][0]) * f, p[i - 1][1] + (p[i][1] - p[i - 1][1]) * f];
       };
-      for (let s = (curT * SPEED) % SPACE; s < len * prog; s += SPACE) {
-        const [x, y] = at(s), edge = Math.min(1, s / 18, (len - s) / 18);
-        // (twice the size they were: the author, 2026-10-28; in the chart with the line,
-        // so a dive carries them back with it)
-        const op = h.op ?? 1;
-        underDots.push({ x: x - pl.x, y: y - pl.y, r: 14, color: rgb, opacity: 0.24 * edge * op },
-          { x: x - pl.x, y: y - pl.y, r: 5.6, color: "#fff", opacity: edge * op });
-      }
+      // the chart's own dots on it, bigger and brighter (the author, 2026-10-29: evenly
+      // spaced dots of our own made it a subway line; the natural ones stay natural)
+      pathBoosts.push({ idx: cp.idx, t0: cp.t0, t1: cp.t1, k: 1 + 2 * (h.op ?? 1) * prog });
       if (h.label && cp === list[0]) {
         const [x, y] = at(len / 2);
         el.append("text").attr("class", "narr-tag").attr("x", x + 10).attr("y", y).attr("fill", rgb).attr("opacity", prog)

@@ -122,10 +122,18 @@ async function renderRange(t0, t1, file, label) {
   }
   // let dust, icons, the first tiles and the fractal background arrive in real time, then
   // finish any crossfade (a worker starting deep in a zoom shows the layer fully up) and stop the clock
-  await page.evaluate(`window.__narr.renderAt(${t0}); window.__narr.settle(${t0})`);
+  // A worker starts PRE s before its range and plays up to it on the stopped clock: the pictures'
+  // pop-in (1 s, on rAF) is over by the first frame, as in one continuous render. Started cold at
+  // t0, every picture on screen popped in again at each worker's first frame (the author saw it
+  // twice in video 2, 2026-10-29: at the workers' joins, 1:07.7 and 3:23.2)
+  const PRE = 2, tw = Math.max(0, t0 - PRE);
+  await page.evaluate(`window.__narr.renderAt(${tw}); window.__narr.settle(${tw})`);
   for (let i = 0; i < 60 && await page.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 250));
-  await page.evaluate(`window.__narr.renderAt(${t0}); window.__narr.settle(${t0})`);
+  await page.evaluate(`window.__narr.renderAt(${tw}); window.__narr.settle(${tw})`);
+  await new Promise(r => setTimeout(r, 1500));   // the pop-ins started by the cold start finish in real time
   await page.evaluate("window.__vclock.freeze()");
+  for (let t = tw; t < t0 - 1e-6; t += 1 / FPS) await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
+  await page.evaluate(`window.__narr.renderAt(${t0})`);
   const clip = await page.evaluate(() => {
     const r = document.getElementById("narr-layer").getBoundingClientRect();
     return { x: r.x, y: r.y, width: r.width, height: r.height, scale: devicePixelRatio };

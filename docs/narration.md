@@ -453,9 +453,10 @@ Cue fields
                connection paths lit up (CONNECTION_PATHS and the "made of" paths in
                src/data.js): by id, or every path building that whole (DNA ← its four
                bases); drawn on under the pictures with the named objects' halo treatment
-               (a wide lavender stroke, blurred, two overlay passes) under the path's own
-               colour, and big white dots (twice the old size) streaming along it the way
-               the chart's dots go. from / to (object names): only the stretch of the path
+               (a lavender stroke, blurred, two overlay passes; discreet) under a thin line
+               in the path's own colour, and the chart's own moving dots on it grown 3× and
+               brighter (app.setDotBoost; kept visible at any zoom while lit). Not dots of
+               its own: evenly spaced ones read as a subway line (the author, 2026-10-29). from / to (object names): only the stretch of the path
                between them (the low-mass life `to: "Protostar"` for "nursery → protostar").
                Use it whenever the narration talks about what a path shows (a star's life,
                a decay, what a thing is made of), in place of an arrow along the same path
@@ -475,6 +476,10 @@ Cue fields
   icons    from this cue on: false (no pictures), true (the scene's set) or a
            list of names. By default only objects some cue highlights keep their
            picture (a scene's `icons: [...]` replaces that set)
+  forceIcons / hideIcons / hideLabels   from this cue on, replace the scene's lists (names;
+           [] for none, null back to the scene's): video 2 hides the 1 mL ball until "ball"
+           and puts the animals first at "most animals". forceIcons takes catalogue
+           pictures by their label too ("Lion")
 
 Scene-level: dots: { size, opacity } for the paths' moving dots (default 2.4, 1.7);
 iconBoost: { from: log r, k } pictures of things that big and up drawn k× larger, on top of

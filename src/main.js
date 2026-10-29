@@ -2709,6 +2709,8 @@ function drawObjects() {
   // forced pictures (videos: Venus behind Earth) show whatever they overlap;
   // drawn least important first, they sit behind the picture they overlap
   if (_iconForce) for (const o of iconOrder) if (_iconForce.has(o.name)) { shownIcons.add(o); visibleDots.add(o); }
+  // (catalogue pictures too: the lion and the giraffe among video 2's animals)
+  if (_iconForce) for (const c of pictures) if (c.p && _iconForce.has(c.p.name) && !dustChosen.includes(c)) dustChosen.push(c);
   projected.forEach(o => {
     o._showDot = visibleDots.has(o);
     o._showIcon = o._showDot && shownIcons.has(o);
@@ -5138,6 +5140,7 @@ let _animSpeed = 1; // global animation-speed multiplier (Z slower / X faster)
 let _dotSizeMult = 1;    // moving-dot size multiplier (settings slider)
 let _dotOpacityMult = 1; // moving-dot opacity multiplier (settings slider)
 let _dotFixedR = null;    // moving-dot radius in px, overriding the paths' own sizes (narration)
+let _dotBoostKey = "";    // the lit paths (narration's setDotBoost), to redraw when they change
 
 function pauseAnimOnInteract() {
   if (_animDisabled) return;
@@ -5447,6 +5450,7 @@ function drawConnections() {
   const lineW = (cp) => cp.style.lineWidth * (_posterArrows ? 1.4 : narrWave(cp) ? 1.8 : 1);
   _connPaths.forEach(cp => {
     cp._opacity = _posterArrows ? 1 : connectionOpacity(cp, view);
+    if (cp._boost) cp._opacity = Math.max(cp._opacity, 0.9);   // a video's lit path shows at any zoom
     cp._visible = cp._opacity > 0.01;
     cp._lineGroup = null;
 
@@ -5688,7 +5692,9 @@ function animateConnections(timestamp) {
 
       el.setAttribute("cx", String(sx));
       el.setAttribute("cy", String(sy));
-      el.setAttribute("r", String((_dotFixedR ?? cp.style.dotSize * _dotSizeMult) * sizeFactor));
+      // a video's lit path: its dots grow (and brighten) along the lit stretch
+      const bst = cp._boost, lit = bst && t >= bst.t0 - 0.01 && t <= bst.t1 + 0.01 ? bst.k : 1;
+      el.setAttribute("r", String((_dotFixedR ?? cp.style.dotSize * _dotSizeMult) * sizeFactor * lit));
 
       const edgeFade = Math.min(t / 0.04, (1 - t) / 0.04, 1);
 
@@ -5699,7 +5705,7 @@ function animateConnections(timestamp) {
           ? emSpectrumColor(t)
           : (cp.style.color || "rgba(255,255,255,0.5)");
         el.setAttribute("fill", color);
-        el.setAttribute("opacity", String(Math.min(1, cp._opacity * 0.6 * opacityMult * edgeFade * _dotOpacityMult)));
+        el.setAttribute("opacity", String(Math.min(1, cp._opacity * 0.6 * opacityMult * edgeFade * _dotOpacityMult * (1 + (lit - 1) * 0.6))));
       }
     });
   });
@@ -8544,11 +8550,21 @@ if (_ogShot) {
       /** Connection paths (the moving dots' curves) for a video to highlight: every path
        *  whose id or whole (`_into`, what it builds) is in `sel`, sampled at n + 1 points
        *  along its curve, chart-local px: [{ id, family, color, into, pts: [[x, y], …] }]. */
+      /** A lit path's own moving dots bigger and brighter (videos): [{ idx (from connPaths),
+       *  t0?, t1? (the stretch, 0–1 along it), k (radius factor) }]; [] for none. The paths
+       *  are kept visible at any zoom while lit. */
+      setDotBoost(list = []) {
+        if (!_connPaths) return;
+        const key = list.map(b => b.idx).sort().join(",");
+        for (const cp of _connPaths) cp._boost = null;
+        for (const b of list) if (_connPaths[b.idx]) _connPaths[b.idx]._boost = { t0: b.t0 ?? 0, t1: b.t1 ?? 1, k: b.k };
+        if (key !== _dotBoostKey) { _dotBoostKey = key; redraw(); }
+      },
       connPaths(sel, n = 96) {
         if (!_connPaths) return [];
         const want = new Set([].concat(sel));
-        return _connPaths.filter(cp => want.has(cp.id) || want.has(cp._into)).map(cp => ({
-          id: cp.id, family: cp.family, color: cp.style.color, into: cp._into,
+        return _connPaths.map((cp, idx) => [cp, idx]).filter(([cp]) => want.has(cp.id) || want.has(cp._into)).map(([cp, idx]) => ({
+          idx, id: cp.id, family: cp.family, color: cp.style.color, into: cp._into,
           pts: Array.from({ length: n + 1 }, (_, i) => getPathScreenPos(cp, i / n)),
         }));
       },

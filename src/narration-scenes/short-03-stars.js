@@ -13,6 +13,11 @@ const BD = [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", labe
 // between two objects): the low-mass life (nursery → protostar → Sun → red giant → nebula →
 // white dwarf), the high-mass one (… supergiant → supernova → neutron star), the core to a black hole
 const LOW = { path: "stellar-low-mass" }, HIGH = { path: "stellar-high-mass" };
+// the cycle, lit from the split on (not during the collapse and swell: the author, 2026-10-29):
+// star → red giant → nebula and dense core, nebula → nursery → protostar → star
+const CYCLE = [LOW, { path: ["nebula-to-nursery", "remnant-to-nursery"] }];
+// what deuterium is (the author, 2026-10-29), in the empty sky beside the brown dwarfs
+const DEUT = { text: "deuterium\n1 proton + 1 neutron", at: [9.55, 31.0], size: 20, color: "#ffcc80", delay: 0.3 };
 const FORK = [
   { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
   // the left branch is not where brown dwarfs go: white dwarfs are the cores of dead stars (end of the video)
@@ -56,8 +61,8 @@ export default {
     { at: "brown dwarfs are really", cam: { r: 9.9, m: 31.35, span: 1.8 },
       hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "L Brown Dwarf", label: "brown dwarf" }, { obj: "Proxima Cen", label: "star", delay: 0.5 }] },
     { at: "massive enough to fuse", hl: [{ obj: "Jupiter", place: "left" }, ...BD, { obj: "L Brown Dwarf", label: "fuses a little" }] },
-    { at: "called deuterium", hl: [...BD, { obj: "L Brown Dwarf", label: "deuterium only" }] },
-    { at: "deuterium is so rare", hl: [...BD, { obj: "L Brown Dwarf", label: "1 hydrogen in ~40,000" }] },
+    { at: "called deuterium", hl: [...BD, { obj: "L Brown Dwarf", label: "deuterium only" }, DEUT] },
+    { at: "deuterium is so rare", hl: [...BD, { obj: "L Brown Dwarf", label: "1 hydrogen in ~40,000" }, { ...DEUT, delay: 0 }] },
     { at: "shining on like stars", hl: [...BD, { obj: "L Brown Dwarf", label: "never a star" }, { obj: "Proxima Cen", label: false }] },
 
     // the fork: stars to the right, white dwarfs to the left
@@ -75,26 +80,28 @@ export default {
     // two circles: the core stays small while the outer layers swell and fall back, the
     // star moving along the chart as it does; then the split: core left, layers right
     { at: "the star collapses", cam: { r: 11.85, m: 33.4, span: 3.6 }, hold: 8,
-      hl: [LOW, { swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4, core: true }, { obj: "Red Giant", label: "red giant", delay: 1 }] },
+      hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4, core: true }, { obj: "Red Giant", label: "red giant", delay: 1 }] },
     { at: "split in two", cam: { r: 13.1, m: 33.6, span: 12.5 }, dur: 1.6,
-      hl: [LOW, { ...SPLIT, coreLabel: "core", shellLabel: "outer layers" }] },
-    { at: "blown away", hl: [LOW, HIGH, { ...SPLIT, draw: 0.01 }, { obj: "Supernova Remnant", label: "supernova remnant", place: "left" }] },
-    { at: "planetary nebula", hl: [LOW, { ...SPLIT, draw: 0.01 }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
+      hl: [{ ...SPLIT, coreLabel: "core", shellLabel: "outer layers" }] },
+    { at: "blown away", hl: [...CYCLE, HIGH, { ...SPLIT, draw: 0.01 }, { obj: "Supernova Remnant", label: "supernova remnant", place: "left" }] },
+    { at: "planetary nebula", hl: [...CYCLE, { ...SPLIT, draw: 0.01 }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
     { at: "inner core", cam: { r: 7.5, m: 33.4, span: 4.2 },
-      hl: [LOW, HIGH, { obj: "Red Giant", label: false }, { obj: "White Dwarf", label: "dense core", place: "right", delay: 0.4 }, { obj: "PSR J0030+0451", label: false, delay: 0.7 }] },
+      hl: [...CYCLE, HIGH, { obj: "Red Giant", label: false }, { obj: "White Dwarf", label: "dense core", place: "right", delay: 0.4 }, { obj: "PSR J0030+0451", label: false, delay: 0.7 }] },
 
     // the gas goes round again: stellar nurseries
     { at: "nebulae spread out", cam: { r: 18.1, m: 33.7, span: 2.8 },
-      hl: [{ path: ["remnant-to-nursery", "nebula-to-nursery"] }, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
+      hl: [...CYCLE, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
     // a dive onto the nursery: Webb's Pillars fade in over its picture (rotated and scaled
     // onto its pillars), turn upright and grow to fill the screen, hold, fade, unwind
     { at: "stellar nurseries", cam: { obj: "Stellar Nursery", span: 2.8 }, dur: 1.8 },
-    { at: "stellar nurseries", photo: "pillars", obj: "Stellar Nursery", dive: { in: 1.8, out: 3 }, dur: 2.6, fadeOut: 1.5,
-      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", turn: 0, hold: 0.3, fillDur: 1.8 },   // turn 0: Webb's pillars lean ~40°; kept tilted so they stay upright like the icon's
+    // the way back is the way in reversed (the author, 2026-10-29): the photo shrinks back onto
+    // the nursery's picture (`back`), fades into it, and the dive unwinds
+    { at: "stellar nurseries", photo: "pillars", obj: "Stellar Nursery", dive: { in: 1.8, out: 2.5, photoAt: 1.2 }, dur: 4, fadeOut: 0.6,
+      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", turn: 0, hold: 0.2, fillDur: 1.2, back: 1.2 },   // turn 0: Webb's pillars lean ~40°; kept tilted so they stay upright like the icon's
       caption: "Pillars of Creation · Webb · 2022 · a stellar nursery" },
     { at: "protostars", cam: { r: 16.8, m: 34.6, span: 6.2 },
-      hl: [{ obj: "Stellar Nursery", label: false }, { ...LOW, to: "Protostar" }, { obj: "Protostar", delay: 0.6 }] },
-    { at: "stars again", cam: { r: 14.6, m: 33.9, span: 9 }, hl: [{ obj: "Stellar Nursery", label: false }, { ...LOW, to: "Sun" }, { obj: "Sun", delay: 0.6 }] },
+      hl: [...CYCLE, { obj: "Stellar Nursery", label: false }, { obj: "Protostar", delay: 0.6 }] },
+    { at: "stars again", cam: { r: 14.6, m: 33.9, span: 9 }, hl: [...CYCLE, { obj: "Stellar Nursery", label: false }, { obj: "Sun", delay: 0.6 }] },
 
     // what the core becomes
     { at: "what about the dense core", cam: { r: 8.4, m: 33.6, span: 6 }, clear: true, hl: [{ obj: "Sun" }] },
