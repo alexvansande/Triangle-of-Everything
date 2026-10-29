@@ -54,4 +54,4 @@ the line about its mass).
   where the mark sits); "macro dark matter?" → "quark nuggets?" (Sidhu, Scherrer & Starkman's "macros" are
   lumps of nuclear-density matter, ~mm and ~10⁹ g at the mark; quark nuggets are the leading example).
   Dark asteroids, faint dwarfs and rogue planets are MACHO-type candidates, much bigger than the macros.
-- M87*'s picture 1.4× (2× was too big), TON 618's 1.5×.
+- M87*'s picture 1.15× (2× and 1.4× were too big), TON 618's 1.5×.
