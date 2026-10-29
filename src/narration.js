@@ -521,7 +521,8 @@ export async function startNarration(app) {
   // { at, photo: "m87" | ["hyperion", "vesta", …], caption: "what · who · when", labels?: […],
   //   obj?: dot it grows from, dur?: s (6), fit?: "cover" | "contain", kb?: [scale from, to],
   //   focus?: [x, y] (0–1 in the image, where the Ken Burns push heads),
-  //   place?: true | width (fraction of the screen, default 0.78), fadeIn?: s,
+  //   place?: true | width (fraction of the screen, default 0.78), fadeIn?: s, row?: true (several
+//   pictures side by side, not stacked), labels?: [html under each],
   //   lens?: { icon: [cx, cy, r], photo: [cx, cy, r], size: [w, h] }
   //        | { map: [ar, ai, br, bi], r, at?: [x, y], size: [w, h] }
   //        plus fill?: true | "cover", hold?: s (0.3), fillDur?: s (1.6) — then grow:
@@ -672,7 +673,8 @@ export async function startNarration(app) {
     const SW = layer.clientWidth, SH = layer.clientHeight;
     if (photoShown !== p) {
       photoShown = p;
-      photoBox.className = "np-imgs" + (p.names.length > 1 ? " np-stack" : "");
+      // several pictures: one above the other, or side by side with `row: true`
+      photoBox.className = "np-imgs" + (p.names.length > 1 ? " np-stack" + (p.row ? " np-row" : "") : "");
       photoBox.innerHTML = p.names.map((n, i) => `<figure><img src="${photoUrl(n)}" alt="">` +
         (p.labels?.[i] ? `<figcaption>${p.labels[i]}</figcaption>` : "") + `</figure>`).join("");
       photoBox.querySelectorAll("img").forEach(im => { im.style.objectFit = p.fit || (p.names.length > 1 ? "contain" : "cover"); im.style.filter = ""; });
@@ -2629,6 +2631,11 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
 #narr-photo .np-stack { display: flex; flex-direction: column; justify-content: center; gap: 2%; padding: 15% 8% 30%; box-sizing: border-box; }
 #narr-photo .np-stack figure { position: relative; flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; }
 #narr-photo .np-stack img { flex: 1 1 0; min-height: 0; }
+#narr-photo .np-row { flex-direction: row; align-items: center; gap: 3%; padding: 30% 3% 38%; }
+#narr-photo .np-row figure { min-width: 0; height: 100%; justify-content: center; }
+#narr-photo .np-row img { flex: 0 1 auto; width: 100%; height: auto; aspect-ratio: 1; }
+#narr-photo .np-row figcaption { margin-top: 10px; text-align: center; line-height: 1.25; }
+#narr-photo figcaption small { display: block; font-size: 14px; letter-spacing: 0.06em; color: rgba(255,255,255,0.8); }
 #narr-photo figcaption { margin-top: 4px; font: 700 17px/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.12em;
   text-transform: uppercase; color: #ffd54f; }
 #narr-photo .np-cap { position: absolute; left: 6%; right: 6%; top: 6.5%; text-align: center;
