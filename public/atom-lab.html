@@ -442,6 +442,7 @@ document.getElementById('reset').addEventListener('click', () => {
 // saved looks: each sets every control and its subject, over the defaults
 const PRESETS = [
   ['Hydrogen 1s', { subject: 'hydrogen', ...HOME }],
+  ['Water', { subject: 'water', ...HOME }],
   ['Deuterium 3p', { subject: 'deuterium', look: {
     probe: 0, protonFringe: 4, neutronFringe: 0.35, protonBall: 0.056, neutronBall: 0.02, neutronGrey: 0.41, quarks: 0.85,
     nucleusGain: 2.25, logScale: true, nucleusShare: 0.39, linearNucleus: 0.18, rings: 0, cloudFibers: 180, cloudGain: 2.75,
