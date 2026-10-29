@@ -39,5 +39,5 @@
   preview): `docs/narration.md` and `video/README.md`.
 - **No speed-up for new takes** (the author, 2026-10-27): from video 7 (`short-07-wavelengths`, rec42) on,
   takes play at the speed they were recorded; don't run `scripts/narration-tempo.py`. The older takes keep
-  their tempo: recordings from 2026-10-19 to 2026-10-27 play at 1.1× (`scripts/narration-tempo.py --tempo 1.1`), the old video 5 takes at 1.2×, 5b and 5c at 1.3×, 5d (now video 4, `short-04-black-holes`) at 1.1× (the author prefers its rhythm), all with atempo (rubberband sounded like a tin can);
+  their tempo: recordings from 2026-10-19 to 2026-10-27 play at 1.1× (`scripts/narration-tempo.py --tempo 1.1`), the old video 5 takes at 1.2×, 5b and 5c at 1.3×, 5d (now video 4, `short-04-black-holes`) at 1.1× (the author prefers its rhythm; its rec48 re-recording too, by the author's note of 2026-10-29), all with atempo (rubberband sounded like a tin can);
   the earlier shorts at 1.2×.

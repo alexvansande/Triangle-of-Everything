@@ -14,7 +14,7 @@ PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
 EDL = [
  # the hook
  ("rec48", "hook", 23.94, 30.62),      # What is the smallest black hole that could exist? And is it possible that most matter in the universe is them?   (the first try, "And could,", left out)
- ("rec48", "hook", 32.80, 34.28),      # I want to show you this chart.
+ # ("I want to show you this chart." left out: the author, 2026-10-29, "remove the first line")
  # the chart, and the cores stars leave
  ("rec48", "intro", 77.76, 89.34),     # I've been doing a series of videos explaining this chart, which I call the triangle of everything, because it contains literally everything on a log of mass and size.   (the last of five tries)
  ("rec48", "intro", 100.12, 112.74),   # In the last video, we saw that this chart could show how stars die and leave a dense core behind, which can be a white dwarf, a neutron star, or the one I want to talk about today, a black hole.   (two starts left out)

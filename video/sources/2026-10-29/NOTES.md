@@ -42,3 +42,16 @@ the line about its mass).
   Suns to billions of stars", is used (as heavy as billions of stars; fine).
 - **Imprecise, fine:** "is it possible that most matter in the universe is them?" (dark matter is most of the
   *matter*, right).
+
+### Re-cut, 2026-10-29 afternoon (the author's notes)
+
+- "I want to show you this chart." left out (the first line after the hook).
+- The whole take at 1.1× (atempo), as the old 5d take was.
+- "…with the cosmic microwave background…": the author garbled it. The only other try (392.18–395.9)
+  breaks off at "cosmic microwave b–" (Whisper: "Breakdown", 0.23), and "cosmic" is the weak word in both
+  (0.42 / 0.54), so the cut keeps the full try; the line is up for re-recording (recording-scripts.md).
+- Labels: "MACHOs?" → "rogue planets, faint dwarfs?" (what MACHOs are: faint compact bodies, ~10³² g
+  where the mark sits); "macro dark matter?" → "quark nuggets?" (Sidhu, Scherrer & Starkman's "macros" are
+  lumps of nuclear-density matter, ~mm and ~10⁹ g at the mark; quark nuggets are the leading example).
+  Dark asteroids, faint dwarfs and rogue planets are MACHO-type candidates, much bigger than the macros.
+- M87*'s picture 1.4× (2× was too big), TON 618's 1.5×.

@@ -43,8 +43,11 @@ const DM_CANDS = [
   // (a mark like the others at WIMP*'s place, not the object's own smaller tag: the author's
   // note, 2026-10-28, "WIMPs is smaller than the rest")
   { mark: [-16.2, -21.25], label: "WIMPs?", place: "right" },
-  { mark: [10, 32], label: "MACHOs?", place: "left" },
-  { mark: [-1, 9], label: "macro dark matter?", place: "left", color: "#ffe9a3" },
+  // named for what they'd be, not the physicists' acronyms (the author, 2026-10-29): MACHOs are
+  // faint compact bodies (rogue planets, faint dwarfs, ~10³² g); "macros" are lumps of
+  // nuclear-density matter, a few mm and ~10⁹ g (quark nuggets)
+  { mark: [10, 32], label: "rogue planets, faint dwarfs?", place: "left" },
+  { mark: [-1, 9], label: "quark nuggets?", place: "left", color: "#ffe9a3" },
 ];
 // the source of the macro areas, quietly under the title
 const DM_SOURCE = { title: "after Sidhu, Scherrer & Starkman (2019),\n\u201cDeath and serious injury by dark matter\u201d", small: true, y: 0.7 };
