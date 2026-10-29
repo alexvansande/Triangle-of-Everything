@@ -18,6 +18,17 @@ ORDER="$*"
 sync_main() {   # bring main in; false (and undone) if it conflicts
   git fetch -q origin || return 1
   git merge -q --no-edit origin/main 2>/dev/null && return 0
+  # the render queue alone (we took takes off, another session added some): main's list, less
+  # the takes rendered since main last touched that line
+  if [ "$(git diff --name-only --diff-filter=U)" = "video/render-queue.txt" ]; then
+    git checkout -q --theirs video/render-queue.txt
+    for t in $(grep -v '^#' video/render-queue.txt); do
+      added=$(git log -1 --format=%ct -S"$t" origin/main -- video/render-queue.txt)
+      [ -f "output/videos/$t.mp4" ] && [ "$(stat -f %m "output/videos/$t.mp4")" -gt "${added:-0}" ] &&
+        sed -i '' "/^$t\$/d;/^# $t changed: /d" video/render-queue.txt
+    done
+    git add video/render-queue.txt && git commit -q --no-edit && { log "merged main (render queue: main's, less what rendered since)"; return 0; }
+  fi
   git merge --abort 2>/dev/null; log "merging main conflicts: left for the morning"; return 1
 }
 publish() {     # commit the web copies and push them to main (after a build check)
