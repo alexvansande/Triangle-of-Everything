@@ -16,8 +16,12 @@ mkdir -p output/videos
 log() { echo "[$(date '+%F %H:%M:%S')] $*"; }
 
 log "nightly check"
-# a round started by hand earlier still running: let it finish
-if pgrep -f narration-overnight.sh > /dev/null; then log "a render round is still running: skipping"; exit 0; fi
+# a round started earlier still running: wait for it, then check (the author's rule, 2026-10-29:
+# at 23:50, whatever changed since its render gets queued and rendered)
+if pgrep -f narration-overnight.sh > /dev/null; then
+  log "a render round is still running: checking when it ends"
+  while pgrep -f narration-overnight.sh > /dev/null; do sleep 60; done
+fi
 git fetch -q origin && { git merge -q --no-edit origin/main 2>/dev/null || { git merge --abort; log "merging main conflicts: checking the branch as it is"; }; }
 
 stale=$(DRY=1 scripts/narration-render-stale.sh | sed -n 's/^stale //p')
@@ -34,6 +38,11 @@ if [ -z "$stale" ]; then
 fi
 date +%s > "$STATE"
 log "out of date: $(echo $stale)"
+# into the queue too, so the videos page shows them as behind their render until they're done
+for t in $stale; do grep -qx "$t" video/render-queue.txt || echo "$t" >> video/render-queue.txt; done
+git add video/render-queue.txt && git commit -q -m "Render queue: takes changed since their render (nightly check)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" 2>/dev/null
 
 # the dev server for the night, unless one is already up (the app's "shorts" preview)
 started=""
