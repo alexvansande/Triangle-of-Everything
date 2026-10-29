@@ -317,7 +317,9 @@ export async function startNarration(app) {
   // a `trace` told over consecutive cues (the same picture, each cue the next step) is one run:
   // the close-up holds from its first cue to the end of its last (drawTraces)
   const traceRuns = [];
-  for (const h of highlights) if (h.trace) {
+  // (`trace: "name"` is the outline close-up; a window's `trace: [lo, hi]` is only its faint line)
+  const isTrace = (h) => typeof h.trace === "string";
+  for (const h of highlights) if (isTrace(h)) {
     const run = traceRuns.find(r => r.name === h.trace && Math.abs(r.t1 - h.t0) < 0.05);
     if (run) { run.items.push(h); run.t1 = h.t1; } else traceRuns.push({ name: h.trace, t0: h.t0, t1: h.t1, items: [h] });
   }
@@ -334,7 +336,7 @@ export async function startNarration(app) {
   // (the scene's `alsoIcons` join the default set after the named ones: pictures it
   // wants first on screen without naming them)
   const sceneIcons = Array.isArray(SCENE.icons) ? SCENE.icons : [...new Set([
-    ...cues.flatMap(c => (c.hl || []).flatMap(h => [h.obj, h.spot, h.trace, h.arrow && h.from?.obj, h.arrow && h.to?.obj].filter(Boolean))),
+    ...cues.flatMap(c => (c.hl || []).flatMap(h => [h.obj, h.spot, typeof h.trace === "string" && h.trace, h.arrow && h.from?.obj, h.arrow && h.to?.obj].filter(Boolean))),
     ...cues.flatMap(c => [c.dive && c.obj, c.dolly && (c.dolly.obj || c.dolly)].filter(n => typeof n === "string")),
     ...(SCENE.alsoIcons || [])])];
   const iconCues = cues.filter(c => c.icons !== undefined);
@@ -878,7 +880,7 @@ export async function startNarration(app) {
       drawSketch(el, h, t - h.t0);
     });
     drawTraces(t);
-    join(gHl, live.filter(h => !h.axis && !h.card && !h.sketch && !h.trace)).each(function (h) {
+    join(gHl, live.filter(h => !h.axis && !h.card && !h.sketch && !isTrace(h))).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
       const age = t - h.t0;

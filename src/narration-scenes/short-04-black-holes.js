@@ -106,14 +106,16 @@ export default {
 
     // ── Not an object: a line, the top-left limit ────────────
     // everything else is a cloud of catalogue dots: pictures off, the clouds circled
-    { at: ["most objects in this chart", "most objects in our triangle"], cam: { r: 15.2, m: 35.6, span: 17 }, clear: true },
+    // the pictures fade out while the chart is "a bunch of little dots", so only the dots show (the
+    // author, 2026-10-29); they come back with the black holes on their line
+    { at: ["most objects in this chart", "most objects in our triangle"], cam: { r: 15.2, m: 35.6, span: 17 }, clear: true, icons: false },
     { at: ["bunch of little dots", "clouds of dots", "clusters of dots"], hold: 6, hl: [
       { ellipse: [9.5, 29.65, 0.75, 1.6], label: "planets", place: "below", color: "#90caf9" },
       { ellipse: [9.05, 33.0, 0.42, 0.45], label: "white dwarfs", place: "left", color: "#e0e0e0", delay: 0.25 },
       { ellipse: [11.3, 33.45, 1.15, 0.7], label: "stars", place: "right", color: "#ffd54f", delay: 0.5 },
       { ellipse: [21.85, 41.6, 0.95, 2.3], label: "galaxies", place: "above", color: "#80deea", delay: 0.75 },
     ] },
-    { at: ["they all sit exactly", "they all sit on the same line", "they all sit on one line"], hl: [KNOWN, { ...SCHW, label: "black holes" }] },
+    { at: ["they all sit exactly", "they all sit on the same line", "they all sit on one line"], icons: true, hl: [KNOWN, { ...SCHW, label: "black holes" }] },
     { at: "called the schwarzschild radius", cam: { obj: "Sgr A*", span: 15 }, dur: 6, drift: 0.02, hl: [{ ...SCHW, label: "schwarzschild radius" }] },
     { at: ["top left edge", "top left limit"], cam: { r: 11, m: 38.6, span: 20 }, dur: 4, hl: [{ line: "triangle" }, { ...SCHW, label: "nothing crosses it" }, { side: "left", of: "schwarzschild" }] },
     { at: ["too small for its mass", "too small or too massive"], cam: { r: 5, m: 28, span: 16 },
