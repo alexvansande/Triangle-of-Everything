@@ -27,7 +27,7 @@ plane, so the galaxies' flows lie flat.
 | s (log₁₀ m) | What | How it's drawn |
 | --- | --- | --- |
 | −35 … −32 | Planck grid, a Game of Life with one cell per Planck length | code (`small.js`) |
-| −33 … −15 | one quark, the same size on screen the whole way (it has no measured size) | Hopf renderer (`public/hopf/hopf-core.js`) |
+| −21 … −15 | one quark, drawn at 10⁻¹⁹ m across (no measured size; that is the colliders’ limit), a point until it grows past the frame | Hopf renderer (`public/hopf/hopf-core.js`) |
 | −16 … −12 | the proton: a fuzzy ball, then three quarks and the gluon sea as you zoom in | Hopf renderer, `proton-scale` |
 | −14 … −9 | the hydrogen atom to scale, its 1s cloud (glow plus "where the electron is found" dots) | code |
 | −10 … −8.5 | the A–T base pair (3DNA standard geometry), which turns edge-on | code |

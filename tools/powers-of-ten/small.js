@@ -5,6 +5,8 @@
 import { ramp, win, rng, gauss } from "./math.js";
 
 const L_PLANCK = 1.616e-35, A0 = 5.29e-11, PROTON_D = 1.68e-15;
+// quarks have no measured size; colliders put it under ~10⁻¹⁹ m, so that is the size drawn
+const QUARK_D = 1e-19;
 // share of the Hopf picture's square the proton's ball fills
 const HOPF_FILL = 0.62;
 const OPTS = { drift: true, flow: true, width: 1, bloom: 0.9, exposure: 1.1, core: 0.8 };
@@ -68,14 +70,22 @@ export async function smallLayers() {
     },
   };
 
-  // ---------- one quark: no size we can measure, so it keeps one size on screen ----------
+  // ---------- one quark, drawn at QUARK_D: a point of light while it's too small to see,
+  // then it grows past the frame and we're inside it, in the desert down to the Planck grid ----------
   const quarkLayer = {
-    name: "quark", range: [-34, -15],
+    name: "quark", range: [-21, -15],
     draw(cam) {
-      const a = ramp(cam.s, -15.0, -15.6) * ramp(cam.s, -33.3, -32.6);
-      if (a <= 0.01 || !quark) return;
-      drawHopf(quark, cam, 0.42 * cam.min, a);
-      cam.label(0, 0.3 * cam.min / cam.k, "a quark: no measured size", a);
+      const d = QUARK_D * cam.k, a = ramp(cam.s, -15.0, -15.6) * (1 - ramp(d, 1.5 * cam.min, 4 * cam.min));
+      if (a <= 0.01) return;
+      const ctx = cam.ctx;
+      if (d < 16 * cam.dpr || !quark) {
+        const r = Math.max(1.2 * cam.dpr, d / 2), g = ctx.createRadialGradient(cam.cx, cam.cy, 0, cam.cx, cam.cy, r * 3);
+        g.addColorStop(0, `rgba(255,190,190,${a})`); g.addColorStop(0.35, `rgba(255,110,110,${0.6 * a})`); g.addColorStop(1, "rgba(255,90,90,0)");
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cam.cx, cam.cy, r * 3, 0, 7); ctx.fill();
+        if (d < 4 * cam.dpr || !quark) return;
+      }
+      drawHopf(quark, cam, d / HOPF_FILL, a * ramp(d, 4 * cam.dpr, 16 * cam.dpr));
+      cam.label(0, 0.6 * QUARK_D, "a quark: at most 10⁻¹⁹ m across", a * ramp(d, 20, 60) * (1 - ramp(d, 0.6 * cam.min, cam.min)));
     },
   };
 
