@@ -26,6 +26,21 @@ export function renderedVideo(t, root = ".", local = false) {
   return { video: f, renderedAt: gitDate([f], root) || fs.statSync(fp).mtime.toISOString() };
 }
 
+// When a take last changed. Its own audio, captions or scene; or, while it waits in
+// video/render-queue.txt, when it was queued there: a change to the code every video shares
+// (the lit paths, the renderer) queues the takes it changes without touching their files, and
+// the page has to show their renders are behind (the author, 2026-10-29: video 1 read "rendered"
+// without the new lit paths). `queued`: it's in the queue now.
+function updatedAt(t, scene, root) {
+  const own = gitDate([...["audio.m4a", "words.json"].map(f => `public/narration/${t}/${f}`), `src/narration-scenes/${scene}.js`], root);
+  let queue = "";
+  try { queue = fs.readFileSync(path.join(root, "video/render-queue.txt"), "utf8"); } catch {}
+  if (!queue.split("\n").some(l => l.trim() === t)) return { updated: own };
+  let at = "";
+  try { at = execFileSync("git", ["log", "-1", "--format=%cI", "-G", `^${t}$`, "--", "video/render-queue.txt"], { encoding: "utf8", cwd: root }).trim(); } catch {}
+  return { updated: !at || (own && new Date(own) > new Date(at)) ? own : at, queued: true };
+}
+
 /** One card's facts per take. `dir`: the folder holding narration/<take>/ (the build's
  *  copy, or public/). `root`: the checkout. `fresh`: re-import the scenes, and `local`:
  *  the full renders where there are any (both for the dev server). */
@@ -40,7 +55,7 @@ export async function takeInfo(takes, dir, { root = ".", fresh = false, local = 
     info.push({ id: t, title: scene.title || t, blurb: scene.blurb || first, duration: take.duration, music,
       thumbAt: scene.thumb ?? take.duration * 0.4, num: (t.match(/\d+/) || [""])[0],
       ...renderedVideo(t, root, local),
-      updated: gitDate([...["audio.m4a", "words.json"].map(f => `public/narration/${t}/${f}`), `src/narration-scenes/${take.scene || t}.js`], root) });
+      ...updatedAt(t, take.scene || t, root) });
   }
   return info;
 }
@@ -59,7 +74,7 @@ export function gridHtml(info, { built, commit, base = "" }) {
         <span class="ng-blurb">${esc(k.blurb)}</span>${k.updated ? `
         <span class="ng-updated">Updated <time datetime="${k.updated}" data-fmt="day">${k.updated.slice(0, 10)}</time></span>` : ""}${k.renderedAt ? `
         <span class="ng-updated">Last rendered <time datetime="${k.renderedAt}" data-fmt="day">${k.renderedAt.slice(0, 10)}</time>${
-          k.updated && new Date(k.updated) > new Date(k.renderedAt) ? ` <span class="ng-behind">· older than the live version</span>` : ""}</span>` : ""}${k.music ? `
+          k.queued || (k.updated && new Date(k.updated) > new Date(k.renderedAt)) ? ` <span class="ng-behind">· older than the live version</span>` : ""}</span>` : ""}${k.music ? `
         <span class="ng-music">♪ “${esc(k.music)}” Kevin MacLeod (incompetech.com)</span>` : ""}
       </a>`).join("");
   return `<section id="narr-grid" hidden aria-label="Narration previews">

@@ -43,8 +43,14 @@ const DM_CANDS = [
   // (a mark like the others at WIMP*'s place, not the object's own smaller tag: the author's
   // note, 2026-10-28, "WIMPs is smaller than the rest")
   { mark: [-16.2, -21.25], label: "WIMPs?", place: "right" },
-  { mark: [10, 32], label: "MACHOs?", place: "left" },
-  { mark: [-1, 9], label: "macro dark matter?", place: "left", color: "#ffe9a3" },
+  // named for what they'd be, not the physicists' acronyms (the author, 2026-10-29): MACHOs are
+  // faint compact bodies (rogue planets, faint dwarfs); "macros" are lumps of
+  // nuclear-density matter, a few mm and ~10⁹ g (quark nuggets)
+  // (two marks, the author's call: a rogue planet about Jupiter's size and mass, a faint dwarf a
+  // faint red dwarf's, ~0.06 Suns)
+  { mark: [9.85, 30.3], label: "rogue planets?", place: "left" },
+  { mark: [10.1, 32.8], label: "faint dwarfs?", place: "left" },
+  { mark: [-1, 9], label: "quark nuggets?", place: "left", color: "#ffe9a3" },
 ];
 // the source of the macro areas, quietly under the title
 const DM_SOURCE = { title: "after Sidhu, Scherrer & Starkman (2019),\n\u201cDeath and serious injury by dark matter\u201d", small: true, y: 0.7 };
@@ -58,7 +64,7 @@ const DM_WIDE = { r: -3, m: 2, span: 52 };
 const DM_TITLE = [-11.85, -3.8];
 const DM_HUB = (delay = 0) => [{ text: "here be\ndark matter?", at: DM_TITLE, size: 24, delay },
   ...[[{ r: -11.85, m: -6.2 }, { r: -16.2, m: -21.25 }], [{ r: -10.6, m: -1.1 }, { r: -8.3, m: 19.5 }],
-    [{ r: -7.2, m: -1.1 }, { r: 10, m: 32 }], [{ r: -5, m: -1.3 }, { r: -1, m: 9 }]].map(([from, to], i) =>
+    [{ r: -7.2, m: -1.1 }, { r: 10.1, m: 32.8 }], [{ r: -6.2, m: -1.2 }, { r: 9.85, m: 30.3 }], [{ r: -5, m: -1.3 }, { r: -1, m: 9 }]].map(([from, to], i) =>
     ({ arrow: true, from, to, color: "#ffe9a3", delay: delay + 0.5 + 0.35 * i }))];
 // close on the crossed-off corner: ancient crystals and the injuries
 const DM_CLOSE = { r: -5.5, m: 2.5, span: 17 };

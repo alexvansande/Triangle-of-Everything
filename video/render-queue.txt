@@ -9,5 +9,6 @@
 short-02-up-the-line
 short-03-stars
 short-04-black-holes
+short-05-hubble-sphere
 short-01-hook
 short-07-wavelengths

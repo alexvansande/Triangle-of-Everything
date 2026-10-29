@@ -1,29 +1,28 @@
 source,beat,out_start,out_end,src_start,src_end,text
 rec48,hook,0.00,6.99,23.76,31.12,what is the smallest black hole that could exist? And is it possible that most matter in the universe is them?
-rec48,hook,7.27,9.66,32.68,35.06,I want to show you this chart.
-rec48,intro,10.26,21.05,77.86,89.99,"I've been doing a series of videos explaining this shard, which I call the triangle of everything because it contains literally everything on a log of mass and size."
-rec48,intro,21.33,34.57,100.27,113.50,"in the last video, we saw that this chart could show how stars die and leave a down score behind, which can be a white dwarf, a neutron star, or the one I want to talk about today, a black hole."
-rec48,line,35.17,50.40,141.14,156.37,"Most objects in this chart are a bunch of little dots, but black holes are not. They all sit exactly on one line called the Schwarzschild radius. And it's a very important line because it's the top left edge of our triangle."
-rec48,line,50.68,59.97,190.00,199.30,"any object that becomes too small for its math will collapse into a black hole. and every black hole lives exactly on this line,"
-rec48,line,60.25,67.18,219.29,226.22,Meaning that there's no object that could ever exist that lives above or to the left of it.
-rec48,size,67.78,90.92,229.87,253.09,"A black hole doesn't really have a size, it's thought to be a singularity, a point, but it does have an event horizon, the distance from which nothing can escape, and that grows in step with its mass. That's why the edge is a straight 45 -degree line. Squeeze the sun into a black hole and it would be about six kilometers wide, And the Earth would be the size of a marble."
-rec48,big,91.52,99.67,257.49,265.64,"The black holes we know, forming the collapsing core of dying stars, are just grilled by swallowing gas and merging with other black holes."
-rec48,big,99.95,103.27,266.67,269.98,They can go from a few suns to billions of stars.
-rec48,big,103.55,108.89,275.42,280.76,"The one in the center of a Milky Way, for example, has 4 million solar masses."
-rec48,big,109.17,118.99,283.81,293.63,"And here's a strange part. The bigger they get, the less dense they are. The really super massive ones are less dense on water. They would float if you had a pool big enough."
-rec48,big,119.27,128.41,300.92,310.06,"Like M87, the first black hole ever to be photographed, or Ton 618, one of the largest we know of."
-rec48,big,128.69,132.02,343.32,346.65,Its event horizon is bigger than Pluto's orbit.
-rec48,small,132.62,140.17,350.07,357.62,"But the most interesting question isn't how big they can be, but how small. With enough pressure, anything can become a black hole."
-rec48,small,140.45,167.63,362.19,390.16,"we can't really create one on the lab, but we know two places where that condition exists. The first one is, as I said, the core of a dying star. But the second one was the very first instance after the Big Bang, when everything with a super hot and super damp soup, some of that soup could have collapsed into black holes of every size, and some of these might still be around."
-rec48,search,168.23,182.55,396.41,411.23,"and we've been looking for them with quasars, with the cosmic microwave background, gravitational waves, and finally with microlensing. And every surge has came up empty, and the window where they could hide keeps closing."
-rec48,search,182.83,188.74,416.62,422.53,they can't be too small either or they have evaporated by now through a process we call the Hawking radiation.
-rec48,search,189.02,200.46,433.88,445.35,"what's left is a narrow window, something the size of a virus with this mass of a small moon or a whole asteroid mass squeezed into something smaller than an atom."
-rec48,dark,201.06,212.99,451.15,463.16,"and if they're out there, they'd be invisible. No light, nothing a telescope could see. We would only notice their gravity. But that's the thing, we do see that gravity."
-rec48,dark,213.27,228.04,469.85,484.62,"When we weight galaxies, they are much heavier than everything we can see in them. Five, sometimes ten times heavier. So most of the matter in the universe is something invisible, which of course we call dark matter. We don't know what it is."
-rec48,dark,228.32,235.49,501.90,509.08,"but if they are just tiny black holes, then it's interesting because it wouldn't need any new particle to explain them."
-rec48,dark,235.77,242.55,510.70,518.88,"Or of course, maybe it's something else entirely. Maybe it isn't a thing at all and we just got gravity wrong."
-rec48,hunt,243.15,258.86,533.41,549.68,"but if it's something real, it's somewhere on this chart and people have been looking for it. And not only on the black hole line, oh no, someone worked out that if dark matter came in lumps about roughly this size, they'd leave track in crystals of ancient rocks."
-rec48,hunt,259.13,261.34,551.60,553.81,"So they looked at the rocks, nothing."
-rec48,hunt,261.62,274.25,723.11,735.82,"another thing realized that it can't be here either, otherwise people's heads would just randomly explode as if they were just shot by a cosmic bullet. So we crossed out this area."
-rec48,hunt,274.53,281.38,737.53,744.38,The search for dark matter is really a lot of scientists scratching off areas of this map one by one.
-rec48,end,281.98,300.84,756.66,775.63,"but I still find it fascinating that just maybe in the very first moments of our history most of the matter that existed just collapsed into black holes. And we, everything else, the galaxies, the stars, everything we know are just the lucky few survivors."
+rec48,intro,7.59,18.39,77.86,89.99,"I've been doing a series of videos explaining this shard, which I call the triangle of everything because it contains literally everything on a log of mass and size."
+rec48,intro,18.67,31.91,100.27,113.50,"in the last video, we saw that this chart could show how stars die and leave a down score behind, which can be a white dwarf, a neutron star, or the one I want to talk about today, a black hole."
+rec48,line,32.51,47.73,141.14,156.37,"Most objects in this chart are a bunch of little dots, but black holes are not. They all sit exactly on one line called the Schwarzschild radius. And it's a very important line because it's the top left edge of our triangle."
+rec48,line,48.02,57.31,190.00,199.30,"any object that becomes too small for its math will collapse into a black hole. and every black hole lives exactly on this line,"
+rec48,line,57.59,64.52,219.29,226.22,Meaning that there's no object that could ever exist that lives above or to the left of it.
+rec48,size,65.12,88.26,229.87,253.09,"A black hole doesn't really have a size, it's thought to be a singularity, a point, but it does have an event horizon, the distance from which nothing can escape, and that grows in step with its mass. That's why the edge is a straight 45 -degree line. Squeeze the sun into a black hole and it would be about six kilometers wide, And the Earth would be the size of a marble."
+rec48,big,88.86,97.01,257.49,265.64,"The black holes we know, forming the collapsing core of dying stars, are just grilled by swallowing gas and merging with other black holes."
+rec48,big,97.29,100.60,266.67,269.98,They can go from a few suns to billions of stars.
+rec48,big,100.88,106.22,275.42,280.76,"The one in the center of a Milky Way, for example, has 4 million solar masses."
+rec48,big,106.50,116.33,283.81,293.63,"And here's a strange part. The bigger they get, the less dense they are. The really super massive ones are less dense on water. They would float if you had a pool big enough."
+rec48,big,116.61,125.75,300.92,310.06,"Like M87, the first black hole ever to be photographed, or Ton 618, one of the largest we know of."
+rec48,big,126.03,129.36,343.32,346.65,Its event horizon is bigger than Pluto's orbit.
+rec48,small,129.96,137.51,350.07,357.62,"But the most interesting question isn't how big they can be, but how small. With enough pressure, anything can become a black hole."
+rec48,small,137.79,164.96,362.19,390.16,"we can't really create one on the lab, but we know two places where that condition exists. The first one is, as I said, the core of a dying star. But the second one was the very first instance after the Big Bang, when everything with a super hot and super damp soup, some of that soup could have collapsed into black holes of every size, and some of these might still be around."
+rec48,search,165.56,179.88,396.41,411.23,"and we've been looking for them with quasars, with the cosmic microwave background, gravitational waves, and finally with microlensing. And every surge has came up empty, and the window where they could hide keeps closing."
+rec48,search,180.16,186.07,416.62,422.53,they can't be too small either or they have evaporated by now through a process we call the Hawking radiation.
+rec48,search,186.35,197.79,433.88,445.35,"what's left is a narrow window, something the size of a virus with this mass of a small moon or a whole asteroid mass squeezed into something smaller than an atom."
+rec48,dark,198.39,210.33,451.15,463.16,"and if they're out there, they'd be invisible. No light, nothing a telescope could see. We would only notice their gravity. But that's the thing, we do see that gravity."
+rec48,dark,210.61,225.37,469.85,484.62,"When we weight galaxies, they are much heavier than everything we can see in them. Five, sometimes ten times heavier. So most of the matter in the universe is something invisible, which of course we call dark matter. We don't know what it is."
+rec48,dark,225.65,232.83,501.90,509.08,"but if they are just tiny black holes, then it's interesting because it wouldn't need any new particle to explain them."
+rec48,dark,233.11,239.89,510.70,518.88,"Or of course, maybe it's something else entirely. Maybe it isn't a thing at all and we just got gravity wrong."
+rec48,hunt,240.49,256.19,533.41,549.68,"but if it's something real, it's somewhere on this chart and people have been looking for it. And not only on the black hole line, oh no, someone worked out that if dark matter came in lumps about roughly this size, they'd leave track in crystals of ancient rocks."
+rec48,hunt,256.47,258.68,551.60,553.81,"So they looked at the rocks, nothing."
+rec48,hunt,258.96,271.59,723.11,735.82,"another thing realized that it can't be here either, otherwise people's heads would just randomly explode as if they were just shot by a cosmic bullet. So we crossed out this area."
+rec48,hunt,271.87,278.72,737.53,744.38,The search for dark matter is really a lot of scientists scratching off areas of this map one by one.
+rec48,end,279.32,298.18,756.66,775.63,"but I still find it fascinating that just maybe in the very first moments of our history most of the matter that existed just collapsed into black holes. And we, everything else, the galaxies, the stars, everything we know are just the lucky few survivors."
