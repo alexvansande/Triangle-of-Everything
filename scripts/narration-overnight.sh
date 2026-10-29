@@ -25,7 +25,7 @@ sync_main() {   # bring main in; false (and undone) if it conflicts
     for t in $(grep -v '^#' video/render-queue.txt); do
       added=$(git log -1 --format=%ct -S"$t" origin/main -- video/render-queue.txt)
       [ -f "output/videos/$t.mp4" ] && [ "$(stat -f %m "output/videos/$t.mp4")" -gt "${added:-0}" ] &&
-        sed -i '' "/^$t\$/d;/^# $t changed: /d" video/render-queue.txt
+        sed -i '' "/^$t\$/d;/^# $t changed: /d;/^# next: $t$/d" video/render-queue.txt
     done
     git add video/render-queue.txt && git commit -q --no-edit && { log "merged main (render queue: main's, less what rendered since)"; return 0; }
   fi
