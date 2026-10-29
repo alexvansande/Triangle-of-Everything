@@ -89,6 +89,11 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   animation plays on it (video 3's collapse and swell): light it after, and keep it lit
   through the whole story it tells (video 3: the star → nebula → nursery → protostar → star
   cycle, with the dense core).
+- **Everything is connected** (author, 2026-10-29): as the narration reaches a thing, light the
+  chart's connection into or out of it: what it's made of, what it's part of (video 6: a living
+  thing ← DNA ← its bases ← atoms; an atom ← its nucleus, ← its electrons; the proton ← its quarks).
+  One link at a time, following the words, not all at once. A missing link can be added to
+  `COMPOSITION` (src/data.js) when it's true (a bacterium: DNA + ribosomes).
 - **Highlight what the chart actually shows.** Super-Jupiters and brown dwarfs sit in one
   column at Jupiter's size; Beta Pictoris b is a young, inflated planet drawn wider, so don't
   point at it as "same size": draw a vertical trend line up the column (`trend: [[r, m], …]`),
