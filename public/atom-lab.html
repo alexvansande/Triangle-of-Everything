@@ -221,6 +221,13 @@ const GROUPS = [
   ] },
   { name: 'Electron', note: 'the particle on its own', used: ['electron'], rows: [
     { k: 'electronGain', label: 'Torus brightness', min: 0, max: 3, step: 0.05 },
+    { k: 'electronCircles', label: 'Circles', min: 6, max: 200, step: 1, rebuild: true },
+    { k: 'electronTorus', label: 'Torus shape (thin ring … round … thin axis)', min: 0.08, max: 1.45, step: 0.01, rebuild: true },
+    { k: 'electronWidth', label: 'Line width', min: 0.2, max: 6, step: 0.05 },
+    { k: 'electronDashes', label: 'Light in the cloud\'s dashes', type: 'check' },
+    { k: 'electronCustom', label: 'Custom colours', type: 'check' },
+    { k: 'electronColorA', label: 'Colour one', type: 'color' },
+    { k: 'electronColorB', label: 'Colour two', type: 'color' },
   ] },
   { name: 'Camera and light', note: 'everything', used: ALL, rows: [
     { k: 'rotate', label: 'Auto-rotate', min: -1, max: 1, step: 0.01, store: VIEW },
@@ -443,6 +450,8 @@ document.getElementById('reset').addEventListener('click', () => {
 const PRESETS = [
   ['Hydrogen 1s', { subject: 'hydrogen', ...HOME }],
   ['Water', { subject: 'water', ...HOME }],
+  ['Electron', { subject: 'electron', look: { ...HOME.look, quarks: 2.25, neutronBall: 0.025, nucleusGain: 2.7, cloudFibers: 310, electronGain: 2.15 },
+    view: { rotate: -0.09, bloom: 1.65, exposure: 1.55, width: 2.7, core: 1.3, drift: true, flow: true, labels: false } }],
   ['Deuterium 3p', { subject: 'deuterium', look: {
     probe: 0, protonFringe: 4, neutronFringe: 0.35, protonBall: 0.056, neutronBall: 0.02, neutronGrey: 0.41, quarks: 0.85,
     nucleusGain: 2.25, logScale: true, nucleusShare: 0.39, linearNucleus: 0.18, rings: 0, cloudFibers: 180, cloudGain: 2.75,

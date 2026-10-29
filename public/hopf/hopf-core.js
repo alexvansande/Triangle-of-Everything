@@ -159,7 +159,20 @@ export const LOOK = {
   orbital: '1s',                     // rebuild: hydrogen and deuterium's orbital
   showNucleus: true, showCloud: true,
   electronGain: 1,                   // the electron's own woven torus
+  electronCircles: 54,               // rebuild
+  electronTorus: 0.785,              // rebuild: η of its torus, small = thin ring, π/4 = the round one
+  electronWidth: 1,
+  electronCustom: false, electronColorA: '#46dcff', electronColorB: '#6e5aff',
+  electronDashes: false,             // light it in the cloud's dashes
 };
+// the cloud's dash pattern along a line: lit share LOOK.dashLength of each of
+// LOOK.dashes stretches, sliding at LOOK.dashSpeed; soft ends
+function dashAt(u, t, tone, L = k => LOOK[k]) {
+  const n = L('dashes'), len = L('dashLength');
+  if (!n || len >= 1) return 1;
+  const ph = n * u + tone - L('dashSpeed') * t / TAU, d = Math.abs(ph - Math.round(ph));
+  return 1 - smooth(len / 2 - Math.min(len / 2, 0.06), len / 2 + 0.02, d);
+}
 const hexLin = h => rgb(parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16));
 
 const RED = rgb(255, 70, 60), GREEN = rgb(60, 255, 120), BLUE = rgb(70, 130, 255);
@@ -232,19 +245,24 @@ function lepton(id, name, current, gen, neutrino) {
     fibers() {
       const out = [];
       const shells = LEPTON_SHELLS[gen];
-      shells.forEach(([eta, n], si) => {
+      // the electron alone also takes LOOK's electron settings
+      const own = id === 'electron';
+      shells.forEach(([eta0, n0], si) => {
+        const eta = own ? LOOK.electronTorus : eta0, n = own ? LOOK.electronCircles : n0;
         const pal = SHELL_PAL[shells.length - 1 - si];
         const m = neutrino ? Math.round(n * 0.6) : n;
         for (let k = 0; k < m; k++) {
-          const xi1 = TAU * k / m, c = pal(k / m);
+          const xi1 = TAU * k / m, c = pal(k / m), tone = hash(k, 5);
+          const custom = () => mixc(hexColor(LOOK.electronColorA), hexColor(LOOK.electronColorB), 0.5 - 0.5 * Math.cos(TAU * k / m));
           out.push(neutrino ? {
             eta, xi1, xi2: 0, p: 0, q: 1, spin: 0.5, flat: 1, width: 0.012,
             intensity: (u, t) => 0.003 + 1.4 * smooth(0.62, 0.97, 0.7 * Math.cos(xi1 - 0.45 * t + 2 * si) + 0.3 * Math.cos(TAU * u + 0.9 * t)),
             color: () => c,
           } : {
             eta, xi1, xi2: 0, p: 1, q: -1, spin: 0.5, flat: 1,
-            width: 0.0075, intensity: () => LOOK.electronGain * (si === shells.length - 1 ? 0.32 : 0.75),
-            color: () => c,
+            get width() { return 0.0075 * (own ? LOOK.electronWidth : 1); },
+            intensity: (u, t) => LOOK.electronGain * (si === shells.length - 1 ? 0.32 : 0.75) * (own && LOOK.electronDashes ? dashAt(u, t, tone) : 1),
+            color: () => own && LOOK.electronCustom ? custom() : c,
           });
         }
       });
@@ -711,12 +729,10 @@ function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, bal
           },
           field: (q, t, u) => {
             if (!LOOK.showCloud) return [PALE, 0];
-            const [v, c, core, h] = lookup(q), x = Math.hypot(...q), n = L('dashes'), len = L('dashLength');
+            const [v, c, core, h] = lookup(q), x = Math.hypot(...q);
             const base = phase ? hexColor(v >= 0 ? L('plusColor') : L('minusColor'))
               : mixc(mixc(hexColor(L('plusColor')), hexColor(L('coreColor')), core), hexColor(L('hColor')), h);
-            // distance to the nearest dash centre, in dash periods; soft ends
-            const ph = n * u + tone - L('dashSpeed') * t / TAU, d = Math.abs(ph - Math.round(ph));
-            const dash = !n || len >= 1 ? 1 : 1 - smooth(len / 2 - Math.min(len / 2, 0.06), len / 2 + 0.02, d);
+            const dash = dashAt(u, t, tone, L);
             const fade = logScale ? 1 : (1 - smooth(0.8, 1, x)) * smooth(0.5 * nucR, 1.1 * nucR, x);
             return [scale(base, 0.75 + 0.5 * tone), L('cloudGain') * (c / peak) ** L('cloudContrast') * dash * fade * (1 + x * x) ** 2 / 4];
           },
