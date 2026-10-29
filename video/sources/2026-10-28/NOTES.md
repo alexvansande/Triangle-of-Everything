@@ -1,6 +1,6 @@
 # Recordings, 2026-10-28
 
-The Whisper word timings (medium.en, `scripts/narration-take.py`'s settings) are `rec46.words.json`.
+The Whisper word timings (medium.en, `scripts/narration-take.py`'s settings) are `rec46.words.json` and `rec47.words.json`.
 
 ## rec46: "Video 2 new take" (video 2)
 
@@ -57,3 +57,44 @@ words (each keeps the old phrase as a fallback); the Eiffel Tower's second and t
 - **Right:** objects 10 and even 80 times Jupiter's mass stay about Jupiter's size; the electrons, squeezed out
   of their atoms, push back (degeneracy pressure), so more mass makes them denser, not bigger.
 - Nothing wrong in the parts used.
+
+## rec47: "Black holes.m4a" (video 4, first half)
+
+This is in the Google Drive "Recordings" folder: 9:18, ALAC 48 kHz stereo (used as mono), in the car. The first
+half of the rewritten video 4 script (a hook, no star life-cycle recap, the Sun and the Earth as black holes,
+"billions of Suns"), from the hook to "…and we just have gravity wrong", with retakes, after a mic test.
+
+Cut (2026-10-29, a day late: it should have gone in as soon as it arrived, see CLAUDE.md):
+`video/short-04-black-holes/edl.py`, 26 clips, 4:47 at natural speed. rec47 up to "gravity wrong", then the
+previous cut's own finished audio (rec43 + rec41, cleaned up) from "But if it is something real" to the end,
+until the author records the second half. rec47 matched to it (8.6 dB quieter, ~1.5 dB more at 2 kHz).
+Picks: the third "What's the smallest black hole…"; "I am doing a series of videos on this chart…" without
+"I'm doing a,"; "And in the last one, we saw that stars die…"; the line from the first try ("…called the
+Schwarzschild radius… Nothing can cross it.") and "Everything we have is to the bottom and to the right of
+this line" from the later one; "A black hole doesn't actually have a size…" without a first "a" and a first
+"and that grows in step with it,"; the second Sun-and-Earth try; the restarts in "some of the,", "we've been,",
+"maybe, maybe" and "its event horizon is so big," taken out.
+
+Captions: Whisper dropped "…a single atom. And if they're out there, they would be completely invisible. No
+light, nothing" at a join; it was transcribed on its own and put back. The second half keeps the old take's
+corrected captions. Corrected: "shard" → "chart", "Neutron store", "grilled" → "grew", "on a lab" → "in a lab",
+"surge" → "search", "weight" → "weigh". The scene's cues are re-keyed to the new words; the life-cycle cues
+the new script no longer narrates (main sequence, red giants, a new generation of stars), "research on neutron
+stars" and the mountain's mass are gone; new: the Sun and the Earth squeezed onto the black-hole line ("the
+Sun: 6 km wide", "the Earth: 2 cm, a marble").
+
+### Fact check
+
+- **Right:** the Schwarzschild line as the top-left edge, everything below and to the right of it; the
+  45° line; the Sun as a black hole about 6 km wide (5.9 km), the Earth about 1.8 cm (a marble); "a few Suns
+  to billions of Suns"; Sgr A* about 4 million Suns; the supermassive ones less dense than water; TON 618's
+  horizon (radius ~1,300 AU) holding every planet's orbit (Neptune 30 AU); "we can't do that in a lab"; the
+  four searches; Hawking radiation; the window (virus-sized with a small moon's mass; an asteroid's mass
+  smaller than an atom); galaxies "five, sometimes ten times heavier".
+- **Imprecise:** "we wouldn't need any new physics or any new particles". No new particle, right; but making
+  that many small black holes needs early-universe physics beyond the standard picture, so "no new physics"
+  overstates it. Suggested: "…we wouldn't need any new particle to explain it."
+- **Imprecise, fine for a short:** "It's a singularity, a point" (what general relativity predicts; the script
+  had "it's thought to be").
+- Still in the old second half until it's re-recorded: "in the first nanoseconds of our history" (imprecise:
+  the window's black holes formed ~10⁻²¹–10⁻¹⁶ s in; "the very first moments").
