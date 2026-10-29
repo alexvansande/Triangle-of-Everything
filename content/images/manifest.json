@@ -470,7 +470,7 @@
   },
   "dna": {
     "file": "dna.webp",
-    "credit": "Generated Image",
+    "credit": "Rendered from the Hopf model (Triangle of Everything), an ideal B-form helix",
     "license": "Public Domain"
   },
   "big-bang": {
@@ -708,9 +708,9 @@
   },
   "hemoglobin": {
     "file": "hemoglobin.webp",
-    "credit": "Zephyris at English Wikipedia",
-    "license": "CC BY-SA 3.0",
-    "source": "https://commons.wikimedia.org/wiki/File:1GZX_Haemoglobin.png"
+    "credit": "Rendered from the Hopf model (Triangle of Everything), structure from PDB 4HHB",
+    "license": "Public Domain",
+    "source": "https://www.rcsb.org/structure/4HHB"
   },
   "bubble-nebula": {
     "file": "bubble-nebula.webp",
@@ -744,15 +744,15 @@
   },
   "insulin": {
     "file": "insulin.webp",
-    "credit": "The original uploader was Takometer at English Wikipedia.",
-    "license": "CC BY 2.5",
-    "source": "https://commons.wikimedia.org/wiki/File:InsulinHexamer.jpg"
+    "credit": "Rendered from the Hopf model (Triangle of Everything), structure from PDB 4INS",
+    "license": "Public Domain",
+    "source": "https://www.rcsb.org/structure/4INS"
   },
   "antibody-igg": {
     "file": "antibody-igg.webp",
-    "credit": "TimVickers at English Wikipedia",
-    "license": "Public domain",
-    "source": "https://commons.wikimedia.org/wiki/File:Antibody_IgG2.png"
+    "credit": "Rendered from the Hopf model (Triangle of Everything), structure from PDB 1IGT",
+    "license": "Public Domain",
+    "source": "https://www.rcsb.org/structure/1IGT"
   },
   "magnetar": {
     "file": "magnetar.webp",
@@ -791,5 +791,11 @@
     "file": "water-h2o.webp",
     "credit": "Rendered from the Hopf model (Triangle of Everything)",
     "license": "Public Domain"
+  },
+  "ribosome": {
+    "file": "ribosome.webp",
+    "credit": "Rendered from the Hopf model (Triangle of Everything), structure from PDB 4YBB",
+    "license": "Public Domain",
+    "source": "https://www.rcsb.org/structure/4YBB"
   }
 }
