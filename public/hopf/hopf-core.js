@@ -580,46 +580,66 @@ function cloudOf(electrons) {
 // rings in the equatorial plane mark each power of ten.
 const NUCLEON_FM = 0.84, NUCLEUS_FM = 3.6;
 const LOG_RMAX = orbitalExtent(4, 3) * BOHR_FM, LOG_SPAN = Math.log10(LOG_RMAX / NUCLEUS_FM);
-const toLog = (r, sh) => r < NUCLEUS_FM ? sh * r / NUCLEUS_FM : sh + (1 - sh) * Math.log10(r / NUCLEUS_FM) / LOG_SPAN;
-const fromLog = (x, sh) => x < sh ? NUCLEUS_FM * x / sh : NUCLEUS_FM * 10 ** ((x - sh) / (1 - sh) * LOG_SPAN);
+// span: decades from the nucleus region's edge to the ball's edge (a molecule's
+// atoms each get their own ball, edged at their van der Waals radius)
+const toLog = (r, sh, span = LOG_SPAN) => r < NUCLEUS_FM ? sh * r / NUCLEUS_FM : sh + (1 - sh) * Math.log10(r / NUCLEUS_FM) / span;
+const fromLog = (x, sh, span = LOG_SPAN) => x < sh ? NUCLEUS_FM * x / sh : NUCLEUS_FM * 10 ** ((x - sh) / (1 - sh) * span);
 // real distance per unit of picture distance
-const logStretch = (x, sh) => x < sh ? NUCLEUS_FM / sh : fromLog(x, sh) * Math.LN10 * LOG_SPAN / (1 - sh);
+const logStretch = (x, sh, span = LOG_SPAN) => x < sh ? NUCLEUS_FM / sh : fromLog(x, sh, span) * Math.LN10 * span / (1 - sh);
 const DECADES = [[1, '1 fm'], [10, '10 fm'], [100, '100 fm'], [1e3, '1 pm'], [1e4, '10 pm'], [1e5, '100 pm'], [1e6, '1 nm']];
 const colorMemo = new Map();
 const hexColor = h => { if (!colorMemo.has(h)) colorMemo.set(h, hexLin(h)); return colorMemo.get(h); };
 
 // nuclei: [[particle, [x, y, z] fm], ...]; electrons as cloudOf takes them, or
 // a function returning them; extentA0: the cloud's radius in Bohr radii at
-// linear scale. style overrides LOOK for this atom.
-function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, current, style = {} }) {
+// linear scale. style overrides LOOK for this atom. balls (a molecule, on the
+// log scale): one log ball per atom, { at (picture), R (picture radius),
+// edgeFm, nuclei, electrons } with nuclei and electrons about the atom's own
+// centre; it replaces the single ball about the origin.
+function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, balls, current, style = {} }) {
   const L = k => style[k] ?? LOOK[k];
+  const ballsOf = els => balls || [{ at: [0, 0, 0], R: 1, edgeFm: LOG_RMAX, nuclei, electrons: els }];
   return {
     id, name, sub, current, family: 'Atoms', chips, why,
     N: 80, pitch: 0.6, view: [], drift: [],
     additive: false, frame: { center: [0, 0, 0], radius: 1.05 },
-    get ticks() { return L('logScale') ? DECADES.map(([fm, label]) => [label, toLog(fm, L('nucleusShare'))]) : []; },
+    // [label (the first ball's only), radius, centre] for each ring
+    get ticks() {
+      if (!L('logScale')) return [];
+      const all = ballsOf(), Rmax = Math.max(...all.map(b => b.R));
+      return all.flatMap((b, i) => DECADES.filter(([fm]) => fm < b.edgeFm)
+        .map(([fm, label]) => [i ? null : label, b.R * toLog(fm, L('nucleusShare') * Rmax / b.R, Math.log10(b.edgeFm / NUCLEUS_FM)), b.at]));
+    },
     make() {
       const logScale = L('logScale'), sh = L('nucleusShare');
       const els = typeof electrons === 'function' ? electrons() : electrons;
-      const cloud = cloudOf(els), phase = els.length === 1;
+      const cloud = cloudOf(els), phase = els.length === 1 && !balls;
       const E = (typeof extentA0 === 'function' ? extentA0() : extentA0) * BOHR_FM;
-      // a nucleus region drawn linear (exaggerated at linear scale); anything
-      // further out, like water's hydrogens, on the picture's own scale
-      const perFm = (logScale ? sh : L('linearNucleus')) / NUCLEUS_FM, NS = NUCLEON_FM * perFm;
-      const place = p => {
+      // log scale: each ball's nucleus region drawn linear, the rest of it log
+      // about its own nucleus. Linear: the nucleus region exaggerated, the rest true.
+      // every ball's nucleus region the same size on screen, so a proton is the
+      // same size in every atom; the log part fills the rest of each ball
+      const Rmax = Math.max(...ballsOf(els).map(b => b.R));
+      const B = ballsOf(els).map(b => ({ ...b, sh: sh * Rmax / b.R, span: Math.log10(b.edgeFm / NUCLEUS_FM), cloud: cloudOf(b.electrons), peak: 1 }));
+      const perFm = (logScale ? sh : L('linearNucleus')) / NUCLEUS_FM;
+      const placeIn = (b, p) => {
         const r = Math.hypot(...p);
-        return r < NUCLEUS_FM ? scale(p, perFm) : logScale ? scale(p, toLog(r, sh) / r) : scale(p, 1 / E);
+        return addv(b.at, r < NUCLEUS_FM ? scale(p, perFm * b.R * b.sh / sh) : scale(p, b.R * toLog(r, b.sh, b.span) / r));
       };
-      const many = nuclei.length > 2;
+      const placeLinear = p => Math.hypot(...p) < NUCLEUS_FM ? scale(p, perFm) : scale(p, 1 / E);
+      const list = logScale ? B.flatMap(b => b.nuclei.map(([P, pos]) => [P, pos, b])) : nuclei.map(([P, pos]) => [P, pos, null]);
+      const place = (p, b) => b ? placeIn(b, p) : placeLinear(p);
+      const NS = NUCLEON_FM * perFm;
+      const many = list.length > 2;
       // each nucleon turned its own way, tumbling slowly: built from the same
       // seed they would otherwise be identical copies, and nothing aligns them
       // (in oxygen-16 their spins pair off and cancel)
-      const nuc = nuclei.map(([P, pos], k) => ({ made: P.make({ lite: many }), pos, k, off: place(pos), ay: 0, ax: 0 }));
+      const nuc = list.map(([P, pos, b], k) => ({ made: P.make({ lite: many }), pos, b, k, off: place(pos, b), ay: 0, ax: 0, NS: NS * (b ? Rmax : 1) }));
       // nucleons in a big nucleus jostle a little
       const jiggle = (k, t) => many ? scale([Math.sin(1.3 * t + 2 * k), Math.sin(1.1 * t + 3 * k + 1), Math.sin(0.9 * t + 5 * k + 2)], 0.15) : [0, 0, 0];
       const wrap = (f, N) => Object.create(f, {
-        curve: { value: u => addv(N.off, scale(turn(f.curve(u), N.ay, N.ax), NS)) },
-        width: { get: () => f.width * NS },
+        curve: { value: u => addv(N.off, scale(turn(f.curve(u), N.ay, N.ax), N.NS)) },
+        width: { get: () => f.width * N.NS },
         intensity: { value: (u, t) => (LOOK.showNucleus ? L('nucleusGain') : 0) * (typeof f.intensity === 'function' ? f.intensity(u, t) : f.intensity) },
       });
       const fibers = [];
@@ -627,14 +647,33 @@ function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, cur
       const solidCount = fibers.length;
       for (const N of nuc) fibers.push(...N.made.fibers.slice(N.made.solidCount).map(f => wrap(f, N)));
       const density = q => {
-        const x = Math.hypot(...q), r = logScale ? fromLog(x, sh) : x * E;
-        const [v, rho, core, h] = cloud(x ? scale(q, r / x) : [0, 0, 0]);
+        if (!logScale) return cloud(scale(q, E));
         // chance of finding an electron per unit of picture volume: the density
-        // times how much real volume the log scale squeezes in, r² dr / (x² dx)
-        return [v, logScale ? (x ? rho * r * r * logStretch(x, sh) / (x * x) : 0) : rho, core, h];
+        // times how much real volume the log scale squeezes in, r² dr / (|d|² d|d|);
+        // where balls overlap, their electrons add. In a molecule each atom is
+        // lit against its own densest part, so a hydrogen's lone electron shows
+        // beside oxygen's eight.
+        let v = 0, c = 0, core = 0, h = 0;
+        for (const b of B) {
+          const d = [q[0] - b.at[0], q[1] - b.at[1], q[2] - b.at[2]], x = Math.hypot(...d) / b.R;  // (`sub` is the subtitle here)
+          if (x >= 1 || !x) continue;
+          const r = fromLog(x, b.sh, b.span), [bv, rho, bcore, bh] = b.cloud(scale(d, r / (x * b.R)));
+          const w = rho * r * r * logStretch(x, b.sh, b.span) / (x * x * b.R ** 3) * (1 - smooth(0.93, 1, x)) / b.peak;
+          v = bv; c += w; core += w * bcore; h += w * bh;
+        }
+        return [v, c, c ? core / c : 0, c ? h / c : 0];
       };
+      if (logScale && B.length > 1) for (const b of B) {
+        let pk = 0;
+        for (let i = 1; i < 60; i++) for (let j = 0; j < 12; j++) {
+          const x = i / 60, ct = 2 * (j + 0.5) / 12 - 1, r = fromLog(x, b.sh, b.span), st = Math.sqrt(1 - ct * ct);
+          const rho = b.cloud([r * st, r * ct, 0])[1];
+          pk = Math.max(pk, rho * r * r * logStretch(x, b.sh, b.span) / (x * x * b.R ** 3));
+        }
+        b.peak = pk;
+      }
       // linear scale: keep the cloud off the (exaggerated) nuclei
-      const nucR = Math.max(...nuc.map(N => Math.hypot(...place(N.pos))).filter(r => r < perFm * NUCLEUS_FM)) + NS;
+      const nucR = logScale ? 0 : Math.max(...nuc.map(N => Math.hypot(...N.off)).filter(r => r < perFm * NUCLEUS_FM)) + NS;
       // tabulated once on a grid over the ball, then read back trilinearly.
       // Brightness is scaled to the densest point you can see: at linear scale
       // not the core electrons hidden under the drawn nucleus
@@ -678,16 +717,16 @@ function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, cur
             // distance to the nearest dash centre, in dash periods; soft ends
             const ph = n * u + tone - L('dashSpeed') * t / TAU, d = Math.abs(ph - Math.round(ph));
             const dash = !n || len >= 1 ? 1 : 1 - smooth(len / 2 - Math.min(len / 2, 0.06), len / 2 + 0.02, d);
-            const fade = logScale ? 1 - smooth(0.93, 1, x) : (1 - smooth(0.8, 1, x)) * smooth(0.5 * nucR, 1.1 * nucR, x);
+            const fade = logScale ? 1 : (1 - smooth(0.8, 1, x)) * smooth(0.5 * nucR, 1.1 * nucR, x);
             return [scale(base, 0.75 + 0.5 * tone), L('cloudGain') * (c / peak) ** L('cloudContrast') * dash * fade * (1 + x * x) ** 2 / 4];
           },
           color: () => PALE,
         });
       }
       // the ruler
-      for (const [, x] of this.ticks) fibers.push({
-        glow: true, spin: 0, flat: 1, width: 0.004, intensity: () => L('rings'),
-        curve: u => [x * Math.cos(TAU * u), 0, x * Math.sin(TAU * u)],
+      for (const [label, x, at] of this.ticks) fibers.push({
+        glow: true, spin: 0, flat: 1, width: 0.004, intensity: () => L('rings') * (label ? 1 : 0.6),
+        curve: u => addv(at, [x * Math.cos(TAU * u), 0, x * Math.sin(TAU * u)]),
         color: () => PALE,
       });
       const step = t => {
@@ -695,7 +734,7 @@ function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, cur
           N.made.step(t + 1.7 * N.k, LOOK.probe);
           N.ay = TAU * hash(N.k, 21) + 0.25 * (hash(N.k, 22) - 0.5) * t;
           N.ax = Math.acos(2 * hash(N.k, 23) - 1) + 0.2 * (hash(N.k, 24) - 0.5) * t;
-          N.off = place(addv(N.pos, jiggle(N.k, t)));
+          N.off = place(addv(N.pos, jiggle(N.k, t)), N.b);
         }
       };
       return { fibers, solidCount, step };
@@ -724,6 +763,18 @@ const O16 = [
 // water: O–H 95.72 pm, H–O–H 104.5°, the hydrogens below the oxygen
 const OH_FM = 95720, HOH = 104.5 * Math.PI / 180;
 const WATER_H = [-1, 1].map(s => [s * OH_FM * Math.sin(HOH / 2), -OH_FM * Math.cos(HOH / 2), 0]);
+// on the log scale each atom is its own ball, edged at its van der Waals radius
+// (O 152 pm, H 120 pm) and centred where the atom is, at one linear scale for
+// the whole molecule: the space-filling model, ears overlapping the head.
+// Centred so the molecule's farthest edge sits at 0.97.
+const VDW_O = 152e3, VDW_H = 120e3;
+const WATER_MID = (VDW_O + OH_FM * Math.cos(HOH / 2) + VDW_H) / 2 - VDW_O;  // drop that centres it vertically
+const WATER_K = 0.97 / (Math.hypot(WATER_H[0][0], WATER_H[0][1] + WATER_MID) + VDW_H);
+const WATER_BALLS = [
+  { at: [0, WATER_MID * WATER_K, 0], R: VDW_O * WATER_K, edgeFm: VDW_O, nuclei: O16, electrons: oxygenElectrons() },
+  ...WATER_H.map(p => ({ at: scale(addv(p, [0, WATER_MID, 0]), WATER_K), R: VDW_H * WATER_K, edgeFm: VDW_H,
+    nuclei: [[PROTON_SCALE, [0, 0, 0]]], electrons: [{ n: 1, l: 0, m: 0, Z: 1, occ: 1, h: true }] })),
+];
 const ATOMS = [
   atom({ id: 'hydrogen', name: 'Hydrogen', sub: 'Hydrogen-1: one proton, one electron', current: '/content/icons/hydrogen.webp',
     chips: [['Electron', '1 · orbital per LOOK.orbital'], ['Lines', 'electron (1,−1) Hopf circles'], ['Scale', 'log radius, rings every ×10']],
@@ -739,9 +790,10 @@ const ATOMS = [
     nuclei: O16, electrons: oxygenElectrons(), extentA0: orbitalExtent(2, 1) / O_ZEFF_2 }),
   atom({ id: 'water', name: 'Water', sub: 'H₂O: an oxygen and two hydrogens',
     chips: [['Bonds', 'O–H 95.7 pm, 104.5°'], ['Electrons', '10'], ['Density', 'sum of free atoms'], ['Scale', 'log radius about the O']],
-    why: ATOM_WHY + ' The oxygen sits at the centre; the hydrogens are 95.7 pm away at 104.5°. The cloud here is the sum of free atoms\' densities (a "promolecule"): real bonding pulls the hydrogens\' electrons toward the oxygen, which this does not show.',
+    why: ATOM_WHY + ' On the log scale each atom gets its own log ball about its own nucleus, sized by its van der Waals radius (oxygen 152 pm, hydrogen 120 pm) and placed where it really is: the hydrogens 95.7 pm from the oxygen, 104.5° apart, so the balls overlap like the space-filling model. The cloud here is the sum of free atoms\' densities (a "promolecule"): real bonding pulls the hydrogens\' electrons toward the oxygen, which this does not show.',
     nuclei: [...O16, ...WATER_H.map(p => [PROTON_SCALE, p])],
-    electrons: [...oxygenElectrons(), ...WATER_H.map(at => ({ n: 1, l: 0, m: 0, Z: 1, occ: 1, h: true, at }))], extentA0: OH_FM / BOHR_FM + 3 }),
+    electrons: [...oxygenElectrons(), ...WATER_H.map(at => ({ n: 1, l: 0, m: 0, Z: 1, occ: 1, h: true, at }))], extentA0: OH_FM / BOHR_FM + 3,
+    balls: WATER_BALLS }),
   ...['2s', '2p', '3p', '3d z²', '3d xz', '4f z³'].map(o => {
     const [n, l, m] = ORBITALS[o];
     return atom({ id: `hydrogen-${n}${l}${m}`, name: `Hydrogen · ${o}`, sub: 'Excited hydrogen', why: ORBITAL_WHY,

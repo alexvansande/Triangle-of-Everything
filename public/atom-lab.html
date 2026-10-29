@@ -329,7 +329,7 @@ function rebuild() {
 
 // the ruler's labels, where each ring is nearest the viewer
 function placeLabels() {
-  const ticks = view.particle.ticks;
+  const ticks = view.particle.ticks?.filter(t => t[0]);
   if (!VIEW.labels || !ticks || !ticks.length || !view.center) { ruler.replaceChildren(); return; }
   const fov = (view.particle.fov ?? 28 * Math.PI / 180), dist = view.radius * 1.32 / Math.sin(fov / 2);
   const c = view.center, cp = Math.cos(view.pitch);
@@ -339,8 +339,8 @@ function placeLabels() {
   const ny = [nz[1] * nx[2] - nz[2] * nx[1], nz[2] * nx[0] - nz[0] * nx[2], nz[0] * nx[1] - nz[1] * nx[0]];
   const f = 1 / Math.tan(fov / 2), W = ruler.clientWidth;
   if (ruler.children.length !== ticks.length) ruler.replaceChildren(...ticks.map(() => document.createElement('span')));
-  ticks.forEach(([label, x], i) => {
-    const p = [x * nz[0] / hx, 0, x * nz[2] / hx], d = p.map((v, a) => v - eye[a]);
+  ticks.forEach(([label, x, at = [0, 0, 0]], i) => {
+    const p = [at[0] + x * nz[0] / hx, at[1], at[2] + x * nz[2] / hx], d = p.map((v, a) => v - eye[a]);
     const cx = d[0] * nx[0] + d[1] * nx[1] + d[2] * nx[2], cy = d[0] * ny[0] + d[1] * ny[1] + d[2] * ny[2], cz = -(d[0] * nz[0] + d[1] * nz[1] + d[2] * nz[2]);
     const s = ruler.children[i];
     s.textContent = label;
