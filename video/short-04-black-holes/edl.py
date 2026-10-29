@@ -26,9 +26,9 @@ EDL = [
  # the big ones
  ("rec48", "big", 257.62, 265.20),     # The black holes we know formed in the collapsing core of dying stars, or just grew by swallowing gas and merging with other black holes.
  ("rec48", "big", 266.58, 269.30),     # They can go from a few Suns to billions of stars.   (the first try: the second says "billions times the size of our Sun", but a billion-Sun black hole is ~8,000 times the Sun's width)
- ("rec48", "big", 275.50, 279.96, {"s": 275.42}),  # The one in the centre of the Milky Way, for example, has four million solar masses.
+ ("rec48", "big", 275.50, 279.96, {"s": 276.0}),  # The one in the centre of the Milky Way, for example, has four million solar masses.   (from 276.0: before it, the end of the other try's "…of our Sun" sounded like an "and", the author's note)
  ("rec48", "big", 283.68, 293.02),     # And here's the strange part: the bigger they get, the less dense they are. The really supermassive ones are less dense than water: they would float if you had a pool big enough.
- ("rec48", "big", 300.24, 309.62),     # Like M87, the first black hole ever to be photographed, or TON 618, one of the largest we know of.   (the second try)
+ ("rec48", "big", 300.24, 309.62, {"s": 302.4}),  # Like M87, the first black hole ever to be photographed, or TON 618, one of the largest we know of.   (the second try; from the second "like M87": a "Like M8…" restart before it, 300.9–302.1, the author's note)
  ("rec48", "big", 343.36, 346.06),     # Its event horizon is bigger than Pluto's orbit.   (the last of five; the author: "I prefer the last one")
  # the small ones
  ("rec48", "small", 350.42, 357.26, {"e": 357.62}),  # But the most interesting question isn't how big they can be, but how small. With enough pressure, anything can become a black hole.

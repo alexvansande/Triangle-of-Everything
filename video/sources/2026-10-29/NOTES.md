@@ -55,3 +55,12 @@ the line about its mass).
   lumps of nuclear-density matter, ~mm and ~10⁹ g at the mark; quark nuggets are the leading example).
   Dark asteroids, faint dwarfs and rogue planets are MACHO-type candidates, much bigger than the macros.
 - M87*'s picture 0.92× (2×, 1.4× and 1.15× were too big), TON 618's 1.5×.
+
+### Re-cut, 2026-10-29 evening (the author's notes)
+
+- After "…to billions of stars" an "and"/hum: the next clip started at 275.42, on the tail of the
+  discarded try's "…of our Sun"; it starts at 276.0 now, just before "The one in the centre…".
+- "Like M8… like M87": a restart at 300.9–302.1 inside the clip (Whisper had it as one long "Like
+  M87"); the clip starts at the second "like M87" (302.4).
+- Whisper dropped "…black hole line, oh no, someone worked out that if dark…" at a join; that clip
+  was transcribed on its own and its timings put back.
