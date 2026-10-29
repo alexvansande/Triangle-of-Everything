@@ -8,6 +8,11 @@
 # (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds;
 # the builder snaps each cut to the nearest real silence.
 
+# After the tempo: one second of silence added to the finished audio (public/narration/short-03-stars/
+# audio.m4a) at 1:57.0, between "…squeezed together into neutrons," and "and it becomes a neutron star",
+# for the neutron sequence (the author, 2026-10-29). A rebuild from this EDL has to add it again
+# (or give that clip a 1.1 s longer "gap" before the tempo step).
+
 PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
 
 EDL = [

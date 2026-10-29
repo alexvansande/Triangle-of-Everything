@@ -30,8 +30,8 @@ const DENSITIES = [{ density: 0, label: "atomic density" }, { density: 14.36, la
 // two views on the same diagonal path (Δ log r = 19.1, Δ log m = 3 × 19.1, which takes a neutron
 // to a neutron star): the stars' end and the particles' end, so a whip between them leaves the
 // density lines where they are on screen
-const DENSE_BOTTOM = { r: -9.8, m: -27.6, span: 11 };
-const DENSE_TOP = { r: DENSE_BOTTOM.r + 19.1, m: DENSE_BOTTOM.m + 3 * 19.1, span: 11 };
+const DENSE_BOTTOM = { r: -9.3, m: -27.6, span: 11.5 };
+const DENSE_TOP = { r: DENSE_BOTTOM.r + 19.1, m: DENSE_BOTTOM.m + 3 * 19.1, span: 11.5 };
 const H_AT = [-8.28, -23.78], N_AT = [-13.06, -23.77], NU_AT = [-4.5, -32.9];   // hydrogen, neutron, electron neutrino
 const FORK = [
   { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
@@ -137,14 +137,16 @@ export default {
     // cloud collapses onto its proton (the Atom Lab's hydrogen, its electron's charge raised
     // ×100,000 so its orbit shrinks through five rings, sliding left to the neutron's place as it
     // shrinks), turns into a neutron and lets a neutrino go; then the whip back up
-    { at: "pressure in its core", cam: DENSE_TOP, dur: 2.2, ease: "gentle",
+    // (a second earlier than the words, and a second's pause added after "…into neutrons," so the
+    // collapse has room: the author, 2026-10-29)
+    { at: "pressure in its core", offset: -1, cam: DENSE_TOP, dur: 2.2, ease: "gentle",
       hl: [...DENSITIES, { obj: "L Brown Dwarf", label: "brown dwarfs", place: "left", delay: 0.8 }, { obj: "PSR J0030+0451", label: "neutron stars", place: "right", delay: 1.2 }, { ...PSR_RING, delay: 1.2 }] },
-    { at: ["protons and the electrons", "protons and electrons"], cam: { ...DENSE_BOTTOM, whip: true, overshoot: 0.15 }, dur: 1,
+    { at: ["protons and the electrons", "protons and electrons"], offset: -1, cam: { ...DENSE_BOTTOM, whip: true, overshoot: 0.15 }, dur: 1,
       icons: ["Neutrino (e)"], hideIcons: ["Hydrogen", "Neutron"], labels: false, hl: [...DENSITIES,
       { clip: "hopf-collapse", from: H_AT, to: N_AT, lead: 1, move: [1.4, 3.6], size: 150 },
       { text: "1 proton + 1 electron\n= 1 neutron + 1 neutrino", at: [-10.3, -20.3], size: 20, color: "#e9ecf5", delay: 1.1 },
       { obj: "Neutrino (e)", label: false, grow: 1.6 },
-      { fly: { from: N_AT, to: NU_AT }, dur: 0.9, color: "#b3e5fc", label: "neutrino", delay: 3.6 }] },
+      { fly: { from: N_AT, to: NU_AT }, dur: 1.2, color: "#b3e5fc", label: "neutrino", delay: 3.8 }] },
     { at: "becomes a neutron star", cam: { ...DENSE_TOP, whip: true, overshoot: 0.15 }, dur: 1, icons: true, hideIcons: [], labels: true,
       hl: [...DENSITIES, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }, PSR_RING,
       { dust: "neutronstar", src: ["neutronstar"], color: "#80deea", sweep: 0.8, delay: 0.8 }] },
