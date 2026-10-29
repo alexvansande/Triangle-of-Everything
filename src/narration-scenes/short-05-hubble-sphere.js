@@ -60,8 +60,8 @@ export default {
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Fresh Air",
 
-  // the nebulae and everything bigger drawn larger (author, 2026-10-28)
-  iconBoost: { from: 18, k: 1.4 },
+  // (the nebulae and everything bigger are drawn larger by the chart's own size curve now,
+  // main.js iconSizeCurve: 1.6-2.3x; the scene's 1.4x iconBoost came off so it isn't doubled)
   // Laniakea's picture shows even where the Boötes Void's would hide it, in front of it
   forceIcons: ["Laniakea"],
   // no "Observable Universe" name on the Hubble sphere's dot (author, 2026-10-28)
@@ -99,9 +99,9 @@ export default {
     // neutron stars, the layers out to the supernova remnant
     { at: "to the right we have stars", cam: { r: 12.4, m: 33.8, span: 14.5 }, clear: true,
       hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4, core: true }, { obj: "Red Giant", label: "red giants", delay: 2.2 }] },
-    { at: "explode as supernovae", cam: { r: 12.4, m: 33.8, span: 18.5 }, dur: 1.6, hl: [{ ...SN_SPLIT, coreLabel: "neutron star", shellLabel: "supernova" }] },
+    { at: "explode as supernovae", cam: { r: 12.4, m: 33.8, span: 18.5 }, dur: 1.6, hl: [{ path: "stellar-high-mass" }, { ...SN_SPLIT, coreLabel: "neutron star", shellLabel: "supernova" }] },
     { at: "spreads out into space", cam: { r: 17, m: 35, span: 12 },
-      hl: [{ ...SN_SPLIT, draw: 0.01 }, { arrow: true, from: { obj: "Supernova Remnant" }, to: { obj: "Stellar Nursery" } }, { obj: "Stellar Nursery", label: "new stars", delay: 0.6 }] },
+      hl: [{ ...SN_SPLIT, draw: 0.01 }, { path: "remnant-to-nursery" }, { obj: "Supernova Remnant", label: false }, { obj: "Stellar Nursery", label: "new stars", delay: 0.6 }] },
 
     // ── Bigger means emptier ─────────────────────────────────
     // a dive onto the nursery, the Pillars over its picture (lens), as in video 3
@@ -113,7 +113,7 @@ export default {
       caption: "Pillars of Creation · Webb · 2022 · where stars are born" },
     // after the Pillars, no more photos or dives: closer in (4 decades across) and one slow pan up
     // all the way to the voids, the pictures allowed to overlap so there are plenty of them
-    // (`density` above 100) and the big things' pictures larger (scene `iconBoost`) (author, 2026-10-28)
+    // (`density` above 100) and the big things' pictures larger (main.js iconSizeCurve) (author, 2026-10-28)
     { at: "mostly empty space", cam: { r: 19.6, m: 37.0, span: 4, glide: true }, dur: 2, clear: true, density: 118 },
     { at: "globular clusters", hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
     { at: "the less dense it is", cam: { r: 21.6, m: 41.4, span: 4, glide: true }, hl: [{ obj: "Globular Cluster", label: false }, { obj: "Dwarf Galaxy", label: false }, { obj: "Milky Way", label: false }] },

@@ -9,6 +9,10 @@
 // a dying star splitting in two: the core to the white dwarfs, the outer layers to the nebulae
 const SPLIT = { split: { from: { obj: "Red Giant" }, core: { obj: "White Dwarf" }, shell: { obj: "Planetary Nebula" } } };
 const BD = [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }];
+// the chart's own star-life paths, lit (narration.js drawPath: `from`/`to` keep the stretch
+// between two objects): the low-mass life (nursery → protostar → Sun → red giant → nebula →
+// white dwarf), the high-mass one (… supergiant → supernova → neutron star), the core to a black hole
+const LOW = { path: "stellar-low-mass" }, HIGH = { path: "stellar-high-mass" };
 const FORK = [
   { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
   // the left branch is not where brown dwarfs go: white dwarfs are the cores of dead stars (end of the video)
@@ -71,17 +75,17 @@ export default {
     // two circles: the core stays small while the outer layers swell and fall back, the
     // star moving along the chart as it does; then the split: core left, layers right
     { at: "the star collapses", cam: { r: 11.85, m: 33.4, span: 3.6 }, hold: 8,
-      hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4, core: true }, { obj: "Red Giant", label: "red giant", delay: 1 }] },
+      hl: [LOW, { swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4, core: true }, { obj: "Red Giant", label: "red giant", delay: 1 }] },
     { at: "split in two", cam: { r: 13.1, m: 33.6, span: 12.5 }, dur: 1.6,
-      hl: [{ ...SPLIT, coreLabel: "core", shellLabel: "outer layers" }] },
-    { at: "blown away", hl: [{ ...SPLIT, draw: 0.01 }, { obj: "Supernova Remnant", label: "supernova remnant", place: "left" }] },
-    { at: "planetary nebula", hl: [{ ...SPLIT, draw: 0.01 }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
+      hl: [LOW, { ...SPLIT, coreLabel: "core", shellLabel: "outer layers" }] },
+    { at: "blown away", hl: [LOW, HIGH, { ...SPLIT, draw: 0.01 }, { obj: "Supernova Remnant", label: "supernova remnant", place: "left" }] },
+    { at: "planetary nebula", hl: [LOW, { ...SPLIT, draw: 0.01 }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
     { at: "inner core", cam: { r: 7.5, m: 33.4, span: 4.2 },
-      hl: [{ obj: "Red Giant", label: false }, { obj: "White Dwarf", label: "dense core", place: "right", delay: 0.4 }, { obj: "PSR J0030+0451", label: false, delay: 0.7 }] },
+      hl: [LOW, HIGH, { obj: "Red Giant", label: false }, { obj: "White Dwarf", label: "dense core", place: "right", delay: 0.4 }, { obj: "PSR J0030+0451", label: false, delay: 0.7 }] },
 
     // the gas goes round again: stellar nurseries
     { at: "nebulae spread out", cam: { r: 18.1, m: 33.7, span: 2.8 },
-      hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
+      hl: [{ path: ["remnant-to-nursery", "nebula-to-nursery"] }, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
     // a dive onto the nursery: Webb's Pillars fade in over its picture (rotated and scaled
     // onto its pillars), turn upright and grow to fill the screen, hold, fade, unwind
     { at: "stellar nurseries", cam: { obj: "Stellar Nursery", span: 2.8 }, dur: 1.8 },
@@ -89,9 +93,8 @@ export default {
       lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", turn: 0, hold: 0.3, fillDur: 1.8 },   // turn 0: Webb's pillars lean ~40°; kept tilted so they stay upright like the icon's
       caption: "Pillars of Creation · Webb · 2022 · a stellar nursery" },
     { at: "protostars", cam: { r: 16.8, m: 34.6, span: 6.2 },
-      hl: [{ obj: "Stellar Nursery", label: false }, { arrow: true, from: { obj: "Stellar Nursery" }, to: { obj: "Protostar" } }, { obj: "Protostar", delay: 0.6 }] },
-    { at: "stars again", cam: { r: 14.6, m: 33.9, span: 9 }, hl: [{ obj: "Stellar Nursery", label: false }, { arrow: true, from: { obj: "Stellar Nursery" }, to: { obj: "Protostar" } },
-      { arrow: true, from: { obj: "Protostar" }, to: { obj: "Sun" } }, { obj: "Sun", delay: 0.6 }] },
+      hl: [{ obj: "Stellar Nursery", label: false }, { ...LOW, to: "Protostar" }, { obj: "Protostar", delay: 0.6 }] },
+    { at: "stars again", cam: { r: 14.6, m: 33.9, span: 9 }, hl: [{ obj: "Stellar Nursery", label: false }, { ...LOW, to: "Sun" }, { obj: "Sun", delay: 0.6 }] },
 
     // what the core becomes
     { at: "what about the dense core", cam: { r: 8.4, m: 33.6, span: 6 }, clear: true, hl: [{ obj: "Sun" }] },
@@ -103,7 +106,7 @@ export default {
     { at: "becomes a neutron star", hl: [{ line: "chandrasekhar" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }] },
     { at: "single spoonful", hl: [{ line: "chandrasekhar" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "a teaspoon ≈ 2 billion tonnes", place: "right" }] },
     // the neutron star limit (Oppenheimer–Volkoff) only once the narration gets past neutron stars
-    { at: "collapse into a black hole", hl: [{ line: "tov", label: "neutron star limit · ~2.2–2.3 Suns" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
+    { at: "collapse into a black hole", hl: [{ path: "stellar-to-bh" }, { line: "tov", label: "neutron star limit · ~2.2–2.3 Suns" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
     // teaser for the black-hole video: in close on the stellar black hole right there (not off
     // to M87*), then a dive with the Event Horizon Telescope photo over its picture; it's
     // M87*'s photo, the only kind there is (the author's call: a black hole is a black hole)

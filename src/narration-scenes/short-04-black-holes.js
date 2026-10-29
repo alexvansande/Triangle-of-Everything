@@ -91,12 +91,12 @@ export default {
     { at: "size across the bottom", units: true, unitsFor: 9, hl: [{ axis: "bottom", label: "size" }] },
     { at: "mass going up", hl: [{ axis: "bottom", label: "size" }, { axis: "right", label: "mass" }] },
     { at: "density scatter plot", cam: { r: 2, m: 6, span: 44 }, hl: [{ line: "water", label: "density" }] },
-    { at: "stellar nurseries", cam: { r: 15, m: 34.6, span: 11 }, hl: [{ obj: "Stellar Nursery", label: "stellar nursery" }, { arrow: true, from: { obj: "Stellar Nursery" }, to: { obj: "Protostar" }, delay: 0.4 }, { obj: "Protostar", delay: 0.8 }] },
+    { at: "stellar nurseries", cam: { r: 15, m: 34.6, span: 11 }, hl: [{ obj: "Stellar Nursery", label: "stellar nursery" }, { path: "stellar-low-mass", to: "Protostar", delay: 0.4 }, { obj: "Protostar", delay: 0.8 }] },
     { at: "main sequence", cam: { r: 11.2, m: 33.4, span: 5 }, hl: [{ line: "mainsequence", label: "main sequence" }, { obj: "Sun" }] },
         // one uninterrupted swing (a new hl cue would restart it) into the split
     { at: "collapse and expand", hold: 12, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4, core: true }, { obj: "Red Giant", label: "red giant", delay: 2.6 }] },
     { at: "shed their outer layers", cam: { r: 13.1, m: 33.6, span: 12.5 }, dur: 1.6, hl: [{ ...SPLIT, coreLabel: "core", shellLabel: "nebula" }] },
-    { at: "new generation of stars", hl: [{ ...SPLIT, draw: 0.01 }, { arrow: true, from: { obj: "Planetary Nebula" }, to: { obj: "Stellar Nursery" } }, { obj: "Stellar Nursery", label: "new stars", delay: 0.6 }] },
+    { at: "new generation of stars", hl: [{ ...SPLIT, draw: 0.01 }, { path: "nebula-to-nursery" }, { obj: "Stellar Nursery", label: "new stars", delay: 0.6 }] },
     { at: "skeleton of a dead star", cam: { r: 8.4, m: 33.6, span: 6 }, clear: true },
     { at: "white dwarf", hl: [{ obj: "White Dwarf", place: "left" }] },
     { at: "neutron star", hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }] },
@@ -125,8 +125,8 @@ export default {
     { at: "45 degree slope", hl: [{ ...SCHW, label: "1 : 1 · 45°" }] },
 
     // ── The big ones ─────────────────────────────────────────
-    { at: "collapsing core of a dying star", cam: { r: 8, m: 34, span: 12 }, hl: [{ obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "collapsed stars" }] },
-    { at: "merging with each other", hl: [{ obj: "Stellar BH", label: "or merged black holes" }] },
+    { at: "collapsing core of a dying star", cam: { r: 8, m: 34, span: 12 }, hl: [{ path: "stellar-to-bh" }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "collapsed stars" }] },
+    { at: "merging with each other", hl: [{ path: "bh-mergers" }, { obj: "Stellar BH", label: "or merged black holes" }] },
     { at: "a few suns", cam: { r: 11, m: 38.6, span: 20 }, hl: [{ ...SCHW, label: "every known black hole" }] },
     { at: "our own milky way", cam: { r: 14, m: 41.5, span: 12 }, hl: [{ obj: "Sgr A*", label: "sgr a* · our galaxy's" }] },
     { at: ["4 million", "four million"], hl: [{ obj: "Sgr A*", label: "4 million suns" }] },

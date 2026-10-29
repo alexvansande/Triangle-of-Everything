@@ -103,7 +103,7 @@ export default {
     { at: "hippos", hl: [{ obj: "Boeing 747", label: "airplanes" }, { obj: "Hippopotamus", label: "hippos" }] },
     { at: "and gravity", cam: { r: 8.5, m: 26.8, span: 9, whip: true }, hl: [{ obj: "Moon" }, { obj: "Earth", label: "gravity" }] },
     { at: "how stars evolve", cam: { r: 11.6, m: 33.5, span: 11, whip: true },
-      hl: [{ obj: "Protostar" }, { obj: "Sun", delay: 0.3 }, { obj: "Red Giant", delay: 0.6 }, { obj: "White Dwarf", delay: 0.9 }] },
+      hl: [{ path: "stellar-low-mass" }, { obj: "Protostar" }, { obj: "Sun", delay: 0.3 }, { obj: "Red Giant", delay: 0.6 }, { obj: "White Dwarf", delay: 0.9 }] },
     { at: "particles turn into", cam: { r: -11.8, m: -25.4, span: 11, whip: true },
       hl: [{ obj: "Proton" }, { obj: "Neutron", label: false }, { obj: "Electron", delay: 0.3 }] },
     { at: "why balloons float", cam: { r: 2.1, m: 3.6, span: 9, whip: true },

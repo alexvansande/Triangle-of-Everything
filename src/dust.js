@@ -139,7 +139,7 @@ export function dustPictureCandidates(view) {
     const name=famous.label || _data.names[i], cat=sources[src[i]].cat;
     const size=view.iconSizeAt(r[i],name,cat), url=view.iconOf(name,size);
     if (url) candidates.push({i,name,url,rank:famous.rank,sx:view.px(r[i]),sy:view.py(m[i]),r:size/2,
-      imagePriority:view.imagePriorityOf?.(name,cat) ?? 1,room:size/2*(view.roomOf?.(name, cat) ?? 1),blend:view.iconBlend?.(cat)});
+      imagePriority:view.imagePriorityOf?.(name,cat) ?? 1,room:size/2*(view.roomOf?.(name, cat, r[i]) ?? 1),blend:view.iconBlend?.(cat)});
   }
   return candidates.sort((a,b)=>a.imagePriority-b.imagePriority || a.rank-b.rank || a.i-b.i);
 }
