@@ -116,14 +116,18 @@ const K1 = basis(ECL_POLE, K0.u);
 const K2 = basis(GAL_POLE, K1.u);
 const K3 = basis(SG_POLE, GAL_POLE);
 const KEYS = [[7.6, K0], [9.6, K1], [15.0, K1], [16.8, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
-// among the galaxies the camera swings round the vertical and back, so the
-// cosmic web's depth shows as it moves (parallax), face-on again for the Cloud
-const SWING = [23.4, 25.9], SWING_DEG = 40;
+// among the galaxies the camera turns round the vertical all the way out, tipping
+// a little and back, so the cosmic web's depth shows as it moves (parallax); the
+// Cloud that follows has its own camera
+const SWING = [23.4, 26.6], TURN_DEG = 150, TILT_DEG = 15;
 export function cameraAt(s) {
-  const b = keyed(s), th = SWING_DEG * D * Math.sin(Math.PI * clamp((s - SWING[0]) / (SWING[1] - SWING[0])));
-  if (!th) return b;
+  const b = keyed(s), t = clamp((s - SWING[0]) / (SWING[1] - SWING[0]));
+  if (!t) return b;
+  const th = TURN_DEG * D * ramp(t, 0, 1), ph = TILT_DEG * D * Math.sin(Math.PI * t);
   const c = Math.cos(th), sn = Math.sin(th);
-  return { r: add(mul(b.r, c), mul(b.n, sn)), u: b.u, n: sub(mul(b.n, c), mul(b.r, sn)) };
+  const r = add(mul(b.r, c), mul(b.n, sn)), n = sub(mul(b.n, c), mul(b.r, sn));
+  const cp = Math.cos(ph), sp = Math.sin(ph);
+  return { r, u: add(mul(b.u, cp), mul(n, sp)), n: sub(mul(n, cp), mul(b.u, sp)) };
 }
 function keyed(s) {
   if (s <= KEYS[0][0]) return fromQuat(KEYS[0][1]);
