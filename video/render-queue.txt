@@ -15,4 +15,3 @@ short-02-up-the-line
 short-01-hook
 short-04-black-holes
 short-03-stars
-# short-03-stars changed: 1:08-2:08
