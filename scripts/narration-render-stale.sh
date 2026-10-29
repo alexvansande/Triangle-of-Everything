@@ -40,6 +40,8 @@ web() {   # full render → the site's copy, sized just under 20 MiB
 
 for t in $takes; do
   [ -f "public/narration/$t/words.json" ] || { echo "- $t: no take"; continue; }
+  # already rendering in another run (a timed or hand-started render): leave it to that one
+  pgrep -f "narration-render.mjs $t " > /dev/null && { echo "= $t: already rendering"; continue; }
   out=output/videos/$t.mp4
   changed=$(git log -1 --format=%ct -- "public/narration/$t" "src/narration-scenes/$t.js")
   queued=$(grep -qx "$t" video/render-queue.txt 2>/dev/null && echo 1)
