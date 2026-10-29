@@ -70,7 +70,7 @@ const ROWS = 5;
 // on purpose: spin × 2π over one loop. Spin ½ closes as a Möbius band.
 // A fiber with its own `curve(u, flow)` skips S³ and gives 3D points directly;
 // with `open` it is not closed into a loop. One with `field(point, time)` takes
-// its [colour, intensity] from where each sample sits, not from u.
+// its [colour, intensity] from where each sample sits (and u).
 function sampleFiber(f, M, flow, N, widthScale, radius, time, out, rowBase, W) {
   const P = [], T = [];
   for (let i = 0; i <= N; i++) {
@@ -102,7 +102,7 @@ function sampleFiber(f, M, flow, N, widthScale, radius, time, out, rowBase, W) {
     const twist = mismatch * u + f.spin * TAU * u + (f.twistPhase || 0);
     const r = norm(spinAbout(R[i], T[i], twist));
     const b = cross(T[i], r);
-    const lit = f.field && f.field(P[i], time);
+    const lit = f.field && f.field(P[i], time, u);
     const front = lit ? lit[0] : f.color(u, time);
     const back = f.back ? f.back(u, time) : front;
     const hw = f.width * widthScale * (f.taper ? f.taper(u) : 1);
@@ -526,7 +526,7 @@ const ORBITAL_NAMES = { 0: 's', 1: 'p', 2: 'd', 3: 'f' };
 // orbital's edge. Where a log ruler starts is a free choice: LOG_NUCLEUS is
 // the share of the picture's radius given to the nucleus. Faint rings in the
 // equatorial plane mark each power of ten.
-const BOHR_FM = 52917.7, LOG_NUCLEUS = +(new URLSearchParams(globalThis.location?.search).get('nucleus') ?? 0.3);
+const BOHR_FM = 52917.7, LOG_NUCLEUS = +(new URLSearchParams(globalThis.location?.search).get('nucleus') ?? 0.45);
 // nucleon charge radius, and the deuteron's proton and neutron ~3.9 fm apart
 const NUCLEON_FM = 0.84, DEUTERON_HALF_FM = 1.97, NUCLEUS_FM = DEUTERON_HALF_FM + NUCLEON_FM;
 const LOG_RMAX = orbitalExtent(4, 3) * BOHR_FM, LOG_SPAN = Math.log10(LOG_RMAX / NUCLEUS_FM);
@@ -576,7 +576,10 @@ function atom(id, name, sub, why, [n, l, m], nucleus, current, logScale = false)
       const wrap = (f, { off }) => Object.create(f, {
         curve: { value: u => addv(off, scale(f.curve(u), NS)) },
         width: { get: () => f.width * NS },
+        // brighter than on its own, to hold its own inside the electron's glow
+        intensity: { value: (u, t) => NUCLEUS_GAIN * (typeof f.intensity === 'function' ? f.intensity(u, t) : f.intensity) },
       });
+      const NUCLEUS_GAIN = logScale ? 2.2 : 1;
       const fibers = [];
       for (const N of nuc) fibers.push(...N.made.fibers.slice(0, N.made.solidCount).map(f => wrap(f, N)));
       const solidCount = fibers.length;
@@ -585,7 +588,9 @@ function atom(id, name, sub, why, [n, l, m], nucleus, current, logScale = false)
       // fill S³ evenly. The ball r < 1 is the hemisphere w < 0, exactly half of
       // every great circle (θ from 0 to π), and the projection packs their
       // length 4/(1 + r²)² times denser toward the centre, which the brightness undoes.
-      const FIBERS = 170;
+      // on the log ruler the cloud is sparser: fewer circles, each lit only in a
+      // few short dashes that slide along it, so the nucleus shows through
+      const FIBERS = logScale ? 130 : 170;
       for (let k = 0; k < FIBERS; k++) {
         const eta = Math.acos(1 - 2 * (k + 0.5) / FIBERS) / 2, xi1 = k * Math.PI * (3 - Math.sqrt(5)), tone = hash(k, 5);
         const ce = Math.cos(eta), se = Math.sin(eta);
@@ -595,10 +600,10 @@ function atom(id, name, sub, why, [n, l, m], nucleus, current, logScale = false)
             const th = Math.PI * u, a = xi1 + th + (spins ? 1.5 * flow : 0);
             return stereo([ce * Math.cos(a), ce * Math.sin(a), se * Math.cos(th), -se * Math.sin(th)], 1);
           },
-          field: q => {
+          field: (q, t, u) => {
             const v = at(q), r = Math.hypot(...q);
             return [v >= 0 ? PHASE_PLUS(tone) : PHASE_MINUS(tone),
-              (logScale ? 0.6 * (chance(q, v) / peak) ** 0.8 * (1 - smooth(0.93, 1, r))
+              (logScale ? 2 * (chance(q, v) / peak) ** 1.15 * Math.max(0, Math.cos(TAU * (5 * u + tone) - 0.6 * t)) ** 4 * (1 - smooth(0.93, 1, r))
                 : 1.4 * (chance(q, v) / peak) ** 0.75 * (1 - smooth(0.8, 1, r)) * smooth(0.1, 0.22, r)) * (1 + r * r) ** 2 / 4];
           },
           color: () => PHASE_PLUS(tone),
@@ -606,7 +611,7 @@ function atom(id, name, sub, why, [n, l, m], nucleus, current, logScale = false)
       }
       // the ruler
       for (const [, x] of this.ticks) fibers.push({
-        glow: true, spin: 0, flat: 1, width: 0.004, intensity: 0.35,
+        glow: true, spin: 0, flat: 1, width: 0.004, intensity: 0.18,
         curve: u => [x * Math.cos(TAU * u), 0, x * Math.sin(TAU * u)],
         color: () => PALE,
       });
