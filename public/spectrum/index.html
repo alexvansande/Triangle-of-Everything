@@ -41,7 +41,7 @@
   Cloud and the Milky Way (an off-centre circle, each edge point at its own
   log distance), each while it is a sensible size on screen (?rings=0 hides them).
   ?embed=1 (bar and view only, for the chart's sidebar)  ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
-  ?bright=lin|log  ?lift= (0…1, how strong the log brightness is)  ?radius=custom|log|linear  ?dot= (point size ×)  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=  ?glow= (0…1, a halo round each Cloud dot)
+  ?bright=lin|log  ?lift= (0…1, how strong the log brightness is)  ?radius=custom|log|linear  ?dot= (point size ×)  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=  ?glow= (0…1, a halo round each Cloud dot)  ?centre=0 (no Earth or Sun at the centre)
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
@@ -878,6 +878,7 @@
     if (first && q.has("unit")) { if (+q.get("unit") < +unit.min) unit.min = q.get("unit"); unit.value = q.get("unit"); }
     const DOT = first && q.has("dot") ? Math.max(0.5, Math.min(6, +q.get("dot"))) : 1; // point size multiplier (?dot=)
     let glow = first && q.has("glow") ? Math.max(0, Math.min(1, +q.get("glow"))) : 0; // a halo round each Cloud dot (?glow=0…1)
+    let centreOn = !(first && q.get("centre") === "0"); // ?centre=0: no Earth or Sun at the log scale's centre
     const L_EARTH = Math.log10(6371 / 9.4607e12), L_SUN_R = Math.log10(696000 / 9.4607e12); // radii in log10 ly
     const fmtScale = (L) => {
       const ly = 10 ** L;
@@ -1291,7 +1292,7 @@
         gl.clearColor(0, 0, 0, 0); gl.clear(fadeA < 1 ? gl.DEPTH_BUFFER_BIT : gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         // Earth or Sun first, writing depth, so the points behind are hidden
         const lu = +unit.value, rOf = (L) => (L - lu) / (10.66 - lu);
-        const centre = rmode !== 1 ? null : lu < L_EARTH ? 0 : lu < L_SUN ? 1 : null;
+        const centre = rmode !== 1 || !centreOn ? null : lu < L_EARTH ? 0 : lu < L_SUN ? 1 : null;
         gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.depthMask(true);
         if (centre !== null) {
           const rO = rOf(centre === 0 ? L_EARTH : L_SUN);
@@ -1383,7 +1384,7 @@
     // driven from outside (tools/powers-of-ten.html): the Cloud on its linear scale
     // (galaxy) or its log one (universe; unit, log10 ly), lz (log10 ly at radius 1),
     // the view's yaw, pitch and zoom, the selector (c, s), the distance window
-    // (dlo, dhi) and the dots' glow
+    // (dlo, dhi), the dots' glow and whether Earth or the Sun sits at the centre
     window.spectrumControl = (o) => {
       if (o.galaxy && !(mode === 3 && rmode === 2)) setExplore("galaxy", true);
       if (o.universe && !(mode === 3 && rmode === 1)) setExplore("universe", true);
@@ -1393,6 +1394,7 @@
       if (o.c !== undefined) { c = o.c; s = o.s ?? s; clamp(); layoutSelector(); }
       if (o.log !== undefined) setBright(o.log);
       if (o.glow !== undefined) glow = o.glow;
+      if (o.centre !== undefined) centreOn = o.centre;
       if (o.dlo !== undefined) { dlo = o.dlo; dhi = o.dhi ?? dhi; layoutDist(); }
       spin = false; spinA = 0; glide = null; fade = null;
       draw();

@@ -37,11 +37,11 @@ const layers = [...space, ...macro.layers, ...micro, ...small.reverse()];
 // from 20 Gly: the zoom has already shown the Galaxy and the galaxies), each dot
 // with a glow: the camera flies backwards and turns, so the CMB comes past it from
 // behind, and settles on the author's view (2026-10-29)
-const CLOUD_END = { unit: -10, c: 11.3, s: 11.3, yaw: 0.402, pitch: 0.389, dlo: 10.3, dhi: 11, glow: 1 };
+const CLOUD_END = { unit: -10, c: 11.3, s: 11.3, yaw: 0.402, pitch: 0.389, dlo: 10.3, dhi: 11, glow: 1, centre: false };
 // the camera sits 3.2 / zoom from the centre; it starts just inside the Milky Way's
 // shell (radius ~0.7 on this scale) and ends where the CMB's sphere spans 78% of the
 // frame's shorter side, as in the author's view; the Cloud's field of view is 40° tall
-const CLOUD_FLY = [25.9, 27.4], DIST0 = 0.68, FILL = 0.78;
+const CLOUD_FLY = [25.9, S_MAX], DIST0 = 0.68, FILL = 0.78;
 function driveCloud(s, W, H) {
   const a = ramp(s, 25.9, 26.6);
   frame.style.opacity = a;
@@ -98,11 +98,14 @@ function render(t) {
   readout(s);
 }
 
-// powers-of-ten grid through the centre: each spacing fades in as it opens up and out as it fills the frame
+// powers-of-ten grid through the centre: each spacing fades in as it opens up and out as it fills the frame;
+// gone once the Cloud's log scale takes over, where it would no longer be to scale
 function drawGrid(cam) {
+  const fade = 1 - ramp(cam.s, 25.9, 26.4);
+  if (fade <= 0) return;
   const { ctx, W, H, k, cx, cy, min, s, dpr } = cam;
   for (let g = Math.floor(s) - 2; g <= Math.floor(s) + 1; g++) {
-    const d = 10 ** g * k, w = d / min, a = 0.22 * ramp(w, 0.008, 0.05) * (1 - ramp(w, 0.55, 1.1));
+    const d = 10 ** g * k, w = d / min, a = fade * 0.22 * ramp(w, 0.008, 0.05) * (1 - ramp(w, 0.55, 1.1));
     if (a <= 0.005) continue;
     ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = dpr;
     ctx.beginPath();
