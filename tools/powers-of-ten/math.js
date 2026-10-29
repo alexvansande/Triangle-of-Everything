@@ -116,14 +116,16 @@ const K1 = basis(ECL_POLE, K0.u);
 const K2 = basis(GAL_POLE, K1.u);
 const K3 = basis(SG_POLE, GAL_POLE);
 const KEYS = [[7.6, K0], [9.6, K1], [15.0, K1], [16.8, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
-// among the galaxies the camera turns round the vertical all the way out, tipping
-// a little and back, so the cosmic web's depth shows as it moves (parallax); the
-// Cloud that follows has its own camera
-const SWING = [23.4, 26.6], TURN_DEG = 150, TILT_DEG = 15;
+// from the stars out the camera turns round the vertical, tipping a little and
+// back, so depth shows as it moves (parallax): 70° through the stars and the
+// Milky Way (which ends up seen from 70° off its pole), then 150° more through the
+// cosmic web; the Cloud that follows has its own camera
+const TURNS = [[17.0, 22.8, 70], [22.6, 26.6, 150]], TILT = [17.0, 26.6, 15];
 export function cameraAt(s) {
-  const b = keyed(s), t = clamp((s - SWING[0]) / (SWING[1] - SWING[0]));
-  if (!t) return b;
-  const th = TURN_DEG * D * ramp(t, 0, 1), ph = TILT_DEG * D * Math.sin(Math.PI * t);
+  const b = keyed(s);
+  if (s <= TURNS[0][0]) return b;
+  const th = D * TURNS.reduce((sum, [a, z, deg]) => sum + deg * ramp(s, a, z), 0);
+  const ph = TILT[2] * D * Math.sin(Math.PI * clamp((s - TILT[0]) / (TILT[1] - TILT[0])));
   const c = Math.cos(th), sn = Math.sin(th);
   const r = add(mul(b.r, c), mul(b.n, sn)), n = sub(mul(b.n, c), mul(b.r, sn));
   const cp = Math.cos(ph), sp = Math.sin(ph);

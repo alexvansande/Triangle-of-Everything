@@ -16,7 +16,7 @@ const icon = (name) => image(`/content/icons/${name}.webp`);
 const ready = (img) => img.complete && img.naturalWidth > 0;
 
 export function spaceLayers(globe) {
-  const imgs = Object.fromEntries(["moon", "sun", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "milky-way", "andromeda-m31", "triangulum-m33", "dwarf-galaxy"].map((n) => [n, icon(n)]));
+  const imgs = Object.fromEntries(["moon", "sun", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "andromeda-m31", "triangulum-m33", "dwarf-galaxy"].map((n) => [n, icon(n)]));
   const ring = (cam, c, e1, e2, rad, style, width = 1) => {
     const ctx = cam.ctx;
     ctx.strokeStyle = style; ctx.lineWidth = width * cam.dpr;
@@ -111,7 +111,7 @@ export function spaceLayers(globe) {
   };
 
   // ---------- stars: Hipparcos (nearest) and Gaia, tools/sky-points ----------
-  const stars = { name: "stars", range: [15.6, 22.6], data: null, draw(cam) { drawPoints(cam, this.data, win(cam.s, 15.9, 16.5, 21.6, 22.4), 1.3, 0.004); } };
+  const stars = { name: "stars", range: [15.6, 22.6], data: null, draw(cam) { withGlow(cam, 0.5, (c) => drawPoints(c, this.data, win(cam.s, 15.9, 16.5, 20.3, 20.9), 1.3, 0.004)); } };
   const NAMED = [["Proxima Centauri", 313.94, -1.93, 4.24], ["Alpha Centauri", 315.73, -0.68, 4.37], ["Barnard's Star", 31.0, 14.1, 5.96], ["Sirius", 227.23, -8.89, 8.6], ["Vega", 67.45, 19.24, 25], ["Betelgeuse", 199.79, -8.96, 550], ["Deneb", 84.28, 1.99, 2600]];
   const named = {
     name: "named stars", range: [16, 21],
@@ -127,21 +127,15 @@ export function spaceLayers(globe) {
     },
   };
 
-  // ---------- the Milky Way: a picture laid on the galactic plane (to replace) ----------
-  const GC = lb(0, 0, 8.2 * KPC), MW_SIDE = 34 * KPC;
+  // ---------- the Milky Way: a model in points (bar, bulge, four arms, the old disc), glowing ----------
+  const GC = lb(0, 0, 8.2 * KPC), MW = milkyWayModel(GC);
   const milkyWay = {
     name: "milky way", range: [19.2, 25],
     draw(cam) {
-      const img = imgs["milky-way"], side = MW_SIDE * cam.k;
       const a = ramp(cam.s, 19.6, 20.4) * (1 - ramp(cam.s, 24.4, 24.9));
-      if (a <= 0.01 || !ready(img)) return;
-      const o = cam.proj(sub(GC, [MW_SIDE / 2, MW_SIDE / 2, 0]));
-      const ex = sub(cam.proj(add(GC, [MW_SIDE / 2, -MW_SIDE / 2, 0])), o), ey = sub(cam.proj(add(GC, [-MW_SIDE / 2, MW_SIDE / 2, 0])), o);
-      const ctx = cam.ctx;
-      ctx.save(); ctx.globalAlpha = a * 0.95;
-      ctx.setTransform(ex[0] / img.naturalWidth, ex[1] / img.naturalWidth, ey[0] / img.naturalHeight, ey[1] / img.naturalHeight, o[0], o[1]);
-      ctx.drawImage(img, 0, 0); ctx.restore();
-      const [x, y] = cam.proj(GC);
+      if (a <= 0.01) return;
+      withGlow(cam, 0.9, (c) => drawModel(c, MW, a));
+      const side = 34 * KPC * cam.k, [x, y] = cam.proj(GC);
       cam.labelPx(x, y - 0.4 * side, "the Milky Way", a * ramp(cam.s, 20.5, 20.8) * (1 - ramp(cam.s, 22.2, 22.6)));
       const [sx, sy] = cam.proj([0, 0, 0]);
       cam.labelPx(sx, sy + 14 * cam.dpr, "the Sun is here", a * ramp(cam.s, 20.5, 20.8) * (1 - ramp(cam.s, 21.6, 22)));
@@ -179,7 +173,7 @@ export function spaceLayers(globe) {
     { name: "Coma", l: 58.1, b: 88.0, d: 100, m: 0.6, eps: 25, col: [120, 230, 160] },
     { name: "Hercules", l: 31.5, b: 44.5, d: 150, m: 0.5, eps: 30, col: [255, 130, 150] },
   ].map((A) => ({ ...A, p: lb(A.l, A.b, A.d) }));
-  const galaxies = { name: "galaxies", range: [22.6, 27.4], data: null, flows: [], draw(cam) { drawGalaxies(cam, this, win(cam.s, 23.0, 23.6, 26.1, 26.7)); } };
+  const galaxies = { name: "galaxies", range: [22.6, 27.4], data: null, flows: [], draw(cam) { withGlow(cam, 0.7, (c) => drawGalaxies(c, this, win(cam.s, 23.0, 23.6, 26.1, 26.7))); } };
   const LABELS = [["Virgo cluster", 283.8, 74.5, 16.5], ["Laniakea", 325.3, -7.3, 68], ["Shapley", 311.5, 30.7, 200], ["Perseus–Pisces", 150.6, -13.3, 73], ["Coma", 58.1, 88, 100]];
   const groupLabels = {
     name: "cluster names", range: [23.5, 26.5],
@@ -363,4 +357,73 @@ function drawGalaxies(cam, g, a) {
     }
   }
   ctx.globalAlpha = 1;
+}
+
+// a soft glow for a layer: drawn on its own canvas, then laid down with two blurred
+// copies of itself (a quarter and a sixteenth of the size, scaled back up)
+const glowBuf = {};
+function buf(name, w, h) {
+  const c = glowBuf[name] ??= document.createElement("canvas");
+  if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+  const ctx = c.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+  ctx.clearRect(0, 0, w, h);
+  return [c, ctx];
+}
+function withGlow(cam, strength, draw) {
+  const { W, H } = cam, [g, gctx] = buf("layer", W, H);
+  draw({ ...cam, ctx: gctx });
+  const w4 = Math.max(1, W >> 2), h4 = Math.max(1, H >> 2), w16 = Math.max(1, W >> 4), h16 = Math.max(1, H >> 4);
+  const [q, qctx] = buf("quarter", w4, h4), [e, ectx] = buf("sixteenth", w16, h16);
+  qctx.imageSmoothingQuality = ectx.imageSmoothingQuality = "high";
+  qctx.drawImage(g, 0, 0, w4, h4); ectx.drawImage(q, 0, 0, w16, h16);
+  const ctx = cam.ctx;
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(g, 0, 0);
+  ctx.globalCompositeOperation = "lighter"; ctx.imageSmoothingQuality = "high";
+  ctx.globalAlpha = 0.7 * strength; ctx.drawImage(q, 0, 0, W, H);
+  ctx.globalAlpha = 0.9 * strength; ctx.drawImage(e, 0, 0, W, H);
+  ctx.restore();
+}
+
+// the Milky Way as ~55k points around the Galactic Centre gc (galactic Cartesian, m):
+// a bar 27° from the Sun–centre line with its near end at positive longitude, a
+// bulge, four log-spiral arms (12° pitch; trailing, as the Galaxy turns clockwise
+// seen from the north galactic pole) with the Sun between two of them, and the old
+// disc (scale length 2.6 kpc). Rough, for the look, not a map
+function milkyWayModel(gc) {
+  const r = rng(27), parts = [], tanP = Math.tan(12 * Math.PI / 180), BAR = 27 * Math.PI / 180;
+  const put = (x, y, z, col, w) => parts.push([gc[0] + x * KPC, gc[1] + y * KPC, gc[2] + z * KPC, col, w]);
+  const discR = (lo, hi) => { for (;;) { const R = -2.6 * Math.log(r() * r() + 1e-9); if (R > lo && R < hi) return R; } };
+  // the arms: young stars, blue-white, a few pink star-forming regions
+  for (let i = 0; i < 24000; i++) {
+    const k = (r() * 4) | 0, R = discR(2.8, 15), th = Math.PI + k * Math.PI / 2 + Math.log(R / 6.8) / tanP + 0.06 * gauss(r), off = 0.5 * gauss(r);
+    put(R * Math.cos(th) - off * Math.sin(th), R * Math.sin(th) + off * Math.cos(th), 0.1 * gauss(r), r() < 0.05 ? 2 : 0, 1);
+  }
+  // the old disc: yellow-white, thicker
+  for (let i = 0; i < 16000; i++) { const R = discR(0.5, 16), th = 2 * Math.PI * r(); put(R * Math.cos(th), R * Math.sin(th), 0.3 * gauss(r), 1, 0.8); }
+  // the bar and the bulge: old, orange
+  const ux = -Math.cos(BAR), uy = Math.sin(BAR);
+  for (let i = 0; i < 8000; i++) { const a = 1.8 * gauss(r), b = 0.55 * gauss(r); put(a * ux - b * uy, a * uy + b * ux, 0.3 * gauss(r), 3, 0.45); }
+  for (let i = 0; i < 6000; i++) put(0.8 * gauss(r), 0.8 * gauss(r), 0.5 * gauss(r), 3, 0.45);
+  const n = parts.length, pos = new Float32Array(3 * n), col = new Uint8Array(n), wt = new Float32Array(n);
+  parts.forEach(([x, y, z, c, w], j) => { pos[3 * j] = x; pos[3 * j + 1] = y; pos[3 * j + 2] = z; col[j] = c; wt[j] = w; });
+  return { n, pos, col, wt, COLS: ["rgb(175,205,255)", "rgb(255,238,210)", "rgb(255,140,175)", "rgb(255,205,145)"] };
+}
+function drawModel(cam, M, a) {
+  const { ctx } = cam, { r, u } = cam.cam, k = cam.k, s = Math.max(1.2 * cam.dpr, 0.05 * KPC * k);
+  ctx.globalCompositeOperation = "lighter";
+  for (let c = 0; c < M.COLS.length; c++) {
+    ctx.fillStyle = M.COLS[c];
+    for (let j = 0; j < M.n; j++) {
+      if (M.col[j] !== c) continue;
+      const X = M.pos[3 * j], Y = M.pos[3 * j + 1], Z = M.pos[3 * j + 2];
+      const x = cam.cx + k * (X * r[0] + Y * r[1] + Z * r[2]), y = cam.cy - k * (X * u[0] + Y * u[1] + Z * u[2]);
+      if (x < -s || x > cam.W + s || y < -s || y > cam.H + s) continue;
+      ctx.globalAlpha = a * 0.13 * M.wt[j];
+      ctx.fillRect(x - s / 2, y - s / 2, s, s);
+    }
+  }
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
 }

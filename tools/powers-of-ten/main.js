@@ -33,10 +33,11 @@ const layers = [...space, ...macro.layers, ...micro, ...small.reverse()];
 
 // ---------- the spectrum Cloud, for the last decades ----------
 // on its log scale (1 unit = 950 km, Earth at the centre, the CMB at radius 1),
-// the whole spectrum bar in its light: the camera flies backwards out of it, so the
-// stars, the Milky Way, the superclusters and last the CMB come past it from
+// the whole spectrum bar in its light, the CMB's light alone (the distance window
+// from 20 Gly: the zoom has already shown the Galaxy and the galaxies), each dot
+// with a glow: the camera flies backwards and turns, so the CMB comes past it from
 // behind, and settles on the author's view (2026-10-29)
-const CLOUD_END = { unit: -10, c: 11.3, s: 11.3, yaw: 0.402, pitch: 0.389 };
+const CLOUD_END = { unit: -10, c: 11.3, s: 11.3, yaw: 0.402, pitch: 0.389, dlo: 10.3, dhi: 11, glow: 1 };
 // the camera sits 3.2 / zoom from the centre; it starts just inside the Milky Way's
 // shell (radius ~0.7 on this scale) and ends where the CMB's sphere spans 78% of the
 // frame's shorter side, as in the author's view; the Cloud's field of view is 40° tall
@@ -49,8 +50,8 @@ function driveCloud(s, W, H) {
   if (!a || !ctl) return;
   const dEnd = 1 / Math.sin(Math.atan(FILL * (Math.min(W, H) / H) * Math.tan(20 * Math.PI / 180)));
   const t = ramp(s, ...CLOUD_FLY), dist = Math.exp(Math.log(DIST0) + (Math.log(dEnd) - Math.log(DIST0)) * t);
-  // turning a little as it goes, for the depth, and still at the end
-  ctl({ universe: true, ...CLOUD_END, zoom: 3.2 / dist, yaw: CLOUD_END.yaw + 0.5 * (1 - t) ** 2 });
+  // turning as it goes (80°), for the depth, and still at the end
+  ctl({ universe: true, ...CLOUD_END, zoom: 3.2 / dist, yaw: CLOUD_END.yaw + 1.4 * (1 - t) });
 }
 
 // ---------- drawing ----------

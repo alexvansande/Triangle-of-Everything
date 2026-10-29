@@ -42,10 +42,10 @@ plane, so the galaxies' flows lie flat.
 | 8 … 16 | the Moon's orbit, the planets on 2026-10-29, the Kuiper belt, the heliosphere | code |
 | 14 … 18 | the Oort cloud | code (a model; it has never been seen) |
 | 16 … 22 | stars: Hipparcos (nearest) and Gaia | data (`tools/sky-points`) |
-| 19.5 … 24.5 | the Milky Way | **placeholder** `milky-way.webp`, laid on the galactic plane; to generate |
+| 19.5 … 24.5 | the Milky Way: ~55k glowing points (bar, bulge, four arms, the old disc), turning with the camera | code (`milkyWayModel` in `space.js`), a rough model |
 | 21.5 … 25 | the Local Group, 28 galaxies at their real positions | code |
 | 23 … 26.5 | 2MRS galaxies as a cosmic web: each linked to its nearest neighbours (positions untouched), coloured by the attractor they flow to (a rough Laniakea); the camera turns 150° round the vertical as it zooms out, tipping 15° and back, so depth shows | code, toy model |
-| 26 … 27.6 | the spectrum page's Cloud on its log scale, the whole spectrum bar: the camera flies backwards out of it, so the Milky Way, the superclusters and the CMB come past from behind, ending on the author's view | `public/spectrum` (`?bare=1`, `spectrumControl`) |
+| 26 … 27.6 | the spectrum page's Cloud on its log scale, the whole spectrum bar, the CMB's light alone with a glow on each dot: the camera flies backwards and turns, so the CMB comes past from behind, ending on the author's view | `public/spectrum` (`?bare=1`, `spectrumControl`) |
 
 ## The image pass (DNA → Earth)
 
@@ -81,8 +81,8 @@ The options are `--from`, `--to`, `--step`, `--names` (adds the names, for refer
 
 - **Terrain at 10³–10⁶ m** is flat noise. It should become real aerial and satellite images
   (Landsat, NAIP), with the image pass hiding the joins.
-- **The Milky Way** is the chart's icon. Generate one (no real photo from outside exists)
-  at 34 kpc across, centred on the Galactic Centre, with the Sun 8.2 kpc out.
+- **The Milky Way** is a point model in code (the author, 2026-10-29: glowing points that turn
+  in 3D may do instead of a generated picture). Its arms are a rough four-arm log spiral, not a map.
 - **Laniakea** is five softened point masses. Replace it with Cosmicflows-4 (the plan's
   "supercluster visualizer").
 - **The CMB's view** is the author's pick (2026-10-29), from the spectrum page's View code:

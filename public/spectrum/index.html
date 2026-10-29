@@ -41,7 +41,7 @@
   Cloud and the Milky Way (an off-centre circle, each edge point at its own
   log distance), each while it is a sensible size on screen (?rings=0 hides them).
   ?embed=1 (bar and view only, for the chart's sidebar)  ?target=sky|sun|earth  ?view=globe|inside|map|cloud  ?c=&s=  ?dlo=&dhi=
-  ?bright=lin|log  ?lift= (0…1, how strong the log brightness is)  ?radius=custom|log|linear  ?dot= (point size ×)  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=
+  ?bright=lin|log  ?lift= (0…1, how strong the log brightness is)  ?radius=custom|log|linear  ?dot= (point size ×)  ?unit= (log10 ly)  ?lz= (log10 ly at radius 1)  ?zoom=  ?glow= (0…1, a halo round each Cloud dot)
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
@@ -625,7 +625,12 @@
       precision highp float;
       in vec3 vCol; out vec4 o;
       uniform float dotGain; // bigger dots, dimmer each: the same light per area
-      void main() { float a = smoothstep(0.5, 0.15, length(gl_PointCoord - 0.5)); vec3 c = vCol * a * 0.14 * dotGain; o = vec4(c, max(c.r, max(c.g, c.b))); }`) : null;
+      uniform float glow;    // > 0: a soft halo round each dot (the sprite is 3× wider, the dot the same)
+      void main() {
+        float rr = length(gl_PointCoord - 0.5);
+        float a = glow > 0.0 ? smoothstep(0.5 / 3.0, 0.15 / 3.0, rr) + glow * 0.3 * exp(-rr * rr * 40.0) * smoothstep(0.5, 0.35, rr) : smoothstep(0.5, 0.15, rr);
+        vec3 c = vCol * a * 0.14 * dotGain; o = vec4(c, max(c.r, max(c.g, c.b)));
+      }`) : null;
     // Earth and Sun at the centre of the Cloud's log scale, seen through the
     // same RGB selector as the sky: each of their bands sits on the sky's
     // spectrum bar at its own wavelength (interpolated in log wavelength between
@@ -872,6 +877,7 @@
     // a link may set the unit below the slider's range (a bigger Earth, for icons)
     if (first && q.has("unit")) { if (+q.get("unit") < +unit.min) unit.min = q.get("unit"); unit.value = q.get("unit"); }
     const DOT = first && q.has("dot") ? Math.max(0.5, Math.min(6, +q.get("dot"))) : 1; // point size multiplier (?dot=)
+    let glow = first && q.has("glow") ? Math.max(0, Math.min(1, +q.get("glow"))) : 0; // a halo round each Cloud dot (?glow=0…1)
     const L_EARTH = Math.log10(6371 / 9.4607e12), L_SUN_R = Math.log10(696000 / 9.4607e12); // radii in log10 ly
     const fmtScale = (L) => {
       const ly = 10 ** L;
@@ -1262,7 +1268,8 @@
         gl.useProgram(cloud);
         const U = common(cloud);
         const VP = cloudViewProj(w, h);
-        gl.uniform1f(U("size"), DOT * Math.min(6 * dpr, Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom))));
+        gl.uniform1f(U("size"), (glow > 0 ? 3 : 1) * DOT * Math.min(6 * dpr, Math.max(1.5, 2.2 * dpr * Math.sqrt(view.zoom))));
+        gl.uniform1f(U("glow"), glow);
         // the same points crowd a small view, so each is dimmer there (down to
         // 0.35×), keeping the shells dotted instead of summing to solid white
         const small = Math.max(0.35, Math.min(1, Math.sqrt(w * h) / (700 * dpr)));
@@ -1375,7 +1382,8 @@
     clamp(); layoutSelector(); layoutDist(); draw();
     // driven from outside (tools/powers-of-ten.html): the Cloud on its linear scale
     // (galaxy) or its log one (universe; unit, log10 ly), lz (log10 ly at radius 1),
-    // the view's yaw, pitch and zoom, the selector (c, s)
+    // the view's yaw, pitch and zoom, the selector (c, s), the distance window
+    // (dlo, dhi) and the dots' glow
     window.spectrumControl = (o) => {
       if (o.galaxy && !(mode === 3 && rmode === 2)) setExplore("galaxy", true);
       if (o.universe && !(mode === 3 && rmode === 1)) setExplore("universe", true);
@@ -1384,6 +1392,8 @@
       for (const k of ["yaw", "pitch", "zoom"]) if (o[k] !== undefined) view[k] = o[k];
       if (o.c !== undefined) { c = o.c; s = o.s ?? s; clamp(); layoutSelector(); }
       if (o.log !== undefined) setBright(o.log);
+      if (o.glow !== undefined) glow = o.glow;
+      if (o.dlo !== undefined) { dlo = o.dlo; dhi = o.dhi ?? dhi; layoutDist(); }
       spin = false; spinA = 0; glide = null; fade = null;
       draw();
     };
