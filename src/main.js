@@ -135,8 +135,8 @@ const ICON_SIZE_MULT = {
   "sgr-a": 2, "m87": 2, "ton-618": 2,
   ...BLACK_HOLE_SIZE_MULT,
   // M87*'s artwork read much smaller than the other black holes' (the author, 2026-10-29); twice was
-  // too big, and 1.4×: 1.15× it is; TON 618 a bit bigger
-  "m87": BLACK_HOLE_SIZE_MULT["m87"] * 1.15,
+  // too big, and 1.4×, and 1.15×: 20% under that, 0.92×, it is; TON 618 a bit bigger
+  "m87": BLACK_HOLE_SIZE_MULT["m87"] * 0.92,
   "ton-618": BLACK_HOLE_SIZE_MULT["ton-618"] * 1.5,
 };
 
