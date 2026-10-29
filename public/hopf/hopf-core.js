@@ -12,6 +12,8 @@
 // (0,1) are meridian rings of the torus: none of them link, the neutral case.
 // =============================================================
 import { MOLECULES } from './molecules.js';
+// the big molecules' data (~1 MB): loaded with this module, which the site only loads in the videos
+const BIG = await import('./big-molecules.js').then(m => m.BIG, () => ({}));
 const TAU = Math.PI * 2;
 
 function fiberPoint(f, th) {
@@ -175,7 +177,9 @@ export const LOOK = {
   orbital: '1s',                     // rebuild: hydrogen and deuterium's orbital
   showNucleus: true, showCloud: true,
   cutaway: 0,
-  bonds: 0.35,                       // molecules' bonds, faint lines between bonded nuclei                        // 0 … 1: how much of the cloud's near half is cut away, to see the shells inside
+  bonds: 0.35,                       // molecules' bonds, faint lines between bonded nuclei
+  backbone: 0.8, backboneWidth: 0.006,   // big molecules: each chain's backbone, a glowing tube
+  sparkle: 0.5,                      // big molecules: the atoms' glows                        // 0 … 1: how much of the cloud's near half is cut away, to see the shells inside
   electronGain: 2.15,                // the electron's own woven torus
   electronCircles: 54,               // rebuild
   electronTorus: 0.785,              // rebuild: η of its torus, small = thin ring, π/4 = the round one
@@ -966,6 +970,72 @@ const SMALL_MOLECULES = [
   ['atp', 'ATP', 'Adenosine triphosphate, the cell\'s energy currency', 'The energy is released by breaking off the last of its three phosphates.'],
   ['fullerene-c60', 'Fullerene C₆₀', 'Sixty carbons in a football: 12 pentagons, 20 hexagons', 'Bonds 1.42 Å on average (they alternate 1.40 and 1.45); the cage is 7 Å across, hollow inside.'],
 ];
+// Big molecules (DNA, proteins, the ribosome): too many atoms to treat one by one, so
+// scripts/molecules/build-big-molecules.mjs reduces each to its chains' backbones,
+// landmark atoms and up to 2,500 of its atoms (public/hopf/big-molecules.js). Drawn at
+// linear scale: each backbone a glowing tube, each atom a little glow.
+const BACKBONE = { protein: ['plusColor', 'minusColor', '#7dffb0', '#ffb46e', '#ff6fae'], nucleic: ['#ffa030', '#ffc061'] };
+// a smooth curve (Catmull–Rom) through points, at u in [0, 1]
+function spline(P, u) {
+  const n = P.length - 1, x = Math.min(n - 1e-9, Math.max(0, u * n)), i = Math.floor(x), t = x - i;
+  const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(n, i + 2)];
+  return [0, 1, 2].map(k => 0.5 * (2 * p1[k] + (p2[k] - p0[k]) * t + (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t * t + (3 * p1[k] - p0[k] - 3 * p2[k] + p3[k]) * t * t * t));
+}
+function bigMolecule([id, name, sub, why, source]) {
+  const D = BIG[id];
+  if (!D) return null;
+  return {
+    id, name, sub, family: 'Atoms', why: why + ' At this scale an atom\'s electron cloud is too small to show its weave, so each atom is a little glow in its element\'s colour (a sample of them, for the biggest); the tubes are the chains\' backbones.',
+    chips: [['Atoms', D.atoms.toLocaleString('en')], ['Structure', source], ['Tubes', 'backbones'], ['Glows', 'atoms']],
+    viewOpts: ATOM_LIGHT, N: 64, pitch: 0.35, view: [], drift: [],
+    additive: false, frame: { center: [0, 0, 0], radius: 0.92 },
+    make() {
+      const L = k => LOOK[k], { R } = D;
+      const fibers = [], pic = p => [p[0] / R, p[1] / R, p[2] / R];
+      // backbones, in pieces of 30 points (overlapping by one) so the samples keep up with the turns;
+      // the more pieces overlap, the dimmer each (the ribosome's hundreds would burn white)
+      const counts = { protein: 0, nucleic: 0 };
+      const pieces = D.chains.reduce((n, ch) => n + Math.ceil(ch.pts.length / 3 / 29), 0), dim = Math.min(1, 5 / Math.sqrt(pieces));
+      for (const ch of D.chains) {
+        const pts = [];
+        for (let k = 0; k < ch.pts.length; k += 3) pts.push(pic(ch.pts.slice(k, k + 3)));
+        const pal = BACKBONE[ch.kind], c = pal[counts[ch.kind]++ % pal.length];
+        for (let a = 0; a < pts.length - 1; a += 29) {
+          const seg = pts.slice(a, a + 30);
+          if (seg.length < 2) continue;
+          fibers.push({
+            open: true, glow: true, spin: 0, flat: 1, get width() { return L('backboneWidth'); }, intensity: () => L('backbone') * dim,
+            curve: u => spline(seg, u), color: () => hexColor(c.startsWith('#') ? c : L(c)),
+          });
+        }
+      }
+      // the atoms: at this scale an atom's cloud is far too small to show its Hopf circles
+      // (the author, 2026-10-29), so each is a little glow about an atom across (1.4 Å),
+      // its element's colour over the electron colour; landmarks (the irons) brighter
+      const glow = (p, r, el, k, bright) => ({
+        glow: true, spin: 0, flat: 1, width: r, intensity: () => L('sparkle') * bright,
+        curve: u => addv(p, turn([0.5 * r * Math.cos(TAU * u), 0, 0.5 * r * Math.sin(TAU * u)], k, 1.1 * k)),
+        color: () => mixc(hexColor(L('plusColor')), hexColor(ELEMENT_DOT[el] || (el === 'FE' ? '#ff8c1a' : '#9fa8b8')), 0.45),
+      });
+      const atomR = 1.4 / R, each = Math.min(1, 12 / Math.sqrt(D.dots.length));
+      D.dots.forEach(([el, ...p], k) => fibers.push(glow(pic(p), atomR, el, k, 0.5 * each)));
+      D.marks.forEach(([el, ...p], k) => fibers.push(glow(pic(p), 2.2 * atomR, el, k, 3)));
+      return { fibers, solidCount: 0, step() {} };
+    },
+  };
+}
+const BIG_MOLECULES = [
+  ['dna', 'DNA', 'The double helix: two strands of sugar and phosphate, the base pairs between them',
+    'Ideal B-form DNA, 36 base pairs: one turn every 10 pairs (3.4 nm), 2 nm across; the orange tubes are the two sugar–phosphate strands, the rungs the base pairs.', 'ideal B-DNA'],
+  ['insulin', 'Insulin', 'The hormone that lets cells take in sugar',
+    'Insulin as the pancreas stores it (PDB 4INS): insulin molecules, each an A chain of 21 amino acids and a B chain of 30, gathered around zinc ions (the grey dots).', 'PDB 4INS'],
+  ['hemoglobin', 'Hemoglobin', 'The protein that carries oxygen in blood',
+    'Human hemoglobin (PDB 4HHB): four chains, two α and two β, each folded around a heme whose iron atom (the four orange dots) holds an oxygen molecule.', 'PDB 4HHB'],
+  ['antibody-igg', 'Antibody (IgG)', 'The Y-shaped protein that marks invaders',
+    'A whole IgG antibody (PDB 1IGT): two heavy and two light chains in a Y; the tips of its two arms grab the invader, its stem signals immune cells.', 'PDB 1IGT'],
+  ['ribosome', 'Ribosome', 'The machine that reads RNA and builds proteins',
+    'The E. coli 70S ribosome (PDB 4YBB): a small and a large subunit, two-thirds RNA (the orange tubes) and one-third protein (the others), about 20 nm across.', 'PDB 4YBB'],
+];
 const ATOMS = [
   atom({ id: 'hydrogen', name: 'Hydrogen', sub: 'Hydrogen-1: one proton, one electron', current: '/content/icons/hydrogen.webp',
     chips: [['Electron', '1 · ground state 1s'], ['Lines', 'electron (1,−1) Hopf circles'], ['Scale', 'log radius, rings every ×10']],
@@ -989,6 +1059,7 @@ const ATOMS = [
     electrons: [...electronsOf(8), ...WATER_H.map(at => ({ n: 1, l: 0, m: 0, Z: 1, occ: 1, h: true, at }))], extentA0: OH_FM / BOHR_FM + 3,
     balls: WATER_BALLS }),
   ...SMALL_MOLECULES.map(molecule),
+  ...BIG_MOLECULES.map(bigMolecule).filter(Boolean),
   ...['2s', '2p', '3p', '3d z²', '3d xz', '4f z³'].map(o => {
     const [n, l, m] = ORBITALS[o];
     return atom({ id: `hydrogen-${n}${l}${m}`, name: `Hydrogen · ${o}`, sub: 'Excited hydrogen', why: ORBITAL_WHY,
@@ -1659,6 +1730,7 @@ export const CHART_ICONS = {
   // chart object, only the videos' pictures (narration `pic`)
   hydrogen: { id: 'hydrogen', file: 'hydrogen', video: true }, deuterium: { id: 'deuterium', file: 'deuterium', video: true },
   ...Object.fromEntries(['helium', 'carbon', 'oxygen', 'iron', 'gold', 'uranium', 'oganesson',
-    'glucose', 'adenine-a', 'guanine-g', 'cytosine-c', 'thymine-t', 'atp', 'fullerene-c60'].map(s => [s, { id: s, file: s, video: true }])),
+    'glucose', 'adenine-a', 'guanine-g', 'cytosine-c', 'thymine-t', 'atp', 'fullerene-c60',
+    'dna', 'insulin', 'hemoglobin', 'antibody-igg', 'ribosome'].map(s => [s, { id: s, file: s, video: true }])),
   'water-h2o': { id: 'water', file: 'water-h2o', video: true },
 };

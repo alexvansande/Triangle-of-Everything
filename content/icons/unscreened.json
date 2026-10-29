@@ -117,8 +117,7 @@
   "backing": "soft"
  },
  "hemoglobin": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "higgs": {
   "backing": "soft"
@@ -130,8 +129,7 @@
   "backing": "soft"
  },
  "insulin": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "iron": {
   "backing": "soft"
