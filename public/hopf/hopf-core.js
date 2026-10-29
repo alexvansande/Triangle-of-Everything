@@ -78,6 +78,14 @@ const FPC = 409;
 // its [colour, intensity] from where each sample sits (and u).
 function sampleFiber(f, M, flow, N, widthScale, radius, time, out, k, W, TW) {
   const rowBase = (k % FPC) * ROWS, x0 = Math.floor(k / FPC) * W;
+  // off(): fully dark this frame (a nucleon's quarks at the coarsest probe): zero
+  // its widths once and skip the work until it lights again
+  if (f.off && f.off()) {
+    if (!f.zeroed) for (let i = 0; i <= N; i++) { const o = (rowBase * TW + x0 + i) * 4; out[o + 3] = 0; out[o + 3 * TW * 4 + 3] = 0; }
+    f.zeroed = true;
+    return null;
+  }
+  f.zeroed = false;
   const P = [], T = [];
   for (let i = 0; i <= N; i++) {
     if (f.curve) P.push(f.curve(i / N, flow));
@@ -166,7 +174,8 @@ export const LOOK = {
   plusColor: '#46dcff', minusColor: '#9a5aff', coreColor: '#f0e6ff', hColor: '#006eff',  // hColor: hydrogen's electrons in a molecule
   orbital: '1s',                     // rebuild: hydrogen and deuterium's orbital
   showNucleus: true, showCloud: true,
-  cutaway: 0,                        // 0 … 1: how much of the cloud's near half is cut away, to see the shells inside
+  cutaway: 0,
+  bonds: 0.35,                       // molecules' bonds, faint lines between bonded nuclei                        // 0 … 1: how much of the cloud's near half is cut away, to see the shells inside
   electronGain: 2.15,                // the electron's own woven torus
   electronCircles: 54,               // rebuild
   electronTorus: 0.785,              // rebuild: η of its torus, small = thin ring, π/4 = the round one
@@ -409,7 +418,7 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
     // valence quarks: up (2,3) trefoils and down (−1,3) coils, drawn as tiny symbols
     const qColor = k => PURE[st.perm[k]];
     QUARKS.forEach(([p, q], k) => fibers.push({
-      p, q, spin: 0.5, width: 0.028, intensity: () => 1.5 * L('quarks') * st.mid, taper: () => st.qv,
+      p, q, spin: 0.5, width: 0.028, intensity: () => 1.5 * L('quarks') * st.mid, taper: () => st.qv, off: () => st.mid * st.qv <= 0,
       curve: u => addv(st.Q[k] || [0, 0, 0], turn(torusKnot(p, q, 0.075 * st.qs * st.qv, u), st.t * (1.3 + 0.4 * k) + k * 2, st.t * (0.9 + 0.3 * k) + k)),
       color: () => qColor(k),
     }));
@@ -417,7 +426,7 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
     // flux-tube Y from each quark to the Fermat point, as fat as it is long
     for (let k = 0; k < 3; k++) fibers.push({
       open: true, glow: true, spin: 0, flat: 1, width: 0,
-      intensity: () => 0.9 * st.mid,
+      intensity: () => 0.9 * st.mid, off: () => st.mid <= 0,
       taper: u => Math.pow(Math.sin(Math.PI * u), 0.3),
       curve: u => mixc(st.Q[k] || [0, 0, 0], st.J, u),
       color: () => neutral ? mixc(qColor(k), NEUTRAL, 0.85 * L('neutronGrey')) : qColor(k),
@@ -426,7 +435,7 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
     // the gluon that carries a colour swap: a quick wavy flash between two quarks
     fibers.push({
       open: true, glow: true, spin: 0, flat: 1, width: 0.035,
-      intensity: () => st.swap ? 2.2 * st.mid * Math.sin(Math.PI * st.swap.f) ** 2 : 0,
+      intensity: () => st.swap ? 2.2 * st.mid * Math.sin(Math.PI * st.swap.f) ** 2 : 0, off: () => !st.swap || st.mid <= 0,
       taper: u => Math.pow(Math.sin(Math.PI * u), 0.5),
       curve: u => {
         if (!st.swap) return [0, 0, 0];
@@ -466,7 +475,7 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
       const show = () => item.env * st.hi * smooth(i / SEA - 0.15, i / SEA + 0.02, st.hi);
       if (gluon) fibers.push({
         glow: true, open: false, spin: 0, flat: 1, width: 0.012,
-        intensity: () => 1.6 * show(),
+        intensity: () => 1.6 * show(), off: () => show() <= 0,
         curve: u => {
           const r = 0.042 * (0.6 + 0.4 * item.env) * (1 + 0.25 * Math.cos(8 * TAU * u + 6 * st.t));
           return addv(item.pos, turn([r * Math.cos(TAU * u), 0.02 * Math.sin(8 * TAU * u), r * Math.sin(TAU * u)], item.ay, item.ax));
@@ -475,7 +484,7 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
       });
       else for (const side of [1, -1]) fibers.push({
         glow: true, open: false, spin: 0, flat: 1, width: 0.014,
-        intensity: () => 2.2 * show(),
+        intensity: () => 2.2 * show(), off: () => show() <= 0,
         curve: u => {
           const sep = 0.1 * Math.sin(Math.PI * item.f);
           return addv(addv(item.pos, scale(item.dir, side * sep)), turn([0.028 * Math.cos(TAU * u), 0, 0.028 * Math.sin(TAU * u)], item.ay, item.ax));
@@ -687,13 +696,14 @@ const hexColor = h => { if (!colorMemo.has(h)) colorMemo.set(h, hexLin(h)); retu
 // log scale): one log ball per atom, { at (picture), R (picture radius),
 // edgeFm, nuclei, electrons } with nuclei and electrons about the atom's own
 // centre; it replaces the single ball about the origin.
-function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, balls, current, style = {} }) {
-  const L = styled(style);
+// fixed: settings no one overrides (a molecule is always drawn at linear scale)
+function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, balls, bonds = [], frame = 1.05, current, style = {}, fixed = {} }) {
+  const S = styled(style), L = k => fixed[k] ?? S(k);
   const ballsOf = els => balls || [{ at: [0, 0, 0], R: 1, edgeFm: LOG_RMAX, nuclei, electrons: els }];
   return {
     id, name, sub, current, family: 'Atoms', chips, why, viewOpts: ATOM_LIGHT,
     N: 80, pitch: 0.6, view: [], drift: [],
-    additive: false, frame: { center: [0, 0, 0], radius: 1.05 },
+    additive: false, frame: { center: [0, 0, 0], radius: frame },
     // [label (the first ball's only), radius, centre] for each ring
     get ticks() {
       if (!L('logScale')) return [];
@@ -822,6 +832,13 @@ function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, bal
           color: () => PALE,
         });
       }
+      // bonds (molecules): [i, j] between nuclei i and j, drawn as faint lines
+      if (!logScale) for (const [i, j] of bonds) fibers.push({
+        open: true, glow: true, spin: 0, flat: 1, width: 0.012, intensity: () => L('bonds'),
+        taper: u => smooth(0.12, 0.3, u) * smooth(0.12, 0.3, 1 - u),
+        curve: u => mixc(nuc[i].off, nuc[j].off, u),
+        color: () => mixc(hexColor(L('plusColor')), PALE, 0.5),
+      });
       // the ruler
       for (const [label, x, at] of this.ticks) fibers.push({
         glow: true, spin: 0, flat: 1, width: 0.004, intensity: () => L('rings') * (label ? 1 : 0.6),
@@ -921,9 +938,13 @@ const DOTS = Object.fromEntries(Object.keys(ELEMENT_DOT).map(el => [el, { id: `d
   })),
 }) }]));
 const ANGSTROM_FM = 1e5;
+// covalent radii (Å): two atoms closer than 1.15× their sum are bonded
+const COVALENT = { H: 0.31, C: 0.76, N: 0.71, O: 0.66, P: 1.07, S: 1.05 };
+const bondsOf = atoms => atoms.flatMap((a, i) => atoms.slice(i + 1).map((b, k) => [i, i + 1 + k, b])
+  .filter(([, , b]) => Math.hypot(a[1] - b[1], a[2] - b[2], a[3] - b[3]) < 1.15 * (COVALENT[a[0]] + COVALENT[b[0]])).map(([i, j]) => [i, j]));
 const MOLECULE_WHY = 'A molecule\'s outer electrons, woven from the electron\'s own Hopf circles, each lit by the electron density where it passes; the dots are the nuclei, in their elements\' colours (carbon pale, oxygen red, nitrogen blue, phosphorus orange, hydrogen white). The atoms sit at their real 3D positions (PubChem). The cloud is the sum of each atom\'s own outer shell: real bonding shifts a little of it into the bonds, which this does not show. Drawn to scale, so the nuclei, really 100,000 times smaller than the cloud, are shown much too big.';
 function molecule([id, name, sub, note]) {
-  const atoms = MOLECULES[id], R = Math.max(...atoms.map(a => Math.hypot(a[1], a[2], a[3]))) + 1.3;
+  const atoms = MOLECULES[id], R = Math.max(...atoms.map(a => Math.hypot(a[1], a[2], a[3]))) + 0.8;
   const counts = {};
   for (const [e] of atoms) counts[e] = (counts[e] || 0) + 1;
   const formula = Object.entries(counts).map(([e, n]) => e + (n > 1 ? String(n).split('').map(d => '₀₁₂₃₄₅₆₇₈₉'[d]).join('') : '')).join('');
@@ -934,7 +955,7 @@ function molecule([id, name, sub, note]) {
       const els = electronsOf(Z_OF[e], [x * ANGSTROM_FM, y * ANGSTROM_FM, z * ANGSTROM_FM]), outer = Math.max(...els.map(t => t.n));
       return els.filter(t => t.n === outer).map(t => ({ ...t, h: e === 'H' }));
     }),
-    extentA0: R / 0.529177, style: { logScale: false } });
+    bonds: bondsOf(atoms), extentA0: R / 0.529177, frame: 0.82, fixed: { logScale: false } });
 }
 const SMALL_MOLECULES = [
   ['glucose', 'Glucose', 'C₆H₁₂O₆, the sugar cells burn, in its ring form', 'In water nearly all glucose closes into this six-membered ring (β-D-glucopyranose).'],
@@ -1637,4 +1658,7 @@ export const CHART_ICONS = {
   // atoms are drawn live only in the videos (src/hopf-icons.js); deuterium has no
   // chart object, only the videos' pictures (narration `pic`)
   hydrogen: { id: 'hydrogen', file: 'hydrogen', video: true }, deuterium: { id: 'deuterium', file: 'deuterium', video: true },
+  ...Object.fromEntries(['helium', 'carbon', 'oxygen', 'iron', 'gold', 'uranium', 'oganesson',
+    'glucose', 'adenine-a', 'guanine-g', 'cytosine-c', 'thymine-t', 'atp', 'fullerene-c60'].map(s => [s, { id: s, file: s, video: true }])),
+  'water-h2o': { id: 'water', file: 'water-h2o', video: true },
 };

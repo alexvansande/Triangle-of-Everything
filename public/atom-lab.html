@@ -163,9 +163,13 @@ LAB.ignoreStyle = true;
 
 const SUBJECTS = [
   ['proton', 'proton-scale', 'Proton'], ['neutron', 'neutron-scale', 'Neutron'], ['electron', 'electron', 'Electron'],
-  ['hydrogen', 'hydrogen', 'Hydrogen'], ['deuterium', 'deuterium', 'Deuterium'], ['oxygen', 'oxygen', 'Oxygen'], ['water', 'water', 'Water'],
+  ['hydrogen', 'hydrogen', 'Hydrogen'], ['deuterium', 'deuterium', 'Deuterium'], ['helium', 'helium', 'Helium'],
+  ['carbon', 'carbon', 'Carbon'], ['oxygen', 'oxygen', 'Oxygen'], ['iron', 'iron', 'Iron'], ['gold', 'gold', 'Gold'],
+  ['uranium', 'uranium', 'Uranium'], ['water', 'water', 'Water'], ['glucose', 'glucose', 'Glucose'],
+  ['adenine', 'adenine-a', 'Adenine'], ['atp', 'atp', 'ATP'], ['c60', 'fullerene-c60', 'C₆₀'],
 ];
-const NUCLEONS = ['proton', 'neutron'], ATOMS = ['hydrogen', 'deuterium', 'oxygen', 'water'];
+const NUCLEONS = ['proton', 'neutron'], MOLECULES = ['glucose', 'adenine', 'atp', 'c60'];
+const ATOMS = ['hydrogen', 'deuterium', 'helium', 'carbon', 'oxygen', 'iron', 'gold', 'uranium', 'water', ...MOLECULES];
 const ALL = SUBJECTS.map(s => s[0]);
 // page-level settings: camera and light
 const VIEW_DEFAULT = { rotate: 0.12, bloom: 0.9, exposure: 1.1, width: 1, core: 0.8, drift: true, flow: true, labels: true };
@@ -196,7 +200,7 @@ const GROUPS = [
     { k: 'nucleusGain', label: 'Nucleus brightness in atoms', min: 0, max: 6, step: 0.05, used: ATOMS },
     { k: 'showNucleus', label: 'Show nucleus', type: 'check', used: ATOMS },
   ] },
-  { name: 'Electron cloud', note: 'atoms and water', used: ATOMS, rows: [
+  { name: 'Electron cloud', note: 'atoms and molecules', used: ATOMS, rows: [
     { k: 'orbital', label: 'Hydrogen electron state', type: 'select', rebuild: true, used: ['hydrogen', 'deuterium'],
       // energy of level n: −13.6 eV / n²
       options: Object.entries(ORBITALS).map(([o, [n]]) => [o, n === 1 ? `${o} · ground state` : `${o} · excited, ${(-13.6 / n / n).toFixed(2)} eV`]) },
@@ -213,8 +217,10 @@ const GROUPS = [
     { k: 'coreColor', label: 'Inner-shell colour', type: 'color', used: ['oxygen', 'water'] },
     { k: 'hColor', label: 'Hydrogens\' electrons', type: 'color', used: ['water'] },
     { k: 'showCloud', label: 'Show cloud', type: 'check' },
+    { k: 'cutaway', label: 'Cut away the near quarter', min: 0, max: 1, step: 0.01 },
+    { k: 'bonds', label: 'Bonds', min: 0, max: 1.5, step: 0.01, used: MOLECULES },
   ] },
-  { name: 'Scale', note: 'atoms and water', used: ATOMS, rows: [
+  { name: 'Scale', note: 'atoms and water (molecules are always linear)', used: ATOMS.filter(a => !MOLECULES.includes(a)), rows: [
     { k: 'logScale', label: 'Log scale', type: 'check', rebuild: true },
     { k: 'nucleusShare', label: 'Room for the nucleus', min: 0.05, max: 0.8, step: 0.01, rebuild: true, fmt: v => `${Math.round(v * 100)}%` },
     { k: 'linearNucleus', label: 'Nucleus size at linear scale', min: 0.02, max: 0.6, step: 0.01, rebuild: true, fmt: v => `${Math.round(v * 100)}%` },
