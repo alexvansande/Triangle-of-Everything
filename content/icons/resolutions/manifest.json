@@ -80,23 +80,19 @@
     ]
   },
   "adenine-a": {
-    "fingerprint": "4b01fa9c988143c6f909290930c5098e82d789ced2fbce1c0109291ae1141e07",
-    "baseWidth": 128,
-    "source": "content/icons/src/adenine-a.png",
-    "reason": "matching master",
-    "sourceDifference": 2.0457763671875,
+    "fingerprint": "a9839e2cb5d8059d2ebfcdd49121721d769d8603c11df2f5949cc2a5fa02dc1f",
+    "baseWidth": 512,
+    "source": "content/icons/adenine-a.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/adenine-a.webp"
+      },
       {
         "width": 256,
         "path": "256/adenine-a.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/adenine-a.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/adenine-a.webp"
       }
     ]
   },
@@ -248,12 +244,21 @@
     ]
   },
   "atp": {
-    "fingerprint": "189b3cf4c9f84c867e7f73eda7baff13ed3bc24ffa71d0f476cbc95a797b187b",
-    "baseWidth": 128,
+    "fingerprint": "57ce94d510a988a96c731a400cb39cee6da6afd6a4d2c123f3ba80467998f4b6",
+    "baseWidth": 512,
     "source": "content/icons/atp.webp",
-    "reason": "source differs from current icon",
-    "sourceDifference": 62.600626627604164,
-    "variants": []
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/atp.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/atp.webp"
+      }
+    ]
   },
   "bacillus-subtilis": {
     "fingerprint": "a0d196d81216a36dcfe62784067102f0d3520abc7802d38d5a120b53d0b7c048",
@@ -681,23 +686,19 @@
     ]
   },
   "carbon": {
-    "fingerprint": "e14a8289d611efdd80430f1e9518ac302f4bb8028ab35a3b13f7ef408ee728b9",
-    "baseWidth": 128,
-    "source": "content/icons/src/carbon.png",
-    "reason": "matching master",
-    "sourceDifference": 2.4117024739583335,
+    "fingerprint": "879404699214b86f61604b6b386be2a4c5c2591595836dde1e987e51689ecd67",
+    "baseWidth": 512,
+    "source": "content/icons/carbon.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/carbon.webp"
+      },
       {
         "width": 256,
         "path": "256/carbon.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/carbon.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/carbon.webp"
       }
     ]
   },
@@ -904,23 +905,19 @@
     ]
   },
   "cytosine-c": {
-    "fingerprint": "53fb7c147b15463d6ab143f050bd3c450913cc0dcebbfc6bfcfe003ddfd81b4c",
-    "baseWidth": 128,
-    "source": "content/icons/src/cytosine-c.png",
-    "reason": "matching master",
-    "sourceDifference": 2.1545206705729165,
+    "fingerprint": "003dc5bd69d8793b6120ae60c7b8590eca0d65852148386623ed2f825038450e",
+    "baseWidth": 512,
+    "source": "content/icons/cytosine-c.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/cytosine-c.webp"
+      },
       {
         "width": 256,
         "path": "256/cytosine-c.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/cytosine-c.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/cytosine-c.webp"
       }
     ]
   },
@@ -1274,23 +1271,19 @@
     ]
   },
   "fullerene-c60": {
-    "fingerprint": "509a7c2fca85121ad6f3b588481300877fe4183938bce123b83000193e309aed",
-    "baseWidth": 128,
-    "source": "content/icons/src/fullerene-c60.png",
-    "reason": "matching master",
-    "sourceDifference": 3.1578369140625,
+    "fingerprint": "1c27360eb4e7fdfeb8e952d902d9d19f9d4a460e32a8d4d7d4e53f2e5ab12ac3",
+    "baseWidth": 512,
+    "source": "content/icons/fullerene-c60.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/fullerene-c60.webp"
+      },
       {
         "width": 256,
         "path": "256/fullerene-c60.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/fullerene-c60.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/fullerene-c60.webp"
       }
     ]
   },
@@ -1358,12 +1351,21 @@
     "variants": []
   },
   "glucose": {
-    "fingerprint": "f398f7e93314c44cc6a9c763bb22b4e23bd42633fc9797b6501eb3156eb0ffba",
-    "baseWidth": 128,
+    "fingerprint": "4d5fcc50a867cc3a314f6cba05964e3afe9f5eaa47363a4f39aff0ea1fd25031",
+    "baseWidth": 512,
     "source": "content/icons/glucose.webp",
-    "reason": "source differs from current icon",
-    "sourceDifference": 58.949808756510414,
-    "variants": []
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/glucose.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/glucose.webp"
+      }
+    ]
   },
   "gluon": {
     "fingerprint": "963b0984bd012be054e2df018f1cf257588fe6555aa81680d3c50447f15728b2",
@@ -1383,23 +1385,19 @@
     ]
   },
   "gold": {
-    "fingerprint": "d9b4b10c75696458dd256305ef231a3ce7b69cf7aa88bccabec2c70b78cdfc24",
-    "baseWidth": 128,
-    "source": "content/icons/src/gold.png",
-    "reason": "matching master",
-    "sourceDifference": 3.2374064127604165,
+    "fingerprint": "3fbab1ce197b2555ee36f18ee3ef70d9b69529b4a88daae2f6926c66cb6d59ca",
+    "baseWidth": 512,
+    "source": "content/icons/gold.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/gold.webp"
+      },
       {
         "width": 256,
         "path": "256/gold.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/gold.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/gold.webp"
       }
     ]
   },
@@ -1505,23 +1503,19 @@
     ]
   },
   "guanine-g": {
-    "fingerprint": "78164344618044c4499f5510da68e4999af919e26532d0c92b7f57963de056e7",
-    "baseWidth": 128,
-    "source": "content/icons/src/guanine-g.png",
-    "reason": "matching master",
-    "sourceDifference": 2.3920084635416665,
+    "fingerprint": "e61443d000651463d85eea27e0fef462e87d83b44bc0fe9d61d85665bdaae7c7",
+    "baseWidth": 512,
+    "source": "content/icons/guanine-g.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/guanine-g.webp"
+      },
       {
         "width": 256,
         "path": "256/guanine-g.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/guanine-g.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/guanine-g.webp"
       }
     ]
   },
@@ -1589,23 +1583,19 @@
     ]
   },
   "helium": {
-    "fingerprint": "26ee691a2882ee21eb2848749a92748a70bf0f425a5de80d4ce086c83ec0bd11",
-    "baseWidth": 128,
-    "source": "content/icons/src/helium.png",
-    "reason": "matching master",
-    "sourceDifference": 2.16436767578125,
+    "fingerprint": "b95b9d0e367fe49a5ef4d444aad66540fb31d479e5b1e1765b59344c6d1667bc",
+    "baseWidth": 512,
+    "source": "content/icons/helium.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/helium.webp"
+      },
       {
         "width": 256,
         "path": "256/helium.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/helium.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/helium.webp"
       }
     ]
   },
@@ -1795,7 +1785,7 @@
     ]
   },
   "hydrogen": {
-    "fingerprint": "6613374ccae88f6b64f4f7d26dc9e471fb302ebe7f99613ba274051d69b69440",
+    "fingerprint": "3d5b6e96d3be416f78e44e31df20a1400a02dbff9604f6294139065de5b23b2a",
     "baseWidth": 512,
     "source": "content/icons/hydrogen.webp",
     "reason": "no larger source",
@@ -1900,23 +1890,19 @@
     ]
   },
   "iron": {
-    "fingerprint": "edb7f441815af42232d413411fc7dce1e00c152d893e0f1a2a85bf30c13c3647",
-    "baseWidth": 128,
-    "source": "content/icons/src/iron.png",
-    "reason": "matching master",
-    "sourceDifference": 3.14056396484375,
+    "fingerprint": "194035b0f1c295bd5aaa5e50cf23523492e52f2bf7e7f7b58a92345a1b9720ee",
+    "baseWidth": 512,
+    "source": "content/icons/iron.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/iron.webp"
+      },
       {
         "width": 256,
         "path": "256/iron.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/iron.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/iron.webp"
       }
     ]
   },
@@ -2805,23 +2791,19 @@
     ]
   },
   "oxygen": {
-    "fingerprint": "2150e15d1bb94ff9c88826b3f22e5c047b532aa24f1bdb0e1d4b44daed9a0df3",
-    "baseWidth": 128,
-    "source": "content/icons/src/oxygen.png",
-    "reason": "matching master",
-    "sourceDifference": 2.5301717122395835,
+    "fingerprint": "cd8aa10c17457435e2679bcfd168a5a6423b4dc0f4deea4359951ecc67f818a3",
+    "baseWidth": 512,
+    "source": "content/icons/oxygen.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/oxygen.webp"
+      },
       {
         "width": 256,
         "path": "256/oxygen.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/oxygen.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/oxygen.webp"
       }
     ]
   },
@@ -3559,23 +3541,19 @@
     ]
   },
   "thymine-t": {
-    "fingerprint": "510feccab2a80bab69019dca82ef77c5aad2fd6858c2e5ad2f886e28abe964a4",
-    "baseWidth": 128,
-    "source": "content/icons/src/thymine-t.png",
-    "reason": "matching master",
-    "sourceDifference": 2.2357177734375,
+    "fingerprint": "99bc63cbd07086b6eeda8716a4f05d6f227144dbd48f2bdc0ad00fb5a6deba0c",
+    "baseWidth": 512,
+    "source": "content/icons/thymine-t.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/thymine-t.webp"
+      },
       {
         "width": 256,
         "path": "256/thymine-t.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/thymine-t.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/thymine-t.webp"
       }
     ]
   },
@@ -3820,23 +3798,19 @@
     ]
   },
   "uranium": {
-    "fingerprint": "16e5a74176d56a1ffe6c2cb5981affad7eed3907914ec19594822b4dd6bc173e",
-    "baseWidth": 128,
-    "source": "content/icons/src/uranium.png",
-    "reason": "matching master",
-    "sourceDifference": 3.31024169921875,
+    "fingerprint": "21c986c307f51767e7abbd6ca104e2e326b295f707406e738538fe9309fd9796",
+    "baseWidth": 512,
+    "source": "content/icons/uranium.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/uranium.webp"
+      },
       {
         "width": 256,
         "path": "256/uranium.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/uranium.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/uranium.webp"
       }
     ]
   },
@@ -4001,23 +3975,19 @@
     ]
   },
   "water-h2o": {
-    "fingerprint": "df3c76784200b60357e54e2d5f33b8a55c099b4c96ee49d9c4c6468d42687b85",
-    "baseWidth": 128,
-    "source": "content/icons/src/water-h2o.png",
-    "reason": "matching master",
-    "sourceDifference": 2.3192342122395835,
+    "fingerprint": "8b6d4fd49f3de975a66868cf1b9c2b36574f8b38e3d0295bf0276ac52ded9978",
+    "baseWidth": 512,
+    "source": "content/icons/water-h2o.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
     "variants": [
+      {
+        "width": 128,
+        "path": "128/water-h2o.webp"
+      },
       {
         "width": 256,
         "path": "256/water-h2o.webp"
-      },
-      {
-        "width": 512,
-        "path": "512/water-h2o.webp"
-      },
-      {
-        "width": 1024,
-        "path": "1024/water-h2o.webp"
       }
     ]
   },
@@ -5902,6 +5872,23 @@
       {
         "width": 256,
         "path": "256/deuterium.webp"
+      }
+    ]
+  },
+  "oganesson": {
+    "fingerprint": "603acabdec72be3f3094ca9b6ad96239c82bf5aa8afeeb84e075745171bc01ae",
+    "baseWidth": 512,
+    "source": "content/icons/oganesson.webp",
+    "reason": "no larger source",
+    "sourceDifference": null,
+    "variants": [
+      {
+        "width": 128,
+        "path": "128/oganesson.webp"
+      },
+      {
+        "width": 256,
+        "path": "256/oganesson.webp"
       }
     ]
   }
