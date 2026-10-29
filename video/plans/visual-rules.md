@@ -97,6 +97,9 @@ cutaways could go is `cutaways.md`; this file is the *why*.
 - **Same density, same diagonal** (author, 2026-10-29): to show two things share a density, whip
   between them along their density line (`whip`, a straight move at the same zoom), so the
   diagonals stay put on screen while the objects change (video 3: neutron stars and neutrons).
+- **Particles get the energy ruler** (author, 2026-10-29): whenever a video talks about particles
+  (or light) by their energy, show the energy ruler on the left (`energyAxis: true` on a cue, from
+  then on), the mass ruler's heights read as E = mc², in eV.
 - **Highlight what the chart actually shows.** Super-Jupiters and brown dwarfs sit in one
   column at Jupiter's size; Beta Pictoris b is a young, inflated planet drawn wider, so don't
   point at it as "same size": draw a vertical trend line up the column (`trend: [[r, m], …]`),

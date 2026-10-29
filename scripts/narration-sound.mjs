@@ -22,7 +22,7 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "narr-sound-"));
 for (const take of takes) {
   const p = await b.newPage();
   await p.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 120000 });   // not networkidle: a close opening view never reports idle
-  await p.waitForFunction("window.__narr", { timeout: 60000 });
+  await p.waitForFunction("window.__narr", { timeout: 180000 });   // (a take with the universe explorer can take over a minute to start on a slow machine)
   const tl = await p.evaluate("window.__narr.timeline()");
   await p.close();
   const f = path.join(tmp, `${take}.json`);

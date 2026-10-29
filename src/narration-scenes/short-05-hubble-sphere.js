@@ -1,6 +1,7 @@
 // =============================================================
-// Scene: short-05-hubble-sphere — video 5, re-recorded at home on 2026-10-27 (rec40;
-// video/short-05-hubble-sphere/; the rec29–31 take of 2026-10-21 is in git history). One density
+// Scene: short-05-hubble-sphere — video 5, re-recorded on 2026-10-29 (rec49, rec50; a recap of the
+// series in place of the old opening; video/short-05-hubble-sphere/; the rec40 take of 2026-10-27 and
+// the rec29–31 one are in git history). One density
 // line and the split; dead stars and the Schwarzschild limit; stars and nebulae; bigger
 // means emptier up to Laniakea and the voids; the second edge, expansion and the Hubble
 // line; the cosmic event horizon; the Hubble sphere on the black-hole line and why it
@@ -43,12 +44,14 @@ const UNIVERSE_NAMES = [
   [12.6, "1 billion ly", "1 billion light-years", 1.5],
   [14.8, "edge", "observable universe's edge", 4.2],   // (longer names find no room on the ring)
 ];
-const universeCues = () => [
-  ...ZOOM_OUT.map(([dt, ezoom, ease], i) => ({ at: "seeing it right now", offset: dt - 0.25,
-    explorer: { ezoom, ease, dur: (ZOOM_OUT[i + 1]?.[0] ?? dt + 3) - dt } })),
+// (anchored on a phrase; `k` scales the whole sequence's timing: 0.85 fits it between "46 billion" and
+// "the only object that falls outside our triangle" in the rec49/50 take)
+const universeCues = (at, k = 1) => [
+  ...ZOOM_OUT.map(([dt, ezoom, ease], i) => ({ at, offset: k * dt - 0.25,
+    explorer: { ezoom, ease, dur: k * ((ZOOM_OUT[i + 1]?.[0] ?? dt + 3) - dt) } })),
   ...UNIVERSE_NAMES.flatMap(([dt, key, text, hold]) => [
-    { at: "seeing it right now", offset: dt - 0.25, explorer: { labels: { [key]: text }, names: 1, dur: 0.5 } },
-    { at: "seeing it right now", offset: dt + hold - 0.25, explorer: { names: 0, dur: 0.5 } }]),
+    { at, offset: k * dt - 0.25, explorer: { labels: { [key]: text }, names: 1, dur: 0.5 } },
+    { at, offset: k * (dt + hold) - 0.25, explorer: { names: 0, dur: 0.5 } }]),
 ];
 const UNIVERSE_KEY = { key: [["microwave", "#ff6b5e"], ["far infrared", "#7ddc6f"], ["visible light", "#7fa2ff"]], y: 0.7 };   // above the captions, clear of the ring labels
 
@@ -75,132 +78,120 @@ export default {
     math: "mass", shard: "chart", radio: "radius", plop: "pop" },
 
   cues: [
-    // ── One line, and the split ──────────────────────────────
-    // a slow push in from the whole chart towards us
-    { at: "try to fit everything", offset: -0.4, cam: { obj: "Human", span: 26 }, dur: 14, drift: 0.02 },
-    { at: "log chart of mass and size", hl: [{ line: "triangle" }] },
-    { at: "this diagonal line", hl: [{ line: "water", label: "made of atoms" }, { obj: "Human", delay: 0.6 }] },
-    { at: "smallest", cam: { r: 3.2, m: 11, span: 14 },
-      hl: [{ line: "water" }, { obj: "Mouse" }, { obj: "Blue Whale", delay: 0.6 }] },
-    { at: "mount everest", cam: { r: 6.5, m: 21, span: 16 }, hl: [{ line: "water" }, { obj: "Mt. Everest" }, { obj: "Moon", delay: 0.5 }] },
-    { at: ["to a jupiter", "jupiter-sized planet"], cam: { r: 9.4, m: 29, span: 5 }, hl: [{ obj: "Jupiter" }] },
-    { at: "trend changes", cam: { r: 9.88, m: 30.7, span: 2.6 }, hl: [{ obj: "Jupiter", label: "Jupiter size" }] },
-    { at: "times jupiter's mass", hl: [{ obj: "Jupiter", label: false, place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" }] },
-    { at: "after brown dwarfs", cam: { r: 10, m: 32.5, span: 9 }, hl: [{ obj: "L Brown Dwarf", label: "brown dwarfs" }] },
-    { at: "to the left", cam: { r: 7, m: 33.5, span: 16 }, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "White Dwarf", label: "no normal matter", place: "above" }] },
-    { at: "dead stars",
-      // (the white dwarf's name above its own dot: on the left it read as the neutron star's, below it sat on the red dwarf)
-      hl: [{ obj: "White Dwarf", place: "above" }, { obj: "PSR J0030+0451", label: "neutron star", place: "left", delay: 0.8 }, { obj: "Stellar BH", label: "black hole", delay: 1.6 }] },
-    { at: "first limit", cam: { r: 11.5, m: 40, span: 16 }, dur: 3,
-      hl: [{ ...SCHW, label: "edge 1" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: false, delay: 0.4 }, { obj: "M87*", label: false, delay: 0.8 }, { obj: "Ton 618", label: false, delay: 1.2 }] },
-    { at: "called the schwarzschild", hl: [{ ...SCHW, label: "Schwarzschild radius" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: "black holes live on it" }, { obj: "M87*", label: false }, { obj: "Ton 618", label: false }] },
-    { at: "above or to the left", hl: [SCHW, { side: "left", of: "schwarzschild", label: "nothing" }] },
-    // the star as core + outer layers (as in videos 3 and 4), then the split: core to the
-    // neutron stars, the layers out to the supernova remnant
-    { at: "to the right we have stars", cam: { r: 12.4, m: 33.8, span: 14.5 }, clear: true,
-      hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4, core: true }, { obj: "Red Giant", label: "red giants", delay: 2.2 }] },
-    { at: "explode as supernovae", cam: { r: 12.4, m: 33.8, span: 18.5 }, dur: 1.6, hl: [{ path: "stellar-high-mass" }, { ...SN_SPLIT, coreLabel: "neutron star", shellLabel: "supernova" }] },
-    { at: "spreads out into space", cam: { r: 17, m: 35, span: 12 },
-      hl: [{ ...SN_SPLIT, draw: 0.01 }, { path: "remnant-to-nursery" }, { obj: "Supernova Remnant", label: false }, { obj: "Stellar Nursery", label: "new stars", delay: 0.6 }] },
+    // ── Where we are: the series so far (rec49's recap) ──────
+    { at: "exploring this chart", offset: -0.4, cam: { obj: "Human", span: 26 }, dur: 8, drift: 0.02 },
+    { at: "mass and size", hl: [{ line: "triangle" }] },
+    { at: "made of matter", hl: [{ line: "water", label: "made of atoms" }, { obj: "Human", delay: 0.4 }] },
+    { at: "once we reach stars", cam: { r: 10.5, m: 33, span: 12 }, dur: 1.6, hl: [{ line: "water" }, { obj: "Sun", label: "stars" }] },
+    { at: "dead remains", cam: { r: 8, m: 33.6, span: 14 }, dur: 1.4,
+      hl: [{ obj: "White Dwarf", place: "above" }, { obj: "PSR J0030+0451", label: "neutron star", place: "left", delay: 0.4 }, { obj: "Stellar BH", label: "black hole", delay: 0.8 }] },
+    { at: "to the right we have stars", cam: { r: 14, m: 34, span: 14 }, dur: 1.6,
+      hl: [{ obj: "Sun" }, { obj: "Red Giant", label: "red giants", delay: 0.6 }, { obj: "Supernova Remnant", label: "supernova remnants", delay: 1.2 }] },
+    { at: "the last video", cam: { r: 11.5, m: 40, span: 16 }, dur: 2.4, clear: true,
+      hl: [{ ...SCHW, label: "edge 1 · the black-hole line" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: false, delay: 0.4 }, { obj: "M87*", label: false, delay: 0.8 },
+        { obj: "Ton 618", label: false, delay: 1.2 }, { side: "left", of: "schwarzschild", label: "nothing", delay: 2 }] },
+    // to the right, up past the nebulae (the Hubble line hidden until it's named)
+    { at: "the next edge", cam: { r: 18, m: 39, span: 20 }, dur: 3, clear: true, hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Milky Way", label: false, delay: 0.8 }] },
 
     // ── Bigger means emptier ─────────────────────────────────
-    // a dive onto the nursery, the Pillars over its picture (lens), as in video 3
-    { at: "new generation", cam: { obj: "Stellar Nursery", span: 3 }, dur: 1.6 },
-    // the photo already coming in on the approach; the dive unwinds behind it while it fills the
-    // screen (dive.under), so it fades straight back to the chart: no zoom back out (author, 2026-10-27)
-    { at: "new generation", photo: "pillars", obj: "Stellar Nursery", dive: { in: 1.6, out: 2.5, photoAt: 0.4, under: true }, dur: 4.2, fadeIn: 0.9, fadeOut: 1.5,
-      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", turn: 0, hold: 0, fillDur: 1.6 },   // turn 0: Webb's pillars lean ~40°; kept tilted so they stay upright like the icon's
-      caption: "Pillars of Creation · Webb · 2022 · where stars are born" },
-    // after the Pillars, no more photos or dives: closer in (4 decades across) and one slow pan up
-    // all the way to the voids, the pictures allowed to overlap so there are plenty of them
-    // (`density` above 100) and the big things' pictures larger (main.js iconSizeCurve) (author, 2026-10-28)
-    { at: "mostly empty space", cam: { r: 19.6, m: 37.0, span: 4, glide: true }, dur: 2, clear: true, density: 118 },
-    { at: "globular clusters", hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
-    { at: "the less dense it is", cam: { r: 21.6, m: 41.4, span: 4, glide: true }, hl: [{ obj: "Globular Cluster", label: false }, { obj: "Dwarf Galaxy", label: false }, { obj: "Milky Way", label: false }] },
-    { at: "empty space between its stars", hl: [{ obj: "Milky Way", label: "~1 atom per cm³" }] },
+    // every diagonal a density (the series' own): atoms, neutrons (video 3), then emptier and emptier
+    { at: "every diagonal line", cam: { r: 14, m: 39, span: 30 }, dur: 2,
+      hl: [{ density: 0, label: "atoms · 1 g/cm³" }, { density: 14.36, label: "neutrons", delay: 0.6 }] },
+    { at: "neutron stars actually", hl: [{ density: 0 }, { density: 14.36, label: "neutron density" }, { obj: "PSR J0030+0451", label: "neutron stars" }] },
+    { at: "emptier and emptier", hl: [{ density: 0 }, { density: -24, label: "a galaxy · ~1 atom per cm³", delay: 0.3 }, { ...AVG, label: "the universe · ~5 atoms per m³", delay: 1.4 }] },
+    // closer in (4 decades across) and one slow pan up all the way to the voids, the pictures
+    // allowed to overlap so there are plenty of them (`density` above 100) (author, 2026-10-28)
+    { at: "the less dense it is", cam: { r: 19.6, m: 37.0, span: 4, glide: true }, dur: 2, clear: true, density: 118,
+      hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
+    { at: "between its stars", cam: { r: 21.6, m: 41.4, span: 4, glide: true }, hl: [{ obj: "Milky Way", label: "~1 atom per cm³" }] },
     { at: "the milky way", cam: { r: 22.5, m: 44.0, span: 4, glide: true }, hl: [{ obj: "Milky Way" }, { obj: "Andromeda (M31)", delay: 0.6 }] },
     { at: "local group", hl: [{ obj: "Milky Way", label: false }, { obj: "Andromeda (M31)", label: "local group" }] },
     // (the Bullet Cluster stands for the galaxy clusters)
-    { at: "galaxy clusters are even", cam: { r: 23.8, m: 46.4, span: 4, glide: true }, hl: [{ obj: "Bullet Cluster", label: "emptier still" }] },
-    { at: "empty space between them", hl: [{ obj: "Bullet Cluster", label: "Bullet Cluster" }] },
+    { at: "galaxy clusters", cam: { r: 23.8, m: 46.4, span: 4, glide: true }, hl: [{ obj: "Bullet Cluster", label: "emptier still" }] },
+    { at: "between them", hl: [{ obj: "Bullet Cluster", label: "Bullet Cluster" }] },
     { at: "superclusters", cam: { r: 25.5, m: 48.3, span: 4, glide: true }, hl: [{ obj: "Laniakea", label: "superclusters" }] },
     { at: "laniakea", hl: [{ obj: "Laniakea", label: "Laniakea · 100,000 galaxies" }] },
-    { at: "larger actually voids", cam: { r: 26.3, m: 49.6, span: 4, glide: true }, hl: [{ obj: "Laniakea", label: false }, { obj: "Boötes Void", label: "voids" }, { obj: "KBC Void", label: false, delay: 0.4 }] },
+    { at: "voids", cam: { r: 26.3, m: 49.6, span: 4, glide: true }, hl: [{ obj: "Laniakea", label: false }, { obj: "Boötes Void", label: "voids" }, { obj: "KBC Void", label: false, delay: 0.4 }] },
     { at: "not completely empty", hl: [{ obj: "Boötes Void", label: "emptier than average" }, { obj: "KBC Void", label: false }] },
-    { at: "what about anything bigger", cam: { r: 26.8, m: 51.0, span: 4.3, glide: true } },
+    { at: "anything be bigger", cam: { r: 26.8, m: 51.0, span: 4.3, glide: true } },
 
     // ── The second edge ──────────────────────────────────────
-    { at: "the second edge", cam: { r: 25, m: 51, span: 16 }, dur: 3, clear: true, density: null, hl: [SCHW, { ...HUB, label: "edge 2" }] },
-    { at: "that's the hubble sphere", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "Hubble sphere" }] },
-    { at: "speed limit", cam: { r: 24.5, m: 50, span: 16 }, hl: [{ ...HUB, label: "nothing travels faster than light" }] },
+    // only the line while the Hubble line is talked about; the Hubble sphere's own dot comes with
+    // its mass, at "here's where it lands" (the author's note in rec50, 2026-10-29)
+    { at: "the second edge", cam: { r: 25, m: 51, span: 16 }, dur: 3, clear: true, density: null, hideIcons: [HS],
+      hl: [SCHW, { ...HUB, label: "edge 2" }] },
+    { at: "that's the hubble sphere", hl: [SCHW, { ...HUB, label: "the Hubble sphere's edge" }] },
+    { at: "speed limit", hl: [{ ...HUB, label: "nothing travels faster than light" }] },
     { at: "space itself", hl: [{ ...HUB, label: "but space can outrun light" }] },
-    // a picture gaining pixels, on its own and full screen (no chart, no border growing): each
-    // pixel becomes four, the new ones fading in between ("raising the resolution", "into four")
-    { at: "pixels", hl: [{ pixels: { cell: 16, steps: [2.9, 6.3] } }] },
-    { at: "the further away", hl: [HUB, { obj: "Laniakea", label: false }, { arrow: true, from: { obj: "Laniakea" }, to: { obj: HS }, label: "farther, faster" }] },
-    { at: "speed of light", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "Hubble sphere · 14 billion ly" }] },
+    { at: "more space being created", hl: [{ ...HUB, label: "new space, everywhere" }] },
+    // a picture gaining pixels, on its own and full screen: each pixel becomes four
+    { at: "resolution of a photo", hl: [{ pixels: { cell: 16, steps: [2.6, 5.2] } }] },
+    { at: "further away", hl: [HUB, { obj: "Laniakea", label: false }, { arrow: true, from: { obj: "Laniakea" }, to: { obj: HS }, label: "farther, faster" }] },
+    { at: "speed of light", hl: [{ ...HUB, label: "here: as fast as light" }] },
 
     // ── The cosmic event horizon ─────────────────────────────
-    { at: "could never reach us", hl: [HUB, { obj: HS, label: "never reaches us?" }] },
-    { at: "itself is growing", hl: [HUB, { obj: HS, label: "the sphere grows · its light gets here" }] },
+    { at: "could never reach us", hl: [{ ...HUB, label: "their light never gets here?" }] },
+    { at: "also growing", hl: [{ ...HUB, label: "the sphere grows · their light gets here" }] },
     // the cosmic event horizon as a line like the Hubble line, a little to its right (16.7 vs 14.4
     // billion ly); its dot only comes with the mass, on the black-hole line (author, 2026-10-28)
-    { at: "second edge a little", cam: { r: 28.16, m: 55.45, span: 1.1 }, dur: 2.4, labels: false,
-      hl: [HUB, { obj: HS, label: "Hubble sphere", place: "left" }, { ...EHL, label: "cosmic event horizon", delay: 1.4 }] },
-    { at: "true edge", hl: [HUB, { obj: HS, label: false }, { ...EHL, label: "the edge of our universe" }] },
-    { at: "limit of the unknowable", hl: [HUB, { obj: HS, label: false }, { ...EHL, label: "the unknowable" }] },
+    { at: "real edge", cam: { r: 28.16, m: 55.45, span: 1.1 }, dur: 2.4, labels: false,
+      hl: [{ ...HUB, label: "Hubble line" }, { ...EHL, label: "cosmic event horizon", delay: 1.4 }] },
+    { at: "can ever affect us", hl: [HUB, { ...EHL, label: "the edge of our universe" }] },
+    { at: "limit of the unknowable", hl: [HUB, { ...EHL, label: "the unknowable" }] },
 
     // ── On the black-hole line ───────────────────────────────
-    { at: "add up everything", cam: { r: 27.9, m: 54, span: 9 }, labels: true, clear: true,
+    { at: "add up everything", cam: { r: 27.9, m: 54, span: 9 }, labels: true, clear: true, hideIcons: null,
       hl: [{ obj: HS, label: "everything inside the Hubble sphere" }, { mark: [EH.r, EH.m], color: EHL_COL, delay: 1.2 }] },
     // (the Hubble sphere unnamed here, so its mass readout gives the dot's name room)
     { at: "right on the black hole line", hl: [{ ...SCHW, label: "on the black-hole line" }, { obj: HS, label: false }, { mark: [EH.r, EH.m], color: EHL_COL, label: "cosmic event horizon" }] },
     { at: "inside a black hole", hl: [SCHW, { obj: HS, label: "a black hole?" }] },
-    { at: "kind of horizons", hl: [{ ...SCHW, label: "event horizons" }, { ...HUB, label: false }, { obj: HS, label: false }] },
+    { at: "kind of a horizon", hl: [{ ...SCHW, label: "event horizons" }, { ...HUB, label: false }, { obj: HS, label: false }] },
     // down the black-hole line to M87*, a dive with the EHT photo over its picture (lens);
     // then back up to the Hubble sphere
-    { at: "kind of horizons", offset: 0.5, cam: { obj: "M87*", span: 3 }, dur: 2.2,
+    { at: "kind of a horizon", offset: 0.5, cam: { obj: "M87*", span: 3 }, dur: 2.2,
       hl: [{ ...SCHW, label: "event horizons" }] },
-    // the photo already coming in during the dive (dive.photoAt; the author's note on video 4's)
-    { at: "kind of horizons", offset: 2.3, photo: "m87", obj: "M87*", dive: { in: 1.6, out: 2, photoAt: 0.4 }, dur: 2.6, fadeIn: 0.9,
+    { at: "kind of a horizon", offset: 2.3, photo: "m87", obj: "M87*", dive: { in: 1.6, out: 2, photoAt: 0.4 }, dur: 2.6, fadeIn: 0.9,
       lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600] },
       caption: "M87*'s event horizon · Event Horizon Telescope · 2019" },
     { at: "can never come out", cam: { r: 26.5, m: 54, span: 9 }, hl: [{ ...SCHW, label: "nothing gets out" }, { obj: HS, label: false }] },
     { at: "can ever come in", hl: [SCHW, { obj: HS, label: "nothing gets in" }] },
-    { at: "both depend on mass", hl: [SCHW, { ...AVG, label: "both set by mass" }, { obj: HS, label: false }] },
+    { at: "depend on the mass", hl: [SCHW, { ...AVG, label: "both set by mass" }, { obj: HS, label: false }] },
+    { at: "radius of a black hole", hl: [{ ...SCHW, label: "a black hole: size set by mass" }, { obj: HS, label: false }] },
     { at: "how fast the universe expands", hl: [SCHW, { ...AVG, label: "expansion rate ↔ density" }, { obj: HS, label: false }] },
-    { at: "definite center", cam: { obj: "Ton 618", span: 8 }, hl: [SCHW, { obj: "Ton 618", label: "a black hole: a lump with a centre" }] },
+    { at: "no coincidence", hl: [{ ...SCHW, label: "the same line" }, { obj: HS, label: "no coincidence" }] },
+    { at: "object with a center", cam: { obj: "Ton 618", span: 8 }, hl: [SCHW, { obj: "Ton 618", label: "a black hole: a lump with a centre" }] },
 
     // ── Our universe ─────────────────────────────────────────
-    { at: "it's our universe", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "our universe" }] },
+    { at: "our universe", cam: { r: 27.4, m: 54.8, span: 8 }, hl: [HUB, { obj: HS, label: "our universe" }] },
     // a galaxy at the edge of our universe (the Sombrero stands in for any of them), and ours
-    { at: "sat in a galaxy", cam: { r: 25, m: 50, span: 12 }, dur: 3, hl: [HUB, { obj: HS, label: false }, { obj: "Sombrero (M104)", label: "a galaxy at the edge" }] },
-    { at: "on the other side", hl: [HUB, { obj: HS, label: "everyone has their own" }, { obj: "Sombrero (M104)", label: false }] },
-    { at: "our galaxy in one direction", hl: [HUB, { obj: HS, label: false }, { obj: "Sombrero (M104)", label: false }, { obj: "Milky Way", label: "our galaxy" }] },
-    { at: "may well be infinite", cam: { r: 27, m: 54, span: 10 }, hl: [HUB, { side: "right", of: "hubble" }, { obj: HS, label: "beyond: probably more of the same" }] },
+    { at: "one of those galaxies", cam: { r: 25, m: 50, span: 12 }, dur: 3, hl: [HUB, { obj: HS, label: false }, { obj: "Sombrero (M104)", label: "a galaxy at our edge" }] },
+    { at: "centered around them", hl: [HUB, { obj: HS, label: "everyone has their own" }, { obj: "Sombrero (M104)", label: false }] },
+    { at: "put up a telescope", hl: [HUB, { obj: HS, label: false }, { obj: "Sombrero (M104)", label: "their telescopes" }] },
+    { at: "out of our reach", hl: [HUB, { side: "right", of: "hubble", label: "more galaxies" }, { obj: HS, label: false }, { obj: "Sombrero (M104)", label: false }] },
+    { at: "practically infinite", cam: { r: 27, m: 54, span: 10 }, hl: [HUB, { side: "right", of: "hubble" }, { obj: HS, label: "beyond: probably more of the same" }] },
 
-    // ── The two limits, and the observable universe ──────────
-    { at: "those two lines", cam: { r: 26.5, m: 53.5, span: 12 }, dur: 6, drift: 0.02, clear: true, hl: [{ ...SCHW, label: "black-hole line" }, { ...HUB, label: "Hubble line", delay: 0.6 }] },
-    { at: "upper limits", hl: [{ line: "triangle" }] },
-    // the label sits on the observable universe's own dot, not on the arrow
-    { at: "another interesting thing", cam: { r: 28.2, m: 56.4, span: 5 }, clear: true, hl: [{ obj: HS, label: false }] },
+    // ── The observable universe ──────────────────────────────
+    { at: "how do we know", cam: { r: 28.2, m: 56.4, span: 5 }, clear: true, hl: [HUB, { obj: HS, label: false }] },
+    { at: "we also see them", hl: [HUB, { obj: HS, label: "we see them too" }] },
+    // (the real figure on screen: c/H₀ ≈ 14 billion ly; the narration rounds it to 13)
+    { at: "13 billion", hl: [HUB, { obj: HS, label: "Hubble sphere · 14 billion ly" }] },
     // ── The whole universe on a log scale (author, 2026-10-27) ──
-    // from Earth out to the edge of the observable universe in one slow zoom, turning slowly,
-    // a few distances named, and what the colours stand for
-    // Earth close and turning slowly (the camera going round it), then the zoom out; the false
-    // colours (and their key) come in as the stars do
-    { at: "seeing it right now", clear: true, hold: 22, hl: [{ ...UNIVERSE_KEY, delay: 8.5 }], explorer: { show: true, fade: 1.6, spin: 0.03 } },
-    ...universeCues(),
-    { at: "seeing it right now", offset: 6.8, explorer: { ...UNIVERSE_COLOURS, dur: 3 } },
-    // the rings gone at the end and the dots brighter and bigger (author, 2026-10-27 and -28)
-    { at: "live forever", offset: -2.5, clear: true, explorer: { guides: 0, names: 0, exposure: 2, dot: 2, dur: 3 } },   // (the colour key goes too)
-    { at: "put all of that observable", explorer: { show: false, fade: 1.4 }, cam: { r: 28.2, m: 56.4, span: 5 }, dur: 0.01, clear: true,
+    // from Earth out to the edge of the observable universe in one zoom as the 46 billion is named,
+    // a few distances named, and what the colours stand for; the rings go and the dots brighten at
+    // "the sum of all the light", and it hands back to the chart for "outside our triangle"
+    { at: "46 billion", clear: true, hold: 20, hl: [{ ...UNIVERSE_KEY, delay: 7 }], explorer: { show: true, fade: 1.6, spin: 0.03 } },
+    ...universeCues("46 billion", 0.85),
+    { at: "46 billion", offset: 5.8, explorer: { ...UNIVERSE_COLOURS, dur: 3 } },
+    { at: "sum of all the light", offset: -0.4, clear: true, explorer: { guides: 0, names: 0, exposure: 2, dot: 2, dur: 3 } },
+    { at: ["the only object", "falls outside our triangle"], explorer: { show: false, fade: 1.4 }, cam: { r: 28.2, m: 56.4, span: 5 }, dur: 0.01, clear: true,
       hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH, delay: 1.2 }, { ...OU, label: "observable universe · 46 billion ly", delay: 1.6 }] },
-    { at: "outside our triangle", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "outside the triangle" }] },
-    { at: "never been able to reach each other", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "where they would be now" }] },
-    { at: "history of our own past", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "a history of our own past" }] },
-    // the Deep Field again for the last lines, the galaxies beyond our reach (the author prefers it
-    // to the microwave background here, 2026-10-27)
-    { at: "history of our own past", offset: 1.2, photo: "xdf", dur: 9, kb: [1, 1.45], caption: "Hubble eXtreme Deep Field · 2012 · galaxies as they were, up to 13 billion years ago" },
+    { at: "falls outside our triangle", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "outside the triangle" }] },
+    { at: "one single object", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "not one object" }] },
+    { at: "right now", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "where they are now" }] },
+    { at: "much closer to us", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "their light left when they were close" }] },
+    { at: "snapshot of history", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "a snapshot of history" }] },
+    // the Deep Field for the last lines, the galaxies beyond our reach (the author prefers it to the
+    // microwave background here, 2026-10-27)
+    { at: "snapshot of history", offset: 1.4, photo: "xdf", dur: 24, kb: [1, 1.6], caption: "Hubble eXtreme Deep Field · 2012 · galaxies as they were, up to 13 billion years ago" },
   ],
 };

@@ -63,7 +63,10 @@ EDL = [
 # long-form transcript hid, cut out of the finished edit with video/tools/postcut.py, since rec39
 # isn't at hand to rebuild. Spans of the edit (before the 1.1x tempo), in seconds.
 POST_CUTS = [
+ (122.35, 122.98),  # "rib…" (a false start before "ribosome": the author's note, 2026-10-29)
  (189.38, 190.96),  # "That thing you saw in," (the false start before "That thing you saw on the wall")
+ (199.03, 199.47),  # a sound before "The alkali metals" (the author's note, 2026-10-29)
  (258.61, 260.65),  # "Down here, physicists," (the false start before "Down here, physicists stop weighing")
+ (328.97, 329.64),  # "down here" after "from radio waves up to gamma rays": gamma rays are up the line (2026-10-29)
  (352.22, 352.77),  # the "mm" (a clipped "and") before "That's because it's converting"
 ]

@@ -518,6 +518,7 @@ export async function startNarration(app) {
   await document.fonts.load('700 38px "Barlow Condensed"').catch(() => {});
   const nsvg = d3.select("#narr-svg");
   const gUnits = nsvg.append("g").attr("class", "narr-units");
+  const gEnergy = nsvg.append("g").attr("class", "narr-units narr-energy");
   const hlClip = nsvg.append("clipPath").attr("id", "narr-hl-clip").append("rect");
   const gHl = nsvg.append("g").attr("class", "narr-hl");
   const gHlFree = nsvg.append("g").attr("class", "narr-hl-free"); // axis bands: never clipped
@@ -2088,6 +2089,44 @@ export async function startNarration(app) {
     }
     return out.filter(t => t.at >= lo && t.at <= hi);
   }
+  // ---------- the energy ruler (a cue's `energyAxis: true` from that cue on, false to end it) ----------
+  // On the left, where the map keeps its energy axis: the same heights as the mass ruler read as
+  // energy, E = mc², in eV (the author, 2026-10-29: for the particles, from now on)
+  const energyCues = cues.filter(c => c.energyAxis !== undefined);
+  function energyOpacity(t) {
+    let o = 0;
+    for (let i = 0; i < energyCues.length; i++) {
+      const c = energyCues[i], nx = energyCues.slice(i + 1).find(q => !q.energyAxis);
+      if (!c.energyAxis || (i > 0 && energyCues[i - 1].energyAxis)) continue;
+      o = Math.max(o, smooth((t - c.time) / 0.6) * (nx ? 1 - smooth((t - nx.time) / 0.6) : 1));
+    }
+    return o * (1 - clamp01(classicOpacity(t) * 2)) * (1 - (specFrame ? specFrame(t).show : 0));
+  }
+  function drawEnergy(t) {
+    const o = energyOpacity(t);
+    gEnergy.attr("opacity", o).style("display", o > 0.01 ? null : "none");
+    if (o <= 0.01) return;
+    gEnergy.selectAll("*").remove();
+    const SW = layer.clientWidth, SH = layer.clientHeight;
+    const yR = Math.round(SH * (SCENE.rulerY ?? RULER_Y)), xL = SW - massAxisX(SW);
+    gEnergy.append("rect").attr("x", -(xL + 54)).attr("y", 0).attr("width", xL + 54).attr("height", SH)
+      .attr("transform", "scale(-1,1)").attr("fill", "url(#narr-fade-v)");
+    gEnergy.append("line").attr("x1", xL).attr("x2", xL).attr("y1", 0).attr("y2", SH).attr("class", "narr-axis");
+    const mppd = Math.abs(sy(1) - sy(0)), iy = (y) => (y - sy(0)) / (sy(1) - sy(0));
+    const mA = iy(SH * 0.1), mB = iy(yR - 24), mLo = Math.min(mA, mB), mHi = Math.max(mA, mB);
+    const placedY = [];
+    for (const tk of fillTicks(mLo + EV_PER_G, mHi + EV_PER_G, mppd, ENERGY_BASES)) {
+      const y = sy(tk.at - EV_PER_G);
+      if (y < SH * 0.1 || y > yR - 24) continue;
+      if (placedY.some(p => Math.abs(p - y) < 17)) continue;
+      placedY.push(y);
+      gEnergy.append("line").attr("x1", xL - (tk.minor ? 3 : 5)).attr("x2", xL + (tk.minor ? 3 : 5)).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
+      gEnergy.append("text").attr("x", xL + 8).attr("y", y + 3.5).attr("text-anchor", "start")
+        .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
+    }
+    gEnergy.append("text").attr("transform", `translate(${xL - 7},${SH * 0.16}) rotate(-90)`).attr("text-anchor", "end")
+      .attr("class", "narr-axname").text("ENERGY →");
+  }
   function drawUnits(t) {
     const o = unitsOpacity(t);
     gUnits.attr("opacity", o).style("display", o > 0.01 ? null : "none");
@@ -2379,6 +2418,7 @@ export async function startNarration(app) {
   }
   function overlay() {
     drawUnits(curT);
+    drawEnergy(curT);
     drawDolly(curT);       // first, so drawings over a dive's picture measure this frame's copy
     drawHighlights(curT);
     drawPhoto(curT);

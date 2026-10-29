@@ -64,3 +64,38 @@ the line about its mass).
   M87"); the clip starts at the second "like M87" (302.4).
 - Whisper dropped "…black hole line, oh no, someone worked out that if dark…" at a join; that clip
   was transcribed on its own and its timings put back.
+
+## rec49, rec50: video 5, the Hubble sphere (2026-10-29, evening)
+
+- rec49 = "Hubble part 1.m4a" (6:28): the new recap opening and up to the Hubble sphere, many tries.
+- rec50 = "Hubble part 2.m4a" (14:44): the second edge to the end, many tries, re-worded on the fly, and a
+  note to the editor at 3:04: while the Hubble line is talked about show only the line; the Hubble sphere
+  goes on the chart at "here's where it lands".
+- Cut: video/short-05-hubble-sphere/edl.py (63 clips, 5:59, natural speed). Every clip re-transcribed on its
+  own; a hidden restart in the first line (91.0–94.7) and a few clipped joins fixed.
+
+### Fact check
+
+- **Right:** every diagonal is a density; neutron stars at the density of neutrons (video 3); bigger means
+  emptier; galaxies, the Local Group, clusters, superclusters, Laniakea (~100,000 galaxies), voids with mass;
+  the Hubble sphere as the second edge; space can stretch faster than light; expansion as new space
+  everywhere (the pixels); recession speed growing with distance, light speed at the Hubble line; the
+  sphere growing, so light from just beyond it can still arrive; the cosmic event horizon a little further
+  out and nothing beyond it can ever affect us; the Hubble sphere's mass on the black-hole line, and "no
+  coincidence" (at the critical density, 2GM/c² = c/H exactly); a black hole's radius set by its mass; the
+  Hubble sphere set by the expansion rate, set by the density; a black hole has a centre, our universe
+  doesn't; galaxies at our edge see their own sphere and more galaxies; practically infinite as far as we
+  can measure; the observable universe ~46 billion light-years in every direction, outside the triangle,
+  not one object; we see galaxies where they were, the 46 billion is where they are now.
+- **Wrong, left out of the cut:** "everything that we see in the observable universe is already beyond our
+  cosmic event horizon". Only part of it is: galaxies we see out to a redshift of about 1.8 are still
+  inside it (we could still reach or signal them); beyond that, which is most of the observable universe's
+  volume, they are out of reach. The cut keeps "it represents galaxies that are already way beyond our
+  reach", which is true of most of them. If you want the line: "Most of what we see there is already beyond
+  our cosmic event horizon."
+- **Imprecise:** "the Hubble sphere is roughly 13 billion light-years": its radius is c/H₀ ≈ 14 billion
+  light-years (14.4 for H₀ = 68 km/s/Mpc). Kept; "roughly 14" would be better on a re-record.
+- **Imprecise, fine:** "it represents not only your past, but also a future that never will be" (poetic:
+  what those galaxies are now is beyond our event horizon); "a black hole's event horizon is where light
+  that falls in can never come out" (Whisper hears the middle as "the full zen"/"the cool thing": worth a
+  listen at ~3:23 of the cut).
