@@ -57,6 +57,8 @@ const EIFFEL = { trace: "Eiffel Tower", grow: 2.6, shapes: [
   { at: { rho: 0.0306 }, holes: true, label: ["≈ 330,000 m³", "30 kg per m³"], place: "below" },
   { at: { rho: 7.8 }, holes: true, lattice: true, label: ["1,300 m³ of iron", "7,800 kg per m³"], place: "below" }] };
 const EIFFEL_LINES = [{ line: "water", label: "water" }, { line: "air", label: "air" }];
+// the animals put first at "most animals": the chart's own and the catalogue's (by their labels)
+const ANIMALS = ["Venus", "Human", "Cow", "Hippopotamus", "Elephant", "Lion", "Giraffe", "Polar bear", "Gorilla"];
 const drawn = (list) => list.map(h => h.arrow ? { ...h, draw: 0.01 } : { ...h, instant: true, delay: 0 });
 
 export default {
@@ -70,6 +72,8 @@ export default {
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   forceIcons: ["Venus"],   // shown behind Earth at the pan's zoom
+  // the water ball only once it's talked about (the author, 2026-10-29): its cue shows it
+  hideIcons: ["1 mL of Water"],
   // "lots of engineering and big rocks": rocks, hills and monuments go first on the
   // pyramid's screen, ahead of the ships and lakes (where one would overlap a picture
   // already there, it gives way)
@@ -93,7 +97,7 @@ export default {
     { at: "in the metric system", cam: { obj: "1ml of water (cube)", dr: 0.033, span: 0.3 }, units: true, unitsUntil: "that's okay",
       hl: [{ ...CUBE, label: "1 mL · 1 gram" }] },
     { at: "fill a cube", hl: [{ ...CUBE, label: "a cube 1 cm wide" }] },
-    { at: ["as if they were a ball", "measure sizes as spheres"],
+    { at: ["as if they were a ball", "measure sizes as spheres"], hideIcons: [],
       hl: [{ ...CUBE, label: "cube · 1 cm" }, { arrow: true, from: CUBE, to: ML, color: "#80deea" }, { ...ML, label: "ball · 1.24 cm", delay: 0.6 }] },
     { at: ["a tiny bit to the right", "a little bit to the side"],
       hl: [{ ...CUBE, label: "cube" }, { arrow: true, from: CUBE, to: ML, color: "#80deea", draw: 0.01 }, { ...ML, label: "a little to the side" }] },
@@ -134,6 +138,9 @@ export default {
 
     // animals and what we build: the glide carries on, a bit over a decade and a half
     // wide, then up the line (waypoints at their cue times) on to the round worlds
+    // "most animals": the animals first, even overlapping a little; the tonne of water only where
+    // there's room left (the author, 2026-10-29); back to the scene's own from the engineering on
+    { at: "most animals", firstIcons: ANIMALS.slice(1), forceIcons: ANIMALS },
     { at: "much narrower band", cam: C(1.8, 6.0, 1.7), hl: [WATER, { obj: "Human" }] },
     { at: "mostly made of water", cam: C(1.85, 6.15, 1.6), hl: [WATER, { obj: "Human", label: "mostly water" }] },
     { at: "denser than others", cam: C(1.92, 6.35, 1.5), hl: [{ obj: "Hippopotamus" }, WATER] },
@@ -146,7 +153,7 @@ export default {
     { at: "the largest tree", cam: UP(2.85, 2.2), hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // what we build
-    { at: "to engineering", cam: UP(3.15, 3.2), dur: 2, clear: true,
+    { at: "to engineering", cam: UP(3.15, 3.2), dur: 2, clear: true, hideIcons: [], firstIcons: null, forceIcons: null,
       hl: [{ obj: "Boeing 747" }, { obj: "Supertanker", delay: 0.3 }] },
     { at: "the eiffel tower", cam: C(3.75, 10.05, 3.4), hl: [{ obj: "Eiffel Tower" }] },
     // the close-up (the author, 2026-10-28, in place of the dive): the camera zooms onto the

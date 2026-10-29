@@ -89,32 +89,32 @@ export default {
   cues: [
     // ── The chart so far ─────────────────────────────────────
     { at: ["smallest black hole", "could ever exist"], cam: { r: 3, m: 9, span: 56 }, dur: 12, drift: 0.02, hl: [{ line: "triangle" }] },
-    { at: ["log chart of both", "size across the bottom"], units: true, unitsFor: 9, hl: [{ axis: "bottom", label: "size" }] },
+    { at: ["contains literally everything", "log chart of both", "size across the bottom"], units: true, unitsFor: 9, hl: [{ axis: "bottom", label: "size" }] },
     { at: ["mass and size", "mass going up"], hl: [{ axis: "bottom", label: "size" }, { axis: "right", label: "mass" }] },
-        { at: ["in the last one", "stellar nurseries"], cam: { r: 15, m: 34.6, span: 11 }, hl: [{ obj: "Stellar Nursery", label: "stellar nursery" }, { path: "stellar-low-mass", to: "Protostar", delay: 0.4 }, { obj: "Protostar", delay: 0.8 }] },
+        { at: ["in the last video", "in the last one", "stellar nurseries"], cam: { r: 15, m: 34.6, span: 11 }, hl: [{ obj: "Stellar Nursery", label: "stellar nursery" }, { path: "stellar-low-mass", to: "Protostar", delay: 0.4 }, { obj: "Protostar", delay: 0.8 }] },
             { at: ["stars die", "shed their outer layers"], cam: { r: 13.1, m: 33.6, span: 12.5 }, dur: 1.6, hl: [{ ...SPLIT, coreLabel: "core", shellLabel: "nebula" }] },
         { at: ["dense core behind", "skeleton of a dead star"], cam: { r: 8.4, m: 33.6, span: 6 }, clear: true },
     { at: "white dwarf", hl: [{ obj: "White Dwarf", place: "left" }] },
     { at: "neutron star", hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }] },
-    { at: ["most interesting of them", "most interesting of them all"], hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole" }] },
+    { at: ["want to talk about today", "most interesting of them", "most interesting of them all"], hl: [{ obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole" }] },
 
     // ── Not an object: a line, the top-left limit ────────────
     // everything else is a cloud of catalogue dots: pictures off, the clouds circled
     { at: ["most objects in this chart", "most objects in our triangle"], cam: { r: 15.2, m: 35.6, span: 17 }, clear: true },
-    { at: ["clouds of dots", "clusters of dots"], hold: 6, hl: [
+    { at: ["bunch of little dots", "clouds of dots", "clusters of dots"], hold: 6, hl: [
       { ellipse: [9.5, 29.65, 0.75, 1.6], label: "planets", place: "below", color: "#90caf9" },
       { ellipse: [9.05, 33.0, 0.42, 0.45], label: "white dwarfs", place: "left", color: "#e0e0e0", delay: 0.25 },
       { ellipse: [11.3, 33.45, 1.15, 0.7], label: "stars", place: "right", color: "#ffd54f", delay: 0.5 },
       { ellipse: [21.85, 41.6, 0.95, 2.3], label: "galaxies", place: "above", color: "#80deea", delay: 0.75 },
     ] },
-    { at: ["they all sit on the same line", "they all sit on one line"], hl: [KNOWN, { ...SCHW, label: "black holes" }] },
+    { at: ["they all sit exactly", "they all sit on the same line", "they all sit on one line"], hl: [KNOWN, { ...SCHW, label: "black holes" }] },
     { at: "called the schwarzschild radius", cam: { obj: "Sgr A*", span: 15 }, dur: 6, drift: 0.02, hl: [{ ...SCHW, label: "schwarzschild radius" }] },
     { at: ["top left edge", "top left limit"], cam: { r: 11, m: 38.6, span: 20 }, dur: 4, hl: [{ line: "triangle" }, { ...SCHW, label: "nothing crosses it" }, { side: "left", of: "schwarzschild" }] },
-    { at: "too small or too massive", cam: { r: 5, m: 28, span: 16 },
+    { at: ["too small for its mass", "too small or too massive"], cam: { r: 5, m: 28, span: 16 },
       hl: [SCHW, { obj: "Earth" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), label: "squeeze to 9 mm", delay: 0.6 }] },
-    { at: "nothing can cross it", hl: [{ ...SCHW, label: "every black hole is here" }] },
+    { at: ["above or to the left", "nothing can cross it"], hl: [{ ...SCHW, label: "every black hole is here" }] },
     // why the line is 45°: the size we draw is the event horizon, proportional to mass
-    { at: ["doesn't actually have a size", "don't really have a size"], cam: { obj: "Stellar BH", span: 6 }, clear: true, hl: [SCHW, { obj: "Stellar BH", label: "black hole" }] },
+    { at: ["doesn't really have a size", "doesn't actually have a size", "don't really have a size"], cam: { obj: "Stellar BH", span: 6 }, clear: true, hl: [SCHW, { obj: "Stellar BH", label: "black hole" }] },
     { at: "singularity", hl: [SCHW, { obj: "Stellar BH", label: "a point · size zero" }] },
     { at: "event horizon", hl: [SCHW, { obj: "Stellar BH", label: "size = event horizon" }] },
     { at: ["grows in step with its mass", "grows in step with the mass"], cam: { r: 4, m: 31, span: 24 }, hl: [{ ...SCHW, label: "twice the mass, twice the size" }] },
@@ -127,9 +127,9 @@ export default {
     { at: "the earth would be", cam: { r: 4.6, m: 30.3, span: 13 }, dur: 2, hl: [SCHW, { obj: "Sun", label: false }, { mark: [5.47, 33.3], label: "the Sun · 6 km", place: "left" },
       { obj: "Earth", place: "right" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), delay: 0.4 }, { cross: BH(27.78), size: "the Earth: 2 cm, a marble", delay: 1.2 }] },
     { at: ["collapsing core of dying stars", "collapsing core of a dying star"], cam: { r: 8, m: 34, span: 12 }, hl: [{ path: "stellar-to-bh" }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "collapsed stars" }] },
-    { at: "merging with each other", hl: [{ path: "bh-mergers" }, { obj: "Stellar BH", label: "or merged black holes" }] },
+    { at: ["merging with other black holes", "merging with each other"], hl: [{ path: "bh-mergers" }, { obj: "Stellar BH", label: "or merged black holes" }] },
     { at: "a few suns", cam: { r: 11, m: 38.6, span: 20 }, hl: [{ ...SCHW, label: "every known black hole" }] },
-    { at: ["our milky way", "our own milky way"], cam: { r: 14, m: 41.5, span: 12 }, hl: [{ obj: "Sgr A*", label: "sgr a* · our galaxy's" }] },
+    { at: ["the milky way", "our milky way", "our own milky way"], cam: { r: 14, m: 41.5, span: 12 }, hl: [{ obj: "Sgr A*", label: "sgr a* · our galaxy's" }] },
     { at: ["4 million", "four million"], hl: [{ obj: "Sgr A*", label: "4 million suns" }] },
     // a dive onto Sgr A*: the EHT photo fades in over its picture (lens), its ring laid
     // on the picture's photon ring round the shadow
@@ -150,18 +150,17 @@ export default {
       lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600], fill: "cover", hold: 0, fillDur: 1.5 },
       caption: "M87*, the first black hole ever photographed · Event Horizon Telescope · 2019" },
     { at: ["one of the largest", "largest black hole"], cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "ton 618", place: "above" }] },
-    { at: ["orbits of every planet", "orbits of our planets"], hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "horizon ≈ 40× neptune's orbit", place: "above" }] },
-    { at: ["in our solar system", "60 billion"], hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "~60 billion suns", place: "above" }] },
+    { at: ["bigger than pluto's", "orbits of every planet", "orbits of our planets"], hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "horizon ≈ 20–30× pluto's orbit", place: "above" }] },
 
     // ── The small ones ───────────────────────────────────────
     { at: "but how small", cam: { r: -2, m: 25, span: 28 }, dur: 4, clear: true, hl: [{ ...SCHW, label: "the smallest" }] },
     { at: "with enough pressure", cam: { r: 3, m: 28, span: 24 }, dur: 6,
       hl: [SCHW, { obj: "Earth" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), label: "squeeze to 9 mm", delay: 0.6 }] },
-    { at: ["one is the core", "number one"], cam: { obj: "Stellar BH", span: 8 }, hl: [{ obj: "Stellar BH", label: "collapsed stars" }] },
-    { at: ["moments after the big bang", "moments of the big bang"], cam: { r: -8, m: 18, span: 34 }, clear: true },
+    { at: ["the core of a dying star", "one is the core", "number one"], cam: { obj: "Stellar BH", span: 8 }, hl: [{ obj: "Stellar BH", label: "collapsed stars" }] },
+    { at: ["instants after the big bang", "moments after the big bang", "moments of the big bang"], cam: { r: -8, m: 18, span: 34 }, clear: true },
     // the early universe as a density line: ~1e40 g/cm³ about 1e-17 s in, which meets
     // the black-hole line at ~3e21 g (a lump of it the size of its own horizon collapses)
-    { at: ["hot dense soup", "soup of very hot"], hl: [SCHW, { density: 40, label: "the whole universe\nwas in a hot dense state" }] },
+    { at: ["super dense soup", "hot dense soup", "soup of very hot"], hl: [SCHW, { density: 40, label: "the whole universe\nwas in a hot dense state" }] },
     // the window narrowing as each survey is named: a red band along the
     // Schwarzschild line from the Planck mass to ~1e5 Suns, cut down to what's
     // still open (log10 g; docs/dark-matter-constraints.md)
@@ -171,15 +170,15 @@ export default {
     { at: "gravitational waves", hl: [{ window: W3, from: W2, trace: W0, cuts: [QSO, CMB, { ...GW, label: "ruled out by\ngravitational waves" }] }] },
     { at: "microlensing", hl: [{ window: W4, from: W3, trace: W0, cuts: [QSO, CMB, GW, { ...ML, label: "ruled out by\nmicrolensing" }] }] },
     { at: "can't be too small", cam: { r: -18, m: 10, span: 34 } },
-    { at: "would have evaporated", hl: [{ window: W5, from: W4, trace: W0, cuts: [QSO, CMB, GW, ML, { ...HAW, label: "evaporated by\nhawking radiation" }] }] },
+    { at: ["they'd have evaporated", "would have evaporated"], hl: [{ window: W5, from: W4, trace: W0, cuts: [QSO, CMB, GW, ML, { ...HAW, label: "evaporated by\nhawking radiation" }] }] },
     { at: ["narrow window", "tiny window"], cam: { r: -8.6, m: 19.4, span: 12 }, hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
     // straight across: the same mass squeezed onto the black-hole line
     // (Hyperion, a small moon of Saturn, 5.6e21 g → ~17 nm; Eros, an asteroid, 6.7e18 g → ~1/5 of an atom)
     { at: "mass of a small moon", cam: { r: -1.2, m: 20.2, span: 20 }, hl: [
       { obj: "Hyperion", label: "a small moon", place: "above" }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75), label: "the size of a virus", delay: 0.4 }] },
-    { at: "asteroid's mass", hl: [{ obj: "Hyperion", label: false }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75) },
+    { at: ["asteroid mass", "asteroid's mass"], hl: [{ obj: "Hyperion", label: false }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75) },
       { obj: "Eros", label: "an asteroid", place: "below", delay: 0.2 }, { arrow: true, from: { obj: "Eros" }, to: BH(18.83), label: "smaller than an atom", delay: 0.6 }] },
-    { at: ["completely invisible", "basically invisible"], cam: { r: 23, m: 45, span: 14 }, dur: 9, drift: 0.02, clear: true },
+    { at: ["they'd be invisible", "completely invisible", "basically invisible"], cam: { r: 23, m: 45, span: 14 }, dur: 9, drift: 0.02, clear: true },
 
     // ── Dark matter: galaxies without it ─────────────────────
     { at: ["only notice their gravity", "find them by their gravity"], cam: { obj: "Milky Way", span: 7 }, clear: true, hl: [{ obj: "Milky Way" }] },
@@ -196,13 +195,13 @@ export default {
     // the candidates, pointed out; primordial black holes join on "…if it's tiny black holes"
     { at: ["we don't know what it is", "plenty of candidates"], hl: [SCHW, ...DM_HUB(0), ...DM_CANDS.map(still),
       { ...DM_PBH, delay: 2.4 }, { window: W5, cuts: [ML, HAW], delay: 2.8 }] },
-    { at: ["if it's tiny black holes", "so we keep looking"], cam: { r: -8.6, m: 19.4, span: 12 }, dur: 3, labels: true, clear: true,
+    { at: ["if they are just tiny black holes", "if it's tiny black holes", "so we keep looking"], cam: { r: -8.6, m: 19.4, span: 12 }, dur: 3, labels: true, clear: true,
       hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
         { at: ["any new particles", "what we think of as empty space"], cam: { r: -7.4, m: 20.6, span: 10 }, dur: 9, drift: 0.01, hl: [{ window: W5, from: W6, trace: W0, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
 
     // ── Ending: maybe most matter is in tiny black holes ─────
     // (the window still open while the narration says why tiny black holes would need no new particle)
-    { at: ["to explain it", "heavy as a mountain"], hl: [{ window: W5, cuts: [ML, HAW, NS] }] },
+    { at: ["to explain them", "to explain it", "heavy as a mountain"], hl: [{ window: W5, cuts: [ML, HAW, NS] }] },
 
     // ── Crossed off: the search for dark matter, area by area (the addendum, rec41) ──
     // back out to the candidates; each area of the chart that has been ruled out comes in as
@@ -214,9 +213,9 @@ export default {
     // then a slow zoom in, arriving on the crossed-off corner as it's named
     { at: "not only on the black hole line", cam: DM_CLOSE, dur: 4.5, drift: 0, quiet: true,
       hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] }] },
-    { at: "lumps about this size", hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
+    { at: ["lumps about roughly this size", "lumps about this size"], hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
       { ...DM_SOURCE, delay: 0.6 }, { ...DM_MICA, delay: 0.2 }] },
-    { at: "were around here", hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
+    { at: ["can't be here either", "were around here"], hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
       still(DM_SOURCE), still(DM_MICA), { ...DM_HURT, delay: 0.1 }] },
     // "the collective effort…": a slow zoom back out while the rest of what's been ruled out
     // comes in, one area at a time, across the whole sentence
@@ -226,7 +225,7 @@ export default {
         { window: W5, cuts: [QSO, CMB, GW, ML, HAW], delay: 5.4 }] },
     // radiation era: ρ ≈ 4.5e5 g/cm³ / t² (t in s); 1e44 g/cm³ at ~1e-19 s, which meets the
     // black-hole line at ~2e19 g, in the window
-    { at: "first nanoseconds of our history", cam: { r: -8.6, m: 19.4, span: 12 }, labels: true, clear: true,
+    { at: ["very first moments of our history", "first nanoseconds of our history"], cam: { r: -8.6, m: 19.4, span: 12 }, labels: true, clear: true,
       hl: [{ density: 44, label: "density of universe\nfirst instants after big bang" }] },
     { at: "the galaxies the stars", cam: FULL, dur: 11, drift: 0, quiet: true, labels: false, clear: true },
   ],

@@ -83,6 +83,17 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   (`{ path }`, `from`/`to` for a stretch) instead of drawing an arrow along it: the line glows
   with the named objects' halo treatment (blurred lavender, overlay) and its dots are twice
   the old size.
+  **Revised 2026-10-29:** keep the dots natural. Evenly spaced dots of our own turned the path
+  into a subway line, so the chart's own moving dots stay as they are and only grow (3×) and
+  brighten; the glow is discreet, like an object's halo. Don't light a path while an
+  animation plays on it (video 3's collapse and swell): light it after, and keep it lit
+  through the whole story it tells (video 3: the star → nebula → nursery → protostar → star
+  cycle, with the dense core).
+- **Everything is connected** (author, 2026-10-29): as the narration reaches a thing, light the
+  chart's connection into or out of it: what it's made of, what it's part of (video 6: a living
+  thing ← DNA ← its bases ← atoms; an atom ← its nucleus, ← its electrons; the proton ← its quarks).
+  One link at a time, following the words, not all at once. A missing link can be added to
+  `COMPOSITION` (src/data.js) when it's true (a bacterium: DNA + ribosomes).
 - **Highlight what the chart actually shows.** Super-Jupiters and brown dwarfs sit in one
   column at Jupiter's size; Beta Pictoris b is a young, inflated planet drawn wider, so don't
   point at it as "same size": draw a vertical trend line up the column (`trend: [[r, m], …]`),
@@ -125,6 +136,9 @@ map. Optionally it then fills the screen, holds, and fades slowly back to the ch
   spread out from it as much, like things passing by on the way in, while the painting and
   the chart still fall back. Their halos and cast shadows fade as they set off (they stay in
   the chart's depth). `setDolly` in `src/main.js` (`DOLLY_ICON_SHARE`).
+- **A dive comes back the way it went in** (author, 2026-10-29): a photo that grew to fill the
+  screen shrinks back onto the picture (`lens.back`), fades into it, then the dive unwinds. No
+  fade at full screen onto the still-grown picture: that read as zooming in again.
 - **Use a dive, not a photo cutaway, whenever the object has a picture on the chart.**
   Plain cutaways (below) are left for things the chart can't show by itself.
 - **Current dives**: Jupiter in infrared (video 3, the camera trick above), the Pillars of

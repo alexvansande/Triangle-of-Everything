@@ -78,6 +78,7 @@ let _iconsEnabled = true;
 let _iconOnly = null;     // narration: a Set of the only object names that get their picture
 let _iconFill = false;    // narration: …or first, with every other picture that fits after them
 let _iconForce = null;    // narration: names whose picture shows even where a nearer one would hide it
+let _iconFirst = null;    // narration: names whose picture comes first; the others give way where they overlap
 let _iconHide = null;     // narration: names whose picture never shows (they pile onto a neighbour)
 let _iconBoost = null;    // narration: { from: log r, k } pictures of things that big and up drawn k× larger
 let _labelHide = null;    // narration: names whose own chart label never shows in that scene
@@ -2690,11 +2691,13 @@ function drawObjects() {
   }).filter(p => p.r*2 >= dustIconMin() && !_iconHide?.has(p.name));
   const asObj = (o) => ({ o, sx:o.sx, sy:o.sy, room:roomR(o), imagePriority:o.imagePriority, importance:o.z ?? 3, curated:0 });
   const asDust = (p) => ({ p, sx:p.sx, sy:p.sy, room:p.room ?? p.r, imagePriority:p.imagePriority, importance:dustImportance(p.rank), curated:1 });
-  const byRank = (a,b) => a.imagePriority-b.imagePriority || a.importance-b.importance || a.curated-b.curated;
-  const named = _iconOnly ? [...iconOrder.map(asObj), ...dustPics.filter(p => _dustPictures?.has(p.name)).map(asDust)].sort(byRank) : [];
+  const first = (c) => _iconFirst?.has(c.o ? c.o.name : c.p.name) ? 0 : 1;
+  const byRank = (a,b) => first(a)-first(b) || a.imagePriority-b.imagePriority || a.importance-b.importance || a.curated-b.curated;
+  const isNamedDust = (p) => _dustPictures?.has(p.name) || _iconFirst?.has(p.name);
+  const named = _iconOnly ? [...iconOrder.map(asObj), ...dustPics.filter(isNamedDust).map(asDust)].sort(byRank) : [];
   const rest = (!_iconOnly ? [...iconOrder.map(asObj), ...dustPics.map(asDust)]
     : _iconFill ? [...projected.filter(o => !_iconOnly.has(o.name) && !_iconHide?.has(o.name) && mapIconShown(o, true)).map(asObj),
-        ...dustPics.filter(p => !_dustPictures?.has(p.name)).map(asDust)]
+        ...dustPics.filter(p => !isNamedDust(p)).map(asDust)]
     : []).sort(byRank);
   const room = iconRoom();
   const chosen = priorityCircles(named, c => c.room);
@@ -2709,6 +2712,8 @@ function drawObjects() {
   // forced pictures (videos: Venus behind Earth) show whatever they overlap;
   // drawn least important first, they sit behind the picture they overlap
   if (_iconForce) for (const o of iconOrder) if (_iconForce.has(o.name)) { shownIcons.add(o); visibleDots.add(o); }
+  // (catalogue pictures too: the lion and the giraffe among video 2's animals)
+  if (_iconForce) for (const c of pictures) if (c.p && _iconForce.has(c.p.name) && !dustChosen.includes(c)) dustChosen.push(c);
   projected.forEach(o => {
     o._showDot = visibleDots.has(o);
     o._showIcon = o._showDot && shownIcons.has(o);
@@ -5138,6 +5143,7 @@ let _animSpeed = 1; // global animation-speed multiplier (Z slower / X faster)
 let _dotSizeMult = 1;    // moving-dot size multiplier (settings slider)
 let _dotOpacityMult = 1; // moving-dot opacity multiplier (settings slider)
 let _dotFixedR = null;    // moving-dot radius in px, overriding the paths' own sizes (narration)
+let _dotBoostKey = "";    // the lit paths (narration's setDotBoost), to redraw when they change
 
 function pauseAnimOnInteract() {
   if (_animDisabled) return;
@@ -5276,6 +5282,10 @@ function compositionPath(part, whole, pos, wpos) {
     _into: whole,
     description: `${whole} is made of ${joinList(COMPOSITION[whole])}`,
     points: [A, B],
+    // a nearly level line (a nucleus into its atom: same mass, 10⁵× the size) or a long one (DNA
+    // up into a bacterium) takes a gentle arc: the S-curve's control points sit past its end, so
+    // it overshot the atom and came back, and the long one set off downwards first
+    ...(Math.abs(B.logM - A.logM) < 0.3 * Math.abs(B.logR - A.logR) || len > 5 ? { curve: "arc", bow: 0.06 } : {}),
     zoomRange: [6, 800],
     neighborhood: {
       x: [Math.min(A.logR, B.logR) - 1, Math.max(A.logR, B.logR) + 1],
@@ -5447,6 +5457,7 @@ function drawConnections() {
   const lineW = (cp) => cp.style.lineWidth * (_posterArrows ? 1.4 : narrWave(cp) ? 1.8 : 1);
   _connPaths.forEach(cp => {
     cp._opacity = _posterArrows ? 1 : connectionOpacity(cp, view);
+    if (cp._boost) cp._opacity = Math.max(cp._opacity, 0.9);   // a video's lit path shows at any zoom
     cp._visible = cp._opacity > 0.01;
     cp._lineGroup = null;
 
@@ -5688,7 +5699,9 @@ function animateConnections(timestamp) {
 
       el.setAttribute("cx", String(sx));
       el.setAttribute("cy", String(sy));
-      el.setAttribute("r", String((_dotFixedR ?? cp.style.dotSize * _dotSizeMult) * sizeFactor));
+      // a video's lit path: its dots grow (and brighten) along the lit stretch
+      const bst = cp._boost, lit = bst && t >= bst.t0 - 0.01 && t <= bst.t1 + 0.01 ? bst.k : 1;
+      el.setAttribute("r", String((_dotFixedR ?? cp.style.dotSize * _dotSizeMult) * sizeFactor * lit));
 
       const edgeFade = Math.min(t / 0.04, (1 - t) / 0.04, 1);
 
@@ -5699,7 +5712,7 @@ function animateConnections(timestamp) {
           ? emSpectrumColor(t)
           : (cp.style.color || "rgba(255,255,255,0.5)");
         el.setAttribute("fill", color);
-        el.setAttribute("opacity", String(Math.min(1, cp._opacity * 0.6 * opacityMult * edgeFade * _dotOpacityMult)));
+        el.setAttribute("opacity", String(Math.min(1, cp._opacity * 0.6 * opacityMult * edgeFade * _dotOpacityMult * (1 + (lit - 1) * 0.6))));
       }
     });
   });
@@ -8544,11 +8557,21 @@ if (_ogShot) {
       /** Connection paths (the moving dots' curves) for a video to highlight: every path
        *  whose id or whole (`_into`, what it builds) is in `sel`, sampled at n + 1 points
        *  along its curve, chart-local px: [{ id, family, color, into, pts: [[x, y], …] }]. */
+      /** A lit path's own moving dots bigger and brighter (videos): [{ idx (from connPaths),
+       *  t0?, t1? (the stretch, 0–1 along it), k (radius factor) }]; [] for none. The paths
+       *  are kept visible at any zoom while lit. */
+      setDotBoost(list = []) {
+        if (!_connPaths) return;
+        const key = list.map(b => b.idx).sort().join(",");
+        for (const cp of _connPaths) cp._boost = null;
+        for (const b of list) if (_connPaths[b.idx]) _connPaths[b.idx]._boost = { t0: b.t0 ?? 0, t1: b.t1 ?? 1, k: b.k };
+        if (key !== _dotBoostKey) { _dotBoostKey = key; redraw(); }
+      },
       connPaths(sel, n = 96) {
         if (!_connPaths) return [];
         const want = new Set([].concat(sel));
-        return _connPaths.filter(cp => want.has(cp.id) || want.has(cp._into)).map(cp => ({
-          id: cp.id, family: cp.family, color: cp.style.color, into: cp._into,
+        return _connPaths.map((cp, idx) => [cp, idx]).filter(([cp]) => want.has(cp.id) || want.has(cp._into)).map(([cp, idx]) => ({
+          idx, id: cp.id, family: cp.family, color: cp.style.color, into: cp._into,
           pts: Array.from({ length: n + 1 }, (_, i) => getPathScreenPos(cp, i / n)),
         }));
       },
@@ -8669,6 +8692,7 @@ if (_ogShot) {
       setDollyOpacity(v = 1) { dFocus.style("opacity", v < 0.999 ? v.toFixed(3) : null); },
       /** Pictures that show even where a nearer one would hide them (videos): names, or null. */
       setIconForce(names) { _iconForce = names?.length ? new Set(names) : null; redraw(); },
+      setIconFirst(names) { _iconFirst = names?.length ? new Set(names) : null; redraw(); },
       setIconHide(names) { _iconHide = names?.length ? new Set(names) : null; redraw(); },
       /** Pictures of things from log r `from` up drawn k× larger (videos): { from, k }, or null. */
       setIconBoost(b) { _iconBoost = b?.k && b.k !== 1 ? { from: b.from ?? 18, k: b.k } : null; redraw(); },
