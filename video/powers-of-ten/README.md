@@ -44,7 +44,7 @@ plane, so the galaxies' flows lie flat.
 | 16 … 22 | stars: Hipparcos (nearest) and Gaia | data (`tools/sky-points`) |
 | 19.5 … 24.5 | the Milky Way | **placeholder** `milky-way.webp`, laid on the galactic plane; to generate |
 | 21.5 … 25 | the Local Group, 28 galaxies at their real positions | code |
-| 23 … 26.5 | 2MRS galaxies, coloured by the attractor they flow to (a rough Laniakea) | code, toy model |
+| 23 … 26.5 | 2MRS galaxies as a cosmic web: each linked to its nearest neighbours (positions untouched), coloured by the attractor they flow to (a rough Laniakea); the camera swings 40° and back so depth shows | code, toy model |
 | 26 … 27.6 | the spectrum page's Cloud: visible light, then the Planck bands, then the CMB sphere | `public/spectrum` (`?bare=1`, `spectrumControl`) |
 
 ## The image pass (DNA → Earth)

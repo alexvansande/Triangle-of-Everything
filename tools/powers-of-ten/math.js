@@ -116,7 +116,16 @@ const K1 = basis(ECL_POLE, K0.u);
 const K2 = basis(GAL_POLE, K1.u);
 const K3 = basis(SG_POLE, GAL_POLE);
 const KEYS = [[7.6, K0], [9.6, K1], [15.0, K1], [16.8, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
+// among the galaxies the camera swings round the vertical and back, so the
+// cosmic web's depth shows as it moves (parallax), face-on again for the Cloud
+const SWING = [23.4, 25.9], SWING_DEG = 40;
 export function cameraAt(s) {
+  const b = keyed(s), th = SWING_DEG * D * Math.sin(Math.PI * clamp((s - SWING[0]) / (SWING[1] - SWING[0])));
+  if (!th) return b;
+  const c = Math.cos(th), sn = Math.sin(th);
+  return { r: add(mul(b.r, c), mul(b.n, sn)), u: b.u, n: sub(mul(b.n, c), mul(b.r, sn)) };
+}
+function keyed(s) {
   if (s <= KEYS[0][0]) return fromQuat(KEYS[0][1]);
   for (let i = 1; i < KEYS.length; i++) {
     if (s <= KEYS[i][0]) return fromQuat(slerp(KEYS[i - 1][1], KEYS[i][1], ramp(s, KEYS[i - 1][0], KEYS[i][0])));

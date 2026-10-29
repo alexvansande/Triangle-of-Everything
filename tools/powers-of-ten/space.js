@@ -217,6 +217,7 @@ export function spaceLayers(globe) {
       stars.data = pick((t) => t <= 1);
       galaxies.data = pick((t) => t === 2);
       basins(galaxies, ATTRACTORS);
+      web(galaxies);
     } catch (e) { console.warn("sky points unavailable:", e); }
   })();
 
@@ -269,29 +270,95 @@ function basins(g, ATT) {
   }
   g.basin = basin; g.att = ATT;
 }
+// the cosmic web: each galaxy linked to its nearest neighbours, up to a length
+// that grows with distance as the survey thins out (2MRS keeps only the brighter
+// galaxies far away), so filaments show as threads and lone galaxies stay faint.
+// Nothing is moved: positions are the catalogue's
+function web(g) {
+  const { n, pos, dist } = g.data, MPC_LY = MPC / LY, P = new Float32Array(3 * n);
+  for (let i = 0; i < 3 * n; i++) P[i] = pos[i] / MPC_LY;
+  // mean spacing at each distance, from the galaxies per shell (10 Mpc shells)
+  const SH = 10, shells = new Float32Array(60);
+  for (let j = 0; j < n; j++) shells[Math.min(59, (dist[j] / MPC_LY / SH) | 0)]++;
+  const spacing = Array.from(shells, (c, i) => Math.cbrt((4 / 3) * Math.PI * (((i + 1) * SH) ** 3 - (i * SH) ** 3) / Math.max(c, 1)));
+  const reach = (d) => Math.max(1.5, 0.55 * spacing[Math.min(59, (d / SH) | 0)]);
+  // a grid of 8 Mpc cells to find neighbours
+  const C = 8, cell = new Map(), key = (x, y, z) => `${x},${y},${z}`;
+  for (let j = 0; j < n; j++) {
+    const k = key(Math.floor(P[3 * j] / C), Math.floor(P[3 * j + 1] / C), Math.floor(P[3 * j + 2] / C));
+    (cell.get(k) ?? cell.set(k, []).get(k)).push(j);
+  }
+  const links = [], seen = new Set(), degree = new Uint8Array(n), K = 3;
+  for (let j = 0; j < n; j++) {
+    const x = P[3 * j], y = P[3 * j + 1], z = P[3 * j + 2], R = Math.min(reach(Math.hypot(x, y, z)), C);
+    const near = [];
+    const cx = Math.floor(x / C), cy = Math.floor(y / C), cz = Math.floor(z / C);
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = -1; c <= 1; c++) {
+      for (const i of cell.get(key(cx + a, cy + b, cz + c)) ?? []) {
+        if (i === j) continue;
+        const d = Math.hypot(P[3 * i] - x, P[3 * i + 1] - y, P[3 * i + 2] - z);
+        if (d < R) near.push([d, i]);
+      }
+    }
+    near.sort((p, q) => p[0] - q[0]);
+    for (const [, i] of near.slice(0, K)) {
+      const id = Math.min(i, j) * n + Math.max(i, j);
+      if (!seen.has(id)) { seen.add(id); links.push(j, i); }
+    }
+    degree[j] = Math.min(255, near.length);
+  }
+  g.links = Uint32Array.from(links); g.degree = degree;
+}
 function drawGalaxies(cam, g, a) {
   if (!g.data || !g.basin || a <= 0.01) return;
-  const { n, pos } = g.data, ctx = cam.ctx, { r, u, n: nv } = cam.cam, kl = cam.k * LY, F = cam.F / LY, s = 1.6 * cam.dpr;
+  const { pos } = g.data, ctx = cam.ctx, { r, u, n: nv } = cam.cam, kl = cam.k * LY, F = cam.F / LY, s = 1.6 * cam.dpr;
   const hi = lowerBound(g.data.dist, 2.5 * F);
+  // a slab ±0.18 frame widths deep, softly: the camera's swing shows the depth
+  const fade = (j) => { const t = (pos[3 * j] * nv[0] + pos[3 * j + 1] * nv[1] + pos[3 * j + 2] * nv[2]) / (0.18 * F); return Math.exp(-t * t); };
+  const X = (j) => cam.cx + kl * (pos[3 * j] * r[0] + pos[3 * j + 1] * r[1] + pos[3 * j + 2] * r[2]);
+  const Y = (j) => cam.cy - kl * (pos[3 * j] * u[0] + pos[3 * j + 1] * u[1] + pos[3 * j + 2] * u[2]);
+  ctx.globalCompositeOperation = "lighter";
+  // the threads, batched by basin and by four steps of depth fade
+  if (g.links) {
+    ctx.lineWidth = 1.1 * cam.dpr;
+    const paths = g.att.map(() => [new Path2D(), new Path2D(), new Path2D(), new Path2D()]);
+    const L = g.links;
+    for (let m = 0; m < L.length; m += 2) {
+      const i = L[m], j = L[m + 1];
+      if (i >= hi && j >= hi) continue;
+      const f = Math.min(fade(i), fade(j));
+      if (f < 0.08) continue;
+      const xi = X(i), yi = Y(i), xj = X(j), yj = Y(j);
+      if ((xi < 0 && xj < 0) || (xi > cam.W && xj > cam.W) || (yi < 0 && yj < 0) || (yi > cam.H && yj > cam.H)) continue;
+      const p = paths[g.basin[i]][Math.min(3, (f * 4) | 0)];
+      p.moveTo(xi, yi); p.lineTo(xj, yj);
+    }
+    paths.forEach((ps, b) => ps.forEach((p, q) => {
+      const c = g.att[b].col;
+      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${(a * 0.32 * (q + 0.5) / 4).toFixed(3)})`;
+      ctx.stroke(p);
+    }));
+  }
+  // the galaxies: bright where they have neighbours, faint alone
   for (let j = 0; j < hi; j++) {
-    const X = pos[3 * j], Y = pos[3 * j + 1], Z = pos[3 * j + 2];
-    const depth = (X * nv[0] + Y * nv[1] + Z * nv[2]) / (0.35 * F);
-    const da = Math.exp(-depth * depth);
-    if (da < 0.05) continue;
-    const x = cam.cx + kl * (X * r[0] + Y * r[1] + Z * r[2]), y = cam.cy - kl * (X * u[0] + Y * u[1] + Z * u[2]);
+    const f = fade(j);
+    if (f < 0.05) continue;
+    const x = X(j), y = Y(j);
     if (x < 0 || x > cam.W || y < 0 || y > cam.H) continue;
     const c = g.att[g.basin[j]].col;
     ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
-    ctx.globalAlpha = a * da * 0.85;
+    ctx.globalAlpha = a * f * (g.degree ? 0.2 + 0.2 * Math.min(4, g.degree[j]) : 0.85);
     ctx.fillRect(x - s / 2, y - s / 2, s, s);
   }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
   // flow lines, fading towards where they started
   const fa = a * ramp(cam.s, 24.2, 24.7);
   if (fa > 0.01) {
     ctx.lineWidth = 1 * cam.dpr;
     for (const f of g.flows) {
       const c = g.att[f.basin].col;
-      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.35 * fa})`;
+      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.07 * fa})`; // faint: the web is the picture
       ctx.beginPath(); f.path.forEach((p, i) => { const [x, y] = cam.proj(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
     }
   }
