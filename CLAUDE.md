@@ -9,6 +9,10 @@
   recording's `video/sources/<date>/NOTES.md` under "Fact check": what's right, what's
   wrong (with the fix and a suggested re-wording), and what's only imprecise. Tell the
   author the wrong ones before or alongside cutting the audio.
+- **Cut every recording the moment it arrives, even a partial one** (the author, 2026-10-29): don't
+  wait for the rest of a re-recording. Splice what's new into the current cut (the old take for the
+  parts not re-recorded yet), publish it, and queue the render, so that night's render has it; swap
+  in the rest when it comes. Waiting cost a night's render once.
 - **Every new or re-cut video must be watchable by the author when you hand it over** (the
   author's rule, 2026-10-27). Get it onto the unlisted page,
   https://triangleofeverything.com/videos-3v63rqq1/ (built from `main` by GitHub Pages: merge,

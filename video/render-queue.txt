@@ -8,3 +8,4 @@
 # and only those stretches re-render, spliced into the last render (narration-render-partial.py).
 short-01-hook
 short-03-stars
+short-04-black-holes
