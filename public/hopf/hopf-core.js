@@ -1481,5 +1481,9 @@ export const CHART_ICONS = {
   'neutrino-tau': { id: 'neutrino-tau', file: 'neutrino-tau' },
   w: { id: 'w-boson', file: 'w-boson' }, z: { id: 'z-boson', file: 'z-boson' }, higgs: { id: 'higgs', file: 'higgs' },
   meson: { id: 'meson-mass', file: 'meson' },
-  proton: { id: 'proton-scale', file: 'proton', res: 0.45 }, neutron: { id: 'neutron-scale', file: 'neutron', res: 0.45 },
+  // the stills show the nucleons as seen from afar (the chart's pictures are small)
+  proton: { id: 'proton-scale', file: 'proton', res: 0 }, neutron: { id: 'neutron-scale', file: 'neutron', res: 0 },
+  // atoms are drawn live only in the videos (src/hopf-icons.js); deuterium has no
+  // chart object, only the videos' pictures (narration `pic`)
+  hydrogen: { id: 'hydrogen', file: 'hydrogen', video: true }, deuterium: { id: 'deuterium', file: 'deuterium', video: true },
 };
