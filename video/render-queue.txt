@@ -8,4 +8,3 @@
 # and only those stretches re-render, spliced into the last render (narration-render-partial.py).
 short-03-stars
 # short-03-stars changed: 2:05-2:16
-short-05-hubble-sphere
