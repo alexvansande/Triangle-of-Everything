@@ -530,8 +530,11 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
 });
 // on their own: the proton opens on its finest probe (the sea, up close), the
 // neutron on its coarsest; inside atoms both take the atom's look
+// the proton's light follows the probe: the atom light for the ball from afar,
+// the close-up light for the sea (on the ball it burns white)
 const PROTON_SCALE = { ...nucleonScale('proton-scale', 'Proton · by resolution', '/content/icons/proton.webp', [[2, 3], [2, 3], [-1, 3]]),
-  resolution: 1, style: { protonBall: 0.036, quarks: 0.75 }, viewOpts: CLOSE_LIGHT };
+  resolution: 1, style: { quarks: 0.75 },
+  viewOpts: view => { const k = smooth(0.3, 0.9, view.res); return Object.fromEntries(Object.keys(CLOSE_LIGHT).map(n => [n, ATOM_LIGHT[n] + (CLOSE_LIGHT[n] - ATOM_LIGHT[n]) * k])); } };
 const NEUTRON_SCALE = { ...nucleonScale('neutron-scale', 'Neutron · by resolution', '/content/icons/neutron.webp', [[2, 3], [-1, 3], [-1, 3]], true),
   resolution: 0, viewOpts: ATOM_LIGHT };
 
@@ -809,12 +812,15 @@ const ATOMS = [
     chips: [['Electron', '1 · ground state 1s'], ['Lines', 'electron (1,−1) Hopf circles'], ['Scale', 'log radius, rings every ×10']],
     why: ATOM_WHY + ' Ground state: 1s, densest at the nucleus, though so little volume is there that the electron is mostly found near 50 pm; violet marks where ψ is negative.',
     nuclei: [[PROTON_SCALE, [0, 0, 0]]], electrons: H_ELECTRON, extentA0: H_EXTENT }),
-  atom({ id: 'deuterium', name: 'Deuterium', sub: 'Hydrogen-2: a proton and a neutron, one electron, here excited to 3p',
+  // the author's deuterium look (2026-10-29), in the ground state next to hydrogen's (the
+  // videos compare the two: the neutron leaves the electron alone), and in 3p, the author's pick
+  ...[['deuterium', '1s', ''], ['deuterium-3p', '3p', ' · 3p']].map(([id, orbital, tag]) => atom({ id, name: 'Deuterium' + tag,
+    sub: 'Hydrogen-2: a proton and a neutron, one electron' + (tag ? ', here excited to 3p' : ''),
     chips: [['Nucleus', 'p + n, ~3.9 fm apart'], ['Lines', 'electron (1,−1) Hopf circles'], ['Scale', 'log radius, rings every ×10']],
-    why: ATOM_WHY + ' The extra neutron leaves the electron almost untouched: the 1s orbital is the same to 0.03% (the reduced mass). Shown here excited to 3p, 1.51 eV below escape: two lobes of opposite sign split by a flat node where the electron is never found; it falls back to 1s within a few billionths of a second, giving off light.',
+    why: ATOM_WHY + ' The extra neutron leaves the electron almost untouched: the 1s orbital is the same to 0.03% (the reduced mass).'
+      + (tag ? ' Shown here excited to 3p, 1.51 eV below escape: two lobes of opposite sign split by a flat node where the electron is never found; it falls back to 1s within a few billionths of a second, giving off light.' : ''),
     nuclei: [[PROTON_SCALE, [-1.97, 0, 0]], [NEUTRON_SCALE, [1.97, 0, 0]]], electrons: H_ELECTRON, extentA0: H_EXTENT,
-    // the author's pick: the excited 3p state, its two lobes split by a dark node
-    style: { orbital: '3p', neutronFringe: 0.35, neutronBall: 0.02, neutronGrey: 0.41, quarks: 0.85, nucleusGain: 2.25 } }),
+    style: { orbital, neutronFringe: 0.35, neutronBall: 0.02, neutronGrey: 0.41, quarks: 0.85, nucleusGain: 2.25 } })),
   atom({ id: 'oxygen', name: 'Oxygen', sub: 'Oxygen-16: 8 protons, 8 neutrons, 8 electrons',
     chips: [['Nucleus', '8p + 8n'], ['Electrons', '1s² 2s² 2p⁴'], ['Core', '1s in the core colour'], ['Scale', 'log radius, rings every ×10']],
     why: ATOM_WHY + ' Oxygen\'s eight electrons fill 1s² 2s² 2p⁴, each orbital hydrogen-like with Slater\'s effective nuclear charge (7.7 for 1s, 4.55 for the second shell); the four 2p electrons are averaged over the three p orbitals, so the cloud is round. The two 1s electrons hug the nucleus about 8 times closer than hydrogen\'s.',
@@ -1344,7 +1350,10 @@ export class HopfView {
   }
 
   // the particle's own camera and light, unless the caller keeps its own
-  look(opts) { return opts.own || !this.particle.viewOpts ? opts : { ...opts, ...this.particle.viewOpts }; }
+  look(opts) {
+    const v = this.particle.viewOpts;
+    return opts.own || !v ? opts : { ...opts, ...(typeof v === 'function' ? v(this) : v) };
+  }
 
   update(time, opts) {
     opts = this.look(opts);

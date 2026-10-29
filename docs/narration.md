@@ -462,6 +462,10 @@ Cue fields
                a decay, what a thing is made of), in place of an arrow along the same path
              { text: "Dark matter?", at: [r, m], color?, size? } — a big free-standing word ("\n" stacks lines),
                a hub for arrows to point out from
+             { pic: "deuterium", at: [r, m], size?, label?, sub? } — a particle's picture anywhere on
+               the chart (size in px, default 140), its label and a smaller sub-line under it.
+               The still is content/icons/<pic>.webp; the videos draw it live from the Hopf
+               particle of that id (src/hopf-icons.js), turning with the parallax as the camera pans
              { key: [["microwave", "#ff6b5e"], …], title? } — a colour key near the
                top, for a false-colour view (the explorer's RGB)
              { pixels: { steps: [s, …], n?, cell?, seed? } } — expansion as an image gaining
