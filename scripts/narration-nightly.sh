@@ -16,6 +16,8 @@ mkdir -p output/videos
 log() { echo "[$(date '+%F %H:%M:%S')] $*"; }
 
 log "nightly check"
+# a round started by hand earlier still running: let it finish
+if pgrep -f narration-overnight.sh > /dev/null; then log "a render round is still running: skipping"; exit 0; fi
 git fetch -q origin && { git merge -q --no-edit origin/main 2>/dev/null || { git merge --abort; log "merging main conflicts: checking the branch as it is"; }; }
 
 stale=$(DRY=1 scripts/narration-render-stale.sh | sed -n 's/^stale //p')
