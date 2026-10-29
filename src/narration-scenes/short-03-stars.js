@@ -62,8 +62,12 @@ export default {
     { at: "called deuterium", hl: [...BD, { obj: "L Brown Dwarf", label: "deuterium only" }] },
     // hydrogen and deuterium side by side on black, named underneath (the author, 2026-10-29): the
     // Atom Lab's Hydrogen 1s and Deuterium 3p looks (public/atom-lab.html, branch claude/hopf-atoms)
-    { at: "called deuterium", photo: ["hopf-hydrogen", "hopf-deuterium"], row: true, dur: 5.8, fadeIn: 0.6, fadeOut: 0.6,
-      labels: ["hydrogen<small>1 proton</small>", "deuterium<small>1 proton + 1 neutron</small>"] },
+    // (live: 8 s clips recorded from the lab frame by frame on a stepped clock, turning and flowing at
+    // the presets' own rates, the background crushed to pure black)
+    { at: "called deuterium", photo: ["hopf-hydrogen", "hopf-deuterium"], clip: true, row: true, kb: [1, 1], dur: 5.8, fadeIn: 0.6, fadeOut: 0.6,
+      // how much of the universe's hydrogen each is: deuterium ~2.5 in 100,000 (D/H, primordial;
+      // "1 in ~40,000", as the next cue says); on Earth's water it's ~0.016%
+      labels: ["hydrogen<small>1 proton</small><small>99.997%</small>", "deuterium<small>1 proton + 1 neutron</small><small>0.003%</small>"] },
     { at: "deuterium is so rare", hl: [...BD, { obj: "L Brown Dwarf", label: "1 hydrogen in ~40,000" }] },
     { at: "shining on like stars", hl: [...BD, { obj: "L Brown Dwarf", label: "never a star" }, { obj: "Proxima Cen", label: false }] },
 

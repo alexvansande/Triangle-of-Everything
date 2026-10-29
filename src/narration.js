@@ -522,7 +522,8 @@ export async function startNarration(app) {
   //   obj?: dot it grows from, dur?: s (6), fit?: "cover" | "contain", kb?: [scale from, to],
   //   focus?: [x, y] (0–1 in the image, where the Ken Burns push heads),
   //   place?: true | width (fraction of the screen, default 0.78), fadeIn?: s, row?: true (several
-//   pictures side by side, not stacked), labels?: [html under each],
+//   pictures side by side, not stacked), labels?: [html under each], clip?: true (the pictures are
+//   short .mp4 videos playing from the cue: the Hopf atoms),
   //   lens?: { icon: [cx, cy, r], photo: [cx, cy, r], size: [w, h] }
   //        | { map: [ar, ai, br, bi], r, at?: [x, y], size: [w, h] }
   //        plus fill?: true | "cover", hold?: s (0.3), fillDur?: s (1.6) — then grow:
@@ -589,11 +590,11 @@ export async function startNarration(app) {
     marks.forEach(g => g.style("opacity", (1 - k).toFixed(3)));
     dollyOn = true;
   }
-  const photoUrl = (n) => `${import.meta.env.BASE_URL}narration/photos/${n}.jpg`;
+  const photoUrl = (n, clip) => `${import.meta.env.BASE_URL}narration/photos/${n}.${clip ? "mp4" : "jpg"}`;
   const photos = cues.filter(c => c.photo).map(c => ({ ...c, names: [].concat(c.photo),
     t0: c.time + diveLead(c), t1: c.time + diveLead(c) + (c.dur ?? 6) }));
   const photoImgs = new Map();
-  for (const p of photos) for (const n of p.names) if (!photoImgs.has(n)) {
+  for (const p of photos) for (const n of p.names) if (!p.clip && !photoImgs.has(n)) {
     const im = new Image(); im.decoding = "sync"; im.src = photoUrl(n); photoImgs.set(n, im);
   }
   // ---------- the opening cover (scene `cover: { src, size: [w, h], frame: [x0, y0, x1, y1],
@@ -675,12 +676,15 @@ export async function startNarration(app) {
       photoShown = p;
       // several pictures: one above the other, or side by side with `row: true`
       photoBox.className = "np-imgs" + (p.names.length > 1 ? " np-stack" + (p.row ? " np-row" : "") : "");
-      photoBox.innerHTML = p.names.map((n, i) => `<figure><img src="${photoUrl(n)}" alt="">` +
+      // `clip: true`: the pictures are short videos (public/narration/photos/<name>.mp4), playing from
+      // the cue on, frame-exact in the renderer (syncClips)
+      photoBox.innerHTML = p.names.map((n, i) => `<figure>${p.clip ? `<video src="${photoUrl(n, true)}" muted playsinline preload="auto"></video>` : `<img src="${photoUrl(n)}" alt="">`}` +
         (p.labels?.[i] ? `<figcaption>${p.labels[i]}</figcaption>` : "") + `</figure>`).join("");
       photoBox.querySelectorAll("img").forEach(im => { im.style.objectFit = p.fit || (p.names.length > 1 ? "contain" : "cover"); im.style.filter = ""; });
       const [what, ...rest] = (p.caption || "").split(" · ");
       photoCap.innerHTML = p.caption ? `<b>${what}</b>${rest.join(" · ")}` : "";
     }
+    if (p.clip) syncClips(p, t);
     // grow from the object's dot (or the middle), on the camera as it is now
     let cx = SW / 2, cy = SH / 2;
     const o = p.obj && objByName.get(p.obj);
@@ -789,6 +793,23 @@ export async function startNarration(app) {
     photoBox.style.transformOrigin = `${(fx * 100).toFixed(2)}% ${(fy * 100).toFixed(2)}%`;
     photoBox.style.transform = `scale(${sc.toFixed(4)})`;
     photoCap.style.opacity = (smooth((t - p.t0 - PHOTO_IN * 0.6) / 0.5) * (1 - smooth((t - p.t1 + 0.3) / 0.4))).toFixed(3);
+  }
+
+  // a clip cutaway's videos follow the narration's clock: the renderer seeks each frame exactly
+  // (pending() waits for the seek); the live player lets them play and only corrects a drift
+  function syncClips(p, t) {
+    let live = false;
+    try { live = !RENDER && !audio.paused; } catch {}
+    for (const v of photoBox.querySelectorAll("video")) {
+      const want = Math.max(0, Math.min((v.duration || 1e9) - 0.04, t - p.t0));
+      if (RENDER || !live) {
+        if (!v.paused) v.pause();
+        if (Math.abs(v.currentTime - want) > 0.001) v.currentTime = want;
+      } else {
+        if (Math.abs(v.currentTime - want) > 0.25) v.currentTime = want;
+        if (v.paused && want < (v.duration || 1e9) - 0.05) v.play().catch(() => {});
+      }
+    }
   }
 
   let curT = 0;
@@ -2300,6 +2321,7 @@ export async function startNarration(app) {
     pending: () => app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
       [...photoImgs.values()].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length +
+      [...photoBox.querySelectorAll("video")].filter(v => v.seeking || v.readyState < 2).length +
       (COVER && !coverImg.complete ? 1 : 0) + (specReady() ? 0 : 1) + tracesPending() + app.bgNoisePending(),
     // the fractal background: { wanted, shown, failed, lost } (failed: "no WebGL2"; lost: GL contexts lost), for the renderer's log
     bgNoise: () => app.bgNoiseStatus(),
@@ -2627,13 +2649,13 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
 #narr-photo { position: absolute; inset: 0; background: #000; overflow: hidden; visibility: hidden; pointer-events: none; }
 #narr-photo .np-imgs { position: absolute; inset: 0; will-change: transform; }
 #narr-photo figure { position: absolute; inset: 0; margin: 0; }
-#narr-photo img { width: 100%; height: 100%; display: block; }
+#narr-photo img, #narr-photo video { width: 100%; height: 100%; display: block; object-fit: contain; }
 #narr-photo .np-stack { display: flex; flex-direction: column; justify-content: center; gap: 2%; padding: 15% 8% 30%; box-sizing: border-box; }
 #narr-photo .np-stack figure { position: relative; flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; }
 #narr-photo .np-stack img { flex: 1 1 0; min-height: 0; }
 #narr-photo .np-row { flex-direction: row; align-items: center; gap: 3%; padding: 30% 3% 38%; }
 #narr-photo .np-row figure { min-width: 0; height: 100%; justify-content: center; }
-#narr-photo .np-row img { flex: 0 1 auto; width: 100%; height: auto; aspect-ratio: 1; }
+#narr-photo .np-row img, #narr-photo .np-row video { flex: 0 1 auto; width: 100%; height: auto; aspect-ratio: 1; }
 #narr-photo .np-row figcaption { margin-top: 10px; text-align: center; line-height: 1.25; }
 #narr-photo figcaption small { display: block; font-size: 14px; letter-spacing: 0.06em; color: rgba(255,255,255,0.8); }
 #narr-photo figcaption { margin-top: 4px; font: 700 17px/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.12em;
