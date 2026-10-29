@@ -16,7 +16,7 @@ const icon = (name) => image(`/content/icons/${name}.webp`);
 const ready = (img) => img.complete && img.naturalWidth > 0;
 
 export function spaceLayers(globe) {
-  const imgs = Object.fromEntries(["moon", "sun", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "andromeda-m31", "triangulum-m33", "dwarf-galaxy"].map((n) => [n, icon(n)]));
+  const imgs = Object.fromEntries(["moon", "sun", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "milky-way", "andromeda-m31", "triangulum-m33", "dwarf-galaxy"].map((n) => [n, icon(n)]));
   const ring = (cam, c, e1, e2, rad, style, width = 1) => {
     const ctx = cam.ctx;
     ctx.strokeStyle = style; ctx.lineWidth = width * cam.dpr;
@@ -43,6 +43,46 @@ export function spaceLayers(globe) {
   };
 
   // ---------- Earth, the Moon and its orbit ----------
+  // ---------- the sky behind: Gaia's all-sky map (the spectrum page's RP, G and BP,
+  // natural colour), faint and at infinity: it turns with the camera but doesn't zoom,
+  // so the solar system shows in front of it. A 50° view across the frame's shorter
+  // side, sampled on a coarse grid and smoothed ----------
+  const skyImg = image("/spectrum/sky-spectrum/pack-7.jpg"), SKY_G = 160;
+  let skyPx = null, skyCv = null, skyCtx = null, skyOut = null;
+  const sky = {
+    name: "sky", range: [7.2, 17.2],
+    draw(cam) {
+      const a = 0.5 * win(cam.s, 7.4, 8.2, 16.0, 16.9);
+      if (a <= 0.01) return;
+      if (!skyPx) {
+        if (!ready(skyImg)) return;
+        const c = document.createElement("canvas"); c.width = skyImg.naturalWidth; c.height = skyImg.naturalHeight;
+        const g = c.getContext("2d"); g.drawImage(skyImg, 0, 0);
+        // each band is normalised to its own range, so the faint sky reads as grey grain:
+        // a black point and a steep curve keep the Milky Way's band and the bright regions
+        const d = g.getImageData(0, 0, c.width, c.height).data, lut = new Uint8Array(256);
+        for (let v = 0; v < 256; v++) lut[v] = 255 * Math.max(0, (v / 255 - 0.3) / 0.7) ** 2;
+        for (let i = 0; i < d.length; i += 4) { d[i] = lut[d[i]]; d[i + 1] = lut[d[i + 1]]; d[i + 2] = lut[d[i + 2]]; }
+        skyPx = { w: c.width, h: c.height, d };
+        skyCv = document.createElement("canvas"); skyCv.width = skyCv.height = SKY_G;
+        skyCtx = skyCv.getContext("2d"); skyOut = skyCtx.createImageData(SKY_G, SKY_G);
+      }
+      const { r, u, n } = cam.cam, T = Math.tan(25 * Math.PI / 180) * cam.W / cam.min, o = skyOut.data, { w, h, d } = skyPx;
+      for (let j = 0; j < SKY_G; j++) for (let i = 0; i < SKY_G; i++) {
+        const x = ((i + 0.5) / SKY_G * 2 - 1) * T, y = (1 - (j + 0.5) / SKY_G * 2) * T;
+        const vx = -n[0] + x * r[0] + y * u[0], vy = -n[1] + x * r[1] + y * u[1], vz = -n[2] + x * r[2] + y * u[2];
+        const l = Math.atan2(vy, vx), b = Math.asin(vz / Math.hypot(vx, vy, vz));
+        const U = (((0.5 - l / (2 * Math.PI)) % 1) + 1) % 1, V = 0.5 - b / Math.PI;
+        const si = 4 * (Math.min(h - 1, (V * h) | 0) * w + Math.min(w - 1, (U * w) | 0)), k = 4 * (j * SKY_G + i);
+        o[k] = d[si]; o[k + 1] = d[si + 1]; o[k + 2] = d[si + 2]; o[k + 3] = 255;
+      }
+      skyCtx.putImageData(skyOut, 0, 0);
+      const ctx = cam.ctx;
+      ctx.globalAlpha = a; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(skyCv, 0, 0, cam.W, cam.H);
+      ctx.globalAlpha = 1;
+    },
+  };
   const earthMoon = {
     name: "earth & moon", range: [7.5, 11.5],
     draw(cam) {
@@ -134,6 +174,16 @@ export function spaceLayers(globe) {
     draw(cam) {
       const a = ramp(cam.s, 19.6, 20.4) * (1 - ramp(cam.s, 24.4, 24.9));
       if (a <= 0.01) return;
+      // under the points, faintly, the generated picture laid on the galactic plane
+      const img = imgs["milky-way"], SIDE = 34 * KPC;
+      if (ready(img)) {
+        const o = cam.proj(sub(GC, [SIDE / 2, SIDE / 2, 0]));
+        const ex = sub(cam.proj(add(GC, [SIDE / 2, -SIDE / 2, 0])), o), ey = sub(cam.proj(add(GC, [-SIDE / 2, SIDE / 2, 0])), o);
+        const ctx = cam.ctx;
+        ctx.save(); ctx.globalAlpha = 0.3 * a;
+        ctx.transform(ex[0] / img.naturalWidth, ex[1] / img.naturalWidth, ey[0] / img.naturalHeight, ey[1] / img.naturalHeight, o[0], o[1]);
+        ctx.drawImage(img, 0, 0); ctx.restore();
+      }
       withGlow(cam, 0.9, (c) => drawModel(c, MW, a));
       const side = 34 * KPC * cam.k, [x, y] = cam.proj(GC);
       cam.labelPx(x, y - 0.4 * side, "the Milky Way", a * ramp(cam.s, 20.5, 20.8) * (1 - ramp(cam.s, 22.2, 22.6)));
@@ -215,7 +265,7 @@ export function spaceLayers(globe) {
     } catch (e) { console.warn("sky points unavailable:", e); }
   })();
 
-  return [earthMoon, solar, comets, stars, named, milkyWay, localGroup, galaxies, groupLabels];
+  return [sky, earthMoon, solar, comets, stars, named, milkyWay, localGroup, galaxies, groupLabels];
 }
 
 // stars as points: the ones within a few frame-widths, at most ~30k a frame

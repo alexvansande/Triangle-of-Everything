@@ -115,15 +115,15 @@ function turned({ r, u, n }, tip, turn) {
   const u1 = add(mul(u, Math.cos(a)), mul(n, Math.sin(a))), n1 = sub(mul(n, Math.cos(a)), mul(u, Math.sin(a)));
   return { r: add(mul(r, Math.cos(b)), mul(n1, Math.sin(b))), u: u1, n: sub(mul(n1, Math.cos(b)), mul(r, Math.sin(b))) };
 }
-// looking straight down on the tree (north up) → on the ecliptic, from 20° off its
-// pole, tipping to 45° and turning 40° as we pass the planets, so the solar system
-// shows in 3D → on the Galaxy (60° from the ecliptic) → on the supergalactic plane,
+// looking straight down on the tree (north up) → on the ecliptic, from 55° off its
+// pole, tipping to 72° and turning 40° as we pass the planets, so we cross their
+// orbits as on a fly-by → on the Galaxy (60° from the ecliptic) → on the supergalactic plane,
 // the galactic pole up, as the spectrum Cloud has it
 const K0 = basis(UP, NORTH);
 const K1 = basis(ECL_POLE, K0.u);
 const K2 = basis(GAL_POLE, K1.u);
 const K3 = basis(SG_POLE, GAL_POLE);
-const KEYS = [[7.6, K0], [9.6, turned(K1, 20, 0)], [15.0, turned(K1, 45, 40)], [16.8, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
+const KEYS = [[7.6, K0], [9.6, turned(K1, 55, 0)], [15.0, turned(K1, 72, 40)], [16.8, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
 // from the stars out the camera turns round the vertical at a steady 10° a decade
 // (eased in over the first), tipping 8° and back, so depth shows as it moves
 // (parallax); the roll round the line of sight, the same at every scale, is the

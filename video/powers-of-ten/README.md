@@ -42,7 +42,7 @@ plane, so the galaxies' flows lie flat.
 | 8 … 16 | the Moon's orbit, the planets on 2026-10-29, the Kuiper belt, the heliosphere | code |
 | 14 … 18 | the Oort cloud | code (a model; it has never been seen) |
 | 16 … 22 | stars: Hipparcos (nearest) and Gaia | data (`tools/sky-points`) |
-| 19.5 … 24.5 | the Milky Way: ~55k glowing points (bar, bulge, four arms, the old disc), turning with the camera | code (`milkyWayModel` in `space.js`), a rough model |
+| 19.5 … 24.5 | the Milky Way: ~55k glowing points (bar, bulge, four arms, the old disc), turning with the camera, over the generated picture at 30% | code (`milkyWayModel` in `space.js`), a rough model |
 | 21.5 … 25 | the Local Group, 28 galaxies at their real positions | code |
 | 23 … 26.5 | 2MRS galaxies as a cosmic web: each linked to its nearest neighbours (positions untouched), coloured by the attractor they flow to (a rough Laniakea); the camera keeps turning round the vertical (10° a decade from the stars out, tipping 8° and back), so depth shows | code, toy model |
 | 26 … 27.6 | the spectrum page's Cloud on its log scale, the whole spectrum bar, the CMB's light alone with a glow on each dot: the camera flies backwards and turns, so the CMB comes past from behind, ending on the author's view | `public/spectrum` (`?bare=1`, `spectrumControl`) |
@@ -55,8 +55,10 @@ canopy, the clouds, the Oort cloud, the Milky Way) soft things near the camera f
 they really are, for scale and depth like the opening of *Contact*: Eros, Vesta, Ceres, two
 comets, Pluto and Charon; Sirius, Vega, the Pleiades, Betelgeuse, the Helix, Orion and
 Bubble nebulae, M13; Bode's, the Cigar, the Whirlpool, the Sombrero, M87, the Perseus and
-Bullet clusters. The solar system is seen from 20° off the ecliptic's pole, tipping to 45°
-and turning 40° as we pass the planets, before the turn to the Galaxy's plane.
+Bullet clusters. The solar system is seen from 55° off the ecliptic's pole, tipping to 72°
+and turning 40° as we pass the planets, so we cross the orbits as on a fly-by, before the turn
+to the Galaxy's plane. Behind it, faint and at infinity, is Gaia's all-sky map (the spectrum
+page's RP, G and BP): it turns with the camera but doesn't zoom.
 
 ## The image pass (DNA → Earth)
 
