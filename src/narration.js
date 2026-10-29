@@ -1382,6 +1382,9 @@ export async function startNarration(app) {
   function drawPath(el, h, age) {
     const pl = app.plot(), prog = d3.easeCubicOut(clamp01((curT - (h.since ?? h.t0)) / (h.draw ?? 1.2)));
     const list = app.connPaths?.(h.path) || [];
+    // a path name that matches nothing shows with the missed cues (window.__narrMissing)
+    if (!list.length && app.connPaths && Array.isArray(window.__narrMissing) && !window.__narrMissing.includes("path " + h.path))
+      window.__narrMissing.push("path " + h.path);
     // `from` / `to` (object names): only the stretch of the path between them
     const near = (pts, name, i0 = 0) => {
       const o = objByName.get(name);

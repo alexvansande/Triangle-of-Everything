@@ -5282,6 +5282,10 @@ function compositionPath(part, whole, pos, wpos) {
     _into: whole,
     description: `${whole} is made of ${joinList(COMPOSITION[whole])}`,
     points: [A, B],
+    // a nearly level line (a nucleus into its atom: same mass, 10⁵× the size) or a long one (DNA
+    // up into a bacterium) takes a gentle arc: the S-curve's control points sit past its end, so
+    // it overshot the atom and came back, and the long one set off downwards first
+    ...(Math.abs(B.logM - A.logM) < 0.3 * Math.abs(B.logR - A.logR) || len > 5 ? { curve: "arc", bow: 0.06 } : {}),
     zoomRange: [6, 800],
     neighborhood: {
       x: [Math.min(A.logR, B.logR) - 1, Math.max(A.logR, B.logR) + 1],

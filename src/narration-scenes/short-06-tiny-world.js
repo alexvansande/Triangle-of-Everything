@@ -26,6 +26,9 @@ const NOBLE = ["Neon", "Argon", "Krypton", "Xenon", "Radon"];
 const few = (names, label, delay = 0.15) => names.map((obj, i) => ({ obj, label: i === names.length - 1 ? label : false, delay: i * delay }));
 const BASES = ["Adenine (A)", "Thymine (T)", "Cytosine (C)", "Guanine (G)"];
 const PARTICLES = ["Electron", "Muon", "Proton", "Tau"];
+// "everything is connected" (the author, 2026-10-29): the chart's "made of" paths lit one link at
+// a time on the way down: a living thing ← DNA ← its bases ← atoms; atom ← nucleus, ← electrons
+const P = (path, delay = 0) => ({ path, delay });
 const LIGHT = ["FM Radio", "Microwave", "Infrared", "Visible Light", "Ultraviolet", "X-ray", "Gamma Ray"];
 
 export default {
@@ -96,11 +99,15 @@ export default {
     { at: "hemoglobin", hl: [{ obj: "Antibody (IgG)", label: false }, { obj: "Hemoglobin", label: "carries oxygen" }] },
     // DNA and the paths from its four bases lit up (the author, 2026-10-28: highlight the
     // moving dots' paths to what a thing is made of)
+    // DNA up to a living thing (the path runs up out of the frame to the bacteria), then
+    // down: its four bases into it, then the atoms into one base and into sugar and water
     { at: "every one of us", cam: C(-7.05, -20.6, 1.7), hl: [{ obj: "DNA" }] },
-    { at: "us dna", offset: 0.15, hl: [{ obj: "DNA" }, { path: "DNA" }] },
-    { at: "four molecules", cam: C(-7.3, -21.1, 1.8), hl: [{ path: "DNA" }, { obj: "DNA", label: false }, ...few(BASES, "A · T · C · G", 0.3)] },
+    { at: "us dna", offset: 0.15, cam: C(-6.5, -19.1, 2.6), hl: [{ obj: "DNA", label: "in every living thing" }, P("made-of:DNA>Bacterium")] },
+    { at: "four molecules", cam: C(-7.3, -21.1, 1.8), hl: [P("DNA"), { obj: "DNA", label: false }, ...few(BASES, "A · T · C · G", 0.3)] },
     { at: "simpler and simpler", cam: C(-7.7, -22.0, 1.4),
-      hl: [{ obj: "Glucose", label: "sugar" }, { obj: "Water (H₂O)", label: "water", delay: 0.8 }] },
+      hl: [P("Glucose"), { obj: "Glucose", label: "sugar" }, P("Water (H₂O)", 0.8), { obj: "Water (H₂O)", label: "water", delay: 0.8 }] },
+    { at: "until we reach the atoms", hl: [P("Adenine (A)"), { obj: "Adenine (A)", label: "a base", place: "right" },
+      ...few(["Carbon", "Nitrogen", "Hydrogen"], "atoms: C · N · H", 0.2)] },
 
     // ── Atoms and the periodic table ─────────────────────────
     { at: "here's hydrogen", cam: C(-8.25, -23.5, 1.2), clear: true, hl: [{ obj: "Hydrogen" }] },
@@ -108,13 +115,14 @@ export default {
     // (the author, 2026-10-28)
     { at: "for any atom the mass", cam: { r: -10.65, m: -23.1, span: 8.6 }, dur: 1.4,
       hl: [{ obj: "Hydrogen", label: "mass: the nucleus" }, { dust: "nucleus", src: ["nucleus"], color: "#ffb74d", sweep: 0.8, delay: 0.6 },
-        { arrow: true, solid: true, width: 3, from: { obj: "Hydrogen" }, to: { obj: "Proton" }, delay: 0.8 },
-        { obj: "Proton", label: "its nucleus", delay: 1.6 }] },
+        P("proton-to-hydrogen", 0.8), { obj: "Proton", label: "its nucleus", delay: 1.6 }] },
     { at: "but the size comes", offset: -0.1, cam: { r: -8.3, m: -23.55, span: 1.2 }, dur: 1.8,
       hl: [{ obj: "Hydrogen", label: "size: the electrons" }] },
-    { at: "cloud of electrons", hl: [{ obj: "Hydrogen", label: "size: the electrons" }] },
+    { at: "cloud of electrons", cam: C(-9.2, -25.2, 3.2), hl: [{ obj: "Hydrogen", label: "size: the electrons" }, P("electron-to-hydrogen"), { obj: "Electron", label: "electron", delay: 0.6 }] },
+    // (its nucleus, 2 protons + 2 neutrons, off to the left at the same mass: the path runs out that way)
     { at: "you get helium", cam: C(-8.4, -23.3, 1.3),
-      hl: [{ obj: "Hydrogen", label: false }, { arrow: true, from: { obj: "Hydrogen" }, to: { obj: "Helium" } }, { obj: "Helium", label: "4× the mass", delay: 0.7 }] },
+      hl: [{ obj: "Hydrogen", label: false }, { arrow: true, from: { obj: "Hydrogen" }, to: { obj: "Helium" } }, { obj: "Helium", label: "4× the mass", delay: 0.7 },
+        P("made-of:Helium-4 nucleus>Helium", 0.7)] },
     { at: "actually smaller", hl: [{ obj: "Hydrogen", label: false }, { obj: "Helium", label: "and smaller" }] },
     { at: "you get lithium", cam: C(-8.15, -23.05, 1.5),
       hl: [{ obj: "Helium", label: false }, { arrow: true, from: { obj: "Helium" }, to: { obj: "Lithium" } }, { obj: "Lithium", label: "lithium", delay: 0.6 }] },
@@ -131,8 +139,9 @@ export default {
     { at: "palladium jumps over", hl: [{ obj: "Rhodium", label: false }, { obj: "Silver", label: false }, { obj: "Palladium", label: "palladium" }] },
     { at: "almost as compact", hl: [{ obj: "Palladium", label: "nearly a noble gas" }, ...few(NOBLE.slice(1, 4), false, 0.2)] },
     { at: "the lanthanides", cam: C(-7.8, -21.6, 1.5), hl: [{ obj: "Lanthanum", label: "lanthanides" }, { obj: "Gold", delay: 0.6 }, { obj: "Silver", delay: 0.9 }] },
-    { at: "up to iron", cam: C(-7.85, -21.8, 1.8), hl: [{ obj: "Iron", label: "made in stars' cores" }] },
-    { at: "gold or uranium", hl: [{ obj: "Iron", label: false }, { obj: "Gold", place: "left" }, { obj: "Uranium", delay: 0.4 }] },
+    { at: "up to iron", cam: C(-7.85, -21.8, 1.8), hl: [{ obj: "Iron", label: "made in stars' cores" }, P("made-of:Iron-56 nucleus>Iron", 0.4)] },
+    { at: "gold or uranium", hl: [{ obj: "Iron", label: false }, { obj: "Gold", place: "left" }, { obj: "Uranium", delay: 0.4 },
+      P("made-of:Gold-197 nucleus>Gold", 0.2), P("made-of:Uranium-238 nucleus>Uranium", 0.6)] },
     { at: "colliding neutron stars", hl: [{ obj: "Gold", label: false }, { obj: "Uranium", label: "exploding stars, neutron stars" }] },
     { at: "every element is radioactive", cam: C(-7.75, -21.4, 1.4), hl: [{ obj: "Uranium", label: "radioactive" }, { obj: "Radon", label: false }] },
     // the periodic table stays up, with oganesson in the frame, until its sentence ends;
@@ -159,7 +168,8 @@ export default {
     // ── Particles and light, all on the line ─────────────────
     // a held frame, not a glide waypoint: radio (top right) to gamma rays all on screen while they're named
     { at: "something very cool", cam: { r: -4.8, m: -32, span: 16 }, dur: 3.5, drift: 0.03, clear: true, hl: [COMPTON] },
-    { at: "every particle sits here", hl: [COMPTON, ...few(PARTICLES, "particles", 0.3)] },
+    // (the proton's quarks into it: particles made of particles)
+    { at: "every particle sits here", hl: [COMPTON, ...few(PARTICLES, "particles", 0.3), P(["up-to-proton", "down-to-proton"], 1.2)] },
     { at: "so does light", spectrum: true, hl: [COMPTON, ...few(LIGHT, "light", 0.25)] },
     { at: "radio waves", hl: [COMPTON, { obj: "FM Radio", label: "radio" }] },
     { at: "gamma rays down here", hl: [COMPTON, { obj: "FM Radio", label: false }, { obj: "Gamma Ray", label: "gamma rays" }] },
