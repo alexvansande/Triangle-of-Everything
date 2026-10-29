@@ -10,6 +10,5 @@
 short-05-hubble-sphere
 short-06-tiny-world
 short-07-wavelengths
-short-04-black-holes
 short-02-up-the-line
 short-01-hook
