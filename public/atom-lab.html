@@ -450,6 +450,8 @@ document.getElementById('reset').addEventListener('click', () => {
 const PRESETS = [
   ['Hydrogen 1s', { subject: 'hydrogen', ...HOME }],
   ['Water', { subject: 'water', ...HOME }],
+  ['Proton', { subject: 'proton', look: { ...HOME.look, probe: 1, protonBall: 0.036, neutronBall: 0.03, quarks: 0.75, nucleusGain: 2.7, cloudFibers: 310, electronGain: 2.15 },
+    view: { rotate: -0.09, bloom: 1.65, exposure: 1.55, width: 2.7, core: 1.3, drift: true, flow: true, labels: false } }],
   ['Electron', { subject: 'electron', look: { ...HOME.look, quarks: 2.25, neutronBall: 0.025, nucleusGain: 2.7, cloudFibers: 310, electronGain: 2.15 },
     view: { rotate: -0.09, bloom: 1.65, exposure: 1.55, width: 2.7, core: 1.3, drift: true, flow: true, labels: false } }],
   ['Deuterium 3p', { subject: 'deuterium', look: {
