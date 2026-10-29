@@ -464,6 +464,12 @@ Cue fields
                between them (the low-mass life `to: "Protostar"` for "nursery → protostar").
                Use it whenever the narration talks about what a path shows (a star's life,
                a decay, what a thing is made of), in place of an arrow along the same path
+             { clip: "name", from: [r, m], to?, move?: [s0, s1], lead?: s, size?: px } — a short video
+               (public/narration/photos/<name>.mp4) on the chart, its black made see-through, sliding from
+               `from` to `to` between s0 and s1 s after it starts, playing `lead` s in, frame-exact in the
+               renderer (video 3: hydrogen's electron cloud collapsing onto its proton, into a neutron)
+             { fly: { from: [r, m], to: [r, m] }, dur?, color?, label? } — a dot with a trail flying across
+               (the neutrino leaving)
              { text: "Dark matter?", at: [r, m], color?, size? } — a big free-standing word ("\n" stacks lines),
                a hub for arrows to point out from
              { pic: "deuterium", at: [r, m], size?, label?, sub? } — a particle's picture anywhere on

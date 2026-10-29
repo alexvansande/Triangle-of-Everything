@@ -16,6 +16,23 @@ const LOW = { path: "stellar-low-mass" }, HIGH = { path: "stellar-high-mass" };
 // the cycle, lit from the split on (not during the collapse and swell: the author, 2026-10-29):
 // star → red giant → nebula and dense core, nebula → nursery → protostar → star
 const CYCLE = [LOW, { path: ["nebula-to-nursery", "remnant-to-nursery"] }];
+// the nebulae (planetary nebula, supernova remnant, Bubble Nebula) and the whole cycle above them
+const NEBULAE = { r: 18.0, m: 33.6, span: 5 };
+const CYCLE_VIEW = { r: 16.95, m: 34.5, span: 7.8 };
+// the white dwarf limit (Chandrasekhar, 1.44 Suns): one line, named once and kept, with a guide
+// out to the mass ruler (the author, 2026-10-29: it blinked from one label to another)
+const WD_LIMIT = (delay = 0, kept = false) => [{ line: "chandrasekhar", label: "white dwarf upper limit", delay, ...(kept ? { draw: 0.01 } : {}) },
+  { cross: { r: 9.7, m: 33.46 }, mass: "1.44 solar masses", size: false, color: "#90caf9", delay: delay + 0.4 }];
+// a ring on one real neutron star, the pulsar PSR J0030+0451 (its own dot is tiny)
+const PSR_RING = { mark: [6.1, 33.45], color: "#80deea" };
+// the density diagonals: atoms (water, 1 g/cm³) and neutrons (nuclear matter, ~2.3e14 g/cm³)
+const DENSITIES = [{ density: 0, label: "atomic density" }, { density: 14.36, label: "neutron density" }];
+// two views on the same diagonal path (Δ log r = 19.1, Δ log m = 3 × 19.1, which takes a neutron
+// to a neutron star): the stars' end and the particles' end, so a whip between them leaves the
+// density lines where they are on screen
+const DENSE_BOTTOM = { r: -9.8, m: -27.6, span: 11 };
+const DENSE_TOP = { r: DENSE_BOTTOM.r + 19.1, m: DENSE_BOTTOM.m + 3 * 19.1, span: 11 };
+const H_AT = [-8.28, -23.78], N_AT = [-13.06, -23.77], NU_AT = [-4.5, -32.9];   // hydrogen, neutron, electron neutrino
 const FORK = [
   { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
   // the left branch is not where brown dwarfs go: white dwarfs are the cores of dead stars (end of the video)
@@ -89,23 +106,22 @@ export default {
       hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 2.4, core: true }, { obj: "Red Giant", label: "red giant", delay: 1 }] },
     { at: "split in two", cam: { r: 13.1, m: 33.6, span: 12.5 }, dur: 1.6,
       hl: [{ ...SPLIT, coreLabel: "core", shellLabel: "outer layers" }] },
-    { at: "blown away", hl: [...CYCLE, HIGH, { ...SPLIT, draw: 0.01 }, { obj: "Supernova Remnant", label: "supernova remnant", place: "left" }] },
+    // the camera follows the words (the author, 2026-10-29): over to the nebulae as the layers are
+    // blown away, quickly across to the dense cores, back to the nebulae, then slowly up to the
+    // nurseries, with the whole cycle (protostars, nurseries, supernovae) in the frame
+    { at: "blown away", cam: NEBULAE, dur: 1.6, hl: [...CYCLE, HIGH, { ...SPLIT, draw: 0.01 }, { obj: "Supernova Remnant", label: "supernova remnant", place: "left" }] },
     { at: "planetary nebula", hl: [...CYCLE, { ...SPLIT, draw: 0.01 }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
-    { at: "inner core", cam: { r: 7.5, m: 33.4, span: 4.2 },
+    { at: "inner core", cam: { r: 7.6, m: 33.4, span: 5 }, dur: 1,
       hl: [...CYCLE, HIGH, { obj: "Red Giant", label: false }, { obj: "White Dwarf", label: "dense core", place: "right", delay: 0.4 }, { obj: "PSR J0030+0451", label: false, delay: 0.7 }] },
 
     // the gas goes round again: stellar nurseries
-    { at: "nebulae spread out", cam: { r: 18.1, m: 33.7, span: 2.8 },
+    { at: ["supernova and nebulae", "nebulae spread out"], cam: NEBULAE, dur: 1.2,
       hl: [...CYCLE, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
-    // a dive onto the nursery: Webb's Pillars fade in over its picture (rotated and scaled
-    // onto its pillars), turn upright and grow to fill the screen, hold, fade, unwind
-    { at: "stellar nurseries", cam: { obj: "Stellar Nursery", span: 2.8 }, dur: 1.8 },
-    // the way back is the way in reversed (the author, 2026-10-29): the photo shrinks back onto
-    // the nursery's picture (`back`), fades into it, and the dive unwinds
-    { at: "stellar nurseries", photo: "pillars", obj: "Stellar Nursery", dive: { in: 1.8, out: 2.5, photoAt: 1.2 }, dur: 4, fadeOut: 0.6,
-      lens: { map: [0.00033491, -0.00026951, -0.34744085, 0.36319975], r: 0.44, size: [2078, 3600], fill: "cover", turn: 0, hold: 0.2, fillDur: 1.2, back: 1.2 },   // turn 0: Webb's pillars lean ~40°; kept tilted so they stay upright like the icon's
-      caption: "Pillars of Creation · Webb · 2022 · a stellar nursery" },
-    { at: "protostars", cam: { r: 16.8, m: 34.6, span: 6.2 },
+    // the slow pan up to the nurseries, arriving on the whole cycle
+    { at: ["meet others", "they meet"], cam: CYCLE_VIEW, dur: 3.5, ease: "gentle" },
+    // (no dive: the author dropped the Pillars of Creation, 2026-10-29)
+    { at: "stellar nurseries", hl: [...CYCLE, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Stellar Nursery", label: "stellar nurseries", place: "left", delay: 0.2 }] },
+    { at: "protostars",
       hl: [...CYCLE, { obj: "Stellar Nursery", label: false }, { obj: "Protostar", delay: 0.6 }] },
     { at: "stars again", cam: { r: 14.6, m: 33.9, span: 9 }, hl: [...CYCLE, { obj: "Stellar Nursery", label: false }, { obj: "Sun", delay: 0.6 }] },
 
@@ -113,11 +129,27 @@ export default {
     { at: "what about the dense core", cam: { r: 8.4, m: 33.6, span: 6 }, clear: true, hl: [{ obj: "Sun" }] },
     // the two mass limits: a white dwarf can't pass 1.44 Suns (Chandrasekhar), a neutron star ~2.2–2.3 (TOV, uncertain)
     { at: "white dwarf", cam: { r: 9.85, m: 33.25, span: 2.6 }, hl: [{ obj: "Sun" }, { arrow: true, from: { obj: "Sun" }, to: { obj: "White Dwarf" }, color: "#90caf9" }, { obj: "White Dwarf", place: "left", delay: 0.6 },
-      { line: "chandrasekhar", label: "white dwarf limit · 1.44 Suns", delay: 1.2 }] },
-    { at: "big enough to go supernova", hl: [{ line: "chandrasekhar", label: "core passes 1.44 Suns" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false, delay: 0.4 }] },
-    { at: ["protons and the electrons", "protons and electrons"], cam: { r: 6.35, m: 33.75, span: 2 }, hl: [{ line: "chandrasekhar" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "protons + electrons → neutrons", place: "right" }] },
-    { at: "becomes a neutron star", hl: [{ line: "chandrasekhar" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }] },
-    { at: "single spoonful", hl: [{ line: "chandrasekhar" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: "a teaspoon ≈ 2 billion tonnes", place: "right" }] },
+      ...WD_LIMIT(1.2)] },
+    { at: "big enough to go supernova", hl: [...WD_LIMIT(0, true), { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false, delay: 0.4 }] },
+    // neutron stars and neutrons, the same density (the author's idea, 2026-10-29): out to where both
+    // the neutron stars and the brown dwarfs show, with the two density diagonals; a whip down along
+    // them (they stay put on screen) to the bottom of the chart, where a hydrogen atom's electron
+    // cloud collapses onto its proton (the Atom Lab's hydrogen, its electron's charge raised
+    // ×100,000 so its orbit shrinks through five rings, sliding left to the neutron's place as it
+    // shrinks), turns into a neutron and lets a neutrino go; then the whip back up
+    { at: "pressure in its core", cam: DENSE_TOP, dur: 2.2, ease: "gentle",
+      hl: [...DENSITIES, { obj: "L Brown Dwarf", label: "brown dwarfs", place: "left", delay: 0.8 }, { obj: "PSR J0030+0451", label: "neutron stars", place: "right", delay: 1.2 }, { ...PSR_RING, delay: 1.2 }] },
+    { at: ["protons and the electrons", "protons and electrons"], cam: { ...DENSE_BOTTOM, whip: true, overshoot: 0.15 }, dur: 1,
+      icons: ["Neutrino (e)"], hideIcons: ["Hydrogen", "Neutron"], labels: false, hl: [...DENSITIES,
+      { clip: "hopf-collapse", from: H_AT, to: N_AT, lead: 1, move: [1.4, 3.6], size: 150 },
+      { text: "1 proton + 1 electron\n= 1 neutron + 1 neutrino", at: [-10.3, -20.3], size: 20, color: "#e9ecf5", delay: 1.1 },
+      { obj: "Neutrino (e)", label: false, grow: 1.6 },
+      { fly: { from: N_AT, to: NU_AT }, dur: 0.9, color: "#b3e5fc", label: "neutrino", delay: 3.6 }] },
+    { at: "becomes a neutron star", cam: { ...DENSE_TOP, whip: true, overshoot: 0.15 }, dur: 1, icons: true, hideIcons: [], labels: true,
+      hl: [...DENSITIES, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }, PSR_RING,
+      { dust: "neutronstar", src: ["neutronstar"], color: "#80deea", sweep: 0.8, delay: 0.8 }] },
+    { at: "single spoonful", hl: [...DENSITIES, { obj: "PSR J0030+0451", label: "a teaspoon ≈ 2 billion tonnes", place: "right" }, PSR_RING,
+      { dust: "neutronstar", src: ["neutronstar"], color: "#80deea", sweep: 0.01 }] },
     // the neutron star limit (Oppenheimer–Volkoff) only once the narration gets past neutron stars
     { at: "collapse into a black hole", hl: [{ path: "stellar-to-bh" }, { line: "tov", label: "neutron star limit · ~2.2–2.3 Suns" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
     // teaser for the black-hole video: in close on the stellar black hole right there (not off

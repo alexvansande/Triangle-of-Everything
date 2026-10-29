@@ -12,3 +12,4 @@ short-06-tiny-world
 short-07-wavelengths
 short-02-up-the-line
 short-01-hook
+short-03-stars

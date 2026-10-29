@@ -300,6 +300,12 @@ export async function startNarration(app) {
     const prev = highlights.find(q => q !== h && (h.obj ? q.obj === h.obj : q.line === h.line) && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
     h.since = prev ? prev.since : h.t0;
   }
+  // (and a cross read off the axes again doesn't draw its guides out again)
+  for (const h of highlights) if (h.cross) {
+    const key = JSON.stringify([h.cross, h.mass, h.size]);
+    const prev = highlights.find(q => q !== h && q.cross && JSON.stringify([q.cross, q.mass, q.size]) === key && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
+    h.since = prev ? prev.since : h.t0;
+  }
   // (and a lit path named again doesn't draw itself on again)
   for (const h of highlights) if (h.path) {
     const key = JSON.stringify([h.path, h.from, h.to]);
@@ -311,7 +317,9 @@ export async function startNarration(app) {
   // a `trace` told over consecutive cues (the same picture, each cue the next step) is one run:
   // the close-up holds from its first cue to the end of its last (drawTraces)
   const traceRuns = [];
-  for (const h of highlights) if (h.trace) {
+  // (`trace: "name"` is the outline close-up; a window's `trace: [lo, hi]` is only its faint line)
+  const isTrace = (h) => typeof h.trace === "string";
+  for (const h of highlights) if (isTrace(h)) {
     const run = traceRuns.find(r => r.name === h.trace && Math.abs(r.t1 - h.t0) < 0.05);
     if (run) { run.items.push(h); run.t1 = h.t1; } else traceRuns.push({ name: h.trace, t0: h.t0, t1: h.t1, items: [h] });
   }
@@ -328,7 +336,7 @@ export async function startNarration(app) {
   // (the scene's `alsoIcons` join the default set after the named ones: pictures it
   // wants first on screen without naming them)
   const sceneIcons = Array.isArray(SCENE.icons) ? SCENE.icons : [...new Set([
-    ...cues.flatMap(c => (c.hl || []).flatMap(h => [h.obj, h.spot, h.trace, h.arrow && h.from?.obj, h.arrow && h.to?.obj].filter(Boolean))),
+    ...cues.flatMap(c => (c.hl || []).flatMap(h => [h.obj, h.spot, typeof h.trace === "string" && h.trace, h.arrow && h.from?.obj, h.arrow && h.to?.obj].filter(Boolean))),
     ...cues.flatMap(c => [c.dive && c.obj, c.dolly && (c.dolly.obj || c.dolly)].filter(n => typeof n === "string")),
     ...(SCENE.alsoIcons || [])])];
   const iconCues = cues.filter(c => c.icons !== undefined);
@@ -491,7 +499,7 @@ export async function startNarration(app) {
   layer.id = "narr-layer";
   if (!RENDER) layer.classList.add("live");     // the player's own UI (renders have none)
   const track = SCENE.backing && (typeof SCENE.backing === "string" ? SCENE.backing : SCENE.backing.track);
-  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-cover" hidden><img alt=""></div><div id="narr-photo"><div class="np-imgs"></div><div class="np-cap"></div></div><div id="narr-caption"></div>` + creditsHTML(track) +
+  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-clips"></div><div id="narr-cover" hidden><img alt=""></div><div id="narr-photo"><div class="np-imgs"></div><div class="np-cap"></div></div><div id="narr-caption"></div>` + creditsHTML(track) +
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
       <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div>
       <a id="narr-next" href="#" hidden></a>
@@ -872,7 +880,7 @@ export async function startNarration(app) {
       drawSketch(el, h, t - h.t0);
     });
     drawTraces(t);
-    join(gHl, live.filter(h => !h.axis && !h.card && !h.sketch && !h.trace)).each(function (h) {
+    join(gHl, live.filter(h => !h.axis && !h.card && !h.sketch && !isTrace(h))).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
       const age = t - h.t0;
@@ -904,9 +912,11 @@ export async function startNarration(app) {
       else if (h.dust) drawDustCat(el, h, age);
       else if (h.ellipse) drawEllipse(el, h, age);
       else if (h.window) drawWindow(el, h, age);
-      else if (h.cross) drawCross(el, h, age);
+      else if (h.cross) drawCross(el, h, t - (h.since ?? h.t0));
       else if (h.text) drawText(el, h, age);
       else if (h.pic) drawPic(el, h, age);
+      else if (h.clip) drawClipHl(h, t);
+      else if (h.fly) drawFly(el, h, age);
       else if (h.pixels) drawPixels(el, h, age);
       else if (h.key) drawKey(el, h, age);
       else if (h.path) drawPath(el, h, age);
@@ -926,6 +936,7 @@ export async function startNarration(app) {
     for (const [n, k] of grows) if (grown.get(n) !== k && app.growIcon?.(n, k)) grown.set(n, k);
     for (const n of [...grown.keys()]) if (!grows.has(n)) { grown.delete(n); app.growIcon?.(n, 1); }
     // The fade follows the narration clock (0.5 s), so the renderer's frames match playback.
+    dropClips(live);
     drawHalos(live, t);
     drawGuides(live, t);
     app.drawUnderLines?.(underLines.splice(0), underDots.splice(0));
@@ -1595,7 +1606,7 @@ export async function startNarration(app) {
       .attr("x2", x1 + (x2 - x1) * k).attr("y2", y1 + (y2 - y1) * k)
       .attr("stroke", col).attr("stroke-width", 1.4).attr("stroke-dasharray", "5 4").attr("opacity", 0.9);
     guide(x, y, xR, y);                                  // mass is read on the right-hand ruler
-    guide(x, y, x, yB);
+    if (h.size !== false) guide(x, y, x, yB);              // size: false, the mass guide only
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", 5).attr("fill", col);
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", 9 + 3 * (1 - k)).attr("fill", "none")
       .attr("stroke", col).attr("stroke-width", 1.2).attr("opacity", 0.7);
@@ -1941,6 +1952,71 @@ export async function startNarration(app) {
   /** A particle's picture anywhere on the chart: { pic: "deuterium", at: [r, m], size? (px, 140),
    *  label?, sub? }. The still content/icons/<pic>.webp, which the videos draw live and
    *  animated (src/hopf-icons.js, any Hopf particle id), the label and sub-line under it. */
+  /** A video on the chart: { clip: "name" (public/narration/photos/<name>.mp4), from: [r, m],
+   *  to?: [r, m], move?: [s0, s1] (seconds after it starts: the slide from `from` to `to`),
+   *  lead?: s (the video starts this long after the highlight), size?: px (120) }. Drawn over
+   *  the chart in screen blend (its black is see-through), following the camera; the video
+   *  plays on the narration's clock, frame-exact in the renderer (pending() waits for its seek).
+   *  Video 3's hydrogen collapsing into a neutron. */
+  const clipsEl = () => layer.querySelector("#narr-clips");
+  const clipEls = new Map();
+  // The video plays hidden; each frame is copied onto a canvas with its black made see-through
+  // (alpha from brightness), so it lies on the chart like a picture (CSS blending can't reach the
+  // chart from this layer).
+  function lumaFrame(c, v) {
+    const S = c.width, x = c.getContext("2d", { willReadFrequently: true });
+    if (v.readyState < 2) return;
+    x.clearRect(0, 0, S, S); x.drawImage(v, 0, 0, S, S);
+    const im = x.getImageData(0, 0, S, S), d = im.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const a = Math.max(d[i], d[i + 1], d[i + 2]);
+      if (a < 2) { d[i + 3] = 0; continue; }
+      const k = 255 / a; d[i] *= k; d[i + 1] *= k; d[i + 2] *= k; d[i + 3] = a;
+    }
+    x.putImageData(im, 0, 0);
+  }
+  function drawClipHl(h, t) {
+    let e = clipEls.get(h);
+    if (!e) {
+      const v = document.createElement("video");
+      Object.assign(v, { src: photoUrl(h.clip, true), muted: true, playsInline: true, preload: "auto" });
+      v.className = "narr-clip-src";
+      const c = document.createElement("canvas");
+      c.width = c.height = 300; c.className = "narr-clip";
+      v.addEventListener("seeked", () => lumaFrame(c, v));
+      clipsEl().append(v, c); e = { v, c }; clipEls.set(h, e);
+    }
+    const { v, c } = e;
+    const local = t - h.t0, [s0, s1] = h.move || [0, 0];
+    const u = h.to ? d3.easeCubicInOut(clamp01((local - s0) / Math.max(0.01, s1 - s0))) : 0;
+    const r = h.from[0] + ((h.to || h.from)[0] - h.from[0]) * u, m = h.from[1] + ((h.to || h.from)[1] - h.from[1]) * u;
+    const size = h.size ?? 120, op = h.op ?? 1;
+    Object.assign(c.style, { left: `${(sx(r) - size / 2).toFixed(1)}px`, top: `${(sy(m) - size / 2).toFixed(1)}px`,
+      width: `${size}px`, height: `${size}px`, opacity: op.toFixed(3) });
+    const want = Math.max(0, Math.min((v.duration || 1e9) - 0.04, local - (h.lead ?? 0)));
+    let live = false;
+    try { live = !RENDER && !audio.paused; } catch {}
+    if (RENDER || !live) { if (!v.paused) v.pause(); if (Math.abs(v.currentTime - want) > 0.001) v.currentTime = want; }
+    else { if (Math.abs(v.currentTime - want) > 0.25) v.currentTime = want; if (v.paused && want < (v.duration || 1e9) - 0.05) v.play().catch(() => {}); }
+    if (!v.seeking) lumaFrame(c, v);
+  }
+  function dropClips(live) {
+    for (const [h, e] of clipEls) if (!live.includes(h)) { e.v.remove(); e.c.remove(); clipEls.delete(h); }
+  }
+  /** Something flying off across the chart: { fly: { from: [r, m], to: [r, m] }, dur?: s (0.9),
+   *  color?, label? } — a bright dot with a fading trail (a neutrino leaving). */
+  function drawFly(el, h, age) {
+    const dur = h.dur ?? 0.9, k = d3.easeCubicIn(clamp01(age / dur)), col = h.color || "#e1f5fe";
+    if (age < 0 || k >= 1) return;
+    const [r0, m0] = h.fly.from, [r1, m1] = h.fly.to;
+    const at = (q) => [sx(r0 + (r1 - r0) * q), sy(m0 + (m1 - m0) * q)];
+    const [x, y] = at(k), [tx, ty] = at(Math.max(0, k - 0.18));
+    el.append("line").attr("x1", tx).attr("y1", ty).attr("x2", x).attr("y2", y).attr("stroke", col)
+      .attr("stroke-width", 3).attr("stroke-linecap", "round").attr("opacity", 0.55);
+    el.append("circle").attr("cx", x).attr("cy", y).attr("r", 9).attr("fill", col).attr("opacity", 0.3);
+    el.append("circle").attr("cx", x).attr("cy", y).attr("r", 4).attr("fill", "#fff");
+    if (h.label) el.append("text").attr("class", "narr-tag").attr("x", x + 12).attr("y", y + 4).attr("fill", col).text(h.label.toUpperCase());
+  }
   function drawPic(el, h, age) {
     const size = h.size ?? 140, x = sx(h.at[0]), y = sy(h.at[1]);
     const a = h.instant ? 1 : smooth(age / 0.8), grow = 0.85 + 0.15 * a;
@@ -2341,7 +2417,7 @@ export async function startNarration(app) {
     pending: () => app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
       [...photoImgs.values()].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length +
-      [...photoBox.querySelectorAll("video")].filter(v => v.seeking || v.readyState < 2).length +
+      [...photoBox.querySelectorAll("video"), ...layer.querySelectorAll("#narr-clips video")].filter(v => v.seeking || v.readyState < 2).length +
       (COVER && !coverImg.complete ? 1 : 0) + (specReady() ? 0 : 1) + tracesPending() + app.bgNoisePending(),
     // the fractal background: { wanted, shown, failed, lost } (failed: "no WebGL2"; lost: GL contexts lost), for the renderer's log
     bgNoise: () => app.bgNoiseStatus(),
@@ -2669,6 +2745,9 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
 #narr-photo { position: absolute; inset: 0; background: #000; overflow: hidden; visibility: hidden; pointer-events: none; }
 #narr-photo .np-imgs { position: absolute; inset: 0; will-change: transform; }
 #narr-photo figure { position: absolute; inset: 0; margin: 0; }
+#narr-clips { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+#narr-clips .narr-clip { position: absolute; }
+#narr-clips .narr-clip-src { position: absolute; width: 2px; height: 2px; opacity: 0; }
 #narr-photo img, #narr-photo video { width: 100%; height: 100%; display: block; object-fit: contain; }
 #narr-photo .np-stack { display: flex; flex-direction: column; justify-content: center; gap: 2%; padding: 15% 8% 30%; box-sizing: border-box; }
 #narr-photo .np-stack figure { position: relative; flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; }

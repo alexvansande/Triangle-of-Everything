@@ -94,6 +94,9 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   thing ← DNA ← its bases ← atoms; an atom ← its nucleus, ← its electrons; the proton ← its quarks).
   One link at a time, following the words, not all at once. A missing link can be added to
   `COMPOSITION` (src/data.js) when it's true (a bacterium: DNA + ribosomes).
+- **Same density, same diagonal** (author, 2026-10-29): to show two things share a density, whip
+  between them along their density line (`whip`, a straight move at the same zoom), so the
+  diagonals stay put on screen while the objects change (video 3: neutron stars and neutrons).
 - **Highlight what the chart actually shows.** Super-Jupiters and brown dwarfs sit in one
   column at Jupiter's size; Beta Pictoris b is a young, inflated planet drawn wider, so don't
   point at it as "same size": draw a vertical trend line up the column (`trend: [[r, m], …]`),
@@ -142,7 +145,8 @@ map. Optionally it then fills the screen, holds, and fades slowly back to the ch
 - **Use a dive, not a photo cutaway, whenever the object has a picture on the chart.**
   Plain cutaways (below) are left for things the chart can't show by itself.
 - **Current dives**: Jupiter in infrared (video 3, the camera trick above), the Pillars of
-  Creation (videos 3 and 5, upright and edge to edge), M87* (end of video 3, video 4,
+  Creation (video 5, upright and edge to edge; dropped from video 3 by the author, 2026-10-29, for
+  plain pans that follow the words across the cycle), M87* (end of video 3, video 4,
   video 5) and Sgr A* (video 4).
 - **Not a dive: the Eiffel Tower** (author, 2026-10-28). When the point is *where* a thing
   lands on the chart, stay on the chart: zoom onto the tower and grow its picture while every
