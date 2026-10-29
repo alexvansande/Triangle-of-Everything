@@ -141,30 +141,39 @@ const smooth = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a
 // and read live each frame (/atom-lab.html edits it). Changing the ones marked
 // "rebuild" needs a new HopfView.
 export const LOOK = {
-  probe: 0.15,                       // probe resolution for nuclei inside atoms, 0 coarse … 1 fine
-  protonFringe: 1.7, neutronFringe: 0.35,
-  protonBall: 0.026, neutronBall: 0.01,
-  neutronGrey: 0.7,                  // how far the neutron's R, G and B are washed toward grey
-  quarks: 1,
-  nucleusGain: 2.2,                  // nuclei inside atoms, against the electron's glow
+  // defaults: the author's Atom Lab look (2026-10-29); particles may override
+  // some of them with their own style (and camera and light with viewOpts)
+  probe: 0,                          // probe resolution for nuclei inside atoms, 0 coarse … 1 fine
+  protonFringe: 4, neutronFringe: 0,
+  protonBall: 0.056, neutronBall: 0.043,
+  neutronGrey: 0.46,                 // how far the neutron's R, G and B are washed toward grey
+  quarks: 1.65,
+  nucleusGain: 5.3,                  // nuclei inside atoms, against the electron's glow
   logScale: true,                    // rebuild
-  nucleusShare: 0.45,                // rebuild: share of the radius the nucleus region gets on the log scale
-  linearNucleus: 0.1,                // rebuild: its radius at linear scale (really ~10⁻⁵)
-  rings: 0.18,
-  cloudFibers: 130,                  // rebuild
-  cloudGain: 2, cloudContrast: 1.15, cloudWidth: 0.009,
-  dashes: 5, dashLength: 0.2, dashSpeed: 0.6,  // dashLength: lit share of each dash's stretch, 1 = whole circle
-  spin: 1.5,                         // how fast the cloud's circles turn about the axis
-  plusColor: '#46dcff', minusColor: '#9a5aff', coreColor: '#f0e6ff', hColor: '#7dffb0',  // hColor: hydrogen's electrons in a molecule
+  nucleusShare: 0.39,                // rebuild: share of the radius the nucleus region gets on the log scale
+  linearNucleus: 0.18,               // rebuild: its radius at linear scale (really ~10⁻⁵)
+  rings: 0,
+  cloudFibers: 180,                  // rebuild
+  cloudGain: 2.75, cloudContrast: 1.15, cloudWidth: 0.005,
+  dashes: 12, dashLength: 1, dashSpeed: 3,  // dashLength: lit share of each dash's stretch, 1 = whole circle
+  spin: 0.6,                         // how fast the cloud's circles turn about the axis
+  plusColor: '#46dcff', minusColor: '#9a5aff', coreColor: '#f0e6ff', hColor: '#006eff',  // hColor: hydrogen's electrons in a molecule
   orbital: '1s',                     // rebuild: hydrogen and deuterium's orbital
   showNucleus: true, showCloud: true,
-  electronGain: 1,                   // the electron's own woven torus
+  electronGain: 2.15,                // the electron's own woven torus
   electronCircles: 54,               // rebuild
   electronTorus: 0.785,              // rebuild: η of its torus, small = thin ring, π/4 = the round one
   electronWidth: 1,
   electronCustom: false, electronColorA: '#46dcff', electronColorB: '#6e5aff',
   electronDashes: false,             // light it in the cloud's dashes
 };
+// Atom Lab sets ignoreStyle so its sliders reach every particle, overrides or not
+export const LAB = { ignoreStyle: false };
+const styled = style => k => (LAB.ignoreStyle ? undefined : style?.[k]) ?? LOOK[k];
+// camera and light the author picked: up close (the lone electron, the proton's sea)
+// and for atoms; a view's opts take them unless the caller sets opts.own
+const CLOSE_LIGHT = { bloom: 1.65, exposure: 1.55, width: 2.7, core: 1.3 };
+const ATOM_LIGHT = { bloom: 1, exposure: 1.1, width: 0.55, core: 0.75 };
 // the cloud's dash pattern along a line: lit share LOOK.dashLength of each of
 // LOOK.dashes stretches, sliding at LOOK.dashSpeed; soft ends
 function dashAt(u, t, tone, L = k => LOOK[k]) {
@@ -261,7 +270,7 @@ function lepton(id, name, current, gen, neutrino) {
           } : {
             eta, xi1, xi2: 0, p: 1, q: -1, spin: 0.5, flat: 1,
             get width() { return 0.0075 * (own ? LOOK.electronWidth : 1); },
-            intensity: (u, t) => LOOK.electronGain * (si === shells.length - 1 ? 0.32 : 0.75) * (own && LOOK.electronDashes ? dashAt(u, t, tone) : 1),
+            intensity: (u, t) => (own ? LOOK.electronGain : 1) * (si === shells.length - 1 ? 0.32 : 0.75) * (own && LOOK.electronDashes ? dashAt(u, t, tone) : 1),
             color: () => own && LOOK.electronCustom ? custom() : c,
           });
         }
@@ -386,13 +395,13 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
   N: 220, pitch: 0.35, view: [], drift: [],
   additive: false, frame: { center: [0, 0, 0], radius: 1.05 },
   resolution: 0.5,
-  make({ lite = false } = {}) {
+  make({ lite = false, L = styled(this.style) } = {}) {
     const st = { t: 0, lo: 1, mid: 0, hi: 0, ab: 0, perm: [0, 1, 2], swap: null, k: -1, Q: [], J: [0, 0, 0] };
     const fibers = [];
     // valence quarks: up (2,3) trefoils and down (−1,3) coils, drawn as tiny symbols
     const qColor = k => PURE[st.perm[k]];
     QUARKS.forEach(([p, q], k) => fibers.push({
-      p, q, spin: 0.5, width: 0.028, intensity: () => 1.5 * LOOK.quarks * st.mid, taper: () => st.qv,
+      p, q, spin: 0.5, width: 0.028, intensity: () => 1.5 * L('quarks') * st.mid, taper: () => st.qv,
       curve: u => addv(st.Q[k] || [0, 0, 0], turn(torusKnot(p, q, 0.075 * st.qs * st.qv, u), st.t * (1.3 + 0.4 * k) + k * 2, st.t * (0.9 + 0.3 * k) + k)),
       color: () => qColor(k),
     }));
@@ -403,7 +412,7 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
       intensity: () => 0.9 * st.mid,
       taper: u => Math.pow(Math.sin(Math.PI * u), 0.3),
       curve: u => mixc(st.Q[k] || [0, 0, 0], st.J, u),
-      color: () => neutral ? mixc(qColor(k), NEUTRAL, 0.85 * LOOK.neutronGrey) : qColor(k),
+      color: () => neutral ? mixc(qColor(k), NEUTRAL, 0.85 * L('neutronGrey')) : qColor(k),
       leg: true,
     });
     // the gluon that carries a colour swap: a quick wavy flash between two quarks
@@ -427,13 +436,13 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
         const ay = TAU * hash(c * 7 + si, j), ax = Math.acos(2 * hash(j, c * 13 + si) - 1);
         fibers.push({
           glow: true, open: false, spin: 0, flat: 1, width: 0.11 + 0.07 * rho,
-          intensity: () => (neutral ? LOOK.neutronBall : LOOK.protonBall) * (lite ? 2 : 1) * st.lo * (1.25 - 0.55 * rho),
+          intensity: () => L(neutral ? 'neutronBall' : 'protonBall') * (lite ? 2 : 1) * st.lo * (1.25 - 0.55 * rho),
           curve: u => {
             const r = rho * (1 + st.ab * (c - 1) * 0.6 + 0.03 * st.ab * 4 * Math.sin(st.t * (1.1 + 0.3 * c) + j));
             const off = scale([Math.cos(st.t * 0.7 + c * TAU / 3), 0.4 * Math.sin(st.t * 0.9 + c), Math.sin(st.t * 0.7 + c * TAU / 3)], st.ab * 0.5);
             return addv(off, turn([r * Math.cos(TAU * u), 0, r * Math.sin(TAU * u)], ay + 0.05 * st.t, ax));
           },
-          color: () => neutral ? mixc(PURE[c], NEUTRAL, LOOK.neutronGrey) : PURE[c],
+          color: () => neutral ? mixc(PURE[c], NEUTRAL, L('neutronGrey')) : PURE[c],
         });
       }
     });
@@ -472,7 +481,7 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
       st.lo = 0.12 + 0.88 * (1 - smooth(0.12, 0.42, res)); // the ball never quite goes: the quarks stay inside it
       st.mid = smooth(0.12, 0.42, res) * (1 - 0.55 * smooth(0.62, 0.95, res));
       st.hi = smooth(0.5, 0.92, res);
-      st.ab = (neutral ? LOOK.neutronFringe : LOOK.protonFringe) * (0.05 + 0.1 * smooth(0.05, 0.35, res));
+      st.ab = L(neutral ? 'neutronFringe' : 'protonFringe') * (0.05 + 0.1 * smooth(0.05, 0.35, res));
       st.qv = smooth(0.02, 0.25, st.mid);
       st.qs = 1 - 0.35 * smooth(0.6, 1, res); // finer probes, smaller quarks: still unresolved points
       // quarks: fast, tangled orbits around 120°-spaced homes in a slowly turning triangle
@@ -519,8 +528,12 @@ const nucleonScale = (id, name, current, QUARKS, neutral = false) => ({
     return { fibers, solidCount, step };
   },
 });
-const PROTON_SCALE = nucleonScale('proton-scale', 'Proton · by resolution', '/content/icons/proton.webp', [[2, 3], [2, 3], [-1, 3]]);
-const NEUTRON_SCALE = nucleonScale('neutron-scale', 'Neutron · by resolution', '/content/icons/neutron.webp', [[2, 3], [-1, 3], [-1, 3]], true);
+// on their own: the proton opens on its finest probe (the sea, up close), the
+// neutron on its coarsest; inside atoms both take the atom's look
+const PROTON_SCALE = { ...nucleonScale('proton-scale', 'Proton · by resolution', '/content/icons/proton.webp', [[2, 3], [2, 3], [-1, 3]]),
+  resolution: 1, style: { protonBall: 0.036, quarks: 0.75 }, viewOpts: CLOSE_LIGHT };
+const NEUTRON_SCALE = { ...nucleonScale('neutron-scale', 'Neutron · by resolution', '/content/icons/neutron.webp', [[2, 3], [-1, 3], [-1, 3]], true),
+  resolution: 0, viewOpts: ATOM_LIGHT };
 
 // Atoms and molecules: nuclei (the nucleon pictures above, shrunk) inside the
 // electrons' cloud. The cloud is woven from the electron's own (1,−1) Hopf
@@ -615,10 +628,10 @@ const hexColor = h => { if (!colorMemo.has(h)) colorMemo.set(h, hexLin(h)); retu
 // edgeFm, nuclei, electrons } with nuclei and electrons about the atom's own
 // centre; it replaces the single ball about the origin.
 function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, balls, current, style = {} }) {
-  const L = k => style[k] ?? LOOK[k];
+  const L = styled(style);
   const ballsOf = els => balls || [{ at: [0, 0, 0], R: 1, edgeFm: LOG_RMAX, nuclei, electrons: els }];
   return {
-    id, name, sub, current, family: 'Atoms', chips, why,
+    id, name, sub, current, family: 'Atoms', chips, why, viewOpts: ATOM_LIGHT,
     N: 80, pitch: 0.6, view: [], drift: [],
     additive: false, frame: { center: [0, 0, 0], radius: 1.05 },
     // [label (the first ball's only), radius, centre] for each ring
@@ -630,9 +643,9 @@ function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, bal
     },
     make() {
       const logScale = L('logScale'), sh = L('nucleusShare');
-      const els = typeof electrons === 'function' ? electrons() : electrons;
+      const els = typeof electrons === 'function' ? electrons(L) : electrons;
       const cloud = cloudOf(els), phase = els.length === 1 && !balls;
-      const E = (typeof extentA0 === 'function' ? extentA0() : extentA0) * BOHR_FM;
+      const E = (typeof extentA0 === 'function' ? extentA0(L) : extentA0) * BOHR_FM;
       // log scale: each ball's nucleus region drawn linear, the rest of it log
       // about its own nucleus. Linear: the nucleus region exaggerated, the rest true.
       // every ball's nucleus region the same size on screen, so a proton is the
@@ -652,13 +665,13 @@ function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, bal
       // each nucleon turned its own way, tumbling slowly: built from the same
       // seed they would otherwise be identical copies, and nothing aligns them
       // (in oxygen-16 their spins pair off and cancel)
-      const nuc = list.map(([P, pos, b], k) => ({ made: P.make({ lite: many }), pos, b, k, off: place(pos, b), ay: 0, ax: 0, NS: NS * (b ? Rmax : 1) }));
+      const nuc = list.map(([P, pos, b], k) => ({ made: P.make({ lite: many, L }), pos, b, k, off: place(pos, b), ay: 0, ax: 0, NS: NS * (b ? Rmax : 1) }));
       // nucleons in a big nucleus jostle a little
       const jiggle = (k, t) => many ? scale([Math.sin(1.3 * t + 2 * k), Math.sin(1.1 * t + 3 * k + 1), Math.sin(0.9 * t + 5 * k + 2)], 0.15) : [0, 0, 0];
       const wrap = (f, N) => Object.create(f, {
         curve: { value: u => addv(N.off, scale(turn(f.curve(u), N.ay, N.ax), N.NS)) },
         width: { get: () => f.width * N.NS },
-        intensity: { value: (u, t) => (LOOK.showNucleus ? L('nucleusGain') : 0) * (typeof f.intensity === 'function' ? f.intensity(u, t) : f.intensity) },
+        intensity: { value: (u, t) => (L('showNucleus') ? L('nucleusGain') : 0) * (typeof f.intensity === 'function' ? f.intensity(u, t) : f.intensity) },
       });
       const fibers = [];
       for (const N of nuc) fibers.push(...N.made.fibers.slice(0, N.made.solidCount).map(f => wrap(f, N)));
@@ -728,7 +741,7 @@ function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, bal
             return stereo([ce * Math.cos(a), ce * Math.sin(a), se * Math.cos(th), -se * Math.sin(th)], 1);
           },
           field: (q, t, u) => {
-            if (!LOOK.showCloud) return [PALE, 0];
+            if (!L('showCloud')) return [PALE, 0];
             const [v, c, core, h] = lookup(q), x = Math.hypot(...q);
             const base = phase ? hexColor(v >= 0 ? L('plusColor') : L('minusColor'))
               : mixc(mixc(hexColor(L('plusColor')), hexColor(L('coreColor')), core), hexColor(L('hColor')), h);
@@ -747,7 +760,7 @@ function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, bal
       });
       const step = t => {
         for (const N of nuc) {
-          N.made.step(t + 1.7 * N.k, LOOK.probe);
+          N.made.step(t + 1.7 * N.k, L('probe'));
           N.ay = TAU * hash(N.k, 21) + 0.25 * (hash(N.k, 22) - 0.5) * t;
           N.ax = Math.acos(2 * hash(N.k, 23) - 1) + 0.2 * (hash(N.k, 24) - 0.5) * t;
           N.off = place(addv(N.pos, jiggle(N.k, t)), N.b);
@@ -760,8 +773,8 @@ function atom({ id, name, sub, why, chips = [], nuclei, electrons, extentA0, bal
 
 const ATOM_WHY = 'Electrons are not balls circling the nucleus: each is spread over an orbital, |ψ|², a fixed shape for each energy level (n), angular momentum (l, the letter s, p, d, f) and orientation (m). Here the cloud is woven from the electron\'s own Hopf circles, each lit by the chance of finding an electron where it passes. Distance from the centre is on a log scale, the rings marking 1 fm, 10 fm … 1 nm, so the nucleus, about 100,000 times smaller than the cloud, still shows, and every size is true on that ruler. The dark between them is honest too: the inner decades hold almost no volume, so the electrons are almost never there.';
 const ORBITAL_WHY = 'An excited electron\'s orbital, woven from its own Hopf circles, each lit by |ψ|² where it passes; violet marks where ψ is negative. Drawn to linear scale so the shape shows (the log ruler of the hydrogen picture flattens it onto a shell), and every orbital at the same size: really they grow as n², so 3d is about 9× the 1s.';
-const H_ELECTRON = () => { const [n, l, m] = ORBITALS[LOOK.orbital] || ORBITALS['1s']; return [{ n, l, m, Z: 1, occ: 1 }]; };
-const H_EXTENT = () => { const [n, l] = ORBITALS[LOOK.orbital] || ORBITALS['1s']; return orbitalExtent(n, l); };
+const H_ELECTRON = L => { const [n, l, m] = ORBITALS[L('orbital')] || ORBITALS['1s']; return [{ n, l, m, Z: 1, occ: 1 }]; };
+const H_EXTENT = L => { const [n, l] = ORBITALS[L('orbital')] || ORBITALS['1s']; return orbitalExtent(n, l); };
 // oxygen's 8 electrons, 1s² 2s² 2p⁴, with Slater's effective charges; the four
 // 2p electrons spread evenly over px, py and pz (the spherical average)
 const O_ZEFF_1S = 7.7, O_ZEFF_2 = 4.55;
@@ -793,13 +806,15 @@ const WATER_BALLS = [
 ];
 const ATOMS = [
   atom({ id: 'hydrogen', name: 'Hydrogen', sub: 'Hydrogen-1: one proton, one electron', current: '/content/icons/hydrogen.webp',
-    chips: [['Electron', '1 · orbital per LOOK.orbital'], ['Lines', 'electron (1,−1) Hopf circles'], ['Scale', 'log radius, rings every ×10']],
+    chips: [['Electron', '1 · ground state 1s'], ['Lines', 'electron (1,−1) Hopf circles'], ['Scale', 'log radius, rings every ×10']],
     why: ATOM_WHY + ' Ground state: 1s, densest at the nucleus, though so little volume is there that the electron is mostly found near 50 pm; violet marks where ψ is negative.',
     nuclei: [[PROTON_SCALE, [0, 0, 0]]], electrons: H_ELECTRON, extentA0: H_EXTENT }),
-  atom({ id: 'deuterium', name: 'Deuterium', sub: 'Hydrogen-2: a proton and a neutron, one electron',
+  atom({ id: 'deuterium', name: 'Deuterium', sub: 'Hydrogen-2: a proton and a neutron, one electron, here excited to 3p',
     chips: [['Nucleus', 'p + n, ~3.9 fm apart'], ['Lines', 'electron (1,−1) Hopf circles'], ['Scale', 'log radius, rings every ×10']],
-    why: ATOM_WHY + ' The extra neutron leaves the electron almost untouched: the 1s orbital is the same to 0.03% (the reduced mass).',
-    nuclei: [[PROTON_SCALE, [-1.97, 0, 0]], [NEUTRON_SCALE, [1.97, 0, 0]]], electrons: H_ELECTRON, extentA0: H_EXTENT }),
+    why: ATOM_WHY + ' The extra neutron leaves the electron almost untouched: the 1s orbital is the same to 0.03% (the reduced mass). Shown here excited to 3p, 1.51 eV below escape: two lobes of opposite sign split by a flat node where the electron is never found; it falls back to 1s within a few billionths of a second, giving off light.',
+    nuclei: [[PROTON_SCALE, [-1.97, 0, 0]], [NEUTRON_SCALE, [1.97, 0, 0]]], electrons: H_ELECTRON, extentA0: H_EXTENT,
+    // the author's pick: the excited 3p state, its two lobes split by a dark node
+    style: { orbital: '3p', neutronFringe: 0.35, neutronBall: 0.02, neutronGrey: 0.41, quarks: 0.85, nucleusGain: 2.25 } }),
   atom({ id: 'oxygen', name: 'Oxygen', sub: 'Oxygen-16: 8 protons, 8 neutrons, 8 electrons',
     chips: [['Nucleus', '8p + 8n'], ['Electrons', '1s² 2s² 2p⁴'], ['Core', '1s in the core colour'], ['Scale', 'log radius, rings every ×10']],
     why: ATOM_WHY + ' Oxygen\'s eight electrons fill 1s² 2s² 2p⁴, each orbital hydrogen-like with Slater\'s effective nuclear charge (7.7 for 1s, 4.55 for the second shell); the four 2p electrons are averaged over the three p orbitals, so the cloud is round. The two 1s electrons hug the nucleus about 8 times closer than hydrogen\'s.',
@@ -827,7 +842,7 @@ export const PARTICLES = [
   quark('top', 'Top', '/content/icons/top.webp', true, 3),
   quark('bottom', 'Bottom', '/content/icons/bottom.webp', false, 3),
 
-  lepton('electron', 'Electron', '/content/icons/electron.webp', 1, false),
+  { ...lepton('electron', 'Electron', '/content/icons/electron.webp', 1, false), viewOpts: CLOSE_LIGHT },
   lepton('muon', 'Muon', '/content/icons/muon.webp', 2, false),
   lepton('tau', 'Tau', '/content/icons/tau.webp', 3, false),
   lepton('neutrino-e', 'Electron neutrino', '/content/icons/neutrino-e.webp', 1, true),
@@ -1164,6 +1179,7 @@ export class Renderer {
 
   // dest: [ctx, x, y, w, h] to draw somewhere other than the view's own canvas
   render(view, opts, dest = null) {
+    opts = view.look(opts);
     const gl = this.gl, px = this.size;
     const fov = view.particle.fov ?? FOV;
     const dist = view.radius * 1.32 / Math.sin(fov / 2);
@@ -1327,7 +1343,11 @@ export class HopfView {
     c.addEventListener('pointercancel', end);
   }
 
+  // the particle's own camera and light, unless the caller keeps its own
+  look(opts) { return opts.own || !this.particle.viewOpts ? opts : { ...opts, ...this.particle.viewOpts }; }
+
   update(time, opts) {
+    opts = this.look(opts);
     const p = this.particle;
     const planes = p.view.slice();
     if (opts.drift) for (const [i, j, amp, freq] of p.drift) planes.push([i, j, amp * Math.sin(time * freq)]);

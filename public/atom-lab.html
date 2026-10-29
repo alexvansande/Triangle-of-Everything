@@ -157,7 +157,9 @@ legend small { letter-spacing: 0; text-transform: none; font-weight: 400; color:
 </div>
 
 <script type="module">
-import { PARTICLES, Renderer, HopfView, LOOK, ORBITALS } from './hopf/hopf-core.js';
+import { PARTICLES, Renderer, HopfView, LOOK, LAB, ORBITALS } from './hopf/hopf-core.js';
+// the lab's sliders reach every particle, whatever its own defaults
+LAB.ignoreStyle = true;
 
 const SUBJECTS = [
   ['proton', 'proton-scale', 'Proton'], ['neutron', 'neutron-scale', 'Neutron'], ['electron', 'electron', 'Electron'],
@@ -372,7 +374,7 @@ function placeLabels() {
   });
 }
 
-const opts = () => ({ drift: VIEW.drift, flow: VIEW.flow, width: VIEW.width, bloom: VIEW.bloom, exposure: VIEW.exposure, core: VIEW.core });
+const opts = () => ({ own: true, drift: VIEW.drift, flow: VIEW.flow, width: VIEW.width, bloom: VIEW.bloom, exposure: VIEW.exposure, core: VIEW.core });
 // render below full resolution while frames run slow, back up when they're quick
 let time = 0, prev = performance.now(), quality = 1, slow = 0.016;
 function frame(now) {
