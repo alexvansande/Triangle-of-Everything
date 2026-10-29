@@ -520,19 +520,23 @@ const ORBITAL_NAMES = { 0: 's', 1: 'p', 2: 'd', 3: 'f' };
 
 // Distances are drawn on a log scale, one ruler shared by every atom, so the
 // nucleus (femtometres) and the orbital (a tenth of a nanometre) both show and
-// their sizes stay honest: a point at physical radius r sits at
-// log(1 + r/r₀) / log(1 + R/r₀), with r₀ = 0.1 fm and R the 4f orbital's
-// edge. Faint rings in the equatorial plane mark each power of ten. The
-// nucleus is the exception: out to the deuteron's edge (~2.8 fm) one linear
-// scale, so a proton is the same size in every atom and the deuteron's edge
-// sits on the ruler.
-const BOHR_FM = 52917.7, LOG_R0 = 0.1;
-const LOG_RMAX = orbitalExtent(4, 3) * BOHR_FM, LOG_SPAN = Math.log10(1 + LOG_RMAX / LOG_R0);
-const toLog = r => Math.log10(1 + r / LOG_R0) / LOG_SPAN;
-const fromLog = x => LOG_R0 * (10 ** (x * LOG_SPAN) - 1);
-const DECADES = [[1, '1 fm'], [10, '10 fm'], [100, '100 fm'], [1e3, '1 pm'], [1e4, '10 pm'], [1e5, '100 pm'], [1e6, '1 nm']];
+// their sizes stay honest. Inside the nucleus, out to the deuteron's edge
+// (~2.8 fm), the scale is linear, so a proton is the same size in every atom;
+// beyond it, pure log, every power of ten the same width out to R, the 4f
+// orbital's edge. Where a log ruler starts is a free choice: LOG_NUCLEUS is
+// the share of the picture's radius given to the nucleus. Faint rings in the
+// equatorial plane mark each power of ten.
+const BOHR_FM = 52917.7, LOG_NUCLEUS = +(new URLSearchParams(globalThis.location?.search).get('nucleus') ?? 0.3);
 // nucleon charge radius, and the deuteron's proton and neutron ~3.9 fm apart
-const NUCLEON_FM = 0.84, DEUTERON_HALF_FM = 1.97;
+const NUCLEON_FM = 0.84, DEUTERON_HALF_FM = 1.97, NUCLEUS_FM = DEUTERON_HALF_FM + NUCLEON_FM;
+const LOG_RMAX = orbitalExtent(4, 3) * BOHR_FM, LOG_SPAN = Math.log10(LOG_RMAX / NUCLEUS_FM);
+const toLog = r => r < NUCLEUS_FM ? LOG_NUCLEUS * r / NUCLEUS_FM
+  : LOG_NUCLEUS + (1 - LOG_NUCLEUS) * Math.log10(r / NUCLEUS_FM) / LOG_SPAN;
+const fromLog = x => x < LOG_NUCLEUS ? NUCLEUS_FM * x / LOG_NUCLEUS
+  : NUCLEUS_FM * 10 ** ((x - LOG_NUCLEUS) / (1 - LOG_NUCLEUS) * LOG_SPAN);
+// real distance per unit of picture distance
+const logStretch = x => x < LOG_NUCLEUS ? NUCLEUS_FM / LOG_NUCLEUS : fromLog(x) * Math.LN10 * LOG_SPAN / (1 - LOG_NUCLEUS);
+const DECADES = [[1, '1 fm'], [10, '10 fm'], [100, '100 fm'], [1e3, '1 pm'], [1e4, '10 pm'], [1e5, '100 pm'], [1e6, '1 nm']];
 
 function atom(id, name, sub, why, [n, l, m], nucleus, current, logScale = false) {
   const orb = ORBITAL_NAMES[l] + (l === 0 ? '' : m === 0 ? ['', 'z', 'z²', 'z³'][l] : l === 2 ? 'xz' : '');
@@ -558,7 +562,7 @@ function atom(id, name, sub, why, [n, l, m], nucleus, current, logScale = false)
       const chance = (p, v) => {
         if (!logScale) return v * v;
         const x = Math.hypot(...p), r = fromLog(x);
-        return x ? v * v * r * r * (r + LOG_R0) / (x * x) : 0;
+        return x ? v * v * r * r * logStretch(x) / (x * x) : 0;
       };
       let peak = 0;
       for (let i = 0; i < 40; i++) for (let j = 0; j < 40; j++) for (let k = 0; k < 40; k++) {
@@ -566,8 +570,8 @@ function atom(id, name, sub, why, [n, l, m], nucleus, current, logScale = false)
         if (Math.hypot(...p) < 1) peak = Math.max(peak, chance(p, at(p)));
       }
       // the nucleus: its outer edge on the log ruler, nucleons linear inside it
-      const pair = nucleus.length > 1, edgeFm = DEUTERON_HALF_FM + NUCLEON_FM;
-      const perFm = logScale ? toLog(edgeFm) / edgeFm : 0.2 / NUCLEON_FM, NS = NUCLEON_FM * perFm;
+      const pair = nucleus.length > 1;
+      const perFm = logScale ? LOG_NUCLEUS / NUCLEUS_FM : 0.2 / NUCLEON_FM, NS = NUCLEON_FM * perFm;
       const nuc = nucleus.map((P, k) => ({ made: P.make(), off: pair ? [(k ? 1 : -1) * DEUTERON_HALF_FM * perFm, 0, 0] : [0, 0, 0] }));
       const wrap = (f, { off }) => Object.create(f, {
         curve: { value: u => addv(off, scale(f.curve(u), NS)) },
