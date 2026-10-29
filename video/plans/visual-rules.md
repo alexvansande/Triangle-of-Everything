@@ -142,7 +142,8 @@ map. Optionally it then fills the screen, holds, and fades slowly back to the ch
 - **Use a dive, not a photo cutaway, whenever the object has a picture on the chart.**
   Plain cutaways (below) are left for things the chart can't show by itself.
 - **Current dives**: Jupiter in infrared (video 3, the camera trick above), the Pillars of
-  Creation (videos 3 and 5, upright and edge to edge), M87* (end of video 3, video 4,
+  Creation (video 5, upright and edge to edge; dropped from video 3 by the author, 2026-10-29, for
+  plain pans that follow the words across the cycle), M87* (end of video 3, video 4,
   video 5) and Sgr A* (video 4).
 - **Not a dive: the Eiffel Tower** (author, 2026-10-28). When the point is *where* a thing
   lands on the chart, stay on the chart: zoom onto the tower and grow its picture while every

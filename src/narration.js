@@ -300,6 +300,12 @@ export async function startNarration(app) {
     const prev = highlights.find(q => q !== h && (h.obj ? q.obj === h.obj : q.line === h.line) && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
     h.since = prev ? prev.since : h.t0;
   }
+  // (and a cross read off the axes again doesn't draw its guides out again)
+  for (const h of highlights) if (h.cross) {
+    const key = JSON.stringify([h.cross, h.mass, h.size]);
+    const prev = highlights.find(q => q !== h && q.cross && JSON.stringify([q.cross, q.mass, q.size]) === key && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
+    h.since = prev ? prev.since : h.t0;
+  }
   // (and a lit path named again doesn't draw itself on again)
   for (const h of highlights) if (h.path) {
     const key = JSON.stringify([h.path, h.from, h.to]);
@@ -904,7 +910,7 @@ export async function startNarration(app) {
       else if (h.dust) drawDustCat(el, h, age);
       else if (h.ellipse) drawEllipse(el, h, age);
       else if (h.window) drawWindow(el, h, age);
-      else if (h.cross) drawCross(el, h, age);
+      else if (h.cross) drawCross(el, h, t - (h.since ?? h.t0));
       else if (h.text) drawText(el, h, age);
       else if (h.pic) drawPic(el, h, age);
       else if (h.pixels) drawPixels(el, h, age);
@@ -1595,7 +1601,7 @@ export async function startNarration(app) {
       .attr("x2", x1 + (x2 - x1) * k).attr("y2", y1 + (y2 - y1) * k)
       .attr("stroke", col).attr("stroke-width", 1.4).attr("stroke-dasharray", "5 4").attr("opacity", 0.9);
     guide(x, y, xR, y);                                  // mass is read on the right-hand ruler
-    guide(x, y, x, yB);
+    if (h.size !== false) guide(x, y, x, yB);              // size: false, the mass guide only
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", 5).attr("fill", col);
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", 9 + 3 * (1 - k)).attr("fill", "none")
       .attr("stroke", col).attr("stroke-width", 1.2).attr("opacity", 0.7);
