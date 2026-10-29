@@ -75,6 +75,8 @@ details p { margin: 6px 0 0; color: var(--muted); }
   display: flex; flex-direction: column; gap: 18px;
 }
 .actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.presets { align-items: center; }
+.presets span { font: 600 11px var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
 .rail button {
   font: 500 12px var(--body); color: var(--fg); background: #141a24; border: 1px solid var(--line);
   border-radius: 6px; padding: 6px 10px; cursor: pointer;
@@ -150,6 +152,7 @@ legend small { letter-spacing: 0; text-transform: none; font-weight: 400; color:
       <button id="paste">Paste settings</button>
       <button id="reset">Reset</button>
     </div>
+    <div class="actions presets" id="presets"><span>Presets</span></div>
   </aside>
 </div>
 
@@ -423,6 +426,28 @@ document.getElementById('reset').addEventListener('click', () => {
   Object.assign(VIEW, structuredClone(VIEW_DEFAULT));
   syncAll(); rebuild(); save();
 });
+
+// saved looks: each sets every control and its subject, over the defaults
+const PRESETS = [
+  ['Deuterium 3p', { subject: 'deuterium', look: {
+    probe: 0, protonFringe: 4, neutronFringe: 0.35, protonBall: 0.056, neutronBall: 0.02, neutronGrey: 0.41, quarks: 0.85,
+    nucleusGain: 2.25, logScale: true, nucleusShare: 0.39, linearNucleus: 0.18, rings: 0, cloudFibers: 180, cloudGain: 2.75,
+    cloudContrast: 1.15, cloudWidth: 0.005, dashes: 12, dashLength: 1, dashSpeed: 3, spin: 0.6, plusColor: '#46dcff',
+    minusColor: '#9a5aff', coreColor: '#f0e6ff', hColor: '#006eff', orbital: '3p', showNucleus: true, showCloud: true, electronGain: 1,
+  }, view: { rotate: 0.24, bloom: 1, exposure: 1.1, width: 0.55, core: 0.75, drift: true, flow: true, labels: false } }],
+];
+for (const [name, state] of PRESETS) {
+  const b = document.createElement('button');
+  b.textContent = name;
+  b.addEventListener('click', () => {
+    Object.assign(LOOK, structuredClone(LOOK_DEFAULT));
+    Object.assign(VIEW, structuredClone(VIEW_DEFAULT));
+    apply(state);
+    history.replaceState(null, '', `#${subject}`);
+    syncAll(); rebuild(); save();
+  });
+  document.getElementById('presets').append(b);
+}
 
 rebuild();
 requestAnimationFrame(frame);
