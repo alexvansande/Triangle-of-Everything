@@ -92,7 +92,7 @@ export default {
   // the YouTube thumbnail (scripts/narration-poster.mjs): in close on a white dwarf, a neutron star
   // and the black-hole line they lead to, and the question (the author, 2026-10-30)
   poster: { at: 3, set: { forceIcons: ["PSR J0030+0451", "White Dwarf", "Stellar BH", "T Brown Dwarf", "L Brown Dwarf"], hideLabels: ["T Brown Dwarf"] }, cues: [{ t: 0, cam: { r: 8.0, m: 33.6, span: 7.2 }, dur: 0.1, drift: 0, hl: [
-    { line: "schwarzschild", draw: 0.01, label: "nothing can ever\ncross this line", size: 30, labelAt: [9.3, 37.13] },
+    { line: "schwarzschild", draw: 0.01, label: "nothing can ever\ncross this line", size: 30, labelOffset: 8, labelAt: [9.3, 37.13] },
     { obj: "T Brown Dwarf", label: "brown dwarfs", place: "below", labelSize: 26 },
     { obj: "White Dwarf", label: "white dwarf", place: "below", labelSize: 26 },
     { obj: "PSR J0030+0451", label: "neutron star", place: "below", labelSize: 26 },

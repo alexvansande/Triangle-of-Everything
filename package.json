@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build && node scripts/build-pages.mjs && npm run build:videos",
     "build:videos": "OUT=dist/videos-3v63rqq1 AUDIO=m4a node scripts/narration-preview.mjs",
+    "thumbnails": "node scripts/narration-poster.mjs",
     "preview": "vite preview",
     "tile": "node scripts/tile-image.mjs",
     "fetch-images": "node scripts/fetch-images.mjs",

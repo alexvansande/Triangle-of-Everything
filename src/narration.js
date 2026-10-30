@@ -1416,7 +1416,8 @@ export async function startNarration(app) {
       // "\n" stacks the label in lines above the line
       const lines = h.label.toUpperCase().split("\n");
       const t = el.append("text").attr("class", "narr-linelabel")
-        .attr("transform", `translate(${mid[0]},${mid[1]}) rotate(${a2}) translate(0,${-10 - 13 * (lines.length - 1)})`)
+        // stacked lines step by the font's own line height; labelOffset: px further off the line
+        .attr("transform", `translate(${mid[0]},${mid[1]}) rotate(${a2}) translate(0,${-10 - (h.labelOffset ?? 0) - (h.size ? 1.2 * h.size : 13) * (lines.length - 1)})`)
         .attr("text-anchor", "middle").attr("fill", col).attr("opacity", prog);
       if (h.size) t.style("font-size", `${h.size}px`);   // px (a thumbnail's bigger labels)
       lines.forEach((ln, i) => t.append("tspan").attr("x", 0).attr("dy", i ? "1.2em" : 0).text(ln));

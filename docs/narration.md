@@ -283,6 +283,35 @@ and `window.__narr.pending()` counts the layer until it has drawn.
   whips), a static production build served instead of the dev server (faster page loads), and
   capturing at a lower JPEG quality for the sub-frames only.
 
+## Thumbnails
+
+Each short's YouTube thumbnail is a shot of the live chart, written in its scene as `poster`
+(see [Scene fields](#scene-fields)): a camera, highlights and labels, as cues, with no captions or
+narration. To change one, edit the scene's `poster` and run
+
+```
+node scripts/narration-poster.mjs short-01-hook [short-02-up-the-line …]
+```
+
+with the dev server up (`BASE`, default `http://localhost:5184`, the "shorts" preview; Chrome
+from `CHROME`). It stills each shot at 1080×1920 into `video/thumbnails/<take>.jpg`, which
+`scripts/youtube-publish.py` uploads, and sends again for videos already up with `--update --only <take>`. To look at a shot live, open
+`/?narrate=<take>&poster=1&captions=0&autoplay=0` and pause at the poster's `at`.
+Editing a scene hot-reloads every page of that dev server, a render's too: while a render runs,
+work on thumbnails in a second checkout with its own dev server (`git worktree add`, a
+`node_modules` symlink, `npx vite <dir> --port 5190`, `BASE=http://localhost:5190`).
+
+What the shots use, besides the usual highlights (the author's thumbnails, 2026-10-30):
+- `{ text: "Where do\nthese meet?", at: [r, m], size, instant: true }`: a free label, "\n" stacks it;
+- `{ line, label, size, labelAt: [r, m], labelOffset }`: a line's label, along it, at that point
+  (any point: off the line it's still turned to the line's angle), `labelOffset` px further off it;
+- `{ side, of, label, labelX, labelY, labelSize, color }`: one side of the water (or `of: "air"`)
+  line shaded, its label at those shares of the screen;
+- `{ obj, label, place, labelSize }`: an object's tag, bigger;
+- `{ arrow: true, from, to, via: [[r, m] | { obj, dr, dm }, …], width, color }`: a curved arrow
+  through the `via` points;
+- `set: { iconDensity, forceIcons, hideLabels, … }` in `poster`: scene fields for the shot alone.
+
 ## Notes for the next take (from the take 2 review)
 
 What worked: the condensed caption style, the new mic, and the bottom-edge ruler.
@@ -353,6 +382,10 @@ so the live figure shows through it, whole and as laid out. Both start at `from`
 the stage's width (default 1), centred on `surround` (the stage's dark), and zoom in together for `dur` s until the picture's plot
 (`frame`, spanning log radius `r` and log mass `m`) fills the screen; then the picture
 fades over `fade` s and the figure's camera eases into the scene's (the hook's AJP cover).
+
+`poster: { at, set?, cues }` is the take's YouTube thumbnail (see [Thumbnails](#thumbnails)):
+`&poster=1` plays those cues in place of the scene's (no cover), with `set` merged into the scene,
+and `scripts/narration-poster.mjs` stills it at `at` seconds.
 
 A scene is `src/narration-scenes/<take>.js`; a take picks it with `"scene"` in its
 words.json (default: the take's own name).

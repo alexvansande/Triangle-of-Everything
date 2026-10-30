@@ -5,7 +5,7 @@
     python3 scripts/youtube-publish.py --upload        # upload every video not yet uploaded
     python3 scripts/youtube-publish.py --upload --only short-01-hook
     python3 scripts/youtube-publish.py --captions-only # (re)write the .srt files, no upload
-    python3 scripts/youtube-publish.py --update        # rewrite titles/descriptions of uploaded videos
+    python3 scripts/youtube-publish.py --update        # rewrite titles/descriptions/thumbnails of uploaded videos
 
 Reads video/youtube.json (titles, blurbs, music, privacy, schedule), builds each
 description from video/DESCRIPTION.md and the track's credit (video/music/CREDITS.md),
@@ -177,7 +177,7 @@ def main():
                     help="upload again even if already uploaded; the earlier upload is deleted if it is still private")
     ap.add_argument("--captions-only", action="store_true", help="write output/videos/<take>.srt and stop")
     ap.add_argument("--update", action="store_true",
-                    help="rewrite title, description and tags of videos already uploaded (after editing youtube.json or DESCRIPTION.md)")
+                    help="rewrite title, description, tags and thumbnail of videos already uploaded (after editing youtube.json, DESCRIPTION.md or a poster)")
     a = ap.parse_args()
     m = load(MANIFEST)
     cfg, state = m["defaults"], load(STATE, {})
@@ -192,6 +192,10 @@ def main():
             cur = yt.videos().list(part="snippet", id=vid).execute()["items"][0]["snippet"]
             cur.update(title=v["title"], description=description(v), tags=v.get("tags", cfg["tags"]))
             yt.videos().update(part="snippet", body={"id": vid, "snippet": cur}).execute()
+            thumb = os.path.join(ROOT, "video", "thumbnails", f"{v['take']}.jpg")   # a re-made thumbnail too
+            if os.path.exists(thumb):
+                from googleapiclient.http import MediaFileUpload
+                yt.thumbnails().set(videoId=vid, media_body=MediaFileUpload(thumb, mimetype="image/jpeg")).execute()
             print(f"{v['take']}: updated https://youtu.be/{vid}")
         return
     yt = service() if a.upload and not a.captions_only else None

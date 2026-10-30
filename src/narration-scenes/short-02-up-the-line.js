@@ -72,7 +72,7 @@ export default {
   // the YouTube thumbnail (scripts/narration-poster.mjs): in close on the water and air lines,
   // full of animals, balloons and aircraft, each side named (the author, 2026-10-30)
   poster: { at: 3, set: { iconDensity: 100 }, cues: [{ t: 0, cam: { r: 2.25, m: 6.3, span: 3.2 }, dur: 0.1, drift: 0, forceIcons: ANIMALS, hl: [
-    { ...WATER, draw: 0.01, label: "everything is here", size: 34, labelAt: [2.35, 7.67] }, { ...AIR, draw: 0.01 },
+    { ...WATER, draw: 0.01, label: "everything", size: 34, labelAt: [2.08, 4.7] }, { ...AIR, draw: 0.01 },
     { side: "left", label: "sinks", labelX: 0.2, labelY: 0.45, labelSize: 34 },
     { side: "right", label: "floats\nin water", labelX: 0.7, labelY: 0.3, labelSize: 30 },
     { side: "right", of: "air", color: "#a5d6a7", label: "floats\nin air", labelX: 0.78, labelY: 0.8, labelSize: 30 }] }] },

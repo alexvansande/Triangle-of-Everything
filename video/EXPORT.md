@@ -40,7 +40,9 @@ here: it needs rendering again.
 
 `scripts/youtube-publish.py` uploads `output/videos/*.mp4` with the YouTube Data API:
 titles, blurbs, music and schedule in `video/youtube.json`, the description from
-`video/DESCRIPTION.md` and the track's credit, the take's thumb as thumbnail, captions
+`video/DESCRIPTION.md`, the track's credit and the photo credits, the take's thumbnail
+(`video/thumbnails/<take>.jpg`, made from the scene's `poster` shot by `npm run thumbnails -- <take>`;
+docs/narration.md, "Thumbnails"), captions
 from words.json, the playlist. Dry run by default; `--upload` sends, private unless
 `youtube.json` says otherwise. Uploaded IDs are kept in `video/youtube-uploads.json`.
 
