@@ -98,3 +98,17 @@ The different water texture enters later, 0.85–0.45 mm, after the rim has
 left both central video crops. No regenerated or preblurred parent assets.
 Amoeba diameter remains 447.7 µm; drop diameter remains 1.16 mm.
 Verified module syntax and inspected 1 mm, 680 µm and 1.6 m preview stops.
+
+### Integrated microscopic photographic field
+
+Replaced the separate gray amoeba cutout and unrelated water layer with a
+coherently lit native micrograph and a matched wider parent. Built-in image
+prompts and assembly registration are in micro/field-v2-provenance.json.
+The sharp droplet plate still replaces identically at 1.8–1.5 mm. Surface
+focus shifts coherently below 1.4 mm, with the integrated interior fading in
+from 1.25–0.70 mm; app blur resolves by 0.72 mm. The new field remains inside
+the physical 1.16 mm bead until its rim exits the frame. Fine detail switches
+only after its feathered parent boundary is outside the entire square.
+Body calibration remains 447.744 µm, independently of image canvas dimensions.
+Verified central parent pixels against the downsampled detail, module syntax,
+physical size and preview around 1 mm / 790 µm.

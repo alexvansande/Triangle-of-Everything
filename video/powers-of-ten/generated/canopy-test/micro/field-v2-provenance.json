@@ -1,0 +1,18 @@
+{
+  "tool": "built-in image_gen",
+  "prompts": [
+    "Use case: scientific-educational, photorealistic microscopic imagery. Asset: square integrated microscopic field for a continuous zoom through a dew bead on a red ladybug. Input 1 is a lighting/color reference only: warm reddish transmitted illumination from the shell beneath clear water. Input 2 is a morphology reference for a realistic Amoeba proteus, not an isolated sticker to paste. Generate a complete integrated field, not transparency. A single translucent living amoeba suspended in clear water, physically believable transmitted light microscopy, fine cytoplasmic granules, faint nucleus and vacuoles, irregular blunt pseudopodia. Its membrane should be delicate, low contrast and optically continuous with surrounding water, no thick outlined edge, no white cutout look, no drop shadow. Warm softly copper/amber neutral water illumination with restrained red transmitted light from below, not a flat saturated orange background. A few tiny organic particles, no other large organisms. Square framing: the amoeba's entire body centered at exact image center, extending horizontally from 25% to 75% of image width (half of total width), vertically within central 40%. This corresponds to a 448 micrometre animal inside an 896 micrometre square field; preserve that scale. Optical depth visible in subtle particle defocus, cell internal structures resolved and realistic, documentary microphotograph, no cartoon, no diagram, no text, no vignette, no frame, no labels. Cell and water must share illumination and optical character. No visible ladybug or droplet rim in this inner view.",
+    "Edit target: the supplied integrated microphotograph. Zoom out / expand the field of view by exactly 2× in both dimensions. Keep the entire existing square picture unchanged in the central half-width and half-height of the final square, and extend the same amber transmitted-light water naturally in all four directions. The amoeba MUST occupy only about 46% of final image width, centered. Leave broad water margins all around it. Preserve the exact shape, realistic granular translucent texture, colors, lighting and nucleus of the amoeba; do not enlarge the cell. Continue the water optical field with much sparser tiny organic particles outside the centre. Do not duplicate the amoeba. No additional organisms, labels or borders. Final full square is a continuous photorealistic micrograph, not an inset or picture within a picture.",
+    "Outpaint this square microphotograph to a field of view THREE TIMES wider and taller. Preserve the input image as the central one-third-width, one-third-height region. The amoeba must be SMALL in the final frame, about 20% of final square width, at centre. Broad empty amber water margins on all sides, with a few tiny optical particles and subtle fine grain. Do not enlarge or redesign the amoeba. Keep exact morphology and warm transmitted light. Continuous natural water field to every edge, no inset edges, no frames, no labels, no duplicate cells. This is a wide-field photorealistic microscope image, one small centered amoeba in a large expanse of clear water."
+  ],
+  "outputs": [
+    "exec-6c42d021-c8c7-41a0-96a2-80c04b773ea7.png",
+    "exec-cdf284fd-91bf-456b-b62f-e5105107efe7.png",
+    "exec-d05ac23d-4fc9-4b2e-adf1-12579b605b30.png"
+  ],
+  "final_assets": [
+    "field-detail-v2.png",
+    "field-wide-matched-v2.png"
+  ],
+  "assembly": "Fine field resized to 602 square and feathered over 8% of edges at (320,320) in wide native 1254 square. Cell body width 755 pixels in fine field calibrated to 447.744 micrometres. Runtime uses exact same physical registration; finer native field replaces only after feather border is outside frame."
+}

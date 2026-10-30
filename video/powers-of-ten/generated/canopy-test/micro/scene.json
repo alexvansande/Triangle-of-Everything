@@ -3,13 +3,8 @@
   "ladybug_diameter_m": 0.0069347370090506325,
   "droplet_diameter_m": 0.00116,
   "amoeba_diameter_m": 0.000447744227713668,
-  "amoeba_body_alpha_bounds": [
-    34,
-    125,
-    1505,
-    895
-  ],
-  "amoeba_body_pixels": 1471,
+  "amoeba_body_alpha_bounds": null,
+  "amoeba_body_pixels": 755,
   "target_m": {
     "x": -0.0024822744142255736,
     "y": -0.0009580708265432034
@@ -18,6 +13,13 @@
     0.000674197989048921,
     0.00022473266301630698
   ],
-  "note": "Illustrative specimen beneath the droplet surface; fixed physical size, no perspective magnification of organism. Catalogue-consistent Amoeba proteus scale.",
-  "whole_organism_frame_m": 0.0009
+  "note": "Illustrative integrated transmitted-light micrograph beneath the droplet; physical body width remains 447.7 \u00b5m. Bounds now refer to the opaque photographic detail field, not a transparent cutout.",
+  "whole_organism_frame_m": 0.0009,
+  "amoeba_body_bounds": [
+    254,
+    397,
+    1009,
+    814
+  ],
+  "active_field": "field-v2.json"
 }
