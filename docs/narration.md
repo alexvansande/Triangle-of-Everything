@@ -243,8 +243,10 @@ and `window.__narr.pending()` counts the layer until it has drawn.
   of its last render (`output/videos/<take>.commit`): nothing shown changed keeps the render; only
   the sound swaps the audio track (seconds, no frames); changed cues or captions re-render from
   each changed cue to the end of the one after it, spliced in; a changed timing, a scene-wide
-  field or more than 70% changed renders it whole. A take counts as out of date only through its own audio,
-  captions or scene; a shared-code change reaches a take only through the queue. Log: `output/videos/nightly.log`.
+  field or more than 70% changed renders it whole. A take is out of date when a commit since its render's
+  commit touched its own audio, captions or scene, or the code and pictures every short draws with
+  (`src/` outside the scenes, `content/`, the photos, `public/hopf`, `public/spectrum`); a shared change
+  renders it whole unless a queue note pins it to stretches (the author, 2026-10-30). Log: `output/videos/nightly.log`.
 - Pace (2026-10-27, M1 Max): about one 5-minute video per hour or two with motion blur. The
   author releases about one video a week, so one or two renders a night is plenty; render in
   number order.

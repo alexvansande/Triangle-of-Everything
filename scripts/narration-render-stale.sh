@@ -38,6 +38,8 @@ web() {   # full render → the site's copy, sized just under 20 MiB
   rm -f "$P"*
 }
 
+# what every short draws with (as scripts/narration-render-diff.mjs's "shared")
+SHARED="src :!src/narration-scenes content public/hopf public/spectrum public/narration/photos index.html"
 for t in $takes; do
   [ -f "public/narration/$t/words.json" ] || { echo "- $t: no take"; continue; }
   # already rendering in another run (a timed or hand-started render): leave it to that one
@@ -49,10 +51,15 @@ for t in $takes; do
   note=$(sed -n "s/^# $t changed: //p" video/render-queue.txt 2>/dev/null | head -1)
   # up to date: every commit to its files is in the commit it rendered from (the stamp). The
   # render file's time alone misses a push that landed while it rendered (video 4, 2026-10-29).
+  # The code and pictures every short draws with count too: a change there that no session
+  # pinned to stretches (a queue note) can be anywhere, so the take renders whole (the author,
+  # 2026-10-30: "if something changes on the video and you can't tell exactly when you have to
+  # re-render all of it").
   stamp=$(cat "output/videos/$t.commit" 2>/dev/null)
   if [ -n "$stamp" ] && git cat-file -e "$stamp" 2>/dev/null; then
-    fresh=$([ -f "$out" ] && [ -z "$(git rev-list -1 "$stamp..HEAD" -- "public/narration/$t" "src/narration-scenes/$t.js")" ] && echo 1)
+    fresh=$([ -f "$out" ] && [ -z "$(git rev-list -1 "$stamp..HEAD" -- "public/narration/$t" "src/narration-scenes/$t.js" $SHARED)" ] && echo 1)
   else
+    changed=$(git log -1 --format=%ct -- "public/narration/$t" "src/narration-scenes/$t.js" $SHARED)
     fresh=$([ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${changed:-0}" ] && echo 1)
   fi
   if [ -z "$queued" ] && [ -n "$fresh" ]; then
@@ -62,11 +69,9 @@ for t in $takes; do
     diff=$(node scripts/narration-render-diff.mjs "$t" 2>/dev/null || echo '{"kind":"full","why":"the diff failed"}')
     j() { echo "$diff" | python3 -c "import json,sys;v=json.load(sys.stdin).get('$1','');print(v if not isinstance(v,bool) else ('1' if v else ''))"; }
     kind=$(j kind); ranges=$(j ranges)
-    if [ -n "$queued" ]; then   # a session queued it: its note's stretches, or whole after a shared change
-      if [ -n "$note" ] && [ "$kind" != full ]; then kind=partial; ranges="${ranges:+$ranges, }$note"
-      elif [ -z "$note" ] && [ -n "$(j shared)" ]; then kind=full
-      elif [ -z "$note" ] && [ "$kind" = none ]; then kind=full   # queued with nothing to show for it: trust the session
-      fi
+    if [ -n "$queued" ] && [ -n "$note" ] && [ "$kind" != full ]; then kind=partial; ranges="${ranges:+$ranges, }$note"   # its note's stretches
+    elif [ -n "$(j shared)" ]; then kind=full   # shared code changed, no note says where: all of it
+    elif [ -n "$queued" ] && [ "$kind" = none ]; then kind=full   # queued with nothing to show for it: trust the session
     fi
     if [ -n "$DRY" ]; then [ "$kind" = none ] && echo "= $t: only notes changed" || echo "stale $t $kind $ranges"; continue; fi
     echo "=== $t $(date +%H:%M:%S): $kind${ranges:+ ($ranges)} — $(j why)"
