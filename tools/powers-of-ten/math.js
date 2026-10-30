@@ -40,6 +40,7 @@ const EQ2GAL = [
   [-0.8676661490, -0.1980763734, 0.4559837762],
 ];
 export const eqToGal = (v) => EQ2GAL.map((row) => dot(row, v));
+export const galToEq = (v) => [0, 1, 2].map((i) => EQ2GAL[0][i] * v[0] + EQ2GAL[1][i] * v[1] + EQ2GAL[2][i] * v[2]);
 const EPS = 23.4392911 * D;
 // ecliptic (x → equinox, z → ecliptic pole) → equatorial
 export const eclToEq = ([x, y, z]) => [x, y * Math.cos(EPS) - z * Math.sin(EPS), y * Math.sin(EPS) + z * Math.cos(EPS)];
@@ -55,6 +56,7 @@ const d2000 = JD - 2451545.0;
 export const SITE = { lat: 36.5816, lon: -118.7511 }; // the General Sherman tree, Sequoia National Park
 const gmst = (280.46061837 + 360.98564736629 * d2000) * D;
 const lst = gmst + SITE.lon * D, phi = SITE.lat * D;
+export const GMST = gmst; // the Earth's turn at the moment, for its globe
 export const UP = eqToGal([Math.cos(phi) * Math.cos(lst), Math.cos(phi) * Math.sin(lst), Math.sin(phi)]);
 export const NORTH = eqToGal([-Math.sin(phi) * Math.cos(lst), -Math.sin(phi) * Math.sin(lst), Math.cos(phi)]);
 
@@ -109,21 +111,25 @@ function slerp(a, b, t) {
   return a.map((v, i) => (Math.sin((1 - t) * th) * v + Math.sin(t * th) * b[i]) / s);
 }
 
-// a view turned: tipped by tip° (about its right axis), then by turn° about its up axis
-function turned({ r, u, n }, tip, turn) {
-  const a = tip * D, b = turn * D;
-  const u1 = add(mul(u, Math.cos(a)), mul(n, Math.sin(a))), n1 = sub(mul(n, Math.cos(a)), mul(u, Math.sin(a)));
-  return { r: add(mul(r, Math.cos(b)), mul(n1, Math.sin(b))), u: u1, n: sub(mul(n1, Math.cos(b)), mul(r, Math.sin(b))) };
-}
-// looking straight down on the tree (north up) → on the ecliptic, from 55° off its
-// pole, tipping to 72° and turning 40° as we pass the planets, so we cross their
-// orbits as on a fly-by → on the Galaxy (60° from the ecliptic) → on the supergalactic plane,
-// the galactic pole up, as the spectrum Cloud has it
+// v turned by ang (radians) about the unit axis k (right-handed)
+const rotAbout = (v, k, ang) => add(add(mul(v, Math.cos(ang)), mul(cross(k, v), Math.sin(ang))), mul(k, dot(k, v) * (1 - Math.cos(ang))));
+// leaving Earth: we fly out on the side away from the Sun, 30° off the Sun–Earth
+// line and 6° above the ecliptic, looking back, so the Sun is in the background and
+// we cross the outer planets' orbits almost edge-on (space.js puts the Moon and the
+// planets beside this path, for the fly-bys)
+const AWAY = rotAbout(norm(sub(EARTH_C, SUN)), ECL_POLE, 30 * D);
+export const EDGE = basis(norm(add(mul(AWAY, Math.cos(6 * D)), mul(ECL_POLE, Math.sin(6 * D)))), ECL_POLE);
+// looking straight down on the tree (north up) → swinging round the Earth to the
+// edge-on view, the Sun behind → on the Galaxy (60° from the ecliptic) → on the
+// supergalactic plane, the galactic pole up, as the spectrum Cloud has it
 const K0 = basis(UP, NORTH);
-const K1 = basis(ECL_POLE, K0.u);
-const K2 = basis(GAL_POLE, K1.u);
+const K2 = basis(GAL_POLE, EDGE.u);
 const K3 = basis(SG_POLE, GAL_POLE);
-const KEYS = [[7.6, K0], [9.6, turned(K1, 55, 0)], [15.0, turned(K1, 72, 40)], [16.8, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
+const KEYS = [[7.65, K0], [8.4, EDGE], [14.6, EDGE], [16.8, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
+// the camera is in perspective (50° across the frame's shorter side) from the Earth
+// to the Oort cloud, so what's near it is bigger and passes by; flat before and
+// after. 0…1: how much
+export const perspAt = (s) => win(s, 7.9, 8.5, 14.4, 15.6);
 // from the stars out the camera turns round the vertical at a steady 10° a decade
 // (eased in over the first), tipping 8° and back, so depth shows as it moves
 // (parallax); the roll round the line of sight, the same at every scale, is the

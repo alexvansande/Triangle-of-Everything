@@ -26,6 +26,10 @@ const NEAR = 2.2;
 // frame as we pass them, about their distance from us), for a sense of scale and of
 // depth, like the opening of Contact; size: their width in frame widths as they pass
 const FLYBYS = [
+  // the small world: what shares a dew drop with an amoeba, and what lands on the leaves
+  [-6.7, "bacteriophage-t4", "a bacteriophage (T4)", 0.2], [-5.8, "escherichia-coli", "E. coli", 0.22],
+  [-5.5, "caulobacter-vibrioides", "Caulobacter", 0.2], [-5.2, "bacteria", "bacteria", 0.24],
+  [-4.4, "pollen-grain", "a pollen grain", 0.24], [-3.2, "tardigrade", "a tardigrade", 0.26],
   [11.1, "eros", "433 Eros", 0.16], [11.55, "vesta", "Vesta", 0.2], [11.7, "ceres", "Ceres", 0.22],
   [12.1, "comet-67p", "Comet 67P", 0.14], [12.45, "halleys-comet", "Halley's Comet", 0.2],
   [12.8, "pluto", "Pluto", 0.22], [12.9, "charon", "Charon", 0.13],

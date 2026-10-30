@@ -8,7 +8,7 @@
 // flow towards — a rough Laniakea, from a few point masses, not Cosmicflows.
 import {
   ramp, win, rng, gauss, add, sub, mul, dot, lb, AU, LY, KPC, MPC, R_EARTH,
-  PLANETS, SUN, EARTH_C, MOON, eclAxes, eclToGal,
+  PLANETS, SUN, EARTH_C, MOON, eclAxes, eclToGal, EDGE, ECL_POLE, cross, norm,
 } from "./math.js";
 import { image } from "./micro.js";
 
@@ -21,14 +21,20 @@ export function spaceLayers(globe) {
     const ctx = cam.ctx;
     ctx.strokeStyle = style; ctx.lineWidth = width * cam.dpr;
     ctx.beginPath();
-    for (let i = 0; i <= 160; i++) {
-      const t = i / 160 * 2 * Math.PI, [x, y] = cam.proj(add(c, add(mul(e1, rad * Math.cos(t)), mul(e2, rad * Math.sin(t)))));
-      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    // more points in perspective, where the ring may pass close to the camera; a
+    // stretch behind the camera breaks the line
+    const N = cam.Dc === Infinity ? 160 : 720;
+    let pen = false;
+    for (let i = 0; i <= N; i++) {
+      const t = i / N * 2 * Math.PI, [x, y] = cam.proj(add(c, add(mul(e1, rad * Math.cos(t)), mul(e2, rad * Math.sin(t)))));
+      if (Number.isNaN(x) || Math.abs(x) > 1e6 || Math.abs(y) > 1e6) { pen = false; continue; }
+      pen ? ctx.lineTo(x, y) : ctx.moveTo(x, y); pen = true;
     }
     ctx.stroke();
   };
   const body = (cam, img, p, r, minPx, a, glow) => {
-    const [x, y] = cam.proj(p), rr = Math.max(minPx * cam.dpr, r * cam.k), ctx = cam.ctx;
+    const [x, y, sc] = cam.projS(p), rr = Math.max(minPx * cam.dpr, r * cam.k * sc), ctx = cam.ctx;
+    if (!sc) return [NaN, NaN, 0];
     if (x < -rr || x > cam.W + rr || y < -rr || y > cam.H + rr) return [x, y, rr];
     ctx.globalAlpha = a;
     if (glow) {
@@ -83,15 +89,41 @@ export function spaceLayers(globe) {
       ctx.globalAlpha = 1;
     },
   };
+  // ---------- the fly-bys: the Moon and the outer planets moved onto their orbits
+  // beside the camera's path out (math.js EDGE), so we pass each as we cross its
+  // orbit, as in the opening of Contact; their real places today are elsewhere. At
+  // true size a close pass would last a thousandth of a decade (out here the camera
+  // covers ~10^12 m a decade), so each passes 0.22 of its distance to one side and is
+  // drawn far bigger than life, Jupiter largest (radius ∝ the fourth root of the true
+  // one): each fly-by then takes about 0.4 decades. Each orbit is drawn through the
+  // moved body ----------
+  const side = norm(cross(ECL_POLE, EDGE.n)), R_JUP = 6.99e7;
+  const crossing = (centre, a) => { const w = sub(EARTH_C, centre), b = dot(w, EDGE.n); return -b + Math.sqrt(b * b - dot(w, w) + a * a); };
+  const besidePath = (centre, a, r, sign) => {
+    const t = crossing(centre, a), L = 0.22 * t;
+    return { pos: add(add(EARTH_C, mul(EDGE.n, t)), mul(side, sign * L)), r: (L / 2.5) * (r / R_JUP) ** 0.25 };
+  };
+  const through = (centre, p) => { const e1 = norm(sub(p, centre)); return [e1, norm(cross(ECL_POLE, e1))]; };
+  const MOON_FLY = besidePath(EARTH_C, 3.844e8, 1.737e6, 1), MOON_ORBIT = through(EARTH_C, MOON_FLY.pos);
+  const FLY = Object.fromEntries(PLANETS.filter((p) => p.a > 1.1 * AU).map((p, i) => {
+    const f = besidePath(SUN, p.a, p.r, i % 2 ? 1 : -1);
+    return [p.name, { ...f, orbit: through(SUN, f.pos) }];
+  }));
+  const SUN_DIR = norm(sub(SUN, EARTH_C));
   const earthMoon = {
     name: "earth & moon", range: [7.5, 11.5],
     draw(cam) {
       const a = 1 - ramp(cam.s, 10.6, 11.2);
       if (a <= 0.01) return;
-      const [x, y] = cam.proj(EARTH_C), rr = Math.max(1.5 * cam.dpr, R_EARTH * cam.k);
-      if (globe.ready) { const c = globe.render(R_EARTH * 1.02); cam.ctx.globalAlpha = a; cam.ctx.drawImage(c, x - rr * 1.02, y - rr * 1.02, rr * 2.04, rr * 2.04); cam.ctx.globalAlpha = 1; }
-      ring(cam, EARTH_C, eclAxes.x, eclAxes.y, 3.844e8, `rgba(200,210,230,${0.5 * a * ramp(cam.s, 7.9, 8.4)})`);
-      const [mx, my] = body(cam, imgs.moon, MOON, 1.737e6, 1.2, a * ramp(cam.s, 7.8, 8.2));
+      const [x, y, sc] = cam.projS(EARTH_C), rr = Math.max(1.5 * cam.dpr, R_EARTH * cam.k * sc);
+      // the globe as the camera sees it, lit by the Sun (a little bigger than the
+      // ground's own picture, so it covers it as the two cross-fade)
+      if (globe.ready && sc) {
+        const c = globe.render3(cam.cam, SUN_DIR, Math.max(32, Math.min(512, Math.round(2.2 * rr / 16) * 8)));
+        cam.ctx.globalAlpha = a; cam.ctx.drawImage(c, x - rr * 1.02, y - rr * 1.02, rr * 2.04, rr * 2.04); cam.ctx.globalAlpha = 1;
+      }
+      ring(cam, EARTH_C, MOON_ORBIT[0], MOON_ORBIT[1], 3.844e8, `rgba(200,210,230,${0.5 * a * ramp(cam.s, 7.9, 8.4)})`);
+      const [mx, my] = body(cam, imgs.moon, MOON_FLY.pos, MOON_FLY.r, 1.2, a * ramp(cam.s, 7.8, 8.2));
       cam.labelPx(x, y - rr - 10 * cam.dpr, "Earth", a * ramp(cam.s, 8.3, 8.6) * (1 - ramp(cam.s, 10.2, 10.6)));
       cam.labelPx(mx, my - 10 * cam.dpr, "the Moon", a * ramp(cam.s, 8.3, 8.6) * (1 - ramp(cam.s, 9.8, 10.2)));
     },
@@ -99,20 +131,30 @@ export function spaceLayers(globe) {
 
   // ---------- the Sun and the planets ----------
   const solar = {
-    name: "planets", range: [9, 16.5],
+    name: "planets", range: [8.5, 16.5],
     draw(cam) {
       const a = 1 - ramp(cam.s, 15.2, 16.0);
       if (a <= 0.01) return;
       for (const p of PLANETS) {
         const ra = p.a * cam.k;
-        if (ra < 3 || ra > 4 * cam.min) continue;
-        const oa = a * ramp(ra, 3, 12) * (1 - ramp(ra, 1.5 * cam.min, 4 * cam.min));
-        ring(cam, SUN, eclAxes.x, eclAxes.y, p.a, `rgba(170,190,230,${0.45 * oa})`);
+        if (ra < 3) continue;
+        const fly = FLY[p.name], oa = a * ramp(ra, 3, 12) * (fly ? 1 : 1 - ramp(ra, 1.5 * cam.min, 4 * cam.min));
+        if (oa <= 0.01) continue;
+        const [e1, e2] = fly ? fly.orbit : [eclAxes.x, eclAxes.y];
+        ring(cam, SUN, e1, e2, p.a, `rgba(170,190,230,${0.4 * oa})`);
         if (p.name === "Earth") continue;
-        const [x, y] = body(cam, imgs[p.name.toLowerCase()], add(SUN, p.pos), p.r, 1.4, oa);
-        cam.labelPx(x, y - 9 * cam.dpr, p.name, oa * ramp(ra, 30, 60));
+        const [x, y, rr] = body(cam, imgs[p.name.toLowerCase()], fly ? fly.pos : add(SUN, p.pos), fly ? fly.r : p.r, 1.4, oa);
+        cam.labelPx(x, y - rr - 9 * cam.dpr, p.name, oa * ramp(ra, 30, 60) * (1 - ramp(rr, 0.25 * cam.min, 0.5 * cam.min)));
       }
-      const [x, y] = body(cam, imgs.sun, SUN, 6.96e8, 2.2, a * ramp(cam.s, 9.4, 9.9), "rgba(255,210,120,0.45)");
+      // the Sun, in the background: a soft halo round it, bigger the nearer it is
+      const [sx, sy, ssc] = cam.projS(SUN);
+      if (ssc) {
+        const ctx = cam.ctx, hr = Math.max(14 * cam.dpr, 40 * 6.96e8 * cam.k * ssc), sa = a * ramp(cam.s, 8.6, 9.2);
+        const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, hr);
+        g.addColorStop(0, `rgba(255,235,190,${0.8 * sa})`); g.addColorStop(0.15, `rgba(255,200,120,${0.35 * sa})`); g.addColorStop(1, "rgba(255,170,80,0)");
+        ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sx, sy, hr, 0, 7); ctx.fill(); ctx.globalCompositeOperation = "source-over";
+      }
+      const [x, y] = body(cam, imgs.sun, SUN, 6.96e8, 2.2, a * ramp(cam.s, 8.6, 9.2), "rgba(255,210,120,0.45)");
       cam.labelPx(x, y - 12 * cam.dpr, "the Sun", a * ramp(cam.s, 10.6, 11) * (1 - ramp(cam.s, 14.2, 14.6)));
     },
   };

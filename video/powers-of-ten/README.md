@@ -29,7 +29,7 @@ plane, so the galaxies' flows lie flat.
 | −35 … −32 | Planck grid, a Game of Life with one cell per Planck length | code (`small.js`) |
 | −21 … −15 | one quark, drawn at 10⁻¹⁹ m across (no measured size; that is the colliders’ limit), a point until it grows past the frame | Hopf renderer (`public/hopf/hopf-core.js`) |
 | −16 … −12 | the proton: a fuzzy ball, then three quarks and the gluon sea as you zoom in | Hopf renderer, `proton-scale` |
-| −14 … −9 | the hydrogen atom to scale, its 1s cloud (glow plus "where the electron is found" dots) | code |
+| −14 … −9 | the hydrogen atom to scale, its 1s cloud (glow plus "where the electron is found" dots), seen whole near 10⁻⁹·⁷ m before the base pair comes in | code |
 | −10 … −8.5 | the A–T base pair (3DNA standard geometry), which turns edge-on | code |
 | −9 … −6.5 | the double helix, side on | rough, for the image pass |
 | −8 … −5 | chromatin: nucleosomes, then 10 nm fibres | rough |
@@ -55,9 +55,13 @@ canopy, the clouds, the Oort cloud, the Milky Way) soft things near the camera f
 they really are, for scale and depth like the opening of *Contact*: Eros, Vesta, Ceres, two
 comets, Pluto and Charon; Sirius, Vega, the Pleiades, Betelgeuse, the Helix, Orion and
 Bubble nebulae, M13; Bode's, the Cigar, the Whirlpool, the Sombrero, M87, the Perseus and
-Bullet clusters. The solar system is seen from 55° off the ecliptic's pole, tipping to 72°
-and turning 40° as we pass the planets, so we cross the orbits as on a fly-by, before the turn
-to the Galaxy's plane. Behind it, faint and at infinity, is Gaia's all-sky map (the spectrum
+Bullet clusters. Leaving Earth the camera swings round to its night side (10^7.65 to 10^8.4 m) and
+flies out in perspective (50° across, 10^8 to 10^15 m), 30° off the Sun–Earth line and 6°
+above the ecliptic, looking back: the Earth is a crescent lit from behind (the globe is drawn
+from any side now, with sunlight), the Sun sits in the background, and the Moon and the outer
+planets are moved onto their orbits beside the path (0.22 of their distance to one side) and
+drawn far bigger than life (radius ∝ the fourth root of the true one, Jupiter largest), so each
+passes us as we cross its orbit, as in *Contact*. Their real places today are elsewhere. Behind it, faint and at infinity, is Gaia's all-sky map (the spectrum
 page's RP, G and BP): it turns with the camera but doesn't zoom.
 
 ## The image pass (DNA → Earth)

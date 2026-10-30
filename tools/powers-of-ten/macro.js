@@ -3,7 +3,7 @@
 // leaves), the twig and limb, the crown, the grove, the forest and the Sierra
 // (procedural, rough), then California and the Earth from the spectrum page's
 // true-colour Earth maps (public/spectrum/earth-spectrum: red, green, blue bands).
-import { ramp, win, rng, gauss, SITE, R_EARTH, D } from "./math.js";
+import { ramp, win, rng, gauss, SITE, R_EARTH, D, GMST, galToEq } from "./math.js";
 import { LB_C } from "./micro.js";
 
 const rel = (dx, dy) => [LB_C[0] + dx, LB_C[1] + dy];
@@ -259,6 +259,32 @@ function earthGlobe() {
     }
     ctx.putImageData(img, 0, 0);
     return c;
+  };
+  // the whole globe seen from any side: view is the camera's { r, u, n } (galactic),
+  // sun the direction to the Sun; lit by it, with a faint night side and a thin blue
+  // edge of atmosphere. n pixels across
+  const c3 = document.createElement("canvas"), ctx3 = c3.getContext("2d");
+  let img3 = null, last3 = "";
+  out.render3 = (view, sun, n) => {
+    const key = `${n}|${view.n.map((v) => v.toFixed(3))}|${view.u.map((v) => v.toFixed(3))}`;
+    if (key === last3) return c3;
+    last3 = key;
+    if (c3.width !== n) { c3.width = c3.height = n; img3 = ctx3.createImageData(n, n); }
+    const d = img3.data, { r, u } = view, f = view.n;
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+      const x = (i + 0.5) / n * 2 - 1, y = 1 - (j + 0.5) / n * 2, rho2 = x * x + y * y, o = 4 * (j * n + i);
+      if (rho2 > 1) { d[o + 3] = 0; continue; }
+      const z = Math.sqrt(1 - rho2), N = [x * r[0] + y * u[0] + z * f[0], x * r[1] + y * u[1] + z * f[1], x * r[2] + y * u[2] + z * f[2]];
+      const q = galToEq(N), lat = Math.asin(Math.max(-1, Math.min(1, q[2]))), lon = Math.atan2(q[1], q[0]) - GMST;
+      const uu = ((lon / (2 * Math.PI) + 0.5) % 1 + 1) % 1, vv = 0.5 - lat / Math.PI;
+      const k = 3 * (Math.min(H - 1, (vv * H) | 0) * W + Math.min(W - 1, (uu * W) | 0));
+      const lit = N[0] * sun[0] + N[1] * sun[1] + N[2] * sun[2], day = 0.06 + 0.94 * ramp(lit, -0.08, 0.25);
+      const rim = Math.pow(1 - z, 3) * ramp(lit, -0.3, 0.3);
+      d[o] = Math.min(255, rgb[k] * day + 90 * rim); d[o + 1] = Math.min(255, rgb[k + 1] * day + 140 * rim); d[o + 2] = Math.min(255, rgb[k + 2] * day + 255 * rim);
+      d[o + 3] = 255 * ramp(1 - Math.sqrt(rho2), 0, 3 / n);
+    }
+    ctx3.putImageData(img3, 0, 0);
+    return c3;
   };
   return out;
 }

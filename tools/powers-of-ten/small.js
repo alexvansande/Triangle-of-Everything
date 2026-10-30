@@ -180,7 +180,8 @@ function basePair() {
   return {
     name: "base pair", range: [-10.6, -8.3],
     draw(cam) {
-      const a = ramp(cam.s, -10.2, -9.6) * (1 - ramp(cam.s, -8.95, -8.55));
+      // in once the hydrogen's electron cloud has been seen whole (it fits the frame near 10^-9.7 m)
+      const a = ramp(cam.s, -9.6, -9.25) * (1 - ramp(cam.s, -8.95, -8.55));
       if (a <= 0.01) return;
       // turning edge-on as the helix takes over: squash across the screen's height
       const sq = 1 - 0.9 * ramp(cam.s, -9.1, -8.6);

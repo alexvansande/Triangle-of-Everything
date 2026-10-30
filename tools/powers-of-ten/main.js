@@ -4,7 +4,7 @@
 // drop of dew on a ladybug on the General Sherman tree. At the top the spectrum
 // page's Cloud (public/spectrum, ?bare=1) takes over for the microwave sky.
 //   ?s=  ?grid=0  ?labels=0  ?ui=0  ?stage=9x16|16x9|1x1  ?plates=1 (use video/powers-of-ten/plates/)  ?crossings=0
-import { ramp, clamp, LY, AU, cameraAt } from "./math.js";
+import { ramp, clamp, LY, AU, cameraAt, perspAt } from "./math.js";
 import { smallLayers } from "./small.js";
 import { microLayers } from "./micro.js";
 import { macroLayers } from "./macro.js";
@@ -78,12 +78,21 @@ function render(t) {
   // corners), centred on the stage and turned with it
   const s = state.s, Dg = Math.ceil(Math.hypot(W, H)), roll = -ROLL * s, rc = Math.cos(roll), rs = Math.sin(roll);
   const F = 10 ** s, min = Math.min(W, H), k = min / F, cx = Dg / 2, cy = Dg / 2;
-  const basis = cameraAt(s);
+  const basis = cameraAt(s), pw = perspAt(s), Dc = pw > 1e-4 ? F / (2 * Math.tan(25 * Math.PI / 180)) / pw : Infinity;
+  const projS = (p) => {
+    const z = p[0] * basis.n[0] + p[1] * basis.n[1] + p[2] * basis.n[2], den = Dc - z;
+    if (den < 0.01 * Dc) return [NaN, NaN, 0];
+    const sc = Dc === Infinity ? 1 : Dc / den;
+    return [cx + k * sc * (p[0] * basis.r[0] + p[1] * basis.r[1] + p[2] * basis.r[2]), cy - k * sc * (p[0] * basis.u[0] + p[1] * basis.u[1] + p[2] * basis.u[2]), sc];
+  };
   labels.length = 0;
   const cam = {
     ctx, W: Dg, H: Dg, min, dpr, s, F, k, cx, cy, t, cam: basis,
     P: ([x, y]) => [cx + x * k, cy + y * k],
-    proj: (p) => [cx + k * (p[0] * basis.r[0] + p[1] * basis.r[1] + p[2] * basis.r[2]), cy - k * (p[0] * basis.u[0] + p[1] * basis.u[1] + p[2] * basis.u[2])],
+    // a point's place on the frame (NaN behind the camera) and, with projS, how much
+    // nearer than the centre it is: in perspective the camera stands Dc from the centre,
+    // where the frame is F wide across 50°; flat (orthographic) when Dc is infinite
+    Dc, proj: (p) => { const q = projS(p); return [q[0], q[1]]; }, projS,
     label: (x, y, text, a) => labels.push([cx + x * k, cy + y * k, text, a]),
     labelPx: (x, y, text, a) => labels.push([x, y, text, a]),
   };
