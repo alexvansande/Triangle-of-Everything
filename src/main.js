@@ -5148,8 +5148,11 @@ let _dotSizeMult = 1;    // moving-dot size multiplier (settings slider)
 let _dotOpacityMult = 1; // moving-dot opacity multiplier (settings slider)
 let _dotFixedR = null;    // moving-dot radius in px, overriding the paths' own sizes (narration)
 let _dotBoostKey = "";    // the lit paths (narration's setDotBoost), to redraw when they change
-let _dotStir = null;      // narration: how the dots stir the fractal background, { spin, size, wake } (setDotStir); null = the settings panel's
-let _stirPts = new Float32Array(0);
+let _dotTrails = null;    // narration: the dots' trails in the fractal background, { gain, length, swirl } (setDotTrails); null = the settings panel's
+let _trailPts = new Float32Array(0);
+let _shadowSwirl = null;  // narration: the pictures' shadows swirled with the fractal background (setShadowSwirl); null = the settings panel's
+let _shadowCv = null, _svgShadowsHidden = false;
+const _shadowImgs = new Map();
 
 function pauseAnimOnInteract() {
   if (_animDisabled) return;
@@ -5632,49 +5635,141 @@ function applyEmWave(cp, t, sx, sy, timestamp, ppu) {
   return [sx + perpX * off, sy + perpY * off];
 }
 
-/** Experimental: the dots stir the fractal background. Behind each cluster, a street of
- *  eddies: fixed spots along its path (so they stay put as the dot moves on), on alternating
- *  sides with alternating spin, that twist the paint up as the dot passes and fade as the wake
- *  ages. bg-noise.js splats them into a texture its shader displaces the painting by. A pure
- *  function of where the dots are this frame, so a render's frames come out the same every time. */
-function feedStir(ppu) {
+/** Experimental: the dots and a short trail behind each, drawn as light into the fractal
+ *  background (bg-noise.js setTrails), which reads it through its own swirl warp, so the
+ *  background's turbulence carries their glow. A pure function of where the dots are this
+ *  frame, so a render's frames come out the same every time. */
+const _trailRgb = new Map();
+function trailRgb(css) {
+  let c = _trailRgb.get(css);
+  if (!c) { const k = d3.color(css)?.rgb(); c = k ? [k.r / 255, k.g / 255, k.b / 255] : [1, 1, 1]; _trailRgb.set(css, c); }
+  return c;
+}
+function feedTrails(ppu, timestamp) {
   const nl = _bgNoise;
   if (!nl) return;
   const p = _bgNoiseM?.noiseParams;
-  const o = _dotStir ?? (p && { spin: p.stir, size: p.stirSize, wake: p.stirWake, detail: p.stirDetail });
-  if (!o || !(o.spin > 0) || !_bgNoiseShown || !_connPaths) { nl.setStir(null, 0); return; }
+  const o = _dotTrails ?? (p && { gain: p.trail, length: p.trailLen, swirl: p.trailSwirl });
+  if (!o || !(o.gain > 0) || !_bgNoiseShown || !_connPaths) { nl.setTrails(null, 0); return; }
   let n = 0;
   for (const { pi, di } of _connDotEls) {   // one entry per cluster
     const cp = _connPaths[pi];
     if (!cp._visible) continue;
-    const w0 = Math.min(1, cp._opacity * 1.5);
+    const w0 = Math.min(1, cp._opacity * _dotOpacityMult);
     if (w0 <= 0.01) continue;
     const head = cp.dotTs[di], len = cp._screenLen ?? screenPathLength(cp, ppu);
-    // eddy spacing ~ their size, on a lattice along the path that only changes at whole halvings of zoom
-    const cells = 2 ** Math.max(0, Math.round(Math.log2(len / (o.size * 1.4)))), dt = 1 / cells, wakeT = o.wake / len;
-    for (let j = Math.floor(head * cells); j >= 0; j--) {
-      const tj = j * dt, age = (head - tj) / wakeT;
-      if (age > 1) break;
-      const weight = w0 * Math.min(1, age * 12) * (1 - age) * (1 - age);
-      if (weight <= 0.005) continue;
-      const [x, y] = getPathScreenPos(cp, tj, ppu), [x2, y2] = getPathScreenPos(cp, Math.min(1, tj + 0.002), ppu);
-      const l = Math.hypot(x2 - x, y2 - y) || 1, side = j & 1 ? 1 : -1;
-      const ex = x - side * (y2 - y) / l * o.size * 0.45, ey = y + side * (x2 - x) / l * o.size * 0.45;
-      if (ex < -o.size || ex > cw + o.size || ey < -o.size || ey > ch + o.size) continue;
-      if (_stirPts.length < (n + 1) * 5) { const a = new Float32Array(Math.max(1024, _stirPts.length * 2)); a.set(_stirPts); _stirPts = a; }
-      const k = n++ * 5;
-      _stirPts[k] = ex; _stirPts[k + 1] = ey; _stirPts[k + 2] = o.size;
-      _stirPts[k + 3] = side * o.spin * Math.min(1, 0.35 + age * 2); _stirPts[k + 4] = weight;
+    const bst = cp._boost, rad = (_dotFixedR ?? cp.style.dotSize * _dotSizeMult) * 2 + 1;
+    const step = Math.max(2, rad * 0.7), K = Math.min(60, Math.ceil(o.length / step));
+    for (let k = 0; k <= K; k++) {
+      const t = head - k * step / len;
+      if (t < 0) break;
+      let [x, y] = getPathScreenPos(cp, t, ppu);
+      [x, y] = applyEmWave(cp, t, x, y, timestamp, ppu);
+      if (x < -120 || x > cw + 120 || y < -120 || y > ch + 120) continue;
+      const lit = bst && t >= bst.t0 && t <= bst.t1 ? bst.k : 1;
+      const f = K ? 1 - k / (K + 1) : 1, w = w0 * f * f * (k ? 0.6 : 1.5) * lit;
+      const c = trailRgb(cp.family === "spectrum" ? emSpectrumColor(t) : (cp.style.color || "#fff"));
+      if (_trailPts.length < (n + 1) * 6) { const a = new Float32Array(Math.max(2048, _trailPts.length * 2)); a.set(_trailPts); _trailPts = a; }
+      const j = n++ * 6;
+      _trailPts[j] = x; _trailPts[j + 1] = y; _trailPts[j + 2] = rad * lit;
+      _trailPts[j + 3] = c[0] * w; _trailPts[j + 4] = c[1] * w; _trailPts[j + 5] = c[2] * w;
     }
   }
-  nl.setStir(_stirPts, n, { detail: o.detail, cssW: cw, cssH: ch });
+  nl.setTrails(_trailPts, n, { gain: o.gain, swirl: o.swirl, band: 300, cssW: cw, cssH: ch });
+}
+
+/** Experimental: the pictures' cast shadows drawn into a canvas over the plot area (in colour:
+ *  some shadow pictures hold light, like the water cube's caustics), which the fractal layer
+ *  lays over the painting through its swirl warp (createBgNoise getShadows), so they twirl with
+ *  the background. The SVG shadows hide meanwhile. Same shapes, opacity, blur and reveal clips
+ *  as the SVG (drawIconShadows); star light (sh-glow) stays SVG. */
+function hideSvgShadows(hide) {
+  if (hide === _svgShadowsHidden) return;
+  _svgShadowsHidden = hide;
+  lShadows.style("visibility", hide ? "hidden" : null);
+}
+function shadowImage(href) {
+  let im = _shadowImgs.get(href);
+  if (!im) { im = new Image(); im.src = href; _shadowImgs.set(href, im); }
+  return im.complete && im.naturalWidth ? im : null;
+}
+function bgNoiseShadows() {
+  const swirl = _shadowSwirl ?? _bgNoiseM?.noiseParams.shadowSwirl ?? 0;
+  if (!(swirl > 0) || !_bgNoiseShown) { hideSvgShadows(false); return null; }
+  const base = lContent.node().getScreenCTM()?.inverse(), root = lShadows.node();
+  if (!base) return null;
+  const S = 0.5 * Math.min(2, devicePixelRatio || 1);   // canvas px per css px
+  const cv = _shadowCv ??= document.createElement("canvas");
+  const w = Math.max(1, Math.round(cw * S)), h = Math.max(1, Math.round(ch * S));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = "#000";
+  for (const el of root.querySelectorAll("ellipse, image, circle, path")) {
+    // star light stays SVG; of the circles only the dots' own shadows (the rest are revealIcon's discs)
+    if (el.classList.contains("sh-glow") || (el.tagName === "circle" && !el.classList.contains("object-dot-shadow"))) continue;
+    let op = 1, hidden = false;
+    const clips = [];
+    for (let n = el; n && n !== root; n = n.parentNode) {
+      if (n.getAttribute("display") === "none" || n.style.display === "none") { hidden = true; break; }
+      const o = n.getAttribute("opacity");
+      if (o != null) op *= +o;
+      if (n.style.opacity) op *= +n.style.opacity;
+      const cp = n.getAttribute("clip-path");   // revealIcon's growing circle
+      if (cp) clips.push([n, cp]);
+    }
+    if (hidden || !(op > 0.003)) continue;
+    ctx.save();
+    for (const [n, cp] of clips) {
+      const c = document.getElementById(cp.slice(5, -1))?.querySelector("circle");
+      if (!c) continue;
+      const q = base.multiply(n.getScreenCTM());
+      ctx.setTransform(q.a * S, q.b * S, q.c * S, q.d * S, q.e * S, q.f * S);
+      ctx.beginPath();
+      ctx.arc(+c.getAttribute("cx"), +c.getAttribute("cy"), +c.getAttribute("r"), 0, 2 * Math.PI);
+      ctx.clip();
+    }
+    const m = base.multiply(el.getScreenCTM());
+    const k = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * S;   // canvas px per user unit
+    ctx.setTransform(m.a * S, m.b * S, m.c * S, m.d * S, m.e * S, m.f * S);
+    ctx.globalAlpha = Math.min(1, op);
+    const a = (n) => +el.getAttribute(n) || 0, flt = el.getAttribute("filter") || "";
+    let blur = flt.includes("dust-shadow-blur") ? 0.8 : 0;
+    ctx.beginPath();
+    if (el.tagName === "ellipse") {
+      // icon-shadow-near/far: stdDeviation 0.08/0.16 of the ellipse's box
+      const sd = flt.includes("icon-shadow-far") ? 0.16 : flt.includes("icon-shadow-near") ? 0.08 : 0;
+      blur = sd * 2 * Math.sqrt(a("rx") * a("ry"));
+      ctx.filter = blur ? `blur(${blur * k}px)` : "none";
+      ctx.ellipse(a("cx"), a("cy"), a("rx"), a("ry"), 0, 0, 2 * Math.PI);
+      ctx.fill();
+    } else if (el.tagName === "circle") {
+      ctx.filter = blur ? `blur(${blur * k}px)` : "none";
+      ctx.arc(a("cx"), a("cy"), a("r"), 0, 2 * Math.PI);
+      ctx.fill();
+    } else if (el.tagName === "path") {
+      const d = el.getAttribute("d");
+      ctx.filter = blur ? `blur(${blur * k}px)` : "none";
+      if (d) ctx.fill(new Path2D(d));
+    } else {
+      const im = shadowImage(el.getAttribute("href"));
+      const px = parseFloat((el.style.filter || "").replace(/^blur\(/, "")) || 0;
+      ctx.filter = px ? `blur(${px * k}px)` : "none";
+      if (im) ctx.drawImage(im, a("x"), a("y"), a("width"), a("height"));
+    }
+    ctx.restore();
+  }
+  ctx.filter = "none";
+  hideSvgShadows(true);
+  return { canvas: cv, swirl };
 }
 
 function animateConnections(timestamp) {
   if (!connAnimActive()) {
     // Park the loop — no re-queue. scheduleConnAnim() restarts it when a
     // path becomes visible, the tab becomes visible, or animation re-enables.
-    _bgNoise?.setStir(null, 0);
+    _bgNoise?.setTrails(null, 0);
     lConnDots.selectAll("*").remove();
     _connDotEls = [];
     _connDotsStale = true;
@@ -5762,7 +5857,7 @@ function animateConnections(timestamp) {
       }
     });
   });
-  feedStir(ppu);
+  feedTrails(ppu, timestamp);
 
   _connAnimId = requestAnimationFrame(animateConnections);
 }
@@ -5888,7 +5983,7 @@ let _bgNoiseFailed = "";      // why the layer couldn't run (no WebGL2), for the
 let _bgNoiseLost = 0;         // GL contexts lost (the layer rebuilt), for the renderer's log
 let _bgNoiseWanted = _bgNoiseUrl !== null ? _bgNoiseUrl !== "0" : BG_NOISE_DEFAULT_ON;
 let _bgNoiseMod = null;
-let _bgNoiseM = null;         // the module once loaded (feedStir reads its params)
+let _bgNoiseM = null;         // the module once loaded (feedTrails reads its params)
 const loadBgNoise = () => (_bgNoiseMod ??= import("./bg-noise.js").then(m => { m.applyNoiseProfile(BG_NOISE_PROFILE); return (_bgNoiseM = m); }));
 
 /** Plot area and camera in source (z5) pixels, as drawTiles anchors them. */
@@ -5932,6 +6027,7 @@ function setBgNoiseBackdrop(noise) {
     tiles.forEach(l => l.style("transition", "opacity 0.5s").style("opacity", 0));
     end(() => tiles.forEach(l => l.style("display", "none")));
   } else {
+    hideSvgShadows(false);   // the fractal layer drew them (bgNoiseShadows)
     tiles.forEach(l => l.style("display", null));
     lTiles.node().getBoundingClientRect(); // commit display before fading back in
     tiles.forEach(l => l.style("opacity", 1));
@@ -5982,7 +6078,7 @@ async function syncBgNoise() {
         .style("position", "relative").style("width", "100%").style("height", "100%").node();
     }
     _bgNoise = createBgNoise({
-      host, meta: tileMeta, getView: bgNoiseView, getTime: () => _bgNoiseT,
+      host, meta: tileMeta, getView: bgNoiseView, getTime: () => _bgNoiseT, getShadows: bgNoiseShadows,
       onShown: () => { if (_bgNoiseShown) setBgNoiseBackdrop(true); },
       onLost: () => {   // back to the tiles at once; the next zoom past them builds it anew
         _bgNoiseLost++; console.warn("Fractal background: WebGL context lost");
@@ -8613,11 +8709,15 @@ if (_ogShot) {
         if (_labelsEnabled !== on) { _labelsEnabled = on; redraw(); }
       },
       setDots({ size = 1, opacity = 1, radius = null } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; _dotFixedR = radius; },
-      /** The moving dots stir the fractal background (experimental): a number (how far their
-       *  eddies twist the paint, radians) or { spin, size, wake (css px), detail }; 0 = off (videos' default). */
-      setDotStir(o = 0) {
-        const v = typeof o === "number" ? { spin: o } : (o || {});
-        _dotStir = { spin: v.spin ?? 0, size: v.size ?? 14, wake: v.wake ?? 160, detail: v.detail ?? 2.5 };
+      /** The moving dots and their trails drawn into the fractal background, swirled by it
+       *  (experimental): a number (their brightness) or { gain, length (css px), swirl }; 0 = off
+       *  (videos' default). */
+      /** The pictures' shadows swirled with the fractal background, this × harder than the
+       *  painting (experimental); 0 = off (videos' default): they stay SVG. */
+      setShadowSwirl(v = 0) { _shadowSwirl = v; },
+      setDotTrails(o = 0) {
+        const v = typeof o === "number" ? { gain: o } : (o || {});
+        _dotTrails = { gain: v.gain ?? 0, length: v.length ?? 60, swirl: v.swirl ?? 2 };
       },
       /** Connection paths (the moving dots' curves) for a video to highlight: every path
        *  whose id or whole (`_into`, what it builds) is in `sel`, sampled at n + 1 points

@@ -173,9 +173,13 @@ export async function startNarration(app) {
   // the paths' moving dots: as big as the catalogue dust (1.15 px), brighter
   // than in the app so they still read in a phone video
   app.setDots?.(SCENE.dots ?? { radius: 1.15, opacity: 1.7 });
-  // experimental: the dots stir the fractal background as they pass (off unless the scene sets `dotStir`;
-  // `&stir=1.5` tries it on any take)
-  app.setDotStir?.(params.has("stir") ? +params.get("stir") : SCENE.dotStir ?? 0);
+  // experimental: the dots and their trails drawn into the fractal background, swirled by it (off
+  // unless the scene sets `dotTrails`; `&trails=1` tries it on any take, `&trailswirl=` its swirl)
+  app.setDotTrails?.(params.has("trails")
+    ? { gain: +params.get("trails"), ...(params.has("trailswirl") && { swirl: +params.get("trailswirl") }) }
+    : SCENE.dotTrails ?? 0);
+  // experimental: the pictures' shadows swirled with the fractal background (`shadowSwirl`, `&shadowswirl=4`)
+  app.setShadowSwirl?.(params.has("shadowswirl") ? +params.get("shadowswirl") : SCENE.shadowSwirl ?? 0);
   app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);   // off: the author prefers the background kept on deep zooms
   // pictures 1.28× the app's default size, so they read on a phone (1.6× was too big)
   app.setIconScale?.(SCENE.iconSize ?? 128);
