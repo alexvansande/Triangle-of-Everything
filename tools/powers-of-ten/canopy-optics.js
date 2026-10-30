@@ -7,12 +7,14 @@ export function canopyOptics(){
     bird(cam){
       if(window.canopyTest?.bird===false||!bird.complete||!bird.naturalWidth)return;
       // Foreground parallax, independent of terrain and reversible with zoom.
-      const d=cam.s-1.35;if(d>.82)return;
+      const d=cam.s-1.35;
       const near=10**(-1.85*d),n=.33*cam.min*near;
+      // Match the plane: remain opaque until 6 → 2 pixels in the video master.
+      const masterPixels=n/cam.min*3840;if(masterPixels<=2)return;
       const x=cam.W/2-.20*cam.min*near,y=cam.H/2-.10*cam.min*near;
       const blur=closeFlybyBlur(near,cam.min);
       if(outsideFrame(cam,x,y,n,.18,blur))return;
-      const ctx=cam.ctx;ctx.save();ctx.globalAlpha=1-smooth(.48,.82,d);
+      const ctx=cam.ctx;ctx.save();ctx.globalAlpha=smooth(2,6,masterPixels);
       ctx.translate(x,y);ctx.rotate(.18);
       ctx.filter=`blur(${blur}px)`;
       ctx.drawImage(bird,-n/2,-n/2,n,n);ctx.restore();
