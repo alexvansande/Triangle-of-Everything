@@ -15,7 +15,9 @@ const CROSSINGS = [
   { name: "the cell", s: -3.4, col: [175, 220, 160], size: 0.16, n: 34, kind: "blob" },
   { name: "the dew drop", s: -2.5, col: [190, 225, 255], size: 0.2, n: 30, kind: "ring" },
   { name: "the canopy", s: 1.6, col: [90, 140, 70], size: 0.35, n: 24, kind: "blob" },
-  { name: "the clouds", s: 5.6, col: [255, 255, 255], size: 0.5, n: 12, op: 0.45, kind: "blob" },
+  // climbing out through the clouds: real ones, cut from the day's MODIS clouds (photos/clouds/)
+  { name: "the clouds", s: 4.45, col: [255, 255, 255], size: 0.9, n: 14, op: 0.8, kind: "image",
+    files: [1, 2, 3, 4, 5, 6, 8].map((i) => `/video/powers-of-ten/photos/clouds/wisp-${i}.webp`) },
   { name: "the Oort cloud", s: 16.4, col: [205, 222, 255], size: 0.03, n: 60, kind: "blob" },
   { name: "the Milky Way", s: 21.0, col: [255, 238, 215], size: 0.025, n: 70, kind: "blob" },
 ];
@@ -51,8 +53,9 @@ export function crossingsLayer(on) {
     parts: Array.from({ length: c.n }, () => {
       const ang = 2 * Math.PI * r(), rad = 0.15 + 0.85 * Math.sqrt(r());
       // each at its own depth: crosses a little before or after the others
-      return { x: rad * Math.cos(ang), y: rad * Math.sin(ang), ds: (r() - 0.5) * 0.8, sz: 0.5 + r(), a: 0.5 + 0.5 * r() };
+      return { x: rad * Math.cos(ang), y: rad * Math.sin(ang), ds: (r() - 0.5) * 0.8, sz: 0.5 + r(), a: 0.5 + 0.5 * r(), pick: r(), turn: 2 * Math.PI * r() };
     }),
+    imgs: c.files?.map((f) => image(f)),
     sprite: null,
   }));
   const flys = FLYBYS.map(([s, file, name, size, light], i) => {
@@ -90,7 +93,13 @@ export function crossingsLayer(on) {
           const a = (c.op ?? 0.8) * p.a * ramp(d, -0.35, 0) * (1 - ramp(d, 0.35, 0.8)) * ramp(size, 2, 12);
           if (a <= 0.01 || size < 1) continue;
           ctx.globalAlpha = a;
-          ctx.drawImage(img, x - size / 2, y - size / 2, size, size);
+          if (c.imgs) {
+            const im = c.imgs[(p.pick * c.imgs.length) | 0];
+            if (!im.complete || !im.naturalWidth) continue;
+            ctx.save(); ctx.translate(x, y); ctx.rotate(p.turn);
+            ctx.drawImage(im, -size / 2, -size / 2, size, size);
+            ctx.restore();
+          } else ctx.drawImage(img, x - size / 2, y - size / 2, size, size);
         }
       }
       for (const o of flys) {

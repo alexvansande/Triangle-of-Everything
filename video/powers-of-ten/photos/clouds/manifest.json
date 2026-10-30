@@ -1,0 +1,96 @@
+{
+ "day": "2024-06-15",
+ "source": "MODIS Terra Corrected Reflectance (true colour), NASA GIBS (public domain)",
+ "plates": [
+  {
+   "s": 3.85,
+   "file": "s+3.85.webp",
+   "width_m": 7079.5,
+   "cover": 0.0
+  },
+  {
+   "s": 4.1,
+   "file": "s+4.10.webp",
+   "width_m": 12589.3,
+   "cover": 0.003
+  },
+  {
+   "s": 4.35,
+   "file": "s+4.35.webp",
+   "width_m": 22387.2,
+   "cover": 0.025
+  },
+  {
+   "s": 4.6,
+   "file": "s+4.60.webp",
+   "width_m": 39810.7,
+   "cover": 0.023
+  },
+  {
+   "s": 4.85,
+   "file": "s+4.85.webp",
+   "width_m": 70794.6,
+   "cover": 0.022
+  },
+  {
+   "s": 5.1,
+   "file": "s+5.10.webp",
+   "width_m": 125892.5,
+   "cover": 0.016
+  },
+  {
+   "s": 5.35,
+   "file": "s+5.35.webp",
+   "width_m": 223872.1,
+   "cover": 0.007
+  },
+  {
+   "s": 5.6,
+   "file": "s+5.60.webp",
+   "width_m": 398107.2,
+   "cover": 0.004
+  },
+  {
+   "s": 5.85,
+   "file": "s+5.85.webp",
+   "width_m": 707945.8,
+   "cover": 0.008
+  },
+  {
+   "s": 6.1,
+   "file": "s+6.10.webp",
+   "width_m": 1258925.4,
+   "cover": 0.034
+  },
+  {
+   "s": 6.35,
+   "file": "s+6.35.webp",
+   "width_m": 2238721.1,
+   "cover": 0.097
+  },
+  {
+   "s": 6.6,
+   "file": "s+6.60.webp",
+   "width_m": 3981071.7,
+   "cover": 0.286
+  },
+  {
+   "s": 6.85,
+   "file": "s+6.85.webp",
+   "width_m": 7079457.8,
+   "cover": 0.296
+  },
+  {
+   "s": 7.1,
+   "file": "s+7.10.webp",
+   "width_m": 12589254.1,
+   "cover": 0.238
+  },
+  {
+   "s": 7.35,
+   "file": "s+7.35.webp",
+   "width_m": 22387211.4,
+   "cover": 0.075
+  }
+ ]
+}

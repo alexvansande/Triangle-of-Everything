@@ -9,8 +9,11 @@ globe (so they nest exactly and the last ones are the whole disc).
   Blue Marble Next Generation (NASA, public domain) beyond
 
 Writes video/powers-of-ten/photos/s+1.60.jpg … and manifest.json (the plates format
-tools/powers-of-ten/plates.js reads, plus each frame's source). No clouds: the cloud
-layer comes later, as things near the camera.
+tools/powers-of-ten/plates.js reads, plus each frame's source). No clouds in them: with
+--clouds the script writes the clouds of 15 June 2024 (MODIS Terra's true colour, NASA
+GIBS, public domain; the day the zoom's globe shows) as see-through overlays for the same
+frames from 10^3.85 m up, in photos/clouds/: each cloud is cut out by how much brighter
+MODIS is than the cloud-free photo of the same ground (so snow, bright in both, stays out).
 
 The three sources differ in colour (NAIP is paler and greener), so at each handover
 the finer source's top frame is shifted (per channel, mean and spread) to match the
@@ -29,6 +32,8 @@ LAT0, LON0 = 36.5816453, -118.7514430
 R = 6371008.8  # mean Earth radius, m
 NAIP = "https://imagery.nationalmap.gov/arcgis/rest/services/USGSNAIPPlus/ImageServer/exportImage"
 EOX = "https://tiles.maps.eox.at/wms"
+GIBS = "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi"
+CLOUD_DAY = "2024-06-15"
 SOURCES = {
     "naip": ("NAIP, USDA Farm Service Agency / USGS The National Map (public domain)", 4.35),
     "s2": ("Sentinel-2 cloudless 2016 by EOX IT Services GmbH, https://s2maps.eu (contains modified Copernicus Sentinel data 2016), CC BY 4.0", 6.1),
@@ -55,7 +60,16 @@ def get(url, tries=4):
 
 def fetch(src, west, south, east, north, w, h):
     """An image of a lat/lon box (EPSG:4326), w × h pixels, as a float array."""
-    if src == "naip":
+    if src.startswith("modis"):
+        # modis / modis721, Terra's, with the gaps between its swaths filled from Aqua's
+        # (three hours later the same day)
+        bands = "Bands721" if src.endswith("721") else "TrueColor"
+        url = lambda sat: (f"{GIBS}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=MODIS_{sat}_CorrectedReflectance_{bands}&STYLES="
+                           f"&SRS=EPSG:4326&BBOX={west},{south},{east},{north}&WIDTH={w}&HEIGHT={h}&FORMAT=image/jpeg&TIME={CLOUD_DAY}")
+        terra, aqua = [np.asarray(Image.open(io.BytesIO(get(url(sat)))).convert("RGB"), dtype=np.float32) for sat in ("Terra", "Aqua")]
+        gap = (terra.max(-1) < 4)[..., None]
+        return np.where(gap, aqua, terra)
+    elif src == "naip":
         url = (f"{NAIP}?bbox={west},{south},{east},{north}&bboxSR=4326&imageSR=4326&size={w},{h}"
                "&format=jpg&f=image&interpolation=RSP_BilinearInterpolation")
     else:
@@ -98,18 +112,17 @@ def sample(img, west, south, east, north, lat, lon):
     return out
 
 
-_world = None
+_world = {}
 
 
 def frame(s, px, src=None):
-    global _world
     width, src = 10 ** s, src or source_for(s)
     lat, lon = ortho_latlon(width, px)
     if width >= 2 * R * 0.999 or np.isnan(lat).any():
-        # the whole disc: the world's Blue Marble, in two halves (the WMS caps a request's size)
-        if _world is None:
-            _world = np.concatenate([fetch("bm", -180, -90, 0, 90, 4096, 4096), fetch("bm", 0, -90, 180, 90, 4096, 4096)], axis=1)
-        return sample(_world, -180, -90, 180, 90, lat, lon), src
+        # the whole disc: the world's picture, in two halves (the WMS caps a request's size)
+        if src not in _world:
+            _world[src] = np.concatenate([fetch(src, -180, -90, 0, 90, 4096, 4096), fetch(src, 0, -90, 180, 90, 4096, 4096)], axis=1)
+        return sample(_world[src], -180, -90, 180, 90, lat, lon), src
     # the box the frame covers, a little padded
     south, north = np.nanmin(lat), np.nanmax(lat)
     west, east = np.nanmin(lon), np.nanmax(lon)
@@ -138,16 +151,49 @@ def match(fine, coarse, s_lo, s_hi, n=400):
     return g, mb - g * ma
 
 
+def clouds(steps, out, px):
+    """See-through cloud overlays (RGBA PNG) for the frames from 10^3.85 m up."""
+    cdir = os.path.join(out, "clouds")
+    os.makedirs(cdir, exist_ok=True)
+    plates = []
+    for s in [v for v in steps if v >= 3.85 - 1e-9]:
+        t0 = time.time()
+        tc, _ = frame(s, px, "modis")
+        b7, _ = frame(s, px, "modis721")
+        base = np.asarray(Image.open(os.path.join(out, f"s+{s:.2f}.jpg")).convert("RGB").resize((px, px), Image.LANCZOS), dtype=np.float32)
+        lum = lambda a: (0.299 * a[..., 0] + 0.587 * a[..., 1] + 0.114 * a[..., 2]) / 255
+        Lt, Lb = lum(tc), lum(base)
+        mx, mn = tc.max(-1), tc.min(-1)
+        sat = (mx - mn) / np.maximum(mx, 1)
+        # well brighter than the ground beneath and bright outright (not the ocean's
+        # haze or glint), grey-white, and bright at 2.1 µm too (band 7: snow and ice
+        # are dark there, show cyan in 7-2-1, while clouds stay white)
+        a = (np.clip((Lt - Lb - 0.15) / np.maximum(0.85 - Lb, 0.15), 0, 1) * np.clip((Lt - 0.35) / 0.2, 0, 1)
+             * np.clip((0.35 - sat) / 0.2, 0, 1) * np.clip((b7[..., 0] / 255 - 0.2) / 0.2, 0, 1))
+        a = a ** 0.8
+        rgb = np.clip(tc * 0.6 + 255 * 0.4, 0, 255)
+        img = np.dstack([rgb, 255 * a]).astype(np.uint8)
+        name = f"s+{s:.2f}.webp"
+        Image.fromarray(img, "RGBA").save(os.path.join(cdir, name), quality=85, method=5)
+        plates.append({"s": s, "file": name, "width_m": round(10 ** s, 1), "cover": round(float(a.mean()), 3)})
+        print(f"clouds/{name}  cover {a.mean():.0%}  {time.time() - t0:.0f} s", flush=True)
+    json.dump({"day": CLOUD_DAY, "source": "MODIS Terra Corrected Reflectance (true colour), NASA GIBS (public domain)",
+               "plates": plates}, open(os.path.join(cdir, "manifest.json"), "w"), indent=1)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--px", type=int, default=4000)
     ap.add_argument("--only", default="")
+    ap.add_argument("--clouds", action="store_true", help="write the cloud overlays (from the photos already made)")
     ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "..", "video", "powers-of-ten", "photos"))
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     steps = [round(1.6 + 0.25 * i, 2) for i in range(24)]
     if a.only:
         steps = [float(v) for v in a.only.split(",")]
+    if a.clouds:
+        return clouds(steps, a.out, min(a.px, 2048))
     man_path = os.path.join(a.out, "manifest.json")
     man = json.load(open(man_path)) if os.path.exists(man_path) else {"plates": []}
     have = {p["s"]: p for p in man["plates"]}

@@ -4,7 +4,7 @@
 // whose hydrogen bond holds the centre of the whole zoom.
 import { ramp, win, rng, gauss } from "./math.js";
 
-const L_PLANCK = 1.616e-35, A0 = 5.29e-11, PROTON_D = 1.68e-15;
+const A0 = 5.29e-11, PROTON_D = 1.68e-15;
 // quarks have no measured size; colliders put it under ~10⁻¹⁹ m, so that is the size drawn
 const QUARK_D = 1e-19;
 // share of the Hopf picture's square the proton's ball fills
@@ -13,12 +13,16 @@ const OPTS = { drift: true, flow: true, width: 1, bloom: 0.9, exposure: 1.1, cor
 
 export async function smallLayers() {
   let core = null;
-  // public/hopf/hopf-core.js has no imports of its own; Vite's dev server won't
-  // hand a public file to import(), so it comes in as text
+  // Vite's dev server won't hand a public file to import(), so public/hopf/hopf-core.js
+  // comes in as text, its own imports (the molecules) pointed at their full addresses
   try {
-    const src = await (await fetch("/hopf/hopf-core.js")).text();
+    const at = (f) => new URL("/hopf/" + f, location.href).href;
+    const src = (await (await fetch(at("hopf-core.js"))).text()).replace(/(["'])\.\/(molecules|big-molecules)\.js\1/g, (m, q, f) => q + at(f + ".js") + q);
     const url = URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
     core = await import(/* @vite-ignore */ url);
+    // the atoms to true (linear) scale, and no nucleus of their own: the zoom draws
+    // the proton itself, at its real size (the explorer's is ~18,000× too big)
+    core.LOOK.logScale = false; core.LOOK.showNucleus = false;
   }
   catch (err) { console.warn("Hopf renderer unavailable:", err.message); }
   const hopf = (id) => {
@@ -28,7 +32,7 @@ export async function smallLayers() {
     view.yaw = 0.6;
     return { renderer, view };
   };
-  const proton = hopf("proton-scale"), quark = hopf("up");
+  const proton = hopf("proton-scale"), quark = hopf("up"), hydrogen = hopf("hydrogen");
   const drawHopf = (h, cam, box, alpha, res) => {
     const px = Math.min(1024, Math.max(64, Math.ceil(box / 64) * 64));
     h.renderer.resize(px);
@@ -40,7 +44,9 @@ export async function smallLayers() {
     cam.ctx.globalAlpha = 1;
   };
 
-  // ---------- the Planck grid: a Game of Life, one cell per Planck length ----------
+  // ---------- the Planck grid: a Game of Life, cells 10^-35 m (about the Planck length,
+  // 1.6 × 10^-35 m, so the cells sit exactly on the powers-of-ten grid), upright on
+  // the screen like the grid, not rolled with the picture ----------
   const N = 160, cells = new Uint8Array(N * N), heat = new Float32Array(N * N);
   { const r = rng(7); for (let i = 0; i < cells.length; i++) cells[i] = r() < 0.32 ? 1 : 0; }
   let lifeT = 0;
@@ -57,16 +63,19 @@ export async function smallLayers() {
   const life = {
     name: "planck", range: [-36, -32],
     draw(cam) {
-      const cell = L_PLANCK * cam.k, a = ramp(cell, 1.5, 6) * ramp(cam.s, -32.2, -32.9);
+      const cell = 1e-35 * cam.k, a = ramp(cell, 1.5, 6) * ramp(cam.s, -32.2, -32.9);
       if (a <= 0.01) return;
+      cam = { ...cam, ...cam.screen };
+      cam.ctx.save(); cam.ctx.setTransform(1, 0, 0, 1, 0, 0);
       while (lifeT < cam.t) { lifeStep(); lifeT += 0.14; for (let i = 0; i < heat.length; i++) heat[i] = Math.max(cells[i], heat[i] * 0.82); }
       const ctx = cam.ctx, half = Math.ceil(Math.max(cam.W, cam.H) / 2 / cell) + 1;
       for (let j = -half; j <= half; j++) for (let i = -half; i <= half; i++) {
         const h = heat[((j % N + N) % N) * N + ((i % N + N) % N)];
         if (h < 0.04) continue;
         ctx.fillStyle = `rgba(${150 + 105 * h | 0}, ${200 + 55 * h | 0}, 255, ${(a * (0.15 + 0.85 * h)).toFixed(3)})`;
-        ctx.fillRect(cam.cx + (i - 0.5) * cell + 0.5, cam.cy + (j - 0.5) * cell + 0.5, cell - 1, cell - 1);
+        ctx.fillRect(cam.cx + i * cell + 0.5, cam.cy + j * cell + 0.5, cell - 1, cell - 1);
       }
+      ctx.restore();
     },
   };
 
@@ -116,21 +125,30 @@ export async function smallLayers() {
     const z = 2 * r() - 1, ph = 2 * Math.PI * r(), q = Math.sqrt(1 - z * z);
     return [rad * q * Math.cos(ph), rad * q * Math.sin(ph), r()];
   }
+  // the Hopf explorer's hydrogen: the 1s cloud woven from the electron's own Hopf
+  // circles, each lit by |ψ|² where it passes, out to 4.2 Bohr radii (99% of the
+  // electron) at radius 1 of its picture, the picture's square 2.1 wide
+  const H_BOX = 2.1 * 4.2 * A0;
   const atom = {
     name: "hydrogen", range: [-14.6, -8.6],
     draw(cam) {
       const a = win(cam.s, -14.4, -13.8, -9.45, -9.0);
       if (a <= 0.01) return;
-      const ctx = cam.ctx, R = 7 * A0 * cam.k;
+      const ctx = cam.ctx, R = 7 * A0 * cam.k, box = H_BOX * cam.k;
+      // from a few frames inside it outwards, the woven cloud; deeper in, where one
+      // picture can't hold it, the plain glow and dots below
+      const ha = hydrogen ? a * (1 - ramp(box, 3 * cam.min, 8 * cam.min)) : 0;
+      if (ha > 0.01) drawHopf(hydrogen, cam, box, ha);
+      const ga = a * (hydrogen ? 0.35 + 0.65 * ramp(box, 2 * cam.min, 6 * cam.min) : 1);
       const g = ctx.createRadialGradient(cam.cx, cam.cy, 0, cam.cx, cam.cy, R);
       for (let i = 0; i <= 12; i++) {
         const t = i / 12, rho = Math.exp(-2 * t * 7);
-        g.addColorStop(t, `rgba(110,170,255,${(a * 0.55 * Math.pow(rho, 0.45)).toFixed(4)})`);
+        g.addColorStop(t, `rgba(110,170,255,${(ga * 0.55 * Math.pow(rho, 0.45)).toFixed(4)})`);
       }
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, cam.W, cam.H);
       // the electron's "where it might be": dots, a few re-drawn every frame
-      const dotA = a * ramp(R, 40, 160) * (1 - ramp(R, 4000, 20000));
+      const dotA = ga * ramp(R, 40, 160) * (1 - ramp(R, 4000, 20000));
       if (dotA > 0.01) {
         for (let i = 0; i < 25; i++) dots[(Math.random() * dots.length) | 0] = sample1s(Math.random);
         ctx.fillStyle = `rgba(200,225,255,${(0.75 * dotA).toFixed(3)})`;

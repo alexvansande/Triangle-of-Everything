@@ -26,10 +26,10 @@ plane, so the galaxies' flows lie flat.
 
 | s (log₁₀ m) | What | How it's drawn |
 | --- | --- | --- |
-| −35 … −32 | Planck grid, a Game of Life with one cell per Planck length | code (`small.js`) |
+| −35 … −32 | Planck grid, a Game of Life with cells of 10⁻³⁵ m (about the Planck length, 1.6 × 10⁻³⁵ m), upright and on the grid | code (`small.js`) |
 | −21 … −15 | one quark, drawn at 10⁻¹⁹ m across (no measured size; that is the colliders’ limit), a point until it grows past the frame | Hopf renderer (`public/hopf/hopf-core.js`) |
 | −16 … −12 | the proton: a fuzzy ball, then three quarks and the gluon sea as you zoom in | Hopf renderer, `proton-scale` |
-| −14 … −9 | the hydrogen atom to scale, its 1s cloud (glow plus "where the electron is found" dots), seen whole near 10⁻⁹·⁷ m before the base pair comes in | code |
+| −14 … −9 | the hydrogen atom to scale: inside it a glow and "where the electron is found" dots; from 10⁻¹⁰ m the Hopf explorer's hydrogen, its 1s cloud woven from the electron's Hopf circles (linear scale, its own nucleus left out), seen whole near 10⁻⁹·⁷ m before the base pair comes in | code, Hopf renderer |
 | −10 … −8.5 | the A–T base pair (3DNA standard geometry), which turns edge-on | code |
 | −9 … −6.5 | the double helix, side on | rough, for the image pass |
 | −8 … −5 | chromatin: nucleosomes, then 10 nm fibres | rough |
@@ -78,7 +78,13 @@ exactly. `photos-ladder.jpg` shows them all. The zoom shows them as plates (on u
 | 40 km … 1,260 km | Sentinel-2 cloudless 2016, 10 m (EOX, s2maps.eu; modified Copernicus Sentinel data 2016) | CC BY 4.0: credit EOX |
 | 2,240 km … the globe | Blue Marble Next Generation (NASA Earth Observatory), via EOX | public domain |
 
-No clouds: they come later, as things near the camera. At each handover the finer source's top
+No clouds in the photos themselves: `photos/clouds/` holds the clouds of 15 June 2024 (MODIS
+Terra, gaps filled from Aqua; NASA GIBS, public domain), the day the zoom's globe shows, as
+see-through overlays for the frames from 10^3.85 m up, each cloud cut out by how much brighter
+MODIS is than the cloud-free photo (and bright in band 7, so snow stays out). They come in from
+10^4.3 to 10^4.8 m while real cloud wisps cut from them fly past the camera (`crossings.js`), so
+we climb out through the clouds. Clouds sit below ~12 km and the atmosphere's edge is ~100 km
+(10^5 m on the zoom), so that's the stretch it happens over. `--clouds` rebuilds them. At each handover the finer source's top
 frame is colour-matched to the coarser one, easing back to its own colours over 0.75 decades.
 Rough edges: NAIP shows patches from different flight dates at 7–22 km; below ~100 m it's
 upscaled (0.3 m a pixel), so the crown close-ups are soft. To rebuild:

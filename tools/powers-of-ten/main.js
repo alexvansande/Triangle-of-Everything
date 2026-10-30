@@ -32,6 +32,9 @@ const plates = await platesLayer(q.get("plates") === "1");
 // the real photographs from the tree's crown to the globe, on unless ?photos=0; gone
 // by the time the camera swings round the Earth (10^7.65 m)
 const photos = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/", 0.3);
+// and the clouds of the day the globe shows (15 June 2024), coming in as we climb
+// out through them (crossings.js), from 10^4.3 m
+const clouds = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/clouds/", 0.3, { hides: false, single: true, fadeIn: [4.3, 4.8] });
 // biggest first, so smaller things paint over what holds them; what we cross, nearest the camera, last
 const layers = [...space, ...macro.layers, ...micro, ...small.reverse(), crossingsLayer(q.get("crossings") !== "0")];
 // the whole picture rolls round the line of sight at the same rate at every scale,
@@ -91,6 +94,8 @@ function render(t) {
   labels.length = 0;
   const cam = {
     ctx, W: Dg, H: Dg, min, dpr, s, F, k, cx, cy, t, cam: basis,
+    // the stage itself, unturned: for what stays upright (the grid, the Planck cells)
+    screen: { W, H, cx: W / 2, cy: H / 2 },
     P: ([x, y]) => [cx + x * k, cy + y * k],
     // a point's place on the frame (NaN behind the camera) and, with projS, how much
     // nearer than the centre it is: in perspective the camera stands Dc from the centre,
@@ -115,7 +120,7 @@ function render(t) {
     }
     // the photographs and the image pass sit between the globe and the small world (in
     // or out of the globe's own range)
-    if (L.name === "earth") { photos.draw(cam); plates.draw(cam); }
+    if (L.name === "earth") { photos.draw(cam); clouds.draw(cam); plates.draw(cam); }
   }
   // the grid and the names stay upright: the grid on the screen, the names where the
   // turned picture puts them
