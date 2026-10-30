@@ -3,7 +3,7 @@
 // The centre never moves: a hydrogen atom in a DNA base pair, in an amoeba, in a
 // drop of dew on a ladybug on the General Sherman tree. At the top the spectrum
 // page's Cloud (public/spectrum, ?bare=1) takes over for the microwave sky.
-//   ?s=  ?grid=0  ?labels=0  ?ui=0  ?stage=9x16|16x9|1x1  ?plates=1 (use video/powers-of-ten/plates/)  ?photos=0 (leave out the real photos, tree to globe)  ?crossings=0
+//   ?s=  ?grid=0  ?labels=0  ?ui=0  ?stage=9x16|16x9|1x1  ?plates=1 (use video/powers-of-ten/plates/)  ?photos=0 (leave out the real photos, tree to globe)  ?crossings=0  ?roll=0
 import { ramp, clamp, LY, AU, cameraAt, perspAt } from "./math.js";
 import { smallLayers } from "./small.js";
 import { microLayers } from "./micro.js";
@@ -42,7 +42,8 @@ const clouds = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/
 const layers = [...space, ...macro.layers, ...micro, ...small.reverse(), crossingsLayer(q.get("crossings") !== "0")];
 // the whole picture rolls round the line of sight at the same rate at every scale,
 // a little over one turn from the Planck length to the CMB: we fall down a spiral
-const ROLL = 5 * Math.PI / 180; // per decade, anticlockwise as we zoom out
+// (?roll=0: none, for exporting frames north up)
+const ROLL = q.get("roll") === "0" ? 0 : 5 * Math.PI / 180; // per decade, anticlockwise as we zoom out
 
 // ---------- the spectrum Cloud, for the last decades ----------
 // on its log scale (1 unit = 950 km, Earth at the centre, the CMB at radius 1),
