@@ -165,3 +165,10 @@ opacity and relative depth lag; all bodies fit wholly inside the 1.16 mm bead.
 The hero pollen/cell path is unchanged. All preceding parent tiles rebuilt.
 Verified four transparent native assets, four species, eight positions within
 the droplet, module syntax and the 1 mm viewer overview.
+
+### Fixed microscopic zoom axis
+
+Removed the temporary pollen-visit camera steering. The optical axis stays
+through the small amoeba; the main pollen remains at its existing off-axis
+position (-26 µm, -8 µm), with the surrounding grains. Layer parallax and
+focus changes remain intact. No asset or parent registration changed.
