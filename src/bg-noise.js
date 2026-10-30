@@ -43,8 +43,10 @@ export const NOISE_DEFAULTS = {
   // background, read through its swirl warp. trail = their brightness (0 = off), trailLen = css px,
   // trailSwirl = how much harder than the painting they're swirled
   trail: 0, trailLen: 60, trailSwirl: 2,
-  // ...and the pictures' cast shadows drawn into it too, swirled shadowSwirl × the painting (0 = off: they stay SVG)
-  shadowSwirl: 0,
+  // ...and the pictures' cast shadows drawn into it too, swirled shadowSwirl × the painting (0 = off:
+  // they stay SVG). On at 1 on the site (the author liked its subtle twirl, 2026-10-30); videos keep it
+  // off unless a scene asks (narration.js)
+  shadowSwirl: 1,
 };
 
 const VS = `#version 300 es
@@ -331,8 +333,12 @@ export function createNoiseRenderer(canvas, { preserve = false } = {}) {
   }
 
   // ---- the pictures' shadows: a canvas the chart draws them into (colour + alpha), uploaded each render ----
-  let shadowCanvas = null, shadowSwirl = 0, shadowTex = null;
-  function setShadows(canvas, swirl) { shadowCanvas = canvas; shadowSwirl = swirl || 0; }
+  let shadowCanvas = null, shadowSwirl = 0, shadowTex = null, shadowStale = true;
+  /** fresh: the canvas changed since the last call (it's uploaded again only then) */
+  function setShadows(canvas, swirl, fresh = true) {
+    if (fresh || canvas !== shadowCanvas) shadowStale = true;
+    shadowCanvas = canvas; shadowSwirl = swirl || 0;
+  }
 
   const off = new Float32Array(MAXOCT * 2);
   /**
@@ -384,13 +390,16 @@ export function createNoiseRenderer(canvas, { preserve = false } = {}) {
     if (shadows) {
       gl.activeTexture(gl.TEXTURE3);
       gl.bindTexture(gl.TEXTURE_2D, shadowTex ??= gl.createTexture());
-      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);   // canvas rows run down, the screen's up
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, shadowCanvas);
-      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      if (shadowStale) {
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);   // canvas rows run down, the screen's up
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, shadowCanvas);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        shadowStale = false;
+      }
       gl.uniform1i(U("uShadow"), 3);
       gl.uniform1f(U("uShadowSwirl"), shadowSwirl);
       if (!trails) gl.uniform1f(U("uTrailBand"), 300 * p.w / p.cssW);   // the swirls that move them (fbmVec2)
@@ -449,7 +458,7 @@ const loadImg = src => new Promise(res => {
  *  onLost  — the GL context was lost (the canvas is blank); the caller destroys it
  *  getView — () => { left, top, w, h } css px of the plot area, plus
  *            { cx, cy } camera centre in source px and { zx, zy } css px per source px
- *  getShadows — optional (view) => { canvas, swirl } | null: the pictures' shadows drawn into a
+ *  getShadows — optional (view) => { canvas, swirl, fresh } | null: the pictures' shadows drawn into a
  *            canvas over the plot area, to darken the painting through the swirl (experimental)
  *  getTime — optional () => seconds | null: a clock the clouds evolve by (a narration's
  *            audio time), so each frame is a pure function of it, the same in the live
@@ -544,7 +553,7 @@ export function createBgNoise({ host, meta, getView, getTime, getShadows, onShow
     if (st.width !== v.w + "px") st.width = v.w + "px";
     if (st.height !== v.h + "px") st.height = v.h + "px";
     const sh = getShadows?.(v);
-    r.setShadows(sh?.canvas, sh?.swirl);
+    r.setShadows(sh?.canvas, sh?.swirl, sh?.fresh ?? true);
     const drew = win && r.render({ ...p, cssW: v.w, w: Math.round(v.w * dpr), h: Math.round(v.h * dpr), cx: v.cx, cy: v.cy,
       zx: v.zx * dpr, zy: v.zy * dpr, zoomCss: Math.sqrt(v.zx * v.zy), time, drift });
     if (!drew) { dirty = true; return; }
@@ -606,10 +615,10 @@ export function mountNoiseControls(container) {
     ${range("detail", "Detail", 0, 1.5, 0.01, "2", "Strength of the added brightness detail")}
     ${range("smooth", "Smoothness", 0, 1, 0.01, "2", "0 = every octave equally strong (rough, CMB-like); 1 = finer octaves fade (soft clouds)")}
     ${range("start", "Starts at", 0, 5, 0.01, "px", "Largest scale the noise may touch, in source pixels. Larger = it starts reshaping the painting at normal zoom")}
-    ${range("trail", "Dot trails", 0, 3, 0.05, "2", "Experimental: the paths' moving dots and a short trail behind each drawn into the background, so its swirls carry their light. Brightness; 0 = off")}
+    ${range("trail", "Dot trails", 0, 0.3, 0.005, "3", "Experimental: the paths' moving dots and a short trail behind each drawn into the background, so its swirls carry their light. Brightness; 0 = off")}
     ${range("trailLen", "Trail length", 0, 300, 5, "0", "css px behind each dot")}
     ${range("trailSwirl", "Trail swirl", 0, 20, 0.5, "1", "How much harder than the painting the trails are swirled (1 = just as much)")}
-    ${range("shadowSwirl", "Shadow swirl", 0, 20, 0.5, "1", "Experimental: the pictures' shadows drawn into the background and swirled with it, this much harder than the painting. 0 = off")}
+    ${range("shadowSwirl", "Shadow swirl", 0, 5, 0.05, "2", "The pictures' shadows drawn into the background and swirled with it, this much harder than the painting. 0 = off")}
     <label class="bgnoise-row"><span class="bgnoise-label">Base filter</span>
       <select class="bgnoise-select" data-k="filter"><option value="1">B-spline (smooth)</option><option value="2">Catmull-Rom (sharp)</option><option value="0">Bilinear</option></select></label>
     <label class="bgnoise-row"><span class="bgnoise-label">Resolution</span>

@@ -5151,7 +5151,7 @@ let _dotBoostKey = "";    // the lit paths (narration's setDotBoost), to redraw 
 let _dotTrails = null;    // narration: the dots' trails in the fractal background, { gain, length, swirl } (setDotTrails); null = the settings panel's
 let _trailPts = new Float32Array(0);
 let _shadowSwirl = null;  // narration: the pictures' shadows swirled with the fractal background (setShadowSwirl); null = the settings panel's
-let _shadowCv = null, _svgShadowsHidden = false;
+let _shadowCv = null, _shadowKey = "", _svgShadowsHidden = false;
 const _shadowImgs = new Map();
 
 function pauseAnimOnInteract() {
@@ -5695,17 +5695,14 @@ function shadowImage(href) {
 }
 function bgNoiseShadows() {
   const swirl = _shadowSwirl ?? _bgNoiseM?.noiseParams.shadowSwirl ?? 0;
-  if (!(swirl > 0) || !_bgNoiseShown) { hideSvgShadows(false); return null; }
+  if (!(swirl > 0) || !_bgNoiseShown) { hideSvgShadows(false); _shadowKey = ""; return null; }
   const base = lContent.node().getScreenCTM()?.inverse(), root = lShadows.node();
   if (!base) return null;
   const S = 0.5 * Math.min(2, devicePixelRatio || 1);   // canvas px per css px
-  const cv = _shadowCv ??= document.createElement("canvas");
   const w = Math.max(1, Math.round(cw * S)), h = Math.max(1, Math.round(ch * S));
-  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
-  const ctx = cv.getContext("2d");
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = "#000";
+  const mx = (q) => [q.a * S, q.b * S, q.c * S, q.d * S, q.e * S, q.f * S];
+  // what to draw, first: redrawn (and uploaded) only when it differs from the last frame's
+  const ops = [];
   for (const el of root.querySelectorAll("ellipse, image, circle, path")) {
     // star light stays SVG; of the circles only the dots' own shadows (the rest are revealIcon's discs)
     if (el.classList.contains("sh-glow") || (el.tagName === "circle" && !el.classList.contains("object-dot-shadow"))) continue;
@@ -5717,52 +5714,58 @@ function bgNoiseShadows() {
       if (o != null) op *= +o;
       if (n.style.opacity) op *= +n.style.opacity;
       const cp = n.getAttribute("clip-path");   // revealIcon's growing circle
-      if (cp) clips.push([n, cp]);
+      if (!cp) continue;
+      const c = document.getElementById(cp.slice(5, -1))?.querySelector("circle");
+      if (c) clips.push([mx(base.multiply(n.getScreenCTM())), +c.getAttribute("cx"), +c.getAttribute("cy"), +c.getAttribute("r")]);
     }
     if (hidden || !(op > 0.003)) continue;
-    ctx.save();
-    for (const [n, cp] of clips) {
-      const c = document.getElementById(cp.slice(5, -1))?.querySelector("circle");
-      if (!c) continue;
-      const q = base.multiply(n.getScreenCTM());
-      ctx.setTransform(q.a * S, q.b * S, q.c * S, q.d * S, q.e * S, q.f * S);
-      ctx.beginPath();
-      ctx.arc(+c.getAttribute("cx"), +c.getAttribute("cy"), +c.getAttribute("r"), 0, 2 * Math.PI);
-      ctx.clip();
-    }
     const m = base.multiply(el.getScreenCTM());
     const k = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * S;   // canvas px per user unit
-    ctx.setTransform(m.a * S, m.b * S, m.c * S, m.d * S, m.e * S, m.f * S);
-    ctx.globalAlpha = Math.min(1, op);
     const a = (n) => +el.getAttribute(n) || 0, flt = el.getAttribute("filter") || "";
-    let blur = flt.includes("dust-shadow-blur") ? 0.8 : 0;
-    ctx.beginPath();
+    let blur = flt.includes("dust-shadow-blur") ? 0.8 : 0, shape;
     if (el.tagName === "ellipse") {
       // icon-shadow-near/far: stdDeviation 0.08/0.16 of the ellipse's box
       const sd = flt.includes("icon-shadow-far") ? 0.16 : flt.includes("icon-shadow-near") ? 0.08 : 0;
       blur = sd * 2 * Math.sqrt(a("rx") * a("ry"));
-      ctx.filter = blur ? `blur(${blur * k}px)` : "none";
-      ctx.ellipse(a("cx"), a("cy"), a("rx"), a("ry"), 0, 0, 2 * Math.PI);
-      ctx.fill();
-    } else if (el.tagName === "circle") {
-      ctx.filter = blur ? `blur(${blur * k}px)` : "none";
-      ctx.arc(a("cx"), a("cy"), a("r"), 0, 2 * Math.PI);
-      ctx.fill();
-    } else if (el.tagName === "path") {
-      const d = el.getAttribute("d");
-      ctx.filter = blur ? `blur(${blur * k}px)` : "none";
-      if (d) ctx.fill(new Path2D(d));
-    } else {
-      const im = shadowImage(el.getAttribute("href"));
-      const px = parseFloat((el.style.filter || "").replace(/^blur\(/, "")) || 0;
-      ctx.filter = px ? `blur(${px * k}px)` : "none";
-      if (im) ctx.drawImage(im, a("x"), a("y"), a("width"), a("height"));
+      shape = ["e", a("cx"), a("cy"), a("rx"), a("ry")];
+    } else if (el.tagName === "circle") shape = ["c", a("cx"), a("cy"), a("r")];
+    else if (el.tagName === "path") shape = ["p", el.getAttribute("d")];
+    else {
+      blur = (parseFloat((el.style.filter || "").replace(/^blur\(/, "")) || 0);
+      shape = ["i", el.getAttribute("href"), a("x"), a("y"), a("width"), a("height"), !!shadowImage(el.getAttribute("href"))];
     }
+    ops.push([clips, mx(m), Math.min(1, op), blur * k, shape]);
+  }
+  hideSvgShadows(true);
+  const cv = _shadowCv ??= document.createElement("canvas");
+  const key = JSON.stringify([w, h, ops]);
+  if (key === _shadowKey && cv.width === w && cv.height === h) return { canvas: cv, swirl, fresh: false };
+  _shadowKey = key;
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = "#000";
+  for (const [clips, m, op, blur, shape] of ops) {
+    ctx.save();
+    for (const [q, cx, cy, r] of clips) {
+      ctx.setTransform(...q);
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+      ctx.clip();
+    }
+    ctx.setTransform(...m);
+    ctx.globalAlpha = op;
+    ctx.filter = blur ? `blur(${blur}px)` : "none";
+    ctx.beginPath();
+    if (shape[0] === "e") { ctx.ellipse(shape[1], shape[2], shape[3], shape[4], 0, 0, 2 * Math.PI); ctx.fill(); }
+    else if (shape[0] === "c") { ctx.arc(shape[1], shape[2], shape[3], 0, 2 * Math.PI); ctx.fill(); }
+    else if (shape[0] === "p") { if (shape[1]) ctx.fill(new Path2D(shape[1])); }
+    else { const im = shadowImage(shape[1]); if (im) ctx.drawImage(im, shape[2], shape[3], shape[4], shape[5]); }
     ctx.restore();
   }
   ctx.filter = "none";
-  hideSvgShadows(true);
-  return { canvas: cv, swirl };
+  return { canvas: cv, swirl, fresh: true };
 }
 
 function animateConnections(timestamp) {
