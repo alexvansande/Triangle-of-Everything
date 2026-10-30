@@ -20,25 +20,25 @@
   "videos": [
     {
       "take": "short-01-hook",
-      "title": "The most interesting chart in science #Shorts",
-      "blurb": "The classic chart of every object by mass and size, and why it's much more than mass versus size.",
+      "title": "The Triangle of Everything",
+      "blurb": "There's a single image that contains everything. All objects, all the sciences, all the history from the big bang to the death of the universe. I've been obsessed with this one chart for years now and spent countless hours designing many different ways to see it – now it's your time to get hooked.",
       "music": "Space X-plorers"
     },
     {
       "take": "short-02-up-the-line",
-      "title": "From a liter of water to brown dwarfs: climbing the density line",
-      "blurb": "Why everything falls on one diagonal, what sinks and what floats, animals, mountains, round worlds, gas giants and the brown dwarfs.",
+      "title": "The Atomic Diagonal",
+      "blurb": "If you plot everything in a log scale of mass and size, most things will fall on this diagonal line. What does it mean? It contains many stories about why things follow it, and some of the things that don't.",
       "music": "Soaring"
     },
     {
       "take": "short-03-stars",
-      "title": "How planets turn into stars (and what's left when they die)",
-      "blurb": "Brown dwarfs, the main sequence, the life of a star, and what is left of it.",
+      "title": "The Life and Death of Stars",
+      "blurb": "The Triangle of Everything is a log chart of mass and size, but it's also a story about the life and death of stars, how they are born, how they evolve and how sometimes they die in the most spectacular and mysterious objects of them all.",
       "music": "Immersed"
     },
     {
       "take": "short-04-black-holes",
-      "title": "Black holes aren't objects, they're a line",
+      "title": "The Black Hole Line",
       "blurb": "The top-left limit of everything and why it is 45°, TON 618, the window for primordial black holes, galaxies without their dark matter, and the lucky few survivors.",
       "music": "Mesmerize"
     },

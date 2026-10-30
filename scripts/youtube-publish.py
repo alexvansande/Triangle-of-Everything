@@ -72,7 +72,24 @@ def description(v):
               "https://creativecommons.org/licenses/by/4.0/")
     full = v.get("fullVideo", MANIFEST_DEFAULTS.get("fullVideo"))
     watch = f"\n\nWatch the full video: {full}" if full else ""
-    return f'{v["blurb"]}{watch}\n\n{body.strip()}\n\n{credit}\n'
+    images = photo_credits(v["take"])
+    return f'{v["blurb"]}{watch}\n\n{body.strip()}\n\n{credit}\n' + (f"\n{images}\n" if images else "")
+
+
+def photo_credits(take):
+    """The real images the take shows (video/photos/CREDITS.md rows its scene names), one line
+    each: the photos are credited in the description, not on the end card (the author, 2026-10-30).
+    Our own renders are left out."""
+    rows = {}
+    for line in open(os.path.join(ROOT, "video", "photos", "CREDITS.md")):
+        m = re.match(r"\| ([a-z0-9-]+)(?: \(\.mp4\))? \| (.*?) \| (.*?) \|", line)
+        if m and m[3] != "Ours":
+            rows[m[1]] = (re.sub(r",\s*uploader .*", "", m[2]).strip(), m[3])
+    scene = open(os.path.join(ROOT, "src", "narration-scenes", f"{take}.js")).read()
+    used = [n for n in rows if re.search(r"[\"'/]" + re.escape(n) + r"[\"'.]", scene)]
+    if not used:
+        return ""
+    return "Images:\n" + "\n".join(f"{c or 'Unknown'} ({lic})" for c, lic in (rows[n] for n in used))
 
 
 # ---------- captions ----------
@@ -87,7 +104,9 @@ def srt(take):
         if text[-1:] in ".?!" or (text[-1:] in ",;:" and len(cur) >= 4) or len(cur) >= 10:
             cues.append(cur); cur = []
     if cur: cues.append(cur)
-    stamp = lambda s: "%02d:%02d:%02d,%03d" % (s // 3600, s % 3600 // 60, s % 60, round(s % 1 * 1000) % 1000)
+    def stamp(s):   # whole milliseconds first, so ,999.6 rounds into the next second
+        ms = round(s * 1000)
+        return "%02d:%02d:%02d,%03d" % (ms // 3600000, ms // 60000 % 60, ms // 1000 % 60, ms % 1000)
     out = []
     for i, c in enumerate(cues, 1):
         out.append(f"{i}\n{stamp(c[0][1])} --> {stamp(c[-1][2])}\n{' '.join(w[0] for w in c)}\n")
