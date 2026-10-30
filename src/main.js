@@ -461,12 +461,13 @@ function axisLayout() {
   };
 }
 let _axLayout = null; // axisLayout() + per-column fit, set by measure()
+let _narrEdge = false; // a narrated video plays: edge to edge, its own rulers (src/narration.js)
 
 function measure() {
   W = _posterStage ? _posterStage.W : _viewportLock ? vpStage().W : window.innerWidth;
   H = _posterStage ? _posterStage.H : _viewportLock ? vpStage().H : window.innerHeight;
-  if (_isMobile) {
-    // Edge-to-edge map on phones: the chart IS the screen and all UI floats
+  if (_isMobile || _narrEdge) {
+    // Edge-to-edge map on phones (and in a narrated video, at any size: a 16:9 long cut): the chart IS the screen and all UI floats
     // above it. The rulers come up over it (src/mobile-rulers.js); the axes
     // button pins them.
     margin.left = 0;
@@ -2729,6 +2730,9 @@ function drawObjects() {
     const saved = _objectVisibility.decisions.get(o.slug);
     if (saved) {
       o._showDot = saved.dot; o._showIcon = saved.icon;
+      // a picture a video forces on shows, whatever the memory decided before it was forced
+      // (video 2's cow lost its picture a few seconds into "most animals", 2026-10-30)
+      if (_iconForce?.has(o.name) && shownIcons.has(o)) o._showDot = o._showIcon = true;
       if (o._showIcon) o._icoR = icoR(o);
     } else _objectVisibility.decisions.set(o.slug, { dot:o._showDot, icon:o._showIcon });
   }
@@ -8915,8 +8919,10 @@ if (_ogShot) {
         _dustEnabled = true;
         ensureDust();
         document.body.classList.add("ui-hidden", "narrating");
-        // the map must fill the window the narration fills (see the resize handler)
-        if (!_viewportLock && (W !== window.innerWidth || H !== window.innerHeight)) {
+        const wasEdge = _isMobile || _narrEdge;
+        _narrEdge = true;
+        // the map must fill the window the narration fills (see the resize handler), with no margins
+        if (!wasEdge || (!_viewportLock && (W !== window.innerWidth || H !== window.innerHeight))) {
           _lastVw = window.innerWidth; _lastVh = window.innerHeight; relayout();
         }
       },

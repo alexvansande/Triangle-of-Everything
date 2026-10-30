@@ -69,6 +69,19 @@ export default {
   // out again until the litre fits too
   start: { r: -0.93, m: -2.22, span: 0.9 },   // Eois stantonae
   captionFixes: { short: "chart", math: "mass", mess: "mass" },
+  // the YouTube thumbnail (scripts/narration-poster.mjs): in close on the water and air lines,
+  // full of animals, balloons and aircraft, each side named (the author, 2026-10-30)
+  poster: { at: 3, set: { iconDensity: 100 }, cues: [{ t: 0, cam: { r: 2.25, m: 6.3, span: 3.2 }, dur: 0.1, drift: 0, forceIcons: ANIMALS, hl: [
+    { ...WATER, draw: 0.01, label: "everything", size: 34, labelAt: [2.08, 4.7] }, { ...AIR, draw: 0.01 },
+    { side: "left", label: "sinks", labelX: 0.2, labelY: 0.45, labelSize: 34 },
+    { side: "right", label: "floats\nin water", labelX: 0.7, labelY: 0.3, labelSize: 30 },
+    { side: "right", of: "air", color: "#a5d6a7", label: "floats\nin air", labelX: 0.78, labelY: 0.8, labelSize: 30 }] }] },
+  // the 16:9 thumbnail (video 2 is over 3:00, a regular video on YouTube): the same shot, wider
+  posterWide: { at: 3, set: { iconDensity: 100 }, cues: [{ t: 0, cam: { r: 2.3, m: 6.35, span: 3.8 }, dur: 0.1, drift: 0, forceIcons: ANIMALS, hl: [
+    { ...WATER, draw: 0.01, label: "everything", size: 28, labelAt: [2.36, 6.1] }, { ...AIR, draw: 0.01 },
+    { side: "left", label: "sinks", labelX: 0.15, labelY: 0.5, labelSize: 40 },
+    { side: "right", label: "floats\nin water", labelX: 0.62, labelY: 0.13, labelSize: 32 },
+    { side: "right", of: "air", color: "#a5d6a7", label: "floats\nin air", labelX: 0.86, labelY: 0.66, labelSize: 34 }] }] },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   forceIcons: ["Venus"],   // shown behind Earth at the pan's zoom

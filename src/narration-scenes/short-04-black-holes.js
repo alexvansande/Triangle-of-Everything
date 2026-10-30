@@ -89,6 +89,17 @@ export default {
   icons: "all",
   blurb: "The top-left limit and why it is 45°, TON 618, the window for primordial black holes, galaxies without their dark matter, and the lucky few survivors.",
   start: FULL,
+  // the YouTube thumbnail (scripts/narration-poster.mjs): in close on a white dwarf, a neutron star
+  // and the black-hole line they lead to, and the question (the author, 2026-10-30)
+  poster: { at: 3, set: { forceIcons: ["PSR J0030+0451", "White Dwarf", "Stellar BH", "T Brown Dwarf", "L Brown Dwarf"], hideLabels: ["T Brown Dwarf"] }, cues: [{ t: 0, cam: { r: 8.0, m: 33.6, span: 7.2 }, dur: 0.1, drift: 0, hl: [
+    { line: "schwarzschild", draw: 0.01, label: "nothing can ever\ncross this line", size: 30, labelOffset: 8, labelAt: [9.3, 37.13] },
+    { obj: "T Brown Dwarf", label: "brown dwarfs", place: "below", labelSize: 26 },
+    { obj: "White Dwarf", label: "white dwarf", place: "below", labelSize: 26 },
+    { obj: "PSR J0030+0451", label: "neutron star", place: "below", labelSize: 26 },
+    { obj: "Stellar BH", label: "black hole", place: "right", labelSize: 26 },
+    // the squeeze: from the brown dwarfs, over the white dwarf, on to the neutron star at the line
+    { arrow: true, from: { obj: "T Brown Dwarf" }, via: [{ obj: "White Dwarf", dm: 0.55 }],
+      to: { obj: "PSR J0030+0451" }, color: "#ffe9a3", width: 3, draw: 0.01 }] }] },
   forceIcons: ["Sun", "Ton 618"],   // the Sun's picture in "squeeze the Sun into a black hole", where nearby stars would otherwise win the room; TON 618 beside the (larger) M87*
   pbhWindow: false,   // the window is drawn as it's told (window highlight), not the map's
 

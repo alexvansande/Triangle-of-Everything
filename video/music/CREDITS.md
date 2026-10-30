@@ -6,8 +6,16 @@ Background tracks for the narration: every track of Kevin MacLeod's album
 [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 (free, commercial use included, as long as the music is credited).
 
-The credit goes in each video's description (or its end card), in the form
-incompetech asks for. Copy the block for the track the video uses:
+The credit goes in each video's description (or its end card): the track, the author, the
+source and the licence. scripts/youtube-publish.py writes it in the description's "label: link"
+form (the author, 2026-10-30):
+
+```
+Music: "Space X-plorers" by Kevin MacLeod: https://incompetech.com
+Licensed under Creative Commons Attribution 4.0: https://creativecommons.org/licenses/by/4.0/
+```
+
+incompetech's own form, for anywhere else:
 
 ```
 "Space X-plorers" Kevin MacLeod (incompetech.com)

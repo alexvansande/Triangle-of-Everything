@@ -1,0 +1,16 @@
+{
+  "title": "The Triangle of Everything: the small world",
+  "blurb": "Down the line to cells, molecules, atoms and the Compton line, and the wavelengths of light (videos 6–7, joined).",
+  "stage": "landscape",
+  "gap": 0.6,
+  "segments": [
+    {
+      "take": "short-06-tiny-world",
+      "to": "our place in it"
+    },
+    {
+      "take": "short-07-wavelengths",
+      "from": "Gamma rays are photons"
+    }
+  ]
+}

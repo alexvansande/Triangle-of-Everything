@@ -45,7 +45,9 @@ const CAPTURE = opt("capture", "jpeg");
 const SHUTTER = +opt("shutter", 0.5);
 const OUT = path.resolve(opt("out", `narration-${take}.mp4`));
 const CHROME = opt("chrome", "/opt/pw-browsers/chromium-1194/chrome-linux/chrome");
-const STAGE = { W: 432, H: 768, pad: 36, dpr: 2.5 };   // 432×768 CSS px × 2.5 = 1080×1920
+// 432×768 CSS px × 2.5 = 1080×1920; a long cut asking for "landscape" (words.json "stage"): 768×432 × 2.5 = 1920×1080, the page exactly the stage (the 16:9 stage fills its width)
+const WIDE = JSON.parse(fs.readFileSync(`public/narration/${take}/words.json`, "utf8")).stage === "landscape";
+const STAGE = WIDE ? { W: 768, H: 432, pad: 0, dpr: 2.5 } : { W: 432, H: 768, pad: 36, dpr: 2.5 };
 const TMP = fs.mkdtempSync(path.join(path.dirname(OUT), ".narr-render-"));
 
 // Installed before any page script: a clock that stands still until freeze().

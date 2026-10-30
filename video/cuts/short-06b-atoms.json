@@ -1,0 +1,11 @@
+{
+  "title": "The tiny world, part 2",
+  "blurb": "Atoms on the chart draw the periodic table themselves.",
+  "segments": [
+    {
+      "take": "short-06-tiny-world",
+      "from": "Here's hydrogen",
+      "to": "just a few atoms at a time"
+    }
+  ]
+}

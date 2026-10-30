@@ -38,6 +38,13 @@ export default {
     hole: [229.5, 605.5, 1270, 1773.5], from: 0.42, dur: 5.6, fade: 0.9, bg: "#fbea16" },
 
   captionFixes: { short: "chart", shard: "chart", lights: "light" },
+  // the YouTube thumbnail (scripts/narration-poster.mjs): the whole triangle, its sides named and
+  // the corner where they meet (the author, 2026-10-30)
+  poster: { at: 3, cues: [{ t: 0, cam: { r: -10, m: -6, span: 100 }, dur: 0.1, drift: 0, hl: [
+    { ...RELATIVITY, draw: 0.01, size: 26 }, { ...QUANTUM, draw: 0.01, size: 26, labelAt: [-6, -31.45] },
+    { line: "hubble", label: "the universe", draw: 0.01, size: 26 },
+    { text: "Where do\nthese meet?", at: [-35.3, -36], size: 34, instant: true },
+    { arrow: true, from: { r: -35.5, m: -27 }, to: { r: -32.64, m: -4.81 }, solid: true, width: 3, color: "#ffe9a3", draw: 0.01 }] }] },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Space X-plorers",

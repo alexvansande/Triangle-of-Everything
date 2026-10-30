@@ -251,6 +251,42 @@ and `window.__narr.pending()` counts the layer until it has drawn.
   author releases about one video a week, so one or two renders a night is plenty; render in
   number order.
 
+### The YouTube upload file: the sound encoded once
+
+The committed sound is AAC three times over before YouTube encodes it again: `audio.m4a`, then
+`mix.m4a` (decoded and mixed), then the render's track (decoded and muxed). Early YouTube
+processing of video 1 (2026-10-30) sounded metallic, so uploads get their sound rebuilt from
+the original recordings and encoded once, at YouTube's recommended AAC-LC 384 kbps, 48 kHz
+stereo. On the Mac, from the shorts checkout, after the render:
+
+```bash
+python3 scripts/narration-master.py short-02-up-the-line   # a Python with numpy; the "shorts" dev server up
+#   BASE=http://localhost:5184 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+```
+
+1. **voice**: rebuilds the cut from the raw recordings (Google Drive "Recordings", iCloud
+   `Projects/triangle/recordings`; `NARRATION_RECORDINGS=dir:dir…` for others) through the
+   take's EDL and `video/tools/build.py`, its treatment, `POST_CUTS` and tempo (1.1× for the
+   older takes, as `narration-tempo.py` did it, 1.0× from video 7), into
+   `output/narration/<take>/voice.wav`. The EDL names the raw files and the treatment:
+   `SOURCES = {"rec33": "Video 2 new take (1).m4a", …}`, `TREATMENT = "plain"` (`enhance.py
+   --plain`) or `"peak"` (the 2026-10-26 test: 80 Hz high-pass, one gain to a −1 dBFS peak).
+2. **mix**: the sound design on that voice (`narration-sound.mjs --wav`, the same cues, effects
+   and music), into `output/narration/<take>/mix.wav`. `mix.m4a` and words.json stay as they are.
+3. **mux**: the render's picture, copied, with `mix.wav` encoded once and padded with silence to
+   the render's exact length, into `output/videos/<take>.youtube.mp4`.
+   `scripts/youtube-publish.py` uploads that file (`--render-audio` falls back to the render).
+
+Each step is checked against the committed file it replaces and stops if they differ: no
+shift, the same level (±0.3 dB), the same length, and the difference at least 30 dB under the
+sound (only the codec's noise). So a rebuild that isn't the approved cut, or a render older than
+the take's sound, never reaches the upload. Video 2 (2026-10-30): the voice matched `audio.m4a`
+to −45 dB and the mix matched `mix.m4a` to −37 dB, both −24.80 LUFS and the same length to the
+sample. The upload's sound is −44.5 dB from the lossless mix, against −33.9 dB for the render's.
+A take without `SOURCES`/`TREATMENT` in its EDL can't be rebuilt yet: add them (and check the
+step passes) before its upload. Takes with steps outside the EDL can't either until the EDL
+records them (`short-03-stars` has one second of silence added after its tempo).
+
 ### Rendering faster: what we measured (2026-10-27, M1 Max, 1080×1920, 12 sub-frames)
 
 - **The capture is the cost, not the drawing.** Per sub-frame: `renderAt` 16 ms; a PNG capture
@@ -282,6 +318,39 @@ and `window.__narr.pending()` counts the layer until it has drawn.
 - Ideas not tried yet: fewer sub-frames for slow motion (6 is likely enough for glides; 12 for
   whips), a static production build served instead of the dev server (faster page loads), and
   capturing at a lower JPEG quality for the sub-frames only.
+
+## Thumbnails
+
+Each short's YouTube thumbnail is a shot of the live chart, written in its scene as `poster`
+(see [Scene fields](#scene-fields)): a camera, highlights and labels, as cues, with no captions or
+narration. To change one, edit the scene's `poster` and run
+
+```
+node scripts/narration-poster.mjs short-01-hook [short-02-up-the-line …]
+```
+
+with the dev server up (`BASE`, default `http://localhost:5184`, the "shorts" preview; Chrome
+from `CHROME`). It stills each shot at 1080×1920 into `video/thumbnails/<take>.jpg`, which
+`scripts/youtube-publish.py` uploads, and sends again for videos already up with `--update --only <take>`. A video over 3:00 isn't a Short on YouTube: it shows as a regular video, with a 16:9 thumbnail.
+For those, `posterWide` (same fields) is the 16:9 shot, and `npm run thumbnails -- --wide <take>`
+stills it at 1920×1080 into `video/thumbnails/<take>-wide.jpg` (through a 720×405 window, so the map
+keeps its phone look: no axis frames or hints); the upload picks it by the video's length.
+To look at a shot live, open
+`/?narrate=<take>&poster=1&captions=0&autoplay=0` and pause at the poster's `at`.
+Editing a scene hot-reloads every page of that dev server, a render's too: while a render runs,
+work on thumbnails in a second checkout with its own dev server (`git worktree add`, a
+`node_modules` symlink, `npx vite <dir> --port 5190`, `BASE=http://localhost:5190`).
+
+What the shots use, besides the usual highlights (the author's thumbnails, 2026-10-30):
+- `{ text: "Where do\nthese meet?", at: [r, m], size, instant: true }`: a free label, "\n" stacks it;
+- `{ line, label, size, labelAt: [r, m], labelOffset }`: a line's label, along it, at that point
+  (any point: off the line it's still turned to the line's angle), `labelOffset` px further off it;
+- `{ side, of, label, labelX, labelY, labelSize, color }`: one side of the water (or `of: "air"`)
+  line shaded, its label at those shares of the screen;
+- `{ obj, label, place, labelSize }`: an object's tag, bigger;
+- `{ arrow: true, from, to, via: [[r, m] | { obj, dr, dm }, …], width, color }`: a curved arrow
+  through the `via` points;
+- `set: { iconDensity, forceIcons, hideLabels, … }` in `poster`: scene fields for the shot alone.
 
 ## Notes for the next take (from the take 2 review)
 
@@ -333,6 +402,19 @@ which lines are short-only (intros, endings), which are long-only, and which
 are shared, and keep the scene scripts per cut. They usually share their cues,
 so a short's scene can import the matching section from another scene.
 
+### Cuts: shorts split from a take, long videos joined from several
+
+`video/cuts/<take>.json` lists pieces of existing takes by phrase (see `scripts/narration-cut.py`);
+`python3 scripts/narration-cut.py <take>` joins their voice and mix into
+`public/narration/<take>/` with a `words.json` that records each piece's source (`segments`). The
+player plays each piece with its own scene's cues, resolved on its own take's words and moved into
+place, and opens each piece on the camera and highlights its source had there. A long cut asks for
+`"stage": "landscape"`: 16:9, edge to edge, the scenes' camera spans × 16/9 (a cue's `camWide`
+overrides). The videos page lists long cuts in their own 16:9 row. The first ones (2026-10-30):
+`short-02a-things` and `short-02b-planets` (video 2 split where it turns to planets) and
+`long-01-intro` (the hook and video 2 joined, video 2's re-introduction left out). Recording
+nothing again; re-run the tool when a source take changes.
+
 ## Reference figures
 
 - **What has been ruled out as dark matter**: [`img/dark-matter-constraints.png`](img/dark-matter-constraints.png)
@@ -353,6 +435,11 @@ so the live figure shows through it, whole and as laid out. Both start at `from`
 the stage's width (default 1), centred on `surround` (the stage's dark), and zoom in together for `dur` s until the picture's plot
 (`frame`, spanning log radius `r` and log mass `m`) fills the screen; then the picture
 fades over `fade` s and the figure's camera eases into the scene's (the hook's AJP cover).
+
+`posterWide` (same fields) is the 16:9 one, `&poster=wide`, for a video over 3:00.
+`poster: { at, set?, cues }` is the take's YouTube thumbnail (see [Thumbnails](#thumbnails)):
+`&poster=1` plays those cues in place of the scene's (no cover), with `set` merged into the scene,
+and `scripts/narration-poster.mjs` stills it at `at` seconds.
 
 A scene is `src/narration-scenes/<take>.js`; a take picks it with `"scene"` in its
 words.json (default: the take's own name).

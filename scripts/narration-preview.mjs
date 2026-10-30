@@ -30,7 +30,7 @@ const withAudio = (t) => {
 };
 let takes = process.argv.slice(2);
 // default: the shorts
-if (!takes.length) takes = fs.readdirSync(NARR).filter(t => t.startsWith("short-") && withAudio(t)).sort();
+if (!takes.length) takes = fs.readdirSync(NARR).filter(t => /^(short|long)-/.test(t) && withAudio(t)).sort();
 const missing = takes.filter(t => !withAudio(t));
 if (missing.length) { console.error(`no audio for: ${missing.join(", ")}`); process.exit(1); }
 if (!takes.length) { console.error("no take has its audio.m4a in public/narration/"); process.exit(1); }
@@ -121,6 +121,11 @@ try {
 } catch (e) { console.warn(`no new stills (${e.message.split("\n")[0]}); is the dev server running?`); }
 // without a dev server (the site's build), the stills kept in public/narration/<take>/thumb.jpg
 for (const k of info) if (!k.thumb && fs.existsSync(path.join(OUT, "narration", k.id, "thumb.jpg"))) k.thumb = `narration/${k.id}/thumb.jpg`;
+// the YouTube thumbnails (video/thumbnails/, from each scene's poster) go next to the take's files
+for (const k of info) if (k.ytThumb) {
+  fs.copyFileSync(k.ytThumb, path.join(OUT, "narration", k.id, "youtube.jpg"));
+  k.ytThumb = `narration/${k.id}/youtube.jpg`;
+}
 
 // "Last updated": the commit the build comes from, and each take's last change
 // (its audio, captions or scene; not the still). Needs the git history: the deploy

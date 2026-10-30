@@ -38,9 +38,24 @@ here: it needs rendering again.
 
 ## Publishing
 
-`scripts/youtube-publish.py` uploads `output/videos/*.mp4` with the YouTube Data API:
+**The upload file (2026-10-30):** before uploading a take, make
+`output/videos/<take>.youtube.mp4` on the Mac: `python3 scripts/narration-master.py <take>`
+(a Python with numpy, the "shorts" dev server up; see "The YouTube upload file" in
+`docs/narration.md`). It is the render's picture, copied, with the sound rebuilt from the raw
+recordings and encoded once (AAC-LC 384 kbps, 48 kHz stereo) instead of three times. Each step is
+checked against the committed audio, so it stops rather than upload something that isn't the
+approved cut. The take's EDL needs `SOURCES` and `TREATMENT`: video 2 has them, the others don't yet.
+
+| Take | Upload file |
+|---|---|
+| short-02-up-the-line | made 2026-10-30 from the 2026-10-30 render (5cbf70a) |
+
+`scripts/youtube-publish.py` uploads `output/videos/<take>.youtube.mp4` (it skips a take whose
+upload file is missing or older than its render; `--render-audio` uploads the render itself) with the YouTube Data API:
 titles, blurbs, music and schedule in `video/youtube.json`, the description from
-`video/DESCRIPTION.md` and the track's credit, the take's thumb as thumbnail, captions
+`video/DESCRIPTION.md`, the track's credit and the photo credits, the take's thumbnail
+(`video/thumbnails/<take>.jpg`, made from the scene's `poster` shot by `npm run thumbnails -- <take>`;
+docs/narration.md, "Thumbnails"), captions
 from words.json, the playlist. Dry run by default; `--upload` sends, private unless
 `youtube.json` says otherwise. Uploaded IDs are kept in `video/youtube-uploads.json`.
 
@@ -50,6 +65,11 @@ not locked to private: no YouTube API audit needed. Workflow: the script uploads
 Alex publishes or schedules in Studio. Still to try: `publishAt` from the script
 (fully automatic scheduling). The OAuth app is in Testing mode, so the sign-in expires
 weekly; switch it to "In production" before any unattended job.
+
+**Thumbnails on Shorts (2026-10-30, video 1):** the API's `thumbnails.set` succeeded and the API
+served our poster as the thumbnail, but Studio showed an automatic frame; the author uploaded
+`video/thumbnails/<take>.jpg` by hand in Studio. After each upload of a Short, open it in Studio
+and check the thumbnail; upload the file there if it shows a frame instead.
 
 YouTube counts a vertical video as a Short only up to 3:00: 01 and 02 qualify; 03, 04
 and 05 go up as regular vertical videos unless trimmed.

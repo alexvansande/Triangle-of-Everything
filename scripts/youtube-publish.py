@@ -5,12 +5,15 @@
     python3 scripts/youtube-publish.py --upload        # upload every video not yet uploaded
     python3 scripts/youtube-publish.py --upload --only short-01-hook
     python3 scripts/youtube-publish.py --captions-only # (re)write the .srt files, no upload
-    python3 scripts/youtube-publish.py --update        # rewrite titles/descriptions of uploaded videos
+    python3 scripts/youtube-publish.py --json          # the metadata as JSON (for the videos page)
+    python3 scripts/youtube-publish.py --update        # rewrite titles/descriptions/thumbnails of uploaded videos
 
 Reads video/youtube.json (titles, blurbs, music, privacy, schedule), builds each
 description from video/DESCRIPTION.md and the track's credit (video/music/CREDITS.md),
-uploads output/videos/<take>.mp4 with the YouTube Data API v3, adds it to the playlist,
-sets the take's still (public/narration/<take>/thumb.jpg) as the thumbnail and uploads
+uploads output/videos/<take>.youtube.mp4 (the render with its sound encoded once from lossless,
+made by scripts/narration-master.py) with the YouTube Data API v3, adds it to the playlist,
+sets the take's thumbnail (video/thumbnails/<take>.jpg, or <take>-wide.jpg over 3:00;
+scripts/narration-poster.mjs) and uploads
 English captions made from the take's word timings. Uploaded IDs go to
 video/youtube-uploads.json, so a video is never uploaded twice (--force re-uploads).
 
@@ -62,18 +65,22 @@ def description(v):
     paras = []
     for para in body.strip().split("\n\n"):
         lines = para.split("\n")
-        if lines[0] == "The Triangle of Everything":
+        if lines[0] == "Links" and all("://" in ln for ln in lines[1:]):      # links: one per line
+            paras.append("\n".join(lines))
+        elif lines[0] == "The Triangle of Everything":
             paras.append("\n".join([lines[0]] + [" ".join(lines[1:])]).replace(" Inspired by", "\nInspired by"))
         else:
             paras.append(" ".join(lines))
     body = "\n\n".join(paras)
-    credit = (f'Music: "{v["music"]}" Kevin MacLeod (incompetech.com)\n'
-              "Licensed under Creative Commons: By Attribution 4.0\n"
-              "https://creativecommons.org/licenses/by/4.0/")
+    # the incompetech credit (track, author, source, licence), in the same "label: link" form as
+    # the description's other links (the author, 2026-10-30)
+    credit = (f'Music: "{v["music"]}" by Kevin MacLeod: https://incompetech.com\n'
+              "Licensed under Creative Commons Attribution 4.0: https://creativecommons.org/licenses/by/4.0/")
     full = v.get("fullVideo", MANIFEST_DEFAULTS.get("fullVideo"))
     watch = f"\n\nWatch the full video: {full}" if full else ""
     images = photo_credits(v["take"])
-    return f'{v["blurb"]}{watch}\n\n{body.strip()}\n\n{credit}\n' + (f"\n{images}\n" if images else "")
+    # the music credit closes the Links section (the file's last paragraph), no blank line between
+    return f'{v["blurb"]}{watch}\n\n{body.strip()}\n{credit}\n' + (f"\n{images}\n" if images else "")
 
 
 def photo_credits(take):
@@ -84,12 +91,12 @@ def photo_credits(take):
     for line in open(os.path.join(ROOT, "video", "photos", "CREDITS.md")):
         m = re.match(r"\| ([a-z0-9-]+)(?: \(\.mp4\))? \| (.*?) \| (.*?) \|", line)
         if m and m[3] != "Ours":
-            rows[m[1]] = (re.sub(r",\s*uploader .*", "", m[2]).strip(), m[3])
+            rows[m[1]] = (re.sub(r"\s+", " ", re.sub(r",\s*uploader .*", "", m[2])).strip(), m[3])
     scene = open(os.path.join(ROOT, "src", "narration-scenes", f"{take}.js")).read()
     used = [n for n in rows if re.search(r"[\"'/]" + re.escape(n) + r"[\"'.]", scene)]
     if not used:
         return ""
-    return "Images:\n" + "\n".join(f"{c or 'Unknown'} ({lic})" for c, lic in (rows[n] for n in used))
+    return "Images\n" + "\n".join(f"{c or 'Unknown'} ({lic})" for c, lic in (rows[n] for n in used))
 
 
 # ---------- captions ----------
@@ -113,6 +120,16 @@ def srt(take):
     return "\n".join(out)
 
 
+def thumbnail(take):
+    """video/thumbnails/<take>.jpg (9:16, scripts/narration-poster.mjs), or <take>-wide.jpg (16:9) for a
+    video over 3:00, which YouTube shows as a regular video with a landscape thumbnail."""
+    t = load(os.path.join(ROOT, "public", "narration", take, "words.json"))
+    wide = os.path.join(ROOT, "video", "thumbnails", f"{take}-wide.jpg")
+    if t["duration"] + t.get("credits", 3) > 180 and os.path.exists(wide):
+        return wide
+    return os.path.join(ROOT, "video", "thumbnails", f"{take}.jpg")
+
+
 # ---------- API ----------
 def service():
     try:
@@ -125,8 +142,12 @@ def service():
     creds = Credentials.from_authorized_user_file(TOKEN, SCOPES) if os.path.exists(TOKEN) else None
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+            try:
+                creds.refresh(Request())
+            except Exception as e:   # revoked, or past its week (an OAuth app in Testing): sign in again
+                print(f"sign-in expired ({e.__class__.__name__}): opening the browser to sign in again", flush=True)
+                creds = None
+        if not creds or not creds.valid:
             if not os.path.exists(SECRETS):
                 sys.exit(f"no OAuth client at {SECRETS} (see the setup notes at the top of this script)")
             creds = InstalledAppFlow.from_client_secrets_file(SECRETS, SCOPES).run_local_server(port=0)
@@ -177,12 +198,24 @@ def main():
                     help="upload again even if already uploaded; the earlier upload is deleted if it is still private")
     ap.add_argument("--captions-only", action="store_true", help="write output/videos/<take>.srt and stop")
     ap.add_argument("--update", action="store_true",
-                    help="rewrite title, description and tags of videos already uploaded (after editing youtube.json or DESCRIPTION.md)")
+                    help="rewrite title, description, tags and thumbnail of videos already uploaded (after editing youtube.json, DESCRIPTION.md or a poster)")
+    ap.add_argument("--json", action="store_true",
+                    help="print what each video will go up with, as JSON (the videos page shows it), and stop")
+    ap.add_argument("--render-audio", action="store_true",
+                    help="upload the render itself (output/videos/<take>.mp4, its sound AAC three times over) "
+                         "when there's no .youtube.mp4")
     a = ap.parse_args()
     m = load(MANIFEST)
     cfg, state = m["defaults"], load(STATE, {})
     MANIFEST_DEFAULTS.update(cfg)
     todo = [v for v in m["videos"] if not a.only or v["take"] in a.only]
+    if a.json:
+        json.dump({v["take"]: {"title": v["title"], "blurb": v["blurb"], "description": description(v), "tags": v.get("tags", cfg["tags"]),
+                               "privacy": v.get("privacy", cfg["privacy"]), "publishAt": v.get("publishAt", ""),
+                               "playlist": v.get("playlist", cfg.get("playlist", "")),
+                               "youtube": state.get(v["take"], {}).get("id", "")} for v in todo},
+                  sys.stdout, ensure_ascii=False, indent=1)
+        return
     if a.update:
         yt = service()
         for v in todo:
@@ -192,11 +225,16 @@ def main():
             cur = yt.videos().list(part="snippet", id=vid).execute()["items"][0]["snippet"]
             cur.update(title=v["title"], description=description(v), tags=v.get("tags", cfg["tags"]))
             yt.videos().update(part="snippet", body={"id": vid, "snippet": cur}).execute()
+            thumb = thumbnail(v["take"])   # a re-made thumbnail too
+            if os.path.exists(thumb):
+                from googleapiclient.http import MediaFileUpload
+                yt.thumbnails().set(videoId=vid, media_body=MediaFileUpload(thumb, mimetype="image/jpeg")).execute()
             print(f"{v['take']}: updated https://youtu.be/{vid}")
         return
     yt = service() if a.upload and not a.captions_only else None
     for v in todo:
-        take, path = v["take"], os.path.join(VIDEOS, v["take"] + ".mp4")
+        take = v["take"]
+        render, path = os.path.join(VIDEOS, take + ".mp4"), os.path.join(VIDEOS, take + ".youtube.mp4")
         os.makedirs(VIDEOS, exist_ok=True)
         open(os.path.join(VIDEOS, take + ".srt"), "w").write(srt(take))
         if a.captions_only:
@@ -204,8 +242,14 @@ def main():
         print(f"\n=== {take}: {v['title']}")
         if take in state and not a.force:
             print(f"  already uploaded: https://youtu.be/{state[take]['id']}"); continue
-        if not os.path.exists(path):
-            print(f"  missing {path}: render it first (scripts/narration-render-all.sh {take})"); continue
+        if not os.path.exists(render):
+            print(f"  missing {render}: render it first (scripts/narration-render-all.sh {take})"); continue
+        # the upload file: the render's picture, its sound encoded once from lossless audio
+        if not os.path.exists(path) or os.path.getmtime(path) < os.path.getmtime(render):
+            if not a.render_audio:
+                print(f"  {'missing' if not os.path.exists(path) else 'older than the render:'} {path}: "
+                      f"python3 scripts/narration-master.py {take} (or --render-audio to upload the render itself)"); continue
+            path = render
         if not yt:
             print(f"  file: {path} ({os.path.getsize(path) / 1e6:.1f} MB)")
             print(f"  privacy: {v.get('privacy', cfg['privacy'])}" + (f", goes public {v['publishAt']}" if v.get("publishAt") else ""))
@@ -224,7 +268,7 @@ def main():
         state[take] = {"id": vid, "title": v["title"], "uploadedAt": datetime.datetime.now().isoformat(timespec="seconds")}
         json.dump(state, open(STATE, "w"), indent=2)
         from googleapiclient.http import MediaFileUpload
-        thumb = os.path.join(ROOT, "public", "narration", take, "thumb.jpg")
+        thumb = thumbnail(take)   # the scene's poster shot
         if os.path.exists(thumb):
             try:
                 yt.thumbnails().set(videoId=vid, media_body=MediaFileUpload(thumb, mimetype="image/jpeg")).execute()
