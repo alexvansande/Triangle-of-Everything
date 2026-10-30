@@ -63,7 +63,7 @@ def description(v):
     paras = []
     for para in body.strip().split("\n\n"):
         lines = para.split("\n")
-        if all("://" in ln for ln in lines):                                  # links: one per line
+        if lines[0] == "Links" and all("://" in ln for ln in lines[1:]):      # links: one per line
             paras.append("\n".join(lines))
         elif lines[0] == "The Triangle of Everything":
             paras.append("\n".join([lines[0]] + [" ".join(lines[1:])]).replace(" Inspired by", "\nInspired by"))
@@ -77,7 +77,8 @@ def description(v):
     full = v.get("fullVideo", MANIFEST_DEFAULTS.get("fullVideo"))
     watch = f"\n\nWatch the full video: {full}" if full else ""
     images = photo_credits(v["take"])
-    return f'{v["blurb"]}{watch}\n\n{body.strip()}\n\n{credit}\n' + (f"\n{images}\n" if images else "")
+    # the music credit closes the Links section (the file's last paragraph), no blank line between
+    return f'{v["blurb"]}{watch}\n\n{body.strip()}\n{credit}\n' + (f"\n{images}\n" if images else "")
 
 
 def photo_credits(take):
@@ -88,12 +89,12 @@ def photo_credits(take):
     for line in open(os.path.join(ROOT, "video", "photos", "CREDITS.md")):
         m = re.match(r"\| ([a-z0-9-]+)(?: \(\.mp4\))? \| (.*?) \| (.*?) \|", line)
         if m and m[3] != "Ours":
-            rows[m[1]] = (re.sub(r",\s*uploader .*", "", m[2]).strip(), m[3])
+            rows[m[1]] = (re.sub(r"\s+", " ", re.sub(r",\s*uploader .*", "", m[2])).strip(), m[3])
     scene = open(os.path.join(ROOT, "src", "narration-scenes", f"{take}.js")).read()
     used = [n for n in rows if re.search(r"[\"'/]" + re.escape(n) + r"[\"'.]", scene)]
     if not used:
         return ""
-    return "Images:\n" + "\n".join(f"{c or 'Unknown'} ({lic})" for c, lic in (rows[n] for n in used))
+    return "Images\n" + "\n".join(f"{c or 'Unknown'} ({lic})" for c, lic in (rows[n] for n in used))
 
 
 # ---------- captions ----------

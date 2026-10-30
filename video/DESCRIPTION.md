@@ -10,6 +10,7 @@ Vihan M. Patel, American Journal of Physics (2023)
 Music: "<track>" by Kevin MacLeod (incompetech.com), licensed under CC BY 4.0
 (tracks per video: `video/music/CREDITS.md`)
 
+**Links**
 The interactive chart: https://triangleofeverything.com
 The original paper: https://doi.org/10.1119/5.0150209
 Alex Van de Sande: https://vandesande.design
