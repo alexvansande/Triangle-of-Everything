@@ -112,3 +112,18 @@ only after its feathered parent boundary is outside the entire square.
 Body calibration remains 447.744 µm, independently of image canvas dimensions.
 Verified central parent pixels against the downsampled detail, module syntax,
 physical size and preview around 1 mm / 790 µm.
+
+### Three-plane droplet handoff (supersedes integrated water-field fade)
+
+User requested actual ladybug texture continuing into the microscope scene.
+New native sharp planes in micro/layers-v3: shell (central reflections removed),
+transparent rim/highlights, and warm translucent amoeba. No water-field swap.
+match-drop.mjs records exact pixel registrations and builds their flat parent;
+match-depth.mjs propagates that parent through the existing 3× chain.
+The app uses that exact flat composite during 1.8–1.5 mm replacement. Only
+below 1.3 mm do the shell and surface separate from the fixed-scale specimen,
+easing to relative zoom rates 0.45× / 1.75× with app-controlled rear/front blur.
+Foreground surface remains at constant opacity and leaves by geometry.
+Size checked against microscopy sources: Amoeba proteus can be around
+600–750 µm; our nominal 447.7 µm is plausible, no missing unit decade.
+Prompts, size sources and assembly are in micro/layers-v3/provenance.json.

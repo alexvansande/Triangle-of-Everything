@@ -1,0 +1,26 @@
+{
+  "span": 0.002022593967146763,
+  "diameter_m": 0.000447744227713668,
+  "droplet_diameter_m": 0.00116,
+  "n": 1254,
+  "cell": {
+    "width": 289,
+    "height": 193,
+    "left": 482,
+    "top": 531,
+    "opacity": 0.68,
+    "body_pixels": 1473,
+    "source_width": 1536
+  },
+  "front": {
+    "width": 1116,
+    "height": 1116,
+    "left": 22,
+    "top": 53
+  },
+  "handoff_m": [
+    0.0018,
+    0.0015
+  ],
+  "depth_start_m": 0.0013
+}
