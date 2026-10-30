@@ -7,8 +7,7 @@
   "master": true
  },
  "adenine-a": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "am-radio": {
   "backing": "soft"
@@ -51,8 +50,7 @@
   "master": true
  },
  "carbon": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "centaurus-a": {
   "backing": "core",
@@ -66,8 +64,7 @@
   "master": true
  },
  "cytosine-c": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "dna": {
   "backing": "soft"
@@ -88,8 +85,7 @@
   "backing": "soft"
  },
  "fullerene-c60": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "galaxy-cluster": {
   "backing": "core",
@@ -108,42 +104,35 @@
   "backing": "soft"
  },
  "gold": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "guanine-g": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "halleys-comet": {
   "backing": "core",
   "master": true
  },
  "helium": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "hemoglobin": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "higgs": {
   "backing": "soft"
  },
  "hydrogen": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "infrared": {
   "backing": "soft"
  },
  "insulin": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "iron": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "l-brown-dwarf": {
   "backing": "body",
@@ -209,8 +198,7 @@
   "master": true
  },
  "oxygen": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "pandoras-cluster": {
   "backing": "core",
@@ -296,8 +284,7 @@
   "backing": "soft"
  },
  "thymine-t": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "toi-2490-b": {
   "backing": "body",
@@ -325,8 +312,7 @@
   "backing": "soft"
  },
  "uranium": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "vega": {
   "backing": "body",
@@ -339,8 +325,7 @@
   "backing": "soft"
  },
  "water-h2o": {
-  "backing": "soft",
-  "master": true
+  "backing": "soft"
  },
  "westerlund-2": {
   "backing": "core",

@@ -9,6 +9,10 @@
   recording's `video/sources/<date>/NOTES.md` under "Fact check": what's right, what's
   wrong (with the fix and a suggested re-wording), and what's only imprecise. Tell the
   author the wrong ones before or alongside cutting the audio.
+- **Cut every recording the moment it arrives, even a partial one** (the author, 2026-10-29): don't
+  wait for the rest of a re-recording. Splice what's new into the current cut (the old take for the
+  parts not re-recorded yet), publish it, and queue the render, so that night's render has it; swap
+  in the rest when it comes. Waiting cost a night's render once.
 - **Every new or re-cut video must be watchable by the author when you hand it over** (the
   author's rule, 2026-10-27). Get it onto the unlisted page,
   https://triangleofeverything.com/videos-3v63rqq1/ (built from `main` by GitHub Pages: merge,
@@ -17,10 +21,31 @@
   no longer fits (one version holds at most 512 files; the build has more). Don't touch the
   rendered videos (`video/web/`, the preview's "Rendered video" switch): they're rendered in a
   local session.
+- **Queue every changed video for a re-render** (the author's rule, 2026-10-28): when you change a
+  video (its audio, captions, scene, mix, or the chart code or pictures it shows), add its take
+  name (e.g. `short-04-black-holes`) on its own line to `video/render-queue.txt` in the same
+  commit, and push it to `main`. The nightly render (23:50, `scripts/narration-nightly.sh`)
+  renders the queued takes, publishes them to the videos page's "Rendered video" and clears them.
+  A change to code every video shares (`src/narration.js`, the map) queues all of them.
+  **If only the picture changed** (not the audio, captions' timing or the cut), also add a note line
+  with the playback times whose picture changed, e.g. `# short-04-black-holes changed: 1:20-1:45, 3:00-3:30`
+  (the author's idea, 2026-10-28): the nightly then re-renders only those stretches and splices them
+  into the last render (`scripts/narration-render-partial.py`). Be generous: everything a changed cue
+  touches, up to the next cue. No note when the audio changed: that needs the whole take.
+  Either way the render first diffs the take against the commit of its last render
+  (`scripts/narration-render-diff.mjs`, the author's rule, 2026-10-29): only notes changed keeps the
+  render, only the sound swaps the audio track, changed cues re-render their stretches, and a
+  changed timing renders it whole. A change to shared code or pictures (`src/` outside the scenes,
+  `content/`, the photos) since a take's render makes it render whole even unqueued, unless a queue
+  note pins it to stretches (the author, 2026-10-30: "if something changes on the video and you can't
+  tell exactly when you have to re-render all of it"). So if your shared change shows in only some
+  stretches of a video, say so with a note; if it doesn't show in a video at all, still expect it to re-render.
 - **Scripts to record**: `video/scripts/recording-scripts.md` has every video's narration as cut
   now and the lightly edited script to re-record (with what changed). Keep it up to date when a
   take is replaced or the author changes a line.
 - How the narration pipeline works (cut lists, voice treatment, tempo, scenes, sound,
   preview): `docs/narration.md` and `video/README.md`.
-- Recordings from 2026-10-19 on play at 1.1× (`scripts/narration-tempo.py --tempo 1.1`), the old video 5 takes at 1.2×, 5b and 5c at 1.3×, 5d (now video 4, `short-04-black-holes`) at 1.1× (the author prefers its rhythm), all with atempo (rubberband sounded like a tin can);
+- **No speed-up for new takes** (the author, 2026-10-27): from video 7 (`short-07-wavelengths`, rec42) on,
+  takes play at the speed they were recorded; don't run `scripts/narration-tempo.py`. The older takes keep
+  their tempo: recordings from 2026-10-19 to 2026-10-27 play at 1.1× (`scripts/narration-tempo.py --tempo 1.1`), the old video 5 takes at 1.2×, 5b and 5c at 1.3×, 5d (now video 4, `short-04-black-holes`) at 1.1× (the author prefers its rhythm; its rec48 re-recording too, by the author's note of 2026-10-29), all with atempo (rubberband sounded like a tin can);
   the earlier shorts at 1.2×.

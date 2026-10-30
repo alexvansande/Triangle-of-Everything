@@ -20,7 +20,7 @@ import {
   formatLogSuper, densityToLogTime, friendlyTime, fmtTick,
 } from "./format.js";
 import {
-  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, ICON_COVERAGE, iconUrlForSize, setIconMaxRes, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
+  DESC_BY_SLUG, IMG_BY_SLUG, ICON_BY_SLUG, ICON_COVERAGE, iconUrlForSize, setIconMaxRes, setIconSwap, SHADOW_BY_SLUG, SHADOW_SETTINGS_BY_SLUG, STRINGS_ATOM_SLUGS,
   imageManifest, hyperspirographStates, parseFrontmatter, _loadedIconUrls,
   startIconWarmup, loadDescriptions,
 } from "./assets.js";
@@ -29,7 +29,9 @@ import {
 // preview (scripts/narration-preview.mjs), which runs from a sub-folder.
 const BASE = import.meta.env.BASE_URL;
 // The narration preview: the player only, no address-bar sync or service worker.
-const NARR_PREVIEW = import.meta.env.MODE === "narration-preview";
+// The dev server serves the same page at /videos/ (vite.config.js).
+const NARR_PREVIEW = import.meta.env.MODE === "narration-preview" ||
+  (import.meta.env.DEV && /^\/videos\/?$/.test(location.pathname));
 // Built with relative paths (--base ./) to run from a sub-folder, like a
 // claude.ai page: the URL path isn't ours, so only the hash is kept in sync —
 // rewriting the path to "/" would break every relative asset (map tiles…).
@@ -76,7 +78,10 @@ let _iconsEnabled = true;
 let _iconOnly = null;     // narration: a Set of the only object names that get their picture
 let _iconFill = false;    // narration: …or first, with every other picture that fits after them
 let _iconForce = null;    // narration: names whose picture shows even where a nearer one would hide it
+let _iconFirst = null;    // narration: names whose picture comes first; the others give way where they overlap
 let _iconHide = null;     // narration: names whose picture never shows (they pile onto a neighbour)
+let _iconBoost = null;    // narration: { from: log r, k } pictures of things that big and up drawn k× larger
+let _labelHide = null;    // narration: names whose own chart label never shows in that scene
 let _dustFill = false;    // narration: catalogue pictures without their names (the names stay off)
 let _labelFocus = null;   // narration: while a callout shows, only these objects keep their labels
 let _labelFocusKey = "";
@@ -129,6 +134,10 @@ const ICON_SIZE_MULT = {
   "primordial-black-hole": 2, "3k-bh": 2, "stellar-bh": 2,
   "sgr-a": 2, "m87": 2, "ton-618": 2,
   ...BLACK_HOLE_SIZE_MULT,
+  // M87*'s artwork read much smaller than the other black holes' (the author, 2026-10-29); twice was
+  // too big, and 1.4×, and 1.15×: 20% under that, 0.92×, it is; TON 618 a bit bigger
+  "m87": BLACK_HOLE_SIZE_MULT["m87"] * 0.92,
+  "ton-618": BLACK_HOLE_SIZE_MULT["ton-618"] * 1.5,
 };
 
 // Physical size scaling: for every 6 orders of magnitude in real radius,
@@ -150,14 +159,33 @@ function iconAreaMult(slug) {
 // a nebula) and for Saturn's rings, from content/icons/coverage.json. Solid things
 // (rocks, towers, animals) keep their whole square, sparse or not.
 const ROOM_REF = 0.6, ROOM_MIN = 0.45;
-function iconRoomMult(slug, cat) {
+// A glow's room also keeps only the square root of what the size curve (iconSizeCurve)
+// added: the space photographs grew so they'd show larger, not so fewer would fit.
+function iconRoomMult(slug, cat, logR = null) {
   if (!ICON_SIZE_MULT[slug] && !isLuminousArt(cat, slug)) return 1;
   const c = ICON_COVERAGE[slug];
-  return c ? Math.max(ROOM_MIN, Math.min(1, Math.sqrt(c / ROOM_REF))) : 1;
+  const grown = logR == null ? 1 : 1 / Math.sqrt(Math.max(1, iconSizeCurve(logR)));
+  return (c ? Math.max(ROOM_MIN, Math.min(1, Math.sqrt(c / ROOM_REF))) : 1) * grown;
 }
 // A catalogue dot's rank in its band (1 = its most famous) on the objects' z scale
 function dustImportance(rank) { return rank <= 1 ? 3 : rank <= 3 ? 3.5 : rank <= 10 ? 4 : 5; }
 let _dustPictureChoice = null;   // catalogue pictures the one picture pass chose (indices)
+// The pictures' size by what they show (author, 2026-10-28): the space photographs
+// (nebulae, galaxies, clusters) are the chart's best pictures and soft-edged, so they get
+// more room; particles are small abstract glyphs and get less; everyday things, planets
+// and stars stay about as they were. One smooth curve over log r (cm), two logistic steps:
+//   f(r) = (0.5 + 0.5·σ((r + 9.5) / 0.6)) · (1 + 1.3·σ((r − 18) / 1.8))
+// ≈ 0.5 for particles (quarks, leptons, bosons, protons: r < 1e-11 cm; the electron 0.59),
+// 0.9 x-rays and atoms, 1.00 everyday things and planets, 1.03 the Sun, 1.1 supergiants,
+// 1.5 planetary nebulae, 1.7-1.8 nebulae, 1.95 globular clusters, 2.1-2.2 galaxies,
+// 2.3 clusters and up. Purely by size: light from x-rays to radio and the neutrinos, drawn at
+// their wavelength, keep their size (they're video 7's subject).
+const SIZE_CURVE = { lo: 0.5, loAt: -9.5, loW: 0.6, hi: 1.3, hiAt: 18, hiW: 1.8 };
+const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+function iconSizeCurve(logR) {
+  const C = SIZE_CURVE;
+  return (C.lo + (1 - C.lo) * sigmoid((logR - C.loAt) / C.loW)) * (1 + C.hi * sigmoid((logR - C.hiAt) / C.hiW));
+}
 function iconSizeMult(o) {
   const logR = o.logR ?? 0;
   const sizeScale = Math.pow(1.1, (logR - (-3.5)) / 6);
@@ -166,7 +194,9 @@ function iconSizeMult(o) {
   // structures and black holes, keeping solid universe/void spheres unchanged.
   const categoryScale = BLACK_HOLE_FRAMES[o.slug] ? 1 : cat === "galaxy" ? 1.25 * 1.25
     : cat === "blackhole" || (cat === "largescale" && isDiffuseSpaceArt(cat, o.slug)) ? 1.25 : 1;
-  return sizeScale * categoryScale * (ICON_SIZE_MULT[o.slug] || 1) * iconAreaMult(o.slug) * (_iconSize / 100);
+  // (a video's boost for the big things, ramping in over the decade around `from`)
+  const boost = _iconBoost ? 1 + (_iconBoost.k - 1) * Math.max(0, Math.min(1, logR - _iconBoost.from + 0.5)) : 1;
+  return sizeScale * categoryScale * iconSizeCurve(logR) * (ICON_SIZE_MULT[o.slug] || 1) * iconAreaMult(o.slug) * (_iconSize / 100) * boost;
 }
 
 // Photons → where the spectrum explorer (/spectrum/) opens: the selector's
@@ -565,6 +595,10 @@ defs.append("mask").attr("id","star-wall-mask").attr("maskUnits","objectBounding
   .append("rect").attr("width",1).attr("height",1).attr("fill","url(#star-wall-fade)");
 // the videos' halo behind a named object: a pale lavender light in overlay blend, so
 // the purple under it brightens towards white without ever going flat white
+// (a lit path's halo: its wide stroke blurred, over the whole chart's extent)
+defs.append("filter").attr("id","narr-line-halo").attr("filterUnits","userSpaceOnUse")
+  .attr("x",-20000).attr("y",-20000).attr("width",40000).attr("height",40000)
+  .append("feGaussianBlur").attr("stdDeviation",7);
 const narrHalo=defs.append("radialGradient").attr("id","narr-halo-fade");
 for(const [offset,opacity] of [[0,1],[.3,.9],[.55,.5],[.8,.15],[1,0]])narrHalo.append("stop").attr("offset",offset).attr("stop-color","#e4dcff").attr("stop-opacity",opacity);
 defs.append("filter").attr("id","star-glow").attr("primitiveUnits","objectBoundingBox")
@@ -2594,6 +2628,7 @@ function drawObjects() {
     _iconOnly && [..._iconOnly], // a narration scene's picture set
     _iconForce && [..._iconForce],
     _iconHide && [..._iconHide],
+    _iconBoost && [_iconBoost.from, _iconBoost.k],
   ]));
 
   // Project all objects to screen, sorted by priority (low z = important)
@@ -2638,7 +2673,7 @@ function drawObjects() {
   // order resolves equal priorities; last frame's winners never alter rank.
   const visibleDots = priorityCircles(projected, () => DOT_MIN_DIST / 2);
   const icoR = (o) => icoSize * iconSizeMult(o) / 2;
-  const roomR = (o) => icoR(o) * iconRoomMult(o.slug, o.catKey || o.cat);   // for overlaps, not drawing
+  const roomR = (o) => icoR(o) * iconRoomMult(o.slug, o.catKey || o.cat, o.logR);   // for overlaps, not drawing
   const iconOrder = projected.filter(o => mapIconShown(o) && !_iconHide?.has(o.name));
   // One pass for every picture, hand-placed or from the catalogue: real photographs
   // first, then importance on one scale (an object's z; a catalogue dot's rank in its
@@ -2655,15 +2690,17 @@ function drawObjects() {
     } : null,
     iconSizeAt: (logR,name,cat) => icoSize * iconSizeMult({logR,slug:nameToSlug(name),cat}),
     imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
-    roomOf: (name, cat) => iconRoomMult(nameToSlug(name), cat),
+    roomOf: (name, cat, logR) => iconRoomMult(nameToSlug(name), cat, logR),
   }).filter(p => p.r*2 >= dustIconMin() && !_iconHide?.has(p.name));
   const asObj = (o) => ({ o, sx:o.sx, sy:o.sy, room:roomR(o), imagePriority:o.imagePriority, importance:o.z ?? 3, curated:0 });
   const asDust = (p) => ({ p, sx:p.sx, sy:p.sy, room:p.room ?? p.r, imagePriority:p.imagePriority, importance:dustImportance(p.rank), curated:1 });
-  const byRank = (a,b) => a.imagePriority-b.imagePriority || a.importance-b.importance || a.curated-b.curated;
-  const named = _iconOnly ? [...iconOrder.map(asObj), ...dustPics.filter(p => _dustPictures?.has(p.name)).map(asDust)].sort(byRank) : [];
+  const first = (c) => _iconFirst?.has(c.o ? c.o.name : c.p.name) ? 0 : 1;
+  const byRank = (a,b) => first(a)-first(b) || a.imagePriority-b.imagePriority || a.importance-b.importance || a.curated-b.curated;
+  const isNamedDust = (p) => _dustPictures?.has(p.name) || _iconFirst?.has(p.name);
+  const named = _iconOnly ? [...iconOrder.map(asObj), ...dustPics.filter(isNamedDust).map(asDust)].sort(byRank) : [];
   const rest = (!_iconOnly ? [...iconOrder.map(asObj), ...dustPics.map(asDust)]
     : _iconFill ? [...projected.filter(o => !_iconOnly.has(o.name) && !_iconHide?.has(o.name) && mapIconShown(o, true)).map(asObj),
-        ...dustPics.filter(p => !_dustPictures?.has(p.name)).map(asDust)]
+        ...dustPics.filter(p => !isNamedDust(p)).map(asDust)]
     : []).sort(byRank);
   const room = iconRoom();
   const chosen = priorityCircles(named, c => c.room);
@@ -2678,6 +2715,8 @@ function drawObjects() {
   // forced pictures (videos: Venus behind Earth) show whatever they overlap;
   // drawn least important first, they sit behind the picture they overlap
   if (_iconForce) for (const o of iconOrder) if (_iconForce.has(o.name)) { shownIcons.add(o); visibleDots.add(o); }
+  // (catalogue pictures too: the lion and the giraffe among video 2's animals)
+  if (_iconForce) for (const c of pictures) if (c.p && _iconForce.has(c.p.name) && !dustChosen.includes(c)) dustChosen.push(c);
   projected.forEach(o => {
     o._showDot = visibleDots.has(o);
     o._showIcon = o._showDot && shownIcons.has(o);
@@ -3190,7 +3229,7 @@ function drawObjects() {
         .attr("stroke-width", 2.5)
         .text(o.name.toUpperCase());
     })
-    .attr("display", o => (_labelsEnabled && o._showLabel) ? null : "none");
+    .attr("display", o => (_labelsEnabled && o._showLabel && !_labelHide?.has(o.name)) ? null : "none");
 
   _lastProjected = shownDots.filter(o => o.sx >= 0 && o.sx <= cw && o.sy >= 0 && o.sy <= ch);
 
@@ -3216,7 +3255,7 @@ function drawObjects() {
     } : null,
     // as iconSizeMult, per-object multipliers included
     iconSizeAt: (logR, name, cat) => icoSize * iconSizeMult({logR, slug: nameToSlug(name), cat}),
-    roomOf: (name, cat) => iconRoomMult(nameToSlug(name), cat),
+    roomOf: (name, cat, logR) => iconRoomMult(nameToSlug(name), cat, logR),
     imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
     pictureChoice: _dustPictureChoice,   // chosen with the objects' pictures, in one pass
     iconBlend: (cat) => LUMINOUS_CATS.has(cat),   // luminous: no cast shadow
@@ -3449,12 +3488,18 @@ const DOLLY_MIST_FROM = 0.3;
 // The pictures blur one by one (a filter on their whole layer would cut the
 // screen-blended ones off from the painting); those only darken, under the veil.
 const DOLLY_ICON_BLUR = 3;
+// The other pictures grow by the object's growth to the power share: share =
+// [0] far from it on screen, + [1] right beside it (a gaussian over half the screen).
+const DOLLY_ICON_SHARE = [0.12, 0.3];
 const dollyIconFilter = defs.append("filter").attr("id", "dolly-fi").attr("x", "-50%").attr("y", "-50%")
   .attr("width", "200%").attr("height", "200%").attr("color-interpolation-filters", "sRGB");
 const dollyIconBlur = dollyIconFilter.append("feGaussianBlur").attr("stdDeviation", 0);
 const dollyIconDark = (() => { const ct = dollyIconFilter.append("feComponentTransfer");
   return ["R", "G", "B"].map(c => ct.append(`feFunc${c}`).attr("type", "linear").attr("slope", 1)); })();
 let _dolly = null, _dollyHidden = null;
+// named objects' halos (narration drawHalos) fade as a dive starts (setDolly)
+let _haloDolly = 1;
+const haloOpacity = (d) => d.opacity * (_isWebKit ? 0.3 : 0.7) * _haloDolly;
 // tiles drawn this far (px) around the screen while a dive is on (drawTiles)
 let _dollyPadPx = 0;
 // the chart depth only has what's on screen: its edges feather out as it falls back
@@ -3491,6 +3536,7 @@ function setDolly(d) {
     if (_bgNoiseShown) [lTiles, lTilesBase].forEach(l => l.style("display", "none").style("opacity", 0));
     dVeil.attr("display", "none"); dFocus.selectAll("*").remove(); dFocus.style("opacity", null);
     lAxesWrap.style("opacity", null);
+    lShadows.style("opacity", null); _haloDolly = 1; lNarrGuides.selectAll("circle.narr-halo").attr("opacity", haloOpacity);
     return;
   }
   _dolly = { name: d.name, k };
@@ -3537,15 +3583,27 @@ function setDolly(d) {
   dVeil.attr("display", null).attr("width", cw).attr("height", ch).attr("opacity", mist.toFixed(3));
   dollyIconBlur.attr("stdDeviation", (DOLLY_ICON_BLUR * k).toFixed(2));
   dollyIconDark.forEach(e => e.attr("slope", (1 - mist).toFixed(3)));
-  // The other pictures fall back one by one, each at its own parallax depth
-  // (iconDepth, exaggerated so the spread shows), blurring as they go.
-  const iconFall = DOLLY_DEPTHS.find(L => L.inner === dIcon).fall;
+  // The other pictures come towards the screen too, less than the object (author,
+  // 2026-10-28: "as if approaching it in 3D"): each grows by a share of the object's
+  // growth, and its place spreads out from the object as much, the share largest
+  // for the pictures nearest the object on screen and a little more for the ones
+  // standing nearer in the parallax (iconDepth); blurring and darkening as they go.
+  const growNow = 1 + ((d.grow ?? 3) - 1) * k;
+  const near = 0.5 * Math.min(cw, ch);
+  const cb0 = clip.select("rect.bg-rect").node().getBoundingClientRect(), sc0 = cb0.width / cw || 1;
   lIcons.selectAll(":scope > g").each(function (q) {
     if (this === group) return;
-    const depth = q?.slug ? iconDepth(q.slug) : 1;
     const base = this.getAttribute("transform") || "";
+    const b = this.getBoundingClientRect();
+    if (!b.width) return;
+    const cx = (b.x + b.width / 2 - cb0.x) / sc0, cy = (b.y + b.height / 2 - cb0.y) / sc0;
+    const n = Math.exp(-(((cx - px) ** 2 + (cy - py) ** 2) / (near * near)));
+    const dz = q?.slug ? (iconDepth(q.slug) - 1) / (PARALLAX.variation || 1) : 0;
+    const share = Math.max(0.08, Math.min(0.5, DOLLY_ICON_SHARE[0] + DOLLY_ICON_SHARE[1] * n + 0.05 * dz));
+    const s = growNow ** share;
+    const tx = px + (cx - px) * s, ty = py + (cy - py) * s;
     this.__dollyBase = base;
-    this.__dollyApplied = `${about(1 / (1 + iconFall * (1 + (depth - 1) * 4) * k))} ${base}`;
+    this.__dollyApplied = `translate(${tx.toFixed(2)},${ty.toFixed(2)}) scale(${s.toFixed(4)}) translate(${(-cx).toFixed(2)},${(-cy).toFixed(2)}) ${base}`;
     this.setAttribute("transform", this.__dollyApplied);
     this.setAttribute("filter", "url(#dolly-fi)");   // (no picture is screen-blended any more: src/luminous-art.js)
   });
@@ -3556,6 +3614,11 @@ function setDolly(d) {
   dollyMaskRect.attr("x", fe).attr("y", fe).attr("width", Math.max(0, cw - 2 * fe)).attr("height", Math.max(0, ch - 2 * fe));
   dMid.attr("mask", "url(#dolly-mid-mask)");
   lAxesWrap.style("opacity", (1 - k).toFixed(3));
+  // the pictures' shadows and halos stay in the chart's depth while the pictures come
+  // forward: they go before the two part
+  _haloDolly = 1 - ease(k / 0.12);
+  lShadows.style("opacity", _haloDolly.toFixed(3));
+  lNarrGuides.selectAll("circle.narr-halo").attr("opacity", haloOpacity);
   // the object: a copy of its picture group, grown about its point
   dFocus.selectAll("*").remove();
   if (!group) return;
@@ -3567,7 +3630,7 @@ function setDolly(d) {
   group.style.visibility = "hidden"; _dollyHidden = group;
 }
 
-function setIconHover(o, on, grow = null) {
+function setIconHover(o, on, grow = null, instant = false) {
   const iconEl = lIcons.select(`.obj-icon[data-slug="${o.slug}"]`);
   if (!iconEl.size()) return false;
   const base = effectiveIconSize() * iconSizeMult(o);
@@ -3580,7 +3643,7 @@ function setIconHover(o, on, grow = null) {
     const current=node.__data__,g=d3.select(node),size=effectiveIconSize()*iconSizeMult(current);
     g.select('.obj-icon').style('transform',growth===1?null:`scale(${growth})`);
     g.attr('transform',parallaxTranslation(current,objectPicturePoint(current,growth)));
-  },_reduceMotion);
+  },_reduceMotion || instant);
   liftShadow(o.slug, k);
   return true;
 }
@@ -5083,6 +5146,7 @@ let _animSpeed = 1; // global animation-speed multiplier (Z slower / X faster)
 let _dotSizeMult = 1;    // moving-dot size multiplier (settings slider)
 let _dotOpacityMult = 1; // moving-dot opacity multiplier (settings slider)
 let _dotFixedR = null;    // moving-dot radius in px, overriding the paths' own sizes (narration)
+let _dotBoostKey = "";    // the lit paths (narration's setDotBoost), to redraw when they change
 
 function pauseAnimOnInteract() {
   if (_animDisabled) return;
@@ -5221,6 +5285,11 @@ function compositionPath(part, whole, pos, wpos) {
     _into: whole,
     description: `${whole} is made of ${joinList(COMPOSITION[whole])}`,
     points: [A, B],
+    // a gentle arc, every one: the S-curve's control points sit past its ends, so a nearly level
+    // line (a nucleus into its atom) overshot and came back, a long one (DNA up into a bacterium)
+    // set off downwards, and short ones (the atoms into water) swung round in big turns (the
+    // author, 2026-10-29: "a small curve, but not like this")
+    curve: "arc", bow: 0.08,
     zoomRange: [6, 800],
     neighborhood: {
       x: [Math.min(A.logR, B.logR) - 1, Math.max(A.logR, B.logR) + 1],
@@ -5392,6 +5461,7 @@ function drawConnections() {
   const lineW = (cp) => cp.style.lineWidth * (_posterArrows ? 1.4 : narrWave(cp) ? 1.8 : 1);
   _connPaths.forEach(cp => {
     cp._opacity = _posterArrows ? 1 : connectionOpacity(cp, view);
+    if (cp._boost) cp._opacity = Math.max(cp._opacity, 0.9);   // a video's lit path shows at any zoom
     cp._visible = cp._opacity > 0.01;
     cp._lineGroup = null;
 
@@ -5633,7 +5703,9 @@ function animateConnections(timestamp) {
 
       el.setAttribute("cx", String(sx));
       el.setAttribute("cy", String(sy));
-      el.setAttribute("r", String((_dotFixedR ?? cp.style.dotSize * _dotSizeMult) * sizeFactor));
+      // a video's lit path: its dots grow (and brighten) along the lit stretch
+      const bst = cp._boost, lit = bst && t >= bst.t0 - 0.01 && t <= bst.t1 + 0.01 ? bst.k : 1;
+      el.setAttribute("r", String((_dotFixedR ?? cp.style.dotSize * _dotSizeMult) * sizeFactor * lit));
 
       const edgeFade = Math.min(t / 0.04, (1 - t) / 0.04, 1);
 
@@ -5644,7 +5716,7 @@ function animateConnections(timestamp) {
           ? emSpectrumColor(t)
           : (cp.style.color || "rgba(255,255,255,0.5)");
         el.setAttribute("fill", color);
-        el.setAttribute("opacity", String(Math.min(1, cp._opacity * 0.6 * opacityMult * edgeFade * _dotOpacityMult)));
+        el.setAttribute("opacity", String(Math.min(1, cp._opacity * 0.6 * opacityMult * edgeFade * _dotOpacityMult * (1 + (lit - 1) * 0.6))));
       }
     });
   });
@@ -5757,8 +5829,7 @@ let _bgTilesEnabled = true;
 // controls); ?bgnoise / ?bgnoise=0 override the saved choice. Narrations
 // (?narrate) default it on at full resolution; the site defaults it off and,
 // when enabled, renders at half resolution (~4× cheaper on the GPU).
-const _bgNoiseNarr = new URLSearchParams(location.search).has("narrate") ||
-  import.meta.env.MODE === "narration-preview";
+const _bgNoiseNarr = new URLSearchParams(location.search).has("narrate") || NARR_PREVIEW;
 const BG_NOISE_DEFAULT_ON = _bgNoiseNarr;
 const BG_NOISE_PROFILE = _bgNoiseNarr ? {} : { res: 0.5 };
 const BG_NOISE_ON_AT = 1, BG_NOISE_OFF_AT = 0.7; // css px per source px (tiles run out at 1)
@@ -5768,6 +5839,10 @@ let _bgNoiseSurface = null;
 let _bgNoiseShown = false;    // currently replacing the tiles
 let _bgNoiseArmed = _bgNoiseNarr; // site: not at startup, only after the first zoom
 let _bgNoiseFadeTimer = 0;
+let _bgNoiseFadeEnd = null;   // the crossfade's last step, run early by bgNoiseSettle
+let _bgNoiseT = null;         // narration: the audio time the clouds evolve by (bgNoiseTime)
+let _bgNoiseFailed = "";      // why the layer couldn't run (no WebGL2), for the renderer's log
+let _bgNoiseLost = 0;         // GL contexts lost (the layer rebuilt), for the renderer's log
 let _bgNoiseWanted = _bgNoiseUrl !== null ? _bgNoiseUrl !== "0" : BG_NOISE_DEFAULT_ON;
 let _bgNoiseMod = null;
 const loadBgNoise = () => (_bgNoiseMod ??= import("./bg-noise.js").then(m => { m.applyNoiseProfile(BG_NOISE_PROFILE); return m; }));
@@ -5807,20 +5882,34 @@ function setBgNoiseBackdrop(noise) {
     svg.select("rect.svg-bg").attr("fill", on ? "#000000" : "none");
     clip.select("rect.bg-rect").attr("display", on ? null : "none");
   };
+  const end = (fn) => { _bgNoiseFadeEnd = fn; _bgNoiseFadeTimer = setTimeout(() => { _bgNoiseFadeEnd = null; fn(); }, 520); };
   if (noise) {
     backdrops(false);
     tiles.forEach(l => l.style("transition", "opacity 0.5s").style("opacity", 0));
-    _bgNoiseFadeTimer = setTimeout(() => tiles.forEach(l => l.style("display", "none")), 520);
+    end(() => tiles.forEach(l => l.style("display", "none")));
   } else {
     tiles.forEach(l => l.style("display", null));
     lTiles.node().getBoundingClientRect(); // commit display before fading back in
     tiles.forEach(l => l.style("opacity", 1));
-    _bgNoiseFadeTimer = setTimeout(() => {
+    end(() => {
       tiles.forEach(l => l.style("transition", null).style("opacity", null));
       backdrops(true);
-    }, 520);
+    });
   }
 }
+/** Narration: draw the layer now for audio time t (its clouds evolve by t). */
+function bgNoiseTime(t) {
+  _bgNoiseT = t;
+  _bgNoise?.draw();
+}
+/** Narration seek / a render's first frame: finish a running crossfade at once, so a
+ *  render worker starting deep in a zoom shows the layer as a player that got there would. */
+function bgNoiseSettle() {
+  if (_bgNoiseFadeEnd) { clearTimeout(_bgNoiseFadeTimer); const fn = _bgNoiseFadeEnd; _bgNoiseFadeEnd = null; fn(); }
+  document.querySelectorAll(".bgnoise-canvas").forEach(c => c.getAnimations().forEach(a => { try { a.finish(); } catch { /* idle */ } }));
+}
+/** 1 while the layer should be up but isn't drawn yet (module, tiles), for a render to wait on. */
+const bgNoisePending = () => (_bgNoiseShown && (!_bgNoise || _bgNoise.pending()) ? 1 : 0);
 
 /** Show the layer when enabled and zoomed past the tiles (with hysteresis). */
 async function syncBgNoise() {
@@ -5849,16 +5938,21 @@ async function syncBgNoise() {
         .style("position", "relative").style("width", "100%").style("height", "100%").node();
     }
     _bgNoise = createBgNoise({
-      host, meta: tileMeta, getView: bgNoiseView,
+      host, meta: tileMeta, getView: bgNoiseView, getTime: () => _bgNoiseT,
       onShown: () => { if (_bgNoiseShown) setBgNoiseBackdrop(true); },
       onLost: () => {   // back to the tiles at once; the next zoom past them builds it anew
+        _bgNoiseLost++; console.warn("Fractal background: WebGL context lost");
         _bgNoise?.destroy(); _bgNoise = null; _bgNoiseSurface?.remove(); _bgNoiseSurface = null;
         if (_bgNoiseShown) { _bgNoiseShown = false; setBgNoiseBackdrop(false); }
       },
     });
-    if (!_bgNoise) { _bgNoiseSurface?.remove(); _bgNoiseSurface = null; _bgNoiseShown = false; setBgNoise(false); return; } // no WebGL2
+    if (!_bgNoise) { // no WebGL2
+      _bgNoiseFailed = "no WebGL2"; console.warn("Fractal background off: no WebGL2");
+      _bgNoiseSurface?.remove(); _bgNoiseSurface = null; _bgNoiseShown = false; setBgNoise(false); return;
+    }
   }
   _bgNoise.setVisible(true);
+  _bgNoise.draw();
 }
 
 function drawTiles() {
@@ -6029,6 +6123,14 @@ async function loadTileMeta() {
 // =============================================================
 
 function redraw() {
+  // mid-gesture (a video's cue redrawing while its camera moves) the tiles are drawn for this
+  // view, so the gesture's CSS offset starts again from here: left on, it pushed the fresh
+  // tiles off by the whole move so far and the painting went black (video 4, 2026-10-30)
+  if (_zooming && _zoomPrevTransform) {
+    _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
+    lTiles.attr("transform", null);
+    lTilesBase.attr("transform", null);
+  }
   syncBgNoise();
   drawBaseTiles();
   drawTiles();
@@ -8454,6 +8556,9 @@ if (_ogShot) {
        *  multiplier, an opacity multiplier, or a fixed radius in px. */
       /** Fade the background painting at zooms deeper than its resolution (videos). */
       setBgFadeDeep(on = true) { _bgFadeDeep = on; drawTiles(); },
+      /** The fractal background (bg-noise.js): its clock, a crossfade cut short, whether it's still loading. */
+      bgNoiseTime, bgNoiseSettle, bgNoisePending,
+      bgNoiseStatus: () => ({ wanted: _bgNoiseWanted, shown: _bgNoiseShown, failed: _bgNoiseFailed, lost: _bgNoiseLost }),
       /** Object labels on or off (videos: a quiet closing shot). */
       setLabels(on = true) {
         // off also hides the chart's other text (band and path names) for a clean shot
@@ -8461,6 +8566,27 @@ if (_ogShot) {
         if (_labelsEnabled !== on) { _labelsEnabled = on; redraw(); }
       },
       setDots({ size = 1, opacity = 1, radius = null } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; _dotFixedR = radius; },
+      /** Connection paths (the moving dots' curves) for a video to highlight: every path
+       *  whose id or whole (`_into`, what it builds) is in `sel`, sampled at n + 1 points
+       *  along its curve, chart-local px: [{ id, family, color, into, pts: [[x, y], …] }]. */
+      /** A lit path's own moving dots bigger and brighter (videos): [{ idx (from connPaths),
+       *  t0?, t1? (the stretch, 0–1 along it), k (radius factor) }]; [] for none. The paths
+       *  are kept visible at any zoom while lit. */
+      setDotBoost(list = []) {
+        if (!_connPaths) return;
+        const key = list.map(b => b.idx).sort().join(",");
+        for (const cp of _connPaths) cp._boost = null;
+        for (const b of list) if (_connPaths[b.idx]) _connPaths[b.idx]._boost = { t0: b.t0 ?? 0, t1: b.t1 ?? 1, k: b.k };
+        if (key !== _dotBoostKey) { _dotBoostKey = key; redraw(); }
+      },
+      connPaths(sel, n = 96) {
+        if (!_connPaths) return [];
+        const want = new Set([].concat(sel));
+        return _connPaths.map((cp, idx) => [cp, idx]).filter(([cp]) => want.has(cp.id) || want.has(cp._into)).map(([cp, idx]) => ({
+          idx, id: cp.id, family: cp.family, color: cp.style.color, into: cp._into,
+          pts: Array.from({ length: n + 1 }, (_, i) => getPathScreenPos(cp, i / n)),
+        }));
+      },
       /** Only these objects keep their picture (the rest are plain dots over
        *  the dust); null for all of them. */
       /** Catalogue pictures in a video, without their names. */
@@ -8485,11 +8611,43 @@ if (_ogShot) {
         const b = el.getBoundingClientRect();
         return b.width ? { x: b.x, y: b.y, w: b.width, h: b.height } : null;
       },
+      /** Start downloading the pictures of these objects (names) at about cssSize, so a video
+       *  doesn't reach an object before its picture has arrived (phones on a slow network). */
+      prefetchIcons(names, cssSize = 120) {
+        for (const name of new Set(names)) {
+          const o = OBJECTS.find(p => p.name === name);
+          const url = o && iconUrlForSize(o.slug, cssSize);
+          if (url) { const im = new Image(); im.decoding = "async"; im.src = url; }
+        }
+      },
+      /** The file an object's (or catalogue dot's) picture is drawn from now, or null. */
+      iconHref(name) {
+        const o = _lastProjected.find(p => p.name === name), d = !o && dustIcons().find(p => p.name === name);
+        const el = o ? lIcons.select(`.obj-icon[data-slug="${o.slug}"]`).node()
+          : d ? lIcons.selectAll("g.dust-picture").filter(p => p.i === d.i).select(".dn-icon").node() : null;
+        return el?.getAttribute("href") || null;
+      },
+      /** A video's close-up on one picture (the narration's `trace`): every layer of the chart
+       *  but the grid, the density diagonals (water, air) and the catalogue dots fades by
+       *  `amount` (0–1), the other pictures too; `keep` (a name) keeps its picture, drawn at
+       *  `keepOpacity`. Called every frame while it's on; amount 0 puts everything back. */
+      setIsolate(amount = 0, keep = null, keepOpacity = 1) {
+        const on = amount > 0.001 || keepOpacity < 0.999, o = amount > 0.001 ? (1 - amount).toFixed(3) : null;
+        [lRegion, lTriOverlay, lBound, lBigBangEras, lEnergyBands, lDarkMatter, lArrows, lConnDots, lRegLabel,
+          lShadows, lDustHover, lObj, lHighlight, lCompose, lAxisRef, lWaterPhase, lLabels].forEach(l => l.style("opacity", o));
+        const ob = on && keep && _lastProjected.find(p => p.name === keep), d = on && keep && !ob && dustIcons().find(p => p.name === keep);
+        const kept = ob ? lIcons.select(`.obj-icon[data-slug="${ob.slug}"]`).node()?.closest("g.icon-g")
+          : d ? lIcons.selectAll("g.dust-picture").filter(p => p.i === d.i).node() : null;
+        lIcons.selectAll(":scope > g").style("opacity", function () {
+          return this === kept ? (keepOpacity < 0.999 ? Math.max(0, keepOpacity).toFixed(3) : null) : o;
+        });
+      },
       /** Grow an object's picture like the hover does, by k (1 restores it); false if it has none drawn. */
-      growIcon(name, k = 1) {
-        // "hover": the app's own hover growth (to ≥ 64 px or 1.5×)
+      growIcon(name, k = 1, instant = false) {
+        // "hover": the app's own hover growth (to ≥ 64 px or 1.5×). instant: this size now,
+        // no 240 ms ease, smaller than 1 too (a video's frame-by-frame pop)
         const o = _lastProjected.find(p => p.name === name);
-        if (o) return setIconHover(o, k === "hover" || k > 1, k === "hover" ? null : k);
+        if (o) return setIconHover(o, k === "hover" || (instant ? k !== 1 : k > 1), k === "hover" ? null : k, instant);
         const d = dustIcons().find(p => p.name === name);
         if (!d) return false;
         const f = k === "hover" ? Math.max(64, 3 * d.r) / (2 * d.r) : k;
@@ -8502,6 +8660,8 @@ if (_ogShot) {
       setDolly(d) { setDolly(d); },
       /** Always the largest resolution of each picture (videos), then redraw. */
       setIconMaxRes(on = true) { setIconMaxRes(on); redraw(); },
+      /** Draw objects with another picture for a while (videos): { slug: icon file }, or null. */
+      setIconSwap(map) { setIconSwap(map); redraw(); },
       /** Guide lines in the chart, under the pictures: [{ x1, y1, x2, y2, color, opacity }]
        *  in chart-local px (the narration converts from its own layer). */
       drawGuides(lines = []) {
@@ -8511,10 +8671,18 @@ if (_ogShot) {
           .attr("opacity", d => d.opacity ?? 0.55);
       },
       /** Highlighted lines drawn under the pictures (videos): [{ d, color, width, opacity, dash }], chart-local px. */
-      drawUnderLines(lines = []) {
-        lNarrGuides.selectAll("path.narr-under").data(lines).join("path").attr("class", "narr-under")
+      drawUnderLines(lines = [], dots = []) {
+        // `halo: true`: a lit path's glow, drawn like the named objects' halo: a wide
+        // lavender stroke, blurred, in two overlay passes (one fainter plain pass in Safari)
+        const all = lines.flatMap(d => !d.halo ? [d] : _isWebKit ? [{ ...d, opacity: d.opacity * 0.3 }] : [d, d]);
+        lNarrGuides.selectAll("path.narr-under").data(all).join("path").attr("class", "narr-under")
           .attr("d", d => d.d).attr("fill", "none").attr("stroke", d => d.color).attr("stroke-width", d => d.width)
-          .attr("opacity", d => d.opacity).attr("stroke-linecap", "round").attr("stroke-dasharray", d => d.dash);
+          .attr("opacity", d => d.opacity).attr("stroke-linecap", "round").attr("stroke-dasharray", d => d.dash)
+          .attr("filter", d => d.halo ? "url(#narr-line-halo)" : null)
+          .style("mix-blend-mode", d => d.halo && !_isWebKit ? "overlay" : null);
+        lNarrGuides.selectAll("circle.narr-under-dot").data(dots).join("circle").attr("class", "narr-under-dot")
+          .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", d => d.r).attr("fill", d => d.color).attr("opacity", d => d.opacity)
+          .raise();
       },
       /** Light blue halos behind named objects (videos): [{ x, y, r, opacity }] in chart-local px. */
       drawHalos(halos = []) {
@@ -8522,7 +8690,7 @@ if (_ogShot) {
         // Safari draws SVG overlay as a plain fill (a white blot): one fainter plain pass there
         lNarrGuides.selectAll("circle.narr-halo").data(_isWebKit ? halos : halos.flatMap(d => [d, d])).join("circle").attr("class", "narr-halo")
           .attr("cx", d => d.x).attr("cy", d => d.y).attr("r", d => d.r)
-          .attr("fill", "url(#narr-halo-fade)").attr("opacity", d => d.opacity * (_isWebKit ? 0.3 : 0.7))
+          .attr("fill", "url(#narr-halo-fade)").attr("opacity", haloOpacity)
           .style("mix-blend-mode", _isWebKit ? null : "overlay");
       },
       /** Catalogue names on or off in a video (they're off by default there). */
@@ -8536,7 +8704,12 @@ if (_ogShot) {
       setDollyOpacity(v = 1) { dFocus.style("opacity", v < 0.999 ? v.toFixed(3) : null); },
       /** Pictures that show even where a nearer one would hide them (videos): names, or null. */
       setIconForce(names) { _iconForce = names?.length ? new Set(names) : null; redraw(); },
+      setIconFirst(names) { _iconFirst = names?.length ? new Set(names) : null; redraw(); },
       setIconHide(names) { _iconHide = names?.length ? new Set(names) : null; redraw(); },
+      /** Pictures of things from log r `from` up drawn k× larger (videos): { from, k }, or null. */
+      setIconBoost(b) { _iconBoost = b?.k && b.k !== 1 ? { from: b.from ?? 18, k: b.k } : null; redraw(); },
+      /** Objects whose own chart label never shows (videos): names, or null. */
+      setLabelHide(names) { _labelHide = names?.length ? new Set(names) : null; redraw(); },
       /** Settings → Icons for a video (0–100, 100 = many), without saving it. */
       setIconDensity(d = ICON_DENSITY_DEFAULT) { if (_iconDensity !== d) { _iconDensity = d; _iconsEnabled = d > 0; redraw(); } },
       /** Icon size in percent of the app's default (videos), without saving it. */

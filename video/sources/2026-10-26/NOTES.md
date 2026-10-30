@@ -66,6 +66,23 @@ The new parts:
   self-gravity crushes the body round (hydrostatic equilibrium). Strictly, "dominates its
   shape": gravity still holds a small asteroid together as a pile, it just can't reshape it.
 
+### Clean-up, 2026-10-28
+
+Re-checked the cut clip by clip with Whisper (medium.en, a filler-friendly prompt, word timestamps) and the energy between words. No false starts, repeated words or ums are left. Five pauses
+the PAUSES cap had missed (a breath or a one-frame blip of room noise kept them over the silence
+threshold, so they weren't counted as one pause) are cut down with build.py's new `cut` spans
+(times in the raw recording):
+- "falls along this diagonal line, | and it's not hard" (0:36): 0.66 s → about 0.2 s (`cut` 36.20–36.60)
+- "the Eiffel Tower is | somewhat a fractal" (4:56): 0.42 s → about 0.16 s (296.72–296.98)
+- "both categories. | Above that" (5:44): 1.3 s of dead air → about 0.55 s (344.50–345.90)
+- "the force holding matter in shape was | the chemical bonds" (6:01): 0.42 s → about 0.18 s (361.62–361.86)
+- "so high that | electrons get squeezed" (7:51): 0.36 s → about 0.2 s (471.32–471.48)
+
+The take is 4:19 now (260.2 → 258.6 s), still at natural speed with the 2026-10-26 test
+treatment (80 Hz high-pass, one gain to a −1 dBFS peak). Captions: the corrected words were
+carried over from the old words.json onto the new transcription (`video/tools/transfer-captions.py`);
+no words changed. Every cue resolves.
+
 ## rec34: "New hook.m4a" (video 1)
 
 This is in the Google Drive "Recordings" folder: 5:00, AAC mono. It's a full run of the new hook script with

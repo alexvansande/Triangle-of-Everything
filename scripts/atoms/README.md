@@ -109,6 +109,11 @@ Only Oganesson (²⁹⁴Og: 118 p + 176 n) is unrendered — outside the "up to
 Uranium" scope. Adding it is one more section in `composite.mjs` with a
 bigger canvas; the adaptive `packPositions` already auto-sizes the cluster.
 
+> **Superseded (2026-10-29):** the chart's atoms and small molecules are now rendered from the
+> Hopf model (`public/hopf/hopf-core.js`, `scripts/hopf-icons.mjs --sidebar`), and the big molecules
+> go through `scripts/genai/` (Hopf style references + Protein Data Bank diagrams + prompts).
+> This folder is kept for the record.
+
 ## Complex molecules — AI image generation
 
 Glucose, ATP, the DNA bases (Adenine, Guanine, Cytosine, Thymine), DNA,

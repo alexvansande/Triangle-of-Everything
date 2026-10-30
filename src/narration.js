@@ -23,10 +23,11 @@
 
 import { blackHoleFilter } from "./black-hole-palette.js";
 import * as d3 from "d3";
+import { iconUrls } from "./assets.js";
 import {
   HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
-  RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES,
+  RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES, PHOTON_LAMBDA_OFFSET,
 } from "./data.js";
 import { narrClassic, classicFrameClient, classicAxisNumbers, classicRect, classicScreen, classicFullView } from "./classic.js";
 // Scene scripts, one per file in ./narration-scenes/ (lazy chunks)
@@ -69,6 +70,11 @@ const LINES = {
   chandrasekhar: { pts: REFERENCE_LINES.find(l => l.label.startsWith("Chandrasekhar")).points.map(p => [p.logR, p.logM]), color: "#90caf9" },
   tov:           { pts: REFERENCE_LINES.find(l => l.label.startsWith("TOV")).points.map(p => [p.logR, p.logM]), color: "#ff8a80" },
 };
+// the cosmic event horizon (16.7 billion ly comoving today), drawn like the Hubble line a
+// little to its right, up to where a sphere of the universe's mean density that big sits
+// (drawn top down, so its name sits on its right, clear of the Hubble line)
+const EH_LOG_R = Math.log10(16.7e9 * 9.4607e17);
+LINES.eventhorizon = { pts: [[EH_LOG_R, densityLineM(EH_LOG_R, -29.05)], [EH_LOG_R, comptonM(EH_LOG_R)]], color: "#ffab40" };
 LINES.triangle = { pts: [...LINES.schwarzschild.pts, [H, comptonM(H)], LINES.schwarzschild.pts[0]], color: "#ffffff" };
 
 // ---------- scene resolution: phrases → times ----------
@@ -174,6 +180,8 @@ export async function startNarration(app) {
   app.setIconDensity?.(SCENE.iconDensity ?? 60);   // a little over standard: pictures keep clear of each other
   app.setIconForce?.(SCENE.forceIcons ?? null);   // pictures shown even where a nearer one would hide them
   app.setIconHide?.(SCENE.hideIcons ?? null);     // pictures never shown in this scene
+  app.setIconBoost?.(SCENE.iconBoost ?? null);    // { from: log r, k }: pictures of the big things k× larger
+  app.setLabelHide?.(SCENE.hideLabels ?? null);   // objects whose own chart label never shows
   app.setIconMaxRes?.(true);   // grown pictures stay sharp
   // a scene that tells the primordial black hole window itself hides the map's
   // ready-made one, so no label shows before it's been talked about
@@ -207,7 +215,12 @@ export async function startNarration(app) {
   // cam.glide: a waypoint of one continuous pan. The camera passes through each
   // glide point at its cue's time on a smooth (Catmull-Rom) curve, never holding,
   // instead of flying and stopping at each one.
-  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam), dur: c.dur, drift: c.drift ?? 0.05,
+  // dur: "end" flies until the end card has covered the picture (it fades in over
+  // speechEnd + 0.15…0.65 s); ease: "gentle" (sine) keeps a long move
+  // close to an even pace instead of the default cubic's slow-fast-slow
+  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam),
+    dur: c.dur === "end" ? speechEnd + (CREDITS ? 0.65 : 0) - c.time : c.dur, drift: c.drift ?? 0.05,
+    ease: c.ease === "gentle" ? d3.easeSinInOut : d3.easeCubicInOut,
     quiet: !!c.quiet, glide: !!c.cam.glide, whip: !!c.cam.whip, overshoot: c.cam.overshoot }))
     .filter(k => k.to);
   for (let i = 0; i < keys.length; i++) {
@@ -242,7 +255,7 @@ export async function startNarration(app) {
     }
     if (t < k.end) {
       const p = clamp01((t - k.t) / k.dur);
-      const [r, m, span] = k.interp(k.whip ? p : d3.easeCubicInOut(p));
+      const [r, m, span] = k.interp(k.whip ? p : k.ease(p));
       return { r, m, span, phase: "fly" };
     }
     const next = keys[i + 1]?.t ?? k.end + 20;
@@ -287,8 +300,29 @@ export async function startNarration(app) {
     const prev = highlights.find(q => q !== h && (h.obj ? q.obj === h.obj : q.line === h.line) && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
     h.since = prev ? prev.since : h.t0;
   }
+  // (and a cross read off the axes again doesn't draw its guides out again)
+  for (const h of highlights) if (h.cross) {
+    const key = JSON.stringify([h.cross, h.mass, h.size]);
+    const prev = highlights.find(q => q !== h && q.cross && JSON.stringify([q.cross, q.mass, q.size]) === key && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
+    h.since = prev ? prev.since : h.t0;
+  }
+  // (and a lit path named again doesn't draw itself on again)
+  for (const h of highlights) if (h.path) {
+    const key = JSON.stringify([h.path, h.from, h.to]);
+    const prev = highlights.find(q => q !== h && q.path && JSON.stringify(q.path) === key && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
+    h.since = prev ? prev.since : h.t0;
+  }
   // the water line lies under the pictures, except its first mention: brighter and
   // thicker over them for WATER_GLOW s, then down to its place (drawLine)
+  // a `trace` told over consecutive cues (the same picture, each cue the next step) is one run:
+  // the close-up holds from its first cue to the end of its last (drawTraces)
+  const traceRuns = [];
+  // (`trace: "name"` is the outline close-up; a window's `trace: [lo, hi]` is only its faint line)
+  const isTrace = (h) => typeof h.trace === "string";
+  for (const h of highlights) if (isTrace(h)) {
+    const run = traceRuns.find(r => r.name === h.trace && Math.abs(r.t1 - h.t0) < 0.05);
+    if (run) { run.items.push(h); run.t1 = h.t1; } else traceRuns.push({ name: h.trace, t0: h.t0, t1: h.t1, items: [h] });
+  }
   const firstWater = highlights.find(h => h.line === "water")?.t0;
   const WATER_GLOW = 2;
 
@@ -302,7 +336,7 @@ export async function startNarration(app) {
   // (the scene's `alsoIcons` join the default set after the named ones: pictures it
   // wants first on screen without naming them)
   const sceneIcons = Array.isArray(SCENE.icons) ? SCENE.icons : [...new Set([
-    ...cues.flatMap(c => (c.hl || []).flatMap(h => [h.obj, h.spot, h.arrow && h.from?.obj, h.arrow && h.to?.obj].filter(Boolean))),
+    ...cues.flatMap(c => (c.hl || []).flatMap(h => [h.obj, h.spot, typeof h.trace === "string" && h.trace, h.arrow && h.from?.obj, h.arrow && h.to?.obj].filter(Boolean))),
     ...cues.flatMap(c => [c.dive && c.obj, c.dolly && (c.dolly.obj || c.dolly)].filter(n => typeof n === "string")),
     ...(SCENE.alsoIcons || [])])];
   const iconCues = cues.filter(c => c.icons !== undefined);
@@ -316,7 +350,17 @@ export async function startNarration(app) {
     const fill = v === true;
     const key = (names ? names.join("|") : "*") + (fill ? "+" : "");
     if (key !== iconsNow) { iconsNow = key; app.setIcons?.(names, fill); app.setDustFill?.(fill); }
+    // a cue's `forceIcons` / `hideIcons` / `hideLabels` / `firstIcons` replace the scene's from that cue on (null: the scene's
+    // again): the 1 mL ball hidden until it's talked about, the animals put first (video 2)
+    for (const [k, set, now] of [["forceIcons", app.setIconForce, iconForceNow], ["hideIcons", app.setIconHide, iconHideNow], ["hideLabels", app.setLabelHide, labelHideNow], ["firstIcons", app.setIconFirst, iconFirstNow]]) {
+      let v = SCENE[k] ?? null;
+      for (const c of cues) if (c[k] !== undefined && c.time <= t) v = c[k] ?? SCENE[k] ?? null;
+      const key = v ? v.join("|") : "";
+      if (key !== now.key) { now.key = key; set?.(v); }
+    }
   }
+  const iconForceNow = { key: (SCENE.forceIcons ?? []).join("|") }, iconHideNow = { key: (SCENE.hideIcons ?? []).join("|") },
+    labelHideNow = { key: (SCENE.hideLabels ?? []).join("|") }, iconFirstNow = { key: (SCENE.firstIcons ?? []).join("|") };
 
   // ---------- object focus: a cue's `focus: [names]` fades every other object from then
   // on (to FOCUS_FADE, over 0.6 s), `focus: false` brings them back ----------
@@ -334,6 +378,16 @@ export async function startNarration(app) {
     else app.setObjectFocus?.(null);
   }
 
+  // ---------- picture density: a cue's `density` (Settings → Icons, 0–100+; above 100 the
+  // pictures may overlap more) from then on, `density: null` back to the scene's ----------
+  const densityCues = cues.filter(c => c.density !== undefined);
+  function applyDensity(t) {
+    if (!densityCues.length) return;
+    let v = null;
+    for (const c of densityCues) if (c.time <= t) v = c.density;
+    app.setIconDensity?.(v ?? SCENE.iconDensity ?? 60);
+  }
+
   // ---------- object labels: a cue's `labels: false` hides them from then on ----------
   const labelCues = cues.filter(c => c.labels !== undefined);
   let labelsNow;
@@ -349,6 +403,53 @@ export async function startNarration(app) {
   const OVERLAY_FADE = 0.4;
   const overlays = ["periodic", "spectrum"].map(key => ({ key, set: key === "periodic" ? "setPeriodic" : "setSpectrum",
     cues: cues.filter(c => c[key] !== undefined).map(c => ({ on: !!c[key], t: c[key] && keys.find(k => k.t === c.time)?.end || c.time })) }));
+  // ---------- swapped pictures: `swap: { "Cow": "cow-spherical" }` from a cue on (an object
+  // drawn with another icon file's picture), `swap: false` back to its own ----------
+  // `pop: true` on a swap cue: the picture pops into its new one (shrinks, swaps at its
+  // smallest, springs back past its size and settles), with a ring bursting out of it
+  const swapCues = cues.filter(c => c.swap !== undefined);
+  const POP_SWAP = 0.14, POP_END = 1.2;
+  const swapAt = (c) => c.time + (c.pop ? POP_SWAP : 0);
+  const popScale = (u) => u < 0 || u >= POP_END ? 1
+    : u < POP_SWAP ? 1 - 0.45 * d3.easeQuadIn(u / POP_SWAP)
+    : 1 - 0.45 * Math.exp(-3.4 * (u - POP_SWAP)) * Math.cos(13 * (u - POP_SWAP));
+  let swapNow = "";
+  const popping = new Set();
+  function applySwap(t) {
+    let map = null;
+    for (const c of swapCues) if (swapAt(c) <= t) map = c.swap || null;
+    const slugs = map && Object.fromEntries(Object.entries(map).map(([name, file]) => [objByName.get(name)?.slug, file]).filter(([s]) => s));
+    const key = JSON.stringify(slugs);
+    if (key !== swapNow) { swapNow = key; app.setIconSwap?.(slugs); }
+    const now = new Map();
+    for (const c of swapCues) if (c.pop && c.swap) for (const name of Object.keys(c.swap)) {
+      const k = popScale(t - c.time);
+      if (k !== 1) now.set(name, k);
+    }
+    for (const [name, k] of now) { app.growIcon?.(name, k, true); popping.add(name); }
+    for (const name of [...popping]) if (!now.has(name)) { popping.delete(name); app.growIcon?.(name, 1, true); }
+  }
+  /** The pop's ring: a white circle bursting out of the picture as it swaps. */
+  function drawPops(t) {
+    gPop.selectAll("*").remove();
+    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
+    for (const c of swapCues) if (c.pop && c.swap) for (const name of Object.keys(c.swap)) {
+      const u = (t - swapAt(c)) / 0.55;
+      if (u < 0 || u > 1) continue;
+      const box = app.iconRect?.(name), o = objByName.get(name);
+      if (!o) continue;
+      const x = box ? (box.x + box.w / 2 - lr.x) / scl : sx(o.logR), y = box ? (box.y + box.h / 2 - lr.y) / scl : sy(o.logM);
+      const r0 = box ? Math.max(box.w, box.h) / scl * 0.5 : 24, e = d3.easeCubicOut(u);
+      gPop.append("circle").attr("cx", x).attr("cy", y).attr("r", r0 * (0.9 + 1.4 * e)).attr("fill", "none")
+        .attr("stroke", "#fff").attr("stroke-width", 5 * (1 - u) + 0.5).attr("opacity", 0.9 * (1 - u));
+      for (let i = 0; i < 8; i++) {   // little rays, like a cartoon pop
+        const a = i * Math.PI / 4 + Math.PI / 8, ra = r0 * (1.25 + 1.3 * e), rb = r0 * (1.5 + 1.7 * e);
+        gPop.append("line").attr("x1", x + ra * Math.cos(a)).attr("y1", y + ra * Math.sin(a))
+          .attr("x2", x + rb * Math.cos(a)).attr("y2", y + rb * Math.sin(a))
+          .attr("stroke", "#ffe9a3").attr("stroke-width", 3).attr("stroke-linecap", "round").attr("opacity", 1 - u);
+      }
+    }
+  }
   function applyOverlays(t) {
     for (const o of overlays) {
       let a = 0;
@@ -389,7 +490,8 @@ export async function startNarration(app) {
     for (const p of pins) o = Math.max(o, smooth((t - p.t0) / 0.4) * (1 - smooth((t - p.t1) / 0.9)));
     // an object's guides point at the rulers, so the rulers come up with them
     for (const h of guided) o = Math.max(o, smooth((t - h.t0) / 0.4) * (1 - smooth((t - h.t1) / 0.9)));
-    return o * (1 - clamp01(classicOpacity(t) * 2));
+    // (and never over the spectrum explorer: it has no chart axes)
+    return o * (1 - clamp01(classicOpacity(t) * 2)) * (1 - (specFrame ? specFrame(t).show : 0));
   }
 
   // ---------- DOM ----------
@@ -397,7 +499,7 @@ export async function startNarration(app) {
   layer.id = "narr-layer";
   if (!RENDER) layer.classList.add("live");     // the player's own UI (renders have none)
   const track = SCENE.backing && (typeof SCENE.backing === "string" ? SCENE.backing : SCENE.backing.track);
-  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-cover" hidden><img alt=""></div><div id="narr-photo"><div class="np-imgs"></div><div class="np-cap"></div></div><div id="narr-caption"></div>` + creditsHTML(track) +
+  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-clips"></div><div id="narr-cover" hidden><img alt=""></div><div id="narr-photo"><div class="np-imgs"></div><div class="np-cap"></div></div><div id="narr-caption"></div>` + creditsHTML(track) +
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
       <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div>
       <a id="narr-next" href="#" hidden></a>
@@ -416,23 +518,28 @@ export async function startNarration(app) {
   await document.fonts.load('700 38px "Barlow Condensed"').catch(() => {});
   const nsvg = d3.select("#narr-svg");
   const gUnits = nsvg.append("g").attr("class", "narr-units");
+  const gEnergy = nsvg.append("g").attr("class", "narr-units narr-energy");
   const hlClip = nsvg.append("clipPath").attr("id", "narr-hl-clip").append("rect");
   const gHl = nsvg.append("g").attr("class", "narr-hl");
   const gHlFree = nsvg.append("g").attr("class", "narr-hl-free"); // axis bands: never clipped
   const gGuides = nsvg.append("g").attr("class", "narr-guides");   // the guides' values, at the rulers
   const gSketch = nsvg.append("g").attr("class", "narr-sketch");   // line drawings over a dived picture: stay up while the chart dims
+  const gPop = nsvg.append("g").attr("class", "narr-pop");         // a swap cue's pop (drawPops)
   const capEl = document.getElementById("narr-caption");
 
   // ---------- photo cutaways ----------
   // { at, photo: "m87" | ["hyperion", "vesta", …], caption: "what · who · when", labels?: […],
   //   obj?: dot it grows from, dur?: s (6), fit?: "cover" | "contain", kb?: [scale from, to],
   //   focus?: [x, y] (0–1 in the image, where the Ken Burns push heads),
-  //   place?: true | width (fraction of the screen, default 0.78), fadeIn?: s,
+  //   place?: true | width (fraction of the screen, default 0.78), fadeIn?: s, row?: true (several
+//   pictures side by side, not stacked), labels?: [html under each], clip?: true (the pictures are
+//   short .mp4 videos playing from the cue: the Hopf atoms),
   //   lens?: { icon: [cx, cy, r], photo: [cx, cy, r], size: [w, h] }
   //        | { map: [ar, ai, br, bi], r, at?: [x, y], size: [w, h] }
   //        plus fill?: true | "cover", hold?: s (0.3), fillDur?: s (1.6) — then grow:
   //        true = the disc to the screen's width, "cover" = the whole photo upright, edge to edge;
-  //        turn?: 0–1, how much of the way upright a "cover" photo turns (default 1) }
+  //        turn?: 0–1, how much of the way upright a "cover" photo turns (default 1),
+  //        back?: s, a filled photo shrinks back onto the picture over its last `back` s before it fades }
   // A spot on the object + a photo with `lens` = a "dive" (video/plans/visual-rules.md §3),
   // the default way to show a real photo of something that has a picture on the chart.
   // `lens`: no cut. The photo fades in through a round window laid exactly over the
@@ -459,20 +566,28 @@ export async function startNarration(app) {
   // Then it goes back the same way over `out`. A photo with `lens` on the same object,
   // timed inside the hold, lands on the grown picture (video/plans/visual-rules.md §3).
   // "fill": the object grows to 40% of the screen's short side.
-  // A photo cue with `dive: { in?, out?, grow? }` is a whole dive in one cue: the dive
-  // starts at the cue, the photo fades in once everything behind has fully fallen
-  // back (in + 0.25 s), holds `dur`, fades out, and then the dive unwinds over `out`.
+  // A photo cue with `dive: { in?, out?, grow?, size?, photoAt?, under?, mirror? }` is a whole dive in one cue: the
+  // dive starts at the cue, the photo fades in once everything behind has fully fallen
+  // back (in + 0.25 s; or `photoAt` s after the cue, so it's already coming in during the
+  // approach), holds `dur`, fades out, and then the dive unwinds over `out`.
   const DIVE_IN = 2, DIVE_OUT = 3.5, DIVE_LEAD = 0.25;
-  const diveLead = (c) => c.dive ? (c.dive.in ?? DIVE_IN) + DIVE_LEAD : 0;
+  const diveLead = (c) => !c.dive ? 0 : c.dive.photoAt ?? (c.dive.in ?? DIVE_IN) + DIVE_LEAD;
   const dollies = [
     ...cues.filter(c => c.dolly).map(c => {
       const d = typeof c.dolly === "string" ? { obj: c.dolly } : c.dolly, tin = d.in ?? 2.4;
       return { ...d, t0: c.time, t1: c.time + tin + (c.dur ?? 4), tin, tout: d.out ?? 4 };
     }),
+    // `dive.under`: the dive unwinds behind its photo while it still fills the screen, so
+    // the chart is back to normal by the time the photo fades (no zoom back out to watch)
+    // `dive.mirror`: the way out is the way in played backwards: the photo fades back into the
+    // picture as the dive unwinds (the author, 2026-10-30: "one continuous movement… then the
+    // same movement the other way"); pair it with a lens that doesn't fill and `photoAt`
+    // inside the approach, so the photo comes in as the object comes forward
     ...cues.filter(c => c.photo && c.dive).map(c => {
-      const d = c.dive === true ? {} : c.dive, tin = d.in ?? DIVE_IN;
-      return { obj: c.obj, grow: d.grow, t0: c.time, tin, tout: d.out ?? DIVE_OUT,
-        t1: c.time + diveLead(c) + (c.dur ?? 6) + (c.fadeOut ?? PHOTO_OUT) };
+      const d = c.dive === true ? {} : c.dive, tin = d.in ?? DIVE_IN, tout = d.out ?? DIVE_OUT;
+      const held = c.time + diveLead(c) + (c.dur ?? 6);
+      return { obj: c.obj, grow: d.grow, size: d.size, t0: c.time, tin, tout,
+        t1: d.under ? Math.max(c.time + tin, held - tout) : held + (d.mirror ? 0 : c.fadeOut ?? PHOTO_OUT) };
     }),
   ];
   let dollyOn = false;
@@ -489,11 +604,11 @@ export async function startNarration(app) {
     marks.forEach(g => g.style("opacity", (1 - k).toFixed(3)));
     dollyOn = true;
   }
-  const photoUrl = (n) => `${import.meta.env.BASE_URL}narration/photos/${n}.jpg`;
+  const photoUrl = (n, clip) => `${import.meta.env.BASE_URL}narration/photos/${n}.${clip ? "mp4" : "jpg"}`;
   const photos = cues.filter(c => c.photo).map(c => ({ ...c, names: [].concat(c.photo),
     t0: c.time + diveLead(c), t1: c.time + diveLead(c) + (c.dur ?? 6) }));
   const photoImgs = new Map();
-  for (const p of photos) for (const n of p.names) if (!photoImgs.has(n)) {
+  for (const p of photos) for (const n of p.names) if (!p.clip && !photoImgs.has(n)) {
     const im = new Image(); im.decoding = "sync"; im.src = photoUrl(n); photoImgs.set(n, im);
   }
   // ---------- the opening cover (scene `cover: { src, size: [w, h], frame: [x0, y0, x1, y1],
@@ -573,13 +688,17 @@ export async function startNarration(app) {
     const SW = layer.clientWidth, SH = layer.clientHeight;
     if (photoShown !== p) {
       photoShown = p;
-      photoBox.className = "np-imgs" + (p.names.length > 1 ? " np-stack" : "");
-      photoBox.innerHTML = p.names.map((n, i) => `<figure><img src="${photoUrl(n)}" alt="">` +
+      // several pictures: one above the other, or side by side with `row: true`
+      photoBox.className = "np-imgs" + (p.names.length > 1 ? " np-stack" + (p.row ? " np-row" : "") : "");
+      // `clip: true`: the pictures are short videos (public/narration/photos/<name>.mp4), playing from
+      // the cue on, frame-exact in the renderer (syncClips)
+      photoBox.innerHTML = p.names.map((n, i) => `<figure>${p.clip ? `<video src="${photoUrl(n, true)}" muted playsinline preload="auto"></video>` : `<img src="${photoUrl(n)}" alt="">`}` +
         (p.labels?.[i] ? `<figcaption>${p.labels[i]}</figcaption>` : "") + `</figure>`).join("");
       photoBox.querySelectorAll("img").forEach(im => { im.style.objectFit = p.fit || (p.names.length > 1 ? "contain" : "cover"); im.style.filter = ""; });
       const [what, ...rest] = (p.caption || "").split(" · ");
       photoCap.innerHTML = p.caption ? `<b>${what}</b>${rest.join(" · ")}` : "";
     }
+    if (p.clip) syncClips(p, t);
     // grow from the object's dot (or the middle), on the camera as it is now
     let cx = SW / 2, cy = SH / 2;
     const o = p.obj && objByName.get(p.obj);
@@ -610,7 +729,10 @@ export async function startNarration(app) {
       let fillK = 0;   // how far the fill has gone: the backdrop turns black with it
       // fill: once the photo sits on the picture, it grows and moves to the middle
       // until its disc spans the screen (over fillDur s, after a short hold)
-      const g = p.lens.fill ? d3.easeCubicInOut(clamp01((t - p.t0 - (p.fadeIn ?? PHOTO_IN) - (p.lens.hold ?? 0.3)) / (p.lens.fillDur ?? 1.6))) : 0;
+      // back: s — and before it fades, it shrinks back onto the picture the same way (the
+      // dive in reversed: the author, 2026-10-29), so the fade lands on the picture as it was
+      const back = p.lens.back ? 1 - d3.easeCubicInOut(clamp01((t - p.t1 + p.lens.back) / p.lens.back)) : 1;
+      const g = p.lens.fill ? back * d3.easeCubicInOut(clamp01((t - p.t0 - (p.fadeIn ?? PHOTO_IN) - (p.lens.hold ?? 0.3)) / (p.lens.fillDur ?? 1.6))) : 0;
       if (p.lens.fill === "cover") {
         // the whole photo, upright, covering the screen: turn, scale and slide from
         // the lens (photo point under the lens centre → there) to the cover (photo
@@ -643,7 +765,7 @@ export async function startNarration(app) {
       // the lens, plus the caption's strip so the caption isn't masked away
       const cap = photoCap.getBoundingClientRect(), capY = (cap.y - lr.y) / scl - 6, capH = cap.height / scl + 12;
       // a filling lens goes to black with the photo's fade-in, before it grows
-      if (p.lens.fill) fillK = Math.max(fillK, 0.5 * smooth((t - p.t0) / (p.fadeIn ?? PHOTO_IN)));
+      if (p.lens.fill) fillK = Math.max(fillK, 0.5 * back * smooth((t - p.t0) / (p.fadeIn ?? PHOTO_IN)));
       const a = (Math.min(1, fillK * 2)).toFixed(3);
       const m = `radial-gradient(circle ${R.toFixed(1)}px at ${qx.toFixed(1)}px ${qy.toFixed(1)}px, #000 88%, transparent 100%), linear-gradient(#000, #000)` +
         (fillK > 0 ? `, linear-gradient(rgba(0,0,0,${a}), rgba(0,0,0,${a}))` : "");
@@ -687,6 +809,23 @@ export async function startNarration(app) {
     photoCap.style.opacity = (smooth((t - p.t0 - PHOTO_IN * 0.6) / 0.5) * (1 - smooth((t - p.t1 + 0.3) / 0.4))).toFixed(3);
   }
 
+  // a clip cutaway's videos follow the narration's clock: the renderer seeks each frame exactly
+  // (pending() waits for the seek); the live player lets them play and only corrects a drift
+  function syncClips(p, t) {
+    let live = false;
+    try { live = !RENDER && !audio.paused; } catch {}
+    for (const v of photoBox.querySelectorAll("video")) {
+      const want = Math.max(0, Math.min((v.duration || 1e9) - 0.04, t - p.t0));
+      if (RENDER || !live) {
+        if (!v.paused) v.pause();
+        if (Math.abs(v.currentTime - want) > 0.001) v.currentTime = want;
+      } else {
+        if (Math.abs(v.currentTime - want) > 0.25) v.currentTime = want;
+        if (v.paused && want < (v.duration || 1e9) - 0.05) v.play().catch(() => {});
+      }
+    }
+  }
+
   let curT = 0;
   const sx = (r) => app.plot().x + app.px(r);
   const sy = (m) => app.plot().y + app.py(m);
@@ -697,9 +836,12 @@ export async function startNarration(app) {
   let labelFade = 0, labelFadeT = null, labelFadeSent = 0, labelFocusNames = [], labelFocusKey = "";
   function drawHighlights(t) {
     applyIcons(t);
+    applyDensity(t);
     applyFocus(t);
     applyLabels(t);
     applyOverlays(t);
+    applySwap(t);
+    drawPops(t);
     // over the classic figure, keep highlights inside its plot frame
     const fr = classicOpacity(t) > 0.5 ? classicFrameClient() : null;
     if (fr) {
@@ -742,7 +884,8 @@ export async function startNarration(app) {
       el.attr("opacity", (prev ? 1 : smooth((t - h.t0) / 0.3)) * (next ? (t < h.t1 ? 1 : 0) : 1 - smooth((t - h.t1) / 0.6)));
       drawSketch(el, h, t - h.t0);
     });
-    join(gHl, live.filter(h => !h.axis && !h.card && !h.sketch)).each(function (h) {
+    drawTraces(t);
+    join(gHl, live.filter(h => !h.axis && !h.card && !h.sketch && !isTrace(h))).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
       const age = t - h.t0;
@@ -752,6 +895,11 @@ export async function startNarration(app) {
       // stars, one still moving, which read as a jump)
       if (h.split) op = t >= h.t0 ? 1 - smooth((t - h.t1) / 0.5) : 0;
       else if (h.swing && h.core && t >= h.t1 && highlights.some(q => q.split && Math.abs(q.t0 - h.t1) < 0.05)) op = 0;
+      // a lit path named again by the next cue hands straight over, no fade between them
+      if (h.path) {
+        if (h.since < h.t0 - 0.01) op = t >= h.t0 ? 1 - smooth((t - h.t1) / 0.5) : 0;
+        if (t >= h.t1 && highlights.some(q => q !== h && q.path && q.since === h.since && q.t0 > h.t0)) op = 0;
+      }
       el.attr("opacity", op);
       h.op = op;
       if (h.obj) drawObj(el, h, age);
@@ -769,13 +917,21 @@ export async function startNarration(app) {
       else if (h.dust) drawDustCat(el, h, age);
       else if (h.ellipse) drawEllipse(el, h, age);
       else if (h.window) drawWindow(el, h, age);
-      else if (h.cross) drawCross(el, h, age);
+      else if (h.cross) drawCross(el, h, t - (h.since ?? h.t0));
+      else if (h.text) drawText(el, h, age);
+      else if (h.pic) drawPic(el, h, age);
+      else if (h.clip) drawClipHl(h, t);
+      else if (h.fly) drawFly(el, h, age);
+      else if (h.pixels) drawPixels(el, h, age);
+      else if (h.key) drawKey(el, h, age);
+      else if (h.path) drawPath(el, h, age);
     });
     // While a callout is on screen, the chart's other labels step back: only the
     // highlighted objects keep theirs (the rest come back between callouts).
     // Catalogue dots the scene points at show their pictures (boats, the Eiffel
     // Tower…); a spotlight grows its object's picture as a hover would.
-    const named = live.flatMap(h => [h.obj, h.spot]).filter(n => n && objByName.get(n)?.dust);
+    const named = [...live.flatMap(h => [h.obj, h.spot]), ...traceRuns.filter(r => t >= r.t0 - 0.01 && t < r.t1 + TRACE_OUT + 0.1).map(r => r.name)]
+      .filter(n => n && objByName.get(n)?.dust);
     app.setDustPictures?.(named.length ? [...new Set(named)] : null);
     // grown pictures: a spotlight's (by its factor), and an object's only when its cue asks
     // (`grow`); a named object gets a halo instead (drawHalos)
@@ -785,9 +941,11 @@ export async function startNarration(app) {
     for (const [n, k] of grows) if (grown.get(n) !== k && app.growIcon?.(n, k)) grown.set(n, k);
     for (const n of [...grown.keys()]) if (!grows.has(n)) { grown.delete(n); app.growIcon?.(n, 1); }
     // The fade follows the narration clock (0.5 s), so the renderer's frames match playback.
+    dropClips(live);
     drawHalos(live, t);
     drawGuides(live, t);
-    app.drawUnderLines?.(underLines.splice(0));
+    app.drawUnderLines?.(underLines.splice(0), underDots.splice(0));
+    app.setDotBoost?.(pathBoosts.splice(0));
     // a close-up cue with `nearby: true` keeps its surroundings named: no fade, catalogue names on
     const hlNow = hlCues.filter(c => c.time <= t).at(-1);
     const nearby = !!hlNow?.nearby;
@@ -1026,6 +1184,146 @@ export async function startNarration(app) {
       }
     }
   }
+  // ---------- traces: a close-up on one picture, its outline drawn, then copies of the outline
+  // moved to where other ways of measuring the same thing would put it on the chart ----------
+  // hl: { trace: name, step, grow?: × (2.4), shapes: [{ at?: { rho: g/cm³ } | { r: log cm },
+  //   holes?: true, lattice?: true, label?: [line, smaller line], place?: "above"|"below"|"left"|"right" }, …],
+  //   draw?: s (1.2), move?: s (1.3), isolate?: true }
+  // Consecutive cues with the same `trace` are one run, each cue the next step:
+  //   step -1  the close-up: every other chart element fades but the grid, the density
+  //            diagonals and the catalogue dots (app.setIsolate), and the picture grows to `grow`;
+  //   step 0   shape 0's outline is traced over the picture (from the picture's own alpha:
+  //            its outer edge, plus its big openings with `holes`), then the picture fades out;
+  //   step n   a faint copy of shape n − 1 slides to shape n's place (same mass, the size its
+  //            measure gives: `at.rho`, a bulk density, or `at.r`), lands, draws its holes or
+  //            the lattice (`lattice`: the Eiffel Tower's, see towerPath), and its label shows.
+  // A cue's `grow` changes the size of every outline (and the picture) from that step on.
+  // After the run everything fades back over TRACE_OUT s (the picture first comes back).
+  // Video 2's Eiffel Tower (src/narration-scenes/short-02-up-the-line.js).
+  const TRACE_IN = 0.9, TRACE_OUT = 0.9;
+  const traceShapes = new Map();   // name → { im, outer?, holes?, failed? }
+  /** The picture's outline from its alpha channel (shares of its square), or null while it loads. */
+  function traceShape(name) {
+    let s = traceShapes.get(name);
+    if (s) return s.outer ? s : null;
+    const href = app.iconHref?.(name);
+    if (!href) return null;
+    s = { im: new Image() };
+    traceShapes.set(name, s);
+    s.im.onload = () => {
+      try {
+        const N = 128, cv = document.createElement("canvas");
+        cv.width = cv.height = N;
+        const g = cv.getContext("2d", { willReadFrequently: true }), im = s.im;
+        const k = Math.min(N / im.naturalWidth, N / im.naturalHeight), w = im.naturalWidth * k, h = im.naturalHeight * k;
+        g.drawImage(im, (N - w) / 2, (N - h) / 2, w, h);
+        const a = g.getImageData(0, 0, N, N).data, T = 110;
+        // the envelope: each row filled from its first opaque pixel to its last (the arch and
+        // the openings closed, the edges kept soft); the openings: what's clear inside it
+        const env = new Float64Array(N * N), open = new Float64Array(N * N);
+        for (let y = 0; y < N; y++) {
+          let x0 = N, x1 = -1;
+          for (let x = 0; x < N; x++) if (a[(y * N + x) * 4 + 3] > T) { x0 = Math.min(x0, x); x1 = x; }
+          for (let x = 0; x < N; x++) {
+            const al = a[(y * N + x) * 4 + 3], inside = x > x0 && x < x1;
+            env[y * N + x] = inside ? 255 : al;
+            open[y * N + x] = inside ? 255 - al : 0;
+          }
+        }
+        const norm = (ring) => ring.slice(0, -1).map(([x, y]) => [x / N, y / N]);
+        const [mp] = d3.contours().size([N, N]).thresholds([T])(env);
+        let best = null, bestA = 0;
+        for (const poly of mp.coordinates) { const A = Math.abs(d3.polygonArea(poly[0])); if (A > bestA) { bestA = A; best = poly; } }
+        // traced from its tip (the topmost point) round
+        const outer = norm(best[0]), top = outer.reduce((j, p, i) => p[1] < outer[j][1] ? i : j, 0);
+        s.outer = [...outer.slice(top), ...outer.slice(0, top)];
+        const [mh] = d3.contours().size([N, N]).thresholds([255 - T])(open);
+        s.holes = mh.coordinates.map(poly => poly[0]).filter(r => Math.abs(d3.polygonArea(r)) > 0.002 * N * N).map(norm);
+        s.top = d3.min(s.outer, p => p[1]); s.bottom = d3.max(s.outer, p => p[1]);
+        s.left = d3.min(s.outer, p => p[0]); s.right = d3.max(s.outer, p => p[0]);
+      } catch (e) { s.failed = true; console.warn("[narration] trace", name, e); }
+    };
+    s.im.onerror = () => { s.failed = true; };
+    s.im.src = href;
+    return null;
+  }
+  const tracesPending = () => [...traceShapes.values()].filter(s => !s.outer && !s.failed).length;
+  const traceOn = new Set();   // runs whose picture is grown or faded now
+  /** One run's state at t: the step on screen, how far in, the picture's growth and opacity. */
+  function traceState(run, t) {
+    const items = run.items;
+    let i = items.length - 1;
+    while (i > 0 && items[i].t0 > t) i--;
+    const it = items[i], gOf = (j) => items[j].grow ?? (j > 0 ? gOf(j - 1) : 2.4);
+    const gNow = gOf(i), gPrev = i ? gOf(i - 1) : 1;
+    const out = smooth((t - run.t1) / TRACE_OUT);
+    let grow = gPrev + (gNow - gPrev) * d3.easeCubicInOut(clamp01((t - it.t0) / TRACE_IN));
+    grow += (1 - grow) * out;
+    const iso = smooth((t - run.t0) / TRACE_IN) * (1 - out);
+    // the picture fades once the first outline is drawn, and comes back as the outlines go
+    const first = items.find(h => (h.step ?? 0) >= 0);
+    const gone = first ? smooth((t - first.t0 - (first.draw ?? 1.2) - 0.2) / 0.6) : 0;
+    return { it, grow, iso, icon: 1 - gone * (1 - smooth((t - run.t1) / (TRACE_OUT * 0.7))), fade: 1 - out };
+  }
+  const gTrace = gSketch.append("g").attr("class", "narr-trace");
+  function drawTraces(t) {
+    gTrace.selectAll("*").remove();
+    for (const run of traceRuns) {
+      const live = t >= run.t0 - 0.01 && t < run.t1 + TRACE_OUT;
+      if (run.t0 - 8 < t && t < run.t1) traceShape(run.name);   // load the outline before it's needed
+      if (!live) {
+        if (traceOn.has(run)) { traceOn.delete(run); app.setIsolate?.(0); app.growIcon?.(run.name, 1, true); }
+        continue;
+      }
+      traceOn.add(run);
+      const st = traceState(run, t), h = st.it;
+      if (h.isolate !== false) app.setIsolate?.(st.iso, run.name, st.icon);
+      app.growIcon?.(run.name, st.grow, true);
+      const o = objByName.get(run.name), shape = traceShape(run.name), box = app.iconRect?.(run.name);
+      const step = h.step ?? 0;
+      if (!o || !shape || !box || step < 0) continue;
+      const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
+      const w = box.w / scl, hh = box.h / scl;
+      // copies keep the picture's offset from its dot (its parallax), at their own size
+      const dx = (box.x - lr.x) / scl + w / 2 - sx(o.logR), dy = (box.y - lr.y) / scl + hh / 2 - sy(o.logM);
+      const shapes = h.shapes || [{}];
+      const rOf = (sh) => sh?.at?.r ?? (sh?.at?.rho != null ? (o.logM - DENSITY_SPHERE_C - Math.log10(sh.at.rho)) / 3 : o.logR);
+      const g = gTrace.append("g").attr("opacity", st.fade.toFixed(3));
+      const age = t - h.t0, mv = h.move ?? 1.3, dr = h.draw ?? 1.2;
+      for (let i = 0; i <= Math.min(step, shapes.length - 1); i++) {
+        const sh = shapes[i], fresh = i === step;
+        // the new copy slides over from the one before it (faint), then draws in
+        const u = fresh && i > 0 ? d3.easeCubicInOut(clamp01(age / mv)) : 1;
+        const r = i > 0 ? rOf(shapes[i - 1]) + (rOf(sh) - rOf(shapes[i - 1])) * u : rOf(sh);
+        const cx = sx(r) + dx, cy = sy(o.logM) + dy;
+        const M = (pu, pv) => [cx + (pu - 0.5) * w, cy + (pv - 0.5) * hh];
+        const P = (ring) => "M" + ring.map(p => M(p[0], p[1]).map(v => v.toFixed(1)).join(",")).join("L") + "Z";
+        const landed = fresh ? (i === 0 ? 0 : mv) : -1e9;
+        const kOut = fresh && i === 0 ? d3.easeCubicInOut(clamp01(age / dr)) : 1;   // the first outline traces in
+        const kIn = d3.easeCubicOut(clamp01((age - landed) / dr));               // then the holes or lattice
+        const ghost = fresh && i > 0 ? 0.45 + 0.55 * smooth((age - mv * 0.8) / 0.4) : 1;
+        const sg = g.append("g").attr("opacity", ghost.toFixed(3));
+        const stroke = (d, wd, op, k) => d && sg.append("path").attr("d", d).attr("fill", "none").attr("stroke", "#fff")
+          .attr("stroke-width", wd).attr("opacity", op).attr("stroke-linejoin", "round")
+          .attr("pathLength", 1).attr("stroke-dasharray", `${k.toFixed(4)} 1`);
+        const outline = P(shape.outer);
+        stroke(outline, 6, 0.16, kOut); stroke(outline, 1.6, 0.95, kOut);
+        if (sh.holes && shape.holes.length) { const d = shape.holes.map(P).join(""); stroke(d, 5, 0.14, kIn); stroke(d, 1.3, 0.9, kIn); }
+        if (sh.lattice) stroke(towerPath(2, M).lattice, 0.8, 0.7, kIn);
+        if (sh.label) {
+          const a = fresh ? clamp01((age - Math.max(landed, i ? 0 : dr) - 0.2) / 0.5) : 1, place = sh.place || "below";
+          const [x0, yTop] = M(0.5, shape.top), [, yBot] = M(0.5, shape.bottom), [xL] = M(shape.left, 0.5), [xR] = M(shape.right, 0.5);
+          const side = place === "left" || place === "right";
+          const tx = place === "left" ? xL - 8 : place === "right" ? xR + 8 : x0;
+          const ty = place === "above" ? yTop - 8 - (sh.label[1] ? 17 : 0) : place === "below" ? yBot + 22 : cy - (sh.label[1] ? 4 : -5);
+          const anchor = place === "left" ? "end" : place === "right" ? "start" : "middle";
+          g.append("text").attr("class", "narr-sketch-num").attr("x", tx).attr("y", ty).attr("text-anchor", anchor).attr("opacity", a).text(sh.label[0]);
+          if (sh.label[1]) g.append("text").attr("class", "narr-sketch-sub").attr("x", tx).attr("y", ty + 17)
+            .attr("text-anchor", side ? anchor : "middle").attr("opacity", a).text(sh.label[1]);
+        }
+      }
+    }
+  }
   /** Every object being named gets a light blue halo behind its picture (like a
    *  star's wall glow, stronger), from its first mention: on in 0.5 s, held to
    *  HALO_HOLD, then fading over HALO_FADE, or sooner when its highlight ends. */
@@ -1063,7 +1361,7 @@ export async function startNarration(app) {
     const a = clamp01((age - 0.5) / 0.4) * (1 - smooth((t - cur.t1 + 0.4) / 0.4));
     if (a <= 0.01) return;
     gGuides.append("text").attr("class", "narr-guide").attr("x", xR - 4).attr("y", y - 6).attr("text-anchor", "end")
-      .attr("opacity", a).text(valueLabel(o.logM, MASS_BASES));
+      .attr("opacity", a).text(o.logM < ENERGY_BELOW ? `${valueLabel(o.logM + EV_PER_G, ENERGY_BASES)}/c²` : valueLabel(o.logM, MASS_BASES));
     gGuides.append("text").attr("class", "narr-guide").attr("x", x + 6).attr("y", yB - 6).attr("text-anchor", "start")
       .attr("opacity", a).text(valueLabel(o.logR + W_OFF, SIZE_BASES));
   }
@@ -1080,6 +1378,8 @@ export async function startNarration(app) {
     return pts.map(([r, m]) => [sx(r), sy(m)]);
   }
   const underLines = [];   // the water line's strokes for under the pictures, this frame
+  const underDots = [];    // dots drawn with the under-lines
+  const pathBoosts = [];   // lit paths whose own moving dots grow, this frame
   function drawLine(el, L, h, age) {
     if (!L || !L.pts.length) return;
     const p = linePath(L.pts);
@@ -1116,16 +1416,79 @@ export async function startNarration(app) {
       lines.forEach((ln, i) => t.append("tspan").attr("x", 0).attr("dy", i ? "1.2em" : 0).text(ln));
     }
   }
-  function clipMid(p, plot) {
-    // middle of the line segment that is on screen (first→last vertex)
-    const [a, b] = [p[0], p[p.length - 1]];
-    const ts = [];
-    for (let i = 0; i <= 200; i++) {
-      const u = i / 200, x = a[0] + (b[0] - a[0]) * u, y = a[1] + (b[1] - a[1]) * u;
-      if (x > plot.x + 30 && x < plot.x + plot.w - 30 && y > plot.y + plot.h * 0.18 && y < plot.y + plot.h * 0.7) ts.push(u);
+  /** A connection path lit up: { path: "DNA" | id | [ids or wholes], label?, color? } —
+   *  every moving-dot path with that id, or building that whole (the paths from DNA's four
+   *  bases into DNA; a star's life, "stellar-high-mass"), drawn on as a glowing line under
+   *  the pictures, with bright dots streaming along it the way the chart's own dots go. */
+  function drawPath(el, h, age) {
+    const pl = app.plot(), prog = d3.easeCubicOut(clamp01((curT - (h.since ?? h.t0)) / (h.draw ?? 1.2)));
+    const list = app.connPaths?.(h.path) || [];
+    // a path name that matches nothing shows with the missed cues (window.__narrMissing)
+    if (!list.length && app.connPaths && Array.isArray(window.__narrMissing) && !window.__narrMissing.includes("path " + h.path))
+      window.__narrMissing.push("path " + h.path);
+    // `from` / `to` (object names): only the stretch of the path between them
+    const near = (pts, name, i0 = 0) => {
+      const o = objByName.get(name);
+      if (!o) return -1;
+      const X = sx(o.logR) - pl.x, Y = sy(o.logM) - pl.y;
+      let best = -1, bd = Infinity;
+      for (let i = i0; i < pts.length; i++) { const dd = Math.hypot(pts[i][0] - X, pts[i][1] - Y); if (dd < bd) { bd = dd; best = i; } }
+      return best;
+    };
+    for (const cp of list) {
+      if (h.from || h.to) {
+        const i0 = h.from ? Math.max(0, near(cp.pts, h.from)) : 0;
+        const i1 = h.to ? near(cp.pts, h.to, i0) : cp.pts.length - 1;
+        const n = cp.pts.length - 1, j1 = i1 < 0 ? n : i1;
+        cp.pts = cp.pts.slice(i0, j1 + 1);
+        cp.t0 = i0 / n; cp.t1 = j1 / n;
+      }
+      const p = cp.pts.map(([x, y]) => [x + pl.x, y + pl.y]);
+      const cum = [0];
+      for (let i = 1; i < p.length; i++) cum.push(cum[i - 1] + Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]));
+      const len = cum.at(-1);
+      if (len < 4) continue;
+      const rgb = h.color || (cp.family === "spectrum" ? "#ffffff"
+        : (cp.color || "#fff").replace(/rgba\(([^,]+),([^,]+),([^,]+),[^)]+\)/, "rgb($1,$2,$3)"));
+      const dash = `${len * prog} ${len + 10}`;
+      const dl = "M" + cp.pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join("L");
+      // the line glows like a named object's halo (blurred lavender, overlay), the path's
+      // own colour over it (author, 2026-10-28: "highlight them more")
+      // (discreet, like the objects' halos: the author, 2026-10-29)
+      underLines.push({ d: dl, color: "#e4dcff", width: 16, opacity: 0.55 * (h.op ?? 1), dash, halo: true });
+      // (the glow does the work: the line itself at 10%, the author, 2026-10-29)
+      [[1.4, 0.1]].forEach(([w, o]) =>
+        underLines.push({ d: dl, color: rgb, width: w, opacity: o * (h.op ?? 1), dash }));
+      const at = (s) => {
+        let i = d3.bisectLeft(cum, s);
+        i = Math.max(1, Math.min(p.length - 1, i));
+        const f = (s - cum[i - 1]) / ((cum[i] - cum[i - 1]) || 1);
+        return [p[i - 1][0] + (p[i][0] - p[i - 1][0]) * f, p[i - 1][1] + (p[i][1] - p[i - 1][1]) * f];
+      };
+      // the chart's own dots on it, bigger and brighter (the author, 2026-10-29: evenly
+      // spaced dots of our own made it a subway line; the natural ones stay natural)
+      pathBoosts.push({ idx: cp.idx, t0: cp.t0, t1: cp.t1, k: 1 + 2 * (h.op ?? 1) * prog });
+      if (h.label && cp === list[0]) {
+        const [x, y] = at(len / 2);
+        el.append("text").attr("class", "narr-tag").attr("x", x + 10).attr("y", y).attr("fill", rgb).attr("opacity", prog)
+          .text(h.label.toUpperCase());
+      }
     }
-    const u = ts.length ? (ts[0] + ts[ts.length - 1]) / 2 : 0.5;
-    return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+  }
+  function clipMid(p, plot) {
+    // middle of the line segment that is on screen (first→last vertex), inside the band
+    // the labels keep to. Clipped exactly (Liang–Barsky), so the label slides with the
+    // camera: sampling the whole line in steps made it hop once zoomed in
+    const [a, b] = [p[0], p[p.length - 1]], dx = b[0] - a[0], dy = b[1] - a[1];
+    const x0 = plot.x + 30, x1 = plot.x + plot.w - 30, y0 = plot.y + plot.h * 0.18, y1 = plot.y + plot.h * 0.7;
+    let lo = 0, hi = 1;
+    for (const [q, r] of [[-dx, a[0] - x0], [dx, x1 - a[0]], [-dy, a[1] - y0], [dy, y1 - a[1]]]) {
+      if (q === 0) { if (r < 0) { lo = 1; hi = 0; } continue; }
+      const u = r / q;
+      if (q < 0) lo = Math.max(lo, u); else hi = Math.min(hi, u);
+    }
+    const u = lo <= hi ? (lo + hi) / 2 : 0.5;
+    return [a[0] + dx * u, a[1] + dy * u];
   }
   function drawSide(el, h) {
     if (h.mass != null) return drawMassSide(el, h);
@@ -1160,16 +1523,36 @@ export async function startNarration(app) {
     if (!h.label) return;
     // "\n" stacks the label; it sits just off the level, on its own side, with an optional
     // smaller note under it (note: "line\nline")
+    // labelCenter: in the middle of the side's rectangle as it is on screen, at labelSize px
     const lines = h.label.split("\n"), notes = h.note ? h.note.split("\n") : [];
-    const x = plot.x + plot.w * (h.labelX ?? 0.5), LH = 22, NH = 16;
-    const y0 = up ? y - 18 - (lines.length - 1) * LH - notes.length * NH : y + 38;
+    const big = h.labelCenter ? h.labelSize ?? 22 : null;
+    const LH = big ? Math.round(big * 1.12) : 22, NH = big ? Math.round(Math.max(16, big * 0.72) * 1.2) : 16;
+    let x = plot.x + plot.w * (h.labelX ?? 0.5), y0 = up ? y - 18 - (lines.length - 1) * LH - notes.length * NH : y + 38;
+    if (big) {
+      const [b0, b1] = screenBand(up ? plot.y : y, up ? y : plot.y + plot.h);
+      x = screenMidX(plot);
+      // the block (label lines, then the note) centred on the rectangle's middle; a baseline
+      // sits about 0.35 em under the middle of its line
+      const block = (lines.length - 1) * LH + (notes.length ? notes.length * NH : 0);
+      y0 = (b0 + b1) / 2 - block / 2 + big * 0.35;
+    }
     const t = el.append("text").attr("class", "narr-sidelabel").attr("x", x)
       .attr("y", y0).attr("text-anchor", "middle").attr("fill", col);
+    if (big) t.style("font-size", `${big}px`).style("letter-spacing", "0.16em");
     lines.forEach((ln, i) => t.append("tspan").attr("x", x).attr("dy", i ? LH : 0).text(ln.toUpperCase()));
     const n = el.append("text").attr("class", "narr-sidenote").attr("x", x)
       .attr("y", y0 + (lines.length - 1) * LH + NH + 2).attr("text-anchor", "middle").attr("fill", col);
+    if (big) n.style("font-size", `${Math.round(Math.max(16, big * 0.72))}px`);
     notes.forEach((ln, i) => n.append("tspan").attr("x", x).attr("dy", i ? NH : 0).text(ln));
   }
+  /** The part of [y0, y1] (layer px) that's on screen: the plot, above the size ruler. */
+  function screenBand(y0, y1) {
+    const plot = app.plot(), SH = layer.clientHeight;
+    const lo = Math.max(Math.min(y0, y1), plot.y, 0), hi = Math.min(Math.max(y0, y1), plot.y + plot.h, SH * (SCENE.rulerY ?? RULER_Y));
+    return hi > lo ? [lo, hi] : [Math.min(y0, y1), Math.max(y0, y1)];
+  }
+  /** The middle of the plot as it is on screen, left of the mass ruler. */
+  const screenMidX = (plot) => (Math.max(plot.x, 0) + Math.min(plot.x + plot.w, massAxisX(layer.clientWidth))) / 2;
   /** Every catalogue dot of one category ({ dust: "blackhole", label? }), or of
    *  some sources ({ dust: "galaxy", src: ["galaxy", "cluster"] }): a small ring
    *  on each, lit in a sweep from the lightest to the heaviest. shift: { source:
@@ -1228,7 +1611,7 @@ export async function startNarration(app) {
       .attr("x2", x1 + (x2 - x1) * k).attr("y2", y1 + (y2 - y1) * k)
       .attr("stroke", col).attr("stroke-width", 1.4).attr("stroke-dasharray", "5 4").attr("opacity", 0.9);
     guide(x, y, xR, y);                                  // mass is read on the right-hand ruler
-    guide(x, y, x, yB);
+    if (h.size !== false) guide(x, y, x, yB);              // size: false, the mass guide only
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", 5).attr("fill", col);
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", 9 + 3 * (1 - k)).attr("fill", "none")
       .attr("stroke", col).attr("stroke-width", 1.2).attr("opacity", 0.7);
@@ -1439,7 +1822,23 @@ export async function startNarration(app) {
     // hatch: crossed out, a ruled-out area
     el.append("polygon").attr("points", pts).attr("fill", h.hatch ? hatchFill(col) : col).attr("opacity", (h.opacity ?? 0.5) * op)
       .attr("stroke", col).attr("stroke-width", 1.4).attr("stroke-opacity", 0.9 * op);
-    if (h.label) {
+    if (h.label && h.labelCenter) {
+      // in the middle of the region as it is on screen (its box, cut to the plot), at labelSize
+      // px, with an optional smaller note under it ("\n" stacks lines in either)
+      const plot = app.plot(), xs = h.poly.map(p => sx(p[0])), ys = h.poly.map(p => sy(p[1]));
+      const [b0, b1] = screenBand(d3.min(ys), d3.max(ys));
+      const x = (Math.max(d3.min(xs), plot.x, 0) + Math.min(d3.max(xs), plot.x + plot.w, massAxisX(layer.clientWidth))) / 2;
+      const big = h.labelSize ?? 26, LH = Math.round(big * 1.12), ns = Math.round(Math.max(13, big * 0.55)), NH = Math.round(ns * 1.25);
+      const lines = h.label.split("\n"), notes = h.note ? h.note.split("\n") : [];
+      const y0 = (b0 + b1) / 2 - ((lines.length - 1) * LH + notes.length * NH) / 2 + big * 0.35;
+      const op = h.instant ? 1 : smooth((age - 0.3) / 0.6), col = h.labelColor || "#fff";
+      const t = el.append("text").attr("class", "narr-sidelabel").attr("x", x).attr("y", y0).attr("text-anchor", "middle")
+        .attr("fill", col).attr("opacity", op).style("font-size", `${big}px`).style("letter-spacing", "0.16em");
+      lines.forEach((ln, i) => t.append("tspan").attr("x", x).attr("dy", i ? LH : 0).text(ln.toUpperCase()));
+      const n = el.append("text").attr("class", "narr-sidenote").attr("x", x).attr("y", y0 + (lines.length - 1) * LH + NH + 2)
+        .attr("text-anchor", "middle").attr("fill", col).attr("opacity", op).style("font-size", `${ns}px`);
+      notes.forEach((ln, i) => n.append("tspan").attr("x", x).attr("dy", i ? NH : 0).text(ln));
+    } else if (h.label) {
       const [lr, lm] = h.labelAt || [h.poly.reduce((a, p) => a + p[0], 0) / h.poly.length, h.poly.reduce((a, p) => a + p[1], 0) / h.poly.length];
       const t = el.append("text").attr("class", "narr-tag").attr("x", sx(lr)).attr("y", sy(lm)).attr("text-anchor", "middle")
         .attr("fill", h.labelColor || "#fff").attr("opacity", h.instant ? 1 : smooth((age - 0.3) / 0.6));
@@ -1498,6 +1897,145 @@ export async function startNarration(app) {
     el.append("text").attr("class", "narr-tag narr-cand").attr("x", place === "left" ? x - 16 : x + 16).attr("y", y + 5)
       .attr("text-anchor", place === "left" ? "end" : "start").attr("fill", col).attr("opacity", op).text((h.label || "").toUpperCase());
   }
+  /** A colour key: { key: [["microwave", "#ff6b5e"], …], title?, y? (share of the height, 0.1) }, for a false-colour view */
+  function drawKey(el, h, age) {
+    const SW = layer.clientWidth, SH = layer.clientHeight, op = h.instant ? 1 : smooth(age / 0.6);
+    const rows = h.key, y0 = SH * (h.y ?? 0.1), lh = 19;
+    const g = el.append("g").attr("opacity", op);
+    if (h.title) g.append("text").attr("class", "narr-tag").attr("x", SW / 2).attr("y", y0 - 10).attr("text-anchor", "middle")
+      .attr("fill", "#e9ecf5").text(h.title.toUpperCase());
+    rows.forEach(([name, col], i) => {
+      const y = y0 + i * lh + 8;
+      g.append("rect").attr("x", SW / 2 - 70).attr("y", y - 9).attr("width", 12).attr("height", 12).attr("rx", 2).attr("fill", col);
+      g.append("text").attr("class", "narr-tag").attr("x", SW / 2 - 50).attr("y", y + 1.5).attr("fill", col).text(name.toUpperCase());
+    });
+  }
+  /** Expansion as a picture gaining pixels: { pixels: { steps: [s, …], cell?, seed? } }, on its
+   *  own over a black screen (no chart behind) and full screen, so no border is seen growing (the
+   *  author's note, 2026-10-27: a border expanding is the balloon metaphor again). A picture of
+   *  a few lit pixels; at each step (seconds after the cue) every pixel becomes 2 × 2, "one pixel
+   *  into four": the old one keeps its place in the corner, the lit ones spread apart while
+   *  staying the same size, and the new pixels fade in, dark, in the gaps that open between them. */
+  function drawPixels(el, h, age) {
+    const o = h.pixels, cell = o.cell ?? 16, steps = o.steps || [], seed = o.seed ?? 7;
+    const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH / 2;
+    // how far each step has gone (0–1, eased over 1.2 s), and the spread so far
+    const prog = steps.map(st => d3.easeCubicInOut(clamp01((age - st) / 1.2)));
+    let L = 0; while (L < steps.length && prog[L] > 0) L++;            // steps begun
+    const k = prog.reduce((a, p) => a * (1 + p), 1);                   // ×2 per step
+    // pixels at the current level: index (p, q) sits at p · cell · k / 2^L from the centre
+    const sp = cell * k / 2 ** L;
+    const lit = (i, j) => {   // the original picture: a few lit pixels, colours from a hash
+      const hsh = Math.abs(Math.sin(i * 127.1 + j * 311.7 + seed) * 43758.5453) % 1;
+      return hsh < 0.13 ? ["#ffd54f", "#ffffff", "#80deea", "#ff8a80", "#b39ddb"][Math.floor(hsh / 0.026)] : null;
+    };
+    const tz = (n) => { let z = 0; n = Math.abs(n); if (!n) return 99; while (n % 2 === 0) { n /= 2; z++; } return z; };
+    const g = el.append("g").attr("opacity", smooth(age / 0.6));
+    g.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH).attr("fill", "#000");
+    const pm = Math.ceil((SW / 2 + cell) / sp), qm = Math.ceil((SH / 2 + cell) / sp);
+    for (let p = -pm; p <= pm; p++) for (let q = -qm; q <= qm; q++) {
+      const x = cx + p * sp - cell / 2, y = cy + q * sp - cell / 2;
+      // born at the step after which p and q were last both on the coarser grid
+      const born = L - Math.min(L, tz(p), tz(q));                       // 0: an original pixel
+      const col = born === 0 ? lit(p / 2 ** L, q / 2 ** L) : null;
+      const a = born === 0 ? 1 : smooth((age - steps[born - 1] - 0.3) / 1.0);
+      if (a <= 0) continue;
+      g.append("rect").attr("x", x + 0.5).attr("y", y + 0.5).attr("width", cell - 1).attr("height", cell - 1)
+        .attr("fill", col || "#0d0f16").attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1).attr("opacity", a);
+    }
+  }
+  /** A big free-standing word on the chart: { text, at: [r, m], color?, size? (px, 30) } (a hub that
+   *  arrows point out from); "\n" stacks lines, centred on `at` */
+  function drawText(el, h, age) {
+    const t = el.append("text").attr("class", "narr-tag narr-hub").attr("x", sx(h.at[0])).attr("y", sy(h.at[1]))
+      .attr("text-anchor", "middle").attr("fill", h.color || "#ffe9a3").attr("opacity", h.instant ? 1 : smooth(age / 0.6));
+    if (h.size) t.style("font-size", `${h.size}px`);
+    const lines = h.text.toUpperCase().split("\n");
+    if (lines.length === 1) { t.text(lines[0]); return; }
+    lines.forEach((s, i) => t.append("tspan").attr("x", sx(h.at[0])).attr("dy", i ? "1.15em" : `${-0.575 * (lines.length - 1)}em`).text(s));
+  }
+  /** A particle's picture anywhere on the chart: { pic: "deuterium", at: [r, m], size? (px, 140),
+   *  label?, sub? }. The still content/icons/<pic>.webp, which the videos draw live and
+   *  animated (src/hopf-icons.js, any Hopf particle id), the label and sub-line under it. */
+  /** A video on the chart: { clip: "name" (public/narration/photos/<name>.mp4), from: [r, m],
+   *  to?: [r, m], move?: [s0, s1] (seconds after it starts: the slide from `from` to `to`),
+   *  lead?: s (the video starts this long after the highlight), size?: px (120) }. Drawn over
+   *  the chart in screen blend (its black is see-through), following the camera; the video
+   *  plays on the narration's clock, frame-exact in the renderer (pending() waits for its seek).
+   *  Video 3's hydrogen collapsing into a neutron. */
+  const clipsEl = () => layer.querySelector("#narr-clips");
+  const clipEls = new Map();
+  // The video plays hidden; each frame is copied onto a canvas with its black made see-through
+  // (alpha from brightness), so it lies on the chart like a picture (CSS blending can't reach the
+  // chart from this layer).
+  function lumaFrame(c, v) {
+    const S = c.width, x = c.getContext("2d", { willReadFrequently: true });
+    if (v.readyState < 2) return;
+    x.clearRect(0, 0, S, S); x.drawImage(v, 0, 0, S, S);
+    const im = x.getImageData(0, 0, S, S), d = im.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const a = Math.max(d[i], d[i + 1], d[i + 2]);
+      if (a < 2) { d[i + 3] = 0; continue; }
+      const k = 255 / a; d[i] *= k; d[i + 1] *= k; d[i + 2] *= k; d[i + 3] = a;
+    }
+    x.putImageData(im, 0, 0);
+  }
+  function drawClipHl(h, t) {
+    let e = clipEls.get(h);
+    if (!e) {
+      const v = document.createElement("video");
+      Object.assign(v, { src: photoUrl(h.clip, true), muted: true, playsInline: true, preload: "auto" });
+      v.className = "narr-clip-src";
+      const c = document.createElement("canvas");
+      c.width = c.height = 300; c.className = "narr-clip";
+      v.addEventListener("seeked", () => lumaFrame(c, v));
+      clipsEl().append(v, c); e = { v, c }; clipEls.set(h, e);
+    }
+    const { v, c } = e;
+    const local = t - h.t0, [s0, s1] = h.move || [0, 0];
+    const u = h.to ? d3.easeCubicInOut(clamp01((local - s0) / Math.max(0.01, s1 - s0))) : 0;
+    const r = h.from[0] + ((h.to || h.from)[0] - h.from[0]) * u, m = h.from[1] + ((h.to || h.from)[1] - h.from[1]) * u;
+    const size = h.size ?? 120, op = h.op ?? 1;
+    Object.assign(c.style, { left: `${(sx(r) - size / 2).toFixed(1)}px`, top: `${(sy(m) - size / 2).toFixed(1)}px`,
+      width: `${size}px`, height: `${size}px`, opacity: op.toFixed(3) });
+    const want = Math.max(0, Math.min((v.duration || 1e9) - 0.04, local - (h.lead ?? 0)));
+    let live = false;
+    try { live = !RENDER && !audio.paused; } catch {}
+    if (RENDER || !live) { if (!v.paused) v.pause(); if (Math.abs(v.currentTime - want) > 0.001) v.currentTime = want; }
+    else { if (Math.abs(v.currentTime - want) > 0.25) v.currentTime = want; if (v.paused && want < (v.duration || 1e9) - 0.05) v.play().catch(() => {}); }
+    if (!v.seeking) lumaFrame(c, v);
+  }
+  function dropClips(live) {
+    for (const [h, e] of clipEls) if (!live.includes(h)) { e.v.remove(); e.c.remove(); clipEls.delete(h); }
+  }
+  /** Something flying off across the chart: { fly: { from: [r, m], to: [r, m] }, dur?: s (0.9),
+   *  color?, label? } — a bright dot with a fading trail (a neutrino leaving). */
+  function drawFly(el, h, age) {
+    const dur = h.dur ?? 0.9, k = d3.easeCubicIn(clamp01(age / dur)), col = h.color || "#e1f5fe";
+    if (age < 0 || k >= 1) return;
+    const [r0, m0] = h.fly.from, [r1, m1] = h.fly.to;
+    const at = (q) => [sx(r0 + (r1 - r0) * q), sy(m0 + (m1 - m0) * q)];
+    const [x, y] = at(k), [tx, ty] = at(Math.max(0, k - 0.18));
+    el.append("line").attr("x1", tx).attr("y1", ty).attr("x2", x).attr("y2", y).attr("stroke", col)
+      .attr("stroke-width", 3).attr("stroke-linecap", "round").attr("opacity", 0.55);
+    el.append("circle").attr("cx", x).attr("cy", y).attr("r", 9).attr("fill", col).attr("opacity", 0.3);
+    el.append("circle").attr("cx", x).attr("cy", y).attr("r", 4).attr("fill", "#fff");
+    if (h.label) el.append("text").attr("class", "narr-tag").attr("x", x + 12).attr("y", y + 4).attr("fill", col).text(h.label.toUpperCase());
+  }
+  function drawPic(el, h, age) {
+    const size = h.size ?? 140, x = sx(h.at[0]), y = sy(h.at[1]);
+    const a = h.instant ? 1 : smooth(age / 0.8), grow = 0.85 + 0.15 * a;
+    el.append("image").attr("class", "narr-pic").attr("data-slug", h.pic)
+      .attr("href", iconUrls[`../content/icons/${h.pic}.webp`] || "")
+      .attr("x", x - size * grow / 2).attr("y", y - size * grow / 2).attr("width", size * grow).attr("height", size * grow)
+      .attr("opacity", a);
+    const lines = [h.label && [h.label.toUpperCase(), h.color || "#ffe9a3", null], h.sub && [h.sub, "#d8dde8", "13px"]].filter(Boolean);
+    lines.forEach(([text, fill, fs], i) => {
+      const t = el.append("text").attr("class", "narr-tag").attr("x", x).attr("y", y + size / 2 + 18 + 18 * i)
+        .attr("text-anchor", "middle").attr("fill", fill).attr("opacity", a).text(text);
+      if (fs) t.style("font-size", fs).style("letter-spacing", "0.02em").style("font-weight", 600);
+    });
+  }
   function drawArrow(el, h, age) {
     const from = h.from.obj ? objByName.get(h.from.obj) : null;
     const to = h.to.obj ? objByName.get(h.to.obj) : null;
@@ -1532,8 +2070,10 @@ export async function startNarration(app) {
   // 100 kg between 1 kg and 1 tonne), and 2–9× inside a decade when zoomed in far
   // enough to see the log lines (20 kg, 30 kg…). The named units go first and win.
   // Prefix bases in log10 of the ruler's unit (grams; centimetres of diameter).
-  const MASS_BASES = [[-12, "pg"], [-9, "ng"], [-6, "μg"], [-3, "mg"], [0, "g"], [3, "kg"], [6, "t"], [9, "kt"], [12, "Mt"], [15, "Gt"]];
+  const MASS_BASES = [[-18, "ag"], [-15, "fg"], [-12, "pg"], [-9, "ng"], [-6, "μg"], [-3, "mg"], [0, "g"], [3, "kg"], [6, "t"], [9, "kt"], [12, "Mt"], [15, "Gt"]];
   const SIZE_BASES = [[-13, "fm"], [-10, "pm"], [-7, "nm"], [-4, "μm"], [-1, "mm"], [0, "cm"], [2, "m"], [5, "km"]];
+  const ENERGY_BASES = [[-3, "meV"], [0, "eV"], [3, "keV"], [6, "MeV"], [9, "GeV"], [12, "TeV"], [15, "PeV"], [18, "EeV"]];
+  const EV_PER_G = 32.75, ENERGY_BELOW = -18;   // log10 of 1 g × c² in eV; where the mass ruler turns to eV/c²
   const SUP = (n) => String(n).replace(/./g, c => "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"["0123456789-".indexOf(c)]);
   function tickLabel(v, bases) {          // v = log10 of the value in the base unit
     const d = Math.floor(v + 1e-9), k = Math.round(10 ** (v - d));
@@ -1552,6 +2092,44 @@ export async function startNarration(app) {
       for (const k of ks) out.push({ at: d + Math.log10(k), label: tickLabel(d + Math.log10(k), bases), minor: true });
     }
     return out.filter(t => t.at >= lo && t.at <= hi);
+  }
+  // ---------- the energy ruler (a cue's `energyAxis: true` from that cue on, false to end it) ----------
+  // On the left, where the map keeps its energy axis: the same heights as the mass ruler read as
+  // energy, E = mc², in eV (the author, 2026-10-29: for the particles, from now on)
+  const energyCues = cues.filter(c => c.energyAxis !== undefined);
+  function energyOpacity(t) {
+    let o = 0;
+    for (let i = 0; i < energyCues.length; i++) {
+      const c = energyCues[i], nx = energyCues.slice(i + 1).find(q => !q.energyAxis);
+      if (!c.energyAxis || (i > 0 && energyCues[i - 1].energyAxis)) continue;
+      o = Math.max(o, smooth((t - c.time) / 0.6) * (nx ? 1 - smooth((t - nx.time) / 0.6) : 1));
+    }
+    return o * (1 - clamp01(classicOpacity(t) * 2)) * (1 - (specFrame ? specFrame(t).show : 0));
+  }
+  function drawEnergy(t) {
+    const o = energyOpacity(t);
+    gEnergy.attr("opacity", o).style("display", o > 0.01 ? null : "none");
+    if (o <= 0.01) return;
+    gEnergy.selectAll("*").remove();
+    const SW = layer.clientWidth, SH = layer.clientHeight;
+    const yR = Math.round(SH * (SCENE.rulerY ?? RULER_Y)), xL = SW - massAxisX(SW);
+    gEnergy.append("rect").attr("x", -(xL + 54)).attr("y", 0).attr("width", xL + 54).attr("height", SH)
+      .attr("transform", "scale(-1,1)").attr("fill", "url(#narr-fade-v)");
+    gEnergy.append("line").attr("x1", xL).attr("x2", xL).attr("y1", 0).attr("y2", SH).attr("class", "narr-axis");
+    const mppd = Math.abs(sy(1) - sy(0)), iy = (y) => (y - sy(0)) / (sy(1) - sy(0));
+    const mA = iy(SH * 0.1), mB = iy(yR - 24), mLo = Math.min(mA, mB), mHi = Math.max(mA, mB);
+    const placedY = [];
+    for (const tk of fillTicks(mLo + EV_PER_G, mHi + EV_PER_G, mppd, ENERGY_BASES)) {
+      const y = sy(tk.at - EV_PER_G);
+      if (y < SH * 0.1 || y > yR - 24) continue;
+      if (placedY.some(p => Math.abs(p - y) < 17)) continue;
+      placedY.push(y);
+      gEnergy.append("line").attr("x1", xL - (tk.minor ? 3 : 5)).attr("x2", xL + (tk.minor ? 3 : 5)).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
+      gEnergy.append("text").attr("x", xL + 8).attr("y", y + 3.5).attr("text-anchor", "start")
+        .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
+    }
+    gEnergy.append("text").attr("transform", `translate(${xL - 7},${SH * 0.16}) rotate(-90)`).attr("text-anchor", "end")
+      .attr("class", "narr-axname").text("ENERGY →");
   }
   function drawUnits(t) {
     const o = unitsOpacity(t);
@@ -1603,7 +2181,15 @@ export async function startNarration(app) {
     }
     const mppd = Math.abs(sy(1) - sy(0)), iy = (y) => (y - sy(0)) / (sy(1) - sy(0));
     const mA = iy(SH * 0.1), mB = iy(yR - 24);
-    for (const tk of fillTicks(Math.min(mA, mB), Math.max(mA, mB), mppd, MASS_BASES)) {
+    // below about a large molecule's mass, grams run out of prefixes ("0 pg"): ticks in
+    // eV/c² instead, on round energies, as the map's own ruler does (mobile-rulers.js)
+    const mLo = Math.min(mA, mB), mHi = Math.max(mA, mB);
+    const massTicks = [
+      ...fillTicks(Math.max(mLo, ENERGY_BELOW), mHi, mppd, MASS_BASES),
+      ...fillTicks(mLo + EV_PER_G, Math.min(mHi, ENERGY_BELOW) + EV_PER_G, mppd, ENERGY_BASES)
+        .map(tk => ({ ...tk, at: tk.at - EV_PER_G, label: `${tk.label}/c²` })),
+    ];
+    for (const tk of massTicks) {
       const y = sy(tk.at);
       if (y < SH * 0.1 || y > yR - 24) continue;
       if (placedY.some(p => Math.abs(p - y) < 17)) continue;
@@ -1644,6 +2230,177 @@ export async function startNarration(app) {
     });
   }
 
+  // ---------- the spectrum explorer (public/spectrum/, ?video=1) ----------
+  // A scene can play over the electromagnetic-spectrum explorer instead of the chart.
+  // The explorer opens full-frame in an iframe under the captions; the scene's
+  // `explorer` (the state at t = 0, hidden) and each cue's `explorer: { … }` set it,
+  // (not `spectrum`, which is the chart's sine wave along the photons)
+  // a pure function of t like everything else here:
+  //   show: true | false (fades over `fade` s, default 1.2) · view "inside" | "cloud"
+  //   radius "custom" | "log" | "linear" · bright "lin" | "log" · rings · labels ({ name:
+  //   "shown as" }: only those ring and marker labels; "edge": the observable universe's): switch at the cue
+  //   c, s (the RGB selector, in bands of the sky's bar: natural colour is c 22, s 1),
+  //   yaw, pitch, orbit, ezoom: one camera for Inside and the Cloud, so Earth stays put
+  //   when the view switches (ezoom is Earth's size as Inside's field of view, smaller
+  //   is closer; orbit turns the camera about Earth's axis, Earth and the sky together),
+  //   gmst (Earth's turn), unit, lz, exposure, contrast, lift, guides (0–1, the Cloud's rings,
+  //   discs and names faded so the dots show): glide there from wherever
+  //   they are, over `dur` s (default 2.5)
+  //   spin: a turn rate (rad/s) that never stops while it's on. With ezoom it's added to
+  //   the orbit: Earth stays still and the camera goes round it (the author's note,
+  //   2026-10-27); without, Earth turns on its axis in Inside (gmst), the Cloud turns (spinA)
+  //   xfade: with a view switch, the old view fades out over it over this many seconds
+  //   line: 0–1 (default 1), the Compton line drawn over the explorer as its spectrum
+  //   bar (the author's note, 2026-10-27): the line where the chart's camera puts it,
+  //   the colours we see on it, the selector's red, green and blue ranges glowing on
+  //   it, and the photons' names lighting up as the ranges pass them
+  const SPEC_KEYS = cues.filter(c => c.explorer);
+  const SPEC = SCENE.explorer || SPEC_KEYS.length ? { ...(SCENE.explorer || {}) } : null;
+  let specFrame = null, specLastT = NaN;
+  const SPEC_SWITCH = ["view", "radius", "bright", "rings", "labels"];
+  const SPEC_LOG = new Set(["zoom", "ezoom"]);   // glides evenly in powers of ten
+  // a cue's `ease` for its glides (default cubic in-out): "in", "out" or "linear", to chain
+  // several glides into one move without stopping at each
+  const SPEC_EASE = { in: d3.easeQuadIn, out: d3.easeQuadOut, linear: d3.easeLinear };
+  const specSegs = {}, specSwitch = {};
+  if (SPEC) {
+    const init = { show: false, spin: 0, line: 1, ...SPEC };
+    const at = (f, t) => {
+      const segs = specSegs[f];
+      if (!segs) return init[f];
+      let v = init[f];
+      for (const g of segs) {
+        if (g.t0 > t) break;
+        const p = (SPEC_EASE[g.ease] || d3.easeCubicInOut)(clamp01((t - g.t0) / g.dur));
+        v = SPEC_LOG.has(f) ? Math.exp(Math.log(g.from) + (Math.log(g.to) - Math.log(g.from)) * p) : g.from + (g.to - g.from) * p;
+      }
+      return v;
+    };
+    for (const c of SPEC_KEYS) for (const [f, to] of Object.entries(c.explorer)) {
+      if (f === "dur" || f === "fade" || f === "xfade" || f === "ease") continue;
+      if (SPEC_SWITCH.includes(f)) { (specSwitch[f] ||= []).push({ t: c.time, v: to, xfade: c.explorer.xfade }); continue; }
+      const dur = f === "show" ? (c.explorer.fade ?? 1.2) : (c.explorer.dur ?? 2.5);
+      const from = at(f, c.time) ?? (f === "zoom" ? 1 : 0);
+      (specSegs[f] ||= []).push({ t0: c.time, dur, from: f === "show" ? +from : from, to: f === "show" ? +to : to, ease: c.explorer.ease });
+    }
+    // the spin's turn so far, summed in 1/50 s steps once
+    const STEP = 0.02, turn = [0];
+    for (let i = 1; i * STEP <= duration + 1; i++) turn.push(turn[i - 1] + at("spin", (i - 0.5) * STEP) * STEP);
+    const turned = (t) => { const x = clamp01(t / (duration + 1)) * (duration + 1) / STEP, i = Math.floor(x); return turn[i] + ((turn[i + 1] ?? turn[i]) - turn[i]) * (x - i); };
+    specFrame = (t) => {
+      const st = {};
+      for (const f of SPEC_SWITCH) { let v = init[f]; for (const k of specSwitch[f] || []) if (k.t <= t) v = k.v; if (v !== undefined) st[f] = v; }
+      // a cross-fade out of the view before the last switch
+      let prev = init.view ?? "inside";
+      for (const k of specSwitch.view || []) {
+        if (k.t > t) break;
+        if (k.xfade && t < k.t + k.xfade) { st.from = prev; st.fromA = 1 - smooth((t - k.t) / k.xfade); }
+        prev = k.v;
+      }
+      for (const f of new Set([...Object.keys(init), ...Object.keys(specSegs)])) {
+        if (SPEC_SWITCH.includes(f) || f === "spin" || f === "show" || f === "line") continue;
+        const v = at(f, t);
+        if (v !== undefined) st[f] = v;
+      }
+      const a = turned(t);
+      if (a) {
+        if (init.ezoom != null) st.orbit = (st.orbit ?? 0) + a;
+        else if ((st.view ?? "inside") === "cloud") st.spinA = (st.spinA ?? 0) + a; else st.gmst = (st.gmst ?? 0) + a;
+      }
+      return { show: smooth(at("show", t)), line: clamp01(at("line", t)), st };
+    };
+  }
+  let specEl = null;
+  if (SPEC) {
+    specEl = document.createElement("iframe");
+    specEl.id = "narr-spectrum";
+    specEl.title = "The electromagnetic spectrum";
+    specEl.src = `${import.meta.env.BASE_URL}spectrum/index.html?video=1&target=sky&view=${SPEC.view || "inside"}`;
+    layer.insertBefore(specEl, layer.firstChild);   // under the drawings and captions
+    specEl.addEventListener("load", () => {
+      // the explorer boots after its data loads: hand it this frame once it's ready
+      const wait = () => specEl.contentWindow?.spectrumVideo ? (specLastT = NaN, drawSpectrum(curT)) : setTimeout(wait, 50);
+      wait();
+    }, on);
+  }
+  const specReady = () => !specEl || !!specEl.contentWindow?.spectrumVideo;
+  // the sky's bands (the explorer's bar): each one's wavelength, so a selector
+  // position (in bands) lands on the Compton line
+  const specBands = SPEC ? await fetch(`${import.meta.env.BASE_URL}spectrum/sky-spectrum/bands.json`).then(r => r.json()).then(m => m.bands).catch(() => null) : null;
+  const UNIT_M = { fm: 1e-15, nm: 1e-9, "µm": 1e-6, mm: 1e-3, cm: 1e-2, m: 1 };
+  const waveLog = (str) => {   // log10 of a band's wavelength in cm ("21 cm", "330–680 nm", "~1 fm": a range's geometric mean)
+    const parts = str.replace(/~/g, "").split("–").map(x => x.trim().match(/^([\d.]+)\s*(fm|nm|µm|mm|cm|m)?$/));
+    if (parts.some(x => !x)) return NaN;
+    const unit = parts[parts.length - 1][2];
+    const ls = parts.map(x => Math.log10(+x[1] * UNIT_M[x[2] ?? unit] * 100));
+    return ls.reduce((a, b) => a + b, 0) / ls.length;
+  };
+  const bandLam = specBands ? specBands.map(b => waveLog(b.wave)) : [];
+  const lamAt = (p) => {   // selector position (bands) → log10 λ (cm), straight between band centres, on past the ends
+    const n = bandLam.length, i = Math.max(0, Math.min(n - 2, Math.floor(p)));
+    return bandLam[i] + (bandLam[i + 1] - bandLam[i]) * (p - i);
+  };
+  const posAt = (L) => {   // and back: log10 λ → selector position
+    const n = bandLam.length;
+    for (let i = 0; i < n - 1; i++) if ((L <= bandLam[i] && L >= bandLam[i + 1]) || i === n - 2)
+      return i + (L - bandLam[i]) / (bandLam[i + 1] - bandLam[i]);
+    return 0;
+  };
+  // a chart point on the Compton line for a wavelength (photons sit at λ/2π)
+  const linePt = (L) => { const r = L - PHOTON_LAMBDA_OFFSET; return [sx(r), sy(comptonM(r))]; };
+  const PHOTONS = app.objects.filter(o => o.photon).map(o => ({ name: o.name, L: o.logR + PHOTON_LAMBDA_OFFSET }));
+  // the colours we see, along 380–750 nm
+  const seen = (nm) => {
+    const h = Math.max(0, Math.min(270, 270 * (1 - (nm - 400) / 300)));
+    const edge = nm < 420 ? (nm - 380) / 40 : nm > 700 ? (750 - nm) / 50 : 1;
+    return d3.hsl(h, 1, 0.55, Math.max(0, Math.min(1, edge))).toString();
+  };
+  const gSpec = nsvg.insert("g", ":first-child").attr("class", "narr-spec");
+  const CHANNELS = [["#ff3b3b", -1], ["#3bff5a", 0], ["#4a7bff", 1]];
+  function drawSpecLine(t, a, st) {
+    gSpec.selectAll("*").remove();
+    gSpec.attr("opacity", a);
+    if (a <= 0 || !bandLam.length) return;
+    // the whole line across the screen, then the visible band in its own colours
+    const [x0, y0] = linePt(-16), [x1, y1] = linePt(8);
+    gSpec.append("line").attr("x1", x0).attr("y1", y0).attr("x2", x1).attr("y2", y1).attr("class", "narr-spec-line");
+    for (let nm = 380; nm < 750; nm += 10) {
+      const [ax, ay] = linePt(Math.log10(nm * 1e-7)), [bx, by] = linePt(Math.log10((nm + 10) * 1e-7));
+      gSpec.append("line").attr("x1", ax).attr("y1", ay).attr("x2", bx).attr("y2", by).attr("stroke", seen(nm + 5)).attr("class", "narr-spec-seen");
+    }
+    // the selector's three ranges, as soft glows on the line
+    const c = st.c, sp = st.s ?? 1, sig = Math.max(0.35, 0.45 * sp);
+    for (const [col, k] of CHANNELS) {
+      const p = c + k * sp, [ax, ay] = linePt(lamAt(p - sig)), [bx, by] = linePt(lamAt(p + sig)), [mx, my] = linePt(lamAt(p));
+      // (visible light is a sliver of the line, to scale: a halo keeps each range readable)
+      gSpec.append("circle").attr("cx", mx).attr("cy", my).attr("r", 15).attr("fill", col).attr("class", "narr-spec-halo");
+      gSpec.append("line").attr("x1", ax).attr("y1", ay).attr("x2", bx).attr("y2", by).attr("stroke", col).attr("class", "narr-spec-ch");
+      gSpec.append("circle").attr("cx", mx).attr("cy", my).attr("r", 4.5).attr("fill", col).attr("class", "narr-spec-dot");
+    }
+    // the photons: a dot each, and their names while a range is on them
+    for (const ph of PHOTONS) {
+      const [x, y] = linePt(ph.L), q = posAt(ph.L);
+      const d = Math.min(...CHANNELS.map(([, k]) => Math.abs(q - (c + k * sp))));
+      const on = 1 - smooth((d - sig) / 1.2);
+      gSpec.append("circle").attr("cx", x).attr("cy", y).attr("r", 2.6).attr("class", "narr-spec-ph").attr("opacity", 0.45 + 0.55 * on);
+      // names above the line, to its right; near the right edge, to its left
+      const left = x > nsvg.node().clientWidth - 8.5 * ph.name.length - 20;
+      if (on > 0.01) gSpec.append("text").attr("x", left ? x - 9 : x + 9).attr("y", y - 7).attr("text-anchor", left ? "end" : "start")
+        .attr("class", "narr-spec-name").attr("opacity", on).text(ph.name);
+    }
+  }
+  function drawSpectrum(t) {
+    if (!specFrame) return;
+    const { show, line, st } = specFrame(t);
+    drawSpecLine(t, show * line, st);   // follows the chart's camera, so every frame
+    if (t === specLastT) return;
+    specEl.style.opacity = show;
+    specEl.style.visibility = show > 0 ? "visible" : "hidden";
+    const api = specEl.contentWindow?.spectrumVideo;
+    // set it while it shows, and once while hidden so it's ready to fade in
+    if (api && (show > 0 || !(specLastT >= 0))) { api.set(st); specLastT = t; }
+  }
+
   // ---------- frame ----------
   let lastKey = -2, lastPhase = null;
   const creditsEl = document.getElementById("narr-credits");
@@ -1660,14 +2417,17 @@ export async function startNarration(app) {
     const arriving = view.phase === "hold" && (lastPhase === "fly" || key !== lastKey);
     app.setCamera(view, !arriving);
     lastKey = key; lastPhase = view.phase;
+    app.bgNoiseTime(t);    // the fractal background, drawn for this t (its clouds evolve by t)
     overlay();
   }
   function overlay() {
     drawUnits(curT);
+    drawEnergy(curT);
     drawDolly(curT);       // first, so drawings over a dive's picture measure this frame's copy
     drawHighlights(curT);
     drawPhoto(curT);
     drawCover(curT);
+    drawSpectrum(curT);
     drawCaption(curT);
   }
   app.onRedraw(() => { gHl && overlay(); });
@@ -1695,17 +2455,32 @@ export async function startNarration(app) {
       }),
     }),
     renderAt,
-    settle(t) { const { view } = camera(t); app.setCamera(view, false); overlay(); },
+    now: () => curT,     // the take's time on screen (the live Hopf pictures animate by it)
+    settle(t) { const { view } = camera(t); app.setCamera(view, false); app.bgNoiseSettle(); overlay(); },
     camera: (t) => camera(t).view,
     pending: () => app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
       [...photoImgs.values()].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length +
-      (COVER && !coverImg.complete ? 1 : 0),
+      [...photoBox.querySelectorAll("video"), ...layer.querySelectorAll("#narr-clips video")].filter(v => v.seeking || v.readyState < 2).length +
+      (COVER && !coverImg.complete ? 1 : 0) + (specReady() ? 0 : 1) + tracesPending() + app.bgNoisePending(),
+    // the fractal background: { wanted, shown, failed, lost } (failed: "no WebGL2"; lost: GL contexts lost), for the renderer's log
+    bgNoise: () => app.bgNoiseStatus(),
     audio: base + take.audio,
   };
   if (RENDER) return;
 
   // ---------- live player ----------
+  // every picture the scene names, fetched now: on a phone the camera can otherwise reach an
+  // object before its picture has downloaded (the renderer waits for them, the live player can't)
+  {
+    const names = [];
+    const walk = (v) => {
+      if (Array.isArray(v)) v.forEach(walk);
+      else if (v && typeof v === "object") { if (typeof v.obj === "string") names.push(v.obj); Object.values(v).forEach(walk); }
+    };
+    walk(SCENE.cues);
+    app.prefetchIcons?.(names);
+  }
   // One audio element for every take (app.audio): once a tap has started it,
   // mobile browsers let it play the next take without another tap.
   const audio = app.audio || new Audio();
@@ -1972,6 +2747,7 @@ body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets
 #narr-svg text.narr-sketch-sub { font-size: 11.5px; font-weight: 600; fill: rgba(235,238,255,0.8); letter-spacing: 0.05em; }
 #narr-svg text.narr-guide { font-size: 11px; font-weight: 600; fill: #e8ecff; letter-spacing: 0.03em; }
 .narr-cand { font-size: 15px; }
+.narr-hub { font-size: 30px; letter-spacing: 0.06em; }
 body.narr-no-text #chart text { visibility: hidden; }
 /* a cue's focus: every other object fades (pictures, dots, shadows, names, catalogue dust) */
 body.narr-obj-focus #chart :is(g.icon-g, g.obj-g, g.icon-shadow, text.obj-label):not(.narr-keep),
@@ -2001,14 +2777,30 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
   -webkit-text-stroke: 6px #000; paint-order: stroke fill; }
 #narr-caption span { color: #fff; }
 #narr-cover { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+#narr-layer .narr-spec-line { stroke: #fff; stroke-width: 2; opacity: 0.6; }
+#narr-layer .narr-spec-seen { stroke-width: 5; stroke-linecap: butt; }
+#narr-layer .narr-spec-ch { stroke-width: 16; stroke-linecap: round; opacity: 0.5; mix-blend-mode: screen; }
+#narr-layer .narr-spec-dot { stroke: #000; stroke-width: 1; }
+#narr-layer .narr-spec-halo { opacity: 0.35; filter: blur(6px); mix-blend-mode: screen; }
+#narr-layer .narr-spec-ph { fill: #fff; }
+#narr-layer .narr-spec-name { fill: #fff; font: 600 15px "IBM Plex Sans", "Helvetica Neue", sans-serif; paint-order: stroke; stroke: #000; stroke-width: 3px; }
+#narr-spectrum { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; pointer-events: none; visibility: hidden; opacity: 0; }
 #narr-cover img { position: absolute; left: 0; top: 0; transform-origin: 0 0; max-width: none; }
 #narr-photo { position: absolute; inset: 0; background: #000; overflow: hidden; visibility: hidden; pointer-events: none; }
 #narr-photo .np-imgs { position: absolute; inset: 0; will-change: transform; }
 #narr-photo figure { position: absolute; inset: 0; margin: 0; }
-#narr-photo img { width: 100%; height: 100%; display: block; }
+#narr-clips { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+#narr-clips .narr-clip { position: absolute; }
+#narr-clips .narr-clip-src { position: absolute; width: 2px; height: 2px; opacity: 0; }
+#narr-photo img, #narr-photo video { width: 100%; height: 100%; display: block; object-fit: contain; }
 #narr-photo .np-stack { display: flex; flex-direction: column; justify-content: center; gap: 2%; padding: 15% 8% 30%; box-sizing: border-box; }
 #narr-photo .np-stack figure { position: relative; flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; }
 #narr-photo .np-stack img { flex: 1 1 0; min-height: 0; }
+#narr-photo .np-row { flex-direction: row; align-items: center; gap: 3%; padding: 30% 3% 38%; }
+#narr-photo .np-row figure { min-width: 0; height: 100%; justify-content: center; }
+#narr-photo .np-row img, #narr-photo .np-row video { flex: 0 1 auto; width: 100%; height: auto; aspect-ratio: 1; }
+#narr-photo .np-row figcaption { margin-top: 10px; text-align: center; line-height: 1.25; }
+#narr-photo figcaption small { display: block; font-size: 14px; letter-spacing: 0.06em; color: rgba(255,255,255,0.8); }
 #narr-photo figcaption { margin-top: 4px; font: 700 17px/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.12em;
   text-transform: uppercase; color: #ffd54f; }
 #narr-photo .np-cap { position: absolute; left: 6%; right: 6%; top: 6.5%; text-align: center;
