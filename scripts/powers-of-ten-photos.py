@@ -151,6 +151,37 @@ def match(fine, coarse, s_lo, s_hi, n=400):
     return g, mb - g * ma
 
 
+def cloud_alpha(tc, b7, base):
+    """How cloudy each pixel is: well brighter than the cloud-free ground beneath and
+    bright outright (not the ocean's haze or glint), grey-white, and bright at 2.1 µm
+    too (band 7: snow and ice are dark there, show cyan in 7-2-1, while clouds stay white)."""
+    lum = lambda a: (0.299 * a[..., 0] + 0.587 * a[..., 1] + 0.114 * a[..., 2]) / 255
+    Lt, Lb = lum(tc), lum(base)
+    mx, mn = tc.max(-1), tc.min(-1)
+    sat = (mx - mn) / np.maximum(mx, 1)
+    a = (np.clip((Lt - Lb - 0.15) / np.maximum(0.85 - Lb, 0.15), 0, 1) * np.clip((Lt - 0.35) / 0.2, 0, 1)
+         * np.clip((0.35 - sat) / 0.2, 0, 1) * np.clip((b7[..., 0] / 255 - 0.2) / 0.2, 0, 1))
+    return a ** 0.8
+
+
+def globe(out):
+    """The whole Earth for the zoom's globe (macro.js render3), equirectangular: the Blue
+    Marble the photos end on, with the clouds of the same day cut out the same way, so
+    the photos hand over to the turning sphere without a jump. 8K and 4K."""
+    halves = lambda src: np.concatenate([fetch(src, -180, -90, 0, 90, 4096, 4096), fetch(src, 0, -90, 180, 90, 4096, 4096)], axis=1)
+    bm, tc, b7 = halves("bm"), halves("modis"), halves("modis721")
+    a = cloud_alpha(tc, b7, bm)
+    # MODIS sees nothing past ~60° S in June (the polar night): fade the clouds out from 50° S,
+    # not with the swaths' saw-toothed edge
+    lat = 90 - (np.arange(a.shape[0]) + 0.5) / a.shape[0] * 180
+    a = (a * np.clip((lat + 62) / 12, 0, 1)[:, None])[..., None]
+    img = bm * (1 - a) + np.clip(tc * 0.6 + 255 * 0.4, 0, 255) * a
+    im = Image.fromarray(np.clip(img, 0, 255).astype(np.uint8))
+    im.save(os.path.join(out, "globe-8k.jpg"), quality=90)
+    im.resize((4096, 2048), Image.LANCZOS).save(os.path.join(out, "globe-4k.jpg"), quality=90)
+    print("globe-8k.jpg, globe-4k.jpg  cloud cover", f"{a.mean():.0%}")
+
+
 def clouds(steps, out, px):
     """See-through cloud overlays (RGBA PNG) for the frames from 10^3.85 m up."""
     cdir = os.path.join(out, "clouds")
@@ -161,16 +192,7 @@ def clouds(steps, out, px):
         tc, _ = frame(s, px, "modis")
         b7, _ = frame(s, px, "modis721")
         base = np.asarray(Image.open(os.path.join(out, f"s+{s:.2f}.jpg")).convert("RGB").resize((px, px), Image.LANCZOS), dtype=np.float32)
-        lum = lambda a: (0.299 * a[..., 0] + 0.587 * a[..., 1] + 0.114 * a[..., 2]) / 255
-        Lt, Lb = lum(tc), lum(base)
-        mx, mn = tc.max(-1), tc.min(-1)
-        sat = (mx - mn) / np.maximum(mx, 1)
-        # well brighter than the ground beneath and bright outright (not the ocean's
-        # haze or glint), grey-white, and bright at 2.1 µm too (band 7: snow and ice
-        # are dark there, show cyan in 7-2-1, while clouds stay white)
-        a = (np.clip((Lt - Lb - 0.15) / np.maximum(0.85 - Lb, 0.15), 0, 1) * np.clip((Lt - 0.35) / 0.2, 0, 1)
-             * np.clip((0.35 - sat) / 0.2, 0, 1) * np.clip((b7[..., 0] / 255 - 0.2) / 0.2, 0, 1))
-        a = a ** 0.8
+        a = cloud_alpha(tc, b7, base)
         rgb = np.clip(tc * 0.6 + 255 * 0.4, 0, 255)
         img = np.dstack([rgb, 255 * a]).astype(np.uint8)
         name = f"s+{s:.2f}.webp"
@@ -186,12 +208,15 @@ def main():
     ap.add_argument("--px", type=int, default=4000)
     ap.add_argument("--only", default="")
     ap.add_argument("--clouds", action="store_true", help="write the cloud overlays (from the photos already made)")
+    ap.add_argument("--globe", action="store_true", help="write the globe's map (Blue Marble with the day's clouds)")
     ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "..", "video", "powers-of-ten", "photos"))
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     steps = [round(1.6 + 0.25 * i, 2) for i in range(24)]
     if a.only:
         steps = [float(v) for v in a.only.split(",")]
+    if a.globe:
+        return globe(a.out)
     if a.clouds:
         return clouds(steps, a.out, min(a.px, 2048))
     man_path = os.path.join(a.out, "manifest.json")

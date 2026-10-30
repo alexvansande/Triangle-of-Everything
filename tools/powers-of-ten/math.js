@@ -125,7 +125,7 @@ export const EDGE = basis(norm(add(mul(AWAY, Math.cos(6 * D)), mul(ECL_POLE, Mat
 const K0 = basis(UP, NORTH);
 const K2 = basis(GAL_POLE, EDGE.u);
 const K3 = basis(SG_POLE, GAL_POLE);
-const KEYS = [[7.65, K0], [8.4, EDGE], [14.6, EDGE], [16.8, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
+const KEYS = [[6.4, K0], [8.4, EDGE], [14.6, EDGE], [16.8, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
 // the camera is in perspective (50° across the frame's shorter side) from the Earth
 // to the Oort cloud, so what's near it is bigger and passes by; flat before and
 // after. 0…1: how much

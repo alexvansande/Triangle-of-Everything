@@ -29,15 +29,17 @@ const micro = microLayers();
 const macro = macroLayers();
 const space = spaceLayers(macro.globe);
 const plates = await platesLayer(q.get("plates") === "1");
-// the real photographs from the tree's crown to the globe, on unless ?photos=0; gone
-// by the time the camera swings round the Earth (10^7.65 m)
-const photos = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/", 0.3);
+// the real photographs from the tree's crown to the globe, on unless ?photos=0; they
+// give way to the turning 3D globe (the same map, macro.js) as the camera starts to
+// swing round the Earth, once the satellite clouds are in view (10^6.4 m)
+const PHOTOS_OUT = [6.45, 6.9];
+const photos = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/", 0.3, { fadeOutAt: PHOTOS_OUT });
 // and the clouds of the day the globe shows (15 June 2024), a layer of their own 8 km
 // up: behind the camera at first, then passed through (with the wisps, crossings.js)
 // near 10^3.9 m, then settling onto the ground as we climb on; gone as the globe,
 // with its own clouds, takes over
 const CLOUD_HEIGHT = 8000;
-const clouds = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/clouds/", 0.3, { hides: false, single: true, height: CLOUD_HEIGHT });
+const clouds = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/clouds/", 0.3, { hides: false, single: true, height: CLOUD_HEIGHT, fadeOutAt: PHOTOS_OUT });
 // biggest first, so smaller things paint over what holds them; what we cross, nearest the camera, last
 const layers = [...space, ...macro.layers, ...micro, ...small.reverse(), crossingsLayer(q.get("crossings") !== "0")];
 // the whole picture rolls round the line of sight at the same rate at every scale,
@@ -75,6 +77,39 @@ function driveCloud(s, W, H, Dg, roll, dpr) {
   const t = ramp(s, ...CLOUD_FLY), dist = Math.exp(Math.log(DIST0) + (Math.log(dEnd) - Math.log(DIST0)) * t);
   // turning a little as it goes (35°), for the depth, and still at the end
   ctl({ universe: true, ...CLOUD_END, zoom: 3.2 / dist, yaw: CLOUD_END.yaw + 0.6 * (1 - t) });
+  cloudView = { dist, Dg, a };
+}
+// over the Cloud, once it's a sphere in front of us: the Hubble sphere as a dashed
+// circle and the CMB named. On the Cloud's log scale (1 unit = 950 km, radius 1 = the
+// CMB, 46 billion light-years) the Hubble sphere, c/H₀ = 14.4 billion light-years (where
+// galaxies recede at the speed of light; H₀ = 67.7 km/s/Mpc), lies at radius 0.976. Each
+// is seen from the Cloud's camera, dist from the centre with a 40° view across the frame
+let cloudView = null;
+const LOG_R = (lyLog) => (lyLog - CLOUD_END.unit) / (10.66 - CLOUD_END.unit);
+const HUBBLE_R = LOG_R(Math.log10(1.44e10));
+function drawSpheres(ctx, W, H, dpr, s) {
+  if (!cloudView) return;
+  const { dist, Dg, a: ca } = cloudView, a = ca * ramp(s, 26.8, 27.2);
+  if (a <= 0.01) return;
+  const px = (r) => (dist > r ? Math.tan(Math.asin(r / dist)) / Math.tan(20 * Math.PI / 180) * Dg / 2 : 0);
+  const rh = px(HUBBLE_R), rc = px(1);
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.font = `${13 * dpr}px "IBM Plex Sans", system-ui, sans-serif`; ctx.textAlign = "center";
+  ctx.lineWidth = 3 * dpr; ctx.strokeStyle = "rgba(0,0,0,0.7)";
+  if (rh) {
+    ctx.setLineDash([6 * dpr, 6 * dpr]); ctx.lineWidth = 1.2 * dpr; ctx.strokeStyle = "rgba(170,205,255,0.75)";
+    ctx.beginPath(); ctx.arc(W / 2, H / 2, rh, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    ctx.textBaseline = "top"; ctx.lineWidth = 3 * dpr; ctx.strokeStyle = "rgba(0,0,0,0.7)";
+    ctx.strokeText("the Hubble sphere · 14 billion light-years", W / 2, H / 2 - rh + 8 * dpr);
+    ctx.fillStyle = "rgba(200,222,255,0.95)"; ctx.fillText("the Hubble sphere · 14 billion light-years", W / 2, H / 2 - rh + 8 * dpr);
+  }
+  if (rc) {
+    ctx.textBaseline = "top";
+    ctx.strokeText("the CMB · 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
+    ctx.fillStyle = "#f2d6b0"; ctx.fillText("the CMB · 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
+  }
+  ctx.restore();
 }
 
 // ---------- drawing ----------
@@ -140,6 +175,7 @@ function render(t) {
     ctx.fillStyle = "#f2f0ea"; ctx.fillText(text, x, y);
   }
   ctx.globalAlpha = 1;
+  if (state.labels) drawSpheres(ctx, W, H, dpr, s);
   readout(s);
 }
 

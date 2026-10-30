@@ -91,6 +91,20 @@ Rough edges: NAIP shows patches from different flight dates at 7–22 km; below 
 upscaled (0.3 m a pixel), so the crown close-ups are soft. To rebuild:
 `python3 scripts/powers-of-ten-photos.py` (`--px`, `--only 1.6,1.85`, `--out`).
 
+### The globe, the sky, the end
+
+- From 10^6.4 m, once the satellite clouds are in view, the camera starts to swing round the
+  Earth and the flat photos give way (10^6.45 to 10^6.9) to the 3D globe, drawn from
+  `photos/globe-4k.jpg` (8K with `?hq=1`): the same Blue Marble with the same day's clouds,
+  cut out the same way (`powers-of-ten-photos.py --globe`), lit by the Sun.
+- Behind the Earth and the solar system: NASA's Deep Star Maps 2020 (`sky/sky-4k.jpg`, 8K with
+  `?sky=8k` or `?hq=1`): 1.7 billion stars from Hipparcos, Tycho-2 and Gaia DR2 with the Milky
+  Way's glow, in galactic coordinates, combined and tone-mapped from SVS's two EXR layers.
+  Credit: NASA/Goddard Space Flight Center Scientific Visualization Studio; Gaia DR2:
+  ESA/Gaia/DPAC. Drawn at the frame's resolution while the camera holds still.
+- At the end, over the CMB's sphere: the Hubble sphere as a dashed circle (c/H₀ = 14.4 billion
+  light-years, radius 0.976 on the Cloud's log scale) and the CMB named (46 billion light-years).
+
 ## The image pass (DNA → Earth)
 
 The frames in `rough/` are 1024 px squares, one every half decade (×3.16), from

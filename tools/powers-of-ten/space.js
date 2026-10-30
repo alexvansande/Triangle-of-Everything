@@ -49,40 +49,44 @@ export function spaceLayers(globe) {
   };
 
   // ---------- Earth, the Moon and its orbit ----------
-  // ---------- the sky behind: Gaia's all-sky map (the spectrum page's RP, G and BP,
-  // natural colour), faint and at infinity: it turns with the camera but doesn't zoom,
-  // so the solar system shows in front of it. A 50° view across the frame's shorter
-  // side, sampled on a coarse grid and smoothed ----------
-  const skyImg = image("/spectrum/sky-spectrum/pack-7.jpg"), SKY_G = 160;
-  let skyPx = null, skyCv = null, skyCtx = null, skyOut = null;
+  // ---------- the sky behind: NASA's Deep Star Maps 2020 (1.7 billion stars from
+  // Hipparcos, Tycho-2 and Gaia DR2, with the Milky Way's glow; galactic, 4K, or 8K with
+  // ?sky=8k or ?hq=1), at infinity: it turns with the camera but doesn't zoom, so the
+  // solar system shows in front of it. A 50° view across the frame's shorter side; drawn
+  // once at the frame's resolution while the camera holds still, coarser while it turns ----------
+  const big = /[?&](sky=8k|hq=1)/.test(location.search);
+  const skyImg = image(`/video/powers-of-ten/sky/sky-${big ? "8k" : "4k"}.jpg`);
+  let skyPx = null, skyCv = null, skyKey = "", lastKey = "";
   const sky = {
-    name: "sky", range: [7.2, 17.2],
+    name: "sky", range: [6.8, 17.2],
     draw(cam) {
-      const a = 0.5 * win(cam.s, 7.4, 8.2, 16.0, 16.9);
+      const a = 0.85 * win(cam.s, 6.9, 7.6, 16.0, 16.9);
       if (a <= 0.01) return;
       if (!skyPx) {
         if (!ready(skyImg)) return;
         const c = document.createElement("canvas"); c.width = skyImg.naturalWidth; c.height = skyImg.naturalHeight;
         const g = c.getContext("2d"); g.drawImage(skyImg, 0, 0);
-        // each band is normalised to its own range, so the faint sky reads as grey grain:
-        // a black point and a steep curve keep the Milky Way's band and the bright regions
-        const d = g.getImageData(0, 0, c.width, c.height).data, lut = new Uint8Array(256);
-        for (let v = 0; v < 256; v++) lut[v] = 255 * Math.max(0, (v / 255 - 0.3) / 0.7) ** 2;
-        for (let i = 0; i < d.length; i += 4) { d[i] = lut[d[i]]; d[i + 1] = lut[d[i + 1]]; d[i + 2] = lut[d[i + 2]]; }
-        skyPx = { w: c.width, h: c.height, d };
-        skyCv = document.createElement("canvas"); skyCv.width = skyCv.height = SKY_G;
-        skyCtx = skyCv.getContext("2d"); skyOut = skyCtx.createImageData(SKY_G, SKY_G);
+        skyPx = { w: c.width, h: c.height, d: g.getImageData(0, 0, c.width, c.height).data };
+        skyCv = document.createElement("canvas");
       }
-      const { r, u, n } = cam.cam, T = Math.tan(25 * Math.PI / 180) * cam.W / cam.min, o = skyOut.data, { w, h, d } = skyPx;
-      for (let j = 0; j < SKY_G; j++) for (let i = 0; i < SKY_G; i++) {
-        const x = ((i + 0.5) / SKY_G * 2 - 1) * T, y = (1 - (j + 0.5) / SKY_G * 2) * T;
-        const vx = -n[0] + x * r[0] + y * u[0], vy = -n[1] + x * r[1] + y * u[1], vz = -n[2] + x * r[2] + y * u[2];
-        const l = Math.atan2(vy, vx), b = Math.asin(vz / Math.hypot(vx, vy, vz));
-        const U = (((0.5 - l / (2 * Math.PI)) % 1) + 1) % 1, V = 0.5 - b / Math.PI;
-        const si = 4 * (Math.min(h - 1, (V * h) | 0) * w + Math.min(w - 1, (U * w) | 0)), k = 4 * (j * SKY_G + i);
-        o[k] = d[si]; o[k + 1] = d[si + 1]; o[k + 2] = d[si + 2]; o[k + 3] = 255;
+      const { r, u, n } = cam.cam, key = [...n, ...u].map((v) => v.toFixed(4)).join();
+      const still = key === lastKey; lastKey = key;
+      const G = still ? Math.min(cam.W, big ? 2600 : 1800) : 360, want = `${key}|${G}|${cam.W}`;
+      if (want !== skyKey) {
+        skyKey = want;
+        skyCv.width = skyCv.height = G;
+        const sc = skyCv.getContext("2d"), out = sc.createImageData(G, G), o = out.data, { w, h, d } = skyPx;
+        const T = Math.tan(25 * Math.PI / 180) * cam.W / cam.min;
+        for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) {
+          const x = ((i + 0.5) / G * 2 - 1) * T, y = (1 - (j + 0.5) / G * 2) * T;
+          const vx = -n[0] + x * r[0] + y * u[0], vy = -n[1] + x * r[1] + y * u[1], vz = -n[2] + x * r[2] + y * u[2];
+          const l = Math.atan2(vy, vx), b = Math.asin(vz / Math.hypot(vx, vy, vz));
+          const U = (((0.5 - l / (2 * Math.PI)) % 1) + 1) % 1, V = 0.5 - b / Math.PI;
+          const si = 4 * (Math.min(h - 1, (V * h) | 0) * w + Math.min(w - 1, (U * w) | 0)), k = 4 * (j * G + i);
+          o[k] = d[si]; o[k + 1] = d[si + 1]; o[k + 2] = d[si + 2]; o[k + 3] = 255;
+        }
+        sc.putImageData(out, 0, 0);
       }
-      skyCtx.putImageData(skyOut, 0, 0);
       const ctx = cam.ctx;
       ctx.globalAlpha = a; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
       ctx.drawImage(skyCv, 0, 0, cam.W, cam.H);
@@ -111,16 +115,23 @@ export function spaceLayers(globe) {
   }));
   const SUN_DIR = norm(sub(SUN, EARTH_C));
   const earthMoon = {
-    name: "earth & moon", range: [7.5, 11.5],
+    name: "earth & moon", range: [6.3, 11.5],
     draw(cam) {
-      const a = 1 - ramp(cam.s, 10.6, 11.2);
+      // in over the photos as the camera starts to turn (10^6.4 m), out past the Moon
+      const a = ramp(cam.s, 6.4, 6.85) * (1 - ramp(cam.s, 10.6, 11.2));
       if (a <= 0.01) return;
       const [x, y, sc] = cam.projS(EARTH_C), rr = Math.max(1.5 * cam.dpr, R_EARTH * cam.k * sc);
       // the globe as the camera sees it, lit by the Sun (a little bigger than the
       // ground's own picture, so it covers it as the two cross-fade)
-      if (globe.ready && sc) {
-        const c = globe.render3(cam.cam, SUN_DIR, Math.max(32, Math.min(512, Math.round(2.2 * rr / 16) * 8)));
-        cam.ctx.globalAlpha = a; cam.ctx.drawImage(c, x - rr * 1.02, y - rr * 1.02, rr * 2.04, rr * 2.04); cam.ctx.globalAlpha = 1;
+      if (sc) {
+        // only the part of the disc on the frame (close up it's many frames wide), at
+        // most 720 px a side live, 2,048 with ?hq=1
+        const X0 = Math.max(-1.02, -x / rr), X1 = Math.min(1.02, (cam.W - x) / rr), Y0 = Math.max(-1.02, (y - cam.H) / rr), Y1 = Math.min(1.02, y / rr);
+        if (X1 > X0 && Y1 > Y0) {
+          const cap = /[?&]hq=1/.test(location.search) ? 2048 : 720, wpx = (X1 - X0) * rr, hpx = (Y1 - Y0) * rr, f = Math.min(1, cap / Math.max(wpx, hpx));
+          const c = globe.render3(cam.cam, SUN_DIR, Math.max(16, Math.round(wpx * f)), Math.max(16, Math.round(hpx * f)), [X0, Y0, X1, Y1]);
+          if (c) { cam.ctx.globalAlpha = a; cam.ctx.drawImage(c, x + X0 * rr, y - Y1 * rr, wpx, hpx); cam.ctx.globalAlpha = 1; }
+        }
       }
       ring(cam, EARTH_C, MOON_ORBIT[0], MOON_ORBIT[1], 3.844e8, `rgba(200,210,230,${0.5 * a * ramp(cam.s, 7.9, 8.4)})`);
       const [mx, my] = body(cam, imgs.moon, MOON_FLY.pos, MOON_FLY.r, 1.2, a * ramp(cam.s, 7.8, 8.2));
