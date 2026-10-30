@@ -52,6 +52,11 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   galaxies 2.1–2.2×, clusters and up 2.3×. The site's map too. A glow's room from its
   neighbours grows only by the square root of that, so the bigger galaxies still leave room
   for each other (soft edges may touch).
+- **Live 3D pictures in the videos** (author, 2026-10-30, for Laniakea: "render it as a 3d object
+  with parallax effect like we do with others"): the Hopf particles (`src/hopf-icons.js`) and
+  Laniakea (`src/laniakea-icons.js`, the real 2MRS galaxies, `public/laniakea/`) are drawn live
+  over their pictures while a take plays, turning with their place on screen as the camera pans.
+  Laniakea only sways about the view the author picked; the site's chart keeps the stills.
 - **Space is darker** (2026-10-24): the chart darkens with mass from the stars up (half by
   10^35 g, 70% from 10^41 g), and soft-edged space pictures (galaxies, clusters, nebulae)
   may sit closer together than solid things: they keep as little as 45% of their room.

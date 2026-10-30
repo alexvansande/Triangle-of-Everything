@@ -105,7 +105,8 @@ async function renderRange(t0, t1, file, label) {
   page.on("pageerror", e => console.log(`[${label}] pageerror:`, e.message));
   await page.evaluateOnNewDocument(CLOCK_SHIM);
   await page.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 600000 });   // not networkidle: a close opening view never reports idle
-  await page.waitForFunction("window.__narr", { timeout: 60000 });
+  // a slow start waits (video 5 takes ~80 s to be ready on a busy machine; 60 s failed the render)
+  await page.waitForFunction("window.__narr", { timeout: 300000 });
   // the fractal background needs WebGL2: without it the page quietly shows the plain painting
   // instead (2026-10-28: the videos had no fractal), so say which GL this Chrome has, and stop
   const gl = await page.evaluate(() => {

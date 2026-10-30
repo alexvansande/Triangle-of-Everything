@@ -2143,11 +2143,11 @@
     ]
   },
   "laniakea-galaxy-supercluster": {
-    "fingerprint": "c55ebd2a6f12406b6954785088a1ecfb626c702e8d17a19a9051270e67e6424a",
+    "fingerprint": "26768fb697c9457fadcc37397fa3f45bf968ca0279158b02902d8e4fb9b4aebc",
     "baseWidth": 128,
     "source": "content/icons/src/laniakea-galaxy-supercluster.png",
     "reason": "matching master",
-    "sourceDifference": 2.62896728515625,
+    "sourceDifference": 0.91558837890625,
     "variants": [
       {
         "width": 256,

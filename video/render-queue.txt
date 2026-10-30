@@ -9,7 +9,6 @@
 # A "# next: <take>" line renders that take before the others.
 # next: short-04-black-holes
 short-04-black-holes
-short-01-hook
 short-03-stars
 short-05-hubble-sphere
 short-06-tiny-world

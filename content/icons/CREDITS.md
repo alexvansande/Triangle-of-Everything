@@ -50,7 +50,13 @@ lake-tahoe, lake-superior, lake-victoria, voyager-golden-record, sea-of-galilee,
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
 human, red-blood-cell, grain-of-salt, penny,
 soccer-ball, observable-universe, void, itokawa,
-NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula, laniakea-galaxy-supercluster
+NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula
+
+## Drawn from data
+
+| Icon | Data | How |
+|------|------|-----|
+| laniakea-galaxy-supercluster | 2MASS Redshift Survey, 42,986 galaxies (Huchra et al. 2012, ApJS 199, 26), via tools/sky-points | `scripts/laniakea-icon.mjs`: each galaxy linked to its nearest neighbours and coloured by the attractor it flows towards (a simple model, `scripts/laniakea-data.mjs`); the look picked by the author, 2026-10-30 |
 
 ## Downloaded from Space Agencies / Wikimedia
 
