@@ -196,7 +196,7 @@ export default {
     // its neighbours, a bare dot: the author's note, 2026-10-30), named, and framed whole with
     // the line they're squeezed onto
     { at: "mass of a small moon", cam: { r: 0.3, m: 20.3, span: 33 }, forceIcons: ["Sun", "Ton 618", "Hyperion", "Eros"], hl: [
-      { obj: "Hyperion", label: "hyperion · a small moon", place: "below" }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75), label: "the size of a virus", delay: 0.4 }] },
+      { obj: "Hyperion", label: "hyperion: saturn's moon", place: "below" }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75), label: "the size of a virus", delay: 0.4 }] },
     { at: ["asteroid mass", "asteroid's mass"], hl: [{ obj: "Hyperion", label: false }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75) },
       { obj: "Eros", label: "eros · an asteroid", place: "below", delay: 0.2 }, { arrow: true, from: { obj: "Eros" }, to: BH(18.83), label: "smaller than an atom", delay: 0.6 }] },
     { at: ["they'd be invisible", "completely invisible", "basically invisible"], cam: { r: 23, m: 45, span: 14 }, dur: 9, drift: 0.02, clear: true, forceIcons: null },
