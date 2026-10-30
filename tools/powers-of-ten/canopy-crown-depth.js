@@ -6,7 +6,7 @@ function image(src,feather=false){const p={};const img=new Image();img.onload=()
  for(const v of [0,1]){const g=x.createLinearGradient(0,0,v?0:n,v?n:0);g.addColorStop(0,'#0000');g.addColorStop(.045,'#000');g.addColorStop(.955,'#000');g.addColorStop(1,'#0000');x.fillStyle=g;x.fillRect(0,0,n,n)}p.img=c;
  };img.src=ROOT+src;return p}
 export function canopyCrownDepth(){
- const planes=[['back-v1.png',.08],['mid-v1.png',.035],['near-matched.png',0]].map(([file,lag])=>Object.assign(image('canopy-depth/'+file),{lag}));
+ const planes=[['back-v1.png',.18],['mid-v1.png',.08],['near-matched.png',0]].map(([file,lag])=>Object.assign(image('canopy-depth/'+file),{lag}));
  const details=[['1.47m',3],['49.1cm',4],['16.4cm',5],['5.46cm',6]].map(([name,k])=>Object.assign(image('ladybug-chain/matched/'+name+'.png',true),{span:10**1.6/3**k}));
  const layer=document.createElement('canvas');
  return {draw(cam){

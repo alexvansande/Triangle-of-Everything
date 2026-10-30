@@ -83,3 +83,18 @@ Whole amoeba review stop:900µm frame keeps the447.7µm body inside the central5
 Replaced the runtime catalogue Boeing747 with versioned built-in image generation plane-photographic-v3.png. Catalogue image supplied anatomy/orientation only. The new asset uses warm upper-left sunlight, subdued weathered paint and photographic surface reflections; a correction removed recognisable forest patterns on wings so the metal remains visually opaque. Native1254² transparent image. Exact prompts/origins in plane-photographic-provenance.json; originals retained.
 
 Both bird and plane now share closeFlybyBlur: no defocus at near<=1.35, easing to42px at near>=5 in a960px preview, scaled proportionally to168px in a3840px master. Close opacity remains1; geometric exit and the airplane's distant6→2pixel fade are preserved. Blur remains dynamic, never baked into either sprite.
+
+### 2026-10-30 — 1 mm focus handoff and stronger canopy depth
+
+Canopy lag increased from back/mid 0.08/0.035 to 0.18/0.08; near remains
+1×. The unchanged 3.9–3.2 m replacement and below-3 m easing keep the
+initial composite registered.
+
+The microscopic layer now begins with the exact same sharp 2.02 mm parent
+image at its original physical span and centre (replacement 1.8–1.5 mm).
+Only after replacement does app-controlled focus shift (1.4–0.65 mm):
+the shell softens and the fixed-size amoeba resolves from defocus.
+The different water texture enters later, 0.85–0.45 mm, after the rim has
+left both central video crops. No regenerated or preblurred parent assets.
+Amoeba diameter remains 447.7 µm; drop diameter remains 1.16 mm.
+Verified module syntax and inspected 1 mm, 680 µm and 1.6 m preview stops.
