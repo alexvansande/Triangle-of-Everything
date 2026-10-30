@@ -10,9 +10,8 @@
 # render (scripts/narration-render-partial.py), when the take's audio is older than that render
 # and its length still matches; otherwise the whole take renders.
 #
-# A take is stale when its own audio, captions or scene changed since the commit its render
-# (output/videos/<take>.mp4, never in git) was made from (output/videos/<take>.commit; for an
-# older render without one, when the render file is older than the last such commit). A change to the code and pictures every
+# A take is stale when its render (output/videos/<take>.mp4, never in git) is older than the
+# last commit touching its own audio, captions or scene. A change to the code and pictures every
 # short draws with (src/, content/, the photos) doesn't count by itself: most only add an opt-in
 # cue field, and sessions push several a day, so each would re-render every take. The session
 # that makes one queues the takes it changes (CLAUDE.md). The old render stays in
@@ -45,17 +44,18 @@ for t in $takes; do
   pgrep -f "narration-render.mjs $t " > /dev/null && { echo "= $t: already rendering"; continue; }
   out=output/videos/$t.mp4
   changed=$(git log -1 --format=%ct -- "public/narration/$t" "src/narration-scenes/$t.js")
-  queued=$(grep -qx "$t" video/render-queue.txt 2>/dev/null && echo 1)
+  # a "# next: <take>" note alone queues it too
+  queued=$(grep -qxE "$t|# next: $t" video/render-queue.txt 2>/dev/null && echo 1)
   note=$(sed -n "s/^# $t changed: //p" video/render-queue.txt 2>/dev/null | head -1)
-  # up to date: nothing of the take changed since the commit the render was made from (its stamp);
-  # the file's time alone misses a change pushed while it was rendering (video 4, 2026-10-29)
-  stamp=output/videos/$t.commit
-  if [ -s "$stamp" ]; then
-    fresh() { git diff --quiet "$(cat "$stamp")" HEAD -- "public/narration/$t" "src/narration-scenes/$t.js" 2>/dev/null; }
+  # up to date: every commit to its files is in the commit it rendered from (the stamp). The
+  # render file's time alone misses a push that landed while it rendered (video 4, 2026-10-29).
+  stamp=$(cat "output/videos/$t.commit" 2>/dev/null)
+  if [ -n "$stamp" ] && git cat-file -e "$stamp" 2>/dev/null; then
+    fresh=$([ -f "$out" ] && [ -z "$(git rev-list -1 "$stamp..HEAD" -- "public/narration/$t" "src/narration-scenes/$t.js")" ] && echo 1)
   else
-    fresh() { [ "$(stat -f %m "$out")" -gt "${changed:-0}" ]; }
+    fresh=$([ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${changed:-0}" ] && echo 1)
   fi
-  if [ -z "$queued" ] && [ -f "$out" ] && fresh; then
+  if [ -z "$queued" ] && [ -n "$fresh" ]; then
     echo "= $t: render up to date"; [ -n "$DRY" ] && continue
   else
     # what changed since the render (scripts/narration-render-diff.mjs: none, audio, partial or full)

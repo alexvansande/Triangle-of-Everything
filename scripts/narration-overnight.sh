@@ -22,9 +22,11 @@ sync_main() {   # bring main in; false (and undone) if it conflicts
   # the takes rendered since main last touched that line
   if [ "$(git diff --name-only --diff-filter=U)" = "video/render-queue.txt" ]; then
     git checkout -q --theirs video/render-queue.txt
-    for t in $(grep -v '^#' video/render-queue.txt); do
-      added=$(git log -1 --format=%ct -S"$t" origin/main -- video/render-queue.txt)
-      [ -f "output/videos/$t.mp4" ] && [ "$(stat -f %m "output/videos/$t.mp4")" -gt "${added:-0}" ] &&
+    for t in $(sed -n 's/^# next: //p;/^[^#]/p' video/render-queue.txt | sort -u); do
+      # rendered from a commit that already has main's last change to this line (the stamp)
+      added=$(git log -1 --format=%H -S"$t" origin/main -- video/render-queue.txt)
+      stamp=$(cat "output/videos/$t.commit" 2>/dev/null)
+      [ -n "$added" ] && [ -n "$stamp" ] && git merge-base --is-ancestor "$added" "$stamp" 2>/dev/null &&
         sed -i '' "/^$t\$/d;/^# $t changed: /d;/^# next: $t$/d" video/render-queue.txt
     done
     git add video/render-queue.txt && git commit -q --no-edit && { log "merged main (render queue: main's, less what rendered since)"; return 0; }
