@@ -33,7 +33,8 @@ EDL = [
  # the small ones
  ("rec48", "small", 350.42, 357.26, {"e": 357.62}),  # But the most interesting question isn't how big they can be, but how small. With enough pressure, anything can become a black hole.
  ("rec48", "small", 362.30, 389.58),   # We can't really create one in the lab, but we know two places where that condition exists. The first one is, as I said, the core of a dying star. But the second one was the very first instants after the Big Bang, when everything was a super hot and super dense soup. Some of that soup could have collapsed into black holes of every size, and some of these might still be around.   ("We know of two places where," left out)
- ("rec48", "search", 396.44, 410.58),  # And we've been looking for them with quasars, with the cosmic microwave background, gravitational waves, and finally with microlensing. And every search has come up empty, and the window where they could hide keeps closing.   (the first start left out)
+ ("rec48", "search", 396.44, 410.58, {"cut": [(400.74, 400.92)]}),  # (the pause after "cosmic" cut: the author, 2026-10-30; cut from the finished audio, 152.16–152.32 s)
+   # And we've been looking for them with quasars, with the cosmic microwave background, gravitational waves, and finally with microlensing. And every search has come up empty, and the window where they could hide keeps closing.   (the first start left out)
  ("rec48", "search", 416.66, 421.78),  # They can't be too small either, or they'd have evaporated by now through a process we call Hawking radiation.   (two starts left out)
  ("rec48", "search", 434.14, 444.83),  # What's left is a narrow window: something the size of a virus with the mass of a small moon, or a whole asteroid's mass squeezed into something smaller than an atom.   (the last of three)
  # dark matter

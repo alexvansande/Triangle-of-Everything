@@ -6123,6 +6123,14 @@ async function loadTileMeta() {
 // =============================================================
 
 function redraw() {
+  // mid-gesture (a video's cue redrawing while its camera moves) the tiles are drawn for this
+  // view, so the gesture's CSS offset starts again from here: left on, it pushed the fresh
+  // tiles off by the whole move so far and the painting went black (video 4, 2026-10-30)
+  if (_zooming && _zoomPrevTransform) {
+    _zoomPrevTransform = { xS: xS.copy(), yS: yS.copy(), k: currentK };
+    lTiles.attr("transform", null);
+    lTilesBase.attr("transform", null);
+  }
   syncBgNoise();
   drawBaseTiles();
   drawTiles();

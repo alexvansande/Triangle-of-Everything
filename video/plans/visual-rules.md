@@ -145,6 +145,14 @@ map. Optionally it then fills the screen, holds, and fades slowly back to the ch
 - **A dive comes back the way it went in** (author, 2026-10-29): a photo that grew to fill the
   screen shrinks back onto the picture (`lens.back`), fades into it, then the dive unwinds. No
   fade at full screen onto the still-grown picture: that read as zooming in again.
+- **A dive is one continuous move** (author, 2026-10-30, after video 4: "it moves the icon, then
+  fades to a photograph, then zooms the photograph in a different speed, then fades out with the
+  icon somewhere else. It's weird"): the object comes towards us as if we approached it in 3D (the
+  camera trick, the pictures around it coming along) while the camera turns to it (a pan at the same
+  zoom, as long as the approach, never a zoom of its own), and the photo fades in over the growing
+  picture during the approach, no fill stage at another speed. A second held, then the same move
+  backwards: the photo fades back into the picture as the dive unwinds (`dive.mirror`, a lens
+  without `fill`). Video 4's Sgr A* and M87*.
 - **Use a dive, not a photo cutaway, whenever the object has a picture on the chart.**
   Plain cutaways (below) are left for things the chart can't show by itself.
 - **Current dives**: Jupiter in infrared (video 3, the camera trick above), the Pillars of

@@ -69,9 +69,18 @@ const DM_HUB = (delay = 0) => [{ text: "here be\ndark matter?", at: DM_TITLE, si
 // close on the crossed-off corner: ancient crystals and the injuries
 const DM_CLOSE = { r: -5.5, m: 2.5, span: 17 };
 const still = (h) => ({ ...h, instant: true, delay: 0 });
+// the dives (Sgr A*, M87*): one move in over 2 s, the photo fading in over its second half, a
+// second held, and the same move out (dive.mirror); the picture grows to 42% of the screen's short side
+const DIVE = { in: 2, out: 2, photoAt: 0.9, size: 0.42, mirror: true };
+const DIVE_PHOTO = { fadeIn: 1.1, fadeOut: 1.1, dur: 2.1 };
+const DIVE_HELD = DIVE.photoAt + DIVE_PHOTO.dur;   // s from the cue to the way out
 const GAL = { dust: "galaxy", src: ["galaxy", "cluster"], color: "#80deea", sweep: 1.2, r: 2.2 };
-// drawn down through the galaxy cloud as it drops a decade in mass
-const DROP_ARROW = { arrow: true, from: { r: 21.5, m: 46.1 }, to: { r: 21.5, m: 44.4 }, color: "#ffd54f", solid: true, width: 4.5 };
+// down from the Milky Way, a decade, as the galaxy cloud drops (the author, 2026-10-30: the arrow in
+// one of the galaxies, with the pictures faded so the dots and the named ones show)
+const DROP_ARROW = { arrow: true, from: { r: 22.7, m: 44.93 }, to: { r: 22.7, m: 43.93 }, color: "#ffd54f", solid: true, width: 4.5 };
+// the named galaxies in the close-up: a halo on their dots, which brings out the chart's own
+// names for them (the pictures are off there)
+const GAL_NAMED = ["Milky Way", "Triangulum (M33)", "Large Magellanic Cloud"].map(obj => ({ obj, label: false }));
 const GAL_DROP = { ...GAL, sweep: 0.01, shift: { galaxy: -1, cluster: -0.85 }, shiftAt: 0.5, shiftDur: 2 };
 
 export default {
@@ -139,23 +148,23 @@ export default {
     { at: "a few suns", cam: { r: 11, m: 38.6, span: 20 }, hl: [{ ...SCHW, label: "every known black hole" }] },
     { at: ["the milky way", "our milky way", "our own milky way"], cam: { r: 14, m: 41.5, span: 12 }, hl: [{ obj: "Sgr A*", label: "sgr a* · our galaxy's" }] },
     { at: ["4 million", "four million"], hl: [{ obj: "Sgr A*", label: "4 million suns" }] },
-    // a dive onto Sgr A*: the EHT photo fades in over its picture (lens), its ring laid
-    // on the picture's photon ring round the shadow
-    { at: ["4 million", "four million"], offset: 0.8, cam: { obj: "Sgr A*", span: 3 }, dur: 1.6 },
-    { at: ["4 million", "four million"], offset: 0.8, photo: "sgr-a", obj: "Sgr A*", dive: { in: 1.6, out: 2.5 }, dur: 2.2, fadeIn: 0.9, fadeOut: 1.2,
-      lens: { map: [0.00038123, 0, -0.17691, -0.200666], r: 0.48, size: [3600, 3600], fill: "cover", hold: 0.2, fillDur: 1.2 },
+    // a dive onto Sgr A*, one continuous move (the author, 2026-10-30): it comes towards us while the
+    // camera turns to it (a pan at the same zoom, as long as the approach), the EHT photo fading in
+    // over its growing picture (lens, its ring on the picture's photon ring round the shadow);
+    // a second held, then the same move backwards, the camera turning back out to what comes next
+    { at: ["4 million", "four million"], offset: 0.8, cam: { obj: "Sgr A*", span: 12 }, dur: 2 },
+    { at: ["4 million", "four million"], offset: 0.8, photo: "sgr-a", obj: "Sgr A*", dive: DIVE, ...DIVE_PHOTO,
+      lens: { map: [0.00038123, 0, -0.17691, -0.200666], r: 0.48, size: [3600, 3600] },
       caption: "Sagittarius A*, our galaxy's black hole · Event Horizon Telescope · 2022" },
-    { at: ["the less dense they are", "get less dense"], cam: { r: 13.5, m: 41.3, span: 14 }, hl: [SCHW, { line: "water", label: "water" }] },
+    { at: ["4 million", "four million"], offset: 0.8 + DIVE_HELD, cam: { r: 13.5, m: 41.3, span: 14 }, dur: 2 },
+    { at: ["the less dense they are", "get less dense"], hl: [SCHW, { line: "water", label: "water" }] },
     { at: "less dense than water", hl: [SCHW, { line: "water", label: "water" }, { side: "right", of: "water" },
       { obj: "Sgr A*", label: "denser than water", place: "left" }, { obj: "M87*", label: "lighter than water", delay: 0.6 }] },
     { at: "pool big enough", hl: [{ line: "water" }, { side: "right", of: "water" }, { obj: "M87*", label: "it would float" }, { obj: "Ton 618", label: false }] },
-    { at: "m87", cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: "m87* · first photographed", place: "left" }] },
-    // a dive onto M87*, the EHT photo over its picture (lens)
-    { at: ["first black hole ever", "first one"], cam: { obj: "M87*", span: 3 }, dur: 1.4 },
-    // the photo comes in during the approach and grows straight on to fill the screen (one
-    // move, the author's note of 2026-10-27), then holds
-    { at: ["first black hole ever", "first one"], photo: "m87", obj: "M87*", dive: { in: 1.4, out: 2.5, photoAt: 0.4 }, dur: 3.4, fadeIn: 0.9, fadeOut: 1.2,
-      lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600], fill: "cover", hold: 0, fillDur: 1.5 },
+    // a dive onto M87*, the same move as Sgr A*'s, from "like M87" so it's back out for TON 618
+    { at: ["like m87", "m87"], cam: { obj: "M87*", span: 14 }, dur: 2, hl: [{ obj: "M87*", label: "m87* · first photographed", place: "left" }] },
+    { at: ["like m87", "m87"], photo: "m87", obj: "M87*", dive: DIVE, ...DIVE_PHOTO,
+      lens: { map: [0.00056505, -0.00003499, -0.550765, -0.453559], r: 0.48, size: [3600, 3600] },
       caption: "M87*, the first black hole ever photographed · Event Horizon Telescope · 2019" },
     { at: ["one of the largest", "largest black hole"], cam: { r: 15.4, m: 43.3, span: 7 }, hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "ton 618", place: "above" }] },
     { at: ["bigger than pluto's", "orbits of every planet", "orbits of our planets"], hl: [{ obj: "M87*", label: false }, { obj: "Ton 618", label: "horizon ≈ 20–30× pluto's orbit", place: "above" }] },
@@ -182,11 +191,15 @@ export default {
     { at: ["narrow window", "tiny window"], cam: { r: -8.6, m: 19.4, span: 12 }, hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
     // straight across: the same mass squeezed onto the black-hole line
     // (Hyperion, a small moon of Saturn, 5.6e21 g → ~17 nm; Eros, an asteroid, 6.7e18 g → ~1/5 of an atom)
-    { at: "mass of a small moon", cam: { r: -1.2, m: 20.2, span: 20 }, hl: [
-      { obj: "Hyperion", label: "a small moon", place: "above" }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75), label: "the size of a virus", delay: 0.4 }] },
+    // (no round moon is light enough for the window: Mimas, the smallest, is 3.7e22 g, above it;
+    // a moon under ~1e22 g is a lump like Hyperion.) Both pictures forced on (Eros's was hidden by
+    // its neighbours, a bare dot: the author's note, 2026-10-30), named, and framed whole with
+    // the line they're squeezed onto
+    { at: "mass of a small moon", cam: { r: 0.3, m: 20.3, span: 33 }, forceIcons: ["Sun", "Ton 618", "Hyperion", "Eros"], hl: [
+      { obj: "Hyperion", label: "hyperion · a small moon", place: "below" }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75), label: "the size of a virus", delay: 0.4 }] },
     { at: ["asteroid mass", "asteroid's mass"], hl: [{ obj: "Hyperion", label: false }, { arrow: true, from: { obj: "Hyperion" }, to: BH(21.75) },
-      { obj: "Eros", label: "an asteroid", place: "below", delay: 0.2 }, { arrow: true, from: { obj: "Eros" }, to: BH(18.83), label: "smaller than an atom", delay: 0.6 }] },
-    { at: ["they'd be invisible", "completely invisible", "basically invisible"], cam: { r: 23, m: 45, span: 14 }, dur: 9, drift: 0.02, clear: true },
+      { obj: "Eros", label: "eros · an asteroid", place: "below", delay: 0.2 }, { arrow: true, from: { obj: "Eros" }, to: BH(18.83), label: "smaller than an atom", delay: 0.6 }] },
+    { at: ["they'd be invisible", "completely invisible", "basically invisible"], cam: { r: 23, m: 45, span: 14 }, dur: 9, drift: 0.02, clear: true, forceIcons: null },
 
     // ── Dark matter: galaxies without it ─────────────────────
     { at: ["only notice their gravity", "find them by their gravity"], cam: { obj: "Milky Way", span: 7 }, clear: true, hl: [{ obj: "Milky Way" }] },
@@ -194,11 +207,12 @@ export default {
     { at: "when we weigh galaxies", cam: { r: 23, m: 45, span: 10 }, clear: true, hl: [GAL, { line: "darkmatter" }] },
     // close in: the cloud runs along its own density diagonal, so a decade's drop
     // only reads up close, onto the parallel line ten times less dense
-    { at: ["much heavier than everything", "much heavier than they ought to be"], cam: { r: 22.3, m: 44.1, span: 3.6 }, hold: 6,
-      hl: [{ ...DROP_ARROW, delay: 0.5, draw: 2 }, { ...GAL_DROP, label: "without dark matter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only", delay: 2 }] },
-    { at: ["ten times", "10 times"], hl: [{ ...DROP_ARROW, draw: 0.01 }, { ...GAL_DROP, shiftAt: -10, label: "about 10× lighter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
+    // the pictures fade out, leaving the catalogue dots and the named galaxies' dots and labels
+    { at: ["much heavier than everything", "much heavier than they ought to be"], cam: { r: 22.3, m: 44.1, span: 3.6 }, hold: 6, icons: false,
+      hl: [...GAL_NAMED, { ...DROP_ARROW, delay: 0.5, draw: 2 }, { ...GAL_DROP, label: "without dark matter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only", delay: 2 }] },
+    { at: ["ten times", "10 times"], hl: [...GAL_NAMED.map(still), { ...DROP_ARROW, draw: 0.01 }, { ...GAL_DROP, shiftAt: -10, label: "about 10× lighter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
     // a slow pull back from the galaxies to the candidates
-    { at: "something invisible", cam: DM_WIDE, dur: 4, drift: 0, quiet: true, labels: false, clear: true,
+    { at: "something invisible", cam: DM_WIDE, dur: 4, drift: 0, quiet: true, labels: false, clear: true, icons: true,
       hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1.2 + 0.5 * i }))] },
     // no "here be dark matter?" here: it blinked by in under 2 s, and the later one stays (the
     // author, 2026-10-29); a slow pan instead, from the candidates on to the window it's heading for
