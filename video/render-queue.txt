@@ -8,4 +8,6 @@
 # and only those stretches re-render, spliced into the last render (narration-render-partial.py).
 # A "# next: <take>" line renders that take before the others.
 short-04-black-holes
-# short-04-black-holes changed: 0:28-0:42, 2:29-2:52, 3:25-3:31
+short-03-stars
+short-02-up-the-line
+short-01-hook
