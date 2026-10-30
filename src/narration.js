@@ -2052,6 +2052,23 @@ export async function startNarration(app) {
     const B = to ? [to.logR, to.logM] : [h.to.r, h.to.m];
     const [x1, y1, x2r, y2r] = [sx(A[0]), sy(A[1]), sx(B[0]), sy(B[1])];
     const prog = d3.easeCubicInOut(clamp01(age / (h.draw ?? 1.4)));
+    // via: [[r, m] | { obj, dr?, dm? }, …]: a curved arrow through those points (a smooth spline), drawn on
+    // from its start; the head follows the curve's last stretch
+    if (h.via) {
+      const pt = (v) => { const o = v.obj ? objByName.get(v.obj) : null; return o ? [sx(o.logR + (v.dr || 0)), sy(o.logM + (v.dm || 0))] : [sx(v[0] ?? v.r), sy(v[1] ?? v.m)]; };
+      const pts = [[x1, y1], ...h.via.map(pt), [x2r, y2r]];
+      const col = h.color || "#ffffff", w = h.width ?? 3;
+      const path = el.append("path").attr("d", d3.line().curve(d3.curveCatmullRom.alpha(0.5))(pts)).attr("fill", "none")
+        .attr("stroke", col).attr("stroke-width", w).attr("stroke-linecap", "round").attr("opacity", 0.95);
+      const len = path.node().getTotalLength(), end = len * prog - (h.pad ?? 18);
+      if (end <= 0) return path.remove();
+      path.attr("stroke-dasharray", `${end} ${len}`);
+      const p1 = path.node().getPointAtLength(end), p0 = path.node().getPointAtLength(Math.max(0, end - 8));
+      const ang = Math.atan2(p1.y - p0.y, p1.x - p0.x), ah = 10 + 2.5 * (w - 2);
+      el.append("path").attr("d", `M${p1.x + 4 * Math.cos(ang)},${p1.y + 4 * Math.sin(ang)} L${p1.x - ah * Math.cos(ang - 0.45)},${p1.y - ah * Math.sin(ang - 0.45)} L${p1.x - ah * Math.cos(ang + 0.45)},${p1.y - ah * Math.sin(ang + 0.45)} Z`)
+        .attr("fill", col);
+      return;
+    }
     const pad = 20, L = Math.hypot(x2r - x1, y2r - y1);
     if (L < 2 * pad) return;
     const ux = (x2r - x1) / L, uy = (y2r - y1) / L;

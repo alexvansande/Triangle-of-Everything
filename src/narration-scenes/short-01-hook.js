@@ -43,7 +43,8 @@ export default {
   poster: { at: 3, cues: [{ t: 0, cam: { r: -10, m: -6, span: 100 }, dur: 0.1, drift: 0, hl: [
     { ...RELATIVITY, draw: 0.01, size: 26 }, { ...QUANTUM, draw: 0.01, size: 26, labelAt: [-6, -31.45] },
     { line: "hubble", label: "the universe", draw: 0.01, size: 26 },
-    { text: "Big\nBang!?", at: [-38, -17], size: 40, instant: true }] }] },
+    { text: "Where do\nthese meet?", at: [-35.3, -36], size: 34, instant: true },
+    { arrow: true, from: { r: -35.5, m: -27 }, to: { r: -32.64, m: -4.81 }, solid: true, width: 3, color: "#ffe9a3", draw: 0.01 }] }] },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Space X-plorers",
