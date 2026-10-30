@@ -13,7 +13,3 @@ Music: "<track>" by Kevin MacLeod (incompetech.com), licensed under CC BY 4.0
 The interactive chart: https://triangleofeverything.com
 The original paper: https://doi.org/10.1119/5.0150209
 Alex Van de Sande: https://vandesande.design
-
-**AI:** This is a human-powered channel. Claude was used to generate the code for the
-browser, edit audio and other tasks. Object images are either public domain sources,
-rendered from code and in some cases, ChatGPT. Full credits and more on the site.
