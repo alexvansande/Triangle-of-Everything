@@ -24,14 +24,15 @@ import { loadDust, dustArrays } from "./dust.js";
 // ---------- figure geometry ----------
 const FIG_W = 1602, FIG_H = 1785;
 const FRAME = { x0: 298.5, x1: 1443.5, y0: 142.5, y1: 1660.5 };
+const FRAME0 = { ...FRAME };   // as the paper draws it (narration's 16:9 videos widen FRAME: classicWiden)
 const R_DOM = [-40, 55];   // log radius [cm] across the frame
 const M_DOM = [-54, 68];   // log mass [g] up the frame
 // Two changes from the paper so the figure reads like the map: the vertical
 // axes swap sides (energy in GeV on the left, mass in g on the right), and
 // the paper's second mass axis, in M☉, is left out. Positions outside the
 // frame are the paper's, mirrored about the frame:
-const mR = (fx) => FRAME.x1 + (FRAME.x0 - fx); // paper's left margin → right
-const mL = (fx) => FRAME.x0 - (fx - FRAME.x1); // paper's right margin → left
+const mR = (fx) => FRAME.x1 + (FRAME0.x0 - fx); // paper's left margin → right
+const mL = (fx) => FRAME.x0 - (fx - FRAME0.x1); // paper's right margin → left
 // Both margins are now as narrow as the paper's GeV one (158.5 px)
 const MARGIN = FIG_W - FRAME.x1;
 const VB_X = FRAME.x0 - MARGIN, VB_W = FRAME.x1 - FRAME.x0 + 2 * MARGIN;
@@ -756,7 +757,7 @@ function buildHeader() {
 // Static axis furniture: frame, Planck and energy markers
 function buildAxes() {
   const g = layers.axesStatic = svg.append("g");
-  g.append("rect").attr("x", FRAME.x0).attr("y", FRAME.y0)
+  layers.frame = g.append("rect").attr("x", FRAME.x0).attr("y", FRAME.y0)
     .attr("width", FRAME.x1 - FRAME.x0).attr("height", FRAME.y1 - FRAME.y0)
     .attr("fill", "none").attr("stroke", "#000").attr("stroke-width", 2.4);
   const marker = (cls, label, color, anchor) => {
@@ -974,6 +975,35 @@ export function classicFullView() {
   if (!ctm || !rect.width) return null;
   const fx = (rect.left + rect.width / 2 - ctm.e) / ctm.a, fy = (rect.top + rect.height / 2 - ctm.f) / ctm.d;
   return { r: x0.invert(fx), m: y0.invert(fy), span: rect.width / (ctm.a * FRAME_PPD_X) };
+}
+
+// Narration player (the 16:9 videos): open the plot frame sideways, by `w` (0–1) of the room the
+// screen has beside it: the figure keeps its scale and place (the camera's span counts across
+// the screen, not the frame), and more of it shows to either side, its frame, axes, side titles
+// and legend moving out with the edges. 0 = the paper's frame.
+let frameExt = 0;
+export function classicWiden(w) {
+  if (!svg) return;
+  const rect = svg.node().getBoundingClientRect();
+  if (!rect.height) return;
+  const VB_H = FIG_H + HEADER_H;
+  const e = Math.round(Math.max(0, (VB_H * rect.width / rect.height - VB_W) / 2) * Math.min(1, Math.max(0, w)));
+  if (e === frameExt) return;
+  frameExt = e;
+  FRAME.x0 = FRAME0.x0 - e; FRAME.x1 = FRAME0.x1 + e;
+  // the base scale over the wider frame: the same line, so nothing moves, but what's drawn
+  // from its range and domain (the regions, the axis ticks) now spans the whole frame
+  x0.domain([x0.invert(FRAME.x0), x0.invert(FRAME.x1)]).range([FRAME.x0, FRAME.x1]);
+  svg.attr("viewBox", `${VB_X - e} ${-HEADER_H} ${VB_W + 2 * e} ${VB_H}`);
+  svg.select("#cl-frame rect").attr("x", FRAME.x0).attr("width", FRAME.x1 - FRAME.x0);
+  layers.frame.attr("x", FRAME.x0).attr("width", FRAME.x1 - FRAME.x0);
+  layers.legend.attr("transform", e ? `translate(${e},0)` : null);
+  layers.titles.selectAll("text").attr("transform", d => {
+    const dx = d.at[0] < FRAME0.x0 ? -e : d.at[0] > FRAME0.x1 ? e : 0;
+    return textTransform(d, d.at[0] + dx, d.at[1]);
+  });
+  svg.selectAll(".cl-header text").attr("x", FRAME.x0);
+  render(d3.zoomTransform(svg.node()));
 }
 
 // Narration player: the axis numbers ("left" | "right" | "top" | "bottom" in

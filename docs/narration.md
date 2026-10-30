@@ -410,10 +410,16 @@ so a short's scene can import the matching section from another scene.
 player plays each piece with its own scene's cues, resolved on its own take's words and moved into
 place, and opens each piece on the camera and highlights its source had there. A long cut asks for
 `"stage": "landscape"`: 16:9, edge to edge, the scenes' camera spans × 16/9 (a cue's `camWide`
-overrides). The videos page lists long cuts in their own 16:9 row. The first ones (2026-10-30):
-`short-02a-things` and `short-02b-planets` (video 2 split where it turns to planets) and
-`long-01-intro` (the hook and video 2 joined, video 2's re-introduction left out). Recording
-nothing again; re-run the tool when a source take changes.
+overrides), laid out at 960×540 (the app's `video` stage) so text, pictures and rulers come out
+twice the desktop's size, readable on a TV and at SD. The videos page lists long cuts in their own
+16:9 row. A cut's own scene (`src/narration-scenes/<cut>.js`) adds cues on the cut's words and can
+set `cover` (fields over the first piece's cover; at 16:9 `from` is a share of the frame's height)
+and `classicWide: [from, to]` (seconds: the classic figure's frame opens out to the full 16:9
+width, keeping its scale). The nightly render skips the whole takes `video/render-skip.txt` lists
+(those replaced by their cuts). The first cuts (2026-10-30): `short-02a-things` and
+`short-02b-planets` (video 2 split where it turns to planets) and `long-01-intro` (the hook to
+"…this series of videos", a 2 s pause while the camera moves on to Eois stantonae, then video 2
+whole). Recording nothing again; re-run the tool when a source take changes.
 
 ## Reference figures
 

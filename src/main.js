@@ -314,6 +314,10 @@ const VP_STAGES = {
   // Upscale: a phone is tiny on a monitor. The pad leaves a black gutter for
   // the safe-zone guides (see positionSafeZones), outside the capture crop.
   portrait:  { W: 432,  H: 768,  maxScale: Infinity, pad: 36 },
+  // the long 16:9 videos (narration's "landscape" stage): laid out at 960×540, so text and
+  // pictures come out twice the desktop's, as dense as on the phone stage: readable on a TV and
+  // at SD (the author, 2026-10-30)
+  video:     { W: 960,  H: 540,  maxScale: Infinity, pad: 0 },
 };
 // Where TikTok / Reels / Shorts draw their own UI over a 9:16 video, as
 // fractions of the frame — roughly the union of the three apps' overlays:

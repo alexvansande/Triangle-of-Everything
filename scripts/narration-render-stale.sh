@@ -25,7 +25,9 @@ ICLOUD=${ICLOUD:-"$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/tr
 mkdir -p output/videos video/web
 
 takes="$*"
-[ -n "$takes" ] || takes=$(ls -d public/narration/short-*/ public/narration/long-*/ | xargs -n1 basename)
+# (less the takes video/render-skip.txt lists: whole videos replaced by their cuts)
+[ -n "$takes" ] || takes=$(ls -d public/narration/short-*/ public/narration/long-*/ | xargs -n1 basename |
+  awk 'NR == FNR { if (!/^#/ && NF) skip[$1] = 1; next } !($1 in skip)' video/render-skip.txt -)
 
 web() {   # full render → the site's copy, sized just under 20 MiB
   D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$1")

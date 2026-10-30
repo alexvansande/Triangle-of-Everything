@@ -29,7 +29,7 @@ import {
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
   RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES, PHOTON_LAMBDA_OFFSET,
 } from "./data.js";
-import { narrClassic, classicFrameClient, classicAxisNumbers, classicRect, classicScreen, classicFullView } from "./classic.js";
+import { narrClassic, classicFrameClient, classicAxisNumbers, classicRect, classicScreen, classicFullView, classicWiden } from "./classic.js";
 // Scene scripts, one per file in ./narration-scenes/ (lazy chunks)
 const SCENES = import.meta.glob("./narration-scenes/*.js");
 let SCENE;
@@ -171,7 +171,8 @@ async function cutCues(take, name) {
   all.sound = [];
   // the first piece's scene-wide settings win; settings only a later piece has (video 7's explorer) come along too
   const merged = { ...Object.assign({}, ...[...parts].reverse().map(p => p.scene)), cues: [], captionFixes: Object.assign({}, ...parts.map(p => p.scene.captionFixes)),
-    cover: first.s.from === 0 ? first.scene.cover : undefined };
+    cover: first.s.from === 0 ? first.scene.cover && { ...first.scene.cover, ...own?.cover } : undefined,
+    classicWide: own?.classicWide };
   for (const k of LISTS) {
     const u = [...new Set(parts.flatMap(p => p.scene[k] || []))];
     merged[k] = u.length ? u : undefined;
@@ -227,7 +228,7 @@ export async function startNarration(app) {
   // the same span × 16/9: the portrait's width becomes the frame's height, so a shot's subject still
   // fits, with more around it either side (a cue's camWide: its own framing instead)
   const WIDE = stage === "landscape" ? 16 / 9 : 1;
-  if (stage !== "none" && (RENDER || !app.isMobile())) app.setStage(stage);
+  if (stage !== "none" && (RENDER || !app.isMobile())) app.setStage(stage === "landscape" ? "video" : stage);
   app.prepare();
   // the paths' moving dots: as big as the catalogue dust (1.15 px), brighter
   // than in the app so they still read in a phone video
@@ -718,7 +719,8 @@ export async function startNarration(app) {
     const v = t < COVER.dur ? classicFullView() : classicView;
     if (!v) return null;
     const ppd1 = W / v.span;
-    const s0 = SW / w * (COVER.from ?? 1), s1 = ppd1 / ppdX, k = smooth(clamp01(t / COVER.dur));
+    // `from`: its first size, a share of the frame it fits (its width on a phone, its height at 16:9)
+    const s0 = Math.min(SW / w, SH / (h * asp)) * (COVER.from ?? 1), s1 = ppd1 / ppdX, k = smooth(clamp01(t / COVER.dur));
     const sx = s0 * (s1 / s0) ** k, ppd = sx * ppdX;                            // a steady zoom
     // the plot's centre travels in a straight line on screen
     const px = (1 - k) * (SW / 2 + (cx - w / 2) * s0) + k * (ccx + (rc - v.r) * ppd1);
@@ -2508,6 +2510,8 @@ export async function startNarration(app) {
     const co = classicOpacity(t);
     classicView = co > 0 ? coverView(t) || view : null;
     narrClassic(co, classicView, classicParts(t));
+    // a 16:9 video can open the figure's frame sideways (scene `classicWide`: [from, to] s)
+    if (co > 0 && SCENE.classicWide) classicWiden(smooth(clamp01((t - SCENE.classicWide[0]) / (SCENE.classicWide[1] - SCENE.classicWide[0]))));
     // end the gesture once on arrival (full redraw + tiles); otherwise keep it open
     const arriving = view.phase === "hold" && (lastPhase === "fly" || key !== lastKey);
     app.setCamera(view, !arriving);
