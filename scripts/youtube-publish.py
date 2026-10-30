@@ -70,9 +70,10 @@ def description(v):
         else:
             paras.append(" ".join(lines))
     body = "\n\n".join(paras)
-    credit = (f'Music: "{v["music"]}" Kevin MacLeod (incompetech.com)\n'
-              "Licensed under Creative Commons: By Attribution 4.0\n"
-              "https://creativecommons.org/licenses/by/4.0/")
+    # the incompetech credit (track, author, source, licence), in the same "label: link" form as
+    # the description's other links (the author, 2026-10-30)
+    credit = (f'Music: "{v["music"]}" by Kevin MacLeod: https://incompetech.com\n'
+              "Licensed under Creative Commons Attribution 4.0: https://creativecommons.org/licenses/by/4.0/")
     full = v.get("fullVideo", MANIFEST_DEFAULTS.get("fullVideo"))
     watch = f"\n\nWatch the full video: {full}" if full else ""
     images = photo_credits(v["take"])
