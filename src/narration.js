@@ -140,7 +140,7 @@ function resolveScene(words) {
 // piece's, with the pictures' lists (forced, hidden…) of all of them; the journal cover only if
 // the cut starts at the very beginning of its first take.
 const LISTS = ["forceIcons", "hideIcons", "alsoIcons", "hideLabels", "firstIcons"];
-async function cutCues(take) {
+async function cutCues(take, name) {
   const parts = await Promise.all(take.segments.map(async (s) => ({
     s, src: await fetch(`${import.meta.env.BASE_URL}narration/${s.take}/words.json`).then(r => r.json()),
     scene: (await SCENES[`./narration-scenes/${s.scene}.js`]()).default,
@@ -156,6 +156,15 @@ async function cutCues(take) {
     if (s.from > 0 && cam) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: 0.05, drift: cam.drift, time: s.at });
     if (s.from > 0 && hl?.hl) all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: s.at + 0.001 });
     for (const c of rc) if (c.time >= s.from - 0.01 && c.time < s.to) all.push({ ...c, time: move(c.time) });
+  }
+  // the cut's own scene (src/narration-scenes/<cut>.js, if any): cues on the cut's own words,
+  // on top of its pieces' (short-02b-planets introduces the axes and the line)
+  const own = SCENES[`./narration-scenes/${name}.js`] && (await SCENES[`./narration-scenes/${name}.js`]()).default;
+  if (own?.cues) {
+    SCENE = own;
+    // (after the state carried into a piece at its first instant, so they take over from it)
+    all.push(...resolveScene(take.words).map(c => ({ ...c, time: Math.max(c.time, 0.02) })));
+    missing.push(...(window.__narrMissing || []));
   }
   window.__narrMissing = missing;
   all.sort((a, b) => a.time - b.time);
@@ -204,7 +213,7 @@ export async function startNarration(app) {
   const POSTER = params.get("poster") === "wide" ? (SCENE.posterWide || SCENE.poster) : params.has("poster") ? SCENE.poster : null;
   if (POSTER) SCENE = { ...SCENE, ...POSTER.set, cues: POSTER.cues, cover: undefined };   // set: scene fields for the shot
   window.__narrPoster = POSTER ? { at: POSTER.at ?? 5 } : undefined;
-  const cues = take.segments && !POSTER ? await cutCues(take) : resolveScene(take.words);
+  const cues = take.segments && !POSTER ? await cutCues(take, app.take) : resolveScene(take.words);
   const captions = CAPTIONS ? buildCaptions(take.words) : [];
   // The video runs on for the end credits (scene `credits`, default 3 s) after
   // the last word; the mix (narration-sound.mjs) carries the music under them.
@@ -2000,11 +2009,12 @@ export async function startNarration(app) {
         .attr("fill", col || "#0d0f16").attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1).attr("opacity", a);
     }
   }
-  /** A big free-standing word on the chart: { text, at: [r, m], color?, size? (px, 30) } (a hub that
+  /** A big free-standing word on the chart: { text, at: [r, m], color?, size? (px, 30), rotate? (°) } (a hub that
    *  arrows point out from); "\n" stacks lines, centred on `at` */
   function drawText(el, h, age) {
     const t = el.append("text").attr("class", "narr-tag narr-hub").attr("x", sx(h.at[0])).attr("y", sy(h.at[1]))
       .attr("text-anchor", "middle").attr("fill", h.color || "#ffe9a3").attr("opacity", h.instant ? 1 : smooth(age / 0.6));
+    if (h.rotate) t.attr("transform", `rotate(${h.rotate},${sx(h.at[0])},${sy(h.at[1])})`);   // degrees (-90: reads upwards)
     if (h.size) t.style("font-size", `${h.size}px`);
     const lines = h.text.toUpperCase().split("\n");
     if (lines.length === 1) { t.text(lines[0]); return; }
@@ -2128,6 +2138,9 @@ export async function startNarration(app) {
       .attr("stroke-dashoffset", -age * 18);
     const ah = 9 + 2.5 * ((h.width ?? 2) - 2), ang = Math.atan2(uy, ux);
     el.append("path").attr("d", `M${ex},${ey} L${ex - ah * Math.cos(ang - 0.45)},${ey - ah * Math.sin(ang - 0.45)} L${ex - ah * Math.cos(ang + 0.45)},${ey - ah * Math.sin(ang + 0.45)} Z`)
+      .attr("fill", col);
+    // both: a head at the start too (an axis: it runs both ways)
+    if (h.both && prog > 0.5) el.append("path").attr("d", `M${sxp},${syp} L${sxp + ah * Math.cos(ang - 0.45)},${syp + ah * Math.sin(ang - 0.45)} L${sxp + ah * Math.cos(ang + 0.45)},${syp + ah * Math.sin(ang + 0.45)} Z`)
       .attr("fill", col);
     if (h.to.mark) el.append("circle").attr("cx", x2r).attr("cy", y2r).attr("r", 4 * prog).attr("fill", col);
     if (h.label) {

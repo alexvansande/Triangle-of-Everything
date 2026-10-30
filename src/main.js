@@ -2729,6 +2729,9 @@ function drawObjects() {
     const saved = _objectVisibility.decisions.get(o.slug);
     if (saved) {
       o._showDot = saved.dot; o._showIcon = saved.icon;
+      // a picture a video forces on shows, whatever the memory decided before it was forced
+      // (video 2's cow lost its picture a few seconds into "most animals", 2026-10-30)
+      if (_iconForce?.has(o.name) && shownIcons.has(o)) o._showDot = o._showIcon = true;
       if (o._showIcon) o._icoR = icoR(o);
     } else _objectVisibility.decisions.set(o.slug, { dot:o._showDot, icon:o._showIcon });
   }
