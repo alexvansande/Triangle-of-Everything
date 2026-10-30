@@ -3,7 +3,7 @@
 // The centre never moves: a hydrogen atom in a DNA base pair, in an amoeba, in a
 // drop of dew on a ladybug on the General Sherman tree. At the top the spectrum
 // page's Cloud (public/spectrum, ?bare=1) takes over for the microwave sky.
-//   ?s=  ?grid=0  ?labels=0  ?ui=0  ?stage=9x16|16x9|1x1  ?plates=1 (use video/powers-of-ten/plates/)  ?crossings=0
+//   ?s=  ?grid=0  ?labels=0  ?ui=0  ?stage=9x16|16x9|1x1  ?plates=1 (use video/powers-of-ten/plates/)  ?photos=0 (leave out the real photos, tree to globe)  ?crossings=0
 import { ramp, clamp, LY, AU, cameraAt, perspAt } from "./math.js";
 import { smallLayers } from "./small.js";
 import { microLayers } from "./micro.js";
@@ -29,6 +29,9 @@ const micro = microLayers();
 const macro = macroLayers();
 const space = spaceLayers(macro.globe);
 const plates = await platesLayer(q.get("plates") === "1");
+// the real photographs from the tree's crown to the globe, on unless ?photos=0; gone
+// by the time the camera swings round the Earth (10^7.65 m)
+const photos = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/", 0.3);
 // biggest first, so smaller things paint over what holds them; what we cross, nearest the camera, last
 const layers = [...space, ...macro.layers, ...micro, ...small.reverse(), crossingsLayer(q.get("crossings") !== "0")];
 // the whole picture rolls round the line of sight at the same rate at every scale,
@@ -102,14 +105,17 @@ function render(t) {
   ctx.fillStyle = `rgba(0,0,0,${1 - ramp(s, 25.9, 26.6)})`;
   ctx.fillRect(0, 0, W, H);
   ctx.setTransform(rc, rs, -rs, rc, W / 2 - rc * cx + rs * cy, H / 2 - rs * cx - rc * cy);
-  const hide = plates.covers(s);
+  const hide = new Set([...plates.covers(s), ...photos.covers(s)]);
   for (const L of layers) {
-    if (s < L.range[0] || s > L.range[1] || hide.has(L.name)) continue;
-    ctx.save();
-    try { L.draw(cam); } catch (e) { console.error(L.name, e); }
-    ctx.restore();
-    ctx.globalAlpha = 1;
-    if (L.name === "earth") plates.draw(cam); // the image pass sits between the globe and the small world
+    if (s >= L.range[0] && s <= L.range[1] && !hide.has(L.name)) {
+      ctx.save();
+      try { L.draw(cam); } catch (e) { console.error(L.name, e); }
+      ctx.restore();
+      ctx.globalAlpha = 1;
+    }
+    // the photographs and the image pass sit between the globe and the small world (in
+    // or out of the globe's own range)
+    if (L.name === "earth") { photos.draw(cam); plates.draw(cam); }
   }
   // the grid and the names stay upright: the grid on the screen, the names where the
   // turned picture puts them

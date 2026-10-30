@@ -53,7 +53,7 @@ export const GAL_POLE = [0, 0, 1];
 // ---------- the moment (2026-10-29 20:00 UTC, early afternoon at the tree) ----------
 export const JD = 2461343.3333;
 const d2000 = JD - 2451545.0;
-export const SITE = { lat: 36.5816, lon: -118.7511 }; // the General Sherman tree, Sequoia National Park
+export const SITE = { lat: 36.5816453, lon: -118.751443 }; // the General Sherman tree, Sequoia National Park (OpenStreetMap node 313753662)
 const gmst = (280.46061837 + 360.98564736629 * d2000) * D;
 const lst = gmst + SITE.lon * D, phi = SITE.lat * D;
 export const GMST = gmst; // the Earth's turn at the moment, for its globe

@@ -64,6 +64,26 @@ drawn far bigger than life (radius ∝ the fourth root of the true one, Jupiter 
 passes us as we cross its orbit, as in *Contact*. Their real places today are elsewhere. Behind it, faint and at infinity, is Gaia's all-sky map (the spectrum
 page's RP, G and BP): it turns with the camera but doesn't zoom.
 
+## Real photographs: the tree to the globe
+
+`photos/` holds 24 real frames, 4,000 px square, from the General Sherman tree's crown
+(10^1.6 m, 40 m across) to the whole Earth (10^7.35 m), in steps of 10^0.25 (×1.78), each an
+orthographic view centred on the tree (OpenStreetMap node 313753662), north up, so they nest
+exactly. `photos-ladder.jpg` shows them all. The zoom shows them as plates (on unless
+`?photos=0`), replacing the drawn forest and Sierra; they load as the zoom nears them.
+
+| Frames | Source | Licence |
+| --- | --- | --- |
+| 40 m … 22 km | NAIP aerial photos, 0.3 m (USDA FSA / USGS The National Map) | public domain |
+| 40 km … 1,260 km | Sentinel-2 cloudless 2016, 10 m (EOX, s2maps.eu; modified Copernicus Sentinel data 2016) | CC BY 4.0: credit EOX |
+| 2,240 km … the globe | Blue Marble Next Generation (NASA Earth Observatory), via EOX | public domain |
+
+No clouds: they come later, as things near the camera. At each handover the finer source's top
+frame is colour-matched to the coarser one, easing back to its own colours over 0.75 decades.
+Rough edges: NAIP shows patches from different flight dates at 7–22 km; below ~100 m it's
+upscaled (0.3 m a pixel), so the crown close-ups are soft. To rebuild:
+`python3 scripts/powers-of-ten-photos.py` (`--px`, `--only 1.6,1.85`, `--out`).
+
 ## The image pass (DNA → Earth)
 
 The frames in `rough/` are 1024 px squares, one every half decade (×3.16), from
