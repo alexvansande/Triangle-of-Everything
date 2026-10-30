@@ -1,25 +1,19 @@
 {
-  "minimum_s": -3.6483338019162868,
+  "minimum_s": -5.221848749616356,
   "ladybug_diameter_m": 0.0069347370090506325,
   "droplet_diameter_m": 0.00116,
-  "amoeba_diameter_m": 0.000447744227713668,
-  "amoeba_body_alpha_bounds": null,
-  "amoeba_body_pixels": 1473,
+  "amoeba_diameter_m": 8e-06,
   "target_m": {
     "x": -0.0024822744142255736,
     "y": -0.0009580708265432034
   },
   "stops_m": [
-    0.000674197989048921,
-    0.00022473266301630698
+    0.00018,
+    6e-05,
+    1.8e-05,
+    6e-06
   ],
-  "note": "Three matched sharp planes: ladybug cuticle, suspended Amoeba proteus, and transparent droplet reflections. Registered flat parent replaces first; app-only parallax and blur begin below 1.3 mm. Fixed nominal body diameter 447.7 \u00b5m; integer parent sampling introduces less than 0.5% scale error.",
-  "whole_organism_frame_m": 0.0009,
-  "amoeba_body_bounds": [
-    33,
-    122,
-    1505,
-    895
-  ],
-  "active_field": "layers-v3/scene.json"
+  "note": "Illustrative pollen grain and separate small vannellid-type amoeba suspended in the same dew drop. Former giant Amoeba proteus is no longer active. Native alpha bounds and physical registration in pollen-v4/scene.json.",
+  "active_field": "pollen-v4/scene.json",
+  "pollen_diameter_m": 4e-05
 }

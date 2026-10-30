@@ -1,0 +1,22 @@
+{
+  "tool": "built-in image_gen",
+  "prompts": {
+    "pollen": "Use case: photorealistic-natural scientific specimen. Asset: isolated pollen grain suspended in clear dew water, transparent RGBA for a photographic continuous zoom. One realistically hydrated roughly spherical flowering-plant pollen grain, approximately 40 micrometres across. Golden muted ochre translucent organic wall, intricate reticulate porous exine texture with a few natural furrows/apertures, fine surface relief, hydrated rounded form. Scientifically plausible light-microscope / extreme macro optical appearance with warm transmitted light from a red ladybug shell below and soft neutral daylight above. Not an electron microscope false-color image. Entire specimen sharply resolved, no baked bokeh or glow, no dramatic spikes, no cartoon, no illustration, no shadow, no water background, no labels. Centered single grain occupying 75% of square canvas width, generous fully transparent margins; preserve real transparency including pores where appropriate. Subtle irregularity, no perfect synthetic geometric sphere.",
+    "amoeba": "Use case: scientific-educational, photographic specimen asset. Generate a single very small free-living vannellid-type amoeba, illustrative 8 micrometre body, suspended floating form. Not the classic giant Amoeba proteus shape. A delicate nearly oval small transparent cell body with three to five fine blunt irregular hyaline extensions, sparse very fine granular cytoplasm, one subtle small nucleus, a tiny vacuole; low contrast membrane, watery clear translucency. Realistic light microscopy with neutral transmitted daylight and a faint warm red cast from the distant ladybug cuticle, restrained colors, no thick outline, no glowing halo, no dramatic crystalline granules. Centered isolated specimen filling about 75% of a square canvas, true RGBA transparency everywhere outside the cell and translucent pseudopods. Sharp native internal detail, no baked blur, no shadow, no background, no text. Do not use the flattened star-shaped giant proteus cartoon."
+  },
+  "assets": [
+    "pollen.png",
+    "amoeba.png",
+    "flat.png"
+  ],
+  "body_sizes_m": {
+    "pollen": 0.00004,
+    "amoeba": 0.000008
+  },
+  "size_sources": [
+    "https://www.quekett.org/wp-content/uploads/2020/06/pollen-leaflet-2020.pdf",
+    "https://www.sciencedirect.com/science/article/pii/S0932473913000746"
+  ],
+  "note": "Generic pollen and illustrative small vannellid-type cell; no species-level identification claimed. Source supports pollen commonly20–40µm and small vannellids below10µm. 180µm→18µm review frames are one decade apart. Explicit physical coordinates/native alpha body bounds in shared micro-specimens module.",
+  "assembly": "scripts/powers-of-ten-match-drop.mjs derives flat stack; match-depth.mjs propagates every parent. Existing shell and reflection planes retained. App focus, no baked blur; camera visits pollen then passes toward cell. No body size animation."
+}

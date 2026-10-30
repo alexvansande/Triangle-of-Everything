@@ -138,3 +138,16 @@ app-controlled 9px/960px defocus starts only after the matched handoff.
 The shared canopy-micro-specimens.js registrations also build the flat parent,
 which is propagated through all earlier tiles. No time-based drift, ensuring
 reversible zoom and consistent video capture.
+
+### Pollen first, smaller amoeba one decade later
+
+Supersedes the large proteus and companions. New transparent native assets
+micro/pollen-v4/pollen.png and amoeba.png have calibrated body spans of
+40 µm and 8 µm respectively (alpha bounds exclude transparent margins).
+The smaller cell is an illustrative small vannellid-type amoeba, not a scaled
+giant proteus. Pollen sits 26 µm left / 8 µm above the cell; the camera eases
+to the grain, then passes beside it to the cell. Review frames are 180 µm and
+18 µm, exactly one decade apart. Closest frame is 6 µm. Both objects retain
+constant world size; focus transfers from pollen to amoeba with app blur.
+Shell and droplet reflection layers persist unchanged. Parent tiles derive
+from the new exact flat stack; prompts and biological sources in provenance.

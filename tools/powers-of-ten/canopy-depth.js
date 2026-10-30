@@ -16,7 +16,7 @@ export function canopyDepth(){
   let background=null;const back=new Image();back.onload=()=>background=back;back.src=DIR+'background-sharp-v2.png';
   const specs=[
     {file:'matched/foreground.png',span:SPAN*3,raw:true},
-    ...[['18.2mm',1],['6.07mm',2],['2.02mm',3]].map(([name,k])=>({file:name==='2.02mm'?'../micro/layers-v3/flat.png':`matched/${name}.png`,span:SPAN/3**k,x:(570/1254-.5)*SPAN,y:(605/1254-.5)*SPAN,detail:true})),
+    ...[['18.2mm',1],['6.07mm',2],['2.02mm',3]].map(([name,k])=>({file:name==='2.02mm'?'../micro/pollen-v4/flat.png':`matched/${name}.png`,span:SPAN/3**k,x:(570/1254-.5)*SPAN,y:(605/1254-.5)*SPAN,detail:true})),
   ];
   for(const p of specs){const img=new Image();img.onload=()=>p.img=p.raw?img:feather(img);img.src=DIR+p.file}
   const layer=document.createElement('canvas'),blurred=document.createElement('canvas');

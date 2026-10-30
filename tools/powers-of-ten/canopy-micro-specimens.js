@@ -1,7 +1,10 @@
-// Pixel registrations in the 1254px / 2.0226mm parent. Smaller illustrative
-// specimens share one suspended rear-water plane, separate from the hero cell.
-export const smallAmoebas=[
- {x:430,y:440,width:60,height:40,angle:-.65,opacity:.22},
- {x:850,y:465,width:88,height:59,angle:.8,opacity:.25},
- {x:780,y:850,width:41,height:27,angle:1.9,opacity:.18},
+// Physical body sizes and native alpha bounds, shared by tile assembly/runtime.
+export const microSpecimens=[
+ {file:'pollen',diameter:40e-6,bodyPixels:1105,center:[627,635],x:-26e-6,y:-8e-6,opacity:.9},
+ {file:'amoeba',diameter:8e-6,bodyPixels:1152,center:[649.5,617.5],x:0,y:0,opacity:.55},
+];
+export const microDust=[
+ {x:-.00025,y:.00018,diameter:7e-6,opacity:.20,angle:.7},
+ {x:.00029,y:-.00021,diameter:5e-6,opacity:.15,angle:1.8},
+ {x:.00014,y:.00028,diameter:3e-6,opacity:.17,angle:-.5},
 ];

@@ -13,7 +13,7 @@ async function edge(image,n){
 // The wider foreground/background retain their original native detail.
 const n=3762,third=n/3;
 // Match the new dew close-ups inward-to-outward before assembling the leaf.
-let detail=dir+'/micro/layers-v3/flat.png';
+let detail=dir+'/micro/pollen-v4/flat.png';
 for(const name of ['6.07mm','18.2mm']){
  const patch=await edge(detail,418),target=out+'/'+name+'.png';
  await sharp(chain+`/level-${name}-natural-v3.png`).resize(1254,1254).composite([{input:patch,left:418,top:418}]).png().toFile(target);detail=target;
@@ -50,7 +50,7 @@ const manifest=JSON.parse(await readFile(dir+'/plates/manifest.json','utf8'));
 const names=['120m','40m','13.27m','4.42m','1.47m','49.1cm','16.4cm','5.46cm'];
 for(let i=0;i<8;i++)manifest.plates[i].file='../ladybug-chain/matched/'+names[i]+'.png';
 for(let k=0;k<3;k++){
- const p=manifest.plates[8+k];p.file='../ladybug-chain/'+(k<2?'matched/':'')+['18.2mm.png','6.07mm.png','../micro/layers-v3/flat.png'][k];
+ const p=manifest.plates[8+k];p.file='../ladybug-chain/'+(k<2?'matched/':'')+['18.2mm.png','6.07mm.png','../micro/pollen-v4/flat.png'][k];
  p.x=(570/1254-.5)*(10**1.6/3**6);p.y=(605/1254-.5)*(10**1.6/3**6);
 }
 await writeFile(dir+'/plates/manifest.json',JSON.stringify(manifest,null,2));
