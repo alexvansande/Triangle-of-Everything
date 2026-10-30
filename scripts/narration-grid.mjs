@@ -41,11 +41,18 @@ function updatedAt(t, scene, root) {
   return { updated: !at || (own && new Date(own) > new Date(at)) ? own : at, queued: true };
 }
 
+// What each video goes up to YouTube with (scripts/youtube-publish.py --json: title, the whole
+// description, tags, privacy, schedule, playlist, its id once uploaded); {} without Python
+function youtubeInfo(root) {
+  try { return JSON.parse(execFileSync("python3", ["scripts/youtube-publish.py", "--json"], { encoding: "utf8", cwd: root })); }
+  catch { return {}; }
+}
+
 /** One card's facts per take. `dir`: the folder holding narration/<take>/ (the build's
  *  copy, or public/). `root`: the checkout. `fresh`: re-import the scenes, and `local`:
  *  the full renders where there are any (both for the dev server). */
 export async function takeInfo(takes, dir, { root = ".", fresh = false, local = false } = {}) {
-  const info = [];
+  const info = [], yt = youtubeInfo(root);
   for (const t of takes) {
     const take = JSON.parse(fs.readFileSync(path.join(dir, "narration", t, "words.json"), "utf8"));
     const url = pathToFileURL(path.resolve(root, `src/narration-scenes/${take.scene || t}.js`)).href + (fresh ? `?t=${Date.now()}` : "");
@@ -54,6 +61,7 @@ export async function takeInfo(takes, dir, { root = ".", fresh = false, local = 
     const music = scene.backing && (typeof scene.backing === "string" ? scene.backing : scene.backing.track);
     info.push({ id: t, title: scene.title || t, blurb: scene.blurb || first, duration: take.duration, music,
       thumbAt: scene.thumb ?? take.duration * 0.4, num: (t.match(/\d+/) || [""])[0],
+      yt: yt[t], ytThumb: fs.existsSync(path.join(root, "video/thumbnails", `${t}.jpg`)) ? `video/thumbnails/${t}.jpg` : "",
       ...renderedVideo(t, root, local),
       ...updatedAt(t, take.scene || t, root) });
   }
@@ -66,17 +74,35 @@ export async function takeInfo(takes, dir, { root = ".", fresh = false, local = 
 export function gridHtml(info, { built, commit, base = "" }) {
   const esc = (x) => String(x).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const mmss = (d) => `${Math.floor(d / 60)}:${String(Math.round(d % 60)).padStart(2, "0")}`;
+  // the YouTube side: its thumbnail on the card (else the still), and what goes up with it
+  const when = (s) => s ? new Date(s).toISOString().slice(0, 16).replace("T", " ") + " UTC" : "";
+  const ytPanel = (k) => !k.yt ? "" : `
+        <details class="ng-yt">
+          <summary>YouTube</summary>
+          <dl>
+            <dt>Title</dt><dd class="ng-yt-title">${esc(k.yt.title)}</dd>
+            <dt>Status</dt><dd>${k.yt.youtube ? `<a href="https://youtu.be/${esc(k.yt.youtube)}" target="_blank" rel="noopener">uploaded</a>, ` : "not uploaded, "}${esc(k.yt.privacy)}${
+              k.yt.publishAt ? ` · goes public <time datetime="${esc(k.yt.publishAt)}" data-fmt="time">${esc(when(k.yt.publishAt))}</time>` : ""}${
+              k.duration + 3 > 180 ? " · over 3:00, a regular video" : " · a Short"}</dd>
+            ${k.yt.playlist ? `<dt>Playlist</dt><dd>${esc(k.yt.playlist)}</dd>` : ""}
+            <dt>Tags</dt><dd class="ng-tags">${k.yt.tags.map(t => `<span>${esc(t)}</span>`).join("")}</dd>
+            <dt>Description</dt><dd class="ng-desc">${esc(k.yt.description.trim())}</dd>
+          </dl>
+          ${k.ytThumb && k.thumb ? `<p class="ng-yt-still">Player still: <img src="${base}${k.thumb}" alt="" loading="lazy"></p>` : ""}
+        </details>`;
   const cards = info.map(k => `
+    <div class="ng-item">
       <a class="ng-card" href="#${esc(k.id)}">
-        <span class="ng-thumb">${k.thumb ? `<img src="${base}${k.thumb}" alt="" loading="lazy">` : ""}
+        <span class="ng-thumb">${k.ytThumb || k.thumb ? `<img src="${base}${k.ytThumb || k.thumb}" alt="" loading="lazy">` : ""}
           <span class="ng-num">${esc(k.num)}</span><span class="ng-len">${mmss(k.duration)}</span><span class="ng-play" aria-hidden="true"></span></span>
-        <span class="ng-title">${esc(k.title)}</span>
-        <span class="ng-blurb">${esc(k.blurb)}</span>${k.updated ? `
+        <span class="ng-title">${esc(k.yt?.title || k.title)}</span>
+        <span class="ng-blurb">${esc(k.yt?.blurb || k.blurb)}</span>${k.updated ? `
         <span class="ng-updated">Updated <time datetime="${k.updated}" data-fmt="day">${k.updated.slice(0, 10)}</time></span>` : ""}${k.renderedAt ? `
         <span class="ng-updated">Last rendered <time datetime="${k.renderedAt}" data-fmt="day">${k.renderedAt.slice(0, 10)}</time>${
           k.queued || (k.updated && new Date(k.updated) > new Date(k.renderedAt)) ? ` <span class="ng-behind">· older than the live version</span>` : ""}</span>` : ""}${k.music ? `
         <span class="ng-music">♪ “${esc(k.music)}” Kevin MacLeod (incompetech.com)</span>` : ""}
-      </a>`).join("");
+      </a>${ytPanel(k)}
+    </div>`).join("");
   return `<section id="narr-grid" hidden aria-label="Narration previews">
   <header class="ng-head">
     <p class="ng-eyebrow">The Triangle of Everything</p>
@@ -146,6 +172,27 @@ export function gridHtml(info, { built, commit, base = "" }) {
 .ng-stamp { margin: 8px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--ng-muted); font-variant-numeric: tabular-nums; }
 .ng-updated { font-size: 11.5px; line-height: 1.35; color: var(--ng-muted); }
 .ng-behind { color: var(--ng-accent); }
+.ng-item { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+/* the YouTube panel: opened, the card takes the whole row */
+.ng-item:has(.ng-yt[open]) { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(150px, 220px) 1fr; gap: 8px 18px; align-items: start; }
+.ng-yt summary { font: 700 14px/1 var(--ng-display); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ng-accent);
+  cursor: pointer; padding: 6px 0; list-style-position: inside; }
+.ng-yt summary:focus-visible { outline: 2px solid var(--ng-accent); outline-offset: 2px; }
+.ng-yt dl { margin: 6px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 13px; line-height: 1.45; }
+.ng-yt dt { color: var(--ng-muted); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; padding-top: 2px; }
+.ng-yt dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.ng-yt a { color: var(--ng-fg); }
+.ng-yt-title { font: 700 20px/1.1 var(--ng-display); }
+.ng-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.ng-tags span { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--ng-card); border: 1px solid var(--ng-line); }
+.ng-desc { white-space: pre-wrap; background: var(--ng-card); border: 1px solid var(--ng-line); border-radius: 8px; padding: 10px 12px; color: var(--ng-fg); }
+.ng-yt-still { margin: 10px 0 0; font-size: 11.5px; color: var(--ng-muted); }
+.ng-yt-still img { display: block; width: 90px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--ng-line); }
+@media (max-width: 560px) {
+  .ng-item:has(.ng-yt[open]) { grid-template-columns: 1fr; }
+  .ng-yt dl { grid-template-columns: 1fr; gap: 2px; }
+  .ng-yt dt { padding-top: 8px; }
+}
 .ng-credits { max-width: 960px; margin: 26px auto 0; font-size: 12px; line-height: 1.5; color: var(--ng-muted); }
 .ng-credits a { color: var(--ng-fg); }
 #narr-back { position: fixed; z-index: 100001; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 10px;

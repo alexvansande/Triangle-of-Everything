@@ -5,6 +5,7 @@
     python3 scripts/youtube-publish.py --upload        # upload every video not yet uploaded
     python3 scripts/youtube-publish.py --upload --only short-01-hook
     python3 scripts/youtube-publish.py --captions-only # (re)write the .srt files, no upload
+    python3 scripts/youtube-publish.py --json          # the metadata as JSON (for the videos page)
     python3 scripts/youtube-publish.py --update        # rewrite titles/descriptions/thumbnails of uploaded videos
 
 Reads video/youtube.json (titles, blurbs, music, privacy, schedule), builds each
@@ -178,11 +179,20 @@ def main():
     ap.add_argument("--captions-only", action="store_true", help="write output/videos/<take>.srt and stop")
     ap.add_argument("--update", action="store_true",
                     help="rewrite title, description, tags and thumbnail of videos already uploaded (after editing youtube.json, DESCRIPTION.md or a poster)")
+    ap.add_argument("--json", action="store_true",
+                    help="print what each video will go up with, as JSON (the videos page shows it), and stop")
     a = ap.parse_args()
     m = load(MANIFEST)
     cfg, state = m["defaults"], load(STATE, {})
     MANIFEST_DEFAULTS.update(cfg)
     todo = [v for v in m["videos"] if not a.only or v["take"] in a.only]
+    if a.json:
+        json.dump({v["take"]: {"title": v["title"], "blurb": v["blurb"], "description": description(v), "tags": v.get("tags", cfg["tags"]),
+                               "privacy": v.get("privacy", cfg["privacy"]), "publishAt": v.get("publishAt", ""),
+                               "playlist": v.get("playlist", cfg.get("playlist", "")),
+                               "youtube": state.get(v["take"], {}).get("id", "")} for v in todo},
+                  sys.stdout, ensure_ascii=False, indent=1)
+        return
     if a.update:
         yt = service()
         for v in todo:
