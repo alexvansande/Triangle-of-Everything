@@ -53,5 +53,10 @@ Alex publishes or schedules in Studio. Still to try: `publishAt` from the script
 (fully automatic scheduling). The OAuth app is in Testing mode, so the sign-in expires
 weekly; switch it to "In production" before any unattended job.
 
+**Thumbnails on Shorts (2026-10-30, video 1):** the API's `thumbnails.set` succeeded and the API
+served our poster as the thumbnail, but Studio showed an automatic frame; the author uploaded
+`video/thumbnails/<take>.jpg` by hand in Studio. After each upload of a Short, open it in Studio
+and check the thumbnail; upload the file there if it shows a frame instead.
+
 YouTube counts a vertical video as a Short only up to 3:00: 01 and 02 qualify; 03, 04
 and 05 go up as regular vertical videos unless trimmed.
