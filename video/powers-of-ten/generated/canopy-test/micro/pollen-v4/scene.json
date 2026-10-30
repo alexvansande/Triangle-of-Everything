@@ -28,6 +28,136 @@
       "opacity": 0.55
     }
   ],
+  "community": [
+    {
+      "file": "pine",
+      "species": "Pinus sylvestris",
+      "bodyPixels": 1177,
+      "center": [
+        628,
+        619
+      ],
+      "kind": "pine",
+      "diameter": 0.00007,
+      "x": -0.00016,
+      "y": 0.00004,
+      "opacity": 0.55,
+      "angle": -0.4,
+      "lag": 0.18
+    },
+    {
+      "file": "pine",
+      "species": "Pinus sylvestris",
+      "bodyPixels": 1177,
+      "center": [
+        628,
+        619
+      ],
+      "kind": "pine",
+      "diameter": 0.000068,
+      "x": 0.00028,
+      "y": -0.0001,
+      "opacity": 0.43,
+      "angle": 1.1,
+      "lag": -0.12
+    },
+    {
+      "file": "birch",
+      "species": "Betula pendula",
+      "bodyPixels": 1076,
+      "center": [
+        628,
+        628.5
+      ],
+      "kind": "birch",
+      "diameter": 0.000024,
+      "x": 0.00009,
+      "y": -0.00005,
+      "opacity": 0.48,
+      "angle": 0.7,
+      "lag": 0.1
+    },
+    {
+      "file": "birch",
+      "species": "Betula pendula",
+      "bodyPixels": 1076,
+      "center": [
+        628,
+        628.5
+      ],
+      "kind": "birch",
+      "diameter": 0.000022,
+      "x": -0.00008,
+      "y": 0.00012,
+      "opacity": 0.43,
+      "angle": -1,
+      "lag": -0.1
+    },
+    {
+      "file": "birch",
+      "species": "Betula pendula",
+      "bodyPixels": 1076,
+      "center": [
+        628,
+        628.5
+      ],
+      "kind": "birch",
+      "diameter": 0.000025,
+      "x": -0.00025,
+      "y": -0.00021,
+      "opacity": 0.36,
+      "angle": 2,
+      "lag": 0.26
+    },
+    {
+      "file": "arcella",
+      "species": "Arcella vulgaris",
+      "bodyPixels": 1197,
+      "center": [
+        629,
+        625
+      ],
+      "kind": "arcella",
+      "diameter": 0.00011,
+      "x": -0.00018,
+      "y": 0.00028,
+      "opacity": 0.45,
+      "angle": 0.6,
+      "lag": 0.32
+    },
+    {
+      "file": "vannella",
+      "species": "Vannella simplex",
+      "bodyPixels": 1152,
+      "center": [
+        651.5,
+        610.5
+      ],
+      "kind": "vannella",
+      "diameter": 0.000045,
+      "x": 0.00015,
+      "y": 0.00018,
+      "opacity": 0.29,
+      "angle": -0.6,
+      "lag": 0.12
+    },
+    {
+      "file": "vannella",
+      "species": "Vannella simplex",
+      "bodyPixels": 1152,
+      "center": [
+        651.5,
+        610.5
+      ],
+      "kind": "vannella",
+      "diameter": 0.000044,
+      "x": 0.000045,
+      "y": 0.00006,
+      "opacity": 0.23,
+      "angle": 1.5,
+      "lag": 0.06
+    }
+  ],
   "dust": [
     {
       "x": -0.00025,

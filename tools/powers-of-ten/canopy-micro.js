@@ -1,10 +1,10 @@
-import {microSpecimens,microDust} from './canopy-micro-specimens.js';
+import {microSpecimens,microDust,microCommunity} from './canopy-micro-specimens.js';
 // The shell persists; pollen recedes behind the approaching smaller cell.
 const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
 const ROOT='/video/powers-of-ten/generated/canopy-test/micro/';
 const SPAN=10**1.6/3**9;
 export function canopyMicro(){
- const planes={};for(const [name,file] of Object.entries({shell:'layers-v3/shell',reflections:'layers-v3/reflections',flat:'pollen-v4/flat',pollen:'pollen-v4/pollen',amoeba:'pollen-v4/amoeba'})){const img=new Image();img.src=ROOT+file+'.png';planes[name]=img}
+ const planes={};for(const [name,file] of Object.entries({shell:'layers-v3/shell',reflections:'layers-v3/reflections',flat:'pollen-v4/flat',pollen:'pollen-v4/pollen',amoeba:'pollen-v4/amoeba',...Object.fromEntries(microCommunity.map(p=>[p.file,'pollen-v4/'+p.file]))})){const img=new Image();img.src=ROOT+file+'.png';planes[name]=img}
  const layer=document.createElement('canvas');
  function specimen(ctx,p,x,y,k,relative=1,blur=0){
   const scale=p.diameter/p.bodyPixels*k*relative;
@@ -30,6 +30,11 @@ export function canopyMicro(){
    const strength=smooth(0,.65,travel);
    ctx.filter=`blur(${44*strength*cam.min/960}px)`;
    ctx.drawImage(planes.shell,W/2+shiftX+(dx-627*unit)*back,H/2+shiftY+(dy-627*unit)*back,1254*unit*back,1254*unit*back);ctx.filter='none';
+   // Surrounding pollen and distinct amoebae occupy their own depth planes.
+   for(const p of microCommunity){
+    const relative=10**(-p.lag*eased);
+    specimen(ctx,p,x,y,cam.k,relative,(5+Math.abs(p.lag)*32)*strength*cam.min/960);
+   }
    const dustDepth=10**(-.25*eased);
    for(const p of microDust)specimen(ctx,{...microSpecimens[0],...p,file:'pollen'},x,y,cam.k,dustDepth,9*strength*cam.min/960);
    const pass=1-smooth(Math.log10(25e-6),Math.log10(90e-6),cam.s);

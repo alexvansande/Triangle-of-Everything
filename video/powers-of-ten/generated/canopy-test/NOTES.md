@@ -151,3 +151,17 @@ to the grain, then passes beside it to the cell. Review frames are 180 µm and
 constant world size; focus transfers from pollen to amoeba with app blur.
 Shell and droplet reflection layers persist unchanged. Parent tiles derive
 from the new exact flat stack; prompts and biological sources in provenance.
+
+### Mixed species community in the droplet
+
+Eight new surrounding specimens from four generated native transparent assets:
+Pinus sylvestris pollen (68–70 µm), Betula pendula pollen (22–25 µm),
+Arcella vulgaris testate amoeba (110 µm test width), and Vannella simplex
+(44–45 µm). These are species-inspired reconstructions; size references and
+complete built-in imagegen prompts are in pollen-v4/community-provenance.json.
+Shared microCommunity registrations drive both matched parent assembly and
+runtime depth planes. Each specimen has its own fixed size, rotation, material
+opacity and relative depth lag; all bodies fit wholly inside the 1.16 mm bead.
+The hero pollen/cell path is unchanged. All preceding parent tiles rebuilt.
+Verified four transparent native assets, four species, eight positions within
+the droplet, module syntax and the 1 mm viewer overview.

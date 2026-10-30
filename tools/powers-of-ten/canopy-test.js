@@ -21,7 +21,7 @@ export function mountCanopyTest() {
     <label style="display:block;margin-top:5px"><input id="canopy-crown" type="checkbox" checked> Canopy depth · 3 layers</label>
     <label style="display:block;margin-top:5px"><input id="canopy-plane" type="checkbox" checked> Airplane flyby</label>
     <label style="display:block;margin-top:5px"><input id="canopy-bird" type="checkbox" checked> Bird flyby</label>
-    <div style="color:#a4b3a9;margin-top:8px">Ladybug ≈ 7 mm · dew ≈ 1.16 mm · pollen ≈ 40 µm · small amoeba ≈ 8 µm. Microscopic scene is illustrative. Steller’s jay and Boeing 747: separate foreground flyby layers. Generated scene.</div>
+    <div style="color:#a4b3a9;margin-top:8px">Ladybug ≈ 7 mm · dew ≈ 1.16 mm · pollen ≈ 40 µm · small amoeba ≈ 8 µm. Pine/birch pollen · Arcella/Vannella amoebae. Microscopic scene is illustrative. Steller’s jay and Boeing 747: separate foreground flyby layers. Generated scene.</div>
     <div style="color:#7c8f83;font-size:11px;margin-top:6px">Real imagery: USDA/USGS NAIP; Sentinel-2 cloudless 2016 © EOX, CC BY 4.0. Generated detail is an interpretation.</div>`;
   document.body.append(panel);
   const style=document.createElement('style');style.textContent='#canopy-actions button{border:1px solid #ffffff30;border-radius:6px;background:#22332a;color:#eef5ee;padding:7px 10px;font:inherit;cursor:pointer} #canopy-actions button:hover{background:#3c5143}';document.head.append(style);
