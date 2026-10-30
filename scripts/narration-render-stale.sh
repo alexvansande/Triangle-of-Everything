@@ -1,7 +1,7 @@
 #!/bin/sh
 # Render every short whose full render is older than what it's made of, then make its web
 # copy and a dated copy for iCloud. Meant to run unattended (overnight):
-#   caffeinate -i scripts/narration-render-stale.sh [take …]   # default: every public/narration/short-*
+#   caffeinate -i scripts/narration-render-stale.sh [take …]   # default: every public/narration/short-* and long-*
 # Needs the dev server on :5184 (URL= to change) and Google Chrome (CHROME=); WORKERS= Chrome workers (8).
 # DRY=1: only list the out-of-date takes ("stale <take>"), render nothing.
 # A take listed in video/render-queue.txt renders even if it looks up to date, and comes off
@@ -25,7 +25,7 @@ ICLOUD=${ICLOUD:-"$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects/tr
 mkdir -p output/videos video/web
 
 takes="$*"
-[ -n "$takes" ] || takes=$(ls -d public/narration/short-*/ | xargs -n1 basename)
+[ -n "$takes" ] || takes=$(ls -d public/narration/short-*/ public/narration/long-*/ | xargs -n1 basename)
 
 web() {   # full render → the site's copy, sized just under 20 MiB
   D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$1")
