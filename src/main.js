@@ -5148,6 +5148,8 @@ let _dotSizeMult = 1;    // moving-dot size multiplier (settings slider)
 let _dotOpacityMult = 1; // moving-dot opacity multiplier (settings slider)
 let _dotFixedR = null;    // moving-dot radius in px, overriding the paths' own sizes (narration)
 let _dotBoostKey = "";    // the lit paths (narration's setDotBoost), to redraw when they change
+let _dotFlowAmp = null;   // narration: how far the background's warp pushes the dots (setDotFlow), 0 = off; null = the settings panel's
+let _dotFlowOwnT = 0;     // the warp's clock while the fractal layer has never run (time, at noiseParams.speed)
 
 function pauseAnimOnInteract() {
   if (_animDisabled) return;
@@ -5630,6 +5632,29 @@ function applyEmWave(cp, t, sx, sy, timestamp, ppu) {
   return [sx + perpX * off, sy + perpY * off];
 }
 
+/** This frame's push from the fractal background's warp (bg-noise.js flowField), or
+ *  null when it's off: { at(sx, sy, out) in source px, amp, and the affine from
+ *  chart-local css px to source px, S = a + s/z }. Same clock as the layer: a
+ *  narration's audio time, else the layer's own. */
+const _flowOut = [0, 0];
+function dotFlow(dtReal) {
+  const m = _bgNoiseM;
+  if (!m || !tileMeta) return null;
+  const p = m.noiseParams, amp = _dotFlowAmp ?? (p.flow ? p.flowAmp : 0);
+  if (!(amp > 0)) return null;
+  let time, drift;
+  if (Number.isFinite(_bgNoiseT)) { time = _bgNoiseT * p.speed; drift = (_bgNoiseT * p.drift) % 256; }
+  else if (_bgNoise) ({ time, drift } = _bgNoise.clock());
+  else { if (p.move) _dotFlowOwnT += dtReal; time = _dotFlowOwnT * p.speed; drift = (_dotFlowOwnT * p.drift) % 256; }
+  const ppu = tileMeta.pxPerUnitX, zx = Math.abs(xS(1) - xS(0)) / ppu, zy = Math.abs(yS(0) - yS(1)) / ppu;
+  const zoomCss = Math.sqrt(zx * zy), dpr = Math.min(2, devicePixelRatio || 1) * p.res;
+  // only where the fractal layer swirls: eased in over the zooms it fades in at
+  const f = Math.max(0, Math.min(1, (zoomCss - BG_NOISE_OFF_AT) / (BG_NOISE_ON_AT - BG_NOISE_OFF_AT)));
+  if (!_bgNoiseWanted || f <= 0) return null;
+  return { amp: amp * f * f * (3 - 2 * f), zx, zy, ax: 2114 - xS(PLANCK_LOG_R) / zx, ay: 5960 - yS(PLANCK_LOG_M) / zy,
+    at: m.flowField(p, { zoomDev: zoomCss * dpr, zoomCss, time, drift }) };
+}
+
 function animateConnections(timestamp) {
   if (!connAnimActive()) {
     // Park the loop — no re-queue. scheduleConnAnim() restarts it when a
@@ -5681,9 +5706,19 @@ function animateConnections(timestamp) {
     });
   }
 
+  const flow = dotFlow(dt / (_animSpeed || 1));
   _connDotEls.forEach(({ group, pi, di }) => {
     const cp = _connPaths[pi];
     const baseT = cp.dotTs[di];
+    // the push, once per cluster at its head (the trail rides along with it); none off screen
+    let fx = 0, fy = 0;
+    if (flow) {
+      const [hx, hy] = getPathScreenPos(cp, baseT, ppu);
+      if (hx > -60 && hx < cw + 60 && hy > -60 && hy < ch + 60) {
+        flow.at(flow.ax + hx / flow.zx, flow.ay + hy / flow.zy, _flowOut);
+        fx = flow.amp * _flowOut[0] * flow.zx; fy = flow.amp * _flowOut[1] * flow.zy;
+      }
+    }
 
     group.forEach(({ el, idx }) => {
       const isMeteor = cp.family === "evolution";
@@ -5701,6 +5736,13 @@ function animateConnections(timestamp) {
 
       let [sx, sy] = getPathScreenPos(cp, t, ppu);
       [sx, sy] = applyEmWave(cp, t, sx, sy, timestamp, ppu);
+      if (fx || fy) {
+        // carried by the background's swirls, easing to none at the path's ends so the
+        // dots still leave and arrive exactly at their objects
+        const len = cp._screenLen ?? screenPathLength(cp, ppu), edge = Math.min(t, 1 - t) * len, ease = Math.min(60, len * 0.3);
+        const k = edge >= ease ? 1 : (edge / ease) * (edge / ease) * (3 - 2 * edge / ease);
+        sx -= k * fx; sy -= k * fy;
+      }
 
       el.setAttribute("cx", String(sx));
       el.setAttribute("cy", String(sy));
@@ -5846,7 +5888,8 @@ let _bgNoiseFailed = "";      // why the layer couldn't run (no WebGL2), for the
 let _bgNoiseLost = 0;         // GL contexts lost (the layer rebuilt), for the renderer's log
 let _bgNoiseWanted = _bgNoiseUrl !== null ? _bgNoiseUrl !== "0" : BG_NOISE_DEFAULT_ON;
 let _bgNoiseMod = null;
-const loadBgNoise = () => (_bgNoiseMod ??= import("./bg-noise.js").then(m => { m.applyNoiseProfile(BG_NOISE_PROFILE); return m; }));
+let _bgNoiseM = null;         // the module once loaded (the moving dots read its params and flowField)
+const loadBgNoise = () => (_bgNoiseMod ??= import("./bg-noise.js").then(m => { m.applyNoiseProfile(BG_NOISE_PROFILE); return (_bgNoiseM = m); }));
 
 /** Plot area and camera in source (z5) pixels, as drawTiles anchors them. */
 function bgNoiseView() {
@@ -8570,6 +8613,9 @@ if (_ogShot) {
         if (_labelsEnabled !== on) { _labelsEnabled = on; redraw(); }
       },
       setDots({ size = 1, opacity = 1, radius = null } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; _dotFixedR = radius; },
+      /** The moving dots pushed by the fractal background's warp (experimental): amp × the
+       *  background's own displacement, 0 = off (videos), null = the settings panel's. */
+      setDotFlow(amp = 0) { _dotFlowAmp = amp; if (amp) loadBgNoise(); },
       /** Connection paths (the moving dots' curves) for a video to highlight: every path
        *  whose id or whole (`_into`, what it builds) is in `sel`, sampled at n + 1 points
        *  along its curve, chart-local px: [{ id, family, color, into, pts: [[x, y], …] }]. */

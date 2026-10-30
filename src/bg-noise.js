@@ -39,6 +39,8 @@ export const NOISE_MODES = [
 export const NOISE_DEFAULTS = {
   mode: 8, move: true, speed: 0.09, drift: 0.055, ridge: 0.25, warp: 0.15,
   detail: 0.52, smooth: 1, start: 4.8, filter: 1, res: 1,
+  // experimental (2026-10-30): the paths' moving dots pushed by the same warp, × flowAmp
+  flow: false, flowAmp: 3,
 };
 
 const VS = `#version 300 es
@@ -266,6 +268,85 @@ export function createNoiseRenderer(canvas, { preserve = false } = {}) {
   return { gl, setTexture, render };
 }
 
+// =============================================================
+// The shader's warp in JS, for things drawn over the background
+// =============================================================
+// Mode 8's displacement (disp = uWarp·fbmVec(d + 1.5·fbmVec(d, 2), 3)) with the
+// same hash, lattice, octave rotations, offsets and clock, so a point at
+// source position S gets the background's own displacement there. The
+// painting at S shows up near S − disp, so moving a point by −disp carries it
+// with the swirls.
+
+function gradDot(cx, cy, cz, fx, fy, fz) {   // dot(grad(c), f), as pcg3 + grad in the shader
+  let x = Math.imul(cx & 255, 1664525) + 1013904223 | 0;
+  let y = Math.imul(cy & 255, 1664525) + 1013904223 | 0;
+  let z = Math.imul(cz, 1664525) + 1013904223 | 0;
+  x = x + Math.imul(y, z) | 0; y = y + Math.imul(z, x) | 0; z = z + Math.imul(x, y) | 0;
+  x ^= x >>> 16; y ^= y >>> 16; z ^= z >>> 16;
+  x = x + Math.imul(y, z) | 0; y = y + Math.imul(z, x) | 0; z = z + Math.imul(x, y) | 0;
+  const gx = (x & 1023) / 511.5 - 0.9999, gy = (y & 1023) / 511.5 - 0.9999, gz = (z & 1023) / 511.5 - 0.9999;
+  return (gx * fx + gy * fy + gz * fz) / Math.sqrt(gx * gx + gy * gy + gz * gz);
+}
+function gnoise(px, py, pz) {
+  const ix = Math.floor(px), iy = Math.floor(py), iz = Math.floor(pz);
+  const fx = px - ix, fy = py - iy, fz = pz - iz;
+  const ux = fx * fx * fx * (fx * (fx * 6 - 15) + 10), uy = fy * fy * fy * (fy * (fy * 6 - 15) + 10),
+    uz = fz * fz * fz * (fz * (fz * 6 - 15) + 10);
+  const n000 = gradDot(ix, iy, iz, fx, fy, fz), n100 = gradDot(ix + 1, iy, iz, fx - 1, fy, fz),
+    n010 = gradDot(ix, iy + 1, iz, fx, fy - 1, fz), n110 = gradDot(ix + 1, iy + 1, iz, fx - 1, fy - 1, fz),
+    n001 = gradDot(ix, iy, iz + 1, fx, fy, fz - 1), n101 = gradDot(ix + 1, iy, iz + 1, fx - 1, fy, fz - 1),
+    n011 = gradDot(ix, iy + 1, iz + 1, fx, fy - 1, fz - 1), n111 = gradDot(ix + 1, iy + 1, iz + 1, fx - 1, fy - 1, fz - 1);
+  const a = n000 + (n100 - n000) * ux, b = n010 + (n110 - n010) * ux;
+  const c = n001 + (n101 - n001) * ux, d = n011 + (n111 - n011) * ux;
+  const e = a + (b - a) * uy, f = c + (d - c) * uy;
+  return (e + (f - e) * uz) * 1.6;
+}
+const smooth01 = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+/**
+ * flowField(p, { zoomDev, zoomCss, time, drift, maxCss }) → (sx, sy, out) => out
+ * The background's displacement at source position (sx, sy), in source px, into
+ * out[0..1]. p: noiseParams (warp, smooth, start); zoomDev: device px per source px
+ * as the layer draws (which octaves live); time, drift: the layer's clock. Octaves
+ * whose wavelength passes maxCss css px fade out of the push (not of the lookup):
+ * past that they only shift the painting where it's smooth, and would throw a dot
+ * far off its path.
+ */
+export function flowField(p, { zoomDev, zoomCss, time, drift, maxCss = 600 }) {
+  const uStart = 2 ** p.start, oct = [];
+  for (let i = 0; i < MAXOCT; i++) {
+    const lam = L0 * 2 ** -i;
+    if (lam * zoomDev < 2) break;
+    const w = smooth01(2, 6, lam * zoomDev) * (1 - smooth01(uStart, 2 * uStart, lam));
+    if (w <= 0) continue;
+    const a = i * 2.39996, k = w * lam * Math.min((lam / uStart) ** (p.smooth - 1), 1.5);
+    oct.push({ lam, c: Math.cos(a), s: Math.sin(a), k, band: 1 - smooth01(maxCss / 2, maxCss, lam * zoomCss),
+      t: time * (1 + 0.12 * i) + i * 13.7 });
+  }
+  const wrap = v => v - 256 * Math.floor(v / 256);
+  // fbmVec(S, ch) with S absolute (the shader's uOff + R·d/λ, wrapped to the noise period)
+  function fbmVec(sx, sy, ch, push, out) {
+    let ox = 0, oy = 0;
+    const chx = ch * 17.3, chy = ch * 53.9, cht = ch * 31;
+    for (const o of oct) {
+      const k = push ? o.k * o.band : o.k;
+      if (k === 0) continue;
+      const x = wrap((o.c * sx - o.s * sy) / o.lam + drift + chx), y = wrap((o.s * sx + o.c * sy) / o.lam + drift * 0.37 + chy);
+      const z = o.t + cht;
+      ox += k * gnoise(x, y, z); oy += k * gnoise(x + 71.3, y + 11.9, z + 23.1);
+    }
+    out[0] = ox; out[1] = oy;
+    return out;
+  }
+  const q = [0, 0];
+  return (sx, sy, out) => {
+    fbmVec(sx, sy, 2, false, q);
+    fbmVec(sx + 1.5 * q[0], sy + 1.5 * q[1], 3, true, out);
+    out[0] *= p.warp; out[1] *= p.warp;
+    return out;
+  };
+}
+
 /** Number of octaves currently contributing (for readouts). */
 export function liveOctaves(zoomDev, start) {
   let n = 0;
@@ -414,6 +495,8 @@ export function createBgNoise({ host, meta, getView, getTime, onShown, onLost })
   }
   active = {
     invalidate() { dirty = true; },
+    /** The clock the clouds evolve by, as last drawn (flowField's time and drift). */
+    clock: () => ({ time, drift }),
     /** Draw now for the current view and clock (a narration frame), not on the next animation frame. */
     draw() { if (visible && alive) paint(); },
     /** Still loading what this view needs, or not drawn yet (a render waits for it). */
@@ -464,6 +547,8 @@ export function mountNoiseControls(container) {
     ${range("detail", "Detail", 0, 1.5, 0.01, "2", "Strength of the added brightness detail")}
     ${range("smooth", "Smoothness", 0, 1, 0.01, "2", "0 = every octave equally strong (rough, CMB-like); 1 = finer octaves fade (soft clouds)")}
     ${range("start", "Starts at", 0, 5, 0.01, "px", "Largest scale the noise may touch, in source pixels. Larger = it starts reshaping the painting at normal zoom")}
+    <label class="bgnoise-row bgnoise-check" title="Experimental: the paths' moving dots are pushed by the same warp, so they ride the swirls"><input type="checkbox" data-k="flow"> <span class="bgnoise-label">Dots ride the swirls</span></label>
+    ${range("flowAmp", "Push", 0, 12, 0.1, "1", "How far the dots are pushed: 1 = exactly as far as the background is warped there")}
     <label class="bgnoise-row"><span class="bgnoise-label">Base filter</span>
       <select class="bgnoise-select" data-k="filter"><option value="1">B-spline (smooth)</option><option value="2">Catmull-Rom (sharp)</option><option value="0">Bilinear</option></select></label>
     <label class="bgnoise-row"><span class="bgnoise-label">Resolution</span>

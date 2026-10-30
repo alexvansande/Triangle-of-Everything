@@ -13,6 +13,7 @@
  *   node scripts/mobile-perf.mjs --net 3g --cpu 6 # meaner phone
  *   node scripts/mobile-perf.mjs --trace          # also save a DevTools-loadable trace
  *   node scripts/mobile-perf.mjs --ci             # exit 1 if any budget is busted
+ *   node scripts/mobile-perf.mjs --dot-flow 3     # moving dots pushed by the background's warp (experimental)
  *   node scripts/mobile-perf.mjs --profile ci     # relaxed timing budgets for CI runners
  *
  * Reports to stdout and scripts/perf-reports/<timestamp>.json.
@@ -88,6 +89,7 @@ if (!BUDGETS) {
 const cpuRate = Number(opt('cpu', '4'));
 const explicitUrl = opt('url', null);
 const useDev = flag('dev');
+const dotFlow = Number(opt('dot-flow', '0'));
 
 function findChrome() {
   const candidates = [
@@ -303,7 +305,7 @@ async function measureGesture(page, cdp, label, run) {
 // --------------------------------------------------------------------- main --
 const { url, proc } = await startServer();
 const chrome = findChrome();
-console.log(`\n▸ Target: ${url}  (net: ${netName}, cpu: ${cpuRate}x, chrome: headless)`);
+console.log(`\n▸ Target: ${url}  (net: ${netName}, cpu: ${cpuRate}x, chrome: headless${dotFlow > 0 ? `, dot flow ×${dotFlow}` : ''})`);
 
 const browser = await puppeteer.launch({
   executablePath: chrome,
@@ -319,6 +321,9 @@ try {
   );
   await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
   await page.evaluateOnNewDocument(COLLECTOR);
+  if (dotFlow > 0) await page.evaluateOnNewDocument((amp) => {
+    localStorage.setItem('tri-bgnoise', JSON.stringify({ flow: true, flowAmp: amp }));
+  }, dotFlow);
 
   const cdp = await page.target().createCDPSession();
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
@@ -408,6 +413,8 @@ try {
   ));
   gestures.push(await measureGesture(page, cdp, 'pinch zoom out (0.4x)', () =>
     cdp.send('Input.synthesizePinchGesture', { x: cx, y: cy, scaleFactor: 0.4, relativeSpeed: 400, gestureSourceType: 'touch' })
+      // newer Chrome puts the fingers of a 0.4x pinch-out off a 390 px screen ("Position out of bounds")
+      .catch(() => cdp.send('Input.synthesizePinchGesture', { x: cx, y: cy, scaleFactor: 0.6, relativeSpeed: 400, gestureSourceType: 'touch' }))
   ));
   gestures.push(await measureGesture(page, cdp, 'pan (drag across)', () =>
     cdp.send('Input.synthesizeScrollGesture', {
