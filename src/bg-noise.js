@@ -615,7 +615,7 @@ export function mountNoiseControls(container) {
     ${range("detail", "Detail", 0, 1.5, 0.01, "2", "Strength of the added brightness detail")}
     ${range("smooth", "Smoothness", 0, 1, 0.01, "2", "0 = every octave equally strong (rough, CMB-like); 1 = finer octaves fade (soft clouds)")}
     ${range("start", "Starts at", 0, 5, 0.01, "px", "Largest scale the noise may touch, in source pixels. Larger = it starts reshaping the painting at normal zoom")}
-    ${range("trail", "Dot trails", 0, 0.3, 0.005, "3", "Experimental: the paths' moving dots and a short trail behind each drawn into the background, so its swirls carry their light. Brightness; 0 = off")}
+    ${range("trail", "Dot trails", 0, 1, 0.005, "3", "Experimental: the paths' moving dots and a short trail behind each drawn into the background, so its swirls carry their light. Brightness; 0 = off")}
     ${range("trailLen", "Trail length", 0, 300, 5, "0", "css px behind each dot")}
     ${range("trailSwirl", "Trail swirl", 0, 20, 0.5, "1", "How much harder than the painting the trails are swirled (1 = just as much)")}
     ${range("shadowSwirl", "Shadow swirl", 0, 5, 0.05, "2", "The pictures' shadows drawn into the background and swirled with it, this much harder than the painting. 0 = off")}
