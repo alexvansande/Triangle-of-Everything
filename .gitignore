@@ -34,9 +34,11 @@ posters/
 *.mp3
 *.flac
 *.mp4
-# The exceptions: the shorts' audio and mix, so they play out of the box
+# The exceptions: the shorts' and the long cuts' audio and mix, so they play out of the box
 !public/narration/short-*/audio.m4a
 !public/narration/short-*/mix.m4a
+!public/narration/long-*/audio.m4a
+!public/narration/long-*/mix.m4a
 .narr-render-*/
 __pycache__/
 narration-frames/
