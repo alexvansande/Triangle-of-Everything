@@ -1,0 +1,11 @@
+{
+  "title": "The Triangle of Everything: the intro",
+  "blurb": "The chart, and the density line from a milliliter of water to the brown dwarfs (shorts 1–3, joined).",
+  "stage": "landscape",
+  "gap": 0.6,
+  "segments": [
+    { "take": "short-01-hook", "to": "all the stories it contains" },
+    { "take": "short-02-up-the-line", "from": "almost everything falls" },
+    { "take": "short-01-hook", "from": "I could talk about them for hours" }
+  ]
+}

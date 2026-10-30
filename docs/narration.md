@@ -366,6 +366,19 @@ which lines are short-only (intros, endings), which are long-only, and which
 are shared, and keep the scene scripts per cut. They usually share their cues,
 so a short's scene can import the matching section from another scene.
 
+### Cuts: shorts split from a take, long videos joined from several
+
+`video/cuts/<take>.json` lists pieces of existing takes by phrase (see `scripts/narration-cut.py`);
+`python3 scripts/narration-cut.py <take>` joins their voice and mix into
+`public/narration/<take>/` with a `words.json` that records each piece's source (`segments`). The
+player plays each piece with its own scene's cues, resolved on its own take's words and moved into
+place, and opens each piece on the camera and highlights its source had there. A long cut asks for
+`"stage": "landscape"`: 16:9, edge to edge, the scenes' camera spans × 16/9 (a cue's `camWide`
+overrides). The videos page lists long cuts in their own 16:9 row. The first ones (2026-10-30):
+`short-02a-things` and `short-02b-planets` (video 2 split where it turns to planets) and
+`long-01-intro` (the hook and video 2 joined, video 2's re-introduction left out). Recording
+nothing again; re-run the tool when a source take changes.
+
 ## Reference figures
 
 - **What has been ruled out as dark matter**: [`img/dark-matter-constraints.png`](img/dark-matter-constraints.png)

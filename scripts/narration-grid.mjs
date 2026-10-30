@@ -59,8 +59,10 @@ export async function takeInfo(takes, dir, { root = ".", fresh = false, local = 
     const scene = (await import(url)).default;
     const first = take.words.map(w => w[0]).join(" ").match(/^.*?[.?!](\s|$)/)?.[0].trim() ?? "";
     const music = scene.backing && (typeof scene.backing === "string" ? scene.backing : scene.backing.track);
-    info.push({ id: t, title: scene.title || t, blurb: scene.blurb || first, duration: take.duration, music,
-      thumbAt: scene.thumb ?? take.duration * 0.4, num: (t.match(/\d+/) || [""])[0],
+    // a cut (scripts/narration-cut.py) has its own title and blurb; a long one plays 16:9
+    info.push({ id: t, title: take.title || scene.title || t, blurb: take.blurb || scene.blurb || first, duration: take.duration, music,
+      thumbAt: scene.thumb ?? take.duration * 0.4, num: (t.match(/\d+[a-z]?/) || [""])[0],
+      long: t.startsWith("long-"), wide: take.stage === "landscape", cut: !!take.segments,
       yt: yt[t], ytThumb: fs.existsSync(path.join(root, "video/thumbnails", `${t}.jpg`)) ? `video/thumbnails/${t}.jpg` : "",
       ...renderedVideo(t, root, local),
       ...updatedAt(t, take.scene || t, root) });
@@ -92,8 +94,10 @@ export function gridHtml(info, { built, commit, base = "" }) {
           </dl>
           ${k.ytThumb && k.thumb ? `<p class="ng-yt-still">Player still: <img src="${base}${k.thumb}" alt="" loading="lazy"></p>` : ""}
         </details>`;
-  const cards = info.map(k => `
-    <div class="ng-item">
+  // the shorts (9:16) in the grid; the long cuts (16:9, scripts/narration-cut.py) in a row of their own
+  const shorts = info.filter(k => !k.long), longs = info.filter(k => k.long);
+  const card = k => `
+    <div class="ng-item${k.wide ? " is-wide" : ""}">
       <a class="ng-card" href="#${esc(k.id)}">
         <span class="ng-thumb">${k.ytThumb || k.thumb ? `<img src="${base}${k.ytThumb || k.thumb}" alt="" loading="lazy">` : ""}
           <span class="ng-num">${esc(k.num)}</span><span class="ng-len">${mmss(k.duration)}</span><span class="ng-play" aria-hidden="true"></span></span>
@@ -104,7 +108,8 @@ export function gridHtml(info, { built, commit, base = "" }) {
           k.queued || (k.updated && new Date(k.updated) > new Date(k.renderedAt)) ? ` <span class="ng-behind">· older than the live version</span>` : ""}</span>` : ""}${k.music ? `
         <span class="ng-music">♪ “${esc(k.music)}” Kevin MacLeod (incompetech.com)</span>` : ""}
       </a>${ytPanel(k)}
-    </div>`).join("");
+    </div>`;
+  const cards = shorts.map(card).join(""), longCards = longs.map(card).join("");
   return `<section id="narr-grid" hidden aria-label="Narration previews">
   <header class="ng-head">
     <p class="ng-eyebrow">The Triangle of Everything</p>
@@ -116,10 +121,13 @@ export function gridHtml(info, { built, commit, base = "" }) {
       <button type="button" data-mode="video" aria-pressed="false">Rendered video</button>
     </div>
     <p class="ng-mode-note" id="ng-mode-note"></p>
-    <a class="ng-all" href="#${esc(info[0].id)}">Play all · ${mmss(info.reduce((s, k) => s + k.duration, 0))}</a>
+    <a class="ng-all" href="#${esc(shorts[0].id)}">Play all · ${mmss(shorts.reduce((s, k) => s + k.duration, 0))}</a>
   </header>
   <div class="ng-grid">${cards}
-  </div>${info.some(k => k.music) ? `
+  </div>${longs.length ? `
+  <h2 class="ng-sub">Long videos <span>16:9 · the shorts joined</span></h2>
+  <div class="ng-grid ng-grid-wide">${longCards}
+  </div>` : ""}${info.some(k => k.music) ? `
   <p class="ng-credits">Music by Kevin MacLeod (<a href="https://incompetech.com" target="_blank" rel="noopener">incompetech.com</a>),
     licensed under Creative Commons: By Attribution 4.0
     (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">creativecommons.org/licenses/by/4.0</a>).</p>` : ""}
@@ -174,6 +182,10 @@ export function gridHtml(info, { built, commit, base = "" }) {
 .ng-stamp { margin: 8px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--ng-muted); font-variant-numeric: tabular-nums; }
 .ng-updated { font-size: 11.5px; line-height: 1.35; color: var(--ng-muted); }
 .ng-behind { color: var(--ng-accent); }
+.ng-sub { max-width: 960px; margin: 30px auto 12px; font: 700 26px/1 var(--ng-display); text-transform: uppercase; letter-spacing: 0.01em; }
+.ng-sub span { font: 500 13px/1 var(--ng-body); text-transform: none; letter-spacing: 0; color: var(--ng-muted); margin-left: 8px; }
+.ng-grid-wide { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.ng-item.is-wide .ng-thumb { aspect-ratio: 16 / 9; }
 .ng-item { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 /* the YouTube panel: opened, the card takes the whole row */
 .ng-item:has(.ng-yt[open]) { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(150px, 220px) 1fr; gap: 8px 18px; align-items: start; }
@@ -237,7 +249,7 @@ export function gridHtml(info, { built, commit, base = "" }) {
 #narr-to-video[hidden], #nv-live[hidden] { display: none; }
 </style>
 <script>
-window.__narrTakes = ${JSON.stringify(info.map(k => ({ id: k.id, title: k.title }))).replace(/</g, "\\u003c")};
+window.__narrTakes = ${JSON.stringify(shorts.map(k => ({ id: k.id, title: k.title }))).replace(/</g, "\\u003c")};
 (function () {
   var playing = location.hash.length > 1;
   document.getElementById(playing ? "narr-back" : "narr-grid").hidden = false;

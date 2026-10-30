@@ -132,6 +132,45 @@ function resolveScene(words) {
   return cues;
 }
 
+// ---------- a take cut from other takes (scripts/narration-cut.py) ----------
+// Each piece keeps its own scene: that scene's cues are resolved against its own take's words
+// (the timing they were written for), those inside the piece kept and moved to where it sits.
+// The camera and highlights in effect where the piece starts come along at its first instant,
+// so it opens on the picture the source had there. The scene-wide settings are the first
+// piece's, with the pictures' lists (forced, hidden…) of all of them; the journal cover only if
+// the cut starts at the very beginning of its first take.
+const LISTS = ["forceIcons", "hideIcons", "alsoIcons", "hideLabels", "firstIcons"];
+async function cutCues(take) {
+  const parts = await Promise.all(take.segments.map(async (s) => ({
+    s, src: await fetch(`${import.meta.env.BASE_URL}narration/${s.take}/words.json`).then(r => r.json()),
+    scene: (await SCENES[`./narration-scenes/${s.scene}.js`]()).default,
+  })));
+  const all = [], missing = [], first = parts[0];
+  for (const { s, src, scene } of parts) {
+    SCENE = scene;
+    const rc = resolveScene(src.words);
+    missing.push(...(window.__narrMissing || []));
+    const move = (t) => +(t - s.from + s.at).toFixed(3);
+    const before = rc.filter(c => c.time < s.from - 0.01);
+    const cam = before.filter(c => c.cam).at(-1), hl = before.filter(c => c.hl || c.clear).at(-1);
+    if (s.from > 0 && cam) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: 0.05, drift: cam.drift, time: s.at });
+    if (s.from > 0 && hl?.hl) all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: s.at + 0.001 });
+    for (const c of rc) if (c.time >= s.from - 0.01 && c.time < s.to) all.push({ ...c, time: move(c.time) });
+  }
+  window.__narrMissing = missing;
+  all.sort((a, b) => a.time - b.time);
+  all.sound = [];
+  const merged = { ...first.scene, cues: [], captionFixes: Object.assign({}, ...parts.map(p => p.scene.captionFixes)),
+    cover: first.s.from === 0 ? first.scene.cover : undefined };
+  for (const k of LISTS) {
+    const u = [...new Set(parts.flatMap(p => p.scene[k] || []))];
+    merged[k] = u.length ? u : undefined;
+  }
+  if (first.s.from > 0) merged.start = all.find(c => c.cam && c.cam.r != null)?.cam ?? first.scene.start;
+  SCENE = merged;
+  return all;
+}
+
 // ---------- captions ----------
 function buildCaptions(words) {
   const fix = SCENE.captionFixes || {};
@@ -165,7 +204,7 @@ export async function startNarration(app) {
   const POSTER = params.get("poster") === "wide" ? (SCENE.posterWide || SCENE.poster) : params.has("poster") ? SCENE.poster : null;
   if (POSTER) SCENE = { ...SCENE, ...POSTER.set, cues: POSTER.cues, cover: undefined };   // set: scene fields for the shot
   window.__narrPoster = POSTER ? { at: POSTER.at ?? 5 } : undefined;
-  const cues = resolveScene(take.words);
+  const cues = take.segments && !POSTER ? await cutCues(take) : resolveScene(take.words);
   const captions = CAPTIONS ? buildCaptions(take.words) : [];
   // The video runs on for the end credits (scene `credits`, default 3 s) after
   // the last word; the mix (narration-sound.mjs) carries the music under them.
@@ -173,7 +212,11 @@ export async function startNarration(app) {
   const CREDITS = take.credits ?? SCENE.credits ?? 3;
   const duration = speechEnd + CREDITS;
 
-  const stage = params.get("stage") || "portrait";
+  const stage = params.get("stage") || take.stage || "portrait";   // a long cut asks for "landscape"
+  // 16:9: the scenes' cameras are framed for a tall screen (span = decades across its width). Wide,
+  // the same span × 16/9: the portrait's width becomes the frame's height, so a shot's subject still
+  // fits, with more around it either side (a cue's camWide: its own framing instead)
+  const WIDE = stage === "landscape" ? 16 / 9 : 1;
   if (stage !== "none" && (RENDER || !app.isMobile())) app.setStage(stage);
   app.prepare();
   // the paths' moving dots: as big as the catalogue dust (1.15 px), brighter
@@ -202,7 +245,8 @@ export async function startNarration(app) {
     return d ? { name, logR: d.r, logM: d.m, dust: true } : undefined;
   } };
   const objColor = (o) => app.categories[o.cat]?.color || "#fff";
-  const resolveView = (v) => {
+  const resolveView = (v0) => {
+    const v = WIDE !== 1 && v0 ? { ...v0, span: v0.span * WIDE } : v0;
     if (v.obj) {
       const o = objByName.get(v.obj);
       if (!o) { console.warn("[narration] unknown object", v.obj); return null; }
@@ -217,14 +261,14 @@ export async function startNarration(app) {
     await app.loadDust?.();
 
   // ---------- camera timeline ----------
-  const START = SCENE.start;
+  const START = WIDE !== 1 && SCENE.start ? { ...SCENE.start, span: SCENE.start.span * WIDE } : SCENE.start;
   // cam.glide: a waypoint of one continuous pan. The camera passes through each
   // glide point at its cue's time on a smooth (Catmull-Rom) curve, never holding,
   // instead of flying and stopping at each one.
   // dur: "end" flies until the end card has covered the picture (it fades in over
   // speechEnd + 0.15…0.65 s); ease: "gentle" (sine) keeps a long move
   // close to an even pace instead of the default cubic's slow-fast-slow
-  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: resolveView(c.cam),
+  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: WIDE !== 1 && c.camWide ? resolveView({ ...c.camWide, span: c.camWide.span / WIDE }) : resolveView(c.cam),
     dur: c.dur === "end" ? speechEnd + (CREDITS ? 0.65 : 0) - c.time : c.dur, drift: c.drift ?? 0.05,
     ease: c.ease === "gentle" ? d3.easeSinInOut : d3.easeCubicInOut,
     quiet: !!c.quiet, glide: !!c.cam.glide, whip: !!c.cam.whip, overshoot: c.cam.overshoot }))
@@ -2769,6 +2813,9 @@ const NARR_CSS = `
 body.narrating #search-btn, body.narrating #search-box, body.narrating #settings-btn,
 body.narrating #axes-toggle, body.narrating #minimap, body.narrating #scale-bar,
 body.narrating .keyhint, body.narrating #key-hint, body.narrating #click-targets { display: none !important; }
+/* a 16:9 long cut on a desktop-sized stage: the narration's own rulers, not the map's axis frames */
+body.narrating g.axis-l, body.narrating g.axis-r, body.narrating g.axis-t, body.narrating g.axis-b,
+body.narrating .minimap-group, body.narrating #keyhint, body.narrating #readout { display: none !important; }
 #narr-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 #narr-svg text { font-family: Inter, system-ui, sans-serif; paint-order: stroke; stroke: rgba(0,0,0,0.85); stroke-width: 3px; stroke-linejoin: round; }
 .narr-tag { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; }

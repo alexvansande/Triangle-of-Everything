@@ -33,7 +33,7 @@ const videosPage = () => ({
   configureServer(server) {
     server.middlewares.use(async (req, res, next) => {
       // the rendered videos (the full render where there is one), with byte ranges so they can seek
-      const mp4 = req.url.match(/^\/rendered\/(short-[\w-]+)\.mp4/);
+      const mp4 = req.url.match(/^\/rendered\/((?:short|long)-[\w-]+)\.mp4/);
       if (mp4) {
         const { renderedVideo } = await import("./scripts/narration-grid.mjs");
         const { video } = renderedVideo(mp4[1], server.config.root, true);
@@ -51,7 +51,7 @@ const videosPage = () => ({
       try {
         const { takeInfo, gridHtml, gitDate } = await import("./scripts/narration-grid.mjs");
         const root = server.config.root, narr = path.join(root, "public/narration");
-        const takes = fs.readdirSync(narr).filter(t => t.startsWith("short-") && fs.existsSync(path.join(narr, t, "words.json"))).sort();
+        const takes = fs.readdirSync(narr).filter(t => /^(short|long)-/.test(t) && fs.existsSync(path.join(narr, t, "words.json"))).sort();
         const info = await takeInfo(takes, path.join(root, "public"), { root, fresh: true, local: true });
         for (const k of info) if (fs.existsSync(path.join(narr, k.id, "thumb.jpg"))) k.thumb = `narration/${k.id}/thumb.jpg`;
         const html = (await server.transformIndexHtml(req.url, fs.readFileSync(path.join(root, "index.html"), "utf8")))
