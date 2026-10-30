@@ -1,5 +1,6 @@
 // Registered native planes, shared by the flattened parent and runtime scene.
 import sharp from 'sharp';
+import {smallAmoebas} from '../tools/powers-of-ten/canopy-micro-specimens.js';
 import {writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 const root=resolve(import.meta.dirname,'../video/powers-of-ten/generated/canopy-test');
@@ -13,11 +14,19 @@ const frontLeft=Math.round(n/2-679.5/1254*frontWidth),frontTop=Math.round(n/2-64
 // Opacity belongs to the material, shared by flat and depth renderings.
 const cell=await sharp(dir+'/amoeba.png').resize(cellWidth,cellHeight).ensureAlpha().raw().toBuffer({resolveWithObject:true});
 for(let i=3;i<cell.data.length;i+=4)cell.data[i]=Math.round(cell.data[i]*.68);
+const companions=[];
+for(const p of smallAmoebas){
+ const raw=await sharp(dir+'/amoeba.png').resize(p.width,p.height).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+ for(let i=3;i<raw.data.length;i+=4)raw.data[i]=Math.round(raw.data[i]*p.opacity);
+ const rotated=await sharp(raw.data,{raw:raw.info}).rotate(p.angle*180/Math.PI,{background:'#0000'}).png().toBuffer({resolveWithObject:true});
+ companions.push({input:rotated.data,left:Math.round(p.x-rotated.info.width/2),top:Math.round(p.y-rotated.info.height/2)});
+}
 const flat=await sharp(dir+'/shell.png').composite([
+ ...companions,
  {input:cell.data,raw:cell.info,left:cellLeft,top:cellTop},
  {input:await sharp(dir+'/reflections.png').resize(frontWidth,frontWidth).png().toBuffer(),left:frontLeft,top:frontTop}
 ]).png().toBuffer();
 await writeFile(dir+'/flat.png',flat);
-const scene={span,diameter_m:diameter,droplet_diameter_m:.00116,n,cell:{width:cellWidth,height:cellHeight,left:cellLeft,top:cellTop,opacity:.68,body_pixels:1473,source_width:1536},front:{width:frontWidth,height:frontWidth,left:frontLeft,top:frontTop},handoff_m:[.0018,.0015],depth_start_m:.0013};
+const scene={span,diameter_m:diameter,droplet_diameter_m:.00116,n,cell:{width:cellWidth,height:cellHeight,left:cellLeft,top:cellTop,opacity:.68,body_pixels:1473,source_width:1536},front:{width:frontWidth,height:frontWidth,left:frontLeft,top:frontTop},handoff_m:[.0018,.0015],depth_start_m:.0013,smallAmoebas,small_plane_zoom_rate:.75};
 await writeFile(dir+'/scene.json',JSON.stringify(scene,null,2));
 console.log(scene);

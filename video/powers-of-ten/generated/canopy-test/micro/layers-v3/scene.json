@@ -22,5 +22,32 @@
     0.0018,
     0.0015
   ],
-  "depth_start_m": 0.0013
+  "depth_start_m": 0.0013,
+  "smallAmoebas": [
+    {
+      "x": 430,
+      "y": 440,
+      "width": 60,
+      "height": 40,
+      "angle": -0.65,
+      "opacity": 0.22
+    },
+    {
+      "x": 850,
+      "y": 465,
+      "width": 88,
+      "height": 59,
+      "angle": 0.8,
+      "opacity": 0.25
+    },
+    {
+      "x": 780,
+      "y": 850,
+      "width": 41,
+      "height": 27,
+      "angle": 1.9,
+      "opacity": 0.18
+    }
+  ],
+  "small_plane_zoom_rate": 0.75
 }

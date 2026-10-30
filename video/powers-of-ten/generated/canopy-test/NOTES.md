@@ -127,3 +127,14 @@ Foreground surface remains at constant opacity and leaves by geometry.
 Size checked against microscopy sources: Amoeba proteus can be around
 600–750 µm; our nominal 447.7 µm is plausible, no missing unit decade.
 Prompts, size sources and assembly are in micro/layers-v3/provenance.json.
+
+### Smaller suspended specimens
+
+Added three faint companions (approximately 63, 93 and 136 µm body widths)
+on a separate water-depth plane, using the existing warm transparent specimen
+asset with varied rotation and material opacity. All fit wholly inside the
+1.16 mm droplet. Their zoom rate eases to 0.75× relative to the hero's 1×;
+app-controlled 9px/960px defocus starts only after the matched handoff.
+The shared canopy-micro-specimens.js registrations also build the flat parent,
+which is propagated through all earlier tiles. No time-based drift, ensuring
+reversible zoom and consistent video capture.

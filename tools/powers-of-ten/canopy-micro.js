@@ -1,3 +1,4 @@
+import {smallAmoebas} from './canopy-micro-specimens.js';
 // Three registered optical planes: shell, suspended cell, reflecting surface.
 const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
 const ROOT='/video/powers-of-ten/generated/canopy-test/micro/layers-v3/';
@@ -27,6 +28,16 @@ export function canopyMicro(){
    const strength=smooth(0,.65,travel);
    ctx.filter=`blur(${44*strength*cam.min/960}px)`;
    ctx.drawImage(planes.shell,W/2+(dx-627*unit)*back,H/2+(dy-627*unit)*back,1254*unit*back,1254*unit*back);
+   // A separate suspended-water plane recedes more slowly than the hero cell.
+   const smallDepth=10**(-.25*eased);
+   ctx.filter=`blur(${9*strength*cam.min/960}px)`;
+   for(const p of smallAmoebas){
+    ctx.save();ctx.globalAlpha=p.opacity;
+    ctx.translate(W/2+(dx+(p.x-627)*unit)*smallDepth,H/2+(dy+(p.y-627)*unit)*smallDepth);
+    ctx.rotate(p.angle);
+    ctx.drawImage(planes.amoeba,-p.width*unit*smallDepth/2,-p.height*unit*smallDepth/2,p.width*unit*smallDepth,p.height*unit*smallDepth);
+    ctx.restore();
+   }
    ctx.filter='none';ctx.globalAlpha=.68;
    ctx.drawImage(planes.amoeba,W/2+dx+(cell.left-627)*unit,H/2+dy+(cell.top-627)*unit,cell.width*unit,cell.height*unit);
    ctx.globalAlpha=1;
