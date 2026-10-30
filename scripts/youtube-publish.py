@@ -130,8 +130,12 @@ def service():
     creds = Credentials.from_authorized_user_file(TOKEN, SCOPES) if os.path.exists(TOKEN) else None
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+            try:
+                creds.refresh(Request())
+            except Exception as e:   # revoked, or past its week (an OAuth app in Testing): sign in again
+                print(f"sign-in expired ({e.__class__.__name__}): opening the browser to sign in again", flush=True)
+                creds = None
+        if not creds or not creds.valid:
             if not os.path.exists(SECRETS):
                 sys.exit(f"no OAuth client at {SECRETS} (see the setup notes at the top of this script)")
             creds = InstalledAppFlow.from_client_secrets_file(SECRETS, SCOPES).run_local_server(port=0)
