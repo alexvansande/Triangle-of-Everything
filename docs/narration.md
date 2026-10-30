@@ -295,7 +295,11 @@ node scripts/narration-poster.mjs short-01-hook [short-02-up-the-line …]
 
 with the dev server up (`BASE`, default `http://localhost:5184`, the "shorts" preview; Chrome
 from `CHROME`). It stills each shot at 1080×1920 into `video/thumbnails/<take>.jpg`, which
-`scripts/youtube-publish.py` uploads, and sends again for videos already up with `--update --only <take>`. To look at a shot live, open
+`scripts/youtube-publish.py` uploads, and sends again for videos already up with `--update --only <take>`. A video over 3:00 isn't a Short on YouTube: it shows as a regular video, with a 16:9 thumbnail.
+For those, `posterWide` (same fields) is the 16:9 shot, and `npm run thumbnails -- --wide <take>`
+stills it at 1920×1080 into `video/thumbnails/<take>-wide.jpg` (through a 720×405 window, so the map
+keeps its phone look: no axis frames or hints); the upload picks it by the video's length.
+To look at a shot live, open
 `/?narrate=<take>&poster=1&captions=0&autoplay=0` and pause at the poster's `at`.
 Editing a scene hot-reloads every page of that dev server, a render's too: while a render runs,
 work on thumbnails in a second checkout with its own dev server (`git worktree add`, a
@@ -383,6 +387,7 @@ the stage's width (default 1), centred on `surround` (the stage's dark), and zoo
 (`frame`, spanning log radius `r` and log mass `m`) fills the screen; then the picture
 fades over `fade` s and the figure's camera eases into the scene's (the hook's AJP cover).
 
+`posterWide` (same fields) is the 16:9 one, `&poster=wide`, for a video over 3:00.
 `poster: { at, set?, cues }` is the take's YouTube thumbnail (see [Thumbnails](#thumbnails)):
 `&poster=1` plays those cues in place of the scene's (no cover), with `set` merged into the scene,
 and `scripts/narration-poster.mjs` stills it at `at` seconds.

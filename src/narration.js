@@ -161,8 +161,10 @@ export async function startNarration(app) {
   SCENE = (await SCENES[`./narration-scenes/${take.scene || app.take}.js`]()).default;
   // &poster=1: the scene's thumbnail shot (scene `poster`: { at, cues }) in place of its cues, with
   // no journal cover; scripts/narration-poster.mjs stills it at `at` seconds, without captions
-  if (params.has("poster") && SCENE.poster) SCENE = { ...SCENE, ...SCENE.poster.set, cues: SCENE.poster.cues, cover: undefined };   // set: scene fields for the shot
-  window.__narrPoster = params.has("poster") ? { at: SCENE.poster?.at ?? 5 } : undefined;
+  // &poster=wide: the 16:9 shot (scene `posterWide`, else `poster`), for a video YouTube doesn't count as a Short
+  const POSTER = params.get("poster") === "wide" ? (SCENE.posterWide || SCENE.poster) : params.has("poster") ? SCENE.poster : null;
+  if (POSTER) SCENE = { ...SCENE, ...POSTER.set, cues: POSTER.cues, cover: undefined };   // set: scene fields for the shot
+  window.__narrPoster = POSTER ? { at: POSTER.at ?? 5 } : undefined;
   const cues = resolveScene(take.words);
   const captions = CAPTIONS ? buildCaptions(take.words) : [];
   // The video runs on for the end credits (scene `credits`, default 3 s) after

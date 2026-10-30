@@ -118,6 +118,16 @@ def srt(take):
     return "\n".join(out)
 
 
+def thumbnail(take):
+    """video/thumbnails/<take>.jpg (9:16, scripts/narration-poster.mjs), or <take>-wide.jpg (16:9) for a
+    video over 3:00, which YouTube shows as a regular video with a landscape thumbnail."""
+    t = load(os.path.join(ROOT, "public", "narration", take, "words.json"))
+    wide = os.path.join(ROOT, "video", "thumbnails", f"{take}-wide.jpg")
+    if t["duration"] + t.get("credits", 3) > 180 and os.path.exists(wide):
+        return wide
+    return os.path.join(ROOT, "video", "thumbnails", f"{take}.jpg")
+
+
 # ---------- API ----------
 def service():
     try:
@@ -210,7 +220,7 @@ def main():
             cur = yt.videos().list(part="snippet", id=vid).execute()["items"][0]["snippet"]
             cur.update(title=v["title"], description=description(v), tags=v.get("tags", cfg["tags"]))
             yt.videos().update(part="snippet", body={"id": vid, "snippet": cur}).execute()
-            thumb = os.path.join(ROOT, "video", "thumbnails", f"{v['take']}.jpg")   # a re-made thumbnail too
+            thumb = thumbnail(v["take"])   # a re-made thumbnail too
             if os.path.exists(thumb):
                 from googleapiclient.http import MediaFileUpload
                 yt.thumbnails().set(videoId=vid, media_body=MediaFileUpload(thumb, mimetype="image/jpeg")).execute()
@@ -246,7 +256,7 @@ def main():
         state[take] = {"id": vid, "title": v["title"], "uploadedAt": datetime.datetime.now().isoformat(timespec="seconds")}
         json.dump(state, open(STATE, "w"), indent=2)
         from googleapiclient.http import MediaFileUpload
-        thumb = os.path.join(ROOT, "video", "thumbnails", f"{take}.jpg")   # the scene's poster shot
+        thumb = thumbnail(take)   # the scene's poster shot
         if os.path.exists(thumb):
             try:
                 yt.thumbnails().set(videoId=vid, media_body=MediaFileUpload(thumb, mimetype="image/jpeg")).execute()
