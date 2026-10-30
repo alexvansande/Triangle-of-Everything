@@ -44,9 +44,18 @@ for t in $takes; do
   pgrep -f "narration-render.mjs $t " > /dev/null && { echo "= $t: already rendering"; continue; }
   out=output/videos/$t.mp4
   changed=$(git log -1 --format=%ct -- "public/narration/$t" "src/narration-scenes/$t.js")
-  queued=$(grep -qx "$t" video/render-queue.txt 2>/dev/null && echo 1)
+  # a "# next: <take>" note alone queues it too
+  queued=$(grep -qxE "$t|# next: $t" video/render-queue.txt 2>/dev/null && echo 1)
   note=$(sed -n "s/^# $t changed: //p" video/render-queue.txt 2>/dev/null | head -1)
-  if [ -z "$queued" ] && [ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${changed:-0}" ]; then
+  # up to date: every commit to its files is in the commit it rendered from (the stamp). The
+  # render file's time alone misses a push that landed while it rendered (video 4, 2026-10-29).
+  stamp=$(cat "output/videos/$t.commit" 2>/dev/null)
+  if [ -n "$stamp" ] && git cat-file -e "$stamp" 2>/dev/null; then
+    fresh=$([ -f "$out" ] && [ -z "$(git rev-list -1 "$stamp..HEAD" -- "public/narration/$t" "src/narration-scenes/$t.js")" ] && echo 1)
+  else
+    fresh=$([ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${changed:-0}" ] && echo 1)
+  fi
+  if [ -z "$queued" ] && [ -n "$fresh" ]; then
     echo "= $t: render up to date"; [ -n "$DRY" ] && continue
   else
     # what changed since the render (scripts/narration-render-diff.mjs: none, audio, partial or full)
