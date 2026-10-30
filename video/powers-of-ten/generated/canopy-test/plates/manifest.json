@@ -1,0 +1,54 @@
+{
+  "plates": [
+    {
+      "s": 2.0771212547196627,
+      "file": "../ladybug-chain/matched/120m.png"
+    },
+    {
+      "s": 1.6,
+      "file": "../ladybug-chain/matched/40m.png"
+    },
+    {
+      "s": 1.1228787452803377,
+      "file": "../ladybug-chain/matched/13.27m.png"
+    },
+    {
+      "s": 0.6457574905606752,
+      "file": "../ladybug-chain/matched/4.42m.png"
+    },
+    {
+      "s": 0.16863623584101273,
+      "file": "../ladybug-chain/matched/1.47m.png"
+    },
+    {
+      "s": -0.30848501887864965,
+      "file": "../ladybug-chain/matched/49.1cm.png"
+    },
+    {
+      "s": -0.785606273598312,
+      "file": "../ladybug-chain/matched/16.4cm.png"
+    },
+    {
+      "s": -1.2627275283179746,
+      "file": "../ladybug-chain/matched/5.46cm.png"
+    },
+    {
+      "s": -1.7398487830376368,
+      "file": "../ladybug-chain/matched/18.2mm.png",
+      "x": -0.0024822744142255736,
+      "y": -0.0009580708265432034
+    },
+    {
+      "s": -2.2169700377572994,
+      "file": "../ladybug-chain/matched/6.07mm.png",
+      "x": -0.0024822744142255736,
+      "y": -0.0009580708265432034
+    },
+    {
+      "s": -2.6940912924769616,
+      "file": "../ladybug-chain/level-2.02mm-natural-v3.png",
+      "x": -0.0024822744142255736,
+      "y": -0.0009580708265432034
+    }
+  ]
+}

@@ -148,3 +148,27 @@ The options are `--from`, `--to`, `--step`, `--names` (adds the names, for refer
   doesn't roll) and carries on to the end; past 10²⁶ m it and the counter give the frame
   width, while the Cloud itself is on a log scale.
 - **Timing**: none yet. `window.zoom.set(s)` is the hook for a narration scene.
+
+
+## Generated canopy, dew and microscopic review
+
+Open `tools/powers-of-ten.html?canopytest=1&s=4.6&roll=0&crossings=0&grid=0&labels=0`
+after `npm install` and `npm run dev`. The branch includes all generated assets and
+the viewer integration: no machine-local preparation is required to view it.
+The standard full-scale zoom is retained when `canopytest` is absent.
+
+The square review frame includes both YouTube crop guides. Controls include
+Canopy depth test, Test · 1 m → 3 cm, Dew → amoeba, and independent flyby/depth/blur
+toggles. The microscopic scene is illustrative, with a fixed448µm amoeba and an
+approximately1.16mm dew bead; the900µm stop fits the whole organism in both crops.
+
+For every new foreground object, follow [FOREGROUND-LAYERS.md](FOREGROUND-LAYERS.md):
+sharp registered planes, exact shared stack in the parent centre, completed
+handoff, then app-controlled depth and blur. This is the author's approved default.
+Generated prompts, origins and scale notes are in `generated/canopy-test/`.
+`node scripts/powers-of-ten-match-depth.mjs` rebuilds the registered plates;
+`node scripts/powers-of-ten-stitch-test.mjs` rebuilds the initial tile ring.
+The isolated preview helper remains available for preserving a dirty checkout.
+
+GitHub Pages currently deploys only main. Pushing this branch saves the review
+viewer and assets remotely; it does not replace the public production site.

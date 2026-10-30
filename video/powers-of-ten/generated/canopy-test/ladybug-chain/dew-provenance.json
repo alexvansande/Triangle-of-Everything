@@ -1,0 +1,30 @@
+{
+  "mode": "built-in image_gen",
+  "bird": {
+    "prompt": "One Steller's jay in flight seen from above; full body, outspread wings; transparent foreground sprite; warm upper-left sunlight.",
+    "output": "../bird-flyby-v1.png",
+    "source": "Generated images are saved to /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c as /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-479c8b1f-e25f-4ec8-bb65-3b87e737ec09.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+  },
+  "dew": {
+    "prompt": "Use case: precise-object-edit. Edit target: supplied square macro photograph. Preserve exact camera, framing, all foliage, branches, ladybug and ant locations, sizes, poses, sunlight from upper left. Add several small realistic clear dew beads to the foreground foliage, varying sizes, subtle reflections/refraction and contact meniscus. Add ONE small round clear dew droplet on the ladybug's red right wing case, its centre exactly at image coordinates 50% width, 50% height (on red shell just below black shoulder). Diameter about 2% of whole image width, approx 1mm in a 54.6mm-wide scene. It must look like water, transparent refracting red shell with tiny bright upper-left glint, not a pearl. Preserve insect anatomy and all existing details, no new insects. Photorealistic, no labels.",
+    "output": "level-5.46cm-dew-v1.png"
+  },
+  "closeups": {
+    "prompt": "Use case: photorealistic-natural. Edit target is a cropped macro photograph, already the exact framing desired. Restore fine photographic detail at higher resolution without changing composition, scale or positions. Preserve the ladybug's exact red and black pattern, anatomy, warm upper-left lighting, green foliage and existing water beads. The small clear round droplet on its shell stays precisely in the centre. Natural water refraction and sharp meniscus, no organisms inside, no added objects, no text. Do not zoom or recenter: keep every object the same fraction of image width.",
+    "outputs": [
+      "level-18.2mm-dew-v1.png",
+      "level-6.07mm-dew-v1.png",
+      "level-2.02mm-dew-v1.png"
+    ],
+    "scales_m": [
+      0.018204,
+      0.006068,
+      0.002023
+    ],
+    "target_m": {
+      "x": -0.0024387,
+      "y": -0.001001
+    },
+    "note": "Successive centre-third reference crops; last prompt requests extreme macro water meniscus and red shell, no organisms. Image generation is illustrative."
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-30",
+  "requested_dimensions": [
+    2048,
+    2048
+  ],
+  "purpose": "Whole-level drafts at 40m and 120m to locate the scales that require subdivision; not final 4K plates.",
+  "levels": [
+    {
+      "name": "40m",
+      "s": 1.6,
+      "source": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-1aa721dc-e80f-4c34-aba5-38b15a9ae97b.png",
+      "reference": "40m-reference.png",
+      "prompt": "Use case scientific-educational, photographic detail reconstruction. EDIT THE PROVIDED IMAGE IN PLACE, do not compose another scene. This is a real north-up orthographic aerial crop centred on a sunlit patch of the General Sherman giant sequoia crown in Sequoia National Park. Full field of view 39.810717 metres square. Reconstruct crisp, realistic canopy detail at the correct scale, output 2048x2048 square at highest available native resolution. Preserve EXACTLY the input composition, every crown outline, light/dark patch, trunk/branch position, bare-ground opening and shadows. When downsampled to 32x32 the result must closely match the input. Keep the existing photographic colour/exposure; no global brightening or increased contrast. Giant sequoia crowns are billowing masses of cord-like branchlets with tiny overlapping awl-shaped scale leaves, mixed with neighbouring conifers. At 39.810717 metres across individual leaves should be tiny, trees and large foliage masses are the dominant features. Sunlight comes from west/left, shadows east/right. Exact centre pixel must stay on the input's SUNLIT GREEN FOLIAGE, never move into shadow. No new roads, buildings, people, animals, sky, horizon, perspective tilt, text, vignette or depth of field blur. This is one registered plate in a continuous zoom; precise spatial continuity matters more than making a pretty different forest.",
+      "actual_native_dimensions": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "name": "120m",
+      "s": 2.0771212547196627,
+      "source": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-61b221e1-8fdb-4496-96a2-7843533805e0.png",
+      "reference": "120m-reference.png",
+      "prompt": "Use case scientific-educational, photographic detail reconstruction. EDIT THE PROVIDED IMAGE IN PLACE, do not compose another scene. This is a real north-up orthographic aerial crop centred on a sunlit patch of the General Sherman giant sequoia crown in Sequoia National Park. Full field of view 119.43215 metres square. Reconstruct crisp, realistic canopy detail at the correct scale, output 2048x2048 square at highest available native resolution. Preserve EXACTLY the input composition, every crown outline, light/dark patch, trunk/branch position, bare-ground opening and shadows. When downsampled to 32x32 the result must closely match the input. Keep the existing photographic colour/exposure; no global brightening or increased contrast. Giant sequoia crowns are billowing masses of cord-like branchlets with tiny overlapping awl-shaped scale leaves, mixed with neighbouring conifers. At 119.43215 metres across individual leaves should be tiny, trees and large foliage masses are the dominant features. Sunlight comes from west/left, shadows east/right. Exact centre pixel must stay on the input's SUNLIT GREEN FOLIAGE, never move into shadow. No new roads, buildings, people, animals, sky, horizon, perspective tilt, text, vignette or depth of field blur. This is one registered plate in a continuous zoom; precise spatial continuity matters more than making a pretty different forest.",
+      "actual_native_dimensions": [
+        1254,
+        1254
+      ]
+    }
+  ]
+}

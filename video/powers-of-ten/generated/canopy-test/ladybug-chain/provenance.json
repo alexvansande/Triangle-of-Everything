@@ -1,0 +1,56 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-30",
+  "requested_px": 2048,
+  "method": "Each input is a central one-third crop of its predecessor. Catalogue insects are separate fixed-size renderer layers.",
+  "levels": [
+    {
+      "file": "level-4.42m.png",
+      "source": "Reused central 1024 px of ../tiles/L2-context.png",
+      "actual_dimensions": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "level-1.47m.png",
+      "source": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-074f7f5c-08d1-4b45-a896-a0c5d0b47a91.png",
+      "prompt": "Scientific educational zoom, photographic foliage reconstruction. EDIT THIS SINGLE REFERENCE IN PLACE. It is the exact central third crop of the previous level, same fixed sunlit point and same north-up, straight-down orthographic camera. Preserve the large twig paths, intersections, foliage masses, positions, light/shadow shapes, colours and composition exactly; add the finer detail that now resolves at the smaller physical scale. Giant sequoia (Sequoiadendron giganteum): blue/olive-green cordlike branchlets wrapped in overlapping spirally arranged short sharp awl-shaped scale leaves, each leaf about 3–6 mm long, branchlets about 3 mm thick. No broad flat leaves, no fern fronds, no long pine needles. West/left afternoon sunlight, shadows to right, sunlit foliage/branchlet passes through the EXACT CENTRE so our later ladybug can stand there. Natural photographic optics but uniform sharp focus across whole square, no depth-of-field blur or vignette. No insects, animals, water drops, text, diagrams, border or horizon: the calibrated catalogue insects will be added as separate physically scaled layers. Do not change the field of view or invent a different branch system. Output square 2048px if supported, finest native detail available.\nThe square is exactly 1.474471 metres across: we see one foliage clump and its twig network, individual scale leaves still very small. Preserve the reference's branching arrangement.",
+      "reference": "reference-1.47m.png",
+      "actual_dimensions": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "file": "level-49.1cm.png",
+      "source": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-18958f48-870f-4fea-a9e7-28b4f3444350.png",
+      "prompt": "Scientific educational zoom, photographic foliage reconstruction. EDIT THIS SINGLE REFERENCE IN PLACE. It is the exact central third crop of the previous level, same fixed sunlit point and same north-up, straight-down orthographic camera. Preserve the large twig paths, intersections, foliage masses, positions, light/shadow shapes, colours and composition exactly; add the finer detail that now resolves at the smaller physical scale. Giant sequoia (Sequoiadendron giganteum): blue/olive-green cordlike branchlets wrapped in overlapping spirally arranged short sharp awl-shaped scale leaves, each leaf about 3–6 mm long, branchlets about 3 mm thick. No broad flat leaves, no fern fronds, no long pine needles. West/left afternoon sunlight, shadows to right, sunlit foliage/branchlet passes through the EXACT CENTRE so our later ladybug can stand there. Natural photographic optics but uniform sharp focus across whole square, no depth-of-field blur or vignette. No insects, animals, water drops, text, diagrams, border or horizon: the calibrated catalogue insects will be added as separate physically scaled layers. Do not change the field of view or invent a different branch system. Output square 2048px if supported, finest native detail available.\nThis square is exactly 0.491490 metres across (49.15cm). At a 1254px image each 3–6mm leaf is only 8–15 pixels long, a 3mm branchlet about 8px thick. Preserve twig topology and central sunlit branchlet, add numerous finer scales rather than oversized fleshy leaves.",
+      "reference": "reference-49.1cm.png",
+      "actual_dimensions": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "file": "level-16.4cm.png",
+      "source": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-77835e77-e956-4a4b-85f2-6ea94ee2e7f8.png",
+      "prompt": "Scientific educational zoom, photographic foliage reconstruction. EDIT THIS SINGLE REFERENCE IN PLACE. It is the exact central third crop of the previous level, same fixed sunlit point and same north-up, straight-down orthographic camera. Preserve the large twig paths, intersections, foliage masses, positions, light/shadow shapes, colours and composition exactly; add the finer detail that now resolves at the smaller physical scale. Giant sequoia (Sequoiadendron giganteum): blue/olive-green cordlike branchlets wrapped in overlapping spirally arranged short sharp awl-shaped scale leaves, each leaf about 3–6 mm long, branchlets about 3 mm thick. No broad flat leaves, no fern fronds, no long pine needles. West/left afternoon sunlight, shadows to right, sunlit foliage/branchlet passes through the EXACT CENTRE so our later ladybug can stand there. Natural photographic optics but uniform sharp focus across whole square, no depth-of-field blur or vignette. No insects, animals, water drops, text, diagrams, border or horizon: the calibrated catalogue insects will be added as separate physically scaled layers. Do not change the field of view or invent a different branch system. Output square 2048px if supported, finest native detail available.\nThis square is exactly 0.163830 metres across (16.38cm). Tiny scale leaves 3–6mm long, about 23–46 pixels at1254px. Preserve the central sunlit green branchlet running across centre. Avoid rubbery flesh: thin sharp pointed overlapping scales, real plant surface fine texture.",
+      "reference": "reference-16.4cm.png",
+      "actual_dimensions": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "file": "level-5.46cm.png",
+      "source": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-fa09bfff-9319-4c33-b4ed-031ad6ef7df5.png",
+      "prompt": "Scientific educational zoom, photographic foliage reconstruction. EDIT THIS SINGLE REFERENCE IN PLACE. It is the exact central third crop of the previous level, same fixed sunlit point and same north-up, straight-down orthographic camera. Preserve the large twig paths, intersections, foliage masses, positions, light/shadow shapes, colours and composition exactly; add the finer detail that now resolves at the smaller physical scale. Giant sequoia (Sequoiadendron giganteum): blue/olive-green cordlike branchlets wrapped in overlapping spirally arranged short sharp awl-shaped scale leaves, each leaf about 3–6 mm long, branchlets about 3 mm thick. No broad flat leaves, no fern fronds, no long pine needles. West/left afternoon sunlight, shadows to right, sunlit foliage/branchlet passes through the EXACT CENTRE so our later ladybug can stand there. Natural photographic optics but uniform sharp focus across whole square, no depth-of-field blur or vignette. No insects, animals, water drops, text, diagrams, border or horizon: the calibrated catalogue insects will be added as separate physically scaled layers. Do not change the field of view or invent a different branch system. Output square 2048px if supported, finest native detail available.\nFinal field of view exactly 0.054610 metres square (5.46cm). Individual pointed scale leaves must now be 3–6mm long (roughly 70–140 pixels at1254px) and thin, each with a narrow length-to-width ratio. The reference's broad forms are groups of scales: resolve them into overlapping small awl scales where necessary while preserving main branchlet paths. Keep exact centre on bright green leaf surface for a 7mm ladybug to stand on, and keep bright foliage near x83%,y43% for a 4mm ant. No bugs in this generated background; catalogue insects are added by renderer. Restrained realistic highlights, detailed cuticle surface, not glossy plastic.",
+      "reference": "reference-5.46cm.png",
+      "actual_dimensions": [
+        1254,
+        1254
+      ]
+    }
+  ]
+}

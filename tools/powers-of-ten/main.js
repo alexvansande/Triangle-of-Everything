@@ -1,3 +1,8 @@
+import { canopyCrownDepth } from './canopy-crown-depth.js';
+import { canopyMicro } from './canopy-micro.js';
+import { canopyDepth } from './canopy-depth.js';
+import { canopyOptics } from './canopy-optics.js';
+import { catalogueInsects } from './canopy-insects.js';
 // tools/powers-of-ten/main.js — the zoom: one number, s = log10(frame width in
 // metres, across the stage's shorter side), and every layer drawn from it.
 // The centre never moves: a hydrogen atom in a DNA base pair, in an amoeba, in a
@@ -12,7 +17,10 @@ import { spaceLayers } from "./space.js";
 import { platesLayer } from "./plates.js";
 import { crossingsLayer } from "./crossings.js";
 
-const S_MIN = -35.3, S_MAX = 27.6;
+const canopyTest = new URLSearchParams(location.search).has('canopytest');
+const insects=canopyTest?catalogueInsects():null,optics=canopyTest?canopyOptics():null,depth=canopyTest?canopyDepth():null,crown=canopyTest?canopyCrownDepth():null,microscope=canopyTest?canopyMicro():null;
+const S_MIN = canopyTest ? -3.6483338019162868 : -35.3, S_MAX = canopyTest ? 5.1 : 27.6;
+window.canopyTest = {enabled:true,minimum:-3.6483338019162868};
 const q = new URLSearchParams(location.search);
 const state = {
   s: q.has("s") ? +q.get("s") : 0,
@@ -28,12 +36,13 @@ const small = await smallLayers();
 const micro = microLayers();
 const macro = macroLayers();
 const space = spaceLayers(macro.globe);
-const plates = await platesLayer(q.get("plates") === "1");
+const rawPlates = await platesLayer(canopyTest || q.get('plates') === '1', canopyTest ? '/video/powers-of-ten/generated/canopy-test/plates/' : '/video/powers-of-ten/plates/', 0.4, {square:canopyTest,floor:canopyTest?-3.6483338019162868:undefined});
+const plates={covers:s=>(!canopyTest||window.canopyTest.enabled)?rawPlates.covers(s):new Set(),draw:cam=>{if(!canopyTest||window.canopyTest.enabled)rawPlates.draw(cam)}};
 // the real photographs from the tree's crown to the globe, on unless ?photos=0; they
 // give way to the turning 3D globe (the same map, macro.js) as the camera starts to
 // swing round the Earth, once the satellite clouds are in view (10^6.4 m)
 const PHOTOS_OUT = [6.45, 6.9];
-const photos = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/", 0.3, { fadeOutAt: PHOTOS_OUT });
+const photos = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/", 0.3, { fadeOutAt: PHOTOS_OUT, extendLow:canopyTest });
 // and the clouds of the day the globe shows (15 June 2024), a layer of their own 8 km
 // up: behind the camera at first, then passed through (with the wisps, crossings.js)
 // near 10^3.9 m, then settling onto the ground as we climb on; gone as the globe,
@@ -159,7 +168,7 @@ function render(t) {
     }
     // the photographs and the image pass sit between the globe and the small world (in
     // or out of the globe's own range)
-    if (L.name === "earth") { photos.draw(cam); clouds.draw(cam); plates.draw(cam); }
+    if (L.name === "earth") { if(canopyTest){const t=Math.max(0,Math.min(1,(-cam.s-.7)/1.05)),f=t*t*(3-2*t);cam.cx-=(-0.0024822744142255736)*cam.k*f;cam.cy-=(-0.0009580708265432034)*cam.k*f;} photos.draw(canopyTest ? {...cam,cx:cam.cx-(8.242062515365374)*cam.k,cy:cam.cy+(-3.8877653374364973)*cam.k} : cam); if(!canopyTest)clouds.draw(cam); if(canopyTest)insects.draw(cam); plates.draw(cam); if(canopyTest){crown.draw(cam);depth.draw(cam);microscope.draw(cam);optics.plane(cam);optics.bird(cam);} }
   }
   // the grid and the names stay upright: the grid on the screen, the names where the
   // turned picture puts them
@@ -260,3 +269,5 @@ window.zoom = {
   frames: (n = 3) => new Promise((ok) => { const f = () => (--n <= 0 ? ok() : requestAnimationFrame(f)); requestAnimationFrame(f); }),
   get s() { return state.s; },
 };
+
+if(canopyTest) (await import('./canopy-test.js')).mountCanopyTest();

@@ -1,0 +1,11 @@
+{
+  "offset_east_m": 8.242062515365374,
+  "offset_north_m": -3.8877653374364973,
+  "original_lat": 36.5816453,
+  "original_lon": -118.751443,
+  "lat": 36.581610336534624,
+  "lon": -118.7513506939377,
+  "reason": "Sunlit foliage patch selected in original NAIP image",
+  "level_m": 13.270239018449912,
+  "tile_m": 4.42341300614997
+}

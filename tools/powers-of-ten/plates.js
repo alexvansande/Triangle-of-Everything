@@ -25,17 +25,17 @@ export async function platesLayer(enabled, DIR = "/video/powers-of-ten/plates/",
   if (!enabled) return none;
   let list;
   try { list = (await (await fetch(DIR + "manifest.json")).json()).plates; } catch { return none; }
-  const plates = list.map((p) => ({ s: p.s, src: DIR + p.file, img: null, loading: false })).sort((a, b) => b.s - a.s);
+  const plates = list.map((p) => ({ s: p.s, src: DIR + p.file, img: null, loading: false, x:p.x||0, y:p.y||0 })).sort((a, b) => b.s - a.s);
   if (!plates.length) return none;
   const load = (p) => {
     if (p.img || p.loading) return;
     p.loading = true;
     const img = new Image();
-    img.onload = () => { p.img = feather(img); p.loading = false; };
+    img.onload = () => { p.img = opts.square ? featherSquare(img) : feather(img); p.loading = false; };
     img.onerror = () => { p.loading = false; };
     img.src = p.src;
   };
-  const lo = plates[plates.length - 1].s, hi = plates[0].s, all = new Set(BAKED);
+  const lo = opts.floor ?? (opts.extendLow ? 0 : plates[plates.length - 1].s), hi = plates[0].s, all = new Set(BAKED);
   return {
     covers: (s) => (hides && s > lo - 0.4 && s < hi + 0.4 ? all : new Set()),
     draw(cam) {
@@ -68,7 +68,7 @@ export async function platesLayer(enabled, DIR = "/video/powers-of-ten/plates/",
           if (!p?.img || w <= 0.01) continue;
           const side = 10 ** p.s * cam.k * m;
           cam.ctx.globalAlpha = a * w;
-          cam.ctx.drawImage(p.img, cam.cx - side / 2, cam.cy - side / 2, side, side);
+          cam.ctx.drawImage(p.img, cam.cx + p.x*cam.k - side / 2, cam.cy + p.y*cam.k - side / 2, side, side);
         }
         cam.ctx.globalAlpha = 1;
         return;
@@ -76,8 +76,8 @@ export async function platesLayer(enabled, DIR = "/video/powers-of-ten/plates/",
       for (const p of plates) {
         const side = 10 ** p.s * cam.k;
         if (!p.img || side < 4 || side > 40 * cam.min) continue;
-        cam.ctx.globalAlpha = a;
-        cam.ctx.drawImage(p.img, cam.cx - side / 2, cam.cy - side / 2, side, side);
+        cam.ctx.globalAlpha = a; if(opts.square){const f=Math.max(0,Math.min(1,(side/cam.min-.3)/.65));cam.ctx.globalAlpha*=f*f*(3-2*f);}
+        cam.ctx.drawImage(p.img, cam.cx + p.x*cam.k - side / 2, cam.cy + p.y*cam.k - side / 2, side, side);
       }
       cam.ctx.globalAlpha = 1;
     },
@@ -95,4 +95,11 @@ function feather(img) {
   g.addColorStop(0, "#000"); g.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = g; ctx.fillRect(0, 0, n, n);
   return c;
+}
+
+function featherSquare(img){
+ const n=img.naturalWidth,c=document.createElement('canvas');c.width=c.height=n;
+ const x=c.getContext('2d');x.drawImage(img,0,0,n,n);x.globalCompositeOperation='destination-in';
+ for(const vertical of [false,true]){const g=x.createLinearGradient(0,0,vertical?0:n,vertical?n:0);g.addColorStop(0,'#0000');g.addColorStop(.04,'#000');g.addColorStop(.96,'#000');g.addColorStop(1,'#0000');x.fillStyle=g;x.fillRect(0,0,n,n)}
+ return c;
 }
