@@ -251,6 +251,42 @@ and `window.__narr.pending()` counts the layer until it has drawn.
   author releases about one video a week, so one or two renders a night is plenty; render in
   number order.
 
+### The YouTube upload file: the sound encoded once
+
+The committed sound is AAC three times over before YouTube encodes it again: `audio.m4a`, then
+`mix.m4a` (decoded and mixed), then the render's track (decoded and muxed). Early YouTube
+processing of video 1 (2026-10-30) sounded metallic, so uploads get their sound rebuilt from
+the original recordings and encoded once, at YouTube's recommended AAC-LC 384 kbps, 48 kHz
+stereo. On the Mac, from the shorts checkout, after the render:
+
+```bash
+python3 scripts/narration-master.py short-02-up-the-line   # a Python with numpy; the "shorts" dev server up
+#   BASE=http://localhost:5184 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+```
+
+1. **voice**: rebuilds the cut from the raw recordings (Google Drive "Recordings", iCloud
+   `Projects/triangle/recordings`; `NARRATION_RECORDINGS=dir:dir…` for others) through the
+   take's EDL and `video/tools/build.py`, its treatment, `POST_CUTS` and tempo (1.1× for the
+   older takes, as `narration-tempo.py` did it, 1.0× from video 7), into
+   `output/narration/<take>/voice.wav`. The EDL names the raw files and the treatment:
+   `SOURCES = {"rec33": "Video 2 new take (1).m4a", …}`, `TREATMENT = "plain"` (`enhance.py
+   --plain`) or `"peak"` (the 2026-10-26 test: 80 Hz high-pass, one gain to a −1 dBFS peak).
+2. **mix**: the sound design on that voice (`narration-sound.mjs --wav`, the same cues, effects
+   and music), into `output/narration/<take>/mix.wav`. `mix.m4a` and words.json stay as they are.
+3. **mux**: the render's picture, copied, with `mix.wav` encoded once and padded with silence to
+   the render's exact length, into `output/videos/<take>.youtube.mp4`.
+   `scripts/youtube-publish.py` uploads that file (`--render-audio` falls back to the render).
+
+Each step is checked against the committed file it replaces and stops if they differ: no
+shift, the same level (±0.3 dB), the same length, and the difference at least 30 dB under the
+sound (only the codec's noise). So a rebuild that isn't the approved cut, or a render older than
+the take's sound, never reaches the upload. Video 2 (2026-10-30): the voice matched `audio.m4a`
+to −45 dB and the mix matched `mix.m4a` to −37 dB, both −24.80 LUFS and the same length to the
+sample. The upload's sound is −44.5 dB from the lossless mix, against −33.9 dB for the render's.
+A take without `SOURCES`/`TREATMENT` in its EDL can't be rebuilt yet: add them (and check the
+step passes) before its upload. Takes with steps outside the EDL can't either until the EDL
+records them (`short-03-stars` has one second of silence added after its tempo).
+
 ### Rendering faster: what we measured (2026-10-27, M1 Max, 1080×1920, 12 sub-frames)
 
 - **The capture is the cost, not the drawing.** Per sub-frame: `renderAt` 16 ms; a PNG capture

@@ -9,6 +9,10 @@ docs/narration.md), resolved to times by the player.
 (run through scripts/narration-sound.mjs, which gets timeline.json from the
 player). Writes mix.m4a (stereo) next to audio.m4a and adds "mix" to
 words.json; the voice file itself is left alone.
+
+For the YouTube upload (scripts/narration-master.py): --voice VOICE.wav mixes a lossless
+copy of the cut voice instead of decoding audio.m4a, and --wav OUT.wav writes the mix there
+as 32-bit float WAV, leaving mix.m4a and words.json alone.
 """
 import json, os, subprocess, sys
 import numpy as np
@@ -19,12 +23,17 @@ db = lambda x: 10 ** (x / 20)
 hz = lambda midi: 440 * 2 ** ((midi - 69) / 12)
 I = lambda sec: int(round(sec * SR))
 
-take_dir, tl_path = sys.argv[1], sys.argv[2]
+args = sys.argv[1:]
+def flag(name):
+    if name not in args: return None
+    i = args.index(name); v = args[i + 1]; del args[i:i + 2]; return v
+voice_path, wav_out = flag("--voice"), flag("--wav")
+take_dir, tl_path = args[0], args[1]
 take = json.load(open(os.path.join(take_dir, "words.json")))
 TL = json.load(open(tl_path))
 cues = TL.get("sound") or []
 
-raw = subprocess.run(["ffmpeg", "-v", "error", "-i", os.path.join(take_dir, take["audio"]), "-ac", "1", "-ar", str(SR),
+raw = subprocess.run(["ffmpeg", "-v", "error", "-i", voice_path or os.path.join(take_dir, take["audio"]), "-ac", "1", "-ar", str(SR),
                       "-f", "f32le", "-"], capture_output=True, check=True).stdout
 voice = np.frombuffer(raw, np.float32).astype(np.float64)
 N = len(voice); T = N / SR
@@ -459,6 +468,11 @@ mix = limit(mix * gain)
 if os.environ.get("SOUND_STEMS"):                   # for checking levels: everything but the voice
     (bed * gain).T.astype(np.float32).tofile(os.path.join(take_dir, "bed.f32"))
 
+if wav_out:
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "f32le", "-ar", str(SR), "-ac", "2", "-i", "-",
+                    "-c:a", "pcm_f32le", wav_out], input=mix.T.astype(np.float32).tobytes(), check=True)
+    print(f"  {T:.1f} s: " + (", ".join(done) or "no sound cues") + f" → {wav_out}")
+    sys.exit(0)
 subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "f32le", "-ar", str(SR), "-ac", "2", "-i", "-",
                 "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", os.path.join(take_dir, "mix.m4a")],
                input=mix.T.astype(np.float32).tobytes(), check=True)

@@ -9,7 +9,8 @@
 
 Reads video/youtube.json (titles, blurbs, music, privacy, schedule), builds each
 description from video/DESCRIPTION.md and the track's credit (video/music/CREDITS.md),
-uploads output/videos/<take>.mp4 with the YouTube Data API v3, adds it to the playlist,
+uploads output/videos/<take>.youtube.mp4 (the render with its sound encoded once from lossless,
+made by scripts/narration-master.py) with the YouTube Data API v3, adds it to the playlist,
 sets the take's still (public/narration/<take>/thumb.jpg) as the thumbnail and uploads
 English captions made from the take's word timings. Uploaded IDs go to
 video/youtube-uploads.json, so a video is never uploaded twice (--force re-uploads).
@@ -178,6 +179,9 @@ def main():
     ap.add_argument("--captions-only", action="store_true", help="write output/videos/<take>.srt and stop")
     ap.add_argument("--update", action="store_true",
                     help="rewrite title, description and tags of videos already uploaded (after editing youtube.json or DESCRIPTION.md)")
+    ap.add_argument("--render-audio", action="store_true",
+                    help="upload the render itself (output/videos/<take>.mp4, its sound AAC three times over) "
+                         "when there's no .youtube.mp4")
     a = ap.parse_args()
     m = load(MANIFEST)
     cfg, state = m["defaults"], load(STATE, {})
@@ -196,7 +200,8 @@ def main():
         return
     yt = service() if a.upload and not a.captions_only else None
     for v in todo:
-        take, path = v["take"], os.path.join(VIDEOS, v["take"] + ".mp4")
+        take = v["take"]
+        render, path = os.path.join(VIDEOS, take + ".mp4"), os.path.join(VIDEOS, take + ".youtube.mp4")
         os.makedirs(VIDEOS, exist_ok=True)
         open(os.path.join(VIDEOS, take + ".srt"), "w").write(srt(take))
         if a.captions_only:
@@ -204,8 +209,14 @@ def main():
         print(f"\n=== {take}: {v['title']}")
         if take in state and not a.force:
             print(f"  already uploaded: https://youtu.be/{state[take]['id']}"); continue
-        if not os.path.exists(path):
-            print(f"  missing {path}: render it first (scripts/narration-render-all.sh {take})"); continue
+        if not os.path.exists(render):
+            print(f"  missing {render}: render it first (scripts/narration-render-all.sh {take})"); continue
+        # the upload file: the render's picture, its sound encoded once from lossless audio
+        if not os.path.exists(path) or os.path.getmtime(path) < os.path.getmtime(render):
+            if not a.render_audio:
+                print(f"  {'missing' if not os.path.exists(path) else 'older than the render:'} {path}: "
+                      f"python3 scripts/narration-master.py {take} (or --render-audio to upload the render itself)"); continue
+            path = render
         if not yt:
             print(f"  file: {path} ({os.path.getsize(path) / 1e6:.1f} MB)")
             print(f"  privacy: {v.get('privacy', cfg['privacy'])}" + (f", goes public {v['publishAt']}" if v.get("publishAt") else ""))

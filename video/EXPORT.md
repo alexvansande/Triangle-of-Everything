@@ -38,7 +38,20 @@ here: it needs rendering again.
 
 ## Publishing
 
-`scripts/youtube-publish.py` uploads `output/videos/*.mp4` with the YouTube Data API:
+**The upload file (2026-10-30):** before uploading a take, make
+`output/videos/<take>.youtube.mp4` on the Mac: `python3 scripts/narration-master.py <take>`
+(a Python with numpy, the "shorts" dev server up; see "The YouTube upload file" in
+`docs/narration.md`). It is the render's picture, copied, with the sound rebuilt from the raw
+recordings and encoded once (AAC-LC 384 kbps, 48 kHz stereo) instead of three times. Each step is
+checked against the committed audio, so it stops rather than upload something that isn't the
+approved cut. The take's EDL needs `SOURCES` and `TREATMENT`: video 2 has them, the others don't yet.
+
+| Take | Upload file |
+|---|---|
+| short-02-up-the-line | made 2026-10-30 from the 2026-10-30 render (5cbf70a) |
+
+`scripts/youtube-publish.py` uploads `output/videos/<take>.youtube.mp4` (it skips a take whose
+upload file is missing or older than its render; `--render-audio` uploads the render itself) with the YouTube Data API:
 titles, blurbs, music and schedule in `video/youtube.json`, the description from
 `video/DESCRIPTION.md` and the track's credit, the take's thumb as thumbnail, captions
 from words.json, the playlist. Dry run by default; `--upload` sends, private unless

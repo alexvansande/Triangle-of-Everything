@@ -17,6 +17,10 @@
 # Where Whisper (medium.en) merged a restart into one long word, `s` is the real
 # start of the retake, found from the speech runs.
 
+# For scripts/narration-master.py (the lossless rebuild for the YouTube upload): the raw files
+# (rec33 shows up in the Drive as "Video 2 new take (1).m4a") and the voice treatment.
+SOURCES = {"rec33": "Video 2 new take (1).m4a", "rec46": "Video 2 new take"}
+TREATMENT = "peak"
 SOURCE_FX = {"rec46": "volume=4.2dB,lowshelf=f=400:g=1.5,equalizer=f=2000:t=o:w=1:g=-2.6,highshelf=f=5000:g=-3"}
 PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
 
