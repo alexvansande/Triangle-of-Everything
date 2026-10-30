@@ -39,8 +39,10 @@ export const NOISE_MODES = [
 export const NOISE_DEFAULTS = {
   mode: 8, move: true, speed: 0.09, drift: 0.055, ridge: 0.25, warp: 0.15,
   detail: 0.52, smooth: 1, start: 4.8, filter: 1, res: 1,
-  // experimental (2026-10-30): the paths' moving dots pushed by the same warp, × flowAmp
-  flow: false, flowAmp: 3,
+  // experimental (2026-10-30): the paths' moving dots stir the background as they pass, leaving
+  // a street of eddies. stir = how far an eddy twists the paint (radians, 0 = off), stirSize = eddy
+  // radius css px, stirWake = wake length css px
+  stir: 0, stirSize: 14, stirWake: 160, stirDetail: 2.5,
 };
 
 const VS = `#version 300 es
@@ -52,8 +54,12 @@ precision highp float; precision highp int;
 uniform sampler2D uMain, uBase;
 uniform vec2 uMainSize, uBaseSize, uCMain, uCBase, uRes;
 uniform float uMainScale, uBaseScale, uZx, uZy, uZoomCss, uTime, uWarp, uDetail, uRough, uStart, uRidge;
-uniform int uMode, uFilter, uHasBase;
+uniform int uMode, uFilter, uHasBase, uHasStir;
 uniform vec2 uOff[MAXOCT];
+// the dots' wakes (createNoiseRenderer's setStir): xy = the eddies' twist, css px (y down), z = how
+// much wake is here (the painting's own detail is brought up in it, so the twist shows)
+uniform sampler2D uStir;
+uniform float uStirScale, uStirDetail; // source px per css px; detail gain in a full wake
 out vec4 o;
 const float L0 = ${L0}.0;
 float gZoom; // device px per source px (geometric mean of the axes)
@@ -180,10 +186,16 @@ void main(){
   else {
     vec2 q = fbmVec(d, 2.);
     vec2 disp = uWarp * fbmVec(d + 1.5*q, 3.);
+    float det = uDetail;
+    if (uHasStir == 1) {   // twisted, and livelier, in the dots' wakes
+      vec3 st = texture(uStir, gl_FragCoord.xy / uRes).xyz;
+      disp += uStirScale * st.xy;
+      det *= 1. + uStirDetail * (1. - exp(-2. * st.z));
+    }
     col = sampleAt(d + disp);
-    if (uMode == 7) col *= exp(uDetail * .45 * fbm(d + disp + 2.*q, 4.));
+    if (uMode == 7) col *= exp(det * .45 * fbm(d + disp + 2.*q, 4.));
     if (uMode == 8) { vec2 w = d + disp + 2.*q;
-      col *= exp(uDetail * ((1. - uRidge) * .45 * fbm(w, 4.) + uRidge * .55 * ridged(w + q, 5.))); }
+      col *= exp(det * ((1. - uRidge) * .45 * fbm(w, 4.) + uRidge * .55 * ridged(w + q, 5.))); }
   }
   o = vec4(col, 1.);
 }`;
@@ -226,6 +238,81 @@ export function createNoiseRenderer(canvas, { preserve = false } = {}) {
     slots[name] = { tex, ...info };
   }
 
+  // ---- the dots' wakes: soft points splatted additively into a low-res float texture ----
+  let stir = null, stirN = 0, stirOpts = null;
+  function stirInit() {
+    if (!gl.getExtension("EXT_color_buffer_float")) return null;
+    const sp = gl.createProgram();
+    gl.attachShader(sp, shader(gl.VERTEX_SHADER, `#version 300 es
+      in vec2 aPos; in vec3 aVal; out vec3 vVal; uniform float uPx;
+      void main(){ gl_Position = vec4(aPos, 0., 1.); gl_PointSize = 2. * aVal.x * uPx; vVal = aVal; }`));
+    // an eddy: the paint around it turned by up to vVal.y radians (most at its middle), faded by vVal.z;
+    // out: how far each point moves, css px, y down
+    gl.attachShader(sp, shader(gl.FRAGMENT_SHADER, `#version 300 es
+      precision highp float; in vec3 vVal; out vec4 o;
+      void main(){ vec2 c = gl_PointCoord*2. - 1.; float r2 = dot(c, c); if (r2 > 1.) discard;
+        float a = vVal.y * (1. - r2) * (1. - r2), ca = cos(a), sa = sin(a);
+        o = vec4(vVal.z * vVal.x * (mat2(ca, sa, -sa, ca) * c - c), vVal.z * (1. - r2), 0.); }`));
+    gl.linkProgram(sp);
+    if (!gl.getProgramParameter(sp, gl.LINK_STATUS)) return null;
+    const vao = gl.createVertexArray(), buf = gl.createBuffer();
+    gl.bindVertexArray(vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    const aPos = gl.getAttribLocation(sp, "aPos"), aVal = gl.getAttribLocation(sp, "aVal");
+    gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 20, 0);
+    gl.enableVertexAttribArray(aVal); gl.vertexAttribPointer(aVal, 3, gl.FLOAT, false, 20, 8);   // radius css px, twist, weight
+    gl.bindVertexArray(null);
+    const tex = gl.createTexture(), fb = gl.createFramebuffer();
+    return { sp, vao, buf, tex, fb, w: 0, h: 0, uPx: gl.getUniformLocation(sp, "uPx"), data: new Float32Array(0) };
+  }
+  /**
+   * The eddies in the dots' wakes for the next render, or null for none: pts = [x, y (css px
+   * in the plot area), radius (css px), twist (radians), weight] × n. opts: { detail (gain of the
+   * painting's detail in a full wake), cssW, cssH }.
+   */
+  function setStir(pts, n, opts) {
+    if (!pts || !n) { stirN = 0; return; }
+    if (stir === null) stir = stirInit() || false;
+    if (!stir) return;
+    if (stir.data.length < n * 5) stir.data = new Float32Array(n * 5 * 2);
+    for (let i = 0; i < n; i++) {   // to clip space
+      const k = i * 5;
+      stir.data[k] = pts[k] / opts.cssW * 2 - 1; stir.data[k + 1] = 1 - pts[k + 1] / opts.cssH * 2;
+      stir.data[k + 2] = pts[k + 2]; stir.data[k + 3] = pts[k + 3]; stir.data[k + 4] = pts[k + 4];
+    }
+    stirN = n; stirOpts = opts;
+  }
+  const STIR_DOWN = 4; // wake texture: 1/4 of the canvas's resolution
+  function drawStir(p) {
+    const sw = Math.max(1, Math.ceil(p.w / STIR_DOWN)), sh = Math.max(1, Math.ceil(p.h / STIR_DOWN));
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, stir.tex);
+    if (stir.w !== sw || stir.h !== sh) {
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, sw, sh, 0, gl.RGBA, gl.HALF_FLOAT, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, stir.fb);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, stir.tex, 0);
+      stir.w = sw; stir.h = sh;
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, stir.fb);
+    gl.viewport(0, 0, sw, sh);
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.useProgram(stir.sp);
+    gl.uniform1f(stir.uPx, p.w / stirOpts.cssW / STIR_DOWN);   // wake-texture px per css px
+    gl.bindVertexArray(stir.vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, stir.buf);
+    gl.bufferData(gl.ARRAY_BUFFER, stir.data.subarray(0, stirN * 5), gl.DYNAMIC_DRAW);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+    gl.drawArrays(gl.POINTS, 0, stirN);
+    gl.disable(gl.BLEND);
+    gl.bindVertexArray(null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.useProgram(prog);
+  }
+
   const off = new Float32Array(MAXOCT * 2);
   /**
    * p: { w, h } device px · { cx, cy } camera centre in source px (doubles)
@@ -262,89 +349,19 @@ export function createNoiseRenderer(canvas, { preserve = false } = {}) {
     gl.uniform1f(U("uRough"), p.smooth); gl.uniform1f(U("uStart"), 2 ** p.start);
     gl.uniform1f(U("uRidge"), p.ridge);
     gl.uniform1i(U("uFilter"), p.filter); gl.uniform1i(U("uMode"), p.mode);
+    const stirring = stirN > 0 && stir;
+    if (stirring) {
+      drawStir(p);
+      gl.viewport(0, 0, p.w, p.h);
+      gl.uniform1i(U("uStir"), 2);
+      gl.uniform1f(U("uStirScale"), (p.w / stirOpts.cssW) / Math.sqrt(p.zx * p.zy));
+      gl.uniform1f(U("uStirDetail"), stirOpts.detail ?? 0);
+    }
+    gl.uniform1i(U("uHasStir"), stirring ? 1 : 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     return true;
   }
-  return { gl, setTexture, render };
-}
-
-// =============================================================
-// The shader's warp in JS, for things drawn over the background
-// =============================================================
-// Mode 8's displacement (disp = uWarp·fbmVec(d + 1.5·fbmVec(d, 2), 3)) with the
-// same hash, lattice, octave rotations, offsets and clock, so a point at
-// source position S gets the background's own displacement there. The
-// painting at S shows up near S − disp, so moving a point by −disp carries it
-// with the swirls.
-
-function gradDot(cx, cy, cz, fx, fy, fz) {   // dot(grad(c), f), as pcg3 + grad in the shader
-  let x = Math.imul(cx & 255, 1664525) + 1013904223 | 0;
-  let y = Math.imul(cy & 255, 1664525) + 1013904223 | 0;
-  let z = Math.imul(cz, 1664525) + 1013904223 | 0;
-  x = x + Math.imul(y, z) | 0; y = y + Math.imul(z, x) | 0; z = z + Math.imul(x, y) | 0;
-  x ^= x >>> 16; y ^= y >>> 16; z ^= z >>> 16;
-  x = x + Math.imul(y, z) | 0; y = y + Math.imul(z, x) | 0; z = z + Math.imul(x, y) | 0;
-  const gx = (x & 1023) / 511.5 - 0.9999, gy = (y & 1023) / 511.5 - 0.9999, gz = (z & 1023) / 511.5 - 0.9999;
-  return (gx * fx + gy * fy + gz * fz) / Math.sqrt(gx * gx + gy * gy + gz * gz);
-}
-function gnoise(px, py, pz) {
-  const ix = Math.floor(px), iy = Math.floor(py), iz = Math.floor(pz);
-  const fx = px - ix, fy = py - iy, fz = pz - iz;
-  const ux = fx * fx * fx * (fx * (fx * 6 - 15) + 10), uy = fy * fy * fy * (fy * (fy * 6 - 15) + 10),
-    uz = fz * fz * fz * (fz * (fz * 6 - 15) + 10);
-  const n000 = gradDot(ix, iy, iz, fx, fy, fz), n100 = gradDot(ix + 1, iy, iz, fx - 1, fy, fz),
-    n010 = gradDot(ix, iy + 1, iz, fx, fy - 1, fz), n110 = gradDot(ix + 1, iy + 1, iz, fx - 1, fy - 1, fz),
-    n001 = gradDot(ix, iy, iz + 1, fx, fy, fz - 1), n101 = gradDot(ix + 1, iy, iz + 1, fx - 1, fy, fz - 1),
-    n011 = gradDot(ix, iy + 1, iz + 1, fx, fy - 1, fz - 1), n111 = gradDot(ix + 1, iy + 1, iz + 1, fx - 1, fy - 1, fz - 1);
-  const a = n000 + (n100 - n000) * ux, b = n010 + (n110 - n010) * ux;
-  const c = n001 + (n101 - n001) * ux, d = n011 + (n111 - n011) * ux;
-  const e = a + (b - a) * uy, f = c + (d - c) * uy;
-  return (e + (f - e) * uz) * 1.6;
-}
-const smooth01 = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
-
-/**
- * flowField(p, { zoomDev, zoomCss, time, drift, maxCss }) → (sx, sy, out) => out
- * The background's displacement at source position (sx, sy), in source px, into
- * out[0..1]. p: noiseParams (warp, smooth, start); zoomDev: device px per source px
- * as the layer draws (which octaves live); time, drift: the layer's clock. Octaves
- * whose wavelength passes maxCss css px fade out of the push (not of the lookup):
- * past that they only shift the painting where it's smooth, and would throw a dot
- * far off its path.
- */
-export function flowField(p, { zoomDev, zoomCss, time, drift, maxCss = 600 }) {
-  const uStart = 2 ** p.start, oct = [];
-  for (let i = 0; i < MAXOCT; i++) {
-    const lam = L0 * 2 ** -i;
-    if (lam * zoomDev < 2) break;
-    const w = smooth01(2, 6, lam * zoomDev) * (1 - smooth01(uStart, 2 * uStart, lam));
-    if (w <= 0) continue;
-    const a = i * 2.39996, k = w * lam * Math.min((lam / uStart) ** (p.smooth - 1), 1.5);
-    oct.push({ lam, c: Math.cos(a), s: Math.sin(a), k, band: 1 - smooth01(maxCss / 2, maxCss, lam * zoomCss),
-      t: time * (1 + 0.12 * i) + i * 13.7 });
-  }
-  const wrap = v => v - 256 * Math.floor(v / 256);
-  // fbmVec(S, ch) with S absolute (the shader's uOff + R·d/λ, wrapped to the noise period)
-  function fbmVec(sx, sy, ch, push, out) {
-    let ox = 0, oy = 0;
-    const chx = ch * 17.3, chy = ch * 53.9, cht = ch * 31;
-    for (const o of oct) {
-      const k = push ? o.k * o.band : o.k;
-      if (k === 0) continue;
-      const x = wrap((o.c * sx - o.s * sy) / o.lam + drift + chx), y = wrap((o.s * sx + o.c * sy) / o.lam + drift * 0.37 + chy);
-      const z = o.t + cht;
-      ox += k * gnoise(x, y, z); oy += k * gnoise(x + 71.3, y + 11.9, z + 23.1);
-    }
-    out[0] = ox; out[1] = oy;
-    return out;
-  }
-  const q = [0, 0];
-  return (sx, sy, out) => {
-    fbmVec(sx, sy, 2, false, q);
-    fbmVec(sx + 1.5 * q[0], sy + 1.5 * q[1], 3, true, out);
-    out[0] *= p.warp; out[1] *= p.warp;
-    return out;
-  };
+  return { gl, setTexture, render, setStir };
 }
 
 /** Number of octaves currently contributing (for readouts). */
@@ -460,7 +477,7 @@ export function createBgNoise({ host, meta, getView, getTime, onShown, onLost })
   }
 
   // ---- loop: draws every frame while moving, otherwise only when the view or a param changes ----
-  let time = 0, drift = 0, last = performance.now(), raf = 0, lastKey = "";
+  let time = 0, drift = 0, last = performance.now(), raf = 0, lastKey = "", hadStir = false;
   const clock = () => { const t = getTime?.(); return Number.isFinite(t) ? t : null; };
   function frame(now) {
     raf = requestAnimationFrame(frame);
@@ -495,8 +512,8 @@ export function createBgNoise({ host, meta, getView, getTime, onShown, onLost })
   }
   active = {
     invalidate() { dirty = true; },
-    /** The clock the clouds evolve by, as last drawn (flowField's time and drift). */
-    clock: () => ({ time, drift }),
+    /** The dots' wakes for the next frame (createNoiseRenderer's setStir); null to clear. */
+    setStir(pts, n, opts) { if (!n && !hadStir) return; hadStir = !!n; r.setStir(pts, n, opts); dirty = true; },
     /** Draw now for the current view and clock (a narration frame), not on the next animation frame. */
     draw() { if (visible && alive) paint(); },
     /** Still loading what this view needs, or not drawn yet (a render waits for it). */
@@ -547,8 +564,10 @@ export function mountNoiseControls(container) {
     ${range("detail", "Detail", 0, 1.5, 0.01, "2", "Strength of the added brightness detail")}
     ${range("smooth", "Smoothness", 0, 1, 0.01, "2", "0 = every octave equally strong (rough, CMB-like); 1 = finer octaves fade (soft clouds)")}
     ${range("start", "Starts at", 0, 5, 0.01, "px", "Largest scale the noise may touch, in source pixels. Larger = it starts reshaping the painting at normal zoom")}
-    <label class="bgnoise-row bgnoise-check" title="Experimental: the paths' moving dots are pushed by the same warp, so they ride the swirls"><input type="checkbox" data-k="flow"> <span class="bgnoise-label">Dots ride the swirls</span></label>
-    ${range("flowAmp", "Push", 0, 12, 0.1, "1", "How far the dots are pushed: 1 = exactly as far as the background is warped there")}
+    ${range("stir", "Dots stir", 0, 6, 0.05, "2", "Experimental: the paths' moving dots stir the background, leaving a street of eddies behind them. How far an eddy twists the paint, radians; 0 = off")}
+    ${range("stirSize", "Eddy size", 4, 60, 1, "0", "Eddy radius, css px")}
+    ${range("stirWake", "Wake", 20, 600, 5, "0", "How far behind a dot its eddies last, css px")}
+    ${range("stirDetail", "Wake detail", 0, 6, 0.1, "1", "How much the painting's own detail is brought up in a wake, so the eddies show (× the Detail above)")}
     <label class="bgnoise-row"><span class="bgnoise-label">Base filter</span>
       <select class="bgnoise-select" data-k="filter"><option value="1">B-spline (smooth)</option><option value="2">Catmull-Rom (sharp)</option><option value="0">Bilinear</option></select></label>
     <label class="bgnoise-row"><span class="bgnoise-label">Resolution</span>

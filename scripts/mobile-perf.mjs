@@ -13,7 +13,7 @@
  *   node scripts/mobile-perf.mjs --net 3g --cpu 6 # meaner phone
  *   node scripts/mobile-perf.mjs --trace          # also save a DevTools-loadable trace
  *   node scripts/mobile-perf.mjs --ci             # exit 1 if any budget is busted
- *   node scripts/mobile-perf.mjs --dot-flow 3     # moving dots pushed by the background's warp (experimental)
+ *   node scripts/mobile-perf.mjs --dot-stir 1.5   # moving dots stir the fractal background (experimental)
  *   node scripts/mobile-perf.mjs --profile ci     # relaxed timing budgets for CI runners
  *
  * Reports to stdout and scripts/perf-reports/<timestamp>.json.
@@ -89,7 +89,7 @@ if (!BUDGETS) {
 const cpuRate = Number(opt('cpu', '4'));
 const explicitUrl = opt('url', null);
 const useDev = flag('dev');
-const dotFlow = Number(opt('dot-flow', '0'));
+const dotStir = Number(opt('dot-stir', '0'));
 
 function findChrome() {
   const candidates = [
@@ -305,7 +305,7 @@ async function measureGesture(page, cdp, label, run) {
 // --------------------------------------------------------------------- main --
 const { url, proc } = await startServer();
 const chrome = findChrome();
-console.log(`\n▸ Target: ${url}  (net: ${netName}, cpu: ${cpuRate}x, chrome: headless${dotFlow > 0 ? `, dot flow ×${dotFlow}` : ''})`);
+console.log(`\n▸ Target: ${url}  (net: ${netName}, cpu: ${cpuRate}x, chrome: headless${dotStir > 0 ? `, dot stir ${dotStir}` : ''})`);
 
 const browser = await puppeteer.launch({
   executablePath: chrome,
@@ -321,9 +321,9 @@ try {
   );
   await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
   await page.evaluateOnNewDocument(COLLECTOR);
-  if (dotFlow > 0) await page.evaluateOnNewDocument((amp) => {
-    localStorage.setItem('tri-bgnoise', JSON.stringify({ flow: true, flowAmp: amp }));
-  }, dotFlow);
+  if (dotStir > 0) await page.evaluateOnNewDocument((amp) => {
+    localStorage.setItem('tri-bgnoise', JSON.stringify({ stir: amp }));
+  }, dotStir);
 
   const cdp = await page.target().createCDPSession();
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });

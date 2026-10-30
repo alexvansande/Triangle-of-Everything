@@ -5148,8 +5148,8 @@ let _dotSizeMult = 1;    // moving-dot size multiplier (settings slider)
 let _dotOpacityMult = 1; // moving-dot opacity multiplier (settings slider)
 let _dotFixedR = null;    // moving-dot radius in px, overriding the paths' own sizes (narration)
 let _dotBoostKey = "";    // the lit paths (narration's setDotBoost), to redraw when they change
-let _dotFlowAmp = null;   // narration: how far the background's warp pushes the dots (setDotFlow), 0 = off; null = the settings panel's
-let _dotFlowOwnT = 0;     // the warp's clock while the fractal layer has never run (time, at noiseParams.speed)
+let _dotStir = null;      // narration: how the dots stir the fractal background, { spin, size, wake } (setDotStir); null = the settings panel's
+let _stirPts = new Float32Array(0);
 
 function pauseAnimOnInteract() {
   if (_animDisabled) return;
@@ -5632,33 +5632,49 @@ function applyEmWave(cp, t, sx, sy, timestamp, ppu) {
   return [sx + perpX * off, sy + perpY * off];
 }
 
-/** This frame's push from the fractal background's warp (bg-noise.js flowField), or
- *  null when it's off: { at(sx, sy, out) in source px, amp, and the affine from
- *  chart-local css px to source px, S = a + s/z }. Same clock as the layer: a
- *  narration's audio time, else the layer's own. */
-const _flowOut = [0, 0];
-function dotFlow(dtReal) {
-  const m = _bgNoiseM;
-  if (!m || !tileMeta) return null;
-  const p = m.noiseParams, amp = _dotFlowAmp ?? (p.flow ? p.flowAmp : 0);
-  if (!(amp > 0)) return null;
-  let time, drift;
-  if (Number.isFinite(_bgNoiseT)) { time = _bgNoiseT * p.speed; drift = (_bgNoiseT * p.drift) % 256; }
-  else if (_bgNoise) ({ time, drift } = _bgNoise.clock());
-  else { if (p.move) _dotFlowOwnT += dtReal; time = _dotFlowOwnT * p.speed; drift = (_dotFlowOwnT * p.drift) % 256; }
-  const ppu = tileMeta.pxPerUnitX, zx = Math.abs(xS(1) - xS(0)) / ppu, zy = Math.abs(yS(0) - yS(1)) / ppu;
-  const zoomCss = Math.sqrt(zx * zy), dpr = Math.min(2, devicePixelRatio || 1) * p.res;
-  // only where the fractal layer swirls: eased in over the zooms it fades in at
-  const f = Math.max(0, Math.min(1, (zoomCss - BG_NOISE_OFF_AT) / (BG_NOISE_ON_AT - BG_NOISE_OFF_AT)));
-  if (!_bgNoiseWanted || f <= 0) return null;
-  return { amp: amp * f * f * (3 - 2 * f), zx, zy, ax: 2114 - xS(PLANCK_LOG_R) / zx, ay: 5960 - yS(PLANCK_LOG_M) / zy,
-    at: m.flowField(p, { zoomDev: zoomCss * dpr, zoomCss, time, drift }) };
+/** Experimental: the dots stir the fractal background. Behind each cluster, a street of
+ *  eddies: fixed spots along its path (so they stay put as the dot moves on), on alternating
+ *  sides with alternating spin, that twist the paint up as the dot passes and fade as the wake
+ *  ages. bg-noise.js splats them into a texture its shader displaces the painting by. A pure
+ *  function of where the dots are this frame, so a render's frames come out the same every time. */
+function feedStir(ppu) {
+  const nl = _bgNoise;
+  if (!nl) return;
+  const p = _bgNoiseM?.noiseParams;
+  const o = _dotStir ?? (p && { spin: p.stir, size: p.stirSize, wake: p.stirWake, detail: p.stirDetail });
+  if (!o || !(o.spin > 0) || !_bgNoiseShown || !_connPaths) { nl.setStir(null, 0); return; }
+  let n = 0;
+  for (const { pi, di } of _connDotEls) {   // one entry per cluster
+    const cp = _connPaths[pi];
+    if (!cp._visible) continue;
+    const w0 = Math.min(1, cp._opacity * 1.5);
+    if (w0 <= 0.01) continue;
+    const head = cp.dotTs[di], len = cp._screenLen ?? screenPathLength(cp, ppu);
+    // eddy spacing ~ their size, on a lattice along the path that only changes at whole halvings of zoom
+    const cells = 2 ** Math.max(0, Math.round(Math.log2(len / (o.size * 1.4)))), dt = 1 / cells, wakeT = o.wake / len;
+    for (let j = Math.floor(head * cells); j >= 0; j--) {
+      const tj = j * dt, age = (head - tj) / wakeT;
+      if (age > 1) break;
+      const weight = w0 * Math.min(1, age * 12) * (1 - age) * (1 - age);
+      if (weight <= 0.005) continue;
+      const [x, y] = getPathScreenPos(cp, tj, ppu), [x2, y2] = getPathScreenPos(cp, Math.min(1, tj + 0.002), ppu);
+      const l = Math.hypot(x2 - x, y2 - y) || 1, side = j & 1 ? 1 : -1;
+      const ex = x - side * (y2 - y) / l * o.size * 0.45, ey = y + side * (x2 - x) / l * o.size * 0.45;
+      if (ex < -o.size || ex > cw + o.size || ey < -o.size || ey > ch + o.size) continue;
+      if (_stirPts.length < (n + 1) * 5) { const a = new Float32Array(Math.max(1024, _stirPts.length * 2)); a.set(_stirPts); _stirPts = a; }
+      const k = n++ * 5;
+      _stirPts[k] = ex; _stirPts[k + 1] = ey; _stirPts[k + 2] = o.size;
+      _stirPts[k + 3] = side * o.spin * Math.min(1, 0.35 + age * 2); _stirPts[k + 4] = weight;
+    }
+  }
+  nl.setStir(_stirPts, n, { detail: o.detail, cssW: cw, cssH: ch });
 }
 
 function animateConnections(timestamp) {
   if (!connAnimActive()) {
     // Park the loop — no re-queue. scheduleConnAnim() restarts it when a
     // path becomes visible, the tab becomes visible, or animation re-enables.
+    _bgNoise?.setStir(null, 0);
     lConnDots.selectAll("*").remove();
     _connDotEls = [];
     _connDotsStale = true;
@@ -5706,19 +5722,9 @@ function animateConnections(timestamp) {
     });
   }
 
-  const flow = dotFlow(dt / (_animSpeed || 1));
   _connDotEls.forEach(({ group, pi, di }) => {
     const cp = _connPaths[pi];
     const baseT = cp.dotTs[di];
-    // the push, once per cluster at its head (the trail rides along with it); none off screen
-    let fx = 0, fy = 0;
-    if (flow) {
-      const [hx, hy] = getPathScreenPos(cp, baseT, ppu);
-      if (hx > -60 && hx < cw + 60 && hy > -60 && hy < ch + 60) {
-        flow.at(flow.ax + hx / flow.zx, flow.ay + hy / flow.zy, _flowOut);
-        fx = flow.amp * _flowOut[0] * flow.zx; fy = flow.amp * _flowOut[1] * flow.zy;
-      }
-    }
 
     group.forEach(({ el, idx }) => {
       const isMeteor = cp.family === "evolution";
@@ -5736,13 +5742,6 @@ function animateConnections(timestamp) {
 
       let [sx, sy] = getPathScreenPos(cp, t, ppu);
       [sx, sy] = applyEmWave(cp, t, sx, sy, timestamp, ppu);
-      if (fx || fy) {
-        // carried by the background's swirls, easing to none at the path's ends so the
-        // dots still leave and arrive exactly at their objects
-        const len = cp._screenLen ?? screenPathLength(cp, ppu), edge = Math.min(t, 1 - t) * len, ease = Math.min(60, len * 0.3);
-        const k = edge >= ease ? 1 : (edge / ease) * (edge / ease) * (3 - 2 * edge / ease);
-        sx -= k * fx; sy -= k * fy;
-      }
 
       el.setAttribute("cx", String(sx));
       el.setAttribute("cy", String(sy));
@@ -5763,6 +5762,7 @@ function animateConnections(timestamp) {
       }
     });
   });
+  feedStir(ppu);
 
   _connAnimId = requestAnimationFrame(animateConnections);
 }
@@ -5888,7 +5888,7 @@ let _bgNoiseFailed = "";      // why the layer couldn't run (no WebGL2), for the
 let _bgNoiseLost = 0;         // GL contexts lost (the layer rebuilt), for the renderer's log
 let _bgNoiseWanted = _bgNoiseUrl !== null ? _bgNoiseUrl !== "0" : BG_NOISE_DEFAULT_ON;
 let _bgNoiseMod = null;
-let _bgNoiseM = null;         // the module once loaded (the moving dots read its params and flowField)
+let _bgNoiseM = null;         // the module once loaded (feedStir reads its params)
 const loadBgNoise = () => (_bgNoiseMod ??= import("./bg-noise.js").then(m => { m.applyNoiseProfile(BG_NOISE_PROFILE); return (_bgNoiseM = m); }));
 
 /** Plot area and camera in source (z5) pixels, as drawTiles anchors them. */
@@ -8613,9 +8613,12 @@ if (_ogShot) {
         if (_labelsEnabled !== on) { _labelsEnabled = on; redraw(); }
       },
       setDots({ size = 1, opacity = 1, radius = null } = {}) { _dotSizeMult = size; _dotOpacityMult = opacity; _dotFixedR = radius; },
-      /** The moving dots pushed by the fractal background's warp (experimental): amp × the
-       *  background's own displacement, 0 = off (videos), null = the settings panel's. */
-      setDotFlow(amp = 0) { _dotFlowAmp = amp; if (amp) loadBgNoise(); },
+      /** The moving dots stir the fractal background (experimental): a number (how far their
+       *  eddies twist the paint, radians) or { spin, size, wake (css px), detail }; 0 = off (videos' default). */
+      setDotStir(o = 0) {
+        const v = typeof o === "number" ? { spin: o } : (o || {});
+        _dotStir = { spin: v.spin ?? 0, size: v.size ?? 14, wake: v.wake ?? 160, detail: v.detail ?? 2.5 };
+      },
       /** Connection paths (the moving dots' curves) for a video to highlight: every path
        *  whose id or whole (`_into`, what it builds) is in `sel`, sampled at n + 1 points
        *  along its curve, chart-local px: [{ id, family, color, into, pts: [[x, y], …] }]. */
