@@ -15,9 +15,12 @@ const BAKED = ["DNA", "chromatin", "veil", "nucleus", "cytoplasm", "amoeba", "dr
 // a few are held at once (24 full photographs would take ~1.5 GB decoded).
 // opts: hides (hide the drawn layers they stand in for; false for overlays),
 // single (an overlay: only the plate that just covers the frame, cross-faded with
-// the next, so see-through plates don't pile up), fadeIn ([from, to] in s)
+// the next, so see-through plates don't pile up), fadeIn ([from, to] in s), height
+// (m: a layer that high above the ground, seen with parallax from a camera
+// 1/(2 tan 25°) frame widths up, as for a 50° view: behind the camera until it
+// climbs past it, then big and close, settling onto the ground as it climbs on)
 export async function platesLayer(enabled, DIR = "/video/powers-of-ten/plates/", fadeOut = 0.4, opts = {}) {
-  const { hides = true, single = false, fadeIn = null } = opts;
+  const { hides = true, single = false, fadeIn = null, height = 0 } = opts;
   const none = { covers: () => new Set(), draw() {} };
   if (!enabled) return none;
   let list;
@@ -43,17 +46,26 @@ export async function platesLayer(enabled, DIR = "/video/powers-of-ten/plates/",
       if (cam.s < lo - 0.4 || cam.s > hi + fadeOut) return;
       let a = 1 - Math.max(0, Math.min(1, (cam.s - hi) / fadeOut));
       if (fadeIn) a *= Math.max(0, Math.min(1, (cam.s - fadeIn[0]) / (fadeIn[1] - fadeIn[0])));
+      // the layer's magnification at its height, and gone while it's behind the camera
+      let m = 1;
+      if (height) {
+        const H = cam.F / (2 * Math.tan(25 * Math.PI / 180));
+        if (H <= 1.02 * height) return;
+        m = H / (H - height);
+        a *= Math.max(0, Math.min(1, (H / height - 1.02) / 0.4));
+      }
       if (a <= 0.01) return;
       if (single) {
         // the smallest plate that covers the turned frame (its diagonal, cam.W), and
         // the one below it fading in as it comes to cover it too
-        const fit = (p) => 10 ** p.s * cam.k / cam.W;
-        const i = plates.findLastIndex((p) => fit(p) >= 1.3);
+        const fit = (p) => 10 ** p.s * cam.k * m / cam.W;
+        // (or the biggest, once none does: out there the frame's corners are space)
+        const i = Math.max(0, plates.findLastIndex((p) => fit(p) >= 1.3));
         const big = plates[i], small = plates[i + 1];
         const f = small ? Math.max(0, Math.min(1, (fit(small) - 0.9) / 0.4)) : 0;
         for (const [p, w] of [[big, 1 - f], [small, f]]) {
           if (!p?.img || w <= 0.01) continue;
-          const side = 10 ** p.s * cam.k;
+          const side = 10 ** p.s * cam.k * m;
           cam.ctx.globalAlpha = a * w;
           cam.ctx.drawImage(p.img, cam.cx - side / 2, cam.cy - side / 2, side, side);
         }

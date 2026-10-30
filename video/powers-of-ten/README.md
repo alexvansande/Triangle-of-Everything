@@ -81,10 +81,11 @@ exactly. `photos-ladder.jpg` shows them all. The zoom shows them as plates (on u
 No clouds in the photos themselves: `photos/clouds/` holds the clouds of 15 June 2024 (MODIS
 Terra, gaps filled from Aqua; NASA GIBS, public domain), the day the zoom's globe shows, as
 see-through overlays for the frames from 10^3.85 m up, each cloud cut out by how much brighter
-MODIS is than the cloud-free photo (and bright in band 7, so snow stays out). They come in from
-10^4.3 to 10^4.8 m while real cloud wisps cut from them fly past the camera (`crossings.js`), so
-we climb out through the clouds. Clouds sit below ~12 km and the atmosphere's edge is ~100 km
-(10^5 m on the zoom), so that's the stretch it happens over. `--clouds` rebuilds them. At each handover the finer source's top
+MODIS is than the cloud-free photo (and bright in band 7, so snow stays out). They're a layer
+of their own, 8 km up, seen with parallax: behind the camera at first, passed through near
+10^3.9 m (big and close, with real cloud wisps cut from them flying past, `crossings.js`), then
+settling onto the ground as we climb towards the edge of space (~100 km, 10^5 m on the zoom),
+until the globe, with the same day's clouds, takes over. `--clouds` rebuilds them. At each handover the finer source's top
 frame is colour-matched to the coarser one, easing back to its own colours over 0.75 decades.
 Rough edges: NAIP shows patches from different flight dates at 7–22 km; below ~100 m it's
 upscaled (0.3 m a pixel), so the crown close-ups are soft. To rebuild:

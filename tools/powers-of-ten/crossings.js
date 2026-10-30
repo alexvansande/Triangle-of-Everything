@@ -15,8 +15,9 @@ const CROSSINGS = [
   { name: "the cell", s: -3.4, col: [175, 220, 160], size: 0.16, n: 34, kind: "blob" },
   { name: "the dew drop", s: -2.5, col: [190, 225, 255], size: 0.2, n: 30, kind: "ring" },
   { name: "the canopy", s: 1.6, col: [90, 140, 70], size: 0.35, n: 24, kind: "blob" },
-  // climbing out through the clouds: real ones, cut from the day's MODIS clouds (photos/clouds/)
-  { name: "the clouds", s: 4.45, col: [255, 255, 255], size: 0.9, n: 14, op: 0.8, kind: "image",
+  // climbing out through the clouds: real ones, cut from the day's MODIS clouds
+  // (photos/clouds/), as the camera passes the cloud layer 8 km up (main.js)
+  { name: "the clouds", s: 3.95, col: [255, 255, 255], size: 0.9, n: 14, op: 0.8, kind: "image",
     files: [1, 2, 3, 4, 5, 6, 8].map((i) => `/video/powers-of-ten/photos/clouds/wisp-${i}.webp`) },
   { name: "the Oort cloud", s: 16.4, col: [205, 222, 255], size: 0.03, n: 60, kind: "blob" },
   { name: "the Milky Way", s: 21.0, col: [255, 238, 215], size: 0.025, n: 70, kind: "blob" },

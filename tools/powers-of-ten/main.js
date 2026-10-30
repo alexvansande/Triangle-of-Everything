@@ -32,9 +32,12 @@ const plates = await platesLayer(q.get("plates") === "1");
 // the real photographs from the tree's crown to the globe, on unless ?photos=0; gone
 // by the time the camera swings round the Earth (10^7.65 m)
 const photos = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/", 0.3);
-// and the clouds of the day the globe shows (15 June 2024), coming in as we climb
-// out through them (crossings.js), from 10^4.3 m
-const clouds = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/clouds/", 0.3, { hides: false, single: true, fadeIn: [4.3, 4.8] });
+// and the clouds of the day the globe shows (15 June 2024), a layer of their own 8 km
+// up: behind the camera at first, then passed through (with the wisps, crossings.js)
+// near 10^3.9 m, then settling onto the ground as we climb on; gone as the globe,
+// with its own clouds, takes over
+const CLOUD_HEIGHT = 8000;
+const clouds = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/clouds/", 0.3, { hides: false, single: true, height: CLOUD_HEIGHT });
 // biggest first, so smaller things paint over what holds them; what we cross, nearest the camera, last
 const layers = [...space, ...macro.layers, ...micro, ...small.reverse(), crossingsLayer(q.get("crossings") !== "0")];
 // the whole picture rolls round the line of sight at the same rate at every scale,
