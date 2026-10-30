@@ -17,7 +17,9 @@ const CROSSINGS = [
   { name: "the canopy", s: 1.6, col: [90, 140, 70], size: 0.35, n: 24, kind: "blob" },
   // climbing out through the clouds: real ones, cut from the day's MODIS clouds
   // (photos/clouds/), as the camera passes the cloud layer 8 km up (main.js)
-  { name: "the clouds", s: 3.95, col: [255, 255, 255], size: 0.9, n: 14, op: 0.8, kind: "image",
+  // subtle, round the edges only, and fading as they near the centre, so the ground
+  // under the tree stays in view (the author, 2026-10-30)
+  { name: "the clouds", s: 3.95, col: [255, 255, 255], size: 0.55, n: 9, op: 0.45, kind: "image", clearCentre: true, minRad: 0.65,
     files: [1, 2, 3, 4, 5, 6, 8].map((i) => `/video/powers-of-ten/photos/clouds/wisp-${i}.webp`) },
   { name: "the Oort cloud", s: 16.4, col: [205, 222, 255], size: 0.03, n: 60, kind: "blob" },
   { name: "the Milky Way", s: 21.0, col: [255, 238, 215], size: 0.025, n: 70, kind: "blob" },
@@ -52,7 +54,7 @@ export function crossingsLayer(on) {
   const sets = CROSSINGS.map((c) => ({
     ...c,
     parts: Array.from({ length: c.n }, () => {
-      const ang = 2 * Math.PI * r(), rad = 0.15 + 0.85 * Math.sqrt(r());
+      const lo = c.minRad ?? 0.15, ang = 2 * Math.PI * r(), rad = lo + (1 - lo) * Math.sqrt(r());
       // each at its own depth: crosses a little before or after the others
       return { x: rad * Math.cos(ang), y: rad * Math.sin(ang), ds: (r() - 0.5) * 0.8, sz: 0.5 + r(), a: 0.5 + 0.5 * r(), pick: r(), turn: 2 * Math.PI * r() };
     }),
@@ -91,7 +93,8 @@ export function crossingsLayer(on) {
           const d = cam.s - (c.s + p.ds);
           const f = 10 ** (-NEAR * d), size = c.size * p.sz * cam.min * f * 3;
           const x = cam.cx + p.x * half * 1.6 * f, y = cam.cy + p.y * half * 1.6 * f;
-          const a = (c.op ?? 0.8) * p.a * ramp(d, -0.35, 0) * (1 - ramp(d, 0.35, 0.8)) * ramp(size, 2, 12);
+          let a = (c.op ?? 0.8) * p.a * ramp(d, -0.35, 0) * (1 - ramp(d, 0.35, 0.8)) * ramp(size, 2, 12);
+          if (c.clearCentre) a *= ramp(Math.hypot(x - cam.cx, y - cam.cy) / half, 0.45, 0.85);
           if (a <= 0.01 || size < 1) continue;
           ctx.globalAlpha = a;
           if (c.imgs) {
