@@ -33,12 +33,12 @@ export const NOISE_MODES = [
   [0, "Today (blurred tiles)"],
 ];
 
-// Tuned for the video (the author's pick, 2026-10-23; detail, ridge mix and drift from the
-// author's settings panel, 2026-10-29, so it shows): a faint warp with soft added detail, slowly
-// evolving, from ~28 source px (2^4.8)
+// Tuned for the video (the author's pick, 2026-10-23; then the author's settings panel, 2026-10-30,
+// with the shadow swirl): a fainter warp with soft added detail, slowly evolving and drifting, from
+// 32 source px (2^5)
 export const NOISE_DEFAULTS = {
-  mode: 8, move: true, speed: 0.09, drift: 0.055, ridge: 0.25, warp: 0.15,
-  detail: 0.52, smooth: 1, start: 4.8, filter: 1, res: 1,
+  mode: 8, move: true, speed: 0.08, drift: 0.075, ridge: 0.25, warp: 0.06,
+  detail: 0.39, smooth: 0.88, start: 5, filter: 1, res: 1,
   // experimental (2026-10-30): the paths' moving dots and a short trail behind them drawn into the
   // background, read through its swirl warp. trail = their brightness (0 = off), trailLen = css px,
   // trailSwirl = how much harder than the painting they're swirled
