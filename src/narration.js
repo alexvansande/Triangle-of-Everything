@@ -137,7 +137,7 @@ function resolveScene(words) {
 // (the timing they were written for), those inside the piece kept and moved to where it sits.
 // The camera and highlights in effect where the piece starts come along at its first instant,
 // so it opens on the picture the source had there. The scene-wide settings are the first
-// piece's, with the pictures' lists (forced, hidden…) of all of them; the journal cover only if
+// piece's (and a later one's where the first has none), with the pictures' lists (forced, hidden…) of all of them; the journal cover only if
 // the cut starts at the very beginning of its first take.
 const LISTS = ["forceIcons", "hideIcons", "alsoIcons", "hideLabels", "firstIcons"];
 async function cutCues(take, name) {
@@ -169,7 +169,8 @@ async function cutCues(take, name) {
   window.__narrMissing = missing;
   all.sort((a, b) => a.time - b.time);
   all.sound = [];
-  const merged = { ...first.scene, cues: [], captionFixes: Object.assign({}, ...parts.map(p => p.scene.captionFixes)),
+  // the first piece's scene-wide settings win; settings only a later piece has (video 7's explorer) come along too
+  const merged = { ...Object.assign({}, ...[...parts].reverse().map(p => p.scene)), cues: [], captionFixes: Object.assign({}, ...parts.map(p => p.scene.captionFixes)),
     cover: first.s.from === 0 ? first.scene.cover : undefined };
   for (const k of LISTS) {
     const u = [...new Set(parts.flatMap(p => p.scene[k] || []))];

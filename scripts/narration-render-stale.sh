@@ -29,11 +29,13 @@ takes="$*"
 
 web() {   # full render → the site's copy, sized just under 20 MiB
   D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$1")
+  # 720×1280, or 1280×720 for a 16:9 long cut
+  S=$(ffprobe -v error -select_streams v -show_entries stream=width,height -of csv=p=0 "$1" | awk -F, '{print ($1 > $2) ? "1280:720" : "720:1280"}')
   VB=$(python3 -c "print(int(19.5e6*8/$D/1000 - 148))")k
   P=output/videos/$3.pass
-  ffmpeg -hide_banner -loglevel error -y -i "$1" -vf scale=720:1280:flags=lanczos -c:v libx264 -preset slow -profile:v high \
+  ffmpeg -hide_banner -loglevel error -y -i "$1" -vf "scale=$S:flags=lanczos" -c:v libx264 -preset slow -profile:v high \
     -pix_fmt yuv420p -b:v "$VB" -pass 1 -passlogfile "$P" -an -f mp4 /dev/null &&
-  ffmpeg -hide_banner -loglevel error -y -i "$1" -vf scale=720:1280:flags=lanczos -c:v libx264 -preset slow -profile:v high \
+  ffmpeg -hide_banner -loglevel error -y -i "$1" -vf "scale=$S:flags=lanczos" -c:v libx264 -preset slow -profile:v high \
     -pix_fmt yuv420p -b:v "$VB" -pass 2 -passlogfile "$P" -c:a aac -b:a 128k -movflags +faststart "$2"
   rm -f "$P"*
 }

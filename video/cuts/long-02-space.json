@@ -1,0 +1,24 @@
+{
+  "title": "The Triangle of Everything: space",
+  "blurb": "Stars, black holes and the Hubble sphere (videos 3–5, joined).",
+  "stage": "landscape",
+  "gap": 0.6,
+  "segments": [
+    {
+      "take": "short-03-stars"
+    },
+    {
+      "take": "short-04-black-holes",
+      "from": "Most objects in this chart are a bunch"
+    },
+    {
+      "take": "short-05-hubble-sphere",
+      "from": "You see that everything that is made of matter",
+      "to": "supernova remnants"
+    },
+    {
+      "take": "short-05-hubble-sphere",
+      "from": "Every diagonal line represents a density"
+    }
+  ]
+}
