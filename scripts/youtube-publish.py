@@ -63,7 +63,9 @@ def description(v):
     paras = []
     for para in body.strip().split("\n\n"):
         lines = para.split("\n")
-        if lines[0] == "The Triangle of Everything":
+        if all("://" in ln for ln in lines):                                  # links: one per line
+            paras.append("\n".join(lines))
+        elif lines[0] == "The Triangle of Everything":
             paras.append("\n".join([lines[0]] + [" ".join(lines[1:])]).replace(" Inspired by", "\nInspired by"))
         else:
             paras.append(" ".join(lines))
