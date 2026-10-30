@@ -298,5 +298,10 @@
     "category": "photo-adjusted",
     "description": "Composite of real data in false colour: Chandra X-rays (the jet), radio (the lobes) and visible light. Cropped, edge-faded and made transparent; no generated pixels.",
     "record": "content/icons/src/centaurus-a-generation.json"
+  },
+  "laniakea": {
+    "category": "data-drawn",
+    "description": "Drawn by code from 42,986 real galaxies of the 2MASS Redshift Survey (positions from their redshifts), coloured by the attractor each flows towards in a simple model, not a photograph and not generated art.",
+    "record": "scripts/laniakea-icon.mjs"
   }
 }

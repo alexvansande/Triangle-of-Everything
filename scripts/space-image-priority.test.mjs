@@ -35,3 +35,7 @@ test('merged featured/catalogue hierarchy remains stable under panning and zoom'
 test('Laniakea always takes precedence over the voids',()=>{
   for(const slug of ['bootes-void','eridanus-supervoid','kbc-void']) assert.ok(tier(slug,'largescale')>=tier('laniakea','largescale'));
 });
+
+test('the code-drawn Laniakea counts as neither a photo nor generated art',()=>{
+  assert.equal(tier('laniakea','largescale'),1);
+});
