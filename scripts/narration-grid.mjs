@@ -76,17 +76,19 @@ export function gridHtml(info, { built, commit, base = "" }) {
   const mmss = (d) => `${Math.floor(d / 60)}:${String(Math.round(d % 60)).padStart(2, "0")}`;
   // the YouTube side: its thumbnail on the card (else the still), and what goes up with it
   const when = (s) => s ? new Date(s).toISOString().slice(0, 16).replace("T", " ") + " UTC" : "";
+  // a Copy button for a field, as it goes in YouTube Studio (tags comma-separated)
+  const copy = (text) => `<button type="button" class="ng-copy" data-copy="${esc(text)}">Copy</button>`;
   const ytPanel = (k) => !k.yt ? "" : `
         <details class="ng-yt">
           <summary>YouTube</summary>
           <dl>
-            <dt>Title</dt><dd class="ng-yt-title">${esc(k.yt.title)}</dd>
+            <dt>Title</dt><dd><span class="ng-yt-title">${esc(k.yt.title)}</span> ${copy(k.yt.title)}</dd>
             <dt>Status</dt><dd>${k.yt.youtube ? `<a href="https://youtu.be/${esc(k.yt.youtube)}" target="_blank" rel="noopener">uploaded</a>, ` : "not uploaded, "}${esc(k.yt.privacy)}${
               k.yt.publishAt ? ` · goes public <time datetime="${esc(k.yt.publishAt)}" data-fmt="time">${esc(when(k.yt.publishAt))}</time>` : ""}${
               k.duration + 3 > 180 ? " · over 3:00, a regular video" : " · a Short"}</dd>
             ${k.yt.playlist ? `<dt>Playlist</dt><dd>${esc(k.yt.playlist)}</dd>` : ""}
-            <dt>Tags</dt><dd class="ng-tags">${k.yt.tags.map(t => `<span>${esc(t)}</span>`).join("")}</dd>
-            <dt>Description</dt><dd class="ng-desc">${esc(k.yt.description.trim())}</dd>
+            <dt>Tags</dt><dd><span class="ng-tags">${k.yt.tags.map(t => `<span>${esc(t)}</span>`).join("")}</span> ${copy(k.yt.tags.join(", "))}</dd>
+            <dt>Description</dt><dd>${copy(k.yt.description.trim())}<div class="ng-desc">${esc(k.yt.description.trim())}</div></dd>
           </dl>
           ${k.ytThumb && k.thumb ? `<p class="ng-yt-still">Player still: <img src="${base}${k.thumb}" alt="" loading="lazy"></p>` : ""}
         </details>`;
@@ -181,9 +183,18 @@ export function gridHtml(info, { built, commit, base = "" }) {
 .ng-yt dl { margin: 6px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 13px; line-height: 1.45; }
 .ng-yt dt { color: var(--ng-muted); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; padding-top: 2px; }
 .ng-yt dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+/* the map turns selection off page-wide; the YouTube text is there to be copied */
+.ng-yt dl { -webkit-user-select: text; user-select: text; cursor: auto; }
+.ng-copy { font: 700 12px/1 var(--ng-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ng-fg);
+  background: var(--ng-card); border: 1px solid var(--ng-line); border-radius: 999px; padding: 5px 10px 4px; cursor: pointer;
+  vertical-align: middle; -webkit-user-select: none; user-select: none; }
+.ng-copy:hover { border-color: var(--ng-accent); }
+.ng-copy:focus-visible { outline: 2px solid var(--ng-accent); outline-offset: 2px; }
+.ng-copy.is-done { color: #0b0c20; background: var(--ng-accent); border-color: transparent; }
+.ng-yt dd > .ng-copy:first-child { margin-bottom: 6px; }
 .ng-yt a { color: var(--ng-fg); }
 .ng-yt-title { font: 700 20px/1.1 var(--ng-display); }
-.ng-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.ng-tags { display: inline-flex; flex-wrap: wrap; gap: 4px; vertical-align: middle; }
 .ng-tags span { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--ng-card); border: 1px solid var(--ng-line); }
 .ng-desc { white-space: pre-wrap; background: var(--ng-card); border: 1px solid var(--ng-line); border-radius: 8px; padding: 10px 12px; color: var(--ng-fg); }
 .ng-yt-still { margin: 10px 0 0; font-size: 11.5px; color: var(--ng-muted); }
@@ -245,6 +256,21 @@ window.__narrTakes = ${JSON.stringify(info.map(k => ({ id: k.id, title: k.title 
   });
   // the back button doesn't start or pause the player underneath
   document.getElementById("narr-back").addEventListener("click", function (e) { e.stopPropagation(); });
+  // the YouTube panels: clicks and selections stay there (not the map's), Copy copies a field
+  document.querySelectorAll("#narr-grid .ng-yt").forEach(function (d) {
+    ["click", "mousedown", "pointerdown", "touchstart"].forEach(function (ev) { d.addEventListener(ev, function (e) { e.stopPropagation(); }); });
+  });
+  document.querySelectorAll("#narr-grid .ng-copy").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var text = b.getAttribute("data-copy"), done = function () {
+        b.textContent = "Copied"; b.classList.add("is-done");
+        setTimeout(function () { b.textContent = "Copy"; b.classList.remove("is-done"); }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () {});
+      else { var t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select();
+        try { document.execCommand("copy"); done(); } catch (e) {} t.remove(); }
+    });
+  });
 })();
 </script>
 <script>
