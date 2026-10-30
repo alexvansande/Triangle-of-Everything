@@ -103,6 +103,7 @@ The options are `--from`, `--to`, `--step`, `--names` (adds the names, for refer
 - **Laniakea** is five softened point masses. Replace it with Cosmicflows-4 (the plan's
   "supercluster visualizer").
 - **The CMB's view** is the author's pick (2026-10-29), from the spectrum page's View code:
-  `CLOUD_END` in `main.js`, without Earth at the centre. The grid fades out as the log scale
-  takes over (past 10²⁶ m); the frame-width counter there no longer means what it says.
+  `CLOUD_END` in `main.js`, without Earth at the centre. The grid stays upright on the screen (it
+  doesn't roll) and carries on to the end; past 10²⁶ m it and the counter give the frame
+  width, while the Cloud itself is on a log scale.
 - **Timing**: none yet. `window.zoom.set(s)` is the hook for a narration scene.

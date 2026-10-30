@@ -111,9 +111,10 @@ function render(t) {
     ctx.globalAlpha = 1;
     if (L.name === "earth") plates.draw(cam); // the image pass sits between the globe and the small world
   }
-  if (state.grid) drawGrid(cam);
-  // the names stay upright, where the turned picture puts them
+  // the grid and the names stay upright: the grid on the screen, the names where the
+  // turned picture puts them
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (state.grid) drawGrid({ ...cam, W, H, cx: W / 2, cy: H / 2 });
   if (state.labels) for (const [lx, ly, text, a] of labels) {
     if (a <= 0.02) continue;
     const x = W / 2 + rc * (lx - cx) - rs * (ly - cy), y = H / 2 + rs * (lx - cx) + rc * (ly - cy);
@@ -127,11 +128,12 @@ function render(t) {
   readout(s);
 }
 
-// powers-of-ten grid through the centre: each spacing fades in as it opens up and out as it fills the frame;
-// gone once the Cloud's log scale takes over, where it would no longer be to scale
+// powers-of-ten grid through the centre, upright on the screen (it doesn't roll with
+// the picture): each spacing fades in as it opens up and out as it fills the frame;
+// it carries on over the Cloud to the end, as the frame width's scale (the Cloud
+// itself is on a log scale there)
 function drawGrid(cam) {
-  const fade = 1 - ramp(cam.s, 25.9, 26.4);
-  if (fade <= 0) return;
+  const fade = 1;
   const { ctx, W, H, k, cx, cy, min, s, dpr } = cam;
   for (let g = Math.floor(s) - 2; g <= Math.floor(s) + 1; g++) {
     const d = 10 ** g * k, w = d / min, a = fade * 0.1 * ramp(w, 0.008, 0.05) * (1 - ramp(w, 0.55, 1.1));
