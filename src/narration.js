@@ -159,6 +159,10 @@ export async function startNarration(app) {
   const base = `${import.meta.env.BASE_URL}narration/${app.take}/`;
   const take = await fetch(base + "words.json").then(r => r.json());
   SCENE = (await SCENES[`./narration-scenes/${take.scene || app.take}.js`]()).default;
+  // &poster=1: the scene's thumbnail shot (scene `poster`: { at, cues }) in place of its cues, with
+  // no journal cover; scripts/narration-poster.mjs stills it at `at` seconds, without captions
+  if (params.has("poster") && SCENE.poster) SCENE = { ...SCENE, ...SCENE.poster.set, cues: SCENE.poster.cues, cover: undefined };   // set: scene fields for the shot
+  window.__narrPoster = params.has("poster") ? { at: SCENE.poster?.at ?? 5 } : undefined;
   const cues = resolveScene(take.words);
   const captions = CAPTIONS ? buildCaptions(take.words) : [];
   // The video runs on for the end credits (scene `credits`, default 3 s) after
@@ -1090,8 +1094,9 @@ export async function startNarration(app) {
     const tx = place === "left" ? x - R - 8 : place === "right" ? x + R + 8 : x;
     const ty = place === "below" ? y + R + 18 : place === "above" ? y - R - 9 : y + 4;
     const anchor = place === "left" ? "end" : place === "right" ? "start" : "middle";
-    el.append("text").attr("class", "narr-tag").attr("x", tx).attr("y", ty)
+    const tag = el.append("text").attr("class", "narr-tag").attr("x", tx).attr("y", ty)
       .attr("text-anchor", anchor).attr("fill", col).text(label);
+    if (h.labelSize) tag.style("font-size", `${h.labelSize}px`);   // px (a thumbnail's bigger tags)
   }
   /** A line drawing over an object's picture: { sketch: name, level: 0–2, draw?: s (0.9) },
    *  drawn as the Eiffel Tower's, traced from its picture (shares of the picture's square):
@@ -1413,6 +1418,7 @@ export async function startNarration(app) {
       const t = el.append("text").attr("class", "narr-linelabel")
         .attr("transform", `translate(${mid[0]},${mid[1]}) rotate(${a2}) translate(0,${-10 - 13 * (lines.length - 1)})`)
         .attr("text-anchor", "middle").attr("fill", col).attr("opacity", prog);
+      if (h.size) t.style("font-size", `${h.size}px`);   // px (a thumbnail's bigger labels)
       lines.forEach((ln, i) => t.append("tspan").attr("x", 0).attr("dy", i ? "1.2em" : 0).text(ln));
     }
   }
@@ -1504,9 +1510,12 @@ export async function startNarration(app) {
     el.append("polygon").attr("points", poly).attr("fill", col).attr("opacity", 0.13);
     if (h.label) {
       const plot = app.plot();
-      el.append("text").attr("class", "narr-sidelabel")
-        .attr("x", plot.x + plot.w * (h.side === "right" ? 0.78 : 0.22)).attr("y", plot.y + plot.h * (h.labelY ?? 0.3))
-        .attr("text-anchor", "middle").attr("fill", col).text(h.label.toUpperCase());
+      const lines = h.label.toUpperCase().split("\n"), x = plot.x + plot.w * (h.labelX ?? (h.side === "right" ? 0.78 : 0.22));
+      const t = el.append("text").attr("class", "narr-sidelabel")
+        .attr("x", x).attr("y", plot.y + plot.h * (h.labelY ?? 0.3))
+        .attr("text-anchor", "middle").attr("fill", col);
+      if (h.labelSize) t.style("font-size", `${h.labelSize}px`);
+      lines.forEach((s, i) => t.append("tspan").attr("x", x).attr("dy", i ? "1.1em" : 0).text(s));   // "\n" stacks it
     }
   }
   /** One side of a level of constant mass, across the screen: { side: "above"|"below",

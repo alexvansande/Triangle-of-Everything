@@ -43,6 +43,14 @@ export default {
   title: "Planets into stars",
   blurb: "Brown dwarfs, the main sequence, the life of a star, and what is left of it.",
   start: { r: 10.4, m: 31.6, span: 6 },
+  // the YouTube thumbnail (scripts/narration-poster.mjs): out on the whole stellar cycle, its
+  // paths lit and its stages named (the author, 2026-10-30)
+  poster: { at: 3, cues: [{ t: 0, cam: { r: 13.4, m: 33.6, span: 16 }, dur: 0.1, drift: 0, hl: [
+    ...[...CYCLE, HIGH].map(h => ({ ...h, draw: 0.01 })),
+    { text: "dead\nstars", at: [7.42, 30.93], size: 28, instant: true },
+    { text: "stars", at: [12.52, 31.08], size: 28, instant: true },
+    { text: "dying\nstars", at: [14.56, 35.6], size: 28, instant: true },
+    { text: "star\nnurseries", at: [18.35, 38.33], size: 28, instant: true }] }] },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Immersed",

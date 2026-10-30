@@ -10,7 +10,7 @@
 Reads video/youtube.json (titles, blurbs, music, privacy, schedule), builds each
 description from video/DESCRIPTION.md and the track's credit (video/music/CREDITS.md),
 uploads output/videos/<take>.mp4 with the YouTube Data API v3, adds it to the playlist,
-sets the take's still (public/narration/<take>/thumb.jpg) as the thumbnail and uploads
+sets the take's thumbnail (video/thumbnails/<take>.jpg, scripts/narration-poster.mjs) and uploads
 English captions made from the take's word timings. Uploaded IDs go to
 video/youtube-uploads.json, so a video is never uploaded twice (--force re-uploads).
 
@@ -224,7 +224,7 @@ def main():
         state[take] = {"id": vid, "title": v["title"], "uploadedAt": datetime.datetime.now().isoformat(timespec="seconds")}
         json.dump(state, open(STATE, "w"), indent=2)
         from googleapiclient.http import MediaFileUpload
-        thumb = os.path.join(ROOT, "public", "narration", take, "thumb.jpg")
+        thumb = os.path.join(ROOT, "video", "thumbnails", f"{take}.jpg")   # the scene's poster shot
         if os.path.exists(thumb):
             try:
                 yt.thumbnails().set(videoId=vid, media_body=MediaFileUpload(thumb, mimetype="image/jpeg")).execute()
