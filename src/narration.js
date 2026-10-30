@@ -566,7 +566,7 @@ export async function startNarration(app) {
   // Then it goes back the same way over `out`. A photo with `lens` on the same object,
   // timed inside the hold, lands on the grown picture (video/plans/visual-rules.md §3).
   // "fill": the object grows to 40% of the screen's short side.
-  // A photo cue with `dive: { in?, out?, grow?, photoAt?, under? }` is a whole dive in one cue: the
+  // A photo cue with `dive: { in?, out?, grow?, size?, photoAt?, under?, mirror? }` is a whole dive in one cue: the
   // dive starts at the cue, the photo fades in once everything behind has fully fallen
   // back (in + 0.25 s; or `photoAt` s after the cue, so it's already coming in during the
   // approach), holds `dur`, fades out, and then the dive unwinds over `out`.
@@ -579,11 +579,15 @@ export async function startNarration(app) {
     }),
     // `dive.under`: the dive unwinds behind its photo while it still fills the screen, so
     // the chart is back to normal by the time the photo fades (no zoom back out to watch)
+    // `dive.mirror`: the way out is the way in played backwards: the photo fades back into the
+    // picture as the dive unwinds (the author, 2026-10-30: "one continuous movement… then the
+    // same movement the other way"); pair it with a lens that doesn't fill and `photoAt`
+    // inside the approach, so the photo comes in as the object comes forward
     ...cues.filter(c => c.photo && c.dive).map(c => {
       const d = c.dive === true ? {} : c.dive, tin = d.in ?? DIVE_IN, tout = d.out ?? DIVE_OUT;
       const held = c.time + diveLead(c) + (c.dur ?? 6);
-      return { obj: c.obj, grow: d.grow, t0: c.time, tin, tout,
-        t1: d.under ? Math.max(c.time + tin, held - tout) : held + (c.fadeOut ?? PHOTO_OUT) };
+      return { obj: c.obj, grow: d.grow, size: d.size, t0: c.time, tin, tout,
+        t1: d.under ? Math.max(c.time + tin, held - tout) : held + (d.mirror ? 0 : c.fadeOut ?? PHOTO_OUT) };
     }),
   ];
   let dollyOn = false;
