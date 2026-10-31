@@ -10,7 +10,7 @@ const nucleolus=await data({left:568,top:587,width:95,height:95});
 const food=await data({left:293,top:415,width:120,height:120});
 const water=await data({left:818,top:680,width:140,height:140});
 // Generated image is appearance only; final contours come exclusively from SVG.
-const defs=`<pattern id="cyto-texture" width="150" height="190" patternUnits="userSpaceOnUse"><image href="${cytoplasm}" width="150" height="190"/></pattern>`;
+const defs=`<pattern id="cyto-texture" width="1440" height="1440" patternUnits="userSpaceOnUse"><image href="${cytoplasm}" width="1440" height="1440"/></pattern>`;
 s=s.replace('</defs>',defs+'</defs>');
 s=s.replace(/(<g id="cytoplasm"[^>]*>)[\s\S]*?<\/g>/,`$1<rect width="1440" height="1440" fill="url(#cyto-texture)" opacity=".62"/></g>`);
 let n=0;
