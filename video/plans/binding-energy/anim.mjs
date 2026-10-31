@@ -2,6 +2,7 @@
 // to the periodic table, rotated 180° so hydrogen sits at the bottom like on the chart.
 // Colours: slope of the binding curve, full spectrum (as binding-slope-spectrum.png).
 // Run: NODE_PATH=$(npm root -g) node anim.mjs   → table-morph.mp4
+// LONG=1: the 32-column long table (f-block inside rows 6–7), landscape → table-morph-long.mp4
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
@@ -26,7 +27,8 @@ const u = (v) => Math.max(-1, Math.min(1, v >= 0 ? Math.asinh(v / S0) / Math.asi
 const colU = (x) => { const c = d3.hsl(d3.interpolateTurbo(x >= 0 ? TOP - x * (TOP - 0.06) : TOP + -x * (0.96 - TOP))); c.s *= 0.15 + 0.85 * Math.min(1, Math.abs(x) / 0.8); return c.formatHex(); };
 const ink = (c) => (d3.lab(c).l > 62 ? "#111" : "#fff");
 
-const W = 1080, H = 1920, BG = "#06061a";
+const LONG = process.env.LONG === "1";
+const W = LONG ? 1920 : 1080, H = LONG ? 1080 : 1920, BG = "#06061a";
 const els = [];
 for (let z = 1; z < ELEMENTS_BY_Z.length; z++) {
   const [r, m] = pos.get(ELEMENTS_BY_Z[z]);
@@ -35,19 +37,22 @@ for (let z = 1; z < ELEMENTS_BY_Z.length; z++) {
 }
 // Chart frame: equal aspect, fitted to the middle of the screen
 const rx = d3.extent(els, (e) => e.r), my = d3.extent(els, (e) => e.m);
-const box = { x: 60, y: 300, w: W - 120, h: 1380 };
+const box = LONG ? { x: 60, y: 160, w: W - 120, h: 790 } : { x: 60, y: 300, w: W - 120, h: 1380 };
 const k = Math.min(box.w / (rx[1] - rx[0] + 0.15), box.h / (my[1] - my[0] + 0.15));
 const cr = (rx[0] + rx[1]) / 2, cm = (my[0] + my[1]) / 2;
 // Grid: rotated 180° (period 1 at the bottom, group 1 on the right), f-block on top
-const CELL = 56, gw = 18 * CELL, gx0 = (W - gw) / 2, gyBottom = 1260;
+const NC = LONG ? 32 : 18, CELL = LONG ? 56 : 56, gw = NC * CELL, gx0 = (W - gw) / 2, gyBottom = LONG ? 760 : 1260;
 for (const e of els) {
   e.ax = box.x + box.w / 2 + (e.r - cr) * k;
   e.ay = box.y + box.h / 2 - (e.m - cm) * k;
   e.ar = e.z <= 36 ? 15 : 11;
   const c = periodicCell(e.z);
-  const col = c.f == null ? c.group - 1 : c.f + 3;          // 0..17
-  const row = c.f == null ? c.period - 1 : c.period + 1.5;  // f rows above period 7
-  e.bx = gx0 + (17 - col) * CELL + CELL / 2;
+  // short: 0..17, f rows above period 7; long: s(2) + f(14) + d(10) + p(6) = 32 columns
+  const col = LONG ? (c.f == null ? (c.group <= 2 ? c.group - 1 : c.group + 13) : c.f + 2)
+                   : (c.f == null ? c.group - 1 : c.f + 3);
+  e.col32 = col;
+  const row = c.f == null || LONG ? c.period - 1 : c.period + 1.5;
+  e.bx = gx0 + (NC - 1 - col) * CELL + CELL / 2;
   e.by = gyBottom - row * CELL;
   e.br = CELL / 2 - 4;
   e.ink = ink(e.col);
@@ -56,9 +61,12 @@ const rows = new Map(), cols = new Map();
 const add = (mm, key, z) => (mm.get(key) || mm.set(key, []).get(key)).push(z);
 for (const e of els) {
   const c = periodicCell(e.z);
+  if (LONG) { add(rows, "p" + c.period, e.z); add(cols, "c" + e.col32, e.z); continue; }
   if (c.f == null) { add(rows, "p" + c.period, e.z); add(cols, "g" + c.group, e.z); }
   else { add(rows, "f" + c.period, e.z); add(cols, "f" + c.f, e.z); }
 }
+// long rows run in column order (the f-block spliced in after group 2)
+if (LONG) for (const zs of rows.values()) zs.sort((a, b) => els[a - 1].col32 - els[b - 1].col32);
 const lines = [...[...rows.values()].map((zs) => ({ zs, row: true })), ...[...cols.values()].map((zs) => ({ zs, row: false }))];
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
@@ -94,10 +102,10 @@ window.draw=(p)=>{ // p: 0 chart → 1 table
   const fa=Math.max(0,1-p*2.2), fb=Math.max(0,p*2.2-1.2);
   el("text",{x:60,y:120,"font-size":46,"font-weight":700,fill:"#fff"},"THE PERIODIC TABLE");
   const sub1=el("text",{x:60,y:175,"font-size":28,fill:"#ccd",opacity:fa},"as the chart draws it: size across, mass up");
-  el("text",{x:60,y:175,"font-size":28,fill:"#ccd",opacity:fb},"the usual table, turned upside down");
+  el("text",{x:60,y:175,"font-size":28,fill:"#ccd",opacity:fb},${JSON.stringify(LONG ? "the long table: lanthanides and actinides back in their rows, upside down" : "the usual table, turned upside down")});
   el("text",{x:60,y:215,"font-size":24,fill:"#99a",opacity:fb},"hydrogen at the bottom, heavy rows on top");
   // colour key
-  const ky=1800;
+  const ky=${LONG ? 1020 : 1800};
   el("text",{x:60,y:ky-40,"font-size":24,fill:"#ccd"},"colour: which way is downhill for the nucleus");
   const g=el("defs",{}); 
   s.lastChild.innerHTML='<linearGradient id="g">${d3.range(0, 41).map((i) => `<stop offset="${i * 2.5}%" stop-color="${colU(1 - i / 20)}"/>`).join("")}</linearGradient>';
@@ -126,6 +134,5 @@ for (const [sec, a, b] of seg) {
 }
 await browser.close();
 execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", String(FPS), "-i", `${FR}/f%04d.png`,
-  "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", SP + "/table-morph.mp4"]);
-execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", `${FR}/f0090.png`, "-update", "1", SP + "/table-morph-mid.png"]);
+  "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", SP + (LONG ? "/table-morph-long.mp4" : "/table-morph.mp4")]);
 console.log("frames", f);
