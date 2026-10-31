@@ -8,3 +8,7 @@
 # and only those stretches re-render, spliced into the last render (narration-render-partial.py).
 # A "# next: <take>" line renders that take before the others.
 short-03-stars
+# next: long-01-intro
+long-01-intro
+long-02-space
+long-03-small

@@ -39,8 +39,10 @@ const VB_X = FRAME.x0 - MARGIN, VB_W = FRAME.x1 - FRAME.x0 + 2 * MARGIN;
 const HEADER_H = 300;       // room above the figure for the paper's title block
 
 // figure px → data, for authoring anchors straight off the published raster
-const fr = (fx) => R_DOM[0] + (fx - FRAME.x0) * (R_DOM[1] - R_DOM[0]) / (FRAME.x1 - FRAME.x0);
-const fm = (fy) => M_DOM[1] - (fy - FRAME.y0) * (M_DOM[1] - M_DOM[0]) / (FRAME.y1 - FRAME.y0);
+// (the paper's frame, FRAME0: a 16:9 video's wider FRAME moved everything authored in figure px
+// towards the middle, the Milky Way's region past the black-hole line; the author, 2026-10-31)
+const fr = (fx) => R_DOM[0] + (fx - FRAME0.x0) * (R_DOM[1] - R_DOM[0]) / (FRAME0.x1 - FRAME0.x0);
+const fm = (fy) => M_DOM[1] - (fy - FRAME0.y0) * (M_DOM[1] - M_DOM[0]) / (FRAME0.y1 - FRAME0.y0);
 
 // ---------- physics (log10, cgs) ----------
 const BH_C = -SCHWARZSCHILD_C;      // black holes:   m − r = 27.83
@@ -131,8 +133,10 @@ const GRAVITY_MID = [674.5, 487.5], QUANTUM_MID = [566.5, 1474.5];
 const LABELS = [
   // big region words
   { t: "sub − Planckian unknown", at: [367, 586], size: 69.3, rot: -90, anchor: "middle", weight: 370 },
-  { t: "forbidden by", at: [652, 457], obj: GRAVITY_MID, size: 82.3, rot: -43.9, anchor: "middle", weight: 370 },
-  { t: "gravity", at: [697, 518], obj: GRAVITY_MID, size: 87.5, rot: -43.9, anchor: "middle", weight: 370 },
+  // wide: [r, m] where it goes in a 16:9 video's widened frame (classicWiden), the middle of the
+  // forbidden corner such a video frames (at the paper's place it's off the left edge there)
+  { t: "forbidden by", at: [652, 457], obj: GRAVITY_MID, wide: [-2, 38.5], size: 82.3, rot: -43.9, anchor: "middle", weight: 370 },
+  { t: "gravity", at: [697, 518], obj: GRAVITY_MID, wide: [-2, 38.5], size: 87.5, rot: -43.9, anchor: "middle", weight: 370 },
   { t: "black holes", at: [511, 907], size: 52, rot: ROT_BH, anchor: "middle", weight: 370 },
   { t: "Compton limit", at: [599, 1331], size: 55.4, rot: 43.9, anchor: "middle", weight: 370 },
   { t: "quantum", at: [594, 1450], obj: QUANTUM_MID, size: 86.9, rot: 43.9, anchor: "middle", weight: 370 },
@@ -314,6 +318,9 @@ const NAMED = OBJECTS.filter(o => !PAPER_NAMED.has(o.name))
   .sort((a, b) => (a.z || 3) - (b.z || 3));
 const NAME_MIN_K = [0, 2.5, 4, 6, 9, 14];   // by object z (1 = most notable)
 const NAME_SIZE = 26;
+// the text's size over the paper's (labels, object names, axis numbers and titles): the 16:9 videos
+// set it bigger (classicTextScale; the author, 2026-10-31: "all fonts in the classic chart should be bigger")
+let TEXT = 1;
 let placedNames = [];
 let currentK = 1;
 
@@ -346,7 +353,7 @@ function richText(sel, str, size) {
 
 // Text from a spec { t, at, size, rot, sx, sy, anchor, fill, upright }
 const textTransform = (d, x, y) => `translate(${x},${y})`
-  + (d.rot ? ` rotate(${d.rot})` : "") + (d.sx || d.sy ? ` scale(${d.sx || 1},${d.sy || 1})` : "");
+  + (d.rot ? ` rotate(${d.rot})` : "") + (d.sx || d.sy ? ` scale(${d.sx || 1},${d.sy || 1})` : "") + (TEXT !== 1 ? ` scale(${TEXT})` : "");
 function makeTexts(g, data) {
   return g.selectAll("text").data(data).join("text")
     .attr("data-key", d => d.t)
@@ -583,13 +590,17 @@ function render(t) {
 
   // labels & leaders, each riding rigidly with the point it names
   const off = (d) => {
-    const o = d.obj || (d.lead && d.lead[0]) || d.at, [x, y] = F(o);
+    const o = d.obj || (d.lead && d.lead[0]) || d.at;
+    let [x, y] = F(o);
+    if (d.wide && wideW > 0) { const [wx, wy] = P(d.wide); x += (wx - x) * wideW; y += (wy - y) * wideW; }
     return [x - o[0], y - o[1]];
   };
   const fadeK = (d) => d.maxK ? Math.max(0, Math.min(1, (d.maxK * 1.5 - k) / (d.maxK * 0.5))) : 1;
   const opacity = (d) => fadeK(d) * (d.fig3 === "out" ? 1 - fade : 1);
+  // (bigger text: a two-line label's lines move apart from their shared anchor as much)
+  const at = (d) => TEXT === 1 || !d.obj || d.lead ? d.at : d.at.map((v, i) => d.obj[i] + (v - d.obj[i]) * TEXT);
   layers.labels.selectAll("text")
-    .attr("transform", d => { const [ox, oy] = off(d); return textTransform(d, d.at[0] + ox, d.at[1] + oy); })
+    .attr("transform", d => { const [ox, oy] = off(d), a = at(d); return textTransform(d, a[0] + ox, a[1] + oy); })
     .style("opacity", d => opacity(d))
     .style("display", d => opacity(d) ? null : "none");
   layers.leaders.selectAll("line").data(LABELS.filter(d => d.lead)).join("line")
@@ -616,8 +627,8 @@ function render(t) {
 // ---------- object names (greedy, collision-free, laid out on zoom end) ----------
 function positionNames() {
   layers.names.selectAll("text").data(placedNames, d => d.o.name)
-    .attr("x", d => xs(d.o.logR) + (d.left ? -8 : 8))
-    .attr("y", d => ys(d.o.logM) + NAME_SIZE * 0.33);
+    .attr("x", d => xs(d.o.logR) + (d.left ? -8 : 8) * TEXT)
+    .attr("y", d => ys(d.o.logM) + NAME_SIZE * TEXT * 0.33);
 }
 
 function layoutNames() {
@@ -647,7 +658,7 @@ function layoutNames() {
     if (currentK < NAME_MIN_K[o.z || 3]) continue;
     const x = xs(o.logR), y = ys(o.logM);
     if (x < FRAME.x0 || x > FRAME.x1 || y < FRAME.y0 || y > FRAME.y1) continue;
-    const w = o.name.length * NAME_SIZE * 0.5, h = NAME_SIZE * 0.8;
+    const w = o.name.length * NAME_SIZE * TEXT * 0.5, h = NAME_SIZE * TEXT * 0.8;
     let left = x + 8 + w > FRAME.x1;
     let r = left ? [x - 8 - w, y - h / 2, x - 8, y + h / 2] : [x + 8, y - h / 2, x + 8 + w, y + h / 2];
     if (hit(r)) {
@@ -659,7 +670,7 @@ function layoutNames() {
     placedNames.push({ o, left });
   }
   layers.names.selectAll("text").data(placedNames, d => d.o.name).join("text")
-    .attr("font-size", NAME_SIZE)
+    .attr("font-size", NAME_SIZE * TEXT)
     .attr("text-anchor", d => d.left ? "end" : "start")
     .text(d => d.o.name);
   positionNames();
@@ -714,7 +725,7 @@ function tickStep(span, px, horizontal) {
     if (step < raw * (1 - 1e-9)) continue;
     const dec = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
     const chars = 3 + (dec ? dec + 1 : 0);
-    const need = horizontal ? chars * NUM_PX * 0.6 + 18 : NUM_PX * 1.25;
+    const need = horizontal ? chars * NUM_PX * TEXT * 0.6 + 18 : NUM_PX * TEXT * 1.25;
     if (px * step / span >= need) return step;
   }
   return 100 * p;
@@ -779,14 +790,16 @@ function renderAxes() {
   const inY = (y) => y >= FRAME.y0 - 0.5 && y <= FRAME.y1 + 0.5;
   const labY = (y) => y >= FRAME.y0 + 6 && y <= FRAME.y1 - 6;
   // vertical-axis numbers must not run into the rotated axis titles
-  const numW = (txt) => txt.length * NUM_PX * 0.5;
-  const clearOf = (x0_, x1_, y, [tx0, ty0, tx1, ty1]) => x1_ < tx0 || x0_ > tx1 || y + 16 < ty0 || y - 16 > ty1;
-  const TITLE_BOX = { mass: [mR(232), 773, mR(190), 1027], energy: [mL(1563), 742, mL(1517), 1062] };
+  const numW = (txt) => txt.length * NUM_PX * TEXT * 0.5;
+  const clearOf = (x0_, x1_, y, [tx0, ty0, tx1, ty1]) => x1_ < tx0 || x0_ > tx1 || y + 16 * TEXT < ty0 || y - 16 * TEXT > ty1;
+  // the rotated side titles' boxes, grown with the text about their middles
+  const grow = ([a, b, c, d]) => { const mx = (a + c) / 2, my = (b + d) / 2; return [mx + (a - mx) * TEXT, my + (b - my) * TEXT, mx + (c - mx) * TEXT, my + (d - my) * TEXT]; };
+  const TITLE_BOX = { mass: grow([mR(232), 773, mR(190), 1027]), energy: grow([mL(1563), 742, mL(1517), 1062]) };
   const MAJ = 12, MIN = 6, PW = FRAME.x1 - FRAME.x0, PH = FRAME.y1 - FRAME.y0;
   const lines = [], nums = [];
 
   // horizontal axes: bottom log radius [cm], top log radius [Mpc]
-  [[0, FRAME.y1, 1, 1718, "bottom"], [-LOG_MPC, FRAME.y0, -1, 113, "top"]].forEach(([off, y0_, dir, ny, side]) => {
+  [[0, FRAME.y1, 1, FRAME.y1 + (1718 - FRAME0.y1) * TEXT, "bottom"], [-LOG_MPC, FRAME.y0, -1, FRAME.y0 - (FRAME0.y0 - 113) * TEXT, "top"]].forEach(([off, y0_, dir, ny, side]) => {
     const T = ticks(xs.domain(), off, PW, true);
     T.min.forEach(t => { const x = xs(t.pos); if (inX(x)) lines.push([x, y0_, x, y0_ + dir * MIN, 1.6]); });
     T.maj.forEach(t => {
@@ -807,14 +820,14 @@ function renderAxes() {
       lines.push([x0_, y, x0_ + dir * MAJ, y, 2]);
       const txt = T.fmt(t.val), w = numW(txt);
       const [a, b] = anchor === "end" ? [nx - w, nx] : [nx, nx + w];
-      if (labY(y) && clearOf(a, b, y, box)) nums.push([nx, y + 16, txt, anchor, dir > 0 ? "right" : "left"]);
+      if (labY(y) && clearOf(a, b, y, box)) nums.push([nx, y + 16 * TEXT, txt, anchor, dir > 0 ? "right" : "left"]);
     });
   });
   layers.axes.selectAll("line").data(lines).join("line").attr("stroke", "#000")
     .attr("x1", d => d[0]).attr("y1", d => d[1]).attr("x2", d => d[2]).attr("y2", d => d[3])
     .attr("stroke-width", d => d[4]);
   layers.axes.selectAll("text").data(nums).join("text").attr("class", "cl-num")
-    .attr("font-size", NUM_PX)
+    .attr("font-size", NUM_PX * TEXT)
     .attr("x", d => d[0]).attr("y", d => d[1]).attr("text-anchor", d => d[3]).attr("data-side", d => d[4])
     .text(d => d[2]);
 
@@ -981,9 +994,22 @@ export function classicFullView() {
 // screen has beside it: the figure keeps its scale and place (the camera's span counts across
 // the screen, not the frame), and more of it shows to either side, its frame, axes, side titles
 // and legend moving out with the edges. 0 = the paper's frame.
-let frameExt = 0;
+/** Narration player (the 16:9 videos): the figure's text k times the paper's size. */
+export function classicTextScale(k) {
+  if (k === TEXT) return;
+  TEXT = k;
+  if (!svg) return;
+  layers.titles.selectAll("text").attr("transform", d => {
+    const dx = d.at[0] < FRAME0.x0 ? -frameExt : d.at[0] > FRAME0.x1 ? frameExt : 0;
+    return textTransform(d, d.at[0] + dx, d.at[1]);
+  });
+  render(d3.zoomTransform(svg.node()));
+  layoutNames();
+}
+let frameExt = 0, wideW = 0;
 export function classicWiden(w) {
   if (!svg) return;
+  wideW = Math.min(1, Math.max(0, w));
   const rect = svg.node().getBoundingClientRect();
   if (!rect.height) return;
   const VB_H = FIG_H + HEADER_H;

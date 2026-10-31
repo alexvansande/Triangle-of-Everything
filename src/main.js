@@ -3217,11 +3217,13 @@ function drawObjects() {
       .attr("class", "obj-label")
       .attr("data-label-slug", o => o.slug)
       .attr("font-family", "Inter, sans-serif").attr("font-weight", 600)
-      .attr("font-size", fscale(10)).attr("letter-spacing", "0.5px")
+      .attr("letter-spacing", "0.5px")
       .attr("paint-order", "stroke")
       .attr("stroke", "rgba(6,6,26,0.85)")
       .attr("stroke-width", 3).attr("stroke-linejoin", "round")
       .text(o => o.name))
+    // (every redraw: a label made before the font size changed, a video's, keeps up)
+    .attr("font-size", fscale(10))
     .attr("transform", o => parallaxTranslation(o, depthPoint(o, PARALLAX.labels)))
     .attr("x", o => o.sx + o._labelPos.dx)
     .attr("y", o => o.sy + o._labelPos.dy)
@@ -8714,6 +8716,11 @@ if (_ogShot) {
       bgNoiseTime, bgNoiseSettle, bgNoisePending,
       bgNoiseStatus: () => ({ wanted: _bgNoiseWanted, shown: _bgNoiseShown, failed: _bgNoiseFailed, lost: _bgNoiseLost }),
       /** Object labels on or off (videos: a quiet closing shot). */
+      /** Text size on the chart (the settings' "Font size" multiplier): the 16:9 videos double it. */
+      setFontScale(k = 1) {
+        if (_fontScale === k) return;
+        _fontScale = k; document.documentElement.style.setProperty("--font-scale", k); redraw();
+      },
       setLabels(on = true) {
         // off also hides the chart's other text (band and path names) for a clean shot
         document.body.classList.toggle("narr-no-text", !on);

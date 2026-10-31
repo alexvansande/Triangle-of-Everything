@@ -137,6 +137,7 @@ export function gridHtml(info, { built, commit, base = "" }) {
 <div id="narr-video" hidden role="dialog" aria-label="Rendered video">
   <video id="nv-player" controls playsinline preload="metadata"></video>
   <button type="button" id="nv-back">All videos</button>
+  <button type="button" id="nv-full" hidden>Full screen</button>
   <a id="nv-live" href="#">Live map</a>
 </div>
 <style>
@@ -239,14 +240,16 @@ export function gridHtml(info, { built, commit, base = "" }) {
 #narr-video { position: fixed; inset: 0; z-index: 100002; background: #000; display: flex; align-items: center; justify-content: center; }
 #narr-video[hidden] { display: none; }
 #nv-player { width: 100%; height: 100%; object-fit: contain; background: #000; }
-#nv-back, #nv-live, #narr-to-video { position: fixed; z-index: 100003; top: calc(env(safe-area-inset-top, 0px) + 10px);
+#nv-back, #nv-live, #nv-full, #narr-to-video { position: fixed; z-index: 100003; top: calc(env(safe-area-inset-top, 0px) + 10px);
   font: 700 15px/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
   color: #fff; background: rgba(7, 7, 28, 0.82); border: 1px solid rgba(255, 213, 79, 0.7); border-radius: 999px;
   padding: 9px 14px 8px 12px; text-decoration: none; cursor: pointer; }
 #nv-back { left: 10px; }
 #nv-back::before { content: "‹ "; color: #ffd54f; }
 #nv-live, #narr-to-video { right: 10px; padding-left: 14px; }
-#narr-to-video[hidden], #nv-live[hidden] { display: none; }
+#narr-to-video[hidden], #nv-live[hidden], #nv-full[hidden] { display: none; }
+/* full screen: some phone browsers show no full-screen button on an inline video (the author, 2026-10-31) */
+#nv-full { left: 50%; transform: translateX(-50%); padding-left: 14px; }
 </style>
 <script>
 window.__narrTakes = ${JSON.stringify(shorts.map(k => ({ id: k.id, title: k.title }))).replace(/</g, "\\u003c")};
@@ -355,6 +358,16 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
   });
   player.addEventListener("ended", function () { if (queue.length) open(queue[0], queue.slice(1)); });
   document.getElementById("nv-back").addEventListener("click", close);
+  // the page's own full-screen button (iPhone: the video's native player, webkitEnterFullscreen);
+  // a 16:9 video turns the phone sideways where the browser allows it
+  var full = document.getElementById("nv-full");
+  full.hidden = !(player.requestFullscreen || player.webkitRequestFullscreen || player.webkitEnterFullscreen);
+  full.addEventListener("click", function () {
+    var go = player.requestFullscreen || player.webkitRequestFullscreen;
+    var landscape = function () { if (player.videoWidth > player.videoHeight && screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(function () {}); };
+    if (go) { var p = go.call(player); if (p && p.then) p.then(landscape).catch(function () { if (player.webkitEnterFullscreen) player.webkitEnterFullscreen(); }); else landscape(); }
+    else if (player.webkitEnterFullscreen) player.webkitEnterFullscreen();
+  });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !box.hidden) close(); });
   live.addEventListener("click", function () { put(KEY, "live"); });
 

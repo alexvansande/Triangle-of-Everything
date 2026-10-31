@@ -29,7 +29,7 @@ import {
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
   RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES, PHOTON_LAMBDA_OFFSET,
 } from "./data.js";
-import { narrClassic, classicFrameClient, classicAxisNumbers, classicRect, classicScreen, classicFullView, classicWiden } from "./classic.js";
+import { narrClassic, classicFrameClient, classicAxisNumbers, classicRect, classicScreen, classicFullView, classicWiden, classicTextScale } from "./classic.js";
 // Scene scripts, one per file in ./narration-scenes/ (lazy chunks)
 const SCENES = import.meta.glob("./narration-scenes/*.js");
 let SCENE;
@@ -229,6 +229,11 @@ export async function startNarration(app) {
   // fits, with more around it either side (a cue's camWide: its own framing instead)
   const WIDE = stage === "landscape" ? 16 / 9 : 1;
   if (stage !== "none" && (RENDER || !app.isMobile())) app.setStage(stage === "landscape" ? "video" : stage);
+  // 16:9: the labels twice the size (the chart's names and the narration's tags, rulers and axis
+  // names): on a phone they weren't legible, while the pictures were fine (the author, 2026-10-31);
+  // the classic figure's text grows too (scene `textScale`, `classicText`)
+  const TEXT = WIDE !== 1 ? SCENE.textScale ?? 2 : 1, CLASSIC_TEXT = WIDE !== 1 ? SCENE.classicText ?? 1.6 : 1;
+  if (TEXT !== 1) app.setFontScale?.(TEXT);
   app.prepare();
   // the paths' moving dots: as big as the catalogue dust (1.15 px), brighter
   // than in the app so they still read in a phone video
@@ -566,6 +571,7 @@ export async function startNarration(app) {
   // ---------- DOM ----------
   const layer = document.createElement("div");
   layer.id = "narr-layer";
+  if (TEXT !== 1) layer.style.setProperty("--narr-text", TEXT);
   if (!RENDER) layer.classList.add("live");     // the player's own UI (renders have none)
   const track = SCENE.backing && (typeof SCENE.backing === "string" ? SCENE.backing : SCENE.backing.track);
   layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-clips"></div><div id="narr-cover" hidden><img alt=""></div><div id="narr-photo"><div class="np-imgs"></div><div class="np-cap"></div></div><div id="narr-caption"></div>` + creditsHTML(track) +
@@ -1249,9 +1255,9 @@ export async function startNarration(app) {
         .attr("stroke-linejoin", "round").attr("pathLength", 1).attr("stroke-dasharray", `${k} 1`));
       const lab = h.labels?.[i];
       if (lab) {
-        const a = fresh ? clamp01((age - 0.5) / 0.5) : 1, tx = cx + dx, ty = baseY + 22;
+        const a = fresh ? clamp01((age - 0.5) / 0.5) : 1, tx = cx + dx, ty = baseY + 22 * TEXT;
         g.append("text").attr("class", "narr-sketch-num").attr("x", tx).attr("y", ty).attr("text-anchor", "middle").attr("opacity", a).text(lab[0]);
-        if (lab[1]) g.append("text").attr("class", "narr-sketch-sub").attr("x", tx).attr("y", ty + 17).attr("text-anchor", "middle").attr("opacity", a).text(lab[1]);
+        if (lab[1]) g.append("text").attr("class", "narr-sketch-sub").attr("x", tx).attr("y", ty + 17 * TEXT).attr("text-anchor", "middle").attr("opacity", a).text(lab[1]);
       }
     }
   }
@@ -1386,10 +1392,10 @@ export async function startNarration(app) {
           const [x0, yTop] = M(0.5, shape.top), [, yBot] = M(0.5, shape.bottom), [xL] = M(shape.left, 0.5), [xR] = M(shape.right, 0.5);
           const side = place === "left" || place === "right";
           const tx = place === "left" ? xL - 8 : place === "right" ? xR + 8 : x0;
-          const ty = place === "above" ? yTop - 8 - (sh.label[1] ? 17 : 0) : place === "below" ? yBot + 22 : cy - (sh.label[1] ? 4 : -5);
+          const ty = place === "above" ? yTop - 8 - (sh.label[1] ? 17 * TEXT : 0) : place === "below" ? yBot + 22 * TEXT : cy - (sh.label[1] ? 4 : -5);
           const anchor = place === "left" ? "end" : place === "right" ? "start" : "middle";
           g.append("text").attr("class", "narr-sketch-num").attr("x", tx).attr("y", ty).attr("text-anchor", anchor).attr("opacity", a).text(sh.label[0]);
-          if (sh.label[1]) g.append("text").attr("class", "narr-sketch-sub").attr("x", tx).attr("y", ty + 17)
+          if (sh.label[1]) g.append("text").attr("class", "narr-sketch-sub").attr("x", tx).attr("y", ty + 17 * TEXT)
             .attr("text-anchor", side ? anchor : "middle").attr("opacity", a).text(sh.label[1]);
         }
       }
@@ -2203,6 +2209,7 @@ export async function startNarration(app) {
     }
     return o * (1 - clamp01(classicOpacity(t) * 2)) * (1 - (specFrame ? specFrame(t).show : 0));
   }
+  // (TEXT: the 16:9 videos' bigger labels; the rulers space them as much)
   function drawEnergy(t) {
     const o = energyOpacity(t);
     gEnergy.attr("opacity", o).style("display", o > 0.01 ? null : "none");
@@ -2210,7 +2217,7 @@ export async function startNarration(app) {
     gEnergy.selectAll("*").remove();
     const SW = layer.clientWidth, SH = layer.clientHeight;
     const yR = Math.round(SH * (SCENE.rulerY ?? RULER_Y)), xL = SW - massAxisX(SW);
-    gEnergy.append("rect").attr("x", -(xL + 54)).attr("y", 0).attr("width", xL + 54).attr("height", SH)
+    gEnergy.append("rect").attr("x", -(xL + 54 * TEXT)).attr("y", 0).attr("width", xL + 54 * TEXT).attr("height", SH)
       .attr("transform", "scale(-1,1)").attr("fill", "url(#narr-fade-v)");
     gEnergy.append("line").attr("x1", xL).attr("x2", xL).attr("y1", 0).attr("y2", SH).attr("class", "narr-axis");
     const mppd = Math.abs(sy(1) - sy(0)), iy = (y) => (y - sy(0)) / (sy(1) - sy(0));
@@ -2219,10 +2226,10 @@ export async function startNarration(app) {
     for (const tk of fillTicks(mLo + EV_PER_G, mHi + EV_PER_G, mppd, ENERGY_BASES)) {
       const y = sy(tk.at - EV_PER_G);
       if (y < SH * 0.1 || y > yR - 24) continue;
-      if (placedY.some(p => Math.abs(p - y) < 17)) continue;
+      if (placedY.some(p => Math.abs(p - y) < 17 * TEXT)) continue;
       placedY.push(y);
       gEnergy.append("line").attr("x1", xL - (tk.minor ? 3 : 5)).attr("x2", xL + (tk.minor ? 3 : 5)).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
-      gEnergy.append("text").attr("x", xL + 8).attr("y", y + 3.5).attr("text-anchor", "start")
+      gEnergy.append("text").attr("x", xL + 8).attr("y", y + 3.5 * TEXT).attr("text-anchor", "start")
         .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
     }
     gEnergy.append("text").attr("transform", `translate(${xL - 7},${SH * 0.16}) rotate(-90)`).attr("text-anchor", "end")
@@ -2236,45 +2243,45 @@ export async function startNarration(app) {
     const SW = layer.clientWidth, SH = layer.clientHeight;
     const yR = Math.round(SH * (SCENE.rulerY ?? RULER_Y)), xR = massAxisX(SW);
     // horizontal: size
-    gUnits.append("rect").attr("x", 0).attr("y", yR - 16).attr("width", SW).attr("height", 34)
+    gUnits.append("rect").attr("x", 0).attr("y", yR - 16 * TEXT).attr("width", SW).attr("height", 34 * TEXT)
       .attr("fill", "url(#narr-fade-h)");
     gUnits.append("line").attr("x1", 0).attr("x2", SW).attr("y1", yR).attr("y2", yR).attr("class", "narr-axis");
     const placed = [];
     const runits = [...RADIUS_UNITS].filter(u => !/Planck|Hubble/.test(u.label)).sort((a, b) => a.row - b.row);
     for (const u of runits) {
       const x = sx(u.logR);
-      const w = u.label.length * 5.6 + 10;
+      const w = u.label.length * 5.6 * TEXT + 10;
       if (x < 6 || x > SW - 6) continue;
       if (placed.some(p => Math.abs(p - x) < w)) continue;
       placed.push(x);
       gUnits.append("line").attr("x1", x).attr("x2", x).attr("y1", yR - 5).attr("y2", yR + 5).attr("class", "narr-tick");
-      gUnits.append("text").attr("x", x).attr("y", yR + 15).attr("text-anchor", "middle").attr("class", "narr-unit").text(u.label);
+      gUnits.append("text").attr("x", x).attr("y", yR + 6 + 9 * TEXT).attr("text-anchor", "middle").attr("class", "narr-unit").text(u.label);
     }
     // the ruler reads diameter: the label at logR is for 2r
     const rppd = Math.abs(sx(1) - sx(0)), ix = (x) => (x - sx(0)) / (sx(1) - sx(0));
     const rlo = ix(0) + W_OFF, rhi = ix(SW) + W_OFF;
     for (const tk of fillTicks(Math.min(rlo, rhi), Math.max(rlo, rhi), rppd, SIZE_BASES)) {
-      const x = sx(tk.at - W_OFF), w = tk.label.length * 5.6 + 10;
+      const x = sx(tk.at - W_OFF), w = tk.label.length * 5.6 * TEXT + 10;
       if (x < 6 || x > SW - 6) continue;
       if (placed.some(p => Math.abs(p - x) < w)) continue;
       placed.push(x);
       gUnits.append("line").attr("x1", x).attr("x2", x).attr("y1", yR - (tk.minor ? 3 : 5)).attr("y2", yR + (tk.minor ? 3 : 5)).attr("class", "narr-tick");
-      gUnits.append("text").attr("x", x).attr("y", yR + 15).attr("text-anchor", "middle")
+      gUnits.append("text").attr("x", x).attr("y", yR + 6 + 9 * TEXT).attr("text-anchor", "middle")
         .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
     }
     gUnits.append("text").attr("x", SW - 8).attr("y", yR - 7).attr("text-anchor", "end").attr("class", "narr-axname").text("SIZE →");
     // vertical: mass, on the right as in the map (the left is kept for energy and temperature)
-    gUnits.append("rect").attr("x", xR - 54).attr("y", 0).attr("width", SW - xR + 54).attr("height", SH).attr("fill", "url(#narr-fade-v)");
+    gUnits.append("rect").attr("x", xR - 54 * TEXT).attr("y", 0).attr("width", SW - xR + 54 * TEXT).attr("height", SH).attr("fill", "url(#narr-fade-v)");
     gUnits.append("line").attr("x1", xR).attr("x2", xR).attr("y1", 0).attr("y2", SH).attr("class", "narr-axis");
     const placedY = [];
     for (const u of MASS_UNITS) {
       if (/\/c²|Planck|electron|proton/.test(u.label)) continue;
       const y = sy(u.logM);
       if (y < SH * 0.1 || y > yR - 24) continue;
-      if (placedY.some(p => Math.abs(p - y) < 17)) continue;
+      if (placedY.some(p => Math.abs(p - y) < 17 * TEXT)) continue;
       placedY.push(y);
       gUnits.append("line").attr("x1", xR - 5).attr("x2", xR + 5).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
-      gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5).attr("text-anchor", "end").attr("class", "narr-unit").text(u.label);
+      gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5 * TEXT).attr("text-anchor", "end").attr("class", "narr-unit").text(u.label);
     }
     const mppd = Math.abs(sy(1) - sy(0)), iy = (y) => (y - sy(0)) / (sy(1) - sy(0));
     const mA = iy(SH * 0.1), mB = iy(yR - 24);
@@ -2289,10 +2296,10 @@ export async function startNarration(app) {
     for (const tk of massTicks) {
       const y = sy(tk.at);
       if (y < SH * 0.1 || y > yR - 24) continue;
-      if (placedY.some(p => Math.abs(p - y) < 17)) continue;
+      if (placedY.some(p => Math.abs(p - y) < 17 * TEXT)) continue;
       placedY.push(y);
       gUnits.append("line").attr("x1", xR - (tk.minor ? 3 : 5)).attr("x2", xR + (tk.minor ? 3 : 5)).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
-      gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5).attr("text-anchor", "end")
+      gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5 * TEXT).attr("text-anchor", "end")
         .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
     }
     gUnits.append("text").attr("transform", `translate(${xR + 13},${SH * 0.16}) rotate(-90)`).attr("text-anchor", "end")
@@ -2509,6 +2516,7 @@ export async function startNarration(app) {
     const { view, key } = camera(t);
     const co = classicOpacity(t);
     classicView = co > 0 ? coverView(t) || view : null;
+    if (co > 0 && CLASSIC_TEXT !== 1) classicTextScale(CLASSIC_TEXT);
     narrClassic(co, classicView, classicParts(t));
     // a 16:9 video can open the figure's frame sideways (scene `classicWide`: [from, to] s)
     if (co > 0 && SCENE.classicWide) classicWiden(smooth(clamp01((t - SCENE.classicWide[0]) / (SCENE.classicWide[1] - SCENE.classicWide[0]))));
@@ -2844,11 +2852,11 @@ body.narrating g.axis-l, body.narrating g.axis-r, body.narrating g.axis-t, body.
 body.narrating .minimap-group, body.narrating #keyhint, body.narrating #readout { display: none !important; }
 #narr-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 #narr-svg text { font-family: Inter, system-ui, sans-serif; paint-order: stroke; stroke: rgba(0,0,0,0.85); stroke-width: 3px; stroke-linejoin: round; }
-.narr-tag { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; }
-#narr-svg text.narr-sketch-num { font-size: 15px; font-weight: 700; fill: #fff; letter-spacing: 0.03em; }
-#narr-svg text.narr-sketch-sub { font-size: 11.5px; font-weight: 600; fill: rgba(235,238,255,0.8); letter-spacing: 0.05em; }
-#narr-svg text.narr-guide { font-size: 11px; font-weight: 600; fill: #e8ecff; letter-spacing: 0.03em; }
-.narr-cand { font-size: 15px; }
+.narr-tag { font-size: calc(11.5px * var(--narr-text, 1)); font-weight: 700; letter-spacing: 0.08em; }
+#narr-svg text.narr-sketch-num { font-size: calc(15px * var(--narr-text, 1)); font-weight: 700; fill: #fff; letter-spacing: 0.03em; }
+#narr-svg text.narr-sketch-sub { font-size: calc(11.5px * var(--narr-text, 1)); font-weight: 600; fill: rgba(235,238,255,0.8); letter-spacing: 0.05em; }
+#narr-svg text.narr-guide { font-size: calc(11px * var(--narr-text, 1)); font-weight: 600; fill: #e8ecff; letter-spacing: 0.03em; }
+.narr-cand { font-size: calc(15px * var(--narr-text, 1)); }
 .narr-hub { font-size: 30px; letter-spacing: 0.06em; }
 body.narr-no-text #chart text { visibility: hidden; }
 /* a cue's focus: every other object fades (pictures, dots, shadows, names, catalogue dust) */
@@ -2859,18 +2867,18 @@ body.narr-obj-focus #chart :is(.dust-layer, g.dust-picture, .dust-shadows, .dust
 body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.axis-label):not(.axis-title):not(.axis-subtitle):not(.axis-unit-link) {
   /* multiplies with each label's own opacity, so faint ones never brighten mid-fade */
   fill-opacity: calc(1 - var(--narr-label-fade, 1)) !important; stroke-opacity: calc(1 - var(--narr-label-fade, 1)) !important; }
-#narr-svg text.narr-note { font-size: 12.5px; font-weight: 500; letter-spacing: 0.04em; fill: rgba(235,238,255,0.9); stroke-width: 3px; }
+#narr-svg text.narr-note { font-size: calc(12.5px * var(--narr-text, 1)); font-weight: 500; letter-spacing: 0.04em; fill: rgba(235,238,255,0.9); stroke-width: 3px; }
 #narr-svg text.narr-title { font-family: "Barlow Condensed", "Arial Narrow", sans-serif !important; font-size: 42px; font-weight: 700;
   letter-spacing: 0.04em; fill: #ffd54f; stroke: rgba(0,0,0,0.9); stroke-width: 6px; }
-.narr-linelabel { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; }
-.narr-axislabel { font-family: "Barlow Condensed", Inter, sans-serif !important; font-size: 22px; font-weight: 700; letter-spacing: 0.12em; }
-.narr-sidelabel { font-size: 15px; font-weight: 800; letter-spacing: 0.22em; }
-.narr-sidenote { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; }
+.narr-linelabel { font-size: calc(11px * var(--narr-text, 1)); font-weight: 700; letter-spacing: 0.18em; }
+.narr-axislabel { font-family: "Barlow Condensed", Inter, sans-serif !important; font-size: calc(22px * var(--narr-text, 1)); font-weight: 700; letter-spacing: 0.12em; }
+.narr-sidelabel { font-size: calc(15px * var(--narr-text, 1)); font-weight: 800; letter-spacing: 0.22em; }
+.narr-sidenote { font-size: calc(12px * var(--narr-text, 1)); font-weight: 600; letter-spacing: 0.04em; }
 .narr-axis { stroke: rgba(255,255,255,0.45); stroke-width: 1; }
 .narr-tick { stroke: rgba(255,255,255,0.9); stroke-width: 1.2; }
-.narr-unit { fill: rgba(255,255,255,0.92); font-size: 9.5px; font-weight: 600; }
-.narr-unit-minor { fill: rgba(255,255,255,0.6); font-size: 8.5px; font-weight: 500; }
-.narr-axname { fill: rgba(255,255,255,0.6); font-size: 9px; font-weight: 800; letter-spacing: 0.2em; }
+.narr-unit { fill: rgba(255,255,255,0.92); font-size: calc(9.5px * var(--narr-text, 1)); font-weight: 600; }
+.narr-unit-minor { fill: rgba(255,255,255,0.6); font-size: calc(8.5px * var(--narr-text, 1)); font-weight: 500; }
+.narr-axname { fill: rgba(255,255,255,0.6); font-size: calc(9px * var(--narr-text, 1)); font-weight: 800; letter-spacing: 0.2em; }
 @font-face { font-family: "Barlow Condensed"; font-weight: 700; font-display: block;
   src: url("${import.meta.env.BASE_URL}fonts/barlow-condensed-700-latin.woff2") format("woff2"); }
 #narr-caption { position: absolute; left: 6%; right: 6%; bottom: 8.5%; text-align: center; pointer-events: none;
