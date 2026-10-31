@@ -196,6 +196,13 @@ nucleon). So fusion gives energy only up to iron, and fission only down to iron.
 - The picture: `video/plans/binding-energy/binding-periodic.png`, the periodic table as the
   chart draws it, coloured by binding energy per nucleon (AME2020 via IAEA; the script to
   redraw it is next to it).
+- **What iron is the "zero" of** (the author's question, 2026-10-31): not of the binding energy,
+  which peaks there, but of its *slope*: iron is the top of the hill, or seen as mass per nucleon,
+  the bottom of the valley. Nucleons in iron are the lightest nucleons anywhere: about 0.9% lighter
+  than free protons and neutrons. Any reaction that moves nuclei toward iron loses mass, and that
+  mass comes out as energy (E = mc²). From either side it's downhill to iron, and from iron every
+  way is uphill. Suggested line: *"Iron is the bottom of the valley. Its protons and neutrons weigh
+  less than anyone else's, so whatever you do to it, fuse it or split it, you have to pay."*
 - Precision: nickel-62 edges iron-56 on binding per nucleon (8.7945 vs 8.7904 MeV); iron-56 has
   the least *mass* per nucleon. Say "iron" freely; just don't say "the most tightly bound
   nucleus" without "almost".
