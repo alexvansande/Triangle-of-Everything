@@ -109,7 +109,7 @@ Top moments, the ones worth a beat in a video:
    minutes; inside a nucleus the strong force protects it, so it lasts forever.
 4. **Iron**: the strong force against the electric push, peak of the match. Past it, the electric
    push slowly wins, until the heaviest elements tear themselves apart.
-5. **Atoms round off at a few hundred km** (the potato line): gravity's first goal against
+5. **Bodies round off at a few hundred km** (the potato line): gravity's first goal against
    chemistry, after everything below was held by electromagnetism.
 6. **Jupiter turn**: gravity crushes atoms, and the referee (Pauli) stops it. Planets can't grow.
 7. **Ignition, the team play** (~0.08 Suns): all four together. Gravity squeezes, the strong force
