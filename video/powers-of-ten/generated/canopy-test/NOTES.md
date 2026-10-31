@@ -569,3 +569,24 @@ the established camera naturally sees them. Removed the now offscreen Clouds
 preset and moved the Local Group stop to23. Tests enforce the unchanged interior
 sightline rather than requiring the camera to force galaxies into both crops.
 This supersedes the camera/framing paragraph above.
+
+## Continuous red CMB sphere · 2026-10-31
+
+Replaced the spectrum iframe's glowing CMB points with `cmb-sphere.js`, a
+ray-intersected unit sphere carrying the existing scalar Planck SMICA R3 map
+(`/spectrum/sky-spectrum/cmb.png`; built by `build-sky-spectrum.mjs`). The shader
+maps scalar temperature contrast monotonically through dark crimson, red and
+pale coral. This is an illustrative false-colour palette, not optical emission.
+No new synthetic surface noise or AI alteration is applied to the data.
+The native map is1024×512; its angular resolution is not increased by rendering
+larger output frames. The renderer uses linear filtering and a wrapped longitude.
+
+The existing25.9–26.6 cosmic handoff, logarithmic inside-to-outside pullback,
+46billion-light-year radius,78% final screen fill, camera basis and global roll
+are retained. Drawing the far wall throughout the crossing avoids changing to
+the opposite hemisphere's texture when leaving the shell. Mild exterior limb
+falloff makes its silhouette legible without modelling a sunlit planet. The
+Hubble14.4/46 radius comparison and optional labels remain. The old spectrum
+iframe stays hidden and navigates to about:blank; no duplicate point shell draws.
+Checked the interior and final exterior views in the viewer; no WebGL warnings
+or errors. Syntax checks pass for the shader module and integrated runtime.

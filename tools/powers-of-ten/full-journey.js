@@ -1,3 +1,4 @@
+import {cmbSphere} from './cmb-sphere.js';
 import {atmosphereLayer} from "./atmosphere.js";
 import {distanceLabel,readableNumber} from "./distance-labels.js";
 import { drawScaleOverlay } from './scale-overlay.js';
@@ -10,7 +11,7 @@ import { catalogueInsects } from './canopy-insects.js';
 // metres, across the stage's shorter side), and every layer drawn from it.
 // The centre never moves: a hydrogen atom in a DNA base pair, in an amoeba, in a
 // drop of dew on a ladybug on the General Sherman tree. At the top the spectrum
-// page's Cloud (public/spectrum, ?bare=1) takes over for the microwave sky.
+// a red Planck-map sphere takes over for the microwave sky.
 //   ?s=  ?grid=0  ?labels=0  ?ui=0  ?stage=9x16|16x9|1x1  ?plates=1 (use video/powers-of-ten/plates/)  ?photos=0 (leave out the real photos, tree to globe)  ?crossings=0  ?roll=0
 import { ramp, clamp, LY, AU, cameraAt, perspAt } from "./math.js";
 import { smallLayers } from "./small.js";
@@ -34,6 +35,8 @@ if (q.get("ui") === "0") document.body.classList.add("bare");
 
 const stage = document.getElementById("stage"), canvas = document.getElementById("view"), ctx = canvas.getContext("2d");
 const frame = document.getElementById("cloud");
+frame.style.display="none";frame.src="about:blank";
+const cmb=cmbSphere();
 
 const atmosphere=atmosphereLayer();
 const small = await smallLayers();
@@ -60,37 +63,15 @@ const layers = [...space, ...macro.layers, ...micro, ...small.reverse(), crossin
 // (?roll=0: none, for exporting frames north up)
 const ROLL = q.get("roll") === "0" ? 0 : 5 * Math.PI / 180; // per decade, anticlockwise as we zoom out
 
-// ---------- the spectrum Cloud, for the last decades ----------
-// on its linear radius scale (the CMB at radius1),
-// the whole spectrum bar in its light, the CMB's light alone (the distance window
-// from 20 Gly: the zoom has already shown the Galaxy and the galaxies), each dot
-// with a glow: the camera flies backwards and turns, so the CMB comes past it from
-// behind, and settles on the author's view (2026-10-29)
-const CLOUD_END = { unit: -10, c: 11.3, s: 11.3, yaw: 0.402, pitch: 0.389, dlo: 10.3, dhi: 11, glow: 1, centre: false };
-// the camera sits 3.2 / zoom from the centre; it starts just inside the Milky Way's
-// shell (radius ~0.7 on this scale) and ends where the CMB's sphere spans 78% of the
-// frame's shorter side, as in the author's view; the Cloud's field of view is 40° tall
-const CLOUD_FLY = [25.9, S_MAX], DIST0 = 0.68, FILL = 0.78;
-// the Cloud's frame is a square as wide as the stage's diagonal, so it can roll with
-// the picture without showing its corners
-let frameSize = "";
-function driveCloud(s, W, H, Dg, roll, dpr) {
-  const a = ramp(s, 25.9, 26.6);
-  frame.style.opacity = a;
-  frame.style.visibility = a > 0 ? "visible" : "hidden";
-  const size = `${Dg / dpr}px/${(W - Dg) / 2 / dpr}px/${(H - Dg) / 2 / dpr}px`;
-  if (size !== frameSize) {
-    frameSize = size;
-    Object.assign(frame.style, { inset: "auto", width: `${Dg / dpr}px`, height: `${Dg / dpr}px`, left: `${(W - Dg) / 2 / dpr}px`, top: `${(H - Dg) / 2 / dpr}px` });
-  }
-  frame.style.transform = `rotate(${roll}rad)`;
-  const ctl = frame.contentWindow?.spectrumControl;
-  if (!a || !ctl) return;
-  const dEnd = 1 / Math.sin(Math.atan(FILL * (Math.min(W, H) / Dg) * Math.tan(20 * Math.PI / 180)));
-  const t = ramp(s, ...CLOUD_FLY), dist = Math.exp(Math.log(DIST0) + (Math.log(dEnd) - Math.log(DIST0)) * t);
-  // turning a little as it goes (35°), for the depth, and still at the end
-  ctl({ galaxy: true, lz:Math.log10(46e9), ...CLOUD_END, zoom: 3.2 / dist, yaw: CLOUD_END.yaw + 0.6 * (1 - t) });
-  cloudView = { dist, Dg, a };
+// ---------- continuous red CMB shell ----------
+// Keep the established pullback distance and final78% framing. Geometry and
+// temperature texture now render together in the main scene, with its roll.
+const CLOUD_FLY=[25.9,S_MAX],DIST0=.68,FILL=.78;
+function driveCloud(s,W,H,Dg,roll,dpr){
+ const a=ramp(s,25.9,26.6);
+ const dEnd=1/Math.sin(Math.atan(FILL*(Math.min(W,H)/Dg)*Math.tan(20*Math.PI/180)));
+ const t=ramp(s,...CLOUD_FLY),dist=Math.exp(Math.log(DIST0)+(Math.log(dEnd)-Math.log(DIST0))*t);
+ cloudView={dist,Dg,a};
 }
 // Radius comparisons use a linear ruler: Hubble14.4Gly / CMB46Gly.
 // The outer shell is the CMB sphere; both labels explicitly say radius.
@@ -116,7 +97,7 @@ function drawSpheres(ctx, W, H, dpr, s) {
   if (rc) {
     ctx.textBaseline = "top";
     ctx.strokeText("CMB · radius 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
-    ctx.fillStyle = "#f2d6b0"; ctx.fillText("CMB · radius 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
+    ctx.fillStyle = "#ffc1b9"; ctx.fillText("CMB · radius 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
   }
   ctx.restore();
 }
@@ -158,6 +139,7 @@ function render(t) {
   ctx.fillStyle = `rgba(0,0,0,${1 - ramp(s, 25.9, 26.6)})`;
   ctx.fillRect(0, 0, W, H);
   ctx.setTransform(rc, rs, -rs, rc, W / 2 - rc * cx + rs * cy, H / 2 - rs * cx - rc * cy);
+  cmb.draw(ctx,Dg,cloudView,basis);
   const hide = new Set([...plates.covers(s), ...photos.covers(s)]);
   for (const L of layers) {
     if (s >= L.range[0] && s <= L.range[1] && !hide.has(L.name)) {
