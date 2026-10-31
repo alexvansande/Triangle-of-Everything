@@ -92,7 +92,11 @@ let html = fs.readFileSync(path.join(OUT, "index.html"), "utf8")
   .replace(/<script data-goatcounter[^>]*><\/script>\n?/, "")   // no analytics from previews
   .replace(/<title>[^<]*<\/title>/, `<title>Triangle Narration Preview</title>\n<meta name="robots" content="noindex, nofollow">`);
 // ---------- the grid of takes ----------
-const info = await takeInfo(takes, OUT);
+// (retired: the whole videos replaced by their cuts, video/render-skip.txt; their files stay, as the
+// cuts are built from them, and a link to one still plays it, but the grid leaves them out:
+// the author, 2026-10-31)
+const retired = new Set(fs.readFileSync("video/render-skip.txt", "utf8").split("\n").map(l => l.trim()).filter(l => l && !l.startsWith("#")));
+const info = await takeInfo(takes.filter(t => !retired.has(t)), OUT);
 // the rendered videos go next to the page, in rendered/ (the grid's "Rendered video")
 for (const k of info) if (k.video) {
   fs.mkdirSync(path.join(OUT, "rendered"), { recursive: true });
