@@ -255,3 +255,20 @@ an off-axis miniature and a separate40nm close-up; it is NOT inside chromatin.
 Cell → DNA plays the new segment. Hopf atom handoff is still future work.
 Molecular images are approximate artistic reconstructions, not PDB renders;
 no claim of atomically exact generated connectivity or species-specific anatomy.
+
+## Hopf renderer review (2026-10-30)
+
+`public/hopf/hopf-core.js` supplies WebGL2 extruded Hopf fibre tubes, HDR where
+available,4-sample MSAA and bloom. `tools/powers-of-ten/small.js` already adapts
+hydrogen, proton and up-quark views to the zoom in linear physical scale and
+hides the explorer's enlarged nucleus. The A–T base pair uses a chosen hydrogen
+as the fixed centre. The canopy photo sequence still ends at5.49nm: its bridge
+into this coded base pair and hydrogen is not yet connected.
+
+Improved the zoom adapter: preview render cap2048px, `atomquality=video` cap3840px,
+subject to GPU renderbuffer limit; retain render targets until resolution halves
+to avoid reallocating on every small zoom change. Stable seeded electron samples
+replace per-frame random resampling. Release imported module Blob URL after load.
+Validated whole-atom Hopf rendering at500pm and inner cloud at50pm in the viewer.
+Next: register generated DNA to the actual coded A–T geometry and target H before
+crossfading; match lighting/background and hold orbital camera pose during handoff.

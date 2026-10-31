@@ -19,7 +19,8 @@ export async function smallLayers() {
     const at = (f) => new URL("/hopf/" + f, location.href).href;
     const src = (await (await fetch(at("hopf-core.js"))).text()).replace(/(["'])\.\/(molecules|big-molecules)\.js\1/g, (m, q, f) => q + at(f + ".js") + q);
     const url = URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
-    core = await import(/* @vite-ignore */ url);
+    try { core = await import(/* @vite-ignore */ url); }
+    finally { URL.revokeObjectURL(url); }
     // the atoms to true (linear) scale, and no nucleus of their own: the zoom draws
     // the proton itself, at its real size (the explorer's is ~18,000× too big)
     core.LOOK.logScale = false; core.LOOK.showNucleus = false;
@@ -30,12 +31,17 @@ export async function smallLayers() {
     const renderer = new core.Renderer({ alpha: true });
     const view = new core.HopfView(renderer, null, core.PARTICLES.find((p) => p.id === id));
     view.yaw = 0.6;
-    return { renderer, view };
+    return { renderer, view, size: 0 };
   };
   const proton = hopf("proton-scale"), quark = hopf("up"), hydrogen = hopf("hydrogen");
   const drawHopf = (h, cam, box, alpha, res) => {
-    const px = Math.min(1024, Math.max(64, Math.ceil(box / 64) * 64));
-    h.renderer.resize(px);
+    // Frame dimensions are physical output pixels, including export DPR.
+    // Video mode supports the3840px master; preview keeps GPU memory bounded.
+    const video = new URLSearchParams(location.search).get('atomquality') === 'video';
+    const limit = Math.min(video ? 3840 : 2048, h.renderer.gl.getParameter(h.renderer.gl.MAX_RENDERBUFFER_SIZE));
+    const px = Math.min(limit, Math.max(64, Math.ceil(Math.min(box,cam.min*1.5) / 128) * 128));
+    // Retain allocation while zooming; shrink only after a substantial retreat.
+    if (px > h.size || px < h.size / 2) { h.renderer.resize(px); h.size = px; }
     if (res !== undefined) h.view.res = res;
     h.view.yaw = 0.6 + cam.t * 0.12;
     h.view.update(cam.t, OPTS);
@@ -147,10 +153,9 @@ export async function smallLayers() {
       }
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, cam.W, cam.H);
-      // the electron's "where it might be": dots, a few re-drawn every frame
+      // Fixed seeded probability samples avoid random frame-to-frame video noise.
       const dotA = ga * ramp(R, 40, 160) * (1 - ramp(R, 4000, 20000));
       if (dotA > 0.01) {
-        for (let i = 0; i < 25; i++) dots[(Math.random() * dots.length) | 0] = sample1s(Math.random);
         ctx.fillStyle = `rgba(200,225,255,${(0.75 * dotA).toFixed(3)})`;
         const sz = 1.4 * cam.dpr;
         for (const [x, y] of dots) ctx.fillRect(cam.cx + x * cam.k - sz / 2, cam.cy + y * cam.k - sz / 2, sz, sz);
