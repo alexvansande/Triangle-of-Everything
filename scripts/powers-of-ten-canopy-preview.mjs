@@ -24,14 +24,14 @@ await cp(`${root}/tools/powers-of-ten/canopy-test.js`,`${runtime}/tools/powers-o
 await cp(`${root}/tools/powers-of-ten/canopy-insects.js`,`${runtime}/tools/powers-of-ten/canopy-insects.js`);
 await cp(`${root}/tools/powers-of-ten/canopy-optics.js`,`${runtime}/tools/powers-of-ten/canopy-optics.js`);
 await cp(`${root}/tools/powers-of-ten/canopy-depth.js`,`${runtime}/tools/powers-of-ten/canopy-depth.js`);
-for(const file of ['canopy-crown-depth.js','canopy-micro.js','canopy-micro-specimens.js','canopy-nucleus.js'])await cp(`${root}/tools/powers-of-ten/${file}`,`${runtime}/tools/powers-of-ten/${file}`);
+for(const file of ['scale-overlay.js','canopy-crown-depth.js','canopy-micro.js','canopy-micro-specimens.js','canopy-nucleus.js'])await cp(`${root}/tools/powers-of-ten/${file}`,`${runtime}/tools/powers-of-ten/${file}`);
 for(const slug of ['ladybug','ant','boeing-747'])await cp(`${root}/content/icons/resolutions/1024/${slug}.webp`,`${runtime}/content/icons/resolutions/1024/${slug}.webp`);
 const centre=JSON.parse(await readFile(`${root}/${generated}/centre.json`,'utf8'));
 const manifest=JSON.parse(await readFile(`${root}/${generated}/plates/manifest.json`,'utf8'));
 const micro=JSON.parse(await readFile(`${root}/${generated}/micro/scene.json`,'utf8'));
 const minimum=Math.min(micro.minimum_s,...manifest.plates.map(p=>p.s));
 let main=execFileSync('git',['show',`${revision}:tools/powers-of-ten/main.js`],{cwd:root,encoding:'utf8'});
-main="import { canopyCrownDepth } from './canopy-crown-depth.js';\nimport { canopyMicro } from './canopy-micro.js';\nimport { canopyDepth } from './canopy-depth.js';\nimport { canopyOptics } from './canopy-optics.js';\nimport { catalogueInsects } from './canopy-insects.js';\n"+main;
+main="import { drawScaleOverlay } from './scale-overlay.js';\nimport { canopyCrownDepth } from './canopy-crown-depth.js';\nimport { canopyMicro } from './canopy-micro.js';\nimport { canopyDepth } from './canopy-depth.js';\nimport { canopyOptics } from './canopy-optics.js';\nimport { catalogueInsects } from './canopy-insects.js';\n"+main;
 main=main.replace('const S_MIN = -35.3, S_MAX = 27.6;',`const canopyTest = new URLSearchParams(location.search).has('canopytest');\nconst insects=catalogueInsects();\nconst S_MIN = canopyTest ? ${minimum} : -35.3, S_MAX = canopyTest ? 5.1 : 27.6;\nwindow.canopyTest = {enabled:true,minimum:${minimum}};`);
 main=main.replace('const plates = await platesLayer(q.get("plates") === "1");',`const rawPlates = await platesLayer(canopyTest || q.get('plates') === '1', canopyTest ? '/${generated}/plates/' : '/video/powers-of-ten/plates/', 0.4, {square:canopyTest,floor:canopyTest?${minimum}:undefined});\nconst plates={covers:s=>(!canopyTest||window.canopyTest.enabled)?rawPlates.covers(s):new Set(),draw:cam=>{if(!canopyTest||window.canopyTest.enabled)rawPlates.draw(cam)}};`);
 main=main.replace('photos.draw(cam); clouds.draw(cam); plates.draw(cam);',`photos.draw(canopyTest ? {...cam,cx:cam.cx-(${centre.offset_east_m})*cam.k,cy:cam.cy+(${centre.offset_north_m})*cam.k} : cam); if(!canopyTest)clouds.draw(cam); plates.draw(cam);`);
@@ -41,6 +41,7 @@ main=main.replace('plates.draw(cam); }','if(canopyTest)insects.draw(cam); plates
 main=main.replace('if (L.name === "earth") {', `if (L.name === "earth") { if(canopyTest){const t=Math.max(0,Math.min(1,(-cam.s-.7)/1.05)),f=t*t*(3-2*t);cam.cx-=(-0.0024822744142255736)*cam.k*f;cam.cy-=(-0.0009580708265432034)*cam.k*f;}`);
 main=main.replace('const insects=catalogueInsects();','const insects=canopyTest?catalogueInsects():null,optics=canopyTest?canopyOptics():null,depth=canopyTest?canopyDepth():null,crown=canopyTest?canopyCrownDepth():null,microscope=canopyTest?canopyMicro():null;');
 main+=`\nif(canopyTest) (await import('./canopy-test.js')).mountCanopyTest();\n`;
+main=main.replace('if (state.grid) drawGrid({ ...cam, W, H, cx: W / 2, cy: H / 2 });','drawScaleOverlay({ ...cam, W, H, cx: W / 2, cy: H / 2 }, {grid:state.grid,labels:state.labels,canopy:canopyTest});');
 await writeFile(`${runtime}/tools/powers-of-ten/main.js`,main);
 let plates=execFileSync('git',['show',`${revision}:tools/powers-of-ten/plates.js`],{cwd:root,encoding:'utf8'});
 plates=plates.replace('img: null, loading: false', 'img: null, loading: false, x:p.x||0, y:p.y||0');

@@ -1,3 +1,4 @@
+import { drawScaleOverlay } from './scale-overlay.js';
 import { canopyCrownDepth } from './canopy-crown-depth.js';
 import { canopyMicro } from './canopy-micro.js';
 import { canopyDepth } from './canopy-depth.js';
@@ -173,7 +174,7 @@ function render(t) {
   // the grid and the names stay upright: the grid on the screen, the names where the
   // turned picture puts them
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  if (state.grid) drawGrid({ ...cam, W, H, cx: W / 2, cy: H / 2 });
+  drawScaleOverlay({ ...cam, W, H, cx: W / 2, cy: H / 2 }, {grid:state.grid,labels:state.labels,canopy:canopyTest});
   if (state.labels) for (const [lx, ly, text, a] of labels) {
     if (a <= 0.02) continue;
     const x = W / 2 + rc * (lx - cx) - rs * (ly - cy), y = H / 2 + rs * (lx - cx) + rc * (ly - cy);
@@ -186,24 +187,6 @@ function render(t) {
   ctx.globalAlpha = 1;
   if (state.labels) drawSpheres(ctx, W, H, dpr, s);
   readout(s);
-}
-
-// powers-of-ten grid through the centre, upright on the screen (it doesn't roll with
-// the picture): each spacing fades in as it opens up and out as it fills the frame;
-// it carries on over the Cloud to the end, as the frame width's scale (the Cloud
-// itself is on a log scale there)
-function drawGrid(cam) {
-  const fade = 1;
-  const { ctx, W, H, k, cx, cy, min, s, dpr } = cam;
-  for (let g = Math.floor(s) - 2; g <= Math.floor(s) + 1; g++) {
-    const d = 10 ** g * k, w = d / min, a = fade * 0.1 * ramp(w, 0.008, 0.05) * (1 - ramp(w, 0.55, 1.1));
-    if (a <= 0.005) continue;
-    ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = dpr;
-    ctx.beginPath();
-    for (let x = cx - Math.floor(cx / d) * d; x <= W; x += d) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
-    for (let y = cy - Math.floor(cy / d) * d; y <= H; y += d) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
-    ctx.stroke();
-  }
 }
 
 const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
