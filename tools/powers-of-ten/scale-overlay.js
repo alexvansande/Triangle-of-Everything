@@ -18,17 +18,15 @@ export function drawScaleOverlay(cam,{grid=true,labels=true,canopy=false}={}){
    for(let y=cy-Math.floor(cy/spacing)*spacing;y<=H;y+=spacing){ctx.moveTo(0,y);ctx.lineTo(W,y)}
    ctx.stroke();
   }
-  // Label an actual grid cell at each decade, using its grid's fade curve.
-  // The text follows the cell; there is no independently growing ruler.
+  // Centred physical squares exchange continuously at each decade.
   if(labels)for(let e=Math.floor(s)-2;e<=Math.floor(s)+1;e++){
-   const m=10**e,spacing=m*k,fraction=spacing/min;
-   const fade=smooth(.018,.09,fraction)*(1-smooth(.65,1.3,fraction));
-   const x=cx+spacing/2,y=cy+spacing/2;
-   // Keep labels legible, inside the shared horizontal/vertical delivery area.
-   const fit=1-smooth(.42,.55,fraction);
-   if(fade*fit<.01||spacing<30*dpr)continue;
-   ctx.globalAlpha=fade*fit*.7;
-   caption(ctx,scaleText(m),x,y,dpr);
+   const m=10**e,side=m*k,fraction=side/min;
+   const fade=smooth(.055,.15,fraction)*(1-smooth(.65,1.05,fraction));
+   if(fade<.005)continue;
+   ctx.globalAlpha=fade*.65;
+   ctx.strokeStyle='#edf6ed';ctx.lineWidth=dpr;
+   ctx.strokeRect(cx-side/2,cy-side/2,side,side);
+   caption(ctx,scaleText(m),cx,cy-side/2-11*dpr,dpr);
   }
  }
  if(labels&&canopy){
