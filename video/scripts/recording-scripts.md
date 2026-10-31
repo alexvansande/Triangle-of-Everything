@@ -207,6 +207,27 @@ energy), grey at iron, brown (heavier, stable), and bright red, pulsing, for the
   often collapses into a black hole. That's why they're so rare. So a nuclear power plant is running
   on energy that was locked into uranium when two dead stars collided, billions of years before the
   Earth existed."*
+- **Second draft of the iron part** (the author, 2026-10-31): *"Past iron, fusion energy generation
+  is negative, meaning when these heavier elements are formed they steal the energy from old stars,
+  accelerating their demise. The heavier ones though need a much more extreme event, the collapse of
+  neutron stars."*
+  - Right: past iron, fusion costs energy instead of giving it.
+  - Right in spirit, wrong mechanism: **"heavier elements … steal the energy from old stars,
+    accelerating their demise"**. Stars don't build much past iron by fusion. What happens is that
+    once a big star's core is iron, it has nothing left to burn, so the fire goes out and the core
+    collapses in under a second. *During* the collapse, energy really is stolen: the heat tears the
+    iron back apart into helium, and electrons are squeezed into protons. Both take away the pressure
+    holding the core up, so the collapse runs away. That is the "accelerating their demise".
+  - Where elements past iron do form slowly (old giant stars, one neutron at a time), it doesn't
+    drain the star: a neutron has no charge, so it slips into a nucleus without a fight. The energy
+    stored in heavy elements comes from those free neutrons.
+  - Wrong word: **"the collapse of neutron stars"** → **"the collision of two neutron stars"**. (A
+    collapse is how a neutron star is *born*, in the supernova; the heaviest elements come from two
+    of them crashing together.)
+  - Suggested: *"Past iron, fusion stops paying: it costs energy instead. So when a big star's core
+    turns to iron, the fire goes out and the core collapses. And as it falls, the iron is torn apart
+    again, which steals even more energy and speeds up the end. The heaviest elements need something
+    even more extreme: two neutron stars colliding."*
 - This also covers the existing line "Up to iron, elements are forged in the cores of stars.
   Everything heavier… exploding stars and colliding neutron stars": replace it with this beat.
 
