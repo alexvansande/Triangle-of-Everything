@@ -20,7 +20,7 @@ export function galaxyHandoff(){
     gl_Position=vec4(dot(q,uR)*uScale.x,dot(q,uU)*uScale.y,0.,den);vCorner=aCorner;
     float energy=min(6.,mix(1.,aWeight/max(.01,dot(centre,centre)),uDepth*uModel)*mix(1.,6.,uDepth*uModel));
     vColour=aColour*aPeak*uAlpha*energy;
-   }`,`precision highp float;varying vec2 vCorner;varying vec3 vColour;uniform float uModel;void main(){float r=dot(vCorner,vCorner);if(r>1.)discard;float a=uModel>.5?exp(-4.*r):.7*exp(-12.*r)+.3*exp(-3.*r);gl_FragColor=vec4(vColour*a,0.);}`);
+   }`,`precision highp float;varying vec2 vCorner;varying vec3 vColour;uniform float uModel;void main(){float r=dot(vCorner,vCorner);if(r>1.)discard;float a=uModel>.5?exp(-4.*r):(.7*exp(-12.*r)+.3*exp(-3.*r))*(1.-smoothstep(.64,1.,r));gl_FragColor=vec4(vColour*a,0.);}`);
   quad=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
   Promise.all([fetch(BASE+'scene.json').then(r=>r.json()),...['galaxy','nearby'].map(n=>fetch(BASE+n+'-points.bin').then(r=>{if(!r.ok)throw Error(n+' data missing');return r.arrayBuffer();}))]).then(([m,...raw])=>{meta=m;groups=raw.map(raw=>{const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(raw),gl.STATIC_DRAW);return {buffer,count:raw.byteLength/40};});}).catch(e=>{failed=true;console.error('Matched sky data',e);});
  }catch(e){failed=true;console.error('Matched sky shader',e);}

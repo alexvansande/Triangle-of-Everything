@@ -23,8 +23,8 @@
   "galaxySource": "../galaxy-handoff-v2/sky-diffuse.png",
   "galaxyMethod": "Colour-preserving seeded radiance-weighted noise dither; each sample is a single real3D point. LMC/SMC/M31/M33 sky patches excluded, no external-galaxy distance particles. Disc/bulge/arm depths inherited by angular cell from the established model.",
   "nearbySource": "/tools/sky-points/points.txt; Hipparcos/Gaia≤150ly plus named landmarks to2600ly",
-  "photometry": "Nearby sizes and glow intensities are visual weights from catalogue kind and distance, not calibrated apparent magnitudes.",
+  "photometry": "Nearby sizes and glow intensities are visual weights from catalogue kind and distance, not calibrated apparent magnitudes. Hipparcos/named glow support14x original (comparable to solar marker); Gaia support5x. Soft halo tapers to zero at support edge.",
   "projection": "Galactic equirectangular, longitude increases left, latitude north up; Sun at origin; point position=ray/inverseDistanceKpc.",
-  "kernel": "Galaxy exp(-4r²), nearby .7exp(-12r²)+.3exp(-3r²), circular unit-support; identical CPU atlas and GPU live equations; additive RGB clamped after accumulation.",
+  "kernel": "Galaxy exp(-4r²), nearby (.7exp(-12r²)+.3exp(-3r²)) with a smooth edge taper over r²=.64..1, circular unit-support; identical CPU atlas and GPU live equations; additive RGB clamped after accumulation.",
   "limitation": "8-bit atlas quantisation and bilinear texture filtering introduce subtexel differences from live rasterization; matching attributes and angular footprints are exact."
 }

@@ -673,3 +673,16 @@ camera, Sun-centred projections, and zero depth. Omit them for the normal zoom.
 unit rays,8K dimensions, map/point radiance/colour/footprint agreement and
 replacement-before-depth timing. The existing galaxy and extragalactic checks
 also pass. The previous point/maps remain versioned for provenance.
+
+### Larger nearby-star orbs · 2026-10-31
+
+Increased Hipparcos/named landmark angular glow support14× and Gaia support5×.
+The brightest nearby halos now reach roughly the solar marker's footprint in
+this50° field; the denser catalogue retains a smaller size tier. Peak radiance,
+positions and distances stay fixed. This is a display halo, not a stellar radius.
+The orb kernel now smoothly reaches zero at its support edge instead of ending
+with a faint circular rim. CPU map and live shader use the identical taper.
+Rebuilt the nearby8K map and buffer together; the Milky Way assets are unchanged.
+Checks verify larger variable support, full-buffer map/radiance agreement and
+replacement-before-depth timing. Visually checked the angular view and depth
+separation around16.5–17.15.
