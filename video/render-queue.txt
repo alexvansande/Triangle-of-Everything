@@ -10,7 +10,6 @@
 # Order until the videos are published (the author, 2026-10-31; restart tonight from the top): each long video,
 # then the Shorts cut from the same takes. The whole videos the cuts replaced are retired (video/render-skip.txt).
 # next: long-01-intro
-# next: short-02a-things
 # next: short-02b-planets
 # next: long-02-space
 # next: short-03-stars
@@ -26,7 +25,6 @@
 # next: short-07a-photons
 # next: short-07b-sky
 long-01-intro
-short-02a-things
 short-02b-planets
 long-02-space
 short-03-stars
