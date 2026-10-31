@@ -12,3 +12,18 @@ short-03-stars
 long-01-intro
 long-02-space
 long-03-small
+# Order for the night of 2026-10-30 (the author): each long video, then the Shorts cut from the same takes
+# next: short-02b-planets
+# next: long-02-space
+# next: short-03-stars
+# next: short-04a-black-hole-line
+# next: short-04b-smallest-black-holes
+# next: short-05a-emptier
+# next: short-05b-hubble-sphere
+# next: short-05c-observable-universe
+# next: long-03-small
+# next: short-06a-living
+# next: short-06b-atoms
+# next: short-06c-compton
+# next: short-07a-photons
+# next: short-07b-sky
