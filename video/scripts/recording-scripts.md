@@ -196,17 +196,23 @@ energy), grey at iron, brown (heavier, stable), and bright red, pulsing, for the
   - **"leftover energy created at the birth of a black hole"** → *"So a nuclear power plant is
     running on energy that was locked into uranium when two dead stars collided, billions of years
     before the Earth existed."* (The Earth's uranium is older than the Sun.)
-- Suggested whole beat, the author's words with the fixes: *"These colours mean something important.
-  Blue and green are elements that give off energy when they fuse, and need energy to be split.
-  Brown and red are the opposite. The bright red ones are radioactive: they break down by
-  themselves, giving off heat and radiation. And here in the grey middle, the most stable of all:
-  iron. Elements up to iron are forged in the cores of stars: once the hydrogen runs out, the
-  biggest stars burn helium, then carbon, and so on, up to iron. Beyond iron you need a flood of
-  neutrons. Some are built slowly in old giant stars, but the rarest, like gold, platinum and
-  uranium, need two neutron stars colliding, flung out into space as they crash, and what's left
+- **The beat to record** (the author's words with the fixes, and the iron passage the author chose,
+  2026-10-31): *"These colours mean something important. Blue and green are elements that give off
+  energy when they fuse, and need energy to be split. Brown and red are the opposite. The bright red
+  ones are radioactive: they break down by themselves, giving off heat and radiation. And here in
+  the grey middle, the most stable of all: iron. Elements up to iron are forged in the cores of
+  stars: once the hydrogen runs out, the biggest stars burn helium, then carbon, and so on, up to
+  iron. Past iron, fusion stops paying: it costs energy instead. So when a big star's core turns to
+  iron, the fire goes out and the core collapses. And as it falls, the iron is torn apart again,
+  which steals even more energy and speeds up the end. The heaviest elements need something even
+  more extreme: two neutron stars colliding, flung out into space as they crash, and what's left
   often collapses into a black hole. That's why they're so rare. So a nuclear power plant is running
   on energy that was locked into uranium when two dead stars collided, billions of years before the
   Earth existed."*
+  - On screen while it plays: the recolour sweep on "These colours…", the radioactive ones pulse on
+    "radioactive", iron's ring on "iron". The collapse and the neutron-star collision could be short
+    cutaways (a supernova remnant; the GW170817 kilonova) or a dive on the chart to the neutron
+    stars, per `video/plans/visual-rules.md` (dives before photo cutaways).
 - **Second draft of the iron part** (the author, 2026-10-31): *"Past iron, fusion energy generation
   is negative, meaning when these heavier elements are formed they steal the energy from old stars,
   accelerating their demise. The heavier ones though need a much more extreme event, the collapse of
