@@ -286,3 +286,29 @@ both output dimensions. Moving preview increases360→720px; `spacequality=video
 (or `hq=1`) uses8K sky source and up to3840 output pixels on the longest edge,
 including while camera rotates. Earth globe cap rises720→1024 preview and3840
 in video mode. Checked Earth at50,000km in16:9 and9:16.
+
+## Integrated CMB → quark journey (2026-10-30)
+
+The `canopytest=1` artifact now spans s27.6 through−18.7 (rather than stopping
+at satellite and DNA). Play CMB → quarks and the reverse each take180seconds;
+Stop journey, preset clicks, wheel and keyboard cancel the scripted traversal.
+New presets expose CMB, galaxy groups, Milky Way, solar system, globe, base pair,
+hydrogen, proton and quark alongside all the photographic review stops.
+The shorter Cell → DNA control now carries on into hydrogen at320pm.
+
+Fixed a shared-camera leak: photographic shell registration previously mutated
+cam.cx/cy before the small-scale renderer ran. Those offsets are now isolated in
+a picture-only camera. The coded hydrogen/proton/quark stay at the unchanged
+screen centre. Leaf backdrop retires after opaque nuclear coverage; microscopic
+imagery dissolves between2.8nm and0.63nm as the coded A–T base pair takes over.
+The final photograph and coded molecular pose are not yet pixel registered: this
+first full integration uses a material/focus dissolve there. Future polish should
+anchor a generated atom surface to the actual base-pair geometry before its reveal.
+The old procedural DNA is suppressed during that handoff to avoid a third helix.
+Added am/zm scale readouts instead of expressing quarks as huge Planck multiples.
+CMB remains the existing logarithmic spectrum-shell presentation at the end.
+
+Verified uninterrupted180-second playback from CMB to the quark endpoint.
+The complete route lives in `tools/powers-of-ten/full-journey.js`, shared by
+the normal entry and isolated preview helper so they cannot drift in scale limits.
+Manual transport and slider input cancel scripted playback as well.

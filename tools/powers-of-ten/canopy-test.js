@@ -1,17 +1,18 @@
 // Optional review controls for the isolated, bright-centred crown test.
 export function mountCanopyTest() {
-  document.title='Sunlit sequoia · tile test';
+  document.title='Powers of ten · CMB to quarks';
   const panel=document.createElement('aside');
   panel.style.cssText='position:fixed;z-index:10;top:16px;left:16px;right:16px;max-width:680px;padding:16px 18px;background:#0b1110e8;color:#eee;border:1px solid #ffffff28;border-radius:12px;font:13px/1.5 system-ui;box-shadow:0 8px 32px #0005';
-  panel.innerHTML=`<strong style="font-size:17px">Satellite → sunlit sequoia canopy</strong>
-    <div style="color:#b5c4b9;margin:5px 0 12px">Forest → branchlet → ladybug → dew → pollen → small amoeba</div>
+  panel.innerHTML=`<strong style="font-size:17px">CMB → quarks</strong>
+    <div style="color:#b5c4b9;margin:5px 0 12px">Cosmos → Earth → sequoia → ladybug → cell → DNA → atom → quarks</div>
     <div style="display:flex;flex-wrap:wrap;gap:7px" id="canopy-actions">
+      <button data-s="27.6">CMB · universe</button><button data-s="24">Galaxy groups</button><button data-s="21">Milky Way</button><button data-s="13">Solar system</button><button data-s="7.7">Earth · globe</button><button id="full-in">Play CMB → quarks</button><button id="full-out">Play quarks → CMB</button><button id="full-stop">Stop journey</button>
       <button data-s="4.6">Satellite · 40 km</button><button data-s="1.6">Aerial · 40 m</button>
       <button data-s="1.123">Crown · 13 m</button><button data-s="1.69897">Check · 50 m</button>
       <button data-s="2.07712">Grove · 120 m</button><button data-s="2.60206">Forest · 400 m</button><button id="canopy-run">Play approach</button>
       <button data-s="0.64575749">Branch · 4.4 m</button><button data-s="0.16863624">Foliage · 1.5 m</button>
       <button data-s="-0.70">Depth check · 20 cm</button><button data-s="-0.30848502">Twig · 49 cm</button><button data-s="-0.78560627">Tiny ladybug · 16 cm</button>
-      <button data-s="-1.26272753">Ladybug · 5.5 cm</button><button id="canopy-inward">Crown → micro</button><button id="canopy-timing">Test · 1 m → 3 cm</button><button data-s="-1.73984878">Ladybug · 18 mm</button><button data-s="-2.21697004">Shell · 6 mm</button><button data-s="-2.69409129">Dew · 2 mm</button><button data-s="-3">Drop layers · 1 mm</button><button data-s="-3.74472749">Pollen · 180 µm</button><button data-s="-4.22184875">Passing pollen · 60 µm</button><button data-s="-4.74472749">Small amoeba · 18 µm</button><button data-s="-5.22184875">Inside · 6 µm</button><button data-s="-4.92081875">New cell · 12 µm</button><button data-s="-5.39794001">Nucleus · 4 µm</button><button data-s="-6.35218252">Chromatin · 444 nm</button><button data-s="-7.30642503">Nucleosomes · 49 nm</button><button data-s="-8.26066754">DNA · 5.5 nm</button><button id="canopy-ribosome">Ribosome · close-up</button><button id="canopy-cell-run">Cell → DNA</button><button id="canopy-micro-run">Dew → amoeba</button><button id="canopy-dew">Ladybug → micro</button>
+      <button data-s="-1.26272753">Ladybug · 5.5 cm</button><button id="canopy-inward">Crown → micro</button><button id="canopy-timing">Test · 1 m → 3 cm</button><button data-s="-1.73984878">Ladybug · 18 mm</button><button data-s="-2.21697004">Shell · 6 mm</button><button data-s="-2.69409129">Dew · 2 mm</button><button data-s="-3">Drop layers · 1 mm</button><button data-s="-3.74472749">Pollen · 180 µm</button><button data-s="-4.22184875">Passing pollen · 60 µm</button><button data-s="-4.74472749">Small amoeba · 18 µm</button><button data-s="-5.22184875">Inside · 6 µm</button><button data-s="-4.92081875">New cell · 12 µm</button><button data-s="-5.39794001">Nucleus · 4 µm</button><button data-s="-6.35218252">Chromatin · 444 nm</button><button data-s="-7.30642503">Nucleosomes · 49 nm</button><button data-s="-8.26066754">DNA · 5.5 nm</button><button data-s="-9">DNA → atom · 1 nm</button><button data-s="-9.5">Hydrogen · 320 pm</button><button data-s="-14.8">Proton · 1.6 fm</button><button data-s="-18.7">Quark</button><button id="canopy-ribosome">Ribosome · close-up</button><button id="canopy-cell-run">Cell → DNA</button><button id="canopy-micro-run">Dew → amoeba</button><button id="canopy-dew">Ladybug → micro</button>
       <button data-s="1.35">Bird flyby</button><button id="canopy-crown-run">Canopy depth test</button><button data-s="3.42">Airplane flyby</button><button id="canopy-outward">Ladybug → sky</button>
     </div>
     <label style="display:block;margin-top:12px"><input id="canopy-generated" type="checkbox" checked> Show generated canopy</label>
@@ -61,6 +62,9 @@ export function mountCanopyTest() {
   panel.querySelector('#canopy-ribosome').onclick=()=>{run++;window.zoom.set(window.zoom.s);ribosome.showModal()};
   ribosome.querySelector('#ribosome-close').onclick=()=>ribosome.close();
   let run=0;
+  document.querySelectorAll("[data-play],#s").forEach(el=>el.addEventListener(el.id==="s"?"input":"click",()=>{run++}));
+  window.addEventListener("wheel",()=>{run++},{passive:true});
+  window.addEventListener("keydown",()=>{run++});
   panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{run++;window.zoom.set(+b.dataset.s)});
   document.getElementById('canopy-generated').onchange=e=>window.canopyTest.enabled=e.target.checked;
   document.getElementById('canopy-centre').onchange=e=>marker.hidden=!e.target.checked;
@@ -77,12 +81,15 @@ export function mountCanopyTest() {
   }
   document.getElementById('canopy-timing').onclick=()=>approach(0,Math.log10(.03),22000);
   document.getElementById('canopy-crown-run').onclick=()=>approach(Math.log10(4.5),Math.log10(.7),18000);
-  document.getElementById('canopy-cell-run').onclick=()=>approach(-4.92081875,window.canopyTest.minimum,24000);
-  document.getElementById('canopy-micro-run').onclick=()=>approach(-2.69409129,window.canopyTest.minimum,42000);
-  document.getElementById('canopy-dew').onclick=()=>approach(-1.26272753,window.canopyTest.minimum,16000);
-  document.getElementById('canopy-run').onclick=()=>approach(4.6,window.canopyTest.minimum,40000);
-  document.getElementById('canopy-inward').onclick=()=>approach(1.6-Math.log10(3),window.canopyTest.minimum,26000);
-  document.getElementById('canopy-outward').onclick=()=>approach(window.canopyTest.minimum,4.6,42000);
+  document.getElementById('full-in').onclick=()=>approach(27.6,-18.7,180000);
+  document.getElementById('full-out').onclick=()=>approach(-18.7,27.6,180000);
+  document.getElementById('full-stop').onclick=()=>{run++;window.zoom.set(window.zoom.s)};
+  document.getElementById('canopy-cell-run').onclick=()=>approach(-4.92081875,-9.5,30000);
+  document.getElementById('canopy-micro-run').onclick=()=>approach(-2.69409129,window.canopyTest.photoMinimum,42000);
+  document.getElementById('canopy-dew').onclick=()=>approach(-1.26272753,window.canopyTest.photoMinimum,16000);
+  document.getElementById('canopy-run').onclick=()=>approach(4.6,window.canopyTest.photoMinimum,40000);
+  document.getElementById('canopy-inward').onclick=()=>approach(1.6-Math.log10(3),window.canopyTest.photoMinimum,26000);
+  document.getElementById('canopy-outward').onclick=()=>approach(window.canopyTest.photoMinimum,4.6,42000);
   document.getElementById('s').addEventListener('input',()=>run++);
   document.getElementById('stage').addEventListener('wheel',()=>run++);
   document.querySelectorAll('[data-play]').forEach(b=>b.addEventListener('click',()=>run++));

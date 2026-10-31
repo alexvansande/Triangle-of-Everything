@@ -30,7 +30,7 @@ export function canopyMicro(){
  }
  return {draw(cam){
   if(window.canopyTest?.enabled===false||Object.values(planes).some(p=>!p.complete||!p.naturalWidth))return;
-  const opacity=1-smooth(Math.log10(.0015),Math.log10(.0018),cam.s);if(!opacity)return;
+  const opacity=(1-smooth(Math.log10(.0015),Math.log10(.0018),cam.s))*smooth(-9.2,-8.55,cam.s);if(!opacity)return;
   currentS=cam.s;currentMin=cam.min;
   const {W,H}=cam.screen;if(layer.width!==W||layer.height!==H){layer.width=W;layer.height=H}
   const ctx=layer.getContext('2d');ctx.clearRect(0,0,W,H);

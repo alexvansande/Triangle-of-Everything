@@ -1,6 +1,6 @@
 const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
 export function scaleText(m){
- const units=[[1e3,'km'],[1,'m'],[1e-2,'cm'],[1e-3,'mm'],[1e-6,'µm'],[1e-9,'nm'],[1e-12,'pm'],[1e-15,'fm']];
+ const units=[[1e3,'km'],[1,'m'],[1e-2,'cm'],[1e-3,'mm'],[1e-6,'µm'],[1e-9,'nm'],[1e-12,'pm'],[1e-15,'fm'],[1e-18,'am'],[1e-21,'zm']];
  const [v,u]=units.find(([v])=>m>=v*(1-1e-9))??[1,'m'];
  return `${Number((m/v).toPrecision(3))} ${u}`;
 }

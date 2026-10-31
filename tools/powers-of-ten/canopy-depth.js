@@ -25,7 +25,7 @@ export function canopyDepth(){
     if(window.canopyTest?.enabled===false||window.canopyTest?.depth===false)return;
     // First finish replacing the flat scene (14 → 10 cm), then introduce
     // parallax below 9 cm. No relative layer motion during the handoff.
-    const opacity=1-smooth(Math.log10(.10),Math.log10(.14),cam.s);
+    const opacity=(1-smooth(Math.log10(.10),Math.log10(.14),cam.s))*smooth(-6.5,-6,cam.s);
     if(opacity<=0||!background||!specs[0].img)return;
     const {W,H}=cam.screen;
     for(const c of [layer,blurred])if(c.width!==W||c.height!==H){c.width=W;c.height=H;backKey=''}
