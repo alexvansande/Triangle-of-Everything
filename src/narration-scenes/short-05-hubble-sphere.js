@@ -101,7 +101,8 @@ export default {
     { at: "emptier and emptier", hl: [{ density: 0 }, { density: -24, label: "a galaxy · ~1 atom per cm³", delay: 0.3 }, { ...AVG, label: "the universe · ~5 atoms per m³", delay: 1.4 }] },
     // closer in (4 decades across) and one slow pan up all the way to the voids, the pictures
     // allowed to overlap so there are plenty of them (`density` above 100) (author, 2026-10-28)
-    { at: "the less dense it is", cam: { r: 19.6, m: 37.0, span: 4, glide: true }, dur: 2, clear: true, density: 118,
+    // (m 37.6, was 37.0: the dwarf galaxy sat on the top edge, 2026-10-31)
+    { at: "the less dense it is", cam: { r: 19.6, m: 37.6, span: 4, glide: true }, dur: 2, clear: true, density: 118,
       hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
     { at: "between its stars", cam: { r: 21.6, m: 41.4, span: 4, glide: true }, hl: [{ obj: "Milky Way", label: "~1 atom per cm³" }] },
     { at: "the milky way", cam: { r: 22.5, m: 44.0, span: 4, glide: true }, hl: [{ obj: "Milky Way" }, { obj: "Andromeda (M31)", delay: 0.6 }] },
