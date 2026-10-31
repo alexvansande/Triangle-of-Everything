@@ -1,0 +1,13 @@
+{
+  "status": "Reference study only; not installed in viewer. Illustrative organelle visibility and palette, not a microscope photograph or species-validated anatomy. Absolute dimensions uncalibrated. Generated mitochondria look lamellar rather than requested tubular cristae; revise against chosen taxon before production.",
+  "tool": "built-in image_gen",
+  "prompt": "Use case: scientific-educational. Generate a whole amoeba anatomical study for a continuous microscopic zoom film, square composition. Supporting references: user's nucleus cutaway for hierarchy of nuclear envelope, chromatin and nucleolus; existing amoeba for broad silhouette and nucleus location only, not validated taxon. Render an original scientifically informed illustrative reconstruction, not a claimed microscope photo. One entire irregular lobose freshwater amoeba, translucent membrane and clear peripheral ectoplasm with blunt pseudopodia, granular inner cytoplasm, a few food vacuoles containing tiny ingested particles and one clear contractile vacuole, small mitochondria with subtle tubular internal folds and modest endomembrane vesicles, not an animal-cell diagram transplanted wholesale. Main nucleus near exact image centre, approximately one fifth of cell body width; semi-transparent window into nucleus reveals fine uneven chromatin texture and a single darker nucleolus OFFSET from exact centre so fixed straight zoom can target chromatin beside it. Nuclear envelope thin double membrane, pores only hinted, not huge pipes. No distinct DNA double helices at whole-cell view, no X chromosomes, no chloroplasts or cell wall, no radial decorative spaghetti, no toy plastic, no flowers. Show organelles as informative restrained scientific cutaway within translucent cell, not a flat colorful infographic. Pearl gray translucent cytoplasm, subtle warm neutral organelles, muted lavender chromatin, natural microscopic backlighting; clean pale neutral water background, no red shell backdrop for this study. Entire amoeba fits square with margins. No labels, arrows, text or scale bar; absolute size remains uncalibrated pending species choice. Crisp sharp throughout; depth and blur will be app controlled later.",
+  "references": [
+    "User-supplied nucleus diagrams",
+    "https://openstax.org/books/biology-2e/pages/4-3-eukaryotic-cells",
+    "https://www.nies.go.jp/chiiki1/protoz/morpho/flagella/vannella.htm",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC5646685/",
+    "https://www.rcsb.org/structure/1AOI"
+  ],
+  "next": "Choose documented small amoeba taxon and dimensions, register nucleus/chromatin target to fixed zoom axis, derive nested parent composites from matched sharp layers. Resolve organelle geometry before replacing runtime."
+}
