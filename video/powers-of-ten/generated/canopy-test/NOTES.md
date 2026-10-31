@@ -518,3 +518,42 @@ start shell retirement at6kly with almost nothing remaining by50kly.
 Validation: projection/data checks, revised early stellar overlap, exact shell
 opacity milestones, camera-basis continuity and camera sweep; browser review of
 strong Oort and early stars. Generated images and point geometry are unchanged.
+
+## Photographic extragalactic handoff · 2026-10-31
+
+The two southern patches in the cleaned galactic map are the Large and Small
+Magellanic Clouds, not Andromeda. `extragalactic.js` supplies a separate angular
+background from four real observatory photographs: ESO/VISTA LMC/SMC, DSS2 M31,
+and ESO/VST M33. Full credits, download URLs, passbands and CC BY 4.0 terms are
+recorded in `video/powers-of-ten/galaxies/SOURCES.json`; linked credits appear in
+the review panel. These are original publication JPEGs, with app-side exposure,
+soft windows, sky-pedestal subtraction and geometric projection, not AI-generated
+galaxies. Residual field stars inside a window remain in the photos. The windows
+exclude the SMC photograph's foreground globular cluster 47 Tucanae.
+
+Image-centre RA/Dec, source image north orientation and field of view define
+one exact tangent plane per photograph. The angular background uses the same
+textures and vertices as the finite-distance state. Background replacement
+18.45–18.85 finishes before parallax begins at20.25. Depth reaches its measured
+position at21.55: LMC50kpc, SMC62kpc, M31765kpc, M33840kpc. Projection is
+`q=ray+photoOffset-cameraNormal*cameraDistance*depth/galaxyDistance`;
+no second image crossfade or moving zoom origin is involved. These are textured
+planes, not recovered volumetric galaxy models. Physical spans follow the
+observatories' angular fields and the adopted distances, not arbitrary icons.
+Small image footprints receive a subpixel-sized luminous core.
+
+Only once all four photos load, the Milky Way dome replaces its old Magellanic
+patches with adjacent empty-sky samples, and its old >35kpc cloud particles
+retire. The legacy Local Group icons for the same four galaxies are omitted.
+Other dwarf icons and the 2MRS large-scale scene remain as before. Failed/missing
+photos preserve the previous scene rather than leaving missing galaxies.
+
+A continuous sightline turn18.2–19.3 brings the Clouds into both delivery crops,
+holds through20.8, then looks over the Milky Way by22.0. The following Local Group
+turn brings M31/M33 into both crops at22.6; its key compensates for the existing
+continuous yaw rather than disabling that yaw. The camera remains centred on the
+same origin. The 'Milky Way → galaxies'48-second review covers18.4–23.1; the
+'Magellanic Clouds' and 'Local Group · photographs' stops expose both ends.
+Checks cover exact angular registration, tangent frames, true-distance projection,
+source dimensions/credits, continuous camera turns, Clouds in both video crops
+through the handoff, and M31/M33 visible in the Local Group stop.

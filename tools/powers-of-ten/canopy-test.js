@@ -6,7 +6,7 @@ export function mountCanopyTest() {
   panel.innerHTML=`<strong style="font-size:17px">CMB → quarks</strong>
     <div style="color:#b5c4b9;margin:5px 0 12px">Cosmos → Earth → sequoia → ladybug → cell → DNA → atom → quarks</div>
     <div style="display:flex;flex-wrap:wrap;gap:7px" id="canopy-actions">
-      <button data-s="${window.canopyTest.maximum}">CMB · universe</button><button data-s="24">Galaxy groups</button><button data-s="21.4">Milky Way</button><button id="galaxy-entry">Local stars → galaxy</button><button id="stars-entry">Solar system → stars</button><button data-s="13">Solar system</button><button data-s="7.7">Earth · globe</button><button id="full-in">Play CMB → quarks</button><button id="full-out">Play quarks → CMB</button><button id="full-stop">Stop journey</button>
+      <button data-s="${window.canopyTest.maximum}">CMB · universe</button><button data-s="24">Galaxy groups</button><button data-s="22.6">Local Group · photographs</button><button data-s="21.4">Milky Way</button><button id="galaxies-entry">Milky Way → galaxies</button><button data-s="19.65">Magellanic Clouds</button><button id="galaxy-entry">Local stars → galaxy</button><button id="stars-entry">Solar system → stars</button><button data-s="13">Solar system</button><button data-s="7.7">Earth · globe</button><button id="full-in">Play CMB → quarks</button><button id="full-out">Play quarks → CMB</button><button id="full-stop">Stop journey</button>
       <button data-s="4.6">Satellite · 40 km</button><button data-s="1.6">Aerial · 40 m</button>
       <button data-s="1.123">Crown · 13 m</button><button data-s="1.69897">Check · 50 m</button>
       <button data-s="2.07712">Grove · 120 m</button><button data-s="2.60206">Forest · 400 m</button><button id="canopy-run">Play approach</button>
@@ -23,7 +23,7 @@ export function mountCanopyTest() {
     <label style="display:block;margin-top:5px"><input id="canopy-plane" type="checkbox" checked> Airplane flyby</label>
     <label style="display:block;margin-top:5px"><input id="canopy-bird" type="checkbox" checked> Bird flyby</label>
     <div style="color:#a4b3a9;margin-top:8px">Ladybug ≈ 7 mm · dew ≈ 1.16 mm · pollen ≈ 40 µm · small amoeba ≈ 8 µm. Populated water field · pine/birch pollen · Arcella/Vannella amoebae. Nuclear and molecular interiors are scientific reconstructions. Microscopic scene is illustrative. Steller’s jay and Boeing 747: separate foreground flyby layers. Generated scene.</div>
-    <div style="color:#7c8f83;font-size:11px;margin-top:6px">Real imagery: USDA/USGS NAIP; Sentinel-2 cloudless 2016 © EOX, CC BY 4.0. Generated detail is an interpretation.</div>`;
+    <div style="color:#7c8f83;font-size:11px;margin-top:6px">Galaxy photographs (CC BY 4.0): <a href="https://www.eso.org/public/images/eso1914a/" style="color:inherit">ESO/VMC Survey</a>; <a href="https://www.eso.org/public/images/eso1714a/" style="color:inherit">ESO/VISTA VMC</a>; <a href="https://www.eso.org/public/images/eso1424a/" style="color:inherit">ESO</a>; <a href="https://esahubble.org/images/heic1502b/" style="color:inherit">NASA, ESA, Digitized Sky Survey 2 (Acknowledgement: Davide De Martin)</a>. Cropped, masked and projected by the app. No AI alteration of telescope photographs. Real imagery: USDA/USGS NAIP; Sentinel-2 cloudless 2016 © EOX, CC BY 4.0. Generated detail is an interpretation.</div>`;
   document.body.append(panel);
   const style=document.createElement('style');style.textContent='#canopy-actions button{border:1px solid #ffffff30;border-radius:6px;background:#22332a;color:#eef5ee;padding:7px 10px;font:inherit;cursor:pointer} #canopy-actions button:hover{background:#3c5143}';document.head.append(style);
   // Review a square master with both delivery crops at the same world scale.
@@ -81,6 +81,7 @@ export function mountCanopyTest() {
   }
   document.getElementById('canopy-timing').onclick=()=>approach(0,Math.log10(.03),22000);
   document.getElementById('canopy-crown-run').onclick=()=>approach(Math.log10(4.5),Math.log10(.7),18000);
+  document.getElementById('galaxies-entry').onclick=()=>approach(18.4,23.1,48000);
   document.getElementById('galaxy-entry').onclick=()=>approach(18.4,21.4,32000);
   document.getElementById('stars-entry').onclick=()=>approach(14.9,18.2,28000);
   document.getElementById('full-in').onclick=()=>approach(window.canopyTest.maximum,-18.7,180000);

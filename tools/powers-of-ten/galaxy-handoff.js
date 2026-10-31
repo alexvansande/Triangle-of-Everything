@@ -6,7 +6,7 @@ import {image} from './micro.js';
 import {handoffPhase,projectRay,galacticShell,SHELL_TIMING} from './galaxy-geometry.js';
 const BASE='/video/powers-of-ten/generated/galaxy-handoff-v2/';
 const TAN=Math.tan(25*Math.PI/180);
-export function galaxyHandoff(){
+export function galaxyHandoff(GC,neighboursReady=()=>false){
  const canvas=document.createElement('canvas');
  const gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,depth:false,preserveDrawingBuffer:true});
  const original=image('/video/powers-of-ten/sky/sky-4k.jpg'),clean=image(BASE+'sky-diffuse.png');
@@ -18,7 +18,7 @@ export function galaxyHandoff(){
  let skyProgram,pointProgram,quad;
  if(gl)try{
   skyProgram=program(`attribute vec2 aPosition;varying vec2 vPosition;void main(){vPosition=aPosition;gl_Position=vec4(aPosition,0.,1.);}`,`
-   precision highp float;varying vec2 vPosition;uniform sampler2D uOriginal,uClean;uniform vec3 uR,uU,uN;uniform vec2 uFov;uniform float uMix,uAlpha,uSphereRadius,uSphereDistance;
+   precision highp float;varying vec2 vPosition;uniform sampler2D uOriginal,uClean;uniform vec3 uR,uU,uN;uniform vec2 uFov;uniform float uMix,uAlpha,uSphereRadius,uSphereDistance,uGalaxies;
    float grain(vec3 p){return fract(sin(dot(floor(p),vec3(127.1,311.7,74.7)))*43758.5453);}
    void main(){vec3 ray=normalize(-uN+vPosition.x*uFov.x*uR+vPosition.y*uFov.y*uU);
     // Raycast the far wall of a world-space sphere, viewed from C=D*n.
@@ -35,13 +35,22 @@ export function galaxyHandoff(){
     float detail=(grain(skyRay*1600.)-.5)*.7+(grain(skyRay*4700.)-.5)*.3;
     diffuse=max(vec3(0.),diffuse*(1.+.22*detail)+vec3(.012*detail));
     vec3 rgb=mix(texture2D(uOriginal,uv).rgb,diffuse,uMix);
+    // The Magellanic Clouds belong to the independent extragalactic layer,
+    // not to the shrinking Milky Way dome. Retain the old view until ready.
+    vec2 lm=(uv-vec2(.721,.683))/vec2(.040,.051),sm=(uv-vec2(.659,.744))/vec2(.028,.037);
+    float extragalactic=max(1.-smoothstep(.65,1.,length(lm)),1.-smoothstep(.65,1.,length(sm)));
+    vec2 emptyUV=vec2(fract(uv.x+.075),uv.y);
+    vec3 emptySky=mix(texture2D(uOriginal,emptyUV).rgb,texture2D(uClean,emptyUV).rgb,uMix);
+    rgb=mix(rgb,emptySky,uGalaxies*extragalactic);
     gl_FragColor=vec4(rgb*uAlpha,uAlpha);}`);
   pointProgram=program(`
-   precision highp float;attribute vec3 aRay,aColour;attribute float aInvD,aWeight;uniform vec3 uR,uU,uN;uniform vec2 uScale;uniform float uDistance,uDepth,uSize,uEnergy,uModel;varying vec3 vColour;varying float vEnergy;
+   precision highp float;attribute vec3 aRay,aColour;attribute float aInvD,aWeight;uniform vec3 uR,uU,uN;uniform vec2 uScale;uniform float uDistance,uDepth,uSize,uEnergy,uModel,uGalaxies;varying vec3 vColour;varying float vEnergy;
    void main(){vec3 q=aRay-uN*(uDistance*uDepth*aInvD);float den=-dot(q,uN),r2=max(dot(q,q),.0001);
     if(den<=.000001){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=1.;vEnergy=0.;}
     else{gl_Position=vec4(dot(q,uR)/den*uScale.x,dot(q,uU)/den*uScale.y,0.,1.);gl_PointSize=uSize;
-     float cosine=den/sqrt(r2);vEnergy=min(4.,mix(aWeight,mix(1.,aWeight,uDepth),uModel)*uEnergy/mix(1.,r2,uModel)/max(.12,cosine*cosine*cosine));}vColour=aColour;}`,`
+     float cosine=den/sqrt(r2);vEnergy=min(4.,mix(aWeight,mix(1.,aWeight,uDepth),uModel)*uEnergy/mix(1.,r2,uModel)/max(.12,cosine*cosine*cosine));}vColour=aColour;
+    if(uModel>.5&&uGalaxies>.0&&aInvD<.0285)vEnergy*=1.-uGalaxies;
+   }`,`
    precision highp float;varying vec3 vColour;varying float vEnergy;
    void main(){vec2 p=gl_PointCoord*2.-1.;float r=dot(p,p);if(r>1.)discard;float a=exp(-4.*r)*vEnergy;gl_FragColor=vec4(vColour*a,a);}`);
   quad=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
@@ -79,7 +88,7 @@ export function galaxyHandoff(){
  function points(group,cam,depth,energy,size,model=0){
   const p=pointProgram;gl.useProgram(p);basis(p,cam);gl.bindBuffer(gl.ARRAY_BUFFER,group.buffer);
   for(const [name,n,offset]of [['aRay',3,0],['aInvD',1,12],['aColour',3,16],['aWeight',1,28]]){const a=gl.getAttribLocation(p,name);gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,n,gl.FLOAT,false,32,offset);}
-  gl.uniform2f(uniform(p,'uScale'),cam.min/cam.W/TAN,cam.min/cam.H/TAN);gl.uniform1f(uniform(p,'uDistance'),cam.F/(2*TAN*KPC));gl.uniform1f(uniform(p,'uDepth'),depth);gl.uniform1f(uniform(p,'uSize'),size);gl.uniform1f(uniform(p,'uModel'),model);gl.uniform1f(uniform(p,'uEnergy'),energy);gl.drawArrays(gl.POINTS,0,group.count);
+  gl.uniform2f(uniform(p,'uScale'),cam.min/cam.W/TAN,cam.min/cam.H/TAN);gl.uniform1f(uniform(p,'uDistance'),cam.F/(2*TAN*KPC));gl.uniform1f(uniform(p,'uDepth'),depth);gl.uniform1f(uniform(p,'uSize'),size);gl.uniform1f(uniform(p,'uModel'),model);gl.uniform1f(uniform(p,'uGalaxies'),neighboursReady()?ramp(cam.s,18.45,18.85):0);gl.uniform1f(uniform(p,'uEnergy'),energy);gl.drawArrays(gl.POINTS,0,group.count);
  }
  function draw(cam){
   if(!ready())return;
@@ -90,7 +99,7 @@ export function galaxyHandoff(){
   gl.useProgram(p);basis(p,cam);gl.bindBuffer(gl.ARRAY_BUFFER,quad);const a=gl.getAttribLocation(p,'aPosition');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
   for(let i=0;i<2;i++){gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,textures[i]);gl.uniform1i(uniform(p,i?'uClean':'uOriginal'),i);}
   gl.uniform2f(uniform(p,'uFov'),TAN*cam.W/cam.min,TAN*cam.H/cam.min);gl.uniform1f(uniform(p,'uMix'),phase.starFade);gl.uniform1f(uniform(p,'uAlpha'),skyAlpha);
-  gl.uniform1f(uniform(p,'uSphereRadius'),shell.radius);gl.uniform1f(uniform(p,'uSphereDistance'),shell.distance);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  gl.uniform1f(uniform(p,'uGalaxies'),neighboursReady()?ramp(cam.s,18.45,18.85):0);gl.uniform1f(uniform(p,'uSphereRadius'),shell.radius);gl.uniform1f(uniform(p,'uSphereDistance'),shell.distance);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
   // The star field fades in over the still-lit shell; the shell itself stays
   // opaque until the camera is outside. Points and shell share the same target.
   gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);

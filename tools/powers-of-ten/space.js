@@ -1,3 +1,4 @@
+import {extragalacticLayer} from './extragalactic.js';
 import {galaxyHandoff} from './galaxy-handoff.js';
 import {distanceLabel} from "./distance-labels.js";
 // tools/powers-of-ten/space.js — the code-drawn top of the zoom, one 3D scene
@@ -238,7 +239,8 @@ export function spaceLayers(globe) {
 
   // ---------- the Milky Way: a model in points (bar, bulge, four arms, the old disc), glowing ----------
   const GC = lb(0, 0, 8.2 * KPC), MW = milkyWayModel(GC);
-  const handoff=galaxyHandoff(GC);
+  const neighbours=extragalacticLayer();
+  const handoff=galaxyHandoff(GC,neighbours.ready);
   const milkyWay = {
     name: "milky way", range: [19.6, 25],
     draw(cam) {
@@ -274,7 +276,7 @@ export function spaceLayers(globe) {
       const centre=mul(LG[0].p,.5),[gx,gy,gs]=cam.projS(centre),radius=5e6*LY*cam.k*gs;
       const marker=a*ramp(radius/cam.min,.06,.16)*(1-ramp(radius/cam.min,.55,.95));
       if(gs&&marker>.01){cam.ctx.save();cam.ctx.globalAlpha=marker*.7;cam.ctx.lineWidth=cam.dpr;cam.ctx.strokeStyle='#b9d4eb';cam.ctx.setLineDash([5*cam.dpr,6*cam.dpr]);cam.ctx.beginPath();cam.ctx.arc(gx,gy,radius,0,Math.PI*2);cam.ctx.stroke();cam.ctx.restore();cam.labelPx(gx,gy-radius-12*cam.dpr,'Local Group of galaxies · ≈10 million light-years across',marker);}
-      for (const g of LG) {
+      for (const g of LG.slice(neighbours.ready()?4:0)) {
         const [x, y, rr] = body(cam, g.img, g.p, g.r, 1.2, a * 0.95);
         cam.labelPx(x, y - rr - 6 * cam.dpr, g.name, a * (g.big ? 1 : 0.6) * ramp(cam.s, 22.4, 22.7) * (1 - ramp(cam.s, g.big ? 23.8 : 22.8, g.big ? 24.2 : 23.0)));
       }
@@ -332,7 +334,7 @@ export function spaceLayers(globe) {
     } catch (e) { console.warn("sky points unavailable:", e); }
   })();
 
-  return [{...handoff.background,draw(cam){if(handoff.ready())handoff.draw(cam);else sky.draw(cam);}}, milkyWay, stars, earthMoon, solar, comets, named, localGroup, galaxies, groupLabels];
+  return [{...handoff.background,draw(cam){if(handoff.ready())handoff.draw(cam);else sky.draw(cam);}}, milkyWay, neighbours, stars, earthMoon, solar, comets, named, localGroup, galaxies, groupLabels];
 }
 
 // stars as points: the ones within a few frame-widths, at most ~30k a frame
