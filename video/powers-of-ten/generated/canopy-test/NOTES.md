@@ -601,3 +601,26 @@ including when optional crossings are enabled. The photographic clouds plate,
 its existing transition timing and the globe's own cloud imagery are retained.
 The unused atmosphere.js and source wisps remain archived; nothing loads them
 through the live journey. Plane and bird flybys are unchanged.
+
+## Chromatin foreground handoff · 2026-10-31
+
+Rebuilt the visibly inset chromatin→nucleosome transition. Built-in imagegen
+extracted the purple chromatin chains to a genuinely transparent1254px plane,
+and outpainted the finer nucleosome scene across a3x wider rear image. Native
+sources, prompt summaries, dimensions and physical spans are versioned in
+`anatomy-v9/chromatin-depth-v1/provenance.json`. The builder places the exact
+finished finer centre in the rear plane, then composites the foreground and
+propagates that identical result through level3→whole cell. Existing finer DNA
+sources and the fixed zoom origin are retained.
+
+The foreground is above all finer detail during replacement, with common scale
+and no blur. At a202nm frame (444nm source span/2.2), the screen is fully inside
+the common sharp image's opaque centre. Only then does depth ease in: foreground
+zooms faster and defocuses; rear plane slows and defocuses; central finer DNA
+continues at the world zoom rate. Opaque foreground exits geometrically through
+the frame, with an effectively transparent optical-axis corridor. This is the
+approved2.5D foreground method, not a new atomically accurate molecular model.
+A 'Chromatin depth test' button plays1.1µm→45nm in22seconds. Checked the old
+480nm inset view,141nm depth view and50nm exit with both delivery guides.
+`powers-of-ten-check-chromatin.mjs` verifies exact plane/composite identity,
+transparent centre and propagation to the whole-cell parent.

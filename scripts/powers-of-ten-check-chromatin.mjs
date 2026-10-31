@@ -1,0 +1,14 @@
+import sharp from 'sharp';
+import assert from 'node:assert/strict';
+const root=new URL('../video/powers-of-ten/generated/canopy-test/micro/anatomy-v9/',import.meta.url);
+const path=f=>new URL(f,root).pathname;
+const composite=await sharp(path('chromatin-depth-v1/background.png')).composite([{input:path('chromatin-depth-v1/foreground.png')}]).raw().toBuffer();
+assert.ok(composite.equals(await sharp(path('level-3.png')).raw().toBuffer()),'flat parent equals the exact stacked planes');
+const {data,info}=await sharp(path('chromatin-depth-v1/foreground.png')).raw().toBuffer({resolveWithObject:true});
+let maxAlpha=0;
+for(let y=info.height/2-20;y<info.height/2+20;y++)for(let x=info.width/2-20;x<info.width/2+20;x++)maxAlpha=Math.max(maxAlpha,data[(Math.floor(y)*info.width+Math.floor(x))*4+3]);
+assert.ok(maxAlpha<=1,'central corridor must be transparent to within8-bit antialiasing for geometric exit');
+assert.equal(info.width,1254);assert.equal(info.height,1254);assert.equal(info.channels,4);
+const master=await sharp(path('../pollen-v4/amoeba-inner.png')).raw().toBuffer();
+assert.ok(master.equals(await sharp(path('level-0.png')).raw().toBuffer()),'whole-cell view carries the regenerated parent chain');
+console.log('Passed: exact layered composite, transparent central corridor, native-size alpha planes and propagated whole-cell parent.');

@@ -1,0 +1,25 @@
+{
+  "tool": "built-in imagegen",
+  "date": "2026-10-31",
+  "native_dimensions": [
+    1254,
+    1254
+  ],
+  "foreground": {
+    "source": "../chromatin-raw.png",
+    "output": "foreground-raw.png",
+    "prompt": "Extract prominent purple chromatin chains at the same scale and positions into true transparent RGBA. Remove grey fluid and distant particles; open the central third for a fixed zoom corridor. Keep sharp lighting/material detail, no blur or text.",
+    "generation": "exec-87aee6c0-9996-4a2e-927a-cd6d6d5d5f10.png"
+  },
+  "background": {
+    "source": "../chromatin-bridge-raw.png",
+    "output": "background-raw.png",
+    "prompt": "Outpaint a3x wider square field: supplied nucleosome/DNA scene in central third at one-third pixel size, more irregular connected chains outside. Match neutral grey fluid, beige/lavender materials and lighting. No purple foreground chains, text, inset, or baked blur.",
+    "generation": "exec-cb04097a-21a8-4474-9cfb-64774e1577f4.png"
+  },
+  "assembly": "Finished level-4 is downsampled into the central third of background-raw; foreground is composited over it. The exact stacked result is level-3, propagated to all larger parents. All are sharp. Existing finer levels are retained.",
+  "world_span_m": 4.4444444444444444e-07,
+  "depth_start_frame_m": 2.02020202020202e-07,
+  "rendering": "2.5D optical planes, not a molecular-coordinate simulation. Foreground remains opaque, zooms faster and gains app blur only after replacement. Rear plane slows and defocuses. Fixed zoom axis.",
+  "scale_status": "Existing illustrative nucleosome11nm/DNA2nm conventions retained; generated molecular geometry is approximate."
+}
