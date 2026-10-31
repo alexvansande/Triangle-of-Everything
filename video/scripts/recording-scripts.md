@@ -95,6 +95,22 @@ a soft limit, not a wall. The heaviest stars known are about 150–200 Suns (R13
 estimates of over 300 were revised down in 2022), and the exact limit is still debated. So, "in the
 biggest stars, light itself is what holds them up, and what stops them getting any bigger".
 
+**Why stars can't grow forever** (the author, 2026-10-31: worth saying in video 3). A heavier star
+is a lot brighter (its light grows much faster than its gravity), so in the heaviest stars light
+pushes on the outer gas almost as hard as gravity pulls it in. The light shoves that gas out faster
+than the star's escape velocity (winds of about 2,000–3,000 km/s from the hottest stars, where
+escape speed is roughly 1,000), and it's lost: blown back into space, where it can become part of
+the gas clouds that make new stars. That's the author's picture, and it's right.
+- Two ways it caps a star: while the star is forming, its light pushes away the gas still falling
+  in; once it shines, winds and eruptions strip its outer layers.
+- Showpiece: Eta Carinae threw off about 10 Suns of gas in the 1840s; it's now the Homunculus
+  nebula around it (a photo cutaway candidate).
+- The limit is soft, about 150–200 Suns: R136a1 is the heaviest known, about 200, after estimates
+  of over 300 were revised down in 2022.
+- Suggested line: *"So why can't a star just keep growing? Because the heavier it gets, the
+  brighter it shines, and at a couple of hundred Suns its own light blows its outer layers off
+  faster than escape velocity, right back into the clouds that make new stars."*
+
 **The story of the forces, all the way up the chart.** Each step is a force that only reaches
 its neighbours (it holds things at a constant density) losing to one that reaches everything and
 adds up:
