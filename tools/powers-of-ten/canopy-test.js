@@ -6,7 +6,7 @@ export function mountCanopyTest() {
   panel.innerHTML=`<strong style="font-size:17px">CMB → quarks</strong>
     <div style="color:#b5c4b9;margin:5px 0 12px">Cosmos → Earth → sequoia → ladybug → cell → DNA → atom → quarks</div>
     <div style="display:flex;flex-wrap:wrap;gap:7px" id="canopy-actions">
-      <button data-s="${window.canopyTest.maximum}">CMB · universe</button><button data-s="24">Galaxy groups</button><button data-s="21">Milky Way</button><button data-s="13">Solar system</button><button data-s="7.7">Earth · globe</button><button id="full-in">Play CMB → quarks</button><button id="full-out">Play quarks → CMB</button><button id="full-stop">Stop journey</button>
+      <button data-s="${window.canopyTest.maximum}">CMB · universe</button><button data-s="24">Galaxy groups</button><button data-s="21.9">Milky Way</button><button id="galaxy-entry">Galaxy → local stars</button><button id="stars-entry">Stars → solar system</button><button data-s="13">Solar system</button><button data-s="7.7">Earth · globe</button><button id="full-in">Play CMB → quarks</button><button id="full-out">Play quarks → CMB</button><button id="full-stop">Stop journey</button>
       <button data-s="4.6">Satellite · 40 km</button><button data-s="1.6">Aerial · 40 m</button>
       <button data-s="1.123">Crown · 13 m</button><button data-s="1.69897">Check · 50 m</button>
       <button data-s="2.07712">Grove · 120 m</button><button data-s="2.60206">Forest · 400 m</button><button id="canopy-run">Play approach</button>
@@ -81,6 +81,8 @@ export function mountCanopyTest() {
   }
   document.getElementById('canopy-timing').onclick=()=>approach(0,Math.log10(.03),22000);
   document.getElementById('canopy-crown-run').onclick=()=>approach(Math.log10(4.5),Math.log10(.7),18000);
+  document.getElementById('galaxy-entry').onclick=()=>approach(22,18,26000);
+  document.getElementById('stars-entry').onclick=()=>approach(19,12.8,32000);
   document.getElementById('full-in').onclick=()=>approach(window.canopyTest.maximum,-18.7,180000);
   document.getElementById('full-out').onclick=()=>approach(-18.7,window.canopyTest.maximum,180000);
   document.getElementById('full-stop').onclick=()=>{run++;window.zoom.set(window.zoom.s)};

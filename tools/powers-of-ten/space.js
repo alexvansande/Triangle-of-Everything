@@ -1,3 +1,4 @@
+import {galaxyHandoff} from './galaxy-handoff.js';
 import {distanceLabel} from "./distance-labels.js";
 // tools/powers-of-ten/space.js — the code-drawn top of the zoom, one 3D scene
 // seen straight on (orthographic) by a camera that turns from looking down on
@@ -214,7 +215,7 @@ export function spaceLayers(globe) {
   };
 
   // ---------- stars: Hipparcos (nearest) and Gaia, tools/sky-points ----------
-  const stars = { name: "stars", range: [15.6, 22.6], data: null, draw(cam) { withGlow(cam, 0.5, (c) => drawPoints(c, this.data, win(cam.s, 15.9, 16.5, 20.3, 20.9), 1.3, 0.004)); } };
+  const stars = { name: "stars", range: [6.8, 22.6], data: null, draw(cam) { handoff.drawStars(cam,this.data); } };
   const NAMED = [["Proxima Centauri", 313.94, -1.93, 4.24], ["Alpha Centauri", 315.73, -0.68, 4.37], ["Barnard's Star", 31.0, 14.1, 5.96], ["Sirius", 227.23, -8.89, 8.6], ["Vega", 67.45, 19.24, 25], ["Betelgeuse", 199.79, -8.96, 550], ["Deneb", 84.28, 1.99, 2600]];
   const named = {
     name: "named stars", range: [16, 21],
@@ -224,7 +225,7 @@ export function spaceLayers(globe) {
       for (const [n, l, b, d] of NAMED) {
         const pd = d * LY * cam.k;
         if (pd < 25 || pd > 0.6 * cam.min) continue;
-        const [x, y] = cam.proj(lb(l, b, d * LY));
+        const [x, y] = handoff.projectStar(cam,lb(l, b, d * LY));
         cam.labelPx(x, y - 8 * cam.dpr, n, a * ramp(pd, 25, 60) * (1 - ramp(pd, 0.4 * cam.min, 0.6 * cam.min)));
       }
     },
@@ -232,11 +233,17 @@ export function spaceLayers(globe) {
 
   // ---------- the Milky Way: a model in points (bar, bulge, four arms, the old disc), glowing ----------
   const GC = lb(0, 0, 8.2 * KPC), MW = milkyWayModel(GC);
+  const handoff=galaxyHandoff(GC);
   const milkyWay = {
-    name: "milky way", range: [19.2, 25],
+    name: "milky way", range: [19.6, 25],
     draw(cam) {
-      const a = ramp(cam.s, 19.6, 20.4) * (1 - ramp(cam.s, 24.4, 24.9));
+      let a = (1 - ramp(cam.s, 24.4, 24.9));
       if (a <= 0.01) return;
+      if(handoff.ready()&&cam.s<21.65){
+        handoff.drawGalaxy(cam,a);
+        a*=ramp(cam.s,21.1,21.65);
+        if(a<.001)return;
+      }
       // under the points, faintly, the generated picture laid on the galactic plane
       const img = imgs["milky-way"], SIDE = 34 * KPC;
       if (ready(img)) {
@@ -331,7 +338,7 @@ export function spaceLayers(globe) {
     } catch (e) { console.warn("sky points unavailable:", e); }
   })();
 
-  return [sky, earthMoon, solar, comets, stars, named, milkyWay, localGroup, galaxies, groupLabels];
+  return [{...handoff.background,draw(cam){if(handoff.ready())handoff.background.draw(cam);else sky.draw(cam);}}, milkyWay, stars, earthMoon, solar, comets, named, localGroup, galaxies, groupLabels];
 }
 
 // stars as points: the ones within a few frame-widths, at most ~30k a frame

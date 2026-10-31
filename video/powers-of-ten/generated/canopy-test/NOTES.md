@@ -349,3 +349,33 @@ https://science.nasa.gov/solar-system/oort-cloud/facts/
 https://science.nasa.gov/asset/hubble/relationship-of-the-kuiper-belt-to-the-oort-cloud/
 https://pmc.ncbi.nlm.nih.gov/articles/PMC2107637/
 https://openstax.org/books/biology/pages/10-1-cell-division
+
+## Matched galactic interior handoffs · 2026-10-31
+
+New diffuse plate: `../galaxy-handoff-v1/distant-milky-way.png` (native1254×1254;
+original retained, not described as native4K). Built-in image generation; exact
+prompt and provenance are beside the image in `provenance.json`.
+
+`tools/powers-of-ten/galaxy-handoff.js` builds the interior outward:
+- Sample the plate's luminance for a seeded local star cloud. Put these stars in
+  depth35–935ly; retain the nearest Hipparcos catalogue stars separately.
+- As camera distance shrinks, use perspective projection that tends to fixed
+  angular positions. Stars behind the camera are culled geometrically. There is
+  no opacity retirement of the local star field on entry to the solar system.
+- Galaxy entry uses a textured light-volume mesh, with depth from luminance,
+  rather than large square particle sprites. Rotate the object by up to86°,
+  flatten and register every mesh vertex onto the interior plate. Edge feathering
+  avoids a floating rectangular photograph during the approach.
+- Morph froms21.65 to20.05; only once registered, replace the mesh with the exact
+  full-resolution plate from20.05 to19.65. The two draws use complementary weights
+  and additive compositing, preserving brightness. The camera axis is unchanged.
+- The background stays behind the separately rendered stars and solar system.
+  It follows the existing camera orientation; no independently generated sky swap.
+- Dedicated preview buttons: Galaxy→local stars(22→18,26s), and Stars→solar
+  system(19→12.8,32s). Both run through the normal viewer and both delivery guides.
+
+Verification: JavaScript syntax; identical registered image source and transform
+across the handoff, complementary brightness weights; angular convergence of
+stars and behind-camera culling; visual checks at20.7,20.05,18.2 and13.
+Stellar distribution beyond the nearest catalogue stars is intentionally
+compositional, following the author's request; this is not an astrometric survey.
