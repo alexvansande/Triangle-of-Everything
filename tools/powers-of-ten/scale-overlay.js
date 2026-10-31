@@ -18,15 +18,17 @@ export function drawScaleOverlay(cam,{grid=true,labels=true,canopy=false}={}){
    for(let y=cy-Math.floor(cy/spacing)*spacing;y<=H;y+=spacing){ctx.moveTo(0,y);ctx.lineTo(W,y)}
    ctx.stroke();
   }
-  // One labelled interval, smoothly exchanging with its decade subdivision.
-  if(labels)for(let e=Math.floor(s)-2;e<=Math.floor(s);e++){
+  // Label an actual grid cell at each decade, using its grid's fade curve.
+  // The text follows the cell; there is no independently growing ruler.
+  if(labels)for(let e=Math.floor(s)-2;e<=Math.floor(s)+1;e++){
    const m=10**e,spacing=m*k,fraction=spacing/min;
-   const a=smooth(.055,.11,fraction)*(1-smooth(.38,.62,fraction));
-   if(a<.01)continue;
-   const x=W/2-min*.19,y=H/2+min*.19;
-   ctx.globalAlpha=a*.85;ctx.strokeStyle='#eef9f1';ctx.lineWidth=dpr;
-   ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+spacing,y);ctx.moveTo(x,y-4*dpr);ctx.lineTo(x,y+4*dpr);ctx.moveTo(x+spacing,y-4*dpr);ctx.lineTo(x+spacing,y+4*dpr);ctx.stroke();
-   caption(ctx,scaleText(m),x+spacing/2,y+16*dpr,dpr);
+   const fade=smooth(.018,.09,fraction)*(1-smooth(.65,1.3,fraction));
+   const x=cx+spacing/2,y=cy+spacing/2;
+   // Keep labels legible, inside the shared horizontal/vertical delivery area.
+   const fit=1-smooth(.42,.55,fraction);
+   if(fade*fit<.01||spacing<30*dpr)continue;
+   ctx.globalAlpha=fade*fit*.7;
+   caption(ctx,scaleText(m),x,y,dpr);
   }
  }
  if(labels&&canopy){
