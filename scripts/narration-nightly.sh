@@ -62,9 +62,9 @@ weight() {
     NF==2{t+=s($2)-s($1)} END{print t+0}' && return
   python3 -c "import json;m=json.load(open('public/narration/$1/words.json'));print(m['duration'])"
 }
-order=$(for t in $stale; do echo "$(weight "$t") $t"; done | sort -rn | cut -d' ' -f2)
+order=$(for t in $stale; do echo "$(weight "$t") $t"; done | sort -rn | cut -d' ' -f2 | tr '\n' ' ')   # one line, so the jumps below can find a take
 # a "# next: <take>" note in the queue jumps that take ahead (the author's "render this next")
-for t in $(sed -n 's/^# next: //p' video/render-queue.txt | tac); do
+for t in $(sed -n 's/^# next: //p' video/render-queue.txt | tail -r); do   # (macOS has no tac)
   echo " $order " | grep -q " $t " && order="$t $(echo $order | tr ' ' '\n' | grep -vx "$t" | tr '\n' ' ')"
 done
 log "order: $(echo $order)"
