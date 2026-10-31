@@ -26,23 +26,25 @@ export function canopyMicro(){
   const x=W/2+dx,y=H/2+dy;
   if(!travel){ctx.drawImage(planes.flat,x-627*unit,y-627*unit,1254*unit,1254*unit)}else{
    const strength=smooth(0,.65,travel);
+   // Waterborne specimens stay sharp until the target cell occupies 12%
+   // of the frame; pollen defocus then eases up through 40% coverage.
+   const pollenFocus=smooth(.12,.4,microSpecimens[1].diameter/10**cam.s);
    ctx.filter=`blur(${44*strength*cam.min/960}px)`;
    ctx.drawImage(planes.shell,W/2+(dx-627*unit)*back,H/2+(dy-627*unit)*back,1254*unit*back,1254*unit*back);ctx.filter='none';
    // Surrounding pollen and distinct amoebae occupy their own depth planes.
    for(const p of microCommunity){
     const relative=10**(-p.lag*eased);
-    specimen(ctx,p,x,y,cam.k,relative,(5+Math.abs(p.lag)*32)*strength*cam.min/960);
+    specimen(ctx,p,x,y,cam.k,relative,(5+Math.abs(p.lag)*32)*pollenFocus*cam.min/960);
    }
    const dustDepth=10**(-.25*eased);
-   for(const p of microDust)specimen(ctx,{...microSpecimens[0],...p,file:'pollen'},x,y,cam.k,dustDepth,9*strength*cam.min/960);
-   const pass=1-smooth(Math.log10(25e-6),Math.log10(90e-6),cam.s);
+   for(const p of microDust)specimen(ctx,{...microSpecimens[0],...p,file:'pollen'},x,y,cam.k,dustDepth,9*pollenFocus*cam.min/960);
    // After the pollen visit, focus moves to the nearer cell. The grain
    // remains behind it, with slower relative zoom and increasing defocus.
    const pollenTravel=Math.max(0,Math.log10(90e-6)-cam.s);
    const pollenEase=pollenTravel-.12*(1-Math.exp(-pollenTravel/.12));
    const pollenDepth=10**(-.55*pollenEase);
-   specimen(ctx,microSpecimens[0],x,y,cam.k,pollenDepth,48*pass*cam.min/960);
-   specimen(ctx,microSpecimens[1],x,y,cam.k,1,6*(1-pass)*strength*cam.min/960);
+   specimen(ctx,microSpecimens[0],x,y,cam.k,pollenDepth,48*pollenFocus*cam.min/960);
+   specimen(ctx,microSpecimens[1],x,y,cam.k);
    ctx.filter=`blur(${80*strength*cam.min/960}px)`;
    ctx.drawImage(planes.reflections,W/2+(dx+(22-627)*unit)*near,H/2+(dy+(53-627)*unit)*near,1116*unit*near,1116*unit*near);ctx.filter='none';
   }

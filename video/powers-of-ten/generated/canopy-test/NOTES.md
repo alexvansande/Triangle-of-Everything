@@ -172,3 +172,10 @@ Removed the temporary pollen-visit camera steering. The optical axis stays
 through the small amoeba; the main pollen remains at its existing off-axis
 position (-26 µm, -8 µm), with the surrounding grains. Layer parallax and
 focus changes remain intact. No asset or parent registration changed.
+
+### Later pollen defocus, sharp target cell
+
+The target amoeba now starts sharp at its actual tiny size, without an initial
+blur. Pollen/community/dust defocus waits until that 8 µm cell occupies 12%
+of frame width (about 67 µm frame), then eases to full defocus at 40%
+(20 µm frame). Existing parallax and shell/surface blur are unchanged.
