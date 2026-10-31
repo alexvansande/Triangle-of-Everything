@@ -29,6 +29,86 @@ went silent after a minute when it ran out.
 
 ---
 
+## Notes to bring up when you record next
+
+Ideas from a conversation on 2026-10-31 (forces, iron and the island of stability). They're
+not in any script yet. **Sessions: when the author says they're about to record, or a new
+recording arrives, remind them of these first**, and move each note into its video's script
+once it's used or dropped.
+
+**The story of the forces, all the way up the chart.** Each step is a force that only reaches
+its neighbours (it holds things at a constant density) losing to one that reaches everything and
+adds up:
+- Chemistry (electromagnetism) holds small things at their own density → past a few hundred km,
+  gravity rounds them into spheres (already in video 2).
+- **Jupiter turn**, about 10⁵⁴ atoms, set by (electric ÷ gravity strength, ~10³⁶)^(3/2): gravity
+  crushes atoms. What pushes back isn't a force at all: it's quantum mechanics, the Pauli
+  exclusion principle (electrons can't share a state). **Not electromagnetism coming back**:
+  gravity is winning harder.
+- **Stars**: the strong force lights up. Fusion isn't the strong force breaking. It's nuclei
+  pulled *tighter*, sliding toward iron, and the energy released heats the gas and puffs the star
+  up. "A star is nuclei falling down the hill toward iron."
+- **The real electromagnetism comeback**: above about 150 Suns a star's own light pushes out
+  harder than gravity pulls in (the Eddington limit), so light caps how big stars get.
+- **Dead stars**: white dwarfs held by electrons refusing to be squeezed (to 1.4 Suns,
+  Chandrasekhar), neutron stars by neutrons refusing to be squeezed plus the strong force's
+  short-range push (to about 2–2.3 Suns), then black holes: gravity beats everything.
+
+**Iron, inside the nucleus: the same story at the small end.** The strong force only reaches
+neighbouring nucleons; the protons' electric push reaches all of them and grows faster. Light
+nuclei gain binding as they grow, heavy ones lose it, and iron is the peak (8.79 MeV per
+nucleon). So fusion gives energy only up to iron, and fission only down to iron.
+- The picture: `video/plans/binding-energy/binding-periodic.png`, the periodic table as the
+  chart draws it, coloured by binding energy per nucleon (AME2020 via IAEA; the script to
+  redraw it is next to it).
+- Precision: nickel-62 edges iron-56 on binding per nucleon (8.7945 vs 8.7904 MeV); iron-56 has
+  the least *mass* per nucleon. Say "iron" freely; just don't say "the most tightly bound
+  nucleus" without "almost".
+- "Stable" heavy elements are secretly unstable: past about A ≈ 90 everything would release
+  energy by splitting, and the main isotope of 17 elements, samarium to lead (gold, platinum,
+  tungsten, lead-208), could emit an alpha particle. Bismuth-209 was called stable until 2003
+  (half-life ~2×10¹⁹ years). Over ~10^1500 years everything would tunnel to iron (Dyson), if
+  protons don't decay first.
+- Fits **video 6** ("Up to iron, elements are forged in the cores of stars…"): one sentence on
+  *why* iron.
+
+**Nuclei and neutron stars sit on the same line.** In the chart's own data, nuclei are at about
+10^15.2 g/cm³ and its 75 neutron stars at 10^15.0–15.4: a neutron star is one giant nucleus
+(~10⁵⁷ nucleons) held by gravity instead of the strong force, 57 orders of magnitude apart in
+mass. The chart's "nuclear 10⁻⁶ s" density line, when quarks clumped into protons and neutrons,
+sits right there too (the strong force's own scale, ~200 MeV, ~1 fm).
+
+**The island of stability.** Known magic numbers: 2, 8, 20, 28, 50, 82, 126, but 126 is known
+only for neutrons (lead-208: 82 protons, 126 neutrons, why decay chains end at lead). Next
+neutron shell: N = 184, which the models agree on. Protons: 114, 120 or 126, depending on the
+model. Elements 104–118 exist only because of shell effects (the liquid-drop picture says they'd
+split at once), so we're already on the island's shore. The heaviest made have about 177
+neutrons, ~7 short of 184. Predicted half-lives range from seconds to years, not millions of years.
+Element 120 is being attempted (Berkeley, Dubna); check the news before saying it hasn't been made.
+
+**Trap: a coincidence on the chart.** Iron-56's nucleus (52 GeV) sits right by the electroweak
+line (logM −22.0 vs −21.75). That's a coincidence: the electroweak line is energy *per particle*;
+iron is the rest mass of 56 slow nucleons. Don't link them.
+
+**Chart markers, not built yet** (the author wants them to talk about later): iron-56 on the
+nucleus diagonal ("binding peaks here: fusion and fission both stop"), the nuclear-density
+diagonal labelled through both nuclei and neutron stars, the Jupiter turn ("gravity overtakes
+chemistry; quantum pressure holds"), maybe the Eddington limit. Any change to `src/` makes every
+video re-render whole, so ask the author when to build them.
+
+### Suggested lines (yours to reword)
+- **Video 2, super-Jupiters**, after "…and they push back": *"Gravity has won, and the last thing
+  holding it back isn't a force at all. It's a rule of quantum mechanics."*
+- **Video 3, stars**, at "it releases a huge amount of energy": *"That's the strong force pulling
+  nuclei tighter, sliding them toward iron. A star is just nuclei falling downhill."* And
+  somewhere after the main sequence: *"There's a limit to how big a star can get: above about a
+  hundred and fifty Suns, its own light pushes harder than gravity can pull."*
+- **Video 6, iron**: *"Iron is where the nucleus holds on the tightest. Lighter atoms give
+  energy by fusing toward it, heavier ones by splitting toward it, so a star can't get anything
+  out of making something heavier."*
+
+---
+
 ## 1 · The hook (`short-01-hook`)
 
 ### As cut now
@@ -100,6 +180,8 @@ series of videos. I sincerely hope you find it as fascinating as I do." (no "fol
 
 ## 2 · Up the line (`short-02-up-the-line`)
 
+*Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*
+
 ### As cut now
 (rec33, 2026-10-26, and rec46, 2026-10-28; natural speed)
 
@@ -157,6 +239,8 @@ series of videos. I sincerely hope you find it as fascinating as I do." (no "fol
 ---
 
 ## 3 · Planets into stars (`short-03-stars`)
+
+*Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*
 
 ### As cut now
 (rec36, 2026-10-27, plays at 1.1×)
@@ -337,6 +421,8 @@ through "…a new generation of stars to form", in git history and in "As cut no
 
 
 ## 6 · The tiny world: from us to the Compton line (`short-06-tiny-world`)
+
+*Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*
 
 ### As cut now
 (rec39, 2026-10-27: the script below, read with retakes, and a radioactivity ending in place of the electron one; re-cut the same day without the first "nothing can be more massive" and a repeated "further down")

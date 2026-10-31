@@ -43,6 +43,10 @@
 - **Scripts to record**: `video/scripts/recording-scripts.md` has every video's narration as cut
   now and the lightly edited script to re-record (with what changed). Keep it up to date when a
   take is replaced or the author changes a line.
+- **Remind the author of the open recording notes** (the author, 2026-10-31): when they say they're
+  about to record, or a new recording arrives, bring up the "Notes to bring up when you record next"
+  section at the top of `video/scripts/recording-scripts.md` (ideas and suggested lines not yet in
+  any script). Move each note into its video's script once it's used or dropped.
 - How the narration pipeline works (cut lists, voice treatment, tempo, scenes, sound,
   preview): `docs/narration.md` and `video/README.md`.
 - **No speed-up for new takes** (the author, 2026-10-27): from video 7 (`short-07-wavelengths`, rec42) on,
