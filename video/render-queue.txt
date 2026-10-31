@@ -10,7 +10,6 @@
 # Order until the videos are published (the author, 2026-10-31; restart tonight from the top): each long video,
 # then the Shorts cut from the same takes. The whole videos the cuts replaced are retired (video/render-skip.txt).
 long-02-space
-short-02b-planets
 short-04a-black-hole-line
 short-04b-smallest-black-holes
 short-05a-emptier
@@ -23,7 +22,6 @@ short-06c-compton
 short-07a-photons
 short-07b-sky
 # Order (the author, 2026-10-31): each long video, then the Shorts cut from the same takes
-# next: short-02b-planets
 # next: long-02-space
 # next: short-03-stars
 # next: short-04a-black-hole-line
