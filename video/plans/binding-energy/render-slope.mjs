@@ -52,7 +52,11 @@ const BLUE = "#1c7ed6", GREY = "#868e96", RED = "#e03131";
 const SPECTRUM = process.env.SPECTRUM === "1";
 const TOP = 0.64; // turbo's yellow
 const colU = SPECTRUM
-  ? (x) => d3.interpolateTurbo(x >= 0 ? TOP - x * (TOP - 0.06) : TOP + -x * (0.96 - TOP))
+  ? (x) => { // saturation eased down to 40% at the top, so iron reads greyish
+      const c = d3.hsl(d3.interpolateTurbo(x >= 0 ? TOP - x * (TOP - 0.06) : TOP + -x * (0.96 - TOP)));
+      c.s *= 0.4 + 0.6 * Math.min(1, Math.abs(x) / 0.6);
+      return c.formatHex();
+    }
   : (x) => x >= 0 ? d3.interpolateLab(GREY, BLUE)(x) : d3.interpolateLab(GREY, RED)(-x);
 const ink = (c) => (SPECTRUM && d3.lab(c).l > 62 ? "#111" : "#fff");
 const col = (v) => colU(u(v));
@@ -117,7 +121,7 @@ const bx = (v) => B.x + B.w * (1 - u(v)) / 2;
 for (const v of (process.env.SPECTRUM === "1" ? [50, 20, 10, 5, 0, -2, -5, -8] : [50, 10, 2, 0, -2, -5, -8])) bar += `<line x1="${bx(v)}" x2="${bx(v)}" y1="${B.y + B.h}" y2="${B.y + B.h + 5}" stroke="#aab"/><text x="${bx(v)}" y="${B.y + B.h + 20}" text-anchor="middle" font-size="12" fill="#aab">${v === 50 ? "≥ +50" : v > 0 ? "+" + v : v}</text>`;
 bar += `<text x="${B.x}" y="${B.y - 12}" font-size="16" font-weight="600" fill="#fff">Slope of the binding curve (keV per nucleon, per nucleon added)</text>`;
 bar += `<text x="${B.x}" y="${B.y + B.h + 44}" font-size="12.5" fill="#aab">${SPECTRUM ? "Violet to green: still climbing, so fusing gives energy. Orange to red: past the top, so splitting does." : "Blue: still climbing, so fusing gives energy. Red: past the top, so splitting does."}</text>`;
-bar += `<text x="${B.x}" y="${B.y + B.h + 62}" font-size="12.5" fill="#aab">${SPECTRUM ? "Yellow" : "Grey"}: the top. The two sides have their own scales: the light side climbs far more steeply (past +50).</text>`;
+bar += `<text x="${B.x}" y="${B.y + B.h + 62}" font-size="12.5" fill="#aab">${SPECTRUM ? "Greyish yellow" : "Grey"}: the top. Each side has its own scale; the light side is far steeper.</text>`;
 // Ring key
 const L = { x: 1180, y: 830 };
 const key0 = [
