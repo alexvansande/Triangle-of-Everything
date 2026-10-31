@@ -145,7 +145,7 @@ async function cutCues(take, name) {
     s, src: await fetch(`${import.meta.env.BASE_URL}narration/${s.take}/words.json`).then(r => r.json()),
     scene: (await SCENES[`./narration-scenes/${s.scene}.js`]()).default,
   })));
-  const all = [], missing = [], first = parts[0];
+  const all = [], missing = [], first = parts[0], sound = [];
   for (const { s, src, scene } of parts) {
     SCENE = scene;
     const rc = resolveScene(src.words);
@@ -156,6 +156,9 @@ async function cutCues(take, name) {
     if (s.from > 0 && cam) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: 0.05, drift: cam.drift, time: s.at });
     if (s.from > 0 && hl?.hl) all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: s.at + 0.001 });
     for (const c of rc) if (c.time >= s.from - 0.01 && c.time < s.to) all.push({ ...c, time: move(c.time) });
+    // its sound cues inside it too, for a cut whose mix is made whole (narration-sound.mjs: a cut
+    // with its own music, words.json "music")
+    for (const c of rc.sound || []) if (c.s >= s.from - 0.01 && c.s < s.to) sound.push({ ...c, s: move(c.s), e: move(Math.min(c.e, s.to)) });
   }
   // the cut's own scene (src/narration-scenes/<cut>.js, if any): cues on the cut's own words,
   // on top of its pieces' (short-02b-planets introduces the axes and the line)
@@ -168,7 +171,7 @@ async function cutCues(take, name) {
   }
   window.__narrMissing = missing;
   all.sort((a, b) => a.time - b.time);
-  all.sound = [];
+  all.sound = sound;
   // the first piece's scene-wide settings win; settings only a later piece has (video 7's explorer) come along too
   const merged = { ...Object.assign({}, ...[...parts].reverse().map(p => p.scene)), cues: [], captionFixes: Object.assign({}, ...parts.map(p => p.scene.captionFixes)),
     cover: first.s.from === 0 ? first.scene.cover && { ...first.scene.cover, ...own?.cover } : undefined,
@@ -233,7 +236,9 @@ export async function startNarration(app) {
   // camWide: its own framing instead. The classic figure keeps × 16/9 (CLASSIC_WIDE): it was to be
   // closer, not further, and its text doesn't grow with the zoom
   const WIDE = stage === "landscape" ? (16 / 9) ** 2 : 1, CLASSIC_WIDE = stage === "landscape" ? 16 / 9 : 1;
-  if (stage !== "none" && (RENDER || !app.isMobile())) app.setStage(stage === "landscape" ? "video" : stage);
+  // (a 16:9 video locks its stage on a phone too, letterboxed: filling the phone's own shape it
+  // stretched into a strip, the author, 2026-10-31)
+  if (stage !== "none" && (RENDER || !app.isMobile() || stage === "landscape")) app.setStage(stage === "landscape" ? "video" : stage);
   // 16:9: the labels twice the size (the chart's names and the narration's tags, rulers and axis
   // names): on a phone they weren't legible, while the pictures were fine (the author, 2026-10-31);
   // the classic figure's text grows too (scene `textScale`, `classicText`)
@@ -253,9 +258,9 @@ export async function startNarration(app) {
   app.setShadowSwirl?.(params.has("shadowswirl") ? +params.get("shadowswirl") : SCENE.shadowSwirl ?? 0.8);
   app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);   // off: the author prefers the background kept on deep zooms
   // pictures 1.28× the app's default size, so they read on a phone (1.6× was too big)
-  // (16:9: the same decades in 540 px of height that the phone has 768 for: the pictures at 70%, as
-  // the author asked, 2026-10-31, keep the phone's proportions)
-  app.setIconScale?.((SCENE.iconSize ?? 128) * (WIDE !== 1 ? 0.7 : 1));
+  // (16:9: the pictures at 42%: 70% kept the phone's proportions, then 60% of that, the author's
+  // note after watching long video 1, 2026-10-31: "the icons are still too big")
+  app.setIconScale?.((SCENE.iconSize ?? 128) * (WIDE !== 1 ? 0.42 : 1));
   // Settings → Icons at "many" (the author's pick): pictures may nearly touch, smaller catalogue ones show
   app.setIconDensity?.(SCENE.iconDensity ?? 60);   // a little over standard: pictures keep clear of each other
   app.setIconForce?.(SCENE.forceIcons ?? null);   // pictures shown even where a nearer one would hide them
@@ -299,7 +304,39 @@ export async function startNarration(app) {
   // dur: "end" flies until the end card has covered the picture (it fades in over
   // speechEnd + 0.15…0.65 s); ease: "gentle" (sine) keeps a long move
   // close to an even pace instead of the default cubic's slow-fast-slow
-  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: WIDE !== 1 && c.camWide ? resolveView({ ...c.camWide, span: c.camWide.span / WIDE }) : resolveView(c.cam),
+  // 16:9: each shot fitted to a rectangle of what it has to show, so any frame shape shows it (the
+  // author, 2026-10-31: "save a rectangle of where the interesting objects are ... and adapt whatever
+  // aspect ratio to it"). The rectangle is the vertical video's whole frame (its framing was tuned by
+  // hand: "if you're not sure of the rectangle ... use the vertical video frame"), grown to take in
+  // any object, arrow end, mark or cross the shot names until the next camera move that falls
+  // outside it, and fitted to the whole 16:9 frame: the short's shot, wider sideways. A cue's
+  // `frame: [r0, m0, r1, m1]` (log cm, log g) is a rectangle known to hold what matters: it's fitted
+  // tighter, to the frame's clear area (below a top margin, above the captions, left of the ruler).
+  // Shots of the classic figure keep span × WIDE (its cross-fade into the map lines up on that).
+  // A cue's camWide wins over both.
+  const camCues = cues.filter(c => c.cam);
+  const classicEnd = (() => { const f = cues.find(c => c.classic === "out"); return f ? f.time + (f.fade ?? 3) : -1; })();
+  const ptOf = (x) => !x ? null : x.obj ? (o => o && [o.logR, o.logM])(objByName.get(x.obj)) : Number.isFinite(x.r) && Number.isFinite(x.m) ? [x.r, x.m] : null;
+  function fitWide(c) {
+    const v = resolveView(c.cam);
+    if (!v || c.time < classicEnd) return v;
+    const sp = v.span / WIDE, Hp = sp * 16 / 9, pad = 0.12 * sp, known = c.frame || c.cam.frame;
+    let [r0, m0, r1, m1] = known || [v.r - sp / 2, v.m - Hp / 2, v.r + sp / 2, v.m + Hp / 2];
+    const until = camCues.find(q => q.time > c.time + 0.01)?.time ?? Infinity;
+    for (const q of cues) {
+      if (q.time < c.time - 0.01 || q.time >= until) continue;
+      for (const h of q.hl || []) for (const p of [ptOf(h.obj && { obj: h.obj }), h.arrow && ptOf(h.from), h.arrow && ptOf(h.to),
+        Array.isArray(h.mark) && h.mark, h.cross && ptOf(h.cross)]) {
+        if (!p) continue;
+        r0 = Math.min(r0, p[0] - pad); r1 = Math.max(r1, p[0] + pad); m0 = Math.min(m0, p[1] - pad); m1 = Math.max(m1, p[1] + pad);
+      }
+    }
+    // a known rectangle: the clear area, x 4–90 %, y 8–76 % from the top; the vertical frame: all of it
+    const [fx, fy, ox, oy] = known ? [0.86, 0.68, 0.03, 0.08] : [1, 1, 0, 0];
+    const span = Math.max((r1 - r0) / fx, (m1 - m0) * 16 / 9 / fy), H = span * 9 / 16;
+    return { r: (r0 + r1) / 2 + ox * span, m: (m0 + m1) / 2 - oy * H, span };
+  }
+  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: WIDE !== 1 && c.camWide ? resolveView({ ...c.camWide, span: c.camWide.span / WIDE }) : WIDE !== 1 ? fitWide(c) : resolveView(c.cam),
     dur: c.dur === "end" ? speechEnd + (CREDITS ? 0.65 : 0) - c.time : c.dur, drift: c.drift ?? 0.05,
     ease: c.ease === "gentle" ? d3.easeSinInOut : d3.easeCubicInOut,
     quiet: !!c.quiet, glide: !!c.cam.glide, whip: !!c.cam.whip, overshoot: c.cam.overshoot }))
@@ -596,7 +633,8 @@ export async function startNarration(app) {
       <div id="narr-speed" role="group" aria-label="Speed">${SPEEDS.map(v =>
         `<button type="button" data-speed="${v}">${v}×</button>`).join("")}</div>
       <div id="narr-chips"><button id="narr-auto" class="narr-chip" type="button" aria-pressed="true"></button>
-      <button id="narr-sound" class="narr-chip" type="button" aria-pressed="true" hidden></button></div></div>
+      <button id="narr-sound" class="narr-chip" type="button" aria-pressed="true" hidden></button>
+      <button id="narr-full" class="narr-chip" type="button" hidden>Full screen</button></div></div>
       <div id="narr-bar" role="slider" aria-label="Seek" tabindex="0"><div id="narr-track"><div id="narr-bar-fill"></div><div id="narr-knob"></div></div><span id="narr-time"></span></div>`);
   document.body.appendChild(layer);
   if (!document.getElementById("narr-css")) {
@@ -2577,6 +2615,8 @@ export async function startNarration(app) {
       // the music bed follows the camera: [t, log r, log m, span] every 0.25 s
       bed: SCENE.bed ?? false,      // off by default for now; a scene opts in with bed: true
       backing: SCENE.backing ?? null,   // a real track under the take (video/music/)
+      // a cut's own music, one track after another: [{ track, at, offset }] (scripts/narration-cut.py)
+      music: take.music ?? null,
       path: Array.from({ length: Math.ceil(duration * 4) + 1 }, (_, i) => {
         const v = camera(i / 4).view;
         return [i / 4, +v.r.toFixed(3), +v.m.toFixed(3), +v.span.toFixed(3)];
@@ -2754,6 +2794,25 @@ export async function startNarration(app) {
   // "Play next" on the end screen: the preview's grid order (window.__narrTakes),
   // or the shorts in name order on the dev server. With autoplay on, the end
   // screen counts down and the next short starts in place, on the same audio.
+  // full screen (where the browser lets a page do it: not an iPhone), a 16:9 video turning the
+  // phone sideways where it may (the author, 2026-10-31)
+  const fullEl = document.getElementById("narr-full"), root = document.documentElement;
+  const isFull = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const fullLabel = () => { fullEl.textContent = isFull() ? "Exit full screen" : "Full screen"; };
+  if (document.fullscreenEnabled || document.webkitFullscreenEnabled) {
+    fullEl.hidden = false; fullLabel();
+    document.addEventListener("fullscreenchange", fullLabel); document.addEventListener("webkitfullscreenchange", fullLabel);
+    fullEl.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      try {
+        if (isFull()) await (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        else {
+          await (root.requestFullscreen || root.webkitRequestFullscreen).call(root);
+          if (WIDE !== 1) await screen.orientation?.lock?.("landscape").catch(() => {});
+        }
+      } catch { /* refused: stays as it is */ }
+    }, on);
+  }
   const nextEl = document.getElementById("narr-next");
   const autoEl = document.getElementById("narr-auto");
   const order = window.__narrTakes ||

@@ -155,7 +155,10 @@ export default {
     // wide, then up the line (waypoints at their cue times) on to the round worlds
     // "most animals": the animals first, even overlapping a little; the tonne of water only where
     // there's room left (the author, 2026-10-29); back to the scene's own from the engineering on
-    { at: "most animals", firstIcons: ANIMALS.slice(1), forceIcons: ANIMALS },
+    // (the cow over the tonne of water there: the block hides until the engineering, where the cow was
+    // drawn behind it; Argentinosaurus and the Eiffel Tower on from here, so they come in with the
+    // pan instead of popping up when they're named: the author, 2026-10-31)
+    { at: "most animals", firstIcons: ANIMALS.slice(1), forceIcons: [...ANIMALS, "Argentinosaurus", "Eiffel Tower"], hideIcons: ["1 Tonne of Water"] },
     { at: "much narrower band", cam: C(1.8, 6.0, 1.7), hl: [WATER, { obj: "Human" }] },
     { at: "mostly made of water", cam: C(1.85, 6.15, 1.6), hl: [WATER, { obj: "Human", label: "mostly water" }] },
     { at: "denser than others", cam: C(1.92, 6.35, 1.5), hl: [{ obj: "Hippopotamus" }, WATER] },
@@ -167,7 +170,7 @@ export default {
     { at: "the blue whale", cam: UP(2.55, 1.9), hl: [{ obj: "Blue Whale", label: "largest animal ever" }] },
     // the Eiffel Tower's picture kept on from here (it gave way to its neighbours for the 7 s before
     // it's named: the author, 2026-10-31), the animals' too until the engineering
-    { at: "the largest tree", cam: UP(2.85, 2.2), forceIcons: [...ANIMALS, "Eiffel Tower"], hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
+    { at: "the largest tree", cam: UP(2.85, 2.2), forceIcons: [...ANIMALS, "Argentinosaurus", "Eiffel Tower"], hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // what we build
     { at: "to engineering", cam: UP(3.15, 3.2), dur: 2, clear: true, hideIcons: [], firstIcons: null, forceIcons: ["Venus", "Eiffel Tower"],

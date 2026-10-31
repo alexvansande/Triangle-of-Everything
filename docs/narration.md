@@ -409,9 +409,13 @@ so a short's scene can import the matching section from another scene.
 `public/narration/<take>/` with a `words.json` that records each piece's source (`segments`). The
 player plays each piece with its own scene's cues, resolved on its own take's words and moved into
 place, and opens each piece on the camera and highlights its source had there. A long cut asks for
-`"stage": "landscape"`: 16:9, edge to edge, the scenes' camera spans × 16/9 (a cue's `camWide`
-overrides), laid out at 960×540 (the app's `video` stage) so text, pictures and rulers come out
-twice the desktop's size, readable on a TV and at SD. The videos page lists long cuts in their own
+`"stage": "landscape"`: 16:9, edge to edge, laid out at 960×540 (the app's `video` stage), the
+labels twice the size and the pictures at 70%. Each shot is fitted to a rectangle: the vertical
+video's whole frame (its framing was tuned by hand), grown to take in any named object, arrow end,
+mark or cross outside it, so 16:9 shows the short's shot wider sideways; a cue's
+`frame: [r0, m0, r1, m1]` (log cm, log g) gives a rectangle known to hold what matters, fitted
+tighter to the frame's clear area (clear of the captions and the mass ruler); `camWide` overrides
+both. The classic figure's shots keep spans × (16/9)². The videos page lists long cuts in their own
 16:9 row. A cut's own scene (`src/narration-scenes/<cut>.js`) adds cues on the cut's words and can
 set `cover` (fields over the first piece's cover; at 16:9 `from` is a share of the frame's height)
 and `classicWide: [from, to]` (seconds: the classic figure's frame opens out to the full 16:9

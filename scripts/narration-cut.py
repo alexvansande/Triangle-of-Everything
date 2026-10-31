@@ -24,6 +24,18 @@ out before: it loops), about 9 LU under its voice (the
 level narration-sound.py gives it with no one talking), and fades out under the next piece's start
 as that one's own music comes in (the author, 2026-10-31: "I don't mind having the music continue
 from the previous clip into the next").
+
+A cut can have music of its own instead, one track after another under the whole video, the
+pieces' tracks no longer changing at the joins ("music": the author, 2026-10-31, "we can just keep
+playing the music, and when it's done, we play the next music"):
+
+      "music": [ { "track": "Space X-plorers" },                          # from the start
+                 { "track": "Space X-plorers", "at": { "gap": 1, "lead": 5.5 } },   # again, its 5.5 s at the 1st gap
+                 { "track": "Soaring", "after": true } ]                  # when the one before ends
+
+It goes into words.json as [{ track, at, offset }] (s into the video, s into the track), and the
+mix is then made whole by scripts/narration-sound.mjs <cut> (voice, the pieces' sound cues, the
+music), not joined from the pieces' mixes.
 """
 import json, os, re, subprocess, sys, tempfile
 
@@ -116,7 +128,7 @@ def main(name):
             ffmpeg("-f", "concat", "-safe", "0", "-i", lst, joined)
             # the music carried over each gap (the mix only)
             extra = []
-            for k in range(1, len(pieces)) if kind == "mix" else []:
+            for k in range(1, len(pieces)) if kind == "mix" and not cut.get("music") else []:
                 take, src, a, b, t = pieces[k - 1]
                 end = t + (b - a)
                 if pieces[k][4] <= end + 0.001: continue                       # no gap: same take
@@ -152,6 +164,21 @@ def main(name):
     if len(tempos) == 1 and tempos != {1}: meta["tempo"] = tempos.pop()   # one pace throughout: the speed buttons know it
     for k in ("title", "blurb", "stage"):
         if cut.get(k): meta[k] = cut[k]
+    if cut.get("music"):
+        gaps = [p[4] - gap for k, p in enumerate(pieces) if k and p[4] > pieces[k - 1][4] + (pieces[k - 1][3] - pieces[k - 1][2]) + 0.001]
+        music, prev = [], None
+        for m in cut["music"]:
+            path = os.path.join(MUSIC, TRACKS.get(m["track"], m["track"] + ".mp3"))
+            L = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
+                                     capture_output=True, text=True).stdout)
+            off = m.get("offset", 0.0)
+            at = m.get("at", 0.0)
+            if isinstance(at, dict): at = gaps[at["gap"] - 1] - at.get("lead", 0.0)   # its `lead` s at that gap's start
+            if m.get("after") and prev: at = prev["at"] + prev["len"]               # when the one before ends
+            prev = {"track": m["track"], "at": round(max(0.0, at), 3), "offset": off, "len": L - off}
+            music.append(prev)
+        meta["music"] = [{k: v for k, v in x.items() if k != "len"} for x in music]
+        print("  music: " + ", ".join(f"{x['track']} at {x['at']:.1f} s" for x in meta["music"]) + " (then: node scripts/narration-sound.mjs " + name + ")")
     json.dump(meta, open(os.path.join(out, "words.json"), "w"), ensure_ascii=False)
     print(f"{name}: {len(segments)} pieces, {len(words)} words, {speech_end:.1f} s + {credits} s credits")
     for s in segments:

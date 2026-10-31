@@ -427,7 +427,43 @@ TRACKS = {"Fretless": "Fretless.mp3", "Immersed": "Immersed.mp3", "Dreamer": "Dr
           "Relaxing Piano Music": "Relaxing Piano Music.mp3", "Space X-plorers": "space explorers.mp3",
           "Universal": "Universal.mp3", "Daytime TV Theme": "Daytime TV Theme.mp3", "Mesmerize": "Mesmerize.mp3",
           "In the West": "In The West.mp3"}
-bk = TL.get("backing")
+# A cut's own music (scripts/narration-cut.py, TL "music": [{ track, at, offset }]): the tracks one
+# after another, each from `at` s into the take (from `offset` s into the track) until the next one
+# starts or it ends, each at the backing's level; no fades at the joins (a track restarting where
+# its rise lands on a pause, the author, 2026-10-31), the first fading in, all out by the credits.
+seq = TL.get("music")
+if seq:
+    k = np.arange(M) / SR
+    talk_k = np.clip((20 * np.log10(follower(voice, 0.08, 0.5) + 1e-9) + 48) / 18, 0, 1)
+    duck = db(-8 * np.concatenate([talk_k, np.zeros(M - N)]))
+    # in the pauses between the pieces (no one talks there) the music comes up 6 dB, easing in and
+    # out over 0.4 s, so the pause is a moment of the music, not a dip
+    swell = np.zeros(M)
+    segs = take.get("segments") or []
+    for p0, p1 in zip(segs, segs[1:]):
+        g0, g1 = p0["at"] + p0["to"] - p0["from"], p1["at"]
+        if g1 - g0 > 0.3: swell = np.maximum(swell, np.clip(np.minimum(k - g0 + 0.2, g1 + 0.2 - k) / 0.4, 0, 1))
+    swell = db(6 * swell)
+    for j, sg in enumerate(seq):
+        path = os.path.join(os.path.dirname(__file__), "..", "video", "music", TRACKS.get(sg["track"], sg["track"] + ".mp3"))
+        if not os.path.exists(path): sys.exit(f"  music track missing: {path} (run video/music/fetch.sh)")
+        a = int(sg["at"] * SR)
+        until = int(seq[j + 1]["at"] * SR) if j + 1 < len(seq) else M
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-ss", str(sg.get("offset", 0)), "-i", path, "-t", str(max(0, (until - a) / SR) + 1),
+                              "-ac", "2", "-ar", str(SR), "-f", "f32le", "-"], capture_output=True, check=True).stdout
+        trk = np.frombuffer(raw, np.float32).astype(np.float64).reshape(-1, 2).T
+        n = min(trk.shape[1], until - a, M - a)
+        if n <= 0: continue
+        seg = np.zeros((2, M)); seg[:, a:a + n] = trk[:, :n]
+        g = np.clip((TC - k) / 2.5, 0, 1) * (np.clip((k - sg["at"]) / 2, 0, 1) if j == 0 else 1)
+        for s0, e0, cut in cue_music:
+            out_from, back = s0 - 2, (e0 + 4 if cut else e0 + 1)
+            g *= np.clip(np.maximum((out_from - k) / 2, (k - back) / 3), 0, 1)
+        level = db(lufs(voice[None]) - 9 - lufs(trk[:, :n]) + sg.get("gain", 0))
+        music += seg * g * duck * level * swell
+        done.append(f"music \"{sg['track']}\" at {sg['at']:.1f} s")
+
+bk = None if seq else TL.get("backing")
 if bk:
     bk = {"track": bk} if isinstance(bk, str) else bk
     path = os.path.join(os.path.dirname(__file__), "..", "video", "music", TRACKS.get(bk["track"], bk["track"]))

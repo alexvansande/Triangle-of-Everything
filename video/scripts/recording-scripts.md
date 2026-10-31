@@ -29,6 +29,268 @@ went silent after a minute when it ran out.
 
 ---
 
+## Notes to bring up when you record next
+
+Ideas from a conversation on 2026-10-31 (forces, iron and the island of stability). They're
+not in any script yet. **Sessions: when the author says they're about to record, or a new
+recording arrives, remind them of these first**, and move each note into its video's script
+once it's used or dropped.
+
+### Quick index: "since you'll be talking about X, what about mentioning Y?"
+When the author says which bit they're re-recording, find it here and offer the matching idea in
+that form, one or two at most, with the suggested line. Details are in the notes below.
+
+| If they're recording… | Suggest… |
+|---|---|
+| Any video (the framing) | Tell the trend as one force winning over another, reusing "neighbour force vs everyone force" and "matter refuses to be squeezed" instead of new terms |
+| Video 2 · potato-shaped → round | Gravity's first goal against chemistry (electromagnetism) |
+| Video 2 · super-Jupiters, "electrons push back" | Gravity has won, and what holds it back isn't a force but a quantum rule; the same rule makes the periodic table's sawtooth (video 6) and holds up white dwarfs |
+| Video 3 · brown dwarfs → stars, fusion | How fusion really works: gravity helps the strong force beat the electric push; nothing's destroyed, nuclei are held tighter and lose 0.7% of mass as light; all four forces team up in the core; a star is nuclei falling downhill toward iron |
+| Video 3 · the main sequence, big stars | Why stars can't grow forever: their light blows the outer gas off past escape velocity, back into the clouds (Eta Carinae); light pressure in general (comet tails, solar sails) |
+| Video 3 · the core's light | Gamma rays in the core, tens of thousands of years to get out, sunlight at the surface (link to video 7) |
+| Video 3 · supernova | The weakest force decides it: electrons squeezed into protons make neutrons, and neutrinos carry off ~99% of the energy |
+| Video 3 · neutron stars, "the density of a neutron" | A neutron star is one giant nucleus held by gravity instead of the strong force; same density line as every nucleus |
+| Video 4 · black holes | Gravity's final goal; the Planck corner, where the black-hole line meets the Compton line and no rule exists yet |
+| Video 5 · superclusters, Laniakea | A new player: dark energy is already winning over gravity at that scale (superclusters aren't bound) |
+| Video 6 · atoms, the sawtooth | Electric pull vs the quantum rule sets each atom's size, the same rule as in super-Jupiters |
+| Video 6 · "Those intervals are the periodic table" | **The author's own new line, with the table animation on screen** (see "Video 6: the table transition" below). Remind them it's planned |
+| Video 6 · "up to iron, elements are forged in stars" | Why iron: the binding-energy peak (the picture in `video/plans/binding-energy/`); fusion and fission both stop there |
+| Video 6 · heaviest elements, oganesson | Electromagnetism caps the heaviest nuclei the same way light caps the biggest stars; the island of stability; "stable" heavy elements that are secretly (very slowly) radioactive |
+| Video 6 · the nucleus, protons and neutrons | Quarks locked in, ~99% of a proton's mass is the strong force's energy; the neutron saved by the strong force |
+| Video 6 · Compton line, gamma rays from decay | The same gamma rays as fusion in stars: mass turning into light |
+| Early-universe lines (any video) | The forces separating over time: electroweak 10⁻¹¹ s, quarks locked at 10⁻⁶ s, helium in the first minutes, light set free at the CMB |
+| Iron near the electroweak line | **Warn**: a coincidence on the chart, don't link them |
+
+**The series' through-line: a battle of the forces, told twice** (the author, 2026-10-31: "very
+didactic… coming back to the same things, not creating new rules and bringing up new terms").
+Tell the trends on the chart as one force winning over another, going *up* the line (videos 2–4),
+then tell the same battle again going *down* into the micro world (video 6), reusing the same few
+ideas rather than new terms:
+- **A "neighbour" force against an "everyone" force.** Chemistry and the strong force only reach
+  what's next to them, so they hold things at a fixed density. Electric push between protons and
+  gravity reach everything and add up, so with enough stuff they always win.
+- **"Matter refuses to be squeezed"** (Pauli): the same rule makes the periodic table's sawtooth
+  (electron shells, video 6), holds up super-Jupiters and white dwarfs (videos 2–3), and, with
+  neutrons, neutron stars.
+- **Mass turning into light**: the gamma rays of radioactive decay (end of video 6) and of fusion
+  in a star's core are the same thing.
+
+| Up the line (big) | Down the line (small) |
+|---|---|
+| Rocks, small moons: chemistry (electric bonds) holds the shape | Molecules: the same chemical bonds |
+| Past a few hundred km: gravity rounds them | Atoms: electric pull vs "refuses to be squeezed" sets each atom's size (the sawtooth) |
+| Jupiter turn: gravity wins, "refuses to be squeezed" holds | Iron: the nucleus' turn, where the electric push starts winning over the strong force |
+| Stars: gravity squeezes nuclei until the strong force grabs them | Nuclei: the strong force holds them, at one fixed density |
+| **Biggest stars capped by light pushing out (electromagnetism)** | **Heaviest elements capped by protons pushing apart (electromagnetism)** |
+| Neutron star: a nucleus 10⁵⁷ nucleons big, held by gravity | Nucleus: the same density, held by the strong force |
+| Black hole: gravity beats everything | Compton line: squeeze harder and the energy makes new particles |
+
+The bold row is the neatest mirror: electromagnetism sets the upper limit on both stars and nuclei.
+
+**How fusion actually works (the author's question, 2026-10-31).** The author's first take was
+"gravity beats the strong force, destroys something, and that makes energy". It's close, but it's
+the other way round. Gravity isn't fighting the strong force; it's *helping* it, against the
+electric push:
+- In the core (about 15 million °C) atoms are stripped bare: just nuclei and electrons, a plasma.
+- Two protons repel each other electrically. The strong force would grab them, but it only reaches
+  about a proton's width. Gravity's squeeze makes the core hot and dense enough that protons
+  collide fast enough to get that close (with a little quantum tunnelling), and the strong force
+  grabs them.
+- Nothing is destroyed. The new nucleus (in the end, helium) is held *tighter*, so it's slightly
+  lighter: 0.7% of the mass is gone, released as energy (E = mc²). The Sun loses about 4 million
+  tonnes a second this way.
+- The weak force is in there too: one proton has to turn into a neutron for two protons to stick.
+  That step is so slow (a proton waits billions of years on average) that it's why the Sun burns for
+  10 billion years instead of exploding. **The Sun's core is the one place all four forces work
+  together**: gravity squeezes, the electric force resists, the strong force grabs, the weak force
+  turns protons into neutrons.
+- The energy comes out as gamma rays, neutrinos and fast particles. The neutrinos leave in two
+  seconds. The light takes tens of thousands of years or more (estimates run about 10,000–170,000)
+  to stagger out, absorbed and re-emitted countless times, and gets redder each step until it leaves
+  the surface as visible light: gamma rays in, sunlight out (a link to video 7, the wavelengths).
+
+**Is it light holding the star up? Mostly not, but it's a great note.** In the Sun the push comes
+from *hot gas*: particles moving fast and bouncing, kept hot by the fusion energy flowing out. Light
+pressure is well under 1% of it. But light does push (comet tails point away from the Sun, solar
+sails), and the bigger the star, the larger its share. In the most massive stars light becomes the
+main support, and as a star gets heavier its light grows much faster than its gravity. Near the
+balance point (the **Eddington limit**) the outer layers are pushed off as fierce winds and eruptions
+(Eta Carinae), and a forming star's light pushes away the gas still falling onto it. That's the cap:
+a soft limit, not a wall. The heaviest stars known are about 150–200 Suns (R136a1, about 200, after
+estimates of over 300 were revised down in 2022), and the exact limit is still debated. So, "in the
+biggest stars, light itself is what holds them up, and what stops them getting any bigger".
+
+**Video 6: the table transition** (the author, 2026-10-31: "I really like this animation. I want
+to add it to the microscopic world"). When video 6 reaches the periodic table, briefly morph the
+element dots from their chart positions into the table on screen, then turn it into the classroom
+view.
+- The author's line, to go after "Bigger and smaller, over and over, at regular intervals" and
+  replace "Those intervals are the periodic table. The table you saw in chemistry class isn't
+  arbitrary…": *"This is where the 'periods' of the periodic table come from. The poster you saw
+  on the wall in science class comes from this arrangement. Although it's more likely you've seen
+  it like this."*
+- Fact check of the line: "periods" is right: each row is one period, one turn of the
+  repeat, and that repeat is what "periodic" means. "Comes from this arrangement" is a little
+  strong: the table was built (Mendeleev, 1869) from repeating chemical properties, not sizes. The
+  size sawtooth is the same repeat with the same cause (electron shells). Suggested wording: *"The
+  poster you saw on the wall in science class is this same pattern."*
+- On screen:
+  1. While they talk about the periods, the dots and the period and group lines morph from the
+     chart into the **long table upside down**: 32 columns, hydrogen at the bottom, alkali metals
+     on the right, lanthanides and actinides inside rows 6 and 7. That's
+     `video/plans/binding-energy/table-morph-long.mp4` (`anim.mjs`, `LONG=1`).
+  2. On "**like this**": turn it into the **traditional view**: rotate 180° so hydrogen is at the
+     top left, and pull the lanthanides and actinides out into the two separate rows underneath.
+     This step isn't built yet: add it to `anim.mjs` (the 18-column grid is already there) and
+     then as a chart scene in `src/narration-scenes/short-06-tiny-world.js`, keyed to the
+     words.
+  3. Keep it brief, then back to the chart for palladium and the lanthanides (the chart is the
+     star, `video/plans/visual-rules.md`).
+- Colours: the animation uses the binding-energy slope colours (iron grey). In video 6, either keep
+  the element-type colours the chart already uses for its periodic-table easter egg, or use the
+  slope colours if the iron note ("up to iron…") is recorded right after. Ask the author.
+
+**The goal moments: where one force scores on another, across the whole chart** (the author's
+question, 2026-10-31). Four players (gravity, electromagnetism, the strong force, the weak force)
+plus a referee that isn't a force: quantum rules ("matter refuses to be squeezed", and the Compton
+limit). The referee keeps stepping in when one side is about to win outright.
+
+Top moments, the ones worth a beat in a video:
+1. **The Planck corner**: where the black-hole line meets the Compton line. Gravity's limit and the
+   quantum limit collide, and physics has no rule for it yet. The match nobody can referee.
+2. **Quarks locked in**: the strong force's shutout. No quark ever escapes, and about 99% of a
+   proton's mass is the strong force's own energy; the three quarks give about 1%.
+3. **The neutron, saved by a teammate**: alone, the weak force breaks a neutron down in about 15
+   minutes; inside a nucleus the strong force protects it, so it lasts forever.
+4. **Iron**: the strong force against the electric push, peak of the match. Past it, the electric
+   push slowly wins, until the heaviest elements tear themselves apart.
+5. **Bodies round off at a few hundred km** (the potato line): gravity's first goal against
+   chemistry, after everything below was held by electromagnetism.
+6. **Jupiter turn**: gravity crushes atoms, and the referee (Pauli) stops it. Planets can't grow.
+7. **Ignition, the team play** (~0.08 Suns): all four together. Gravity squeezes, the strong force
+   grabs, the weak force turns protons into neutrons, electromagnetism carries the energy out as light.
+8. **Light's comeback** (~150–200 Suns): electromagnetism scores back on gravity and caps the stars.
+9. **Supernova, the weakest force decides it**: the iron core collapses, electrons are squeezed into
+   protons to make neutrons (the weak force), and neutrinos carry off about 99% of the energy and
+   help blow the star apart.
+10. **Neutron star**: gravity against the strong force plus the referee, on the nucleus' own density line.
+11. **Black hole**: gravity's final goal, the black-hole line, the triangle's edge.
+12. **Beyond galaxies, a new player**: dark energy, which isn't one of the four. Galaxy clusters are
+    held by gravity, but superclusters like Laniakea are already losing to the expansion.
+
+The same match in time (the chart's epoch density lines, going back): before the electroweak line
+(10⁻¹¹ s) electromagnetism and the weak force were one; at the nuclear line (10⁻⁶ s) the strong force
+locks quarks into protons; at about 1 s to 3 min the weak force sets one neutron for every seven
+protons and the strong force builds helium (that's why the universe is about a quarter helium); at
+recombination electromagnetism captures electrons and light goes free (the CMB). The GUT line, where
+the strong force would join too, is a hypothesis (the chart's asterisk).
+
+**Why stars can't grow forever** (the author, 2026-10-31: worth saying in video 3). A heavier star
+is a lot brighter (its light grows much faster than its gravity), so in the heaviest stars light
+pushes on the outer gas almost as hard as gravity pulls it in. The light shoves that gas out faster
+than the star's escape velocity (winds of about 2,000–3,000 km/s from the hottest stars, where
+escape speed is about 1,000–1,500), and it's lost: blown back into space, where it can become part of
+the gas clouds that make new stars. That's the author's picture, and it's right.
+- Two ways it caps a star: while the star is forming, its light pushes away the gas still falling
+  in; once it shines, winds and eruptions strip its outer layers.
+- Showpiece: Eta Carinae threw off about 10 Suns of gas in the 1840s; it's now the Homunculus
+  nebula around it (a photo cutaway candidate).
+- The limit is soft, about 150–200 Suns: R136a1 is the heaviest known, about 200, after estimates
+  of over 300 were revised down in 2022.
+- Suggested line: *"So why can't a star just keep growing? Because the heavier it gets, the
+  brighter it shines, and at a couple of hundred Suns its own light blows its outer layers off
+  faster than escape velocity, right back into the clouds that make new stars."*
+
+**The story of the forces, all the way up the chart.** Each step is a force that only reaches
+its neighbours (it holds things at a constant density) losing to one that reaches everything and
+adds up:
+- Chemistry (electromagnetism) holds small things at their own density → past a few hundred km,
+  gravity rounds them into spheres (already in video 2).
+- **Jupiter turn**, about 10⁵⁴ atoms, set by (electric ÷ gravity strength, ~10³⁶)^(3/2): gravity
+  crushes atoms. What pushes back isn't a force at all: it's quantum mechanics, the Pauli
+  exclusion principle (electrons can't share a state). **Not electromagnetism coming back**:
+  gravity is winning harder.
+- **Stars**: the strong force lights up. Fusion isn't the strong force breaking. It's nuclei
+  pulled *tighter*, sliding toward iron, and the energy released heats the gas and puffs the star
+  up. "A star is nuclei falling down the hill toward iron."
+- **The real electromagnetism comeback**: in the heaviest stars a star's own light pushes out
+  nearly as hard as gravity pulls in (the Eddington limit), blowing mass off, so light caps how big
+  stars get: about 150–200 Suns at most.
+- **Dead stars**: white dwarfs held by electrons refusing to be squeezed (to 1.4 Suns,
+  Chandrasekhar), neutron stars by neutrons refusing to be squeezed plus the strong force's
+  short-range push (to about 2–2.3 Suns), then black holes: gravity beats everything.
+
+**Iron, inside the nucleus: the same story at the small end.** The strong force only reaches
+neighbouring nucleons; the protons' electric push reaches all of them and grows faster. Light
+nuclei gain binding as they grow, heavy ones lose it, and iron is the peak (8.79 MeV per
+nucleon). So fusion gives energy only up to iron, and fission only down to iron.
+- The picture: `video/plans/binding-energy/binding-periodic.png`, the periodic table as the
+  chart draws it, coloured by binding energy per nucleon (AME2020 via IAEA; the script to
+  redraw it is next to it).
+- **What iron is the "zero" of** (the author's question, 2026-10-31): not of the binding energy,
+  which peaks there, but of its *slope*: iron is the top of the hill, or seen as mass per nucleon,
+  the bottom of the valley. Nucleons in iron are the lightest nucleons anywhere: about 0.9% lighter
+  than free protons and neutrons. Any reaction that moves nuclei toward iron loses mass, and that
+  mass comes out as energy (E = mc²). From either side it's downhill to iron, and from iron every
+  way is uphill. Suggested line: *"Iron is the bottom of the valley. Its protons and neutrons weigh
+  less than anyone else's, so whatever you do to it, fuse it or split it, you have to pay."*
+- Precision: nickel-62 edges iron-56 on binding per nucleon (8.7945 vs 8.7904 MeV); iron-56 has
+  the least *mass* per nucleon. Say "iron" freely; just don't say "the most tightly bound
+  nucleus" without "almost".
+- "Stable" heavy elements are secretly unstable: past about A ≈ 90 everything would release
+  energy by splitting, and the main isotope of 17 elements, samarium to lead (gold, platinum,
+  tungsten, lead-208), could emit an alpha particle. Bismuth-209 was called stable until 2003
+  (half-life ~2×10¹⁹ years). Over ~10^1500 years everything would tunnel to iron (Dyson), if
+  protons don't decay first.
+- Fits **video 6** ("Up to iron, elements are forged in the cores of stars…"): one sentence on
+  *why* iron.
+
+**Nuclei and neutron stars sit on the same line.** In the chart's own data, nuclei are at about
+10^15.2 g/cm³ and its 75 neutron stars at 10^15.0–15.4: a neutron star is one giant nucleus
+(~10⁵⁷ nucleons) held by gravity instead of the strong force, 57 orders of magnitude apart in
+mass. The chart's "nuclear 10⁻⁶ s" density line, when quarks clumped into protons and neutrons,
+sits right there too (the strong force's own scale, ~200 MeV, ~1 fm).
+
+**The island of stability.** Known magic numbers: 2, 8, 20, 28, 50, 82, 126, but 126 is known
+only for neutrons (lead-208: 82 protons, 126 neutrons, why decay chains end at lead). Next
+neutron shell: N = 184, which the models agree on. Protons: 114, 120 or 126, depending on the
+model. Elements 104–118 exist only because of shell effects (the liquid-drop picture says they'd
+split at once), so we're already on the island's shore. The heaviest made have about 177
+neutrons, ~7 short of 184. Predicted half-lives range from seconds to years, not millions of years.
+Element 120 is being attempted (Berkeley, Dubna); check the news before saying it hasn't been made.
+
+**Trap: a coincidence on the chart.** Iron-56's nucleus (52 GeV) sits right by the electroweak
+line (logM −22.0 vs −21.75). That's a coincidence: the electroweak line is energy *per particle*;
+iron is the rest mass of 56 slow nucleons. Don't link them.
+
+**Chart markers, not built yet** (the author wants them to talk about later): iron-56 on the
+nucleus diagonal ("binding peaks here: fusion and fission both stop"), the nuclear-density
+diagonal labelled through both nuclei and neutron stars, the Jupiter turn ("gravity overtakes
+chemistry; quantum pressure holds"), maybe the Eddington limit. Any change to `src/` makes every
+video re-render whole, so ask the author when to build them.
+
+### Suggested lines (yours to reword)
+- **Video 2, super-Jupiters**, after "…and they push back": *"Gravity has won, and the last thing
+  holding it back isn't a force at all. It's a rule of quantum mechanics."*
+- **Video 3, stars**, at "it releases a huge amount of energy": *"That's the strong force pulling
+  nuclei tighter, sliding them toward iron. A star is just nuclei falling downhill."* And
+  somewhere after the main sequence: *"There's a limit to how big a star can get: at a couple of
+  hundred Suns, its own light pushes almost as hard as gravity pulls, and blows the extra mass away."*
+- **Video 3, how fusion works**: *"Gravity squeezes the core so hard that protons, which
+  normally push each other away, get close enough for the strong force to grab them. The new
+  nucleus is held tighter, so it's a little lighter, and that missing mass comes out as light."*
+- **Video 3, light pressure**: *"Light actually pushes. In the biggest stars, it's the light itself
+  holding them up, and at a couple of hundred Suns it pushes so hard it blows the star's outer
+  layers away. That's as big as stars get."*
+- **Video 6, the mirror**: *"Remember the stars? The biggest ones are limited by their own light
+  pushing out. Atoms have the same problem: the heaviest nuclei are torn apart by their own protons
+  pushing apart. Electromagnetism sets the limit on both."*
+- **Video 6, iron**: *"Iron is where the nucleus holds on the tightest. Lighter atoms give
+  energy by fusing toward it, heavier ones by splitting toward it, so a star can't get anything
+  out of making something heavier."*
+
+---
+
 ## 1 · The hook (`short-01-hook`)
 
 ### As cut now
@@ -100,6 +362,8 @@ series of videos. I sincerely hope you find it as fascinating as I do." (no "fol
 
 ## 2 · Up the line (`short-02-up-the-line`)
 
+*Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*
+
 ### As cut now
 (rec33, 2026-10-26, and rec46, 2026-10-28; natural speed)
 
@@ -157,6 +421,8 @@ series of videos. I sincerely hope you find it as fascinating as I do." (no "fol
 ---
 
 ## 3 · Planets into stars (`short-03-stars`)
+
+*Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*
 
 ### As cut now
 (rec36, 2026-10-27, plays at 1.1×)
@@ -337,6 +603,8 @@ through "…a new generation of stars to form", in git history and in "As cut no
 
 
 ## 6 · The tiny world: from us to the Compton line (`short-06-tiny-world`)
+
+*Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*
 
 ### As cut now
 (rec39, 2026-10-27: the script below, read with retakes, and a radioactivity ending in place of the electron one; re-cut the same day without the first "nothing can be more massive" and a repeated "further down")
