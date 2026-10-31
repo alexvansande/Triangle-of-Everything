@@ -193,13 +193,18 @@ export function spaceLayers(globe) {
     return out;
   })();
   const comets = {
-    name: "kuiper & oort", range: [12, 18.6],
+    name: "kuiper & oort", range: [12, 20],
     draw(cam) {
-      const ka = win(cam.s, 12.4, 13.0, 15.0, 15.6), oa = win(cam.s, 14.3, 15.0, 17.4, 18.2)*Math.min(1,(1e5*AU*cam.k/(70*cam.dpr))**2), ctx = cam.ctx, sz = 1.2 * cam.dpr;
+      // Retire only as each cloud actually collapses to an unresolved point.
+      const ka=ramp(cam.s,12.4,13)*ramp(50*AU*cam.k/cam.dpr,1,6);
+      const oa=ramp(cam.s,14.3,15)*ramp(1e5*AU*cam.k/cam.dpr,1,8);
+      const ctx=cam.ctx,sz=1.8*cam.dpr;
       if (ka + oa <= 0.01) return;
-      ctx.fillStyle = "rgba(170,205,255,1)";
+      const warm=t=>`rgb(${170+85*t},${205+31*t},${255-65*t})`;
+      const kuiperColour=warm(1-ramp(50*AU*cam.k/cam.dpr,1,6)),oortColour=warm(1-ramp(1e5*AU*cam.k/cam.dpr,1,8));
       for (const c of icy) {
-        const al = c.kind ? oa * 0.55 : ka * 0.8;
+        const al = c.kind ? oa * .9 : ka;
+        ctx.fillStyle=c.kind?oortColour:kuiperColour;
         if (al <= 0.01) continue;
         const [x, y] = cam.proj(c.p);
         if (x < 0 || x > cam.W || y < 0 || y > cam.H) continue;

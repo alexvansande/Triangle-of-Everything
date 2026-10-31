@@ -2,19 +2,32 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import sharp from 'sharp';
 import {skyDirection,skyUV,handoffPhase,projectRay,galacticShell} from '../tools/powers-of-ten/galaxy-geometry.js';
-import {cameraAt,KPC} from '../tools/powers-of-ten/math.js';
+import {cameraAt,KPC,LY} from '../tools/powers-of-ten/math.js';
 const close=(a,b,t=1e-9)=>assert.ok(Math.abs(a-b)<t,`${a} ≠ ${b}`);
 for(let y=1;y<32;y++)for(let x=0;x<64;x++){
  const u=(x+.3)/64,v=y/32,d=skyDirection(u,v),uv=skyUV(d);
  close(uv[0],u);close(uv[1],v);close(Math.hypot(...d),1);
 }
 assert.deepEqual(skyDirection(.5,.5),[1,0,0]);
-for(const s of [15.35,15.6,15.85])assert.equal(handoffPhase(s).starDepth,0,'stellar fade must finish before revealing depth');
+assert.equal(handoffPhase(15.8).starDepth,0);
+assert.ok(handoffPhase(16).starDepth>0&&handoffPhase(16).starFade<1,'stellar parallax starts gradually while the background changes');
+assert.equal(handoffPhase(16.7).starDepth,1);
 assert.ok(handoffPhase(19).galaxyDepth>0&&handoffPhase(19).galaxyFade>0,'galactic depth now begins while stars fade in');
 for(let s=18.8;s<21.2;s+=.01){const shell=galacticShell(s);if(shell.ratio<=1)assert.equal(shell.alpha,1,'sky must stay fully lit inside the sphere');}
-assert.ok(galacticShell(20.65).ratio<1&&galacticShell(20.65).alpha===1);
-assert.ok(galacticShell(20.8).ratio>1&&galacticShell(20.8).alpha>0,'fade only after crossing the shell');
-assert.equal(galacticShell(21).alpha,0,'shell retires once outside');
+const frame=ly=>Math.log10(ly*LY);
+assert.equal(galacticShell(frame(5000)).alpha,1);
+close(galacticShell(frame(6000)).alpha,1);
+close(galacticShell(frame(50000)).alpha,.02);
+assert.equal(galacticShell(frame(70000)).alpha,0);
+// Both sides of the old turn threshold must share the same limiting basis.
+const before=cameraAt(20.15-1e-6),after=cameraAt(20.15+1e-6);
+for(const axis of ['r','u','n'])for(let i=0;i<3;i++)close(before[axis][i],after[axis][i],1e-5);
+let previous=cameraAt(frame(13000));
+for(let j=1;j<=100;j++){
+ const now=cameraAt(frame(13000)+(frame(16000)-frame(13000))*j/100);
+ const cosine=previous.n.reduce((sum,v,i)=>sum+v*now.n[i],0);
+ assert.ok(Math.acos(Math.max(-1,Math.min(1,cosine)))<.5*Math.PI/180,'no sudden camera step between13k and16kly');previous=now;
+}
 assert.equal(handoffPhase(18).starDepth,1);assert.equal(handoffPhase(22).galaxyDepth,1);
 const basis=cameraAt(15.6),ray=basis.n.map((v,i)=>-v+.12*basis.r[i]);
 for(const inverse of [.001,1,10000]){
@@ -45,4 +58,4 @@ for(let y=0;y<256;y++)for(let x=0;x<512;x++){
 let variation=0;for(let k=0;k<histogram.length;k++)variation+=Math.abs(histogram[k]/(points.length/8)-expected[k]/sum)/2;
 assert.ok(variation<.06,'dot density must reproduce the source brightness map over solid angle');
 console.log(`Angular brightness-map total variation: ${variation.toFixed(4)}`);
-console.log(`Passed: spherical-map round trips; distance-independent angular registration; stellar fade before depth; lit shrinking galactic shell through crossing; finite projection; ${points.length/8} valid rays, ${(100*thin/(points.length/8)).toFixed(1)}% within0.8kpc of the plane.`);
+console.log(`Passed: spherical-map round trips; distance-independent angular registration; early stellar parallax; smooth13k–16kly camera;6k–50kly sphere fade; finite projection; ${points.length/8} valid rays, ${(100*thin/(points.length/8)).toFixed(1)}% within0.8kpc of the plane.`);

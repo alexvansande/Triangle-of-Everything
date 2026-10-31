@@ -1,16 +1,16 @@
 // One equirectangular map, two registered image-to-point handoffs. Both point
 // catalogue stars start at infinity. Galactic points gain depth while the
 // still-lit sky shell shrinks; the shell retires only after we cross outside.
-import {ramp,dot,lb,LY,KPC,rng,cameraAt} from './math.js';
+import {ramp,dot,lb,LY,KPC,rng,cameraAt,AU} from './math.js';
 import {image} from './micro.js';
-import {handoffPhase,projectRay,galacticShell} from './galaxy-geometry.js';
+import {handoffPhase,projectRay,galacticShell,SHELL_TIMING} from './galaxy-geometry.js';
 const BASE='/video/powers-of-ten/generated/galaxy-handoff-v2/';
 const TAN=Math.tan(25*Math.PI/180);
 export function galaxyHandoff(){
  const canvas=document.createElement('canvas');
  const gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,depth:false,preserveDrawingBuffer:true});
  const original=image('/video/powers-of-ten/sky/sky-4k.jpg'),clean=image(BASE+'sky-diffuse.png');
- let textures=null,galaxy=null,stars=null,meta=null,failed=!gl;
+ let textures=null,galaxy=null,stars=null,meta=null,failed=!gl,stellarRadiusLy=150;
  function program(vs,fs){
   const compile=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;};
   const p=gl.createProgram();gl.attachShader(p,compile(gl.VERTEX_SHADER,vs));gl.attachShader(p,compile(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;
@@ -41,7 +41,7 @@ export function galaxyHandoff(){
    void main(){vec3 q=aRay-uN*(uDistance*uDepth*aInvD);float den=-dot(q,uN),r2=max(dot(q,q),.0001);
     if(den<=.000001){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=1.;vEnergy=0.;}
     else{gl_Position=vec4(dot(q,uR)/den*uScale.x,dot(q,uU)/den*uScale.y,0.,1.);gl_PointSize=uSize;
-     float cosine=den/sqrt(r2);vEnergy=min(4.,mix(aWeight,mix(1.,aWeight,uDepth),uModel)*uEnergy/r2/max(.12,cosine*cosine*cosine));}vColour=aColour;}`,`
+     float cosine=den/sqrt(r2);vEnergy=min(4.,mix(aWeight,mix(1.,aWeight,uDepth),uModel)*uEnergy/mix(1.,r2,uModel)/max(.12,cosine*cosine*cosine));}vColour=aColour;}`,`
    precision highp float;varying vec3 vColour;varying float vEnergy;
    void main(){vec2 p=gl_PointCoord*2.-1.;float r=dot(p,p);if(r>1.)discard;float a=exp(-4.*r)*vEnergy;gl_FragColor=vec4(vColour*a,a);}`);
   quad=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
@@ -70,6 +70,7 @@ export function galaxyHandoff(){
    const ray=lb(l,b),exists=out.some((_,i)=>i%8===0&&Math.abs(KPC/(out[i+3]*LY)-d)<.05&&ray[0]*out[i]+ray[1]*out[i+1]+ray[2]*out[i+2]>.9999);
    if(!exists)out.push(...ray,KPC/(d*LY),...(name==='Betelgeuse'?[1,.6,.35]:[.85,.9,1]),1);
   }
+  for(let i=0;i<out.length;i+=8)stellarRadiusLy=Math.max(stellarRadiusLy,KPC/(out[i+3]*LY));
   stars=upload(new Float32Array(out));
  }
  function ready(){loadTextures();return !failed&&textures&&galaxy&&stars;}
@@ -99,23 +100,26 @@ export function galaxyHandoff(){
    const energy=meta.radianceIntegral/galaxy.count*cam.min**2/(4*TAN*TAN*kernel);
    points(galaxy,cam,phase.galaxyDepth,energy*phase.galaxyFade*galaxyAlpha*(1+phase.galaxyDepth)*(.4+.6*(1-shell.alpha)),size,1);
   }
-  if(phase.starFade>0)points(stars,cam,phase.starDepth,2.1*phase.starFade*visible*(1-ramp(cam.s,21.4,22.2)),4.3*cam.min/960);
+  const stellarPixels=stellarRadiusLy*LY*cam.k/cam.dpr;
+  const stellarRetire=ramp(stellarPixels,.35,1.2);
+  if(phase.starFade>0)points(stars,cam,phase.starDepth,2.1*phase.starFade*visible*stellarRetire,4.3*cam.min/960*Math.min(1,stellarPixels/3));
   cam.ctx.save();cam.ctx.globalCompositeOperation='lighter';cam.ctx.drawImage(canvas,0,0);cam.ctx.restore();
   drawCrossingDots(cam);
   // The solar system becomes its own central star, at the same world location.
-  const sunAlpha=ramp(cam.s,15.2,16)*(1-ramp(cam.s,21.6,22.3));
-  if(sunAlpha>.001){const ctx=cam.ctx;ctx.save();ctx.globalAlpha=sunAlpha;const rad=4*cam.dpr;const g=ctx.createRadialGradient(cam.cx,cam.cy,0,cam.cx,cam.cy,rad*3);g.addColorStop(0,'#fff6d9');g.addColorStop(.15,'#ffd28c');g.addColorStop(1,'#ffc16a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cam.cx,cam.cy,rad*3,0,Math.PI*2);ctx.fill();ctx.restore();}
+  const sunAlpha=ramp(cam.s,15.2,16)*stellarRetire;
+  const kuiperMerge=1-ramp(50*AU*cam.k/cam.dpr,1,6),oortMerge=1-ramp(1e5*AU*cam.k/cam.dpr,1,8);
+  if(sunAlpha>.001){const ctx=cam.ctx;ctx.save();ctx.globalAlpha=sunAlpha;const rad=(4+1.5*kuiperMerge+2.5*oortMerge)*(1-.72*ramp(cam.s,19.3,21.4))*cam.dpr;const g=ctx.createRadialGradient(cam.cx,cam.cy,0,cam.cx,cam.cy,rad*3);g.addColorStop(0,'#fff6d9');g.addColorStop(.15,'#ffd28c');g.addColorStop(1,'#ffc16a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cam.cx,cam.cy,rad*3,0,Math.PI*2);ctx.fill();ctx.restore();}
  }
  // Fixed world-space specks near the camera's shell-crossing corridor.
  // They enter/leave geometrically, remain opaque nearby and retire subpixel.
  const random=rng(70731),crossingDots=Array.from({length:36},()=>{
-  const s=20.48+random()*.58,b=cameraAt(s),D=galacticShell(s).distance;
+  const s=SHELL_TIMING.start-.08+random()*.75,b=cameraAt(s),D=galacticShell(s).distance;
   const angle=random()*Math.PI*2,offset=.3+random()*1.2;
   const p=b.n.map((v,i)=>v*D+offset*(Math.cos(angle)*b.r[i]+Math.sin(angle)*b.u[i]));
   return {p,radius:.004+random()*.008};
  });
  function drawCrossingDots(cam){
-  if(cam.s<20.3||cam.s>22)return;
+  if(cam.s<SHELL_TIMING.start-.15||cam.s>SHELL_TIMING.end+.5)return;
   const D=cam.F/(2*TAN*KPC),focal=cam.min/(2*TAN),ctx=cam.ctx;
   ctx.save();
   for(const point of crossingDots){

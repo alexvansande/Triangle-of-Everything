@@ -140,10 +140,11 @@ const TURN = { from: 16.5, rate: 10 }, TILT = [17.0, 26.6, 8];
 export function cameraAt(s) {
   // Hold the interior sightline while the distant galactic band is still a
   // rear layer; catch up smoothly to the existing exterior turn afterwards.
-  const b = keyed(s), x = (s - TURN.from)*ramp(s,20.15,21.6);
+  const turnGate=ramp(s,20.15,21.6);
+  const b = keyed(s), x = (s - TURN.from)*turnGate;
   if (x <= 0) return b;
   const th = D * TURN.rate * (x < 1 ? x * x / 2 : x - 0.5);
-  const ph = TILT[2] * D * Math.sin(Math.PI * clamp((s - TILT[0]) / (TILT[1] - TILT[0])));
+  const ph = TILT[2] * D * Math.sin(Math.PI * clamp((s - TILT[0]) / (TILT[1] - TILT[0]))) * turnGate;
   const c = Math.cos(th), sn = Math.sin(th);
   const r = add(mul(b.r, c), mul(b.n, sn)), n = sub(mul(b.n, c), mul(b.r, sn));
   const cp = Math.cos(ph), sp = Math.sin(ph);

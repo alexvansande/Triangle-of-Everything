@@ -485,3 +485,36 @@ point data checks remain. Shader logs and the crossing view were checked.
 
 Point exposure is balanced against the still-lit shell (40%→100% as it retires),
 to avoid adding two fully exposed galactic cores during the crossing.
+
+### Oort departure, persistent stars and earlier shell retirement · 2026-10-31
+
+Author refinement: start nearby-star depth earlier while leaving Oort, keep
+stars lit until the whole neighbourhood is a small central dot, strengthen icy
+bodies and merge them into a brighter Sun, fix the13k–16kly camera jump, and
+start shell retirement at6kly with almost nothing remaining by50kly.
+
+- Local sky/cached-star crossfade now15.35–16.5. Measured depth starts gradually
+  at15.8 and is complete at16.7 (≈0.67–5.3ly frame width), overlapping the slow
+  image transition intentionally. This supersedes the earlier local fade-first
+  ordering as requested by the author.
+- Catalogue dots keep their emitted brightness (no inverse-square attenuation
+  or fixed next-phase alpha fade). Their bounding radius, including named
+  landmarks, controls geometric retirement: full light while radius≥1.2 output
+  pixels, fading only below that, with shrinking point footprints. The central
+  Sun follows this retirement rather than an arbitrary exponent cutoff.
+- Kuiper/Oort dots now1.8px rather than1.2, opacity1/.9 rather than.8/.55. Their
+  spatial positions stay fixed. Each set becomes unresolved based on its own
+  projected radius and warms toward the Sun colour as it merges. The Sun halo
+  grows with both merge fractions, then compacts for the galactic view.
+- Camera discontinuity found at s20.15: the early-return branch left roll/tilt
+  inactive, then enabled an existing≈7° tilt on the next frame. Tilt now uses
+  the same smooth gate as yaw. Threshold continuity and a sampled13k–16kly sweep
+  are included in the regression check.
+- Optical sphere radius is calibrated so D/R=1.02 at6,000ly frame width. It is
+  fully lit before then, falls smoothly to2% by50,000ly, and reaches zero at
+ 70,000ly. The crossing particles were moved to this earlier interval. The
+  radius is a transition-dome parameter, not the physical edge of the Milky Way.
+
+Validation: projection/data checks, revised early stellar overlap, exact shell
+opacity milestones, camera-basis continuity and camera sweep; browser review of
+strong Oort and early stars. Generated images and point geometry are unchanged.
