@@ -185,3 +185,25 @@ of frame width (about 67 µm frame), then eases to full defocus at 40%
 Shell background blur now starts at a 1 mm frame and eases across roughly
 1.4 decades to full defocus at 40 µm, replacing the much faster 1.3 mm–291 µm
 ramp. Shell parallax, surface reflections and pollen/cell focus are unchanged.
+
+### Amoeba interior: nucleus → chromatin → nucleosomes
+
+New fixed-axis image stops: 2 µm nucleus, 667 nm chromatin, 222 nm closer
+chromatin and 74 nm nucleosome/DNA view. Six generated scientific asset calls,
+including a wider molecular field correction; final prompt/asset provenance
+in micro/nucleus-v6/provenance.json. These interiors are reconstructions below
+optical resolution; molecular geometry is approximate rather than measured.
+
+match-nucleus.mjs builds the 3× matched pyramid from the finest image outward,
+then the sharp nuclear background/envelope composite and amoeba source patch.
+The same source axis649.5,617.5 is retained. match-drop and match-depth then
+propagate that updated sprite through all earlier photographic tiles.
+Nuclear envelope is independently rendered only after the sharp handoff, with
+app-only faster zoom/blur; later chromatin fields replace their exact parent
+cores. Broad25% edge blending softens the change in representation.
+
+Inspected existing small.js/public/hopf/hopf-core.js: real-scale hydrogen and
+proton rendering already exist. This extension ends at chromatin/nucleosomes;
+subsequent generated DNA/base-pair images must keep central hydrogen aligned
+to the existing Hopf electron-cloud handoff. No camera recentering introduced.
+Verified exact nuclear composite, matched child centres and four preview stops.

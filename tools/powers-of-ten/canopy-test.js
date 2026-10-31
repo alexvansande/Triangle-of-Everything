@@ -11,7 +11,7 @@ export function mountCanopyTest() {
       <button data-s="2.07712">Grove · 120 m</button><button data-s="2.60206">Forest · 400 m</button><button id="canopy-run">Play approach</button>
       <button data-s="0.64575749">Branch · 4.4 m</button><button data-s="0.16863624">Foliage · 1.5 m</button>
       <button data-s="-0.70">Depth check · 20 cm</button><button data-s="-0.30848502">Twig · 49 cm</button><button data-s="-0.78560627">Tiny ladybug · 16 cm</button>
-      <button data-s="-1.26272753">Ladybug · 5.5 cm</button><button id="canopy-inward">Crown → micro</button><button id="canopy-timing">Test · 1 m → 3 cm</button><button data-s="-1.73984878">Ladybug · 18 mm</button><button data-s="-2.21697004">Shell · 6 mm</button><button data-s="-2.69409129">Dew · 2 mm</button><button data-s="-3">Drop layers · 1 mm</button><button data-s="-3.74472749">Pollen · 180 µm</button><button data-s="-4.22184875">Passing pollen · 60 µm</button><button data-s="-4.74472749">Small amoeba · 18 µm</button><button data-s="-5.22184875">Inside · 6 µm</button><button id="canopy-micro-run">Dew → amoeba</button><button id="canopy-dew">Ladybug → micro</button>
+      <button data-s="-1.26272753">Ladybug · 5.5 cm</button><button id="canopy-inward">Crown → micro</button><button id="canopy-timing">Test · 1 m → 3 cm</button><button data-s="-1.73984878">Ladybug · 18 mm</button><button data-s="-2.21697004">Shell · 6 mm</button><button data-s="-2.69409129">Dew · 2 mm</button><button data-s="-3">Drop layers · 1 mm</button><button data-s="-3.74472749">Pollen · 180 µm</button><button data-s="-4.22184875">Passing pollen · 60 µm</button><button data-s="-4.74472749">Small amoeba · 18 µm</button><button data-s="-5.22184875">Inside · 6 µm</button><button data-s="-5.69897">Nucleus · 2 µm</button><button data-s="-6.17609126">Chromatin · 667 nm</button><button data-s="-6.65321251">Chromatin · 222 nm</button><button data-s="-7.13033377">Nucleosomes · 74 nm</button><button id="canopy-micro-run">Dew → amoeba</button><button id="canopy-dew">Ladybug → micro</button>
       <button data-s="1.35">Bird flyby</button><button id="canopy-crown-run">Canopy depth test</button><button data-s="3.42">Airplane flyby</button><button id="canopy-outward">Ladybug → sky</button>
     </div>
     <label style="display:block;margin-top:12px"><input id="canopy-generated" type="checkbox" checked> Show generated canopy</label>
@@ -21,7 +21,7 @@ export function mountCanopyTest() {
     <label style="display:block;margin-top:5px"><input id="canopy-crown" type="checkbox" checked> Canopy depth · 3 layers</label>
     <label style="display:block;margin-top:5px"><input id="canopy-plane" type="checkbox" checked> Airplane flyby</label>
     <label style="display:block;margin-top:5px"><input id="canopy-bird" type="checkbox" checked> Bird flyby</label>
-    <div style="color:#a4b3a9;margin-top:8px">Ladybug ≈ 7 mm · dew ≈ 1.16 mm · pollen ≈ 40 µm · small amoeba ≈ 8 µm. Pine/birch pollen · Arcella/Vannella amoebae. Microscopic scene is illustrative. Steller’s jay and Boeing 747: separate foreground flyby layers. Generated scene.</div>
+    <div style="color:#a4b3a9;margin-top:8px">Ladybug ≈ 7 mm · dew ≈ 1.16 mm · pollen ≈ 40 µm · small amoeba ≈ 8 µm. Pine/birch pollen · Arcella/Vannella amoebae. Nuclear and molecular interiors are scientific reconstructions. Microscopic scene is illustrative. Steller’s jay and Boeing 747: separate foreground flyby layers. Generated scene.</div>
     <div style="color:#7c8f83;font-size:11px;margin-top:6px">Real imagery: USDA/USGS NAIP; Sentinel-2 cloudless 2016 © EOX, CC BY 4.0. Generated detail is an interpretation.</div>`;
   document.body.append(panel);
   const style=document.createElement('style');style.textContent='#canopy-actions button{border:1px solid #ffffff30;border-radius:6px;background:#22332a;color:#eef5ee;padding:7px 10px;font:inherit;cursor:pointer} #canopy-actions button:hover{background:#3c5143}';document.head.append(style);
@@ -70,7 +70,7 @@ export function mountCanopyTest() {
   }
   document.getElementById('canopy-timing').onclick=()=>approach(0,Math.log10(.03),22000);
   document.getElementById('canopy-crown-run').onclick=()=>approach(Math.log10(4.5),Math.log10(.7),18000);
-  document.getElementById('canopy-micro-run').onclick=()=>approach(-2.69409129,window.canopyTest.minimum,30000);
+  document.getElementById('canopy-micro-run').onclick=()=>approach(-2.69409129,window.canopyTest.minimum,42000);
   document.getElementById('canopy-dew').onclick=()=>approach(-1.26272753,window.canopyTest.minimum,16000);
   document.getElementById('canopy-run').onclick=()=>approach(4.6,window.canopyTest.minimum,40000);
   document.getElementById('canopy-inward').onclick=()=>approach(1.6-Math.log10(3),window.canopyTest.minimum,26000);

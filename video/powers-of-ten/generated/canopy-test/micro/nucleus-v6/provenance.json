@@ -1,0 +1,32 @@
+{
+  "tool": "built-in image_gen",
+  "prompts": {
+    "background": "Use case scientific-educational photorealistic reconstruction. Edit/reference input is the small amoeba micrograph; zoom into its central nucleus region at pixel649,618. Generate a sharp square2micrometre-wide field with a roughly1.4micrometre circular nuclear region centered on exact frame center. BACKGROUND PLANE ONLY: reconstruct nucleoplasm, fine irregular chromatin granules and faint tangled filaments, with a small darker nucleolus off-centre upper right around75%,28% about0.2µm diameter. Outside nuclear region continue the same cell's finely granular cytoplasm. Match original pale cream/rose transmitted-light optical texture, subtle warm red from distant shell, no saturated colors. Remove all nuclear envelope outlines because membrane will be a separate foreground plane. Sharp throughout, no baked depth blur, no cross-section diagram, no text, no labels, no giant visible DNA helix, no large X chromosomes. Flat complete field no transparency, square. Central third contains fine open chromatin, no nucleolus at centre.",
+    "envelope": "Scientific photorealistic nuclear-envelope foreground asset. Square1254canvas, true transparent RGBA. Only a delicate irregular almost-circular double nuclear membrane rim centered exactly627,627, diameter880pixels (1.4µm within2µm field). Thin translucent cream/rose two layers with subtle tiny nuclear pores along circumference, not a thick glass bead, no bright white specular reflections. Match transmitted-light microscopy of living amoeba. Entire centre and exterior fully transparent, no opaque disk, no internal chromatin or cytoplasm. Sharp detailed edges, no baked blur, no shadow, no labels, no illustration lines.",
+    "chromatin": "Square scientific photorealistic spatial reconstruction inside living amoeba nucleus, field width667nanometres. Open interphase chromatin as fine irregular entangled beaded nucleoprotein threads, approximately10–11nm across, looping through translucent finely granular nucleoplasm. Some loose clusters and open spaces, NOT uniform30nm coils, NOT mitotic X chromosomes. Central thread crosses exact frame centre continuing diagonally lower left to upper right; preserve open space nearby. Restrained pale cream, muted rose/copper optical tones, soft neutral transmitted illumination and faint warm red ambient, natural molecular material, documentary realism rather than textbook diagram. Sharp detail everywhere, no baked blur/bokeh, no labels, no text, no black backdrop, no transparency. Square edge-to-edge interior field. This is an acknowledged scientific reconstruction below optical resolution.",
+    "beads": "Square scientific molecular spatial reconstruction of interphase chromatin, field222nanometres wide. Multiple irregular connected strings of nucleosomes: individual histone-DNA beads about11nm across, linker DNA about2nm thick. Finely granular protein surfaces, delicate DNA winding around histone cores, flexible irregular spacing. Pale cream and softly copper/rose materials, restrained realistic illumination in nucleoplasm matching transmitted-light micrograph, not colorful plastic balls or a diagram. A linker DNA segment crosses exact centre, flanked by a nucleosome slightly left and one right, with other strands around it. Sharp throughout, no baked depth blur, no text/labels, no uniform30nm fibre, no chromosomes, no giant nucleus. Complete square field, opaque background, no framing.",
+    "nucleosomes": "Square scientific molecular reconstruction, exactly74nanometre-wide field in the same pale cream / muted copper-rose nucleoplasm. Show roughly6–10 authentic nucleosome core particles about11nm wide connected by2nm DNA. Each is a somewhat flattened rounded histone protein core with granular molecular surface and DNA wrapping about1.65turns around it; irregular flexible linkers, no uniform helix-spring geometry. One short exposed DNA linker passes exactly through the geometric centre, with histone core to its lower left and another upper right, so the centre can later zoom into a base pair. Detailed double-stranded DNA winding only where scale permits. Natural muted materials, realistic scientific reconstruction, no toy spheres, no labels, no glow, no black background, no baked blur, sharp entire field, opaque square edge-to-edge.",
+    "wider_chromatin": "Edit target is the supplied nucleosome reconstruction. Zoom the field OUT by FOUR times in width and height, extending the same irregular chromatin strands in every direction. The original central picture should occupy only the central quarter-width and quarter-height. Final square field222nanometres across must contain MANY small nucleosomes, around50–100 in total at varying positions; each complete11nm nucleosome core should be only5% of image width, about60pixels in1254square, not a giant flower filling the image. Keep the exact pale cream/copper granular protein and bluish DNA style. DNA linkers2nm thickness. Multiple irregular looping strings around central open linker, no regular pattern, no large foreground nucleosome, no text, no labels, no baked blur. This is a wide-field molecular reconstruction, sharp and opaque throughout."
+  },
+  "active_assets": [
+    "background-raw.png",
+    "envelope-raw.png",
+    "chromatin-raw.png",
+    "beads-raw.png",
+    "nucleosomes-raw.png",
+    "2um.png",
+    "667nm.png",
+    "222nm.png",
+    "74nm.png"
+  ],
+  "assembly": "scripts/powers-of-ten-match-nucleus.mjs: sharp matching inward-to-outward, 25% edge feather, exact central cores. Envelope scaled to native registration and kept separate. Whole 2µm field inserted at source amoeba pixel649.5,617.5. Sprite material alpha applied once to composite; progresses into opaque spatial reconstruction after nuclear handoff.",
+  "spans_m": [
+    0.000002,
+    6.666666666666666e-7,
+    2.2222222222222222e-7,
+    7.407407407407407e-8
+  ],
+  "source": "https://www.ncbi.nlm.nih.gov/books/NBK9863/",
+  "limits": "Illustrative scientific reconstruction, not an optical microscope photograph or atomically measured molecular model. Physical field spans fixed; individual generated molecular geometry approximate. No mitotic X chromosome or mandatory regular30nm coil asserted.",
+  "hopf_plan": "Existing small.js loads public/hopf/hopf-core.js, hydrogen renderer with actual-size atom and hidden oversized nucleus. Future generated DNA/base-pair images must align a central hydrogen to this renderer; current extension ends at nucleosome/chromatin scale."
+}

@@ -1,13 +1,27 @@
+import {nucleusInterior} from './canopy-nucleus.js';
 import {microSpecimens,microDust,microCommunity} from './canopy-micro-specimens.js';
 // The shell persists; pollen recedes behind the approaching smaller cell.
 const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
 const ROOT='/video/powers-of-ten/generated/canopy-test/micro/';
 const SPAN=10**1.6/3**9;
 export function canopyMicro(){
- const planes={};for(const [name,file] of Object.entries({shell:'layers-v3/shell',reflections:'layers-v3/reflections',flat:'pollen-v4/flat',pollen:'pollen-v4/pollen',amoeba:'pollen-v4/amoeba',...Object.fromEntries(microCommunity.map(p=>[p.file,'pollen-v4/'+p.file]))})){const img=new Image();img.src=ROOT+file+'.png';planes[name]=img}
- const layer=document.createElement('canvas');
+ const planes={};for(const [name,file] of Object.entries({shell:'layers-v3/shell',reflections:'layers-v3/reflections',flat:'pollen-v4/flat',pollen:'pollen-v4/pollen',amoeba:'pollen-v4/amoeba','amoeba-inner':'pollen-v4/amoeba-inner',...Object.fromEntries(microCommunity.map(p=>[p.file,'pollen-v4/'+p.file]))})){const img=new Image();img.src=ROOT+file+'.png';planes[name]=img}
+ const layer=document.createElement('canvas'),cellLayer=document.createElement('canvas'),nucleus=nucleusInterior();
+ let currentS=0,currentMin=960;
  function specimen(ctx,p,x,y,k,relative=1,blur=0){
   const scale=p.diameter/p.bodyPixels*k*relative;
+  if(p.file==='amoeba-inner'){
+   const W=ctx.canvas.width,H=ctx.canvas.height;if(cellLayer.width!==W||cellLayer.height!==H){cellLayer.width=W;cellLayer.height=H}
+   const c=cellLayer.getContext('2d');c.clearRect(0,0,W,H);
+   if(1254*scale<40*currentMin||!nucleus.ready())c.drawImage(planes[p.file],x-p.center[0]*scale,y-p.center[1]*scale,1254*scale,1254*scale);
+   nucleus.draw(c,x,y,k,currentS,currentMin);
+   // Once inside the nucleus, the reconstruction replaces the translucent
+   // whole-cell view; the distant red shell no longer tints molecular detail.
+   const interior=1-smooth(Math.log10(2e-6/9),Math.log10(1.3e-6),currentS);
+   ctx.save();ctx.globalAlpha=p.opacity+(1-p.opacity)*interior;ctx.drawImage(cellLayer,0,0);ctx.restore();return;
+  }
+  const half=1254*scale*.72,cx=x+p.x*k*relative,cy=y+p.y*k*relative;
+  if(cx+half<0||cy+half<0||cx-half>ctx.canvas.width||cy-half>ctx.canvas.height)return;
   ctx.save();ctx.globalAlpha=p.opacity;ctx.filter=`blur(${blur}px)`;
   ctx.translate(x+p.x*k*relative,y+p.y*k*relative);ctx.rotate(p.angle||0);
   ctx.drawImage(planes[p.file],-p.center[0]*scale,-p.center[1]*scale,1254*scale,1254*scale);ctx.restore();
@@ -15,6 +29,7 @@ export function canopyMicro(){
  return {draw(cam){
   if(window.canopyTest?.enabled===false||Object.values(planes).some(p=>!p.complete||!p.naturalWidth))return;
   const opacity=1-smooth(Math.log10(.0015),Math.log10(.0018),cam.s);if(!opacity)return;
+  currentS=cam.s;currentMin=cam.min;
   const {W,H}=cam.screen;if(layer.width!==W||layer.height!==H){layer.width=W;layer.height=H}
   const ctx=layer.getContext('2d');ctx.clearRect(0,0,W,H);
   const travel=Math.max(0,Math.log10(.0013)-cam.s),eased=travel-.14*(1-Math.exp(-travel/.14));
@@ -49,7 +64,7 @@ export function canopyMicro(){
    specimen(ctx,microSpecimens[0],x,y,cam.k,pollenDepth,48*pollenFocus*cam.min/960);
    specimen(ctx,microSpecimens[1],x,y,cam.k);
    ctx.filter=`blur(${80*strength*cam.min/960}px)`;
-   ctx.drawImage(planes.reflections,W/2+(dx+(22-627)*unit)*near,H/2+(dy+(53-627)*unit)*near,1116*unit*near,1116*unit*near);ctx.filter='none';
+   if(1116*unit*near<cam.min*20)ctx.drawImage(planes.reflections,W/2+(dx+(22-627)*unit)*near,H/2+(dy+(53-627)*unit)*near,1116*unit*near,1116*unit*near);ctx.filter='none';
   }
   cam.ctx.save();cam.ctx.setTransform(1,0,0,1,0,0);cam.ctx.globalAlpha=opacity;cam.ctx.drawImage(layer,0,0);cam.ctx.restore();
  }};

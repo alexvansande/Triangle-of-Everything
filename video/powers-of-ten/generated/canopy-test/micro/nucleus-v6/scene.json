@@ -1,0 +1,17 @@
+{
+  "spans_m": [
+    0.000002,
+    6.666666666666666e-7,
+    2.2222222222222222e-7,
+    7.407407407407407e-8
+  ],
+  "source_target_pixels": [
+    649.5,
+    617.5
+  ],
+  "amoeba_body_m": 0.000008,
+  "nuclear_envelope_diameter_m": 0.0000014,
+  "depth_start_m": 0.0000013,
+  "minimum_frame_m": 7.407407407407407e-8,
+  "note": "Illustrative spatial reconstruction below optical resolution. Native image scales approximate molecular dimensions; matched central patches preserve spatial continuity. Future target is central linker DNA toward Hopf atom."
+}

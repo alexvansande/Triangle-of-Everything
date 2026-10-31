@@ -16,7 +16,7 @@
       "opacity": 0.9
     },
     {
-      "file": "amoeba",
+      "file": "amoeba-inner",
       "diameter": 0.000008,
       "bodyPixels": 1152,
       "center": [

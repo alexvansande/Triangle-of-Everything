@@ -19,8 +19,8 @@ import { crossingsLayer } from "./crossings.js";
 
 const canopyTest = new URLSearchParams(location.search).has('canopytest');
 const insects=canopyTest?catalogueInsects():null,optics=canopyTest?canopyOptics():null,depth=canopyTest?canopyDepth():null,crown=canopyTest?canopyCrownDepth():null,microscope=canopyTest?canopyMicro():null;
-const S_MIN = canopyTest ? -5.221848749616356 : -35.3, S_MAX = canopyTest ? 5.1 : 27.6;
-window.canopyTest = {enabled:true,minimum:-5.221848749616356};
+const S_MIN = canopyTest ? -7.130333768495006 : -35.3, S_MAX = canopyTest ? 5.1 : 27.6;
+window.canopyTest = {enabled:true,minimum:-7.130333768495006};
 const q = new URLSearchParams(location.search);
 const state = {
   s: q.has("s") ? +q.get("s") : 0,
@@ -36,7 +36,7 @@ const small = await smallLayers();
 const micro = microLayers();
 const macro = macroLayers();
 const space = spaceLayers(macro.globe);
-const rawPlates = await platesLayer(canopyTest || q.get('plates') === '1', canopyTest ? '/video/powers-of-ten/generated/canopy-test/plates/' : '/video/powers-of-ten/plates/', 0.4, {square:canopyTest,floor:canopyTest?-5.221848749616356:undefined});
+const rawPlates = await platesLayer(canopyTest || q.get('plates') === '1', canopyTest ? '/video/powers-of-ten/generated/canopy-test/plates/' : '/video/powers-of-ten/plates/', 0.4, {square:canopyTest,floor:canopyTest?-7.130333768495006:undefined});
 const plates={covers:s=>(!canopyTest||window.canopyTest.enabled)?rawPlates.covers(s):new Set(),draw:cam=>{if(!canopyTest||window.canopyTest.enabled)rawPlates.draw(cam)}};
 // the real photographs from the tree's crown to the globe, on unless ?photos=0; they
 // give way to the turning 3D globe (the same map, macro.js) as the camera starts to

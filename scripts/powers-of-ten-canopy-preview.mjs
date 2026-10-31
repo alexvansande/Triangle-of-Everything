@@ -15,6 +15,7 @@ try{await access(`${runtime}/package.json`)}catch{
 }
 try{await access(`${runtime}/node_modules`)}catch{await symlink(`${root}/node_modules`,`${runtime}/node_modules`)}
 const generated='video/powers-of-ten/generated/canopy-test';
+execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-nucleus.mjs`],{cwd:root,stdio:'inherit'});
 execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-drop.mjs`],{cwd:root,stdio:'inherit'});
 execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-depth.mjs`],{cwd:root,stdio:'inherit'});
 await cp(`${root}/${generated}`,`${runtime}/${generated}`,{recursive:true});
@@ -22,7 +23,7 @@ await cp(`${root}/tools/powers-of-ten/canopy-test.js`,`${runtime}/tools/powers-o
 await cp(`${root}/tools/powers-of-ten/canopy-insects.js`,`${runtime}/tools/powers-of-ten/canopy-insects.js`);
 await cp(`${root}/tools/powers-of-ten/canopy-optics.js`,`${runtime}/tools/powers-of-ten/canopy-optics.js`);
 await cp(`${root}/tools/powers-of-ten/canopy-depth.js`,`${runtime}/tools/powers-of-ten/canopy-depth.js`);
-for(const file of ['canopy-crown-depth.js','canopy-micro.js','canopy-micro-specimens.js'])await cp(`${root}/tools/powers-of-ten/${file}`,`${runtime}/tools/powers-of-ten/${file}`);
+for(const file of ['canopy-crown-depth.js','canopy-micro.js','canopy-micro-specimens.js','canopy-nucleus.js'])await cp(`${root}/tools/powers-of-ten/${file}`,`${runtime}/tools/powers-of-ten/${file}`);
 for(const slug of ['ladybug','ant','boeing-747'])await cp(`${root}/content/icons/resolutions/1024/${slug}.webp`,`${runtime}/content/icons/resolutions/1024/${slug}.webp`);
 const centre=JSON.parse(await readFile(`${root}/${generated}/centre.json`,'utf8'));
 const manifest=JSON.parse(await readFile(`${root}/${generated}/plates/manifest.json`,'utf8'));

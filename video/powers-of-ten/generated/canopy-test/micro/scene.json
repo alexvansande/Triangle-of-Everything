@@ -1,5 +1,5 @@
 {
-  "minimum_s": -5.221848749616356,
+  "minimum_s": -7.130333768495006,
   "ladybug_diameter_m": 0.0069347370090506325,
   "droplet_diameter_m": 0.00116,
   "amoeba_diameter_m": 8e-06,
@@ -11,9 +11,14 @@
     0.00018,
     6e-05,
     1.8e-05,
-    6e-06
+    6e-06,
+    2e-06,
+    6.666666666666666e-07,
+    2.2222222222222222e-07,
+    7.407407407407407e-08
   ],
   "note": "Illustrative pollen grain and separate small vannellid-type amoeba suspended in the same dew drop. Former giant Amoeba proteus is no longer active. Native alpha bounds and physical registration in pollen-v4/scene.json.",
   "active_field": "pollen-v4/scene.json",
-  "pollen_diameter_m": 4e-05
+  "pollen_diameter_m": 4e-05,
+  "active_interior": "nucleus-v6/scene.json"
 }
