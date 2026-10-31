@@ -88,7 +88,11 @@ electric push:
 from *hot gas*: particles moving fast and bouncing, kept hot by the fusion energy flowing out. Light
 pressure is well under 1% of it. But light does push (comet tails point away from the Sun, solar
 sails), and the bigger the star, the larger its share. In the most massive stars light becomes the
-main support, and at about 150 Suns it pushes harder than gravity pulls: that's the cap. So, "in the
+main support, and as a star gets heavier its light grows much faster than its gravity. Near the
+balance point (the **Eddington limit**) the outer layers are pushed off as fierce winds and eruptions
+(Eta Carinae), and a forming star's light pushes away the gas still falling onto it. That's the cap:
+a soft limit, not a wall. The heaviest stars known are about 150–200 Suns (R136a1, about 200, after
+estimates of over 300 were revised down in 2022), and the exact limit is still debated. So, "in the
 biggest stars, light itself is what holds them up, and what stops them getting any bigger".
 
 **The story of the forces, all the way up the chart.** Each step is a force that only reaches
@@ -103,8 +107,9 @@ adds up:
 - **Stars**: the strong force lights up. Fusion isn't the strong force breaking. It's nuclei
   pulled *tighter*, sliding toward iron, and the energy released heats the gas and puffs the star
   up. "A star is nuclei falling down the hill toward iron."
-- **The real electromagnetism comeback**: above about 150 Suns a star's own light pushes out
-  harder than gravity pulls in (the Eddington limit), so light caps how big stars get.
+- **The real electromagnetism comeback**: in the heaviest stars a star's own light pushes out
+  nearly as hard as gravity pulls in (the Eddington limit), blowing mass off, so light caps how big
+  stars get: about 150–200 Suns at most.
 - **Dead stars**: white dwarfs held by electrons refusing to be squeezed (to 1.4 Suns,
   Chandrasekhar), neutron stars by neutrons refusing to be squeezed plus the strong force's
   short-range push (to about 2–2.3 Suns), then black holes: gravity beats everything.
@@ -156,13 +161,14 @@ video re-render whole, so ask the author when to build them.
   holding it back isn't a force at all. It's a rule of quantum mechanics."*
 - **Video 3, stars**, at "it releases a huge amount of energy": *"That's the strong force pulling
   nuclei tighter, sliding them toward iron. A star is just nuclei falling downhill."* And
-  somewhere after the main sequence: *"There's a limit to how big a star can get: above about a
-  hundred and fifty Suns, its own light pushes harder than gravity can pull."*
+  somewhere after the main sequence: *"There's a limit to how big a star can get: at a couple of
+  hundred Suns, its own light pushes almost as hard as gravity pulls, and blows the extra mass away."*
 - **Video 3, how fusion works**: *"Gravity squeezes the core so hard that protons, which
   normally push each other away, get close enough for the strong force to grab them. The new
   nucleus is held tighter, so it's a little lighter, and that missing mass comes out as light."*
 - **Video 3, light pressure**: *"Light actually pushes. In the biggest stars, it's the light itself
-  holding them up, and at about a hundred and fifty Suns it pushes harder than gravity can pull."*
+  holding them up, and at a couple of hundred Suns it pushes so hard it blows the star's outer
+  layers away. That's as big as stars get."*
 - **Video 6, the mirror**: *"Remember the stars? The biggest ones are limited by their own light
   pushing out. Atoms have the same problem: the heaviest nuclei are torn apart by their own protons
   pushing apart. Electromagnetism sets the limit on both."*
