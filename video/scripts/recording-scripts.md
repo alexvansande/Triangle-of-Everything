@@ -95,6 +95,41 @@ a soft limit, not a wall. The heaviest stars known are about 150–200 Suns (R13
 estimates of over 300 were revised down in 2022), and the exact limit is still debated. So, "in the
 biggest stars, light itself is what holds them up, and what stops them getting any bigger".
 
+**The goal moments: where one force scores on another, across the whole chart** (the author's
+question, 2026-10-31). Four players (gravity, electromagnetism, the strong force, the weak force)
+plus a referee that isn't a force: quantum rules ("matter refuses to be squeezed", and the Compton
+limit). The referee keeps stepping in when one side is about to win outright.
+
+Top moments, the ones worth a beat in a video:
+1. **The Planck corner**: where the black-hole line meets the Compton line. Gravity's limit and the
+   quantum limit collide, and physics has no rule for it yet. The match nobody can referee.
+2. **Quarks locked in**: the strong force's shutout. No quark ever escapes, and about 99% of a
+   proton's mass is the strong force's own energy; the three quarks give about 1%.
+3. **The neutron, saved by a teammate**: alone, the weak force breaks a neutron down in about 15
+   minutes; inside a nucleus the strong force protects it, so it lasts forever.
+4. **Iron**: the strong force against the electric push, peak of the match. Past it, the electric
+   push slowly wins, until the heaviest elements tear themselves apart.
+5. **Atoms round off at a few hundred km** (the potato line): gravity's first goal against
+   chemistry, after everything below was held by electromagnetism.
+6. **Jupiter turn**: gravity crushes atoms, and the referee (Pauli) stops it. Planets can't grow.
+7. **Ignition, the team play** (~0.08 Suns): all four together. Gravity squeezes, the strong force
+   grabs, the weak force turns protons into neutrons, electromagnetism carries the energy out as light.
+8. **Light's comeback** (~150–200 Suns): electromagnetism scores back on gravity and caps the stars.
+9. **Supernova, the weakest force decides it**: the iron core collapses, electrons are squeezed into
+   protons to make neutrons (the weak force), and neutrinos carry off about 99% of the energy and
+   help blow the star apart.
+10. **Neutron star**: gravity against the strong force plus the referee, on the nucleus' own density line.
+11. **Black hole**: gravity's final goal, the black-hole line, the triangle's edge.
+12. **Beyond galaxies, a new player**: dark energy, which isn't one of the four. Galaxy clusters are
+    held by gravity, but superclusters like Laniakea are already losing to the expansion.
+
+The same match in time (the chart's epoch density lines, going back): before the electroweak line
+(10⁻¹¹ s) electromagnetism and the weak force were one; at the nuclear line (10⁻⁶ s) the strong force
+locks quarks into protons; at about 1 s to 3 min the weak force sets one neutron for every seven
+protons and the strong force builds helium (that's why the universe is about a quarter helium); at
+recombination electromagnetism captures electrons and light goes free (the CMB). The GUT line, where
+the strong force would join too, is a hypothesis (the chart's asterisk).
+
 **Why stars can't grow forever** (the author, 2026-10-31: worth saying in video 3). A heavier star
 is a lot brighter (its light grows much faster than its gravity), so in the heaviest stars light
 pushes on the outer gas almost as hard as gravity pulls it in. The light shoves that gas out faster
