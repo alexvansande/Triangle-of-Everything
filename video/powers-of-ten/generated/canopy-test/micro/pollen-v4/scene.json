@@ -30,6 +30,23 @@
   ],
   "community": [
     {
+      "file": "water-life",
+      "species": "Mixed microscopic organism field (illustrative)",
+      "diameter": 0.00024,
+      "bodyPixels": 1254,
+      "center": [
+        627,
+        627
+      ],
+      "x": 0,
+      "y": 0,
+      "opacity": 0.34,
+      "angle": 0,
+      "lag": 0.08,
+      "blurPixels": 2,
+      "field": true
+    },
+    {
       "file": "pine",
       "species": "Pinus sylvestris",
       "bodyPixels": 1177,
@@ -156,6 +173,678 @@
       "opacity": 0.23,
       "angle": 1.5,
       "lag": 0.06
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000009270461047650315,
+      "x": 0.00004849067649965584,
+      "y": 0.00000891431910513677,
+      "angle": 2.6956266033937366,
+      "opacity": 0.38443630614550783,
+      "lag": -0.05646296234428882,
+      "blurPixels": 2.9762036820501088
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.00000687562917440664,
+      "x": 0.000036544727435919,
+      "y": 0.00002354598059983448,
+      "angle": 4.448077128312271,
+      "opacity": 0.285569468929898,
+      "lag": 0.04772522094100714,
+      "blurPixels": 2.67038273293525
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000006790224545751698,
+      "x": 0.000022114257026700083,
+      "y": 0.000023846784921944958,
+      "angle": 0.6072344058875297,
+      "opacity": 0.2862308782734908,
+      "lag": 0.05252182906866074,
+      "blurPixels": 2.8382640174031257
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000007583407399593852,
+      "x": 0.000005875417495013411,
+      "y": 0.000015621273695252668,
+      "angle": 5.435937015476034,
+      "opacity": 0.34925560019677504,
+      "lag": 0.1557661626711488,
+      "blurPixels": 6.451815693490207
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000007516961946734227,
+      "x": 0.000008931260621154621,
+      "y": 0.00005286460167007894,
+      "angle": 5.225143028203213,
+      "opacity": 0.3514616285194643,
+      "lag": 0.015625567272305494,
+      "blurPixels": 1.5468948545306924
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000009414560019853524,
+      "x": -0.000011942382877551057,
+      "y": 0.00005107284061465057,
+      "angle": 5.104252566161655,
+      "opacity": 0.355294000308495,
+      "lag": 0.05457874017208815,
+      "blurPixels": 2.9102559060230853
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.00000741157129232306,
+      "x": -0.000014109208698199108,
+      "y": 0.0000240285872818902,
+      "angle": 1.8519095326082806,
+      "opacity": 0.3051248256326653,
+      "lag": 0.11796812912821769,
+      "blurPixels": 5.128884519487619
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000009086457664496265,
+      "x": -0.00004349749471534807,
+      "y": 0.0000257901239404766,
+      "angle": 2.2803179384522605,
+      "opacity": 0.2634130890457891,
+      "lag": -0.05029068654030561,
+      "blurPixels": 2.760174028910696
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000007571957383886911,
+      "x": -0.00004998366579751303,
+      "y": 0.00001756073380723756,
+      "angle": 3.0350518496576644,
+      "opacity": 0.2963128458452411,
+      "lag": 0.12891713319718837,
+      "blurPixels": 5.512099661901593
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000008970338684390299,
+      "x": -0.000049257948174242164,
+      "y": -0.000002832177422440397,
+      "angle": 4.173601652884144,
+      "opacity": 0.4545000767777674,
+      "lag": -0.011994793094694608,
+      "blurPixels": 1.4198177583143112
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000009470733198453671,
+      "x": -0.000022989886125155206,
+      "y": -0.000013556438786848187,
+      "angle": 3.5964845053413117,
+      "opacity": 0.36359198048943653,
+      "lag": 0.0402373538017273,
+      "blurPixels": 2.4083073830604556
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.0000074566961148520925,
+      "x": -0.000007758952630547277,
+      "y": -0.000009366446855233983,
+      "angle": 4.3566028679393005,
+      "opacity": 0.2551828736416064,
+      "lag": -0.022243689201772207,
+      "blurPixels": 1.7785291220620274
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000007817433023476041,
+      "x": -0.00001175043650046608,
+      "y": -0.000030792700799846653,
+      "angle": 2.746002164046612,
+      "opacity": 0.47484313423978164,
+      "lag": 0.15478701008856297,
+      "blurPixels": 6.417545353099704
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000006605332607286982,
+      "x": -0.0000027834394048232276,
+      "y": -0.00003200050344107157,
+      "angle": 2.8442763982715027,
+      "opacity": 0.3630467643472366,
+      "lag": 0.040008557908236986,
+      "blurPixels": 2.4002995267882943
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000008334299810347147,
+      "x": 0.000009428487455082853,
+      "y": -0.00005139624618759595,
+      "angle": 1.289051099409563,
+      "opacity": 0.3095341639802791,
+      "lag": 0.04201093009114266,
+      "blurPixels": 2.4703825531899932
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000007056645829579793,
+      "x": 0.000024896522336485822,
+      "y": -0.0000374995978648567,
+      "angle": 2.200405979855569,
+      "opacity": 0.24670459860702976,
+      "lag": 0.05729927504807711,
+      "blurPixels": 3.0054746266826986
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.00000760970924666617,
+      "x": 0.000018045940987482508,
+      "y": -0.000013256770646425148,
+      "angle": 2.8903458683355634,
+      "opacity": 0.2638926082965918,
+      "lag": 0.01648058979213238,
+      "blurPixels": 1.5768206427246332
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.0000065557068352354685,
+      "x": 0.00004293898441826191,
+      "y": -0.000007848147250028648,
+      "angle": 3.1346959135586023,
+      "opacity": 0.40743924719048663,
+      "lag": -0.07393559036403893,
+      "blurPixels": 3.5877456627413626
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000006068293047253973,
+      "x": 0.00033642592757121337,
+      "y": 0.00004679910023631772,
+      "angle": 5.943387640008547,
+      "opacity": 0.47194755759323015,
+      "lag": -0.024268972814083092,
+      "blurPixels": 1.8494140484929082
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000008815693901269697,
+      "x": 0.00026088064495495176,
+      "y": 0.00010072598963997725,
+      "angle": 5.775591623888101,
+      "opacity": 0.45163707360392435,
+      "lag": 0.03896763125807047,
+      "blurPixels": 2.363867094032466
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000006971823963918723,
+      "x": 0.00015898526658434926,
+      "y": 0.00011497135519776677,
+      "angle": 5.58266349439997,
+      "opacity": 0.44790941483573987,
+      "lag": 0.09364463134109974,
+      "blurPixels": 4.277562096938491
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000008322244334849529,
+      "x": 0.0002560515342200581,
+      "y": 0.00034899326431527114,
+      "angle": 5.525080074927986,
+      "opacity": 0.485731171395164,
+      "lag": 0.043401308231055744,
+      "blurPixels": 2.519045788086951
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000007739925013971514,
+      "x": 0.0002150214897076671,
+      "y": 0.00038402785287343117,
+      "angle": 1.8133611028657377,
+      "opacity": 0.26785629691788926,
+      "lag": 0.005631806463003164,
+      "blurPixels": 1.1971132262051107
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.00000855528674868401,
+      "x": 0.00003558383990287713,
+      "y": 0.00027032671560273266,
+      "angle": 5.3884438481664105,
+      "opacity": 0.40787311708321794,
+      "lag": -0.017590640835463994,
+      "blurPixels": 1.6156724292412399
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000008254665427491999,
+      "x": -0.0000035202813614258823,
+      "y": 0.0002696064844535738,
+      "angle": 5.021044223034459,
+      "opacity": 0.2711958266538568,
+      "lag": 0.14185851095616817,
+      "blurPixels": 5.9650478834658855
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000009479916305164806,
+      "x": -0.0000731753459867698,
+      "y": 0.00023638816125214152,
+      "angle": 5.410885941918267,
+      "opacity": 0.4830519887129776,
+      "lag": 0.06428197952359915,
+      "blurPixels": 3.24986928332597
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000009188105813344009,
+      "x": -0.00021753136081764977,
+      "y": 0.0003179753971561295,
+      "angle": 0.27860423108737303,
+      "opacity": 0.32487106539541855,
+      "lag": 0.044770671486854555,
+      "blurPixels": 2.566973502039909
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000006032875429256819,
+      "x": -0.00022780497548636244,
+      "y": 0.00016598396433207483,
+      "angle": 0.5387770578156298,
+      "opacity": 0.40087940003490075,
+      "lag": -0.07292775680869817,
+      "blurPixels": 3.552471488304436
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000009266855043941177,
+      "x": -0.00028819343617002963,
+      "y": 0.00011039178469497968,
+      "angle": 3.0846025351740365,
+      "opacity": 0.25577933627413585,
+      "lag": 0.08716547204554081,
+      "blurPixels": 4.050791521593928
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.00000870620249013882,
+      "x": -0.0003716489807115836,
+      "y": 0.0000477078826990103,
+      "angle": 0.9445175450955291,
+      "opacity": 0.327759300309699,
+      "lag": 0.00428457903116942,
+      "blurPixels": 1.1499602660909296
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000007762701358762569,
+      "x": -0.0003255719718503941,
+      "y": -0.0000115945562460374,
+      "angle": 1.4459084528050854,
+      "opacity": 0.3693726880685426,
+      "lag": 0.10705951800942422,
+      "blurPixels": 4.747083130329848
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000007204610951594077,
+      "x": -0.0003184700815230281,
+      "y": -0.00014565153654443915,
+      "angle": 2.4602081996951326,
+      "opacity": 0.2776612897380255,
+      "lag": -0.02201487755030393,
+      "blurPixels": 1.7705207142606376
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000008873380186618305,
+      "x": -0.0003519492516164809,
+      "y": -0.00023747634418925324,
+      "angle": 1.7617490428905596,
+      "opacity": 0.28490874969633295,
+      "lag": 0.05560387520492077,
+      "blurPixels": 2.946135632172227
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000009028161491150968,
+      "x": -0.00015352854485689018,
+      "y": -0.00019964673719768025,
+      "angle": 5.982123735808134,
+      "opacity": 0.4382162005151622,
+      "lag": -0.07441605804115534,
+      "blurPixels": 3.604562031440437
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000008032541186665184,
+      "x": -0.00015713748472904446,
+      "y": -0.0003102933101424642,
+      "angle": 1.696409357573256,
+      "opacity": 0.3803207253315486,
+      "lag": 0.13429598397016526,
+      "blurPixels": 5.700359438955784
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000009206789587973617,
+      "x": -0.00006231931748852637,
+      "y": -0.0003746194003028628,
+      "angle": 4.066405166143051,
+      "opacity": 0.40135269351070746,
+      "lag": -0.013460859261453146,
+      "blurPixels": 1.4711300741508602
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000007562977008172311,
+      "x": 0.000007901062554483794,
+      "y": -0.00036769881804544563,
+      "angle": 3.825142036062419,
+      "opacity": 0.45217528014676645,
+      "lag": 0.11773844821751117,
+      "blurPixels": 5.120845687612891
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000007288251079502515,
+      "x": 0.00011164050142737545,
+      "y": -0.000315723798143399,
+      "angle": 5.303631026229089,
+      "opacity": 0.3101936205732636,
+      "lag": -0.04476716680079698,
+      "blurPixels": 2.5668508380278943
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.000008462176269036717,
+      "x": 0.0001790448683651153,
+      "y": -0.0002553159123101887,
+      "angle": 3.1962675812599906,
+      "opacity": 0.25868706668028607,
+      "lag": 0.018194699496030812,
+      "blurPixels": 1.6368144823610784
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.0000065560481868451454,
+      "x": 0.0002792232717501495,
+      "y": -0.00023579286516396358,
+      "angle": 5.267905718240899,
+      "opacity": 0.24643090246012433,
+      "lag": 0.026268996544182306,
+      "blurPixels": 1.9194148790463808
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.0000064842632530489936,
+      "x": 0.00037297150615366194,
+      "y": -0.00018463597405543947,
+      "angle": 2.9037638231786698,
+      "opacity": 0.4262586418283172,
+      "lag": -0.011808463945984834,
+      "blurPixels": 1.4132962381094691
+    },
+    {
+      "file": "amoeba",
+      "species": "Small free-living amoeba (illustrative)",
+      "bodyPixels": 1152,
+      "center": [
+        649.5,
+        617.5
+      ],
+      "diameter": 0.00000832889850891661,
+      "x": 0.0004278456447633091,
+      "y": -0.000048023872518875595,
+      "angle": 2.9024587919960254,
+      "opacity": 0.24489767239196225,
+      "lag": 0.1384431973323226,
+      "blurPixels": 5.845511906631291
     }
   ],
   "dust": [

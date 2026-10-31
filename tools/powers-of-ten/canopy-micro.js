@@ -10,6 +10,7 @@ export function canopyMicro(){
  let currentS=0,currentMin=960;
  function specimen(ctx,p,x,y,k,relative=1,blur=0){
   const scale=p.diameter/p.bodyPixels*k*relative;
+  if(p.field&&1254*scale>40*currentMin)return; // central transparent water opening already exceeds frame
   if(p.file==='amoeba-inner'){
    const W=ctx.canvas.width,H=ctx.canvas.height;if(cellLayer.width!==W||cellLayer.height!==H){cellLayer.width=W;cellLayer.height=H}
    const c=cellLayer.getContext('2d');c.clearRect(0,0,W,H);
@@ -52,7 +53,7 @@ export function canopyMicro(){
    // Surrounding pollen and distinct amoebae occupy their own depth planes.
    for(const p of microCommunity){
     const relative=10**(-p.lag*eased);
-    specimen(ctx,p,x,y,cam.k,relative,(5+Math.abs(p.lag)*32)*pollenFocus*cam.min/960);
+    specimen(ctx,p,x,y,cam.k,relative,(p.blurPixels??(5+Math.abs(p.lag)*32))*pollenFocus*cam.min/960);
    }
    const dustDepth=10**(-.25*eased);
    for(const p of microDust)specimen(ctx,{...microSpecimens[0],...p,file:'pollen'},x,y,cam.k,dustDepth,9*pollenFocus*cam.min/960);

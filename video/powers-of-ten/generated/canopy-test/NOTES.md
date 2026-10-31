@@ -207,3 +207,16 @@ proton rendering already exist. This extension ends at chromatin/nucleosomes;
 subsequent generated DNA/base-pair images must keep central hydrogen aligned
 to the existing Hopf electron-cloud handoff. No camera recentering introduced.
 Verified exact nuclear composite, matched child centres and four preview stops.
+
+### Populated midrange water field
+
+Added a native transparent mixed-microorganism image over a240µm water field,
+plus42 small6–9.5µm cells in reproducible inner/outer bands. The existing
+pollen/Arcella/Vannella community remains. The main central specimen retains
+its independent high-resolution sprite/nuclear interior and fixed axis.
+Imagegen source and6% edge feather recorded in water-field-provenance.json.
+No per-frame randomization or camera recentering; each field/cell retains its
+registered size, position, depth lag and optical focus. All earlier tiles
+rebuilt from the new composite. Visual inspection at180µm confirms a densely
+populated field with the hero still identifiable; coordinate checks confirm
+cells fit inside the physical drop and leave the centre target unobstructed.
