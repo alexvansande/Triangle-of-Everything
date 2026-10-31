@@ -144,10 +144,12 @@ export default {
     // the air line runs to the right of the water line, a thousand times less dense
     { at: "density of air", cam: C(1.5, 4.2, 2.3), hl: [WATER, { line: "air", label: "density of air" }] },
     { at: "heavier than air", cam: C(1.9, 5.0, 2.2), hl: [WATER, { ...AIR, label: "lighter than air →" }] },
-    { at: ["as the name says", "lighter than air aircraft"], cam: C(2.4, 5.8, 2.1),
-      hl: [AIR, { obj: "Zeppelin NT" }, { obj: "Hot-air Balloon", delay: 0.3 }] },
-    { at: "balloons and zeppelins", cam: C(2.45, 6.0, 2.0),
-      hl: [AIR, { obj: "Zeppelin NT", label: "zeppelin" }, { obj: "Hot-air Balloon", label: "balloon" }] },
+    // the zeppelin is the Hindenburg (the author, 2026-10-31: not the modern Zeppelin NT), framed
+    // with the balloon: it sits a decade and a half further up the air line
+    { at: ["as the name says", "lighter than air aircraft"], cam: C(2.9, 6.9, 2.5),
+      hl: [AIR, { obj: "Hindenburg" }, { obj: "Hot-air Balloon", delay: 0.3 }] },
+    { at: "balloons and zeppelins", cam: C(3.2, 7.25, 2.6),
+      hl: [AIR, { obj: "Hindenburg", label: "zeppelin" }, { obj: "Hot-air Balloon", label: "balloon" }] },
 
     // animals and what we build: the glide carries on, a bit over a decade and a half
     // wide, then up the line (waypoints at their cue times) on to the round worlds
@@ -163,12 +165,14 @@ export default {
     { at: ["heavier animals", "heavier and heavier animals"], cam: UP(2.1, 1.5), hl: [WATER, { obj: "Elephant", label: "elephants" }] },
     { at: "argentinosaurus", cam: UP(2.3, 1.6), hl: [WATER, { obj: "Elephant", place: "left" }, { obj: "Argentinosaurus", label: "Argentinosaurus", delay: 0.2 }] },
     { at: "the blue whale", cam: UP(2.55, 1.9), hl: [{ obj: "Blue Whale", label: "largest animal ever" }] },
-    { at: "the largest tree", cam: UP(2.85, 2.2), hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
+    // the Eiffel Tower's picture kept on from here (it gave way to its neighbours for the 7 s before
+    // it's named: the author, 2026-10-31), the animals' too until the engineering
+    { at: "the largest tree", cam: UP(2.85, 2.2), forceIcons: [...ANIMALS, "Eiffel Tower"], hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // what we build
-    { at: "to engineering", cam: UP(3.15, 3.2), dur: 2, clear: true, hideIcons: [], firstIcons: null, forceIcons: null,
+    { at: "to engineering", cam: UP(3.15, 3.2), dur: 2, clear: true, hideIcons: [], firstIcons: null, forceIcons: ["Venus", "Eiffel Tower"],
       hl: [{ obj: "Boeing 747" }, { obj: "Supertanker", delay: 0.3 }] },
-    { at: "the eiffel tower", cam: C(3.75, 10.05, 3.4), hl: [{ obj: "Eiffel Tower" }] },
+    { at: "the eiffel tower", cam: C(3.75, 10.05, 3.4), forceIcons: null, hl: [{ obj: "Eiffel Tower" }] },
     // the close-up (the author, 2026-10-28, in place of the dive): the camera zooms onto the
     // tower, its picture grows, and everything else on the chart fades but the grid, the water
     // and air lines and the catalogue dots; its outline is traced and the picture fades; then
@@ -192,7 +196,8 @@ export default {
 
     // rocks, lakes, asteroids and small moons
     { at: ["big rocks and big", "lots of big rocks"], cam: C(4.05, 11.3, 3.9), hl: [{ obj: "Great Pyramid" }] },
-    { at: ["a little bit of both", "both categories"], cam: C(4.3, 12.6, 4.1), hl: [{ obj: "Great Pyramid", label: "rock and building" }, { obj: "Mt. Everest", delay: 0.3 }] },
+    // (framed with Everest too: it was above the frame, 2026-10-31)
+    { at: ["a little bit of both", "both categories"], cam: C(4.9, 15.4, 5.2), hl: [{ obj: "Great Pyramid", label: "rock and building" }, { obj: "Mt. Everest", delay: 0.3 }] },
     // the lakes sit below the line (wide and flat): the pan dips to them
     { at: "lakes and asteroids", cam: C(5.2, 15.6, 4.4),
       hl: [{ obj: "Königssee", label: "lakes", place: "right" }, { obj: "Hallstätter See", label: false, delay: 0.2 },
@@ -201,10 +206,10 @@ export default {
 
     // round worlds
     { at: "less potato", cam: { r: 7.2, m: 22.2, span: PAN, glide: true },
-      hl: [{ obj: "Hyperion", place: "left", label: "Hyperion · lumpy" }, { obj: "Vesta", delay: 0.4 }, { obj: "Ceres", delay: 0.8 }, { obj: "Pluto", delay: 1.2 }] },
+      hl: [{ obj: "Hyperion", place: "left", label: "Hyperion · lumpy" }, { obj: "Vesta", delay: 0.4 }, { obj: "Ceres", delay: 0.8 }] },
     // the line between them: the last lumpy asteroid (Vesta) and the first round one (Ceres).
     // Icy moons round up lighter (ice is softer than rock): Mimas is round below it, so it's left out here
-    { at: "chemical bonds", cam: { r: 7.45, m: 23.62, span: PAN, glide: true }, hl: [BONDS, { obj: "Hyperion", place: "left" }, { obj: "Vesta", label: "Vesta · lumpy" }] },
+    { at: "chemical bonds", cam: { r: 7.45, m: 23.62, span: PAN, glide: true }, hl: [BONDS, { obj: "Hyperion", place: "left", label: false }, { obj: "Vesta", label: "Vesta · lumpy" }] },
     { at: "gravity takes over", cam: { r: 7.6, m: 23.72, span: PAN, glide: true }, hl: [BONDS, GRAVITY, { obj: "Vesta", label: "Vesta · lumpy" }, { obj: "Ceres", label: "Ceres · round", delay: 0.3 }] },
     { at: "shapes planets", cam: G(7.8, 23.95), hl: [BONDS, GRAVITY, { obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
 
@@ -224,7 +229,7 @@ export default {
     { at: "goldilocks zone", cam: G(8.85, 27.6), hl: [AIR_BAND, { obj: "Mars", label: false }, { obj: "Earth", label: false }, { obj: "Venus", place: "left", label: false }] },
     { at: "oxygen and nitrogen", cam: G(8.9, 27.7), hl: [{ ...AIR_BAND, instant: true }, { obj: "Earth", label: "keeps oxygen, nitrogen" }] },
     { at: "not enough to hold", cam: G(9.0, 27.9), hl: [{ ...AIR_BAND, instant: true }, { obj: "Earth", label: "loses hydrogen, helium" }] },
-    { at: "following the rocky planets", cam: G(9.5, 29.15), hl: [ROCKY_GAS, WATER, { obj: "Earth", label: "rocky planets", place: "left" }, { obj: "Venus", label: false, place: "left" }] },
+    { at: "following the rocky planets", cam: G(9.5, 28.85), hl: [ROCKY_GAS, WATER, { obj: "Earth", label: "rocky planets", place: "left" }, { obj: "Venus", label: false, place: "left" }] },
     { at: ["planets are mostly gas", "mostly made of gas"], cam: G(9.6, 29.5), hl: [{ ...ROCKY_GAS, draw: 0.01 }, WATER, { obj: "Earth", place: "left" }, { obj: "Neptune", place: "left" }, { obj: "Saturn", delay: 0.3 }, { obj: "Jupiter", label: "mostly gas", delay: 0.6 }] },
     { at: "less dense than water", cam: G(9.75, 30.1), hl: [WATER, { obj: "Saturn", label: "Saturn · would float", place: "left" }] },
     { at: "as dense as wood", hl: [WATER, { obj: "Saturn", label: "Saturn · like wood", place: "left" }] },

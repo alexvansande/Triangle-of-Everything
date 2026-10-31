@@ -2697,7 +2697,8 @@ function drawObjects() {
     iconSizeAt: (logR,name,cat) => icoSize * iconSizeMult({logR,slug:nameToSlug(name),cat}),
     imagePriorityOf: (name,cat) => spaceImagePriority(nameToSlug(name),cat),
     roomOf: (name, cat, logR) => iconRoomMult(nameToSlug(name), cat, logR),
-  }).filter(p => p.r*2 >= dustIconMin() && !_iconHide?.has(p.name));
+  // (a forced one shows however small: the Eiffel Tower in a 16:9 video's wider shot)
+  }).filter(p => (p.r*2 >= dustIconMin() || _iconForce?.has(p.name)) && !_iconHide?.has(p.name));
   const asObj = (o) => ({ o, sx:o.sx, sy:o.sy, room:roomR(o), imagePriority:o.imagePriority, importance:o.z ?? 3, curated:0 });
   const asDust = (p) => ({ p, sx:p.sx, sy:p.sy, room:p.room ?? p.r, imagePriority:p.imagePriority, importance:dustImportance(p.rank), curated:1 });
   const first = (c) => _iconFirst?.has(c.o ? c.o.name : c.p.name) ? 0 : 1;
@@ -2742,7 +2743,7 @@ function drawObjects() {
   }
   // (an object kept by the visibility memory still wins its place)
   const showingObjects = projected.filter(o => o._showIcon).map(o => ({ sx:o.sx, sy:o.sy, r:roomR(o) }));
-  _dustPictureChoice = new Set(dustChosen.filter(c => !showingObjects.some(o => (c.sx-o.sx)**2 + (c.sy-o.sy)**2 < (c.room+o.r)**2)).map(c => c.p.i));
+  _dustPictureChoice = new Set(dustChosen.filter(c => _iconForce?.has(c.p.name) || !showingObjects.some(o => (c.sx-o.sx)**2 + (c.sy-o.sy)**2 < (c.room+o.r)**2)).map(c => c.p.i));
 
   // --- Cluster detection: connected components within CLUSTER_THRESHOLD px ---
   const th2 = _posterLabels ? -1 : CLUSTER_THRESHOLD * CLUSTER_THRESHOLD; // poster: no clusters

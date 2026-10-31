@@ -172,7 +172,9 @@ async function cutCues(take, name) {
   // the first piece's scene-wide settings win; settings only a later piece has (video 7's explorer) come along too
   const merged = { ...Object.assign({}, ...[...parts].reverse().map(p => p.scene)), cues: [], captionFixes: Object.assign({}, ...parts.map(p => p.scene.captionFixes)),
     cover: first.s.from === 0 ? first.scene.cover && { ...first.scene.cover, ...own?.cover } : undefined,
-    classicWide: own?.classicWide };
+    classicWide: own?.classicWide,
+    // every piece's music in the credits (CC BY: each track is credited)
+    backings: [...new Set(parts.map(p => p.scene.backing).filter(Boolean).map(b => typeof b === "string" ? b : b.track))] };
   for (const k of LISTS) {
     const u = [...new Set(parts.flatMap(p => p.scene[k] || []))];
     merged[k] = u.length ? u : undefined;
@@ -225,9 +227,12 @@ export async function startNarration(app) {
 
   const stage = params.get("stage") || take.stage || "portrait";   // a long cut asks for "landscape"
   // 16:9: the scenes' cameras are framed for a tall screen (span = decades across its width). Wide,
-  // the same span × 16/9: the portrait's width becomes the frame's height, so a shot's subject still
-  // fits, with more around it either side (a cue's camWide: its own framing instead)
-  const WIDE = stage === "landscape" ? 16 / 9 : 1;
+  // the frame shows the portrait's whole height and grows sideways: the span × (16/9)² (the author,
+  // 2026-10-31: "show the same as the vertical video but grow sideways"; it was × 16/9, the portrait's
+  // width as the height, and the objects named above and below fell out of the frame). A cue's
+  // camWide: its own framing instead. The classic figure keeps × 16/9 (CLASSIC_WIDE): it was to be
+  // closer, not further, and its text doesn't grow with the zoom
+  const WIDE = stage === "landscape" ? (16 / 9) ** 2 : 1, CLASSIC_WIDE = stage === "landscape" ? 16 / 9 : 1;
   if (stage !== "none" && (RENDER || !app.isMobile())) app.setStage(stage === "landscape" ? "video" : stage);
   // 16:9: the labels twice the size (the chart's names and the narration's tags, rulers and axis
   // names): on a phone they weren't legible, while the pictures were fine (the author, 2026-10-31);
@@ -248,7 +253,9 @@ export async function startNarration(app) {
   app.setShadowSwirl?.(params.has("shadowswirl") ? +params.get("shadowswirl") : SCENE.shadowSwirl ?? 0.8);
   app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);   // off: the author prefers the background kept on deep zooms
   // pictures 1.28× the app's default size, so they read on a phone (1.6× was too big)
-  app.setIconScale?.(SCENE.iconSize ?? 128);
+  // (16:9: the same decades in 540 px of height that the phone has 768 for: the pictures at 70%, as
+  // the author asked, 2026-10-31, keep the phone's proportions)
+  app.setIconScale?.((SCENE.iconSize ?? 128) * (WIDE !== 1 ? 0.7 : 1));
   // Settings → Icons at "many" (the author's pick): pictures may nearly touch, smaller catalogue ones show
   app.setIconDensity?.(SCENE.iconDensity ?? 60);   // a little over standard: pictures keep clear of each other
   app.setIconForce?.(SCENE.forceIcons ?? null);   // pictures shown even where a nearer one would hide them
@@ -429,6 +436,13 @@ export async function startNarration(app) {
     for (const [k, set, now] of [["forceIcons", app.setIconForce, iconForceNow], ["hideIcons", app.setIconHide, iconHideNow], ["hideLabels", app.setLabelHide, labelHideNow], ["firstIcons", app.setIconFirst, iconFirstNow]]) {
       let v = SCENE[k] ?? null;
       for (const c of cues) if (c[k] !== undefined && c.time <= t) v = c[k] ?? SCENE[k] ?? null;
+      // 16:9: the objects the cue on screen highlights are forced on too (the author, 2026-10-31: "make
+      // sure ... the mentioned objects are in there"; Saturn gave way to Jupiter as it was named)
+      if (k === "forceIcons" && WIDE !== 1 && names.length) {
+        const on = hlCues.filter(c => c.time <= t).at(-1);
+        const extra = on ? [...new Set((on.hl || []).map(h => h.obj).filter(Boolean))] : [];
+        if (extra.length) v = [...new Set([...(v || []), ...extra])];
+      }
       const key = v ? v.join("|") : "";
       if (key !== now.key) { now.key = key; set?.(v); }
     }
@@ -572,8 +586,9 @@ export async function startNarration(app) {
   const layer = document.createElement("div");
   layer.id = "narr-layer";
   if (TEXT !== 1) layer.style.setProperty("--narr-text", TEXT);
+  if (WIDE !== 1) layer.classList.add("narr-wide");
   if (!RENDER) layer.classList.add("live");     // the player's own UI (renders have none)
-  const track = SCENE.backing && (typeof SCENE.backing === "string" ? SCENE.backing : SCENE.backing.track);
+  const track = SCENE.backings?.length ? SCENE.backings : SCENE.backing && (typeof SCENE.backing === "string" ? SCENE.backing : SCENE.backing.track);
   layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-clips"></div><div id="narr-cover" hidden><img alt=""></div><div id="narr-photo"><div class="np-imgs"></div><div class="np-cap"></div></div><div id="narr-caption"></div>` + creditsHTML(track) +
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
       <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div>
@@ -2515,7 +2530,9 @@ export async function startNarration(app) {
     creditsEl.style.visibility = co_ > 0 ? "visible" : "hidden";
     const { view, key } = camera(t);
     const co = classicOpacity(t);
-    classicView = co > 0 ? coverView(t) || view : null;
+    // (16:9: the figure framed × 16/9 where the map is × (16/9)², closer; it comes to the map's
+    // framing as it fades, so the cross-fade still lines up)
+    classicView = co > 0 ? coverView(t) || (WIDE !== 1 ? { ...view, span: view.span * (1 + (CLASSIC_WIDE / WIDE - 1) * co) } : view) : null;
     if (co > 0 && CLASSIC_TEXT !== 1) classicTextScale(CLASSIC_TEXT);
     narrClassic(co, classicView, classicParts(t));
     // a 16:9 video can open the figure's frame sideways (scene `classicWide`: [from, to] s)
@@ -2548,6 +2565,10 @@ export async function startNarration(app) {
     view: (t) => { const v = camera(t).view; return { r: v.r, m: v.m, span: v.span }; },
     where: (name) => { const o = objByName.get(name); return o ? [+o.logR.toFixed(2), +o.logM.toFixed(2)] : null; },
     cues: cues.map(c => ({ t: +c.time.toFixed(2), at: c.at })),
+    // the objects the narration names (a labelled highlight), for checking they're in the frame
+    named: cues.flatMap(c => (c.hl || []).filter(h => h.obj && h.label !== false && !h.instant).map(h => ({ t: +(c.time + (h.delay || 0)).toFixed(2), obj: h.obj, label: h.label || h.obj }))),
+    /** where a named object's picture is on screen ({ x, y, w, h } css px), or null if it isn't drawn */
+    shown: (name) => app.iconRect?.(name) ?? null,
     // the scene's sound cues resolved to times, for scripts/narration-sound.mjs
     timeline: () => ({
       duration: speechEnd,
@@ -2835,7 +2856,7 @@ const creditsHTML = (track) => `<div id="narr-credits" aria-hidden="true"><div c
   <dl>
     <dt>Design and narration</dt><dd>Alex Van de Sande</dd>
     <dt>Inspired by the paper</dt><dd>“All objects and some questions”<span>Charles H. Lineweaver and Vihan M. Patel · Am. J. Phys. 2023</span></dd>
-    <dt>Music</dt><dd>${track ? `“${track}” by ` : ""}Kevin MacLeod<span>incompetech.com · CC BY 4.0</span></dd>
+    <dt>Music</dt><dd>${track ? `${[].concat(track).map(t => `“${t}”`).join(", ").replace(/, ([^,]*)$/, " and $1")} by ` : ""}Kevin MacLeod<span>incompetech.com · CC BY 4.0</span></dd>
   </dl>
   <div class="nc-url"><span>More at</span>triangleofeverything.com</div>
 </div></div>`;
@@ -2924,6 +2945,7 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
   background: radial-gradient(ellipse at 50% 40%, rgba(16, 14, 52, 0.9), rgba(4, 4, 16, 0.97)); color: #eef0ff; pointer-events: none;
   font-family: Inter, system-ui, sans-serif; text-align: center; }
 #narr-credits .nc-in { width: min(84%, 560px); container-type: inline-size; }
+#narr-layer.narr-wide .nc-title { display: none; }   /* 16:9: no room for the title above the credits */
 .nc-title { font: 700 13.5cqi/0.92 "Barlow Condensed", "Arial Narrow", sans-serif; text-transform: uppercase; letter-spacing: 0.01em; margin-bottom: 7cqi; }
 #narr-credits dl { margin: 0; }
 #narr-credits dt { font: 700 3.6cqi/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #ffd54f; margin-top: 4.6cqi; }
