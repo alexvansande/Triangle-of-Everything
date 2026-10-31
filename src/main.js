@@ -59,6 +59,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, t
 import { initTimeScrubber } from "./time-scrubber.js";
 import { startHopfIcons } from "./hopf-icons.js";
 import { startLaniakeaIcons } from "./laniakea-icons.js";
+import { startStarIcons } from "./star-icons.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
 import { loadDust, drawDust, pickDust, pickNamedDust, dustPoint, dustReady, dustPositions, dustOfCat, dustOfSrc, dustByName, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust, dustPictureCandidates } from "./dust.js";
@@ -6772,6 +6773,7 @@ const zoomBehavior = d3.zoom()
         rafPending = false;
         _hopfIcons?.draw();  // live icons follow this frame's positions, not the last one's
         _laniakeaIcons?.draw();
+        _starIcons?.draw();
       });
     }
   })
@@ -6830,6 +6832,8 @@ let _hopfIcons = null;
 startHopfIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _hopfIcons = h; });
 let _laniakeaIcons = null;
 startLaniakeaIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _laniakeaIcons = h; });
+let _starIcons = null;
+startStarIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _starIcons = h; });
 
 // Trackpad two-finger drag pans; pinch and mouse wheel zoom (trackpad-pan.js).
 // Wraps the start/end listeners above, so it must come after them.

@@ -1,0 +1,242 @@
+<title>Star Forge</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an observatory plate. A blackbody colour ruler runs across the top, the sixteen
+   bodies sit on it in temperature order, and a detail bench opens on any one of them.
+   Single dark look on purpose: the stars are light on black. */
+:root {
+  --bg: #05060a;
+  --plate: #0b0d14;
+  --line: #1c2030;
+  --fg: #e6e2da;
+  --muted: #8a8d9c;
+  --accent: #ffcf8a;      /* 5772 K, the Sun's own colour */
+  --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --body: "Figtree", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+html, body { background: var(--bg); color: var(--fg); }
+body { font: 15px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 22px; }
+header { display: grid; gap: 8px; }
+h1 { font: 650 clamp(30px, 5vw, 48px)/1.05 var(--display); letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); max-width: 66ch; margin: 0; }
+.lede b { color: var(--fg); font-weight: 500; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 6px; background: var(--plate); }
+.ctl { display: flex; align-items: center; gap: 8px; font: 500 12px var(--mono); color: var(--muted);
+  text-transform: uppercase; letter-spacing: .06em; }
+.ctl output { color: var(--fg); min-width: 4ch; font-variant-numeric: tabular-nums; }
+input[type=range] { accent-color: var(--accent); width: 120px; }
+button { font: 500 13px var(--body); color: var(--fg); background: transparent; border: 1px solid var(--line);
+  border-radius: 4px; padding: 6px 12px; cursor: pointer; }
+button:hover { border-color: var(--muted); }
+button[aria-pressed=true] { border-color: var(--accent); color: var(--accent); }
+button:focus-visible, input:focus-visible, .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ruler { position: relative; height: 62px; }
+.ruler canvas { width: 100%; height: 26px; display: block; border-radius: 2px; }
+.ruler .ticks { position: absolute; inset: 30px 0 0; font: 400 10.5px var(--mono); color: var(--muted); }
+.ruler .ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.ruler .pins { position: absolute; inset: 0 0 auto; height: 26px; }
+.ruler .pins i { position: absolute; top: -3px; width: 2px; height: 32px; background: var(--fg); opacity: .55; transform: translateX(-1px); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.card { display: grid; gap: 8px; padding: 10px 10px 12px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--plate); cursor: pointer; min-width: 0; }
+.card:hover { border-color: #2c3246; }
+.view { position: relative; aspect-ratio: 1; max-width: 100%; background: #000; border-radius: 3px; overflow: hidden; }
+.view canvas { width: 100%; height: 100%; display: block; }
+.view img { position: absolute; right: 6px; bottom: 6px; width: 34%; aspect-ratio: 1; object-fit: contain;
+  border: 1px solid var(--line); border-radius: 3px; background: #000; }
+.view img[hidden] { display: none; }
+.card h2 { font: 600 17px/1.2 var(--display); margin: 0; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.card h2 small { font: 500 11px var(--mono); color: var(--muted); letter-spacing: .04em; white-space: nowrap; }
+.meta { display: flex; align-items: center; gap: 8px; font: 400 12px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.sw { width: 24px; height: 12px; border-radius: 6px; flex: none; box-shadow: 0 0 0 1px #ffffff22; }
+.card p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.45; }
+dialog { width: min(1100px, calc(100vw - 24px)); max-height: calc(100vh - 24px); padding: 0; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--plate); color: var(--fg); }
+dialog::backdrop { background: #000c; }
+.bench { display: grid; grid-template-columns: minmax(0, 1fr) 300px; }
+.bench .view { border-radius: 0; }
+.rail { padding: 18px; display: grid; gap: 12px; align-content: start; border-left: 1px solid var(--line); overflow: auto; max-height: calc(100vh - 26px); }
+.rail h2 { font: 650 24px/1.1 var(--display); margin: 0; }
+.rail p { margin: 0; font-size: 13px; color: var(--muted); }
+.rail label { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; font: 500 11.5px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.rail label input { grid-column: 1 / -1; width: 100%; }
+.rail label output { color: var(--fg); font-variant-numeric: tabular-nums; }
+.rail .row { display: flex; gap: 8px; flex-wrap: wrap; }
+pre.json { font: 400 11px/1.4 var(--mono); background: #000; border: 1px solid var(--line); padding: 8px; border-radius: 4px; overflow: auto; max-height: 160px; margin: 0; }
+.notes { display: grid; gap: 6px; color: var(--muted); font-size: 13.5px; max-width: 80ch; }
+.notes h3 { font: 600 18px var(--display); color: var(--fg); margin: 8px 0 0; }
+.notes p { margin: 0; }
+@media (max-width: 760px) {
+  .bench { grid-template-columns: 1fr; }
+  .rail { border-left: 0; border-top: 1px solid var(--line); max-height: none; }
+  dialog { overflow: auto; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Star Forge</h1>
+    <p class="lede">The stars that have pictures on the chart, drawn by code instead (the brown dwarfs keep theirs). Each is a <b>two-colour fractal on a sphere inside a glowing atmosphere</b>, its two colours picked by temperature from one sequence, so the coolest are crimson and orange and the hottest blue and violet. They rotate, their spots and cells evolve, and any of them can be rendered at any size. The small inset is today's picture.</p>
+  </header>
+
+  <div class="ruler" aria-label="Each star's two colours by temperature, deep above and bright below, with each star pinned on it">
+    <canvas id="ruler" width="1200" height="36"></canvas>
+    <div class="pins" id="pins"></div>
+    <div class="ticks" id="ticks"></div>
+  </div>
+
+  <div class="bar">
+    <span class="ctl">Time <input id="speed" type="range" min="0" max="4" step="0.05" value="1"><output id="speedOut">1×</output></span>
+    <span class="ctl">Hue strength <input id="boost" type="range" min="0.5" max="2" step="0.05" value="1"><output id="boostOut">1.00</output></span>
+    <button id="pause" aria-pressed="false">Pause</button>
+    <button id="compare" aria-pressed="true">Today's pictures</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <section class="notes">
+    <h3>How it's drawn</h3>
+    <p><b>A sphere, then an atmosphere.</b> Every pixel of the disc is a point on a sphere that turns with the star, fed to a 3D domain-warped fractal, convection cells, and a coarser cell pattern whose bright edges are the magnetic network you see in the Sun's ultraviolet pictures. Active regions cluster in two belts either side of the equator, with sunspots inside them. Around it, a glowing shell is sampled step by step along each line of sight: a ray grazing the rim crosses much more gas than one looking straight down, so the rim brightens and the edge comes out ragged with spicules and prominences, as in SDO's 304 Å and 171 Å pictures of the Sun. Its structure turns with the star too.</p>
+    <p><b>Two colours, one sequence.</b> Each star has a deep colour (lanes, spots, the base of its atmosphere) and a bright one (granules, network, active regions), both picked by temperature from the strip above: crimson and orange for M stars, red-orange and amber for K, orange and yellow for the Sun, gold and cream for F, cyan and white for A, blue and ice for B, violet and blue for O and Wolf-Rayet stars. The bright colour follows the star's real colour; the deep one leans one step further out, redder for cool stars and more violet for hot ones. <b>Hue strength</b> scales them (1 is the palette as designed).</p>
+    <p><b>Why no green stars.</b> A star's light does peak in the green for temperatures near the Sun's (the Sun's peak is near 500 nm), but a hot body glows across the whole spectrum at once, so green never dominates: what reaches the eye is white with a tint. The sequence goes from red through orange and yellow to white and then blue, and never passes through green.</p>
+    <p><b>Vega</b> spins so fast it's flattened and its poles are hotter (about 10,150 K) than its equator (about 7,900 K): its bright colour is the poles', its deep colour the equator's. <b>The neutron star</b> is drawn like the neutron particle: mostly grey, with colour fringes from a chromatic aberration at its edge. Its gravity bends light, so you see about 125° around it instead of 90°: more than half its surface at once. Its two hot spots both sit in one hemisphere, as NICER found for PSR J0030+0451.</p>
+    <p><b>Colour regions.</b> A slow cloud field on the sphere, turning with the star, splits it into regions with their own pair of colours: cool regions take the palette at a lower temperature, warm ones at a higher temperature. Strong on Proxima Centauri (wholly red areas next to amber-yellow ones) and the blue supergiant (navy next to blue-violet); on the others they're kept soft, a gentle shift in tone. The warm regions' hue can also be turned off the sequence (Wolf-Rayet: violet next to cyan).</p>
+    <p><b>The highlight.</b> Every star carries a few bright patches in a third colour (the last part of each swatch): the palette further along, as if hotter, since flares and active regions are hotter than the surface around them. They're always there, breathing slowly and turning with the star; now and then a flare flashes up somewhere new (strongest on Proxima Centauri, a flare star). The colour is laid over the picture with an overlay blend, so it brightens and tints what's under it rather than covering it, and where a patch reaches the edge its light spills into the atmosphere above.</p>
+  </section>
+</div>
+
+<dialog id="bench" aria-label="Star detail">
+  <div class="bench">
+    <div class="view"><canvas id="big"></canvas></div>
+    <div class="rail" id="rail"></div>
+  </div>
+</dialog>
+
+<script type="module">
+"use strict";
+// The engine lives in src/star-forge.js, shared with the videos; published beside this page as star-forge.js
+let F;
+for (const u of ["./star-forge.js", "../src/star-forge.js"]) { try { F = await import(u); break; } catch (e) { /* next */ } }
+const { STARS, palette, colours } = F;
+const toCss = c => `rgb(${c.map(v => Math.round(255 * Math.pow(Math.min(1, v), 1 / 2.2))).join(",")})`;
+let forge = null;
+const render = (s, t, size, target) => forge.render(s, t, size, { target });
+
+// ---------------------------------------------------------------- page
+const $ = id => document.getElementById(id);
+const grid = $("grid");
+const ICON_DIRS = ["icons/", "../content/icons/resolutions/256/", "../content/icons/"];
+function iconImg(slug) {
+  const img = new Image(); img.alt = "Today's picture"; img.loading = "lazy"; let i = 0;
+  img.onerror = () => { if (++i < ICON_DIRS.length) img.src = ICON_DIRS[i] + slug + ".webp"; else img.hidden = true; };
+  img.src = ICON_DIRS[0] + slug + ".webp"; return img;
+}
+const fmtT = T => T >= 1e6 ? (T / 1e6).toFixed(1) + " MK" : T.toLocaleString("en-US") + " K";
+STARS.forEach(s => {
+  const el = document.createElement("article"); el.className = "card"; el.tabIndex = 0; el.setAttribute("role", "button");
+  el.setAttribute("aria-label", `${s.name}: open the detail view`);
+  el.innerHTML = `<div class="view"><canvas></canvas></div><h2>${s.name}<small>${s.cls}</small></h2>
+    <div class="meta"><span class="sw"></span><span>${fmtT(s.T)}</span></div><p>${s.note}</p>`;
+  s.cv = el.querySelector("canvas"); s.sw = el.querySelector(".sw"); s.img = iconImg(s.slug);
+  el.querySelector(".view").append(s.img);
+  el.onclick = () => openBench(s); el.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openBench(s); } };
+  grid.append(el); s.card = el;
+});
+const visible = new Set();
+const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)), { rootMargin: "100px" });
+STARS.forEach(s => io.observe(s.card));
+
+// ruler: the two colours on a log temperature axis, 2,000 K to 100,000 K
+const Tmin = 2000, Tmax = 100000, xOf = T => (Math.log(T) - Math.log(Tmin)) / (Math.log(Tmax) - Math.log(Tmin));
+function drawRuler() {
+  const cv = $("ruler"), ctx = cv.getContext("2d");
+  for (let x = 0; x < cv.width; x++) {
+    const T = Tmin * Math.pow(Tmax / Tmin, x / cv.width);
+    const p = palette(T);
+    ctx.fillStyle = toCss(p.deep); ctx.fillRect(x, 0, 1, cv.height / 2);
+    ctx.fillStyle = toCss(p.bright); ctx.fillRect(x, cv.height / 2, 1, cv.height / 2);
+  }
+  $("pins").innerHTML = STARS.filter(s => s.kind !== 1 && s.T <= Tmax).map(s => `<i style="left:${(xOf(s.T) * 100).toFixed(2)}%" title="${s.name}, ${fmtT(s.T)}"></i>`).join("");
+  STARS.forEach(s => { s._c = null; const [d, b, h] = colours(s).sw; s.sw.style.background = `linear-gradient(90deg, ${toCss(d)} 40%, ${toCss(b)} 40% 75%, ${h ? toCss(h) : toCss(b)} 75%)`; });
+}
+$("ticks").innerHTML = [2000, 3000, 5000, 10000, 20000, 50000, 100000]
+  .map(T => `<span style="left:${(xOf(T) * 100).toFixed(2)}%">${T >= 1000 ? T / 1000 + "k" : T}</span>`).join("")
+  .replace(/>2k</, ">2,000 K<").replace(/>100k</, ">100,000 K<");
+// keep the end labels inside the ruler
+setTimeout(() => { const sp = $("ticks").children; sp[0].style.transform = "none"; sp[sp.length - 1].style.transform = "translateX(-100%)"; });
+
+let speed = 1, paused = false, simT = 0, last = performance.now(), rr = 0, dirty = true;
+$("speed").oninput = e => { speed = +e.target.value; $("speedOut").value = speed + "×"; };
+$("boost").oninput = e => { F.setHue(+e.target.value); $("boostOut").value = F.getHue().toFixed(2); drawRuler(); dirty = true; };
+$("pause").onclick = e => { paused = !paused; e.target.setAttribute("aria-pressed", paused); e.target.textContent = paused ? "Play" : "Pause"; };
+$("compare").onclick = e => { const on = e.target.getAttribute("aria-pressed") !== "true"; e.target.setAttribute("aria-pressed", on);
+  STARS.forEach(s => s.img.style.display = on ? "" : "none"); };
+if (matchMedia("(prefers-reduced-motion: reduce)").matches) { paused = true; $("pause").setAttribute("aria-pressed", true); $("pause").textContent = "Play"; }
+
+// ---------------------------------------------------------------- detail bench
+let benchStar = null;
+const SLIDERS = [
+  ["rot", "Spin", 0, .3, .005], ["evolve", "Surface change", 0, .3, .005], ["scale", "Feature size (cells across)", 1, 30, .1],
+  ["cells", "Convection cells", 0, 1, .01], ["warp", "Swirl", 0, 2.5, .01], ["ridge", "Filaments", 0, 1, .01],
+  ["network", "Magnetic network", 0, 1.5, .01], ["active", "Active regions", 0, 1.5, .01], ["activeLat", "Active belts' latitude (0 = anywhere)", 0, .8, .01],
+  ["spots", "Spots", 0, 1, .01], ["limb", "Limb darkening", 0, 1, .01],
+  ["atm", "Atmosphere height", 0, .6, .005], ["atmGlow", "Atmosphere brightness", 0, 3, .01], ["spic", "Spicules", 0, 2, .01], ["prom", "Prominences", 0, 2, .01],
+  ["tone", "Colour regions", 0, 1, .01], ["toneScale", "Regions across", .5, 8, .05], ["toneSharp", "Region edges (soft →)", .02, .6, .01],
+  ["toneSpread", "Regions' temperature spread (×)", 1, 2.5, .01], ["toneHue", "Warm regions' hue turn (°)", -180, 180, 1],
+  ["hi", "Highlight", 0, 2, .01], ["hiSize", "Highlight size", 0, 1, .01], ["hiT", "Highlight colour (× temperature)", .3, 5, .05],
+  ["flare", "Flares", 0, 2, .01],
+  ["glow", "Halo", 0, 2, .01], ["wind", "Wind", 0, 1.5, .01], ["tilt", "Axis tilt", -1, 1, .01],
+];
+function openBench(s) {
+  benchStar = s;
+  const extra = s.kind === 3 ? [["lens", "Light bending (rs/R)", 0, .45, .01], ["aberr", "Aberration", 0, .08, .002]]
+    : s.oblate ? [["oblate", "Flattening", 0, .3, .005], ["grav", "Hot poles", 0, 1.5, .01]] : [];
+  $("rail").innerHTML = `<h2>${s.name}</h2><p>${s.cls} · ${fmtT(s.T)}. ${s.note}</p>` +
+    [...SLIDERS, ...extra].map(([k, l, a, b, st]) => `<label for="sl-${k}">${l}<output id="o-${k}">${(+s[k]).toFixed(3)}</output>
+      <input id="sl-${k}" data-k="${k}" type="range" min="${a}" max="${b}" step="${st}" value="${s[k]}"></label>`).join("") +
+    `<div class="row"><button id="reset">Reset</button><button id="copy">Copy settings</button></div><pre class="json" id="json"></pre>`;
+  const json = () => { const o = {}; [...SLIDERS, ...extra].forEach(([k]) => o[k] = +(+s[k]).toFixed(3)); $("json").textContent = JSON.stringify({ [s.slug]: o }); };
+  $("rail").querySelectorAll("input").forEach(i => i.oninput = () => { s[i.dataset.k] = +i.value; s._c = null; $("o-" + i.dataset.k).value = (+i.value).toFixed(3); json(); dirty = true; });
+  $("reset").onclick = () => { Object.assign(s, JSON.parse(JSON.stringify(s.orig))); openBench(s); };
+  $("copy").onclick = () => { const txt = $("json").textContent;
+    navigator.clipboard.writeText(txt).then(() => $("copy").textContent = "Copied", () => { getSelection().selectAllChildren($("json")); $("copy").textContent = "Selected"; }); };
+  json();
+  if (!$("bench").open) $("bench").showModal();
+  dirty = true;
+}
+$("bench").addEventListener("close", () => benchStar = null);
+$("bench").addEventListener("click", e => { if (e.target === $("bench")) $("bench").close(); });
+
+// ---------------------------------------------------------------- loop
+const dpr = Math.min(2, devicePixelRatio || 1);
+function frame(now) {
+  const dt = Math.min(.1, (now - last) / 1000); last = now; if (!paused) simT += dt * speed;
+  if (paused && !dirty) { requestAnimationFrame(frame); return; }
+  if (benchStar) {
+    const cv = $("big"), size = Math.min(1024, Math.round(cv.clientWidth * dpr)) || 600;
+    render(benchStar, simT, size, cv);
+  } else {
+    // a few cards per frame, round robin, keeps every card moving without stalling slow GPUs
+    const vis = STARS.filter(s => visible.has(s.card)); const n = Math.min(vis.length, 5);
+    for (let i = 0; i < n; i++) { const s = vis[(rr + i) % vis.length]; render(s, simT, Math.round(s.cv.clientWidth * dpr) || 300, s.cv); }
+    rr += n;
+    if (paused && rr >= vis.length) { dirty = false; rr = 0; return requestAnimationFrame(frame); }
+  }
+  if (paused && benchStar) dirty = false;
+  requestAnimationFrame(frame);
+}
+try { forge = F.createStarForge(); } catch (e) { grid.innerHTML = "<p>This page draws the stars with WebGL 2, which this browser didn't provide.</p>"; }
+if (forge) {
+  try { drawRuler(); // first pass draws every card once, so the page is complete at rest
+    STARS.forEach(s => render(s, 0, Math.round((s.cv.clientWidth || 240) * dpr), s.cv));
+    requestAnimationFrame(frame);
+  } catch (e) { grid.innerHTML = `<pre class="json">${e.message}</pre>`; console.error(e); }
+}
+</script>

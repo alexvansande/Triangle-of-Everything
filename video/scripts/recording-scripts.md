@@ -53,6 +53,7 @@ that form, one or two at most, with the suggested line. Details are in the notes
 | Video 4 · black holes | Gravity's final goal; the Planck corner, where the black-hole line meets the Compton line and no rule exists yet |
 | Video 5 · superclusters, Laniakea | A new player: dark energy is already winning over gravity at that scale (superclusters aren't bound) |
 | Video 6 · atoms, the sawtooth | Electric pull vs the quantum rule sets each atom's size, the same rule as in super-Jupiters |
+| Video 6 · "up to iron, elements are forged…" / after the table | **The author's colours beat** (see "Video 6: the colours beat"): the table recolours to energy; fixes to their draft are listed there |
 | Video 6 · "Those intervals are the periodic table" | **The author's own new line, with the table animation on screen** (see "Video 6: the table transition" below). Remind them it's planned |
 | Video 6 · "up to iron, elements are forged in stars" | Why iron: the binding-energy peak (the picture in `video/plans/binding-energy/`); fusion and fission both stop there |
 | Video 6 · heaviest elements, oganesson | Electromagnetism caps the heaviest nuclei the same way light caps the biggest stars; the island of stability; "stable" heavy elements that are secretly (very slowly) radioactive |
@@ -138,7 +139,7 @@ view.
   1. While they talk about the periods, the dots and the period and group lines morph from the
      chart into the **long table upside down**: 32 columns, hydrogen at the bottom, alkali metals
      on the right, lanthanides and actinides inside rows 6 and 7. That's
-     `video/plans/binding-energy/table-morph-long.mp4` (`anim.mjs`, `LONG=1`).
+     `video/plans/binding-energy/anim.mjs` with `LONG=1` (the repo ignores .mp4 files: run the script to get the clip).
   2. On "**like this**": turn it into the **traditional view**: rotate 180° so hydrogen is at the
      top left, and pull the lanthanides and actinides out into the two separate rows underneath.
      This step isn't built yet: add it to `anim.mjs` (the 18-column grid is already there) and
@@ -146,9 +147,95 @@ view.
      words.
   3. Keep it brief, then back to the chart for palladium and the lanthanides (the chart is the
      star, `video/plans/visual-rules.md`).
-- Colours: the animation uses the binding-energy slope colours (iron grey). In video 6, either keep
-  the element-type colours the chart already uses for its periodic-table easter egg, or use the
-  slope colours if the iron note ("up to iron…") is recorded right after. Ask the author.
+- Colours: start in the element-type colours (the chart's periodic-table easter egg), then switch to
+  the energy colours as the next beat (below; the author's choice, 2026-10-31).
+- Preview of the whole sequence (chart → long table upside down → "like this" → recolour):
+  `video/plans/binding-energy/table-sequence.mjs` writes `table-sequence.mp4`, vertical like the
+  shorts (the repo ignores .mp4 files, so run the script to get the clip).
+
+**Video 6: the colours beat** (the author, 2026-10-31), straight after the table turns into the
+classroom view. The colours sweep from hydrogen to oganesson into: blue and green (fusing gives
+energy), grey at iron, brown (heavier, stable), and bright red, pulsing, for the radioactive ones
+(no stable isotope: technetium, promethium, polonium on; bismuth-209 stays brown, its half-life of
+~2×10¹⁹ years gives no heat to speak of). A small key appears.
+- The author's draft: *"Colors here represent something important. Blue and green are elements that
+  release energy under fusion and require energy to be separated. Brown and red are the opposite,
+  elements that will require energy to be fused. The bright red ones are the radioactive elements,
+  they break down by themselves and release heat and radiation. The gray ones in the center are more
+  stable and at the center of the table is iron. Elements until iron are forged inside the core of
+  stars, as they use up their hydrogen reserves. The ones higher up require some extraordinary amount
+  of energy and it's believed they were created when neutron stars collided, and ejected out into
+  space just before that collision created a black hole – that's why they're so rare! So a nuclear
+  power plant is really using up leftover energy created at the birth of a black hole."*
+- Fact check:
+  - Right: blue/green fuse for energy and cost energy to split; brown/red the opposite; radioactive
+    ones break down by themselves, releasing heat and radiation; iron in the grey middle as the most
+    stable; uranium (and thorium) are made only in the rapid, neutron-flooded events such as
+    neutron-star collisions, so the energy a reactor releases really was stored in one.
+  - Imprecise: **"as they use up their hydrogen reserves"**: hydrogen only makes helium. The heavier
+    ones come *after* the hydrogen runs out, when big stars burn helium, then carbon, oxygen,
+    silicon, up to iron (and a lot of the iron comes from exploding white dwarfs too). Suggested:
+    *"Elements up to iron are forged in the cores of stars: once the hydrogen runs out, the biggest
+    stars burn helium, then carbon, and so on, all the way up to iron."*
+  - Imprecise: **"require some extraordinary amount of energy"**: what they need is a flood of
+    neutrons. Neutrons have no charge, so they slip into nuclei without being pushed away, and the
+    nucleus grows past iron. Suggested: *"The ones beyond iron need something stars can't give
+    them: a flood of neutrons."*
+  - Wrong as stated: **"believed they were created when neutron stars collided"**, for all of them.
+    About half of the elements beyond iron (barium, strontium, much of the lead) are made slowly
+    inside old giant stars, one neutron at a time. The other half, gold, platinum and uranium
+    among them, need the rapid neutron flood of neutron-star collisions (seen in 2017, GW170817),
+    and maybe some rare supernovae. Suggested: *"Some are built slowly in old giant stars, but the
+    rarest, like gold, platinum and uranium, need two neutron stars colliding."*
+  - Imprecise: **"just before that collision created a black hole"**: the collision flings the gas
+    out as it happens and right after; what's left is a heavier neutron star or a black hole (likely
+    a black hole in 2017, not certain). Suggested: *"…flung out into space as they collide, and
+    what's left behind often collapses into a black hole."*
+  - Fine, with a nudge: **"that's why they're so rare"**: yes, those collisions are rare. Gold is
+    about a million times rarer than iron.
+  - **"leftover energy created at the birth of a black hole"** → *"So a nuclear power plant is
+    running on energy that was locked into uranium when two dead stars collided, billions of years
+    before the Earth existed."* (The Earth's uranium is older than the Sun.)
+- **The beat to record** (the author's words with the fixes, and the iron passage the author chose,
+  2026-10-31): *"These colours mean something important. Blue and green are elements that give off
+  energy when they fuse, and need energy to be split. Brown and red are the opposite. The bright red
+  ones are radioactive: they break down by themselves, giving off heat and radiation. And here in
+  the grey middle, the most stable of all: iron. Elements up to iron are forged in the cores of
+  stars: once the hydrogen runs out, the biggest stars burn helium, then carbon, and so on, up to
+  iron. Past iron, fusion stops paying: it costs energy instead. So when a big star's core turns to
+  iron, the fire goes out and the core collapses. And as it falls, the iron is torn apart again,
+  which steals even more energy and speeds up the end. The heaviest elements need something even
+  more extreme: two neutron stars colliding, flung out into space as they crash, and what's left
+  often collapses into a black hole. That's why they're so rare. So a nuclear power plant is running
+  on energy that was locked into uranium when two dead stars collided, billions of years before the
+  Earth existed."*
+  - On screen while it plays: the recolour sweep on "These colours…", the radioactive ones pulse on
+    "radioactive", iron's ring on "iron". The collapse and the neutron-star collision could be short
+    cutaways (a supernova remnant; the GW170817 kilonova) or a dive on the chart to the neutron
+    stars, per `video/plans/visual-rules.md` (dives before photo cutaways).
+- **Second draft of the iron part** (the author, 2026-10-31): *"Past iron, fusion energy generation
+  is negative, meaning when these heavier elements are formed they steal the energy from old stars,
+  accelerating their demise. The heavier ones though need a much more extreme event, the collapse of
+  neutron stars."*
+  - Right: past iron, fusion costs energy instead of giving it.
+  - Right in spirit, wrong mechanism: **"heavier elements … steal the energy from old stars,
+    accelerating their demise"**. Stars don't build much past iron by fusion. What happens is that
+    once a big star's core is iron, it has nothing left to burn, so the fire goes out and the core
+    collapses in under a second. *During* the collapse, energy really is stolen: the heat tears the
+    iron back apart into helium, and electrons are squeezed into protons. Both take away the pressure
+    holding the core up, so the collapse runs away. That is the "accelerating their demise".
+  - Where elements past iron do form slowly (old giant stars, one neutron at a time), it doesn't
+    drain the star: a neutron has no charge, so it slips into a nucleus without a fight. The energy
+    stored in heavy elements comes from those free neutrons.
+  - Wrong word: **"the collapse of neutron stars"** → **"the collision of two neutron stars"**. (A
+    collapse is how a neutron star is *born*, in the supernova; the heaviest elements come from two
+    of them crashing together.)
+  - Suggested: *"Past iron, fusion stops paying: it costs energy instead. So when a big star's core
+    turns to iron, the fire goes out and the core collapses. And as it falls, the iron is torn apart
+    again, which steals even more energy and speeds up the end. The heaviest elements need something
+    even more extreme: two neutron stars colliding."*
+- This also covers the existing line "Up to iron, elements are forged in the cores of stars.
+  Everything heavier… exploding stars and colliding neutron stars": replace it with this beat.
 
 **The goal moments: where one force scores on another, across the whole chart** (the author's
 question, 2026-10-31). Four players (gravity, electromagnetism, the strong force, the weak force)
