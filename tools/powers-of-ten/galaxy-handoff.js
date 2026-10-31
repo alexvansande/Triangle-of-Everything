@@ -1,155 +1,94 @@
-// Matched galaxy → interior light → local stars → solar-system sky.
-// All randomness is seeded. The final particle positions sample the same plate
-// we reveal underneath them; only after registration do they become background.
-import {ramp,win,rng,dot,cameraAt,LY,KPC} from './math.js';
+// One equirectangular map, two registered image-to-point handoffs. Both point
+// sets start at infinity. Only after each fade do their measured/modelled
+// distances become active. No image plane, mesh, or screen-space morph.
+import {ramp,dot,lb,LY,KPC} from './math.js';
 import {image} from './micro.js';
-export const GALAXY_HANDOFF={start:21.65,flat:20.05,plateStart:20.05,starPerspectiveStart:19.1,starPerspectiveEnd:18.25};
-const mix=(a,b,t)=>a+(b-a)*t;
-const ready=i=>i.complete&&i.naturalWidth>0;
-export function galaxyHandoff(gc){
-  const plate=image('/video/powers-of-ten/generated/galaxy-handoff-v1/distant-milky-way.png');
-  const ref=cameraAt(GALAXY_HANDOFF.flat),random=rng(8934);
-  let samples=null,localStars=[],meshTexture=null;
-  function prepare(){
-    if(samples||!ready(plate))return;
-    const c=document.createElement('canvas');c.width=c.height=96;
-    const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(plate,0,0,96,96);
-    const data=g.getImageData(0,0,96,96).data;
-    meshTexture=document.createElement('canvas');meshTexture.width=plate.naturalWidth;meshTexture.height=plate.naturalHeight;
-    const mg=meshTexture.getContext('2d');mg.drawImage(plate,0,0);
-    mg.globalCompositeOperation='destination-in';
-    for(const vertical of [false,true]){
-      const fade=mg.createLinearGradient(0,0,vertical?0:meshTexture.width,vertical?meshTexture.height:0);
-      fade.addColorStop(0,'#0000');fade.addColorStop(.15,'#000');fade.addColorStop(.85,'#000');fade.addColorStop(1,'#0000');
-      mg.fillStyle=fade;mg.fillRect(0,0,meshTexture.width,meshTexture.height);
-    }
-    // Grid stratification keeps dark dust lanes intact. No independent random
-    // lights are added to the diffuse plate, and no bright foreground stars bake in.
-    samples=[];
-    const anchor=cameraAt(16.5);
-    const angle=Math.atan2(dot(ref.r,anchor.u),dot(ref.r,anchor.r)),cs=Math.cos(angle),sn=Math.sin(angle);
-    for(let y=0;y<96;y++)for(let x=0;x<96;x++){
-      const j=y*96+x,k=4*j;
-      samples.push({light:(data[k]+data[k+1]+data[k+2])/765});
-      const light=(data[k]+data[k+1]+data[k+2])/765;
-      if(random()<light*.85){
-        const xx=((x+random())/96-.5)*Math.SQRT2*1.24;
-        const yy=((y+random())/96-.5)*Math.SQRT2*1.24;
-        const sx=xx*cs-yy*sn,sy=xx*sn+yy*cs;
-        const depth=(35+random()**2*900)*LY;
-        const tangent=2*Math.tan(25*Math.PI/180);
-        localStars.push({p:anchor.r.map((v,i)=>depth*(sx*tangent*v-sy*tangent*anchor.u[i]-anchor.n[i])),light});
-      }
-    }
+import {handoffPhase,projectRay} from './galaxy-geometry.js';
+const BASE='/video/powers-of-ten/generated/galaxy-handoff-v2/';
+const TAN=Math.tan(25*Math.PI/180);
+export function galaxyHandoff(){
+ const canvas=document.createElement('canvas');
+ const gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,depth:false,preserveDrawingBuffer:true});
+ const original=image('/video/powers-of-ten/sky/sky-4k.jpg'),clean=image(BASE+'sky-diffuse.png');
+ let textures=null,galaxy=null,stars=null,meta=null,failed=!gl;
+ function program(vs,fs){
+  const compile=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;};
+  const p=gl.createProgram();gl.attachShader(p,compile(gl.VERTEX_SHADER,vs));gl.attachShader(p,compile(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;
+ }
+ let skyProgram,pointProgram,quad;
+ if(gl)try{
+  skyProgram=program(`attribute vec2 aPosition;varying vec2 vPosition;void main(){vPosition=aPosition;gl_Position=vec4(aPosition,0.,1.);}`,`
+   precision highp float;varying vec2 vPosition;uniform sampler2D uOriginal,uClean;uniform vec3 uR,uU,uN;uniform vec2 uFov;uniform float uMix,uAlpha;
+   void main(){vec3 ray=normalize(-uN+vPosition.x*uFov.x*uR+vPosition.y*uFov.y*uU);
+    vec2 uv=vec2(fract(.5-atan(ray.y,ray.x)/6.28318530718),.5-asin(clamp(ray.z,-1.,1.))/3.14159265359);
+    vec3 rgb=mix(texture2D(uOriginal,uv).rgb,texture2D(uClean,uv).rgb,uMix);gl_FragColor=vec4(rgb*uAlpha,uAlpha);}`);
+  pointProgram=program(`
+   precision highp float;attribute vec3 aRay,aColour;attribute float aInvD,aWeight;uniform vec3 uR,uU,uN;uniform vec2 uScale;uniform float uDistance,uDepth,uSize,uEnergy,uModel;varying vec3 vColour;varying float vEnergy;
+   void main(){vec3 q=aRay-uN*(uDistance*uDepth*aInvD);float den=-dot(q,uN),r2=max(dot(q,q),.0001);
+    if(den<=.000001){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=1.;vEnergy=0.;}
+    else{gl_Position=vec4(dot(q,uR)/den*uScale.x,dot(q,uU)/den*uScale.y,0.,1.);gl_PointSize=uSize;
+     float cosine=den/sqrt(r2);vEnergy=min(4.,mix(aWeight,mix(1.,aWeight,uDepth),uModel)*uEnergy/r2/max(.12,cosine*cosine*cosine));}vColour=aColour;}`,`
+   precision highp float;varying vec3 vColour;varying float vEnergy;
+   void main(){vec2 p=gl_PointCoord*2.-1.;float r=dot(p,p);if(r>1.)discard;float a=exp(-4.*r)*vEnergy;gl_FragColor=vec4(vColour*a,a);}`);
+  quad=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+ }catch(e){failed=true;console.error('Galactic handoff shaders',e);}
+ function upload(data){const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);return {buffer,count:data.length/8};}
+ if(gl&&!failed)Promise.all([fetch(BASE+'galaxy-points.json').then(r=>{if(!r.ok)throw Error('galaxy metadata');return r.json()}),fetch(BASE+'galaxy-points.bin').then(r=>{if(!r.ok)throw Error('galaxy geometry');return r.arrayBuffer()})]).then(([m,b])=>{meta=m;galaxy=upload(new Float32Array(b));}).catch(e=>{failed=true;console.error('Galactic handoff assets',e);});
+ function loadTextures(){
+  if(textures||!gl||!original.complete||!original.naturalWidth||!clean.complete||!clean.naturalWidth)return;
+  textures=[original,clean].map(img=>{
+   // Power-of-two textures give genuine wraparound at the longitude seam in WebGL1.
+   const c=document.createElement('canvas');c.width=img===original?4096:2048;c.height=c.width/2;c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+   const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);
+   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t;
+  });
+ }
+ function setStars(data,named=[]){
+  if(!gl||failed||stars||!data)return;
+  const out=[];
+  for(let j=0;j<data.n;j++){
+   if(data.dist[j]>150)break;
+   const d=data.dist[j];if(d<.01)continue;
+   const c=data.col[j]/255*4-.4,rgb=c<.3?[.65,.79,1]:c<1?[1,.94,.82]:[1,.7,.44];
+   out.push(data.pos[3*j]/d,data.pos[3*j+1]/d,data.pos[3*j+2]/d,KPC/(d*LY),...rgb,data.kind[j]===0?1:.22);
   }
-  // The same plate transform is used by both the 3D cloud's destination and
-  // the full-resolution image. Overscan protects both delivery crops and roll.
-  function frame(cam){
-    const angle=Math.atan2(dot(ref.r,cam.cam.u),dot(ref.r,cam.cam.r));
-    const side=Math.hypot(cam.screen.W,cam.screen.H)*1.24;
-    return {angle,side,c:Math.cos(angle),sn:Math.sin(angle)};
+  for(const [name,l,b,d] of named){
+   const ray=lb(l,b),exists=out.some((_,i)=>i%8===0&&Math.abs(KPC/(out[i+3]*LY)-d)<.05&&ray[0]*out[i]+ray[1]*out[i+1]+ray[2]*out[i+2]>.9999);
+   if(!exists)out.push(...ray,KPC/(d*LY),...(name==='Betelgeuse'?[1,.6,.35]:[.85,.9,1]),1);
   }
-  function target(p,cam,f){
-    const x=(p.u-.5)*f.side,y=(p.v-.5)*f.side;
-    return [cam.cx+x*f.c-y*f.sn,cam.cy+x*f.sn+y*f.c];
+  stars=upload(new Float32Array(out));
+ }
+ function ready(){loadTextures();return !failed&&textures&&galaxy&&stars;}
+ const uniform=(p,n)=>gl.getUniformLocation(p,n);
+ function basis(p,cam){gl.uniform3fv(uniform(p,'uR'),cam.cam.r);gl.uniform3fv(uniform(p,'uU'),cam.cam.u);gl.uniform3fv(uniform(p,'uN'),cam.cam.n);}
+ function points(group,cam,depth,energy,size,model=0){
+  const p=pointProgram;gl.useProgram(p);basis(p,cam);gl.bindBuffer(gl.ARRAY_BUFFER,group.buffer);
+  for(const [name,n,offset]of [['aRay',3,0],['aInvD',1,12],['aColour',3,16],['aWeight',1,28]]){const a=gl.getAttribLocation(p,name);gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,n,gl.FLOAT,false,32,offset);}
+  gl.uniform2f(uniform(p,'uScale'),cam.min/cam.W/TAN,cam.min/cam.H/TAN);gl.uniform1f(uniform(p,'uDistance'),cam.F/(2*TAN*KPC));gl.uniform1f(uniform(p,'uDepth'),depth);gl.uniform1f(uniform(p,'uSize'),size);gl.uniform1f(uniform(p,'uModel'),model);gl.uniform1f(uniform(p,'uEnergy'),energy);gl.drawArrays(gl.POINTS,0,group.count);
+ }
+ function draw(cam){
+  if(!ready())return;
+  if(canvas.width!==cam.W||canvas.height!==cam.H){canvas.width=cam.W;canvas.height=cam.H;}
+  gl.viewport(0,0,cam.W,cam.H);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.DEPTH_TEST);gl.disable(gl.BLEND);
+  const phase=handoffPhase(cam.s),visible=ramp(cam.s,6.9,7.6),galaxyAlpha=1-ramp(cam.s,24.4,24.9);
+  const skyAlpha=visible*(1-phase.galaxyFade),p=skyProgram;
+  gl.useProgram(p);basis(p,cam);gl.bindBuffer(gl.ARRAY_BUFFER,quad);const a=gl.getAttribLocation(p,'aPosition');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
+  for(let i=0;i<2;i++){gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,textures[i]);gl.uniform1i(uniform(p,i?'uClean':'uOriginal'),i);}
+  gl.uniform2f(uniform(p,'uFov'),TAN*cam.W/cam.min,TAN*cam.H/cam.min);gl.uniform1f(uniform(p,'uMix'),phase.starFade);gl.uniform1f(uniform(p,'uAlpha'),skyAlpha);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  // Subsequent passes add radiance to complementary image weights, avoiding
+  // the dark half-fade produced by stacking two transparent source-over layers.
+  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);
+  if(phase.galaxyFade>0&&galaxyAlpha>0){
+   const size=(11-7.7*phase.galaxyDepth)*cam.min/960,kernel=.19276*size*size;
+   const energy=meta.radianceIntegral/galaxy.count*cam.min**2/(4*TAN*TAN*kernel);
+   points(galaxy,cam,phase.galaxyDepth,energy*phase.galaxyFade*galaxyAlpha*(1+phase.galaxyDepth),size,1);
   }
-  function paintPlate(cam,alpha,additive=false){
-    if(alpha<.001||!ready(plate))return;
-    const {ctx}=cam,f=frame(cam);ctx.save();ctx.globalAlpha=alpha;
-    if(additive)ctx.globalCompositeOperation="lighter";
-    ctx.translate(cam.cx,cam.cy);ctx.rotate(f.angle);
-    ctx.drawImage(plate,-f.side/2,-f.side/2,f.side,f.side);ctx.restore();
-  }
-  const background={name:'matched galactic sky',range:[6.8,20.1],draw(cam){
-    const a=cam.s<=19.65?ramp(cam.s,6.9,7.6):0;
-    paintPlate(cam,a);
-  }};
-  function drawGalaxy(cam,alpha){
-    prepare();if(!samples)return false;
-    const t=1-ramp(cam.s,GALAXY_HANDOFF.flat,GALAXY_HANDOFF.start);
-    if(t<.001)return false;
-    if(t>.999999){
-      const replace=1-ramp(cam.s,19.65,20.05);
-      paintPlate(cam,alpha*(1-replace));paintPlate(cam,alpha*replace,true);return true;
-    }
-    const f=frame(cam),ctx=cam.ctx,N=24,vertices=[];
-    const turn=t*Math.PI*.48,ct=Math.cos(turn),st=Math.sin(turn);
-    const k=cam.min/10**Math.max(cam.s,21.1);
-    // A continuous textured light volume avoids visible particle-sized squares.
-    // Its vertices are the same image coordinates as the destination sky.
-    for(let y=0;y<=N;y++)for(let x=0;x<=N;x++){
-      const u=x/N,v=y/N,dx=(u-.5)*34*KPC,dy=(v-.5)*34*KPC;
-      const ix=Math.min(95,Math.floor(u*96)),iy=Math.min(95,Math.floor(v*96));
-      const dz=(samples[iy*96+ix].light-.25)*1.4*KPC;
-      const p=[gc[0]+ct*dx+st*dz,gc[1]+dy,gc[2]-st*dx+ct*dz];
-      const q=target({u,v},cam,f);
-      vertices.push([mix(cam.cx+k*dot(p,cam.cam.r),q[0],t),mix(cam.cy-k*dot(p,cam.cam.u),q[1],t),u*plate.naturalWidth,v*plate.naturalHeight]);
-    }
-    ctx.save();ctx.globalAlpha=alpha*ramp(t,0,.2);
-    for(let y=0;y<N;y++)for(let x=0;x<N;x++){
-      const a=vertices[y*(N+1)+x],b=vertices[y*(N+1)+x+1];
-      const c=vertices[(y+1)*(N+1)+x],d=vertices[(y+1)*(N+1)+x+1];
-      triangle(ctx,meshTexture,a,b,c);triangle(ctx,meshTexture,d,c,b);
-    }
-    ctx.restore();return true;
-  }
-  function triangle(ctx,img,p,q,r){
-    const sx=q[2]-p[2],sy=q[3]-p[3],tx=r[2]-p[2],ty=r[3]-p[3],det=sx*ty-sy*tx;
-    if(Math.abs(det)<1e-8)return;
-    const dx=q[0]-p[0],dy=q[1]-p[1],ex=r[0]-p[0],ey=r[1]-p[1];
-    const a=(dx*ty-ex*sy)/det,b=(dy*ty-ey*sy)/det;
-    const c=(ex*sx-dx*tx)/det,d=(ey*sx-dy*tx)/det;
-    const cx=(p[0]+q[0]+r[0])/3,cy=(p[1]+q[1]+r[1])/3;
-    const expand=v=>{const l=Math.hypot(v[0]-cx,v[1]-cy)||1;return [v[0]+.35*(v[0]-cx)/l,v[1]+.35*(v[1]-cy)/l]};
-    const P=expand(p),Q=expand(q),R=expand(r);
-    ctx.save();ctx.beginPath();ctx.moveTo(...P);ctx.lineTo(...Q);ctx.lineTo(...R);ctx.closePath();ctx.clip();
-    ctx.transform(a,b,c,d,p[0]-a*p[2]-c*p[3],p[1]-b*p[2]-d*p[3]);ctx.drawImage(img,0,0);ctx.restore();
-  }
-  function drawStars(cam,data){
-    prepare();
-    if(!data||cam.s>21||cam.s<6.9)return;
-    const alpha=win(cam.s,6.9,7.6,18.8,19.5),perspective=1-ramp(cam.s,18.25,19.1);
-    if(alpha<.01)return;
-    const ctx=cam.ctx,{r,u,n}=cam.cam,D=cam.F/(2*Math.tan(25*Math.PI/180));
-    // Far stars tend continuously towards angular positions as D → 0. No
-    // star-field swap, camera recentering, or whole-field opacity fade at the Sun.
-    const limit=Math.max(1200,cam.F/LY*3),count=lowerBound(data.dist,limit);
-    const stride=1;
-    ctx.save();ctx.globalAlpha=alpha;
-    for(const star of localStars){
-      const z=dot(star.p,n),den=D-z;
-      if(den<=D*.001)continue;
-      const scale=mix(1,D/den,perspective);
-      const x=cam.cx+dot(star.p,r)*cam.k*scale,y=cam.cy-dot(star.p,u)*cam.k*scale;
-      if(x<0||y<0||x>cam.W||y>cam.H)continue;
-      ctx.globalAlpha=alpha*(.4+.5*star.light);ctx.fillStyle='#f2e3cf';
-      const size=(.65+star.light)*cam.dpr;ctx.fillRect(x-size/2,y-size/2,size,size);
-    }
-    ctx.globalAlpha=alpha;
-    for(let j=0;j<count;j+=stride){
-      if(data.kind[j]!==0)continue;
-      const p=[data.pos[j*3]*LY,data.pos[j*3+1]*LY,data.pos[j*3+2]*LY];
-      const z=dot(p,n),den=D-z;
-      if(perspective>.999&&den<=D*.001)continue;
-      const sc=den>0?D/den:0;
-      const project=mix(1,sc,perspective);
-      if(project<=0)continue;
-      const x=cam.cx+dot(p,r)*cam.k*project,y=cam.cy-dot(p,u)*cam.k*project;
-      if(x<0||y<0||x>cam.W||y>cam.H)continue;
-      const colour=data.col[j]/255*4-.4;
-      ctx.fillStyle=colour<.3?'#b6ceff':colour<1?'#fff1dc':'#ffd0a0';
-      const size=(data.kind[j]===0?1.9:1.05)*cam.dpr;
-      ctx.fillRect(x-size/2,y-size/2,size,size);
-    }
-    ctx.restore();
-  }
-  function projectStar(cam,p){
-    const D=cam.F/(2*Math.tan(25*Math.PI/180)),z=dot(p,cam.cam.n),den=D-z;
-    const blend=1-ramp(cam.s,18.25,19.1);
-    if(blend>.999&&den<=D*.001)return [NaN,NaN];
-    const scale=mix(1,den>0?D/den:0,blend);
-    return [cam.cx+dot(p,cam.cam.r)*cam.k*scale,cam.cy-dot(p,cam.cam.u)*cam.k*scale];
-  }
-  return {background,drawGalaxy,drawStars,projectStar,ready:()=>ready(plate)};
+  if(phase.starFade>0)points(stars,cam,phase.starDepth,.75*phase.starFade*visible*(1-ramp(cam.s,21.4,22.2)),2.3*cam.min/960);
+  cam.ctx.save();cam.ctx.globalCompositeOperation='lighter';cam.ctx.drawImage(canvas,0,0);cam.ctx.restore();
+  // The solar system becomes its own central star, at the same world location.
+  const sunAlpha=ramp(cam.s,15.2,16)*(1-ramp(cam.s,21.6,22.3));
+  if(sunAlpha>.001){const ctx=cam.ctx;ctx.save();ctx.globalAlpha=sunAlpha;const rad=4*cam.dpr;const g=ctx.createRadialGradient(cam.cx,cam.cy,0,cam.cx,cam.cy,rad*3);g.addColorStop(0,'#fff6d9');g.addColorStop(.15,'#ffd28c');g.addColorStop(1,'#ffc16a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cam.cx,cam.cy,rad*3,0,Math.PI*2);ctx.fill();ctx.restore();}
+ }
+ function projectStar(cam,p){const d=Math.hypot(...p),ray=p.map(v=>v/d);const q=projectRay(ray,KPC/d,cam.cam,cam.F/(2*TAN*KPC),handoffPhase(cam.s).starDepth);return [cam.cx+q[0]*cam.min/(2*TAN),cam.cy-q[1]*cam.min/(2*TAN)];}
+ return {ready,setStars,draw,projectStar,background:{name:'matched galactic sky',range:[6.8,25],draw}};
 }
-function lowerBound(a,v){let lo=0,hi=a.length;while(lo<hi){const m=(lo+hi)>>1;if(a[m]<v)lo=m+1;else hi=m;}return lo;}

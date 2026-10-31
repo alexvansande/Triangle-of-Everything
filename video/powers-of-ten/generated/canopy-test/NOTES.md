@@ -379,3 +379,56 @@ across the handoff, complementary brightness weights; angular convergence of
 stars and behind-camera culling; visual checks at20.7,20.05,18.2 and13.
 Stellar distribution beyond the nearest catalogue stars is intentionally
 compositional, following the author's request; this is not an astrometric survey.
+
+## Equirectangular map → catalogue stars → modelled galaxy · 2026-10-31
+
+Supersedes thev1 rotating image surface. This version follows the author's
+explicit outward construction. The original all-sky map is
+`video/powers-of-ten/sky/sky-4k.jpg`, in galactic equirectangular coordinates.
+Longitude0 is at horizontal centre, positive to the left; latitude north is up.
+
+The cleaned image, generated edit prompt, geometry and face-on diagnostic are
+in `generated/galaxy-handoff-v2/`. Cleaned native resolution1774×887; the runtime
+resamples it to2048×1024 for repeat-wrapped WebGL1 texture addressing, which
+adds no native detail. The complete original map is retained at4096×2048.
+
+Outward phases (s=log10 frame width in metres):
+-15.35–15.85: original sky → cleaned sky plus catalogue stars at angular positions.
+-15.85–17.6: measured star distances become active. Catalogue directions and
+ distances come from the existing Hipparcos/Gaia data; local neighbourhood LOD
+ uses stars within150ly plus the named bright landmarks (including Proxima and
+ the more distant Betelgeuse/Deneb), with duplicates suppressed. Distant unresolved light remains in the cleaned map.
+-18.8–19.25: cleaned sky →360,000 dots sampled from its brightness and colour.
+ Dots are still at infinity, so their projected directions remain registered.
+-19.25–21.35: only after image replacement, modelled galactic distances become
+ active. The existing tilt towards the galactic pole is delayed to this interval.
+- Beyond: the same 3D dots remain the galaxy; they are not replaced by a texture.
+
+`galaxy-geometry.js` defines the shared angular mapping and non-overlapping
+phases. `galaxy-handoff.js` projects the map and both point clouds using the same
+camera basis and50° field of view. Inverse distance starts at zero, so changing
+stored distance cannot move points during a fade. As inverse distance activates,
+the standard finite perspective projection emerges. The Sun remains a central
+warm point after the solar system contracts. Resolved Oort particles attenuate
+when their cloud becomes too small to distinguish, avoiding a false blue star.
+
+`scripts/powers-of-ten-build-galaxy.mjs` samples solid-angle-weighted luminance
+and retains each chosen direction. Conditional distance along that ray comes
+from a thin/thick disc, Gaussian bar/bulge and four logarithmic spiral arms.
+Latitude integration resolves the thin midplane at512 rows. Model luminosity
+weights activate with depth, correcting the observer's dust-biased angular
+sampling so exterior arms can appear; the map controls the fully registered
+initial view. Extended Magellanic light is placed near50/62kpc and reduced as
+existing external-galaxy layers take over. These distances/densities are a visual
+model, while the local catalogue stars retain measured distances.
+
+Rendering is WebGL point sprites with additive radiance crossfades. Point
+footprints narrow during the depth reveal. The old square photo/mesh morph and
+random local stars are not used. All geometry and sampling are seeded and
+reversible for normal zooming in either direction.
+
+Validation: spherical coordinate round trips, angular registration independent
+of distance, strict fade-before-depth ordering, finite perspective equivalence,
+unit directions and positive distances for all360,000 generated points. A
+face-on model diagnostic is committed alongside the data. Visual review covers
+both handoffs and the exterior galaxy; browser shader/asset logs checked.

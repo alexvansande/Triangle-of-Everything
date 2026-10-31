@@ -20,7 +20,7 @@ execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-water.mjs`],
 execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-drop.mjs`],{cwd:root,stdio:'inherit'});
 execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-depth.mjs`],{cwd:root,stdio:'inherit'});
 await cp(`${root}/${generated}`,`${runtime}/${generated}`,{recursive:true});
-await cp(`${root}/video/powers-of-ten/generated/galaxy-handoff-v1`,`${runtime}/video/powers-of-ten/generated/galaxy-handoff-v1`,{recursive:true});
+await cp(`${root}/video/powers-of-ten/generated/galaxy-handoff-v2`,`${runtime}/video/powers-of-ten/generated/galaxy-handoff-v2`,{recursive:true});
 await cp(`${root}/tools/powers-of-ten/canopy-test.js`,`${runtime}/tools/powers-of-ten/canopy-test.js`);
 await cp(`${root}/tools/powers-of-ten/canopy-insects.js`,`${runtime}/tools/powers-of-ten/canopy-insects.js`);
 await cp(`${root}/tools/powers-of-ten/canopy-optics.js`,`${runtime}/tools/powers-of-ten/canopy-optics.js`);
@@ -28,7 +28,7 @@ await cp(`${root}/tools/powers-of-ten/canopy-depth.js`,`${runtime}/tools/powers-
 for(const file of ['scale-overlay.js','canopy-crown-depth.js','canopy-micro.js','canopy-micro-specimens.js','canopy-nucleus.js'])await cp(`${root}/tools/powers-of-ten/${file}`,`${runtime}/tools/powers-of-ten/${file}`);
 for(const slug of ['ladybug','ant','boeing-747'])await cp(`${root}/content/icons/resolutions/1024/${slug}.webp`,`${runtime}/content/icons/resolutions/1024/${slug}.webp`);
 // Share the complete route rather than reconstructing a legacy bounded viewer.
-for(const file of ['full-journey.js','small.js','space.js','distance-labels.js','atmosphere.js','galaxy-handoff.js'])await cp(`${root}/tools/powers-of-ten/${file}`,`${runtime}/tools/powers-of-ten/${file}`);
+for(const file of ['full-journey.js','small.js','space.js','distance-labels.js','atmosphere.js','galaxy-handoff.js','galaxy-geometry.js','math.js'])await cp(`${root}/tools/powers-of-ten/${file}`,`${runtime}/tools/powers-of-ten/${file}`);
 await writeFile(`${runtime}/tools/powers-of-ten/main.js`,'import "./full-journey.js";\n');
 let plates=execFileSync('git',['show',`${revision}:tools/powers-of-ten/plates.js`],{cwd:root,encoding:'utf8'});
 plates=plates.replace('img: null, loading: false', 'img: null, loading: false, x:p.x||0, y:p.y||0');

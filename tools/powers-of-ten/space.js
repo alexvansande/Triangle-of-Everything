@@ -195,7 +195,7 @@ export function spaceLayers(globe) {
   const comets = {
     name: "kuiper & oort", range: [12, 18.6],
     draw(cam) {
-      const ka = win(cam.s, 12.4, 13.0, 15.0, 15.6), oa = win(cam.s, 14.3, 15.0, 17.4, 18.2), ctx = cam.ctx, sz = 1.2 * cam.dpr;
+      const ka = win(cam.s, 12.4, 13.0, 15.0, 15.6), oa = win(cam.s, 14.3, 15.0, 17.4, 18.2)*Math.min(1,(1e5*AU*cam.k/(70*cam.dpr))**2), ctx = cam.ctx, sz = 1.2 * cam.dpr;
       if (ka + oa <= 0.01) return;
       ctx.fillStyle = "rgba(170,205,255,1)";
       for (const c of icy) {
@@ -215,7 +215,7 @@ export function spaceLayers(globe) {
   };
 
   // ---------- stars: Hipparcos (nearest) and Gaia, tools/sky-points ----------
-  const stars = { name: "stars", range: [6.8, 22.6], data: null, draw(cam) { handoff.drawStars(cam,this.data); } };
+  const stars = {name:"stars",range:[6.8,22.6],data:null,draw(){}};
   const NAMED = [["Proxima Centauri", 313.94, -1.93, 4.24], ["Alpha Centauri", 315.73, -0.68, 4.37], ["Barnard's Star", 31.0, 14.1, 5.96], ["Sirius", 227.23, -8.89, 8.6], ["Vega", 67.45, 19.24, 25], ["Betelgeuse", 199.79, -8.96, 550], ["Deneb", 84.28, 1.99, 2600]];
   const named = {
     name: "named stars", range: [16, 21],
@@ -239,22 +239,10 @@ export function spaceLayers(globe) {
     draw(cam) {
       let a = (1 - ramp(cam.s, 24.4, 24.9));
       if (a <= 0.01) return;
-      if(handoff.ready()&&cam.s<21.65){
-        handoff.drawGalaxy(cam,a);
-        a*=ramp(cam.s,21.1,21.65);
-        if(a<.001)return;
+      if(!handoff.ready()){
+        // Retain the old model while the complete registered sky is loading.
+        withGlow(cam,.9,c=>drawModel(c,MW,a*ramp(cam.s,19.6,20.4)));
       }
-      // under the points, faintly, the generated picture laid on the galactic plane
-      const img = imgs["milky-way"], SIDE = 34 * KPC;
-      if (ready(img)) {
-        const o = cam.proj(sub(GC, [SIDE / 2, SIDE / 2, 0]));
-        const ex = sub(cam.proj(add(GC, [SIDE / 2, -SIDE / 2, 0])), o), ey = sub(cam.proj(add(GC, [-SIDE / 2, SIDE / 2, 0])), o);
-        const ctx = cam.ctx;
-        ctx.save(); ctx.globalAlpha = 0.3 * a;
-        ctx.transform(ex[0] / img.naturalWidth, ex[1] / img.naturalWidth, ey[0] / img.naturalHeight, ey[1] / img.naturalHeight, o[0], o[1]);
-        ctx.drawImage(img, 0, 0); ctx.restore();
-      }
-      withGlow(cam, 0.9, (c) => drawModel(c, MW, a));
       const side = 34 * KPC * cam.k, [x, y] = cam.proj(GC);
       cam.labelPx(x, y - 0.4 * side, "the Milky Way", a * ramp(cam.s, 20.5, 20.8) * (1 - ramp(cam.s, 22.2, 22.6)));
       const [sx, sy] = cam.proj([0, 0, 0]);
@@ -332,13 +320,14 @@ export function spaceLayers(globe) {
         return { n, pos, dist, col, kind };
       };
       stars.data = pick((t) => t <= 1);
+      handoff.setStars(stars.data,NAMED);
       galaxies.data = pick((t) => t === 2);
       basins(galaxies, ATTRACTORS);
       web(galaxies);
     } catch (e) { console.warn("sky points unavailable:", e); }
   })();
 
-  return [{...handoff.background,draw(cam){if(handoff.ready())handoff.background.draw(cam);else sky.draw(cam);}}, milkyWay, stars, earthMoon, solar, comets, named, localGroup, galaxies, groupLabels];
+  return [{...handoff.background,draw(cam){if(handoff.ready())handoff.draw(cam);else sky.draw(cam);}}, milkyWay, stars, earthMoon, solar, comets, named, localGroup, galaxies, groupLabels];
 }
 
 // stars as points: the ones within a few frame-widths, at most ~30k a frame

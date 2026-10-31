@@ -1,0 +1,27 @@
+{
+  "count": 360000,
+  "stride": 8,
+  "fields": [
+    "directionX",
+    "directionY",
+    "directionZ",
+    "inverseDistanceKpc",
+    "redOverLuminance",
+    "greenOverLuminance",
+    "blueOverLuminance",
+    "finiteModelWeight"
+  ],
+  "radianceIntegral": 2.0040444200331082,
+  "seed": 20261031,
+  "distanceKpc": [
+    0.015,
+    64.99455297552049
+  ],
+  "galacticCentreKpc": [
+    8.2,
+    0,
+    0
+  ],
+  "model": "Conditional distance along fixed sightline; thin/thick disc, bar-bulge, four logarithmic arms; Magellanic clouds50/62kpc",
+  "source": "sky-diffuse.png"
+}
