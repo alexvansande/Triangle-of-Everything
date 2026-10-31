@@ -18,10 +18,18 @@ export function galaxyHandoff(){
  let skyProgram,pointProgram,quad;
  if(gl)try{
   skyProgram=program(`attribute vec2 aPosition;varying vec2 vPosition;void main(){vPosition=aPosition;gl_Position=vec4(aPosition,0.,1.);}`,`
-   precision highp float;varying vec2 vPosition;uniform sampler2D uOriginal,uClean;uniform vec3 uR,uU,uN;uniform vec2 uFov;uniform float uMix,uAlpha;
+   precision highp float;varying vec2 vPosition;uniform sampler2D uOriginal,uClean;uniform vec3 uR,uU,uN;uniform vec2 uFov;uniform float uMix,uAlpha,uEdge;
+   float grain(vec3 p){return fract(sin(dot(floor(p),vec3(127.1,311.7,74.7)))*43758.5453);}
    void main(){vec3 ray=normalize(-uN+vPosition.x*uFov.x*uR+vPosition.y*uFov.y*uU);
     vec2 uv=vec2(fract(.5-atan(ray.y,ray.x)/6.28318530718),.5-asin(clamp(ray.z,-1.,1.))/3.14159265359);
-    vec3 rgb=mix(texture2D(uOriginal,uv).rgb,texture2D(uClean,uv).rgb,uMix);gl_FragColor=vec4(rgb*uAlpha,uAlpha);}`);
+    vec3 diffuse=texture2D(uClean,uv).rgb;
+    // World-direction grain is stationary on the celestial sphere, not animated
+    // screen noise. It wraps naturally at the equirectangular longitude seam.
+    float detail=(grain(ray*1600.)-.5)*.7+(grain(ray*4700.)-.5)*.3;
+    diffuse=max(vec3(0.),diffuse*(1.+.22*detail)+vec3(.012*detail));
+    vec3 rgb=mix(texture2D(uOriginal,uv).rgb,diffuse,uMix);
+    float edge=exp(-ray.z*ray.z/.045)*uEdge;
+    float alpha=uAlpha+edge;gl_FragColor=vec4(rgb*alpha,alpha);}`);
   pointProgram=program(`
    precision highp float;attribute vec3 aRay,aColour;attribute float aInvD,aWeight;uniform vec3 uR,uU,uN;uniform vec2 uScale;uniform float uDistance,uDepth,uSize,uEnergy,uModel;varying vec3 vColour;varying float vEnergy;
    void main(){vec3 q=aRay-uN*(uDistance*uDepth*aInvD);float den=-dot(q,uN),r2=max(dot(q,q),.0001);
@@ -74,16 +82,20 @@ export function galaxyHandoff(){
   const skyAlpha=visible*(1-phase.galaxyFade),p=skyProgram;
   gl.useProgram(p);basis(p,cam);gl.bindBuffer(gl.ARRAY_BUFFER,quad);const a=gl.getAttribLocation(p,'aPosition');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
   for(let i=0;i<2;i++){gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,textures[i]);gl.uniform1i(uniform(p,i?'uClean':'uOriginal'),i);}
-  gl.uniform2f(uniform(p,'uFov'),TAN*cam.W/cam.min,TAN*cam.H/cam.min);gl.uniform1f(uniform(p,'uMix'),phase.starFade);gl.uniform1f(uniform(p,'uAlpha'),skyAlpha);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  gl.uniform2f(uniform(p,'uFov'),TAN*cam.W/cam.min,TAN*cam.H/cam.min);gl.uniform1f(uniform(p,'uMix'),phase.starFade);gl.uniform1f(uniform(p,'uAlpha'),skyAlpha);
+  // Retain only distant equatorial galactic light as a separate rear layer
+  // while the finite points pull forward, then retire it once outside the disc.
+  gl.uniform1f(uniform(p,'uEdge'),visible*phase.galaxyFade*.6*(1-ramp(cam.s,20.3,21.05)));gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
   // Subsequent passes add radiance to complementary image weights, avoiding
   // the dark half-fade produced by stacking two transparent source-over layers.
   gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);
   if(phase.galaxyFade>0&&galaxyAlpha>0){
-   const size=(11-7.7*phase.galaxyDepth)*cam.min/960,kernel=.19276*size*size;
+   const size=(3.3-.9*phase.galaxyDepth)*cam.min/960;
+   const fluxFootprint=(6-2.7*ramp(phase.galaxyDepth,.65,1))*cam.min/960,kernel=.19276*fluxFootprint**2;
    const energy=meta.radianceIntegral/galaxy.count*cam.min**2/(4*TAN*TAN*kernel);
    points(galaxy,cam,phase.galaxyDepth,energy*phase.galaxyFade*galaxyAlpha*(1+phase.galaxyDepth),size,1);
   }
-  if(phase.starFade>0)points(stars,cam,phase.starDepth,.75*phase.starFade*visible*(1-ramp(cam.s,21.4,22.2)),2.3*cam.min/960);
+  if(phase.starFade>0)points(stars,cam,phase.starDepth,2.1*phase.starFade*visible*(1-ramp(cam.s,21.4,22.2)),4.3*cam.min/960);
   cam.ctx.save();cam.ctx.globalCompositeOperation='lighter';cam.ctx.drawImage(canvas,0,0);cam.ctx.restore();
   // The solar system becomes its own central star, at the same world location.
   const sunAlpha=ramp(cam.s,15.2,16)*(1-ramp(cam.s,21.6,22.3));

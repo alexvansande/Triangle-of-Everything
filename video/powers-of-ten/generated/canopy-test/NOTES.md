@@ -432,3 +432,23 @@ of distance, strict fade-before-depth ordering, finite perspective equivalence,
 unit directions and positive distances for all360,000 generated points. A
 face-on model diagnostic is committed alongside the data. Visual review covers
 both handoffs and the exterior galaxy; browser shader/asset logs checked.
+
+### Galactic appearance refinement · 2026-10-31
+
+Following visual review: add fine, deterministic grain to the cleaned sky in
+world-ray coordinates (two spatial frequencies, no time seed or screen overlay).
+Nearby catalogue stars now use4.3px footprints per960px frame rather than2.3,
+and2.1 peak exposure rather than0.75, making their emerging parallax readable.
+Galaxy particles narrow from3.3 to2.4px during depth, replacing the earlier
+11px angular splats. Inner-cloud exposure is balanced separately so the smaller
+particles don't wash out the remaining galactic light.
+
+A separate distant galactic-band component remains behind the moving points:
+60% equatorial-band strength, attenuated by latitude, retires between s20.3 and
+21.05. The interior sightline is held through20.15, then tilt and yaw catch up
+smoothly to the existing exterior orientation by21.6. This retains the far edge
+while the nearer cloud pulls away. The two registered replacement/depth phase
+boundaries and all catalogue/model positions remain unchanged.
+
+Visual checks at s16.25 (catalogue-star brightness) and20.15 (retained band,
+small points), shader logs clean; existing spherical/phase/data checks pass.

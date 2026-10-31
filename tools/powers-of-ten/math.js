@@ -127,7 +127,7 @@ const K2 = basis(GAL_POLE, EDGE.u);
 const K3 = basis(SG_POLE, GAL_POLE);
 // Keep the interior sky in view through both angular handoffs; tilt to the
 // galactic pole only after the galaxy dots have completely replaced the image.
-const KEYS = [[6.4, K0], [8.4, EDGE], [19.25, EDGE], [21.35, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
+const KEYS = [[6.4, K0], [8.4, EDGE], [20.15, EDGE], [21.6, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
 // the camera is in perspective (50° across the frame's shorter side) from the Earth
 // to the Oort cloud, so what's near it is bigger and passes by; flat before and
 // after. 0…1: how much
@@ -138,7 +138,9 @@ export const perspAt = (s) => win(s, 7.9, 8.5, 14.4, 15.6);
 // whole picture's (ROLL in main.js); the Cloud that follows has its own camera
 const TURN = { from: 16.5, rate: 10 }, TILT = [17.0, 26.6, 8];
 export function cameraAt(s) {
-  const b = keyed(s), x = s - TURN.from;
+  // Hold the interior sightline while the distant galactic band is still a
+  // rear layer; catch up smoothly to the existing exterior turn afterwards.
+  const b = keyed(s), x = (s - TURN.from)*ramp(s,20.15,21.6);
   if (x <= 0) return b;
   const th = D * TURN.rate * (x < 1 ? x * x / 2 : x - 0.5);
   const ph = TILT[2] * D * Math.sin(Math.PI * clamp((s - TILT[0]) / (TILT[1] - TILT[0])));
