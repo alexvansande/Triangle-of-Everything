@@ -17,16 +17,13 @@ for(const g of GALAXY_PHOTOS){
  close(q.x,dot(p,cam.r)/den);close(q.y,dot(p,cam.u)/den);
  const {width,height}=await sharp(new URL(`../video/powers-of-ten/galaxies/${g.id}.jpg`,import.meta.url).pathname).metadata();assert.ok(width>2000&&height>2000);
 }
-// Both Clouds must be inside BOTH delivery crops while the Milky Way shell exits.
-for(const s of [19.65,19.8,20,20.4,21.05])for(const g of GALAXY_PHOTOS.slice(0,2)){
- const p=photoProjection(g,cameraAt(s),s);assert.ok(p.den>0);
- assert.ok(Math.abs(p.x)<Math.tan(25*Math.PI/180)*.5625,`${g.id} outside vertical crop at ${s}`);
- assert.ok(Math.abs(p.y)<Math.tan(25*Math.PI/180)*.5625,`${g.id} outside horizontal crop at ${s}`);
-}
-for(const g of GALAXY_PHOTOS.slice(2)){
- const p=photoProjection(g,cameraAt(22.6),22.6);assert.ok(p.den>0&&Math.abs(p.x)<.262&&Math.abs(p.y)<.262,'M31/M33 inside both Local Group crops');
+// Preserve the established interior sightline; never steer toward a galaxy
+// just to keep its photograph in a delivery crop.
+for(const s of [18.2,19.3,19.65,20,20.15]){
+ const a=cameraAt(18.2),b=cameraAt(s);
+ for(const axis of ['r','u','n'])for(let i=0;i<3;i++)close(a[axis][i],b[axis][i]);
 }
 // Camera keys and projection changes are continuous, including reversing zoom.
 for(let s=18;s<23;s+=.002){const a=cameraAt(s),b=cameraAt(s+.002);assert.ok(dot(a.n,b.n)>.9998);}
 const credits=JSON.parse(await readFile(new URL('../video/powers-of-ten/galaxies/SOURCES.json',import.meta.url)));for(const g of GALAXY_PHOTOS)assert.ok(credits[g.id+'.jpg'].credit);
-console.log('Passed: photograph coordinate frames, angular registration, finite distances, 4K source images, both video crops, camera continuity and source credits.');
+console.log('Passed: photograph coordinate frames, angular registration, finite distances, 4K source images, unchanged interior sightline, camera continuity and source credits.');

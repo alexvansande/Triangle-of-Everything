@@ -123,17 +123,11 @@ export const EDGE = basis(norm(add(mul(AWAY, Math.cos(6 * D)), mul(ECL_POLE, Mat
 // edge-on view, the Sun behind → on the Galaxy (60° from the ecliptic) → on the
 // supergalactic plane, the galactic pole up, as the spectrum Cloud has it
 const K0 = basis(UP, NORTH);
-const MAGELLANIC = basis(mul(lb(289,-37),-1),GAL_POLE);
 const K2 = basis(GAL_POLE, EDGE.u);
 const K3 = basis(SG_POLE, GAL_POLE);
-// After the overhead Milky Way view, approach the Local Group from the
-// opposite side of M31 so its photograph enters the delivery crops naturally.
-const LG_TARGET = basis(norm(add(mul(lb(121.17,-21.57),-1),mul(GAL_POLE,.65))),GAL_POLE);
-const lgTurn=56.5*D;
-const KLG={r:add(mul(LG_TARGET.r,Math.cos(lgTurn)),mul(LG_TARGET.n,-Math.sin(lgTurn))),u:LG_TARGET.u,n:add(mul(LG_TARGET.n,Math.cos(lgTurn)),mul(LG_TARGET.r,Math.sin(lgTurn)))};
 // Keep the interior sky in view through both angular handoffs; tilt to the
 // galactic pole only after the galaxy dots have completely replaced the image.
-const KEYS = [[6.4, K0], [8.4, EDGE], [18.2, EDGE], [19.3, MAGELLANIC], [20.8, MAGELLANIC], [22, K2], [22.65, KLG], [23, KLG], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
+const KEYS = [[6.4, K0], [8.4, EDGE], [20.15, EDGE], [21.6, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
 // the camera is in perspective (50° across the frame's shorter side) from the Earth
 // to the Oort cloud, so what's near it is bigger and passes by; flat before and
 // after. 0…1: how much
@@ -146,7 +140,7 @@ const TURN = { from: 16.5, rate: 10 }, TILT = [17.0, 26.6, 8];
 export function cameraAt(s) {
   // Hold the interior sightline while the distant galactic band is still a
   // rear layer; catch up smoothly to the existing exterior turn afterwards.
-  const turnGate=ramp(s,20.8,22);
+  const turnGate=ramp(s,20.15,21.6);
   const b = keyed(s), x = (s - TURN.from)*turnGate;
   if (x <= 0) return b;
   const th = D * TURN.rate * (x < 1 ? x * x / 2 : x - 0.5);

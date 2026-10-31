@@ -557,3 +557,15 @@ same origin. The 'Milky Way → galaxies'48-second review covers18.4–23.1; the
 Checks cover exact angular registration, tangent frames, true-distance projection,
 source dimensions/credits, continuous camera turns, Clouds in both video crops
 through the handoff, and M31/M33 visible in the Local Group stop.
+
+
+### Camera correction · 2026-10-31
+
+The author rejected the dedicated Magellanic camera detour. Restored the exact
+pre-photographic camera path (b5317ab), including its existing yaw/tilt timing.
+Both the Magellanic sightline keys and the extra M31-targeting turn are removed.
+The photographic angular-to-distance handoff remains; objects appear only where
+the established camera naturally sees them. Removed the now offscreen Clouds
+preset and moved the Local Group stop to23. Tests enforce the unchanged interior
+sightline rather than requiring the camera to force galaxies into both crops.
+This supersedes the camera/framing paragraph above.
