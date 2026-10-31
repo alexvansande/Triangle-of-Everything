@@ -624,3 +624,52 @@ A 'Chromatin depth test' button plays1.1µm→45nm in22seconds. Checked the old
 480nm inset view,141nm depth view and50nm exit with both delivery guides.
 `powers-of-ten-check-chromatin.mjs` verifies exact plane/composite identity,
 transparent centre and propagation to the whole-cell parent.
+
+## Own-dot equirectangular skies · 2026-10-31
+
+`powers-of-ten-build-matched-sky.mjs` now exports TWO independent8192×4096
+maps and their matching packed3D buffers under `generated/matched-sky-v1/`:
+720,000 coloured stochastic-dither samples for the Milky Way, and26,508 nearby
+Hipparcos/Gaia samples plus named landmarks. Each coloured sample is exactly
+one object. Radiance-weighted seeded sampling preserves the cleaned map's
+colour/density structure; LMC, SMC, M31 and M33 patches are replaced with adjacent
+sky floor before sampling. Extragalactic telescope photos remain separate.
+
+Each10-float record stores a unit direction from the Sun, inverse distance in
+kpc, RGB radiance, finite-model weight, angular support and peak intensity.
+`scene.json` describes the layout and coordinate reconstruction. Galaxy depths
+reuse angular-cell samples from the established disc/bulge/arm model, excluding
+external-galaxy distances. Nearby directions/distances come from the existing
+packed catalogue (≤150ly) plus named landmarks through Deneb2600ly. Their variable
+orb support and glow intensity are visual weights, not stellar photosphere sizes
+or calibrated apparent magnitudes. The Sun is the observing origin, so its
+central solar-system marker is rendered separately from the all-sky catalogues.
+
+The CPU atlas rasterizer and instanced WebGL sprites use the same tangent-plane
+projection, exact input sample identities, RGB, peak intensity, angular footprint
+and circular Gaussian kernels. Galaxy exp(-4r²); nearby orbs combine a bright
+core and broader halo. Maps are8-bit additive RGB, clamped after accumulation.
+At the Sun's position the live clouds reproduce the exported maps.8K quantisation,
+bilinear reprojection and GPU rasterization still cause small subpixel differences;
+this is not a claim of bit-identical screen pixels. A same-framing preview
+comparison measured ≈5.8/255 mean absolute per-channel difference, with channel
+means within0.3/255. Full-buffer kernel tests at exported atlas sample pixels
+agree within1/255, including overlaps.
+
+Nearby-map replacement15.35–16.5 finishes BEFORE depth16.5–17.2. Galaxy-map
+replacement18.4–18.8 finishes BEFORE depth18.8–19.25. The camera path is unchanged.
+This supersedes the earlier separately warped image dome: each map gives way to
+its OWN point cloud, rather than retaining a differently projected image on top.
+The galaxy's edge now belongs to the actual depth geometry. Finite galaxy
+lighting eases into the inherited extinction/model weights; unresolved points
+retain a small screen-space glow footprint after depth activates, so the exterior
+galaxy does not disappear through subpixel rasterization. Neither correction
+changes the angular-reference map handoff. Nearby points retain their light until
+the group collapses, and the solar marker carries the central light.
+
+`?skyrender=map` and `?skyrender=dots` are reference-comparison modes: identical
+camera, Sun-centred projections, and zero depth. Omit them for the normal zoom.
+`powers-of-ten-check-matched-sky.mjs` checks both complete buffers, distances,
+unit rays,8K dimensions, map/point radiance/colour/footprint agreement and
+replacement-before-depth timing. The existing galaxy and extragalactic checks
+also pass. The previous point/maps remain versioned for provenance.

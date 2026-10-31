@@ -20,6 +20,7 @@ execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-water.mjs`],
 execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-drop.mjs`],{cwd:root,stdio:'inherit'});
 execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-depth.mjs`],{cwd:root,stdio:'inherit'});
 await cp(`${root}/${generated}`,`${runtime}/${generated}`,{recursive:true});
+await cp(`${root}/video/powers-of-ten/generated/matched-sky-v1`,`${runtime}/video/powers-of-ten/generated/matched-sky-v1`,{recursive:true});
 await cp(`${root}/video/powers-of-ten/galaxies`,`${runtime}/video/powers-of-ten/galaxies`,{recursive:true});
 await cp(`${root}/video/powers-of-ten/generated/galaxy-handoff-v2`,`${runtime}/video/powers-of-ten/generated/galaxy-handoff-v2`,{recursive:true});
 await cp(`${root}/tools/powers-of-ten/canopy-test.js`,`${runtime}/tools/powers-of-ten/canopy-test.js`);

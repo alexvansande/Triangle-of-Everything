@@ -10,8 +10,8 @@ for(let y=1;y<32;y++)for(let x=0;x<64;x++){
 }
 assert.deepEqual(skyDirection(.5,.5),[1,0,0]);
 assert.equal(handoffPhase(15.8).starDepth,0);
-assert.ok(handoffPhase(16).starDepth>0&&handoffPhase(16).starFade<1,'stellar parallax starts gradually while the background changes');
-assert.equal(handoffPhase(16.7).starDepth,1);
+assert.equal(handoffPhase(16).starDepth,0,'stellar depth waits for exact map replacement');
+assert.equal(handoffPhase(17.2).starDepth,1);
 assert.ok(handoffPhase(19).galaxyDepth>0&&handoffPhase(19).galaxyFade>0,'galactic depth now begins while stars fade in');
 for(let s=18.8;s<21.2;s+=.01){const shell=galacticShell(s);if(shell.ratio<=1)assert.equal(shell.alpha,1,'sky must stay fully lit inside the sphere');}
 const frame=ly=>Math.log10(ly*LY);
@@ -58,4 +58,4 @@ for(let y=0;y<256;y++)for(let x=0;x<512;x++){
 let variation=0;for(let k=0;k<histogram.length;k++)variation+=Math.abs(histogram[k]/(points.length/8)-expected[k]/sum)/2;
 assert.ok(variation<.06,'dot density must reproduce the source brightness map over solid angle');
 console.log(`Angular brightness-map total variation: ${variation.toFixed(4)}`);
-console.log(`Passed: spherical-map round trips; distance-independent angular registration; early stellar parallax; smooth13k–16kly camera;6k–50kly sphere fade; finite projection; ${points.length/8} valid rays, ${(100*thin/(points.length/8)).toFixed(1)}% within0.8kpc of the plane.`);
+console.log(`Passed: spherical-map round trips; distance-independent angular registration; registered stellar parallax; smooth13k–16kly camera;6k–50kly sphere fade; finite projection; ${points.length/8} valid rays, ${(100*thin/(points.length/8)).toFixed(1)}% within0.8kpc of the plane.`);

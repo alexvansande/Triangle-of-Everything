@@ -1,147 +1,60 @@
-// One equirectangular map, two registered image-to-point handoffs. Both point
-// catalogue stars start at infinity. Galactic points gain depth while the
-// still-lit sky shell shrinks; the shell retires only after we cross outside.
-import {ramp,dot,lb,LY,KPC,rng,cameraAt,AU} from './math.js';
+// The two8K skies and live3D clouds share exported sample identities and
+// angular Gaussian kernels. No independently generated image is crossfaded in.
+import {ramp,dot,LY,KPC,AU} from './math.js';
 import {image} from './micro.js';
-import {handoffPhase,projectRay,galacticShell,SHELL_TIMING} from './galaxy-geometry.js';
-const BASE='/video/powers-of-ten/generated/galaxy-handoff-v2/';
-const TAN=Math.tan(25*Math.PI/180);
-export function galaxyHandoff(GC,neighboursReady=()=>false){
- const canvas=document.createElement('canvas');
- const gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,depth:false,preserveDrawingBuffer:true});
- const original=image('/video/powers-of-ten/sky/sky-4k.jpg'),clean=image(BASE+'sky-diffuse.png');
- let textures=null,galaxy=null,stars=null,meta=null,failed=!gl,stellarRadiusLy=150;
- function program(vs,fs){
-  const compile=(type,src)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;};
-  const p=gl.createProgram();gl.attachShader(p,compile(gl.VERTEX_SHADER,vs));gl.attachShader(p,compile(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;
- }
- let skyProgram,pointProgram,quad;
- if(gl)try{
-  skyProgram=program(`attribute vec2 aPosition;varying vec2 vPosition;void main(){vPosition=aPosition;gl_Position=vec4(aPosition,0.,1.);}`,`
-   precision highp float;varying vec2 vPosition;uniform sampler2D uOriginal,uClean;uniform vec3 uR,uU,uN;uniform vec2 uFov;uniform float uMix,uAlpha,uSphereRadius,uSphereDistance,uGalaxies;
-   float grain(vec3 p){return fract(sin(dot(floor(p),vec3(127.1,311.7,74.7)))*43758.5453);}
-   void main(){vec3 ray=normalize(-uN+vPosition.x*uFov.x*uR+vPosition.y*uFov.y*uU);
-    // Raycast the far wall of a world-space sphere, viewed from C=D*n.
-    // Keeping the far root avoids a texture jump as we cross its near wall.
-    vec3 eye=uN*uSphereDistance;float b=dot(eye,ray);
-    float discriminant=b*b+uSphereRadius*uSphereRadius-dot(eye,eye);
-    if(discriminant<0.)discard;
-    float travel=-b+sqrt(discriminant);if(travel<=0.)discard;
-    vec3 skyRay=normalize(eye+travel*ray);
-    vec2 uv=vec2(fract(.5-atan(skyRay.y,skyRay.x)/6.28318530718),.5-asin(clamp(skyRay.z,-1.,1.))/3.14159265359);
-    vec3 diffuse=texture2D(uClean,uv).rgb;
-    // World-direction grain is stationary on the celestial sphere, not animated
-    // screen noise. It wraps naturally at the equirectangular longitude seam.
-    float detail=(grain(skyRay*1600.)-.5)*.7+(grain(skyRay*4700.)-.5)*.3;
-    diffuse=max(vec3(0.),diffuse*(1.+.22*detail)+vec3(.012*detail));
-    vec3 rgb=mix(texture2D(uOriginal,uv).rgb,diffuse,uMix);
-    // The Magellanic Clouds belong to the independent extragalactic layer,
-    // not to the shrinking Milky Way dome. Retain the old view until ready.
-    vec2 lm=(uv-vec2(.721,.683))/vec2(.040,.051),sm=(uv-vec2(.659,.744))/vec2(.028,.037);
-    float extragalactic=max(1.-smoothstep(.65,1.,length(lm)),1.-smoothstep(.65,1.,length(sm)));
-    vec2 emptyUV=vec2(fract(uv.x+.075),uv.y);
-    vec3 emptySky=mix(texture2D(uOriginal,emptyUV).rgb,texture2D(uClean,emptyUV).rgb,uMix);
-    rgb=mix(rgb,emptySky,uGalaxies*extragalactic);
-    gl_FragColor=vec4(rgb*uAlpha,uAlpha);}`);
+import {handoffPhase,projectRay} from './galaxy-geometry.js';
+const BASE='/video/powers-of-ten/generated/matched-sky-v1/',TAN=Math.tan(25*Math.PI/180);
+export function galaxyHandoff(){
+ const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,depth:false});
+ const preview=new URLSearchParams(location.search).get('skyrender');
+ const maps=[image(BASE+'galaxy-map.png'),image(BASE+'nearby-map.png')];
+ let meta,groups,textures,skyProgram,pointProgram,quad,failed=!gl,ext=gl?.getExtension('ANGLE_instanced_arrays');if(!ext)failed=true;
+ function program(vs,fs){function shader(type,src){const sh=gl.createShader(type);gl.shaderSource(sh,src);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(sh));return sh;}const p=gl.createProgram();gl.attachShader(p,shader(gl.VERTEX_SHADER,vs));gl.attachShader(p,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;}
+ if(!failed)try{
+  skyProgram=program(`attribute vec2 aCorner;varying vec2 vCorner;void main(){vCorner=aCorner;gl_Position=vec4(aCorner,0.,1.);}`,`precision highp float;varying vec2 vCorner;uniform sampler2D uGalaxy,uNearby;uniform vec3 uR,uU,uN;uniform vec2 uFov;uniform vec2 uAlpha;void main(){vec3 ray=normalize(-uN+vCorner.x*uFov.x*uR+vCorner.y*uFov.y*uU);vec2 uv=vec2(fract(.5-atan(ray.y,ray.x)/6.28318530718),.5-asin(clamp(ray.z,-1.,1.))/3.14159265359);gl_FragColor=vec4(texture2D(uGalaxy,uv).rgb*uAlpha.x+texture2D(uNearby,uv).rgb*uAlpha.y,1.);}`);
   pointProgram=program(`
-   precision highp float;attribute vec3 aRay,aColour;attribute float aInvD,aWeight;uniform vec3 uR,uU,uN;uniform vec2 uScale;uniform float uDistance,uDepth,uSize,uEnergy,uModel,uGalaxies;varying vec3 vColour;varying float vEnergy;
-   void main(){vec3 q=aRay-uN*(uDistance*uDepth*aInvD);float den=-dot(q,uN),r2=max(dot(q,q),.0001);
-    if(den<=.000001){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=1.;vEnergy=0.;}
-    else{gl_Position=vec4(dot(q,uR)/den*uScale.x,dot(q,uU)/den*uScale.y,0.,1.);gl_PointSize=uSize;
-     float cosine=den/sqrt(r2);vEnergy=min(4.,mix(aWeight,mix(1.,aWeight,uDepth),uModel)*uEnergy/mix(1.,r2,uModel)/max(.12,cosine*cosine*cosine));}vColour=aColour;
-    if(uModel>.5&&uGalaxies>.0&&aInvD<.0285)vEnergy*=1.-uGalaxies;
-   }`,`
-   precision highp float;varying vec3 vColour;varying float vEnergy;
-   void main(){vec2 p=gl_PointCoord*2.-1.;float r=dot(p,p);if(r>1.)discard;float a=exp(-4.*r)*vEnergy;gl_FragColor=vec4(vColour*a,a);}`);
+   precision highp float;attribute vec2 aCorner;attribute vec3 aRay,aColour;attribute float aInvD,aWeight,aRadius,aPeak;uniform vec3 uR,uU,uN;uniform vec2 uScale;uniform float uDistance,uDepth,uAlpha,uModel,uPixel;varying vec2 vCorner;varying vec3 vColour;
+   void main(){vec3 right=normalize(cross(abs(aRay.z)>.98?vec3(0.,1.,0.):vec3(0.,0.,1.),aRay)),up=cross(aRay,right);
+    right=normalize(mix(right,uR,uDepth));up=normalize(mix(up,uU,uDepth));
+    vec3 centre=aRay-uN*uDistance*uDepth*aInvD;float support=max(aRadius,uPixel*max(0.,-dot(centre,uN))*uDepth);vec3 q=centre+support*(aCorner.x*right+aCorner.y*up);float den=-dot(q,uN);
+    gl_Position=vec4(dot(q,uR)*uScale.x,dot(q,uU)*uScale.y,0.,den);vCorner=aCorner;
+    float energy=min(6.,mix(1.,aWeight/max(.01,dot(centre,centre)),uDepth*uModel)*mix(1.,6.,uDepth*uModel));
+    vColour=aColour*aPeak*uAlpha*energy;
+   }`,`precision highp float;varying vec2 vCorner;varying vec3 vColour;uniform float uModel;void main(){float r=dot(vCorner,vCorner);if(r>1.)discard;float a=uModel>.5?exp(-4.*r):.7*exp(-12.*r)+.3*exp(-3.*r);gl_FragColor=vec4(vColour*a,0.);}`);
   quad=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
- }catch(e){failed=true;console.error('Galactic handoff shaders',e);}
- function upload(data){const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);return {buffer,count:data.length/8};}
- if(gl&&!failed)Promise.all([fetch(BASE+'galaxy-points.json').then(r=>{if(!r.ok)throw Error('galaxy metadata');return r.json()}),fetch(BASE+'galaxy-points.bin').then(r=>{if(!r.ok)throw Error('galaxy geometry');return r.arrayBuffer()})]).then(([m,b])=>{meta=m;galaxy=upload(new Float32Array(b));}).catch(e=>{failed=true;console.error('Galactic handoff assets',e);});
- function loadTextures(){
-  if(textures||!gl||!original.complete||!original.naturalWidth||!clean.complete||!clean.naturalWidth)return;
-  textures=[original,clean].map(img=>{
-   // Power-of-two textures give genuine wraparound at the longitude seam in WebGL1.
-   const c=document.createElement('canvas');c.width=img===original?4096:2048;c.height=c.width/2;c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-   const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);
-   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t;
-  });
+  Promise.all([fetch(BASE+'scene.json').then(r=>r.json()),...['galaxy','nearby'].map(n=>fetch(BASE+n+'-points.bin').then(r=>{if(!r.ok)throw Error(n+' data missing');return r.arrayBuffer();}))]).then(([m,...raw])=>{meta=m;groups=raw.map(raw=>{const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(raw),gl.STATIC_DRAW);return {buffer,count:raw.byteLength/40};});}).catch(e=>{failed=true;console.error('Matched sky data',e);});
+ }catch(e){failed=true;console.error('Matched sky shader',e);}
+ function ready(){
+  if(failed||!groups||!maps.every(im=>im.complete&&im.naturalWidth))return false;
+  if(!textures){textures=maps.map(im=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,im);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t;});}
+  return true;
  }
- function setStars(data,named=[]){
-  if(!gl||failed||stars||!data)return;
-  const out=[];
-  for(let j=0;j<data.n;j++){
-   if(data.dist[j]>150)break;
-   const d=data.dist[j];if(d<.01)continue;
-   const c=data.col[j]/255*4-.4,rgb=c<.3?[.65,.79,1]:c<1?[1,.94,.82]:[1,.7,.44];
-   out.push(data.pos[3*j]/d,data.pos[3*j+1]/d,data.pos[3*j+2]/d,KPC/(d*LY),...rgb,data.kind[j]===0?1:.22);
-  }
-  for(const [name,l,b,d] of named){
-   const ray=lb(l,b),exists=out.some((_,i)=>i%8===0&&Math.abs(KPC/(out[i+3]*LY)-d)<.05&&ray[0]*out[i]+ray[1]*out[i+1]+ray[2]*out[i+2]>.9999);
-   if(!exists)out.push(...ray,KPC/(d*LY),...(name==='Betelgeuse'?[1,.6,.35]:[.85,.9,1]),1);
-  }
-  for(let i=0;i<out.length;i+=8)stellarRadiusLy=Math.max(stellarRadiusLy,KPC/(out[i+3]*LY));
-  stars=upload(new Float32Array(out));
- }
- function ready(){loadTextures();return !failed&&textures&&galaxy&&stars;}
- const uniform=(p,n)=>gl.getUniformLocation(p,n);
- function basis(p,cam){gl.uniform3fv(uniform(p,'uR'),cam.cam.r);gl.uniform3fv(uniform(p,'uU'),cam.cam.u);gl.uniform3fv(uniform(p,'uN'),cam.cam.n);}
- function points(group,cam,depth,energy,size,model=0){
-  const p=pointProgram;gl.useProgram(p);basis(p,cam);gl.bindBuffer(gl.ARRAY_BUFFER,group.buffer);
-  for(const [name,n,offset]of [['aRay',3,0],['aInvD',1,12],['aColour',3,16],['aWeight',1,28]]){const a=gl.getAttribLocation(p,name);gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,n,gl.FLOAT,false,32,offset);}
-  gl.uniform2f(uniform(p,'uScale'),cam.min/cam.W/TAN,cam.min/cam.H/TAN);gl.uniform1f(uniform(p,'uDistance'),cam.F/(2*TAN*KPC));gl.uniform1f(uniform(p,'uDepth'),depth);gl.uniform1f(uniform(p,'uSize'),size);gl.uniform1f(uniform(p,'uModel'),model);gl.uniform1f(uniform(p,'uGalaxies'),neighboursReady()?ramp(cam.s,18.45,18.85):0);gl.uniform1f(uniform(p,'uEnergy'),energy);gl.drawArrays(gl.POINTS,0,group.count);
+ const loc=(p,n)=>gl.getUniformLocation(p,n);
+ function basis(p,cam){for(const[n,v]of [['uR',cam.cam.r],['uU',cam.cam.u],['uN',cam.cam.n]])gl.uniform3fv(loc(p,n),v);}
+ function corners(p){gl.bindBuffer(gl.ARRAY_BUFFER,quad);const a=gl.getAttribLocation(p,'aCorner');gl.enableVertexAttribArray(a);ext.vertexAttribDivisorANGLE(a,0);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);}
+ function points(group,cam,depth,alpha,model){
+  if(alpha<=0)return;const p=pointProgram;gl.useProgram(p);basis(p,cam);corners(p);gl.bindBuffer(gl.ARRAY_BUFFER,group.buffer);
+  const attributes=[['aRay',3,0],['aInvD',1,12],['aColour',3,16],['aWeight',1,28],['aRadius',1,32],['aPeak',1,36]];
+  for(const[n,size,offset]of attributes){const a=gl.getAttribLocation(p,n);gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,size,gl.FLOAT,false,40,offset);ext.vertexAttribDivisorANGLE(a,1);}
+  gl.uniform2f(loc(p,'uScale'),cam.min/cam.W/TAN,cam.min/cam.H/TAN);gl.uniform1f(loc(p,'uDistance'),cam.F/(2*TAN*KPC));gl.uniform1f(loc(p,'uDepth'),depth);gl.uniform1f(loc(p,'uAlpha'),alpha);gl.uniform1f(loc(p,'uModel'),model);gl.uniform1f(loc(p,'uPixel'),.9*cam.dpr*2*TAN/cam.min);ext.drawArraysInstancedANGLE(gl.TRIANGLE_STRIP,0,4,group.count);
+  for(const[n]of attributes){const a=gl.getAttribLocation(p,n);ext.vertexAttribDivisorANGLE(a,0);gl.disableVertexAttribArray(a);}
  }
  function draw(cam){
-  if(!ready())return;
-  if(canvas.width!==cam.W||canvas.height!==cam.H){canvas.width=cam.W;canvas.height=cam.H;}
-  gl.viewport(0,0,cam.W,cam.H);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.DEPTH_TEST);gl.disable(gl.BLEND);
-  const phase=handoffPhase(cam.s),visible=ramp(cam.s,6.9,7.6),galaxyAlpha=1-ramp(cam.s,24.4,24.9);
-  const shell=galacticShell(cam.s),skyAlpha=visible*shell.alpha,p=skyProgram;
-  gl.useProgram(p);basis(p,cam);gl.bindBuffer(gl.ARRAY_BUFFER,quad);const a=gl.getAttribLocation(p,'aPosition');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
-  for(let i=0;i<2;i++){gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,textures[i]);gl.uniform1i(uniform(p,i?'uClean':'uOriginal'),i);}
-  gl.uniform2f(uniform(p,'uFov'),TAN*cam.W/cam.min,TAN*cam.H/cam.min);gl.uniform1f(uniform(p,'uMix'),phase.starFade);gl.uniform1f(uniform(p,'uAlpha'),skyAlpha);
-  gl.uniform1f(uniform(p,'uGalaxies'),neighboursReady()?ramp(cam.s,18.45,18.85):0);gl.uniform1f(uniform(p,'uSphereRadius'),shell.radius);gl.uniform1f(uniform(p,'uSphereDistance'),shell.distance);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
-  // The star field fades in over the still-lit shell; the shell itself stays
-  // opaque until the camera is outside. Points and shell share the same target.
+  if(!ready())return;if(canvas.width!==cam.W||canvas.height!==cam.H){canvas.width=cam.W;canvas.height=cam.H;}gl.viewport(0,0,cam.W,cam.H);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.BLEND);gl.disable(gl.DEPTH_TEST);
+  const phase=handoffPhase(cam.s);
+  if(preview==='map'||preview==='dots'){phase.starFade=phase.galaxyFade=preview==='dots'?1:0;phase.starDepth=phase.galaxyDepth=0;}
+  const visible=ramp(cam.s,6.9,7.6),galaxyAlpha=1-ramp(cam.s,24.4,24.9),p=skyProgram;
+  gl.useProgram(p);basis(p,cam);corners(p);for(let i=0;i<2;i++){gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,textures[i]);gl.uniform1i(loc(p,i?'uNearby':'uGalaxy'),i);}
+  gl.uniform2f(loc(p,'uFov'),TAN*cam.W/cam.min,TAN*cam.H/cam.min);gl.uniform2f(loc(p,'uAlpha'),visible*(1-phase.galaxyFade),visible*(1-phase.starFade));gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
   gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);
-  if(phase.galaxyFade>0&&galaxyAlpha>0){
-   const size=(3.3-.9*phase.galaxyDepth)*cam.min/960;
-   const fluxFootprint=(6-2.7*ramp(phase.galaxyDepth,.65,1))*cam.min/960,kernel=.19276*fluxFootprint**2;
-   const energy=meta.radianceIntegral/galaxy.count*cam.min**2/(4*TAN*TAN*kernel);
-   points(galaxy,cam,phase.galaxyDepth,energy*phase.galaxyFade*galaxyAlpha*(1+phase.galaxyDepth)*(.4+.6*(1-shell.alpha)),size,1);
-  }
-  const stellarPixels=stellarRadiusLy*LY*cam.k/cam.dpr;
-  const stellarRetire=ramp(stellarPixels,.35,1.2);
-  if(phase.starFade>0)points(stars,cam,phase.starDepth,2.1*phase.starFade*visible*stellarRetire,4.3*cam.min/960*Math.min(1,stellarPixels/3));
+  points(groups[0],cam,phase.galaxyDepth,visible*phase.galaxyFade*galaxyAlpha,1);
+  const stellarPixels=2600*LY*cam.k/cam.dpr,stellarRetire=preview?1:ramp(stellarPixels,.35,1.2);
+  points(groups[1],cam,phase.starDepth,visible*phase.starFade*stellarRetire,0);
   cam.ctx.save();cam.ctx.globalCompositeOperation='lighter';cam.ctx.drawImage(canvas,0,0);cam.ctx.restore();
-  drawCrossingDots(cam);
-  // The solar system becomes its own central star, at the same world location.
+  // Solar-system light remains at the shared origin as it becomes a star.
   const sunAlpha=ramp(cam.s,15.2,16)*stellarRetire;
-  const kuiperMerge=1-ramp(50*AU*cam.k/cam.dpr,1,6),oortMerge=1-ramp(1e5*AU*cam.k/cam.dpr,1,8);
-  if(sunAlpha>.001){const ctx=cam.ctx;ctx.save();ctx.globalAlpha=sunAlpha;const rad=(4+1.5*kuiperMerge+2.5*oortMerge)*(1-.72*ramp(cam.s,19.3,21.4))*cam.dpr;const g=ctx.createRadialGradient(cam.cx,cam.cy,0,cam.cx,cam.cy,rad*3);g.addColorStop(0,'#fff6d9');g.addColorStop(.15,'#ffd28c');g.addColorStop(1,'#ffc16a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cam.cx,cam.cy,rad*3,0,Math.PI*2);ctx.fill();ctx.restore();}
+  if(sunAlpha>.001){const c=cam.ctx,rad=(4+4*(1-ramp(1e5*AU*cam.k/cam.dpr,1,8)))*(1-.72*ramp(cam.s,19.3,21.4))*cam.dpr;c.save();c.globalAlpha=sunAlpha;const g=c.createRadialGradient(cam.cx,cam.cy,0,cam.cx,cam.cy,rad*3);g.addColorStop(0,'#fff6d9');g.addColorStop(.15,'#ffd28c');g.addColorStop(1,'#ffc16a00');c.fillStyle=g;c.beginPath();c.arc(cam.cx,cam.cy,rad*3,0,Math.PI*2);c.fill();c.restore();}
  }
- // Fixed world-space specks near the camera's shell-crossing corridor.
- // They enter/leave geometrically, remain opaque nearby and retire subpixel.
- const random=rng(70731),crossingDots=Array.from({length:36},()=>{
-  const s=SHELL_TIMING.start-.08+random()*.75,b=cameraAt(s),D=galacticShell(s).distance;
-  const angle=random()*Math.PI*2,offset=.3+random()*1.2;
-  const p=b.n.map((v,i)=>v*D+offset*(Math.cos(angle)*b.r[i]+Math.sin(angle)*b.u[i]));
-  return {p,radius:.004+random()*.008};
- });
- function drawCrossingDots(cam){
-  if(cam.s<SHELL_TIMING.start-.15||cam.s>SHELL_TIMING.end+.5)return;
-  const D=cam.F/(2*TAN*KPC),focal=cam.min/(2*TAN),ctx=cam.ctx;
-  ctx.save();
-  for(const point of crossingDots){
-   const den=D-dot(point.p,cam.cam.n);if(den<=.001)continue;
-   const x=cam.cx+focal*dot(point.p,cam.cam.r)/den,y=cam.cy-focal*dot(point.p,cam.cam.u)/den;
-   const radius=Math.min(24*cam.dpr,focal*point.radius/den);
-   if(radius<.3*cam.dpr||x<-radius||y<-radius||x>cam.W+radius||y>cam.H+radius)continue;
-   ctx.globalAlpha=ramp(radius/cam.dpr,.3,.85);
-   ctx.filter=radius>4*cam.dpr?`blur(${Math.min(7*cam.dpr,(radius-4*cam.dpr)*.4)}px)`:'none';
-   ctx.fillStyle='#e2eeff';ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fill();
-  }
-  ctx.restore();
- }
- function projectStar(cam,p){const d=Math.hypot(...p),ray=p.map(v=>v/d);const q=projectRay(ray,KPC/d,cam.cam,cam.F/(2*TAN*KPC),handoffPhase(cam.s).starDepth);return [cam.cx+q[0]*cam.min/(2*TAN),cam.cy-q[1]*cam.min/(2*TAN)];}
- return {ready,setStars,draw,projectStar,background:{name:'matched galactic sky',range:[6.8,25],draw}};
+ function projectStar(cam,p){const d=Math.hypot(...p),q=projectRay(p.map(v=>v/d),KPC/d,cam.cam,cam.F/(2*TAN*KPC),handoffPhase(cam.s).starDepth);return[cam.cx+q[0]*cam.min/(2*TAN),cam.cy-q[1]*cam.min/(2*TAN)];}
+ return{ready,setStars(){},draw,projectStar,background:{name:'matched galactic sky',range:[6.8,25],draw}};
 }

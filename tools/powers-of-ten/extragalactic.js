@@ -3,7 +3,7 @@
 // image, a screen-space recenter, or an alpha fade between different positions.
 import {ramp,eqToGal,add,mul,dot,KPC} from './math.js';
 import {image} from './micro.js';
-export const EXTRAGALACTIC_PHASE={replace:[18.45,18.85],depth:[20.25,21.55]};
+export const EXTRAGALACTIC_PHASE={replace:[7,7.6],depth:[20.25,21.55]};
 // Image-centre coordinates, field of view and north orientation are from the
 // observatories' image metadata. Distance is kpc; angle is degrees.
 export const GALAXY_PHOTOS=[
