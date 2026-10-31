@@ -63,7 +63,8 @@ export default {
     { at: "visible light, infrared", cam: { obj: "Visible Light", span: 9, glide: true } },
     { at: "radio waves, all", cam: { obj: "FM Radio", span: 9, glide: true } },
     { at: "More energy, shorter", cam: { obj: "Ultraviolet", span: 10, glide: true }, hl: [{ obj: "Gamma Ray" }] },
-    { at: "Less energy, longer", hl: [{ obj: "AM Radio" }] },
+    // (and the glide on down to the radio end, so AM radio is in the frame as it's named: 2026-10-31)
+    { at: "Less energy, longer", cam: { obj: "AM Radio", dr: -1.5, dm: 3, span: 10, glide: true }, hl: [{ obj: "AM Radio" }] },
     // the line itself, with the sine wave along it, framed as the explorer will use it
     { at: "the line they make", cam: LINEVIEW, dur: 3, drift: 0, spectrum: true, clear: true },
     { at: "Compton line runs", spectrum: false, hl: [{ line: "compton", label: "the Compton line" }] },
