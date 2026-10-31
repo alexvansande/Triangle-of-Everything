@@ -1,0 +1,5 @@
+{
+  "prompt": "Scientific-educational microscopic film image. 444 nanometre square inside interphase nucleus, photographic molecular reconstruction with hydrated pearl grey/taupe/lilac materials and realistic transmitted light. Use supplied SVG ONLY as a broad map of uneven chromatin density and open channels. Replace all sharp corners and flat marks with natural flexible disordered granular curvilinear chromatin chains of5–24nm diameter, including small11nm nucleosome-sized particles. Preserve uneven density, tangles and branching-looking overlaps, zero periodicity or parallel rows. No repeated sinusoidal pattern, no fabric weave, no regular30nm coil, no chromosomes or nucleus shell at this scale, no giant helix ladder, no cauliflower boulders. Fullframe crisp irregular biological crowding, all planes sharp, no baked blur, no text or labels. Restrained photographic texture matching natural microscopy-inspired nucleus, not cartoon, not chrome jewelry.",
+  "reason": "Remove periodic wave pattern inherited from first blueprint; use irregular density map.",
+  "tool": "built-in image_gen"
+}

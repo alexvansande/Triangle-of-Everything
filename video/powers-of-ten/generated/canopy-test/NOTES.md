@@ -233,3 +233,25 @@ Runtime and parent builder now respect per-asset sourcePixels; no implicit
 1254px resizing changes the field's world size. Flat dew and all earlier
 parents rebuilt. Verified centre core pixels, unchanged metres-per-pixel,
 field fitting inside dew, syntax and reported s=-3.38 preview.
+
+
+## Photographic cell → DNA pass (2026-10-30, anatomy-v9)
+
+SVG layouts in `micro/anatomy-v9/*-layout.svg` establish approximate geometry;
+built-in image generation supplies photographic scientific reconstruction.
+Prompts, inputs and biological limitations are in `provenance.json`.
+New small amoeba source square is12µm, body approximately8µm (provisional,
+not an identified species), fixed centre627,627. Nuclear centre is0.5µm left
+of the zoom axis, so we enter chromatin beside its central nucleolus.
+`powers-of-ten-match-anatomy.mjs` registers generated size drift and builds
+8 matched3× levels:12µm,4µm,1.333µm,444nm,148nm,49.4nm,16.5nm,5.49nm.
+Intermediate levels are crops, not additional native generated detail.
+All7 central100px parent/child registration checks pass.
+No new parallax is introduced inside these flat matched illustrations.
+The shell/leaf foreground handoff remains in its established layers.
+Whole-cell opacity transitions from0.82 to1 between12µm and4µm, removing
+red shell tint inside the nucleus. Ribosome25nm is in cytoplasm, included as
+an off-axis miniature and a separate40nm close-up; it is NOT inside chromatin.
+Cell → DNA plays the new segment. Hopf atom handoff is still future work.
+Molecular images are approximate artistic reconstructions, not PDB renders;
+no claim of atomically exact generated connectivity or species-specific anatomy.

@@ -18,14 +18,14 @@
     {
       "file": "amoeba-inner",
       "diameter": 0.000008,
-      "bodyPixels": 1152,
+      "bodyPixels": 836,
       "center": [
-        649.5,
-        617.5
+        627,
+        627
       ],
       "x": 0,
       "y": 0,
-      "opacity": 0.55
+      "opacity": 0.82
     }
   ],
   "community": [

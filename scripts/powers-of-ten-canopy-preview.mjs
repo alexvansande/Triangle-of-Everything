@@ -15,7 +15,7 @@ try{await access(`${runtime}/package.json`)}catch{
 }
 try{await access(`${runtime}/node_modules`)}catch{await symlink(`${root}/node_modules`,`${runtime}/node_modules`)}
 const generated='video/powers-of-ten/generated/canopy-test';
-execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-nucleus.mjs`],{cwd:root,stdio:'inherit'});
+execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-anatomy.mjs`],{cwd:root,stdio:'inherit'});
 execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-water.mjs`],{cwd:root,stdio:'inherit'});
 execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-drop.mjs`],{cwd:root,stdio:'inherit'});
 execFileSync(process.execPath,[`${root}/scripts/powers-of-ten-match-depth.mjs`],{cwd:root,stdio:'inherit'});

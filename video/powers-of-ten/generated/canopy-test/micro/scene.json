@@ -1,5 +1,5 @@
 {
-  "minimum_s": -7.130333768495006,
+  "minimum_s": -8.260667536990011,
   "ladybug_diameter_m": 0.0069347370090506325,
   "droplet_diameter_m": 0.00116,
   "amoeba_diameter_m": 8e-06,
@@ -8,17 +8,17 @@
     "y": -0.0009580708265432034
   },
   "stops_m": [
-    0.00018,
-    6e-05,
-    1.8e-05,
-    6e-06,
-    2e-06,
-    6.666666666666666e-07,
-    2.2222222222222222e-07,
-    7.407407407407407e-08
+    1.2e-05,
+    4e-06,
+    1.3333333333333334e-06,
+    4.4444444444444444e-07,
+    1.4814814814814815e-07,
+    4.938271604938272e-08,
+    1.646090534979424e-08,
+    5.486968449931413e-09
   ],
-  "note": "Illustrative pollen grain and separate small vannellid-type amoeba suspended in the same dew drop. Former giant Amoeba proteus is no longer active. Native alpha bounds and physical registration in pollen-v4/scene.json.",
+  "note": "Photographic illustrative reconstruction from SVG layouts; provisional small amoeba anatomy, approximate molecular geometry. Fixed camera axis through chromatin beside nucleolus. Ribosome is separate cytoplasmic inspection.",
   "active_field": "pollen-v4/scene.json",
   "pollen_diameter_m": 4e-05,
-  "active_interior": "nucleus-v6/scene.json"
+  "active_interior": "anatomy-v9"
 }

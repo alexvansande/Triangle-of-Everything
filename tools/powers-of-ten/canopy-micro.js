@@ -19,7 +19,7 @@ export function canopyMicro(){
    nucleus.draw(c,x,y,k,currentS,currentMin);
    // Once inside the nucleus, the reconstruction replaces the translucent
    // whole-cell view; the distant red shell no longer tints molecular detail.
-   const interior=1-smooth(Math.log10(2e-6/9),Math.log10(1.3e-6),currentS);
+   const interior=1-smooth(Math.log10(4e-6),Math.log10(12e-6),currentS);
    ctx.save();ctx.globalAlpha=p.opacity+(1-p.opacity)*interior;ctx.drawImage(cellLayer,0,0);ctx.restore();return;
   }
   const half=sourcePixels*scale*.72,cx=x+p.x*k*relative,cy=y+p.y*k*relative;

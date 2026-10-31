@@ -11,7 +11,7 @@ export function mountCanopyTest() {
       <button data-s="2.07712">Grove · 120 m</button><button data-s="2.60206">Forest · 400 m</button><button id="canopy-run">Play approach</button>
       <button data-s="0.64575749">Branch · 4.4 m</button><button data-s="0.16863624">Foliage · 1.5 m</button>
       <button data-s="-0.70">Depth check · 20 cm</button><button data-s="-0.30848502">Twig · 49 cm</button><button data-s="-0.78560627">Tiny ladybug · 16 cm</button>
-      <button data-s="-1.26272753">Ladybug · 5.5 cm</button><button id="canopy-inward">Crown → micro</button><button id="canopy-timing">Test · 1 m → 3 cm</button><button data-s="-1.73984878">Ladybug · 18 mm</button><button data-s="-2.21697004">Shell · 6 mm</button><button data-s="-2.69409129">Dew · 2 mm</button><button data-s="-3">Drop layers · 1 mm</button><button data-s="-3.74472749">Pollen · 180 µm</button><button data-s="-4.22184875">Passing pollen · 60 µm</button><button data-s="-4.74472749">Small amoeba · 18 µm</button><button data-s="-5.22184875">Inside · 6 µm</button><button data-s="-5.69897">Nucleus · 2 µm</button><button data-s="-6.17609126">Chromatin · 667 nm</button><button data-s="-6.65321251">Chromatin · 222 nm</button><button data-s="-7.13033377">Nucleosomes · 74 nm</button><button id="canopy-micro-run">Dew → amoeba</button><button id="canopy-dew">Ladybug → micro</button>
+      <button data-s="-1.26272753">Ladybug · 5.5 cm</button><button id="canopy-inward">Crown → micro</button><button id="canopy-timing">Test · 1 m → 3 cm</button><button data-s="-1.73984878">Ladybug · 18 mm</button><button data-s="-2.21697004">Shell · 6 mm</button><button data-s="-2.69409129">Dew · 2 mm</button><button data-s="-3">Drop layers · 1 mm</button><button data-s="-3.74472749">Pollen · 180 µm</button><button data-s="-4.22184875">Passing pollen · 60 µm</button><button data-s="-4.74472749">Small amoeba · 18 µm</button><button data-s="-5.22184875">Inside · 6 µm</button><button data-s="-4.92081875">New cell · 12 µm</button><button data-s="-5.39794001">Nucleus · 4 µm</button><button data-s="-6.35218252">Chromatin · 444 nm</button><button data-s="-7.30642503">Nucleosomes · 49 nm</button><button data-s="-8.26066754">DNA · 5.5 nm</button><button id="canopy-ribosome">Ribosome · close-up</button><button id="canopy-cell-run">Cell → DNA</button><button id="canopy-micro-run">Dew → amoeba</button><button id="canopy-dew">Ladybug → micro</button>
       <button data-s="1.35">Bird flyby</button><button id="canopy-crown-run">Canopy depth test</button><button data-s="3.42">Airplane flyby</button><button id="canopy-outward">Ladybug → sky</button>
     </div>
     <label style="display:block;margin-top:12px"><input id="canopy-generated" type="checkbox" checked> Show generated canopy</label>
@@ -53,6 +53,13 @@ export function mountCanopyTest() {
     @media(max-width:800px){body.canopy-review{display:flex;flex-direction:column;overflow:auto;padding:16px;gap:16px}body.canopy-review #stage{flex:none;order:0;width:min(calc(100vw - 32px),65vh)!important;height:min(calc(100vw - 32px),65vh)!important}body.canopy-review aside{order:1;flex:none;max-height:none;width:min(100%,540px)}}
   `;document.head.append(framingStyle);
   const marker=document.createElement('div');marker.style.cssText='position:absolute;z-index:6;left:50%;top:50%;width:16px;height:16px;transform:translate(-50%,-50%);border:1px solid #fff9;border-radius:50%;pointer-events:none;box-shadow:0 0 2px #000';stage.append(marker);
+  const ribosome=document.createElement('dialog');
+  ribosome.setAttribute('aria-label','Ribosome close-up');
+  ribosome.style.cssText='background:#101512;color:#eee;border:1px solid #ffffff50;border-radius:12px;padding:18px;max-width:min(82vw,720px);max-height:90vh';
+  ribosome.innerHTML=`<button id="ribosome-close" style="float:right">Close</button><strong>Ribosome · ≈25 nm</strong><p>A separate cytoplasmic close-up · 40 nm field. Ribosomes are outside the nucleus; the straight main zoom follows chromatin to DNA.</p><img alt="Illustrative eukaryotic ribosome with large and small subunits and mRNA" style="display:block;width:min(70vw,650px);max-height:65vh;object-fit:contain" src="/video/powers-of-ten/generated/canopy-test/micro/anatomy-v9/ribosome-raw.png"><p style="font-size:12px">Scientific reconstruction · approximate molecular geometry.</p>`;
+  document.body.append(ribosome);
+  panel.querySelector('#canopy-ribosome').onclick=()=>{run++;window.zoom.set(window.zoom.s);ribosome.showModal()};
+  ribosome.querySelector('#ribosome-close').onclick=()=>ribosome.close();
   let run=0;
   panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{run++;window.zoom.set(+b.dataset.s)});
   document.getElementById('canopy-generated').onchange=e=>window.canopyTest.enabled=e.target.checked;
@@ -70,6 +77,7 @@ export function mountCanopyTest() {
   }
   document.getElementById('canopy-timing').onclick=()=>approach(0,Math.log10(.03),22000);
   document.getElementById('canopy-crown-run').onclick=()=>approach(Math.log10(4.5),Math.log10(.7),18000);
+  document.getElementById('canopy-cell-run').onclick=()=>approach(-4.92081875,window.canopyTest.minimum,24000);
   document.getElementById('canopy-micro-run').onclick=()=>approach(-2.69409129,window.canopyTest.minimum,42000);
   document.getElementById('canopy-dew').onclick=()=>approach(-1.26272753,window.canopyTest.minimum,16000);
   document.getElementById('canopy-run').onclick=()=>approach(4.6,window.canopyTest.minimum,40000);
