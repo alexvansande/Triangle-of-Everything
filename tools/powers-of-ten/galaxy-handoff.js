@@ -1,9 +1,9 @@
 // One equirectangular map, two registered image-to-point handoffs. Both point
-// sets start at infinity. Only after each fade do their measured/modelled
-// distances become active. No image plane, mesh, or screen-space morph.
-import {ramp,dot,lb,LY,KPC} from './math.js';
+// catalogue stars start at infinity. Galactic points gain depth while the
+// still-lit sky shell shrinks; the shell retires only after we cross outside.
+import {ramp,dot,lb,LY,KPC,rng,cameraAt} from './math.js';
 import {image} from './micro.js';
-import {handoffPhase,projectRay} from './galaxy-geometry.js';
+import {handoffPhase,projectRay,galacticShell} from './galaxy-geometry.js';
 const BASE='/video/powers-of-ten/generated/galaxy-handoff-v2/';
 const TAN=Math.tan(25*Math.PI/180);
 export function galaxyHandoff(){
@@ -18,18 +18,24 @@ export function galaxyHandoff(){
  let skyProgram,pointProgram,quad;
  if(gl)try{
   skyProgram=program(`attribute vec2 aPosition;varying vec2 vPosition;void main(){vPosition=aPosition;gl_Position=vec4(aPosition,0.,1.);}`,`
-   precision highp float;varying vec2 vPosition;uniform sampler2D uOriginal,uClean;uniform vec3 uR,uU,uN;uniform vec2 uFov;uniform float uMix,uAlpha,uEdge;
+   precision highp float;varying vec2 vPosition;uniform sampler2D uOriginal,uClean;uniform vec3 uR,uU,uN;uniform vec2 uFov;uniform float uMix,uAlpha,uSphereRadius,uSphereDistance;
    float grain(vec3 p){return fract(sin(dot(floor(p),vec3(127.1,311.7,74.7)))*43758.5453);}
    void main(){vec3 ray=normalize(-uN+vPosition.x*uFov.x*uR+vPosition.y*uFov.y*uU);
-    vec2 uv=vec2(fract(.5-atan(ray.y,ray.x)/6.28318530718),.5-asin(clamp(ray.z,-1.,1.))/3.14159265359);
+    // Raycast the far wall of a world-space sphere, viewed from C=D*n.
+    // Keeping the far root avoids a texture jump as we cross its near wall.
+    vec3 eye=uN*uSphereDistance;float b=dot(eye,ray);
+    float discriminant=b*b+uSphereRadius*uSphereRadius-dot(eye,eye);
+    if(discriminant<0.)discard;
+    float travel=-b+sqrt(discriminant);if(travel<=0.)discard;
+    vec3 skyRay=normalize(eye+travel*ray);
+    vec2 uv=vec2(fract(.5-atan(skyRay.y,skyRay.x)/6.28318530718),.5-asin(clamp(skyRay.z,-1.,1.))/3.14159265359);
     vec3 diffuse=texture2D(uClean,uv).rgb;
     // World-direction grain is stationary on the celestial sphere, not animated
     // screen noise. It wraps naturally at the equirectangular longitude seam.
-    float detail=(grain(ray*1600.)-.5)*.7+(grain(ray*4700.)-.5)*.3;
+    float detail=(grain(skyRay*1600.)-.5)*.7+(grain(skyRay*4700.)-.5)*.3;
     diffuse=max(vec3(0.),diffuse*(1.+.22*detail)+vec3(.012*detail));
     vec3 rgb=mix(texture2D(uOriginal,uv).rgb,diffuse,uMix);
-    float edge=exp(-ray.z*ray.z/.045)*uEdge;
-    float alpha=uAlpha+edge;gl_FragColor=vec4(rgb*alpha,alpha);}`);
+    gl_FragColor=vec4(rgb*uAlpha,uAlpha);}`);
   pointProgram=program(`
    precision highp float;attribute vec3 aRay,aColour;attribute float aInvD,aWeight;uniform vec3 uR,uU,uN;uniform vec2 uScale;uniform float uDistance,uDepth,uSize,uEnergy,uModel;varying vec3 vColour;varying float vEnergy;
    void main(){vec3 q=aRay-uN*(uDistance*uDepth*aInvD);float den=-dot(q,uN),r2=max(dot(q,q),.0001);
@@ -79,27 +85,49 @@ export function galaxyHandoff(){
   if(canvas.width!==cam.W||canvas.height!==cam.H){canvas.width=cam.W;canvas.height=cam.H;}
   gl.viewport(0,0,cam.W,cam.H);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.disable(gl.DEPTH_TEST);gl.disable(gl.BLEND);
   const phase=handoffPhase(cam.s),visible=ramp(cam.s,6.9,7.6),galaxyAlpha=1-ramp(cam.s,24.4,24.9);
-  const skyAlpha=visible*(1-phase.galaxyFade),p=skyProgram;
+  const shell=galacticShell(cam.s),skyAlpha=visible*shell.alpha,p=skyProgram;
   gl.useProgram(p);basis(p,cam);gl.bindBuffer(gl.ARRAY_BUFFER,quad);const a=gl.getAttribLocation(p,'aPosition');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
   for(let i=0;i<2;i++){gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,textures[i]);gl.uniform1i(uniform(p,i?'uClean':'uOriginal'),i);}
   gl.uniform2f(uniform(p,'uFov'),TAN*cam.W/cam.min,TAN*cam.H/cam.min);gl.uniform1f(uniform(p,'uMix'),phase.starFade);gl.uniform1f(uniform(p,'uAlpha'),skyAlpha);
-  // Retain only distant equatorial galactic light as a separate rear layer
-  // while the finite points pull forward, then retire it once outside the disc.
-  gl.uniform1f(uniform(p,'uEdge'),visible*phase.galaxyFade*.6*(1-ramp(cam.s,20.3,21.05)));gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
-  // Subsequent passes add radiance to complementary image weights, avoiding
-  // the dark half-fade produced by stacking two transparent source-over layers.
+  gl.uniform1f(uniform(p,'uSphereRadius'),shell.radius);gl.uniform1f(uniform(p,'uSphereDistance'),shell.distance);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  // The star field fades in over the still-lit shell; the shell itself stays
+  // opaque until the camera is outside. Points and shell share the same target.
   gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);
   if(phase.galaxyFade>0&&galaxyAlpha>0){
    const size=(3.3-.9*phase.galaxyDepth)*cam.min/960;
    const fluxFootprint=(6-2.7*ramp(phase.galaxyDepth,.65,1))*cam.min/960,kernel=.19276*fluxFootprint**2;
    const energy=meta.radianceIntegral/galaxy.count*cam.min**2/(4*TAN*TAN*kernel);
-   points(galaxy,cam,phase.galaxyDepth,energy*phase.galaxyFade*galaxyAlpha*(1+phase.galaxyDepth),size,1);
+   points(galaxy,cam,phase.galaxyDepth,energy*phase.galaxyFade*galaxyAlpha*(1+phase.galaxyDepth)*(.4+.6*(1-shell.alpha)),size,1);
   }
   if(phase.starFade>0)points(stars,cam,phase.starDepth,2.1*phase.starFade*visible*(1-ramp(cam.s,21.4,22.2)),4.3*cam.min/960);
   cam.ctx.save();cam.ctx.globalCompositeOperation='lighter';cam.ctx.drawImage(canvas,0,0);cam.ctx.restore();
+  drawCrossingDots(cam);
   // The solar system becomes its own central star, at the same world location.
   const sunAlpha=ramp(cam.s,15.2,16)*(1-ramp(cam.s,21.6,22.3));
   if(sunAlpha>.001){const ctx=cam.ctx;ctx.save();ctx.globalAlpha=sunAlpha;const rad=4*cam.dpr;const g=ctx.createRadialGradient(cam.cx,cam.cy,0,cam.cx,cam.cy,rad*3);g.addColorStop(0,'#fff6d9');g.addColorStop(.15,'#ffd28c');g.addColorStop(1,'#ffc16a00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cam.cx,cam.cy,rad*3,0,Math.PI*2);ctx.fill();ctx.restore();}
+ }
+ // Fixed world-space specks near the camera's shell-crossing corridor.
+ // They enter/leave geometrically, remain opaque nearby and retire subpixel.
+ const random=rng(70731),crossingDots=Array.from({length:36},()=>{
+  const s=20.48+random()*.58,b=cameraAt(s),D=galacticShell(s).distance;
+  const angle=random()*Math.PI*2,offset=.3+random()*1.2;
+  const p=b.n.map((v,i)=>v*D+offset*(Math.cos(angle)*b.r[i]+Math.sin(angle)*b.u[i]));
+  return {p,radius:.004+random()*.008};
+ });
+ function drawCrossingDots(cam){
+  if(cam.s<20.3||cam.s>22)return;
+  const D=cam.F/(2*TAN*KPC),focal=cam.min/(2*TAN),ctx=cam.ctx;
+  ctx.save();
+  for(const point of crossingDots){
+   const den=D-dot(point.p,cam.cam.n);if(den<=.001)continue;
+   const x=cam.cx+focal*dot(point.p,cam.cam.r)/den,y=cam.cy-focal*dot(point.p,cam.cam.u)/den;
+   const radius=Math.min(24*cam.dpr,focal*point.radius/den);
+   if(radius<.3*cam.dpr||x<-radius||y<-radius||x>cam.W+radius||y>cam.H+radius)continue;
+   ctx.globalAlpha=ramp(radius/cam.dpr,.3,.85);
+   ctx.filter=radius>4*cam.dpr?`blur(${Math.min(7*cam.dpr,(radius-4*cam.dpr)*.4)}px)`:'none';
+   ctx.fillStyle='#e2eeff';ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
  }
  function projectStar(cam,p){const d=Math.hypot(...p),ray=p.map(v=>v/d);const q=projectRay(ray,KPC/d,cam.cam,cam.F/(2*TAN*KPC),handoffPhase(cam.s).starDepth);return [cam.cx+q[0]*cam.min/(2*TAN),cam.cy-q[1]*cam.min/(2*TAN)];}
  return {ready,setStars,draw,projectStar,background:{name:'matched galactic sky',range:[6.8,25],draw}};

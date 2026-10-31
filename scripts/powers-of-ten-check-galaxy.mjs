@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import sharp from 'sharp';
-import {skyDirection,skyUV,handoffPhase,projectRay} from '../tools/powers-of-ten/galaxy-geometry.js';
+import {skyDirection,skyUV,handoffPhase,projectRay,galacticShell} from '../tools/powers-of-ten/galaxy-geometry.js';
 import {cameraAt,KPC} from '../tools/powers-of-ten/math.js';
 const close=(a,b,t=1e-9)=>assert.ok(Math.abs(a-b)<t,`${a} ≠ ${b}`);
 for(let y=1;y<32;y++)for(let x=0;x<64;x++){
@@ -10,7 +10,11 @@ for(let y=1;y<32;y++)for(let x=0;x<64;x++){
 }
 assert.deepEqual(skyDirection(.5,.5),[1,0,0]);
 for(const s of [15.35,15.6,15.85])assert.equal(handoffPhase(s).starDepth,0,'stellar fade must finish before revealing depth');
-for(const s of [18.8,19,19.25])assert.equal(handoffPhase(s).galaxyDepth,0,'galactic fade must finish before revealing depth');
+assert.ok(handoffPhase(19).galaxyDepth>0&&handoffPhase(19).galaxyFade>0,'galactic depth now begins while stars fade in');
+for(let s=18.8;s<21.2;s+=.01){const shell=galacticShell(s);if(shell.ratio<=1)assert.equal(shell.alpha,1,'sky must stay fully lit inside the sphere');}
+assert.ok(galacticShell(20.65).ratio<1&&galacticShell(20.65).alpha===1);
+assert.ok(galacticShell(20.8).ratio>1&&galacticShell(20.8).alpha>0,'fade only after crossing the shell');
+assert.equal(galacticShell(21).alpha,0,'shell retires once outside');
 assert.equal(handoffPhase(18).starDepth,1);assert.equal(handoffPhase(22).galaxyDepth,1);
 const basis=cameraAt(15.6),ray=basis.n.map((v,i)=>-v+.12*basis.r[i]);
 for(const inverse of [.001,1,10000]){
@@ -41,4 +45,4 @@ for(let y=0;y<256;y++)for(let x=0;x<512;x++){
 let variation=0;for(let k=0;k<histogram.length;k++)variation+=Math.abs(histogram[k]/(points.length/8)-expected[k]/sum)/2;
 assert.ok(variation<.06,'dot density must reproduce the source brightness map over solid angle');
 console.log(`Angular brightness-map total variation: ${variation.toFixed(4)}`);
-console.log(`Passed: spherical-map round trips; distance-independent angular registration; fades complete before depth; finite projection; ${points.length/8} valid rays, ${(100*thin/(points.length/8)).toFixed(1)}% within0.8kpc of the plane.`);
+console.log(`Passed: spherical-map round trips; distance-independent angular registration; stellar fade before depth; lit shrinking galactic shell through crossing; finite projection; ${points.length/8} valid rays, ${(100*thin/(points.length/8)).toFixed(1)}% within0.8kpc of the plane.`);

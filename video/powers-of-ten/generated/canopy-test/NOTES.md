@@ -452,3 +452,36 @@ boundaries and all catalogue/model positions remain unchanged.
 
 Visual checks at s16.25 (catalogue-star brightness) and20.15 (retained band,
 small points), shader logs clean; existing spherical/phase/data checks pass.
+
+### Shrinking sky sphere and camera crossing · 2026-10-31
+
+Author explicitly superseded the galactic fade-before-depth sequence: fade the
+3D stars in while the sky stays lit, move out of a shrinking sphere looking at
+its centre, and only fade the sky after crossing outside it.
+
+The sky shader now raycasts a spherical shell in world space. Radius contracts
+40→12kpc over s18.8–21.3; the camera moves radially along its existing viewing
+normal, always aimed at the common origin. The same effective camera distance
+is used by the shell and galaxy points. Stars gain their modelled positions
+while fading in over18.8–19.25; subsequent movement is normal perspective zoom.
+
+The shell uses the far ray-intersection root on both sides of the surface,
+preventing a near-wall texture flip when crossing. Missing intersections leave
+transparent space around its exterior silhouette. It remains fully illuminated
+while D/R≤1.02 and fades only outside, over D/R1.02→2.5. Crossing is near s20.67;
+by s21.0 the shell is retired and the 3D galaxy remains. The older equatorial
+background-retention overlay is replaced by this actual sphere geometry.
+
+36 seeded cool-white specks are placed along the crossing corridor in world
+space. They enter/exit the frame geometrically, stay opaque when nearby, blur
+when large, and retire only at subpixel size. Positions depend on zoom rather
+than wall-clock time, so forward/reverse playback is consistent. They are a
+cinematic depth layer, not catalogue objects or labelled physical star sizes.
+
+Validation updated to enforce full sky illumination inside the sphere and fade
+only outside; the earlier galactic fade-before-depth assertion is intentionally
+removed. Local catalogue-star handoff ordering, angular registration and all
+point data checks remain. Shader logs and the crossing view were checked.
+
+Point exposure is balanced against the still-lit shell (40%→100% as it retires),
+to avoid adding two fully exposed galactic cores during the crossing.
