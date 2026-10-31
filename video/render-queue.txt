@@ -30,3 +30,16 @@ long-03-small
 # next: short-06c-compton
 # next: short-07a-photons
 # next: short-07b-sky
+short-01-hook
+short-02a-things
+short-02b-planets
+short-04a-black-hole-line
+short-04b-smallest-black-holes
+short-05a-emptier
+short-05b-hubble-sphere
+short-05c-observable-universe
+short-06a-living
+short-06b-atoms
+short-06c-compton
+short-07a-photons
+short-07b-sky
