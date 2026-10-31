@@ -1,0 +1,29 @@
+{
+  "status": "Illustrative small amoeba, no species assignment. Not installed in viewer.",
+  "frameMicrometres": 12,
+  "unitsPerMicrometre": 120,
+  "zoomTarget": [
+    720,
+    720
+  ],
+  "nucleus": {
+    "centre": [
+      660,
+      720
+    ],
+    "diameterMicrometres": 2
+  },
+  "nucleolus": {
+    "centre": [
+      660,
+      720
+    ],
+    "diameterMicrometres": 0.7
+  },
+  "notes": [
+    "Nucleolus centred within nucleus; whole nucleus offset from camera to target chromatin, not nucleolus.",
+    "8 µm body size remains a provisional design assumption.",
+    "SVG boundaries are exact; biological proportions and organelle distribution are not experimentally validated.",
+    "No runtime blur or parallax baked into layout."
+  ]
+}
