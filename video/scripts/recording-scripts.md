@@ -99,7 +99,7 @@ biggest stars, light itself is what holds them up, and what stops them getting a
 is a lot brighter (its light grows much faster than its gravity), so in the heaviest stars light
 pushes on the outer gas almost as hard as gravity pulls it in. The light shoves that gas out faster
 than the star's escape velocity (winds of about 2,000–3,000 km/s from the hottest stars, where
-escape speed is roughly 1,000), and it's lost: blown back into space, where it can become part of
+escape speed is about 1,000–1,500), and it's lost: blown back into space, where it can become part of
 the gas clouds that make new stars. That's the author's picture, and it's right.
 - Two ways it caps a star: while the star is forming, its light pushes away the gas still falling
   in; once it shines, winds and eruptions strip its outer layers.
