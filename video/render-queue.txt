@@ -9,7 +9,6 @@
 # A "# next: <take>" line renders that take before the others.
 # Order until the videos are published (the author, 2026-10-31; restart tonight from the top): each long video,
 # then the Shorts cut from the same takes. The whole videos the cuts replaced are retired (video/render-skip.txt).
-long-01-intro
 long-02-space
 short-02a-things
 short-02b-planets
@@ -25,7 +24,6 @@ short-06c-compton
 short-07a-photons
 short-07b-sky
 # Order (the author, 2026-10-31): each long video, then the Shorts cut from the same takes
-# next: long-01-intro
 # next: short-01-hook
 # next: short-02a-things
 # next: short-02b-planets
