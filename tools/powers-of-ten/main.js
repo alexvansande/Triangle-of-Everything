@@ -225,7 +225,7 @@ slider.min = S_MIN; slider.max = S_MAX;
 slider.addEventListener("input", () => { setPlay(0); setS(+slider.value); });
 document.querySelectorAll("[data-play]").forEach((b) => b.addEventListener("click", () => setPlay(+b.dataset.play)));
 document.getElementById("speed").addEventListener("change", (e) => (state.speed = +e.target.value));
-const toggle = (id, key) => { const el = document.getElementById(id); el.checked = state[key]; el.addEventListener("change", () => (state[key] = el.checked)); };
+const toggle = (id, key) => { const el = document.getElementById(id); el.checked = state[key]; el.addEventListener("change", () => { state[key] = el.checked; const u = new URL(location); u.searchParams.set(key, el.checked ? "1" : "0"); history.replaceState(null, "", u); }); };
 toggle("gridOn", "grid"); toggle("labelsOn", "labels");
 stage.addEventListener("wheel", (e) => { e.preventDefault(); setPlay(0); setS(state.s + e.deltaY * (e.ctrlKey ? 0.01 : 0.002)); }, { passive: false });
 addEventListener("keydown", (e) => {
