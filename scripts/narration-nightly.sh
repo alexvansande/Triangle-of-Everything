@@ -24,7 +24,8 @@ if pgrep -f narration-overnight.sh > /dev/null; then
 fi
 git fetch -q origin && { git merge -q --no-edit origin/main 2>/dev/null || { git merge --abort; log "merging main conflicts: checking the branch as it is"; }; }
 
-stale=$(DRY=1 scripts/narration-render-stale.sh | sed -n 's/^stale //p')
+# (its lines: "stale <take> <kind> <ranges>": the take alone)
+stale=$(DRY=1 scripts/narration-render-stale.sh | sed -n 's/^stale \([^ ]*\).*/\1/p')
 if [ -z "$stale" ]; then
   [ -f "$STATE" ] || date +%s > "$STATE"   # the first quiet night starts the count
   quiet=$(( ($(date +%s) - $(cat "$STATE")) / 86400 ))
