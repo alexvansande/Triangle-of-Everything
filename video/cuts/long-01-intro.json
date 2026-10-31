@@ -4,7 +4,28 @@
   "stage": "landscape",
   "gap": 2.0,
   "segments": [
-    { "take": "short-01-hook", "to": "this series of videos" },
-    { "take": "short-02-up-the-line" }
+    {
+      "take": "short-01-hook",
+      "to": "this series of videos"
+    },
+    {
+      "take": "short-02-up-the-line"
+    }
+  ],
+  "music": [
+    {
+      "track": "Space X-plorers"
+    },
+    {
+      "track": "Space X-plorers",
+      "at": {
+        "gap": 1,
+        "lead": 5.5
+      }
+    },
+    {
+      "track": "Soaring",
+      "after": true
+    }
   ]
 }

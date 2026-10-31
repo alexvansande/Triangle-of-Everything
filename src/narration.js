@@ -145,7 +145,7 @@ async function cutCues(take, name) {
     s, src: await fetch(`${import.meta.env.BASE_URL}narration/${s.take}/words.json`).then(r => r.json()),
     scene: (await SCENES[`./narration-scenes/${s.scene}.js`]()).default,
   })));
-  const all = [], missing = [], first = parts[0];
+  const all = [], missing = [], first = parts[0], sound = [];
   for (const { s, src, scene } of parts) {
     SCENE = scene;
     const rc = resolveScene(src.words);
@@ -156,6 +156,9 @@ async function cutCues(take, name) {
     if (s.from > 0 && cam) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: 0.05, drift: cam.drift, time: s.at });
     if (s.from > 0 && hl?.hl) all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: s.at + 0.001 });
     for (const c of rc) if (c.time >= s.from - 0.01 && c.time < s.to) all.push({ ...c, time: move(c.time) });
+    // its sound cues inside it too, for a cut whose mix is made whole (narration-sound.mjs: a cut
+    // with its own music, words.json "music")
+    for (const c of rc.sound || []) if (c.s >= s.from - 0.01 && c.s < s.to) sound.push({ ...c, s: move(c.s), e: move(Math.min(c.e, s.to)) });
   }
   // the cut's own scene (src/narration-scenes/<cut>.js, if any): cues on the cut's own words,
   // on top of its pieces' (short-02b-planets introduces the axes and the line)
@@ -168,7 +171,7 @@ async function cutCues(take, name) {
   }
   window.__narrMissing = missing;
   all.sort((a, b) => a.time - b.time);
-  all.sound = [];
+  all.sound = sound;
   // the first piece's scene-wide settings win; settings only a later piece has (video 7's explorer) come along too
   const merged = { ...Object.assign({}, ...[...parts].reverse().map(p => p.scene)), cues: [], captionFixes: Object.assign({}, ...parts.map(p => p.scene.captionFixes)),
     cover: first.s.from === 0 ? first.scene.cover && { ...first.scene.cover, ...own?.cover } : undefined,
@@ -2577,6 +2580,8 @@ export async function startNarration(app) {
       // the music bed follows the camera: [t, log r, log m, span] every 0.25 s
       bed: SCENE.bed ?? false,      // off by default for now; a scene opts in with bed: true
       backing: SCENE.backing ?? null,   // a real track under the take (video/music/)
+      // a cut's own music, one track after another: [{ track, at, offset }] (scripts/narration-cut.py)
+      music: take.music ?? null,
       path: Array.from({ length: Math.ceil(duration * 4) + 1 }, (_, i) => {
         const v = camera(i / 4).view;
         return [i / 4, +v.r.toFixed(3), +v.m.toFixed(3), +v.span.toFixed(3)];
