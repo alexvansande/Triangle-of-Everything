@@ -1,3 +1,5 @@
+import {atmosphereLayer} from "./atmosphere.js";
+import {distanceLabel,readableNumber} from "./distance-labels.js";
 import { drawScaleOverlay } from './scale-overlay.js';
 import { canopyCrownDepth } from './canopy-crown-depth.js';
 import { canopyMicro } from './canopy-micro.js';
@@ -20,11 +22,11 @@ import { crossingsLayer } from "./crossings.js";
 
 const canopyTest = new URLSearchParams(location.search).has('canopytest');
 const insects=canopyTest?catalogueInsects():null,optics=canopyTest?canopyOptics():null,depth=canopyTest?canopyDepth():null,crown=canopyTest?canopyCrownDepth():null,microscope=canopyTest?canopyMicro():null;
-const S_MIN = canopyTest ? -18.7 : -35.3, S_MAX = 27.6;
-window.canopyTest = {enabled:true,minimum:-18.7,photoMinimum:-8.260667536990012,maximum:27.6};
+const S_MIN = canopyTest ? -18.7 : -35.3, S_MAX = Math.log10(2 * 46e9 * LY / .78);
+window.canopyTest = {enabled:true,minimum:-18.7,photoMinimum:-8.260667536990012,maximum:S_MAX};
 const q = new URLSearchParams(location.search);
 const state = {
-  s: q.has("s") ? +q.get("s") : 0,
+  s: q.has("s") ? clamp(+q.get("s"),S_MIN,S_MAX) : 0,
   grid: q.get("grid") !== "0", labels: q.get("labels") !== "0",
   play: 0, speed: 1, stage: q.get("stage") ?? "fill",
 };
@@ -33,6 +35,7 @@ if (q.get("ui") === "0") document.body.classList.add("bare");
 const stage = document.getElementById("stage"), canvas = document.getElementById("view"), ctx = canvas.getContext("2d");
 const frame = document.getElementById("cloud");
 
+const atmosphere=atmosphereLayer();
 const small = await smallLayers();
 const micro = microLayers();
 const macro = macroLayers();
@@ -58,7 +61,7 @@ const layers = [...space, ...macro.layers, ...micro, ...small.reverse(), crossin
 const ROLL = q.get("roll") === "0" ? 0 : 5 * Math.PI / 180; // per decade, anticlockwise as we zoom out
 
 // ---------- the spectrum Cloud, for the last decades ----------
-// on its log scale (1 unit = 950 km, Earth at the centre, the CMB at radius 1),
+// on its linear radius scale (the CMB at radius1),
 // the whole spectrum bar in its light, the CMB's light alone (the distance window
 // from 20 Gly: the zoom has already shown the Galaxy and the galaxies), each dot
 // with a glow: the camera flies backwards and turns, so the CMB comes past it from
@@ -86,23 +89,19 @@ function driveCloud(s, W, H, Dg, roll, dpr) {
   const dEnd = 1 / Math.sin(Math.atan(FILL * (Math.min(W, H) / Dg) * Math.tan(20 * Math.PI / 180)));
   const t = ramp(s, ...CLOUD_FLY), dist = Math.exp(Math.log(DIST0) + (Math.log(dEnd) - Math.log(DIST0)) * t);
   // turning a little as it goes (35°), for the depth, and still at the end
-  ctl({ universe: true, ...CLOUD_END, zoom: 3.2 / dist, yaw: CLOUD_END.yaw + 0.6 * (1 - t) });
+  ctl({ galaxy: true, lz:Math.log10(46e9), ...CLOUD_END, zoom: 3.2 / dist, yaw: CLOUD_END.yaw + 0.6 * (1 - t) });
   cloudView = { dist, Dg, a };
 }
-// over the Cloud, once it's a sphere in front of us: the Hubble sphere as a dashed
-// circle and the CMB named. On the Cloud's log scale (1 unit = 950 km, radius 1 = the
-// CMB, 46 billion light-years) the Hubble sphere, c/H₀ = 14.4 billion light-years (where
-// galaxies recede at the speed of light; H₀ = 67.7 km/s/Mpc), lies at radius 0.976. Each
-// is seen from the Cloud's camera, dist from the centre with a 40° view across the frame
+// Radius comparisons use a linear ruler: Hubble14.4Gly / CMB46Gly.
+// The outer shell is the CMB sphere; both labels explicitly say radius.
 let cloudView = null;
-const LOG_R = (lyLog) => (lyLog - CLOUD_END.unit) / (10.66 - CLOUD_END.unit);
-const HUBBLE_R = LOG_R(Math.log10(1.44e10));
+const HUBBLE_TO_CMB = 14.4 / 46;
 function drawSpheres(ctx, W, H, dpr, s) {
   if (!cloudView) return;
   const { dist, Dg, a: ca } = cloudView, a = ca * ramp(s, 26.8, 27.2);
   if (a <= 0.01) return;
   const px = (r) => (dist > r ? Math.tan(Math.asin(r / dist)) / Math.tan(20 * Math.PI / 180) * Dg / 2 : 0);
-  const rh = px(HUBBLE_R), rc = px(1);
+  const rc = px(1), rh = rc * HUBBLE_TO_CMB;
   ctx.save();
   ctx.globalAlpha = a;
   ctx.font = `${13 * dpr}px "IBM Plex Sans", system-ui, sans-serif`; ctx.textAlign = "center";
@@ -111,13 +110,13 @@ function drawSpheres(ctx, W, H, dpr, s) {
     ctx.setLineDash([6 * dpr, 6 * dpr]); ctx.lineWidth = 1.2 * dpr; ctx.strokeStyle = "rgba(170,205,255,0.75)";
     ctx.beginPath(); ctx.arc(W / 2, H / 2, rh, 0, 7); ctx.stroke(); ctx.setLineDash([]);
     ctx.textBaseline = "top"; ctx.lineWidth = 3 * dpr; ctx.strokeStyle = "rgba(0,0,0,0.7)";
-    ctx.strokeText("the Hubble sphere · 14 billion light-years", W / 2, H / 2 - rh + 8 * dpr);
-    ctx.fillStyle = "rgba(200,222,255,0.95)"; ctx.fillText("the Hubble sphere · 14 billion light-years", W / 2, H / 2 - rh + 8 * dpr);
+    ctx.strokeText("Hubble sphere · radius 14.4 billion light-years", W / 2, H / 2 - rh + 8 * dpr);
+    ctx.fillStyle = "rgba(200,222,255,0.95)"; ctx.fillText("Hubble sphere · radius 14.4 billion light-years", W / 2, H / 2 - rh + 8 * dpr);
   }
   if (rc) {
     ctx.textBaseline = "top";
-    ctx.strokeText("the CMB · 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
-    ctx.fillStyle = "#f2d6b0"; ctx.fillText("the CMB · 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
+    ctx.strokeText("CMB · radius 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
+    ctx.fillStyle = "#f2d6b0"; ctx.fillText("CMB · radius 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
   }
   ctx.restore();
 }
@@ -175,10 +174,10 @@ function render(t) {
       const picture={...cam};
       if(canopyTest){const t=Math.max(0,Math.min(1,(-cam.s-.7)/1.05)),f=t*t*(3-2*t);picture.cx-=(-0.0024822744142255736)*cam.k*f;picture.cy-=(-0.0009580708265432034)*cam.k*f;}
       photos.draw(canopyTest ? {...picture,cx:picture.cx-8.242062515365374*cam.k,cy:picture.cy-3.8877653374364973*cam.k} : cam);
-      if(!canopyTest)clouds.draw(cam);
+      clouds.draw(cam);
       if(canopyTest)insects.draw(picture);
       plates.draw(picture);
-      if(canopyTest){crown.draw(picture);depth.draw(picture);microscope.draw(picture);optics.plane(picture);optics.bird(picture);}
+      if(canopyTest){crown.draw(picture);depth.draw(picture);microscope.draw(picture);atmosphere.draw(picture);optics.plane(picture);optics.bird(picture);}
     }
   }
   // the grid and the names stay upright: the grid on the screen, the names where the
@@ -210,7 +209,7 @@ function readout(s) {
   let u = UNITS[0];
   for (const x of UNITS) if (v >= x[0]) u = x;
   const per = u[2] ?? u[0];
-  plain.textContent = v < 1e-30 ? `${(v / 1.616e-35).toPrecision(2)} Planck lengths` : `${+(v / per).toPrecision(2)} ${u[1]}`;
+  plain.textContent = v < 1e-30 ? `${(v / 1.616e-35).toPrecision(2)} Planck lengths` : v>=LY ? `${readableNumber(v/LY)} light-years` : distanceLabel(v);
   if (document.activeElement !== slider) slider.value = s;
 }
 

@@ -1,7 +1,8 @@
+import {distanceLabel} from "./distance-labels.js";
 // tools/powers-of-ten/space.js — the code-drawn top of the zoom, one 3D scene
 // seen straight on (orthographic) by a camera that turns from looking down on
 // the tree, to the ecliptic, to the Galaxy, to the supergalactic plane:
-// the Moon's orbit, the planets (positions for 2026-10-29), the Kuiper belt,
+// the Moon's orbit and true-size planets (positions for2026-10-29), Kuiper belt,
 // the Oort cloud (a model: it's never been seen), the stars (Hipparcos and
 // Gaia, tools/sky-points), the Milky Way (a picture for now), the Local Group,
 // and the galaxies around us (2MRS) coloured by which great attractor they
@@ -105,26 +106,20 @@ export function spaceLayers(globe) {
       ctx.globalAlpha = 1;
     },
   };
-  // ---------- the fly-bys: the Moon and the outer planets moved onto their orbits
-  // beside the camera's path out (math.js EDGE), so we pass each as we cross its
-  // orbit, as in the opening of Contact; their real places today are elsewhere. At
-  // true size a close pass would last a thousandth of a decade (out here the camera
-  // covers ~10^12 m a decade), so each passes 0.22 of its distance to one side and is
-  // drawn far bigger than life, Jupiter largest (radius ∝ the fourth root of the true
-  // one): each fly-by then takes about 0.4 decades. Each orbit is drawn through the
-  // moved body ----------
-  const side = norm(cross(ECL_POLE, EDGE.n)), R_JUP = 6.99e7;
-  const crossing = (centre, a) => { const w = sub(EARTH_C, centre), b = dot(w, EDGE.n); return -b + Math.sqrt(b * b - dot(w, w) + a * a); };
-  const besidePath = (centre, a, r, sign) => {
-    const t = crossing(centre, a), L = 0.22 * t;
-    return { pos: add(add(EARTH_C, mul(EDGE.n, t)), mul(side, sign * L)), r: (L / 2.5) * (r / R_JUP) ** 0.25 };
-  };
-  const through = (centre, p) => { const e1 = norm(sub(p, centre)); return [e1, norm(cross(ECL_POLE, e1))]; };
-  const MOON_FLY = besidePath(EARTH_C, 3.844e8, 1.737e6, 1), MOON_ORBIT = through(EARTH_C, MOON_FLY.pos);
-  const FLY = Object.fromEntries(PLANETS.filter((p) => p.a > 1.1 * AU).map((p, i) => {
-    const f = besidePath(SUN, p.a, p.r, i % 2 ? 1 : -1);
-    return [p.name, { ...f, orbit: through(SUN, f.pos) }];
-  }));
+  // Planet and Moon geometry stays at its catalogue position and true radius.
+  // Orbit labels describe distance from the parent, never circumference.
+  function orbitLabel(cam,centre,e1,e2,radius,text,alpha){
+    const ratio=radius*cam.k/cam.min,visibility=ramp(ratio,.055,.15)*(1-ramp(ratio,.7,1.8));
+    if(alpha*visibility<.01)return;
+    let best=null;
+    const left=(cam.W-cam.screen.W)/2,top=(cam.H-cam.screen.H)/2;
+    for(let i=0;i<96;i++){
+      const t=i/96*Math.PI*2,[x,y]=cam.proj(add(centre,add(mul(e1,radius*Math.cos(t)),mul(e2,radius*Math.sin(t)))));
+      if(!Number.isFinite(x)||x<left+20*cam.dpr||x>left+cam.screen.W-20*cam.dpr||y<top+20*cam.dpr||y>top+cam.screen.H-20*cam.dpr)continue;
+      if(!best||y<best[1])best=[x,y];
+    }
+    if(best)cam.labelPx(best[0],best[1]-9*cam.dpr,text,alpha*visibility);
+  }
   const SUN_DIR = norm(sub(SUN, EARTH_C));
   const earthMoon = {
     name: "earth & moon", range: [6.3, 11.5],
@@ -145,8 +140,9 @@ export function spaceLayers(globe) {
           if (c) { cam.ctx.globalAlpha = a; cam.ctx.drawImage(c, x + X0 * rr, y - Y1 * rr, wpx, hpx); cam.ctx.globalAlpha = 1; }
         }
       }
-      ring(cam, EARTH_C, MOON_ORBIT[0], MOON_ORBIT[1], 3.844e8, `rgba(200,210,230,${0.5 * a * ramp(cam.s, 7.9, 8.4)})`);
-      const [mx, my] = body(cam, imgs.moon, MOON_FLY.pos, MOON_FLY.r, 1.2, a * ramp(cam.s, 7.8, 8.2));
+      ring(cam, EARTH_C, eclAxes.x, eclAxes.y, 3.844e8, `rgba(200,210,230,${0.5 * a * ramp(cam.s, 7.9, 8.4)})`);
+      orbitLabel(cam,EARTH_C,eclAxes.x,eclAxes.y,3.844e8,"Moon’s orbit · 384 thousand km from Earth",a);
+      const [mx, my] = body(cam, imgs.moon, MOON, 1.737e6, 1.2, a);
       cam.labelPx(x, y - rr - 10 * cam.dpr, "Earth", a * ramp(cam.s, 8.3, 8.6) * (1 - ramp(cam.s, 10.2, 10.6)));
       cam.labelPx(mx, my - 10 * cam.dpr, "the Moon", a * ramp(cam.s, 8.3, 8.6) * (1 - ramp(cam.s, 9.8, 10.2)));
     },
@@ -161,12 +157,14 @@ export function spaceLayers(globe) {
       for (const p of PLANETS) {
         const ra = p.a * cam.k;
         if (ra < 3) continue;
-        const fly = FLY[p.name], oa = a * ramp(ra, 3, 12) * (fly ? 1 : 1 - ramp(ra, 1.5 * cam.min, 4 * cam.min));
+        const oa = a * ramp(ra, 3, 12) * (1 - ramp(ra, 1.5 * cam.min, 4 * cam.min));
         if (oa <= 0.01) continue;
-        const [e1, e2] = fly ? fly.orbit : [eclAxes.x, eclAxes.y];
-        ring(cam, SUN, e1, e2, p.a, `rgba(170,190,230,${0.4 * oa})`);
+        const [e1, e2] = [eclAxes.x, eclAxes.y];
+        const marked=['Neptune','Jupiter','Mars'].includes(p.name);
+        ring(cam, SUN, e1, e2, p.a, `rgba(170,190,230,${(marked ? .65 : .2) * oa})`,marked?1.2:.6);
+        if(marked)orbitLabel(cam,SUN,e1,e2,p.a,`${p.name}’s orbit · ${distanceLabel(p.a)} from Sun`,oa);
         if (p.name === "Earth") continue;
-        const [x, y, rr] = body(cam, imgs[p.name.toLowerCase()], fly ? fly.pos : add(SUN, p.pos), fly ? fly.r : p.r, 1.4, oa);
+        const [x, y, rr] = body(cam, imgs[p.name.toLowerCase()], add(SUN, p.pos), p.r, 1.4, oa);
         cam.labelPx(x, y - rr - 9 * cam.dpr, p.name, oa * ramp(ra, 30, 60) * (1 - ramp(rr, 0.25 * cam.min, 0.5 * cam.min)));
       }
       // the Sun, in the background: a soft halo round it, bigger the nearer it is
@@ -211,7 +209,7 @@ export function spaceLayers(globe) {
       if (hp > 0.01) ring(cam, SUN, cam.cam.r, cam.cam.u, 120 * AU, `rgba(120,200,255,${0.35 * hp})`, 1.5);
       const [x, y] = cam.proj(SUN);
       cam.labelPx(x, y - 33 * AU * cam.k, "Kuiper belt", ka * ramp(cam.s, 13.2, 13.5) * (1 - ramp(cam.s, 14.4, 14.8)));
-      cam.labelPx(x, y - 3e4 * AU * cam.k, "Oort cloud (a model: never seen)", oa * ramp(cam.s, 15.6, 15.9) * (1 - ramp(cam.s, 16.9, 17.3)));
+      cam.labelPx(x, y - 3e4 * AU * cam.k, "Oort Cloud · distant spherical reservoir of icy bodies", oa * ramp(cam.s, 15.6, 15.9) * (1 - ramp(cam.s, 16.9, 17.3)));
     },
   };
 
@@ -273,6 +271,9 @@ export function spaceLayers(globe) {
     draw(cam) {
       const a = win(cam.s, 21.6, 22.3, 24.6, 25.2);
       if (a <= 0.01) return;
+      const centre=mul(LG[0].p,.5),[gx,gy,gs]=cam.projS(centre),radius=5e6*LY*cam.k*gs;
+      const marker=a*ramp(radius/cam.min,.06,.16)*(1-ramp(radius/cam.min,.55,.95));
+      if(gs&&marker>.01){cam.ctx.save();cam.ctx.globalAlpha=marker*.7;cam.ctx.lineWidth=cam.dpr;cam.ctx.strokeStyle='#b9d4eb';cam.ctx.setLineDash([5*cam.dpr,6*cam.dpr]);cam.ctx.beginPath();cam.ctx.arc(gx,gy,radius,0,Math.PI*2);cam.ctx.stroke();cam.ctx.restore();cam.labelPx(gx,gy-radius-12*cam.dpr,'Local Group of galaxies · ≈10 million light-years across',marker);}
       for (const g of LG) {
         const [x, y, rr] = body(cam, g.img, g.p, g.r, 1.2, a * 0.95);
         cam.labelPx(x, y - rr - 6 * cam.dpr, g.name, a * (g.big ? 1 : 0.6) * ramp(cam.s, 22.4, 22.7) * (1 - ramp(cam.s, g.big ? 23.8 : 22.8, g.big ? 24.2 : 23.0)));

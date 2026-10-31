@@ -6,7 +6,7 @@ export function mountCanopyTest() {
   panel.innerHTML=`<strong style="font-size:17px">CMB → quarks</strong>
     <div style="color:#b5c4b9;margin:5px 0 12px">Cosmos → Earth → sequoia → ladybug → cell → DNA → atom → quarks</div>
     <div style="display:flex;flex-wrap:wrap;gap:7px" id="canopy-actions">
-      <button data-s="27.6">CMB · universe</button><button data-s="24">Galaxy groups</button><button data-s="21">Milky Way</button><button data-s="13">Solar system</button><button data-s="7.7">Earth · globe</button><button id="full-in">Play CMB → quarks</button><button id="full-out">Play quarks → CMB</button><button id="full-stop">Stop journey</button>
+      <button data-s="${window.canopyTest.maximum}">CMB · universe</button><button data-s="24">Galaxy groups</button><button data-s="21">Milky Way</button><button data-s="13">Solar system</button><button data-s="7.7">Earth · globe</button><button id="full-in">Play CMB → quarks</button><button id="full-out">Play quarks → CMB</button><button id="full-stop">Stop journey</button>
       <button data-s="4.6">Satellite · 40 km</button><button data-s="1.6">Aerial · 40 m</button>
       <button data-s="1.123">Crown · 13 m</button><button data-s="1.69897">Check · 50 m</button>
       <button data-s="2.07712">Grove · 120 m</button><button data-s="2.60206">Forest · 400 m</button><button id="canopy-run">Play approach</button>
@@ -81,8 +81,8 @@ export function mountCanopyTest() {
   }
   document.getElementById('canopy-timing').onclick=()=>approach(0,Math.log10(.03),22000);
   document.getElementById('canopy-crown-run').onclick=()=>approach(Math.log10(4.5),Math.log10(.7),18000);
-  document.getElementById('full-in').onclick=()=>approach(27.6,-18.7,180000);
-  document.getElementById('full-out').onclick=()=>approach(-18.7,27.6,180000);
+  document.getElementById('full-in').onclick=()=>approach(window.canopyTest.maximum,-18.7,180000);
+  document.getElementById('full-out').onclick=()=>approach(-18.7,window.canopyTest.maximum,180000);
   document.getElementById('full-stop').onclick=()=>{run++;window.zoom.set(window.zoom.s)};
   document.getElementById('canopy-cell-run').onclick=()=>approach(-4.92081875,-9.5,30000);
   document.getElementById('canopy-micro-run').onclick=()=>approach(-2.69409129,window.canopyTest.photoMinimum,42000);

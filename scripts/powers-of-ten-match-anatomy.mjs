@@ -5,7 +5,7 @@ const path=f=>new URL(f,dir).pathname;
 // Matched 3x pyramid, metre dimensions and one common axis.
 export const spans=Array.from({length:8},(_,i)=>12e-6/3**i);
 async function fade(input,size){const a=Buffer.alloc(size*size*4,255);for(let y=0;y<size;y++)for(let x=0;x<size;x++){const t=Math.min(1,Math.min(x+.5,y+.5,size-x-.5,size-y-.5)/(size*.22));a[(y*size+x)*4+3]=Math.round(255*t*t*(3-2*t))}return sharp(input).resize(size,size).ensureAlpha().composite([{input:a,raw:{width:size,height:size,channels:4},blend:'dest-in'}]).png().toBuffer()}
-const rawNames=['cell','nucleus',null,'chromatin',null,'nucleosomes',null,'dna-matched'];
+const rawNames=['cell','nucleus',null,'chromatin','chromatin-bridge','nucleosomes',null,'dna-matched'];
 const bases=[];
 for(let i=0;i<rawNames.length;i++){
  if(rawNames[i])bases[i]=await sharp(path(rawNames[i]+'-raw.png')).resize(n,n).ensureAlpha().png().toBuffer();

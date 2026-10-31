@@ -312,3 +312,40 @@ Verified uninterrupted180-second playback from CMB to the quark endpoint.
 The complete route lives in `tools/powers-of-ten/full-journey.js`, shared by
 the normal entry and isolated preview helper so they cannot drift in scale limits.
 Manual transport and slider input cancel scripted playback as well.
+
+
+## Big-to-small review (2026-10-31)
+
+User review was dictated; odd names/phrases are transcription noise.
+- Correct Hubble/CMB comparison: old logarithmic radii0.976/1 made14.4Gly and
+  46Gly look equal. CMB control now uses linear radius and calibrated maximum
+  frame118Gly, rather than420Gly. Hubble overlay radius is14.4/46 of CMB.
+  Explicit radius labels. Keep current camera orientation pending clarification.
+- Human distance labels: thousand/million/billion/trillion km; switch to powers
+  at1000trillion km. Frame HUD uses the same formatter. Added radius rings for
+  light-second/hour/day,1/10/100 light-years,1million and1billion light-years.
+- Local Group approximate10million-light-year diameter circle, centred halfway
+  toward M31 for the drawn group. Neptune/Jupiter/Mars/Moon orbital reference
+  lines label distance from their parent. Moon and planets now true-size at
+  catalogue positions; removed enlarged staged foreground passes.
+- Restore real cloud overlays in integrated canopy view. Added persistent cloud
+  planes at8.5/7/4.2km using existing MODIS wisps with stronger intrinsic alpha,
+  perspective and geometric edge exit before crossing altitude. Plane/bird and
+  accepted canopy/leaf/bug composition retained.
+- At500µm: increase community and field opacity instead of washed-out ghosts.
+  Rebuilt matched flat drop and outward parents from shared specimen definitions.
+- At120nm: new148nm outpaint wraps exact49nm child, instead of an enlarged crop
+  of a different chromatin arrangement. Built-in generator prompt/input in
+  anatomy-v9/bridge-provenance.json. Seven parent-centre checks pass.
+- Biology: amoebae have ribosomes and chromosomes. Do not add a field of X-shaped
+  mitotic chromosomes to an interphase nucleus, or assign human XX/XY to an
+  unidentified amoeba. Keep visible chromatin and existing ribosome inspection.
+- Explicitly deferred by user:1nm coded-molecule redesign. No molecule changes.
+
+References checked:
+https://www.nasa.gov/science-research/astrophysics/how-big-is-space-we-asked-a-nasa-expert-episode-61/
+https://imagine.gsfc.nasa.gov/features/cosmic/local_group_info.html
+https://science.nasa.gov/solar-system/oort-cloud/facts/
+https://science.nasa.gov/asset/hubble/relationship-of-the-kuiper-belt-to-the-oort-cloud/
+https://pmc.ncbi.nlm.nih.gov/articles/PMC2107637/
+https://openstax.org/books/biology/pages/10-1-cell-division

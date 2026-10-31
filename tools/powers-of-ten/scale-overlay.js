@@ -1,9 +1,6 @@
+import {distanceLabel} from "./distance-labels.js";
 const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
-export function scaleText(m){
- const units=[[1e3,'km'],[1,'m'],[1e-2,'cm'],[1e-3,'mm'],[1e-6,'µm'],[1e-9,'nm'],[1e-12,'pm'],[1e-15,'fm'],[1e-18,'am'],[1e-21,'zm']];
- const [v,u]=units.find(([v])=>m>=v*(1-1e-9))??[1,'m'];
- return `${Number((m/v).toPrecision(3))} ${u}`;
-}
+export const scaleText=distanceLabel;
 // World distances use the same metres-to-pixels camera scale as scene geometry.
 export function drawScaleOverlay(cam,{grid=true,labels=true,canopy=false}={}){
  const {ctx,W,H,k,cx,cy,min,s,dpr}=cam;
@@ -27,6 +24,13 @@ export function drawScaleOverlay(cam,{grid=true,labels=true,canopy=false}={}){
    ctx.strokeStyle='#edf6ed';ctx.lineWidth=dpr;
    ctx.strokeRect(cx-side/2,cy-side/2,side,side);
    caption(ctx,scaleText(m),cx,cy-side/2-11*dpr,dpr);
+  }
+ }
+ if(labels&&s>7&&s<26){
+  const C=299792458,LY=9.4607e15;
+  for(const [radius,label] of [[C,'1 light-second'],[3600*C,'1 light-hour'],[86400*C,'1 light-day'],[LY,'1 light-year'],[10*LY,'10 light-years'],[100*LY,'100 light-years'],[1e6*LY,'1 million light-years'],[1e9*LY,'1 billion light-years']]){
+   const r=radius*k,f=r/min,a=smooth(.055,.14,f)*(1-smooth(.38,.6,f));if(a<.005)continue;
+   ctx.globalAlpha=a*.55;ctx.strokeStyle='#acd8ef';ctx.lineWidth=dpr;ctx.setLineDash([4*dpr,6*dpr]);ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=a*.9;caption(ctx,label+' radius',cx,cy+r+13*dpr,dpr);
   }
  }
  if(labels&&canopy){

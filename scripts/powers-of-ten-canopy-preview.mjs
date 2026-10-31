@@ -27,7 +27,7 @@ await cp(`${root}/tools/powers-of-ten/canopy-depth.js`,`${runtime}/tools/powers-
 for(const file of ['scale-overlay.js','canopy-crown-depth.js','canopy-micro.js','canopy-micro-specimens.js','canopy-nucleus.js'])await cp(`${root}/tools/powers-of-ten/${file}`,`${runtime}/tools/powers-of-ten/${file}`);
 for(const slug of ['ladybug','ant','boeing-747'])await cp(`${root}/content/icons/resolutions/1024/${slug}.webp`,`${runtime}/content/icons/resolutions/1024/${slug}.webp`);
 // Share the complete route rather than reconstructing a legacy bounded viewer.
-for(const file of ['full-journey.js','small.js','space.js'])await cp(`${root}/tools/powers-of-ten/${file}`,`${runtime}/tools/powers-of-ten/${file}`);
+for(const file of ['full-journey.js','small.js','space.js','distance-labels.js','atmosphere.js'])await cp(`${root}/tools/powers-of-ten/${file}`,`${runtime}/tools/powers-of-ten/${file}`);
 await writeFile(`${runtime}/tools/powers-of-ten/main.js`,'import "./full-journey.js";\n');
 let plates=execFileSync('git',['show',`${revision}:tools/powers-of-ten/plates.js`],{cwd:root,encoding:'utf8'});
 plates=plates.replace('img: null, loading: false', 'img: null, loading: false, x:p.x||0, y:p.y||0');

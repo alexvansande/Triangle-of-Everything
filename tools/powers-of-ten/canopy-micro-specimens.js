@@ -18,14 +18,14 @@ const communityAssets={
  vannella:{file:'vannella',species:'Vannella simplex',bodyPixels:1152,center:[651.5,610.5]},
 };
 const largerCommunity=[
- {kind:'pine',diameter:70e-6,x:-160e-6,y:40e-6,opacity:.55,angle:-.4,lag:.18},
- {kind:'pine',diameter:68e-6,x:280e-6,y:-100e-6,opacity:.43,angle:1.1,lag:-.12},
- {kind:'birch',diameter:24e-6,x:90e-6,y:-50e-6,opacity:.48,angle:.7,lag:.10},
- {kind:'birch',diameter:22e-6,x:-80e-6,y:120e-6,opacity:.43,angle:-1,lag:-.1},
- {kind:'birch',diameter:25e-6,x:-250e-6,y:-210e-6,opacity:.36,angle:2,lag:.26},
- {kind:'arcella',diameter:110e-6,x:-180e-6,y:280e-6,opacity:.45,angle:.6,lag:.32},
- {kind:'vannella',diameter:45e-6,x:150e-6,y:180e-6,opacity:.29,angle:-.6,lag:.12},
- {kind:'vannella',diameter:44e-6,x:45e-6,y:60e-6,opacity:.23,angle:1.5,lag:.06},
+ {kind:'pine',diameter:70e-6,x:-160e-6,y:40e-6,opacity:.9,angle:-.4,lag:.18},
+ {kind:'pine',diameter:68e-6,x:280e-6,y:-100e-6,opacity:.85,angle:1.1,lag:-.12},
+ {kind:'birch',diameter:24e-6,x:90e-6,y:-50e-6,opacity:.9,angle:.7,lag:.10},
+ {kind:'birch',diameter:22e-6,x:-80e-6,y:120e-6,opacity:.85,angle:-1,lag:-.1},
+ {kind:'birch',diameter:25e-6,x:-250e-6,y:-210e-6,opacity:.8,angle:2,lag:.26},
+ {kind:'arcella',diameter:110e-6,x:-180e-6,y:280e-6,opacity:.85,angle:.6,lag:.32},
+ {kind:'vannella',diameter:45e-6,x:150e-6,y:180e-6,opacity:.8,angle:-.6,lag:.12},
+ {kind:'vannella',diameter:44e-6,x:45e-6,y:60e-6,opacity:.75,angle:1.5,lag:.06},
 ].map(p=>({...communityAssets[p.kind],...p}));
 
 // Reproducible population of small cells at several distances. This is the
@@ -40,10 +40,10 @@ for(const [count,inner,outer] of [[18,12,55],[24,180,450]]){
   const lag=(randomWater()-.35)*.24;
   smallCommunity.push({...communityAssets.microbe,diameter:(6+randomWater()*3.5)*1e-6,
    x:Math.cos(angle)*r,y:Math.sin(angle)*r,angle:randomWater()*Math.PI*2,
-   opacity:.24+randomWater()*.25,lag,blurPixels:1+Math.abs(lag)*35});
+   opacity:.72+randomWater()*.2,lag,blurPixels:1+Math.abs(lag)*35});
  }
 }
 const organismField={file:'water-life-wide',species:'Mixed microscopic organism field (illustrative)',
- diameter:720e-6,bodyPixels:3762,sourcePixels:3762,center:[1881,1881],x:0,y:0,opacity:.34,
+ diameter:720e-6,bodyPixels:3762,sourcePixels:3762,center:[1881,1881],x:0,y:0,opacity:.8,
  angle:0,lag:.08,blurPixels:2,field:true};
 export const microCommunity=[organismField,...largerCommunity,...smallCommunity];
