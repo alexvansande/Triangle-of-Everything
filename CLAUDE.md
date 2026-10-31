@@ -46,7 +46,9 @@
 - **Remind the author of the open recording notes** (the author, 2026-10-31): when they say they're
   about to record, or a new recording arrives, bring up the "Notes to bring up when you record next"
   section at the top of `video/scripts/recording-scripts.md` (ideas and suggested lines not yet in
-  any script). Move each note into its video's script once it's used or dropped.
+  any script). When they name the bit they're re-recording, look it up in that section's quick
+  index and offer it as "since you'll be talking about X, what about mentioning Y?" (the author,
+  2026-10-31), with the suggested line. Move each note into its video's script once it's used or dropped.
 - How the narration pipeline works (cut lists, voice treatment, tempo, scenes, sound,
   preview): `docs/narration.md` and `video/README.md`.
 - **No speed-up for new takes** (the author, 2026-10-27): from video 7 (`short-07-wavelengths`, rec42) on,

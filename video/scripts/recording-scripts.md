@@ -36,6 +36,30 @@ not in any script yet. **Sessions: when the author says they're about to record,
 recording arrives, remind them of these first**, and move each note into its video's script
 once it's used or dropped.
 
+### Quick index: "since you'll be talking about X, what about mentioning Y?"
+When the author says which bit they're re-recording, find it here and offer the matching idea in
+that form, one or two at most, with the suggested line. Details are in the notes below.
+
+| If they're recording… | Suggest… |
+|---|---|
+| Any video (the framing) | Tell the trend as one force winning over another, reusing "neighbour force vs everyone force" and "matter refuses to be squeezed" instead of new terms |
+| Video 2 · potato-shaped → round | Gravity's first goal against chemistry (electromagnetism) |
+| Video 2 · super-Jupiters, "electrons push back" | Gravity has won, and what holds it back isn't a force but a quantum rule; the same rule makes the periodic table's sawtooth (video 6) and holds up white dwarfs |
+| Video 3 · brown dwarfs → stars, fusion | How fusion really works: gravity helps the strong force beat the electric push; nothing's destroyed, nuclei are held tighter and lose 0.7% of mass as light; all four forces team up in the core; a star is nuclei falling downhill toward iron |
+| Video 3 · the main sequence, big stars | Why stars can't grow forever: their light blows the outer gas off past escape velocity, back into the clouds (Eta Carinae); light pressure in general (comet tails, solar sails) |
+| Video 3 · the core's light | Gamma rays in the core, tens of thousands of years to get out, sunlight at the surface (link to video 7) |
+| Video 3 · supernova | The weakest force decides it: electrons squeezed into protons make neutrons, and neutrinos carry off ~99% of the energy |
+| Video 3 · neutron stars, "the density of a neutron" | A neutron star is one giant nucleus held by gravity instead of the strong force; same density line as every nucleus |
+| Video 4 · black holes | Gravity's final goal; the Planck corner, where the black-hole line meets the Compton line and no rule exists yet |
+| Video 5 · superclusters, Laniakea | A new player: dark energy is already winning over gravity at that scale (superclusters aren't bound) |
+| Video 6 · atoms, the sawtooth | Electric pull vs the quantum rule sets each atom's size, the same rule as in super-Jupiters |
+| Video 6 · "up to iron, elements are forged in stars" | Why iron: the binding-energy peak (the picture in `video/plans/binding-energy/`); fusion and fission both stop there |
+| Video 6 · heaviest elements, oganesson | Electromagnetism caps the heaviest nuclei the same way light caps the biggest stars; the island of stability; "stable" heavy elements that are secretly (very slowly) radioactive |
+| Video 6 · the nucleus, protons and neutrons | Quarks locked in, ~99% of a proton's mass is the strong force's energy; the neutron saved by the strong force |
+| Video 6 · Compton line, gamma rays from decay | The same gamma rays as fusion in stars: mass turning into light |
+| Early-universe lines (any video) | The forces separating over time: electroweak 10⁻¹¹ s, quarks locked at 10⁻⁶ s, helium in the first minutes, light set free at the CMB |
+| Iron near the electroweak line | **Warn**: a coincidence on the chart, don't link them |
+
 **The series' through-line: a battle of the forces, told twice** (the author, 2026-10-31: "very
 didactic… coming back to the same things, not creating new rules and bringing up new terms").
 Tell the trends on the chart as one force winning over another, going *up* the line (videos 2–4),
