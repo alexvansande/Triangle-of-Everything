@@ -179,3 +179,9 @@ The target amoeba now starts sharp at its actual tiny size, without an initial
 blur. Pollen/community/dust defocus waits until that 8 µm cell occupies 12%
 of frame width (about 67 µm frame), then eases to full defocus at 40%
 (20 µm frame). Existing parallax and shell/surface blur are unchanged.
+
+### Slower shell-background focus shift
+
+Shell background blur now starts at a 1 mm frame and eases across roughly
+1.4 decades to full defocus at 40 µm, replacing the much faster 1.3 mm–291 µm
+ramp. Shell parallax, surface reflections and pollen/cell focus are unchanged.

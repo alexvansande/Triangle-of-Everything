@@ -29,7 +29,10 @@ export function canopyMicro(){
    // Waterborne specimens stay sharp until the target cell occupies 12%
    // of the frame; pollen defocus then eases up through 40% coverage.
    const pollenFocus=smooth(.12,.4,microSpecimens[1].diameter/10**cam.s);
-   ctx.filter=`blur(${44*strength*cam.min/960}px)`;
+   // Let the shell texture persist well inside the drop: start softening
+   // at 1 mm and reach full defocus only at a 40 µm frame width.
+   const shellFocus=1-smooth(Math.log10(40e-6),Math.log10(.001),cam.s);
+   ctx.filter=`blur(${44*shellFocus*cam.min/960}px)`;
    ctx.drawImage(planes.shell,W/2+(dx-627*unit)*back,H/2+(dy-627*unit)*back,1254*unit*back,1254*unit*back);ctx.filter='none';
    // Surrounding pollen and distinct amoebae occupy their own depth planes.
    for(const p of microCommunity){
