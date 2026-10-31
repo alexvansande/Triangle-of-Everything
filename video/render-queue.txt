@@ -24,7 +24,6 @@ short-06c-compton
 short-07a-photons
 short-07b-sky
 # Order (the author, 2026-10-31): each long video, then the Shorts cut from the same takes
-# next: short-01-hook
 # next: short-02a-things
 # next: short-02b-planets
 # next: long-02-space
@@ -40,5 +39,4 @@ short-07b-sky
 # next: short-06c-compton
 # next: short-07a-photons
 # next: short-07b-sky
-short-01-hook
 short-03-stars
