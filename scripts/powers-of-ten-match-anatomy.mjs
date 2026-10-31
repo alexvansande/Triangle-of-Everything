@@ -5,7 +5,7 @@ const path=f=>new URL(f,dir).pathname;
 // Matched 3x pyramid, metre dimensions and one common axis.
 export const spans=Array.from({length:8},(_,i)=>12e-6/3**i);
 async function fade(input,size){const a=Buffer.alloc(size*size*4,255);for(let y=0;y<size;y++)for(let x=0;x<size;x++){const t=Math.min(1,Math.min(x+.5,y+.5,size-x-.5,size-y-.5)/(size*.22));a[(y*size+x)*4+3]=Math.round(255*t*t*(3-2*t))}return sharp(input).resize(size,size).ensureAlpha().composite([{input:a,raw:{width:size,height:size,channels:4},blend:'dest-in'}]).png().toBuffer()}
-const rawNames=['cell','nucleus',null,'chromatin',null,'nucleosomes',null,'dna'];
+const rawNames=['cell','nucleus',null,'chromatin',null,'nucleosomes',null,'dna-matched'];
 const bases=[];
 for(let i=0;i<rawNames.length;i++){
  if(rawNames[i])bases[i]=await sharp(path(rawNames[i]+'-raw.png')).resize(n,n).ensureAlpha().png().toBuffer();
@@ -17,10 +17,8 @@ bases[0]=await sharp({create:{width:n,height:n,channels:4,background:'#0000'}}).
 bases[1]=await sharp(path('nucleus-raw.png')).resize(1065,1065).extend({left:62,right:127,top:98,bottom:91,extendWith:'mirror'}).png().toBuffer();
 // Rebuild intermediate crops from the registered source.
 bases[2]=await sharp(bases[1]).extract({left:418,top:418,width:418,height:418}).resize(n,n).png().toBuffer();
-// Align the molecular helix with the diagonal linker in the preceding view.
-const padded=await sharp(bases[7]).extend({left:627,right:627,top:627,bottom:627,extendWith:'mirror'}).png().toBuffer();
-const rotated=await sharp(padded).rotate(-45).png().toBuffer({resolveWithObject:true});
-bases[7]=await sharp(rotated.data).extract({left:Math.floor((rotated.info.width-n)/2),top:Math.floor((rotated.info.height-n)/2),width:n,height:n}).png().toBuffer();
+// Finest DNA is detail enhancement of the exact 1/9 central crop of the
+// nucleosome source. It already has the correct position, scale and twist.
 // Carry a real off-axis cytoplasmic ribosome from the same close-up.
 const rib=await sharp(path('ribosome-raw.png')).resize(13,13).png().toBuffer();
 bases[1]=await sharp(bases[1]).composite([{input:rib,left:940,top:720}]).png().toBuffer();
