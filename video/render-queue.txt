@@ -25,6 +25,7 @@
 # next: short-07a-photons
 # next: short-07b-sky
 long-01-intro
+long-02-space
 short-02a-things
 short-02b-planets
 short-03-stars

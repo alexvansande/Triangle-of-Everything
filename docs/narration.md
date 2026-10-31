@@ -220,6 +220,14 @@ themselves), logs the GL it got (`[w0] WebGL2: …`), and stops if there's none
 real frames, so the live player and every worker draw the same picture for the same t,
 and `window.__narr.pending()` counts the layer until it has drawn.
 
+The stars are drawn live in the videos (2026-10-31), as Laniakea and the Hopf particles are:
+`src/star-icons.js` hides each catalogued star's picture while a take plays (and catalogue dots shown
+as a star's picture, and a scene's `pic` of one) and draws the Star Forge star (`src/star-forge.js`) on
+a transparent canvas over it, its disc on the old picture's disc, turning, evolving and flaring by the
+take's t, with a little parallax as it crosses the frame. The site's chart keeps the pictures, and the
+brown dwarfs keep theirs in the videos too. The stars are tuned in `tools/star-forge.html` (the engine
+is shared, so what's tuned there is what the videos show); `?stars=0` turns the live stars off.
+
 ### Batches and publishing
 
 - `scripts/narration-render-stale.sh [take …]` renders each take whose full render
