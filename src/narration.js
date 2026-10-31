@@ -236,7 +236,9 @@ export async function startNarration(app) {
   // camWide: its own framing instead. The classic figure keeps × 16/9 (CLASSIC_WIDE): it was to be
   // closer, not further, and its text doesn't grow with the zoom
   const WIDE = stage === "landscape" ? (16 / 9) ** 2 : 1, CLASSIC_WIDE = stage === "landscape" ? 16 / 9 : 1;
-  if (stage !== "none" && (RENDER || !app.isMobile())) app.setStage(stage === "landscape" ? "video" : stage);
+  // (a 16:9 video locks its stage on a phone too, letterboxed: filling the phone's own shape it
+  // stretched into a strip, the author, 2026-10-31)
+  if (stage !== "none" && (RENDER || !app.isMobile() || stage === "landscape")) app.setStage(stage === "landscape" ? "video" : stage);
   // 16:9: the labels twice the size (the chart's names and the narration's tags, rulers and axis
   // names): on a phone they weren't legible, while the pictures were fine (the author, 2026-10-31);
   // the classic figure's text grows too (scene `textScale`, `classicText`)
@@ -599,7 +601,8 @@ export async function startNarration(app) {
       <div id="narr-speed" role="group" aria-label="Speed">${SPEEDS.map(v =>
         `<button type="button" data-speed="${v}">${v}×</button>`).join("")}</div>
       <div id="narr-chips"><button id="narr-auto" class="narr-chip" type="button" aria-pressed="true"></button>
-      <button id="narr-sound" class="narr-chip" type="button" aria-pressed="true" hidden></button></div></div>
+      <button id="narr-sound" class="narr-chip" type="button" aria-pressed="true" hidden></button>
+      <button id="narr-full" class="narr-chip" type="button" hidden>Full screen</button></div></div>
       <div id="narr-bar" role="slider" aria-label="Seek" tabindex="0"><div id="narr-track"><div id="narr-bar-fill"></div><div id="narr-knob"></div></div><span id="narr-time"></span></div>`);
   document.body.appendChild(layer);
   if (!document.getElementById("narr-css")) {
@@ -2759,6 +2762,25 @@ export async function startNarration(app) {
   // "Play next" on the end screen: the preview's grid order (window.__narrTakes),
   // or the shorts in name order on the dev server. With autoplay on, the end
   // screen counts down and the next short starts in place, on the same audio.
+  // full screen (where the browser lets a page do it: not an iPhone), a 16:9 video turning the
+  // phone sideways where it may (the author, 2026-10-31)
+  const fullEl = document.getElementById("narr-full"), root = document.documentElement;
+  const isFull = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const fullLabel = () => { fullEl.textContent = isFull() ? "Exit full screen" : "Full screen"; };
+  if (document.fullscreenEnabled || document.webkitFullscreenEnabled) {
+    fullEl.hidden = false; fullLabel();
+    document.addEventListener("fullscreenchange", fullLabel); document.addEventListener("webkitfullscreenchange", fullLabel);
+    fullEl.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      try {
+        if (isFull()) await (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        else {
+          await (root.requestFullscreen || root.webkitRequestFullscreen).call(root);
+          if (WIDE !== 1) await screen.orientation?.lock?.("landscape").catch(() => {});
+        }
+      } catch { /* refused: stays as it is */ }
+    }, on);
+  }
   const nextEl = document.getElementById("narr-next");
   const autoEl = document.getElementById("narr-auto");
   const order = window.__narrTakes ||
