@@ -53,6 +53,7 @@ that form, one or two at most, with the suggested line. Details are in the notes
 | Video 4 · black holes | Gravity's final goal; the Planck corner, where the black-hole line meets the Compton line and no rule exists yet |
 | Video 5 · superclusters, Laniakea | A new player: dark energy is already winning over gravity at that scale (superclusters aren't bound) |
 | Video 6 · atoms, the sawtooth | Electric pull vs the quantum rule sets each atom's size, the same rule as in super-Jupiters |
+| Video 6 · "Those intervals are the periodic table" | **The author's own new line, with the table animation on screen** (see "Video 6: the table transition" below). Remind them it's planned |
 | Video 6 · "up to iron, elements are forged in stars" | Why iron: the binding-energy peak (the picture in `video/plans/binding-energy/`); fusion and fission both stop there |
 | Video 6 · heaviest elements, oganesson | Electromagnetism caps the heaviest nuclei the same way light caps the biggest stars; the island of stability; "stable" heavy elements that are secretly (very slowly) radioactive |
 | Video 6 · the nucleus, protons and neutrons | Quarks locked in, ~99% of a proton's mass is the strong force's energy; the neutron saved by the strong force |
@@ -118,6 +119,36 @@ balance point (the **Eddington limit**) the outer layers are pushed off as fierc
 a soft limit, not a wall. The heaviest stars known are about 150–200 Suns (R136a1, about 200, after
 estimates of over 300 were revised down in 2022), and the exact limit is still debated. So, "in the
 biggest stars, light itself is what holds them up, and what stops them getting any bigger".
+
+**Video 6: the table transition** (the author, 2026-10-31: "I really like this animation. I want
+to add it to the microscopic world"). When video 6 reaches the periodic table, briefly morph the
+element dots from their chart positions into the table on screen, then turn it into the classroom
+view.
+- The author's line, to go after "Bigger and smaller, over and over, at regular intervals" and
+  replace "Those intervals are the periodic table. The table you saw in chemistry class isn't
+  arbitrary…": *"This is where the 'periods' of the periodic table come from. The poster you saw
+  on the wall in science class comes from this arrangement. Although it's more likely you've seen
+  it like this."*
+- Fact check of the line: "periods" is right: each row is one period, one turn of the
+  repeat, and that repeat is what "periodic" means. "Comes from this arrangement" is a little
+  strong: the table was built (Mendeleev, 1869) from repeating chemical properties, not sizes. The
+  size sawtooth is the same repeat with the same cause (electron shells). Suggested wording: *"The
+  poster you saw on the wall in science class is this same pattern."*
+- On screen:
+  1. While they talk about the periods, the dots and the period and group lines morph from the
+     chart into the **long table upside down**: 32 columns, hydrogen at the bottom, alkali metals
+     on the right, lanthanides and actinides inside rows 6 and 7. That's
+     `video/plans/binding-energy/table-morph-long.mp4` (`anim.mjs`, `LONG=1`).
+  2. On "**like this**": turn it into the **traditional view**: rotate 180° so hydrogen is at the
+     top left, and pull the lanthanides and actinides out into the two separate rows underneath.
+     This step isn't built yet: add it to `anim.mjs` (the 18-column grid is already there) and
+     then as a chart scene in `src/narration-scenes/short-06-tiny-world.js`, keyed to the
+     words.
+  3. Keep it brief, then back to the chart for palladium and the lanthanides (the chart is the
+     star, `video/plans/visual-rules.md`).
+- Colours: the animation uses the binding-energy slope colours (iron grey). In video 6, either keep
+  the element-type colours the chart already uses for its periodic-table easter egg, or use the
+  slope colours if the iron note ("up to iron…") is recorded right after. Ask the author.
 
 **The goal moments: where one force scores on another, across the whole chart** (the author's
 question, 2026-10-31). Four players (gravity, electromagnetism, the strong force, the weak force)
