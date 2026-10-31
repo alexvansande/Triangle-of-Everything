@@ -258,9 +258,9 @@ export async function startNarration(app) {
   app.setShadowSwirl?.(params.has("shadowswirl") ? +params.get("shadowswirl") : SCENE.shadowSwirl ?? 0.8);
   app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);   // off: the author prefers the background kept on deep zooms
   // pictures 1.28× the app's default size, so they read on a phone (1.6× was too big)
-  // (16:9: the same decades in 540 px of height that the phone has 768 for: the pictures at 70%, as
-  // the author asked, 2026-10-31, keep the phone's proportions)
-  app.setIconScale?.((SCENE.iconSize ?? 128) * (WIDE !== 1 ? 0.7 : 1));
+  // (16:9: the pictures at 42%: 70% kept the phone's proportions, then 60% of that, the author's
+  // note after watching long video 1, 2026-10-31: "the icons are still too big")
+  app.setIconScale?.((SCENE.iconSize ?? 128) * (WIDE !== 1 ? 0.42 : 1));
   // Settings → Icons at "many" (the author's pick): pictures may nearly touch, smaller catalogue ones show
   app.setIconDensity?.(SCENE.iconDensity ?? 60);   // a little over standard: pictures keep clear of each other
   app.setIconForce?.(SCENE.forceIcons ?? null);   // pictures shown even where a nearer one would hide them
