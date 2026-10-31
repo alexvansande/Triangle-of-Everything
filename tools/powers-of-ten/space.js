@@ -54,7 +54,8 @@ export function spaceLayers(globe) {
   // ?sky=8k or ?hq=1), at infinity: it turns with the camera but doesn't zoom, so the
   // solar system shows in front of it. A 50° view across the frame's shorter side; drawn
   // once at the frame's resolution while the camera holds still, coarser while it turns ----------
-  const big = /[?&](sky=8k|hq=1)/.test(location.search);
+  const video = /[?&](spacequality=video|hq=1)(?:&|$)/.test(location.search);
+  const big = video || /[?&]sky=8k(?:&|$)/.test(location.search);
   const skyImg = image(`/video/powers-of-ten/sky/sky-${big ? "8k" : "4k"}.jpg`);
   let skyPx = null, skyCv = null, skyKey = "", lastKey = "";
   const sky = {
@@ -71,19 +72,30 @@ export function spaceLayers(globe) {
       }
       const { r, u, n } = cam.cam, key = [...n, ...u].map((v) => v.toFixed(4)).join();
       const still = key === lastKey; lastKey = key;
-      const G = still ? Math.min(cam.W, big ? 2600 : 1800) : 360, want = `${key}|${G}|${cam.W}`;
+      const cap = video ? 3840 : (still ? (big ? 2600 : 1800) : 720);
+      const factor = Math.min(1,cap / Math.max(cam.W,cam.H));
+      const GW = Math.max(1,Math.round(cam.W*factor)), GH = Math.max(1,Math.round(cam.H*factor));
+      const want = `${key}|${GW}|${GH}|${cam.W}|${cam.H}`;
       if (want !== skyKey) {
         skyKey = want;
-        skyCv.width = skyCv.height = G;
-        const sc = skyCv.getContext("2d"), out = sc.createImageData(G, G), o = out.data, { w, h, d } = skyPx;
-        const T = Math.tan(25 * Math.PI / 180) * cam.W / cam.min;
-        for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) {
-          const x = ((i + 0.5) / G * 2 - 1) * T, y = (1 - (j + 0.5) / G * 2) * T;
+        skyCv.width = GW; skyCv.height = GH;
+        const sc = skyCv.getContext("2d"), out = sc.createImageData(GW, GH), o = out.data, { w, h, d } = skyPx;
+        const tangent = Math.tan(25 * Math.PI / 180), TX = tangent * cam.W / cam.min, TY = tangent * cam.H / cam.min;
+        for (let j = 0; j < GH; j++) for (let i = 0; i < GW; i++) {
+          const x = ((i + 0.5) / GW * 2 - 1) * TX, y = (1 - (j + 0.5) / GH * 2) * TY;
           const vx = -n[0] + x * r[0] + y * u[0], vy = -n[1] + x * r[1] + y * u[1], vz = -n[2] + x * r[2] + y * u[2];
           const l = Math.atan2(vy, vx), b = Math.asin(vz / Math.hypot(vx, vy, vz));
           const U = (((0.5 - l / (2 * Math.PI)) % 1) + 1) % 1, V = 0.5 - b / Math.PI;
-          const si = 4 * (Math.min(h - 1, (V * h) | 0) * w + Math.min(w - 1, (U * w) | 0)), k = 4 * (j * G + i);
-          o[k] = d[si]; o[k + 1] = d[si + 1]; o[k + 2] = d[si + 2]; o[k + 3] = 255;
+          // Bilinear sampling, wrapping longitude at the sky-map seam.
+          const sx=U*w-.5, sy=Math.max(0,Math.min(h-1,V*h-.5));
+          const ix=Math.floor(sx), iy=Math.floor(sy), fx=sx-ix, fy=sy-iy;
+          const x0=(ix+w)%w,x1=(x0+1)%w,y1=Math.min(h-1,iy+1),k=4*(j*GW+i);
+          for(let channel=0;channel<3;channel++){
+            const top=d[4*(iy*w+x0)+channel]*(1-fx)+d[4*(iy*w+x1)+channel]*fx;
+            const bottom=d[4*(y1*w+x0)+channel]*(1-fx)+d[4*(y1*w+x1)+channel]*fx;
+            o[k+channel]=top*(1-fy)+bottom*fy;
+          }
+          o[k+3]=255;
         }
         sc.putImageData(out, 0, 0);
       }
@@ -128,7 +140,7 @@ export function spaceLayers(globe) {
         // most 720 px a side live, 2,048 with ?hq=1
         const X0 = Math.max(-1.02, -x / rr), X1 = Math.min(1.02, (cam.W - x) / rr), Y0 = Math.max(-1.02, (y - cam.H) / rr), Y1 = Math.min(1.02, y / rr);
         if (X1 > X0 && Y1 > Y0) {
-          const cap = /[?&]hq=1/.test(location.search) ? 2048 : 720, wpx = (X1 - X0) * rr, hpx = (Y1 - Y0) * rr, f = Math.min(1, cap / Math.max(wpx, hpx));
+          const cap = video ? 3840 : 1024, wpx = (X1 - X0) * rr, hpx = (Y1 - Y0) * rr, f = Math.min(1, cap / Math.max(wpx, hpx));
           const c = globe.render3(cam.cam, SUN_DIR, Math.max(16, Math.round(wpx * f)), Math.max(16, Math.round(hpx * f)), [X0, Y0, X1, Y1]);
           if (c) { cam.ctx.globalAlpha = a; cam.ctx.drawImage(c, x + X0 * rr, y - Y1 * rr, wpx, hpx); cam.ctx.globalAlpha = 1; }
         }

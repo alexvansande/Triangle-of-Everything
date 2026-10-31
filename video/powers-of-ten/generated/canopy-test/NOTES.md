@@ -272,3 +272,17 @@ replace per-frame random resampling. Release imported module Blob URL after load
 Validated whole-atom Hopf rendering at500pm and inner cloud at50pm in the viewer.
 Next: register generated DNA to the actual coded A–T geometry and target H before
 crossfading; match lighting/background and hold orbital camera pose during handoff.
+
+## Earth-to-space review (2026-10-30)
+
+The full viewer already continues through globe/Moon, staged planet flybys,
+Kuiper/Oort, catalogue stars, Milky Way, Local Group,2MRS galaxies and CMB.
+The isolated `canopytest` view still stops at its satellite-scale upper bound.
+Planet flybys use enlarged radii and shifted positions for staging.
+Fixed sky projection previously rendered a square and stretched it: horizontal
+and vertical field now use the actual output aspect and shorter-side scale.
+Longitude-wrap bilinear sampling reduces nearest-pixel shimmer. Cache includes
+both output dimensions. Moving preview increases360→720px; `spacequality=video`
+(or `hq=1`) uses8K sky source and up to3840 output pixels on the longest edge,
+including while camera rotates. Earth globe cap rises720→1024 preview and3840
+in video mode. Checked Earth at50,000km in16:9 and9:16.
