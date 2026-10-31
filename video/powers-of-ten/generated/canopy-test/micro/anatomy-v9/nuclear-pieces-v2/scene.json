@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "native": [
+    1254,
+    1254
+  ],
+  "backgroundSpan_m": 0.0000013333333333333334,
+  "axis": [
+    627,
+    627
+  ],
+  "parts": [
+    {
+      "name": "field",
+      "level": 3,
+      "span": 4.4444444444444444e-7
+    },
+    {
+      "name": "hero",
+      "level": 5,
+      "span": 4.938271604938272e-8
+    },
+    {
+      "name": "dna",
+      "level": 7,
+      "span": 5.486968449931413e-9
+    },
+    {
+      "name": "purple",
+      "level": 3,
+      "span": 4.4444444444444444e-7
+    }
+  ],
+  "rootDepthStart_m": 6.060606060606061e-7,
+  "note": "All closer objects are transparent. Nuclear texture is the persistent rear plane; field pattern remains a separate middle plane. Parents use this same zero-depth scene. Sizes are inherited illustrative molecular scales."
+}

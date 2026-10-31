@@ -1,32 +1,40 @@
-// A registered 3× image pyramid, with the nuclear envelope on its own plane.
+// Persistent nuclear texture, with each closer molecular piece on true alpha.
 const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
 const ROOT='/video/powers-of-ten/generated/canopy-test/micro/anatomy-v9/';
-function load(file,feather=true){const p={};const img=new Image();img.onload=()=>{
+function load(file,feather=false){const p={},img=new Image();img.onload=()=>{
  if(!feather){p.img=img;return}const n=img.naturalWidth,c=document.createElement('canvas');c.width=c.height=n;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);ctx.globalCompositeOperation='destination-in';
  for(const vertical of [false,true]){const g=ctx.createLinearGradient(0,0,vertical?0:n,vertical?n:0);g.addColorStop(0,'#0000');g.addColorStop(.25,'#000');g.addColorStop(.75,'#000');g.addColorStop(1,'#0000');ctx.fillStyle=g;ctx.fillRect(0,0,n,n)}p.img=c;
 };img.src=ROOT+file;return p}
 export function nucleusInterior(){
- const chromatinBack=load('chromatin-depth-v1/background.png'),chromatinFront=load('chromatin-depth-v1/foreground.png');
- const details=Array.from({length:7},(_,i)=>Object.assign(load(`level-${i+1}.png`),{level:i+1,span:12e-6/3**(i+1)}));
- return {ready:()=>details.every(p=>!!p.img)&&!!chromatinBack.img&&!!chromatinFront.img,draw(ctx,x,y,k,s,min){
-  if(details.some(p=>!p.img)||!chromatinBack.img||!chromatinFront.img)return;
-  ctx.save();
-  const span=12e-6/27;
-  // At2.2× frame coverage the whole screen is in the flat parent's opaque
-  // centre. Only then separate the exact registered planes in depth.
-  const travel=Math.max(0,Math.log10(span/2.2)-s);
-  const ease=travel-.14*(1-Math.exp(-travel/.14));
-  for(const p of details){
-   const side=p.span*k;if(side>40*min)continue;
-   ctx.globalAlpha=smooth(.3,.95,side/min);
-   if(p.level===3){
-    const rear=side*10**(-.16*ease);ctx.filter=`blur(${Math.min(18,20*ease)*min/960}px)`;
-    ctx.drawImage(chromatinBack.img,x-rear/2,y-rear/2,rear,rear);ctx.filter='none';
-   }else ctx.drawImage(p.img,x-side/2,y-side/2,side,side);
+ const base='nuclear-pieces-v2/',background=load(base+'background.png',true),coarse=load('level-1.png',true),layer=document.createElement('canvas');
+ const parts=[['field',3],['hero',5],['dna',7],['purple',3]].map(([name,level])=>Object.assign(load(base+name+'.png'),{name,span:12e-6/3**level}));
+ const required=[background,coarse,...parts],ready=()=>required.every(p=>!!p.img);
+ const eased=(travel)=>travel-.14*(1-Math.exp(-travel/.14));
+ return {ready,draw(ctx,x,y,k,s,min){
+  if(!ready())return;const rootSpan=12e-6/9,rootSide=rootSpan*k;
+  const alpha=smooth(.3,.95,rootSide/min);ctx.save();
+  const coarseSide=4e-6*k;if(coarseSide<40*min){ctx.globalAlpha=smooth(.3,.95,coarseSide/min);ctx.drawImage(coarse.img,x-coarseSide/2,y-coarseSide/2,coarseSide,coarseSide);}
+  if(!alpha){ctx.restore();return;}
+  const W=ctx.canvas.width,H=ctx.canvas.height;if(layer.width!==W||layer.height!==H){layer.width=W;layer.height=H;}
+  const c=layer.getContext('2d');c.clearRect(0,0,W,H);
+  // Replace the complete flat parent at a common scale before depth or blur.
+  const rootTravel=Math.max(0,Math.log10(rootSpan/2.2)-s),backEase=eased(rootTravel),backSide=rootSide*10**(-.35*backEase);
+  // Crop before drawing/filtering, so persistent rear planes can grow well
+  // beyond the viewport without allocating giant offscreen blur surfaces.
+  function plane(img,side,blur){
+   const pad=Math.ceil(blur*3+2),left=x-side/2,top=y-side/2,dx=Math.max(-pad,left),dy=Math.max(-pad,top),dw=Math.min(W+pad,left+side)-dx,dh=Math.min(H+pad,top+side)-dy;
+   if(dw<=0||dh<=0)return;const n=img.width||img.naturalWidth;c.filter=`blur(${blur}px)`;c.drawImage(img,(dx-left)/side*n,(dy-top)/side*n,dw/side*n,dh/side*n,dx,dy,dw,dh);
   }
-  // Foreground crosses above the finer DNA planes rather than fading under
-  // their rectangular textures. It stays opaque and exits geometrically.
-  {const side=span*k*10**(.85*ease);if(side<40*min){ctx.globalAlpha=smooth(.3,.95,span*k/min);ctx.filter=`blur(${Math.min(30,25*ease)*min/960}px)`;ctx.drawImage(chromatinFront.img,x-side/2,y-side/2,side,side);ctx.filter='none';}}
-  ctx.restore();
+  plane(background.img,backSide,Math.min(24,12*backEase)*min/960);c.filter='none';
+  for(const p of parts){
+   const relative=p.name==='purple'?10**(.55*backEase):p.name==='field'?10**(-.18*backEase):1;
+   const blur=p.name==='purple'?Math.min(30,16*backEase):p.name==='field'?Math.min(36,18*backEase):0;
+   const side=p.span*k*relative;
+   // Purple chains have an empty centre and exit through that passage.
+   // The populated rear field stays behind every closer foreground piece.
+   if(p.name==='purple'&&side>40*min)continue;
+   plane(p.img,side,blur*min/960);
+  }
+  c.filter='none';ctx.globalAlpha=alpha;ctx.drawImage(layer,0,0);ctx.restore();
  }};
 }

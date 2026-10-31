@@ -686,3 +686,40 @@ Rebuilt the nearby8K map and buffer together; the Milky Way assets are unchanged
 Checks verify larger variable support, full-buffer map/radiance agreement and
 replacement-before-depth timing. Visually checked the angular view and depth
 separation around16.5–17.15.
+
+## Persistent nuclear background and isolated closer pieces · 2026-10-31
+
+Fixed the two remaining inset handoffs near1µm and316nm. The previous rear
+chromatin tile still carried a different opaque fluid texture. The live nuclear
+renderer now uses the ORIGINAL registered nuclear interior as a persistent rear
+plane; a populated nucleosome/DNA field is a true-alpha middle plane; a selected
+four-nucleosome chain and its closer DNA are true-alpha foreground pieces.
+Purple chromatin chains remain a separate near plane. There is no opaque pale
+child tile and no replacement of the surrounding pattern by a different backdrop.
+
+Four built-in imagegen background extractions are versioned under
+`anatomy-v9/nuclear-pieces-v2/`, with raw native dimensions, prompt summaries,
+sources and generation IDs in provenance.json. The wide field uses two alpha
+extractions combined at their registered3x scale, so its pattern also persists
+behind the selected foreground piece instead of leaving an empty centre. Only
+static outer source-edge alpha is tapered on the wide field/purple cutouts to
+avoid hard square cutoffs. The selected four-bead chain and closer DNA retain
+their natural alpha. No generated blur is added.
+
+`powers-of-ten-nuclear-pieces.mjs` composes every parent from the same nuclear
+texture and registered object planes, then propagates the result to the whole
+cell. The runtime replaces the common flat parent first. At a606nm field width
+(the1.333µm parent at2.2× screen coverage), rear texture and field begin a slow
+relative zoom/blur; the selected DNA-linked piece stays at the world zoom rate.
+Purple near chains enlarge and soften, exiting geometrically. The populated
+middle field stays behind the foreground rather than retiring through transparent
+holes. Large persistent planes are cropped to the viewport before filtering to
+avoid huge offscreen blur allocations. The fixed optical axis is unchanged.
+
+The chromatin check now verifies the background is byte-for-byte the original
+registered nucleus crop, all four pieces have true alpha, wide pieces have no
+hard square source edge, the zero-depth parent is the exact stacked scene, the
+whole-cell parent propagates correctly, and depth starts only after replacement.
+Visually checked1.1µm,316nm and50nm with both delivery guides and no console errors.
+The existing 'Chromatin depth test' covers both handoffs and the closer DNA view.
+This supersedes the earlier chromatin-v1 background replacement workflow above.

@@ -1,3 +1,4 @@
+import {nuclearPieces} from './powers-of-ten-nuclear-pieces.mjs';
 import sharp from 'sharp';
 import fs from 'node:fs/promises';
 const root=new URL('../video/powers-of-ten/generated/canopy-test/micro/',import.meta.url),dir=new URL('anatomy-v9/',root),n=1254;
@@ -39,4 +40,5 @@ for(let i=6;i>=0;i--){
 // New hero has a 12µm source square. Its fixed camera axis is the square centre.
 await fs.writeFile(new URL('pollen-v4/amoeba-inner.png',root),child);
 await fs.writeFile(path('scene.json'),JSON.stringify({frameSpans_m:spans,axis:[627,627],body_diameter_m:8e-6,body_size_status:'Provisional illustrative small amoeba; not species validated.',nucleus_diameter_m:2e-6,nucleus_centre_m:[-.5e-6,0],nucleolus_diameter_m:.7e-6,nucleosome_diameter_m:11e-9,DNA_diameter_m:2e-9,DNA_pitch_m:3.4e-9,ribosome_diameter_m:25e-9,ribosome_view_frame_m:40e-9,note:'Sharp matched composites. Molecular images are illustrative reconstructions with approximate generated geometry, not experimental density maps. DNA morphology is generated, not an atomically validated coordinate model.'},null,2));
+await nuclearPieces({path,bases,fade,n});
 console.log('Matched cell → nucleus → chromatin → nucleosome → DNA, fixed optical axis.');
