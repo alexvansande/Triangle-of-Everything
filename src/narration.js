@@ -304,7 +304,35 @@ export async function startNarration(app) {
   // dur: "end" flies until the end card has covered the picture (it fades in over
   // speechEnd + 0.15…0.65 s); ease: "gentle" (sine) keeps a long move
   // close to an even pace instead of the default cubic's slow-fast-slow
-  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: WIDE !== 1 && c.camWide ? resolveView({ ...c.camWide, span: c.camWide.span / WIDE }) : resolveView(c.cam),
+  // 16:9: each shot fitted to a rectangle of what it has to show, so any frame shape shows it (the
+  // author, 2026-10-31: "save a rectangle of where the interesting objects are ... and adapt whatever
+  // aspect ratio to it"): the part of the vertical frame clear of its captions (the bottom quarter)
+  // and mass ruler (the right tenth), grown to take in every object, arrow end and mark the shot
+  // names until the next camera move; then the smallest 16:9 view holding it in the frame's own
+  // clear area (below a top margin, above the captions, left of the ruler). Shots of the classic
+  // figure keep span × WIDE (its cross-fade into the map lines up on that). A cue's camWide wins.
+  const camCues = cues.filter(c => c.cam);
+  const classicEnd = (() => { const f = cues.find(c => c.classic === "out"); return f ? f.time + (f.fade ?? 3) : -1; })();
+  const ptOf = (x) => !x ? null : x.obj ? (o => o && [o.logR, o.logM])(objByName.get(x.obj)) : Number.isFinite(x.r) && Number.isFinite(x.m) ? [x.r, x.m] : null;
+  function fitWide(c) {
+    const v = resolveView(c.cam);
+    if (!v || c.time < classicEnd) return v;
+    const sp = v.span / WIDE, Hp = sp * 16 / 9, pad = 0.12 * sp;
+    let r0 = v.r - 0.5 * sp, r1 = v.r + 0.4 * sp, m0 = v.m - 0.25 * Hp, m1 = v.m + 0.4 * Hp;
+    const until = camCues.find(q => q.time > c.time + 0.01)?.time ?? Infinity;
+    for (const q of cues) {
+      if (q.time < c.time - 0.01 || q.time >= until) continue;
+      for (const h of q.hl || []) for (const p of [ptOf(h.obj && { obj: h.obj }), h.arrow && ptOf(h.from), h.arrow && ptOf(h.to),
+        Array.isArray(h.mark) && h.mark, h.cross && ptOf(h.cross)]) {
+        if (!p) continue;
+        r0 = Math.min(r0, p[0] - pad); r1 = Math.max(r1, p[0] + pad); m0 = Math.min(m0, p[1] - pad); m1 = Math.max(m1, p[1] + pad);
+      }
+    }
+    // the clear area: x 4–90 %, y 8–76 % from the top
+    const span = Math.max((r1 - r0) / 0.86, (m1 - m0) * 16 / 9 / 0.68), H = span * 9 / 16;
+    return { r: (r0 + r1) / 2 + 0.03 * span, m: (m0 + m1) / 2 - 0.08 * H, span };
+  }
+  const keys = cues.filter(c => c.cam).map(c => ({ t: c.time, to: WIDE !== 1 && c.camWide ? resolveView({ ...c.camWide, span: c.camWide.span / WIDE }) : WIDE !== 1 ? fitWide(c) : resolveView(c.cam),
     dur: c.dur === "end" ? speechEnd + (CREDITS ? 0.65 : 0) - c.time : c.dur, drift: c.drift ?? 0.05,
     ease: c.ease === "gentle" ? d3.easeSinInOut : d3.easeCubicInOut,
     quiet: !!c.quiet, glide: !!c.cam.glide, whip: !!c.cam.whip, overshoot: c.cam.overshoot }))
