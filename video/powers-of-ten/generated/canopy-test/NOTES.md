@@ -590,3 +590,14 @@ Hubble14.4/46 radius comparison and optional labels remain. The old spectrum
 iframe stays hidden and navigates to about:blank; no duplicate point shell draws.
 Checked the interior and final exterior views in the viewer; no WebGL warnings
 or errors. Syntax checks pass for the shader module and integrated runtime.
+
+
+## Remove added atmospheric cloud cutouts · 2026-10-31
+
+The author rejected the circular-looking wisps over Earth now that the actual
+cloud imagery has a working transition. Removed atmosphereLayer from the live
+journey and removed the separate atmospheric cloud entry from crossings.js,
+including when optional crossings are enabled. The photographic clouds plate,
+its existing transition timing and the globe's own cloud imagery are retained.
+The unused atmosphere.js and source wisps remain archived; nothing loads them
+through the live journey. Plane and bird flybys are unchanged.

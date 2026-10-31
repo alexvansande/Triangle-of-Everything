@@ -1,5 +1,4 @@
 import {cmbSphere} from './cmb-sphere.js';
-import {atmosphereLayer} from "./atmosphere.js";
 import {distanceLabel,readableNumber} from "./distance-labels.js";
 import { drawScaleOverlay } from './scale-overlay.js';
 import { canopyCrownDepth } from './canopy-crown-depth.js';
@@ -38,7 +37,6 @@ const frame = document.getElementById("cloud");
 frame.style.display="none";frame.src="about:blank";
 const cmb=cmbSphere();
 
-const atmosphere=atmosphereLayer();
 const small = await smallLayers();
 const micro = microLayers();
 const macro = macroLayers();
@@ -159,7 +157,7 @@ function render(t) {
       clouds.draw(cam);
       if(canopyTest)insects.draw(picture);
       plates.draw(picture);
-      if(canopyTest){crown.draw(picture);depth.draw(picture);microscope.draw(picture);atmosphere.draw(picture);optics.plane(picture);optics.bird(picture);}
+      if(canopyTest){crown.draw(picture);depth.draw(picture);microscope.draw(picture);optics.plane(picture);optics.bird(picture);}
     }
   }
   // the grid and the names stay upright: the grid on the screen, the names where the
