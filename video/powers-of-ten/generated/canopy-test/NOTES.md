@@ -220,3 +220,16 @@ registered size, position, depth lag and optical focus. All earlier tiles
 rebuilt from the new composite. Visual inspection at180µm confirms a densely
 populated field with the hero still identifiable; coordinate checks confirm
 cells fit inside the physical drop and leave the centre target unobstructed.
+
+### Populate the wider level and remove the rectangular population boundary
+
+Expanded the240µm organism field to720µm. A newly generated populated outer
+field surrounds the original1254px centre on a3762px assembled canvas. The
+original centre retains its exact physical pixel scale and unchanged core
+pixels, including transparent gaps. Outer content is cleared underneath that
+centre rather than stacked into it;6% centre-edge blending joins the fields.
+The new outer boundary tapers across18%, avoiding a sharp replacement square.
+Runtime and parent builder now respect per-asset sourcePixels; no implicit
+1254px resizing changes the field's world size. Flat dew and all earlier
+parents rebuilt. Verified centre core pixels, unchanged metres-per-pixel,
+field fitting inside dew, syntax and reported s=-3.38 preview.

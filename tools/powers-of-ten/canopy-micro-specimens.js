@@ -43,7 +43,7 @@ for(const [count,inner,outer] of [[18,12,55],[24,180,450]]){
    opacity:.24+randomWater()*.25,lag,blurPixels:1+Math.abs(lag)*35});
  }
 }
-const organismField={file:'water-life',species:'Mixed microscopic organism field (illustrative)',
- diameter:240e-6,bodyPixels:1254,center:[627,627],x:0,y:0,opacity:.34,
+const organismField={file:'water-life-wide',species:'Mixed microscopic organism field (illustrative)',
+ diameter:720e-6,bodyPixels:3762,sourcePixels:3762,center:[1881,1881],x:0,y:0,opacity:.34,
  angle:0,lag:.08,blurPixels:2,field:true};
 export const microCommunity=[organismField,...largerCommunity,...smallCommunity];

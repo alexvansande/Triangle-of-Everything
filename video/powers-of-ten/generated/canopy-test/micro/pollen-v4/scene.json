@@ -30,13 +30,14 @@
   ],
   "community": [
     {
-      "file": "water-life",
+      "file": "water-life-wide",
       "species": "Mixed microscopic organism field (illustrative)",
-      "diameter": 0.00024,
-      "bodyPixels": 1254,
+      "diameter": 0.00072,
+      "bodyPixels": 3762,
+      "sourcePixels": 3762,
       "center": [
-        627,
-        627
+        1881,
+        1881
       ],
       "x": 0,
       "y": 0,

@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Expand this transparent microscopic organism field outward to THREE TIMES its width and height. Reference image is the existing central field. Keep its organisms at their existing size, now occupying the central third-width/third-height of the wider view. Fill all surrounding areas with MANY more tiny varied freshwater microorganisms and organic motes, matching the same restrained translucent cream/grey transmitted-light microscopy: small amoeboid cells, oval protists, rounded cells, a few narrow organisms. Uniform natural irregular density across the entire wider field; no central dense square surrounded by empty margins, no grid or repeated identical figures. Do not draw a border or inset. Individual organisms should mostly be only2–4% of total frame width. TRUE TRANSPARENT RGBA between all organisms; no opaque water or red background. Sharp throughout, no baked blur or shadow. The central high-resolution field will be composited back at exact registration, so the priority is continuous matching density and scale across the expanded outer two-thirds. Entire output square, edge-to-edge natural population.",
+  "generated_asset": "water-life-wide-raw.png",
+  "runtime_asset": "water-life-wide.png",
+  "span_m": 0.00072,
+  "canvas_pixels": 3762,
+  "original_native_centre": {
+    "file": "water-life-raw.png",
+    "pixels": 1254,
+    "span_m": 0.00024,
+    "left": 1254,
+    "top": 1254
+  },
+  "assembly": "scripts/powers-of-ten-match-water.mjs extends generated outer field to3× canvas, clears its alpha under the original centre and blends original native centre over6% edge. Outer field tapers over18%. Central core pixels and metres per pixel unchanged. Frame above old detailed field is now populated, not empty water. SourcePixels metadata shared by runtime and flat-parent builder.",
+  "note": "Expanded margins are generated native1254 then resized for composite; original central1254 pixels are retained unscaled, not claimed as newly generated4K detail."
+}

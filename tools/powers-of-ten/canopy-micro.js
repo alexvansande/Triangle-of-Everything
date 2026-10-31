@@ -9,8 +9,9 @@ export function canopyMicro(){
  const layer=document.createElement('canvas'),cellLayer=document.createElement('canvas'),nucleus=nucleusInterior();
  let currentS=0,currentMin=960;
  function specimen(ctx,p,x,y,k,relative=1,blur=0){
+  const sourcePixels=p.sourcePixels??1254;
   const scale=p.diameter/p.bodyPixels*k*relative;
-  if(p.field&&1254*scale>40*currentMin)return; // central transparent water opening already exceeds frame
+  if(p.field&&sourcePixels*scale>40*currentMin)return; // central transparent water opening already exceeds frame
   if(p.file==='amoeba-inner'){
    const W=ctx.canvas.width,H=ctx.canvas.height;if(cellLayer.width!==W||cellLayer.height!==H){cellLayer.width=W;cellLayer.height=H}
    const c=cellLayer.getContext('2d');c.clearRect(0,0,W,H);
@@ -21,11 +22,11 @@ export function canopyMicro(){
    const interior=1-smooth(Math.log10(2e-6/9),Math.log10(1.3e-6),currentS);
    ctx.save();ctx.globalAlpha=p.opacity+(1-p.opacity)*interior;ctx.drawImage(cellLayer,0,0);ctx.restore();return;
   }
-  const half=1254*scale*.72,cx=x+p.x*k*relative,cy=y+p.y*k*relative;
+  const half=sourcePixels*scale*.72,cx=x+p.x*k*relative,cy=y+p.y*k*relative;
   if(cx+half<0||cy+half<0||cx-half>ctx.canvas.width||cy-half>ctx.canvas.height)return;
   ctx.save();ctx.globalAlpha=p.opacity;ctx.filter=`blur(${blur}px)`;
   ctx.translate(x+p.x*k*relative,y+p.y*k*relative);ctx.rotate(p.angle||0);
-  ctx.drawImage(planes[p.file],-p.center[0]*scale,-p.center[1]*scale,1254*scale,1254*scale);ctx.restore();
+  ctx.drawImage(planes[p.file],-p.center[0]*scale,-p.center[1]*scale,sourcePixels*scale,sourcePixels*scale);ctx.restore();
  }
  return {draw(cam){
   if(window.canopyTest?.enabled===false||Object.values(planes).some(p=>!p.complete||!p.naturalWidth))return;
