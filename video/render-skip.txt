@@ -1,5 +1,7 @@
-# Takes the nightly render leaves alone, one per line: the original whole videos, replaced by
-# their cuts (video/cuts/) for publishing (2026-10-30). Delete a line to render that take again.
+# Retired takes, one per line: the original whole videos, replaced by their cuts (video/cuts/) for
+# publishing (2026-10-30). The nightly render leaves them alone and the videos page doesn't list
+# them (the author, 2026-10-31: "we're working with only the new ones now. Don't delete them");
+# their files stay, as the cuts are built from them. Delete a line to bring a take back.
 short-02-up-the-line
 short-04-black-holes
 short-05-hubble-sphere
