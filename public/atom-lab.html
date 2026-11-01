@@ -263,9 +263,9 @@ const GROUPS = [
 const KEY = 'atom-lab-v1';
 let subject = 'hydrogen';
 let smallLook=null,smallView=null,largeActive=false,initialized=false;
-let largeLook={...LOOK_DEFAULT,bonds:0,backbone:0,cloudAtomRadius:1.1,cloudFibers:320,cloudWidth:.0015,cloudGain:.9,cloudContrast:.65,dashes:0,dashLength:1,showCloud:true,showNucleus:false};
+let largeLook={...LOOK_DEFAULT,bonds:0,backbone:0,cloudAtomRadius:1.15,cloudFibers:140,cloudWidth:.0115,cloudGain:3.3,cloudContrast:.65,dashes:5,dashLength:1,dashSpeed:3,spin:1.7,showCloud:true,showNucleus:false};
 let largeView={...HOME.view,bloom:.12,exposure:1,width:1,rotate:.12};
-const LARGE_KEY='atom-lab-molecular-contact-v2';
+const LARGE_KEY='atom-lab-molecular-approved-v3';
 const LARGE_HOME={look:structuredClone(largeLook),view:structuredClone(largeView)};
 try{const saved=JSON.parse(localStorage.getItem(LARGE_KEY));if(saved){largeLook={...largeLook,...saved.look};largeView={...largeView,...saved.view};}}catch{}
 function save() { try {

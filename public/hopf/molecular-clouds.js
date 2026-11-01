@@ -40,7 +40,7 @@ export function molecularCloudParticle(id){
       field(q,t,u){
        const r=Math.hypot(...q.map((v,i)=>(v-at[i])/radius)),idx=Math.min(profile.length-1,Math.floor(r*(profile.length-1))),rho=profile[idx];
        const fade=Math.max(0,Math.min(1,(1-r)/.12)),dash=LOOK.dashes===0||LOOK.dashLength>=1?1:((u*LOOK.dashes-t*LOOK.dashSpeed*.08)%1+1)%1<LOOK.dashLength?1:0;
-       return [color,LOOK.showCloud?3*Math.sqrt(120/count)*LOOK.cloudGain*(.28+.72*Math.pow(rho,LOOK.cloudContrast))*fade*dash*(1+r*r)**2/4:0];
+       return [color,LOOK.showCloud?.9*Math.sqrt(120/count)*LOOK.cloudGain*(.28+.72*Math.pow(rho,LOOK.cloudContrast))*fade*dash*(1+r*r)**2/4:0];
       },color:()=>color});
     }
    });
