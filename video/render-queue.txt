@@ -8,31 +8,13 @@
 # and only those stretches re-render, spliced into the last render (narration-render-partial.py).
 # A "# next: <take>" line renders that take before the others. A "# hold" line stops the renders
 # (before the next take) until it's deleted.
-# hold (2026-11-01: a session is still fixing long videos 1 and 2; it deletes this line when done)
-# Order until the videos are published (the author, 2026-10-31; restart tonight from the top): each long video,
 # then the Shorts cut from the same takes. The whole videos the cuts replaced are retired (video/render-skip.txt).
-long-01-intro
-short-01-hook
-short-02a-things
-short-02b-planets
-long-02-space
-short-04a-black-hole-line
-short-04b-smallest-black-holes
-short-05a-emptier
-short-05b-hubble-sphere
-short-05c-observable-universe
-long-03-small
-short-06a-living
-short-06b-atoms
-short-06c-compton
-short-07a-photons
-short-07b-sky
-# Order (the author, 2026-10-31): each long video, then the Shorts cut from the same takes
+# Order (the author, 2026-11-01): long videos 1 and 2, then their Shorts, then long video 3 and its Shorts
 # next: long-01-intro
+# next: long-02-space
 # next: short-01-hook
 # next: short-02a-things
 # next: short-02b-planets
-# next: long-02-space
 # next: short-03-stars
 # next: short-04a-black-hole-line
 # next: short-04b-smallest-black-holes
@@ -45,4 +27,20 @@ short-07b-sky
 # next: short-06c-compton
 # next: short-07a-photons
 # next: short-07b-sky
+long-01-intro
+long-02-space
+short-01-hook
+short-02a-things
+short-02b-planets
 short-03-stars
+short-04a-black-hole-line
+short-04b-smallest-black-holes
+short-05a-emptier
+short-05b-hubble-sphere
+short-05c-observable-universe
+long-03-small
+short-06a-living
+short-06b-atoms
+short-06c-compton
+short-07a-photons
+short-07b-sky
