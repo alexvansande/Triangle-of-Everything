@@ -17,3 +17,10 @@ f536b6 e73ce8 ed3ad9 e83ce8 ee39d2 dc38e6 e33ae7 e33ae7 da37e6 da37e6
 e23ae7 e23ae7 d435e5 d636e5 cb32e4 c530e3 c32fe2 b42ae0
 `).trim().split(/\s+/).map(c=>'#'+c)];
 export const MOLECULAR_COLORS_BY_SYMBOL=Object.fromEntries(MOLECULAR_ELEMENT_SYMBOLS.map((s,i)=>[s.toUpperCase(),MOLECULAR_ELEMENT_COLORS[i+1]]));
+
+// Approved molecular contrast refinements: retain radioactive magentas.
+Object.assign(MOLECULAR_COLORS_BY_SYMBOL,{H:'#3fe6ff',C:'#3155e7',N:'#9365ed',O:'#ffe266',P:'#55dfba',S:'#b9a0ef'});
+for(const [symbol,color] of Object.entries(MOLECULAR_COLORS_BY_SYMBOL)){
+ const z=MOLECULAR_ELEMENT_SYMBOLS.findIndex(s=>s.toUpperCase()===symbol)+1;
+ MOLECULAR_ELEMENT_COLORS[z]=color;
+}

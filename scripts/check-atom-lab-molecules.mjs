@@ -16,7 +16,7 @@ for(const id of ['guanine-g','adenine-a','thymine-t','cytosine-c','dna']){
 const {MOLECULAR_ELEMENT_COLORS,MOLECULAR_ELEMENT_SYMBOLS}=await import('../public/hopf/molecular-element-colors.js');
 assert.equal(MOLECULAR_ELEMENT_COLORS.length,119);assert.equal(MOLECULAR_ELEMENT_SYMBOLS.length,118);
 assert(MOLECULAR_ELEMENT_COLORS.slice(1).every(c=>/^#[0-9a-f]{6}$/.test(c)));
-for(const [el,c] of [['H','#3fe6ff'],['C','#1d3fd6'],['N','#3958c6'],['O','#4270b6'],['P','#46c350'],['FE','#dcdcdc'],['NB','#7c7f85'],['TL','#771b17'],['OG','#b42ae0']])assert.equal(elementCloudColor(el),c);
+for(const [el,c] of [['H','#3fe6ff'],['C','#3155e7'],['N','#9365ed'],['O','#ffe266'],['P','#55dfba'],['S','#b9a0ef'],['FE','#dcdcdc'],['NB','#7c7f85'],['TL','#771b17'],['OG','#b42ae0']])assert.equal(elementCloudColor(el),c);
 console.log('Passed: independent molecular fibers, finite geometry/light, exact user palette, original water and smaller particles untouched.');
 
 assert(new Set(['H','C','N','O','P','S'].map(elementCloudColor)).size===6,'spectral colours distinguish molecular elements');
