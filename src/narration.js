@@ -233,17 +233,22 @@ export async function startNarration(app) {
   // the frame shows the portrait's whole height and grows sideways: the span × (16/9)² (the author,
   // 2026-10-31: "show the same as the vertical video but grow sideways"; it was × 16/9, the portrait's
   // width as the height, and the objects named above and below fell out of the frame). A cue's
-  // camWide: its own framing instead. The classic figure keeps × 16/9 (CLASSIC_WIDE): it was to be
-  // closer, not further, and its text doesn't grow with the zoom
-  const WIDE = stage === "landscape" ? (16 / 9) ** 2 : 1, CLASSIC_WIDE = stage === "landscape" ? 16 / 9 : 1;
+  // camWide: its own framing instead. The classic figure's shots are framed closer (CLASSIC_WIDE)
+  // (the classic figure: × 1.35, closer than the map, its text grown by the zoom, not by itself: the
+  // author, 2026-11-01, "keep the text ... at the original proportions, just zoom it in more")
+  const WIDE = stage === "landscape" ? (16 / 9) ** 2 : 1, CLASSIC_WIDE = stage === "landscape" ? 1.35 : 1;
   // (a 16:9 video locks its stage on a phone too, letterboxed: filling the phone's own shape it
   // stretched into a strip, the author, 2026-10-31)
   if (stage !== "none" && (RENDER || !app.isMobile() || stage === "landscape")) app.setStage(stage === "landscape" ? "video" : stage);
   // 16:9: the labels twice the size (the chart's names and the narration's tags, rulers and axis
   // names): on a phone they weren't legible, while the pictures were fine (the author, 2026-10-31);
   // the classic figure's text grows too (scene `textScale`, `classicText`)
-  const TEXT = WIDE !== 1 ? SCENE.textScale ?? 2 : 1, CLASSIC_TEXT = WIDE !== 1 ? SCENE.classicText ?? 1.6 : 1;
+  // (labels 1.6×: 2× was a bit too big, 2026-11-01)
+  const TEXT = WIDE !== 1 ? SCENE.textScale ?? 1.6 : 1, CLASSIC_TEXT = WIDE !== 1 ? SCENE.classicText ?? 1 : 1;
   if (TEXT !== 1) app.setFontScale?.(TEXT);
+  // (16:9: the size ruler up off the bottom edge, its numbers clear of it, the captions above it:
+  // they sat on the edge of the video, 2026-11-01)
+  if (WIDE !== 1 && SCENE.rulerY == null) SCENE.rulerY = 0.905;
   app.prepare();
   // the paths' moving dots: as big as the catalogue dust (1.15 px), brighter
   // than in the app so they still read in a phone video
@@ -297,7 +302,8 @@ export async function startNarration(app) {
     await app.loadDust?.();
 
   // ---------- camera timeline ----------
-  const START = WIDE !== 1 && SCENE.start ? { ...SCENE.start, span: SCENE.start.span * WIDE } : SCENE.start;
+  // (the classic figure's framing where a scene opens on it)
+  const START = WIDE !== 1 && SCENE.start ? { ...SCENE.start, span: SCENE.start.span * (cues.some(c => c.classic === "out") ? CLASSIC_WIDE : WIDE) } : SCENE.start;
   // cam.glide: a waypoint of one continuous pan. The camera passes through each
   // glide point at its cue's time on a smooth (Catmull-Rom) curve, never holding,
   // instead of flying and stopping at each one.
@@ -312,14 +318,16 @@ export async function startNarration(app) {
   // outside it, and fitted to the whole 16:9 frame: the short's shot, wider sideways. A cue's
   // `frame: [r0, m0, r1, m1]` (log cm, log g) is a rectangle known to hold what matters: it's fitted
   // tighter, to the frame's clear area (below a top margin, above the captions, left of the ruler).
-  // Shots of the classic figure keep span × WIDE (its cross-fade into the map lines up on that).
+  // Shots of the classic figure keep span × CLASSIC_WIDE, the map's camera with them.
   // A cue's camWide wins over both.
   const camCues = cues.filter(c => c.cam);
   const classicEnd = (() => { const f = cues.find(c => c.classic === "out"); return f ? f.time + (f.fade ?? 3) : -1; })();
   const ptOf = (x) => !x ? null : x.obj ? (o => o && [o.logR, o.logM])(objByName.get(x.obj)) : Number.isFinite(x.r) && Number.isFinite(x.m) ? [x.r, x.m] : null;
   function fitWide(c) {
     const v = resolveView(c.cam);
-    if (!v || c.time < classicEnd) return v;
+    // the classic figure's shots: its own framing, the map's camera with it (the narration's lines and
+    // labels are drawn on the map's camera: on another one they missed the figure's edges)
+    if (!v || c.time < classicEnd) return v && { ...v, span: v.span / WIDE * CLASSIC_WIDE };
     const sp = v.span / WIDE, Hp = sp * 16 / 9, pad = 0.12 * sp, known = c.frame || c.cam.frame;
     let [r0, m0, r1, m1] = known || [v.r - sp / 2, v.m - Hp / 2, v.r + sp / 2, v.m + Hp / 2];
     const until = camCues.find(q => q.time > c.time + 0.01)?.time ?? Infinity;
@@ -963,7 +971,10 @@ export async function startNarration(app) {
   const grown = new Map(); // spotlit pictures grown, by name → factor
   let nearbyOn = false;    // a `nearby` close-up is on (catalogue names shown)
   let labelFade = 0, labelFadeT = null, labelFadeSent = 0, labelFocusNames = [], labelFocusKey = "";
+  // the tags placed this frame (drawObj), so no tag lands on another or on a chart label
+  let tagBoxes = [];
   function drawHighlights(t) {
+    tagBoxes = [];
     applyIcons(t);
     applyDensity(t);
     applyFocus(t);
@@ -1215,13 +1226,34 @@ export async function startNarration(app) {
     // no tag that only repeats the object's own label on the chart, while that shows
     if (ownLabelShown(o, label)) return;
     // default: centred above the ring, clear of the app's own label (right)
-    const place = h.place || "above";
-    const tx = place === "left" ? x - R - 8 : place === "right" ? x + R + 8 : x;
-    const ty = place === "below" ? y + R + 18 : place === "above" ? y - R - 9 : y + 4;
-    const anchor = place === "left" ? "end" : place === "right" ? "start" : "middle";
-    const tag = el.append("text").attr("class", "narr-tag").attr("x", tx).attr("y", ty)
-      .attr("text-anchor", anchor).attr("fill", col).text(label);
+    const at = (place) => ({ place, x: place === "left" ? x - R - 8 : place === "right" ? x + R + 8 : x,
+      y: place === "below" ? y + R + 18 : place === "above" ? y - R - 9 : y + 4,
+      anchor: place === "left" ? "end" : place === "right" ? "start" : "middle" });
+    const tag = el.append("text").attr("class", "narr-tag").attr("fill", col).text(label);
     if (h.labelSize) tag.style("font-size", `${h.labelSize}px`);   // px (a thumbnail's bigger tags)
+    // never on top of another tag or a chart label (the author, 2026-11-01: "a little" was written
+    // over "cube"): the asked-for side first, then the side it took last frame, then the others
+    const want = h.place || "above";
+    const order = [...new Set([want, h._place || want, "above", "below", "right", "left"])];
+    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth || 1;
+    const others = [...document.querySelectorAll("#chart text.obj-label, #chart text.dust-name")].filter(n =>
+      n.getAttribute("display") !== "none" && n.__data__?.name !== o.name && +getComputedStyle(n).opacity !== 0).map(n => {
+      const b = n.getBoundingClientRect();
+      return b.width ? [(b.left - lr.left) / scl, (b.top - lr.top) / scl, (b.right - lr.left) / scl, (b.bottom - lr.top) / scl] : null;
+    }).filter(Boolean);
+    const hits = (a) => [...tagBoxes, ...others].some(b => a[0] < b[2] + 2 && a[2] > b[0] - 2 && a[1] < b[3] + 1 && a[3] > b[1] - 1);
+    let chosen = null, first = null;
+    for (const p of order) {
+      const q = at(p);
+      tag.attr("x", q.x).attr("y", q.y).attr("text-anchor", q.anchor);
+      const b = tag.node().getBBox(), box = [b.x, b.y, b.x + b.width, b.y + b.height];
+      if (!first) first = { q, box };
+      if (!hits(box)) { chosen = { q, box }; break; }
+    }
+    chosen ??= first;
+    tag.attr("x", chosen.q.x).attr("y", chosen.q.y).attr("text-anchor", chosen.q.anchor);
+    h._place = chosen.q.place;
+    tagBoxes.push(chosen.box);
   }
   /** A line drawing over an object's picture: { sketch: name, level: 0–2, draw?: s (0.9) },
    *  drawn as the Eiffel Tower's, traced from its picture (shares of the picture's square):
@@ -2568,9 +2600,7 @@ export async function startNarration(app) {
     creditsEl.style.visibility = co_ > 0 ? "visible" : "hidden";
     const { view, key } = camera(t);
     const co = classicOpacity(t);
-    // (16:9: the figure framed × 16/9 where the map is × (16/9)², closer; it comes to the map's
-    // framing as it fades, so the cross-fade still lines up)
-    classicView = co > 0 ? coverView(t) || (WIDE !== 1 ? { ...view, span: view.span * (1 + (CLASSIC_WIDE / WIDE - 1) * co) } : view) : null;
+    classicView = co > 0 ? coverView(t) || view : null;
     if (co > 0 && CLASSIC_TEXT !== 1) classicTextScale(CLASSIC_TEXT);
     narrClassic(co, classicView, classicParts(t));
     // a 16:9 video can open the figure's frame sideways (scene `classicWide`: [from, to] s)
@@ -3004,7 +3034,8 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
   background: radial-gradient(ellipse at 50% 40%, rgba(16, 14, 52, 0.9), rgba(4, 4, 16, 0.97)); color: #eef0ff; pointer-events: none;
   font-family: Inter, system-ui, sans-serif; text-align: center; }
 #narr-credits .nc-in { width: min(84%, 560px); container-type: inline-size; }
-#narr-layer.narr-wide .nc-title { display: none; }   /* 16:9: no room for the title above the credits */
+#narr-layer.narr-wide .nc-title { display: none; }
+#narr-layer.narr-wide #narr-caption { bottom: 14%; }   /* 16:9: above the raised size ruler */   /* 16:9: no room for the title above the credits */
 .nc-title { font: 700 13.5cqi/0.92 "Barlow Condensed", "Arial Narrow", sans-serif; text-transform: uppercase; letter-spacing: 0.01em; margin-bottom: 7cqi; }
 #narr-credits dl { margin: 0; }
 #narr-credits dt { font: 700 3.6cqi/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #ffd54f; margin-top: 4.6cqi; }
