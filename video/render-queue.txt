@@ -13,7 +13,6 @@
 # next: short-01-hook
 # next: short-02a-things
 # next: short-02b-planets
-# next: short-05c-observable-universe
 # next: long-03-small
 # next: short-06a-living
 # next: short-06b-atoms
@@ -24,7 +23,6 @@ long-01-intro
 short-01-hook
 short-02a-things
 short-02b-planets
-short-05c-observable-universe
 long-03-small
 short-06a-living
 short-06b-atoms
