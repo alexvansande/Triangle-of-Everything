@@ -44,10 +44,15 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" || return 1
   git push -q origin HEAD:main && git push -q origin HEAD && log "published $1"
 }
 
+# a "# hold" line in the render queue (a session still changing the videos) stops the round
+# before its next take, as soon as main has it (the author, 2026-11-01: "delay the start of the
+# render queue until you finish the job"); deleting the line lets the next round go on
+held() { grep -q '^# hold' video/render-queue.txt 2>/dev/null; }
 round() {
   for t in $ORDER; do
     [ -d "public/narration/$t" ] || { sync_main; [ -d "public/narration/$t" ] || { log "$t: no take yet"; continue; }; }
     sync_main
+    if held; then log "render queue on hold (video/render-queue.txt): stopping before $t"; HELD=1; return; fi
     out=$(scripts/narration-render-stale.sh "$t" 2>&1); echo "$out"
     case "$out" in *"web copy"*) publish "$t"; RENDERED=1 ;; esac
   done
@@ -57,6 +62,7 @@ log "overnight renders: $ORDER"
 RENDERED=0; round
 # anything that went out of date while the others rendered (a new cut on main)
 for pass in 1 2; do
+  [ "$HELD" = 1 ] && break
   sync_main
   RENDERED=0; ORDER=$(ls -d public/narration/short-*/ | xargs -n1 basename); round
   [ "$RENDERED" = 1 ] || break

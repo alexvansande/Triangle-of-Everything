@@ -6,7 +6,9 @@
 # When only the picture changed (the audio is the same), add the playback times that changed:
 #   # short-04-black-holes changed: 1:20-1:45, 3:00-3:30
 # and only those stretches re-render, spliced into the last render (narration-render-partial.py).
-# A "# next: <take>" line renders that take before the others.
+# A "# next: <take>" line renders that take before the others. A "# hold" line stops the renders
+# (before the next take) until it's deleted.
+# hold (2026-11-01: a session is still fixing long videos 1 and 2; it deletes this line when done)
 # Order until the videos are published (the author, 2026-10-31; restart tonight from the top): each long video,
 # then the Shorts cut from the same takes. The whole videos the cuts replaced are retired (video/render-skip.txt).
 long-01-intro
