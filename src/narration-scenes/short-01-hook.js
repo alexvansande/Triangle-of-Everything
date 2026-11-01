@@ -88,7 +88,8 @@ export default {
     { at: "particle physics", cam: { r: -15.5, m: -23, span: 22, whip: true }, hl: [...drawn([ASTRO, ENGINEERING, BIOLOGY, CHEMISTRY]), PARTICLES] },
 
     // the three sides, and where the two left ones meet
-    { at: "bounded by three sides", cam: FIG, dur: 2.4, hl: [{ line: "triangle" }] },
+    // (16:9: the whole triangle, its three sides in the frame: the author, 2026-11-01)
+    { at: "bounded by three sides", cam: FIG, camWide: { r: 7.5, m: 7, span: 222 }, dur: 2.4, hl: [{ line: "triangle" }] },
     { at: "on the right", hl: [UNIVERSE] },
     { at: "quantum mechanics", hl: [UNIVERSE, QUANTUM] },
     { at: "relativity", hl: [UNIVERSE, QUANTUM, RELATIVITY] },

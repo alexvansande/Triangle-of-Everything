@@ -32,7 +32,7 @@ export const PALETTE = [ // [T, deep, bright]
   [25000, [0.02, 0.060, 0.750], [0.22, 0.68, 1.000]],   // B: navy and cyan
   [50000, [0.18, 0.020, 0.800], [0.30, 0.50, 1.000]],   // O, Wolf-Rayet: violet and blue
 ];
-let hueK = 1;
+let hueK = 2;   // the author, 2026-11-01: hue strength 2 on every star
 export const setHue = k => { hueK = k; };
 export const getHue = () => hueK;
 export function palette(T) {

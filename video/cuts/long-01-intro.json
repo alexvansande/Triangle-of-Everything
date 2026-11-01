@@ -17,13 +17,6 @@
       "track": "Space X-plorers"
     },
     {
-      "track": "Space X-plorers",
-      "at": {
-        "gap": 1,
-        "lead": 5.5
-      }
-    },
-    {
       "track": "Soaring",
       "after": true
     }

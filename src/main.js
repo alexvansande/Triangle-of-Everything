@@ -850,8 +850,10 @@ const lDensityArrows = lAxesWrap.append("g");  // non-clipped, for density arrow
 const axL = lAxesWrap.append("g").attr("class", "axis-l");
 const axR = lAxesWrap.append("g").attr("class", "axis-r");
 
-// Border on top
-chart.append("rect").attr("width", cw).attr("height", ch)
+// Border on top (sized again on every redraw: made at the first layout's size, it stayed there
+// when the size changed, a video's stage, and its corner showed in the middle of every 16:9
+// video where the fractal background replaces the painting: the author, 2026-11-01)
+const chartBorder = chart.append("rect").attr("class", "chart-border").attr("width", cw).attr("height", ch)
   .attr("fill", "none").attr("stroke", "rgba(255,255,255,0.15)").attr("stroke-width", 1);
 
 // =============================================================
@@ -6278,6 +6280,7 @@ async function loadTileMeta() {
 // =============================================================
 
 function redraw() {
+  chartBorder.attr("width", cw).attr("height", ch);
   // mid-gesture (a video's cue redrawing while its camera moves) the tiles are drawn for this
   // view, so the gesture's CSS offset starts again from here: left on, it pushed the fresh
   // tiles off by the whole move so far and the painting went black (video 4, 2026-10-30)
