@@ -55,11 +55,11 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" || return 1
 # before its next take, as soon as main has it (the author, 2026-11-01: "delay the start of the
 # render queue until you finish the job"); deleting the line lets the next round go on
 held() { grep -q '^# hold' video/render-queue.txt 2>/dev/null; }
-# the next take: the first out-of-date one among the queue's "# next:" lines, the list given, then
+# the next take: the first out-of-date one among the queue's "# priority:" and "# next:" lines, the list given, then
 # any other (every short and long video, less video/render-skip.txt), not yet tried this round
 pick() {
   stale=" $(DRY=1 scripts/narration-render-stale.sh 2>/dev/null | sed -n 's/^stale \([^ ]*\).*/\1/p' | tr '\n' ' ') "
-  for t in $(sed -n 's/^# next: //p' video/render-queue.txt) $ORDER $stale; do
+  for t in $(sed -n 's/^# priority: //p;s/^# next: //p' video/render-queue.txt) $ORDER $stale; do
     case "$stale" in *" $t "*) case " $TRIED " in *" $t "*) ;; *) echo "$t"; return ;; esac ;; esac
   done
 }

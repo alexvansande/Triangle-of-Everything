@@ -71,7 +71,7 @@ weight() {
 }
 order=$(for t in $stale; do echo "$(weight "$t") $t"; done | sort -rn | cut -d' ' -f2 | tr '\n' ' ')   # one line, so the jumps below can find a take
 # a "# next: <take>" note in the queue jumps that take ahead (the author's "render this next")
-for t in $(sed -n 's/^# next: //p' video/render-queue.txt | tail -r); do   # (macOS has no tac)
+for t in $(sed -n 's/^# priority: //p;s/^# next: //p' video/render-queue.txt | tail -r); do   # (macOS has no tac)
   echo " $order " | grep -q " $t " && order="$t $(echo $order | tr ' ' '\n' | grep -vx "$t" | tr '\n' ' ')"
 done
 log "order: $(echo $order)"
