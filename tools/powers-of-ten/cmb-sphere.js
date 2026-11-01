@@ -11,17 +11,20 @@ export function cmbSphere(){
    precision highp float;varying vec2 vPosition;uniform sampler2D uMap;uniform vec3 uN,uR,uU;uniform float uDistance,uAlpha;const float TAN=.3639702343;
    void main(){vec3 eye=uN*uDistance,ray=normalize(-uN+TAN*(vPosition.x*uR+vPosition.y*uU));
     float b=dot(eye,ray),disc=b*b+1.-dot(eye,eye);if(disc<0.)discard;
-    // Render the far wall on both sides of the crossing: the same texels
-    // remain visible as we pull out, with no front/back texture switch.
-    float travel=-b+sqrt(disc);if(travel<=0.)discard;vec3 p=normalize(eye+travel*ray);
-    vec2 uv=vec2(fract(.5-atan(p.y,p.x)/6.28318530718),.5-asin(clamp(p.z,-1.,1.))/3.14159265359);
-    float t=clamp(texture2D(uMap,uv).r,0.,1.);
-    vec3 low=vec3(.12,.003,.016),mid=vec3(.65,.035,.085),high=vec3(1.,.64,.60);
-    vec3 colour=t<.5?mix(low,mid,t*2.):mix(mid,high,(t-.5)*2.);
-    // Restrained limb falloff gives the exterior a spherical silhouette;
-    // the microwave temperature pattern itself supplies all surface detail.
-    float limb=mix(1.,.70+.30*pow(abs(dot(p,ray)),.35),smoothstep(1.,1.7,uDistance));
-    gl_FragColor=vec4(colour*limb*uAlpha,uAlpha);
+    float farT=-b+sqrt(disc),nearT=-b-sqrt(disc);if(farT<=0.)discard;
+    vec3 farP=normalize(eye+farT*ray);
+    vec2 uv=vec2(fract(.5-atan(farP.y,farP.x)/6.28318530718),.5-asin(clamp(farP.z,-1.,1.))/3.14159265359);
+    float t=texture2D(uMap,uv).r;
+    // A translucent two-red shell, never a black-backed opaque picture.
+    vec3 farColour=mix(vec3(.24,.018,.048),vec3(.72,.16,.19),smoothstep(.12,.88,t));
+    float shellWeight=.35+.65*pow(1.-sqrt(max(0.,disc)),2.);
+    float farAlpha=uAlpha*shellWeight;
+    float nearAlpha=farAlpha*smoothstep(0.,.12,nearT);
+    vec3 nearP=normalize(eye+max(0.,nearT)*ray);
+    vec2 nuv=vec2(fract(.5-atan(nearP.y,nearP.x)/6.28318530718),.5-asin(clamp(nearP.z,-1.,1.))/3.14159265359);
+    vec3 nearColour=mix(vec3(.24,.018,.048),vec3(.72,.16,.19),smoothstep(.12,.88,texture2D(uMap,nuv).r));
+    float alpha=farAlpha+nearAlpha*(1.-farAlpha);
+    gl_FragColor=vec4(farColour*farAlpha*(1.-nearAlpha)+nearColour*nearAlpha,alpha);
    }`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
   buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
  }catch(e){failed=true;console.error('CMB sphere',e);}

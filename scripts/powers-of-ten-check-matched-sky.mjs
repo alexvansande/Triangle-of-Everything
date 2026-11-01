@@ -8,7 +8,7 @@ for(const [name,orb]of [['galaxy',false],['nearby',true]]){
  const raw=await readFile(new URL(name+'-points.bin',root)),points=new Float32Array(raw.buffer,raw.byteOffset,raw.length/4);
  assert.equal(points.length/10,meta[name==='galaxy'?'galaxyCount':'nearbyCount']);
  for(let i=0;i<points.length;i+=10){assert.ok(Math.abs(Math.hypot(points[i],points[i+1],points[i+2])-1)<1e-6);for(let j=0;j<10;j++)assert.ok(Number.isFinite(points[i+j]));assert.ok(points[i+3]>0&&points[i+8]>0&&points[i+9]>0);if(!orb)assert.ok(1/points[i+3]<35,'galaxies excluded from Milky Way point distances');}
- if(orb){let min=Infinity,max=0;for(let j=8;j<points.length;j+=10){min=Math.min(min,points[j]);max=Math.max(max,points[j]);}assert.ok(min>.005&&max>.03,'background and3D catalogue glows must be visibly larger, with solar-scale brightest orbs');}
+ if(orb){let min=Infinity,max=0;for(let j=8;j<points.length;j+=10){min=Math.min(min,points[j]);max=Math.max(max,points[j]);}assert.ok(min>.002&&max>.015,'background and3D catalogue glows must be visibly larger, with solar-scale brightest orbs');}
  const {data,info}=await sharp(new URL(name+'-map.png',root).pathname).raw().toBuffer({resolveWithObject:true});assert.equal(info.width,8192);assert.equal(info.height,4096);
  // Independently evaluate the spherical billboard equation at12 point-centred
  // atlas pixels, summing the entire buffer. This verifies actual exported maps,
@@ -21,5 +21,5 @@ for(const [name,orb]of [['galaxy',false],['nearby',true]]){
  console.log(name,points.length/10,'valid3D points,8K map,12 full-buffer radiance/footprint comparisons passed');
 }
 for(const s of [15.5,16,16.49]){const p=handoffPhase(s);assert.equal(p.starDepth,0);}
-assert.equal(handoffPhase(16.5).starFade,1);assert.equal(handoffPhase(18.8).galaxyFade,1);assert.equal(handoffPhase(18.8).galaxyDepth,0);
+assert.equal(handoffPhase(16.5).starFade,1);assert.equal(handoffPhase(18.8).galaxyFade,1);assert.equal(handoffPhase(18.5).galaxyDepth,0);
 console.log('Passed: full map replacement precedes depth for both populations.');

@@ -723,3 +723,10 @@ whole-cell parent propagates correctly, and depth starts only after replacement.
 Visually checked1.1µm,316nm and50nm with both delivery guides and no console errors.
 The existing 'Chromatin depth test' covers both handoffs and the closer DNA view.
 This supersedes the earlier chromatin-v1 background replacement workflow above.
+
+## 2026-10-31 — optical and scale review
+- CMB: faint from supercluster scale (s24–25.1); premultiplied two-red translucent far/near ray intersections, near surface enters smoothly through the camera. Exterior shell has subdued central coverage and a slightly stronger grazing rim; no opaque black texture backing.
+- Nearby stellar angular support halved (Hipparcos/named7x original, Gaia2.5x), radiance reduced in both8K atlas and exported3D buffers. Galactic radiance reduced consistently; finite-depth gain lowered. Stable circular tangent billboards replace the opposing-vector basis interpolation that caused a flatten/flip. Galactic replacement finishes before the wider18.5–19.6 depth interval.
+- Illustrative Local Group flyby uses the existing M33 telescope photograph, with a tapered alpha contour and sky-floor subtraction. Position is a scenic model, not M33's catalogue location; original catalogue M33 remains in the extragalactic layer. Camera route unchanged.
+- Earth retains an additive blue atmosphere and a small pale-blue unresolved halo until its final distant retirement. Sun halo strengthened.
+- Removed the dense water-life square from the live and matched flat droplet; surrounding independent cells reduced42→18, retaining pollen and larger species. Rebuilt parent centres through the foliage pyramid. Distant red ladybug light eases into neutral water by the23µm view.

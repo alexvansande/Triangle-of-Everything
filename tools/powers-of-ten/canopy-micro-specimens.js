@@ -33,7 +33,7 @@ const largerCommunity=[
 let waterSeed=1439;
 const randomWater=()=>{waterSeed=(Math.imul(waterSeed,1664525)+1013904223)>>>0;return waterSeed/4294967296};
 const smallCommunity=[];
-for(const [count,inner,outer] of [[18,12,55],[24,180,450]]){
+for(const [count,inner,outer] of [[8,12,55],[10,180,450]]){
  for(let i=0;i<count;i++){
   const r=Math.sqrt(inner*inner+randomWater()*(outer*outer-inner*inner))*1e-6;
   const angle=(i/count+randomWater()*.65/count)*Math.PI*2;
@@ -46,4 +46,4 @@ for(const [count,inner,outer] of [[18,12,55],[24,180,450]]){
 const organismField={file:'water-life-wide',species:'Mixed microscopic organism field (illustrative)',
  diameter:720e-6,bodyPixels:3762,sourcePixels:3762,center:[1881,1881],x:0,y:0,opacity:.8,
  angle:0,lag:.08,blurPixels:2,field:true};
-export const microCommunity=[organismField,...largerCommunity,...smallCommunity];
+export const microCommunity=[...largerCommunity,...smallCommunity];

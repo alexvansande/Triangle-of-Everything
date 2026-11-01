@@ -51,6 +51,9 @@ export function canopyMicro(){
    const shellFocus=1-smooth(Math.log10(40e-6),Math.log10(.001),cam.s);
    ctx.filter=`blur(${44*shellFocus*cam.min/960}px)`;
    ctx.drawImage(planes.shell,W/2+(dx-627*unit)*back,H/2+(dy-627*unit)*back,1254*unit*back,1254*unit*back);ctx.filter='none';
+   // Distant shell light becomes muted water as the tiny cell fills the view.
+   const water=smooth(.02,.25,microSpecimens[1].diameter/10**cam.s);
+   ctx.fillStyle=`rgba(137,148,146,${.96*water})`;ctx.fillRect(0,0,W,H);
    // Surrounding pollen and distinct amoebae occupy their own depth planes.
    for(const p of microCommunity){
     const relative=10**(-p.lag*eased);

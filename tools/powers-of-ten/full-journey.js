@@ -66,7 +66,7 @@ const ROLL = q.get("roll") === "0" ? 0 : 5 * Math.PI / 180; // per decade, antic
 // temperature texture now render together in the main scene, with its roll.
 const CLOUD_FLY=[25.9,S_MAX],DIST0=.68,FILL=.78;
 function driveCloud(s,W,H,Dg,roll,dpr){
- const a=ramp(s,25.9,26.6);
+ const a=.055*ramp(s,24.0,25.1)+.18*ramp(s,25.1,26.6);
  const dEnd=1/Math.sin(Math.atan(FILL*(Math.min(W,H)/Dg)*Math.tan(20*Math.PI/180)));
  const t=ramp(s,...CLOUD_FLY),dist=Math.exp(Math.log(DIST0)+(Math.log(dEnd)-Math.log(DIST0))*t);
  cloudView={dist,Dg,a};
@@ -134,7 +134,7 @@ function render(t) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, W, H);
   driveCloud(s, W, H, Dg, roll, dpr);
-  ctx.fillStyle = `rgba(0,0,0,${1 - ramp(s, 25.9, 26.6)})`;
+  ctx.fillStyle = "#030205";
   ctx.fillRect(0, 0, W, H);
   ctx.setTransform(rc, rs, -rs, rc, W / 2 - rc * cx + rs * cy, H / 2 - rs * cx - rc * cy);
   cmb.draw(ctx,Dg,cloudView,basis);

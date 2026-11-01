@@ -14,11 +14,13 @@ export function galaxyHandoff(){
   skyProgram=program(`attribute vec2 aCorner;varying vec2 vCorner;void main(){vCorner=aCorner;gl_Position=vec4(aCorner,0.,1.);}`,`precision highp float;varying vec2 vCorner;uniform sampler2D uGalaxy,uNearby;uniform vec3 uR,uU,uN;uniform vec2 uFov;uniform vec2 uAlpha;void main(){vec3 ray=normalize(-uN+vCorner.x*uFov.x*uR+vCorner.y*uFov.y*uU);vec2 uv=vec2(fract(.5-atan(ray.y,ray.x)/6.28318530718),.5-asin(clamp(ray.z,-1.,1.))/3.14159265359);gl_FragColor=vec4(texture2D(uGalaxy,uv).rgb*uAlpha.x+texture2D(uNearby,uv).rgb*uAlpha.y,1.);}`);
   pointProgram=program(`
    precision highp float;attribute vec2 aCorner;attribute vec3 aRay,aColour;attribute float aInvD,aWeight,aRadius,aPeak;uniform vec3 uR,uU,uN;uniform vec2 uScale;uniform float uDistance,uDepth,uAlpha,uModel,uPixel;varying vec2 vCorner;varying vec3 vColour;
-   void main(){vec3 right=normalize(cross(abs(aRay.z)>.98?vec3(0.,1.,0.):vec3(0.,0.,1.),aRay)),up=cross(aRay,right);
-    right=normalize(mix(right,uR,uDepth));up=normalize(mix(up,uU,uDepth));
-    vec3 centre=aRay-uN*uDistance*uDepth*aInvD;float support=max(aRadius,uPixel*max(0.,-dot(centre,uN))*uDepth);vec3 q=centre+support*(aCorner.x*right+aCorner.y*up);float den=-dot(q,uN);
+   void main(){vec3 centre=aRay-uN*uDistance*uDepth*aInvD;
+    // Circular angular billboards retain a stable tangent frame: no basis lerp
+    // through opposing vectors (which flattened and flipped whole star fields).
+    vec3 facing=normalize(centre),right=normalize(cross(uU,facing)),up=cross(facing,right);
+    float support=max(aRadius,uPixel*max(0.,-dot(centre,uN))*uDepth);vec3 q=centre+support*(aCorner.x*right+aCorner.y*up);float den=-dot(q,uN);
     gl_Position=vec4(dot(q,uR)*uScale.x,dot(q,uU)*uScale.y,0.,den);vCorner=aCorner;
-    float energy=min(6.,mix(1.,aWeight/max(.01,dot(centre,centre)),uDepth*uModel)*mix(1.,6.,uDepth*uModel));
+    float energy=min(3.,mix(1.,aWeight/max(.01,dot(centre,centre)),uDepth*uModel)*mix(1.,1.6,uDepth*uModel));
     vColour=aColour*aPeak*uAlpha*energy;
    }`,`precision highp float;varying vec2 vCorner;varying vec3 vColour;uniform float uModel;void main(){float r=dot(vCorner,vCorner);if(r>1.)discard;float a=uModel>.5?exp(-4.*r):(.7*exp(-12.*r)+.3*exp(-3.*r))*(1.-smoothstep(.64,1.,r));gl_FragColor=vec4(vColour*a,0.);}`);
   quad=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
@@ -45,10 +47,10 @@ export function galaxyHandoff(){
   if(preview==='map'||preview==='dots'){phase.starFade=phase.galaxyFade=preview==='dots'?1:0;phase.starDepth=phase.galaxyDepth=0;}
   const visible=ramp(cam.s,6.9,7.6),galaxyAlpha=1-ramp(cam.s,24.4,24.9),p=skyProgram;
   gl.useProgram(p);basis(p,cam);corners(p);for(let i=0;i<2;i++){gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,textures[i]);gl.uniform1i(loc(p,i?'uNearby':'uGalaxy'),i);}
-  gl.uniform2f(loc(p,'uFov'),TAN*cam.W/cam.min,TAN*cam.H/cam.min);gl.uniform2f(loc(p,'uAlpha'),visible*(1-phase.galaxyFade),visible*(1-phase.starFade));gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  gl.uniform2f(loc(p,'uFov'),TAN*cam.W/cam.min,TAN*cam.H/cam.min);gl.uniform2f(loc(p,'uAlpha'),visible*.6*(1-phase.galaxyFade),visible*(1-phase.starFade));gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
   gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);
-  points(groups[0],cam,phase.galaxyDepth,visible*phase.galaxyFade*galaxyAlpha,1);
-  const stellarPixels=2600*LY*cam.k/cam.dpr,stellarRetire=preview?1:ramp(stellarPixels,.35,1.2);
+  points(groups[0],cam,phase.galaxyDepth,visible*.6*phase.galaxyFade*galaxyAlpha,1);
+  const stellarPixels=2600*LY*cam.k/cam.dpr,stellarRetire=preview?1:ramp(stellarPixels,.08,.5);
   points(groups[1],cam,phase.starDepth,visible*phase.starFade*stellarRetire,0);
   cam.ctx.save();cam.ctx.globalCompositeOperation='lighter';cam.ctx.drawImage(canvas,0,0);cam.ctx.restore();
   // Solar-system light remains at the shared origin as it becomes a star.

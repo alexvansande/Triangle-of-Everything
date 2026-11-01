@@ -11,7 +11,7 @@ import {distanceLabel} from "./distance-labels.js";
 // flow towards — a rough Laniakea, from a few point masses, not Cosmicflows.
 import {
   ramp, win, rng, gauss, add, sub, mul, dot, lb, AU, LY, KPC, MPC, R_EARTH,
-  PLANETS, SUN, EARTH_C, MOON, eclAxes, eclToGal, EDGE, ECL_POLE, cross, norm,
+  cameraAt, PLANETS, SUN, EARTH_C, MOON, eclAxes, eclToGal, EDGE, ECL_POLE, cross, norm,
 } from "./math.js";
 import { image } from "./micro.js";
 
@@ -124,10 +124,10 @@ export function spaceLayers(globe) {
   }
   const SUN_DIR = norm(sub(SUN, EARTH_C));
   const earthMoon = {
-    name: "earth & moon", range: [6.3, 11.5],
+    name: "earth & moon", range: [6.3, 12.0],
     draw(cam) {
       // in over the photos as the camera starts to turn (10^6.4 m), out past the Moon
-      const a = ramp(cam.s, 6.4, 6.85) * (1 - ramp(cam.s, 10.6, 11.2));
+      const a = ramp(cam.s, 6.4, 6.85) * (1 - ramp(cam.s, 11.1, 11.9));
       if (a <= 0.01) return;
       const [x, y, sc] = cam.projS(EARTH_C), rr = Math.max(1.5 * cam.dpr, R_EARTH * cam.k * sc);
       // the globe as the camera sees it, lit by the Sun (a little bigger than the
@@ -141,6 +141,13 @@ export function spaceLayers(globe) {
           const c = globe.render3(cam.cam, SUN_DIR, Math.max(16, Math.round(wpx * f)), Math.max(16, Math.round(hpx * f)), [X0, Y0, X1, Y1]);
           if (c) { cam.ctx.globalAlpha = a; cam.ctx.drawImage(c, x + X0 * rr, y - Y1 * rr, wpx, hpx); cam.ctx.globalAlpha = 1; }
         }
+      }
+      if(sc){
+        const c=cam.ctx, tiny=1-ramp(rr/cam.dpr,2,7),radius=Math.max(2.2*cam.dpr,rr*1.12);
+        c.save();c.globalCompositeOperation='lighter';c.globalAlpha=a;
+        const blue=c.createRadialGradient(x,y,Math.max(0,rr*.84*(1-tiny)),x,y,radius*1.65);
+        blue.addColorStop(0,`rgba(151,209,255,${.65*tiny})`);blue.addColorStop(.58,'rgba(100,175,255,.28)');blue.addColorStop(1,'rgba(65,130,255,0)');
+        c.fillStyle=blue;c.beginPath();c.arc(x,y,radius*1.65,0,Math.PI*2);c.fill();c.restore();
       }
       ring(cam, EARTH_C, eclAxes.x, eclAxes.y, 3.844e8, `rgba(200,210,230,${0.5 * a * ramp(cam.s, 7.9, 8.4)})`);
       orbitLabel(cam,EARTH_C,eclAxes.x,eclAxes.y,3.844e8,"Moon’s orbit · 384 thousand km from Earth",a);
@@ -172,9 +179,9 @@ export function spaceLayers(globe) {
       // the Sun, in the background: a soft halo round it, bigger the nearer it is
       const [sx, sy, ssc] = cam.projS(SUN);
       if (ssc) {
-        const ctx = cam.ctx, hr = Math.max(14 * cam.dpr, 40 * 6.96e8 * cam.k * ssc), sa = a * ramp(cam.s, 8.6, 9.2);
+        const ctx = cam.ctx, hr = Math.max(24 * cam.dpr, 55 * 6.96e8 * cam.k * ssc), sa = a * ramp(cam.s, 8.6, 9.2);
         const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, hr);
-        g.addColorStop(0, `rgba(255,235,190,${0.8 * sa})`); g.addColorStop(0.15, `rgba(255,200,120,${0.35 * sa})`); g.addColorStop(1, "rgba(255,170,80,0)");
+        g.addColorStop(0, `rgba(255,235,190,${1.0 * sa})`); g.addColorStop(0.15, `rgba(255,200,120,${0.7 * sa})`); g.addColorStop(1, "rgba(255,170,80,0)");
         ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sx, sy, hr, 0, 7); ctx.fill(); ctx.globalCompositeOperation = "source-over";
       }
       const [x, y] = body(cam, imgs.sun, SUN, 6.96e8, 2.2, a * ramp(cam.s, 8.6, 9.2), "rgba(255,210,120,0.45)");
@@ -283,6 +290,17 @@ export function spaceLayers(globe) {
     },
   };
 
+  // Illustrative Local Group spiral flyby, using the existing M33 telescope
+  // photograph as a visual template; this placement is not a catalogue claim.
+  const flyBasis=cameraAt(22.45),flyPosition=add(mul(flyBasis.n,.55*MPC),add(mul(flyBasis.r,.055*MPC),mul(flyBasis.u,.022*MPC)));
+  const flyPhoto=image('/video/powers-of-ten/galaxies/m33-flyby.png');
+  const galaxyFlyby={name:'Local Group spiral flyby',range:[21.5,24.5],draw(cam){
+    if(!ready(flyPhoto))return;const [x,y,sc]=cam.projS(flyPosition);if(!sc)return;
+    const radius=.028*MPC*cam.k*sc;if(radius<.25*cam.dpr||x+radius<0||y+radius<0||x-radius>cam.W||y-radius>cam.H)return;
+    const c=cam.ctx;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=ramp(radius/cam.dpr,.25,2);
+    c.translate(x,y);c.rotate(.5);c.drawImage(flyPhoto,-radius,-radius*.84,radius*2,radius*1.68);c.restore();
+  }};
+
   // ---------- galaxies (2MRS) and the flows: a rough Laniakea ----------
   const ATTRACTORS = [
     { name: "Great Attractor · Laniakea", l: 325.3, b: -7.3, d: 68, m: 1.0, eps: 35, col: [255, 196, 90] },
@@ -334,7 +352,7 @@ export function spaceLayers(globe) {
     } catch (e) { console.warn("sky points unavailable:", e); }
   })();
 
-  return [{...handoff.background,draw(cam){if(handoff.ready())handoff.draw(cam);else sky.draw(cam);}}, milkyWay, neighbours, stars, earthMoon, solar, comets, named, localGroup, galaxies, groupLabels];
+  return [{...handoff.background,draw(cam){if(handoff.ready())handoff.draw(cam);else sky.draw(cam);}}, milkyWay, neighbours, stars, earthMoon, solar, comets, named, localGroup, galaxyFlyby, galaxies, groupLabels];
 }
 
 // stars as points: the ones within a few frame-widths, at most ~30k a frame
