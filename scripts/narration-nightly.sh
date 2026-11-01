@@ -7,7 +7,12 @@
 # cancel the worker" (2026-10-28). Reinstall: scripts/launchd/install.sh.
 # Log: output/videos/nightly.log. State: output/videos/nightly-last-change (the last night that
 # had something to render).
-cd "$(dirname "$0")/.." || exit 1
+cd "$(git -C "$(dirname "$0")" rev-parse --show-toplevel)" || exit 1
+# run from a copy: it merges main, which can rewrite this file while sh is reading it
+if [ -z "$NIGHTLY_COPY" ]; then
+  mkdir -p output/videos && cp "$0" output/videos/narration-nightly.sh.running &&
+    NIGHTLY_COPY=1 exec sh output/videos/narration-nightly.sh.running "$@"
+fi
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 LABEL=com.triangleofeverything.nightly-renders
 STATE=output/videos/nightly-last-change
