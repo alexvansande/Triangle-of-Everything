@@ -97,7 +97,9 @@ export default {
 
     // time on the diagonals along the top
     { at: "along the top", cam: { r: 22, m: 50, span: 44 }, clear: true },
-    { at: "measured in seconds", cam: { r: 27, m: 60, span: 22 } },
+    // the times on the diagonals ringed, one after another (the author, 2026-11-01)
+    { at: "measured in seconds", cam: { r: 27, m: 60, span: 22 },
+      hl: [{ figText: ["Planck 10", "GUT 10", "EW 10", "nuclear 10", "atomic 10", "recomb. 10"], stagger: 0.25 }] },
     { at: "how things are", cam: { r: 22, m: 52, span: 40 } },
     { at: "our whole universe", cam: { r: 6, m: 14, span: 80 }, dur: 3 },
 
