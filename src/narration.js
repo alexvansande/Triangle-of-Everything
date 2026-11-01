@@ -243,8 +243,10 @@ export async function startNarration(app) {
   // 16:9: the labels twice the size (the chart's names and the narration's tags, rulers and axis
   // names): on a phone they weren't legible, while the pictures were fine (the author, 2026-10-31);
   // the classic figure's text grows too (scene `textScale`, `classicText`)
-  // (labels 1.6×: 2× was a bit too big, 2026-11-01)
-  const TEXT = WIDE !== 1 ? SCENE.textScale ?? 1.6 : 1, CLASSIC_TEXT = WIDE !== 1 ? SCENE.classicText ?? 1 : 1;
+  // (labels 1.28×: 2× was too big, then 1.6×, then 20% less again; the rulers, AXIS_TEXT, stay at
+  // 1.6×, and the captions as they are: the author, 2026-11-01)
+  const TEXT = WIDE !== 1 ? SCENE.textScale ?? 1.28 : 1, AXIS_TEXT = WIDE !== 1 ? SCENE.axisTextScale ?? 1.6 : 1,
+    CLASSIC_TEXT = WIDE !== 1 ? SCENE.classicText ?? 1 : 1;
   if (TEXT !== 1) app.setFontScale?.(TEXT);
   // (16:9: the size ruler up off the bottom edge, its numbers clear of it, the captions above it:
   // they sat on the edge of the video, 2026-11-01)
@@ -631,6 +633,7 @@ export async function startNarration(app) {
   const layer = document.createElement("div");
   layer.id = "narr-layer";
   if (TEXT !== 1) layer.style.setProperty("--narr-text", TEXT);
+  if (AXIS_TEXT !== 1) layer.style.setProperty("--narr-axis-text", AXIS_TEXT);
   if (WIDE !== 1) layer.classList.add("narr-wide");
   if (!RENDER) layer.classList.add("live");     // the player's own UI (renders have none)
   const track = SCENE.backings?.length ? SCENE.backings : SCENE.backing && (typeof SCENE.backing === "string" ? SCENE.backing : SCENE.backing.track);
@@ -2294,7 +2297,7 @@ export async function startNarration(app) {
     }
     return o * (1 - clamp01(classicOpacity(t) * 2)) * (1 - (specFrame ? specFrame(t).show : 0));
   }
-  // (TEXT: the 16:9 videos' bigger labels; the rulers space them as much)
+  // (AXIS_TEXT: the 16:9 videos' bigger ruler numbers; the rulers space them as much)
   function drawEnergy(t) {
     const o = energyOpacity(t);
     gEnergy.attr("opacity", o).style("display", o > 0.01 ? null : "none");
@@ -2302,7 +2305,7 @@ export async function startNarration(app) {
     gEnergy.selectAll("*").remove();
     const SW = layer.clientWidth, SH = layer.clientHeight;
     const yR = Math.round(SH * (SCENE.rulerY ?? RULER_Y)), xL = SW - massAxisX(SW);
-    gEnergy.append("rect").attr("x", -(xL + 54 * TEXT)).attr("y", 0).attr("width", xL + 54 * TEXT).attr("height", SH)
+    gEnergy.append("rect").attr("x", -(xL + 54 * AXIS_TEXT)).attr("y", 0).attr("width", xL + 54 * AXIS_TEXT).attr("height", SH)
       .attr("transform", "scale(-1,1)").attr("fill", "url(#narr-fade-v)");
     gEnergy.append("line").attr("x1", xL).attr("x2", xL).attr("y1", 0).attr("y2", SH).attr("class", "narr-axis");
     const mppd = Math.abs(sy(1) - sy(0)), iy = (y) => (y - sy(0)) / (sy(1) - sy(0));
@@ -2311,10 +2314,10 @@ export async function startNarration(app) {
     for (const tk of fillTicks(mLo + EV_PER_G, mHi + EV_PER_G, mppd, ENERGY_BASES)) {
       const y = sy(tk.at - EV_PER_G);
       if (y < SH * 0.1 || y > yR - 24) continue;
-      if (placedY.some(p => Math.abs(p - y) < 17 * TEXT)) continue;
+      if (placedY.some(p => Math.abs(p - y) < 17 * AXIS_TEXT)) continue;
       placedY.push(y);
       gEnergy.append("line").attr("x1", xL - (tk.minor ? 3 : 5)).attr("x2", xL + (tk.minor ? 3 : 5)).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
-      gEnergy.append("text").attr("x", xL + 8).attr("y", y + 3.5 * TEXT).attr("text-anchor", "start")
+      gEnergy.append("text").attr("x", xL + 8).attr("y", y + 3.5 * AXIS_TEXT).attr("text-anchor", "start")
         .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
     }
     gEnergy.append("text").attr("transform", `translate(${xL - 7},${SH * 0.16}) rotate(-90)`).attr("text-anchor", "end")
@@ -2328,45 +2331,45 @@ export async function startNarration(app) {
     const SW = layer.clientWidth, SH = layer.clientHeight;
     const yR = Math.round(SH * (SCENE.rulerY ?? RULER_Y)), xR = massAxisX(SW);
     // horizontal: size
-    gUnits.append("rect").attr("x", 0).attr("y", yR - 16 * TEXT).attr("width", SW).attr("height", 34 * TEXT)
+    gUnits.append("rect").attr("x", 0).attr("y", yR - 16 * AXIS_TEXT).attr("width", SW).attr("height", 34 * AXIS_TEXT)
       .attr("fill", "url(#narr-fade-h)");
     gUnits.append("line").attr("x1", 0).attr("x2", SW).attr("y1", yR).attr("y2", yR).attr("class", "narr-axis");
     const placed = [];
     const runits = [...RADIUS_UNITS].filter(u => !/Planck|Hubble/.test(u.label)).sort((a, b) => a.row - b.row);
     for (const u of runits) {
       const x = sx(u.logR);
-      const w = u.label.length * 5.6 * TEXT + 10;
+      const w = u.label.length * 5.6 * AXIS_TEXT + 10;
       if (x < 6 || x > SW - 6) continue;
       if (placed.some(p => Math.abs(p - x) < w)) continue;
       placed.push(x);
       gUnits.append("line").attr("x1", x).attr("x2", x).attr("y1", yR - 5).attr("y2", yR + 5).attr("class", "narr-tick");
-      gUnits.append("text").attr("x", x).attr("y", yR + 6 + 9 * TEXT).attr("text-anchor", "middle").attr("class", "narr-unit").text(u.label);
+      gUnits.append("text").attr("x", x).attr("y", yR + 6 + 9 * AXIS_TEXT).attr("text-anchor", "middle").attr("class", "narr-unit").text(u.label);
     }
     // the ruler reads diameter: the label at logR is for 2r
     const rppd = Math.abs(sx(1) - sx(0)), ix = (x) => (x - sx(0)) / (sx(1) - sx(0));
     const rlo = ix(0) + W_OFF, rhi = ix(SW) + W_OFF;
     for (const tk of fillTicks(Math.min(rlo, rhi), Math.max(rlo, rhi), rppd, SIZE_BASES)) {
-      const x = sx(tk.at - W_OFF), w = tk.label.length * 5.6 * TEXT + 10;
+      const x = sx(tk.at - W_OFF), w = tk.label.length * 5.6 * AXIS_TEXT + 10;
       if (x < 6 || x > SW - 6) continue;
       if (placed.some(p => Math.abs(p - x) < w)) continue;
       placed.push(x);
       gUnits.append("line").attr("x1", x).attr("x2", x).attr("y1", yR - (tk.minor ? 3 : 5)).attr("y2", yR + (tk.minor ? 3 : 5)).attr("class", "narr-tick");
-      gUnits.append("text").attr("x", x).attr("y", yR + 6 + 9 * TEXT).attr("text-anchor", "middle")
+      gUnits.append("text").attr("x", x).attr("y", yR + 6 + 9 * AXIS_TEXT).attr("text-anchor", "middle")
         .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
     }
     gUnits.append("text").attr("x", SW - 8).attr("y", yR - 7).attr("text-anchor", "end").attr("class", "narr-axname").text("SIZE →");
     // vertical: mass, on the right as in the map (the left is kept for energy and temperature)
-    gUnits.append("rect").attr("x", xR - 54 * TEXT).attr("y", 0).attr("width", SW - xR + 54 * TEXT).attr("height", SH).attr("fill", "url(#narr-fade-v)");
+    gUnits.append("rect").attr("x", xR - 54 * AXIS_TEXT).attr("y", 0).attr("width", SW - xR + 54 * AXIS_TEXT).attr("height", SH).attr("fill", "url(#narr-fade-v)");
     gUnits.append("line").attr("x1", xR).attr("x2", xR).attr("y1", 0).attr("y2", SH).attr("class", "narr-axis");
     const placedY = [];
     for (const u of MASS_UNITS) {
       if (/\/c²|Planck|electron|proton/.test(u.label)) continue;
       const y = sy(u.logM);
       if (y < SH * 0.1 || y > yR - 24) continue;
-      if (placedY.some(p => Math.abs(p - y) < 17 * TEXT)) continue;
+      if (placedY.some(p => Math.abs(p - y) < 17 * AXIS_TEXT)) continue;
       placedY.push(y);
       gUnits.append("line").attr("x1", xR - 5).attr("x2", xR + 5).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
-      gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5 * TEXT).attr("text-anchor", "end").attr("class", "narr-unit").text(u.label);
+      gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5 * AXIS_TEXT).attr("text-anchor", "end").attr("class", "narr-unit").text(u.label);
     }
     const mppd = Math.abs(sy(1) - sy(0)), iy = (y) => (y - sy(0)) / (sy(1) - sy(0));
     const mA = iy(SH * 0.1), mB = iy(yR - 24);
@@ -2381,10 +2384,10 @@ export async function startNarration(app) {
     for (const tk of massTicks) {
       const y = sy(tk.at);
       if (y < SH * 0.1 || y > yR - 24) continue;
-      if (placedY.some(p => Math.abs(p - y) < 17 * TEXT)) continue;
+      if (placedY.some(p => Math.abs(p - y) < 17 * AXIS_TEXT)) continue;
       placedY.push(y);
       gUnits.append("line").attr("x1", xR - (tk.minor ? 3 : 5)).attr("x2", xR + (tk.minor ? 3 : 5)).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
-      gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5 * TEXT).attr("text-anchor", "end")
+      gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5 * AXIS_TEXT).attr("text-anchor", "end")
         .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
     }
     gUnits.append("text").attr("transform", `translate(${xR + 13},${SH * 0.16}) rotate(-90)`).attr("text-anchor", "end")
@@ -2981,14 +2984,14 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
 #narr-svg text.narr-title { font-family: "Barlow Condensed", "Arial Narrow", sans-serif !important; font-size: 42px; font-weight: 700;
   letter-spacing: 0.04em; fill: #ffd54f; stroke: rgba(0,0,0,0.9); stroke-width: 6px; }
 .narr-linelabel { font-size: calc(11px * var(--narr-text, 1)); font-weight: 700; letter-spacing: 0.18em; }
-.narr-axislabel { font-family: "Barlow Condensed", Inter, sans-serif !important; font-size: calc(22px * var(--narr-text, 1)); font-weight: 700; letter-spacing: 0.12em; }
+.narr-axislabel { font-family: "Barlow Condensed", Inter, sans-serif !important; font-size: calc(22px * var(--narr-axis-text, 1)); font-weight: 700; letter-spacing: 0.12em; }
 .narr-sidelabel { font-size: calc(15px * var(--narr-text, 1)); font-weight: 800; letter-spacing: 0.22em; }
 .narr-sidenote { font-size: calc(12px * var(--narr-text, 1)); font-weight: 600; letter-spacing: 0.04em; }
 .narr-axis { stroke: rgba(255,255,255,0.45); stroke-width: 1; }
 .narr-tick { stroke: rgba(255,255,255,0.9); stroke-width: 1.2; }
-.narr-unit { fill: rgba(255,255,255,0.92); font-size: calc(9.5px * var(--narr-text, 1)); font-weight: 600; }
-.narr-unit-minor { fill: rgba(255,255,255,0.6); font-size: calc(8.5px * var(--narr-text, 1)); font-weight: 500; }
-.narr-axname { fill: rgba(255,255,255,0.6); font-size: calc(9px * var(--narr-text, 1)); font-weight: 800; letter-spacing: 0.2em; }
+.narr-unit { fill: rgba(255,255,255,0.92); font-size: calc(9.5px * var(--narr-axis-text, 1)); font-weight: 600; }
+.narr-unit-minor { fill: rgba(255,255,255,0.6); font-size: calc(8.5px * var(--narr-axis-text, 1)); font-weight: 500; }
+.narr-axname { fill: rgba(255,255,255,0.6); font-size: calc(9px * var(--narr-axis-text, 1)); font-weight: 800; letter-spacing: 0.2em; }
 @font-face { font-family: "Barlow Condensed"; font-weight: 700; font-display: block;
   src: url("${import.meta.env.BASE_URL}fonts/barlow-condensed-700-latin.woff2") format("woff2"); }
 #narr-caption { position: absolute; left: 6%; right: 6%; bottom: 8.5%; text-align: center; pointer-events: none;
