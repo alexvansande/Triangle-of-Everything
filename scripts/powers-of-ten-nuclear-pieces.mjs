@@ -9,7 +9,16 @@ export async function nuclearPieces({path,bases,fade,n}){
  const parts=[['field',3,dir+'field-raw.png'],['hero',5,dir+'hero-organic-v3-raw.png'],['dna',7,hasAtomic?atomic+'dna-flat.png':dir+'dna-raw.png'],['purple',3,path('chromatin-depth-v1/foreground-raw.png')]];
  await fs.writeFile(dir+'background.png',back);
  const plates=[];
- for(const[name,level,source]of parts){let input=await sharp(source).resize(n,n).ensureAlpha().png().toBuffer();if(name==='field')input=await sharp(input).composite([{input:await sharp(dir+'field-fill-raw.png').resize(418,418).png().toBuffer(),left:418,top:418}]).png().toBuffer();if(['field','purple'].includes(name))input=await fade(input,n);const runtime=name==='dna'&&hasAtomic?await fs.readFile(atomic+'dna-carrier.png'):input;await fs.writeFile(dir+name+'.png',runtime);if(name==='dna'&&hasAtomic)await fs.writeFile(dir+'dna-flat.png',input);plates.push({name,level,span:spans[level],...(name==='dna'&&hasAtomic?{flatFile:'dna-flat.png'}:{}),input});}
+ for(const[name,level,source]of parts){let input=await sharp(source).resize(n,n).ensureAlpha().png().toBuffer();if(name==='field')input=await sharp(input).composite([{input:await sharp(dir+'field-fill-raw.png').resize(418,418).png().toBuffer(),left:418,top:418}]).png().toBuffer();if(name==='hero'&&hasAtomic){
+ // The fine DNA replaces the central 1/9 field. Remove the old strand there,
+ // using the same feather as the detail plane; never stack two helices.
+ const {data}=await sharp(input).raw().toBuffer({resolveWithObject:true});
+ const side=n/9,left=(n-side)/2;
+ for(let y=Math.floor(left);y<left+side;y++)for(let x=Math.floor(left);x<left+side;x++){
+  const t=Math.max(0,Math.min(1,Math.min(x+.5-left,y+.5-left,left+side-x-.5,left+side-y-.5)/(side*.22))),w=t*t*(3-2*t);data[(y*n+x)*4+3]=Math.round(data[(y*n+x)*4+3]*(1-w));
+ }
+ input=await sharp(data,{raw:{width:n,height:n,channels:4}}).png().toBuffer();
+ }if(['field','purple'].includes(name))input=await fade(input,n);const runtime=name==='dna'&&hasAtomic?await fs.readFile(atomic+'dna-carrier.png'):input;await fs.writeFile(dir+name+'.png',runtime);if(name==='dna'&&hasAtomic)await fs.writeFile(dir+'dna-flat.png',input);plates.push({name,level,span:spans[level],...(name==='dna'&&hasAtomic?{flatFile:'dna-flat.png'}:{}),input});}
  async function world(level){
   // Texture is the very same nuclear interior, never a new pale fluid tile.
   const crop=Math.max(1,Math.round(n*spans[level]/spans[2]));

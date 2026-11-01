@@ -23,5 +23,11 @@
     "https://pdb101-west.rcsb.org/motm/23"
   ],
   "assembly": "match-atom.mjs recovers actual Hopf alpha analytically from known capture matte, composes common centre at3\u00d7 spans, removes duplicate source support from outerDNAcarrier and writes exact flat parents. match-anatomy.mjs then propagates outward through the cell and drop/foliage.",
-  "interpretation": "BoundH is approached through the particle explorer free-atom1s density depiction. Molecular photo surfaces are illustrative; covalent electronic redistribution is not solved. Nuclei are not enlarged in the Hcloud capture. Proton/quark live code unchanged."
+  "interpretation": "BoundH is approached through the particle explorer free-atom1s density depiction. Molecular photo surfaces are illustrative; covalent electronic redistribution is not solved. Nuclei are not enlarged in the Hcloud capture. Proton/quark live code unchanged.",
+  "registered_correction": {
+    "generation": "exec-544638d0-39e1-4fdf-8bf8-6bd882695fdb.png",
+    "source": "dna-parent-crop.png: central 1/9 crop of existing hero-organic-v3 source",
+    "prompt": "Enhance only molecular detail. Preserve exact composition, silhouette, backbone curves, rung positions and twist. No zoom, reframing, rotation or new helix. Cobalt backbones, copper and rose rungs, genuine alpha.",
+    "assembly": "Outer 22% feather shared with inverse replacement mask on parent hero; no overlapping helices. Exact child propagated through flat parents. Original atom target and live cloud unchanged."
+  }
 }

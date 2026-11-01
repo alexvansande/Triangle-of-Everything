@@ -759,3 +759,7 @@ The final molecular approach now uses the particle explorer's native hydrogen fi
 A thymine N3-bound hydrogen in the A–T fragment stays at the optical centre. Three registered spans are 0.609663 nm (H), 1.828989 nm (base-pair fragment), and 5.486968 nm (DNA). The generated molecular surroundings follow coordinate blueprints; they are illustrative surfaces, not a bonded-electron calculation. Each finer transparent piece is composited into its parent at exactly one-third size, and the runtime uses those same separate planes. No recentering or shrinking vector stage.
 
 Review with **Atom → DNA** or **DNA → atom → quarks**. Assets, capture metadata, prompts and limitations: `video/powers-of-ten/generated/atomic-bridge-v1/provenance.json`. Rebuild with `powers-of-ten-match-atom.mjs` followed by the anatomy/drop/depth match scripts. Validate with `powers-of-ten-check-atom.mjs` and `powers-of-ten-check-chromatin.mjs`.
+
+
+### DNA registration correction
+The previous independently generated DNA had a different helix width and twist from the nucleosome source. `dna-parent-crop.png` now records the exact central 1/9 field of that wider strand; `dna-registered-raw.png` is its imagegen detail enhancement. The DNA outer 22% and the inverse mask in the hero source share the same common-scale handoff. This replaces the old strand rather than stacking two helices. All wider parents are rebuilt. The atom target, spans and proton/quark animation are unchanged.

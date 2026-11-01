@@ -17,4 +17,8 @@ for(const [parent,carrier,child] of [['basepair-flat.png','basepair.png','hydrog
 }
 const now=await readFile(new URL('../tools/powers-of-ten/small.js',import.meta.url),'utf8'),old=execFileSync('git',['show','HEAD:tools/powers-of-ten/small.js'],{encoding:'utf8'});
 for(const name of ['quarkLayer','protonLayer']){const part=s=>s.slice(s.indexOf('const '+name+' ='),s.indexOf('\n  };',s.indexOf('const '+name+' ='))+5);assert.equal(part(now),part(old),name+' unchanged');}
+const carrier=await raw('dna-carrier.png');
+for(let x=0;x<1254;x++)assert(carrier[x*4+3]<=2,'DNA outer edge must feather into its parent');
+const hero=await sharp(new URL('../video/powers-of-ten/generated/canopy-test/micro/anatomy-v9/nuclear-pieces-v2/hero.png',import.meta.url).pathname).ensureAlpha().raw().toBuffer();
+assert.equal(hero[(627*1254+627)*4+3],0,'old central helix must be removed beneath its replacement');
 console.log('Passed: physical 3× spans, fixed target H, native fiber matte, exact nested composites, unchanged proton and quark layers.');

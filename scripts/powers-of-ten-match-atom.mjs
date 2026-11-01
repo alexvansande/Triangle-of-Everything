@@ -14,11 +14,15 @@ const base=await sharp(path('basepair-raw.png')).resize(n,n).ensureAlpha().png()
 const h418=await sharp(hydrogen).resize(418,418).png().toBuffer();const baseFlat=await sharp(base).composite([{input:h418,left:418,top:418}]).png().toBuffer();await writeFile(path('basepair-flat.png'),baseFlat);
 // The exact centred molecular child replaces the central rung. Clear its
 // support before composing, so semi-transparent atoms cannot be drawn twice.
-const {data:dna}=await sharp(path('dna-raw.png')).resize(n,n).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+const {data:dna}=await sharp(path('dna-registered-raw.png')).resize(n,n).ensureAlpha().raw().toBuffer({resolveWithObject:true});
 const child=await sharp(baseFlat).resize(418,418).png().toBuffer();
 const mask=await sharp(child).ensureAlpha().raw().toBuffer();
 for(let y=0;y<418;y++)for(let x=0;x<418;x++){
  const i=((y+418)*n+x+418)*4,a=mask[(y*418+x)*4+3]/255,t=Math.max(0,Math.min(1,(a-.01)/.11)),w=t*t*(3-2*t);dna[i+3]=Math.round(dna[i+3]*(1-w));
+}
+// Feather only the outer handoff; the parent removes this exact support.
+for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+ const t=Math.min(1,Math.min(x+.5,y+.5,n-x-.5,n-y-.5)/(n*.22)),w=t*t*(3-2*t);dna[(y*n+x)*4+3]=Math.round(dna[(y*n+x)*4+3]*w);
 }
 const carrier=await sharp(dna,{raw:{width:n,height:n,channels:4}}).png().toBuffer();await writeFile(path('dna-carrier.png'),carrier);
 const flat=await sharp(carrier).composite([{input:child,left:418,top:418}]).png().toBuffer();await writeFile(path('dna-flat.png'),flat);
