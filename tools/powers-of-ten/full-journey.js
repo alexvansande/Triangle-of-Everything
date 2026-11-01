@@ -23,8 +23,8 @@ import { crossingsLayer } from "./crossings.js";
 
 const canopyTest = new URLSearchParams(location.search).has('canopytest');
 const insects=canopyTest?catalogueInsects():null,optics=canopyTest?canopyOptics():null,depth=canopyTest?canopyDepth():null,crown=canopyTest?canopyCrownDepth():null,microscope=canopyTest?canopyMicro():null;
-const S_MIN = canopyTest ? -18.7 : -35.3, S_MAX = Math.log10(2 * 46e9 * LY / .78);
-window.canopyTest = {enabled:true,minimum:-18.7,photoMinimum:-8.260667536990012,maximum:S_MAX};
+const S_MIN = Math.log10(1.616255e-35*32), S_MAX = Math.log10(2 * 46e9 * LY / .78);
+window.canopyTest = {enabled:true,minimum:S_MIN,photoMinimum:-8.260667536990012,maximum:S_MAX};
 const q = new URLSearchParams(location.search);
 const state = {
   s: q.has("s") ? clamp(+q.get("s"),S_MIN,S_MAX) : 0,
@@ -203,7 +203,7 @@ let last = performance.now(), t = 0, urlT = 0, outerTurn=0;
 function tick(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now; t += dt;
-  if (state.play) { state.s = clamp(state.s + state.play * state.speed * dt, S_MIN, S_MAX); if (state.s <= S_MIN || state.s >= S_MAX) setPlay(0); }
+  if (state.play) { state.s = clamp(state.s + state.play * state.speed * dt * (1+3*ramp(-state.s,20,23)*(1-ramp(-state.s,31.5,33.2))), S_MIN, S_MAX); if (state.s <= S_MIN || state.s >= S_MAX) setPlay(0); }
   // Keep orbiting after the pullback stops, revealing depth inside the shell.
   outerTurn+=dt*.045*ramp(state.s,26.4,26.9);
   render(t);

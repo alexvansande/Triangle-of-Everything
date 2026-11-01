@@ -1,12 +1,12 @@
 // Optional review controls for the isolated, bright-centred crown test.
 export function mountCanopyTest() {
-  document.title='Powers of ten · CMB to quarks';
+  document.title='Powers of ten · CMB to Planck';
   const panel=document.createElement('aside');
   panel.style.cssText='position:fixed;z-index:10;top:16px;left:16px;right:16px;max-width:680px;padding:16px 18px;background:#0b1110e8;color:#eee;border:1px solid #ffffff28;border-radius:12px;font:13px/1.5 system-ui;box-shadow:0 8px 32px #0005';
-  panel.innerHTML=`<strong style="font-size:17px">CMB → quarks</strong>
-    <div style="color:#b5c4b9;margin:5px 0 12px">Cosmos → Earth → sequoia → ladybug → cell → DNA → guanine → atom → quarks</div>
+  panel.innerHTML=`<strong style="font-size:17px">CMB → Planck</strong>
+    <div style="color:#b5c4b9;margin:5px 0 12px">Cosmos → Earth → sequoia → ladybug → cell → DNA → guanine → atom → quarks → Planck Life</div>
     <div style="display:flex;flex-wrap:wrap;gap:7px" id="canopy-actions">
-      <button data-s="${window.canopyTest.maximum}">CMB · universe</button><button data-s="24">Galaxy groups</button><button id="cosmic-web-run">Cosmic web → CMB</button><button data-s="23">Local Group · photographs</button><button data-s="21.4">Milky Way</button><button id="chromatin-depth-run">Chromatin depth test</button><button id="galaxies-entry">Milky Way → galaxies</button><button id="galaxy-entry">Local stars → galaxy</button><button id="stars-entry">Solar system → stars</button><button data-s="13">Solar system</button><button data-s="7.7">Earth · globe</button><button id="full-in">Play CMB → quarks</button><button id="full-out">Play quarks → CMB</button><button id="full-stop">Stop journey</button>
+      <button data-s="${window.canopyTest.maximum}">CMB · universe</button><button data-s="24">Galaxy groups</button><button id="cosmic-web-run">Cosmic web → CMB</button><button data-s="23">Local Group · photographs</button><button data-s="21.4">Milky Way</button><button id="chromatin-depth-run">Chromatin depth test</button><button id="galaxies-entry">Milky Way → galaxies</button><button id="galaxy-entry">Local stars → galaxy</button><button id="stars-entry">Solar system → stars</button><button data-s="13">Solar system</button><button data-s="7.7">Earth · globe</button><button data-s="-25">Cellular depths</button><button data-s="-33.286">Planck · Life</button><button id="full-in">Play CMB → Planck</button><button id="full-out">Play Planck → CMB</button><button id="full-stop">Stop journey</button>
       <button data-s="4.6">Satellite · 40 km</button><button data-s="1.6">Aerial · 40 m</button>
       <button data-s="1.123">Crown · 13 m</button><button data-s="1.69897">Check · 50 m</button>
       <button data-s="2.07712">Grove · 120 m</button><button data-s="2.60206">Forest · 400 m</button><button id="canopy-run">Play approach</button>

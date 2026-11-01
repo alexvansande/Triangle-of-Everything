@@ -1,3 +1,4 @@
+import {planckPattern} from './planck-pattern.js';
 // tools/powers-of-ten/small.js — the code-drawn bottom of the zoom: the Planck
 // grid (a Game of Life), one quark, the proton (the chart's live Hopf renderer,
 // public/hopf/hopf-core.js), the hydrogen atom to scale, and the live guanine molecular scene
@@ -48,40 +49,7 @@ export async function smallLayers() {
     cam.ctx.globalAlpha = 1;
   };
 
-  // ---------- the Planck grid: a Game of Life, cells 10^-35 m (about the Planck length,
-  // 1.6 × 10^-35 m, so the cells sit exactly on the powers-of-ten grid), upright on
-  // the screen like the grid, not rolled with the picture ----------
-  const N = 160, cells = new Uint8Array(N * N), heat = new Float32Array(N * N);
-  { const r = rng(7); for (let i = 0; i < cells.length; i++) cells[i] = r() < 0.32 ? 1 : 0; }
-  let lifeT = 0;
-  function lifeStep() {
-    const next = new Uint8Array(N * N);
-    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-      let n = 0;
-      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (dx || dy) n += cells[((y + dy + N) % N) * N + ((x + dx + N) % N)];
-      const i = y * N + x;
-      next[i] = n === 3 || (n === 2 && cells[i]) ? 1 : 0;
-    }
-    cells.set(next);
-  }
-  const life = {
-    name: "planck", range: [-36, -32],
-    draw(cam) {
-      const cell = 1e-35 * cam.k, a = ramp(cell, 1.5, 6) * ramp(cam.s, -32.2, -32.9);
-      if (a <= 0.01) return;
-      cam = { ...cam, ...cam.screen };
-      cam.ctx.save(); cam.ctx.setTransform(1, 0, 0, 1, 0, 0);
-      while (lifeT < cam.t) { lifeStep(); lifeT += 0.14; for (let i = 0; i < heat.length; i++) heat[i] = Math.max(cells[i], heat[i] * 0.82); }
-      const ctx = cam.ctx, half = Math.ceil(Math.max(cam.W, cam.H) / 2 / cell) + 1;
-      for (let j = -half; j <= half; j++) for (let i = -half; i <= half; i++) {
-        const h = heat[((j % N + N) % N) * N + ((i % N + N) % N)];
-        if (h < 0.04) continue;
-        ctx.fillStyle = `rgba(${150 + 105 * h | 0}, ${200 + 55 * h | 0}, 255, ${(a * (0.15 + 0.85 * h)).toFixed(3)})`;
-        ctx.fillRect(cam.cx + i * cell + 0.5, cam.cy + j * cell + 0.5, cell - 1, cell - 1);
-      }
-      ctx.restore();
-    },
-  };
+  const life=planckPattern();
 
   // ---------- one quark, drawn at QUARK_D: a point of light while it's too small to see,
   // then it grows past the frame and we're inside it, in the desert down to the Planck grid ----------
