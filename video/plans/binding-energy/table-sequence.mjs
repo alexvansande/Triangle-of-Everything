@@ -51,6 +51,8 @@ const zCol = (z) => {
   const [z0, c0] = STOPS[i - 1], [z1, c1] = STOPS[i];
   return d3.color(d3.interpolateLab(c0, c1)((z - z0) / (z1 - z0))).formatHex();
 };
+// BAKED=1: the energy colours from the first frame (no element-type start, no recolour beat)
+const BAKED = process.env.BAKED === "1";
 const HL = JSON.parse(fs.readFileSync(SP + "/halflife.json"));
 
 const W = 1080, H = 1920, BG = "#06061a";
@@ -65,7 +67,7 @@ for (let z = 1; z < ELEMENTS_BY_Z.length; z++) {
   const lt = Math.log10(HL[z] || 1e30);
   const glow = radio ? Math.max(0.12, Math.min(1, (17.7 - lt) / 21)) : 0;
   const rx = radio ? Math.max(0, Math.min(1, (17.7 - lt) / 21)) : 0; // 0 = thorium-long, 1 = milliseconds
-  const t = d3.color(TYPE[elementType(z)]).formatHex(), en = radio ? radCol(rx) : zCol(z);
+  const en = radio ? radCol(rx) : zCol(z), t = BAKED ? en : d3.color(TYPE[elementType(z)]).formatHex();
   els.push({ z, sym: b.sym, r, m, radio, glow, ct: t, ce: en, it: ink(t), ie: ink(en) });
 }
 if (process.env.HEX === "1") { // print every element's energy colour as a markdown table
@@ -101,10 +103,11 @@ for (const zs of rows.values()) zs.sort((a, b) => els[a - 1].lcol - els[b - 1].l
 const lines = [...[...rows.values()].map((zs) => ({ zs, row: true })), ...[...cols.values()].map((zs) => ({ zs, row: false }))];
 
 // Timeline (seconds)
-const T = { hold0: 1.0, morph: 3.2, hold1: 1.4, rot: 1.4, slide: 1.4, hold2: 1.4, recol: 2.6, pulse: 3.0, hold3: 1.2 };
+const T = BAKED ? { hold0: 1.2, morph: 3.2, hold1: 1.4, rot: 1.4, slide: 1.4, hold2: 0.6, recol: 0.001, pulse: 2.4, hold3: 0.6 }
+  : { hold0: 1.0, morph: 3.2, hold1: 1.4, rot: 1.4, slide: 1.4, hold2: 1.4, recol: 2.6, pulse: 3.0, hold3: 1.2 };
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;background:${BG};font-family:Inter,sans-serif}</style></head>
 <body><svg id="s" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg"></svg><script>
-const els=${JSON.stringify(els)}, lines=${JSON.stringify(lines)}, T=${JSON.stringify(T)}, CX=${W / 2}, CY=${CY};
+const BAKED=${BAKED}, els=${JSON.stringify(els)}, lines=${JSON.stringify(lines)}, T=${JSON.stringify(T)}, CX=${W / 2}, CY=${CY};
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2, cl=t=>Math.max(0,Math.min(1,t));
 const lerp=(a,b,t)=>a+(b-a)*t, mix=(p,q,t)=>[lerp(p[0],q[0],t),lerp(p[1],q[1],t),lerp(p[2],q[2],t)];
 const NS="http://www.w3.org/2000/svg";
@@ -126,7 +129,7 @@ window.draw=(time)=>{
     if(p.rot>0){ const a=Math.PI*ease(p.rot), dx=e.B[0]-CX, dy=e.B[1]-CY;
       q=[CX+dx*Math.cos(a)-dy*Math.sin(a), CY+dx*Math.sin(a)+dy*Math.cos(a), e.B[2]]; }
     if(p.slide>0) q=mix(e.C,e.D,ease(p.slide));
-    const rd=(e.z-1)/117*0.5, rc=ease(cl((p.recol-rd)/0.5));
+    const rd=(e.z-1)/117*0.5, rc=BAKED?1:ease(cl((p.recol-rd)/0.5));
     at[e.z]={x:q[0],y:q[1],r:q[2],rc};
   }
   if(lineA>0) for(const l of lines){
@@ -136,7 +139,7 @@ window.draw=(time)=>{
   const pulse = p.pulse>0 ? 0.5-0.5*Math.cos(p.pulse*Math.PI*4) : 0;
   for(const e of [...els].sort((a,b)=>b.z-a.z)){
     const a=at[e.z];
-    if(e.radio && a.rc>0.5){ const g=e.glow*cl(p.recol*2-1)*(0.75+0.25*pulse);
+    if(e.radio && a.rc>0.5){ const g=e.glow*(BAKED?1:cl(p.recol*2-1))*(0.75+0.25*pulse);
       el("circle",{cx:a.x,cy:a.y,r:a.r*(1.15+1.1*e.glow),fill:"url(#glow)",opacity:g}); }
     const fill=mixc(e.ct,e.ce,a.rc);
     const iron=e.z===26 && a.rc>0;
@@ -144,7 +147,7 @@ window.draw=(time)=>{
     el("text",{x:a.x,y:a.y+a.r*0.36,"text-anchor":"middle","font-size":(a.r*0.82).toFixed(1),"font-weight":700,fill:a.rc>0.5?e.ie:e.it},e.sym);
   }
   // colour key, once the energy colours are on
-  const ka=cl(p.recol*2-0.6);
+  const ka=BAKED?ease(cl(p.slide*1.5-0.3)):cl(p.recol*2-0.6);
   if(ka>0){ const ky=1520, x0=90, x1=${W}-90, n=118, w=(x1-x0)/n;
     els.forEach(e=>el("rect",{x:x0+(e.z-1)*w,y:ky,width:w+0.6,height:26,fill:e.ce,opacity:ka}));
     [[1,"H"],[26,"Fe"],[92,"U"],[118,"Og"]].forEach(([z,txt])=>el("text",{x:x0+(z-0.5)*w,y:ky+60,"font-size":26,fill:"#dde","text-anchor":"middle",opacity:ka},txt));
@@ -176,5 +179,5 @@ for (let f = 0; f < n; f++) {
 }
 await browser.close();
 execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", String(FPS), "-i", `${FR}/f%04d.png`,
-  "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", SP + "/table-sequence.mp4"]);
+  "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", SP + (BAKED ? "/table-sequence-baked.mp4" : "/table-sequence.mp4")]);
 console.log("frames", n, "seconds", total.toFixed(1));
