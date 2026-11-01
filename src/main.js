@@ -2724,7 +2724,9 @@ function drawObjects() {
   const dustChosen = pictures.filter(c => c.p && chosen.has(c));
   // forced pictures (videos: Venus behind Earth) show whatever they overlap;
   // drawn least important first, they sit behind the picture they overlap
-  if (_iconForce) for (const o of iconOrder) if (_iconForce.has(o.name)) { shownIcons.add(o); visibleDots.add(o); }
+  // (any forced one with a picture, not only those the scene names: the cow is forced among video 2's
+  // animals without being named, and lost its picture whenever a neighbour won its place, 2026-11-01)
+  if (_iconForce) for (const o of projected) if (_iconForce.has(o.name) && !_iconHide?.has(o.name) && mapIconShown(o, true)) { shownIcons.add(o); visibleDots.add(o); }
   // (catalogue pictures too: the lion and the giraffe among video 2's animals)
   if (_iconForce) for (const c of pictures) if (c.p && _iconForce.has(c.p.name) && !dustChosen.includes(c)) dustChosen.push(c);
   projected.forEach(o => {
