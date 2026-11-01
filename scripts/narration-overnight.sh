@@ -5,11 +5,18 @@
 # what's new on main, render it if its render is out of date (scripts/narration-render-stale.sh:
 # the full render in output/videos/, the web copy in video/web/, a dated copy in iCloud), then
 # commit the web copy and push to main, so the videos page's "Rendered video" has it as soon
-# as GitHub Pages deploys. When the list is done it looks once more for takes that went out of
-# date meanwhile (another session's new cut). It never forces anything: a merge that conflicts
-# is undone and that push waits for the next take.
+# as GitHub Pages deploys. The order is picked again before every take, after bringing main in:
+# the queue's "# next:" takes first, then the list given, then any other take that went out of
+# date meanwhile, so a change pushed mid-round (even to a take this round already rendered)
+# renders next (the author, 2026-11-01). Each take once per round. It never forces anything: a
+# merge that conflicts is undone and that push waits for the next take.
 # Needs the dev server on :5184 (the "shorts" preview) and Google Chrome.
-cd "$(dirname "$0")/.." || exit 1
+cd "$(git -C "$(dirname "$0")" rev-parse --show-toplevel)" || exit 1
+# run from a copy: merging main between takes can rewrite this file, and sh reads it as it goes
+if [ -z "$OVERNIGHT_COPY" ]; then
+  mkdir -p output/videos && cp "$0" output/videos/narration-overnight.sh.running &&
+    OVERNIGHT_COPY=1 exec sh output/videos/narration-overnight.sh.running "$@"
+fi
 log() { echo "[$(date +%H:%M:%S)] $*"; }
 
 ORDER="$*"
@@ -48,23 +55,26 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" || return 1
 # before its next take, as soon as main has it (the author, 2026-11-01: "delay the start of the
 # render queue until you finish the job"); deleting the line lets the next round go on
 held() { grep -q '^# hold' video/render-queue.txt 2>/dev/null; }
+# the next take: the first out-of-date one among the queue's "# next:" lines, the list given, then
+# any other (every short and long video, less video/render-skip.txt), not yet tried this round
+pick() {
+  stale=" $(DRY=1 scripts/narration-render-stale.sh 2>/dev/null | sed -n 's/^stale \([^ ]*\).*/\1/p' | tr '\n' ' ') "
+  for t in $(sed -n 's/^# next: //p' video/render-queue.txt) $ORDER $stale; do
+    case "$stale" in *" $t "*) case " $TRIED " in *" $t "*) ;; *) echo "$t"; return ;; esac ;; esac
+  done
+}
 round() {
-  for t in $ORDER; do
-    [ -d "public/narration/$t" ] || { sync_main; [ -d "public/narration/$t" ] || { log "$t: no take yet"; continue; }; }
+  TRIED=""
+  while :; do
     sync_main
-    if held; then log "render queue on hold (video/render-queue.txt): stopping before $t"; HELD=1; return; fi
+    if held; then log "render queue on hold (video/render-queue.txt): stopping"; return; fi
+    t=$(pick); [ -n "$t" ] || return
+    TRIED="$TRIED $t"
     out=$(scripts/narration-render-stale.sh "$t" 2>&1); echo "$out"
-    case "$out" in *"web copy"*) publish "$t"; RENDERED=1 ;; esac
+    case "$out" in *"web copy"*) publish "$t" ;; esac
   done
 }
 
 log "overnight renders: $ORDER"
-RENDERED=0; round
-# anything that went out of date while the others rendered (a new cut on main)
-for pass in 1 2; do
-  [ "$HELD" = 1 ] && break
-  sync_main
-  RENDERED=0; ORDER=$(ls -d public/narration/short-*/ | xargs -n1 basename); round
-  [ "$RENDERED" = 1 ] || break
-done
+round
 log "all done"
