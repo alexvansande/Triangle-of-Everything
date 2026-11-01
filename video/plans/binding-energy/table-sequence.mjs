@@ -132,6 +132,11 @@ const page = await browser.newPage({ viewport: { width: W, height: H } });
 await page.setContent(html);
 await page.evaluate(() => document.fonts.ready);
 const FPS = 30, total = Object.values(T).reduce((a, b) => a + b, 0);
+if (process.env.STILL === "1") { // just the final frame: the classroom table in the energy colours
+  await page.evaluate((t) => window.draw(t), total);
+  await page.screenshot({ path: SP + "/table-colours.png", clip: { x: 0, y: 560, width: W, height: 1160 } });
+  await browser.close(); process.exit(0);
+}
 const n = Math.round(total * FPS);
 for (let f = 0; f < n; f++) {
   await page.evaluate((t) => window.draw(t), f / FPS);
