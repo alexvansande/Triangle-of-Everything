@@ -23,7 +23,8 @@ export function cmbSphere(){
     vec3 nearP=normalize(eye+max(0.,nearT)*ray);
     vec2 nuv=vec2(fract(.5-atan(nearP.y,nearP.x)/6.28318530718),.5-asin(clamp(nearP.z,-1.,1.))/3.14159265359);
     float nearValue=texture2D(uMap,nuv).r;
-    float nearAlpha=clamp(uAlpha*2.6*shellWeight*(.015+.985*pow(smoothstep(.28,.78,nearValue),1.5)),0.,.92)*smoothstep(0.,.12,nearT);
+    float nearMask=smoothstep(.32,.62,nearValue);
+    float nearAlpha=min(1.,uAlpha/.3)*nearMask*smoothstep(0.,.12,nearT);
     vec3 nearColour=mix(vec3(.32,.024,.055),vec3(.85,.19,.22),smoothstep(.12,.88,texture2D(uMap,nuv).r));
     float alpha=mix(farAlpha,nearAlpha,uPass);
     gl_FragColor=vec4(mix(farColour,nearColour,uPass)*alpha,alpha);
