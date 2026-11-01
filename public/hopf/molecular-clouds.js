@@ -1,4 +1,5 @@
-// Atom Lab only: separate atom-centred Hopf bundles, no connector geometry.
+// Shared atom-centred Hopf bundles; luminous orb envelopes are opt-in.
+// Atom Lab defaults keep the original pure-fiber appearance.
 import {PARTICLES,LOOK,atomicCloudProfile} from './hopf-core.js';
 import {MOLECULES} from './molecules.js';
 import {BIG} from './big-molecules.js';
@@ -26,12 +27,20 @@ export function molecularCloudParticle(id,options={}){
  return {...source,N:48,ticks:[],frame:{center:[0,0,0],get radius(){return .92/look.cloudMolecularZoom;}},
   why:'Separate atom-centred Hopf fiber bundles at the molecular coordinates. Each bundle is lit by the element’s radially averaged outer-electron density, with a contact display radius so bonded neighbours touch directly. Element colours follow the exact user-supplied 118-element display palette. Each atom has a stable independent 3D fiber orientation. No bond lines. Large structures use fewer fibers per atom to keep the lab interactive.',
   make(){
-   const fibers=[],count=Math.max(4,Math.min(look.cloudFibers,Math.floor(18000/atoms.length)));
+   const fibers=[],defaultCount=Math.max(4,Math.min(look.cloudFibers,Math.floor(18000/atoms.length)));
    atoms.forEach(([el,x,y,z],j)=>{
     if(options.include&&!options.include(j))return;
     el=el.toUpperCase();const atomicZ=Z[el]||6;
     if(!profiles.has(atomicZ))profiles.set(atomicZ,atomicCloudProfile(atomicZ));
     const profile=profiles.get(atomicZ),color=rgb(elementCloudColor(el)),radius=molecularAtomRadius(el,look.cloudAtomRadius)/R,at=[x/R,y/R,z/R],orient=bundleRotation(j,[x,y,z]);
+    const count=options.fibersForAtom?.(j)??defaultCount;
+    if(options.orbs)for(let axis=0;axis<3;axis++)fibers.push({
+     glow:true,open:false,spin:0,flat:1,
+     get width(){return radius*.72;},
+     intensity:()=>.34*(look.cloudOrb??0),
+     curve(u){const t=u*2*Math.PI,q=[radius*.32*Math.cos(t),radius*.32*Math.sin(t),0];return q.map((_,i)=>at[i]+q[(i+axis)%3]);},
+     color:()=>color
+    });
     for(let k=0;k<count;k++){
      const eta=Math.acos(1-2*(k+.5)/count)/2,ce=Math.cos(eta),se=Math.sin(eta),xi=k*Math.PI*(3-Math.sqrt(5))+j*.731;
      fibers.push({open:true,spin:0,flat:1,
@@ -40,7 +49,7 @@ export function molecularCloudParticle(id,options={}){
       field(q,t,u){
        const r=Math.hypot(...q.map((v,i)=>(v-at[i])/radius)),idx=Math.min(profile.length-1,Math.floor(r*(profile.length-1))),rho=profile[idx];
        const fade=Math.max(0,Math.min(1,(1-r)/.12)),dash=look.dashes===0||look.dashLength>=1?1:((u*look.dashes-t*look.dashSpeed*.08)%1+1)%1<look.dashLength?1:0;
-       return [color,look.showCloud?.9*Math.sqrt(120/count)*look.cloudGain*(.28+.72*Math.pow(rho,look.cloudContrast))*fade*dash*(1+r*r)**2/4:0];
+       return [color,look.showCloud?.9*Math.sqrt(120/count)*look.cloudGain*(1-.84*(look.cloudOrb??0))*(.28+.72*Math.pow(rho,look.cloudContrast))*fade*dash*(1+r*r)**2/4:0];
       },color:()=>color});
     }
    });

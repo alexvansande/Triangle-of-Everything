@@ -1,21 +1,28 @@
 // One continuous code-rendered approach: guanine → selected hydrogen cloud.
 // The proton/quark renderer remains a separate live layer at the same origin.
 import {ramp,rng} from './math.js';
-import {core,makeGuanineScene,GUANINE_SPAN,GUANINE_LIGHT,SNAPSHOT_TIME,YAW,PITCH} from './guanine-scene.js';
-const ROOT='/video/powers-of-ten/generated/guanine-bridge-v2/';
+import {core,makeGuanineScene,DNA_CODE_SPAN,GUANINE_LIGHT,SNAPSHOT_TIME,YAW,PITCH} from './guanine-scene.js';
+const ROOT='/video/powers-of-ten/generated/dna-code-v3/';
 export function guanineApproach(){
- const img=new Image();img.src=ROOT+'guanine-flat.png';
+ const img=new Image();img.src=ROOT+'dna-flat.png';
+ const backdrop=new Image();backdrop.src=ROOT+'background.png';
  let renderer,near,back;
- try{renderer=new core.Renderer({alpha:true});const create=(include,approach=false)=>{const scene=makeGuanineScene(include,approach),view=new core.HopfView(renderer,null,scene.particle);view.yaw=YAW;view.pitch=PITCH;return {...scene,view};};near=create(j=>j===12,true);back=create(j=>j!==12);}catch(e){console.warn('Guanine renderer',e);}
+ try{renderer=new core.Renderer({alpha:true});const create=(include,approach=false)=>{const scene=makeGuanineScene(include,approach,true),view=new core.HopfView(renderer,null,scene.particle);view.yaw=YAW;view.pitch=PITCH;return {...scene,view};};near=create(j=>j===12,true);back=create(j=>j!==12);}catch(e){console.warn('Guanine renderer',e);}
  const rear=document.createElement('canvas'),front=document.createElement('canvas'),mix=document.createElement('canvas');let resolution=0;
  const random=rng(105),wisps=Array.from({length:75},()=>({x:random(),y:random(),r:.03+.13*random(),phase:random()*7}));
- const ready=()=>img.complete&&img.naturalWidth>0&&!!renderer;
+ const ready=()=>img.complete&&img.naturalWidth>0&&backdrop.complete&&backdrop.naturalWidth>0&&!!renderer;
  return {name:'Guanine hydrogen approach',range:[-16.2,-6.5],ready,draw(cam){
   if(!ready())return;const {ctx,W,H,min,s,dpr}=cam;
   for(const c of [rear,front,mix])if(c.width!==W||c.height!==H){c.width=W;c.height=H;}
   const c=mix.getContext('2d');c.clearRect(0,0,W,H);
-  const live=1-ramp(s,-9.35,-8.8),depth=1-ramp(s,-10.1,-9.4),inside=1-ramp(s,-11.5,-10.2),black=ramp(s,-16,-14.4);
-  const flatSide=GUANINE_SPAN*cam.k;
+  const live=1-ramp(s,-8.9,-8.3),depth=1-ramp(s,-9.7,-8.95),inside=1-ramp(s,-11.5,-10.2),black=ramp(s,-16,-14.4);
+  const bgAlpha=(1-ramp(s,-8.6,-8.15))*ramp(s,-10.8,-9.8);
+  if(bgAlpha){
+   const size=Math.max(W,H)*1.1,zoom=1+.12*Math.max(0,-8.3-s);
+   c.save();c.globalAlpha=bgAlpha;c.filter=`blur(${min*.014}px) brightness(${1-.65*(1-ramp(s,-10.5,-9.65))})`;
+   c.drawImage(backdrop,cam.cx-size*zoom/2,cam.cy-size*zoom/2,size*zoom,size*zoom);c.restore();
+  }
+  const flatSide=DNA_CODE_SPAN*cam.k;
   if(live<1){c.globalAlpha=1-live;c.drawImage(img,cam.cx-flatSide/2,cam.cy-flatSide/2,flatSide,flatSide);c.globalAlpha=1;}
   if(live>0&&inside<1){
    const px=Math.min(1600,Math.ceil(W/128)*128);if(resolution!==px){renderer.resize(px);resolution=px;}

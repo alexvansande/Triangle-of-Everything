@@ -7,7 +7,7 @@ function load(file,feather=false){const p={},img=new Image();img.onload=()=>{
 };img.src=ROOT+file;return p}
 export function nucleusInterior(){
  const base='nuclear-pieces-v2/',background=load(base+'background.png',true),coarse=load('level-1.png',true),layer=document.createElement('canvas');
- const parts=[['field',3],['hero',5],['dna',7],['purple',3]].map(([name,level])=>Object.assign(load(base+name+'.png'),{name,span:12e-6/3**level}));
+ const parts=[['field',3],['hero',5],['purple',3]].map(([name,level])=>Object.assign(load(base+name+'.png'),{name,span:12e-6/3**level}));
  const atomic=[load('../../../guanine-bridge-v2/guanine-flat.png')];
  const required=[background,coarse,...parts,...atomic],ready=()=>required.every(p=>!!p.img);
  const eased=(travel)=>travel-.14*(1-Math.exp(-travel/.14));

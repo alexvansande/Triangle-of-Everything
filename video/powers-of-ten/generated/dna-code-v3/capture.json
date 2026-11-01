@@ -1,0 +1,30 @@
+{
+  "span_m": 5.486968449931413e-09,
+  "n": 1254,
+  "source": "1BNA, aligned guanine N1-bound H at origin",
+  "orbDominant": true,
+  "time": 3,
+  "yaw": 0.6,
+  "pitch": 0.6,
+  "light": {
+    "bloom": 0.12,
+    "exposure": 1,
+    "width": 1,
+    "core": 0.75
+  },
+  "look": {
+    "cloudOrb": 1,
+    "cloudAtomRadius": 1.15,
+    "cloudGain": 1.9,
+    "cloudWidth": 0.0115,
+    "cloudContrast": 0.65,
+    "spin": 1.7,
+    "showNucleus": false
+  },
+  "fibersPerAtom": {
+    "targetHydrogen": 140,
+    "guanine": 36,
+    "otherAtoms": 6
+  },
+  "normalization": "Shared full DNA coordinate extent, including selected H at origin."
+}
