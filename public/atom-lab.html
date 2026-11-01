@@ -166,11 +166,12 @@ const SUBJECTS = [
   ['hydrogen', 'hydrogen', 'Hydrogen'], ['deuterium', 'deuterium', 'Deuterium'], ['helium', 'helium', 'Helium'],
   ['carbon', 'carbon', 'Carbon'], ['oxygen', 'oxygen', 'Oxygen'], ['iron', 'iron', 'Iron'], ['gold', 'gold', 'Gold'],
   ['uranium', 'uranium', 'Uranium'], ['water', 'water', 'Water'], ['glucose', 'glucose', 'Glucose'],
-  ['adenine', 'adenine-a', 'Adenine'], ['atp', 'atp', 'ATP'], ['c60', 'fullerene-c60', 'C₆₀'],
+  ['adenine', 'adenine-a', 'Adenine · A'], ['guanine', 'guanine-g', 'Guanine · G'],
+  ['thymine', 'thymine-t', 'Thymine · T'], ['cytosine', 'cytosine-c', 'Cytosine · C'], ['atp', 'atp', 'ATP'], ['c60', 'fullerene-c60', 'C₆₀'],
   ['dna', 'dna', 'DNA'], ['insulin', 'insulin', 'Insulin'], ['hemoglobin', 'hemoglobin', 'Hemoglobin'],
   ['antibody', 'antibody-igg', 'Antibody'], ['ribosome', 'ribosome', 'Ribosome'],
 ];
-const NUCLEONS = ['proton', 'neutron'], MOLECULES = ['glucose', 'adenine', 'atp', 'c60'];
+const NUCLEONS = ['proton', 'neutron'], MOLECULES = ['glucose', 'adenine', 'guanine', 'thymine', 'cytosine', 'atp', 'c60'];
 const ATOMS = ['hydrogen', 'deuterium', 'helium', 'carbon', 'oxygen', 'iron', 'gold', 'uranium', 'water', ...MOLECULES];
 // too many atoms for a cloud each: backbone tubes and a glow per atom
 const BIG = ['dna', 'insulin', 'hemoglobin', 'antibody', 'ribosome'];
@@ -219,7 +220,7 @@ const GROUPS = [
     { k: 'plusColor', label: 'Electron colour (ψ > 0)', type: 'color' },
     { k: 'minusColor', label: 'Negative phase (ψ < 0)', type: 'color', used: ['hydrogen', 'deuterium'] },
     { k: 'coreColor', label: 'Inner-shell colour', type: 'color', used: ['oxygen', 'water'] },
-    { k: 'hColor', label: 'Hydrogens\' electrons', type: 'color', used: ['water'] },
+    { k: 'hColor', label: 'Hydrogens\' electrons', type: 'color', used: ['water', ...MOLECULES] },
     { k: 'showCloud', label: 'Show cloud', type: 'check' },
     { k: 'cutaway', label: 'Cut away the near quarter', min: 0, max: 1, step: 0.01 },
     { k: 'bonds', label: 'Bonds', min: 0, max: 1.5, step: 0.01, used: MOLECULES },
