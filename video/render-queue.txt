@@ -44,7 +44,3 @@ short-07b-sky
 # next: short-07a-photons
 # next: short-07b-sky
 short-03-stars
-long-01-intro
-short-01-hook
-short-02a-things
-short-02b-planets
