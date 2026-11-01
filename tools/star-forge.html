@@ -125,6 +125,7 @@ pre.json { font: 400 11px/1.4 var(--mono); background: #000; border: 1px solid v
 let F;
 for (const u of ["./star-forge.js", "../src/star-forge.js"]) { try { F = await import(u); break; } catch (e) { /* next */ } }
 const { STARS, palette, colours } = F;
+window.__starForge = F;   // for scripted checks
 const toCss = c => `rgb(${c.map(v => Math.round(255 * Math.pow(Math.min(1, v), 1 / 2.2))).join(",")})`;
 let forge = null;
 const render = (s, t, size, target) => forge.render(s, t, size, { target });
