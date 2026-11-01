@@ -170,7 +170,7 @@ export const LOOK = {
   linearNucleus: 0.18,               // rebuild: its radius at linear scale (really ~10⁻⁵)
   rings: 0,
   cloudMolecularZoom: 1,            // Atom Lab molecular camera only
-  cloudAtomRadius: 0.5,              // Atom Lab molecular bundles only; relative display radius
+  cloudAtomRadius: 1.1,              // Atom Lab molecular bundles only; relative display radius
   cloudFibers: 180,                  // rebuild
   cloudGain: 2.75, cloudContrast: 1.15, cloudWidth: 0.005,
   dashes: 12, dashLength: 1, dashSpeed: 3,  // dashLength: lit share of each dash's stretch, 1 = whole circle
