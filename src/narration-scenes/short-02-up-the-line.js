@@ -117,7 +117,9 @@ export default {
 
     // walking up the line: the grid's squares are decades, counted out beside the
     // arrows, with the axis each move is measured on lit up
-    { at: ["make every side", "multiply all three sides"], cam: { r: 0.3, m: 1.5, span: 2.7 }, focus: [ML.obj, LITER.obj], units: true, unitsUntil: "density of water",
+    // (lower and a little wider, so the first square, a decade below the gram, clears the captions
+    // and the ruler: it was hidden under them, the author, 2026-11-01; 16:9: that rectangle, fitted)
+    { at: ["make every side", "multiply all three sides"], cam: { r: 0.6, m: 0.85, span: 3.2, frame: [-0.6, -1.1, 2.1, 3.5] }, focus: [ML.obj, LITER.obj], units: true, unitsUntil: "density of water",
       hl: [{ ...ML, label: "1 mL · 1 cm" }] },
     { at: ["one unit to the right", "one step to the side"],
       hl: [{ ...ML, label: "1 mL" }, ...STEP_RIGHT, { axis: "bottom", label: "size ×10" }] },
