@@ -22,9 +22,13 @@ export function boost(c, k) {
 // leans one step further out along the sequence (redder for cool stars, more violet for hot ones).
 // Interpolated in log T, in linear RGB.
 export const PALETTE = [ // [T, deep, bright]
-  [2600,  [0.40, 0.010, 0.006], [1.00, 0.32, 0.030]],
-  [3300,  [0.55, 0.015, 0.006], [1.00, 0.50, 0.060]],   // M: red and yellow-orange
-  [4200,  [0.62, 0.050, 0.005], [1.00, 0.62, 0.100]],   // K
+  // M: the brown dwarfs' own tones, taken from their pictures (l-brown-dwarf, toi-2490-b): deep
+  // crimson-maroon and rusty bright brown (the author, 2026-11-01: the smallest stars in the brown
+  // dwarfs' reds and bright browns, "to highlight they're not as different after all"). Marked fixed:
+  // the hue stretch leaves them as they are (at 3 it would turn them pure red). K is red-orange.
+  [2600,  [0.0612, 0.0006, 0.0021], [0.6105, 0.0382, 0.0116], true],
+  [3300,  [0.1559, 0.0024, 0.004], [0.7913, 0.1046, 0.0395], true],   // M
+  [4200,  [0.50, 0.030, 0.005], [1.00, 0.400, 0.070]],   // K
   [5800,  [0.70, 0.100, 0.004], [1.00, 0.75, 0.200]],   // G
   [7200,  [0.75, 0.280, 0.040], [1.00, 0.90, 0.550]],   // F
   [9800,  [0.18, 0.420, 0.850], [1.00, 1.00, 1.000]],   // A
@@ -39,8 +43,10 @@ export function palette(T) {
   const P = PALETTE, lt = Math.log(Math.min(Math.max(T, P[0][0]), P[P.length - 1][0]));
   let i = 0; while (i < P.length - 2 && lt > Math.log(P[i + 1][0])) i++;
   const f = (lt - Math.log(P[i][0])) / (Math.log(P[i + 1][0]) - Math.log(P[i][0]));
+  // each row through the hue stretch (unless fixed), then blended
+  const row = (r, j) => r[3] ? r[j] : boost(r[j], hueK);
   const mixc = (x, y) => x.map((v, k) => v + (y[k] - v) * f);
-  return { deep: boost(mixc(P[i][1], P[i + 1][1]), hueK), bright: boost(mixc(P[i][2], P[i + 1][2]), hueK) };
+  return { deep: mixc(row(P[i], 1), row(P[i + 1], 1)), bright: mixc(row(P[i], 2), row(P[i + 1], 2)) };
 }
 
 // ---------------------------------------------------------------- the catalogue
@@ -62,10 +68,10 @@ export const MODEL = { rot: 0.05, evolve: 0.205, scale: 16.9, cells: 1, warp: 1.
 const STRONG_TONES = { tone: 0.9, toneSpread: 1.5, toneSharp: 0.12 };
 export const STARS = [
   { slug: "proxima-cen", name: "Proxima Centauri", cls: "M5.5 V", T: 3042, kind: 0,
-    ...STRONG_TONES,
+    ...STRONG_TONES, toneSpread: 1.25, hiT: 1.2,   // its highlights rusty, not yellow
     note: "3,042 K. A flare star: big starspots, and flares that briefly brighten it. The model the others start from." },
   { slug: "red-dwarf", name: "Red dwarf (TOI-700)", cls: "M2 V", T: 3480, kind: 0,
-    scale: 14, flare: 0.7, spots: 0.85, tilt: -0.3, evolve: 0.17,
+    scale: 14, flare: 0.7, hiT: 1.2, hi: 0.2, spots: 0.85, tilt: -0.3, evolve: 0.17,
     note: "3,480 K. The most common kind of star; large, long-lived spots, calmer than Proxima." },
   { slug: "betelgeuse", name: "Betelgeuse", cls: "M2 Iab", T: 3600, kind: 0,
     scale: 3, warp: 1.9, network: 0.9, active: 0.7, spots: 0.4, atm: 0.42, prom: 1.5, spic: 1.2, flare: 0.4, rot: 0.015, evolve: 0.08, tilt: 0.15,
