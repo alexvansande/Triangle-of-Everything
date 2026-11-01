@@ -947,8 +947,8 @@ const COVALENT = { H: 0.31, C: 0.76, N: 0.71, O: 0.66, P: 1.07, S: 1.05 };
 const bondsOf = atoms => atoms.flatMap((a, i) => atoms.slice(i + 1).map((b, k) => [i, i + 1 + k, b])
   .filter(([, , b]) => Math.hypot(a[1] - b[1], a[2] - b[2], a[3] - b[3]) < 1.15 * (COVALENT[a[0]] + COVALENT[b[0]])).map(([i, j]) => [i, j]));
 const MOLECULE_WHY = 'A molecule\'s outer electrons, woven from the electron\'s own Hopf circles, each lit by the electron density where it passes; the dots are the nuclei, in their elements\' colours (carbon pale, oxygen red, nitrogen blue, phosphorus orange, hydrogen white). The atoms sit at their real 3D positions (PubChem). The cloud is the sum of each atom\'s own outer shell: real bonding shifts a little of it into the bonds, which this does not show. Drawn to scale, so the nuclei, really 100,000 times smaller than the cloud, are shown much too big.';
-function molecule([id, name, sub, note]) {
-  const atoms = MOLECULES[id], R = Math.max(...atoms.map(a => Math.hypot(a[1], a[2], a[3]))) + 0.8;
+function molecule([id, name, sub, note], atoms = MOLECULES[id]) {
+  const R = Math.max(...atoms.map(a => Math.hypot(a[1], a[2], a[3]))) + 0.8;
   const counts = {};
   for (const [e] of atoms) counts[e] = (counts[e] || 0) + 1;
   const formula = Object.entries(counts).map(([e, n]) => e + (n > 1 ? String(n).split('').map(d => '₀₁₂₃₄₅₆₇₈₉'[d]).join('') : '')).join('');
@@ -960,6 +960,11 @@ function molecule([id, name, sub, note]) {
       return els.filter(t => t.n === outer).map(t => ({ ...t, h: e === 'H' }));
     }),
     bonds: bondsOf(atoms), extentA0: R / 0.529177, frame: 0.82, fixed: { logScale: false } });
+}
+// A caller-supplied, registered fragment can share the catalogue's actual
+// density/fiber renderer without moving its atom coordinates or optical axis.
+export function moleculeFromAtoms(atoms,{id='fragment',name='Molecular fragment',sub='',note=''}={}){
+  return molecule([id,name,sub,note],atoms);
 }
 const SMALL_MOLECULES = [
   ['glucose', 'Glucose', 'C₆H₁₂O₆, the sugar cells burn, in its ring form', 'In water nearly all glucose closes into this six-membered ring (β-D-glucopyranose).'],
@@ -1058,7 +1063,7 @@ const ATOMS = [
     nuclei: [...O16, ...WATER_H.map(p => [PROTON_SCALE, p])],
     electrons: [...electronsOf(8), ...WATER_H.map(at => ({ n: 1, l: 0, m: 0, Z: 1, occ: 1, h: true, at }))], extentA0: OH_FM / BOHR_FM + 3,
     balls: WATER_BALLS }),
-  ...SMALL_MOLECULES.map(molecule),
+  ...SMALL_MOLECULES.map(m=>molecule(m)),
   ...BIG_MOLECULES.map(bigMolecule).filter(Boolean),
   ...['2s', '2p', '3p', '3d z²', '3d xz', '4f z³'].map(o => {
     const [n, l, m] = ORBITALS[o];

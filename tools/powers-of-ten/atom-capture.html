@@ -1,0 +1,23 @@
+<!doctype html><meta charset="utf-8"><title>Hopf atom bridge · reference capture</title>
+<style>body{background:#101512;color:#e8ece9;font:15px system-ui;margin:24px}button{padding:12px;background:#2d4538;color:white;border:1px solid #718b7d;border-radius:7px;cursor:pointer}main{display:flex;gap:16px;flex-wrap:wrap;margin-top:20px}figure{margin:0;background:#030205;padding:10px;border-radius:8px}canvas{width:360px;height:360px;display:block}figcaption{padding:10px}#status{margin:12px}</style>
+<h1>Hopf atom bridge · source renders</h1><p>Hydrogen, deuterium, H₂O and the registered A–T fragment use the particle explorer’s actual fiber renderer.</p>
+<button id="export" disabled>Download reference renders</button><span id="status">Rendering…</span><main></main>
+<script type="module">
+import {loadHopfCore,hydrogenParticle,basePairGeometry,PAIR_SPAN,HYDROGEN_SPAN,SNAPSHOT_TIME,SNAPSHOT_YAW,HOPF_OPTIONS,hydrogenExtent} from './atomic-bridge-geometry.js';
+const core=await loadHopfCore();core.LOOK.logScale=false;core.LOOK.showNucleus=false;
+const n=1254,renderer=new core.Renderer({alpha:true});renderer.resize(n);
+const geometry=basePairGeometry(),pair=core.moleculeFromAtoms(geometry.atoms,{id:'registered-at',name:'A–T fragment'});
+const E=(Math.max(...geometry.atoms.map(a=>Math.hypot(...a.slice(1))))+.8)*1e-10;
+pair.frame={center:[0,0,0],radius:PAIR_SPAN/E*Math.cos(14*Math.PI/180)/(2*1.32)};
+const configs=[['hydrogen-source',hydrogenParticle(core),HYDROGEN_SPAN,SNAPSHOT_YAW,.6],['basepair-source',pair,PAIR_SPAN,0,0],['deuterium-reference',core.PARTICLES.find(p=>p.id==='deuterium'),null,SNAPSHOT_YAW,.6],['water-reference',core.PARTICLES.find(p=>p.id==='water'),null,SNAPSHOT_YAW,.6]];
+const result={version:1,n,geometry,hydrogenExtent_m:hydrogenExtent(),snapshot:{time:SNAPSHOT_TIME,yaw:SNAPSHOT_YAW,options:HOPF_OPTIONS},renders:{}};
+for(const [name,particle,span,yaw,pitch]of configs){
+ const view=new core.HopfView(renderer,null,particle);view.yaw=yaw;view.pitch=pitch;
+ view.update(SNAPSHOT_TIME,HOPF_OPTIONS);
+ const c=document.createElement('canvas');c.width=c.height=n;const ctx=c.getContext('2d');ctx.fillStyle='#030205';ctx.fillRect(0,0,n,n);renderer.render(view,HOPF_OPTIONS,[ctx,0,0,n,n]);
+ const f=document.createElement('figure'),label=document.createElement('figcaption');label.textContent=name+(span?' · '+(span*1e9).toFixed(4)+' nm':' · linear cloud reference');f.append(c,label);document.querySelector('main').append(f);
+ result.renders[name]={span_m:span,png:c.toDataURL('image/png')};await new Promise(requestAnimationFrame);
+}
+document.querySelector('#status').textContent='Ready · four native1254px captures';const button=document.querySelector('#export');button.disabled=false;
+button.onclick=()=>{const a=document.createElement('a');a.download='powers-of-ten-hopf-bridge-v1.json';a.href=URL.createObjectURL(new Blob([JSON.stringify(result)],{type:'application/json'}));a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);document.querySelector('#status').textContent='Downloaded reference render pack';};
+</script>

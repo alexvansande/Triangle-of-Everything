@@ -8,7 +8,8 @@ function load(file,feather=false){const p={},img=new Image();img.onload=()=>{
 export function nucleusInterior(){
  const base='nuclear-pieces-v2/',background=load(base+'background.png',true),coarse=load('level-1.png',true),layer=document.createElement('canvas');
  const parts=[['field',3],['hero',5],['dna',7],['purple',3]].map(([name,level])=>Object.assign(load(base+name+'.png'),{name,span:12e-6/3**level}));
- const required=[background,coarse,...parts],ready=()=>required.every(p=>!!p.img);
+ const atomic=[load('../../../atomic-bridge-v1/basepair.png'),load('../../../atomic-bridge-v1/hydrogen.png')];
+ const required=[background,coarse,...parts,...atomic],ready=()=>required.every(p=>!!p.img);
  const eased=(travel)=>travel-.14*(1-Math.exp(-travel/.14));
  return {ready,draw(ctx,x,y,k,s,min){
   if(!ready())return;const rootSpan=12e-6/9,rootSide=rootSpan*k;

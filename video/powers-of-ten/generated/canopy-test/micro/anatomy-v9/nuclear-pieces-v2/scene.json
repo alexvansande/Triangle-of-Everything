@@ -23,7 +23,8 @@
     {
       "name": "dna",
       "level": 7,
-      "span": 5.486968449931413e-9
+      "span": 5.486968449931413e-9,
+      "flatFile": "dna-flat.png"
     },
     {
       "name": "purple",

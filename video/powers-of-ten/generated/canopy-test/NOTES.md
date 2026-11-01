@@ -750,3 +750,12 @@ This supersedes the earlier chromatin-v1 background replacement workflow above.
 - Positions remain fixed while the shared view basis rotates. A continuous homogeneous projection interpolation over25.6–26.45 takes the catalogue's scale into the CMB shell's perspective; final data radius is within95.5% of the shell radius, keeping the strands inside the marble. No camera recenter or path change.
 - New review control: Cosmic web → CMB,28seconds. Main journey also includes it.
 - Check: both populations finite, correct bounds/alpha and count, all spatial octants; interior voxel variance/mean3.29 verifies clustered density/voids rather than uniform noise. Live GPU shader/visual checks cover intermediate and final scales.
+
+
+## Registered DNA → actual Hopf hydrogen bridge (2026-11-01)
+
+The final molecular approach now uses the particle explorer's native hydrogen fiber renderer, captured at time 3 / yaw 0.6 / pitch 0.6 with linear physical scaling. Hydrogen and deuterium plus the H₂O molecular view were rendered as reference cards at `tools/powers-of-ten/atom-capture.html`. The live cloud freezes to that captured state before the PNG handoff; the proton and quark layer bodies are unchanged.
+
+A thymine N3-bound hydrogen in the A–T fragment stays at the optical centre. Three registered spans are 0.609663 nm (H), 1.828989 nm (base-pair fragment), and 5.486968 nm (DNA). The generated molecular surroundings follow coordinate blueprints; they are illustrative surfaces, not a bonded-electron calculation. Each finer transparent piece is composited into its parent at exactly one-third size, and the runtime uses those same separate planes. No recentering or shrinking vector stage.
+
+Review with **Atom → DNA** or **DNA → atom → quarks**. Assets, capture metadata, prompts and limitations: `video/powers-of-ten/generated/atomic-bridge-v1/provenance.json`. Rebuild with `powers-of-ten-match-atom.mjs` followed by the anatomy/drop/depth match scripts. Validate with `powers-of-ten-check-atom.mjs` and `powers-of-ten-check-chromatin.mjs`.

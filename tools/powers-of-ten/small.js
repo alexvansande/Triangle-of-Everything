@@ -4,6 +4,9 @@
 // whose hydrogen bond holds the centre of the whole zoom.
 import { ramp, win, rng, gauss } from "./math.js";
 
+import {atomicBridge,atomBridgePhase} from './atomic-bridge.js';
+import {loadHopfCore,hydrogenParticle,HYDROGEN_SPAN,SNAPSHOT_TIME,SNAPSHOT_YAW} from './atomic-bridge-geometry.js';
+
 const A0 = 5.29e-11, PROTON_D = 1.68e-15;
 // quarks have no measured size; colliders put it under ~10⁻¹⁹ m, so that is the size drawn
 const QUARK_D = 1e-19;
@@ -16,11 +19,7 @@ export async function smallLayers() {
   // Vite's dev server won't hand a public file to import(), so public/hopf/hopf-core.js
   // comes in as text, its own imports (the molecules) pointed at their full addresses
   try {
-    const at = (f) => new URL("/hopf/" + f, location.href).href;
-    const src = (await (await fetch(at("hopf-core.js"))).text()).replace(/(["'])\.\/(molecules|big-molecules)\.js\1/g, (m, q, f) => q + at(f + ".js") + q);
-    const url = URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
-    try { core = await import(/* @vite-ignore */ url); }
-    finally { URL.revokeObjectURL(url); }
+    core=await loadHopfCore();
     // the atoms to true (linear) scale, and no nucleus of their own: the zoom draws
     // the proton itself, at its real size (the explorer's is ~18,000× too big)
     core.LOOK.logScale = false; core.LOOK.showNucleus = false;
@@ -29,11 +28,11 @@ export async function smallLayers() {
   const hopf = (id) => {
     if (!core) return null;
     const renderer = new core.Renderer({ alpha: true });
-    const view = new core.HopfView(renderer, null, core.PARTICLES.find((p) => p.id === id));
+    const view = new core.HopfView(renderer, null, id==="hydrogen"?hydrogenParticle(core):core.PARTICLES.find((p) => p.id === id));
     view.yaw = 0.6;
     return { renderer, view, size: 0 };
   };
-  const proton = hopf("proton-scale"), quark = hopf("up"), hydrogen = hopf("hydrogen");
+  const proton = hopf("proton-scale"), quark = hopf("up"), hydrogen = hopf("hydrogen"), bridge=atomicBridge();
   const drawHopf = (h, cam, box, alpha, res) => {
     // Frame dimensions are physical output pixels, including export DPR.
     // Video mode supports the3840px master; preview keeps GPU memory bounded.
@@ -43,8 +42,10 @@ export async function smallLayers() {
     // Retain allocation while zooming; shrink only after a substantial retreat.
     if (px > h.size || px < h.size / 2) { h.renderer.resize(px); h.size = px; }
     if (res !== undefined) h.view.res = res;
-    h.view.yaw = 0.6 + cam.t * 0.12;
-    h.view.update(cam.t, OPTS);
+    if(h===hydrogen&&bridge.ready()){
+      const freeze=ramp(cam.s,-10.4,-9.9),time=cam.t*(1-freeze)+SNAPSHOT_TIME*freeze;
+      h.view.yaw=SNAPSHOT_YAW+(1-freeze)*cam.t*.12;h.view.update(time,OPTS);
+    }else{h.view.yaw = 0.6 + cam.t * 0.12;h.view.update(cam.t, OPTS);}
     cam.ctx.globalAlpha = alpha;
     h.renderer.render(h.view, OPTS, [cam.ctx, cam.cx - box / 2, cam.cy - box / 2, box, box]);
     cam.ctx.globalAlpha = 1;
@@ -134,18 +135,18 @@ export async function smallLayers() {
   // the Hopf explorer's hydrogen: the 1s cloud woven from the electron's own Hopf
   // circles, each lit by |ψ|² where it passes, out to 4.2 Bohr radii (99% of the
   // electron) at radius 1 of its picture, the picture's square 2.1 wide
-  const H_BOX = 2.1 * 4.2 * A0;
+  const H_BOX = HYDROGEN_SPAN;
   const atom = {
     name: "hydrogen", range: [-14.6, -8.6],
     draw(cam) {
-      const a = win(cam.s, -14.4, -13.8, -9.45, -9.0);
+      const a = bridge.ready()?ramp(cam.s,-14.4,-13.8)*(1-atomBridgePhase(cam.s)):win(cam.s, -14.4, -13.8, -9.45, -9.0);
       if (a <= 0.01) return;
       const ctx = cam.ctx, R = 7 * A0 * cam.k, box = H_BOX * cam.k;
       // from a few frames inside it outwards, the woven cloud; deeper in, where one
       // picture can't hold it, the plain glow and dots below
       const ha = hydrogen ? a * (1 - ramp(box, 3 * cam.min, 8 * cam.min)) : 0;
-      if (ha > 0.01) drawHopf(hydrogen, cam, box, ha);
-      const ga = a * (hydrogen ? 0.35 + 0.65 * ramp(box, 2 * cam.min, 6 * cam.min) : 1);
+      if (ha > 0.01){ctx.save();if(bridge.ready())ctx.globalCompositeOperation="lighter";drawHopf(hydrogen, cam, box, ha);ctx.restore();}
+      const ga = a * (hydrogen ? (bridge.ready()?ramp(box,2*cam.min,6*cam.min):0.35+0.65*ramp(box,2*cam.min,6*cam.min)) : 1);
       const g = ctx.createRadialGradient(cam.cx, cam.cy, 0, cam.cx, cam.cy, R);
       for (let i = 0; i <= 12; i++) {
         const t = i / 12, rho = Math.exp(-2 * t * 7);
@@ -164,69 +165,5 @@ export async function smallLayers() {
     },
   };
 
-  return [life, quarkLayer, protonLayer, atom, basePair()];
-}
-
-// ---------- the A–T base pair, flat on (3DNA standard bases, Å; T flipped across the pair's long axis) ----------
-function basePair() {
-  const A = { "C1'": [-2.479, 5.346], N9: [-1.291, 4.498], C8: [0.024, 4.897], N7: [0.877, 3.902], C5: [0.071, 2.771], C6: [0.369, 1.398], N6: [1.611, 0.909], N1: [-0.668, 0.532], C2: [-1.912, 1.023], N3: [-2.320, 2.290], C4: [-1.267, 3.124] };
-  const Tr = { "C1'": [-2.481, 5.354], N1: [-1.284, 4.500], C2: [-1.462, 3.135], O2: [-2.562, 2.608], N3: [-0.298, 2.407], C4: [0.994, 2.897], O4: [1.944, 2.119], C5: [1.106, 4.338], C7: [2.466, 4.961], C6: [-0.024, 5.057] };
-  const T = Object.fromEntries(Object.entries(Tr).map(([k, [x, y]]) => [k, [x, -y]]));
-  const bondsA = [["C1'", "N9"], ["N9", "C8"], ["C8", "N7"], ["N7", "C5"], ["C5", "C6"], ["C6", "N6"], ["C6", "N1"], ["N1", "C2"], ["C2", "N3"], ["N3", "C4"], ["C4", "C5"], ["C4", "N9"]];
-  const bondsT = [["C1'", "N1"], ["N1", "C2"], ["C2", "O2"], ["C2", "N3"], ["N3", "C4"], ["C4", "O4"], ["C4", "C5"], ["C5", "C7"], ["C5", "C6"], ["C6", "N1"]];
-  const unit = (v) => { const l = Math.hypot(...v); return [v[0] / l, v[1] / l]; };
-  const away = (at, ...nbs) => unit(nbs.reduce((s, nb) => { const u = unit([at[0] - nb[0], at[1] - nb[1]]); return [s[0] + u[0], s[1] + u[1]]; }, [0, 0]));
-  const along = (at, dir, d) => [at[0] + dir[0] * d, at[1] + dir[1] * d];
-  const rot = ([x, y], deg) => { const c = Math.cos(deg * Math.PI / 180), s = Math.sin(deg * Math.PI / 180); return [x * c - y * s, x * s + y * c]; };
-  const atoms = [], bonds = [], hb = [];
-  const put = (el, p, base) => { atoms.push({ el, p, base }); return p; };
-  for (const [k, p] of Object.entries(A)) put(k[0] === "C" && k !== "C1'" ? "C" : k[0], p, "A");
-  for (const [k, p] of Object.entries(T)) put(k[0], p, "T");
-  for (const [a, b] of bondsA) bonds.push([A[a], A[b]]);
-  for (const [a, b] of bondsT) bonds.push([T[a], T[b]]);
-  const H = (p, base) => put("H", p, base);
-  const hA2 = H(along(A.C2, away(A.C2, A.N1, A.N3), 1.08), "A");
-  const hA8 = H(along(A.C8, away(A.C8, A.N7, A.N9), 1.08), "A");
-  const dN6 = unit([A.N6[0] - A.C6[0], A.N6[1] - A.C6[1]]);
-  const h61 = H(along(A.N6, rot(dN6, 60), 1.01), "A"), h62 = H(along(A.N6, rot(dN6, -60), 1.01), "A");
-  const toO4 = Math.hypot(h61[0] - T.O4[0], h61[1] - T.O4[1]) < Math.hypot(h62[0] - T.O4[0], h62[1] - T.O4[1]) ? h61 : h62;
-  const h3 = H(along(T.N3, away(T.N3, T.C2, T.C4), 1.01), "T");
-  const h6 = H(along(T.C6, away(T.C6, T.N1, T.C5), 1.08), "T");
-  for (const [p, q] of [[A.C2, hA2], [A.C8, hA8], [A.N6, h61], [A.N6, h62], [T.N3, h3], [T.C6, h6]]) bonds.push([p, q]);
-  hb.push([h3, A.N1], [toO4, T.O4]);
-  // the hydrogen of the middle bond (thymine N3–H ··· adenine N1) is the zoom's centre
-  const O = h3;
-  // screen: the pair's long axis across, A on the left, the major groove up
-  const toScreen = ([x, y]) => [-(y - O[1]) * 1e-10, -(x - O[0]) * 1e-10];
-  const RAD = { H: 0.32, C: 0.55, N: 0.52, O: 0.5 };
-  const COL = { H: "#f4f4f4", C: "#ffd84a", N: "#4d8fff", O: "#ff4d4d" };
-  return {
-    name: "base pair", range: [-10.6, -8.3],
-    draw(cam) {
-      // in once the hydrogen's electron cloud has been seen whole (it fits the frame near 10^-9.7 m)
-      const a = ramp(cam.s, -9.6, -9.25) * (1 - ramp(cam.s, -8.95, -8.55));
-      if (a <= 0.01) return;
-      // turning edge-on as the helix takes over: squash across the screen's height
-      const sq = 1 - 0.9 * ramp(cam.s, -9.1, -8.6);
-      const ctx = cam.ctx, P = (p) => { const [x, y] = toScreen(p); return [cam.cx + x * cam.k, cam.cy + y * cam.k * sq]; };
-      ctx.globalAlpha = a;
-      ctx.lineCap = "round";
-      ctx.strokeStyle = "rgba(150,190,255,0.9)"; ctx.lineWidth = 0.16e-10 * cam.k;
-      ctx.beginPath(); for (const [p, q] of bonds) { ctx.moveTo(...P(p)); ctx.lineTo(...P(q)); } ctx.stroke();
-      ctx.setLineDash([0.18e-10 * cam.k, 0.16e-10 * cam.k]); ctx.strokeStyle = "rgba(255,255,255,0.7)"; ctx.lineWidth = 0.09e-10 * cam.k;
-      ctx.beginPath(); for (const [p, q] of hb) { ctx.moveTo(...P(p)); ctx.lineTo(...P(q)); } ctx.stroke(); ctx.setLineDash([]);
-      // the sugars' stubs, towards the backbones
-      ctx.strokeStyle = "rgba(255,170,80,0.8)"; ctx.lineWidth = 0.5e-10 * cam.k;
-      ctx.beginPath(); for (const c of [A["C1'"], T["C1'"]]) { const s = Math.sign(c[1]); ctx.moveTo(...P(c)); ctx.lineTo(...P([c[0] - 1.2, c[1] + s * 2.2])); } ctx.stroke();
-      for (const at of atoms) {
-        const [x, y] = P(at.p), rr = RAD[at.el] * 1e-10 * cam.k;
-        const g = ctx.createRadialGradient(x - rr * 0.35, y - rr * 0.35, rr * 0.1, x, y, rr);
-        g.addColorStop(0, "#fff"); g.addColorStop(0.35, COL[at.el]); g.addColorStop(1, "rgba(0,0,0,0.6)");
-        ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, rr, rr * sq, 0, 0, 7); ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-      cam.label(-5e-10, -3.5e-10 * sq, "adenine", a); cam.label(5e-10, -3.5e-10 * sq, "thymine", a);
-      cam.label(0, 0.9e-10, "hydrogen bond", a * (1 - ramp(cam.s, -9.4, -9.1)));
-    },
-  };
+  return [life, quarkLayer, protonLayer, atom, bridge];
 }

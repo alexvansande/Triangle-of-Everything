@@ -11,7 +11,7 @@ for(const p of scene.parts){
  const file=path('nuclear-pieces-v2/'+p.name+'.png'),{data,info}=await sharp(file).raw().toBuffer({resolveWithObject:true});assert.equal(info.channels,4);assert.equal(info.width,1254);
  let clear=0;for(let i=3;i<data.length;i+=4)if(data[i]<=1)clear++;assert.ok(clear/(info.width*info.height)>.10,`${p.name} must have actual transparent background`);
  if(['field','target','purple'].includes(p.name))for(let x=0;x<info.width;x++)assert.ok(data[x*4+3]<2,'no hard rectangular edge on the wider piece');
- const size=Math.round(1254*p.span/scene.backgroundSpan_m);stack.push({input:await sharp(file).resize(size,size).png().toBuffer(),left:Math.floor((1254-size)/2),top:Math.floor((1254-size)/2)});
+ const flatSource=p.flatFile?path('nuclear-pieces-v2/'+p.flatFile):file;const size=Math.round(1254*p.span/scene.backgroundSpan_m);stack.push({input:await sharp(flatSource).resize(size,size).png().toBuffer(),left:Math.floor((1254-size)/2),top:Math.floor((1254-size)/2)});
 }
 const flat=await sharp(path('nuclear-pieces-v2/background.png')).composite(stack).raw().toBuffer();assert.ok(flat.equals(await sharp(path('level-2.png')).raw().toBuffer()),'parent is the exact common-scale scene, not a separately generated inset');
 assert.ok((await sharp(path('../pollen-v4/amoeba-inner.png')).raw().toBuffer()).equals(await sharp(path('level-0.png')).raw().toBuffer()),'whole-cell parent propagates the new scene');

@@ -4,11 +4,12 @@ import fs from 'node:fs/promises';
 export async function nuclearPieces({path,bases,fade,n}){
  const dir=path('nuclear-pieces-v2/');
  for(const f of ['field','field-fill','hero-organic-v3','dna'])if(!await fs.access(dir+f+'-raw.png').then(()=>true,()=>false))return false;
+ const atomic=path('../../../atomic-bridge-v1/'),hasAtomic=await fs.access(atomic+'dna-flat.png').then(()=>true,()=>false);
  const spans=Array.from({length:8},(_,i)=>12e-6/3**i),back=bases[2];
- const parts=[['field',3,dir+'field-raw.png'],['hero',5,dir+'hero-organic-v3-raw.png'],['dna',7,dir+'dna-raw.png'],['purple',3,path('chromatin-depth-v1/foreground-raw.png')]];
+ const parts=[['field',3,dir+'field-raw.png'],['hero',5,dir+'hero-organic-v3-raw.png'],['dna',7,hasAtomic?atomic+'dna-flat.png':dir+'dna-raw.png'],['purple',3,path('chromatin-depth-v1/foreground-raw.png')]];
  await fs.writeFile(dir+'background.png',back);
  const plates=[];
- for(const[name,level,source]of parts){let input=await sharp(source).resize(n,n).ensureAlpha().png().toBuffer();if(name==='field')input=await sharp(input).composite([{input:await sharp(dir+'field-fill-raw.png').resize(418,418).png().toBuffer(),left:418,top:418}]).png().toBuffer();if(['field','purple'].includes(name))input=await fade(input,n);await fs.writeFile(dir+name+'.png',input);plates.push({name,level,span:spans[level],input});}
+ for(const[name,level,source]of parts){let input=await sharp(source).resize(n,n).ensureAlpha().png().toBuffer();if(name==='field')input=await sharp(input).composite([{input:await sharp(dir+'field-fill-raw.png').resize(418,418).png().toBuffer(),left:418,top:418}]).png().toBuffer();if(['field','purple'].includes(name))input=await fade(input,n);const runtime=name==='dna'&&hasAtomic?await fs.readFile(atomic+'dna-carrier.png'):input;await fs.writeFile(dir+name+'.png',runtime);if(name==='dna'&&hasAtomic)await fs.writeFile(dir+'dna-flat.png',input);plates.push({name,level,span:spans[level],...(name==='dna'&&hasAtomic?{flatFile:'dna-flat.png'}:{}),input});}
  async function world(level){
   // Texture is the very same nuclear interior, never a new pale fluid tile.
   const crop=Math.max(1,Math.round(n*spans[level]/spans[2]));
