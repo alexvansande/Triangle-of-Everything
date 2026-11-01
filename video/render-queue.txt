@@ -11,14 +11,12 @@
 # A "# priority: <take>" line puts that take first every time it's out of date, and stays.
 # priority: long-01-intro
 # Order (the author, 2026-11-01): long videos 1 and 2, then their Shorts, then long video 3 and its Shorts
-# next: short-02b-planets
 # next: long-03-small
 # next: short-06a-living
 # next: short-06b-atoms
 # next: short-06c-compton
 # next: short-07a-photons
 # next: short-07b-sky
-short-02b-planets
 long-03-small
 short-06a-living
 short-06b-atoms
