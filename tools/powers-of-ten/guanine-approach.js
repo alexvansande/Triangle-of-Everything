@@ -10,11 +10,11 @@ export function guanineApproach(){
  const rear=document.createElement('canvas'),front=document.createElement('canvas'),mix=document.createElement('canvas');let resolution=0;
  const random=rng(105),wisps=Array.from({length:75},()=>({x:random(),y:random(),r:.03+.13*random(),phase:random()*7}));
  const ready=()=>img.complete&&img.naturalWidth>0&&!!renderer;
- return {name:'Guanine hydrogen approach',range:[-14.6,-6.5],ready,draw(cam){
+ return {name:'Guanine hydrogen approach',range:[-16.2,-6.5],ready,draw(cam){
   if(!ready())return;const {ctx,W,H,min,s,dpr}=cam;
   for(const c of [rear,front,mix])if(c.width!==W||c.height!==H){c.width=W;c.height=H;}
   const c=mix.getContext('2d');c.clearRect(0,0,W,H);
-  const live=1-ramp(s,-9.35,-8.8),depth=1-ramp(s,-10.1,-9.4),inside=1-ramp(s,-11.5,-10.2),black=ramp(s,-14,-12.4);
+  const live=1-ramp(s,-9.35,-8.8),depth=1-ramp(s,-10.1,-9.4),inside=1-ramp(s,-11.5,-10.2),black=ramp(s,-16,-14.4);
   const flatSide=GUANINE_SPAN*cam.k;
   if(live<1){c.globalAlpha=1-live;c.drawImage(img,cam.cx-flatSide/2,cam.cy-flatSide/2,flatSide,flatSide);c.globalAlpha=1;}
   if(live>0&&inside<1){
@@ -32,7 +32,18 @@ export function guanineApproach(){
   // then disappears well before the quark view. Never an enlarged nucleus ball.
   const fog=(1-ramp(s,-10.6,-9.65))*black;
   if(fog>0){
-   c.save();c.globalCompositeOperation='lighter';c.filter=`blur(${min*.018}px)`;
+   c.save();c.globalCompositeOperation='lighter';
+   // Distant cloud fibers surround the nucleus, rather than an empty black
+   // stage. Broad curved sweeps retain their direction through the approach.
+   c.filter=`blur(${min*.003}px)`;
+   for(let i=0;i<58;i++){
+    const q=i/57,offset=(q-.5)*H*1.8,drift=min*.012*Math.sin(cam.t*.055+q*6);
+    c.beginPath();c.moveTo(-W*.2,H*.45+offset+drift);
+    c.bezierCurveTo(W*.25,H*.02+offset,W*.65,H*.92+offset,W*1.2,H*.38+offset+drift);
+    c.strokeStyle=`rgba(24,107,199,${fog*(.075+.065*Math.sin(i*2.4)**2)})`;
+    c.lineWidth=min*(.0012+.0018*(.5+.5*Math.sin(i*1.7)));c.stroke();
+   }
+   c.filter=`blur(${min*.018}px)`;
    for(const w of wisps){const x=(w.x+.012*Math.sin(cam.t*.08+w.phase))*W,y=w.y*H,r=w.r*min,g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(12,48,104,${.14*fog})`);g.addColorStop(1,'rgba(0,5,24,0)');c.fillStyle=g;c.fillRect(x-r,y-r,2*r,2*r);}
    c.restore();
   }
