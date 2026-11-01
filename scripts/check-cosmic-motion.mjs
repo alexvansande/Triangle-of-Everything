@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {cosmicOrbit} from '../tools/powers-of-ten/cosmic-motion.js';
+import {cameraAt} from '../tools/powers-of-ten/math.js';
+const dot=(a,b)=>a.reduce((n,x,i)=>n+x*b[i],0);
+const basis=cameraAt(27.05),turned=cosmicOrbit(basis,.8);
+for(const v of Object.values(turned))assert(Math.abs(dot(v,v)-1)<1e-10);
+for(const [a,b] of [['r','n'],['r','u'],['n','u']])assert(Math.abs(dot(turned[a],turned[b]))<1e-10);
+assert.deepEqual(turned.u,basis.u);assert(dot(turned.n,basis.n)<.8,'view direction must change; not just screen roll');
+assert.deepEqual(cosmicOrbit(basis,0),basis);
+console.log('Passed: continuous orthonormal 3D orbit changes sightline, preserves roll axis and zero-angle camera.');

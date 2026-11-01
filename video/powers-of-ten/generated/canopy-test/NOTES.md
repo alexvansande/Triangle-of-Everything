@@ -763,3 +763,7 @@ Review with **Atom → DNA** or **DNA → atom → quarks**. Assets, capture met
 
 ### DNA registration correction
 The previous independently generated DNA had a different helix width and twist from the nucleosome source. `dna-parent-crop.png` now records the exact central 1/9 field of that wider strand; `dna-registered-raw.png` is its imagegen detail enhancement. The DNA outer 22% and the inverse mask in the hero source share the same common-scale handoff. This replaces the old strand rather than stacking two helices. All wider parents are rebuilt. The atom target, spans and proton/quark animation are unchanged.
+
+
+### Separate cosmic web and CMB rendering
+The cosmic web now uses blue-white discrete tracers with compact knot halos; the CMB retains the muted red Planck-map shell. The final view samples the full interior volume instead of flattening it into a thin slab. Perspective changes point size and depth brightness. Above log10(frame metres) 26.4 a slow orbit starts, reaching full speed at 26.9 and continuing when zoom playback stops. Both volume and shell share that orbit; nearby camera behavior is unchanged.
