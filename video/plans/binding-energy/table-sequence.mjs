@@ -68,6 +68,11 @@ for (let z = 1; z < ELEMENTS_BY_Z.length; z++) {
   const t = d3.color(TYPE[elementType(z)]).formatHex(), en = radio ? radCol(rx) : zCol(z);
   els.push({ z, sym: b.sym, r, m, radio, glow, ct: t, ce: en, it: ink(t), ie: ink(en) });
 }
+if (process.env.HEX === "1") { // print every element's energy colour as a markdown table
+  console.log("| Z | | hex | | Z | | hex | | Z | | hex |\n|---|---|---|---|---|---|---|---|---|---|---|");
+  for (let i = 0; i < 40; i++) console.log("| " + [i, i + 40, i + 80].map((j) => els[j] ? `${els[j].z} | ${els[j].sym} | \`${els[j].ce}\`${els[j].radio ? " ☢" : ""}` : " | | ").join(" | | ") + " |");
+  process.exit(0);
+}
 // A: chart
 const rx = d3.extent(els, (e) => e.r), my = d3.extent(els, (e) => e.m);
 const box = { x: 60, y: 260, w: W - 120, h: 1340 };
