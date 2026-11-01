@@ -8,7 +8,8 @@
 # as GitHub Pages deploys. The order is picked again before every take, after bringing main in:
 # the queue's "# next:" takes first, then the list given, then any other take that went out of
 # date meanwhile, so a change pushed mid-round (even to a take this round already rendered)
-# renders next (the author, 2026-11-01). Each take once per round. It never forces anything: a
+# renders next (the author, 2026-11-01). A take that fails isn't tried again this round, and none
+# renders more than twice. It never forces anything: a
 # merge that conflicts is undone and that push waits for the next take.
 # Needs the dev server on :5184 (the "shorts" preview) and Google Chrome.
 cd "$(git -C "$(dirname "$0")" rev-parse --show-toplevel)" || exit 1
@@ -55,23 +56,26 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" || return 1
 # before its next take, as soon as main has it (the author, 2026-11-01: "delay the start of the
 # render queue until you finish the job"); deleting the line lets the next round go on
 held() { grep -q '^# hold' video/render-queue.txt 2>/dev/null; }
-# the next take: the first out-of-date one among the queue's "# next:" lines, the list given, then
+# the next take: the first out-of-date one among the queue's "# priority:" and "# next:" lines, the list given, then
 # any other (every short and long video, less video/render-skip.txt), not yet tried this round
 pick() {
   stale=" $(DRY=1 scripts/narration-render-stale.sh 2>/dev/null | sed -n 's/^stale \([^ ]*\).*/\1/p' | tr '\n' ' ') "
-  for t in $(sed -n 's/^# next: //p' video/render-queue.txt) $ORDER $stale; do
-    case "$stale" in *" $t "*) case " $TRIED " in *" $t "*) ;; *) echo "$t"; return ;; esac ;; esac
+  for t in $(sed -n 's/^# priority: //p;s/^# next: //p' video/render-queue.txt) $ORDER $stale; do
+    case "$stale" in *" $t "*) case " $TRIED " in *" $t "*) ;; *)
+      # rendered twice this round already: it keeps changing, leave it for the next round
+      [ "$(echo $DONE | tr ' ' '\n' | grep -cx "$t")" -ge 2 ] && continue
+      echo "$t"; return ;; esac ;; esac
   done
 }
 round() {
-  TRIED=""
+  TRIED="" DONE=""
   while :; do
     sync_main
     if held; then log "render queue on hold (video/render-queue.txt): stopping"; return; fi
     t=$(pick); [ -n "$t" ] || return
-    TRIED="$TRIED $t"
     out=$(scripts/narration-render-stale.sh "$t" 2>&1); echo "$out"
-    case "$out" in *"web copy"*) publish "$t" ;; esac
+    # a take that failed isn't tried again this round; one that rendered is, if it changes again
+    case "$out" in *"web copy"*) publish "$t"; DONE="$DONE $t" ;; *) TRIED="$TRIED $t" ;; esac
   done
 }
 

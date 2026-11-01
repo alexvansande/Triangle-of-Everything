@@ -29,7 +29,8 @@ import {
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
   RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES, PHOTON_LAMBDA_OFFSET,
 } from "./data.js";
-import { narrClassic, classicFrameClient, classicAxisNumbers, classicRect, classicScreen, classicFullView, classicWiden, classicTextScale } from "./classic.js";
+import { supText } from "./sup-text.js";
+import { narrClassic, classicFrameClient, classicAxisNumbers, classicRect, classicScreen, classicFullView, classicWiden, classicTextScale, classicTextQuads } from "./classic.js";
 // Scene scripts, one per file in ./narration-scenes/ (lazy chunks)
 const SCENES = import.meta.glob("./narration-scenes/*.js");
 let SCENE;
@@ -1059,6 +1060,7 @@ export async function startNarration(app) {
       else if (h.mark) drawMark(el, h, age);
       else if (h.dust) drawDustCat(el, h, age);
       else if (h.ellipse) drawEllipse(el, h, age);
+      else if (h.figText) drawFigText(el, h, age);
       else if (h.window) drawWindow(el, h, age);
       else if (h.cross) drawCross(el, h, t - (h.since ?? h.t0));
       else if (h.text) drawText(el, h, age);
@@ -1239,8 +1241,10 @@ export async function startNarration(app) {
     const want = h.place || "above";
     const order = [...new Set([want, h._place || want, "above", "below", "right", "left"])];
     const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth || 1;
+    // (its own object's chart label too: "1 kg" went on "1 Liter of Water", "ball · 1.24 cm" on
+    // the ball's own name, the author, 2026-11-01)
     const others = [...document.querySelectorAll("#chart text.obj-label, #chart text.dust-name")].filter(n =>
-      n.getAttribute("display") !== "none" && n.__data__?.name !== o.name && +getComputedStyle(n).opacity !== 0).map(n => {
+      n.getAttribute("display") !== "none" && +getComputedStyle(n).opacity !== 0).map(n => {
       const b = n.getBoundingClientRect();
       return b.width ? [(b.left - lr.left) / scl, (b.top - lr.top) / scl, (b.right - lr.left) / scl, (b.bottom - lr.top) / scl] : null;
     }).filter(Boolean);
@@ -1526,9 +1530,9 @@ export async function startNarration(app) {
     const a = clamp01((age - 0.5) / 0.4) * (1 - smooth((t - cur.t1 + 0.4) / 0.4));
     if (a <= 0.01) return;
     gGuides.append("text").attr("class", "narr-guide").attr("x", xR - 4).attr("y", y - 6).attr("text-anchor", "end")
-      .attr("opacity", a).text(o.logM < ENERGY_BELOW ? `${valueLabel(o.logM + EV_PER_G, ENERGY_BASES)}/c²` : valueLabel(o.logM, MASS_BASES));
+      .attr("opacity", a).call(supText, o.logM < ENERGY_BELOW ? `${valueLabel(o.logM + EV_PER_G, ENERGY_BASES)}/c²` : valueLabel(o.logM, MASS_BASES));
     gGuides.append("text").attr("class", "narr-guide").attr("x", x + 6).attr("y", yB - 6).attr("text-anchor", "start")
-      .attr("opacity", a).text(valueLabel(o.logR + W_OFF, SIZE_BASES));
+      .attr("opacity", a).call(supText, valueLabel(o.logR + W_OFF, SIZE_BASES));
   }
   /** "70 kg", "1.7 m": two significant figures in the ruler's units. */
   function valueLabel(v, bases) {
@@ -1877,6 +1881,29 @@ export async function startNarration(app) {
    *  place?: "above"|"below"|"left"|"right" } — centre and half-axes in decades
    *  (log cm, log g). It leans with the 3 : 1 density diagonals unless rot
    *  (screen degrees) says otherwise. */
+  /** Rings round texts of the classic figure: { figText: [key prefixes], color?, stagger? (s, 0.3) },
+   *  each drawn on in turn from 12 o'clock, leaning with its text ("they are all measured in
+   *  seconds": the isochrons' times, the author, 2026-11-01) */
+  function drawFigText(el, h, age) {
+    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth || 1;
+    const col = h.color || "#ffd54f";
+    classicTextQuads(h.figText).forEach((q, i) => {
+      const prog = d3.easeCubicOut(clamp01((age - i * (h.stagger ?? 0.3)) / (h.draw ?? 0.7)));
+      if (prog <= 0) return;
+      const P = q.map(([x, y]) => [(x - lr.left) / scl, (y - lr.top) / scl]);
+      const cx = (P[0][0] + P[2][0]) / 2, cy = (P[0][1] + P[2][1]) / 2;
+      const w = Math.hypot(P[1][0] - P[0][0], P[1][1] - P[0][1]), ht = Math.hypot(P[3][0] - P[0][0], P[3][1] - P[0][1]);
+      // round the text's box: its corners inside, a little air all round
+      const RX = w / 2 * 1.18 + 6, RY = ht / 2 * 1.5 + 6;
+      const rot = Math.atan2(P[1][1] - P[0][1], P[1][0] - P[0][0]) * 180 / Math.PI;
+      const len = Math.PI * (3 * (RX + RY) - Math.sqrt((3 * RX + RY) * (RX + 3 * RY)));
+      const g = el.append("g").attr("transform", `translate(${cx},${cy}) rotate(${rot})`);
+      const d = `M0,${-RY}A${RX},${RY} 0 1,1 0,${RY}A${RX},${RY} 0 1,1 0,${-RY}`;
+      [[7, 0.15], [2.4, 1]].forEach(([sw, o]) => g.append("path").attr("d", d)
+        .attr("fill", "none").attr("stroke", col).attr("stroke-width", sw).attr("opacity", o)
+        .attr("stroke-dasharray", `${len * prog} ${len + 10}`));
+    });
+  }
   function drawEllipse(el, h, age) {
     const [r, m, rx, ry] = h.ellipse;
     const cx = sx(r), cy = sy(m);
@@ -2318,7 +2345,7 @@ export async function startNarration(app) {
       placedY.push(y);
       gEnergy.append("line").attr("x1", xL - (tk.minor ? 3 : 5)).attr("x2", xL + (tk.minor ? 3 : 5)).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
       gEnergy.append("text").attr("x", xL + 8).attr("y", y + 3.5 * AXIS_TEXT).attr("text-anchor", "start")
-        .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
+        .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").call(supText, tk.label);
     }
     gEnergy.append("text").attr("transform", `translate(${xL - 7},${SH * 0.16}) rotate(-90)`).attr("text-anchor", "end")
       .attr("class", "narr-axname").text("ENERGY →");
@@ -2355,7 +2382,7 @@ export async function startNarration(app) {
       placed.push(x);
       gUnits.append("line").attr("x1", x).attr("x2", x).attr("y1", yR - (tk.minor ? 3 : 5)).attr("y2", yR + (tk.minor ? 3 : 5)).attr("class", "narr-tick");
       gUnits.append("text").attr("x", x).attr("y", yR + 6 + 9 * AXIS_TEXT).attr("text-anchor", "middle")
-        .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
+        .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").call(supText, tk.label);
     }
     gUnits.append("text").attr("x", SW - 8).attr("y", yR - 7).attr("text-anchor", "end").attr("class", "narr-axname").text("SIZE →");
     // vertical: mass, on the right as in the map (the left is kept for energy and temperature)
@@ -2388,7 +2415,7 @@ export async function startNarration(app) {
       placedY.push(y);
       gUnits.append("line").attr("x1", xR - (tk.minor ? 3 : 5)).attr("x2", xR + (tk.minor ? 3 : 5)).attr("y1", y).attr("y2", y).attr("class", "narr-tick");
       gUnits.append("text").attr("x", xR - 8).attr("y", y + 3.5 * AXIS_TEXT).attr("text-anchor", "end")
-        .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").text(tk.label);
+        .attr("class", tk.minor ? "narr-unit narr-unit-minor" : "narr-unit").call(supText, tk.label);
     }
     gUnits.append("text").attr("transform", `translate(${xR + 13},${SH * 0.16}) rotate(-90)`).attr("text-anchor", "end")
       .attr("class", "narr-axname").text("MASS →");

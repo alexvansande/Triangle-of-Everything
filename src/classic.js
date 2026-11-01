@@ -1007,6 +1007,17 @@ export function classicTextScale(k) {
   layoutNames();
 }
 let frameExt = 0, wideW = 0;
+// The figure's texts whose key starts with one of `prefixes`, each as its four corners on the
+// screen (client px), along the text's own slant: for the narration to ring them
+export function classicTextQuads(prefixes) {
+  if (!svg || root?.hidden) return [];
+  return svg.selectAll("text[data-key]").nodes().filter(n => prefixes.some(p => n.dataset.key.startsWith(p))).map(n => {
+    const b = n.getBBox(), m = n.getScreenCTM();
+    if (!m || !b.width) return null;
+    const P = (x, y) => [m.a * x + m.c * y + m.e, m.b * x + m.d * y + m.f];
+    return [P(b.x, b.y), P(b.x + b.width, b.y), P(b.x + b.width, b.y + b.height), P(b.x, b.y + b.height)];
+  }).filter(Boolean);
+}
 export function classicWiden(w) {
   if (!svg) return;
   wideW = Math.min(1, Math.max(0, w));

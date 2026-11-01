@@ -18,6 +18,7 @@
 // ruler reads the diameter, like the desktop axis (WIDTH_LOG_OFFSET).
 // =============================================================
 
+import { supText } from "./sup-text.js";
 import { RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS, WIDTH_LOG_OFFSET as W_OFF } from "./data.js";
 
 const HOLD_MS = 1800;          // after the last movement, before fading
@@ -138,7 +139,7 @@ export function createMobileRulers({ layer, px, py, ipx, ipy, frame, avoid, focu
       const box = { x: bx, y: y - 10, w: wd, h: 13 };
       if (!free(box)) return false;
       placed.push(box);
-      layer.append("text").attr("x", x).attr("y", y).attr("text-anchor", anchor).attr("class", cls).text(s);
+      layer.append("text").attr("x", x).attr("y", y).attr("text-anchor", anchor).attr("class", cls).call(supText, s);
       return true;
     };
 

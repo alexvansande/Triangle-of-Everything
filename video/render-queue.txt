@@ -8,6 +8,8 @@
 # and only those stretches re-render, spliced into the last render (narration-render-partial.py).
 # A "# next: <take>" line renders that take before the others. A "# hold" line stops the renders
 # (before the next take) until it's deleted.
+# A "# priority: <take>" line puts that take first every time it's out of date, and stays.
+# priority: long-01-intro
 # Order (the author, 2026-11-01): long videos 1 and 2, then their Shorts, then long video 3 and its Shorts
 # next: long-01-intro
 # next: short-01-hook
