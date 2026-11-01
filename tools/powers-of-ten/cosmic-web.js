@@ -22,7 +22,7 @@ export function cosmicWeb(){
     float energy=(.7+2.8*aKnot)*aWeight*slab*resolved*outerGate;
     float depthSize=mix(1.,clamp(uDistance/max(w,.2),.65,2.),uProjection);
     float size=mix(.85+1.25*aKnot,2.5+2.*aKnot,uPass)*uPixel*depthSize;
-    gl_PointSize=size;vColour=mix(vec3(.18,.48,.88),vec3(.85,.95,1.),clamp(aKnot*.85+aWeight*.15,0.,1.));
+    gl_PointSize=size;vColour=mix(vec3(.66,.32,.045),vec3(1.,.86,.46),clamp(aKnot*.85+aWeight*.15,0.,1.));
     vAlpha=uAlpha*energy*mix(.95,.12*aKnot*aKnot,uPass);
    }`));
   gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`precision highp float;varying vec3 vColour;varying float vAlpha;void main(){vec2 p=gl_PointCoord*2.-1.;float r=dot(p,p);if(r>1.)discard;float a=vAlpha*exp(-3.5*r);gl_FragColor=vec4(vColour*a,0.);}`));

@@ -109,13 +109,12 @@ export async function smallLayers() {
       const d = PROTON_D * cam.k, a = 1 - ramp(cam.s, -15.1, -15.6);
       if (a <= 0.01) return;
       const ctx = cam.ctx;
-      if (d < 10 || !proton) {
-        // a point of light at the atom's centre: drawn bigger than life so it's seen at all
-        const r = Math.max(1.6 * cam.dpr, d / 2), g = ctx.createRadialGradient(cam.cx, cam.cy, 0, cam.cx, cam.cy, r * 3);
-        g.addColorStop(0, `rgba(255,214,150,${a})`); g.addColorStop(0.35, `rgba(255,150,80,${0.6 * a})`); g.addColorStop(1, "rgba(255,120,60,0)");
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cam.cx, cam.cy, r * 3, 0, 7); ctx.fill();
-        if (d < 10) return;
+      if(d<10&&proton){
+        // Keep the real multicolour proton picture even below resolved size.
+        drawHopf(proton,cam,Math.max(6*cam.dpr,d)/HOPF_FILL,a,1);
+        return;
       }
+      if(!proton)return;
       const fadeIn = ramp(d, 10, 40);
       drawHopf(proton, cam, d / HOPF_FILL, a * fadeIn, ramp(cam.s, -13.9, -14.9));
       cam.label(0, -0.5 * PROTON_D, "proton", a * fadeIn);

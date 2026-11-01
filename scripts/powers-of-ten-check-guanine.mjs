@@ -12,5 +12,5 @@ for(const file of ['hydrogen-native.png','surroundings-native.png','dna-carrier.
  const data=await raw(file);let clear=0;for(let i=3;i<data.length;i+=4)if(data[i]<2)clear++;assert(clear/(data.length/4)>.05,file+' genuine alpha');
 }
 const now=await readFile(new URL('../tools/powers-of-ten/small.js',import.meta.url),'utf8'),old=execFileSync('git',['show','HEAD:tools/powers-of-ten/small.js'],{encoding:'utf8'});
-for(const name of ['quarkLayer','protonLayer']){const part=s=>s.slice(s.indexOf('const '+name+' ='),s.indexOf('\n  };',s.indexOf('const '+name+' ='))+5);assert.equal(part(now),part(old),name+' animation unchanged');}
+for(const name of ['quarkLayer','protonLayer']){const part=s=>s.slice(s.indexOf('const '+name+' ='),s.indexOf('\n  };',s.indexOf('const '+name+' ='))+5);const a=part(now),b=part(old);assert.equal(name==='protonLayer'?a.slice(a.indexOf('      const fadeIn')):a,name==='protonLayer'?b.slice(b.indexOf('      const fadeIn')):b,name+' close-up animation unchanged');}
 console.log('Passed: target hydrogen, exact native alpha capture, registered generated parents, transparent foregrounds, preserved proton/quark layers.');

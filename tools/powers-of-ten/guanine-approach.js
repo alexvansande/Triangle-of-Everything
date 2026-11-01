@@ -15,7 +15,7 @@ export function guanineApproach(){
   if(!ready())return;const {ctx,W,H,min,s,dpr}=cam;
   for(const c of [rear,front,mix])if(c.width!==W||c.height!==H){c.width=W;c.height=H;}
   const c=mix.getContext('2d');c.clearRect(0,0,W,H);
-  const live=1-ramp(s,-8.9,-8.3),depth=1-ramp(s,-9.7,-8.95),inside=1-ramp(s,-11.5,-10.2),black=ramp(s,-16,-14.4);
+  const live=1-ramp(s,-8.9,-8.3),depth=1-ramp(s,-9.7,-8.95),inside=1-ramp(s,-11.5,-10.2),black=ramp(s,Math.log10(40e-15),-11.8);
   const bgAlpha=(1-ramp(s,-8.6,-8.15))*ramp(s,-10.8,-9.8);
   if(bgAlpha){
    const size=Math.max(W,H)*1.1,zoom=1+.12*Math.max(0,-8.3-s);

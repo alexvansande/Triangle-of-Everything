@@ -146,7 +146,7 @@ export function spaceLayers(globe) {
       }
       if(sc){
         const c=cam.ctx, tiny=1-ramp(rr/cam.dpr,2,7),radius=Math.max(2.2*cam.dpr,rr*1.12);
-        c.save();c.globalCompositeOperation='lighter';c.globalAlpha=a;
+        c.save();c.globalCompositeOperation='lighter';c.globalAlpha=a*ramp(cam.s,Math.log10(4e7),Math.log10(4e8));
         const blue=c.createRadialGradient(x,y,Math.max(0,rr*.84*(1-tiny)),x,y,radius*1.65);
         blue.addColorStop(0,`rgba(151,209,255,${.65*tiny})`);blue.addColorStop(.58,'rgba(100,175,255,.28)');blue.addColorStop(1,'rgba(65,130,255,0)');
         c.fillStyle=blue;c.beginPath();c.arc(x,y,radius*1.65,0,Math.PI*2);c.fill();c.restore();

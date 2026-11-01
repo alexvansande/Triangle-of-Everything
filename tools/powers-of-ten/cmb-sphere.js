@@ -16,13 +16,13 @@ export function cmbSphere(){
     vec2 uv=vec2(fract(.5-atan(farP.y,farP.x)/6.28318530718),.5-asin(clamp(farP.z,-1.,1.))/3.14159265359);
     float t=texture2D(uMap,uv).r;
     // A translucent two-red shell, never a black-backed opaque picture.
-    vec3 farColour=mix(vec3(.24,.018,.048),vec3(.72,.16,.19),smoothstep(.12,.88,t));
+    vec3 farColour=mix(vec3(.32,.024,.055),vec3(.85,.19,.22),smoothstep(.12,.88,t));
     float shellWeight=.35+.65*pow(1.-sqrt(max(0.,disc)),2.);
     float farAlpha=uAlpha*shellWeight;
     float nearAlpha=farAlpha*smoothstep(0.,.12,nearT);
     vec3 nearP=normalize(eye+max(0.,nearT)*ray);
     vec2 nuv=vec2(fract(.5-atan(nearP.y,nearP.x)/6.28318530718),.5-asin(clamp(nearP.z,-1.,1.))/3.14159265359);
-    vec3 nearColour=mix(vec3(.24,.018,.048),vec3(.72,.16,.19),smoothstep(.12,.88,texture2D(uMap,nuv).r));
+    vec3 nearColour=mix(vec3(.32,.024,.055),vec3(.85,.19,.22),smoothstep(.12,.88,texture2D(uMap,nuv).r));
     float alpha=farAlpha+nearAlpha*(1.-farAlpha);
     gl_FragColor=vec4(farColour*farAlpha*(1.-nearAlpha)+nearColour*nearAlpha,alpha);
    }`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));

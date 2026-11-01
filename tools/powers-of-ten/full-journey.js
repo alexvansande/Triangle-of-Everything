@@ -69,7 +69,7 @@ const CLOUD_FLY=[25.9,S_MAX],DIST0=.68,FILL=.78;
 function driveCloud(s,W,H,Dg,roll,dpr){
  // A long, very low initial ramp begins at a100,000ly frame width.
  const early=ramp(s,Math.log10(1e5*LY),25.1);
- const a=.055*early*early+.12*ramp(s,25.1,26.6);
+ const a=.085*early*early+.28*ramp(s,25.1,26.6);
  const dEnd=1/Math.sin(Math.atan(FILL*(Math.min(W,H)/Dg)*Math.tan(20*Math.PI/180)));
  const t=ramp(s,...CLOUD_FLY),dist=Math.exp(Math.log(DIST0)+(Math.log(dEnd)-Math.log(DIST0))*t);
  cloudView={dist,Dg,a};
