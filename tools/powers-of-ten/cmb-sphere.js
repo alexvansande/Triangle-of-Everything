@@ -9,14 +9,18 @@ export function cmbSphere(){
   program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,`attribute vec2 aPosition;varying vec2 vPosition;void main(){vPosition=aPosition;gl_Position=vec4(aPosition,0.,1.);}`));
   gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`
    precision highp float;varying vec2 vPosition;uniform sampler2D uMap;uniform vec3 uN,uR,uU;uniform float uDistance,uAlpha,uPass;const float TAN=.3639702343;
+   vec3 shellColour(float t){
+    vec3 red=mix(vec3(.23,.008,.018),vec3(.8,.055,.025),smoothstep(.24,.58,t));
+    return mix(red,vec3(1.,.39,.055),smoothstep(.58,.82,t));
+   }
    void main(){vec3 eye=uN*uDistance,ray=normalize(-uN+TAN*(vPosition.x*uR+vPosition.y*uU));
     float b=dot(eye,ray),disc=b*b+1.-dot(eye,eye);if(disc<0.)discard;
     float farT=-b+sqrt(disc),nearT=-b-sqrt(disc);if(farT<=0.)discard;
     vec3 farP=normalize(eye+farT*ray);
     vec2 uv=vec2(fract(.5-atan(farP.y,farP.x)/6.28318530718),.5-asin(clamp(farP.z,-1.,1.))/3.14159265359);
     float t=texture2D(uMap,uv).r;
-    // A translucent two-red shell, never a black-backed opaque picture.
-    vec3 farColour=mix(vec3(.32,.024,.055),vec3(.85,.19,.22),smoothstep(.12,.88,t));
+    // Deep red through red to orange; opacity remains independent of colour.
+    vec3 farColour=shellColour(t);
     float shellWeight=.55+.45*pow(1.-sqrt(max(0.,disc)),2.);
     float farAlpha=clamp(uAlpha*1.5*shellWeight*(.015+.985*pow(smoothstep(.28,.78,t),1.5)),0.,.85);
 
@@ -25,7 +29,7 @@ export function cmbSphere(){
     float nearValue=texture2D(uMap,nuv).r;
     float nearMask=smoothstep(.32,.62,nearValue);
     float nearAlpha=min(1.,uAlpha/.3)*nearMask*smoothstep(0.,.12,nearT);
-    vec3 nearColour=mix(vec3(.32,.024,.055),vec3(.85,.19,.22),smoothstep(.12,.88,texture2D(uMap,nuv).r));
+    vec3 nearColour=shellColour(nearValue);
     float alpha=mix(farAlpha,nearAlpha,uPass);
     gl_FragColor=vec4(mix(farColour,nearColour,uPass)*alpha,alpha);
    }`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
