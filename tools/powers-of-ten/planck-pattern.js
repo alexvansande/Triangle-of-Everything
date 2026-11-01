@@ -1,7 +1,7 @@
-// An artistic cellular hierarchy, resolving into actual Conway Life cells.
-// The intermediate scales are procedural; they are not a metacell simulation.
-import {ramp,rng} from './math.js';
+// A monochrome Julia zoom, sampled into the exact cells that begin Conway Life.
+import {ramp} from './math.js';
 export const PLANCK_LENGTH=1.616255e-35;
+export const PLANCK_END=Math.log10(PLANCK_LENGTH*32);
 export function lifeStep(cells,n){
  const next=new Uint8Array(cells.length);
  for(let y=0;y<n;y++)for(let x=0;x<n;x++){
@@ -10,53 +10,73 @@ export function lifeStep(cells,n){
  }return next;
 }
 export function planckPattern(){
- const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:true}),n=256,random=rng(314159);
- let cells=Uint8Array.from({length:n*n},()=>random()<.3?1:0),last=-1,acc=0,program,texture;
- // Oscillators and gliders keep the central final view active after long travel.
- function seed(){cells.fill(0);const shapes=[[[0,0],[1,0],[2,0]],[[1,0],[2,1],[0,2],[1,2],[2,2]],[[0,0],[1,0],[2,0],[2,1],[1,2]]];
-  for(let y=8;y<n;y+=8)for(let x=8;x<n;x+=8){const shape=shapes[Math.floor(random()*shapes.length)];for(const [dx,dy]of shape)cells[(y+dy)*n+x+dx]=1;}
-  for(const [x,y]of [[128,127],[129,127],[127,128],[128,128],[128,129]])cells[y*n+x]=1;}
- if(!gl)return{name:'cellular depth',range:[-36,-18.7],draw(){}};
+ const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:true}),n=256;
+ if(!gl)return{name:'fractal depths',range:[-36,-18.7],draw(){}};
+ // Zoom about a repelling fixed point of z²+c. Perturbation arithmetic keeps
+ // tiny offsets separate from the fixed orbit, retaining detail over 14 decades.
+ const cr=-.74543,ci=.11301,a=1-4*cr,b=-4*ci,r=Math.hypot(a,b),zr=(1+Math.sqrt((r+a)/2))/2,zi=-Math.sqrt((r-a)/2)/2;
  function shader(type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
- program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,'attribute vec2 p;varying vec2 uv;void main(){uv=p;gl_Position=vec4(p,0.,1.);}'));
+ const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,'attribute vec2 p;varying vec2 uv;void main(){uv=p;gl_Position=vec4(p,0.,1.);}'));
  gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`
- precision highp float;varying vec2 uv;uniform sampler2D life;uniform vec2 aspect;uniform float zoom,alpha;
- float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
- float layer(vec2 p,float k){
-  vec2 q=p*exp2(zoom-k)+vec2(87.37,113.23)+vec2(k*17.37,k*23.71);
-  vec2 cell=floor(q),f=fract(q);float h=hash(cell+floor(k)*13.);
-  float living=texture2D(life,(mod(cell,256.)+.5)/256.).r;
-  // Tiny tiled arcs, channels and cellular islands, rather than a familiar set.
-  vec2 v=h>.5?f:vec2(1.-f.x,f.y);
-  float d=min(abs(length(v)-.5),abs(length(v-1.)-.5));
-  float paths=1.-smoothstep(.045,.12,d);
-  float boxes=step(.17,f.x)*step(f.x,.83)*step(.17,f.y)*step(f.y,.83)*living;
-  return max(paths*.8,boxes);
+ precision highp float;varying vec2 uv;uniform sampler2D life;uniform vec2 aspect;uniform float frameCells,pixelation,alpha,mode;
+ const vec2 Z=vec2(${zr},${zi});
+ vec2 cmul(vec2 a,vec2 b){return vec2(a.x*b.x-a.y*b.y,a.x*b.y+a.y*b.x);}
+ float fractal(vec2 world){
+  vec2 d=world*${PLANCK_LENGTH/1e-19*4.};float iterations=0.,radius=0.;
+  for(int i=0;i<180;i++){
+   d=cmul(2.*Z,d)+cmul(d,d);radius=dot(Z+d,Z+d);iterations=float(i)+1.;if(radius>100.)break;
+  }
+  if(radius<=100.)return 0.;
+  float smoothN=iterations+1.-log2(max(.001,log2(sqrt(radius))));
+  float bands=.5+.5*cos(smoothN*2.6);
+  return smoothstep(.2,.83,bands);
  }
- void main(){vec2 p=uv*.5*aspect;float k=max(0.,floor(zoom-4.5)),f=clamp(zoom-4.5-k,0.,1.);
-  float a=layer(p,k),b=layer(p,k+1.);
-  float pattern=mix(a,b,smoothstep(0.,1.,f));
-  pattern=max(pattern,layer(p,k-2.)*.27);
-  vec2 q=p*exp2(zoom)+vec2(128.,128.);vec2 cell=floor(q),inCell=fract(q);
-  float alive=texture2D(life,(mod(cell,256.)+.5)/256.).r;
-  float square=step(.07,inCell.x)*step(inCell.x,.93)*step(.07,inCell.y)*step(inCell.y,.93);
-  float finalView=1.-smoothstep(5.2,8.,zoom);
-  float value=mix(pattern,alive*square,finalView);
+ float bayer(vec2 p){
+  // 8×8 ordered dither, anchored to the Planck-cell lattice.
+  vec2 q=mod(p,8.);float v=0.;
+  for(int i=0;i<3;i++){vec2 bit=mod(q,2.);v=v*4.+mod(bit.x+bit.y,2.)*2.+bit.y;q=floor(q/2.);}
+  return (v+.5)/64.;
+ }
+ void main(){
+  vec2 world=uv*.5*aspect*frameCells,cell=floor(world),centre=cell+.5;
+  float value;
+  if(mode>1.5)value=texture2D(life,(mod(cell+128.,256.)+.5)/256.).r;
+  else{
+   float px=mode>.5?1.:pixelation;
+   float grey=fractal(mix(world,centre,px));
+   float binary=step(bayer(cell),grey);
+   value=mix(grey,binary,px);
+  }
   gl_FragColor=vec4(vec3(value*alpha),alpha);
  }`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
  const quad=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,quad);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
- texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);for(const p of [gl.TEXTURE_MIN_FILTER,gl.TEXTURE_MAG_FILTER])gl.texParameteri(gl.TEXTURE_2D,p,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
- let seeded=false;
- return{name:'cellular depth → Planck Life',range:[-36,-18.7],draw(cam){
-  const a=1-ramp(cam.s,-20.1,-19.25);if(!a)return;
-  const final=cam.s<-32.2;if(final&&!seeded){seed();seeded=true;}
-  if(last<0)last=cam.t;acc+=Math.min(.1,Math.max(0,cam.t-last));last=cam.t;
-  if(acc>.14){cells=lifeStep(cells,n);acc-=.14;}
-  const w=Math.min(1400,cam.W),h=Math.round(w*cam.H/cam.W);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
+ const texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);for(const p of [gl.TEXTURE_MIN_FILTER,gl.TEXTURE_MAG_FILTER])gl.texParameteri(gl.TEXTURE_2D,p,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
+ let cells=new Uint8Array(n*n),seeded=false,last=-1,hold=0,acc=0;
+ const loc=name=>gl.getUniformLocation(program,name);
+ function render(w,h,frameCells,pixelation,mode,alpha,aspect){
+  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
   gl.viewport(0,0,w,h);gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,quad);const pos=gl.getAttribLocation(program,'p');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
   gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.LUMINANCE,n,n,0,gl.LUMINANCE,gl.UNSIGNED_BYTE,Uint8Array.from(cells,v=>v*255));
-  gl.uniform1i(gl.getUniformLocation(program,'life'),0);gl.uniform2f(gl.getUniformLocation(program,'aspect'),cam.W/cam.min,cam.H/cam.min);gl.uniform1f(gl.getUniformLocation(program,'zoom'),(cam.s-Math.log10(PLANCK_LENGTH))/Math.log10(2));gl.uniform1f(gl.getUniformLocation(program,'alpha'),a);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  gl.uniform1i(loc('life'),0);gl.uniform2f(loc('aspect'),...aspect);gl.uniform1f(loc('frameCells'),frameCells);gl.uniform1f(loc('pixelation'),pixelation);gl.uniform1f(loc('mode'),mode);gl.uniform1f(loc('alpha'),alpha);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+ }
+ function seedFromFractal(){
+  // Read the actual GPU dither image, not a separately approximated CPU seed.
+  render(n,n,n,1,1,1,[1,1]);const rgba=new Uint8Array(n*n*4);gl.readPixels(0,0,n,n,gl.RGBA,gl.UNSIGNED_BYTE,rgba);
+  for(let i=0;i<cells.length;i++)cells[i]=rgba[i*4]>127?1:0;
+  seeded=true;hold=0;acc=0;
+ }
+ return{name:'fractal → Planck Life',range:[-36,-18.7],draw(cam){
+  const alpha=1-ramp(cam.s,-20.1,-19.25);if(!alpha)return;
+  const pixelation=1-ramp(cam.s,PLANCK_END+.08,PLANCK_END+1.3),atEnd=cam.s<=PLANCK_END+.02;
+  const dt=last<0?0:Math.min(.1,Math.max(0,cam.t-last));last=cam.t;
+  if(!atEnd){seeded=false;hold=0;acc=0;}
+  else{
+   if(!seeded)seedFromFractal();hold+=dt;
+   // Hold the unchanged dither briefly so its first generation can be seen.
+   if(hold>.9){acc+=dt;if(acc>.16){cells=lifeStep(cells,n);acc-=.16;}}
+  }
+  const w=Math.min(1400,cam.W),h=Math.round(w*cam.H/cam.W);
+  render(w,h,10**(cam.s-Math.log10(PLANCK_LENGTH)),pixelation,atEnd?2:0,alpha,[cam.W/cam.min,cam.H/cam.min]);
   cam.ctx.drawImage(canvas,0,0,cam.W,cam.H);
-  if(final&&cam.labels){cam.ctx.save();cam.ctx.fillStyle='#fff';cam.ctx.font=`${12*cam.dpr}px system-ui`;cam.ctx.fillText('One cell = one Planck length · Conway’s Game of Life',16*cam.dpr,cam.H-20*cam.dpr);cam.ctx.restore();}
  }};
 }
