@@ -1,0 +1,9 @@
+{
+  "source": "exec-cbfaa3d3-112b-41cf-b21a-3962d10f659b.png",
+  "references": [
+    "dna-opaque-v1.png",
+    "guanine-flat.png"
+  ],
+  "change": "Replace opaque atom surfaces with luminous translucent fine fibers; preserve strand layout and exact native guanine insert through stack assembly. Retain nuclear illumination until entering hydrogen cloud.",
+  "limitations": "Surrounding DNA remains an illustrative generated structure, not an atomically validated coordinate model."
+}

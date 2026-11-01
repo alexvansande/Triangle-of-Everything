@@ -40,6 +40,6 @@ export function nucleusInterior(){
    if(p.name==='purple'&&side>40*min)continue;
    plane(p.img,side,blur*min/960);
   }
-  c.filter='none';ctx.globalAlpha=alpha;const dark=1-smooth(-9.35,-7.8,s);ctx.filter=`brightness(${1-.86*dark})`;ctx.drawImage(layer,0,0);ctx.filter='none';ctx.restore();
+  c.filter='none';ctx.globalAlpha=alpha;const dark=1-smooth(-10.4,-9.65,s);ctx.filter=`brightness(${1-.86*dark})`;ctx.drawImage(layer,0,0);ctx.filter='none';ctx.restore();
  }};
 }
