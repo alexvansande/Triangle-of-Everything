@@ -148,9 +148,10 @@ float gn(vec3 p){
 }
 const mat3 RO = mat3(0.00,0.80,0.60, -0.80,0.36,-0.48, -0.60,-0.48,0.64);
 // gPix: sphere units per device pixel; gF: the frequency (per sphere unit) of the p passed in.
-// Octaves finer than ~3 px fade out, so small renders don't alias into streaks.
+// Octaves finer than ~2 px fade out, so small renders don't alias into streaks (they were cut from
+// ~5 px, which left the big stars soft next to the brown dwarfs' pictures: the author, 2026-11-01).
 float gPix, gF;
-float lod(float f){ return smoothstep(.36, .18, f*gPix); }
+float lod(float f){ return smoothstep(.6, .4, f*gPix); }
 float fbm(vec3 p, int n){ float s = 0., a = .5, f = gF; for(int i=0;i<8;i++){ if(i>=n) break; s += a*gn(p)*lod(f); p = RO*p*2.02; a *= .5; f *= 2.02; } return s; }
 float ridged(vec3 p, int n){ float s = 0., a = .5, f = gF; for(int i=0;i<8;i++){ if(i>=n) break; s += a*mix(.4, 1.-abs(gn(p))*1.6, lod(f)); p = RO*p*2.03; a *= .5; f *= 2.03; } return s; }
 float fbmF(vec3 p, int n, float f){ gF = f; return fbm(p, n); }

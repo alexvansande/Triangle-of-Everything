@@ -78,7 +78,7 @@ export async function startStarIcons(chartEl, { busy = () => false } = {}) {
     wasVideo = true;
     // the take's own clock, so every frame of a render is the same whichever worker draws it
     const t = window.__narr?.now?.() ?? performance.now() / 1000;
-    const dpr = Math.min(2, devicePixelRatio || 1);
+    const dpr = devicePixelRatio || 1;
     const box = chartEl.getBoundingClientRect();
     const w = Math.round(box.width * dpr), h = Math.round(box.height * dpr);
     if (overlay.width !== w || overlay.height !== h) { overlay.width = w; overlay.height = h; }
