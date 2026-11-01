@@ -36,6 +36,18 @@ const energyCol = (slope, radio) => {
   return c.formatHex();
 };
 const ink = (c) => (d3.lab(c).l > 62 ? "#111" : "#fff");
+// Element colours by atomic number (the author, 2026-11-01): cyan for the lightest gases, deep blue,
+// emerald, green, yellow, light grey at iron; then deep dark red, bright red by uranium, magenta for
+// the transuranium elements.
+const STOPS = [[1, "#3fe6ff"], [2, "#2bc4f2"], [6, "#1d3fd6"], [11, "#0fb57f"], [16, "#4cc742"],
+  [22, "#f2cc12"], [26, "#dcdcdc"], [27, "#5a0b14"], [60, "#9e1420"], [92, "#ff3030"], [93, "#ff3fd8"], [118, "#b81fcf"]];
+const zCol = (z) => {
+  const i = STOPS.findIndex(([zz]) => zz >= z);
+  if (STOPS[i][0] === z) return d3.color(STOPS[i][1]).formatHex();
+  const [z0, c0] = STOPS[i - 1], [z1, c1] = STOPS[i];
+  return d3.color(d3.interpolateLab(c0, c1)((z - z0) / (z1 - z0))).formatHex();
+};
+const HL = JSON.parse(fs.readFileSync(SP + "/halflife.json"));
 
 const W = 1080, H = 1920, BG = "#06061a";
 const els = [];
@@ -43,10 +55,13 @@ for (let z = 1; z < ELEMENTS_BY_Z.length; z++) {
   const [r, m] = pos.get(ELEMENTS_BY_Z[z]);
   const b = SL.els[z];
   // radioactive = no stable isotope at all: Tc, Pm, and polonium on (bismuth-209 decays, but
-  // with a half-life of ~2×10¹⁹ years it gives off no heat to speak of, so it stays brown)
+  // with a half-life of ~2×10¹⁹ years it gives off no heat to speak of). The glow grows with how
+  // fast the longest-lived isotope decays: faint for thorium and uranium, blazing for oganesson.
   const radio = z === 43 || z === 61 || z >= 84;
-  const t = d3.color(TYPE[elementType(z)]).formatHex(), en = d3.color(energyCol(b.slope, radio)).formatHex();
-  els.push({ z, sym: b.sym, r, m, radio, ct: t, ce: en, it: ink(t), ie: ink(en) });
+  const lt = Math.log10(HL[z] || 1e30);
+  const glow = radio ? Math.max(0.12, Math.min(1, (17.7 - lt) / 21)) : 0;
+  const t = d3.color(TYPE[elementType(z)]).formatHex(), en = zCol(z);
+  els.push({ z, sym: b.sym, r, m, radio, glow, ct: t, ce: en, it: ink(t), ie: ink(en) });
 }
 // A: chart
 const rx = d3.extent(els, (e) => e.r), my = d3.extent(els, (e) => e.m);
@@ -89,6 +104,7 @@ window.draw=(time)=>{
   const s=document.getElementById("s"); s.innerHTML="";
   const el=(n,a,txt)=>{const x=document.createElementNS(NS,n);for(const k in a)x.setAttribute(k,a[k]);if(txt!=null)x.textContent=txt;s.appendChild(x);return x;};
   el("rect",{width:${W},height:${H},fill:"${BG}"});
+  const df=el("defs",{}); df.innerHTML='<radialGradient id="glow"><stop offset="0%" stop-color="#e8ff7a" stop-opacity="1"/><stop offset="45%" stop-color="#c8ff4a" stop-opacity="0.7"/><stop offset="100%" stop-color="#c8ff4a" stop-opacity="0"/></radialGradient>';
   let t=time, ph;
   const seg=[["hold0"],["morph"],["hold1"],["rot"],["slide"],["hold2"],["recol"],["pulse"],["hold3"]];
   const at={}; let p={};
@@ -110,7 +126,8 @@ window.draw=(time)=>{
   const pulse = p.pulse>0 ? 0.5-0.5*Math.cos(p.pulse*Math.PI*4) : 0;
   for(const e of [...els].sort((a,b)=>b.z-a.z)){
     const a=at[e.z];
-    if(e.radio && p.pulse>0) el("circle",{cx:a.x,cy:a.y,r:a.r*(1.25+0.35*pulse),fill:"#ff3b2f",opacity:0.15+0.35*pulse});
+    if(e.radio && a.rc>0.5){ const g=e.glow*cl(p.recol*2-1)*(0.75+0.25*pulse);
+      el("circle",{cx:a.x,cy:a.y,r:a.r*(1.15+1.1*e.glow),fill:"url(#glow)",opacity:g}); }
     const fill=mixc(e.ct,e.ce,a.rc);
     const iron=e.z===26 && a.rc>0;
     el("circle",{cx:a.x,cy:a.y,r:a.r,fill,stroke:iron?"#fff":"${BG}","stroke-width":iron?3:1.5});
@@ -118,9 +135,13 @@ window.draw=(time)=>{
   }
   // colour key, once the energy colours are on
   const ka=cl(p.recol*2-0.6);
-  if(ka>0){ const ky=1560, items=[["#3b5bdb","fusing gives energy"],["#9a958a","iron: the most stable"],["#8a5a3c","fusing costs energy"],["#ff3b2f","radioactive"]];
-    items.forEach(([c,txt],i)=>{ const x=90+(i%2)*470, y=ky+Math.floor(i/2)*64;
-      el("circle",{cx:x,cy:y,r:18,fill:c,opacity:ka}); el("text",{x:x+34,y:y+10,"font-size":30,fill:"#dde",opacity:ka},txt); });
+  if(ka>0){ const ky=1520, x0=90, x1=${W}-90, n=118, w=(x1-x0)/n;
+    els.forEach(e=>el("rect",{x:x0+(e.z-1)*w,y:ky,width:w+0.6,height:26,fill:e.ce,opacity:ka}));
+    [[1,"H"],[26,"Fe"],[92,"U"],[118,"Og"]].forEach(([z,txt])=>el("text",{x:x0+(z-0.5)*w,y:ky+60,"font-size":26,fill:"#dde","text-anchor":"middle",opacity:ka},txt));
+    el("text",{x:x0+12.5*w,y:ky-16,"font-size":24,fill:"#aab","text-anchor":"middle",opacity:ka},"fusing gives energy");
+    el("text",{x:x0+58*w,y:ky-16,"font-size":24,fill:"#aab","text-anchor":"middle",opacity:ka},"fusing costs energy");
+    el("circle",{cx:x0+20,cy:ky+118,r:34,fill:"url(#glow)",opacity:ka}); el("circle",{cx:x0+20,cy:ky+118,r:16,fill:"#ff3030",opacity:ka});
+    el("text",{x:x0+56,y:ky+127,"font-size":28,fill:"#dde",opacity:ka},"glow: radioactive (brighter = decays faster)");
   }
 };
 </script></body></html>`;

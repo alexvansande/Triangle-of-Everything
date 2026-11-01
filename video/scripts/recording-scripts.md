@@ -154,10 +154,13 @@ view.
   shorts (the repo ignores .mp4 files, so run the script to get the clip).
 
 **Video 6: the colours beat** (the author, 2026-10-31), straight after the table turns into the
-classroom view. The colours sweep from hydrogen to oganesson into: blue and green (fusing gives
-energy), grey at iron, brown (heavier, stable), and bright red, pulsing, for the radioactive ones
-(no stable isotope: technetium, promethium, polonium on; bismuth-209 stays brown, its half-life of
-~2×10¹⁹ years gives no heat to speak of). A small key appears.
+classroom view. The colours sweep from hydrogen to oganesson into the author's scheme (2026-11-01):
+by atomic number, cyan for the lightest gases, deep blue, emerald, green, yellow, and light grey at
+iron; then deep dark red, bright red by uranium, magenta for the transuranium elements. The
+radioactive ones (no stable isotope: technetium, promethium, polonium on; bismuth-209's half-life of
+~2×10¹⁹ years gives no heat to speak of) get a glow, brighter the faster they decay: faint for
+thorium and uranium, blazing for oganesson. A small key appears (the colour strip H → Fe → U → Og,
+and the glow). Still: `video/plans/binding-energy/table-colours.png`.
 - The author's draft: *"Colors here represent something important. Blue and green are elements that
   release energy under fusion and require energy to be separated. Brown and red are the opposite,
   elements that will require energy to be fused. The bright red ones are the radioactive elements,
@@ -198,9 +201,9 @@ energy), grey at iron, brown (heavier, stable), and bright red, pulsing, for the
     before the Earth existed."* (The Earth's uranium is older than the Sun.)
 - **The beat to record** (the author's words with the fixes, and the iron passage the author chose,
   2026-10-31): *"These colours mean something important. Blue and green are elements that give off
-  energy when they fuse, and need energy to be split. Brown and red are the opposite. The bright red
-  ones are radioactive: they break down by themselves, giving off heat and radiation. And here in
-  the grey middle, the most stable of all: iron. Elements up to iron are forged in the cores of
+  energy when they fuse, and need energy to be split. The reds are the opposite. The glowing
+  ones are radioactive: they break down by themselves, giving off heat and radiation, and the
+  brighter the glow, the faster they go. And here, in light grey, the most stable of all: iron. Elements up to iron are forged in the cores of
   stars: once the hydrogen runs out, the biggest stars burn helium, then carbon, and so on, up to
   iron. Past iron, fusion stops paying: it costs energy instead. So when a big star's core turns to
   iron, the fire goes out and the core collapses. And as it falls, the iron is torn apart again,
@@ -210,7 +213,10 @@ energy), grey at iron, brown (heavier, stable), and bright red, pulsing, for the
   on energy that was locked into uranium when two dead stars collided, billions of years before the
   Earth existed."*
   - On screen while it plays: the recolour sweep on "These colours…", the radioactive ones pulse on
-    "radioactive", iron's ring on "iron". The collapse and the neutron-star collision could be short
+    "radioactive", iron's ring on "iron".
+    (Colours changed 2026-11-01: blue and green up to iron, reds after it, magenta past uranium, a glow
+    for radioactive. The line above was updated to match: "The reds are the opposite. The glowing
+    ones are radioactive…") The collapse and the neutron-star collision could be short
     cutaways (a supernova remnant; the GW170817 kilonova) or a dive on the chart to the neutron
     stars, per `video/plans/visual-rules.md` (dives before photo cutaways).
 - **Second draft of the iron part** (the author, 2026-10-31): *"Past iron, fusion energy generation
