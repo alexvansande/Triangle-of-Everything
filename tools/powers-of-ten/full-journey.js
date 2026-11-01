@@ -23,7 +23,7 @@ import { crossingsLayer } from "./crossings.js";
 
 const canopyTest = new URLSearchParams(location.search).has('canopytest');
 const insects=canopyTest?catalogueInsects():null,optics=canopyTest?canopyOptics():null,depth=canopyTest?canopyDepth():null,crown=canopyTest?canopyCrownDepth():null,microscope=canopyTest?canopyMicro():null;
-const S_MIN = Math.log10(1.616255e-35*32), S_MAX = Math.log10(2 * 46e9 * LY / .78);
+const S_MIN = Math.log10(1.616255e-35*128), S_MAX = Math.log10(2 * 46e9 * LY / .78);
 window.canopyTest = {enabled:true,minimum:S_MIN,photoMinimum:-8.260667536990012,maximum:S_MAX};
 const q = new URLSearchParams(location.search);
 const state = {

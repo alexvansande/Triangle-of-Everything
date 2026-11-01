@@ -44,6 +44,10 @@ export async function smallLayers() {
     if (px > h.size || px < h.size / 2) { h.renderer.resize(px); h.size = px; }
     if (res !== undefined) h.view.res = res;
     h.view.yaw = 0.6 + cam.t * 0.12;h.view.update(cam.t, OPTS);
+    if(h===quark){
+      const focus=ramp(cam.s,-18.6,-19.2),i=Math.floor(h.view.N*.18)*4;
+      if(focus>0){const target=Array.from(h.view.data.slice(i,i+3));h.view.center=h.view.center.map((v,k)=>v*(1-focus)+target[k]*focus);}
+    }
     cam.ctx.globalAlpha = alpha;
     h.renderer.render(h.view, OPTS, [cam.ctx, cam.cx - box / 2, cam.cy - box / 2, box, box]);
     cam.ctx.globalAlpha = 1;

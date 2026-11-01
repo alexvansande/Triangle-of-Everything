@@ -1,8 +1,10 @@
+import {filamentBrush} from './cosmic-filaments.js';
 // An illustrative 3D density volume. It is deliberately separate from the
 // observed Planck CMB temperature shell and from the nearby galaxy catalogue.
 import {ramp,LY} from './math.js';
 const ROOT='/video/powers-of-ten/generated/cosmic-web-v1/',R=46e9*LY,TAN=Math.tan(20*Math.PI/180);
 export function cosmicWeb(){
+ const brush=filamentBrush();
  const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,depth:false});
  let program,buffer,count=0,failed=!gl;
  if(gl)try{
@@ -37,10 +39,10 @@ export function cosmicWeb(){
   for(const[name,n,offset]of [['aPosition',3,0],['aWeight',1,24],['aKnot',1,28],['aLod',1,32]]){const a=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,n,gl.FLOAT,false,36,offset);}
   for(const[name,v]of [['uR',cam.cam.r],['uU',cam.cam.u],['uN',cam.cam.n]])gl.uniform3fv(loc(name),v);
   gl.uniform1f(loc('uScale'),2*R*cam.min/(cam.F*cam.W));gl.uniform1f(loc('uProjection'),ramp(cam.s,25.6,26.45));gl.uniform1f(loc('uDistance'),cam.cmbView.dist);
-  gl.uniform1f(loc('uAlpha'),ramp(cam.s,24.3,25.15)*(.8-.25*ramp(cam.s,26.4,27.1)));
+  gl.uniform1f(loc('uAlpha'),.22*ramp(cam.s,24.3,25.15)*(.8-.25*ramp(cam.s,26.4,27.1)));
   gl.uniform1f(loc('uOuter'),ramp(cam.s,25.1,25.8));
   gl.uniform1f(loc('uPixel'),cam.dpr);gl.uniform1f(loc('uSlab'),Math.min(.045,Math.max(.001,cam.F/R*.12)));gl.uniform1f(loc('uFeature'),1-ramp(cam.s,25.35,26.1));
   for(const pass of [1,0]){gl.uniform1f(loc('uPass'),pass);gl.drawArrays(gl.POINTS,0,count);}
-  const c=cam.ctx;c.save();c.globalCompositeOperation='lighter';c.drawImage(canvas,0,0);c.restore();
+  const c=cam.ctx;c.save();c.globalCompositeOperation='lighter';c.drawImage(canvas,0,0);c.restore();brush(cam);
  }};
 }
