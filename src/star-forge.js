@@ -71,7 +71,7 @@ export const STARS = [
     ...STRONG_TONES, toneSpread: 1.25, hiT: 1.2,   // its highlights rusty, not yellow
     note: "3,042 K. A flare star: big starspots, and flares that briefly brighten it. The model the others start from." },
   { slug: "red-dwarf", name: "Red dwarf (TOI-700)", cls: "M2 V", T: 3480, kind: 0,
-    scale: 14, flare: 0.7, hiT: 1.2, hi: 0.2, spots: 0.85, tilt: -0.3, evolve: 0.17,
+    scale: 14, flare: 0.7, hiT: 1.2, hi: 0.2, toneSpread: 1.08,   // warm regions stay brown-red spots: 0.85, tilt: -0.3, evolve: 0.17,
     note: "3,480 K. The most common kind of star; large, long-lived spots, calmer than Proxima." },
   { slug: "betelgeuse", name: "Betelgeuse", cls: "M2 Iab", T: 3600, kind: 0,
     scale: 3, warp: 1.9, network: 0.9, active: 0.7, spots: 0.4, atm: 0.42, prom: 1.5, spic: 1.2, flare: 0.4, rot: 0.015, evolve: 0.08, tilt: 0.15,
@@ -311,14 +311,16 @@ float hiMask(vec3 n){
   return uHi * (steady + 2.2*fl*spot);
 }
 
+float gDisc;   // how much of this pixel is the star's disc (solid on the chart, like the old pictures)
 vec3 star(vec2 d){
   // flattening along the (screen-tilted) spin axis
   vec2 e = d; if(uOblate > 0.){ e = mat2(cos(uTilt), -sin(uTilt), sin(uTilt), cos(uTilt)) * e; e.y /= (1. - uOblate);
     e = mat2(cos(uTilt), sin(uTilt), -sin(uTilt), cos(uTilt)) * e; }
   vec3 n; float mu; vec3 col = vec3(0.);
   float r = length(e);
-  gHi = 0.;
+  gHi = 0.; gDisc = 0.;
   if(normalAt(e, n, mu)){
+    gDisc = smoothstep(1., 1. - 1.5*gPix, r);
     col = surface(gFrame * n, mu);
     col *= smoothstep(1., 1. - 1.5*gPix, r);            // one-pixel edge; the atmosphere covers it
     gHi = hiMask(gFrame * n);
@@ -363,7 +365,8 @@ void main(){
   // on the chart, everything fades out before the frame's edge (no square around the halo)
   if(uAlpha == 1) ov *= 1. - smoothstep(.78, .99, length(uv));
   // premultiplied: over black it's the same picture; over the chart, the dark parts let it through
-  o = uAlpha == 1 ? vec4(ov, max(ov.r, max(ov.g, ov.b))) : vec4(ov, 1.);
+  // the disc is solid; its atmosphere and halo let the chart through where they're dark
+  o = uAlpha == 1 ? vec4(ov, max(gDisc, max(ov.r, max(ov.g, ov.b)))) : vec4(ov, 1.);
 }`;
 
 // turn a linear colour's hue by deg degrees (rotation about the grey axis, on gamma-encoded values)
