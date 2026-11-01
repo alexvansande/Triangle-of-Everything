@@ -69,9 +69,11 @@ const STRONG_TONES = { tone: 0.9, toneSpread: 1.5, toneSharp: 0.12 };
 export const STARS = [
   { slug: "proxima-cen", name: "Proxima Centauri", cls: "M5.5 V", T: 3042, kind: 0,
     ...STRONG_TONES, toneSpread: 1.25, hiT: 1.2,   // its highlights rusty, not yellow
+    spots: 1.7, spotSize: 2.6, spotDark: 1,   // big, nearly black starspots (the author, 2026-11-01)
     note: "3,042 K. A flare star: big starspots, and flares that briefly brighten it. The model the others start from." },
   { slug: "red-dwarf", name: "Red dwarf (TOI-700)", cls: "M2 V", T: 3480, kind: 0,
-    scale: 14, flare: 0.7, hiT: 1.2, hi: 0.2, toneSpread: 1.08,   // warm regions stay brown-red spots: 0.85, tilt: -0.3, evolve: 0.17,
+    scale: 14, flare: 0.7, hiT: 1.2, hi: 0.2, toneSpread: 1.08,   // warm regions stay brown-red
+    spots: 1.6, spotSize: 2.4, spotDark: 1, tilt: -0.3, evolve: 0.17,   // big, nearly black starspots
     note: "3,480 K. The most common kind of star; large, long-lived spots, calmer than Proxima." },
   { slug: "betelgeuse", name: "Betelgeuse", cls: "M2 Iab", T: 3600, kind: 0,
     scale: 3, warp: 1.9, network: 0.9, active: 0.7, spots: 0.4, atm: 0.42, prom: 1.5, spic: 1.2, flare: 0.4, rot: 0.015, evolve: 0.08, tilt: 0.15,
@@ -109,12 +111,15 @@ export const STARS = [
 ];
 const DEF = { cells: 0, network: 0, warp: 0.8, ridge: 0, active: 0, activeLat: 0, spots: 0, oblate: 0, grav: 0, wind: 0,
   lens: 0, aberr: 0, atm: 0, atmGlow: 0, spic: 0, prom: 0, hi: 0.55, hiSize: 0.32, hiT: 1.5, flare: 0.3,
-  tone: 0, toneScale: 2.5, toneSharp: 0.18, toneSpread: 1.35, toneHue: 0 };
+  tone: 0, toneScale: 2.5, toneSharp: 0.18, toneSpread: 1.35, toneHue: 0,
+  spotSize: 5, spotDark: 0 };
+// spotSize: the spots' pattern frequency (lower = bigger spots); spotDark: 0 the umbra is a dark
+// shade of the star's colour, 1 nearly black with a darker, wider penumbra
 // tone: the cloud layer of colour regions (0 off, 1 full); toneScale: how many regions across;
 // toneSharp: how soft their borders are; toneSpread: how far apart in temperature the two regions'
 // palettes are (×/÷ the star's); toneHue: turns the warm regions' hue (degrees), for blue next to green.
 const UNIFORM_KEYS = ["scale", "cells", "network", "warp", "ridge", "active", "activeLat", "spots", "limb", "atm", "atmGlow", "spic", "prom",
-  "glow", "wind", "rot", "evolve", "tilt", "seed", "oblate", "grav", "flare", "lens", "aberr", "hi", "hiSize", "tone", "toneScale", "toneSharp"];
+  "glow", "wind", "rot", "evolve", "tilt", "seed", "oblate", "grav", "flare", "lens", "aberr", "hi", "hiSize", "tone", "toneScale", "toneSharp", "spotSize", "spotDark"];
 STARS.forEach((s, i) => { if (!s.own) for (const k in MODEL) if (s[k] === undefined) s[k] = MODEL[k];
   for (const k in DEF) if (s[k] === undefined) s[k] = DEF[k]; s.seed = i * 7.31 + 1.7; s.orig = JSON.parse(JSON.stringify(s)); });
 
@@ -127,7 +132,7 @@ in vec2 uv; out vec4 o;
 uniform vec2 uView;   // the parallax: the star seen turned by (sideways, up) radians
 uniform int uAlpha;   // 1: brightness becomes opacity (a transparent picture, for the chart)
 uniform float uTime, uR, uSize, uScale, uCells, uNetwork, uWarp, uRidge, uActive, uActiveLat, uSpots, uLimb, uAtm, uAtmGlow,
-  uSpic, uProm, uGlow, uWind, uRot, uEvolve, uTilt, uSeed, uOblate, uGrav, uFlare, uLens, uAberr, uHi, uHiSize, uTone, uToneScale, uToneSharp;
+  uSpic, uProm, uGlow, uWind, uRot, uEvolve, uTilt, uSeed, uOblate, uGrav, uFlare, uLens, uAberr, uHi, uHiSize, uTone, uToneScale, uToneSharp, uSpotSize, uSpotDark;
 uniform int uKind;
 uniform vec3 uDeep, uBright, uGlowC, uHiC, uDeepA, uBrightA, uDeepB, uBrightB;
 
@@ -229,12 +234,12 @@ vec3 surface(vec3 p, float mu){
   }
   // spots: cooler and darker, inside the active regions
   if(uSpots > 0.){
-    float s = fbmF(p*5. + uSeed*1.3 + vec3(0., te*.5, te*.3), 4, 5.) + .5;
+    float s = fbmF(p*uSpotSize + uSeed*1.3 + vec3(0., te*.5, te*.3), 4, uSpotSize) + .5;
     float region = uActive > 0. ? act / max(uActive, .01) : 1.;
     s *= mix(.7, 1.25, region);
-    float th = mix(.95, .66, uSpots);
-    float pen = smoothstep(th - .05, th, s), umb = smoothstep(th + .03, th + .08, s);
-    col = mix(col, D*.3, pen*.8); col = mix(col, D*.04, umb);
+    float th = .95 - .29*uSpots;   // 1: the usual; up to 2 for big spotted stars
+    float pen = smoothstep(th - .05 - .04*uSpotDark, th, s), umb = smoothstep(th + .03 - .03*uSpotDark, th + .08 - .03*uSpotDark, s);
+    col = mix(col, D*mix(.3, .12, uSpotDark), pen*mix(.8, .95, uSpotDark)); col = mix(col, D*mix(.04, .004, uSpotDark), umb);
   }
   if(uKind == 3){
     // the pulsar's two hot spots, both in the southern hemisphere (NICER, PSR J0030+0451), not opposite
@@ -281,7 +286,10 @@ vec3 atmosphere(vec2 d, float r){
                      : mix(D*1.3, B, clamp(.08 + .45*sp*sp + prom*.8, 0., 1.)) * dens;
   }
   // per unit of length: a ray along the rim crosses far more gas than one straight down
-  return em * dz / H * .75 * uAtmGlow;
+  // on a star with black spots (spotDark), the gas in front of the disc is thinner seen straight
+  // down, so they stay black; towards the rim the line of sight runs along it and it still glows
+  float face = r < 1. ? mix(1., mix(.15, 1., smoothstep(.8, 1., r)), uSpotDark) : 1.;
+  return em * dz / H * .75 * uAtmGlow * face;
 }
 
 bool normalAt(vec2 d, out vec3 n, out float mu){
