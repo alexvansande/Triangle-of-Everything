@@ -30,8 +30,10 @@ export function nucleusInterior(){
   for(const p of parts){
    const fieldDepth=eased(Math.max(0,Math.log10((12e-6/3**5)/2.2)-s));
    const relative=p.name==='purple'?10**(.55*backEase):p.name==='field'?10**(-.18*fieldDepth):1;
-   const localDepth=eased(Math.max(0,Math.log10(p.span/2.2)-s));
-   const blur=p.name==='purple'?Math.min(30,16*backEase):p.name==='field'?Math.min(36,18*fieldDepth):p.name==='hero'?Math.min(36,14*localDepth):Math.min(34,28*(1-smooth(-10,-9.35,s)));
+   // Keep the continuous DNA strand in one focal plane until its finer
+   // 5.5 nm piece fills the frame; otherwise the centre looks pasted on.
+   const localDepth=eased(Math.max(0,Math.log10((12e-6/3**7)/2.2)-s));
+   const blur=p.name==='purple'?Math.min(30,16*backEase):p.name==='field'?Math.min(36,18*fieldDepth):p.name==='hero'?Math.min(36,14*localDepth):Math.min(34,28*(1-smooth(-10,-9.35,s)))+2.2*smooth(-8.65,-7.65,s);
    const side=p.span*k*relative;
    // Purple chains have an empty centre and exit through that passage.
    // The populated rear field stays behind every closer foreground piece.
