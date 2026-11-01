@@ -32,7 +32,7 @@ export function cosmicWeb(){
   fetch(ROOT+'points.bin').then(r=>{if(!r.ok)throw Error('density data missing');return r.arrayBuffer()}).then(raw=>{buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(raw),gl.STATIC_DRAW);count=raw.byteLength/36;}).catch(e=>{failed=true;console.error('Cosmic web data',e)});
  }catch(e){failed=true;console.error('Cosmic web shader',e)}
  const loc=n=>gl.getUniformLocation(program,n);
- return{name:'extended cosmic web',range:[24.3,27.5],ready:()=>!failed&&count>0,draw(cam){
+ return{name:'extended cosmic web',range:[23.8,27.5],ready:()=>!failed&&count>0,draw(cam){
   if(failed||!count||!cam.cmbView)return;
   if(canvas.width!==cam.W){canvas.width=cam.W;canvas.height=cam.H;}gl.viewport(0,0,cam.W,cam.H);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
   gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);gl.disable(gl.DEPTH_TEST);

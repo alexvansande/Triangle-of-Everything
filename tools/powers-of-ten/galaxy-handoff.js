@@ -1,4 +1,3 @@
-import {cosmicOrbit} from './cosmic-motion.js';
 // The two8K skies and live3D clouds share exported sample identities and
 // angular Gaussian kernels. No independently generated image is crossfaded in.
 import {ramp,dot,LY,KPC,AU} from './math.js';
@@ -33,7 +32,7 @@ export function galaxyHandoff(){
   return true;
  }
  const loc=(p,n)=>gl.getUniformLocation(p,n);
- function basis(p,cam){const angle=.075*Math.sin(Math.PI*ramp(cam.s,9,14.8)),b=cosmicOrbit(cam.cam,angle);for(const[n,v]of [['uR',b.r],['uU',b.u],['uN',b.n]])gl.uniform3fv(loc(p,n),v);}
+ function basis(p,cam){const b=cam.cam;for(const[n,v]of [['uR',b.r],['uU',b.u],['uN',b.n]])gl.uniform3fv(loc(p,n),v);}
  function corners(p){gl.bindBuffer(gl.ARRAY_BUFFER,quad);const a=gl.getAttribLocation(p,'aCorner');gl.enableVertexAttribArray(a);ext.vertexAttribDivisorANGLE(a,0);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);}
  function points(group,cam,depth,alpha,model){
   if(alpha<=0)return;const p=pointProgram;gl.useProgram(p);basis(p,cam);corners(p);gl.bindBuffer(gl.ARRAY_BUFFER,group.buffer);

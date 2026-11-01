@@ -115,7 +115,7 @@ function render(t) {
   // corners), centred on the stage and turned with it
   const s = state.s, Dg = Math.ceil(Math.hypot(W, H)), roll = -ROLL * s, rc = Math.cos(roll), rs = Math.sin(roll);
   const F = 10 ** s, min = Math.min(W, H), k = min / F, cx = Dg / 2, cy = Dg / 2;
-  const basis = cosmicOrbit(cameraAt(s),outerTurn*ramp(s,26.4,26.9)), pw = perspAt(s), Dc = pw > 1e-4 ? F / (2 * Math.tan(25 * Math.PI / 180)) / pw : Infinity;
+  const basis = cosmicOrbit(cameraAt(s),outerTurn*ramp(s,24.2,27.05)), pw = perspAt(s), Dc = pw > 1e-4 ? F / (2 * Math.tan(25 * Math.PI / 180)) / pw : Infinity;
   const projS = (p) => {
     const z = p[0] * basis.n[0] + p[1] * basis.n[1] + p[2] * basis.n[2], den = Dc - z;
     if (den < 0.01 * Dc) return [NaN, NaN, 0];
@@ -201,13 +201,14 @@ function readout(s) {
 }
 
 // ---------- controls ----------
-let last = performance.now(), t = 0, urlT = 0, outerTurn=0;
+let last = performance.now(), t = 0, urlT = 0, outerTurn=0,outerPhase=0;
 function tick(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now; t += dt;
   if (state.play) { state.s = clamp(state.s + state.play * state.speed * dt * (1+3*ramp(-state.s,20,23)*(1-ramp(-state.s,31.5,33.2))), S_MIN, S_MAX); if (state.s <= S_MIN || state.s >= S_MAX) setPlay(0); }
   // Keep orbiting after the pullback stops, revealing depth inside the shell.
-  outerTurn+=dt*.045*ramp(state.s,26.4,26.9);
+  if(!state.play&&state.s>26.8)outerPhase+=dt*.06;
+  outerTurn=.12*Math.sin(outerPhase);
   render(t);
   if (now - urlT > 400) { urlT = now; const u = new URL(location); u.searchParams.set("s", state.s.toFixed(2)); history.replaceState(null, "", u); }
   requestAnimationFrame(tick);

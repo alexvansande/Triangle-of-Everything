@@ -127,34 +127,26 @@ const K2 = basis(GAL_POLE, EDGE.u);
 const K3 = basis(SG_POLE, GAL_POLE);
 // Keep the interior sky in view through both angular handoffs; tilt to the
 // galactic pole only after the galaxy dots have completely replaced the image.
-const KEYS = [[6.4, K0], [8.4, EDGE], [20.15, EDGE], [21.6, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
+// One shared flowing orientation path: the required Earth and galactic
+// approaches remain anchors, with a gentle planetary arc between them.
+const planetary={r:rotAbout(EDGE.r,EDGE.u,6*D),u:EDGE.u,n:rotAbout(EDGE.n,EDGE.u,6*D)};
+const KEYS = [[6.4,K0],[10.1,EDGE],[13.5,planetary],[19.2,EDGE],[22.1,K2],[25.2,K3],[27.1,K3]].map(([s,k])=>[s,toQuat(k)]);
+for(let i=1;i<KEYS.length;i++)if(KEYS[i][1].reduce((v,x,j)=>v+x*KEYS[i-1][1][j],0)<0)KEYS[i][1]=KEYS[i][1].map(v=>-v);
 // the camera is in perspective (50° across the frame's shorter side) from the Earth
 // to the Oort cloud, so what's near it is bigger and passes by; flat before and
 // after. 0…1: how much
 export const perspAt = (s) => win(s, 7.9, 8.5, 14.4, 15.6);
-// from the stars out the camera turns round the vertical at a steady 10° a decade
-// (eased in over the first), tipping 8° and back, so depth shows as it moves
-// (parallax); the roll round the line of sight, the same at every scale, is the
-// whole picture's (ROLL in main.js); the Cloud that follows has its own camera
-const TURN = { from: 16.5, rate: 10 }, TILT = [17.0, 26.6, 8];
-export function cameraAt(s) {
-  // Hold the interior sightline while the distant galactic band is still a
-  // rear layer; catch up smoothly to the existing exterior turn afterwards.
-  const turnGate=ramp(s,20.15,21.6);
-  const b = keyed(s), x = (s - TURN.from)*turnGate;
-  if (x <= 0) return b;
-  const th = D * TURN.rate * (x < 1 ? x * x / 2 : x - 0.5);
-  const ph = TILT[2] * D * Math.sin(Math.PI * clamp((s - TILT[0]) / (TILT[1] - TILT[0]))) * turnGate;
-  const c = Math.cos(th), sn = Math.sin(th);
-  const r = add(mul(b.r, c), mul(b.n, sn)), n = sub(mul(b.n, c), mul(b.r, sn));
-  const cp = Math.cos(ph), sp = Math.sin(ph);
-  return { r, u: add(mul(b.u, cp), mul(n, sp)), n: sub(mul(n, cp), mul(b.u, sp)) };
-}
-function keyed(s) {
-  if (s <= KEYS[0][0]) return fromQuat(KEYS[0][1]);
-  for (let i = 1; i < KEYS.length; i++) {
-    if (s <= KEYS[i][0]) return fromQuat(slerp(KEYS[i - 1][1], KEYS[i][1], ramp(s, KEYS[i - 1][0], KEYS[i][0])));
-  }
-  return fromQuat(KEYS[KEYS.length - 1][1]);
+// Normalised cubic quaternion interpolation gives a continuous angular
+// velocity through anchors, without stop/start ramps or catch-up spins.
+export function cameraAt(s){return keyed(s);}
+function keyed(s){
+ if(s<=KEYS[0][0])return fromQuat(KEYS[0][1]);
+ if(s>=KEYS.at(-1)[0])return fromQuat(KEYS.at(-1)[1]);
+ const tangent=i=>{if(i===0||i===KEYS.length-1)return [0,0,0,0];return KEYS[i+1][1].map((v,j)=>(v-KEYS[i-1][1][j])/(KEYS[i+1][0]-KEYS[i-1][0]));};
+ for(let i=1;i<KEYS.length;i++)if(s<=KEYS[i][0]){
+  const [sa,a]=KEYS[i-1],[sb,b]=KEYS[i],dt=sb-sa,t=(s-sa)/dt,m=tangent(i-1),n=tangent(i),t2=t*t,t3=t2*t;
+  const q=a.map((v,j)=>(2*t3-3*t2+1)*v+(t3-2*t2+t)*dt*m[j]+(-2*t3+3*t2)*b[j]+(t3-t2)*dt*n[j]);
+  const length=Math.hypot(...q);return fromQuat(q.map(v=>v/length));
+ }
 }
 export const FINAL_VIEW = K3;
