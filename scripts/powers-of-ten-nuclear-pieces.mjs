@@ -3,9 +3,9 @@ import sharp from 'sharp';
 import fs from 'node:fs/promises';
 export async function nuclearPieces({path,bases,fade,n}){
  const dir=path('nuclear-pieces-v2/');
- for(const f of ['field','field-fill','hero','dna'])if(!await fs.access(dir+f+'-raw.png').then(()=>true,()=>false))return false;
+ for(const f of ['field','field-fill','hero-organic-v3','dna'])if(!await fs.access(dir+f+'-raw.png').then(()=>true,()=>false))return false;
  const spans=Array.from({length:8},(_,i)=>12e-6/3**i),back=bases[2];
- const parts=[['field',3,dir+'field-raw.png'],['hero',5,dir+'hero-raw.png'],['dna',7,dir+'dna-raw.png'],['purple',3,path('chromatin-depth-v1/foreground-raw.png')]];
+ const parts=[['field',3,dir+'field-raw.png'],['hero',5,dir+'hero-organic-v3-raw.png'],['dna',7,dir+'dna-raw.png'],['purple',3,path('chromatin-depth-v1/foreground-raw.png')]];
  await fs.writeFile(dir+'background.png',back);
  const plates=[];
  for(const[name,level,source]of parts){let input=await sharp(source).resize(n,n).ensureAlpha().png().toBuffer();if(name==='field')input=await sharp(input).composite([{input:await sharp(dir+'field-fill-raw.png').resize(418,418).png().toBuffer(),left:418,top:418}]).png().toBuffer();if(['field','purple'].includes(name))input=await fade(input,n);await fs.writeFile(dir+name+'.png',input);plates.push({name,level,span:spans[level],input});}
@@ -25,6 +25,6 @@ export async function nuclearPieces({path,bases,fade,n}){
  let child=await fs.readFile(path('level-2.png'));
  for(let level=1;level>=0;level--){child=await sharp(bases[level]).composite([{input:await fade(child,418),left:418,top:418}]).png().toBuffer();await fs.writeFile(path(`level-${level}.png`),child);}
  await fs.writeFile(path('../pollen-v4/amoeba-inner.png'),child);
- await fs.writeFile(dir+'scene.json',JSON.stringify({version:2,native:[n,n],backgroundSpan_m:spans[2],axis:[n/2,n/2],parts:plates.map(({input,...p})=>p),rootDepthStart_m:spans[2]/2.2,note:'All closer objects are transparent. Nuclear texture is the persistent rear plane; field pattern remains a separate middle plane. Parents use this same zero-depth scene. Sizes are inherited illustrative molecular scales.'},null,2)+'\n');
+ await fs.writeFile(dir+'scene.json',JSON.stringify({version:3,native:[n,n],backgroundSpan_m:spans[2],axis:[n/2,n/2],parts:plates.map(({input,...p})=>p),rootDepthStart_m:spans[2]/2.2,note:'All closer objects are transparent. Nuclear texture is the persistent rear plane; field pattern remains a separate middle plane. Parents use this same zero-depth scene. Sizes are inherited illustrative molecular scales.'},null,2)+'\n');
  return true;
 }

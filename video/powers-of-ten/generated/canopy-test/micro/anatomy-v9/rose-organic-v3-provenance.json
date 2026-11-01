@@ -1,0 +1,18 @@
+{
+  "tool": "built-in imagegen",
+  "date": "2026-10-31",
+  "assets": {
+    "nucleus-rose-v3-raw.png": {
+      "source": "nucleus-raw.png",
+      "generation": "exec-6f003f25-051f-49f8-b149-f1d800dd45d0.png",
+      "prompt": "Colour-only edit: subtle dusty rose nucleus interior and nucleolus; preserve membrane, pores, texture, organelle positions and neutral external cytoplasm. No reframing or blur."
+    },
+    "hero-organic-v3-raw.png": {
+      "source": "nuclear-pieces-v2/hero-raw.png",
+      "generation": "exec-f6059c98-3d1b-49c5-80ff-872fd19c28e6.png",
+      "prompt": "Six irregularly placed nucleosomes in two naturally curling chromatin chains, varied orientations and spacing; keep central diagonal blue DNA zoom target. Complete silhouettes contained inside transparent canvas, no square/four-corner layout, no background or blur. Refinement of exec-4d1db628-f062-47ca-9978-cb1fece603ea.png to eliminate clipped peripheral beads.",
+      "transparent": true
+    }
+  },
+  "limitation": "Illustrative molecular reconstruction, not an atomic-coordinate model. Original raw sources preserved. Normalised by existing matched scene assembler; all lower parents rebuilt from the same transparent layers."
+}

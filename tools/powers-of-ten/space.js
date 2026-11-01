@@ -206,12 +206,12 @@ export function spaceLayers(globe) {
       // Retire only as each cloud actually collapses to an unresolved point.
       const ka=ramp(cam.s,12.4,13)*ramp(50*AU*cam.k/cam.dpr,1,6);
       const oa=ramp(cam.s,14.3,15)*ramp(1e5*AU*cam.k/cam.dpr,1,8);
-      const ctx=cam.ctx,sz=1.8*cam.dpr;
+      const ctx=cam.ctx,sz=.95*cam.dpr;
       if (ka + oa <= 0.01) return;
       const warm=t=>`rgb(${170+85*t},${205+31*t},${255-65*t})`;
       const kuiperColour=warm(1-ramp(50*AU*cam.k/cam.dpr,1,6)),oortColour=warm(1-ramp(1e5*AU*cam.k/cam.dpr,1,8));
       for (const c of icy) {
-        const al = c.kind ? oa * .9 : ka;
+        const al = c.kind ? oa * .15 : ka * .24;
         ctx.fillStyle=c.kind?oortColour:kuiperColour;
         if (al <= 0.01) continue;
         const [x, y] = cam.proj(c.p);

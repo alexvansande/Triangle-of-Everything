@@ -736,3 +736,9 @@ This supersedes the earlier chromatin-v1 background replacement workflow above.
 - CMB alpha begins at100,000ly frame width, with a squared smooth ramp reaching the existing faint floor bys25.1. Later shell crossing is unchanged.
 - Hubble circle has independent label opacity froms25.7–26.25 and remains through the endpoint. It uses its own spherical projected radius instead of scaling the outer shell's silhouette, so it is visible while the camera is still inside the CMB shell.
 - Further cosmic-web extension remains a proposed next layer: galaxy dots, diffuse filaments/sheets and voids; no new catalogue claims or decorative nebula clouds added.
+
+## 2026-10-31 — quieter reservoirs and continuous cell palette
+- Kuiper/Oort particle width1.8→0.95 output pixels; Kuiper alpha24% and Oort alpha15% of base instead of100%/90%. Physical locations and collapse timing retained.
+- Red shell light eases logarithmically to96% neutral water across the full600µm→3µm frame-width interval, replacing the shorter cell-coverage-driven fade.
+- Built-in imagegen recoloured nucleus interior/nucleolus to muted dusty rose while retaining neutral cytoplasm and registered envelope. Versioned nucleus-rose-v3-raw.png; original raw preserved.
+- Replaced four-corner hero with a complete transparent six-nucleosome fragment, uneven placement, curving peripheral DNA and varied orientations. Central diagonal target remains on the fixed zoom axis; native dimensions and illustration scales retained. All molecular parents and downstream droplet/foliage centres reassembled from the same sharp planes. Sources/prompts: micro/anatomy-v9/rose-organic-v3-provenance.json.
