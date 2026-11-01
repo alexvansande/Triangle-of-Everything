@@ -13,7 +13,6 @@
 # next: short-01-hook
 # next: short-02a-things
 # next: short-02b-planets
-# next: short-04a-black-hole-line
 # next: short-04b-smallest-black-holes
 # next: short-05a-emptier
 # next: short-05b-hubble-sphere
@@ -28,7 +27,6 @@ long-01-intro
 short-01-hook
 short-02a-things
 short-02b-planets
-short-04a-black-hole-line
 short-04b-smallest-black-holes
 short-05a-emptier
 short-05b-hubble-sphere
