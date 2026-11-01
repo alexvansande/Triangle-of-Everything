@@ -5717,6 +5717,10 @@ function bgNoiseShadows() {
   const mx = (q) => [q.a * S, q.b * S, q.c * S, q.d * S, q.e * S, q.f * S];
   // what to draw, first: redrawn (and uploaded) only when it differs from the last frame's
   const ops = [];
+  // a narration focus fades every other picture by a stylesheet rule (narr-obj-focus), their shadows
+  // with them: read here, as the canvas doesn't see CSS (the shadows stayed, the author, 2026-11-01)
+  const focusFade = document.body.classList.contains("narr-obj-focus")
+    ? 1 - (+getComputedStyle(document.body).getPropertyValue("--narr-obj-fade") || 0) : 1;
   for (const el of root.querySelectorAll("ellipse, image, circle, path")) {
     // star light stays SVG; of the circles only the dots' own shadows (the rest are revealIcon's discs)
     if (el.classList.contains("sh-glow") || (el.tagName === "circle" && !el.classList.contains("object-dot-shadow"))) continue;
@@ -5727,11 +5731,16 @@ function bgNoiseShadows() {
       const o = n.getAttribute("opacity");
       if (o != null) op *= +o;
       if (n.style.opacity) op *= +n.style.opacity;
+      if (focusFade < 1 && n.classList && ((n.classList.contains("icon-shadow") && !n.classList.contains("narr-keep"))
+        || n.classList.contains("dust-shadows"))) op *= focusFade;
       const cp = n.getAttribute("clip-path");   // revealIcon's growing circle
       if (!cp) continue;
       const c = document.getElementById(cp.slice(5, -1))?.querySelector("circle");
       if (c) clips.push([mx(base.multiply(n.getScreenCTM())), +c.getAttribute("cx"), +c.getAttribute("cy"), +c.getAttribute("r")]);
     }
+    // the layer's own fade too (a close-up's isolate, a dive's dolly): the pictures faded and their
+    // shadows stayed (the author, 2026-11-01)
+    if (root.style.opacity) op *= +root.style.opacity;
     if (hidden || !(op > 0.003)) continue;
     const m = base.multiply(el.getScreenCTM());
     const k = Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) * S;   // canvas px per user unit
@@ -5987,7 +5996,8 @@ let _bgTilesEnabled = true;
 const _bgNoiseNarr = new URLSearchParams(location.search).has("narrate") || NARR_PREVIEW;
 const BG_NOISE_DEFAULT_ON = _bgNoiseNarr;
 const BG_NOISE_PROFILE = _bgNoiseNarr ? {} : { res: 0.5 };
-const BG_NOISE_ON_AT = 1, BG_NOISE_OFF_AT = 0.7; // css px per source px (tiles run out at 1)
+let BG_NOISE_ON_AT = 1, BG_NOISE_OFF_AT = 0.7; // css px per source px (tiles run out at 1)
+// (the videos turn it on further out, setBgNoiseFrom: zoomed in nothing changes, its octaves are the same)
 const _bgNoiseUrl = new URLSearchParams(location.search).get("bgnoise"); // null | "" | "0" | "1"
 let _bgNoise = null;          // the layer, created on first zoom-in
 let _bgNoiseSurface = null;
@@ -8741,6 +8751,8 @@ if (_ogShot) {
       /** The pictures' shadows swirled with the fractal background, this × harder than the
        *  painting (experimental); 0 = off (videos' default): they stay SVG. */
       setShadowSwirl(v = 0) { _shadowSwirl = v; },
+      // the fractal layer from this zoom on (css px per source px; the site's 1 where the tiles run out)
+      setBgNoiseFrom(z = 1) { BG_NOISE_ON_AT = z; BG_NOISE_OFF_AT = z * 0.7; syncBgNoise(); },
       setDotTrails(o = 0) {
         const v = typeof o === "number" ? { gain: o } : (o || {});
         _dotTrails = { gain: v.gain ?? 0, length: v.length ?? 60, swirl: v.swirl ?? 2 };

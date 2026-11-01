@@ -263,6 +263,10 @@ export async function startNarration(app) {
     : SCENE.dotTrails ?? { gain: 0.135, length: 300, swirl: 4 });
   // the pictures' shadows swirled with the fractal background (author's panel value 0.8; a scene's
   // `shadowSwirl` overrides, `&shadowswirl=` tries one)
+  // the fractal background from much further out than the site's (where the painting runs out of
+  // pixels): on and off read as two different backgrounds in a video (the author, 2026-11-01);
+  // `&noisefrom=` tries another zoom (css px per source px), a scene's `noiseFrom` overrides
+  app.setBgNoiseFrom?.(params.has("noisefrom") ? +params.get("noisefrom") : SCENE.noiseFrom ?? 0.15);
   app.setShadowSwirl?.(params.has("shadowswirl") ? +params.get("shadowswirl") : SCENE.shadowSwirl ?? 0.8);
   app.setBgFadeDeep?.(SCENE.bgFadeDeep ?? false);   // off: the author prefers the background kept on deep zooms
   // pictures 1.28× the app's default size, so they read on a phone (1.6× was too big)
@@ -276,9 +280,10 @@ export async function startNarration(app) {
   app.setIconBoost?.(SCENE.iconBoost ?? null);    // { from: log r, k }: pictures of the big things k× larger
   app.setLabelHide?.(SCENE.hideLabels ?? null);   // objects whose own chart label never shows
   app.setIconMaxRes?.(true);   // grown pictures stay sharp
-  // a scene that tells the primordial black hole window itself hides the map's
-  // ready-made one, so no label shows before it's been talked about
-  app.setPbhWindow?.(SCENE.pbhWindow !== false);
+  // the map's ready-made primordial black hole window, its "ruled out by Hawking radiation", only
+  // where a scene asks for it (`pbhWindow: true`): video 4 draws its own as it's told, and in the
+  // others it flashed by ("a million stories" in video 1, the author, 2026-11-01)
+  app.setPbhWindow?.(SCENE.pbhWindow === true);
 
   const objects = new Map(app.objects.map(o => [o.name, o]));
   // { obj: name } also takes a catalogue dot's name (the Eiffel Tower, a statue, a ship)

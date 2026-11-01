@@ -17,7 +17,9 @@ const CUBE = { obj: "1ml of water (cube)" }, ML = { obj: "1 mL of Water" };
 const LITER = { obj: "1 Liter of Water" }, TONNE = { obj: "1 Tonne of Water" };
 const RIGHT = { r: 0.793, m: 0 };           // the millilitre ball, one square to the right
 const WATER = { line: "water" }, AIR = { line: "air" };
-const WIDE = { r: 1.6, m: 5.4, span: 7 };    // the tonne step, with room around it
+// the tonne step, with room around it: lower and a little wider, so the millilitre clears the captions
+// and the ruler (it sat on the bottom edge: "show all three water objects", the author, 2026-11-01)
+const WIDE = { r: 1.6, m: 3.4, span: 7.6 };
 // the slow pan up the line through the animals and what we build: a bit over two
 // decades wide, centred on the water line (m = 3r + 0.62)
 const UP = (r, span = 2.2) => ({ r, m: +(3 * r + 0.62).toFixed(2), span, glide: true });
@@ -146,12 +148,13 @@ export default {
     // the air line runs to the right of the water line, a thousand times less dense
     { at: "density of air", cam: C(1.5, 4.2, 2.3), hl: [WATER, { line: "air", label: "density of air" }] },
     { at: "heavier than air", cam: C(1.9, 5.0, 2.2), hl: [WATER, { ...AIR, label: "lighter than air →" }] },
-    // the zeppelin is the Hindenburg (the author, 2026-10-31: not the modern Zeppelin NT), framed
+    // the zeppelin is the Hindenburg (the author, 2026-10-31: not the modern Zeppelin NT; then both lit
+    // up, 2026-11-01), framed
     // with the balloon: it sits a decade and a half further up the air line
     { at: ["as the name says", "lighter than air aircraft"], cam: C(2.9, 6.9, 2.5),
-      hl: [AIR, { obj: "Hindenburg" }, { obj: "Hot-air Balloon", delay: 0.3 }] },
+      hl: [AIR, { obj: "Hindenburg" }, { obj: "Zeppelin NT", delay: 0.15 }, { obj: "Hot-air Balloon", delay: 0.3 }] },
     { at: "balloons and zeppelins", cam: C(3.2, 7.25, 2.6),
-      hl: [AIR, { obj: "Hindenburg", label: "zeppelin" }, { obj: "Hot-air Balloon", label: "balloon" }] },
+      hl: [AIR, { obj: "Hindenburg", label: "zeppelin", place: "left" }, { obj: "Zeppelin NT" }, { obj: "Hot-air Balloon", label: "balloon" }] },
 
     // animals and what we build: the glide carries on, a bit over a decade and a half
     // wide, then up the line (waypoints at their cue times) on to the round worlds
@@ -168,8 +171,9 @@ export default {
       hl: [{ obj: "Hippopotamus", label: "hippo · 1.05 g/cm³" }, WATER, { side: "left", label: "sinks" }] },
 
     { at: ["heavier animals", "heavier and heavier animals"], cam: UP(2.1, 1.5), hl: [WATER, { obj: "Elephant", label: "elephants" }] },
-    { at: "argentinosaurus", cam: UP(2.3, 1.6), hl: [WATER, { obj: "Elephant", place: "left" }, { obj: "Argentinosaurus", label: "Argentinosaurus", delay: 0.2 }] },
-    { at: "the blue whale", cam: UP(2.55, 1.9), hl: [{ obj: "Blue Whale", label: "largest animal ever" }] },
+    // (the moai's name off while Argentinosaurus is named: it ran into the dinosaur, the author, 2026-11-01)
+    { at: "argentinosaurus", cam: UP(2.3, 1.6), hideLabels: ["Paro (moai)"], hl: [WATER, { obj: "Elephant", place: "left" }, { obj: "Argentinosaurus", label: "Argentinosaurus", delay: 0.2 }] },
+    { at: "the blue whale", cam: UP(2.55, 1.9), hideLabels: null, hl: [{ obj: "Blue Whale", label: "largest animal ever" }] },
     // the Eiffel Tower's picture kept on from here (it gave way to its neighbours for the 7 s before
     // it's named: the author, 2026-10-31), the animals' too until the engineering
     { at: "the largest tree", cam: UP(2.85, 2.2), forceIcons: [...ANIMALS, "Argentinosaurus", "Eiffel Tower"], hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
