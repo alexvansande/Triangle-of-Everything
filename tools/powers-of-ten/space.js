@@ -1,3 +1,4 @@
+import {cosmicWeb} from './cosmic-web.js';
 import {extragalacticLayer} from './extragalactic.js';
 import {galaxyHandoff} from './galaxy-handoff.js';
 import {distanceLabel} from "./distance-labels.js";
@@ -19,6 +20,7 @@ const icon = (name) => image(`/content/icons/${name}.webp`);
 const ready = (img) => img.complete && img.naturalWidth > 0;
 
 export function spaceLayers(globe) {
+  const outerWeb=cosmicWeb();
   const imgs = Object.fromEntries(["moon", "sun", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "milky-way", "andromeda-m31", "triangulum-m33", "dwarf-galaxy"].map((n) => [n, icon(n)]));
   const ring = (cam, c, e1, e2, rad, style, width = 1) => {
     const ctx = cam.ctx;
@@ -316,7 +318,7 @@ export function spaceLayers(globe) {
     { name: "Coma", l: 58.1, b: 88.0, d: 100, m: 0.6, eps: 25, col: [120, 230, 160] },
     { name: "Hercules", l: 31.5, b: 44.5, d: 150, m: 0.5, eps: 30, col: [255, 130, 150] },
   ].map((A) => ({ ...A, p: lb(A.l, A.b, A.d) }));
-  const galaxies = { name: "galaxies", range: [22.6, 27.4], data: null, flows: [], draw(cam) { withGlow(cam, 0.7, (c) => drawGalaxies(c, this, win(cam.s, 23.0, 23.6, 26.1, 26.7))); } };
+  const galaxies = { name: "galaxies", range: [22.6, 27.4], data: null, flows: [], draw(cam) { const end=outerWeb.ready()?[24.95,25.6]:[26.1,26.7];withGlow(cam, 0.7, (c) => drawGalaxies(c, this, win(cam.s, 23.0, 23.6, ...end))); } };
   const LABELS = [["Virgo cluster", 283.8, 74.5, 16.5], ["Laniakea", 325.3, -7.3, 68], ["Shapley", 311.5, 30.7, 200], ["Perseus–Pisces", 150.6, -13.3, 73], ["Coma", 58.1, 88, 100]];
   const groupLabels = {
     name: "cluster names", range: [23.5, 26.5],
@@ -359,7 +361,7 @@ export function spaceLayers(globe) {
     } catch (e) { console.warn("sky points unavailable:", e); }
   })();
 
-  return [{...handoff.background,draw(cam){if(handoff.ready())handoff.draw(cam);else sky.draw(cam);}}, milkyWay, neighbours, stars, earthMoon, solar, comets, named, localGroup, galaxyFlyby, galaxies, groupLabels];
+  return [{...handoff.background,draw(cam){if(handoff.ready())handoff.draw(cam);else sky.draw(cam);}}, milkyWay, neighbours, stars, earthMoon, solar, comets, named, localGroup, galaxyFlyby, galaxies, outerWeb, groupLabels];
 }
 
 // stars as points: the ones within a few frame-widths, at most ~30k a frame

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "seed": 31012026,
+  "radius_ly": 46000000000,
+  "stride": 9,
+  "fields": [
+    "x_R",
+    "y_R",
+    "z_R",
+    "red",
+    "green",
+    "blue",
+    "weight",
+    "knot",
+    "lod"
+  ],
+  "counts": [
+    {
+      "count": 150000,
+      "radius": 0.075,
+      "cell": 0.0022,
+      "lod": 0,
+      "tries": 4894365
+    },
+    {
+      "count": 260000,
+      "radius": 0.955,
+      "cell": 0.075,
+      "lod": 1,
+      "tries": 8482620
+    }
+  ],
+  "interpretation": "Illustrative coarse-grained density reconstruction of filaments, sheets, knots and voids. Not observed filament coordinates; outer component is a schematic aggregate, not individual galaxies or a calibrated matter simulation. The CMB remains its separate Planck scalar-map shell.",
+  "references": [
+    "https://science.nasa.gov/universe/galaxies/large-scale-structures/",
+    "https://www.esa.int/Science_Exploration/Space_Science/Planck/The_cosmic_microwave_background_and_the_distribution_of_matter_in_the_Universe"
+  ]
+}

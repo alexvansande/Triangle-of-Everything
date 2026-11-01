@@ -141,6 +141,7 @@ function render(t) {
   ctx.fillRect(0, 0, W, H);
   ctx.setTransform(rc, rs, -rs, rc, W / 2 - rc * cx + rs * cy, H / 2 - rs * cx - rc * cy);
   cmb.draw(ctx,Dg,cloudView,basis);
+  cam.cmbView=cloudView;
   const hide = new Set([...plates.covers(s), ...photos.covers(s)]);
   for (const L of layers) {
     if (s >= L.range[0] && s <= L.range[1] && !hide.has(L.name)) {
