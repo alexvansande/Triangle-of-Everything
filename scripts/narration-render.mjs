@@ -26,6 +26,7 @@ import sharp from "sharp";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { CLOCK_SHIM } from "./narration-clock.mjs";
 
 const args = process.argv.slice(2);
 const take = args[0] && !args[0].startsWith("--") ? args[0] : "short-01-hook";
@@ -50,39 +51,8 @@ const WIDE = JSON.parse(fs.readFileSync(`public/narration/${take}/words.json`, "
 const STAGE = WIDE ? { W: 768, H: 432, pad: 0, dpr: 2.5 } : { W: 432, H: 768, pad: 36, dpr: 2.5 };
 const TMP = fs.mkdtempSync(path.join(path.dirname(OUT), ".narr-render-"));
 
-// Installed before any page script: a clock that stands still until freeze().
-const CLOCK_SHIM = `(() => {
-  const realNow = performance.now.bind(performance), realDate = Date.now;
-  const realRaf = window.requestAnimationFrame.bind(window), realCaf = window.cancelAnimationFrame.bind(window);
-  const realST = window.setTimeout.bind(window), realCT = window.clearTimeout.bind(window);
-  const dateBase = realDate() - realNow();
-  let frozen = false, vt = 0, nextId = 1e6, rafQ = [], timers = [];
-  performance.now = () => frozen ? vt : realNow();
-  Date.now = () => frozen ? dateBase + vt : realDate();
-  window.requestAnimationFrame = (cb) => { if (!frozen) return realRaf(cb); rafQ.push([++nextId, cb]); return nextId; };
-  window.cancelAnimationFrame = (id) => { rafQ = rafQ.filter(x => x[0] !== id); realCaf(id); };
-  window.setTimeout = (fn, ms = 0, ...a) => {
-    if (!frozen || typeof fn !== "function") return realST(fn, ms, ...a);
-    timers.push({ id: ++nextId, at: vt + (+ms || 0), fn: () => fn(...a) }); return nextId;
-  };
-  window.clearTimeout = (id) => { timers = timers.filter(t => t.id !== id); realCT(id); };
-  window.__vclock = {
-    freeze() { vt = realNow(); frozen = true; },
-    now: () => vt,
-    step(ms) {
-      vt += ms;
-      for (let guard = 0; guard < 50; guard++) {
-        const due = timers.filter(t => t.at <= vt).sort((a, b) => a.at - b.at);
-        if (!due.length) break;
-        timers = timers.filter(t => t.at > vt);
-        due.forEach(t => { try { t.fn(); } catch (e) { console.error(e); } });
-      }
-      const q = rafQ; rafQ = [];
-      q.forEach(([, cb]) => { try { cb(vt); } catch (e) { console.error(e); } });
-      document.getAnimations().forEach(a => { try { a.pause(); a.currentTime = (a.currentTime ?? 0) + ms; } catch {} });
-    },
-  };
-})();`;
+// Installed before any page script: a clock that stands still until freeze() (scripts/narration-clock.mjs).
+
 
 // every worker's Chrome, closed if the render is stopped: killing only this process left them
 // running, orphaned and still drawing, which starved the next render (2026-10-27)
