@@ -767,3 +767,14 @@ The previous independently generated DNA had a different helix width and twist f
 
 ### Separate cosmic web and CMB rendering
 The cosmic web now uses blue-white discrete tracers with compact knot halos; the CMB retains the muted red Planck-map shell. The final view samples the full interior volume instead of flattening it into a thin slab. Perspective changes point size and depth brightness. Above log10(frame metres) 26.4 a slow orbit starts, reaching full speed at 26.9 and continuing when zoom playback stops. Both volume and shell share that orbit; nearby camera behavior is unchanged.
+
+
+## Guanine-centred 3D approach and cool nuclear rebuild (2026-11-01)
+
+The fixed target is now H12, the N1-bound hydrogen of the existing PubChem guanine coordinates. The glycosidic N9-H is replaced by a C1′ attachment stub. `guanine-scene.js` and `load-molecular-core.js` share the approved lab fiber code and exact element colours; all foreground atoms use the actual3D renderer until the outer PNG handoff. The selected H remains at origin. The displayed contact envelope is1.15×covalent radius; this is not a99% free-atom orbital boundary. Proton and quark animation bodies remain unchanged.
+
+`guanine-capture.html` provides native transparent sources, with snapshot3s and yaw/pitch0.6. `guanine-flat.png` is exactly surroundings plus H. The3D/PNG replacement runs between log10 frame metres−9.35 and−8.8 with the capture camera locked. Only once replacement finishes does the camera move inward and the surrounding cloud layer blur/darken. Deep electron wisps fade to black by−14, before the quark view.
+
+New sharp generated foregrounds: DNA5.487nm, nucleosomes49.383nm, chromatin444.444nm. The nucleus4µm source is regenerated in cool blue-violet; its registered centre becomes the persistent nuclear rear. Every finer source is removed from the parent's overlapping support and reinserted at the shared scale. All wider cell/drop parents are rebuilt. The old purple foreground is retired. See `../guanine-bridge-v2/provenance.json` for saved generation prompts, source renders, physical spans and limitations.
+
+Rebuild: `powers-of-ten-guanine-stack.mjs`, then `powers-of-ten-match-anatomy.mjs`, `powers-of-ten-match-drop.mjs`, `powers-of-ten-match-depth.mjs`. Validate: `powers-of-ten-check-guanine.mjs`, `powers-of-ten-check-chromatin.mjs`, `check-atom-lab-molecules.mjs`.

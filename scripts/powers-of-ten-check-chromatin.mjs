@@ -1,9 +1,10 @@
 import sharp from 'sharp';
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {readFile,access} from 'node:fs/promises';
 const root=new URL('../video/powers-of-ten/generated/canopy-test/micro/anatomy-v9/',import.meta.url),path=f=>new URL(f,root).pathname;
-// The rear is the original registered nucleus crop, with no child fluid tile.
-const registered=await sharp(path('nucleus-rose-v3-raw.png')).resize(1065,1065).extend({left:62,right:127,top:98,bottom:91,extendWith:'mirror'}).png().toBuffer();
+// The rear is the same registered nucleus crop, with no child fluid tile.
+const newNucleus=await access(path('../../../guanine-bridge-v2/nucleus-raw.png')).then(()=>true,()=>false);
+const registered=await sharp(path(newNucleus?'../../../guanine-bridge-v2/nucleus-raw.png':'nucleus-rose-v3-raw.png')).resize(1065,1065).extend({left:62,right:127,top:98,bottom:91,extendWith:'mirror'}).png().toBuffer();
 const expected=await sharp(registered).extract({left:418,top:418,width:418,height:418}).resize(1254,1254).raw().toBuffer();
 const actual=await sharp(path('nuclear-pieces-v2/background.png')).raw().toBuffer();assert.ok(actual.equals(expected),'persistent rear texture must remain the registered rose nucleus pattern');
 const scene=JSON.parse(await readFile(path('nuclear-pieces-v2/scene.json'))),stack=[];
@@ -16,4 +17,4 @@ for(const p of scene.parts){
 const flat=await sharp(path('nuclear-pieces-v2/background.png')).composite(stack).raw().toBuffer();assert.ok(flat.equals(await sharp(path('level-2.png')).raw().toBuffer()),'parent is the exact common-scale scene, not a separately generated inset');
 assert.ok((await sharp(path('../pollen-v4/amoeba-inner.png')).raw().toBuffer()).equals(await sharp(path('level-0.png')).raw().toBuffer()),'whole-cell parent propagates the new scene');
 assert.ok(scene.rootDepthStart_m<scene.backgroundSpan_m/2,'depth begins after common parent covers the screen');
-console.log('Passed: registered rose nuclear rear texture; four true-alpha foreground pieces; no hard tile edges; exact layered parent and whole-cell propagation; delayed depth.');
+console.log('Passed: registered nuclear rear texture; four true-alpha foreground pieces; no hard tile edges; exact layered parent and whole-cell propagation; delayed depth.');

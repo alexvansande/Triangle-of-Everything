@@ -18,15 +18,16 @@ const lin=v=>(v/255)**2.2;
 export const elementCloudColor=el=>MOLECULAR_COLORS_BY_SYMBOL[el.toUpperCase()]||MOLECULAR_COLORS_BY_SYMBOL.C;
 const rgb=hex=>[1,3,5].map(i=>lin(parseInt(hex.slice(i,i+2),16)));
 const profiles=new Map();
-export function molecularCloudParticle(id){
- const source=PARTICLES.find(p=>p.id===id),big=BIG[id],atoms=MOLECULES[id]||big?.dots;
+export function molecularCloudParticle(id,options={}){
+ const source=PARTICLES.find(p=>p.id===id),big=BIG[id],atoms=options.atoms||MOLECULES[id]||big?.dots;
  if(id==='water'||!source||!atoms)return source;
- const R=big?.R||Math.max(...atoms.map(a=>Math.hypot(...a.slice(1))))+2;
+ const R=options.normalization||big?.R||Math.max(...atoms.map(a=>Math.hypot(...a.slice(1))))+2;
  return {...source,N:48,ticks:[],frame:{center:[0,0,0],get radius(){return .92/LOOK.cloudMolecularZoom;}},
   why:'Separate atom-centred Hopf fiber bundles at the molecular coordinates. Each bundle is lit by the element’s radially averaged outer-electron density, with a contact display radius so bonded neighbours touch directly. Element colours follow the exact user-supplied 118-element display palette. Each atom has a stable independent 3D fiber orientation. No bond lines. Large structures use fewer fibers per atom to keep the lab interactive.',
   make(){
    const fibers=[],count=Math.max(4,Math.min(LOOK.cloudFibers,Math.floor(18000/atoms.length)));
    atoms.forEach(([el,x,y,z],j)=>{
+    if(options.include&&!options.include(j))return;
     el=el.toUpperCase();const atomicZ=Z[el]||6;
     if(!profiles.has(atomicZ))profiles.set(atomicZ,atomicCloudProfile(atomicZ));
     const profile=profiles.get(atomicZ),color=rgb(elementCloudColor(el)),radius=molecularAtomRadius(el,LOOK.cloudAtomRadius)/R,at=[x/R,y/R,z/R],orient=bundleRotation(j,[x,y,z]);

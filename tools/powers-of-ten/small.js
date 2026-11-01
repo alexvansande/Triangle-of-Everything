@@ -1,13 +1,13 @@
 // tools/powers-of-ten/small.js — the code-drawn bottom of the zoom: the Planck
 // grid (a Game of Life), one quark, the proton (the chart's live Hopf renderer,
-// public/hopf/hopf-core.js), the hydrogen atom to scale, and the A–T base pair
-// whose hydrogen bond holds the centre of the whole zoom.
-import { ramp, win, rng, gauss } from "./math.js";
+// public/hopf/hopf-core.js), the hydrogen atom to scale, and the live guanine molecular scene
+// whose N1-bound hydrogen holds the centre of the whole zoom.
+import { ramp, rng } from "./math.js";
 
-import {atomicBridge,atomBridgePhase} from './atomic-bridge.js';
-import {loadHopfCore,hydrogenParticle,HYDROGEN_SPAN,SNAPSHOT_TIME,SNAPSHOT_YAW} from './atomic-bridge-geometry.js';
+import {guanineApproach} from './guanine-approach.js';
+import {loadHopfCore} from './atomic-bridge-geometry.js';
 
-const A0 = 5.29e-11, PROTON_D = 1.68e-15;
+const PROTON_D = 1.68e-15;
 // quarks have no measured size; colliders put it under ~10⁻¹⁹ m, so that is the size drawn
 const QUARK_D = 1e-19;
 // share of the Hopf picture's square the proton's ball fills
@@ -28,11 +28,11 @@ export async function smallLayers() {
   const hopf = (id) => {
     if (!core) return null;
     const renderer = new core.Renderer({ alpha: true });
-    const view = new core.HopfView(renderer, null, id==="hydrogen"?hydrogenParticle(core):core.PARTICLES.find((p) => p.id === id));
+    const view = new core.HopfView(renderer, null, core.PARTICLES.find((p) => p.id === id));
     view.yaw = 0.6;
     return { renderer, view, size: 0 };
   };
-  const proton = hopf("proton-scale"), quark = hopf("up"), hydrogen = hopf("hydrogen"), bridge=atomicBridge();
+  const proton = hopf("proton-scale"), quark = hopf("up"), guanine=guanineApproach();
   const drawHopf = (h, cam, box, alpha, res) => {
     // Frame dimensions are physical output pixels, including export DPR.
     // Video mode supports the3840px master; preview keeps GPU memory bounded.
@@ -42,10 +42,7 @@ export async function smallLayers() {
     // Retain allocation while zooming; shrink only after a substantial retreat.
     if (px > h.size || px < h.size / 2) { h.renderer.resize(px); h.size = px; }
     if (res !== undefined) h.view.res = res;
-    if(h===hydrogen&&bridge.ready()){
-      const freeze=ramp(cam.s,-10.4,-9.9),time=cam.t*(1-freeze)+SNAPSHOT_TIME*freeze;
-      h.view.yaw=SNAPSHOT_YAW+(1-freeze)*cam.t*.12;h.view.update(time,OPTS);
-    }else{h.view.yaw = 0.6 + cam.t * 0.12;h.view.update(cam.t, OPTS);}
+    h.view.yaw = 0.6 + cam.t * 0.12;h.view.update(cam.t, OPTS);
     cam.ctx.globalAlpha = alpha;
     h.renderer.render(h.view, OPTS, [cam.ctx, cam.cx - box / 2, cam.cy - box / 2, box, box]);
     cam.ctx.globalAlpha = 1;
@@ -125,45 +122,5 @@ export async function smallLayers() {
     },
   };
 
-  // ---------- hydrogen, to scale: the 1s cloud, e^(−2r/a₀), as glow and as places the electron is found ----------
-  const r = rng(11), dots = Array.from({ length: 1800 }, () => sample1s(r));
-  function sample1s(r) {
-    const rad = -(A0 / 2) * Math.log((r() + 1e-9) * (r() + 1e-9) * (r() + 1e-9)); // Gamma(3, a₀/2): r² e^(−2r/a₀)
-    const z = 2 * r() - 1, ph = 2 * Math.PI * r(), q = Math.sqrt(1 - z * z);
-    return [rad * q * Math.cos(ph), rad * q * Math.sin(ph), r()];
-  }
-  // the Hopf explorer's hydrogen: the 1s cloud woven from the electron's own Hopf
-  // circles, each lit by |ψ|² where it passes, out to 4.2 Bohr radii (99% of the
-  // electron) at radius 1 of its picture, the picture's square 2.1 wide
-  const H_BOX = HYDROGEN_SPAN;
-  const atom = {
-    name: "hydrogen", range: [-14.6, -8.6],
-    draw(cam) {
-      const a = bridge.ready()?ramp(cam.s,-14.4,-13.8)*(1-atomBridgePhase(cam.s)):win(cam.s, -14.4, -13.8, -9.45, -9.0);
-      if (a <= 0.01) return;
-      const ctx = cam.ctx, R = 7 * A0 * cam.k, box = H_BOX * cam.k;
-      // from a few frames inside it outwards, the woven cloud; deeper in, where one
-      // picture can't hold it, the plain glow and dots below
-      const ha = hydrogen ? a * (1 - ramp(box, 3 * cam.min, 8 * cam.min)) : 0;
-      if (ha > 0.01){ctx.save();if(bridge.ready())ctx.globalCompositeOperation="lighter";drawHopf(hydrogen, cam, box, ha);ctx.restore();}
-      const ga = a * (hydrogen ? (bridge.ready()?ramp(box,2*cam.min,6*cam.min):0.35+0.65*ramp(box,2*cam.min,6*cam.min)) : 1);
-      const g = ctx.createRadialGradient(cam.cx, cam.cy, 0, cam.cx, cam.cy, R);
-      for (let i = 0; i <= 12; i++) {
-        const t = i / 12, rho = Math.exp(-2 * t * 7);
-        g.addColorStop(t, `rgba(110,170,255,${(ga * 0.55 * Math.pow(rho, 0.45)).toFixed(4)})`);
-      }
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, cam.W, cam.H);
-      // Fixed seeded probability samples avoid random frame-to-frame video noise.
-      const dotA = ga * ramp(R, 40, 160) * (1 - ramp(R, 4000, 20000));
-      if (dotA > 0.01) {
-        ctx.fillStyle = `rgba(200,225,255,${(0.75 * dotA).toFixed(3)})`;
-        const sz = 1.4 * cam.dpr;
-        for (const [x, y] of dots) ctx.fillRect(cam.cx + x * cam.k - sz / 2, cam.cy + y * cam.k - sz / 2, sz, sz);
-      }
-      cam.label(0, -1.6 * A0, "hydrogen atom", a * ramp(R, 80, 200) * (1 - ramp(R, 3000, 6000)));
-    },
-  };
-
-  return [life, quarkLayer, protonLayer, atom, bridge];
+  return [life, quarkLayer, protonLayer, guanine];
 }

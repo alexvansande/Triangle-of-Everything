@@ -1,0 +1,71 @@
+{
+  "image_tool": "built-in imagegen",
+  "native_source": "guanine-capture.html → real Hopf Renderer/HopfView from molecular-clouds.js. No imagegen alteration of the guanine/hydrogen foreground. Native alpha1254×1254, snapshot3s, yaw/pitch0.6. See capture.json.",
+  "accepted_assets": {
+    "dna-raw.png": {
+      "generation": "exec-20a9170f-5091-44a4-8f43-a322d9872962.png",
+      "references": [
+        "dna-guide.png",
+        "guanine-flat.png"
+      ],
+      "prompt": "Registered5.487nm B-DNA field,2nm diameter,3.4nm pitch, lower-left to upper-right. Preserve native code guanine in central third and selectedH at exact centre. Touching fiber atoms, no sticks. Hcyan#3fe6ff,Cblue#3155e7,Nviolet#9365ed,Oyellow#ffe266,Pmint#55dfba. Photorealistic molecular texture, genuine alpha, sharp, no background/bokeh/labels.",
+      "native_dimensions": [
+        1254,
+        1254
+      ],
+      "has_alpha": true
+    },
+    "hero-raw.png": {
+      "generation": "exec-c293da1b-6f0e-4d19-8a1b-1987b2a7f363.png",
+      "references": [
+        "hero-guide.png",
+        "dna-flat.png"
+      ],
+      "prompt": "49.383nm field with five irregular nucleosome complexes and linker DNA. Histone octamers cool ivory/periwinkle, DNA inherits fine source palette. Preserve exact lower-left to upper-right linker target, fine source central1/9. True alpha through gaps. All sharp, no fluid/background, no text. Generated apparent dimensions approximate; registered world spans fixed.",
+      "native_dimensions": [
+        1254,
+        1254
+      ],
+      "has_alpha": true
+    },
+    "field-raw.png": {
+      "generation": "exec-7c244878-b805-442e-a147-64351a6210fa.png",
+      "references": [
+        "field-guide.png",
+        "hero-flat.png"
+      ],
+      "prompt": "444nm field; hundreds of TINY20–35pixel11nm nucleosomes, follow schematic exact scale and irregular loose chains. Entire49nm hero view onlycentral1/9. Cool ivory/lavender histones, very thin blue/violet/mintDNA, tiny cyan/yellow glints. Transparent channels across wholeimage. No giant beads, blur, fluid, background, tile edge or labels.",
+      "native_dimensions": [
+        1254,
+        1254
+      ],
+      "has_alpha": true
+    },
+    "nucleus-raw.png": {
+      "generation": "exec-718b9c3d-a926-4c83-aa5a-b84925367191.png",
+      "references": [
+        "../canopy-test/micro/anatomy-v9/nucleus-rose-v3-raw.png",
+        "dna-flat.png"
+      ],
+      "prompt": "Regenerate registered4micrometre cell-nucleus view preserving exact nucleus/nucleolus/pore/organelles layout. Cool blue-violet chromatin and slate nuclear interior, dark violet nucleolus left of fixed centre, double silverblue nuclear envelope with pores, coolgray cytoplasm. Realistic irregular chromatin, no Xchromosomes or giant naked DNA at this scale. All sharp, no blur, labels, insets, red or orange.",
+      "native_dimensions": [
+        1254,
+        1254
+      ],
+      "has_alpha": false
+    }
+  },
+  "rejected": {
+    "field-rejected-overscale.png": {
+      "generation": "exec-e0b5a1db-1b7b-4b4d-97d6-8cdb42f21da4.png",
+      "reason": "Nucleosomes far too large for444nm field; replaced with explicit scale blueprint."
+    }
+  },
+  "scientific_references": [
+    "https://pubchem.ncbi.nlm.nih.gov/compound/Guanine",
+    "https://www.ncbi.nlm.nih.gov/books/NBK9944/",
+    "https://www.genome.gov/25520255/online-education-kit-1953-dna-double-helix",
+    "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1472485/"
+  ],
+  "rendering": "Full code3D through guanine/H approach; frozen native capture at outerhandoff; generated layers separated from persistent nuclear rear plane. App applies blur/darkening after handoff. Deep electronwisps blue, backgroundblack before quarks. Proton/quark layer bodies unchanged."
+}

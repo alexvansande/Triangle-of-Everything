@@ -8,7 +8,7 @@ function load(file,feather=false){const p={},img=new Image();img.onload=()=>{
 export function nucleusInterior(){
  const base='nuclear-pieces-v2/',background=load(base+'background.png',true),coarse=load('level-1.png',true),layer=document.createElement('canvas');
  const parts=[['field',3],['hero',5],['dna',7],['purple',3]].map(([name,level])=>Object.assign(load(base+name+'.png'),{name,span:12e-6/3**level}));
- const atomic=[load('../../../atomic-bridge-v1/basepair.png'),load('../../../atomic-bridge-v1/hydrogen.png')];
+ const atomic=[load('../../../guanine-bridge-v2/guanine-flat.png')];
  const required=[background,coarse,...parts,...atomic],ready=()=>required.every(p=>!!p.img);
  const eased=(travel)=>travel-.14*(1-Math.exp(-travel/.14));
  return {ready,draw(ctx,x,y,k,s,min){
@@ -28,14 +28,16 @@ export function nucleusInterior(){
   }
   plane(background.img,backSide,Math.min(24,12*backEase)*min/960);c.filter='none';
   for(const p of parts){
-   const relative=p.name==='purple'?10**(.55*backEase):p.name==='field'?10**(-.18*backEase):1;
-   const blur=p.name==='purple'?Math.min(30,16*backEase):p.name==='field'?Math.min(36,18*backEase):0;
+   const fieldDepth=eased(Math.max(0,Math.log10((12e-6/3**5)/2.2)-s));
+   const relative=p.name==='purple'?10**(.55*backEase):p.name==='field'?10**(-.18*fieldDepth):1;
+   const localDepth=eased(Math.max(0,Math.log10(p.span/2.2)-s));
+   const blur=p.name==='purple'?Math.min(30,16*backEase):p.name==='field'?Math.min(36,18*fieldDepth):p.name==='hero'?Math.min(36,14*localDepth):Math.min(34,28*(1-smooth(-10,-9.35,s)));
    const side=p.span*k*relative;
    // Purple chains have an empty centre and exit through that passage.
    // The populated rear field stays behind every closer foreground piece.
    if(p.name==='purple'&&side>40*min)continue;
    plane(p.img,side,blur*min/960);
   }
-  c.filter='none';ctx.globalAlpha=alpha;ctx.drawImage(layer,0,0);ctx.restore();
+  c.filter='none';ctx.globalAlpha=alpha;const dark=1-smooth(-9.35,-7.8,s);ctx.filter=`brightness(${1-.86*dark})`;ctx.drawImage(layer,0,0);ctx.filter='none';ctx.restore();
  }};
 }

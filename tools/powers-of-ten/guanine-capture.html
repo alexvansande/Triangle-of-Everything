@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><title>Guanine · exact Hopf source</title>
+<style>body{background:#080c16;color:#dce6f2;font:15px system-ui;margin:24px}main{display:flex;gap:20px;flex-wrap:wrap}canvas{width:500px;height:500px;background:#030205}button{padding:12px;margin:12px;cursor:pointer}figure{margin:0}</style>
+<h1>Guanine · centered on its N1-bound hydrogen</h1><p>Native code capture. Transparent foreground; the wider DNA images inherit this exact centre.</p><button disabled>Download native capture</button><main></main>
+<script type="module">
+import {core,makeGuanineScene,GUANINE_SPAN,SNAPSHOT_TIME,YAW,PITCH,GUANINE_LIGHT,GUANINE_LOOK} from './guanine-scene.js';
+const n=1254,renderer=new core.Renderer({alpha:true});renderer.resize(n);const pack={version:2,n,span_m:GUANINE_SPAN,look:GUANINE_LOOK,light:GUANINE_LIGHT,time:SNAPSHOT_TIME,yaw:YAW,pitch:PITCH,renders:{}};
+for(const [name,include]of [['guanine',null],['hydrogen',j=>j===12],['surroundings',j=>j!==12]]){
+ const scene=makeGuanineScene(include),view=new core.HopfView(renderer,null,scene.particle);view.yaw=YAW;view.pitch=PITCH;view.update(SNAPSHOT_TIME,GUANINE_LIGHT);
+ const c=document.createElement('canvas');c.width=c.height=n;renderer.render(view,GUANINE_LIGHT,[c.getContext('2d'),0,0,n,n]);
+ const f=document.createElement('figure'),label=document.createElement('figcaption');label.textContent=name;f.append(c,label);document.querySelector('main').append(f);pack.renders[name]=c.toDataURL('image/png');pack.geometry=scene.geometry;
+ await new Promise(requestAnimationFrame);
+}
+const button=document.querySelector('button');button.disabled=false;button.onclick=()=>{const a=document.createElement('a');a.download='powers-of-ten-guanine-v2.json';a.href=URL.createObjectURL(new Blob([JSON.stringify(pack)],{type:'application/json'}));a.click();button.textContent='Capture downloaded';};
+const show=document.createElement('button');show.textContent='Show native render pack';show.onclick=()=>{let pre=document.querySelector('#native-pack');if(!pre){pre=document.createElement('pre');pre.id='native-pack';pre.style='max-height:120px;overflow:auto;font-size:10px';document.body.append(pre);}pre.textContent=JSON.stringify(pack);};document.querySelector('main').before(show);
+const copy=document.createElement('button');copy.textContent='Copy native render pack';copy.onclick=async()=>{await navigator.clipboard.writeText(JSON.stringify(pack));copy.textContent='Native render pack copied';};document.querySelector('main').before(copy);
+</script>
