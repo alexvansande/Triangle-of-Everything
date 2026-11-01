@@ -32,3 +32,9 @@ short-06c-compton
 short-07a-photons
 short-07b-sky
 long-02-space
+short-03-stars
+short-04a-black-hole-line
+short-04b-smallest-black-holes
+short-05a-emptier
+short-05b-hubble-sphere
+short-05c-observable-universe
