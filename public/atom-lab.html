@@ -158,6 +158,7 @@ legend small { letter-spacing: 0; text-transform: none; font-weight: 400; color:
 
 <script type="module">
 import { PARTICLES, Renderer, HopfView, LOOK, LAB, ORBITALS } from './hopf/hopf-core.js';
+import {molecularCloudParticle} from './hopf/molecular-clouds.js';
 // the lab's sliders reach every particle, whatever its own defaults
 LAB.ignoreStyle = true;
 
@@ -172,6 +173,7 @@ const SUBJECTS = [
   ['antibody', 'antibody-igg', 'Antibody'], ['ribosome', 'ribosome', 'Ribosome'],
 ];
 const NUCLEONS = ['proton', 'neutron'], MOLECULES = ['glucose', 'adenine', 'guanine', 'thymine', 'cytosine', 'atp', 'c60'];
+const LARGE_SUBJECTS = [...MOLECULES, 'dna', 'insulin', 'hemoglobin', 'antibody', 'ribosome'];
 const ATOMS = ['hydrogen', 'deuterium', 'helium', 'carbon', 'oxygen', 'iron', 'gold', 'uranium', 'water', ...MOLECULES];
 // too many atoms for a cloud each: backbone tubes and a glow per atom
 const BIG = ['dna', 'insulin', 'hemoglobin', 'antibody', 'ribosome'];
@@ -205,14 +207,14 @@ const GROUPS = [
     { k: 'nucleusGain', label: 'Nucleus brightness in atoms', min: 0, max: 6, step: 0.05, used: ATOMS },
     { k: 'showNucleus', label: 'Show nucleus', type: 'check', used: ATOMS },
   ] },
-  { name: 'Electron cloud', note: 'atoms and molecules', used: ATOMS, rows: [
+  { name: 'Electron cloud', note: 'atoms and molecules', used: [...ATOMS,...BIG], rows: [
     { k: 'orbital', label: 'Hydrogen electron state', type: 'select', rebuild: true, used: ['hydrogen', 'deuterium'],
       // energy of level n: −13.6 eV / n²
       options: Object.entries(ORBITALS).map(([o, [n]]) => [o, n === 1 ? `${o} · ground state` : `${o} · excited, ${(-13.6 / n / n).toFixed(2)} eV`]) },
     { k: 'cloudFibers', label: 'Hopf circles', min: 30, max: 400, step: 10, rebuild: true },
     { k: 'cloudGain', label: 'Brightness', min: 0, max: 8, step: 0.05 },
     { k: 'cloudContrast', label: 'Contrast', min: 0.3, max: 3, step: 0.05 },
-    { k: 'cloudWidth', label: 'Line width', min: 0.002, max: 0.03, step: 0.0005 },
+    { k: 'cloudWidth', label: 'Line width', min: 0.0005, max: 0.03, step: 0.0005 },
     { k: 'dashes', label: 'Dashes per circle (0 = whole)', min: 0, max: 12, step: 1 },
     { k: 'dashLength', label: 'Dash length', min: 0.02, max: 1, step: 0.01, fmt: v => v >= 1 ? 'whole' : `${Math.round(v * 100)}%` },
     { k: 'dashSpeed', label: 'Dash speed', min: -3, max: 3, step: 0.05 },
@@ -232,10 +234,9 @@ const GROUPS = [
     { k: 'rings', label: 'Ring brightness', min: 0, max: 1, step: 0.01 },
     { k: 'labels', label: 'Ring labels', type: 'check', store: VIEW },
   ] },
-  { name: 'Big molecules', note: 'DNA and the proteins', used: BIG, rows: [
-    { k: 'backbone', label: 'Backbone brightness', min: 0, max: 3, step: 0.05 },
-    { k: 'backboneWidth', label: 'Backbone width', min: 0.001, max: 0.03, step: 0.0005 },
-    { k: 'sparkle', label: 'Atom glows', min: 0, max: 3, step: 0.05 },
+  { name: 'Atom bundles', note: 'colours from the periodic table', used: LARGE_SUBJECTS, rows: [
+    { k: 'cloudMolecularZoom', label: 'Molecule zoom', min: .5, max: 12, step: .1 },
+    { k: 'cloudAtomRadius', label: 'Atom cloud size', min: .2, max: 1, step: .025, rebuild: true },
   ] },
   { name: 'Electron', note: 'the particle on its own', used: ['electron'], rows: [
     { k: 'electronGain', label: 'Torus brightness', min: 0, max: 3, step: 0.05 },
@@ -261,9 +262,25 @@ const GROUPS = [
 // ---- state: remembered in this browser only ----
 const KEY = 'atom-lab-v1';
 let subject = 'hydrogen';
-function save() { try { localStorage.setItem(KEY, JSON.stringify({ subject, look: LOOK, view: VIEW })); } catch {} }
+let smallLook=null,smallView=null,largeActive=false,initialized=false;
+let largeLook={...LOOK_DEFAULT,bonds:0,backbone:0,cloudFibers:120,cloudWidth:.0015,cloudGain:2.75,cloudContrast:.65,dashes:0,dashLength:1,showCloud:true,showNucleus:false};
+let largeView={...HOME.view,bloom:.3,width:1,rotate:.12};
+const LARGE_KEY='atom-lab-molecular-fibers-v1';
+const LARGE_HOME={look:structuredClone(largeLook),view:structuredClone(largeView)};
+try{const saved=JSON.parse(localStorage.getItem(LARGE_KEY));if(saved){largeLook={...largeLook,...saved.look};largeView={...largeView,...saved.view};}}catch{}
+function save() { try {
+ localStorage.setItem(KEY, JSON.stringify({subject,look:largeActive?smallLook:LOOK,view:largeActive?smallView:VIEW}));
+ localStorage.setItem(LARGE_KEY,JSON.stringify({look:largeActive?LOOK:largeLook,view:largeActive?VIEW:largeView}));
+} catch {} }
+function activateProfile(isLarge){
+ if(isLarge===largeActive)return;
+ if(isLarge){smallLook=structuredClone(LOOK);smallView=structuredClone(VIEW);Object.assign(LOOK,largeLook);Object.assign(VIEW,largeView);}
+ else{largeLook=structuredClone(LOOK);largeView=structuredClone(VIEW);Object.assign(LOOK,smallLook);Object.assign(VIEW,smallView);}
+ largeActive=isLarge;syncAll();
+}
 function apply(state) {
   if (!state || typeof state !== 'object') return false;
+  if(initialized&&ALL.includes(state.subject))activateProfile(LARGE_SUBJECTS.includes(state.subject));
   for (const [k, v] of Object.entries(state.look || {})) if (k in LOOK_DEFAULT && typeof v === typeof LOOK_DEFAULT[k]) LOOK[k] = v;
   for (const [k, v] of Object.entries(state.view || {})) if (k in VIEW_DEFAULT && typeof v === typeof VIEW_DEFAULT[k]) VIEW[k] = v;
   if (ALL.includes(state.subject)) subject = state.subject;
@@ -351,9 +368,12 @@ canvas.addEventListener('pointercancel', endDrag);
 let rebuildTimer = 0;
 function scheduleRebuild() { clearTimeout(rebuildTimer); rebuildTimer = setTimeout(rebuild, 200); }
 function rebuild() {
+  const isLarge=LARGE_SUBJECTS.includes(subject);
+  activateProfile(isLarge);
   for (const b of nav.children) b.setAttribute('aria-pressed', b.dataset.key === subject);
   markUsed();
-  const particle = PARTICLES.find(p => p.id === SUBJECTS.find(s => s[0] === subject)[1]);
+  const id=SUBJECTS.find(s=>s[0]===subject)[1];
+  const particle = isLarge?molecularCloudParticle(id):PARTICLES.find(p=>p.id===id);
   document.getElementById('title').textContent = particle.name.replace(' · by resolution', '');
   document.getElementById('sub').textContent = particle.sub;
   document.getElementById('why').textContent = particle.why;
@@ -458,6 +478,7 @@ document.getElementById('paste').addEventListener('click', () => {
   });
 });
 document.getElementById('reset').addEventListener('click', () => {
+  if(largeActive){Object.assign(LOOK,structuredClone(LARGE_HOME.look));Object.assign(VIEW,structuredClone(LARGE_HOME.view));syncAll();rebuild();save();return;}
   Object.assign(LOOK, structuredClone(LOOK_DEFAULT));
   Object.assign(VIEW, structuredClone(VIEW_DEFAULT));
   apply(HOME);
@@ -492,6 +513,7 @@ for (const [name, state] of PRESETS) {
   document.getElementById('presets').append(b);
 }
 
+initialized=true;
 rebuild();
 requestAnimationFrame(frame);
 </script>

@@ -169,6 +169,8 @@ export const LOOK = {
   nucleusShare: 0.39,                // rebuild: share of the radius the nucleus region gets on the log scale
   linearNucleus: 0.18,               // rebuild: its radius at linear scale (really ~10⁻⁵)
   rings: 0,
+  cloudMolecularZoom: 1,            // Atom Lab molecular camera only
+  cloudAtomRadius: 0.5,              // Atom Lab molecular bundles only; relative display radius
   cloudFibers: 180,                  // rebuild
   cloudGain: 2.75, cloudContrast: 1.15, cloudWidth: 0.005,
   dashes: 12, dashLength: 1, dashSpeed: 3,  // dashLength: lit share of each dash's stretch, 1 = whole circle
@@ -925,6 +927,15 @@ function element([Z, A, id, name, note]) {
     nuclei: Z === 8 ? O16 : packNucleus(A, Z), electrons: electronsOf(Z), extentA0: atomExtent(Z),
     // many shells pile up toward white: heavier atoms a little dimmer
     style: Z > 10 ? { cloudGain: 2.75 / (1 + 0.25 * Math.log2(Z / 10)) } : {} });
+}
+// Radial outer-electron profile for the lab's independent atom bundles.
+// Export only: existing atom, water and catalogue rendering are unchanged.
+export function atomicCloudProfile(Z) {
+  const els=electronsOf(Z),outer=Math.max(...els.map(e=>e.n));
+  const density=cloudOf(els.filter(e=>e.n===outer)),extent=atomExtent(Z)*BOHR_FM;
+  const values=Float32Array.from({length:512},(_,i)=>density([extent*i/511,0,0])[1]);
+  const peak=Math.max(...values)||1;
+  return values.map(v=>v/peak);
 }
 // Molecules: atoms at their real 3D positions (public/hopf/molecules.js, from
 // PubChem), one cloud for all their valence electrons (each atom's outer shell,
