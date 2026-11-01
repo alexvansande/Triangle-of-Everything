@@ -39,8 +39,12 @@ const ink = (c) => (d3.lab(c).l > 62 ? "#111" : "#fff");
 // Element colours by atomic number (the author, 2026-11-01): cyan for the lightest gases, deep blue,
 // emerald, green, yellow, light grey at iron; then deep dark red, bright red by uranium, magenta for
 // the transuranium elements.
+// After iron (2026-11-01): greys, then browns, then dark reds for the metals up to bismuth; the
+// radioactive ones go from red (long-lived) to magenta (short-lived) by half-life (see radCol).
 const STOPS = [[1, "#3fe6ff"], [2, "#2bc4f2"], [6, "#1d3fd6"], [11, "#0fb57f"], [16, "#4cc742"],
-  [22, "#f2cc12"], [26, "#dcdcdc"], [27, "#5a0b14"], [60, "#9e1420"], [92, "#ff3030"], [93, "#ff3fd8"], [118, "#b81fcf"]];
+  [22, "#f2cc12"], [26, "#dcdcdc"], [27, "#c4c6ca"], [36, "#8e939b"], [46, "#6b6b70"],
+  [50, "#8a6a4c"], [62, "#7c4e2c"], [71, "#6b3a22"], [75, "#6e2a20"], [83, "#7a1414"], [118, "#7a1414"]];
+const radCol = (x) => d3.color(d3.piecewise(d3.interpolateLab, ["#e8222a", "#ff2f74", "#e83ce8", "#b42ae0"])(x)).formatHex();
 const zCol = (z) => {
   const i = STOPS.findIndex(([zz]) => zz >= z);
   if (STOPS[i][0] === z) return d3.color(STOPS[i][1]).formatHex();
@@ -60,7 +64,8 @@ for (let z = 1; z < ELEMENTS_BY_Z.length; z++) {
   const radio = z === 43 || z === 61 || z >= 84;
   const lt = Math.log10(HL[z] || 1e30);
   const glow = radio ? Math.max(0.12, Math.min(1, (17.7 - lt) / 21)) : 0;
-  const t = d3.color(TYPE[elementType(z)]).formatHex(), en = zCol(z);
+  const rx = radio ? Math.max(0, Math.min(1, (17.7 - lt) / 21)) : 0; // 0 = thorium-long, 1 = milliseconds
+  const t = d3.color(TYPE[elementType(z)]).formatHex(), en = radio ? radCol(rx) : zCol(z);
   els.push({ z, sym: b.sym, r, m, radio, glow, ct: t, ce: en, it: ink(t), ie: ink(en) });
 }
 // A: chart
@@ -141,7 +146,8 @@ window.draw=(time)=>{
     el("text",{x:x0+12.5*w,y:ky-16,"font-size":24,fill:"#aab","text-anchor":"middle",opacity:ka},"fusing gives energy");
     el("text",{x:x0+58*w,y:ky-16,"font-size":24,fill:"#aab","text-anchor":"middle",opacity:ka},"fusing costs energy");
     el("circle",{cx:x0+20,cy:ky+118,r:34,fill:"url(#glow)",opacity:ka}); el("circle",{cx:x0+20,cy:ky+118,r:16,fill:"#ff3030",opacity:ka});
-    el("text",{x:x0+56,y:ky+127,"font-size":28,fill:"#dde",opacity:ka},"glow: radioactive (brighter = decays faster)");
+    el("text",{x:x0+56,y:ky+127,"font-size":28,fill:"#dde",opacity:ka},"radioactive: red to magenta and brighter glow");
+    el("text",{x:x0+56,y:ky+163,"font-size":24,fill:"#aab",opacity:ka},"the faster it decays (billions of years → milliseconds)");
   }
 };
 </script></body></html>`;
@@ -155,7 +161,7 @@ await page.evaluate(() => document.fonts.ready);
 const FPS = 30, total = Object.values(T).reduce((a, b) => a + b, 0);
 if (process.env.STILL === "1") { // just the final frame: the classroom table in the energy colours
   await page.evaluate((t) => window.draw(t), total);
-  await page.screenshot({ path: SP + "/table-colours.png", clip: { x: 0, y: 560, width: W, height: 1160 } });
+  await page.screenshot({ path: SP + "/table-colours.png", clip: { x: 0, y: 560, width: W, height: 1200 } });
   await browser.close(); process.exit(0);
 }
 const n = Math.round(total * FPS);
