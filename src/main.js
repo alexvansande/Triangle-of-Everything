@@ -6789,6 +6789,9 @@ const zoomBehavior = d3.zoom()
         _hopfIcons?.draw();  // live icons follow this frame's positions, not the last one's
         _laniakeaIcons?.draw();
         _starIcons?.draw();
+        // a video's fractal background drew before this redraw moved the pictures, with their
+        // shadows where they were: draw it again, or the shadows trail the camera (the author, 2026-11-01)
+        if (_bgNoiseT !== null) { _bgNoise?.invalidate(); _bgNoise?.draw(); }
       });
     }
   })
