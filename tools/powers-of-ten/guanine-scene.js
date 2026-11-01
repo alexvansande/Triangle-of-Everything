@@ -14,15 +14,27 @@ export function guanineGeometry(){
  atoms[11]=['C',...n.map((v,i)=>v+1.47*(h[i]-v)/length-origin[i])];
  return {atoms,target,origin_A:origin,targetName:'Guanine N1-bound H',normalization:Math.max(...atoms.map(a=>Math.hypot(...a.slice(1))))+2,hydrogenEnvelopeRadius_m:molecularAtomRadius('H',GUANINE_LOOK.cloudAtomRadius)*1e-10};
 }
-export function makeGuanineScene(include){
+export function makeGuanineScene(include,approach=false){
  Object.assign(core.LOOK,GUANINE_LOOK);
- const geometry=guanineGeometry(),p=molecularCloudParticle('guanine-g',{...geometry,include});
+ const geometry=guanineGeometry(),look={...GUANINE_LOOK};
+ let widthLimit=Infinity;
+ const p=molecularCloudParticle('guanine-g',{...geometry,include,look,maxWidth:()=>widthLimit});
  // In the outer handoff use the exact frozen capture camera. Once the PNG
  // is gone the same camera approaches H, revealing genuine local 3D depth.
  const fullFov=28*Math.PI/180,captureDistance=GUANINE_SPAN/1e-10/(2*Math.tan(fullFov/2));
  p.frame={center:[0,0,0],radius:1};
- function frame(span,depth=0){
+ function frame(span,depth=0,blend=0,pixels=960){
   const widthA=span/1e-10,distance=captureDistance*(1-depth)+widthA/(2*Math.tan(fullFov/2))*depth;
+  if(approach){
+   // Preserve the frozen handoff, then ease toward the hydrogen outer layer.
+   for(const [key,target] of Object.entries({cloudWidth:.005,cloudGain:2.75,cloudContrast:1.15,dashes:12,spin:.6}))look[key]=GUANINE_LOOK[key]+(target-GUANINE_LOOK[key])*blend;
+   // World-space ribbons otherwise inflate with magnification. Bound their
+   // projected width even on the near surface, in CSS pixels.
+   const radiusA=geometry.hydrogenEnvelopeRadius_m/1e-10;
+   const nearRatio=Math.max(.08,(distance-radiusA)/distance);
+   const cap=1.1*widthA/geometry.normalization/pixels*nearRatio;
+   widthLimit=blend>0?cap/blend:Infinity;
+  }
   p.fov=2*Math.atan(widthA/(2*distance));p.frame.radius=distance/geometry.normalization*Math.sin(p.fov/2)/1.32;
  }
  frame(GUANINE_SPAN);

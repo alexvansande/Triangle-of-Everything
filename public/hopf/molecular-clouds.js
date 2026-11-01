@@ -21,25 +21,26 @@ const profiles=new Map();
 export function molecularCloudParticle(id,options={}){
  const source=PARTICLES.find(p=>p.id===id),big=BIG[id],atoms=options.atoms||MOLECULES[id]||big?.dots;
  if(id==='water'||!source||!atoms)return source;
+ const look=options.look||LOOK;
  const R=options.normalization||big?.R||Math.max(...atoms.map(a=>Math.hypot(...a.slice(1))))+2;
- return {...source,N:48,ticks:[],frame:{center:[0,0,0],get radius(){return .92/LOOK.cloudMolecularZoom;}},
+ return {...source,N:48,ticks:[],frame:{center:[0,0,0],get radius(){return .92/look.cloudMolecularZoom;}},
   why:'Separate atom-centred Hopf fiber bundles at the molecular coordinates. Each bundle is lit by the element’s radially averaged outer-electron density, with a contact display radius so bonded neighbours touch directly. Element colours follow the exact user-supplied 118-element display palette. Each atom has a stable independent 3D fiber orientation. No bond lines. Large structures use fewer fibers per atom to keep the lab interactive.',
   make(){
-   const fibers=[],count=Math.max(4,Math.min(LOOK.cloudFibers,Math.floor(18000/atoms.length)));
+   const fibers=[],count=Math.max(4,Math.min(look.cloudFibers,Math.floor(18000/atoms.length)));
    atoms.forEach(([el,x,y,z],j)=>{
     if(options.include&&!options.include(j))return;
     el=el.toUpperCase();const atomicZ=Z[el]||6;
     if(!profiles.has(atomicZ))profiles.set(atomicZ,atomicCloudProfile(atomicZ));
-    const profile=profiles.get(atomicZ),color=rgb(elementCloudColor(el)),radius=molecularAtomRadius(el,LOOK.cloudAtomRadius)/R,at=[x/R,y/R,z/R],orient=bundleRotation(j,[x,y,z]);
+    const profile=profiles.get(atomicZ),color=rgb(elementCloudColor(el)),radius=molecularAtomRadius(el,look.cloudAtomRadius)/R,at=[x/R,y/R,z/R],orient=bundleRotation(j,[x,y,z]);
     for(let k=0;k<count;k++){
      const eta=Math.acos(1-2*(k+.5)/count)/2,ce=Math.cos(eta),se=Math.sin(eta),xi=k*Math.PI*(3-Math.sqrt(5))+j*.731;
      fibers.push({open:true,spin:0,flat:1,
-      get width(){return LOOK.cloudWidth*radius;},
-      curve(u,flow){const th=Math.PI*u,a=xi+th+LOOK.spin*flow,den=1+se*Math.sin(th);return orient([ce*Math.cos(a)/den,se*Math.cos(th)/den,-ce*Math.sin(a)/den]).map((v,i)=>at[i]+radius*v);},
+      get width(){return Math.min(look.cloudWidth*radius,options.maxWidth?.()??Infinity);},
+      curve(u,flow){const th=Math.PI*u,a=xi+th+look.spin*flow,den=1+se*Math.sin(th);return orient([ce*Math.cos(a)/den,se*Math.cos(th)/den,-ce*Math.sin(a)/den]).map((v,i)=>at[i]+radius*v);},
       field(q,t,u){
        const r=Math.hypot(...q.map((v,i)=>(v-at[i])/radius)),idx=Math.min(profile.length-1,Math.floor(r*(profile.length-1))),rho=profile[idx];
-       const fade=Math.max(0,Math.min(1,(1-r)/.12)),dash=LOOK.dashes===0||LOOK.dashLength>=1?1:((u*LOOK.dashes-t*LOOK.dashSpeed*.08)%1+1)%1<LOOK.dashLength?1:0;
-       return [color,LOOK.showCloud?.9*Math.sqrt(120/count)*LOOK.cloudGain*(.28+.72*Math.pow(rho,LOOK.cloudContrast))*fade*dash*(1+r*r)**2/4:0];
+       const fade=Math.max(0,Math.min(1,(1-r)/.12)),dash=look.dashes===0||look.dashLength>=1?1:((u*look.dashes-t*look.dashSpeed*.08)%1+1)%1<look.dashLength?1:0;
+       return [color,look.showCloud?.9*Math.sqrt(120/count)*look.cloudGain*(.28+.72*Math.pow(rho,look.cloudContrast))*fade*dash*(1+r*r)**2/4:0];
       },color:()=>color});
     }
    });

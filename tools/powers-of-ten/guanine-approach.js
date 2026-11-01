@@ -6,7 +6,7 @@ const ROOT='/video/powers-of-ten/generated/guanine-bridge-v2/';
 export function guanineApproach(){
  const img=new Image();img.src=ROOT+'guanine-flat.png';
  let renderer,near,back;
- try{renderer=new core.Renderer({alpha:true});const create=include=>{const scene=makeGuanineScene(include),view=new core.HopfView(renderer,null,scene.particle);view.yaw=YAW;view.pitch=PITCH;return {...scene,view};};near=create(j=>j===12);back=create(j=>j!==12);}catch(e){console.warn('Guanine renderer',e);}
+ try{renderer=new core.Renderer({alpha:true});const create=(include,approach=false)=>{const scene=makeGuanineScene(include,approach),view=new core.HopfView(renderer,null,scene.particle);view.yaw=YAW;view.pitch=PITCH;return {...scene,view};};near=create(j=>j===12,true);back=create(j=>j!==12);}catch(e){console.warn('Guanine renderer',e);}
  const rear=document.createElement('canvas'),front=document.createElement('canvas'),mix=document.createElement('canvas');let resolution=0;
  const random=rng(105),wisps=Array.from({length:75},()=>({x:random(),y:random(),r:.03+.13*random(),phase:random()*7}));
  const ready=()=>img.complete&&img.naturalWidth>0&&!!renderer;
@@ -21,7 +21,7 @@ export function guanineApproach(){
    const px=Math.min(1600,Math.ceil(W/128)*128);if(resolution!==px){renderer.resize(px);resolution=px;}
    const span=cam.F*W/min,flow=SNAPSHOT_TIME+(cam.t-SNAPSHOT_TIME)*(1-ramp(s,-9.85,-9.4));
    for(const [part,canvas]of [[back,rear],[near,front]]){
-    const p=canvas.getContext('2d');p.clearRect(0,0,W,H);part.frame(span,depth);part.view.radius=part.particle.frame.radius;part.view.yaw=YAW;part.view.pitch=PITCH;part.view.update(flow,GUANINE_LIGHT);renderer.render(part.view,GUANINE_LIGHT,[p,0,0,W,H]);
+    const p=canvas.getContext('2d');p.clearRect(0,0,W,H);part.frame(span,depth,1-ramp(s,-10.3,-9.35),W/dpr);part.view.radius=part.particle.frame.radius;part.view.yaw=YAW;part.view.pitch=PITCH;const blend=part===near?1-ramp(s,-10.3,-9.35):0,light={...GUANINE_LIGHT,width:1-.45*blend,bloom:.12+.88*blend,exposure:1+.1*blend};part.view.update(flow,light);renderer.render(part.view,light,[p,0,0,W,H]);
    }
    const defocus=(1-ramp(s,-10.4,-9.35));
    c.globalAlpha=live*(1-inside);c.filter=`blur(${32*defocus*min/960}px)`;c.drawImage(rear,0,0);c.filter='none';
