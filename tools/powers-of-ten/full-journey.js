@@ -167,6 +167,8 @@ function render(t) {
   }
   // the grid and the names stay upright: the grid on the screen, the names where the
   // turned picture puts them
+  // The front hemisphere occludes interior filaments only in red regions.
+  cmb.draw(ctx,Dg,cloudView,basis,1);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   drawScaleOverlay({ ...cam, W, H, cx: W / 2, cy: H / 2 }, {grid:state.grid,labels:state.labels,canopy:canopyTest});
   if (state.labels) for (const [lx, ly, text, a] of labels) {
