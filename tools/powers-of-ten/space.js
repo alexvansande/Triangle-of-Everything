@@ -294,10 +294,17 @@ export function spaceLayers(globe) {
   // photograph as a visual template; this placement is not a catalogue claim.
   const flyBasis=cameraAt(22.45),flyPosition=add(mul(flyBasis.n,.55*MPC),add(mul(flyBasis.r,.055*MPC),mul(flyBasis.u,.022*MPC)));
   const flyPhoto=image('/video/powers-of-ten/galaxies/m33-flyby.png');
-  const galaxyFlyby={name:'Local Group spiral flyby',range:[21.5,24.5],draw(cam){
-    if(!ready(flyPhoto))return;const [x,y,sc]=cam.projS(flyPosition);if(!sc)return;
-    const radius=.028*MPC*cam.k*sc;if(radius<.25*cam.dpr||x+radius<0||y+radius<0||x-radius>cam.W||y-radius>cam.H)return;
+  const galaxyFlyby={name:'Local Group spiral flyby',range:[18,26],draw(cam){
+    if(!ready(flyPhoto))return;
+    // Use the same perspective distance as the live galactic clouds, even
+    // while the surrounding catalogue is orthographic. Enter geometrically
+    // through the frame border, rather than enabling an inset at a scale gate.
+    const dc=cam.F/(2*Math.tan(25*Math.PI/180)),den=dc-dot(flyPosition,cam.cam.n);if(den<=0)return;
+    const sc=dc/den,x=cam.cx+dot(flyPosition,cam.cam.r)*cam.k*sc,y=cam.cy-dot(flyPosition,cam.cam.u)*cam.k*sc;
+    const radius=.028*MPC*cam.k*sc,blur=28*cam.dpr*ramp(radius/cam.min,.025,.25),bounds=radius*1.35+3*blur;
+    if(radius<.25*cam.dpr||x+bounds<0||y+bounds<0||x-bounds>cam.W||y-bounds>cam.H)return;
     const c=cam.ctx;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=ramp(radius/cam.dpr,.25,2);
+    c.filter=`blur(${blur}px)`;
     c.translate(x,y);c.rotate(.5);c.drawImage(flyPhoto,-radius,-radius*.84,radius*2,radius*1.68);c.restore();
   }};
 

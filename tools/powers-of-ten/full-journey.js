@@ -66,7 +66,9 @@ const ROLL = q.get("roll") === "0" ? 0 : 5 * Math.PI / 180; // per decade, antic
 // temperature texture now render together in the main scene, with its roll.
 const CLOUD_FLY=[25.9,S_MAX],DIST0=.68,FILL=.78;
 function driveCloud(s,W,H,Dg,roll,dpr){
- const a=.055*ramp(s,24.0,25.1)+.18*ramp(s,25.1,26.6);
+ // A long, very low initial ramp begins at a100,000ly frame width.
+ const early=ramp(s,Math.log10(1e5*LY),25.1);
+ const a=.055*early*early+.18*ramp(s,25.1,26.6);
  const dEnd=1/Math.sin(Math.atan(FILL*(Math.min(W,H)/Dg)*Math.tan(20*Math.PI/180)));
  const t=ramp(s,...CLOUD_FLY),dist=Math.exp(Math.log(DIST0)+(Math.log(dEnd)-Math.log(DIST0))*t);
  cloudView={dist,Dg,a};
@@ -77,10 +79,10 @@ let cloudView = null;
 const HUBBLE_TO_CMB = 14.4 / 46;
 function drawSpheres(ctx, W, H, dpr, s) {
   if (!cloudView) return;
-  const { dist, Dg, a: ca } = cloudView, a = ca * ramp(s, 26.8, 27.2);
+  const { dist, Dg, a: ca } = cloudView, a = .72 * ramp(s,25.7,26.25);
   if (a <= 0.01) return;
   const px = (r) => (dist > r ? Math.tan(Math.asin(r / dist)) / Math.tan(20 * Math.PI / 180) * Dg / 2 : 0);
-  const rc = px(1), rh = rc * HUBBLE_TO_CMB;
+  const rc = px(1), rh = px(HUBBLE_TO_CMB);
   ctx.save();
   ctx.globalAlpha = a;
   ctx.font = `${13 * dpr}px "IBM Plex Sans", system-ui, sans-serif`; ctx.textAlign = "center";
@@ -93,6 +95,7 @@ function drawSpheres(ctx, W, H, dpr, s) {
     ctx.fillStyle = "rgba(200,222,255,0.95)"; ctx.fillText("Hubble sphere · radius 14.4 billion light-years", W / 2, H / 2 - rh + 8 * dpr);
   }
   if (rc) {
+    ctx.globalAlpha=ca*ramp(s,26.5,26.9);
     ctx.textBaseline = "top";
     ctx.strokeText("CMB · radius 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
     ctx.fillStyle = "#ffc1b9"; ctx.fillText("CMB · radius 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);

@@ -730,3 +730,9 @@ This supersedes the earlier chromatin-v1 background replacement workflow above.
 - Illustrative Local Group flyby uses the existing M33 telescope photograph, with a tapered alpha contour and sky-floor subtraction. Position is a scenic model, not M33's catalogue location; original catalogue M33 remains in the extragalactic layer. Camera route unchanged.
 - Earth retains an additive blue atmosphere and a small pale-blue unresolved halo until its final distant retirement. Sun halo strengthened.
 - Removed the dense water-life square from the live and matched flat droplet; surrounding independent cells reduced42→18, retaining pollen and larger species. Rebuilt parent centres through the foliage pyramid. Distant red ladybug light eases into neutral water by the23µm view.
+
+## 2026-10-31 — flyby entrance and outer circles
+- Local Group photographic flyby now projects with the live sky's50° perspective distance instead of the orthographic catalogue projection. Removed the21.5 scale gate; near-side geometry enters/exits through the border, with large-image blur and padded culling bounds. Only tiny distant images fade.
+- CMB alpha begins at100,000ly frame width, with a squared smooth ramp reaching the existing faint floor bys25.1. Later shell crossing is unchanged.
+- Hubble circle has independent label opacity froms25.7–26.25 and remains through the endpoint. It uses its own spherical projected radius instead of scaling the outer shell's silhouette, so it is visible while the camera is still inside the CMB shell.
+- Further cosmic-web extension remains a proposed next layer: galaxy dots, diffuse filaments/sheets and voids; no new catalogue claims or decorative nebula clouds added.
