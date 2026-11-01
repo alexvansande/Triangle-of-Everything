@@ -6079,6 +6079,28 @@ function bgNoiseSettle() {
 }
 /** 1 while the layer should be up but isn't drawn yet (module, tiles), for a render to wait on. */
 const bgNoisePending = () => (_bgNoiseShown && (!_bgNoise || _bgNoise.pending()) ? 1 : 0);
+/** For checks (scripts/check-shadow-lag.mjs): how far (css px) each shadow the fractal layer last drew
+ *  sits from that shadow on the chart now, by picture: { href: px }. Shadows that trail the camera
+ *  show up as big numbers. Brings the copy up to date. */
+function bgNoiseShadowsLag() {
+  if (!_bgNoiseShown || !_shadowKey) return {};
+  const centres = (key) => JSON.parse(key)[2].map(([, m, , , sh]) => {
+    const [x, y] = sh[0] === "i" ? [sh[2] + sh[4] / 2, sh[3] + sh[5] / 2] : sh[0] === "p" ? [NaN, NaN] : [sh[1], sh[2]];
+    return [sh[0] === "i" ? sh[1] : sh[0], m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+  }).filter(c => Number.isFinite(c[1]));
+  const drawn = centres(_shadowKey);
+  bgNoiseShadows();
+  // pictures drawn once each (the dots' shadows come and go by the hundred: not comparable)
+  const now = centres(_shadowKey), once = (list) => { const n = new Map(); for (const [id] of list) n.set(id, (n.get(id) || 0) + 1); return n; };
+  const nNow = once(now), nDrawn = once(drawn), was = new Map(drawn.map(c => [c[0], c]));
+  const S = 0.5 * Math.min(2, devicePixelRatio || 1), lag = {};
+  for (const [id, x, y] of now) {
+    if (nNow.get(id) !== 1 || nDrawn.get(id) !== 1) continue;
+    const [, x2, y2] = was.get(id);
+    lag[id] = Math.hypot(x - x2, y - y2) / S;
+  }
+  return lag;
+}
 
 /** Show the layer when enabled and zoomed past the tiles (with hysteresis). */
 async function syncBgNoise() {
@@ -8736,7 +8758,7 @@ if (_ogShot) {
       /** Fade the background painting at zooms deeper than its resolution (videos). */
       setBgFadeDeep(on = true) { _bgFadeDeep = on; drawTiles(); },
       /** The fractal background (bg-noise.js): its clock, a crossfade cut short, whether it's still loading. */
-      bgNoiseTime, bgNoiseSettle, bgNoisePending,
+      bgNoiseTime, bgNoiseSettle, bgNoisePending, bgNoiseShadowsLag,
       bgNoiseStatus: () => ({ wanted: _bgNoiseWanted, shown: _bgNoiseShown, failed: _bgNoiseFailed, lost: _bgNoiseLost }),
       /** Object labels on or off (videos: a quiet closing shot). */
       /** Text size on the chart (the settings' "Font size" multiplier): the 16:9 videos double it. */

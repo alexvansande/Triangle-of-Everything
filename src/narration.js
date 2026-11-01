@@ -2668,6 +2668,8 @@ export async function startNarration(app) {
     view: (t) => { const v = camera(t).view; return { r: v.r, m: v.m, span: v.span }; },
     where: (name) => { const o = objByName.get(name); return o ? [+o.logR.toFixed(2), +o.logM.toFixed(2)] : null; },
     cues: cues.map(c => ({ t: +c.time.toFixed(2), at: c.at })),
+    // how far (css px) the fractal background's copy of each shadow trails the chart's, by picture
+    shadowLag: () => app.bgNoiseShadowsLag?.() ?? {},
     // the objects the narration names (a labelled highlight), for checking they're in the frame
     named: cues.flatMap(c => (c.hl || []).filter(h => h.obj && h.label !== false && !h.instant).map(h => ({ t: +(c.time + (h.delay || 0)).toFixed(2), obj: h.obj, label: h.label || h.obj }))),
     /** where a named object's picture is on screen ({ x, y, w, h } css px), or null if it isn't drawn */

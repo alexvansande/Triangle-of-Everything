@@ -513,6 +513,63 @@ series of videos. I sincerely hope you find it as fascinating as I do." (no "fol
 
 ---
 
+## Long 1 · The intro, as one video (`long-01-intro`)
+
+Notes from the author, 2026-11-01, for re-recording the hook and video 2 as **one** piece. It
+plays now as the hook (rec35, up to "…in this series of videos") and video 2 (rec33 + rec46)
+joined with a 2 s pause (`video/cuts/long-01-intro.json`), and it was never meant to be split
+into three. Shorts 1, 2a and 2b are cut from it, so a new take re-cuts all four.
+
+### Write it as one video, not three
+- **One opening.** The hook already shows the chart and says it's mass against size, so video 2's
+  opening ("If for some reason you wanted to draw everything that exists on the same chart, a
+  good way would be to use the log of mass and size…") says it a second time. Go straight from the
+  hook into the water line, e.g. *"Let's start with the line you noticed first. In the metric
+  system, one millilitre of water weighs one gram…"*
+- **No seam.** Drop "…and that's precisely what I intend to do in this series of videos" at the
+  join, or move the "I've been obsessed with this chart" paragraph to the very end, after the
+  stars.
+- **"The first thing you notice is this diagonal line"** (hook) and **"you'll notice that almost
+  everything falls along these diagonal lines"** (video 2) are the same observation: keep one.
+
+### Small bits that repeat the obvious (cut or shorten)
+- **The Eiffel Tower's iron cube**: "The iron alone would fit in a cube 11 metres wide, which is
+  denser than water, and it would definitely sink." The chart showed a minute earlier that
+  everything left of the water line sinks, so the cube just lands there. Try *"The iron alone
+  would fit in a cube 11 metres wide, way over here."* (The 11 m is right: about 1,300 m³ of iron.)
+- **"Lighter than air" three times in a row**: "heavier than air from things lighter than air.
+  And as the name says, here are the lighter than air aircraft". Try *"It separates what flies by
+  pushing air from what simply floats in it: balloons and zeppelins."*
+- **"On a log chart"** said three times in the cube passage: once is enough, the rest can be
+  "one step to the right", "three steps up".
+
+### New: super-Jupiters, gravity beats electromagnetism again
+The author's idea: Jupiter's constant size is once again gravity taking over electromagnetism's
+last refuge. **Fact check before recording:**
+- **Right:** it is "once again". The first time, around small moons, gravity beat the chemical
+  bonds (electromagnetism between atoms) and rounded things. At the Jupiter turn it beats
+  electromagnetism *inside* the atoms: the pressure crushes the electron shells and frees the
+  electrons (pressure ionization). The turn sits at about 10⁵⁴ atoms because the electric force is
+  ~10³⁶ times stronger than gravity: (10³⁶)^(3/2).
+- **Wrong as phrased:** gravity doesn't *break* the electron pressure here. Electron pressure is
+  the thing that *holds*: the freed electrons can't share a state (Pauli exclusion), and that's
+  what keeps super-Jupiters and brown dwarfs at Jupiter's size while they get denser. Gravity only
+  breaks it later, in a white dwarf past 1.4 Suns, which squeezes electrons into protons
+  (neutron stars, video 3).
+- **Why the size stays flat:** for ordinary matter more mass means bigger (R ∝ M^⅓); for crushed,
+  degenerate matter more mass means *smaller* (R ∝ M^−⅓). Around Jupiter the two cancel.
+
+Suggested wording, after "…still roughly Jupiter-sized":
+> *"Remember when gravity took over from the chemical bonds and made things round? Here it wins
+> again, and this time it beats the atoms themselves. The pressure crushes them and frees their
+> electrons. What holds the object up now isn't a force at all: it's a rule of quantum mechanics.
+> Two electrons can't be in the same state, so they push back. Add more mass, and the object gets
+> denser, not bigger."*
+
+(This replaces the "Video 2, super-Jupiters" suggestion in the notes at the top.)
+
+---
+
 ## 3 · Planets into stars (`short-03-stars`)
 
 *Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*
