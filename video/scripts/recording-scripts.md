@@ -572,7 +572,9 @@ Suggested wording, after "…still roughly Jupiter-sized":
 ### Script to record (one take, 2026-11-02)
 The hook's and video 2's scripts above joined into one, with the notes above applied. Changes
 from what plays now are listed after it. Shorts 1, 2a and 2b get cut from this take again: the
-hook ends at "…why fire looks the way it does", 2a at "…a kind of fractal", 2b runs to the end.
+hook ends at "…why fire looks the way it does" (now it runs on to "…as fascinating as I do", its own
+take), 2a runs from "Let's start with the line" to "…we arrive at the small moons", and 2b from
+"As we move up the line" to the end (`video/cuts/*.json`).
 
 **The chart**
 > This is the most interesting chart in all of physics.
