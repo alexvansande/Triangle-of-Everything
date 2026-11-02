@@ -1,5 +1,5 @@
 """Bake six rule-evolved, parent-coupled populations; no recorded footage.
-Each child's first 15 fields receive the parent's last 15 central fields.
+Each child's first 45 fields receive the parent's last 45 central fields.
 250 warmup steps precede frame zero. All outputs are raw pigment before post.
 """
 import os,sys,json,colorsys
@@ -12,7 +12,7 @@ root=Path(__file__).resolve().parents[1];lib=Path('/Users/avsa/Dev/Life/library'
 from sim.library import Library
 from sim.simulation import Simulation
 from sim.comove import comoving_isolate
-out=root/'video/powers-of-ten/generated/lenia-animation-v1';out.mkdir(parents=True,exist_ok=True)
+out=root/'video/powers-of-ten/generated/lenia-animation-v2';out.mkdir(parents=True,exist_ok=True)
 selected=json.load(open(root/'video/powers-of-ten/generated/lenia-terrain-v1/found-creatures.json'))['creatures'];index={r['id']:r for r in json.load(open(lib/'index.json'))}
 previous=None;provenance=[]
 for level in range(6):
@@ -28,12 +28,12 @@ for level in range(6):
  settled=comoving_isolate(sim,steps=252,settle=250,record_every=2)
  if not settled['frames']:raise RuntimeError('Did not survive warmup: '+rec['id'])
  fields=[];channels=sim.state().shape[-1]
- for f in range(30):
-  for step in range(10):
+ for f in range(90):
+  for step in range(20):
    A=sim.state();P=sim.engine.param_state() if sim.model in ('params','atmospheric') else None
    # A very gentle parent forcing acts on the state BEFORE the next rule step.
    if previous is not None:
-    parent=previous[min(29,15+f)];n=parent.shape[0];half=max(4,n//10);c=n//2
+    parent=previous[min(89,45+f)];n=parent.shape[0];half=max(4,n//10);c=n//2
     crop=parent[c-half:c+half,c-half:c+half].sum(-1)
     forcing=zoom(crop,size/crop.shape[0],order=1)[:size,:size];forcing-=forcing.mean()
     forcing/=max(float(np.max(np.abs(forcing))),.001)
@@ -48,10 +48,14 @@ for level in range(6):
  palette=np.array([colorsys.hsv_to_rgb((i/channels+.02)%1,.85,1) for i in range(channels)])
  random=np.random.default_rng(5513+level*1777)
  placements=[(random.uniform(25,231),random.uniform(25,231),random.uniform(0,360),random.uniform(40,76)) for i in range(13)]
+ # One crop for the entire sequence. Per-frame bounds followed each glider,
+ # inadvertently cancelling the translational motion we wanted to reveal.
+ support=np.max(previous,axis=(0,3))>.02
+ Y,X=np.where(support)
+ bounds=(max(0,Y.min()-3),Y.max()+4,max(0,X.min()-3),X.max()+4) if len(X) else (0,size,0,size)
  for f,A in enumerate(fields):
-  rgb=np.clip(A@palette,0,1);support=rgb.max(-1)>.02
-  Y,X=np.where(support)
-  if len(X):rgb=rgb[max(0,Y.min()-3):Y.max()+4,max(0,X.min()-3):X.max()+4]
+  rgb=np.clip(A@palette,0,1)
+  y0,y1,x0,x1=bounds;rgb=rgb[y0:y1,x0:x1]
   shape=Image.fromarray(np.uint8(rgb*255));canvas=Image.new('RGB',(256,256))
   buf=np.zeros((256,256,3),np.float32)
   for x,y,angle,width in placements:
@@ -59,6 +63,6 @@ for level in range(6):
    overlay=Image.new('RGB',(256,256));overlay.paste(piece,(round(x-piece.width/2),round(y-piece.height/2)))
    values=np.asarray(overlay,dtype=np.float32)/255;buf=1-(1-buf)*(1-values)
   Image.fromarray(np.uint8(buf*255)).save(out/f'{level}-{f:02}.webp',quality=94)
- provenance.append({'id':rec['id'],'kind':rec['kind'],'level':level,'settle':250,'frames':30,'stepsPerFrame':10,'parentCoupling':.003,'noiseCoupling':.0008})
+ provenance.append({'id':rec['id'],'kind':rec['kind'],'level':level,'settle':250,'cropBounds':list(map(int,bounds)),'frames':90,'stepsPerFrame':20,'parentCoupling':.003,'noiseCoupling':.0008})
  print('Baked level',level,rec['kind'],flush=True)
-(out/'manifest.json').write_text(json.dumps({'frames':30,'levels':6,'overlap':15,'stepsPerFrame':10,'source':'original rules, saved matter and carried parameters','populations':provenance},indent=2))
+(out/'manifest.json').write_text(json.dumps({'frames':90,'levels':6,'overlap':45,'stepsPerFrame':20,'source':'original rules, saved matter and carried parameters','populations':provenance},indent=2))

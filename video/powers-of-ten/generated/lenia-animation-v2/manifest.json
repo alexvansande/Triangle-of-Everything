@@ -1,0 +1,105 @@
+{
+  "frames": 90,
+  "levels": 6,
+  "overlap": 45,
+  "stepsPerFrame": 20,
+  "source": "original rules, saved matter and carried parameters",
+  "populations": [
+    {
+      "id": "dense-3c_params_w194_s18_t1734_c03",
+      "kind": "glider",
+      "level": 0,
+      "settle": 250,
+      "frames": 90,
+      "stepsPerFrame": 20,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008,
+      "cropBounds": [
+        72,
+        102,
+        76,
+        103
+      ]
+    },
+    {
+      "id": "dense-6c-sym_params_w200091_s90015_t1734_c00",
+      "kind": "glider",
+      "level": 1,
+      "settle": 250,
+      "frames": 90,
+      "stepsPerFrame": 20,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008,
+      "cropBounds": [
+        57,
+        72,
+        57,
+        72
+      ]
+    },
+    {
+      "id": "dense-3c_params_w368_s1_t1234_c00",
+      "kind": "rotator",
+      "level": 2,
+      "settle": 250,
+      "frames": 90,
+      "stepsPerFrame": 20,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008,
+      "cropBounds": [
+        13,
+        73,
+        27,
+        73
+      ]
+    },
+    {
+      "id": "dense-3c_params_w248_s1_t1234_c02",
+      "kind": "drifter",
+      "level": 3,
+      "settle": 250,
+      "frames": 90,
+      "stepsPerFrame": 20,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008,
+      "cropBounds": [
+        70,
+        133,
+        74,
+        109
+      ]
+    },
+    {
+      "id": "dense-2c_params_w29_s1_t1734_c03",
+      "kind": "drifter",
+      "level": 4,
+      "settle": 250,
+      "frames": 90,
+      "stepsPerFrame": 20,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008,
+      "cropBounds": [
+        56,
+        74,
+        56,
+        73
+      ]
+    },
+    {
+      "id": "atmo-6c_atmospheric_w5_s1_t1734_c01",
+      "kind": "bubble",
+      "level": 5,
+      "settle": 250,
+      "frames": 90,
+      "stepsPerFrame": 20,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008,
+      "cropBounds": [
+        54,
+        86,
+        49,
+        83
+      ]
+    }
+  ]
+}
