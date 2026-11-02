@@ -1,3 +1,4 @@
+import {collectLabels,labelFrame} from './label-layout.js';
 import {zoomProgress,openingOrbit,VIDEO_END_SCALE} from './zoom-timeline.js';
 import {cosmicOrbit} from './cosmic-motion.js';
 import {cmbSphere} from './cmb-sphere.js';
@@ -171,6 +172,7 @@ function render(t) {
   // The front hemisphere occludes interior filaments only in red regions.
   cmb.draw(ctx,Dg,cloudView,basis,1);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+  const finishLabels=collectLabels(ctx);
   drawScaleOverlay({ ...cam, W, H, cx: W / 2, cy: H / 2 }, {grid:state.grid,labels:state.labels,canopy:canopyTest});
   if (state.labels) for (const [lx, ly, text, a] of labels) {
     if (a <= 0.02) continue;
@@ -183,6 +185,9 @@ function render(t) {
   }
   ctx.globalAlpha = 1;
   if (state.labels) drawSpheres(ctx, W, H, dpr, s);
+  const framing=window.canopyTest?.labelFrame??q.get('stage')??(canopyTest?'9x16':document.body.dataset.stage);
+  const aspect=framing==='9x16'?9/16:framing==='16x9'?16/9:framing==='1x1'?1:W/H;
+  finishLabels(labelFrame(W,H,aspect,8*dpr),6*dpr);
   readout(s);
 }
 
