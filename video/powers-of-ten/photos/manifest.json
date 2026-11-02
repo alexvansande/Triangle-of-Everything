@@ -1,0 +1,159 @@
+{
+ "centre": {
+  "lat": 36.5816453,
+  "lon": -118.751443,
+  "what": "the General Sherman tree (OpenStreetMap node 313753662)"
+ },
+ "projection": "orthographic, centred on the tree, north up; each frame 10^s m across",
+ "credits": {
+  "naip": "NAIP, USDA Farm Service Agency / USGS The National Map (public domain)",
+  "s2": "Sentinel-2 cloudless 2016 by EOX IT Services GmbH, https://s2maps.eu (contains modified Copernicus Sentinel data 2016), CC BY 4.0",
+  "bm": "Blue Marble Next Generation, NASA Earth Observatory (public domain), via EOX"
+ },
+ "plates": [
+  {
+   "s": 1.6,
+   "file": "s+1.60.jpg",
+   "width_m": 39.8,
+   "source": "naip"
+  },
+  {
+   "s": 1.85,
+   "file": "s+1.85.jpg",
+   "width_m": 70.8,
+   "source": "naip"
+  },
+  {
+   "s": 2.1,
+   "file": "s+2.10.jpg",
+   "width_m": 125.9,
+   "source": "naip"
+  },
+  {
+   "s": 2.35,
+   "file": "s+2.35.jpg",
+   "width_m": 223.9,
+   "source": "naip"
+  },
+  {
+   "s": 2.6,
+   "file": "s+2.60.jpg",
+   "width_m": 398.1,
+   "source": "naip"
+  },
+  {
+   "s": 2.85,
+   "file": "s+2.85.jpg",
+   "width_m": 707.9,
+   "source": "naip"
+  },
+  {
+   "s": 3.1,
+   "file": "s+3.10.jpg",
+   "width_m": 1258.9,
+   "source": "naip"
+  },
+  {
+   "s": 3.35,
+   "file": "s+3.35.jpg",
+   "width_m": 2238.7,
+   "source": "naip"
+  },
+  {
+   "s": 3.6,
+   "file": "s+3.60.jpg",
+   "width_m": 3981.1,
+   "source": "naip"
+  },
+  {
+   "s": 3.85,
+   "file": "s+3.85.jpg",
+   "width_m": 7079.5,
+   "source": "naip"
+  },
+  {
+   "s": 4.1,
+   "file": "s+4.10.jpg",
+   "width_m": 12589.3,
+   "source": "naip"
+  },
+  {
+   "s": 4.35,
+   "file": "s+4.35.jpg",
+   "width_m": 22387.2,
+   "source": "naip"
+  },
+  {
+   "s": 4.6,
+   "file": "s+4.60.jpg",
+   "width_m": 39810.7,
+   "source": "s2"
+  },
+  {
+   "s": 4.85,
+   "file": "s+4.85.jpg",
+   "width_m": 70794.6,
+   "source": "s2"
+  },
+  {
+   "s": 5.1,
+   "file": "s+5.10.jpg",
+   "width_m": 125892.5,
+   "source": "s2"
+  },
+  {
+   "s": 5.35,
+   "file": "s+5.35.jpg",
+   "width_m": 223872.1,
+   "source": "s2"
+  },
+  {
+   "s": 5.6,
+   "file": "s+5.60.jpg",
+   "width_m": 398107.2,
+   "source": "s2"
+  },
+  {
+   "s": 5.85,
+   "file": "s+5.85.jpg",
+   "width_m": 707945.8,
+   "source": "s2"
+  },
+  {
+   "s": 6.1,
+   "file": "s+6.10.jpg",
+   "width_m": 1258925.4,
+   "source": "s2"
+  },
+  {
+   "s": 6.35,
+   "file": "s+6.35.jpg",
+   "width_m": 2238721.1,
+   "source": "bm"
+  },
+  {
+   "s": 6.6,
+   "file": "s+6.60.jpg",
+   "width_m": 3981071.7,
+   "source": "bm"
+  },
+  {
+   "s": 6.85,
+   "file": "s+6.85.jpg",
+   "width_m": 7079457.8,
+   "source": "bm"
+  },
+  {
+   "s": 7.1,
+   "file": "s+7.10.jpg",
+   "width_m": 12589254.1,
+   "source": "bm"
+  },
+  {
+   "s": 7.35,
+   "file": "s+7.35.jpg",
+   "width_m": 22387211.4,
+   "source": "bm"
+  }
+ ]
+}
