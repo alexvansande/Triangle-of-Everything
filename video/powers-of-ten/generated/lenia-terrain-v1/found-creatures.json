@@ -1,0 +1,763 @@
+{
+  "source": "/Users/avsa/Dev/Life/library",
+  "type": "Flow Lenia saved matter snapshots; behavior labels from library, not simulated in zoom",
+  "atlas": "found-creatures.png",
+  "creatures": [
+    {
+      "id": "dense-3c_params_w194_s18_t1734_c03",
+      "kind": "glider",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s18_t1734_c03.npz",
+      "channels": 3,
+      "sourceShape": [
+        43,
+        30,
+        3
+      ],
+      "certainty": 0.903,
+      "survived": true,
+      "x": 0,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w194_s31_t1734_c04",
+      "kind": "glider",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s31_t1734_c04.npz",
+      "channels": 3,
+      "sourceShape": [
+        25,
+        24,
+        3
+      ],
+      "certainty": 0.906,
+      "survived": true,
+      "x": 96,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200091_s90005_t1734_c00",
+      "kind": "glider",
+      "universe": "dense-6c-sym_params_w200091",
+      "sourceMatter": "dense-6c-sym_params_w200091_s90005_t1734_c00.npz",
+      "channels": 6,
+      "sourceShape": [
+        15,
+        15,
+        6
+      ],
+      "certainty": 0.977,
+      "survived": true,
+      "x": 192,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w248_s1_t1234_c00",
+      "kind": "glider",
+      "universe": "dense-3c_params_w248",
+      "sourceMatter": "dense-3c_params_w248_s1_t1234_c00.npz",
+      "channels": 3,
+      "sourceShape": [
+        30,
+        29,
+        3
+      ],
+      "certainty": 0.995,
+      "survived": true,
+      "x": 288,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200217_s90001_t1734_c00",
+      "kind": "glider",
+      "universe": "dense-6c-sym_params_w200217",
+      "sourceMatter": "dense-6c-sym_params_w200217_s90001_t1734_c00.npz",
+      "channels": 6,
+      "sourceShape": [
+        27,
+        27,
+        6
+      ],
+      "certainty": 0.993,
+      "survived": true,
+      "x": 384,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w248_s90009_t1734_c00",
+      "kind": "glider",
+      "universe": "dense-3c_params_w248",
+      "sourceMatter": "dense-3c_params_w248_s90009_t1734_c00.npz",
+      "channels": 3,
+      "sourceShape": [
+        22,
+        31,
+        3
+      ],
+      "certainty": 0.992,
+      "survived": true,
+      "x": 480,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200217_s90001_t1734_c01",
+      "kind": "glider",
+      "universe": "dense-6c-sym_params_w200217",
+      "sourceMatter": "dense-6c-sym_params_w200217_s90001_t1734_c01.npz",
+      "channels": 6,
+      "sourceShape": [
+        25,
+        23,
+        6
+      ],
+      "certainty": 0.989,
+      "survived": true,
+      "x": 576,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200091_s90015_t1734_c00",
+      "kind": "glider",
+      "universe": "dense-6c-sym_params_w200091",
+      "sourceMatter": "dense-6c-sym_params_w200091_s90015_t1734_c00.npz",
+      "channels": 6,
+      "sourceShape": [
+        14,
+        15,
+        6
+      ],
+      "certainty": 0.989,
+      "survived": true,
+      "x": 672,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w194_s23_t1734_c00",
+      "kind": "rotator",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s23_t1734_c00.npz",
+      "channels": 3,
+      "sourceShape": [
+        23,
+        26,
+        3
+      ],
+      "certainty": 0.807,
+      "survived": true,
+      "x": 0,
+      "y": 96,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w194_s21_t1734_c00",
+      "kind": "rotator",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s21_t1734_c00.npz",
+      "channels": 3,
+      "sourceShape": [
+        29,
+        25,
+        3
+      ],
+      "certainty": 0.989,
+      "survived": true,
+      "x": 96,
+      "y": 96,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200434_s13_t1734_c02",
+      "kind": "rotator",
+      "universe": "dense-6c-sym_params_w200434",
+      "sourceMatter": "dense-6c-sym_params_w200434_s13_t1734_c02.npz",
+      "channels": 6,
+      "sourceShape": [
+        28,
+        34,
+        6
+      ],
+      "certainty": 0.763,
+      "survived": true,
+      "x": 192,
+      "y": 96,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200091_s1_t1734_c01",
+      "kind": "rotator",
+      "universe": "dense-6c-sym_params_w200091",
+      "sourceMatter": "dense-6c-sym_params_w200091_s1_t1734_c01.npz",
+      "channels": 6,
+      "sourceShape": [
+        15,
+        15,
+        6
+      ],
+      "certainty": 0.97,
+      "survived": true,
+      "x": 288,
+      "y": 96,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200434_s13_t1734_c03",
+      "kind": "rotator",
+      "universe": "dense-6c-sym_params_w200434",
+      "sourceMatter": "dense-6c-sym_params_w200434_s13_t1734_c03.npz",
+      "channels": 6,
+      "sourceShape": [
+        25,
+        23,
+        6
+      ],
+      "certainty": 0.602,
+      "survived": true,
+      "x": 384,
+      "y": 96,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200217_s1_t1734_c01",
+      "kind": "rotator",
+      "universe": "dense-6c-sym_params_w200217",
+      "sourceMatter": "dense-6c-sym_params_w200217_s1_t1734_c01.npz",
+      "channels": 6,
+      "sourceShape": [
+        22,
+        23,
+        6
+      ],
+      "certainty": 0.622,
+      "survived": true,
+      "x": 480,
+      "y": 96,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w368_s1_t1234_c00",
+      "kind": "rotator",
+      "universe": "dense-3c_params_w368",
+      "sourceMatter": "dense-3c_params_w368_s1_t1234_c00.npz",
+      "channels": 3,
+      "sourceShape": [
+        20,
+        21,
+        3
+      ],
+      "certainty": 0.992,
+      "survived": true,
+      "x": 576,
+      "y": 96,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w1476_s1_t1734_c00",
+      "kind": "rotator",
+      "universe": "dense-3c_params_w1476",
+      "sourceMatter": "dense-3c_params_w1476_s1_t1734_c00.npz",
+      "channels": 3,
+      "sourceShape": [
+        24,
+        24,
+        3
+      ],
+      "certainty": 0.986,
+      "survived": true,
+      "x": 672,
+      "y": 96,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200434_s5_t1734_c03",
+      "kind": "pulser",
+      "universe": "dense-6c-sym_params_w200434",
+      "sourceMatter": "dense-6c-sym_params_w200434_s5_t1734_c03.npz",
+      "channels": 6,
+      "sourceShape": [
+        17,
+        18,
+        6
+      ],
+      "certainty": 0.822,
+      "survived": true,
+      "x": 0,
+      "y": 192,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w194_s58_t1734_c02",
+      "kind": "pulser",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s58_t1734_c02.npz",
+      "channels": 3,
+      "sourceShape": [
+        22,
+        22,
+        3
+      ],
+      "certainty": 0.529,
+      "survived": true,
+      "x": 96,
+      "y": 192,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w194_s11429_t1234_c00_0696d7",
+      "kind": "pulser",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s11429_t1234_c00_0696d7.npz",
+      "channels": 3,
+      "sourceShape": [
+        27,
+        26,
+        3
+      ],
+      "certainty": 0.992,
+      "survived": true,
+      "x": 192,
+      "y": 192,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w288_s1_t1234_c00",
+      "kind": "pulser",
+      "universe": "dense-3c_params_w288",
+      "sourceMatter": "dense-3c_params_w288_s1_t1234_c00.npz",
+      "channels": 3,
+      "sourceShape": [
+        49,
+        40,
+        3
+      ],
+      "certainty": 0.677,
+      "survived": true,
+      "x": 288,
+      "y": 192,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "atmo-6c_atmospheric_w37_s1_t1734_c00",
+      "kind": "pulser",
+      "universe": "atmo-6c_atmospheric_w37",
+      "sourceMatter": "atmo-6c_atmospheric_w37_s1_t1734_c00.npz",
+      "channels": 6,
+      "sourceShape": [
+        24,
+        23,
+        6
+      ],
+      "certainty": 0.602,
+      "survived": true,
+      "x": 384,
+      "y": 192,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w248_s1_t1234_c02",
+      "kind": "drifter",
+      "universe": "dense-3c_params_w248",
+      "sourceMatter": "dense-3c_params_w248_s1_t1234_c02.npz",
+      "channels": 3,
+      "sourceShape": [
+        44,
+        33,
+        3
+      ],
+      "certainty": 0.627,
+      "survived": true,
+      "x": 480,
+      "y": 192,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w194_s14_t1734_c00",
+      "kind": "drifter",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s14_t1734_c00.npz",
+      "channels": 3,
+      "sourceShape": [
+        25,
+        25,
+        3
+      ],
+      "certainty": 0.553,
+      "survived": true,
+      "x": 576,
+      "y": 192,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w194_s30_t1734_c01",
+      "kind": "drifter",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s30_t1734_c01.npz",
+      "channels": 3,
+      "sourceShape": [
+        37,
+        30,
+        3
+      ],
+      "certainty": 0.906,
+      "survived": true,
+      "x": 672,
+      "y": 192,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200434_s55_t1734_c00",
+      "kind": "drifter",
+      "universe": "dense-6c-sym_params_w200434",
+      "sourceMatter": "dense-6c-sym_params_w200434_s55_t1734_c00.npz",
+      "channels": 6,
+      "sourceShape": [
+        21,
+        22,
+        6
+      ],
+      "certainty": 0.714,
+      "survived": true,
+      "x": 0,
+      "y": 288,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w111_s1_t1234_c00",
+      "kind": "drifter",
+      "universe": "dense-3c_params_w111",
+      "sourceMatter": "dense-3c_params_w111_s1_t1234_c00.npz",
+      "channels": 3,
+      "sourceShape": [
+        50,
+        49,
+        3
+      ],
+      "certainty": 0.969,
+      "survived": true,
+      "x": 96,
+      "y": 288,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w26_s80_t1734_c00",
+      "kind": "drifter",
+      "universe": "dense-3c_params_w26",
+      "sourceMatter": "dense-3c_params_w26_s80_t1734_c00.npz",
+      "channels": 3,
+      "sourceShape": [
+        11,
+        17,
+        3
+      ],
+      "certainty": 0.958,
+      "survived": true,
+      "x": 192,
+      "y": 288,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w370_s1_t1234_c01",
+      "kind": "drifter",
+      "universe": "dense-3c_params_w370",
+      "sourceMatter": "dense-3c_params_w370_s1_t1234_c01.npz",
+      "channels": 3,
+      "sourceShape": [
+        15,
+        15,
+        3
+      ],
+      "certainty": 0.93,
+      "survived": true,
+      "x": 288,
+      "y": 288,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-2c_params_w29_s1_t1734_c03",
+      "kind": "drifter",
+      "universe": "dense-2c_params_w29",
+      "sourceMatter": "dense-2c_params_w29_s1_t1734_c03.npz",
+      "channels": 2,
+      "sourceShape": [
+        16,
+        12,
+        2
+      ],
+      "certainty": 0.893,
+      "survived": true,
+      "x": 384,
+      "y": 288,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w194_s21_t1734_c01",
+      "kind": "bubble",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s21_t1734_c01.npz",
+      "channels": 3,
+      "sourceShape": [
+        25,
+        30,
+        3
+      ],
+      "certainty": 0.933,
+      "survived": true,
+      "x": 480,
+      "y": 288,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w194_s25_t1734_c03",
+      "kind": "bubble",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s25_t1734_c03.npz",
+      "channels": 3,
+      "sourceShape": [
+        18,
+        19,
+        3
+      ],
+      "certainty": 0.982,
+      "survived": true,
+      "x": 576,
+      "y": 288,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200434_s20_t1734_c02",
+      "kind": "bubble",
+      "universe": "dense-6c-sym_params_w200434",
+      "sourceMatter": "dense-6c-sym_params_w200434_s20_t1734_c02.npz",
+      "channels": 6,
+      "sourceShape": [
+        21,
+        23,
+        6
+      ],
+      "certainty": 0.928,
+      "survived": true,
+      "x": 672,
+      "y": 288,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-6c-sym_params_w200434_s15_t1734_c01",
+      "kind": "bubble",
+      "universe": "dense-6c-sym_params_w200434",
+      "sourceMatter": "dense-6c-sym_params_w200434_s15_t1734_c01.npz",
+      "channels": 6,
+      "sourceShape": [
+        31,
+        31,
+        6
+      ],
+      "certainty": 0.991,
+      "survived": true,
+      "x": 0,
+      "y": 384,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "atmo-6c_atmospheric_w19_s1_t1734_c02",
+      "kind": "bubble",
+      "universe": "atmo-6c_atmospheric_w19",
+      "sourceMatter": "atmo-6c_atmospheric_w19_s1_t1734_c02.npz",
+      "channels": 6,
+      "sourceShape": [
+        24,
+        26,
+        6
+      ],
+      "certainty": 0.924,
+      "survived": true,
+      "x": 96,
+      "y": 384,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "atmo-6c_atmospheric_w635_s1_t1734_c02",
+      "kind": "bubble",
+      "universe": "atmo-6c_atmospheric_w635",
+      "sourceMatter": "atmo-6c_atmospheric_w635_s1_t1734_c02.npz",
+      "channels": 6,
+      "sourceShape": [
+        32,
+        48,
+        6
+      ],
+      "certainty": 0.782,
+      "survived": true,
+      "x": 192,
+      "y": 384,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "atmo-6c_atmospheric_w5_s1_t1734_c01",
+      "kind": "bubble",
+      "universe": "atmo-6c_atmospheric_w5",
+      "sourceMatter": "atmo-6c_atmospheric_w5_s1_t1734_c01.npz",
+      "channels": 6,
+      "sourceShape": [
+        14,
+        14,
+        6
+      ],
+      "certainty": 0.695,
+      "survived": true,
+      "x": 288,
+      "y": 384,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "atmo-6c_atmospheric_w11_s14_t1734_c00",
+      "kind": "bubble",
+      "universe": "atmo-6c_atmospheric_w11",
+      "sourceMatter": "atmo-6c_atmospheric_w11_s14_t1734_c00.npz",
+      "channels": 6,
+      "sourceShape": [
+        64,
+        75,
+        6
+      ],
+      "certainty": 0.649,
+      "survived": true,
+      "x": 384,
+      "y": 384,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w194_s5933_t1234_c00_3c0c06",
+      "kind": "drifting-rotator",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s5933_t1234_c00_3c0c06.npz",
+      "channels": 3,
+      "sourceShape": [
+        16,
+        19,
+        3
+      ],
+      "certainty": 0.989,
+      "survived": true,
+      "x": 480,
+      "y": 384,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w194_s15398_t1234_c00_e551a8",
+      "kind": "drifting-rotator",
+      "universe": "dense-3c_params_w194",
+      "sourceMatter": "dense-3c_params_w194_s15398_t1234_c00_e551a8.npz",
+      "channels": 3,
+      "sourceShape": [
+        20,
+        30,
+        3
+      ],
+      "certainty": 0.984,
+      "survived": true,
+      "x": 576,
+      "y": 384,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-3c_params_w471_s1_t1234_c00",
+      "kind": "drifting-rotator",
+      "universe": "dense-3c_params_w471",
+      "sourceMatter": "dense-3c_params_w471_s1_t1234_c00.npz",
+      "channels": 3,
+      "sourceShape": [
+        38,
+        41,
+        3
+      ],
+      "certainty": 0.886,
+      "survived": true,
+      "x": 672,
+      "y": 384,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "dense-2c_params_w200130_s1_t1734_c00",
+      "kind": "drifting-rotator",
+      "universe": "dense-2c_params_w200130",
+      "sourceMatter": "dense-2c_params_w200130_s1_t1734_c00.npz",
+      "channels": 2,
+      "sourceShape": [
+        16,
+        15,
+        2
+      ],
+      "certainty": 0.685,
+      "survived": true,
+      "x": 0,
+      "y": 480,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "atmo-6c_atmospheric_w791_s1_t1734_c00",
+      "kind": "drifting-rotator",
+      "universe": "atmo-6c_atmospheric_w791",
+      "sourceMatter": "atmo-6c_atmospheric_w791_s1_t1734_c00.npz",
+      "channels": 6,
+      "sourceShape": [
+        15,
+        15,
+        6
+      ],
+      "certainty": 0.682,
+      "survived": false,
+      "x": 96,
+      "y": 480,
+      "width": 96,
+      "height": 96
+    }
+  ]
+}

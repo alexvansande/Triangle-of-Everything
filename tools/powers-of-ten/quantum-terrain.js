@@ -11,35 +11,39 @@ export function quantumTerrain(){
  let ready=false,program,texture,strataTexture;
  const finalImage=new Image();finalImage.src='/video/powers-of-ten/generated/lenia-terrain-v1/planck-relief.png';
  const image=document.createElement('canvas');image.width=image.height=1024;
- Promise.all(['multichannel.json','stationary-forms.json'].map(f=>fetch('/video/powers-of-ten/generated/lenia-terrain-v1/'+f).then(r=>r.json()))).then(([mover,library])=>{
+ Promise.all(['multichannel.json','found-creatures.json'].map(f=>fetch('/video/powers-of-ten/generated/lenia-terrain-v1/'+f).then(r=>r.json()))).then(async([mover,library])=>{
   const {cells,width,height}=mover;
   const seed=document.createElement('canvas');seed.width=width;seed.height=height;const c=seed.getContext('2d'),pixels=c.createImageData(width,height);
   cells.forEach((v,i)=>{pixels.data.set([...v,255],i*4)});c.putImageData(pixels,0,0);
-  const seeds=[seed,...library.forms.map(form=>{
+  const found=new Image();found.src='/video/powers-of-ten/generated/lenia-terrain-v1/'+library.atlas;
+  await found.decode();
+  const seeds=[seed,...library.creatures.map(form=>{
    const c=document.createElement('canvas');c.width=form.width;c.height=form.height;
-   const x=c.getContext('2d'),pixels=x.createImageData(c.width,c.height);
-   form.cells.forEach((v,i)=>pixels.data.set([...v,255],i*4));x.putImageData(pixels,0,0);return c;
+   c.getContext('2d').drawImage(found,form.x,form.y,form.width,form.height,0,0,c.width,c.height);return c;
   })];
+  found.removeAttribute('src');
   const ctx=image.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,1024,1024);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.filter='blur(2px)';
   const random=rng(79113),forms=[[0,0,0,1]];
   // Irregular field, a deliberate centre, no square lattice of organisms.
   for(let i=0;i<50;i++){const x=(random()-.5)*1.1,y=(random()-.5)*1.1;if(Math.hypot(x,y)<.14)continue;forms.push([x,y,random()*Math.PI*2,.6+random()*.7])}
   for(const [index,[x,y,a,size]] of forms.entries())for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){ctx.save();ctx.translate(512+(x+dx)*1024,512+(y+dy)*1024);ctx.rotate(a);const w=113*size;const shape=seeds[index===0?0:index%seeds.length];ctx.drawImage(shape,-w*.55,-w*.55,w,w);ctx.restore()}
-  // Three different catalogue forms and independently seeded arrangements.
-  const atlas=document.createElement('canvas');atlas.width=1536;atlas.height=512;
-  const a=atlas.getContext('2d');a.fillStyle='#000';a.fillRect(0,0,1536,512);
-  for(let layer=0;layer<3;layer++){
-   const tile=document.createElement('canvas');tile.width=tile.height=512;
-   const t=tile.getContext('2d');t.fillStyle='#000';t.fillRect(0,0,512,512);t.filter='blur(1px)';
-   const random=rng(5513+layer*1777),shape=seeds[layer+1];
-   for(let i=0;i<[10,18,13][layer];i++){
-    const x=i===0?256:random()*512,y=i===0?256:random()*512;
-    const size=65+random()*65,angle=random()*Math.PI*2;
+  // Six distinct populations from the user's Flow Lenia discoveries.
+  // Small packed textures keep the rich world independent of live simulation.
+  const atlas=document.createElement('canvas');atlas.width=1536;atlas.height=256;
+  const a=atlas.getContext('2d');a.fillStyle='#000';a.fillRect(0,0,1536,256);
+  for(let layer=0;layer<6;layer++){
+   const tile=document.createElement('canvas');tile.width=tile.height=256;
+   const t=tile.getContext('2d');t.fillStyle='#000';t.fillRect(0,0,256,256);t.filter='blur(.4px)';t.globalCompositeOperation='screen';
+   const random=rng(5513+layer*1777);
+   for(let i=0;i<16;i++){
+    const shape=seeds[1+(layer*7+i%7)%(seeds.length-1)];
+    const x=i===0?128:random()*256,y=i===0?128:random()*256;
+    const size=35+random()*45,angle=random()*Math.PI*2;
     for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
-     t.save();t.translate(x+dx*512,y+dy*512);t.rotate(angle);
+     t.save();t.translate(x+dx*256,y+dy*256);t.rotate(angle);
      t.drawImage(shape,-size/2,-size/2,size,size);t.restore();
     }
-   }a.drawImage(tile,layer*512,0);
+   }a.drawImage(tile,layer*256,0);
   }
   strataTexture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,strataTexture);
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB8,gl.RGB,gl.UNSIGNED_BYTE,atlas);
@@ -160,13 +164,13 @@ export function quantumTerrain(){
  // the larger organisms. Fixed octave positions keep every imprint registered.
  vec3 cellularStrata(vec2 p){
   vec3 colour=vec3(0.);
-  for(int j=0;j<3;j++){
-   float layer=15.+float(j)*10.,f=exp2(layer-depth);
-   float gate=smoothstep(.06,.2,f)*(1.-smoothstep(2.,5.,f));
+  for(int j=0;j<6;j++){
+   float layer=5.+float(j)*7.,f=exp2(layer-depth);
+   float gate=smoothstep(.015,.06,f)*(1.-smoothstep(4.,12.,f));
    if(gate>0.){
     float angle=float(j)*1.13;mat2 turn=mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
     vec2 uv=fract(.5+turn*p*f+vec2(.13,.21)*float(j));
-    colour+=texture(strataField,vec2((uv.x+float(j))/3.,uv.y)).rgb*gate;
+    colour+=texture(strataField,vec2((uv.x+float(j))/6.,uv.y)).rgb*gate;
    }
   }return colour;
  }
