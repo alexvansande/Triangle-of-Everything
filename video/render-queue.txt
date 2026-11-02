@@ -50,3 +50,5 @@ short-05c-observable-universe
 # short-00-powers-of-ten: source 3387e25 adds 42 actual Life-library creatures across six overlapping depth populations; full render.
 # short-00-powers-of-ten changed: colored details resolve a decade earlier; source 5473e423
 # short-00-powers-of-ten changed: ten Lenia steps per frame; source 136098b5
+# short-00-powers-of-ten changed: restore photographic canopy and terrain assets; source ccd763a5
+short-00-powers-of-ten
