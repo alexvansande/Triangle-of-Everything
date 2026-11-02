@@ -1079,7 +1079,78 @@ ten every 1.96 s (61 powers in 120 s), so each line is timed to when its thing i
 About 210 words in two minutes: speak slowly and leave the gaps; the picture carries it. Record
 each line as its own phrase, so it can be placed on its time.
 
-### Script to record
+### Script to record: the author's opening and ending, tightened (2026-11-02)
+
+The author's own opening and ending, cut to fit with the zoom inside **2:30** (limit 3:00). At
+the author's pace (about 160 words a minute) the opening and ending as first written ran 39 s and
+36 s, but the zoom shows the CMB to the superclusters in 5 s. So two changes to the picture:
+
+- **Slow start:** ease the zoom from the CMB to the superclusters over about 25 s, then the usual
+  rate (one power of ten every 1.96 s). That adds about 20 s.
+- **Hold the end:** stay on the Planck grid and its gliders for about 5 s after the zoom stops, so
+  "game of life" lands on them.
+
+That makes the video about 2:26, with half a minute to spare. Times below are video times with
+both changes (the zoom's own time + 20 s after the start).
+
+| At | On screen | Line | Words |
+|---|---|---|---|
+| 0:00 | The CMB | *This is the largest thing we can see: the cosmic microwave background, a faint glow from three hundred and eighty thousand years after the Big Bang, the moment light could first escape. Everything in here is a picture of the past.* | 40 |
+| 0:15 | The cosmic event horizon | *This smaller bubble is the cosmic event horizon. The galaxies beyond it are lost: the light they send today will never reach us.* | 23 |
+| 0:24 | Superclusters | *And these are the largest structures of all: superclusters.* | 9 |
+| 0:28 | Andromeda, the Milky Way | *Our neighbourhood of galaxies: Andromeda, and our own, the Milky Way.* | 11 |
+| 0:32 | "The Sun is here" | *The Sun is here: one star among hundreds of billions.* | 10 |
+| 0:38 | Sirius, Vega | *Sirius, the brightest star in our night sky.* | 8 |
+| 0:41 | The Oort Cloud | *The Oort Cloud: a shell of icy comets around the Sun.* | 11 |
+| 0:46 | Neptune's orbit, Mars | *The planets.* | 2 |
+| 0:53 | Earth | *And Earth.* | 2 |
+| 0:56 | Earth and the Moon's orbit | *The Moon, four hundred thousand kilometres out.* | 6 |
+| 1:02 | California, the Sierra Nevada | *California, and the Sierra Nevada.* | 5 |
+| 1:08 | The forest | *A forest of giant sequoias, and the General Sherman, the largest tree on Earth.* | 14 |
+| 1:17 | The ladybug | *A ladybug on one of its leaves.* | 7 |
+| 1:20 | Pollen | *A grain of pollen.* | 4 |
+| 1:23 | A cell | *A single cell.* | 3 |
+| 1:26 | Chromatin, DNA | *Its DNA.* | 2 |
+| 1:30 | The atom → the nucleus (1:39) → the proton (1:41) | *Atom is Greek for "uncuttable". We named it when we thought we'd hit the bottom. But atoms do split, famously and violently. They're made of electrons, protons and neutrons, and protons and neutrons are made of quarks, held together by gluons.* | 41 |
+| 1:46 | The quark patterns (Lenia) | *(a breath: let the patterns show)* | |
+| 1:50 | The quark patterns → the grey terrain (1:56) | *And what are quarks made of? We don't know. Instead of one smallest building block, physics now looks for the rules. Quantum field theory describes the universe as fields, a number at every point of space and time, and every particle is a ripple in one of them.* | 48 |
+| 2:09 | The terrain → the Planck grid (2:17) | *Is that all there is? We don't know. But maybe, deep down, at the Planck scale where our theories break down, it's all one big game of life.* | 27 |
+| 2:20 | The gliders (held) | *(no words)* | |
+
+About 270 words: 1:42 of speech in 2:26. Record the opening, the atom paragraph and the ending
+each as one take; the short middle lines can be placed one by one.
+
+**What changed from the author's draft, and why**
+- *"emitted moments after the big bang"* → *"three hundred and eighty thousand years after"*: the CMB
+  was released 380,000 years in, when the universe cooled enough for light to travel.
+- *"a faint radio signal"* → *"a faint glow"*: it's microwaves (the name you've just said).
+- *"a snapshot of how the universe used to look… we will never know what happened to those old
+  galaxies because right now they are escaping us faster than light can travel"* → *"Everything in
+  here is a picture of the past"* and the event-horizon line: it's the space between us that grows
+  faster than their light can cross it, and the horizon is the edge of what can still reach us.
+- *"the limits… of the things we can know about ourselves"*: cut, for time.
+- *"Atom comes from the greek as indivisible"* → *"Atom is Greek for 'uncuttable'"* (atomos).
+- *"These in turn are also made of… quarks and gluons"* → *"protons and neutrons are made of
+  quarks"*: electrons aren't made of anything smaller that we know of.
+- *"scientists have since given up on finding the one building block… looking for the one binding
+  rule"* → *"Instead of one smallest building block, physics now looks for the rules"*: same idea,
+  shorter, and it doesn't say they've stopped looking.
+- *"a 4d grid of numbers"* → *"a number at every point of space and time"*: QFT's fields are smooth;
+  a grid is how they're simulated (lattice QCD), which suits the Lenia picture, but the theory
+  itself has no grid.
+- *"all these quantum phenomena are just temporary ripples in spacetime"* → *"every particle is a
+  ripple in one of them"*: particles are ripples in quantum fields; ripples in spacetime are
+  gravitational waves; and an electron isn't temporary.
+- *"Is it?"* → *"Is that all there is?"*: "is it?" has nothing to point back to after the cut.
+- *"at the quantum level where our theories break down"* → *"at the Planck scale"*: quantum theory
+  works well at the quantum level; it's at the Planck length, where gravity meets it, that our
+  theories break down, and that's where the picture is.
+
+**Not drawn yet:** the zoom has no cosmic-event-horizon bubble (only the CMB shell, labelled
+"radius 46 billion light-years"). Either add the bubble (radius about 16 billion light-years,
+about a third of the CMB's) or drop that line: the opening is then 49 words, about 18 s.
+
+### First draft (before the author's opening and ending)
 
 | At | On screen | Line |
 |---|---|---|
