@@ -9,6 +9,7 @@ const PLANCK=1.616255e-35,FIELD=1e-18;
 export function quantumTerrain(){
  const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl2',{alpha:true,antialias:false});
  let ready=false,program,texture;
+ const finalImage=new Image();finalImage.src='/video/powers-of-ten/generated/lenia-terrain-v1/planck-relief.png';
  const image=document.createElement('canvas');image.width=image.height=1024;
  fetch('/video/powers-of-ten/generated/lenia-terrain-v1/multichannel.json').then(r=>r.json()).then(({cells,width,height})=>{
   const seed=document.createElement('canvas');seed.width=width;seed.height=height;const c=seed.getContext('2d'),pixels=c.createImageData(width,height);
@@ -226,7 +227,7 @@ export function quantumTerrain(){
   cam.ctx.drawImage(aberrated,0,0,cam.W,cam.H);
  }
  const colourLayers=Object.fromEntries(['#ff0000','#00ff00','#0000ff'].map(c=>[c,document.createElement('canvas')]));
- const frozen=document.createElement('canvas');let captured=false,frozenPixels;
+ const frozen=document.createElement('canvas');let captured=false;
  const FREEZE_PIXELS=2048,FREEZE_SPAN=FREEZE_PIXELS*PLANCK;
  const LIFE_SIZE=256,LIFE_OFFSET=896,lifeSeed=new Uint8Array(256*256),patternBits=new Uint8Array(FREEZE_PIXELS*FREEZE_PIXELS);
  let lifeCells,lifeGeneration=0,lifeStart=null,terrainPixels;
@@ -245,7 +246,7 @@ export function quantumTerrain(){
  function pixelHash(x,y,salt){let n=Math.imul(x+salt,374761393)^Math.imul(y-salt,668265263);n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;}
  function pixelColour(x,y,animate,count){
   const cell=y*FREEZE_PIXELS+x,i=cell*4,X=x-LIFE_OFFSET,Y=y-LIFE_OFFSET;
-  const terrain=terrainPixels[i];let bits=patternBits[cell];
+  const terrain=terrainPixels[cell];let bits=patternBits[cell];
   const noiseAmount=1-ease(-33,-31,Math.log10(count*PLANCK)),patternAmount=1-ease(100,320,count);
   // Noise and motifs share the same Planck lattice. Retain the motif's
   // live cells from the start; extra noise resolves away around them.
@@ -260,7 +261,8 @@ export function quantumTerrain(){
  function paintPlanckPatterns(){
   const context=frozen.getContext('2d'),frame=context.getImageData(0,0,FREEZE_PIXELS,FREEZE_PIXELS);
   const pixels=frame.data,random=rng(83019),catalog=buildLifeCatalog(16).filter(p=>['glider','blinker','toad','beacon','pulsar','block','beehive','boat','lwss'].includes(p.name));
-  const colours=rgb;terrainPixels=pixels.slice();
+  const colours=rgb;terrainPixels=new Uint8Array(FREEZE_PIXELS*FREEZE_PIXELS);
+  for(let i=0;i<terrainPixels.length;i++)terrainPixels[i]=pixels[i*4];
   function place(pattern,cx,cy,colour,turns=0){
    for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(pattern.cells[y*16+x]){
     let X=x-8,Y=y-8;for(let j=0;j<turns;j++)[X,Y]=[-Y,X];
@@ -301,7 +303,8 @@ export function quantumTerrain(){
    place(catalog.find(p=>p.name===kind),1024+x,1024+y,colours[Math.floor(random()*3)],Math.floor(random()*4));
    added++;
   }
-  context.putImageData(frame,0,0);frozenPixels=pixels;
+  // Keep only one grayscale byte per cell and the pattern bitfield.
+  frozen.width=frozen.height=1;
  }
 
  let lastSurfaceKey="",surfaceVersion=0,aberrationVersion=-1;
@@ -311,7 +314,7 @@ export function quantumTerrain(){
   gl.viewport(0,0,W,H);gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);const attr=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(attr);gl.vertexAttribPointer(attr,2,gl.FLOAT,false,0,0);
   const u=n=>gl.getUniformLocation(program,n);gl.uniform2f(u('resolution'),W,H);gl.uniform1f(u('depth'),Math.log2(FIELD/span));gl.uniform1f(u('span'),span/FIELD);gl.uniform1f(u('unit'),0);gl.uniform1f(u('resolveNoise'),freeze?0:1);gl.uniform1f(u('quality'),new URLSearchParams(location.search).has('renderZoom')?22:10);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(u('field'),0);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
  }
- return{name:'static Lenia relief → frozen Planck terrain image',range:[-36,-14.7],ready:()=>ready,pending:()=>!ready,draw(cam){
+ return{name:'static Lenia relief → frozen Planck terrain image',range:[-36,-14.7],ready:()=>ready,pending:()=>!ready||(!captured&&!finalImage.complete),draw(cam){
   const alpha=1-ramp(cam.s,-15.75,-14.8);if(!ready||alpha<=0)return;
   const frozenView=cam.F*Math.max(cam.W,cam.H)/cam.min<=FREEZE_SPAN&&PLANCK*cam.min/cam.F>=1;
   cam.ctx.save();cam.ctx.globalAlpha=alpha;cam.ctx.imageSmoothingEnabled=false;
@@ -319,8 +322,12 @@ export function quantumTerrain(){
    if(!captured){
     // Screenshot once, at one fixed physical span and lighting. From here
     // on only this bitmap is magnified: no terrain, normals or shadows rerun.
-    renderSurface(FREEZE_PIXELS,FREEZE_PIXELS,FREEZE_SPAN,true);
-    frozen.width=frozen.height=FREEZE_PIXELS;frozen.getContext('2d').drawImage(canvas,0,0);paintPlanckPatterns();captured=true;
+    if(!finalImage.complete||!finalImage.naturalWidth){cam.ctx.restore();return;}
+    frozen.width=frozen.height=FREEZE_PIXELS;frozen.getContext('2d').drawImage(finalImage,0,0);paintPlanckPatterns();captured=true;
+    // Release full-size GPU/compositing targets; rebuild only if zooming out.
+    for(const target of [canvas,aberrated,bloom,...Object.values(colourLayers)])target.width=target.height=1;
+    lastSurfaceKey='';aberrationVersion=-1;
+    finalImage.removeAttribute('src');
    }
    const animate=animateLife(cam);
    const size=FREEZE_SPAN/cam.F*cam.min;
@@ -334,7 +341,7 @@ export function quantumTerrain(){
      const left=Math.round(ox+x*cell),top=Math.round(oy+y*cell);
      cam.ctx.fillRect(left,top,Math.round(ox+(x+1)*cell)-left,Math.round(oy+(y+1)*cell)-top);
     }
-   }else cam.ctx.drawImage(frozen,ox,oy,size,size);
+   }
   }else{
    const scale=Math.min(1,(new URLSearchParams(location.search).has('renderZoom')?1600:640)/Math.max(cam.W,cam.H));
    renderSurface(Math.round(cam.W*scale),Math.round(cam.H*scale),cam.F);
