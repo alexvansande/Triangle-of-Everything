@@ -35,3 +35,4 @@ short-05c-observable-universe
 short-00-powers-of-ten
 # short-00-powers-of-ten: updated CMB opacity, regional filament colors and Laniakea pullback rotation; render whole take.
 # short-00-powers-of-ten: replace quark/Life ending with grayscale Lenia relief and Planck-pixel terrain; full render.
+# short-00-powers-of-ten: source f433c943 includes multichannel Lenia, smooth relief, frozen hard pixels and Planck-length final framing; full render.
