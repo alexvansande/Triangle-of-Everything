@@ -37,6 +37,8 @@ export function quantumTerrain(){
  }
  float landform(vec2 q,float k){
   float base=noise(q),height=base*.28,totalWeight=.28;
+  // Reverse relief around 10^-23 m: identical paths, recessed strands.
+  float ditchBand=band(k,11.,22.);
 
   float canyon=band(k,16.,25.),craters=band(k,17.,36.);
   float folds=band(k,29.,38.),ridges=band(k,33.,42.);
@@ -112,7 +114,8 @@ export function quantumTerrain(){
   height+=(.5+.42*sin(folded*8.))*(folds*.38);totalWeight+=folds*.38;
   }
   float ridge=1.-sqrt(pow(base*2.-1.,2.)+.003);
-  return (height+ridge*ridges*.42)/(totalWeight+ridges*.42);
+  float result=(height+ridge*ridges*.42)/(totalWeight+ridges*.42);
+  return mix(result,1.-result,ditchBand);
  }
  float creature(vec2 p){vec2 uv=.5+p*span;return dot(texture(field,uv).rgb,vec3(1.));}
  float terrain(vec2 p){
