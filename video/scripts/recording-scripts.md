@@ -1105,12 +1105,12 @@ each stop and speeds up between them, always smoothly:
 | 1:15 | North America | *North America. California. The Sierra Nevada.* | 6 |
 | 1:18 | Sequoias | *A forest of giant sequoias, and the General Sherman, the largest tree on Earth. It weighs about as much as ten blue whales.* | 23 |
 | 1:28 | Ladybug | *On one of its branches, a ladybug.* | 7 |
-| 1:31 | Pollen | *On its back, a grain of pollen, thinner than a hair.* | 11 |
-| 1:36 | Cell | *A single cell.* | 3 |
-| 1:38 | DNA | *And inside it, its DNA, wound tight around proteins. The double helix is two millionths of a millimetre wide.* | 19 |
+| 1:31 | A drop of dew | *On its back, a drop of dew.* | 6 |
+| 1:35 | The amoeba | *And in the drop, an amoeba: a single cell.* | 9 |
+| 1:38 | DNA | *Inside its nucleus, the DNA, wound tight around proteins. The double helix is two millionths of a millimetre wide.* | 19 |
 | 1:47 | Atom | *Atom is Greek for "uncuttable". We named it when we thought we'd hit the bottom. But atoms do split, famously and violently. They're made of electrons, protons and neutrons, and they're almost entirely empty space.* | 35 |
-| 2:01 | Nucleus | *Nearly all the mass sits in the nucleus, tens of thousands of times smaller than the atom.* | 17 |
-| 2:08 | Proton | *A proton: three quarks, held together by gluons. The quarks are only about one percent of its mass. The rest is the energy that binds them.* | 26 |
+| 2:01 | Nucleus | *Nearly all its mass sits in the nucleus, tens of thousands of times smaller: here, a single proton.* | 18 |
+| 2:08 | Proton | *Three quarks, held together by gluons. The quarks are only about one percent of its mass. The rest is the energy that binds them.* | 26 |
 | 2:19 | Quark patterns | *And what are quarks made of? We don't know. Our biggest machines have looked down to about here, and found nothing smaller.* | 22 |
 | 2:29 | Terrain | *Instead of one smallest building block, physics now looks for the rules. Quantum field theory describes the universe as fields, a number at every point of space and time, and every particle is a ripple in one of them.* | 39 |
 | 2:45 | Planck grid | *Is that all there is? We don't know. But maybe, deep down, at the Planck scale where our theories break down, it's all one big game of life.* | 28 |
@@ -1124,6 +1124,14 @@ about 10⁻¹⁹ m, where the quark patterns are on screen.
 
 **Not drawn yet:** the cosmic-event-horizon bubble (radius about 16 billion light-years, a third
 of the CMB's). Add it, or drop that line.
+
+**The zoom now follows this script** (Triangle `powers-of-ten` branch, 37ccb63b,
+`tools/powers-of-ten/zoom-timeline.js`): a key per line, joined by a smooth curve, 180 s. The
+atom is hydrogen, so its nucleus is one proton; under the ladybug the zoom goes to a drop of dew
+and an amoeba (no pollen grain), hence the changed lines. Once the take is recorded, move each key
+to where its line falls in the real audio. Two gaps in the picture: no event-horizon bubble, and
+the Moon's orbit isn't visible, so the Moon line plays over stars until Earth fills the frame
+(1:15).
 
 ### Earlier: the opening and ending tightened to 2:26 (replaced by the full script above)
 
