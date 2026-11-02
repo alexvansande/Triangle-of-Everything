@@ -11,7 +11,6 @@
 # A "# priority: <take>" line puts that take first every time it's out of date, and stays.
 # priority: long-01-intro
 # next: short-00-powers-of-ten
-# next: short-01-hook
 # Order (the author, 2026-11-01): long videos 1 and 2, then their Shorts, then long video 3 and its Shorts
 # next: long-03-small
 # next: short-06a-living
