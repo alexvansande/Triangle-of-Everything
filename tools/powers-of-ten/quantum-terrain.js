@@ -118,9 +118,10 @@ export function quantumTerrain(){
   }
   if(folds>0.){
   float folded=noise(q+vec2(sin(q.y*2.1),sin(q.x*1.4))*.65);
-  height+=(.5+.42*sin(folded*8.))*(folds*.8);totalWeight+=folds*.8;
+  height+=(.64-.48*pow(.5+.5*sin(folded*8.),3.))*(folds*.8);totalWeight+=folds*.8;
   }
-  float ridge=1.-sqrt(pow(base*2.-1.,2.)+.003);
+  // Low at the strand centre: this is a carved channel, not a crest.
+  float ridge=sqrt(pow(base*2.-1.,2.)+.003);
   float result=(height+ridge*ridges*.65)/(totalWeight+ridges*.65);
   return result;
  }
@@ -176,7 +177,7 @@ export function quantumTerrain(){
   vec3 ray=vec3(0.,0.,-1.);
   vec3 p=vec3(uv,terrain(uv));float e=max(.0015,unit*.45),h=p.z;
   vec3 normal=normalize(vec3(terrain(p.xy-vec2(e,0))-terrain(p.xy+vec2(e,0)),terrain(p.xy-vec2(0,e))-terrain(p.xy+vec2(0,e)),2.*e));
-  vec3 light=normalize(vec3(-.75,-.55,.48));float diffuse=max(0.,dot(normal,light));
+  vec3 light=normalize(vec3(-.75,.55,.48));float diffuse=max(0.,dot(normal,light));
   float shadow=1.;
   // March toward the light through the very same terrain, so raised
   // Lenia rims and mountains cast shadows onto neighbouring slopes.
@@ -190,7 +191,7 @@ export function quantumTerrain(){
   float value=(.29+.53*diffuse*shadow)*ao;
   value+=shadow*.10*pow(max(0.,dot(reflect(-light,normal),-ray)),18.);
   // Soft directional bas-relief, sharing the Lenia and fractal height.
-  float emboss=.54+.38*dot(normal.xy,normalize(vec2(-1.,-1.)));
+  float emboss=.54+.38*dot(normal.xy,normalize(vec2(-1.,1.)));
   value=mix(value,emboss,.72);
   vec2 fieldUV=.5+p.xy*span;vec3 channels=vec3(0.);
   channels=texture(field,fieldUV).rgb;
