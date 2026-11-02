@@ -56,3 +56,4 @@ short-00-powers-of-ten
 # short-00-powers-of-ten changed: hide label overlaps and fit filming crop; source 3007e7ee
 # short-00-powers-of-ten changed: broader red CMB patches; source d0ed79a5
 # short-00-powers-of-ten changed: 90-frame Lenia, 20 steps per frame, fixed crops; source e9b47bb0
+# short-00-powers-of-ten changed: animated opening glider and Orbium field; source 91827d75
