@@ -1,0 +1,55 @@
+import {distanceLabel} from "./distance-labels.js";
+const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
+export const scaleText=distanceLabel;
+// World distances use the same metres-to-pixels camera scale as scene geometry.
+export function drawScaleOverlay(cam,{grid=true,labels=true,canopy=false}={}){
+ const {ctx,W,H,k,cx,cy,min,s,dpr}=cam;
+ const planck=1.616255e-35,planckMix=1-smooth(90,120,10**s/planck);
+ ctx.save();ctx.setTransform(1,0,0,1,0,0);
+ if(grid){
+  for(let e=Math.floor(s)-2;e<=Math.floor(s)+1;e++){
+   const spacing=10**e*k,fraction=spacing/min;
+   const a=(1-planckMix)*.16*smooth(.018,.09,fraction)*(1-smooth(.65,1.3,fraction));
+   if(a<.002)continue;
+   ctx.strokeStyle=`rgba(241,249,245,${a})`;ctx.lineWidth=.7*dpr;ctx.beginPath();
+   for(let x=cx-Math.floor(cx/spacing)*spacing;x<=W;x+=spacing){ctx.moveTo(x,0);ctx.lineTo(x,H)}
+   for(let y=cy-Math.floor(cy/spacing)*spacing;y<=H;y+=spacing){ctx.moveTo(0,y);ctx.lineTo(W,y)}
+   ctx.stroke();
+  }
+  // Centred physical squares exchange continuously at each decade.
+  if(labels&&s>Math.log10(1.616255e-35*90))for(let e=Math.floor(s)-2;e<=Math.floor(s)+1;e++){
+   const m=10**e,side=m*k,fraction=side/min;
+   const fade=smooth(.055,.15,fraction)*(1-smooth(.65,1.05,fraction));
+   if(fade<.005)continue;
+   ctx.globalAlpha=fade*.65;
+   ctx.strokeStyle='#edf6ed';ctx.lineWidth=dpr;
+   ctx.strokeRect(cx-side/2,cy-side/2,side,side);
+   caption(ctx,scaleText(m),cx,cy-side/2-22*dpr,dpr);
+  }
+ }
+ if(grid&&planckMix>0){
+  const side=planck*k,left=cx-side/2,top=cy-side/2;
+  // The optical centre lies inside a cell, never on a grid intersection.
+  ctx.globalAlpha=planckMix*.16;ctx.strokeStyle='#f1f9f5';ctx.lineWidth=.7*dpr;ctx.beginPath();
+  for(let x=left-Math.ceil(left/side)*side;x<=W;x+=side){ctx.moveTo(x,0);ctx.lineTo(x,H)}
+  for(let y=top-Math.ceil(top/side)*side;y<=H;y+=side){ctx.moveTo(0,y);ctx.lineTo(W,y)}
+  ctx.stroke();
+  ctx.globalAlpha=planckMix;ctx.strokeStyle='#fff';ctx.lineWidth=dpr;ctx.strokeRect(left,top,side,side);
+  if(labels)caption(ctx,'Planck length',cx,top-22*dpr,dpr);
+ }
+ if(labels&&s>7&&s<26){
+  const C=299792458,LY=9.4607e15;
+  for(const [radius,label] of [[C,'1 light-second'],[3600*C,'1 light-hour'],[86400*C,'1 light-day'],[LY,'1 light-year'],[10*LY,'10 light-years'],[100*LY,'100 light-years'],[1e6*LY,'1 million light-years'],[1e9*LY,'1 billion light-years']]){
+   const r=radius*k,f=r/min,a=smooth(.055,.14,f)*(1-smooth(.38,.6,f));if(a<.005)continue;
+   ctx.globalAlpha=a*.55;ctx.strokeStyle='#acd8ef';ctx.lineWidth=dpr;ctx.setLineDash([4*dpr,6*dpr]);ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=a*.9;caption(ctx,label+' radius',cx,cy+r+13*dpr,dpr);
+  }
+ }
+ if(labels&&canopy){
+  // Artistic estimate of crown width in these generated plates, not tree height.
+  const diameter=13.3,ratio=diameter*k/min;
+  const a=smooth(.07,.16,ratio)*(1-smooth(.65,.95,ratio));
+  if(a>.005){ctx.globalAlpha=a*.75;ctx.strokeStyle='#e8f4dc';ctx.lineWidth=dpr;ctx.setLineDash([4*dpr,5*dpr]);ctx.beginPath();ctx.arc(cx,cy,diameter*k/2,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);caption(ctx,'Sequoia canopy · ≈13 m across',cx,cy-diameter*k/2-12*dpr,dpr);}
+ }
+ ctx.restore();
+}
+function caption(ctx,text,x,y,dpr){ctx.font=`${24*dpr}px system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=6*dpr;ctx.strokeStyle='#0b1714ba';ctx.strokeText(text,x,y);ctx.fillStyle='#edf6ed';ctx.fillText(text,x,y)}

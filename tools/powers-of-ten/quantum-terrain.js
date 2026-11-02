@@ -1,4 +1,4 @@
-import {timeAtProgress} from './zoom-timeline.js';
+import {timeAtProgress,VIDEO_END_SCALE} from './zoom-timeline.js';
 // Static multichannel Lenia over grayscale terrain. Lenia is not a QFT simulation.
 // Bend references: demos/visual/terrain-3d (value-noise heightfield,
 // ray intersection and slope lighting), demos/lenia (Orbium seed).
@@ -236,7 +236,7 @@ export function quantumTerrain(){
   if(cam.F>100*PLANCK){lifeStart=null;lifeGeneration=0;lifeCells=null;return false;}
   const video=new URLSearchParams(location.search).has('renderZoom');
   if(lifeStart===null)lifeStart=cam.t;
-  const crossing=video?timeAtProgress((window.canopyTest.maximum-Math.log10(100*PLANCK))/(window.canopyTest.maximum-window.canopyTest.minimum)):lifeStart;
+  const crossing=video?timeAtProgress((window.canopyTest.maximum-Math.log10(100*PLANCK))/(window.canopyTest.maximum-VIDEO_END_SCALE)):lifeStart;
   const generation=Math.max(0,Math.floor((cam.t-crossing)*6));
   if(!lifeCells||generation<lifeGeneration){lifeCells=lifeSeed.slice();lifeGeneration=0;}
   while(lifeGeneration<generation){lifeCells=stepRGBLife(lifeCells,LIFE_SIZE);lifeGeneration++;}
