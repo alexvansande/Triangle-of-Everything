@@ -16,7 +16,7 @@ export function cmbSphere(){
    }
    float shellOpacity(float t){
     // Broader warm patches peak at half opacity; cold troughs remain clear.
-    return .5*pow(smoothstep(.34,.83137,t),2.05);
+    return .5*pow(smoothstep(.28,.80,t),1.65);
    }
    void main(){vec3 eye=uN*uDistance,ray=normalize(-uN+TAN*(vPosition.x*uR+vPosition.y*uU));
     float b=dot(eye,ray),disc=b*b+1.-dot(eye,eye);if(disc<0.)discard;
