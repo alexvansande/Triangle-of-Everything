@@ -45,3 +45,4 @@ short-00-powers-of-ten
 # short-00-powers-of-ten: full 180-second recut, source 8edb968f; 10s CMB opening, 4s acceleration, cruise through 170s, 10s deceleration.
 # short-00-powers-of-ten: source f51ce6b6 expands the terrain sequence with interference, deltas, badlands, faults, membranes and labyrinths; full 180s render.
 # short-00-powers-of-ten: source 371fe578 repairs black endpoint, scatters craters, removes fault seam and cuts river beds; full 180s render.
+# short-00-powers-of-ten: restored workspace source 785e600 includes Photoshop-style bas-relief, Color blend, RGB offsets, bloom and 30% cloud tint; full render.
