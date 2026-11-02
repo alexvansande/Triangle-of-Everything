@@ -47,3 +47,4 @@ short-00-powers-of-ten
 # short-00-powers-of-ten: source 371fe578 repairs black endpoint, scatters craters, removes fault seam and cuts river beds; full 180s render.
 # short-00-powers-of-ten: restored workspace source 785e600 includes Photoshop-style bas-relief, Color blend, RGB offsets, bloom and 30% cloud tint; full render.
 # short-00-powers-of-ten: source ca5fa1c, final master 30 Planck lengths / vertical width 16.875 cells; doubled labels and PNG-backed ending; full render.
+# short-00-powers-of-ten: source fe9473b reorders the terrain into rings, diagonal channels, Lenia/craters, strands, ridges, crackle, hills, then RGB noise; full render.
