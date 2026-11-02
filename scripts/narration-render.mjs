@@ -47,8 +47,9 @@ const SHUTTER = +opt("shutter", 0.5);
 const OUT = path.resolve(opt("out", `narration-${take}.mp4`));
 const CHROME = opt("chrome", "/opt/pw-browsers/chromium-1194/chrome-linux/chrome");
 // 432×768 CSS px × 2.5 = 1080×1920; a long cut asking for "landscape" (words.json "stage"): 768×432 × 2.5 = 1920×1080, the page exactly the stage (the 16:9 stage fills its width)
-const WIDE = JSON.parse(fs.readFileSync(`public/narration/${take}/words.json`, "utf8")).stage === "landscape";
-const STAGE = WIDE ? { W: 768, H: 432, pad: 0, dpr: 2.5 } : { W: 432, H: 768, pad: 36, dpr: 2.5 };
+const meta = JSON.parse(fs.readFileSync(`public/narration/${take}/words.json`, "utf8"));
+const WIDE = meta.stage === "landscape";
+const STAGE = WIDE ? { W: 768, H: 432, pad: 0, dpr: 2.5 } : { W: 432, H: 768, pad: meta.renderOnly ? 0 : 36, dpr: 2.5 };
 const TMP = fs.mkdtempSync(path.join(path.dirname(OUT), ".narr-render-"));
 
 // Installed before any page script: a clock that stands still until freeze() (scripts/narration-clock.mjs).
@@ -74,7 +75,7 @@ async function renderRange(t0, t1, file, label) {
   await page.setViewport({ width: STAGE.W + 2 * STAGE.pad, height: STAGE.H + 2 * STAGE.pad, deviceScaleFactor: STAGE.dpr });
   page.on("pageerror", e => console.log(`[${label}] pageerror:`, e.message));
   await page.evaluateOnNewDocument(CLOCK_SHIM);
-  await page.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 600000 });   // not networkidle: a close opening view never reports idle
+  await page.goto(`${BASE}${meta.renderPage || `/?narrate=${take}&render=1`}`, { waitUntil: "load", timeout: 600000 });   // not networkidle: a close opening view never reports idle
   // a slow start waits (video 5 takes ~80 s to be ready on a busy machine; 60 s failed the render)
   await page.waitForFunction("window.__narr", { timeout: 300000 });
   // the fractal background needs WebGL2: without it the page quietly shows the plain painting
@@ -107,10 +108,10 @@ async function renderRange(t0, t1, file, label) {
   await page.evaluate("window.__vclock.freeze()");
   for (let t = tw; t < t0 - 1e-6; t += 1 / FPS) await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
   await page.evaluate(`window.__narr.renderAt(${t0})`);
-  const clip = await page.evaluate(() => {
-    const r = document.getElementById("narr-layer").getBoundingClientRect();
+  const clip = await page.evaluate((id) => {
+    const r = document.getElementById(id).getBoundingClientRect();
     return { x: r.x, y: r.y, width: r.width, height: r.height, scale: devicePixelRatio };
-  });
+  }, meta.renderClip || "narr-layer");
   const cdp = await page.target().createCDPSession();
   const W = Math.round(clip.width * clip.scale), H = Math.round(clip.height * clip.scale);
   const ff = spawn("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y",
@@ -192,7 +193,6 @@ async function renderRange(t0, t1, file, label) {
   browsers.delete(browser);
 }
 
-const meta = JSON.parse(fs.readFileSync(`public/narration/${take}/words.json`, "utf8"));
 const total = meta.duration + (meta.credits || 0);   // the end credits run on after the last word
 const from = +opt("from", 0), to = Math.min(+opt("to", total), total);
 const parts = [];
@@ -210,7 +210,7 @@ fs.writeFileSync(path.join(TMP, "list.txt"), parts.map(p => `file '${p.file}'`).
 const audio = `public/narration/${take}/${meta.mix && !process.argv.includes("--voice-only") ? meta.mix : meta.audio}`;
 await new Promise((res, rej) => spawn("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y",
   "-f", "concat", "-safe", "0", "-i", path.join(TMP, "list.txt"),
-  "-ss", String(from), "-t", String(to - from), "-i", audio,
+  ...(meta.renderOnly && !meta.audio ? ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"] : ["-ss", String(from), "-t", String(to - from), "-i", audio]),
   "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-af", "apad", "-t", String(to - from),   // silent tail if the take runs past its audio
   "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", OUT],
   { stdio: "inherit" }).on("close", c => c ? rej(new Error("ffmpeg mux failed")) : res()));

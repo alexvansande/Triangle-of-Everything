@@ -25,7 +25,7 @@ const OUT = process.env.OUT || "dist-preview";
 const MP3 = process.env.AUDIO !== "m4a";
 const NARR = "public/narration";
 const withAudio = (t) => {
-  try { return fs.existsSync(path.join(NARR, t, JSON.parse(fs.readFileSync(path.join(NARR, t, "words.json"))).audio)); }
+  try { const m=JSON.parse(fs.readFileSync(path.join(NARR,t,"words.json"))); return m.renderOnly || fs.existsSync(path.join(NARR,t,m.audio)); }
   catch { return false; }
 };
 let takes = process.argv.slice(2);
@@ -109,6 +109,7 @@ try {
   const { default: puppeteer } = await import("puppeteer-core");
   const b = await puppeteer.launch({ executablePath: process.env.CHROME || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome", args: ["--no-sandbox"] });
   for (const k of info) {
+    if(k.renderOnly) continue;
     const p = await b.newPage();
     await p.setViewport({ width: 540, height: 960 });
     await p.goto(`${BASE}/?narrate=${k.id}&render=1&captions=0&stage=none`, { waitUntil: "load", timeout: 180000 });

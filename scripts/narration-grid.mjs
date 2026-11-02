@@ -56,11 +56,11 @@ export async function takeInfo(takes, dir, { root = ".", fresh = false, local = 
   for (const t of takes) {
     const take = JSON.parse(fs.readFileSync(path.join(dir, "narration", t, "words.json"), "utf8"));
     const url = pathToFileURL(path.resolve(root, `src/narration-scenes/${take.scene || t}.js`)).href + (fresh ? `?t=${Date.now()}` : "");
-    const scene = (await import(url)).default;
+    const scene = take.renderOnly ? {} : (await import(url)).default;
     const first = take.words.map(w => w[0]).join(" ").match(/^.*?[.?!](\s|$)/)?.[0].trim() ?? "";
     const music = scene.backing && (typeof scene.backing === "string" ? scene.backing : scene.backing.track);
     // a cut (scripts/narration-cut.py) has its own title and blurb; a long one plays 16:9
-    info.push({ id: t, title: take.title || scene.title || t, blurb: take.blurb || scene.blurb || first, duration: take.duration, music,
+    info.push({ renderOnly: !!take.renderOnly, id: t, title: take.title || scene.title || t, blurb: take.blurb || scene.blurb || first, duration: take.duration, music,
       thumbAt: scene.thumb ?? take.duration * 0.4, num: (t.match(/\d+[a-z]?/) || [""])[0],
       long: t.startsWith("long-"), wide: take.stage === "landscape", cut: !!take.segments,
       yt: yt[t], ytThumb: fs.existsSync(path.join(root, "video/thumbnails", `${t}.jpg`)) ? `video/thumbnails/${t}.jpg` : "",
@@ -98,7 +98,7 @@ export function gridHtml(info, { built, commit, base = "" }) {
   const shorts = info.filter(k => !k.long), longs = info.filter(k => k.long);
   const card = k => `
     <div class="ng-item${k.wide ? " is-wide" : ""}">
-      <a class="ng-card" href="#${esc(k.id)}">
+      <a class="ng-card" data-render-only="${k.renderOnly ? "1" : "0"}" href="#${k.renderOnly ? "rendered/" : ""}${esc(k.id)}">
         <span class="ng-thumb">${k.ytThumb || k.thumb ? `<img src="${base}${k.ytThumb || k.thumb}" alt="" loading="lazy">` : ""}
           <span class="ng-num">${esc(k.num)}</span><span class="ng-len">${mmss(k.duration)}</span><span class="ng-play" aria-hidden="true"></span></span>
         <span class="ng-title">${esc(k.yt?.title || k.title)}</span>
@@ -252,7 +252,7 @@ export function gridHtml(info, { built, commit, base = "" }) {
 #nv-full { left: 50%; transform: translateX(-50%); padding-left: 14px; }
 </style>
 <script>
-window.__narrTakes = ${JSON.stringify(shorts.map(k => ({ id: k.id, title: k.title }))).replace(/</g, "\\u003c")};
+window.__narrTakes = ${JSON.stringify(shorts.filter(k => !k.renderOnly).map(k => ({ id: k.id, title: k.title }))).replace(/</g, "\\u003c")};
 (function () {
   var playing = location.hash.length > 1;
   document.getElementById(playing ? "narr-back" : "narr-grid").hidden = false;
@@ -300,7 +300,7 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
   var mode = get(KEY) === "video" ? "video" : "live";
   var box = document.getElementById("narr-video"), player = document.getElementById("nv-player");
   var live = document.getElementById("nv-live"), queue = [];
-  var takeOf = function (a) { return (a.getAttribute("href") || "").slice(1); };
+  var takeOf = function (a) { return (a.getAttribute("href") || "").slice(1).split("rendered/").pop(); };
   var rendered = TAKES.filter(function (t) { return VIDEOS[t.id]; });
 
   function paint() {
@@ -309,9 +309,9 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
       var thumb = a.querySelector(".ng-thumb"), badge = thumb.querySelector(".ng-badge");
       if (!badge) { badge = document.createElement("span"); badge.className = "ng-badge"; thumb.appendChild(badge); }
       var has = !!VIDEOS[takeOf(a)];
-      badge.hidden = mode !== "video";
+      badge.hidden = mode !== "video" && a.dataset.renderOnly !== "1";
       badge.className = "ng-badge" + (has ? " is-video" : "");
-      badge.textContent = has ? "Video" : "Live only";
+      badge.textContent = has ? "Video" : a.dataset.renderOnly === "1" ? "Queued · rendered only" : "Live only";
     });
     // Play all: the whole series live; in video mode, only the rendered ones
     var all = document.querySelector(".ng-all");
@@ -330,6 +330,7 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
   function open(take, rest) {
     queue = rest || [];
     player.src = VIDEOS[take];
+    live.hidden = !!document.querySelector('.ng-card[data-render-only="1"][href="#rendered/'+take+'"]');
     live.href = "#" + take;
     box.hidden = false;
     var p = player.play();
@@ -345,6 +346,12 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
   document.getElementById("narr-grid").addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a.ng-card, a.ng-all");
     if (!a) return;
+    if(a.dataset.renderOnly === "1") {
+      e.preventDefault(); e.stopPropagation();
+      if(VIDEOS[takeOf(a)]) return open(takeOf(a));
+      document.getElementById("ng-mode-note").textContent="This two-minute zoom is queued. Its rendered video will appear here when ready.";
+      return;
+    }
     if (mode === "video") {
       if (a.classList.contains("ng-all")) {
         if (!rendered.length) return;
