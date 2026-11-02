@@ -7,7 +7,7 @@ import {stepRGBLife} from './life-colour.js';
 import {buildLifeCatalog} from './life-catalog.js';
 const PLANCK=1.616255e-35,FIELD=1e-18;
 export function quantumTerrain(){
- const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl2',{alpha:true,antialias:false});
+ const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl2',{alpha:true,antialias:false,preserveDrawingBuffer:new URLSearchParams(location.search).has('bake')});
  let ready=false,program,texture;
  const finalImage=new Image();finalImage.src='/video/powers-of-ten/generated/lenia-terrain-v1/planck-relief.png';
  const image=document.createElement('canvas');image.width=image.height=1024;
@@ -33,21 +33,21 @@ export function quantumTerrain(){
  // depth. Their valleys therefore enlarge into the next landscape instead
  // of changing shape while we look at them.
  float band(float k,float a,float b){
-  float z=(k-(a+b)*.5)/((b-a)*.55),bell=exp(-.5*z*z);
+  float z=(k-(a+b)*.5)/((b-a)*.43),bell=exp(-.5*z*z);
   return bell*smoothstep(.015,.045,bell);
  }
  float landform(vec2 q,float k){
-  float base=noise(q),height=base*.28,totalWeight=.28;
-  // Reverse relief around 10^-23 m: identical paths, recessed strands.
-  float ditchBand=band(k,11.,22.);
-
-  float canyon=band(k,16.,25.),craters=band(k,17.,36.);
-  float folds=band(k,29.,38.),ridges=band(k,33.,42.);
-  float waves=band(k,-2.,9.),delta=band(k,5.,15.),badlands=band(k,10.,20.);
-  float faults=band(k,25.,34.),membranes=band(k,37.,46.),labyrinth=band(k,42.,51.);
+  // Roughly two-decade chapters with overlapping, quieter neighbours.
+  float hillWeight=.28+1.6*band(k,33.,51.);
+  float base=noise(q),height=base*hillWeight,totalWeight=hillWeight;
+  float waves=band(k,-12.,-3.),faults=band(k,-5.,4.);
+  float craters=band(k,2.,11.),canyon=band(k,10.,19.);
+  float folds=band(k,18.,27.),ridges=band(k,20.,29.);
+  float membranes=band(k,27.,36.),labyrinth=.25*band(k,23.,32.);
+  float delta=.25*band(k,9.,20.),badlands=.25*band(k,15.,26.);
   if(waves>0.){
-   vec2 w=q+vec2(sin(q.y*.7),cos(q.x*.8))*.18;
-   float ripples=sin(length(w-vec2(1.7,-2.1))*5.1)+sin(length(w+vec2(2.4,.9))*4.7)+sin(dot(w,vec2(3.3,2.6)));
+   vec2 w=q-(vec2(17.31,29.73)+vec2(k*13.57,k*7.13));
+   float ripples=1.8*sin(length(w)*4.4+.2*noise(q*.5))+sin(length(w-vec2(.8,-.6))*3.7);
    height+=(.5+ripples*.135)*(waves*.83);totalWeight+=waves*.83;
   }
   if(delta>0.||badlands>0.){
@@ -85,14 +85,14 @@ export function quantumTerrain(){
      crater+=(bowl+rim)*(1.-smoothstep(r*1.25,r*1.65,radius));
     }
    }
-   height+=(.5+crater+.12*(base-.5))*(craters*2.8);totalWeight+=craters*2.8;
+   height+=(.5+crater+.12*(base-.5))*(craters*1.35);totalWeight+=craters*1.35;
   }
   if(faults>0.){
-   float angle=hash(vec2(k,41.))*6.2831853;
+   float angle=1.15;
    float trace=dot(q,vec2(cos(angle),sin(angle)))*.65+.55*noise(q*.6);
    float wave=sin(trace*6.2831853),crack=exp(-pow(wave/.14,2.));
    float displaced=.5+.16*sin(trace*6.2831853+.6)-.28*crack;
-   height+=(displaced+.1*(base-.5))*(faults*.4);totalWeight+=faults*.4;
+   height+=(displaced+.1*(base-.5))*(faults*1.1);totalWeight+=faults*1.1;
   }
   if(membranes>0.){
    vec2 cell=floor(q),local=fract(q);float first=10.,second=10.;
@@ -102,7 +102,7 @@ export function quantumTerrain(){
     float d=length(site-local);if(d<first){second=first;first=d;}else second=min(second,d);
    }
    float wall=exp(-pow((second-first)/.07,2.));
-   height+=(.25+.5*wall+.14*base)*(membranes*.5);totalWeight+=membranes*.5;
+   height+=(.62-.50*wall+.10*base)*(membranes*1.1);totalWeight+=membranes*1.1;
   }
   if(labyrinth>0.){
    vec2 w=q+vec2(noise(q*.9+11.),noise(q*.9-7.))*1.5;
@@ -112,11 +112,11 @@ export function quantumTerrain(){
   }
   if(folds>0.){
   float folded=noise(q+vec2(sin(q.y*2.1),sin(q.x*1.4))*.65);
-  height+=(.5+.42*sin(folded*8.))*(folds*.38);totalWeight+=folds*.38;
+  height+=(.5+.42*sin(folded*8.))*(folds*.8);totalWeight+=folds*.8;
   }
   float ridge=1.-sqrt(pow(base*2.-1.,2.)+.003);
-  float result=(height+ridge*ridges*.42)/(totalWeight+ridges*.42);
-  return mix(result,1.-result,ditchBand);
+  float result=(height+ridge*ridges*.65)/(totalWeight+ridges*.65);
+  return result;
  }
  // Photoshop-style Color blend: retain relief luminance while adopting
  // the field hue/saturation, clipping back into the RGB gamut.
