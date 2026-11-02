@@ -569,12 +569,17 @@ Suggested wording, after "…still roughly Jupiter-sized":
 
 (This replaces the "Video 2, super-Jupiters" suggestion in the notes at the top.)
 
-### Script to record (one take, 2026-11-02)
-The hook's and video 2's scripts above joined into one, with the notes above applied. Changes
-from what plays now are listed after it. Shorts 1, 2a and 2b get cut from this take again: the
-hook ends at "…why fire looks the way it does" (now it runs on to "…as fascinating as I do", its own
-take), 2a runs from "Let's start with the line" to "…we arrive at the small moons", and 2b from
-"As we move up the line" to the end (`video/cuts/*.json`).
+### Script to record (one take): the author's version, 2026-11-02
+The author's rewrite of the one-take script, with the fixes from its fact check (below) already
+in. Lines marked *Long only* / *Short only* are recorded both ways, so the same take cuts into
+long video 1 and its three Shorts:
+
+- **Short 1, the hook:** "This is the most interesting chart…" to "…why fire looks the way it
+  does", then the *Short only* outro.
+- **Short 2a, Things:** the *Short only* water-line opening, to "…and then we arrive at the small
+  moons."
+- **Short 2b, Planets:** the *Short only* rocks-to-spheres opening, to "…the life and death of stars."
+- **Long video 1:** everything, with the *Long only* lines.
 
 **The chart**
 > This is the most interesting chart in all of physics.
@@ -590,32 +595,49 @@ take), 2a runs from "Let's start with the line" to "…we arrive at the small mo
 **Three sides**
 > And the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity. And where those two lines meet is… the Big Bang?!
 >
-> Notice that along the top there are all these diagonal lines, and they're all measured in seconds. That's because the top of the chart isn't about how things are, but when: it's the history of our whole universe.
+> Notice that along the top there are even more diagonal lines, and they're all measured in seconds. That's because the top of the chart isn't about how things are, but when: it's the history of our whole universe.
 >
 > I call this the triangle of everything, and as you zoom in, it tells you a million stories. About airplanes, hippos and gravity. About how stars evolve, how particles turn into each other, and why balloons float. It even contains the periodic table, and it tells you why fire looks the way it does.
 
+*Short only (the hook's outro):*
+> I've been obsessed with this chart for many years, and spent countless days designing ways to explore it better. I could talk about it for hours, and that's precisely what I intend to do!
+
 **The water line**
-> Let's start with the line you noticed first. In the metric system, one millilitre of water weighs one gram and fills a cube exactly one centimetre wide. Most things aren't cubes, so we'll measure everything as if it were a ball. That only moves it a tiny bit to the right.
+
+*Long only:*
+> Let's start with that first diagonal I mentioned.
+
+*Short only:*
+> If you plot everything that exists by mass and size, on a log scale, almost everything falls along one diagonal line. Why?
+
+> In the metric system, one millilitre of water weighs one gram and fills a cube exactly one centimetre wide. Most things aren't cubes, so we'll measure all sizes as if everything were a ball. That moves things a tiny bit to the right; at most zooms you won't notice.
 >
 > Now make every side ten times longer: ten centimetres. That's one step to the right. But the volume grows a thousand times, to one litre, and one litre of water weighs one kilogram: three steps up. Do it again, ten times the size, and you get a thousand times the mass: one tonne.
 
 **Sink or float**
 > All of these draw a diagonal line: the density of water. Everything to the left is, by definition, denser than water, so it sinks. Here are the things made of stone and metal. Anything to the right will float.
 >
-> In the same way, you can draw a line for the density of air. It separates what flies by pushing on the air from what simply floats in it: balloons and zeppelins.
+> In the same way, you can draw a line for the density of air. Balloons and zeppelins are literally called "lighter than air" aircraft, and they're to the right of the line, because they float!
 
 **Animals**
 > Most animals, though, live in a much narrower band. That's because we're mostly made of water. Some of us are a little denser than others. The hippo, for example, can't actually swim: it just bounces along the riverbed.
 >
-> As we go up, we see heavier animals, like elephants. The largest animal ever on land was the Argentinosaurus, but the largest animal ever is still around: the blue whale. And the largest tree, the sequoia, is much bigger still.
+> As we go up, we see heavier animals, like elephants. The largest animal ever on land was the Argentinosaurus, but the largest animal ever is still around: the blue whale. But even that pales compared to trees: an adult sequoia can weigh as much as ten blue whales.
 
 **What we build**
-> Past living things, we get to engineering. Notice that the Eiffel Tower is surprisingly light for its size. That's because we're also counting all the space inside it: its whole shape, air included, is about one and a half million cubic metres. The iron alone would fit in a cube eleven metres wide, way over here. In many ways, the Eiffel Tower is a kind of fractal: how big it is depends on how close you look.
+> Past living things, we get to engineering. Notice that the Eiffel Tower is surprisingly light for its size. That's because we're also counting all the space inside it: its whole shape, air included, is about one and a half million cubic metres. Melt it down, and it would fit in a cube eleven metres wide, way over here. Counted whole, it's almost as light as air. And that's the idea underneath every skyscraper: a metal skeleton that carries the weight, so everything inside can be empty space.
 
 **Rocks, moons and gravity's first win**
 > Then come big rocks, big buildings, and the Great Pyramid, which is a little bit of both. Above that, we have lakes and asteroids, and then we arrive at the small moons.
->
-> As we move up the line, objects become rounder and less potato-shaped. Until now, what held matter in shape was the chemical bonds between atoms, and those are electric. From this point on, gravity takes over, and it's what shapes planets.
+
+*Short only (Planets opens here):*
+> If you plot everything by mass and size, you can see the point where asteroids and small moons turn from potato shapes into spheres.
+
+*Long only:*
+> As we move up the line, objects become rounder and less potato-shaped.
+
+*Both:*
+> That's because until now, what held matter in shape was the chemical bonds between atoms, and those are electromagnetic. From this point on, gravity takes over, and it's what shapes planets.
 
 **Atmospheres and gas giants**
 > And it shapes them in other ways too. Neither Mercury nor the Moon has enough gravity to hold on to an atmosphere. Venus and Earth do, but not enough to keep the lightest gases, hydrogen and helium. And since most of the visible matter in the universe is made of those two, once a planet can hold on to them, it can grow into a gas giant.
@@ -627,32 +649,66 @@ take), 2a runs from "Let's start with the line" to "…we arrive at the small mo
 **Super-Jupiters: gravity wins again**
 > Then the trend suddenly stops. You can't get a planet much bigger than Jupiter. Objects ten, even eighty times more massive are still roughly Jupiter-sized.
 >
-> Remember when gravity took over from the chemical bonds and made things round? Here it wins again, and this time it beats the atoms themselves. The pressure crushes them and frees their electrons. What holds the object up now isn't a force at all: it's a rule of quantum mechanics. Two electrons can't be in the same state, so they push back. Add more mass, and the object gets denser, not bigger.
+> This is gravity breaking into electromagnetism's last refuge: the atom itself. The pressure in the core is so high it crushes the atoms and strips their electrons off, leaving bare nuclei in a sea of electrons. These electrons refuse to be squeezed any further. That's the last stand. Add more mass, and the object gets denser, not bigger.
+
+*On screen: a scoreboard label, "Gravity 2 · Electromagnetism 0" (rounding the moons, then crushing the atoms).*
 
 **The split, and the end**
 > And then, right around the brown dwarfs, there's a huge split. Some objects veer to the right, and some veer to the left, because now we're no longer talking about the story of ordinary matter. We're talking about the life and death of stars.
->
-> I've been obsessed with this chart for many years now, and I've spent hours and hours drawing it in different ways and finding the stories it holds. I could talk about them for hours, and that's what I intend to do. Next: the life and death of stars.
 
-**What changed from what plays now**
-- One opening: video 2's "If for some reason you wanted to draw everything… log of mass and size…
-  almost everything falls along these diagonal lines" is gone; "Let's start with the line you
-  noticed first" joins the hook to the water line.
-- The "obsessed with this chart" paragraph moved from the join to the end, and "in this series of
-  videos" is gone.
-- "On a log chart" once at most (now never: "one step to the right", "three steps up").
-- "Heavier than air from things lighter than air… the lighter than air aircraft" → "what flies by
-  pushing on the air from what simply floats in it". "At one atmosphere on Earth" dropped.
-- The Eiffel cube: "which is denser than water, and it would definitely sink" → "way over here";
-  "Leave out the arch and the gaps, and it shrinks about five times" dropped.
-- Small moons: the chemical bonds are named as electric, so the super-Jupiter part can say "again".
-- Super-Jupiters: "electrons are squeezed out of their atoms and they push back" → the new passage
-  (fact-checked above: electron pressure is what holds, not what breaks).
-- Hook: "In my opinion" and "Probably" dropped; "where those lines meet is actually" → "where those
-  two lines meet is"; "a log chart of mass versus size" → "a chart of mass versus size" (the water
-  line explains the log steps later).
-- For Short 1 on its own, record one extra tag line after the hook: *"I could tell you stories
-  about it all day. Follow me for the triangle of everything."*
+### Fact check of the author's version (2026-11-02)
+Fixed in the script above (the author's wording → now):
+- **Super-Jupiters.** "the high pressure of the core overtakes the repulsive force of electrons
+  and separates them from the atomic nucleus. The core of massive planets is just a soup of
+  neutrons and protons." Two errors and a gap:
+  - What holds an electron to its atom is the nucleus' *attraction*, not a repulsion. The pressure
+    crushes the shells and frees the electrons (pressure ionization).
+  - No free neutrons: those only come in neutron stars, video 3's ending. Inside Jupiter it's
+    bare nuclei (mostly protons) in a sea of free electrons: metallic hydrogen.
+  - Without the reason, "denser, not bigger" has no explanation. The freed electrons refuse to be
+    squeezed (Pauli exclusion, electron degeneracy), and that's what holds. The author's line
+    "These electrons, refusing to be squeezed further, are the last stand refusing further
+    crunches" → "These electrons refuse to be squeezed any further. That's the last stand." (one
+    "refusing", one image).
+  - "Last stand" holds a long time but not forever: the same electrons hold up white dwarfs, and
+    give way past 1.4 Suns (neutron stars, video 3). It works as a setup for that; the safe
+    alternative is "That's what holds it up now".
+- **"a fractal skeleton" (skyscrapers) → "a metal skeleton".** Skyscraper frames are one level of
+  big members (a concrete core, an outer tube, a diagrid), not lattices of lattices. To keep
+  "fractal", put it on the tower: "…almost as light as air: iron lattices made of smaller
+  lattices."
+- **The Short's water-line opening needs "on a log scale".** "If you tried to plot all objects in
+  a single chart, by mass and size you would see a diagonal line. Why?" On ordinary axes it's a
+  curve, and the cube passage's "one step to the right, three steps up" only works on log axes;
+  the Short has no hook to say so.
+- "obsessed about" → "obsessed with"; "as if everything was spherical. At most zooms it will move
+  objects an imperceptible amount to the right only" → "as if everything were a ball. That moves
+  things a tiny bit to the right; at most zooms you won't notice" (the direction is right: the 1 mL
+  cube sits at logR −0.30, the ball at −0.21).
+- "it will grow into a gas giant" → "it can grow": a planet has to form before the young star's gas
+  is gone.
+- "that's the electromagnetic forces" → "and those are electromagnetic".
+- The Planets intro: "the moment where asteroids transition from potato shapes to spherical
+  planets" → "the point where asteroids and small moons turn from potato shapes into spheres" (a
+  place on the chart, not a moment).
+
+Checked and right: a sequoia as ten blue whales (~1,400 t against ~150 t on the chart; General
+Sherman is ~2,000 t with branches and roots); melted down to an 11 m cube (the whole tower,
+~10,000 t of iron; the iron frame alone, 7,300 t, is a ~10 m cube); "almost as light as air"
+counted whole (~7 kg/m³ against air's 1.2); hippos, Argentinosaurus, Saturn at about wood's
+density, ten to eighty Jupiters; the three sides and the sciences across the chart.
+
+Background from the same conversation, for the Eiffel line: the metal skeleton that carries the
+weight (so walls carry nothing) is the idea that made skyscrapers possible, but the Eiffel Tower
+is its cousin, not its parent. Chicago's Home Insurance Building (1885) had a metal skeleton four
+years earlier, and Eiffel's own clearest "skeleton plus skin" is the Statue of Liberty (1886). The
+tower is wrought iron, not steel. A skyscraper is ~300 kg/m³ counted whole (the Empire State
+Building: ~330,000 t in ~1 million m³), about 40 times the tower, because of its floors.
+
+### Still open
+- **The long video has no outro.** The "obsessed" lines are Short-only now, so long video 1 ends on
+  "the life and death of stars". Fine if video 2 follows; otherwise the hook's outro also works at
+  the very end of the long one.
 
 ---
 
