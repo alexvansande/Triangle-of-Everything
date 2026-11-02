@@ -47,7 +47,9 @@ export function quantumTerrain(){
   }
   strataTexture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,strataTexture);
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB8,gl.RGB,gl.UNSIGNED_BYTE,atlas);
-  for(const key of [gl.TEXTURE_MIN_FILTER,gl.TEXTURE_MAG_FILTER])gl.texParameteri(gl.TEXTURE_2D,key,gl.LINEAR);
+  gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
   for(const key of [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T])gl.texParameteri(gl.TEXTURE_2D,key,gl.CLAMP_TO_EDGE);
   atlas.width=atlas.height=1;
   texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB8,gl.RGB,gl.UNSIGNED_BYTE,image);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);ready=true;
@@ -166,11 +168,13 @@ export function quantumTerrain(){
   vec3 colour=vec3(0.);
   for(int j=0;j<6;j++){
    float layer=5.+float(j)*7.,f=exp2(layer-depth);
-   float gate=smoothstep(.015,.06,f)*(1.-smoothstep(4.,12.,f));
-   if(gate>0.){
+   // No visibility envelope: the same world-space image exists at every
+   // zoom. Its fine details resolve through the mip pyramid as we approach.
+   {
     float angle=float(j)*1.13;mat2 turn=mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
     vec2 uv=fract(.5+turn*p*f+vec2(.13,.21)*float(j));
-    colour+=texture(strataField,vec2((uv.x+float(j))/6.,uv.y)).rgb*gate;
+    float lod=clamp(log2(max(1.,256.*f/min(resolution.x,resolution.y))),0.,8.);
+    colour+=textureLod(strataField,vec2((uv.x+float(j))/6.,uv.y),lod).rgb;
    }
   }return colour;
  }
