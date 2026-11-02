@@ -25,6 +25,27 @@
       "music": "Space X-plorers"
     },
     {
+      "take": "long-01-intro",
+      "title": "The Triangle of Everything",
+      "blurb": "There's a single image that contains everything. All objects, all the sciences, all the history from the big bang to the death of the universe. I've been obsessed with this one chart for years now and spent countless hours designing many different ways to see it – now it's your time to get hooked. If you plot everything in a log scale of mass and size, most things will fall on this diagonal line. What does it mean? This line contains many stories: about the things that fall to each of its sides, and for things that don't follow it at all.",
+      "music": [
+        "Space X-plorers",
+        "Soaring"
+      ]
+    },
+    {
+      "take": "short-02a-things",
+      "title": "The Atomic Diagonal, part 1",
+      "blurb": "From a milliliter of water up the density line: what sinks and floats, animals, buildings, and the rocks and small moons where gravity starts to take over.",
+      "music": "Soaring"
+    },
+    {
+      "take": "short-02b-planets",
+      "title": "The Atomic Diagonal, part 2",
+      "blurb": "Where gravity takes over: round worlds, atmospheres, Earth's Goldilocks zone, gas giants, and the brown dwarfs where the line splits.",
+      "music": "Soaring"
+    },
+    {
       "take": "short-02-up-the-line",
       "title": "The Atomic Diagonal",
       "blurb": "If you plot everything in a log scale of mass and size, most things will fall on this diagonal line. What does it mean? This line contains many stories: about the things that fall to each of its sides, and for things that don't follow it at all.",
