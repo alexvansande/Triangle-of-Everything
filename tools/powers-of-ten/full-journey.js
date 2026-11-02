@@ -25,7 +25,7 @@ import { crossingsLayer } from "./crossings.js";
 
 const canopyTest = new URLSearchParams(location.search).has('canopytest');
 const insects=canopyTest?catalogueInsects():null,optics=canopyTest?canopyOptics():null,depth=canopyTest?canopyDepth():null,crown=canopyTest?canopyCrownDepth():null,microscope=canopyTest?canopyMicro():null;
-const S_MIN = Math.log10(1.616255e-35*3), S_MAX = Math.log10(2 * 46e9 * LY / .78);
+const S_MIN = Math.log10(1.616255e-35*3), S_MAX = Math.log10(2 * 46e9 * LY / .50);
 window.canopyTest = {enabled:true,minimum:S_MIN,photoMinimum:-8.260667536990012,maximum:S_MAX};
 const q = new URLSearchParams(location.search);
 const state = {
@@ -65,9 +65,9 @@ const layers = [...space, ...macro.layers, ...micro, ...small.reverse(), crossin
 const ROLL = q.get("roll") === "0" ? 0 : 5 * Math.PI / 180; // per decade, anticlockwise as we zoom out
 
 // ---------- continuous red CMB shell ----------
-// Keep the established pullback distance and final78% framing. Geometry and
+// Keep the established pullback distance and opening framing inside the common delivery square. Geometry and
 // temperature texture now render together in the main scene, with its roll.
-const CLOUD_FLY=[25.9,S_MAX],DIST0=.68,FILL=.78;
+const CLOUD_FLY=[25.9,S_MAX],DIST0=.68,FILL=.50;
 function driveCloud(s,W,H,Dg,roll,dpr){
  // A long, very low initial ramp begins at a100,000ly frame width.
  const early=ramp(s,Math.log10(1e5*LY),25.1);

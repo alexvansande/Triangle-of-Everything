@@ -10,13 +10,13 @@ export function cmbSphere(){
   gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`
    precision highp float;varying vec2 vPosition;uniform sampler2D uMap;uniform vec3 uN,uR,uU;uniform float uDistance,uAlpha,uPass;const float TAN=.3639702343;
    vec3 shellColour(float t){
-    vec3 brown=vec3(.12,.035,.012),deep=vec3(.34,.008,.018);
-    vec3 red=mix(deep,vec3(1.,.19,.025),smoothstep(.60,.83137,t));
-    return mix(brown,red,smoothstep(.34,.62,t));
+    vec3 brown=vec3(.12,.035,.012),deep=vec3(.68,.012,.022);
+    vec3 red=mix(deep,vec3(1.,.19,.025),smoothstep(.38,.75,t));
+    return mix(brown,red,smoothstep(.12,.40,t));
    }
    float shellOpacity(float t){
     // Broader warm patches peak at half opacity; cold troughs remain clear.
-    return .5*pow(smoothstep(.28,.80,t),1.65);
+    return .5*pow(smoothstep(.10,.64,t),.72);
    }
    void main(){vec3 eye=uN*uDistance,ray=normalize(-uN+TAN*(vPosition.x*uR+vPosition.y*uU));
     float b=dot(eye,ray),disc=b*b+1.-dot(eye,eye);if(disc<0.)discard;

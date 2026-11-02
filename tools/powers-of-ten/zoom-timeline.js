@@ -10,7 +10,7 @@ const smooth=x=>{x=clamp(x);return x*x*(3-2*x)};
 // minutes"): each key is [video seconds, log10 of the frame width in metres] for the thing the
 // line names. A monotone cubic through them keeps the speed continuous: it eases into each stop
 // and speeds up across the empty stretches, then comes to rest on the Planck grid.
-const START_SCALE=Math.log10(2*46e9*9.4607e15/.78);
+const START_SCALE=Math.log10(2*46e9*9.4607e15/.50);
 const KEYS=[
  [0,START_SCALE],[16,26.75],   // the CMB, barely moving
  [22,26.45],                   // the cosmic event horizon
