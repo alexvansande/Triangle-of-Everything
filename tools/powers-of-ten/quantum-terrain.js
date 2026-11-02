@@ -162,19 +162,27 @@ export function quantumTerrain(){
   return clamp(c,0.,1.);
  }
  float creature(vec2 p){vec2 uv=.5+p*span;return dot(texture(field,uv).rgb,vec3(1.));}
- // Quiet, repeated cellular strata use the same mixed Lenia field as
- // the larger organisms. Fixed octave positions keep every imprint registered.
+ // World-anchored, irregular stamps. Each neighbourhood has its own
+ // position, angle and scale; the source texture never repeats as a square tile.
  vec3 cellularStrata(vec2 p){
   vec3 colour=vec3(0.);
   for(int j=0;j<6;j++){
    float layer=5.+float(j)*7.,f=exp2(layer-depth);
-   // No visibility envelope: the same world-space image exists at every
-   // zoom. Its fine details resolve through the mip pyramid as we approach.
-   {
-    float angle=float(j)*1.13;mat2 turn=mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
-    vec2 uv=fract(.5+turn*p*f+vec2(.13,.21)*float(j));
-    float lod=clamp(log2(max(1.,256.*f/min(resolution.x,resolution.y))),0.,8.);
-    colour+=textureLod(strataField,vec2((uv.x+float(j))/6.,uv.y),lod).rgb;
+   float angle=float(j)*1.13;mat2 turn=mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
+   vec2 q=turn*p*f+vec2(.13,.21)*float(j),cell=floor(q);
+   float lod=clamp(log2(max(1.,256.*f/min(resolution.x,resolution.y))),0.,8.);
+   for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){
+    vec2 id=cell+vec2(float(x),float(y));
+    vec2 seed=id+vec2(float(j)*31.7,17.3);
+    vec2 centre=id+vec2(.15)+.7*vec2(hash(seed),hash(seed+19.1));
+    float theta=hash(seed+43.8)*6.2831853;
+    float size=.65+.3*hash(seed+71.2);
+    mat2 rotation=mat2(cos(theta),-sin(theta),sin(theta),cos(theta));
+    vec2 uv=.5+rotation*(q-centre)/size;
+    if(uv.x>0.&&uv.y>0.&&uv.x<1.&&uv.y<1.){
+     vec2 edge=smoothstep(vec2(0.),vec2(.12),uv)*smoothstep(vec2(0.),vec2(.12),1.-uv);
+     colour+=textureLod(strataField,vec2((uv.x+float(j))/6.,uv.y),lod).rgb*edge.x*edge.y;
+    }
    }
   }return colour;
  }
