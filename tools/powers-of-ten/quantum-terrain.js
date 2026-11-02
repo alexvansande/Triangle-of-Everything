@@ -219,9 +219,9 @@ export function quantumTerrain(){
  const colourLayers=Object.fromEntries(['#ff0000','#00ff00','#0000ff'].map(c=>[c,document.createElement('canvas')]));
  const frozen=document.createElement('canvas');let captured=false,frozenPixels;
  const FREEZE_PIXELS=2048,FREEZE_SPAN=FREEZE_PIXELS*PLANCK;
- const LIFE_SIZE=256,LIFE_OFFSET=896,lifeSeed=new Uint8Array(256*256);
+ const LIFE_SIZE=256,LIFE_OFFSET=896,lifeSeed=new Uint8Array(256*256),patternBits=new Uint8Array(FREEZE_PIXELS*FREEZE_PIXELS);
  let lifeCells,lifeGeneration=0,lifeStart=null,terrainPixels;
- const rgb=[[255,65,55],[65,255,90],[65,125,255]];
+ const rgb=[[255,0,0],[0,255,0],[0,0,255]];
  function animateLife(cam){
   if(cam.F>100*PLANCK){lifeStart=null;lifeGeneration=0;lifeCells=null;return false;}
   const video=new URLSearchParams(location.search).has('renderZoom');
@@ -232,12 +232,21 @@ export function quantumTerrain(){
   while(lifeGeneration<generation){lifeCells=stepRGBLife(lifeCells,LIFE_SIZE);lifeGeneration++;}
   return true;
  }
- function pixelColour(x,y,animate){
-  const i=(y*FREEZE_PIXELS+x)*4,X=x-LIFE_OFFSET,Y=y-LIFE_OFFSET;
-  if(!animate||X<0||Y<0||X>=LIFE_SIZE||Y>=LIFE_SIZE)return [frozenPixels[i],frozenPixels[i+1],frozenPixels[i+2]];
-  const bits=lifeCells[Y*LIFE_SIZE+X];if(!bits)return [terrainPixels[i],terrainPixels[i+1],terrainPixels[i+2]];
-  const colour=[0,0,0];let n=0;for(let c=0;c<3;c++)if(bits&(1<<c)){for(let k=0;k<3;k++)colour[k]+=rgb[c][k];n++;}
-  return colour.map(v=>Math.round(v/n));
+ const ease=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
+ function pixelHash(x,y,salt){let n=Math.imul(x+salt,374761393)^Math.imul(y-salt,668265263);n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;}
+ function pixelColour(x,y,animate,count){
+  const cell=y*FREEZE_PIXELS+x,i=cell*4,X=x-LIFE_OFFSET,Y=y-LIFE_OFFSET;
+  const terrain=terrainPixels[i];let bits=patternBits[cell];
+  const noiseAmount=1-ease(180,512,count),patternAmount=1-ease(100,320,count);
+  // Noise and motifs share the same Planck lattice. Retain the motif's
+  // live cells from the start; extra noise resolves away around them.
+  if(!animate&&pixelHash(x,y,91)>patternAmount){
+   const density=.10+.22*terrain/255;
+   for(let c=0;c<3;c++)if(pixelHash(x,y,17+c*83)<density)bits|=1<<c;
+  }
+  if(animate&&X>=0&&Y>=0&&X<LIFE_SIZE&&Y<LIFE_SIZE)bits=lifeCells[Y*LIFE_SIZE+X];
+  const colour=[bits&1?255:0,bits&2?255:0,bits&4?255:0];
+  return colour.map(v=>Math.round(terrain+(v-terrain)*noiseAmount));
  }
  function paintPlanckPatterns(){
   const context=frozen.getContext('2d'),frame=context.getImageData(0,0,FREEZE_PIXELS,FREEZE_PIXELS);
@@ -248,6 +257,7 @@ export function quantumTerrain(){
     let X=x-8,Y=y-8;for(let j=0;j<turns;j++)[X,Y]=[-Y,X];
     X+=cx;Y+=cy;if(X<0||Y<0||X>=FREEZE_PIXELS||Y>=FREEZE_PIXELS)continue;
     if(X>=LIFE_OFFSET&&Y>=LIFE_OFFSET&&X<LIFE_OFFSET+LIFE_SIZE&&Y<LIFE_OFFSET+LIFE_SIZE)lifeSeed[(Y-LIFE_OFFSET)*LIFE_SIZE+X-LIFE_OFFSET]|=1<<colours.indexOf(colour);
+    patternBits[Y*FREEZE_PIXELS+X]|=1<<colours.indexOf(colour);
     const i=(Y*FREEZE_PIXELS+X)*4,light=.78+.22*pixels[i]/255;
     for(let c=0;c<3;c++)pixels[i+c]=Math.round(colour[c]*light);
    }
@@ -306,12 +316,12 @@ export function quantumTerrain(){
    const animate=animateLife(cam);
    const size=FREEZE_SPAN/cam.F*cam.min;
    const cell=size/FREEZE_PIXELS,ox=(cam.W-size-cell)/2,oy=(cam.H-size-cell)/2;
-   if(cell>=3){
+   if(cell>=1){
     cam.ctx.filter='none';
     const x0=Math.max(0,Math.floor(-ox/cell)),x1=Math.min(FREEZE_PIXELS,Math.ceil((cam.W-ox)/cell));
     const y0=Math.max(0,Math.floor(-oy/cell)),y1=Math.min(FREEZE_PIXELS,Math.ceil((cam.H-oy)/cell));
     for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
-     const colour=pixelColour(x,y,animate);cam.ctx.fillStyle=`rgb(${colour.join(",")})`;
+     const colour=pixelColour(x,y,animate,cam.F/PLANCK);cam.ctx.fillStyle=`rgb(${colour.join(",")})`;
      const left=Math.round(ox+x*cell),top=Math.round(oy+y*cell);
      cam.ctx.fillRect(left,top,Math.round(ox+(x+1)*cell)-left,Math.round(oy+(y+1)*cell)-top);
     }
