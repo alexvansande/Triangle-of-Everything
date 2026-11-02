@@ -117,6 +117,15 @@ export function quantumTerrain(){
   float result=(height+ridge*ridges*.42)/(totalWeight+ridges*.42);
   return mix(result,1.-result,ditchBand);
  }
+ // Photoshop-style Color blend: retain relief luminance while adopting
+ // the field hue/saturation, clipping back into the RGB gamut.
+ float luminance(vec3 c){return dot(c,vec3(.3,.59,.11));}
+ vec3 setLuminance(vec3 c,float target){
+  c+=target-luminance(c);float lo=min(c.r,min(c.g,c.b)),hi=max(c.r,max(c.g,c.b));
+  if(lo<0.)c=target+(c-target)*target/max(target-lo,.0001);
+  if(hi>1.)c=target+(c-target)*(1.-target)/max(hi-target,.0001);
+  return clamp(c,0.,1.);
+ }
  float creature(vec2 p){vec2 uv=.5+p*span;return dot(texture(field,uv).rgb,vec3(1.));}
  float terrain(vec2 p){
   float sum=0.;float base=floor(depth);
@@ -162,31 +171,49 @@ export function quantumTerrain(){
   float ao=clamp(.9+(h-terrain(p.xy+vec2(.035)))*2.,.68,1.);
   float value=(.29+.53*diffuse*shadow)*ao;
   value+=shadow*.10*pow(max(0.,dot(reflect(-light,normal),-ray)),18.);
+  // Soft directional bas-relief, sharing the Lenia and fractal height.
+  float emboss=.54+.38*dot(normal.xy,normalize(vec2(-1.,-1.)));
+  value=mix(value,emboss,.72);
   vec2 fieldUV=.5+p.xy*span;vec3 channels=vec3(0.);
   channels=texture(field,fieldUV).rgb;
   float presence=clamp(dot(channels,vec3(1.))*2.5,0.,1.)*smoothstep(.002,.012,span)*(1.-smoothstep(2.,10.,span));
   vec3 pigment=channels/max(max(channels.r,channels.g),max(channels.b,.001));
-  vec3 colour=mix(vec3(clamp(value,.055,.94)),pigment*(.24+.76*value),presence*.92);
+  vec3 colour=mix(vec3(clamp(value,.055,.94)),setLuminance(pigment,value),presence*.92);
+  // Muted broad RGB clouds, applied as Color at 30%, keeping relief intact.
+  vec3 clouds=vec3(0.);float cloudWeight=0.;
+  for(int j=-1;j<=1;j++){
+   float octave=floor(depth/6.)+float(j),d=octave*6.-depth;
+   float weight=exp(-d*d/32.);vec2 q=p.xy*exp2(d)+vec2(octave*11.17,octave*7.31);
+   clouds+=vec3(noise(q*.45+3.),noise(q*.45+19.),noise(q*.45-8.))*weight;cloudWeight+=weight;
+  }
+  clouds/=max(cloudWeight,.001);
+  vec3 tint=mix(vec3(.5),clouds,.5);
+  float tintFade=smoothstep(1e-12,1e-8,span);
+  colour=mix(colour,setLuminance(tint,luminance(colour)),.30*tintFade*(1.-presence*.7));
   frag=vec4(colour,1.);
  }`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
  const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
  // Output-only chromatic aberration: never fed back into the heightfield
  // or the frozen Planck screenshot, so it cannot distort subsequent zooms.
- const aberrated=document.createElement('canvas');
+ const aberrated=document.createElement('canvas'),bloom=document.createElement('canvas');
  function drawAberrated(cam){
   if(aberrationVersion===surfaceVersion){cam.ctx.drawImage(aberrated,0,0,cam.W,cam.H);return;}aberrationVersion=surfaceVersion;
   if(aberrated.width!==canvas.width||aberrated.height!==canvas.height){aberrated.width=canvas.width;aberrated.height=canvas.height;}
   const c=aberrated.getContext('2d'),w=canvas.width,h=canvas.height;
-  const offset=Math.max(.55,Math.min(1.35,w/850));
+  const offset=5*Math.min(w,h)/2000;
   c.globalCompositeOperation='source-over';c.clearRect(0,0,w,h);
   // Mask each shifted copy to one colour channel, then add the channels.
-  for(const [colour,dx,dy] of [['#ff0000',offset,.3*offset],['#00ff00',0,0],['#0000ff',-offset,-.3*offset]]){
+  for(const [colour,dx,dy] of [['#ff0000',-offset,0],['#00ff00',0,offset],['#0000ff',0,0]]){
    const layer=colourLayers[colour],l=layer.getContext('2d');
    if(layer.width!==w||layer.height!==h){layer.width=w;layer.height=h;}
    l.globalCompositeOperation='copy';l.drawImage(canvas,dx,dy);
    l.globalCompositeOperation='multiply';l.fillStyle=colour;l.fillRect(0,0,w,h);
    c.globalCompositeOperation='lighter';c.drawImage(layer,0,0);
   }
+  if(bloom.width!==w||bloom.height!==h){bloom.width=w;bloom.height=h;}
+  const glow=bloom.getContext('2d');glow.clearRect(0,0,w,h);
+  glow.filter=`blur(${Math.max(.7,w*.002)}px) brightness(1.15)`;glow.drawImage(aberrated,0,0);glow.filter='none';
+  c.save();c.globalCompositeOperation='screen';c.globalAlpha=.16;c.drawImage(bloom,0,0);c.restore();
   cam.ctx.drawImage(aberrated,0,0,cam.W,cam.H);
  }
  const colourLayers=Object.fromEntries(['#ff0000','#00ff00','#0000ff'].map(c=>[c,document.createElement('canvas')]));
