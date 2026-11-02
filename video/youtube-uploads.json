@@ -1,12 +1,32 @@
 {
-  "short-01-hook": {
-    "id": "s9xnbk0ue_E",
-    "title": "The Triangle of Everything",
-    "uploadedAt": "2026-10-30T13:25:55"
-  },
   "short-02-up-the-line": {
     "id": "J-9DT-vKIBk",
     "title": "The Atomic Diagonal",
     "uploadedAt": "2026-10-30T14:23:28"
+  },
+  "short-01-hook@2026-10-30": {
+    "id": "s9xnbk0ue_E",
+    "title": "The Triangle of Everything",
+    "uploadedAt": "2026-10-30T13:25:55"
+  },
+  "short-01-hook": {
+    "id": "BvewTjPmsNk",
+    "title": "The Triangle of Everything",
+    "uploadedAt": "2026-11-01T23:47:35"
+  },
+  "long-01-intro": {
+    "id": "j5d1j5lkxFk",
+    "title": "The Triangle of Everything",
+    "uploadedAt": "2026-11-02T02:48:59"
+  },
+  "short-02a-things": {
+    "id": "hdkJK4DSHCg",
+    "title": "The Atomic Diagonal, part 1",
+    "uploadedAt": "2026-11-02T03:56:38"
+  },
+  "short-02b-planets": {
+    "id": "qOvgPEluJW0",
+    "title": "The Atomic Diagonal, part 2",
+    "uploadedAt": "2026-11-02T04:45:05"
   }
 }
