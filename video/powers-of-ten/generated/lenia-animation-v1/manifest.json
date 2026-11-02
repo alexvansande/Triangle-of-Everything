@@ -1,0 +1,62 @@
+{
+  "frames": 30,
+  "levels": 6,
+  "overlap": 15,
+  "source": "original rules, saved matter and carried parameters",
+  "populations": [
+    {
+      "id": "dense-3c_params_w194_s18_t1734_c03",
+      "kind": "glider",
+      "level": 0,
+      "settle": 250,
+      "frames": 30,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008
+    },
+    {
+      "id": "dense-6c-sym_params_w200091_s90015_t1734_c00",
+      "kind": "glider",
+      "level": 1,
+      "settle": 250,
+      "frames": 30,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008
+    },
+    {
+      "id": "dense-3c_params_w368_s1_t1234_c00",
+      "kind": "rotator",
+      "level": 2,
+      "settle": 250,
+      "frames": 30,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008
+    },
+    {
+      "id": "dense-3c_params_w248_s1_t1234_c02",
+      "kind": "drifter",
+      "level": 3,
+      "settle": 250,
+      "frames": 30,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008
+    },
+    {
+      "id": "dense-2c_params_w29_s1_t1734_c03",
+      "kind": "drifter",
+      "level": 4,
+      "settle": 250,
+      "frames": 30,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008
+    },
+    {
+      "id": "atmo-6c_atmospheric_w5_s1_t1734_c01",
+      "kind": "bubble",
+      "level": 5,
+      "settle": 250,
+      "frames": 30,
+      "parentCoupling": 0.003,
+      "noiseCoupling": 0.0008
+    }
+  ]
+}

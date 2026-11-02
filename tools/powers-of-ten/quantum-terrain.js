@@ -1,5 +1,6 @@
+import {leniaAnimation} from './lenia-animation.js';
 import {timeAtProgress,VIDEO_END_SCALE} from './zoom-timeline.js';
-// Static multichannel Lenia over grayscale terrain. Lenia is not a QFT simulation.
+// Rule-evolved multichannel Lenia over grayscale terrain. Lenia is not a QFT simulation.
 // Bend references: demos/visual/terrain-3d (value-noise heightfield,
 // ray intersection and slope lighting), demos/lenia (Orbium seed).
 import {ramp,rng} from './math.js';
@@ -7,6 +8,7 @@ import {stepRGBLife} from './life-colour.js';
 import {buildLifeCatalog} from './life-catalog.js';
 const PLANCK=1.616255e-35,FIELD=1e-18;
 export function quantumTerrain(){
+ const animation=leniaAnimation();
  const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl2',{alpha:true,antialias:false,preserveDrawingBuffer:new URLSearchParams(location.search).has('bake')});
  let ready=false,program,texture,strataTexture;
  const finalImage=new Image();finalImage.src='/video/powers-of-ten/generated/lenia-terrain-v1/planck-relief.png';
@@ -168,6 +170,12 @@ export function quantumTerrain(){
   vec3 colour=vec3(0.);
   for(int j=0;j<6;j++){
    float layer=5.+float(j)*7.,f=exp2(layer-depth);
+   // Subpixel populations contribute their average pigment, not an aliased
+   // random stamp mask. This also avoids large-coordinate hash precision noise.
+   vec3 average=textureLod(strataField,vec2((.5+float(j))/6.,.5),8.).rgb*.55;
+   float resolved=1.-smoothstep(min(resolution.x,resolution.y)/128.,min(resolution.x,resolution.y)/32.,f);
+   colour+=average*(1.-resolved);
+   if(resolved<.001)continue;
    float angle=float(j)*1.13;mat2 turn=mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
    vec2 q=turn*p*f+vec2(.13,.21)*float(j),cell=floor(q);
    float lod=clamp(log2(max(1.,256.*f/min(resolution.x,resolution.y))),0.,8.);
@@ -181,7 +189,7 @@ export function quantumTerrain(){
     vec2 uv=.5+rotation*(q-centre)/size;
     if(uv.x>0.&&uv.y>0.&&uv.x<1.&&uv.y<1.){
      vec2 edge=smoothstep(vec2(0.),vec2(.12),uv)*smoothstep(vec2(0.),vec2(.12),1.-uv);
-     colour+=textureLod(strataField,vec2((uv.x+float(j))/6.,uv.y),lod).rgb*edge.x*edge.y;
+     colour+=textureLod(strataField,vec2((uv.x+float(j))/6.,uv.y),lod).rgb*edge.x*edge.y*resolved;
     }
    }
   }return colour;
@@ -371,12 +379,14 @@ export function quantumTerrain(){
 
  let lastSurfaceKey="",surfaceVersion=0,aberrationVersion=-1;
  function renderSurface(W,H,span,freeze=false){
-  const key=`${W}/${H}/${span}/${freeze}`;if(key===lastSurfaceKey)return;lastSurfaceKey=key;surfaceVersion++;
+  const animated=freeze?null:animation.update(Math.log2(FIELD/span));
+  if(animated){gl.bindTexture(gl.TEXTURE_2D,strataTexture);gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,gl.RGB,gl.UNSIGNED_BYTE,animated);gl.generateMipmap(gl.TEXTURE_2D);}
+  const key=`${W}/${H}/${span}/${freeze}/${animation.version}`;if(key===lastSurfaceKey)return;lastSurfaceKey=key;surfaceVersion++;
   if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}
   gl.viewport(0,0,W,H);gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);const attr=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(attr);gl.vertexAttribPointer(attr,2,gl.FLOAT,false,0,0);
   const u=n=>gl.getUniformLocation(program,n);gl.uniform2f(u('resolution'),W,H);gl.uniform1f(u('depth'),Math.log2(FIELD/span));gl.uniform1f(u('span'),span/FIELD);gl.uniform1f(u('unit'),0);gl.uniform1f(u('resolveNoise'),freeze?0:1);gl.uniform1f(u('quality'),new URLSearchParams(location.search).has('renderZoom')?22:10);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(u('field'),0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,strataTexture);gl.uniform1i(u('strataField'),1);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
  }
- return{name:'static Lenia relief → frozen Planck terrain image',range:[-36,-14.7],ready:()=>ready,pending:()=>!ready||(!captured&&!finalImage.complete),draw(cam){
+ return{name:'rule-evolved Lenia relief → frozen Planck terrain image',range:[-36,-14.7],ready:()=>ready,pending:()=>!ready||animation.pending()||(!captured&&!finalImage.complete),draw(cam){
   const alpha=1-ramp(cam.s,-15.75,-14.8);if(!ready||alpha<=0)return;
   const frozenView=cam.F*Math.max(cam.W,cam.H)/cam.min<=FREEZE_SPAN&&PLANCK*cam.min/cam.F>=1;
   cam.ctx.save();cam.ctx.globalAlpha=alpha;cam.ctx.imageSmoothingEnabled=false;
