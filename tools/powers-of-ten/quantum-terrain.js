@@ -38,7 +38,7 @@ export function quantumTerrain(){
  float landform(vec2 q,float k){
   float base=noise(q),height=base*.28,totalWeight=.28;
 
-  float canyon=band(k,16.,25.),craters=band(k,21.,30.);
+  float canyon=band(k,16.,25.),craters=band(k,17.,36.);
   float folds=band(k,29.,38.),ridges=band(k,33.,42.);
   float waves=band(k,-2.,9.),delta=band(k,5.,15.),badlands=band(k,10.,20.);
   float faults=band(k,25.,34.),membranes=band(k,37.,46.),labyrinth=band(k,42.,51.);
@@ -60,9 +60,13 @@ export function quantumTerrain(){
   }
   // Narrow valleys winding between broad, gently terraced plateaus.
   if(canyon>0.){
-  vec2 bent=q+vec2(sin(q.y*1.7+k),cos(q.x*1.3-k))*.24;
-  float river=noise(bent),valley=exp(-pow((river-.49)/.065,2.));
-  float plateau=.66-valley*.64+.06*(river-.5);
+  float angle=hash(vec2(k,17.))*6.2831853;
+  mat2 turn=mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
+  vec2 bent=turn*q;
+  bent+=vec2(noise(bent*.47+13.),noise(bent*.47-9.))*.72;
+  float river=noise(bent),valley=1.-smoothstep(.035,.145,abs(river-.49));
+  // Broad recessed floors and steeper canyon walls, not raised filaments.
+  float plateau=.70-valley*.62+.08*noise(bent*2.3);
   height+=(plateau)*(canyon*.88);totalWeight+=canyon*.88;
   }
   // Crater bowls and raised rims, contained inside each seeded cell.
@@ -78,13 +82,14 @@ export function quantumTerrain(){
      crater+=(bowl+rim)*(1.-smoothstep(r*1.25,r*1.65,radius));
     }
    }
-   height+=(.5+crater+.12*(base-.5))*(craters*.95);totalWeight+=craters*.95;
+   height+=(.5+crater+.12*(base-.5))*(craters*2.8);totalWeight+=craters*2.8;
   }
   if(faults>0.){
-   float trace=dot(q,vec2(.31,.71))+.12*noise(q*.6);
+   float angle=hash(vec2(k,41.))*6.2831853;
+   float trace=dot(q,vec2(cos(angle),sin(angle)))*.65+.55*noise(q*.6);
    float wave=sin(trace*6.2831853),crack=exp(-pow(wave/.14,2.));
    float displaced=.5+.16*sin(trace*6.2831853+.6)-.28*crack;
-   height+=(displaced+.1*(base-.5))*(faults*.87);totalWeight+=faults*.87;
+   height+=(displaced+.1*(base-.5))*(faults*.4);totalWeight+=faults*.4;
   }
   if(membranes>0.){
    vec2 cell=floor(q),local=fract(q);float first=10.,second=10.;
@@ -94,20 +99,20 @@ export function quantumTerrain(){
     float d=length(site-local);if(d<first){second=first;first=d;}else second=min(second,d);
    }
    float wall=exp(-pow((second-first)/.07,2.));
-   height+=(.25+.5*wall+.14*base)*(membranes*.9);totalWeight+=membranes*.9;
+   height+=(.25+.5*wall+.14*base)*(membranes*.5);totalWeight+=membranes*.5;
   }
   if(labyrinth>0.){
    vec2 w=q+vec2(noise(q*.9+11.),noise(q*.9-7.))*1.5;
    float stripes=.5+.5*sin(w.x*5.+w.y*3.8+4.*noise(w*.7));
    float paths=smoothstep(.3,.7,stripes);
-   height+=(.22+.5*paths+.08*base)*(labyrinth*.9);totalWeight+=labyrinth*.9;
+   height+=(.22+.5*paths+.08*base)*(labyrinth*.5);totalWeight+=labyrinth*.5;
   }
   if(folds>0.){
   float folded=noise(q+vec2(sin(q.y*2.1),sin(q.x*1.4))*.65);
-  height+=(.5+.42*sin(folded*8.))*(folds*.78);totalWeight+=folds*.78;
+  height+=(.5+.42*sin(folded*8.))*(folds*.38);totalWeight+=folds*.38;
   }
   float ridge=1.-sqrt(pow(base*2.-1.,2.)+.003);
-  return (height+ridge*ridges*.86)/(totalWeight+ridges*.86);
+  return (height+ridge*ridges*.42)/(totalWeight+ridges*.42);
  }
  float creature(vec2 p){vec2 uv=.5+p*span;return dot(texture(field,uv).rgb,vec3(1.));}
  float terrain(vec2 p){
