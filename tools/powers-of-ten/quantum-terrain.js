@@ -25,7 +25,7 @@ export function quantumTerrain(){
  program=gl.createProgram();gl.attachShader(program,compile(gl.VERTEX_SHADER,`#version 300 es
  in vec2 position;void main(){gl_Position=vec4(position,0.,1.);}`));
  gl.attachShader(program,compile(gl.FRAGMENT_SHADER,`#version 300 es
- precision highp float;uniform vec2 resolution;uniform float depth,span,unit,quality;uniform sampler2D field;out vec4 frag;
+ precision highp float;uniform vec2 resolution;uniform float depth,span,unit,quality,resolveNoise;uniform sampler2D field;out vec4 frag;
  float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
  float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*f*(f*(f*6.-15.)+10.);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
  // Styles belong to immutable world octaves, not the current camera
@@ -190,6 +190,15 @@ export function quantumTerrain(){
   vec3 tint=mix(vec3(.5),clouds,.5);
   float tintFade=smoothstep(1e-12,1e-8,span);
   colour=mix(colour,setLuminance(tint,luminance(colour)),.30*tintFade*(1.-presence*.7));
+  if(resolveNoise>.5){
+   float physical=span*1e-18;
+   float amount=1.-smoothstep(-33.,-31.,log(physical)/log(10.));
+   vec2 cell=floor(uv*physical/1.616255e-35)+1024.;
+   vec3 speck=vec3(step(.78,hash(cell+17.)),step(.78,hash(cell+100.)),step(.78,hash(cell+183.)));
+   // Subpixel cells average to their mean coverage instead of shimmering.
+   float resolved=smoothstep(.35,1.,1.616255e-35/physical*min(resolution.x,resolution.y));
+   colour=mix(colour,mix(vec3(.22),speck,resolved),amount);
+  }
   frag=vec4(colour,1.);
  }`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
  const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
@@ -237,7 +246,7 @@ export function quantumTerrain(){
  function pixelColour(x,y,animate,count){
   const cell=y*FREEZE_PIXELS+x,i=cell*4,X=x-LIFE_OFFSET,Y=y-LIFE_OFFSET;
   const terrain=terrainPixels[i];let bits=patternBits[cell];
-  const noiseAmount=1-ease(180,512,count),patternAmount=1-ease(100,320,count);
+  const noiseAmount=1-ease(-33,-31,Math.log10(count*PLANCK)),patternAmount=1-ease(100,320,count);
   // Noise and motifs share the same Planck lattice. Retain the motif's
   // live cells from the start; extra noise resolves away around them.
   if(!animate&&pixelHash(x,y,91)>patternAmount){
@@ -296,21 +305,21 @@ export function quantumTerrain(){
  }
 
  let lastSurfaceKey="",surfaceVersion=0,aberrationVersion=-1;
- function renderSurface(W,H,span){
-  const key=`${W}/${H}/${span}`;if(key===lastSurfaceKey)return;lastSurfaceKey=key;surfaceVersion++;
+ function renderSurface(W,H,span,freeze=false){
+  const key=`${W}/${H}/${span}/${freeze}`;if(key===lastSurfaceKey)return;lastSurfaceKey=key;surfaceVersion++;
   if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}
   gl.viewport(0,0,W,H);gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);const attr=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(attr);gl.vertexAttribPointer(attr,2,gl.FLOAT,false,0,0);
-  const u=n=>gl.getUniformLocation(program,n);gl.uniform2f(u('resolution'),W,H);gl.uniform1f(u('depth'),Math.log2(FIELD/span));gl.uniform1f(u('span'),span/FIELD);gl.uniform1f(u('unit'),0);gl.uniform1f(u('quality'),new URLSearchParams(location.search).has('renderZoom')?22:10);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(u('field'),0);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  const u=n=>gl.getUniformLocation(program,n);gl.uniform2f(u('resolution'),W,H);gl.uniform1f(u('depth'),Math.log2(FIELD/span));gl.uniform1f(u('span'),span/FIELD);gl.uniform1f(u('unit'),0);gl.uniform1f(u('resolveNoise'),freeze?0:1);gl.uniform1f(u('quality'),new URLSearchParams(location.search).has('renderZoom')?22:10);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(u('field'),0);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
  }
  return{name:'static Lenia relief → frozen Planck terrain image',range:[-36,-14.7],ready:()=>ready,pending:()=>!ready,draw(cam){
   const alpha=1-ramp(cam.s,-15.75,-14.8);if(!ready||alpha<=0)return;
-  const frozenView=cam.F*Math.max(cam.W,cam.H)/cam.min<=FREEZE_SPAN;
+  const frozenView=cam.F*Math.max(cam.W,cam.H)/cam.min<=FREEZE_SPAN&&PLANCK*cam.min/cam.F>=1;
   cam.ctx.save();cam.ctx.globalAlpha=alpha;cam.ctx.imageSmoothingEnabled=false;
   if(frozenView){
    if(!captured){
     // Screenshot once, at one fixed physical span and lighting. From here
     // on only this bitmap is magnified: no terrain, normals or shadows rerun.
-    renderSurface(FREEZE_PIXELS,FREEZE_PIXELS,FREEZE_SPAN);
+    renderSurface(FREEZE_PIXELS,FREEZE_PIXELS,FREEZE_SPAN,true);
     frozen.width=frozen.height=FREEZE_PIXELS;frozen.getContext('2d').drawImage(canvas,0,0);paintPlanckPatterns();captured=true;
    }
    const animate=animateLife(cam);
