@@ -37,3 +37,6 @@ short-05c-observable-universe
 # short-00-powers-of-ten: source f433c943 includes multichannel Lenia, smooth relief, frozen hard pixels and Planck-length final framing; full render.
 
 # short-00-powers-of-ten: source b4e7e00b includes RGB Life animation below 100 Planck lengths, subtle centered Planck grid and terrain aberration; full render.
+
+short-00-powers-of-ten
+# short-00-powers-of-ten: source 025c1c84 adds denser, scattered Planck patterns and staggered glider trajectories; full render.
