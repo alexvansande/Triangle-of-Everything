@@ -53,3 +53,4 @@ short-05c-observable-universe
 # short-00-powers-of-ten changed: restore photographic canopy and terrain assets; source ccd763a5
 short-00-powers-of-ten
 # short-00-powers-of-ten changed: restore rotating textured Earth; source 042a5830
+# short-00-powers-of-ten changed: hide label overlaps and fit filming crop; source 3007e7ee
