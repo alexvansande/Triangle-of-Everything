@@ -7,7 +7,7 @@ export function leniaAnimation(){
  fetch(BASE+'manifest.json').then(r=>{if(!r.ok)throw Error('No baked animation');return r.json()}).then(()=>{available=true;checked=true}).catch(e=>{checked=true;console.warn('Lenia animation: retaining still catalog',e)});
  function load(key){
   if(cache.has(key))return cache.get(key);
-  if(!loading.has(key)){loading.add(key);fetch(BASE+key+'.webp').then(r=>{if(!r.ok)throw Error(key);return r.blob()}).then(createImageBitmap).then(bitmap=>{cache.set(key,bitmap);loading.delete(key);for(const [k,b]of cache)if(cache.size>18&&!wanted.includes(k)){b.close();cache.delete(k);}}).catch(e=>{loading.delete(key);console.error(e)});}
+  if(!loading.has(key)){loading.add(key);fetch(BASE+key+'.webp?v=steps10').then(r=>{if(!r.ok)throw Error(key);return r.blob()}).then(createImageBitmap).then(bitmap=>{cache.set(key,bitmap);loading.delete(key);for(const [k,b]of cache)if(cache.size>18&&!wanted.includes(k)){b.close();cache.delete(k);}}).catch(e=>{loading.delete(key);console.error(e)});}
   return null;
  }
  return{pending:()=>!checked||(available&&wanted.some(k=>!cache.has(k))),update(depth){

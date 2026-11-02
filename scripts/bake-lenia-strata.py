@@ -29,7 +29,7 @@ for level in range(6):
  if not settled['frames']:raise RuntimeError('Did not survive warmup: '+rec['id'])
  fields=[];channels=sim.state().shape[-1]
  for f in range(30):
-  for step in range(2):
+  for step in range(10):
    A=sim.state();P=sim.engine.param_state() if sim.model in ('params','atmospheric') else None
    # A very gentle parent forcing acts on the state BEFORE the next rule step.
    if previous is not None:
@@ -59,6 +59,6 @@ for level in range(6):
    overlay=Image.new('RGB',(256,256));overlay.paste(piece,(round(x-piece.width/2),round(y-piece.height/2)))
    values=np.asarray(overlay,dtype=np.float32)/255;buf=1-(1-buf)*(1-values)
   Image.fromarray(np.uint8(buf*255)).save(out/f'{level}-{f:02}.webp',quality=94)
- provenance.append({'id':rec['id'],'kind':rec['kind'],'level':level,'settle':250,'frames':30,'parentCoupling':.003,'noiseCoupling':.0008})
+ provenance.append({'id':rec['id'],'kind':rec['kind'],'level':level,'settle':250,'frames':30,'stepsPerFrame':10,'parentCoupling':.003,'noiseCoupling':.0008})
  print('Baked level',level,rec['kind'],flush=True)
-(out/'manifest.json').write_text(json.dumps({'frames':30,'levels':6,'overlap':15,'source':'original rules, saved matter and carried parameters','populations':provenance},indent=2))
+(out/'manifest.json').write_text(json.dumps({'frames':30,'levels':6,'overlap':15,'stepsPerFrame':10,'source':'original rules, saved matter and carried parameters','populations':provenance},indent=2))

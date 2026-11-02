@@ -2,6 +2,7 @@
   "frames": 30,
   "levels": 6,
   "overlap": 15,
+  "stepsPerFrame": 10,
   "source": "original rules, saved matter and carried parameters",
   "populations": [
     {
@@ -10,6 +11,7 @@
       "level": 0,
       "settle": 250,
       "frames": 30,
+      "stepsPerFrame": 10,
       "parentCoupling": 0.003,
       "noiseCoupling": 0.0008
     },
@@ -19,6 +21,7 @@
       "level": 1,
       "settle": 250,
       "frames": 30,
+      "stepsPerFrame": 10,
       "parentCoupling": 0.003,
       "noiseCoupling": 0.0008
     },
@@ -28,6 +31,7 @@
       "level": 2,
       "settle": 250,
       "frames": 30,
+      "stepsPerFrame": 10,
       "parentCoupling": 0.003,
       "noiseCoupling": 0.0008
     },
@@ -37,6 +41,7 @@
       "level": 3,
       "settle": 250,
       "frames": 30,
+      "stepsPerFrame": 10,
       "parentCoupling": 0.003,
       "noiseCoupling": 0.0008
     },
@@ -46,6 +51,7 @@
       "level": 4,
       "settle": 250,
       "frames": 30,
+      "stepsPerFrame": 10,
       "parentCoupling": 0.003,
       "noiseCoupling": 0.0008
     },
@@ -55,6 +61,7 @@
       "level": 5,
       "settle": 250,
       "frames": 30,
+      "stepsPerFrame": 10,
       "parentCoupling": 0.003,
       "noiseCoupling": 0.0008
     }
