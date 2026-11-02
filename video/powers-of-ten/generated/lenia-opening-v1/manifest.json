@@ -1,0 +1,28 @@
+{
+  "frames": 90,
+  "stepsPerFrame": 20,
+  "settle": 250,
+  "resolution": 1024,
+  "firstScale": -15.5,
+  "lastScale": -20.5,
+  "species": [
+    "Bend D7QFW2<KJYEM0 multichannel",
+    "Orbium unicaudatus",
+    "Flow Lenia 0",
+    "Flow Lenia 1",
+    "Flow Lenia 2",
+    "Flow Lenia 3",
+    "Flow Lenia 4",
+    "Flow Lenia 5"
+  ],
+  "fixedBodyPixels": [
+    25,
+    128,
+    23,
+    7,
+    12,
+    35,
+    8,
+    9
+  ]
+}

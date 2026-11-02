@@ -1,3 +1,4 @@
+import {openingLenia} from './lenia-opening.js';
 import {leniaAnimation} from './lenia-animation.js';
 import {timeAtProgress,VIDEO_END_SCALE} from './zoom-timeline.js';
 // Rule-evolved multichannel Lenia over grayscale terrain. Lenia is not a QFT simulation.
@@ -8,7 +9,7 @@ import {stepRGBLife} from './life-colour.js';
 import {buildLifeCatalog} from './life-catalog.js';
 const PLANCK=1.616255e-35,FIELD=1e-18;
 export function quantumTerrain(){
- const animation=leniaAnimation();
+ const animation=leniaAnimation(),opening=openingLenia();
  const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl2',{alpha:true,antialias:false,preserveDrawingBuffer:new URLSearchParams(location.search).has('bake')});
  let ready=false,program,texture,strataTexture;
  const finalImage=new Image();finalImage.src='/video/powers-of-ten/generated/lenia-terrain-v1/planck-relief.png';
@@ -384,14 +385,16 @@ export function quantumTerrain(){
 
  let lastSurfaceKey="",surfaceVersion=0,aberrationVersion=-1;
  function renderSurface(W,H,span,freeze=false){
+  const openingFrame=freeze?null:opening.update(Math.log10(span));
+  if(openingFrame){gl.bindTexture(gl.TEXTURE_2D,texture);gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,gl.RGB,gl.UNSIGNED_BYTE,openingFrame);}
   const animated=freeze?null:animation.update(Math.log2(FIELD/span));
   if(animated){gl.bindTexture(gl.TEXTURE_2D,strataTexture);gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,gl.RGB,gl.UNSIGNED_BYTE,animated);gl.generateMipmap(gl.TEXTURE_2D);}
-  const key=`${W}/${H}/${span}/${freeze}/${animation.version}`;if(key===lastSurfaceKey)return;lastSurfaceKey=key;surfaceVersion++;
+  const key=`${W}/${H}/${span}/${freeze}/${animation.version}/${opening.version}`;if(key===lastSurfaceKey)return;lastSurfaceKey=key;surfaceVersion++;
   if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}
   gl.viewport(0,0,W,H);gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);const attr=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(attr);gl.vertexAttribPointer(attr,2,gl.FLOAT,false,0,0);
   const u=n=>gl.getUniformLocation(program,n);gl.uniform2f(u('resolution'),W,H);gl.uniform1f(u('depth'),Math.log2(FIELD/span));gl.uniform1f(u('span'),span/FIELD);gl.uniform1f(u('unit'),0);gl.uniform1f(u('resolveNoise'),freeze?0:1);gl.uniform1f(u('quality'),new URLSearchParams(location.search).has('renderZoom')?22:10);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(u('field'),0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,strataTexture);gl.uniform1i(u('strataField'),1);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
  }
- return{name:'rule-evolved Lenia relief → frozen Planck terrain image',range:[-36,-14.7],ready:()=>ready,pending:()=>!ready||animation.pending()||(!captured&&!finalImage.complete),draw(cam){
+ return{name:'rule-evolved Lenia relief → frozen Planck terrain image',range:[-36,-14.7],ready:()=>ready,pending:()=>!ready||animation.pending()||opening.pending()||(!captured&&!finalImage.complete),draw(cam){
   const alpha=1-ramp(cam.s,-15.75,-14.8);if(!ready||alpha<=0)return;
   const frozenView=cam.F*Math.max(cam.W,cam.H)/cam.min<=FREEZE_SPAN&&PLANCK*cam.min/cam.F>=1;
   cam.ctx.save();cam.ctx.globalAlpha=alpha;cam.ctx.imageSmoothingEnabled=false;
