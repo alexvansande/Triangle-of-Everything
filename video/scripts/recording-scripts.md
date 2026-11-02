@@ -1079,7 +1079,53 @@ ten every 1.96 s (61 powers in 120 s), so each line is timed to when its thing i
 About 210 words in two minutes: speak slowly and leave the gaps; the picture carries it. Record
 each line as its own phrase, so it can be placed on its time.
 
-### Script to record: the author's opening and ending, tightened (2026-11-02)
+### Full script, three minutes (the author's opening and ending, 2026-11-02)
+
+The whole video, 405 words: about 2:32 of speech at the author's pace (160 words a minute) plus
+short pauses, ending at 3:00. The zoom follows the words: it isn't even any more. It eases into
+each stop and speeds up between them, always smoothly:
+
+- **Slow** at the start (CMB, horizon, superclusters: 2 powers of ten in 35 s), at Earth, the
+  forest and the ladybug, and at the atom, nucleus and proton.
+- **Fast** through the empty stretches: between the stars and the Oort Cloud, from the cell's
+  DNA down to the atom, and through the grey terrain.
+- **Stop** on the Planck grid as the last line starts, and hold the gliders about 4 s after it.
+
+| At | On screen | Line | Words |
+|---|---|---|---|
+| 0:01 | CMB | *This is the largest thing we can see: the cosmic microwave background, a faint glow from three hundred and eighty thousand years after the Big Bang, the moment light could first escape. Everything in here is a picture of the past.* | 41 |
+| 0:17 | Event horizon | *This smaller bubble is the cosmic event horizon. The galaxies beyond it are lost: the light they send today will never reach us.* | 23 |
+| 0:28 | Superclusters | *And these are the largest structures of all: superclusters, strung along threads of galaxies, around huge empty voids.* | 18 |
+| 0:36 | Local Group | *Our neighbourhood: Andromeda, two and a half million light-years away, and our own galaxy, the Milky Way.* | 17 |
+| 0:43 | The Sun | *In one of its arms, one star among hundreds of billions: the Sun.* | 13 |
+| 0:49 | Nearby stars | *Its neighbours. Sirius, the brightest star in our night sky, eight light-years away.* | 13 |
+| 0:55 | Oort Cloud | *Around the Sun, the Oort Cloud: billions of icy comets, so far out they take millions of years to go round once.* | 22 |
+| 1:05 | Planets | *Then the orbits of the planets, and the third one out: Earth.* | 12 |
+| 1:10 | Earth and Moon | *The Moon, four hundred thousand kilometres away: about thirty Earths.* | 10 |
+| 1:15 | North America | *North America. California. The Sierra Nevada.* | 6 |
+| 1:18 | Sequoias | *A forest of giant sequoias, and the General Sherman, the largest tree on Earth. It weighs about as much as ten blue whales.* | 23 |
+| 1:28 | Ladybug | *On one of its branches, a ladybug.* | 7 |
+| 1:31 | Pollen | *On its back, a grain of pollen, thinner than a hair.* | 11 |
+| 1:36 | Cell | *A single cell.* | 3 |
+| 1:38 | DNA | *And inside it, its DNA, wound tight around proteins. The double helix is two millionths of a millimetre wide.* | 19 |
+| 1:47 | Atom | *Atom is Greek for "uncuttable". We named it when we thought we'd hit the bottom. But atoms do split, famously and violently. They're made of electrons, protons and neutrons, and they're almost entirely empty space.* | 35 |
+| 2:01 | Nucleus | *Nearly all the mass sits in the nucleus, tens of thousands of times smaller than the atom.* | 17 |
+| 2:08 | Proton | *A proton: three quarks, held together by gluons. The quarks are only about one percent of its mass. The rest is the energy that binds them.* | 26 |
+| 2:19 | Quark patterns | *And what are quarks made of? We don't know. Our biggest machines have looked down to about here, and found nothing smaller.* | 22 |
+| 2:29 | Terrain | *Instead of one smallest building block, physics now looks for the rules. Quantum field theory describes the universe as fields, a number at every point of space and time, and every particle is a ripple in one of them.* | 39 |
+| 2:45 | Planck grid | *Is that all there is? We don't know. But maybe, deep down, at the Planck scale where our theories break down, it's all one big game of life.* | 28 |
+
+Facts in the new lines: Andromeda is 2.5 million light-years away; the outer Oort Cloud's comets
+take millions of years per orbit; the Moon is 384,000 km, about 30 Earth diameters; General
+Sherman (about 1,900 t) weighs about as much as ten blue whales; pollen grains (10–100 µm) are
+mostly thinner than a hair (50–100 µm); a nucleus is 10,000–100,000 times smaller than its atom
+and holds 99.9% of its mass; quarks are about 1% of a proton's mass; the LHC has looked down to
+about 10⁻¹⁹ m, where the quark patterns are on screen.
+
+**Not drawn yet:** the cosmic-event-horizon bubble (radius about 16 billion light-years, a third
+of the CMB's). Add it, or drop that line.
+
+### Earlier: the opening and ending tightened to 2:26 (replaced by the full script above)
 
 The author's own opening and ending, cut to fit with the zoom inside **2:30** (limit 3:00). At
 the author's pace (about 160 words a minute) the opening and ending as first written ran 39 s and
