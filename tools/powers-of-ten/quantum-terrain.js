@@ -11,14 +11,20 @@ export function quantumTerrain(){
  let ready=false,program,texture;
  const finalImage=new Image();finalImage.src='/video/powers-of-ten/generated/lenia-terrain-v1/planck-relief.png';
  const image=document.createElement('canvas');image.width=image.height=1024;
- fetch('/video/powers-of-ten/generated/lenia-terrain-v1/multichannel.json').then(r=>r.json()).then(({cells,width,height})=>{
+ Promise.all(['multichannel.json','stationary-forms.json'].map(f=>fetch('/video/powers-of-ten/generated/lenia-terrain-v1/'+f).then(r=>r.json()))).then(([mover,library])=>{
+  const {cells,width,height}=mover;
   const seed=document.createElement('canvas');seed.width=width;seed.height=height;const c=seed.getContext('2d'),pixels=c.createImageData(width,height);
   cells.forEach((v,i)=>{pixels.data.set([...v,255],i*4)});c.putImageData(pixels,0,0);
+  const seeds=[seed,...library.forms.map(form=>{
+   const c=document.createElement('canvas');c.width=form.width;c.height=form.height;
+   const x=c.getContext('2d'),pixels=x.createImageData(c.width,c.height);
+   form.cells.forEach((v,i)=>pixels.data.set([...v,255],i*4));x.putImageData(pixels,0,0);return c;
+  })];
   const ctx=image.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,1024,1024);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.filter='blur(2px)';
   const random=rng(79113),forms=[[0,0,0,1]];
   // Irregular field, a deliberate centre, no square lattice of organisms.
   for(let i=0;i<50;i++){const x=(random()-.5)*1.1,y=(random()-.5)*1.1;if(Math.hypot(x,y)<.14)continue;forms.push([x,y,random()*Math.PI*2,.6+random()*.7])}
-  for(const [x,y,a,size] of forms)for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){ctx.save();ctx.translate(512+(x+dx)*1024,512+(y+dy)*1024);ctx.rotate(a);const w=113*size;ctx.drawImage(seed,-w*.55,-w*.55,w,w);ctx.restore()}
+  for(const [index,[x,y,a,size]] of forms.entries())for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){ctx.save();ctx.translate(512+(x+dx)*1024,512+(y+dy)*1024);ctx.rotate(a);const w=113*size;const shape=seeds[index===0?0:index%seeds.length];ctx.drawImage(shape,-w*.55,-w*.55,w,w);ctx.restore()}
   texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB8,gl.RGB,gl.UNSIGNED_BYTE,image);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);ready=true;
  }).catch(e=>console.error('Lenia terrain seed',e));
  if(!gl)return{name:'quantum terrain',range:[-36,-14.7],draw(){}};
@@ -128,6 +134,16 @@ export function quantumTerrain(){
   return clamp(c,0.,1.);
  }
  float creature(vec2 p){vec2 uv=.5+p*span;return dot(texture(field,uv).rgb,vec3(1.));}
+ // Quiet, repeated cellular strata use the same mixed Lenia field as
+ // the larger organisms. Fixed octave positions keep every imprint registered.
+ vec3 cellularStrata(vec2 p){
+  vec3 colour=vec3(0.);
+  for(int j=0;j<3;j++){
+   float layer=15.+float(j)*10.,f=exp2(layer-depth);
+   float gate=smoothstep(.06,.2,f)*(1.-smoothstep(2.,5.,f));
+   if(gate>0.)colour+=texture(field,.5+p*f+vec2(.21,.13)).rgb*gate;
+  }return colour;
+ }
  float terrain(vec2 p){
   float sum=0.;float base=floor(depth);
   // Each octave is anchored to its own immutable seed. Rebasing octave
@@ -146,7 +162,8 @@ export function quantumTerrain(){
   float tangent=dot(gradient,p);
   float relief=tangent;
   if(span>.002)relief=mix(tangent,(creature(p)-creature(vec2(0)))/span,smoothstep(.002,.012,span));
-  return sum*.075+relief*.007;
+  float cellular=dot(cellularStrata(p)-cellularStrata(vec2(0)),vec3(1.));
+  return sum*.075+relief*.007+cellular*.009;
  }
  void main(){
   // Planck units become actual nearest-neighbour output cells. No Life
@@ -178,6 +195,9 @@ export function quantumTerrain(){
   vec2 fieldUV=.5+p.xy*span;vec3 channels=vec3(0.);
   channels=texture(field,fieldUV).rgb;
   float presence=clamp(dot(channels,vec3(1.))*2.5,0.,1.)*smoothstep(.002,.012,span)*(1.-smoothstep(2.,10.,span));
+  vec3 strata=cellularStrata(p.xy);
+  float strataPresence=clamp(dot(strata,vec3(1.))*1.5,0.,.48);
+  channels+=strata*.38;presence=max(presence,strataPresence);
   vec3 pigment=channels/max(max(channels.r,channels.g),max(channels.b,.001));
   vec3 colour=mix(vec3(clamp(value,.055,.94)),setLuminance(pigment,value),presence*.92);
   // Muted broad RGB clouds, applied as Color at 30%, keeping relief intact.
