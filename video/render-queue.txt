@@ -42,3 +42,4 @@ short-05c-observable-universe
 short-00-powers-of-ten
 # short-00-powers-of-ten: source 025c1c84 adds denser, scattered Planck patterns and staggered glider trajectories; full render.
 # short-00-powers-of-ten: source 3e89db93 adds naturally nested canyon, crater, folded and ridge terrain scenarios; full render.
+# short-00-powers-of-ten: full 180-second recut, source 8edb968f; 10s CMB opening, 4s acceleration, cruise through 170s, 10s deceleration.

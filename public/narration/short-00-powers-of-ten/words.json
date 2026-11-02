@@ -1,7 +1,7 @@
 {
   "title": "From the CMB to the Planck scale",
-  "blurb": "Two-minute continuous zoom \u00b7 motion blur \u00b7 silent narration workprint \u00b7 rendered video only.",
-  "duration": 120,
+  "blurb": "Three-minute vertical zoom \u00b7 10-second rotating CMB opening \u00b7 eased acceleration and landing \u00b7 motion blur \u00b7 rendered video only.",
+  "duration": 180,
   "credits": 0,
   "words": [],
   "audio": null,
@@ -9,5 +9,5 @@
   "renderPage": "/tools/powers-of-ten.html?canopytest=1&renderZoom=1&ui=0&roll=0&crossings=0&grid=1&labels=1&stage=9x16",
   "renderClip": "stage",
   "renderSource": "/private/tmp/powers-of-ten-publish-20261030",
-  "renderSourceRevision": "3e89db936e00d2a4b4bca51901da78b2e4b78a8c"
+  "renderSourceRevision": "8edb968f99d5270744a61842b05735c3d0c143b9"
 }
