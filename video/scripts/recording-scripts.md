@@ -26,6 +26,7 @@ went silent after a minute when it ran out.
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
+| 0 · powers of ten (the CMB to the Planck length) | `short-00-powers-of-ten` | 2:00, silent (first script 2026-11-02) |
 
 ---
 
@@ -568,6 +569,147 @@ Suggested wording, after "…still roughly Jupiter-sized":
 
 (This replaces the "Video 2, super-Jupiters" suggestion in the notes at the top.)
 
+### Script to record (one take): the author's version, 2026-11-02
+The author's rewrite of the one-take script, with the fixes from its fact check (below) already
+in. Lines marked *Long only* / *Short only* are recorded both ways, so the same take cuts into
+long video 1 and its three Shorts:
+
+- **Short 1, the hook:** "This is the most interesting chart…" to "…why fire looks the way it
+  does", then the *Short only* outro.
+- **Short 2a, Things:** the *Short only* water-line opening, to "…and then we arrive at the small
+  moons."
+- **Short 2b, Planets:** the *Short only* rocks-to-spheres opening, to "…the life and death of stars."
+- **Long video 1:** everything, with the *Long only* lines.
+
+**The chart**
+> This is the most interesting chart in all of physics.
+>
+> The first thing you'll probably notice is this diagonal line, with everything from bacteria to humans, to planets, stars and galaxies.
+>
+> The vertical axis is mass. The horizontal axis is size. So this is a chart of mass versus size, right? Yes, but it's so much more than that, because it also includes things that have no mass at all: photons, like visible light or radio waves.
+>
+> That's because this chart is also a chart of energy, and the bottom axis doubles as wavelength.
+>
+> So in a way, this chart contains all of science. Astronomy is up here at the top, engineering is down there, biology all the way down here, and then chemistry and particle physics.
+
+**Three sides**
+> And the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity. And where those two lines meet is… the Big Bang?!
+>
+> Notice that along the top there are even more diagonal lines, and they're all measured in seconds. That's because the top of the chart isn't about how things are, but when: it's the history of our whole universe.
+>
+> I call this the triangle of everything, and as you zoom in, it tells you a million stories. About airplanes, hippos and gravity. About how stars evolve, how particles turn into each other, and why balloons float. It even contains the periodic table, and it tells you why fire looks the way it does.
+
+*Short only (the hook's outro):*
+> I've been obsessed with this chart for many years, and spent countless days designing ways to explore it better. I could talk about it for hours, and that's precisely what I intend to do!
+
+**The water line**
+
+*Long only:*
+> Let's start with that first diagonal I mentioned.
+
+*Short only:*
+> If you plot everything that exists by mass and size, on a log scale, almost everything falls along one diagonal line. Why?
+
+> In the metric system, one millilitre of water weighs one gram and fills a cube exactly one centimetre wide. Most things aren't cubes, so we'll measure all sizes as if everything were a ball. That moves things a tiny bit to the right; at most zooms you won't notice.
+>
+> Now make every side ten times longer: ten centimetres. That's one step to the right. But the volume grows a thousand times, to one litre, and one litre of water weighs one kilogram: three steps up. Do it again, ten times the size, and you get a thousand times the mass: one tonne.
+
+**Sink or float**
+> All of these draw a diagonal line: the density of water. Everything to the left is, by definition, denser than water, so it sinks. Here are the things made of stone and metal. Anything to the right will float.
+>
+> In the same way, you can draw a line for the density of air. Balloons and zeppelins are literally called "lighter than air" aircraft, and they're to the right of the line, because they float!
+
+**Animals**
+> Most animals, though, live in a much narrower band. That's because we're mostly made of water. Some of us are a little denser than others. The hippo, for example, can't actually swim: it just bounces along the riverbed.
+>
+> As we go up, we see heavier animals, like elephants. The largest animal ever on land was the Argentinosaurus, but the largest animal ever is still around: the blue whale. But even that pales compared to trees: an adult sequoia can weigh as much as ten blue whales.
+
+**What we build**
+> Past living things, we get to engineering. Notice that the Eiffel Tower is surprisingly light for its size. That's because we're also counting all the space inside it: its whole shape, air included, is about one and a half million cubic metres. Melt it down, and it would fit in a cube eleven metres wide, way over here. Counted whole, it's almost as light as air. And that's the idea underneath every skyscraper: a metal skeleton that carries the weight, so everything inside can be empty space.
+
+**Rocks, moons and gravity's first win**
+> Then come big rocks, big buildings, and the Great Pyramid, which is a little bit of both. Above that, we have lakes and asteroids, and then we arrive at the small moons.
+
+*Short only (Planets opens here):*
+> If you plot everything by mass and size, you can see the point where asteroids and small moons turn from potato shapes into spheres.
+
+*Long only:*
+> As we move up the line, objects become rounder and less potato-shaped.
+
+*Both:*
+> That's because until now, what held matter in shape was the chemical bonds between atoms, and those are electromagnetic. From this point on, gravity takes over, and it's what shapes planets.
+
+**Atmospheres and gas giants**
+> And it shapes them in other ways too. Neither Mercury nor the Moon has enough gravity to hold on to an atmosphere. Venus and Earth do, but not enough to keep the lightest gases, hydrogen and helium. And since most of the visible matter in the universe is made of those two, once a planet can hold on to them, it can grow into a gas giant.
+>
+> So Earth lives in a kind of gravitational Goldilocks zone: just enough mass, for its temperature, to hold on to oxygen and nitrogen, but not enough to hold on to hydrogen and helium.
+>
+> You can see it on the chart: most of these dots stop following the rocky planets on the left and move to the right, where planets are mostly gas. Saturn is actually less dense than water, roughly as dense as wood: it would float like a log.
+
+**Super-Jupiters: gravity wins again**
+> Then the trend suddenly stops. You can't get a planet much bigger than Jupiter. Objects ten, even eighty times more massive are still roughly Jupiter-sized.
+>
+> This is gravity breaking into electromagnetism's last refuge: the atom itself. The pressure in the core is so high it crushes the atoms and strips their electrons off, leaving bare nuclei in a sea of electrons. These electrons refuse to be squeezed any further. That's the last stand. Add more mass, and the object gets denser, not bigger.
+
+*On screen: a scoreboard label, "Gravity 2 · Electromagnetism 0" (rounding the moons, then crushing the atoms).*
+
+**The split, and the end**
+> And then, right around the brown dwarfs, there's a huge split. Some objects veer to the right, and some veer to the left, because now we're no longer talking about the story of ordinary matter. We're talking about the life and death of stars.
+
+### Fact check of the author's version (2026-11-02)
+Fixed in the script above (the author's wording → now):
+- **Super-Jupiters.** "the high pressure of the core overtakes the repulsive force of electrons
+  and separates them from the atomic nucleus. The core of massive planets is just a soup of
+  neutrons and protons." Two errors and a gap:
+  - What holds an electron to its atom is the nucleus' *attraction*, not a repulsion. The pressure
+    crushes the shells and frees the electrons (pressure ionization).
+  - No free neutrons: those only come in neutron stars, video 3's ending. Inside Jupiter it's
+    bare nuclei (mostly protons) in a sea of free electrons: metallic hydrogen.
+  - Without the reason, "denser, not bigger" has no explanation. The freed electrons refuse to be
+    squeezed (Pauli exclusion, electron degeneracy), and that's what holds. The author's line
+    "These electrons, refusing to be squeezed further, are the last stand refusing further
+    crunches" → "These electrons refuse to be squeezed any further. That's the last stand." (one
+    "refusing", one image).
+  - "Last stand" holds a long time but not forever: the same electrons hold up white dwarfs, and
+    give way past 1.4 Suns (neutron stars, video 3). It works as a setup for that; the safe
+    alternative is "That's what holds it up now".
+- **"a fractal skeleton" (skyscrapers) → "a metal skeleton".** Skyscraper frames are one level of
+  big members (a concrete core, an outer tube, a diagrid), not lattices of lattices. To keep
+  "fractal", put it on the tower: "…almost as light as air: iron lattices made of smaller
+  lattices."
+- **The Short's water-line opening needs "on a log scale".** "If you tried to plot all objects in
+  a single chart, by mass and size you would see a diagonal line. Why?" On ordinary axes it's a
+  curve, and the cube passage's "one step to the right, three steps up" only works on log axes;
+  the Short has no hook to say so.
+- "obsessed about" → "obsessed with"; "as if everything was spherical. At most zooms it will move
+  objects an imperceptible amount to the right only" → "as if everything were a ball. That moves
+  things a tiny bit to the right; at most zooms you won't notice" (the direction is right: the 1 mL
+  cube sits at logR −0.30, the ball at −0.21).
+- "it will grow into a gas giant" → "it can grow": a planet has to form before the young star's gas
+  is gone.
+- "that's the electromagnetic forces" → "and those are electromagnetic".
+- The Planets intro: "the moment where asteroids transition from potato shapes to spherical
+  planets" → "the point where asteroids and small moons turn from potato shapes into spheres" (a
+  place on the chart, not a moment).
+
+Checked and right: a sequoia as ten blue whales (~1,400 t against ~150 t on the chart; General
+Sherman is ~2,000 t with branches and roots); melted down to an 11 m cube (the whole tower,
+~10,000 t of iron; the iron frame alone, 7,300 t, is a ~10 m cube); "almost as light as air"
+counted whole (~7 kg/m³ against air's 1.2); hippos, Argentinosaurus, Saturn at about wood's
+density, ten to eighty Jupiters; the three sides and the sciences across the chart.
+
+Background from the same conversation, for the Eiffel line: the metal skeleton that carries the
+weight (so walls carry nothing) is the idea that made skyscrapers possible, but the Eiffel Tower
+is its cousin, not its parent. Chicago's Home Insurance Building (1885) had a metal skeleton four
+years earlier, and Eiffel's own clearest "skeleton plus skin" is the Statue of Liberty (1886). The
+tower is wrought iron, not steel. A skyscraper is ~300 kg/m³ counted whole (the Empire State
+Building: ~330,000 t in ~1 million m³), about 40 times the tower, because of its floors.
+
+### Still open
+- **The long video has no outro.** The "obsessed" lines are Short-only now, so long video 1 ends on
+  "the life and death of stars". Fine if video 2 follows; otherwise the hook's outro also works at
+  the very end of the long one.
+
 ---
 
 ## 3 · Planets into stars (`short-03-stars`)
@@ -926,3 +1068,67 @@ bands make the red, green and blue on screen. Say them in your own words; each i
   neighbourhood. Infrared, the blue shell, further out. Radio, in green, reaches out to distant
   galaxies. Microwaves sit right at the edge. And X-rays and gamma rays come from far galaxies
   with feeding black holes."
+
+---
+
+## 0 · Powers of ten (`short-00-powers-of-ten`)
+
+The two-minute zoom from the CMB to the Planck length (rendered 2026-11-02 from 3877851b). It has
+no narration yet: this is a first script, written to the picture. The zoom is even: one power of
+ten every 1.96 s (61 powers in 120 s), so each line is timed to when its thing is on screen.
+About 210 words in two minutes: speak slowly and leave the gaps; the picture carries it. Record
+each line as its own phrase, so it can be placed on its time.
+
+### Script to record
+
+| At | On screen | Line |
+|---|---|---|
+| 0:00 | The CMB, 46 billion light-years | *This is everything we can see: the afterglow of the Big Bang, forty-six billion light-years away. Every two seconds, we'll zoom in ten times.* |
+| 0:09 | Andromeda, Triangulum, the Milky Way | *Our neighbourhood of galaxies: Andromeda, and our own, the Milky Way.* |
+| 0:12 | "The Sun is here" | *The Sun is here: one star among hundreds of billions.* |
+| 0:15 | Betelgeuse | *Betelgeuse.* |
+| 0:18 | Sirius, Vega | *Sirius, the brightest star in our night sky, eight light-years away.* |
+| 0:21 | The Oort Cloud | *The Oort Cloud: a shell of icy comets around the Sun.* |
+| 0:26 | Neptune's orbit, Mars | *The planets. Neptune. Mars.* |
+| 0:33 | Earth | *And Earth.* |
+| 0:36 | Earth and the Moon's orbit | *The Moon goes round us four hundred thousand kilometres out.* |
+| 0:39 | North America | *North America.* |
+| 0:42 | California, the Sierra Nevada | *California, and the Sierra Nevada.* |
+| 0:48 | The forest | *A forest of giant sequoias, and the General Sherman, the largest tree on Earth.* |
+| 0:57 | The ladybug | *A ladybug on one of its leaves.* |
+| 1:00 | Pollen on the ladybug | *A grain of pollen.* |
+| 1:03 | A cell | *A single cell.* |
+| 1:06 | Chromatin, DNA | *Its DNA, wound around proteins. The double helix, two millionths of a millimetre wide.* |
+| 1:12 | The atom | *An atom. It's almost all empty space: the nucleus is a hundred thousand times smaller.* |
+| 1:21 | The proton | *A proton: three quarks, and the energy that holds them together.* |
+| 1:30 | Grey terrain | *Around here we pass the smallest distance anyone has ever measured. From here on, nobody knows what's there.* |
+| 1:40 | Grey terrain | *(no words: let it fall)* |
+| 1:50 | Closing on the Planck length | *The Planck length. Try to look at anything smaller, and the energy you'd need would make a black hole. It's the bottom corner of the triangle.* |
+| 1:57 | The Planck grid, the gliders | *What's down here? These last pictures are only a guess.* |
+
+### Fact check
+- **Right:** the CMB is 46 billion light-years away now (the comoving radius of the observable
+  universe). Sirius is 8.6 light-years away and the brightest star in the night sky. The Moon's
+  orbit is 384,000 km ("four hundred thousand" is fine spoken). General Sherman is the largest
+  tree by volume. DNA's helix is 2 nm (two millionths of a millimetre). An atom (~10⁻¹⁰ m) is
+  10,000 to 100,000 times wider than its nucleus (10⁻¹⁵–10⁻¹⁴ m). The three quarks are about 1% of
+  a proton's mass; the rest is the energy of the strong force holding them.
+- **Careful with:** "the smallest distance ever measured". The LHC probes down to about
+  10⁻¹⁹–10⁻²⁰ m, which the zoom reaches at about 1:30–1:32; say the line around then, not at the
+  proton. Below that there's no experiment, and the terrain is art, not data: the last line says so.
+- **The Planck line:** at that size the energy needed to probe it equals a black hole of the same
+  size (the Compton and Schwarzschild lines meet). That's the triangle's bottom-left corner, the
+  "where those two lines meet" of video 1. Physics doesn't know what happens there; "a guess" is
+  the honest wording, and the gliders are a nod to the idea that space might be built from simple
+  rules, not a claim.
+- **Left out on purpose:** Betelgeuse's distance (estimates run 500–650 light-years), the Oort
+  Cloud's size (its edge is uncertain, a light-year or more), and the cell's kind.
+
+### Suggestions
+- **Name it for the original.** A powers-of-ten zoom is a famous idea (Charles and Ray Eames,
+  1977). A line at the start or in the description (*"a powers-of-ten zoom, from the edge of the
+  universe to the smallest length there is"*) credits it.
+- **Tie it to the series.** The ending lands on the triangle's corner. If this plays before video
+  1, a last tag after the gliders could point to it: *"Next: the chart where all of this fits."*
+- **Silence is fine.** The terrain from 1:24 to 1:50 is sixteen powers of ten where nothing is
+  known; one line and then quiet says that better than more words.
