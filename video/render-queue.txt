@@ -54,3 +54,4 @@ short-05c-observable-universe
 short-00-powers-of-ten
 # short-00-powers-of-ten changed: restore rotating textured Earth; source 042a5830
 # short-00-powers-of-ten changed: hide label overlaps and fit filming crop; source 3007e7ee
+# short-00-powers-of-ten changed: broader red CMB patches; source d0ed79a5
