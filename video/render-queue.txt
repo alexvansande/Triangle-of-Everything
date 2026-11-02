@@ -52,3 +52,4 @@ short-05c-observable-universe
 # short-00-powers-of-ten changed: ten Lenia steps per frame; source 136098b5
 # short-00-powers-of-ten changed: restore photographic canopy and terrain assets; source ccd763a5
 short-00-powers-of-ten
+# short-00-powers-of-ten changed: restore rotating textured Earth; source 042a5830
