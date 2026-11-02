@@ -1,0 +1,291 @@
+import {timeAtProgress} from './zoom-timeline.js';
+// Static multichannel Lenia over grayscale terrain. Lenia is not a QFT simulation.
+// Bend references: demos/visual/terrain-3d (value-noise heightfield,
+// ray intersection and slope lighting), demos/lenia (Orbium seed).
+import {ramp,rng} from './math.js';
+import {stepRGBLife} from './life-colour.js';
+import {buildLifeCatalog} from './life-catalog.js';
+const PLANCK=1.616255e-35,FIELD=1e-18;
+export function quantumTerrain(){
+ const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl2',{alpha:true,antialias:false});
+ let ready=false,program,texture;
+ const image=document.createElement('canvas');image.width=image.height=1024;
+ fetch('/video/powers-of-ten/generated/lenia-terrain-v1/multichannel.json').then(r=>r.json()).then(({cells,width,height})=>{
+  const seed=document.createElement('canvas');seed.width=width;seed.height=height;const c=seed.getContext('2d'),pixels=c.createImageData(width,height);
+  cells.forEach((v,i)=>{pixels.data.set([...v,255],i*4)});c.putImageData(pixels,0,0);
+  const ctx=image.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,1024,1024);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.filter='blur(2px)';
+  const random=rng(79113),forms=[[0,0,0,1]];
+  // Irregular field, a deliberate centre, no square lattice of organisms.
+  for(let i=0;i<50;i++){const x=(random()-.5)*1.1,y=(random()-.5)*1.1;if(Math.hypot(x,y)<.14)continue;forms.push([x,y,random()*Math.PI*2,.6+random()*.7])}
+  for(const [x,y,a,size] of forms)for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){ctx.save();ctx.translate(512+(x+dx)*1024,512+(y+dy)*1024);ctx.rotate(a);const w=113*size;ctx.drawImage(seed,-w*.55,-w*.55,w,w);ctx.restore()}
+  texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB8,gl.RGB,gl.UNSIGNED_BYTE,image);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);ready=true;
+ }).catch(e=>console.error('Lenia terrain seed',e));
+ if(!gl)return{name:'quantum terrain',range:[-36,-14.7],draw(){}};
+ const compile=(type,src)=>{const sh=gl.createShader(type);gl.shaderSource(sh,src);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(sh));return sh};
+ program=gl.createProgram();gl.attachShader(program,compile(gl.VERTEX_SHADER,`#version 300 es
+ in vec2 position;void main(){gl_Position=vec4(position,0.,1.);}`));
+ gl.attachShader(program,compile(gl.FRAGMENT_SHADER,`#version 300 es
+ precision highp float;uniform vec2 resolution;uniform float depth,span,unit,quality;uniform sampler2D field;out vec4 frag;
+ float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+ float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*f*(f*(f*6.-15.)+10.);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
+ // Styles belong to immutable world octaves, not the current camera
+ // depth. Their valleys therefore enlarge into the next landscape instead
+ // of changing shape while we look at them.
+ float band(float k,float a,float b){
+  float z=(k-(a+b)*.5)/((b-a)*.55),bell=exp(-.5*z*z);
+  return bell*smoothstep(.015,.045,bell);
+ }
+ float landform(vec2 q,float k){
+  float base=noise(q),height=base*.28,totalWeight=.28;
+
+  float canyon=band(k,16.,25.),craters=band(k,21.,30.);
+  float folds=band(k,29.,38.),ridges=band(k,33.,42.);
+  float waves=band(k,-2.,9.),delta=band(k,5.,15.),badlands=band(k,10.,20.);
+  float faults=band(k,25.,34.),membranes=band(k,37.,46.),labyrinth=band(k,42.,51.);
+  if(waves>0.){
+   vec2 w=q+vec2(sin(q.y*.7),cos(q.x*.8))*.18;
+   float ripples=sin(length(w-vec2(1.7,-2.1))*5.1)+sin(length(w+vec2(2.4,.9))*4.7)+sin(dot(w,vec2(3.3,2.6)));
+   height+=(.5+ripples*.135)*(waves*.83);totalWeight+=waves*.83;
+  }
+  if(delta>0.||badlands>0.){
+   vec2 w=q*vec2(1.1,.65)+vec2(noise(q*.6+4.),noise(q*.6-3.))*.8;
+   float mainDistance=abs(noise(w)-.5);
+   float trunk=exp(-pow(mainDistance/.045,2.));
+   float tributaries=exp(-pow((noise(w*3.1+8.)-.5)/.045,2.))*(1.-smoothstep(.06,.24,mainDistance));
+   float fine=exp(-pow((noise(w*8.3-2.)-.5)/.04,2.))*(1.-smoothstep(.02,.12,mainDistance));
+   float channels=trunk*.4+tributaries*.22+fine*.09;
+   height+=(.58+.22*noise(w*.65)-channels)*(delta*.93);totalWeight+=delta*.93;
+   float terraces=smoothstep(.2,.32,base)*.22+smoothstep(.44,.55,base)*.25+smoothstep(.68,.8,base)*.2;
+   height+=(.16+terraces-channels*.8)*(badlands*.9);totalWeight+=badlands*.9;
+  }
+  // Narrow valleys winding between broad, gently terraced plateaus.
+  if(canyon>0.){
+  vec2 bent=q+vec2(sin(q.y*1.7+k),cos(q.x*1.3-k))*.24;
+  float river=noise(bent),valley=exp(-pow((river-.49)/.065,2.));
+  float plateau=.66-valley*.64+.06*(river-.5);
+  height+=(plateau)*(canyon*.88);totalWeight+=canyon*.88;
+  }
+  // Crater bowls and raised rims, contained inside each seeded cell.
+  if(craters>0.){
+   vec2 cell=floor(q),local=fract(q);float crater=0.;
+   for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){
+    vec2 offset=vec2(float(x),float(y)),id=cell+offset;
+    if(hash(id+83.)<.48){
+     vec2 centre=offset+.5+.9*(vec2(hash(id),hash(id+3.))-.5);
+     float radius=length(local-centre),r=.13+.24*hash(id+7.);
+     float bowl=-.48*exp(-radius*radius/(r*r*.63));
+     float rim=.24*exp(-pow((radius-r)/(.025+r*.08),2.));
+     crater+=(bowl+rim)*(1.-smoothstep(r*1.25,r*1.65,radius));
+    }
+   }
+   height+=(.5+crater+.12*(base-.5))*(craters*.95);totalWeight+=craters*.95;
+  }
+  if(faults>0.){
+   float trace=dot(q,vec2(.31,.71))+.12*noise(q*.6);
+   float wave=sin(trace*6.2831853),crack=exp(-pow(wave/.14,2.));
+   float displaced=.5+.16*sin(trace*6.2831853+.6)-.28*crack;
+   height+=(displaced+.1*(base-.5))*(faults*.87);totalWeight+=faults*.87;
+  }
+  if(membranes>0.){
+   vec2 cell=floor(q),local=fract(q);float first=10.,second=10.;
+   for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){
+    vec2 offset=vec2(float(x),float(y));vec2 id=cell+offset;
+    vec2 site=offset+.5+.65*(vec2(hash(id),hash(id+31.7))-.5);
+    float d=length(site-local);if(d<first){second=first;first=d;}else second=min(second,d);
+   }
+   float wall=exp(-pow((second-first)/.07,2.));
+   height+=(.25+.5*wall+.14*base)*(membranes*.9);totalWeight+=membranes*.9;
+  }
+  if(labyrinth>0.){
+   vec2 w=q+vec2(noise(q*.9+11.),noise(q*.9-7.))*1.5;
+   float stripes=.5+.5*sin(w.x*5.+w.y*3.8+4.*noise(w*.7));
+   float paths=smoothstep(.3,.7,stripes);
+   height+=(.22+.5*paths+.08*base)*(labyrinth*.9);totalWeight+=labyrinth*.9;
+  }
+  if(folds>0.){
+  float folded=noise(q+vec2(sin(q.y*2.1),sin(q.x*1.4))*.65);
+  height+=(.5+.42*sin(folded*8.))*(folds*.78);totalWeight+=folds*.78;
+  }
+  float ridge=1.-sqrt(pow(base*2.-1.,2.)+.003);
+  return (height+ridge*ridges*.86)/(totalWeight+ridges*.86);
+ }
+ float creature(vec2 p){vec2 uv=.5+p*span;return dot(texture(field,uv).rgb,vec3(1.));}
+ float terrain(vec2 p){
+  float sum=0.;float base=floor(depth);
+  // Each octave is anchored to its own immutable seed. Rebasing octave
+  // indices avoids tiny floating-point positions over 17 physical decades.
+  for(int j=-5;j<=9;j++){float k=base+float(j),f=exp2(k-depth);vec2 origin=vec2(17.31,29.73)+vec2(k*13.57,k*7.13);
+   float gate=smoothstep(.04,.12,f)*(1.-smoothstep(150.,350.,f));
+   float n=landform(p*f+origin,k)-landform(origin,k);
+   sum+=n*pow(f,-.83)*gate;
+  }
+  // Below the Lenia texture's resolvable scale, continue its local tangent
+  // analytically. Dividing tiny texture interpolation errors by span made
+  // the old heightfield develop magnified staircase cliffs.
+  vec2 centre=vec2(.5);float delta=.002;
+  vec2 gradient=vec2(dot(texture(field,centre+vec2(delta,0)).rgb-texture(field,centre-vec2(delta,0)).rgb,vec3(1.)),
+                     dot(texture(field,centre+vec2(0,delta)).rgb-texture(field,centre-vec2(0,delta)).rgb,vec3(1.)))/(2.*delta);
+  float tangent=dot(gradient,p);
+  float relief=tangent;
+  if(span>.002)relief=mix(tangent,(creature(p)-creature(vec2(0)))/span,smoothstep(.002,.012,span));
+  return sum*.075+relief*.007;
+ }
+ void main(){
+  // Planck units become actual nearest-neighbour output cells. No Life
+  // tiles, iteration or crossfade replaces the field at the endpoint.
+  float pixel=max(1.,unit*min(resolution.x,resolution.y));
+  vec2 screen=(floor(gl_FragCoord.xy/pixel)+.5)*pixel;
+  vec2 uv=(screen-.5*resolution)/min(resolution.x,resolution.y);
+  // Orthographic nadir view: map-like framing, with all depth expressed
+  // by the shared heightfield, normals and cast shadows.
+  vec3 ray=vec3(0.,0.,-1.);
+  vec3 p=vec3(uv,terrain(uv));float e=max(.0015,unit*.45),h=p.z;
+  vec3 normal=normalize(vec3(terrain(p.xy-vec2(e,0))-terrain(p.xy+vec2(e,0)),terrain(p.xy-vec2(0,e))-terrain(p.xy+vec2(0,e)),2.*e));
+  vec3 light=normalize(vec3(-.75,-.55,.48));float diffuse=max(0.,dot(normal,light));
+  float shadow=1.;
+  // March toward the light through the very same terrain, so raised
+  // Lenia rims and mountains cast shadows onto neighbouring slopes.
+  for(int i=0;i<22;i++){
+   if(float(i)>=quality)break;
+   float travel=.005*pow(1.26,float(i)*22./quality);vec3 probe=p+light*travel;
+   float clearance=probe.z-terrain(probe.xy);
+   shadow=min(shadow,clamp(14.*(clearance+.0015)/travel,0.,1.));
+  }
+  float ao=clamp(.9+(h-terrain(p.xy+vec2(.035)))*2.,.68,1.);
+  float value=(.29+.53*diffuse*shadow)*ao;
+  value+=shadow*.10*pow(max(0.,dot(reflect(-light,normal),-ray)),18.);
+  vec2 fieldUV=.5+p.xy*span;vec3 channels=vec3(0.);
+  channels=texture(field,fieldUV).rgb;
+  float presence=clamp(dot(channels,vec3(1.))*2.5,0.,1.)*smoothstep(.002,.012,span)*(1.-smoothstep(2.,10.,span));
+  vec3 pigment=channels/max(max(channels.r,channels.g),max(channels.b,.001));
+  vec3 colour=mix(vec3(clamp(value,.055,.94)),pigment*(.24+.76*value),presence*.92);
+  frag=vec4(colour,1.);
+ }`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
+ const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+ // Output-only chromatic aberration: never fed back into the heightfield
+ // or the frozen Planck screenshot, so it cannot distort subsequent zooms.
+ const aberrated=document.createElement('canvas');
+ function drawAberrated(cam){
+  if(aberrationVersion===surfaceVersion){cam.ctx.drawImage(aberrated,0,0,cam.W,cam.H);return;}aberrationVersion=surfaceVersion;
+  if(aberrated.width!==canvas.width||aberrated.height!==canvas.height){aberrated.width=canvas.width;aberrated.height=canvas.height;}
+  const c=aberrated.getContext('2d'),w=canvas.width,h=canvas.height;
+  const offset=Math.max(.55,Math.min(1.35,w/850));
+  c.globalCompositeOperation='source-over';c.clearRect(0,0,w,h);
+  // Mask each shifted copy to one colour channel, then add the channels.
+  for(const [colour,dx,dy] of [['#ff0000',offset,.3*offset],['#00ff00',0,0],['#0000ff',-offset,-.3*offset]]){
+   const layer=colourLayers[colour],l=layer.getContext('2d');
+   if(layer.width!==w||layer.height!==h){layer.width=w;layer.height=h;}
+   l.globalCompositeOperation='copy';l.drawImage(canvas,dx,dy);
+   l.globalCompositeOperation='multiply';l.fillStyle=colour;l.fillRect(0,0,w,h);
+   c.globalCompositeOperation='lighter';c.drawImage(layer,0,0);
+  }
+  cam.ctx.drawImage(aberrated,0,0,cam.W,cam.H);
+ }
+ const colourLayers=Object.fromEntries(['#ff0000','#00ff00','#0000ff'].map(c=>[c,document.createElement('canvas')]));
+ const frozen=document.createElement('canvas');let captured=false,frozenPixels;
+ const FREEZE_PIXELS=2048,FREEZE_SPAN=FREEZE_PIXELS*PLANCK;
+ const LIFE_SIZE=256,LIFE_OFFSET=896,lifeSeed=new Uint8Array(256*256);
+ let lifeCells,lifeGeneration=0,lifeStart=null,terrainPixels;
+ const rgb=[[255,65,55],[65,255,90],[65,125,255]];
+ function animateLife(cam){
+  if(cam.F>100*PLANCK){lifeStart=null;lifeGeneration=0;lifeCells=null;return false;}
+  const video=new URLSearchParams(location.search).has('renderZoom');
+  if(lifeStart===null)lifeStart=cam.t;
+  const crossing=video?timeAtProgress((window.canopyTest.maximum-Math.log10(100*PLANCK))/(window.canopyTest.maximum-window.canopyTest.minimum)):lifeStart;
+  const generation=Math.max(0,Math.floor((cam.t-crossing)*6));
+  if(!lifeCells||generation<lifeGeneration){lifeCells=lifeSeed.slice();lifeGeneration=0;}
+  while(lifeGeneration<generation){lifeCells=stepRGBLife(lifeCells,LIFE_SIZE);lifeGeneration++;}
+  return true;
+ }
+ function pixelColour(x,y,animate){
+  const i=(y*FREEZE_PIXELS+x)*4,X=x-LIFE_OFFSET,Y=y-LIFE_OFFSET;
+  if(!animate||X<0||Y<0||X>=LIFE_SIZE||Y>=LIFE_SIZE)return [frozenPixels[i],frozenPixels[i+1],frozenPixels[i+2]];
+  const bits=lifeCells[Y*LIFE_SIZE+X];if(!bits)return [terrainPixels[i],terrainPixels[i+1],terrainPixels[i+2]];
+  const colour=[0,0,0];let n=0;for(let c=0;c<3;c++)if(bits&(1<<c)){for(let k=0;k<3;k++)colour[k]+=rgb[c][k];n++;}
+  return colour.map(v=>Math.round(v/n));
+ }
+ function paintPlanckPatterns(){
+  const context=frozen.getContext('2d'),frame=context.getImageData(0,0,FREEZE_PIXELS,FREEZE_PIXELS);
+  const pixels=frame.data,random=rng(83019),catalog=buildLifeCatalog(16).filter(p=>['glider','blinker','toad','beacon','pulsar','block','beehive','boat','lwss'].includes(p.name));
+  const colours=rgb;terrainPixels=pixels.slice();
+  function place(pattern,cx,cy,colour,turns=0){
+   for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(pattern.cells[y*16+x]){
+    let X=x-8,Y=y-8;for(let j=0;j<turns;j++)[X,Y]=[-Y,X];
+    X+=cx;Y+=cy;if(X<0||Y<0||X>=FREEZE_PIXELS||Y>=FREEZE_PIXELS)continue;
+    if(X>=LIFE_OFFSET&&Y>=LIFE_OFFSET&&X<LIFE_OFFSET+LIFE_SIZE&&Y<LIFE_OFFSET+LIFE_SIZE)lifeSeed[(Y-LIFE_OFFSET)*LIFE_SIZE+X-LIFE_OFFSET]|=1<<colours.indexOf(colour);
+    const i=(Y*FREEZE_PIXELS+X)*4,light=.78+.22*pixels[i]/255;
+    for(let c=0;c<3;c++)pixels[i+c]=Math.round(colour[c]*light);
+   }
+  }
+  // Fixed motifs are baked into the screenshot before their cells resolve.
+  // One source pixel is one Planck length; empty cells retain the terrain.
+  for(let y=12;y<FREEZE_PIXELS;y+=24)for(let x=12;x<FREEZE_PIXELS;x+=24){
+   const X=x+Math.floor(random()*9)-4,Y=y+Math.floor(random()*9)-4;
+   if(Math.hypot(X-1024,Y-1024)<22)continue;
+   place(catalog[Math.floor(random()*catalog.length)],X,Y,colours[Math.floor(random()*3)],Math.floor(random()*4));
+  }
+  // Denser final neighbourhood: moving ships and oscillators, with the
+  // centre reserved for three independent RGB flight paths.
+  const movers=['glider','glider','glider','lwss','blinker','toad','beacon'];
+  for(let y=-65;y<=65;y+=8)for(let x=-65;x<=65;x+=8){
+   if(Math.hypot(x,y)<24)continue;
+   const kind=movers[Math.floor(random()*movers.length)];
+   place(catalog.find(p=>p.name===kind),1024+x+Math.floor(random()*3),1024+y+Math.floor(random()*3),colours[Math.floor(random()*3)],Math.floor(random()*4));
+  }
+  // A seeded, irregular inner neighbourhood. Separate starting positions
+  // and headings give passing traffic rather than a synchronised rendezvous.
+  const glider=catalog.find(p=>p.name==='glider');
+  const launches=[[-4,-1,0,0],[7,-2,1,1],[2,6,2,2]];
+  for(const [x,y,c,turn]of launches)place(glider,1024+x,1024+y,colours[c],turn);
+  const occupied=launches.map(([x,y])=>[x,y]);
+  const innerKinds=['glider','glider','lwss','blinker','toad','beacon','boat','beehive'];
+  for(let attempt=0,added=0;attempt<800&&added<30;attempt++){
+   const x=Math.round((random()-.5)*46),y=Math.round((random()-.5)*46);
+   if(Math.hypot(x,y)>24||occupied.some(([X,Y])=>Math.hypot(x-X,y-Y)<6))continue;
+   occupied.push([x,y]);
+   const kind=innerKinds[Math.floor(random()*innerKinds.length)];
+   place(catalog.find(p=>p.name===kind),1024+x,1024+y,colours[Math.floor(random()*3)],Math.floor(random()*4));
+   added++;
+  }
+  context.putImageData(frame,0,0);frozenPixels=pixels;
+ }
+
+ let lastSurfaceKey="",surfaceVersion=0,aberrationVersion=-1;
+ function renderSurface(W,H,span){
+  const key=`${W}/${H}/${span}`;if(key===lastSurfaceKey)return;lastSurfaceKey=key;surfaceVersion++;
+  if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}
+  gl.viewport(0,0,W,H);gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);const attr=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(attr);gl.vertexAttribPointer(attr,2,gl.FLOAT,false,0,0);
+  const u=n=>gl.getUniformLocation(program,n);gl.uniform2f(u('resolution'),W,H);gl.uniform1f(u('depth'),Math.log2(FIELD/span));gl.uniform1f(u('span'),span/FIELD);gl.uniform1f(u('unit'),0);gl.uniform1f(u('quality'),new URLSearchParams(location.search).has('renderZoom')?22:10);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(u('field'),0);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+ }
+ return{name:'static Lenia relief → frozen Planck terrain image',range:[-36,-14.7],ready:()=>ready,pending:()=>!ready,draw(cam){
+  const alpha=1-ramp(cam.s,-15.75,-14.8);if(!ready||alpha<=0)return;
+  const frozenView=cam.F*Math.max(cam.W,cam.H)/cam.min<=FREEZE_SPAN;
+  cam.ctx.save();cam.ctx.globalAlpha=alpha;cam.ctx.imageSmoothingEnabled=false;
+  if(frozenView){
+   if(!captured){
+    // Screenshot once, at one fixed physical span and lighting. From here
+    // on only this bitmap is magnified: no terrain, normals or shadows rerun.
+    renderSurface(FREEZE_PIXELS,FREEZE_PIXELS,FREEZE_SPAN);
+    frozen.width=frozen.height=FREEZE_PIXELS;frozen.getContext('2d').drawImage(canvas,0,0);paintPlanckPatterns();captured=true;
+   }
+   const animate=animateLife(cam);
+   const size=FREEZE_SPAN/cam.F*cam.min;
+   const cell=size/FREEZE_PIXELS,ox=(cam.W-size-cell)/2,oy=(cam.H-size-cell)/2;
+   if(cell>=3){
+    cam.ctx.filter='none';
+    const x0=Math.max(0,Math.floor(-ox/cell)),x1=Math.min(FREEZE_PIXELS,Math.ceil((cam.W-ox)/cell));
+    const y0=Math.max(0,Math.floor(-oy/cell)),y1=Math.min(FREEZE_PIXELS,Math.ceil((cam.H-oy)/cell));
+    for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
+     const colour=pixelColour(x,y,animate);cam.ctx.fillStyle=`rgb(${colour.join(",")})`;
+     const left=Math.round(ox+x*cell),top=Math.round(oy+y*cell);
+     cam.ctx.fillRect(left,top,Math.round(ox+(x+1)*cell)-left,Math.round(oy+(y+1)*cell)-top);
+    }
+   }else cam.ctx.drawImage(frozen,ox,oy,size,size);
+  }else{
+   const scale=Math.min(1,(new URLSearchParams(location.search).has('renderZoom')?1600:640)/Math.max(cam.W,cam.H));
+   renderSurface(Math.round(cam.W*scale),Math.round(cam.H*scale),cam.F);
+   drawAberrated(cam);
+  }
+  cam.ctx.restore();
+ }};
+}
