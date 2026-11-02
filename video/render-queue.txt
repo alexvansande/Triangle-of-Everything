@@ -39,7 +39,6 @@ short-05c-observable-universe
 
 # short-00-powers-of-ten: source b4e7e00b includes RGB Life animation below 100 Planck lengths, subtle centered Planck grid and terrain aberration; full render.
 
-short-00-powers-of-ten
 # short-00-powers-of-ten: source 025c1c84 adds denser, scattered Planck patterns and staggered glider trajectories; full render.
 # short-00-powers-of-ten: source 3e89db93 adds naturally nested canyon, crater, folded and ridge terrain scenarios; full render.
 # short-00-powers-of-ten: full 180-second recut, source 8edb968f; 10s CMB opening, 4s acceleration, cruise through 170s, 10s deceleration.
@@ -49,5 +48,3 @@ short-00-powers-of-ten
 # short-00-powers-of-ten: source ca5fa1c, final master 30 Planck lengths / vertical width 16.875 cells; doubled labels and PNG-backed ending; full render.
 # short-00-powers-of-ten: source fe9473b reorders the terrain into rings, diagonal channels, Lenia/craters, strands, ridges, crackle, hills, then RGB noise; full render.
 # short-00-powers-of-ten: source 3387e25 adds 42 actual Life-library creatures across six overlapping depth populations; full render.
-# short-00-powers-of-ten changed: rule-generated settled Lenia animation; source 7b4f9197 (2026-11-02 before 13h)
-# short-00-powers-of-ten changed: remove diagonal terrain bands; source 15564856
