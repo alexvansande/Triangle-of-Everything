@@ -38,3 +38,15 @@ released below -21. The GPU receives pigment before the existing height, relief,
 aberration and bloom pass, so the changing shapes affect relief and colour.
 The opening now advances and reverses with the same physical-depth timeline as
 its smaller strata; holding the zoom still holds its simulation frame.
+
+### Opening correction: static background, unique smooth hero
+
+`bake-lenia-hero.py` and `generated/lenia-opening-v2/` supersede the full-field
+opening animation. Only the unique high-resolution central creature animates.
+The broad field uses the original catalog snapshots with seeded nonperiodic
+patch rotations, offsets and scales; it is never overwritten by animated frames.
+The central creature is aligned by fractional Fourier translation during its
+simulation, replacing rounded pixel rolls. The maximum measured RGB centroid
+step across the 90 256² lossless frames is 0.27 pixels. Runtime interpolation
+further smooths intermediate depth samples. Four decoded hero frames now cost
+at most 1 MiB. The fixed optical body span is recorded in the manifest.

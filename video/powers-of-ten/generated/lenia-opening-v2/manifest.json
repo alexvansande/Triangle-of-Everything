@@ -1,0 +1,12 @@
+{
+  "frames": 90,
+  "stepsPerFrame": 20,
+  "settle": 250,
+  "resolution": 256,
+  "firstScale": -15.5,
+  "lastScale": -20.5,
+  "worldSpan": 0.5650000000000001,
+  "bodyPixels": 25,
+  "tracking": "fractional Fourier translation, no integer recentering",
+  "background": "static irregular stamps; only the central hero is animated"
+}

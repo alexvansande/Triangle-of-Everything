@@ -11,7 +11,11 @@ const PLANCK=1.616255e-35,FIELD=1e-18;
 export function quantumTerrain(){
  const animation=leniaAnimation(),opening=openingLenia();
  const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl2',{alpha:true,antialias:false,preserveDrawingBuffer:new URLSearchParams(location.search).has('bake')});
- let ready=false,program,texture,strataTexture;
+ let ready=false,program,texture,strataTexture,heroTexture;
+ heroTexture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,heroTexture);
+ gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB8,256,256,0,gl.RGB,gl.UNSIGNED_BYTE,new Uint8Array(256*256*3));
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+ for(const key of [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T])gl.texParameteri(gl.TEXTURE_2D,key,gl.CLAMP_TO_EDGE);
  const finalImage=new Image();finalImage.src='/video/powers-of-ten/generated/lenia-terrain-v1/planck-relief.png';
  const image=document.createElement('canvas');image.width=image.height=1024;
  Promise.all(['multichannel.json','found-creatures.json'].map(f=>fetch('/video/powers-of-ten/generated/lenia-terrain-v1/'+f).then(r=>r.json()))).then(async([mover,library])=>{
@@ -55,14 +59,14 @@ export function quantumTerrain(){
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
   for(const key of [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T])gl.texParameteri(gl.TEXTURE_2D,key,gl.CLAMP_TO_EDGE);
   atlas.width=atlas.height=1;
-  texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB8,gl.RGB,gl.UNSIGNED_BYTE,image);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);ready=true;
+  texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB8,gl.RGB,gl.UNSIGNED_BYTE,image);gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);ready=true;
  }).catch(e=>console.error('Lenia terrain seed',e));
  if(!gl)return{name:'quantum terrain',range:[-36,-14.7],draw(){}};
  const compile=(type,src)=>{const sh=gl.createShader(type);gl.shaderSource(sh,src);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(sh));return sh};
  program=gl.createProgram();gl.attachShader(program,compile(gl.VERTEX_SHADER,`#version 300 es
  in vec2 position;void main(){gl_Position=vec4(position,0.,1.);}`));
  gl.attachShader(program,compile(gl.FRAGMENT_SHADER,`#version 300 es
- precision highp float;uniform vec2 resolution;uniform float depth,span,unit,quality,resolveNoise;uniform sampler2D field,strataField;out vec4 frag;
+ precision highp float;uniform vec2 resolution;uniform float depth,span,unit,quality,resolveNoise,heroSpan;uniform sampler2D field,strataField,heroField;out vec4 frag;
  float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
  float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*f*(f*(f*6.-15.)+10.);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
  // Styles belong to immutable world octaves, not the current camera
@@ -166,7 +170,29 @@ export function quantumTerrain(){
   if(hi>1.)c=target+(c-target)*(1.-target)/max(hi-target,.0001);
   return clamp(c,0.,1.);
  }
- float creature(vec2 p){vec2 uv=.5+p*span;return dot(texture(field,uv).rgb,vec3(1.));}
+ // Static distant populations are scattered by world cell, never wrapped
+ // into identical repeated squares. The central high-resolution hero is unique.
+ vec3 mainField(vec2 p){
+  vec2 q=p*span,cell=floor(q);vec3 background=vec3(0.);
+  float lod=clamp(log2(max(1.,1024.*span/min(resolution.x,resolution.y))),0.,10.);
+  if(span>min(resolution.x,resolution.y)*.25)background=textureLod(field,vec2(.5),10.).rgb*.5;
+  else for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){
+   vec2 id=cell+vec2(float(x),float(y)),seed=id+vec2(83.3,29.1);
+   vec2 centre=id+.15+.7*vec2(hash(seed),hash(seed+17.));
+   float angle=hash(seed+43.)*6.2831853,size=.7+.3*hash(seed+91.);
+   mat2 turn=mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
+   vec2 uv=.5+turn*(q-centre)/size;
+   if(uv.x>0.&&uv.y>0.&&uv.x<1.&&uv.y<1.){
+    vec2 edge=smoothstep(vec2(0.),vec2(.1),uv)*smoothstep(vec2(0.),vec2(.1),1.-uv);
+    background+=textureLod(field,uv,lod).rgb*edge.x*edge.y;
+   }
+  }
+  background*=smoothstep(.09,.17,length(q));
+  vec2 uv=.5+q/heroSpan;vec3 hero=vec3(0.);
+  if(uv.x>0.&&uv.y>0.&&uv.x<1.&&uv.y<1.)hero=texture(heroField,uv).rgb;
+  return background+hero;
+ }
+ float creature(vec2 p){return dot(mainField(p),vec3(1.));}
  // World-anchored, irregular stamps. Each neighbourhood has its own
  // position, angle and scale; the source texture never repeats as a square tile.
  vec3 cellularStrata(vec2 p,bool heightPass){
@@ -249,7 +275,7 @@ export function quantumTerrain(){
   float emboss=.54+.38*dot(normal.xy,normalize(vec2(-1.,1.)));
   value=mix(value,emboss,.72);
   vec2 fieldUV=.5+p.xy*span;vec3 channels=vec3(0.);
-  channels=texture(field,fieldUV).rgb;
+  channels=mainField(p.xy);
   float presence=clamp(dot(channels,vec3(1.))*2.5,0.,1.)*smoothstep(.002,.012,span)*(1.-smoothstep(2.,10.,span));
   vec3 strata=cellularStrata(p.xy,false);
   float strataPresence=clamp(dot(strata,vec3(1.))*1.5,0.,.48);
@@ -386,13 +412,13 @@ export function quantumTerrain(){
  let lastSurfaceKey="",surfaceVersion=0,aberrationVersion=-1;
  function renderSurface(W,H,span,freeze=false){
   const openingFrame=freeze?null:opening.update(Math.log10(span));
-  if(openingFrame){gl.bindTexture(gl.TEXTURE_2D,texture);gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,gl.RGB,gl.UNSIGNED_BYTE,openingFrame);}
+  if(openingFrame){gl.bindTexture(gl.TEXTURE_2D,heroTexture);gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,gl.RGB,gl.UNSIGNED_BYTE,openingFrame);}
   const animated=freeze?null:animation.update(Math.log2(FIELD/span));
   if(animated){gl.bindTexture(gl.TEXTURE_2D,strataTexture);gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,gl.RGB,gl.UNSIGNED_BYTE,animated);gl.generateMipmap(gl.TEXTURE_2D);}
   const key=`${W}/${H}/${span}/${freeze}/${animation.version}/${opening.version}`;if(key===lastSurfaceKey)return;lastSurfaceKey=key;surfaceVersion++;
   if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}
   gl.viewport(0,0,W,H);gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);const attr=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(attr);gl.vertexAttribPointer(attr,2,gl.FLOAT,false,0,0);
-  const u=n=>gl.getUniformLocation(program,n);gl.uniform2f(u('resolution'),W,H);gl.uniform1f(u('depth'),Math.log2(FIELD/span));gl.uniform1f(u('span'),span/FIELD);gl.uniform1f(u('unit'),0);gl.uniform1f(u('resolveNoise'),freeze?0:1);gl.uniform1f(u('quality'),new URLSearchParams(location.search).has('renderZoom')?22:10);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(u('field'),0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,strataTexture);gl.uniform1i(u('strataField'),1);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  const u=n=>gl.getUniformLocation(program,n);gl.uniform2f(u('resolution'),W,H);gl.uniform1f(u('depth'),Math.log2(FIELD/span));gl.uniform1f(u('span'),span/FIELD);gl.uniform1f(u('unit'),0);gl.uniform1f(u('resolveNoise'),freeze?0:1);gl.uniform1f(u('heroSpan'),opening.worldSpan);gl.uniform1f(u('quality'),new URLSearchParams(location.search).has('renderZoom')?22:10);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(u('field'),0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,strataTexture);gl.uniform1i(u('strataField'),1);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,heroTexture);gl.uniform1i(u('heroField'),2);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
  }
  return{name:'rule-evolved Lenia relief → frozen Planck terrain image',range:[-36,-14.7],ready:()=>ready,pending:()=>!ready||animation.pending()||opening.pending()||(!captured&&!finalImage.complete),draw(cam){
   const alpha=1-ramp(cam.s,-15.75,-14.8);if(!ready||alpha<=0)return;
