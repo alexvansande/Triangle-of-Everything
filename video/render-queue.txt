@@ -58,3 +58,4 @@ short-00-powers-of-ten
 # short-00-powers-of-ten changed: 90-frame Lenia, 20 steps per frame, fixed crops; source e9b47bb0
 # short-00-powers-of-ten changed: animated opening glider and Orbium field; source 91827d75
 # short-00-powers-of-ten changed: expand red CMB coverage again; source 2fb8c866
+# short-00-powers-of-ten changed: smooth central Lenia hero, static non-repeating background; source e54bb97c
