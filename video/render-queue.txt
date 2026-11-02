@@ -11,7 +11,6 @@
 # A "# priority: <take>" line puts that take first every time it's out of date, and stays.
 # priority: long-01-intro
 # Long video 1's Shorts and the powers-of-ten zoom before long video 3 (the author, 2026-11-01, 23:30)
-# next: short-00-powers-of-ten
 # Order (the author, 2026-11-01): long videos 1 and 2, then their Shorts, then long video 3 and its Shorts
 # next: long-03-small
 # next: short-06a-living
@@ -33,7 +32,6 @@ short-05a-emptier
 short-05b-hubble-sphere
 short-05c-observable-universe
 
-short-00-powers-of-ten
 # short-00-powers-of-ten: updated CMB opacity, regional filament colors and Laniakea pullback rotation; render whole take.
 # short-00-powers-of-ten: replace quark/Life ending with grayscale Lenia relief and Planck-pixel terrain; full render.
 # short-00-powers-of-ten: source f433c943 includes multichannel Lenia, smooth relief, frozen hard pixels and Planck-length final framing; full render.
