@@ -168,14 +168,17 @@ export function quantumTerrain(){
  float creature(vec2 p){vec2 uv=.5+p*span;return dot(texture(field,uv).rgb,vec3(1.));}
  // World-anchored, irregular stamps. Each neighbourhood has its own
  // position, angle and scale; the source texture never repeats as a square tile.
- vec3 cellularStrata(vec2 p){
+ vec3 cellularStrata(vec2 p,bool heightPass){
   vec3 colour=vec3(0.);
   for(int j=0;j<6;j++){
    float layer=5.+float(j)*7.,f=exp2(layer-depth);
    // Subpixel populations contribute their average pigment, not an aliased
    // random stamp mask. This also avoids large-coordinate hash precision noise.
    vec3 average=textureLod(strataField,vec2((.5+float(j))/6.,.5),8.).rgb*.55;
-   float resolved=1.-smoothstep(min(resolution.x,resolution.y)/128.,min(resolution.x,resolution.y)/32.,f);
+   // Pigment can remain visible as a subpixel blue speck long before
+   // its surface shape is large enough for stable height derivatives.
+   float reach=heightPass?1.:10.;
+   float resolved=1.-smoothstep(min(resolution.x,resolution.y)*reach/128.,min(resolution.x,resolution.y)*reach/32.,f);
    colour+=average*(1.-resolved);
    if(resolved<.001)continue;
    float angle=float(j)*1.13;mat2 turn=mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
@@ -214,7 +217,7 @@ export function quantumTerrain(){
   float tangent=dot(gradient,p);
   float relief=tangent;
   if(span>.002)relief=mix(tangent,(creature(p)-creature(vec2(0)))/span,smoothstep(.002,.012,span));
-  float cellular=dot(cellularStrata(p)-cellularStrata(vec2(0)),vec3(1.));
+  float cellular=dot(cellularStrata(p,true)-cellularStrata(vec2(0),true),vec3(1.));
   return sum*.075+relief*.007+cellular*.009;
  }
  void main(){
@@ -247,7 +250,7 @@ export function quantumTerrain(){
   vec2 fieldUV=.5+p.xy*span;vec3 channels=vec3(0.);
   channels=texture(field,fieldUV).rgb;
   float presence=clamp(dot(channels,vec3(1.))*2.5,0.,1.)*smoothstep(.002,.012,span)*(1.-smoothstep(2.,10.,span));
-  vec3 strata=cellularStrata(p.xy);
+  vec3 strata=cellularStrata(p.xy,false);
   float strataPresence=clamp(dot(strata,vec3(1.))*1.5,0.,.48);
   channels+=strata*.38;presence=max(presence,strataPresence);
   vec3 pigment=channels/max(max(channels.r,channels.g),max(channels.b,.001));
