@@ -57,7 +57,8 @@ def description(v):
     incompetech credit block for the track."""
     src = open(os.path.join(ROOT, "video", "DESCRIPTION.md")).read()
     body = src.split("\n\n", 2)[2] if src.startswith("#") else src      # drop the file's own title and note
-    body = body.replace("<track>", v["music"])
+    tracks = v["music"] if isinstance(v["music"], list) else [v["music"]]   # a long video can have several
+    body = body.replace("<track>", tracks[0])
     body = re.sub(r"\n\(tracks per video[^)]*\)", "", body)
     body = re.sub(r"\*\*(.+?)\*\*", r"\1", body)                          # no markdown on YouTube
     body = re.sub(r"\nMusic: [^\n]*(\n[^\n]+CC BY 4\.0)?", "", body)        # the full credit block follows
@@ -74,7 +75,7 @@ def description(v):
     body = "\n\n".join(paras)
     # the incompetech credit (track, author, source, licence), in the same "label: link" form as
     # the description's other links (the author, 2026-10-30)
-    credit = (f'Music: "{v["music"]}" by Kevin MacLeod: https://incompetech.com\n'
+    credit = (f'Music: {" and ".join(f'"{t}"' for t in tracks)} by Kevin MacLeod: https://incompetech.com\n'
               "Licensed under Creative Commons Attribution 4.0: https://creativecommons.org/licenses/by/4.0/")
     full = v.get("fullVideo", MANIFEST_DEFAULTS.get("fullVideo"))
     watch = f"\n\nWatch the full video: {full}" if full else ""
@@ -92,7 +93,11 @@ def photo_credits(take):
         m = re.match(r"\| ([a-z0-9-]+)(?: \(\.mp4\))? \| (.*?) \| (.*?) \|", line)
         if m and m[3] != "Ours":
             rows[m[1]] = (re.sub(r"\s+", " ", re.sub(r",\s*uploader .*", "", m[2])).strip(), m[3])
-    scene = open(os.path.join(ROOT, "src", "narration-scenes", f"{take}.js")).read()
+    f = os.path.join(ROOT, "src", "narration-scenes", f"{take}.js")
+    if not os.path.exists(f):   # a take cut from another's scene (short-02a-things plays short-02-up-the-line's)
+        scene_of = load(os.path.join(ROOT, "public", "narration", take, "words.json"), {}).get("scene", take)
+        f = os.path.join(ROOT, "src", "narration-scenes", f"{scene_of}.js")
+    scene = open(f).read()
     used = [n for n in rows if re.search(r"[\"'/]" + re.escape(n) + r"[\"'.]", scene)]
     if not used:
         return ""
