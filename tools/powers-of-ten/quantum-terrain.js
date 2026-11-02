@@ -123,10 +123,12 @@ export function quantumTerrain(){
    height+=(.5+crater+.12*(base-.5))*(craters*1.35);totalWeight+=craters*1.35;
   }
   if(faults>0.){
-   float angle=1.15;
-   float trace=dot(q,vec2(cos(angle),sin(angle)))*.65+.55*noise(q*.6);
-   float wave=sin(trace*6.2831853),crack=exp(-pow(wave/.14,2.));
-   float displaced=.5+.16*sin(trace*6.2831853+.6)-.28*crack;
+   // Nonperiodic fault contours: a sine of a directional projection made
+   // regularly spaced diagonal bands that read as rendering seams.
+   vec2 warped=q*.72+1.3*vec2(noise(q*.37+11.),noise(q*.37-7.));
+   float trace=noise(warped);
+   float crack=exp(-pow((trace-.5)/.055,2.));
+   float displaced=.55+.16*noise(warped*.63+3.)-.28*crack;
    height+=(displaced+.1*(base-.5))*(faults*1.1);totalWeight+=faults*1.1;
   }
   if(membranes>0.){
