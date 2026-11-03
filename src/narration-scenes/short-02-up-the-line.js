@@ -5,9 +5,11 @@
 // line with the balloons; animals in a thin band, the hippo, the elephants,
 // dinosaurs, the whale and the sequoia; the Eiffel Tower, the pyramid, lakes,
 // asteroids and small moons; round worlds; atmospheres, the Goldilocks zone, gas giants, Saturn;
-// super-Jupiters and degenerate matter; the split at the brown dwarfs.
-// Recorded 2026-10-26 (rec33) and 2026-10-28 (rec46, the re-recorded paragraphs; video/short-02-up-the-line/);
-// the 2026-10-23 cut (rec32) and the 2026-10-21 one (rec27 + rec28) are in git history.
+// super-Jupiters, gravity's second win over electromagnetism, and degenerate matter; the split at the brown dwarfs.
+// Recorded 2026-11-03 (rec51, one take with the hook; video/short-02-up-the-line/). A retired take: the source of
+// long video 1 and Shorts 2a and 2b (video/cuts/), so it holds both Shorts' openings and the long one's line;
+// each cut keeps only its own (their scenes add what's theirs alone). The rec33 + rec46 cut, and the
+// earlier ones, are in git history.
 // =============================================================
 // Field reference: docs/narration.md, "Scene fields".
 
@@ -61,6 +63,10 @@ const EIFFEL = { trace: "Eiffel Tower", grow: 2.6, shapes: [
 const EIFFEL_LINES = [{ line: "water", label: "water" }, { line: "air", label: "air" }];
 // the animals put first at "most animals": the chart's own and the catalogue's (by their labels)
 const ANIMALS = ["Venus", "Human", "Cow", "Hippopotamus", "Elephant", "Lion", "Giraffe", "Polar bear", "Gorilla"];
+// gravity 2, electromagnetism 0: a scoreboard beside the super-Jupiters' column, in the clear space left of it
+// (three lines, 22 px: "Electromagnetism 0" on one ran off the left edge of the 9:16 frame; the author, 2026-11-03)
+const SCORE = { text: "Gravity 2\nElectro-\nmagnetism 0", at: [9.34, 32.4], size: 22, color: "#ffe9a3" };
+const SCORE_ON = { ...SCORE, instant: true };
 const drawn = (list) => list.map(h => h.arrow ? { ...h, draw: 0.01 } : { ...h, instant: true, delay: 0 });
 
 export default {
@@ -68,9 +74,9 @@ export default {
   blurb: "From a millilitre of water up the density line: what sinks and floats, animals, mountains, round worlds, gas giants and the brown dwarfs.",
   // the author's camera script: open close on a moth, zoom out until the millilitre
   // of water shows, then an extreme close-up of the cube and its sister ball, then
-  // out again until the litre fits too
+  // out again until the litre fits too (the moth is short-02a-things' opening shot, set there)
   start: { r: -0.93, m: -2.22, span: 0.9 },   // Eois stantonae
-  captionFixes: { short: "chart", math: "mass", mess: "mass" },
+  captionFixes: { short: "chart", shore: "chart", math: "mass", mess: "mass" },
   // the YouTube thumbnail (scripts/narration-poster.mjs): in close on the water and air lines,
   // full of animals, balloons and aircraft, each side named (the author, 2026-10-30)
   poster: { at: 3, set: { iconDensity: 100 }, cues: [{ t: 0, cam: { r: 2.25, m: 6.3, span: 3.2 }, dur: 0.1, drift: 0, forceIcons: ANIMALS, hl: [
@@ -96,23 +102,27 @@ export default {
     "Stonehenge", "Stone of the Pregnant Woman", "Devils Tower", "West Mitten Butte"],
   backing: "Soaring",
   sound: [
-    { at: "to the right will float", fx: "bubble", offset: 0.9 },
+    { at: "therefore will float", fx: "bubble", offset: 0.6 },
     { at: "can't actually swim", fx: "glug", offset: 0.2, gain: 2 },
     { at: "lightest gases", fx: "hiss", offset: 0.3 },
     { at: "less dense than water", fx: "bubble", offset: 0.8 },
   ],
 
   cues: [
-    // the diagonal
-    { at: "draw everything that exists", cam: INSECTS, dur: 11, drift: 0.02,
+    // the diagonal (Short 2a's opening: from the moth, short-02a-things' first shot, in to the insects,
+    // arriving at "In the metric system". Long video 1 has its own line here, "So let's start with that
+    // first diagonal…", and flies to the same shot itself: long-01-intro.js. A cut piece opens on the
+    // target of the source's last camera move, so the long one's join into "In the metric system" lands
+    // on this cue's INSECTS, where its camera already is)
+    { at: "plot everything that exists", offset: 0.1, cam: INSECTS, dur: 8.2, drift: 0.02,
       hl: [{ obj: "Ant", delay: 1.5 }, { obj: "Ladybug", delay: 2.5 }, { obj: "Microchip", delay: 3.5 }] },
-    { at: "these diagonal lines", hl: [{ line: "water", label: "the diagonal" }] },
+    { at: "along the diagonal line", hl: [{ line: "water", label: "the diagonal" }] },
 
     // a millilitre of water: a cube 1 cm wide, then the same water as a ball
-    { at: "in the metric system", cam: { obj: "1ml of water (cube)", dr: 0.033, span: 0.3 }, units: true, unitsUntil: "that's okay",
+    { at: "in the metric system", cam: { obj: "1ml of water (cube)", dr: 0.033, span: 0.3 }, units: true, unitsUntil: "be noticeable",
       hl: [{ ...CUBE, label: "1 mL · 1 gram" }] },
     { at: "fill a cube", hl: [{ ...CUBE, label: "a cube 1 cm wide" }] },
-    { at: ["as if they were a ball", "measure sizes as spheres"], hideIcons: [],
+    { at: ["as if everything were", "as if they were a ball"], hideIcons: [],
       hl: [{ ...CUBE, label: "cube · 1 cm" }, { arrow: true, from: CUBE, to: ML, color: "#80deea" }, { ...ML, label: "ball · 1.24 cm", delay: 0.6 }] },
     { at: ["a tiny bit to the right", "a little bit to the side"],
       hl: [{ ...CUBE, label: "cube" }, { arrow: true, from: CUBE, to: ML, color: "#80deea", draw: 0.01 }, { ...ML, label: "a little to the side" }] },
@@ -144,17 +154,22 @@ export default {
       hl: [WATER, { obj: "Bust of Queen Nefertiti", label: "Nefertiti · limestone", place: "left" }] },
     { at: "and metal", cam: C(0.7, 2.4, 2.4),
       hl: [WATER, { obj: "Voyager Golden Record", label: "golden record · copper" }] },
-    { at: "to the right will float", cam: C(1.1, 3.4, 2.35), hl: [WATER, { side: "left", label: "sinks" }, { side: "right", label: "floats" }] },
+    { at: "anything to the right", cam: C(1.1, 3.4, 2.35), hl: [WATER, { side: "left", label: "sinks" }, { side: "right", label: "floats" }] },
     // the air line runs to the right of the water line, a thousand times less dense
     { at: "density of air", cam: C(1.5, 4.2, 2.3), hl: [WATER, { line: "air", label: "density of air" }] },
-    { at: "heavier than air", cam: C(1.9, 5.0, 2.2), hl: [WATER, { ...AIR, label: "lighter than air →" }] },
     // the zeppelin is the Hindenburg (the author, 2026-10-31: not the modern Zeppelin NT; then both lit
     // up, 2026-11-01), framed
     // with the balloon: it sits a decade and a half further up the air line
-    { at: ["as the name says", "lighter than air aircraft"], cam: C(2.9, 6.9, 2.5),
-      hl: [AIR, { obj: "Hindenburg" }, { obj: "Zeppelin NT", delay: 0.15 }, { obj: "Hot-air Balloon", delay: 0.3 }] },
-    { at: "balloons and zeppelins", cam: C(3.2, 7.25, 2.6),
+    // (rec51: "And balloons and zeppelins are literally called lighter-than-air aircraft, because they
+    // float on air, and that's why they are on the right of the line of the density of air")
+    { at: "balloons and zeppelins", cam: C(2.4, 6.0, 2.4),
+      hl: [WATER, { ...AIR, label: "density of air" }, { obj: "Hindenburg" }, { obj: "Zeppelin NT", delay: 0.15 }, { obj: "Hot-air Balloon", delay: 0.3 }] },
+    { at: "literally called", cam: C(2.9, 6.9, 2.5),
+      hl: [{ ...AIR, label: "lighter than air →" }, { obj: "Hindenburg" }, { obj: "Zeppelin NT" }, { obj: "Hot-air Balloon" }] },
+    { at: "they float on air", cam: C(3.2, 7.25, 2.6),
       hl: [AIR, { obj: "Hindenburg", label: "zeppelin", place: "left" }, { obj: "Zeppelin NT" }, { obj: "Hot-air Balloon", label: "balloon" }] },
+    { at: "on the right of the line", cam: C(3.3, 7.4, 2.6),
+      hl: [AIR, { side: "right", of: "air", color: "#a5d6a7", label: "floats in air" }, { obj: "Hindenburg", label: "zeppelin", place: "left" }, { obj: "Zeppelin NT" }, { obj: "Hot-air Balloon", label: "balloon" }] },
 
     // animals and what we build: the glide carries on, a bit over a decade and a half
     // wide, then up the line (waypoints at their cue times) on to the round worlds
@@ -176,7 +191,7 @@ export default {
     { at: "the blue whale", cam: UP(2.55, 1.9), hideLabels: null, hl: [{ obj: "Blue Whale", label: "largest animal ever" }] },
     // the Eiffel Tower's picture kept on from here (it gave way to its neighbours for the 7 s before
     // it's named: the author, 2026-10-31), the animals' too until the engineering
-    { at: "the largest tree", cam: UP(2.85, 2.2), forceIcons: [...ANIMALS, "Argentinosaurus", "Eiffel Tower"], hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
+    { at: ["compared to trees", "the largest tree"], cam: UP(2.85, 2.2), forceIcons: [...ANIMALS, "Argentinosaurus", "Eiffel Tower"], hl: [{ obj: "Blue Whale", place: "left" }, { obj: "Sequoia", label: "largest tree" }] },
 
     // what we build
     { at: "to engineering", cam: UP(3.15, 3.2), dur: 2, clear: true, hideIcons: [], firstIcons: null, forceIcons: ["Venus", "Eiffel Tower"],
@@ -197,14 +212,14 @@ export default {
     { at: "also counting all", hl: [{ ...EIFFEL, step: 0 }, ...EIFFEL_LINES] },
     // (the first copy lands only a fifth of a decade to the left: a closer look, then out
     // enough for the iron, the outlines shrinking to make room)
-    { at: ["leave out the arch", "in many ways"], cam: { r: 3.76, m: 10.03, span: 1.1 }, quiet: true, dur: 1.6, drift: 0.03,
+    { at: ["take out the gap", "leave out the arch"], cam: { r: 3.76, m: 10.03, span: 1.1 }, quiet: true, dur: 1.6, drift: 0.03,
       hl: [{ ...EIFFEL, step: 1, grow: 1.7, draw: 0.9 }, ...EIFFEL_LINES] },
-    // the iron lattice, the third shape (rec46 names each volume as it lands, 2026-10-28)
-    { at: ["the iron alone", "fractal"], offset: -0.3, cam: { r: 3.38, m: 10.02, span: 1.7 }, quiet: true, dur: 1.4, drift: 0.03,
+    // the iron lattice, the third shape (rec51 names each volume as it lands: "Melt it down…")
+    { at: ["melt it down", "the iron alone"], offset: -0.3, cam: { r: 3.38, m: 10.02, span: 1.7 }, quiet: true, dur: 1.4, drift: 0.03,
       hl: [{ ...EIFFEL, step: 2, grow: 1.1, move: 1.1 }, ...EIFFEL_LINES] },
 
     // rocks, lakes, asteroids and small moons
-    { at: ["big rocks and big", "lots of big rocks"], cam: C(4.05, 11.3, 3.9), hl: [{ obj: "Great Pyramid" }] },
+    { at: ["come big rocks", "big rocks and big"], cam: C(4.05, 11.3, 3.9), hl: [{ obj: "Great Pyramid" }] },
     // (framed with Everest too: it was above the frame, 2026-10-31)
     { at: ["a little bit of both", "both categories"], cam: C(4.9, 15.4, 5.2), hl: [{ obj: "Great Pyramid", label: "rock and building" }, { obj: "Mt. Everest", delay: 0.3 }] },
     // the lakes sit below the line (wide and flat): the pan dips to them
@@ -214,7 +229,11 @@ export default {
     { at: "small moons", cam: C(6.0, 18.4, 3.8), hl: [{ obj: "Eros", place: "left" }, { obj: "Deimos", label: false }, { obj: "Phobos", label: "moons of Mars" }] },
 
     // round worlds
-    { at: "less potato", cam: { r: 7.2, m: 22.2, span: PAN, glide: true },
+    // (twice: "…stops being a potato shape" ends Short 2a and runs on in long video 1; "…turn from potato
+    // shapes into spheres" is Short 2b's opening, after its axes: short-02b-planets.js. Each cut has one)
+    { at: "stops being a potato", cam: { r: 7.2, m: 22.2, span: PAN, glide: true },
+      hl: [{ obj: "Hyperion", place: "left", label: "Hyperion · lumpy" }, { obj: "Vesta", delay: 0.4 }, { obj: "Ceres", delay: 0.8 }] },
+    { at: "potato shapes into", cam: { r: 7.2, m: 22.2, span: PAN, glide: true },
       hl: [{ obj: "Hyperion", place: "left", label: "Hyperion · lumpy" }, { obj: "Vesta", delay: 0.4 }, { obj: "Ceres", delay: 0.8 }] },
     // the line between them: the last lumpy asteroid (Vesta) and the first round one (Ceres).
     // Icy moons round up lighter (ice is softer than rock): Mimas is round below it, so it's left out here
@@ -223,7 +242,7 @@ export default {
     { at: "shapes planets", cam: G(7.8, 23.95), hl: [BONDS, GRAVITY, { obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
 
     // atmospheres
-    { at: "mercury nor the moon", cam: G(8.35, 26.1), hl: [{ obj: "Moon", label: "Moon · none", place: "left" }, { obj: "Mercury", label: "Mercury · none", place: "left" }] },
+    { at: ["mercury or the moon", "mercury nor the moon"], cam: G(8.35, 26.1), hl: [{ obj: "Moon", label: "Moon · none", place: "left" }, { obj: "Mercury", label: "Mercury · none", place: "left" }] },
     // close enough that both Venus's and Earth's pictures show
     { at: "venus and earth", cam: G(8.7, 27.4), hl: [{ obj: "Mercury", place: "left" }, { obj: "Earth", delay: 0.2 }, { obj: "Venus", place: "left", delay: 0.5 }] },
     { at: "lightest gases", cam: G(9.0, 28.2), hl: [{ obj: "Earth", label: "hydrogen escapes" }] },
@@ -247,12 +266,18 @@ export default {
     { at: ["trend suddenly stops", "trend stops"], cam: G(9.85, 30.6),
       hl: [WATER, { obj: "Saturn", label: false, place: "left" }, { obj: "Jupiter", label: false }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", delay: 0.6 }] },
     { at: "still roughly", cam: G(9.85, 30.9), hl: [{ obj: "Jupiter", label: "Jupiter size", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
-    { at: "pressure in their core", cam: G(9.85, 31.2), hl: [{ obj: "Jupiter", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
-    { at: ["they push back", "degenerate matter"], cam: G(9.85, 31.6), hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
+    // "This is once again gravity breaking into electromagnetism's last refuge: the atom itself" (rec51):
+    // the score, gravity's first win being the round worlds (the script's on-screen note, 2026-11-02)
+    { at: "once again gravity", cam: G(9.85, 31.0), hl: [SCORE, { obj: "Jupiter", label: "the atom itself", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }] },
+    { at: ["pressure in the core", "pressure in their core"], cam: G(9.85, 31.2), hl: [SCORE_ON, { obj: "Jupiter", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
+    { at: "sea of electrons", hl: [SCORE_ON, { obj: "Jupiter", label: "bare nuclei, free electrons", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false }] },
+    { at: "refuse to be squeezed", cam: G(9.85, 31.6), hl: [SCORE_ON, { obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
       { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "degenerate matter" }] },
+    { at: "denser not bigger", hl: [SCORE_ON, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" }, { obj: "Jupiter", place: "left", label: false },
+      { obj: "L Brown Dwarf", label: "denser, not bigger" }] },
 
     // the split
-    { at: "about brown dwarfs", cam: G(9.85, 32.1),
+    { at: ["around brown dwarfs", "about brown dwarfs"], cam: G(9.85, 32.1),
       hl: [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "brown dwarfs" }] },
     // travel up each branch: the stars to the right, the dead stars to the left
     { at: "veer to the right",

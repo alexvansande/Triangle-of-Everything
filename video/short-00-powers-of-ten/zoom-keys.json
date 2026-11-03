@@ -1,0 +1,238 @@
+{
+ "_about": "Retiming of the powers-of-ten zoom (tools/powers-of-ten/zoom-timeline.js, in the author's zoom source) to its narration (rec52, 2026-11-03; video/short-00-powers-of-ten/). `at` is the video time, in seconds, at which the zoom should be framing `shows`: the moment the narration names it (the first word of its name). frameWidthM is a rough frame width, for keys the timeline doesn't have yet. Join the keys with the timeline's smooth curve (no stops between them), stop on the Planck grid at the 'planck' key and hold the gliders from there to the end, 180 s. The narration ends at speechEnd.",
+ "video": 180,
+ "speechEnd": 175.5,
+ "keys": [
+  {
+   "key": "cmb-opening",
+   "at": 0.0,
+   "shows": "the CMB shell, turning (the opening)",
+   "frameWidthM": 1.2e+27,
+   "line": "As far as we've been able to measure…"
+  },
+  {
+   "key": "cmb",
+   "at": 11.83,
+   "shows": "the CMB shell",
+   "frameWidthM": 1e+27,
+   "line": "The largest thing we can see is the cosmic microwave background…"
+  },
+  {
+   "key": "event-horizon",
+   "at": 26.92,
+   "shows": "the cosmic event horizon bubble",
+   "frameWidthM": 4e+26,
+   "line": "The smaller bubble inside is the cosmic event horizon…"
+  },
+  {
+   "key": "superclusters",
+   "at": 39.38,
+   "shows": "superclusters, filaments and voids",
+   "frameWidthM": 1e+25,
+   "line": "Inside them are the largest structures of all: superclusters…"
+  },
+  {
+   "key": "laniakea",
+   "at": 44.54,
+   "shows": "Laniakea",
+   "frameWidthM": 6e+24,
+   "line": "We live in one such small filament called the Laniakea supercluster…"
+  },
+  {
+   "key": "local-group",
+   "at": 53.58,
+   "shows": "the Local Group",
+   "frameWidthM": 1e+23,
+   "line": "And in here, we see our local neighbourhood of galaxies."
+  },
+  {
+   "key": "andromeda",
+   "at": 55.96,
+   "shows": "Andromeda",
+   "frameWidthM": 1e+23,
+   "line": "Here's Andromeda…"
+  },
+  {
+   "key": "milky-way",
+   "at": 57.06,
+   "shows": "the Milky Way",
+   "frameWidthM": 2e+21,
+   "line": "…and here's the Milky Way: that's us."
+  },
+  {
+   "key": "sun",
+   "at": 61.09,
+   "shows": "the Sun in its arm",
+   "frameWidthM": 1e+20,
+   "line": "And in one of its arms, one star among hundreds of billions is the Sun."
+  },
+  {
+   "key": "nearby-stars",
+   "at": 64.09,
+   "shows": "Sirius, Proxima Centauri",
+   "frameWidthM": 2e+17,
+   "line": "Here are the nearby stars, Sirius and Proxima Centauri."
+  },
+  {
+   "key": "oort",
+   "at": 68.63,
+   "shows": "the Oort Cloud",
+   "frameWidthM": 3e+16,
+   "line": "The Sun is surrounded by billions of icy comets that make up the Oort cloud."
+  },
+  {
+   "key": "planets",
+   "at": 74.89,
+   "shows": "the planets' orbits",
+   "frameWidthM": 10000000000000.0,
+   "line": "Now we can see the orbits of planets…"
+  },
+  {
+   "key": "earth-orbit",
+   "at": 77.43,
+   "shows": "Earth (the third rock)",
+   "frameWidthM": 400000000000.0,
+   "line": "…and the third rock from the Sun: that's home."
+  },
+  {
+   "key": "moon",
+   "at": 80.04,
+   "shows": "Earth and the Moon going by",
+   "frameWidthM": 1000000000.0,
+   "line": "We see the Moon zoom by."
+  },
+  {
+   "key": "north-america",
+   "at": 83.1,
+   "shows": "North America",
+   "frameWidthM": 6000000.0,
+   "line": "And in North America,"
+  },
+  {
+   "key": "california",
+   "at": 84.06,
+   "shows": "California",
+   "frameWidthM": 1500000.0,
+   "line": "California,"
+  },
+  {
+   "key": "sierra-nevada",
+   "at": 85.17,
+   "shows": "the Sierra Nevada",
+   "frameWidthM": 400000.0,
+   "line": "in the Sierra Nevada,"
+  },
+  {
+   "key": "sequoias",
+   "at": 87.0,
+   "shows": "the forest of giant sequoias",
+   "frameWidthM": 2000.0,
+   "line": "…lives the forest of giant sequoias."
+  },
+  {
+   "key": "general-sherman",
+   "at": 90.31,
+   "shows": "the General Sherman",
+   "frameWidthM": 150,
+   "line": "And there lives the General Sherman, the largest tree on Earth."
+  },
+  {
+   "key": "ladybug",
+   "at": 95.13,
+   "shows": "the ladybug on a branch",
+   "frameWidthM": 0.02,
+   "line": "And on one of its branches, a ladybug…"
+  },
+  {
+   "key": "dew",
+   "at": 97.43,
+   "shows": "the drop of morning dew",
+   "frameWidthM": 0.003,
+   "line": "…is drinking a little bit of morning dew."
+  },
+  {
+   "key": "amoeba",
+   "at": 102.3,
+   "shows": "the amoeba",
+   "frameWidthM": 0.0006,
+   "line": "And we find our first single-celled organism: an amoeba."
+  },
+  {
+   "key": "nucleus-dna",
+   "at": 103.58,
+   "shows": "the cell's nucleus, then its DNA",
+   "frameWidthM": 2e-05,
+   "line": "Inside it, we find its nucleus, and its DNA, wound tight around proteins."
+  },
+  {
+   "key": "double-helix",
+   "at": 109.64,
+   "shows": "the double helix",
+   "frameWidthM": 2e-08,
+   "line": "The double helix is two millionths of a millimetre wide."
+  },
+  {
+   "key": "atom",
+   "at": 113.19,
+   "shows": "the atom",
+   "frameWidthM": 3e-10,
+   "line": "Atom is Greek for uncuttable…"
+  },
+  {
+   "key": "atom-empty",
+   "at": 123.88,
+   "shows": "the atom's empty space, the electron cloud",
+   "frameWidthM": 1e-11,
+   "line": "They're made of electrons, protons and neutrons, and they're mostly empty space."
+  },
+  {
+   "key": "proton",
+   "at": 129.02,
+   "shows": "the nucleus: one proton",
+   "frameWidthM": 3e-15,
+   "line": "And the proton and neutron, in turn, are made of smaller things, like quarks and gluons."
+  },
+  {
+   "key": "quarks",
+   "at": 134.93,
+   "shows": "the quark patterns",
+   "frameWidthM": 1e-18,
+   "line": "And what are quarks made of? Well, truly, we don't know."
+  },
+  {
+   "key": "rules",
+   "at": 139.76,
+   "shows": "the quark patterns into the grey terrain",
+   "frameWidthM": 1e-22,
+   "line": "But now, instead of searching for the smallest building block…"
+  },
+  {
+   "key": "terrain",
+   "at": 146.92,
+   "shows": "the grey terrain (fields)",
+   "frameWidthM": 1e-27,
+   "line": "Quantum field theory describes the universe as simply numbers at every point…"
+  },
+  {
+   "key": "planck",
+   "at": 157.39,
+   "shows": "the Planck grid (the zoom stops)",
+   "frameWidthM": 4.8e-34,
+   "line": "Our journey ends at the Planck length."
+  },
+  {
+   "key": "clash",
+   "at": 160.11,
+   "shows": "the Planck grid, held",
+   "frameWidthM": 4.8e-34,
+   "line": "At this point, relativity clashes with quantum mechanics."
+  },
+  {
+   "key": "life",
+   "at": 164.02,
+   "shows": "the gliders (held to the end)",
+   "frameWidthM": 4.8e-34,
+   "line": "Is that the limit? … it's all one big game of life."
+  }
+ ]
+}

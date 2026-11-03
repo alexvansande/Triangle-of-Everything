@@ -5,8 +5,8 @@
 // mechanics, relativity) meeting at the Big Bang, and time on the diagonals;
 // then the cross-fade into the map on "…the triangle of everything", a quick
 // tour of its stories, and the author's outro over one slow zoom out.
-// Recorded 2026-10-27 (rec35; video/short-01-hook/). The earlier cuts and
-// their scenes are in git history.
+// Recorded 2026-11-03 (rec51, the one-take script for long video 1 and its Shorts;
+// video/short-01-hook/). The earlier cuts (rec35…) and their scenes are in git history.
 // =============================================================
 // Field reference: docs/narration.md, "Scene fields". Axis highlights: { axis: side }.
 // The classic figure here has energy (GeV) on the left, mass (g) on the
@@ -73,7 +73,7 @@ export default {
     // energy and wavelength
     // "…a chart of energy": the figure turns white with Einstein's equation for 2 s, the energy
     // and mass axes lit either side, a double arrow between them
-    { at: "also a chart of energy", cam: FIG, dur: 2, header: false, hl: [{ axis: "left", label: "energy" }, { axis: "right", label: "mass" },
+    { at: ["also a plot of energy", "also a chart of energy"], cam: FIG, dur: 2, header: false, hl: [{ axis: "left", label: "energy" }, { axis: "right", label: "mass" },
       { card: "E = mc²", hold: 2, arrow: true, caption: "Mass and energy are equivalent" }] },
     { at: "bottom axis", hl: [{ axis: "bottom", label: "size" }] },
     { at: "as wavelength", hl: [{ axis: "bottom", label: "wavelength" }] },
@@ -93,7 +93,7 @@ export default {
     { at: "on the right", hl: [UNIVERSE] },
     { at: "quantum mechanics", hl: [UNIVERSE, QUANTUM] },
     { at: "relativity", hl: [UNIVERSE, QUANTUM, RELATIVITY] },
-    { at: "where those lines meet", cam: PLANCK, dur: 2.4, hl: [{ line: "compton" }, { line: "schwarzschild" }] },
+    { at: ["where those two lines meet", "where those lines meet"], cam: PLANCK, dur: 2.4, hl: [{ line: "compton" }, { line: "schwarzschild" }] },
 
     // time on the diagonals along the top
     { at: "along the top", cam: { r: 22, m: 50, span: 44 }, clear: true },
@@ -114,12 +114,12 @@ export default {
     { at: "and gravity", cam: { r: 8.5, m: 26.8, span: 9, whip: true }, hl: [{ obj: "Moon" }, { obj: "Earth", label: "gravity" }] },
     { at: "how stars evolve", cam: { r: 11.6, m: 33.5, span: 11, whip: true },
       hl: [{ path: "stellar-low-mass" }, { obj: "Protostar" }, { obj: "Sun", delay: 0.3 }, { obj: "Red Giant", delay: 0.6 }, { obj: "White Dwarf", delay: 0.9 }] },
-    { at: "particles turn into", cam: { r: -11.8, m: -25.4, span: 11, whip: true },
+    { at: ["particles relate", "particles turn into"], cam: { r: -11.8, m: -25.4, span: 11, whip: true },
       hl: [{ obj: "Proton" }, { obj: "Neutron", label: false }, { obj: "Electron", delay: 0.3 }] },
     { at: "why balloons float", cam: { r: 2.1, m: 3.6, span: 9, whip: true },
       hl: [{ line: "air" }, { obj: "Helium Party Balloon" }, { obj: "Hot-air Balloon", delay: 0.3 }] },
     // the chart's own overlays here, not pictures: the periodic table's grid, then the spectrum's sine wave
-    { at: "the periodic table", cam: { r: -8.1, m: -22.6, span: 2.6, whip: true }, clear: true, periodic: true },
+    { at: ["periodic table"], cam: { r: -8.1, m: -22.6, span: 2.6, whip: true }, clear: true, periodic: true },
     { at: "why fire looks", cam: { obj: "Visible Light", span: 9, whip: true }, periodic: false, spectrum: true },
 
     // the outro: one slow, even zoom out from the last shot to the whole triangle, arriving as the end card covers it
