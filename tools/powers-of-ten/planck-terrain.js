@@ -2,7 +2,7 @@
 import {rng} from './math.js';
 import {stepRGBLife} from './life-colour.js';
 import {buildLifeCatalog} from './life-catalog.js';
-import {timeAtProgress,VIDEO_END_SCALE} from './zoom-timeline.js';
+import {timeAtProgress,VIDEO_START_SCALE,VIDEO_END_SCALE} from './zoom-timeline.js';
 const PLANCK=1.616255e-35;
 export function planckTerrain(){
  const finalImage=new Image();finalImage.src='/video/powers-of-ten/generated/lenia-terrain-v1/planck-relief.png';
@@ -15,7 +15,7 @@ export function planckTerrain(){
   if(cam.F>100*PLANCK){lifeStart=null;lifeGeneration=0;lifeCells=null;return false;}
   const video=new URLSearchParams(location.search).has('renderZoom');
   if(lifeStart===null)lifeStart=cam.t;
-  const crossing=video?timeAtProgress((window.canopyTest.maximum-Math.log10(100*PLANCK))/(window.canopyTest.maximum-VIDEO_END_SCALE)):lifeStart;
+  const crossing=video?timeAtProgress((VIDEO_START_SCALE-Math.log10(100*PLANCK))/(VIDEO_START_SCALE-VIDEO_END_SCALE)):lifeStart;
   const generation=Math.max(0,Math.floor((cam.t-crossing)*6));
   if(!lifeCells||generation<lifeGeneration){lifeCells=lifeSeed.slice();lifeGeneration=0;}
   while(lifeGeneration<generation){lifeCells=stepRGBLife(lifeCells,LIFE_SIZE);lifeGeneration++;}
