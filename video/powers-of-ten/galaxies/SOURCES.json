@@ -1,0 +1,10 @@
+{
+  "license": "CC BY 4.0",
+  "licenseURLs": ["https://www.eso.org/public/outreach/copyright/", "https://esahubble.org/copyright/"],
+  "method": "Unaltered publication JPEGs. App applies a soft elliptical window, sky-pedestal subtraction, exposure gain and perspective projection. No AI alteration. Residual field stars within the windows remain part of the photographs; this is not a fully segmented extragalactic survey.",
+  "lmc.jpg": {"page":"https://www.eso.org/public/images/eso1914a/", "download":"https://www.eso.org/public/archives/images/publicationjpg/eso1914a.jpg", "credit":"ESO/VMC Survey", "instrument":"VISTA, near infrared Y/J/Ks"},
+  "smc.jpg": {"page":"https://www.eso.org/public/images/eso1714a/", "download":"https://cdn.eso.org/images/publicationjpg/eso1714a.jpg", "credit":"ESO/VISTA VMC", "instrument":"VISTA, near infrared Y/J/Ks"},
+  "m31.jpg": {"page":"https://esahubble.org/images/heic1502b/", "download":"https://esahubble.org/static/archives/images/publicationjpg/heic1502b.jpg", "credit":"NASA, ESA, Digitized Sky Survey 2 (Acknowledgement: Davide De Martin)", "instrument":"Digitized Sky Survey 2, optical"},
+  "m33.jpg": {"page":"https://www.eso.org/public/images/eso1424a/", "download":"https://cdn.eso.org/images/publicationjpg/eso1424a.jpg", "credit":"ESO", "instrument":"VST/OmegaCAM, optical g/r/H-alpha"},
+  "video": "Include these full credits visibly in the final video or its end credits; a YouTube description alone does not meet the observatories' requested attribution. The viewer's linked source credits are in the review panel."
+}

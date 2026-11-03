@@ -1,114 +1,87 @@
-# short-05-hubble-sphere: video 5 (video 6 until 2026-10-21), the top of the line, re-recorded
-# in the author's own words: one density line and the split, the dead stars and the
-# Schwarzschild limit, stars and nebulae, bigger means emptier up to Laniakea and the voids,
-# the second edge, expansion, the Hubble line, the cosmic event horizon, the Hubble sphere on
-# the black-hole line and why it isn't one, everyone's own universe, the two limits, and the
-# observable universe as a history of our own past.
-# rec29 = "hubble sphere take 2 (incomplete).m4a", rec30 = "event horizons.m4a",
-# rec31 = "observable universe.m4a" (iCloud recordings, 2026-10-21, 48 kHz, Boya BY-V10).
-# Replaces the rec26 cut (in git history). The Planck-point line is saved for a later video.
-# Treatment: enhance.py --plain, 1.1x.
-# (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds.
+# short-05-hubble-sphere: video 5, re-recorded on 2026-10-29 from the revised script (a short recap of the
+# series, then up and to the right: bigger means emptier, the voids, the Hubble sphere, expansion, the cosmic
+# event horizon, the Hubble sphere on the black-hole line, our universe and the universe, and the
+# observable universe), much of it re-worded on the fly.
+#   rec49 = "Hubble part 1.m4a" (Google Drive "Recordings", 2026-10-29, 6:28): the recap, many tries, up
+#           to the Hubble sphere.
+#   rec50 = "Hubble part 2.m4a" (same, 14:44): the second edge to the end, many tries, and a note to the
+#           editor at 3:04 (show only the Hubble line while it's talked about; put the Hubble sphere on the
+#           chart at "here's where it lands").
+# The last clean try of each line is used, unless an earlier one is clearer (noted). The rec40 cut of
+# 2026-10-27 is in git history.
+# Treatment: enhance.py --plain, natural speed (no tempo). Build: see video/short-01-hook/README.md.
+# (source, beat, first-word start, last-word start, {s, e, gap, cut, gain}) in source seconds.
 
 PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
-# rec31 was recorded about 7 dB hotter than rec29 and rec30
-SOURCE_FX = {"rec31": "volume=-7dB"}
 
 EDL = [
- # one line
- ("rec29", "recap", 33.06, 44.68),    # You can try to fit everything that has ever existed in one image, and probably the best way to do that is using a log chart of mass and size.   (two starts left out)
- ("rec29", "recap", 78.54, 87.24),    # And if you do that, every object around you that you can see will probably fall on this diagonal density line.   (five tries left out)
- ("rec29", "recap", 88.56, 91.14),    # This is the density of things made of matter,
- ("rec29", "recap", 131.48, 132.2, {"e": 132.75}),  # that will remain true,   (four tries left out)
- ("rec29", "recap", 134.22, 146.7, {"s": 134.38, "gap": 0.15}),  # from the smallest mouse to the giant blue whale, from Mount Everest to a moon, from a meteorite to a Jupiter-sized planet.   (a first "from the smallest mouse," left out)
- # the split (rec31)
- ("rec31", "split", 171.99, 174.93, {"gap": 0.6}),  # When we get to Jupiter-sized planets, the trend changes.   ("the trend reversed" tries left out)
- ("rec31", "split", 187.37, 193.11),  # A super Jupiter, ten times the mass of Jupiter, will still have the same diameter.
- ("rec31", "split", 204.03, 208.25),  # And then after brown dwarfs, the line really splits.
- # the left and the first limit (rec29)
- ("rec29", "left", 178.06, 180.88, {"gap": 0.6}),  # To the left, we don't have normal matter anymore.
- ("rec29", "left", 181.78, 186.1, {"e": 186.75}),  # We have the skeletal remains of dead stars, white dwarfs,
- ("rec29", "left", 190.54, 193.14, {"gap": 0.15}), # and neutron stars and finally black holes.   (a second "white dwarfs" left out)
- ("rec29", "left", 216.04, 221.12),   # And black holes will actually represent the first limit in our attempt to draw every object possible,
- ("rec29", "left", 235.86, 241.88),   # because every object that becomes too small or too massive becomes a black hole,
- ("rec29", "left", 246.0, 250.76),    # and black holes all live in this diagonal line called the Schwarzschild radius.
- ("rec29", "left", 259.36, 262.04),   # No object in our universe can be above that.
- # the right (rec31)
- ("rec31", "right", 220.77, 224.85, {"e": 225.62, "gap": 0.6}), # And to the right we have stars, and when they die they become red giants,
- ("rec31", "right", 225.91, 228.81, {"s": 226.56, "gap": 0.15}),  # they will go pop and explode into supernovas.   ("and they" before a second "they" left out)
- ("rec31", "right", 273.31, 279.67, {"e": 280.3}),  # And that gas will just expand out into space and meet other supernova remnants,   (three earlier tries left out)
- ("rec31", "right", 285.29, 291.53, {"s": 288.9, "e": 291.75, "gap": 0.15}),  # and create the conditions for a new generation of stars   ("and create the conditions for new stars," left out)
- ("rec31", "right", 296.35, 297.13, {"s": 298.1, "gap": 0.05}),  # to form again.   (a cut-off "to bor…" and a repeat left out)
- # bigger means emptier (rec29)
- ("rec29", "empty", 298.36, 302.56, {"gap": 0.6}), # And at this scale, things are mostly made of empty space.
- ("rec29", "empty", 309.3, 312.3),    # Globular clusters and dwarf galaxies and galaxies.
- ("rec29", "empty", 355.22, 362.06, {"s": 357.3}),  # ("At this scale," left out: it was just said) The larger something becomes, the less dense it is.
- ("rec29", "empty", 363.92, 369.44),  # A galaxy is mostly empty space between the stars.
- ("rec29", "empty", 378.88, 381.0, {"e": 381.45}),  # Our own galaxy here, the Milky Way,
- ("rec29", "empty", 382.0, 384.3, {"s": 382.62, "e": 385.1, "gap": 0.2}),  # and its sister, the Andromeda,   (a whispered "and I…" left out; the end no longer clipped)
- ("rec29", "empty", 391.1, 393.46),   # and we live in a local group of galaxies.
- ("rec29", "empty", 407.02, 416.42),  # And galaxy clusters are even less dense, because it's the density of the galaxies plus all the empty space in between them.
- ("rec31", "empty", 350.05, 368.91),  # And above that we have the largest structures that we know of, those are superclusters, which come in the shape of filaments. We live on one called the Laniakea supercluster, which is made of a hundred thousand galaxies.
- # voids (rec31)
- ("rec31", "voids", 105.43, 109.03),  # There is still something larger, and those are the voids.
- ("rec31", "voids", 110.23, 112.55),  # Voids are just empty areas of space.
- ("rec31", "voids", 127.79, 136.27, {"e": 136.6}),  # They are not completely empty, they are just emptier than space around them, so they do have mass and they fit in this chart.   ("and, to be honest, we are not sure what even causes them to exist" left out: we do know)
- # the second edge (rec29)
- ("rec29", "edge", 603.26, 607.62, {"e": 608.3, "gap": 0.6}),  # What about anything bigger? Well, if you try to go any bigger,
- ("rec29", "edge", 608.74, 618.68, {"s": 612.2, "gap": 0.12}),  # then you will reach the second edge, the limit beyond where nothing can be bigger.   ("then it will, then it will, then it," left out)
- ("rec29", "edge", 622.54, 624.5),    # And that will be the Hubble sphere.
- ("rec29", "edge", 661.2, 670.18, {"e": 670.6, "gap": 0.6}),  # The speed of light is not about light, but it's really the speed limit of how fast anything can travel in space,
- ("rec29", "edge", 681.0, 687.38),    # but space itself can actually travel faster than that.
- ("rec29", "edge", 711.52, 717.78, {"e": 718.3}),  # The universe is expanding, not in the sense that it's a ball expanding into something,
- ("rec29", "edge", 723.74, 736.98),   # but rather that space itself is being created, as if we were adding more and more pixels inside each pixel.
- ("rec29", "edge", 772.1, 779.76, {"e": 780.55}),   # Similar to how, when you want to increase the resolution on an image, what you do is you just take one pixel and turn that into four.
- ("rec29", "edge", 800.82, 808.72, {"gap": 0.6}),  # And that means that the further away something is from us, the fastest it is running away from us.
- ("rec29", "edge", 837.08, 841.18, {"s": 839.6}),   # And at this point, in the Hubble line,   ("and everything," left out)
- ("rec30", "edge", 16.0, 23.62, {"s": 20.2}),      # ("things that happen here are moving away from…" restart left out) things that happen here are moving away from us at the speed of light.
- # the cosmic event horizon (rec30)
- ("rec30", "horizon", 47.86, 51.52),  # You'd think that it means that it would never reach us, but that's not exactly true.
- ("rec30", "horizon", 51.94, 53.66, {"s": 52.0, "e": 54.0}),  # It's a little bit more complicated than that,
- ("rec30", "horizon", 57.48, 66.0),   # because the Hubble sphere itself is also growing, so things that happen here will eventually slow down and be able to reach us.
- ("rec30", "horizon", 73.42, 79.0),   # There is a second point a little bit over here, which is the cosmic event horizon,
- ("rec30", "horizon", 89.74, 97.8),   # and this is truly the edge of our universe, because nothing that happens here can ever affect us.
- ("rec30", "horizon", 115.98, 120.66),  # No information will travel from here to there, no mass, no light.
- ("rec30", "horizon", 130.96, 134.92, {"s": 132.8}),  # ("when we," left out)  # This is the limit of the unknowable.
- # the Hubble sphere on the black-hole line
- ("rec31", "twist", 25.18, 36.12, {"s": 31.9, "gap": 0.7}),  # (two false starts left out) Now, if you add up everything that we know exists on the Hubble sphere,
- ("rec31", "twist", 53.29, 55.75),    # here is where it would fit on our chart.
- ("rec30", "twist", 183.94, 189.02, {"e": 189.4}),  # You see that the mass actually falls exactly on the black hole line.
- ("rec30", "twist", 218.12, 218.9),   # What does it mean?
- ("rec30", "twist", 228.22, 230.24),  # Are we living inside a black hole?
- ("rec30", "twist", 231.66, 234.06),  # Both of those represent event horizons.   (the later "both of those… represents an event horizon in some way" sounded doubled)
- ("rec30", "twist", 252.26, 255.32, {"s": 253.6, "e": 255.6}),  # The Schwarzschild radius is   (a doubled "the Schwarzschild" left out)
- ("rec30", "twist", 258.62, 262.78, {"gap": 0.12}),  # the limit in which light that enters it can never come out.
- ("rec30", "twist", 263.74, 269.64),  # And the event horizon is the limit that anything outside of it can never come in.
- ("rec30", "twist", 277.15, 280.06, {"s": 276.85}),  # And they both are dependent on mass.   (a cough before it left out)
- ("rec30", "twist", 285.14, 292.44, {"s": 287.15}),  # ("the size of a," left out) The size of an event horizon of a black hole depends on the mass of the black hole,
- ("rec30", "twist", 295.35, 297.42, {"e": 297.8}),  # and the size of our Hubble sphere
- ("rec30", "twist", 310.54, 319.12, {"gap": 0.12}),  # depends on the rate of expansion of the universe, which is dependent on the mass inside it.
- # our universe
- ("rec30", "ours", 329.94, 331.68, {"gap": 0.6}),  # But the similarities also end here,
- ("rec30", "ours", 340.66, 344.1),    # because a black hole is an object with a definitive center.
- ("rec30", "ours", 345.5, 350.9, {"s": 347.4}),     # ("and, um," left out) Our universe is just that, it's our universe.
- ("rec30", "ours", 353.56, 355.64),   # It's not the universe.
- ("rec30", "ours", 380.06, 387.34),   # If you are sitting on a galaxy in the edge of our universe, you will probably not see just empty space on the other side,
- ("rec30", "ours", 392.06, 397.82),   # you'll probably see our galaxy in one direction and a trillion more galaxies in the others,
- ("rec31", "ours", 17.4, 21.92, {"gap": 0.4}),   # as far as we have been able to measure, it may well be infinite,   (rec30's "the universe is infinite" left out)
- ("rec30", "ours", 410.0, 413.28, {"gap": 0.2}), # and probably looks roughly the same everywhere.
- # the two limits
- ("rec31", "limits", 425.33, 429.99, {"e": 430.4, "gap": 0.6}),  # Those two lines, the Hubble radius and the Schwarzschild radius,
- ("rec31", "limits", 433.79, 442.09, {"gap": 0.15}), # and they form the upper limits of how big, how small and how massive a thing can be in the universe.   ("meet on the observable universe" left out: they meet at the Hubble sphere)
- # the observable universe (rec31)
- ("rec31", "end", 512.59, 513.85, {"gap": 0.6}),  # There is, however, one more thing:
- ("rec31", "end", 514.21, 520.25),    # if you ask a scientist the size of the universe, they will probably throw a number like 46 billion light-years,
- ("rec31", "end", 540.97, 550.73, {"s": 542.95}),  # ("let me… inside the…" left out)    # and inside that sphere we will see galaxies that are right now already unreachable for us,
- ("rec31", "end", 573.85, 577.37),    # even if you could travel at light speed and live forever.
- ("rec31", "end", 584.95, 591.73),    # If we map that observable universe, it will fit way outside our triangle.
- ("rec31", "end", 674.67, 676.85),    # But that object is a little bit of an illusion.
- ("rec31", "end", 677.79, 685.33),    # That is the light that is reaching us right now. That doesn't represent where they were when the light first emitted,
- ("rec31", "end", 690.55, 700.97, {"s": 691.9}),  # ("they rather," left out)    # but rather that represents where those objects would be right now if they were not out of our reach.
- ("rec31", "end", 735.37, 739.77),    # The observable universe is less like a view of where your neighbour is,
- ("rec31", "end", 748.53, 750.71),    # but more like the history of our own past.
- ("rec31", "end", 752.25, 760.23),    # It tells us the story of the early universe and galaxies that are already far beyond our reach.
+ # where we are
+ ("rec49", "recap", 90.24, 100.84, {"s": 96.2}),  # In this series, we've been exploring this chart, a log of mass and size.   (the second try: a first "…a log" at 91.0–94.7 left out)
+ ("rec49", "recap", 102.38, 105.50),   # You see that everything that is made of matter is in this diagonal.
+ ("rec49", "recap", 108.82, 109.74),   # But once we reach stars,
+ ("rec49", "recap", 123.02, 125.44),   # to the left we have the dead remains of stars,
+ ("rec49", "recap", 136.40, 141.14),   # to the right we have stars and red giants and supernova remnants.
+ ("rec49", "recap", 177.86, 188.46),   # In the last video we went left to explore the black hole line, the first limit of the triangle of everything, in which nothing can go past.
+ ("rec49", "recap", 231.94, 235.84),   # Today I want to take us to the right until we find what is the next edge.   (the last of six)
+ # bigger means emptier
+ ("rec49", "empty", 277.26, 279.40),   # Every diagonal line represents a density.
+ ("rec49", "empty", 271.34, 274.84),   # We saw that neutron stars actually have the density of the neutron.
+ ("rec49", "empty", 305.78, 311.20),   # And the more we go to the right, the more we are in the density of emptier and emptier space.
+ ("rec49", "empty", 314.68, 330.86),   # That's because the bigger something is, the less dense it is. A galaxy is mostly empty space between its stars. Here's our own galaxy, the Milky Way, and its sister Andromeda. We live in a small group of galaxies called the Local Group.
+ ("rec49", "empty", 333.04, 353.34),   # And when we are in galaxy clusters, it's even less dense, because now it's the galaxies plus all the empty space between them. And above that are the largest structures we know of, superclusters, which come in the shape of filaments. We live in one called Laniakea, made of about a hundred thousand galaxies.
+ ("rec49", "voids", 355.54, 366.46),   # There's still something larger still: voids. Voids are just empty regions of space, not completely empty though, just emptier than the space around them.
+ ("rec49", "voids", 371.62, 373.80),   # So they do have mass, and they fit on the chart.   (the second try)
+ # the second edge
+ ("rec49", "edge2", 375.62, 377.84),   # But can anything be bigger than that?
+ ("rec50", "edge2", 12.56, 15.10),     # Try to go any bigger and you reach the second edge.
+ ("rec50", "edge2", 18.80, 19.78),     # That's the Hubble sphere.   ("That's the limit beyond nothing can be larger" left out: "which" is missing)
+ ("rec50", "edge2", 21.36, 26.32),     # The speed of light isn't really about light: it's the speed limit for anything traveling through space.
+ ("rec50", "edge2", 27.32, 29.78),     # But space itself can stretch faster than that.
+ ("rec50", "expand", 33.32, 36.64),    # The universe is expanding, not like a ball blowing up into something.
+ ("rec50", "expand", 49.92, 53.50),    # It's more as if there's just more space being created all the time.
+ ("rec50", "expand", 80.08, 86.86),    # It's like when you increase the resolution of a photo, in which you're just creating a bunch of pixels where there was just one.   (the last of five)
+ ("rec50", "expand", 90.80, 94.90),    # That means that the further away something is, the faster it's moving away from us.
+ ("rec50", "expand", 98.90, 102.06),   # And at the Hubble line, things are moving away from us at the speed of light.   (the second try)
+ ("rec50", "horizon", 103.18, 107.32), # You'd think their light could never reach us, but it's a little bit more complicated than that.
+ ("rec50", "horizon", 108.38, 113.64), # Because the Hubble sphere is also growing. So the real edge is a little bit further out.
+ ("rec50", "horizon", 114.40, 115.90), # That's the cosmic event horizon.
+ ("rec50", "horizon", 131.82, 136.40, {"s": 131.75}),  # ("Now there," left out) It's the limit where nothing that happens beyond it can ever affect us.
+ ("rec50", "horizon", 139.52, 145.22), # We'll never see anything, because the light will never reach us. No information, no matter, nothing.
+ ("rec50", "horizon", 152.96, 154.44), # It's the limit of the unknowable.   (the last of three)
+ # are we inside a black hole?
+ ("rec50", "bh", 170.00, 178.06),      # Now add up everything that we know exists inside the Hubble sphere, and here's where it lands on our chart: right on the black hole line.
+ ("rec50", "bh", 179.28, 182.74, {"s": 179.33}),      # What does that mean? Are we living inside a black hole?   ("Okay, okay," left out)
+ ("rec50", "bh", 198.94, 200.74),      # So both are kind of a horizon.   (the note to the editor before it left out)
+ ("rec50", "bh", 202.32, 211.46),      # A black hole's event horizon is where light that falls in can never come out. Our cosmic horizon is where nothing outside can ever come in.
+ ("rec50", "bh", 212.40, 214.96),      # Also, both depend on the mass of what's inside them.
+ ("rec50", "bh", 233.28, 237.74),      # The radius of a black hole depends directly on how much stuff is in it.   (the last of four, from its second start)
+ ("rec50", "bh", 243.26, 250.90),      # And the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is also in it.
+ ("rec50", "bh", 251.52, 257.26),      # So it's no coincidence they are both on the same line. But that's where the similarities end.
+ ("rec50", "ours", 258.16, 260.14),    # A black hole is an object with a centre.
+ ("rec50", "ours", 265.30, 269.02),    # Our universe is just that: it's our universe, it's not the universe.
+ ("rec50", "ours", 306.94, 314.92),    # What if you imagine one of those galaxies that seem on the edge for us? Well, for them, their universe will also be centred around them.
+ ("rec50", "ours", 329.18, 331.84),    # If they put up a telescope and look at the galaxies around them,
+ ("rec50", "ours", 334.86, 336.90),    # they won't see an empty space on one side,
+ ("rec50", "ours", 337.40, 341.46),    # they will also see a bunch of other galaxies that are out of our reach.
+ ("rec50", "ours", 369.10, 378.68),    # Because as far as we've been able to measure, the universe is practically infinite in all directions.   (the last of four)
+ # the observable universe
+ ("rec50", "obs", 388.68, 390.74),     # And how do we know they would see more galaxies?
+ ("rec50", "obs", 397.14, 404.44),     # And it gets even weirder, because we know they would see more galaxies because we also see them.
+ ("rec50", "obs", 424.22, 428.18, {"e": 428.30}),     # You just told me we couldn't see those galaxies, right? Yeah, but here's the thing.
+ ("rec50", "obs", 444.12, 454.70),     # The Hubble sphere is roughly 13 billion light-years, but if you ask a scientist the size of the universe, they will give you a number like 46 billion light-years in every direction.
+ ("rec50", "obs", 487.24, 492.76),     # What's happening is that there is yet another horizon, and that is the observable universe:
+ ("rec50", "obs", 520.95, 527.97),     # that's the sum of all the light that has ever reached us.
+ ("rec50", "obs", 545.79, 549.31),     # You see that this is the only object that falls outside our triangle.
+ ("rec50", "obs", 585.55, 589.17),     # That's because the observable universe is not really one single object:
+ ("rec50", "obs", 597.89, 600.63),     # one side can't ever talk to the other side.
+ ("rec50", "obs", 706.89, 710.03),     # This represents where a bunch of galaxies are right now.
+ ("rec50", "obs", 711.17, 717.71),     # When they sent us that light, they were much closer to us, and the light that they sent is arriving just now.
+ ("rec50", "obs", 736.05, 741.77),     # So it's less like a map of where our neighbours are, and more like a snapshot of history.
+ # the end
+ ("rec50", "end", 800.05, 804.27),     # It represents galaxies that are already way beyond our reach.   ("everything we see in the observable universe is already beyond our cosmic event horizon" left out: only most of it is; NOTES)
+ ("rec50", "end", 805.05, 811.01, {"e": 811.30}),     # Even if you could travel at the speed of light and live forever, you would never be able to touch them.
+ ("rec50", "end", 826.63, 828.25, {"e": 828.95}),  # It represents not only your past,
+ ("rec50", "end", 835.99, 838.87, {"s": 836.18}),  # but it's also a future that never will be.   (from the second try; its "not only represents our past" restarts)
+ ("rec50", "end", 871.39, 875.33),     # So we'll never even be able to see where they are right now.
+ ("rec50", "end", 877.57, 880.35),     # Even their future is beyond our reach.
 ]

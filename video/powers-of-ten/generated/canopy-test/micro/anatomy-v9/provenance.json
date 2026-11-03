@@ -1,0 +1,48 @@
+{
+  "tool": "built-in image_gen",
+  "jobs": [
+    {
+      "name": "cell",
+      "prompt": "Scientific-educational production image for a continuous microscopic zoom film. Transform supplied construction diagram into photographic scientific visualization: natural translucent hydrated material, fine irregular texture, realistic soft transmitted illumination, desaturated pearl grey with subtle warm taupe and faint lilac, coherent natural lighting. Sharp throughout, no baked blur/bokeh, no labels, no arrows, no cartoon strokes, no poster, no dramatic alien landscape. Square framing and exact fixed centre. This is a reconstruction, not a claimed microscopy photograph. Follow proportions and positions of the diagram. Whole small amoeba with clear thin outer membrane, delicate clear ectoplasm and granular endoplasm. Preserve contour and locations of organelles. Nucleus at45.833%width50%height diameter16.667%frame; centred nucleolus diameter5.833%frame. Camera target exactcentre is chromatin beside nucleolus. No visible DNA helices. Include tiny ribosomes as barely resolved cytoplasmic granules only, not large spheres. Replace flat colours with subtle natural microscopy photographic appearance. Background transparent, no surroundings. Preserve all parts of cell.",
+      "path": "/private/tmp/powers-of-ten-publish-20261030/video/powers-of-ten/generated/canopy-test/micro/anatomy-layout-v8/layout.png",
+      "transparent": true
+    },
+    {
+      "name": "nucleus",
+      "prompt": "Scientific-educational production image for a continuous microscopic zoom film. Transform supplied construction diagram into photographic scientific visualization: natural translucent hydrated material, fine irregular texture, realistic soft transmitted illumination, desaturated pearl grey with subtle warm taupe and faint lilac, coherent natural lighting. Sharp throughout, no baked blur/bokeh, no labels, no arrows, no cartoon strokes, no poster, no dramatic alien landscape. Square framing and exact fixed centre. This is a reconstruction, not a claimed microscopy photograph. Follow proportions and positions of the diagram. 4 micrometre square window in amoeba: thin double nuclear envelope surrounds 2 micrometre diameter nucleus, centre at37.5%width50%height. Central nucleolus700nm diameter at37.5%width50%height. Exact image centre lies INSIDE nucleus in chromatin to right of nucleolus. Diffuse irregular finely granular chromatin, uneven condensation, no visible double helix at this scale. Surrounding cytoplasm includes small endomembranes and barely visible ribosomes25nm, smaller than1%frame. Nuclear pores subtle~100nm, membrane thickness not giant shell. No literal diagram squiggles. Full-frame neutral cytoplasm background.",
+      "path": "/private/tmp/powers-of-ten-publish-20261030/video/powers-of-ten/generated/canopy-test/micro/anatomy-v9/nucleus-layout.png",
+      "transparent": false
+    },
+    {
+      "name": "chromatin",
+      "prompt": "Scientific-educational production image for a continuous microscopic zoom film. Transform supplied construction diagram into photographic scientific visualization: natural translucent hydrated material, fine irregular texture, realistic soft transmitted illumination, desaturated pearl grey with subtle warm taupe and faint lilac, coherent natural lighting. Sharp throughout, no baked blur/bokeh, no labels, no arrows, no cartoon strokes, no poster, no dramatic alien landscape. Square framing and exact fixed centre. This is a reconstruction, not a claimed microscopy photograph. Follow proportions and positions of the diagram. 444nanometre frame inside interphase nucleus: irregular heterogeneous chromatin network of granular curvilinear5-24nm chains per ChromEMT, clustered and more open areas, not uniform coils or parallel sinusoidal waves. Follow overall chain density not literal wave shapes. No entire nucleus or nucleolus. No giant DNA ladder. Distributed molecular crowding, small histone particles at11nm, patchy irregular texture, understated depth but all planes crisp.",
+      "path": "/private/tmp/powers-of-ten-publish-20261030/video/powers-of-ten/generated/canopy-test/micro/anatomy-v9/chromatin-layout.png",
+      "transparent": false
+    },
+    {
+      "name": "nucleosomes",
+      "prompt": "Scientific-educational production image for a continuous microscopic zoom film. Transform supplied construction diagram into photographic scientific visualization: natural translucent hydrated material, fine irregular texture, realistic soft transmitted illumination, desaturated pearl grey with subtle warm taupe and faint lilac, coherent natural lighting. Sharp throughout, no baked blur/bokeh, no labels, no arrows, no cartoon strokes, no poster, no dramatic alien landscape. Square framing and exact fixed centre. This is a reconstruction, not a claimed microscopy photograph. Follow proportions and positions of the diagram. 49.38nanometre frame. Several compact flattened nucleosome core particles diameter11nm, DNA2nm diameter wraps about1.65turns around histone octamer. Use RCSB1AOI architecture, NOT huge cauliflower blobs. Keep four core particles near diagrampositions around edges and a central linker DNA segment passes diagonally through exactcentre; path from upperleft toward lower right. DNA continuous between cores. Unequal groove widths; subtle molecular surface rather than oversized decorative atoms. Natural restrained hydrated molecular reconstruction.",
+      "path": "/private/tmp/powers-of-ten-publish-20261030/video/powers-of-ten/generated/canopy-test/micro/anatomy-v9/nucleosomes-layout.png",
+      "transparent": false
+    },
+    {
+      "name": "dna",
+      "prompt": "Scientific-educational production image for a continuous microscopic zoom film. Transform supplied construction diagram into photographic scientific visualization: natural translucent hydrated material, fine irregular texture, realistic soft transmitted illumination, desaturated pearl grey with subtle warm taupe and faint lilac, coherent natural lighting. Sharp throughout, no baked blur/bokeh, no labels, no arrows, no cartoon strokes, no poster, no dramatic alien landscape. Square framing and exact fixed centre. This is a reconstruction, not a claimed microscopy photograph. Follow proportions and positions of the diagram. 5.487nanometre frame. One right-handed B-DNA double helix,2nm diameter,3.4nm helical pitch and0.34nm basepairrise, vertical axis crosses exactcentre. Follow backbone layout, depict major/minor grooves with unequal widths and properly paired bases. Atom-scale molecular surface detail from bonds, no huge protein blobs, no free-floating chromosomes. Two continuous sugar-phosphate backbones subtle greyblue/taupe, paired bases restrained neutral hues. Full soft neutral hydrated molecular environment background. Do not add extra helices.",
+      "path": "/private/tmp/powers-of-ten-publish-20261030/video/powers-of-ten/generated/canopy-test/micro/anatomy-v9/dna-layout.png",
+      "transparent": false
+    },
+    {
+      "name": "ribosome",
+      "prompt": "Scientific-educational production image for a continuous microscopic zoom film. Transform supplied construction diagram into photographic scientific visualization: natural translucent hydrated material, fine irregular texture, realistic soft transmitted illumination, desaturated pearl grey with subtle warm taupe and faint lilac, coherent natural lighting. Sharp throughout, no baked blur/bokeh, no labels, no arrows, no cartoon strokes, no poster, no dramatic alien landscape. Square framing and exact fixed centre. This is a reconstruction, not a claimed microscopy photograph. Follow proportions and positions of the diagram. 40nanometre square frame. Single eukaryotic80S ribosome overall~25nm, uneven asymmetrical large60S and small40S subunits, RNA-rich folded core and protein patches, clear intersubunit cleft with a single thin mRNA traversing it. Diagram is mass/position guide, refine lobed shape against conserved eukaryotic ribosome architecture such as RCSB4V88. No membrane, no DNA double helix, no nucleus. Restrained grey/taupe hydrated molecular surface, tiny tRNA partly in cleft optional. Background neutral fullframe.",
+      "path": "/private/tmp/powers-of-ten-publish-20261030/video/powers-of-ten/generated/canopy-test/micro/anatomy-v9/ribosome-layout.png",
+      "transparent": false
+    }
+  ],
+  "sources": [
+    "https://openstax.org/books/biology-2e/pages/4-3-eukaryotic-cells",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC5646685/",
+    "https://www.rcsb.org/structure/1AOI",
+    "https://www.rcsb.org/structure/4V88"
+  ],
+  "limits": "Illustrative small amoeba, no validated species. Generated molecular geometry is not an experimental atomic reconstruction. Physical scales are design calibrations. Ribosome close-up is a separate cytoplasmic inspection, not a stop inside nucleus."
+}

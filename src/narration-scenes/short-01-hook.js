@@ -103,7 +103,7 @@ export default {
     { at: "hippos", hl: [{ obj: "Boeing 747", label: "airplanes" }, { obj: "Hippopotamus", label: "hippos" }] },
     { at: "and gravity", cam: { r: 8.5, m: 26.8, span: 9, whip: true }, hl: [{ obj: "Moon" }, { obj: "Earth", label: "gravity" }] },
     { at: "how stars evolve", cam: { r: 11.6, m: 33.5, span: 11, whip: true },
-      hl: [{ obj: "Protostar" }, { obj: "Sun", delay: 0.3 }, { obj: "Red Giant", delay: 0.6 }, { obj: "White Dwarf", delay: 0.9 }] },
+      hl: [{ path: "stellar-low-mass" }, { obj: "Protostar" }, { obj: "Sun", delay: 0.3 }, { obj: "Red Giant", delay: 0.6 }, { obj: "White Dwarf", delay: 0.9 }] },
     { at: "particles turn into", cam: { r: -11.8, m: -25.4, span: 11, whip: true },
       hl: [{ obj: "Proton" }, { obj: "Neutron", label: false }, { obj: "Electron", delay: 0.3 }] },
     { at: "why balloons float", cam: { r: 2.1, m: 3.6, span: 9, whip: true },
@@ -112,8 +112,8 @@ export default {
     { at: "the periodic table", cam: { r: -8.1, m: -22.6, span: 2.6, whip: true }, clear: true, periodic: true },
     { at: "why fire looks", cam: { obj: "Visible Light", span: 9, whip: true }, periodic: false, spectrum: true },
 
-    // the outro: one slow zoom out from the last shot, to the end
+    // the outro: one slow, even zoom out from the last shot to the whole triangle, arriving as the end card covers it
     { at: "I've been", spectrum: false },   // the wave goes before the camera moves (it isn't redrawn mid-move)
-    { at: "obsessed", cam: { obj: "Visible Light", span: 40 }, dur: 24, drift: 0, clear: true },
+    { at: "obsessed", cam: MAP, dur: "end", ease: "gentle", drift: 0, clear: true },
   ],
 };

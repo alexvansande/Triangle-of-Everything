@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "target": "Guanine N1-bound hydrogen",
+  "target_index": 12,
+  "axis": [
+    627,
+    627
+  ],
+  "coordinate_units": "angstrom",
+  "spans_m": {
+    "guanine": 1.828989483310471e-09,
+    "dna": 5.486968449931413e-09,
+    "nucleosomes": 4.938271604938272e-08,
+    "chromatin": 4.4444444444444444e-07,
+    "nuclear_rear": 1.3333333333333334e-06,
+    "nucleus": 4e-06
+  },
+  "live_handoff_log10_m": [
+    -9.35,
+    -8.8
+  ],
+  "camera_depth_after_handoff_log10_m": [
+    -10.1,
+    -9.4
+  ],
+  "background_black_below_log10_m": -14,
+  "proton_diameter_m": 1.68e-15,
+  "quark_upper_bound_m": 1e-19,
+  "contact_cloud_radius_convention": "display envelope uses 1.15\u00d7covalent contact radius, with core outer-electron radial density lighting; not the99% free-atom orbital boundary",
+  "assembly": "guanine-flat is exact source-over of native surroundings and selected H. Each larger generated carrier has the finer alpha support removed, then finer flat scene is reinserted at exact common physical scale. Runtime uses those same carriers and live source.",
+  "limitations": "Guanine coordinates from existing PubChem data; N9-H replaced with a C1-prime attachment stub. Wider DNA/chromatin/nucleus are illustrative reconstructions, not experimental density maps."
+}

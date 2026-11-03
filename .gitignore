@@ -42,8 +42,10 @@ __pycache__/
 narration-frames/
 
 # rendered videos (local only; copies go to iCloud)
-output/
+/output
 video/photos/originals/*
 !video/photos/originals/meta.json
 dist-device
 !video/web/*.mp4
+# the short clips a video cutaway plays (the Hopf atoms in video 3), ~2 MB each
+!public/narration/photos/*.mp4

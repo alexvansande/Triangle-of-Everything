@@ -1,0 +1,21 @@
+{
+  "diameter_m": 0.000447744227713668,
+  "detail_body_bounds": [
+    254,
+    397,
+    1009,
+    814
+  ],
+  "detail_body_pixels": 755,
+  "detail_body_center": [
+    631.5,
+    605.5
+  ],
+  "detail_span_m": 0.0007436705451032314,
+  "wide_span_m": 0.0015491077467764986,
+  "wide_body_center": [
+    623.1602870813397,
+    610.6786283891547
+  ],
+  "note": "Integrated native micrograph, parent assembled from exact detail centre; optical focus and fade controlled in app."
+}

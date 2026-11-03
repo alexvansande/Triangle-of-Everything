@@ -43,7 +43,8 @@ down 5 s and starts the next short **in place**, on the same audio element, so
 phones keep playing without another tap. The "Autoplay on/off" chip on the
 pause screen switches it; `&autoplay=0` starts with it off.
 
-**Speed**: the shorts' audio is sped up with the pitch kept, to **1.2×** for the 2026-10-07 recordings and **1.1×** from the 2026-10-19 ones (`--tempo 1.1`)
+**Speed**: from video 7 (2026-10-27) on, takes are **not** sped up: they play as recorded (the author no
+longer wants it). Before that, the shorts' audio was sped up with the pitch kept, to **1.2×** for the 2026-10-07 recordings and **1.1×** from the 2026-10-19 ones (`--tempo 1.1`)
 (`scripts/narration-tempo.py`, with ffmpeg's atempo: rubberband made the voice sound like a phone or a tin can; it also scales the word timings and writes
 `"tempo": 1.2` into words.json), so renders come out at 1.2× too. The pause
 screen's 1× to 1.5× (`[` and `]` on a keyboard, `&speed=` in the URL) count
@@ -205,7 +206,82 @@ node scripts/narration-render.mjs short-01-hook --workers 3 --out short-01-hook.
 
 The page runs on a virtual clock that the script steps one frame at a time, so
 every frame is exact no matter how slow the machine is. That's about 10 frames
-per second per worker on a 4-core box, so a 13-minute take needs roughly an hour.
+per second per worker on a 4-core box, so a 13-minute take needs roughly an hour
+(without motion blur; with it, see below).
+
+The fractal background (`src/bg-noise.js`, the WebGL layer that takes over from the
+painting when you zoom past its pixels) needs WebGL2 in the render's Chrome. Until
+2026-10-28 a Chrome without it rendered the plain painting with no warning: every
+rendered video so far lacked the fractal (blocky painting at the deepest zooms). The
+renderer now launches Chrome with `--ignore-gpu-blocklist --enable-unsafe-swiftshader`
+(software GL when there's no GPU to use; recent Chromes no longer fall back to it by
+themselves), logs the GL it got (`[w0] WebGL2: …`), and stops if there's none
+(`--no-fractal` renders anyway). The layer's clouds evolve by the narration's t, not by
+real frames, so the live player and every worker draw the same picture for the same t,
+and `window.__narr.pending()` counts the layer until it has drawn.
+
+### Batches and publishing
+
+- `scripts/narration-render-stale.sh [take …]` renders each take whose full render
+  (`output/videos/<take>.mp4`, never in git) is older than the last commit touching its
+  audio, captions or scene, or the code and pictures every short draws with. Then it makes
+  the web copy (`video/web/<take>.mp4`, ~19.5 MB) and a dated copy in iCloud
+  `output videos/`. The old render stays until the new one finishes.
+- `scripts/narration-overnight.sh [take …]` does that take by take and publishes each one as it
+  finishes: merges main, renders, commits the web copy, runs the site build and pushes to main
+  (the videos page's "Rendered video" switch picks it up on deploy). A merge that conflicts is
+  undone, not forced. Run it as `caffeinate -i nice -n 10 scripts/narration-overnight.sh`, from a
+  session that stays open, with the "shorts" dev server (:5184) up.
+- **Every night at 23:50** (`scripts/narration-nightly.sh`, a launchd agent installed with
+  `scripts/launchd/install.sh`): it merges main, renders every take listed in
+  `video/render-queue.txt` or out of date, publishes them, and clears the queue. Sessions add a
+  take to the queue whenever they change it (CLAUDE.md). A note `# <take> changed: 1:20-1:45, …` re-renders
+  only those stretches and splices them into the last render, when the audio hasn't changed
+  (`scripts/narration-render-partial.py`); otherwise the whole take renders. With nothing to render for 14 days it
+  uninstalls itself; `scripts/launchd/install.sh` puts it back. It renders the most changed first (a whole take by its length, a
+  partial one by its noted seconds). Before rendering, `scripts/narration-render-diff.mjs` diffs the take against the commit
+  of its last render (`output/videos/<take>.commit`): nothing shown changed keeps the render; only
+  the sound swaps the audio track (seconds, no frames); changed cues or captions re-render from
+  each changed cue to the end of the one after it, spliced in; a changed timing, a scene-wide
+  field or more than 70% changed renders it whole. A take is out of date when a commit since its render's
+  commit touched its own audio, captions or scene, or the code and pictures every short draws with
+  (`src/` outside the scenes, `content/`, the photos, `public/hopf`, `public/spectrum`); a shared change
+  renders it whole unless a queue note pins it to stretches (the author, 2026-10-30). Log: `output/videos/nightly.log`.
+- Pace (2026-10-27, M1 Max): about one 5-minute video per hour or two with motion blur. The
+  author releases about one video a week, so one or two renders a night is plenty; render in
+  number order.
+
+### Rendering faster: what we measured (2026-10-27, M1 Max, 1080×1920, 12 sub-frames)
+
+- **The capture is the cost, not the drawing.** Per sub-frame: `renderAt` 16 ms; a PNG capture
+  (`Page.captureScreenshot`) 295 ms; JPEG at q95 106 ms; WebP 169 ms. With 12 PNG sub-frames
+  a frame took ~3.6 s, 95% of it encoding and decoding pictures.
+- **Blur only what moves** (`--adaptive`, on by default): two tiny captures (1/8 size) at the
+  shutter's ends; if under 0.1% of pixels differ by more than 12 levels, the frame gets one
+  capture instead of 12. 40–70% of a video's frames are still. Everything that moves (whips,
+  dives, the explorer turning, karaoke words changing) still gets full blur.
+- **JPEG q95 captures** (`--capture jpeg`, the default): ~3× faster than PNG, and averaging the
+  sub-frames hides the JPEG grain. Together: ~4× faster per worker on a stretch with a dive
+  (10 s of video in 229 s with 2 workers).
+- **More workers stop helping early.** Each worker is a whole Chrome drawing WebGL and
+  compositing a 1080×1920 page; they share one GPU. 2 workers made ~1.3 frames/s in all,
+  8 workers ~1.6. More than 3–4 mostly adds contention (load average in the 20s–40s).
+- **Start workers apart.** Eight Chromes loading the dev server's unbundled modules at once
+  all timed out (120 s). They now start 6 s apart and get 10 minutes to load.
+- **Stopping a render must close its Chromes.** Killing the node process left its puppeteer
+  Chromes running, orphaned, still drawing: the next run crawled (load average ~300) until
+  they were killed. The renderer now closes its browsers on SIGINT/SIGTERM; after a crash,
+  look for `puppeteer_dev_chrome_profile` processes whose parent is 1 and kill them.
+- **Render overnight, with the Mac idle.** The night of 2026-10-27 (adaptive blur, JPEG, 4 workers):
+  12–19 s of rendering per second of video with nobody at the Mac (video 3, 2:16, in 30 min;
+  video 5, 6:15, in 78 min); about 24 s/s that evening while the author was using it. Whatever
+  is on screen shares the same GPU.
+- **Run one heavy job at a time.** Whisper transcriptions, other sessions' renders and sound
+  mixes all slow a render a lot; the first hook render of the day took 67 minutes for 113 s
+  under that load.
+- Ideas not tried yet: fewer sub-frames for slow motion (6 is likely enough for glides; 12 for
+  whips), a static production build served instead of the dev server (faster page loads), and
+  capturing at a lower JPEG quality for the sub-frames only.
 
 ## Notes for the next take (from the take 2 review)
 
@@ -293,10 +369,41 @@ Cue fields
            sub-frames blur it;
            cam.overshoot sets the bump, default 0.7, about 1.5 % of the move)
   dur      flight seconds (default: from the distance travelled)
+           "end": fly until the end card covers the picture (the last word, + 0.65 s)
+  ease     "gentle": sine easing, a near-even pace for long moves (default cubic in-out)
+  swap     { "Name": "icon-file" }: from this cue on, the object is drawn with that
+           picture from content/icons/ instead of its own (video 6's spherical cow);
+           false puts the objects' own pictures back
+  pop      true, with swap: the picture pops into the new one (shrinks, swaps at its
+           smallest 0.14 s after the cue, springs back past its size and settles in
+           ~1.2 s) with a white ring and rays bursting out of it (video 6's cow)
   periodic true: the map's periodic table (rows, columns, type rings, family
            names) fades in once the cue's camera arrives; false fades it out
   spectrum true: the spectrum's sine wave, likewise (it isn't redrawn while the
            camera moves, so end it with a cue before the next flight)
+  explorer the spectrum explorer (public/spectrum/, ?video=1) over the chart, set
+           as a pure function of t (the scene's `explorer` is its state at t = 0):
+             show: true|false (fade s, default 1.2); view "inside"|"cloud",
+             radius "custom"|"log"|"linear", bright "lin"|"log", rings (or
+             "labelled": only the rings and discs named in labels), labels
+             ({ "ring or marker name": "shown as" }: only those labels, renamed;
+             "edge": a ring at the observable universe's edge, "Earth": one on
+             Earth's surface): switch at the
+             cue, and xfade: s with a view switch cross-fades from the old view;
+             c, s (RGB selector, in bands of the sky's bar: natural colour c 22,
+             s 1), yaw, pitch, orbit, ezoom (one camera for Inside and the Cloud:
+             ezoom is Earth's size as Inside's field of view, orbit turns the
+             camera about Earth's axis, so Earth stays put across a switch),
+             gmst, unit, lz, exposure, contrast, lift, aurora (0–1: Earth's
+             auroral X-ray ovals, a model), guides (0–1: the rings,
+             discs and names faded so the dots show), names (0–1: the names alone,
+             once set in place of guides), dot (the dots' size ×, each as bright):
+             glide over dur s (default 2.5; ease "in"|"out"|"linear" chains glides
+             into one move, default cubic in-out); spin: rad/s, added to the orbit with ezoom (the camera going
+             round a still Earth); without, turns Earth (Inside) or the Cloud
+           (short-07-wavelengths is the worked example; in the explorer page,
+           spectrumVideo.mix() lists the bands under each channel, to check the
+           words against the picture)
   header   false: the classic figure's title block fades out from the cue; true
            fades it in (hidden from the start if the first header cue is true)
   drift    slow zoom-in while holding, as a fraction (default 0.05)
@@ -306,10 +413,26 @@ Cue fields
              object's own label on the chart while that label shows)
              { line: "schwarzschild"|"compton"|"hubble"|"water"|
                      "darkmatter"|"mainsequence"|"triangle"|
-                     "chandrasekhar"|"tov", label? }
+                     "chandrasekhar"|"tov"|"eventhorizon", label? }
+               (eventhorizon: the cosmic event horizon, a vertical line like the
+               Hubble line, at 16.7 billion ly)
              { side: "left"|"right", of?: "water", label? }
              { side: "above"|"below", mass: logM, label?, note? } — one side of a level
-               of constant mass, the level drawn dashed (video 2's round-world line)
+               of constant mass, the level drawn dashed (video 2's round-world line);
+               labelCenter: true puts the label (and note) in the middle of that side's
+               rectangle as it is on screen, at labelSize px (default 22)
+             { poly: [[r, m], …], fill?, opacity?, label?, note?, labelAt?: [r, m],
+               labelCenter?, labelSize? } — a region; labelCenter: its label in the middle
+               of the region as it is on screen (video 2's Goldilocks zone)
+             { trace: name, step, grow?, shapes: [{ at?: { rho } | { r }, holes?, lattice?,
+               label?: [line, small line], place? }, …], draw?, move? } — a close-up that
+               measures one thing several ways (video 2's Eiffel Tower), over consecutive
+               cues, one step each: step -1 every other chart element fades but the grid,
+               the density diagonals and the catalogue dots, the picture grows to `grow`;
+               step 0 its outline (from the picture's alpha) is traced and the picture fades;
+               step n a faint copy slides to shape n's place (same mass, at.rho a bulk density
+               in g/cm³) and draws its openings (holes) or the tower's lattice. Everything
+               comes back after the last of those cues
              { card: "E = mc²", hold?: 2, bg?: "#fff", arrow?, caption? } — the
                screen (over the classic figure, its plot frame, so the axes stay)
                fades to a card with the text, holds, and fades back; arrow: a
@@ -332,15 +455,55 @@ Cue fields
                one and grows in. trace: a faint line along the first window
              { cross: { r, m }, mass?, size? } — a dot with dashed guides to the
                mass ruler (right) and the size ruler (bottom), labelled
+             { path: "DNA" | "stellar-high-mass" | [..], from?, to?, label?, color? } — moving-dot
+               connection paths lit up (CONNECTION_PATHS and the "made of" paths in
+               src/data.js): by id, or every path building that whole (DNA ← its four
+               bases); drawn on under the pictures with the named objects' halo treatment
+               (a lavender stroke, blurred, two overlay passes; discreet) over a thin line
+               in the path's own colour at 10%, and the chart's own moving dots on it grown 3× and
+               brighter (app.setDotBoost; kept visible at any zoom while lit). Not dots of
+               its own: evenly spaced ones read as a subway line (the author, 2026-10-29). from / to (object names): only the stretch of the path
+               between them (the low-mass life `to: "Protostar"` for "nursery → protostar").
+               Use it whenever the narration talks about what a path shows (a star's life,
+               a decay, what a thing is made of), in place of an arrow along the same path
+             { clip: "name", from: [r, m], to?, move?: [s0, s1], lead?: s, size?: px } — a short video
+               (public/narration/photos/<name>.mp4) on the chart, its black made see-through, sliding from
+               `from` to `to` between s0 and s1 s after it starts, playing `lead` s in, frame-exact in the
+               renderer (video 3: hydrogen's electron cloud collapsing onto its proton, into a neutron)
+             { fly: { from: [r, m], to: [r, m] }, dur?, color?, label? } — a dot with a trail flying across
+               (the neutrino leaving)
+             { text: "Dark matter?", at: [r, m], color?, size? } — a big free-standing word ("\n" stacks lines),
+               a hub for arrows to point out from
+             { pic: "deuterium", at: [r, m], size?, label?, sub? } — a particle's picture anywhere on
+               the chart (size in px, default 140), its label and a smaller sub-line under it.
+               The still is content/icons/<pic>.webp; the videos draw it live from the Hopf
+               particle of that id (src/hopf-icons.js), turning with the parallax as the camera pans
+             { key: [["microwave", "#ff6b5e"], …], title? } — a colour key near the
+               top, for a false-colour view (the explorer's RGB)
+             { pixels: { steps: [s, …], n?, cell?, seed? } } — expansion as an image gaining
+               pixels: a black n×n image (9) with a few lit pixels; at each step every pixel
+               becomes 3×3, the old one in the centre, so the lit ones spread apart
            any item can take delay (s) to stagger
   clear    end the current highlights
+  density  from this cue on, the pictures' density (Settings → Icons; above 100 they
+           may overlap more: video 5's pan up the galaxies); null back to the scene's
   units    pin the unit rulers on (they also show during every move)
   classic  "out" — cross-fade from the classic figure to the map (fade s)
   icons    from this cue on: false (no pictures), true (the scene's set) or a
            list of names. By default only objects some cue highlights keep their
            picture (a scene's `icons: [...]` replaces that set)
+  energyAxis  true: from this cue on, the energy ruler on the left (eV, the mass ruler's heights
+           read as E = mc²), false to take it away
+  forceIcons / firstIcons / hideIcons / hideLabels   from this cue on, replace the scene's
+           lists (names; [] for none, null back to the scene's): video 2 hides the 1 mL ball
+           until "ball" and puts the animals first at "most animals". firstIcons: ranked first,
+           so other pictures give way where they overlap (and show where there's room).
+           Both take catalogue pictures by their label too ("Lion")
 
-Scene-level: dots: { size, opacity } for the paths' moving dots (default 2.4, 1.7)
+Scene-level: dots: { size, opacity } for the paths' moving dots (default 2.4, 1.7);
+iconBoost: { from: log r, k } pictures of things that big and up drawn k× larger, on top of
+the chart's own size curve (main.js iconSizeCurve, which already draws nebulae 1.6–1.8× and
+galaxies 2.1–2.3×; no scene uses it now: video 5's 1.4× came off with that curve); hideLabels: [names] objects whose own chart label never shows
 
 Sound cues (optional `sound: [...]`, read by scripts/narration-sound.mjs;
 keep them rare). Each names a phrase like a cue does:

@@ -1,0 +1,30 @@
+{
+  "frameSpans_m": [
+    0.000012,
+    0.000004,
+    0.0000013333333333333334,
+    4.4444444444444444e-7,
+    1.4814814814814815e-7,
+    4.938271604938272e-8,
+    1.646090534979424e-8,
+    5.486968449931413e-9
+  ],
+  "axis": [
+    627,
+    627
+  ],
+  "body_diameter_m": 0.000008,
+  "body_size_status": "Provisional illustrative small amoeba; not species validated.",
+  "nucleus_diameter_m": 0.000002,
+  "nucleus_centre_m": [
+    -5e-7,
+    0
+  ],
+  "nucleolus_diameter_m": 7e-7,
+  "nucleosome_diameter_m": 1.1e-8,
+  "DNA_diameter_m": 2e-9,
+  "DNA_pitch_m": 3.4e-9,
+  "ribosome_diameter_m": 2.5e-8,
+  "ribosome_view_frame_m": 4e-8,
+  "note": "Sharp matched composites. Molecular images are illustrative reconstructions with approximate generated geometry, not experimental density maps. DNA morphology is generated, not an atomically validated coordinate model."
+}

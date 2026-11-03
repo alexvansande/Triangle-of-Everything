@@ -1,0 +1,823 @@
+{
+ "centre": {
+  "lat": 36.5816453,
+  "lon": -118.751443,
+  "what": "the zoom's centre: the hydrogen atom on the ladybug, on the General Sherman tree (OpenStreetMap node 313753662)"
+ },
+ "orientation": "north up, looking straight down",
+ "overlap": 0.125,
+ "tile_px": 1024,
+ "tile_with_overlap_px": 1280,
+ "levels": [
+  {
+   "level": 0,
+   "dir": "L0-39.8m",
+   "width_m": 39.81,
+   "tile_m": 13.27,
+   "frame_s": 1.6348,
+   "tiles": [
+    {
+     "tile": "NW",
+     "centre_m": {
+      "east": -13.27,
+      "north": 13.27
+     },
+     "generate": true
+    },
+    {
+     "tile": "N",
+     "centre_m": {
+      "east": 0,
+      "north": 13.27
+     },
+     "generate": true
+    },
+    {
+     "tile": "NE",
+     "centre_m": {
+      "east": 13.27,
+      "north": 13.27
+     },
+     "generate": true
+    },
+    {
+     "tile": "W",
+     "centre_m": {
+      "east": -13.27,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "C",
+     "centre_m": {
+      "east": 0,
+      "north": 0
+     },
+     "generate": false
+    },
+    {
+     "tile": "E",
+     "centre_m": {
+      "east": 13.27,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "SW",
+     "centre_m": {
+      "east": -13.27,
+      "north": -13.27
+     },
+     "generate": true
+    },
+    {
+     "tile": "S",
+     "centre_m": {
+      "east": 0,
+      "north": -13.27
+     },
+     "generate": true
+    },
+    {
+     "tile": "SE",
+     "centre_m": {
+      "east": 13.27,
+      "north": -13.27
+     },
+     "generate": true
+    }
+   ]
+  },
+  {
+   "level": 1,
+   "dir": "L1-13.3m",
+   "width_m": 13.27,
+   "tile_m": 4.423,
+   "frame_s": 1.1576,
+   "tiles": [
+    {
+     "tile": "NW",
+     "centre_m": {
+      "east": -4.423,
+      "north": 4.423
+     },
+     "generate": true
+    },
+    {
+     "tile": "N",
+     "centre_m": {
+      "east": 0,
+      "north": 4.423
+     },
+     "generate": true
+    },
+    {
+     "tile": "NE",
+     "centre_m": {
+      "east": 4.423,
+      "north": 4.423
+     },
+     "generate": true
+    },
+    {
+     "tile": "W",
+     "centre_m": {
+      "east": -4.423,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "C",
+     "centre_m": {
+      "east": 0,
+      "north": 0
+     },
+     "generate": false
+    },
+    {
+     "tile": "E",
+     "centre_m": {
+      "east": 4.423,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "SW",
+     "centre_m": {
+      "east": -4.423,
+      "north": -4.423
+     },
+     "generate": true
+    },
+    {
+     "tile": "S",
+     "centre_m": {
+      "east": 0,
+      "north": -4.423
+     },
+     "generate": true
+    },
+    {
+     "tile": "SE",
+     "centre_m": {
+      "east": 4.423,
+      "north": -4.423
+     },
+     "generate": true
+    }
+   ]
+  },
+  {
+   "level": 2,
+   "dir": "L2-4.42m",
+   "width_m": 4.423,
+   "tile_m": 1.474,
+   "frame_s": 0.6805,
+   "tiles": [
+    {
+     "tile": "NW",
+     "centre_m": {
+      "east": -1.474,
+      "north": 1.474
+     },
+     "generate": true
+    },
+    {
+     "tile": "N",
+     "centre_m": {
+      "east": 0,
+      "north": 1.474
+     },
+     "generate": true
+    },
+    {
+     "tile": "NE",
+     "centre_m": {
+      "east": 1.474,
+      "north": 1.474
+     },
+     "generate": true
+    },
+    {
+     "tile": "W",
+     "centre_m": {
+      "east": -1.474,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "C",
+     "centre_m": {
+      "east": 0,
+      "north": 0
+     },
+     "generate": false
+    },
+    {
+     "tile": "E",
+     "centre_m": {
+      "east": 1.474,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "SW",
+     "centre_m": {
+      "east": -1.474,
+      "north": -1.474
+     },
+     "generate": true
+    },
+    {
+     "tile": "S",
+     "centre_m": {
+      "east": 0,
+      "north": -1.474
+     },
+     "generate": true
+    },
+    {
+     "tile": "SE",
+     "centre_m": {
+      "east": 1.474,
+      "north": -1.474
+     },
+     "generate": true
+    }
+   ]
+  },
+  {
+   "level": 3,
+   "dir": "L3-1.47m",
+   "width_m": 1.474,
+   "tile_m": 0.4915,
+   "frame_s": 0.2034,
+   "tiles": [
+    {
+     "tile": "NW",
+     "centre_m": {
+      "east": -0.4915,
+      "north": 0.4915
+     },
+     "generate": true
+    },
+    {
+     "tile": "N",
+     "centre_m": {
+      "east": 0,
+      "north": 0.4915
+     },
+     "generate": true
+    },
+    {
+     "tile": "NE",
+     "centre_m": {
+      "east": 0.4915,
+      "north": 0.4915
+     },
+     "generate": true
+    },
+    {
+     "tile": "W",
+     "centre_m": {
+      "east": -0.4915,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "C",
+     "centre_m": {
+      "east": 0,
+      "north": 0
+     },
+     "generate": false
+    },
+    {
+     "tile": "E",
+     "centre_m": {
+      "east": 0.4915,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "SW",
+     "centre_m": {
+      "east": -0.4915,
+      "north": -0.4915
+     },
+     "generate": true
+    },
+    {
+     "tile": "S",
+     "centre_m": {
+      "east": 0,
+      "north": -0.4915
+     },
+     "generate": true
+    },
+    {
+     "tile": "SE",
+     "centre_m": {
+      "east": 0.4915,
+      "north": -0.4915
+     },
+     "generate": true
+    }
+   ]
+  },
+  {
+   "level": 4,
+   "dir": "L4-49.1cm",
+   "width_m": 0.4915,
+   "tile_m": 0.1638,
+   "frame_s": -0.2737,
+   "tiles": [
+    {
+     "tile": "NW",
+     "centre_m": {
+      "east": -0.1638,
+      "north": 0.1638
+     },
+     "generate": true
+    },
+    {
+     "tile": "N",
+     "centre_m": {
+      "east": 0,
+      "north": 0.1638
+     },
+     "generate": true
+    },
+    {
+     "tile": "NE",
+     "centre_m": {
+      "east": 0.1638,
+      "north": 0.1638
+     },
+     "generate": true
+    },
+    {
+     "tile": "W",
+     "centre_m": {
+      "east": -0.1638,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "C",
+     "centre_m": {
+      "east": 0,
+      "north": 0
+     },
+     "generate": false
+    },
+    {
+     "tile": "E",
+     "centre_m": {
+      "east": 0.1638,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "SW",
+     "centre_m": {
+      "east": -0.1638,
+      "north": -0.1638
+     },
+     "generate": true
+    },
+    {
+     "tile": "S",
+     "centre_m": {
+      "east": 0,
+      "north": -0.1638
+     },
+     "generate": true
+    },
+    {
+     "tile": "SE",
+     "centre_m": {
+      "east": 0.1638,
+      "north": -0.1638
+     },
+     "generate": true
+    }
+   ]
+  },
+  {
+   "level": 5,
+   "dir": "L5-16.4cm",
+   "width_m": 0.1638,
+   "tile_m": 0.05461,
+   "frame_s": -0.7508,
+   "tiles": [
+    {
+     "tile": "NW",
+     "centre_m": {
+      "east": -0.05461,
+      "north": 0.05461
+     },
+     "generate": true
+    },
+    {
+     "tile": "N",
+     "centre_m": {
+      "east": 0,
+      "north": 0.05461
+     },
+     "generate": true
+    },
+    {
+     "tile": "NE",
+     "centre_m": {
+      "east": 0.05461,
+      "north": 0.05461
+     },
+     "generate": true
+    },
+    {
+     "tile": "W",
+     "centre_m": {
+      "east": -0.05461,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "C",
+     "centre_m": {
+      "east": 0,
+      "north": 0
+     },
+     "generate": false
+    },
+    {
+     "tile": "E",
+     "centre_m": {
+      "east": 0.05461,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "SW",
+     "centre_m": {
+      "east": -0.05461,
+      "north": -0.05461
+     },
+     "generate": true
+    },
+    {
+     "tile": "S",
+     "centre_m": {
+      "east": 0,
+      "north": -0.05461
+     },
+     "generate": true
+    },
+    {
+     "tile": "SE",
+     "centre_m": {
+      "east": 0.05461,
+      "north": -0.05461
+     },
+     "generate": true
+    }
+   ]
+  },
+  {
+   "level": 6,
+   "dir": "L6-5.46cm",
+   "width_m": 0.05461,
+   "tile_m": 0.0182,
+   "frame_s": -1.228,
+   "tiles": [
+    {
+     "tile": "NW",
+     "centre_m": {
+      "east": -0.0182,
+      "north": 0.0182
+     },
+     "generate": true
+    },
+    {
+     "tile": "N",
+     "centre_m": {
+      "east": 0,
+      "north": 0.0182
+     },
+     "generate": true
+    },
+    {
+     "tile": "NE",
+     "centre_m": {
+      "east": 0.0182,
+      "north": 0.0182
+     },
+     "generate": true
+    },
+    {
+     "tile": "W",
+     "centre_m": {
+      "east": -0.0182,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "C",
+     "centre_m": {
+      "east": 0,
+      "north": 0
+     },
+     "generate": false
+    },
+    {
+     "tile": "E",
+     "centre_m": {
+      "east": 0.0182,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "SW",
+     "centre_m": {
+      "east": -0.0182,
+      "north": -0.0182
+     },
+     "generate": true
+    },
+    {
+     "tile": "S",
+     "centre_m": {
+      "east": 0,
+      "north": -0.0182
+     },
+     "generate": true
+    },
+    {
+     "tile": "SE",
+     "centre_m": {
+      "east": 0.0182,
+      "north": -0.0182
+     },
+     "generate": true
+    }
+   ]
+  },
+  {
+   "level": 7,
+   "dir": "L7-1.82cm",
+   "width_m": 0.0182,
+   "tile_m": 0.006068,
+   "frame_s": -1.7051,
+   "tiles": [
+    {
+     "tile": "NW",
+     "centre_m": {
+      "east": -0.006068,
+      "north": 0.006068
+     },
+     "generate": true
+    },
+    {
+     "tile": "N",
+     "centre_m": {
+      "east": 0,
+      "north": 0.006068
+     },
+     "generate": true
+    },
+    {
+     "tile": "NE",
+     "centre_m": {
+      "east": 0.006068,
+      "north": 0.006068
+     },
+     "generate": true
+    },
+    {
+     "tile": "W",
+     "centre_m": {
+      "east": -0.006068,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "C",
+     "centre_m": {
+      "east": 0,
+      "north": 0
+     },
+     "generate": false
+    },
+    {
+     "tile": "E",
+     "centre_m": {
+      "east": 0.006068,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "SW",
+     "centre_m": {
+      "east": -0.006068,
+      "north": -0.006068
+     },
+     "generate": true
+    },
+    {
+     "tile": "S",
+     "centre_m": {
+      "east": 0,
+      "north": -0.006068
+     },
+     "generate": true
+    },
+    {
+     "tile": "SE",
+     "centre_m": {
+      "east": 0.006068,
+      "north": -0.006068
+     },
+     "generate": true
+    }
+   ]
+  },
+  {
+   "level": 8,
+   "dir": "L8-6.07mm",
+   "width_m": 0.006068,
+   "tile_m": 0.002023,
+   "frame_s": -2.1822,
+   "tiles": [
+    {
+     "tile": "NW",
+     "centre_m": {
+      "east": -0.002023,
+      "north": 0.002023
+     },
+     "generate": true
+    },
+    {
+     "tile": "N",
+     "centre_m": {
+      "east": 0,
+      "north": 0.002023
+     },
+     "generate": true
+    },
+    {
+     "tile": "NE",
+     "centre_m": {
+      "east": 0.002023,
+      "north": 0.002023
+     },
+     "generate": true
+    },
+    {
+     "tile": "W",
+     "centre_m": {
+      "east": -0.002023,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "C",
+     "centre_m": {
+      "east": 0,
+      "north": 0
+     },
+     "generate": false
+    },
+    {
+     "tile": "E",
+     "centre_m": {
+      "east": 0.002023,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "SW",
+     "centre_m": {
+      "east": -0.002023,
+      "north": -0.002023
+     },
+     "generate": true
+    },
+    {
+     "tile": "S",
+     "centre_m": {
+      "east": 0,
+      "north": -0.002023
+     },
+     "generate": true
+    },
+    {
+     "tile": "SE",
+     "centre_m": {
+      "east": 0.002023,
+      "north": -0.002023
+     },
+     "generate": true
+    }
+   ]
+  },
+  {
+   "level": 9,
+   "dir": "L9-2.02mm",
+   "width_m": 0.002023,
+   "tile_m": 0.0006742,
+   "frame_s": -2.6593,
+   "tiles": [
+    {
+     "tile": "NW",
+     "centre_m": {
+      "east": -0.0006742,
+      "north": 0.0006742
+     },
+     "generate": true
+    },
+    {
+     "tile": "N",
+     "centre_m": {
+      "east": 0,
+      "north": 0.0006742
+     },
+     "generate": true
+    },
+    {
+     "tile": "NE",
+     "centre_m": {
+      "east": 0.0006742,
+      "north": 0.0006742
+     },
+     "generate": true
+    },
+    {
+     "tile": "W",
+     "centre_m": {
+      "east": -0.0006742,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "C",
+     "centre_m": {
+      "east": 0,
+      "north": 0
+     },
+     "generate": false
+    },
+    {
+     "tile": "E",
+     "centre_m": {
+      "east": 0.0006742,
+      "north": 0
+     },
+     "generate": true
+    },
+    {
+     "tile": "SW",
+     "centre_m": {
+      "east": -0.0006742,
+      "north": -0.0006742
+     },
+     "generate": true
+    },
+    {
+     "tile": "S",
+     "centre_m": {
+      "east": 0,
+      "north": -0.0006742
+     },
+     "generate": true
+    },
+    {
+     "tile": "SE",
+     "centre_m": {
+      "east": 0.0006742,
+      "north": -0.0006742
+     },
+     "generate": true
+    }
+   ]
+  }
+ ]
+}

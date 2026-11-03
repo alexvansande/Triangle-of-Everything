@@ -1,0 +1,4 @@
+# Protein Data Bank structures, re-downloaded on demand (the ribosome's is 41 MB)
+pdb/
+# the diagrams' SVGs regenerate from diagrams.mjs (the ribosome's is several MB); the PNGs are kept
+diagrams/*.svg

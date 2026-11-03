@@ -1,0 +1,48 @@
+{
+  "tool": "built-in imagegen",
+  "date": "2026-10-31",
+  "assets": {
+    "field": {
+      "source": "../chromatin-depth-v1/background-raw.png",
+      "generation": "exec-d10645ae-6e80-45c1-b75d-090403362f81.png",
+      "prompt": "Extract all nucleosomes and linking DNA to true alpha; preserve source material/lighting/scale, clear an organic central passage, no fluid backdrop or baked blur.",
+      "native": [
+        1254,
+        1254
+      ],
+      "transparent": true
+    },
+    "field-fill": {
+      "source": "../chromatin-bridge-raw.png",
+      "generation": "exec-97c1bd3c-6630-4bdf-8baf-54e676b263f7.png",
+      "prompt": "Extract the exact full nucleosome/DNA field to true alpha; preserve source positions, colours and detail, remove all fluid background.",
+      "native": [
+        1254,
+        1254
+      ],
+      "transparent": true
+    },
+    "hero": {
+      "source": "../nucleosomes-raw.png",
+      "generation": "exec-44d968f2-b365-4167-a997-f79b7158efe8.png",
+      "prompt": "Extract four nucleosomes and diagonal DNA only to true alpha, retain exact geometry, position and lighting.",
+      "native": [
+        1254,
+        1254
+      ],
+      "transparent": true
+    },
+    "dna": {
+      "source": "../dna-matched-raw.png",
+      "generation": "exec-08193ffa-81d8-40c7-8e91-66a2fa624380.png",
+      "prompt": "Remove fluid only, preserve molecular surface, colours, positions and lighting; true transparent holes.",
+      "native": [
+        1254,
+        1254
+      ],
+      "transparent": true
+    }
+  },
+  "assembly": "Normalize to1254 square. Combine the two alpha field extractions into one populated middle plane. Static source-edge alpha taper on the wide field/purple cutouts prevents clipped square contours. Selected four-bead chain and closer DNA retain natural alpha. Nuclear background is the exact original registered nucleus crop, not a new fluid texture. Recompose every parent from the same world scene.",
+  "rendering": "2.5D optical layers, inherited illustrative physical scales; app-controlled relative zoom and blur only after parent replacement. No moving camera centre."
+}

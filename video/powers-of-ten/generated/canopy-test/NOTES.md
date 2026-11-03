@@ -1,0 +1,788 @@
+# Bright-centred canopy test — 2026-10-30
+
+This test generates the eight surrounding L1 tiles (13.27 m whole level), anchored to Claude's NAIP aerial imagery. A single finer context plate supplies the centre and overlap, so the test ends on sharp, sunlit foliage. It is an initial visual test rather than the complete finer tiled pyramid.
+
+The user requested a bright foliage centre. The selected NAIP patch is 8.2421 m east and 3.8878 m south of the original centre. `centre.json` records the coordinates and exact offset. Both the tile references and all photographic plates use this same offset. At large scales the preview translates the existing orthographic plates rather than downloading new imagery.
+
+Generated with the built-in image-generation tool; the tool does not expose a model identifier or quality setting. Requested 1280 px square, normalized to 1280 px for assembly, with a 1024 px core and 128 px margin per side. Generated detail is an interpretation, not a photograph of the actual crown.
+
+An initial discarded test supplied a tile crop and the whole aerial photograph together. The whole-image reference dominated and the model repeated the wide composition. The revised prompt uses the single cropped photo as the edit target. Old-centre attempts are not part of these deliverables.
+
+`provenance.json` records the final prompts and input references. `scripts/powers-of-ten-stitch-test.mjs` assembles the tiles using separable overlap weights. `scripts/powers-of-ten-canopy-preview.mjs` copies the result into a pinned isolated version of Claude's viewer (99ffbc0), preserving the unfinished checkout. Run it with `--serve` to start the local preview on port 5187.
+
+The viewer has jump buttons, a 24-second satellite-to-crown approach, a generated-detail comparison checkbox and a centre marker. Generated plates use a narrow square feather (4% per edge) to preserve corner detail; the real photographs retain their existing radial feather. The generated canopy is optional; standard viewer behaviour is unchanged outside this isolated test.
+
+Imagery: USDA FSA / USGS NAIP, public domain; Sentinel-2 cloudless 2016 by EOX, CC BY 4.0 (modified Copernicus Sentinel data). Reference geography and source images come from Claude's generation kit and photo pipeline.
+
+## Intermediate-level review
+
+Added whole-level generated drafts at 39.8107 m and 119.4322 m, with references recropped about the same bright foliage centre. These are two new generated images, not completed eight-tile rings. Both requested 2048 × 2048 but returned native 1254 × 1254. They are saved without enlargement in `intermediates/`, with exact prompts and actual dimensions in that folder's `provenance.json`. The plate manifest retains the 13.27 m stitched level nested inside them. The previous 40 m photo plate remains saved but is no longer the generated-detail layer at that scale.
+
+The review controls now jump to 50, 120 and 400 metres. The 400 m view still relies on source photography; no 360 m or 1080 m generated level has been commissioned. Further subdivision should follow the author's visual review and the actual pixel coverage in the 3840 × 3840 master, not assumed output dimensions.
+
+For comparison, completing four new levels with the original 3 × 3 centre-reuse scheme would require 32 new tiles (8 per level), not four or 28. The adaptive draft approach starts with whole plates, then subdivides only levels or regions that remain soft. Composition drift and joins remain review items; these drafts are not a claim of a pixel-exact reconstruction of the actual forest.
+
+## Crown to ladybug
+
+Added five nested steps at 4.423 m, 1.474 m, 49.15 cm, 16.38 cm and 5.461 cm. The first reuses the central core of the existing finer context plate; the remaining four are new built-in image generations from successive central-third crops. Exact prompts, native output dimensions and files are in `ladybug-chain/provenance.json`. These remain draft-resolution images.
+
+Reviewed `src/objects.json`, `src/dust-famous.json` and the available icons. The catalogue ant is the useful additional reference. Ladybug and ant use the catalogue's log-radius-in-centimetres values: representative spans 6.935 mm and 3.991 mm. They are placed by `canopy-insects.js` at fixed physical coordinates, using 1024px catalogue artwork, so they do not change identity or relative size between generations. The ladybug is at the zoom centre; the ant is 12 mm east and 4 mm north, inside both delivery crops at the final stop. These are illustrative placements, not observations of those species on the actual General Sherman tree. Flea/moths were omitted; pollen is below the useful scale of this stop.
+
+The viewer's minimum comes from the plate manifest. `Crown → ladybug` plays the new section in 26 seconds; the full approach runs in 40 seconds. The square framing and both delivery crop guides remain in place.
+
+## Macro integration and aircraft pass
+
+Following the author's screenshot feedback, replaced the rigid catalogue cutouts with an in-context image edit. The ladybug is turned and slightly tilted, with articulated legs contacting the scales; both insects have matching left-side sunlight, green reflected fill and local contact/cast shadows. An initial oversized edit was corrected in a second generation. Outputs and prompts are in `ladybug-chain/integrated-provenance.json`; the original foliage and earlier sprites remain available. Size and exact pose are illustrative approximations now, rather than exact icon extents.
+
+The viewer blends only the insects' local leaf/contact-shadow neighbourhoods from the edited photograph, at a fixed 54.61 mm world extent, so a square of sharp background does not appear at wider scales. `canopy-optics.js` adds a gradual elliptical macro focus falloff below about 5 m, preserving the central branchlet and insects while softening deeper/off-axis foliage. Blur radii scale with rendered frame size, so the effect has the same visual strength in preview and 4K output. This is a lens-style approximation, not a recovered depth map. The centre marker defaults off to avoid a circle over the beetle.
+
+Added the catalogue Boeing 747 as an optional near-camera crossing around s=3.42 (a 2.6 km-wide ground view). Like existing flybys it scales and moves 1.7 times faster in log scale than the terrain: entering near an edge on the outward zoom and receding towards the centre. It is a stylized close camera pass, not an aircraft drawn to the ground map's scale or an assertion about real traffic above the park. It is deterministic in s and works in either direction. `Ladybug → sky` plays the outward move in 42 seconds; `Airplane flyby` jumps to the pass. Both macro focus and airplane have independent review toggles.
+
+## Bird flyby and dew approach
+
+Added a generated transparent Steller's jay above the terrain, independently enabled and deterministic in zoom. Its pass is centred at s=1.35 (22 m terrain frame), scaling/moving 1.85 times the logarithmic terrain zoom speed, with near-edge blur and fade. It is a separate foreground layer, never baked into imagery.
+
+The 54.61 mm foliage plate now includes dew on leaves and one approximately 1 mm bead on the ladybug shell. Three new 3× finer image plates at 18.20, 6.07 and 2.02 mm continue into that bead. Cropped references and outputs remain beside the originals. All closer plates share a measured offset of x=-2.4387 mm,y=-1.001 mm from the original image centre; the camera gently steers to that target between s=-0.7 and -1.75. Upper levels keep their original coordinates. The former insect patch draws below these plates to avoid covering finer details. Native generations remain 1254px draft assets. Built-in image generation prompts and provenance: ladybug-chain/dew-provenance.json. Controls include Bird flyby, Ladybug → dew and three close-up stops.
+
+Aircraft fade revision: removed the s=4.28 cutoff. The airplane now stays opaque until its rendered extent falls below six pixels in the 3840px square video master, fading smoothly to zero at two pixels. Preview uses the equivalent proportional size so export and preview match. Its parallax motion and near-camera entry are unchanged.
+
+## Green foliage and separated optical planes
+
+Replaced exposed brown/orange woody branches with foliage in four versioned green images at 1.47 m, 49.1 cm, 16.4 cm and 5.46 cm. Reviewed the 4.42 m crown image: it already reads as green foliage, so it is retained. The shell/droplet close-ups contain no exposed wood and remain aligned to their existing anchor.
+
+Removed the former oval screen-space focus treatment from canopy-optics.js. New canopy-depth.js renders an inpainted green background separately from two true-alpha foreground leaf-spray images. Depth fades in between s=0.12 and -0.42. Foreground retains the established 1× physical zoom and the shell-target steering. Background magnification changes at 0.55× logarithmic zoom speed, with a uniform whole-plane blur increasing smoothly from 2 to 29 pixels per 960px frame (proportionally scaled for video). Only this background is blurred. Coarse foreground fades away as its finer replacement spans the frame, preventing a magnified low-resolution foreground from lingering around the sharp close-up. Close shell plates then nest above it as before. This is a two-plane photographic interpretation, not reconstructed geometry.
+
+Review controls: Depth check · 20 cm, Leaf depth layers, Background blur. The original images are retained; built-in image-generation prompts, all inputs and output origins are recorded in ladybug-chain/depth-provenance.json.
+
+Close flyby opacity revision: removed the near-range opacity ramps and fixed close cutoffs from both airplane and bird. They remain fully opaque while growing and passing out through the frame, with existing near-camera blur. Geometry culls only when the rotated image plus blur padding is completely outside the visible square. Distant fade remains (airplane 6→2 master pixels). No imagery regenerated.
+
+## Timing-first depth handoff revision
+
+Moved the separate-plane handoff from 1.3m–38cm to 14–10cm. Relative background motion stays locked at the same physical zoom rate through the entire handoff and begins only below 9cm, easing continuously toward 0.55×. Back-plane initial scale now uses the original 49.1cm image extent rather than an arbitrary screen-relative magnification. Uniform blur ramps during the handoff, with further defocus below it. Removed the width-based early retirement of the broad foreground: a transparent finer cutout cannot replace leaves through its holes. Lower foliage now persists until actual opaque close-ups cover it. No new images or image extensions generated. Added a 22-second 'Test · 1 m → 3 cm' playback for review. Residual differences in generated image composition are unchanged; review timing before extending assets.
+
+## Matched sharp stack before depth
+
+Regenerated a fully sharp 16.4cm background from the green16cm scene with the foreground spray removed. No bokeh or software blur is baked into the background. The existing foreground cutouts are assembled on a shared 3762px coordinate canvas, retaining the central5.46cm cutout's native1254px detail. This is assembly, not additional recovered peripheral resolution. Runtime now uses two optical planes: background-sharp-v2.png and matched/foreground.png, both spanning16.4cm. The flat16cm and5.46cm plates derive from this exact stack. All wider parent centres through120m are rebuilt from their children with narrow edge feathers, so central structures remain in the same positions across resolutions. Verified RGB identity of the recomposed flat16cm and of the unfeathered49cm parent core against its downsampled child.
+
+During the14–10cm handoff both planes remain aligned and receive zero app blur. Only below9cm does the app gradually introduce background parallax and uniform defocus. Camera target steering applies to both planes identically before depth begins. scripts/powers-of-ten-match-depth.mjs runs during preview preparation to keep manifest and derived plates consistent. New exact prompt and origins: ladybug-chain/sharp-matched-provenance.json. Originals retained.
+
+## Canopy, natural dew and microscopic continuation
+
+Saved the author-approved default in video/powers-of-ten/FOREGROUND-LAYERS.md, linked from the README and scoped tools/powers-of-ten/AGENTS.md for future foreground work.
+
+Added three canopy planes (back, middle, near) at4.423m span. The near plane retains the recursively matched1.474m centre. Flat4.423m and wider parents are derived from their composite. Handoff3.9→3.2m is sharp and locked; subtle relative rates1.0,0.965,0.92 ease in below3m. No canopy blur is baked or applied. Finer matched plates cover this stack naturally, preserving leaf positions.
+
+Revised the dew-bearing foreground using the author's three small ladybug references: scattered small condensation beads and one approximately1.16mm target bead. Regenerated18.2mm,6.07mm and2.02mm views, rebuilding their parent centres inward-to-outward to prevent independent composition drift. Target is source pixel570,605 in a1254px54.61mm scene. Originals retained.
+
+Added an illustrative optical transition into the bead below1.5mm, reaching microscopic focus by0.95mm. A new translucent Amoeba proteus keeps a fixed447.7µm maximum body extent from the catalogue (2×10^-1.65cm). Alpha-body bounds1471px calibrate the1536×1024 sprite, excluding transparent margin. It occupies66.4% of the674µm-wide stop; the225µm stop shows part of the cell rather than shrinking it to fit. The roughly1.16mm bead can contain this body. Microworld's primary microscopic observations report typical220–760µm and a22–62µm nucleus: https://amoebae.nl/amoeba-proteus/. Scene is illustrative, not a claim of an observed organism on this ladybug. The red shell's light remains in the watery optical background. All generation prompts/origins are in expansion-provenance.json; physical metadata in micro/scene.json.
+
+Whole amoeba review stop:900µm frame keeps the447.7µm body inside the central56.25% shared area of both YouTube delivery guides. The674µm stop is a closer view;225µm enters the cell's field. User-provided dew references used for generation are preserved in dew-references/. Extended the photographic replacement mask down to the microscopic minimum so the legacy schematic amoeba/nucleus cannot draw over the new scene.
+
+## Photographic aircraft and stronger near defocus
+
+Replaced the runtime catalogue Boeing747 with versioned built-in image generation plane-photographic-v3.png. Catalogue image supplied anatomy/orientation only. The new asset uses warm upper-left sunlight, subdued weathered paint and photographic surface reflections; a correction removed recognisable forest patterns on wings so the metal remains visually opaque. Native1254² transparent image. Exact prompts/origins in plane-photographic-provenance.json; originals retained.
+
+Both bird and plane now share closeFlybyBlur: no defocus at near<=1.35, easing to42px at near>=5 in a960px preview, scaled proportionally to168px in a3840px master. Close opacity remains1; geometric exit and the airplane's distant6→2pixel fade are preserved. Blur remains dynamic, never baked into either sprite.
+
+### 2026-10-30 — 1 mm focus handoff and stronger canopy depth
+
+Canopy lag increased from back/mid 0.08/0.035 to 0.18/0.08; near remains
+1×. The unchanged 3.9–3.2 m replacement and below-3 m easing keep the
+initial composite registered.
+
+The microscopic layer now begins with the exact same sharp 2.02 mm parent
+image at its original physical span and centre (replacement 1.8–1.5 mm).
+Only after replacement does app-controlled focus shift (1.4–0.65 mm):
+the shell softens and the fixed-size amoeba resolves from defocus.
+The different water texture enters later, 0.85–0.45 mm, after the rim has
+left both central video crops. No regenerated or preblurred parent assets.
+Amoeba diameter remains 447.7 µm; drop diameter remains 1.16 mm.
+Verified module syntax and inspected 1 mm, 680 µm and 1.6 m preview stops.
+
+### Integrated microscopic photographic field
+
+Replaced the separate gray amoeba cutout and unrelated water layer with a
+coherently lit native micrograph and a matched wider parent. Built-in image
+prompts and assembly registration are in micro/field-v2-provenance.json.
+The sharp droplet plate still replaces identically at 1.8–1.5 mm. Surface
+focus shifts coherently below 1.4 mm, with the integrated interior fading in
+from 1.25–0.70 mm; app blur resolves by 0.72 mm. The new field remains inside
+the physical 1.16 mm bead until its rim exits the frame. Fine detail switches
+only after its feathered parent boundary is outside the entire square.
+Body calibration remains 447.744 µm, independently of image canvas dimensions.
+Verified central parent pixels against the downsampled detail, module syntax,
+physical size and preview around 1 mm / 790 µm.
+
+### Three-plane droplet handoff (supersedes integrated water-field fade)
+
+User requested actual ladybug texture continuing into the microscope scene.
+New native sharp planes in micro/layers-v3: shell (central reflections removed),
+transparent rim/highlights, and warm translucent amoeba. No water-field swap.
+match-drop.mjs records exact pixel registrations and builds their flat parent;
+match-depth.mjs propagates that parent through the existing 3× chain.
+The app uses that exact flat composite during 1.8–1.5 mm replacement. Only
+below 1.3 mm do the shell and surface separate from the fixed-scale specimen,
+easing to relative zoom rates 0.45× / 1.75× with app-controlled rear/front blur.
+Foreground surface remains at constant opacity and leaves by geometry.
+Size checked against microscopy sources: Amoeba proteus can be around
+600–750 µm; our nominal 447.7 µm is plausible, no missing unit decade.
+Prompts, size sources and assembly are in micro/layers-v3/provenance.json.
+
+### Smaller suspended specimens
+
+Added three faint companions (approximately 63, 93 and 136 µm body widths)
+on a separate water-depth plane, using the existing warm transparent specimen
+asset with varied rotation and material opacity. All fit wholly inside the
+1.16 mm droplet. Their zoom rate eases to 0.75× relative to the hero's 1×;
+app-controlled 9px/960px defocus starts only after the matched handoff.
+The shared canopy-micro-specimens.js registrations also build the flat parent,
+which is propagated through all earlier tiles. No time-based drift, ensuring
+reversible zoom and consistent video capture.
+
+### Pollen first, smaller amoeba one decade later
+
+Supersedes the large proteus and companions. New transparent native assets
+micro/pollen-v4/pollen.png and amoeba.png have calibrated body spans of
+40 µm and 8 µm respectively (alpha bounds exclude transparent margins).
+The smaller cell is an illustrative small vannellid-type amoeba, not a scaled
+giant proteus. Pollen sits 26 µm left / 8 µm above the cell; the camera eases
+to the grain, then passes beside it to the cell. Review frames are 180 µm and
+18 µm, exactly one decade apart. Closest frame is 6 µm. Both objects retain
+constant world size; focus transfers from pollen to amoeba with app blur.
+Shell and droplet reflection layers persist unchanged. Parent tiles derive
+from the new exact flat stack; prompts and biological sources in provenance.
+
+### Mixed species community in the droplet
+
+Eight new surrounding specimens from four generated native transparent assets:
+Pinus sylvestris pollen (68–70 µm), Betula pendula pollen (22–25 µm),
+Arcella vulgaris testate amoeba (110 µm test width), and Vannella simplex
+(44–45 µm). These are species-inspired reconstructions; size references and
+complete built-in imagegen prompts are in pollen-v4/community-provenance.json.
+Shared microCommunity registrations drive both matched parent assembly and
+runtime depth planes. Each specimen has its own fixed size, rotation, material
+opacity and relative depth lag; all bodies fit wholly inside the 1.16 mm bead.
+The hero pollen/cell path is unchanged. All preceding parent tiles rebuilt.
+Verified four transparent native assets, four species, eight positions within
+the droplet, module syntax and the 1 mm viewer overview.
+
+### Fixed microscopic zoom axis
+
+Removed the temporary pollen-visit camera steering. The optical axis stays
+through the small amoeba; the main pollen remains at its existing off-axis
+position (-26 µm, -8 µm), with the surrounding grains. Layer parallax and
+focus changes remain intact. No asset or parent registration changed.
+
+### Later pollen defocus, sharp target cell
+
+The target amoeba now starts sharp at its actual tiny size, without an initial
+blur. Pollen/community/dust defocus waits until that 8 µm cell occupies 12%
+of frame width (about 67 µm frame), then eases to full defocus at 40%
+(20 µm frame). Existing parallax and shell/surface blur are unchanged.
+
+### Slower shell-background focus shift
+
+Shell background blur now starts at a 1 mm frame and eases across roughly
+1.4 decades to full defocus at 40 µm, replacing the much faster 1.3 mm–291 µm
+ramp. Shell parallax, surface reflections and pollen/cell focus are unchanged.
+
+### Amoeba interior: nucleus → chromatin → nucleosomes
+
+New fixed-axis image stops: 2 µm nucleus, 667 nm chromatin, 222 nm closer
+chromatin and 74 nm nucleosome/DNA view. Six generated scientific asset calls,
+including a wider molecular field correction; final prompt/asset provenance
+in micro/nucleus-v6/provenance.json. These interiors are reconstructions below
+optical resolution; molecular geometry is approximate rather than measured.
+
+match-nucleus.mjs builds the 3× matched pyramid from the finest image outward,
+then the sharp nuclear background/envelope composite and amoeba source patch.
+The same source axis649.5,617.5 is retained. match-drop and match-depth then
+propagate that updated sprite through all earlier photographic tiles.
+Nuclear envelope is independently rendered only after the sharp handoff, with
+app-only faster zoom/blur; later chromatin fields replace their exact parent
+cores. Broad25% edge blending softens the change in representation.
+
+Inspected existing small.js/public/hopf/hopf-core.js: real-scale hydrogen and
+proton rendering already exist. This extension ends at chromatin/nucleosomes;
+subsequent generated DNA/base-pair images must keep central hydrogen aligned
+to the existing Hopf electron-cloud handoff. No camera recentering introduced.
+Verified exact nuclear composite, matched child centres and four preview stops.
+
+### Populated midrange water field
+
+Added a native transparent mixed-microorganism image over a240µm water field,
+plus42 small6–9.5µm cells in reproducible inner/outer bands. The existing
+pollen/Arcella/Vannella community remains. The main central specimen retains
+its independent high-resolution sprite/nuclear interior and fixed axis.
+Imagegen source and6% edge feather recorded in water-field-provenance.json.
+No per-frame randomization or camera recentering; each field/cell retains its
+registered size, position, depth lag and optical focus. All earlier tiles
+rebuilt from the new composite. Visual inspection at180µm confirms a densely
+populated field with the hero still identifiable; coordinate checks confirm
+cells fit inside the physical drop and leave the centre target unobstructed.
+
+### Populate the wider level and remove the rectangular population boundary
+
+Expanded the240µm organism field to720µm. A newly generated populated outer
+field surrounds the original1254px centre on a3762px assembled canvas. The
+original centre retains its exact physical pixel scale and unchanged core
+pixels, including transparent gaps. Outer content is cleared underneath that
+centre rather than stacked into it;6% centre-edge blending joins the fields.
+The new outer boundary tapers across18%, avoiding a sharp replacement square.
+Runtime and parent builder now respect per-asset sourcePixels; no implicit
+1254px resizing changes the field's world size. Flat dew and all earlier
+parents rebuilt. Verified centre core pixels, unchanged metres-per-pixel,
+field fitting inside dew, syntax and reported s=-3.38 preview.
+
+
+## Photographic cell → DNA pass (2026-10-30, anatomy-v9)
+
+SVG layouts in `micro/anatomy-v9/*-layout.svg` establish approximate geometry;
+built-in image generation supplies photographic scientific reconstruction.
+Prompts, inputs and biological limitations are in `provenance.json`.
+New small amoeba source square is12µm, body approximately8µm (provisional,
+not an identified species), fixed centre627,627. Nuclear centre is0.5µm left
+of the zoom axis, so we enter chromatin beside its central nucleolus.
+`powers-of-ten-match-anatomy.mjs` registers generated size drift and builds
+8 matched3× levels:12µm,4µm,1.333µm,444nm,148nm,49.4nm,16.5nm,5.49nm.
+Intermediate levels are crops, not additional native generated detail.
+All7 central100px parent/child registration checks pass.
+No new parallax is introduced inside these flat matched illustrations.
+The shell/leaf foreground handoff remains in its established layers.
+Whole-cell opacity transitions from0.82 to1 between12µm and4µm, removing
+red shell tint inside the nucleus. Ribosome25nm is in cytoplasm, included as
+an off-axis miniature and a separate40nm close-up; it is NOT inside chromatin.
+Cell → DNA plays the new segment. Hopf atom handoff is still future work.
+Molecular images are approximate artistic reconstructions, not PDB renders;
+no claim of atomically exact generated connectivity or species-specific anatomy.
+
+## Hopf renderer review (2026-10-30)
+
+`public/hopf/hopf-core.js` supplies WebGL2 extruded Hopf fibre tubes, HDR where
+available,4-sample MSAA and bloom. `tools/powers-of-ten/small.js` already adapts
+hydrogen, proton and up-quark views to the zoom in linear physical scale and
+hides the explorer's enlarged nucleus. The A–T base pair uses a chosen hydrogen
+as the fixed centre. The canopy photo sequence still ends at5.49nm: its bridge
+into this coded base pair and hydrogen is not yet connected.
+
+Improved the zoom adapter: preview render cap2048px, `atomquality=video` cap3840px,
+subject to GPU renderbuffer limit; retain render targets until resolution halves
+to avoid reallocating on every small zoom change. Stable seeded electron samples
+replace per-frame random resampling. Release imported module Blob URL after load.
+Validated whole-atom Hopf rendering at500pm and inner cloud at50pm in the viewer.
+Next: register generated DNA to the actual coded A–T geometry and target H before
+crossfading; match lighting/background and hold orbital camera pose during handoff.
+
+## Earth-to-space review (2026-10-30)
+
+The full viewer already continues through globe/Moon, staged planet flybys,
+Kuiper/Oort, catalogue stars, Milky Way, Local Group,2MRS galaxies and CMB.
+The isolated `canopytest` view still stops at its satellite-scale upper bound.
+Planet flybys use enlarged radii and shifted positions for staging.
+Fixed sky projection previously rendered a square and stretched it: horizontal
+and vertical field now use the actual output aspect and shorter-side scale.
+Longitude-wrap bilinear sampling reduces nearest-pixel shimmer. Cache includes
+both output dimensions. Moving preview increases360→720px; `spacequality=video`
+(or `hq=1`) uses8K sky source and up to3840 output pixels on the longest edge,
+including while camera rotates. Earth globe cap rises720→1024 preview and3840
+in video mode. Checked Earth at50,000km in16:9 and9:16.
+
+## Integrated CMB → quark journey (2026-10-30)
+
+The `canopytest=1` artifact now spans s27.6 through−18.7 (rather than stopping
+at satellite and DNA). Play CMB → quarks and the reverse each take180seconds;
+Stop journey, preset clicks, wheel and keyboard cancel the scripted traversal.
+New presets expose CMB, galaxy groups, Milky Way, solar system, globe, base pair,
+hydrogen, proton and quark alongside all the photographic review stops.
+The shorter Cell → DNA control now carries on into hydrogen at320pm.
+
+Fixed a shared-camera leak: photographic shell registration previously mutated
+cam.cx/cy before the small-scale renderer ran. Those offsets are now isolated in
+a picture-only camera. The coded hydrogen/proton/quark stay at the unchanged
+screen centre. Leaf backdrop retires after opaque nuclear coverage; microscopic
+imagery dissolves between2.8nm and0.63nm as the coded A–T base pair takes over.
+The final photograph and coded molecular pose are not yet pixel registered: this
+first full integration uses a material/focus dissolve there. Future polish should
+anchor a generated atom surface to the actual base-pair geometry before its reveal.
+The old procedural DNA is suppressed during that handoff to avoid a third helix.
+Added am/zm scale readouts instead of expressing quarks as huge Planck multiples.
+CMB remains the existing logarithmic spectrum-shell presentation at the end.
+
+Verified uninterrupted180-second playback from CMB to the quark endpoint.
+The complete route lives in `tools/powers-of-ten/full-journey.js`, shared by
+the normal entry and isolated preview helper so they cannot drift in scale limits.
+Manual transport and slider input cancel scripted playback as well.
+
+
+## Big-to-small review (2026-10-31)
+
+User review was dictated; odd names/phrases are transcription noise.
+- Correct Hubble/CMB comparison: old logarithmic radii0.976/1 made14.4Gly and
+  46Gly look equal. CMB control now uses linear radius and calibrated maximum
+  frame118Gly, rather than420Gly. Hubble overlay radius is14.4/46 of CMB.
+  Explicit radius labels. Keep current camera orientation pending clarification.
+- Human distance labels: thousand/million/billion/trillion km; switch to powers
+  at1000trillion km. Frame HUD uses the same formatter. Added radius rings for
+  light-second/hour/day,1/10/100 light-years,1million and1billion light-years.
+- Local Group approximate10million-light-year diameter circle, centred halfway
+  toward M31 for the drawn group. Neptune/Jupiter/Mars/Moon orbital reference
+  lines label distance from their parent. Moon and planets now true-size at
+  catalogue positions; removed enlarged staged foreground passes.
+- Restore real cloud overlays in integrated canopy view. Added persistent cloud
+  planes at8.5/7/4.2km using existing MODIS wisps with stronger intrinsic alpha,
+  perspective and geometric edge exit before crossing altitude. Plane/bird and
+  accepted canopy/leaf/bug composition retained.
+- At500µm: increase community and field opacity instead of washed-out ghosts.
+  Rebuilt matched flat drop and outward parents from shared specimen definitions.
+- At120nm: new148nm outpaint wraps exact49nm child, instead of an enlarged crop
+  of a different chromatin arrangement. Built-in generator prompt/input in
+  anatomy-v9/bridge-provenance.json. Seven parent-centre checks pass.
+- Biology: amoebae have ribosomes and chromosomes. Do not add a field of X-shaped
+  mitotic chromosomes to an interphase nucleus, or assign human XX/XY to an
+  unidentified amoeba. Keep visible chromatin and existing ribosome inspection.
+- Explicitly deferred by user:1nm coded-molecule redesign. No molecule changes.
+
+References checked:
+https://www.nasa.gov/science-research/astrophysics/how-big-is-space-we-asked-a-nasa-expert-episode-61/
+https://imagine.gsfc.nasa.gov/features/cosmic/local_group_info.html
+https://science.nasa.gov/solar-system/oort-cloud/facts/
+https://science.nasa.gov/asset/hubble/relationship-of-the-kuiper-belt-to-the-oort-cloud/
+https://pmc.ncbi.nlm.nih.gov/articles/PMC2107637/
+https://openstax.org/books/biology/pages/10-1-cell-division
+
+## Matched galactic interior handoffs · 2026-10-31
+
+New diffuse plate: `../galaxy-handoff-v1/distant-milky-way.png` (native1254×1254;
+original retained, not described as native4K). Built-in image generation; exact
+prompt and provenance are beside the image in `provenance.json`.
+
+`tools/powers-of-ten/galaxy-handoff.js` builds the interior outward:
+- Sample the plate's luminance for a seeded local star cloud. Put these stars in
+  depth35–935ly; retain the nearest Hipparcos catalogue stars separately.
+- As camera distance shrinks, use perspective projection that tends to fixed
+  angular positions. Stars behind the camera are culled geometrically. There is
+  no opacity retirement of the local star field on entry to the solar system.
+- Galaxy entry uses a textured light-volume mesh, with depth from luminance,
+  rather than large square particle sprites. Rotate the object by up to86°,
+  flatten and register every mesh vertex onto the interior plate. Edge feathering
+  avoids a floating rectangular photograph during the approach.
+- Morph froms21.65 to20.05; only once registered, replace the mesh with the exact
+  full-resolution plate from20.05 to19.65. The two draws use complementary weights
+  and additive compositing, preserving brightness. The camera axis is unchanged.
+- The background stays behind the separately rendered stars and solar system.
+  It follows the existing camera orientation; no independently generated sky swap.
+- Dedicated preview buttons: Galaxy→local stars(22→18,26s), and Stars→solar
+  system(19→12.8,32s). Both run through the normal viewer and both delivery guides.
+
+Verification: JavaScript syntax; identical registered image source and transform
+across the handoff, complementary brightness weights; angular convergence of
+stars and behind-camera culling; visual checks at20.7,20.05,18.2 and13.
+Stellar distribution beyond the nearest catalogue stars is intentionally
+compositional, following the author's request; this is not an astrometric survey.
+
+## Equirectangular map → catalogue stars → modelled galaxy · 2026-10-31
+
+Supersedes thev1 rotating image surface. This version follows the author's
+explicit outward construction. The original all-sky map is
+`video/powers-of-ten/sky/sky-4k.jpg`, in galactic equirectangular coordinates.
+Longitude0 is at horizontal centre, positive to the left; latitude north is up.
+
+The cleaned image, generated edit prompt, geometry and face-on diagnostic are
+in `generated/galaxy-handoff-v2/`. Cleaned native resolution1774×887; the runtime
+resamples it to2048×1024 for repeat-wrapped WebGL1 texture addressing, which
+adds no native detail. The complete original map is retained at4096×2048.
+
+Outward phases (s=log10 frame width in metres):
+-15.35–15.85: original sky → cleaned sky plus catalogue stars at angular positions.
+-15.85–17.6: measured star distances become active. Catalogue directions and
+ distances come from the existing Hipparcos/Gaia data; local neighbourhood LOD
+ uses stars within150ly plus the named bright landmarks (including Proxima and
+ the more distant Betelgeuse/Deneb), with duplicates suppressed. Distant unresolved light remains in the cleaned map.
+-18.8–19.25: cleaned sky →360,000 dots sampled from its brightness and colour.
+ Dots are still at infinity, so their projected directions remain registered.
+-19.25–21.35: only after image replacement, modelled galactic distances become
+ active. The existing tilt towards the galactic pole is delayed to this interval.
+- Beyond: the same 3D dots remain the galaxy; they are not replaced by a texture.
+
+`galaxy-geometry.js` defines the shared angular mapping and non-overlapping
+phases. `galaxy-handoff.js` projects the map and both point clouds using the same
+camera basis and50° field of view. Inverse distance starts at zero, so changing
+stored distance cannot move points during a fade. As inverse distance activates,
+the standard finite perspective projection emerges. The Sun remains a central
+warm point after the solar system contracts. Resolved Oort particles attenuate
+when their cloud becomes too small to distinguish, avoiding a false blue star.
+
+`scripts/powers-of-ten-build-galaxy.mjs` samples solid-angle-weighted luminance
+and retains each chosen direction. Conditional distance along that ray comes
+from a thin/thick disc, Gaussian bar/bulge and four logarithmic spiral arms.
+Latitude integration resolves the thin midplane at512 rows. Model luminosity
+weights activate with depth, correcting the observer's dust-biased angular
+sampling so exterior arms can appear; the map controls the fully registered
+initial view. Extended Magellanic light is placed near50/62kpc and reduced as
+existing external-galaxy layers take over. These distances/densities are a visual
+model, while the local catalogue stars retain measured distances.
+
+Rendering is WebGL point sprites with additive radiance crossfades. Point
+footprints narrow during the depth reveal. The old square photo/mesh morph and
+random local stars are not used. All geometry and sampling are seeded and
+reversible for normal zooming in either direction.
+
+Validation: spherical coordinate round trips, angular registration independent
+of distance, strict fade-before-depth ordering, finite perspective equivalence,
+unit directions and positive distances for all360,000 generated points. A
+face-on model diagnostic is committed alongside the data. Visual review covers
+both handoffs and the exterior galaxy; browser shader/asset logs checked.
+
+### Galactic appearance refinement · 2026-10-31
+
+Following visual review: add fine, deterministic grain to the cleaned sky in
+world-ray coordinates (two spatial frequencies, no time seed or screen overlay).
+Nearby catalogue stars now use4.3px footprints per960px frame rather than2.3,
+and2.1 peak exposure rather than0.75, making their emerging parallax readable.
+Galaxy particles narrow from3.3 to2.4px during depth, replacing the earlier
+11px angular splats. Inner-cloud exposure is balanced separately so the smaller
+particles don't wash out the remaining galactic light.
+
+A separate distant galactic-band component remains behind the moving points:
+60% equatorial-band strength, attenuated by latitude, retires between s20.3 and
+21.05. The interior sightline is held through20.15, then tilt and yaw catch up
+smoothly to the existing exterior orientation by21.6. This retains the far edge
+while the nearer cloud pulls away. The two registered replacement/depth phase
+boundaries and all catalogue/model positions remain unchanged.
+
+Visual checks at s16.25 (catalogue-star brightness) and20.15 (retained band,
+small points), shader logs clean; existing spherical/phase/data checks pass.
+
+### Shrinking sky sphere and camera crossing · 2026-10-31
+
+Author explicitly superseded the galactic fade-before-depth sequence: fade the
+3D stars in while the sky stays lit, move out of a shrinking sphere looking at
+its centre, and only fade the sky after crossing outside it.
+
+The sky shader now raycasts a spherical shell in world space. Radius contracts
+40→12kpc over s18.8–21.3; the camera moves radially along its existing viewing
+normal, always aimed at the common origin. The same effective camera distance
+is used by the shell and galaxy points. Stars gain their modelled positions
+while fading in over18.8–19.25; subsequent movement is normal perspective zoom.
+
+The shell uses the far ray-intersection root on both sides of the surface,
+preventing a near-wall texture flip when crossing. Missing intersections leave
+transparent space around its exterior silhouette. It remains fully illuminated
+while D/R≤1.02 and fades only outside, over D/R1.02→2.5. Crossing is near s20.67;
+by s21.0 the shell is retired and the 3D galaxy remains. The older equatorial
+background-retention overlay is replaced by this actual sphere geometry.
+
+36 seeded cool-white specks are placed along the crossing corridor in world
+space. They enter/exit the frame geometrically, stay opaque when nearby, blur
+when large, and retire only at subpixel size. Positions depend on zoom rather
+than wall-clock time, so forward/reverse playback is consistent. They are a
+cinematic depth layer, not catalogue objects or labelled physical star sizes.
+
+Validation updated to enforce full sky illumination inside the sphere and fade
+only outside; the earlier galactic fade-before-depth assertion is intentionally
+removed. Local catalogue-star handoff ordering, angular registration and all
+point data checks remain. Shader logs and the crossing view were checked.
+
+Point exposure is balanced against the still-lit shell (40%→100% as it retires),
+to avoid adding two fully exposed galactic cores during the crossing.
+
+### Oort departure, persistent stars and earlier shell retirement · 2026-10-31
+
+Author refinement: start nearby-star depth earlier while leaving Oort, keep
+stars lit until the whole neighbourhood is a small central dot, strengthen icy
+bodies and merge them into a brighter Sun, fix the13k–16kly camera jump, and
+start shell retirement at6kly with almost nothing remaining by50kly.
+
+- Local sky/cached-star crossfade now15.35–16.5. Measured depth starts gradually
+  at15.8 and is complete at16.7 (≈0.67–5.3ly frame width), overlapping the slow
+  image transition intentionally. This supersedes the earlier local fade-first
+  ordering as requested by the author.
+- Catalogue dots keep their emitted brightness (no inverse-square attenuation
+  or fixed next-phase alpha fade). Their bounding radius, including named
+  landmarks, controls geometric retirement: full light while radius≥1.2 output
+  pixels, fading only below that, with shrinking point footprints. The central
+  Sun follows this retirement rather than an arbitrary exponent cutoff.
+- Kuiper/Oort dots now1.8px rather than1.2, opacity1/.9 rather than.8/.55. Their
+  spatial positions stay fixed. Each set becomes unresolved based on its own
+  projected radius and warms toward the Sun colour as it merges. The Sun halo
+  grows with both merge fractions, then compacts for the galactic view.
+- Camera discontinuity found at s20.15: the early-return branch left roll/tilt
+  inactive, then enabled an existing≈7° tilt on the next frame. Tilt now uses
+  the same smooth gate as yaw. Threshold continuity and a sampled13k–16kly sweep
+  are included in the regression check.
+- Optical sphere radius is calibrated so D/R=1.02 at6,000ly frame width. It is
+  fully lit before then, falls smoothly to2% by50,000ly, and reaches zero at
+ 70,000ly. The crossing particles were moved to this earlier interval. The
+  radius is a transition-dome parameter, not the physical edge of the Milky Way.
+
+Validation: projection/data checks, revised early stellar overlap, exact shell
+opacity milestones, camera-basis continuity and camera sweep; browser review of
+strong Oort and early stars. Generated images and point geometry are unchanged.
+
+## Photographic extragalactic handoff · 2026-10-31
+
+The two southern patches in the cleaned galactic map are the Large and Small
+Magellanic Clouds, not Andromeda. `extragalactic.js` supplies a separate angular
+background from four real observatory photographs: ESO/VISTA LMC/SMC, DSS2 M31,
+and ESO/VST M33. Full credits, download URLs, passbands and CC BY 4.0 terms are
+recorded in `video/powers-of-ten/galaxies/SOURCES.json`; linked credits appear in
+the review panel. These are original publication JPEGs, with app-side exposure,
+soft windows, sky-pedestal subtraction and geometric projection, not AI-generated
+galaxies. Residual field stars inside a window remain in the photos. The windows
+exclude the SMC photograph's foreground globular cluster 47 Tucanae.
+
+Image-centre RA/Dec, source image north orientation and field of view define
+one exact tangent plane per photograph. The angular background uses the same
+textures and vertices as the finite-distance state. Background replacement
+18.45–18.85 finishes before parallax begins at20.25. Depth reaches its measured
+position at21.55: LMC50kpc, SMC62kpc, M31765kpc, M33840kpc. Projection is
+`q=ray+photoOffset-cameraNormal*cameraDistance*depth/galaxyDistance`;
+no second image crossfade or moving zoom origin is involved. These are textured
+planes, not recovered volumetric galaxy models. Physical spans follow the
+observatories' angular fields and the adopted distances, not arbitrary icons.
+Small image footprints receive a subpixel-sized luminous core.
+
+Only once all four photos load, the Milky Way dome replaces its old Magellanic
+patches with adjacent empty-sky samples, and its old >35kpc cloud particles
+retire. The legacy Local Group icons for the same four galaxies are omitted.
+Other dwarf icons and the 2MRS large-scale scene remain as before. Failed/missing
+photos preserve the previous scene rather than leaving missing galaxies.
+
+A continuous sightline turn18.2–19.3 brings the Clouds into both delivery crops,
+holds through20.8, then looks over the Milky Way by22.0. The following Local Group
+turn brings M31/M33 into both crops at22.6; its key compensates for the existing
+continuous yaw rather than disabling that yaw. The camera remains centred on the
+same origin. The 'Milky Way → galaxies'48-second review covers18.4–23.1; the
+'Magellanic Clouds' and 'Local Group · photographs' stops expose both ends.
+Checks cover exact angular registration, tangent frames, true-distance projection,
+source dimensions/credits, continuous camera turns, Clouds in both video crops
+through the handoff, and M31/M33 visible in the Local Group stop.
+
+
+### Camera correction · 2026-10-31
+
+The author rejected the dedicated Magellanic camera detour. Restored the exact
+pre-photographic camera path (b5317ab), including its existing yaw/tilt timing.
+Both the Magellanic sightline keys and the extra M31-targeting turn are removed.
+The photographic angular-to-distance handoff remains; objects appear only where
+the established camera naturally sees them. Removed the now offscreen Clouds
+preset and moved the Local Group stop to23. Tests enforce the unchanged interior
+sightline rather than requiring the camera to force galaxies into both crops.
+This supersedes the camera/framing paragraph above.
+
+## Continuous red CMB sphere · 2026-10-31
+
+Replaced the spectrum iframe's glowing CMB points with `cmb-sphere.js`, a
+ray-intersected unit sphere carrying the existing scalar Planck SMICA R3 map
+(`/spectrum/sky-spectrum/cmb.png`; built by `build-sky-spectrum.mjs`). The shader
+maps scalar temperature contrast monotonically through dark crimson, red and
+pale coral. This is an illustrative false-colour palette, not optical emission.
+No new synthetic surface noise or AI alteration is applied to the data.
+The native map is1024×512; its angular resolution is not increased by rendering
+larger output frames. The renderer uses linear filtering and a wrapped longitude.
+
+The existing25.9–26.6 cosmic handoff, logarithmic inside-to-outside pullback,
+46billion-light-year radius,78% final screen fill, camera basis and global roll
+are retained. Drawing the far wall throughout the crossing avoids changing to
+the opposite hemisphere's texture when leaving the shell. Mild exterior limb
+falloff makes its silhouette legible without modelling a sunlit planet. The
+Hubble14.4/46 radius comparison and optional labels remain. The old spectrum
+iframe stays hidden and navigates to about:blank; no duplicate point shell draws.
+Checked the interior and final exterior views in the viewer; no WebGL warnings
+or errors. Syntax checks pass for the shader module and integrated runtime.
+
+
+## Remove added atmospheric cloud cutouts · 2026-10-31
+
+The author rejected the circular-looking wisps over Earth now that the actual
+cloud imagery has a working transition. Removed atmosphereLayer from the live
+journey and removed the separate atmospheric cloud entry from crossings.js,
+including when optional crossings are enabled. The photographic clouds plate,
+its existing transition timing and the globe's own cloud imagery are retained.
+The unused atmosphere.js and source wisps remain archived; nothing loads them
+through the live journey. Plane and bird flybys are unchanged.
+
+## Chromatin foreground handoff · 2026-10-31
+
+Rebuilt the visibly inset chromatin→nucleosome transition. Built-in imagegen
+extracted the purple chromatin chains to a genuinely transparent1254px plane,
+and outpainted the finer nucleosome scene across a3x wider rear image. Native
+sources, prompt summaries, dimensions and physical spans are versioned in
+`anatomy-v9/chromatin-depth-v1/provenance.json`. The builder places the exact
+finished finer centre in the rear plane, then composites the foreground and
+propagates that identical result through level3→whole cell. Existing finer DNA
+sources and the fixed zoom origin are retained.
+
+The foreground is above all finer detail during replacement, with common scale
+and no blur. At a202nm frame (444nm source span/2.2), the screen is fully inside
+the common sharp image's opaque centre. Only then does depth ease in: foreground
+zooms faster and defocuses; rear plane slows and defocuses; central finer DNA
+continues at the world zoom rate. Opaque foreground exits geometrically through
+the frame, with an effectively transparent optical-axis corridor. This is the
+approved2.5D foreground method, not a new atomically accurate molecular model.
+A 'Chromatin depth test' button plays1.1µm→45nm in22seconds. Checked the old
+480nm inset view,141nm depth view and50nm exit with both delivery guides.
+`powers-of-ten-check-chromatin.mjs` verifies exact plane/composite identity,
+transparent centre and propagation to the whole-cell parent.
+
+## Own-dot equirectangular skies · 2026-10-31
+
+`powers-of-ten-build-matched-sky.mjs` now exports TWO independent8192×4096
+maps and their matching packed3D buffers under `generated/matched-sky-v1/`:
+720,000 coloured stochastic-dither samples for the Milky Way, and26,508 nearby
+Hipparcos/Gaia samples plus named landmarks. Each coloured sample is exactly
+one object. Radiance-weighted seeded sampling preserves the cleaned map's
+colour/density structure; LMC, SMC, M31 and M33 patches are replaced with adjacent
+sky floor before sampling. Extragalactic telescope photos remain separate.
+
+Each10-float record stores a unit direction from the Sun, inverse distance in
+kpc, RGB radiance, finite-model weight, angular support and peak intensity.
+`scene.json` describes the layout and coordinate reconstruction. Galaxy depths
+reuse angular-cell samples from the established disc/bulge/arm model, excluding
+external-galaxy distances. Nearby directions/distances come from the existing
+packed catalogue (≤150ly) plus named landmarks through Deneb2600ly. Their variable
+orb support and glow intensity are visual weights, not stellar photosphere sizes
+or calibrated apparent magnitudes. The Sun is the observing origin, so its
+central solar-system marker is rendered separately from the all-sky catalogues.
+
+The CPU atlas rasterizer and instanced WebGL sprites use the same tangent-plane
+projection, exact input sample identities, RGB, peak intensity, angular footprint
+and circular Gaussian kernels. Galaxy exp(-4r²); nearby orbs combine a bright
+core and broader halo. Maps are8-bit additive RGB, clamped after accumulation.
+At the Sun's position the live clouds reproduce the exported maps.8K quantisation,
+bilinear reprojection and GPU rasterization still cause small subpixel differences;
+this is not a claim of bit-identical screen pixels. A same-framing preview
+comparison measured ≈5.8/255 mean absolute per-channel difference, with channel
+means within0.3/255. Full-buffer kernel tests at exported atlas sample pixels
+agree within1/255, including overlaps.
+
+Nearby-map replacement15.35–16.5 finishes BEFORE depth16.5–17.2. Galaxy-map
+replacement18.4–18.8 finishes BEFORE depth18.8–19.25. The camera path is unchanged.
+This supersedes the earlier separately warped image dome: each map gives way to
+its OWN point cloud, rather than retaining a differently projected image on top.
+The galaxy's edge now belongs to the actual depth geometry. Finite galaxy
+lighting eases into the inherited extinction/model weights; unresolved points
+retain a small screen-space glow footprint after depth activates, so the exterior
+galaxy does not disappear through subpixel rasterization. Neither correction
+changes the angular-reference map handoff. Nearby points retain their light until
+the group collapses, and the solar marker carries the central light.
+
+`?skyrender=map` and `?skyrender=dots` are reference-comparison modes: identical
+camera, Sun-centred projections, and zero depth. Omit them for the normal zoom.
+`powers-of-ten-check-matched-sky.mjs` checks both complete buffers, distances,
+unit rays,8K dimensions, map/point radiance/colour/footprint agreement and
+replacement-before-depth timing. The existing galaxy and extragalactic checks
+also pass. The previous point/maps remain versioned for provenance.
+
+### Larger nearby-star orbs · 2026-10-31
+
+Increased Hipparcos/named landmark angular glow support14× and Gaia support5×.
+The brightest nearby halos now reach roughly the solar marker's footprint in
+this50° field; the denser catalogue retains a smaller size tier. Peak radiance,
+positions and distances stay fixed. This is a display halo, not a stellar radius.
+The orb kernel now smoothly reaches zero at its support edge instead of ending
+with a faint circular rim. CPU map and live shader use the identical taper.
+Rebuilt the nearby8K map and buffer together; the Milky Way assets are unchanged.
+Checks verify larger variable support, full-buffer map/radiance agreement and
+replacement-before-depth timing. Visually checked the angular view and depth
+separation around16.5–17.15.
+
+## Persistent nuclear background and isolated closer pieces · 2026-10-31
+
+Fixed the two remaining inset handoffs near1µm and316nm. The previous rear
+chromatin tile still carried a different opaque fluid texture. The live nuclear
+renderer now uses the ORIGINAL registered nuclear interior as a persistent rear
+plane; a populated nucleosome/DNA field is a true-alpha middle plane; a selected
+four-nucleosome chain and its closer DNA are true-alpha foreground pieces.
+Purple chromatin chains remain a separate near plane. There is no opaque pale
+child tile and no replacement of the surrounding pattern by a different backdrop.
+
+Four built-in imagegen background extractions are versioned under
+`anatomy-v9/nuclear-pieces-v2/`, with raw native dimensions, prompt summaries,
+sources and generation IDs in provenance.json. The wide field uses two alpha
+extractions combined at their registered3x scale, so its pattern also persists
+behind the selected foreground piece instead of leaving an empty centre. Only
+static outer source-edge alpha is tapered on the wide field/purple cutouts to
+avoid hard square cutoffs. The selected four-bead chain and closer DNA retain
+their natural alpha. No generated blur is added.
+
+`powers-of-ten-nuclear-pieces.mjs` composes every parent from the same nuclear
+texture and registered object planes, then propagates the result to the whole
+cell. The runtime replaces the common flat parent first. At a606nm field width
+(the1.333µm parent at2.2× screen coverage), rear texture and field begin a slow
+relative zoom/blur; the selected DNA-linked piece stays at the world zoom rate.
+Purple near chains enlarge and soften, exiting geometrically. The populated
+middle field stays behind the foreground rather than retiring through transparent
+holes. Large persistent planes are cropped to the viewport before filtering to
+avoid huge offscreen blur allocations. The fixed optical axis is unchanged.
+
+The chromatin check now verifies the background is byte-for-byte the original
+registered nucleus crop, all four pieces have true alpha, wide pieces have no
+hard square source edge, the zero-depth parent is the exact stacked scene, the
+whole-cell parent propagates correctly, and depth starts only after replacement.
+Visually checked1.1µm,316nm and50nm with both delivery guides and no console errors.
+The existing 'Chromatin depth test' covers both handoffs and the closer DNA view.
+This supersedes the earlier chromatin-v1 background replacement workflow above.
+
+## 2026-10-31 — optical and scale review
+- CMB: faint from supercluster scale (s24–25.1); premultiplied two-red translucent far/near ray intersections, near surface enters smoothly through the camera. Exterior shell has subdued central coverage and a slightly stronger grazing rim; no opaque black texture backing.
+- Nearby stellar angular support halved (Hipparcos/named7x original, Gaia2.5x), radiance reduced in both8K atlas and exported3D buffers. Galactic radiance reduced consistently; finite-depth gain lowered. Stable circular tangent billboards replace the opposing-vector basis interpolation that caused a flatten/flip. Galactic replacement finishes before the wider18.5–19.6 depth interval.
+- Illustrative Local Group flyby uses the existing M33 telescope photograph, with a tapered alpha contour and sky-floor subtraction. Position is a scenic model, not M33's catalogue location; original catalogue M33 remains in the extragalactic layer. Camera route unchanged.
+- Earth retains an additive blue atmosphere and a small pale-blue unresolved halo until its final distant retirement. Sun halo strengthened.
+- Removed the dense water-life square from the live and matched flat droplet; surrounding independent cells reduced42→18, retaining pollen and larger species. Rebuilt parent centres through the foliage pyramid. Distant red ladybug light eases into neutral water by the23µm view.
+
+## 2026-10-31 — flyby entrance and outer circles
+- Local Group photographic flyby now projects with the live sky's50° perspective distance instead of the orthographic catalogue projection. Removed the21.5 scale gate; near-side geometry enters/exits through the border, with large-image blur and padded culling bounds. Only tiny distant images fade.
+- CMB alpha begins at100,000ly frame width, with a squared smooth ramp reaching the existing faint floor bys25.1. Later shell crossing is unchanged.
+- Hubble circle has independent label opacity froms25.7–26.25 and remains through the endpoint. It uses its own spherical projected radius instead of scaling the outer shell's silhouette, so it is visible while the camera is still inside the CMB shell.
+- Further cosmic-web extension remains a proposed next layer: galaxy dots, diffuse filaments/sheets and voids; no new catalogue claims or decorative nebula clouds added.
+
+## 2026-10-31 — quieter reservoirs and continuous cell palette
+- Kuiper/Oort particle width1.8→0.95 output pixels; Kuiper alpha24% and Oort alpha15% of base instead of100%/90%. Physical locations and collapse timing retained.
+- Red shell light eases logarithmically to96% neutral water across the full600µm→3µm frame-width interval, replacing the shorter cell-coverage-driven fade.
+- Built-in imagegen recoloured nucleus interior/nucleolus to muted dusty rose while retaining neutral cytoplasm and registered envelope. Versioned nucleus-rose-v3-raw.png; original raw preserved.
+- Replaced four-corner hero with a complete transparent six-nucleosome fragment, uneven placement, curving peripheral DNA and varied orientations. Central diagonal target remains on the fixed zoom axis; native dimensions and illustration scales retained. All molecular parents and downstream droplet/foliage centres reassembled from the same sharp planes. Sources/prompts: micro/anatomy-v9/rose-organic-v3-provenance.json.
+
+## 2026-10-31 — extended3D cosmic-web interpretation
+- New cosmic-web.js renders410,000 fixed three-dimensional density tracers from a seeded, warped Voronoi edge/sheet/knot field. Two nested components bridge the local catalogue and the large exterior marble view. Red/rose filaments, pale warm knots, occasional cool tracers, broad low-density voids, diffuse additive glow.
+- This is a schematic coarse-grained density reconstruction, not a survey, a simulation or measured filament positions. The outer component deliberately aggregates structure for legibility; its features are not individually calibrated physical filaments. Interpretation and source references are in cosmic-web-v1/scene.json. The actual Planck scalar map remains a separate CMB shell.
+- Appears over24.3–25.15; outer component eases over25.1–25.8. The nearby galaxy catalogue retires as it becomes unresolved, retaining the old timing if the new volume is not loaded. Local fine tracers retire over25.35–26.1 so they cannot pile up into a luminous central disc.
+- Positions remain fixed while the shared view basis rotates. A continuous homogeneous projection interpolation over25.6–26.45 takes the catalogue's scale into the CMB shell's perspective; final data radius is within95.5% of the shell radius, keeping the strands inside the marble. No camera recenter or path change.
+- New review control: Cosmic web → CMB,28seconds. Main journey also includes it.
+- Check: both populations finite, correct bounds/alpha and count, all spatial octants; interior voxel variance/mean3.29 verifies clustered density/voids rather than uniform noise. Live GPU shader/visual checks cover intermediate and final scales.
+
+
+## Registered DNA → actual Hopf hydrogen bridge (2026-11-01)
+
+The final molecular approach now uses the particle explorer's native hydrogen fiber renderer, captured at time 3 / yaw 0.6 / pitch 0.6 with linear physical scaling. Hydrogen and deuterium plus the H₂O molecular view were rendered as reference cards at `tools/powers-of-ten/atom-capture.html`. The live cloud freezes to that captured state before the PNG handoff; the proton and quark layer bodies are unchanged.
+
+A thymine N3-bound hydrogen in the A–T fragment stays at the optical centre. Three registered spans are 0.609663 nm (H), 1.828989 nm (base-pair fragment), and 5.486968 nm (DNA). The generated molecular surroundings follow coordinate blueprints; they are illustrative surfaces, not a bonded-electron calculation. Each finer transparent piece is composited into its parent at exactly one-third size, and the runtime uses those same separate planes. No recentering or shrinking vector stage.
+
+Review with **Atom → DNA** or **DNA → atom → quarks**. Assets, capture metadata, prompts and limitations: `video/powers-of-ten/generated/atomic-bridge-v1/provenance.json`. Rebuild with `powers-of-ten-match-atom.mjs` followed by the anatomy/drop/depth match scripts. Validate with `powers-of-ten-check-atom.mjs` and `powers-of-ten-check-chromatin.mjs`.
+
+
+### DNA registration correction
+The previous independently generated DNA had a different helix width and twist from the nucleosome source. `dna-parent-crop.png` now records the exact central 1/9 field of that wider strand; `dna-registered-raw.png` is its imagegen detail enhancement. The DNA outer 22% and the inverse mask in the hero source share the same common-scale handoff. This replaces the old strand rather than stacking two helices. All wider parents are rebuilt. The atom target, spans and proton/quark animation are unchanged.
+
+
+### Separate cosmic web and CMB rendering
+The cosmic web now uses blue-white discrete tracers with compact knot halos; the CMB retains the muted red Planck-map shell. The final view samples the full interior volume instead of flattening it into a thin slab. Perspective changes point size and depth brightness. Above log10(frame metres) 26.4 a slow orbit starts, reaching full speed at 26.9 and continuing when zoom playback stops. Both volume and shell share that orbit; nearby camera behavior is unchanged.
+
+
+## Guanine-centred 3D approach and cool nuclear rebuild (2026-11-01)
+
+The fixed target is now H12, the N1-bound hydrogen of the existing PubChem guanine coordinates. The glycosidic N9-H is replaced by a C1′ attachment stub. `guanine-scene.js` and `load-molecular-core.js` share the approved lab fiber code and exact element colours; all foreground atoms use the actual3D renderer until the outer PNG handoff. The selected H remains at origin. The displayed contact envelope is1.15×covalent radius; this is not a99% free-atom orbital boundary. Proton and quark animation bodies remain unchanged.
+
+`guanine-capture.html` provides native transparent sources, with snapshot3s and yaw/pitch0.6. `guanine-flat.png` is exactly surroundings plus H. The3D/PNG replacement runs between log10 frame metres−9.35 and−8.8 with the capture camera locked. Only once replacement finishes does the camera move inward and the surrounding cloud layer blur/darken. Deep electron wisps fade to black by−14, before the quark view.
+
+New sharp generated foregrounds: DNA5.487nm, nucleosomes49.383nm, chromatin444.444nm. The nucleus4µm source is regenerated in cool blue-violet; its registered centre becomes the persistent nuclear rear. Every finer source is removed from the parent's overlapping support and reinserted at the shared scale. All wider cell/drop parents are rebuilt. The old purple foreground is retired. See `../guanine-bridge-v2/provenance.json` for saved generation prompts, source renders, physical spans and limitations.
+
+Rebuild: `powers-of-ten-guanine-stack.mjs`, then `powers-of-ten-match-anatomy.mjs`, `powers-of-ten-match-drop.mjs`, `powers-of-ten-match-depth.mjs`. Validate: `powers-of-ten-check-guanine.mjs`, `powers-of-ten-check-chromatin.mjs`, `check-atom-lab-molecules.mjs`.
+
+2026-11-01 — Native DNA/orb handoff (dna-code-v3): full 1BNA DNA heavy-atom fragment, rigidly aligned on guanine A4 O6/C6/N1 around the unchanged N1-bound H. The original guanine conformer substitutes that residue to preserve the target; other source hydrogens are absent. Opt-in orb contribution dominates outer molecular clouds and yields continuously to thin Hopf fibers on entry. Atom Lab defaults remain unchanged. Native 1254² full-DNA alpha render at 5.487nm replaces the generated close DNA; generated 49.383nm and 444.444nm parents embed the exact child. Background derives from the same larger nuclear rear crop and stays behind the live 3D view before blue electron wisps/black. Parent registration and original small-particle animations checked.
+
+2026-11-01 — Fractal-to-Life ending: replace procedural cellular hierarchy with a monochrome Julia perturbation zoom (c = -0.74543 + 0.11301i, centered on a repelling fixed point). Resolve the same physical image onto a Planck-cell lattice using 8×8 ordered dithering. Read the actual GPU dither into a 256² Life grid; hold the exact initial state for 0.9 seconds, then evolve Conway rules. No random seed or inserted oscillators. Final frame shows 32 Planck-length cells across; intermediate scales retain the accelerated playback rate. Zooming back out restores the unchanged fractal and permits a fresh deterministic reveal.
+
+2026-11-01 — Curved CMB web, Julia core entry and motif Life: 3D network connections use four perturbed gold curves each, screen-composited into the interior of the red shell; original density tracers remain faint. Curves are bounded inside the shell. New Julia c=-0.12+0.74i zooms around its other repelling fixed point, using up to 512 perturbation iterations and a bright central reveal. Quark camera targets a sampled point of the trefoil before replacement. Finale now maps each sampled gray region to a padded 16×16 catalog tile (still lifes, period-2 oscillators, pulsar, gliders, lightweight spaceship, mixed gardens), randomized rotation/reflection and 12% noise. Source tones are compressed into the density range of viable motifs. Life starts at 0.25 generations/s and ramps to 8; final frame is 128 Planck cells across. This replaces the previous exact-pixel dither seed by the user's requested structured catalog method.
+
+2026-11-01 — Unified CMB→Earth motion: remove accumulated full idle turns and the short outer-angle gate that unwound them while zooming. Idle motion is a bounded ±0.12rad sway, fading across a broad scale range. Replace independently eased camera turns and the delayed galactic catch-up with a normalized cubic quaternion path through Earth, planetary, galactic and supergalactic anchors. Angular velocity is continuous through anchors and sampled sightline rates stay below60°/decade. The sky now uses the exact common camera basis instead of a separate planetary rotation. Cosmic strands overlap across four density scales down to Laniakea; 940 distributed nodes with four neighbours, four brush strands per edge, and early retirement of tiny projected sub-networks prevent a detached central knot.

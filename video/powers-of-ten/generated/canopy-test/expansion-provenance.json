@@ -1,0 +1,64 @@
+{
+  "mode": "built-in image_gen",
+  "workflow": "video/powers-of-ten/FOREGROUND-LAYERS.md",
+  "jobs": [
+    {
+      "asset": "canopy-Near",
+      "prompt": "Use case: background-extraction. Edit target this exact square overhead sequoia canopy photograph. Keep ONLY the foremost dense SUNLIT CENTRAL foliage crown/spray cluster within the central approximately45% of image width, with naturally irregular needle contours, as a genuinely transparent foreground layer. Keep exact original image coordinates, scale and lighting; do not enlarge/reframe/recenter. Remove all other surrounding/deeper foliage to transparency. No blurred edges, no invented shadow, no circular/rectangular boundary. All kept foliage sharp. No text.",
+      "source": "Generated images are saved to /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c as /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-31ddab3a-c3d8-4cdd-a8f9-840958f111c3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "asset": "canopy-Mid",
+      "prompt": "Use case: background-extraction. Edit target this exact square overhead sequoia canopy photograph. Keep ONLY several MID-DEPTH sunlit foliage spray clusters along the left and right sides, with naturally irregular needle contours. Remove the foremost central dense cluster (central45% width), darkest deep foliage and all gaps to genuine transparency. Preserve exact original canvas, coordinates, scale, and upper-left sunlight; no enlargement or reframing. All foliage sharp, no blur, no geometric mask edges, no text.",
+      "source": "Generated images are saved to /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c as /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-f96f76c2-14c5-4601-9aaa-6f9588731af5.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "asset": "canopy-Back",
+      "prompt": "Use case: precise-object-edit. Image1 edit target overhead sequoia canopy. Images2 and3 identify the near central and mid side foliage clusters to remove. Create a BACK plane by removing those indicated upper clusters and inpainting darker recessed green canopy behind them. Keep full image1 canvas, camera, scale, original peripheral positions and upper-left lighting. All remaining and inpainted foliage must be sharp; NO blur/bokeh anywhere. Green foliage only, no exposed wood, no new objects or insects, no text. This is a hidden background layer, not a new composition.",
+      "source": "Generated images are saved to /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c as /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-4d7b492e-def8-4122-b8de-118693f5404b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "asset": "foreground-dew-natural-v3.png",
+      "prompt": "Use case: precise-object-edit. Image 1 EDIT TARGET is a transparent cutout of a green sequoia spray with a ladybug and ant. Images 2,3,4 are ONLY references for natural dew, NOT for composition. Preserve exact image1 framing, foliage, insects' exact sizes, positions, poses, lighting, and transparency. Change ONLY water on the ladybug: remove its isolated glass-marble-looking bead. Add an irregular scattered cluster of tiny condensation beads across both red wing cases, mixed 0.05–0.25mm beads with subtle glints. One slightly larger 0.9mm bead is the zoom target, on the red wing case near existing bead position around x45.5%,y49% of full image, clear of wing seam. Attached shallow spherical cap with natural shell contact, soft meniscus, red/black shell visible through water, small upper-left glint, subdued foliage reflections. No huge white rim, no glass sphere, no sharp landscape reflection, no mirror ball, no new objects. Keep leaf dew unchanged. Actual ladybug body about7mm in a54.61mm-wide frame. Transparent background remains transparent.",
+      "references": [
+        "/Users/avsa/Downloads/images-5.jpeg",
+        "/Users/avsa/Downloads/images-6.jpeg",
+        "/Users/avsa/Downloads/images-7.jpeg"
+      ],
+      "source": "Generated images are saved to /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c as /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-6a61da3c-28b9-493e-bd67-08e915ff517e.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "asset": "18.2mm-natural-v3",
+      "prompt": "Use case: photorealistic-natural. Edit target is the exact requested macro crop of a real-looking dew-covered ladybug. Restore fine optical photographic detail at this exact framing. Preserve positions and sizes of every body part, black markings, leaf and all water beads. The slightly larger target water bead near exact frame centre stays fixed, a natural shallow cap attached to shell, not a glass marble. Many smaller scattered condensation beads; tiny soft highlights and red shell visible through water; no sharp reflected landscape, no thick white glass rim. Keep exact existing crop and image geometry, same sunlight. Do not zoom or reframe, no text, no organisms.",
+      "source": "Generated images are saved to /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c as /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-cd1b170d-2d6b-4a13-b428-94aa5fdc83dc.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "asset": "6.07mm-natural-v3",
+      "prompt": "Use case: photorealistic-natural. Edit target is the exact requested macro crop of a real-looking dew-covered ladybug. Restore fine optical photographic detail at this exact framing. Preserve positions and sizes of every body part, black markings, leaf and all water beads. The slightly larger target water bead near exact frame centre stays fixed, a natural shallow cap attached to shell, not a glass marble. Many smaller scattered condensation beads; tiny soft highlights and red shell visible through water; no sharp reflected landscape, no thick white glass rim. Keep exact existing crop and image geometry, same sunlight. Do not zoom or reframe, no text, no organisms.",
+      "source": "Generated images are saved to /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c as /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-64caa14e-f396-4413-ba4c-0babac6c8e3b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "asset": "2.02mm-natural-v3",
+      "prompt": "Use case: photorealistic-natural. Edit target is exact extreme macro crop of condensation on a ladybug. Keep exact framing, bead diameter, position, shell pattern and all smaller beads. Restore fine detail without zooming. Main water bead is a shallow attached spherical cap, red shell visible through it, thin subtle meniscus not a glass sphere. Remove distinct tree/landscape reflections and bright thick white rim; use a tiny soft upper-left light glint and faint green sky reflections. Natural varied small condensation drops around it. No text, no organisms, no other objects. Do not enlarge main bead.",
+      "source": "Generated images are saved to /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c as /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-140580eb-7539-4407-9fd2-d9593c85aa03.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "asset": "micro/amoeba-v1.png",
+      "prompt": "Use case: scientific-educational. Asset: photorealistic transparent microscopic organism foreground cutout. One Amoeba proteus, a450micrometre long translucent freshwater amoeba, viewed overhead with phase-contrast-like photographic detail. Natural asymmetric elongated crawling body with several broad blunt lobose pseudopodia, granular almost colourless cytoplasm, clearer ectoplasm rim, one subtle40micrometre round nucleus (about9% of body length), small clear contractile vacuole and a few food vacuoles. Subtle warm-neutral translucent tint. Entire body in frame with15% transparent margin, greatest body extent horizontal; genuinely transparent surroundings, no microscope border, no scale bar, no text. Not a cartoon; no giant multilobed nucleus, no eyes, no hair, no flagella, no spiky alien shape.",
+      "source": "Generated images are saved to /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c as /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-e07b8d03-3d19-432e-be9a-a0bdd20bb415.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    },
+    {
+      "asset": "micro/water-v1.png",
+      "prompt": "Use case: scientific-educational. Edit target a cropped extreme macro view looking through a dew bead onto a ladybug's red shell. This will become the same view focused INSIDE the water. Keep the warm red-orange illumination from underlying shell but let the shell texture become a diffuse distant plane, leaving optically clear pale warm amber water in focus. Low contrast natural translucent liquid, a few faint micron-scale granules, no bubbles or organisms. No glass rim, no sharp reflected landscape, no text, no microscopy frame, no dramatic science fiction. Square, coherent warm transmitted-light photographic microscopy background. The camera is moving into water, not into a red solid.",
+      "source": "Generated images are saved to /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c as /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-dc2202a0-f222-43bb-a70f-a80eecd02467.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+    }
+  ],
+  "scale": {
+    "ladybug_m": 0.0069347370090506325,
+    "amoeba_m": 0.000447744227713668,
+    "drop_m": 0.00116,
+    "source": "src/objects.json logR radius in cm; corroborated by https://amoebae.nl/amoeba-proteus/",
+    "note": "Dew diameters approximate optical projection. Amoeba body-alpha extent calibrated1471px, sprite1536×1024; same447.7µm body at every zoom."
+  },
+  "optics": "Canopy three sharp planes 4.423m worldspan: common speed during3.9→3.2m handoff, relative movement below3m at1,.965,.92 rates. Leaf matched planes retain14→10cm handoff, optics below9cm. Water scene is an illustrative focus shift beneath bead surface, not photographed biology."
+}

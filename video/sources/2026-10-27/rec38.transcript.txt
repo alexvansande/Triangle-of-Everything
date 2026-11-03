@@ -1,0 +1,136 @@
+[    2.3]  Okay, so here's the plan. I'm gonna, I want to start recording the new bits, and I'm not
+[    9.3]  sure how to make it, so I guess what I'm gonna do is I'm gonna zoom in and go, uh, so I think
+[   18.2]  what I want is go from humans just until we reach the Compton line, okay? So what I'm
+[   24.9]  gonna do is I'm gonna talk a little bit and just describe what I'm saying, then you're
+[   30.0]  going to transcribe it and we're going to try to turn that into a proper script, okay?
+[   36.0]  And you can suggest me new things to say.
+[   40.0]  So I've been recording a series of videos about the triangle of everything.
+[   45.0]  It's a chart where if you try to plot everything that exists in the universe, you
+[   50.6]  find that you'll be bounded by three sides.
+[   54.7]  The first one, the first two, we saw the first two.
+[   58.6]  It's the black hole line,
+[   60.3]  which nothing can be more massive.
+[   63.1]  And the Hubble radius, which nothing can be bigger.
+[   66.5]  And now there's a third one.
+[   69.1]  And it's actually,
+[   70.5]  and it's the limit of how small something can be.
+[   73.9]  But let's start in the beginning.
+[   76.0]  Let's start with us.
+[   82.1]  So this is a human. This is a human. It's roughly one meter. This is a human and we
+[   91.1]  measure everything as if they were sort of balls. And because this is a human, it measures
+[  104.7]  is roughly two meters, weights roughly a hundred kilos.
+[  111.0]  Everything's a log short, so it gets rounded out.
+[  116.7]  So they don't need to be exact, it gets really rounded.
+[  122.3]  And in fact, we are assuming all sizes are spherical.
+[  128.4]  The famous spherical call.
+[  132.7]  And you notice that we have this blue diagonal line, this is the density of water.
+[  140.1]  Almost everything to the right, like the rocks and the golden record will sink and
+[  147.7]  everything to the left like water balloons or party balloons or soap bubbles will float.
+[  158.3]  Everything is the right like rocks and the golden record will sink, everything to the
+[  163.7]  left like a soccer ball will float and there's also density of air so things like portable
+[  171.4]  or soap bubbles they will float because they're lighter than air.
+[  177.9]  But most animals however you see that they fall on this tiny narrow band and as we get
+[  185.0]  smaller and smaller we're reaching the smallest insects, like tiny moths and tiny ants.
+[  196.8]  This right here is the size of a single grain of sand and now we're reaching the, and now
+[  204.3]  we're deep in the microorganism scale where we have amoebas and tardigrades.
+[  212.8]  The size of a single grain of pollen.
+[  218.2]  Now here we are at, notice that I should have said it before, so when we were talking
+[  226.8]  about sizes, we should talk about units, right, because notice that the axis has
+[  234.7]  all sort of units.
+[  235.9]  So one kilogram is here, one kilogram is here, one pound is here, one odd, one gram.
+[  247.0]  We use the metric system because it all follows neatly on those squares.
+[  253.3]  Now we go back to the microbe.
+[  256.3]  Now we are here and so this is a red-blue cell, it has one picometer, where it measures
+[  270.9]  one picogram, whatever that means, and we have bacterias, and then this is the part
+[  282.9]  where biology ends and chemistry starts popping up. Viruses are sort of in between.
+[  293.6]  They are not considered to be alive. Viruses are sort of in between. Biologists don't consider them
+[  299.5]  to be alive. Chemists don't consider them to be just molecules. But even if we consider
+[  307.0]  viruses to be alive, then we would have prions, which are also able to multiply
+[  315.1]  themselves, but are even like still less alive than others. And now we are in the,
+[  321.4]  now we are in the right, in the kingdom of molecules, the kingdom of
+[  329.2]  chemistry. We have the ribosome and ferritin, antibodies and
+[  335.1]  hemoglobin and what makes everyone DNA.
+[  341.0]  DNA is made of those four molecules right here.
+[  346.1]  And we get simpler and simpler molecules
+[  349.4]  until we have water and finally, atoms.
+[  356.7]  Well, as you see, here's something we should,
+[  360.1]  I should have said before.
+[  362.2]  Notice that most biological things, notice that most things in microbiology fall roughly a little
+[  370.3]  bit to the left of the diagonal line. That's actually very useful because when we study them
+[  377.5]  we put them in centrifuge to separate them precisely because they are heavier than water
+[  383.0]  and will fall to the bottom of a centrifuge. And then we go and we have simpler and simpler
+[  391.6]  molecules until we find we are looking at atoms. Hydrogen atom is right here.
+[  406.0]  But now the hydrogen atom is right here. A single hydrogen atom
+[  417.8]  A single hydrogen, for a single, for any single atom, their mass mostly comes from their
+[  426.8]  nuclei and their size comes from their electrons.
+[  433.7]  And when you add two protons together, you get helium. That's twice the mass. But because
+[  447.0]  helium attracts the electrons closer together, they form into a tighter sphere. And if you
+[  457.1]  add something more they will rearrange themselves and you will have lithium which is element three
+[  466.0]  I don't know yeah and then after that you have lithium and you see something interesting
+[  474.5]  happening here because as you add more protons the every element will get heavier but also
+[  484.2]  also tighter until they will reach, but also tighter as they attract more and more electrons.
+[  493.6]  But then in periodic, but then they will become larger, but then their electron clouds
+[  502.9]  will rearrange themselves, becoming bigger and smaller and bigger and smaller in periodic
+[  511.7]  intervals. Those periodic intervals represent the periodic table as you can see them right
+[  521.8]  here. I think it's beautiful on this graph how we can see so many different stuff,
+[  528.8]  right? It's so beautiful. Look at this. Look, we have the alkenine and the hydrogen.
+[  534.1]  and then suddenly something very weird happens,
+[  538.1]  like palladium goes to the other side.
+[  547.7]  So like, palladium is weird.
+[  552.8]  Don't wanna, not gonna read all of that.
+[  557.1]  And we have the lanthanides, and gold, and silver.
+[  565.0]  And we have here, we have heavy elements, uranium, that stuff here is only formed on
+[  576.3]  the core of stars, is that iron, no, that's radon.
+[  583.1]  You see them as groups, those groups you see maybe, so that table you saw on, probably
+[  592.3]  on your chemistry class is actually made of something real. It's not just random. You
+[  598.7]  can see them here. And a Ganesan, that is the heaviest element we've ever been able
+[  606.2]  to create. And those are the radioactive elements. And I think it's nice because
+[  615.0]  there's a hook here. What happens if you keep following the line down then? You will reach
+[  625.8]  the third and final limit of our triangle of everything and that is the Compton Line.
+[  636.2]  The quantum line is when, how do I explain this?
+[  643.0]  So when you're talking about atoms, we are not measuring them in grams anymore, we are
+[  652.5]  measuring them in electron volts.
+[  661.4]  Electron volts is both a measure, we are measuring them in electron volts over C.
+[  671.5]  And that's interesting because electron volts are a measure of energy. If we just
+[  681.5]  divide them by C square, then that's math. And guess what? That's Einstein. You've probably
+[  689.1]  seen that before, right? So when we start going further down this rabbit road, we
+[  697.6]  are measuring things in energy, in energy levels. And almost all things here, they
+[  705.3]  have a wavelength and that wavelength is directly proportional to their energy level, meaning
+[  713.6]  that you cannot push something to be smaller than their wavelength because in order to
+[  721.9]  do that you need to, in order to compress that you need to add energy and if you add
+[  726.3]  energy they will become something else. So that's why the Compton limit is inversely
+[  733.5]  proportional to the mass, because the more, that's not mass, the energy, but the more
+[  742.3]  energy you have, the tighter, like the faster you oscillate, and therefore the tighter space
+[  752.8]  you occupy. And if you try to push them any like larger, you just boom, become
+[  761.5]  when antiparticle pair and disappear.
+[  763.9]  So nothing can cross this,
+[  765.9]  otherwise it just, that's like the quantum limit.
+[  770.4]  There's one final interesting thing.
+[  773.0]  You see that the density of water
+[  775.1]  crosses the quantum wavelength
+[  778.5]  and a very interesting moment here, right?
+[  784.9]  Because right over here,
+[  788.2]  we have the gamma ray.
+[  793.4]  That's the most, so where does it cross, right?
+[  797.5]  If you follow the time here,
+[  799.8]  you see the cross sort of next to the x-ray
+[  803.3]  and gamma rays.
+[  806.4]  That's because that's actually the,
+[  810.6]  when an atom becomes,
+[  813.4]  when an atom, when matter becomes energy,
+[  817.6]  it will relieve that when, like, when, when, like, one atom becomes the other and, like,
+[  829.3]  it disappears, it emits energy in the form of gamma rays. That's the radiation you
+[  834.6]  have when you have, like, this uranium or whatever. And it's not a coincidence
+[  840.8]  that right around here we like over here we have particles and over here we
+[  847.9]  have wavelengths of light because this is the energy generated when the like
+[  860.0]  you know the thing explodes like that's gamma rays are what is
+[  866.0]  generated are the wavelengths of matter.
+[  870.6]  Okay, yeah, so there's an interesting question. What happens when you follow
+[  873.7]  the diagonal line until the Compton limit?
+[  876.4]  What happens is that it meets, they meet around the gamma
+[  882.6]  ray. That's because gamma rays are the
+[  885.6]  energy of matter. That's what you get when
+[  888.5]  you convert energy to matter. That's why when
+[  893.1]  a radioactive element decays, it becomes radiation in the form of gamma rays and x-rays because
+[  901.2]  that is sort of this range, right? And now I have a hook to talk about wavelengths of light,
+[  910.3]  which we'll talk about later.

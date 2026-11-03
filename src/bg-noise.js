@@ -33,11 +33,12 @@ export const NOISE_MODES = [
   [0, "Today (blurred tiles)"],
 ];
 
-// Tuned for the video (the author's pick, 2026-10-23): a faint warp with faint,
-// soft added detail, slowly evolving, from ~5 source px
+// Tuned for the video (the author's pick, 2026-10-23; detail, ridge mix and drift from the
+// author's settings panel, 2026-10-29, so it shows): a faint warp with soft added detail, slowly
+// evolving, from ~28 source px (2^4.8)
 export const NOISE_DEFAULTS = {
-  mode: 8, move: true, speed: 0.09, drift: 0.095, ridge: 0.53, warp: 0.15,
-  detail: 0.04, smooth: 1, start: 4.8, filter: 1, res: 1,
+  mode: 8, move: true, speed: 0.09, drift: 0.055, ridge: 0.25, warp: 0.15,
+  detail: 0.52, smooth: 1, start: 4.8, filter: 1, res: 1,
 };
 
 const VS = `#version 300 es
@@ -303,7 +304,7 @@ const loadImg = src => new Promise(res => {
 });
 
 /**
- * createBgNoise({ host, meta, getView, onShown }) → { setVisible, destroy } | null (no WebGL2)
+ * createBgNoise({ host, meta, getView, getTime, onShown, onLost }) → { setVisible, draw, pending, destroy } | null (no WebGL2)
  * Starts hidden and idle. setVisible(true) runs the loop; the canvas fades in
  * (and onShown fires) on the first frame drawn with the tile texture ready.
  * setVisible(false) fades it out and stops all work.
@@ -312,8 +313,12 @@ const loadImg = src => new Promise(res => {
  *  onLost  — the GL context was lost (the canvas is blank); the caller destroys it
  *  getView — () => { left, top, w, h } css px of the plot area, plus
  *            { cx, cy } camera centre in source px and { zx, zy } css px per source px
+ *  getTime — optional () => seconds | null: a clock the clouds evolve by (a narration's
+ *            audio time), so each frame is a pure function of it, the same in the live
+ *            player and in every render worker. null (or no getTime): they evolve by
+ *            the frames' own real time, as on the site
  */
-export function createBgNoise({ host, meta, getView, onShown, onLost }) {
+export function createBgNoise({ host, meta, getView, getTime, onShown, onLost }) {
   const canvas = document.createElement("canvas");
   canvas.className = "bgnoise-canvas";
   host.prepend(canvas);
@@ -325,7 +330,7 @@ export function createBgNoise({ host, meta, getView, onShown, onLost }) {
 
   // ---- textures: whole image at z2 as fallback, a tile window at the needed level ----
   const T = meta.tileSize;
-  let win = null, building = false, alive = true, dirty = true, visible = false, shown = false, stopTimer = 0;
+  let win = null, building = false, alive = true, dirty = true, visible = false, shown = false, stopTimer = 0, baseReady = false;
   (async () => {
     const lv = meta.levels[2], cv = Object.assign(document.createElement("canvas"), { width: lv.w, height: lv.h });
     const cx = cv.getContext("2d");
@@ -335,7 +340,9 @@ export function createBgNoise({ host, meta, getView, onShown, onLost }) {
     }));
     if (!alive) return;
     r.setTexture("base", cv, { x0: 0, y0: 0, scale: lv.scale, w: lv.w, h: lv.h });
+    baseReady = true;
     dirty = true;
+    if (visible) paint();   // now, not on the next frame: a render's frozen clock may not give one
   })();
 
   function wantWindow(v) {
@@ -368,23 +375,30 @@ export function createBgNoise({ host, meta, getView, onShown, onLost }) {
     win = { z: lv.z, c0, c1, r0, r1 };
     building = false;
     dirty = true;
+    if (visible) paint();
   }
 
   // ---- loop: draws every frame while moving, otherwise only when the view or a param changes ----
   let time = 0, drift = 0, last = performance.now(), raf = 0, lastKey = "";
+  const clock = () => { const t = getTime?.(); return Number.isFinite(t) ? t : null; };
   function frame(now) {
     raf = requestAnimationFrame(frame);
     if (!visible) return;
     const dt = Math.min(0.1, (now - last) / 1000); last = now;
     const p = noiseParams;
-    if (p.move) { time += dt * p.speed; drift = (drift + dt * p.drift) % 256; }
+    if (p.move && clock() === null) { time += dt * p.speed; drift = (drift + dt * p.drift) % 256; }
+    paint();
+  }
+  function paint() {
+    const p = noiseParams, t = clock();
+    if (p.move && t !== null) { time = t * p.speed; drift = (t * p.drift) % 256; }
     const v = getView();
     if (!v || v.w < 2 || v.h < 2) return;
     const want = wantWindow(v);
     if (!building && !(win && win.z === want.lv.z && want.c0 >= win.c0 && want.c1 <= win.c1 && want.r0 >= win.r0 && want.r1 <= win.r1)) build(want);
     const dpr = Math.min(2, devicePixelRatio || 1) * p.res;
-    const key = `${v.left},${v.top},${v.w},${v.h},${v.cx},${v.cy},${v.zx},${v.zy},${dpr}`;
-    if (!p.move && !dirty && key === lastKey) return;
+    const key = `${v.left},${v.top},${v.w},${v.h},${v.cx},${v.cy},${v.zx},${v.zy},${dpr},${time},${drift}`;
+    if (!dirty && key === lastKey) return;
     lastKey = key; dirty = false;
     const st = canvas.style;
     if (st.left !== v.left + "px") st.left = v.left + "px";
@@ -400,6 +414,10 @@ export function createBgNoise({ host, meta, getView, onShown, onLost }) {
   }
   active = {
     invalidate() { dirty = true; },
+    /** Draw now for the current view and clock (a narration frame), not on the next animation frame. */
+    draw() { if (visible && alive) paint(); },
+    /** Still loading what this view needs, or not drawn yet (a render waits for it). */
+    pending: () => visible && alive && (!baseReady || building || !shown),
     setVisible(v) {
       if (v === visible || !alive) return;
       visible = v;

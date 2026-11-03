@@ -1,0 +1,40 @@
+{
+  "tool": "built-in image_gen",
+  "prompts": {
+    "pine": "Photorealistic scientific specimen asset, one hydrated Pinus sylvestris pine pollen grain in clear dew water. Authentic bisaccate morphology: small central oval golden corpus with TWO rounded reticulate air sacs attached left/right, recognizably three-lobed pine pollen, total width about70µm. Warm ochre transparent thin wall, fine net texture, natural transmitted daylight with faint red cast from shell below. True transparent RGBA background, isolated entire specimen centered in1254square occupying75% width. Sharp no baked blur, no background or shadow, no glow, no text, no cartoon or electron-microscope false-color.",
+    "birch": "Photorealistic scientific specimen asset: one hydrated Betula pendula silver birch pollen grain, roughly24µm across. Spheroidal with subtle rounded triangular outline and THREE equatorial pores with small raised annuli, delicate finely scabrate wall rather than large honeycomb holes or spikes. Pale muted straw/gold, realistic transmitted-light microphotography in clear water, very faint warm shell reflection. Entire isolated centered grain75% square width. Genuine transparent RGBA background. Sharp native texture, no baked blur, no shadow/glow, no text, no extra objects, not a synthetic perfect sphere.",
+    "arcella": "Photorealistic scientific microphotograph asset of a single Arcella vulgaris testate amoeba, hydrated in freshwater, approximately110µm shell diameter. Authentic shallow rounded amber-brown dome viewed slightly obliquely from above, circular finely honeycombed chitinous test with delicate darker central region, not a pollen grain, few fine translucent pseudopods visible at lower side from ventral opening. Natural transmitted daylight, thin translucent organic shell, subdued warm tones matching water above red ladybug cuticle. Isolated entire specimen centered occupying75% of a square transparent RGBA canvas. Sharp, no baked blur, no shadow, no black or white backdrop, no labels, no diagram, no glowing halo.",
+    "vannella": "Photorealistic light-microscope isolated Vannella simplex amoeba, illustrative45µm fan-shaped locomotory form. Broad smooth clear hyaline fan at front, thicker granular crescent toward rear, an irregular small tail, delicate nucleus and sparse inclusions. Distinct from star-shaped Amoeba proteus. Highly translucent watery cell, subtle low contrast optical membrane, neutral cream barely warm transmitted daylight with faint red shell cast. Entire organism centered75% square width, true transparent RGBA outside membrane. Native sharp internal detail, no baked blur/glow/shadow, no background, no text, no cartoon."
+  },
+  "assets": [
+    "pine.png",
+    "birch.png",
+    "arcella.png",
+    "vannella.png"
+  ],
+  "species_and_body_sizes_um": {
+    "Pinus sylvestris": [
+      68,
+      70
+    ],
+    "Betula pendula": [
+      22,
+      24,
+      25
+    ],
+    "Arcella vulgaris": [
+      110
+    ],
+    "Vannella simplex": [
+      44,
+      45
+    ]
+  },
+  "sources": [
+    "https://www.paldat.org/pub/Pinus_sylvestris/303745",
+    "https://www.paldat.org/en/pub/Betula_pendula/303759",
+    "https://arcella.nl/arcella-vulgaris/",
+    "https://arcella.nl/vannella-planctonica/"
+  ],
+  "note": "Generated species-inspired educational reconstructions, not authenticated microscope photographs. Community physical positions/native bounds/opacity/depth lags are shared by flat assembly and runtime in canopy-micro-specimens.js. Eight new companions; hero route retained. Reversible zoom-driven depth and blur start only after matched replacement."
+}

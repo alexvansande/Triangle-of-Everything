@@ -104,7 +104,11 @@ for (const [file, entry] of Object.entries(iconResolutions)) {
 // Videos: always the largest picture there is (grown pictures stay sharp).
 let _iconMaxRes = false;
 export function setIconMaxRes(on = true) { _iconMaxRes = on; }
+// Videos: a picture swapped for another for a while (the spherical cow): slug → icon file.
+let _iconSwap = null;
+export function setIconSwap(map) { _iconSwap = map && Object.keys(map).length ? map : null; }
 export function iconUrlForSize(slug, cssSize, dpr = globalThis.devicePixelRatio || 1) {
+  if (_iconSwap?.[slug]) slug = _iconSwap[slug];
   if (_iconMaxRes) return ICON_RESOLUTIONS_BY_SLUG[slug]?.at(-1)?.url || ICON_BY_SLUG[slug];
   return chooseIconResolution(ICON_RESOLUTIONS_BY_SLUG[slug], iconPixelRequirement(cssSize, dpr))?.url || ICON_BY_SLUG[slug];
 }

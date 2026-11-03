@@ -2,7 +2,11 @@
 //
 //   npm run dev                                   # in another terminal
 //   node scripts/narration-render.mjs short-01-hook [--from 0] [--to 60] [--fps 30] [--workers 3] [--out narration.mp4]
-//          [--subframes 4] [--shutter 0.5]
+//          [--subframes 4] [--shutter 0.5] [--no-fractal]
+//
+// The fractal background (src/bg-noise.js) needs WebGL2: the renderer checks for it first and
+// stops if this Chrome has none (--no-fractal renders without it). Its clouds evolve by the
+// narration's t, so every worker draws the same frame for the same t.
 //
 // Frame-exact: the page runs on a virtual clock (performance.now, Date.now,
 // requestAnimationFrame, setTimeout and CSS animations are all stepped by
@@ -30,6 +34,14 @@ const BASE = opt("url", "http://localhost:5173");
 const FPS = +opt("fps", 30);
 const WORKERS = +opt("workers", 3);
 const SUB = Math.max(1, Math.round(+opt("subframes", 4)));
+// --adaptive (default on with sub-frames; --adaptive 0 for every frame in full): a frame where
+// nothing moves across the shutter gets one capture, not SUB of them. Two tiny captures at the
+// shutter's ends decide: if under 0.1% of their pixels change, the average would be that one
+// picture anyway. Captures are JPEG (q 95) by default, ~3× faster than PNG (--capture png);
+// averaging the sub-frames smooths the JPEG grain. Most frames hold or glide, so this is several
+// times faster than blurring every frame (2026-10-27: 95% of the time was the PNG captures)
+const ADAPTIVE = opt("adaptive", "1") !== "0";
+const CAPTURE = opt("capture", "jpeg");
 const SHUTTER = +opt("shutter", 0.5);
 const OUT = path.resolve(opt("out", `narration-${take}.mp4`));
 const CHROME = opt("chrome", "/opt/pw-browsers/chromium-1194/chrome-linux/chrome");
@@ -70,21 +82,58 @@ const CLOCK_SHIM = `(() => {
   };
 })();`;
 
+// every worker's Chrome, closed if the render is stopped: killing only this process left them
+// running, orphaned and still drawing, which starved the next render (2026-10-27)
+const browsers = new Set();
+for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"]) process.on(sig, async () => {
+  await Promise.allSettled([...browsers].map(b => b.close()));
+  process.exit(130);
+});
 async function renderRange(t0, t1, file, label) {
   const browser = await puppeteer.launch({
     executablePath: CHROME,
-    args: ["--no-sandbox", "--mute-audio", "--disable-background-timer-throttling", "--disable-renderer-backgrounding"],
+    // WebGL for the fractal background (bg-noise.js): on the GPU if Chrome will use it, else
+    // Chrome's software GL (SwiftShader), which recent Chromes no longer fall back to by themselves
+    args: ["--no-sandbox", "--mute-audio", "--disable-background-timer-throttling", "--disable-renderer-backgrounding",
+      "--ignore-gpu-blocklist", "--enable-unsafe-swiftshader"],
   });
+  browsers.add(browser);
   const page = await browser.newPage();
   await page.setViewport({ width: STAGE.W + 2 * STAGE.pad, height: STAGE.H + 2 * STAGE.pad, deviceScaleFactor: STAGE.dpr });
   page.on("pageerror", e => console.log(`[${label}] pageerror:`, e.message));
   await page.evaluateOnNewDocument(CLOCK_SHIM);
-  await page.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 120000 });   // not networkidle: a close opening view never reports idle
+  await page.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 600000 });   // not networkidle: a close opening view never reports idle
   await page.waitForFunction("window.__narr", { timeout: 60000 });
-  // let dust, icons and the first tiles arrive in real time, then stop the clock
-  await page.evaluate(`window.__narr.renderAt(${t0}); window.__narr.settle(${t0})`);
+  // the fractal background needs WebGL2: without it the page quietly shows the plain painting
+  // instead (2026-10-28: the videos had no fractal), so say which GL this Chrome has, and stop
+  const gl = await page.evaluate(() => {
+    const g = document.createElement("canvas").getContext("webgl2");
+    if (!g) return null;
+    const info = g.getExtension("WEBGL_debug_renderer_info");
+    const name = info ? g.getParameter(info.UNMASKED_RENDERER_WEBGL) : "WebGL2";
+    g.getExtension("WEBGL_lose_context")?.loseContext();
+    return name;
+  });
+  if (label === "w0") console.log(`[${label}] WebGL2: ${gl ?? "none"}`);
+  if (!gl && !args.includes("--no-fractal")) {
+    await browser.close(); browsers.delete(browser);
+    throw new Error(`[${label}] no WebGL2 in ${CHROME}: the fractal background can't draw. ` +
+      "Try another --chrome, or pass --no-fractal to render without it");
+  }
+  // let dust, icons, the first tiles and the fractal background arrive in real time, then
+  // finish any crossfade (a worker starting deep in a zoom shows the layer fully up) and stop the clock
+  // A worker starts PRE s before its range and plays up to it on the stopped clock: the pictures'
+  // pop-in (1 s, on rAF) is over by the first frame, as in one continuous render. Started cold at
+  // t0, every picture on screen popped in again at each worker's first frame (the author saw it
+  // twice in video 2, 2026-10-29: at the workers' joins, 1:07.7 and 3:23.2)
+  const PRE = 2, tw = Math.max(0, t0 - PRE);
+  await page.evaluate(`window.__narr.renderAt(${tw}); window.__narr.settle(${tw})`);
   for (let i = 0; i < 60 && await page.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 250));
+  await page.evaluate(`window.__narr.renderAt(${tw}); window.__narr.settle(${tw})`);
+  await new Promise(r => setTimeout(r, 1500));   // the pop-ins started by the cold start finish in real time
   await page.evaluate("window.__vclock.freeze()");
+  for (let t = tw; t < t0 - 1e-6; t += 1 / FPS) await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
+  await page.evaluate(`window.__narr.renderAt(${t0})`);
   const clip = await page.evaluate(() => {
     const r = document.getElementById("narr-layer").getBoundingClientRect();
     return { x: r.x, y: r.y, width: r.width, height: r.height, scale: devicePixelRatio };
@@ -95,7 +144,23 @@ async function renderRange(t0, t1, file, label) {
     ...(SUB > 1 ? ["-f", "rawvideo", "-pix_fmt", "rgb24", "-s", `${W}x${H}`] : ["-f", "image2pipe"]), "-framerate", String(FPS),
     "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", String(FPS), file],
     { stdio: ["pipe", "inherit", "inherit"] });
-  const shot = async () => (await cdp.send("Page.captureScreenshot", { format: SUB > 1 ? "png" : "jpeg", quality: SUB > 1 ? undefined : 92, clip, captureBeyondViewport: false })).data;
+  const shot = async () => (await cdp.send("Page.captureScreenshot", { format: SUB > 1 ? CAPTURE : "jpeg", quality: SUB > 1 ? (CAPTURE === "png" ? undefined : 95) : 92, clip, captureBeyondViewport: false })).data;
+  // a tiny capture (1/8 size) for the adaptive check
+  const tiny = async () => sharp(Buffer.from((await cdp.send("Page.captureScreenshot", { format: "jpeg", quality: 80,
+    clip: { ...clip, scale: clip.scale / 8 }, captureBeyondViewport: false })).data, "base64")).removeAlpha().raw().toBuffer();
+  const moves = (a, b) => {
+    let n = 0;
+    for (let j = 0; j < a.length; j += 3) if (Math.abs(a[j] - b[j]) > 12 || Math.abs(a[j + 1] - b[j + 1]) > 12 || Math.abs(a[j + 2] - b[j + 2]) > 12) n++;
+    return n > a.length / 3 * 0.001;
+  };
+  // give arriving tiles, icons and the fractal's textures a moment (real time) — they'd pop in
+  // otherwise — then draw the same t again so the frame has them
+  const waitPending = async (t) => {
+    let waited = false;
+    for (let i = 0; i < 8 && await page.evaluate("window.__narr.pending()"); i++) { waited = true; await new Promise(r => setTimeout(r, 120)); }
+    if (waited) await page.evaluate(`window.__narr.renderAt(${t})`);
+  };
+  let single = 0;
   const acc = SUB > 1 ? new Uint32Array(W * H * 3) : null;
   const n0 = Math.round(t0 * FPS), n1 = Math.round(t1 * FPS);
   const started = Date.now();
@@ -104,16 +169,36 @@ async function renderRange(t0, t1, file, label) {
     let frame;
     if (SUB === 1) {
       await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
-      // give arriving tiles/icons a moment (real time) — they'd pop in otherwise
-      for (let i = 0; i < 8 && await page.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 120));
+      await waitPending(t);
       frame = Buffer.from(await shot(), "base64");
     } else {
+      // still across the shutter? one capture (the clock still steps a whole frame)
+      let still = false;
+      if (ADAPTIVE) {
+        const half = 0.5 * (1 - 1 / SUB) * SHUTTER / FPS;
+        await page.evaluate(`window.__narr.renderAt(${t - half})`);
+        const a = await tiny();
+        await page.evaluate(`window.__narr.renderAt(${t + half})`);
+        still = !moves(a, await tiny());
+      }
+      if (still) {
+        await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
+        await waitPending(t);
+        frame = await sharp(Buffer.from(await shot(), "base64")).removeAlpha().resize(W, H).raw().toBuffer();
+        single++;
+        if (!ff.stdin.write(frame)) await new Promise(r => ff.stdin.once("drain", r));
+        if ((n - n0) % (FPS * 10) === 0) {
+          const done = n - n0 + 1, rate = done / ((Date.now() - started) / 1000);
+          console.log(`[${label}] t=${t.toFixed(1)}s  ${done}/${n1 - n0} frames  ${rate.toFixed(1)} fps  eta ${((n1 - n) / rate / 60).toFixed(1)} min  (${Math.round(100 * single / done)}% still)`);
+        }
+        continue;
+      }
       // the sub-frames, centred on t across the shutter, averaged
       acc.fill(0);
       for (let k = 0; k < SUB; k++) {
         const ts = t + ((k + 0.5) / SUB - 0.5) * SHUTTER / FPS;
         await page.evaluate(`window.__narr.renderAt(${ts}); window.__vclock.step(${1000 / FPS / SUB})`);
-        for (let i = 0; i < 8 && await page.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 120));
+        await waitPending(ts);
         const px = await sharp(Buffer.from(await shot(), "base64")).removeAlpha().resize(W, H).raw().toBuffer();
         for (let j = 0; j < px.length; j++) acc[j] += px[j];
       }
@@ -123,12 +208,15 @@ async function renderRange(t0, t1, file, label) {
     if (!ff.stdin.write(frame)) await new Promise(r => ff.stdin.once("drain", r));
     if ((n - n0) % (FPS * 10) === 0) {
       const done = n - n0 + 1, rate = done / ((Date.now() - started) / 1000);
-      console.log(`[${label}] t=${t.toFixed(1)}s  ${done}/${n1 - n0} frames  ${rate.toFixed(1)} fps  eta ${((n1 - n) / rate / 60).toFixed(1)} min`);
+      console.log(`[${label}] t=${t.toFixed(1)}s  ${done}/${n1 - n0} frames  ${rate.toFixed(1)} fps  eta ${((n1 - n) / rate / 60).toFixed(1)} min  (${Math.round(100 * single / done)}% still)`);
     }
   }
+  const bg = await page.evaluate("window.__narr.bgNoise?.()");
+  if (bg?.failed || bg?.lost) console.log(`[${label}] WARNING fractal background: ${bg.failed || ""}${bg.lost ? ` ${bg.lost} GL context(s) lost (frames fell back to the painting)` : ""}`);
   ff.stdin.end();
   await new Promise(r => ff.on("close", r));
   await browser.close();
+  browsers.delete(browser);
 }
 
 const meta = JSON.parse(fs.readFileSync(`public/narration/${take}/words.json`, "utf8"));
@@ -141,7 +229,9 @@ for (let i = 0; i < WORKERS; i++) {
   parts.push({ a: Math.round(a * FPS) / FPS, b: Math.round(b * FPS) / FPS, file: path.join(TMP, `part${i}.mp4`) });
 }
 console.log(`rendering ${take} ${from}s–${to}s at ${FPS} fps${SUB > 1 ? ` (${SUB} sub-frames, shutter ${SHUTTER})` : ""} with ${WORKERS} worker(s) → ${OUT}`);
-await Promise.all(parts.map((p, i) => renderRange(p.a, p.b, p.file, `w${i}`)));
+// the workers start a few seconds apart: all of them loading the dev server's unbundled
+// modules at once timed out at 8 workers (2026-10-27); the first one warms its cache
+await Promise.all(parts.map((p, i) => new Promise(r => setTimeout(r, i * 6000)).then(() => renderRange(p.a, p.b, p.file, `w${i}`))));
 fs.writeFileSync(path.join(TMP, "list.txt"), parts.map(p => `file '${p.file}'`).join("\n"));
 // the voice with its sound design (narration-sound.mjs) if the take has one; --voice-only for the bare voice
 const audio = `public/narration/${take}/${meta.mix && !process.argv.includes("--voice-only") ? meta.mix : meta.audio}`;

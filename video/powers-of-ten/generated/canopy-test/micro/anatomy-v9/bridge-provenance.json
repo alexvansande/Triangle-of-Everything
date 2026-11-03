@@ -1,0 +1,7 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Scientific-educational photorealistic zoom tile, outpaint reference. The central third square is a finished 49.4nm image in a148nm full field. Extend this exact scene into all flat gray outer regions without resizing, recentering, rotating or changing the middle third. Four central nucleosomes and diagonal DNA must remain exactly where they are and at the same size. Continue pearl grey watery background and irregular chromatin chains outwards. Add many other compact nucleosome particles of similar 11nm real diameter (about90px at1254px across148nm), at varied angles and in disordered connected strands; no rows or regular grid. Match existing taupe histone material, bluegrey DNA2nm width, gentle natural lighting and photographic texture. Replace every flat outer gray area with continuous molecular environment. No boundary or rectangular patch visible. Entire field uniformly sharp, no depth blur, no labels, no arrows. Do not zoom in on central scene; it must still occupy middle third only.",
+  "reference": "bridge-registration-reference.png",
+  "physicalFrame_m": 1.4814814814814815e-7,
+  "note": "Outpaint around exact matched central49nm child. Builder reinstates central third from same actual child."
+}

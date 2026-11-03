@@ -1,0 +1,16 @@
+{
+  "prompt": "Use case: precise-object-edit / scientific-educational. Edit target: the attached 4096x2048 galactic equirectangular all-sky map. Produce the same 2:1 full spherical equirectangular projection, longitude wrap seam at left/right and poles at top/bottom. Preserve EXACT galactic band placement, galactic centre at middle of image, dark dust lanes, nebular structure, large-scale brightness and colour. Remove ALL resolved star dots and pinpoints throughout the entire map, including bright foreground stars and tiny point sources. Inpaint them using the surrounding diffuse distant galactic luminosity. Keep only smooth unresolved stellar light, galactic dust extinction and faint extended nebulae. Do NOT invent a new composition, change projection, rotate, crop, add stars, or make a perspective photo. Keep continuous left/right seam. No labels or grid. High-resolution natural astronomy texture; preserve detailed dust edges rather than globally blurring. Output 2:1 as large as possible, ideally4096x2048.",
+  "tool": "built-in image_gen",
+  "sourceMap": "/video/powers-of-ten/sky/sky-4k.jpg",
+  "editOutput": "exec-cdb16e9f-df48-4342-bf63-0528751164a8.png",
+  "nativePixels": [
+    1774,
+    887
+  ],
+  "projection": "Galactic equirectangular; longitude0 atcentre, positive toleft; north at top",
+  "runtimeTexturePixels": [
+    2048,
+    1024
+  ],
+  "note": "GPU texture resampling preserves the 2:1 projection; it adds no native detail."
+}

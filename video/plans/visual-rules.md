@@ -43,6 +43,15 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   videos' picture density is a little over standard (60), so pictures keep clear room
   around them; a scene's `alsoIcons` puts pictures first without forcing them. Real space
   photographs take room before generated pictures.
+- **Pictures sized by what they show** (author, 2026-10-28): galaxies and nebulae are the
+  chart's best pictures (real photographs, soft-edged), particles are small abstract glyphs.
+  One smooth curve over log size (`iconSizeCurve` in `src/main.js`, two logistic steps) on
+  top of the old sizing: particles (quarks, leptons, bosons, protons; under ~1e-11 cm) 0.5×,
+  atoms and x-rays ~0.9×, everyday things, light from UV to radio, planets and stars ~1×,
+  supergiants 1.1×, planetary nebulae 1.5×, nebulae 1.7–1.8×, globular clusters 1.95×,
+  galaxies 2.1–2.2×, clusters and up 2.3×. The site's map too. A glow's room from its
+  neighbours grows only by the square root of that, so the bigger galaxies still leave room
+  for each other (soft edges may touch).
 - **Space is darker** (2026-10-24): the chart darkens with mass from the stars up (half by
   10^35 g, 70% from 10^41 g), and soft-edged space pictures (galaxies, clusters, nebulae)
   may sit closer together than solid things: they keep as little as 45% of their room.
@@ -68,14 +77,45 @@ cutaways could go is `cutaways.md`; this file is the *why*.
 - **Axis talk shows the real axes**: mass on the right (as in the map), size along the bottom,
   with the numbered rulers pinned while they're named.
 
+- **Lit paths, strong** (author, 2026-10-28): when the narration talks about what a path's
+  moving dots show (a star collapsing and swelling, the split, supernovae, the nebulae making
+  nurseries, protostars, the core to a black hole, black holes merging), light that path
+  (`{ path }`, `from`/`to` for a stretch) instead of drawing an arrow along it: the line glows
+  with the named objects' halo treatment (blurred lavender, overlay) and its dots are twice
+  the old size.
+  **Revised 2026-10-29:** keep the dots natural. Evenly spaced dots of our own turned the path
+  into a subway line, so the chart's own moving dots stay as they are and only grow (3×) and
+  brighten; the glow is discreet, like an object's halo. Don't light a path while an
+  animation plays on it (video 3's collapse and swell): light it after, and keep it lit
+  through the whole story it tells (video 3: the star → nebula → nursery → protostar → star
+  cycle, with the dense core).
+- **Everything is connected** (author, 2026-10-29): as the narration reaches a thing, light the
+  chart's connection into or out of it: what it's made of, what it's part of (video 6: a living
+  thing ← DNA ← its bases ← atoms; an atom ← its nucleus, ← its electrons; the proton ← its quarks).
+  One link at a time, following the words, not all at once. A missing link can be added to
+  `COMPOSITION` (src/data.js) when it's true (a bacterium: DNA + ribosomes).
+- **Same density, same diagonal** (author, 2026-10-29): to show two things share a density, whip
+  between them along their density line (`whip`, a straight move at the same zoom), so the
+  diagonals stay put on screen while the objects change (video 3: neutron stars and neutrons).
+- **Particles get the energy ruler** (author, 2026-10-29): whenever a video talks about particles
+  (or light) by their energy, show the energy ruler on the left (`energyAxis: true` on a cue, from
+  then on), the mass ruler's heights read as E = mc², in eV.
 - **Highlight what the chart actually shows.** Super-Jupiters and brown dwarfs sit in one
   column at Jupiter's size; Beta Pictoris b is a young, inflated planet drawn wider, so don't
   point at it as "same size": draw a vertical trend line up the column (`trend: [[r, m], …]`),
   no label.
 - **A movement gets a clear arrow**: when the galaxies drop a decade, a bold solid arrow
   (`solid: true, width`) in clear space beside them, not a thin dashed one over the dots.
+- **Region names sit in their region** (author, 2026-10-28): "gravity dominates",
+  "electromagnetism dominates" and "Goldilocks zone" go in the middle of the rectangle they
+  name, as it is on screen at that moment, and large (`labelCenter`, `labelSize` on a
+  `side` or `poly` highlight), not tucked against an edge.
 - **Keep busy frames lean**: drop a joke title or extra label if the frame already has a lot
-  ("Here be dark matter?" was cut for this).
+  (an early "Here be dark matter?" was cut for this). It's back as the title of video 4's
+  dark-matter screen (author, 2026-10-28): "Here be dark matter?" replaces the "Dark matter?"
+  that sat up in the corner, placed in the empty middle of the frame (left of the everyday
+  objects, between ~1 pg and 1 lb), where there's room for it. All the candidate labels
+  ("WIMPs?" too) share one size and style.
 
 ## 3. Dives: the default way to show a real photo
 
@@ -95,12 +135,42 @@ map. Optionally it then fills the screen, holds, and fades slowly back to the ch
   (`{ obj, grow?, in, out }`, `dur` held all the way in) with a `lens` photo inside the
   hold; see "dives: the camera trick" in `src/narration.js` and `setDolly` in `src/main.js`.
   First tried on Jupiter in video 3.
+- **The other pictures come along** (author, 2026-10-28, after video 3: "it will help with the
+  idea that we are approaching the main object in a 3D space"): during a dive the pictures
+  around the object grow too, by a share of its growth (its growth to the power 0.12 far
+  away, up to ~0.42 right beside it, a little more for the ones nearer in the parallax), and
+  spread out from it as much, like things passing by on the way in, while the painting and
+  the chart still fall back. Their halos and cast shadows fade as they set off (they stay in
+  the chart's depth). `setDolly` in `src/main.js` (`DOLLY_ICON_SHARE`).
+- **A dive comes back the way it went in** (author, 2026-10-29): a photo that grew to fill the
+  screen shrinks back onto the picture (`lens.back`), fades into it, then the dive unwinds. No
+  fade at full screen onto the still-grown picture: that read as zooming in again.
+- **A dive is one continuous move** (author, 2026-10-30, after video 4: "it moves the icon, then
+  fades to a photograph, then zooms the photograph in a different speed, then fades out with the
+  icon somewhere else. It's weird"): the object comes towards us as if we approached it in 3D (the
+  camera trick, the pictures around it coming along) while the camera turns to it (a pan at the same
+  zoom, as long as the approach, never a zoom of its own), and the photo fades in over the growing
+  picture during the approach, no fill stage at another speed. A second held, then the same move
+  backwards: the photo fades back into the picture as the dive unwinds (`dive.mirror`, a lens
+  without `fill`). Video 4's Sgr A* and M87*.
 - **Use a dive, not a photo cutaway, whenever the object has a picture on the chart.**
   Plain cutaways (below) are left for things the chart can't show by itself.
 - **Current dives**: Jupiter in infrared (video 3, the camera trick above), the Pillars of
-  Creation (videos 3 and 5, upright and edge to edge), M87* (end of video 3, video 4,
-  video 5) and Sgr A* (video 4). The Eiffel Tower is a dive without a photo: zoom,
-  grow, dim.
+  Creation (video 5, upright and edge to edge; dropped from video 3 by the author, 2026-10-29, for
+  plain pans that follow the words across the cycle), M87* (end of video 3, video 4,
+  video 5) and Sgr A* (video 4).
+- **Not a dive: the Eiffel Tower** (author, 2026-10-28). When the point is *where* a thing
+  lands on the chart, stay on the chart: zoom onto the tower and grow its picture while every
+  other element fades, leaving only the grid, the water and air lines and the catalogue dots;
+  trace its outline and fade the picture; then a faint copy of the outline slides to where a
+  second way of measuring its volume puts it, and another to the third, each labelled (the
+  envelope with the air in it, 6.5 kg/m³, where the chart has it; the silhouette without the
+  arches, 30 kg/m³; the iron alone, 7,800 kg/m³, left of the water line). Then the chart
+  comes back. Mechanics: the `trace` highlight (`docs/narration.md`), replacing the old dive
+  with its row of sketched towers.
+- **One move, no wait** (author, 2026-10-27, on M87*): the photo is already fading in while the
+  camera approaches (`dive.photoAt`, ~0.4 s after the cue) and grows straight on to fill the
+  screen; a pause on arrival and then a second zoom read as two moves.
 - **The dramatic version is preferred**: background to black, the photo grows to fill
   the screen, holds for a while, and fades back slowly (`fadeOut` ~1.5–1.8 s). Camera
   moves to the next shot can happen behind the black.
@@ -149,10 +219,17 @@ White lines and dots on black, the key word in yellow, no more than three moving
 4–8 s, handing back to the chart on the next camera move. Ideas in `cutaways.md`
 (the pixel grid for expansion, the cube law, degeneracy, the two horizons…).
 
+- **A diagram that stands for a metaphor plays on its own** (author, 2026-10-27): the pixels
+  for expansion go full screen over black, with no chart behind and no border that grows (a
+  growing border is the balloon again); the new pixels fade in between the old ones.
+- **In the universe-on-a-log-scale view, the guides step back**: rings and names faint once it
+  opens (explorer `guides`), and gone at the end, the dots brighter.
+
 ## 6. Audio and captions
 
 - Voice treatment: `enhance.py --plain` (high-pass + loudness only) for the Boya office
-  recordings; the full chain sounded boxy. All takes at 1.1×.
+  recordings; the full chain sounded boxy. No speed-up from video 7 on (author, 2026-10-27):
+  new takes play as recorded; the older ones keep their 1.1×.
 - **After every edit, re-check the cut for false starts, repeated words, ums, coughs and
   clipped word ends**: transcribe each clip with a filler-friendly prompt and compare with
   the expected text (`stutter.py`-style), and look at the energy around each cut point.

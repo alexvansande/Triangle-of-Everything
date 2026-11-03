@@ -3,16 +3,16 @@ rec36,hook,0.00,4.98,13.91,18.89,"We tend to think of stars on planets as comple
 rec36,heat,5.58,15.18,19.41,29.01,"In our own solar system, Jupiter and Saturn give off more heat than they get from the mostly because their own mass keeps squeezing their cores."
 rec36,heat,15.46,19.01,37.22,40.77,the pressure in the core.
 rec36,bd,19.61,34.90,41.70,56.99,"Until some point, they become brown dwarfs. Brown dwarfs are really in -betweens, not quite stars, not quite planets. They're just massive enough to fuse a rare kind of hydrogen called deuterium, but not ordinary hydrogen."
-rec36,bd,35.18,40.35,84.54,89.72,Deuterium is so rare that brown dwarfs just can't keep shining on like stars.
-rec36,fork,40.95,45.58,92.70,97.34,But add a little bit more mass and you get the split you see on this chart.
-rec36,ms,46.18,50.77,97.54,102.13,"Once the pressure in the core is high enough to fuse ordinary hydrogen,"
-rec36,ms,51.05,57.43,121.93,128.31,that fusion releases some energy that creates a force that will push the star outwards making it bigger
-rec36,ms,57.71,62.79,131.75,136.83,It will move into this other diagonal line that we call the main sequence
-rec36,ms,63.07,66.06,165.21,168.20,where stars spend most of their lives.
-rec36,life,66.66,78.05,170.66,182.05,"until the hydrogen runs out and then as the fuel for fusion is used up, the star collapses and then expands again and collapses and expands and splits in two."
-rec36,split,78.65,87.01,182.45,190.81,"the outer layers are blown away as supernova or planetary nebula, and the inner core becomes a very dense object."
-rec36,nursery,87.61,104.34,192.21,208.94,"As those supernova and nebulae spread out, they meet others, and together they make what we call stellar nurseries, huge clouds of gas that pull together, collapse into protostars, and then into stars again, and the cycle begins."
-rec36,core,104.94,109.73,238.72,243.51,And what about the tenth score I told you about? Something really interesting happens here.
-rec36,end,110.33,118.64,243.78,252.19,"If a star isn't massive enough to go supernova, then once fuel runs out, what's left is a white dwarf."
-rec36,end,118.92,136.95,252.80,270.90,"But if it's big enough to go supernova, the pressure in its core is so huge that protons and electrons get squeezed together into neutrons and it becomes a neutron star, so dense that a single spoonful would weight as much as a mountain."
-rec36,end,137.23,146.21,271.91,281.44,"And if the star is any bigger, still, the core collapses into a black hole, an object so strange that it deserves a video of its own."
+rec36,bd,35.18,40.20,84.54,89.72,Deuterium is so rare that brown dwarfs just can't keep shining on like stars.
+rec36,fork,40.80,45.43,92.70,97.34,But add a little bit more mass and you get the split you see on this chart.
+rec36,ms,46.03,50.62,97.54,102.13,"Once the pressure in the core is high enough to fuse ordinary hydrogen,"
+rec36,ms,50.90,57.28,121.93,128.31,that fusion releases some energy that creates a force that will push the star outwards making it bigger
+rec36,ms,57.56,62.64,131.75,136.83,It will move into this other diagonal line that we call the main sequence
+rec36,ms,62.92,65.91,165.21,168.20,where stars spend most of their lives.
+rec36,life,66.51,77.90,170.66,182.05,"until the hydrogen runs out and then as the fuel for fusion is used up, the star collapses and then expands again and collapses and expands and splits in two."
+rec36,split,78.50,86.86,182.45,190.81,"the outer layers are blown away as supernova or planetary nebula, and the inner core becomes a very dense object."
+rec36,nursery,87.46,104.19,192.21,208.94,"As those supernova and nebulae spread out, they meet others, and together they make what we call stellar nurseries, huge clouds of gas that pull together, collapse into protostars, and then into stars again, and the cycle begins."
+rec36,core,104.79,109.58,238.72,243.51,And what about the tenth score I told you about? Something really interesting happens here.
+rec36,end,110.18,118.49,243.78,252.19,"If a star isn't massive enough to go supernova, then once fuel runs out, what's left is a white dwarf."
+rec36,end,118.77,136.42,252.80,270.90,"But if it's big enough to go supernova, the pressure in its core is so huge that protons and electrons get squeezed together into neutrons and it becomes a neutron star, so dense that a single spoonful would weight as much as a mountain."
+rec36,end,136.70,145.69,271.91,281.44,"And if the star is any bigger, still, the core collapses into a black hole, an object so strange that it deserves a video of its own."

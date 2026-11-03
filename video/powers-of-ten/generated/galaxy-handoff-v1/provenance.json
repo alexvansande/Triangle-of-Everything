@@ -1,0 +1,10 @@
+{
+  "prompt": "Use case: scientific-educational. Asset type: square high resolution photographic galactic background for a continuous space zoom. Generate an inside-the-Milky-Way view: a sweeping broad luminous galactic band running from upper right toward lower left, warm ivory and tan unresolved distant starlight, intricate charcoal dust lanes and subtle amber nebular haze against very dark space. The luminous galactic core is to the right of centre, while centre is a darker patch with faint distant glow. Photographic astronomy aesthetic, natural restrained brightness, no fantasy colours. IMPORTANT: only diffuse distant galactic light, dust and extremely fine unresolved star texture. NO individually bright nearby stars, NO large sharp pinpoints, NO sun, planets, horizon, text, labels, grids, border or lens flare. Everything equally sharp, no camera bokeh. This plate will be sampled to create precisely aligned 3D particle positions. Square composition suitable for both horizontal and vertical crop, largest practical resolution.",
+  "tool": "built-in image_gen",
+  "source": "exec-83b6cedb-31fb-4a5f-afcf-3e79fa7239b7.png",
+  "nativePixels": [
+    1254,
+    1254
+  ],
+  "purpose": "Diffuse distant light; foreground catalogue stars rendered separately; deterministic cloud derived from plate."
+}

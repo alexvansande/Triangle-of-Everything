@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-30",
+  "tool": "built-in image_gen",
+  "model": "not exposed by tool",
+  "requested_px": 1280,
+  "core_px": 1024,
+  "overlap_px_each_side": 128,
+  "prompt": "EDIT THE SINGLE PROVIDED IMAGE IN PLACE. It is a blurred aerial crop of a giant sequoia canopy, covering exactly 5.529 metres square. Perform detail reconstruction / super-resolution: keep the EXACT pixel-aligned spatial layout of this image. All large dark shapes, bright patches, their outlines, their sizes, positions and overall colour MUST remain unchanged. The final result downsampled to 16x16 should match the input downsampled to 16x16. Do not compose a new image or move the canopy. Interpret blur as missing detail, add detailed tiny sequoia foliage and limbs only inside the existing shapes. This is one 1280x1280 tile with overlap for a seamless scientific zoom. Orthographic straight down, north up, west sunlight from left. Giant sequoia branchlets have grey olive-green overlapping short sharp scale leaves. Shadows remain deep green-black with subtle dim foliage detail. No sky, text, horizon, vignette, depth of field. Preserve relative brightness and darkness exactly, avoid contrast enhancement. Output one square 1280px photograph.",
+  "centre_file": "centre.json",
+  "inputs": "references/<compass>-photo.png",
+  "tiles": {
+    "N": {
+      "original": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-d02f4c7d-60cd-4eca-b149-295f6fd11d21.png",
+      "prompt": "EDIT THE SINGLE PROVIDED IMAGE IN PLACE. It is a blurred aerial crop of a giant sequoia canopy, covering exactly 5.529 metres square. Perform detail reconstruction / super-resolution: keep the EXACT pixel-aligned spatial layout of this image. All large dark shapes, bright patches, their outlines, their sizes, positions and overall colour MUST remain unchanged. The final result downsampled to 16x16 should match the input downsampled to 16x16. Do not compose a new image or move the canopy. Interpret blur as missing detail, add detailed tiny sequoia foliage and limbs only inside the existing shapes. This is one 1280x1280 tile with overlap for a seamless scientific zoom. Orthographic straight down, north up, west sunlight from left. Giant sequoia branchlets have grey olive-green overlapping short sharp scale leaves. Shadows remain deep green-black with subtle dim foliage detail. No sky, text, horizon, vignette, depth of field. Preserve relative brightness and darkness exactly, avoid contrast enhancement. Output one square 1280px photograph.\nThis is tile N of L1. Use ONLY the supplied cropped composition, no wider scene.",
+      "references": [
+        "references/N-photo.png"
+      ]
+    },
+    "E": {
+      "original": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-5eb952ae-f6c5-4610-8145-ce87e15eb764.png",
+      "prompt": "EDIT THE SINGLE PROVIDED IMAGE IN PLACE. It is a blurred aerial crop of a giant sequoia canopy, covering exactly 5.529 metres square. Perform detail reconstruction / super-resolution: keep the EXACT pixel-aligned spatial layout of this image. All large dark shapes, bright patches, their outlines, their sizes, positions and overall colour MUST remain unchanged. The final result downsampled to 16x16 should match the input downsampled to 16x16. Do not compose a new image or move the canopy. Interpret blur as missing detail, add detailed tiny sequoia foliage and limbs only inside the existing shapes. This is one 1280x1280 tile with overlap for a seamless scientific zoom. Orthographic straight down, north up, west sunlight from left. Giant sequoia branchlets have grey olive-green overlapping short sharp scale leaves. Shadows remain deep green-black with subtle dim foliage detail. No sky, text, horizon, vignette, depth of field. Preserve relative brightness and darkness exactly, avoid contrast enhancement. Output one square 1280px photograph.\nThis is tile E of L1. Use ONLY the supplied cropped composition, no wider scene.",
+      "references": [
+        "references/E-photo.png"
+      ]
+    },
+    "S": {
+      "original": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-0afd05e9-9c20-47a8-bc61-d9d9ff92d113.png",
+      "prompt": "EDIT THE SINGLE PROVIDED IMAGE IN PLACE. It is a blurred aerial crop of a giant sequoia canopy, covering exactly 5.529 metres square. Perform detail reconstruction / super-resolution: keep the EXACT pixel-aligned spatial layout of this image. All large dark shapes, bright patches, their outlines, their sizes, positions and overall colour MUST remain unchanged. The final result downsampled to 16x16 should match the input downsampled to 16x16. Do not compose a new image or move the canopy. Interpret blur as missing detail, add detailed tiny sequoia foliage and limbs only inside the existing shapes. This is one 1280x1280 tile with overlap for a seamless scientific zoom. Orthographic straight down, north up, west sunlight from left. Giant sequoia branchlets have grey olive-green overlapping short sharp scale leaves. Shadows remain deep green-black with subtle dim foliage detail. No sky, text, horizon, vignette, depth of field. Preserve relative brightness and darkness exactly, avoid contrast enhancement. Output one square 1280px photograph.\nThis is tile S of L1. Use ONLY the supplied cropped composition, no wider scene.",
+      "references": [
+        "references/S-photo.png"
+      ]
+    },
+    "W": {
+      "original": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-05d2694f-05a7-4d3d-bca3-b34f71108c08.png",
+      "prompt": "EDIT THE SINGLE PROVIDED IMAGE IN PLACE. It is a blurred aerial crop of a giant sequoia canopy, covering exactly 5.529 metres square. Perform detail reconstruction / super-resolution: keep the EXACT pixel-aligned spatial layout of this image. All large dark shapes, bright patches, their outlines, their sizes, positions and overall colour MUST remain unchanged. The final result downsampled to 16x16 should match the input downsampled to 16x16. Do not compose a new image or move the canopy. Interpret blur as missing detail, add detailed tiny sequoia foliage and limbs only inside the existing shapes. This is one 1280x1280 tile with overlap for a seamless scientific zoom. Orthographic straight down, north up, west sunlight from left. Giant sequoia branchlets have grey olive-green overlapping short sharp scale leaves. Shadows remain deep green-black with subtle dim foliage detail. No sky, text, horizon, vignette, depth of field. Preserve relative brightness and darkness exactly, avoid contrast enhancement. Output one square 1280px photograph.\nThis is tile W of L1. Use ONLY the supplied cropped composition, no wider scene.",
+      "references": [
+        "references/W-photo.png"
+      ]
+    },
+    "NE": {
+      "original": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-ba667e2c-85c6-4388-bb0b-5bd6503f3fef.png",
+      "prompt": "EDIT THE SINGLE PROVIDED IMAGE IN PLACE. It is a blurred aerial crop of a giant sequoia canopy, covering exactly 5.529 metres square. Perform detail reconstruction / super-resolution: keep the EXACT pixel-aligned spatial layout of this image. All large dark shapes, bright patches, their outlines, their sizes, positions and overall colour MUST remain unchanged. The final result downsampled to 16x16 should match the input downsampled to 16x16. Do not compose a new image or move the canopy. Interpret blur as missing detail, add detailed tiny sequoia foliage and limbs only inside the existing shapes. This is one 1280x1280 tile with overlap for a seamless scientific zoom. Orthographic straight down, north up, west sunlight from left. Giant sequoia branchlets have grey olive-green overlapping short sharp scale leaves. Shadows remain deep green-black with subtle dim foliage detail. No sky, text, horizon, vignette, depth of field. Preserve relative brightness and darkness exactly, avoid contrast enhancement. Output one square 1280px photograph.\nImage 1 is the ONLY edit target, tile NE; return that exact cropped composition. Image 2 is the already generated N tile; image 3 is the already generated E tile. Images 2 and 3 are NEIGHBOUR CONTEXT ONLY for continuity of fine foliage texture/light and overlap joins. DO NOT copy or reproduce their whole compositions. Keep all low-frequency light/dark positions of image 1 unchanged. The tiles have 128px margins each; adjacent tiles overlap by 256px. Match shared edges where they meet.",
+      "references": [
+        "references/NE-photo.png",
+        "tiles/N.png",
+        "tiles/E.png"
+      ]
+    },
+    "SE": {
+      "original": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-9da65f63-a225-40f2-8ced-ee2023744c9d.png",
+      "prompt": "EDIT THE SINGLE PROVIDED IMAGE IN PLACE. It is a blurred aerial crop of a giant sequoia canopy, covering exactly 5.529 metres square. Perform detail reconstruction / super-resolution: keep the EXACT pixel-aligned spatial layout of this image. All large dark shapes, bright patches, their outlines, their sizes, positions and overall colour MUST remain unchanged. The final result downsampled to 16x16 should match the input downsampled to 16x16. Do not compose a new image or move the canopy. Interpret blur as missing detail, add detailed tiny sequoia foliage and limbs only inside the existing shapes. This is one 1280x1280 tile with overlap for a seamless scientific zoom. Orthographic straight down, north up, west sunlight from left. Giant sequoia branchlets have grey olive-green overlapping short sharp scale leaves. Shadows remain deep green-black with subtle dim foliage detail. No sky, text, horizon, vignette, depth of field. Preserve relative brightness and darkness exactly, avoid contrast enhancement. Output one square 1280px photograph.\nImage 1 is the ONLY edit target, tile SE; return that exact cropped composition. Image 2 is the already generated S tile; image 3 is the already generated E tile. Images 2 and 3 are NEIGHBOUR CONTEXT ONLY for continuity of fine foliage texture/light and overlap joins. DO NOT copy or reproduce their whole compositions. Keep all low-frequency light/dark positions of image 1 unchanged. The tiles have 128px margins each; adjacent tiles overlap by 256px. Match shared edges where they meet.",
+      "references": [
+        "references/SE-photo.png",
+        "tiles/S.png",
+        "tiles/E.png"
+      ]
+    },
+    "SW": {
+      "original": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-19eacf8d-c3a7-4d9c-89d3-3c8700916b77.png",
+      "prompt": "EDIT THE SINGLE PROVIDED IMAGE IN PLACE. It is a blurred aerial crop of a giant sequoia canopy, covering exactly 5.529 metres square. Perform detail reconstruction / super-resolution: keep the EXACT pixel-aligned spatial layout of this image. All large dark shapes, bright patches, their outlines, their sizes, positions and overall colour MUST remain unchanged. The final result downsampled to 16x16 should match the input downsampled to 16x16. Do not compose a new image or move the canopy. Interpret blur as missing detail, add detailed tiny sequoia foliage and limbs only inside the existing shapes. This is one 1280x1280 tile with overlap for a seamless scientific zoom. Orthographic straight down, north up, west sunlight from left. Giant sequoia branchlets have grey olive-green overlapping short sharp scale leaves. Shadows remain deep green-black with subtle dim foliage detail. No sky, text, horizon, vignette, depth of field. Preserve relative brightness and darkness exactly, avoid contrast enhancement. Output one square 1280px photograph.\nImage 1 is the ONLY edit target, tile SW; return that exact cropped composition. Image 2 is the already generated S tile; image 3 is the already generated W tile. Images 2 and 3 are NEIGHBOUR CONTEXT ONLY for continuity of fine foliage texture/light and overlap joins. DO NOT copy or reproduce their whole compositions. Keep all low-frequency light/dark positions of image 1 unchanged. The tiles have 128px margins each; adjacent tiles overlap by 256px. Match shared edges where they meet.",
+      "references": [
+        "references/SW-photo.png",
+        "tiles/S.png",
+        "tiles/W.png"
+      ]
+    },
+    "NW": {
+      "original": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-7ad5dc3d-043b-402f-9229-b9ec8e35527f.png",
+      "prompt": "EDIT THE SINGLE PROVIDED IMAGE IN PLACE. It is a blurred aerial crop of a giant sequoia canopy, covering exactly 5.529 metres square. Perform detail reconstruction / super-resolution: keep the EXACT pixel-aligned spatial layout of this image. All large dark shapes, bright patches, their outlines, their sizes, positions and overall colour MUST remain unchanged. The final result downsampled to 16x16 should match the input downsampled to 16x16. Do not compose a new image or move the canopy. Interpret blur as missing detail, add detailed tiny sequoia foliage and limbs only inside the existing shapes. This is one 1280x1280 tile with overlap for a seamless scientific zoom. Orthographic straight down, north up, west sunlight from left. Giant sequoia branchlets have grey olive-green overlapping short sharp scale leaves. Shadows remain deep green-black with subtle dim foliage detail. No sky, text, horizon, vignette, depth of field. Preserve relative brightness and darkness exactly, avoid contrast enhancement. Output one square 1280px photograph.\nImage 1 is the ONLY edit target, tile NW; return that exact cropped composition. Image 2 is the already generated N tile; image 3 is the already generated W tile. Images 2 and 3 are NEIGHBOUR CONTEXT ONLY for continuity of fine foliage texture/light and overlap joins. DO NOT copy or reproduce their whole compositions. Keep all low-frequency light/dark positions of image 1 unchanged. The tiles have 128px margins each; adjacent tiles overlap by 256px. Match shared edges where they meet.",
+      "references": [
+        "references/NW-photo.png",
+        "tiles/N.png",
+        "tiles/W.png"
+      ]
+    },
+    "L2-context": {
+      "prompt": "EDIT THE SINGLE PROVIDED IMAGE IN PLACE. It is a blurred aerial crop of a giant sequoia canopy, covering exactly 5.529 metres square. Perform detail reconstruction / super-resolution: keep the EXACT pixel-aligned spatial layout of this image. All large dark shapes, bright patches, their outlines, their sizes, positions and overall colour MUST remain unchanged. The final result downsampled to 16x16 should match the input downsampled to 16x16. Do not compose a new image or move the canopy. Interpret blur as missing detail, add detailed tiny sequoia foliage and limbs only inside the existing shapes. This is one 1280x1280 tile with overlap for a seamless scientific zoom. Orthographic straight down, north up, west sunlight from left. Giant sequoia branchlets have grey olive-green overlapping short sharp scale leaves. Shadows remain deep green-black with subtle dim foliage detail. No sky, text, horizon, vignette, depth of field. Preserve relative brightness and darkness exactly, avoid contrast enhancement. Output one square 1280px photograph.\nThis is the finest central foliage plate for the test, NOT the whole tree. The sunlit olive-green foliage MUST occupy the exact centre point of the image (50%,50%) as in the input. Preserve the broad sunlit lower-left/centre and shadowed upper-right composition. No dark gap at the exact centre. Maintain the bright centre for a later zoom into a ladybug on a sunlit branchlet. Only render detailed giant sequoia foliage, no insects yet.",
+      "references": [
+        "references/C-photo.png"
+      ],
+      "original": "/Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-b8f05a14-00c5-4b28-8b87-9f16bf8b14bd.png"
+    }
+  }
+}

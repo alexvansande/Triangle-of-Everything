@@ -1,0 +1,16 @@
+# Videos waiting for a re-render, one take per line (e.g. short-04-black-holes).
+# Every session that changes a video adds its take here in the same commit (CLAUDE.md).
+# The nightly render (scripts/narration-nightly.sh, 23:50) renders every take listed here,
+# plus any whose render is older than its last change, and removes each line once its
+# rendered video is published. Lines starting with # are notes.
+# When only the picture changed (the audio is the same), add the playback times that changed:
+#   # short-04-black-holes changed: 1:20-1:45, 3:00-3:30
+# and only those stretches re-render, spliced into the last render (narration-render-partial.py).
+# A "# next: <take>" line renders that take before the others.
+# next: short-04-black-holes
+short-04-black-holes
+short-01-hook
+short-03-stars
+short-05-hubble-sphere
+short-06-tiny-world
+short-07-wavelengths

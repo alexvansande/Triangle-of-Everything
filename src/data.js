@@ -847,6 +847,8 @@ export const COMPOSITION = {
   "Thymine (T)":    ["Carbon", "Hydrogen", "Nitrogen", "Oxygen"],
   "Hemoglobin":     ["Carbon", "Hydrogen", "Nitrogen", "Oxygen", "Sulfur", "Iron"],
   "DNA":            ["Adenine (A)", "Guanine (G)", "Cytosine (C)", "Thymine (T)"],
+  // a living thing on top of the chain: a cell carries its DNA and the ribosomes that read it
+  "Bacterium":      ["DNA", "Ribosome"],
 };
 
 export const SUBCAT_LABELS = {

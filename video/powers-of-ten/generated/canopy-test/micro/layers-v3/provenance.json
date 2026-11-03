@@ -1,0 +1,20 @@
+{
+  "tool": "built-in image_gen",
+  "prompts": {
+    "background": "Edit target: the supplied ladybug shell macro close-up. Produce the SHARP BACKGROUND PLANE underneath the large central dew drop. Preserve exact square framing, scale, camera angle, red shell texture, black spots, shell seam and every surrounding droplet. Only remove the large central drop's surface rim and broad white specular reflection streaks: reconstruct continuous crisp red ladybug cuticle beneath that entire drop, retaining its many fine natural texture granules. No amoeba, no water surface rim in central area, no background blur, no bokeh, no invented scene. This is a registered bottom plane for compositing, not a new composition. Natural photographic red cuticle, high detail, sharp everywhere.",
+    "foreground": "Edit target: the original supplied ladybug dew closeup. Extract ONLY the surface of the one large central transparent dew drop as a truly transparent RGBA foreground overlay. Exact same square framing and pixel registration: large central drop roughly from x=310 to1040, y=255 to980 in1254square. Keep its thin curved translucent rim and its few white specular reflection streaks at the upper-left and lower-right. Everything else must be truly transparent: all red cuticle, black spots, shell seam, small surrounding droplets and the centre of the big drop. Do not include any opaque red disk, no opaque white fill, no refracted red texture. Just the very delicate clear rim and photographic bright surface reflections, with natural varying opacity so the red background will show through. Sharp edges, no baked blur. No amoeba. Preserve the original highlight positions, not a new drop composition.",
+    "specimen": "Edit target: the supplied transparent amoeba micrograph. Preserve its exact silhouette, position, orientation, nucleus, vacuoles, and full canvas dimensions. Keep true transparency outside it. Adapt only its optical lighting to clear water above a warm red ladybug shell: translucent neutral-amber cytoplasm with subtle warm transmitted red light, rather than an opaque silvery-white sticker. Delicate low-contrast transparent membrane, no thick outline, no shadow, no opaque background, no water field. Retain fine realistic microscopy granules and internal detail. Output a true RGBA isolated specimen, sharp, no baked focus blur. Same body anatomy and canvas registration exactly."
+  },
+  "source": "ladybug-chain/level-2.02mm-natural-v3.png",
+  "assets": [
+    "shell.png",
+    "reflections.png",
+    "amoeba.png"
+  ],
+  "assembly": "scripts/powers-of-ten-match-drop.mjs builds exact flat.png from three registered planes; match-depth.mjs propagates inward-to-outward through all preceding tiles. Runtime handoff 1.8→1.5mm, common scale/no blur until 1.3mm. Then back speed eases to0.45×, surface to1.75×, specimen stays1×. App blur 44px rear/80px front per960px output. Surface never fades.",
+  "size_sources": [
+    "https://www.microscopy-uk.org.uk/intro/illum.html",
+    "https://www.southernbiological.com/biology/specimens/living-specimens/protozoa-and-invertebrates/l3-00-amoeba-live/"
+  ],
+  "biological_note": "448µm is a plausible large Amoeba proteus; scale unchanged, illustrative specimen, not an observed ecological claim."
+}

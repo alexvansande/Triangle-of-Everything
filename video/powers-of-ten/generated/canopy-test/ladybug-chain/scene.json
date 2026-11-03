@@ -1,0 +1,18 @@
+{
+  "centre": "Same sunlit foliage point as centre.json in the parent folder",
+  "camera": "Orthographic, north up, unchanged centre; square master with both YouTube delivery guides",
+  "catalogue": "src/objects.json; logR is log10 of physical radius in centimetres",
+  "references": [
+    {"name":"Ladybug","logR":-0.46,"span_m":0.006934737009050631,"east_m":0,"south_m":0,"art":"content/icons/resolutions/1024/ladybug.webp"},
+    {"name":"Ant","logR":-0.7,"span_m":0.00399052462993776,"east_m":0.012,"south_m":-0.004,"rotation_radians":0.45,"art":"content/icons/resolutions/1024/ant.webp"}
+  ],
+  "placement": "Illustrative placement of generic catalogue insects on generated foliage, not a claim that these specimens were observed on the actual tree",
+  "excluded": "Flea and moths were reviewed but not used; pollen is below the useful scale for this stop",
+  "levels": [
+    {"width_m":4.423413006149971,"file":"level-4.42m.png","source":"Central 1024px crop of existing tiles/L2-context.png; reused rather than generated again"},
+    {"width_m":1.4744710020499903,"file":"level-1.47m.png"},
+    {"width_m":0.4914903340166634,"file":"level-49.1cm.png"},
+    {"width_m":0.1638301113388878,"file":"level-16.4cm.png"},
+    {"width_m":0.0546100371129626,"file":"level-5.46cm.png"}
+  ]
+}

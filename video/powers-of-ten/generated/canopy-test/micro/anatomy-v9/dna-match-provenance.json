@@ -1,0 +1,13 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Edit this exact DNA close-up, restoring photographic molecular detail while preserving every large-scale contour. This image is a registered crop of the preceding zoom level, so geometry is non-negotiable: same diagonal helix, same strand positions, same twist phase, same visible base pairs, same crop and background brightness. Keep blue-grey backbone material and warm taupe bases. Sharpen existing molecular surface into fine hydrated texture and subtle atomic detail without changing the helix thickness or adding extra turns, new strands, objects or water molecules. Do not zoom, recenter, rotate, shrink the subject, change colours, replace the scene or add a second helix. Exact image centre and edges must correspond to supplied image. Crisp natural photographic reconstruction, no text, no labels, no blur. Enhance detail only.",
+  "input": "dna-registration-reference.png",
+  "crop": {
+    "source": "nucleosomes-raw.png",
+    "left": 557,
+    "top": 557,
+    "width": 140,
+    "height": 140
+  },
+  "correction": "Replace unrelated multi-turn helix with enhanced exact central crop; no rotation or camera recentering. Regenerate all matched parents."
+}

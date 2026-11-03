@@ -1,0 +1,19 @@
+{
+  "coordinateSource": "https://www.rcsb.org/structure/1BNA",
+  "source": "1BNA.pdb",
+  "native": "dna-flat.png",
+  "nativeParts": [
+    "surroundings-native.png",
+    "hydrogen-native.png"
+  ],
+  "span_m": 5.486968449931413e-9,
+  "heroSpan_m": 4.938271604938272e-8,
+  "heroGeneration": "exec-b91bcb4d-c951-4681-84ff-ab50dcb98e8e.png",
+  "fieldGeneration": "exec-8f6f6a35-f866-4012-b579-0c6b59205b5a.png",
+  "references": [
+    "hero-guide.png",
+    "dna-flat.png"
+  ],
+  "method": "Exact code capture inserted at 1/9 native size; regenerate surrounding DNA as luminous orbs with subtle fibers. Larger nuclear background crop reused behind live 3D. Selected atom orb smoothly gives way to fine Hopf fibers on entry.",
+  "limitations": "Published heavy atom DNA geometry with the existing guanine conformer substituted at A4 to maintain target hydrogen registration. Other hydrogens omitted. Display clouds are artistic covalent-contact envelopes, not measured density."
+}

@@ -1,0 +1,33 @@
+{
+  "version": 4,
+  "native": [
+    1254,
+    1254
+  ],
+  "backgroundSpan_m": 0.0000013333333333333334,
+  "axis": [
+    627,
+    627
+  ],
+  "parts": [
+    {
+      "name": "field",
+      "level": 3,
+      "span": 4.4444444444444444e-7
+    },
+    {
+      "name": "hero",
+      "level": 5,
+      "span": 4.938271604938272e-8
+    },
+    {
+      "name": "dna",
+      "level": 7,
+      "span": 5.486968449931413e-9
+    }
+  ],
+  "rootDepthStart_m": 6.060606060606061e-7,
+  "guanineSource": "../../../dna-code-v3/dna-flat.png",
+  "nucleusSource": "../../../guanine-bridge-v2/nucleus-raw.png",
+  "note": "Each generated parent has the exact transparent finer source removed from its support and reinserted at the common physical scale. Runtime guanine uses that same code-rendered source before continuous live 3D. Nuclear background persists and is blurred/darkened by the app."
+}

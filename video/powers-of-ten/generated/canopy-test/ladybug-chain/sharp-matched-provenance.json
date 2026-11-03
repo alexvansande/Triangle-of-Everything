@@ -1,0 +1,12 @@
+{
+  "mode": "built-in image_gen",
+  "prompt": "Use case: precise-object-edit. Image 1 is the edit target, a green sequoia foliage photograph. Image 2 identifies ONLY the foreground spray to REMOVE from Image 1 for a background layer. Remove that central bright right-to-left needle spray and reconstruct only the hidden green foliage behind it. Preserve ALL surrounding foliage, positions, scale, square framing and upper-left lighting from Image 1 exactly. Crucial: EVERY leaf on this background plane must be equally SHARP and in focus, including deep shadows; no depth of field, no bokeh, no blur whatsoever. This background will be blurred later by the app. Green foliage only, no brown/orange wood, no insects, no water droplets, no text. Keep leaf sizes consistent with existing peripheral leaves. Do not reframe, zoom, or move surrounding leaves.",
+  "input": [
+    "level-16.4cm-green-v1.png",
+    "foreground-16.4cm-v1.png"
+  ],
+  "output": "background-sharp-v2.png",
+  "source": "Generated images are saved to /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c as /Users/avsa/.codex/generated_images/01a18d7b-10d0-7a71-8bed-55705b60f86c/exec-347bcc54-76b2-484e-b30f-ee2e825d5d50.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+  "assembly": "scripts/powers-of-ten-match-depth.mjs constructs matched/foreground.png from the two native foreground LOD cutouts; composes against the sharp background; downscales the shared stack into all parent centres. No blur applied to the generated background or assembly. Runtime depth and blur stay at zero until below 9cm, after handoff ends at10cm.",
+  "note": "3762px assembly retains native central foreground detail; upscaling peripheral assets does not add recovered detail."
+}

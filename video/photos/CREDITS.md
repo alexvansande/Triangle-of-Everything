@@ -41,3 +41,6 @@ video description of every video that shows them, like the music.
 | sun | Matúš Motlo | CC BY-SA 4.0 | [The_Sun_in_white_light.jpg](https://commons.wikimedia.org/wiki/File:The_Sun_in_white_light.jpg) |
 | vesta | NASA / JPL / MPS / DLR / IDA / Björn Jónsson | Public domain | [Vesta_in_natural_color.jpg](https://commons.wikimedia.org/wiki/File:Vesta_in_natural_color.jpg) |
 | xdf | NASA, ESA, G. Illingworth, D. Magee, and P. Oesch (University of California, Santa Cruz), R. Bouwens (Leiden University) | Public domain | [The Hubble eXtreme Deep Field.jpg](https://commons.wikimedia.org/wiki/File:The_Hubble_eXtreme_Deep_Field.jpg) |
+| hopf-hydrogen (.mp4) | Our own render: the Atom Lab's "Hydrogen 1s" look (public/atom-lab.html, branch claude/hopf-atoms, 2026-10-29), 8 s recorded frame by frame | Ours | — |
+| hopf-deuterium (.mp4) | Our own render: the Atom Lab's "Deuterium 3p" look (same) | Ours | — |
+| hopf-collapse (.mp4) | Our own render: the Atom Lab's "Hydrogen 1s" look with the electron's charge raised from 1 to 100,000 (its orbit shrinks onto the proton, ring by ring), then its neutron (2026-10-29) | Ours | — |

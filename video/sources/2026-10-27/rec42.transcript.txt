@@ -1,0 +1,80 @@
+[    0.9]  Okay, first recording for video 7, I guess? I think this is video 7. I've been exploring
+[   15.1]  this thing called the triangle of everything, where we plot... I've been exploring this
+[   21.2]  short where we plot everything that exists as a log of mass and size. And we, and in the last video
+[   32.7]  we saw that when matter breaks down it turns into gamma rays. Gamma rays are photons, they're
+[   41.9]  particles of light. And here's the thing, every photon is the same kind of particle. Gamma rays,
+[   47.6]  These X-rays do survive visible light, infrared, microwaves, radio waves, all the same stuff.
+[   53.7]  The only difference is how much energy each photon carries.
+[   57.9]  More energy, shorter wavelength, less energy, longer wavelength.
+[   63.8]  That's the line they make on the short, from gamma rays here all the way to radio waves.
+[   70.4]  That's why the Compton line, that's why the Compton line runs at a 45 degree angle, because
+[   78.2]  the short of, because in this short mass becomes energy and size becomes, in this
+[   86.0]  mass, at this scale we treat, at this scale we look at energy instead of mass, they
+[   93.4]  are the same, and we look at wavelength instead of size.
+[   99.0]  And the more energy, the shorter wavelength.
+[  101.4]  So almost everything falls into the downward 45-degree line.
+[  106.4]  That's a contour line.
+[  108.0]  That's also the limit of how any.
+[  111.6]  And that's one of the limits of our triangle.
+[  116.6]  Now let's go back to visible light.
+[  119.8]  OK, note, I want the visualizer
+[  122.5]  instead of having that visualizer on top,
+[  125.5]  I want the ranges to be shown on the Compton Line.
+[  129.8]  I think it's more interesting,
+[  133.0]  and we show the visualizer on the back.
+[  138.7]  We hide the elements. We hide the labels.
+[  141.4]  We hide the background.
+[  142.7]  We just show the visualizer with the Compton Line,
+[  145.0]  and as you go through the Compton Line,
+[  147.5]  it shows the labels, but also the colors,
+[  151.9]  where the colors are, the colors we see. So let's go back to visible light. This is the Earth.
+[  162.2]  Yeah so so far we were just looking at the chart and then we see the visualizer
+[  166.8]  with the Compton line as I discussed. Let's go back to visible light. This is the Earth
+[  173.5]  as you would see it from space and the sky behind it and the light our eyes can see.
+[  178.8]  But color isn't something out there in the world.
+[  181.9]  It's a label your brain puts out, a wavelength.
+[  185.9]  It's a label your brain puts on a wavelength.
+[  189.1]  We have three kinds of color sensor in our eyes and we call what they see red, green
+[  193.6]  and blue.
+[  194.8]  If our eyes were tuned just a little bit differently, we would see infrared as red,
+[  199.2]  red as green and green as blue.
+[  201.5]  Look, the forest light up because plants reflect a lot of infrared.
+[  206.1]  red. Or we could shift the other way, like a bee does and see ultraviolet as blue. So
+[  212.7]  here we have the answer on, is the red we see the same as the red that everyone sees?
+[  219.0]  Well, not if you're talking about bees. Now let's keep going. In ultraviolet, Earth
+[  225.6]  shows its smoke and dust. There's no full map of the sky in ultraviolet, or air blocks
+[  232.2]  it, so you have to go to space to see it. Further up, X-rays and Earth go dark, or
+[  239.1]  atmospheres stop X-rays completely, which is lucky for us. But the sky lights up with
+[  245.3]  hot gas at millions of degrees, and pairs of stars where one is eating the other.
+[  251.8]  In gamma rays, the most energetic lighter is, we see the plane of our galaxy glowing
+[  257.3]  where cosmic rays smashes into gas and spinning dead stars and the cores of distant galaxies
+[  263.7]  giant black holes at the center. Now let's go back down in infrared we see
+[  270.7]  now let's go all the way back down to infrared or as we see heat warm land glows
+[  279.3]  Warm land glows, cold cloud tops, warm land glows, cold cloud tops are dark.
+[  289.1]  In the sky infrared goes straight to the dust that hides the center of our galaxy
+[  293.9]  and we see the stars behind it.
+[  296.4]  Further down we see the dust itself, cold clouds where the new stars are born.
+[  302.7]  And in microwaves, Earth shows its water, vapor, rain, sea, ice, and the sky is filled
+[  311.1]  with the oldest light in the universe, the afterglow of the Big Bang.
+[  317.8]  Because, and that's an interesting part, not all, and that's an interesting part
+[  322.6]  because not all light comes from the same place.
+[  328.1]  So let's try to put, see them in a log scale.
+[  331.3]  Not all light comes up in the same space and we can sort of see the space through the different
+[  337.5]  wavelengths.
+[  339.4]  So let's put everything in a log scale like we're doing in a shark.
+[  344.4]  It's the only way to be able to see different kinds.
+[  351.0]  It's the only way we can see the whole universe.
+[  354.6]  So if Earth is this big, that's the moon orbit, just one light, just over one light
+[  360.7]  second away, then the sun eight light minutes away, and then
+[  365.1]  they close the stars a few light years away. Zoom out further
+[  369.6]  and the sky becomes a cloud of dots, the star around us, then
+[  373.7]  our galaxy and then the entire observable universe. Now
+[  379.3]  let's go through the spectrum again. Visible light
+[  382.2]  comes mostly from stars in our own neighborhood of the
+[  385.1]  galaxy. Infrared reach further through the dust. Radio shows
+[  390.4]  or galaxy magnetic fields and galaxies billions of light years away.
+[  395.4]  Microwave comes from the very edge, the oldest light there is.
+[  400.0]  An X-ray and gamma rays from the most violent things in the universe, exploding stars
+[  405.8]  and feeding black holes.
+[  408.8]  Every wavelength is a different window, every wavelength is a different window and
+[  414.8]  And each one shows a different universe.

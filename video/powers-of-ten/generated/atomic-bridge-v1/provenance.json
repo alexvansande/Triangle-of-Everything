@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "image_tool": "built-in imagegen",
+  "native_capture": "Actual WebGL2 Hopf Renderer/HopfView,1254px. hydrogen,deuterium,water and registeredAT fragment. See capture.json for snapshot/geometry.",
+  "accepted_assets": {
+    "basepair-raw.png": {
+      "generation": "exec-6edf1a84-214b-413e-8a0b-6eb9e576d0fc.png",
+      "reference_generation": "exec-fa7e28f0-563f-4fa0-8614-0a4b79953d25.png",
+      "prompt": "Photographic molecular reconstruction from registered3DNA A\u2013T base-pair diagram,1.829nm field. Preserve every atom centre, geometry and framing. Overlapping blue/violet electron-density surfaces, warm copper/rose accents, fine fiber detail. Remove diagram labels. In follow-up edit remove ONLY central fake cyanH atom and its halo and extract every remaining atom/bond to genuine alpha; preserve adjacent N and all other geometry. Actual code-rendered H is composited independently at exact origin."
+    },
+    "dna-raw.png": {
+      "generation": "exec-c36c80df-d099-4646-a45a-c520b86c6214.png",
+      "references": [
+        "dna-layout.png",
+        "basepair-flat.png",
+        "../canopy-test/micro/anatomy-v9/nuclear-pieces-v2/dna-raw.png"
+      ],
+      "prompt": "Render the registered B-DNA blueprint into photographic molecular CGI.5.487nm field,2nm diameter,3.38nm pitch, upper-left to lower-right axis. Exact basepair-flat canvas at centre with width one third of final canvas, targetH at50%,50%; preserve framing, connect glycosidic stubs into rails as central rung. Other rungs heterocyclic bases, pale blue/violet sugar-phosphate rails, warm rose/copper atomic detail. Native square, all sharp, true transparent alpha. No text, panel, grey liquid or baked blur. Blueprint is layout authority; oldDNA is style only."
+    }
+  },
+  "physics_sources": [
+    "https://www.nist.gov/programs-projects/codata-values-fundamental-constants",
+    "https://pdb101-west.rcsb.org/motm/23"
+  ],
+  "assembly": "match-atom.mjs recovers actual Hopf alpha analytically from known capture matte, composes common centre at3\u00d7 spans, removes duplicate source support from outerDNAcarrier and writes exact flat parents. match-anatomy.mjs then propagates outward through the cell and drop/foliage.",
+  "interpretation": "BoundH is approached through the particle explorer free-atom1s density depiction. Molecular photo surfaces are illustrative; covalent electronic redistribution is not solved. Nuclei are not enlarged in the Hcloud capture. Proton/quark live code unchanged.",
+  "registered_correction": {
+    "generation": "exec-544638d0-39e1-4fdf-8bf8-6bd882695fdb.png",
+    "source": "dna-parent-crop.png: central 1/9 crop of existing hero-organic-v3 source",
+    "prompt": "Enhance only molecular detail. Preserve exact composition, silhouette, backbone curves, rung positions and twist. No zoom, reframing, rotation or new helix. Cobalt backbones, copper and rose rungs, genuine alpha.",
+    "assembly": "Outer 22% feather shared with inverse replacement mask on parent hero; no overlapping helices. Exact child propagated through flat parents. Original atom target and live cloud unchanged."
+  }
+}

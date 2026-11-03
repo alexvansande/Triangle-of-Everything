@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "native": [
+    1254,
+    1254
+  ],
+  "spans_m": {
+    "hydrogen": 6.096631611034903e-10,
+    "basepair": 1.828989483310471e-9,
+    "dna": 5.486968449931413e-9
+  },
+  "axis": [
+    627,
+    627
+  ],
+  "ratio": 3,
+  "target": "Thymine N3-bound hydrogen in an adenine–thymine base-pair fragment",
+  "parents": "dna-flat is dna-carrier + centred418px basepair-flat; basepair-flat is basepair + centred418px actual Hopf hydrogen. Runtime uses the same separate foreground planes.",
+  "live_handoff_log10_m": [
+    -9.65,
+    -9.2
+  ],
+  "frozen_snapshot_time": 3,
+  "limitation": "Atomic H uses the particle explorer free-atom1s density/Hopf fiber depiction. Molecular surfaces are illustrative reconstructions guided by the registered3DNA fragment, not a bonded-electron calculation. Proton/quark rendering stays live and unchanged."
+}

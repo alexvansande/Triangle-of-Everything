@@ -1,0 +1,17 @@
+{
+  "tool": "built-in image_gen followed by SVG clipping/compositing",
+  "prompt": "Use case: scientific-educational. Edit the supplied SVG-rendered anatomical construction drawing into a polished translucent scientific amoeba illustration for a continuous zoom video. This input is an exact spatial blueprint, not optional inspiration. Preserve the square framing, cell membrane contour, all five mitochondrion centres, three food vacuole centres, contractile vacuole centre, and especially nucleus centre (45.833% width,50% height), nucleus diameter 16.667% of image width, nucleolus centred inside nucleus with diameter 5.833% of image width. Camera target is exact image centre, within chromatin to the right of nucleolus; do not recenter nucleus or move nucleolus. Preserve each organelle footprint, replace flat fills and strokes with restrained translucent scientifically illustrated materials, granular cytoplasm, pearl gray clear ectoplasm, fine muted lavender chromatin patches. Do not draw parallel waves literally: replace those diagrammatic placeholder lines with irregular fine chromatin density, retaining nucleus envelope and nucleolus boundaries. Make mitochondria internal textures subtle tubular cristae rather than standard ladder folds. No resolvable DNA helices, no X chromosomes, no additional giant organelles, no cell wall or chloroplasts. Use clear gentle microscopic transmitted lighting, natural watery transparency, restrained colour, explanatory reconstruction rather than claimed microscope photo. Preserve clean neutral background, no surrounding objects, no labels or arrows. No depth of field, no blur: sharp at every depth for later app-controlled focus. No geometry changes, crop or camera rotation. The body and nucleus proportions are a provisional small-amoeba design, do not add scientific size claims or labels.",
+  "status": "Study, not installed in runtime. Geometry exact in SVG; anatomy and 8um body assumption provisional.",
+  "sources": [
+    "https://openstax.org/books/biology-2e/pages/4-3-eukaryotic-cells",
+    "https://www.nies.go.jp/chiiki1/protoz/morpho/flagella/vannella.htm",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC5646685/"
+  ],
+  "verification": "Inspected generator output: shifted/enlarged organelles. Final registered SVG clips extracted generated texture to original cell/organelles; nucleus 240 units, nucleolus 84 units, centres660,720; target720,720. Mitochondrial interior and species anatomy remain illustrative, not validated. Cell maximum extent approximately8um, not a measured identified specimen.",
+  "files": {
+    "diagram": "diagram.svg",
+    "generatorInput": "layout.png",
+    "raw": "render-raw.png",
+    "registered": "render-registered.svg"
+  }
+}

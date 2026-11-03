@@ -1,0 +1,9 @@
+<!doctype html><title>Native DNA source</title><style>body{background:#080c16;color:white;font:16px system-ui}canvas{width:700px;height:700px}pre{max-height:100px;overflow:auto}</style><h1>Native DNA around guanine hydrogen</h1><button id="show" disabled>Show native render pack</button><main></main><pre id="native-pack"></pre><script type="module">
+import {core,makeGuanineScene,DNA_CODE_SPAN,SNAPSHOT_TIME,YAW,PITCH,GUANINE_LIGHT,GUANINE_LOOK} from './guanine-scene.js';
+const n=1254,r=new core.Renderer({alpha:true});r.resize(n);const pack={span_m:DNA_CODE_SPAN,n,look:{...GUANINE_LOOK,cloudOrb:1},light:GUANINE_LIGHT,time:SNAPSHOT_TIME,yaw:YAW,pitch:PITCH,renders:{}};
+for(const [name,include]of [['surroundings',j=>j!==12],['hydrogen',j=>j===12]]){
+ const scene=makeGuanineScene(include,false,true);scene.frame(DNA_CODE_SPAN);const v=new core.HopfView(r,null,scene.particle);v.yaw=YAW;v.pitch=PITCH;v.radius=scene.particle.frame.radius;v.update(SNAPSHOT_TIME,GUANINE_LIGHT);
+ const c=document.createElement('canvas');c.width=c.height=n;r.render(v,GUANINE_LIGHT,[c.getContext('2d'),0,0,n,n]);pack.renders[name]=c.toDataURL();document.querySelector('main').append(c);
+}
+document.querySelector('#show').disabled=false;document.querySelector('#show').onclick=()=>document.querySelector('#native-pack').textContent=JSON.stringify(pack);
+</script>

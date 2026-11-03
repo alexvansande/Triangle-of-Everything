@@ -13,7 +13,7 @@ PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
 EDL = [
  ("rec35", "open", 17.56, 21.66),     # In my opinion, this is the most interesting chart in all of physics.   (the mic test before it left out)
  ("rec35", "diag", 30.16, 38.90, {"s": 29.9}),  # Probably the first thing you notice here is this diagonal line, with everything from bacteria to humans, to planets, stars and galaxies.   ("This is the," left out)
- ("rec35", "axes", 41.44, 57.46, {"e": 57.95}),  # Vertical axis is mass, horizontal axis is size. So this is a log chart of mass versus size, right? Yeah, but it's so much more than that, because it also includes things that don't have mass at all. Photons, like visible light, radio waves.   ("etc." left out)
+ ("rec35", "axes", 41.44, 57.46, {"e": 57.95, "cut": [(51.25, 51.43)]}),  # Vertical axis is mass, horizontal axis is size. So this is a log chart of mass versus size, right? Yeah, but it's so much more than that, because it also includes things that don't have mass at all. Photons, like visible light, radio waves.   ("etc." left out)
  ("rec35", "energy", 60.64, 66.92),   # That's because this chart is also a chart of energy, and the bottom axis doubles as wavelength.
  ("rec35", "science", 86.66, 96.70),  # So in a way, this chart contains all science. Astronomy is up here at the top, engineering is down there, biology all the way down here, and then we have chemistry and particle physics.   (the third try; the first breaks off at "and then we have…", the second at "all science")
  ("rec35", "sides", 99.62, 113.28),   # But the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity. And where those lines meet is actually… the Big Bang?!

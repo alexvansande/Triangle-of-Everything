@@ -30,3 +30,12 @@ Re-apply the caption corrections listed in the NOTES and set `"scene"`. Then spe
 (pitch kept; the word timings scale with it):
 `python3 scripts/narration-tempo.py short-01-hook --tempo 1.1`, and remix the
 sound with `node scripts/narration-sound.mjs short-01-hook` (dev server running).
+
+A clip's `cut` spans (source seconds) leave a hesitation out from inside it (the clean-up of
+2026-10-28: pauses the PAUSES cap missed because a breath or the room kept them over the silence
+threshold). After a re-cut that only removes pauses, fillers or false starts, carry the corrected
+caption words over instead of re-applying the NOTES by hand:
+`python3 video/tools/transfer-captions.py old-words.json public/narration/<take>/words.json`
+(old-words.json from `git show HEAD:public/narration/<take>/words.json`). For takes whose raw
+recordings aren't at hand, `video/tools/postcut.py` cuts the EDL's `POST_CUTS` (edit seconds) out
+of the finished audio instead.

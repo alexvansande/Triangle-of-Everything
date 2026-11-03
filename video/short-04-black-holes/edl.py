@@ -1,62 +1,52 @@
-# short-04-black-holes: video 4 (video 5, take 5d until 2026-10-21; rec24), the chosen take (05, 05b, 05c archived as MP4s on 2026-10-20; see video/EXPORT.md).
-# rec24 = "Dark matter take 5.m4a" (Google Drive "Recordings", 2026-10-20, 10:48, 48 kHz ALAC;
-# noise floor about -79 dB, no clipping). The whole video again, with the Schwarzschild
-# radius and the 45-degree slope in place, the red giants' nebulae feeding new stars, the
-# "skeleton of a dead star", the Big Bang's "soup", and the "lucky few survivors" ending.
-# (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds.
+# short-04-black-holes: video 4, re-recorded whole on 2026-10-29 from the rewritten script (a hook, no
+# star life-cycle recap, the Sun and the Earth as black holes, "billions", TON 618 bigger than Pluto's
+# orbit, the cosmic bullet, the very first moments).
+#   rec48 = "Black holes again.m4a" (Google Drive "Recordings", 2026-10-29, 12:58, AAC 48 kHz), the
+#           whole script with retakes. The author: "usually the last take is my favourite"; the last try
+#           is used unless it trails off or has a slip (noted per clip).
+# Treatment: enhance.py --plain, natural speed (no tempo). Build: see video/short-01-hook/README.md.
+# (source, beat, first-word start, last-word start, {s, e, gap, cut, gain}) in source seconds.
+# The earlier cuts (rec47 + the rec43/rec41 second half, 2026-10-29; rec43 + rec41, 2026-10-27) are in
+# git history.
 
 PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
 
 EDL = [
- ("rec24", "intro", 32.28, 38.98, {"s": 30.3}),  # Everything that could have ever existed can be plotted in this chart with size on the horizontal axis and mass on the vertical axis.   (a false start, "Everything that could have ever,", left out)
- ("rec24", "intro", 39.46, 42.52),  # It's really a log-log density scatterplot.
- ("rec24", "intro", 44.14, 46.08),  # And as you zoom in, it tells you a million stories.
- ("rec24", "intro", 47.34, 49.50),  # For example, you can see the life cycle of stars.
- ("rec24", "intro", 50.44, 53.60),  # They form from stellar nurseries and collapse into protostars.
- ("rec24", "intro", 55.02, 56.88),  # Then they will live their life in the main sequence.
- ("rec24", "intro", 57.46, 63.28),  # And as their hydrogen is depleted, they will collapse and expand and collapse and become red giants.
- ("rec24", "intro", 63.96, 76.16),  # And those red giants will then expand into nebulas, which will merge again into new stellar nurseries, creating a new generation of stars.
- ("rec24", "intro", 78.68, 94.10, {"s": 78.95, "gap": 0.5}),  # ("And left behind" left out: "behind" comes again at the end) As the skeleton of a dead star, there will always be some sort of dense core behind, which sometimes, depending on the mass, will be a white dwarf, a neutron star, or the most interesting one of them, the black holes.
- ("rec24", "line", 99.40, 104.40, {"s": 99.82, "gap": 0.6}),  # Most objects in our triangle will be clusters of dots around some point.   ("But black holes are…" and a first "Most objects," left out)
- ("rec24", "line", 104.78, 108.80),  # But black holes are not, they sit all on this line.
- ("rec24", "line", 109.28, 111.56),  # And that line is called the Schwarzschild radius.
- ("rec24", "line", 112.74, 118.28),  # And the line is special because it represents the top left limit of our triangle of everything.
- ("rec24", "line", 118.74, 130.92),  # And as anything that gets too small or too massive will become a black hole and live instead somewhere on this line and never actually cross it,
- ("rec24", "horizon", 131.78, 133.82),  # black holes actually don't have a size.
- ("rec24", "horizon", 134.34, 138.74),  # They are considered to be a singularity, meaning they have size of zero.
- ("rec24", "horizon", 139.44, 145.92),  # But they do have what is called an event horizon, a radius from which nothing can escape it.
- ("rec24", "horizon", 146.38, 150.44),  # And that radius is directly related to mass.
- ("rec24", "horizon", 151.80, 157.14),  # That's why the slope on the upper left is just a straight 45-degree angle.
- ("rec24", "known", 172.38, 181.20, {"gap": 0.6}),  # All of the black holes we know of have been formed in the collapsing core of a dying star or just mergers of other black holes.   (three false starts left out)
- ("rec24", "known", 182.54, 188.30),  # They vary in size from a massive star to hundreds and thousands and millions of suns,
- ("rec24", "known", 198.64, 204.22, {"gap": 0.12}),  # like the ones in the center of our own Milky Way, which has four million solar masses.   (a second "They vary in size…" left out)
- ("rec24", "dense", 205.36, 208.90, {"gap": 0.5}),  # And as they grow more massive, they actually become less dense.
- ("rec24", "dense", 210.10, 215.64),  # And after some point, the really supermassive ones are actually lighter than water and could float on a pool.
- ("rec24", "dense", 217.68, 229.40, {"e": 229.65}),  # Like M87, the first one ever to be photographed, or TON 618, the largest black hole that we know of, whose event horizon is larger than our solar system, and whose mass is    (the note about M87's photograph left out)
- ("rec24", "dense", 232.48, 232.70, {"s": 231.50, "gap": 0.12}),  # 60 billion of our suns.   (the first "60 billion of," a false start, left out)
- ("rec24", "small", 256.90, 261.92, {"gap": 0.6}),  # But the most interesting story is not how big they can be, but actually how small they can be.
- ("rec24", "small", 263.06, 265.50),  # With enough pressure, anything can become a black hole.
- ("rec24", "small", 266.06, 268.42),  # We don't know how to build one, we just don't have the technology.
- ("rec24", "small", 269.44, 269.88, {"e": 270.1}),  # But we know
- ("rec24", "small", 272.96, 277.08, {"s": 272.92, "gap": 0.05}),  # two moments where the conditions to make a black hole happens.   ("two places, but we know" left out)
- ("rec24", "small", 277.86, 280.92),  # One of them is, as we said, the core of dying stars.
- ("rec24", "small", 281.48, 293.92),  # And the second one happened in the very early moments of the Big Bang, when everything was a soup of very hot and dense matter.
- ("rec24", "pbh", 304.28, 311.60, {"s": 302.38, "gap": 0.5}),  # So back then, some of that soup could have collapsed into black holes of multiple sizes, and some of those might still be around.   ("So back then, some of those, some," left out)
- ("rec24", "pbh", 312.62, 313.76),  # And we've been looking for them.
- ("rec24", "pbh", 314.20, 322.52),  # We've done surveys using quasars and the cosmic background radiation, and then gravitational waves, and finally microlensing.
- ("rec24", "pbh", 334.08, 338.08, {"e": 338.7, "gap": 0.4}),  # And as we've done those surveys and found nothing so far,
- ("rec24", "pbh", 347.10, 350.60, {"s": 345.45, "gap": 0.2}),  # the window on where primordial black holes can exist has been closing somewhat.   (two tries left out, and "the window of where those black-, the window on-")
- ("rec24", "pbh", 387.56, 394.78, {"gap": 0.4}),  # And we also know they cannot be too small, otherwise they would have evaporated through a process that we called Hawking radiation.
- ("rec24", "window", 407.28, 425.24, {"gap": 0.5}),  # So there is a tiny window of size and mass those objects could be, and they would be something like as tiny as a virus, but with the mass of a small moon, or maybe something as heavy as an asteroid compressed to the size of an atom.   ("So there's a tiny window in which…" left out)
- ("rec24", "window", 425.98, 444.66, {"gap": 0.4}),  # And if those objects exist and are out there and are very common, they would be basically invisible. They would not react to light. They would not be visible on a telescope. We could only find them by secondary effects, like the effects on their gravity.
- ("rec24", "dm", 448.02, 454.76, {"gap": 0.4}),  # And the reason we've been looking for such objects for so long is that we have detected those effects on gravity.   ("…for some objects," left out)
- ("rec24", "dm", 455.66, 471.64),  # When we measure galaxies, we find that they are much heavier than they ought to be, sometimes ten times as much, meaning that most of the mass of the universe is formed of something very heavy, and basically invisible, which is, of course, dark matter.
- ("rec24", "dm", 490.94, 503.60, {"gap": 0.4}),  # We don't know what it is yet, and there are a lot of candidates for it, but if they are just very tiny black holes, then that doesn't require any new physics or any new particles to exist.   (repeats left out)
- ("rec24", "dm", 506.98, 508.40, {"gap": 0.4}),  # So we keep looking for them.
- ("rec24", "dm", 508.98, 510.36),  # That window is still closing down.
- ("rec24", "dm", 511.06, 514.96),  # There's some real research on neutron stars that suggests that the window is even smaller.
- ("rec24", "end", 540.14, 555.72, {"s": 542.75, "gap": 0.4}),  # But it's still possible that most of what we believe to be empty space in the universe is actually filled with little objects the size of an atom that weigh as much as a mountain.   (two first tries left out)
- ("rec24", "end", 597.18, 601.04, {"gap": 0.6}),  # Or maybe not. Maybe you'll figure out that something else is dark matter.
- ("rec24", "end", 578.48, 591.70, {"gap": 0.4}),  # But I still find it fascinating that maybe in the early moments of our history, most of the matter just collapsed into black holes to the size of an atom.   ("most of everything … particle-sized" left out: see the fact check)
- ("rec24", "end", 635.42, 644.10, {"gap": 0.5}),  # And we, everything else, the galaxies, the stars, all that we know of, are just the lucky few survivors.
+ # the hook
+ ("rec48", "hook", 23.94, 30.62),      # What is the smallest black hole that could exist? And is it possible that most matter in the universe is them?   (the first try, "And could,", left out)
+ # ("I want to show you this chart." left out: the author, 2026-10-29, "remove the first line")
+ # the chart, and the cores stars leave
+ ("rec48", "intro", 77.76, 89.34),     # I've been doing a series of videos explaining this chart, which I call the triangle of everything, because it contains literally everything on a log of mass and size.   (the last of five tries)
+ ("rec48", "intro", 100.12, 112.74),   # In the last video, we saw that this chart could show how stars die and leave a dense core behind, which can be a white dwarf, a neutron star, or the one I want to talk about today, a black hole.   (two starts left out)
+ # the line
+ ("rec48", "line", 141.26, 155.66),    # Most objects in this chart are a bunch of little dots, but black holes are not. They all sit exactly on one line, called the Schwarzschild radius. And it's a very important line, because it's the top-left edge of our triangle.   (the second try)
+ ("rec48", "line", 190.14, 198.82, {"e": 199.3}),  # Any object that becomes too small for its mass will collapse into a black hole, and every black hole lives exactly on this line,   (the "correlation" tries left out)
+ ("rec48", "line", 219.48, 225.82),    # meaning that there's no object that could ever exist that lives above or to the left of it.   (the last of four tries)
+ ("rec48", "size", 229.88, 252.50),    # A black hole doesn't really have a size: it's thought to be a singularity, a point. But it does have an event horizon, the distance from which nothing can escape, and that grows in step with its mass. That's why the edge is a straight 45-degree line. Squeeze the Sun into a black hole and it would be about six kilometres wide, and the Earth would be the size of a marble.
+ # the big ones
+ ("rec48", "big", 257.62, 265.20),     # The black holes we know formed in the collapsing core of dying stars, or just grew by swallowing gas and merging with other black holes.
+ ("rec48", "big", 266.58, 269.30),     # They can go from a few Suns to billions of stars.   (the first try: the second says "billions times the size of our Sun", but a billion-Sun black hole is ~8,000 times the Sun's width)
+ ("rec48", "big", 275.50, 279.96, {"s": 276.0}),  # The one in the centre of the Milky Way, for example, has four million solar masses.   (from 276.0: before it, the end of the other try's "…of our Sun" sounded like an "and", the author's note)
+ ("rec48", "big", 283.68, 293.02),     # And here's the strange part: the bigger they get, the less dense they are. The really supermassive ones are less dense than water: they would float if you had a pool big enough.
+ ("rec48", "big", 300.24, 309.62, {"s": 302.4}),  # Like M87, the first black hole ever to be photographed, or TON 618, one of the largest we know of.   (the second try; from the second "like M87": a "Like M8…" restart before it, 300.9–302.1, the author's note)
+ ("rec48", "big", 343.36, 346.06),     # Its event horizon is bigger than Pluto's orbit.   (the last of five; the author: "I prefer the last one")
+ # the small ones
+ ("rec48", "small", 350.42, 357.26, {"e": 357.62}),  # But the most interesting question isn't how big they can be, but how small. With enough pressure, anything can become a black hole.
+ ("rec48", "small", 362.30, 389.58),   # We can't really create one in the lab, but we know two places where that condition exists. The first one is, as I said, the core of a dying star. But the second one was the very first instants after the Big Bang, when everything was a super hot and super dense soup. Some of that soup could have collapsed into black holes of every size, and some of these might still be around.   ("We know of two places where," left out)
+ ("rec48", "search", 396.44, 410.58, {"cut": [(400.74, 400.92)]}),  # (the pause after "cosmic" cut: the author, 2026-10-30; cut from the finished audio, 152.16–152.32 s)
+   # And we've been looking for them with quasars, with the cosmic microwave background, gravitational waves, and finally with microlensing. And every search has come up empty, and the window where they could hide keeps closing.   (the first start left out)
+ ("rec48", "search", 416.66, 421.78),  # They can't be too small either, or they'd have evaporated by now through a process we call Hawking radiation.   (two starts left out)
+ ("rec48", "search", 434.14, 444.83),  # What's left is a narrow window: something the size of a virus with the mass of a small moon, or a whole asteroid's mass squeezed into something smaller than an atom.   (the last of three)
+ # dark matter
+ ("rec48", "dark", 451.31, 462.37),    # And if they're out there, they'd be invisible. No light, nothing a telescope could see. We would only notice their gravity. But that's the thing: we do see that gravity.
+ ("rec48", "dark", 469.73, 483.93),    # When we weigh galaxies, they are much heavier than everything we can see in them: five, sometimes ten times heavier. So most of the matter in the universe is something invisible, which of course we call dark matter. We don't know what it is.   (the second try)
+ ("rec48", "dark", 501.83, 508.57),    # But if they are just tiny black holes, then it's interesting, because it wouldn't need any new particle to explain them.   (the last try; the first says "any particle")
+ ("rec48", "dark", 510.83, 518.37, {"cut": [(514.12, 515.52)]}),    # Or of course, maybe it's something else entirely. Maybe it isn't a thing at all, and we just got gravity wrong.   (a first "Maybe it isn't a," cut)
+ # crossed off the chart
+ ("rec48", "hunt", 533.53, 549.05),    # But if it's something real, it's somewhere on this chart, and people have been looking for it. And not only on the black hole line, oh no: someone worked out that if dark matter came in lumps about roughly this size, they'd leave tracks in crystals of ancient rocks.   (the third try)
+ ("rec48", "hunt", 551.71, 553.11),    # So they looked at the rocks: nothing.
+ ("rec48", "hunt", 723.19, 735.25),    # Another team realised that it can't be here either, otherwise people's heads would just randomly explode, as if they were just shot by a cosmic bullet. So we crossed out this area.   (the last of many tries)
+ ("rec48", "hunt", 737.47, 743.29),    # The search for dark matter is really a lot of scientists scratching off areas of this map, one by one.
+ # the end
+ ("rec48", "end", 756.89, 774.71),     # But I still find it fascinating that just maybe, in the very first moments of our history, most of the matter that existed just collapsed into black holes. And we, everything else, the galaxies, the stars, everything we know, are just the lucky few survivors.   (the last try)
 ]
