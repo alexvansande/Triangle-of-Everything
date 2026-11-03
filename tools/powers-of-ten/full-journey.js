@@ -90,10 +90,10 @@ function drawSpheres(ctx, W, H, dpr, s) {
   ctx.font = `${26 * dpr}px "IBM Plex Sans", system-ui, sans-serif`; ctx.textAlign = "center";
   ctx.lineWidth = 6 * dpr; ctx.strokeStyle = "rgba(0,0,0,0.7)";
   // two lines, so each fits the 9:16 crop (the label layout drops a line wider than the frame)
-  const caption = (lines, y) => lines.forEach((l, i) => {
+  const caption = (lines, y) => { ctx.labelPriority = 1; lines.forEach((l, i) => {
     ctx.lineWidth = 6 * dpr; ctx.strokeStyle = "rgba(0,0,0,0.7)";
     ctx.strokeText(l, W / 2, y + i * 32 * dpr); ctx.fillText(l, W / 2, y + i * 32 * dpr);
-  });
+  }); ctx.labelPriority = 0; };
   if (rh) {
     ctx.setLineDash([8 * dpr, 6 * dpr]); ctx.lineWidth = 2 * dpr; ctx.strokeStyle = "rgba(170,205,255,0.9)";
     ctx.beginPath(); ctx.arc(W / 2, H / 2, rh, 0, 7); ctx.stroke(); ctx.setLineDash([]);

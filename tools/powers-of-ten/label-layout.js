@@ -1,7 +1,8 @@
-// Screen-space labels share one collision pass, including grid/radius captions.
+// Screen-space labels share one collision pass, including grid/radius captions. A label drawn with
+// ctx.labelPriority set is placed first (the sphere captions over the grid's).
 export function fitLabels(items,frame,gap=4){
  const kept=[];
- for(const item of items.slice().sort((a,b)=>a.top-b.top||a.left-b.left)){
+ for(const item of items.slice().sort((a,b)=>(b.priority||0)-(a.priority||0)||a.top-b.top||a.left-b.left)){
   const w=item.right-item.left,h=item.bottom-item.top;
   if(!Number.isFinite(w+h)||w>frame.right-frame.left||h>frame.bottom-frame.top)continue;
   const dx=Math.max(frame.left-item.left,Math.min(0,frame.right-item.right));
@@ -20,7 +21,7 @@ export function collectLabels(ctx){
   const left=x-(m.actualBoundingBoxLeft??m.width/2),right=x+(m.actualBoundingBoxRight??m.width/2);
   const top=y-(m.actualBoundingBoxAscent??size),bottom=y+(m.actualBoundingBoxDescent??0);
   const edge=outline?.text===text&&outline.x===x&&outline.y===y?outline:null,pad=(edge?.width||0)/2;
-  items.push({text,x,y,left:left-pad,right:right+pad,top:top-pad,bottom:bottom+pad,font:this.font,align:this.textAlign,baseline:this.textBaseline,alpha:this.globalAlpha,colour:this.fillStyle,outline:edge});outline=null;
+  items.push({priority:this.labelPriority||0,text,x,y,left:left-pad,right:right+pad,top:top-pad,bottom:bottom+pad,font:this.font,align:this.textAlign,baseline:this.textBaseline,alpha:this.globalAlpha,colour:this.fillStyle,outline:edge});outline=null;
  };
  return(frame,gap)=>{
   ctx.fillText=fill;ctx.strokeText=stroke;ctx.save();
