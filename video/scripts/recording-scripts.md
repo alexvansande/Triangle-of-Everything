@@ -728,9 +728,14 @@ kind of video only.)
 > That's because until now what held matter in shape was the chemical bonds between atoms and those are electromagnetic. From this point on gravity takes over and it's what shapes planets. And it shapes them in many other ways too. Neither Mercury or the Moon has enough gravity to hold on to an atmosphere. Venus and Earth do, but not enough to keep the lightest gases, hydrogen and helium. And since most of the visible matter in the universe is made of those two, once a planet can hold on to them, it will grow into a gas giant. So Earth lives in a kind of gravitational Goldilocks zone, just enough mass for its temperature to hold on to oxygen and nitrogen, but not enough to hold on to hydrogen and helium. You can see it on the chart. Most of those dots stop following the rocky planets on the left and move to the right where planets are mostly gas. Saturn is actually less dense than water, roughly as dense as wood. It would float like a log. Then the trend suddenly stops. You can't get a planet much bigger than Jupiter. Objects 10 times, even 80 times more massive, are still roughly Jupiter-sized. This is once again gravity breaking into electromagnetism's last refuge: the atom itself. The pressure in the core is so high that it crushes the atoms and strips their electrons off, leaving bare nuclei in a sea of electrons. Those electrons refuse to be squeezed any further, that's the last stand. Add more mass and the object gets denser, not bigger. And then, right around brown dwarfs, there's a huge split. Some objects veer to the right, and some veer to the left, because now we are no longer talking about the story of ordinary matter. We are talking about the stuff that makes the life and death of stars.
 
 ### To re-record (from rec51's fact check)
-- **The Eiffel Tower's volume** (left out of the cut: "million" is missing, so it said "one and a half
-  cubic metres"): *"Its whole shape, air included, is about one and a half million cubic metres."* It goes
-  after "…all the space inside it."
+*Recorded 2026-11-03 evening (rec53) and cut in: "nor", the gas-giant snowball line and "refuge". The Eiffel
+line is dropped. Nothing left here for long video 1.*
+
+- ~~The Eiffel Tower's volume~~: dropped (the author, 2026-11-03: "I don't miss the Eiffel Tower bit"); the
+  cut stays without it.
+- **The gas giants** (the author's idea, 2026-11-03), replacing "And since most of the visible matter… it will
+  grow into a gas giant": *"And since most of the visible matter in the universe is made of those two, once a
+  planet passes about ten Earth masses while there's still gas around, it can snowball into a gas giant."*
 - **"electromagnetism's last refuge"**, if it sounds like "refugee" (Whisper hears "refugee"): *"This is
   once again gravity breaking into electromagnetism's last refuge: the atom itself."*
 - Optional: "it will grow into a gas giant" → "it **can** grow"; "Neither Mercury **nor** the Moon".

@@ -277,7 +277,7 @@ export default {
       { obj: "L Brown Dwarf", label: "denser, not bigger" }, SCORE_ON] },
 
     // the split
-    { at: ["around brown dwarfs", "about brown dwarfs"], cam: G(9.85, 32.1),
+    { at: ["around the brown dwarfs", "around brown dwarfs", "about brown dwarfs"], cam: G(9.85, 32.1),
       hl: [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "brown dwarfs" }] },
     // travel up each branch: the stars to the right, the dead stars to the left
     { at: "veer to the right",
