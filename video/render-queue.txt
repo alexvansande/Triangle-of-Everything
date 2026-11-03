@@ -60,3 +60,4 @@ short-00-powers-of-ten
 # short-00-powers-of-ten changed: expand red CMB coverage again; source 2fb8c866
 # short-00-powers-of-ten changed: smooth central Lenia hero, static non-repeating background; source e54bb97c
 # short-00-powers-of-ten changed: red-first CMB shell, subdued opening filaments, common-crop full universe; source eb8b57ae
+# short-00-powers-of-ten changed: smaller CMB opening with caption clearance; source 8f4955f6
