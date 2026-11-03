@@ -68,3 +68,4 @@ short-00-powers-of-ten
 # short-00-powers-of-ten changed: baked terrain, Lenia, lighting and post effects; source 988e628c; full render.
 # short-00-powers-of-ten changed: fit Retina canvas to preview frame; source 08b8c6a3
 # short-00-powers-of-ten changed: CMB opacity red 60% to blue 20%; source ebd9bfa9
+# short-00-powers-of-ten changed: quick comet, Neptune and Moon close flybys; source 64bb2e29
