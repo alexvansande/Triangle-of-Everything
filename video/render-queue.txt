@@ -60,3 +60,4 @@ short-00-powers-of-ten
 # short-00-powers-of-ten: source 3387e25 adds 42 actual Life-library creatures across six overlapping depth populations; full render.
 
 # short-00-powers-of-ten changed: 176 Gly opening, gentle calibrated intro orbit; source 39d935c3
+# short-00-powers-of-ten source includes shaded CMB catalog PNG and isolated narrated 3D icon: 574bc4d8
