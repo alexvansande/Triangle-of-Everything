@@ -108,10 +108,10 @@ async function renderRange(t0, t1, file, label) {
   await page.evaluate("window.__vclock.freeze()");
   for (let t = tw; t < t0 - 1e-6; t += 1 / FPS) await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
   await page.evaluate(`window.__narr.renderAt(${t0})`);
-  const clip = await page.evaluate((id) => {
+  const clip = await page.evaluate((id, ownPage) => {
     const r = document.getElementById(id).getBoundingClientRect();
-    return { x: r.x, y: r.y, width: r.width, height: r.height, scale: meta.renderPage ? devicePixelRatio : 1 };
-  }, meta.renderClip || "narr-layer");
+    return { x: r.x, y: r.y, width: r.width, height: r.height, scale: ownPage ? devicePixelRatio : 1 };
+  }, meta.renderClip || "narr-layer", !!meta.renderPage);
   // The captures' own session needs the 2.5× screen too: without it the page's devicePixelRatio fell
   // to 1 at the first capture, and every frame after drew its canvases (the live stars, the fractal,
   // the Hopf and Laniakea pictures) and picked its pictures' files for a 768×432 screen, stretched
