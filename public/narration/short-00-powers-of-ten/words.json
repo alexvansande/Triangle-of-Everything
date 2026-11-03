@@ -1,13 +1,15 @@
 {
   "title": "From the CMB to the Planck scale",
-  "blurb": "Two-minute continuous zoom \u00b7 motion blur \u00b7 silent narration workprint \u00b7 rendered video only.",
-  "duration": 120,
+  "blurb": "Three-minute vertical zoom \u00b7 10-second rotating CMB opening \u00b7 eased acceleration and landing \u00b7 motion blur \u00b7 rendered video only.",
+  "duration": 180,
   "credits": 0,
   "words": [],
   "audio": null,
   "renderOnly": true,
   "renderPage": "/tools/powers-of-ten.html?canopytest=1&renderZoom=1&ui=0&roll=0&crossings=0&grid=1&labels=1&stage=9x16",
   "renderClip": "stage",
-  "renderSource": "/private/tmp/powers-of-ten-publish-20261030",
-  "renderSourceRevision": "025c1c848dbb09c8cc1d9193967a26c6f1d7ab5f"
+  "renderSource": "/Users/avsa/Dev/Triangle",
+  "renderSourceRevision": "15564856048c2c9f6aa74cd397c5b5abc83ea333",
+  "finalMasterPlanckLengths": 30,
+  "finalVerticalWidthPlanckLengths": 16.875
 }
