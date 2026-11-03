@@ -13,8 +13,9 @@ const smooth=x=>{x=clamp(x);return x*x*(3-2*x)};
 export const VIDEO_START_SCALE=Math.log10(2*46e9*9.4607e15/.42);
 const START_SCALE=VIDEO_START_SCALE;
 const KEYS=[
- [0,START_SCALE],[11.83,26.8],  // the CMB, barely moving
- [26.92,26.45],                 // the cosmic event horizon
+ [0,START_SCALE],[11.83,27.05], // the CMB, whole, barely moving
+ [27.3,26.9],                   // the cosmic event horizon, whole (the author, 2026-11-03: it had left the frame)
+ [31,26.78],                    // ... still in view to the end of its sentence
  [39.38,24.7],                  // superclusters
  [44.54,24.35],                 // Laniakea
  [53.58,23.1],                  // the Local Group
@@ -31,8 +32,9 @@ const KEYS=[
  [85.17,4.95],                  // the Sierra Nevada
  [87,3.55],                     // the sequoias
  [90.31,1.8],                   // the General Sherman
- [95.13,-2.1],                  // the ladybug
- [97.43,-2.9],                  // a drop of dew
+ [95.25,-1.9],                  // the ladybug, whole (we were already in the drop)
+ [96.8,-2.25],                  // ... drinking
+ [97.69,-2.9],                  // a drop of dew
  [102.3,-4.0],                  // the amoeba, a single cell
  [103.58,-4.8],                 // its nucleus, the DNA
  [109.64,-7.3],                 // the double helix
@@ -42,7 +44,10 @@ const KEYS=[
  [134.93,-18.5],                // the quarks
  [139.76,-22],                  // the rules
  [146.92,-27],                  // the grey terrain
- [157.39,VIDEO_END_SCALE],      // the Planck grid, then held to the end
+ [159.3,-30.3],                 // the Planck length named: still terrain
+ [167,-31.2],                   // "maybe, deep down": the Life colours come through
+ [169.2,-32.8],                 // 100 Planck lengths across: the gliders start
+ [172,VIDEO_END_SCALE],         // the Planck grid, then held to the end
 ];
 // Fritsch-Carlson slopes: no overshoot, so the zoom never backs up
 const SLOPES=(()=>{
