@@ -82,6 +82,7 @@
   "tools/powers-of-ten/main.js",
   "tools/powers-of-ten/math.js",
   "tools/powers-of-ten/planck-terrain.js",
+  "tools/powers-of-ten/planetary-flybys.js",
   "tools/powers-of-ten/plates.js",
   "tools/powers-of-ten/quantum-terrain.js",
   "tools/powers-of-ten/scale-overlay.js",

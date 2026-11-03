@@ -1,3 +1,4 @@
+import {planetaryFlybys} from './planetary-flybys.js';
 import {collectLabels,labelFrame} from './label-layout.js';
 import {zoomProgress,openingOrbit,VIDEO_END_SCALE} from './zoom-timeline.js';
 import {cosmicOrbit} from './cosmic-motion.js';
@@ -55,7 +56,7 @@ const photos = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/
 const CLOUD_HEIGHT = 8000;
 const clouds = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/clouds/", 0.3, { hides: false, single: true, height: CLOUD_HEIGHT, fadeOutAt: PHOTOS_OUT });
 // biggest first, so smaller things paint over what holds them; what we cross, nearest the camera, last
-const layers = [...space, ...macro.layers, ...small.reverse(), crossingsLayer(q.get("crossings") !== "0")];
+const layers = [...space, ...macro.layers, ...small.reverse(), crossingsLayer(q.get("crossings") !== "0"), planetaryFlybys()];
 // the whole picture rolls round the line of sight at the same rate at every scale,
 // a little over one turn from the Planck length to the CMB: we fall down a spiral
 // (?roll=0: none, for exporting frames north up)
