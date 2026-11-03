@@ -234,3 +234,15 @@ accretion runs away, and "can" covers the ones that miss the gas (the disc is go
 temperature too, but the line doesn't claim otherwise). Captions corrected: "too" → "do", "gold-block" →
 "Goldilocks", "hold them to" → "hold on to", "on the water" → "than water", "strip" → "strips", "brown dwarf" →
 "brown dwarfs".
+
+### Later the same evening
+- **The take is kept in git** (`rec53.flac`, mono, lossless, force-added past `.gitignore`'s `*.flac`): it was
+  uploaded to the chat, not to the Drive, and the author asked for it to be saved separately.
+- **Words:** the take's words before the new part (up to 3:03 of video 2's source) are the Mac session's, as
+  they were (its caption fixes, and the timing the last render used); the new take's from there on.
+- **Render:** the new part only changes the timing from its start, so the nightly keeps the last render's
+  frames up to there and renders the rest (`scripts/narration-render-diff.mjs` now says `tail`;
+  `narration-render-partial.py --tail`). Long video 1: re-renders from 4:12 (the 1–0 scoreboard is at 4:14),
+  30% of it; Short 2a: only its sound swapped; Short 2b: whole (the change is 20 s in).
+- **The 1 × 0 scoreboard** (the author: "a 1x0 scoreboard the first time we mention gravity winning"): from
+  "gravity takes over" to "And it shapes them…", high on the screen, clear of the regions' names.

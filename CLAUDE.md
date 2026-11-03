@@ -35,7 +35,10 @@
   Either way the render first diffs the take against the commit of its last render
   (`scripts/narration-render-diff.mjs`, the author's rule, 2026-10-29): only notes changed keeps the
   render, only the sound swaps the audio track, changed cues re-render their stretches, and a
-  changed timing renders it whole. A change to shared code or pictures (`src/` outside the scenes,
+  changed timing renders it whole, unless it only changes from some point on (a re-recorded end): then the
+  render keeps the old frames up to there and renders the rest (`narration-render-partial.py --tail`; the
+  author, 2026-11-03). To make that work, keep the unchanged part's audio and `words.json` words exactly as
+  they were (splice the new words in from the new take's start; don't re-transcribe the whole take). A change to shared code or pictures (`src/` outside the scenes,
   `content/`, the photos) since a take's render makes it render whole even unqueued, unless a queue
   note pins it to stretches (the author, 2026-10-30: "if something changes on the video and you can't
   tell exactly when you have to re-render all of it"). So if your shared change shows in only some

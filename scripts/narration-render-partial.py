@@ -13,6 +13,12 @@ the old render's frames; the audio is the take's own (mix if it has one), whole.
 Only safe when the audio and timing are unchanged since the old render: the caller checks the
 audio's last commit is older than the render, and this script refuses (exit 2) if the old
 render's length doesn't match the take's, so the nightly falls back to a full render.
+
+--tail: the timing changed, but only from the last range's start on (a re-recorded end;
+scripts/narration-render-diff.mjs says so with "tail": true and a last range "m:ss-end"). The old
+render's frames are kept up to there, the rest is rendered to the take's new end, and the new audio
+goes under the whole (the author, 2026-11-03: "replace just the audio… we don't need to re-render all
+again"). The length check is skipped; the old render only has to reach the tail's start.
 """
 import json, os, re, subprocess, sys, tempfile
 
@@ -23,12 +29,15 @@ def opt(k, d=None):
     return a[a.index("--" + k) + 1] if "--" + k in a else d
 
 take, spec = sys.argv[1], sys.argv[2]
+TAIL = "--tail" in sys.argv
 old, out = opt("old"), opt("out")
 meta = json.load(open(f"public/narration/{take}/words.json"))
 total = meta["duration"] + (meta.get("credits") or 0)
 
 def secs(x):
     x = x.strip()
+    if x == "end":
+        return total
     m = re.fullmatch(r"(\d+):(\d+(?:\.\d+)?)", x)
     return int(m.group(1)) * 60 + float(m.group(2)) if m else float(x)
 
@@ -52,7 +61,13 @@ if not merged:
 
 probe = lambda f: float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f],
                                        capture_output=True, text=True).stdout or 0)
-if abs(probe(old) - total) > 0.2:
+if TAIL:
+    if not merged or merged[-1][1] < round(total * FPS) - 1:
+        sys.exit("--tail needs a last range that runs to the end")
+    if probe(old) * FPS < merged[-1][0]:
+        print(f"old render is {probe(old):.2f} s, shorter than the tail's start: render it whole")
+        sys.exit(2)
+elif abs(probe(old) - total) > 0.2:
     print(f"old render is {probe(old):.2f} s, the take {total:.2f} s: the timing changed, render it whole")
     sys.exit(2)
 end_frame = round(total * FPS)

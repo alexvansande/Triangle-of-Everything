@@ -66,6 +66,9 @@ const ANIMALS = ["Venus", "Human", "Cow", "Hippopotamus", "Elephant", "Lion", "G
 // gravity 2, electromagnetism 0: a scoreboard in the middle of the screen, the names small over the big
 // scores (the author, 2026-11-03: the three-line "Gravity 2 / Electro- / magnetism 0" read oddly)
 const SCORE = { score: [["Gravity", 2], ["Electromagnetism", 0]] };
+// gravity's first win, the round worlds: 1 × 0 (the author, 2026-11-03), high up, clear of the regions' names
+// ("gravity dominates" sits in the middle of the top half)
+const SCORE1 = { score: [["Gravity", 1], ["Electromagnetism", 0]], y: 0.12 };
 const SCORE_ON = { ...SCORE, instant: true };
 const drawn = (list) => list.map(h => h.arrow ? { ...h, draw: 0.01 } : { ...h, instant: true, delay: 0 });
 
@@ -238,8 +241,8 @@ export default {
     // the line between them: the last lumpy asteroid (Vesta) and the first round one (Ceres).
     // Icy moons round up lighter (ice is softer than rock): Mimas is round below it, so it's left out here
     { at: "chemical bonds", cam: { r: 7.45, m: 23.62, span: PAN, glide: true }, hl: [BONDS, { obj: "Hyperion", place: "left", label: false }, { obj: "Vesta", label: "Vesta · lumpy" }] },
-    { at: "gravity takes over", cam: { r: 7.6, m: 23.72, span: PAN, glide: true }, hl: [BONDS, GRAVITY, { obj: "Vesta", label: "Vesta · lumpy" }, { obj: "Ceres", label: "Ceres · round", delay: 0.3 }] },
-    { at: "shapes planets", cam: G(7.8, 23.95), hl: [BONDS, GRAVITY, { obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
+    { at: "gravity takes over", cam: { r: 7.6, m: 23.72, span: PAN, glide: true }, hl: [SCORE1, BONDS, GRAVITY, { obj: "Vesta", label: "Vesta · lumpy" }, { obj: "Ceres", label: "Ceres · round", delay: 0.3 }] },
+    { at: "shapes planets", cam: G(7.8, 23.95), hl: [{ ...SCORE1, instant: true }, BONDS, GRAVITY, { obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
 
     // atmospheres
     { at: ["mercury or the moon", "mercury nor the moon"], cam: G(8.35, 26.1), hl: [{ obj: "Moon", label: "Moon · none", place: "left" }, { obj: "Mercury", label: "Mercury · none", place: "left" }] },
