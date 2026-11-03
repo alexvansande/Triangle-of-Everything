@@ -86,14 +86,17 @@ for i, (a, b) in enumerate(merged):
     subprocess.run(cmd, check=True)
     segs.append(seg)
 
-# old frames between the ranges, the new segments in them, then the take's audio, whole
+# old frames between the ranges, the new segments in them (at the old render's size, so a web encode or a
+# render at another size still joins), then the take's audio, whole
+W, H = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v", "-show_entries", "stream=width,height", "-of", "csv=p=0", old],
+                      capture_output=True, text=True).stdout.strip().split(",")[:2]
 inputs, chains, labels = ["-i", old], [], []
 cur = 0
 for i, (a, b) in enumerate(merged):
     if a > cur:
-        chains.append(f"[0:v]trim=start_frame={cur}:end_frame={a},setpts=PTS-STARTPTS[o{i}]"); labels.append(f"[o{i}]")
+        chains.append(f"[0:v]trim=start_frame={cur}:end_frame={a},setpts=PTS-STARTPTS,setsar=1[o{i}]"); labels.append(f"[o{i}]")
     inputs += ["-i", segs[i]]
-    chains.append(f"[{i + 1}:v]trim=end_frame={b - a},setpts=PTS-STARTPTS[s{i}]"); labels.append(f"[s{i}]")
+    chains.append(f"[{i + 1}:v]trim=end_frame={b - a},setpts=PTS-STARTPTS,scale={W}:{H},setsar=1[s{i}]"); labels.append(f"[s{i}]")
     cur = b
 if cur < end_frame:
     chains.append(f"[0:v]trim=start_frame={cur}:end_frame={end_frame},setpts=PTS-STARTPTS[otail]"); labels.append("[otail]")
