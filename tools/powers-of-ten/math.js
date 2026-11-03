@@ -40,6 +40,7 @@ const EQ2GAL = [
   [-0.8676661490, -0.1980763734, 0.4559837762],
 ];
 export const eqToGal = (v) => EQ2GAL.map((row) => dot(row, v));
+export const galToEq = (v) => [0, 1, 2].map((i) => EQ2GAL[0][i] * v[0] + EQ2GAL[1][i] * v[1] + EQ2GAL[2][i] * v[2]);
 const EPS = 23.4392911 * D;
 // ecliptic (x → equinox, z → ecliptic pole) → equatorial
 export const eclToEq = ([x, y, z]) => [x, y * Math.cos(EPS) - z * Math.sin(EPS), y * Math.sin(EPS) + z * Math.cos(EPS)];
@@ -52,9 +53,10 @@ export const GAL_POLE = [0, 0, 1];
 // ---------- the moment (2026-10-29 20:00 UTC, early afternoon at the tree) ----------
 export const JD = 2461343.3333;
 const d2000 = JD - 2451545.0;
-export const SITE = { lat: 36.5816, lon: -118.7511 }; // the General Sherman tree, Sequoia National Park
+export const SITE = { lat: 36.5816453, lon: -118.751443 }; // the General Sherman tree, Sequoia National Park (OpenStreetMap node 313753662)
 const gmst = (280.46061837 + 360.98564736629 * d2000) * D;
 const lst = gmst + SITE.lon * D, phi = SITE.lat * D;
+export const GMST = gmst; // the Earth's turn at the moment, for its globe
 export const UP = eqToGal([Math.cos(phi) * Math.cos(lst), Math.cos(phi) * Math.sin(lst), Math.sin(phi)]);
 export const NORTH = eqToGal([-Math.sin(phi) * Math.cos(lst), -Math.sin(phi) * Math.sin(lst), Math.cos(phi)]);
 
@@ -109,18 +111,42 @@ function slerp(a, b, t) {
   return a.map((v, i) => (Math.sin((1 - t) * th) * v + Math.sin(t * th) * b[i]) / s);
 }
 
-// looking straight down on the tree (north up) → down on the ecliptic → on the
-// Galaxy → on the supergalactic plane, the galactic pole up, as the spectrum Cloud has it
+// v turned by ang (radians) about the unit axis k (right-handed)
+const rotAbout = (v, k, ang) => add(add(mul(v, Math.cos(ang)), mul(cross(k, v), Math.sin(ang))), mul(k, dot(k, v) * (1 - Math.cos(ang))));
+// leaving Earth: we fly out on the side away from the Sun, 30° off the Sun–Earth
+// line and 6° above the ecliptic, looking back, so the Sun is in the background and
+// we cross the outer planets' orbits almost edge-on (space.js puts the Moon and the
+// planets beside this path, for the fly-bys)
+const AWAY = rotAbout(norm(sub(EARTH_C, SUN)), ECL_POLE, 30 * D);
+export const EDGE = basis(norm(add(mul(AWAY, Math.cos(6 * D)), mul(ECL_POLE, Math.sin(6 * D)))), ECL_POLE);
+// looking straight down on the tree (north up) → swinging round the Earth to the
+// edge-on view, the Sun behind → on the Galaxy (60° from the ecliptic) → on the
+// supergalactic plane, the galactic pole up, as the spectrum Cloud has it
 const K0 = basis(UP, NORTH);
-const K1 = basis(ECL_POLE, K0.u);
-const K2 = basis(GAL_POLE, K1.u);
+const K2 = basis(GAL_POLE, EDGE.u);
 const K3 = basis(SG_POLE, GAL_POLE);
-const KEYS = [[7.6, K0], [9.6, K1], [15.0, K1], [16.8, K2], [22.6, K2], [24.2, K3]].map(([s, k]) => [s, toQuat(k)]);
-export function cameraAt(s) {
-  if (s <= KEYS[0][0]) return fromQuat(KEYS[0][1]);
-  for (let i = 1; i < KEYS.length; i++) {
-    if (s <= KEYS[i][0]) return fromQuat(slerp(KEYS[i - 1][1], KEYS[i][1], ramp(s, KEYS[i - 1][0], KEYS[i][0])));
-  }
-  return fromQuat(KEYS[KEYS.length - 1][1]);
+// Keep the interior sky in view through both angular handoffs; tilt to the
+// galactic pole only after the galaxy dots have completely replaced the image.
+// One shared flowing orientation path: the required Earth and galactic
+// approaches remain anchors, with a gentle planetary arc between them.
+const planetary={r:rotAbout(EDGE.r,EDGE.u,6*D),u:EDGE.u,n:rotAbout(EDGE.n,EDGE.u,6*D)};
+const KEYS = [[6.4,K0],[10.1,EDGE],[13.5,planetary],[19.2,EDGE],[22.1,K2],[25.2,K3],[27.1,K3]].map(([s,k])=>[s,toQuat(k)]);
+for(let i=1;i<KEYS.length;i++)if(KEYS[i][1].reduce((v,x,j)=>v+x*KEYS[i-1][1][j],0)<0)KEYS[i][1]=KEYS[i][1].map(v=>-v);
+// the camera is in perspective (50° across the frame's shorter side) from the Earth
+// to the Oort cloud, so what's near it is bigger and passes by; flat before and
+// after. 0…1: how much
+export const perspAt = (s) => win(s, 7.9, 8.5, 14.4, 15.6);
+// Normalised cubic quaternion interpolation gives a continuous angular
+// velocity through anchors, without stop/start ramps or catch-up spins.
+export function cameraAt(s){return keyed(s);}
+function keyed(s){
+ if(s<=KEYS[0][0])return fromQuat(KEYS[0][1]);
+ if(s>=KEYS.at(-1)[0])return fromQuat(KEYS.at(-1)[1]);
+ const tangent=i=>{if(i===0||i===KEYS.length-1)return [0,0,0,0];return KEYS[i+1][1].map((v,j)=>(v-KEYS[i-1][1][j])/(KEYS[i+1][0]-KEYS[i-1][0]));};
+ for(let i=1;i<KEYS.length;i++)if(s<=KEYS[i][0]){
+  const [sa,a]=KEYS[i-1],[sb,b]=KEYS[i],dt=sb-sa,t=(s-sa)/dt,m=tangent(i-1),n=tangent(i),t2=t*t,t3=t2*t;
+  const q=a.map((v,j)=>(2*t3-3*t2+1)*v+(t3-2*t2+t)*dt*m[j]+(-2*t3+3*t2)*b[j]+(t3-t2)*dt*n[j]);
+  const length=Math.hypot(...q);return fromQuat(q.map(v=>v/length));
+ }
 }
 export const FINAL_VIEW = K3;

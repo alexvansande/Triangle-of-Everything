@@ -17,13 +17,13 @@ import { catalogueInsects } from './canopy-insects.js';
 //   ?s=  ?grid=0  ?labels=0  ?ui=0  ?stage=9x16|16x9|1x1  ?plates=1 (use video/powers-of-ten/plates/)  ?photos=0 (leave out the real photos, tree to globe)  ?crossings=0  ?roll=0
 import { ramp, clamp, LY, AU, cameraAt, perspAt } from "./math.js";
 import { smallLayers } from "./small.js";
-import { microLayers } from "./micro.js";
-import { macroLayers } from "./macro.js";
+import {earthScene} from "./earth-scene.js";
 import { spaceLayers } from "./space.js";
 import { platesLayer } from "./plates.js";
 import { crossingsLayer } from "./crossings.js";
 
-const canopyTest = new URLSearchParams(location.search).has('canopytest');
+const canopyTest = true;
+const reviewMode = new URLSearchParams(location.search).has('canopytest');
 const insects=canopyTest?catalogueInsects():null,optics=canopyTest?canopyOptics():null,depth=canopyTest?canopyDepth():null,crown=canopyTest?canopyCrownDepth():null,microscope=canopyTest?canopyMicro():null;
 const S_MIN = Math.log10(1.616255e-35*3), S_MAX = Math.log10(2 * 46e9 * LY / .42);
 window.canopyTest = {enabled:true,minimum:S_MIN,photoMinimum:-8.260667536990012,maximum:S_MAX};
@@ -36,16 +36,13 @@ const state = {
 if (q.get("ui") === "0") document.body.classList.add("bare");
 
 const stage = document.getElementById("stage"), canvas = document.getElementById("view"), ctx = canvas.getContext("2d");
-const frame = document.getElementById("cloud");
-frame.style.display="none";frame.src="about:blank";
 const cmb=cmbSphere();
 
 const small = await smallLayers();
-const micro = microLayers();
-const macro = macroLayers();
+const macro = earthScene();
 const space = spaceLayers(macro.globe);
 const rawPlates = await platesLayer(canopyTest || q.get('plates') === '1', canopyTest ? '/video/powers-of-ten/generated/canopy-test/plates/' : '/video/powers-of-ten/plates/', 0.4, {square:canopyTest,floor:canopyTest?-9.25:undefined});
-const plates={covers:s=>(!canopyTest||window.canopyTest.enabled)?rawPlates.covers(s):new Set(),draw:cam=>{if(!canopyTest||window.canopyTest.enabled)rawPlates.draw(cam)}};
+const plates={draw:cam=>{if(window.canopyTest.enabled)rawPlates.draw(cam)}};
 // the real photographs from the tree's crown to the globe, on unless ?photos=0; they
 // give way to the turning 3D globe (the same map, macro.js) as the camera starts to
 // swing round the Earth, once the satellite clouds are in view (10^6.4 m)
@@ -58,7 +55,7 @@ const photos = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/
 const CLOUD_HEIGHT = 8000;
 const clouds = await platesLayer(q.get("photos") !== "0", "/video/powers-of-ten/photos/clouds/", 0.3, { hides: false, single: true, height: CLOUD_HEIGHT, fadeOutAt: PHOTOS_OUT });
 // biggest first, so smaller things paint over what holds them; what we cross, nearest the camera, last
-const layers = [...space, ...macro.layers, ...micro, ...small.reverse(), crossingsLayer(q.get("crossings") !== "0")];
+const layers = [...space, ...macro.layers, ...small.reverse(), crossingsLayer(q.get("crossings") !== "0")];
 // the whole picture rolls round the line of sight at the same rate at every scale,
 // a little over one turn from the Planck length to the CMB: we fall down a spiral
 // (?roll=0: none, for exporting frames north up)
@@ -145,9 +142,8 @@ function render(t) {
   ctx.setTransform(rc, rs, -rs, rc, W / 2 - rc * cx + rs * cy, H / 2 - rs * cx - rc * cy);
   cmb.draw(ctx,Dg,cloudView,basis);
   cam.cmbView=cloudView;
-  const hide = new Set([...plates.covers(s), ...photos.covers(s)]);
   for (const L of layers) {
-    if (s >= L.range[0] && s <= L.range[1] && !hide.has(L.name)) {
+    if (s >= L.range[0] && s <= L.range[1]) {
       ctx.save();
       try { L.draw(cam); } catch (e) { console.error(L.name, e); }
       ctx.restore();
@@ -265,4 +261,4 @@ if(q.has('renderZoom')) {
     settle(seconds) { this.renderAt(seconds); },
     pending() { return (window.__zoomPending || 0)+small.filter(layer=>layer.pending?.()).length; },
   };
-} else if(canopyTest) (await import('./canopy-test.js')).mountCanopyTest();
+} else if(reviewMode) (await import('./canopy-test.js')).mountCanopyTest();

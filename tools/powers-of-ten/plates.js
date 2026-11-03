@@ -8,7 +8,6 @@
 // centre. With ?plates=1 they're nested, smallest on top, edges feathered, and
 // the drawn layers they replace are hidden.
 // the drawn layers the image pass stands in for (DNA up to the Earth)
-const BAKED = ["DNA", "chromatin", "veil", "nucleus", "cytoplasm", "amoeba", "drop", "drop shine", "ladybug", "foliage", "crown", "grove", "ground", "forest", "sierra"];
 
 // fadeOut: how many decades past the biggest plate they take to fade. Plates load
 // when the zoom comes near their scale and are let go when it's far from it, so only
@@ -21,7 +20,7 @@ const BAKED = ["DNA", "chromatin", "veil", "nucleus", "cytoplasm", "amoeba", "dr
 // climbs past it, then big and close, settling onto the ground as it climbs on)
 export async function platesLayer(enabled, DIR = "/video/powers-of-ten/plates/", fadeOut = 0.4, opts = {}) {
   const { hides = true, single = false, fadeIn = null, height = 0, fadeOutAt = null } = opts;
-  const none = { covers: () => new Set(), draw() {} };
+  const none = { draw() {} };
   if (!enabled) return none;
   let list;
   try { list = (await (await fetch(DIR + "manifest.json")).json()).plates; } catch { return none; }
@@ -36,9 +35,8 @@ export async function platesLayer(enabled, DIR = "/video/powers-of-ten/plates/",
     img.onerror = () => { p.loading = false; window.__zoomPending=Math.max(0,(window.__zoomPending||1)-1); };
     img.src = p.src;
   };
-  const lo = opts.floor ?? (opts.extendLow ? 0 : plates[plates.length - 1].s), hi = plates[0].s, all = new Set(BAKED);
+  const lo = opts.floor ?? (opts.extendLow ? 0 : plates[plates.length - 1].s), hi = plates[0].s;
   return {
-    covers: (s) => (hides && s > lo - 0.4 && s < hi + 0.4 ? all : new Set()),
     draw(cam) {
       for (const p of plates) {
         const side = 10 ** p.s * cam.k;

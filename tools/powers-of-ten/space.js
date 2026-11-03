@@ -1,34 +1,45 @@
+import {cosmicWeb} from './cosmic-web.js';
+import {extragalacticLayer} from './extragalactic.js';
+import {galaxyHandoff} from './galaxy-handoff.js';
+import {distanceLabel} from "./distance-labels.js";
 // tools/powers-of-ten/space.js — the code-drawn top of the zoom, one 3D scene
 // seen straight on (orthographic) by a camera that turns from looking down on
 // the tree, to the ecliptic, to the Galaxy, to the supergalactic plane:
-// the Moon's orbit, the planets (positions for 2026-10-29), the Kuiper belt,
+// the Moon's orbit and true-size planets (positions for2026-10-29), Kuiper belt,
 // the Oort cloud (a model: it's never been seen), the stars (Hipparcos and
 // Gaia, tools/sky-points), the Milky Way (a picture for now), the Local Group,
 // and the galaxies around us (2MRS) coloured by which great attractor they
 // flow towards — a rough Laniakea, from a few point masses, not Cosmicflows.
 import {
   ramp, win, rng, gauss, add, sub, mul, dot, lb, AU, LY, KPC, MPC, R_EARTH,
-  PLANETS, SUN, EARTH_C, MOON, eclAxes, eclToGal,
+  cameraAt, PLANETS, SUN, EARTH_C, MOON, eclAxes, eclToGal, EDGE, ECL_POLE, cross, norm,
 } from "./math.js";
-import { image } from "./micro.js";
+import { image } from "./image.js";
 
 const icon = (name) => image(`/content/icons/${name}.webp`);
 const ready = (img) => img.complete && img.naturalWidth > 0;
 
 export function spaceLayers(globe) {
+  const outerWeb=cosmicWeb();
   const imgs = Object.fromEntries(["moon", "sun", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "milky-way", "andromeda-m31", "triangulum-m33", "dwarf-galaxy"].map((n) => [n, icon(n)]));
   const ring = (cam, c, e1, e2, rad, style, width = 1) => {
     const ctx = cam.ctx;
     ctx.strokeStyle = style; ctx.lineWidth = width * cam.dpr;
     ctx.beginPath();
-    for (let i = 0; i <= 160; i++) {
-      const t = i / 160 * 2 * Math.PI, [x, y] = cam.proj(add(c, add(mul(e1, rad * Math.cos(t)), mul(e2, rad * Math.sin(t)))));
-      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    // more points in perspective, where the ring may pass close to the camera; a
+    // stretch behind the camera breaks the line
+    const N = cam.Dc === Infinity ? 160 : 720;
+    let pen = false;
+    for (let i = 0; i <= N; i++) {
+      const t = i / N * 2 * Math.PI, [x, y] = cam.proj(add(c, add(mul(e1, rad * Math.cos(t)), mul(e2, rad * Math.sin(t)))));
+      if (Number.isNaN(x) || Math.abs(x) > 1e6 || Math.abs(y) > 1e6) { pen = false; continue; }
+      pen ? ctx.lineTo(x, y) : ctx.moveTo(x, y); pen = true;
     }
     ctx.stroke();
   };
   const body = (cam, img, p, r, minPx, a, glow) => {
-    const [x, y] = cam.proj(p), rr = Math.max(minPx * cam.dpr, r * cam.k), ctx = cam.ctx;
+    const [x, y, sc] = cam.projS(p), rr = Math.max(minPx * cam.dpr, r * cam.k * sc), ctx = cam.ctx;
+    if (!sc) return [NaN, NaN, 0];
     if (x < -rr || x > cam.W + rr || y < -rr || y > cam.H + rr) return [x, y, rr];
     ctx.globalAlpha = a;
     if (glow) {
@@ -43,15 +54,106 @@ export function spaceLayers(globe) {
   };
 
   // ---------- Earth, the Moon and its orbit ----------
-  const earthMoon = {
-    name: "earth & moon", range: [7.5, 11.5],
+  // ---------- the sky behind: NASA's Deep Star Maps 2020 (1.7 billion stars from
+  // Hipparcos, Tycho-2 and Gaia DR2, with the Milky Way's glow; galactic, 4K, or 8K with
+  // ?sky=8k or ?hq=1), at infinity: it turns with the camera but doesn't zoom, so the
+  // solar system shows in front of it. A 50° view across the frame's shorter side; drawn
+  // once at the frame's resolution while the camera holds still, coarser while it turns ----------
+  const video = /[?&](spacequality=video|hq=1)(?:&|$)/.test(location.search);
+  const big = video || /[?&]sky=8k(?:&|$)/.test(location.search);
+  const skyImg = image(`/video/powers-of-ten/sky/sky-${big ? "8k" : "4k"}.jpg`);
+  let skyPx = null, skyCv = null, skyKey = "", lastKey = "";
+  const sky = {
+    name: "sky", range: [6.8, 17.2],
     draw(cam) {
-      const a = 1 - ramp(cam.s, 10.6, 11.2);
+      const a = 0.85 * win(cam.s, 6.9, 7.6, 16.0, 16.9);
       if (a <= 0.01) return;
-      const [x, y] = cam.proj(EARTH_C), rr = Math.max(1.5 * cam.dpr, R_EARTH * cam.k);
-      if (globe.ready) { const c = globe.render(R_EARTH * 1.02); cam.ctx.globalAlpha = a; cam.ctx.drawImage(c, x - rr * 1.02, y - rr * 1.02, rr * 2.04, rr * 2.04); cam.ctx.globalAlpha = 1; }
+      if (!skyPx) {
+        if (!ready(skyImg)) return;
+        const c = document.createElement("canvas"); c.width = skyImg.naturalWidth; c.height = skyImg.naturalHeight;
+        const g = c.getContext("2d"); g.drawImage(skyImg, 0, 0);
+        skyPx = { w: c.width, h: c.height, d: g.getImageData(0, 0, c.width, c.height).data };
+        skyCv = document.createElement("canvas");
+      }
+      const { r, u, n } = cam.cam, key = [...n, ...u].map((v) => v.toFixed(4)).join();
+      const still = key === lastKey; lastKey = key;
+      const cap = video ? 3840 : (still ? (big ? 2600 : 1800) : 720);
+      const factor = Math.min(1,cap / Math.max(cam.W,cam.H));
+      const GW = Math.max(1,Math.round(cam.W*factor)), GH = Math.max(1,Math.round(cam.H*factor));
+      const want = `${key}|${GW}|${GH}|${cam.W}|${cam.H}`;
+      if (want !== skyKey) {
+        skyKey = want;
+        skyCv.width = GW; skyCv.height = GH;
+        const sc = skyCv.getContext("2d"), out = sc.createImageData(GW, GH), o = out.data, { w, h, d } = skyPx;
+        const tangent = Math.tan(25 * Math.PI / 180), TX = tangent * cam.W / cam.min, TY = tangent * cam.H / cam.min;
+        for (let j = 0; j < GH; j++) for (let i = 0; i < GW; i++) {
+          const x = ((i + 0.5) / GW * 2 - 1) * TX, y = (1 - (j + 0.5) / GH * 2) * TY;
+          const vx = -n[0] + x * r[0] + y * u[0], vy = -n[1] + x * r[1] + y * u[1], vz = -n[2] + x * r[2] + y * u[2];
+          const l = Math.atan2(vy, vx), b = Math.asin(vz / Math.hypot(vx, vy, vz));
+          const U = (((0.5 - l / (2 * Math.PI)) % 1) + 1) % 1, V = 0.5 - b / Math.PI;
+          // Bilinear sampling, wrapping longitude at the sky-map seam.
+          const sx=U*w-.5, sy=Math.max(0,Math.min(h-1,V*h-.5));
+          const ix=Math.floor(sx), iy=Math.floor(sy), fx=sx-ix, fy=sy-iy;
+          const x0=(ix+w)%w,x1=(x0+1)%w,y1=Math.min(h-1,iy+1),k=4*(j*GW+i);
+          for(let channel=0;channel<3;channel++){
+            const top=d[4*(iy*w+x0)+channel]*(1-fx)+d[4*(iy*w+x1)+channel]*fx;
+            const bottom=d[4*(y1*w+x0)+channel]*(1-fx)+d[4*(y1*w+x1)+channel]*fx;
+            o[k+channel]=top*(1-fy)+bottom*fy;
+          }
+          o[k+3]=255;
+        }
+        sc.putImageData(out, 0, 0);
+      }
+      const ctx = cam.ctx;
+      ctx.globalAlpha = a; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(skyCv, 0, 0, cam.W, cam.H);
+      ctx.globalAlpha = 1;
+    },
+  };
+  // Planet and Moon geometry stays at its catalogue position and true radius.
+  // Orbit labels describe distance from the parent, never circumference.
+  function orbitLabel(cam,centre,e1,e2,radius,text,alpha){
+    const ratio=radius*cam.k/cam.min,visibility=ramp(ratio,.055,.15)*(1-ramp(ratio,.7,1.8));
+    if(alpha*visibility<.01)return;
+    let best=null;
+    const left=(cam.W-cam.screen.W)/2,top=(cam.H-cam.screen.H)/2;
+    for(let i=0;i<96;i++){
+      const t=i/96*Math.PI*2,[x,y]=cam.proj(add(centre,add(mul(e1,radius*Math.cos(t)),mul(e2,radius*Math.sin(t)))));
+      if(!Number.isFinite(x)||x<left+20*cam.dpr||x>left+cam.screen.W-20*cam.dpr||y<top+20*cam.dpr||y>top+cam.screen.H-20*cam.dpr)continue;
+      if(!best||y<best[1])best=[x,y];
+    }
+    if(best)cam.labelPx(best[0],best[1]-9*cam.dpr,text,alpha*visibility);
+  }
+  const SUN_DIR = norm(sub(SUN, EARTH_C));
+  const earthMoon = {
+    name: "earth & moon", range: [6.3, 12.0],
+    draw(cam) {
+      // in over the photos as the camera starts to turn (10^6.4 m), out past the Moon
+      const a = ramp(cam.s, 6.4, 6.85) * (1 - ramp(cam.s, 11.1, 11.9));
+      if (a <= 0.01) return;
+      const [x, y, sc] = cam.projS(EARTH_C), rr = Math.max(1.5 * cam.dpr, R_EARTH * cam.k * sc);
+      // the globe as the camera sees it, lit by the Sun (a little bigger than the
+      // ground's own picture, so it covers it as the two cross-fade)
+      if (sc) {
+        // only the part of the disc on the frame (close up it's many frames wide), at
+        // most 720 px a side live, 2,048 with ?hq=1
+        const X0 = Math.max(-1.02, -x / rr), X1 = Math.min(1.02, (cam.W - x) / rr), Y0 = Math.max(-1.02, (y - cam.H) / rr), Y1 = Math.min(1.02, y / rr);
+        if (X1 > X0 && Y1 > Y0) {
+          const cap = video ? 3840 : 1024, wpx = (X1 - X0) * rr, hpx = (Y1 - Y0) * rr, f = Math.min(1, cap / Math.max(wpx, hpx));
+          const c = globe.render3(cam.cam, SUN_DIR, Math.max(16, Math.round(wpx * f)), Math.max(16, Math.round(hpx * f)), [X0, Y0, X1, Y1]);
+          if (c) { cam.ctx.globalAlpha = a; cam.ctx.drawImage(c, x + X0 * rr, y - Y1 * rr, wpx, hpx); cam.ctx.globalAlpha = 1; }
+        }
+      }
+      if(sc){
+        const c=cam.ctx, tiny=1-ramp(rr/cam.dpr,2,7),radius=Math.max(2.2*cam.dpr,rr*1.12);
+        c.save();c.globalCompositeOperation='lighter';c.globalAlpha=a*ramp(cam.s,Math.log10(4e7),Math.log10(4e8));
+        const blue=c.createRadialGradient(x,y,Math.max(0,rr*.84*(1-tiny)),x,y,radius*1.65);
+        blue.addColorStop(0,`rgba(151,209,255,${.65*tiny})`);blue.addColorStop(.58,'rgba(100,175,255,.28)');blue.addColorStop(1,'rgba(65,130,255,0)');
+        c.fillStyle=blue;c.beginPath();c.arc(x,y,radius*1.65,0,Math.PI*2);c.fill();c.restore();
+      }
       ring(cam, EARTH_C, eclAxes.x, eclAxes.y, 3.844e8, `rgba(200,210,230,${0.5 * a * ramp(cam.s, 7.9, 8.4)})`);
-      const [mx, my] = body(cam, imgs.moon, MOON, 1.737e6, 1.2, a * ramp(cam.s, 7.8, 8.2));
+      orbitLabel(cam,EARTH_C,eclAxes.x,eclAxes.y,3.844e8,"Moon’s orbit · 384 thousand km from Earth",a);
+      const [mx, my] = body(cam, imgs.moon, MOON, 1.737e6, 1.2, a);
       cam.labelPx(x, y - rr - 10 * cam.dpr, "Earth", a * ramp(cam.s, 8.3, 8.6) * (1 - ramp(cam.s, 10.2, 10.6)));
       cam.labelPx(mx, my - 10 * cam.dpr, "the Moon", a * ramp(cam.s, 8.3, 8.6) * (1 - ramp(cam.s, 9.8, 10.2)));
     },
@@ -59,20 +161,32 @@ export function spaceLayers(globe) {
 
   // ---------- the Sun and the planets ----------
   const solar = {
-    name: "planets", range: [9, 16.5],
+    name: "planets", range: [8.5, 16.5],
     draw(cam) {
       const a = 1 - ramp(cam.s, 15.2, 16.0);
       if (a <= 0.01) return;
       for (const p of PLANETS) {
         const ra = p.a * cam.k;
-        if (ra < 3 || ra > 4 * cam.min) continue;
+        if (ra < 3) continue;
         const oa = a * ramp(ra, 3, 12) * (1 - ramp(ra, 1.5 * cam.min, 4 * cam.min));
-        ring(cam, SUN, eclAxes.x, eclAxes.y, p.a, `rgba(170,190,230,${0.45 * oa})`);
+        if (oa <= 0.01) continue;
+        const [e1, e2] = [eclAxes.x, eclAxes.y];
+        const marked=['Neptune','Jupiter','Mars'].includes(p.name);
+        ring(cam, SUN, e1, e2, p.a, `rgba(170,190,230,${(marked ? .65 : .2) * oa})`,marked?1.2:.6);
+        if(marked)orbitLabel(cam,SUN,e1,e2,p.a,`${p.name}’s orbit · ${distanceLabel(p.a)} from Sun`,oa);
         if (p.name === "Earth") continue;
-        const [x, y] = body(cam, imgs[p.name.toLowerCase()], add(SUN, p.pos), p.r, 1.4, oa);
-        cam.labelPx(x, y - 9 * cam.dpr, p.name, oa * ramp(ra, 30, 60));
+        const [x, y, rr] = body(cam, imgs[p.name.toLowerCase()], add(SUN, p.pos), p.r, 1.4, oa);
+        cam.labelPx(x, y - rr - 9 * cam.dpr, p.name, oa * ramp(ra, 30, 60) * (1 - ramp(rr, 0.25 * cam.min, 0.5 * cam.min)));
       }
-      const [x, y] = body(cam, imgs.sun, SUN, 6.96e8, 2.2, a * ramp(cam.s, 9.4, 9.9), "rgba(255,210,120,0.45)");
+      // the Sun, in the background: a soft halo round it, bigger the nearer it is
+      const [sx, sy, ssc] = cam.projS(SUN);
+      if (ssc) {
+        const ctx = cam.ctx, hr = Math.max(24 * cam.dpr, 55 * 6.96e8 * cam.k * ssc), sa = a * ramp(cam.s, 8.6, 9.2);
+        const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, hr);
+        g.addColorStop(0, `rgba(255,235,190,${1.0 * sa})`); g.addColorStop(0.15, `rgba(255,200,120,${0.7 * sa})`); g.addColorStop(1, "rgba(255,170,80,0)");
+        ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sx, sy, hr, 0, 7); ctx.fill(); ctx.globalCompositeOperation = "source-over";
+      }
+      const [x, y] = body(cam, imgs.sun, SUN, 6.96e8, 2.2, a * ramp(cam.s, 8.6, 9.2), "rgba(255,210,120,0.45)");
       cam.labelPx(x, y - 12 * cam.dpr, "the Sun", a * ramp(cam.s, 10.6, 11) * (1 - ramp(cam.s, 14.2, 14.6)));
     },
   };
@@ -89,13 +203,18 @@ export function spaceLayers(globe) {
     return out;
   })();
   const comets = {
-    name: "kuiper & oort", range: [12, 18.6],
+    name: "kuiper & oort", range: [12, 20],
     draw(cam) {
-      const ka = win(cam.s, 12.4, 13.0, 15.0, 15.6), oa = win(cam.s, 14.3, 15.0, 17.4, 18.2), ctx = cam.ctx, sz = 1.2 * cam.dpr;
+      // Retire only as each cloud actually collapses to an unresolved point.
+      const ka=ramp(cam.s,12.4,13)*ramp(50*AU*cam.k/cam.dpr,1,6);
+      const oa=ramp(cam.s,14.3,15)*ramp(1e5*AU*cam.k/cam.dpr,1,8);
+      const ctx=cam.ctx,sz=.95*cam.dpr;
       if (ka + oa <= 0.01) return;
-      ctx.fillStyle = "rgba(170,205,255,1)";
+      const warm=t=>`rgb(${170+85*t},${205+31*t},${255-65*t})`;
+      const kuiperColour=warm(1-ramp(50*AU*cam.k/cam.dpr,1,6)),oortColour=warm(1-ramp(1e5*AU*cam.k/cam.dpr,1,8));
       for (const c of icy) {
-        const al = c.kind ? oa * 0.55 : ka * 0.8;
+        const al = c.kind ? oa * .15 : ka * .24;
+        ctx.fillStyle=c.kind?oortColour:kuiperColour;
         if (al <= 0.01) continue;
         const [x, y] = cam.proj(c.p);
         if (x < 0 || x > cam.W || y < 0 || y > cam.H) continue;
@@ -106,12 +225,12 @@ export function spaceLayers(globe) {
       if (hp > 0.01) ring(cam, SUN, cam.cam.r, cam.cam.u, 120 * AU, `rgba(120,200,255,${0.35 * hp})`, 1.5);
       const [x, y] = cam.proj(SUN);
       cam.labelPx(x, y - 33 * AU * cam.k, "Kuiper belt", ka * ramp(cam.s, 13.2, 13.5) * (1 - ramp(cam.s, 14.4, 14.8)));
-      cam.labelPx(x, y - 3e4 * AU * cam.k, "Oort cloud (a model: never seen)", oa * ramp(cam.s, 15.6, 15.9) * (1 - ramp(cam.s, 16.9, 17.3)));
+      cam.labelPx(x, y - 3e4 * AU * cam.k, "Oort Cloud · distant spherical reservoir of icy bodies", oa * ramp(cam.s, 15.6, 15.9) * (1 - ramp(cam.s, 16.9, 17.3)));
     },
   };
 
   // ---------- stars: Hipparcos (nearest) and Gaia, tools/sky-points ----------
-  const stars = { name: "stars", range: [15.6, 22.6], data: null, draw(cam) { drawPoints(cam, this.data, win(cam.s, 15.9, 16.5, 21.6, 22.4), 1.3, 0.004); } };
+  const stars = {name:"stars",range:[6.8,22.6],data:null,draw(){}};
   const NAMED = [["Proxima Centauri", 313.94, -1.93, 4.24], ["Alpha Centauri", 315.73, -0.68, 4.37], ["Barnard's Star", 31.0, 14.1, 5.96], ["Sirius", 227.23, -8.89, 8.6], ["Vega", 67.45, 19.24, 25], ["Betelgeuse", 199.79, -8.96, 550], ["Deneb", 84.28, 1.99, 2600]];
   const named = {
     name: "named stars", range: [16, 21],
@@ -121,27 +240,26 @@ export function spaceLayers(globe) {
       for (const [n, l, b, d] of NAMED) {
         const pd = d * LY * cam.k;
         if (pd < 25 || pd > 0.6 * cam.min) continue;
-        const [x, y] = cam.proj(lb(l, b, d * LY));
+        const [x, y] = handoff.projectStar(cam,lb(l, b, d * LY));
         cam.labelPx(x, y - 8 * cam.dpr, n, a * ramp(pd, 25, 60) * (1 - ramp(pd, 0.4 * cam.min, 0.6 * cam.min)));
       }
     },
   };
 
-  // ---------- the Milky Way: a picture laid on the galactic plane (to replace) ----------
-  const GC = lb(0, 0, 8.2 * KPC), MW_SIDE = 34 * KPC;
+  // ---------- the Milky Way: a model in points (bar, bulge, four arms, the old disc), glowing ----------
+  const GC = lb(0, 0, 8.2 * KPC), MW = milkyWayModel(GC);
+  const neighbours=extragalacticLayer();
+  const handoff=galaxyHandoff(GC,neighbours.ready);
   const milkyWay = {
-    name: "milky way", range: [19.2, 25],
+    name: "milky way", range: [19.6, 25],
     draw(cam) {
-      const img = imgs["milky-way"], side = MW_SIDE * cam.k;
-      const a = ramp(cam.s, 19.6, 20.4) * (1 - ramp(cam.s, 24.4, 24.9));
-      if (a <= 0.01 || !ready(img)) return;
-      const o = cam.proj(sub(GC, [MW_SIDE / 2, MW_SIDE / 2, 0]));
-      const ex = sub(cam.proj(add(GC, [MW_SIDE / 2, -MW_SIDE / 2, 0])), o), ey = sub(cam.proj(add(GC, [-MW_SIDE / 2, MW_SIDE / 2, 0])), o);
-      const ctx = cam.ctx;
-      ctx.save(); ctx.globalAlpha = a * 0.95;
-      ctx.setTransform(ex[0] / img.naturalWidth, ex[1] / img.naturalWidth, ey[0] / img.naturalHeight, ey[1] / img.naturalHeight, o[0], o[1]);
-      ctx.drawImage(img, 0, 0); ctx.restore();
-      const [x, y] = cam.proj(GC);
+      let a = (1 - ramp(cam.s, 24.4, 24.9));
+      if (a <= 0.01) return;
+      if(!handoff.ready()){
+        // Retain the old model while the complete registered sky is loading.
+        withGlow(cam,.9,c=>drawModel(c,MW,a*ramp(cam.s,19.6,20.4)));
+      }
+      const side = 34 * KPC * cam.k, [x, y] = cam.proj(GC);
       cam.labelPx(x, y - 0.4 * side, "the Milky Way", a * ramp(cam.s, 20.5, 20.8) * (1 - ramp(cam.s, 22.2, 22.6)));
       const [sx, sy] = cam.proj([0, 0, 0]);
       cam.labelPx(sx, sy + 14 * cam.dpr, "the Sun is here", a * ramp(cam.s, 20.5, 20.8) * (1 - ramp(cam.s, 21.6, 22)));
@@ -164,12 +282,33 @@ export function spaceLayers(globe) {
     draw(cam) {
       const a = win(cam.s, 21.6, 22.3, 24.6, 25.2);
       if (a <= 0.01) return;
-      for (const g of LG) {
+      const centre=mul(LG[0].p,.5),[gx,gy,gs]=cam.projS(centre),radius=5e6*LY*cam.k*gs;
+      const marker=a*ramp(radius/cam.min,.06,.16)*(1-ramp(radius/cam.min,.55,.95));
+      if(gs&&marker>.01){cam.ctx.save();cam.ctx.globalAlpha=marker*.7;cam.ctx.lineWidth=cam.dpr;cam.ctx.strokeStyle='#b9d4eb';cam.ctx.setLineDash([5*cam.dpr,6*cam.dpr]);cam.ctx.beginPath();cam.ctx.arc(gx,gy,radius,0,Math.PI*2);cam.ctx.stroke();cam.ctx.restore();cam.labelPx(gx,gy-radius-12*cam.dpr,'Local Group of galaxies · ≈10 million light-years across',marker);}
+      for (const g of LG.slice(neighbours.ready()?4:0)) {
         const [x, y, rr] = body(cam, g.img, g.p, g.r, 1.2, a * 0.95);
         cam.labelPx(x, y - rr - 6 * cam.dpr, g.name, a * (g.big ? 1 : 0.6) * ramp(cam.s, 22.4, 22.7) * (1 - ramp(cam.s, g.big ? 23.8 : 22.8, g.big ? 24.2 : 23.0)));
       }
     },
   };
+
+  // Illustrative Local Group spiral flyby, using the existing M33 telescope
+  // photograph as a visual template; this placement is not a catalogue claim.
+  const flyBasis=cameraAt(22.45),flyPosition=add(mul(flyBasis.n,.55*MPC),add(mul(flyBasis.r,.055*MPC),mul(flyBasis.u,.022*MPC)));
+  const flyPhoto=image('/video/powers-of-ten/galaxies/m33-flyby.png');
+  const galaxyFlyby={name:'Local Group spiral flyby',range:[18,26],draw(cam){
+    if(!ready(flyPhoto))return;
+    // Use the same perspective distance as the live galactic clouds, even
+    // while the surrounding catalogue is orthographic. Enter geometrically
+    // through the frame border, rather than enabling an inset at a scale gate.
+    const dc=cam.F/(2*Math.tan(25*Math.PI/180)),den=dc-dot(flyPosition,cam.cam.n);if(den<=0)return;
+    const sc=dc/den,x=cam.cx+dot(flyPosition,cam.cam.r)*cam.k*sc,y=cam.cy-dot(flyPosition,cam.cam.u)*cam.k*sc;
+    const radius=.028*MPC*cam.k*sc,blur=28*cam.dpr*ramp(radius/cam.min,.025,.25),bounds=radius*1.35+3*blur;
+    if(radius<.25*cam.dpr||x+bounds<0||y+bounds<0||x-bounds>cam.W||y-bounds>cam.H)return;
+    const c=cam.ctx;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=ramp(radius/cam.dpr,.25,2);
+    c.filter=`blur(${blur}px)`;
+    c.translate(x,y);c.rotate(.5);c.drawImage(flyPhoto,-radius,-radius*.84,radius*2,radius*1.68);c.restore();
+  }};
 
   // ---------- galaxies (2MRS) and the flows: a rough Laniakea ----------
   const ATTRACTORS = [
@@ -179,14 +318,14 @@ export function spaceLayers(globe) {
     { name: "Coma", l: 58.1, b: 88.0, d: 100, m: 0.6, eps: 25, col: [120, 230, 160] },
     { name: "Hercules", l: 31.5, b: 44.5, d: 150, m: 0.5, eps: 30, col: [255, 130, 150] },
   ].map((A) => ({ ...A, p: lb(A.l, A.b, A.d) }));
-  const galaxies = { name: "galaxies", range: [22.6, 27.4], data: null, flows: [], draw(cam) { drawGalaxies(cam, this, win(cam.s, 23.0, 23.6, 26.1, 26.7)); } };
+  const galaxies = { name: "galaxies", range: [22.6, 27.4], data: null, flows: [], draw(cam) { const end=[Math.log10(11e9*LY),Math.log10(40e9*LY)];withGlow(cam, 0.7, (c) => drawGalaxies(c, this, win(cam.s, 23.0, 23.6, ...end))); } };
   const LABELS = [["Virgo cluster", 283.8, 74.5, 16.5], ["Laniakea", 325.3, -7.3, 68], ["Shapley", 311.5, 30.7, 200], ["Perseus–Pisces", 150.6, -13.3, 73], ["Coma", 58.1, 88, 100]];
   const groupLabels = {
-    name: "cluster names", range: [23.5, 26.5],
+    name: "cluster names", range: [23.5, 27.4],
     draw(cam) {
-      const a = win(cam.s, 24.0, 24.3, 25.7, 26.1);
+      const a = win(cam.s, 24.0, 24.3, Math.log10(11e9*LY), Math.log10(40e9*LY));
       if (a <= 0.01) return;
-      for (const [n, l, b, d] of LABELS) { const [x, y] = cam.proj(lb(l, b, d * MPC)); cam.labelPx(x, y, n, a * (n === "Virgo cluster" ? 1 - ramp(cam.s, 24.8, 25.1) : ramp(cam.s, 24.6, 24.9))); }
+      for (const [n, l, b, d] of LABELS) { const [x, y] = cam.proj(lb(l, b, d * MPC)); cam.labelPx(x, y, n, a * (n === "Virgo cluster" ? 1 : ramp(cam.s, 24.6, 24.9))); }
     },
   };
 
@@ -215,12 +354,14 @@ export function spaceLayers(globe) {
         return { n, pos, dist, col, kind };
       };
       stars.data = pick((t) => t <= 1);
+      handoff.setStars(stars.data,NAMED);
       galaxies.data = pick((t) => t === 2);
       basins(galaxies, ATTRACTORS);
+      web(galaxies);
     } catch (e) { console.warn("sky points unavailable:", e); }
   })();
 
-  return [earthMoon, solar, comets, stars, named, milkyWay, localGroup, galaxies, groupLabels];
+  return [{...handoff.background,draw(cam){if(handoff.ready())handoff.draw(cam);else sky.draw(cam);}}, milkyWay, neighbours, stars, earthMoon, solar, comets, named, localGroup, galaxyFlyby, galaxies, outerWeb, groupLabels];
 }
 
 // stars as points: the ones within a few frame-widths, at most ~30k a frame
@@ -269,31 +410,165 @@ function basins(g, ATT) {
   }
   g.basin = basin; g.att = ATT;
 }
+// the cosmic web: each galaxy linked to its nearest neighbours, up to a length
+// that grows with distance as the survey thins out (2MRS keeps only the brighter
+// galaxies far away), so filaments show as threads and lone galaxies stay faint.
+// Nothing is moved: positions are the catalogue's
+function web(g) {
+  const { n, pos, dist } = g.data, MPC_LY = MPC / LY, P = new Float32Array(3 * n);
+  for (let i = 0; i < 3 * n; i++) P[i] = pos[i] / MPC_LY;
+  // mean spacing at each distance, from the galaxies per shell (10 Mpc shells)
+  const SH = 10, shells = new Float32Array(60);
+  for (let j = 0; j < n; j++) shells[Math.min(59, (dist[j] / MPC_LY / SH) | 0)]++;
+  const spacing = Array.from(shells, (c, i) => Math.cbrt((4 / 3) * Math.PI * (((i + 1) * SH) ** 3 - (i * SH) ** 3) / Math.max(c, 1)));
+  const reach = (d) => Math.max(1.5, 0.55 * spacing[Math.min(59, (d / SH) | 0)]);
+  // a grid of 8 Mpc cells to find neighbours
+  const C = 8, cell = new Map(), key = (x, y, z) => `${x},${y},${z}`;
+  for (let j = 0; j < n; j++) {
+    const k = key(Math.floor(P[3 * j] / C), Math.floor(P[3 * j + 1] / C), Math.floor(P[3 * j + 2] / C));
+    (cell.get(k) ?? cell.set(k, []).get(k)).push(j);
+  }
+  const links = [], seen = new Set(), degree = new Uint8Array(n), K = 3;
+  for (let j = 0; j < n; j++) {
+    const x = P[3 * j], y = P[3 * j + 1], z = P[3 * j + 2], R = Math.min(reach(Math.hypot(x, y, z)), C);
+    const near = [];
+    const cx = Math.floor(x / C), cy = Math.floor(y / C), cz = Math.floor(z / C);
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = -1; c <= 1; c++) {
+      for (const i of cell.get(key(cx + a, cy + b, cz + c)) ?? []) {
+        if (i === j) continue;
+        const d = Math.hypot(P[3 * i] - x, P[3 * i + 1] - y, P[3 * i + 2] - z);
+        if (d < R) near.push([d, i]);
+      }
+    }
+    near.sort((p, q) => p[0] - q[0]);
+    for (const [, i] of near.slice(0, K)) {
+      const id = Math.min(i, j) * n + Math.max(i, j);
+      if (!seen.has(id)) { seen.add(id); links.push(j, i); }
+    }
+    degree[j] = Math.min(255, near.length);
+  }
+  g.links = Uint32Array.from(links); g.degree = degree;
+}
 function drawGalaxies(cam, g, a) {
   if (!g.data || !g.basin || a <= 0.01) return;
-  const { n, pos } = g.data, ctx = cam.ctx, { r, u, n: nv } = cam.cam, kl = cam.k * LY, F = cam.F / LY, s = 1.6 * cam.dpr;
+  const { pos } = g.data, ctx = cam.ctx, { r, u, n: nv } = cam.cam, kl = cam.k * LY, F = cam.F / LY, s = 1.6 * cam.dpr;
   const hi = lowerBound(g.data.dist, 2.5 * F);
+  // a slab ±0.18 frame widths deep, softly: the camera's swing shows the depth
+  const fade = (j) => { const t = (pos[3 * j] * nv[0] + pos[3 * j + 1] * nv[1] + pos[3 * j + 2] * nv[2]) / (0.18 * F); return Math.exp(-t * t); };
+  const X = (j) => cam.cx + kl * (pos[3 * j] * r[0] + pos[3 * j + 1] * r[1] + pos[3 * j + 2] * r[2]);
+  const Y = (j) => cam.cy - kl * (pos[3 * j] * u[0] + pos[3 * j + 1] * u[1] + pos[3 * j + 2] * u[2]);
+  ctx.globalCompositeOperation = "lighter";
+  // the threads, batched by basin and by four steps of depth fade
+  if (g.links) {
+    ctx.lineWidth = 1.1 * cam.dpr;
+    const paths = g.att.map(() => [new Path2D(), new Path2D(), new Path2D(), new Path2D()]);
+    const L = g.links;
+    for (let m = 0; m < L.length; m += 2) {
+      const i = L[m], j = L[m + 1];
+      if (i >= hi && j >= hi) continue;
+      const f = Math.min(fade(i), fade(j));
+      if (f < 0.08) continue;
+      const xi = X(i), yi = Y(i), xj = X(j), yj = Y(j);
+      if ((xi < 0 && xj < 0) || (xi > cam.W && xj > cam.W) || (yi < 0 && yj < 0) || (yi > cam.H && yj > cam.H)) continue;
+      const p = paths[g.basin[i]][Math.min(3, (f * 4) | 0)];
+      p.moveTo(xi, yi); p.lineTo(xj, yj);
+    }
+    paths.forEach((ps, b) => ps.forEach((p, q) => {
+      const c = g.att[b].col;
+      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${(a * 0.32 * (q + 0.5) / 4).toFixed(3)})`;
+      ctx.stroke(p);
+    }));
+  }
+  // the galaxies: bright where they have neighbours, faint alone
   for (let j = 0; j < hi; j++) {
-    const X = pos[3 * j], Y = pos[3 * j + 1], Z = pos[3 * j + 2];
-    const depth = (X * nv[0] + Y * nv[1] + Z * nv[2]) / (0.35 * F);
-    const da = Math.exp(-depth * depth);
-    if (da < 0.05) continue;
-    const x = cam.cx + kl * (X * r[0] + Y * r[1] + Z * r[2]), y = cam.cy - kl * (X * u[0] + Y * u[1] + Z * u[2]);
+    const f = fade(j);
+    if (f < 0.05) continue;
+    const x = X(j), y = Y(j);
     if (x < 0 || x > cam.W || y < 0 || y > cam.H) continue;
     const c = g.att[g.basin[j]].col;
     ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
-    ctx.globalAlpha = a * da * 0.85;
+    ctx.globalAlpha = a * f * (g.degree ? 0.2 + 0.2 * Math.min(4, g.degree[j]) : 0.85);
     ctx.fillRect(x - s / 2, y - s / 2, s, s);
   }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
   // flow lines, fading towards where they started
   const fa = a * ramp(cam.s, 24.2, 24.7);
   if (fa > 0.01) {
     ctx.lineWidth = 1 * cam.dpr;
     for (const f of g.flows) {
       const c = g.att[f.basin].col;
-      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.35 * fa})`;
+      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.07 * fa})`; // faint: the web is the picture
       ctx.beginPath(); f.path.forEach((p, i) => { const [x, y] = cam.proj(p); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
     }
   }
   ctx.globalAlpha = 1;
+}
+
+// a soft glow for a layer: drawn on its own canvas, then laid down with two blurred
+// copies of itself (a quarter and a sixteenth of the size, scaled back up)
+const glowBuf = {};
+function buf(name, w, h) {
+  const c = glowBuf[name] ??= document.createElement("canvas");
+  if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+  const ctx = c.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+  ctx.clearRect(0, 0, w, h);
+  return [c, ctx];
+}
+function withGlow(cam, strength, draw) {
+  const { W, H } = cam, [g, gctx] = buf("layer", W, H);
+  draw({ ...cam, ctx: gctx });
+  const w4 = Math.max(1, W >> 2), h4 = Math.max(1, H >> 2), w16 = Math.max(1, W >> 4), h16 = Math.max(1, H >> 4);
+  const [q, qctx] = buf("quarter", w4, h4), [e, ectx] = buf("sixteenth", w16, h16);
+  qctx.imageSmoothingQuality = ectx.imageSmoothingQuality = "high";
+  qctx.drawImage(g, 0, 0, w4, h4); ectx.drawImage(q, 0, 0, w16, h16);
+  const ctx = cam.ctx;
+  ctx.save(); // (in the frame's own turn: the buffers are drawn in its coordinates)
+  ctx.drawImage(g, 0, 0);
+  ctx.globalCompositeOperation = "lighter"; ctx.imageSmoothingQuality = "high";
+  ctx.globalAlpha = 0.7 * strength; ctx.drawImage(q, 0, 0, W, H);
+  ctx.globalAlpha = 0.9 * strength; ctx.drawImage(e, 0, 0, W, H);
+  ctx.restore();
+}
+
+// the Milky Way as ~55k points around the Galactic Centre gc (galactic Cartesian, m):
+// a bar 27° from the Sun–centre line with its near end at positive longitude, a
+// bulge, four log-spiral arms (12° pitch; trailing, as the Galaxy turns clockwise
+// seen from the north galactic pole) with the Sun between two of them, and the old
+// disc (scale length 2.6 kpc). Rough, for the look, not a map
+function milkyWayModel(gc) {
+  const r = rng(27), parts = [], tanP = Math.tan(12 * Math.PI / 180), BAR = 27 * Math.PI / 180;
+  const put = (x, y, z, col, w) => parts.push([gc[0] + x * KPC, gc[1] + y * KPC, gc[2] + z * KPC, col, w]);
+  const discR = (lo, hi) => { for (;;) { const R = -2.6 * Math.log(r() * r() + 1e-9); if (R > lo && R < hi) return R; } };
+  // the arms: young stars, blue-white, a few pink star-forming regions
+  for (let i = 0; i < 24000; i++) {
+    const k = (r() * 4) | 0, R = discR(2.8, 15), th = Math.PI + k * Math.PI / 2 + Math.log(R / 6.8) / tanP + 0.06 * gauss(r), off = 0.5 * gauss(r);
+    put(R * Math.cos(th) - off * Math.sin(th), R * Math.sin(th) + off * Math.cos(th), 0.1 * gauss(r), r() < 0.05 ? 2 : 0, 1);
+  }
+  // the old disc: yellow-white, thicker
+  for (let i = 0; i < 16000; i++) { const R = discR(0.5, 16), th = 2 * Math.PI * r(); put(R * Math.cos(th), R * Math.sin(th), 0.3 * gauss(r), 1, 0.8); }
+  // the bar and the bulge: old, orange
+  const ux = -Math.cos(BAR), uy = Math.sin(BAR);
+  for (let i = 0; i < 8000; i++) { const a = 1.8 * gauss(r), b = 0.55 * gauss(r); put(a * ux - b * uy, a * uy + b * ux, 0.3 * gauss(r), 3, 0.45); }
+  for (let i = 0; i < 6000; i++) put(0.8 * gauss(r), 0.8 * gauss(r), 0.5 * gauss(r), 3, 0.45);
+  const n = parts.length, pos = new Float32Array(3 * n), col = new Uint8Array(n), wt = new Float32Array(n);
+  parts.forEach(([x, y, z, c, w], j) => { pos[3 * j] = x; pos[3 * j + 1] = y; pos[3 * j + 2] = z; col[j] = c; wt[j] = w; });
+  return { n, pos, col, wt, COLS: ["rgb(175,205,255)", "rgb(255,238,210)", "rgb(255,140,175)", "rgb(255,205,145)"] };
+}
+function drawModel(cam, M, a) {
+  const { ctx } = cam, { r, u } = cam.cam, k = cam.k, s = Math.max(1.2 * cam.dpr, 0.05 * KPC * k);
+  ctx.globalCompositeOperation = "lighter";
+  for (let c = 0; c < M.COLS.length; c++) {
+    ctx.fillStyle = M.COLS[c];
+    for (let j = 0; j < M.n; j++) {
+      if (M.col[j] !== c) continue;
+      const X = M.pos[3 * j], Y = M.pos[3 * j + 1], Z = M.pos[3 * j + 2];
+      const x = cam.cx + k * (X * r[0] + Y * r[1] + Z * r[2]), y = cam.cy - k * (X * u[0] + Y * u[1] + Z * u[2]);
+      if (x < -s || x > cam.W + s || y < -s || y > cam.H + s) continue;
+      ctx.globalAlpha = a * 0.13 * M.wt[j];
+      ctx.fillRect(x - s / 2, y - s / 2, s, s);
+    }
+  }
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
 }

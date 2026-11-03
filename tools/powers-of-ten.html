@@ -22,8 +22,6 @@
   body[data-stage="9x16"] #stage { height: 100vh; width: calc(100vh * 9 / 16); max-width: 100vw; }
   body[data-stage="16x9"] #stage { width: 100vw; height: calc(100vw * 9 / 16); max-height: 100vh; }
   body[data-stage="1x1"] #stage { width: min(100vw, 100vh); height: min(100vw, 100vh); }
-  #stage canvas, #stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
-  #stage iframe { pointer-events: none; visibility: hidden; }
   #hud { position: absolute; left: max(16px, env(safe-area-inset-left)); bottom: calc(76px + env(safe-area-inset-bottom)); pointer-events: none; text-shadow: 0 1px 4px #000; }
   #counter { font: 400 22px/1 "IBM Plex Mono", ui-monospace, monospace; }
   #plain { color: var(--dim); margin-top: 4px; }
@@ -37,7 +35,6 @@
 </head>
 <body>
 <div id="stage">
-  <iframe id="cloud" src="/spectrum/index.html?bare=1&rings=0&still=1&view=cloud&radius=linear&lz=10" title="The microwave sky" tabindex="-1"></iframe>
   <canvas id="view"></canvas>
   <div id="hud"><div id="counter"></div><div id="plain"></div></div>
   <div id="bar">

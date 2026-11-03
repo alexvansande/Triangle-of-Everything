@@ -20,24 +20,7 @@ are offline; terrain lighting/postprocessing remain live. The broad main creatur
 field and final Planck Life endpoint still use their existing separate renderers.
 
 Version 2 assets are in `generated/lenia-animation-v2/`; adjacent-frame prefetch
-supports rapid forward/reverse traversal. Version 1 remains as a prior bake.
-
-### Opening field
-
-`bake-lenia-opening.py` evolves the opening multichannel creature using the 15
-coupled kernels from Bend's `lenia_multi_ref.c`, and Orbium using its R=13,
-mu=.15, sigma=.015, dt=.1 rule. FFT circular convolution evaluates the same
-radial kernels; this is numerical simulation, never recorded footage. Both have
-250 unrecorded warmup steps and 90 frames at 20 steps per frame. Six rule-evolved
-Flow Lenia populations join them in the 1024² field with seeded positions and
-rotations. The central hero stays on the optical axis for the subsequent dive.
-
-`lenia-opening.js` selects/interpolates those full-field frames between scales
--15.5 and -20.5. At most four 1024² decoded frames are retained (16 MiB), and
-released below -21. The GPU receives pigment before the existing height, relief,
-aberration and bloom pass, so the changing shapes affect relief and colour.
-The opening now advances and reverses with the same physical-depth timeline as
-its smaller strata; holding the zoom still holds its simulation frame.
+supports rapid forward/reverse traversal. Obsolete version 1 animation bakes have been removed; Git retains their history.
 
 ### Opening correction: static background, unique smooth hero
 

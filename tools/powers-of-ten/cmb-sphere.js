@@ -1,6 +1,6 @@
 // Last-scattering shell using the supplied WMAP five-year ILC RGB map.
 // Hue is a temperature display palette; opacity follows red-to-blue hue.
-import {image} from './micro.js';
+import {image} from './image.js';
 export function cmbSphere(){
  const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,depth:false});
  const map=image('/powers-of-ten/wmap-ilc-5yr-rgb.png');let program,buffer,texture,failed=!gl;
