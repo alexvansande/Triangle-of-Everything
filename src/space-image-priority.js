@@ -9,6 +9,9 @@ export function spaceImagePriority(slug, category) {
   // the voids never rank above Laniakea (the author, 2026-10-30: "Laniakea should always take
   // precedence over voids"): level with it, its smaller z then wins (and draws it on top)
   if (slug.includes('void')) return Math.max(base(slug), base('laniakea'));
+  // the ice sheets give way to the moons and asteroids they land on, painted ones too (the author,
+  // 2026-11-03: Antarctica, as a ball of ice, sits on 16 Psyche and hid it)
+  if (slug.endsWith('ice-sheet')) return 3;
   return base(slug);
 }
 function base(slug) {
