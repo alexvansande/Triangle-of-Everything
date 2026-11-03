@@ -32,6 +32,8 @@ const BASE = import.meta.env.BASE_URL;
 // The dev server serves the same page at /videos/ (vite.config.js).
 const NARR_PREVIEW = import.meta.env.MODE === "narration-preview" ||
   (import.meta.env.DEV && /^\/videos\/?$/.test(location.pathname));
+// a narrated video (the videos page, or a take played or rendered on the chart)
+const IN_VIDEO = NARR_PREVIEW || new URLSearchParams(location.search).has("narrate");
 // Built with relative paths (--base ./) to run from a sub-folder, like a
 // claude.ai page: the URL path isn't ours, so only the hash is kept in sync —
 // rewriting the path to "/" would break every relative asset (map tiles…).
@@ -59,7 +61,7 @@ import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, t
 import { initTimeScrubber } from "./time-scrubber.js";
 import { startHopfIcons } from "./hopf-icons.js";
 import { startLaniakeaIcons } from "./laniakea-icons.js";
-import { startStarIcons } from "./star-icons.js";
+import { startStarIcons, isLiveStar, LIVE_STAR_REACH } from "./star-icons.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
 import { loadDust, drawDust, pickDust, pickNamedDust, dustPoint, dustReady, dustPositions, dustOfCat, dustOfSrc, dustByName, dustIcons, dustDots, pickDustIcon, setDustIconScale, dustSearchEntries, focusDust, dustPictureCandidates } from "./dust.js";
@@ -1711,10 +1713,12 @@ function drawDarkMatterRegions() {
       });
   }
 
-  // MACHO label — near stellar BH / brown dwarf area
+  // MACHO label — near stellar BH / brown dwarf area. Not in a video: it sits under the brown dwarfs'
+  // column, cut to "…HO" by their pictures (the author, 2026-11-03), and video 4 names the
+  // candidates in words, not acronyms
   const machoR = 10, machoM = 32;
   const mx = px(machoR), my = py(machoM);
-  if (mx > -50 && mx < cw + 50 && my > -50 && my < ch + 50) {
+  if (!IN_VIDEO && mx > -50 && mx < cw + 50 && my > -50 && my < ch + 50) {
     lDarkMatter.append("text")
       .attr("x", mx).attr("y", my)
       .attr("text-anchor", "middle")
@@ -2829,11 +2833,24 @@ function drawObjects() {
   // exemption) so text flips to a free side instead of starting beneath a
   // neighbor's glyph ("lanets", "gr A*", "Soccer Bal"...).
   const iconRects = [];
+  // a picture a video grows (its icon-g's __iconGrowth) takes that much more room
+  const growthOf = new Map(), onScreen = new Set();
+  if (IN_VIDEO) lIcons.selectAll("g.icon-g").each(function(d) { if (!d) return; onScreen.add(d.slug); if (this.__iconGrowth > 1) growthOf.set(d.slug, this.__iconGrowth); });
+  const reach = o => (isLiveStar(o.slug) ? LIVE_STAR_REACH : 1) * (growthOf.get(o.slug) || 1);
+  // a picture still shrinking away holds its place until it's gone: its label waited beside the bare
+  // dot underneath it ("…pler-22b" under the leaving Kepler-22b, Short 2b, 2026-11-03)
+  const pictured = o => o._showIcon || onScreen.has(o.slug);
   projected.forEach(o => {
-    if (!o._showIcon) return;
-    const s = icoSize * iconSizeMult(o) * (parallaxOn() ? 1 + 2 * PARALLAX.icon * (1 + PARALLAX.variation) / (ICON_SIZE_MULT[o.slug] || 1) : 1);
+    if (!pictured(o)) return;
+    const s = icoSize * iconSizeMult(o) * (parallaxOn() ? 1 + 2 * PARALLAX.icon * (1 + PARALLAX.variation) / (ICON_SIZE_MULT[o.slug] || 1) : 1)
+      * reach(o);
     iconRects.push({ x: o.sx - s / 2, y: o.sy - s / 2, w: s, h: s, owner: o });
   });
+  // in a video the catalogue's pictures too: they draw over the labels as well ("…pler-22b", "Nep…")
+  if (IN_VIDEO) for (const id of _dustPictureChoice || []) {
+    const c = dustChosen.find(d => d.p.i === id);
+    if (c) iconRects.push({ x: c.p.sx - c.p.r * 1.1, y: c.p.sy - c.p.r * 1.1, w: c.p.r * 2.2, h: c.p.r * 2.2, owner: null });
+  }
   const hitsIcons = (rect, owner) => iconRects.some(r =>
     r.owner !== owner &&
     rect.x < r.x + r.w && rect.x + rect.w > r.x &&
@@ -2879,9 +2896,10 @@ function drawObjects() {
     if (!cl._labelPos) {
       // No icon-free spot: fall back to the old side placement rather than
       // dropping the label (labels stay visible; overlap beats absence).
+      // Not in a video: the pictures draw over the labels, so it would be cut ("…ite Dwarfs").
       cl._labelPos = labelPositions[0];
-      cl._showLabel = true;
-      usedLabels.add(labelText.toUpperCase());
+      cl._showLabel = !IN_VIDEO;
+      if (!IN_VIDEO) usedLabels.add(labelText.toUpperCase());
     }
   });
 
@@ -2894,7 +2912,8 @@ function drawObjects() {
     const labelH = _posterLabels ? _posterLabelSize + 3 : 13;
 
     // Icon-bearing objects push their own label just outside the glyph
-    const ownR = o._showIcon ? icoSize * iconSizeMult(o) * (0.5 + (parallaxOn() ? PARALLAX.icon * (1 + PARALLAX.variation) / (ICON_SIZE_MULT[o.slug] || 1) : 0)) : 0;
+    const ownR = pictured(o) ? icoSize * iconSizeMult(o) * (0.5 + (parallaxOn() ? PARALLAX.icon * (1 + PARALLAX.variation) / (ICON_SIZE_MULT[o.slug] || 1) : 0))
+      * reach(o) : 0;
     const positions = ownR > 8 ? [
       { dx: ownR + 4, dy: 3.5, anchor: "start" },
       { dx: -(ownR + 4), dy: 3.5, anchor: "end" },
@@ -2925,11 +2944,11 @@ function drawObjects() {
       }
     }
 
-    if (!o._labelPos && !_posterLabels) {
+    if (!o._labelPos && !_posterLabels && !IN_VIDEO) {
       // Nothing clears both labels AND icons — retry ignoring icons and
       // accept glyph overlap rather than dropping the label (today's
       // behavior; overlap beats absence). Only genuine label-vs-label
-      // clashes still suppress.
+      // clashes still suppress. Not in a video: the picture would cut it.
       for (const pos of positions) {
         const lx = pos.anchor === "end" ? o.sx + pos.dx - labelW
                  : pos.anchor === "middle" ? o.sx + pos.dx - labelW / 2
@@ -2985,7 +3004,7 @@ function drawObjects() {
       rect.x + rect.w + CATEGORY_LABEL_MIN_CLEAR > p.x &&
       rect.y < p.y + p.h + 8 &&
       rect.y + rect.h + 8 > p.y
-    );
+    ) || (IN_VIDEO && hitsIcons(rect, null));   // in a video, never under a picture ("GAS G…S" under Saturn)
     if (!collides) {
       usedLabels.add(labelText.toUpperCase());
       categoryLabels.push({ cx, cy, labelText, color: SUBCAT_LABEL_COLORS[subcat] || SUBCAT_COLORS[subcat] || members[0].cat.color });

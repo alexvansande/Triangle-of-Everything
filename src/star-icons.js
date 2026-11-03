@@ -21,6 +21,10 @@ const TURN_X = 0.6, TURN_Y = 0.3;
 const inVideo = () => !!document.getElementById("narr-layer");
 const BY_SLUG = new Map(STARS.map(s => [s.slug, s]));
 
+// a live star's disc, limb and glow reach past its picture's box: the labels keep clear of this much
+// (the author, 2026-11-03: "…ite Dwarfs", "…ontal Branch" cut by the stars in long video 1)
+export const LIVE_STAR_REACH = 1.25;
+export const isLiveStar = slug => BY_SLUG.has(slug) && inVideo();
 export async function startStarIcons(chartEl, { busy = () => false } = {}) {
   if (new URLSearchParams(location.search).get("stars") === "0") return;
   // nothing is set up until a take plays
