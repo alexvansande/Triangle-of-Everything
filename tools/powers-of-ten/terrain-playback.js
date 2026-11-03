@@ -1,10 +1,11 @@
 import {planckTerrain} from './planck-terrain.js';
 import {ramp} from './math.js';
 const ROOT='/video/powers-of-ten/generated/terrain-composite-v3/';
+const SOFT='/video/powers-of-ten/generated/terrain-soft-v1/';
 export function bakedTerrain(){
- let meta=null,failed=false,wanted=[],last=null;const cache=new Map(),loading=new Set();
- fetch(ROOT+'manifest.json').then(r=>{if(!r.ok)throw Error('Baked terrain manifest missing');return r.json()}).then(m=>meta=m).catch(e=>{failed=true;console.error(e)});
- function load(i){if(cache.has(i))return cache.get(i);if(!loading.has(i)){loading.add(i);fetch(ROOT+String(i).padStart(3,'0')+'.webp').then(r=>{if(!r.ok)throw Error('Missing terrain frame '+i);return r.blob()}).then(createImageBitmap).then(b=>{cache.set(i,b);loading.delete(i);for(const [n,old]of cache)if(cache.size>4&&!wanted.includes(n)){old.close();cache.delete(n);}}).catch(e=>{loading.delete(i);console.error(e)})}return null;}
+ let soft=new Set(),meta=null,failed=false,wanted=[],last=null;const cache=new Map(),loading=new Set();
+ Promise.all([ROOT,SOFT].map(path=>fetch(path+'manifest.json').then(r=>{if(!r.ok)throw Error('Baked terrain manifest missing');return r.json()}))).then(([m,b])=>{soft=new Set(b.frames);meta=m}).catch(e=>{failed=true;console.error(e)});
+ function load(i){if(cache.has(i))return cache.get(i);if(!loading.has(i)){loading.add(i);fetch((soft.has(i)?SOFT:ROOT)+String(i).padStart(3,'0')+'.webp').then(r=>{if(!r.ok)throw Error('Missing terrain frame '+i);return r.blob()}).then(createImageBitmap).then(b=>{cache.set(i,b);loading.delete(i);for(const [n,old]of cache)if(cache.size>4&&!wanted.includes(n)){old.close();cache.delete(n);}}).catch(e=>{loading.delete(i);console.error(e)})}return null;}
  return{pending:()=>!failed&&(!meta||wanted.some(i=>!cache.has(i))),draw(cam){
   if(!meta)return;
   const d=Math.max(0,Math.min(meta.frames-1,(meta.firstScale-cam.s)/meta.step)),a=Math.floor(d),b=Math.min(meta.frames-1,a+1),t=d-a;

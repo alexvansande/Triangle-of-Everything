@@ -39,7 +39,7 @@ export function cosmicWeb(){
   for(const[name,n,offset]of [['aPosition',3,0],['aWeight',1,24],['aKnot',1,28],['aLod',1,32]]){const a=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,n,gl.FLOAT,false,36,offset);}
   for(const[name,v]of [['uR',cam.cam.r],['uU',cam.cam.u],['uN',cam.cam.n]])gl.uniform3fv(loc(name),v);
   gl.uniform1f(loc('uScale'),2*R*cam.min/(cam.F*cam.W));gl.uniform1f(loc('uProjection'),ramp(cam.s,25.6,26.45));gl.uniform1f(loc('uDistance'),cam.cmbView.dist);
-  gl.uniform1f(loc('uAlpha'),.22*ramp(cam.s,24.3,25.15)*(.8-.12*ramp(cam.s,26.4,27.1)));
+  gl.uniform1f(loc('uAlpha'),.22*ramp(cam.s,24.3,25.15)*(.8-.12*ramp(cam.s,26.4,27.1))*(1+2*ramp(cam.s,26.4,27.1)));
   gl.uniform1f(loc('uOuter'),ramp(cam.s,25.1,25.8));
   gl.uniform1f(loc('uPixel'),cam.dpr);gl.uniform1f(loc('uSlab'),Math.min(.045,Math.max(.001,cam.F/R*.12)));gl.uniform1f(loc('uFeature'),1-ramp(cam.s,Math.log10(20e9*LY),Math.log10(50e9*LY)));
   for(const pass of [1,0]){gl.uniform1f(loc('uPass'),pass);gl.drawArrays(gl.POINTS,0,count);}
