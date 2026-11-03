@@ -62,3 +62,4 @@ short-00-powers-of-ten
 # short-00-powers-of-ten changed: 176 Gly opening, gentle calibrated intro orbit; source 39d935c3
 # short-00-powers-of-ten source includes shaded CMB catalog PNG and isolated narrated 3D icon: 574bc4d8
 # short-00-powers-of-ten changed: connect Local Group into nearby filament network; source a414403b
+# short-00-powers-of-ten changed: restore 220 Gly opening with visible interior shine, brighter chart CMB; source 1610b706
