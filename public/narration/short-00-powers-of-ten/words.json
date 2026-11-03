@@ -9,7 +9,7 @@
   "renderPage": "/tools/powers-of-ten.html?canopytest=1&renderZoom=1&ui=0&roll=0&crossings=0&grid=1&labels=1&stage=9x16",
   "renderClip": "stage",
   "renderSource": "/Users/avsa/Dev/Triangle",
-  "renderSourceRevision": "1af9ebaf4e8aae207945faa5831f65c02ab934d1",
+  "renderSourceRevision": "39d935c3debbbdcb20bdb6225416b6e9bd9131a1",
   "finalMasterPlanckLengths": 30,
   "finalVerticalWidthPlanckLengths": 16.875
 }
