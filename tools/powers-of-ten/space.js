@@ -358,6 +358,18 @@ export function spaceLayers(globe) {
       galaxies.data = pick((t) => t === 2);
       basins(galaxies, ATTRACTORS);
       web(galaxies);
+      // Local Group is a separate, finer catalogue. Bridge that sampling gap
+      // to nearby connected survey nodes, rather than a fictitious long cable
+      // straight to the Great Attractor. These curves are illustrative density.
+      const candidates=Array.from({length:galaxies.data.n},(_,i)=>i)
+        .filter(i=>galaxies.degree[i]>0)
+        .sort((i,j)=>galaxies.data.dist[i]-galaxies.data.dist[j]);
+      const anchors=[];
+      for(const i of candidates){const end=Array.from(galaxies.data.pos.slice(3*i,3*i+3));
+        if(anchors.every(p=>Math.hypot(...sub(p,end))>.6*MPC/LY))anchors.push(end);
+        if(anchors.length===3)break;
+      }
+      galaxies.localBridges=anchors.map((end,i)=>({end,start:i===1?mul(LG[0].p,1/LY):[0,0,0]}));
     } catch (e) { console.warn("sky points unavailable:", e); }
   })();
 
@@ -478,6 +490,19 @@ function drawGalaxies(cam, g, a) {
       ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${(a * 0.32 * (q + 0.5) / 4).toFixed(3)})`;
       ctx.stroke(p);
     }));
+  }
+  // Connect the nearby catalogue into the same world-space web. Optical
+  // magnification carries these out of frame; only the close-detail end fades.
+  const bridgeAlpha=a*.48*ramp(cam.s,22.8,23.4)*(1-ramp(cam.s,24.5,25.1));
+  if(bridgeAlpha>.001)for(const [index,line]of (g.localBridges||[]).entries()){
+    for(let pass=0;pass<3;pass++){
+      ctx.beginPath();
+      for(let n=0;n<=36;n++){const t=n/36,envelope=Math.sin(Math.PI*t),p=line.start.map((v,k)=>v+(line.end[k]-v)*t+envelope*.035*MPC/LY*Math.sin(t*5+index*2+k+pass*.08));
+        const x=cam.cx+kl*dot(p,r),y=cam.cy-kl*dot(p,u);
+        if(n)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+      }
+      ctx.lineWidth=(pass===0?1.25:.65)*cam.dpr;ctx.strokeStyle=`rgba(255,202,105,${bridgeAlpha*(pass===0?1:.35)})`;ctx.stroke();
+    }
   }
   // the galaxies: bright where they have neighbours, faint alone
   for (let j = 0; j < hi; j++) {
