@@ -64,3 +64,5 @@ short-00-powers-of-ten
 # short-00-powers-of-ten changed: WMAP colors and red/yellow/green hue-based opacity; source c57ff5d8
 # short-00-powers-of-ten changed: correct two-sided CMB opacity, restore visible interior strands; source efe73d91
 # short-00-powers-of-ten changed: remove procedural fallback/duplicate entry/hidden iframe; track audited runtime; source bfb551f7
+
+# short-00-powers-of-ten changed: baked terrain, Lenia, lighting and post effects; source 988e628c; full render.
