@@ -26,10 +26,12 @@ export async function smallLayers() {
   catch (err) { console.warn("Hopf renderer unavailable:", err.message); }
   const hopf = (id) => {
     if (!core) return null;
+    try {
     const renderer = new core.Renderer({ alpha: true });
     const view = new core.HopfView(renderer, null, core.PARTICLES.find((p) => p.id === id));
     view.yaw = 0.6;
     return { renderer, view, size: 0 };
+    } catch (err) { console.warn("Hopf graphics context unavailable:", err.message); return null; }
   };
   const proton = hopf("proton-scale"), guanine=guanineApproach();
   const drawHopf = (h, cam, box, alpha, res) => {
