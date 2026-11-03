@@ -59,6 +59,7 @@ import introRaw from "../content/intro.md?raw";
 import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, tourGoTo, logAllSteps, isTourActive, closeTour } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
+import { startCmbIcons } from "./cmb-icons.js";
 import { startHopfIcons } from "./hopf-icons.js";
 import { startLaniakeaIcons } from "./laniakea-icons.js";
 import { startStarIcons, isLiveStar, LIVE_STAR_REACH } from "./star-icons.js";
@@ -6827,6 +6828,7 @@ const zoomBehavior = d3.zoom()
         syncBgNoise();
         updateReadout(null);
         rafPending = false;
+        _cmbIcons?.draw();
         _hopfIcons?.draw();  // live icons follow this frame's positions, not the last one's
         _laniakeaIcons?.draw();
         _starIcons?.draw();
@@ -6887,7 +6889,9 @@ svg.call(zoomBehavior);
 enableTrackpadPinch(svg.node(), [svg.node(), clickTargetContainer]);
 // particles drawn live as Hopf fibrations over their still pictures
 // (the chart draws them itself right after a pan/zoom redraw, so they don't trail a frame behind)
-let _hopfIcons = null;
+let _hopfIcons = null, _cmbIcons = null;
+// the observable universe turning live, in 3D: the CMB around the zoom's cosmic web (src/cmb-object.js)
+startCmbIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _cmbIcons = h; });
 startHopfIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _hopfIcons = h; });
 let _laniakeaIcons = null;
 startLaniakeaIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _laniakeaIcons = h; });

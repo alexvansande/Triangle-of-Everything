@@ -2750,11 +2750,11 @@
     ]
   },
   "observable-universe": {
-    "fingerprint": "fb760ce88cd7ee3310fecde0c04ca86477cb34a37c9279a7b54ba87b95f12d93",
+    "fingerprint": "693cc3b42557dd30b9fb772095639cb35ffe8d40be785752f4bb6a55875e91ec",
     "baseWidth": 128,
     "source": "content/icons/src/observable universe.png",
     "reason": "matching master",
-    "sourceDifference": 6.891805013020833,
+    "sourceDifference": 0,
     "variants": [
       {
         "width": 256,
