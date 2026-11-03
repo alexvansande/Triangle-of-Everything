@@ -1079,7 +1079,132 @@ ten every 1.96 s (61 powers in 120 s), so each line is timed to when its thing i
 About 210 words in two minutes: speak slowly and leave the gaps; the picture carries it. Record
 each line as its own phrase, so it can be placed on its time.
 
-### Script to record
+### Full script, three minutes (the author's opening and ending, 2026-11-02)
+
+The whole video, 405 words: about 2:32 of speech at the author's pace (160 words a minute) plus
+short pauses, ending at 3:00. The zoom follows the words: it isn't even any more. It eases into
+each stop and speeds up between them, always smoothly:
+
+- **Slow** at the start (CMB, horizon, superclusters: 2 powers of ten in 35 s), at Earth, the
+  forest and the ladybug, and at the atom, nucleus and proton.
+- **Fast** through the empty stretches: between the stars and the Oort Cloud, from the cell's
+  DNA down to the atom, and through the grey terrain.
+- **Stop** on the Planck grid as the last line starts, and hold the gliders about 4 s after it.
+
+| At | On screen | Line | Words |
+|---|---|---|---|
+| 0:01 | CMB | *This is the largest thing we can see: the cosmic microwave background, a faint glow from three hundred and eighty thousand years after the Big Bang, the moment light could first escape. Everything in here is a picture of the past.* | 41 |
+| 0:17 | Event horizon | *This smaller bubble is the cosmic event horizon. The galaxies beyond it are lost: the light they send today will never reach us.* | 23 |
+| 0:28 | Superclusters | *And these are the largest structures of all: superclusters, strung along threads of galaxies, around huge empty voids.* | 18 |
+| 0:36 | Local Group | *Our neighbourhood: Andromeda, two and a half million light-years away, and our own galaxy, the Milky Way.* | 17 |
+| 0:43 | The Sun | *In one of its arms, one star among hundreds of billions: the Sun.* | 13 |
+| 0:49 | Nearby stars | *Its neighbours. Sirius, the brightest star in our night sky, eight light-years away.* | 13 |
+| 0:55 | Oort Cloud | *Around the Sun, the Oort Cloud: billions of icy comets, so far out they take millions of years to go round once.* | 22 |
+| 1:05 | Planets | *Then the orbits of the planets, and the third one out: Earth.* | 12 |
+| 1:10 | Earth and Moon | *The Moon, four hundred thousand kilometres away: about thirty Earths.* | 10 |
+| 1:15 | North America | *North America. California. The Sierra Nevada.* | 6 |
+| 1:18 | Sequoias | *A forest of giant sequoias, and the General Sherman, the largest tree on Earth. It weighs about as much as ten blue whales.* | 23 |
+| 1:28 | Ladybug | *On one of its branches, a ladybug.* | 7 |
+| 1:31 | A drop of dew | *On its back, a drop of dew.* | 6 |
+| 1:35 | The amoeba | *And in the drop, an amoeba: a single cell.* | 9 |
+| 1:38 | DNA | *Inside its nucleus, the DNA, wound tight around proteins. The double helix is two millionths of a millimetre wide.* | 19 |
+| 1:47 | Atom | *Atom is Greek for "uncuttable". We named it when we thought we'd hit the bottom. But atoms do split, famously and violently. They're made of electrons, protons and neutrons, and they're almost entirely empty space.* | 35 |
+| 2:01 | Nucleus | *Nearly all its mass sits in the nucleus, tens of thousands of times smaller: here, a single proton.* | 18 |
+| 2:08 | Proton | *Three quarks, held together by gluons. The quarks are only about one percent of its mass. The rest is the energy that binds them.* | 26 |
+| 2:19 | Quark patterns | *And what are quarks made of? We don't know. Our biggest machines have looked down to about here, and found nothing smaller.* | 22 |
+| 2:29 | Terrain | *Instead of one smallest building block, physics now looks for the rules. Quantum field theory describes the universe as fields, a number at every point of space and time, and every particle is a ripple in one of them.* | 39 |
+| 2:45 | Planck grid | *Is that all there is? We don't know. But maybe, deep down, at the Planck scale where our theories break down, it's all one big game of life.* | 28 |
+
+Facts in the new lines: Andromeda is 2.5 million light-years away; the outer Oort Cloud's comets
+take millions of years per orbit; the Moon is 384,000 km, about 30 Earth diameters; General
+Sherman (about 1,900 t) weighs about as much as ten blue whales; pollen grains (10–100 µm) are
+mostly thinner than a hair (50–100 µm); a nucleus is 10,000–100,000 times smaller than its atom
+and holds 99.9% of its mass; quarks are about 1% of a proton's mass; the LHC has looked down to
+about 10⁻¹⁹ m, where the quark patterns are on screen.
+
+**Not drawn yet:** the cosmic-event-horizon bubble (radius about 16 billion light-years, a third
+of the CMB's). Add it, or drop that line.
+
+**The zoom now follows this script** (Triangle `powers-of-ten` branch, 37ccb63b,
+`tools/powers-of-ten/zoom-timeline.js`): a key per line, joined by a smooth curve, 180 s. The
+atom is hydrogen, so its nucleus is one proton; under the ladybug the zoom goes to a drop of dew
+and an amoeba (no pollen grain), hence the changed lines. Once the take is recorded, move each key
+to where its line falls in the real audio. Two gaps in the picture: no event-horizon bubble, and
+the Moon's orbit isn't visible, so the Moon line plays over stars until Earth fills the frame
+(1:15).
+
+### Earlier: the opening and ending tightened to 2:26 (replaced by the full script above)
+
+The author's own opening and ending, cut to fit with the zoom inside **2:30** (limit 3:00). At
+the author's pace (about 160 words a minute) the opening and ending as first written ran 39 s and
+36 s, but the zoom shows the CMB to the superclusters in 5 s. So two changes to the picture:
+
+- **Slow start:** ease the zoom from the CMB to the superclusters over about 25 s, then the usual
+  rate (one power of ten every 1.96 s). That adds about 20 s.
+- **Hold the end:** stay on the Planck grid and its gliders for about 5 s after the zoom stops, so
+  "game of life" lands on them.
+
+That makes the video about 2:26, with half a minute to spare. Times below are video times with
+both changes (the zoom's own time + 20 s after the start).
+
+| At | On screen | Line | Words |
+|---|---|---|---|
+| 0:00 | The CMB | *This is the largest thing we can see: the cosmic microwave background, a faint glow from three hundred and eighty thousand years after the Big Bang, the moment light could first escape. Everything in here is a picture of the past.* | 40 |
+| 0:15 | The cosmic event horizon | *This smaller bubble is the cosmic event horizon. The galaxies beyond it are lost: the light they send today will never reach us.* | 23 |
+| 0:24 | Superclusters | *And these are the largest structures of all: superclusters.* | 9 |
+| 0:28 | Andromeda, the Milky Way | *Our neighbourhood of galaxies: Andromeda, and our own, the Milky Way.* | 11 |
+| 0:32 | "The Sun is here" | *The Sun is here: one star among hundreds of billions.* | 10 |
+| 0:38 | Sirius, Vega | *Sirius, the brightest star in our night sky.* | 8 |
+| 0:41 | The Oort Cloud | *The Oort Cloud: a shell of icy comets around the Sun.* | 11 |
+| 0:46 | Neptune's orbit, Mars | *The planets.* | 2 |
+| 0:53 | Earth | *And Earth.* | 2 |
+| 0:56 | Earth and the Moon's orbit | *The Moon, four hundred thousand kilometres out.* | 6 |
+| 1:02 | California, the Sierra Nevada | *California, and the Sierra Nevada.* | 5 |
+| 1:08 | The forest | *A forest of giant sequoias, and the General Sherman, the largest tree on Earth.* | 14 |
+| 1:17 | The ladybug | *A ladybug on one of its leaves.* | 7 |
+| 1:20 | Pollen | *A grain of pollen.* | 4 |
+| 1:23 | A cell | *A single cell.* | 3 |
+| 1:26 | Chromatin, DNA | *Its DNA.* | 2 |
+| 1:30 | The atom → the nucleus (1:39) → the proton (1:41) | *Atom is Greek for "uncuttable". We named it when we thought we'd hit the bottom. But atoms do split, famously and violently. They're made of electrons, protons and neutrons, and protons and neutrons are made of quarks, held together by gluons.* | 41 |
+| 1:46 | The quark patterns (Lenia) | *(a breath: let the patterns show)* | |
+| 1:50 | The quark patterns → the grey terrain (1:56) | *And what are quarks made of? We don't know. Instead of one smallest building block, physics now looks for the rules. Quantum field theory describes the universe as fields, a number at every point of space and time, and every particle is a ripple in one of them.* | 48 |
+| 2:09 | The terrain → the Planck grid (2:17) | *Is that all there is? We don't know. But maybe, deep down, at the Planck scale where our theories break down, it's all one big game of life.* | 27 |
+| 2:20 | The gliders (held) | *(no words)* | |
+
+About 270 words: 1:42 of speech in 2:26. Record the opening, the atom paragraph and the ending
+each as one take; the short middle lines can be placed one by one.
+
+**What changed from the author's draft, and why**
+- *"emitted moments after the big bang"* → *"three hundred and eighty thousand years after"*: the CMB
+  was released 380,000 years in, when the universe cooled enough for light to travel.
+- *"a faint radio signal"* → *"a faint glow"*: it's microwaves (the name you've just said).
+- *"a snapshot of how the universe used to look… we will never know what happened to those old
+  galaxies because right now they are escaping us faster than light can travel"* → *"Everything in
+  here is a picture of the past"* and the event-horizon line: it's the space between us that grows
+  faster than their light can cross it, and the horizon is the edge of what can still reach us.
+- *"the limits… of the things we can know about ourselves"*: cut, for time.
+- *"Atom comes from the greek as indivisible"* → *"Atom is Greek for 'uncuttable'"* (atomos).
+- *"These in turn are also made of… quarks and gluons"* → *"protons and neutrons are made of
+  quarks"*: electrons aren't made of anything smaller that we know of.
+- *"scientists have since given up on finding the one building block… looking for the one binding
+  rule"* → *"Instead of one smallest building block, physics now looks for the rules"*: same idea,
+  shorter, and it doesn't say they've stopped looking.
+- *"a 4d grid of numbers"* → *"a number at every point of space and time"*: QFT's fields are smooth;
+  a grid is how they're simulated (lattice QCD), which suits the Lenia picture, but the theory
+  itself has no grid.
+- *"all these quantum phenomena are just temporary ripples in spacetime"* → *"every particle is a
+  ripple in one of them"*: particles are ripples in quantum fields; ripples in spacetime are
+  gravitational waves; and an electron isn't temporary.
+- *"Is it?"* → *"Is that all there is?"*: "is it?" has nothing to point back to after the cut.
+- *"at the quantum level where our theories break down"* → *"at the Planck scale"*: quantum theory
+  works well at the quantum level; it's at the Planck length, where gravity meets it, that our
+  theories break down, and that's where the picture is.
+
+**Not drawn yet:** the zoom has no cosmic-event-horizon bubble (only the CMB shell, labelled
+"radius 46 billion light-years"). Either add the bubble (radius about 16 billion light-years,
+about a third of the CMB's) or drop that line: the opening is then 49 words, about 18 s.
+
+### First draft (before the author's opening and ending)
 
 | At | On screen | Line |
 |---|---|---|
