@@ -62,3 +62,4 @@ short-00-powers-of-ten
 # short-00-powers-of-ten changed: red-first CMB shell, subdued opening filaments, common-crop full universe; source eb8b57ae
 # short-00-powers-of-ten changed: smaller CMB opening with caption clearance; source 8f4955f6
 # short-00-powers-of-ten changed: WMAP colors and red/yellow/green hue-based opacity; source c57ff5d8
+# short-00-powers-of-ten changed: correct two-sided CMB opacity, restore visible interior strands; source efe73d91
