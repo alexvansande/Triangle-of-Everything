@@ -64,8 +64,8 @@ const EIFFEL_LINES = [{ line: "water", label: "water" }, { line: "air", label: "
 // the animals put first at "most animals": the chart's own and the catalogue's (by their labels)
 const ANIMALS = ["Venus", "Human", "Cow", "Hippopotamus", "Elephant", "Lion", "Giraffe", "Polar bear", "Gorilla"];
 // gravity 2, electromagnetism 0: a scoreboard beside the super-Jupiters' column, in the clear space left of it
-// (three lines: "Electromagnetism 0" on one ran off the left edge of the 9:16 frame)
-const SCORE = { text: "Gravity 2\nElectro-\nmagnetism 0", at: [9.28, 32.35], size: 26, color: "#ffe9a3" };
+// (three lines, 22 px: "Electromagnetism 0" on one ran off the left edge of the 9:16 frame; the author, 2026-11-03)
+const SCORE = { text: "Gravity 2\nElectro-\nmagnetism 0", at: [9.34, 32.4], size: 22, color: "#ffe9a3" };
 const SCORE_ON = { ...SCORE, instant: true };
 const drawn = (list) => list.map(h => h.arrow ? { ...h, draw: 0.01 } : { ...h, instant: true, delay: 0 });
 
