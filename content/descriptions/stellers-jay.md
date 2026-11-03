@@ -1,0 +1,1 @@
+Steller’s jay, the crested blue-and-black jay of the conifer forests of western North America, from Alaska to the Sierra Nevada’s sequoia groves. It is placed here by its outstretched wingspan, about 44 cm, and a mass of about 105 grams. The overhead illustration, wings open, is AI-generated: it is the same bird that flies over the sequoia canopy in the powers-of-ten zoom.

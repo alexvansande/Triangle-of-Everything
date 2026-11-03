@@ -1,0 +1,10 @@
+{
+  "slug": "stellers-jay",
+  "date": "2026-11-01",
+  "category": "ai-generated",
+  "tool": "image_gen",
+  "source": "video/powers-of-ten/generated/canopy-test/bird-flyby-v2.png (the zoom source, /Users/avsa/Dev/Triangle)",
+  "object": "Steller’s Jay",
+  "variant": "standard",
+  "notes": "Generated illustration, not a photograph: the bird-flyby layer over the sequoia canopy in the powers-of-ten zoom, overhead with the wings open. Trimmed to its alpha, fitted to 1166 px on the shared 1254 px canvas (scripts/install-refreshed-icons.mjs framing)."
+}

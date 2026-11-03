@@ -5926,5 +5926,26 @@
         "path": "256/ribosome.webp"
       }
     ]
+  },
+  "stellers-jay": {
+    "fingerprint": "f12538adc97f77b1202d1b077969672e2e4d9012fe096f7b71540408e5230a82",
+    "baseWidth": 128,
+    "source": "content/icons/src/stellers-jay.png",
+    "reason": "matching master",
+    "sourceDifference": 1.4296671549479167,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/stellers-jay.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/stellers-jay.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/stellers-jay.webp"
+      }
+    ]
   }
 }
