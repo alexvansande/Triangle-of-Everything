@@ -1,14 +1,14 @@
 // =============================================================
 // Scene: short-02b-planets — video 2's second half as a short of its own (video/cuts/short-02b-planets.json):
 // its cues come from short-02-up-the-line's scene. These are on top, for this cut alone:
-// "As we move up the line" opens on the line itself, the two axes named, with arrows both ways,
+// "If you plot everything by mass and size" (rec51) opens on the line itself, the two axes named, with arrows both ways,
 // and the density of water (the author, 2026-10-30), before the source's pan to the rocks
-// ("less potato").
+// ("…potato shapes into spheres").
 // =============================================================
 const AX = "#e8ecff";
 export default {
   cues: [
-    { at: "As we move up the line", offset: -0.4, cam: { r: 6.0, m: 18.4, span: 9 }, dur: 0.9, units: true, unitsUntil: "less potato",
+    { at: "plot everything by mass", offset: -0.4, cam: { r: 6.0, m: 18.4, span: 9 }, dur: 0.9, units: true, unitsUntil: "potato shapes into",
       hl: [
         { line: "water", label: "density of water", size: 26, labelAt: [5.6, 17.42] },
         { arrow: true, both: true, solid: true, width: 3, color: AX, from: { r: 9.7, m: 14.6 }, to: { r: 9.7, m: 25.4 }, draw: 0.8 },

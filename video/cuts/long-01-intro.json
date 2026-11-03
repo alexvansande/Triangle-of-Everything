@@ -1,15 +1,25 @@
 {
   "title": "The Triangle of Everything: the intro",
-  "blurb": "The chart, and the density line from a milliliter of water to the brown dwarfs (shorts 1–3, joined).",
+  "blurb": "The chart, and the density line from a milliliter of water to the brown dwarfs: the intro, recorded in one take (2026-11-03) with its three Shorts.",
   "stage": "landscape",
   "gap": 2.0,
   "segments": [
     {
       "take": "short-01-hook",
-      "to": "this series of videos"
+      "to": "the way it does"
     },
     {
-      "take": "short-02-up-the-line"
+      "take": "short-02-up-the-line",
+      "to": "first diagonal I mentioned"
+    },
+    {
+      "take": "short-02-up-the-line",
+      "from": "In the metric system",
+      "to": "Why does that happen"
+    },
+    {
+      "take": "short-02-up-the-line",
+      "from": "That's because until now"
     }
   ],
   "music": [

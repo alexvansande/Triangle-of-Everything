@@ -1,7 +1,7 @@
 {
   "title": "The Atomic Diagonal, part 1",
-  "blurb": "From a milliliter of water up the density line: what sinks and floats, animals, buildings, and the rocks and small moons where gravity starts to take over.",
+  "blurb": "From a milliliter of water up the density line: what sinks and floats, animals, buildings, the rocks and small moons, and the point where things turn round.",
   "segments": [
-    { "take": "short-02-up-the-line", "to": "we arrive at small moons" }
+    { "take": "short-02-up-the-line", "from": "If you plot everything that exists", "to": "Why does that happen" }
   ]
 }

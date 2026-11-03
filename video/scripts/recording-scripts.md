@@ -20,8 +20,8 @@ went silent after a minute when it ran out.
 
 | Video | Take | Plays now |
 |---|---|---|
-| 1 · the hook | `short-01-hook` | 1:50 (re-recorded 2026-10-27, rec35) |
-| 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | 4:28 (re-recorded in part 2026-10-28, rec46) |
+| 1 · the hook | `short-01-hook` | 1:44 (re-recorded 2026-11-03 with long video 1, rec51, natural speed) |
+| 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | the source of long video 1 (6:01) and Shorts 2a (2:41) and 2b (2:02); re-recorded 2026-11-03, rec51 |
 | 3 · planets into stars | `short-03-stars` | 2:13 (re-recorded 2026-10-27, rec36) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
@@ -44,8 +44,8 @@ that form, one or two at most, with the suggested line. Details are in the notes
 | If they're recording… | Suggest… |
 |---|---|
 | Any video (the framing) | Tell the trend as one force winning over another, reusing "neighbour force vs everyone force" and "matter refuses to be squeezed" instead of new terms |
-| Video 2 · potato-shaped → round | Gravity's first goal against chemistry (electromagnetism) |
-| Video 2 · super-Jupiters, "electrons push back" | Gravity has won, and what holds it back isn't a force but a quantum rule; the same rule makes the periodic table's sawtooth (video 6) and holds up white dwarfs |
+| Video 2 · potato-shaped → round | *Used in rec51 (2026-11-03):* gravity's first goal against chemistry (electromagnetism) |
+| Video 2 · super-Jupiters, "electrons push back" | *Used in rec51 (2026-11-03), "Gravity 2 · Electromagnetism 0" on screen:* Gravity has won, and what holds it back isn't a force but a quantum rule; the same rule makes the periodic table's sawtooth (video 6) and holds up white dwarfs |
 | Video 3 · brown dwarfs → stars, fusion | How fusion really works: gravity helps the strong force beat the electric push; nothing's destroyed, nuclei are held tighter and lose 0.7% of mass as light; all four forces team up in the core; a star is nuclei falling downhill toward iron |
 | Video 3 · the main sequence, big stars | Why stars can't grow forever: their light blows the outer gas off past escape velocity, back into the clouds (Eta Carinae); light pressure in general (comet tails, solar sails) |
 | Video 3 · the core's light | Gamma rays in the core, tens of thousands of years to get out, sunlight at the surface (link to video 7) |
@@ -387,8 +387,8 @@ video re-render whole, so ask the author when to build them.
 
 ## 1 · The hook (`short-01-hook`)
 
-### As cut now
-(rec35, 2026-10-27, plays at 1.1×)
+### As cut before rec51
+(rec35, 2026-10-27, plays at 1.1×. Replaced on 2026-11-03 by rec51: see "Long 1 · As cut now".)
 
 > In my opinion, this is the most interesting chart in all of physics.
 >
@@ -458,8 +458,8 @@ series of videos. I sincerely hope you find it as fascinating as I do." (no "fol
 
 *Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*
 
-### As cut now
-(rec33, 2026-10-26, and rec46, 2026-10-28; natural speed)
+### As cut before rec51
+(rec33, 2026-10-26, and rec46, 2026-10-28; natural speed. Replaced on 2026-11-03 by rec51: see "Long 1 · As cut now".)
 
 > If for some reason you wanted to draw everything that exists on the same chart, a good way would be to use the log of mass and size. Do that and you'll notice that almost everything falls along these diagonal lines, and it's not hard to see why. In the metric system, one milliliter of water weighs one gram and fills a cube exactly one centimeter wide. Most things aren't cubes though, so we'll measure everything as if they were a ball. On a log chart that only shifts things by a tiny bit to the right, you won't even notice. Now make every side ten times longer: ten centimetres. On a log chart, that's one unit to the right. But the volume grows a thousand times, to one litre, and one litre of water weighs one kilogram. That's three units up on the mass axis. Do it again, ten times the size, and you get a thousand times the mass: one ton. All of these will draw a diagonal line, the density of water. Everything to the left is, by definition, denser than water, so it sinks. Here we have things made of stone and metal. Anything to the right will float. In the same way, you can draw a line for the density of air at one atmosphere on Earth. It separates things heavier than air from things lighter than air. And as the name says, here are the lighter than air aircraft: balloons and zeppelins. Most animals, though, live in a much narrower band. That's because we are mostly made of water. Some of us are a little denser than others. The hippo, for example, can't actually swim, it just bounces along the riverbed. As we go up, we will see heavier animals like the elephants. The largest animal ever on land was the Argentinosaurus, but the largest animal ever is still around, and that's the blue whale. But if we talk about the largest tree, then that's the sequoia, which is much bigger. Past living things, and we get to engineering. Notice that the Eiffel Tower is surprisingly light for its size. That's because we're also counting all the space inside it. Its whole shape, air included, is about one and a half million cubic meters. Leave out the arch and the gaps, and it shrinks about five times. The iron alone would fit in a cube 11 meters wide, which is denser than water, and it would definitely sink. In many ways the Eiffel Tower is kind of a fractal. How big it is depends on how close you look. Then comes big rocks and big buildings and the Great Pyramid, which is a little bit of both. Above that, we have lakes and asteroids, and then we arrive at small moons. As we move up the line, you notice objects becoming more spherical and less potato shaped. That's because until now, the force holding matter in shape was the chemical bonds between the atoms. But now from this point on, gravity takes over and that's what shapes planets. And it shapes them in many other ways. Neither Mercury nor the moon has enough gravity to hold onto an atmosphere, Venus and Earth do, but not enough to keep the lightest gases, hydrogen and helium. And since most of the visible matter in the universe is made of those two, once a planet can hold onto them, it can grow into a gas giant. So Earth lives in a kind of gravitational Goldilocks zone: just enough mass for its temperature to hold onto oxygen and nitrogen, not enough to hold onto hydrogen and helium. You can see it on the chart: most of these dots stop following the rocky planets on the left and move to the right where planets are mostly gas. Saturn is actually less dense than water, roughly as dense as wood, and it would float like a log. Then the trend suddenly stops, you can't get a planet much bigger than Jupiter. Objects 10 times, even 80 times more massive, are still roughly Jupiter-sized. That's because the pressure in their core is so high that electrons are squeezed out of their atoms and they push back. Add more mass, and the object gets denser, not bigger. And then right about brown dwarfs there's a huge split. Some objects veer to the right and some veer to the left, because now we are no longer talking about the story of ordinary matter. We are talking about life and death of stars.
 
@@ -704,6 +704,36 @@ is its cousin, not its parent. Chicago's Home Insurance Building (1885) had a me
 years earlier, and Eiffel's own clearest "skeleton plus skin" is the Statue of Liberty (1886). The
 tower is wrought iron, not steel. A skyscraper is ~300 kg/m³ counted whole (the Empire State
 Building: ~330,000 t in ~1 million m³), about 40 times the tower, because of its floors.
+
+### As cut now
+(rec51, 2026-11-03, one take, natural speed; `video/sources/2026-11-03/NOTES.md`. Marked lines are in one
+kind of video only.)
+
+> In my opinion, this is the most interesting chart in all of physics. The first thing you probably noticed is this diagonal line with everything from bacteria to humans to planets, stars and galaxies. The vertical axis is mass, the horizontal axis is size, so this is a log chart of mass versus size, right? Yeah, but it's so much more than that because it also includes things that don't have mass at all. Photons, like visible light or radio waves. That's because this chart is also a plot of energy, and the bottom axis doubles as wavelength. So in a way, this image contains all of science. Astronomy is up here, and engineering is down there, biology all the way down here, and then chemistry and particle physics. And the whole thing is bounded by three sides. On the right, the size of the universe, on the bottom left, quantum mechanics, on the top left, relativity. And where those two lines meet is actually the Big Bang. Notice that along the top there are even more diagonal lines, and they are all measured in seconds. That's because the top of the chart isn't about how things are, but when. It's the history of our whole universe. I call this the triangle of everything, and as you zoom in, it tells you a million stories about airplanes, hippos, and gravity. About how stars evolve, how particles relate to each other, why balloons float, and even contains a periodic table and it tells you why fire looks the way it does.
+
+*Short 1 only:*
+> I've been obsessed with this chart for many years and I spent countless days designing ways to explore it better. I could talk about it for hours and that's precisely what I intend to do.
+
+*Long only:*
+> So let's start with that first diagonal I mentioned.
+
+*Short 2a only (its opening):*
+> If you plot everything that exists by mass and size on a log scale, almost everything falls along the diagonal line. Why?
+
+> In the metric system, one milliliter of water weighs one gram and fills a cube exactly one centimeter wide. Most things though aren't cubes, so we'll measure all sizes as if everything were spherical. That will move most things a tiny bit to the right, but in most scales it won't even be noticeable. Now make every side 10 times longer, 10 centimeters, that's one unit to the right, but the volume grows a thousand times to one liter, and one liter of water weighs one kilogram, three steps up. Do it again, 10 times the size and you get a thousand times the mass, one ton. All of these draw a diagonal line, the density of water. Everything to the left is by definition denser than water so it sinks. Here are things made of stone and metal. Anything to the right, therefore, will float. In the same way, you can draw a line for the density of air. And balloons and zeppelins are literally called lighter-than-air aircraft, because they float on air, and that's why they are on the right of the line of the density of air. Most animals, though, live in a much narrower band. That's because we are mostly made of water. Some of us are a little denser than others. The hippo, for example, can't actually swim. It just bounces along the riverbed. And as we go up, we see heavier animals, like the elephants. The largest animal ever on land was the Argentinosaurus, but the largest animal ever is still around, that's the blue whale. But even that pales compared to trees. An adult sequoia can weigh as much as 10 blue whales. Past living things, we get to engineering. Notice that the Eiffel Tower is surprisingly light for its size. But that's because we are also counting all the space inside it. Take out the gap on the arch and it's about five times smaller. Melt it down and it would fit in a cube 11 meters wide, way over to the other side. Counted whole, it's almost as light as air. But that's really how every skyscraper works. A lot of empty space being held by the strongest but lightest skeleton possible. Then come big rocks, big buildings, and the Great Pyramid, which is a little bit of both. And above that we have lakes and asteroids, and then we arrive at small moons. And then, suddenly, notice how everything stops being a potato shape and turns into a sphere. Why does that happen?
+
+*(Short 2a ends here.)* *Short 2b only (its opening):*
+> If you plot everything by mass and size, you can actually see the point where asteroids and small moons turn from potato shapes into spheres.
+
+> That's because until now what held matter in shape was the chemical bonds between atoms and those are electromagnetic. From this point on gravity takes over and it's what shapes planets. And it shapes them in many other ways too. Neither Mercury or the Moon has enough gravity to hold on to an atmosphere. Venus and Earth do, but not enough to keep the lightest gases, hydrogen and helium. And since most of the visible matter in the universe is made of those two, once a planet can hold on to them, it will grow into a gas giant. So Earth lives in a kind of gravitational Goldilocks zone, just enough mass for its temperature to hold on to oxygen and nitrogen, but not enough to hold on to hydrogen and helium. You can see it on the chart. Most of those dots stop following the rocky planets on the left and move to the right where planets are mostly gas. Saturn is actually less dense than water, roughly as dense as wood. It would float like a log. Then the trend suddenly stops. You can't get a planet much bigger than Jupiter. Objects 10 times, even 80 times more massive, are still roughly Jupiter-sized. This is once again gravity breaking into electromagnetism's last refuge: the atom itself. The pressure in the core is so high that it crushes the atoms and strips their electrons off, leaving bare nuclei in a sea of electrons. Those electrons refuse to be squeezed any further, that's the last stand. Add more mass and the object gets denser, not bigger. And then, right around brown dwarfs, there's a huge split. Some objects veer to the right, and some veer to the left, because now we are no longer talking about the story of ordinary matter. We are talking about the stuff that makes the life and death of stars.
+
+### To re-record (from rec51's fact check)
+- **The Eiffel Tower's volume** (left out of the cut: "million" is missing, so it said "one and a half
+  cubic metres"): *"Its whole shape, air included, is about one and a half million cubic metres."* It goes
+  after "…all the space inside it."
+- **"electromagnetism's last refuge"**, if it sounds like "refugee" (Whisper hears "refugee"): *"This is
+  once again gravity breaking into electromagnetism's last refuge: the atom itself."*
+- Optional: "it will grow into a gas giant" → "it **can** grow"; "Neither Mercury **nor** the Moon".
 
 ### Still open
 - **The long video has no outro.** The "obsessed" lines are Short-only now, so long video 1 ends on

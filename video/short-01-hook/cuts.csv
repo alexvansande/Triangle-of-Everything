@@ -1,12 +1,15 @@
 source,beat,out_start,out_end,src_start,src_end,text
-rec35,open,0.00,4.19,18.12,22.31,"In my opinion, this is the most interesting chart in all of physics."
-rec35,diag,4.79,14.02,29.90,39.81,"probably the first thing you notice here is this diagonal line with everything from bacteria to humans, to planets, stars and galaxies."
-rec35,axes,14.62,30.95,41.33,57.95,"Vertical axis is mass, horizontal axis is size. So this is a log chart of mass versus size, right? Yeah, but it's so much more than that, because it also includes things that don't have mass at all. Photons, like visible lights, radio waves,"
-rec35,energy,31.55,38.21,60.79,67.55,"That's because this chart is also a chart of energy, and the bottom axis doubles as wavelength."
-rec35,science,38.81,49.84,86.36,97.39,"So in a way this chart contains all science, astronomy is up here at the top, engineering is down there, biology all the way down here, and then we have chemistry and particle physics."
-rec35,sides,50.45,63.66,100.02,113.87,But the whole thing is bounded by three sides on the right the size of the universe on the bottom left quantum mechanics on the top left relativity and where those line meets is actually the big bang
-rec35,time,64.26,69.66,126.85,132.25,notice that along the top there are all the diagonal lines and they're all measured in seconds.
-rec35,time,69.94,78.08,162.99,171.28,that's because the top axis isn't about how things are but when it's a history of our whole universe
-rec35,stories,78.68,97.45,182.88,201.88,"call this the triangle of everything, and as you zoom in, it tells you a million stories about airplanes and hippos and gravities, about how stars evolve, how particles turn into each other, why balloons float, even contains the periodic table and tells you why fire looks the way it does."
-rec35,outro,98.05,108.43,204.65,215.04,"I've been obsessed about this chart for many years now, and I've put hours and hours trying to visualize it in different ways and seeing all the story it contains."
-rec35,outro,108.71,120.74,217.22,229.51,I could talk about them for hours and that's precisely what I intend to do in this series of videos. I sincerely hope you find this as fascinating as I do.
+rec51,open,0.00,4.04,48.69,52.72,"In my opinion, this is the most interesting chart in all physics."
+rec51,diag,4.63,12.39,53.71,62.72,"The first thing you probably noticed is this diagonal line with everything from bacteria to humans to planets, stars and galaxies."
+rec51,axes,12.99,27.42,71.19,85.62,"The vertical axis is mass, the horizontal axis is size. So this is a log chart of mass versus size, right? Yeah, but it's so much more than that because it also includes things that don't have mass at all. Photons, like visible light or radio waves."
+rec51,energy,28.02,33.44,110.40,115.83,"That's because this chart is also a plot of energy, and the bottom axis doubles as wavelength."
+rec51,science,34.04,37.40,116.03,119.39,"So, in a way, this image contains all of science."
+rec51,science,37.80,44.46,119.88,126.54,"Astronomy is up here, engineering is down there, biology all the way down here, than chemistry and particle physics."
+rec51,sides,45.06,53.64,132.22,140.81,"And the whole thing is bounded by three sides. On the right, the size of the universe. On the bottom left, quantum mechanics. On the top left, relativity."
+rec51,sides,54.09,57.78,147.15,150.92,and where those two lines meet is actually the Big Bang.
+rec51,time,58.38,63.44,157.97,163.03,"even more diagonal lines, and they are all measured in seconds."
+rec51,time,63.72,71.00,163.31,170.59,"That's because the top of the chart isn't about how things are, but when. It's the history of our whole universe."
+rec51,stories,71.60,79.46,178.66,186.52,"I call this the triangle of everything, and as you zoom in, it tells you a million stories about airplanes, hippos, and gravity,"
+rec51,stories,79.74,90.22,191.62,202.10,"about how stars evolve, how particles relate to each other, why balloons float, and even contains the periodic table and it tells you why fire looks the way it"
+rec51,outro,90.82,98.03,207.76,214.97,"I've been obsessed with this short for many years, and I spent countless days designing ways to explore it better."
+rec51,outro,98.31,103.38,225.48,230.55,"I could talk about it for hours, and that's precisely what I intend to do."
