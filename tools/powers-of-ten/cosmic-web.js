@@ -43,6 +43,6 @@ export function cosmicWeb(){
   gl.uniform1f(loc('uOuter'),ramp(cam.s,25.1,25.8));
   gl.uniform1f(loc('uPixel'),cam.dpr);gl.uniform1f(loc('uSlab'),Math.min(.045,Math.max(.001,cam.F/R*.12)));gl.uniform1f(loc('uFeature'),1-ramp(cam.s,Math.log10(20e9*LY),Math.log10(50e9*LY)));
   for(const pass of [1,0]){gl.uniform1f(loc('uPass'),pass);gl.drawArrays(gl.POINTS,0,count);}
-  const c=cam.ctx;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=1-.78*ramp(cam.s,26.3,27.0);c.drawImage(canvas,0,0);c.restore();brush(cam);
+  const c=cam.ctx;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=1-.60*ramp(cam.s,26.3,27.0);c.drawImage(canvas,0,0);c.restore();brush(cam);
  }};
 }

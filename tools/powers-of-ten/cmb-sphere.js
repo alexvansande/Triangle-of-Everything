@@ -26,14 +26,15 @@ export function cmbSphere(){
     vec3 farP=normalize(eye+farT*ray);
     vec2 uv=vec2(fract(.5-atan(farP.y,farP.x)/6.28318530718),.5-asin(clamp(farP.z,-1.,1.))/3.14159265359);
     vec3 farColour=texture2D(uMap,uv).rgb;
-    float shellWeight=.55+.45*pow(1.-sqrt(max(0.,disc)),2.);
-    float farAlpha=min(1.,uAlpha/.365)*shellWeight*shellOpacity(farColour);
+    // Divide the desired combined opacity between the two hemispheres.
+    // Two identical red samples: 1 - (1 - .5)^2 = .75.
+    float farAlpha=min(1.,uAlpha/.365)*(1.-sqrt(1.-shellOpacity(farColour)));
 
     vec3 nearP=normalize(eye+max(0.,nearT)*ray);
     vec2 nuv=vec2(fract(.5-atan(nearP.y,nearP.x)/6.28318530718),.5-asin(clamp(nearP.z,-1.,1.))/3.14159265359);
     vec3 nearColour=texture2D(uMap,nuv).rgb;
     float nearMask=shellOpacity(nearColour);
-    float nearAlpha=min(1.,uAlpha/.365)*nearMask*smoothstep(0.,.12,nearT);
+    float nearAlpha=min(1.,uAlpha/.365)*(1.-sqrt(1.-nearMask))*smoothstep(0.,.12,nearT);
     float alpha=mix(farAlpha,nearAlpha,uPass);
     gl_FragColor=vec4(mix(farColour,nearColour,uPass)*alpha,alpha);
    }`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
