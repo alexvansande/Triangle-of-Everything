@@ -208,3 +208,29 @@ millionths", "when he thought it hit" → "when we thought we'd hit", "the plank
   uncuttable; atoms split; electrons, protons and neutrons, mostly empty space; quarks and gluons; nobody knows
   what quarks are made of; quantum field theory's fields as a number at every point of space and time; the
   Planck length, where relativity and quantum mechanics clash; the game of life as a "maybe".
+
+## rec53: "Long_1_take_2.m4a" (long video 1's end, re-recorded)
+
+Uploaded to the chat (2026-11-03 evening): 3:17, ALAC 48 kHz, after a mic test (0:00–0:05). The author's
+re-take of the end of long video 1, "And it shapes them in many other ways too…" to "…the life and death of
+stars", with the fixes from rec51's fact check. Spliced into `video/short-02-up-the-line/edl.py` in place of
+rec51's clips there (rec51 keeps everything before it and "You can see it on the chart… float like a log"),
+matched to rec51 with `SOURCE_FX` (2.8 dB quieter, a little fuller at 80–250 Hz, 3 dB duller above 8 kHz).
+Long video 1 now 5:58, Short 2b 2:01 (Short 2a unchanged: it ends before this part).
+
+- Taken: "Neither Mercury **nor** the Moon…"; "…once a planet passes about ten Earth masses, it can snowball into
+  a gas giant"; the Goldilocks line's second of five tries, the only whole one ("…just enough mass to hold on to
+  oxygen and nitrogen, not enough to hold on to hydrogen and helium": the first says "oxygen and oxygen", the
+  later ones drop nitrogen and helium and say "hold to hydrogen"); "This is once again gravity breaking into
+  electromagnetism's last **refuge**: the very atom" (the last of four tries; Whisper hears "refuge" in all of
+  them now, where rec51's was "refugee"); the split's retake ("And then right around the brown–" left out).
+- Trimmed: breaths after "atmosphere." (1.4 s), "electrons." (1.6 s) and "further." (1.1 s).
+- Dropped by the author in this take: "for its temperature" (Goldilocks) and "That's the last stand".
+- No noise in what's kept.
+
+**Fact check:** all right. The snowball line is right as said: past roughly ten Earth masses a core's gas
+accretion runs away, and "can" covers the ones that miss the gas (the disc is gone in a few million years).
+"Just enough mass to hold on to oxygen and nitrogen", without "for its temperature", is fine (escape depends on
+temperature too, but the line doesn't claim otherwise). Captions corrected: "too" → "do", "gold-block" →
+"Goldilocks", "hold them to" → "hold on to", "on the water" → "than water", "strip" → "strips", "brown dwarf" →
+"brown dwarfs".

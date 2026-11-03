@@ -20,7 +20,12 @@
 # Where Whisper (medium.en) merged a restart into one long word, `s` is the real start of the
 # retake, found from the speech runs (and the first-word start is the merged word's).
 
-SOURCES = {"rec51": "Long 1 take 1.m4a"}
+SOURCES = {"rec51": "Long 1 take 1.m4a", "rec53": "Long_1_take_2.m4a"}
+# rec53 = "Long_1_take_2.m4a" (uploaded to the chat, 2026-11-03 evening, 3:17, ALAC 48 kHz): the author's re-take of
+# the end, from "And it shapes them…" to "…the life and death of stars", with the fixes of rec51's fact check
+# ("nor", the ten-Earth-mass snowball, "refuge"). Matched to rec51 (measured on the speech: 2.8 dB quieter,
+# +1.7 dB at 80–250 Hz, −1.2 dB at 250–500 Hz, −3.3 dB above 8 kHz).
+SOURCE_FX = {"rec53": "volume=2.8dB,equalizer=f=160:t=o:w=1.3:g=-1.7,equalizer=f=350:t=o:w=1:g=1.2,highshelf=f=8000:g=3"}
 TREATMENT = "plain"
 PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
 
@@ -44,12 +49,13 @@ EDL = [
  ("rec51", "rocks", 511.00, 517.50),       # And then, suddenly, notice how everything stops being a potato shape and turns into a sphere. Why does that happen?   (long video 1 and Short 2a: 2a ends here)
  ("rec51", "planets-open", 539.78, 548.06, {"s": 540.66}),  # If you plot everything by mass and size, you can actually see the point where asteroids and small moons turn from potato shapes into spheres.   (Short 2b only; the third try: the first breaks off at "turn from potato", the second at "by size")
  ("rec51", "round", 551.46, 562.24, {"cut": [(558.34, 558.80)]}),       # That's because until now, what held matter in shape was the chemical bonds between atoms, and those are electromagnetic. From this point on, gravity takes over, and it's what shapes planets.
- ("rec51", "atmos", 580.98, 596.70, {"cut": [(587.92, 588.06)]}),       # And it shapes them in many other ways too. Neither Mercury or the Moon has enough gravity to hold on to an atmosphere. Venus and Earth do, but not enough to keep the lightest gases, hydrogen and helium. And since most of the visible matter in the universe is made of those two,
- ("rec51", "atmos", 603.14, 606.18, {"gap": 0.28}),  # once a planet can hold on to them, it will grow into a gas giant.   (the second try; the first breaks off at "it can grow,")
- ("rec51", "goldi", 608.52, 620.76, {"cut": [(616.04, 617.55), (617.965, 618.885)]}),  # ("but not eno– not enough" → "but not enough": the author, 2026-11-03) So Earth lives in a kind of gravitational Goldilocks zone: just enough mass, for its temperature, to hold on to oxygen and nitrogen, but not enough to hold on to hydrogen and helium.
+ ("rec53", "atmos", 9.38, 23.16, {"cut": [(17.52, 18.46)]}),  # And it shapes them in many other ways too. Neither Mercury nor the Moon has enough gravity to hold on to an atmosphere. Venus and Earth do, but not enough to keep the lightest gases, hydrogen and helium.   (rec53)
+ ("rec53", "atmos", 24.50, 34.22),         # And since most of the visible matter in the universe is made of those two, once a planet passes about ten Earth masses, it can snowball into a gas giant.   (rec53: the fact check's fix, the author's wording)
+ ("rec53", "goldi", 44.34, 53.30),         # So Earth lives in a kind of gravitational Goldilocks zone: just enough mass to hold on to oxygen and nitrogen, not enough to hold on to hydrogen and helium.   (rec53, the second of five tries, the only whole one: the first says "oxygen and oxygen", the later ones drop nitrogen and helium and say "hold to hydrogen")
  ("rec51", "gas", 627.24, 641.10, {"s": 627.38}),  # You can see it on the chart. Most of those dots stop following the rocky planets on the left and move to the right, where planets are mostly gas. Saturn is actually less dense than water, roughly as dense as wood. It would float like a log.   (the third "You can see it on the chart")
- ("rec51", "jupiter", 643.76, 653.10),     # Then the trend suddenly stops. You can't get a planet much bigger than Jupiter. Objects ten times, even eighty times more massive are still roughly Jupiter-sized.
- ("rec51", "jupiter", 657.54, 682.00, {"cut": [(673.24, 673.53)]}),     # This is once again gravity breaking into electromagnetism's last refuge: the atom itself. The pressure in the core is so high that it crushes the atoms and strips their electrons off, leaving bare nuclei in a sea of electrons. Those electrons refuse to be squeezed any further. That's the last stand. Add more mass, and the object gets denser, not bigger.   ("This is again," left out)
- ("rec51", "split", 684.08, 695.00),       # And then, right around brown dwarfs, there's a huge split. Some objects veer to the right and some veer to the left, because now we are no longer talking about the story of ordinary matter.
- ("rec51", "split", 709.06, 713.28, {"s": 709.00, "gap": 0.45}),  # We are talking about the stuff that makes the life and death of stars.   (the end of the last try: the first breaks off at "…and all the weird matter that…", and the last try's start, "Because we are…", runs straight on from "veer to the left," with no pause to cut in)
+ ("rec53", "jupiter", 86.76, 96.42),      # Then the trend suddenly stops. You can't get a planet much bigger than Jupiter. Objects ten times, even eighty times more massive are still roughly Jupiter-sized.   (rec53)
+ ("rec53", "jupiter", 143.04, 148.46),    # This is once again gravity breaking into electromagnetism's last refuge: the very atom.   (rec53, the last of four tries, "refuge" said right)
+ ("rec53", "jupiter", 150.52, 168.96, {"cut": [(159.86, 160.98), (165.14, 165.82)]}),  # The pressure in the core is so high that it crushes these atoms and strips their electrons off, leaving bare nuclei in a sea of electrons. Those electrons simply refuse to be squeezed any further. Add more mass, and the object gets denser, not bigger.   (rec53; it has no "That's the last stand")
+ ("rec53", "split", 172.34, 184.38, {"s": 174.70}),  # And then, right around the brown dwarfs, there's a huge split. Some objects veer to the right and some veer to the left, because now we're no longer talking about the story of ordinary matter.   (rec53, the retake: "And then right around the brown–" left out)
+ ("rec53", "split", 185.16, 189.12),      # We are talking about the stuff that makes the life and death of stars.   (rec53)
 ]
