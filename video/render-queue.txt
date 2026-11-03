@@ -9,7 +9,11 @@
 # A "# next: <take>" line renders that take before the others. A "# hold" line stops the renders
 # (before the next take) until it's deleted.
 # A "# priority: <take>" line puts that take first every time it's out of date, and stays.
-# Tonight (the author, 2026-11-03, 2nd pass): the powers-of-ten zoom first: retimed to the narration (horizon, ladybug, Life at "maybe, deep down"), backing now Dreamer
+# Now (the author, 2026-11-03, afternoon): long video 1, its Shorts, then the powers-of-ten zoom (retimed, Dreamer, the new turning CMB), then the rest that need it
+# next: long-01-intro
+# next: short-01-hook
+# next: short-02a-things
+# next: short-02b-planets
 # next: short-00-powers-of-ten
 # priority: long-01-intro
 # Long video 1's Shorts and the powers-of-ten zoom before long video 3 (the author, 2026-11-01, 23:30)
@@ -21,6 +25,7 @@
 # next: short-07a-photons
 # next: short-07b-sky
 # Re-recorded in one take (rec51, 2026-11-03): long video 1 and its three Shorts, new audio, render whole
+short-00-powers-of-ten
 long-01-intro
 short-01-hook
 short-02a-things
