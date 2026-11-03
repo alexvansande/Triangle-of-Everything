@@ -15,7 +15,7 @@ export function cmbObject(){
   const basis=cosmicOrbit(cameraAt(Math.log10(176e9*9.4607e15)),.8+seconds*.035),view={dist:distance,a:.365};
   shell.draw(ctx,size,view,basis,0);
   ctx.save();ctx.globalCompositeOperation='screen';ctx.lineCap='round';
-  for(const l of lines){ctx.beginPath();l.pts.forEach((p,i)=>{const w=distance-dot(p,basis.n),x=size/2+dot(p,basis.r)/tan/w*size/2,y=size/2-dot(p,basis.u)/tan/w*size/2;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y)});ctx.strokeStyle=`rgba(${l.colour.join(',')},.55)`;ctx.lineWidth=Math.max(.5,size/1600);ctx.stroke();}ctx.restore();
+  for(const l of lines){ctx.beginPath();l.pts.forEach((p,i)=>{const w=distance-dot(p,basis.n),x=size/2+dot(p,basis.r)/tan/w*size/2,y=size/2-dot(p,basis.u)/tan/w*size/2;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y)});ctx.strokeStyle=`rgba(${l.colour.join(',')},.90)`;ctx.lineWidth=Math.max(.5,size/1600);ctx.stroke();}ctx.restore();
   shell.draw(ctx,size,view,basis,1);
   // Reference lighting remains fixed in screen space while the volume turns.
   if(lighting.complete&&lighting.naturalWidth){const c=copy.getContext('2d');c.clearRect(0,0,size,size);c.drawImage(lighting,0,0,size,size);const mask=c.getImageData(0,0,size,size).data,pixels=ctx.getImageData(0,0,size,size);for(let i=0;i<pixels.data.length;i+=4)for(let k=0;k<3;k++)pixels.data[i+k]*=.3+.7*mask[i+k]/255;ctx.putImageData(pixels,0,0);}

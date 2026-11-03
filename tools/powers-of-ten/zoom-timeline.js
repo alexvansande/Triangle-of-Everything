@@ -10,7 +10,7 @@ const smooth=x=>{x=clamp(x);return x*x*(3-2*x)};
 // each key is [video seconds, log10 of the frame width in metres], at the first word of the thing's
 // name. A monotone cubic through them keeps the speed continuous: it eases into each stop and speeds
 // up across the empty stretches, then comes to rest on the Planck grid and holds the gliders.
-export const VIDEO_START_SCALE=Math.log10(176e9*9.4607e15);
+export const VIDEO_START_SCALE=Math.log10(2*46e9*9.4607e15/.42);
 const START_SCALE=VIDEO_START_SCALE;
 const KEYS=[
  [0,START_SCALE],[11.83,26.8],  // the CMB, barely moving

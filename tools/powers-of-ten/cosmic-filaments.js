@@ -35,7 +35,7 @@ export function buildFilaments(){
 export function filamentBrush(){
  const strands=buildFilaments(),grain=filamentGrain(strands),R=46e9*LY,TAN=Math.tan(20*Math.PI/180);
  return cam=>{
-  if(!cam.cmbView)return;const a=ramp(cam.s,23.8,24.6)*(1-.60*ramp(cam.s,26.3,27.0)),projection=ramp(cam.s,25.6,26.45);if(!a)return;
+  if(!cam.cmbView)return;const a=ramp(cam.s,23.8,24.6)*(1-.32*ramp(cam.s,26.3,27.0)),projection=ramp(cam.s,25.6,26.45);if(!a)return;
   const dot=(p,v)=>p.reduce((s,w,i)=>s+w*v[i],0),scale=(1-projection)*2*R*cam.min/(cam.F*cam.W)+projection/TAN,ctx=cam.ctx;
   ctx.save();ctx.globalCompositeOperation='screen';ctx.lineCap='round';ctx.lineJoin='round';
   for(const line of strands){const extent=2*R*line.radius/cam.F,visible=ramp(extent,.3,.75)*(1-ramp(extent,7,18));if(!visible)continue;ctx.beginPath();let begun=false;
