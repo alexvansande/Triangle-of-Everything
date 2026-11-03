@@ -37,6 +37,17 @@ export function drawScaleOverlay(cam,{grid=true,labels=true,canopy=false}={}){
   ctx.globalAlpha=planckMix;ctx.strokeStyle='#fff';ctx.lineWidth=dpr;ctx.strokeRect(left,top,side,side);
   if(labels)caption(ctx,'Planck length',cx,top-22*dpr,dpr);
  }
+ // The opening Lenia hero is centered at the shared world origin.
+ // Its settled body occupies about 25/256 of the .565 attometre seed plane.
+ if(labels){
+  const side=1.2e-19*k,fraction=side/min;
+  const a=smooth(.008,.025,fraction)*(1-smooth(.45,.8,fraction));
+  if(a>.005){
+   ctx.globalAlpha=a;ctx.strokeStyle='#edf6ed';ctx.lineWidth=dpr;
+   ctx.strokeRect(cx-side/2,cy-side/2,side,side);
+   caption(ctx,'Quark',cx,cy-side/2-22*dpr,dpr);
+  }
+ }
  if(labels&&s>7&&s<26){
   const C=299792458,LY=9.4607e15;
   for(const [radius,label] of [[C,'1 light-second'],[3600*C,'1 light-hour'],[86400*C,'1 light-day'],[LY,'1 light-year'],[10*LY,'10 light-years'],[100*LY,'100 light-years'],[1e6*LY,'1 million light-years'],[1e9*LY,'1 billion light-years']]){
