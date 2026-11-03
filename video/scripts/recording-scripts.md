@@ -26,7 +26,7 @@ went silent after a minute when it ran out.
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
-| 0 · powers of ten (the CMB to the Planck length) | `short-00-powers-of-ten` | 2:00, silent (first script 2026-11-02) |
+| 0 · powers of ten (the CMB to the Planck length) | `short-00-powers-of-ten` | 3:00, narrated (recorded 2026-11-03, rec52: 2:56 of voice) |
 
 ---
 
@@ -1108,6 +1108,20 @@ no narration yet: this is a first script, written to the picture. The zoom is ev
 ten every 1.96 s (61 powers in 120 s), so each line is timed to when its thing is on screen.
 About 210 words in two minutes: speak slowly and leave the gaps; the picture carries it. Record
 each line as its own phrase, so it can be placed on its time.
+
+### As cut now
+(rec52, 2026-11-03, natural speed, 2:56 under the 3:00 zoom; `video/sources/2026-11-03/NOTES.md`. The zoom is
+retimed to it: `video/short-00-powers-of-ten/zoom-keys.json`, for the zoom session to apply.)
+
+> As far as we've been able to measure for all practical purposes, the universe is infinite in every direction, but we are limited by how much we can see of it. The largest thing we can see is the cosmic microwave background, a faint glow from 380,000 years after the Big Bang, the moment light could first escape. Everything here is a picture of the past. The smaller bubble inside is the cosmic event horizon. Those represent galaxies that can still send light or information to us. Inside them are the largest structures of all: superclusters, strung along threads of galaxies around huge empty voids. We live in one such small filament called the Laniakea supercluster, made of a hundred thousand galaxies. And in here we see our local neighborhood of galaxies. Here's Andromeda and here's the Milky Way. That's us. And in one of its arms, one star among hundreds of billions, is the Sun. Here are the nearby stars, Sirius and Proxima Centauri. The Sun is surrounded by billions of icy comets that make up the Oort cloud. Now we can see the orbits of planets, and the third rock from the Sun, that's home. We see the moon zoom by. And in North America, California, in the Sierra Nevada, lives a forest of giant sequoias. And there lives the General Sherman, the largest tree on Earth. And one of its branches, a ladybug, is drinking a little bit of morning dew. And we find our first single-celled organism, an amoeba. Inside it, we find its nucleus and its DNA, wound tight around proteins. The double helix is two millionths of a millimeter wide. Atom is Greek for uncuttable, unsplittable. We named it when we thought we'd hit the bottom. But atoms do split, famously and violently. They are made of electrons, protons and neutrons, and they are mostly empty space. And the proton and neutron in turn are made of smaller things like quarks and gluons. And what are quarks made of? Well, truly we don't know. But now, instead of searching for the smallest building block, physics now looks for the smallest set of rules. Quantum field theory describes the universe as simply numbers at every point of space and time, and every particle as just a temporary ripple in one of them. Our journey ends at the Planck length. At this point, relativity clashes with quantum mechanics. Is that the limit? Well, we don't know. But maybe, deep down, at the Planck scale, where theories break down, it's all one big game of life.
+
+### To re-record (from rec52's fact check), if you want them back
+- *"It's just over one light-second away."* (after "We see the Moon zoom by"; "two light-seconds" was left out)
+- *"To see anything smaller, you'd have to pack so much energy into it that it would collapse into a black hole."*
+  (after "…clashes with quantum mechanics"; the antiparticle half was wrong for the Planck scale)
+- *"We live in one of them: the Laniakea supercluster, a hundred thousand galaxies."* (it's a supercluster, not a
+  filament)
+- "every particle as just a ripple in one of them" (without "temporary")
 
 ### Full script, three minutes (the author's opening and ending, 2026-11-02)
 

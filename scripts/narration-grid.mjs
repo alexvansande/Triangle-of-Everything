@@ -63,6 +63,7 @@ export async function takeInfo(takes, dir, { root = ".", fresh = false, local = 
     info.push({ renderOnly: !!take.renderOnly, id: t, title: take.title || scene.title || t, blurb: take.blurb || scene.blurb || first, duration: take.duration, music,
       thumbAt: scene.thumb ?? take.duration * 0.4, num: (t.match(/\d+[a-z]?/) || [""])[0],
       long: t.startsWith("long-"), wide: take.stage === "landscape", cut: !!take.segments,
+      sources: take.segments ? [...new Set(take.segments.map(s => s.take))] : [t],
       yt: yt[t], ytThumb: fs.existsSync(path.join(root, "video/thumbnails", `${t}.jpg`)) ? `video/thumbnails/${t}.jpg` : "",
       ...renderedVideo(t, root, local),
       ...updatedAt(t, take.scene || t, root) });
@@ -94,8 +95,13 @@ export function gridHtml(info, { built, commit, base = "" }) {
           </dl>
           ${k.ytThumb && k.thumb ? `<p class="ng-yt-still">Player still: <img src="${base}${k.thumb}" alt="" loading="lazy"></p>` : ""}
         </details>`;
-  // the shorts (9:16) in the grid; the long cuts (16:9, scripts/narration-cut.py) in a row of their own
+  // each long video (16:9, scripts/narration-cut.py), then a row of its shorts that scrolls sideways: the shorts
+  // cut from the same source takes (the author, 2026-11-03: "the long videos, then a horizontal carousel of their
+  // shorts, then the next long"). Shorts of no long video (the powers-of-ten zoom) get a row of their own, first.
   const shorts = info.filter(k => !k.long), longs = info.filter(k => k.long);
+  const groups = longs.map(l => ({ long: l, shorts: shorts.filter(s => s.sources.some(x => l.sources.includes(x))) }));
+  const grouped = new Set(groups.flatMap(g => g.shorts.map(s => s.id)));
+  const loose = shorts.filter(s => !grouped.has(s.id));
   const card = k => `
     <div class="ng-item${k.wide ? " is-wide" : ""}">
       <a class="ng-card" data-render-only="${k.renderOnly ? "1" : "0"}" href="#${k.renderOnly ? "rendered/" : ""}${esc(k.id)}">
@@ -109,25 +115,33 @@ export function gridHtml(info, { built, commit, base = "" }) {
         <span class="ng-music">♪ “${esc(k.music)}” Kevin MacLeod (incompetech.com)</span>` : ""}
       </a>${ytPanel(k)}
     </div>`;
-  const cards = shorts.map(card).join(""), longCards = longs.map(card).join("");
+  const row = (list, label) => `
+  <div class="ng-carousel" role="list" aria-label="${esc(label)}">${list.map(k => card(k).replace('<div class="ng-item', '<div role="listitem" class="ng-item')).join("")}
+  </div>`;
+  const sections = (loose.length ? `
+  <section class="ng-group">
+    <h2 class="ng-sub">Shorts <span>on their own</span></h2>${row(loose, "Shorts on their own")}
+  </section>` : "") + groups.map((g, i) => `
+  <section class="ng-group">
+    <h2 class="ng-sub">Long video ${i + 1} <span>16:9 · ${mmss(g.long.duration)}</span></h2>
+    <div class="ng-long">${card(g.long)}
+    </div>${g.shorts.length ? `
+    <h3 class="ng-sub3">Its shorts <span>${g.shorts.length} · 9:16 · scroll sideways</span></h3>${row(g.shorts, `Long video ${i + 1}'s shorts`)}` : ""}
+  </section>`).join("");
   return `<section id="narr-grid" hidden aria-label="Narration previews">
   <header class="ng-head">
     <p class="ng-eyebrow">The Triangle of Everything</p>
     <h1>Narration previews</h1>
-    <p class="ng-note">${info.length} vertical shorts, played live from the map with their audio. Tap one to watch it, then tap the screen to pause. With autoplay on, each one rolls into the next.</p>
+    <p class="ng-note">${longs.length} long videos (16:9), each followed by its shorts (9:16): ${shorts.length} shorts in all, played live from the map with their audio. Tap one to watch it, then tap the screen to pause. With autoplay on, each one rolls into the next.</p>
     <p class="ng-stamp">Last updated <time datetime="${built}" data-fmt="time">${built.slice(0, 16).replace("T", " ")} UTC</time>${commit ? ` · ${esc(commit)}` : ""}</p>
     <div class="ng-mode" role="group" aria-label="How to watch">
       <button type="button" data-mode="live" aria-pressed="true">Live map</button>
       <button type="button" data-mode="video" aria-pressed="false">Rendered video</button>
     </div>
     <p class="ng-mode-note" id="ng-mode-note"></p>
-    <a class="ng-all" href="#${esc(shorts[0].id)}">Play all · ${mmss(shorts.reduce((s, k) => s + k.duration, 0))}</a>
+    <a class="ng-all" href="#${esc((shorts.find(k => !k.renderOnly) || shorts[0]).id)}">Play all · ${mmss(shorts.filter(k => !k.renderOnly).reduce((s, k) => s + k.duration, 0))}</a>
   </header>
-  <div class="ng-grid">${cards}
-  </div>${longs.length ? `
-  <h2 class="ng-sub">Long videos <span>16:9 · the shorts joined</span></h2>
-  <div class="ng-grid ng-grid-wide">${longCards}
-  </div>` : ""}${info.some(k => k.music) ? `
+${sections}${info.some(k => k.music) ? `
   <p class="ng-credits">Music by Kevin MacLeod (<a href="https://incompetech.com" target="_blank" rel="noopener">incompetech.com</a>),
     licensed under Creative Commons: By Attribution 4.0
     (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">creativecommons.org/licenses/by/4.0</a>).</p>` : ""}
@@ -186,6 +200,19 @@ export function gridHtml(info, { built, commit, base = "" }) {
 .ng-sub { max-width: 960px; margin: 30px auto 12px; font: 700 26px/1 var(--ng-display); text-transform: uppercase; letter-spacing: 0.01em; }
 .ng-sub span { font: 500 13px/1 var(--ng-body); text-transform: none; letter-spacing: 0; color: var(--ng-muted); margin-left: 8px; }
 .ng-grid-wide { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.ng-group { max-width: 960px; margin: 0 auto; padding-bottom: 8px; border-bottom: 1px solid var(--ng-line); }
+.ng-group:last-of-type { border-bottom: 0; }
+.ng-long { max-width: 640px; }
+.ng-sub3 { margin: 18px 0 10px; font: 700 18px/1 var(--ng-display); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ng-muted); }
+.ng-sub3 span { font: 500 12.5px/1 var(--ng-body); text-transform: none; letter-spacing: 0; margin-left: 6px; }
+/* a long video's shorts: one row that scrolls sideways, each card snapping into place */
+.ng-carousel { display: flex; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+  padding: 2px 2px 14px; margin: 0 -2px; scrollbar-width: thin; scrollbar-color: var(--ng-line) transparent; }
+.ng-carousel > .ng-item { flex: 0 0 clamp(150px, 40vw, 190px); scroll-snap-align: start; }
+.ng-carousel > .ng-item:has(.ng-yt[open]) { flex-basis: min(640px, 88vw); }
+/* "Rendered video" on: the videos with no render yet at half strength */
+.ng-item { transition: opacity 0.2s ease; }
+.ng-item.is-unrendered { opacity: 0.5; }
 .ng-item.is-wide .ng-thumb { aspect-ratio: 16 / 9; }
 .ng-item { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 /* the YouTube panel: opened, the card takes the whole row */
@@ -312,6 +339,8 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
       badge.hidden = mode !== "video" && a.dataset.renderOnly !== "1";
       badge.className = "ng-badge" + (has ? " is-video" : "");
       badge.textContent = has ? "Video" : a.dataset.renderOnly === "1" ? "Queued · rendered only" : "Live only";
+      var item = a.closest(".ng-item");
+      if (item) item.classList.toggle("is-unrendered", mode === "video" && !has);
     });
     // Play all: the whole series live; in video mode, only the rendered ones
     var all = document.querySelector(".ng-all");

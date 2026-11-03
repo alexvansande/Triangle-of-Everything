@@ -37,6 +37,10 @@ short-04b-smallest-black-holes
 short-05a-emptier
 short-05b-hubble-sphere
 short-05c-observable-universe
+# Every video on the next render (the author, 2026-11-03): the others above were queued already
+short-00-powers-of-ten
+# short-00-powers-of-ten: now narrated (rec52, its audio in words.json). Its zoom has to be retimed to the voice first:
+# the zoom session applies video/short-00-powers-of-ten/zoom-keys.json to tools/powers-of-ten/zoom-timeline.js.
 
 # short-00-powers-of-ten: updated CMB opacity, regional filament colors and Laniakea pullback rotation; render whole take.
 # short-00-powers-of-ten: replace quark/Life ending with grayscale Lenia relief and Planck-pixel terrain; full render.
