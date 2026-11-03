@@ -63,9 +63,9 @@ const EIFFEL = { trace: "Eiffel Tower", grow: 2.6, shapes: [
 const EIFFEL_LINES = [{ line: "water", label: "water" }, { line: "air", label: "air" }];
 // the animals put first at "most animals": the chart's own and the catalogue's (by their labels)
 const ANIMALS = ["Venus", "Human", "Cow", "Hippopotamus", "Elephant", "Lion", "Giraffe", "Polar bear", "Gorilla"];
-// gravity 2, electromagnetism 0: a scoreboard beside the super-Jupiters' column, in the clear space left of it
-// (three lines, 22 px: "Electromagnetism 0" on one ran off the left edge of the 9:16 frame; the author, 2026-11-03)
-const SCORE = { text: "Gravity 2\nElectro-\nmagnetism 0", at: [9.34, 32.4], size: 22, color: "#ffe9a3" };
+// gravity 2, electromagnetism 0: a scoreboard in the middle of the screen, the names small over the big
+// scores (the author, 2026-11-03: the three-line "Gravity 2 / Electro- / magnetism 0" read oddly)
+const SCORE = { score: [["Gravity", 2], ["Electromagnetism", 0]] };
 const SCORE_ON = { ...SCORE, instant: true };
 const drawn = (list) => list.map(h => h.arrow ? { ...h, draw: 0.01 } : { ...h, instant: true, delay: 0 });
 
@@ -268,13 +268,13 @@ export default {
     { at: "still roughly", cam: G(9.85, 30.9), hl: [{ obj: "Jupiter", label: "Jupiter size", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
     // "This is once again gravity breaking into electromagnetism's last refuge: the atom itself" (rec51):
     // the score, gravity's first win being the round worlds (the script's on-screen note, 2026-11-02)
-    { at: "once again gravity", cam: G(9.85, 31.0), hl: [SCORE, { obj: "Jupiter", label: "the atom itself", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }] },
-    { at: ["pressure in the core", "pressure in their core"], cam: G(9.85, 31.2), hl: [SCORE_ON, { obj: "Jupiter", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
-    { at: "sea of electrons", hl: [SCORE_ON, { obj: "Jupiter", label: "bare nuclei, free electrons", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false }] },
-    { at: "refuse to be squeezed", cam: G(9.85, 31.6), hl: [SCORE_ON, { obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
-      { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "degenerate matter" }] },
-    { at: "denser not bigger", hl: [SCORE_ON, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" }, { obj: "Jupiter", place: "left", label: false },
-      { obj: "L Brown Dwarf", label: "denser, not bigger" }] },
+    { at: "once again gravity", cam: G(9.85, 31.0), hl: [{ obj: "Jupiter", label: "the atom itself", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, SCORE] },
+    { at: ["pressure in the core", "pressure in their core"], cam: G(9.85, 31.2), hl: [{ obj: "Jupiter", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }, SCORE_ON] },
+    { at: "sea of electrons", hl: [{ obj: "Jupiter", label: "bare nuclei, free electrons", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false }, SCORE_ON] },
+    { at: "refuse to be squeezed", cam: G(9.85, 31.6), hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
+      { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "degenerate matter" }, SCORE_ON] },
+    { at: "denser not bigger", hl: [{ trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" }, { obj: "Jupiter", place: "left", label: false },
+      { obj: "L Brown Dwarf", label: "denser, not bigger" }, SCORE_ON] },
 
     // the split
     { at: ["around brown dwarfs", "about brown dwarfs"], cam: G(9.85, 32.1),

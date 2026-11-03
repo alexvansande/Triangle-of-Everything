@@ -76,8 +76,11 @@ export async function startStarIcons(chartEl, { busy = () => false } = {}) {
       return;
     }
     wasVideo = true;
-    // the take's own clock, so every frame of a render is the same whichever worker draws it
-    const t = window.__narr?.now?.() ?? performance.now() / 1000;
+    // the take's own clock, so every frame of a render is the same whichever worker draws it; held to
+    // the video's frame (30 fps), so a render's motion-blur sub-frames, centred on it, share one
+    // surface: the boiling cells were smeared across the shutter, softer than the pictures beside
+    // them (the author, 2026-11-03). Their place still follows the camera, blur and all.
+    const t = Math.round((window.__narr?.now?.() ?? performance.now() / 1000) * 30) / 30;
     const dpr = devicePixelRatio || 1;
     const box = chartEl.getBoundingClientRect();
     const w = Math.round(box.width * dpr), h = Math.round(box.height * dpr);

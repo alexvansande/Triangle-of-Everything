@@ -110,10 +110,17 @@ async function renderRange(t0, t1, file, label) {
   await page.evaluate(`window.__narr.renderAt(${t0})`);
   const clip = await page.evaluate((id) => {
     const r = document.getElementById(id).getBoundingClientRect();
-    return { x: r.x, y: r.y, width: r.width, height: r.height, scale: devicePixelRatio };
+    return { x: r.x, y: r.y, width: r.width, height: r.height, scale: meta.renderPage ? devicePixelRatio : 1 };
   }, meta.renderClip || "narr-layer");
+  // The captures' own session needs the 2.5× screen too: without it the page's devicePixelRatio fell
+  // to 1 at the first capture, and every frame after drew its canvases (the live stars, the fractal,
+  // the Hopf and Laniakea pictures) and picked its pictures' files for a 768×432 screen, stretched
+  // into the 1080p frame (the author, 2026-11-03: the stars still looked SD). The clip's scale is 1:
+  // the emulated screen already gives 2.5 pixels per CSS pixel. Not yet for a page of its own (the
+  // powers-of-ten zoom, `renderPage`): its WebGL at 2.5× instead of 1× is untested for time.
   const cdp = await page.target().createCDPSession();
-  const W = Math.round(clip.width * clip.scale), H = Math.round(clip.height * clip.scale);
+  if (!meta.renderPage) await cdp.send("Emulation.setDeviceMetricsOverride", { width: STAGE.W + 2 * STAGE.pad, height: STAGE.H + 2 * STAGE.pad, deviceScaleFactor: STAGE.dpr, mobile: false });
+  const W = Math.round(clip.width * (meta.renderPage ? clip.scale : STAGE.dpr)), H = Math.round(clip.height * (meta.renderPage ? clip.scale : STAGE.dpr));
   const ff = spawn("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y",
     ...(SUB > 1 ? ["-f", "rawvideo", "-pix_fmt", "rgb24", "-s", `${W}x${H}`] : ["-f", "image2pipe"]), "-framerate", String(FPS),
     "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", String(FPS), file],

@@ -1068,6 +1068,7 @@ export async function startNarration(app) {
       else if (h.figText) drawFigText(el, h, age);
       else if (h.window) drawWindow(el, h, age);
       else if (h.cross) drawCross(el, h, t - (h.since ?? h.t0));
+      else if (h.score) drawScore(el, h, age);
       else if (h.text) drawText(el, h, age);
       else if (h.pic) drawPic(el, h, age);
       else if (h.clip) drawClipHl(h, t);
@@ -2055,6 +2056,31 @@ export async function startNarration(app) {
       .attr("text-anchor", "middle").attr("opacity", op);
     h.title.split("\n").forEach((ln, i) => t.append("tspan").attr("x", SW / 2).attr("dy", i ? "1.0em" : 0).text(ln.toUpperCase()));
   }
+  /** A scoreboard in the middle of the screen, in the captions' font: { score: [["Gravity", 2],
+   *  ["Electromagnetism", 0]], y?: its middle, a fraction of the screen's height (0.2 wide, 0.26 tall) }. The names
+   *  small on top, the scores big below them, a "×" between (the author's design, 2026-11-03). */
+  function drawScore(el, h, age) {
+    const SW = layer.clientWidth, SH = layer.clientHeight, op = h.instant ? 1 : smooth(age / 0.6);
+    const u = Math.min(SW, SH) / 420, cx = SW / 2, cy = SH * (h.y ?? (SW > SH ? 0.2 : 0.26));
+    const g = el.append("g").attr("class", "narr-score").attr("opacity", op), panel = g.append("rect");
+    const txt = (x, y, size, s, cls) => g.append("text").attr("class", cls).attr("x", x).attr("y", y)
+      .attr("text-anchor", "middle").style("font-size", `${size}px`).text(s);
+    const names = h.score.map(([name]) => txt(0, cy - 30 * u, 21 * u, name.toUpperCase(), "narr-score-name"));
+    // each column as wide as its name, the two a "×" apart
+    const w = Math.max(...names.map(t => t.node().getComputedTextLength())), dx = w / 2 + 26 * u;
+    h.score.forEach(([, n], i) => {
+      const x = cx + (i ? dx : -dx);
+      names[i].attr("x", x);
+      txt(x, cy + 42 * u, 76 * u, String(n), "narr-score-n");
+    });
+    txt(cx, cy + 26 * u, 34 * u, "×", "narr-score-x");
+    const pw = 2 * dx + w + 40 * u, ph = 112 * u;
+    panel.attr("x", cx - pw / 2).attr("y", cy - 58 * u).attr("width", pw).attr("height", ph).attr("rx", 14 * u)
+      .attr("fill", "rgba(8,10,34,0.72)").attr("stroke", "rgba(255,233,163,0.35)").attr("stroke-width", 1.5);
+    // at most 40% of a wide frame (the chart stays in view around it), 88% of a tall one
+    const k = Math.min(1, SW * (SW > SH ? 0.4 : 0.88) / pw);
+    if (k < 1) g.attr("transform", `translate(${cx},${cy}) scale(${k}) translate(${-cx},${-cy})`);
+  }
   /** A card: { card: "E = mc²", hold?: 2, bg?: "#fff", arrow?: true, caption? } — the screen
    *  fades to the card's colour, holds the text (an equation: serif italic, a trailing "²"
    *  set as a superscript) for `hold` seconds, and fades back to the chart. Over the classic
@@ -3017,6 +3043,11 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
 #narr-svg text.narr-note { font-size: calc(12.5px * var(--narr-text, 1)); font-weight: 500; letter-spacing: 0.04em; fill: rgba(235,238,255,0.9); stroke-width: 3px; }
 #narr-svg text.narr-title { font-family: "Barlow Condensed", "Arial Narrow", sans-serif !important; font-size: 42px; font-weight: 700;
   letter-spacing: 0.04em; fill: #ffd54f; stroke: rgba(0,0,0,0.9); stroke-width: 6px; }
+#narr-svg .narr-score text { font-family: "Barlow Condensed", "DIN Condensed", "Arial Narrow", sans-serif !important; font-weight: 700;
+  stroke: #000; stroke-width: 6px; paint-order: stroke fill; stroke-linejoin: round; }
+#narr-svg .narr-score text.narr-score-name { fill: #fff; letter-spacing: 0.06em; stroke-width: 5px; }
+#narr-svg .narr-score text.narr-score-n { fill: #ffe9a3; stroke-width: 8px; }
+#narr-svg .narr-score text.narr-score-x { fill: rgba(255,255,255,0.85); }
 .narr-linelabel { font-size: calc(11px * var(--narr-text, 1)); font-weight: 700; letter-spacing: 0.18em; }
 .narr-axislabel { font-family: "Barlow Condensed", Inter, sans-serif !important; font-size: calc(22px * var(--narr-axis-text, 1)); font-weight: 700; letter-spacing: 0.12em; }
 .narr-sidelabel { font-size: calc(15px * var(--narr-text, 1)); font-weight: 800; letter-spacing: 0.22em; }

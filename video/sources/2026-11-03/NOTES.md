@@ -57,6 +57,19 @@ Each clip of the first cut transcribed alone with a filler-friendly prompt, and 
   enough": a hallucination in the pause); "So Wurf lives" (the clip starts cleanly before a fast "So
   Earth"); breaths of ~0.7 s after "elephants.", "Argentinosaurus," and "gas." (natural).
 
+### The author's notes on long video 1 (2026-11-03, afternoon)
+Five slips heard on the live long video, fixed in the two EDLs and re-cut (all four videos):
+- "…hippos, and gravity, [cut] about how stars evolve": the join after "gravity," into the retake sounded
+  like an error. Now the first try runs on through "about how stars evolve," and the retake comes in at
+  "how particles relate…" (the hook's `stories` clips).
+- "…one centimetre wide. (a throat sound) Most things…": the clip started at 298.91, on a short sound
+  left from the "Most," before the take; it now starts at 299.18.
+- "All of these dra– all of these draw a diagonal line": the clip now starts on the retake (345.88).
+- "the density of air. And… (0.7 s) balloons": a pause the cap missed (a blip at 396.92 kept it over the
+  silence threshold) cut out, 396.70–397.32.
+- "but not eno– not enough to hold on to hydrogen": a real restart (the first review took Whisper's "but
+  not – but not" for a hallucination). Cut 617.965–618.885: "but" runs into the retake's "not enough".
+
 Captions: transcribed clip by clip; corrected "activity" → "bacteria", "saplings" → "zeppelins", "argentino
 sauer" → "Argentinosaurus", "weight" → "weigh", "Best" → "Past", "stronger" → "strongest", "Wurf" → "Earth",
 "electromagnetism last refugee" → "electromagnetism's last refuge", "electron off" → "electrons off", "all
