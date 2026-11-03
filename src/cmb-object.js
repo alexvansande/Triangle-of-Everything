@@ -12,6 +12,9 @@ const TEMPLATE={x:114.6,y:116.7,r:100.7};
 // the zoom's opening scale (log10 of the frame width in metres): where its knots and strands are brightest
 const OPENING=27.1,FILL=.92,TAN=Math.tan(20*Math.PI/180),DISTANCE=Math.sqrt(1+1/(FILL*TAN)**2);
 const LY=9.4607e15,ZOOM_SPHERE_PX=454;   // the CMB's width in the zoom's frame at its opening
+// radians a second: a turn in about 40 s, so it shows turning in the few seconds a video holds on it
+// (the author, 2026-11-03: "the rotation makes it much better"; it was .035, a turn in 3 minutes)
+const SPIN=.15;
 
 // The density cloud's coarse points (video/powers-of-ten/generated/cosmic-web-v1, lod 1): every knot
 // and a weighted sample of the rest, 8 bytes each (public/powers-of-ten/cosmic-web-icon.bin).
@@ -117,7 +120,7 @@ export function cmbObject(){
   // drawn at up to twice the size and scaled down: the shell's silhouette is a hard cut in its shader
   const S=Math.round(size*Math.min(2,Math.max(1,1536/size)));if(work.width!==S){work.width=work.height=S;}
   wctx.clearRect(0,0,S,S);
-  const basis=cosmicOrbit(cameraAt(Math.log10(176e9*LY)),.8+seconds*.035),pixel=FILL*S/ZOOM_SPHERE_PX;
+  const basis=cosmicOrbit(cameraAt(Math.log10(176e9*LY)),.8+seconds*SPIN),pixel=FILL*S/ZOOM_SPHERE_PX;
   // the space inside the shell: the zoom's glow is tuned against black, and over the chart's colour
   // it washed out to a pale haze
   wctx.fillStyle='#03030c';wctx.beginPath();wctx.arc(S/2,S/2,FILL*S/2,0,7);wctx.fill();
