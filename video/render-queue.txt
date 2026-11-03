@@ -66,3 +66,4 @@ short-00-powers-of-ten
 # short-00-powers-of-ten changed: remove procedural fallback/duplicate entry/hidden iframe; track audited runtime; source bfb551f7
 
 # short-00-powers-of-ten changed: baked terrain, Lenia, lighting and post effects; source 988e628c; full render.
+# short-00-powers-of-ten changed: fit Retina canvas to preview frame; source 08b8c6a3
