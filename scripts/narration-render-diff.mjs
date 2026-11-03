@@ -89,8 +89,9 @@ if (files.includes(sceneFile)) {
   const oldSrc = gitBuf("show", `${base}:${sceneFile}`);
   if (!oldSrc) out({ kind: "full", base, why: "no scene at the render's commit" });
   const [a, b] = [await loadScene(oldSrc.toString()), await loadScene(fs.readFileSync(sceneFile, "utf8"))];
-  // the sound fields only make the mix (its change shows as mix.m4a); anything else scene-wide: whole
-  const wide = (s) => JSON.stringify({ ...s, cues: undefined, sound: undefined, backing: undefined, title: undefined, blurb: undefined });
+  // the sound fields only make the mix (its change shows as mix.m4a), the poster shots only the thumbnail;
+  // anything else scene-wide: whole
+  const wide = (s) => JSON.stringify({ ...s, cues: undefined, sound: undefined, backing: undefined, title: undefined, blurb: undefined, poster: undefined, posterWide: undefined });
   if (wide(a) !== wide(b)) out({ kind: "full", base, why: "a scene-wide field changed" });
   // narration.js resolveScene, the same matching: phrases → times
   const toks = ww(wordsNow).map(([w, s, e]) => ({ n: norm(w), s, e }));
