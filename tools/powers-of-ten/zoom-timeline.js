@@ -10,7 +10,8 @@ const smooth=x=>{x=clamp(x);return x*x*(3-2*x)};
 // each key is [video seconds, log10 of the frame width in metres], at the first word of the thing's
 // name. A monotone cubic through them keeps the speed continuous: it eases into each stop and speeds
 // up across the empty stretches, then comes to rest on the Planck grid and holds the gliders.
-const START_SCALE=Math.log10(2*46e9*9.4607e15/.42);
+export const VIDEO_START_SCALE=Math.log10(176e9*9.4607e15);
+const START_SCALE=VIDEO_START_SCALE;
 const KEYS=[
  [0,START_SCALE],[11.83,26.8],  // the CMB, barely moving
  [26.92,26.45],                 // the cosmic event horizon
@@ -60,7 +61,9 @@ function scaleAt(seconds){
 export function zoomProgress(seconds){
  return (START_SCALE-scaleAt(seconds))/(START_SCALE-VIDEO_END_SCALE);
 }
-export const openingOrbit=seconds=>.28*smooth(seconds/10);
+// Begin slightly before the calibrated entry orientation and arrive at it
+// without residual spin. The shared basis turns both shell and interior.
+export const openingOrbit=seconds=>-.24*(1-smooth(seconds/20));
 export function timeAtProgress(progress){
  let lo=0,hi=ZOOM_DURATION;
  for(let i=0;i<50;i++){const mid=(lo+hi)/2;if(zoomProgress(mid)<progress)lo=mid;else hi=mid;}

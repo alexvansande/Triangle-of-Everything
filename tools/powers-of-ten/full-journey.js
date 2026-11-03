@@ -1,6 +1,6 @@
 import {planetaryFlybys} from './planetary-flybys.js';
 import {collectLabels,labelFrame} from './label-layout.js';
-import {zoomProgress,openingOrbit,VIDEO_END_SCALE} from './zoom-timeline.js';
+import {zoomProgress,openingOrbit,VIDEO_START_SCALE,VIDEO_END_SCALE} from './zoom-timeline.js';
 import {cosmicOrbit} from './cosmic-motion.js';
 import {cmbSphere} from './cmb-sphere.js';
 import {distanceLabel,readableNumber} from "./distance-labels.js";
@@ -264,7 +264,7 @@ window.zoom = {
 if(q.has('renderZoom')) {
   // A pure timeline: every worker and motion-blur sample sees the same camera.
   window.__narr = {
-    renderAt(seconds) { state.play=0; outerTurn=openingOrbit(seconds); state.s=S_MAX+(VIDEO_END_SCALE-S_MAX)*zoomProgress(seconds); render(seconds); },
+    renderAt(seconds) { state.play=0; outerTurn=openingOrbit(seconds); state.s=VIDEO_START_SCALE+(VIDEO_END_SCALE-VIDEO_START_SCALE)*zoomProgress(seconds); render(seconds); },
     settle(seconds) { this.renderAt(seconds); },
     pending() { return (window.__zoomPending || 0)+small.filter(layer=>layer.pending?.()).length; },
   };
