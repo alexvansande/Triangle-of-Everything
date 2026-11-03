@@ -17,8 +17,9 @@ export function cmbSphere(){
     if(hi==colour.r)sector=mod((colour.g-colour.b)/delta+6.,6.);
     else if(hi==colour.g)sector=(colour.b-colour.r)/delta+2.;
     else sector=(colour.r-colour.g)/delta+4.;
-    float warmth=clamp(1.-sector/3.,0.,1.);
-    return .75*warmth;
+    float warmth=clamp(1.-sector/4.,0.,1.);
+    // Combined shell opacity: red .60, yellow .50, green .40, cyan .30, blue .20.
+    return mix(.20,.60,warmth);
    }
    void main(){vec3 eye=uN*uDistance,ray=normalize(-uN+TAN*(vPosition.x*uR+vPosition.y*uU));
     float b=dot(eye,ray),disc=b*b+1.-dot(eye,eye);if(disc<0.)discard;
@@ -27,7 +28,7 @@ export function cmbSphere(){
     vec2 uv=vec2(fract(.5-atan(farP.y,farP.x)/6.28318530718),.5-asin(clamp(farP.z,-1.,1.))/3.14159265359);
     vec3 farColour=texture2D(uMap,uv).rgb;
     // Divide the desired combined opacity between the two hemispheres.
-    // Two identical red samples: 1 - (1 - .5)^2 = .75.
+    // Two identical red samples combine to .60, blue samples to .20.
     float farAlpha=min(1.,uAlpha/.365)*(1.-sqrt(1.-shellOpacity(farColour)));
 
     vec3 nearP=normalize(eye+max(0.,nearT)*ray);
