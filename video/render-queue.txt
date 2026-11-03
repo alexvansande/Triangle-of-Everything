@@ -10,7 +10,6 @@
 # (before the next take) until it's deleted.
 # A "# priority: <take>" line puts that take first every time it's out of date, and stays.
 # Tonight (the author, 2026-11-03): the powers-of-ten zoom first, with its narration, music and new timing
-# next: short-00-powers-of-ten
 # priority: long-01-intro
 # Long video 1's Shorts and the powers-of-ten zoom before long video 3 (the author, 2026-11-01, 23:30)
 # Order (the author, 2026-11-01): long videos 1 and 2, then their Shorts, then long video 3 and its Shorts
@@ -39,7 +38,6 @@ short-05a-emptier
 short-05b-hubble-sphere
 short-05c-observable-universe
 # Every video on the next render (the author, 2026-11-03): the others above were queued already
-short-00-powers-of-ten
 # short-00-powers-of-ten: now narrated (rec52, its audio in words.json). Its zoom has to be retimed to the voice first:
 # the zoom session applies video/short-00-powers-of-ten/zoom-keys.json to tools/powers-of-ten/zoom-timeline.js.
 
@@ -59,7 +57,4 @@ short-00-powers-of-ten
 # short-00-powers-of-ten: source fe9473b reorders the terrain into rings, diagonal channels, Lenia/craters, strands, ridges, crackle, hills, then RGB noise; full render.
 # short-00-powers-of-ten: source 3387e25 adds 42 actual Life-library creatures across six overlapping depth populations; full render.
 
-# short-00-powers-of-ten changed: 176 Gly opening, gentle calibrated intro orbit; source 39d935c3
 # short-00-powers-of-ten source includes shaded CMB catalog PNG and isolated narrated 3D icon: 574bc4d8
-# short-00-powers-of-ten changed: connect Local Group into nearby filament network; source a414403b
-# short-00-powers-of-ten changed: restore 220 Gly opening with visible interior shine, brighter chart CMB; source 1610b706
