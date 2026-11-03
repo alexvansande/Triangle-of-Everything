@@ -72,8 +72,8 @@ for t in $takes; do
     # what changed since the render (scripts/narration-render-diff.mjs: none, audio, partial or full)
     diff=$(node scripts/narration-render-diff.mjs "$t" 2>/dev/null || echo '{"kind":"full","why":"the diff failed"}')
     j() { echo "$diff" | python3 -c "import json,sys;v=json.load(sys.stdin).get('$1','');print(v if not isinstance(v,bool) else ('1' if v else ''))"; }
-    kind=$(j kind); ranges=$(j ranges)
-    if [ -n "$queued" ] && [ -n "$note" ] && [ "$kind" != full ]; then kind=partial; ranges="${ranges:+$ranges, }$note"   # its note's stretches
+    kind=$(j kind); ranges=$(j ranges); tail=$(j tail)   # tail: the timing changed only from the last range on
+    if [ -n "$queued" ] && [ -n "$note" ] && [ "$kind" != full ] && [ -z "$tail" ]; then kind=partial; ranges="${ranges:+$ranges, }$note"   # its note's stretches
     elif [ -n "$(j shared)" ]; then kind=full   # shared code changed, no note says where: all of it
     elif [ -n "$queued" ] && [ "$kind" = none ]; then kind=full   # queued with nothing to show for it: trust the session
     fi
@@ -88,7 +88,7 @@ for t in $takes; do
         ffmpeg -hide_banner -loglevel error -y -i "$out" -i "public/narration/$t/$a" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k \
           -af apad -t "$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$out")" "output/videos/$t.new.mp4" && ok=1 ;;
       partial)
-        python3 scripts/narration-render-partial.py "$t" "$ranges" --old "$out" --out "output/videos/$t.new.mp4" \
+        python3 scripts/narration-render-partial.py "$t" "$ranges" ${tail:+--tail} --old "$out" --out "output/videos/$t.new.mp4" \
           --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" > "output/videos/$t.log" 2>&1 && ok=1 ||
           echo "  partial render didn't apply (output/videos/$t.log): rendering it whole" ;;
     esac

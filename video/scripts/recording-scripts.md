@@ -37,6 +37,16 @@ not in any script yet. **Sessions: when the author says they're about to record,
 recording arrives, remind them of these first**, and move each note into its video's script
 once it's used or dropped.
 
+### Long video 2 (the author, 2026-11-03)
+Long video 2 (`long-02-space`) is videos 3, 4 and 5 joined. Two things to fix when it's re-recorded:
+- **The cliffhanger at the end of video 3** ("…the core collapses into a black hole: an object so strange that it
+  deserves a video of its own") makes no sense in one long video, where the black holes come right after. For the
+  long one: *"…the core collapses into a black hole. And black holes are strange enough that they're worth a
+  closer look."* (*Long only*; the Short keeps its line.)
+- **When the black holes end and the larger things begin** (video 5, the Hubble sphere), the intro has to be
+  reworked and **the whole second part re-recorded**: video 5 opens as a standalone video, which reads as a restart
+  in the middle of a long one.
+
 ### Quick index: "since you'll be talking about X, what about mentioning Y?"
 When the author says which bit they're re-recording, find it here and offer the matching idea in
 that form, one or two at most, with the suggested line. Details are in the notes below.
