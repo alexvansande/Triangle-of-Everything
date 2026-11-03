@@ -55,6 +55,7 @@ import introRaw from "../content/intro.md?raw";
 import "./style.css";
 import { initTour, onObjectClick, updateStartButtonLabel, startTour, tourStep, tourGoTo, logAllSteps, isTourActive, closeTour } from "./tour.js";
 import { initTimeScrubber } from "./time-scrubber.js";
+import {startCmbIcons} from "./cmb-icons.js";
 import { startHopfIcons } from "./hopf-icons.js";
 import { enableTrackpadPinch } from "./trackpad-pinch.js";
 import { enableTrackpadPan, wheelKind } from "./trackpad-pan.js";
@@ -6514,6 +6515,7 @@ const zoomBehavior = d3.zoom()
         syncBgNoise();
         updateReadout(null);
         rafPending = false;
+        _cmbIcons?.draw();
         _hopfIcons?.draw();  // live icons follow this frame's positions, not the last one's
       });
     }
@@ -6569,7 +6571,8 @@ svg.call(zoomBehavior);
 enableTrackpadPinch(svg.node(), [svg.node(), clickTargetContainer]);
 // particles drawn live as Hopf fibrations over their still pictures
 // (the chart draws them itself right after a pan/zoom redraw, so they don't trail a frame behind)
-let _hopfIcons = null;
+let _hopfIcons = null, _cmbIcons = null;
+startCmbIcons(document.getElementById("chart"), {busy:()=>rafPending}).then(h=>{_cmbIcons=h});
 startHopfIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _hopfIcons = h; });
 
 // Trackpad two-finger drag pans; pinch and mouse wheel zoom (trackpad-pan.js).

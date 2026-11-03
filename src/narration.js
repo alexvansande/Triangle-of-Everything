@@ -1648,6 +1648,7 @@ export async function startNarration(app) {
   let lastKey = -2, lastPhase = null;
   const creditsEl = document.getElementById("narr-credits");
   function renderAt(t) {
+    window.__cmbIconTime = t;
     curT = t;
     const co_ = CREDITS ? clamp01((t - speechEnd - 0.15) / 0.5) : 0;    // the end card fades in after the last word
     creditsEl.style.opacity = co_;
@@ -1697,7 +1698,7 @@ export async function startNarration(app) {
     renderAt,
     settle(t) { const { view } = camera(t); app.setCamera(view, false); overlay(); },
     camera: (t) => camera(t).view,
-    pending: () => app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
+    pending: () => (window.__cmbIconPending || 0) + app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
       [...photoImgs.values()].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length +
       (COVER && !coverImg.complete ? 1 : 0),
