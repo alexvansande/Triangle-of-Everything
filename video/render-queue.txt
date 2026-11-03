@@ -10,7 +10,6 @@
 # (before the next take) until it's deleted.
 # A "# priority: <take>" line puts that take first every time it's out of date, and stays.
 # Tonight (the author, 2026-11-02, 22:30): the powers-of-ten zoom, then long video 1, then the usual order
-# next: long-01-intro
 # priority: long-01-intro
 # Long video 1's Shorts and the powers-of-ten zoom before long video 3 (the author, 2026-11-01, 23:30)
 # Order (the author, 2026-11-01): long videos 1 and 2, then their Shorts, then long video 3 and its Shorts
@@ -20,7 +19,6 @@
 # next: short-06c-compton
 # next: short-07a-photons
 # next: short-07b-sky
-long-01-intro
 long-03-small
 short-06a-living
 short-06b-atoms
