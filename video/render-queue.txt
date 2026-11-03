@@ -10,7 +10,6 @@
 # (before the next take) until it's deleted.
 # A "# priority: <take>" line puts that take first every time it's out of date, and stays.
 # Tonight (the author, 2026-11-02, 22:30): the powers-of-ten zoom, then long video 1, then the usual order
-# next: short-00-powers-of-ten
 # next: long-01-intro
 # priority: long-01-intro
 # Long video 1's Shorts and the powers-of-ten zoom before long video 3 (the author, 2026-11-01, 23:30)
@@ -21,7 +20,6 @@
 # next: short-06c-compton
 # next: short-07a-photons
 # next: short-07b-sky
-short-00-powers-of-ten
 long-01-intro
 long-03-small
 short-06a-living
@@ -52,25 +50,4 @@ short-05c-observable-universe
 # short-00-powers-of-ten: source ca5fa1c, final master 30 Planck lengths / vertical width 16.875 cells; doubled labels and PNG-backed ending; full render.
 # short-00-powers-of-ten: source fe9473b reorders the terrain into rings, diagonal channels, Lenia/craters, strands, ridges, crackle, hills, then RGB noise; full render.
 # short-00-powers-of-ten: source 3387e25 adds 42 actual Life-library creatures across six overlapping depth populations; full render.
-# short-00-powers-of-ten changed: colored details resolve a decade earlier; source 5473e423
-# short-00-powers-of-ten changed: ten Lenia steps per frame; source 136098b5
-# short-00-powers-of-ten changed: restore photographic canopy and terrain assets; source ccd763a5
-short-00-powers-of-ten
-# short-00-powers-of-ten changed: restore rotating textured Earth; source 042a5830
-# short-00-powers-of-ten changed: hide label overlaps and fit filming crop; source 3007e7ee
-# short-00-powers-of-ten changed: broader red CMB patches; source d0ed79a5
-# short-00-powers-of-ten changed: 90-frame Lenia, 20 steps per frame, fixed crops; source e9b47bb0
-# short-00-powers-of-ten changed: animated opening glider and Orbium field; source 91827d75
-# short-00-powers-of-ten changed: expand red CMB coverage again; source 2fb8c866
-# short-00-powers-of-ten changed: smooth central Lenia hero, static non-repeating background; source e54bb97c
-# short-00-powers-of-ten changed: red-first CMB shell, subdued opening filaments, common-crop full universe; source eb8b57ae
-# short-00-powers-of-ten changed: smaller CMB opening with caption clearance; source 8f4955f6
-# short-00-powers-of-ten changed: WMAP colors and red/yellow/green hue-based opacity; source c57ff5d8
-# short-00-powers-of-ten changed: correct two-sided CMB opacity, restore visible interior strands; source efe73d91
-# short-00-powers-of-ten changed: remove procedural fallback/duplicate entry/hidden iframe; track audited runtime; source bfb551f7
 
-# short-00-powers-of-ten changed: baked terrain, Lenia, lighting and post effects; source 988e628c; full render.
-# short-00-powers-of-ten changed: fit Retina canvas to preview frame; source 08b8c6a3
-# short-00-powers-of-ten changed: CMB opacity red 60% to blue 20%; source ebd9bfa9
-# short-00-powers-of-ten changed: quick comet, Neptune and Moon close flybys; source 64bb2e29
-# short-00-powers-of-ten changed: Quark box on central Lenia hero; source 1af9ebaf
