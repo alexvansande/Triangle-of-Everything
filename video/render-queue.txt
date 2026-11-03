@@ -10,7 +10,6 @@
 # (before the next take) until it's deleted.
 # A "# priority: <take>" line puts that take first every time it's out of date, and stays.
 # Now (the author, 2026-11-03, afternoon): long video 1, its Shorts, then the powers-of-ten zoom (retimed, Dreamer, the new turning CMB), then the rest that need it
-# next: short-02a-things
 # next: short-02b-planets
 # next: short-00-powers-of-ten
 # priority: long-01-intro
@@ -24,7 +23,6 @@
 # next: short-07b-sky
 # Re-recorded in one take (rec51, 2026-11-03): long video 1 and its three Shorts, new audio, render whole
 short-00-powers-of-ten
-short-02a-things
 short-02b-planets
 long-03-small
 short-06a-living
