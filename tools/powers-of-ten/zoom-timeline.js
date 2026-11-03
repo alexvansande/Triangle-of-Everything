@@ -6,39 +6,42 @@ export const VIDEO_END_PLANCK_WIDTH=30*9/16;
 export const VIDEO_END_SCALE=Math.log10(1.616255e-35*VIDEO_END_PLANCK_WIDTH);
 const clamp=x=>Math.max(0,Math.min(1,x));
 const smooth=x=>{x=clamp(x);return x*x*(3-2*x)};
-// The zoom follows the narration (video/scripts/recording-scripts.md, "Full script, three
-// minutes"): each key is [video seconds, log10 of the frame width in metres] for the thing the
-// line names. A monotone cubic through them keeps the speed continuous: it eases into each stop
-// and speeds up across the empty stretches, then comes to rest on the Planck grid.
+// The zoom follows the narration (rec52, 2026-11-03; video/short-00-powers-of-ten/zoom-keys.json):
+// each key is [video seconds, log10 of the frame width in metres], at the first word of the thing's
+// name. A monotone cubic through them keeps the speed continuous: it eases into each stop and speeds
+// up across the empty stretches, then comes to rest on the Planck grid and holds the gliders.
 const START_SCALE=Math.log10(2*46e9*9.4607e15/.42);
 const KEYS=[
- [0,START_SCALE],[16,26.75],   // the CMB, barely moving
- [22,26.45],                   // the cosmic event horizon
- [32,24.7],                    // superclusters
- [40,23],                      // Andromeda and the Milky Way
- [46,20.9],                    // the Sun
- [52,17.85],                   // Sirius
- [59,16.3],                    // the Oort Cloud
- [66,13],                      // the planets' orbits: Jupiter, Saturn
- [69.5,11.3],                  // the inner planets, the third one out: Earth
- [73,9.2],                     // the Moon's orbit
- [75.5,7.4],                   // Earth fills the frame
- [77,6.7],                     // North America
- [79,5.9],                     // California
- [81,5.1],                     // the Sierra Nevada
- [85,1.8],                     // the sequoias, the General Sherman
- [90.5,-2.1],                  // the ladybug
- [94,-2.9],                    // a drop of dew
- [97.5,-3.4],                  // the amoeba, a single cell
- [101,-4.4],                   // its nucleus
- [104.5,-5.8],                 // chromatin
- [107.5,-7.3],                 // the double helix
- [114,-9.8],                   // the atom (hydrogen)
- [124,-13.5],                  // the nucleus: a single proton, tiny
- [132,-14.5],                  // the proton
- [144,-18.5],                  // the quark patterns, the LHC's limit
- [162,-27],                    // the grey terrain
- [176,VIDEO_END_SCALE],        // the Planck grid, then held
+ [0,START_SCALE],[11.83,26.8],  // the CMB, barely moving
+ [26.92,26.45],                 // the cosmic event horizon
+ [39.38,24.7],                  // superclusters
+ [44.54,24.35],                 // Laniakea
+ [53.58,23.1],                  // the Local Group
+ [55.96,22.7],                  // Andromeda
+ [57.06,21.8],                  // the Milky Way: that's us
+ [61.09,20.4],                  // the Sun
+ [64.09,18.1],                  // the nearby stars
+ [68.63,16.3],                  // the Oort Cloud
+ [74.89,13],                    // the planets
+ [77.43,11.3],                  // Earth's orbit
+ [80.04,9.2],                   // the Moon
+ [83.1,6.7],                    // North America
+ [84.06,5.9],                   // California
+ [85.17,4.95],                  // the Sierra Nevada
+ [87,3.55],                     // the sequoias
+ [90.31,1.8],                   // the General Sherman
+ [95.13,-2.1],                  // the ladybug
+ [97.43,-2.9],                  // a drop of dew
+ [102.3,-4.0],                  // the amoeba, a single cell
+ [103.58,-4.8],                 // its nucleus, the DNA
+ [109.64,-7.3],                 // the double helix
+ [113.19,-9.8],                 // the atom (hydrogen)
+ [123.88,-12],                  // mostly empty space
+ [129.02,-14.5],                // the proton
+ [134.93,-18.5],                // the quarks
+ [139.76,-22],                  // the rules
+ [146.92,-27],                  // the grey terrain
+ [157.39,VIDEO_END_SCALE],      // the Planck grid, then held to the end
 ];
 // Fritsch-Carlson slopes: no overshoot, so the zoom never backs up
 const SLOPES=(()=>{

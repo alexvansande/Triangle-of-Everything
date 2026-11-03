@@ -74,32 +74,38 @@ function driveCloud(s,W,H,Dg,roll,dpr){
  const t=ramp(s,...CLOUD_FLY),dist=Math.exp(Math.log(DIST0)+(Math.log(dEnd)-Math.log(DIST0))*t);
  cloudView={dist,Dg,a};
 }
-// Radius comparisons use a linear ruler: Hubble14.4Gly / CMB46Gly.
+// Radius comparisons use a linear ruler: cosmic event horizon 16.5 Gly / CMB 46 Gly (proper distances
+// today; the event horizon bounds the galaxies whose light sent now can still reach us).
 // The outer shell is the CMB sphere; both labels explicitly say radius.
 let cloudView = null;
-const HUBBLE_TO_CMB = 14.4 / 46;
+const HORIZON_TO_CMB = 16.5 / 46;
 function drawSpheres(ctx, W, H, dpr, s) {
   if (!cloudView) return;
   const { dist, Dg, a: ca } = cloudView, a = .72 * ramp(s,25.7,26.25);
   if (a <= 0.01) return;
   const px = (r) => (dist > r ? Math.tan(Math.asin(r / dist)) / Math.tan(20 * Math.PI / 180) * Dg / 2 : 0);
-  const rc = px(1), rh = px(HUBBLE_TO_CMB);
+  const rc = px(1), rh = px(HORIZON_TO_CMB);
   ctx.save();
   ctx.globalAlpha = a;
   ctx.font = `${26 * dpr}px "IBM Plex Sans", system-ui, sans-serif`; ctx.textAlign = "center";
   ctx.lineWidth = 6 * dpr; ctx.strokeStyle = "rgba(0,0,0,0.7)";
+  // two lines, so each fits the 9:16 crop (the label layout drops a line wider than the frame)
+  const caption = (lines, y) => lines.forEach((l, i) => {
+    ctx.lineWidth = 6 * dpr; ctx.strokeStyle = "rgba(0,0,0,0.7)";
+    ctx.strokeText(l, W / 2, y + i * 32 * dpr); ctx.fillText(l, W / 2, y + i * 32 * dpr);
+  });
   if (rh) {
-    ctx.setLineDash([6 * dpr, 6 * dpr]); ctx.lineWidth = 1.2 * dpr; ctx.strokeStyle = "rgba(170,205,255,0.75)";
+    ctx.setLineDash([8 * dpr, 6 * dpr]); ctx.lineWidth = 2 * dpr; ctx.strokeStyle = "rgba(170,205,255,0.9)";
     ctx.beginPath(); ctx.arc(W / 2, H / 2, rh, 0, 7); ctx.stroke(); ctx.setLineDash([]);
     ctx.textBaseline = "top"; ctx.lineWidth = 6 * dpr; ctx.strokeStyle = "rgba(0,0,0,0.7)";
-    ctx.strokeText("Hubble sphere · radius 14.4 billion light-years", W / 2, H / 2 - rh + 8 * dpr);
-    ctx.fillStyle = "rgba(200,222,255,0.95)"; ctx.fillText("Hubble sphere · radius 14.4 billion light-years", W / 2, H / 2 - rh + 8 * dpr);
+    ctx.fillStyle = "rgba(200,222,255,0.95)";
+    caption(["Cosmic event horizon", "radius 16.5 billion light-years"], H / 2 - rh + 8 * dpr);
   }
   if (rc) {
     ctx.globalAlpha=ca*ramp(s,26.5,26.9);
     ctx.textBaseline = "top";
-    ctx.strokeText("CMB · radius 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
-    ctx.fillStyle = "#ffc1b9"; ctx.fillText("CMB · radius 46 billion light-years", W / 2, H / 2 + rc + 8 * dpr);
+    ctx.fillStyle = "#ffc1b9";
+    caption(["CMB", "radius 46 billion light-years"], H / 2 + rc + 8 * dpr);
   }
   ctx.restore();
 }
