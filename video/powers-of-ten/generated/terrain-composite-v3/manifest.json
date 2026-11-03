@@ -1,0 +1,17 @@
+{
+  "firstScale": -14.7,
+  "step": 0.041666666666666664,
+  "frames": 433,
+  "padding": 2,
+  "resolution": 1536,
+  "format": "WebP",
+  "includes": [
+    "fractal terrain",
+    "rule-evolved Lenia pigment and relief",
+    "lighting",
+    "emboss",
+    "chromatic aberration",
+    "bloom"
+  ],
+  "sourceHash": "0ad1b67d4ad2b15c7243d2f320fdcc9f33d6b9eae0865909d3b5228f6e0ee84b"
+}

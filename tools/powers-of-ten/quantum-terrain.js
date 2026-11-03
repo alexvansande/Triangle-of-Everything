@@ -1,22 +1,20 @@
+import {imageTerrain} from './terrain-playback.js';
 import {openingLenia} from './lenia-opening.js';
 import {leniaAnimation} from './lenia-animation.js';
-import {timeAtProgress,VIDEO_END_SCALE} from './zoom-timeline.js';
 // Rule-evolved multichannel Lenia over grayscale terrain. Lenia is not a QFT simulation.
 // Bend references: demos/visual/terrain-3d (value-noise heightfield,
 // ray intersection and slope lighting), demos/lenia (Orbium seed).
 import {ramp,rng} from './math.js';
-import {stepRGBLife} from './life-colour.js';
-import {buildLifeCatalog} from './life-catalog.js';
-const PLANCK=1.616255e-35,FIELD=1e-18;
+const FIELD=1e-18;
 export function quantumTerrain(){
+ if(!new URLSearchParams(location.search).has('bakeTerrain'))return imageTerrain();
  const animation=leniaAnimation(),opening=openingLenia();
- const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl2',{alpha:true,antialias:false,preserveDrawingBuffer:new URLSearchParams(location.search).has('bake')});
+ const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl2',{alpha:true,antialias:false,preserveDrawingBuffer:new URLSearchParams(location.search).has('bake')||new URLSearchParams(location.search).has('bakeTerrain')});
  let ready=false,program,texture,strataTexture,heroTexture;
  heroTexture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,heroTexture);
  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB8,256,256,0,gl.RGB,gl.UNSIGNED_BYTE,new Uint8Array(256*256*3));
  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
  for(const key of [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T])gl.texParameteri(gl.TEXTURE_2D,key,gl.CLAMP_TO_EDGE);
- const finalImage=new Image();finalImage.src='/video/powers-of-ten/generated/lenia-terrain-v1/planck-relief.png';
  const image=document.createElement('canvas');image.width=image.height=1024;
  Promise.all(['multichannel.json','found-creatures.json'].map(f=>fetch('/video/powers-of-ten/generated/lenia-terrain-v1/'+f).then(r=>r.json()))).then(async([mover,library])=>{
   const {cells,width,height}=mover;
@@ -66,7 +64,7 @@ export function quantumTerrain(){
  program=gl.createProgram();gl.attachShader(program,compile(gl.VERTEX_SHADER,`#version 300 es
  in vec2 position;void main(){gl_Position=vec4(position,0.,1.);}`));
  gl.attachShader(program,compile(gl.FRAGMENT_SHADER,`#version 300 es
- precision highp float;uniform vec2 resolution;uniform float depth,span,unit,quality,resolveNoise,heroSpan;uniform sampler2D field,strataField,heroField;out vec4 frag;
+ precision highp float;uniform vec2 resolution;uniform float depth,span,unit,quality,resolveNoise,heroSpan,bakePadding;uniform sampler2D field,strataField,heroField;out vec4 frag;
  float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
  float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*f*(f*(f*6.-15.)+10.);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
  // Styles belong to immutable world octaves, not the current camera
@@ -252,7 +250,7 @@ export function quantumTerrain(){
   // tiles, iteration or crossfade replaces the field at the endpoint.
   float pixel=max(1.,unit*min(resolution.x,resolution.y));
   vec2 screen=(floor(gl_FragCoord.xy/pixel)+.5)*pixel;
-  vec2 uv=(screen-.5*resolution)/min(resolution.x,resolution.y);
+  vec2 uv=(screen-.5*resolution)/min(resolution.x,resolution.y)*bakePadding;
   // Orthographic nadir view: map-like framing, with all depth expressed
   // by the shared heightfield, normals and cast shadows.
   vec3 ray=vec3(0.,0.,-1.);
@@ -329,130 +327,28 @@ export function quantumTerrain(){
   cam.ctx.drawImage(aberrated,0,0,cam.W,cam.H);
  }
  const colourLayers=Object.fromEntries(['#ff0000','#00ff00','#0000ff'].map(c=>[c,document.createElement('canvas')]));
- const frozen=document.createElement('canvas');let captured=false;
- const FREEZE_PIXELS=2048,FREEZE_SPAN=FREEZE_PIXELS*PLANCK;
- const LIFE_SIZE=256,LIFE_OFFSET=896,lifeSeed=new Uint8Array(256*256),patternBits=new Uint8Array(FREEZE_PIXELS*FREEZE_PIXELS);
- let lifeCells,lifeGeneration=0,lifeStart=null,terrainPixels;
- const rgb=[[255,0,0],[0,255,0],[0,0,255]];
- function animateLife(cam){
-  if(cam.F>100*PLANCK){lifeStart=null;lifeGeneration=0;lifeCells=null;return false;}
-  const video=new URLSearchParams(location.search).has('renderZoom');
-  if(lifeStart===null)lifeStart=cam.t;
-  const crossing=video?timeAtProgress((window.canopyTest.maximum-Math.log10(100*PLANCK))/(window.canopyTest.maximum-VIDEO_END_SCALE)):lifeStart;
-  const generation=Math.max(0,Math.floor((cam.t-crossing)*6));
-  if(!lifeCells||generation<lifeGeneration){lifeCells=lifeSeed.slice();lifeGeneration=0;}
-  while(lifeGeneration<generation){lifeCells=stepRGBLife(lifeCells,LIFE_SIZE);lifeGeneration++;}
-  return true;
- }
- const ease=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
- function pixelHash(x,y,salt){let n=Math.imul(x+salt,374761393)^Math.imul(y-salt,668265263);n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;}
- function pixelColour(x,y,animate,count){
-  const cell=y*FREEZE_PIXELS+x,i=cell*4,X=x-LIFE_OFFSET,Y=y-LIFE_OFFSET;
-  const terrain=terrainPixels[cell];let bits=patternBits[cell];
-  const noiseAmount=1-ease(-33,-31,Math.log10(count*PLANCK)),patternAmount=1-ease(100,320,count);
-  // Noise and motifs share the same Planck lattice. Retain the motif's
-  // live cells from the start; extra noise resolves away around them.
-  if(!animate&&pixelHash(x,y,91)>patternAmount){
-   const density=.10+.22*terrain/255;
-   for(let c=0;c<3;c++)if(pixelHash(x,y,17+c*83)<density)bits|=1<<c;
-  }
-  if(animate&&X>=0&&Y>=0&&X<LIFE_SIZE&&Y<LIFE_SIZE)bits=lifeCells[Y*LIFE_SIZE+X];
-  const colour=[bits&1?255:0,bits&2?255:0,bits&4?255:0];
-  return colour.map(v=>Math.round(terrain+(v-terrain)*noiseAmount));
- }
- function paintPlanckPatterns(){
-  const context=frozen.getContext('2d'),frame=context.getImageData(0,0,FREEZE_PIXELS,FREEZE_PIXELS);
-  const pixels=frame.data,random=rng(83019),catalog=buildLifeCatalog(16).filter(p=>['glider','blinker','toad','beacon','pulsar','block','beehive','boat','lwss'].includes(p.name));
-  const colours=rgb;terrainPixels=new Uint8Array(FREEZE_PIXELS*FREEZE_PIXELS);
-  for(let i=0;i<terrainPixels.length;i++)terrainPixels[i]=pixels[i*4];
-  function place(pattern,cx,cy,colour,turns=0){
-   for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(pattern.cells[y*16+x]){
-    let X=x-8,Y=y-8;for(let j=0;j<turns;j++)[X,Y]=[-Y,X];
-    X+=cx;Y+=cy;if(X<0||Y<0||X>=FREEZE_PIXELS||Y>=FREEZE_PIXELS)continue;
-    if(X>=LIFE_OFFSET&&Y>=LIFE_OFFSET&&X<LIFE_OFFSET+LIFE_SIZE&&Y<LIFE_OFFSET+LIFE_SIZE)lifeSeed[(Y-LIFE_OFFSET)*LIFE_SIZE+X-LIFE_OFFSET]|=1<<colours.indexOf(colour);
-    patternBits[Y*FREEZE_PIXELS+X]|=1<<colours.indexOf(colour);
-    const i=(Y*FREEZE_PIXELS+X)*4,light=.78+.22*pixels[i]/255;
-    for(let c=0;c<3;c++)pixels[i+c]=Math.round(colour[c]*light);
-   }
-  }
-  // Fixed motifs are baked into the screenshot before their cells resolve.
-  // One source pixel is one Planck length; empty cells retain the terrain.
-  for(let y=12;y<FREEZE_PIXELS;y+=24)for(let x=12;x<FREEZE_PIXELS;x+=24){
-   const X=x+Math.floor(random()*9)-4,Y=y+Math.floor(random()*9)-4;
-   if(Math.hypot(X-1024,Y-1024)<22)continue;
-   place(catalog[Math.floor(random()*catalog.length)],X,Y,colours[Math.floor(random()*3)],Math.floor(random()*4));
-  }
-  // Denser final neighbourhood: moving ships and oscillators, with the
-  // centre reserved for three independent RGB flight paths.
-  const movers=['glider','glider','glider','lwss','blinker','toad','beacon'];
-  for(let y=-65;y<=65;y+=8)for(let x=-65;x<=65;x+=8){
-   if(Math.hypot(x,y)<24)continue;
-   const kind=movers[Math.floor(random()*movers.length)];
-   place(catalog.find(p=>p.name===kind),1024+x+Math.floor(random()*3),1024+y+Math.floor(random()*3),colours[Math.floor(random()*3)],Math.floor(random()*4));
-  }
-  // A seeded, irregular inner neighbourhood. Separate starting positions
-  // and headings give passing traffic rather than a synchronised rendezvous.
-  const glider=catalog.find(p=>p.name==='glider');
-  const launches=[[-4,-1,0,0],[7,-2,1,1],[2,6,2,2]];
-  for(const [x,y,c,turn]of launches)place(glider,1024+x,1024+y,colours[c],turn);
-  const occupied=launches.map(([x,y])=>[x,y]);
-  const innerKinds=['glider','glider','lwss','blinker','toad','beacon','boat','beehive'];
-  for(let attempt=0,added=0;attempt<800&&added<30;attempt++){
-   const x=Math.round((random()-.5)*46),y=Math.round((random()-.5)*46);
-   if(Math.hypot(x,y)>24||occupied.some(([X,Y])=>Math.hypot(x-X,y-Y)<6))continue;
-   occupied.push([x,y]);
-   const kind=innerKinds[Math.floor(random()*innerKinds.length)];
-   place(catalog.find(p=>p.name===kind),1024+x,1024+y,colours[Math.floor(random()*3)],Math.floor(random()*4));
-   added++;
-  }
-  // Keep only one grayscale byte per cell and the pattern bitfield.
-  frozen.width=frozen.height=1;
- }
-
  let lastSurfaceKey="",surfaceVersion=0,aberrationVersion=-1;
- function renderSurface(W,H,span,freeze=false){
+ function renderSurface(W,H,span,freeze=false,padding=1){
   const openingFrame=freeze?null:opening.update(Math.log10(span));
   if(openingFrame){gl.bindTexture(gl.TEXTURE_2D,heroTexture);gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,gl.RGB,gl.UNSIGNED_BYTE,openingFrame);}
   const animated=freeze?null:animation.update(Math.log2(FIELD/span));
   if(animated){gl.bindTexture(gl.TEXTURE_2D,strataTexture);gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,gl.RGB,gl.UNSIGNED_BYTE,animated);gl.generateMipmap(gl.TEXTURE_2D);}
-  const key=`${W}/${H}/${span}/${freeze}/${animation.version}/${opening.version}`;if(key===lastSurfaceKey)return;lastSurfaceKey=key;surfaceVersion++;
+  const key=`${W}/${H}/${span}/${freeze}/${animation.version}/${opening.version}/${padding}`;if(key===lastSurfaceKey)return;lastSurfaceKey=key;surfaceVersion++;
   if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}
   gl.viewport(0,0,W,H);gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);const attr=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(attr);gl.vertexAttribPointer(attr,2,gl.FLOAT,false,0,0);
-  const u=n=>gl.getUniformLocation(program,n);gl.uniform2f(u('resolution'),W,H);gl.uniform1f(u('depth'),Math.log2(FIELD/span));gl.uniform1f(u('span'),span/FIELD);gl.uniform1f(u('unit'),0);gl.uniform1f(u('resolveNoise'),freeze?0:1);gl.uniform1f(u('heroSpan'),opening.worldSpan);gl.uniform1f(u('quality'),new URLSearchParams(location.search).has('renderZoom')?22:10);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(u('field'),0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,strataTexture);gl.uniform1i(u('strataField'),1);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,heroTexture);gl.uniform1i(u('heroField'),2);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  const u=n=>gl.getUniformLocation(program,n);gl.uniform2f(u('resolution'),W,H);gl.uniform1f(u('depth'),Math.log2(FIELD/span));gl.uniform1f(u('span'),span/FIELD);gl.uniform1f(u('unit'),0);gl.uniform1f(u('resolveNoise'),freeze?0:1);gl.uniform1f(u('heroSpan'),opening.worldSpan);gl.uniform1f(u('bakePadding'),padding);gl.uniform1f(u('quality'),new URLSearchParams(location.search).has('renderZoom')?22:10);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(u('field'),0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,strataTexture);gl.uniform1i(u('strataField'),1);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,heroTexture);gl.uniform1i(u('heroField'),2);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
  }
- return{name:'rule-evolved Lenia relief → frozen Planck terrain image',range:[-36,-14.7],ready:()=>ready,pending:()=>!ready||animation.pending()||opening.pending()||(!captured&&!finalImage.complete),draw(cam){
-  const alpha=1-ramp(cam.s,-15.75,-14.8);if(!ready||alpha<=0)return;
-  const frozenView=cam.F*Math.max(cam.W,cam.H)/cam.min<=FREEZE_SPAN&&PLANCK*cam.min/cam.F>=1;
-  cam.ctx.save();cam.ctx.globalAlpha=alpha;cam.ctx.imageSmoothingEnabled=false;
-  if(frozenView){
-   if(!captured){
-    // Screenshot once, at one fixed physical span and lighting. From here
-    // on only this bitmap is magnified: no terrain, normals or shadows rerun.
-    if(!finalImage.complete||!finalImage.naturalWidth){cam.ctx.restore();return;}
-    frozen.width=frozen.height=FREEZE_PIXELS;frozen.getContext('2d').drawImage(finalImage,0,0);paintPlanckPatterns();captured=true;
-    // Release full-size GPU/compositing targets; rebuild only if zooming out.
-    for(const target of [canvas,aberrated,bloom,...Object.values(colourLayers)])target.width=target.height=1;
-    lastSurfaceKey='';aberrationVersion=-1;
-    finalImage.removeAttribute('src');
-   }
-   const animate=animateLife(cam);
-   const size=FREEZE_SPAN/cam.F*cam.min;
-   const cell=size/FREEZE_PIXELS,ox=(cam.W-size-cell)/2,oy=(cam.H-size-cell)/2;
-   if(cell>=1){
-    cam.ctx.filter='none';
-    const x0=Math.max(0,Math.floor(-ox/cell)),x1=Math.min(FREEZE_PIXELS,Math.ceil((cam.W-ox)/cell));
-    const y0=Math.max(0,Math.floor(-oy/cell)),y1=Math.min(FREEZE_PIXELS,Math.ceil((cam.H-oy)/cell));
-    for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
-     const colour=pixelColour(x,y,animate,cam.F/PLANCK);cam.ctx.fillStyle=`rgb(${colour.join(",")})`;
-     const left=Math.round(ox+x*cell),top=Math.round(oy+y*cell);
-     cam.ctx.fillRect(left,top,Math.round(ox+(x+1)*cell)-left,Math.round(oy+(y+1)*cell)-top);
-    }
-   }
-  }else{
-   const scale=Math.min(1,(new URLSearchParams(location.search).has('renderZoom')?1600:640)/Math.max(cam.W,cam.H));
-   renderSurface(Math.round(cam.W*scale),Math.round(cam.H*scale),cam.F);
-   drawAberrated(cam);
-  }
-  cam.ctx.restore();
+ return{name:'offline terrain composite baker',range:[-36,-14.7],ready:()=>ready,pending:()=>!ready||animation.pending()||opening.pending(),snapshot(s,size=2048,padding=2){
+   if(!ready)return null;if(gl.isContextLost())throw Error('Terrain GPU context lost');renderSurface(size,size,10**s,false,padding);
+   if(animation.pending()||opening.pending())return null;
+   const out=document.createElement('canvas');out.width=out.height=size;
+   drawAberrated({ctx:out.getContext('2d'),W:size,H:size});gl.finish();
+   const url=out.toDataURL('image/webp',.93);out.width=out.height=1;if(gl.isContextLost()||gl.getError()!==gl.NO_ERROR)throw Error('Terrain GPU output failed');return url;
+  },draw(cam){
+   const alpha=1-ramp(cam.s,-15.75,-14.8);if(!ready||alpha<=0)return;
+   cam.ctx.save();cam.ctx.globalAlpha*=alpha;
+   const scale=Math.min(1,1600/Math.max(cam.W,cam.H));
+   renderSurface(Math.round(cam.W*scale),Math.round(cam.H*scale),cam.F);drawAberrated(cam);
+   cam.ctx.restore();
  }};
 }
