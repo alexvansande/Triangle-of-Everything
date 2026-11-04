@@ -63,6 +63,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.
       <div class="row"><label>mode</label><select id="mode"><option value="sum" selected>sum: seeded and fed</option><option value="paint">paint: clamped and promoted</option></select><span></span></div>
       <div class="row"><label>add (noise)</label><input id="addGain" type="range" min="0" max="4" step="0.05" value="1"><output id="addGainv">1.00</output></div>
       <div class="row"><label>remove (dim)</label><input id="dimGain" type="range" min="0" max="4" step="0.05" value="1.5"><output id="dimGainv">1.50</output></div>
+      <div class="row"><label>min life</label><input id="minLife" type="range" min="0" max="0.5" step="0.01" value="0.15"><output id="minLifev">0.15</output></div>
       <div class="row"><label>sum ↔ over</label><input id="blend" type="range" min="0" max="1" step="0.01" value="0"><output id="blendv">0.00</output></div>
       <h2>Zoom</h2>
       <div class="row"><label>seconds / level</label><input id="secs" type="range" min="2" max="20" step="0.5" value="7"><output id="secsv">7</output></div>
@@ -116,7 +117,7 @@ in vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
 const SIM_FS = `#version 300 es
 precision highp float; precision highp int; precision highp sampler2D;
 uniform sampler2D uState, uKernel, uBlurK, uParent, uParentPrev; uniform ivec2 uSize; uniform int uR, uFamily, uNRules[4], uHasParent, uFeed, uInit;
-uniform float uAddGain, uDimGain, uTime;
+uniform float uAddGain, uDimGain, uTime, uMinLife;
 uniform float uMu, uSigma, uDt, uRate, uLambda; uniform vec3 uRules[12]; uniform vec4 uRect; uniform float uSL[6]; uniform vec2 uDens;
 out vec4 o;
 float s1(float x, float a, float al){ return 1.0 / (1.0 + exp(-(x - a) * 4.0 / al)); }
@@ -130,8 +131,8 @@ float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32);
 void main(){
   ivec2 c = ivec2(gl_FragCoord.xy);
   vec2 cuv = (vec2(c) + 0.5) / vec2(uSize);
-  if (uInit == 1) { // the seed: noise with the parent's state as its amplitude
-    o = vec4(clamp(hash(vec2(c) + uTime) * parentAt(uRect.xy + cuv * uRect.zw), 0.0, 1.0), 0.0, 0.0, 1.0); return; }
+  if (uInit == 1) { // the seed: noise with the parent's state as its amplitude (never below the minimum, so a black parent still seeds a little)
+    o = vec4(clamp(hash(vec2(c) + uTime) * max(parentAt(uRect.xy + cuv * uRect.zw), uMinLife), 0.0, 1.0), 0.0, 0.0, 1.0); return; }
   vec4 acc = vec4(0.0); float blur = 0.0;
   for (int dy = -uR; dy <= uR; dy++) for (int dx = -uR; dx <= uR; dx++) {
     ivec2 k = ivec2(dx + uR, dy + uR);
@@ -147,7 +148,7 @@ void main(){
   if (uHasParent == 1 && uLambda > 0.0) { float P = parentAt(uRect.xy + cuv * uRect.zw); a += uLambda * (mix(uDens.x, uDens.y, P) - blur); }
   if (uFeed == 1) { // by the parent's state at this point, every step: mass comes in as noise where the
     // parent has mass, and is dimmed where it has none (so the child's rule can't spread into empty space)
-    float P = parentAt(uRect.xy + cuv * uRect.zw);
+    float P = max(parentAt(uRect.xy + cuv * uRect.zw), uMinLife);   // the floor keeps a faint life going over black, so a dive into a dark spot doesn't end every generation after it
     a += uAddGain * 0.02 * uRate * P * hash(vec2(c) * 1.7 + uTime);
     a *= pow(smoothstep(0.02, 0.3, P), uDimGain * uRate);  // a mask: complete where the parent is empty (a partial dim never beats the rules' growth), none where it has mass
   }
@@ -285,7 +286,7 @@ const U = (p, n) => gl.getUniformLocation(p, n);
 const hex = (c) => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16) / 255);
 
 // ---------- the chain ----------
-const S = { chain: DEFAULT_CHAIN, mode: 'sum', addGain: 1, dimGain: 1.5, blend: 0, N: 192, secs: 7, ramp: 2.5, burst: 120, lambda: 0.12, rb: 6, aim: true, gamma: 1, t: 0, playing: true, levels: [], cur: -1 };
+const S = { cam: [96, 96], chain: DEFAULT_CHAIN, mode: 'sum', addGain: 1, dimGain: 1.5, minLife: 0.15, blend: 0, N: 192, secs: 7, ramp: 2.5, burst: 120, lambda: 0.12, rb: 6, aim: true, gamma: 1, t: 0, playing: true, levels: [], cur: -1 };
 const $ = (id) => document.getElementById(id);
 
 function kernels(cfg, N) {
@@ -344,7 +345,7 @@ function stepLevel(L, parent, opts) {
   gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, parent ? parent.tex[1 - parent.cur] : L.tex[src]); gl.uniform1i(U(progSim, 'uParentPrev'), 4);
   gl.uniform1i(U(progSim, 'uHasParent'), parent ? 1 : 0);
   gl.uniform1i(U(progSim, 'uFeed'), parent && opts.feed ? 1 : 0); gl.uniform1i(U(progSim, 'uInit'), opts.init ? 1 : 0);
-  gl.uniform1f(U(progSim, 'uAddGain'), S.addGain); gl.uniform1f(U(progSim, 'uDimGain'), S.dimGain); gl.uniform1f(U(progSim, 'uTime'), (L.steps % 1000) * 0.618 + L.i * 7.3);
+  gl.uniform1f(U(progSim, 'uAddGain'), S.addGain); gl.uniform1f(U(progSim, 'uDimGain'), S.dimGain); gl.uniform1f(U(progSim, 'uMinLife'), S.minLife); gl.uniform1f(U(progSim, 'uTime'), (L.steps % 1000) * 0.618 + L.i * 7.3);
   gl.uniform4f(U(progSim, 'uRect'), L.rect[0] / N, L.rect[1] / N, L.rect[2] / N, L.rect[3] / N);
   gl.uniform2i(U(progSim, 'uSize'), N, N); gl.uniform1i(U(progSim, 'uR'), L.R);
   gl.uniform1i(U(progSim, 'uFamily'), cfg.fam === 'lenia' ? 0 : cfg.fam === 'mnca' ? 1 : 2);
@@ -392,22 +393,16 @@ function chooseRect(parent) {
   return [bx - w / 2, by - w / 2, w, w];
 }
 function trackRect(child, parent) {
-  const N = S.N, w = N / 3, r = Math.round(N / 12), reach = Math.round(N / 8);
-  const cx = Math.round(child.rect[0] + w / 2), cy = Math.round(child.rect[1] + w / 2);
-  const x0 = Math.max(0, cx - reach - r), y0 = Math.max(0, cy - reach - r), x1 = Math.min(N, cx + reach + r + 1), y1 = Math.min(N, cy + reach + r + 1), W = x1 - x0, H = y1 - y0;
-  if (W < 2 * r + 2 || H < 2 * r + 2) return;
+  const N = S.N, w = child.rect[2], m = Math.round(N / 12);
+  const cx = child.rect[0] + w / 2, cy = child.rect[1] + w / 2;
+  const x0 = Math.max(0, Math.round(cx - w / 2 - m)), y0 = Math.max(0, Math.round(cy - w / 2 - m)), x1 = Math.min(N, Math.round(cx + w / 2 + m)), y1 = Math.min(N, Math.round(cy + w / 2 + m)), W = x1 - x0, H = y1 - y0;
+  if (W < 4 || H < 4) return;
   const buf = new Float32Array(W * H * 4);
   gl.bindFramebuffer(gl.FRAMEBUFFER, scoreOf(parent)); gl.readPixels(x0, y0, W, H, gl.RGBA, gl.FLOAT, buf); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  const sat = new Float64Array((W + 1) * (H + 1));
-  for (let y = 1; y <= H; y++) { let row = 0; for (let x = 1; x <= W; x++) { row += buf[((y - 1) * W + x - 1) * 4]; sat[y * (W + 1) + x] = sat[(y - 1) * (W + 1) + x] + row; } }
-  let best = -1, bx = cx, by = cy;
-  for (let y = y0 + r; y < y1 - r; y += 2) for (let x = x0 + r; x < x1 - r; x += 2) {
-    const ax = x - x0, ay = y - y0;
-    const s = sat[(ay + r) * (W + 1) + ax + r] - sat[(ay - r) * (W + 1) + ax + r] - sat[(ay + r) * (W + 1) + ax - r] + sat[(ay - r) * (W + 1) + ax - r];
-    const score = s * (1 - 0.4 * Math.hypot(x - cx, y - cy) / reach);
-    if (score > best) { best = score; bx = x; by = y; }
-  }
-  child.rect[0] += (bx - w / 2 - child.rect[0]) * 0.2; child.rect[1] += (by - w / 2 - child.rect[1]) * 0.2;
+  let sw = 0, sx = 0, sy = 0;
+  for (let y = 0; y < H; y += 2) for (let x = 0; x < W; x += 2) { const v = buf[(y * W + x) * 4]; sw += v; sx += v * (x0 + x); sy += v * (y0 + y); }
+  if (sw < 1e-3) return;
+  child.rect[0] += (sx / sw - w / 2 - child.rect[0]) * 0.15; child.rect[1] += (sy / sw - w / 2 - child.rect[1]) * 0.15;
 }
 // the child's mean value where the parent is dense (what its accent will average to), for the pre-tint
 function childMean(child, parent) {
@@ -451,7 +446,7 @@ function seedChild(i) {
   return L;
 }
 function restart() {
-  S.levels.forEach(freeLevel); S.levels = []; S.t = 0; S.cur = 0; seed = 7;
+  S.levels.forEach(freeLevel); S.levels = []; S.t = 0; S.cur = 0; seed = 7; S.cam = [S.N / 2, S.N / 2];
   if (S.score) { gl.deleteTexture(S.score); gl.deleteFramebuffer(S.scoreFbo); S.score = null; }
   // the first world, warmed up from noise; SmoothLife sometimes dies out within fifty steps, so try again on another seed
   let L0;
@@ -469,7 +464,7 @@ function advance(dt) { // fixed time step, so a frame-by-frame render is determi
   const logM = S.t / S.secs, Lidx = Math.min(Math.floor(logM), S.chain.length - 1), f = logM - Lidx;
   if (S.mode === 'sum') return advanceSum(Lidx, f);
   if (Lidx > S.cur) { // promotion: the child becomes current, the next child is painted
-    S.cur = Lidx; S.promotedAt = S.t;
+    rebaseCam(S.levels[Lidx]); S.cur = Lidx; S.promotedAt = S.t;
     const prev = S.levels[Lidx - 1]; if (prev) { prev.rate = 0; bakeBase(S.levels[Lidx], prev); }
     if (Lidx + 1 < S.chain.length && !S.levels[Lidx + 1]) S.levels[Lidx + 1] = paintChild(Lidx + 1);
     if (Lidx >= 2) freeLevel(S.levels[Lidx - 2]);   // the grandparent is baked into the parent's base now
@@ -490,11 +485,20 @@ function advance(dt) { // fixed time step, so a frame-by-frame render is determi
   }
   if (child && S.aim && cur.rate > 0.02 && (S.frame = (S.frame || 0) + 1) % 6 === 0) trackRect(child, cur);
   if (child) { child.rate = 0; child.lambda = S.lambda; stepLevel(child, cur); if (S.frame % 45 === 0) childMean(child, cur); }  // follows the parent only
+  followCam();
   return { Lidx, f };
 }
+// the camera eases onto the child's square (which follows the centre of mass); at a hand-over its position
+// is re-expressed in the promoted level's cells, so nothing jumps
+function followCam() {
+  const N = S.N, child = S.levels[S.cur + 1];
+  const rc = child ? [child.rect[0] + child.rect[2] / 2, child.rect[1] + child.rect[3] / 2] : [N / 2, N / 2];
+  S.cam[0] += (rc[0] - S.cam[0]) * 0.05; S.cam[1] += (rc[1] - S.cam[1]) * 0.05;
+}
+function rebaseCam(L) { const N = S.N; S.cam = [(S.cam[0] - L.rect[0]) / L.rect[2] * N, (S.cam[1] - L.rect[1]) / L.rect[3] * N]; }
 function advanceSum(Lidx, f) {
   if (Lidx > S.cur) { // the child fills the frame: the level two up is dropped (baked into the one above), the next child is seeded
-    S.cur = Lidx;
+    rebaseCam(S.levels[Lidx]); S.cur = Lidx;
     const dropped = S.levels[Lidx - 2];
     if (dropped && !dropped.freed) { bakeBase(S.levels[Lidx - 1], dropped); freeLevel(dropped); }
     if (Lidx + 1 < S.chain.length && !S.levels[Lidx + 1]) S.levels[Lidx + 1] = seedChild(Lidx + 1);
@@ -511,6 +515,7 @@ function advanceSum(Lidx, f) {
     if (S.aim && cur.stepped > 0 && S.frame % 3 === 0) trackRect(child, cur);   // the square follows its blob, so the child's texture rides with it
     if (S.frame % 45 === 0) childMean(child, cur);
   }
+  followCam();
   return { Lidx, f };
 }
 function drawSum(Lidx, f) {
@@ -524,9 +529,7 @@ function drawSum(Lidx, f) {
   bindT(3, (child || cur).tex[(child || cur).cur], 'uChild');
   gl.uniform1i(U(progSum, 'uHasGrand'), hasGrand ? 1 : 0); gl.uniform1i(U(progSum, 'uHasChild'), child ? 1 : 0);
   gl.uniform2i(U(progSum, 'uSize'), N, N); gl.uniform2f(U(progSum, 'uRes'), canvas.width, canvas.height);
-  const rc = child ? [child.rect[0] + child.rect[2] / 2, child.rect[1] + child.rect[3] / 2] : [N / 2, N / 2];
-  const e = ease(f), cx = N / 2 + (rc[0] - N / 2) * e, cy = N / 2 + (rc[1] - N / 2) * e;
-  gl.uniform2f(U(progSum, 'uCenter'), cx, cy); gl.uniform1f(U(progSum, 'uWidth'), N / Math.pow(3, f));
+  gl.uniform2f(U(progSum, 'uCenter'), S.cam[0], S.cam[1]); gl.uniform1f(U(progSum, 'uWidth'), N / Math.pow(3, f));
   gl.uniform1f(U(progSum, 'uGamma'), S.gamma); gl.uniform1f(U(progSum, 'uBlend'), S.blend);
   gl.uniform4f(U(progSum, 'uRect'), ...(child ? child.rect : [0, 0, N, N]));
   gl.uniform4f(U(progSum, 'uGrandRect'), ...(hasGrand ? cur.rect : [0, 0, N, N]));
@@ -546,9 +549,7 @@ function draw(Lidx, f) {
   gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, cur.base); gl.uniform1i(U(progView, 'uCurBase'), 2);
   gl.uniform1i(U(progView, 'uHasChild'), child ? 1 : 0);
   gl.uniform2i(U(progView, 'uSize'), N, N); gl.uniform2f(U(progView, 'uRes'), canvas.width, canvas.height);
-  const rc = child ? [child.rect[0] + child.rect[2] / 2, child.rect[1] + child.rect[3] / 2] : [N / 2, N / 2];
-  const e = ease(f), cx = N / 2 + (rc[0] - N / 2) * e, cy = N / 2 + (rc[1] - N / 2) * e;
-  gl.uniform2f(U(progView, 'uCenter'), cx, cy); gl.uniform1f(U(progView, 'uWidth'), N / Math.pow(3, f)); gl.uniform1f(U(progView, 'uGamma'), S.gamma);
+  gl.uniform2f(U(progView, 'uCenter'), S.cam[0], S.cam[1]); gl.uniform1f(U(progView, 'uWidth'), N / Math.pow(3, f)); gl.uniform1f(U(progView, 'uGamma'), S.gamma);
   gl.uniform4f(U(progView, 'uRect'), ...(child ? child.rect : [0, 0, N, N]));
   gl.uniform2f(U(progView, 'uCurIn'), ...(cur.cfg.inness || [0.3, 0.8]));
   gl.uniform3f(U(progView, 'uCurAccent'), ...hex(cur.cfg.accent)); gl.uniform3f(U(progView, 'uChildAccent'), ...hex((child || cur).cfg.accent));
@@ -564,7 +565,7 @@ $('restart').onclick = () => restart();
 $('step').onclick = () => { for (let k = 0; k < 60; k++) advance(1 / 60); };
 $('png').onclick = () => { const a = document.createElement('a'); a.download = `quark-dive-${S.t.toFixed(1)}s.png`; a.href = canvas.toDataURL('image/png'); a.click(); };
 const bind = (id, key, fmt) => { $(id).oninput = (e) => { S[key] = +e.target.value; $(id + 'v').textContent = fmt ? fmt(S[key]) : S[key]; }; };
-bind('addGain', 'addGain', v => v.toFixed(2)); bind('dimGain', 'dimGain', v => v.toFixed(2)); bind('blend', 'blend', v => v.toFixed(2));
+bind('addGain', 'addGain', v => v.toFixed(2)); bind('dimGain', 'dimGain', v => v.toFixed(2)); bind('minLife', 'minLife', v => v.toFixed(2)); bind('blend', 'blend', v => v.toFixed(2));
 $('mode').onchange = (e) => { S.mode = e.target.value; restart(); };
 bind('secs', 'secs'); bind('ramp', 'ramp'); bind('burst', 'burst'); bind('lambda', 'lambda', v => v.toFixed(2)); bind('rb', 'rb'); bind('gamma', 'gamma', v => v.toFixed(2));
 $('aim').onchange = (e) => { S.aim = e.target.checked; };
