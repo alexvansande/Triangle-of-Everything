@@ -43,9 +43,11 @@ textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.
   <header>
     <h1>Quark dive</h1>
     <p class="lede">The dive from the quarks to the Planck grid as a <b>chain of worlds</b>: each world's centre third holds
-      the next, three times finer, painted with its own rule and <b>coloured by the parent's density</b>, so the shapes
-      resolve into texture instead of fading. When a child fills the frame its clock ramps up from zero and the parent,
-      by then huge, has stopped. Edit the chain below (rules from the dense-automata bench), then Restart.</p>
+      the next, three times finer, with its own rule. In <b>sum</b> mode the child is seeded as noise shaped by the
+      parent's state and then fed by the parent's changes (brightening adds mass as noise, fading dims it), simulating
+      from the start; the picture is the sum of the worlds, and a world is dropped once it is too magnified to matter.
+      In <b>paint</b> mode the child is painted under a density clamp and promoted when it fills the frame. Edit the
+      chain below (rules from the dense-automata bench), then Restart.</p>
   </header>
   <div class="bench">
     <div class="stage">
@@ -55,11 +57,16 @@ textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.
     </div>
     <div class="panel">
       <div class="btns"><button id="play" class="primary">Pause</button><button id="restart">Restart</button><button id="step">Step 1 s</button><button id="png">Save PNG</button></div>
+      <h2>Mode</h2>
+      <div class="row"><label>mode</label><select id="mode"><option value="sum" selected>sum: seeded and fed</option><option value="paint">paint: clamped and promoted</option></select><span></span></div>
+      <div class="row"><label>add (noise)</label><input id="addGain" type="range" min="0" max="4" step="0.05" value="1"><output id="addGainv">1.00</output></div>
+      <div class="row"><label>remove (dim)</label><input id="dimGain" type="range" min="0" max="4" step="0.05" value="1.5"><output id="dimGainv">1.50</output></div>
+      <div class="row"><label>sum ↔ over</label><input id="blend" type="range" min="0" max="1" step="0.01" value="0"><output id="blendv">0.00</output></div>
       <h2>Zoom</h2>
       <div class="row"><label>seconds / level</label><input id="secs" type="range" min="2" max="20" step="0.5" value="7"><output id="secsv">7</output></div>
       <div class="row"><label>ramp (s)</label><input id="ramp" type="range" min="0" max="6" step="0.1" value="2.5"><output id="rampv">2.5</output></div>
       <div class="row"><label>grid</label><select id="grid"><option>128</option><option>256</option><option selected>512</option><option>768</option><option>1024</option></select><span></span></div>
-      <h2>Painting</h2>
+      <h2>Painting (paint mode)</h2>
       <div class="row"><label>paint steps</label><input id="burst" type="range" min="0" max="300" step="10" value="120"><output id="burstv">120</output></div>
       <div class="row"><label>density clamp</label><input id="lambda" type="range" min="0" max="0.6" step="0.01" value="0.12"><output id="lambdav">0.12</output></div>
       <div class="row"><label>clamp radius</label><input id="rb" type="range" min="2" max="16" step="1" value="6"><output id="rbv">6</output></div>
@@ -82,10 +89,10 @@ textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.
 const DEFAULT_CHAIN = [
   { fam: 'smoothlife', name: 'quarks', ra: 10, speed: 0.35, base: '#05060a', accent: '#6f9fe6', inness: [0.2, 0.7] },
   { fam: 'lenia', name: 'Dots and blobs', R: 18, peaks: [1], mu: 0.1231, sigma: 0.0454, dt: 0.5, speed: 1, density: [0.05, 0.4], accent: '#e8473c', inness: [0.3, 0.8] },
-  { fam: 'mnca', name: 'Worms', rings: [{ rin: 7.97, rout: 12.26, rules: [[0.07, 0.281, 0.21], [0.27, 0.551, -0.198]] }, { rin: 15.22, rout: 23.76, rules: [[0.312, 0.409, -0.227]] }], speed: 1, accent: '#120607', inness: [0.3, 0.8] },
-  { fam: 'lenia', name: 'Labyrinth', R: 16, peaks: [1], mu: 0.423, sigma: 0.0727, dt: 0.5, speed: 1, accent: '#9a9aa2', inness: [0.3, 0.8] },
-  { fam: 'mnca', name: 'Cells', rings: [{ rin: 2.91, rout: 7.25, rules: [[0.926, 1, -0.133], [0.897, 1, -0.286], [0.443, 0.71, 0.159]] }, { rin: 8.9, rout: 10.92, rules: [[0.24, 0.413, 0.069], [0.677, 0.716, -0.228], [0.506, 0.71, 0.166]] }, { rin: 11.15, rout: 12.65, rules: [[0.352, 0.524, -0.216], [0.687, 0.844, -0.084], [0.317, 0.573, -0.063]] }], speed: 1, accent: '#f0f0f0', inness: [0.3, 0.8] },
-  { fam: 'lenia', name: 'Soup', R: 13, peaks: [0.413, 1, 0.442], mu: 0.2716, sigma: 0.0998, dt: 0.5, speed: 1, accent: '#2a2a2e', inness: [0.3, 0.8] },
+  { fam: 'mnca', name: 'Worms', rings: [{ rin: 7.97, rout: 12.26, rules: [[0.07, 0.281, 0.21], [0.27, 0.551, -0.198]] }, { rin: 15.22, rout: 23.76, rules: [[0.312, 0.409, -0.227]] }], speed: 1, accent: '#f2d060', inness: [0.3, 0.8] },
+  { fam: 'lenia', name: 'Labyrinth', R: 16, peaks: [1], mu: 0.423, sigma: 0.0727, dt: 0.5, speed: 1, accent: '#f0f0f4', inness: [0.3, 0.8] },
+  { fam: 'mnca', name: 'Cells', rings: [{ rin: 2.91, rout: 7.25, rules: [[0.926, 1, -0.133], [0.897, 1, -0.286], [0.443, 0.71, 0.159]] }, { rin: 8.9, rout: 10.92, rules: [[0.24, 0.413, 0.069], [0.677, 0.716, -0.228], [0.506, 0.71, 0.166]] }, { rin: 11.15, rout: 12.65, rules: [[0.352, 0.524, -0.216], [0.687, 0.844, -0.084], [0.317, 0.573, -0.063]] }], speed: 1, accent: '#40c8c0', inness: [0.3, 0.8] },
+  { fam: 'lenia', name: 'Soup', R: 13, peaks: [0.413, 1, 0.442], mu: 0.2716, sigma: 0.0998, dt: 0.5, speed: 1, accent: '#d050c0', inness: [0.3, 0.8] },
 ];
 // SmoothLife (Rafler 2011), discrete time: Rafler's constants, outer radius ra, inner ra/3.
 const SL = { b1: 0.278, b2: 0.365, d1: 0.267, d2: 0.445, an: 0.028, am: 0.147 };
@@ -106,17 +113,23 @@ in vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
 // uRate scales the rule's step (0 = frozen); uLambda pulls the coarse density toward the parent's.
 const SIM_FS = `#version 300 es
 precision highp float; precision highp int; precision highp sampler2D;
-uniform sampler2D uState, uKernel, uBlurK, uParent; uniform ivec2 uSize; uniform int uR, uFamily, uNRules[4], uHasParent;
+uniform sampler2D uState, uKernel, uBlurK, uParent, uParentPrev; uniform ivec2 uSize; uniform int uR, uFamily, uNRules[4], uHasParent, uFeed, uInit;
+uniform float uAddGain, uDimGain, uTime;
 uniform float uMu, uSigma, uDt, uRate, uLambda; uniform vec3 uRules[12]; uniform vec4 uRect; uniform float uSL[6]; uniform vec2 uDens;
 out vec4 o;
 float s1(float x, float a, float al){ return 1.0 / (1.0 + exp(-(x - a) * 4.0 / al)); }
-float parentAt(vec2 uv){ // bilinear on the parent's periodic grid
+float at(sampler2D t, vec2 uv){ // bilinear on a parent's periodic grid
   vec2 p = uv * vec2(uSize) - 0.5; ivec2 i = ivec2(floor(p)); vec2 f = p - floor(p);
-  #define P(dx,dy) texelFetch(uParent, ((i + ivec2(dx,dy)) % uSize + uSize) % uSize, 0).r
+  #define P(dx,dy) texelFetch(t, ((i + ivec2(dx,dy)) % uSize + uSize) % uSize, 0).r
   return mix(mix(P(0,0), P(1,0), f.x), mix(P(0,1), P(1,1), f.x), f.y);
 }
+float parentAt(vec2 uv){ return at(uParent, uv); }
+float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 void main(){
   ivec2 c = ivec2(gl_FragCoord.xy);
+  vec2 cuv = (vec2(c) + 0.5) / vec2(uSize);
+  if (uInit == 1) { // the seed: noise with the parent's state as its amplitude
+    o = vec4(clamp(hash(vec2(c) + uTime) * parentAt(uRect.xy + cuv * uRect.zw), 0.0, 1.0), 0.0, 0.0, 1.0); return; }
   vec4 acc = vec4(0.0); float blur = 0.0;
   for (int dy = -uR; dy <= uR; dy++) for (int dx = -uR; dx <= uR; dx++) {
     ivec2 k = ivec2(dx + uR, dy + uR);
@@ -129,7 +142,12 @@ void main(){
   else { float m = acc.x, n = acc.y; float sm = s1(m, 0.5, uSL[5]);
     float lo = uSL[0] * (1.0 - sm) + uSL[2] * sm, hi = uSL[1] * (1.0 - sm) + uSL[3] * sm;
     float s = s1(n, lo, uSL[4]) * (1.0 - s1(n, hi, uSL[4])); a = mix(a, s, uRate); }
-  if (uHasParent == 1 && uLambda > 0.0) { vec2 uv = (vec2(c) + 0.5) / vec2(uSize); float P = parentAt(uRect.xy + uv * uRect.zw); a += uLambda * (mix(uDens.x, uDens.y, P) - blur); }
+  if (uHasParent == 1 && uLambda > 0.0) { float P = parentAt(uRect.xy + cuv * uRect.zw); a += uLambda * (mix(uDens.x, uDens.y, P) - blur); }
+  if (uFeed == 1) { // the parent's change at this point: brightening adds mass as noise, fading dims
+    vec2 puv = uRect.xy + cuv * uRect.zw; float d = at(uParent, puv) - at(uParentPrev, puv);
+    a += uAddGain * max(d, 0.0) * hash(vec2(c) * 1.7 + uTime);
+    a *= 1.0 - clamp(uDimGain * max(-d, 0.0), 0.0, 1.0);
+  }
   o = vec4(clamp(a, 0.0, 1.0), 0.0, 0.0, 1.0);
 }`;
 // The picture: the current level fills the view; its child sits in uRect (cells of the current level), three
@@ -181,12 +199,55 @@ void main(){
   }
   o = vec4(col, 1.0);
 }`;
+// The sum mode's picture: the dropped ancestors (baked into the big level's base), the big level one up
+// (slow, magnified), the current level and its child, each blended in with its accent: a plain sum of
+// colours, or "over" (the child on top of the parent), by uBlend.
+const VIEW_SUM_FS = `#version 300 es
+precision highp float; precision highp sampler2D;
+uniform sampler2D uGrand, uGrandBase, uCur, uChild; uniform ivec2 uSize; uniform vec2 uRes, uCenter; uniform float uWidth, uGamma, uBlend;
+uniform vec4 uGrandRect, uRect; uniform int uHasGrand, uHasChild; uniform vec3 uAccG, uAccC, uAccCh;
+out vec4 o;
+float px(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0).r; }
+vec4 px4(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0); }
+float cr(float a, float b, float c, float d, float t){ return 0.5 * (2.0*b + (c - a)*t + (2.0*a - 5.0*b + 4.0*c - d)*t*t + (3.0*b - a - 3.0*c + d)*t*t*t); }
+float bicubic(sampler2D t, vec2 p){ p -= 0.5; ivec2 i = ivec2(floor(p)); vec2 f = p - floor(p); float r[4];
+  for (int y = 0; y < 4; y++) r[y] = cr(px(t, i + ivec2(-1, y - 1)), px(t, i + ivec2(0, y - 1)), px(t, i + ivec2(1, y - 1)), px(t, i + ivec2(2, y - 1)), f.x);
+  return clamp(cr(r[0], r[1], r[2], r[3], f.y), 0.0, 1.0); }
+float bilin(sampler2D t, vec2 p){ p -= 0.5; ivec2 i = ivec2(floor(p)); vec2 f = p - floor(p);
+  return mix(mix(px(t, i), px(t, i + ivec2(1, 0)), f.x), mix(px(t, i + ivec2(0, 1)), px(t, i + ivec2(1, 1)), f.x), f.y); }
+vec4 bilin4(sampler2D t, vec2 p){ p -= 0.5; ivec2 i = ivec2(floor(p)); vec2 f = p - floor(p);
+  return mix(mix(px4(t, i), px4(t, i + ivec2(1, 0)), f.x), mix(px4(t, i + ivec2(0, 1)), px4(t, i + ivec2(1, 1)), f.x), f.y); }
+float look(sampler2D t, vec2 p, float cpp){
+  if (cpp <= 1.0) return bicubic(t, p);
+  int n = int(min(ceil(cpp), 5.0)); float s = 0.0;
+  for (int y = 0; y < n; y++) for (int x = 0; x < n; x++) s += bilin(t, p + ((vec2(float(x), float(y)) + 0.5) / float(n) - 0.5) * cpp);
+  return s / float(n * n);
+}
+vec3 blend(vec3 col, vec3 acc, float v){ v = pow(v, uGamma); return mix(col + acc * v, mix(col, acc, v), uBlend); }
+void main(){
+  vec2 uv = gl_FragCoord.xy / uRes;
+  vec2 span = vec2(uWidth, uWidth * uRes.y / uRes.x);
+  vec2 p = uCenter + (uv - 0.5) * span;                 // in cells of the current level
+  float cpp = uWidth / uRes.x;
+  vec2 g = uGrandRect.xy + p / vec2(uSize) * uGrandRect.zw;   // the same point in the big level's cells
+  vec3 col = bilin4(uGrandBase, g).rgb;
+  if (uHasGrand == 1) col = blend(col, uAccG, bicubic(uGrand, g));
+  col = blend(col, uAccC, look(uCur, p, cpp));
+  vec2 q = (p - uRect.xy) / uRect.zw;
+  if (uHasChild == 1 && q.x >= 0.0 && q.x < 1.0 && q.y >= 0.0 && q.y < 1.0) {
+    float ccpp = cpp * float(uSize.x) / uRect.z;
+    float w = 1.0 - smoothstep(4.0, 5.0, ccpp);         // averaged over the pixel while it is sub-pixel
+    float cv = look(uChild, q * vec2(uSize), ccpp);
+    col = mix(col, blend(col, uAccCh, cv), w);
+  }
+  o = vec4(clamp(col, 0.0, 1.0), 1.0);
+}`;
 // Baking a level's base from its parent, once the parent has stopped: the colour the parent shows at
 // each point of the child's square, and the parent's inside-ness there times its own. With uScore = 1
 // it instead writes value × inside-ness of one level (for aiming the next square).
 const BAKE_FS = `#version 300 es
 precision highp float; precision highp sampler2D;
-uniform sampler2D uPState, uPBase; uniform ivec2 uSize; uniform vec4 uRect; uniform vec3 uPAccent; uniform vec2 uPIn; uniform float uGamma; uniform int uScore;
+uniform sampler2D uPState, uPBase; uniform ivec2 uSize; uniform vec4 uRect; uniform vec3 uPAccent; uniform vec2 uPIn; uniform float uGamma, uBlend; uniform int uScore, uSum;
 out vec4 o;
 float px(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0).r; }
 vec4 px4(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0); }
@@ -202,19 +263,20 @@ void main(){
   vec2 uv = (vec2(c) + 0.5) / vec2(uSize);
   vec2 p = (uRect.xy + uv * uRect.zw) * vec2(uSize);
   float pv = bilin(uPState, p); vec4 pb = bilin4(uPBase, p);
+  if (uSum == 1) { float v = pow(pv, uGamma); o = vec4(mix(pb.rgb + uPAccent * v, mix(pb.rgb, uPAccent, v), uBlend), 1.0); return; }
   o = vec4(mix(pb.rgb, uPAccent, pow(pv, uGamma) * pb.a), pb.a * smoothstep(uPIn.x, uPIn.y, pv));
 }`;
 function compile(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
 function program(fs) { const p = gl.createProgram(); gl.attachShader(p, compile(gl.VERTEX_SHADER, VS)); gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p; }
-let progSim, progView, progBake, quad;
-try { if (gl && extF) { progSim = program(SIM_FS); progView = program(VIEW_FS); progBake = program(BAKE_FS); quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW); } } catch (e) { glerr.textContent = String(e.message || e); }
+let progSim, progView, progSum, progBake, quad;
+try { if (gl && extF) { progSim = program(SIM_FS); progView = program(VIEW_FS); progSum = program(VIEW_SUM_FS); progBake = program(BAKE_FS); quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW); } } catch (e) { glerr.textContent = String(e.message || e); }
 function bindQuad(p) { const loc = gl.getAttribLocation(p, 'p'); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0); }
 function makeTex(w, h, data) { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, w, h, 0, gl.RGBA, gl.FLOAT, data); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); return t; }
 const U = (p, n) => gl.getUniformLocation(p, n);
 const hex = (c) => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16) / 255);
 
 // ---------- the chain ----------
-const S = { chain: DEFAULT_CHAIN, N: 512, secs: 7, ramp: 2.5, burst: 120, lambda: 0.12, rb: 6, aim: true, gamma: 1, t: 0, playing: true, levels: [], cur: -1 };
+const S = { chain: DEFAULT_CHAIN, mode: 'sum', addGain: 1, dimGain: 1.5, blend: 0, N: 512, secs: 7, ramp: 2.5, burst: 120, lambda: 0.12, rb: 6, aim: true, gamma: 1, t: 0, playing: true, levels: [], cur: -1 };
 const $ = (id) => document.getElementById(id);
 
 function kernels(cfg, N) {
@@ -261,7 +323,8 @@ function makeLevel(i) {
   return L;
 }
 function freeLevel(L) { if (!L || L.freed) return; L.tex.forEach(t => gl.deleteTexture(t)); L.fbo.forEach(f => gl.deleteFramebuffer(f)); gl.deleteTexture(L.kernel); gl.deleteTexture(L.blurK); gl.deleteTexture(L.base); gl.deleteFramebuffer(L.baseFbo); L.freed = true; }
-function stepLevel(L, parent) {
+function stepLevel(L, parent, opts) {
+  opts = opts || {};
   const N = S.N, cfg = L.cfg, src = L.cur, dst = 1 - src;
   gl.bindFramebuffer(gl.FRAMEBUFFER, L.fbo[dst]); gl.viewport(0, 0, N, N);
   gl.useProgram(progSim); bindQuad(progSim);
@@ -269,7 +332,10 @@ function stepLevel(L, parent) {
   gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, L.kernel); gl.uniform1i(U(progSim, 'uKernel'), 1);
   gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, L.blurK); gl.uniform1i(U(progSim, 'uBlurK'), 2);
   gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, parent ? parent.tex[parent.cur] : L.tex[src]); gl.uniform1i(U(progSim, 'uParent'), 3);
+  gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, parent ? parent.tex[1 - parent.cur] : L.tex[src]); gl.uniform1i(U(progSim, 'uParentPrev'), 4);
   gl.uniform1i(U(progSim, 'uHasParent'), parent ? 1 : 0);
+  gl.uniform1i(U(progSim, 'uFeed'), parent && opts.feed ? 1 : 0); gl.uniform1i(U(progSim, 'uInit'), opts.init ? 1 : 0);
+  gl.uniform1f(U(progSim, 'uAddGain'), S.addGain); gl.uniform1f(U(progSim, 'uDimGain'), S.dimGain); gl.uniform1f(U(progSim, 'uTime'), (L.steps % 1000) * 0.618 + L.i * 7.3);
   gl.uniform4f(U(progSim, 'uRect'), L.rect[0] / N, L.rect[1] / N, L.rect[2] / N, L.rect[3] / N);
   gl.uniform2i(U(progSim, 'uSize'), N, N); gl.uniform1i(U(progSim, 'uR'), L.R);
   gl.uniform1i(U(progSim, 'uFamily'), cfg.fam === 'lenia' ? 0 : cfg.fam === 'mnca' ? 1 : 2);
@@ -291,6 +357,7 @@ function bakePass(target, parent, rect, score) {
   gl.uniform2i(U(progBake, 'uSize'), N, N); gl.uniform4f(U(progBake, 'uRect'), ...rect.map(v => v / N));
   gl.uniform3f(U(progBake, 'uPAccent'), ...hex(parent.cfg.accent)); gl.uniform2f(U(progBake, 'uPIn'), ...(parent.cfg.inness || [0.3, 0.8]));
   gl.uniform1f(U(progBake, 'uGamma'), S.gamma); gl.uniform1i(U(progBake, 'uScore'), score ? 1 : 0);
+  gl.uniform1i(U(progBake, 'uSum'), S.mode === 'sum' ? 1 : 0); gl.uniform1f(U(progBake, 'uBlend'), S.blend);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 // a level's base, from its parent, once the parent has stopped
@@ -358,6 +425,20 @@ function paintChild(i) {
   childMean(L, parent);
   return L;
 }
+// one frame of a level: its clock times its speed, as whole steps (SmoothLife: a discrete rule, stepped
+// less often rather than blended) or as a scaled step. Returns how many steps ran.
+function runLevel(L, parent, feed) {
+  const sp = L.cfg.speed || 1, clock = L.rate * sp; let n = 0;
+  if (L.cfg.fam === 'smoothlife') { L.acc = (L.acc || 0) + clock; L.rate = 1; while (L.acc >= 1) { L.acc -= 1; stepLevel(L, parent, { feed }); n++; } }
+  else { const nsteps = Math.ceil(sp); L.rate = clock / nsteps; for (let k = 0; k < nsteps; k++) stepLevel(L, parent, { feed }); n = nsteps; }
+  L.rate = clock; L.stepped = n; return n;
+}
+// sum mode: a child seeded from its parent's state, simulating from the start
+function seedChild(i) {
+  const parent = S.levels[i - 1]; const L = makeLevel(i); L.rect = chooseRect(parent);
+  L.rate = 1; L.lambda = 0; stepLevel(L, parent, { init: true });
+  return L;
+}
 function restart() {
   S.levels.forEach(freeLevel); S.levels = []; S.t = 0; S.cur = 0; seed = 7;
   if (S.score) { gl.deleteTexture(S.score); gl.deleteFramebuffer(S.scoreFbo); S.score = null; }
@@ -368,13 +449,14 @@ function restart() {
     if (levelMean(L0) > 0.01) break;
     freeLevel(L0); seed = seed * 31 + 7;
   }
-  S.levels[0] = L0; S.levels[1] = S.chain.length > 1 ? paintChild(1) : null;
+  S.levels[0] = L0; S.levels[1] = S.chain.length > 1 ? (S.mode === 'sum' ? seedChild(1) : paintChild(1)) : null;
   S.promotedAt = 0;
 }
 const ease = (x) => x * x * (3 - 2 * x);
 function advance(dt) { // fixed time step, so a frame-by-frame render is deterministic
   S.t += dt;
   const logM = S.t / S.secs, Lidx = Math.min(Math.floor(logM), S.chain.length - 1), f = logM - Lidx;
+  if (S.mode === 'sum') return advanceSum(Lidx, f);
   if (Lidx > S.cur) { // promotion: the child becomes current, the next child is painted
     S.cur = Lidx; S.promotedAt = S.t;
     const prev = S.levels[Lidx - 1]; if (prev) { prev.rate = 0; bakeBase(S.levels[Lidx], prev); }
@@ -399,7 +481,47 @@ function advance(dt) { // fixed time step, so a frame-by-frame render is determi
   if (child) { child.rate = 0; child.lambda = S.lambda; stepLevel(child, cur); if (S.frame % 45 === 0) childMean(child, cur); }  // follows the parent only
   return { Lidx, f };
 }
+function advanceSum(Lidx, f) {
+  if (Lidx > S.cur) { // the child fills the frame: the level two up is dropped (baked into the one above), the next child is seeded
+    S.cur = Lidx;
+    const dropped = S.levels[Lidx - 2];
+    if (dropped && !dropped.freed) { bakeBase(S.levels[Lidx - 1], dropped); freeLevel(dropped); }
+    if (Lidx + 1 < S.chain.length && !S.levels[Lidx + 1]) S.levels[Lidx + 1] = seedChild(Lidx + 1);
+  }
+  const cur = S.levels[S.cur], child = S.levels[S.cur + 1], grand = S.levels[S.cur - 1];
+  const alive = (L) => L && !L.freed;
+  // clocks: a level runs full while it fills the frame, winds down to a trickle as it is magnified, and
+  // trickles to nothing one level later; the child runs full (it is small and fast)
+  const down = 1 - 0.85 * ease(Math.max(0, Math.min(1, (f - 0.4) / 0.6)));
+  if (alive(grand)) { grand.rate = 0.15 * (1 - ease(f)); grand.lambda = 0; runLevel(grand, null, false); }
+  cur.rate = down; cur.lambda = 0; runLevel(cur, alive(grand) ? grand : null, alive(grand) && grand.stepped > 0);
+  if (child) { child.rate = 1; child.lambda = 0; runLevel(child, cur, cur.stepped > 0); }
+  return { Lidx, f };
+}
+function drawSum(Lidx, f) {
+  const N = S.N, cur = S.levels[S.cur], child = S.levels[S.cur + 1], grand = S.levels[S.cur - 1], hasGrand = grand && !grand.freed;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.useProgram(progSum); bindQuad(progSum);
+  const bindT = (unit, tex, name) => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(U(progSum, name), unit); };
+  bindT(0, hasGrand ? grand.tex[grand.cur] : cur.tex[cur.cur], 'uGrand');
+  bindT(1, hasGrand ? grand.base : cur.base, 'uGrandBase');
+  bindT(2, cur.tex[cur.cur], 'uCur');
+  bindT(3, (child || cur).tex[(child || cur).cur], 'uChild');
+  gl.uniform1i(U(progSum, 'uHasGrand'), hasGrand ? 1 : 0); gl.uniform1i(U(progSum, 'uHasChild'), child ? 1 : 0);
+  gl.uniform2i(U(progSum, 'uSize'), N, N); gl.uniform2f(U(progSum, 'uRes'), canvas.width, canvas.height);
+  const rc = child ? [child.rect[0] + child.rect[2] / 2, child.rect[1] + child.rect[3] / 2] : [N / 2, N / 2];
+  const e = ease(f), cx = N / 2 + (rc[0] - N / 2) * e, cy = N / 2 + (rc[1] - N / 2) * e;
+  gl.uniform2f(U(progSum, 'uCenter'), cx, cy); gl.uniform1f(U(progSum, 'uWidth'), N / Math.pow(3, f));
+  gl.uniform1f(U(progSum, 'uGamma'), S.gamma); gl.uniform1f(U(progSum, 'uBlend'), S.blend);
+  gl.uniform4f(U(progSum, 'uRect'), ...(child ? child.rect : [0, 0, N, N]));
+  gl.uniform4f(U(progSum, 'uGrandRect'), ...(hasGrand ? cur.rect : [0, 0, N, N]));
+  gl.uniform3f(U(progSum, 'uAccG'), ...hex((hasGrand ? grand : cur).cfg.accent)); gl.uniform3f(U(progSum, 'uAccC'), ...hex(cur.cfg.accent)); gl.uniform3f(U(progSum, 'uAccCh'), ...hex((child || cur).cfg.accent));
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  $('tv').textContent = S.t.toFixed(1); $('mag').textContent = Math.pow(3, S.t / S.secs).toFixed(1) + '×'; $('lv').textContent = `${S.cur} ${cur.cfg.name || cur.cfg.fam}`;
+  $('levels').innerHTML = S.chain.map((c, i) => `<span class="${i === S.cur ? 'on' : i === S.cur + 1 ? 'child' : ''}">${i} ${c.fam} ${c.name || ''}${i === S.cur ? ` · clock ${cur.rate.toFixed(2)}` : i === S.cur + 1 ? ' · seeded, fed by its parent' : i === S.cur - 1 && hasGrand ? ` · clock ${grand.rate.toFixed(2)}, magnified` : i < S.cur ? ' · dropped' : ''}</span>`).join('');
+}
 function draw(Lidx, f) {
+  if (S.mode === 'sum') return drawSum(Lidx, f);
   const N = S.N, cur = S.levels[S.cur], child = S.levels[S.cur + 1];
   gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height);
   gl.useProgram(progView); bindQuad(progView);
@@ -426,6 +548,8 @@ $('restart').onclick = () => restart();
 $('step').onclick = () => { for (let k = 0; k < 60; k++) advance(1 / 60); };
 $('png').onclick = () => { const a = document.createElement('a'); a.download = `quark-dive-${S.t.toFixed(1)}s.png`; a.href = canvas.toDataURL('image/png'); a.click(); };
 const bind = (id, key, fmt) => { $(id).oninput = (e) => { S[key] = +e.target.value; $(id + 'v').textContent = fmt ? fmt(S[key]) : S[key]; }; };
+bind('addGain', 'addGain', v => v.toFixed(2)); bind('dimGain', 'dimGain', v => v.toFixed(2)); bind('blend', 'blend', v => v.toFixed(2));
+$('mode').onchange = (e) => { S.mode = e.target.value; restart(); };
 bind('secs', 'secs'); bind('ramp', 'ramp'); bind('burst', 'burst'); bind('lambda', 'lambda', v => v.toFixed(2)); bind('rb', 'rb'); bind('gamma', 'gamma', v => v.toFixed(2));
 $('aim').onchange = (e) => { S.aim = e.target.checked; };
 $('grid').onchange = (e) => { S.N = +e.target.value; restart(); };
@@ -434,6 +558,7 @@ $('copy').onclick = () => navigator.clipboard && navigator.clipboard.writeText($
 const q = new URLSearchParams(location.search);
 if (q.get('grid')) { S.N = +q.get('grid'); $('grid').value = S.N; }
 if (q.get('secs')) { S.secs = +q.get('secs'); $('secs').value = S.secs; $('secsv').textContent = S.secs; }
+if (q.get('mode')) { S.mode = q.get('mode'); $('mode').value = S.mode; }
 if (q.get('burst')) { S.burst = +q.get('burst'); $('burst').value = S.burst; $('burstv').textContent = S.burst; }
 syncJson();
 if (progView) restart();
