@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quark dive</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* The dive inside the quark (video/plans/inside-the-quark.md), end to end: a chain of worlds. Each
+   level is a square automaton; its child lives in a third of it (3× finer), painted from noise with the
+   child's own rule and shown coloured by the parent's live density, so the parent's shapes turn out,
+   on magnification, to have been made of the child's texture all along. When the child's square fills
+   the frame it is promoted: its clock ramps up from zero, the parent's has wound down to a stop. The
+   families and rules are those of dense-automata.html; the first level is SmoothLife, whose gliders
+   grow from noise. Same dark look as the bench. */
+:root { --bg: #05060a; --plate: #0b0d14; --line: #1c2030; --fg: #e6e2da; --muted: #8a8d9c; --accent: #ffcf8a;
+  --display: "Fraunces", "Iowan Old Style", Georgia, serif; --body: "Figtree", "Helvetica Neue", Arial, sans-serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; color-scheme: dark; }
+html, body { background: var(--bg); color: var(--fg); margin: 0; }
+body { font: 14px/1.45 var(--body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1380px; margin: 0 auto; padding: 22px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 16px; }
+h1 { font: 650 clamp(26px, 4vw, 38px)/1.05 var(--display); margin: 0; letter-spacing: -.01em; }
+.lede { color: var(--muted); max-width: 78ch; margin: 4px 0 0; } .lede b { color: var(--fg); font-weight: 500; }
+.bench { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+@media (max-width: 900px) { .bench { grid-template-columns: 1fr; } }
+.stage { background: var(--plate); border: 1px solid var(--line); border-radius: 6px; padding: 10px; display: grid; gap: 8px; }
+canvas#view { width: 100%; aspect-ratio: 16 / 9; display: block; background: #000; border-radius: 3px; }
+.status { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); font: 12px/1.4 var(--mono); } .status b { color: var(--fg); font-weight: 500; }
+.panel { background: var(--plate); border: 1px solid var(--line); border-radius: 6px; padding: 12px; display: grid; gap: 12px; }
+h2 { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.row { display: grid; grid-template-columns: 96px 1fr auto; gap: 8px; align-items: center; } .row label { color: var(--muted); font-size: 12px; } .row output { font: 12px var(--mono); min-width: 3.5em; text-align: right; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.btns button, select { font: 500 13px var(--body); padding: 7px 10px; border-radius: 4px; border: 1px solid var(--line); background: #10131c; color: var(--fg); cursor: pointer; }
+.btns button.primary { border-color: var(--accent); color: var(--accent); }
+textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.4 var(--mono); background: #07080d; color: var(--fg); border: 1px solid var(--line); border-radius: 4px; padding: 8px; resize: vertical; }
+.note { color: var(--muted); font-size: 12px; margin: 0; } .err { color: #ff8a7a; font: 12px var(--mono); white-space: pre-wrap; }
+.levels { display: grid; gap: 4px; font: 12px var(--mono); color: var(--muted); } .levels .on { color: var(--accent); } .levels .child { color: var(--fg); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Quark dive</h1>
+    <p class="lede">The dive from the quarks to the Planck grid as a <b>chain of worlds</b>: each world's centre third holds
+      the next, three times finer, painted with its own rule and <b>coloured by the parent's density</b>, so the shapes
+      resolve into texture instead of fading. When a child fills the frame its clock ramps up from zero and the parent,
+      by then huge, has stopped. Edit the chain below (rules from the dense-automata bench), then Restart.</p>
+  </header>
+  <div class="bench">
+    <div class="stage">
+      <canvas id="view" width="1280" height="720"></canvas>
+      <div class="status"><span>t <b id="tv">0.0</b> s</span><span>magnification <b id="mag">1</b></span><span>level <b id="lv">0</b></span><span>fps <b id="fps">–</b></span><span id="glerr" class="err"></span></div>
+      <div class="levels" id="levels"></div>
+    </div>
+    <div class="panel">
+      <div class="btns"><button id="play" class="primary">Pause</button><button id="restart">Restart</button><button id="step">Step 1 s</button><button id="png">Save PNG</button></div>
+      <h2>Zoom</h2>
+      <div class="row"><label>seconds / level</label><input id="secs" type="range" min="2" max="20" step="0.5" value="7"><output id="secsv">7</output></div>
+      <div class="row"><label>ramp (s)</label><input id="ramp" type="range" min="0" max="6" step="0.1" value="2.5"><output id="rampv">2.5</output></div>
+      <div class="row"><label>grid</label><select id="grid"><option>128</option><option>256</option><option selected>512</option><option>768</option><option>1024</option></select><span></span></div>
+      <h2>Painting</h2>
+      <div class="row"><label>paint steps</label><input id="burst" type="range" min="0" max="300" step="10" value="120"><output id="burstv">120</output></div>
+      <div class="row"><label>density clamp</label><input id="lambda" type="range" min="0" max="0.6" step="0.01" value="0.12"><output id="lambdav">0.12</output></div>
+      <div class="row"><label>clamp radius</label><input id="rb" type="range" min="2" max="16" step="1" value="6"><output id="rbv">6</output></div>
+      <div class="row"><label>aim at blobs</label><input id="aim" type="checkbox" checked><span></span></div>
+      <div class="row"><label>contrast</label><input id="gamma" type="range" min="0.4" max="2.5" step="0.01" value="1"><output id="gammav">1.00</output></div>
+      <h2>Chain</h2>
+      <textarea id="json" spellcheck="false"></textarea>
+      <div class="btns"><button id="apply">Apply and restart</button><button id="copy">Copy</button></div>
+      <p class="note">Each level: <code>fam</code> (smoothlife, lenia, mnca), its rule, <code>speed</code> (steps per
+        frame), <code>accent</code>: the colour its texture paints over whatever colour the ancestors give that point
+        (level 0 paints over <code>base</code>, the space). It only shows inside the ancestors' creatures:
+        <code>inness</code> = [lo, hi] is the smoothstep of a level's value that counts as "inside".
+        <code>density</code> = [where the parent is empty, where it is dense]: the coarse density the clamp
+        pulls the child toward; zero clamp leaves the texture uniform and only the colour follows.</p>
+    </div>
+  </div>
+</div>
+<script>
+'use strict';
+const DEFAULT_CHAIN = [
+  { fam: 'smoothlife', name: 'quarks', ra: 10, speed: 0.35, base: '#05060a', accent: '#6f9fe6', inness: [0.2, 0.7] },
+  { fam: 'lenia', name: 'Dots and blobs', R: 18, peaks: [1], mu: 0.1231, sigma: 0.0454, dt: 0.5, speed: 1, density: [0.05, 0.4], accent: '#e8473c', inness: [0.3, 0.8] },
+  { fam: 'mnca', name: 'Worms', rings: [{ rin: 7.97, rout: 12.26, rules: [[0.07, 0.281, 0.21], [0.27, 0.551, -0.198]] }, { rin: 15.22, rout: 23.76, rules: [[0.312, 0.409, -0.227]] }], speed: 1, accent: '#120607', inness: [0.3, 0.8] },
+  { fam: 'lenia', name: 'Labyrinth', R: 16, peaks: [1], mu: 0.423, sigma: 0.0727, dt: 0.5, speed: 1, accent: '#9a9aa2', inness: [0.3, 0.8] },
+  { fam: 'mnca', name: 'Cells', rings: [{ rin: 2.91, rout: 7.25, rules: [[0.926, 1, -0.133], [0.897, 1, -0.286], [0.443, 0.71, 0.159]] }, { rin: 8.9, rout: 10.92, rules: [[0.24, 0.413, 0.069], [0.677, 0.716, -0.228], [0.506, 0.71, 0.166]] }, { rin: 11.15, rout: 12.65, rules: [[0.352, 0.524, -0.216], [0.687, 0.844, -0.084], [0.317, 0.573, -0.063]] }], speed: 1, accent: '#f0f0f0', inness: [0.3, 0.8] },
+  { fam: 'lenia', name: 'Soup', R: 13, peaks: [0.413, 1, 0.442], mu: 0.2716, sigma: 0.0998, dt: 0.5, speed: 1, accent: '#2a2a2e', inness: [0.3, 0.8] },
+];
+// SmoothLife (Rafler 2011), discrete time: Rafler's constants, outer radius ra, inner ra/3.
+const SL = { b1: 0.278, b2: 0.365, d1: 0.267, d2: 0.445, an: 0.028, am: 0.147 };
+
+let seed = 7;
+function rand() { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+
+const canvas = document.getElementById('view');
+const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true, antialias: false });
+const glerr = document.getElementById('glerr');
+const extF = gl && gl.getExtension('EXT_color_buffer_float');
+if (!gl) glerr.textContent = 'WebGL2 is not available in this browser.'; else if (!extF) glerr.textContent = 'EXT_color_buffer_float missing.';
+
+const VS = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+// One pass for all three families. uKernel: per offset, the rule's ring weights (Lenia: .x; MNCA: up to
+// four rings; SmoothLife: .x inner disk, .y outer annulus). uBlurK: the disk for the density clamp.
+// uRate scales the rule's step (0 = frozen); uLambda pulls the coarse density toward the parent's.
+const SIM_FS = `#version 300 es
+precision highp float; precision highp int; precision highp sampler2D;
+uniform sampler2D uState, uKernel, uBlurK, uParent; uniform ivec2 uSize; uniform int uR, uFamily, uNRules[4], uHasParent;
+uniform float uMu, uSigma, uDt, uRate, uLambda; uniform vec3 uRules[12]; uniform vec4 uRect; uniform float uSL[6]; uniform vec2 uDens;
+out vec4 o;
+float s1(float x, float a, float al){ return 1.0 / (1.0 + exp(-(x - a) * 4.0 / al)); }
+float parentAt(vec2 uv){ // bilinear on the parent's periodic grid
+  vec2 p = uv * vec2(uSize) - 0.5; ivec2 i = ivec2(floor(p)); vec2 f = p - floor(p);
+  #define P(dx,dy) texelFetch(uParent, ((i + ivec2(dx,dy)) % uSize + uSize) % uSize, 0).r
+  return mix(mix(P(0,0), P(1,0), f.x), mix(P(0,1), P(1,1), f.x), f.y);
+}
+void main(){
+  ivec2 c = ivec2(gl_FragCoord.xy);
+  vec4 acc = vec4(0.0); float blur = 0.0;
+  for (int dy = -uR; dy <= uR; dy++) for (int dx = -uR; dx <= uR; dx++) {
+    ivec2 k = ivec2(dx + uR, dy + uR);
+    float s = texelFetch(uState, (c + ivec2(dx, dy) + uSize) % uSize, 0).r;
+    acc += texelFetch(uKernel, k, 0) * s; blur += texelFetch(uBlurK, k, 0).r * s;
+  }
+  float a = texelFetch(uState, c, 0).r;
+  if (uFamily == 0) { float g = 2.0 * exp(-(acc.x - uMu) * (acc.x - uMu) / (2.0 * uSigma * uSigma)) - 1.0; a += uDt * uRate * g; }
+  else if (uFamily == 1) { float d = 0.0; for (int r = 0; r < 4; r++) for (int j = 0; j < 3; j++) if (j < uNRules[r]) { vec3 rule = uRules[r * 3 + j]; if (acc[r] >= rule.x && acc[r] <= rule.y) d += rule.z; } a += uRate * d; }
+  else { float m = acc.x, n = acc.y; float sm = s1(m, 0.5, uSL[5]);
+    float lo = uSL[0] * (1.0 - sm) + uSL[2] * sm, hi = uSL[1] * (1.0 - sm) + uSL[3] * sm;
+    float s = s1(n, lo, uSL[4]) * (1.0 - s1(n, hi, uSL[4])); a = mix(a, s, uRate); }
+  if (uHasParent == 1 && uLambda > 0.0) { vec2 uv = (vec2(c) + 0.5) / vec2(uSize); float P = parentAt(uRect.xy + uv * uRect.zw); a += uLambda * (mix(uDens.x, uDens.y, P) - blur); }
+  o = vec4(clamp(a, 0.0, 1.0), 0.0, 0.0, 1.0);
+}`;
+// The picture: the current level fills the view; its child sits in uRect (cells of the current level), three
+// times finer. Colour is inherited: uCurBase holds, per cell, the colour the ancestors give that point (rgb)
+// and how far inside their creatures it is (a); the level's accent shows by its own value times that. The
+// child, likewise, paints its accent over the current level's colour where the current level is dense.
+const VIEW_FS = `#version 300 es
+precision highp float; precision highp sampler2D;
+uniform sampler2D uCur, uChild, uCurBase; uniform ivec2 uSize; uniform vec2 uRes, uCenter, uCurIn; uniform float uWidth, uGamma;
+uniform vec4 uRect; uniform int uHasChild; uniform vec3 uCurAccent, uChildAccent; uniform float uChildMean;
+out vec4 o;
+float px(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0).r; }
+vec4 px4(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0); }
+float cr(float a, float b, float c, float d, float t){ return 0.5 * (2.0*b + (c - a)*t + (2.0*a - 5.0*b + 4.0*c - d)*t*t + (3.0*b - a - 3.0*c + d)*t*t*t); }
+float bicubic(sampler2D t, vec2 p){ p -= 0.5; ivec2 i = ivec2(floor(p)); vec2 f = p - floor(p); float r[4];
+  for (int y = 0; y < 4; y++) r[y] = cr(px(t, i + ivec2(-1, y - 1)), px(t, i + ivec2(0, y - 1)), px(t, i + ivec2(1, y - 1)), px(t, i + ivec2(2, y - 1)), f.x);
+  return clamp(cr(r[0], r[1], r[2], r[3], f.y), 0.0, 1.0); }
+float bilin(sampler2D t, vec2 p){ p -= 0.5; ivec2 i = ivec2(floor(p)); vec2 f = p - floor(p);
+  return mix(mix(px(t, i), px(t, i + ivec2(1, 0)), f.x), mix(px(t, i + ivec2(0, 1)), px(t, i + ivec2(1, 1)), f.x), f.y); }
+vec4 bilin4(sampler2D t, vec2 p){ p -= 0.5; ivec2 i = ivec2(floor(p)); vec2 f = p - floor(p);
+  return mix(mix(px4(t, i), px4(t, i + ivec2(1, 0)), f.x), mix(px4(t, i + ivec2(0, 1)), px4(t, i + ivec2(1, 1)), f.x), f.y); }
+// value at p (cells), averaged over the pixel's footprint when a pixel covers several cells
+float look(sampler2D t, vec2 p, float cpp){
+  if (cpp <= 1.0) return bicubic(t, p);
+  int n = int(min(ceil(cpp), 5.0)); float s = 0.0;
+  for (int y = 0; y < n; y++) for (int x = 0; x < n; x++) s += bilin(t, p + ((vec2(float(x), float(y)) + 0.5) / float(n) - 0.5) * cpp);
+  return s / float(n * n);
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uRes;
+  vec2 span = vec2(uWidth, uWidth * uRes.y / uRes.x);
+  vec2 p = uCenter + (uv - 0.5) * span;                 // in cells of the current level
+  float cpp = uWidth / uRes.x;                          // current-level cells per pixel
+  vec4 base = bilin4(uCurBase, p);
+  float v = look(uCur, p, cpp);
+  vec3 raw = mix(base.rgb, uCurAccent, pow(v, uGamma) * base.a);
+  vec3 col = raw;
+  if (uHasChild == 1) {
+    // where this level is dense, its child will paint its accent in; show that mean colour already,
+    // so nothing shifts when the child's texture becomes resolvable
+    float inside = base.a * smoothstep(uCurIn.x, uCurIn.y, bilin(uCur, p));
+    col = mix(raw, uChildAccent, uChildMean * inside);
+    vec2 q = (p - uRect.xy) / uRect.zw;                 // 0..1 inside the child's square
+    if (q.x >= 0.0 && q.x < 1.0 && q.y >= 0.0 && q.y < 1.0) {
+      float ccpp = cpp * float(uSize.x) / uRect.z;      // child cells per pixel
+      float w = 1.0 - smoothstep(1.0, 2.0, ccpp);       // resolvable: show the child's texture
+      if (w > 0.0) { float cv = look(uChild, q * vec2(uSize), ccpp); col = mix(col, mix(raw, uChildAccent, pow(cv, uGamma) * inside), w); }
+    }
+  }
+  o = vec4(col, 1.0);
+}`;
+// Baking a level's base from its parent, once the parent has stopped: the colour the parent shows at
+// each point of the child's square, and the parent's inside-ness there times its own. With uScore = 1
+// it instead writes value × inside-ness of one level (for aiming the next square).
+const BAKE_FS = `#version 300 es
+precision highp float; precision highp sampler2D;
+uniform sampler2D uPState, uPBase; uniform ivec2 uSize; uniform vec4 uRect; uniform vec3 uPAccent; uniform vec2 uPIn; uniform float uGamma; uniform int uScore;
+out vec4 o;
+float px(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0).r; }
+vec4 px4(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0); }
+float cr(float a, float b, float c, float d, float t){ return 0.5 * (2.0*b + (c - a)*t + (2.0*a - 5.0*b + 4.0*c - d)*t*t + (3.0*b - a - 3.0*c + d)*t*t*t); }
+float bilin(sampler2D t, vec2 p){ p -= 0.5; ivec2 i = ivec2(floor(p)); vec2 f = p - floor(p); float r[4];
+  for (int y = 0; y < 4; y++) r[y] = cr(px(t, i + ivec2(-1, y - 1)), px(t, i + ivec2(0, y - 1)), px(t, i + ivec2(1, y - 1)), px(t, i + ivec2(2, y - 1)), f.x);
+  return clamp(cr(r[0], r[1], r[2], r[3], f.y), 0.0, 1.0); }
+vec4 bilin4(sampler2D t, vec2 p){ p -= 0.5; ivec2 i = ivec2(floor(p)); vec2 f = p - floor(p);
+  return mix(mix(px4(t, i), px4(t, i + ivec2(1, 0)), f.x), mix(px4(t, i + ivec2(0, 1)), px4(t, i + ivec2(1, 1)), f.x), f.y); }
+void main(){
+  ivec2 c = ivec2(gl_FragCoord.xy);
+  if (uScore == 1) { vec4 b = texelFetch(uPBase, c, 0); float v = texelFetch(uPState, c, 0).r; o = vec4(v * b.a * smoothstep(uPIn.x, uPIn.y, v), 0.0, 0.0, 1.0); return; }
+  vec2 uv = (vec2(c) + 0.5) / vec2(uSize);
+  vec2 p = (uRect.xy + uv * uRect.zw) * vec2(uSize);
+  float pv = bilin(uPState, p); vec4 pb = bilin4(uPBase, p);
+  o = vec4(mix(pb.rgb, uPAccent, pow(pv, uGamma) * pb.a), pb.a * smoothstep(uPIn.x, uPIn.y, pv));
+}`;
+function compile(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+function program(fs) { const p = gl.createProgram(); gl.attachShader(p, compile(gl.VERTEX_SHADER, VS)); gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p; }
+let progSim, progView, progBake, quad;
+try { if (gl && extF) { progSim = program(SIM_FS); progView = program(VIEW_FS); progBake = program(BAKE_FS); quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW); } } catch (e) { glerr.textContent = String(e.message || e); }
+function bindQuad(p) { const loc = gl.getAttribLocation(p, 'p'); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0); }
+function makeTex(w, h, data) { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, w, h, 0, gl.RGBA, gl.FLOAT, data); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); return t; }
+const U = (p, n) => gl.getUniformLocation(p, n);
+const hex = (c) => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16) / 255);
+
+// ---------- the chain ----------
+const S = { chain: DEFAULT_CHAIN, N: 512, secs: 7, ramp: 2.5, burst: 120, lambda: 0.12, rb: 6, aim: true, gamma: 1, t: 0, playing: true, levels: [], cur: -1 };
+const $ = (id) => document.getElementById(id);
+
+function kernels(cfg, N) {
+  const fam = cfg.fam; let R;
+  if (fam === 'lenia') R = cfg.R; else if (fam === 'mnca') R = Math.ceil(Math.max(...cfg.rings.map(r => r.rout))); else R = Math.ceil(cfg.ra) + 1;
+  R = Math.max(R, S.rb); R = Math.min(R, 40);
+  const W = 2 * R + 1, k = new Float32Array(W * W * 4), b = new Float32Array(W * W * 4), sums = [0, 0, 0, 0]; let bsum = 0;
+  const aa = (r) => Math.min(1, Math.max(0, r + 0.5));
+  for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+    const rr = Math.hypot(dx, dy), idx = ((dy + R) * W + (dx + R)) * 4;
+    if (fam === 'lenia') { const r = rr / cfg.R; if (r < 1) { const n = cfg.peaks.length; let v = 0; for (let i = 0; i < n; i++) { const u = n * r - i; if (u >= 0 && u < 1) v += cfg.peaks[i] * Math.exp(4 - 1 / (u * (1 - u) + 1e-9)); } k[idx] = v; sums[0] += v; } }
+    else if (fam === 'mnca') cfg.rings.forEach((ring, i) => { if (i < 4 && rr >= ring.rin && rr < ring.rout) { k[idx + i] = 1; sums[i]++; } });
+    else { const ri = cfg.ra / 3; const inner = aa(ri - rr), outer = aa(cfg.ra - rr) * (1 - inner); k[idx] = inner; k[idx + 1] = outer; sums[0] += inner; sums[1] += outer; }
+    const w = aa(S.rb - rr); b[idx] = w; bsum += w;
+  }
+  for (let i = 0; i < 4; i++) if (!sums[i]) sums[i] = 1;
+  for (let i = 0; i < k.length; i++) { k[i] /= sums[i & 3]; b[i] /= bsum; }
+  return { R, kernel: makeTex(W, W, k), blurK: makeTex(W, W, b) };
+}
+function noise(N, fam) {
+  const d = new Float32Array(N * N * 4);
+  if (fam === 'smoothlife') { // blobs of noise, so the density starts in range
+    const cells = Math.max(8, Math.round(N / 24)), g = Array.from({ length: cells * cells }, () => rand());
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const gx = x / N * cells, gy = y / N * cells, x0 = Math.floor(gx), y0 = Math.floor(gy), fx = gx - x0, fy = gy - y0;
+      const v = (xx, yy) => g[((yy % cells) * cells) + (xx % cells)];
+      const h = v(x0, y0) * (1 - fx) * (1 - fy) + v(x0 + 1, y0) * fx * (1 - fy) + v(x0, y0 + 1) * (1 - fx) * fy + v(x0 + 1, y0 + 1) * fx * fy;
+      d[(y * N + x) * 4] = h > 0.55 ? 0.6 + 0.4 * rand() : 0; d[(y * N + x) * 4 + 3] = 1;
+    }
+  } else for (let i = 0; i < N * N; i++) { d[i * 4] = rand(); d[i * 4 + 3] = 1; }
+  return d;
+}
+function makeLevel(i) {
+  const cfg = S.chain[i], N = S.N, L = { i, cfg, rate: 0, lambda: 0, rect: [0, 0, N, N], steps: 0 };
+  Object.assign(L, kernels(cfg, N));
+  const data = noise(N, cfg.fam);
+  L.tex = [makeTex(N, N, data), makeTex(N, N, data)];
+  const fbo = (t) => { const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0); return f; };
+  L.fbo = L.tex.map(fbo);
+  const bd = new Float32Array(N * N * 4), bc = hex(cfg.base || '#05060a');
+  if (i === 0) for (let k = 0; k < N * N; k++) { bd[k * 4] = bc[0]; bd[k * 4 + 1] = bc[1]; bd[k * 4 + 2] = bc[2]; bd[k * 4 + 3] = 1; }
+  L.base = makeTex(N, N, bd); L.baseFbo = fbo(L.base);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null); L.cur = 0;
+  return L;
+}
+function freeLevel(L) { if (!L || L.freed) return; L.tex.forEach(t => gl.deleteTexture(t)); L.fbo.forEach(f => gl.deleteFramebuffer(f)); gl.deleteTexture(L.kernel); gl.deleteTexture(L.blurK); gl.deleteTexture(L.base); gl.deleteFramebuffer(L.baseFbo); L.freed = true; }
+function stepLevel(L, parent) {
+  const N = S.N, cfg = L.cfg, src = L.cur, dst = 1 - src;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, L.fbo[dst]); gl.viewport(0, 0, N, N);
+  gl.useProgram(progSim); bindQuad(progSim);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, L.tex[src]); gl.uniform1i(U(progSim, 'uState'), 0);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, L.kernel); gl.uniform1i(U(progSim, 'uKernel'), 1);
+  gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, L.blurK); gl.uniform1i(U(progSim, 'uBlurK'), 2);
+  gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, parent ? parent.tex[parent.cur] : L.tex[src]); gl.uniform1i(U(progSim, 'uParent'), 3);
+  gl.uniform1i(U(progSim, 'uHasParent'), parent ? 1 : 0);
+  gl.uniform4f(U(progSim, 'uRect'), L.rect[0] / N, L.rect[1] / N, L.rect[2] / N, L.rect[3] / N);
+  gl.uniform2i(U(progSim, 'uSize'), N, N); gl.uniform1i(U(progSim, 'uR'), L.R);
+  gl.uniform1i(U(progSim, 'uFamily'), cfg.fam === 'lenia' ? 0 : cfg.fam === 'mnca' ? 1 : 2);
+  gl.uniform1f(U(progSim, 'uRate'), L.rate); gl.uniform1f(U(progSim, 'uLambda'), L.lambda); gl.uniform2f(U(progSim, 'uDens'), ...(cfg.density || [0.2, 0.7]));
+  gl.uniform1fv(U(progSim, 'uSL'), [SL.b1, SL.b2, SL.d1, SL.d2, SL.an, SL.am]);
+  const n = [0, 0, 0, 0], rules = new Float32Array(36);
+  if (cfg.fam === 'lenia') { gl.uniform1f(U(progSim, 'uMu'), cfg.mu); gl.uniform1f(U(progSim, 'uSigma'), cfg.sigma); gl.uniform1f(U(progSim, 'uDt'), cfg.dt); }
+  if (cfg.fam === 'mnca') cfg.rings.slice(0, 4).forEach((ring, i) => { n[i] = Math.min(3, ring.rules.length); ring.rules.slice(0, 3).forEach((r, j) => rules.set(r, (i * 3 + j) * 3)); });
+  gl.uniform1iv(U(progSim, 'uNRules'), n); gl.uniform3fv(U(progSim, 'uRules'), rules);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  L.cur = dst; L.steps++;
+}
+function bakePass(target, parent, rect, score) {
+  const N = S.N;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, target); gl.viewport(0, 0, N, N);
+  gl.useProgram(progBake); bindQuad(progBake);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, parent.tex[parent.cur]); gl.uniform1i(U(progBake, 'uPState'), 0);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, parent.base); gl.uniform1i(U(progBake, 'uPBase'), 1);
+  gl.uniform2i(U(progBake, 'uSize'), N, N); gl.uniform4f(U(progBake, 'uRect'), ...rect.map(v => v / N));
+  gl.uniform3f(U(progBake, 'uPAccent'), ...hex(parent.cfg.accent)); gl.uniform2f(U(progBake, 'uPIn'), ...(parent.cfg.inness || [0.3, 0.8]));
+  gl.uniform1f(U(progBake, 'uGamma'), S.gamma); gl.uniform1i(U(progBake, 'uScore'), score ? 1 : 0);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+}
+// a level's base, from its parent, once the parent has stopped
+function bakeBase(L, parent) { bakePass(L.baseFbo, parent, L.rect, false); }
+// value × inside-ness of a level, into the scratch texture, for aiming its child's square
+function scoreOf(parent) { if (!S.score) { S.score = makeTex(S.N, S.N, null); S.scoreFbo = (() => { const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, S.score, 0); return f; })(); } bakePass(S.scoreFbo, parent, [0, 0, S.N, S.N], true); return S.scoreFbo; }
+// Where to put the child's square: on the densest blob of the parent near its middle, counting only
+// what is inside its ancestors' creatures (a box average of radius N/12 over the central half), or dead centre.
+function chooseRect(parent) {
+  const N = S.N, w = N / 3;
+  if (!S.aim) return [N / 3, N / 3, w, w];
+  const buf = new Float32Array(N * N * 4);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, scoreOf(parent)); gl.readPixels(0, 0, N, N, gl.RGBA, gl.FLOAT, buf); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  const sat = new Float64Array((N + 1) * (N + 1));
+  for (let y = 1; y <= N; y++) { let row = 0; for (let x = 1; x <= N; x++) { row += buf[((y - 1) * N + x - 1) * 4]; sat[y * (N + 1) + x] = sat[(y - 1) * (N + 1) + x] + row; } }
+  const r = Math.round(N / 12); let best = -1, bx = N / 2, by = N / 2;
+  for (let y = N / 4; y <= 3 * N / 4; y += 2) for (let x = N / 4; x <= 3 * N / 4; x += 2) {
+    const x0 = x - r, x1 = x + r, y0 = y - r, y1 = y + r;
+    const s = sat[y1 * (N + 1) + x1] - sat[y0 * (N + 1) + x1] - sat[y1 * (N + 1) + x0] + sat[y0 * (N + 1) + x0];
+    const d = Math.hypot(x - N / 2, y - N / 2) / (N / 4); const score = s * (1 - 0.3 * d);
+    if (score > best) { best = score; bx = x; by = y; }
+  }
+  return [bx - w / 2, by - w / 2, w, w];
+}
+function trackRect(child, parent) {
+  const N = S.N, w = N / 3, r = Math.round(N / 12), reach = Math.round(N / 8);
+  const cx = Math.round(child.rect[0] + w / 2), cy = Math.round(child.rect[1] + w / 2);
+  const x0 = Math.max(0, cx - reach - r), y0 = Math.max(0, cy - reach - r), x1 = Math.min(N, cx + reach + r + 1), y1 = Math.min(N, cy + reach + r + 1), W = x1 - x0, H = y1 - y0;
+  if (W < 2 * r + 2 || H < 2 * r + 2) return;
+  const buf = new Float32Array(W * H * 4);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, scoreOf(parent)); gl.readPixels(x0, y0, W, H, gl.RGBA, gl.FLOAT, buf); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  const sat = new Float64Array((W + 1) * (H + 1));
+  for (let y = 1; y <= H; y++) { let row = 0; for (let x = 1; x <= W; x++) { row += buf[((y - 1) * W + x - 1) * 4]; sat[y * (W + 1) + x] = sat[(y - 1) * (W + 1) + x] + row; } }
+  let best = -1, bx = cx, by = cy;
+  for (let y = y0 + r; y < y1 - r; y += 2) for (let x = x0 + r; x < x1 - r; x += 2) {
+    const ax = x - x0, ay = y - y0;
+    const s = sat[(ay + r) * (W + 1) + ax + r] - sat[(ay - r) * (W + 1) + ax + r] - sat[(ay + r) * (W + 1) + ax - r] + sat[(ay - r) * (W + 1) + ax - r];
+    const score = s * (1 - 0.4 * Math.hypot(x - cx, y - cy) / reach);
+    if (score > best) { best = score; bx = x; by = y; }
+  }
+  child.rect[0] += (bx - w / 2 - child.rect[0]) * 0.2; child.rect[1] += (by - w / 2 - child.rect[1]) * 0.2;
+}
+// the child's mean value where the parent is dense (what its accent will average to), for the pre-tint
+function childMean(child, parent) {
+  const N = S.N, buf = new Float32Array(N * N * 4), pbuf = new Float32Array(N * N * 4);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, child.fbo[child.cur]); gl.readPixels(0, 0, N, N, gl.RGBA, gl.FLOAT, buf);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, scoreOf(parent)); gl.readPixels(0, 0, N, N, gl.RGBA, gl.FLOAT, pbuf); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  const [rx, ry, rw] = child.rect; let sw = 0, sv = 0;
+  for (let y = 0; y < N; y += 4) for (let x = 0; x < N; x += 4) {
+    const px = ((Math.round(rx + x / N * rw) % N) + N) % N, py = ((Math.round(ry + y / N * rw) % N) + N) % N;
+    const w = pbuf[(py * N + px) * 4]; sw += w; sv += w * Math.pow(buf[(y * N + x) * 4], S.gamma);
+  }
+  child.mean = sw > 0 ? sv / sw : 0;
+}
+function paintChild(i) {
+  const parent = S.levels[i - 1]; const L = makeLevel(i); L.rect = chooseRect(parent);
+  L.rate = 1; L.lambda = Math.max(S.lambda, 0.25);          // the painting: settle the child's rule under the clamp
+  for (let k = 0; k < S.burst; k++) stepLevel(L, parent);
+  L.rate = 0; L.lambda = S.lambda;                          // then only follow the parent
+  childMean(L, parent);
+  return L;
+}
+function restart() {
+  S.levels.forEach(freeLevel); S.levels = []; S.t = 0; S.cur = 0; seed = 7;
+  if (S.score) { gl.deleteTexture(S.score); gl.deleteFramebuffer(S.scoreFbo); S.score = null; }
+  const L0 = makeLevel(0); L0.rate = 1; for (let k = 0; k < (L0.cfg.fam === 'smoothlife' ? 200 : S.burst); k++) stepLevel(L0, null);
+  S.levels[0] = L0; S.levels[1] = S.chain.length > 1 ? paintChild(1) : null;
+  S.promotedAt = 0;
+}
+const ease = (x) => x * x * (3 - 2 * x);
+function advance(dt) { // fixed time step, so a frame-by-frame render is deterministic
+  S.t += dt;
+  const logM = S.t / S.secs, Lidx = Math.min(Math.floor(logM), S.chain.length - 1), f = logM - Lidx;
+  if (Lidx > S.cur) { // promotion: the child becomes current, the next child is painted
+    S.cur = Lidx; S.promotedAt = S.t;
+    const prev = S.levels[Lidx - 1]; if (prev) { prev.rate = 0; bakeBase(S.levels[Lidx], prev); }
+    if (Lidx + 1 < S.chain.length && !S.levels[Lidx + 1]) S.levels[Lidx + 1] = paintChild(Lidx + 1);
+    if (Lidx >= 2) freeLevel(S.levels[Lidx - 2]);   // the grandparent is baked into the parent's base now
+  }
+  const cur = S.levels[S.cur], child = S.levels[S.cur + 1], grand = S.levels[S.cur - 1];
+  // the current level's clock: ramps up after promotion, winds down as it is magnified
+  const up = S.ramp > 0 ? ease(Math.min(1, (S.t - S.promotedAt) / S.ramp)) : 1;
+  const down = 1 - ease(Math.max(0, Math.min(1, (f - 0.55) / 0.4)));
+  cur.rate = (S.cur === 0 ? 1 : up) * down; cur.lambda = S.cur === 0 ? 0 : S.lambda * (1 - up);
+  const sp = cur.cfg.speed || 1, nsteps = Math.ceil(sp); cur.rate *= sp / nsteps;
+  for (let k = 0; k < nsteps; k++) stepLevel(cur, grand && !grand.freed ? grand : null);  // the clamp needs the parent while it fades
+  if (child && S.aim && cur.rate > 0.02 && (S.frame = (S.frame || 0) + 1) % 6 === 0) trackRect(child, cur);
+  if (child) { child.rate = 0; child.lambda = S.lambda; stepLevel(child, cur); if (S.frame % 45 === 0) childMean(child, cur); }  // follows the parent only
+  return { Lidx, f };
+}
+function draw(Lidx, f) {
+  const N = S.N, cur = S.levels[S.cur], child = S.levels[S.cur + 1];
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.useProgram(progView); bindQuad(progView);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, cur.tex[cur.cur]); gl.uniform1i(U(progView, 'uCur'), 0);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, (child || cur).tex[(child || cur).cur]); gl.uniform1i(U(progView, 'uChild'), 1);
+  gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, cur.base); gl.uniform1i(U(progView, 'uCurBase'), 2);
+  gl.uniform1i(U(progView, 'uHasChild'), child ? 1 : 0);
+  gl.uniform2i(U(progView, 'uSize'), N, N); gl.uniform2f(U(progView, 'uRes'), canvas.width, canvas.height);
+  const rc = child ? [child.rect[0] + child.rect[2] / 2, child.rect[1] + child.rect[3] / 2] : [N / 2, N / 2];
+  const e = ease(f), cx = N / 2 + (rc[0] - N / 2) * e, cy = N / 2 + (rc[1] - N / 2) * e;
+  gl.uniform2f(U(progView, 'uCenter'), cx, cy); gl.uniform1f(U(progView, 'uWidth'), N / Math.pow(3, f)); gl.uniform1f(U(progView, 'uGamma'), S.gamma);
+  gl.uniform4f(U(progView, 'uRect'), ...(child ? child.rect : [0, 0, N, N]));
+  gl.uniform2f(U(progView, 'uCurIn'), ...(cur.cfg.inness || [0.3, 0.8]));
+  gl.uniform3f(U(progView, 'uCurAccent'), ...hex(cur.cfg.accent)); gl.uniform3f(U(progView, 'uChildAccent'), ...hex((child || cur).cfg.accent));
+  gl.uniform1f(U(progView, 'uChildMean'), child ? (child.mean || 0) : 0);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  $('tv').textContent = S.t.toFixed(1); $('mag').textContent = Math.pow(3, S.t / S.secs).toFixed(1) + '×'; $('lv').textContent = `${S.cur} ${cur.cfg.name || cur.cfg.fam}`;
+  $('levels').innerHTML = S.chain.map((c, i) => `<span class="${i === S.cur ? 'on' : i === S.cur + 1 ? 'child' : ''}">${i} ${c.fam} ${c.name || ''}${i === S.cur ? ` · clock ${cur.rate.toFixed(2)}` : i === S.cur + 1 ? ' · painted, following' : i < S.cur ? ' · done' : ''}</span>`).join('');
+}
+// ---------- UI ----------
+function syncJson() { $('json').value = JSON.stringify(S.chain, null, 1).replace(/\n\s*(?=[\d\-\]#"])/g, ' ').replace(/\[\s+/g, '[').replace(/\{\s+/g, '{ '); }
+$('play').onclick = () => { S.playing = !S.playing; $('play').textContent = S.playing ? 'Pause' : 'Play'; };
+$('restart').onclick = () => restart();
+$('step').onclick = () => { for (let k = 0; k < 60; k++) advance(1 / 60); };
+$('png').onclick = () => { const a = document.createElement('a'); a.download = `quark-dive-${S.t.toFixed(1)}s.png`; a.href = canvas.toDataURL('image/png'); a.click(); };
+const bind = (id, key, fmt) => { $(id).oninput = (e) => { S[key] = +e.target.value; $(id + 'v').textContent = fmt ? fmt(S[key]) : S[key]; }; };
+bind('secs', 'secs'); bind('ramp', 'ramp'); bind('burst', 'burst'); bind('lambda', 'lambda', v => v.toFixed(2)); bind('rb', 'rb'); bind('gamma', 'gamma', v => v.toFixed(2));
+$('aim').onchange = (e) => { S.aim = e.target.checked; };
+$('grid').onchange = (e) => { S.N = +e.target.value; restart(); };
+$('apply').onclick = () => { try { S.chain = JSON.parse($('json').value); glerr.textContent = ''; restart(); } catch (e) { glerr.textContent = 'Chain JSON: ' + e.message; } };
+$('copy').onclick = () => navigator.clipboard && navigator.clipboard.writeText($('json').value);
+const q = new URLSearchParams(location.search);
+if (q.get('grid')) { S.N = +q.get('grid'); $('grid').value = S.N; }
+if (q.get('secs')) { S.secs = +q.get('secs'); $('secs').value = S.secs; $('secsv').textContent = S.secs; }
+if (q.get('burst')) { S.burst = +q.get('burst'); $('burst').value = S.burst; $('burstv').textContent = S.burst; }
+syncJson();
+if (progView) restart();
+let last = performance.now(), frames = 0;
+function loop(now) {
+  if (progView) {
+    let st = { Lidx: S.cur, f: (S.t / S.secs) - Math.floor(S.t / S.secs) };
+    if (S.playing) st = advance(1 / 60);
+    draw(st.Lidx, st.f);
+    frames++; if (now - last > 500) { $('fps').textContent = Math.round(frames * 1000 / (now - last)); frames = 0; last = now; }
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+window.__dive = S; window.__advance = (sec) => { S.playing = false; for (let k = 0; k < Math.round(sec * 60); k++) advance(1 / 60); const f = (S.t / S.secs) - Math.floor(S.t / S.secs); draw(S.cur, f); return S.t; };
+</script>
+</body>
+</html>

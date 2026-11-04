@@ -51,8 +51,42 @@ Lenia and MNCA presets came from a random search (128² periodic grid, 300 to 40
 Open it through the dev server (`npm run dev`, then `/tools/powers-of-ten/dense-automata.html`) or straight
 from the file; it needs WebGL2 with float textures (any recent Mac browser). It is slow on a software GPU.
 
+## The dive itself: `tools/powers-of-ten/quark-dive.html` (the author's plan, 2026-11-04, built the same day)
+
+The author's refinement of the chain, which replaced the masked cross-fade: nothing fades. Per level, two
+passes. (1) Simulate the level's rule. (2) Paint the next level inside the centre third of it, three times
+finer, and show it coloured by the parent's density, so the parent's shapes turn out, on magnification, to
+have always been made of the child's texture. The child isn't simulated while it is painted: it only follows
+the parent. When its square fills the frame it is promoted and simulated, slowly at first, and its own centre
+third gets painted. How the page does it:
+
+- **Level 0 is SmoothLife** (Rafler's constants, outer radius 10), whose gliders and worms grow from noise with
+  no hand-placed seeds: the quarks. It runs at 0.35 speed, else the gliders cross the grid in seconds.
+- **Painting**: the child starts as noise and runs its own rule for 120 steps under a *density clamp* (its
+  disk average over radius 6 is pulled toward a target that follows the parent's density, remapped into the
+  child's own range, so the texture is denser inside the parent's creatures but never flat). That makes the
+  painted seed a legal state of the child's rule, so promotion doesn't pop. Afterwards the rule is frozen and
+  only the clamp runs: the texture's grain stays put, its brightness follows the parent (the author's point:
+  the child must not be a different thing each frame).
+- **Colour is inherited, not per level.** A level has one accent colour. At promotion the level bakes a base
+  from its parent: for every cell, the colour the ancestors give that point (rgb) and how far inside their
+  creatures it is (the product of the ancestors' smoothstepped densities). The level paints its accent over
+  that base by its own value times that inside-ness. So: dive into a blue glider, the child is blue with red
+  dots; dive into a red dot, the grandchild is red with black worms; outside every creature the texture
+  stays invisible and space stays black. (Colouring a child by its parent alone made hard square edges
+  wherever the grandparent said "empty".)
+- **No colour jump at the reveal**: a level is drawn pre-tinted with its child's accent by the child's
+  measured mean value where the level is dense, i.e. the colour the child's texture averages to. The child's
+  texture is drawn only once its cells are resolvable (under two cells per pixel); the average matches on both
+  sides, so the square's edge is a texture edge, never a colour edge.
+- **Clocks**: the current level's clock ramps up over 2.5 s after promotion and winds down to a stop over the
+  last 40% of its magnification (it's huge by then); the child doesn't run until promoted.
+- **Aim**: the child's square tracks the densest blob of the parent (density × inside-ness, so it stays within
+  the ancestors' creatures) until the parent stops, and the camera eases toward the square's centre.
+- Three seconds to twenty per level, grids 128 to 1024, the chain as editable JSON. `window.__advance(sec)`
+  steps it deterministically at 60 fps for a frame-by-frame render. Slow on a software GPU; fine on a Mac.
+
 ## Still to do
-- Pick the four or five worlds and their palettes in the bench; note the rule JSON and seed here.
-- Build the chain (the masked handover, the clocks) in the zoom tool on the author's Mac
-  (`tools/powers-of-ten/zoom-timeline.js`), or as a separate page that renders the 22 seconds to frames.
-- Decide the terrain world and how the field pixelates into the Planck grid.
+- Choose the chain for the video in the page (rules from the bench, accents, inness, density) and note it here.
+- Render the 22 seconds frame by frame (a script around `__advance`) and cut it into the zoom at 2:14.9.
+- The ending: the last world drawn as a terrain, and the field pixelating into the Planck grid.
