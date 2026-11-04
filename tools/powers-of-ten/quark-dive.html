@@ -46,8 +46,10 @@ textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.
       the next, three times finer, with its own rule. In <b>sum</b> mode the child is seeded as noise shaped by the
       parent's state and then fed by the parent's state at every point (mass comes in as noise where the parent has
       mass, and is dimmed where it has none), simulating from the start; the picture is the sum of the worlds, and a world is dropped once it is too magnified to matter.
-      In <b>paint</b> mode the child is painted under a density clamp and promoted when it fills the frame. Edit the
-      chain below (rules from the dense-automata bench), then Restart.</p>
+      In <b>paint</b> mode the child is painted under a density clamp and promoted when it fills the frame. Each level
+      is nested three times finer than the last, so the grid only sets how fine a level's own texture is: 128 to
+      256 keeps a level's shapes a good part of its domain, which the dive needs. Edit the chain below (rules from
+      the dense-automata bench), then Restart.</p>
   </header>
   <div class="bench">
     <div class="stage">
@@ -65,7 +67,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.
       <h2>Zoom</h2>
       <div class="row"><label>seconds / level</label><input id="secs" type="range" min="2" max="20" step="0.5" value="7"><output id="secsv">7</output></div>
       <div class="row"><label>ramp (s)</label><input id="ramp" type="range" min="0" max="6" step="0.1" value="2.5"><output id="rampv">2.5</output></div>
-      <div class="row"><label>grid</label><select id="grid"><option>128</option><option>256</option><option selected>512</option><option>768</option><option>1024</option></select><span></span></div>
+      <div class="row"><label>grid</label><select id="grid"><option>128</option><option selected>192</option><option>256</option><option>512</option><option>768</option><option>1024</option></select><span></span></div>
       <h2>Painting (paint mode)</h2>
       <div class="row"><label>paint steps</label><input id="burst" type="range" min="0" max="300" step="10" value="120"><output id="burstv">120</output></div>
       <div class="row"><label>density clamp</label><input id="lambda" type="range" min="0" max="0.6" step="0.01" value="0.12"><output id="lambdav">0.12</output></div>
@@ -87,11 +89,11 @@ textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.
 <script>
 'use strict';
 const DEFAULT_CHAIN = [
-  { fam: 'smoothlife', name: 'quarks', ra: 10, speed: 0.3, base: '#05060a', accent: '#6f9fe6', inness: [0.2, 0.7] },
-  { fam: 'lenia', name: 'Dots and blobs', R: 18, peaks: [1], mu: 0.1231, sigma: 0.0454, dt: 0.5, speed: 1, density: [0.05, 0.4], accent: '#e8473c', inness: [0.3, 0.8] },
-  { fam: 'mnca', name: 'Worms', rings: [{ rin: 7.97, rout: 12.26, rules: [[0.07, 0.281, 0.21], [0.27, 0.551, -0.198]] }, { rin: 15.22, rout: 23.76, rules: [[0.312, 0.409, -0.227]] }], speed: 1, accent: '#f2d060', inness: [0.3, 0.8] },
+  { fam: 'smoothlife', name: 'quarks', ra: 14, speed: 0.3, base: '#05060a', accent: '#6f9fe6', inness: [0.2, 0.7] },
+  { fam: 'lenia', name: 'Soup, soft', R: 18, peaks: [0.777, 1, 0.597], mu: 0.2047, sigma: 0.0991, dt: 0.5, speed: 1, density: [0.1, 0.5], accent: '#e8473c', inness: [0.3, 0.8] },
+  { fam: 'mnca', name: 'Diamond cells', rings: [{ rin: 4.81, rout: 10.49, rules: [[0.441, 0.735, 0.144]] }, { rin: 10.78, rout: 16.59, rules: [[0.579, 0.791, -0.169], [0.739, 0.799, -0.025], [0.183, 0.248, 0.082]] }, { rin: 19.69, rout: 21.19, rules: [[0.523, 0.752, 0.255], [0.01, 0.3, 0.173]] }, { rin: 22.49, rout: 23.99, rules: [[0.262, 0.354, -0.111]] }], speed: 1, accent: '#f2d060', inness: [0.3, 0.8] },
   { fam: 'lenia', name: 'Labyrinth', R: 16, peaks: [1], mu: 0.423, sigma: 0.0727, dt: 0.5, speed: 1, accent: '#f0f0f4', inness: [0.3, 0.8] },
-  { fam: 'mnca', name: 'Cells', rings: [{ rin: 2.91, rout: 7.25, rules: [[0.926, 1, -0.133], [0.897, 1, -0.286], [0.443, 0.71, 0.159]] }, { rin: 8.9, rout: 10.92, rules: [[0.24, 0.413, 0.069], [0.677, 0.716, -0.228], [0.506, 0.71, 0.166]] }, { rin: 11.15, rout: 12.65, rules: [[0.352, 0.524, -0.216], [0.687, 0.844, -0.084], [0.317, 0.573, -0.063]] }], speed: 1, accent: '#40c8c0', inness: [0.3, 0.8] },
+  { fam: 'mnca', name: 'Waves', rings: [{ rin: 4.95, rout: 14.23, rules: [[0.107, 0.405, -0.104]] }, { rin: 15.65, rout: 20.22, rules: [[0.973, 1, -0.235], [0.686, 0.843, 0.048], [0.868, 1, -0.164]] }, { rin: 23.11, rout: 24.61, rules: [[0.638, 0.811, 0.299], [0.425, 0.667, -0.149], [0.279, 0.464, 0.186]] }], speed: 1, accent: '#40c8c0', inness: [0.3, 0.8] },
   { fam: 'lenia', name: 'Soup', R: 13, peaks: [0.413, 1, 0.442], mu: 0.2716, sigma: 0.0998, dt: 0.5, speed: 1, accent: '#d050c0', inness: [0.3, 0.8] },
 ];
 // SmoothLife (Rafler 2011), discrete time: Rafler's constants, outer radius ra, inner ra/3.
@@ -146,8 +148,8 @@ void main(){
   if (uFeed == 1) { // by the parent's state at this point, every step: mass comes in as noise where the
     // parent has mass, and is dimmed where it has none (so the child's rule can't spread into empty space)
     float P = parentAt(uRect.xy + cuv * uRect.zw);
-    a += uAddGain * 0.02 * P * hash(vec2(c) * 1.7 + uTime);
-    a -= uDimGain * 0.2 * (1.0 - smoothstep(0.05, 0.35, P)); // subtractive (the rules' growth is additive per step, a multiplicative dim never wins), and only where the parent is really empty
+    a += uAddGain * 0.02 * uRate * P * hash(vec2(c) * 1.7 + uTime);
+    a *= pow(smoothstep(0.02, 0.3, P), uDimGain * uRate);  // a mask: complete where the parent is empty (a partial dim never beats the rules' growth), none where it has mass
   }
   o = vec4(clamp(a, 0.0, 1.0), 0.0, 0.0, 1.0);
 }`;
@@ -283,7 +285,7 @@ const U = (p, n) => gl.getUniformLocation(p, n);
 const hex = (c) => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16) / 255);
 
 // ---------- the chain ----------
-const S = { chain: DEFAULT_CHAIN, mode: 'sum', addGain: 1, dimGain: 1.5, blend: 0, N: 512, secs: 7, ramp: 2.5, burst: 120, lambda: 0.12, rb: 6, aim: true, gamma: 1, t: 0, playing: true, levels: [], cur: -1 };
+const S = { chain: DEFAULT_CHAIN, mode: 'sum', addGain: 1, dimGain: 1.5, blend: 0, N: 192, secs: 7, ramp: 2.5, burst: 120, lambda: 0.12, rb: 6, aim: true, gamma: 1, t: 0, playing: true, levels: [], cur: -1 };
 const $ = (id) => document.getElementById(id);
 
 function kernels(cfg, N) {
@@ -384,7 +386,7 @@ function chooseRect(parent) {
   for (let y = N / 4; y <= 3 * N / 4; y += 2) for (let x = N / 4; x <= 3 * N / 4; x += 2) {
     const x0 = x - r, x1 = x + r, y0 = y - r, y1 = y + r;
     const s = sat[y1 * (N + 1) + x1] - sat[y0 * (N + 1) + x1] - sat[y1 * (N + 1) + x0] + sat[y0 * (N + 1) + x0];
-    const d = Math.hypot(x - N / 2, y - N / 2) / (N / 4); const score = s * (1 - 0.3 * d) * (0.2 + 0.8 * Math.min(1, buf[(y * N + x) * 4] * 2));
+    const d = Math.hypot(x - N / 2, y - N / 2) / (N / 4); const score = s * (1 - 0.3 * d) * (buf[(y * N + x) * 4] > 0.3 ? 1 : 0.05);
     if (score > best) { best = score; bx = x; by = y; }
   }
   return [bx - w / 2, by - w / 2, w, w];
