@@ -209,7 +209,7 @@ void main(){
 const VIEW_SUM_FS = `#version 300 es
 precision highp float; precision highp sampler2D;
 uniform sampler2D uGrand, uGrandBase, uCur, uChild; uniform ivec2 uSize; uniform vec2 uRes, uCenter; uniform float uWidth, uGamma, uBlend;
-uniform vec4 uGrandRect, uRect; uniform int uHasGrand, uHasChild; uniform vec3 uAccG, uAccC, uAccCh; uniform float uChildMean;
+uniform vec4 uGrandRect, uRect; uniform int uHasGrand, uHasChild; uniform vec3 uAccG, uAccC, uAccCh; uniform float uChildMean, uMinLife; uniform vec2 uGrandIn, uCurIn;
 out vec4 o;
 float px(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0).r; }
 vec4 px4(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0); }
@@ -234,20 +234,22 @@ void main(){
   vec2 p = uCenter + (uv - 0.5) * span;                 // in cells of the current level
   float cpp = uWidth / uRes.x;
   vec2 g = uGrandRect.xy + p / vec2(uSize) * uGrandRect.zw;   // the same point in the big level's cells
-  vec3 col = bilin4(uGrandBase, g).rgb;
-  if (uHasGrand == 1) col = blend(col, uAccG, bicubic(uGrand, g));
+  vec4 gb = bilin4(uGrandBase, g);                      // rgb: the dropped ancestors' colour; a: how far inside their creatures
+  vec3 col = gb.rgb; float tC = gb.a;                   // the current level's brightness
+  if (uHasGrand == 1) { float vg = bicubic(uGrand, g); col = blend(col, uAccG, vg * gb.a); tC = max(gb.a * smoothstep(uGrandIn.x, uGrandIn.y, vg), uMinLife); }
   float vc = look(uCur, p, cpp);
-  col = blend(col, uAccC, vc);
+  col = blend(col, uAccC, vc * tC);
   if (uHasChild == 1) {
-    // where this level has mass, its child's texture averages to its mean: show that everywhere (so the
-    // child's square is never a step), and the child's actual texture inside the square once resolvable
-    vec3 far = blend(col, uAccCh, uChildMean * vc);
+    float tCh = max(tC * smoothstep(uCurIn.x, uCurIn.y, vc), uMinLife);   // the child's brightness here
+    // the child's texture averages to its mean: show that everywhere (so the child's square is never a
+    // step), and the child's actual texture inside the square once resolvable
+    vec3 far = blend(col, uAccCh, uChildMean * tCh);
     vec2 q = (p - uRect.xy) / uRect.zw;
     if (q.x >= 0.0 && q.x < 1.0 && q.y >= 0.0 && q.y < 1.0) {
       float ccpp = cpp * float(uSize.x) / uRect.z;
       float w = 1.0 - smoothstep(1.5, 3.0, ccpp);
       float cv = look(uChild, q * vec2(uSize), ccpp);
-      col = mix(far, blend(col, uAccCh, cv), w);
+      col = mix(far, blend(col, uAccCh, cv * tCh), w);
     } else col = far;
   }
   o = vec4(clamp(col, 0.0, 1.0), 1.0);
@@ -257,7 +259,7 @@ void main(){
 // it instead writes value × inside-ness of one level (for aiming the next square).
 const BAKE_FS = `#version 300 es
 precision highp float; precision highp sampler2D;
-uniform sampler2D uPState, uPBase; uniform ivec2 uSize; uniform vec4 uRect; uniform vec3 uPAccent; uniform vec2 uPIn; uniform float uGamma, uBlend; uniform int uScore, uSum;
+uniform sampler2D uPState, uPBase; uniform ivec2 uSize; uniform vec4 uRect; uniform vec3 uPAccent; uniform vec2 uPIn; uniform float uGamma, uBlend, uMinLife; uniform int uScore, uSum;
 out vec4 o;
 float px(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0).r; }
 vec4 px4(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0); }
@@ -273,7 +275,7 @@ void main(){
   vec2 uv = (vec2(c) + 0.5) / vec2(uSize);
   vec2 p = (uRect.xy + uv * uRect.zw) * vec2(uSize);
   float pv = bilin(uPState, p); vec4 pb = bilin4(uPBase, p);
-  if (uSum == 1) { float v = pow(pv, uGamma); o = vec4(mix(pb.rgb + uPAccent * v, mix(pb.rgb, uPAccent, v), uBlend), 1.0); return; }
+  if (uSum == 1) { float v = pow(pv, uGamma) * pb.a; o = vec4(mix(pb.rgb + uPAccent * v, mix(pb.rgb, uPAccent, v), uBlend), max(pb.a * smoothstep(uPIn.x, uPIn.y, pv), uMinLife)); return; }
   o = vec4(mix(pb.rgb, uPAccent, pow(pv, uGamma) * pb.a), pb.a * smoothstep(uPIn.x, uPIn.y, pv));
 }`;
 function compile(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
@@ -367,7 +369,7 @@ function bakePass(target, parent, rect, score) {
   gl.uniform2i(U(progBake, 'uSize'), N, N); gl.uniform4f(U(progBake, 'uRect'), ...rect.map(v => v / N));
   gl.uniform3f(U(progBake, 'uPAccent'), ...hex(parent.cfg.accent)); gl.uniform2f(U(progBake, 'uPIn'), ...(parent.cfg.inness || [0.3, 0.8]));
   gl.uniform1f(U(progBake, 'uGamma'), S.gamma); gl.uniform1i(U(progBake, 'uScore'), score ? 1 : 0);
-  gl.uniform1i(U(progBake, 'uSum'), S.mode === 'sum' ? 1 : 0); gl.uniform1f(U(progBake, 'uBlend'), S.blend);
+  gl.uniform1i(U(progBake, 'uSum'), S.mode === 'sum' ? 1 : 0); gl.uniform1f(U(progBake, 'uBlend'), S.blend); gl.uniform1f(U(progBake, 'uMinLife'), S.minLife);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 // a level's base, from its parent, once the parent has stopped
@@ -534,7 +536,8 @@ function drawSum(Lidx, f) {
   gl.uniform4f(U(progSum, 'uRect'), ...(child ? child.rect : [0, 0, N, N]));
   gl.uniform4f(U(progSum, 'uGrandRect'), ...(hasGrand ? cur.rect : [0, 0, N, N]));
   gl.uniform3f(U(progSum, 'uAccG'), ...hex((hasGrand ? grand : cur).cfg.accent)); gl.uniform3f(U(progSum, 'uAccC'), ...hex(cur.cfg.accent)); gl.uniform3f(U(progSum, 'uAccCh'), ...hex((child || cur).cfg.accent));
-  gl.uniform1f(U(progSum, 'uChildMean'), child ? (child.mean || 0) : 0);
+  gl.uniform1f(U(progSum, 'uChildMean'), child ? (child.mean || 0) : 0); gl.uniform1f(U(progSum, 'uMinLife'), S.minLife);
+  gl.uniform2f(U(progSum, 'uGrandIn'), ...((hasGrand ? grand : cur).cfg.inness || [0.3, 0.8])); gl.uniform2f(U(progSum, 'uCurIn'), ...(cur.cfg.inness || [0.3, 0.8]));
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   $('tv').textContent = S.t.toFixed(1); $('mag').textContent = Math.pow(3, S.t / S.secs).toFixed(1) + '×'; $('lv').textContent = `${S.cur} ${cur.cfg.name || cur.cfg.fam}`;
   $('levels').innerHTML = S.chain.map((c, i) => `<span class="${i === S.cur ? 'on' : i === S.cur + 1 ? 'child' : ''}">${i} ${c.fam} ${c.name || ''}${i === S.cur ? ` · clock ${cur.rate.toFixed(2)}` : i === S.cur + 1 ? ' · seeded, fed by its parent' : i === S.cur - 1 && hasGrand ? ` · clock ${grand.rate.toFixed(2)}, magnified` : i < S.cur ? ' · dropped' : ''}</span>`).join('');
