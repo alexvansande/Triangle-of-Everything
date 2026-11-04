@@ -64,7 +64,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.
       <div class="row"><label>add (noise)</label><input id="addGain" type="range" min="0" max="4" step="0.05" value="1"><output id="addGainv">1.00</output></div>
       <div class="row"><label>remove (dim)</label><input id="dimGain" type="range" min="0" max="4" step="0.05" value="1.5"><output id="dimGainv">1.50</output></div>
       <div class="row"><label>min life</label><input id="minLife" type="range" min="0" max="0.5" step="0.01" value="0.15"><output id="minLifev">0.15</output></div>
-      <div class="row"><label>sum ↔ over</label><input id="blend" type="range" min="0" max="1" step="0.01" value="0"><output id="blendv">0.00</output></div>
+      <div class="row"><label>sum ↔ over</label><input id="blend" type="range" min="0" max="1" step="0.01" value="0.75"><output id="blendv">0.75</output></div>
       <h2>Zoom</h2>
       <div class="row"><label>seconds / level</label><input id="secs" type="range" min="2" max="20" step="0.5" value="7"><output id="secsv">7</output></div>
       <div class="row"><label>ramp (s)</label><input id="ramp" type="range" min="0" max="6" step="0.1" value="2.5"><output id="rampv">2.5</output></div>
@@ -288,7 +288,7 @@ const U = (p, n) => gl.getUniformLocation(p, n);
 const hex = (c) => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16) / 255);
 
 // ---------- the chain ----------
-const S = { cam: [96, 96], chain: DEFAULT_CHAIN, mode: 'sum', addGain: 1, dimGain: 1.5, minLife: 0.15, blend: 0, N: 192, secs: 7, ramp: 2.5, burst: 120, lambda: 0.12, rb: 6, aim: true, gamma: 1, t: 0, playing: true, levels: [], cur: -1 };
+const S = { cam: [96, 96], chain: DEFAULT_CHAIN, mode: 'sum', addGain: 1, dimGain: 1.5, minLife: 0.15, blend: 0.75, N: 192, secs: 7, ramp: 2.5, burst: 120, lambda: 0.12, rb: 6, aim: true, gamma: 1, t: 0, playing: true, levels: [], cur: -1 };
 const $ = (id) => document.getElementById(id);
 
 function kernels(cfg, N) {
