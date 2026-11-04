@@ -97,8 +97,29 @@ front: dense rules spread. Dimming by state every step is what keeps B inside A'
 **sum** of the live worlds' colours, each by its accent (a slider blends toward "child over parent", which dark
 accents need: additive black is invisible). A level winds down to a trickle as it is magnified, trickles on
 one level further, and is then baked into the level above and dropped: "once the larger one is so large it
-barely makes a difference". No painting, no clamp, no promotion ramp, no pre-tint. The paint mode stays in the
-page for comparison.
+barely makes a difference". No painting, no clamp, no promotion ramp. The paint mode stays in the page for
+comparison.
+
+What it took to make that work (all found by running it, 2026-11-04):
+- **Removal is a mask**, multiplicative and complete where the parent is empty. A partial dim or a subtractive
+  rate never beats the rules' growth cleanly: the child either colonised black space or died inside the parent.
+  Feed and mask scale with the level's clock, or a promoted level (clock a third) dies under a full-strength mask.
+- **Smaller is faster.** A level's clock is one over its magnification relative to its child: the child runs at
+  1, the parent at a third falling to a ninth, the one above at a ninth to a 27th. Otherwise the parent sweeps
+  past any point faster than the child can form its pattern under it. The quark world's own pace is 0.15.
+- **The square follows the centre of mass under it** (the author, 2026-11-04: "keep it centered on the center
+  of mass as we dive in"), and the camera is a continuous position easing onto the square, re-expressed in the
+  promoted level's cells at a hand-over, so nothing jumps. A fixed square lost its quark in a second or two.
+- **A minimum of life** (the author, 2026-11-04: "so diving into a black layer doesn't stop every new
+  generation"): the parent's value has a floor (0.15) in the seed, the feed and the mask, so a child over black
+  still gets a trickle of noise and a faint pattern. Since a floor on the mask gives a full pattern, never a dim
+  one, the dimness is in the display: **brightness is inherited**, each level shown at its ancestors' inside-ness
+  (baked into its base's alpha) times its parent's live inside-ness, floored at the minimum.
+- **No square ever pops**: a level is drawn pre-tinted by its child's mean (measured where the parent has mass
+  and where it hasn't, blended by inside-ness), and the child's own texture replaces that only once resolvable.
+- **The grid is small** (192 by default). Each level is nested three times finer than the last, so the grid only
+  sets how fine a level's own texture is; a level's shapes should be a good part of its domain for the next
+  square to sit inside one, which is Lenia's natural radius on 128 to 256 cells.
 
 ## Still to do
 - Choose the chain for the video in the page (rules from the bench, accents, inness, density) and note it here.

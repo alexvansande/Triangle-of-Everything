@@ -209,7 +209,7 @@ void main(){
 const VIEW_SUM_FS = `#version 300 es
 precision highp float; precision highp sampler2D;
 uniform sampler2D uGrand, uGrandBase, uCur, uChild; uniform ivec2 uSize; uniform vec2 uRes, uCenter; uniform float uWidth, uGamma, uBlend;
-uniform vec4 uGrandRect, uRect; uniform int uHasGrand, uHasChild; uniform vec3 uAccG, uAccC, uAccCh; uniform float uChildMean, uMinLife; uniform vec2 uGrandIn, uCurIn;
+uniform vec4 uGrandRect, uRect; uniform int uHasGrand, uHasChild; uniform vec3 uAccG, uAccC, uAccCh; uniform float uChildMean, uChildMeanOut, uMinLife; uniform vec2 uGrandIn, uCurIn;
 out vec4 o;
 float px(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0).r; }
 vec4 px4(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0); }
@@ -243,7 +243,7 @@ void main(){
     float tCh = max(tC * smoothstep(uCurIn.x, uCurIn.y, vc), uMinLife);   // the child's brightness here
     // the child's texture averages to its mean: show that everywhere (so the child's square is never a
     // step), and the child's actual texture inside the square once resolvable
-    vec3 far = blend(col, uAccCh, uChildMean * tCh);
+    vec3 far = blend(col, uAccCh, mix(uChildMeanOut, uChildMean, smoothstep(uCurIn.x, uCurIn.y, vc)) * tCh);
     vec2 q = (p - uRect.xy) / uRect.zw;
     if (q.x >= 0.0 && q.x < 1.0 && q.y >= 0.0 && q.y < 1.0) {
       float ccpp = cpp * float(uSize.x) / uRect.z;
@@ -411,12 +411,14 @@ function childMean(child, parent) {
   const N = S.N, buf = new Float32Array(N * N * 4), pbuf = new Float32Array(N * N * 4);
   gl.bindFramebuffer(gl.FRAMEBUFFER, child.fbo[child.cur]); gl.readPixels(0, 0, N, N, gl.RGBA, gl.FLOAT, buf);
   gl.bindFramebuffer(gl.FRAMEBUFFER, scoreOf(parent)); gl.readPixels(0, 0, N, N, gl.RGBA, gl.FLOAT, pbuf); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  const [rx, ry, rw] = child.rect; let sw = 0, sv = 0;
+  const [rx, ry, rw] = child.rect; let sw = 0, sv = 0, sw2 = 0, sv2 = 0;
   for (let y = 0; y < N; y += 4) for (let x = 0; x < N; x += 4) {
     const px = ((Math.round(rx + x / N * rw) % N) + N) % N, py = ((Math.round(ry + y / N * rw) % N) + N) % N;
-    const w = pbuf[(py * N + px) * 4]; sw += w; sv += w * Math.pow(buf[(y * N + x) * 4], S.gamma);
+    const w = pbuf[(py * N + px) * 4], v = Math.pow(buf[(y * N + x) * 4], S.gamma), w2 = 1 - Math.min(1, w * 3);
+    sw += w; sv += w * v; sw2 += w2; sv2 += w2 * v;
   }
-  child.mean = sw > 0 ? sv / sw : 0;
+  child.mean = sw > 0 ? sv / sw : 0;        // where the parent has mass
+  child.meanOut = sw2 > 0 ? sv2 / sw2 : 0;  // where it has none (the minimum life)
 }
 function levelMean(L) {
   const N = S.N, buf = new Float32Array(N * N * 4);
@@ -536,7 +538,7 @@ function drawSum(Lidx, f) {
   gl.uniform4f(U(progSum, 'uRect'), ...(child ? child.rect : [0, 0, N, N]));
   gl.uniform4f(U(progSum, 'uGrandRect'), ...(hasGrand ? cur.rect : [0, 0, N, N]));
   gl.uniform3f(U(progSum, 'uAccG'), ...hex((hasGrand ? grand : cur).cfg.accent)); gl.uniform3f(U(progSum, 'uAccC'), ...hex(cur.cfg.accent)); gl.uniform3f(U(progSum, 'uAccCh'), ...hex((child || cur).cfg.accent));
-  gl.uniform1f(U(progSum, 'uChildMean'), child ? (child.mean || 0) : 0); gl.uniform1f(U(progSum, 'uMinLife'), S.minLife);
+  gl.uniform1f(U(progSum, 'uChildMean'), child ? (child.mean || 0) : 0); gl.uniform1f(U(progSum, 'uChildMeanOut'), child ? (child.meanOut || 0) : 0); gl.uniform1f(U(progSum, 'uMinLife'), S.minLife);
   gl.uniform2f(U(progSum, 'uGrandIn'), ...((hasGrand ? grand : cur).cfg.inness || [0.3, 0.8])); gl.uniform2f(U(progSum, 'uCurIn'), ...(cur.cfg.inness || [0.3, 0.8]));
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   $('tv').textContent = S.t.toFixed(1); $('mag').textContent = Math.pow(3, S.t / S.secs).toFixed(1) + '×'; $('lv').textContent = `${S.cur} ${cur.cfg.name || cur.cfg.fam}`;
