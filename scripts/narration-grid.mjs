@@ -53,6 +53,9 @@ function youtubeInfo(root) {
  *  the full renders where there are any (both for the dev server). */
 export async function takeInfo(takes, dir, { root = ".", fresh = false, local = false } = {}) {
   const info = [], yt = youtubeInfo(root);
+  // published (video/render-locked.txt): on YouTube, public, its render final
+  let locked = new Set();
+  try { locked = new Set(fs.readFileSync(path.join(root, "video/render-locked.txt"), "utf8").split("\n").map(l => l.trim()).filter(l => l && !l.startsWith("#"))); } catch {}
   for (const t of takes) {
     const take = JSON.parse(fs.readFileSync(path.join(dir, "narration", t, "words.json"), "utf8"));
     const url = pathToFileURL(path.resolve(root, `src/narration-scenes/${take.scene || t}.js`)).href + (fresh ? `?t=${Date.now()}` : "");
@@ -63,7 +66,7 @@ export async function takeInfo(takes, dir, { root = ".", fresh = false, local = 
     info.push({ renderOnly: !!take.renderOnly, id: t, title: take.title || scene.title || t, blurb: take.blurb || scene.blurb || first, duration: take.duration, music,
       thumbAt: scene.thumb ?? take.duration * 0.4, num: (t.match(/\d+[a-z]?/) || [""])[0],
       long: t.startsWith("long-"), wide: take.stage === "landscape", cut: !!take.segments,
-      sources: take.segments ? [...new Set(take.segments.map(s => s.take))] : [t],
+      sources: take.segments ? [...new Set(take.segments.map(s => s.take))] : [t], published: locked.has(t),
       yt: yt[t], ytThumb: fs.existsSync(path.join(root, "video/thumbnails", `${t}.jpg`)) ? `video/thumbnails/${t}.jpg` : "",
       ...renderedVideo(t, root, local),
       ...updatedAt(t, take.scene || t, root) });
@@ -99,14 +102,18 @@ export function gridHtml(info, { built, commit, base = "" }) {
   // cut from the same source takes (the author, 2026-11-03: "the long videos, then a horizontal carousel of their
   // shorts, then the next long"). Shorts of no long video (the powers-of-ten zoom) get a row of their own, first.
   const shorts = info.filter(k => !k.long), longs = info.filter(k => k.long);
-  const groups = longs.map(l => ({ long: l, shorts: shorts.filter(s => s.sources.some(x => l.sources.includes(x))) }));
+  const numOf = (k) => +(k.id.match(/^long-(\d+)/) || [0, 0])[1];
+  const groups = [...new Set(longs.map(numOf))].sort((a, b) => a - b).map(n => {
+    const ls = longs.filter(l => numOf(l) === n), src = new Set(ls.flatMap(l => l.sources));
+    return { n, longs: ls, long: ls[0], shorts: shorts.filter(s => s.sources.some(x => src.has(x))) };
+  });
   const grouped = new Set(groups.flatMap(g => g.shorts.map(s => s.id)));
   const loose = shorts.filter(s => !grouped.has(s.id));
   const card = k => `
     <div class="ng-item${k.wide ? " is-wide" : ""}">
       <a class="ng-card" data-render-only="${k.renderOnly ? "1" : "0"}" href="#${k.renderOnly ? "rendered/" : ""}${esc(k.id)}">
         <span class="ng-thumb">${k.ytThumb || k.thumb ? `<img src="${base}${k.ytThumb || k.thumb}" alt="" loading="lazy">` : ""}
-          <span class="ng-num">${esc(k.num)}</span><span class="ng-len">${mmss(k.duration)}</span><span class="ng-play" aria-hidden="true"></span></span>
+          <span class="ng-num">${esc(k.num)}</span>${k.published ? `<span class="ng-pub">Published</span>` : ""}<span class="ng-len">${mmss(k.duration)}</span><span class="ng-play" aria-hidden="true"></span></span>
         <span class="ng-title">${esc(k.yt?.title || k.title)}</span>
         <span class="ng-blurb">${esc(k.yt?.blurb || k.blurb)}</span>${k.updated ? `
         <span class="ng-updated">Updated <time datetime="${k.updated}" data-fmt="day">${k.updated.slice(0, 10)}</time></span>` : ""}${k.renderedAt ? `
@@ -123,16 +130,16 @@ export function gridHtml(info, { built, commit, base = "" }) {
     <h2 class="ng-sub">Shorts <span>on their own</span></h2>${row(loose, "Shorts on their own")}
   </section>` : "") + groups.map((g, i) => `
   <section class="ng-group">
-    <h2 class="ng-sub">Long video ${i + 1} <span>16:9 · ${mmss(g.long.duration)}</span></h2>
-    <div class="ng-long">${card(g.long)}
-    </div>${g.shorts.length ? `
-    <h3 class="ng-sub3">Its shorts <span>${g.shorts.length} · 9:16 · scroll sideways</span></h3>${row(g.shorts, `Long video ${i + 1}'s shorts`)}` : ""}
+    <h2 class="ng-sub">Long video ${g.n} <span>16:9 · ${g.longs.map(l => mmss(l.duration)).join(" / ")}${g.longs.length > 1 ? ` · ${g.longs.length} versions` : ""}</span></h2>
+    ${g.longs.length > 1 ? row(g.longs, `Long video ${g.n}'s versions`).replace('class="ng-carousel"', 'class="ng-carousel ng-carousel-wide"') : `<div class="ng-long">${card(g.long)}
+    </div>`}${g.shorts.length ? `
+    <h3 class="ng-sub3">Its shorts <span>${g.shorts.length} · 9:16 · scroll sideways</span></h3>${row(g.shorts, `Long video ${g.n}'s shorts`)}` : ""}
   </section>`).join("");
   return `<section id="narr-grid" hidden aria-label="Narration previews">
   <header class="ng-head">
     <p class="ng-eyebrow">The Triangle of Everything</p>
     <h1>Narration previews</h1>
-    <p class="ng-note">${longs.length} long videos (16:9), each followed by its shorts (9:16): ${shorts.length} shorts in all, played live from the map with their audio. Tap one to watch it, then tap the screen to pause. With autoplay on, each one rolls into the next.</p>
+    <p class="ng-note">${groups.length} long videos (16:9), each followed by its shorts (9:16): ${shorts.length} shorts in all, played live from the map with their audio. Tap one to watch it, then tap the screen to pause. With autoplay on, each one rolls into the next.</p>
     <p class="ng-stamp">Last updated <time datetime="${built}" data-fmt="time">${built.slice(0, 16).replace("T", " ")} UTC</time>${commit ? ` · ${esc(commit)}` : ""}</p>
     <div class="ng-mode" role="group" aria-label="How to watch">
       <button type="button" data-mode="live" aria-pressed="true">Live map</button>
@@ -213,6 +220,9 @@ ${sections}${info.some(k => k.music) ? `
 /* "Rendered video" on: the videos with no render yet at half strength */
 .ng-item { transition: opacity 0.2s ease; }
 .ng-item.is-unrendered { opacity: 0.5; }
+.ng-carousel-wide > .ng-item { flex-basis: min(420px, 82vw); }
+.ng-pub { position: absolute; left: 8px; bottom: 8px; font: 700 12px/1 var(--ng-display); letter-spacing: 0.08em; text-transform: uppercase;
+  color: #0b0c20; background: #8be28b; border-radius: 4px; padding: 4px 6px 3px; }
 .ng-item.is-wide .ng-thumb { aspect-ratio: 16 / 9; }
 .ng-item { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 /* the YouTube panel: opened, the card takes the whole row */
