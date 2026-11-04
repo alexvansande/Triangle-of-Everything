@@ -13,7 +13,6 @@
 # Trails at half strength in every video (the author, 2026-11-03, evening: B, gain 0.07): all of them
 # render whole; long video 1 and its Shorts first (they go to YouTube, private, once rendered), then the zoom
 # priority: long-01-intro
-# next: short-00-powers-of-ten
 # Long video 1 with the "obsessed" lines, right after the zoom: only the new stretch, spliced into long-01-intro's render (the author, 2026-11-04)
 # next: long-01-with-outro
 # Long video 1's Shorts and the powers-of-ten zoom before long video 3 (the author, 2026-11-01, 23:30)
@@ -25,7 +24,6 @@
 # next: short-07a-photons
 # next: short-07b-sky
 # Re-recorded in one take (rec51, 2026-11-03): long video 1 and its three Shorts, new audio, render whole
-short-00-powers-of-ten
 long-03-small
 short-06a-living
 short-06b-atoms
@@ -61,4 +59,3 @@ short-05c-observable-universe
 
 # short-00-powers-of-ten source includes shaded CMB catalog PNG and isolated narrated 3D icon: 574bc4d8
 # short-00-powers-of-ten source reconciled and pushed to powers-of-ten: e47ab7b2
-# short-00-powers-of-ten changed: prebaked Lenia closeup blur and clearly visible opening filament glow; source 91def0c2
