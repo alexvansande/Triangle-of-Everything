@@ -2,6 +2,9 @@ import {spawn, execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 const args=process.argv.slice(2), take=args[0];
+// output/videos/<take>.wait: hold the render (and the round) until the file is gone (the author, 2026-11-03:
+// the zoom only after long video 1 and its Shorts are rendered and uploaded)
+while(fs.existsSync(`output/videos/${take}.wait`)) await new Promise(r=>setTimeout(r,30000));
 const meta=JSON.parse(fs.readFileSync(`public/narration/${take}/words.json`));
 if(!fs.existsSync(meta.renderSource+'/tools/powers-of-ten.html')) throw Error('Zoom source is missing: '+meta.renderSource);
 // render from a frozen copy (an APFS clone, instant): the zoom's own session keeps editing its source, and
