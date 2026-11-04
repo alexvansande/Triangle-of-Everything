@@ -386,8 +386,15 @@ function advance(dt) { // fixed time step, so a frame-by-frame render is determi
   const up = S.ramp > 0 ? ease(Math.min(1, (S.t - S.promotedAt) / S.ramp)) : 1;
   const down = 1 - ease(Math.max(0, Math.min(1, (f - 0.55) / 0.4)));
   cur.rate = (S.cur === 0 ? 1 : up) * down; cur.lambda = S.cur === 0 ? 0 : S.lambda * (1 - up);
-  const sp = cur.cfg.speed || 1, nsteps = Math.ceil(sp); cur.rate *= sp / nsteps;
-  for (let k = 0; k < nsteps; k++) stepLevel(cur, grand && !grand.freed ? grand : null);  // the clamp needs the parent while it fades
+  const sp = cur.cfg.speed || 1, clock = cur.rate * sp, parent = grand && !grand.freed ? grand : null;  // the clamp needs the parent while it fades
+  if (cur.cfg.fam === 'smoothlife') { // a discrete rule: slow it by stepping less often, not by blending (blended steps turn its gliders into worms)
+    cur.acc = (cur.acc || 0) + clock; cur.rate = 1;
+    while (cur.acc >= 1) { cur.acc -= 1; stepLevel(cur, parent); }
+    cur.rate = clock;
+  } else {
+    const nsteps = Math.ceil(sp); cur.rate = clock / nsteps;
+    for (let k = 0; k < nsteps; k++) stepLevel(cur, parent);
+  }
   if (child && S.aim && cur.rate > 0.02 && (S.frame = (S.frame || 0) + 1) % 6 === 0) trackRect(child, cur);
   if (child) { child.rate = 0; child.lambda = S.lambda; stepLevel(child, cur); if (S.frame % 45 === 0) childMean(child, cur); }  // follows the parent only
   return { Lidx, f };
