@@ -25,8 +25,8 @@ Setup, once:
   2. pip install google-api-python-client google-auth-oauthlib
   3. The first --upload opens a browser to sign in to the channel; the token is kept in
      ~/.config/youtube-upload/token-<channel>.json (YT_CHANNEL, default "default").
-Quota: an upload costs 1,600 of the default 10,000 units a day, so about six videos a
-day. Videos start private (youtube.json "privacy"); "publishAt" schedules them.
+Quota: of the default 10,000 units a day (reset at midnight Pacific), an upload costs 1,600 and
+its thumbnail, captions and playlist about 500 more, so four videos a day. Videos start private (youtube.json "privacy"); "publishAt" schedules them.
 """
 import argparse, datetime, json, os, re, sys
 
