@@ -802,6 +802,9 @@ line is dropped. Nothing left here for long video 1.*
 > And if the star is bigger still, the core collapses into a black hole: an object so strange that it deserves a video of its own.
 
 ### What changed
+- **A second version keeps it** (the author, 2026-11-04): `long-01-with-outro` runs the hook's "I've been
+  obsessed with this chart…" (rec51, as in Short 1) after "…the way it does", then the 2 s pause and "So let's
+  start…". No new recording; `long-01-intro` stays as it was.
 - "categories" → "things"; "Saturn and Jupiter in our solar system, they generate more heat than they absorb from the sun, mostly due to their mass compressing in their core" → "Jupiter and Saturn give off more heat than they get from the Sun, mostly because their own mass keeps squeezing their cores".
 - Deuterium: "they can start fusing hydrogen, but not all hydrogen, only those in the form of deuterium" → "a rare kind of hydrogen, called deuterium, but not ordinary hydrogen" (exact, and shorter); "objects who are" → "that are"; "don't have enough energy to sustain themselves as stars" → "can't keep shining like stars".
 - "the main sequence of stars in which most stars will live most of their lives on" → "the main sequence, where stars spend most of their lives".

@@ -14,6 +14,8 @@
 # render whole; long video 1 and its Shorts first (they go to YouTube, private, once rendered), then the zoom
 # priority: long-01-intro
 # next: short-00-powers-of-ten
+# Long video 1 with the "obsessed" lines, right after the zoom: only the new stretch, spliced into long-01-intro's render (the author, 2026-11-04)
+# next: long-01-with-outro
 # Long video 1's Shorts and the powers-of-ten zoom before long video 3 (the author, 2026-11-01, 23:30)
 # Order (the author, 2026-11-01): long videos 1 and 2, then their Shorts, then long video 3 and its Shorts
 # next: long-03-small

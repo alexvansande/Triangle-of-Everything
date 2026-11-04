@@ -412,6 +412,9 @@ so a short's scene can import the matching section from another scene.
 
 ### Cuts: shorts split from a take, long videos joined from several
 
+A cut with `"insertInto": "<take>"` is that take with a passage added: its first render is only the new stretch, spliced
+into that take's render (`scripts/narration-render-insert.py`).
+
 `video/cuts/<take>.json` lists pieces of existing takes by phrase (see `scripts/narration-cut.py`);
 `python3 scripts/narration-cut.py <take>` joins their voice and mix into
 `public/narration/<take>/` with a `words.json` that records each piece's source (`segments`). The

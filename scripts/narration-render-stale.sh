@@ -77,6 +77,9 @@ for t in $takes; do
     elif [ -n "$(j shared)" ]; then kind=full   # shared code changed, no note says where: all of it
     elif [ -n "$queued" ] && [ "$kind" = none ]; then kind=full   # queued with nothing to show for it: trust the session
     fi
+    # a cut made as another take's render with a passage inserted, not rendered yet: only that passage
+    # (video/cuts/<take>.json "insertInto"; scripts/narration-render-insert.py)
+    grep -q '"insertInto"' "video/cuts/$t.json" 2>/dev/null && [ ! -f "$out" ] && kind=insert
     if [ -n "$DRY" ]; then [ "$kind" = none ] && echo "= $t: only notes changed" || echo "stale $t $kind $ranges"; continue; fi
     echo "=== $t $(date +%H:%M:%S): $kind${ranges:+ ($ranges)} — $(j why)"
     head=$(git rev-parse HEAD)
@@ -87,6 +90,10 @@ for t in $takes; do
         a=$(python3 -c "import json;m=json.load(open('public/narration/$t/words.json'));print(m.get('mix') or m['audio'])")
         ffmpeg -hide_banner -loglevel error -y -i "$out" -i "public/narration/$t/$a" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k \
           -af apad -t "$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$out")" "output/videos/$t.new.mp4" && ok=1 ;;
+      insert)
+        python3 scripts/narration-render-insert.py "$t" --out "output/videos/$t.new.mp4" \
+          --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" > "output/videos/$t.log" 2>&1 && ok=1 ||
+          echo "  the insert didn't apply (output/videos/$t.log): rendering it whole" ;;
       partial)
         python3 scripts/narration-render-partial.py "$t" "$ranges" ${tail:+--tail} --old "$out" --out "output/videos/$t.new.mp4" \
           --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" > "output/videos/$t.log" 2>&1 && ok=1 ||

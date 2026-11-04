@@ -1,0 +1,35 @@
+{
+  "title": "The Triangle of Everything: the intro, with its outro",
+  "blurb": "Long video 1 with the \"obsessed\" lines kept after \"\u2026the way it does\", spliced into its render.",
+  "stage": "landscape",
+  "gap": 2.0,
+  "segments": [
+    {
+      "take": "short-01-hook",
+      "to": "precisely what I intend to do"
+    },
+    {
+      "take": "short-02-up-the-line",
+      "to": "first diagonal I mentioned"
+    },
+    {
+      "take": "short-02-up-the-line",
+      "from": "In the metric system",
+      "to": "Why does that happen"
+    },
+    {
+      "take": "short-02-up-the-line",
+      "from": "That's because until now"
+    }
+  ],
+  "music": [
+    {
+      "track": "Space X-plorers"
+    },
+    {
+      "track": "Soaring",
+      "after": true
+    }
+  ],
+  "insertInto": "long-01-intro"
+}
