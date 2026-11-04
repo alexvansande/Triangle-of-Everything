@@ -147,7 +147,7 @@ void main(){
     // parent has mass, and is dimmed where it has none (so the child's rule can't spread into empty space)
     float P = parentAt(uRect.xy + cuv * uRect.zw);
     a += uAddGain * 0.02 * P * hash(vec2(c) * 1.7 + uTime);
-    a *= 1.0 - clamp(uDimGain * 0.3 * (1.0 - P), 0.0, 1.0);
+    a -= uDimGain * 0.4 * (1.0 - P);                    // subtractive: the rules' growth is additive per step, a multiplicative dim never wins
   }
   o = vec4(clamp(a, 0.0, 1.0), 0.0, 0.0, 1.0);
 }`;
@@ -206,7 +206,7 @@ void main(){
 const VIEW_SUM_FS = `#version 300 es
 precision highp float; precision highp sampler2D;
 uniform sampler2D uGrand, uGrandBase, uCur, uChild; uniform ivec2 uSize; uniform vec2 uRes, uCenter; uniform float uWidth, uGamma, uBlend;
-uniform vec4 uGrandRect, uRect; uniform int uHasGrand, uHasChild; uniform vec3 uAccG, uAccC, uAccCh;
+uniform vec4 uGrandRect, uRect; uniform int uHasGrand, uHasChild; uniform vec3 uAccG, uAccC, uAccCh; uniform float uChildMean;
 out vec4 o;
 float px(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0).r; }
 vec4 px4(sampler2D t, ivec2 c){ return texelFetch(t, (c % uSize + uSize) % uSize, 0); }
@@ -233,13 +233,19 @@ void main(){
   vec2 g = uGrandRect.xy + p / vec2(uSize) * uGrandRect.zw;   // the same point in the big level's cells
   vec3 col = bilin4(uGrandBase, g).rgb;
   if (uHasGrand == 1) col = blend(col, uAccG, bicubic(uGrand, g));
-  col = blend(col, uAccC, look(uCur, p, cpp));
-  vec2 q = (p - uRect.xy) / uRect.zw;
-  if (uHasChild == 1 && q.x >= 0.0 && q.x < 1.0 && q.y >= 0.0 && q.y < 1.0) {
-    float ccpp = cpp * float(uSize.x) / uRect.z;
-    float w = 1.0 - smoothstep(4.0, 5.0, ccpp);         // averaged over the pixel while it is sub-pixel
-    float cv = look(uChild, q * vec2(uSize), ccpp);
-    col = mix(col, blend(col, uAccCh, cv), w);
+  float vc = look(uCur, p, cpp);
+  col = blend(col, uAccC, vc);
+  if (uHasChild == 1) {
+    // where this level has mass, its child's texture averages to its mean: show that everywhere (so the
+    // child's square is never a step), and the child's actual texture inside the square once resolvable
+    vec3 far = blend(col, uAccCh, uChildMean * vc);
+    vec2 q = (p - uRect.xy) / uRect.zw;
+    if (q.x >= 0.0 && q.x < 1.0 && q.y >= 0.0 && q.y < 1.0) {
+      float ccpp = cpp * float(uSize.x) / uRect.z;
+      float w = 1.0 - smoothstep(1.5, 3.0, ccpp);
+      float cv = look(uChild, q * vec2(uSize), ccpp);
+      col = mix(far, blend(col, uAccCh, cv), w);
+    } else col = far;
   }
   o = vec4(clamp(col, 0.0, 1.0), 1.0);
 }`;
@@ -439,6 +445,7 @@ function seedChild(i) {
   const parent = S.levels[i - 1]; const L = makeLevel(i); L.rect = chooseRect(parent);
   L.rate = 1; L.lambda = 0; stepLevel(L, parent, { init: true });
   for (let k = 0; k < 12; k++) stepLevel(L, parent, { feed: true });   // a few steps, so it starts as texture, not noise
+  childMean(L, parent);
   return L;
 }
 function restart() {
@@ -497,7 +504,7 @@ function advanceSum(Lidx, f) {
   const down = 1 - 0.85 * ease(Math.max(0, Math.min(1, (f - 0.4) / 0.6)));
   if (alive(grand)) { grand.rate = 0.15 * (1 - ease(f)); grand.lambda = 0; runLevel(grand, null, false); }
   cur.rate = down; cur.lambda = 0; runLevel(cur, alive(grand) ? grand : null, alive(grand));
-  if (child) { child.rate = 1; child.lambda = 0; runLevel(child, cur, true); }
+  if (child) { child.rate = 1; child.lambda = 0; runLevel(child, cur, true); if ((S.frame = (S.frame || 0) + 1) % 45 === 0) childMean(child, cur); }
   return { Lidx, f };
 }
 function drawSum(Lidx, f) {
@@ -518,6 +525,7 @@ function drawSum(Lidx, f) {
   gl.uniform4f(U(progSum, 'uRect'), ...(child ? child.rect : [0, 0, N, N]));
   gl.uniform4f(U(progSum, 'uGrandRect'), ...(hasGrand ? cur.rect : [0, 0, N, N]));
   gl.uniform3f(U(progSum, 'uAccG'), ...hex((hasGrand ? grand : cur).cfg.accent)); gl.uniform3f(U(progSum, 'uAccC'), ...hex(cur.cfg.accent)); gl.uniform3f(U(progSum, 'uAccCh'), ...hex((child || cur).cfg.accent));
+  gl.uniform1f(U(progSum, 'uChildMean'), child ? (child.mean || 0) : 0);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   $('tv').textContent = S.t.toFixed(1); $('mag').textContent = Math.pow(3, S.t / S.secs).toFixed(1) + '×'; $('lv').textContent = `${S.cur} ${cur.cfg.name || cur.cfg.fam}`;
   $('levels').innerHTML = S.chain.map((c, i) => `<span class="${i === S.cur ? 'on' : i === S.cur + 1 ? 'child' : ''}">${i} ${c.fam} ${c.name || ''}${i === S.cur ? ` · clock ${cur.rate.toFixed(2)}` : i === S.cur + 1 ? ' · seeded, fed by its parent' : i === S.cur - 1 && hasGrand ? ` · clock ${grand.rate.toFixed(2)}, magnified` : i < S.cur ? ' · dropped' : ''}</span>`).join('');
