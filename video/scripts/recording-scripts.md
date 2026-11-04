@@ -37,15 +37,72 @@ not in any script yet. **Sessions: when the author says they're about to record,
 recording arrives, remind them of these first**, and move each note into its video's script
 once it's used or dropped.
 
-### Long video 2 (the author, 2026-11-03)
-Long video 2 (`long-02-space`) is videos 3, 4 and 5 joined. Two things to fix when it's re-recorded:
-- **The cliffhanger at the end of video 3** ("…the core collapses into a black hole: an object so strange that it
-  deserves a video of its own") makes no sense in one long video, where the black holes come right after. For the
-  long one: *"…the core collapses into a black hole. And black holes are strange enough that they're worth a
-  closer look."* (*Long only*; the Short keeps its line.)
-- **When the black holes end and the larger things begin** (video 5, the Hubble sphere), the intro has to be
-  reworked and **the whole second part re-recorded**: video 5 opens as a standalone video, which reads as a restart
-  in the middle of a long one.
+### Long video 2: the plan (the author and a session, 2026-11-03/04)
+Long video 2 (`long-02-space`, 11:54) is videos 3, 4 and 5 joined. The author: "Long 2 has a nice cadence but needs
+some new recordings, some more connections, and we need to think better about how to cut it in shorts." Record it
+as **one take** with *Long only* / *Short only* lines, the way long video 1 worked (rec51).
+
+**How it reads now: four pieces, and you can hear the glue**
+
+| | Piece | Length | Problem at the seam |
+|---|---|---|---|
+| 1 | Stars (video 3, rec36) | 2:14 | No opening for a long video: it starts mid-thought ("We tend to think of stars and planets…"); ends on the cliffhanger "…an object so strange that it **deserves a video of its own**", which makes no sense when the black holes come right after (the author). |
+| 2 | Black holes and dark matter (video 4, rec48, from "Most objects in this chart…") | 4:01 | Ends on a real finale ("…the lucky few survivors"): good as the midpoint climax, but then the video starts over. |
+| 3 | "You see that everything that is made of matter is in this diagonal…" (video 5) | 0:16 | A recap of the stars' split, seen 4 minutes earlier. |
+| 4 | Density → Hubble sphere → observable universe (video 5, rec49 + rec50) | 5:23 | Written as a standalone video (the author: **when the black holes end and the larger things begin, the intro has to be reworked and the whole second part re-recorded**). Two known errors (13 → 14 billion light-years; "everything we see is beyond our event horizon"), the "You just told me… right? Yeah" dialogue, and an ending that trails off ("Even their future is beyond the reach"). |
+
+**The spine: gravity's scoreboard, then a new player.** Long video 1 already scores it (1 × 0 at the round worlds,
+2 × 0 at the super-Jupiters, on screen). Long video 2 pays it off:
+- Stars: gravity squeezes, fusion pushes back; the main sequence is that standoff.
+- White dwarfs → neutron stars: past 1.4 Suns gravity beats the electrons' "last stand" (from long video 1): **3 × 0**.
+  A neutron star is one giant nucleus, held by gravity instead of the strong force.
+- Black holes: gravity wins outright, **4 × 0**. Plant it: *"Remember this line. It comes back at the very largest
+  scale."*
+- Galaxies: a callback, galaxies are 5–10× heavier than what we see: the dark matter from the black-hole part.
+- Superclusters: **a new player**. Dark energy is already beating gravity at that scale; superclusters aren't held
+  together. The scoreboard gets a third column.
+- The Hubble sphere lands on the black-hole line: the payoff of the plant ("Is the universe a black hole?").
+- The observable universe: the ending, rewritten to land.
+
+Callbacks already in the script that only need a word or two: "the bigger, the emptier" (supermassive black holes
+less dense than water → galaxies, clusters and voids emptier still); "neutron stars have the density of the neutron".
+
+**To record**
+1. **A real opening** (*Long only*, ~30 s): pick up from long video 1's end ("…the life and death of stars") and ask
+   the video's question, e.g. *"How big can a star get, how small can a black hole be, and what's the biggest thing
+   that can exist at all?"*
+2. **Stars**: can stay as cut (rec36). Optional add-ins, from the quick index below: fusion as gravity helping the
+   strong force beat the electric push; why stars can't grow forever (their own light blows the outer gas away); the
+   supernova decided by the weakest force (neutrinos carry off ~99% of the energy).
+3. **Stars → black holes** (*Long only*), in place of the cliffhanger: *"…the core collapses into a black hole. And
+   black holes are strange enough that they're worth a closer look."* (The Short keeps its line.)
+4. **Black holes**: as cut (rec48), with the garbled line re-recorded: *"And we've been looking for them with
+   quasars, with the cosmic microwave background, gravitational waves, and finally with microlensing."*
+5. **The second half, re-recorded whole**, from the turn to bigger things to the end: a new script written as a
+   continuation, with the scoreboard and dark energy, the callbacks, the two fixes ("roughly fourteen billion
+   light-years"; "most of what we see there is already beyond our cosmic event horizon"), no dialogue device, and an
+   ending that lands.
+
+**Shorts: one question each, 40–90 s** (the current ones run 1:22–2:50, halves and thirds of the old videos; long
+Shorts from a new channel rarely get pushed). Each recorded inside the long take with its own *Short only* opening
+line; the long video's chapters follow the same list:
+
+| Short | Its question |
+|---|---|
+| Jupiter, the failed star | "Is Jupiter a failed star?" (planets → brown dwarfs → stars) |
+| The star cycle | "Where do stars come from?" (death, nebulae, nurseries, protostars) |
+| A spoonful of neutron star | "What's left when a star dies?" (white dwarf, neutron star, black hole) |
+| The edge of the chart | "What's the densest anything can be?" (the black-hole line; the Sun 6 km wide, the Earth a marble) |
+| Black holes that float | "Can a black hole be less dense than water?" (TON 618 and Pluto's orbit) |
+| The smallest black hole | "What's the smallest black hole there could be?" (the primordial window) |
+| Dark matter's exploding heads | "How do we know where dark matter isn't?" |
+| Is the universe a black hole? | The Hubble sphere on the black-hole line |
+| Galaxies we see but can't reach | The observable universe vs the cosmic event horizon |
+
+Nine Shorts from one session: three weeks at one every other day.
+
+**Next step:** a session writes the full one-take script from this (the opening, the bridges, the re-written second
+half, the *Short only* openings), fact-checked, before the author records.
 
 ### Quick index: "since you'll be talking about X, what about mentioning Y?"
 When the author says which bit they're re-recording, find it here and offer the matching idea in
