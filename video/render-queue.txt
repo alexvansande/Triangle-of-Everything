@@ -63,7 +63,6 @@ short-05c-observable-universe
 # short-00-powers-of-ten source includes shaded CMB catalog PNG and isolated narrated 3D icon: 574bc4d8
 # short-00-powers-of-ten source reconciled and pushed to powers-of-ten: e47ab7b2
 # short-00-powers-of-ten changed: prebaked Lenia closeup blur and clearly visible opening filament glow; source 91def0c2
-long-01-intro
 short-01-hook
 short-02a-things
 short-02b-planets
