@@ -87,7 +87,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.
 <script>
 'use strict';
 const DEFAULT_CHAIN = [
-  { fam: 'smoothlife', name: 'quarks', ra: 10, speed: 0.35, base: '#05060a', accent: '#6f9fe6', inness: [0.2, 0.7] },
+  { fam: 'smoothlife', name: 'quarks', ra: 10, speed: 0.3, base: '#05060a', accent: '#6f9fe6', inness: [0.2, 0.7] },
   { fam: 'lenia', name: 'Dots and blobs', R: 18, peaks: [1], mu: 0.1231, sigma: 0.0454, dt: 0.5, speed: 1, density: [0.05, 0.4], accent: '#e8473c', inness: [0.3, 0.8] },
   { fam: 'mnca', name: 'Worms', rings: [{ rin: 7.97, rout: 12.26, rules: [[0.07, 0.281, 0.21], [0.27, 0.551, -0.198]] }, { rin: 15.22, rout: 23.76, rules: [[0.312, 0.409, -0.227]] }], speed: 1, accent: '#f2d060', inness: [0.3, 0.8] },
   { fam: 'lenia', name: 'Labyrinth', R: 16, peaks: [1], mu: 0.423, sigma: 0.0727, dt: 0.5, speed: 1, accent: '#f0f0f4', inness: [0.3, 0.8] },
@@ -147,7 +147,7 @@ void main(){
     // parent has mass, and is dimmed where it has none (so the child's rule can't spread into empty space)
     float P = parentAt(uRect.xy + cuv * uRect.zw);
     a += uAddGain * 0.02 * P * hash(vec2(c) * 1.7 + uTime);
-    a -= uDimGain * 0.4 * (1.0 - smoothstep(0.05, 0.35, P)); // subtractive (the rules' growth is additive per step, a multiplicative dim never wins), and only where the parent is really empty
+    a -= uDimGain * 0.2 * (1.0 - smoothstep(0.05, 0.35, P)); // subtractive (the rules' growth is additive per step, a multiplicative dim never wins), and only where the parent is really empty
   }
   o = vec4(clamp(a, 0.0, 1.0), 0.0, 0.0, 1.0);
 }`;
@@ -384,7 +384,7 @@ function chooseRect(parent) {
   for (let y = N / 4; y <= 3 * N / 4; y += 2) for (let x = N / 4; x <= 3 * N / 4; x += 2) {
     const x0 = x - r, x1 = x + r, y0 = y - r, y1 = y + r;
     const s = sat[y1 * (N + 1) + x1] - sat[y0 * (N + 1) + x1] - sat[y1 * (N + 1) + x0] + sat[y0 * (N + 1) + x0];
-    const d = Math.hypot(x - N / 2, y - N / 2) / (N / 4); const score = s * (1 - 0.3 * d);
+    const d = Math.hypot(x - N / 2, y - N / 2) / (N / 4); const score = s * (1 - 0.3 * d) * (0.2 + 0.8 * Math.min(1, buf[(y * N + x) * 4] * 2));
     if (score > best) { best = score; bx = x; by = y; }
   }
   return [bx - w / 2, by - w / 2, w, w];
@@ -499,11 +499,10 @@ function advanceSum(Lidx, f) {
   }
   const cur = S.levels[S.cur], child = S.levels[S.cur + 1], grand = S.levels[S.cur - 1];
   const alive = (L) => L && !L.freed;
-  // clocks: a level runs full while it fills the frame, winds down to a trickle as it is magnified, and
-  // trickles to nothing one level later; the child runs full (it is small and fast)
-  const down = 1 - 0.85 * ease(Math.max(0, Math.min(1, (f - 0.4) / 0.6)));
-  if (alive(grand)) { grand.rate = 0.15 * (1 - ease(f)); grand.lambda = 0; runLevel(grand, null, false); }
-  cur.rate = down; cur.lambda = 0; runLevel(cur, alive(grand) ? grand : null, alive(grand));
+  // clocks: smaller is faster. A level's clock is one over its magnification relative to the child's scale:
+  // the child runs at 1, the current level at a third falling to a ninth, the big one at a ninth to a 27th
+  if (alive(grand)) { grand.rate = Math.pow(3, -(2 + f)); grand.lambda = 0; runLevel(grand, null, false); }
+  cur.rate = Math.pow(3, -(1 + f)); cur.lambda = 0; runLevel(cur, alive(grand) ? grand : null, alive(grand));
   if (child) { child.rate = 1; child.lambda = 0; runLevel(child, cur, true); if ((S.frame = (S.frame || 0) + 1) % 45 === 0) childMean(child, cur); }
   return { Lidx, f };
 }
