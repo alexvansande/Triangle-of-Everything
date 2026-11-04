@@ -236,13 +236,13 @@ function kernels(cfg, N) {
 }
 function noise(N, fam) {
   const d = new Float32Array(N * N * 4);
-  if (fam === 'smoothlife') { // blobs of noise, so the density starts in range
-    const cells = Math.max(8, Math.round(N / 24)), g = Array.from({ length: cells * cells }, () => rand());
+  if (fam === 'smoothlife') { // blobs of noise about 12 cells apart (near the kernel's size), so gliders can form
+    const cells = Math.max(8, Math.round(N / 12)), g = Array.from({ length: cells * cells }, () => rand());
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const gx = x / N * cells, gy = y / N * cells, x0 = Math.floor(gx), y0 = Math.floor(gy), fx = gx - x0, fy = gy - y0;
       const v = (xx, yy) => g[((yy % cells) * cells) + (xx % cells)];
       const h = v(x0, y0) * (1 - fx) * (1 - fy) + v(x0 + 1, y0) * fx * (1 - fy) + v(x0, y0 + 1) * (1 - fx) * fy + v(x0 + 1, y0 + 1) * fx * fy;
-      d[(y * N + x) * 4] = h > 0.55 ? 0.6 + 0.4 * rand() : 0; d[(y * N + x) * 4 + 3] = 1;
+      d[(y * N + x) * 4] = h > 0.5 ? 0.6 + 0.4 * rand() : 0; d[(y * N + x) * 4 + 3] = 1;
     }
   } else for (let i = 0; i < N * N; i++) { d[i * 4] = rand(); d[i * 4 + 3] = 1; }
   return d;
@@ -345,6 +345,11 @@ function childMean(child, parent) {
   }
   child.mean = sw > 0 ? sv / sw : 0;
 }
+function levelMean(L) {
+  const N = S.N, buf = new Float32Array(N * N * 4);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, L.fbo[L.cur]); gl.readPixels(0, 0, N, N, gl.RGBA, gl.FLOAT, buf); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  let s = 0; for (let i = 0; i < N * N; i += 7) s += buf[i * 4]; return s / Math.ceil(N * N / 7);
+}
 function paintChild(i) {
   const parent = S.levels[i - 1]; const L = makeLevel(i); L.rect = chooseRect(parent);
   L.rate = 1; L.lambda = Math.max(S.lambda, 0.25);          // the painting: settle the child's rule under the clamp
@@ -356,7 +361,13 @@ function paintChild(i) {
 function restart() {
   S.levels.forEach(freeLevel); S.levels = []; S.t = 0; S.cur = 0; seed = 7;
   if (S.score) { gl.deleteTexture(S.score); gl.deleteFramebuffer(S.scoreFbo); S.score = null; }
-  const L0 = makeLevel(0); L0.rate = 1; for (let k = 0; k < (L0.cfg.fam === 'smoothlife' ? 200 : S.burst); k++) stepLevel(L0, null);
+  // the first world, warmed up from noise; SmoothLife sometimes dies out within fifty steps, so try again on another seed
+  let L0;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    L0 = makeLevel(0); L0.rate = 1; for (let k = 0; k < (L0.cfg.fam === 'smoothlife' ? 200 : S.burst); k++) stepLevel(L0, null);
+    if (levelMean(L0) > 0.01) break;
+    freeLevel(L0); seed = seed * 31 + 7;
+  }
   S.levels[0] = L0; S.levels[1] = S.chain.length > 1 ? paintChild(1) : null;
   S.promotedAt = 0;
 }
