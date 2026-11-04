@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dense automata</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* A bench for the sub-quark zoom of the Powers of Ten video: cellular automata whose
+   patterns fill the plane (no black space with a few gliders), coloured with the two or
+   three colours of a "world", and a magnifier to see how a pattern holds up when the zoom
+   dives into it. Three families: Lenia (continuous Game of Life) in its dense regimes,
+   MNCA (multiple-neighbourhood CA, after Slackermanz) and Gray-Scott reaction-diffusion.
+   The Lenia and MNCA presets came out of a random search scored for being dense,
+   structured and alive (dense-automata-search.py, next to this file); "Randomize" runs the
+   same generator here. The plan for the dive: video/plans/inside-the-quark.md. Single dark look: the patterns are the light. */
+:root {
+  --bg: #05060a; --plate: #0b0d14; --line: #1c2030; --fg: #e6e2da; --muted: #8a8d9c;
+  --accent: #ffcf8a;
+  --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --body: "Figtree", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+html, body { background: var(--bg); color: var(--fg); margin: 0; }
+body { font: 14px/1.45 var(--body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1380px; margin: 0 auto; padding: 22px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 16px; }
+h1 { font: 650 clamp(26px, 4vw, 38px)/1.05 var(--display); margin: 0; letter-spacing: -.01em; }
+.lede { color: var(--muted); max-width: 78ch; margin: 4px 0 0; }
+.lede b { color: var(--fg); font-weight: 500; }
+.bench { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+@media (max-width: 900px) { .bench { grid-template-columns: 1fr; } }
+.stage { background: var(--plate); border: 1px solid var(--line); border-radius: 6px; padding: 10px; display: grid; gap: 8px; }
+canvas#view { width: 100%; aspect-ratio: 16 / 9; display: block; background: #000; border-radius: 3px; image-rendering: auto; }
+.status { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); font: 12px/1.4 var(--mono); }
+.status b { color: var(--fg); font-weight: 500; }
+.panel { background: var(--plate); border: 1px solid var(--line); border-radius: 6px; padding: 12px; display: grid; gap: 12px; }
+h2 { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.presets { display: flex; flex-wrap: wrap; gap: 5px; }
+.presets button { font: 500 12px/1.1 var(--body); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--line); background: #10131c; color: var(--fg); cursor: pointer; }
+.presets button:hover { border-color: var(--muted); }
+.presets button.on { border-color: var(--accent); color: var(--accent); }
+.row { display: grid; grid-template-columns: 92px 1fr auto; gap: 8px; align-items: center; }
+.row label { color: var(--muted); font-size: 12px; }
+.row output { font: 12px var(--mono); min-width: 3.5em; text-align: right; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.btns button, select { font: 500 13px var(--body); padding: 7px 10px; border-radius: 4px; border: 1px solid var(--line); background: #10131c; color: var(--fg); cursor: pointer; }
+.btns button.primary { border-color: var(--accent); color: var(--accent); }
+.swatches { display: flex; flex-wrap: wrap; gap: 5px; }
+.swatches button { width: 54px; height: 24px; border-radius: 4px; border: 1px solid var(--line); cursor: pointer; padding: 0; }
+.swatches button.on { outline: 2px solid var(--accent); }
+.colors { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; }
+.colors input { width: 34px; height: 26px; border: 1px solid var(--line); border-radius: 4px; background: none; padding: 0; }
+textarea { width: 100%; box-sizing: border-box; min-height: 150px; font: 11px/1.4 var(--mono); background: #07080d; color: var(--fg); border: 1px solid var(--line); border-radius: 4px; padding: 8px; resize: vertical; }
+.note { color: var(--muted); font-size: 12px; margin: 0; }
+.err { color: #ff8a7a; font: 12px var(--mono); white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Dense automata</h1>
+    <p class="lede">Patterns for the dive inside the quark: cellular automata that <b>fill the plane</b> instead of
+      floating a few gliders on black. Pick a family and a preset, colour it as a world (background, middle, creature),
+      and turn the <b>magnifier</b> up to see what the zoom will find when it dives into one of its shapes.
+      Lenia and MNCA run one rule at every point; Gray-Scott is two coupled fields.</p>
+  </header>
+  <div class="bench">
+    <div class="stage">
+      <canvas id="view" width="1280" height="720"></canvas>
+      <div class="status"><span>fps <b id="fps">–</b></span><span>steps <b id="steps">0</b></span><span>mean <b id="mean">–</b></span><span>grid <b id="gridinfo">–</b></span><span id="glerr" class="err"></span></div>
+    </div>
+    <div class="panel">
+      <h2>Family</h2>
+      <div class="presets" id="families"></div>
+      <h2>Presets</h2>
+      <div class="presets" id="presets"></div>
+      <div class="btns">
+        <button id="randomize" class="primary">Randomize</button>
+        <button id="mutate">Mutate</button>
+        <button id="reseed">Reseed</button>
+        <button id="pause">Pause</button>
+      </div>
+      <h2>Run</h2>
+      <div class="row"><label>speed</label><input id="speed" type="range" min="0" max="16" step="1" value="1"><output id="speedv">1</output></div>
+      <div class="row"><label>grid</label><select id="grid"><option>256</option><option selected>512</option><option>768</option><option>1024</option></select><span></span></div>
+      <div class="row"><label>magnify</label><input id="zoom" type="range" min="0" max="5" step="0.01" value="0"><output id="zoomv">1×</output></div>
+      <div class="row"><label>soften</label><input id="soften" type="range" min="0" max="3" step="0.05" value="0"><output id="softenv">0</output></div>
+      <div class="row"><label>relief</label><input id="relief" type="range" min="0" max="2" step="0.01" value="0.35"><output id="reliefv">0.35</output></div>
+      <div class="row"><label>contrast</label><input id="gamma" type="range" min="0.4" max="2.5" step="0.01" value="1"><output id="gammav">1.00</output></div>
+      <h2>World colours</h2>
+      <div class="swatches" id="palettes"></div>
+      <div class="colors">low <input type="color" id="c0"> mid <input type="color" id="c1"> high <input type="color" id="c2"></div>
+      <h2>Rule</h2>
+      <textarea id="json" spellcheck="false"></textarea>
+      <div class="btns"><button id="apply">Apply</button><button id="copy">Copy JSON</button><button id="png">Save PNG</button></div>
+      <p class="note">Drag the picture to pan when magnified. The rule JSON is what the zoom tool needs to run the
+        same world; Lenia: kernel radius <code>R</code> in cells, ring <code>peaks</code>, growth <code>mu</code>,
+        <code>sigma</code>, step <code>dt</code>. MNCA: ring averages in <code>[rin, rout)</code>, each rule adds
+        <code>d</code> when the average is in <code>[lo, hi]</code>. Gray-Scott: feed <code>F</code>, kill <code>k</code>.</p>
+    </div>
+  </div>
+</div>
+<script>
+'use strict';
+// ---------- presets ----------
+// Lenia and MNCA: winners of a random search (128² periodic grid, scored for mean in (0.12, 0.88),
+// spatial structure under ~16 cells, still changing after 300-400 steps). Named by their look.
+const PRESETS = {
+  lenia: [
+    { name: 'Labyrinth', R: 16, peaks: [1], mu: 0.423, sigma: 0.0727, dt: 0.5 },
+    { name: 'Labyrinth, wide', R: 15, peaks: [1], mu: 0.404, sigma: 0.0973, dt: 0.5 },
+    { name: 'Dot lattice', R: 11, peaks: [0.543, 1], mu: 0.1839, sigma: 0.066, dt: 0.5 },
+    { name: 'Worm maze', R: 13, peaks: [0.283, 1, 0.42], mu: 0.3267, sigma: 0.1055, dt: 0.5 },
+    { name: 'Cell net', R: 17, peaks: [0.271, 1], mu: 0.3791, sigma: 0.0424, dt: 0.1 },
+    { name: 'Stripes and blobs', R: 19, peaks: [1, 0.475, 0.334], mu: 0.3733, sigma: 0.1032, dt: 0.5 },
+    { name: 'Dots and blobs', R: 18, peaks: [1], mu: 0.1231, sigma: 0.0454, dt: 0.5 },
+    { name: 'Worms, slow', R: 17, peaks: [1], mu: 0.4375, sigma: 0.051, dt: 0.2 },
+    { name: 'Soup, ringed', R: 10, peaks: [1, 0.937], mu: 0.425, sigma: 0.0833, dt: 0.5 },
+    { name: 'Soup', R: 13, peaks: [0.413, 1, 0.442], mu: 0.2716, sigma: 0.0998, dt: 0.5 },
+    { name: 'Soup, soft', R: 18, peaks: [0.777, 1, 0.597], mu: 0.2047, sigma: 0.0991, dt: 0.5 },
+    { name: 'Coral rings', R: 8, peaks: [0.478, 1, 0.499], mu: 0.4167, sigma: 0.0717, dt: 0.5 },
+    { name: 'Bubbles', R: 15, peaks: [0.975, 1, 0.616], mu: 0.3793, sigma: 0.0837, dt: 0.5 },
+    { name: 'Big rings', R: 19, peaks: [1, 0.947], mu: 0.4075, sigma: 0.085, dt: 0.5 },
+    { name: 'Soup, dark', R: 13, peaks: [0.618, 1, 0.695], mu: 0.1418, sigma: 0.0987, dt: 0.5 },
+    { name: 'Soft bubbles', R: 16, peaks: [1], mu: 0.1131, sigma: 0.0989, dt: 0.5 },
+  ],
+  mnca: [
+    { name: 'Wavy cells', rings: [{ rin: 5.67, rout: 7.17, rules: [[0.812, 1, 0.175], [0.963, 1, -0.268]] }, { rin: 15.02, rout: 16.52, rules: [[0.475, 0.693, -0.218], [0.222, 0.424, 0.245], [0.471, 0.733, 0.14]] }] },
+    { name: 'Fingerprint', rings: [{ rin: 2.14, rout: 11.58, rules: [[0.279, 0.439, 0.097], [0.37, 0.659, 0.187], [0.565, 0.777, 0.241]] }, { rin: 19.3, rout: 20.8, rules: [[0.129, 0.217, 0.064]] }, { rin: 22.35, rout: 23.85, rules: [[0.014, 0.126, 0.186], [0.066, 0.163, 0.034], [0.56, 0.786, -0.283]] }] },
+    { name: 'Cells', rings: [{ rin: 2.91, rout: 7.25, rules: [[0.926, 1, -0.133], [0.897, 1, -0.286], [0.443, 0.71, 0.159]] }, { rin: 8.9, rout: 10.92, rules: [[0.24, 0.413, 0.069], [0.677, 0.716, -0.228], [0.506, 0.71, 0.166]] }, { rin: 11.15, rout: 12.65, rules: [[0.352, 0.524, -0.216], [0.687, 0.844, -0.084], [0.317, 0.573, -0.063]] }] },
+    { name: 'Net', rings: [{ rin: 7.94, rout: 11.99, rules: [[0.479, 0.669, -0.209]] }, { rin: 15.79, rout: 18.85, rules: [[0.932, 1, 0.214]] }, { rin: 19.46, rout: 21.89, rules: [[0.443, 0.583, 0.266], [0.207, 0.281, -0.249], [0.168, 0.333, -0.058]] }] },
+    { name: 'Coral net', rings: [{ rin: 1.27, rout: 2.77, rules: [[0.502, 0.535, -0.171]] }, { rin: 5.02, rout: 6.52, rules: [[0.147, 0.324, -0.252], [0.888, 1, -0.037], [0.51, 0.605, 0.056]] }, { rin: 10.62, rout: 12.12, rules: [[0.916, 1, -0.149], [0.995, 1, -0.135], [0.346, 0.597, 0.049]] }, { rin: 15.23, rout: 18.4, rules: [[0.525, 0.586, -0.215], [0.083, 0.145, 0.114], [0.776, 0.844, -0.217]] }] },
+    { name: 'Cells and stripes', rings: [{ rin: 5.35, rout: 6.85, rules: [[0.877, 0.989, 0.201]] }, { rin: 6.99, rout: 8.87, rules: [[0.399, 0.601, -0.133]] }, { rin: 10.18, rout: 18.89, rules: [[0.791, 0.992, -0.3], [0.422, 0.516, -0.229], [0.769, 0.946, 0.227]] }, { rin: 21.14, rout: 23.3, rules: [[0.198, 0.436, 0.282], [0.312, 0.595, 0.067], [0.729, 0.898, 0.16]] }] },
+    { name: 'Cell walls', rings: [{ rin: 3.25, rout: 5.79, rules: [[0.988, 1, 0.294]] }, { rin: 8.75, rout: 10.25, rules: [[0.633, 0.819, 0.19], [0.362, 0.583, 0.198], [0.425, 0.547, 0.037]] }, { rin: 9.05, rout: 15.87, rules: [[0.419, 0.452, 0.048], [0.399, 0.543, -0.273]] }, { rin: 17.56, rout: 19.57, rules: [[0.969, 1, 0.185], [0.513, 0.716, -0.096]] }] },
+    { name: 'Worms and cells', rings: [{ rin: 1.16, rout: 6.03, rules: [[0.933, 1, -0.245]] }, { rin: 7.57, rout: 13.7, rules: [[0.521, 0.714, -0.264], [0.423, 0.669, 0.037]] }, { rin: 19.97, rout: 21.78, rules: [[0.255, 0.376, 0.189], [0.586, 0.855, -0.161], [0.553, 0.766, -0.03]] }] },
+    { name: 'Coral', rings: [{ rin: 11.25, rout: 18.39, rules: [[0.391, 0.568, 0.201], [0.488, 0.582, -0.247]] }, { rin: 20.18, rout: 21.68, rules: [[0.818, 0.944, 0.183]] }, { rin: 23.02, rout: 24.52, rules: [[0.435, 0.632, -0.126]] }] },
+    { name: 'Tissue', rings: [{ rin: 1.8, rout: 5.08, rules: [[0.441, 0.677, -0.038], [0.87, 1, -0.104]] }, { rin: 6.21, rout: 8.86, rules: [[0.064, 0.131, 0.279], [0.819, 1, -0.179], [0.893, 0.94, 0.177]] }, { rin: 12.41, rout: 17.68, rules: [[0.488, 0.758, 0.19], [0.576, 0.856, -0.24]] }, { rin: 18.46, rout: 22.3, rules: [[0.396, 0.596, 0.137], [0.054, 0.331, 0.229], [0.051, 0.345, 0.262]] }] },
+    { name: 'Ribbed worms', rings: [{ rin: 1.82, rout: 7.23, rules: [[0.812, 0.865, -0.168], [0.749, 0.781, -0.178], [0.559, 0.824, -0.1]] }, { rin: 10.9, rout: 15.65, rules: [[0.428, 0.592, -0.179], [0.776, 0.843, 0.141]] }, { rin: 16.09, rout: 17.59, rules: [[0.455, 0.506, -0.069], [0.16, 0.325, 0.162], [0.224, 0.517, -0.078]] }] },
+    { name: 'Ringed dots', rings: [{ rin: 1.08, rout: 3.4, rules: [[0.33, 0.571, 0.11]] }, { rin: 10.73, rout: 12.55, rules: [[0.302, 0.541, -0.294], [0.371, 0.614, -0.241], [0.13, 0.213, -0.237]] }, { rin: 13.86, rout: 17.03, rules: [[0.038, 0.268, 0.152], [0.158, 0.421, -0.245]] }, { rin: 17.96, rout: 21.37, rules: [[0.894, 1, -0.176], [0.556, 0.594, 0.228]] }] },
+    { name: 'Diamond cells', rings: [{ rin: 4.81, rout: 10.49, rules: [[0.441, 0.735, 0.144]] }, { rin: 10.78, rout: 16.59, rules: [[0.579, 0.791, -0.169], [0.739, 0.799, -0.025], [0.183, 0.248, 0.082]] }, { rin: 19.69, rout: 21.19, rules: [[0.523, 0.752, 0.255], [0.01, 0.3, 0.173]] }, { rin: 22.49, rout: 23.99, rules: [[0.262, 0.354, -0.111]] }] },
+    { name: 'Coral, fine', rings: [{ rin: 3.64, rout: 5.14, rules: [[0.642, 0.678, -0.205], [0.241, 0.417, -0.23]] }, { rin: 11.14, rout: 17.67, rules: [[0.244, 0.419, 0.064]] }, { rin: 20.37, rout: 21.87, rules: [[0.537, 0.8, -0.051]] }] },
+    { name: 'Ringed cells', rings: [{ rin: 5.94, rout: 8.62, rules: [[0.702, 0.928, 0.03], [0.223, 0.372, 0.168], [0.603, 0.837, 0.216]] }, { rin: 11.04, rout: 12.54, rules: [[0.843, 0.88, -0.064], [0.307, 0.592, 0.185], [0.179, 0.279, -0.284]] }, { rin: 13.1, rout: 14.6, rules: [[0.345, 0.44, -0.272]] }, { rin: 16.46, rout: 22.63, rules: [[0.317, 0.515, -0.244]] }] },
+    { name: 'Worms', rings: [{ rin: 7.97, rout: 12.26, rules: [[0.07, 0.281, 0.21], [0.27, 0.551, -0.198]] }, { rin: 15.22, rout: 23.76, rules: [[0.312, 0.409, -0.227]] }] },
+    { name: 'Blobs', rings: [{ rin: 3.4, rout: 4.9, rules: [[0.337, 0.52, 0.242], [0.188, 0.342, -0.094]] }, { rin: 8.45, rout: 9.95, rules: [[0.53, 0.609, 0.078], [0.131, 0.391, -0.219], [0.217, 0.373, 0.094]] }, { rin: 12.25, rout: 23.3, rules: [[0.668, 0.913, 0.299], [0.59, 0.852, -0.264], [0.908, 0.979, -0.155]] }] },
+    { name: 'Lace', rings: [{ rin: 6.41, rout: 13.8, rules: [[0.106, 0.215, 0.106]] }, { rin: 14.54, rout: 16.04, rules: [[0.568, 0.723, 0.296], [0.414, 0.648, -0.166]] }, { rin: 15.22, rout: 16.72, rules: [[0.72, 0.978, -0.083], [0.232, 0.516, 0.201], [0.488, 0.59, -0.276]] }, { rin: 18.04, rout: 19.54, rules: [[0.363, 0.525, -0.034], [0.926, 1, 0.232], [0.047, 0.204, -0.295]] }] },
+    { name: 'Waves', rings: [{ rin: 4.95, rout: 14.23, rules: [[0.107, 0.405, -0.104]] }, { rin: 15.65, rout: 20.22, rules: [[0.973, 1, -0.235], [0.686, 0.843, 0.048], [0.868, 1, -0.164]] }, { rin: 23.11, rout: 24.61, rules: [[0.638, 0.811, 0.299], [0.425, 0.667, -0.149], [0.279, 0.464, 0.186]] }] },
+    { name: 'Bands', rings: [{ rin: 1.98, rout: 3.48, rules: [[0.352, 0.559, -0.102], [0.219, 0.417, -0.228]] }, { rin: 3.77, rout: 6.92, rules: [[0.45, 0.534, -0.178], [0.347, 0.545, -0.107]] }, { rin: 11.89, rout: 23.93, rules: [[0.963, 1, 0.163], [0.208, 0.429, 0.275]] }] },
+  ],
+  // Pearson's regimes, with the diffusion constants of the common WebGL implementations.
+  gs: [
+    { name: 'Coral', F: 0.0545, k: 0.062 }, { name: 'Fingerprint', F: 0.037, k: 0.06 }, { name: 'Mitosis', F: 0.0367, k: 0.0649 },
+    { name: 'Worms', F: 0.078, k: 0.061 }, { name: 'Mazes', F: 0.029, k: 0.057 }, { name: 'Holes', F: 0.039, k: 0.058 },
+    { name: 'Chaos', F: 0.026, k: 0.051 }, { name: 'Chaos and holes', F: 0.034, k: 0.056 }, { name: 'Moving spots', F: 0.014, k: 0.054 },
+    { name: 'Spots and loops', F: 0.018, k: 0.051 }, { name: 'Waves', F: 0.014, k: 0.045 }, { name: 'U-skate world', F: 0.062, k: 0.06093 },
+  ],
+};
+const FAMILY_NAMES = { lenia: 'Lenia', mnca: 'MNCA', gs: 'Gray-Scott' };
+const PALETTES = [
+  { name: 'blue, red worms', c: ['#0d2a6b', '#2f6fd6', '#e8473c'] },
+  { name: 'red, black', c: ['#b42a22', '#e0553f', '#120607'] },
+  { name: 'grey field', c: ['#2a2a2e', '#8e8e94', '#ececec'] },
+  { name: 'black, blue', c: ['#05060a', '#1a3fa0', '#9fd1ff'] },
+  { name: 'ink', c: ['#f2efe8', '#8a8d9c', '#0b0d14'] },
+  { name: 'amber', c: ['#1b0f05', '#c8641e', '#ffd98a'] },
+  { name: 'teal, coral', c: ['#073b3a', '#1f9e8f', '#ff8a5b'] },
+  { name: 'mono', c: ['#000000', '#808080', '#ffffff'] },
+];
+
+// ---------- random candidates (the search's generators) ----------
+let seed = 1;
+function rand() { // mulberry32
+  seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+  let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+  return ((t ^ t >>> 14) >>> 0) / 4294967296;
+}
+const U = (a, b) => a + rand() * (b - a);
+const I = (a, b) => Math.floor(U(a, b));
+const r3 = (x) => Math.round(x * 1000) / 1000;
+function randomRule(fam) {
+  if (fam === 'lenia') {
+    const n = I(1, 4); const peaks = Array.from({ length: n }, () => r3(U(0.2, 1))); peaks[I(0, n)] = 1;
+    return { name: 'random', R: I(8, 20), peaks, mu: r3(U(0.08, 0.5)), sigma: r3(U(0.008, 0.12)), dt: [0.1, 0.2, 0.5][I(0, 3)] };
+  }
+  if (fam === 'mnca') {
+    const nr = I(2, 5); const edges = Array.from({ length: nr * 2 }, () => U(1, 24)).sort((a, b) => a - b);
+    const rings = [];
+    for (let i = 0; i < nr; i++) {
+      let rin = edges[2 * i], rout = edges[2 * i + 1]; if (rout - rin < 1.5) rout = rin + 1.5;
+      const rules = Array.from({ length: I(1, 4) }, () => { const lo = U(0, 1); const hi = Math.min(1, lo + U(0.03, 0.3)); return [r3(lo), r3(hi), r3((rand() < 0.5 ? -1 : 1) * U(0.02, 0.3))]; });
+      rings.push({ rin: Math.round(rin * 100) / 100, rout: Math.round(rout * 100) / 100, rules });
+    }
+    return { name: 'random', rings };
+  }
+  return { name: 'random', F: r3(U(0.01, 0.08)), k: r3(U(0.045, 0.066)) };
+}
+function mutateRule(fam, p) {
+  const q = JSON.parse(JSON.stringify(p)); q.name = (p.name || 'rule') + ' ~';
+  const j = (x, s) => r3(x * (1 + (rand() - 0.5) * s));
+  if (fam === 'lenia') { q.mu = j(q.mu, 0.1); q.sigma = j(q.sigma, 0.2); q.peaks = q.peaks.map(v => Math.min(1, j(v, 0.2))); }
+  else if (fam === 'mnca') { for (const ring of q.rings) for (const r of ring.rules) { r[0] = r3(Math.min(1, Math.max(0, r[0] + (rand() - 0.5) * 0.04))); r[1] = r3(Math.min(1, Math.max(r[0], r[1] + (rand() - 0.5) * 0.04))); r[2] = j(r[2], 0.3); } }
+  else { q.F = j(q.F, 0.08); q.k = j(q.k, 0.04); }
+  return q;
+}
+
+// ---------- WebGL ----------
+const canvas = document.getElementById('view');
+const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true, antialias: false });
+const glerr = document.getElementById('glerr');
+if (!gl) glerr.textContent = 'WebGL2 is not available in this browser.';
+const extF = gl && gl.getExtension('EXT_color_buffer_float');
+if (gl && !extF) glerr.textContent = 'EXT_color_buffer_float missing: the simulation needs float textures.';
+
+const VS = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+// Lenia and MNCA in one pass: the kernel texture holds, per offset, the normalised weight of
+// each of up to four rings (Lenia uses only the first), so one loop gives all ring averages.
+const SIM_FS = `#version 300 es
+precision highp float; precision highp int; precision highp sampler2D;
+uniform sampler2D uState, uKernel; uniform ivec2 uSize; uniform int uR, uFamily, uNRules[4];
+uniform float uMu, uSigma, uDt; uniform vec3 uRules[12];
+out vec4 o;
+void main(){
+  ivec2 c = ivec2(gl_FragCoord.xy);
+  vec4 acc = vec4(0.0);
+  for (int dy = -uR; dy <= uR; dy++) for (int dx = -uR; dx <= uR; dx++) {
+    vec4 w = texelFetch(uKernel, ivec2(dx + uR, dy + uR), 0);
+    ivec2 q = (c + ivec2(dx, dy) + uSize) % uSize;
+    acc += w * texelFetch(uState, q, 0).r;
+  }
+  float a = texelFetch(uState, c, 0).r;
+  if (uFamily == 0) {
+    float g = 2.0 * exp(-(acc.x - uMu) * (acc.x - uMu) / (2.0 * uSigma * uSigma)) - 1.0;
+    a = clamp(a + uDt * g, 0.0, 1.0);
+  } else {
+    float d = 0.0;
+    for (int r = 0; r < 4; r++) { float u = acc[r]; for (int j = 0; j < 3; j++) { if (j < uNRules[r]) { vec3 rule = uRules[r * 3 + j]; if (u >= rule.x && u <= rule.y) d += rule.z; } } }
+    a = clamp(a + d, 0.0, 1.0);
+  }
+  o = vec4(a, 0.0, 0.0, 1.0);
+}`;
+const GS_FS = `#version 300 es
+precision highp float; precision highp sampler2D;
+uniform sampler2D uState; uniform ivec2 uSize; uniform float uF, uK;
+out vec4 o;
+vec2 at(ivec2 c, int dx, int dy){ return texelFetch(uState, (c + ivec2(dx, dy) + uSize) % uSize, 0).rg; }
+void main(){
+  ivec2 c = ivec2(gl_FragCoord.xy);
+  vec2 s = at(c, 0, 0);
+  vec2 lap = 0.2 * (at(c, 1, 0) + at(c, -1, 0) + at(c, 0, 1) + at(c, 0, -1))
+           + 0.05 * (at(c, 1, 1) + at(c, -1, 1) + at(c, 1, -1) + at(c, -1, -1)) - s;
+  float uvv = s.x * s.y * s.y;
+  float u = s.x + 0.2097 * lap.x - uvv + uF * (1.0 - s.x);
+  float v = s.y + 0.105 * lap.y + uvv - (uF + uK) * s.y;
+  o = vec4(clamp(u, 0.0, 1.0), clamp(v, 0.0, 1.0), 0.0, 1.0);
+}`;
+// Display: a window on the periodic grid, Catmull-Rom resampled (what a zoom-in sees), three
+// colour stops and a little relief from the gradient.
+const VIEW_FS = `#version 300 es
+precision highp float; precision highp sampler2D;
+uniform sampler2D uState; uniform ivec2 uSize; uniform vec2 uRes, uCenter; uniform float uZoom, uRelief, uGamma, uIsGS, uSoften;
+uniform vec3 uC0, uC1, uC2;
+out vec4 o;
+float val(ivec2 c){ vec2 s = texelFetch(uState, (c % uSize + uSize) % uSize, 0).rg; return uIsGS > 0.5 ? clamp(s.y * 2.5, 0.0, 1.0) : s.x; }
+float cr(float a, float b, float c, float d, float t){ return 0.5 * (2.0*b + (c - a)*t + (2.0*a - 5.0*b + 4.0*c - d)*t*t + (3.0*b - a - 3.0*c + d)*t*t*t); }
+float sample2(vec2 p){
+  p -= 0.5; ivec2 i = ivec2(floor(p)); vec2 f = p - floor(p);
+  float rows[4];
+  for (int y = 0; y < 4; y++) rows[y] = cr(val(i + ivec2(-1, y - 1)), val(i + ivec2(0, y - 1)), val(i + ivec2(1, y - 1)), val(i + ivec2(2, y - 1)), f.x);
+  return clamp(cr(rows[0], rows[1], rows[2], rows[3], f.y), 0.0, 1.0);
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uRes;                      // 0..1 on screen
+  vec2 cells = uRes / uZoom;                             // grid cells shown; uZoom = screen pixels per cell
+  vec2 p = uCenter + (uv - 0.5) * cells;
+  float v = sample2(p);
+  if (uSoften > 0.0) { float h = uSoften; v = 0.4 * v + 0.15 * (sample2(p + vec2(h, 0.0)) + sample2(p - vec2(h, 0.0)) + sample2(p + vec2(0.0, h)) + sample2(p - vec2(0.0, h))); }
+  float e = 0.6 / uZoom;
+  float gx = sample2(p + vec2(e, 0.0)) - sample2(p - vec2(e, 0.0));
+  float gy = sample2(p + vec2(0.0, e)) - sample2(p - vec2(0.0, e));
+  v = pow(v, uGamma);
+  vec3 col = v < 0.5 ? mix(uC0, uC1, v * 2.0) : mix(uC1, uC2, v * 2.0 - 1.0);
+  float light = 1.0 + uRelief * (gx * 0.7 + gy * 0.7) * uZoom;
+  col *= clamp(light, 0.3, 1.8);
+  o = vec4(col, 1.0);
+}`;
+
+function compile(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+function program(fs) { const p = gl.createProgram(); gl.attachShader(p, compile(gl.VERTEX_SHADER, VS)); gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p; }
+let progSim, progGS, progView;
+try { if (gl && extF) { progSim = program(SIM_FS); progGS = program(GS_FS); progView = program(VIEW_FS); } } catch (e) { glerr.textContent = String(e.message || e); }
+const quad = gl && gl.createBuffer();
+if (gl) { gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW); }
+function bindQuad(p) { const loc = gl.getAttribLocation(p, 'p'); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0); }
+function makeTex(w, h, data) { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, w, h, 0, gl.RGBA, gl.FLOAT, data); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); return t; }
+
+// ---------- state ----------
+const S = { fam: 'mnca', rule: null, N: 512, tex: [], fbo: [], cur: 0, kernel: null, R: 1, steps: 0, paused: false, speed: 1, zoom: 1, center: [256, 256], relief: 0.35, gamma: 1, soften: 0, colors: PALETTES[0].c.slice(), presetIndex: 0 };
+const $ = (id) => document.getElementById(id);
+
+function buildKernel() {
+  const p = S.rule;
+  if (S.fam === 'gs') { S.R = 1; return; }
+  let R;
+  if (S.fam === 'lenia') R = p.R; else R = Math.ceil(Math.max(...p.rings.map(r => r.rout)));
+  R = Math.min(R, 40); S.R = R;
+  const W = 2 * R + 1, data = new Float32Array(W * W * 4), sums = [0, 0, 0, 0];
+  for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+    const rr = Math.sqrt(dx * dx + dy * dy), idx = ((dy + R) * W + (dx + R)) * 4;
+    if (S.fam === 'lenia') {
+      const r = rr / p.R; if (r >= 1) continue; const n = p.peaks.length; let k = 0;
+      for (let i = 0; i < n; i++) { const u = n * r - i; if (u >= 0 && u < 1) k += p.peaks[i] * Math.exp(4 - 1 / (u * (1 - u) + 1e-9)); }
+      data[idx] = k; sums[0] += k;
+    } else {
+      p.rings.forEach((ring, i) => { if (i < 4 && rr >= ring.rin && rr < ring.rout) { data[idx + i] = 1; sums[i]++; } });
+    }
+  }
+  for (let i = 0; i < 4; i++) if (sums[i] === 0) { sums[i] = 1; if (S.fam === 'mnca' && i < p.rings.length) data[(R * W + R) * 4 + i] = 1; }
+  for (let i = 0; i < data.length; i++) data[i] /= sums[i & 3];
+  if (S.kernel) gl.deleteTexture(S.kernel);
+  S.kernel = makeTex(W, W, data);
+}
+function reseed() {
+  const N = S.N, data = new Float32Array(N * N * 4);
+  if (S.fam === 'gs') {
+    // u = 1 everywhere, v in soft random patches: the fields need a foothold, not white noise.
+    const cells = 16, g = Array.from({ length: cells * cells }, () => rand());
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const gx = x / N * cells, gy = y / N * cells, x0 = Math.floor(gx), y0 = Math.floor(gy), fx = gx - x0, fy = gy - y0;
+      const v = (xx, yy) => g[((yy % cells) * cells) + (xx % cells)];
+      const h = v(x0, y0) * (1 - fx) * (1 - fy) + v(x0 + 1, y0) * fx * (1 - fy) + v(x0, y0 + 1) * (1 - fx) * fy + v(x0 + 1, y0 + 1) * fx * fy;
+      const i = (y * N + x) * 4; const on = h > 0.6 ? 1 : 0; data[i] = on ? 0.5 : 1; data[i + 1] = on ? 0.25 : 0; data[i + 3] = 1;
+    }
+  } else {
+    for (let i = 0; i < N * N; i++) { data[i * 4] = rand(); data[i * 4 + 3] = 1; }
+  }
+  S.tex.forEach(t => gl.deleteTexture(t)); S.fbo.forEach(f => gl.deleteFramebuffer(f));
+  S.tex = [makeTex(N, N, data), makeTex(N, N, data)];
+  S.fbo = S.tex.map(t => { const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0); return f; });
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  S.cur = 0; S.steps = 0; S.center = [N / 2, N / 2];
+  $('gridinfo').textContent = `${N}², R ${S.R}`;
+}
+function step() {
+  const N = S.N, src = S.cur, dst = 1 - S.cur;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, S.fbo[dst]); gl.viewport(0, 0, N, N);
+  const p = S.rule;
+  if (S.fam === 'gs') {
+    gl.useProgram(progGS); bindQuad(progGS);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, S.tex[src]); gl.uniform1i(gl.getUniformLocation(progGS, 'uState'), 0);
+    gl.uniform2i(gl.getUniformLocation(progGS, 'uSize'), N, N); gl.uniform1f(gl.getUniformLocation(progGS, 'uF'), p.F); gl.uniform1f(gl.getUniformLocation(progGS, 'uK'), p.k);
+  } else {
+    gl.useProgram(progSim); bindQuad(progSim);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, S.tex[src]); gl.uniform1i(gl.getUniformLocation(progSim, 'uState'), 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, S.kernel); gl.uniform1i(gl.getUniformLocation(progSim, 'uKernel'), 1);
+    gl.uniform2i(gl.getUniformLocation(progSim, 'uSize'), N, N); gl.uniform1i(gl.getUniformLocation(progSim, 'uR'), S.R);
+    gl.uniform1i(gl.getUniformLocation(progSim, 'uFamily'), S.fam === 'lenia' ? 0 : 1);
+    if (S.fam === 'lenia') { gl.uniform1f(gl.getUniformLocation(progSim, 'uMu'), p.mu); gl.uniform1f(gl.getUniformLocation(progSim, 'uSigma'), p.sigma); gl.uniform1f(gl.getUniformLocation(progSim, 'uDt'), p.dt); gl.uniform1iv(gl.getUniformLocation(progSim, 'uNRules'), [0, 0, 0, 0]); }
+    else {
+      const n = [0, 0, 0, 0], rules = new Float32Array(36);
+      p.rings.slice(0, 4).forEach((ring, i) => { n[i] = Math.min(3, ring.rules.length); ring.rules.slice(0, 3).forEach((r, j) => rules.set(r, (i * 3 + j) * 3)); });
+      gl.uniform1iv(gl.getUniformLocation(progSim, 'uNRules'), n); gl.uniform3fv(gl.getUniformLocation(progSim, 'uRules'), rules);
+    }
+  }
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  S.cur = dst; S.steps++;
+}
+function hex(c) { return [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16) / 255); }
+function draw() {
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.useProgram(progView); bindQuad(progView);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, S.tex[S.cur]); gl.uniform1i(gl.getUniformLocation(progView, 'uState'), 0);
+  gl.uniform2i(gl.getUniformLocation(progView, 'uSize'), S.N, S.N);
+  gl.uniform2f(gl.getUniformLocation(progView, 'uRes'), canvas.width, canvas.height);
+  gl.uniform2f(gl.getUniformLocation(progView, 'uCenter'), S.center[0], S.center[1]);
+  gl.uniform1f(gl.getUniformLocation(progView, 'uZoom'), S.zoom * canvas.width / S.N); // magnify 1× = the grid's width fills the picture
+  gl.uniform1f(gl.getUniformLocation(progView, 'uSoften'), S.soften);
+  gl.uniform1f(gl.getUniformLocation(progView, 'uRelief'), S.relief); gl.uniform1f(gl.getUniformLocation(progView, 'uGamma'), S.gamma);
+  gl.uniform1f(gl.getUniformLocation(progView, 'uIsGS'), S.fam === 'gs' ? 1 : 0);
+  const [a, b, c] = S.colors.map(hex);
+  gl.uniform3f(gl.getUniformLocation(progView, 'uC0'), ...a); gl.uniform3f(gl.getUniformLocation(progView, 'uC1'), ...b); gl.uniform3f(gl.getUniformLocation(progView, 'uC2'), ...c);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+// mean of the grid, for the status line (read back a 64² sample)
+const meanBuf = new Float32Array(64 * 64 * 4);
+function readMean() {
+  gl.bindFramebuffer(gl.FRAMEBUFFER, S.fbo[S.cur]); gl.readPixels(0, 0, 64, 64, gl.RGBA, gl.FLOAT, meanBuf); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  let s = 0; for (let i = 0; i < 64 * 64; i++) s += S.fam === 'gs' ? meanBuf[i * 4 + 1] : meanBuf[i * 4]; return s / 4096;
+}
+
+// ---------- UI ----------
+function setRule(fam, rule, keepSeed) {
+  S.fam = fam; S.rule = JSON.parse(JSON.stringify(rule));
+  $('json').value = JSON.stringify({ family: fam, ...S.rule }, null, 1).replace(/\n\s*(?=[\d\-\]])/g, ' ').replace(/\[\s+/g, '[');
+  if (!keepSeed) seed = (Math.random() * 2 ** 31) | 0;
+  buildKernel(); reseed();
+  if (fam === 'gs' && S.speed < 6) { S.speed = 8; $('speed').value = 8; $('speedv').textContent = 8; }
+  renderPresetButtons();
+}
+function renderPresetButtons() {
+  const fams = $('families'); fams.innerHTML = '';
+  for (const f of Object.keys(PRESETS)) { const b = document.createElement('button'); b.textContent = FAMILY_NAMES[f]; b.className = f === S.fam ? 'on' : ''; b.onclick = () => { S.presetIndex = 0; setRule(f, PRESETS[f][0]); }; fams.appendChild(b); }
+  const list = $('presets'); list.innerHTML = '';
+  PRESETS[S.fam].forEach((p, i) => { const b = document.createElement('button'); b.textContent = p.name; b.className = (S.rule && S.rule.name === p.name) ? 'on' : ''; b.onclick = () => { S.presetIndex = i; setRule(S.fam, p); }; list.appendChild(b); });
+}
+function renderPalettes() {
+  const el = $('palettes'); el.innerHTML = '';
+  PALETTES.forEach(p => { const b = document.createElement('button'); b.title = p.name; b.style.background = `linear-gradient(90deg, ${p.c[0]}, ${p.c[1]}, ${p.c[2]})`; b.className = p.c.join() === S.colors.join() ? 'on' : ''; b.onclick = () => { S.colors = p.c.slice(); syncColors(); renderPalettes(); }; el.appendChild(b); });
+}
+function syncColors() { ['c0', 'c1', 'c2'].forEach((id, i) => $(id).value = S.colors[i]); }
+['c0', 'c1', 'c2'].forEach((id, i) => $(id).oninput = (e) => { S.colors[i] = e.target.value; renderPalettes(); });
+$('randomize').onclick = () => setRule(S.fam, randomRule(S.fam));
+$('mutate').onclick = () => setRule(S.fam, mutateRule(S.fam, S.rule), true);
+$('reseed').onclick = () => { seed = (Math.random() * 2 ** 31) | 0; reseed(); };
+$('pause').onclick = () => { S.paused = !S.paused; $('pause').textContent = S.paused ? 'Run' : 'Pause'; };
+$('speed').oninput = (e) => { S.speed = +e.target.value; $('speedv').textContent = S.speed; };
+$('zoom').oninput = (e) => { S.zoom = Math.pow(2, +e.target.value); $('zoomv').textContent = S.zoom.toFixed(1) + '×'; };
+$('soften').oninput = (e) => { S.soften = +e.target.value; $('softenv').textContent = S.soften.toFixed(2); };
+$('relief').oninput = (e) => { S.relief = +e.target.value; $('reliefv').textContent = S.relief.toFixed(2); };
+$('gamma').oninput = (e) => { S.gamma = +e.target.value; $('gammav').textContent = S.gamma.toFixed(2); };
+$('grid').onchange = (e) => { S.N = +e.target.value; reseed(); };
+$('apply').onclick = () => { try { const o = JSON.parse($('json').value); const fam = o.family || S.fam; delete o.family; setRule(fam, o, true); glerr.textContent = ''; } catch (e) { glerr.textContent = 'Rule JSON: ' + e.message; } };
+$('copy').onclick = () => navigator.clipboard && navigator.clipboard.writeText($('json').value);
+$('png').onclick = () => { draw(); const a = document.createElement('a'); a.download = `${S.fam}-${(S.rule.name || 'rule').replace(/\W+/g, '-')}.png`; a.href = canvas.toDataURL('image/png'); a.click(); };
+// drag to pan
+let drag = null;
+canvas.addEventListener('pointerdown', (e) => { drag = [e.clientX, e.clientY, ...S.center]; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', (e) => { if (!drag) return; const k = S.N / canvas.clientWidth / S.zoom; S.center = [drag[2] - (e.clientX - drag[0]) * k, drag[3] + (e.clientY - drag[1]) * k]; });
+canvas.addEventListener('pointerup', () => { drag = null; });
+canvas.addEventListener('wheel', (e) => { e.preventDefault(); const z = Math.max(0, Math.min(5, Math.log2(S.zoom) - e.deltaY * 0.002)); $('zoom').value = z; $('zoom').oninput({ target: $('zoom') }); }, { passive: false });
+
+// URL state: ?family=mnca&preset=Coral&palette=1
+const q = new URLSearchParams(location.search);
+const fam0 = PRESETS[q.get('family')] ? q.get('family') : 'mnca';
+const preset0 = PRESETS[fam0].find(p => p.name === q.get('preset')) || PRESETS[fam0][0];
+if (q.get('palette')) S.colors = (PALETTES[+q.get('palette')] || PALETTES[0]).c.slice();
+if (q.get('seed')) seed = +q.get('seed');
+if (q.get('grid')) { S.N = +q.get('grid'); $('grid').value = S.N; }
+syncColors(); renderPalettes();
+if (progView) setRule(fam0, preset0, !!q.get('seed'));
+
+let last = performance.now(), frames = 0;
+function loop(now) {
+  if (progView) {
+    if (!S.paused) for (let i = 0; i < S.speed; i++) step();
+    draw();
+    frames++;
+    if (now - last > 500) { $('fps').textContent = Math.round(frames * 1000 / (now - last)); frames = 0; last = now; $('steps').textContent = S.steps; $('mean').textContent = readMean().toFixed(3); }
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+window.__bench = S; // for scripted checks
+window.__run = (n) => { for (let i = 0; i < n; i++) step(); draw(); return readMean(); };
+window.__set = (fam, name, pal) => { if (pal !== undefined) S.colors = PALETTES[pal].c.slice(); setRule(fam, PRESETS[fam].find(p => p.name === name)); };
+</script>
+</body>
+</html>

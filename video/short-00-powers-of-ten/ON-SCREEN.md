@@ -54,6 +54,8 @@ timeline doesn't have yet.
   the sequoias at 1:27.
 - **No pollen**: the narration goes ladybug → dew → amoeba (the pollen line was left out).
 - **The atom's empty space** (2:04): the zoom between the electron cloud and the nucleus.
+- **The quark patterns to the terrain** (2:15 to 2:37): the plan for the dive, as a chain of plane-filling
+  automata, and the bench to pick them: `video/plans/inside-the-quark.md`.
 
 ## When this opens long video 3
 The plan (the author, 2026-11-03): the CMB-to-Planck zoom opens long video 3 (now videos 6 and 7 joined,
