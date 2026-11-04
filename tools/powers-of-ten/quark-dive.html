@@ -44,8 +44,8 @@ textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.
     <h1>Quark dive</h1>
     <p class="lede">The dive from the quarks to the Planck grid as a <b>chain of worlds</b>: each world's centre third holds
       the next, three times finer, with its own rule. In <b>sum</b> mode the child is seeded as noise shaped by the
-      parent's state and then fed by the parent's changes (brightening adds mass as noise, fading dims it), simulating
-      from the start; the picture is the sum of the worlds, and a world is dropped once it is too magnified to matter.
+      parent's state and then fed by the parent's state at every point (mass comes in as noise where the parent has
+      mass, and is dimmed where it has none), simulating from the start; the picture is the sum of the worlds, and a world is dropped once it is too magnified to matter.
       In <b>paint</b> mode the child is painted under a density clamp and promoted when it fills the frame. Edit the
       chain below (rules from the dense-automata bench), then Restart.</p>
   </header>
@@ -143,10 +143,11 @@ void main(){
     float lo = uSL[0] * (1.0 - sm) + uSL[2] * sm, hi = uSL[1] * (1.0 - sm) + uSL[3] * sm;
     float s = s1(n, lo, uSL[4]) * (1.0 - s1(n, hi, uSL[4])); a = mix(a, s, uRate); }
   if (uHasParent == 1 && uLambda > 0.0) { float P = parentAt(uRect.xy + cuv * uRect.zw); a += uLambda * (mix(uDens.x, uDens.y, P) - blur); }
-  if (uFeed == 1) { // the parent's change at this point: brightening adds mass as noise, fading dims
-    vec2 puv = uRect.xy + cuv * uRect.zw; float d = at(uParent, puv) - at(uParentPrev, puv);
-    a += uAddGain * max(d, 0.0) * hash(vec2(c) * 1.7 + uTime);
-    a *= 1.0 - clamp(uDimGain * max(-d, 0.0), 0.0, 1.0);
+  if (uFeed == 1) { // by the parent's state at this point, every step: mass comes in as noise where the
+    // parent has mass, and is dimmed where it has none (so the child's rule can't spread into empty space)
+    float P = parentAt(uRect.xy + cuv * uRect.zw);
+    a += uAddGain * 0.02 * P * hash(vec2(c) * 1.7 + uTime);
+    a *= 1.0 - clamp(uDimGain * 0.3 * (1.0 - P), 0.0, 1.0);
   }
   o = vec4(clamp(a, 0.0, 1.0), 0.0, 0.0, 1.0);
 }`;
@@ -437,6 +438,7 @@ function runLevel(L, parent, feed) {
 function seedChild(i) {
   const parent = S.levels[i - 1]; const L = makeLevel(i); L.rect = chooseRect(parent);
   L.rate = 1; L.lambda = 0; stepLevel(L, parent, { init: true });
+  for (let k = 0; k < 12; k++) stepLevel(L, parent, { feed: true });   // a few steps, so it starts as texture, not noise
   return L;
 }
 function restart() {
@@ -494,8 +496,8 @@ function advanceSum(Lidx, f) {
   // trickles to nothing one level later; the child runs full (it is small and fast)
   const down = 1 - 0.85 * ease(Math.max(0, Math.min(1, (f - 0.4) / 0.6)));
   if (alive(grand)) { grand.rate = 0.15 * (1 - ease(f)); grand.lambda = 0; runLevel(grand, null, false); }
-  cur.rate = down; cur.lambda = 0; runLevel(cur, alive(grand) ? grand : null, alive(grand) && grand.stepped > 0);
-  if (child) { child.rate = 1; child.lambda = 0; runLevel(child, cur, cur.stepped > 0); }
+  cur.rate = down; cur.lambda = 0; runLevel(cur, alive(grand) ? grand : null, alive(grand));
+  if (child) { child.rate = 1; child.lambda = 0; runLevel(child, cur, true); }
   return { Lidx, f };
 }
 function drawSum(Lidx, f) {

@@ -86,6 +86,20 @@ third gets painted. How the page does it:
 - Three seconds to twenty per level, grids 128 to 1024, the chain as editable JSON. `window.__advance(sec)`
   steps it deterministically at 60 fps for a frame-by-frame render. Slow on a software GPU; fine on a Mac.
 
+### The sum mode (the author's second plan, 2026-11-04, now the page's default)
+
+Simpler, and nothing is faked. The difference between two levels is only the rule (the seed just has to be
+alive and says where mass is). So: level A runs; its child B starts on A's centre third as **noise with A's
+state as its amplitude**, and simulates with its own rule from the start, invisibly small until the zoom
+resolves it. Every step B is **fed by A's state at each point**: where A has mass, a little noise comes in;
+where it has none, B is dimmed. (Feeding by A's *change* instead let B's rule colonise empty space from a
+front: dense rules spread. Dimming by state every step is what keeps B inside A's shapes.) The picture is the
+**sum** of the live worlds' colours, each by its accent (a slider blends toward "child over parent", which dark
+accents need: additive black is invisible). A level winds down to a trickle as it is magnified, trickles on
+one level further, and is then baked into the level above and dropped: "once the larger one is so large it
+barely makes a difference". No painting, no clamp, no promotion ramp, no pre-tint. The paint mode stays in the
+page for comparison.
+
 ## Still to do
 - Choose the chain for the video in the page (rules from the bench, accents, inness, density) and note it here.
 - Render the 22 seconds frame by frame (a script around `__advance`) and cut it into the zoom at 2:14.9.
