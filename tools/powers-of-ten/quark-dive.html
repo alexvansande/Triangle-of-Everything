@@ -387,32 +387,41 @@ function meanShift(buf, N, x, y, radii) {
   }
   return [x, y, sw];
 }
-// Where to put the child's square: on the densest blob of the parent near its middle, counting only
-// what is inside its ancestors' creatures (a box average of radius N/12 over the central half), or dead centre.
+// Where to put the child's square: on the densest box (radius N/12, counting only what is inside the
+// ancestors' creatures), then mean-shifted onto the mass itself. A plain centre of mass of a hollow ring is
+// its hole, and mean shift from there never moves (it is symmetric), so the search comes first.
+function denseSpot(buf, N, x0, y0, x1, y1, cx, cy, reach) {
+  const r = Math.round(N / 12), W = x1 - x0, H = y1 - y0;
+  const sat = new Float64Array((W + 1) * (H + 1));
+  for (let y = 1; y <= H; y++) { let row = 0; for (let x = 1; x <= W; x++) { row += buf[((y0 + y - 1) * N + x0 + x - 1) * 4]; sat[y * (W + 1) + x] = sat[(y - 1) * (W + 1) + x] + row; } }
+  let best = -1, bx = cx, by = cy;
+  for (let y = y0 + r; y < y1 - r; y += 2) for (let x = x0 + r; x < x1 - r; x += 2) {
+    const ax = x - x0, ay = y - y0;
+    const m = sat[(ay + r) * (W + 1) + ax + r] - sat[(ay - r) * (W + 1) + ax + r] - sat[(ay + r) * (W + 1) + ax - r] + sat[(ay - r) * (W + 1) + ax - r];
+    const score = m * (1 - 0.15 * Math.min(1, Math.hypot(x - cx, y - cy) / reach));
+    if (score > best) { best = score; bx = x; by = y; }
+  }
+  if (best <= 0) return null;
+  const [mx, my, sw] = meanShift(buf, N, bx, by, [N / 16, N / 24]);
+  return sw > 1e-3 ? [mx, my] : [bx, by];
+}
+function readScore(parent) {
+  const N = S.N, buf = new Float32Array(N * N * 4);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, scoreOf(parent)); gl.readPixels(0, 0, N, N, gl.RGBA, gl.FLOAT, buf); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  return buf;
+}
 function chooseRect(parent) {
   const N = S.N, w = N / 3;
   if (!S.aim) return [N / 3, N / 3, w, w];
-  const buf = new Float32Array(N * N * 4);
-  gl.bindFramebuffer(gl.FRAMEBUFFER, scoreOf(parent)); gl.readPixels(0, 0, N, N, gl.RGBA, gl.FLOAT, buf); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  const sat = new Float64Array((N + 1) * (N + 1));
-  for (let y = 1; y <= N; y++) { let row = 0; for (let x = 1; x <= N; x++) { row += buf[((y - 1) * N + x - 1) * 4]; sat[y * (N + 1) + x] = sat[(y - 1) * (N + 1) + x] + row; } }
-  const r = Math.round(N / 12); let best = -1, bx = N / 2, by = N / 2;
-  for (let y = N / 4; y <= 3 * N / 4; y += 2) for (let x = N / 4; x <= 3 * N / 4; x += 2) {
-    const x0 = x - r, x1 = x + r, y0 = y - r, y1 = y + r;
-    const s = sat[y1 * (N + 1) + x1] - sat[y0 * (N + 1) + x1] - sat[y1 * (N + 1) + x0] + sat[y0 * (N + 1) + x0];
-    const d = Math.hypot(x - N / 2, y - N / 2) / (N / 4); const score = s * (1 - 0.3 * d);
-    if (score > best) { best = score; bx = x; by = y; }
-  }
-  [bx, by] = meanShift(buf, N, bx, by, [N / 8, N / 12, N / 16]);   // then onto the dense spot itself
-  return [bx - w / 2, by - w / 2, w, w];
+  const spot = denseSpot(readScore(parent), N, 0, 0, N, N, N / 2, N / 2, N / 2) || [N / 2, N / 2];
+  return [spot[0] - w / 2, spot[1] - w / 2, w, w];
 }
 function trackRect(child, parent) {
-  const N = S.N, w = child.rect[2];
-  const buf = new Float32Array(N * N * 4);
-  gl.bindFramebuffer(gl.FRAMEBUFFER, scoreOf(parent)); gl.readPixels(0, 0, N, N, gl.RGBA, gl.FLOAT, buf); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  const [x, y, sw] = meanShift(buf, N, child.rect[0] + w / 2, child.rect[1] + w / 2, [N / 8, N / 12, N / 16]);
-  if (sw < 1e-3) return;
-  child.rect[0] += (x - w / 2 - child.rect[0]) * 0.25; child.rect[1] += (y - w / 2 - child.rect[1]) * 0.25;
+  const N = S.N, w = child.rect[2], reach = Math.round(N / 6);
+  const cx = Math.round(child.rect[0] + w / 2), cy = Math.round(child.rect[1] + w / 2);
+  const spot = denseSpot(readScore(parent), N, Math.max(0, cx - reach), Math.max(0, cy - reach), Math.min(N, cx + reach), Math.min(N, cy + reach), cx, cy, reach);
+  if (!spot) return;
+  child.rect[0] += (spot[0] - w / 2 - child.rect[0]) * 0.25; child.rect[1] += (spot[1] - w / 2 - child.rect[1]) * 0.25;
 }
 // the child's mean value where the parent is dense (what its accent will average to), for the pre-tint
 function childMean(child, parent) {
