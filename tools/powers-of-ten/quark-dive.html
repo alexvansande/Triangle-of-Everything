@@ -412,7 +412,7 @@ function trackRect(child, parent) {
   gl.bindFramebuffer(gl.FRAMEBUFFER, scoreOf(parent)); gl.readPixels(0, 0, N, N, gl.RGBA, gl.FLOAT, buf); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   const [x, y, sw] = meanShift(buf, N, child.rect[0] + w / 2, child.rect[1] + w / 2, [N / 8, N / 12, N / 16]);
   if (sw < 1e-3) return;
-  child.rect[0] += (x - w / 2 - child.rect[0]) * 0.15; child.rect[1] += (y - w / 2 - child.rect[1]) * 0.15;
+  child.rect[0] += (x - w / 2 - child.rect[0]) * 0.25; child.rect[1] += (y - w / 2 - child.rect[1]) * 0.25;
 }
 // the child's mean value where the parent is dense (what its accent will average to), for the pre-tint
 function childMean(child, parent) {
@@ -524,7 +524,7 @@ function advanceSum(Lidx, f) {
   if (child) {
     child.rate = 1; child.lambda = 0; runLevel(child, cur, true);
     S.frame = (S.frame || 0) + 1;
-    if (S.aim && cur.stepped > 0 && S.frame % 3 === 0) trackRect(child, cur);   // the square follows its blob, so the child's texture rides with it
+    if (S.aim && S.frame % 3 === 0) trackRect(child, cur);   // the square follows the mass under it (a blob hollows into a ring in place), so the child's texture rides with it
     if (S.frame % 45 === 0) childMean(child, cur);
   }
   followCam();
