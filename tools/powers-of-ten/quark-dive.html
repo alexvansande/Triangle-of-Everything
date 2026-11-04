@@ -147,7 +147,7 @@ void main(){
     // parent has mass, and is dimmed where it has none (so the child's rule can't spread into empty space)
     float P = parentAt(uRect.xy + cuv * uRect.zw);
     a += uAddGain * 0.02 * P * hash(vec2(c) * 1.7 + uTime);
-    a -= uDimGain * 0.4 * (1.0 - P);                    // subtractive: the rules' growth is additive per step, a multiplicative dim never wins
+    a -= uDimGain * 0.4 * (1.0 - smoothstep(0.05, 0.35, P)); // subtractive (the rules' growth is additive per step, a multiplicative dim never wins), and only where the parent is really empty
   }
   o = vec4(clamp(a, 0.0, 1.0), 0.0, 0.0, 1.0);
 }`;
