@@ -14,11 +14,6 @@
     "title": "The Triangle of Everything",
     "uploadedAt": "2026-11-01T23:47:35"
   },
-  "long-01-intro": {
-    "id": "j5d1j5lkxFk",
-    "title": "The Triangle of Everything",
-    "uploadedAt": "2026-11-02T02:48:59"
-  },
   "short-02a-things": {
     "id": "hdkJK4DSHCg",
     "title": "The Atomic Diagonal, part 1",
@@ -28,5 +23,15 @@
     "id": "qOvgPEluJW0",
     "title": "The Atomic Diagonal, part 2",
     "uploadedAt": "2026-11-02T04:45:05"
+  },
+  "long-01-intro@2026-11-02": {
+    "id": "j5d1j5lkxFk",
+    "title": "The Triangle of Everything",
+    "uploadedAt": "2026-11-02T02:48:59"
+  },
+  "long-01-intro": {
+    "id": "i9-Wh_YOk0A",
+    "title": "The Triangle of Everything",
+    "uploadedAt": "2026-11-04T05:38:53"
   }
 }
