@@ -8,11 +8,14 @@
 const AX = "#e8ecff";
 export default {
   // the YouTube thumbnail (scripts/narration-poster.mjs): the super-Jupiters' vertical line, Jupiter
-  // at its foot, and "Planets don't get larger than this!" (the author, 2026-11-03)
+  // at its foot, "Why are super-Jupiters all Jupiter-sized?" below (the size, not the mass), and an arrow
+  // to the L brown dwarf, the line's heaviest (the author, 2026-11-03; ~40× Jupiter's mass on the chart, 31.9 against 30.28)
   poster: { at: 3, cues: [{ t: 0, cam: { r: 9.85, m: 30.85, span: 2.5 }, dur: 0.1, drift: 0, hl: [
     { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 },
     { obj: "Jupiter", label: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
-    { text: "Planets don't get\nlarger than this!", at: [9.85, 32.6], size: 44, color: "#ffd54f", instant: true }] }] },
+    { text: "40× the mass,\nsame radius!", at: [9.55, 32.62], size: 28, color: "#ffffff", instant: true },
+    { arrow: true, from: { r: 9.62, m: 32.4 }, to: { obj: "L Brown Dwarf" }, solid: true, width: 3, color: "#ffffff", draw: 0.01 },
+    { text: "Why are super-Jupiters\nall Jupiter-sized?", at: [9.85, 29.31], size: 31, color: "#ffd54f", instant: true }] }] },
   cues: [
     { at: "plot everything by mass", offset: -0.4, cam: { r: 6.0, m: 18.4, span: 9 }, dur: 0.9, units: true, unitsUntil: "potato shapes into",
       hl: [
