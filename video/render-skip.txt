@@ -7,3 +7,5 @@ short-04-black-holes
 short-05-hubble-sphere
 short-06-tiny-world
 short-07-wavelengths
+# Superseded (the author, 2026-11-04): the canonical long video 1 is long-01-with-outro, published
+long-01-intro
