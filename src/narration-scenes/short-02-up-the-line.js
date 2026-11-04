@@ -48,8 +48,8 @@ const AIR_BAND = { poly: [[-40, 26.8], [60, 26.8], [60, 28.08], [-40, 28.08]], f
   label: "Goldilocks zone", note: "rocky worlds with air", labelCenter: true, labelSize: 28, labelColor: "#a5d6a7" };
 // below it a body's shape is held by its material strength, all of it electromagnetic (chemical
 // bonds, crystal stiffness, friction between grains); above it self-gravity crushes it round
-const BONDS = { side: "below", mass: ROUND_M, label: "electromagnetism\ndominates", note: "(chemical bonds, crystal\nstiffness, friction, etc.)", labelCenter: true, labelSize: 26 };
-const GRAVITY = { side: "above", mass: ROUND_M, label: "gravity\ndominates", labelCenter: true, labelSize: 26 };                            // span of the rocks → round worlds pan (as wide as the animals')
+const BONDS = { side: "below", mass: ROUND_M, label: "electromagnetism\ndominates", note: "(chemical bonds, crystal\nstiffness, friction, etc.)", labelX: 0.27 };
+const GRAVITY = { side: "above", mass: ROUND_M, label: "gravity\ndominates", labelX: 0.27 };   // (left of the bodies, on the level: centred on screen they ran into "Pluto · round", the author, 2026-11-03)                            // span of the rocks → round worlds pan (as wide as the animals')
 // one grid square (a decade of size × a decade of mass) with its bottom-left corner at (r, m)
 const SQ = (r, m, delay = 0) => ({ poly: [[r, m], [r + 1, m], [r + 1, m + 1], [r, m + 1]], fill: "#ffd54f", opacity: 0.35, delay });
 const STEP_RIGHT = [{ arrow: true, from: ML, to: RIGHT, label: "×10 size" }, SQ(-0.207, -1)];
@@ -64,12 +64,12 @@ const EIFFEL_LINES = [{ line: "water", label: "water" }, { line: "air", label: "
 // the animals put first at "most animals": the chart's own and the catalogue's (by their labels)
 const ANIMALS = ["Venus", "Human", "Cow", "Hippopotamus", "Elephant", "Lion", "Giraffe", "Polar bear", "Gorilla"];
 // gravity 2, electromagnetism 0: a scoreboard in the middle of the screen, the names small over the big
-// scores (the author, 2026-11-03: the three-line "Gravity 2 / Electro- / magnetism 0" read oddly)
+// scores (the author, 2026-11-03: the three-line "Gravity 2 / Electro- / magnetism 0" read oddly). Both
+// boards are a gag of 2 s at most (the author, 2026-11-03): each goes with the next cue that has none
 const SCORE = { score: [["Gravity", 2], ["Electromagnetism", 0]] };
 // gravity's first win, the round worlds: 1 × 0 (the author, 2026-11-03), high up, clear of the regions' names
 // ("gravity dominates" sits in the middle of the top half)
 const SCORE1 = { score: [["Gravity", 1], ["Electromagnetism", 0]], y: 0.12 };
-const SCORE_ON = { ...SCORE, instant: true };
 const drawn = (list) => list.map(h => h.arrow ? { ...h, draw: 0.01 } : { ...h, instant: true, delay: 0 });
 
 export default {
@@ -242,7 +242,7 @@ export default {
     // Icy moons round up lighter (ice is softer than rock): Mimas is round below it, so it's left out here
     { at: "chemical bonds", cam: { r: 7.45, m: 23.62, span: PAN, glide: true }, hl: [BONDS, { obj: "Hyperion", place: "left", label: false }, { obj: "Vesta", label: "Vesta · lumpy" }] },
     { at: "gravity takes over", cam: { r: 7.6, m: 23.72, span: PAN, glide: true }, hl: [SCORE1, BONDS, GRAVITY, { obj: "Vesta", label: "Vesta · lumpy" }, { obj: "Ceres", label: "Ceres · round", delay: 0.3 }] },
-    { at: "shapes planets", cam: G(7.8, 23.95), hl: [{ ...SCORE1, instant: true }, BONDS, GRAVITY, { obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
+    { at: "shapes planets", cam: G(7.8, 23.95), hl: [BONDS, GRAVITY, { obj: "Ceres" }, { obj: "Pluto", label: "Pluto · round" }] },
 
     // atmospheres
     { at: ["mercury or the moon", "mercury nor the moon"], cam: G(8.35, 26.1), hl: [{ obj: "Moon", label: "Moon · none", place: "left" }, { obj: "Mercury", label: "Mercury · none", place: "left" }] },
@@ -272,12 +272,13 @@ export default {
     // "This is once again gravity breaking into electromagnetism's last refuge: the atom itself" (rec51):
     // the score, gravity's first win being the round worlds (the script's on-screen note, 2026-11-02)
     { at: "once again gravity", cam: G(9.85, 31.0), hl: [{ obj: "Jupiter", label: "the atom itself", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, SCORE] },
-    { at: ["pressure in the core", "pressure in their core"], cam: G(9.85, 31.2), hl: [{ obj: "Jupiter", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }, SCORE_ON] },
-    { at: "sea of electrons", hl: [{ obj: "Jupiter", label: "bare nuclei, free electrons", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false }, SCORE_ON] },
+    { at: "once again gravity", offset: 1.75, hl: [{ obj: "Jupiter", label: "the atom itself", place: "left", delay: 0.5 }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }] },
+    { at: ["pressure in the core", "pressure in their core"], cam: G(9.85, 31.2), hl: [{ obj: "Jupiter", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false, delay: 0.4 }] },
+    { at: "sea of electrons", hl: [{ obj: "Jupiter", label: "bare nuclei, free electrons", place: "left" }, { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f", draw: 0.01 }, { obj: "Y Brown Dwarf", label: false }] },
     { at: "refuse to be squeezed", cam: G(9.85, 31.6), hl: [{ obj: "Jupiter", place: "left" }, { obj: "Y Brown Dwarf", label: false },
-      { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "degenerate matter" }, SCORE_ON] },
+      { obj: "T Brown Dwarf", label: false }, { obj: "L Brown Dwarf", label: "degenerate matter" }] },
     { at: "denser not bigger", hl: [{ trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" }, { obj: "Jupiter", place: "left", label: false },
-      { obj: "L Brown Dwarf", label: "denser, not bigger" }, SCORE_ON] },
+      { obj: "L Brown Dwarf", label: "denser, not bigger" }] },
 
     // the split
     { at: ["around the brown dwarfs", "around brown dwarfs", "about brown dwarfs"], cam: G(9.85, 32.1),
