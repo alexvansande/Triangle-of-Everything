@@ -43,6 +43,9 @@
   note pins it to stretches (the author, 2026-10-30: "if something changes on the video and you can't
   tell exactly when you have to re-render all of it"). So if your shared change shows in only some
   stretches of a video, say so with a note; if it doesn't show in a video at all, still expect it to re-render.
+- **Published takes are final** (the author, 2026-11-04): a take in `video/render-locked.txt` is public on
+  YouTube; don't queue it and don't change its audio, cut or scene (the nightly skips it). To fix one, ask the
+  author first, then delete its line there.
 - **Scripts to record**: `video/scripts/recording-scripts.md` has every video's narration as cut
   now and the lightly edited script to re-record (with what changed). Keep it up to date when a
   take is replaced or the author changes a line.

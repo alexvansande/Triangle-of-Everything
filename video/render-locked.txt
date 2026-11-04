@@ -1,0 +1,10 @@
+# Published takes: uploaded to YouTube and public, so their renders are final. The nightly render
+# (scripts/narration-render-stale.sh) leaves them alone even when they're queued or the code they draw
+# with changes; the videos page keeps them, tagged "Published". One take per line; delete a line to let a
+# take render again (a fix worth re-uploading).
+# Long video 1 and its three Shorts, public on 2026-11-04 (the author). The canonical long video 1 is the
+# version with the outro ("I could talk about it for hours…"), uploaded by hand: not in youtube-uploads.json
+long-01-with-outro
+short-01-hook
+short-02a-things
+short-02b-planets

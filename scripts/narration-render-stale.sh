@@ -46,6 +46,8 @@ web() {   # full render → the site's copy, sized just under 20 MiB
 SHARED="src :!src/narration-scenes content public/hopf public/spectrum public/narration/photos index.html"
 for t in $takes; do
   [ -f "public/narration/$t/words.json" ] || { echo "- $t: no take"; continue; }
+  # published (video/render-locked.txt): its render is what's on YouTube, so it stays as it is
+  grep -qx "$t" video/render-locked.txt 2>/dev/null && { echo "= $t: published, render locked"; continue; }
   # already rendering in another run (a timed or hand-started render): leave it to that one
   pgrep -f "narration-render.mjs $t " > /dev/null && { echo "= $t: already rendering"; continue; }
   out=output/videos/$t.mp4
