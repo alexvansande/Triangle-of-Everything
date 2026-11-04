@@ -89,7 +89,7 @@ textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 11px/1.
 <script>
 'use strict';
 const DEFAULT_CHAIN = [
-  { fam: 'smoothlife', name: 'quarks', ra: 14, speed: 0.3, base: '#05060a', accent: '#6f9fe6', inness: [0.2, 0.7] },
+  { fam: 'smoothlife', name: 'quarks', ra: 14, speed: 0.15, base: '#05060a', accent: '#6f9fe6', inness: [0.2, 0.7] },
   { fam: 'lenia', name: 'Soup, soft', R: 18, peaks: [0.777, 1, 0.597], mu: 0.2047, sigma: 0.0991, dt: 0.5, speed: 1, density: [0.1, 0.5], accent: '#e8473c', inness: [0.3, 0.8] },
   { fam: 'mnca', name: 'Diamond cells', rings: [{ rin: 4.81, rout: 10.49, rules: [[0.441, 0.735, 0.144]] }, { rin: 10.78, rout: 16.59, rules: [[0.579, 0.791, -0.169], [0.739, 0.799, -0.025], [0.183, 0.248, 0.082]] }, { rin: 19.69, rout: 21.19, rules: [[0.523, 0.752, 0.255], [0.01, 0.3, 0.173]] }, { rin: 22.49, rout: 23.99, rules: [[0.262, 0.354, -0.111]] }], speed: 1, accent: '#f2d060', inness: [0.3, 0.8] },
   { fam: 'lenia', name: 'Labyrinth', R: 16, peaks: [1], mu: 0.423, sigma: 0.0727, dt: 0.5, speed: 1, accent: '#f0f0f4', inness: [0.3, 0.8] },
@@ -505,7 +505,12 @@ function advanceSum(Lidx, f) {
   // the child runs at 1, the current level at a third falling to a ninth, the big one at a ninth to a 27th
   if (alive(grand)) { grand.rate = Math.pow(3, -(2 + f)); grand.lambda = 0; runLevel(grand, null, false); }
   cur.rate = Math.pow(3, -(1 + f)); cur.lambda = 0; runLevel(cur, alive(grand) ? grand : null, alive(grand));
-  if (child) { child.rate = 1; child.lambda = 0; runLevel(child, cur, true); if ((S.frame = (S.frame || 0) + 1) % 45 === 0) childMean(child, cur); }
+  if (child) {
+    child.rate = 1; child.lambda = 0; runLevel(child, cur, true);
+    S.frame = (S.frame || 0) + 1;
+    if (S.aim && cur.stepped > 0 && S.frame % 3 === 0) trackRect(child, cur);   // the square follows its blob, so the child's texture rides with it
+    if (S.frame % 45 === 0) childMean(child, cur);
+  }
   return { Lidx, f };
 }
 function drawSum(Lidx, f) {
