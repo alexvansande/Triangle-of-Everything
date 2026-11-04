@@ -218,7 +218,10 @@ export async function startNarration(app) {
   // &poster=1: the scene's thumbnail shot (scene `poster`: { at, cues }) in place of its cues, with
   // no journal cover; scripts/narration-poster.mjs stills it at `at` seconds, without captions
   // &poster=wide: the 16:9 shot (scene `posterWide`, else `poster`), for a video YouTube doesn't count as a Short
-  const POSTER = params.get("poster") === "wide" ? (SCENE.posterWide || SCENE.poster) : params.has("poster") ? SCENE.poster : null;
+  // (a cut's own scene, src/narration-scenes/<cut>.js, can have a shot of its own)
+  const OWN = take.segments && SCENES[`./narration-scenes/${app.take}.js`] ? (await SCENES[`./narration-scenes/${app.take}.js`]()).default : {};
+  const POSTER = params.get("poster") === "wide" ? (OWN.posterWide || OWN.poster || SCENE.posterWide || SCENE.poster)
+    : params.has("poster") ? (OWN.poster || SCENE.poster) : null;
   if (POSTER) SCENE = { ...SCENE, ...POSTER.set, cues: POSTER.cues, cover: undefined };   // set: scene fields for the shot
   window.__narrPoster = POSTER ? { at: POSTER.at ?? 5 } : undefined;
   const cues = take.segments && !POSTER ? await cutCues(take, app.take) : resolveScene(take.words);
@@ -257,10 +260,11 @@ export async function startNarration(app) {
   // than in the app so they still read in a phone video
   app.setDots?.(SCENE.dots ?? { radius: 1.15, opacity: 1.7 });
   // the dots and their trails drawn into the fractal background, swirled by it (the author's panel
-  // values, 2026-10-30; a scene's `dotTrails` overrides; `&trails=` tries a gain, `&trailswirl=` its swirl)
+  // values, 2026-10-30, the gain halved on 2026-11-03: "way too bright"; a scene's `dotTrails` overrides;
+  // `&trails=` tries a gain, `&trailswirl=` its swirl)
   app.setDotTrails?.(params.has("trails")
     ? { gain: +params.get("trails"), ...(params.has("trailswirl") && { swirl: +params.get("trailswirl") }) }
-    : SCENE.dotTrails ?? { gain: 0.135, length: 300, swirl: 4 });
+    : SCENE.dotTrails ?? { gain: 0.07, length: 300, swirl: 4 });
   // the pictures' shadows swirled with the fractal background (author's panel value 0.8; a scene's
   // `shadowSwirl` overrides, `&shadowswirl=` tries one)
   // the fractal background from much further out than the site's (where the painting runs out of

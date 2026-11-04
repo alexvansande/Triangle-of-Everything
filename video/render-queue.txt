@@ -10,8 +10,13 @@
 # (before the next take) until it's deleted.
 # A "# priority: <take>" line puts that take first every time it's out of date, and stays.
 # Now (the author, 2026-11-03, afternoon): long video 1, its Shorts, then the powers-of-ten zoom (retimed, Dreamer, the new turning CMB), then the rest that need it
-# next: short-00-powers-of-ten
+# Trails at half strength in every video (the author, 2026-11-03, evening: B, gain 0.07): all of them
+# render whole; long video 1 and its Shorts first (they go to YouTube, private, once rendered), then the zoom
 # priority: long-01-intro
+# next: short-01-hook
+# next: short-02a-things
+# next: short-02b-planets
+# next: short-00-powers-of-ten
 # Long video 1's Shorts and the powers-of-ten zoom before long video 3 (the author, 2026-11-01, 23:30)
 # Order (the author, 2026-11-01): long videos 1 and 2, then their Shorts, then long video 3 and its Shorts
 # next: long-03-small
