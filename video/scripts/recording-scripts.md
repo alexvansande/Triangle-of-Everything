@@ -105,8 +105,8 @@ Nine Shorts from one session: three weeks at one every other day.
 session. The author recorded the opening **from memory** (rec54, `video/sources/2026-11-05/`): items 1 and 2 above
 are now done in one take, up to the light-pressure cap on the heaviest stars (new), and it's cut as `long-02-intro`,
 the first piece of `long-02-space` (video 3's take carries on from "as the fuel for fusion is used up"). Its
-transcript and the lines to re-record are under "Long 2 · The opening" below. Still to record: items 3–5 (the
-bridge into the black holes, the garbled line, the whole second half) and the *Short only* openings.
+transcript and the lines to re-record are under "Long 2 · The opening" below. The author's draft script turned up later that day: see "Long 2 · The author's draft" below for its fact check and
+the part still to record (from "That new truce…" to the end, and the *Short only* openings).
 
 **Next step:** a session writes the full one-take script from this (the opening, the bridges, the re-written second
 half, the *Short only* openings), fact-checked, before the author records.
@@ -852,6 +852,160 @@ line is dropped. Nothing left here for long video 1.*
 - **The ember**: *"So they just sit there, cooling slowly, glowing like an ember for billions of years."*
 - **The cap**: *"…thrown away faster than the star's escape velocity, and gone for good. So right around here is where the heaviest stars live."*
 - Optional, the diagonal (gravity isn't in the balance for small things): *"Most of the universe is a tug of war between two forces. Electromagnetism, the chemistry between atoms, holds matter at one fixed density: this diagonal. Gravity pulls everything inward, and the more mass there is, the harder it pulls. Down here it loses; up the line it starts to win."*
+
+---
+
+## Long 2 · The author's draft (found 2026-11-05): fact check, and what's left to record
+
+The script the author wrote on 2026-11-04 turned up on 2026-11-05 ("index.draft.md", saved verbatim as
+`video/scripts/long-02-space.draft.md`). Its first half, up to the cap on the heaviest stars, is what the author
+recorded from memory that morning (rec54, "The opening" above), so what's left to record starts at **"That new
+truce…"**: the life and death of stars (rewritten), the bridge into the black holes, the turn, the dark-matter
+callback, the new player, the fixes to the Hubble sphere, the observable universe, and the ending.
+
+### Fact check of the draft
+- **Wrong: "Jupiter makes its own heat, more than it receives from the sun."** Jupiter *gives off* about 1.7 times
+  what it gets from the Sun, so its own heat is about 0.7 times the sunlight: it makes less than it receives. (The
+  same slip is in rec54.) Say: *"Jupiter gives off more heat than it gets from the Sun, and the extra comes from its
+  own weight, slowly squeezing its core."* ("all generated in its high pressure core": it's the slow contraction
+  under its own gravity, plus heat left over from its birth; "squeezing its core" covers it.)
+- **Wrong as the physics: "This diagonal line is where they reach equilibrium and it's no coincidence it's the
+  density of atomic matter."** For a microbe, a tree or a mountain gravity is far too weak to compress them at all:
+  the density of atoms is set by electromagnetism and the quantum rules alone (the electron's pull to the nucleus
+  against its refusal to be pinned down), and that's why everything from bacteria to asteroids has the same
+  density. Gravity joins the dance at a few hundred kilometres (the round worlds) and wins at the planets. Also
+  "electrons repel each other, while attracted to the nucleus": the size of an atom is the pull to the nucleus
+  against the quantum rule, not the electrons' mutual repulsion. Suggested: *"Most of the universe is a tug of war
+  between two forces. Electromagnetism, the chemistry between atoms, holds matter at one fixed density: this
+  diagonal. Gravity pulls everything inward, and the more mass there is, the harder it pulls. Down here it loses;
+  up the line it starts to win."*
+- **Imprecise: "gravity wins over the next defense: the nucleus"** (the brown dwarfs). What gravity's squeeze beats
+  for deuterium to fuse is the electric push *between* nuclei (the same thing the stars' paragraph says, "the
+  electric repulsion that keeps protons apart"; deuterium's push is just the easiest to beat). Suggested: *"…now
+  gravity wins over the next defence: the push that keeps the nuclei apart from each other. But only barely."*
+- **Imprecise: "they fuse into helium and other light elements. A star is born."** On the main sequence a star
+  fuses hydrogen into helium and nothing else (the heavier ones come at the end of its life, in the giants). Drop
+  "and other light elements".
+- **"So no known star can be beyond X solar masses":** X is about 200. The heaviest known, R136a1, is about 200
+  Suns (estimates over 300 were revised down in 2022); the limit is soft, 150–200. Say: *"So no star we know of is
+  much beyond two hundred Suns."*
+- **Imprecise: "That new truce… will last a few billion years."** Ten billion for a star like the Sun, only a few
+  million for the heaviest, trillions for the smallest red dwarfs. Say: *"…will last billions of years for a star
+  like the Sun, and only a few million for the biggest."*
+- **Wrong for most stars: "until all that is left is a core made of mostly iron and other heavy metals"** and
+  "these elements don't produce energy… so the star enters a catastrophic core collapse". Only stars over about
+  eight Suns burn all the way to iron and collapse. A star like the Sun stops at carbon and oxygen (the draft's
+  own "white dwarf, a core of carbon and oxygen" two paragraphs later), and sheds its layers gently as a planetary
+  nebula; no iron, no catastrophe. And "heavy metals" (lead, gold…) aren't made there at all: the core is iron
+  (and nickel). Also "the star starts to rapidly collapse… that collapse creates even more heavier elements, which
+  will create a new outer pressure": the core shrinks and heats until the *next fuel* ignites (helium), and that
+  fusion pushes the star out again; the collapse itself doesn't make the elements. Suggested, keeping the shape:
+  *"The truce breaks when the fuel runs out. With no more hydrogen to burn, the core shrinks under its own weight,
+  and that squeeze heats it until the next fuel catches: helium. That pushes the star out again, far bigger than
+  before: a red giant. For a star like the Sun, that's the end of the road: it puffs its outer layers away and
+  leaves its core behind. The biggest stars go on: shrink, ignite, swell, again and again, burning carbon, then
+  oxygen, then silicon, until the core is iron. And iron is where fusion stops paying. Fusing it costs energy
+  instead of giving it, so the fire goes out and the core collapses in less than a second. Either way, the star is
+  split in two: two distinct objects on our chart."* (If you want the weak force in, from the quick index: the
+  collapse is decided by the weakest force; neutrinos carry off about 99 % of the energy.)
+- **Fine, two words: "supernova remnants, or nebulas"** → nebulae; "a larger cloud of dust" → "of gas and dust";
+  "porto-star" → protostar. "The next generation will start with richer materials that could lead to a planet
+  full of life like ours": right (the Sun is a third-generation star, roughly).
+- **Right, with a nudge: "protons and electrons will be squeezed into a mass of pure neutrons"** → "mostly
+  neutrons" (a few per cent stay protons and electrons). "They sit at the exact density line of the neutron":
+  right on the chart (neutron stars at 10^15.0–15.4 g/cm³, nuclei at 10^15.2). That's gravity's third win, past the
+  electrons' last stand (the 1.4-Sun limit): worth the score on screen, *"Gravity, three to nothing."*
+- **"They go from a few Suns to billions of stars"** (the black-hole part, as cut) → "billions of Suns" if it's
+  ever re-recorded; the Milky Way's is four million Suns, TON 618 about 40–60 billion.
+- **Right:** the three limits and their sides (relativity top left, quantum mechanics bottom left, the size of the
+  universe on the right); brown dwarfs too big for planets, too small for stars, fusing only deuterium, which is
+  too rare to keep them shining; fusion's energy pushing the star out and the main sequence; light's pressure
+  capping the heaviest stars (the Eddington limit); the cycle through supernova remnants and planetary nebulae to
+  stellar nurseries and protostars; the white dwarf as a carbon-oxygen core; the plant ("Remember this line");
+  galaxies five to ten times heavier than what we see, and dark matter doing the holding there; clusters still
+  bound, superclusters not: Laniakea is not held together and will come apart (dark energy, not one of the four
+  forces, so a third column); the four wins counted (moons, atoms, electrons, black holes); voids as emptier
+  regions with mass; the Hubble line at roughly fourteen billion light-years; light from just beyond it still
+  arriving because the sphere grows; the cosmic event horizon a little further out as the limit of the knowable;
+  the Hubble sphere's mass landing on the black-hole line and why (both set by the mass inside); a black hole has a
+  centre, our universe has none, and looks the same from every galaxy; forty-six billion light-years as the
+  observable universe, outside the triangle because its far sides were never in touch; what we see is old light
+  from galaxies that were closer, most of them now beyond the event horizon; the ending's two edges meeting at
+  the top with our Hubble sphere there, and the third side to come.
+- **One word in the ending:** "sits our whole universe" → *"sits our Hubble sphere"* or "our universe": the
+  observable universe is the one thing *outside* the triangle, as the previous passage says.
+
+### What rec54 has that the draft doesn't (keep in the cut)
+The "too compact / too big" pair, the trend from the smallest life to the giant planets, roundness and
+atmospheres, the Jupiter turn ("that trend stops"), the split and "Today, we're exploring that split", the
+electrons stripped (to re-record, see the opening's list), "Gravity wins once again" at the brown dwarfs, the
+ember, "pushing our objects again to the right". The draft's version of these lines is shorter; the recorded one
+plays fine.
+
+### Script to record next (the draft from "That new truce…", the fixes applied; *Long only* unless marked)
+
+**The truce, and how it breaks** (replaces video 3's take from "as the fuel for fusion is used up" on)
+> That new truce between the two forces, one pushing it to the left and the other to the right, will last billions of years for a star like the Sun, and only a few million for the biggest.
+>
+> The truce breaks when the fuel runs out. With no more hydrogen to burn, the core shrinks under its own weight, and that squeeze heats it until the next fuel catches: helium. That pushes the star out again, far bigger than before: a red giant. For a star like the Sun, that's the end of the road: it puffs its outer layers away and leaves its core behind. The biggest stars go on: shrink, ignite, swell, again and again, burning carbon, then oxygen, then silicon, until the core is iron. And iron is where fusion stops paying. Fusing it costs energy instead of giving it, so the fire goes out and the core collapses in less than a second. Either way, the star is split in two: two distinct objects on our chart.
+>
+> The outer layers keep expanding, with the leftover energy from the last battle, and become supernova remnants, or nebulae. These will eventually meet others and merge into a larger cloud of gas and dust called a stellar nursery, which will collapse back into a protostar and start a new cycle. But this time, the next generation starts with richer materials, which could lead to a planet full of life like ours.
+>
+> The core, however, stays behind. If the star isn't massive enough to go supernova, it remains as a white dwarf: a core of carbon and oxygen. If it does go supernova, the collapse is so powerful that gravity wins once again: protons and electrons are squeezed together into a mass of mostly neutrons. A neutron star. Gravity, three to nothing. And they sit exactly on the density line of the neutron.
+>
+> And if it's any bigger, something even weirder happens: it collapses into a black hole.
+>
+> *(Short only:)* An object so weird it deserves a video of its own.
+>
+> *(Long only:)* And black holes are strange enough that they're worth a closer look.
+
+**Black holes** (as cut, rec48; only these two to record)
+> Remember this line. It comes back at the very largest scale.
+>
+> And we've been looking for them: with quasars, with the cosmic microwave background, with gravitational waves, and finally with microlensing.
+
+**The turn** (*Long only*)
+> So that's the first edge of the triangle, and what lives on it. Now let's turn around and go the other way: to the right, to the biggest things there are.
+
+**Bigger means emptier** (replaces rec49's opening of video 5)
+> Every diagonal line on this chart is a density. We saw that neutron stars have the density of a neutron, and the supermassive black holes were already less dense than water. The further right we go, the emptier things get, because the bigger something is, the less dense it is. A galaxy is mostly the empty space between its stars. Here's our own, the Milky Way, and its sister, Andromeda. We live in a small group of galaxies called the Local Group. And these are the galaxies we weighed a minute ago: five to ten times heavier than everything we can see in them. Whatever dark matter is, this is where it's doing the holding.
+>
+> Galaxy clusters are even less dense, because now it's the galaxies plus all the empty space between them. But gravity still holds them together. And above that are the largest structures we know of: superclusters, which come in the shape of filaments. We live in one called Laniakea, made of about a hundred thousand galaxies.
+>
+> And here, for the first time, something changes. Until now gravity has won every match: it rounded the moons, it crushed the atoms, it crushed the electrons, it made the black holes. Four to nothing. But a supercluster isn't held together. The space inside it is stretching faster than gravity can pull it back, and in the far future Laniakea will have come apart. So at the very largest scale there's a new player, and it isn't one of the four forces. We call it dark energy.
+>
+> There's still something larger: voids. Voids are just empty regions of space. Not completely empty, just emptier than the space around them. So they do have mass, and they fit on the chart.
+
+**The second edge** (rec49 + rec50 as cut, with the fix; record whole if the voice should match)
+> But can anything be bigger than that? Try to go any bigger, and you reach the second edge: the Hubble sphere.
+>
+> The speed of light isn't really about light. It's the speed limit for anything travelling through space. But space itself can stretch faster than that. The universe is expanding, not like a ball blowing up into something. It's more as if there's just more space being created all the time, everywhere. It's like raising the resolution of a photo: you take one pixel and turn it into four. That means the further away something is, the faster it's moving away from us. And at the Hubble line, things are moving away from us at the speed of light. That line is roughly fourteen billion light-years away, in every direction.
+>
+> You'd think their light could never reach us, but it's a little more complicated than that. The Hubble sphere is also growing, so light from just beyond it can still, eventually, get here. The real edge is a little further out. That's the cosmic event horizon. Nothing that happens beyond it can ever affect us. We'll never see it, because the light will never reach us. No information, no matter, nothing. It's the limit of the unknowable.
+
+**Are we living inside a black hole?**
+> Now add up everything we know exists inside the Hubble sphere, and here's where it lands on our chart: right on the black hole line. The line I told you to remember. So what does that mean? Are we living inside a black hole?
+>
+> Well, both are a kind of horizon. A black hole's event horizon is where light that falls in can never come out. Our cosmic horizon is where nothing outside can ever come in. And both depend on the mass of what's inside. The radius of a black hole depends directly on how much stuff is in it, and the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is in it too. So it's no coincidence they're both on the same line.
+>
+> But that's where the similarities end. A black hole is an object with a centre. Our universe is just that: it's *our* universe. It's not *the* universe. If you imagine one of those galaxies that seem to be on the edge for us, well, for them, their universe is centred on them. Point a telescope the other way and they won't see empty space. They'll see a whole lot of other galaxies that are out of our reach. Because as far as we've been able to measure, the universe is practically infinite in all directions.
+
+**The observable universe**
+> And here's the strange part. Ask a scientist how big the universe is, and they won't say fourteen billion light-years. They'll say forty-six billion, in every direction. That's the observable universe: not everything there is, but everything whose light has had time to reach us.
+>
+> Put it on the chart, and it's the one object that falls outside our triangle. That's because it isn't really one object. Its far sides have never been able to talk to each other. Forty-six billion light-years is where those galaxies are right now. But what we see is the light they sent long ago, when they were much closer, and most of them are already beyond our cosmic event horizon. Even if you could travel at the speed of light and live forever, you would never reach them. We'll never even see where they are right now.
+>
+> So the observable universe is less like a map of where our neighbours are, and more like a snapshot of our own history.
+
+**Ending** (*Long only*)
+> So that's the top of the triangle. On the left, the black hole line: squeeze anything hard enough, and gravity wins. On the right, the Hubble sphere: stretch anything far enough, and the expansion wins. And at the very top, where the two lines meet, sits our Hubble sphere: our whole universe.
+>
+> Which leaves one edge. If there's a limit to how big and how heavy something can be, is there a limit to how small? That's the third side of the triangle, and it's the strangest of the three.
+
+**Short only openings** (one line each, said before the matching passage; the list is in the plan above):
+"Where do stars come from?", "What's left when a star dies?", "Can a black hole be less dense than water?",
+"What's the smallest black hole there could be?", "How do we know where dark matter isn't?", "Are we living inside
+a black hole?", "How big is the universe, really?"
 
 ---
 
