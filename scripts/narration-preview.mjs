@@ -147,8 +147,9 @@ fs.writeFileSync(path.join(OUT, "listen.html"), listenHtml(info, { built, commit
 if (!MP3) {
   for (const t of takes) for (const f of ["audio.m4a", "mix.m4a"]) rm(`narration/${t}/${f}`);
   const root = path.join(OUT, "..", "narration");
-  if (fs.existsSync(root)) for (const t of fs.readdirSync(root)) if ((!takes.includes(t) || retired.has(t)) && t !== "photos")
-    for (const f of ["audio.m4a", "mix.m4a"]) fs.rmSync(path.join(root, t, f), { force: true });
+  // and the voice-only file goes for every take: the player and the listen page use the mix (the author, 2026-11-05)
+  if (fs.existsSync(root)) for (const t of fs.readdirSync(root)) if (t !== "photos")
+    for (const f of (!takes.includes(t) || retired.has(t)) ? ["audio.m4a", "mix.m4a"] : ["audio.m4a"]) fs.rmSync(path.join(root, t, f), { force: true });
 }
 // Body-only variant: hosts that add their own <!doctype>/<head>/<body> skeleton
 const page = html

@@ -158,6 +158,7 @@ ${sections}${info.some(k => k.music) ? `
 <button type="button" id="narr-to-video" hidden>Rendered video</button>
 <div id="narr-video" hidden role="dialog" aria-label="Rendered video">
   <video id="nv-player" controls playsinline preload="metadata"></video>
+  <iframe id="nv-yt" hidden title="YouTube" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
   <button type="button" id="nv-back">All videos</button>
   <button type="button" id="nv-full" hidden>Full screen</button>
   <a id="nv-live" href="#">Live map</a>
@@ -277,7 +278,8 @@ ${sections}${info.some(k => k.music) ? `
 .ng-badge.is-video { color: #0b0c20; background: var(--ng-fg); border-color: transparent; }
 #narr-video { position: fixed; inset: 0; z-index: 100002; background: #000; display: flex; align-items: center; justify-content: center; }
 #narr-video[hidden] { display: none; }
-#nv-player { width: 100%; height: 100%; object-fit: contain; background: #000; }
+#nv-player, #nv-yt { width: 100%; height: 100%; object-fit: contain; background: #000; border: 0; }
+#nv-player[hidden], #nv-yt[hidden] { display: none; }
 #nv-back, #nv-live, #nv-full, #narr-to-video { position: fixed; z-index: 100003; top: calc(env(safe-area-inset-top, 0px) + 10px);
   font: 700 15px/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
   color: #fff; background: rgba(7, 7, 28, 0.82); border: 1px solid rgba(255, 213, 79, 0.7); border-radius: 999px;
@@ -330,14 +332,17 @@ window.__narrTakes = ${JSON.stringify(shorts.filter(k => !k.renderOnly).map(k =>
 // Live map or rendered video: a take with a rendered video (video/web/, copied to
 // rendered/ next to the page) can play it instead; one without plays live.
 window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.video).map(k => [k.id, `${base}rendered/${k.id}.mp4`])))};
+// the published takes (video/render-locked.txt) play from YouTube, their render no longer carried here (the author, 2026-11-05)
+window.__narrYouTube = ${JSON.stringify(Object.fromEntries(info.filter(k => k.published && k.yt?.youtube).map(k => [k.id, k.yt.youtube])))};
 (function () {
-  var VIDEOS = window.__narrVideos, TAKES = window.__narrTakes;
+  var VIDEOS = window.__narrVideos, YT = window.__narrYouTube || {}, TAKES = window.__narrTakes;
   var KEY = "narr-watch-mode", OPEN = "narr-open-video";
   var get = function (k, s) { try { return (s || localStorage).getItem(k); } catch (e) { return null; } };
   var put = function (k, v, s) { try { v == null ? (s || localStorage).removeItem(k) : (s || localStorage).setItem(k, v); } catch (e) {} };
   var mode = get(KEY) === "video" ? "video" : "live";
-  var box = document.getElementById("narr-video"), player = document.getElementById("nv-player");
-  var live = document.getElementById("nv-live"), queue = [];
+  var box = document.getElementById("narr-video"), player = document.getElementById("nv-player"), yt = document.getElementById("nv-yt");
+  var live = document.getElementById("nv-live"), full = document.getElementById("nv-full"), queue = [];
+  var fullOK = !!(player.requestFullscreen || player.webkitRequestFullscreen || player.webkitEnterFullscreen);
   var takeOf = function (a) { return (a.getAttribute("href") || "").slice(1).split("rendered/").pop(); };
   var rendered = TAKES.filter(function (t) { return VIDEOS[t.id]; });
 
@@ -346,10 +351,10 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
     document.querySelectorAll(".ng-card").forEach(function (a) {
       var thumb = a.querySelector(".ng-thumb"), badge = thumb.querySelector(".ng-badge");
       if (!badge) { badge = document.createElement("span"); badge.className = "ng-badge"; thumb.appendChild(badge); }
-      var has = !!VIDEOS[takeOf(a)];
+      var has = !!VIDEOS[takeOf(a)] || !!YT[takeOf(a)];
       badge.hidden = mode !== "video" && a.dataset.renderOnly !== "1";
       badge.className = "ng-badge" + (has ? " is-video" : "");
-      badge.textContent = has ? "Video" : a.dataset.renderOnly === "1" ? "Queued · rendered only" : "Live only";
+      badge.textContent = YT[takeOf(a)] ? "YouTube" : has ? "Video" : a.dataset.renderOnly === "1" ? "Queued · rendered only" : "Live only";
       var item = a.closest(".ng-item");
       if (item) item.classList.toggle("is-unrendered", mode === "video" && !has);
     });
@@ -359,7 +364,7 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
     var secs = 0;
     document.querySelectorAll(".ng-card").forEach(function (a) {
       var p = (a.querySelector(".ng-len") || {}).textContent;
-      if (VIDEOS[takeOf(a)] && p) secs += +p.split(":")[0] * 60 + +p.split(":")[1];
+      if ((VIDEOS[takeOf(a)] || YT[takeOf(a)]) && p) secs += +p.split(":")[0] * 60 + +p.split(":")[1];
     });
     all.textContent = mode === "video" && secs
       ? "Play all · " + Math.floor(secs / 60) + ":" + String(secs % 60).padStart(2, "0") : all.dataset.live;
@@ -369,6 +374,14 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
   }
   function open(take, rest) {
     queue = rest || [];
+    if (YT[take]) {   // published: the YouTube player, in place of the render
+      player.pause(); player.removeAttribute("src"); player.hidden = true;
+      yt.src = "https://www.youtube-nocookie.com/embed/" + YT[take] + "?autoplay=1&playsinline=1&rel=0";
+      yt.hidden = false; full.hidden = true;
+      live.hidden = false; live.href = "#" + take; box.hidden = false;
+      return;
+    }
+    yt.removeAttribute("src"); yt.hidden = true; player.hidden = false; full.hidden = !fullOK;
     player.src = VIDEOS[take];
     live.hidden = !!document.querySelector('.ng-card[data-render-only="1"][href="#rendered/'+take+'"]');
     live.href = "#" + take;
@@ -376,7 +389,7 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
     var p = player.play();
     if (p && p.catch) p.catch(function () {});   // no gesture yet (after a reload): the controls start it
   }
-  function close() { player.pause(); player.removeAttribute("src"); player.load(); box.hidden = true; queue = []; }
+  function close() { player.pause(); player.removeAttribute("src"); player.load(); yt.removeAttribute("src"); yt.hidden = true; player.hidden = false; box.hidden = true; queue = []; }
 
   document.querySelectorAll(".ng-mode button").forEach(function (b) {
     b.addEventListener("click", function () { mode = b.dataset.mode; put(KEY, mode); paint(); });
@@ -398,7 +411,7 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
         e.preventDefault(); e.stopPropagation();
         return open(rendered[0].id, rendered.slice(1).map(function (t) { return t.id; }));
       }
-      if (VIDEOS[takeOf(a)]) { e.preventDefault(); e.stopPropagation(); return open(takeOf(a)); }
+      if (VIDEOS[takeOf(a)] || YT[takeOf(a)]) { e.preventDefault(); e.stopPropagation(); return open(takeOf(a)); }
     }
     // live: the app plays it in place (no reload), so offer its video from here
     if (!a.classList.contains("ng-all")) offerVideo(takeOf(a));
@@ -407,8 +420,7 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
   document.getElementById("nv-back").addEventListener("click", close);
   // the page's own full-screen button (iPhone: the video's native player, webkitEnterFullscreen);
   // a 16:9 video turns the phone sideways where the browser allows it
-  var full = document.getElementById("nv-full");
-  full.hidden = !(player.requestFullscreen || player.webkitRequestFullscreen || player.webkitEnterFullscreen);
+  full.hidden = !fullOK;
   full.addEventListener("click", function () {
     var go = player.requestFullscreen || player.webkitRequestFullscreen;
     var landscape = function () { if (player.videoWidth > player.videoHeight && screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(function () {}); };
@@ -420,7 +432,7 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
 
   // in the live player: switch this take to its video (the page reloads on a hash change)
   var playing = location.hash.slice(1), toVideo = document.getElementById("narr-to-video"), offered = null;
-  function offerVideo(take) { offered = VIDEOS[take] ? take : null; toVideo.hidden = !offered; }
+  function offerVideo(take) { offered = VIDEOS[take] || YT[take] ? take : null; toVideo.hidden = !offered; }
   toVideo.addEventListener("click", function (e) {
     e.stopPropagation();
     if (!offered) return;
@@ -455,7 +467,7 @@ export function listenHtml(info, { built, commit, base = "", audioBase = base + 
       <h3>${esc(k.yt?.title || k.title)} <span>${mmss(k.duration)}${k.wide ? " · 16:9" : ""}</span></h3>
       <p>${esc(k.yt?.blurb || k.blurb)}</p>
       <audio controls preload="none" src="${audioBase}${esc(k.id)}/mix.m4a"></audio>
-      <p class="alt"><a href="${audioBase}${esc(k.id)}/mix.m4a" download>Save</a> · <a href="${audioBase}${esc(k.id)}/audio.m4a">voice only</a>${k.updated ? ` · updated ${esc(k.updated.slice(0, 10))}` : ""}</p>
+      <p class="alt"><a href="${audioBase}${esc(k.id)}/mix.m4a" download>Save</a>${k.updated ? ` · updated ${esc(k.updated.slice(0, 10))}` : ""}</p>
     </li>`;
   const section = (title, list) => list.length ? `
   <section><h2>${esc(title)}</h2><ul>${list.map(item).join("")}
