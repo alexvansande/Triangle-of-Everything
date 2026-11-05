@@ -8,7 +8,8 @@
 // image's own box and opacity, so reveals, hover growth and zoom carry over.
 // As the camera pans, each turns with its place on screen, a parallax as if
 // seen in 3D. The renderer and particles live in public/hopf/hopf-core.js,
-// shared with /hopf.html. ?hopf=0 turns this off.
+// shared with /hopf.html. ?hopf=0 turns this off. main.js starts this on video pages only, so the
+// plain chart never fetches them (the mobile perf gate's JS budget).
 
 const OPTS = { drift: true, flow: true, width: 1, bloom: 0.9, exposure: 1.1, core: 0.8 };
 const HIDDEN = "hopf-live";
