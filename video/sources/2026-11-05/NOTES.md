@@ -143,6 +143,20 @@ Corrected: "storms" → "stars" ("How were storms born?" → "How are stars born
   (one idea per sentence) before trying again, and restart from the start of the sentence after a beat of
   silence: the cuts come out clean (they did here) and the line reads as one.
 
+**Against the recording tips on file** (the voice-exercise tips themselves aren't in any saved session or note: like
+the script, they were given somewhere this repo can't see):
+- *Mic on-axis, a hand away, the right hand* (rec40's test, 2026-10-27: on-axis is brighter by 5 dB at 4–8 kHz): today
+  is 4 dB duller there than rec53, so the mic sat a little further or more to the side. Bring it back on-axis.
+- *Aircon off, a quiet room*: the floor is 4 dB lower than rec53's; nothing to fix. Six low thumps in the pauses
+  (the truck, the phone being handled), all in parts left out.
+- *Gain* (2026-10-21: "turn the input gain up"): peaks at −6 dBFS, speech at −31 dB: right where the last takes are.
+- *No breath before the first word*: none at the start of any kept clip; ten audible breaths in 126 pauses (one over
+  −40 dB), against two in 31 last time, the same share. The pause cap trims the long ones.
+- *Mic pops on b and p* (rec51 had a few): none in 127 b/p words today.
+- *One take, don't mix takes* (the author, 2026-10-27): the opening is one take throughout.
+- *Restart from the start of the sentence* (so the cut has a seam): mostly done; the mid-sentence restarts are
+  listed above under "the retakes".
+
 ### Scene
 `src/narration-scenes/long-02-intro.js`: the questions whipped through on the chart (Jupiter and the
 Sun; the dead stars; the nurseries and red giants; the black-hole line; the primordial window; the dark
