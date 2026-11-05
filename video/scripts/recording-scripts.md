@@ -112,9 +112,10 @@ transcript and the lines to re-record are under "Long 2 · The opening" below. T
 trying to do an intro… explain visually what we have: show the axis, show log, mass here, size here"). **Dropped by
 the author, on the take: the "new player" (dark energy) passage and its scoreboard column** ("No, I don't like the new
 player. I'm not doing the scoreboard for this. Let's stop suggesting that"), and "Whatever dark matter is, this is
-where it's doing the holding" ("I'm not sure I like that phrase"). Still to record: "Are we living inside a black
-hole?" through the ending (the old rec50 carries "Now add up everything…" for now, with its "13 billion" and the
-"You just told me…" dialogue), and the stars' death paragraph if the iron fix is wanted.
+where it's doing the holding" ("I'm not sure I like that phrase"). **Evening (rec56):** "Are we living inside a black hole?" through the ending, said freely; cut as `long-02-end`.
+Long video 2 is now whole from the day's three takes (19:30), and five Shorts are carved from it (the best
+stories, 1:38–2:10). To retake if wanted: the stars' death paragraph (the iron fix), "both are an event horizon"
+(a kind of horizon), and whatever the author doesn't like on watching it.
 
 **Next step:** a session writes the full one-take script from this (the opening, the bridges, the re-written second
 half, the *Short only* openings), fact-checked, before the author records.
@@ -994,21 +995,21 @@ plays fine.
 >
 > You'd think their light could never reach us, but it's a little more complicated than that. The Hubble sphere is also growing, so light from just beyond it can still, eventually, get here. The real edge is a little further out. That's the cosmic event horizon. Nothing that happens beyond it can ever affect us. We'll never see it, because the light will never reach us. No information, no matter, nothing. It's the limit of the unknowable.
 
-**Are we living inside a black hole?** (still to record: the old rec50 plays for now)
+**Are we living inside a black hole?** (recorded freely, rec56; as cut: `video/long-02-end/edl.py`)
 > Now add up everything we know exists inside the Hubble sphere, and here's where it lands on our chart: right on the black hole line. The line I told you to remember. So what does that mean? Are we living inside a black hole?
 >
 > Well, both are a kind of horizon. A black hole's event horizon is where light that falls in can never come out. Our cosmic horizon is where nothing outside can ever come in. And both depend on the mass of what's inside. The radius of a black hole depends directly on how much stuff is in it, and the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is in it too. So it's no coincidence they're both on the same line.
 >
 > But that's where the similarities end. A black hole is an object with a centre. Our universe is just that: it's *our* universe. It's not *the* universe. If you imagine one of those galaxies that seem to be on the edge for us, well, for them, their universe is centred on them. Point a telescope the other way and they won't see empty space. They'll see a whole lot of other galaxies that are out of our reach. Because as far as we've been able to measure, the universe is practically infinite in all directions.
 
-**The observable universe** (still to record: the old rec50 plays for now, with its "13 billion" and the dialogue)
+**The observable universe** (recorded freely, rec56, with the astronomer at our edge and the microwave background added)
 > And here's the strange part. Ask a scientist how big the universe is, and they won't say fourteen billion light-years. They'll say forty-six billion, in every direction. That's the observable universe: not everything there is, but everything whose light has had time to reach us.
 >
 > Put it on the chart, and it's the one object that falls outside our triangle. That's because it isn't really one object. Its far sides have never been able to talk to each other. Forty-six billion light-years is where those galaxies are right now. But what we see is the light they sent long ago, when they were much closer, and most of them are already beyond our cosmic event horizon. Even if you could travel at the speed of light and live forever, you would never reach them. We'll never even see where they are right now.
 >
 > So the observable universe is less like a map of where our neighbours are, and more like a snapshot of our own history.
 
-**Ending** (*Long only*; still to record)
+**Ending** (*Long only*; recorded, rec56: "…and to be honest, it's as weird as it sounds")
 > So that's the top of the triangle. On the left, the black hole line: squeeze anything hard enough, and gravity wins. On the right, the Hubble sphere: stretch anything far enough, and the expansion wins. And at the very top, where the two lines meet, sits our Hubble sphere: our whole universe.
 >
 > Which leaves one edge. If there's a limit to how big and how heavy something can be, is there a limit to how small? That's the third side of the triangle, and it's the strangest of the three.

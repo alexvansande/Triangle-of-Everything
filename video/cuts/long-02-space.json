@@ -1,6 +1,6 @@
 {
   "title": "The Triangle of Everything: space",
-  "blurb": "The opening and the middle recorded on 2026-11-05 (stars, black holes, dark matter, out to the voids and the second edge), then the old take's Hubble sphere and observable universe.",
+  "blurb": "The upper half of the triangle in one take: planets into stars, how stars die, the black-hole line and the search for dark matter, out to the voids, the second edge, and whether we live inside a black hole (recorded 2026-11-05).",
   "stage": "landscape",
   "gap": 0.6,
   "segments": [
@@ -16,8 +16,7 @@
       "from": "most objects on our chart"
     },
     {
-      "take": "short-05-hubble-sphere",
-      "from": "Now add up everything"
+      "take": "long-02-end"
     }
   ]
 }

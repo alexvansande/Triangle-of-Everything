@@ -13,3 +13,5 @@ long-01-intro
 long-02-intro
 # A piece, not a video: long video 2's middle (rec55, 2026-11-05), the second segment of long-02-space and the source of its Shorts
 long-02-middle
+# A piece, not a video: long video 2's end (rec56, 2026-11-05), the last segment of long-02-space
+long-02-end

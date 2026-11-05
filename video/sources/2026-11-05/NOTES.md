@@ -1,6 +1,6 @@
 # Recordings, 2026-11-05
 
-The Whisper word timings (medium.en, `scripts/narration-take.py`'s settings) are `rec54.words.json` and `rec55.words.json`.
+The Whisper word timings (medium.en, `scripts/narration-take.py`'s settings) are `rec54.words.json`, `rec55.words.json` and `rec56.words.json`.
 
 ## rec54: "Long 2 intro take.m4a" (long video 2's opening, recorded from memory)
 
@@ -182,8 +182,8 @@ suggesting that"** (14:51). Also on the take, after "Whatever dark matter is, th
 | Video | Take | Plays | Made from |
 |---|---|---|---|
 | The middle (a piece) | `long-02-middle` | 9:30 | `video/long-02-middle/edl.py`, 55 clips |
-| Long video 2 (16:9) | `long-02-space` | 16:48 (was 15:12 that morning, 11:54 before) | `video/cuts/long-02-space.json`: the opening (rec54), the middle (rec55, the Short-only line skipped), then video 5's old take from "Now add up everything" |
-| Eight Shorts | `short-l2a` … `short-l2h` | 1:14–2:10 with the 2.5 s opener | `video/cuts/short-l2*.json`, carved from the two takes, each with a visual opener (the axes) in place of a spoken intro |
+| Long video 2 (16:9) | `long-02-space` | 19:30, all new | `video/cuts/long-02-space.json`: the opening (rec54), the middle (rec55, the Short-only line skipped), the end (rec56) |
+| Five Shorts, the best stories | `short-l2-failed-star`, `-how-stars-die`, `-edge-of-the-chart`, `-exploding-heads`, `-inside-a-black-hole` | 1:38–2:10 with the 2.5 s opener | `video/cuts/short-l2-*.json`, carved from the takes by phrase, each opening on the chart's axes (the author's rule, 2026-11-05: not part one, two, three; the best one to two minutes, three only if it's worth it). An earlier set of eight shorter ones (the long video chopped up) was dropped the same day |
 
 Natural speed, `enhance.py --plain`. rec54 is brightened 3 dB above 4 kHz (`SOURCE_FX`) to sit next to rec55, which
 was recorded closer to the mic.
@@ -261,3 +261,55 @@ recorded before it was read, so these are in the cut as said:
 - **Retakes:** fewer than the morning, and the restarts now mostly go back to the start of the sentence, which is
   why the cut has so few splices inside clips. The ones that didn't: the survivors' ending (four tries in one
   breath), "another team realized" (four), the Hubble sphere's "You'd think" (four).
+
+## rec56: "Long 2 take 3.m4a" (the end of long video 2, said freely)
+
+In the Google Drive "Recordings" folder: 11:56, ALAC 48 kHz stereo (used as mono), after a mic test. The author
+said the draft's last three sections (the Hubble sphere on the black-hole line, the observable universe, the
+ending) freely, with many retakes and thinking aloud; cut to 4:41 (`video/long-02-end/edl.py`, 39 clips), the
+last piece of the long video. On the take, as notes to the editor (10:22–10:46): "I think it's missing all the
+dark matter stuff. I really like the dark matter where we were crossing out things… Oh no, I think I saw it.
+Yeah, we did talk about exploding heads… I'm not sure it's a great ending." (The dark matter is in the middle,
+before the turn; its ending, the lucky few survivors, is as recorded.)
+
+### Takes chosen
+The last try unless it slips. Exceptions: "The observable universe is less like a map of where our neighbours
+are" from the first try (the second drops "universe"), joined to the second's "and more like a snapshot of our
+own history"; the astronomer from the second try (the third breaks off); "The universe is, as far as we've been
+able to measure, infinite in all directions" moved after the telescope line, where the draft has it. Thinking
+aloud left out: "That's another bubble. That's even bigger. If you put that on the chart", "Yeah, it's a little
+bit mind-bending because we were talking about our universe, and now I'm saying that there's more in our universe
+that we can see", "We are seeing the past history", "They can see the reason / their reasons", and the long riff
+on the past and the future (6:07–6:41). A stray "galaxies," cut from inside the telescope line; the restart
+"The farthest light we can see is the history of what" left out.
+
+### Captions
+"in your short" → "on our chart", "or cosmic event horizon" → "our cosmic", "outside your boundaries" → "our
+boundaries", "neighbors" → "neighbours", "380 ,000 years out. after" → "380,000 years after".
+
+### Fact check
+- **Imprecise, kept: "both are an event horizon"** and **"the size of the Hubble sphere, the size of our event
+  horizon, is 14 billion light-years."** The Hubble sphere (14 billion light-years, where things recede at the
+  speed of light) is not an event horizon; the cosmic event horizon is a little further out, at about 16 billion,
+  and the take itself said so a minute earlier (the middle: "the real edge is a little further out"). The
+  argument holds either way: both the Hubble radius and the horizon are set by the mass inside. If re-recorded:
+  *"both are a kind of horizon"* and *"the Hubble sphere is 14 billion light-years"* without "our event horizon".
+- **Right:** the mass inside the Hubble sphere landing on the black-hole line (and why: both radii scale with
+  the mass inside); light that falls in never comes out, nothing outside ever comes in; a black hole has a
+  centre, the universe none, each galaxy's Hubble sphere centred on itself and more galaxies beyond ours; flat
+  and, as far as we can measure, infinite; the observable universe at 46 billion light-years; an astronomer at
+  our edge seeing a more recent past of galaxies beyond us, whose message would never reach us (beyond our event
+  horizon); the farthest light as history, not a map; the observable universe outside the triangle, not one
+  object, its sides never in touch; the cosmic microwave background as the oldest light, from about 380,000
+  years after the Big Bang when the universe turned transparent, a picture of the very early universe; the two
+  edges, gravity on the left and expansion on the right, meeting at the top; the third side next.
+- **One word, kept: "sits our whole universe"**: our Hubble sphere, strictly; the observable universe is the
+  one thing outside the triangle, as the take says a minute before.
+
+### The voice
+Peaks at −0.8 dBFS but no clipping. Level −28 dB throughout, pitch 135–160 Hz with the widest range of the three
+takes (the questions lift), brightness as in rec55 (the mic stayed close); no warm-up dip this time, it was the
+third take of the day. The retakes are of a different kind: not stumbles but rewordings, the author trying the
+idea four or five ways ("Now, here's a fun / interesting / weird thing"; the astronomer three times; the third
+side three times). That costs nothing in the cut, but the thinking-aloud stretches (a minute in all) are easier
+to cut when they're marked, e.g. a clap or "note:" before them.
