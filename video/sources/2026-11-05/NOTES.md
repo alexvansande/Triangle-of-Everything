@@ -1,6 +1,6 @@
 # Recordings, 2026-11-05
 
-The Whisper word timings (medium.en, `scripts/narration-take.py`'s settings) are `rec54.words.json`.
+The Whisper word timings (medium.en, `scripts/narration-take.py`'s settings) are `rec54.words.json` and `rec55.words.json`.
 
 ## rec54: "Long 2 intro take.m4a" (long video 2's opening, recorded from memory)
 
@@ -166,3 +166,98 @@ the pan from a bacterium to Jupiter, the round worlds and the atmospheres, the s
 fork, then video 3's shots (the Jupiter dive, the brown dwarfs, hydrogen and deuterium on black, the
 main sequence) and the top of the main sequence with R136a1 for the cap. The scoreboard shows the same
 2 × 0 as long video 1 at "favours gravity". Every cue found (`scripts/narration-frames.mjs`).
+
+## rec55: "Long 2 take 2.m4a" (the middle of long video 2, from the draft)
+
+In the Google Drive "Recordings" folder: 17:29, ALAC 48 kHz stereo (used as mono), after the morning's rec54. The
+author read the draft (`video/scripts/long-02-space.draft.md`, found that day) from the brown dwarfs to the cosmic
+event horizon, after a mic test and a note to the editor (0:00–0:25): the first two minutes repeat the brown dwarfs
+to the cap on the heaviest stars as a warm-up ("you told me that the first two minutes should always be counted as
+a rough draft"), so the cut uses rec54 for those and starts rec55 at "That new truce…". Not recorded: "Now add
+up everything…" to the end (the old rec50 carries it in the cut), and the draft's "new player" passage, which the
+author struck on the take: **"No, I don't like the new player. I'm not doing the scoreboard for this. Let's stop
+suggesting that"** (14:51). Also on the take, after "Whatever dark matter is, this is where it's doing the holding":
+**"I'm not sure I like that phrase"** (13:52), so the phrase is out of the cut.
+
+| Video | Take | Plays | Made from |
+|---|---|---|---|
+| The middle (a piece) | `long-02-middle` | 9:30 | `video/long-02-middle/edl.py`, 55 clips |
+| Long video 2 (16:9) | `long-02-space` | 16:48 (was 15:12 that morning, 11:54 before) | `video/cuts/long-02-space.json`: the opening (rec54), the middle (rec55, the Short-only line skipped), then video 5's old take from "Now add up everything" |
+| Eight Shorts | `short-l2a` … `short-l2h` | 1:14–2:10 with the 2.5 s opener | `video/cuts/short-l2*.json`, carved from the two takes, each with a visual opener (the axes) in place of a spoken intro |
+
+Natural speed, `enhance.py --plain`. rec54 is brightened 3 dB above 4 kHz (`SOURCE_FX`) to sit next to rec55, which
+was recorded closer to the mic.
+
+### Takes chosen
+The last try everywhere, except: the survivors' second half from the first try ("And we, everything else, the
+galaxies, the stars, everything we know, are just the lucky few survivors": the last try restarts it four times),
+the Hubble sphere's "You'd think their light could never reach us…" from the first of four tries (the last
+stumbles: "let's call it is a little bit more complicated"), and the plant from its first try ("Now, remember this
+line. It will be important": the retake breaks up). The retake of "Every diagonal on this chart represents density"
+and "The further right we go, the emptier things get" (the first try of each runs on into a restart). New lines
+in this take, not in the draft: "White dwarfs and super-Jupiters have the density of degenerate matter. Most of the
+stuff has the density of atoms"; "They even looked at death records to make sure that it wasn't happening"; "You
+take one pixel and turn it into four, or five, or ten".
+- Restarts cut from inside clips: "And every search has come–" (500.8 given as the start), "or a whole asteroid's
+  mass squeezing to something," (cut span), "made about," before "made of about a hundred thousand galaxies"
+  (cut span), the first "and it's a very important line" (the clip is split round it).
+- Starts given where Whisper merged a false start into the words: "Now" (307.45), "Galaxy clusters" (840.45),
+  "Another team" (609.0).
+
+### Left out
+- The warm-up (0:38–2:50): the brown dwarfs to the cap, said again; rec54 has them.
+- "An object so weird that it deserves its own video. That's only for the short": the line is in the take
+  (`core-short`) and the Short "How do stars die?" ends on it; the long cut skips it.
+- "Whatever dark matter is, this is where it's doing the holding" (the author's doubt), "Bigger means empty" (a
+  heading read aloud), "And here, something changes" (the start of the struck passage), the aside about the new
+  player and the scoreboard, "Thank you very much".
+
+### Captions
+Corrected: "both objects on our short" → "most objects on our chart", "fit exactly" → "sit exactly", "it will be
+even important" → "it will be important", "protostaur" → "protostar", "lamps" → "lumps", "tough to be" → "thought
+to be", "weight galaxies" → "weigh", "waited a minute ago" → "weighed", "deaf records" → "death records", "no
+mother" → "no matter", "damp soup" → "dense soup", "truth" → "truce", "instance" → "instants", "nebulas" →
+"nebulae"; "lucky few survivors. So that's the" put back where Whisper dropped it at a join.
+
+### Fact check
+The draft's fact check (`video/scripts/recording-scripts.md`, "Long 2 · The author's draft") stands; the take was
+recorded before it was read, so these are in the cut as said:
+- **Wrong for most stars: "until all that is left is a core made mostly of iron and other heavy metals… so the
+  star enters in a catastrophic core collapse."** Only stars over about eight Suns burn to iron and collapse; a
+  star like the Sun stops at carbon and oxygen (the take's own white dwarf, a minute later) and sheds its layers
+  gently. "Heavy metals" aren't made there. **To re-record:** the paragraph in the scripts file ("The truce
+  breaks when the fuel runs out…").
+- **Imprecise: "or sometimes helium"** (the fuel that runs out): hydrogen first, then helium, carbon…; fine.
+- **Imprecise: "They go from a few Suns to billions of stars"** → billions of Suns.
+- **Imprecise: "White dwarfs and super-Jupiters have the density of degenerate matter."** Degenerate matter has no
+  one density: brown dwarfs and super-Jupiters sit at 10–100 g/cm³, white dwarfs at about a million. What they
+  share is what holds them up (the electrons' refusal to be squeezed). Suggested: *"White dwarfs and super-Jupiters
+  are held up by degenerate matter."*
+- **Right:** everything else as in the draft's check: the truce and its billions of years; the cycle of remnants,
+  nebulae and nurseries; the white dwarf as carbon and oxygen; neutron stars at the neutron's density; the
+  black-hole line as the top-left edge, the 45°, the Sun at 6 km and the Earth as a marble; the supermassive ones
+  lighter than water (M87*, TON 618 beyond Pluto's orbit); the primordial window closed by quasars, the CMB,
+  gravitational waves and microlensing, and by evaporation below; a virus-sized black hole with a small moon's
+  mass; galaxies five to ten times heavier than they look; the rocks and the injuries (and the death records:
+  Sidhu, Scherrer & Starkman checked for unexplained deaths); the turn; emptier the bigger; the Local Group,
+  clusters bound, Laniakea's hundred thousand galaxies, voids with mass; the Hubble line at fourteen billion
+  light-years, light from just beyond it still arriving, the cosmic event horizon a little further out.
+
+### The voice, minute by minute (the warm-up the author asked about)
+| minute | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| speech dB | −29 | −27 | −29 | −29 | −29 | −27 | −28 | −28 | −28 | −27 | −28 | −28 | −29 | −28 | −29 | −26 | −26 |
+| pitch Hz | 144 | 133 | 140 | 139 | 130 | 146 | 149 | 153 | 142 | 161 | 158 | 150 | 136 | 150 | 138 | 147 | 150 |
+| over 4 kHz dB | −23 | −23 | −26 | −25 | −26 | −25 | −22 | −19 | −20 | −22 | −23 | −20 | −25 | −22 | −21 | −19 | −25 |
+
+- **The warm-up is real, and it's about five minutes, not two.** The voice opens up from minute 6 (2–6 dB more
+  above 4 kHz, the pitch range widening) and is loudest in the last three minutes. Minutes 2–4 are the dullest of
+  the take. Since the first two minutes were the repeated brown dwarfs, the dull stretch falls on the truce and the
+  star's death, the first thing the cut uses. Next time: warm up with something that isn't in the script.
+- **Against rec54 (the morning):** 3 dB louder, 4–8 dB brighter above 4 kHz (the mic closer or on-axis: the
+  morning's note taken), the pitch a fifth higher on average (145 against 122 Hz) with a wider range: more
+  projection, more lift at the ends of questions, less of the "radio" lowness. Pace 121 words per minute of
+  speech, the same as the morning. Peaks −3.5 dBFS, no clipping; the floor −79 dB.
+- **Retakes:** fewer than the morning, and the restarts now mostly go back to the start of the sentence, which is
+  why the cut has so few splices inside clips. The ones that didn't: the survivors' ending (four tries in one
+  breath), "another team realized" (four), the Hubble sphere's "You'd think" (four).

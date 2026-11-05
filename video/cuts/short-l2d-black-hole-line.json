@@ -1,0 +1,12 @@
+{
+  "title": "What's the densest anything can be?",
+  "blurb": "The black-hole line, the edge of the chart: the Sun at 6 km, the Earth as a marble, and the black holes that would float.",
+  "lead": 2.5,
+  "segments": [
+    {
+      "take": "long-02-middle",
+      "from": "most objects on our chart",
+      "to": "bigger than Pluto's orbit"
+    }
+  ]
+}

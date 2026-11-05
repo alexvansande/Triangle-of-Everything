@@ -15,6 +15,9 @@
 # each cut to the nearest real silence and caps the pauses inside a clip (PAUSES).
 
 SOURCES = {"rec54": "Long 2 intro take.m4a"}
+# rec54 sits a little further from the mic than rec55 (the take that follows it in the cut: 4 dB less above 4 kHz,
+# 8 dB less above 8 kHz), so it's brightened to meet it halfway (2026-11-05, the voice notes in NOTES.md)
+SOURCE_FX = {"rec54": "highshelf=f=4000:g=3"}
 TREATMENT = "plain"
 PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
 

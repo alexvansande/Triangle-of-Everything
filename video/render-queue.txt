@@ -41,3 +41,12 @@
 # short-00-powers-of-ten source reconciled and pushed to powers-of-ten: e47ab7b2
 # long-02-space: a new opening (rec54, 2026-11-05) and video 3 joined from "as the fuel for fusion is used up": new audio, render whole
 long-02-space
+# long video 2 (the author, 2026-11-05): the middle re-recorded (rec55) and eight Shorts carved from it, each with a visual opener
+short-l2a-tug-of-war
+short-l2b-failed-star
+short-l2c-how-stars-die
+short-l2d-black-hole-line
+short-l2e-smallest-black-hole
+short-l2f-exploding-heads
+short-l2g-bigger-emptier
+short-l2h-second-edge

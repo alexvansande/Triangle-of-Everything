@@ -105,8 +105,16 @@ Nine Shorts from one session: three weeks at one every other day.
 session. The author recorded the opening **from memory** (rec54, `video/sources/2026-11-05/`): items 1 and 2 above
 are now done in one take, up to the light-pressure cap on the heaviest stars (new), and it's cut as `long-02-intro`,
 the first piece of `long-02-space` (video 3's take carries on from "as the fuel for fusion is used up"). Its
-transcript and the lines to re-record are under "Long 2 · The opening" below. The author's draft script turned up later that day: see "Long 2 · The author's draft" below for its fact check and
-the part still to record (from "That new truce…" to the end, and the *Short only* openings).
+transcript and the lines to re-record are under "Long 2 · The opening" below. The author's draft script turned up later that day: see "Long 2 · The author's draft" below for its fact check.
+**Afternoon (rec55):** the author recorded the draft from the brown dwarfs to the cosmic event horizon; it's cut as
+`long-02-middle`, the second piece of `long-02-space`, and eight Shorts are carved from the two takes
+(`video/cuts/short-l2*.json`), each opening on the chart's axes instead of a spoken intro (the author: "instead of
+trying to do an intro… explain visually what we have: show the axis, show log, mass here, size here"). **Dropped by
+the author, on the take: the "new player" (dark energy) passage and its scoreboard column** ("No, I don't like the new
+player. I'm not doing the scoreboard for this. Let's stop suggesting that"), and "Whatever dark matter is, this is
+where it's doing the holding" ("I'm not sure I like that phrase"). Still to record: "Are we living inside a black
+hole?" through the ending (the old rec50 carries "Now add up everything…" for now, with its "13 billion" and the
+"You just told me…" dialogue), and the stars' death paragraph if the iron fix is wanted.
 
 **Next step:** a session writes the full one-take script from this (the opening, the bridges, the re-written second
 half, the *Short only* openings), fact-checked, before the author records.
@@ -947,7 +955,7 @@ plays fine.
 
 ### Script to record next (the draft from "That new truce…", the fixes applied; *Long only* unless marked)
 
-**The truce, and how it breaks** (replaces video 3's take from "as the fuel for fusion is used up" on)
+**The truce, and how it breaks** (recorded as rec55 with the draft's wording; this is the version with the iron fix, to re-record if wanted)
 > That new truce between the two forces, one pushing it to the left and the other to the right, will last billions of years for a star like the Sun, and only a few million for the biggest.
 >
 > The truce breaks when the fuel runs out. With no more hydrogen to burn, the core shrinks under its own weight, and that squeeze heats it until the next fuel catches: helium. That pushes the star out again, far bigger than before: a red giant. For a star like the Sun, that's the end of the road: it puffs its outer layers away and leaves its core behind. The biggest stars go on: shrink, ignite, swell, again and again, burning carbon, then oxygen, then silicon, until the core is iron. And iron is where fusion stops paying. Fusing it costs energy instead of giving it, so the fire goes out and the core collapses in less than a second. Either way, the star is split in two: two distinct objects on our chart.
@@ -962,53 +970,51 @@ plays fine.
 >
 > *(Long only:)* And black holes are strange enough that they're worth a closer look.
 
-**Black holes** (as cut, rec48; only these two to record)
+**Black holes** (recorded whole in rec55, these two lines included)
 > Remember this line. It comes back at the very largest scale.
 >
 > And we've been looking for them: with quasars, with the cosmic microwave background, with gravitational waves, and finally with microlensing.
 
-**The turn** (*Long only*)
+**The turn** (*Long only*; recorded, rec55)
 > So that's the first edge of the triangle, and what lives on it. Now let's turn around and go the other way: to the right, to the biggest things there are.
 
-**Bigger means emptier** (replaces rec49's opening of video 5)
+**Bigger means emptier** (recorded, rec55, without "Whatever dark matter is…" and without the new player)
 > Every diagonal line on this chart is a density. We saw that neutron stars have the density of a neutron, and the supermassive black holes were already less dense than water. The further right we go, the emptier things get, because the bigger something is, the less dense it is. A galaxy is mostly the empty space between its stars. Here's our own, the Milky Way, and its sister, Andromeda. We live in a small group of galaxies called the Local Group. And these are the galaxies we weighed a minute ago: five to ten times heavier than everything we can see in them. Whatever dark matter is, this is where it's doing the holding.
 >
 > Galaxy clusters are even less dense, because now it's the galaxies plus all the empty space between them. But gravity still holds them together. And above that are the largest structures we know of: superclusters, which come in the shape of filaments. We live in one called Laniakea, made of about a hundred thousand galaxies.
 >
-> And here, for the first time, something changes. Until now gravity has won every match: it rounded the moons, it crushed the atoms, it crushed the electrons, it made the black holes. Four to nothing. But a supercluster isn't held together. The space inside it is stretching faster than gravity can pull it back, and in the far future Laniakea will have come apart. So at the very largest scale there's a new player, and it isn't one of the four forces. We call it dark energy.
+> *(The "new player" paragraph is out: the author struck it on the take, 2026-11-05.)*
 >
 > There's still something larger: voids. Voids are just empty regions of space. Not completely empty, just emptier than the space around them. So they do have mass, and they fit on the chart.
 
-**The second edge** (rec49 + rec50 as cut, with the fix; record whole if the voice should match)
+**The second edge** (recorded, rec55, with the fourteen billion)
 > But can anything be bigger than that? Try to go any bigger, and you reach the second edge: the Hubble sphere.
 >
 > The speed of light isn't really about light. It's the speed limit for anything travelling through space. But space itself can stretch faster than that. The universe is expanding, not like a ball blowing up into something. It's more as if there's just more space being created all the time, everywhere. It's like raising the resolution of a photo: you take one pixel and turn it into four. That means the further away something is, the faster it's moving away from us. And at the Hubble line, things are moving away from us at the speed of light. That line is roughly fourteen billion light-years away, in every direction.
 >
 > You'd think their light could never reach us, but it's a little more complicated than that. The Hubble sphere is also growing, so light from just beyond it can still, eventually, get here. The real edge is a little further out. That's the cosmic event horizon. Nothing that happens beyond it can ever affect us. We'll never see it, because the light will never reach us. No information, no matter, nothing. It's the limit of the unknowable.
 
-**Are we living inside a black hole?**
+**Are we living inside a black hole?** (still to record: the old rec50 plays for now)
 > Now add up everything we know exists inside the Hubble sphere, and here's where it lands on our chart: right on the black hole line. The line I told you to remember. So what does that mean? Are we living inside a black hole?
 >
 > Well, both are a kind of horizon. A black hole's event horizon is where light that falls in can never come out. Our cosmic horizon is where nothing outside can ever come in. And both depend on the mass of what's inside. The radius of a black hole depends directly on how much stuff is in it, and the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is in it too. So it's no coincidence they're both on the same line.
 >
 > But that's where the similarities end. A black hole is an object with a centre. Our universe is just that: it's *our* universe. It's not *the* universe. If you imagine one of those galaxies that seem to be on the edge for us, well, for them, their universe is centred on them. Point a telescope the other way and they won't see empty space. They'll see a whole lot of other galaxies that are out of our reach. Because as far as we've been able to measure, the universe is practically infinite in all directions.
 
-**The observable universe**
+**The observable universe** (still to record: the old rec50 plays for now, with its "13 billion" and the dialogue)
 > And here's the strange part. Ask a scientist how big the universe is, and they won't say fourteen billion light-years. They'll say forty-six billion, in every direction. That's the observable universe: not everything there is, but everything whose light has had time to reach us.
 >
 > Put it on the chart, and it's the one object that falls outside our triangle. That's because it isn't really one object. Its far sides have never been able to talk to each other. Forty-six billion light-years is where those galaxies are right now. But what we see is the light they sent long ago, when they were much closer, and most of them are already beyond our cosmic event horizon. Even if you could travel at the speed of light and live forever, you would never reach them. We'll never even see where they are right now.
 >
 > So the observable universe is less like a map of where our neighbours are, and more like a snapshot of our own history.
 
-**Ending** (*Long only*)
+**Ending** (*Long only*; still to record)
 > So that's the top of the triangle. On the left, the black hole line: squeeze anything hard enough, and gravity wins. On the right, the Hubble sphere: stretch anything far enough, and the expansion wins. And at the very top, where the two lines meet, sits our Hubble sphere: our whole universe.
 >
 > Which leaves one edge. If there's a limit to how big and how heavy something can be, is there a limit to how small? That's the third side of the triangle, and it's the strangest of the three.
 
-**Short only openings** (one line each, said before the matching passage; the list is in the plan above):
-"Where do stars come from?", "What's left when a star dies?", "Can a black hole be less dense than water?",
-"What's the smallest black hole there could be?", "How do we know where dark matter isn't?", "Are we living inside
-a black hole?", "How big is the universe, really?"
+**Short only openings:** none needed any more. The Shorts open on the chart's axes (the author, 2026-11-05), not on a
+spoken line; each is carved from the long take by phrase (`video/cuts/short-l2*.json`).
 
 ---
 

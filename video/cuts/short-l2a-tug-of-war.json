@@ -1,0 +1,12 @@
+{
+  "title": "Why is everything a tug of war?",
+  "blurb": "Gravity against electromagnetism, from the smallest life to Jupiter, and the split.",
+  "lead": 2.5,
+  "segments": [
+    {
+      "take": "long-02-intro",
+      "from": "if you plot everything by mass and size",
+      "to": "exploring that split"
+    }
+  ]
+}

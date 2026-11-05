@@ -8,6 +8,7 @@ The cut file names its pieces by phrase, so they stay put when a source take's t
 
     { "title": "…", "blurb": "…", "stage": "landscape",      # stage: the player's (default 9:16)
       "gap": 0.6,                                            # s of silence between pieces of different takes
+      "lead": 2.5,                                           # s of silence before the first piece (a visual opener, cues on `t`)
       "segments": [
         { "take": "short-01-hook", "to": "all the stories it contains" },
         { "take": "short-02-up-the-line", "from": "almost everything falls" },
@@ -83,7 +84,8 @@ def backing(take, scene):
 def main(name):
     cut = json.load(open(os.path.join(ROOT, "video", "cuts", f"{name}.json")))
     gap = cut.get("gap", 0.6)
-    pieces, words, segments, at = [], [], [], 0.0
+    lead = cut.get("lead", 0.0)      # s of silence before the first piece (a Short's visual opener: the axes, the author, 2026-11-05)
+    pieces, words, segments, at = [], [], [], lead
     for n, s in enumerate(cut["segments"]):
         src = json.load(open(os.path.join(NARR, s["take"], "words.json")))
         ws = src["words"]
@@ -110,6 +112,10 @@ def main(name):
     for kind in ("audio", "mix"):
         with tempfile.TemporaryDirectory() as tmp:
             parts = []
+            if lead > 0:
+                g = os.path.join(tmp, "lead.wav")
+                ffmpeg("-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", f"{lead:.3f}", g)
+                parts.append(g)
             for k, (take, src, a, b, t) in enumerate(pieces):
                 f = src.get(kind) or src["audio"]
                 fade = FADE if kind == "audio" else MIX_FADE

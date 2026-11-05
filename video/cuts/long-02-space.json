@@ -1,6 +1,6 @@
 {
   "title": "The Triangle of Everything: space",
-  "blurb": "The opening recorded on 2026-11-05, then stars, black holes and the Hubble sphere (videos 3–5, joined).",
+  "blurb": "The opening and the middle recorded on 2026-11-05 (stars, black holes, dark matter, out to the voids and the second edge), then the old take's Hubble sphere and observable universe.",
   "stage": "landscape",
   "gap": 0.6,
   "segments": [
@@ -8,21 +8,16 @@
       "take": "long-02-intro"
     },
     {
-      "take": "short-03-stars",
-      "from": "as the fuel for fusion is used up"
+      "take": "long-02-middle",
+      "to": "collapse into a black hole"
     },
     {
-      "take": "short-04-black-holes",
-      "from": "Most objects in this chart are a bunch"
-    },
-    {
-      "take": "short-05-hubble-sphere",
-      "from": "You see that everything that is made of matter",
-      "to": "supernova remnants"
+      "take": "long-02-middle",
+      "from": "most objects on our chart"
     },
     {
       "take": "short-05-hubble-sphere",
-      "from": "Every diagonal line represents a density"
+      "from": "Now add up everything"
     }
   ]
 }
