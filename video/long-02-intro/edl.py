@@ -45,9 +45,9 @@ EDL = [
  ("rec54", "dance", 199.94, 202.74),       # This diagonal line is where they reach their equilibrium point.   (the retake; "This diagonal line is where they reach, this diagonal line," left out)
  ("rec54", "dance", 207.58, 211.64),       # That's the density of atoms, and of everything that is made of them.
  ("rec54", "dance", 233.26, 239.36),       # Make it too compact and the electrons will push it out. Make it too big and it will collapse in its own weight.   (the last of three tries)
- ("rec54", "trend", 255.04, 265.04),       # That trend will follow from the smallest form of life to the larger planets.   (the last of three tries; the 4 s hesitation after "form" capped)
+ ("rec54", "trend", 255.04, 265.04, {"s": 260.75}),       # That trend will follow from the smallest form of life to the larger planets.   (the last of three tries; the 4 s hesitation after "form" capped)
  ("rec54", "round", 301.50, 307.38),       # That balance is what pushes planets to be round, what decides what sort [of] atmosphere they have.   (after the truck and three false starts)
- ("rec54", "jupiter", 353.50, 360.06),     # That trend stops once we reach Jupiter-sized planets.   (the last of six tries)
+ ("rec54", "jupiter", 353.50, 360.06, {"s": 357.05}),     # That trend stops once we reach Jupiter-sized planets.   (the last of six tries)
  # the split
  ("rec54", "split", 371.86, 376.66),       # You see that now most objects go straight up and then they split.   ("some veer to the— and some veer to the left" left out: the "right" is missing)
  ("rec54", "split", 386.50, 387.94),       # Today, we're exploring that split.   (the second try)
@@ -55,7 +55,7 @@ EDL = [
  ("rec54", "stars", 389.24, 394.76),       # See, the thing is, we tend to think of planets and stars as completely different things, but that's not really true.
  ("rec54", "heat", 402.64, 406.80),        # In fact, Saturn and Jupiter, they create more heat than they receive from the Sun.   (the third "in fact")
  ("rec54", "heat", 425.10, 428.90),        # And most of it is generated in the high pressure inside their cores.   (the last of three tries)
- ("rec54", "gravity", 459.20, 464.54, {"s": 458.40}),  # Here, that delicate tension now favours gravity.   (the second try; Whisper puts "Here" 0.6 s late, so its start is given; what follows it, "gravity, the core pressure is so high…", and the five tries after are left out)
+ ("rec54", "gravity", 459.20, 464.54, {"s": 462.00}),  # Here, that delicate tension now favours gravity.   (the second try; Whisper puts "Here" 0.6 s late, so its start is given; what follows it, "gravity, the core pressure is so high…", and the five tries after are left out)
  ("rec54", "gravity", 518.22, 533.78),     # There's so much weight that the inward force is higher than the outward force of the electrons pushing away from each other, and they are stripped out of their nuclei, leaving what we call degenerate matter,   (the last try; the 3 s pause after "that" capped)
  ("rec54", "gravity", 538.78, 542.56, {"s": 540.30}),  # just protons, neutrons, and a sea of electrons.   (its start given: "just nuclei," before it, a slip Whisper merged into the words, left out)
  ("rec54", "bd", 582.94, 590.92),          # Increase the mass further, and we reach brown dwarfs. A weird in-between object, too big to be a planet, too small to be a star.   (the last of four tries)
@@ -69,7 +69,7 @@ EDL = [
  ("rec54", "fusion", 711.48, 714.48),      # pushing our objects again to the right.
  ("rec54", "ms", 739.88, 745.88),          # Stars are usually found in this diagonal line, called the main sequence. And they will be there for most of their lives.   (the last of three tries)
  # the cap on the biggest stars
- ("rec54", "limit", 829.40, 843.50),       # But that line also has a limit, because light itself has pressure. And if a star shines just too bright, their outer layers will be sent away with such force that any extra mass will be simply thrown away   (the last of six tries)
+ ("rec54", "limit", 829.40, 843.50, {"s": 829.30}),       # But that line also has a limit, because light itself has pressure. And if a star shines just too bright, their outer layers will be sent away with such force that any extra mass will be simply thrown away   (the last of six tries)
  ("rec54", "limit", 845.42, 847.52),       # higher than the orbital velocity of the star,
  ("rec54", "limit", 849.84, 851.16),       # and escape its gravity well.
  ("rec54", "limit", 867.82, 874.64, {"s": 871.05}),  # So right around here is where the largest stars live.   (the last of three tries; its start given: "So, right aroun– So right around here," before it, two false starts Whisper merged into one "So")

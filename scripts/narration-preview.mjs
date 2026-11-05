@@ -139,7 +139,17 @@ const built = gitDate() || new Date().toISOString();
 const commit = (() => { try { return execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim(); } catch { return ""; } })();
 html = html.replace("</body>", gridHtml(info, { built, commit }) + "\n</body>");
 fs.writeFileSync(path.join(OUT, "index.html"), html);
-fs.writeFileSync(path.join(OUT, "listen.html"), listenHtml(info, { built, commit }));
+fs.writeFileSync(path.join(OUT, "listen.html"), listenHtml(info, { built, commit, audioBase: MP3 ? "" : "/narration/" }));
+// GitHub Pages refuses an artifact over 1 GB (2026-11-05: 1.31 GB, every deploy failed). The audio lives once, in the
+// site's own /narration/ (the player loads a take from there, import.meta.env.BASE_URL): the page's copies of the
+// m4a files go, and the site's copy keeps the audio only for the takes on the page. Every words.json stays (a cut's
+// player reads its pieces'), and so do the stills. (Not for the MP3 build: that one stands alone.)
+if (!MP3) {
+  for (const t of takes) for (const f of ["audio.m4a", "mix.m4a"]) rm(`narration/${t}/${f}`);
+  const root = path.join(OUT, "..", "narration");
+  if (fs.existsSync(root)) for (const t of fs.readdirSync(root)) if ((!takes.includes(t) || retired.has(t)) && t !== "photos")
+    for (const f of ["audio.m4a", "mix.m4a"]) fs.rmSync(path.join(root, t, f), { force: true });
+}
 // Body-only variant: hosts that add their own <!doctype>/<head>/<body> skeleton
 const page = html
   .replace(/<!DOCTYPE html>\s*/i, "")

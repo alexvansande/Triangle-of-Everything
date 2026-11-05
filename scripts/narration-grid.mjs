@@ -439,7 +439,7 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
 /** A listen-only page next to the grid (listen.html): each take's audio with its sound design in a plain
  *  <audio>, long videos first, then their shorts; no map, no player, so a phone can play it on the move
  *  (the author, 2026-11-05: Safari crashed the live page, "a problem repeatedly occurred"). */
-export function listenHtml(info, { built, commit, base = "" }) {
+export function listenHtml(info, { built, commit, base = "", audioBase = base + "narration/" }) {
   const esc = (x) => String(x).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const mmss = (d) => `${Math.floor(d / 60)}:${String(Math.round(d % 60)).padStart(2, "0")}`;
   const shorts = info.filter(k => !k.long && !k.renderOnly), longs = info.filter(k => k.long);
@@ -454,8 +454,8 @@ export function listenHtml(info, { built, commit, base = "" }) {
     <li id="${esc(k.id)}">
       <h3>${esc(k.yt?.title || k.title)} <span>${mmss(k.duration)}${k.wide ? " · 16:9" : ""}</span></h3>
       <p>${esc(k.yt?.blurb || k.blurb)}</p>
-      <audio controls preload="none" src="${base}narration/${esc(k.id)}/mix.m4a"></audio>
-      <p class="alt"><a href="${base}narration/${esc(k.id)}/mix.m4a" download>Save</a> · <a href="${base}narration/${esc(k.id)}/audio.m4a">voice only</a>${k.updated ? ` · updated ${esc(k.updated.slice(0, 10))}` : ""}</p>
+      <audio controls preload="none" src="${audioBase}${esc(k.id)}/mix.m4a"></audio>
+      <p class="alt"><a href="${audioBase}${esc(k.id)}/mix.m4a" download>Save</a> · <a href="${audioBase}${esc(k.id)}/audio.m4a">voice only</a>${k.updated ? ` · updated ${esc(k.updated.slice(0, 10))}` : ""}</p>
     </li>`;
   const section = (title, list) => list.length ? `
   <section><h2>${esc(title)}</h2><ul>${list.map(item).join("")}

@@ -35,14 +35,14 @@ EDL = [
  ("rec55", "bh", 325.33, 338.51),          # Any object that becomes too small for its mass collapses into a black hole, and every black hole lives exactly on this line, meaning that there's no object that could ever exist above or to the left of it.
  ("rec55", "plant", 342.01, 343.81),       # Now, remember this line. It will be important.   (the first try; "Remember this line, … and it comes back later" after it breaks up)
  ("rec55", "size", 356.05, 367.53),        # A black hole doesn't really have a size. It's thought to be a singularity, a point. But it does have an event horizon, the distance from which nothing can escape, and that grows in step with its mass.   (the "so" before it, 2.4 s earlier, left out)
- ("rec55", "size", 378.05, 382.67),        # That's why the edge is a straight 45-degree line.   (the retake; the first try runs on into a broken "Squeeze the Sun")
+ ("rec55", "size", 378.05, 382.67, {"s": 380.30}),        # That's why the edge is a straight 45-degree line.   (the retake; the first try runs on into a broken "Squeeze the Sun")
  ("rec55", "size", 384.29, 390.05),        # Squeeze the Sun into a black hole and it will be about 6 km wide, and the Earth would be the size of a marble.
  ("rec55", "known", 393.25, 408.19),       # The black holes we know of form in the collapsing core of dying stars, or grow by swallowing gas and merging with other black holes. They go from a few Suns to billions of stars. The one in the centre of our Milky Way, for example, has 4 million solar masses.
  ("rec55", "known", 409.61, 423.97),       # And here's the strange part: the bigger they get, the less dense they are. The really supermassive ones are less dense than water. They would float, if you had a pool big enough. Like M87, the first black hole ever to be photographed,
  ("rec55", "known", 425.03, 427.71),       # or TON 618, one of the largest we know of.
  ("rec55", "known", 429.09, 432.45),       # Its event horizon is bigger than Pluto's orbit.
- ("rec55", "small", 435.77, 442.49),       # But the most interesting question isn't how big a black hole can be, but how small.
- ("rec55", "small", 443.53, 484.37),       # With enough pressure, anything can become a black hole. We can't create one in the lab, but we know two places where that condition exists. The first one, as I said, is the core of a dying star. But the second was the very first instants after the Big Bang, when everything was a super hot and dense soup. But some of that soup could have collapsed into black holes of every size, and some of this might just be around.
+ ("rec55", "small", 435.77, 442.49, {"s": 438.60}),       # But the most interesting question isn't how big a black hole can be, but how small.
+ ("rec55", "small", 443.53, 484.37, {"s": 446.00}),       # With enough pressure, anything can become a black hole. We can't create one in the lab, but we know two places where that condition exists. The first one, as I said, is the core of a dying star. But the second was the very first instants after the Big Bang, when everything was a super hot and dense soup. But some of that soup could have collapsed into black holes of every size, and some of this might just be around.
  ("rec55", "search", 489.03, 495.97),      # And we've been looking for them: with quasars and the cosmic microwave background, with gravitational waves, and finally with microlensing.   (the second try; the first breaks off after "for them,")
  ("rec55", "search", 498.11, 505.11, {"s": 500.80}),  # And every search so far came up empty, and the window where they could hide keeps closing.   (its start given: the false start "And every search has come–" before it, which Whisper merged into the words)
  ("rec55", "search", 506.39, 511.85),      # They can't be too small either, or they would have evaporated by now, through a process we call Hawking radiation.
@@ -57,15 +57,16 @@ EDL = [
  ("rec55", "dm", 632.89, 637.11),          # They even looked at death records to make sure that it wasn't happening.   (new, the last of four tries; "Yes, it's not" after it left out)
  ("rec55", "dm", 644.23, 645.59),          # So we crossed out this area.
  ("rec55", "dm", 646.69, 652.77, {"e": 654.2}),  # The search for dark matter is really a lot of scientists scratching off areas of this map, one by one.   (the false start "But I still find it fascinating that just maybe in the first very…" after it left out)
- ("rec55", "survivors", 678.87, 696.29),   # But I still find it fascinating that maybe, just maybe, in the very first moments of our history, most of the matter that existed collapsed into black holes.   (the second try; its 8 s pause after "maybe," capped)
- ("rec55", "survivors", 669.05, 675.93),   # And we, everything else, the galaxies, the stars, everything we know, are just the lucky few survivors.   (the first try: the second's ending restarts four times)
+ ("rec55", "survivors", 659.93, 675.93),   # But I still find it fascinating that maybe, in the first very moments of our history, most of the matter that existed just collapsed into black holes. And we, everything else, the galaxies, the stars, everything we know, are just the lucky few survivors.   (the first try, whole: the second restarts three times inside, the clip check of 2026-11-05)
+ #   # But I still find it fascinating that maybe, just maybe, in the very first moments of our history, most of the matter that existed collapsed into black holes.   (the second try; its 8 s pause after "maybe," capped)
+ # ("rec55", "survivors", 669.05, 675.93),   # (folded into the first try above)   # And we, everything else, the galaxies, the stars, everything we know, are just the lucky few survivors.   (the first try: the second's ending restarts four times)
  # the turn
  ("rec55", "turn", 726.01, 734.19),        # So that's the first edge of the triangle, and what lives on it. Now let's turn around and go the other way, to the right, to the biggest things there are.
  # bigger means emptier
  ("rec55", "emptier", 755.45, 757.57),     # Every diagonal on this chart represents density.   (the retake; the first try had "on this line")
  ("rec55", "emptier", 758.77, 761.39),     # We saw that the neutron stars have the density of neutrons.
  ("rec55", "emptier", 767.23, 774.69),     # White dwarfs and super-Jupiters have the density of degenerate matter. Most of the stuff has the density of atoms.   (new)
- ("rec55", "emptier", 779.11, 786.47),     # And even some supermassive black holes are less dense than water itself.
+ ("rec55", "emptier", 779.11, 786.47, {"s": 782.90}),     # And even some supermassive black holes are less dense than water itself.
  ("rec55", "emptier", 794.09, 796.83),     # The further right we go, the emptier things get.   (the retake; the first breaks off at "because the bigger something is,")
  ("rec55", "emptier", 798.33, 803.41),     # A galaxy is mostly the empty space between its stars.
  ("rec55", "emptier", 805.07, 808.53),     # Here, our own galaxy, the Milky Way, and its sister, Andromeda.

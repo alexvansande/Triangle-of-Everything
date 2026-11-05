@@ -21,10 +21,10 @@ EDL = [
  ("rec56", "payoff", 49.88, 50.74),        # Remember that line?
  ("rec56", "payoff", 68.54, 71.36),        # What does it mean? Are we living inside a black hole?   (the second try)
  ("rec56", "horizons", 72.38, 75.52),      # Well, it's tempting, right? It feels like a weird coincidence,
- ("rec56", "horizons", 81.96, 86.04),      # there are a lot of similarities between them.   ("because first of all," before it left out; the pause inside capped)
+ ("rec56", "horizons", 81.96, 86.04, {"s": 81.85}),      # there are a lot of similarities between them.   ("because first of all," before it left out; the pause inside capped)
  ("rec56", "horizons", 98.54, 101.00),     # First of all, both are an event horizon.   (the retake)
- ("rec56", "horizons", 102.32, 123.62, {"e": 124.0}),    # A black hole's event horizon is where light that falls in will never come out. Our cosmic event horizon is where nothing outside can ever come in. And both depend on the mass of what's inside. The radius of a black hole depends directly on how much stuff is in it.
- ("rec56", "horizons", 129.69, 138.76),    # And the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is in it too.
+ ("rec56", "horizons", 102.32, 123.62, {"e": 124.0, "cut": [(113.68, 114.72)]}),    # A black hole's event horizon is where light that falls in will never come out. Our cosmic event horizon is where nothing outside can ever come in. And both depend on the mass of what's inside. The radius of a black hole depends directly on how much stuff is in it.
+ ("rec56", "horizons", 129.69, 138.76, {"s": 129.62}),    # And the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is in it too.
  ("rec56", "horizons", 144.80, 147.08),    # So that's why both are on the same line.   ("So," and "though," before it left out)
  # our universe, not the universe
  ("rec56", "ours", 151.84, 162.34),        # But that's also where the similarities end. A black hole is an object with a centre. Our universe is just that: it's our universe. It's not the universe.   ("But that's where," before it left out)

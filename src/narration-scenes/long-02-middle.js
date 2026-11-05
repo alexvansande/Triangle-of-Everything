@@ -160,7 +160,7 @@ export default {
     ] },
     { at: ["they all sit exactly", "they all fit exactly"], icons: true, hl: [KNOWN, { ...SCHW, label: "black holes" }] },
     { at: "called the schwarzschild radius", cam: { obj: "Sgr A*", span: 15 }, dur: 6, drift: 0.02, hl: [{ ...SCHW, label: "schwarzschild radius" }] },
-    { at: "top left edge", cam: { r: 11, m: 38.6, span: 20 }, dur: 4, hl: [{ line: "triangle" }, { ...SCHW, label: "nothing crosses it" }, { side: "left", of: "schwarzschild" }] },
+    { at: ["top left edge", "top-left edge", "edge of our triangle"], cam: { r: 11, m: 38.6, span: 20 }, dur: 4, hl: [{ line: "triangle" }, { ...SCHW, label: "nothing crosses it" }, { side: "left", of: "schwarzschild" }] },
     { at: "too small for its mass", cam: { r: 5, m: 28, span: 16 },
       hl: [SCHW, { obj: "Earth" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), label: "squeeze to 9 mm", delay: 0.6 }] },
     { at: "above or to the left", hl: [{ ...SCHW, label: "every black hole is here" }] },
@@ -173,7 +173,7 @@ export default {
     { at: ["straight 45-degree", "straight 45 degree", "45 degree line"], hl: [{ ...SCHW, label: "1 : 1 · 45°" }] },
     { at: "squeeze the sun", cam: { r: 7.6, m: 31.5, span: 12 }, dur: 2.5, clear: true, hl: [SCHW, { obj: "Sun", place: "right" },
       { arrow: true, from: { obj: "Sun" }, to: BH(33.3), delay: 0.5 }, { cross: BH(33.3), size: "the Sun: 6 km wide", delay: 1.4 }] },
-    { at: "the earth would be", cam: { r: 4.6, m: 30.3, span: 13 }, dur: 2, hl: [SCHW, { obj: "Sun", label: false }, { mark: [5.47, 33.3], label: "the Sun · 6 km", place: "left" },
+    { at: ["the earth would be", "the earth will be", "size of a marble"], cam: { r: 4.6, m: 30.3, span: 13 }, dur: 2, hl: [SCHW, { obj: "Sun", label: false }, { mark: [5.47, 33.3], label: "the Sun · 6 km", place: "left" },
       { obj: "Earth", place: "right" }, { arrow: true, from: { obj: "Earth" }, to: BH(27.78), delay: 0.4 }, { cross: BH(27.78), size: "the Earth: 2 cm, a marble", delay: 1.2 }] },
     { at: ["collapsing core of dying stars", "collapsing core"], cam: { r: 8, m: 34, span: 12 }, hl: [{ path: "stellar-to-bh" }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "collapsed stars" }] },
     { at: "merging with other black holes", hl: [{ path: "bh-mergers" }, { obj: "Stellar BH", label: "or merged black holes" }] },
@@ -244,7 +244,7 @@ export default {
         still(DM_SOURCE), still(DM_MICA), still(DM_HURT), { ...DM_WD, delay: 0.8 }, { ...DM_CMB, delay: 3.2 },
         { window: W5, cuts: [QSO, CMB, GW, ML, HAW], delay: 5.4 }] },
     // the survivors: one slow zoom out to the whole triangle, the early universe's density line kept on
-    { at: ["very first moments of our history", "first moments of our history"], cam: FULL, dur: 15, drift: 0, quiet: true, labels: false, clear: true, hold: 20,
+    { at: ["very first moments of our history", "first very moments of our history", "moments of our history"], cam: FULL, dur: 15, drift: 0, quiet: true, labels: false, clear: true, hold: 20,
       hl: [{ density: 44, label: "density of universe\nfirst instants after big bang" }] },
 
     // ── the turn, and bigger means emptier (video 5's shots) ──

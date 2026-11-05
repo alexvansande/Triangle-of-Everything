@@ -313,3 +313,21 @@ third take of the day. The retakes are of a different kind: not stumbles but rew
 idea four or five ways ("Now, here's a fun / interesting / weird thing"; the astronomer three times; the third
 side three times). That costs nothing in the cut, but the thinking-aloud stretches (a minute in all) are easier
 to cut when they're marked, e.g. a clap or "note:" before them.
+
+## The clean-up pass (the author, 2026-11-05, 16:20 UTC: "lots of false starts, breathing sounds and repeating words")
+
+Each clip of the three edits transcribed on its own with a filler-friendly prompt and compared with its expected
+text (the EDL comments), as the rules say. Long-form Whisper had merged these restarts into one word, so the first
+pass missed them; all out now, as starts (`s`) or cut spans in the EDLs:
+- rec54: "That trend will follow from the smallest– that trend will follow…", "That trend stops once we reach– that
+  trend stops…", "Here that deli– Here that delic– Here that delicate tension…", "That also has, but that line…".
+- rec55: "That's why the edge is a– that's why…", "But the most interesting question isn't– but the most…", "With
+  enough pressure, with enough pressure", "And even some noose, and some, and some supermassive…"; the survivors'
+  line now the first try whole (the second restarts three times inside).
+- rec56: "Both are, there are a lot…", "and both, and both depend…", "Isn't it? And the size…".
+Then every pause over 0.7 s between speech runs (the breaths the pause cap kept, 32 + 50 + 25 of them) cut down
+to about 0.4 s from inside the pause (`scripts/`… no: a one-off, `trimpauses.py` in the session's scratch, the
+same idea as `video/tools/postcut.py`'s POST_CUTS, applied to the finished edit with 15 ms cross-fades, the words
+shifted to match): 20.6 + 31.2 + 15.5 s out. The takes are now 3:46, 8:40 and 3:38; the long video 16:00.
+Still as said, for the author's own retake: the stars' death paragraph (iron), "both are an event horizon",
+"billions of stars", "the density of degenerate matter", and the astronomer at our edge, left out.
