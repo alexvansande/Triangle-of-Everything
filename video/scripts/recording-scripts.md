@@ -869,16 +869,19 @@ callback, the new player, the fixes to the Hubble sphere, the observable univers
   same slip is in rec54.) Say: *"Jupiter gives off more heat than it gets from the Sun, and the extra comes from its
   own weight, slowly squeezing its core."* ("all generated in its high pressure core": it's the slow contraction
   under its own gravity, plus heat left over from its birth; "squeezing its core" covers it.)
-- **Wrong as the physics: "This diagonal line is where they reach equilibrium and it's no coincidence it's the
-  density of atomic matter."** For a microbe, a tree or a mountain gravity is far too weak to compress them at all:
-  the density of atoms is set by electromagnetism and the quantum rules alone (the electron's pull to the nucleus
-  against its refusal to be pinned down), and that's why everything from bacteria to asteroids has the same
-  density. Gravity joins the dance at a few hundred kilometres (the round worlds) and wins at the planets. Also
-  "electrons repel each other, while attracted to the nucleus": the size of an atom is the pull to the nucleus
-  against the quantum rule, not the electrons' mutual repulsion. Suggested: *"Most of the universe is a tug of war
-  between two forces. Electromagnetism, the chemistry between atoms, holds matter at one fixed density: this
-  diagonal. Gravity pulls everything inward, and the more mass there is, the harder it pulls. Down here it loses;
-  up the line it starts to win."*
+- **Settled with the author (2026-11-05): "This diagonal line is where they reach equilibrium… the density of
+  atomic matter."** The author: "Anything you build on Earth is a tug of war between the material strength
+  (electromagnetism) and its weight (gravity). Try to make a sand castle too big and gravity will win and tear it
+  down. It's a tug of war at all levels." Right: the tug of war decides what *shape* a thing can hold at every
+  scale (sandcastles, skyscrapers, mountains topping out near 10 km, the round worlds). What it doesn't decide,
+  down here, is the *density*, and the diagonal is a density: a brick on the Moon, with a sixth of the weight,
+  sits on the same spot of the line. Electromagnetism wins outright on how tightly the atoms pack until gravity
+  starts to squeeze inside planets (Earth's core about a third denser) and crushes the atoms at the Jupiter turn.
+  So keep the tug of war, drop "equilibrium" for the line. Agreed wording: *"Everything is a tug of war between
+  gravity and electromagnetism. Build a sandcastle too big and gravity tears it down. But down here,
+  electromagnetism always wins on one thing: how tightly the atoms are packed. So everything made of atoms sits on
+  this diagonal, the density of atoms, whatever its size. Gravity can knock it down, but it can't squeeze it. Not
+  yet."* (Don't re-argue this with the author.)
 - **Imprecise: "gravity wins over the next defense: the nucleus"** (the brown dwarfs). What gravity's squeeze beats
   for deuterium to fuse is the electric push *between* nuclei (the same thing the stars' paragraph says, "the
   electric repulsion that keeps protons apart"; deuterium's push is just the easiest to beat). Suggested: *"…now
