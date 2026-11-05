@@ -61,3 +61,12 @@ EDL = [
  ("rec56", "ending", 673.46, 679.72),      # Which leaves out one edge. If there's a limit to how big and how heavy something can be, is there a limit to how small?   ("Now," before it left out)
  ("rec56", "ending", 701.78, 713.70, {"s": 709.25}),      # Well, that's the third side of our triangle, and to be honest, it's as weird as it sounds.   (the last of three tries)
 ]
+
+# The restarts the clip-by-clip pass missed, found by sweeping the finished long video in 10 s windows (2026-11-05):
+# edit seconds in this take's audio.m4a, after the pause trim, so they apply to that finished file
+# (video/tools/postcut.py): rebuilding from the raw recording means finding them again.
+POST_CUTS = [
+ (19.84, 21.88),   # "Both are, there are a lot of,"
+ (45.19, 46.19),   # "Isn't it?"
+ (204.44, 204.79),   # "Now,"
+]

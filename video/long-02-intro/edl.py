@@ -74,3 +74,10 @@ EDL = [
  ("rec54", "limit", 849.84, 851.16),       # and escape its gravity well.
  ("rec54", "limit", 867.82, 874.64, {"s": 871.05}),  # So right around here is where the largest stars live.   (the last of three tries; its start given: "So, right aroun– So right around here," before it, two false starts Whisper merged into one "So")
 ]
+
+# The restarts the clip-by-clip pass missed, found by sweeping the finished long video in 10 s windows (2026-11-05):
+# edit seconds in this take's audio.m4a, after the pause trim, so they apply to that finished file
+# (video/tools/postcut.py): rebuilding from the raw recording means finding them again.
+POST_CUTS = [
+ (201.78, 202.66),   # "That also has,"
+]

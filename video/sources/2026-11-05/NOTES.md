@@ -331,3 +331,22 @@ same idea as `video/tools/postcut.py`'s POST_CUTS, applied to the finished edit 
 shifted to match): 20.6 + 31.2 + 15.5 s out. The takes are now 3:46, 8:40 and 3:38; the long video 16:00.
 Still as said, for the author's own retake: the stars' death paragraph (iron), "both are an event horizon",
 "billions of stars", "the density of degenerate matter", and the astronomer at our edge, left out.
+
+## Second sweep for restarts (2026-11-05, before the render; the author: "check the transcript again for false starts")
+
+The finished long video re-transcribed in overlapping 10 s and 16 s windows: windows that short hear what a whole-file
+pass and even a clip-by-clip pass merge away. Eleven restarts were still in the audio, three of them on the clean-up
+pass's list above; they're out now as `POST_CUTS` in the three EDLs, applied to the finished takes with
+`video/tools/postcut.py`, 26.7 s in all. Every join re-transcribed reads clean; captions carried over with
+`video/tools/transfer-captions.py`, then "Yeah," and "Now," dropped (not said any more) and the "similarities end"
+stretch re-timed. The long video is 15:33. The Shorts cut from these passages are re-cut too (failed star, how stars
+die, inside a black hole).
+- rec54: "That also has,".
+- rec55: "These will eventually meet others and merge into a l–", "The core, however, sa–", "a car,", "Protons and
+  electrons,", "But the second was … a super da– But the very–", "A galaxy, a galaxy,", "And at the Hubble line, things
+  are moving away from us at this–".
+- rec56: "Both are, there are a lot of,", "Isn't it?", "Now,".
+
+Left as said: "the size of the Hubble sphere, the size of our event horizon" and "lumps about roughly this size" (one
+slip each, not restarts), "It will be very important" (the caption says "It will be important": Whisper hears a word there).
+

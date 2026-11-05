@@ -84,3 +84,16 @@ EDL = [
  ("rec55", "horizon", 977.77, 986.99, {"e": 987.6}),  # You'd think their light could never reach us, but it's a little bit more complicated than that. The Hubble sphere is also growing, so light from just beyond can still, eventually, get here.   (the first of four tries, the only whole one: the last stumbles, "let's call it is a little bit more complicated"; its "It's," after it left out)
  ("rec55", "horizon", 1019.63, 1035.73),   # The real edge is a little further out. That's the cosmic event horizon. Nothing that happens beyond it can ever affect us. We'll never see it, because the light will never reach us. No information, no matter, nothing. It's the limit of the unknowable.
 ]
+
+# The restarts the clip-by-clip pass missed, found by sweeping the finished long video in 10 s windows (2026-11-05):
+# edit seconds in this take's audio.m4a, after the pause trim, so they apply to that finished file
+# (video/tools/postcut.py): rebuilding from the raw recording means finding them again.
+POST_CUTS = [
+ (56.17, 59.84),   # "These will eventually meet others and merge into a l–"
+ (78.70, 80.70),   # "The core, however, sa–"
+ (87.53, 88.37),   # "a car,"
+ (97.17, 98.91),   # "Protons and electrons,"
+ (223.57, 231.61),   # "But the second was the very first instants after the Big Bang, when everything was a super da– But the very–"
+ (394.21, 396.49),   # "A galaxy, a galaxy,"
+ (481.21, 484.91),   # "And at the Hubble line, things are moving away from us at this–"
+]
