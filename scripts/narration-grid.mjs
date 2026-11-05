@@ -146,6 +146,7 @@ export function gridHtml(info, { built, commit, base = "" }) {
       <button type="button" data-mode="video" aria-pressed="false">Rendered video</button>
     </div>
     <p class="ng-mode-note" id="ng-mode-note"></p>
+    <p class="ng-listen"><a href="${base}listen.html">Listen only</a> · the audio alone, no map: for a phone, or on the way home</p>
     <a class="ng-all" href="#${esc((shorts.find(k => !k.renderOnly) || shorts[0]).id)}">Play all · ${mmss(shorts.filter(k => !k.renderOnly).reduce((s, k) => s + k.duration, 0))}</a>
   </header>
 ${sections}${info.some(k => k.music) ? `
@@ -433,4 +434,48 @@ window.__narrVideos = ${JSON.stringify(Object.fromEntries(info.filter(k => k.vid
   if (pending && VIDEOS[pending]) open(pending);
 })();
 </script>`;
+}
+
+/** A listen-only page next to the grid (listen.html): each take's audio with its sound design in a plain
+ *  <audio>, long videos first, then their shorts; no map, no player, so a phone can play it on the move
+ *  (the author, 2026-11-05: Safari crashed the live page, "a problem repeatedly occurred"). */
+export function listenHtml(info, { built, commit, base = "" }) {
+  const esc = (x) => String(x).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const mmss = (d) => `${Math.floor(d / 60)}:${String(Math.round(d % 60)).padStart(2, "0")}`;
+  const shorts = info.filter(k => !k.long && !k.renderOnly), longs = info.filter(k => k.long);
+  const numOf = (k) => +(k.id.match(/^long-(\d+)/) || [0, 0])[1];
+  const groups = [...new Set(longs.map(numOf))].sort((a, b) => a - b).map(n => {
+    const ls = longs.filter(l => numOf(l) === n), src = new Set(ls.flatMap(l => l.sources));
+    return { n, longs: ls, shorts: shorts.filter(s => s.sources.some(x => src.has(x))) };
+  });
+  const grouped = new Set(groups.flatMap(g => g.shorts.map(s => s.id)));
+  const loose = shorts.filter(s => !grouped.has(s.id));
+  const item = (k) => `
+    <li id="${esc(k.id)}">
+      <h3>${esc(k.yt?.title || k.title)} <span>${mmss(k.duration)}${k.wide ? " · 16:9" : ""}</span></h3>
+      <p>${esc(k.yt?.blurb || k.blurb)}</p>
+      <audio controls preload="none" src="${base}narration/${esc(k.id)}/mix.m4a"></audio>
+      <p class="alt"><a href="${base}narration/${esc(k.id)}/mix.m4a" download>Save</a> · <a href="${base}narration/${esc(k.id)}/audio.m4a">voice only</a>${k.updated ? ` · updated ${esc(k.updated.slice(0, 10))}` : ""}</p>
+    </li>`;
+  const section = (title, list) => list.length ? `
+  <section><h2>${esc(title)}</h2><ul>${list.map(item).join("")}
+  </ul></section>` : "";
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Listen · The Triangle of Everything</title>
+<style>
+  body { margin: 0; padding: calc(env(safe-area-inset-top, 0px) + 20px) 16px calc(env(safe-area-inset-bottom, 0px) + 32px); background: #07071c; color: #eef0ff;
+    font-family: Inter, system-ui, -apple-system, sans-serif; line-height: 1.4; color-scheme: dark; }
+  h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 15px; color: #a3a8d6; margin: 28px 0 8px; text-transform: uppercase; letter-spacing: .06em; }
+  h3 { font-size: 17px; margin: 0 0 4px; } h3 span { color: #a3a8d6; font-weight: 400; font-size: 14px; }
+  p { margin: 0 0 8px; color: #c9cdf0; font-size: 14px; } .alt { font-size: 12px; color: #a3a8d6; }
+  ul { list-style: none; padding: 0; margin: 0; } li { background: #11123a; border: 1px solid rgba(150,160,255,.18); border-radius: 12px; padding: 14px; margin: 0 0 12px; }
+  audio { width: 100%; margin: 6px 0; } a { color: #ffd54f; } .stamp { color: #a3a8d6; font-size: 12px; }
+</style></head><body>
+  <h1>Listen only</h1>
+  <p>The voice with its sound and music, nothing drawn. <a href="${base}./">The live page</a> has the pictures.</p>
+  <p class="stamp">Last updated ${esc(built.slice(0, 16).replace("T", " "))} UTC${commit ? ` · ${esc(commit)}` : ""}</p>${
+  groups.map(g => section(`Long video ${g.n}`, g.longs) + section(`Long video ${g.n}'s shorts`, g.shorts)).join("")}${section("Shorts on their own", loose)}
+</body></html>
+`;
 }

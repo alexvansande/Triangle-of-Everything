@@ -17,7 +17,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-import { gitDate, takeInfo, gridHtml } from "./narration-grid.mjs";
+import { gitDate, takeInfo, gridHtml, listenHtml } from "./narration-grid.mjs";
 
 // OUT: where it goes (the site's build puts it in an unlisted folder of dist/, see
 // package.json); AUDIO=m4a keeps the takes' own audio (only claude.ai pages need MP3)
@@ -139,6 +139,7 @@ const built = gitDate() || new Date().toISOString();
 const commit = (() => { try { return execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim(); } catch { return ""; } })();
 html = html.replace("</body>", gridHtml(info, { built, commit }) + "\n</body>");
 fs.writeFileSync(path.join(OUT, "index.html"), html);
+fs.writeFileSync(path.join(OUT, "listen.html"), listenHtml(info, { built, commit }));
 // Body-only variant: hosts that add their own <!doctype>/<head>/<body> skeleton
 const page = html
   .replace(/<!DOCTYPE html>\s*/i, "")
