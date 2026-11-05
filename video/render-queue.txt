@@ -39,3 +39,5 @@
 
 # short-00-powers-of-ten source includes shaded CMB catalog PNG and isolated narrated 3D icon: 574bc4d8
 # short-00-powers-of-ten source reconciled and pushed to powers-of-ten: e47ab7b2
+# long-02-space: a new opening (rec54, 2026-11-05) and video 3 joined from "as the fuel for fusion is used up": new audio, render whole
+long-02-space

@@ -9,3 +9,5 @@ short-06-tiny-world
 short-07-wavelengths
 # Superseded (the author, 2026-11-04): the canonical long video 1 is long-01-with-outro, published
 long-01-intro
+# A piece, not a video: long video 2's opening (rec54, 2026-11-05), only the first segment of long-02-space
+long-02-intro

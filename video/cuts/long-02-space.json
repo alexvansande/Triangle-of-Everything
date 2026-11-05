@@ -1,11 +1,15 @@
 {
   "title": "The Triangle of Everything: space",
-  "blurb": "Stars, black holes and the Hubble sphere (videos 3–5, joined).",
+  "blurb": "The opening recorded on 2026-11-05, then stars, black holes and the Hubble sphere (videos 3–5, joined).",
   "stage": "landscape",
   "gap": 0.6,
   "segments": [
     {
-      "take": "short-03-stars"
+      "take": "long-02-intro"
+    },
+    {
+      "take": "short-03-stars",
+      "from": "as the fuel for fusion is used up"
     },
     {
       "take": "short-04-black-holes",

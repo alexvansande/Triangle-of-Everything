@@ -101,6 +101,13 @@ line; the long video's chapters follow the same list:
 
 Nine Shorts from one session: three weeks at one every other day.
 
+**Status (2026-11-05):** the script and the new opening the author gave on 2026-11-04 were never saved by any
+session. The author recorded the opening **from memory** (rec54, `video/sources/2026-11-05/`): items 1 and 2 above
+are now done in one take, up to the light-pressure cap on the heaviest stars (new), and it's cut as `long-02-intro`,
+the first piece of `long-02-space` (video 3's take carries on from "as the fuel for fusion is used up"). Its
+transcript and the lines to re-record are under "Long 2 · The opening" below. Still to record: items 3–5 (the
+bridge into the black holes, the garbled line, the whole second half) and the *Short only* openings.
+
 **Next step:** a session writes the full one-take script from this (the opening, the bridges, the re-written second
 half, the *Short only* openings), fact-checked, before the author records.
 
@@ -811,6 +818,40 @@ line is dropped. Nothing left here for long video 1.*
 - **The long video has no outro.** The "obsessed" lines are Short-only now, so long video 1 ends on
   "the life and death of stars". Fine if video 2 follows; otherwise the hook's outro also works at
   the very end of the long one.
+
+---
+
+## Long 2 · The opening (`long-02-intro`, rec54)
+
+### As cut now
+(rec54, 2026-11-05, recorded from memory after the script was lost; natural speed; 4:17. Fact check and voice notes:
+`video/sources/2026-11-05/NOTES.md`)
+
+> What's the real difference between a star and a planet? What happens to dead stars? How are stars born? How do they die? What's the biggest and the smallest a black hole can be? Can it be that most of the matter in the universe is just black holes? Where is dark matter, anyway? How far does our universe go?
+>
+> All these questions and more can be answered with a surprisingly useful tool: a single chart that contains everything that can ever be or ever was, a log plot of mass and size. This single image contains everything, but also it contains limits. It's constrained by relativity, quantum mechanics, and the size of the universe. Those three sides make what I call the triangle of everything.
+>
+> Last time we explored from humans to brown dwarfs, and now I want to explore the upper part of the triangle and see all the stories it contains.
+>
+> See, if you plot everything by mass and size, you can see a lot of things, but mostly you see that most of the universe is a delicate dance between some fundamental forces. Gravity, for example, wants to push matter together, to the left; electromagnetism wants to keep it apart, pushing it to the right. This diagonal line is where they reach their equilibrium point. That's the density of atoms, and of everything that is made of them. Make it too compact and the electrons will push it out. Make it too big and it will collapse in its own weight. That trend will follow from the smallest form of life to the larger planets. That balance is what pushes planets to be round, what decides what sort of atmosphere they have. That trend stops once we reach Jupiter-sized planets. You see that now most objects go straight up and then they split. Today, we're exploring that split.
+>
+> See, the thing is, we tend to think of planets and stars as completely different things, but that's not really true. In fact, Saturn and Jupiter, they create more heat than they receive from the Sun, and most of it is generated in the high pressure inside their cores. Here, that delicate tension now favours gravity. There's so much weight that the inward force is higher than the outward force of the electrons pushing away from each other, and they are stripped out of their nuclei, leaving what we call degenerate matter: just protons, neutrons, and a sea of electrons.
+>
+> Increase the mass further, and we reach brown dwarfs: a weird in-between object, too big to be a planet, too small to be a star. Gravity wins once again. Now not only it wins over the electrons, it also fuses hydrogen together. But not all hydrogen, just a rare kind of hydrogen called deuterium. But deuterium is so rare that brown dwarfs just can't keep shining on for long. So they just stay like that, burning like an ember for billions of years.
+>
+> But add a little bit more mass, and now you can actually fuse hydrogen. That fusion will create helium and release a lot of energy, and that energy will create an outward pressure, pushing our objects again to the right. Stars are usually found in this diagonal line, called the main sequence, and they will be there for most of their lives.
+>
+> But that line also has a limit, because light itself has pressure. And if a star shines just too bright, their outer layers will be sent away with such force that any extra mass will be simply thrown away, higher than the orbital velocity of the star, and escape its gravity well. So right around here is where the largest stars live.
+
+(Then video 3's take from "…as the fuel for fusion is used up, the star collapses…" to its end, and videos 4 and 5 as before.)
+
+### To re-record (from rec54's fact check; each can be dropped into the cut on its own)
+- **Jupiter's heat** (wrong as said): *"In fact, Saturn and Jupiter give off more heat than they get from the Sun, and most of it comes from the high pressure inside their cores."*
+- **The electrons** (wrong as physics, and it contradicts "the electrons will push it out" a minute earlier): *"Here, that delicate tension now favours gravity. There's so much weight that the atoms themselves are crushed: the electrons are stripped off their nuclei, leaving bare nuclei in a sea of electrons. And those electrons refuse to be squeezed any further: not because of a force, but because of a rule of quantum mechanics."*
+- **The split** (the "right" was skipped): *"Some veer to the right, and some veer to the left."*
+- **The ember**: *"So they just sit there, cooling slowly, glowing like an ember for billions of years."*
+- **The cap**: *"…thrown away faster than the star's escape velocity, and gone for good. So right around here is where the heaviest stars live."*
+- Optional, the diagonal (gravity isn't in the balance for small things): *"Most of the universe is a tug of war between two forces. Electromagnetism, the chemistry between atoms, holds matter at one fixed density: this diagonal. Gravity pulls everything inward, and the more mass there is, the harder it pulls. Down here it loses; up the line it starts to win."*
 
 ---
 
