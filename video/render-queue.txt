@@ -9,7 +9,6 @@
 # A "# next: <take>" line renders that take before the others. A "# hold" line stops the renders
 # (before the next take) until it's deleted.
 # A "# priority: <take>" line puts that take first every time it's out of date, and stays.
-# hold (the author, 2026-11-05, night: long video 2's notes are being worked through; tonight renders only long-02-space, no Shorts)
 # Now (the author, 2026-11-03, afternoon): long video 1, its Shorts, then the powers-of-ten zoom (retimed, Dreamer, the new turning CMB), then the rest that need it
 # Trails at half strength in every video (the author, 2026-11-03, evening: B, gain 0.07): all of them
 # render whole; long video 1 and its Shorts first (they go to YouTube, private, once rendered), then the zoom
