@@ -1,15 +1,16 @@
 {
   "title": "The Triangle of Everything: space",
-  "blurb": "The upper half of the triangle in one take: planets into stars, how stars die, the black-hole line and the search for dark matter, out to the voids, the second edge, and whether we live inside a black hole (recorded 2026-11-05).",
+  "blurb": "The upper half of the triangle: the questions, the chart and its limits, the tug of war up the line, planets into stars, how stars die and what's left, the black-hole line and the search for dark matter, out to the voids, the second edge, and whether we live inside a black hole (the opening re-recorded 2026-11-06).",
   "stage": "landscape",
   "gap": 0.6,
   "segments": [
     {
-      "take": "long-02-intro"
+      "take": "long-02-intro",
+      "to": "collapse into a black hole"
     },
     {
-      "take": "long-02-middle",
-      "to": "collapse into a black hole"
+      "take": "long-02-intro",
+      "from": "and black holes are so weird"
     },
     {
       "take": "long-02-middle",

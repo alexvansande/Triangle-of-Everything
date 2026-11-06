@@ -1,8 +1,9 @@
 # long-02-middle: the middle of long video 2 (space), from the author's second take of 2026-11-05: the truce and
 # how it breaks, the star cycle and the dead cores, the black holes whole (the plant, the re-recorded search line),
 # dark matter and the lucky few survivors, the turn, bigger means emptier up to the voids, the second edge and the
-# cosmic event horizon. It follows long-02-intro (rec54) in the cut, video/cuts/long-02-space.json, and the old
-# video 5 take (rec50, short-05-hubble-sphere) still carries "Now add up everything…" to the end, not re-recorded.
+# cosmic event horizon. It follows long-02-intro in the cut, video/cuts/long-02-space.json, which since 2026-11-06
+# uses it only from "most objects on our chart" (the opening, rec57, now carries the truce to the black hole), and
+# long-02-end (rec56) carries "Now add up everything…" to the end.
 # rec55 = "Long 2 take 2.m4a" (Google Drive "Recordings", 2026-11-05, 17:29, ALAC 48 kHz stereo, used as mono):
 # one take with retakes after a mic test and a note to the editor (0:00–0:25); the first two minutes repeat the
 # brown dwarfs to the cap on the heaviest stars as a warm-up (the author: "the first two minutes should always be

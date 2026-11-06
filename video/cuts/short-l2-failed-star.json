@@ -1,11 +1,12 @@
 {
   "title": "Is Jupiter a failed star?",
-  "blurb": "Jupiter's own heat, the electrons crushed, brown dwarfs and deuterium, hydrogen fusion, and the cap on the heaviest stars.",
+  "blurb": "Jupiter's own heat, the atoms crushed and the sea of electrons, brown dwarfs and deuterium: the ember that never becomes a star.",
   "lead": 2.5,
   "segments": [
     {
       "take": "long-02-intro",
-      "from": "we tend to think of planets and stars"
+      "from": "we tend to think of planets and stars",
+      "to": "glowing like an ember for billions of years"
     }
   ]
 }

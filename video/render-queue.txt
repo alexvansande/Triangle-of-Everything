@@ -45,3 +45,7 @@ short-l2-how-stars-die
 short-l2-edge-of-the-chart
 short-l2-exploding-heads
 short-l2-inside-a-black-hole
+# long video 2: the opening re-recorded in one take to the black holes (rec57, 2026-11-06), 8:21 in place of the first 6:18;
+# new audio and new words up to the join at "most objects on our chart", so it renders whole; its two Shorts from the
+# opening are re-cut from it (new audio, whole) and the other three are unchanged
+long-02-space
