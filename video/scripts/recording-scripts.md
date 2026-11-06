@@ -834,6 +834,8 @@ line is dropped. Nothing left here for long video 1.*
 
 ## Long 2 · The opening (`long-02-intro`, rec54)
 
+The corrected script to re-record it, the author's ask of 2026-11-06, is under "Script to record" below the transcript.
+
 ### As cut now
 (rec54, 2026-11-05, recorded from memory after the script was lost; natural speed; 4:17. Fact check and voice notes:
 `video/sources/2026-11-05/NOTES.md`)
@@ -863,6 +865,44 @@ line is dropped. Nothing left here for long video 1.*
 - **The ember**: *"So they just sit there, cooling slowly, glowing like an ember for billions of years."*
 - **The cap**: *"…thrown away faster than the star's escape velocity, and gone for good. So right around here is where the heaviest stars live."*
 - Optional, the diagonal (gravity isn't in the balance for small things): *"Most of the universe is a tug of war between two forces. Electromagnetism, the chemistry between atoms, holds matter at one fixed density: this diagonal. Gravity pulls everything inward, and the more mass there is, the harder it pulls. Down here it loses; up the line it starts to win."*
+
+---
+
+### Script to record (the opening to the black holes, corrected; the author asked 2026-11-06)
+The cut as it plays now (rec54 to 4:23, then rec55 to "collapse into a black hole" at 6:18), with the fact-check
+fixes applied. *Italics* are what changed; everything else is as said. Lines in square brackets are optional
+add-ins from the quick index, not corrections. Record it as one take; the black-hole part (rec55 from "Most
+objects on our chart…") stays as cut.
+
+> What's the real difference between a star and a planet? What happens to dead stars? How are stars born? How do they die? What's the biggest and the smallest a black hole can be? Can it be that most of the matter in the universe is just black holes? Where is dark matter anyway? How far does our universe go?
+>
+> All these questions and more can be answered with a surprisingly useful tool. A single chart that contains everything that can ever be or ever was. It's a log plot of mass and size. This single image contains everything, but it also contains limits. It's constrained by relativity, quantum mechanics and the size of the universe. Those three sides make what I call the triangle of everything.
+>
+> Last time we explored from humans to brown dwarfs, and now I want to explore the upper part of the triangle and see all the stories it contains.
+>
+> See, if you plot everything by mass and size, you can see a lot of things. But mostly you see that most of the universe is a delicate dance between some fundamental forces. Gravity, for example, wants to push matter together, to the left. Electromagnetism wants to keep it apart, pushing it to the right. *Everything is a tug of war between the two. Build a sandcastle too big and gravity tears it down. But down here, electromagnetism always wins on one thing: how tightly the atoms are packed. So everything made of atoms sits on this diagonal, the density of atoms, whatever its size.* Make it too compact and the electrons will push it out. Make it too big and it will collapse under its own weight. *Gravity can knock it down, but it can't squeeze it. Not yet.* That trend will follow from the smallest form of life to the larger planets. That balance is what pushes planets to be round, what decides what sort of atmosphere they have. That trend stops once you reach Jupiter-sized planets. You see that now most objects go straight up and then they split. *Some veer to the right, and some veer to the left.* Today we're exploring that split.
+>
+> See, the thing is, we tend to think of planets and stars as completely different things, but that's not really true. In fact, Saturn and Jupiter *give off* more heat than they *get* from the Sun, and *the extra comes from their own weight, slowly squeezing their cores.* Here that delicate tension now favours gravity. *There's so much weight that the atoms themselves are crushed. The electrons are stripped off their nuclei,* leaving what we call degenerate matter: *bare nuclei in a sea of electrons. And those electrons refuse to be squeezed any further. Not because of a force, but because of a rule of quantum mechanics.*
+>
+> Increase the mass further and we reach brown dwarfs, a weird in-between object, too big to be a planet, too small to be a star. Gravity wins once again. Now not only it wins over the electrons, it also fuses hydrogen together. But not all hydrogen, just a rare kind of hydrogen called deuterium. But deuterium is so rare that brown dwarfs just can't keep shining on for long, so they just *sit there, cooling slowly, glowing* like an ember for billions of years.
+>
+> But add a little bit more mass and now you can actually fuse hydrogen. [*Gravity squeezes the core so hard that protons, which normally push each other away, get close enough for the strong force to grab them. The new nucleus is held tighter, so it's a little lighter, and that missing mass comes out as light.*] That fusion will create helium and release a lot of energy, and that energy will create an outward pressure, pushing our objects again to the right. Stars are usually found in this diagonal line, called the main sequence, and they will be there for most of their lives.
+>
+> But that line also has a limit, because light itself has pressure. And if a star shines just too bright, their outer layers will be sent away with such force that any extra mass will be simply thrown away, *faster than the star's escape velocity, and gone for good.* So right around here is where the *heaviest* stars live. *No star we know of is much beyond two hundred Suns.*
+>
+> Now that new truce between the two forces, one pushing it to the left and the other to the right, will last *billions of years for a star like the Sun, and only a few million for the biggest.*
+>
+> *The truce breaks when the fuel runs out. With no more hydrogen to burn, the core shrinks under its own weight, and that squeeze heats it until the next fuel catches: helium. That pushes the star out again, far bigger than before: a red giant. For a star like the Sun, that's the end of the road. It puffs its outer layers away and leaves its core behind. The biggest stars go on: shrink, ignite, swell, again and again, burning carbon, then oxygen, then silicon, until the core is iron. And iron is where fusion stops paying. Fusing it costs energy instead of giving it, so the fire goes out and the core collapses in less than a second. Either way, the star is split in two: two distinct objects on our chart.*
+>
+> The outer layers will keep expanding with the leftover energy from the last battle and become supernova remnants, or nebulae. These will eventually meet others and merge into a larger cloud of *gas and* dust, called a stellar nursery, which eventually will collapse back into a protostar and start a new cycle. But this time, the next generation will start with some richer materials that could lead to a planet full of life, like ours.
+>
+> The core, however, stays behind. If the star isn't massive enough to go supernova, it will remain as a white dwarf, a core of carbon and oxygen. If it does go supernova, then its core collapse will be so powerful that its gravity will win once again. [*And it's the weakest force that decides it: the neutrinos carry off almost all of the energy.*] Protons and electrons will be squeezed into a mass of *mostly* neutrons, a neutron star. *Gravity, three to nothing.* They will sit at the exact density line of the neutron. [*A neutron star is one giant nucleus, held together by gravity instead of the strong force.*]
+>
+> And if *it's* any bigger, then something even weirder will happen. It will collapse into a black hole.
+>
+> *(Short only:)* An object so weird that it deserves a video of its own.
+>
+> *(Long only:)* *And black holes are strange enough that they're worth a closer look.*
 
 ---
 
