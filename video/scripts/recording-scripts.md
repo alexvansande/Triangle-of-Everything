@@ -133,6 +133,24 @@ redone from "most objects on our chart" on (rec55 and rec56 as cut).
 
 **Next step:** the rest of the long video, piece by piece, as the author records it; each piece cut and its Shorts carved.
 
+### Shorts from long video 2 (the author, 2026-11-06)
+- **The delicate dance of the forces** (the author: "a good short about the delicate dance of the forces that keeps things
+  in equilibrium… splitting different parts of the video to make one coherent story about the forces that shape the
+  universe"). The pieces are all in rec57, in order: "See, everything is a delicate dance… electrons repel each other, so do
+  protons" (the diagonal, 1:18–1:54 in the cut) → "Here the delicate tension now favours gravity… the sea of electrons…
+  it just gets denser" (2:48–3:13) → "a new force comes into play. The strong force…" (3:51–4:25) → "that new delicate dance
+  between gravity, the electromagnetism and the strong force will create this stable equilibrium point" (5:11–5:22) →
+  "a new player force will enter in play. That's the weak force" (7:05–7:27) → "held together not by the strong force, but
+  by pure gravity" (7:38–7:47). About 2:10 carved by phrase (`video/cuts/`), four forces in one story, with the chart's
+  arrows on the diagonal, the column, Proxima and the neutron star as its pictures. Not cut yet: the author's call on the
+  bounds (end on the neutron star, or on the black hole "gravity wins"?).
+- The two recommended re-slices of "How do stars die?" (death and the cycle, 1:33; what's left, the cores, 1:08) are in the
+  session's notes of 2026-11-06; not cut yet.
+- **The storyboard** (the author, 2026-11-06: "my narration is not very natural because I'm reading things"): one beat a
+  page, the frame on top and the narration below, to look at and tell in their own words instead of reading:
+  `video/scripts/long-02-storyboard.json` (the beats and their titles) → `scripts/narration-storyboard.py` → a PDF
+  for the phone. Regenerate it after a re-cut.
+
 ### Quick index: "since you'll be talking about X, what about mentioning Y?"
 When the author says which bit they're re-recording, find it here and offer the matching idea in
 that form, one or two at most, with the suggested line. Details are in the notes below.
