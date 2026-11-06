@@ -45,5 +45,3 @@ short-l2-how-stars-die
 short-l2-edge-of-the-chart
 short-l2-exploding-heads
 short-l2-inside-a-black-hole
-long-02-space
-# long-02-space changed: 1:25-1:41
