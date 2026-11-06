@@ -64,7 +64,7 @@ export default {
   // galaxies and up 60% of their size, Laniakea a good deal less: it hid everything around it (the author, 2026-11-05)
   iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
   icons: "all",
-  forceIcons: ["Sun"],
+  forceIcons: ["Sun", "Tycho’s Supernova Remnant"],   // Tycho's sits beside the Crab, which would hide it
   captionFixes: { shard: "chart", math: "mass", tense: "tension", favors: "favours", protostore: "protostar", buffers: "puffs" },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md): video 3's
@@ -84,7 +84,7 @@ export default {
       hl: [{ obj: "White Dwarf", place: "right" }, { obj: "PSR J0030+0451", label: "neutron star", delay: 0.3 }, { obj: "Stellar BH", label: "black hole", delay: 0.6 }] },
     { at: "stars born", cam: { r: 16.9, m: 34.6, span: 7.8, whip: true },
       hl: [{ obj: "Stellar Nursery", place: "left" }, { obj: "Protostar", delay: 0.4 }] },
-    { at: "how do they die", hl: [{ obj: "Stellar Nursery", label: false }, { obj: "Red Giant", label: "red giant" }, { obj: "Supernova Remnant", delay: 0.4 }] },
+    { at: "how do they die", hl: [{ obj: "Stellar Nursery", label: false }, { obj: "Red Giant", label: "red giant" }, { obj: "Crab Nebula", delay: 0.4 }] },
     { at: "smallest a black hole", cam: { r: 10.5, m: 37.8, span: 15, whip: true },
       hl: [{ line: "schwarzschild" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: false, delay: 0.3 }, { obj: "Ton 618", delay: 0.6 }] },
     { at: "most of the matter", cam: { r: -8.6, m: 19.4, span: 12, whip: true }, hl: [{ line: "schwarzschild" }, PBH] },
@@ -196,10 +196,10 @@ export default {
     { at: "split in two", cam: { r: 13.1, m: 33.6, span: 12.5 }, dur: 1.6,
       hl: [{ ...SPLIT, coreLabel: "core", shellLabel: "outer layers" }] },
     // the cycle: over to the nebulae, up to the nurseries, round to the stars again
-    { at: "outer layers will keep", cam: NEBULAE, dur: 1.6, hl: [...CYCLE, HIGH, { ...SPLIT, draw: 0.01 }, { obj: "Supernova Remnant", label: "supernova remnant", place: "left" }] },
-    { at: ["or nebulae", "or nebulas", "nebulae"], hl: [...CYCLE, { ...SPLIT, draw: 0.01 }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
+    { at: "outer layers will keep", cam: NEBULAE, dur: 1.6, hl: [...CYCLE, HIGH, { ...SPLIT, draw: 0.01 }, { obj: "Crab Nebula", label: "supernova remnant", place: "left" }, { obj: "Tycho’s Supernova Remnant", label: false, delay: 0.5 }] },
+    { at: ["or nebulae", "or nebulas", "nebulae"], hl: [...CYCLE, { ...SPLIT, draw: 0.01 }, { obj: "Tycho’s Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
     { at: "meet others", cam: CYCLE_VIEW, dur: 3.5, ease: "gentle" },
-    { at: "stellar nursery", hl: [...CYCLE, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Stellar Nursery", label: "stellar nursery", place: "left", delay: 0.2 }] },
+    { at: "stellar nursery", hl: [...CYCLE, { obj: "Crab Nebula", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Stellar Nursery", label: "stellar nursery", place: "left", delay: 0.2 }] },
     { at: ["protostar", "protostore"], hl: [...CYCLE, { obj: "Stellar Nursery", label: false }, { obj: "Protostar", delay: 0.6 }] },
     { at: "new cycle", cam: { r: 12.6, m: 31.4, span: 13 }, dur: 3, ease: "gentle", hl: [...CYCLE, { obj: "Protostar", label: false }, { obj: "Sun", delay: 0.6 },
       { arrow: true, from: { obj: "Protostar" }, to: { r: PROTOPLANET[0], m: PROTOPLANET[1] }, color: "#ffe9a3", delay: 0.8 }, { mark: PROTOPLANET, label: "protoplanet", place: "left", delay: 1.4 }] },

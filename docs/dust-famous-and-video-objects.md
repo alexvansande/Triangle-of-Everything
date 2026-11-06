@@ -519,7 +519,7 @@ Every `obj:` in the seven scene files. 11 still lack an icon, 15 got one from ge
 | Laniakea | `laniakea` | object | yes | 6 | 05-hubble-sphere |
 | Mercury | `mercury` | object | yes | 5 | 02-up-the-line, 03-planets |
 | Planetary Nebula | `planetary-nebula` | object | yes | 5 | 03-stars, 04-black-holes |
-| Supernova Remnant | `supernova-remnant` | object | yes | 5 | 03-stars, 05-hubble-sphere |
+| Crab Nebula (was "Supernova Remnant") | `supernova-remnant` | object | yes | 5 | 03-stars, 05-hubble-sphere, long-02 |
 | Boeing 747 | `boeing-747` | object | yes | 4 | 02-up-the-line, 03-planets |
 | Halley's Comet | `halleys-comet` | object | yes | 4 | 02-up-the-line, 03-planets |
 | Mimas | `mimas` | object | yes | 4 | 02-up-the-line, 03-planets |

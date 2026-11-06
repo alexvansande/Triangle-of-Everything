@@ -195,7 +195,8 @@
     "file": "supernova-remnant.webp",
     "credit": "NASA, ESA, J. Hester and A. Loll (Arizona State University)",
     "license": "Public domain",
-    "source": "https://commons.wikimedia.org/wiki/File:Crab_Nebula.jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Crab_Nebula.jpg",
+    "note": "The object is the Crab Nebula since 2026-11-06 (it was the generic supernova remnant, drawn with this picture)."
   },
   "nebulae": {
     "file": "nebulae.webp",
@@ -797,5 +798,11 @@
     "credit": "Rendered from the Hopf model (Triangle of Everything), structure from PDB 4YBB",
     "license": "Public Domain",
     "source": "https://www.rcsb.org/structure/4YBB"
+  },
+  "tychos-supernova-remnant": {
+    "file": "tychos-supernova-remnant.webp",
+    "credit": "X-ray: NASA/CXC/RIKEN & GSFC/T. Sato et al.; Optical: DSS",
+    "license": "Public domain (NASA)",
+    "source": "https://chandra.harvard.edu/photo/2019/tycho/"
   }
 }

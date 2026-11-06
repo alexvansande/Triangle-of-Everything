@@ -28,6 +28,6 @@ export function isDiffuseSpaceArt(cat,slug='') {
   if(slug.includes('void')||slug==='heat-death'||slug==='stellar-nursery'||slug==='observable-universe')return false;
   return cat==='galaxy'||cat==='largescale'||[
     'halleys-comet','hale-bopp','planetary-nebula',
-    'supernova-remnant','nebulae','ngc-7538','bubble-nebula','proto-pn',
+    'supernova-remnant','nebulae','ngc-7538','bubble-nebula','proto-pn','tychos-supernova-remnant',
   ].includes(slug);
 }
