@@ -20,8 +20,8 @@ const WATER = { line: "water" };
 const ON_LINE = (m) => (m - 0.62) / 3;
 const force = (m, dir, color, label) => ({ arrow: true, solid: true, width: 4, color, label,
   from: { r: ON_LINE(m) + dir * 3, m }, to: { r: ON_LINE(m) + dir * 0.2, m } });
-const GRAVITY = [force(9, 1, "#ffab40"), force(6.6, 1, "#ffab40"), { text: "gravity\npushes in", at: [ON_LINE(7.8) + 4.6, 7.8], size: 26, color: "#ffab40" }];
-const EM = [force(9, -1, "#4fc3f7"), force(6.6, -1, "#4fc3f7"), { text: "electromagnetism\npushes out", at: [ON_LINE(7.8) - 4.8, 7.8], size: 26, color: "#4fc3f7" }];
+const GRAVITY = [force(9.6, 1, "#ffab40"), force(7.8, 1, "#ffab40"), { text: "gravity\npushes in", at: [ON_LINE(8.7) + 4.6, 8.7], size: 26, color: "#ffab40" }];
+const EM = [force(9.6, -1, "#4fc3f7"), force(7.8, -1, "#4fc3f7"), { text: "electromagnetism\npushes out", at: [ON_LINE(8.7) - 3.6, 8.7], size: 26, color: "#4fc3f7" }];
 const still = (h) => ({ ...h, instant: true, draw: 0.01, delay: 0 });
 // the super-Jupiter column (as long video 1's)
 const COLUMN = { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" };
