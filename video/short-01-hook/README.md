@@ -25,6 +25,9 @@ python3 video/tools/build.py $W video/short-01-hook/edl.py                 # →
 python3 video/tools/enhance.py $W/audio/edit_raw.wav $W/audio/edit --plain   # cleanup, −16 LUFS
 ```
 
+To take the breaths out of the pauses (the author, 2026-11-06), run `video/tools/debreath.py` on the enhanced edit
+(16-bit mono) with the take's `words.json`, and encode its output as the take's `audio.m4a`; nothing moves in time.
+
 Then copy the edit into place and re-transcribe it for `words.json` (the cues
 anchor to its words): `python3 scripts/narration-take.py $W/audio/edit.m4a short-01-hook`.
 Re-apply the caption corrections listed in the NOTES and set `"scene"`. No speed-up since rec51

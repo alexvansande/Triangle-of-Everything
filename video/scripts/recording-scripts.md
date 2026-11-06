@@ -23,7 +23,7 @@ went silent after a minute when it ran out.
 | 1 · the hook | `short-01-hook` | 1:44 (re-recorded 2026-11-03 with long video 1, rec51, natural speed) |
 | 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | the source of long video 1 (6:01) and Shorts 2a (2:41) and 2b (2:02); re-recorded 2026-11-03, rec51 |
 | 3 · planets into stars | `short-03-stars` | 2:13 (re-recorded 2026-10-27, rec36) |
-| Long 2 · the opening to the black holes | `long-02-intro` | 8:21 (re-recorded 2026-11-06, rec57, natural speed; the first piece of `long-02-space`, 19:26) |
+| Long 2 · the opening to the black holes | `long-02-intro` | 8:09 (re-recorded 2026-11-06, rec57, natural speed, the second pass; the first piece of `long-02-space`, 19:14) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
@@ -121,7 +121,7 @@ stories, 1:38–2:10). To retake if wanted: the stars' death paragraph (the iron
 (a kind of horizon), and whatever the author doesn't like on watching it.
 
 **2026-11-06 (rec57):** the author re-recorded the opening in one take, from the questions to the hand-over into the black
-holes (32:58 raw; cut as `long-02-intro`, 8:21: `video/sources/2026-11-06/NOTES.md`). Not the script word for word ("you know me,
+holes (32:58 raw; cut as `long-02-intro`, 8:09 after the second pass: `video/sources/2026-11-06/NOTES.md`). Not the script word for word ("you know me,
 I'm not following the script exactly"): reworded, and three passages new (the strong force at the fusion, the weak force and
 the neutrino at the supernova, the neutron star as a giant nucleus held by gravity). The author's plan, on the take: *"record
 roughly until the black hole bit, get the take correct so we can use those as shorts, then keep working until the end of the
@@ -847,7 +847,7 @@ line is dropped. Nothing left here for long video 1.*
 ## Long 2 · The opening to the black holes (`long-02-intro`, rec57)
 
 ### As cut now
-(rec57, 2026-11-06, one take; natural speed; 8:21, the first piece of `long-02-space`, which goes on with `long-02-middle` from
+(rec57, 2026-11-06, one take; natural speed; 8:09 after the second pass, the first piece of `long-02-space`, which goes on with `long-02-middle` from
 "most objects on our chart". The long cut skips the *Short only* line. Fact check, the author's asides and voice notes:
 `video/sources/2026-11-06/NOTES.md`.)
 

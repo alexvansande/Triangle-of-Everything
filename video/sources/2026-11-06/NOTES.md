@@ -1,8 +1,9 @@
 # Recordings, 2026-11-06
 
-The Whisper word timings (medium.en, `scripts/narration-take.py`'s settings) are `rec57.words.json`. Six stretches
+The Whisper word timings (medium.en, `scripts/narration-take.py`'s settings) are `rec57.words.json`. Fourteen stretches
 were re-transcribed on their own and spliced into it, where the long-form pass had folded restarts into one
-sentence or into a stall (106–119 s, 153–183, 224–241, 252–267, 318–337, 364–383, 1919–1941): the long-form
+sentence or into a stall (106–119 s, 144–152, 153–183, 224–241, 252–267, 318–337, 364–383, 374–383, 435–446,
+690–699, 811–817, 1366–1374, 1518–1523, 1919–1941): the long-form
 heard "Therefore, everything that exists fits inside [5 s] the triangle and [6 s] is such an interesting image"
 where the take has four tries at "Therefore…"; and "sometimes that see everything as a delicate dance" where it
 has "sometimes, see, see, everything is a delicate dance". The isolated passes also caught two restarts the
@@ -23,9 +24,9 @@ by gravity). Many retakes (the Jupiter heat line took ten, the giant nucleus twe
 
 | Video | Take | Plays | Made from |
 |---|---|---|---|
-| The opening (a piece, not a video of its own) | `long-02-intro` | 8:21 (was 4:23 from rec54 + 1:55 of rec55) | `video/long-02-intro/edl.py`, 61 clips |
-| Long video 2 (16:9) | `long-02-space` | 19:26 (was 17:29) | `video/cuts/long-02-space.json`: the opening (less its Short-only line), then `long-02-middle` from "most objects on our chart", then `long-02-end` |
-| Is Jupiter a failed star? | `short-l2-failed-star` | 1:38 with the 2.5 s opener | the opening from "we tend to think of planets and stars" to "glowing like an ember for billions of years" |
+| The opening (a piece, not a video of its own) | `long-02-intro` | 8:09 after the second pass (8:21 at first; was 4:23 from rec54 + 1:55 of rec55) | `video/long-02-intro/edl.py`, 61 clips |
+| Long video 2 (16:9) | `long-02-space` | 19:14 (was 17:29) | `video/cuts/long-02-space.json`: the opening (less its Short-only line), then `long-02-middle` from "most objects on our chart", then `long-02-end` |
+| Is Jupiter a failed star? | `short-l2-failed-star` | 1:33 with the 2.5 s opener | the opening from "we tend to think of planets and stars" to "glowing like an ember for billions of years" |
 | How do stars die? | `short-l2-how-stars-die` | 2:44 with the opener | the opening from "But that equilibrium is kept by the fusion of hydrogen" to "deserves a video of its own" |
 
 Natural speed, `enhance.py --plain`, no EQ (the take sits near the mic, like rec55: the voice notes below). The
@@ -81,6 +82,30 @@ The last try everywhere, except:
 - "An object so weird that it deserves a video of its own" is in the take (`bh-short`) and the Short "How do stars
   die?" ends on it; the long cut skips it and goes "It will collapse into a black hole. And black holes are so
   weird that they are worth taking a closer look. Let's go there."
+
+### The second pass (the author, after listening to the first cut: "lots of small false starts and wrong takes still lurking, as well as some breathing sounds")
+The finished cut swept in 7 s windows overlapping by half, each transcribed on its own with a filler-friendly prompt
+(the long-form pass hides a restart inside a stall, as a pause; a short window hears it). Seven restarts found and
+cut, each confirmed on the raw take's energy and by an isolated transcription of the stretch, the clip now starting
+at its last start (its `s` in the EDL):
+- "According to the current, according to our current understanding of physics…" (the first fragment out).
+- "Make it too compact and it's, make it too compact and its atoms…" (the first "Make it too compact and it's," out:
+  the long-form pass had heard it as a 3.5 s stall before "are").
+- "You see that, you see that, you see that the trend line…" (two false starts out).
+- "Here, the delicate tension now favours gravity" said twice in a row (the first out).
+- "So, as a planet, so, as a planet grows…" (the first out).
+- "and it, and it just expands as a cloud" (the first "and it," out).
+- "With, with no more hydrogen to burn" (the first "With," out).
+Checked and left: "See, so the fire suddenly goes out" (the sweep's "See" is a breath, not a word); "it will They stay",
+"Which brown dwarfs?", "So what's a planet, Guillermo?", "The YouTube store is": the window edges, not the audio.
+**Breaths:** the pauses scanned for bursts well under speech and over the room (8–32 dB above the floor, 0.08–0.9 s,
+clear of the words either side; a burst under 0.12 s right after a word is left alone, it's the word's tail): 34
+breaths replaced by the recording's own room tone, cross-faded, so every pause keeps its length (`video/tools/debreath.py`,
+new; the long-form pass's words as the map). The cut is 8:09 (was 8:21); the long video 19:14; the Shorts re-cut.
+Not changed: the delivery. The author on the take: "my cadence is still forced… as if I'm reading something with a lot
+of effort (which in a way I am)". For the next recording: the clean clips are the short sentences said straight
+through; the ones that took five to twelve tries are the long ones. Shorter sentences, and a beat before each, would
+let the rhythm come from the sentences instead of the edit.
 
 ### Captions
 Transcribed whole (`narration-take.py` on the edit) and checked against each clip transcribed on its own (the

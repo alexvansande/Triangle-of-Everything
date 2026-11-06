@@ -11,8 +11,9 @@
 # rec57 = "Space triangle take 4.m4a" (Google Drive "Recordings", 2026-11-06, 32:58, ALAC 48 kHz stereo,
 # used as mono): a note to the editor (0:00–0:48), then one take with many retakes and a few asides. The
 # author's rule: the last try unless it slips (each clip says). Whisper word timings and the review notes:
-# video/sources/2026-11-06/ (the words of six stretches re-transcribed on their own, where the long-form
-# pass merged restarts: NOTES.md). Treatment: enhance.py --plain, natural speed. Build: video/short-01-hook/README.md.
+# video/sources/2026-11-06/ (the words of fourteen stretches re-transcribed on their own, where the long-form
+# pass merged restarts or folded them into stalls: NOTES.md, "the second pass"). The breaths in the pauses are
+# replaced by room tone after the build (video/tools/debreath.py: the author, 2026-11-06, "some breathing sounds"). Treatment: enhance.py --plain, natural speed. Build: video/short-01-hook/README.md.
 # (source, beat, first-word start, last-word start, {s, e, gap, cut}) in source seconds; the builder snaps
 # each cut to the nearest real silence and caps the pauses inside a clip (PAUSES).
 
@@ -34,7 +35,7 @@ EDL = [
  ("rec57", "tool", 98.74, 105.8),          # It's a single chart that contains everything that can ever be or ever was. It's a log plot of mass and size.
  ("rec57", "limits", 113.72, 117.94),      # The single image contains everything, but also contains its own limits.   (the third try: "but it doesn't…" and "the single image contains everything but also contains," before it)
  ("rec57", "limits", 119.14, 125.92, {"s": 120.78}),  # It's constrained in three sides: by relativity, quantum mechanics, and the size of the universe.   (its start given: the restart "It's constrained by," 1.7 s before it, which the long-form pass had folded into a stall after "in")
- ("rec57", "limits", 146.46, 151.92),      # According to our current understanding of physics, nothing can exist outside that triangle.   (the last of three tries)
+ ("rec57", "limits", 147.6, 151.88, {"s": 147.4}),   # According to our current understanding of physics, nothing can exist outside that triangle.   (the last of four tries; its start given: the false start "According to the current," 2 s before it, which the long-form pass had folded into the words)
  ("rec57", "limits", 171.62, 182.36),      # Therefore, anything that exists fits inside the triangle. And it's such an interesting image that I've been doing a series of videos on them, called the triangle of everything.   (the fourth try; the long-form pass had merged the four into one)
  # the hand-over from long video 1
  ("rec57", "lasttime", 224.0, 240.94, {"cut": [(232.95, 236.85)]}),  # So, on the last video we've covered from humans to planets, and we saw that most of the stuff falls on this diagonal line. [the slip "That's the density of water, but most impossible." cut] That's the density of water, but most importantly, that's the density of atoms.   (the sixth try, after five restarts of "on the last video we've covered from humans to planets")
@@ -43,20 +44,20 @@ EDL = [
  ("rec57", "dance", 318.0, 320.6),         # See, gravity wants to push matter together.   (the last of three tries at the forces; the short first pair "Gravity wants to push matter close to each other. Electromagnetism wants to push it away." and the tries in between left out)
  ("rec57", "dance", 326.08, 335.78),       # Electromagnetism, on the other hand, prevents it from pushing too close together, because electrons repel each other. So do protons.   (its restart "electromagnetism," before it left out; the retake "But electrons repel each other, so do protons. That is the electric force that's part of the electromagnetism," trails off, left out)
  ("rec57", "diagonal", 364.0, 372.32),     # So this diagonal we see is really the result of that tug of war. Build anything too big, it collapses under its own weight.
- ("rec57", "diagonal", 375.26, 381.82),    # Make it too compact, and its atoms are going to push it away.   (the 3.5 s stall before "are" capped)
+ ("rec57", "diagonal", 378.1, 381.86, {"s": 378.75}),   # Make it too compact, and its atoms are going to push it away.   (the restart; "Make it too compact and it's," before it, which the long-form pass had folded into a stall: the second pass of 2026-11-06)
  # up the line to the giant planets
  ("rec57", "trend", 391.74, 395.58),       # That trend will follow from the smallest form of life to the larger planets.
  ("rec57", "trend", 404.12, 408.82),       # That balance is what pushes planets to be round, what decides what sort of atmosphere they have.   (the second try; the first slips, "with the size of sort of atmosphere")
  ("rec57", "trend", 410.12, 412.48),       # That trend stops once you reach Jupiter-sized planets.
  # the split
- ("rec57", "split", 436.76, 445.42),       # You see that the trend line shoots slightly to the left, then goes straight up, and then there's a split.   (the third try; the 2 s stall after "the" capped)
+ ("rec57", "split", 439.54, 445.4, {"s": 439.4}),   # You see that the trend line shoots slightly to the left, then goes straight up, and then there's a split.   (the third try, from its third start: "You see that, you see that," before it, folded into a stall by the long-form pass; the second pass)
  ("rec57", "split", 447.62, 451.04),       # Today I want to explore that split, and why does it matter.   (the second try)
  # planets into stars
  ("rec57", "stars", 475.94, 481.7),        # See, the thing is, we tend to think of planets and stars as completely different things, but that's not really true.   (the third try)
  ("rec57", "heat", 625.16, 638.8),         # Take for example Jupiter: almost half of the energy that keeps its temperature inside it, it's not coming from the Sun, it's actually coming from inside its own core. As it squeezes together, it generates heat.   (the last of ten tries at Jupiter's heat; "almost half" is right, see NOTES)
- ("rec57", "gravity", 691.26, 708.2),      # Here, the delicate tension now favours gravity. There is so much weight that the atoms themselves are crushed. The electrons are stripped of their nuclei, leaving what we call degenerate matter: a bare nuclei in a sea of electrons.   (the second try: the first went on to "…not because of a force, but because of a rule of quantum mechanics", which the author struck on the take: "it sounds like a lawyer speaking")
+ ("rec57", "gravity", 695.1, 708.2, {"s": 694.9}),   # Here, the delicate tension now favours gravity. There is so much weight that the atoms themselves are crushed. The electrons are stripped of their nuclei, leaving what we call degenerate matter: a bare nuclei in a sea of electrons.   (the second try, said twice in a row: the first of the two left out (the second pass); the try before went on to "…not because of a force, but because of a rule of quantum mechanics", which the author struck on the take: "it sounds like a lawyer speaking")
  ("rec57", "gravity", 803.22, 807.9),      # That sea of electrons is what's keeping the planet from being squeezed any further.   (the last of nine tries)
- ("rec57", "gravity", 811.98, 820.96),     # So as a planet grows to be more massive than Jupiter, it doesn't actually get bigger, it just gets denser.   (the 2.7 s stall after "grows" capped)
+ ("rec57", "gravity", 813.18, 820.96, {"s": 814.15}),   # So as a planet grows to be more massive than Jupiter, it doesn't actually get bigger, it just gets denser.   (the restart: "So, as a planet," before it, folded into a stall by the long-form pass; the second pass)
  # brown dwarfs
  ("rec57", "bd", 837.24, 843.74),          # Increase the mass any further and we reach brown dwarfs: a weird in-between object, too big to be a planet, too small to be a star.   (the second try; the first ends on "gravity wins once again")
  ("rec57", "bd", 862.48, 872.16),          # Now the gravity is making such a high pressure, not only it's winning over that electron pressure, but it's fusing hydrogen together.   (the restart inside the try; "Now gravity is making a pressure so strong that not only fuses gravity," before it left out)
@@ -73,13 +74,13 @@ EDL = [
  ("rec57", "ms", 1172.4, 1182.28),         # The more massive a star is, the brighter it shines, and it creates this diagonal line, which is called main sequence, and is where stars will live most of their lives.   (the third start inside the try; "but if light shines, it's too bright," after it, the first of nine tries at the cap, left out)
  # the cap
  ("rec57", "limit", 1350.06, 1364.64),     # But that line also has a limit, because if a star is too bright, then its outer layers of their atmospheres are being thrown so violently outside that it escapes its own gravity well.   (the last of nine tries, after the author's question about light pressure, 20:04–20:58: answered in NOTES)
- ("rec57", "limit", 1370.89, 1373.06),     # And it just expands as a cloud.   (the second try)
+ ("rec57", "limit", 1371.54, 1373.02, {"s": 1371.45}),   # And it just expands as a cloud.   (the second try, from its second start: "and it," 1 s before it, folded into the words by the long-form pass; the second pass)
  ("rec57", "limit", 1389.38, 1394.22),     # We are not sure exactly where it ends, but around here are the largest stars we know.   (the third try)
  # the truce
  ("rec57", "truce", 1476.0, 1489.22),      # Now, that new delicate dance between gravity, the electromagnetism and the strong force will create this stable equilibrium point at this diagonal line, the main sequence, where stars will live most of their lives.   (the last of eight tries at the return to the main sequence)
  ("rec57", "truce", 1502.82, 1509.72),     # But that equilibrium is kept by the fusion of hydrogen. And once it runs out, that equilibrium goes haywire.   (the second try)
  # how it breaks (the iron fix, from the corrected script)
- ("rec57", "death", 1519.52, 1528.1, {"e": 1528.6}),   # With no more hydrogen to burn, the core shrinks under its own weight. And that squeeze heats it up until the next fuel catches: helium.   (the second try; its end given, Whisper runs "helium" into the restart after it)
+ ("rec57", "death", 1519.68, 1528.1, {"s": 1519.85, "e": 1528.6}),   # With no more hydrogen to burn, the core shrinks under its own weight. And that squeeze heats it up until the next fuel catches: helium.   (the second try, from its second "with": "With," 0.5 s before it (the second pass); its end given, Whisper runs "helium" into the restart after it)
  ("rec57", "death", 1530.38, 1537.3, {"s": 1530.96}),  # That pushes a star out again, far bigger than before: a red giant, now burning helium.   (the restart; "that pushes a star," before it, its start given in the silence between them)
  ("rec57", "death", 1538.94, 1545.08),     # For a star like the Sun, that's the end of the road. It puffs its outer layers away and leaves its core behind.
  ("rec57", "death", 1549.0, 1558.78),      # But the biggest stars will go on: shrink, ignite, swell, again and again, burning carbon, then oxygen, then silicon, until the core is iron.
