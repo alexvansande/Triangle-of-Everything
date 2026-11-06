@@ -16,11 +16,15 @@ const RELATIVITY = { line: "schwarzschild", label: "relativity" };
 const UNIVERSE = { line: "hubble", label: "size of the universe" };
 const WATER = { line: "water" };
 // the two sides of the density line while the forces are named
-const PULL = { side: "left", label: "gravity\npulls in", labelX: 0.22, labelY: 0.42, labelSize: 30 };
-const PUSH = { side: "right", label: "electromagnetism\npushes out", labelX: 0.72, labelY: 0.62, labelSize: 30 };
-// the super-Jupiter column (as long video 1's), and gravity's score there, the same 2 × 0 as long video 1
+// the author, 2026-11-05: close on the atomic diagonal, two arrows each, so gravity doesn't read as the black-hole line
+const ON_LINE = (m) => (m - 0.62) / 3;
+const force = (m, dir, color, label) => ({ arrow: true, solid: true, width: 4, color, label,
+  from: { r: ON_LINE(m) + dir * 3, m }, to: { r: ON_LINE(m) + dir * 0.2, m } });
+const GRAVITY = [force(9, 1, "#ffab40"), force(6.6, 1, "#ffab40"), { text: "gravity\npushes in", at: [ON_LINE(7.8) + 4.6, 7.8], size: 26, color: "#ffab40" }];
+const EM = [force(9, -1, "#4fc3f7"), force(6.6, -1, "#4fc3f7"), { text: "electromagnetism\npushes out", at: [ON_LINE(7.8) - 4.8, 7.8], size: 26, color: "#4fc3f7" }];
+const still = (h) => ({ ...h, instant: true, draw: 0.01, delay: 0 });
+// the super-Jupiter column (as long video 1's)
 const COLUMN = { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" };
-const SCORE = { score: [["Gravity", 2], ["Electromagnetism", 0]] };
 const G = (r, m, span = 1.7) => ({ r, m, span });
 const BD = [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }];
 const FORK = [
@@ -37,6 +41,8 @@ export default {
   title: "Space: the opening",
   blurb: "The questions, the chart and its limits, the balance of forces up the line, and planets into stars.",
   start: { r: 10.6, m: 32.4, span: 8 },
+  // galaxies and up 60% of their size, Laniakea a good deal less: it hid everything around it (the author, 2026-11-05)
+  iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
   captionFixes: { shard: "chart", math: "mass", tense: "tension", favors: "favours" },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md): video 3's, so the join into it carries on
@@ -77,12 +83,17 @@ export default {
 
     // the balance of forces along the density line
     { at: "plot everything by mass", cam: { r: 5, m: 15, span: 34 }, dur: 3, hl: [{ line: "water", label: "the diagonal" }] },
-    { at: "gravity, for example", hl: [WATER, PULL] },
-    { at: "electromagnetism wants", hl: [WATER, PULL, PUSH] },
-    { at: "equilibrium point", hl: [{ line: "water", label: "the diagonal" }, { ...PULL, draw: 0.01 }, { ...PUSH, draw: 0.01 }] },
-    { at: "density of atoms", hl: [{ line: "water", label: "the density of atoms" }, { ...PULL, draw: 0.01 }, { ...PUSH, draw: 0.01 }] },
-    { at: "electrons will push it out", hl: [WATER, { ...PUSH, label: "too compact:\nelectrons push back" }] },
-    { at: "collapse in its own weight", hl: [WATER, { ...PULL, label: "too big:\ngravity pulls in" }] },
+    { at: "gravity, for example", cam: { r: 2, m: 7, span: 4.6 }, dur: 2.5, clear: true, hl: [WATER, ...GRAVITY] },
+    { at: "electromagnetism wants", cam: { r: 2.3, m: 7.6, span: 4.6, glide: true }, hl: [WATER, ...GRAVITY.map(still), ...EM] },
+    { at: "equilibrium point", cam: { r: 2.6, m: 8.4, span: 4.6, glide: true }, hl: [{ line: "water", label: "the diagonal" }, ...GRAVITY.map(still), ...EM.map(still)] },
+    { at: "density of atoms", cam: { r: 3, m: 9.5, span: 4.6, glide: true }, clear: true, hl: [{ line: "water", label: "the density of atoms" }] },
+    // too compact: a circle left of the line, pushed back to it; too big: right of it, pushed back the other way
+    { at: "electrons will push it out", cam: { r: 3.2, m: 10.4, span: 4.6, glide: true }, clear: true, hl: [WATER, { ellipse: [ON_LINE(10.4) - 1.7, 10.4, 0.8, 0.8], rot: 0, label: false, color: "#4fc3f7" },
+      { arrow: true, solid: true, width: 4, color: "#4fc3f7", from: { r: ON_LINE(10.4) - 1.7, m: 10.4 }, to: { r: ON_LINE(10.4) - 0.1, m: 10.4 }, delay: 0.4 },
+      { text: "electrons repel\neach other", at: [ON_LINE(10.4) - 4.2, 10.4], size: 26, color: "#4fc3f7", delay: 0.5 }] },
+    { at: "collapse in its own weight", cam: { r: 3.4, m: 11, span: 4.6, glide: true }, clear: true, hl: [WATER, { ellipse: [ON_LINE(11) + 1.7, 11, 0.8, 0.8], rot: 0, label: false, color: "#ffab40" },
+      { arrow: true, solid: true, width: 4, color: "#ffab40", from: { r: ON_LINE(11) + 1.7, m: 11 }, to: { r: ON_LINE(11) + 0.1, m: 11 }, delay: 0.4 },
+      { text: "crushes under\nits own weight", at: [ON_LINE(11) + 4.2, 11], size: 26, color: "#ffab40", delay: 0.5 }] },
     // the pan up the line, the smallest life to the giant planets
     { at: "smallest form of life", cam: { obj: "Bacterium", span: 4 }, dur: 2, clear: true, hl: [WATER, { obj: "Bacterium", label: "a bacterium" }] },
     { at: "larger planets", cam: { obj: "Jupiter", span: 4 }, dur: 4.5, ease: "gentle", hl: [WATER, { obj: "Jupiter", delay: 3 }] },
@@ -104,9 +115,8 @@ export default {
       lens: { icon: [0.496, 0.5, 0.465], photo: [1791, 1677, 1651], size: [3600, 3353] },
       caption: "Jupiter in infrared · Gemini North · 2021 · glowing with its own heat" },
     { at: "inside their cores", cam: JUPITER_SATURN, hl: [{ obj: "Saturn", place: "left" }, { obj: "Jupiter", label: "slowly contracting" }] },
-    // gravity's second win, scored again as long video 1 scored it (2 × 0), then the column
-    { at: ["favours gravity", "favors gravity"], cam: G(9.85, 31.0), hl: [{ obj: "Jupiter", place: "left" }, COLUMN, SCORE] },
-    { at: ["favours gravity", "favors gravity"], offset: 2.2, hl: [{ obj: "Jupiter", place: "left" }, { ...COLUMN, draw: 0.01 }] },
+    // the dance tips towards gravity (no scoreboard in this video: the author, 2026-11-05)
+    { at: ["favours gravity", "favors gravity"], cam: G(9.85, 31.0), hl: [{ obj: "Jupiter", place: "left" }, COLUMN] },
     { at: "inward force", cam: G(9.85, 31.2), hl: [{ obj: "Jupiter", label: "the atom crushed", place: "left" }, { ...COLUMN, draw: 0.01 }, ...BD] },
     { at: "sea of electrons", hl: [{ obj: "Jupiter", label: "bare nuclei, free electrons", place: "left" }, { ...COLUMN, draw: 0.01 }, ...BD] },
     // brown dwarfs

@@ -13,7 +13,13 @@
 
 SOURCES = {"rec56": "Long 2 take 3.m4a"}
 TREATMENT = "plain"
-PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
+# The pauses (the author, 2026-11-05, after watching it: "stressful… like an intense lesson"): the caps were 0.18/0.3/0.45 s
+# and a clean-up took every pause over 0.7 s down to 0.4 s; the takes' own pauses run 0.5–0.8 s, up to 2 s. Back to the
+# speaker's rhythm, the gaps between clips too and filled with the take's own room (ROOM). The restarts POST_CUTS took out of
+# the finished audio are now cuts in source seconds, so the build runs straight from the raw recording.
+PAUSES = {"word": 0.25, ",": 0.55, ".": 1.0}
+GAPS = {"same": 0.55, "beat": 1.1}
+ROOM = True
 
 EDL = [
  # on the black-hole line
@@ -21,10 +27,10 @@ EDL = [
  ("rec56", "payoff", 49.88, 50.74),        # Remember that line?
  ("rec56", "payoff", 68.54, 71.36),        # What does it mean? Are we living inside a black hole?   (the second try)
  ("rec56", "horizons", 72.38, 75.52),      # Well, it's tempting, right? It feels like a weird coincidence,
- ("rec56", "horizons", 81.96, 86.04, {"s": 81.85}),      # there are a lot of similarities between them.   ("because first of all," before it left out; the pause inside capped)
+ ("rec56", "horizons", 81.96, 86.04, {"s": 84.41}),      # there are a lot of similarities between them.   ("because first of all," before it left out; the pause inside capped)
  ("rec56", "horizons", 98.54, 101.00),     # First of all, both are an event horizon.   (the retake)
  ("rec56", "horizons", 102.32, 123.62, {"e": 124.0, "cut": [(113.68, 114.72)]}),    # A black hole's event horizon is where light that falls in will never come out. Our cosmic event horizon is where nothing outside can ever come in. And both depend on the mass of what's inside. The radius of a black hole depends directly on how much stuff is in it.
- ("rec56", "horizons", 129.69, 138.76, {"s": 129.62}),    # And the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is in it too.
+ ("rec56", "horizons", 129.69, 138.76, {"s": 130.35}),    # And the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is in it too.
  ("rec56", "horizons", 144.80, 147.08),    # So that's why both are on the same line.   ("So," and "though," before it left out)
  # our universe, not the universe
  ("rec56", "ours", 151.84, 162.34),        # But that's also where the similarities end. A black hole is an object with a centre. Our universe is just that: it's our universe. It's not the universe.   ("But that's where," before it left out)
@@ -58,15 +64,11 @@ EDL = [
  # the ending
  ("rec56", "ending", 654.14, 665.74),      # So that's the top of the triangle. On the left, the black hole line: squeeze anything hard enough, gravity wins. On the right, the Hubble sphere: stretch anything far enough, and expansion wins.
  ("rec56", "ending", 666.72, 670.42),      # At the very top, where the two lines meet, sits our whole universe.
- ("rec56", "ending", 673.46, 679.72),      # Which leaves out one edge. If there's a limit to how big and how heavy something can be, is there a limit to how small?   ("Now," before it left out)
+ ("rec56", "ending", 673.46, 679.72, {"s": 673.40}),      # Which leaves out one edge. If there's a limit to how big and how heavy something can be, is there a limit to how small?   ("Now," before it left out)
  ("rec56", "ending", 701.78, 713.70, {"s": 709.25}),      # Well, that's the third side of our triangle, and to be honest, it's as weird as it sounds.   (the last of three tries)
 ]
 
 # The restarts the clip-by-clip pass missed, found by sweeping the finished long video in 10 s windows (2026-11-05):
 # edit seconds in this take's audio.m4a, after the pause trim, so they apply to that finished file
 # (video/tools/postcut.py): rebuilding from the raw recording means finding them again.
-POST_CUTS = [
- (19.84, 21.88),   # "Both are, there are a lot of,"
- (45.19, 46.19),   # "Isn't it?"
- (204.44, 204.79),   # "Now,"
-]
+POST_CUTS = []   # (now in the clips above: "s" and "cut", source seconds)

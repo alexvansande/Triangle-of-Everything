@@ -24,8 +24,8 @@ const DENSE_BOTTOM = { r: -9.3, m: -27.6, span: 11.5 };
 const DENSE_TOP = { r: DENSE_BOTTOM.r + 19.1, m: DENSE_BOTTOM.m + 3 * 19.1, span: 11.5 };
 const H_AT = [-8.28, -23.78], N_AT = [-13.06, -23.77], NU_AT = [-4.5, -32.9];
 const MS = { line: "mainsequence", label: "main sequence" };
-// gravity's third win, past the electrons' last stand (long video 1 scored the first two)
-const SCORE3 = { score: [["Gravity", 3], ["Electromagnetism", 0]] };
+// a planet's start: no object on the chart, so a name of its own (the size of Mars, in the making)
+const PROTOPLANET = [8.5, 26.8];
 // ── video 4's pieces: the black-hole line, the window, dark matter ──
 const BH = (m) => ({ r: m - 27.83, m, mark: true });
 const SCHW = { line: "schwarzschild" };
@@ -38,20 +38,21 @@ const ML = { m: [22, 34.8], grow: "down" };
 const HAW = { m: [-4.7, 17], grow: "up" };
 const NS = { m: [18, 23], dash: true, grow: "down" };
 const DM_MICA = { poly: [[-7.75, 0], [-4, 0], [-4, 1.74], [-7.75, 1.74]], hatch: true, fill: "#f2e14a", opacity: 0.85,
-  label: "ruled out by\nancient crystals", labelAt: [-9.5, -2.2], labelColor: "#f2e14a" };
+  label: "ruled out by\nancient crystals", labelAt: [-19, -1], labelSize: 14, labelColor: "#f2e14a" };
 const DM_HURT = { poly: [[-3.83, 0], [-3.83, 4.7], [-1.07, 4.7], [-3.42, 0]], hatch: true, fill: "#ff6b5e", opacity: 0.9,
-  label: "ruled out by a lack of\nrandom human injuries", labelAt: [-10.5, 5.6], labelColor: "#ff8a80" };
+  label: "ruled out by a lack of\nrandom human injuries", labelAt: [-19, 6], labelSize: 14, labelColor: "#ff8a80" };
 const DM_WD = { poly: [[-4.75, 5.6], [-4.75, 15], [-4.25, 16.2], [-3.65, 20.5], [-2, 21.6], [4, 21.6]], hatch: true, fill: "#6f9bff", opacity: 0.75,
-  label: "ruled out by white dwarfs\nthat never exploded", labelAt: [3.4, 14.2], labelColor: "#9ec1ff" };
+  label: "ruled out by white dwarfs\nthat never exploded", labelAt: [-20, 13], labelSize: 14, labelColor: "#9ec1ff" };
 const DM_CMB = { poly: [[-3.42, 0], [30, 0], [30, 25], [9.08, 25]], hatch: true, fill: "#b8bccc", opacity: 0.45,
-  label: "ruled out by the\nmicrowave background", labelAt: [6.5, 4.5], labelColor: "#e0e3f0" };
+  label: "ruled out by the\nmicrowave background", labelAt: [-21, 20], labelSize: 14, labelColor: "#e0e3f0" };
 const DM_CANDS = [
   { mark: [-16.2, -21.25], label: "WIMPs?", place: "right" },
   { mark: [9.85, 30.3], label: "rogue planets?", place: "left" },
   { mark: [10.1, 32.8], label: "faint dwarfs?", place: "left" },
   { mark: [-1, 9], label: "quark nuggets?", place: "left", color: "#ffe9a3" },
 ];
-const DM_SOURCE = { title: "after Sidhu, Scherrer & Starkman (2019),\n“Death and serious injury by dark matter”", small: true, y: 0.7 };
+const DM_SOURCE = { title: "after Sidhu, Scherrer & Starkman (2019),\n“Death and serious injury by dark matter”", small: true, y: 0.07 };
+const DM_DOTS = DM_CANDS.map(c => ({ ...c, label: false, instant: true, delay: 0 }));
 const DM_PBH = { mark: [-8.3, 19.5], label: "primordial black holes?", place: "right", color: "#ff8fa8" };
 const DM_WIDE = { r: -3, m: 2, span: 52 };
 const DM_TITLE = [-11.85, -3.8];
@@ -69,7 +70,7 @@ const DROP_ARROW = { arrow: true, from: { r: 22.7, m: 44.93 }, to: { r: 22.7, m:
 const GAL_NAMED = ["Milky Way", "Triangulum (M33)", "Large Magellanic Cloud"].map(obj => ({ obj, label: false }));
 const GAL_DROP = { ...GAL, sweep: 0.01, shift: { galaxy: -1, cluster: -0.85 }, shiftAt: 0.5, shiftDur: 2 };
 // ── video 5's pieces: bigger means emptier, the second edge ──
-const HUB = { line: "hubble" };
+const HUB = { line: "hubble", dash: true };   // dotted: the real edge is the cosmic event horizon just outside it (the author, 2026-11-05)
 const RHO = -29.05;
 const AVG = { density: RHO };
 const HS = "Observable Universe";
@@ -81,6 +82,8 @@ export default {
   title: "Space: the middle",
   blurb: "How a star's truce breaks, the cores it leaves, the black-hole line and the search for dark matter, then out to the voids and the second edge.",
   start: { r: 10.9, m: 33.1, span: 3.6 },
+  // galaxies and up 60% of their size, Laniakea a good deal less: it hid everything around it (the author, 2026-11-05)
+  iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
   icons: "all",
   forceIcons: ["Sun", "Ton 618", "Laniakea"],
   pbhWindow: false,
@@ -116,26 +119,28 @@ export default {
     { at: "meet others", cam: CYCLE_VIEW, dur: 3.5, ease: "gentle" },
     { at: "stellar nursery", hl: [...CYCLE, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Stellar Nursery", label: "stellar nursery", place: "left", delay: 0.2 }] },
     { at: ["protostar", "protostaur"], hl: [...CYCLE, { obj: "Stellar Nursery", label: false }, { obj: "Protostar", delay: 0.6 }] },
-    { at: "new cycle", cam: { r: 14.6, m: 33.9, span: 9 }, hl: [...CYCLE, { obj: "Stellar Nursery", label: false }, { obj: "Sun", delay: 0.6 }] },
-    { at: "richer materials", hl: [...CYCLE, { obj: "Sun", label: "a third-generation star" }] },
+    { at: "new cycle", cam: { r: 12.6, m: 31.4, span: 13 }, dur: 3, ease: "gentle", hl: [...CYCLE, { obj: "Protostar", label: false }, { obj: "Sun", delay: 0.6 },
+      { arrow: true, from: { obj: "Protostar" }, to: { r: PROTOPLANET[0], m: PROTOPLANET[1] }, color: "#ffe9a3", delay: 0.8 }, { mark: PROTOPLANET, label: "protoplanet", place: "left", delay: 1.4 }] },
+    { at: "richer materials", hl: [...CYCLE, { obj: "Sun", label: "a third-generation star" }, { arrow: true, from: { obj: "Protostar" }, to: { r: PROTOPLANET[0], m: PROTOPLANET[1] }, color: "#ffe9a3", draw: 0.01 }, { mark: PROTOPLANET, label: "protoplanet", place: "left", instant: true }] },
+    { at: "planet full of life", hl: [...CYCLE, { mark: PROTOPLANET, label: "protoplanet", place: "left", instant: true }, { arrow: true, from: { r: PROTOPLANET[0], m: PROTOPLANET[1] }, to: { obj: "Earth" }, color: "#90caf9", solid: true, width: 3 }, { obj: "Earth", label: "a planet with metals", place: "right", delay: 0.6 }] },
     // the cores
     { at: "stays behind", cam: { r: 8.4, m: 33.6, span: 6 }, clear: true, hl: [{ obj: "Sun" }] },
     { at: "white dwarf", cam: { r: 9.85, m: 33.25, span: 2.6 }, hl: [{ obj: "Sun" }, { arrow: true, from: { obj: "Sun" }, to: { obj: "White Dwarf" }, color: "#90caf9" }, { obj: "White Dwarf", place: "left", delay: 0.6 },
       ...WD_LIMIT(1.2)] },
     { at: "carbon and oxygen", hl: [...WD_LIMIT(0, true), { obj: "White Dwarf", label: "carbon and oxygen", place: "left" }] },
     { at: "does go supernova", hl: [...WD_LIMIT(0, true), { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false, delay: 0.4 }] },
-    // gravity's third win: past the electrons' last stand (the white dwarf limit), the score on screen
-    { at: "win once again", hl: [...WD_LIMIT(0, true), { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, SCORE3] },
+    // past the electrons' last stand (the white dwarf limit)
+    { at: "win once again", hl: [...WD_LIMIT(0, true), { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }] },
     // neutron stars and neutrons, the same density: out to both, a whip down the density lines to the
     // hydrogen atom collapsing into a neutron, then the whip back up (video 3's sequence)
-    { at: "protons and electrons", offset: -1, cam: DENSE_TOP, dur: 2.2, ease: "gentle",
+    { at: "win once again", offset: 0.9, cam: DENSE_TOP, dur: 2.2, ease: "gentle",
       hl: [...DENSITIES, { obj: "L Brown Dwarf", label: "brown dwarfs", place: "left", delay: 0.8 }, { obj: "PSR J0030+0451", label: "neutron stars", place: "right", delay: 1.2 }, { ...PSR_RING, delay: 1.2 }] },
-    { at: "squeezed into", offset: -0.6, cam: { ...DENSE_BOTTOM, whip: true, overshoot: 0.15 }, dur: 1,
+    { at: "protons and electrons", offset: -0.2, cam: { ...DENSE_BOTTOM, whip: true, overshoot: 0.15 }, dur: 1,
       icons: ["Neutrino (e)"], hideIcons: ["Hydrogen", "Neutron"], labels: false, hl: [...DENSITIES,
-      { clip: "hopf-collapse", from: H_AT, to: N_AT, lead: 1, move: [1.4, 3.6], size: 150 },
-      { text: "1 proton + 1 electron\n= 1 neutron + 1 neutrino", at: [-10.3, -20.3], size: 20, color: "#e9ecf5", delay: 1.1 },
+      { clip: "hopf-collapse", from: H_AT, to: N_AT, lead: 1.2, move: [1.8, 6.4], size: 150 },
+      { text: "1 proton + 1 electron\n= 1 neutron + 1 neutrino", at: [-10.3, -20.3], size: 20, color: "#e9ecf5", delay: 1.4 },
       { obj: "Neutrino (e)", label: false, grow: 1.6 },
-      { fly: { from: N_AT, to: NU_AT }, dur: 1.2, color: "#b3e5fc", label: "neutrino", delay: 3.8 }] },
+      { fly: { from: N_AT, to: NU_AT }, dur: 1.2, color: "#b3e5fc", label: "neutrino", delay: 5.4 }] },
     { at: "a neutron star", cam: { ...DENSE_TOP, whip: true, overshoot: 0.15 }, dur: 1, icons: true, hideIcons: [], labels: true,
       hl: [...DENSITIES, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }, PSR_RING,
       { dust: "neutronstar", src: ["neutronstar"], color: "#80deea", sweep: 0.8, delay: 0.8 }] },
@@ -220,7 +225,7 @@ export default {
     { at: ["when we weigh galaxies", "weigh galaxies", "weight galaxies"], cam: { r: 23, m: 45, span: 10 }, clear: true, hl: [GAL, { line: "darkmatter" }] },
     { at: "much heavier than everything", cam: { r: 22.3, m: 44.1, span: 3.6 }, hold: 6, icons: false,
       hl: [...GAL_NAMED, { ...DROP_ARROW, delay: 0.5, draw: 2 }, { ...GAL_DROP, label: "without dark matter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only", delay: 2 }] },
-    { at: ["ten times", "10 times"], hl: [...GAL_NAMED.map(still), { ...DROP_ARROW, draw: 0.01 }, { ...GAL_DROP, shiftAt: -10, label: "about 10× lighter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
+    { at: ["ten times", "10 times"], hl: [...GAL_NAMED.map(still), { ...DROP_ARROW, draw: 0.01 }, { ...GAL_DROP, shiftAt: -10, label: "up to 10× heavier than what we see", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
     { at: "something invisible", cam: DM_WIDE, dur: 4, drift: 0, quiet: true, labels: false, clear: true, icons: true,
       hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1.2 + 0.5 * i }))] },
     { at: "we don't know what it is", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 5, drift: 0, quiet: true,
@@ -232,15 +237,15 @@ export default {
       hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1 + 0.5 * i })), { ...DM_PBH, delay: 2.5 }, { window: W5, cuts: [ML, HAW], delay: 2.5 }] },
     { at: "somewhere on this chart", hl: [SCHW, ...DM_HUB(0), ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] }] },
     { at: "not only on the black hole line", cam: DM_CLOSE, dur: 4.5, drift: 0, quiet: true,
-      hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] }] },
-    { at: ["lumps about roughly this size", "lamps about roughly this size", "roughly this size"], hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
+      hl: [SCHW, ...DM_DOTS, { ...DM_PBH, label: false, instant: true, delay: 0 }, { window: W5, cuts: [ML, HAW] }] },
+    { at: ["lumps about roughly this size", "lamps about roughly this size", "roughly this size"], hl: [SCHW, ...DM_DOTS, { ...DM_PBH, label: false, instant: true, delay: 0 }, { window: W5, cuts: [ML, HAW] },
       { ...DM_SOURCE, delay: 0.6 }, { ...DM_MICA, delay: 0.2 }] },
-    { at: "can't be here either", hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
+    { at: "can't be here either", hl: [SCHW, ...DM_DOTS, { ...DM_PBH, label: false, instant: true, delay: 0 }, { window: W5, cuts: [ML, HAW] },
       still(DM_SOURCE), still(DM_MICA), { ...DM_HURT, delay: 0.1 }] },
-    { at: ["death records", "deaf records"], hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
+    { at: ["death records", "deaf records"], hl: [SCHW, ...DM_DOTS, { ...DM_PBH, label: false, instant: true, delay: 0 }, { window: W5, cuts: [ML, HAW] },
       still(DM_SOURCE), still(DM_MICA), { ...DM_HURT, draw: 0.01, label: "ruled out by the\ndeath records" }] },
     { at: "the search for dark matter", cam: DM_WIDE, dur: 8, drift: 0, quiet: true,
-      hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
+      hl: [SCHW, ...DM_DOTS, { ...DM_PBH, label: false, instant: true, delay: 0 }, { window: W5, cuts: [ML, HAW] },
         still(DM_SOURCE), still(DM_MICA), still(DM_HURT), { ...DM_WD, delay: 0.8 }, { ...DM_CMB, delay: 3.2 },
         { window: W5, cuts: [QSO, CMB, GW, ML, HAW], delay: 5.4 }] },
     // the survivors: one slow zoom out to the whole triangle, the early universe's density line kept on
@@ -252,14 +257,18 @@ export default {
       hl: [{ ...SCHW, label: "edge 1 · the black-hole line" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: false, delay: 0.4 }, { obj: "M87*", label: false, delay: 0.8 },
         { obj: "Ton 618", label: false, delay: 1.2 }, { side: "left", of: "schwarzschild", label: "nothing", delay: 2 }] },
     { at: ["biggest things there are", "to the right, to the biggest"], cam: { r: 18, m: 39, span: 20 }, dur: 3, clear: true, hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Milky Way", label: false, delay: 0.8 }] },
+    // one density at a time, each on its own diagonal (the author, 2026-11-05: it kept lighting the same ones)
     { at: "every diagonal on this chart", cam: { r: 14, m: 39, span: 30 }, dur: 2,
-      hl: [{ density: 0, label: "atoms · 1 g/cm³" }, { density: 14.36, label: "neutrons", delay: 0.6 }] },
-    { at: "density of neutrons", hl: [{ density: 0 }, { density: 14.36, label: "neutron density" }, { obj: "PSR J0030+0451", label: "neutron stars" }] },
-    { at: "degenerate matter", hl: [{ density: 0 }, { density: 14.36 }, { obj: "White Dwarf", label: "degenerate electrons hold it up", place: "left" }, { obj: "L Brown Dwarf", label: "and these", place: "left", delay: 0.4 }] },
-    { at: "density of atoms", hl: [{ density: 0, label: "atoms · 1 g/cm³" }, { density: 14.36 }, { obj: "Sun", label: false }, { obj: "Earth", label: false, delay: 0.3 }] },
-    { at: "less dense than water itself", hl: [{ density: 0, label: "water" }, { side: "right", of: "water" }, { obj: "M87*", label: "lighter than water" }, { obj: "Ton 618", label: false, delay: 0.3 }] },
-    { at: "emptier things get", cam: { r: 19.6, m: 37.6, span: 4, glide: true }, dur: 2, clear: true, density: 118,
-      hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
+      hl: [{ density: 14.36, label: "every diagonal is a density" }, { density: 6, delay: 0.3 }, { density: 0, delay: 0.6 }, { density: -4.5, delay: 0.9 }] },
+    { at: "density of neutrons", hl: [{ density: 14.36, label: "neutron density" }, { obj: "PSR J0030+0451", label: "neutron stars" }] },
+    { at: "degenerate matter", hl: [{ density: 6, label: "degenerate matter" }, { obj: "White Dwarf", label: "degenerate electrons hold it up", place: "left" }, { obj: "L Brown Dwarf", label: "and these", place: "left", delay: 0.4 }] },
+    { at: "density of atoms", hl: [{ density: 0, label: "atoms · 1 g/cm³" }, { obj: "Sun", label: false }, { obj: "Earth", label: false, delay: 0.3 }] },
+    { at: "less dense than water itself", hl: [{ density: -4.5, label: "far less dense than water" }, { obj: "M87*", label: false }, { obj: "Ton 618", label: false, delay: 0.3 }] },
+    // the nebulae and the clusters first, then the galaxies (the words skip them: a line to record, recording-scripts.md)
+    { at: "the further right", cam: { r: 18.0, m: 33.6, span: 5, glide: true }, dur: 2, clear: true, density: 118,
+      hl: [{ obj: "Stellar Nursery", label: "nebulae", place: "left" }, { obj: "Supernova Remnant", label: false, delay: 0.4 }] },
+    { at: "emptier things get", cam: { r: 19.6, m: 37.6, span: 4, glide: true },
+      hl: [{ obj: "Globular Cluster", label: "star clusters" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
     { at: "between its stars", cam: { r: 21.6, m: 41.4, span: 4, glide: true }, hl: [{ obj: "Milky Way", label: "~1 atom per cm³" }] },
     { at: ["the milky way", "milky way"], cam: { r: 22.5, m: 44.0, span: 4, glide: true }, hl: [{ obj: "Milky Way" }, { obj: "Andromeda (M31)", delay: 0.6 }] },
     { at: "local group", hl: [{ obj: "Milky Way", label: false }, { obj: "Andromeda (M31)", label: "local group" }] },
@@ -282,14 +291,14 @@ export default {
     { at: "speed limit", hl: [{ ...HUB, label: "nothing travels faster than light" }] },
     { at: "space itself", hl: [{ ...HUB, label: "but space can outrun light" }] },
     { at: "more space being created", hl: [{ ...HUB, label: "new space, everywhere" }] },
-    { at: "resolution of a photo", hl: [{ pixels: { cell: 16, steps: [2.6, 5.2] } }] },
-    { at: "further away", hl: [HUB, { obj: "Laniakea", label: false }, { arrow: true, from: { obj: "Laniakea" }, to: { obj: HS }, label: "farther, faster" }] },
+    { at: "resolution of a photo", hold: 13, hl: [{ pixels: { cell: 16, steps: [1.4, 4.2, 7] } }] },
+    { at: "further away", offset: 3, hl: [HUB, { obj: "Laniakea", label: false }, { arrow: true, from: { obj: "Laniakea" }, to: { obj: HS }, label: "farther, faster" }] },
     { at: "speed of light", hl: [{ ...HUB, label: "here: as fast as light" }] },
     { at: ["14 billion", "fourteen billion"], hl: [{ ...HUB, label: "14 billion light-years away" }] },
     { at: "could never reach us", hl: [{ ...HUB, label: "their light never gets here?" }] },
     { at: "also growing", hl: [{ ...HUB, label: "the sphere grows · their light gets here" }] },
-    { at: "real edge", cam: { r: 28.16, m: 55.45, span: 1.1 }, dur: 2.4, labels: false,
-      hl: [{ ...HUB, label: "Hubble line" }, { ...EHL, label: "cosmic event horizon", delay: 1.4 }] },
+    { at: "real edge", cam: { r: 28.16, m: 55.45, span: 1.1 }, dur: 2.4,
+      hl: [{ ...HUB, label: "Hubble sphere" }, { ...EHL, label: "the real edge · cosmic event horizon", delay: 1.4 }] },
     { at: "can ever affect us", hl: [HUB, { ...EHL, label: "the edge of our universe" }] },
     { at: "limit of the unknowable", hl: [HUB, { ...EHL, label: "the unknowable" }] },
   ],

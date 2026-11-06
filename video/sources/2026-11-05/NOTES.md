@@ -350,3 +350,27 @@ die, inside a black hole).
 Left as said: "the size of the Hubble sphere, the size of our event horizon" and "lumps about roughly this size" (one
 slip each, not restarts), "It will be very important" (the caption says "It will be important": Whisper hears a word there).
 
+
+## The author's notes after watching the render (2026-11-05, night) and what changed
+
+"I sound drunk… lots of qurrks and bzzzrs… quite stressful, like an intense lesson. I'd rather my viewers sleep than get a panic attack."
+What was measured, comparing the published file with the raw takes:
+
+- **Speed:** right, 1.0×: the finished voice lines up with the raw take at a constant offset. The page's live player does keep a per-browser speed
+  (`narr-speed-v2`, 1.1× etc.), played by the browser's time-stretch: that's a "robotic" of its own if one was ever picked. Not tested on the author's browser.
+- **The rhythm was the edit's:** the takes' own pauses run 0.5–0.8 s (median), up to 2 s; the finished video had a median of 0.3 s and almost nothing over 0.45 s
+  (caps of 0.18/0.3/0.45 s, then the clean-up's 0.4 s). That's the rushed feel. Now 0.25/0.55/1.0 s, 0.55 s between clips, 1.1 s between beats, from the raw takes.
+- **Dead silence between clips:** gaps were digital zero, the room switching off and on. Now filled with each take's own room (`ROOM`, `video/tools/build.py`).
+- **Generations:** the finished audio had been through AAC about six times (take, clean-up, post-cut, cut, mix, render), and the post-cuts were cross-fades in it. It's now built
+  straight from the raw recordings, the eleven post-cuts turned into clip `s`/`cut` in source seconds (`POST_CUTS` empty).
+- **Limiter:** rec54 sits 13 dB under the target, so its peaks took up to 9 dB of a fast limiter (release 80 ms). Release now 200 ms (`--release=200`).
+- **"It's constrained by relativity":** not explained by any of those. At that spot the limiter isn't touched (peak 0.43), nothing else is in the mix (−48 dB), and the spectrum
+  matches the raw take: what's left there is the voice itself, boosted. To listen for in the new build.
+- **The picture glitches at 5:32:** the web copy. A fixed 19.5 MB gave 15 minutes 18 kbps of video, a wall of blocks; the full render was clean. Now at least 500 kbps (`web()` in `scripts/narration-render-stale.sh`).
+
+Fact check of the notes themselves:
+
+- *The gap between the CMB and the first galaxies:* about 300 million years (380,000 years to roughly 300 Myr), which in today's distances is about 46 → 33 billion light-years. The shells draw that.
+- *The cosmic event horizon as the triangle's real edge:* right as "what can ever affect us", but it's the **Hubble** sphere that lands exactly on the black-hole line (r_s = c/H for the critical density inside c/H). A sphere the size of the
+  event horizon (1.2× wider) at the same density holds 1.7× more than its own Schwarzschild radius allows on the chart: its point sits just beyond the line. So the Hubble line is dotted only in the edge passage, and "both are on the same line" still speaks of the Hubble sphere.
+- *To record:* a line before the galaxies naming the nebulae and the clusters, which the words skip (the picture now shows them): e.g. "First the nebulae, then the star clusters, already mostly empty." In `video/scripts/recording-scripts.md`.

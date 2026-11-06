@@ -24,6 +24,7 @@
 import { blackHoleFilter } from "./black-hole-palette.js";
 import * as d3 from "d3";
 import { iconUrls } from "./assets.js";
+import { drawHorizons, drawCenter, drawOwn, drawCosmos, diagramsPending } from "./narr-diagrams.js";
 import {
   HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
@@ -647,7 +648,7 @@ export async function startNarration(app) {
   if (WIDE !== 1) layer.classList.add("narr-wide");
   if (!RENDER) layer.classList.add("live");     // the player's own UI (renders have none)
   const track = SCENE.backings?.length ? SCENE.backings : SCENE.backing && (typeof SCENE.backing === "string" ? SCENE.backing : SCENE.backing.track);
-  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-clips"></div><div id="narr-cover" hidden><img alt=""></div><div id="narr-photo"><div class="np-imgs"></div><div class="np-cap"></div></div><div id="narr-caption"></div>` + creditsHTML(track) +
+  layer.innerHTML = `<svg id="narr-svg"></svg><div id="narr-clips"></div><canvas id="narr-diagram" hidden></canvas><div id="narr-cover" hidden><img alt=""></div><div id="narr-photo"><div class="np-imgs"></div><div class="np-cap"></div></div><div id="narr-caption"></div>` + creditsHTML(track) +
     (RENDER ? "" : `<div id="narr-ui"><button id="narr-play" aria-label="Play">▶</button>
       <div id="narr-title">${SCENE.title || "The Triangle of Everything"}<span>${SCENE.title ? "the triangle of everything" : "narrated tour"} · tap to play</span></div>
       <a id="narr-next" href="#" hidden></a>
@@ -1037,6 +1038,7 @@ export async function startNarration(app) {
       el.attr("opacity", (prev ? 1 : smooth((t - h.t0) / 0.3)) * (next ? (t < h.t1 ? 1 : 0) : 1 - smooth((t - h.t1) / 0.6)));
       drawSketch(el, h, t - h.t0);
     });
+    drawDiagram(live, t);
     drawTraces(t);
     join(gHl, live.filter(h => !h.axis && !h.card && !h.sketch && !isTrace(h))).each(function (h) {
       const el = d3.select(this);
@@ -1568,7 +1570,8 @@ export async function startNarration(app) {
     const d = "M" + p.map(q => q.join(",")).join("L");
     const col = h.color || L.color;
     const strokes = [[12, 0.12], [6, 0.25], [2.4, 1]];
-    const dash = `${len * prog} ${len + 10}`;
+    // h.dash: a dotted line (the Hubble sphere inside the cosmic event horizon)
+    const dash = h.dash ? "9 8" : `${len * prog} ${len + 10}`;
     // the water line: over the pictures only while its first mention glows
     const glow = h.line !== "water" ? 1 : h.since === firstWater ? 1 - smooth((curT - h.since - WATER_GLOW) / 0.6) : 0;
     if (h.line === "water") {
@@ -2049,6 +2052,7 @@ export async function startNarration(app) {
       const [lr, lm] = h.labelAt || [h.poly.reduce((a, p) => a + p[0], 0) / h.poly.length, h.poly.reduce((a, p) => a + p[1], 0) / h.poly.length];
       const t = el.append("text").attr("class", "narr-tag").attr("x", sx(lr)).attr("y", sy(lm)).attr("text-anchor", "middle")
         .attr("fill", h.labelColor || "#fff").attr("opacity", h.instant ? 1 : smooth((age - 0.3) / 0.6));
+      if (h.labelSize) t.style("font-size", `${h.labelSize}px`);
       h.label.split("\n").forEach((ln, i) => t.append("tspan").attr("x", sx(lr)).attr("dy", i ? "1.2em" : 0).text(ln.toUpperCase()));
     }
   }
@@ -2141,6 +2145,24 @@ export async function startNarration(app) {
       g.append("rect").attr("x", SW / 2 - 70).attr("y", y - 9).attr("width", 12).attr("height", 12).attr("rx", 2).attr("fill", col);
       g.append("text").attr("class", "narr-tag").attr("x", SW / 2 - 50).attr("y", y + 1.5).attr("fill", col).text(name.toUpperCase());
     });
+  }
+  /** The full-screen diagrams (src/narr-diagrams.js), on a canvas over the chart, under the captions:
+   *  { horizons: { right? } }, { center: { slug? } }, { own: { phase } }, { cosmos: { zoom, rings } } */
+  const OWN_FREEZE = cues.find(c => c.hl?.some(q => q.own?.phase === 1))?.time;
+  const DIAGRAM_KINDS = { own: cues.some(c => c.hl?.some(q => q.own)), center: cues.some(c => c.hl?.some(q => q.center)), cosmos: cues.some(c => c.hl?.some(q => q.cosmos)) };
+  function drawDiagram(live, t) {
+    const cv = layer.querySelector("#narr-diagram"), h = live.find(q => q.horizons || q.center || q.own || q.cosmos);
+    if (!h) { cv.hidden = true; return; }
+    cv.hidden = false;
+    const dpr = Math.min(2, devicePixelRatio || 1), W = Math.round(layer.clientWidth * dpr), H = Math.round(layer.clientHeight * dpr);
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    const ctx = cv.getContext("2d"), age = t - h.t0;
+    cv.style.opacity = (h.instant ? 1 : smooth(age / 0.7)) * (1 - smooth((t - h.t1) / 0.6));
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
+    if (h.horizons) drawHorizons(ctx, W, H, { ...h.horizons, age, instant: h.horizons.instant }, t);
+    else if (h.center) drawCenter(ctx, W, H, { ...h.center, age });
+    else if (h.own) drawOwn(ctx, W, H, { ...h.own, age, freezeAt: OWN_FREEZE }, t);
+    else if (h.cosmos) drawCosmos(ctx, W, H, { ...h.cosmos, age }, t);
   }
   /** Expansion as a picture gaining pixels: { pixels: { steps: [s, …], cell?, seed? } }, on its
    *  own over a black screen (no chart behind) and full screen, so no border is seen growing (the
@@ -2724,7 +2746,7 @@ export async function startNarration(app) {
     now: () => curT,     // the take's time on screen (the live Hopf pictures animate by it)
     settle(t) { const { view } = camera(t); app.setCamera(view, false); app.bgNoiseSettle(); overlay(); },
     camera: (t) => camera(t).view,
-    pending: () => (window.__cmbIconPending || 0) + app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
+    pending: () => (window.__cmbIconPending || 0) + diagramsPending(DIAGRAM_KINDS) + app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
       [...photoImgs.values()].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("video"), ...layer.querySelectorAll("#narr-clips video")].filter(v => v.seeking || v.readyState < 2).length +
@@ -3083,6 +3105,7 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
 #narr-photo .np-imgs { position: absolute; inset: 0; will-change: transform; }
 #narr-photo figure { position: absolute; inset: 0; margin: 0; }
 #narr-clips { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+#narr-diagram { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 #narr-clips .narr-clip { position: absolute; }
 #narr-clips .narr-clip-src { position: absolute; width: 2px; height: 2px; opacity: 0; }
 #narr-photo img, #narr-photo video { width: 100%; height: 100%; display: block; object-fit: contain; }
@@ -3092,6 +3115,7 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
 #narr-photo .np-row { flex-direction: row; align-items: center; gap: 3%; padding: 30% 3% 38%; }
 #narr-photo .np-row figure { min-width: 0; height: 100%; justify-content: center; }
 #narr-photo .np-row img, #narr-photo .np-row video { flex: 0 1 auto; width: 100%; height: auto; aspect-ratio: 1; }
+#narr-layer.narr-wide #narr-photo .np-row { padding: 6% 26% 13%; }   /* 16:9: clear of the bottom of the screen, and of the captions */
 #narr-photo .np-row figcaption { margin-top: 10px; text-align: center; line-height: 1.25; }
 #narr-photo figcaption small { display: block; font-size: 14px; letter-spacing: 0.06em; color: rgba(255,255,255,0.8); }
 #narr-photo figcaption { margin-top: 4px; font: 700 17px/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: 0.12em;

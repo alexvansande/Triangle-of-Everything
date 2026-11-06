@@ -201,7 +201,7 @@ function iconSizeMult(o) {
     : cat === "blackhole" || (cat === "largescale" && isDiffuseSpaceArt(cat, o.slug)) ? 1.25 : 1;
   // (a video's boost for the big things, ramping in over the decade around `from`)
   const boost = _iconBoost ? 1 + (_iconBoost.k - 1) * Math.max(0, Math.min(1, logR - _iconBoost.from + 0.5)) : 1;
-  return sizeScale * categoryScale * iconSizeCurve(logR) * (ICON_SIZE_MULT[o.slug] || 1) * iconAreaMult(o.slug) * (_iconSize / 100) * boost;
+  return sizeScale * categoryScale * iconSizeCurve(logR) * (ICON_SIZE_MULT[o.slug] || 1) * iconAreaMult(o.slug) * (_iconSize / 100) * boost * (_iconBoost?.slugs?.[o.slug] ?? 1);
 }
 
 // Photons → where the spectrum explorer (/spectrum/) opens: the selector's
@@ -2642,7 +2642,7 @@ function drawObjects() {
     _iconOnly && [..._iconOnly], // a narration scene's picture set
     _iconForce && [..._iconForce],
     _iconHide && [..._iconHide],
-    _iconBoost && [_iconBoost.from, _iconBoost.k],
+    _iconBoost && [_iconBoost.from, _iconBoost.k, JSON.stringify(_iconBoost.slugs || 0)],
   ]));
 
   // Project all objects to screen, sorted by priority (low z = important)
@@ -8948,7 +8948,7 @@ if (_ogShot) {
       setIconFirst(names) { _iconFirst = names?.length ? new Set(names) : null; redraw(); },
       setIconHide(names) { _iconHide = names?.length ? new Set(names) : null; redraw(); },
       /** Pictures of things from log r `from` up drawn k× larger (videos): { from, k }, or null. */
-      setIconBoost(b) { _iconBoost = b?.k && b.k !== 1 ? { from: b.from ?? 18, k: b.k } : null; redraw(); },
+      setIconBoost(b) { _iconBoost = b?.k && b.k !== 1 ? { from: b.from ?? 18, k: b.k, slugs: b.slugs } : null; redraw(); },
       /** Objects whose own chart label never shows (videos): names, or null. */
       setLabelHide(names) { _labelHide = names?.length ? new Set(names) : null; redraw(); },
       /** Settings → Icons for a video (0–100, 100 = many), without saving it. */

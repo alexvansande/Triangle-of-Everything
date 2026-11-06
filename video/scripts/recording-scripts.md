@@ -113,6 +113,8 @@ trying to do an intro… explain visually what we have: show the axis, show log,
 the author, on the take: the "new player" (dark energy) passage and its scoreboard column** ("No, I don't like the new
 player. I'm not doing the scoreboard for this. Let's stop suggesting that"), and "Whatever dark matter is, this is
 where it's doing the holding" ("I'm not sure I like that phrase"). **Evening (rec56):** "Are we living inside a black hole?" through the ending, said freely; cut as `long-02-end`.
+**Long video 2, re-cut 2026-11-05 (night):** rebuilt from the raw takes with the author's pauses back, about 17:30 (it was 15:33). One line to record if wanted, before "A galaxy is mostly the empty space between its stars": *"First the nebulae, then the star clusters, already mostly empty."* The picture shows them already; the words skip them.
+
 Long video 2 is now whole from the day's three takes (19:30), and five Shorts are carved from it (the best
 stories, 1:38–2:10). To retake if wanted: the stars' death paragraph (the iron fix), "both are an event horizon"
 (a kind of horizon), and whatever the author doesn't like on watching it.

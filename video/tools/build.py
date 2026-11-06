@@ -18,6 +18,8 @@ PAUSES (optional): {"word": s, ",": s, ".": s}, the longest pause kept inside a
 clip after a word, a comma or a sentence end (default 0.5 s for all). A
 hesitation mid-phrase ("start fusing… hydrogen") can be cut much shorter
 than a breath at a full stop.
+GAPS (optional): {"same": s, "beat": s}, the default pause before a clip inside a beat and between beats.
+ROOM (optional): True fills the gaps between clips with the recording's own quietest stretch, not digital silence.
 """
 import csv, json, os, sys, wave
 import numpy as np
@@ -30,7 +32,8 @@ SOURCE_FX = getattr(m, "SOURCE_FX", {})
 SOURCE_TEMPO = getattr(m, "SOURCE_TEMPO", {})
 PAUSES = {"word": 0.5, ",": 0.5, ".": 0.5, **getattr(m, "PAUSES", {})}
 D = sys.argv[1]
-GAP_SAME, GAP_BEAT, TAIL = 0.28, 0.6, 0.5
+GAP_SAME, GAP_BEAT, TAIL = getattr(m, "GAPS", {}).get("same", 0.28), getattr(m, "GAPS", {}).get("beat", 0.6), 0.5
+ROOM = getattr(m, "ROOM", False)
 
 class Source:
     def __init__(self, name):
@@ -66,6 +69,15 @@ class Source:
                 k = j
             else: k += 1
         return out
+    def room(self, n):
+        """n samples of this recording's room: its quietest second, looped with 100 ms cross-fades."""
+        if not hasattr(self, "_room"):
+            k = int(1.0 / (self.hop / self.SR)); m_ = np.convolve(self.db, np.ones(k) / k, mode="valid"); i = int(np.argmin(m_))
+            self._room = self.a[i * self.hop:i * self.hop + self.SR].copy()
+        X = int(0.1 * self.SR); r = np.linspace(0, 1, X, dtype=np.float32); b = self._room; out = b.copy()
+        while len(out) < n:
+            out = np.concatenate([out[:-X], out[-X:] * (1 - r) + b[:X] * r, b[X:]])
+        return out[:n]
     def thr(self):  # silence threshold: 8 dB over this recording's noise floor
         return np.percentile(self.db, 8) + 8
     def start_cut(self, w):
@@ -137,11 +149,11 @@ for item in EDL:
     if "gain" in ov: clip = clip * np.float32(10 ** (ov["gain"] / 20))   # dB, to even out a clip spoken louder or softer
     clip = fade(clip, SR)
     gap = 0.0 if prev is None else ov.get("gap", GAP_BEAT if beat != prev else GAP_SAME)
-    out.append(np.zeros(int(gap * SR), np.float32)); t += gap
+    out.append(S.room(int(gap * SR)) if ROOM and gap > 0 else np.zeros(int(gap * SR), np.float32)); t += gap
     text = " ".join(w["w"] for w in S.words if w0["s"] - 1e-3 <= w["s"] <= w1["s"] + 1e-3)
     rows.append([name, beat, f"{t:.2f}", f"{t + len(clip) / SR:.2f}", f"{s:.2f}", f"{e:.2f}", text])
     out.append(clip); t += len(clip) / SR; prev = beat
-out.append(np.zeros(int(TAIL * SR), np.float32))
+out.append(S.room(int(TAIL * SR)) if ROOM else np.zeros(int(TAIL * SR), np.float32))
 y = np.concatenate(out)
 w = wave.open(f"{D}/audio/edit_raw.wav", "wb"); w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
 w.writeframes((np.clip(y, -1, 1) * 32767).astype(np.int16).tobytes()); w.close()

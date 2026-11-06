@@ -16,7 +16,7 @@
 # cue field, and sessions push several a day, so each would re-render every take. The session
 # that makes one queues the takes it changes (CLAUDE.md). The old render stays in
 # place until the new one has finished. Then:
-#   video/web/<take>.mp4   the site's copy (720×1280, H.264 two-pass, ~19.5 MB; see video/web/README.md)
+#   video/web/<take>.mp4   the site's copy (720×1280, H.264 two-pass, ~19.5 MB, more for long videos; see video/web/README.md)
 #   $ICLOUD/<take>-<date>.mp4   the full render, dated
 cd "$(dirname "$0")/.." || exit 1
 URL=${URL:-http://localhost:5184}
@@ -33,7 +33,8 @@ web() {   # full render → the site's copy, sized just under 20 MiB
   D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$1")
   # 720×1280, or 1280×720 for a 16:9 long cut
   S=$(ffprobe -v error -select_streams v -show_entries stream=width,height -of csv=p=0 "$1" | awk -F, '{print ($1 > $2) ? "1280:720" : "720:1280"}')
-  VB=$(python3 -c "print(int(19.5e6*8/$D/1000 - 148))")k
+  # (at least 500 kbps: a fixed 19.5 MB left a 15-minute video 18 kbps, a wall of blocks; the author, 2026-11-05)
+  VB=$(python3 -c "print(max(int(19.5e6*8/$D/1000 - 148), 500))")k
   P=output/videos/$3.pass
   ffmpeg -hide_banner -loglevel error -y -i "$1" -vf "scale=$S:flags=lanczos" -c:v libx264 -preset slow -profile:v high \
     -pix_fmt yuv420p -b:v "$VB" -pass 1 -passlogfile "$P" -an -f mp4 /dev/null &&

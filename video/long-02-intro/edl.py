@@ -19,7 +19,13 @@ SOURCES = {"rec54": "Long 2 intro take.m4a"}
 # 8 dB less above 8 kHz), so it's brightened to meet it halfway (2026-11-05, the voice notes in NOTES.md)
 SOURCE_FX = {"rec54": "highshelf=f=4000:g=3"}
 TREATMENT = "plain"
-PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
+# The pauses (the author, 2026-11-05, after watching it: "stressful… like an intense lesson"): the caps were 0.18/0.3/0.45 s
+# and a clean-up took every pause over 0.7 s down to 0.4 s; the takes' own pauses run 0.5–0.8 s, up to 2 s. Back to the
+# speaker's rhythm, the gaps between clips too and filled with the take's own room (ROOM). The restarts POST_CUTS took out of
+# the finished audio are now cuts in source seconds, so the build runs straight from the raw recording.
+PAUSES = {"word": 0.25, ",": 0.55, ".": 1.0}
+GAPS = {"same": 0.55, "beat": 1.1}
+ROOM = True
 
 EDL = [
  # the questions
@@ -69,7 +75,7 @@ EDL = [
  ("rec54", "fusion", 711.48, 714.48),      # pushing our objects again to the right.
  ("rec54", "ms", 739.88, 745.88),          # Stars are usually found in this diagonal line, called the main sequence. And they will be there for most of their lives.   (the last of three tries)
  # the cap on the biggest stars
- ("rec54", "limit", 829.40, 843.50, {"s": 829.30}),       # But that line also has a limit, because light itself has pressure. And if a star shines just too bright, their outer layers will be sent away with such force that any extra mass will be simply thrown away   (the last of six tries)
+ ("rec54", "limit", 829.40, 843.50, {"s": 830.02}),       # But that line also has a limit, because light itself has pressure. And if a star shines just too bright, their outer layers will be sent away with such force that any extra mass will be simply thrown away   (the last of six tries)
  ("rec54", "limit", 845.42, 847.52),       # higher than the orbital velocity of the star,
  ("rec54", "limit", 849.84, 851.16),       # and escape its gravity well.
  ("rec54", "limit", 867.82, 874.64, {"s": 871.05}),  # So right around here is where the largest stars live.   (the last of three tries; its start given: "So, right aroun– So right around here," before it, two false starts Whisper merged into one "So")
@@ -78,6 +84,4 @@ EDL = [
 # The restarts the clip-by-clip pass missed, found by sweeping the finished long video in 10 s windows (2026-11-05):
 # edit seconds in this take's audio.m4a, after the pause trim, so they apply to that finished file
 # (video/tools/postcut.py): rebuilding from the raw recording means finding them again.
-POST_CUTS = [
- (201.78, 202.66),   # "That also has,"
-]
+POST_CUTS = []   # (now in the clips above: "s" and "cut", source seconds)

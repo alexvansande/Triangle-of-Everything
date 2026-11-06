@@ -17,16 +17,24 @@
 
 SOURCES = {"rec55": "Long 2 take 2.m4a"}
 TREATMENT = "plain"
-PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
+# The pauses (the author, 2026-11-05, after watching it: "stressful… like an intense lesson"): the caps were 0.18/0.3/0.45 s
+# and a clean-up took every pause over 0.7 s down to 0.4 s; the takes' own pauses run 0.5–0.8 s, up to 2 s. Back to the
+# speaker's rhythm, the gaps between clips too and filled with the take's own room (ROOM). The restarts POST_CUTS took out of
+# the finished audio are now cuts in source seconds, so the build runs straight from the raw recording.
+PAUSES = {"word": 0.25, ",": 0.55, ".": 1.0}
+GAPS = {"same": 0.55, "beat": 1.1}
+ROOM = True
 
 EDL = [
  # the truce, and how it breaks
  ("rec55", "truce", 163.17, 170.25),       # That new truce between the two forces, one pushing it to the left and the other to the right, will last a few billion years,   (after the last of five tries at "so no star we know of can be beyond about 200 solar masses", not used: rec54 ends the cap)
  ("rec55", "death", 173.01, 200.13),       # but that draw is broken when the fuel runs out. Once there's no more hydrogen, or sometimes helium, to burn, then a new dance begins, where the star starts to rapidly collapse. But now that collapse creates even more heavier elements, which will create a new outer pressure, and it will expand again, and then collapse, until all that is left is a core made mostly of iron and other heavy metals.
  ("rec55", "death", 203.15, 216.79),       # Those elements don't produce energy when they undergo fusion. Quite the contrary, they steal it, so the star enters in a catastrophic core collapse, which now separates it in two distinct objects in our chart.   ("Those metals," before it left out)
- ("rec55", "cycle", 218.81, 250.11),       # The outer layers will keep expanding with the leftover energy from the last battle and become supernova remnants, or nebulas. These will eventually meet others and merge into a larger cloud of dust called a stellar nursery, which eventually will collapse back into a protostar and start a new cycle. But this time, the next generation will start with some richer materials that could lead to a planet full of life, like ours.
+ ("rec55", "cycle", 218.81, 250.11, {"cut": [(227.0, 231.84)]}),       # The outer layers will keep expanding with the leftover energy from the last battle and become supernova remnants, or nebulas. These will eventually meet others and merge into a larger cloud of dust called a stellar nursery, which eventually will collapse back into a protostar and start a new cycle. But this time, the next generation will start with some richer materials that could lead to a planet full of life, like ours.
  # the cores
- ("rec55", "core", 253.71, 286.75),        # The core, however, stays behind. If the star isn't massive enough to go supernova, it will remain as a white dwarf, a core of carbon and oxygen. If it does go supernova, then its core collapse will be so powerful that its gravity will win once again. Protons and electrons will be squeezed into a mass of pure neutrons: a neutron star. They will sit at the exact density line of the neutron.   (the pauses before "of carbon" and "squeezed" capped)
+ ("rec55", "core", 253.71, 281.51, {"s": 257.3, "cut": [(264.2, 266.05), (275.1, 278.5)]}),
+ ("rec55", "core", 282.19, 286.75, {"gap": 2.8}),  # (a pause after "pure neutrons", for the hydrogen collapsing into a neutron: the author, 2026-11-05)
+ #        # The core, however, stays behind. If the star isn't massive enough to go supernova, it will remain as a white dwarf, a core of carbon and oxygen. If it does go supernova, then its core collapse will be so powerful that its gravity will win once again. Protons and electrons will be squeezed into a mass of pure neutrons: a neutron star. They will sit at the exact density line of the neutron.   (the pauses before "of carbon" and "squeezed" capped)
  ("rec55", "core", 290.39, 296.25, {"s": 289.60}),        # And if they get any bigger, then something even weirder will happen: it will collapse into a black hole.
  ("rec55", "core-short", 300.23, 303.33, {"s": 299.50}),  # An object so weird that it deserves its own video.   (Short only, as the author says on the take: the long cut skips it, video/cuts/long-02-space.json)
  # black holes
@@ -42,7 +50,7 @@ EDL = [
  ("rec55", "known", 425.03, 427.71),       # or TON 618, one of the largest we know of.
  ("rec55", "known", 429.09, 432.45),       # Its event horizon is bigger than Pluto's orbit.
  ("rec55", "small", 435.77, 442.49, {"s": 438.60}),       # But the most interesting question isn't how big a black hole can be, but how small.
- ("rec55", "small", 443.53, 484.37, {"s": 446.00}),       # With enough pressure, anything can become a black hole. We can't create one in the lab, but we know two places where that condition exists. The first one, as I said, is the core of a dying star. But the second was the very first instants after the Big Bang, when everything was a super hot and dense soup. But some of that soup could have collapsed into black holes of every size, and some of this might just be around.
+ ("rec55", "small", 443.53, 484.37, {"s": 446.00, "cut": [(459.0, 470.5)]}),       # With enough pressure, anything can become a black hole. We can't create one in the lab, but we know two places where that condition exists. The first one, as I said, is the core of a dying star. But the second was the very first instants after the Big Bang, when everything was a super hot and dense soup. But some of that soup could have collapsed into black holes of every size, and some of this might just be around.
  ("rec55", "search", 489.03, 495.97),      # And we've been looking for them: with quasars and the cosmic microwave background, with gravitational waves, and finally with microlensing.   (the second try; the first breaks off after "for them,")
  ("rec55", "search", 498.11, 505.11, {"s": 500.80}),  # And every search so far came up empty, and the window where they could hide keeps closing.   (its start given: the false start "And every search has come–" before it, which Whisper merged into the words)
  ("rec55", "search", 506.39, 511.85),      # They can't be too small either, or they would have evaporated by now, through a process we call Hawking radiation.
@@ -68,7 +76,7 @@ EDL = [
  ("rec55", "emptier", 767.23, 774.69),     # White dwarfs and super-Jupiters have the density of degenerate matter. Most of the stuff has the density of atoms.   (new)
  ("rec55", "emptier", 779.11, 786.47, {"s": 782.90}),     # And even some supermassive black holes are less dense than water itself.
  ("rec55", "emptier", 794.09, 796.83),     # The further right we go, the emptier things get.   (the retake; the first breaks off at "because the bigger something is,")
- ("rec55", "emptier", 798.33, 803.41),     # A galaxy is mostly the empty space between its stars.
+ ("rec55", "emptier", 798.33, 803.41, {"s": 800.8}),     # A galaxy is mostly the empty space between its stars.
  ("rec55", "emptier", 805.07, 808.53),     # Here, our own galaxy, the Milky Way, and its sister, Andromeda.
  ("rec55", "emptier", 809.61, 812.05),     # We live in a small group of galaxies called the Local Group.
  ("rec55", "emptier", 813.63, 819.97),     # And these are the galaxies we weighed a minute ago: five to ten times heavier than everything we can see in them.   ("Whatever dark matter is, this is where it's doing the holding" left out: the author, on the take, "I'm not sure I like that phrase")
@@ -79,7 +87,7 @@ EDL = [
  ("rec55", "edge", 923.27, 929.15),        # But can anything be bigger than that? Try to go any bigger, and you reach the second edge: the Hubble sphere.
  ("rec55", "edge", 930.31, 947.95),        # The speed of light isn't really about light. It's the speed limit for anything travelling through space. But space itself can stretch faster than that. The universe is expanding, not like a ball blowing up into something. It's more as if there's just more space being created all the time, everywhere.
  ("rec55", "edge", 950.95, 956.43),        # It's like raising the resolution of a photo. You take one pixel and turn it into four, or five, or ten.   (the second try)
- ("rec55", "edge", 957.85, 969.87),        # That means the further away something is, the faster it's moving away from us. And at the Hubble line, things are moving away from us at the speed of light.
+ ("rec55", "edge", 957.85, 969.87, {"cut": [(962.6, 966.85)]}),        # That means the further away something is, the faster it's moving away from us. And at the Hubble line, things are moving away from us at the speed of light.
  ("rec55", "edge", 971.99, 975.97),        # That line is roughly 14 billion light-years away, in every direction.
  ("rec55", "horizon", 977.77, 986.99, {"e": 987.6}),  # You'd think their light could never reach us, but it's a little bit more complicated than that. The Hubble sphere is also growing, so light from just beyond can still, eventually, get here.   (the first of four tries, the only whole one: the last stumbles, "let's call it is a little bit more complicated"; its "It's," after it left out)
  ("rec55", "horizon", 1019.63, 1035.73),   # The real edge is a little further out. That's the cosmic event horizon. Nothing that happens beyond it can ever affect us. We'll never see it, because the light will never reach us. No information, no matter, nothing. It's the limit of the unknowable.
@@ -88,12 +96,4 @@ EDL = [
 # The restarts the clip-by-clip pass missed, found by sweeping the finished long video in 10 s windows (2026-11-05):
 # edit seconds in this take's audio.m4a, after the pause trim, so they apply to that finished file
 # (video/tools/postcut.py): rebuilding from the raw recording means finding them again.
-POST_CUTS = [
- (56.17, 59.84),   # "These will eventually meet others and merge into a l–"
- (78.70, 80.70),   # "The core, however, sa–"
- (87.53, 88.37),   # "a car,"
- (97.17, 98.91),   # "Protons and electrons,"
- (223.57, 231.61),   # "But the second was the very first instants after the Big Bang, when everything was a super da– But the very–"
- (394.21, 396.49),   # "A galaxy, a galaxy,"
- (481.21, 484.91),   # "And at the Hubble line, things are moving away from us at this–"
-]
+POST_CUTS = []   # (now in the clips above: "s" and "cut", source seconds)

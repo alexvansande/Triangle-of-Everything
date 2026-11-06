@@ -49,6 +49,10 @@ def room_ir(seed):
     return x / np.sqrt((x ** 2).sum())
 
 
+# the limiter's release in ms: 80 flutters on a boosted quiet take (rec54 sits 13 dB under the target); --release=200
+RELEASE = next((a.split("=")[1] for a in sys.argv if a.startswith("--release=")), "80")
+
+
 def main(src, out, plain=False):
     if plain:
         # "plain" (--plain): only a high-pass and level, no EQ, denoiser, compressor or
@@ -61,7 +65,7 @@ def main(src, out, plain=False):
         m = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", src, "-af", hp + ",ebur128", "-f", "null", "-"],
                            capture_output=True, text=True).stderr
         lufs = float(m[m.rindex("I:"):].split()[1])
-        ff("-i", src, "-af", f"{hp},volume={-16 - lufs:.1f}dB,alimiter=limit=0.84:attack=5:release=80:level=false",
+        ff("-i", src, "-af", f"{hp},volume={-16 - lufs:.1f}dB,alimiter=limit=0.84:attack=5:release={RELEASE}:level=false",
            "-ar", str(SR), "-c:a", "pcm_s24le", out + ".wav")
     else:
         full(src, out)

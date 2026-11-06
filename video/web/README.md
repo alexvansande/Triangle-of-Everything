@@ -2,7 +2,7 @@
 
 Small copies of the full renders for the web (the narration preview page's
 "Rendered video" switch): 720×1280, H.264 two-pass, AAC 128k, sized just
-under 20 MiB, the claude.ai page's limit per asset. The full 1080×1920
+under 20 MiB, or at 500 kbps of video when that would leave less (long videos: 20 MiB gave 15 minutes 18 kbps). The full 1080×1920
 renders stay outside git (iCloud: Projects/triangle/output videos/).
 
 | File | Render | Length | Video bitrate |
@@ -14,7 +14,7 @@ Encode a render the same way:
 
 ```bash
 D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 render.mp4)
-VB=$(python3 -c "print(int(19.5e6*8/$D/1000 - 148))")k
+VB=$(python3 -c "print(max(int(19.5e6*8/$D/1000 - 148), 500))")k
 ffmpeg -i render.mp4 -vf scale=720:1280:flags=lanczos -c:v libx264 -preset slow -profile:v high -pix_fmt yuv420p -b:v $VB -pass 1 -an -f mp4 /dev/null
 ffmpeg -i render.mp4 -vf scale=720:1280:flags=lanczos -c:v libx264 -preset slow -profile:v high -pix_fmt yuv420p -b:v $VB -pass 2 -c:a aac -b:a 128k -movflags +faststart web.mp4
 ```

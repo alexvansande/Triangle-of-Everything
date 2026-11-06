@@ -122,6 +122,10 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   objects, between ~1 pg and 1 lb), where there's room for it. All the candidate labels
   ("WIMPs?" too) share one size and style.
 
+- **Long video 2's notes** (author, 2026-11-05): no scoreboard there, the dance of the forces carries it; forces get arrows on the line they act on, close up, not a side of the
+  chart (gravity read as the black-hole line); galaxies and up at 60% of their size and Laniakea far less there (`iconBoost`, `slugs`); while areas are crossed off, the candidates are only dots and the labels small, so
+  the hatching shows; one density at a time, each on its own diagonal; the observable universe is not the Hubble sphere, so no CMB picture for the Hubble sphere. Diagrams: `src/narr-diagrams.js`.
+
 ## 3. Dives: the default way to show a real photo
 
 A **dive** (named by the author, 2026-10-22) shows a real photograph without cutting away

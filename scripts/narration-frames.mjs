@@ -19,7 +19,7 @@ const CHROME = process.env.CHROME || "/opt/pw-browsers/chromium-1194/chrome-linu
 
 const b = await puppeteer.launch({ executablePath: CHROME, args: ["--no-sandbox"] });
 const p = await b.newPage();
-await p.setViewport({ width: 540, height: 960 });
+await p.setViewport({ width: +process.env.W || 540, height: +process.env.H || 960 });   // W=1280 H=720 for a long video
 p.on("pageerror", e => console.log("page error:", e.message));
 await p.goto(`${BASE}/?narrate=${take}&render=1`, { waitUntil: "load", timeout: 120000 });   // not networkidle: a close opening view never reports idle
 await p.waitForFunction("window.__narr", { timeout: 60000 });
