@@ -27,9 +27,10 @@ if pgrep -f narration-overnight.sh > /dev/null; then
   log "a render round is still running: checking when it ends"
   while pgrep -f narration-overnight.sh > /dev/null; do sleep 60; done
 fi
-git fetch -q origin && { git merge -q --no-edit origin/main 2>/dev/null || { git merge --abort; log "merging main conflicts: checking the branch as it is"; }; }
+# (before the merge: a hand-started render may be reading this checkout)
 # a "# hold" line in the render queue: a session is still changing the videos; not tonight
 if grep -q '^# hold' video/render-queue.txt 2>/dev/null; then log "render queue on hold (video/render-queue.txt): nothing rendered tonight"; exit 0; fi
+git fetch -q origin && { git merge -q --no-edit origin/main 2>/dev/null || { git merge --abort; log "merging main conflicts: checking the branch as it is"; }; }
 
 # (its lines: "stale <take> <kind> <ranges>": the take alone)
 stale=$(DRY=1 scripts/narration-render-stale.sh | sed -n 's/^stale \([^ ]*\).*/\1/p')
