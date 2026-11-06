@@ -8948,6 +8948,8 @@ if (_ogShot) {
       setIconFirst(names) { _iconFirst = names?.length ? new Set(names) : null; redraw(); },
       setIconHide(names) { _iconHide = names?.length ? new Set(names) : null; redraw(); },
       /** Pictures of things from log r `from` up drawn k× larger (videos): { from, k }, or null. */
+      // the Big Bang event arrows: the videos hide their text, so the arrows too (the author, 2026-11-05)
+      setEventArrows(on = true) { lDensityArrows.style("display", on ? null : "none"); },
       setIconBoost(b) { _iconBoost = b?.k && b.k !== 1 ? { from: b.from ?? 18, k: b.k, slugs: b.slugs } : null; redraw(); },
       /** Objects whose own chart label never shows (videos): names, or null. */
       setLabelHide(names) { _labelHide = names?.length ? new Set(names) : null; redraw(); },

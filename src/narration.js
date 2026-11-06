@@ -282,6 +282,7 @@ export async function startNarration(app) {
   app.setIconDensity?.(SCENE.iconDensity ?? 60);   // a little over standard: pictures keep clear of each other
   app.setIconForce?.(SCENE.forceIcons ?? null);   // pictures shown even where a nearer one would hide them
   app.setIconHide?.(SCENE.hideIcons ?? null);     // pictures never shown in this scene
+  app.setEventArrows?.(false);
   app.setIconBoost?.(SCENE.iconBoost ?? null);    // { from: log r, k }: pictures of the big things k× larger
   app.setLabelHide?.(SCENE.hideLabels ?? null);   // objects whose own chart label never shows
   app.setIconMaxRes?.(true);   // grown pictures stay sharp
