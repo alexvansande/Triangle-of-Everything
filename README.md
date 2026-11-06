@@ -63,6 +63,22 @@ npm run preview
 
 Adding a new object is as simple as adding a line to `objects.json` and optionally creating a `.md` file in `content/descriptions/`.
 
+### How the size axis is measured
+
+The size axis is the radius of a **ball** (the diagonals are the densities of a sphere, `DENSITY_SPHERE_C` in
+`src/data.js`). A round thing (a planet, a star, a cell) is plotted at its own radius. A thing that isn't round (a
+person, a bird, a whale, a ship, a tower) is plotted at the radius of a ball with its real mass and its **bulk
+density**: mass ÷ the volume of its outer envelope, empty space inside included (lungs, cabin, hull). Nothing is
+crumpled, and the size axis is *derived* from the density: r = ∛(3M / 4πρ). So the animals sit on the water line,
+ships and planes to the right of it (full of air, they float), stone and metal to the left, and a bird with its
+wings out does **not** read as lighter than air. The rule, the densities by class and the exceptions are in
+`src/bulk-density.js` (`SIZE_MODE = "bulk"`); a curated object gets a `rho` (a number, or `[low, best, high]` in
+g/cm³) in `objects.json`, and its `logR` (half the longest dimension) is kept as the size the tooltip and info
+panel show. An object without `rho` is placed at `logR` as it is, which is right only for round things; the
+catalogue dust gets its density by class (`DUST_RHO`). The author's rule, 2026-11-06: "objects are measured as a
+theoretical sphere, so we use density to position them in the size axis."
+
+
 ### Catalogue dust
 
 Behind the ~180 hand-placed objects sit ~50,000 faint dots: real, named
