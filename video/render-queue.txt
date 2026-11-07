@@ -48,3 +48,9 @@ short-l2-inside-a-black-hole
 # long video 2: the opening re-recorded in one take to the black holes (rec57, 2026-11-06), 8:21 in place of the first 6:18;
 # new audio and new words up to the join at "most objects on our chart", so it renders whole; its two Shorts from the
 # opening are re-cut from it (new audio, whole) and the other three are unchanged
+# The generic supernova remnant is now the Crab Nebula by name (same picture, same spot) and Tycho's supernova remnant
+# is a new object beside it with Chandra's X-ray picture (the author, 2026-11-06): the picture changes only where the
+# camera passes the remnants (long-02-space: the cycle, about 6:25-7:05 in the cut; the same stretch in short-l2-how-stars-die,
+# short-03-stars and short-05-hubble-sphere), and all of those are queued or follow the shared-pictures rule
+long-02-space
+# long-02-space changed: 6:25-7:05

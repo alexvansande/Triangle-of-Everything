@@ -114,10 +114,10 @@ export default {
     { at: "two distinct objects", cam: { r: 13.1, m: 33.6, span: 12.5 }, dur: 1.6,
       hl: [{ ...SPLIT, coreLabel: "core", shellLabel: "outer layers" }] },
     // the cycle: over to the nebulae, up to the nurseries, round to the stars again
-    { at: "outer layers will keep", cam: NEBULAE, dur: 1.6, hl: [...CYCLE, HIGH, { ...SPLIT, draw: 0.01 }, { obj: "Supernova Remnant", label: "supernova remnant", place: "left" }] },
+    { at: "outer layers will keep", cam: NEBULAE, dur: 1.6, hl: [...CYCLE, HIGH, { ...SPLIT, draw: 0.01 }, { obj: "Crab Nebula", label: "supernova remnant", place: "left" }] },
     { at: ["or nebulae", "or nebulas", "nebulae"], hl: [...CYCLE, { ...SPLIT, draw: 0.01 }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
     { at: "meet others", cam: CYCLE_VIEW, dur: 3.5, ease: "gentle" },
-    { at: "stellar nursery", hl: [...CYCLE, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Stellar Nursery", label: "stellar nursery", place: "left", delay: 0.2 }] },
+    { at: "stellar nursery", hl: [...CYCLE, { obj: "Crab Nebula", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Stellar Nursery", label: "stellar nursery", place: "left", delay: 0.2 }] },
     { at: ["protostar", "protostaur"], hl: [...CYCLE, { obj: "Stellar Nursery", label: false }, { obj: "Protostar", delay: 0.6 }] },
     { at: "new cycle", cam: { r: 12.6, m: 31.4, span: 13 }, dur: 3, ease: "gentle", hl: [...CYCLE, { obj: "Protostar", label: false }, { obj: "Sun", delay: 0.6 },
       { arrow: true, from: { obj: "Protostar" }, to: { r: PROTOPLANET[0], m: PROTOPLANET[1] }, color: "#ffe9a3", delay: 0.8 }, { mark: PROTOPLANET, label: "protoplanet", place: "left", delay: 1.4 }] },
@@ -256,7 +256,7 @@ export default {
     { at: "first edge of the triangle", cam: { r: 11.5, m: 40, span: 16 }, dur: 2.4, labels: true, clear: true,
       hl: [{ ...SCHW, label: "edge 1 · the black-hole line" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: false, delay: 0.4 }, { obj: "M87*", label: false, delay: 0.8 },
         { obj: "Ton 618", label: false, delay: 1.2 }, { side: "left", of: "schwarzschild", label: "nothing", delay: 2 }] },
-    { at: ["biggest things there are", "to the right, to the biggest"], cam: { r: 18, m: 39, span: 20 }, dur: 3, clear: true, hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Milky Way", label: false, delay: 0.8 }] },
+    { at: ["biggest things there are", "to the right, to the biggest"], cam: { r: 18, m: 39, span: 20 }, dur: 3, clear: true, hl: [{ obj: "Crab Nebula", label: false }, { obj: "Milky Way", label: false, delay: 0.8 }] },
     // one density at a time, each on its own diagonal (the author, 2026-11-05: it kept lighting the same ones)
     { at: "every diagonal on this chart", cam: { r: 14, m: 39, span: 30 }, dur: 2,
       hl: [{ density: 14.36, label: "every diagonal is a density" }, { density: 6, delay: 0.3 }, { density: 0, delay: 0.6 }, { density: -4.5, delay: 0.9 }] },
@@ -266,7 +266,7 @@ export default {
     { at: "less dense than water itself", hl: [{ density: -4.5, label: "far less dense than water" }, { obj: "M87*", label: false }, { obj: "Ton 618", label: false, delay: 0.3 }] },
     // the nebulae and the clusters first, then the galaxies (the words skip them: a line to record, recording-scripts.md)
     { at: "the further right", cam: { r: 18.0, m: 33.6, span: 5, glide: true }, dur: 2, clear: true, density: 118,
-      hl: [{ obj: "Stellar Nursery", label: "nebulae", place: "left" }, { obj: "Supernova Remnant", label: false, delay: 0.4 }] },
+      hl: [{ obj: "Stellar Nursery", label: "nebulae", place: "left" }, { obj: "Crab Nebula", label: false, delay: 0.4 }] },
     { at: "emptier things get", cam: { r: 19.6, m: 37.6, span: 4, glide: true },
       hl: [{ obj: "Globular Cluster", label: "star clusters" }, { obj: "Dwarf Galaxy", delay: 0.5 }, { obj: "Milky Way", label: false, delay: 1 }] },
     { at: "between its stars", cam: { r: 21.6, m: 41.4, span: 4, glide: true }, hl: [{ obj: "Milky Way", label: "~1 atom per cm³" }] },

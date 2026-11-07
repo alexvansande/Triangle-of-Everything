@@ -87,7 +87,7 @@
   { "name": "Penny",            "logR": -0.02,  "logM": 0.40, "rho": 7.15,   "cat": "macro", "subcat": "machine", "z": 5, "wiki": "Penny_(United_States_coin)" },
   { "name": "Soccer Ball",     "logR": 1.04,   "logM": 2.63,   "cat": "macro", "subcat": "machine", "z": 5, "wiki": "Association_football" },
   { "name": "Voyager Golden Record", "logR": 1.18, "logM": 2.70, "rho": 8.9, "cat": "macro", "subcat": "machine", "z": 5, "wiki": "Voyager_Golden_Record", "_note": "30.5 cm (12 in) gold-plated copper disc (NASA). Mass is an ESTIMATE (~0.5 kg): no published figure; a ~1 mm copper disc of that size is ~0.65 kg. rho = copper" },
-  { "name": "Steller’s Jay", "slug": "stellers-jay", "logR": 1.342423, "logM": 2.021189, "cat": "macro", "z": 5, "wiki": "Steller%27s_jay", "_note": "Representative span 44 cm (Cornell All About Birds), mass 105 g (NPS Bryce). logR is half the extended wingspan in cm, not body radius. Overhead artwork: wings open." },
+  {"name": "Steller’s Jay", "slug": "stellers-jay", "logR": 1.342423, "logM": 2.021189, "cat": "macro", "z": 5, "wiki": "Steller%27s_jay", "_note": "Span 44 cm wing tip to wing tip (Cornell All About Birds), mass 105 g (NPS Bryce). logR is half the span, kept as the size shown; the chart places it as a ball of its bulk density (bulk-density.js: feathers and air sacs, about 0.7 g/cm³, lighter than a mammal), r ≈ 3.3 cm. Overhead artwork: wings open.", "rho": [0.6, 0.73, 0.9]},
   { "name": "Mouse",            "logR": 0.5,    "logM": 1.3, "rho": [0.93, 0.98, 1.03],    "cat": "macro", "z": 5, "wiki": "House_mouse" },
   { "name": "Human",            "logR": 1.93,    "logM": 4.9, "rho": [0.95, 0.985, 1.07],    "cat": "macro", "z": 1.5, "wiki": "Human" },
   { "name": "Hippopotamus",     "logR": 1.95,   "logM": 6.50, "rho": [1.03, 1.05, 1.1],   "cat": "macro", "z": 4, "_note": "Hippos sink! In span mode logR is hand-set denser than water (logRho≈0.03); in bulk mode rho places it", "wiki": "Hippopotamus" },
@@ -217,7 +217,8 @@
 
   { "name": "Protostar",        "logR": 14.50,  "logM": 34.50,  "cat": "star", "z": 3, "wiki": "Protostar" },
   { "name": "Planetary Nebula", "logR": 17.50,  "logM": 33.30,  "cat": "remnant", "z": 3, "wiki": "Planetary_nebula" },
-  { "name": "Supernova Remnant","logR": 18.72,  "logM": 33.80,  "cat": "remnant", "z": 3, "wiki": "Supernova_remnant" },
+  {"name": "Crab Nebula", "slug": "supernova-remnant", "logR": 18.72, "logM": 33.9, "cat": "remnant", "z": 3, "wiki": "Crab_Nebula", "_note": "The generic supernova remnant renamed to the one its picture shows (the author, 2026-11-06). About 11 light-years across (r ≈ 5.2e18 cm) and 3–5 Suns of gas (Fesen et al. 1997, Hester 2008): the remnant of the supernova of 1054, a collapsing massive star. The slug stays so the icon, the image and the scenes keep their files."},
+{"name": "Tycho’s Supernova Remnant", "slug": "tychos-supernova-remnant", "logR": 19.0, "logM": 33.75, "cat": "remnant", "z": 3, "wiki": "SN_1572", "_note": "SN 1572, Tycho Brahe's new star: a white dwarf that blew up (Type Ia). Angular diameter about 8 arcmin at 2.5–3 kpc: about 7 pc across, r ≈ 3.3 pc ≈ 1e19 cm. Mass: 1.4 Suns of ejecta plus a few Suns of swept-up gas (Hayato et al. 2010; Williams et al. 2013). Chandra's X-ray image as its picture (the author, 2026-11-06)."},
   { "name": "Stellar Nursery",  "logR": 19.00,  "logM": 35.50,  "cat": "star", "z": 3, "wiki": "Star-forming_region" },
   { "name": "Nebulae",          "logR": 18.5,   "logM": 34.0,   "cat": "remnant", "z": 4, "wiki": "Nebula" },
   { "name": "NGC 7538",         "logR": 18.0,   "logM": 34.5,   "cat": "remnant", "z": 3.5, "wiki": "NGC_7538" },

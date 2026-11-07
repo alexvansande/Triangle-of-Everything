@@ -305,6 +305,10 @@
   "backing": "core",
   "master": true
  },
+ "tychos-supernova-remnant": {
+  "backing": "core",
+  "master": true
+ },
  "ultraviolet": {
   "backing": "soft"
  },

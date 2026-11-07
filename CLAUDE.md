@@ -61,3 +61,10 @@
   takes play at the speed they were recorded; don't run `scripts/narration-tempo.py`. The older takes keep
   their tempo: recordings from 2026-10-19 to 2026-10-27 play at 1.1× (`scripts/narration-tempo.py --tempo 1.1`), the old video 5 takes at 1.2×, 5b and 5c at 1.3×, 5d (now video 4, `short-04-black-holes`) at 1.1× (the author prefers its rhythm; its rec48 re-recording too, by the author's note of 2026-10-29), all with atempo (rubberband sounded like a tin can);
   the earlier shorts at 1.2×.
+
+## The chart's data
+- **The size axis is the radius of a ball, placed by density** (the author, 2026-11-06): a non-round object (an animal, a
+  vehicle, a building) sits where a ball of its mass and its bulk density would, not at half its longest dimension
+  (`src/bulk-density.js`; README, "How the size axis is measured"). A curated object needs a `rho` in `src/objects.json`
+  for that to happen; one without it is plotted at its raw `logR`, which is only right for round things. Don't explain a
+  dot's place on the chart by its span; check its `rho` first.

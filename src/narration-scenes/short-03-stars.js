@@ -117,18 +117,18 @@ export default {
     // the camera follows the words (the author, 2026-10-29): over to the nebulae as the layers are
     // blown away, quickly across to the dense cores, back to the nebulae, then slowly up to the
     // nurseries, with the whole cycle (protostars, nurseries, supernovae) in the frame
-    { at: "blown away", cam: NEBULAE, dur: 1.6, hl: [...CYCLE, HIGH, { ...SPLIT, draw: 0.01 }, { obj: "Supernova Remnant", label: "supernova remnant", place: "left" }] },
+    { at: "blown away", cam: NEBULAE, dur: 1.6, hl: [...CYCLE, HIGH, { ...SPLIT, draw: 0.01 }, { obj: "Crab Nebula", label: "supernova remnant", place: "left" }] },
     { at: "planetary nebula", hl: [...CYCLE, { ...SPLIT, draw: 0.01 }, { obj: "Planetary Nebula", label: "planetary nebula", place: "below" }] },
     { at: "inner core", cam: { r: 7.6, m: 33.4, span: 5 }, dur: 1,
       hl: [...CYCLE, HIGH, { obj: "Red Giant", label: false }, { obj: "White Dwarf", label: "dense core", place: "right", delay: 0.4 }, { obj: "PSR J0030+0451", label: false, delay: 0.7 }] },
 
     // the gas goes round again: stellar nurseries
     { at: ["supernova and nebulae", "nebulae spread out"], cam: NEBULAE, dur: 1.2,
-      hl: [...CYCLE, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
+      hl: [...CYCLE, { obj: "Crab Nebula", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Bubble Nebula", label: false, delay: 0.4 }] },
     // the slow pan up to the nurseries, arriving on the whole cycle
     { at: ["meet others", "they meet"], cam: CYCLE_VIEW, dur: 3.5, ease: "gentle" },
     // (no dive: the author dropped the Pillars of Creation, 2026-10-29)
-    { at: "stellar nurseries", hl: [...CYCLE, { obj: "Supernova Remnant", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Stellar Nursery", label: "stellar nurseries", place: "left", delay: 0.2 }] },
+    { at: "stellar nurseries", hl: [...CYCLE, { obj: "Crab Nebula", label: false }, { obj: "Planetary Nebula", label: false }, { obj: "Stellar Nursery", label: "stellar nurseries", place: "left", delay: 0.2 }] },
     { at: "protostars",
       hl: [...CYCLE, { obj: "Stellar Nursery", label: false }, { obj: "Protostar", delay: 0.6 }] },
     { at: "stars again", cam: { r: 14.6, m: 33.9, span: 9 }, hl: [...CYCLE, { obj: "Stellar Nursery", label: false }, { obj: "Sun", delay: 0.6 }] },

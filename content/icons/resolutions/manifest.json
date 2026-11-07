@@ -5947,5 +5947,26 @@
         "path": "1024/stellers-jay.webp"
       }
     ]
+  },
+  "tychos-supernova-remnant": {
+    "fingerprint": "7e2444591f1bea45fdd282b4d29774e7d3fa9c98a5daf0ad87c26a1ef3f8750c",
+    "baseWidth": 128,
+    "source": "content/icons/src/tychos-supernova-remnant.jpg",
+    "reason": "matching master",
+    "sourceDifference": 3.6092936197916665,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/tychos-supernova-remnant.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/tychos-supernova-remnant.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/tychos-supernova-remnant.webp"
+      }
+    ]
   }
 }

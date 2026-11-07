@@ -23,7 +23,7 @@ const EHL_COL = "#ffab40";
 const EHL = { line: "eventhorizon" };                // …and as a line, like the Hubble line
 const PH = { r: 28.64, m: 57.49, mark: true };       // particle horizon = observable universe, 46.5 billion ly
 // a dying massive star: the core collapses to a neutron star, the layers blow out as a supernova
-const SN_SPLIT = { split: { from: { obj: "Red Giant" }, core: { obj: "PSR J0030+0451" }, shell: { obj: "Supernova Remnant" } } };
+const SN_SPLIT = { split: { from: { obj: "Red Giant" }, core: { obj: "PSR J0030+0451" }, shell: { obj: "Crab Nebula" } } };
 const OU = { ellipse: [PH.r, PH.m, 0.09, 0.09], rot: 0, place: "above" };   // a ring on that dot, for its label
 // the whole universe on a log scale (the spectrum explorer's Cloud, log radius from 1,000 km,
 // as in video 7), false colour: red microwave, green far infrared, blue visible light
@@ -86,12 +86,12 @@ export default {
     { at: "dead remains", cam: { r: 8, m: 33.6, span: 14 }, dur: 1.4,
       hl: [{ obj: "White Dwarf", place: "above" }, { obj: "PSR J0030+0451", label: "neutron star", place: "left", delay: 0.4 }, { obj: "Stellar BH", label: "black hole", delay: 0.8 }] },
     { at: "to the right we have stars", cam: { r: 14, m: 34, span: 14 }, dur: 1.6,
-      hl: [{ obj: "Sun" }, { obj: "Red Giant", label: "red giants", delay: 0.6 }, { obj: "Supernova Remnant", label: "supernova remnants", delay: 1.2 }] },
+      hl: [{ obj: "Sun" }, { obj: "Red Giant", label: "red giants", delay: 0.6 }, { obj: "Crab Nebula", label: "supernova remnants", delay: 1.2 }] },
     { at: "the last video", cam: { r: 11.5, m: 40, span: 16 }, dur: 2.4, clear: true,
       hl: [{ ...SCHW, label: "edge 1 · the black-hole line" }, { obj: "Stellar BH", label: false }, { obj: "Sgr A*", label: false, delay: 0.4 }, { obj: "M87*", label: false, delay: 0.8 },
         { obj: "Ton 618", label: false, delay: 1.2 }, { side: "left", of: "schwarzschild", label: "nothing", delay: 2 }] },
     // to the right, up past the nebulae (the Hubble line hidden until it's named)
-    { at: "the next edge", cam: { r: 18, m: 39, span: 20 }, dur: 3, clear: true, hl: [{ obj: "Supernova Remnant", label: false }, { obj: "Milky Way", label: false, delay: 0.8 }] },
+    { at: "the next edge", cam: { r: 18, m: 39, span: 20 }, dur: 3, clear: true, hl: [{ obj: "Crab Nebula", label: false }, { obj: "Milky Way", label: false, delay: 0.8 }] },
 
     // ── Bigger means emptier ─────────────────────────────────
     // every diagonal a density (the series' own): atoms, neutrons (video 3), then emptier and emptier
