@@ -96,9 +96,6 @@ export const STARS = [
   { slug: "white-dwarf", name: "White dwarf", cls: "DA", T: 10000, kind: 2,
     scale: 10, warp: 1.2, network: 0.8, active: 0.3, spots: 0, atm: 0.1, spic: 0.8, prom: 0.4, wind: 0.2, flare: 0.15, rot: 0.1, tilt: 0.3,
     note: "~10,000 K, Earth-sized. Gravity 100,000× ours flattens away almost every feature: a thin atmosphere." },
-  { slug: "r136a1", name: "R136a1", cls: "WN5h", T: 46000, kind: 0,
-    scale: 10, ridge: 0.7, active: 1.1, spots: 0.3, atm: 0.5, atmGlow: 1.8, wind: 2.2, prom: 1.4, flare: 1.1, rot: 0.04, tilt: 0.1, ...STRONG_TONES,
-    note: "46,000 K, about 200 Suns: the heaviest star known. So bright that its own light drives a wind that blows its outer layers away." },
   { slug: "blue-supergiant", name: "Blue supergiant", cls: "B Ia", T: 20000, kind: 0,
     scale: 6, ridge: 0.6, active: 1.0, spots: 0.4, atm: 0.4, wind: 1.4, flare: 0.8, rot: 0.03, tilt: 0.15, ...STRONG_TONES,
     note: "~20,000 K. Magnetic loops and a strong wind off a hot surface." },
@@ -114,6 +111,11 @@ export const STARS = [
     spots: 1, limb: 0.25, atm: 0.4, atmGlow: 0.95, spic: 0.32, prom: 0.39, hi: 1.04, hiSize: 0.29, hiT: 0.9, flare: 0.62,
     glow: 1.16, wind: 0, tilt: 0.85, lens: 0.15, aberr: 0.034,
     note: "A Sun and a third in a ball 26 km wide. Light bends round it: you see past its edge." },
+  // last, not in temperature order: a star's pattern seed is its place in the list, so adding one at the end
+  // leaves the others' patterns as they were (R136a1 was added on 2026-11-07)
+  { slug: "r136a1", name: "R136a1", cls: "WN5h", T: 46000, kind: 0,
+    scale: 10, ridge: 0.7, active: 1.1, spots: 0.3, atm: 0.5, atmGlow: 1.8, wind: 2.2, prom: 1.4, flare: 1.1, rot: 0.04, tilt: 0.1, ...STRONG_TONES,
+    note: "46,000 K, about 200 Suns: the heaviest star known. So bright that its own light drives a wind that blows its outer layers away." },
 ];
 const DEF = { cells: 0, network: 0, warp: 0.8, ridge: 0, active: 0, activeLat: 0, spots: 0, oblate: 0, grav: 0, wind: 0,
   lens: 0, aberr: 0, atm: 0, atmGlow: 0, spic: 0, prom: 0, hi: 0.55, hiSize: 0.32, hiT: 1.5, flare: 0.3,

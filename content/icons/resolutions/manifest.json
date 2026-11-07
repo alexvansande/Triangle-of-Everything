@@ -5970,11 +5970,11 @@
     ]
   },
   "r136a1": {
-    "fingerprint": "9657b9c43a05c198710049ef9bc8d8449746822bc8e166e5203bffeacd5b6dc0",
+    "fingerprint": "cf359fcba4035354eb0ec506edee1dea187758f6d193c086f3e0fbe65c79621d",
     "baseWidth": 128,
     "source": "content/icons/src/r136a1.png",
     "reason": "matching master",
-    "sourceDifference": 1.97216796875,
+    "sourceDifference": 1.9400431315104167,
     "variants": [
       {
         "width": 256,
