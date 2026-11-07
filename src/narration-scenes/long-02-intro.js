@@ -24,8 +24,10 @@ const WATER = { line: "water" };
 const ON_LINE = (m) => (m - 0.62) / 3;
 const force = (m, dir, color, label) => ({ arrow: true, solid: true, width: 4, color, label,
   from: { r: ON_LINE(m) + dir * 3, m }, to: { r: ON_LINE(m) + dir * 0.2, m } });
-const GRAVITY = [force(9.6, 1, "#ffab40"), force(7.8, 1, "#ffab40"), { text: "gravity\npushes in", at: [ON_LINE(8.7) + 4.6, 8.7], size: 26, color: "#ffab40" }];
-const EM = [force(9.6, -1, "#4fc3f7"), force(7.8, -1, "#4fc3f7"), { text: "electromagnetism\npushes out", at: [ON_LINE(8.7) - 3.6, 8.7], size: 26, color: "#4fc3f7" }];
+// the arrows at any mass along the line: the camera pans up it while the forces are named (the author, 2026-11-07)
+const GRAV_AT = (m) => [force(m + 0.9, 1, "#ffab40"), force(m - 0.9, 1, "#ffab40"), { text: "gravity\npushes in", at: [ON_LINE(m) + 4.6, m], size: 26, color: "#ffab40" }];
+const EM_AT = (m) => [force(m + 0.9, -1, "#4fc3f7"), force(m - 0.9, -1, "#4fc3f7"), { text: "electromagnetism\npushes out", at: [ON_LINE(m) - 3.6, m], size: 26, color: "#4fc3f7" }];
+const UP = (m, span = 4.6) => ({ r: ON_LINE(m), m, span, glide: true });   // a waypoint on the density line
 const still = (h) => ({ ...h, instant: true, draw: 0.01, delay: 0 });
 // the super-Jupiter column (as long video 1's)
 const COLUMN = { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" };
@@ -64,7 +66,7 @@ export default {
   // galaxies and up 60% of their size, Laniakea a good deal less: it hid everything around it (the author, 2026-11-05)
   iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
   icons: "all",
-  forceIcons: ["Sun", "Tycho’s Supernova Remnant"],   // Tycho's sits beside the Crab, which would hide it
+  forceIcons: ["Sun", "L Brown Dwarf", "T Brown Dwarf", "Y Brown Dwarf", "Tycho’s Supernova Remnant"],   // Tycho's sits beside the Crab, which would hide it
   captionFixes: { shard: "chart", math: "mass", tense: "tension", favors: "favours", protostore: "protostar", buffers: "puffs" },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md): video 3's
@@ -109,22 +111,24 @@ export default {
     { at: "density of water", hl: [{ line: "water", label: "the density of water" }] },
     { at: "density of atoms", hl: [{ line: "water", label: "the density of atoms" }] },
 
-    // the tug of war along the density line
-    { at: "delicate dance", cam: { r: 2, m: 7, span: 4.6 }, dur: 2.5, clear: true, hl: [WATER] },
-    { at: "gravity wants", hl: [WATER, ...GRAVITY] },
-    { at: "electromagnetism", cam: { r: 2.3, m: 7.6, span: 4.6, glide: true }, hl: [WATER, ...GRAVITY.map(still), ...EM] },
-    { at: "result of that tug of war", cam: { r: 2.6, m: 8.4, span: 4.6, glide: true }, hl: [{ line: "water", label: "the diagonal" }, ...GRAVITY.map(still), ...EM.map(still)] },
+    // the tug of war along the density line: one slow pan up it, from the microbes to the round worlds (the author,
+    // 2026-11-07: "zoom into microbials and be slowly panning up so that it reaches planets by the time I say round,
+    // no panning up and down"); the arrows and the two circles sit wherever the camera is at the time
+    { at: "delicate dance", cam: { obj: "Bacterium", span: 4.6 }, dur: 2.5, clear: true, hl: [WATER, { obj: "Bacterium", label: "a bacterium" }] },
+    { at: "gravity wants", cam: UP(-9), hl: [WATER, ...GRAV_AT(-9.5)] },
+    { at: "electromagnetism", cam: UP(-6), hl: [WATER, ...GRAV_AT(-9.5).map(still), ...EM_AT(-6)] },
+    { at: "result of that tug of war", cam: UP(0), hl: [{ line: "water", label: "the diagonal" }, ...GRAV_AT(-9.5).map(still), ...EM_AT(-6).map(still)] },
     // too big: a circle right of the line, pushed back to it; too compact: left of it, pushed back the other way
-    { at: "under its own weight", cam: { r: 3.2, m: 10.4, span: 4.6, glide: true }, clear: true, hl: [WATER, { ellipse: [ON_LINE(10.4) + 1.7, 10.4, 0.8, 0.8], rot: 0, label: false, color: "#ffab40" },
-      { arrow: true, solid: true, width: 4, color: "#ffab40", from: { r: ON_LINE(10.4) + 1.7, m: 10.4 }, to: { r: ON_LINE(10.4) + 0.1, m: 10.4 }, delay: 0.4 },
-      { text: "crushes under\nits own weight", at: [ON_LINE(10.4) + 4.2, 10.4], size: 26, color: "#ffab40", delay: 0.5 }] },
-    { at: "push it away", cam: { r: 3.4, m: 11, span: 4.6, glide: true }, clear: true, hl: [WATER, { ellipse: [ON_LINE(11) - 1.7, 11, 0.8, 0.8], rot: 0, label: false, color: "#4fc3f7" },
-      { arrow: true, solid: true, width: 4, color: "#4fc3f7", from: { r: ON_LINE(11) - 1.7, m: 11 }, to: { r: ON_LINE(11) - 0.1, m: 11 }, delay: 0.4 },
-      { text: "its atoms\npush back", at: [ON_LINE(11) - 4.2, 11], size: 26, color: "#4fc3f7", delay: 0.5 }] },
-    // the pan up the line, the smallest life to the giant planets
-    { at: "smallest form of life", cam: { obj: "Bacterium", span: 4 }, dur: 2, clear: true, hl: [WATER, { obj: "Bacterium", label: "a bacterium" }] },
-    { at: "larger planets", cam: { obj: "Jupiter", span: 4 }, dur: 4.5, ease: "gentle", hl: [WATER, { obj: "Jupiter", delay: 3 }] },
-    { at: "planets to be round", cam: { r: 8.3, m: 25.3, span: 4.6 }, dur: 2.5, hl: [{ obj: "Ceres", label: "round", place: "left" }, { obj: "Pluto", label: false, delay: 0.3 }] },
+    { at: "under its own weight", cam: UP(5), clear: true, hl: [WATER, { ellipse: [ON_LINE(5) + 1.7, 5, 0.8, 0.8], rot: 0, label: false, color: "#ffab40" },
+      { arrow: true, solid: true, width: 4, color: "#ffab40", from: { r: ON_LINE(5) + 1.7, m: 5 }, to: { r: ON_LINE(5) + 0.1, m: 5 }, delay: 0.4 },
+      { text: "crushes under\nits own weight", at: [ON_LINE(5) + 4.2, 5], size: 26, color: "#ffab40", delay: 0.5 }] },
+    { at: "push it away", cam: UP(9.5), clear: true, hl: [WATER, { ellipse: [ON_LINE(9.5) - 1.7, 9.5, 0.8, 0.8], rot: 0, label: false, color: "#4fc3f7" },
+      { arrow: true, solid: true, width: 4, color: "#4fc3f7", from: { r: ON_LINE(9.5) - 1.7, m: 9.5 }, to: { r: ON_LINE(9.5) - 0.1, m: 9.5 }, delay: 0.4 },
+      { text: "its atoms\npush back", at: [ON_LINE(9.5) - 4.2, 9.5], size: 26, color: "#4fc3f7", delay: 0.5 }] },
+    // the pan goes on up the line, the smallest life to the giant planets, and lands on the round worlds at "round"
+    { at: "smallest form of life", cam: UP(14), clear: true, hl: [WATER] },
+    { at: "larger planets", cam: UP(21), hl: [WATER] },
+    { at: "planets to be round", cam: { r: 8.3, m: 25.3, span: 4.6, glide: true }, hl: [{ obj: "Ceres", label: "round", place: "left" }, { obj: "Pluto", label: false, delay: 0.3 }] },
     { at: "atmosphere they have", hl: [{ obj: "Mars", label: false }, { obj: "Venus", label: false, delay: 0.2 }, { obj: "Earth", label: "holds an atmosphere", delay: 0.4 }] },
     // the Jupiter turn: the column of super-Jupiters at one size
     { at: "trend stops", cam: G(9.85, 30.9), dur: 2.5, hl: [{ obj: "Jupiter", label: "Jupiter size", place: "left" }, ...BD, { ...COLUMN, delay: 0.6 }] },
@@ -135,20 +139,24 @@ export default {
     // planets into stars (video 3's shots)
     { at: "completely different things", cam: { r: 10.3, m: 31.8, span: 2.6 }, dur: 2,
       hl: [{ obj: "Jupiter", label: "planet", place: "left" }, { obj: "Sun", label: "star", delay: 0.6 }] },
-    { at: "for example jupiter", cam: JUPITER_SATURN, hl: [{ obj: "Jupiter" }, { obj: "Saturn", label: false, delay: 0.3 }] },
+    { at: "for example jupiter", cam: JUPITER_SATURN, hl: [{ obj: "Jupiter" }] },   // Jupiter alone (the author, 2026-11-07: Saturn was lit too)
     // a dive (visual-rules.md §3): Jupiter comes towards the screen as the chart behind it falls back;
     // the infrared photo fades in over the grown planet, holds, fades out, and the dive unwinds
     { at: "half of the energy", cam: { obj: "Jupiter", span: 1.5 }, dur: 2 },
     { at: "half of the energy", photo: "jupiter-ir", obj: "Jupiter", dive: true, dur: 2.6, fadeIn: 1, fadeOut: 1,
       lens: { icon: [0.496, 0.5, 0.465], photo: [1791, 1677, 1651], size: [3600, 3353] },
       caption: "Jupiter in infrared · Gemini North · 2021 · glowing with its own heat" },
-    { at: "inside its own core", cam: JUPITER_SATURN, hl: [{ obj: "Saturn", label: false }, { obj: "Jupiter", label: "slowly contracting" }] },
-    { at: "generates heat", hl: [{ obj: "Saturn", label: false }, { obj: "Jupiter", label: "its own heat" }] },
+    { at: "inside its own core", cam: JUPITER_SATURN, hl: [{ obj: "Jupiter", label: "slowly contracting" }] },
+    { at: "generates heat", hl: [{ obj: "Jupiter", label: "its own heat" }] },
     // the dance tips towards gravity (no scoreboard in this video: the author, 2026-11-05)
     { at: ["favours gravity", "favors gravity"], cam: G(9.85, 31.0), hl: [{ obj: "Jupiter", place: "left" }, COLUMN] },
-    { at: "atoms themselves are crushed", cam: G(9.85, 31.2), hl: [{ obj: "Jupiter", label: "the atom crushed", place: "left" }, { ...COLUMN, draw: 0.01 }, ...BD] },
-    { at: "sea of electrons", hl: [{ obj: "Jupiter", label: "bare nuclei, free electrons", place: "left" }, { ...COLUMN, draw: 0.01 }, ...BD] },
-    { at: "squeezed any further", hl: [{ obj: "Jupiter", label: "the electrons hold it up", place: "left" }, { ...COLUMN, draw: 0.01 }, ...BD] },
+    // the atoms crushed: a diagram on black (the author's design, 2026-11-07): a hydrogen atom, its electron shell a
+    // glowing blue circle pushing out, crowded by its neighbours, gravity's red arrows pushing in from the edges; the
+    // squeeze goes on until the shells pop, the electrons fly free and the bare nuclei sit closer (src/narr-diagrams.js)
+    { at: "so much weight", cam: G(9.85, 31.2), hl: [{ crush: {} }] },
+    { at: "stripped of their nuclei", hl: [{ crush: { phase: "pop" }, instant: true }] },
+    { at: "sea of electrons", hl: [{ crush: { phase: "sea" }, instant: true }] },
+    { at: "squeezed any further", hl: [{ crush: { phase: "hold" }, instant: true }] },
     { at: "just gets denser", hl: [{ obj: "Jupiter", label: "more mass, same size", place: "left" }, COLUMN, ...BD] },
     // brown dwarfs
     { at: "reach brown dwarfs", cam: { r: 9.9, m: 31.35, span: 1.8 }, clear: true,
@@ -158,16 +166,25 @@ export default {
     // hydrogen and deuterium side by side on black (video 3's clips from the Atom Lab)
     { at: "called deuterium", photo: ["hopf-hydrogen", "hopf-deuterium"], clip: true, row: true, kb: [1, 1], dur: 5.8, fadeIn: 0.6, fadeOut: 0.6,
       labels: ["hydrogen<small>1 proton</small><small>99.997%</small>", "deuterium<small>1 proton + 1 neutron</small><small>0.003%</small>"] },
-    { at: "deuterium is so rare", hl: [...BD, { obj: "L Brown Dwarf", label: "1 hydrogen in ~40,000" }] },
-    { at: "billions of years", hl: [...BD, { obj: "L Brown Dwarf", label: "never a star" }, { obj: "Proxima Cen", label: false }] },
+    // back from the clips on a close-up of the brown dwarf, zooming out slowly (the author, 2026-11-07: the halo sat
+    // on empty space here; the brown dwarfs' pictures are forced so there's a star to look at)
+    { at: "extra neutron", cam: { obj: "L Brown Dwarf", span: 0.7 }, dur: 1.5, hl: [{ obj: "L Brown Dwarf", label: false }] },
+    { at: "deuterium is so rare", cam: { obj: "L Brown Dwarf", span: 1.3, glide: true }, hl: [{ obj: "L Brown Dwarf", label: "1 hydrogen in ~40,000" }] },
+    { at: "billions of years", cam: { obj: "L Brown Dwarf", span: 2.4, glide: true }, hl: [...BD, { obj: "L Brown Dwarf", label: "never a star" }, { obj: "Proxima Cen", label: false, delay: 0.8 }] },
 
     // hydrogen fusion: the strong force, the main sequence
     { at: "little bit more mass", cam: { r: 9.85, m: 32.6, span: 3 }, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "fusion starts", delay: 0.6 }] },
-    { at: "the strong force", hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "the strong force" }] },
-    { at: "very limited range", hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "reaches only its neighbours" }] },
-    { at: "grab them together", hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "protons grabbed" }] },
-    { at: "it's helium", hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "hydrogen → helium" }] },
-    { at: "outward pressure", hl: [{ obj: "Proxima Cen", place: "left" }, { arrow: true, from: { obj: "Proxima Cen" }, to: { obj: "Sun" } }, { obj: "Sun", delay: 0.8 }] },
+    // fusion: a diagram on black (the author's design, 2026-11-07): bare protons, the strong force a dotted yellow circle
+    // with thick arrows pulling in but reaching only that far, the electric push blue and outward, pressure red at the
+    // margins; the protons are squeezed until two yellow circles touch and merge, and the energy comes out as a burst
+    // of photons that pushes the others apart (src/narr-diagrams.js)
+    { at: "the strong force", hl: [{ fuse: {} }] },
+    { at: "very limited range", hl: [{ fuse: { phase: "range" }, instant: true }] },
+    { at: "squeezing the protons", hl: [{ fuse: { phase: "squeeze" }, instant: true }] },
+    { at: "grab them together", hl: [{ fuse: { phase: "merge" }, instant: true }] },
+    { at: "it's helium", hl: [{ fuse: { phase: "helium" }, instant: true }] },
+    { at: "releases a lot of energy", hl: [{ fuse: { phase: "burst" }, instant: true }] },
+    { at: "outward pressure", hl: [{ fuse: { phase: "push" }, instant: true }] },
     { at: "brighter it shines", cam: { r: 10.9, m: 33.1, span: 3.6 }, hl: [{ obj: "Proxima Cen", label: false }, { obj: "Sun" }, { obj: "Sirius A", delay: 0.4 }] },
     { at: "called main sequence", hl: [{ obj: "Sun" }, MS] },
     { at: "most of their lives", hl: [MS, { obj: "Sun" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },

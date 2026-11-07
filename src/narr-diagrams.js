@@ -241,3 +241,177 @@ export function diagramsPending(kinds) {
   if (kinds.cosmos) { const c = cosmosData(); n += c.pts && c.shell.ready() ? 0 : 1; }
   return n;
 }
+
+// an arrow pushing in from the frame's edge at angle a (the frame inset a little), `len` long
+const edgeArrow = (ctx, W, H, a, len, pad, color, w, push = 0) => {
+  const cx = W / 2, cy = H / 2, c = Math.cos(a), s = Math.sin(a);
+  const m = Math.min(Math.abs((W / 2 - pad) / (c || 1e-9)), Math.abs((H / 2 - pad) / (s || 1e-9)));
+  arrow(ctx, cx + m * c, cy + m * s, cx + (m - len + push) * c, cy + (m - len + push) * s, color, w);
+};
+
+// ---------- the atoms crushed: the electron shells pop (the author's design, 2026-11-07) ----------
+// A hydrogen atom in the middle, its electron cloud cut open to a glowing blue circle (the faint back of the shell
+// behind it), the proton at its centre, blue arrows pushing out ("electric repulsion"); the same atoms crowd it on every
+// side, and red arrows at the margins push in ("gravity · core pressure"). The crowd is squeezed until the shells pop:
+// the electrons fly free and the bare nuclei sit closer, but not too close. Phases, absolute take times from the cues
+// (src/narration.js): start, pop, sea, hold.
+export function drawCrush(ctx, W, H, o, t) {
+  const TAU = Math.PI * 2, U = Math.min(W, H), cx = W / 2, cy = H / 2;
+  const start = o.start ?? t, pop = o.pop ?? start + 7, u = t - start;
+  const sq = smooth(u / Math.max(1, pop - start - 0.4));             // the squeeze, 0 → 1 by the pop
+  const popped = t >= pop, pa = popped ? t - pop : 0;
+  const R0 = U * 0.085, R = R0 * (1 - 0.28 * sq);                      // the shell, pressed smaller
+  const L = (popped ? R0 * 2 * 0.72 - smooth(pa / 2.2) * R0 * 0.55 : R0 * 2.4 - sq * (R0 * 2.4 - R0 * 2 * 0.72));   // the spacing
+  const r = rng(11), jit = (k, s = 1) => Math.sin(t * (1.3 + k % 5 * 0.21) + k * 2.1) * s;
+  const atoms = [];
+  for (let j = -9; j <= 9; j++) for (let i = -9; i <= 9; i++) {
+    const x = cx + (i + (j & 1 ? 0.5 : 0)) * L, y = cy + j * L * 0.866;
+    if (x < -R0 || x > W + R0 || y < -R0 || y > H + R0) continue;
+    atoms.push({ x, y, k: (i + 7) * 13 + (j + 5), c: i === 0 && j === 0 });
+  }
+  // shells (before the pop) and their popping rings
+  const shellA = popped ? 1 - smooth(pa / 0.35) : 1;
+  for (const a of atoms) {
+    const x = a.x + (popped ? 0 : jit(a.k, U * 0.003)), y = a.y;
+    if (shellA > 0) {
+      ctx.globalAlpha = shellA * (a.c ? 0.18 : 0.1); ctx.fillStyle = "#4fc3f7"; ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.fill();   // the back of the cloud
+      ctx.globalAlpha = shellA * (a.c ? 1 : 0.55); ctx.strokeStyle = "#4fc3f7"; ctx.lineWidth = U * (a.c ? 0.006 : 0.004);
+      ctx.shadowColor = "#4fc3f7"; ctx.shadowBlur = U * 0.02; ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.stroke(); ctx.shadowBlur = 0;
+    }
+    if (popped && pa < 0.7) {   // the pop: a ring flying out and fading
+      const f = pa / 0.7; ctx.globalAlpha = (1 - f) * 0.8; ctx.strokeStyle = "#e1f5fe"; ctx.lineWidth = U * 0.003;
+      ctx.beginPath(); ctx.arc(x, y, R * (1 + 0.9 * f), 0, TAU); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  // the nuclei
+  for (const a of atoms) {
+    ctx.fillStyle = "#ff8a80"; ctx.shadowColor = "#ff8a80"; ctx.shadowBlur = U * 0.012;
+    ctx.beginPath(); ctx.arc(a.x, a.y, U * (a.c ? 0.012 : 0.009), 0, TAU); ctx.fill(); ctx.shadowBlur = 0;
+  }
+  // the electrons: three a shell, flying out at the pop, then roaming between the nuclei
+  if (popped) {
+    ctx.fillStyle = "#b3e5fc"; ctx.shadowColor = "#4fc3f7"; ctx.shadowBlur = U * 0.012;
+    for (const a of atoms) for (let e = 0; e < 3; e++) {
+      const ang = a.k * 0.7 + e * 2.094, fly = smooth(pa / 1.1) * R0 * 1.3;
+      const wx = Math.sin(t * 1.7 + a.k + e * 2) * R0 * 0.45 * smooth(pa / 1.5), wy = Math.cos(t * 1.3 + a.k * 0.5 + e) * R0 * 0.45 * smooth(pa / 1.5);
+      ctx.beginPath(); ctx.arc(a.x + Math.cos(ang) * fly + wx, a.y + Math.sin(ang) * fly + wy, U * 0.0045, 0, TAU); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+  }
+  // the central atom's push, outwards, and gravity's push from the margins
+  const blueA = popped ? 1 - smooth(pa / 0.5) : smooth(u / 0.8);
+  if (blueA > 0) {
+    ctx.globalAlpha = blueA;
+    for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + 0.3, r0 = R + U * 0.012, r1 = R + U * 0.07 * (1 - 0.35 * sq); arrow(ctx, cx + r0 * Math.cos(a), cy + r0 * Math.sin(a), cx + r1 * Math.cos(a), cy + r1 * Math.sin(a), "#4fc3f7", U * 0.005); }
+    text(ctx, "electric repulsion", cx, cy - R - U * 0.12, U * 0.03, "#4fc3f7");
+    ctx.globalAlpha = 1;
+  }
+  const redA = smooth((u - 1.2) / 0.8) * (popped ? 1 - smooth((pa - 1.5) / 1) : 1), push = U * 0.015 * Math.sin(t * 5);
+  if (redA > 0) {
+    ctx.globalAlpha = redA;
+    for (let i = 0; i < 8; i++) edgeArrow(ctx, W, H, i * TAU / 8 + TAU / 16, U * 0.11, U * 0.03, "#ff6b5e", U * 0.009, push);
+    text(ctx, "gravity · core pressure", cx, H * 0.16, U * 0.034, "#ff8a80");
+    ctx.globalAlpha = 1;
+  }
+  if (popped) {
+    const f = smooth((pa - 0.8) / 0.8); ctx.globalAlpha = f;
+    text(ctx, o.phase === "hold" ? "the free electrons hold it up" : "free electrons · bare nuclei", cx, H * 0.78, U * 0.034, "#ffe9a3");
+    ctx.globalAlpha = 1;
+  }
+}
+
+// ---------- fusion: the strong force grabs two protons (the author's design, 2026-11-07) ----------
+// Where the crushed atoms left off: bare protons floating. The one in the middle wears a dotted yellow circle with thick
+// arrows pulling inwards: the strong force, reaching only that far. Outside it, thinner blue arrows push out (the electric
+// repulsion), and red arrows at the margins push in (pressure). The protons are squeezed closer until two yellow circles
+// touch and merge into one holding both; the energy comes out as a burst of tiny photons, a wave from the side and a
+// point head-on, that flies outwards and pushes the other protons apart. Phases, absolute take times from the cues:
+// start, range, squeeze, merge, helium, burst, push.
+export function drawFuse(ctx, W, H, o, t) {
+  const TAU = Math.PI * 2, U = Math.min(W, H), cx = W / 2, cy = H / 2;
+  const start = o.start ?? t, sqz = o.squeeze ?? start + 8, mrg = o.merge ?? sqz + 5, brs = o.burst ?? mrg + 5, psh = o.push ?? brs + 2.5;
+  const u = t - start, Y = U * 0.075;                                   // the strong force's reach
+  const sq = t < sqz ? 0 : smooth((t - sqz) / Math.max(1.5, mrg - sqz - 0.3));
+  const merged = t >= mrg, ma = merged ? t - mrg : 0, mf = smooth(ma / 0.9);
+  const burst = t >= brs, ba = burst ? t - brs : 0;
+  const spread = burst ? smooth((ba - 0.6) / 2.6) : 0;                  // the others pushed apart by the light
+  const L0 = Y * 2.6, L = (L0 - sq * (L0 - Y * 2.02)) * (1 + 0.45 * spread);
+  const jit = (k, s) => Math.sin(t * (1.1 + k % 4 * 0.23) + k * 1.9) * s;
+  // the protons on a loose lattice; the partner is the one to the right of the centre
+  const ps = [];
+  for (let j = -9; j <= 9; j++) for (let i = -9; i <= 9; i++) {
+    const x = cx + (i + (j & 1 ? 0.5 : 0)) * L, y = cy + j * L * 0.866;
+    if (x < -Y || x > W + Y || y < -Y || y > H + Y) continue;
+    ps.push({ x, y, k: (i + 7) * 13 + (j + 5), c: i === 0 && j === 0, p: i === 1 && j === 0 });
+  }
+  const C = ps.find(a => a.c), P = ps.find(a => a.p);
+  // merging: the pair closes to a tight pair inside one circle
+  if (C && P) { const d = P.x - C.x, close = d - Y * 0.75; C.x += mf * close * 0.5; P.x -= mf * close * 0.5; }
+  const dotted = (x, y, rad, a, w = U * 0.0055) => { ctx.globalAlpha = a; ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = w; ctx.setLineDash([U * 0.014, U * 0.011]); ctx.beginPath(); ctx.arc(x, y, rad, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; };
+  // every proton has a faint reach; the centre's is bright, the partner's shows as it comes close
+  for (const a of ps) {
+    const x = a.x + (merged ? 0 : jit(a.k, U * 0.004)), y = a.y;
+    if (a.c || a.p) continue;
+    dotted(x, y, Y, 0.22, U * 0.003);
+  }
+  if (C && P) {
+    if (mf < 1) {
+      dotted(C.x, C.y, Y, 1 - mf);
+      dotted(P.x, P.y, Y, Math.max(0.25, sq) * (1 - mf));
+    }
+    if (merged) {   // one circle round the pair
+      const mx = (C.x + P.x) / 2; ctx.globalAlpha = mf; ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = U * 0.0065; ctx.setLineDash([U * 0.014, U * 0.011]);
+      ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = U * 0.02; ctx.beginPath(); ctx.arc(mx, C.y, Y * 1.05, 0, TAU); ctx.stroke(); ctx.shadowBlur = 0; ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
+    // the strong force: thick yellow arrows pulling in, only inside the circle
+    const sa = (1 - mf) * smooth(u / 0.8);
+    if (sa > 0) {
+      ctx.globalAlpha = sa;
+      for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + 0.52, r0 = Y * 0.98, r1 = Y * 0.42; arrow(ctx, C.x + r0 * Math.cos(a), C.y + r0 * Math.sin(a), C.x + r1 * Math.cos(a), C.y + r1 * Math.sin(a), "#ffd54f", U * 0.008); }
+      ctx.globalAlpha = 1;
+    }
+    // the electric push: thinner blue arrows outside the circle
+    const ea = smooth((t - (o.range ?? start + 3)) / 0.8) * (1 - mf);
+    if (ea > 0) {
+      ctx.globalAlpha = ea;
+      for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + 0.52, r0 = Y * 1.12, r1 = Y * 1.12 + U * 0.065; arrow(ctx, C.x + r0 * Math.cos(a), C.y + r0 * Math.sin(a), C.x + r1 * Math.cos(a), C.y + r1 * Math.sin(a), "#4fc3f7", U * 0.0045); }
+      text(ctx, "electric repulsion", C.x, C.y - Y - U * 0.12, U * 0.03, "#4fc3f7");
+      ctx.globalAlpha = 1;
+    }
+    const la = smooth(u / 0.8) * (1 - mf); ctx.globalAlpha = la;
+    text(ctx, (t >= (o.range ?? start + 3)) ? "strong force · very short range" : "strong force", C.x, C.y + Y + U * 0.09, U * 0.03, "#ffd54f"); ctx.globalAlpha = 1;
+  }
+  // the protons
+  for (const a of ps) {
+    ctx.fillStyle = "#ff8a80"; ctx.shadowColor = "#ff8a80"; ctx.shadowBlur = U * 0.014;
+    ctx.beginPath(); ctx.arc(a.x + (merged || a.c || a.p ? 0 : jit(a.k, U * 0.004)), a.y, U * (a.c || a.p ? 0.013 : 0.01), 0, TAU); ctx.fill(); ctx.shadowBlur = 0;
+  }
+  // pressure: red arrows at the margins, from the squeeze on
+  const ra = sq > 0 ? smooth((t - sqz) / 0.8) * (1 - smooth((ba - 1) / 1)) : 0, push = U * 0.015 * Math.sin(t * 5);
+  if (ra > 0) {
+    ctx.globalAlpha = ra;
+    for (let i = 0; i < 8; i++) edgeArrow(ctx, W, H, i * TAU / 8 + TAU / 16, U * 0.11, U * 0.03, "#ff6b5e", U * 0.009, push);
+    text(ctx, "pressure", cx, H * 0.16, U * 0.034, "#ff8a80"); ctx.globalAlpha = 1;
+  }
+  if (merged && C && P) {
+    const f = smooth((ma - 0.6) / 0.8); ctx.globalAlpha = f;
+    text(ctx, t >= (o.helium ?? mrg + 2) ? "helium" : "a new nucleus", (C.x + P.x) / 2, C.y + Y + U * 0.1, U * 0.036, "#ffd54f"); ctx.globalAlpha = 1;
+  }
+  // the burst: photons flying out from the pair, a squiggle along the way with a bright head
+  if (burst && C && P) {
+    const mx = (C.x + P.x) / 2, my = C.y, n = 54, life = 3.4;
+    ctx.lineWidth = U * 0.0028; ctx.strokeStyle = "#ffe9a3"; ctx.fillStyle = "#fff8e1"; ctx.shadowColor = "#ffe082";
+    for (let i = 0; i < n; i++) {
+      const a = i * 2.399 + 0.4, v = U * (0.16 + 0.1 * ((i * 7) % 5) / 5), d = v * ba, fade = 1 - smooth((ba - life + 0.8) / 0.8);
+      if (fade <= 0) continue;
+      const hx = mx + d * Math.cos(a), hy = my + d * Math.sin(a), len = U * 0.045, amp = U * 0.006, ux = Math.cos(a), uy = Math.sin(a);
+      ctx.globalAlpha = fade * 0.9; ctx.shadowBlur = U * 0.008; ctx.beginPath();
+      for (let s = 0; s <= 12; s++) { const q = s / 12, w = Math.sin(q * TAU * 2.5 + t * 20) * amp * (1 - q); const px = hx - ux * len * q - uy * w, py = hy - uy * len * q + ux * w; s ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+      ctx.stroke(); ctx.beginPath(); ctx.arc(hx, hy, U * 0.0045, 0, TAU); ctx.fill();
+    }
+    ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+    const f = smooth((ba - 0.3) / 0.8); ctx.globalAlpha = f;
+    text(ctx, t >= psh ? "the light pushes outwards" : "energy", cx, H * 0.78, U * 0.034, "#ffe9a3"); ctx.globalAlpha = 1;
+  }
+}

@@ -29,7 +29,7 @@ export const PALETTE = [ // [T, deep, bright]
   [2600,  [0.0612, 0.0006, 0.0021], [0.6105, 0.0382, 0.0116], true],
   [3300,  [0.1559, 0.0024, 0.004], [0.7913, 0.1046, 0.0395], true],   // M
   [4200,  [0.50, 0.030, 0.005], [1.00, 0.400, 0.070]],   // K
-  [5800,  [0.70, 0.100, 0.004], [1.00, 0.75, 0.200]],   // G
+  [5800,  [0.85, 0.200, 0.004], [1.00, 0.92, 0.330]],   // G: strong orange and a yellow bright (the author, 2026-11-07)
   [7200,  [0.75, 0.280, 0.040], [1.00, 0.90, 0.550]],   // F
   [9800,  [0.18, 0.420, 0.850], [1.00, 1.00, 1.000]],   // A
   [15000, [0.03, 0.200, 0.850], [0.55, 0.85, 1.000]],   // late B
@@ -83,6 +83,9 @@ export const STARS = [
     note: "~4,000 K. The Sun's future: swollen, cooler, with cells a few hundred across." },
   { slug: "sun", name: "Sun", cls: "G2 V", T: 5772, kind: 0,
     scale: 22, activeLat: 0.3, spots: 0.8, atm: 0.26, flare: 0.6, wind: 0.8, tilt: 0.12,
+    // patches of bright yellow on strong orange (the author, 2026-11-07: "a timid salmon orange" before): the colour
+    // regions on, the warm ones at an F star's yellow-white, the cool ones a K star's orange, with crisp borders
+    tone: 0.95, toneSpread: 1.32, toneSharp: 0.12, toneScale: 1.7, hi: 0.6, hiT: 1.4,
     note: "5,772 K. Granules, a bright magnetic network, active regions and sunspots in two belts." },
   { slug: "vega", name: "Vega", cls: "A0 V", T: 9600, Tpole: 10150, Tequator: 7900, kind: 0,
     scale: 12, oblate: 0.16, grav: 1.0, active: 0.6, spots: 0.2, atm: 0.22, flare: 0.3, rot: 0.12, tilt: 0,

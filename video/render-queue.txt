@@ -53,3 +53,6 @@ long-02-space
 # is a new object beside it with Chandra's X-ray picture (the author, 2026-11-06): the picture changes only where the
 # camera passes the remnants (long-02-space: the cycle, about 6:25-7:05 in the cut; the same stretch in short-l2-how-stars-die,
 # short-03-stars and short-05-hubble-sphere), and all of those are queued or follow the shared-pictures rule
+# 2026-11-07, the author's notes on the first render of the new opening: three stray words cut (new audio, so long-02-space
+# and its two Shorts render whole), the pan up the diagonal in one move, two new diagrams (the atoms crushed, fusion), the
+# brown dwarf close-up, the Sun's colours in the Star Forge (every video with the Sun: the shared-pictures rule)

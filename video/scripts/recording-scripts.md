@@ -865,7 +865,7 @@ line is dropped. Nothing left here for long video 1.*
 ## Long 2 · The opening to the black holes (`long-02-intro`, rec57)
 
 ### As cut now
-(rec57, 2026-11-06, one take; natural speed; 8:09 after the second pass, the first piece of `long-02-space`, which goes on with `long-02-middle` from
+(rec57, 2026-11-06, one take; natural speed; 8:07 after the author's notes of 2026-11-07, the first piece of `long-02-space`, which goes on with `long-02-middle` from
 "most objects on our chart". The long cut skips the *Short only* line. Fact check, the author's asides and voice notes:
 `video/sources/2026-11-06/NOTES.md`.)
 
@@ -873,15 +873,15 @@ line is dropped. Nothing left here for long video 1.*
 >
 > To help answer a lot of these questions, I'm going to use a surprisingly useful but simple tool. It's a single chart that contains everything that can ever be or ever was, it's a log plot of mass and size. This single image contains everything but also contains its own limits, It's constrained in three sides by relativity, quantum mechanics and the size of the universe. According to our current understanding of physics, nothing can exist outside that triangle, Therefore, anything that exists fits inside the triangle and it's such an interesting image that I've been doing a series of videos on them called the triangle of everything.
 >
-> So on the last video we've covered from humans to planets and we saw that most of the stuff falls on this diagonal line. That's the density of water, but most importantly that's the density of atoms.
+> On the last video we've covered from humans to planets and we saw that most of the stuff falls on this diagonal line. That's the density of water, but most importantly that's the density of atoms.
 >
-> See, everything is a delicate dance, or sometimes a violent tug of war, between a few fundamental forces of the universe. See, gravity wants to push matter together. Electromagnetism, on the other hand, prevents it from pushing too close together, because electrons repel each other, so do protons.
+> See, everything is a delicate dance, or sometimes a violent tug of war, between a few fundamental forces of the universe. Gravity wants to push matter together. Electromagnetism, on the other hand, prevents it from pushing too close together, because electrons repel each other, so do protons.
 >
 > So this diagonal we see is really the result of that tug of war. Build anything too big, it collapses under its own weight. Make it too compact, and its atoms are going to push it away.
 >
 > That trend will follow from the smallest form of life to the larger planets. That balance is what pushes planets to be round, what decides what sort of atmosphere they have. That trend stops once you reach Jupiter-sized planets You see that the trend line shoots slightly to the left, then goes straight up, and then there's a split. Today I want to explore that split, and why does it matter?
 >
-> See, the thing is, we tend to think of planets and stars as completely different things, but that's not really true.
+> The thing is, we tend to think of planets and stars as completely different things, but that's not really true.
 >
 > Take, for example, Jupiter. Almost half of the energy that keeps its temperature inside it, it's not coming from the sun, it's actually coming from inside its own core. As it squeezes together it generates heat.
 >

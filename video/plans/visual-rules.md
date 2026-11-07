@@ -122,6 +122,19 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   objects, between ~1 pg and 1 lb), where there's room for it. All the candidate labels
   ("WIMPs?" too) share one size and style.
 
+- **One pan, one direction** (author, 2026-11-07, on the forces along the diagonal): when a stretch walks up the line,
+  start where the story starts (the microbes) and pan up in one move that lands where the words land ("planets to be
+  round"), the arrows and circles placed wherever the camera is at the time; never back down to pick something up.
+- **After a cutaway, come back on the thing** (author, 2026-11-07, the brown dwarfs: "you highlighted an empty space"):
+  return from a clip on a close-up of the object being talked about and zoom out slowly; force its picture if the
+  overlap rule could hide it. **One object lit when one is named** (Saturn had a halo in the "take for example Jupiter"
+  shot).
+- **The forces get animations** (author, 2026-11-07): the atoms crushed (electron shells popping) and fusion (the
+  strong force grabbing two protons, the photon burst) are full-screen diagrams on black (`src/narr-diagrams.js`),
+  to the author's own designs in `video/sources/2026-11-06/NOTES.md`; arrows blue for the electric push, red for
+  gravity or pressure, yellow for the strong force, the key word in yellow, the bottom label clear of the captions.
+- **The Sun is yellow and orange in patches** (author, 2026-11-07: "a timid salmon orange" before): the Star Forge's
+  colour regions are on for the Sun, bright yellow next to strong orange (`src/star-forge.js`).
 - **Long video 2's notes** (author, 2026-11-05): no scoreboard there, the dance of the forces carries it; forces get arrows on the line they act on, close up, not a side of the
   chart (gravity read as the black-hole line); galaxies and up at 60% of their size and Laniakea far less there (`iconBoost`, `slugs`); while areas are crossed off, the candidates are only dots and the labels small, so
   the hatching shows; one density at a time, each on its own diagonal; the observable universe is not the Hubble sphere, so no CMB picture for the Hubble sphere. Diagrams: `src/narr-diagrams.js`.

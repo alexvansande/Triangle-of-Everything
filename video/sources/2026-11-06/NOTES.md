@@ -231,3 +231,44 @@ and "held together by gravity" on the neutron star; the bridge into the black ho
 onto the black-hole line. Sound: ignite at "something magical happens", the heartbeat from "once it runs out" to
 "split in two" (cut on the boom), the drop on "collapse into a black hole". Every cue found
 (`scripts/narration-frames.mjs`), in the long cut and both Shorts too.
+
+## The author's notes after the first render of the new opening (2026-11-07), and what changed
+- **1:03, a lost "so" (sounds like "saw")**: the "So," before "on the last video" was 1.3 s ahead of "on", with the pause
+  capped; cut. **1:32, "I'm saying 'see' twice"**: "See, everything is a delicate dance…" stays, the "See," before
+  "gravity wants to push matter together" is cut. **2:00, "another 'see', can you cut it or it sounds weird?"**: the "See,"
+  before "the thing is" cut at the 80 ms dip before "the" (it had no silence of its own); listen for it. The opening is
+  8:07 (was 8:09), the captions carried over, the breaths taken out again (27).
+- **"From 1:30 the whole thing should zoom into the microbes and be slowly panning up, so it reaches the planets by
+  the time I say 'round', no panning up and down."** Done: from "See, everything is a delicate dance" the camera sits on
+  the bacterium, then glides up the diagonal in one move, the force arrows and the two circles ("crushes under its own
+  weight", "its atoms push back") placed wherever it is at the time, through the gram-sized things at "the result of
+  that tug of war", the kilograms at "push it away", on up through "the smallest form of life… the larger planets", and
+  lands on Ceres and Pluto at "planets to be round". No return to the bacterium (that was the "down").
+- **"The Sun needs more yellow: a timid salmon orange; it needs patches of bright yellow and strong orange."** The Sun
+  in the videos is drawn live by the Star Forge (`src/star-forge.js`), not from its picture: its G-star palette is now a
+  stronger orange with a yellow bright, and the colour regions are on for the Sun (warm regions an F star's yellow-white,
+  cool ones a K star's orange, crisp borders), so it shows as patches. To judge on the render; the forge's tuning page
+  (`tools/star-forge.html`) is where to push it further.
+- **"When I talk about gravity winning over electrons we should do an animation"** (the author's design: a hydrogen atom,
+  its electron cloud cut open to a glowing blue circle with the proton inside and the faint back of the shell behind,
+  blue arrows out "electric repulsion", other atoms crowding, red arrows in from the edges "gravity / core pressure";
+  squeezed until the blue bubbles pop, tiny electrons fly out, the nuclei sit closer but not too close). Done as a
+  full-screen diagram (`drawCrush`, `src/narr-diagrams.js`) from "There's so much weight" to "squeezed any further":
+  the squeeze through "the atoms themselves are crushed", the pop at "stripped of their nuclei", the sea of free
+  electrons from "a sea of electrons", "the free electrons hold it up" at "squeezed any further"; back to the chart's
+  super-Jupiter column at "it just gets denser".
+- **"Take for example Jupiter: Saturn is highlighted"**: Saturn's halo out of the three Jupiter shots.
+- **"At 3:50, the brown dwarfs: you highlighted an empty space. After the deuterium cut we should be in a close-up of
+  a brown dwarf and slowly zoom out."** Done: the chart comes back from the hydrogen/deuterium clips on the L brown
+  dwarf, 0.7 decades wide, and zooms out through "deuterium is so rare" (1.3) and "billions of years" (2.4) to the
+  fusion shot; the three brown dwarfs' pictures are forced so there's a star under the halo.
+- **"The strong force bit deserves its own animation"** (the author's design: dark background, bare protons; the
+  central one with a dotted yellow circle and thick arrows in, the strong force; thinner blue arrows out, "electric
+  repulsion"; red arrows in at the margins, pressure; the protons pushed together until two yellow circles touch and
+  merge, two protons in one circle; lots of tiny 3D photons exploding outwards, now pushing the other atoms apart).
+  Done as a full-screen diagram (`drawFuse`) from "The strong force, as the name implies" to "pushing our objects
+  again to the right": the reach and "very short range", the squeeze at "squeezing the protons together", the merge at
+  "grab them together", "helium" at "it's helium", the burst of photons (a squiggle along the way, a bright head) at
+  "releases a lot of energy", "the light pushes outwards" and the others spread apart at "outward pressure"; the chart
+  returns at "the brighter it shines". Both diagrams run on the take's clock from the cue times, so a render worker can
+  start anywhere.
