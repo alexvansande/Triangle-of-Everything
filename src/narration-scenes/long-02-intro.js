@@ -232,29 +232,18 @@ export default {
       ...WD_LIMIT(1.2)] },
     { at: "carbon and oxygen", hl: [...WD_LIMIT(0, true), { obj: "White Dwarf", label: "carbon and oxygen", place: "left" }] },
     { at: "does go supernova", hl: [...WD_LIMIT(0, true), { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false, delay: 0.4 }] },
-    // past the electrons' last stand (the white dwarf limit): the weak force steps in
-    { at: "new player force", hl: [...WD_LIMIT(0, true), { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }] },
-    // neutron stars and neutrons, the same density: out to both, a whip down the density lines to the
-    // hydrogen atom collapsing into a neutron, then the whip back up (video 3's sequence)
-    { at: "weak force", offset: 0.3, cam: DENSE_TOP, dur: 2.2, ease: "gentle",
-      hl: [...DENSITIES, { obj: "L Brown Dwarf", label: "brown dwarfs", place: "left", delay: 0.8 }, { obj: "PSR J0030+0451", label: "neutron stars", place: "right", delay: 1.2 }, { ...PSR_RING, delay: 1.2 }] },
-    { at: "protons and electrons", offset: -0.2, cam: { ...DENSE_BOTTOM, whip: true, overshoot: 0.15 }, dur: 1,
-      icons: ["Neutrino (e)"], hideIcons: ["Hydrogen", "Neutron"], labels: false, hl: [...DENSITIES,
-      { clip: "hopf-collapse", from: H_AT, to: N_AT, lead: 1.2, move: [1.8, 6.4], size: 150 },
-      { text: "1 proton + 1 electron\n= 1 neutron + 1 neutrino", at: [-10.3, -20.3], size: 20, color: "#e9ecf5", delay: 1.4 },
-      { obj: "Neutrino (e)", label: false, grow: 1.6 }] },
-    { at: "neutrino will be sent", hl: [...DENSITIES,
-      { clip: "hopf-collapse", from: H_AT, to: N_AT, lead: 0, move: [0, 0.01], size: 150, instant: true },
-      { text: "1 proton + 1 electron\n= 1 neutron + 1 neutrino", at: [-10.3, -20.3], size: 20, color: "#e9ecf5", instant: true },
-      { obj: "Neutrino (e)", label: false, grow: 1.6 },
-      { fly: { from: N_AT, to: NU_AT }, dur: 1.2, color: "#b3e5fc", label: "neutrino", delay: 0.4 }] },
-    { at: "do not repel each other", cam: { ...DENSE_TOP, whip: true, overshoot: 0.15 }, dur: 1, icons: true, hideIcons: [], labels: true,
-      hl: [...DENSITIES, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }, PSR_RING,
-      { dust: "neutronstar", src: ["neutronstar"], color: "#80deea", sweep: 0.8, delay: 0.8 }] },
-    { at: "very big atomic", hl: [...DENSITIES, { obj: "PSR J0030+0451", label: "one giant nucleus", place: "right" }, PSR_RING,
-      { dust: "neutronstar", src: ["neutronstar"], color: "#80deea", sweep: 0.01 }] },
-    { at: "strong force", hl: [...DENSITIES, { obj: "PSR J0030+0451", label: "held by gravity", place: "right" }, PSR_RING,
-      { dust: "neutronstar", src: ["neutronstar"], color: "#80deea", sweep: 0.01 }] },
+    // the weak force: a diagram on black (the author's ask, 2026-11-07, to the design in the session's notes): the
+    // crushed core, bare nuclei in the electron sea; a tiny violet circle round each proton, the weak force's reach;
+    // the electrons pushed in, each change a flash and a neutrino away; the sea gone, the crowd drops to a tight pack,
+    // one giant nucleus held by gravity (src/narr-diagrams.js). The camera moves behind it to the view the chart
+    // comes back to at "any bigger": the white dwarf, the neutron star and the black hole
+    { at: "new player force", cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hl: [{ weak: {} }] },
+    { at: "weak force", hl: [{ weak: { phase: "weak" }, instant: true }] },
+    { at: "protons and electrons", hl: [{ weak: { phase: "capture" }, instant: true }] },
+    { at: "neutrino will be sent", hl: [{ weak: { phase: "neutrino" }, instant: true }] },
+    { at: "do not repel each other", hl: [{ weak: { phase: "pack" }, instant: true }] },
+    { at: "very big atomic", hl: [{ weak: { phase: "nucleus" }, instant: true }] },
+    { at: "pure gravity", hl: [{ weak: { phase: "gravity" }, instant: true }] },
     { at: "any bigger", hl: [{ path: "stellar-to-bh" }, { line: "tov", label: "neutron star limit · ~2.2–2.3 Suns" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
     { at: "collapse into a black hole", offset: 0.6, cam: { obj: "Stellar BH", span: 1.6 }, dur: 1 },
     { at: "collapse into a black hole", offset: 1.4, photo: "m87", obj: "Stellar BH", dive: { in: 1, out: 1 }, dur: 1.2, fadeIn: 0.6, fadeOut: 0.7,

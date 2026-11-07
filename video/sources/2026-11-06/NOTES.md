@@ -303,3 +303,33 @@ onto the black-hole line. Sound: ignite at "something magical happens", the hear
 - **"I think there's something you did on the audio edit that I sound less angry"**: nothing is done to the voice beyond
   the high-pass, the loudness and the room tone in the gaps; the breaths are replaced by room tone, which may read as calmer.
   The author will re-record the part after the black holes.
+
+## The third round (2026-11-07, evening): the weak force, the proton's picture, a liquid crowd
+- **The weak force, animated** (the author: "do the weak force animation as you described"), a full-screen diagram
+  (`drawWeak`, `src/narr-diagrams.js`) from "a new player force will enter in play" to "held together not by the strong
+  force, but by pure gravity", in place of the whip down to the hydrogen clip. Where the crush left off: bare nuclei packed
+  close, the electron sea roaming between them, pressure at the margins. At "that's the weak force" a tiny dotted violet
+  circle round each proton, the weak force's reach, "the shortest reach of all". From "protons and electrons will be
+  squeezed", each nucleus's electron is pushed straight into it at its own moment (staggered over six seconds): a flash,
+  the proton's picture cross-fades into the neutron's, and a neutrino, a faint fast ghost with a short trail, shoots away
+  in a straight line through everything; a few per cent of the nuclei keep their proton and their electron ("mostly
+  neutrons"). "The neutrinos carry the energy away" at "a neutrino will be sent out". At "do not repel each other" the sea
+  is gone and the whole crowd drops to a tight pack, neutrons touching: "nothing holds it up any more"; "one giant
+  nucleus" at "a very big atomic nucleus"; the margin arrows' label turns to "gravity" and "held together by gravity" at
+  "pure gravity". The camera moves behind it to the view the chart comes back to at "any bigger": the white dwarf, the
+  neutron star and the black hole.
+- **The protons are the chart's own proton** (the author: "the proton isn't a red dot, we have a nice image of it, and it's
+  a gray aberration sphere"): all three diagrams draw the chart's proton picture (and the neutron's, and the electron's,
+  small) instead of dots, loaded like the galaxies in the own-universe diagram, counted by the render's `pending()`.
+- **The crushed atoms start as a liquid** (the author: "show it as such, not a lattice, but a series of spheres packed
+  together, some arranging in a lattice but most not, a little bit chaotic; snap it to a hexagonal arrangement only
+  later"): every atom sits off its lattice point by its own seeded amount, a few nearly on it (a patch of local order),
+  most well off, and the whole crowd drifts slowly; only after the pop, as the bare nuclei are packed tighter, do the
+  offsets shrink away and the crowd snaps into the hexagonal packing (which, as the author noted, is the natural
+  close packing in a plane, as the rhombic dodecahedron's is in three dimensions).
+- **Two fixes found on the stills:** the diagram canvas picked the oldest live diagram highlight, which could be one
+  fading out, so the chart showed through at a phase change (now the newest); and the lattices were a fixed number of
+  rows, a band in a tall frame, so they're sized to the frame at whatever spacing they have (the pack fills it).
+- **R136a1 last in the Star Forge's list**: a star's pattern seed is its place in the list, so inserting it mid-list had
+  shifted the blue supergiant's, Sirius B's, the Wolf-Rayet's and the pulsar's patterns; at the end, they're as they were.
+  Its icon is re-rendered with its final seed.

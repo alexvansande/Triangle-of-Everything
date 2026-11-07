@@ -133,6 +133,10 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   strong force grabbing two protons, the photon burst) are full-screen diagrams on black (`src/narr-diagrams.js`),
   to the author's own designs in `video/sources/2026-11-06/NOTES.md`; arrows blue for the electric push, red for
   gravity or pressure, yellow for the strong force, the key word in yellow, the bottom label clear of the captions.
+- **Particles are the chart's own pictures** (author, 2026-11-07: "the proton isn't a red dot, we have a nice image of
+  it"): in the diagrams, protons, neutrons and electrons are drawn with their chart icons (the iridescent spheres), never
+  dots. **A liquid before a lattice** (author, 2026-11-07): a crowd of atoms or nuclei under pressure starts off its lattice
+  points, some local order, mostly not, and snaps into the hexagonal packing only when it's packed tight.
 - **The Sun is yellow and orange in patches** (author, 2026-11-07: "a timid salmon orange" before): the Star Forge's
   colour regions are on for the Sun, bright yellow next to strong orange (`src/star-forge.js`).
 - **Long video 2's notes** (author, 2026-11-05): no scoreboard there, the dance of the forces carries it; forces get arrows on the line they act on, close up, not a side of the
