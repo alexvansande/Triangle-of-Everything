@@ -5968,5 +5968,26 @@
         "path": "1024/tychos-supernova-remnant.webp"
       }
     ]
+  },
+  "r136a1": {
+    "fingerprint": "9657b9c43a05c198710049ef9bc8d8449746822bc8e166e5203bffeacd5b6dc0",
+    "baseWidth": 128,
+    "source": "content/icons/src/r136a1.png",
+    "reason": "matching master",
+    "sourceDifference": 1.97216796875,
+    "variants": [
+      {
+        "width": 256,
+        "path": "256/r136a1.webp"
+      },
+      {
+        "width": 512,
+        "path": "512/r136a1.webp"
+      },
+      {
+        "width": 1024,
+        "path": "1024/r136a1.webp"
+      }
+    ]
   }
 }

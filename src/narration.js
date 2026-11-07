@@ -1029,9 +1029,10 @@ export async function startNarration(app) {
       app.setDollyOpacity?.(1 - f);
     }
     // line drawings over a picture (a dive's): in their own layer, which doesn't dim with the chart
-    join(gSketch, live.filter(h => h.sketch)).each(function (h) {
+    join(gSketch, live.filter(h => h.sketch || h.blow)).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
+      if (h.blow) { el.attr("opacity", smooth((t - h.t0) / 0.6) * (1 - smooth((t - h.t1) / 0.6))); drawBlow(el, h, t - h.t0, t); return; }
       // one level hands straight over to the next (same towers, same places); only the
       // first fades in and the last fades out
       const next = highlights.some(q => q.sketch === h.sketch && Math.abs(q.t0 - h.t1) < 0.05);
@@ -1041,7 +1042,7 @@ export async function startNarration(app) {
     });
     drawDiagram(live, t);
     drawTraces(t);
-    join(gHl, live.filter(h => !h.axis && !h.card && !h.sketch && !isTrace(h))).each(function (h) {
+    join(gHl, live.filter(h => !h.axis && !h.card && !h.sketch && !h.blow && !isTrace(h))).each(function (h) {
       const el = d3.select(this);
       el.selectAll("*").remove();
       const age = t - h.t0;
@@ -1334,6 +1335,31 @@ export async function startNarration(app) {
    *  density], …] }. Level n shows n + 1 towers in a row, the outline, carved, the lattice;
    *  going up a level, the row slides apart and the new tower splits off the last one and
    *  draws in. Placed on the dive's visible picture, a little smaller as the row grows. */
+  /** A star's outer layers blown away (blow: { obj, size? }): rings of gas drifting out from the
+   *  star's disc and fading, and streaks of wind racing out ahead of them, pushed off by the
+   *  star's own light (the author, 2026-11-07, for R136a1). Drawn over a dive's grown picture
+   *  (app.dollyRect) or the picture on the chart, in the layer that doesn't dim with the chart. */
+  function drawBlow(el, h, age, t) {
+    const box = (dollyOn && app.dollyRect?.()) || app.iconRect?.(h.blow.obj);
+    if (!box) return;
+    const lr = layer.getBoundingClientRect(), scl = lr.width / layer.clientWidth;
+    const cx = (box.x - lr.x + box.w / 2) / scl, cy = (box.y - lr.y + box.h / 2) / scl, R0 = Math.max(12, box.w / scl * 0.42);
+    const g = el.append("g");
+    // rings: each born at the disc, drifting out to 2.4 radii and thinning as it goes
+    for (let i = 0; i < 6; i++) {
+      const p = ((age * 0.28) + i / 6) % 1, r = R0 * (1 + 1.4 * p), a = (1 - p) * 0.55 * smooth(age / 1.2);
+      g.append("circle").attr("cx", cx).attr("cy", cy).attr("r", r).attr("fill", "none").attr("stroke", "#e3f2fd")
+        .attr("stroke-width", R0 * 0.08 * (1 - 0.6 * p)).attr("opacity", a).attr("filter", "url(#narr-soft)");
+    }
+    // the wind: streaks racing out, each on its own line and its own clock
+    for (let i = 0; i < 32; i++) {
+      const ang = i * 2.399 + 0.7, q = ((age * 0.55) + ((i * 0.618) % 1)) % 1, r1 = R0 * (1.05 + 1.6 * q), r2 = r1 + R0 * 0.22;
+      g.append("line").attr("x1", cx + r1 * Math.cos(ang)).attr("y1", cy + r1 * Math.sin(ang)).attr("x2", cx + r2 * Math.cos(ang)).attr("y2", cy + r2 * Math.sin(ang))
+        .attr("stroke", "#fff8e1").attr("stroke-width", 1.6).attr("stroke-linecap", "round").attr("opacity", (1 - q) * 0.8 * smooth(age / 0.8));
+    }
+    if (h.label) el.append("text").attr("class", "narr-tag").attr("x", cx).attr("y", cy - R0 * 2.55 - 10)
+      .attr("text-anchor", "middle").attr("fill", "#ffe9a3").attr("opacity", smooth((age - 0.8) / 0.6)).text(h.label.toUpperCase());
+  }
   function drawSketch(el, h, age) {
     // over a dive, the visible copy of the picture (the original stays put, hidden, smaller)
     const box = (dollyOn && app.dollyRect?.()) || app.iconRect?.(h.sketch);

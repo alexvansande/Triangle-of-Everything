@@ -88,7 +88,7 @@ EDL = [
  ("rec57", "death", 1616.7, 1620.88),      # Either way, the star is now split in two. Two distinct objects on our chart.   (the third of five tries: the last two, "for the purpose of our chart, we will consider them two separate objects" and "the core and the nebula, but in either case…", are fragments)
  # the cycle
  ("rec57", "cycle", 1651.42, 1658.76),     # The outer layers will keep expanding with the leftover energy from the last battle, and become supernova remnants, or nebulae.   (the second try)
- ("rec57", "cycle", 1667.86, 1687.08),     # These will eventually meet others and merge into a larger cloud of gas and dust called the stellar nursery, which will eventually collapse back into a protostar and start a new cycle. But this time, the next generation will start with some richer materials that could lead to a planet full of life, like ours.   (the second try)
+ ("rec57", "cycle", 1667.86, 1687.08, {"cut": [(1675.24, 1675.78)]}),     # These will eventually meet others and merge into a larger cloud of gas and dust called the stellar nursery, which will eventually collapse back into a protostar and start a new cycle.   (the second "will" of "which will eventually will collapse" cut from inside, between its two dips: the author, 2026-11-07) But this time, the next generation will start with some richer materials that could lead to a planet full of life, like ours.   (the second try)
  # the cores
  ("rec57", "core", 1692.64, 1694.38),      # The core, however, will stay put.   (the second try)
  ("rec57", "core", 1727.92, 1733.42),      # If the star isn't massive enough to go supernova, it will stay as a white dwarf: a core of carbon and oxygen.   (the last of five tries)

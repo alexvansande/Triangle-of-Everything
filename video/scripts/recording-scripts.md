@@ -865,7 +865,7 @@ line is dropped. Nothing left here for long video 1.*
 ## Long 2 · The opening to the black holes (`long-02-intro`, rec57)
 
 ### As cut now
-(rec57, 2026-11-06, one take; natural speed; 8:07 after the author's notes of 2026-11-07, the first piece of `long-02-space`, which goes on with `long-02-middle` from
+(rec57, 2026-11-06, one take; natural speed; 8:06 after the author's notes of 2026-11-07, the first piece of `long-02-space`, which goes on with `long-02-middle` from
 "most objects on our chart". The long cut skips the *Short only* line. Fact check, the author's asides and voice notes:
 `video/sources/2026-11-06/NOTES.md`.)
 
@@ -899,7 +899,7 @@ line is dropped. Nothing left here for long video 1.*
 >
 > With no more hydrogen to burn, the core shrinks under its own weight, and that squeeze heats it up until the next fuel catches, helium. That pushes a star out again, far bigger than before, a red giant now burning helium. For a star like the sun, that's the end of the road. It puffs its outer layers away and leaves its core behind. But the biggest stars will go on, shrink, ignite, swell again and again, burning carbon, then oxygen, then silicon, until the core is iron. And iron is where magic dies, because fusing it costs energy instead of giving it away, so the fire suddenly goes out and the core collapses in less than a single second. Either way, the star is now split in two, two distinct objects on our chart.
 >
-> The outer layers will keep expanding with the leftover energy from the last battle and become supernova remnants or nebulae. These will eventually meet others and merge into a larger cloud of gas and dust called the stellar nursery which will eventually will collapse back into a protostar and start a new cycle. But this time the next generation will start with some richer materials that could lead to a planet full of life, like ours.
+> The outer layers will keep expanding with the leftover energy from the last battle and become supernova remnants or nebulae. These will eventually meet others and merge into a larger cloud of gas and dust called the stellar nursery which will eventually collapse back into a protostar and start a new cycle. But this time the next generation will start with some richer materials that could lead to a planet full of life, like ours.
 >
 > The core, however, will stay put. If the star isn't massive enough to go supernova, it will stay as a white dwarf, a core of carbon and oxygen.
 >

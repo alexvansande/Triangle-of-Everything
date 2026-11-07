@@ -185,17 +185,21 @@ export default {
     { at: "it's helium", hl: [{ fuse: { phase: "helium" }, instant: true }] },
     { at: "releases a lot of energy", hl: [{ fuse: { phase: "burst" }, instant: true }] },
     { at: "outward pressure", hl: [{ fuse: { phase: "push" }, instant: true }] },
-    { at: "brighter it shines", cam: { r: 10.9, m: 33.1, span: 3.6 }, hl: [{ obj: "Proxima Cen", label: false }, { obj: "Sun" }, { obj: "Sirius A", delay: 0.4 }] },
-    { at: "called main sequence", hl: [{ obj: "Sun" }, MS] },
+    { at: "brighter it shines", cam: { r: 10.9, m: 33.1, span: 3.6 }, hl: [{ fuse: { phase: "stars" }, instant: true }] },   // the camera moves behind the diagram
+    // the chart is back as the main sequence is named (the author, 2026-11-07: the animation ends when it pushes the stars to the main sequence)
+    { at: "called main sequence", hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
     { at: "most of their lives", hl: [MS, { obj: "Sun" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
     // the cap: up the sequence to the heaviest stars, whose light blows their outer layers away
     { at: "also has a limit", cam: TOP, dur: 3, ease: "gentle", hl: [MS, { obj: "Wolf-Rayet", label: false }, { obj: "R136a1", label: false, delay: 0.5 }] },
     { at: "too bright", hl: [MS, { obj: "R136a1", label: "its light pushes out" }] },
-    { at: "so violently", hl: [{ line: "mainsequence" }, { obj: "R136a1", label: false },
-      { arrow: true, from: { obj: "R136a1" }, to: { r: 13.1, m: 35.4 }, solid: true, width: 3, color: "#ffe9a3" }] },
-    { at: "expands as a cloud", hl: [{ line: "mainsequence" }, { obj: "R136a1", label: false },
-      { arrow: true, from: { obj: "R136a1" }, to: { r: 13.1, m: 35.4 }, solid: true, width: 3, color: "#ffe9a3", draw: 0.01 }, { obj: "Wolf-Rayet", label: "its winds blow the layers off", delay: 0.3 }] },
-    { at: "largest stars", hl: [MS, { obj: "R136a1", label: "R136a1 · ~200 Suns, the heaviest known" }, { obj: "Wolf-Rayet", label: false }] },
+    // the dive onto R136a1 (the author, 2026-11-07): the star comes forward, drawn live by the Star Forge, while
+    // its outer layers stream away in rings and streaks, pushed off by its own light (the `blow` drawing,
+    // src/narration.js, in the layer that doesn't dim with the chart), through "thrown so violently outside…
+    // escapes its own gravity well, and it just expands as a cloud"; it unwinds by "where it ends"
+    { at: "so violently", cam: { obj: "R136a1", span: 1.4 }, dur: 1.5, hl: [{ obj: "R136a1", label: false }] },
+    { at: "so violently", offset: 0.8, dolly: { obj: "R136a1", grow: "fill", size: 0.3, in: 1.6, out: 2 }, dur: 5,
+      hl: [{ blow: { obj: "R136a1", size: 0.3 }, label: "its light blows the outer layers away" }] },
+    { at: "largest stars", cam: { obj: "R136a1", span: 3 }, dur: 2, hl: [MS, { obj: "R136a1", label: "R136a1 · ~200 Suns, the heaviest known" }] },
 
     // ── the truce, and how it breaks (video 3's shots, as long-02-middle had them) ──
     { at: "new delicate dance", cam: { r: 10.9, m: 33.1, span: 3.6 }, dur: 2.5, hl: [MS, { obj: "Sun", label: "a truce" }] },
@@ -221,7 +225,7 @@ export default {
     { at: "new cycle", cam: { r: 12.6, m: 31.4, span: 13 }, dur: 3, ease: "gentle", hl: [...CYCLE, { obj: "Protostar", label: false }, { obj: "Sun", delay: 0.6 },
       { arrow: true, from: { obj: "Protostar" }, to: { r: PROTOPLANET[0], m: PROTOPLANET[1] }, color: "#ffe9a3", delay: 0.8 }, { mark: PROTOPLANET, label: "protoplanet", place: "left", delay: 1.4 }] },
     { at: "richer materials", hl: [...CYCLE, { obj: "Sun", label: "a third-generation star" }, { arrow: true, from: { obj: "Protostar" }, to: { r: PROTOPLANET[0], m: PROTOPLANET[1] }, color: "#ffe9a3", draw: 0.01 }, { mark: PROTOPLANET, label: "protoplanet", place: "left", instant: true }] },
-    { at: "planet full of life", hl: [...CYCLE, { mark: PROTOPLANET, label: "protoplanet", place: "left", instant: true }, { arrow: true, from: { r: PROTOPLANET[0], m: PROTOPLANET[1] }, to: { obj: "Earth" }, color: "#90caf9", solid: true, width: 3 }, { obj: "Earth", label: "a planet with metals", place: "right", delay: 0.6 }] },
+    { at: "planet full of life", hl: [...CYCLE, { mark: PROTOPLANET, label: "protoplanet", place: "left", instant: true }, { arrow: true, from: { r: PROTOPLANET[0], m: PROTOPLANET[1] }, to: { obj: "Earth" }, color: "#90caf9", solid: true, width: 3 }, { obj: "Earth", label: "a planet with carbon, oxygen, nitrogen…", place: "right", delay: 0.6 }] },
     // the cores
     { at: "the core, however", cam: { r: 8.4, m: 33.6, span: 6 }, clear: true, hl: [{ obj: "Sun" }] },
     { at: "white dwarf", cam: { r: 9.85, m: 33.25, span: 2.6 }, hl: [{ obj: "Sun" }, { arrow: true, from: { obj: "Sun" }, to: { obj: "White Dwarf" }, color: "#90caf9" }, { obj: "White Dwarf", place: "left", delay: 0.6 },
@@ -257,10 +261,10 @@ export default {
       lens: { icon: [0.5, 0.5, 0.3], photo: [1800, 1800, 700], size: [3600, 3600], fill: "cover", hold: 0.2, fillDur: 1.2 },
       caption: "a black hole · M87* · Event Horizon Telescope · 2019" },
     // (Short only: the line the long cut skips)
-    { at: "deserves a video", offset: 1.3, cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
+    { at: "deserves a video", offset: 1.3, cam: { obj: "Stellar BH", span: 8 }, dur: 2.5, ease: "gentle",
       hl: [{ line: "schwarzschild" }, { obj: "Stellar BH", label: "next: black holes" }] },
     // (Long only: the bridge into the black holes)
-    { at: "closer look", cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
+    { at: "closer look", cam: { obj: "Stellar BH", span: 5 }, dur: 3, ease: "gentle",
       hl: [{ line: "schwarzschild", label: "black holes" }, { obj: "Stellar BH", label: false }] },
   ],
 };

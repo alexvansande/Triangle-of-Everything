@@ -272,3 +272,34 @@ onto the black-hole line. Sound: ignite at "something magical happens", the hear
   "releases a lot of energy", "the light pushes outwards" and the others spread apart at "outward pressure"; the chart
   returns at "the brighter it shines". Both diagrams run on the take's clock from the cue times, so a render worker can
   start anywhere.
+
+## The author's second round of notes (2026-11-07, afternoon), and what changed
+- **"The animation should end when we say it pushes stars to the main sequence."** The fusion diagram now runs through
+  "pushing our objects again to the right. The more massive a star is, the brighter it shines", and the chart is back,
+  with the main sequence lit, as "called main sequence" is said.
+- **"When I mention the largest star we know, make it an object with an image. You have the code for that. Then do a
+  dive into it and show some animation where outer layers of the star are being pushed away."** R136a1 is now one of
+  the Star Forge's stars (46,000 K, a strong wind, `src/star-forge.js`), and its picture on the chart is the forge's own
+  rendering (`scripts/star-forge-icon.mjs`, new: a star's icon from the forge, for the site too), with its disc frame so
+  the live star lands on it. The dive sits on "thrown so violently outside that it escapes its own gravity well, and it
+  just expands as a cloud": the star comes forward, and over it rings of gas drift out and fade while streaks of wind race
+  ahead, "its light blows the outer layers away" (`blow`, a new drawing in `src/narration.js`, in the layer that doesn't
+  dim with the chart). It unwinds by "where it ends", and "around here are the largest stars we know" shows the star on
+  the chart with its label. (The first try put the dive on "largest stars we know" itself, where the next passage's camera
+  move cut across it.)
+- **"6:30, there's a hu-hum."** Not found. The words there are "…with the leftover energy from the last battle, and become
+  supernova remnants or nebulae. These will eventually meet others…"; transcribing the stretch with a filler-friendly prompt
+  hears nothing extra, the waveform shows only the words, and the join after "nebulae" is room tone. It may be inside a word
+  ("remnants", "nebulae") or a few seconds off. **To the author: which words is it between?**
+- **"Which will eventually will" (stellar nurseries):** the second "will" cut from inside the clip, between its two dips:
+  "which will eventually collapse back into a protostar".
+- **"A planet like ours says 'a planet with metals'. It should say a planet with oxygen, carbon, nitrogen, etc."** The label
+  on the Earth is now "a planet with carbon, oxygen, nitrogen…".
+- **"'And black holes are so weird that', and then your dive goes crazy and shows planets and then fades them. It's weird."**
+  The hand-over zoomed from the black hole's close-up out to 22 decades, flying over the planets while the M87 dive was still
+  unwinding, and then the middle's first cue hid every picture. Now the camera only eases out to five decades around the
+  black hole, on the black-hole line, and the middle's own opening takes over at "most objects on our chart". (The Short's
+  "deserves a video of its own" ending eases out to eight.)
+- **"I think there's something you did on the audio edit that I sound less angry"**: nothing is done to the voice beyond
+  the high-pass, the loudness and the room tone in the gaps; the breaths are replaced by room tone, which may read as calmer.
+  The author will re-record the part after the black holes.
