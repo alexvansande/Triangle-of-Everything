@@ -40,9 +40,6 @@
 # short-00-powers-of-ten source reconciled and pushed to powers-of-ten: e47ab7b2
 # long-02-space: a new opening (rec54, 2026-11-05) and video 3 joined from "as the fuel for fusion is used up": new audio, render whole
 # long video 2 whole from the three takes of 2026-11-05, and five Shorts, the best stories, each with a visual opener (the author)
-short-l2-edge-of-the-chart
-short-l2-exploding-heads
-short-l2-inside-a-black-hole
 # long video 2: the opening re-recorded in one take to the black holes (rec57, 2026-11-06), 8:21 in place of the first 6:18;
 # new audio and new words up to the join at "most objects on our chart", so it renders whole; its two Shorts from the
 # opening are re-cut from it (new audio, whole) and the other three are unchanged
@@ -60,11 +57,17 @@ short-l2-inside-a-black-hole
 # proton picture in all three animations, the crushed atoms a liquid first; the long video and its Shorts are queued whole already
 # 2026-11-08 (the author): tonight, the long video and its four Shorts from the first eight minutes, two of them new
 # (what makes a star a star; what's left when a star dies) and "how do stars die" re-sliced to end on the planet
-# 2026-11-08 (the author): held, the new opening's audio isn't settled yet. Tonight only the Shorts past the black holes;
-# long-02-space, short-l2-failed-star, short-l2-how-stars-die, short-l2-what-makes-a-star and short-l2-whats-left come
-# back to the queue once the author likes the opening's audio
+# 2026-11-08, night (the author): long video 2's opening re-rendered up to the black holes and spliced into last night's
+# render (the rest is unchanged, 2.98 s earlier); by hand, from output/videos/narration-overnight.sh.long-02-head. Then the
+# opening's four Shorts. The three Shorts past the black holes wait: the author isn't happy with that audio yet
 # only queued: the other out-of-date takes wait; new takes (the dance of the forces Short) go in as their own line
 # 2026-11-08 (the author, this session): the forces Short, six passages of the opening in one story (2:38), as its own line
-short-l2-dance-of-the-forces
 # 2026-11-09, the author's notes on the Shorts: the force labels inside the phone frame, the Sun yellow and red-orange (every
-# video with the Sun), the black-hole dive without the pulsar, the three animations zoomed in and the merges as bubbles
+# video with the Sun), the black-hole dive without the pulsar, the three animations zoomed in and the merges as bubbles; the
+# long video and the five Shorts from the opening render whole
+long-02-space
+short-l2-failed-star
+short-l2-what-makes-a-star
+short-l2-how-stars-die
+short-l2-whats-left
+short-l2-dance-of-the-forces
