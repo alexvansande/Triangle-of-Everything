@@ -287,10 +287,11 @@ onto the black-hole line. Sound: ignite at "something magical happens", the hear
   dim with the chart). It unwinds by "where it ends", and "around here are the largest stars we know" shows the star on
   the chart with its label. (The first try put the dive on "largest stars we know" itself, where the next passage's camera
   move cut across it.)
-- **"6:30, there's a hu-hum."** Not found. The words there are "…with the leftover energy from the last battle, and become
-  supernova remnants or nebulae. These will eventually meet others…"; transcribing the stretch with a filler-friendly prompt
-  hears nothing extra, the waveform shows only the words, and the join after "nebulae" is room tone. It may be inside a word
-  ("remnants", "nebulae") or a few seconds off. **To the author: which words is it between?**
+- **"6:30, there's a hu-hum"** (the author, 2026-11-08: "it's a cough, that's why it's not on the transcript"). Scanned the
+  whole opening for loud, noisy, unvoiced bursts: every one is a word's own fricative; nothing cough-like. Lined up with the
+  render the author watched (the night of 2026-11-06, 8:09), 6:30 there is 6:27 in today's cut: "The, the outer layers", two
+  short voiced "the"s back to back, a hiccup that reads as a throat-clear. The first one is cut (the clip starts at the
+  second). The only other non-word sound in the opening is a quiet breath before "shrink, ignite, swell" at 5:56, left.
 - **"Which will eventually will" (stellar nurseries):** the second "will" cut from inside the clip, between its two dips:
   "which will eventually collapse back into a protostar".
 - **"A planet like ours says 'a planet with metals'. It should say a planet with oxygen, carbon, nitrogen, etc."** The label
