@@ -24,6 +24,7 @@ went silent after a minute when it ran out.
 | 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | the source of long video 1 (6:01) and Shorts 2a (2:41) and 2b (2:02); re-recorded 2026-11-03, rec51 |
 | 3 · planets into stars | `short-03-stars` | 2:13 (re-recorded 2026-10-27, rec36) |
 | Long 2 · the opening to the black holes | `long-02-intro` | 8:09 (re-recorded 2026-11-06, rec57, natural speed, the second pass; the first piece of `long-02-space`, 19:14) |
+| The dance of the forces (Short) | `short-l2-dance-of-the-forces` | 3:19 (recorded on its own 2026-11-08, rec58, natural speed) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
@@ -147,9 +148,11 @@ redone from "most objects on our chart" on (rec55 and rec56 as cut).
   the weak force to "held together by pure gravity"), with the three animations; queued with the week's other four.
 - The week's Shorts from the opening, cut 2026-11-08: "Is Jupiter a failed star?" (1:30), "What makes a star a star?" (1:18),
   "How do stars die?" (1:34, re-sliced to end on the planet), "What's left when a star dies?" (1:08), and the forces one (2:38).
-  **Their transcripts, for recording each on its own: `video/scripts/long-02-shorts-transcripts.md`** (the author, 2026-11-09).
+  **Their transcripts, for recording each on its own: `video/scripts/long-02-shorts-transcripts.md`** (the author, 2026-11-08).
+  **The forces one was recorded on its own on 2026-11-08 (rec58)** and is a take of its own now: its transcript as cut is under
+  "The dance of the forces" in that file, with the lines to re-record in `video/sources/2026-11-08/NOTES.md`.
   Since you'll be recording the fusion one: *"deuterium comes with its neutron already, so it skips the hard step"* (why
-  brown dwarfs burn deuterium and not hydrogen: the notes of 2026-11-09).
+  brown dwarfs burn deuterium and not hydrogen: the notes of 2026-11-08).
 - **The storyboard** (the author, 2026-11-06: "my narration is not very natural because I'm reading things"): one beat a
   page, the frame on top and the narration below, to look at and tell in their own words instead of reading:
   `video/scripts/long-02-storyboard.json` (the beats and their titles) → `scripts/narration-storyboard.py` → a PDF

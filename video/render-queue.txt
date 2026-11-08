@@ -62,7 +62,7 @@
 # opening's four Shorts. The three Shorts past the black holes wait: the author isn't happy with that audio yet
 # only queued: the other out-of-date takes wait; new takes (the dance of the forces Short) go in as their own line
 # 2026-11-08 (the author, this session): the forces Short, six passages of the opening in one story (2:38), as its own line
-# 2026-11-09, the author's notes on the Shorts: the force labels inside the phone frame, the Sun yellow and red-orange (every
+# 2026-11-08, the author's notes on the Shorts: the force labels inside the phone frame, the Sun yellow and red-orange (every
 # video with the Sun), the black-hole dive without the pulsar, the three animations zoomed in and the merges as bubbles; the
 # long video and the five Shorts from the opening render whole
 long-02-space
@@ -71,6 +71,8 @@ short-l2-what-makes-a-star
 short-l2-how-stars-die
 short-l2-whats-left
 short-l2-dance-of-the-forces
-# 2026-11-09, later: the proton's aberration up in the diagrams, fusion of four hydrogens (two turned into neutrons), a
+# 2026-11-08, later: the proton's aberration up in the diagrams, fusion of four hydrogens (two turned into neutrons), a
 # deuterium diagram in place of the clips: long-02-space and the Shorts with those stretches (failed-star, what-makes-a-star,
 # dance-of-the-forces) are queued whole already
+# 2026-11-08, evening: the forces Short recorded on its own (rec58), a take of its own with its own scene: new audio, whole
+# (already queued above); the proton and neutron icons regenerated with the author's Atom Lab look (every video with them)

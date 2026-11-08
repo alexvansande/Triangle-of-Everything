@@ -2670,7 +2670,7 @@
     ]
   },
   "neutron": {
-    "fingerprint": "15a1528328993f437967e82a0deb951fd4df2902630a7e9f86893a6353df9528",
+    "fingerprint": "e6be20605570157793239641ec5f45599d6027e0998c91c152f1cfe29cef1e52",
     "baseWidth": 512,
     "source": "content/icons/neutron.webp",
     "reason": "no larger source",
@@ -2944,7 +2944,7 @@
     ]
   },
   "proton": {
-    "fingerprint": "7058d344a8d19cc68df49ea7a312e504a92fbcdada973f7add03cd43e97f3cbd",
+    "fingerprint": "e187e5e71451271cc6ec28b6571c7b1a971c9bfc9f9201a2393bb55a787eb2bf",
     "baseWidth": 512,
     "source": "content/icons/proton.webp",
     "reason": "no larger source",

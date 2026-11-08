@@ -159,11 +159,13 @@ const smooth = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a
 export const LOOK = {
   // defaults: the author's Atom Lab look (2026-10-29); particles may override
   // some of them with their own style (and camera and light with viewOpts)
-  probe: 0,                          // probe resolution for nuclei inside atoms, 0 coarse … 1 fine
+  // the nucleons' look: the author's Atom Lab settings of 2026-11-08 (bigger balls, the neutron greyer, the quarks
+  // brighter, a finer probe), so the proton stands apart from the neutron in the diagrams
+  probe: 0.16,                       // probe resolution for nuclei inside atoms, 0 coarse … 1 fine
   protonFringe: 4, neutronFringe: 0,
-  protonBall: 0.056, neutronBall: 0.043,
-  neutronGrey: 0.46,                 // how far the neutron's R, G and B are washed toward grey
-  quarks: 1.65,
+  protonBall: 0.069, neutronBall: 0.063,
+  neutronGrey: 0.71,                 // how far the neutron's R, G and B are washed toward grey
+  quarks: 2,
   nucleusGain: 5.3,                  // nuclei inside atoms, against the electron's glow
   logScale: true,                    // rebuild
   nucleusShare: 0.39,                // rebuild: share of the radius the nucleus region gets on the log scale

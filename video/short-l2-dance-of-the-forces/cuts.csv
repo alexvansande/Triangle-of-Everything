@@ -1,0 +1,23 @@
+source,beat,out_start,out_end,src_start,src_end,text
+rec58,dance,0.00,10.20,44.23,54.43,"Everything in our universe is a delicate dance between four fundamental forces and, well, sometimes it can be a violent tug of war also."
+rec58,diagonal,11.30,19.63,54.92,63.25,"If you plot everything that exists in a short of mass and size, you see that most things form this diagonal line."
+rec58,diagonal,20.18,27.53,63.38,70.73,This is where the equilibrium of that particular tug of war between electromagnetism and gravity.
+rec58,diagonal,28.08,37.66,98.32,112.09,"Make something too big, and it will crush under its own weight. Make it, try to squeeze it so, try to squeeze it too hard, and the electrons themselves will push it outwards."
+rec58,diagonal,38.20,47.09,123.85,132.74,"The resulting line, this diagonal is actually the density of atoms and everything made of ordinary matter will fall somewhere along here."
+rec58,column,48.19,57.35,150.95,160.55,"but you can see the giant planets like Jupiter and beyond do not fall on this diagonal line, rather they just go up a column."
+rec58,column,57.90,63.15,160.59,165.83,That's because their core is not made of ordinary matter but degenerate matter.
+rec58,crush,64.25,74.36,234.93,245.05,This happens because they are so massive and there's so much pressure in their core that is able to win over the repulsion of the electrons.
+rec58,crush,74.91,81.83,254.55,261.47,so they break out of their clouds and what we have is a bunch of nuclei and a sea of electrons.
+rec58,crush,82.38,87.25,274.07,278.95,that creates a new equilibrium as quantum effects prevents them from being crushed any further
+rec58,fusion,88.35,93.76,299.05,304.45,"but if you add even more mass, then something magical happens because a new force comes into play."
+rec58,fusion,94.31,102.40,304.49,312.57,"The strong force, as the name implies, is the strongest of all forces, but it also has a very limited range."
+rec58,fusion,102.95,115.78,374.75,387.58,"for some very massive objects, their gravity will be so strong that will push those cores together that the strong force can now capture them and make one single nucleus."
+rec58,fusion,116.33,125.56,423.73,433.27,"So that's fusion, first on brown dwarfs with a very small percentage of their hydrogen, then on stars that can burn all of their hydrogen."
+rec58,fusion,126.11,132.74,435.32,441.95,That fusion creates a massive amount of energy and that now pushes the objects even further
+rec58,ms,133.84,145.56,460.87,472.59,"And now that delicate dance between gravity and electromagnetism and the strong force will create this new stable equilibrium diagonal here, which is called the main sequence where stars who live most of their lives."
+rec58,ms,146.11,152.62,475.75,482.27,"But that equilibrium is only kept by the fusion of hydrogen and once that runs out, that goes haywire."
+rec58,weak,153.72,161.16,492.00,499.44,"and when that happens, a catastrophic core collapse will be so powerful that a new player force will enter into play."
+rec58,weak,161.71,166.03,504.25,508.57,That's the weak force. And that's what decides what the nucleus even is.
+rec58,weak,166.58,179.59,525.43,538.44,"Protons and electrons squeezed together will create a mass of neutrons, and that creates a neutron star. And when that happens, a sea of neutrinos is sent out carrying a huge amount of energy."
+rec58,weak,180.14,185.97,539.51,545.34,"And because neutrons, unlike protons and electrons, do not repel each other, they will just stay put."
+rec58,weak,186.52,198.69,545.80,557.97,"So a neutron star is really just a very big atomic nuclei, mostly a bunch of neutrons held together not by the strong force, but purely by the force of gravity."

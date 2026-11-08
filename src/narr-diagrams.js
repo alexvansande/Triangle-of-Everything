@@ -41,7 +41,7 @@ const picsPending = (slugs) => slugs.map(pic).filter(im => im.__ok && !(im.compl
 const PARTICLES = ["proton", "neutron", "electron"];
 // each one turned its own way (`rot`, radians: the author, 2026-11-08, "not all identical as if we were pasting
 // the same image"), and a few per cent bigger or smaller, so a crowd of them reads as many, not one stamp
-// the proton with its aberration turned up (the author, 2026-11-09, so it stands apart from the neutron): the picture's
+// the proton with its aberration turned up (the author, 2026-11-08, so it stands apart from the neutron): the picture's
 // red, green and blue drawn at three sizes (red largest, blue smallest) and added, the way a cheap lens splits colours
 let _protonStrong = null;
 function protonStrong() {
@@ -73,7 +73,7 @@ const particle = (ctx, slug, x, y, d, alpha = 1, fallback = "#ff8a80", rot = 0, 
 };
 // a particle's own turn and size, from its key: steady, so it doesn't flicker between frames
 const spin = (k) => unit2(k, 7) * Math.PI * 2, sizeOf = (k) => 0.92 + 0.16 * unit2(k, 8);
-// the outline of circles merging like soap bubbles (the author, 2026-11-09: "once the two circles touch they should make
+// the outline of circles merging like soap bubbles (the author, 2026-11-08: "once the two circles touch they should make
 // a sort of guitar shape, like two circles kissing, and then hug the nuclei into one"): a metaball contour, found along
 // rays from the circles' centroid; apart, each circle stands alone at its own radius, and as they come within reach a
 // neck forms and thickens until the two are one. Returns the points, or null if the circles are still separate.
@@ -392,7 +392,7 @@ export function drawCrush(ctx, W, H, o, t) {
 export function drawFuse(ctx, W, H, o, t) {
   const TAU = Math.PI * 2, U = Math.min(W, H), cx = W / 2, cy = H / 2;
   const start = o.start ?? t, sqz = o.squeeze ?? start + 8, mrg = o.merge ?? sqz + 5, brs = o.burst ?? mrg + 5, psh = o.push ?? brs + 2.5;
-  const u = t - start, Y = U * 0.13;                                    // the strong force's reach (a closer view: the author, 2026-11-09)
+  const u = t - start, Y = U * 0.13;                                    // the strong force's reach (a closer view: the author, 2026-11-08)
   const sq = t < sqz ? 0 : smooth((t - sqz) / Math.max(1.5, mrg - sqz - 0.3));
   const merged = t >= mrg, ma = merged ? t - mrg : 0, mf = smooth(ma / 0.9);
   const burst = t >= brs, ba = burst ? t - brs : 0;
@@ -411,7 +411,7 @@ export function drawFuse(ctx, W, H, o, t) {
     if (x < -Y || x > W + Y || y < -Y || y > H + Y) continue;
     ps.push({ x, y, k, c: i === 0 && j === 0, p: i === 1 && j === 0, q: i === 0 && j === 1, s: i === 0 && j === -1 });
   }
-  // four hydrogens into one helium (the author, 2026-11-09): the centre proton and its right-hand neighbour join first;
+  // four hydrogens into one helium (the author, 2026-11-08): the centre proton and its right-hand neighbour join first;
   // the weak force turns one of them into a neutron (deuterium); then the two above and below join, and one of those
   // turns too: two protons and two neutrons in one circle. Each change a flash and a neutrino away.
   const C = ps.find(a => a.c), P = ps.find(a => a.p), Q = ps.find(a => a.q), Sx = ps.find(a => a.s);
@@ -432,7 +432,7 @@ export function drawFuse(ctx, W, H, o, t) {
   }
   if (C && P) {
     // the reach circles: apart, dotted circles; as they come within reach, one bubble outline with a neck that
-    // thickens until it's one circle round the cluster (the author, 2026-11-09); the two newcomers' circles join it
+    // thickens until it's one circle round the cluster (the author, 2026-11-08); the two newcomers' circles join it
     const members = [{ x: C.x, y: C.y, r: Y }, { x: P.x, y: P.y, r: Y }, ...(hf > 0 ? [Q, Sx].filter(Boolean).map(a => ({ x: a.x, y: a.y, r: Y })) : [])];
     const blob = blobPath(members);
     ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = U * 0.0065; ctx.setLineDash([U * 0.014, U * 0.011]);
@@ -516,7 +516,7 @@ export function drawFuse(ctx, W, H, o, t) {
 export function drawWeak(ctx, W, H, o, t) {
   const TAU = Math.PI * 2, U = Math.min(W, H), cx = W / 2, cy = H / 2;
   const start = o.start ?? t, weak = o.weak ?? start + 2, cap = o.capture ?? weak + 3, pack = o.pack ?? cap + 9, grav = o.gravity ?? pack + 6;
-  const u = t - start, D = U * 0.34;                                   // a nucleus's picture: large, only a dozen in the frame (the author, 2026-11-09)
+  const u = t - start, D = U * 0.34;                                   // a nucleus's picture: large, only a dozen in the frame (the author, 2026-11-08)
   // practically touching already; the neutron's picture is the compact one (no aberration), so at the pack cue the whole
   // lattice claps together, suddenly, into the tight neutron packing
   const packed = t < pack ? 0 : smooth((t - pack) / 0.5);
@@ -599,7 +599,7 @@ export function drawWeak(ctx, W, H, o, t) {
   else if (t >= weak) label("the weak force · the shortest reach of all", weak, "#b388ff");
 }
 
-// ---------- deuterium: two in a sea of ordinary hydrogen (the author, 2026-11-09) ----------
+// ---------- deuterium: two in a sea of ordinary hydrogen (the author, 2026-11-08) ----------
 // Like the fusion diagram, but the crowd is ordinary hydrogen (bare protons) with two deuteriums in it: a proton and a
 // neutron snug together in one small yellow circle, labelled. Under pressure the ordinary protons' reach circles touch
 // and bounce apart ("not hot enough"), while a deuterium and the proton beside it merge like bubbles into helium-3 with a

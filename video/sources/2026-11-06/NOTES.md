@@ -352,7 +352,7 @@ opening with the axes opener: "Is Jupiter a failed star?" (1:30), "What makes a 
 animation and the R136a1 dive), "How do stars die?" (1:34, re-sliced to end on "a planet full of life, like ours"), and
 "What's left when a star dies?" (1:08, new: the weak-force animation and the black hole). All queued with the long video.
 
-## 2026-11-09: the author's notes on the Shorts (watched on the phone), and what changed
+## 2026-11-08: the author's notes on the Shorts (watched on the phone), and what changed
 - **"The gravity and electromagnetism labels aren't showing up in the Short."** They sat 4.6 decades off the diagonal; a
   phone frame at that zoom is only 2.3 decades to each side, so they were outside it (the 16:9 render had them). Now 1.1 to
   1.5 decades off the line, above the arrows, and the arrows shorter, so both show on a phone.
@@ -380,7 +380,7 @@ animation and the R136a1 dive), "How do stars die?" (1:34, re-sliced to end on "
   hard step."*
 - **The Shorts' transcripts are saved on their own** (`video/scripts/long-02-shorts-transcripts.md`) for recording them
   separately.
-- **The author, on the four hydrogens (2026-11-09):** "increase the aberration in the proton so it's more distinct from the
+- **The author, on the four hydrogens (2026-11-08):** "increase the aberration in the proton so it's more distinct from the
   neutron"; "the weak force animation [fusion] should capture four hydrogens and turn two of them into neutrons"; "the
   deuterium animation should change too: like the fusing one but two deuteriums (with the neutron) in a sea of normal
   hydrogen, labelled". Done: in the diagrams the proton is drawn with its red, green and blue pulled apart (a sprite made
