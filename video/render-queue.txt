@@ -77,3 +77,5 @@
 # 2026-11-08, afternoon (the author): a new round now, the forces Short first, then the opening's four Shorts. long-02-space
 # off the round (it would render whole): its opening (0-8:20) re-rendered by hand after the Shorts and joined to the current
 # render (output/videos/l2-wait.sh, then narration-overnight.sh.long-02-head2)
+# 2026-11-08 (the author): "How do stars die?" goes out Tuesday, so it renders first tonight
+# next: short-l2-how-stars-die
