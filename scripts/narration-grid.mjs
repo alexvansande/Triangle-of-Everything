@@ -77,6 +77,18 @@ export async function takeInfo(takes, dir, { root = ".", fresh = false, local = 
 /** The grid, its back button, style and script, to go before </body>. `base`: the
  *  prefix for its own files ("" in the build's folder, "/" on the dev server).
  *  "Last updated": the commit the page comes from (`built`, `commit`) */
+// Every short belongs to a long video (the author, 2026-11-08: "remove the sections of shorts on their own"). A short cut
+// from a long video's takes finds its own; one recorded on its own is placed here by the long video it tells part of.
+// Anything not placed either way goes in a final "Unassigned" section.
+const BELONGS = {
+  "short-l2-dance-of-the-forces": 2,   // the forces Short, recorded on its own (rec58), from long video 2's story
+  "short-03-stars": 2,                 // video 3's take, the stars: the story long video 2 tells
+  "short-04-black-holes": 2, "short-05-hubble-sphere": 2,
+  "short-06-tiny-world": 3, "short-07-wavelengths": 3, "short-00-powers-of-ten": 3,
+};
+// which sections start collapsed (the author, 2026-11-08: long video 1, published, collapsed by default)
+const COLLAPSED = new Set([1]);
+
 export function gridHtml(info, { built, commit, base = "" }) {
   const esc = (x) => String(x).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const mmss = (d) => `${Math.floor(d / 60)}:${String(Math.round(d % 60)).padStart(2, "0")}`;
@@ -105,7 +117,8 @@ export function gridHtml(info, { built, commit, base = "" }) {
   const numOf = (k) => +(k.id.match(/^long-(\d+)/) || [0, 0])[1];
   const groups = [...new Set(longs.map(numOf))].sort((a, b) => a - b).map(n => {
     const ls = longs.filter(l => numOf(l) === n), src = new Set(ls.flatMap(l => l.sources));
-    return { n, longs: ls, long: ls[0], shorts: shorts.filter(s => s.sources.some(x => src.has(x))) };
+    // a short belongs here if it shares a source take with the long video, is placed here by name, or is cut from a take placed here
+    return { n, longs: ls, long: ls[0], shorts: shorts.filter(s => s.sources.some(x => src.has(x)) || BELONGS[s.id] === n || s.sources.some(x => BELONGS[x] === n)) };
   });
   const grouped = new Set(groups.flatMap(g => g.shorts.map(s => s.id)));
   const loose = shorts.filter(s => !grouped.has(s.id));
@@ -125,16 +138,18 @@ export function gridHtml(info, { built, commit, base = "" }) {
   const row = (list, label) => `
   <div class="ng-carousel" role="list" aria-label="${esc(label)}">${list.map(k => card(k).replace('<div class="ng-item', '<div role="listitem" class="ng-item')).join("")}
   </div>`;
-  const sections = (loose.length ? `
-  <section class="ng-group">
-    <h2 class="ng-sub">Shorts <span>on their own</span></h2>${row(loose, "Shorts on their own")}
-  </section>` : "") + groups.map((g, i) => `
-  <section class="ng-group">
-    <h2 class="ng-sub">Long video ${g.n} <span>16:9 · ${g.longs.map(l => mmss(l.duration)).join(" / ")}${g.longs.length > 1 ? ` · ${g.longs.length} versions` : ""}</span></h2>
+  // each long video is a collapsible section (the author, 2026-11-08), open unless COLLAPSED says otherwise or the
+  // viewer closed it (remembered per browser, below); the unassigned shorts, if any, last
+  const sections = groups.map((g, i) => `
+  <details class="ng-group" data-group="${g.n}"${COLLAPSED.has(g.n) ? "" : " open"}>
+    <summary><h2 class="ng-sub">Long video ${g.n} <span>16:9 · ${g.longs.map(l => mmss(l.duration)).join(" / ")}${g.longs.length > 1 ? ` · ${g.longs.length} versions` : ""}${g.shorts.length ? ` · ${g.shorts.length} shorts` : ""}</span></h2></summary>
     ${g.longs.length > 1 ? row(g.longs, `Long video ${g.n}'s versions`).replace('class="ng-carousel"', 'class="ng-carousel ng-carousel-wide"') : `<div class="ng-long">${card(g.long)}
     </div>`}${g.shorts.length ? `
     <h3 class="ng-sub3">Its shorts <span>${g.shorts.length} · 9:16 · scroll sideways</span></h3>${row(g.shorts, `Long video ${g.n}'s shorts`)}` : ""}
-  </section>`).join("");
+  </details>`).join("") + (loose.length ? `
+  <details class="ng-group" data-group="unassigned" open>
+    <summary><h2 class="ng-sub">Unassigned <span>shorts of no long video yet · ${loose.length}</span></h2></summary>${row(loose, "Unassigned shorts")}
+  </details>` : "");
   return `<section id="narr-grid" hidden aria-label="Narration previews">
   <header class="ng-head">
     <p class="ng-eyebrow">The Triangle of Everything</p>
@@ -211,6 +226,14 @@ ${sections}${info.some(k => k.music) ? `
 .ng-grid-wide { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .ng-group { max-width: 960px; margin: 0 auto; padding-bottom: 8px; border-bottom: 1px solid var(--ng-line); }
 .ng-group:last-of-type { border-bottom: 0; }
+/* collapsible sections: the heading is the summary; a small triangle turns when open */
+.ng-group > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+.ng-group > summary::-webkit-details-marker { display: none; }
+.ng-group > summary::before { content: ""; width: 0; height: 0; border: 7px solid transparent; border-left: 10px solid var(--ng-accent); margin: 24px 0 6px 2px; transition: transform 0.15s ease; }
+.ng-group[open] > summary::before { transform: rotate(90deg) translate(-2px, -2px); }
+.ng-group > summary .ng-sub { margin: 30px 0 12px; flex: 1; }
+.ng-group > summary:focus-visible { outline: 2px solid var(--ng-accent); outline-offset: 2px; }
+.ng-group:not([open]) { padding-bottom: 0; }
 .ng-long { max-width: 640px; }
 .ng-sub3 { margin: 18px 0 10px; font: 700 18px/1 var(--ng-display); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ng-muted); }
 .ng-sub3 span { font: 500 12.5px/1 var(--ng-body); text-transform: none; letter-spacing: 0; margin-left: 6px; }
@@ -298,6 +321,13 @@ window.__narrTakes = ${JSON.stringify(shorts.filter(k => !k.renderOnly).map(k =>
   document.getElementById(playing ? "narr-back" : "narr-grid").hidden = false;
   // the dates in the viewer's own time zone: today as "2 hours ago", then "yesterday", then the date
   var now = new Date(), day = function (d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+  // the sections' open state, remembered per browser (the author, 2026-11-08: long video 1 collapsed by default)
+  document.querySelectorAll("#narr-grid details.ng-group").forEach(function (d) {
+    var key = "ng-open-" + d.dataset.group, saved = null;
+    try { saved = localStorage.getItem(key); } catch (e) {}
+    if (saved === "1") d.open = true; else if (saved === "0") d.open = false;
+    d.addEventListener("toggle", function () { try { localStorage.setItem(key, d.open ? "1" : "0"); } catch (e) {} });
+  });
   document.querySelectorAll("#narr-grid time[data-fmt]").forEach(function (t) {
     var d = new Date(t.getAttribute("datetime"));
     if (isNaN(d)) return;
@@ -458,7 +488,7 @@ export function listenHtml(info, { built, commit, base = "", audioBase = base + 
   const numOf = (k) => +(k.id.match(/^long-(\d+)/) || [0, 0])[1];
   const groups = [...new Set(longs.map(numOf))].sort((a, b) => a - b).map(n => {
     const ls = longs.filter(l => numOf(l) === n), src = new Set(ls.flatMap(l => l.sources));
-    return { n, longs: ls, shorts: shorts.filter(s => s.sources.some(x => src.has(x))) };
+    return { n, longs: ls, shorts: shorts.filter(s => s.sources.some(x => src.has(x)) || BELONGS[s.id] === n || s.sources.some(x => BELONGS[x] === n)) };
   });
   const grouped = new Set(groups.flatMap(g => g.shorts.map(s => s.id)));
   const loose = shorts.filter(s => !grouped.has(s.id));
@@ -487,7 +517,7 @@ export function listenHtml(info, { built, commit, base = "", audioBase = base + 
   <h1>Listen only</h1>
   <p>The voice with its sound and music, nothing drawn. <a href="${base}./">The live page</a> has the pictures.</p>
   <p class="stamp">Last updated ${esc(built.slice(0, 16).replace("T", " "))} UTC${commit ? ` · ${esc(commit)}` : ""}</p>${
-  groups.map(g => section(`Long video ${g.n}`, g.longs) + section(`Long video ${g.n}'s shorts`, g.shorts)).join("")}${section("Shorts on their own", loose)}
+  groups.map(g => section(`Long video ${g.n}`, g.longs) + section(`Long video ${g.n}'s shorts`, g.shorts)).join("")}${section("Unassigned shorts", loose)}
 </body></html>
 `;
 }
