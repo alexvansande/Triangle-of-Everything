@@ -104,3 +104,9 @@ force" to "that delicate dance" (the chart back at "called the main sequence"), 
 at "goes haywire" (the boom), the weak-force diagram from "catastrophic core collapse" to "force of gravity". Every cue found
 (`scripts/narration-frames.mjs`). Noted while checking: the player logs a `getPointAtLength` error from the chart's path dots
 (`src/main.js`, `getPathScreenPos`) on this take's first frames; the stills are fine, to look into.
+
+## The author's sketch of the strong-force merge (2026-11-08, `video/plans/strong-force-merge-sketch.jpg`)
+Four frames: two circles with a nucleon each; they kiss into a peanut with rays; the joined bubble squeezed into a tall
+ellipse, the nucleons packed, rays all round; one round circle with the nucleons inside. Done: after a join is complete the
+fusion and deuterium bubbles pinch sideways into a tall ellipse (peaking 1.25 s after the join), short rays flare at the pinch,
+and the outline rings back to a circle (`squash`, `squashedCircle`); both joins of the four-hydrogen fusion do it.

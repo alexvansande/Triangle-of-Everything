@@ -93,6 +93,19 @@ function blobPath(circles, n = 120) {
   return pts;
 }
 const strokePath = (ctx, pts) => { ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); ctx.stroke(); };
+// the author's sketch of the strong force merging two nuclei (2026-11-08): the joined bubble squeezes into a tall ellipse
+// as the energy flares out, then relaxes, ringing, into one round circle. `squash(a)` is how far the outline is pinched
+// `a` seconds after the join is complete: positive narrows it sideways and stretches it up, then it swings back and settles.
+const squash = (a) => a <= 0 ? 0 : 0.42 * Math.exp(-a * 1.7) * Math.sin(a * 4.5);
+// the pinched outline and its flare, drawn in the current stroke style
+const squashedCircle = (ctx, x, y, r, q, U, color) => {
+  ctx.beginPath(); ctx.ellipse(x, y, r * (1 - q), r * (1 + q), 0, 0, Math.PI * 2); ctx.stroke();
+  if (q > 0.12) {   // the flare: short rays out from the squeezed bubble, strongest at the pinch
+    const f = Math.min(1, q / 0.42); ctx.save(); ctx.setLineDash([]); ctx.globalAlpha *= f; ctx.strokeStyle = color; ctx.lineWidth = U * 0.003;
+    for (let i = 0; i < 14; i++) { const a = i * Math.PI * 2 / 14 + 0.2, r0 = r * (1.25 + 0.1 * (i % 2)), r1 = r0 + U * 0.07 * f * (0.7 + 0.3 * ((i * 7) % 3) / 2); ctx.beginPath(); ctx.moveTo(x + r0 * Math.cos(a), y + r0 * Math.sin(a)); ctx.lineTo(x + r1 * Math.cos(a), y + r1 * Math.sin(a)); ctx.stroke(); }
+    ctx.restore();
+  }
+};
 // a stable 0..1 from a pair of integers (for an atom's own offset, drift and timing)
 const unit2 = (k, j) => { let h = (k * 374761393 + j * 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
@@ -436,7 +449,10 @@ export function drawFuse(ctx, W, H, o, t) {
     const members = [{ x: C.x, y: C.y, r: Y }, { x: P.x, y: P.y, r: Y }, ...(hf > 0 ? [Q, Sx].filter(Boolean).map(a => ({ x: a.x, y: a.y, r: Y })) : [])];
     const blob = blobPath(members);
     ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = U * 0.0065; ctx.setLineDash([U * 0.014, U * 0.011]);
-    if (blob) { ctx.globalAlpha = 1; ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = merged ? U * 0.02 : 0; strokePath(ctx, blob); ctx.shadowBlur = 0; }
+    // once a join is complete the bubble is one circle: it squeezes tall and flares, then settles (the author's sketch)
+    const qz = (mf >= 1 && !(hf > 0 && hf < 1)) ? squash(ma - 0.9) + (hf >= 1 ? squash(t - hel - 0.9) : 0) : 0;
+    if (mf >= 1 && !(hf > 0 && hf < 1)) { ctx.globalAlpha = 1; ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = U * 0.02; squashedCircle(ctx, (C.x + P.x) / 2, C.y, Y * 1.05, qz, U, "#ffe9a3"); ctx.shadowBlur = 0; }
+    else if (blob) { ctx.globalAlpha = 1; ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = merged ? U * 0.02 : 0; strokePath(ctx, blob); ctx.shadowBlur = 0; }
     else { dotted(C.x, C.y, Y, 1); dotted(P.x, P.y, Y, Math.max(0.25, sq)); }
     ctx.setLineDash([]); ctx.globalAlpha = 1;
     // the strong force: thick yellow arrows pulling in, only inside the circle
@@ -630,7 +646,8 @@ export function drawDeut(ctx, W, H, o, t) {
   if (C && M) {
     const blob = ff > 0 ? blobPath([{ x: C.x, y: C.y, r: Y * 0.75 }, { x: M.x, y: M.y, r: Y }]) : null;
     ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = U * 0.005;
-    if (blob) { ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = U * 0.015; strokePath(ctx, blob); ctx.shadowBlur = 0; }
+    if (ff >= 1) { ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = U * 0.015; squashedCircle(ctx, (C.x + M.x) / 2, C.y, Y * 0.95, squash(t - fus - 0.9), U, "#ffe9a3"); ctx.shadowBlur = 0; }
+    else if (blob) { ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = U * 0.015; strokePath(ctx, blob); ctx.shadowBlur = 0; }
     else { dotted(C.x, C.y, Y * 0.75, 0.9, U * 0.005, false); dotted(M.x, M.y, Y, 0.22); }
   }
   // the nuclei: the deuteriums a proton and a neutron snug together, the rest lone protons

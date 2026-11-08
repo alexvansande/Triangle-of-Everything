@@ -137,6 +137,10 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   it"): in the diagrams, protons, neutrons and electrons are drawn with their chart icons (the iridescent spheres), never
   dots. **A liquid before a lattice** (author, 2026-11-07): a crowd of atoms or nuclei under pressure starts off its lattice
   points, some local order, mostly not, and snaps into the hexagonal packing only when it's packed tight.
+- **A merge squeezes, flares, then rounds off** (the author's sketch, 2026-11-08, `strong-force-merge-sketch.jpg`): two reach
+  circles kiss into a peanut, the joined bubble pinches into a tall ellipse as the energy flares out in short rays, then it
+  relaxes, ringing, into one round circle with the nucleons inside (`squash`, `squashedCircle` in `src/narr-diagrams.js`;
+  the fusion and deuterium merges).
 - **The Sun is yellow and orange in patches** (author, 2026-11-07: "a timid salmon orange" before): the Star Forge's
   colour regions are on for the Sun, bright yellow next to strong orange (`src/star-forge.js`).
 - **Long video 2's notes** (author, 2026-11-05): no scoreboard there, the dance of the forces carries it; forces get arrows on the line they act on, close up, not a side of the
