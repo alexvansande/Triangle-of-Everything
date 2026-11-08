@@ -147,6 +147,9 @@ redone from "most objects on our chart" on (rec55 and rec56 as cut).
   the weak force to "held together by pure gravity"), with the three animations; queued with the week's other four.
 - The week's Shorts from the opening, cut 2026-11-08: "Is Jupiter a failed star?" (1:30), "What makes a star a star?" (1:18),
   "How do stars die?" (1:34, re-sliced to end on the planet), "What's left when a star dies?" (1:08), and the forces one (2:38).
+  **Their transcripts, for recording each on its own: `video/scripts/long-02-shorts-transcripts.md`** (the author, 2026-11-09).
+  Since you'll be recording the fusion one: *"deuterium comes with its neutron already, so it skips the hard step"* (why
+  brown dwarfs burn deuterium and not hydrogen: the notes of 2026-11-09).
 - **The storyboard** (the author, 2026-11-06: "my narration is not very natural because I'm reading things"): one beat a
   page, the frame on top and the narration below, to look at and tell in their own words instead of reading:
   `video/scripts/long-02-storyboard.json` (the beats and their titles) → `scripts/narration-storyboard.py` → a PDF

@@ -23,10 +23,12 @@ const WATER = { line: "water" };
 // the author, 2026-11-05: close on the atomic diagonal, two arrows each, so gravity doesn't read as the black-hole line
 const ON_LINE = (m) => (m - 0.62) / 3;
 const force = (m, dir, color, label) => ({ arrow: true, solid: true, width: 4, color, label,
-  from: { r: ON_LINE(m) + dir * 3, m }, to: { r: ON_LINE(m) + dir * 0.2, m } });
+  from: { r: ON_LINE(m) + dir * 2.0, m }, to: { r: ON_LINE(m) + dir * 0.2, m } });
 // the arrows at any mass along the line: the camera pans up it while the forces are named (the author, 2026-11-07)
-const GRAV_AT = (m) => [force(m + 0.9, 1, "#ffab40"), force(m - 0.9, 1, "#ffab40"), { text: "gravity\npushes in", at: [ON_LINE(m) + 4.6, m], size: 26, color: "#ffab40" }];
-const EM_AT = (m) => [force(m + 0.9, -1, "#4fc3f7"), force(m - 0.9, -1, "#4fc3f7"), { text: "electromagnetism\npushes out", at: [ON_LINE(m) - 3.6, m], size: 26, color: "#4fc3f7" }];
+// (the labels sit 1.4 decades off the line, below the gravity arrows and above the electromagnetism ones: a phone frame
+// at this zoom is only 2.3 decades to each side, and at 4.6 off the line they fell outside it: the author, 2026-11-09)
+const GRAV_AT = (m) => [force(m + 0.9, 1, "#ffab40"), force(m - 0.9, 1, "#ffab40"), { text: "gravity\npushes in", at: [ON_LINE(m) + 1.5, m + 1.4], size: 26, color: "#ffab40" }];
+const EM_AT = (m) => [force(m + 0.9, -1, "#4fc3f7"), force(m - 0.9, -1, "#4fc3f7"), { text: "electromagnetism\npushes out", at: [ON_LINE(m) - 1.1, m + 3.6], size: 24, color: "#4fc3f7" }];
 const UP = (m, span = 4.6) => ({ r: ON_LINE(m), m, span, glide: true });   // a waypoint on the density line
 const still = (h) => ({ ...h, instant: true, draw: 0.01, delay: 0 });
 // the super-Jupiter column (as long video 1's)
@@ -245,15 +247,15 @@ export default {
     { at: "very big atomic", hl: [{ weak: { phase: "nucleus" }, instant: true }] },
     { at: "pure gravity", hl: [{ weak: { phase: "gravity" }, instant: true }] },
     { at: "any bigger", hl: [{ path: "stellar-to-bh" }, { line: "tov", label: "neutron star limit · ~2.2–2.3 Suns" }, { obj: "White Dwarf", label: false }, { obj: "PSR J0030+0451", label: false }, { obj: "Stellar BH", label: "black hole", delay: 0.3 }] },
-    { at: "collapse into a black hole", offset: 0.6, cam: { obj: "Stellar BH", span: 1.6 }, dur: 1 },
+    { at: "collapse into a black hole", offset: 0.6, cam: { obj: "Stellar BH", span: 1.6 }, dur: 1, hideIcons: ["PSR J0030+0451", "White Dwarf", "PSR J0437−4715"] },   // the neighbours would come along in the dive (the author, 2026-11-09: "shows a neutron star for no reason")
     { at: "collapse into a black hole", offset: 1.4, photo: "m87", obj: "Stellar BH", dive: { in: 1, out: 1 }, dur: 1.2, fadeIn: 0.6, fadeOut: 0.7,
       lens: { icon: [0.5, 0.5, 0.3], photo: [1800, 1800, 700], size: [3600, 3600], fill: "cover", hold: 0.2, fillDur: 1.2 },
       caption: "a black hole · M87* · Event Horizon Telescope · 2019" },
     // (Short only: the line the long cut skips)
-    { at: "deserves a video", offset: 1.3, cam: { obj: "Stellar BH", span: 8 }, dur: 2.5, ease: "gentle",
+    { at: "deserves a video", offset: 1.3, cam: { obj: "Stellar BH", span: 8 }, dur: 2.5, ease: "gentle", hideIcons: [],
       hl: [{ line: "schwarzschild" }, { obj: "Stellar BH", label: "next: black holes" }] },
     // (Long only: the bridge into the black holes)
-    { at: "closer look", cam: { obj: "Stellar BH", span: 5 }, dur: 3, ease: "gentle",
+    { at: "closer look", cam: { obj: "Stellar BH", span: 5 }, dur: 3, ease: "gentle", hideIcons: [],
       hl: [{ line: "schwarzschild", label: "black holes" }, { obj: "Stellar BH", label: false }] },
   ],
 };

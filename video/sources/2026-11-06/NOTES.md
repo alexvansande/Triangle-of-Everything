@@ -351,3 +351,32 @@ short) is cut; the author listens to confirm.
 opening with the axes opener: "Is Jupiter a failed star?" (1:30), "What makes a star a star?" (1:18, new: the fusion
 animation and the R136a1 dive), "How do stars die?" (1:34, re-sliced to end on "a planet full of life, like ours"), and
 "What's left when a star dies?" (1:08, new: the weak-force animation and the black hole). All queued with the long video.
+
+## 2026-11-09: the author's notes on the Shorts (watched on the phone), and what changed
+- **"The gravity and electromagnetism labels aren't showing up in the Short."** They sat 4.6 decades off the diagonal; a
+  phone frame at that zoom is only 2.3 decades to each side, so they were outside it (the 16:9 render had them). Now 1.1 to
+  1.5 decades off the line, above the arrows, and the arrows shorter, so both show on a phone.
+- **"The Sun is still salmon instead of a nice yellow and red-orange."** The G row of the palette went through the hue
+  stretch that makes the Sun's bright colour pinkish; the row is now fixed (like the brown dwarfs' rows) at a saturated
+  yellow bright and a red-orange deep, with the colour regions close to the Sun's own row so both patches read as yellow
+  and red-orange, not a K star's orange.
+- **"The black hole dive shows a neutron star for no reason."** The dive brings the pictures around the object along
+  (visual-rules §3) and the pulsar sat next to the black hole; the neighbours are hidden for the dive and shown again after.
+- **"The three animations need to be zoomed in more at each level; in the last one only a dozen protons."** Fusion: the
+  protons are about twice as big and the strong force's reach 1.7× (a closer view). The weak force: a dozen large protons
+  practically touching; the neutron's picture is the compact one, and at the pack the whole lattice claps together (0.5 s)
+  into the neutrons' discs touching.
+- **"The capture should look like a bubble merging: a guitar shape, two circles kissing, then hugging the nuclei into
+  one."** Both merges are now a soap-bubble outline (a metaball contour): the two reach circles stand alone until they come
+  within reach, then a neck forms and thickens into one circle round the pair. In fusion, the two yellow circles; in the
+  weak force, the proton's violet reach and the electron's own small bubble, which the big one swallows.
+- **"Four hydrogens to make one helium: is that because of the neutrons? Is that why it's easier with deuterium?"** Yes.
+  Helium-4 is two protons and two neutrons, so two of the four protons turn into neutrons along the way, each by the weak
+  force (p → n + e⁺ + ν). That is the slowest step in the Sun: two protons that touch only stay together if one converts
+  while they're in contact, so a proton in the Sun's core waits billions of years for it, which is why the Sun burns for ten
+  billion years instead of exploding. Deuterium already carries its neutron, so the weak step is skipped: deuterium plus a
+  proton makes helium-3 by the strong force alone, fast, at a tenth of the temperature. That's why a brown dwarf burns
+  deuterium but not hydrogen. A line for it, if re-recorded: *"deuterium comes with its neutron already, so it skips the
+  hard step."*
+- **The Shorts' transcripts are saved on their own** (`video/scripts/long-02-shorts-transcripts.md`) for recording them
+  separately.

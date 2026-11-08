@@ -52,6 +52,26 @@ const particle = (ctx, slug, x, y, d, alpha = 1, fallback = "#ff8a80", rot = 0, 
 };
 // a particle's own turn and size, from its key: steady, so it doesn't flicker between frames
 const spin = (k) => unit2(k, 7) * Math.PI * 2, sizeOf = (k) => 0.92 + 0.16 * unit2(k, 8);
+// the outline of circles merging like soap bubbles (the author, 2026-11-09: "once the two circles touch they should make
+// a sort of guitar shape, like two circles kissing, and then hug the nuclei into one"): a metaball contour, found along
+// rays from the circles' centroid; apart, each circle stands alone at its own radius, and as they come within reach a
+// neck forms and thickens until the two are one. Returns the points, or null if the circles are still separate.
+const BLOB_T = 1.6;
+function blobPath(circles, n = 120) {
+  const F = (x, y) => circles.reduce((s, c) => s + (c.r * c.r * BLOB_T) / Math.max(1e-6, (x - c.x) ** 2 + (y - c.y) ** 2), 0);
+  const W = circles.reduce((s, c) => s + c.r, 0), cx = circles.reduce((s, c) => s + c.x * c.r, 0) / W, cy = circles.reduce((s, c) => s + c.y * c.r, 0) / W;
+  if (F(cx, cy) < BLOB_T) return null;                   // not touching yet
+  const far = circles.reduce((m, c) => Math.max(m, Math.hypot(c.x - cx, c.y - cy) + c.r * 2), 0);
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const a = i / n * Math.PI * 2, ux = Math.cos(a), uy = Math.sin(a);
+    let lo = 0, hi = far;
+    for (let k = 0; k < 22; k++) { const mid = (lo + hi) / 2; if (F(cx + ux * mid, cy + uy * mid) >= BLOB_T) lo = mid; else hi = mid; }
+    pts.push([cx + ux * lo, cy + uy * lo]);
+  }
+  return pts;
+}
+const strokePath = (ctx, pts) => { ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); ctx.stroke(); };
 // a stable 0..1 from a pair of integers (for an atom's own offset, drift and timing)
 const unit2 = (k, j) => { let h = (k * 374761393 + j * 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
@@ -351,7 +371,7 @@ export function drawCrush(ctx, W, H, o, t) {
 export function drawFuse(ctx, W, H, o, t) {
   const TAU = Math.PI * 2, U = Math.min(W, H), cx = W / 2, cy = H / 2;
   const start = o.start ?? t, sqz = o.squeeze ?? start + 8, mrg = o.merge ?? sqz + 5, brs = o.burst ?? mrg + 5, psh = o.push ?? brs + 2.5;
-  const u = t - start, Y = U * 0.075;                                   // the strong force's reach
+  const u = t - start, Y = U * 0.13;                                    // the strong force's reach (a closer view: the author, 2026-11-09)
   const sq = t < sqz ? 0 : smooth((t - sqz) / Math.max(1.5, mrg - sqz - 0.3));
   const merged = t >= mrg, ma = merged ? t - mrg : 0, mf = smooth(ma / 0.9);
   const burst = t >= brs, ba = burst ? t - brs : 0;
@@ -371,7 +391,7 @@ export function drawFuse(ctx, W, H, o, t) {
   }
   const C = ps.find(a => a.c), P = ps.find(a => a.p);
   // merging: the pair closes to a tight pair inside one circle
-  if (C && P) { const d = P.x - C.x, close = d - Y * 0.75; C.x += mf * close * 0.5; P.x -= mf * close * 0.5; }
+  if (C && P) { const d = P.x - C.x, close = d - Y * 0.6; C.x += mf * close * 0.5; P.x -= mf * close * 0.5; }
   const dotted = (x, y, rad, a, w = U * 0.0055) => { ctx.globalAlpha = a; ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = w; ctx.setLineDash([U * 0.014, U * 0.011]); ctx.beginPath(); ctx.arc(x, y, rad, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; };
   // every proton has a faint reach; the centre's is bright, the partner's shows as it comes close
   for (const a of ps) {
@@ -380,14 +400,13 @@ export function drawFuse(ctx, W, H, o, t) {
     dotted(x, y, Y, 0.22, U * 0.003);
   }
   if (C && P) {
-    if (mf < 1) {
-      dotted(C.x, C.y, Y, 1 - mf);
-      dotted(P.x, P.y, Y, Math.max(0.25, sq) * (1 - mf));
-    }
-    if (merged) {   // one circle round the pair
-      const mx = (C.x + P.x) / 2; ctx.globalAlpha = mf; ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = U * 0.0065; ctx.setLineDash([U * 0.014, U * 0.011]);
-      ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = U * 0.02; ctx.beginPath(); ctx.arc(mx, C.y, Y * 1.05, 0, TAU); ctx.stroke(); ctx.shadowBlur = 0; ctx.setLineDash([]); ctx.globalAlpha = 1;
-    }
+    // the two reach circles: apart, two dotted circles; as they come within reach, one bubble outline with a neck
+    // that thickens until it's one circle round the pair (the author, 2026-11-09)
+    const blob = blobPath([{ x: C.x, y: C.y, r: Y }, { x: P.x, y: P.y, r: Y }]);
+    ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = U * 0.0065; ctx.setLineDash([U * 0.014, U * 0.011]);
+    if (blob) { ctx.globalAlpha = 1; ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = merged ? U * 0.02 : 0; strokePath(ctx, blob); ctx.shadowBlur = 0; }
+    else { dotted(C.x, C.y, Y, 1); dotted(P.x, P.y, Y, Math.max(0.25, sq)); }
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
     // the strong force: thick yellow arrows pulling in, only inside the circle
     const sa = (1 - mf) * smooth(u / 0.8);
     if (sa > 0) {
@@ -407,7 +426,7 @@ export function drawFuse(ctx, W, H, o, t) {
     text(ctx, (t >= (o.range ?? start + 3)) ? "strong force · very short range" : "strong force", C.x, C.y + Y + U * 0.09, U * 0.03, "#ffd54f"); ctx.globalAlpha = 1;
   }
   // the protons: the chart's proton picture, the pair a little bigger
-  for (const a of ps) particle(ctx, "proton", a.x + (merged || a.c || a.p ? 0 : jit(a.k, U * 0.004)), a.y, U * (a.c || a.p ? 0.054 : 0.046), 1, "#ff8a80", spin(a.k), sizeOf(a.k));   // medium
+  for (const a of ps) particle(ctx, "proton", a.x + (merged || a.c || a.p ? 0 : jit(a.k, U * 0.004)), a.y, U * (a.c || a.p ? 0.1 : 0.085), 1, "#ff8a80", spin(a.k), sizeOf(a.k));   // medium, a closer view
   // pressure: red arrows at the margins, from the squeeze on
   const ra = sq > 0 ? smooth((t - sqz) / 0.8) * (1 - smooth((ba - 1) / 1)) : 0, push = U * 0.015 * Math.sin(t * 5);
   if (ra > 0) {
@@ -448,10 +467,11 @@ export function drawFuse(ctx, W, H, o, t) {
 export function drawWeak(ctx, W, H, o, t) {
   const TAU = Math.PI * 2, U = Math.min(W, H), cx = W / 2, cy = H / 2;
   const start = o.start ?? t, weak = o.weak ?? start + 2, cap = o.capture ?? weak + 3, pack = o.pack ?? cap + 9, grav = o.gravity ?? pack + 6;
-  const u = t - start, D = U * 0.064;                                  // a nucleus's picture: large (the author's recap)
-  // practically touching already; at the pack cue the whole crowd snaps, suddenly, into a rigid lattice of neutrons
-  const packed = t < pack ? 0 : smooth((t - pack) / 0.7);
-  const L = D * (1.12 - 0.17 * packed), R = D * 0.6;                   // the spacing; the weak force's reach, just past the picture's edge
+  const u = t - start, D = U * 0.34;                                   // a nucleus's picture: large, only a dozen in the frame (the author, 2026-11-09)
+  // practically touching already; the neutron's picture is the compact one (no aberration), so at the pack cue the whole
+  // lattice claps together, suddenly, into the tight neutron packing
+  const packed = t < pack ? 0 : smooth((t - pack) / 0.5);
+  const DN = D * 0.78, L = D * 1.08 - (D * 1.08 - DN * 0.82) * packed, R = D * 0.47;   // packed: the neutrons' discs touching (their picture has a soft margin)   // the spacing; the weak force's reach, at the picture's edge
   const jit = (k, s) => Math.sin(t * (1.1 + k % 4 * 0.23) + k * 1.9) * s;
   const nuc = [], JM = Math.ceil(H / 2 / (L * 0.866)) + 2, IM = Math.ceil(W / 2 / L) + 2;
   for (let j = -JM; j <= JM; j++) for (let i = -IM; i <= IM; i++) {
@@ -460,45 +480,53 @@ export function drawWeak(ctx, W, H, o, t) {
     const k = (i + 40) * 97 + (j + 40), u1 = unit2(k, 1), u2 = unit2(k, 2), u3 = unit2(k, 3);
     // a little off its point until the snap (a crowd, not yet a crystal); its electron is captured at its own
     // moment, staggered over four seconds from the capture cue; a few per cent keep their proton ("mostly neutrons")
-    const amp = L * 0.1 * (1 - packed) * (0.3 + u3), ang = u2 * TAU + 0.3 * Math.sin(t * 0.3 + k);
-    nuc.push({ x: x + amp * Math.cos(ang), y: y + amp * Math.sin(ang), k, c: i === 0 && j === 0, tc: cap + 0.3 + u1 * 4, keep: u2 < 0.05 && !(i === 0 && j === 0), ang: unit2(k, 4) * TAU });
+    const amp = L * 0.06 * (1 - packed) * (0.3 + u3), ang = u2 * TAU + 0.3 * Math.sin(t * 0.3 + k);
+    nuc.push({ x: x + amp * Math.cos(ang), y: y + amp * Math.sin(ang), k, c: i === 0 && j === 0, tc: cap + 0.3 + u1 * 3.5, keep: u2 < 0.07 && !(i === 0 && j === 0), ang: unit2(k, 4) * TAU });
   }
   // the pressure, from the margins; the label turns to gravity at the end
   const push = U * 0.015 * Math.sin(t * 5), ra = smooth(u / 0.8);
   ctx.globalAlpha = ra;
   for (let i = 0; i < 8; i++) edgeArrow(ctx, W, H, i * TAU / 8 + TAU / 16, U * 0.11, U * 0.03, "#ff6b5e", U * 0.009, push);
   text(ctx, t >= grav ? "gravity" : "pressure", cx, H * 0.16, U * 0.034, "#ff8a80"); ctx.globalAlpha = 1;
-  // the weak force's reach: a tiny dotted violet circle round each proton, from the "weak" cue
+  // where each nucleus's electron is: roaming round it in the sea, then, in its last 0.7 s, pushed straight in
+  const epos = (n) => {
+    const ex = n.x + Math.sin(t * 1.6 + n.k) * L * 0.46, ey = n.y + Math.cos(t * 1.2 + n.k * 0.7) * L * 0.46;
+    if (n.keep || t >= n.tc) return [ex, ey, 0];
+    const g = smooth((t - (n.tc - 0.7)) / 0.7);
+    return [ex + (n.x - ex) * g, ey + (n.y - ey) * g, g];
+  };
+  // the weak force's reach: a dotted violet circle round each proton, from the "weak" cue; as its electron comes in,
+  // the circle and the electron's own bubble touch, kiss and merge into one (the bubble outline), then the circle goes
   const wa = t < weak ? 0 : smooth((t - weak) / 0.8);
   for (const n of nuc) {
     const done = !n.keep && t >= n.tc;
     if (wa > 0 && !done) {
-      const a = wa * (n.c ? 1 : 0.45) * (n.keep ? 1 : 1 - smooth((t - n.tc + 0.3) / 0.3));
-      ctx.globalAlpha = a; ctx.strokeStyle = "#b388ff"; ctx.lineWidth = U * (n.c ? 0.005 : 0.003); ctx.setLineDash([U * 0.008, U * 0.007]);
-      ctx.beginPath(); ctx.arc(n.x, n.y, R, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+      const a = wa * (n.c ? 1 : 0.6) * (n.keep ? 1 : 1 - smooth((t - n.tc + 0.15) / 0.15));
+      ctx.globalAlpha = a; ctx.strokeStyle = "#b388ff"; ctx.lineWidth = U * (n.c ? 0.006 : 0.004); ctx.setLineDash([U * 0.012, U * 0.01]);
+      const [ex, ey, g] = epos(n);
+      const blob = g > 0 ? blobPath([{ x: n.x, y: n.y, r: R }, { x: ex, y: ey, r: R * 0.32 }]) : null;
+      if (blob) strokePath(ctx, blob);
+      else { ctx.beginPath(); ctx.arc(n.x, n.y, R, 0, TAU); ctx.stroke(); if (g > 0) { ctx.beginPath(); ctx.arc(ex, ey, R * 0.32, 0, TAU); ctx.stroke(); } }
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
     }
   }
-  // the nuclei: a proton until its moment, then a neutron (a cross-fade), with a flash at the change
+  // the nuclei: a proton until its moment, then a neutron (a cross-fade; the neutron's picture is the compact one),
+  // with a flash at the change
   for (const n of nuc) {
-    const d = D * (n.c ? 1.25 : 1), x = n.x + (packed > 0.9 ? 0 : jit(n.k, U * 0.003)), y = n.y;
-    if (n.keep || t < n.tc) particle(ctx, "proton", x, y, d, 1, "#ff8a80", spin(n.k), sizeOf(n.k));
+    const x = n.x + (packed > 0.9 ? 0 : jit(n.k, U * 0.003)), y = n.y;
+    if (n.keep || t < n.tc) particle(ctx, "proton", x, y, D, 1, "#ff8a80", spin(n.k), sizeOf(n.k));
     else {
       const f = smooth((t - n.tc) / 0.4);
-      if (f < 1) particle(ctx, "proton", x, y, d, 1 - f, "#ff8a80", spin(n.k), sizeOf(n.k));
-      particle(ctx, "neutron", x, y, d, f, "#e0e0e0", spin(n.k + 1), sizeOf(n.k));
+      if (f < 1) particle(ctx, "proton", x, y, D, 1 - f, "#ff8a80", spin(n.k), sizeOf(n.k));
+      particle(ctx, "neutron", x, y, DN, f, "#e0e0e0", spin(n.k + 1), sizeOf(n.k));
       if (t - n.tc < 0.5) { const q = (t - n.tc) / 0.5; ctx.globalAlpha = (1 - q) * 0.9; ctx.strokeStyle = "#f3e5f5"; ctx.lineWidth = U * 0.004; ctx.beginPath(); ctx.arc(x, y, R * (1 + 1.6 * q), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
     }
   }
   // the electrons: one a nucleus, roaming round it in the sea, then pushed straight into it at its moment
   for (const n of nuc) {
-    if (n.keep) {   // its electron stays in the sea
-      particle(ctx, "electron", n.x + Math.sin(t * 1.6 + n.k) * L * 0.42, n.y + Math.cos(t * 1.2 + n.k * 0.7) * L * 0.42, U * 0.016, 0.95, "#b3e5fc", spin(n.k) + t * 0.8);
-      continue;
-    }
-    if (t >= n.tc) continue;
-    const ex = n.x + Math.sin(t * 1.6 + n.k) * L * 0.42, ey = n.y + Math.cos(t * 1.2 + n.k * 0.7) * L * 0.42;
-    const g = smooth((t - (n.tc - 0.7)) / 0.7);              // the last 0.7 s: straight in
-    particle(ctx, "electron", ex + (n.x - ex) * g, ey + (n.y - ey) * g, U * 0.016, 0.95, "#b3e5fc", spin(n.k) + t * 0.8);
+    if (!n.keep && t >= n.tc) continue;
+    const [ex, ey] = epos(n);
+    particle(ctx, "electron", ex, ey, D * 0.22, 0.95, "#b3e5fc", spin(n.k) + t * 0.8);
   }
   // the neutrinos: a shower, three from each change, faint fast ghosts on straight lines through everything
   ctx.strokeStyle = "#e0f7fa"; ctx.fillStyle = "#ffffff"; ctx.lineWidth = U * 0.0025;
@@ -507,7 +535,7 @@ export function drawWeak(ctx, W, H, o, t) {
     for (let q = 0; q < 3; q++) {
       const age = t - n.tc - q * 0.12, v = U * (0.75 + 0.2 * q), r = v * age, fade = age < 0 ? 0 : 1 - smooth((age - 1.8) / 0.8);
       if (fade <= 0) continue;
-      const ang = n.ang + q * 2.094, hx = n.x + r * Math.cos(ang), hy = n.y + r * Math.sin(ang), tl = Math.min(r, U * 0.14);
+      const ang = n.ang + q * 2.094, hx = n.x + r * Math.cos(ang), hy = n.y + r * Math.sin(ang), tl = Math.min(r, U * 0.18);
       ctx.globalAlpha = fade * 0.5; ctx.beginPath(); ctx.moveTo(hx - tl * Math.cos(ang), hy - tl * Math.sin(ang)); ctx.lineTo(hx, hy); ctx.stroke();
       ctx.globalAlpha = fade * 0.9; ctx.beginPath(); ctx.arc(hx, hy, U * 0.0035, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
     }
