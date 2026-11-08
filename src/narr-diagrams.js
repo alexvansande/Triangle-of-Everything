@@ -304,7 +304,7 @@ export function drawCrush(ctx, W, H, o, t) {
     ctx.globalAlpha = 1;
   }
   // the nuclei: the chart's proton (hydrogen's nucleus is one), the centre one a little bigger
-  for (const a of atoms) particle(ctx, "proton", a.x, a.y, U * (a.c ? 0.046 : 0.036));
+  for (const a of atoms) particle(ctx, "proton", a.x, a.y, U * (a.c ? 0.04 : 0.03));   // small (the author's recap: the protons grow from one animation to the next)
   // the electrons: three a shell, flying out at the pop, then roaming between the nuclei
   if (popped) {
     for (const a of atoms) for (let e = 0; e < 3; e++) {
@@ -353,11 +353,15 @@ export function drawFuse(ctx, W, H, o, t) {
   const L0 = Y * 2.6, L = (L0 - sq * (L0 - Y * 2.02)) * (1 + 0.45 * spread);
   const jit = (k, s) => Math.sin(t * (1.1 + k % 4 * 0.23) + k * 1.9) * s;
   // the protons on a loose lattice; the partner is the one to the right of the centre
+  // a loose crowd with patches of order, not a rigid lattice (the author's recap, 2026-11-08): each proton off its
+  // point by its own amount, a third of them nearly on it; the pair in the middle sits on its points
   const ps = [], JM = Math.ceil(H / 2 / (L * 0.866)) + 2, IM = Math.ceil(W / 2 / L) + 2;
   for (let j = -JM; j <= JM; j++) for (let i = -IM; i <= IM; i++) {
-    const x = cx + (i + (j & 1 ? 0.5 : 0)) * L, y = cy + j * L * 0.866;
+    const k = (i + 40) * 97 + (j + 40), pair = (i === 0 || i === 1) && j === 0, u1 = unit2(k, 1), u2 = unit2(k, 2), u3 = unit2(k, 3);
+    const amp = pair ? 0 : L * 0.22 * (u2 < 0.35 ? 0.1 : 0.4 + 0.6 * u3), ang = u1 * TAU + 0.3 * Math.sin(t * 0.3 + k);
+    const x = cx + (i + (j & 1 ? 0.5 : 0)) * L + amp * Math.cos(ang), y = cy + j * L * 0.866 + amp * Math.sin(ang);
     if (x < -Y || x > W + Y || y < -Y || y > H + Y) continue;
-    ps.push({ x, y, k: (i + 40) * 97 + (j + 40), c: i === 0 && j === 0, p: i === 1 && j === 0 });
+    ps.push({ x, y, k, c: i === 0 && j === 0, p: i === 1 && j === 0 });
   }
   const C = ps.find(a => a.c), P = ps.find(a => a.p);
   // merging: the pair closes to a tight pair inside one circle
@@ -397,7 +401,7 @@ export function drawFuse(ctx, W, H, o, t) {
     text(ctx, (t >= (o.range ?? start + 3)) ? "strong force · very short range" : "strong force", C.x, C.y + Y + U * 0.09, U * 0.03, "#ffd54f"); ctx.globalAlpha = 1;
   }
   // the protons: the chart's proton picture, the pair a little bigger
-  for (const a of ps) particle(ctx, "proton", a.x + (merged || a.c || a.p ? 0 : jit(a.k, U * 0.004)), a.y, U * (a.c || a.p ? 0.042 : 0.034));
+  for (const a of ps) particle(ctx, "proton", a.x + (merged || a.c || a.p ? 0 : jit(a.k, U * 0.004)), a.y, U * (a.c || a.p ? 0.054 : 0.046));   // medium
   // pressure: red arrows at the margins, from the squeeze on
   const ra = sq > 0 ? smooth((t - sqz) / 0.8) * (1 - smooth((ba - 1) / 1)) : 0, push = U * 0.015 * Math.sin(t * 5);
   if (ra > 0) {
@@ -438,18 +442,20 @@ export function drawFuse(ctx, W, H, o, t) {
 export function drawWeak(ctx, W, H, o, t) {
   const TAU = Math.PI * 2, U = Math.min(W, H), cx = W / 2, cy = H / 2;
   const start = o.start ?? t, weak = o.weak ?? start + 2, cap = o.capture ?? weak + 3, pack = o.pack ?? cap + 9, grav = o.gravity ?? pack + 6;
-  const u = t - start, D = U * 0.04;                                   // a nucleus's picture
-  const packed = t < pack ? 0 : smooth((t - pack) / 2.6);
-  const L = D * (1.55 - 0.6 * packed), R = D * 0.55;                   // the spacing; the weak force's reach
+  const u = t - start, D = U * 0.064;                                  // a nucleus's picture: large (the author's recap)
+  // practically touching already; at the pack cue the whole crowd snaps, suddenly, into a rigid lattice of neutrons
+  const packed = t < pack ? 0 : smooth((t - pack) / 0.7);
+  const L = D * (1.12 - 0.17 * packed), R = D * 0.6;                   // the spacing; the weak force's reach, just past the picture's edge
   const jit = (k, s) => Math.sin(t * (1.1 + k % 4 * 0.23) + k * 1.9) * s;
   const nuc = [], JM = Math.ceil(H / 2 / (L * 0.866)) + 2, IM = Math.ceil(W / 2 / L) + 2;
   for (let j = -JM; j <= JM; j++) for (let i = -IM; i <= IM; i++) {
     const x = cx + (i + (j & 1 ? 0.5 : 0)) * L, y = cy + j * L * 0.866;
     if (x < -D || x > W + D || y < -D || y > H + D) continue;
-    const k = (i + 40) * 97 + (j + 40), u1 = unit2(k, 1), u2 = unit2(k, 2);
-    // this nucleus's electron is captured at its own moment, staggered over six seconds from the capture cue; a
-    // few per cent keep their proton ("mostly neutrons")
-    nuc.push({ x, y, k, c: i === 0 && j === 0, tc: cap + 0.4 + u1 * 6, keep: u2 < 0.06 && !(i === 0 && j === 0), ang: unit2(k, 4) * TAU });
+    const k = (i + 40) * 97 + (j + 40), u1 = unit2(k, 1), u2 = unit2(k, 2), u3 = unit2(k, 3);
+    // a little off its point until the snap (a crowd, not yet a crystal); its electron is captured at its own
+    // moment, staggered over four seconds from the capture cue; a few per cent keep their proton ("mostly neutrons")
+    const amp = L * 0.1 * (1 - packed) * (0.3 + u3), ang = u2 * TAU + 0.3 * Math.sin(t * 0.3 + k);
+    nuc.push({ x: x + amp * Math.cos(ang), y: y + amp * Math.sin(ang), k, c: i === 0 && j === 0, tc: cap + 0.3 + u1 * 4, keep: u2 < 0.05 && !(i === 0 && j === 0), ang: unit2(k, 4) * TAU });
   }
   // the pressure, from the margins; the label turns to gravity at the end
   const push = U * 0.015 * Math.sin(t * 5), ra = smooth(u / 0.8);
@@ -488,15 +494,17 @@ export function drawWeak(ctx, W, H, o, t) {
     const g = smooth((t - (n.tc - 0.7)) / 0.7);              // the last 0.7 s: straight in
     particle(ctx, "electron", ex + (n.x - ex) * g, ey + (n.y - ey) * g, U * 0.016, 0.95, "#b3e5fc");
   }
-  // the neutrinos: one from each change, a faint fast ghost on a straight line through everything
+  // the neutrinos: a shower, three from each change, faint fast ghosts on straight lines through everything
   ctx.strokeStyle = "#e0f7fa"; ctx.fillStyle = "#ffffff"; ctx.lineWidth = U * 0.0025;
   for (const n of nuc) {
     if (n.keep || t < n.tc) continue;
-    const age = t - n.tc, v = U * 0.75, r = v * age, fade = 1 - smooth((age - 1.6) / 0.8);
-    if (fade <= 0) continue;
-    const hx = n.x + r * Math.cos(n.ang), hy = n.y + r * Math.sin(n.ang), tl = Math.min(r, U * 0.12);
-    ctx.globalAlpha = fade * 0.5; ctx.beginPath(); ctx.moveTo(hx - tl * Math.cos(n.ang), hy - tl * Math.sin(n.ang)); ctx.lineTo(hx, hy); ctx.stroke();
-    ctx.globalAlpha = fade * 0.9; ctx.beginPath(); ctx.arc(hx, hy, U * 0.0035, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+    for (let q = 0; q < 3; q++) {
+      const age = t - n.tc - q * 0.12, v = U * (0.75 + 0.2 * q), r = v * age, fade = age < 0 ? 0 : 1 - smooth((age - 1.8) / 0.8);
+      if (fade <= 0) continue;
+      const ang = n.ang + q * 2.094, hx = n.x + r * Math.cos(ang), hy = n.y + r * Math.sin(ang), tl = Math.min(r, U * 0.14);
+      ctx.globalAlpha = fade * 0.5; ctx.beginPath(); ctx.moveTo(hx - tl * Math.cos(ang), hy - tl * Math.sin(ang)); ctx.lineTo(hx, hy); ctx.stroke();
+      ctx.globalAlpha = fade * 0.9; ctx.beginPath(); ctx.arc(hx, hy, U * 0.0035, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+    }
   }
   // the words
   const label = (s, from, col = "#ffe9a3") => { const f = smooth((t - from) / 0.6); if (f > 0) { ctx.globalAlpha = f; text(ctx, s, cx, H * 0.78, U * 0.034, col); ctx.globalAlpha = 1; } };

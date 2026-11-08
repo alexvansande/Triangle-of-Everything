@@ -1,12 +1,12 @@
 {
   "title": "How do stars die?",
-  "blurb": "The truce breaks, red giant, iron, the star split in two, the cycle of nebulae and nurseries, and the cores left behind: white dwarf, neutron star, black hole.",
+  "blurb": "The truce breaks: a red giant, iron, the star split in two, and the cycle of nebulae and nurseries to a new star and a planet like ours.",
   "lead": 2.5,
   "segments": [
     {
       "take": "long-02-intro",
       "from": "but that equilibrium is kept",
-      "to": "deserves a video of its own"
+      "to": "planet full of life, like ours"
     }
   ]
 }

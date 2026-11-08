@@ -1,0 +1,12 @@
+{
+  "title": "What makes a star a star?",
+  "blurb": "Add a little more mass and a new force comes into play: the strong force, hydrogen into helium, the main sequence, and the cap where a star's own light blows its layers away.",
+  "lead": 2.5,
+  "segments": [
+    {
+      "take": "long-02-intro",
+      "from": "add a little bit more mass",
+      "to": "largest stars we know"
+    }
+  ]
+}

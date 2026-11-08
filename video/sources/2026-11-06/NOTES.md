@@ -334,3 +334,20 @@ onto the black-hole line. Sound: ignite at "something magical happens", the hear
 - **R136a1 last in the Star Forge's list**: a star's pattern seed is its place in the list, so inserting it mid-list had
   shifted the blue supergiant's, Sirius B's, the Wolf-Rayet's and the pulsar's patterns; at the end, they're as they were.
   Its icon is re-rendered with its final seed.
+
+## 2026-11-08: the recap of the three animations, and the four Shorts for the week
+The author's recap of the gravity-wins animations, applied:
+1. **Gravity wins over the electric repulsion**: small protons, large blue circles, the atoms in a chaotic arrangement,
+   then the sea of electrons (as built).
+2. **Gravity puts the protons within reach of the strong force**: medium protons, the smaller yellow circle; two circles
+   touch and join and the atoms fuse; the crowd has patches of hexagonal order but is not a rigid lattice (each proton a
+   little off its point, a third of them nearly on it); the explosion of photons.
+3. **Gravity merges the protons**: large protons practically touching; at the pack they transform, suddenly (0.7 s), into
+   a tight rigid lattice of neutrons, with a shower of neutrinos (three from each change).
+The "hu-hum" at 6:30 is a *pigarro* (a throat-clear), not a cough: voiced, so the scan for unvoiced bursts could not have
+found it. The doubled "The, the outer layers" at that spot (6:27 in the cut the author watched, both sounds voiced and
+short) is cut; the author listens to confirm.
+**The Shorts for next week** (the author: "add the long and the four shorts to tonight's render queue"), carved from the
+opening with the axes opener: "Is Jupiter a failed star?" (1:30), "What makes a star a star?" (1:18, new: the fusion
+animation and the R136a1 dive), "How do stars die?" (1:34, re-sliced to end on "a planet full of life, like ours"), and
+"What's left when a star dies?" (1:08, new: the weak-force animation and the black hole). All queued with the long video.

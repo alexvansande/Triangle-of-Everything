@@ -61,3 +61,7 @@ long-02-space
 # away, the doubled "will" cut (new audio: whole), the planet's label, a calmer hand-over into the black holes
 # 2026-11-07, evening: the weak-force animation (7:17-7:58 in long-02-space, the same stretch in short-l2-how-stars-die), the
 # proton picture in all three animations, the crushed atoms a liquid first; the long video and its Shorts are queued whole already
+# 2026-11-08 (the author): tonight, the long video and its four Shorts from the first eight minutes, two of them new
+# (what makes a star a star; what's left when a star dies) and "how do stars die" re-sliced to end on the planet
+short-l2-what-makes-a-star
+short-l2-whats-left
