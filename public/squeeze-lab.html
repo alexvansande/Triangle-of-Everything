@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Squeeze Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700&display=swap">
+<style>
+/* Squeeze Lab: a bench for the three particle transformations of the "dance of the forces" videos.
+   The picture is lines on black, so the page commits to one dark look (same bench as the Atom Lab).
+   Stage on the left, the instrument's controls in a rail on the right; the rail drops below the
+   stage on a phone. */
+:root {
+  --bg: #06080c;          /* the bench */
+  --panel: #0c1017;       /* control rail */
+  --line: #1a2130;
+  --fg: #dce4ef;
+  --muted: #7b879a;
+  --accent: #46dcff;      /* the electron's blue */
+  --shell: #4fa3ff;       /* mode 1: electron shells */
+  --nucleus: #ff3b30;     /* every nucleus */
+  --fuse: #ffd54a;        /* mode 2: the strong force's reach */
+  --grey: #8a8f99;        /* mode 3: a neutron */
+  --display: "Syne", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.45 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: 100%; }
+.stage {
+  display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; overflow: hidden;
+  padding-block: 14px 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: 14px;
+}
+header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+h1 { font: 700 21px/1 var(--display); letter-spacing: 0.02em; margin: 0; }
+h1 span { color: var(--accent); }
+.tag { color: var(--muted); font-size: 12px; }
+.bar { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.seg { display: flex; gap: 4px; flex-wrap: wrap; }
+.seg button, .bar > button, .rail button {
+  font: 500 13px var(--body); color: var(--muted); background: transparent;
+  border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer;
+}
+.seg button:hover, .bar > button:hover, .rail button:hover { color: var(--fg); border-color: #2b3546; }
+.seg button[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.seg[data-k="mode"] button[aria-pressed="true"]:nth-child(1) { background: var(--shell); border-color: var(--shell); }
+.seg[data-k="mode"] button[aria-pressed="true"]:nth-child(2) { background: var(--fuse); border-color: var(--fuse); }
+.seg[data-k="mode"] button[aria-pressed="true"]:nth-child(3) { background: var(--nucleus); border-color: var(--nucleus); color: #fff; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.view { position: relative; flex: 1; min-height: 0; min-width: 0; display: grid; place-items: center; container-type: size; }
+/* the screen: the largest 9:16 or 16:9 that fits the space */
+.screen { position: relative; max-width: 100%; max-height: 100%; }
+.screen[data-o="v"] { height: min(100cqh, 100cqw * 16 / 9); aspect-ratio: 9 / 16; }
+.screen[data-o="h"] { width: min(100cqw, 100cqh * 16 / 9); aspect-ratio: 16 / 9; }
+.screen canvas { width: 100%; height: 100%; display: block; background: #000; border-radius: 3px; }
+.hud {
+  position: absolute; left: 8px; top: 8px; font: 11px/1.5 var(--mono); color: var(--muted); pointer-events: none;
+  font-variant-numeric: tabular-nums; white-space: pre; text-shadow: 0 0 4px #000;
+}
+.hud b { color: var(--fg); font-weight: 500; }
+.rail {
+  background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; min-height: 0;
+  padding-block: 14px 24px; padding-left: 14px; padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 4px;
+}
+.rail h2 {
+  font: 600 11px var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+  margin: 14px 0 4px; display: flex; justify-content: space-between; align-items: baseline;
+}
+.rail h2:first-child { margin-top: 0; }
+.rail h2 small { font: 11px var(--mono); letter-spacing: 0; text-transform: none; color: var(--muted); opacity: 0.8; }
+.ctl { display: grid; grid-template-columns: 1fr auto; gap: 0 10px; align-items: center; padding: 3px 0; }
+.ctl label { font-size: 13px; color: var(--fg); }
+.ctl .v { font: 12px var(--mono); color: var(--accent); font-variant-numeric: tabular-nums; text-align: right; min-width: 7ch; }
+.ctl input[type=range] { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--accent); height: 20px; }
+.ctl.bool { grid-template-columns: auto 1fr; }
+.ctl.bool input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+.ctl .note { grid-column: 1 / -1; font-size: 11.5px; color: var(--muted); line-height: 1.35; margin-top: -2px; }
+.row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+textarea {
+  width: 100%; box-sizing: border-box; min-height: 110px; background: #070a0f; color: var(--fg); border: 1px solid var(--line);
+  border-radius: 6px; font: 11px/1.4 var(--mono); padding: 8px; resize: vertical; margin-top: 6px;
+}
+.hint { font-size: 12px; color: var(--muted); line-height: 1.45; margin: 4px 0 0; }
+.mode-note { font-size: 12.5px; color: var(--muted); line-height: 1.45; margin: 0; }
+.mode-note b { color: var(--fg); font-weight: 500; }
+@media (max-width: 820px) {
+  html, body { height: auto; }
+  .app { grid-template-columns: 1fr; height: auto; }
+  .stage { padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .view { height: min(78vh, 720px); }
+  .rail { border-left: 0; border-top: 1px solid var(--line); padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) { .seg button, .rail button { transition: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="stage">
+    <header>
+      <h1>Squeeze <span>Lab</span></h1>
+      <span class="tag">circles in a shrinking box · what happens when they can't escape</span>
+    </header>
+    <div class="bar">
+      <div class="seg" data-k="mode" role="group" aria-label="Regime">
+        <button type="button" data-v="1">1 · Atoms pop</button>
+        <button type="button" data-v="2">2 · Nuclei fuse</button>
+        <button type="button" data-v="3">3 · Protons break</button>
+      </div>
+      <div class="seg" data-k="orient" role="group" aria-label="Screen">
+        <button type="button" data-v="v">Vertical</button>
+        <button type="button" data-v="h">Horizontal</button>
+      </div>
+      <div class="seg" data-k="view" role="group" aria-label="View">
+        <button type="button" data-v="screen">Screen</button>
+        <button type="button" data-v="box">Whole box</button>
+      </div>
+      <button type="button" id="play">Pause</button>
+      <button type="button" id="restart">Restart</button>
+    </div>
+    <p class="mode-note" id="modeNote"></p>
+    <div class="view">
+      <div class="screen" id="screen" data-o="v">
+        <canvas id="c"></canvas>
+        <div class="hud" id="hud"></div>
+      </div>
+    </div>
+  </section>
+  <aside class="rail" id="rail"></aside>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+// ---------- world ----------
+// World units: the screen's short side is 1080, its long side 1920 (a phone's frame or a landscape one). The box is a
+// square centred on the screen, larger than it, shrinking over time. Everything is simulated inside the box; the
+// screen shows its middle.
+const SHORT = 1080, LONG = 1920;
+const DT = 1 / 120;                 // physics step (two a frame at 60 fps, more when slowed down)
+
+// ---------- parameters ----------
+// The base, then each regime's overrides. Every number is a slider in the rail.
+const BASE = {
+  count: 100, radius: 100, sizeSpread: 0.1, nucleus: 0.1, segments: 28,
+  startBox: 2.2, endBox: 1.0, shrinkTime: 40, gravity: 0, initSpeed: 60, jitter: 0,
+  repel: 1, range: 1, stiffness: 1, tension: 1, pressure: 1, contact: 1, damping: 1, drift: 0.3,
+  threshold: 0.3, spread: 0.2, electrons: 8, electronSpeed: 900, electronPush: 0.01, bareSpacing: 1,
+  fuseAt: 0.6, maxNuclei: 4, hugRate: 1, nucleiPull: 2, chargeScaling: true,
+  softness: 0.6, greyAttract: 0,
+  lineWidth: 3, glow: 1, fill: 0.06, trail: 1, hud: true, walls: true,
+};
+const MODE_DEFAULTS = {
+  1: { nucleus: 0.10, count: 150, sizeSpread: 0.12, repel: 0.6, range: 0.8, stiffness: 0.5, pressure: 0.5, damping: 0.8, threshold: 0.2, spread: 0.2 },
+  2: { nucleus: 0.50, count: 60, radius: 120, sizeSpread: 0.08, repel: 2, range: 1.2, stiffness: 6, pressure: 6, damping: 2, shrinkTime: 50 },
+  3: { nucleus: 0.90, count: 100, radius: 100, sizeSpread: 0.1, repel: 0.4, range: 0.6, stiffness: 4, pressure: 4, damping: 2, threshold: 0.06, spread: 0.3 },
+};
+const MODE_NOTE = {
+  1: "<b>Degenerate matter.</b> Blue electron shells round a small red nucleus (10%). They repel; squeezed past the threshold a shell pops into free electrons that fly off and ricochet. The bare nuclei stay, closer than before.",
+  2: "<b>Fusion.</b> Yellow is the strong force's reach round a red nucleus (50%). A hard shell and a strong push between them; when two yellows touch they become one, the ring finds its new centre and the nuclei pull together.",
+  3: "<b>Neutrons.</b> A red ring filled by a proton (90%). Stiff and repelling; squeezed past the threshold it breaks: the disc turns grey, the push switches off, and it lets itself be packed with the others.",
+};
+
+// The rail: groups and sliders. `modes` limits a control to some regimes; `restart` rebuilds the crowd on change.
+const SCHEMA = [
+  { group: "Crowd" },
+  { key: "count", label: "Circles", min: 4, max: 240, step: 1, restart: true },
+  { key: "radius", label: "Radius", min: 20, max: 260, step: 2, unit: "u", restart: true, note: "world units; the screen is 1080 × 1920" },
+  { key: "sizeSpread", label: "Size spread", min: 0, max: 0.5, step: 0.01, fmt: v => "±" + Math.round(v * 100) + "%", restart: true, note: "a crowd of one size freezes into a crystal; some spread keeps it a liquid" },
+  { key: "nucleus", label: "Nucleus size", min: 0.04, max: 0.96, step: 0.01, fmt: v => Math.round(v * 100) + "%" },
+  { key: "segments", label: "Ring segments", min: 10, max: 64, step: 2, restart: true },
+  { key: "initSpeed", label: "Starting speed", min: 0, max: 600, step: 5, unit: "u/s", restart: true },
+  { key: "jitter", label: "Jitter (heat)", min: 0, max: 3000, step: 25 },
+  { group: "Box" },
+  { key: "startBox", label: "Box at start", min: 1, max: 4, step: 0.05, fmt: v => v.toFixed(2) + "× screen", restart: true },
+  { key: "endBox", label: "Box at end", min: 0.4, max: 3, step: 0.05, fmt: v => v.toFixed(2) + "× screen" },
+  { key: "shrinkTime", label: "Shrink over", min: 2, max: 180, step: 1, unit: "s" },
+  { key: "gravity", label: "Pull to the centre", min: 0, max: 6, step: 0.05, note: "0 = the walls alone do the squeezing (the pressure is then highest at the walls); a pull makes the middle the tightest, like a star" },
+  { group: "Forces" },
+  { key: "repel", label: "Repulsion", min: 0, max: 6, step: 0.05, note: "between centres, 1/d², from each circle's edge" },
+  { key: "range", label: "Reach", min: 0.2, max: 8, step: 0.1, fmt: v => v.toFixed(1) + " R", note: "repulsion fades over this many radii of gap" },
+  { key: "stiffness", label: "Ring stiffness", min: 0, max: 8, step: 0.05, note: "how hard each point holds its distance from the centre" },
+  { key: "tension", label: "Ring tension", min: 0, max: 6, step: 0.05 },
+  { key: "pressure", label: "Inner pressure", min: 0, max: 8, step: 0.05, note: "pushes the ring back out when its area shrinks (the bubble)" },
+  { key: "contact", label: "Contact hardness", min: 0.1, max: 6, step: 0.05 },
+  { key: "damping", label: "Wobble damping", min: 0, max: 6, step: 0.05 },
+  { key: "drift", label: "Drift damping", min: 0, max: 2, step: 0.01, note: "slows the circles' travel; 0 keeps them floating" },
+  { group: "Pop", modes: [1] },
+  { key: "threshold", label: "Pop at squeeze", min: 0.02, max: 0.9, step: 0.01, fmt: v => Math.round(v * 100) + "% area lost", modes: [1] },
+  { key: "spread", label: "Threshold spread", min: 0, max: 0.9, step: 0.05, fmt: v => "±" + Math.round(v * 100) + "%", modes: [1], note: "each circle's own threshold varies this much, so they don't all go at once" },
+  { key: "electrons", label: "Electrons per atom", min: 1, max: 30, step: 1, modes: [1] },
+  { key: "electronSpeed", label: "Electron speed", min: 50, max: 3000, step: 25, unit: "u/s", modes: [1] },
+  { key: "electronPush", label: "Electron push", min: 0, max: 0.2, step: 0.005, modes: [1], note: "how hard a bouncing electron kicks a shell it hits (the degenerate pressure)" },
+  { key: "bareSpacing", label: "Bare nuclei spacing", min: 0.1, max: 3, step: 0.05, fmt: v => v.toFixed(2) + " R", modes: [1], note: "how far apart the bare nuclei settle" },
+  { group: "Fusion", modes: [2] },
+  { key: "fuseAt", label: "Fuse when pressed", min: 0.1, max: 0.95, step: 0.01, fmt: v => Math.round(v * 100) + "% of contact", modes: [2], note: "how deep two rings must press into each other's contact zone before they join" },
+  { key: "maxNuclei", label: "Nuclei per blob, at most", min: 2, max: 13, step: 1, fmt: v => v >= 13 ? "no limit" : String(v), modes: [2], note: "4 is helium: a joined blob at the limit won't take more" },
+  { key: "hugRate", label: "Hug speed", min: 0.05, max: 6, step: 0.05, modes: [2], note: "how fast the joined ring rounds itself off" },
+  { key: "nucleiPull", label: "Nuclei pull", min: 0, max: 6, step: 0.05, modes: [2] },
+  { key: "chargeScaling", label: "Bigger nuclei push harder", type: "bool", modes: [2] },
+  { group: "Break", modes: [3] },
+  { key: "threshold", label: "Break at squeeze", min: 0.01, max: 0.5, step: 0.005, fmt: v => (v * 100).toFixed(1) + "% area lost", modes: [3] },
+  { key: "spread", label: "Threshold spread", min: 0, max: 0.9, step: 0.05, fmt: v => "±" + Math.round(v * 100) + "%", modes: [3] },
+  { key: "softness", label: "Softness after", min: 0.05, max: 1, step: 0.05, modes: [3], note: "the grey ring's stiffness as a fraction of the red one's" },
+  { key: "greyAttract", label: "Grey attraction", min: 0, max: 4, step: 0.05, modes: [3] },
+  { group: "Look" },
+  { key: "lineWidth", label: "Line width", min: 0.5, max: 10, step: 0.5, unit: "px" },
+  { key: "glow", label: "Glow", min: 0, max: 3, step: 0.1 },
+  { key: "fill", label: "Fill", min: 0, max: 0.6, step: 0.01 },
+  { key: "trail", label: "Electron trails", min: 0, max: 4, step: 0.1, modes: [1] },
+  { key: "walls", label: "Draw the box", type: "bool" },
+  { key: "hud", label: "Readout", type: "bool" },
+];
+
+// ---------- state ----------
+const S = {
+  mode: 1, orient: "v", view: "screen", paused: false, speed: 1,
+  P: null, t: 0, blobs: [], electrons: [], flashes: [], events: { pop: 0, fuse: 0, break: 0 }, maxSq: 0,
+  W: SHORT, H: LONG, box: 0, nextId: 1, fps: 0,
+};
+function defaults(mode) { return Object.assign({}, BASE, MODE_DEFAULTS[mode]); }
+const rnd = (a, b) => a + Math.random() * (b - a);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const TAU = Math.PI * 2;
+
+// ---------- the crowd ----------
+function makeBlob(x, y, vx, vy, R, M, kind) {
+  const b = {
+    id: S.nextId++, kind, state: "intact", R, A0: restArea(R, M), M,
+    nodes: [], nuclei: [], cx: x, cy: y, vx, vy, q: 1, mass: 1, sq: 0, kfac: 1, grey: 0, born: S.t, u: Math.random() * 2 - 1,
+    minx: 0, miny: 0, maxx: 0, maxy: 0,
+  };
+  for (let i = 0; i < M; i++) {
+    const a = (i / M) * TAU;
+    b.nodes.push({ x: x + Math.cos(a) * R, y: y + Math.sin(a) * R, vx, vy, rt: R, fx: 0, fy: 0 });
+  }
+  b.nuclei.push({ x, y, vx, vy, r: R * S.P.nucleus, fx: 0, fy: 0 });
+  return b;
+}
+
+function build() {
+  const P = S.P;
+  S.t = 0; S.blobs = []; S.electrons = []; S.flashes = []; S.events = { pop: 0, fuse: 0, break: 0 }; S.maxSq = 0;
+  S.box = P.startBox * Math.max(S.W, S.H);
+  const half = S.box / 2 - P.radius * 1.05, R = P.radius;
+  const pts = [];
+  for (let n = 0, tries = 0; n < P.count && tries < P.count * 400; tries++) {
+    const x = rnd(-half, half), y = rnd(-half, half);
+    let ok = true;
+    for (const p of pts) if ((p[0] - x) ** 2 + (p[1] - y) ** 2 < (2.3 * R) ** 2) { ok = false; break; }
+    if (!ok) continue;
+    pts.push([x, y]); n++;
+  }
+  for (const [x, y] of pts) {
+    const a = rnd(0, TAU), s = P.initSpeed * rnd(0.4, 1), Ri = R * (1 + P.sizeSpread * rnd(-1, 1));
+    S.blobs.push(makeBlob(x, y, Math.cos(a) * s, Math.sin(a) * s, Ri, Math.max(10, Math.round(P.segments * Ri / R) & ~1), S.mode));
+  }
+}
+
+// ---------- geometry ----------
+function restArea(R, M) { return M / 2 * R * R * Math.sin(TAU / M); }   // the ring's area at rest: a regular M-gon, not the circle
+function polyArea(nodes) {
+  let a = 0;
+  for (let i = 0, n = nodes.length; i < n; i++) { const p = nodes[i], q = nodes[(i + 1) % n]; a += p.x * q.y - q.x * p.y; }
+  return a / 2;
+}
+function measure(b) {
+  let cx = 0, cy = 0, vx = 0, vy = 0, n = b.nodes.length;
+  if (n) {
+    let minx = 1e9, miny = 1e9, maxx = -1e9, maxy = -1e9;
+    for (const p of b.nodes) {
+      cx += p.x; cy += p.y; vx += p.vx; vy += p.vy;
+      if (p.x < minx) minx = p.x; if (p.x > maxx) maxx = p.x; if (p.y < miny) miny = p.y; if (p.y > maxy) maxy = p.y;
+    }
+    b.cx = cx / n; b.cy = cy / n; b.vx = vx / n; b.vy = vy / n;
+    b.minx = minx; b.miny = miny; b.maxx = maxx; b.maxy = maxy;
+    const A = polyArea(b.nodes);
+    b.A = A; b.sq = 1 - A / b.A0;
+    // the ring's mean radius (electrons bounce off it)
+    let rm = 0; for (const p of b.nodes) rm += Math.hypot(p.x - b.cx, p.y - b.cy); b.rm = rm / n;
+  } else {
+    const k = b.nuclei[0];
+    b.cx = k.x; b.cy = k.y; b.vx = k.vx; b.vy = k.vy; b.sq = 0; b.rm = k.r;
+    b.minx = k.x - k.r; b.maxx = k.x + k.r; b.miny = k.y - k.r; b.maxy = k.y + k.r;
+  }
+}
+// the radius the long-range force counts from: the ring for a whole circle, a spacing for a bare nucleus
+function reach(b) { return b.state === "popped" ? b.R * S.P.bareSpacing * 0.5 : b.rm || b.R; }
+
+// ---------- physics ----------
+function step(dt) {
+  const P = S.P, blobs = S.blobs;
+  // the box, shrinking with an ease-in-out and then holding
+  const u = clamp(S.t / P.shrinkTime, 0, 1), e = u * u * (3 - 2 * u), big = Math.max(S.W, S.H);
+  S.box = (P.startBox + (P.endBox - P.startBox) * e) * big;
+  const half = S.box / 2;
+
+  for (const b of blobs) { measure(b); for (const p of b.nodes) { p.fx = 0; p.fy = 0; } for (const k of b.nuclei) { k.fx = 0; k.fy = 0; } }
+
+  // long-range repulsion between centres (electric), 1/d² from the edges, fading over `range` radii of gap
+  const a0 = P.repel * 300;
+  for (let i = 0; i < blobs.length; i++) {
+    const A = blobs[i];
+    for (let j = i + 1; j < blobs.length; j++) {
+      const B = blobs[j];
+      const qA = P.chargeScaling ? A.q : (A.q > 0 ? 1 : 0), qB = P.chargeScaling ? B.q : (B.q > 0 ? 1 : 0);
+      let dx = B.cx - A.cx, dy = B.cy - A.cy, d = Math.hypot(dx, dy) || 1e-6;
+      const ra = reach(A), rb = reach(B), d0 = ra + rb;
+      let f = 0;
+      if (qA > 0 && qB > 0) {
+        const dd = Math.max(d, d0 * 0.5), gap = Math.max(0, d - d0), lam = P.range * Math.max(A.R, B.R);
+        f = a0 * qA * qB * (d0 * d0) / (dd * dd) * Math.exp(-gap / lam);
+      } else if (P.greyAttract > 0 && A.state === "grey" && B.state === "grey") {
+        const gap = d - d0;
+        if (gap < A.R * 0.6 && gap > A.R * 0.02) f = -P.greyAttract * 300;   // a short-range pull between neutrons
+      }
+      if (f === 0) continue;
+      dx /= d; dy /= d;
+      bodyForce(A, -dx * f / A.mass, -dy * f / A.mass);
+      bodyForce(B, dx * f / B.mass, dy * f / B.mass);
+    }
+  }
+
+  // a pull to the screen's centre (a star's gravity: the middle is squeezed hardest)
+  if (P.gravity > 0) for (const b of blobs) {
+    const d = Math.hypot(b.cx, b.cy) || 1; const g = P.gravity * 150 * Math.min(1, d / (big * 0.5));
+    bodyForce(b, -b.cx / d * g, -b.cy / d * g);
+  }
+
+  // each ring: hold its distance from the centre, its spacing, its smoothness, its area; stay outside its nuclei
+  const kr0 = 300 * P.stiffness, kt0 = 400 * P.tension, kb0 = 150 * P.tension, kp0 = 30000 * P.pressure;
+  for (const b of blobs) {
+    const n = b.nodes.length; if (!n) continue;
+    const kr = kr0 * b.kfac, kt = kt0, kb = kb0 * b.kfac, kp = kp0 * b.kfac;
+    const l0 = TAU * b.R / n, areaPush = kp * (1 - b.A / b.A0);
+    for (let i = 0; i < n; i++) {
+      const p = b.nodes[i], prev = b.nodes[(i + n - 1) % n], next = b.nodes[(i + 1) % n];
+      // radial spring to the ring's target radius (a merged ring's target relaxes toward the new circle)
+      let rx = p.x - b.cx, ry = p.y - b.cy, r = Math.hypot(rx, ry) || 1e-6; rx /= r; ry /= r;
+      const rad = kr * (p.rt - r);
+      p.fx += rx * rad; p.fy += ry * rad;
+      // area pressure along the outward normal
+      let nx = next.y - prev.y, ny = -(next.x - prev.x), nl = Math.hypot(nx, ny) || 1e-6; nx /= nl; ny /= nl;
+      if (nx * rx + ny * ry < 0) { nx = -nx; ny = -ny; }
+      p.fx += nx * areaPush; p.fy += ny * areaPush;
+      // tension to the neighbours
+      for (const q of [prev, next]) {
+        let dx = q.x - p.x, dy = q.y - p.y, d = Math.hypot(dx, dy) || 1e-6;
+        const f = kt * (d - l0) / l0;
+        p.fx += dx / d * f; p.fy += dy / d * f;
+      }
+      // smoothness: toward the neighbours' midpoint
+      p.fx += kb * ((prev.x + next.x) / 2 - p.x) / l0 * 0.5; p.fy += kb * ((prev.y + next.y) / 2 - p.y) / l0 * 0.5;
+      // outside the blob's own nuclei (a position fix, so the ring can never cut through them)
+      for (const k of b.nuclei) {
+        let dx = p.x - k.x, dy = p.y - k.y, d = Math.hypot(dx, dy) || 1e-6;
+        const lim = k.r + l0 * 0.4;
+        if (d < lim) {
+          dx /= d; dy /= d;
+          p.x = k.x + dx * lim; p.y = k.y + dy * lim;
+          const vn = p.vx * dx + p.vy * dy; if (vn < 0) { p.vx -= vn * dx; p.vy -= vn * dy; }
+          k.fx -= dx * 2000 * P.contact * (lim - d) / lim; k.fy -= dy * 2000 * P.contact * (lim - d) / lim;
+        }
+      }
+    }
+    // several nuclei in one ring: a short pull to each other (the strong force), a weak one to the centre, kept apart by contact
+    if (b.nuclei.length > 1) {
+      const pull = P.nucleiPull * 800, centre = P.nucleiPull * 600;
+      for (const k of b.nuclei) {
+        const dx = b.cx - k.x, dy = b.cy - k.y, d = Math.hypot(dx, dy);
+        if (d > 1) { k.fx += dx / d * centre; k.fy += dy / d * centre; }
+      }
+      for (let i = 0; i < b.nuclei.length; i++) for (let j = i + 1; j < b.nuclei.length; j++) {
+        const a = b.nuclei[i], c = b.nuclei[j], dx = c.x - a.x, dy = c.y - a.y, d = Math.hypot(dx, dy) || 1e-6;
+        if (d < (a.r + c.r) * 2.2) { a.fx += dx / d * pull; a.fy += dy / d * pull; c.fx -= dx / d * pull; c.fy -= dy / d * pull; }
+        nucleusContact(a, c, P);
+      }
+    }
+  }
+
+  // contact between rings of different blobs, and between rings and other blobs' nuclei (broad phase: bounding boxes)
+  const dc0 = Math.max(8, TAU * P.radius / P.segments) * 0.7, kc = 8000 * P.contact;
+  const touching = [], touchD = dc0 * (1 - P.fuseAt);
+  for (let i = 0; i < blobs.length; i++) {
+    const A = blobs[i];
+    for (let j = i + 1; j < blobs.length; j++) {
+      const B = blobs[j];
+      if (A.minx > B.maxx + dc0 || B.minx > A.maxx + dc0 || A.miny > B.maxy + dc0 || B.miny > A.maxy + dc0) continue;
+      const touched = ringContact(A, B, dc0, kc, touchD) | ringContact(B, A, dc0, kc, touchD);
+      ringVsNuclei(A, B, dc0, kc); ringVsNuclei(B, A, dc0, kc);
+      for (const ka of A.nuclei) for (const kb of B.nuclei) nucleusContact(ka, kb, P);
+      if (touched) touching.push([A, B]);
+    }
+  }
+
+  // the heat; a lone nucleus hands the forces on it to its ring (it rides at the ring's centre, below)
+  const jit = P.jitter * Math.sqrt(dt) * 10;
+  for (const b of blobs) {
+    if (jit) { const ax = rnd(-jit, jit), ay = rnd(-jit, jit); bodyForce(b, ax * 60, ay * 60); }
+    if (b.nodes.length && b.nuclei.length === 1) {
+      const k = b.nuclei[0], n = b.nodes.length;
+      for (const p of b.nodes) { p.fx += k.fx / n; p.fy += k.fy / n; }
+      k.fx = 0; k.fy = 0;
+    }
+  }
+
+  // integrate: wobble damped against the blob's own travel, the travel damped a little (drift)
+  const gi = Math.min(0.95, P.damping * 10 * dt), gd = Math.min(0.95, P.drift * dt * 10);
+  for (const b of blobs) {
+    const vx = b.vx * (1 - gd), vy = b.vy * (1 - gd);
+    for (const p of b.nodes) {
+      p.vx += p.fx * dt; p.vy += p.fy * dt;
+      p.vx = vx + (p.vx - vx) * (1 - gi); p.vy = vy + (p.vy - vy) * (1 - gi);
+      p.x += p.vx * dt; p.y += p.vy * dt;
+    }
+    for (const p of b.nodes) wallClamp(p, half);
+    if (b.nodes.length && b.nuclei.length === 1) {   // rides at the ring's centre
+      let cx = 0, cy = 0; for (const p of b.nodes) { cx += p.x; cy += p.y; }
+      const k = b.nuclei[0], n = b.nodes.length;
+      k.vx = (cx / n - k.x) / dt; k.vy = (cy / n - k.y) / dt; k.x = cx / n; k.y = cy / n;
+      continue;
+    }
+    for (const k of b.nuclei) {
+      k.vx += k.fx * dt; k.vy += k.fy * dt;
+      const g = b.nodes.length ? Math.min(0.95, (P.damping + 1) * 10 * dt) : Math.min(0.95, (P.damping * 3 + 0.5) * dt);
+      k.vx = vx + (k.vx - vx) * (1 - g); k.vy = vy + (k.vy - vy) * (1 - g);
+      k.x += k.vx * dt; k.y += k.vy * dt;
+      wallClamp(k, half - k.r);
+      if (b.nodes.length && !b.hug) {   // inside a settled ring, always
+        const dx = k.x - b.cx, dy = k.y - b.cy, d = Math.hypot(dx, dy) || 1e-6, lim = b.rm - k.r * 0.9;
+        if (d > lim && lim > 0) { k.x = b.cx + dx / d * lim; k.y = b.cy + dy / d * lim; }
+      }
+    }
+  }
+
+  // a ring that folded over itself (a tangle, its area gone or negative) is laid round again
+  for (const b of blobs) {
+    if (!b.nodes.length || !(b.sq > 0.85)) continue;
+    const n = b.nodes.length, r = b.R * 0.6;
+    for (let i = 0; i < n; i++) { const p = b.nodes[i], a = (i / n) * TAU; p.x = b.cx + Math.cos(a) * r; p.y = b.cy + Math.sin(a) * r; p.vx = b.vx; p.vy = b.vy; p.rt = b.R; }
+    b.sq = 1 - restArea(r, n) / b.A0;
+  }
+  // events
+  for (const b of blobs) {
+    if (b.state !== "intact") continue;
+    if (b.sq > S.maxSq) S.maxSq = b.sq;
+    const thr = P.threshold * (1 + P.spread * b.u);
+    if (S.mode === 1 && b.sq > thr) pop(b);
+    else if (S.mode === 3 && b.sq > thr) breakBlob(b);
+  }
+  if (S.mode === 2) {
+    const gone = new Set();
+    for (const [A, B] of touching) {
+      if (gone.has(A.id) || gone.has(B.id) || A.state !== "intact" || B.state !== "intact") continue;
+      if (P.maxNuclei < 13 && A.q + B.q > P.maxNuclei) continue;
+      fuse(A, B); gone.add(A.id); gone.add(B.id);
+    }
+  }
+  // merged rings round themselves off: every node's target radius relaxes toward the blob's
+  for (const b of blobs) if (b.hug) {
+    let left = 0; const k = 1 - Math.exp(-P.hugRate * 1.5 * dt);
+    for (const p of b.nodes) { p.rt += (b.R - p.rt) * k; if (Math.abs(p.rt - b.R) > 0.5) left++; }
+    if (!left) b.hug = false;
+  }
+
+  // electrons: straight flights, bouncing off the walls and off whole circles
+  for (const el of S.electrons) {
+    el.px = el.x; el.py = el.y;
+    el.x += el.vx * dt; el.y += el.vy * dt;
+    if (el.x < -half) { el.x = -half + (-half - el.x); el.vx = Math.abs(el.vx); }
+    if (el.x > half) { el.x = half - (el.x - half); el.vx = -Math.abs(el.vx); }
+    if (el.y < -half) { el.y = -half + (-half - el.y); el.vy = Math.abs(el.vy); }
+    if (el.y > half) { el.y = half - (el.y - half); el.vy = -Math.abs(el.vy); }
+  }
+  if (S.electrons.length) for (const b of blobs) {
+    if (!b.nodes.length) continue;
+    const r = b.rm * 0.97;
+    for (const el of S.electrons) {
+      if (el.x < b.minx || el.x > b.maxx || el.y < b.miny || el.y > b.maxy) continue;
+      let dx = el.x - b.cx, dy = el.y - b.cy, d = Math.hypot(dx, dy);
+      if (d >= r || d < 1e-6) continue;
+      dx /= d; dy /= d;
+      const vn = el.vx * dx + el.vy * dy;
+      if (vn < 0) {
+        el.vx -= 2 * vn * dx; el.vy -= 2 * vn * dy;
+        const kick = 2 * vn * P.electronPush;   // the shell takes the recoil
+        for (const p of b.nodes) { p.vx += dx * kick; p.vy += dy * kick; }
+      }
+      el.x = b.cx + dx * r; el.y = b.cy + dy * r;
+    }
+  }
+  for (let i = S.flashes.length - 1; i >= 0; i--) { const f = S.flashes[i]; f.t += dt; if (f.t > f.dur) S.flashes.splice(i, 1); }
+  S.t += dt;
+}
+
+function bodyForce(b, ax, ay) { for (const p of b.nodes) { p.fx += ax; p.fy += ay; } for (const k of b.nuclei) { k.fx += ax; k.fy += ay; } }
+function wallClamp(p, half) {   // the box's walls are hard
+  if (p.x < -half) { p.x = -half; if (p.vx < 0) p.vx = 0; } else if (p.x > half) { p.x = half; if (p.vx > 0) p.vx = 0; }
+  if (p.y < -half) { p.y = -half; if (p.vy < 0) p.vy = 0; } else if (p.y > half) { p.y = half; if (p.vy > 0) p.vy = 0; }
+}
+// A's nodes against B's segments: a push apart within the contact distance, shared by the segment's ends.
+// Returns whether any node pressed in deeper than touchD (two rings touching, for fusion).
+function ringContact(A, B, dc, kc, touchD) {
+  let touched = false;
+  const nb = B.nodes.length, dc2 = dc * dc;
+  for (const p of A.nodes) {
+    if (p.x < B.minx - dc || p.x > B.maxx + dc || p.y < B.miny - dc || p.y > B.maxy + dc) continue;
+    for (let j = 0; j < nb; j++) {
+      const q = B.nodes[j], r = B.nodes[(j + 1) % nb];
+      const ex = r.x - q.x, ey = r.y - q.y, el2 = ex * ex + ey * ey || 1e-9;
+      let t = ((p.x - q.x) * ex + (p.y - q.y) * ey) / el2; t = t < 0 ? 0 : t > 1 ? 1 : t;
+      const dx = p.x - (q.x + ex * t), dy = p.y - (q.y + ey * t), d2 = dx * dx + dy * dy;
+      if (d2 >= dc2) continue;
+      const d = Math.sqrt(d2) || 1e-6, f = kc * (dc - d) / dc, fx = dx / d * f, fy = dy / d * f;
+      p.fx += fx; p.fy += fy;
+      q.fx -= fx * (1 - t); q.fy -= fy * (1 - t); r.fx -= fx * t; r.fy -= fy * t;
+      if (d < touchD) touched = true;
+    }
+  }
+  return touched;
+}
+function ringVsNuclei(A, B, dc, kc) {       // A's ring stays outside B's nuclei
+  for (const k of B.nuclei) {
+    const lim = k.r + dc * 0.5;
+    if (k.x + lim < A.minx || k.x - lim > A.maxx || k.y + lim < A.miny || k.y - lim > A.maxy) continue;
+    for (const p of A.nodes) {
+      const dx = p.x - k.x, dy = p.y - k.y, d2 = dx * dx + dy * dy;
+      if (d2 >= lim * lim) continue;
+      const d = Math.sqrt(d2) || 1e-6, f = kc * (lim - d) / lim;
+      p.fx += dx / d * f; p.fy += dy / d * f; k.fx -= dx / d * f; k.fy -= dy / d * f;
+    }
+  }
+}
+function nucleusContact(a, b, P) {
+  const dx = b.x - a.x, dy = b.y - a.y, lim = a.r + b.r, d2 = dx * dx + dy * dy;
+  if (d2 >= lim * lim || lim <= 0) return;
+  const d = Math.sqrt(d2) || 1e-6, f = 40000 * P.contact * (lim - d) / lim;
+  a.fx -= dx / d * f; a.fy -= dy / d * f; b.fx += dx / d * f; b.fy += dy / d * f;
+}
+
+// ---------- the three events ----------
+function pop(b) {
+  const P = S.P, n = b.nodes.length, K = P.electrons;
+  for (let i = 0; i < K; i++) {
+    const p = b.nodes[Math.floor(i * n / K) % n];
+    let dx = p.x - b.cx, dy = p.y - b.cy, d = Math.hypot(dx, dy) || 1e-6; dx /= d; dy /= d;
+    const a = Math.atan2(dy, dx) + rnd(-0.25, 0.25), s = P.electronSpeed * rnd(0.75, 1.25);
+    S.electrons.push({ x: p.x, y: p.y, px: p.x, py: p.y, vx: Math.cos(a) * s + b.vx, vy: Math.sin(a) * s + b.vy });
+  }
+  S.flashes.push({ x: b.cx, y: b.cy, r0: b.rm, r1: b.rm * 1.6, t: 0, dur: 0.35, color: "79,163,255" });
+  b.nodes = []; b.state = "popped";
+  const k = b.nuclei[0]; k.x = b.cx; k.y = b.cy; k.vx = b.vx; k.vy = b.vy;
+  S.events.pop++;
+}
+
+function breakBlob(b) {
+  b.state = "grey"; b.q = 0; b.kfac = S.P.softness; b.broke = S.t;
+  for (const p of b.nodes) { const j = rnd(-0.03, 0.03); p.x += (p.x - b.cx) * j; p.y += (p.y - b.cy) * j; }   // a crack's jolt
+  S.flashes.push({ x: b.cx, y: b.cy, r0: b.rm * 0.9, r1: b.rm * 1.25, t: 0, dur: 0.25, color: "255,255,255" });
+  S.events.break++;
+}
+
+// Two rings touch: one ring round both, built by casting rays from the new centre to the farthest edge of either
+// polygon (the union), its nodes' target radius relaxing toward the circle of the combined area.
+function fuse(A, B) {
+  const P = S.P, mA = A.q, mB = B.q, m = mA + mB;
+  const cx = (A.cx * mA + B.cx * mB) / m, cy = (A.cy * mA + B.cy * mB) / m;
+  const vx = (A.vx * mA + B.vx * mB) / m, vy = (A.vy * mA + B.vy * mB) / m;
+  const R = Math.sqrt(A.R * A.R + B.R * B.R);
+  const M = Math.max(P.segments, Math.round(P.segments * R / P.radius));
+  const polys = [A.nodes, B.nodes];
+  const nodes = [], rads = [];
+  for (let i = 0; i < M; i++) {
+    const a = (i / M) * TAU, dx = Math.cos(a), dy = Math.sin(a);
+    let best = 0;
+    for (const poly of polys) {
+      for (let j = 0, n = poly.length; j < n; j++) {
+        const p = poly[j], q = poly[(j + 1) % n];
+        // ray (cx,cy)+t(dx,dy) against segment p→q
+        const ex = q.x - p.x, ey = q.y - p.y, den = dx * ey - dy * ex;
+        if (Math.abs(den) < 1e-9) continue;
+        const wx = p.x - cx, wy = p.y - cy;
+        const t = (wx * ey - wy * ex) / den, s = (wx * dy - wy * dx) / den;
+        if (t > best && s >= 0 && s <= 1) best = t;
+      }
+    }
+    rads.push(clamp(best, R * 0.08, R * 2.6));
+  }
+  for (let i = 0; i < M; i++) {   // a 3-tap smoothing, so no spike from a bent segment
+    const r = (rads[(i + M - 1) % M] + 2 * rads[i] + rads[(i + 1) % M]) / 4, a = (i / M) * TAU;
+    nodes.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r, vx, vy, rt: r, fx: 0, fy: 0 });
+  }
+  const b = {
+    id: S.nextId++, kind: 2, state: "intact", R, A0: restArea(R, M), M, nodes, nuclei: A.nuclei.concat(B.nuclei),
+    cx, cy, vx, vy, q: m, mass: m, sq: 0, kfac: 1, grey: 0, hug: true, born: S.t, u: Math.random() * 2 - 1,
+    minx: 0, miny: 0, maxx: 0, maxy: 0,
+  };
+  for (const k of b.nuclei) {   // every nucleus starts inside the new ring
+    k.vx = vx; k.vy = vy;
+    const dx = k.x - cx, dy = k.y - cy, d = Math.hypot(dx, dy) || 1e-6, i = Math.round(Math.atan2(dy, dx) / TAU * M + M) % M;
+    const lim = rads[i] - k.r * 1.1;
+    if (d > lim && lim > 0) { k.x = cx + dx / d * lim; k.y = cy + dy / d * lim; }
+  }
+  S.blobs.splice(S.blobs.indexOf(A), 1); S.blobs.splice(S.blobs.indexOf(B), 1); S.blobs.push(b);
+  S.flashes.push({ x: (A.cx + B.cx) / 2, y: (A.cy + B.cy) / 2, r0: R * 0.2, r1: R * 0.9, t: 0, dur: 0.4, color: "255,213,74" });
+  S.events.fuse++;
+}
+
+// ---------- drawing ----------
+const canvas = document.getElementById("c"), ctx = canvas.getContext("2d");
+const hud = document.getElementById("hud");
+let dpr = 1;
+
+function resize() {
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  const r = canvas.getBoundingClientRect();
+  const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+  if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+}
+
+function ringPath(nodes) {
+  const n = nodes.length;
+  ctx.beginPath();
+  let p = nodes[n - 1], q = nodes[0];
+  ctx.moveTo((p.x + q.x) / 2, (p.y + q.y) / 2);
+  for (let i = 0; i < n; i++) { p = nodes[i]; q = nodes[(i + 1) % n]; ctx.quadraticCurveTo(p.x, p.y, (p.x + q.x) / 2, (p.y + q.y) / 2); }
+  ctx.closePath();
+}
+
+const COL = { 1: "79,163,255", 2: "255,213,74", 3: "255,59,48" };
+function draw() {
+  resize();
+  const P = S.P, cw = canvas.width, ch = canvas.height;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, cw, ch);
+  // the view: the screen fills the canvas, or the whole box fits in it with a margin
+  let scale;
+  if (S.view === "screen") scale = cw / S.W;
+  else scale = Math.min(cw, ch) / (Math.max(S.box, Math.max(S.W, S.H)) * 1.06);
+  ctx.setTransform(scale, 0, 0, scale, cw / 2, ch / 2);
+  const lw = P.lineWidth * dpr / scale;
+
+  if (S.view === "box") {   // the screen's frame
+    ctx.strokeStyle = "rgba(220,228,239,0.35)"; ctx.lineWidth = lw * 0.6; ctx.setLineDash([lw * 3, lw * 3]);
+    ctx.strokeRect(-S.W / 2, -S.H / 2, S.W, S.H); ctx.setLineDash([]);
+  }
+  if (P.walls) {
+    const h = S.box / 2;
+    ctx.strokeStyle = "rgba(123,135,154,0.55)"; ctx.lineWidth = lw * 0.8;
+    ctx.strokeRect(-h, -h, S.box, S.box);
+  }
+
+  // electron trails and dots
+  if (S.electrons.length) {
+    const tr = P.trail * 0.03;
+    ctx.lineWidth = lw * 0.7; ctx.lineCap = "round";
+    ctx.strokeStyle = "rgba(179,229,252,0.55)";
+    ctx.beginPath();
+    for (const e of S.electrons) { ctx.moveTo(e.x - e.vx * tr, e.y - e.vy * tr); ctx.lineTo(e.x, e.y); }
+    if (tr > 0) ctx.stroke();
+    ctx.fillStyle = "#b3e5fc";
+    const er = Math.max(1.2 * lw, P.radius * 0.03);
+    ctx.beginPath();
+    for (const e of S.electrons) { ctx.moveTo(e.x + er, e.y); ctx.arc(e.x, e.y, er, 0, TAU); }
+    ctx.fill();
+  }
+
+  // rings
+  for (const b of S.blobs) {
+    if (!b.nodes.length) continue;
+    let col = COL[b.kind];
+    if (b.state === "grey") col = "138,143,153";
+    ringPath(b.nodes);
+    if (P.fill > 0) { ctx.fillStyle = `rgba(${col},${P.fill})`; ctx.fill(); }
+    if (P.glow > 0) { ctx.strokeStyle = `rgba(${col},${0.18 * P.glow})`; ctx.lineWidth = lw * (1 + 3 * P.glow); ctx.lineJoin = "round"; ctx.stroke(); }
+    ctx.strokeStyle = `rgb(${col})`; ctx.lineWidth = lw; ctx.lineJoin = "round"; ctx.stroke();
+  }
+  // nuclei
+  for (const b of S.blobs) {
+    const grey = b.state === "grey";
+    for (const k of b.nuclei) {
+      ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, TAU);
+      ctx.fillStyle = grey ? "#8a8f99" : "#ff3b30"; ctx.fill();
+      if (b.state === "popped" && P.glow > 0) { ctx.strokeStyle = "rgba(255,59,48,0.35)"; ctx.lineWidth = lw * 1.5; ctx.stroke(); }
+    }
+  }
+  // flashes
+  for (const f of S.flashes) {
+    const u = f.t / f.dur, r = f.r0 + (f.r1 - f.r0) * u;
+    ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, TAU);
+    ctx.strokeStyle = `rgba(${f.color},${(1 - u) * 0.9})`; ctx.lineWidth = lw * (2.5 - 2 * u); ctx.stroke();
+  }
+
+  // readout
+  if (P.hud) {
+    let onscreen = 0, intact = 0, area = 0;
+    for (const b of S.blobs) {
+      if (Math.abs(b.cx) < S.W / 2 && Math.abs(b.cy) < S.H / 2) onscreen++;
+      if (b.state === "intact") intact++;
+      area += b.nodes.length ? Math.max(b.A || 0, 0) : Math.PI * b.nuclei[0].r ** 2;
+    }
+    const pack = area / (S.box * S.box);
+    const ev = S.mode === 1 ? `popped <b>${S.events.pop}</b>` : S.mode === 2 ? `fused <b>${S.events.fuse}</b>` : `broken <b>${S.events.break}</b>`;
+    hud.innerHTML = `t <b>${S.t.toFixed(1)}s</b>  box <b>${(S.box / Math.max(S.W, S.H)).toFixed(2)}×</b>  packing <b>${Math.round(pack * 100)}%</b>\n` +
+      `on screen <b>${onscreen}</b>  whole <b>${intact}</b>/${S.blobs.length}  ${ev}\n` +
+      `squeeze now <b>${Math.round(Math.max(0, ...S.blobs.map(b => b.state === "intact" ? b.sq : 0)) * 100)}%</b>  peak <b>${Math.round(S.maxSq * 100)}%</b>  ${S.fps | 0} fps`;
+  } else hud.innerHTML = "";
+}
+
+// ---------- loop ----------
+let last = performance.now(), acc = 0, fpsAcc = 0, fpsN = 0;
+function frame(now) {
+  const real = Math.min(0.1, (now - last) / 1000); last = now;
+  fpsAcc += real; fpsN++; if (fpsAcc > 0.5) { S.fps = fpsN / fpsAcc; fpsAcc = 0; fpsN = 0; }
+  if (!S.paused) {
+    acc += real * S.speed;
+    let n = 0;
+    while (acc >= DT && n < 8) { step(DT); acc -= DT; n++; }
+    if (n === 8) acc = 0;
+  }
+  draw();
+  requestAnimationFrame(frame);
+}
+
+// ---------- the rail ----------
+const rail = document.getElementById("rail");
+const inputs = {};
+function fmtVal(c, v) { if (c.type === "bool") return ""; if (c.fmt) return c.fmt(v); const s = c.step >= 1 ? String(v) : v.toFixed(c.step >= 0.1 ? 1 : c.step >= 0.01 ? 2 : 3); return c.unit ? `${s} ${c.unit}` : s; }
+function buildRail() {
+  rail.innerHTML = "";
+  let section = null;
+  for (const c of SCHEMA) {
+    if (c.modes && !c.modes.includes(S.mode)) continue;
+    if (c.group) {
+      const h = document.createElement("h2"); h.textContent = c.group; rail.appendChild(h); section = h; continue;
+    }
+    const row = document.createElement("div"); row.className = "ctl" + (c.type === "bool" ? " bool" : "");
+    const id = "in-" + c.key;
+    if (c.type === "bool") {
+      row.innerHTML = `<input type="checkbox" id="${id}"><label for="${id}">${c.label}</label>`;
+      const inp = row.querySelector("input"); inp.checked = !!S.P[c.key];
+      inp.addEventListener("change", () => { S.P[c.key] = inp.checked; if (c.restart) build(); syncJSON(); });
+      inputs[c.key] = inp;
+    } else {
+      row.innerHTML = `<label for="${id}">${c.label}</label><span class="v"></span><input type="range" id="${id}" min="${c.min}" max="${c.max}" step="${c.step}">` + (c.note ? `<div class="note">${c.note}</div>` : "");
+      const inp = row.querySelector("input"), v = row.querySelector(".v");
+      inp.value = S.P[c.key]; v.textContent = fmtVal(c, S.P[c.key]);
+      inp.addEventListener("input", () => {
+        S.P[c.key] = parseFloat(inp.value); v.textContent = fmtVal(c, S.P[c.key]);
+        if (c.key === "nucleus") for (const b of S.blobs) for (const k of b.nuclei) k.r = b.R * S.P.nucleus;
+        if (c.restart) build();
+        syncJSON();
+      });
+      inputs[c.key] = inp;
+    }
+    rail.appendChild(row);
+  }
+  const h = document.createElement("h2"); h.innerHTML = `Settings <small>mode ${S.mode}</small>`; rail.appendChild(h);
+  const p = document.createElement("p"); p.className = "hint"; p.textContent = "When it feels right, copy this and send it over. Paste a block here and apply it to try one."; rail.appendChild(p);
+  const ta = document.createElement("textarea"); ta.id = "json"; ta.spellcheck = false; rail.appendChild(ta);
+  const row = document.createElement("div"); row.className = "row";
+  row.innerHTML = `<button type="button" id="copy">Copy settings</button><button type="button" id="apply">Apply pasted</button><button type="button" id="reset">Mode defaults</button><button type="button" id="speedBtn">Speed ×1</button>`;
+  rail.appendChild(row);
+  syncJSON();
+  row.querySelector("#copy").addEventListener("click", async () => {
+    const btn = row.querySelector("#copy");
+    try { await navigator.clipboard.writeText(ta.value); btn.textContent = "Copied"; }
+    catch { ta.focus(); ta.select(); btn.textContent = "Select and copy"; }
+    setTimeout(() => btn.textContent = "Copy settings", 1500);
+  });
+  row.querySelector("#apply").addEventListener("click", () => {
+    try {
+      const o = JSON.parse(ta.value);
+      if (o.mode) S.mode = o.mode; if (o.orient) S.orient = o.orient;
+      S.P = Object.assign(defaults(S.mode), o.params || o);
+      delete S.P.mode; delete S.P.orient;
+      applyOrient(); buildRail(); build();
+    } catch (e) { ta.value = "// could not read that: " + e.message + "\n" + ta.value; }
+  });
+  row.querySelector("#reset").addEventListener("click", () => { S.P = defaults(S.mode); buildRail(); build(); });
+  const sb = row.querySelector("#speedBtn");
+  sb.textContent = `Speed ×${S.speed}`;
+  sb.addEventListener("click", () => { S.speed = S.speed === 1 ? 2 : S.speed === 2 ? 0.5 : 1; sb.textContent = `Speed ×${S.speed}`; });
+}
+function syncJSON() {
+  const ta = document.getElementById("json"); if (!ta) return;
+  const d = defaults(S.mode), diff = {};
+  for (const k in S.P) if (S.P[k] !== d[k]) diff[k] = S.P[k];
+  ta.value = JSON.stringify({ mode: S.mode, orient: S.orient, params: S.P, changed: diff }, null, 1).replace(/\n\s*/g, m => m.length > 2 ? " " : m).replace(/"(\w+)":/g, "$1:");
+}
+
+// ---------- top bar ----------
+function setSeg(k, v) {
+  for (const btn of document.querySelectorAll(`.seg[data-k="${k}"] button`)) btn.setAttribute("aria-pressed", String(btn.dataset.v === String(v)));
+}
+function applyOrient() {
+  S.W = S.orient === "v" ? SHORT : LONG; S.H = S.orient === "v" ? LONG : SHORT;
+  document.getElementById("screen").dataset.o = S.orient;
+  setSeg("orient", S.orient); setSeg("mode", S.mode); setSeg("view", S.view);
+  document.getElementById("modeNote").innerHTML = MODE_NOTE[S.mode];
+}
+for (const btn of document.querySelectorAll(".seg button")) btn.addEventListener("click", () => {
+  const k = btn.parentElement.dataset.k, v = btn.dataset.v;
+  if (k === "mode") { S.mode = +v; S.P = defaults(S.mode); applyOrient(); buildRail(); build(); }
+  else if (k === "orient") { S.orient = v; applyOrient(); build(); }
+  else if (k === "view") { S.view = v; setSeg("view", v); }
+});
+document.getElementById("play").addEventListener("click", e => { S.paused = !S.paused; e.target.textContent = S.paused ? "Play" : "Pause"; });
+document.getElementById("restart").addEventListener("click", () => build());
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+  if (e.key === " ") { e.preventDefault(); document.getElementById("play").click(); }
+  if (e.key === "r") build();
+  if (e.key === "1" || e.key === "2" || e.key === "3") document.querySelector(`.seg[data-k="mode"] button[data-v="${e.key}"]`).click();
+});
+
+// ---------- go ----------
+S.P = defaults(S.mode);
+applyOrient(); buildRail(); build();
+requestAnimationFrame(frame);
+window.__lab = { S, step, build, draw, defaults, applyOrient, buildRail };   // for scripted tests
+})();
+</script>
+</body>
+</html>
