@@ -155,20 +155,21 @@ const BASE = {
   count: 100, radius: 100, sizeSpread: 0.1, nucleus: 0.1, segments: 28,
   startBox: 2.2, endBox: 1.0, shrinkTime: 40, gravity: 0, initSpeed: 60, jitter: 0,
   repel: 1, range: 1, stiffness: 1, tension: 1, pressure: 1, contact: 1, damping: 1, drift: 0.3,
-  threshold: 0.3, spread: 0.2, electrons: 8, electronSpeed: 900, electronPush: 0.01, bareSpacing: 1,
-  fuseAt: 0.6, maxNuclei: 4, hugRate: 1, nucleiPull: 2, chargeScaling: true,
-  softness: 0.6, greyAttract: 0,
+  tremble: 1,
+  threshold: 0.3, spread: 0.2, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, bareSpacing: 1,
+  fuseAt: 0.6, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
+  shatter: 1, greySize: 1, greyAttract: 0,
   lineWidth: 3, glow: 1, fill: 0.06, trail: 1, hud: true, walls: true,
 };
 const MODE_DEFAULTS = {
   1: { nucleus: 0.10, count: 150, sizeSpread: 0.12, repel: 0.6, range: 0.8, stiffness: 0.5, pressure: 0.5, damping: 0.8, threshold: 0.2, spread: 0.2 },
-  2: { nucleus: 0.50, count: 60, radius: 120, sizeSpread: 0.08, repel: 2, range: 1.2, stiffness: 6, pressure: 6, damping: 2, shrinkTime: 50 },
-  3: { nucleus: 0.90, count: 100, radius: 100, sizeSpread: 0.1, repel: 0.4, range: 0.6, stiffness: 4, pressure: 4, damping: 2, threshold: 0.06, spread: 0.3 },
+  2: { nucleus: 0.50, count: 60, radius: 120, sizeSpread: 0.08, repel: 2, range: 1.2, stiffness: 4, pressure: 4, damping: 2, shrinkTime: 50 },
+  3: { nucleus: 0.90, count: 140, radius: 100, sizeSpread: 0.1, repel: 0.4, range: 0.6, stiffness: 4, pressure: 4, damping: 2, threshold: 0.06, spread: 0.3 },
 };
 const MODE_NOTE = {
   1: "<b>Degenerate matter.</b> Blue electron shells round a small red nucleus (10%). They repel; squeezed past the threshold a shell pops into free electrons that fly off and ricochet. The bare nuclei stay, closer than before.",
   2: "<b>Fusion.</b> Yellow is the strong force's reach round a red nucleus (50%). A hard shell and a strong push between them; when two yellows touch they become one, the ring finds its new centre and the nuclei pull together.",
-  3: "<b>Neutrons.</b> A red ring filled by a proton (90%). Stiff and repelling; squeezed past the threshold it breaks: the disc turns grey, the push switches off, and it lets itself be packed with the others.",
+  3: "<b>Neutrons.</b> A red ring filled by a proton (90%). Stiff and repelling; squeezed past the threshold it shatters: the disc turns grey, the push switches off, and it lets itself be packed with the others.",
 };
 
 // The rail: groups and sliders. `modes` limits a control to some regimes; `restart` rebuilds the crowd on change.
@@ -195,9 +196,11 @@ const SCHEMA = [
   { key: "contact", label: "Contact hardness", min: 0.1, max: 6, step: 0.05 },
   { key: "damping", label: "Wobble damping", min: 0, max: 6, step: 0.05 },
   { key: "drift", label: "Drift damping", min: 0, max: 2, step: 0.01, note: "slows the circles' travel; 0 keeps them floating" },
+  { key: "tremble", label: "Strain tremble", min: 0, max: 4, step: 0.1, modes: [1, 3], note: "a shell near its threshold shivers and whitens" },
   { group: "Pop", modes: [1] },
   { key: "threshold", label: "Pop at squeeze", min: 0.02, max: 0.9, step: 0.01, fmt: v => Math.round(v * 100) + "% area lost", modes: [1] },
   { key: "spread", label: "Threshold spread", min: 0, max: 0.9, step: 0.05, fmt: v => "±" + Math.round(v * 100) + "%", modes: [1], note: "each circle's own threshold varies this much, so they don't all go at once" },
+  { key: "popTime", label: "Pop time", min: 0.08, max: 1.2, step: 0.01, unit: "s", modes: [1], note: "how long the torn film takes to race round and vanish" },
   { key: "electrons", label: "Electrons per atom", min: 1, max: 30, step: 1, modes: [1] },
   { key: "electronSpeed", label: "Electron speed", min: 50, max: 3000, step: 25, unit: "u/s", modes: [1] },
   { key: "electronPush", label: "Electron push", min: 0, max: 0.2, step: 0.005, modes: [1], note: "how hard a bouncing electron kicks a shell it hits (the degenerate pressure)" },
@@ -205,13 +208,15 @@ const SCHEMA = [
   { group: "Fusion", modes: [2] },
   { key: "fuseAt", label: "Fuse when pressed", min: 0.1, max: 0.95, step: 0.01, fmt: v => Math.round(v * 100) + "% of contact", modes: [2], note: "how deep two rings must press into each other's contact zone before they join" },
   { key: "maxNuclei", label: "Nuclei per blob, at most", min: 2, max: 13, step: 1, fmt: v => v >= 13 ? "no limit" : String(v), modes: [2], note: "4 is helium: a joined blob at the limit won't take more" },
+  { key: "bridgeTime", label: "Reach time", min: 0, max: 1.5, step: 0.05, unit: "s", modes: [2], note: "the two lines pull into each other for this long before they become one" },
   { key: "hugRate", label: "Hug speed", min: 0.05, max: 6, step: 0.05, modes: [2], note: "how fast the joined ring rounds itself off" },
   { key: "nucleiPull", label: "Nuclei pull", min: 0, max: 6, step: 0.05, modes: [2] },
   { key: "chargeScaling", label: "Bigger nuclei push harder", type: "bool", modes: [2] },
   { group: "Break", modes: [3] },
   { key: "threshold", label: "Break at squeeze", min: 0.01, max: 0.5, step: 0.005, fmt: v => (v * 100).toFixed(1) + "% area lost", modes: [3] },
   { key: "spread", label: "Threshold spread", min: 0, max: 0.9, step: 0.05, fmt: v => "±" + Math.round(v * 100) + "%", modes: [3] },
-  { key: "softness", label: "Softness after", min: 0.05, max: 1, step: 0.05, modes: [3], note: "the grey ring's stiffness as a fraction of the red one's" },
+  { key: "shatter", label: "Shatter", min: 0, max: 3, step: 0.05, modes: [3], note: "how far the broken ring's pieces fly" },
+  { key: "greySize", label: "Grey disc size", min: 0.5, max: 1.1, step: 0.01, fmt: v => Math.round(v * 100) + "% of the red one", modes: [3] },
   { key: "greyAttract", label: "Grey attraction", min: 0, max: 4, step: 0.05, modes: [3] },
   { group: "Look" },
   { key: "lineWidth", label: "Line width", min: 0.5, max: 10, step: 0.5, unit: "px" },
@@ -225,7 +230,7 @@ const SCHEMA = [
 // ---------- state ----------
 const S = {
   mode: 1, orient: "v", view: "screen", paused: false, speed: 1,
-  P: null, t: 0, blobs: [], electrons: [], flashes: [], events: { pop: 0, fuse: 0, break: 0 }, maxSq: 0,
+  P: null, t: 0, blobs: [], electrons: [], flashes: [], pops: [], frags: [], bridges: [], events: { pop: 0, fuse: 0, break: 0 }, maxSq: 0,
   W: SHORT, H: LONG, box: 0, nextId: 1, fps: 0,
 };
 function defaults(mode) { return Object.assign({}, BASE, MODE_DEFAULTS[mode]); }
@@ -250,7 +255,7 @@ function makeBlob(x, y, vx, vy, R, M, kind) {
 
 function build() {
   const P = S.P;
-  S.t = 0; S.blobs = []; S.electrons = []; S.flashes = []; S.events = { pop: 0, fuse: 0, break: 0 }; S.maxSq = 0;
+  S.t = 0; S.blobs = []; S.electrons = []; S.flashes = []; S.pops = []; S.frags = []; S.bridges = []; S.events = { pop: 0, fuse: 0, break: 0 }; S.maxSq = 0;
   S.box = P.startBox * Math.max(S.W, S.H);
   const half = S.box / 2 - P.radius * 1.05, R = P.radius;
   const pts = [];
@@ -296,6 +301,10 @@ function measure(b) {
 }
 // the radius the long-range force counts from: the ring for a whole circle, a spacing for a bare nucleus
 function reach(b) { return b.state === "popped" ? b.R * S.P.bareSpacing * 0.5 : b.rm || b.R; }
+function strainOf(b) {   // how close a shell is to its threshold, 0..1
+  if (b.state !== "intact" || S.mode === 2) return 0;
+  return clamp(b.sq / (S.P.threshold * (1 + S.P.spread * b.u)), 0, 1);
+}
 
 // ---------- physics ----------
 function step(dt) {
@@ -396,17 +405,21 @@ function step(dt) {
     for (let j = i + 1; j < blobs.length; j++) {
       const B = blobs[j];
       if (A.minx > B.maxx + dc0 || B.minx > A.maxx + dc0 || A.miny > B.maxy + dc0 || B.miny > A.maxy + dc0) continue;
+      if (A.bridge === B.id) { bridgePull(A, B, dc0); bridgePull(B, A, dc0); continue; }   // reaching into each other
       const touched = ringContact(A, B, dc0, kc, touchD) | ringContact(B, A, dc0, kc, touchD);
       ringVsNuclei(A, B, dc0, kc); ringVsNuclei(B, A, dc0, kc);
-      for (const ka of A.nuclei) for (const kb of B.nuclei) nucleusContact(ka, kb, P);
+      const hard = !A.nodes.length && !B.nodes.length;   // two bare discs: a hard contact, so pressure passes through a packed crowd
+      for (const ka of A.nuclei) for (const kb of B.nuclei) nucleusContact(ka, kb, P, hard);
       if (touched) touching.push([A, B]);
     }
   }
 
-  // the heat; a lone nucleus hands the forces on it to its ring (it rides at the ring's centre, below)
-  const jit = P.jitter * Math.sqrt(dt) * 10;
+  // the heat; a strained shell shivers; a lone nucleus hands the forces on it to its ring (it rides at the ring's centre, below)
+  const jit = P.jitter * Math.sqrt(dt) * 10, trem = P.tremble * 6000;
   for (const b of blobs) {
     if (jit) { const ax = rnd(-jit, jit), ay = rnd(-jit, jit); bodyForce(b, ax * 60, ay * 60); }
+    b.strain = strainOf(b);
+    if (trem && b.strain > 0.5) { const a = trem * ((b.strain - 0.5) * 2) ** 2; for (const p of b.nodes) { p.fx += rnd(-a, a); p.fy += rnd(-a, a); } }
     if (b.nodes.length && b.nuclei.length === 1) {
       const k = b.nuclei[0], n = b.nodes.length;
       for (const p of b.nodes) { p.fx += k.fx / n; p.fy += k.fy / n; }
@@ -459,12 +472,46 @@ function step(dt) {
     else if (S.mode === 3 && b.sq > thr) breakBlob(b);
   }
   if (S.mode === 2) {
-    const gone = new Set();
     for (const [A, B] of touching) {
-      if (gone.has(A.id) || gone.has(B.id) || A.state !== "intact" || B.state !== "intact") continue;
+      if (A.bridge || B.bridge || A.state !== "intact" || B.state !== "intact") continue;
       if (P.maxNuclei < 13 && A.q + B.q > P.maxNuclei) continue;
-      fuse(A, B); gone.add(A.id); gone.add(B.id);
+      if (P.bridgeTime <= 0) { fuse(A, B); continue; }
+      A.bridge = B.id; B.bridge = A.id;
+      // the touch point: the closest pair of nodes
+      let best = Infinity, x = 0, y = 0;
+      for (const p of A.nodes) for (const q of B.nodes) { const d2 = (p.x - q.x) ** 2 + (p.y - q.y) ** 2; if (d2 < best) { best = d2; x = (p.x + q.x) / 2; y = (p.y + q.y) / 2; } }
+      S.bridges.push({ A, B, t: 0, x, y });
     }
+    for (let i = S.bridges.length - 1; i >= 0; i--) {
+      const br = S.bridges[i]; br.t += dt;
+      const alive = blobs.includes(br.A) && blobs.includes(br.B);
+      if (!alive) { S.bridges.splice(i, 1); continue; }
+      br.x = (br.A.cx + br.B.cx) / 2; br.y = (br.A.cy + br.B.cy) / 2;
+      if (br.t >= P.bridgeTime) { fuse(br.A, br.B); S.bridges.splice(i, 1); }
+    }
+  }
+  // a torn film races round from the tear, spraying its electrons from the two rims
+  for (let i = S.pops.length - 1; i >= 0; i--) {
+    const o = S.pops[i]; o.t += dt;
+    const n = o.pts.length, u = Math.min(1, o.t / o.dur), half = Math.floor(u * n / 2);
+    const drift = P.electronSpeed * 0.12 * (1 - u);
+    for (const q of o.pts) { q.x += (q.rx * drift + o.vx) * dt; q.y += (q.ry * drift + o.vy) * dt; }
+    const want = Math.round(o.K * u);
+    for (let side = 0; o.emitted < want; o.emitted++, side ^= 1) {
+      const idx = (o.tear + (side ? half : -half) + n) % n, q = o.pts[idx];
+      const tx = side ? -q.ry : q.ry, ty = side ? q.rx : -q.rx;   // along the rim's travel
+      const s = P.electronSpeed * rnd(0.7, 1.3), a = rnd(0.15, 0.55);
+      S.electrons.push({ x: q.x, y: q.y, px: q.x, py: q.y, vx: (q.rx * (1 - a) + tx * a) * s + o.vx, vy: (q.ry * (1 - a) + ty * a) * s + o.vy });
+    }
+    if (u >= 1) S.pops.splice(i, 1);
+  }
+  // the pieces of a shattered ring fly apart and fade
+  for (let i = S.frags.length - 1; i >= 0; i--) {
+    const f = S.frags[i]; f.t += dt;
+    const c = Math.cos(f.w * dt), sn = Math.sin(f.w * dt);
+    f.cx += f.vx * dt; f.cy += f.vy * dt; f.vx *= 1 - 2 * dt; f.vy *= 1 - 2 * dt;
+    for (const q of f.pts) { const x = q.x * c - q.y * sn, y = q.x * sn + q.y * c; q.x = x; q.y = y; }
+    if (f.t > f.dur) S.frags.splice(i, 1);
   }
   // merged rings round themselves off: every node's target radius relaxes toward the blob's
   for (const b of blobs) if (b.hug) {
@@ -529,6 +576,17 @@ function ringContact(A, B, dc, kc, touchD) {
   }
   return touched;
 }
+// Two rings about to join: each node near the other ring is drawn to its nearest point on it, so the two lines
+// bend into each other and open a neck (a liquid bridge) before they become one.
+function bridgePull(A, B, dc) {
+  const reachD = dc * 4, nb = B.nodes.length;
+  for (const p of A.nodes) {
+    if (p.x < B.minx - reachD || p.x > B.maxx + reachD || p.y < B.miny - reachD || p.y > B.maxy + reachD) continue;
+    let best = reachD * reachD, bx = 0, by = 0;
+    for (let j = 0; j < nb; j++) { const q = B.nodes[j], dx = q.x - p.x, dy = q.y - p.y, d2 = dx * dx + dy * dy; if (d2 < best) { best = d2; bx = dx; by = dy; } }
+    if (best < reachD * reachD) { const d = Math.sqrt(best) || 1e-6, f = 5000 * (1 - d / reachD) + 1500; p.fx += bx / d * f; p.fy += by / d * f; }
+  }
+}
 function ringVsNuclei(A, B, dc, kc) {       // A's ring stays outside B's nuclei
   for (const k of B.nuclei) {
     const lim = k.r + dc * 0.5;
@@ -541,32 +599,55 @@ function ringVsNuclei(A, B, dc, kc) {       // A's ring stays outside B's nuclei
     }
   }
 }
-function nucleusContact(a, b, P) {
-  const dx = b.x - a.x, dy = b.y - a.y, lim = a.r + b.r, d2 = dx * dx + dy * dy;
+function nucleusContact(a, b, P, hard) {
+  let dx = b.x - a.x, dy = b.y - a.y; const lim = a.r + b.r, d2 = dx * dx + dy * dy;
   if (d2 >= lim * lim || lim <= 0) return;
   const d = Math.sqrt(d2) || 1e-6, f = 40000 * P.contact * (lim - d) / lim;
   a.fx -= dx / d * f; a.fy -= dy / d * f; b.fx += dx / d * f; b.fy += dy / d * f;
+  if (hard) {   // push the two discs apart, half each, and stop them closing
+    dx /= d; dy /= d; const h = (lim - d) / 2;
+    a.x -= dx * h; a.y -= dy * h; b.x += dx * h; b.y += dy * h;
+    const vn = (b.vx - a.vx) * dx + (b.vy - a.vy) * dy;
+    if (vn < 0) { a.vx += vn * dx / 2; a.vy += vn * dy / 2; b.vx -= vn * dx / 2; b.vy -= vn * dy / 2; }
+  }
 }
 
 // ---------- the three events ----------
+// The film tears at its most squeezed point; the two rims race round the ring away from the tear (a burst soap
+// bubble), spraying the electrons as they go; the bare nucleus stays.
 function pop(b) {
-  const P = S.P, n = b.nodes.length, K = P.electrons;
-  for (let i = 0; i < K; i++) {
-    const p = b.nodes[Math.floor(i * n / K) % n];
-    let dx = p.x - b.cx, dy = p.y - b.cy, d = Math.hypot(dx, dy) || 1e-6; dx /= d; dy /= d;
-    const a = Math.atan2(dy, dx) + rnd(-0.25, 0.25), s = P.electronSpeed * rnd(0.75, 1.25);
-    S.electrons.push({ x: p.x, y: p.y, px: p.x, py: p.y, vx: Math.cos(a) * s + b.vx, vy: Math.sin(a) * s + b.vy });
-  }
-  S.flashes.push({ x: b.cx, y: b.cy, r0: b.rm, r1: b.rm * 1.6, t: 0, dur: 0.35, color: "79,163,255" });
+  const P = S.P, n = b.nodes.length;
+  let tear = 0, rmin = Infinity;
+  const pts = b.nodes.map((p, i) => {
+    let rx = p.x - b.cx, ry = p.y - b.cy; const r = Math.hypot(rx, ry) || 1e-6;
+    if (r < rmin) { rmin = r; tear = i; }
+    return { x: p.x, y: p.y, rx: rx / r, ry: ry / r };
+  });
+  S.pops.push({ pts, tear, t: 0, dur: P.popTime, vx: b.vx, vy: b.vy, K: P.electrons, emitted: 0 });
+  S.flashes.push({ x: pts[tear].x, y: pts[tear].y, r0: 0, r1: b.rm * 0.5, t: 0, dur: 0.25, color: "200,230,255" });
   b.nodes = []; b.state = "popped";
   const k = b.nuclei[0]; k.x = b.cx; k.y = b.cy; k.vx = b.vx; k.vy = b.vy;
   S.events.pop++;
 }
 
+// The stiff ring shatters into arcs that fly apart and fade; the disc flashes white and turns grey, its push gone.
 function breakBlob(b) {
-  b.state = "grey"; b.q = 0; b.kfac = S.P.softness; b.broke = S.t;
-  for (const p of b.nodes) { const j = rnd(-0.03, 0.03); p.x += (p.x - b.cx) * j; p.y += (p.y - b.cy) * j; }   // a crack's jolt
-  S.flashes.push({ x: b.cx, y: b.cy, r0: b.rm * 0.9, r1: b.rm * 1.25, t: 0, dur: 0.25, color: "255,255,255" });
+  const P = S.P, n = b.nodes.length, pieces = 3 + Math.floor(rnd(0, 4));
+  const cuts = []; for (let i = 0; i < pieces; i++) cuts.push(Math.floor(rnd(0, n))); cuts.sort((a, c) => a - c);
+  for (let i = 0; i < pieces; i++) {
+    const from = cuts[i], to = cuts[(i + 1) % pieces], len = ((to - from) + n) % n || n;
+    if (len < 2) continue;
+    const pts = []; let mx = 0, my = 0;
+    for (let j = 0; j <= len; j++) { const p = b.nodes[(from + j) % n]; pts.push({ x: p.x, y: p.y }); mx += p.x; my += p.y; }
+    mx /= pts.length; my /= pts.length;
+    for (const q of pts) { q.x -= mx; q.y -= my; }
+    let dx = mx - b.cx, dy = my - b.cy; const d = Math.hypot(dx, dy) || 1e-6; dx /= d; dy /= d;
+    const s = P.shatter * rnd(120, 260);
+    S.frags.push({ pts, cx: mx, cy: my, vx: dx * s + b.vx, vy: dy * s + b.vy, w: P.shatter * rnd(-4, 4), t: 0, dur: 0.7, color: "255,59,48" });
+  }
+  S.flashes.push({ x: b.cx, y: b.cy, r0: b.rm * 0.9, r1: b.rm * 1.3, t: 0, dur: 0.3, color: "255,255,255" });
+  b.nodes = []; b.state = "grey"; b.q = 0; b.broke = S.t;
+  const k = b.nuclei[0]; k.x = b.cx; k.y = b.cy; k.vx = b.vx; k.vy = b.vy; k.r = b.R * P.nucleus * P.greySize;
   S.events.break++;
 }
 
@@ -675,24 +756,52 @@ function draw() {
     ctx.fill();
   }
 
-  // rings
+  // nuclei: a broken one flashes white, then greys
   for (const b of S.blobs) {
-    if (!b.nodes.length) continue;
-    let col = COL[b.kind];
-    if (b.state === "grey") col = "138,143,153";
-    ringPath(b.nodes);
-    if (P.fill > 0) { ctx.fillStyle = `rgba(${col},${P.fill})`; ctx.fill(); }
-    if (P.glow > 0) { ctx.strokeStyle = `rgba(${col},${0.18 * P.glow})`; ctx.lineWidth = lw * (1 + 3 * P.glow); ctx.lineJoin = "round"; ctx.stroke(); }
-    ctx.strokeStyle = `rgb(${col})`; ctx.lineWidth = lw; ctx.lineJoin = "round"; ctx.stroke();
-  }
-  // nuclei
-  for (const b of S.blobs) {
-    const grey = b.state === "grey";
+    let fill = b.kind === 3 ? "#c8221c" : "#ff3b30";   // a deeper red for the proton, so its bright ring reads over it
+    if (b.state === "grey") { const u = clamp((S.t - b.broke - 0.1) / 0.35, 0, 1); fill = `rgb(${Math.round(255 - (255 - 138) * u)},${Math.round(255 - (255 - 143) * u)},${Math.round(255 - (255 - 153) * u)})`; }
     for (const k of b.nuclei) {
       ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, TAU);
-      ctx.fillStyle = grey ? "#8a8f99" : "#ff3b30"; ctx.fill();
+      ctx.fillStyle = fill; ctx.fill();
       if (b.state === "popped" && P.glow > 0) { ctx.strokeStyle = "rgba(255,59,48,0.35)"; ctx.lineWidth = lw * 1.5; ctx.stroke(); }
     }
+  }
+  // rings: a strained shell whitens (and a film thins) toward its threshold
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  for (const b of S.blobs) {
+    if (!b.nodes.length) continue;
+    const base = COL[b.kind].split(",").map(Number), st = (b.strain || 0) ** 3;
+    const col = base.map(c => Math.round(c + (255 - c) * st * 0.85)).join(",");
+    const w = lw * (b.kind === 1 ? 1 - 0.45 * st : 1 + 0.3 * st);
+    ringPath(b.nodes);
+    if (P.fill > 0) { ctx.fillStyle = `rgba(${col},${P.fill})`; ctx.fill(); }
+    if (P.glow > 0) { ctx.strokeStyle = `rgba(${col},${0.18 * P.glow + 0.25 * st})`; ctx.lineWidth = w * (1 + 3 * P.glow); ctx.stroke(); }
+    ctx.strokeStyle = `rgb(${col})`; ctx.lineWidth = w; ctx.stroke();
+  }
+  // torn films: the remaining arc, its ends bright
+  for (const o of S.pops) {
+    const n = o.pts.length, u = Math.min(1, o.t / o.dur), half = Math.floor(u * n / 2);
+    const from = o.tear + half, to = o.tear - half + n;   // the film left, from one rim round the far side to the other
+    const len = to - from; if (len < 1) continue;
+    ctx.beginPath();
+    for (let j = 0; j <= len; j++) { const q = o.pts[(from + j) % n]; if (j) ctx.lineTo(q.x, q.y); else ctx.moveTo(q.x, q.y); }
+    ctx.strokeStyle = `rgba(200,230,255,${0.9 * (1 - u * 0.5)})`; ctx.lineWidth = lw * 0.7; ctx.stroke();
+    ctx.fillStyle = "#ffffff";
+    for (const idx of [from % n, to % n]) { const q = o.pts[idx]; ctx.beginPath(); ctx.arc(q.x, q.y, lw * 1.1, 0, TAU); ctx.fill(); }
+  }
+  // the bridge of two joining rings: a glow at the neck
+  for (const br of S.bridges) {
+    const u = Math.min(1, br.t / Math.max(0.01, P.bridgeTime));
+    const g = ctx.createRadialGradient(br.x, br.y, 0, br.x, br.y, P.radius * (0.3 + 0.5 * u));
+    g.addColorStop(0, `rgba(255,236,150,${0.55 * (1 - u * 0.4)})`); g.addColorStop(1, "rgba(255,213,74,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(br.x, br.y, P.radius * (0.3 + 0.5 * u), 0, TAU); ctx.fill();
+  }
+  // shards of broken rings
+  for (const f of S.frags) {
+    const u = f.t / f.dur;
+    ctx.beginPath();
+    f.pts.forEach((q, j) => j ? ctx.lineTo(f.cx + q.x, f.cy + q.y) : ctx.moveTo(f.cx + q.x, f.cy + q.y));
+    ctx.strokeStyle = `rgba(${u < 0.15 ? "255,255,255" : f.color},${(1 - u) * 1.1})`; ctx.lineWidth = lw * (1 + 0.3 * (1 - u)); ctx.stroke();
   }
   // flashes
   for (const f of S.flashes) {
