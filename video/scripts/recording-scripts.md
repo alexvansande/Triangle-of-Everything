@@ -142,10 +142,11 @@ redone from "most objects on our chart" on (rec55 and rec56 as cut).
   between gravity, the electromagnetism and the strong force will create this stable equilibrium point" (5:11–5:22) →
   "a new player force will enter in play. That's the weak force" (7:05–7:27) → "held together not by the strong force, but
   by pure gravity" (7:38–7:47). About 2:10 carved by phrase (`video/cuts/`), four forces in one story, with the chart's
-  arrows on the diagonal, the column, Proxima and the neutron star as its pictures. Not cut yet: the author's call on the
-  bounds (end on the neutron star, or on the black hole "gravity wins"?).
-- The two recommended re-slices of "How do stars die?" (death and the cycle, 1:33; what's left, the cores, 1:08) are in the
-  session's notes of 2026-11-06; not cut yet.
+  arrows on the diagonal, the column, Proxima and the neutron star as its pictures. **Cut on 2026-11-08** as
+  `short-l2-dance-of-the-forces` (2:38, six pieces: the diagonal, the atoms crushed, fusion, the truce, the fuel running out,
+  the weak force to "held together by pure gravity"), with the three animations; queued with the week's other four.
+- The week's Shorts from the opening, cut 2026-11-08: "Is Jupiter a failed star?" (1:30), "What makes a star a star?" (1:18),
+  "How do stars die?" (1:34, re-sliced to end on the planet), "What's left when a star dies?" (1:08), and the forces one (2:38).
 - **The storyboard** (the author, 2026-11-06: "my narration is not very natural because I'm reading things"): one beat a
   page, the frame on top and the narration below, to look at and tell in their own words instead of reading:
   `video/scripts/long-02-storyboard.json` (the beats and their titles) → `scripts/narration-storyboard.py` → a PDF

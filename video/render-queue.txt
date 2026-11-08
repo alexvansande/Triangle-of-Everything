@@ -65,3 +65,5 @@ long-02-space
 # (what makes a star a star; what's left when a star dies) and "how do stars die" re-sliced to end on the planet
 short-l2-what-makes-a-star
 short-l2-whats-left
+# 2026-11-08 (the author): the forces Short too, six passages of the opening in one story (2:38)
+short-l2-dance-of-the-forces

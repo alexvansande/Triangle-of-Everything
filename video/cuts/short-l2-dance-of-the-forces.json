@@ -1,0 +1,37 @@
+{
+  "title": "The dance of the forces",
+  "blurb": "Gravity wins over the electric push, then the strong force joins in, then the weak force: the tug of war that shapes everything from a bacterium to a neutron star, in one story.",
+  "lead": 2.5,
+  "segments": [
+    {
+      "take": "long-02-intro",
+      "from": "see, everything is a delicate dance",
+      "to": "so do protons"
+    },
+    {
+      "take": "long-02-intro",
+      "from": "here the delicate tension",
+      "to": "just gets denser"
+    },
+    {
+      "take": "long-02-intro",
+      "from": "but add a little bit more mass",
+      "to": "pushing our objects again to the right"
+    },
+    {
+      "take": "long-02-intro",
+      "from": "now, that new delicate dance",
+      "to": "most of their lives"
+    },
+    {
+      "take": "long-02-intro",
+      "from": "but that equilibrium is kept",
+      "to": "goes haywire"
+    },
+    {
+      "take": "long-02-intro",
+      "from": "but if it does go supernova",
+      "to": "pure gravity"
+    }
+  ]
+}
