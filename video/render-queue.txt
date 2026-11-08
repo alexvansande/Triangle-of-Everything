@@ -40,8 +40,6 @@
 # short-00-powers-of-ten source reconciled and pushed to powers-of-ten: e47ab7b2
 # long-02-space: a new opening (rec54, 2026-11-05) and video 3 joined from "as the fuel for fusion is used up": new audio, render whole
 # long video 2 whole from the three takes of 2026-11-05, and five Shorts, the best stories, each with a visual opener (the author)
-short-l2-failed-star
-short-l2-how-stars-die
 short-l2-edge-of-the-chart
 short-l2-exploding-heads
 short-l2-inside-a-black-hole
@@ -56,12 +54,12 @@ short-l2-inside-a-black-hole
 # and its two Shorts render whole: the Crab-and-Tycho stretch note of the night's render is superseded), the pan up the diagonal in
 # one move, two new diagrams (the atoms crushed, fusion), the brown dwarf close-up, the Sun's colours in the Star Forge
 # (every video with the Sun: the shared-pictures rule)
-long-02-space
 # 2026-11-07, afternoon: the fusion diagram runs to the main sequence, R136a1 a Star Forge star with a dive and its layers blown
 # away, the doubled "will" cut (new audio: whole), the planet's label, a calmer hand-over into the black holes
 # 2026-11-07, evening: the weak-force animation (7:17-7:58 in long-02-space, the same stretch in short-l2-how-stars-die), the
 # proton picture in all three animations, the crushed atoms a liquid first; the long video and its Shorts are queued whole already
 # 2026-11-08 (the author): tonight, the long video and its four Shorts from the first eight minutes, two of them new
 # (what makes a star a star; what's left when a star dies) and "how do stars die" re-sliced to end on the planet
-short-l2-what-makes-a-star
-short-l2-whats-left
+# 2026-11-08 (the author): held, the new opening's audio isn't settled yet. Tonight only the Shorts past the black holes;
+# long-02-space, short-l2-failed-star, short-l2-how-stars-die, short-l2-what-makes-a-star and short-l2-whats-left come
+# back to the queue once the author likes the opening's audio
