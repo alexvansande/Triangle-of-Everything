@@ -69,7 +69,6 @@ short-l2-failed-star
 short-l2-what-makes-a-star
 short-l2-how-stars-die
 short-l2-whats-left
-short-l2-dance-of-the-forces
 # 2026-11-08, later: the proton's aberration up in the diagrams, fusion of four hydrogens (two turned into neutrons), a
 # deuterium diagram in place of the clips: long-02-space and the Shorts with those stretches (failed-star, what-makes-a-star,
 # dance-of-the-forces) are queued whole already
@@ -82,4 +81,3 @@ short-l2-dance-of-the-forces
 # 2026-11-08, afternoon (the author): a new round now, the forces Short first, then the opening's four Shorts. long-02-space
 # off the round (it would render whole): its opening (0-8:20) re-rendered by hand after the Shorts and joined to the current
 # render (output/videos/l2-wait.sh, then narration-overnight.sh.long-02-head2)
-# next: short-l2-dance-of-the-forces
