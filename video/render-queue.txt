@@ -76,3 +76,7 @@ short-l2-dance-of-the-forces
 # dance-of-the-forces) are queued whole already
 # 2026-11-08, evening: the forces Short recorded on its own (rec58), a take of its own with its own scene: new audio, whole
 # (already queued above); the proton and neutron icons regenerated with the author's Atom Lab look (every video with them)
+# 2026-11-08, late: the forces Short's start view had no position (an object, not r and m), so on the live page every frame threw
+# and it wouldn't play (the author, in Safari); fixed in its scene. src/main.js also guards the connection dots against a frame
+# with no usable transform (they went NaN for good): shared code, but it changes no frame of any render, so a whole re-render
+# of the others for it is not needed

@@ -5201,7 +5201,7 @@ function screenPathLength(cp, ppu) {
   ensureConnGeometry(cp);
   // Data-space arc length × current px-per-unit (the view is equal-scale in
   // both axes, so this equals the on-screen arc length). Pure math, no DOM.
-  if (cp._dataLen > 0) return Math.max(1, cp._dataLen * (ppu ?? Math.abs(px(1) - px(0))));
+  if (cp._dataLen > 0) { const L = cp._dataLen * (ppu ?? Math.abs(px(1) - px(0))); return Number.isFinite(L) ? Math.max(1, L) : 1; }
   const N = 40;
   let len = 0;
   for (let i = 0; i < N; i++) {
@@ -5631,12 +5631,12 @@ function getPathScreenPos(cp, t, ppu) {
   ensureConnGeometry(cp);
   const s = cp._samples;
   if (s) {
-    const tt = Math.max(0, Math.min(1, t));
+    const tt = Math.max(0, Math.min(1, Number.isFinite(t) ? t : 0));
     const perUnit = ppu ?? Math.abs(px(1) - px(0));
     // At deep zoom a sample chord spans many screen px and linear
     // interpolation would visibly cut curve corners — switch to the exact
     // path element (few paths/dots are visible at those zoom levels).
-    if (cp._probe && (cp._dataLen * perUnit) / (s.sx.length - 1) > 24) {
+    if (cp._probe && Number.isFinite(cp._dataLen) && Number.isFinite(perUnit) && (cp._dataLen * perUnit) / (s.sx.length - 1) > 24) {
       const pt = cp._probe.getPointAtLength(tt * cp._dataLen);
       return [px(pt.x), py(pt.y)];
     }
@@ -5859,8 +5859,12 @@ function animateConnections(timestamp) {
       cp._screenLen = screenPathLength(cp, ppu);
       const pxSpeed = (cp.style.dotSpeed || 1) * BASE_PX_PER_SEC;
       const baseDtFrac = pxSpeed / cp._screenLen * dt;
+      // a frame with no usable transform yet (a take opening on an object: 2026-11-08, the forces Short in Safari)
+      // gave NaN here, and "% 1" kept it forever: every dot then had cx="NaN" and the player's loop threw each frame
+      if (!Number.isFinite(baseDtFrac)) return;
       for (let i = 0; i < cp.dotTs.length; i++) {
-        cp.dotTs[i] = (cp.dotTs[i] + baseDtFrac * cp.dotSpeeds[i]) % 1;
+        const v = (cp.dotTs[i] + baseDtFrac * cp.dotSpeeds[i]) % 1;
+        cp.dotTs[i] = Number.isFinite(v) ? v : i / cp.dotTs.length;
       }
     });
   }
@@ -5883,8 +5887,10 @@ function animateConnections(timestamp) {
         ? (0.05 + 0.95 * headFactor * headFactor)   // brighter head, dimmer tail
         : (0.3 + 0.7 * headFactor);
 
+      if (!Number.isFinite(t)) { cp.dotTs[di] = di / cp.dotTs.length; t = (cp.dotTs[di] - tailOffset + 1) % 1; }
       let [sx, sy] = getPathScreenPos(cp, t, ppu);
       [sx, sy] = applyEmWave(cp, t, sx, sy, timestamp, ppu);
+      if (!Number.isFinite(sx) || !Number.isFinite(sy)) return;   // nothing to place this frame
 
       el.setAttribute("cx", String(sx));
       el.setAttribute("cy", String(sy));

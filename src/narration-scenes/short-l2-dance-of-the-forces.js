@@ -23,7 +23,7 @@ const MS = { line: "mainsequence", label: "main sequence" };
 export default {
   title: "The dance of the forces",
   blurb: "Gravity wins over the electric push, then the strong force joins in, then the weak force: the tug of war that shapes everything from a bacterium to a neutron star, in one story.",
-  start: { obj: "Bacterium", span: 7 },
+  start: { r: -4.22, m: -12, span: 7 },   // the bacterium (a start takes r and m, not an object: with obj the view had no position and every frame threw)
   iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
   icons: "all",
   forceIcons: ["Sun", "L Brown Dwarf", "T Brown Dwarf", "Y Brown Dwarf"],
