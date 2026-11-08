@@ -60,6 +60,10 @@ held() { grep -q '^# hold' video/render-queue.txt 2>/dev/null; }
 # any other (every short and long video, less video/render-skip.txt), not yet tried this round
 pick() {
   stale=" $(DRY=1 scripts/narration-render-stale.sh 2>/dev/null | sed -n 's/^stale \([^ ]*\).*/\1/p' | tr '\n' ' ') "
+  # a "# only queued" line: only the queued takes (as in scripts/narration-nightly.sh; the author, 2026-11-08)
+  if grep -q '^# only queued' video/render-queue.txt 2>/dev/null; then
+    stale=" $(for t in $stale; do grep -qx "$t" video/render-queue.txt && echo "$t"; done | tr '\n' ' ') "
+  fi
   for t in $(sed -n 's/^# priority: //p;s/^# next: //p' video/render-queue.txt) $ORDER $stale; do
     case "$stale" in *" $t "*) case " $TRIED " in *" $t "*) ;; *)
       # rendered twice this round already: it keeps changing, leave it for the next round
