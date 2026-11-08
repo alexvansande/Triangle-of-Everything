@@ -67,7 +67,6 @@
 # long video and the five Shorts from the opening render whole
 short-l2-failed-star
 short-l2-what-makes-a-star
-short-l2-how-stars-die
 short-l2-whats-left
 # 2026-11-08, later: the proton's aberration up in the diagrams, fusion of four hydrogens (two turned into neutrons), a
 # deuterium diagram in place of the clips: long-02-space and the Shorts with those stretches (failed-star, what-makes-a-star,
