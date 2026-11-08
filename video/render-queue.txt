@@ -66,4 +66,3 @@ short-l2-what-makes-a-star
 short-l2-whats-left
 # only queued: the other out-of-date takes wait; new takes (the dance of the forces Short) go in as their own line
 # 2026-11-08 (the author, this session): the forces Short, six passages of the opening in one story (2:38), as its own line
-short-l2-dance-of-the-forces
