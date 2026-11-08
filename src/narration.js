@@ -24,7 +24,7 @@
 import { blackHoleFilter } from "./black-hole-palette.js";
 import * as d3 from "d3";
 import { iconUrls } from "./assets.js";
-import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, diagramsPending } from "./narr-diagrams.js";
+import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, diagramsPending } from "./narr-diagrams.js";
 import {
   HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
@@ -2179,11 +2179,11 @@ export async function startNarration(app) {
   // the phases of the crush and fusion diagrams: the time of each cue carrying { crush: { phase } } / { fuse: { phase } }
   // (the first one, without a phase, is "start"), so the drawing runs on the take's clock whatever cue is live
   const phaseTimes = (key) => Object.fromEntries(cues.filter(c => c.hl?.some(q => q[key])).map(c => [c.hl.find(q => q[key])[key].phase || "start", c.time]));
-  const CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak");
+  const CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut");
   const DIAGRAM_KINDS = { own: cues.some(c => c.hl?.some(q => q.own)), center: cues.some(c => c.hl?.some(q => q.center)), cosmos: cues.some(c => c.hl?.some(q => q.cosmos)),
-    particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak)) };
+    particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak || q.deut)) };
   function drawDiagram(live, t) {
-    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
+    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
     if (!h) { cv.hidden = true; return; }
     cv.hidden = false;
     const dpr = Math.min(2, devicePixelRatio || 1), W = Math.round(layer.clientWidth * dpr), H = Math.round(layer.clientHeight * dpr);
@@ -2198,6 +2198,7 @@ export async function startNarration(app) {
     else if (h.crush) drawCrush(ctx, W, H, { ...h.crush, ...CRUSH_T, age }, t);
     else if (h.fuse) drawFuse(ctx, W, H, { ...h.fuse, ...FUSE_T, age }, t);
     else if (h.weak) drawWeak(ctx, W, H, { ...h.weak, ...WEAK_T, age }, t);
+    else if (h.deut) drawDeut(ctx, W, H, { ...h.deut, ...DEUT_T, age }, t);
   }
   /** Expansion as a picture gaining pixels: { pixels: { steps: [s, …], cell?, seed? } }, on its
    *  own over a black screen (no chart behind) and full screen, so no border is seen growing (the

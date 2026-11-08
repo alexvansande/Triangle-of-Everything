@@ -380,3 +380,15 @@ animation and the R136a1 dive), "How do stars die?" (1:34, re-sliced to end on "
   hard step."*
 - **The Shorts' transcripts are saved on their own** (`video/scripts/long-02-shorts-transcripts.md`) for recording them
   separately.
+- **The author, on the four hydrogens (2026-11-09):** "increase the aberration in the proton so it's more distinct from the
+  neutron"; "the weak force animation [fusion] should capture four hydrogens and turn two of them into neutrons"; "the
+  deuterium animation should change too: like the fusing one but two deuteriums (with the neutron) in a sea of normal
+  hydrogen, labelled". Done: in the diagrams the proton is drawn with its red, green and blue pulled apart (a sprite made
+  from the chart's picture), so it stands apart from the paler, compact neutron. Fusion now gathers four: the centre proton
+  and its neighbour join (the bubble), the weak force turns one into a neutron (a flash, a neutrino away, "deuterium · a
+  proton and a neutron"), then the two above and below join and one of those turns too: "helium · 2 protons + 2 neutrons",
+  then the burst. A new deuterium diagram (`drawDeut`) replaces the hydrogen/deuterium clips: a sea of bare protons with two
+  deuteriums in it (a proton and a neutron snug in one small yellow circle, labelled), the neutron named at "extra neutron";
+  at "so rare" the pressure comes on, "1 hydrogen in 40,000", the ordinary protons' reaches only touch, and the deuterium
+  beside a proton merges into "helium-3 · the neutron came along, no hard step"; the brown-dwarf close-up follows at
+  "cooling slowly".

@@ -164,14 +164,15 @@ export default {
     { at: "reach brown dwarfs", cam: { r: 9.9, m: 31.35, span: 1.8 }, clear: true,
       hl: [{ obj: "Jupiter", label: "planet", place: "left" }, ...BD, { obj: "L Brown Dwarf", label: "brown dwarfs" }, { obj: "Proxima Cen", label: "star", delay: 0.5 }] },
     { at: "fusing hydrogen", hl: [{ obj: "Jupiter", place: "left" }, ...BD, { obj: "L Brown Dwarf", label: "fuses a little" }] },
-    { at: "called deuterium", hl: [...BD, { obj: "L Brown Dwarf", label: "deuterium only" }] },
-    // hydrogen and deuterium side by side on black (video 3's clips from the Atom Lab)
-    { at: "called deuterium", photo: ["hopf-hydrogen", "hopf-deuterium"], clip: true, row: true, kb: [1, 1], dur: 5.8, fadeIn: 0.6, fadeOut: 0.6,
-      labels: ["hydrogen<small>1 proton</small><small>99.997%</small>", "deuterium<small>1 proton + 1 neutron</small><small>0.003%</small>"] },
-    // back from the clips on a close-up of the brown dwarf, zooming out slowly (the author, 2026-11-07: the halo sat
-    // on empty space here; the brown dwarfs' pictures are forced so there's a star to look at)
-    { at: "extra neutron", cam: { obj: "L Brown Dwarf", span: 0.7 }, dur: 1.5, hl: [{ obj: "L Brown Dwarf", label: false }] },
-    { at: "deuterium is so rare", cam: { obj: "L Brown Dwarf", span: 1.3, glide: true }, hl: [{ obj: "L Brown Dwarf", label: "1 hydrogen in ~40,000" }] },
+    // deuterium: a diagram on black (the author, 2026-11-09, in place of the side-by-side clips): a sea of ordinary
+    // hydrogen with two deuteriums in it, labelled; the neutron named at "extra neutron"; at "so rare" the pressure comes
+    // on, "1 hydrogen in 40,000", and the deuterium beside a proton merges into helium-3 while the ordinary protons don't
+    { at: "called deuterium", hl: [{ deut: {} }] },
+    { at: "extra neutron", hl: [{ deut: { phase: "neutron" }, instant: true }] },
+    { at: "deuterium is so rare", hl: [{ deut: { phase: "rare" }, instant: true }] },
+    { at: "for very long", offset: -0.9, hl: [{ deut: { phase: "fuse" }, instant: true }] },
+    // then the chart comes back on a close-up of the brown dwarf, zooming out slowly (the author, 2026-11-07)
+    { at: "cooling slowly", cam: { obj: "L Brown Dwarf", span: 0.9 }, dur: 1.2, hl: [{ obj: "L Brown Dwarf", label: "never a star" }] },
     { at: "billions of years", cam: { obj: "L Brown Dwarf", span: 2.4, glide: true }, hl: [...BD, { obj: "L Brown Dwarf", label: "never a star" }, { obj: "Proxima Cen", label: false, delay: 0.8 }] },
 
     // hydrogen fusion: the strong force, the main sequence

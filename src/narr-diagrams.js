@@ -41,10 +41,31 @@ const picsPending = (slugs) => slugs.map(pic).filter(im => im.__ok && !(im.compl
 const PARTICLES = ["proton", "neutron", "electron"];
 // each one turned its own way (`rot`, radians: the author, 2026-11-08, "not all identical as if we were pasting
 // the same image"), and a few per cent bigger or smaller, so a crowd of them reads as many, not one stamp
+// the proton with its aberration turned up (the author, 2026-11-09, so it stands apart from the neutron): the picture's
+// red, green and blue drawn at three sizes (red largest, blue smallest) and added, the way a cheap lens splits colours
+let _protonStrong = null;
+function protonStrong() {
+  const im = pic("proton");
+  if (!(im.complete && im.naturalWidth)) return null;
+  if (_protonStrong) return _protonStrong;
+  const S = 512, cv = document.createElement("canvas"); cv.width = cv.height = S;
+  const g = cv.getContext("2d"), tmp = document.createElement("canvas"); tmp.width = tmp.height = S; const tg = tmp.getContext("2d");
+  for (const [col, k] of [["#ff0000", 1.14], ["#00ff00", 1.0], ["#0000ff", 0.86]]) {
+    const s = S * 0.84 * k, o = (S - s) / 2;
+    tg.globalCompositeOperation = "source-over"; tg.clearRect(0, 0, S, S); tg.drawImage(im, o, o, s, s);
+    tg.globalCompositeOperation = "multiply"; tg.fillStyle = col; tg.fillRect(0, 0, S, S);
+    tg.globalCompositeOperation = "destination-in"; tg.drawImage(im, o, o, s, s);
+    g.globalCompositeOperation = "lighter"; g.drawImage(tmp, 0, 0);
+  }
+  return (_protonStrong = cv);
+}
 const particle = (ctx, slug, x, y, d, alpha = 1, fallback = "#ff8a80", rot = 0, scale = 1) => {
-  const im = pic(slug);
+  const im = slug === "proton" ? (protonStrong() || pic(slug)) : pic(slug);
   ctx.globalAlpha = alpha;
-  if (im.complete && im.naturalWidth) {
+  if (im instanceof HTMLCanvasElement) {
+    const s = d * scale * 1.19;   // the sprite's own margin
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.drawImage(im, -s / 2, -s / 2, s, s); ctx.restore();
+  } else if (im.complete && im.naturalWidth) {
     const s = d * scale;
     ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.drawImage(im, -s / 2, -s / 2, s, s); ctx.restore();
   } else { ctx.fillStyle = fallback; ctx.beginPath(); ctx.arc(x, y, d * 0.3, 0, Math.PI * 2); ctx.fill(); }
@@ -383,15 +404,25 @@ export function drawFuse(ctx, W, H, o, t) {
   // point by its own amount, a third of them nearly on it; the pair in the middle sits on its points
   const ps = [], JM = Math.ceil(H / 2 / (L * 0.866)) + 2, IM = Math.ceil(W / 2 / L) + 2;
   for (let j = -JM; j <= JM; j++) for (let i = -IM; i <= IM; i++) {
-    const k = (i + 40) * 97 + (j + 40), pair = (i === 0 || i === 1) && j === 0, u1 = unit2(k, 1), u2 = unit2(k, 2), u3 = unit2(k, 3);
-    const amp = pair ? 0 : L * 0.22 * (u2 < 0.35 ? 0.1 : 0.4 + 0.6 * u3), ang = u1 * TAU + 0.3 * Math.sin(t * 0.3 + k);
+    const k = (i + 40) * 97 + (j + 40), four = (i === 0 && j === 0) || (i === 1 && j === 0) || (i === 0 && (j === 1 || j === -1));
+    const u1 = unit2(k, 1), u2 = unit2(k, 2), u3 = unit2(k, 3);
+    const amp = four ? 0 : L * 0.22 * (u2 < 0.35 ? 0.1 : 0.4 + 0.6 * u3), ang = u1 * TAU + 0.3 * Math.sin(t * 0.3 + k);
     const x = cx + (i + (j & 1 ? 0.5 : 0)) * L + amp * Math.cos(ang), y = cy + j * L * 0.866 + amp * Math.sin(ang);
     if (x < -Y || x > W + Y || y < -Y || y > H + Y) continue;
-    ps.push({ x, y, k, c: i === 0 && j === 0, p: i === 1 && j === 0 });
+    ps.push({ x, y, k, c: i === 0 && j === 0, p: i === 1 && j === 0, q: i === 0 && j === 1, s: i === 0 && j === -1 });
   }
-  const C = ps.find(a => a.c), P = ps.find(a => a.p);
-  // merging: the pair closes to a tight pair inside one circle
-  if (C && P) { const d = P.x - C.x, close = d - Y * 0.6; C.x += mf * close * 0.5; P.x -= mf * close * 0.5; }
+  // four hydrogens into one helium (the author, 2026-11-09): the centre proton and its right-hand neighbour join first;
+  // the weak force turns one of them into a neutron (deuterium); then the two above and below join, and one of those
+  // turns too: two protons and two neutrons in one circle. Each change a flash and a neutrino away.
+  const C = ps.find(a => a.c), P = ps.find(a => a.p), Q = ps.find(a => a.q), Sx = ps.find(a => a.s);
+  const hel = o.helium ?? mrg + 2.5, hf = t < hel ? 0 : smooth((t - hel) / 0.9);
+  const TN1 = mrg + 1.2, TN2 = hel + 1.2;                                 // when a proton becomes a neutron
+  if (C && P) {
+    const mx = (C.x + P.x) / 2, my = C.y, R4 = Y * 0.28;                  // the cluster: a small diamond round its centre
+    const to = (a, tx, ty, f) => { a.x += (tx - a.x) * f; a.y += (ty - a.y) * f; };
+    to(C, mx - R4, my, mf); to(P, mx + R4, my, mf);
+    if (Q) to(Q, mx, my - R4 * 1.05, hf); if (Sx) to(Sx, mx, my + R4 * 1.05, hf);
+  }
   const dotted = (x, y, rad, a, w = U * 0.0055) => { ctx.globalAlpha = a; ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = w; ctx.setLineDash([U * 0.014, U * 0.011]); ctx.beginPath(); ctx.arc(x, y, rad, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; };
   // every proton has a faint reach; the centre's is bright, the partner's shows as it comes close
   for (const a of ps) {
@@ -400,9 +431,10 @@ export function drawFuse(ctx, W, H, o, t) {
     dotted(x, y, Y, 0.22, U * 0.003);
   }
   if (C && P) {
-    // the two reach circles: apart, two dotted circles; as they come within reach, one bubble outline with a neck
-    // that thickens until it's one circle round the pair (the author, 2026-11-09)
-    const blob = blobPath([{ x: C.x, y: C.y, r: Y }, { x: P.x, y: P.y, r: Y }]);
+    // the reach circles: apart, dotted circles; as they come within reach, one bubble outline with a neck that
+    // thickens until it's one circle round the cluster (the author, 2026-11-09); the two newcomers' circles join it
+    const members = [{ x: C.x, y: C.y, r: Y }, { x: P.x, y: P.y, r: Y }, ...(hf > 0 ? [Q, Sx].filter(Boolean).map(a => ({ x: a.x, y: a.y, r: Y })) : [])];
+    const blob = blobPath(members);
     ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = U * 0.0065; ctx.setLineDash([U * 0.014, U * 0.011]);
     if (blob) { ctx.globalAlpha = 1; ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = merged ? U * 0.02 : 0; strokePath(ctx, blob); ctx.shadowBlur = 0; }
     else { dotted(C.x, C.y, Y, 1); dotted(P.x, P.y, Y, Math.max(0.25, sq)); }
@@ -425,8 +457,24 @@ export function drawFuse(ctx, W, H, o, t) {
     const la = smooth(u / 0.8) * (1 - mf); ctx.globalAlpha = la;
     text(ctx, (t >= (o.range ?? start + 3)) ? "strong force · very short range" : "strong force", C.x, C.y + Y + U * 0.09, U * 0.03, "#ffd54f"); ctx.globalAlpha = 1;
   }
-  // the protons: the chart's proton picture, the pair a little bigger
-  for (const a of ps) particle(ctx, "proton", a.x + (merged || a.c || a.p ? 0 : jit(a.k, U * 0.004)), a.y, U * (a.c || a.p ? 0.1 : 0.085), 1, "#ff8a80", spin(a.k), sizeOf(a.k));   // medium, a closer view
+  // the protons: the chart's proton picture, the four a little bigger; P and S become neutrons at their moment
+  const isN = (a) => (a.p && t >= TN1) || (a.s && t >= TN2), tN = (a) => a.p ? TN1 : TN2;
+  for (const a of ps) {
+    const four = a.c || a.p || a.q || a.s, x = a.x + (merged || four ? 0 : jit(a.k, U * 0.004)), d = U * (four ? 0.1 : 0.085);
+    if (!isN(a)) particle(ctx, "proton", x, a.y, d, 1, "#ff8a80", spin(a.k), sizeOf(a.k));
+    else {
+      const f = smooth((t - tN(a)) / 0.4);
+      if (f < 1) particle(ctx, "proton", x, a.y, d, 1 - f, "#ff8a80", spin(a.k), sizeOf(a.k));
+      particle(ctx, "neutron", x, a.y, d * 0.8, f, "#e0e0e0", spin(a.k + 1), sizeOf(a.k));
+      const age = t - tN(a);
+      if (age < 0.5) { const q = age / 0.5; ctx.globalAlpha = (1 - q) * 0.9; ctx.strokeStyle = "#e1bee7"; ctx.lineWidth = U * 0.004; ctx.beginPath(); ctx.arc(x, a.y, d * 0.5 * (1 + 1.8 * q), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+      if (age < 2.2) {   // the neutrino away, a faint fast ghost
+        const ang = spin(a.k) + 0.6, r = U * 0.7 * age, fade = 1 - smooth((age - 1.4) / 0.8), hx = x + r * Math.cos(ang), hy = a.y + r * Math.sin(ang), tl = Math.min(r, U * 0.16);
+        ctx.strokeStyle = "#e0f7fa"; ctx.fillStyle = "#fff"; ctx.lineWidth = U * 0.0025; ctx.globalAlpha = fade * 0.5; ctx.beginPath(); ctx.moveTo(hx - tl * Math.cos(ang), hy - tl * Math.sin(ang)); ctx.lineTo(hx, hy); ctx.stroke();
+        ctx.globalAlpha = fade * 0.9; ctx.beginPath(); ctx.arc(hx, hy, U * 0.004, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+      }
+    }
+  }
   // pressure: red arrows at the margins, from the squeeze on
   const ra = sq > 0 ? smooth((t - sqz) / 0.8) * (1 - smooth((ba - 1) / 1)) : 0, push = U * 0.015 * Math.sin(t * 5);
   if (ra > 0) {
@@ -436,7 +484,8 @@ export function drawFuse(ctx, W, H, o, t) {
   }
   if (merged && C && P) {
     const f = smooth((ma - 0.6) / 0.8); ctx.globalAlpha = f;
-    text(ctx, t >= (o.helium ?? mrg + 2) ? "helium" : "a new nucleus", (C.x + P.x) / 2, C.y + Y + U * 0.1, U * 0.036, "#ffd54f"); ctx.globalAlpha = 1;
+    const word = t >= TN2 + 0.5 ? "helium · 2 protons + 2 neutrons" : t >= hel ? "two more join" : t >= TN1 + 0.3 ? "deuterium · a proton and a neutron" : t >= TN1 ? "the weak force turns one into a neutron" : "two protons, grabbed";
+    text(ctx, word, (C.x + P.x) / 2, C.y + Y + U * 0.1, U * 0.034, t >= TN1 && t < TN1 + 0.3 || t >= TN2 && t < TN2 + 0.5 ? "#b388ff" : "#ffd54f"); ctx.globalAlpha = 1;
   }
   // the burst: photons flying out from the pair, a squiggle along the way with a bright head
   if (burst && C && P) {
@@ -548,4 +597,60 @@ export function drawWeak(ctx, W, H, o, t) {
   else if (t >= (o.neutrino ?? cap + 3)) label("the neutrinos carry the energy away", o.neutrino ?? cap + 3, "#e0f7fa");
   else if (t >= cap) label("a proton and an electron become a neutron", cap);
   else if (t >= weak) label("the weak force · the shortest reach of all", weak, "#b388ff");
+}
+
+// ---------- deuterium: two in a sea of ordinary hydrogen (the author, 2026-11-09) ----------
+// Like the fusion diagram, but the crowd is ordinary hydrogen (bare protons) with two deuteriums in it: a proton and a
+// neutron snug together in one small yellow circle, labelled. Under pressure the ordinary protons' reach circles touch
+// and bounce apart ("not hot enough"), while a deuterium and the proton beside it merge like bubbles into helium-3 with a
+// small puff of light: it already carries its neutron, so it skips the hard step. Phases: start, neutron, rare, fuse.
+export function drawDeut(ctx, W, H, o, t) {
+  const TAU = Math.PI * 2, U = Math.min(W, H), cx = W / 2, cy = H / 2;
+  const start = o.start ?? t, neu = o.neutron ?? start + 3, rare = o.rare ?? start + 6, fus = o.fuse ?? rare + 2;
+  const u = t - start, Y = U * 0.1, L = Y * 2.3, D = U * 0.085;
+  const jit = (k, s) => Math.sin(t * (1.1 + k % 4 * 0.23) + k * 1.9) * s;
+  const ps = [], JM = Math.ceil(H / 2 / (L * 0.866)) + 2, IM = Math.ceil(W / 2 / L) + 2;
+  for (let j = -JM; j <= JM; j++) for (let i = -IM; i <= IM; i++) {
+    const k = (i + 40) * 97 + (j + 40), u1 = unit2(k, 1), u2 = unit2(k, 2), u3 = unit2(k, 3);
+    const deut = (i === 0 && j === 0) || (i === -2 && j === 3), mate = i === 1 && j === 0;
+    const amp = deut || mate ? 0 : L * 0.2 * (u2 < 0.35 ? 0.1 : 0.4 + 0.6 * u3), ang = u1 * TAU + 0.3 * Math.sin(t * 0.3 + k);
+    const x = cx + (i + (j & 1 ? 0.5 : 0)) * L + amp * Math.cos(ang), y = cy + j * L * 0.866 + amp * Math.sin(ang);
+    if (x < -Y || x > W + Y || y < -Y || y > H + Y) continue;
+    ps.push({ x, y, k, deut, mate, c: i === 0 && j === 0 });
+  }
+  const C = ps.find(a => a.c), M = ps.find(a => a.mate);
+  const ff = t < fus ? 0 : smooth((t - fus) / 0.9);
+  if (C && M) { const mx = (C.x + M.x) / 2; C.x += (mx - Y * 0.3 - C.x) * ff; M.x += (mx + Y * 0.3 - M.x) * ff; }
+  // pressure from the margins, from the "rare" cue
+  const ra = t < rare ? 0 : smooth((t - rare) / 0.8), push = U * 0.015 * Math.sin(t * 5);
+  if (ra > 0) { ctx.globalAlpha = ra; for (let i = 0; i < 8; i++) edgeArrow(ctx, W, H, i * TAU / 8 + TAU / 16, U * 0.11, U * 0.03, "#ff6b5e", U * 0.009, push); text(ctx, "pressure · not enough for ordinary hydrogen", cx, H * 0.16, U * 0.03, "#ff8a80"); ctx.globalAlpha = 1; }
+  // reach circles: faint on every proton; the deuteriums' solid; the fusing pair's a bubble outline
+  const dotted = (x, y, rad, a, w = U * 0.003, dash = true) => { ctx.globalAlpha = a; ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = w; ctx.setLineDash(dash ? [U * 0.014, U * 0.011] : []); ctx.beginPath(); ctx.arc(x, y, rad, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; };
+  for (const a of ps) { if (a.c || a.mate) continue; dotted(a.x + jit(a.k, U * 0.004), a.y, a.deut ? Y * 0.75 : Y, a.deut ? 0.9 : 0.22, a.deut ? U * 0.005 : U * 0.003, !a.deut); }
+  if (C && M) {
+    const blob = ff > 0 ? blobPath([{ x: C.x, y: C.y, r: Y * 0.75 }, { x: M.x, y: M.y, r: Y }]) : null;
+    ctx.strokeStyle = "#ffd54f"; ctx.lineWidth = U * 0.005;
+    if (blob) { ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = U * 0.015; strokePath(ctx, blob); ctx.shadowBlur = 0; }
+    else { dotted(C.x, C.y, Y * 0.75, 0.9, U * 0.005, false); dotted(M.x, M.y, Y, 0.22); }
+  }
+  // the nuclei: the deuteriums a proton and a neutron snug together, the rest lone protons
+  for (const a of ps) {
+    const x = a.x + (a.c || a.mate ? 0 : jit(a.k, U * 0.004));
+    if (a.deut) {
+      const d2 = D * 0.9, off = d2 * 0.3, g = t >= neu && a.c ? 1 + 0.08 * Math.sin(t * 6) : 1;   // the neutron throbs when it's named
+      particle(ctx, "proton", x - off, a.y - off * 0.3, d2, 1, "#ff8a80", spin(a.k), sizeOf(a.k));
+      particle(ctx, "neutron", x + off, a.y + off * 0.3, d2 * 0.8 * g, 1, "#e0e0e0", spin(a.k + 1), sizeOf(a.k));
+      if (!(a.c && ff > 0.5)) { ctx.globalAlpha = smooth(u / 0.8); text(ctx, a.c && t >= neu && t < rare ? "deuterium · a proton and a neutron" : "deuterium", x, a.y + Y * 0.75 + U * 0.06, U * 0.03, "#ffd54f"); ctx.globalAlpha = 1; }
+    } else particle(ctx, "proton", x, a.y, D, 1, "#ff8a80", spin(a.k), sizeOf(a.k));
+  }
+  if (t >= rare) { ctx.globalAlpha = smooth((t - rare) / 0.6); text(ctx, "1 hydrogen in 40,000", cx, H * 0.78, U * 0.034, "#ffe9a3"); ctx.globalAlpha = 1; }
+  if (ff > 0.6 && C && M) {   // the puff of light, and the name
+    const age = t - fus - 0.5, mx = (C.x + M.x) / 2, n = 18;
+    ctx.strokeStyle = "#ffe9a3"; ctx.fillStyle = "#fff8e1"; ctx.lineWidth = U * 0.0025;
+    for (let i = 0; i < n; i++) {
+      const a = i * 2.399 + 0.4, r = U * 0.18 * age, fade = 1 - smooth((age - 1.2) / 0.6); if (fade <= 0 || age < 0) continue;
+      const hx = mx + r * Math.cos(a), hy = C.y + r * Math.sin(a); ctx.globalAlpha = fade * 0.9; ctx.beginPath(); ctx.arc(hx, hy, U * 0.004, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+    }
+    ctx.globalAlpha = smooth(age / 0.5); text(ctx, "helium-3 · the neutron came along, no hard step", mx, C.y + Y + U * 0.1, U * 0.03, "#ffd54f"); ctx.globalAlpha = 1;
+  }
 }
