@@ -60,7 +60,6 @@
 # 2026-11-08, night (the author): long video 2's opening re-rendered up to the black holes and spliced into last night's
 # render (the rest is unchanged, 2.98 s earlier); by hand, from output/videos/narration-overnight.sh.long-02-head. Then the
 # opening's four Shorts. The three Shorts past the black holes wait: the author isn't happy with that audio yet
-short-l2-what-makes-a-star
 short-l2-whats-left
 # only queued: the other out-of-date takes wait; new takes (the dance of the forces Short) go in as their own line
 # 2026-11-08 (the author, this session): the forces Short, six passages of the opening in one story (2:38), as its own line
