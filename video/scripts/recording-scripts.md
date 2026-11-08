@@ -149,6 +149,8 @@ redone from "most objects on our chart" on (rec55 and rec56 as cut).
 - The week's Shorts from the opening, cut 2026-11-08: "Is Jupiter a failed star?" (1:30), "What makes a star a star?" (1:18),
   "How do stars die?" (1:34, re-sliced to end on the planet), "What's left when a star dies?" (1:08), and the forces one (2:38).
   **Their transcripts, for recording each on its own: `video/scripts/long-02-shorts-transcripts.md`** (the author, 2026-11-08).
+  **Launch order (the author, 2026-11-08, after watching them all): "How do stars die?" first, on Tuesday 2026-11-10 ("it feels
+  like a whole bit"); scheduled in `video/youtube.json`.** The others follow one every other day.
   **The forces one was recorded on its own on 2026-11-08 (rec58)** and is a take of its own now: its transcript as cut is under
   "The dance of the forces" in that file, with the lines to re-record in `video/sources/2026-11-08/NOTES.md`.
   Since you'll be recording the fusion one: *"deuterium comes with its neutron already, so it skips the hard step"* (why
