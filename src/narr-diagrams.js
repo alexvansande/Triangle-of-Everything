@@ -39,13 +39,19 @@ const picsPending = (slugs) => slugs.map(pic).filter(im => im.__ok && !(im.compl
 // the chart's own particles (the author, 2026-11-07: "the proton isn't a red dot, we have a nice image of it"):
 // drawn centred at (x, y), `d` wide; a dot of the given colour until the picture has arrived
 const PARTICLES = ["proton", "neutron", "electron"];
-const particle = (ctx, slug, x, y, d, alpha = 1, fallback = "#ff8a80") => {
+// each one turned its own way (`rot`, radians: the author, 2026-11-08, "not all identical as if we were pasting
+// the same image"), and a few per cent bigger or smaller, so a crowd of them reads as many, not one stamp
+const particle = (ctx, slug, x, y, d, alpha = 1, fallback = "#ff8a80", rot = 0, scale = 1) => {
   const im = pic(slug);
   ctx.globalAlpha = alpha;
-  if (im.complete && im.naturalWidth) ctx.drawImage(im, x - d / 2, y - d / 2, d, d);
-  else { ctx.fillStyle = fallback; ctx.beginPath(); ctx.arc(x, y, d * 0.3, 0, Math.PI * 2); ctx.fill(); }
+  if (im.complete && im.naturalWidth) {
+    const s = d * scale;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.drawImage(im, -s / 2, -s / 2, s, s); ctx.restore();
+  } else { ctx.fillStyle = fallback; ctx.beginPath(); ctx.arc(x, y, d * 0.3, 0, Math.PI * 2); ctx.fill(); }
   ctx.globalAlpha = 1;
 };
+// a particle's own turn and size, from its key: steady, so it doesn't flicker between frames
+const spin = (k) => unit2(k, 7) * Math.PI * 2, sizeOf = (k) => 0.92 + 0.16 * unit2(k, 8);
 // a stable 0..1 from a pair of integers (for an atom's own offset, drift and timing)
 const unit2 = (k, j) => { let h = (k * 374761393 + j * 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
@@ -304,13 +310,13 @@ export function drawCrush(ctx, W, H, o, t) {
     ctx.globalAlpha = 1;
   }
   // the nuclei: the chart's proton (hydrogen's nucleus is one), the centre one a little bigger
-  for (const a of atoms) particle(ctx, "proton", a.x, a.y, U * (a.c ? 0.04 : 0.03));   // small (the author's recap: the protons grow from one animation to the next)
+  for (const a of atoms) particle(ctx, "proton", a.x, a.y, U * (a.c ? 0.04 : 0.03), 1, "#ff8a80", spin(a.k), sizeOf(a.k));   // small (the author's recap: the protons grow from one animation to the next)
   // the electrons: three a shell, flying out at the pop, then roaming between the nuclei
   if (popped) {
     for (const a of atoms) for (let e = 0; e < 3; e++) {
       const ang = a.k * 0.7 + e * 2.094, fly = smooth(pa / 1.1) * R0 * 1.3;
       const wx = Math.sin(t * 1.7 + a.k + e * 2) * R0 * 0.45 * smooth(pa / 1.5), wy = Math.cos(t * 1.3 + a.k * 0.5 + e) * R0 * 0.45 * smooth(pa / 1.5);
-      particle(ctx, "electron", a.x + Math.cos(ang) * fly + wx, a.y + Math.sin(ang) * fly + wy, U * 0.016, 0.95, "#b3e5fc");
+      particle(ctx, "electron", a.x + Math.cos(ang) * fly + wx, a.y + Math.sin(ang) * fly + wy, U * 0.016, 0.95, "#b3e5fc", spin(a.k * 3 + e) + t * 0.8);
     }
   }
   // the central atom's push, outwards, and gravity's push from the margins
@@ -401,7 +407,7 @@ export function drawFuse(ctx, W, H, o, t) {
     text(ctx, (t >= (o.range ?? start + 3)) ? "strong force · very short range" : "strong force", C.x, C.y + Y + U * 0.09, U * 0.03, "#ffd54f"); ctx.globalAlpha = 1;
   }
   // the protons: the chart's proton picture, the pair a little bigger
-  for (const a of ps) particle(ctx, "proton", a.x + (merged || a.c || a.p ? 0 : jit(a.k, U * 0.004)), a.y, U * (a.c || a.p ? 0.054 : 0.046));   // medium
+  for (const a of ps) particle(ctx, "proton", a.x + (merged || a.c || a.p ? 0 : jit(a.k, U * 0.004)), a.y, U * (a.c || a.p ? 0.054 : 0.046), 1, "#ff8a80", spin(a.k), sizeOf(a.k));   // medium
   // pressure: red arrows at the margins, from the squeeze on
   const ra = sq > 0 ? smooth((t - sqz) / 0.8) * (1 - smooth((ba - 1) / 1)) : 0, push = U * 0.015 * Math.sin(t * 5);
   if (ra > 0) {
@@ -475,24 +481,24 @@ export function drawWeak(ctx, W, H, o, t) {
   // the nuclei: a proton until its moment, then a neutron (a cross-fade), with a flash at the change
   for (const n of nuc) {
     const d = D * (n.c ? 1.25 : 1), x = n.x + (packed > 0.9 ? 0 : jit(n.k, U * 0.003)), y = n.y;
-    if (n.keep || t < n.tc) particle(ctx, "proton", x, y, d);
+    if (n.keep || t < n.tc) particle(ctx, "proton", x, y, d, 1, "#ff8a80", spin(n.k), sizeOf(n.k));
     else {
       const f = smooth((t - n.tc) / 0.4);
-      if (f < 1) particle(ctx, "proton", x, y, d, 1 - f);
-      particle(ctx, "neutron", x, y, d, f);
+      if (f < 1) particle(ctx, "proton", x, y, d, 1 - f, "#ff8a80", spin(n.k), sizeOf(n.k));
+      particle(ctx, "neutron", x, y, d, f, "#e0e0e0", spin(n.k + 1), sizeOf(n.k));
       if (t - n.tc < 0.5) { const q = (t - n.tc) / 0.5; ctx.globalAlpha = (1 - q) * 0.9; ctx.strokeStyle = "#f3e5f5"; ctx.lineWidth = U * 0.004; ctx.beginPath(); ctx.arc(x, y, R * (1 + 1.6 * q), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
     }
   }
   // the electrons: one a nucleus, roaming round it in the sea, then pushed straight into it at its moment
   for (const n of nuc) {
     if (n.keep) {   // its electron stays in the sea
-      particle(ctx, "electron", n.x + Math.sin(t * 1.6 + n.k) * L * 0.42, n.y + Math.cos(t * 1.2 + n.k * 0.7) * L * 0.42, U * 0.016, 0.95, "#b3e5fc");
+      particle(ctx, "electron", n.x + Math.sin(t * 1.6 + n.k) * L * 0.42, n.y + Math.cos(t * 1.2 + n.k * 0.7) * L * 0.42, U * 0.016, 0.95, "#b3e5fc", spin(n.k) + t * 0.8);
       continue;
     }
     if (t >= n.tc) continue;
     const ex = n.x + Math.sin(t * 1.6 + n.k) * L * 0.42, ey = n.y + Math.cos(t * 1.2 + n.k * 0.7) * L * 0.42;
     const g = smooth((t - (n.tc - 0.7)) / 0.7);              // the last 0.7 s: straight in
-    particle(ctx, "electron", ex + (n.x - ex) * g, ey + (n.y - ey) * g, U * 0.016, 0.95, "#b3e5fc");
+    particle(ctx, "electron", ex + (n.x - ex) * g, ey + (n.y - ey) * g, U * 0.016, 0.95, "#b3e5fc", spin(n.k) + t * 0.8);
   }
   // the neutrinos: a shower, three from each change, faint fast ghosts on straight lines through everything
   ctx.strokeStyle = "#e0f7fa"; ctx.fillStyle = "#ffffff"; ctx.lineWidth = U * 0.0025;
