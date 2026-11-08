@@ -65,7 +65,6 @@
 # 2026-11-08, the author's notes on the Shorts: the force labels inside the phone frame, the Sun yellow and red-orange (every
 # video with the Sun), the black-hole dive without the pulsar, the three animations zoomed in and the merges as bubbles; the
 # long video and the five Shorts from the opening render whole
-short-l2-whats-left
 # 2026-11-08, later: the proton's aberration up in the diagrams, fusion of four hydrogens (two turned into neutrons), a
 # deuterium diagram in place of the clips: long-02-space and the Shorts with those stretches (failed-star, what-makes-a-star,
 # dance-of-the-forces) are queued whole already
