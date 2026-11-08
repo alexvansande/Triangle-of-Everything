@@ -65,7 +65,6 @@
 # 2026-11-08, the author's notes on the Shorts: the force labels inside the phone frame, the Sun yellow and red-orange (every
 # video with the Sun), the black-hole dive without the pulsar, the three animations zoomed in and the merges as bubbles; the
 # long video and the five Shorts from the opening render whole
-long-02-space
 short-l2-failed-star
 short-l2-what-makes-a-star
 short-l2-how-stars-die
@@ -80,3 +79,7 @@ short-l2-dance-of-the-forces
 # and it wouldn't play (the author, in Safari); fixed in its scene. src/main.js also guards the connection dots against a frame
 # with no usable transform (they went NaN for good): shared code, but it changes no frame of any render, so a whole re-render
 # of the others for it is not needed
+# 2026-11-08, afternoon (the author): a new round now, the forces Short first, then the opening's four Shorts. long-02-space
+# off the round (it would render whole): its opening (0-8:20) re-rendered by hand after the Shorts and joined to the current
+# render (output/videos/l2-wait.sh, then narration-overnight.sh.long-02-head2)
+# next: short-l2-dance-of-the-forces
