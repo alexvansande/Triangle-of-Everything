@@ -63,3 +63,4 @@ short-l2-inside-a-black-hole
 # 2026-11-08 (the author): held, the new opening's audio isn't settled yet. Tonight only the Shorts past the black holes;
 # long-02-space, short-l2-failed-star, short-l2-how-stars-die, short-l2-what-makes-a-star and short-l2-whats-left come
 # back to the queue once the author likes the opening's audio
+# only queued: the other out-of-date takes wait; new takes (the dance of the forces Short) go in as their own line

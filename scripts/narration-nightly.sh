@@ -34,6 +34,11 @@ git fetch -q origin && { git merge -q --no-edit origin/main 2>/dev/null || { git
 
 # (its lines: "stale <take> <kind> <ranges>": the take alone)
 stale=$(DRY=1 scripts/narration-render-stale.sh | sed -n 's/^stale \([^ ]*\).*/\1/p')
+# a "# only queued" line in the queue: only the out-of-date takes it lists render, the rest wait (the author, 2026-11-08:
+# the new opening of long video 2 held until its audio is settled)
+if grep -q '^# only queued' video/render-queue.txt 2>/dev/null; then
+  stale=$(for t in $stale; do grep -qx "$t" video/render-queue.txt && echo "$t"; done)
+fi
 if [ -z "$stale" ]; then
   [ -f "$STATE" ] || date +%s > "$STATE"   # the first quiet night starts the count
   quiet=$(( ($(date +%s) - $(cat "$STATE")) / 86400 ))
