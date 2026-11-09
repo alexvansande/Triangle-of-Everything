@@ -3534,6 +3534,11 @@ const dollyIconBlur = dollyIconFilter.append("feGaussianBlur").attr("stdDeviatio
 const dollyIconDark = (() => { const ct = dollyIconFilter.append("feComponentTransfer");
   return ["R", "G", "B"].map(c => ct.append(`feFunc${c}`).attr("type", "linear").attr("slope", 1)); })();
 let _dolly = null, _dollyHidden = null;
+// how far into the mist the other pictures are (0–1): the live ones drawn on canvases over the chart (stars, Laniakea,
+// the Hopf particles) darken by it too, or they stayed bright through every dive (the author, 2026-11-09: "we keep
+// getting extra stars in dive ins")
+let _dollyMist = 0;
+const dollyDim = (el) => !_dollyMist || dFocus.node().contains(el) ? 1 : 1 - _dollyMist;
 // named objects' halos (narration drawHalos) fade as a dive starts (setDolly)
 let _haloDolly = 1;
 const haloOpacity = (d) => d.opacity * (_isWebKit ? 0.3 : 0.7) * _haloDolly;
@@ -3563,7 +3568,7 @@ function setDolly(d) {
   });
   if (k < 0.0005) {
     if (!_dolly) return;
-    _dolly = null;
+    _dolly = null; _dollyMist = 0;
     for (const L of DOLLY_DEPTHS) { L.outer.attr("filter", null).style("opacity", null); L.inner.attr("transform", null); }
     dMid.attr("mask", null);
     lIcons.selectAll(":scope > g").attr("filter", null);
@@ -3604,6 +3609,7 @@ function setDolly(d) {
   // then the other pictures, all black by the time the dive is fully in.
   const ease = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
   const mist = ease((k - DOLLY_MIST_FROM) / (1 - DOLLY_MIST_FROM));
+  _dollyMist = mist;
   DOLLY_DEPTHS.forEach((L) => {
     if (L.inner !== dIcon) L.inner.attr("transform", about(1 / (1 + L.fall * k)));
     if (L.fade) L.outer.style("opacity", (1 - k).toFixed(3));
@@ -6898,11 +6904,11 @@ enableTrackpadPinch(svg.node(), [svg.node(), clickTargetContainer]);
 let _hopfIcons = null, _cmbIcons = null;
 // the observable universe turning live, in 3D: the CMB around the zoom's cosmic web (src/cmb-object.js)
 startCmbIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _cmbIcons = h; });
-startHopfIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _hopfIcons = h; });
+startHopfIcons(document.getElementById("chart"), { busy: () => rafPending, dim: dollyDim }).then(h => { _hopfIcons = h; });
 let _laniakeaIcons = null;
-startLaniakeaIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _laniakeaIcons = h; });
+startLaniakeaIcons(document.getElementById("chart"), { busy: () => rafPending, dim: dollyDim }).then(h => { _laniakeaIcons = h; });
 let _starIcons = null;
-startStarIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _starIcons = h; });
+startStarIcons(document.getElementById("chart"), { busy: () => rafPending, dim: dollyDim }).then(h => { _starIcons = h; });
 
 // Trackpad two-finger drag pans; pinch and mouse wheel zoom (trackpad-pan.js).
 // Wraps the start/end listeners above, so it must come after them.

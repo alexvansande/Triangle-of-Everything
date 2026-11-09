@@ -18,7 +18,7 @@ const TURN_X = 0.9, TURN_Y = 0.45, SWAY = 0.35, PERIOD = 40;
 const MIN_PX = 512;
 const inVideo = () => !!document.getElementById("narr-layer");
 
-export async function startLaniakeaIcons(chartEl, { busy = () => false } = {}) {
+export async function startLaniakeaIcons(chartEl, { busy = () => false, dim = () => 1 } = {}) {
   if (new URLSearchParams(location.search).get("laniakea") === "0") return;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   // nothing is fetched until a take plays
@@ -84,7 +84,7 @@ export async function startLaniakeaIcons(chartEl, { busy = () => false } = {}) {
       img.classList.add(HIDDEN);
       const r = img.getBoundingClientRect();
       if (r.width < 2 || r.right < plot.left || r.left > plot.right || r.bottom < plot.top || r.top > plot.bottom) continue;
-      const alpha = opacityOf(img);
+      const alpha = opacityOf(img) * dim(img);   // dim: a dive's mist (main.js), except on the dived object
       if (alpha < 0.01) continue;
       // a slow turn of its own, plus the parallax: where it sits across the frame
       const nx = (r.left + r.width / 2 - box.left) / box.width - 0.5, ny = (r.top + r.height / 2 - box.top) / box.height - 0.5;

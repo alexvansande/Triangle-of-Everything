@@ -25,7 +25,7 @@ const BY_SLUG = new Map(STARS.map(s => [s.slug, s]));
 // (the author, 2026-11-03: "…ite Dwarfs", "…ontal Branch" cut by the stars in long video 1)
 export const LIVE_STAR_REACH = 1.25;
 export const isLiveStar = slug => BY_SLUG.has(slug) && inVideo();
-export async function startStarIcons(chartEl, { busy = () => false } = {}) {
+export async function startStarIcons(chartEl, { busy = () => false, dim = () => 1 } = {}) {
   if (new URLSearchParams(location.search).get("stars") === "0") return;
   // nothing is set up until a take plays
   while (!inVideo()) await new Promise(r => setTimeout(r, 500));
@@ -113,7 +113,7 @@ export async function startStarIcons(chartEl, { busy = () => false } = {}) {
       const size = 2 * disc / discFraction(star);
       const cx = r.left + f.cx * r.width, cy = r.top + f.cy * r.height;
       if (cx + size / 2 < plot.left || cx - size / 2 > plot.right || cy + size / 2 < plot.top || cy - size / 2 > plot.bottom) continue;
-      const alpha = opacityOf(img);
+      const alpha = opacityOf(img) * dim(img);   // dim: a dive's mist (main.js), except on the dived object
       if (alpha < 0.01) continue;
       // a parallax: where it sits across the frame
       const nx = (cx - box.left) / box.width - 0.5, ny = (cy - box.top) / box.height - 0.5;

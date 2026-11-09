@@ -28,7 +28,7 @@ const inVideo = () => !!document.getElementById("narr-layer");
 // While the chart has a pan/zoom redraw queued (busy), the loop skips and the
 // chart calls draw() right after it redraws: run before it, the icons would
 // copy the previous frame's boxes and trail the drag by a frame.
-export async function startHopfIcons(chartEl, { busy = () => false } = {}) {
+export async function startHopfIcons(chartEl, { busy = () => false, dim = () => 1 } = {}) {
   if (new URLSearchParams(location.search).get("hopf") === "0") return;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   let core, renderer;
@@ -108,7 +108,7 @@ export async function startHopfIcons(chartEl, { busy = () => false } = {}) {
       img.classList.add(HIDDEN);
       const r = img.getBoundingClientRect();
       if (r.width < 2 || r.right < plot.left || r.left > plot.right || r.bottom < plot.top || r.top > plot.bottom) continue;
-      const alpha = opacityOf(img);
+      const alpha = opacityOf(img) * dim(img);   // dim: a dive's mist (main.js), except on the dived object
       if (alpha < 0.01) continue;
       shown.push({ slug: img.dataset.slug, r, alpha });
     }
