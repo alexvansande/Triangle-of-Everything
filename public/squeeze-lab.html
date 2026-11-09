@@ -157,7 +157,7 @@ const BASE = {
   repel: 1, falloff: 2, range: 1, stiffness: 1, tension: 1, pressure: 1, contact: 1, damping: 1, drift: 0.3,
   tremble: 1,
   threshold: 0.3, spread: 0.2, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, electronSize: 0.03, electronBounce: true, bareSpacing: 1,
-  fuseAt: 0.6, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
+  fuseAt: 0.6, fourAtOnce: false, neutrons: 2, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
   shatter: 1, greySize: 1, greyAttract: 0,
   onScreenOnly: true, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
@@ -168,7 +168,7 @@ const MODE_DEFAULTS = {
 };
 const MODE_NOTE = {
   1: "<b>Degenerate matter.</b> Blue electron shells round a small red nucleus (10%). They repel; squeezed past the threshold a shell pops into free electrons that fly off and ricochet. The bare nuclei stay, closer than before.",
-  2: "<b>Fusion.</b> Yellow is the strong force's reach round a red nucleus (50%). A hard shell and a strong push between them; when two yellows touch they become one, the ring finds its new centre and the nuclei pull together.",
+  2: "<b>Fusion.</b> Yellow is the strong force's reach round a red nucleus (50%). A hard shell and a strong push between them; when yellows touch they become one, the ring finds its new centre and the nuclei pull together. At four nuclei the weak force turns two of them grey: helium.",
   3: "<b>Neutrons.</b> A red ring filled by a proton (90%). Stiff and repelling; squeezed past the threshold it shatters: the disc turns grey, the push switches off, and it lets itself be packed with the others.",
 };
 
@@ -211,6 +211,8 @@ const SCHEMA = [
   { key: "bareSpacing", label: "Bare nuclei spacing", min: 0.1, max: 3, step: 0.05, fmt: v => v.toFixed(2) + " R", modes: [1], note: "how far apart the bare nuclei settle" },
   { group: "Fusion", modes: [2] },
   { key: "fuseAt", label: "Fuse when pressed", min: 0.1, max: 0.95, step: 0.01, fmt: v => Math.round(v * 100) + "% of contact", modes: [2], note: "how deep two rings must press into each other's contact zone before they join" },
+  { key: "fourAtOnce", label: "Fuse only when four touch", type: "bool", modes: [2], note: "no pairs: four lone nuclei pressed together join in one go" },
+  { key: "neutrons", label: "Neutrons per helium", min: 0, max: 4, step: 1, modes: [2], note: "once a blob holds four nuclei, this many turn grey (the weak force), each with a flash and a neutrino" },
   { key: "maxNuclei", label: "Nuclei per blob, at most", min: 2, max: 13, step: 1, fmt: v => v >= 13 ? "no limit" : String(v), modes: [2], note: "4 is helium: a joined blob at the limit won't take more" },
   { key: "bridgeTime", label: "Reach time", min: 0, max: 1.5, step: 0.05, unit: "s", modes: [2], note: "the two lines pull into each other for this long before they become one" },
   { key: "hugRate", label: "Hug speed", min: 0.05, max: 6, step: 0.05, modes: [2], note: "how fast the joined ring rounds itself off" },
@@ -245,7 +247,7 @@ const TAU = Math.PI * 2;
 function makeBlob(x, y, vx, vy, R, M, kind) {
   const b = {
     id: S.nextId++, kind, state: "intact", R, A0: restArea(R, M), M,
-    nodes: [], nuclei: [], cx: x, cy: y, vx, vy, q: 1, mass: 1, sq: 0, kfac: 1, grey: 0, born: S.t, u: Math.random() * 2 - 1,
+    nodes: [], nuclei: [], cx: x, cy: y, vx, vy, q: 1, charge: 1, mass: 1, sq: 0, kfac: 1, grey: 0, born: S.t, u: Math.random() * 2 - 1,
     minx: 0, miny: 0, maxx: 0, maxy: 0,
   };
   for (let i = 0; i < M; i++) {
@@ -339,7 +341,7 @@ function step(dt) {
   for (let i = 0; i < pairs.length; i += 2) {
     const A = pairs[i], B = pairs[i + 1];
     {
-      const qA = P.chargeScaling ? A.q : (A.q > 0 ? 1 : 0), qB = P.chargeScaling ? B.q : (B.q > 0 ? 1 : 0);
+      const qA = P.chargeScaling ? A.charge : (A.charge > 0 ? 1 : 0), qB = P.chargeScaling ? B.charge : (B.charge > 0 ? 1 : 0);
       let dx = B.cx - A.cx, dy = B.cy - A.cy, d = Math.hypot(dx, dy) || 1e-6;
       const ra = reach(A), rb = reach(B), d0 = ra + rb;
       let f = 0;
@@ -421,7 +423,7 @@ function step(dt) {
     const A = pairs[i], B = pairs[i + 1];
     {
       if (A.minx > B.maxx + dc0 || B.minx > A.maxx + dc0 || A.miny > B.maxy + dc0 || B.miny > A.maxy + dc0) continue;
-      if (A.bridge === B.id) { bridgePull(A, B, dc0); bridgePull(B, A, dc0); continue; }   // reaching into each other
+      if (A.bridge && A.bridge === B.bridge) { bridgePull(A, B, dc0); bridgePull(B, A, dc0); continue; }   // reaching into each other
       const touched = ringContact(A, B, dc0, kc, touchD) | ringContact(B, A, dc0, kc, touchD);
       ringVsNuclei(A, B, dc0, kc); ringVsNuclei(B, A, dc0, kc);
       const hard = !A.nodes.length && !B.nodes.length;   // two bare discs: a hard contact, so pressure passes through a packed crowd
@@ -489,23 +491,52 @@ function step(dt) {
     else if (S.mode === 3 && b.sq > thr) breakBlob(b);
   }
   if (S.mode === 2) {
-    for (const [A, B] of touching) {
-      if (A.bridge || B.bridge || A.state !== "intact" || B.state !== "intact") continue;
-      if (P.maxNuclei < 13 && A.q + B.q > P.maxNuclei) continue;
-      if (!onScreen(A) || !onScreen(B)) continue;
-      if (P.bridgeTime <= 0) { fuse(A, B); continue; }
-      A.bridge = B.id; B.bridge = A.id;
-      // the touch point: the closest pair of nodes
-      let best = Infinity, x = 0, y = 0;
-      for (const p of A.nodes) for (const q of B.nodes) { const d2 = (p.x - q.x) ** 2 + (p.y - q.y) ** 2; if (d2 < best) { best = d2; x = (p.x + q.x) / 2; y = (p.y + q.y) / 2; } }
-      S.bridges.push({ A, B, t: 0, x, y });
+    const free = b => !b.bridge && b.state === "intact" && onScreen(b);
+    const groups = [];
+    if (P.fourAtOnce) {
+      // four lone nuclei in one touching cluster: the four nearest the most-touched one
+      const adj = new Map();
+      for (const [A, B] of touching) {
+        if (!free(A) || !free(B) || A.q !== 1 || B.q !== 1) continue;
+        (adj.get(A) || adj.set(A, []).get(A)).push(B); (adj.get(B) || adj.set(B, []).get(B)).push(A);
+      }
+      const taken = new Set();
+      for (const [seed, nb] of [...adj.entries()].sort((a, b) => b[1].length - a[1].length)) {
+        if (taken.has(seed)) continue;
+        const group = [seed], queue = [seed];
+        while (queue.length && group.length < 4) {
+          const c = queue.shift();
+          for (const n of adj.get(c)) if (!taken.has(n) && !group.includes(n)) { group.push(n); queue.push(n); if (group.length === 4) break; }
+        }
+        if (group.length === 4) { for (const g of group) taken.add(g); groups.push(group); }
+      }
+    } else {
+      for (const [A, B] of touching) {
+        if (!free(A) || !free(B)) continue;
+        if (P.maxNuclei < 13 && A.q + B.q > P.maxNuclei) continue;
+        groups.push([A, B]);
+      }
+    }
+    for (const g of groups) {
+      if (g.some(b => b.bridge)) continue;
+      if (P.bridgeTime <= 0) { fuseMany(g); continue; }
+      const id = S.nextId++; let x = 0, y = 0;
+      for (const b of g) { b.bridge = id; x += b.cx; y += b.cy; }
+      S.bridges.push({ members: g, t: 0, x: x / g.length, y: y / g.length });
     }
     for (let i = S.bridges.length - 1; i >= 0; i--) {
       const br = S.bridges[i]; br.t += dt;
-      const alive = blobs.includes(br.A) && blobs.includes(br.B);
-      if (!alive) { S.bridges.splice(i, 1); continue; }
-      br.x = (br.A.cx + br.B.cx) / 2; br.y = (br.A.cy + br.B.cy) / 2;
-      if (br.t >= P.bridgeTime) { fuse(br.A, br.B); S.bridges.splice(i, 1); }
+      if (!br.members.every(b => blobs.includes(b))) { S.bridges.splice(i, 1); continue; }
+      let x = 0, y = 0; for (const b of br.members) { x += b.cx; y += b.cy; } br.x = x / br.members.length; br.y = y / br.members.length;
+      if (br.t >= P.bridgeTime) { fuseMany(br.members); S.bridges.splice(i, 1); }
+    }
+    // the weak force: a scheduled proton turns into a neutron, with a flash and a neutrino that flies straight out
+    for (const b of blobs) for (const k of b.nuclei) {
+      if (!k.turnAt || k.grey || S.t < k.turnAt) continue;
+      k.grey = true; k.greyAt = S.t; b.charge--;
+      S.flashes.push({ x: k.x, y: k.y, r0: k.r * 0.5, r1: k.r * 2.2, t: 0, dur: 0.35, color: "255,255,255" });
+      const a = rnd(0, TAU), v = 2400;
+      S.electrons.push({ x: k.x, y: k.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, nu: true });
     }
   }
   // a torn film races round from the tear, spraying its electrons from the two rims
@@ -553,7 +584,7 @@ function step(dt) {
       for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) {
         const c = cells.get((ix + ox) * 65536 + iy + oy); if (!c) continue;
         for (const o of c) {
-          if (o === el || o.x < el.x || (o.x === el.x && o.y <= el.y)) continue;   // each pair once
+          if (o === el || o.nu || el.nu || o.x < el.x || (o.x === el.x && o.y <= el.y)) continue;   // each pair once
           let dx = o.x - el.x, dy = o.y - el.y; const d2 = dx * dx + dy * dy;
           if (d2 >= 4 * rc * rc || d2 === 0) continue;
           const d = Math.sqrt(d2); dx /= d; dy /= d;
@@ -568,7 +599,7 @@ function step(dt) {
     if (!b.nodes.length) continue;
     const r = b.rm * 0.97;
     for (const el of S.electrons) {
-      if (el.x < b.minx || el.x > b.maxx || el.y < b.miny || el.y > b.maxy) continue;
+      if (el.nu || el.x < b.minx || el.x > b.maxx || el.y < b.miny || el.y > b.maxy) continue;
       let dx = el.x - b.cx, dy = el.y - b.cy, d = Math.hypot(dx, dy);
       if (d >= r || d < 1e-6) continue;
       dx /= d; dy /= d;
@@ -681,20 +712,21 @@ function breakBlob(b) {
     S.frags.push({ pts, cx: mx, cy: my, vx: dx * s + b.vx, vy: dy * s + b.vy, w: P.shatter * rnd(-4, 4), t: 0, dur: 0.7, color: "255,59,48" });
   }
   S.flashes.push({ x: b.cx, y: b.cy, r0: b.rm * 0.9, r1: b.rm * 1.3, t: 0, dur: 0.3, color: "255,255,255" });
-  b.nodes = []; b.state = "grey"; b.q = 0; b.broke = S.t;
+  b.nodes = []; b.state = "grey"; b.q = 0; b.charge = 0; b.broke = S.t;
   const k = b.nuclei[0]; k.x = b.cx; k.y = b.cy; k.vx = b.vx; k.vy = b.vy; k.r = b.R * P.nucleus * P.greySize;
   S.events.break++;
 }
 
 // Two rings touch: one ring round both, built by casting rays from the new centre to the farthest edge of either
 // polygon (the union), its nodes' target radius relaxing toward the circle of the combined area.
-function fuse(A, B) {
-  const P = S.P, mA = A.q, mB = B.q, m = mA + mB;
-  const cx = (A.cx * mA + B.cx * mB) / m, cy = (A.cy * mA + B.cy * mB) / m;
-  const vx = (A.vx * mA + B.vx * mB) / m, vy = (A.vy * mA + B.vy * mB) / m;
-  const R = Math.sqrt(A.R * A.R + B.R * B.R);
+function fuseMany(members) {
+  const P = S.P;
+  let m = 0, cx = 0, cy = 0, vx = 0, vy = 0, R2 = 0;
+  for (const b of members) { m += b.q; cx += b.cx * b.q; cy += b.cy * b.q; vx += b.vx * b.q; vy += b.vy * b.q; R2 += b.R * b.R; }
+  cx /= m; cy /= m; vx /= m; vy /= m;
+  const R = Math.sqrt(R2);
   const M = Math.max(P.segments, Math.round(P.segments * R / P.radius));
-  const polys = [A.nodes, B.nodes];
+  const polys = members.map(b => b.nodes);
   const nodes = [], rads = [];
   for (let i = 0; i < M; i++) {
     const a = (i / M) * TAU, dx = Math.cos(a), dy = Math.sin(a);
@@ -716,19 +748,27 @@ function fuse(A, B) {
     const r = (rads[(i + M - 1) % M] + 2 * rads[i] + rads[(i + 1) % M]) / 4, a = (i / M) * TAU;
     nodes.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r, vx, vy, rt: r, fx: 0, fy: 0 });
   }
+  const nuclei = [].concat(...members.map(b => b.nuclei));
+  let charge = 0; for (const k of nuclei) if (!k.grey) charge++;
   const b = {
-    id: S.nextId++, kind: 2, state: "intact", R, A0: restArea(R, M), M, nodes, nuclei: A.nuclei.concat(B.nuclei),
-    cx, cy, vx, vy, q: m, mass: m, sq: 0, kfac: 1, grey: 0, hug: true, born: S.t, u: Math.random() * 2 - 1,
+    id: S.nextId++, kind: 2, state: "intact", R, A0: restArea(R, M), M, nodes, nuclei,
+    cx, cy, vx, vy, q: m, charge, mass: m, sq: 0, kfac: 1, grey: 0, hug: true, born: S.t, u: Math.random() * 2 - 1,
     minx: 0, miny: 0, maxx: 0, maxy: 0,
   };
+  // helium: once four nuclei share a ring, the weak force turns some of them grey, one after another
+  if (m >= 4) {
+    const reds = nuclei.filter(k => !k.grey && !k.turnAt), want = Math.min(P.neutrons, reds.length) - nuclei.filter(k => k.grey || k.turnAt).length;
+    for (let i = 0; i < want; i++) { const j = Math.floor(rnd(0, reds.length)); reds.splice(j, 1)[0].turnAt = S.t + 0.5 + i * 0.45; }
+  }
   for (const k of b.nuclei) {   // every nucleus starts inside the new ring
     k.vx = vx; k.vy = vy;
     const dx = k.x - cx, dy = k.y - cy, d = Math.hypot(dx, dy) || 1e-6, i = Math.round(Math.atan2(dy, dx) / TAU * M + M) % M;
     const lim = rads[i] - k.r * 1.1;
     if (d > lim && lim > 0) { k.x = cx + dx / d * lim; k.y = cy + dy / d * lim; }
   }
-  S.blobs.splice(S.blobs.indexOf(A), 1); S.blobs.splice(S.blobs.indexOf(B), 1); S.blobs.push(b);
-  S.flashes.push({ x: (A.cx + B.cx) / 2, y: (A.cy + B.cy) / 2, r0: R * 0.2, r1: R * 0.9, t: 0, dur: 0.4, color: "255,213,74" });
+  for (const o of members) S.blobs.splice(S.blobs.indexOf(o), 1);
+  S.blobs.push(b);
+  S.flashes.push({ x: cx, y: cy, r0: R * 0.2, r1: R * 0.9, t: 0, dur: 0.4, color: "255,213,74" });
   S.events.fuse++;
 }
 
@@ -778,10 +818,12 @@ function draw() {
 
   // electrons: plain dots
   if (S.electrons.length) {
-    ctx.fillStyle = "#b3e5fc";
     const er = Math.max(1.2 * lw, P.radius * P.electronSize);
-    ctx.beginPath();
-    for (const e of S.electrons) { ctx.moveTo(e.x + er, e.y); ctx.arc(e.x, e.y, er, 0, TAU); }
+    ctx.fillStyle = "#b3e5fc"; ctx.beginPath();
+    for (const e of S.electrons) if (!e.nu) { ctx.moveTo(e.x + er, e.y); ctx.arc(e.x, e.y, er, 0, TAU); }
+    ctx.fill();
+    ctx.fillStyle = "#ffffff"; ctx.beginPath();   // neutrinos: tiny, white, straight through everything
+    for (const e of S.electrons) if (e.nu) { ctx.moveTo(e.x + er * 0.6, e.y); ctx.arc(e.x, e.y, er * 0.6, 0, TAU); }
     ctx.fill();
   }
 
@@ -791,7 +833,9 @@ function draw() {
     if (b.state === "grey") { const u = clamp((S.t - b.broke - 0.1) / 0.35, 0, 1); fill = `rgb(${Math.round(255 - (255 - 138) * u)},${Math.round(255 - (255 - 143) * u)},${Math.round(255 - (255 - 153) * u)})`; }
     for (const k of b.nuclei) {
       ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, TAU);
-      ctx.fillStyle = fill; ctx.fill();
+      if (k.grey) { const u = clamp((S.t - k.greyAt - 0.1) / 0.35, 0, 1); ctx.fillStyle = `rgb(${Math.round(255 - (255 - 138) * u)},${Math.round(255 - (255 - 143) * u)},${Math.round(255 - (255 - 153) * u)})`; }
+      else ctx.fillStyle = fill;
+      ctx.fill();
       if (b.state === "popped" && P.glow > 0) { ctx.strokeStyle = "rgba(255,59,48,0.35)"; ctx.lineWidth = lw * 1.5; ctx.stroke(); }
     }
   }
