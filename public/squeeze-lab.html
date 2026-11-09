@@ -154,7 +154,7 @@ const DT = 1 / 120;                 // physics step (two a frame at 60 fps, more
 const BASE = {
   count: 100, radius: 100, sizeSpread: 0.1, nucleus: 0.1, segments: 28,
   startBox: 2.2, endBox: 1.0, shrinkTime: 40, gravity: 0, initSpeed: 60, jitter: 0,
-  repel: 1, range: 1, stiffness: 1, tension: 1, pressure: 1, contact: 1, damping: 1, drift: 0.3,
+  repel: 1, falloff: 2, range: 1, stiffness: 1, tension: 1, pressure: 1, contact: 1, damping: 1, drift: 0.3,
   tremble: 1,
   threshold: 0.3, spread: 0.2, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, electronSize: 0.03, bareSpacing: 1,
   fuseAt: 0.6, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
@@ -188,7 +188,8 @@ const SCHEMA = [
   { key: "shrinkTime", label: "Shrink over", min: 2, max: 180, step: 1, unit: "s" },
   { key: "gravity", label: "Pull to the centre", min: 0, max: 6, step: 0.05, note: "0 = the walls alone do the squeezing (the pressure is then highest at the walls); a pull makes the middle the tightest, like a star" },
   { group: "Forces" },
-  { key: "repel", label: "Repulsion", min: 0, max: 6, step: 0.05, note: "between centres, 1/d², from each circle's edge" },
+  { key: "repel", label: "Repulsion", min: 0, max: 6, step: 0.05, note: "between centres; 1 = an acceleration of 300 u/s² at the moment two rings touch" },
+  { key: "falloff", label: "Falloff power", min: 0, max: 6, step: 0.5, fmt: v => v === 0 ? "constant" : "1/d^" + v, note: "2 is Coulomb (charges, single poles); 4 is two bar magnets (dipoles)" },
   { key: "range", label: "Reach", min: 0.2, max: 8, step: 0.1, fmt: v => v.toFixed(1) + " R", note: "repulsion fades over this many radii of gap" },
   { key: "stiffness", label: "Ring stiffness", min: 0, max: 8, step: 0.05, note: "how hard each point holds its distance from the centre" },
   { key: "tension", label: "Ring tension", min: 0, max: 6, step: 0.05 },
@@ -330,7 +331,7 @@ function step(dt) {
       let f = 0;
       if (qA > 0 && qB > 0) {
         const dd = Math.max(d, d0 * 0.5), gap = Math.max(0, d - d0), lam = P.range * Math.max(A.R, B.R);
-        f = a0 * qA * qB * (d0 * d0) / (dd * dd) * Math.exp(-gap / lam);
+        f = a0 * qA * qB * Math.pow(d0 / dd, P.falloff) * Math.exp(-gap / lam);
       } else if (P.greyAttract > 0 && A.state === "grey" && B.state === "grey") {
         const gap = d - d0;
         if (gap < A.R * 0.6 && gap > A.R * 0.02) f = -P.greyAttract * 300;   // a short-range pull between neutrons
