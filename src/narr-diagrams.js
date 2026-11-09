@@ -750,3 +750,82 @@ export function drawEdge(ctx, W, H, o, t) {
     ctx.globalAlpha = smooth((grow - 0.5) / 0.4); text(ctx, "our observable universe", X(0), Y(-R) - H * 0.02, H * 0.028, "#ffffff"); ctx.globalAlpha = 1;
   }
 }
+
+// ---------- the observable universe, cut open (the author's design, 2026-11-09, The Observable Universe) ----------
+// { obs: { phase } }, phases by cue (absolute take times), drawn with the zoom's own objects like drawEdge: start (our
+// universe, its 16.7 billion ly ring), obs (the view pulls back: the observable universe round it, a triangular cut in
+// its shell showing the inside, rings at every few billion light-years), hl (its edge highlighted: 46 billion ly), past
+// (from the centre outwards, slowly: what the light we see left before; the centre darkens behind as each era is named:
+// clusters, galaxies, stars; the view starts close on the centre and pulls back slowly so each named one is in view),
+// cmb (the oldest light: the shell fades in, red, and the view keeps pulling back, slowly).
+// (named at their tops, centred, for the Shorts' narrow frame; the innermost two too close to name)
+const OBS_RINGS = [[1, ""], [5, ""], [10, "10 billion ly"], [16.7, "our universe · 16.7 billion ly"], [30, "30 billion ly"], [46.3, "46 billion ly"]];
+// the eras the light left in, at their distances now (comoving, billion ly) and how long ago it set out
+// (z ≈ 1, 2.5, 7 and 20 in Planck 2018's cosmology)
+const OBS_ERAS = [["superclusters", 11, "before superclusters · 8 billion years ago"], ["clusters", 20, "before clusters · 11 billion years ago"],
+  ["galaxies", 29, "before galaxies · 13 billion years ago"], ["stars", 36, "before the first stars · 13.6 billion years ago"]];
+export function drawObservable(ctx, W, H, o, t) {
+  const O = edgeObjs(), start = o.start ?? t, obs = o.obs ?? Infinity, hl = o.hl ?? Infinity, past = o.past ?? Infinity, cmbT = o.cmb ?? Infinity;
+  const EDGE = 46.3, cx = W / 2, cy = H * 0.46, Rmax = Math.min(W, H) * 0.44;
+  const pull = smooth((t - obs) / 3);                                     // ours → the whole observable universe
+  // the past: close on the centre (the first era's ring near the frame's edge), then back out with each era named,
+  // to the whole universe by the stars; past the oldest light, further out still
+  const eras = OBS_ERAS.map(([key, gly, label]) => ({ gly, label, at: o[key] ?? Infinity }));
+  let view = EDGE;
+  if (t >= past) {
+    let v = 13 + (EDGE - 13) * (1 - smooth((t - past) / 1.6));            // in, quickly, as "a time before" begins
+    for (const e of eras) if (t >= e.at) v = 13 + (Math.min(EDGE, e.gly * 1.3) - 13) * smooth((t - e.at) / 4) + (v - 13) * (1 - smooth((t - e.at) / 4));
+    view = Math.min(EDGE, v);
+  }
+  const zc = smooth((t - cmbT) / 14), z = EDGE / view * (1 - 0.3 * zc);
+  const Robs = Rmax * z * (pull + (1 - pull) / HORIZON), Rours = Robs * HORIZON, sec = t - start;
+  const put = (obj, x, y, r, a = 1, clip = null) => {
+    if (!obj || a <= 0.01) return;
+    const size = Math.min(1536, Math.max(256, Math.round(2 * r / FILL / 64) * 64)), c = obj.draw(size, sec), d = 2 * r / FILL;
+    ctx.save(); ctx.globalAlpha = a; if (clip) { ctx.beginPath(); clip(); ctx.clip(); } ctx.drawImage(c, x - d / 2, y - d / 2, d, d); ctx.restore();
+  };
+  // the triangle cut out of the shell: a wedge from the centre, up and to the right
+  const wedge = () => { ctx.moveTo(cx, cy); ctx.arc(cx, cy, Robs * 1.02, -1.25, -0.2); ctx.closePath(); };
+  const fc = smooth((t - cmbT) / 5);
+  if (pull > 0) {
+    put(O.cmb, cx, cy, Robs, pull * (1 - 0.7 * smooth((t - past) / 2)) + 0.7 * fc);   // dims through the past, back for the oldest light
+    if (fc > 0) {                                                         // the oldest light in red
+      ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, Robs, 0, 6.2832); ctx.clip();
+      ctx.globalCompositeOperation = "color"; ctx.globalAlpha = fc; ctx.fillStyle = "#ff3d1f"; ctx.fillRect(0, 0, W, H); ctx.restore();
+    }
+    put(O.web, cx, cy, Robs, pull * (1 - fc), wedge);                     // inside the cut: the galaxies, no shell
+    ctx.save(); ctx.globalAlpha = pull * (1 - fc); ctx.strokeStyle = "rgba(255,255,255,.75)"; ctx.lineWidth = H * 0.003; ctx.beginPath(); wedge(); ctx.stroke(); ctx.restore();
+  }
+  put(O.ours, cx, cy, Rours, 1 - 0.6 * pull);
+  // the rings, every few billion light-years (in the cut), the edge highlighted when it's named
+  const fr = smooth((t - obs - 1.5) / 1.5) * (1 - smooth((t - past) / 1.2)), fh = smooth((t - hl) / 0.8);
+  for (const [gly, name] of OBS_RINGS) {
+    const r = Robs * gly / EDGE, edge = gly > 40, a = (gly === 16.7 ? Math.max(fr, 1 - pull) : fr) * (edge ? 0.6 + 0.4 * fh : 0.55);
+    if (r > Math.hypot(W, H)) continue;
+    if (a <= 0.01 || r < H * 0.01) continue;
+    ctx.globalAlpha = a; ctx.strokeStyle = edge && fh > 0 ? "#ffd54f" : gly === 16.7 ? "#80deea" : "#ffffff"; ctx.lineWidth = H * (edge && fh > 0 ? 0.005 : 0.0025);
+    ctx.setLineDash(gly === 16.7 ? [H * 0.012, H * 0.01] : []); ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]);
+    if (name) text(ctx, edge && fh > 0 ? "observable universe · 46 billion ly" : name, cx, cy - r - H * 0.008, H * (edge && fh > 0 ? 0.022 : 0.017), ctx.strokeStyle);
+  }
+  ctx.globalAlpha = 1;
+  // the past: from the centre out, slowly; behind each named era the light goes dark
+  if (t >= past) {
+    let reach = 0; for (const e of eras) if (t >= e.at) reach = Math.max(reach, smooth((t - e.at) / 2.5) * e.gly);
+    reach = Math.max(reach, smooth((t - past) / 3) * 6, smooth((t - cmbT) / 3) * EDGE * 0.97);
+    const dark = Robs * reach / EDGE;
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(1, dark));
+    g.addColorStop(0, "rgba(0,0,0,.96)"); g.addColorStop(0.85, "rgba(0,0,0,.9)"); g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, dark, 0, 6.2832); ctx.fill();
+    for (const e of eras) {
+      const a = smooth((t - e.at) / 0.8) * (1 - fc); if (a <= 0) continue;
+      const r = Robs * e.gly / EDGE; ctx.globalAlpha = a; ctx.strokeStyle = "#ffab40"; ctx.lineWidth = H * 0.004; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.2832); ctx.stroke();
+      text(ctx, e.label, cx, cy - r - H * 0.012, H * 0.021, "#ffab40");
+    }
+    ctx.globalAlpha = 1;
+  }
+  const ft = smooth((t - cmbT - 2) / 1.5);
+  if (ft > 0) {
+    const y = Math.min(H * 0.72, cy + Robs + H * 0.035);
+    ctx.globalAlpha = ft; text(ctx, "the oldest light", cx, y, H * 0.026, "#ff8a65"); text(ctx, "380,000 years after the Big Bang", cx, y + H * 0.032, H * 0.02, "#ff8a65"); ctx.globalAlpha = 1;
+  }
+}

@@ -224,7 +224,7 @@ await new Promise((res, rej) => spawn("ffmpeg", ["-hide_banner", "-loglevel", "e
   "-f", "concat", "-safe", "0", "-i", path.join(TMP, "list.txt"),
   ...(meta.renderOnly && !meta.audio ? ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"] : ["-ss", String(from), "-t", String(to - from), "-i", audio]),
   "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-af", "apad", "-t", String(to - from),   // silent tail if the take runs past its audio
-  "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", OUT],
+  "-c:a", "aac", "-b:a", `${process.env.NARR_AUDIO_KBPS || 192}k`, "-movflags", "+faststart", OUT],   // NARR_AUDIO_KBPS: a higher bitrate (the author, 2026-11-09)
   { stdio: "inherit" }).on("close", c => c ? rej(new Error("ffmpeg mux failed")) : res()));
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log("done:", OUT);

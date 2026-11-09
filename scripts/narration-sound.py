@@ -510,7 +510,7 @@ if wav_out:
     print(f"  {T:.1f} s: " + (", ".join(done) or "no sound cues") + f" → {wav_out}")
     sys.exit(0)
 subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "f32le", "-ar", str(SR), "-ac", "2", "-i", "-",
-                "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", os.path.join(take_dir, "mix.m4a")],
+                "-c:a", "aac", "-b:a", os.environ.get("NARR_AUDIO_KBPS", "192") + "k", "-movflags", "+faststart", os.path.join(take_dir, "mix.m4a")],   # NARR_AUDIO_KBPS: a higher bitrate (the author, 2026-11-09: crackles)
                input=mix.T.astype(np.float32).tobytes(), check=True)
 take["mix"] = "mix.m4a"
 take["credits"] = CR

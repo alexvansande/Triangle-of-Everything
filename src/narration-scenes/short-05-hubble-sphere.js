@@ -28,15 +28,15 @@ const OU = { ellipse: [PH.r, PH.m, 0.09, 0.09], rot: 0, place: "above" };   // a
 // the whole universe on a log scale (the spectrum explorer's Cloud, log radius from 1,000 km,
 // as in video 7), false colour: red microwave, green far infrared, blue visible light
 const LOG_UNIT = Math.log10(1000 / 9.4607e12);
-const UNIVERSE_COLOURS = { c: 13, s: 8.5 };
+export const UNIVERSE_COLOURS = { c: 13, s: 8.5 };
 // Earth close first, in natural colour (the continents), then out to the edge of the observable
 // universe; each distance named as it comes into view, one at a time, then faded (author, 2026-10-28)
 const EARTH_VIEW = { yaw: -2.5666, pitch: 0.835, orbit: 6.2, gmst: 0.035 };   // (video 7's camera: Europe and Africa in front)
 const NATURAL = { c: 22, s: 1 };
 // the zoom out: [seconds after "seeing it right now", Earth's size (ezoom), ease], chained into one move
-const ZOOM_OUT = [[1.2, 0.75, "in"], [4.2, 1.5, "linear"], [6.2, 2.6, "linear"], [8.2, 3.9, "linear"], [10.2, 5.5, "linear"], [12.2, 7.2, "linear"], [14.2, 8.8, "out"]];
+export const ZOOM_OUT = [[1.2, 0.75, "in"], [4.2, 1.5, "linear"], [6.2, 2.6, "linear"], [8.2, 3.9, "linear"], [10.2, 5.5, "linear"], [12.2, 7.2, "linear"], [14.2, 8.8, "out"]];
 // [seconds after, ring or marker, shown as, seconds shown]
-const UNIVERSE_NAMES = [
+export const UNIVERSE_NAMES = [
   [4.6, "the Moon's orbit · 1.3 light-seconds", "the Moon · 1.3 light-seconds", 1.5],
   [6.6, "the Sun's path · 8 light-minutes", "the Sun · 8 light-minutes", 1.5],
   [8.6, "Proxima Centauri · 4.2 light-years", "nearest stars · 4 light-years", 1.5],
@@ -46,14 +46,14 @@ const UNIVERSE_NAMES = [
 ];
 // (anchored on a phrase; `k` scales the whole sequence's timing: 0.85 fits it between "46 billion" and
 // "the only object that falls outside our triangle" in the rec49/50 take)
-const universeCues = (at, k = 1) => [
+export const universeCues = (at, k = 1) => [
   ...ZOOM_OUT.map(([dt, ezoom, ease], i) => ({ at, offset: k * dt - 0.25,
     explorer: { ezoom, ease, dur: k * ((ZOOM_OUT[i + 1]?.[0] ?? dt + 3) - dt) } })),
   ...UNIVERSE_NAMES.flatMap(([dt, key, text, hold]) => [
     { at, offset: k * dt - 0.25, explorer: { labels: { [key]: text }, names: 1, dur: 0.5 } },
     { at, offset: k * (dt + hold) - 0.25, explorer: { names: 0, dur: 0.5 } }]),
 ];
-const UNIVERSE_KEY = { key: [["microwave", "#ff6b5e"], ["far infrared", "#7ddc6f"], ["visible light", "#7fa2ff"]], y: 0.7 };   // above the captions, clear of the ring labels
+export const UNIVERSE_KEY = { key: [["microwave", "#ff6b5e"], ["far infrared", "#7ddc6f"], ["visible light", "#7fa2ff"]], y: 0.7 };   // above the captions, clear of the ring labels
 
 export default {
   title: "The Hubble sphere",

@@ -22,7 +22,7 @@ for t in "$@"; do
   runner=scripts/narration-render.mjs
   [ "$t" != short-00-powers-of-ten ] || runner=scripts/render-zoom-queued.mjs
   log "draft $t from $(git rev-parse --short HEAD)"
-  caffeinate -i nice -n 10 node "$runner" "$t" --url "$URL" --workers "${WORKERS:-4}" --subframes 1 --dpr 1.6666667 \
+  NARR_AUDIO_KBPS=${NARR_AUDIO_KBPS:-320} caffeinate -i nice -n 10 node "$runner" "$t" --url "$URL" --workers "${WORKERS:-4}" --subframes 1 --dpr 1.6666667 \
     --chrome "$CHROME" --out "$out" > "output/videos/drafts/$t.log" 2>&1 || { log "! $t: draft failed (output/videos/drafts/$t.log)"; continue; }
   grep WARNING "output/videos/drafts/$t.log" | sort -u | sed 's/^/  /'
   # to watch: iCloud's output videos, dated, beside the full renders; nothing goes to the site or YouTube (the author, 2026-11-09)
