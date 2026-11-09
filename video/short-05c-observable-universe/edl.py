@@ -36,8 +36,10 @@ EDL = [
  ("rec64", "past", 370.66, 380.80),    # It also means that what happens on one side can never talk to what happens on the other side. So it's not really a single object at all.
  ("rec64", "past", 388.54, 404.30, {"cut": [(394.10, 396.75)]}),   # It represents not only our past, but also a future that never will be. We will never be able to see where they go, or even where they are right now. Even their future is beyond our reach.   (a first "We will never be able to see where they are." cut)
  # before the stars: the oldest light
- ("rec64", "cmb", 456.64, 476.46),     # And when we look at our distant past, we can see a time before superclusters, before clusters, before galaxies, even before stars existed. We can see the faint radiation that was emitted 380,000 years just after the Big Bang,
- ("rec64", "cmb", 546.44, 557.16),     # light that has been traveling towards us since light could travel in the universe at all, since it has become transparent enough for light to pass.
+ ("rec64", "cmb", 456.64, 476.46, {"s": 459.20}),   # (from its second "and when we look": the second pass found "And when we look at the," before it)
+      # And when we look at our distant past, we can see a time before superclusters, before clusters, before galaxies, even before stars existed. We can see the faint radiation that was emitted 380,000 years just after the Big Bang,
+ ("rec64", "cmb", 546.44, 557.16, {"s": 548.30}),   # (from its second "light that has been traveling": the second pass found the first, cut off)
+      # light that has been traveling towards us since light could travel in the universe at all, since it has become transparent enough for light to pass.
 ]
 
 POST_CUTS = []
