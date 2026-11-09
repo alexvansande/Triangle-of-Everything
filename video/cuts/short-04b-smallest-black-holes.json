@@ -8,7 +8,14 @@
     },
     {
       "take": "short-04-black-holes",
-      "from": "With enough pressure"
+      "from": "With enough pressure",
+      "carry": "glide"
     }
-  ]
+  ],
+  "music": [
+    {
+      "track": "Mesmerize"
+    }
+  ],
+  "_note": "The join after the hook (the author, 2026-11-09: a rough cut at 0:06): one Mesmerize under the whole video, and the camera glides on to the take's framing without the marks of before (carry: glide)."
 }

@@ -70,8 +70,8 @@ const NS_OPEN = { ...NS, label: "might still be ruled out\nby neutron star studi
 // author, 2026-11-09). 1e40 g/cm³ is 10^-18.35 s on the chart's time axis (format.js densityToLogTime), ~4e-19 s
 const RHO_R = (m) => (m - 0.622 - 40) / 3;
 const RHO_UP = [[RHO_R(21.43), 21.43], [RHO_R(54), 54]];
-const RHO_TOP_L = { trend: RHO_UP, color: "#ffab40", dash: true, label: "density of the universe", labelAt: [RHO_R(38), 38] };
-const RHO_TOP_R = { trend: RHO_UP, color: "#ffab40", dash: true, label: "less than a billionth of a\nbillionth of a second", labelAt: [RHO_R(38), 38], labelOffset: -50, labelOnly: true };
+const RHO_TOP_L = { trend: RHO_UP, color: "#ffab40", dash: true, label: "density of the universe", labelStyle: "axis", labelAt: [RHO_R(46.5), 46.5], labelOffset: 3 };
+const RHO_TOP_R = { trend: RHO_UP, color: "#ffab40", dash: true, label: "10⁻¹⁸ s after Big Bang", labelStyle: "axis", labelAt: [RHO_R(46.5), 46.5], labelOffset: -17, labelOnly: true };
 const DM_PBH = { mark: [-8.3, 19.5], label: "primordial black holes?", place: "right", color: "#ff8fa8" };
 // all four candidates at once (WIMPs at the bottom left, MACHOs at the top right), with
 // "Here be dark matter?" in the empty middle of the frame, left of the everyday objects'
@@ -253,7 +253,8 @@ export default {
 
     // ── Ending: maybe most matter is in tiny black holes ─────
     // (the window still open while the narration says why tiny black holes would need no new particle)
-    { at: ["to explain them", "to explain it", "heavy as a mountain"], hl: [{ window: W5, cuts: [ML, HAW, NS] }] },
+    // (as it is on screen, not drawn again: the author, 2026-11-09, "the line animation restarts")
+    { at: ["to explain them", "to explain it", "heavy as a mountain"], hl: [still({ window: W5, cuts: [ML, HAW, NS_OPEN], label: "still open?", dist: 40 }), still(SRC_NS)] },
 
     // ── Crossed off: the search for dark matter, area by area (the addendum, rec41) ──
     // back out to the candidates; each area of the chart that has been ruled out comes in as
@@ -265,8 +266,9 @@ export default {
     // then a slow zoom in, arriving on the crossed-off corner as it's named
     { at: "not only on the black hole line", cam: DM_CLOSE, dur: 4.5, drift: 0, quiet: true,
       hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] }] },
-    { at: ["lumps about roughly this size", "lumps about this size"], hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
-      { ...DM_SOURCE, delay: 0.6 }, { ...DM_MICA, delay: 0.2 }] },
+    // (their reach on the rulers, "roughly this size": the author, 2026-11-09)
+    { at: ["lumps about roughly this size", "lumps about this size"], units: true, unitsFor: 5, hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
+      { ...DM_SOURCE, delay: 0.6 }, { ...DM_MICA, delay: 0.2 }, { extent: { r: [-7.75, -4], m: [0, 1.74] }, delay: 0.5 }] },
     { at: ["can't be here either", "were around here"], hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
       still(DM_SOURCE), still(DM_MICA), { ...DM_HURT, delay: 0.1 }] },
     // "the collective effort…": a slow zoom back out while the rest of what's been ruled out

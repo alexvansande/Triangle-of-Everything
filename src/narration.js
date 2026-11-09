@@ -156,8 +156,10 @@ async function cutCues(take, name) {
     const before = rc.filter(c => c.time < s.from - 0.01);
     const cam = before.filter(c => c.cam).at(-1), hl = before.filter(c => c.hl || c.clear).at(-1);
     // (a piece with `carry: false` keeps what's on screen from the piece before: no jump to its own scene's framing)
-    if (s.from > 0 && cam && s.carry !== false) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: 0.05, drift: cam.drift, time: s.at });
-    if (s.from > 0 && hl?.hl && s.carry !== false) all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: s.at + 0.001 });
+    // ("glide": the camera eases there over 2.5 s and the marks of before stay behind: a hook joined to the take's
+    // middle, part 2 of the black holes, cut in a jump to marks that meant nothing there, the author, 2026-11-09)
+    if (s.from > 0 && cam && s.carry !== false) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: s.carry === "glide" ? 2.5 : 0.05, drift: cam.drift, time: s.at });
+    if (s.from > 0 && hl?.hl && s.carry !== false && s.carry !== "glide") all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: s.at + 0.001 });
     for (const c of rc) if (c.time >= s.from - 0.01 && c.time < s.to) all.push({ ...c, time: move(c.time) });
     // its sound cues inside it too, for a cut whose mix is made whole (narration-sound.mjs: a cut
     // with its own music, words.json "music")
@@ -1107,6 +1109,7 @@ export async function startNarration(app) {
     dropClips(live);
     drawHalos(live, t);
     drawGuides(live, t);
+    drawExtents(live, t);
     app.drawUnderLines?.(underLines.splice(0), underDots.splice(0));
     app.setDotBoost?.(pathBoosts.splice(0));
     // a close-up cue with `nearby: true` keeps its surroundings named: no fade, catalogue names on
@@ -1577,6 +1580,33 @@ export async function startNarration(app) {
     gGuides.append("text").attr("class", "narr-guide").attr("x", x + 6).attr("y", yB - 6).attr("text-anchor", "start")
       .attr("opacity", a).call(supText, valueLabel(o.logR + W_OFF, SIZE_BASES));
   }
+  /** An area's reach on the rulers: { extent: { r: [r0, r1], m: [m0, m1] } } (log cm, log g): dashed guides from its
+   *  edges to the size ruler (bottom) and the mass ruler (right), each value written there, in the guides' style (the
+   *  author, 2026-11-09: the hatched areas' "roughly this size", their top, bottom, left and right on the axes). Pin
+   *  the rulers with the cue's `units`. */
+  function drawExtents(live, t) {
+    const SW = layer.clientWidth, SH = layer.clientHeight, xR = massAxisX(SW) - 2, yB = SH * (SCENE.rulerY ?? RULER_Y) - 10;
+    for (const h of live) {
+      if (!h.extent || t < h.t0) continue;
+      const a = smooth((t - h.t0) / 0.5) * (1 - smooth((t - h.t1 + 0.4) / 0.4));
+      if (a <= 0.01) continue;
+      const [r0, r1] = h.extent.r, [m0, m1] = h.extent.m, g = gGuides.append("g").attr("opacity", a);
+      const line = (x1, y1, x2, y2) => g.append("line").attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2)
+        .attr("stroke", "#e8ecff").attr("stroke-width", 1).attr("stroke-dasharray", "4 4").attr("opacity", 0.6);
+      for (const r of [r0, r1]) {
+        const x = sx(r);
+        line(x, sy(m0), x, yB);
+        g.append("text").attr("class", "narr-guide").attr("x", x + (r === r0 ? -4 : 4)).attr("y", yB - 6)
+          .attr("text-anchor", r === r0 ? "end" : "start").call(supText, valueLabel(r + W_OFF, SIZE_BASES));
+      }
+      for (const m of [m0, m1]) {
+        const y = sy(m);
+        line(sx(r1), y, xR, y);
+        g.append("text").attr("class", "narr-guide").attr("x", xR - 4).attr("y", m === m0 ? y + 13 : y - 6)
+          .attr("text-anchor", "end").call(supText, valueLabel(m, MASS_BASES));
+      }
+    }
+  }
   /** "70 kg", "1.7 m": two significant figures in the ruler's units. */
   function valueLabel(v, bases) {
     const d = Math.floor(v + 1e-9);
@@ -1622,6 +1652,17 @@ export async function startNarration(app) {
       const mid = h.labelAt != null ? [sx(h.labelAt[0]), sy(h.labelAt[1])] : clipMid(p, plot);
       const ang = Math.atan2(p[p.length - 1][1] - p[0][1], p[p.length - 1][0] - p[0][0]) * 180 / Math.PI;
       const a2 = ang > 90 ? ang - 180 : ang < -90 ? ang + 180 : ang;
+      // labelStyle "axis": in the rulers' own style (white, as written, superscripts set by supText), its end at
+      // labelAt, so it reads like an axis label along the line (the author, 2026-11-09: the density of the universe
+      // read off at the top, where the time axis is)
+      if (h.labelStyle === "axis") {
+        const t = el.append("text").attr("class", "narr-unit")
+          .attr("transform", `translate(${mid[0]},${mid[1]}) rotate(${a2}) translate(0,${-6 - (h.labelOffset ?? 0)})`)
+          .attr("text-anchor", "end").attr("opacity", prog);
+        if (h.size) t.style("font-size", `${h.size}px`);
+        t.call(supText, h.label);
+        return;
+      }
       // "\n" stacks the label in lines above the line
       const lines = h.label.toUpperCase().split("\n");
       const t = el.append("text").attr("class", "narr-linelabel")

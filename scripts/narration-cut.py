@@ -124,7 +124,8 @@ def main(name):
         if sp != 1: seg["speed"] = sp
         # `carry: false`: the piece keeps the camera and marks of the one before instead of starting from its own scene's
         # (a jump at the join where the two scenes framed the moment differently: the author, 2026-11-09)
-        if s.get("carry") is False: seg["carry"] = False
+        # `carry: "glide"`: the camera glides (2.5 s) to its own scene's framing, and the marks of before are dropped
+        if "carry" in s: seg["carry"] = s["carry"]
         segments.append(seg)
         pieces.append((s["take"], src, a, b, at, (b - a) / sp, sp, s.get("room")))
         at += (b - a) / sp
