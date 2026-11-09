@@ -541,6 +541,12 @@ Cue fields
                step n a faint copy slides to shape n's place (same mass, at.rho a bulk density
                in g/cm³) and draws its openings (holes) or the tower's lattice. Everything
                comes back after the last of those cues
+             { squeeze: { mode, from?, speed?, seed?, P? } } — the Squeeze Lab's simulation
+               full screen (src/squeeze-sim.js; tuned in tools/squeeze-lab.html): mode 1
+               the electron shells crushed, 2 fusion, 3 the neutrons, with the lab's
+               settings (P overrides some). `from` seconds into its run when the cue
+               starts, then `speed` × the time since; give the cue a `hold` for as long
+               as it should run (a highlight lasts 14 s by default)
              { card: "E = mc²", hold?: 2, bg?: "#fff", arrow?, caption? } — the
                screen (over the classic figure, its plot frame, so the axes stay)
                fades to a card with the text, holds, and fades back; arrow: a

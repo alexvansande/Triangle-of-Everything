@@ -3,8 +3,8 @@
 // the-forces/): everything is a dance between four forces; the diagonal as the tug of war between gravity and
 // electromagnetism, panned up from the microbes; the giant planets' column and degenerate matter (the atoms crushed,
 // animated); the strong force and fusion (animated); the main sequence; the fuel running out; the weak force at the
-// collapse (animated), to the neutron star held by gravity (cut to 2:48 with the credits on 2026-11-09). The shots and the three diagrams are the opening's
-// (long-02-intro.js), keyed to this take's words. Until this take the Short was carved from the opening.
+// collapse (animated), to the neutron star held by gravity (cut to 2:48 with the credits on 2026-11-09). The shots are the opening's
+// (long-02-intro.js), keyed to this take's words; the three animations are the Squeeze Lab's simulations (src/squeeze-sim.js). Until this take the Short was carved from the opening.
 // =============================================================
 // Field reference: docs/narration.md, "Scene fields". Rules: video/plans/visual-rules.md.
 
@@ -68,31 +68,22 @@ export default {
     { at: "giant planets", cam: G(9.85, 30.9, 2.4), dur: 2.5, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }, ...BD] },
     { at: "up a column", hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, COLUMN] },
     { at: "degenerate matter", hl: [{ obj: "Jupiter", label: "degenerate matter inside", place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
-    // the atoms crushed: the diagram (src/narr-diagrams.js, drawCrush)
-    { at: "so massive", hl: [{ crush: {} }] },
-    // (cut to 2:48, the author, 2026-11-09: the shells break and the electrons go free within the one sentence left)
-    { at: "win over", hl: [{ crush: { phase: "pop" }, instant: true }] },
-    { at: "repulsion of the electrons", hl: [{ crush: { phase: "sea" }, instant: true }] },
+    // the atoms crushed: the Squeeze Lab's mode 1 (src/squeeze-sim.js, the author's settings in tools/squeeze-lab.html),
+    // 12 s into its run, so the first shells pop on "win over" (its pops come at 18–22 s of the run)
+    { at: "this happens", hold: 12, hl: [{ squeeze: { mode: 1, from: 12 } }] },
     // the strong force: back to the chart for a beat, then the fusion diagram (drawFuse)
     { at: "even more mass", cam: { r: 9.85, m: 32.6, span: 3 }, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "fusion starts", delay: 0.6 }] },
-    { at: "the strong force", hl: [{ fuse: {} }] },
-    { at: "very limited range", hl: [{ fuse: { phase: "range" }, instant: true }] },
-    { at: "push those cores together", hl: [{ fuse: { phase: "squeeze" }, instant: true }] },
-    { at: "capture them", hl: [{ fuse: { phase: "merge" }, instant: true }] },
-    { at: "single nucleus", hl: [{ fuse: { phase: "helium" }, instant: true }] },
-    { at: "so that's fusion", hl: [{ fuse: { phase: "burst" }, instant: true }] },
-    { at: "that delicate dance", cam: { r: 10.9, m: 33.1, span: 3.6 }, hl: [{ fuse: { phase: "stars" }, instant: true }] },
+    // the fusion, the lab's mode 2: 8 s in (past the crowded start's own merges) and at 1.8×, so its fusions (30–49 s
+    // of the run) fall from "push those cores together" to "so that's fusion"
+    { at: "the strong force", hold: 25, hl: [{ squeeze: { mode: 2, from: 8, speed: 1.8 } }] },
+    { at: "that delicate dance", cam: { r: 10.9, m: 33.1, span: 3.6 }, clear: true, hl: [] },
     // the main sequence
     { at: "called the main sequence", hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
     { at: "most of their lives", hl: [MS, { obj: "Sun", label: "billions of years" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
     { at: "once that runs out", hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
     { at: "goes haywire", cam: { r: 11.85, m: 33.4, span: 3.6 }, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 1.2, core: true }, { obj: "Red Giant", label: "the fire goes out", delay: 1 }] },
-    // the weak force: the diagram (drawWeak); the camera moves behind it to the cores
-    { at: "catastrophic core collapse", cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hl: [{ weak: {} }] },
-    { at: "weak force", hl: [{ weak: { phase: "weak" }, instant: true }] },
-    { at: "protons and electrons", hl: [{ weak: { phase: "capture" }, instant: true }] },
-    { at: "do not repel each other", hl: [{ weak: { phase: "pack" }, instant: true }] },
-    { at: "very big atomic", hl: [{ weak: { phase: "nucleus" }, instant: true }] },
-    { at: "force of gravity", hl: [{ weak: { phase: "gravity" }, instant: true }] },
+    // the weak force, the lab's mode 3: 7.2 s into its run, so its cascade of clenching rings (19.9–22 s of the run)
+    // lands on "protons and electrons squeezed together… a mass of neutrons", and the grey discs pack from there
+    { at: "catastrophic core collapse", cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hold: 45, hl: [{ squeeze: { mode: 3, from: 7.2 } }] },
   ],
 };

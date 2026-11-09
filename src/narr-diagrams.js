@@ -6,6 +6,7 @@
 //   cosmos     the observable universe as nested shells, the CMB outside (colours by distance, not to scale)
 import { iconUrls } from "./assets.js";
 import { cmbSphere } from "../tools/powers-of-ten/cmb-sphere.js";
+import { createSqueeze, defaults as squeezeDefaults, DT as SQUEEZE_DT, SHORT as SQUEEZE_SHORT, LONG as SQUEEZE_LONG } from "./squeeze-sim.js";
 
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
 const smooth = (x) => { x = clamp01(x); return x * x * (3 - 2 * x); };
@@ -670,4 +671,23 @@ export function drawDeut(ctx, W, H, o, t) {
     }
     ctx.globalAlpha = smooth(age / 0.5); text(ctx, "helium-3 · the neutron came along, no hard step", mx, C.y + Y + U * 0.1, U * 0.03, "#ffd54f"); ctx.globalAlpha = 1;
   }
+}
+
+// ---------- the Squeeze Lab's simulations (src/squeeze-sim.js, tuned in tools/squeeze-lab.html) ----------
+// { squeeze: { mode, from?, speed?, seed?, P? } }: mode 1 the shells crushed, 2 fusion, 3 the neutrons, with the lab's
+// settings for that mode (P overrides some). The run is stepped on the take's clock: `from` seconds into it when the cue
+// starts, then `speed` × the time since. One run per cue, replayed from its start after a seek back; a render steps
+// it exactly (o.exact), the live page catches up at most 60 steps a frame.
+const SQUEEZE = new Map();
+export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
+  const key = `${o.start}:${o.mode}:${o.seed ?? 1}`, want = (o.from ?? 0) + Math.max(0, t - o.start) * (o.speed ?? 1);
+  let sim = SQUEEZE.get(key);
+  if (!sim || sim.S.t > want + 1e-6) {
+    sim = createSqueeze({ pics: { proton: pic("proton"), neutron: pic("neutron") } });
+    Object.assign(sim.S, { mode: o.mode, seed: o.seed ?? 1, W: W > H ? SQUEEZE_LONG : SQUEEZE_SHORT, H: W > H ? SQUEEZE_SHORT : SQUEEZE_LONG });
+    sim.S.P = { ...squeezeDefaults(o.mode), hud: false, ...o.P };
+    sim.build(); SQUEEZE.set(key, sim);
+  }
+  for (let n = 0; sim.S.t + SQUEEZE_DT <= want + 1e-9 && (o.exact || n < 60); n++) sim.step(SQUEEZE_DT);
+  sim.draw(ctx, W, H, pixelRatio);
 }
