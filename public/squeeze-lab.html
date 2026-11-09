@@ -175,7 +175,7 @@ const MODE_NOTE = {
 // The rail: groups and sliders. `modes` limits a control to some regimes; `restart` rebuilds the crowd on change.
 const SCHEMA = [
   { group: "Crowd" },
-  { key: "count", label: "Circles", min: 4, max: 240, step: 1, restart: true },
+  { key: "count", label: "Circles", min: 4, max: 1000, step: 1, restart: true, note: "hundreds want a smaller radius; the start box only holds as many as fit" },
   { key: "radius", label: "Radius", min: 20, max: 260, step: 2, unit: "u", restart: true, note: "world units; the screen is 1080 × 1920" },
   { key: "sizeSpread", label: "Size spread", min: 0, max: 0.5, step: 0.01, fmt: v => "±" + Math.round(v * 100) + "%", restart: true, note: "a crowd of one size freezes into a crystal; some spread keeps it a liquid" },
   { key: "nucleus", label: "Nucleus size", min: 0.04, max: 0.96, step: 0.01, fmt: v => Math.round(v * 100) + "%" },
