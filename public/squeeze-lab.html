@@ -97,7 +97,7 @@ textarea {
   html, body { height: auto; }
   .app { grid-template-columns: 1fr; height: auto; }
   .stage { padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-  .view { height: min(78vh, 720px); }
+  .view { flex: none; height: min(78vh, 720px); }
   .rail { border-left: 0; border-top: 1px solid var(--line); padding-left: max(16px, env(safe-area-inset-left, 0px)); }
 }
 @media (prefers-reduced-motion: reduce) { .seg button, .rail button { transition: none; } }
@@ -159,7 +159,7 @@ const BASE = {
   threshold: 0.3, spread: 0.2, centreFirst: 0, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, electronSize: 0.03, electronBounce: true, bareSpacing: 1,
   fuseAt: 0.6, fourAtOnce: false, neutrons: 2, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
   shatter: 1, greySize: 1, greyUniform: true, greyAttract: 0,
-  onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowSize: 0.25, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
+  onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowSize: 0.45, arrowTime: 5, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
 const MODE_DEFAULTS = {
   1: { nucleus: 0.10, count: 150, sizeSpread: 0.12, shrinkTime: 23, repel: 5.05, falloff: 4, range: 0.6, stiffness: 2.95, pressure: 0.5, damping: 0.8,
@@ -233,7 +233,8 @@ const SCHEMA = [
   { key: "pictures", label: "The chart's proton and neutron pictures", type: "bool", note: "the Triangle's own particle images instead of flat discs" },
   { key: "arrowsOut", label: "Blue arrows out of each shell", type: "bool", note: "the electric push; each arrow fades as soon as a neighbour or a wall takes its room" },
   { key: "arrowsIn", label: "Red arrows in from the screen's edge", type: "bool", note: "the squeeze from outside; each fades when a circle covers it" },
-  { key: "arrowSize", label: "Arrow length", min: 0.1, max: 0.8, step: 0.05, fmt: v => Math.round(v * 100) + "% R" },
+  { key: "arrowSize", label: "Arrow length", min: 0.2, max: 1.2, step: 0.05, fmt: v => Math.round(v * 100) + "% R", note: "the red ones are 1.6× this" },
+  { key: "arrowTime", label: "Arrows fade out after", min: 0, max: 60, step: 0.5, unit: "s", note: "whatever room is left, they're gone a second after this" },
   { key: "lineWidth", label: "Line width", min: 0.5, max: 10, step: 0.5, unit: "px" },
   { key: "glow", label: "Glow", min: 0, max: 3, step: 0.1 },
   { key: "fill", label: "Fill", min: 0, max: 0.6, step: 0.01 },
@@ -905,22 +906,25 @@ function draw() {
   }
   // arrows: blue ones out of every whole shell (the push), red ones in from the screen's edge (the squeeze); each one
   // lives only while there's room for it, fading as a neighbour, a wall or a circle takes its place
+  // a readable arrow at phone size: the triangle is the arrow (two thirds of the length, as wide as it is long), with
+  // a short thin shaft behind it (the author, 2026-11-09: the triangle, not the base)
   const arrow = (x0, y0, x1, y1, col, a, w) => {
     if (a <= 0.01) return;
-    const dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len, h = Math.min(len * 0.45, w * 2.6);
-    ctx.strokeStyle = `rgba(${col},${a})`; ctx.fillStyle = `rgba(${col},${a})`; ctx.lineWidth = w;
-    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - ux * h * 0.6, y1 - uy * h * 0.6); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * h - uy * h * 0.45, y1 - uy * h + ux * h * 0.45); ctx.lineTo(x1 - ux * h + uy * h * 0.45, y1 - uy * h - ux * h * 0.45); ctx.closePath(); ctx.fill();
+    const dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len, h = len * 0.65, hw = h * 0.5;
+    ctx.strokeStyle = `rgba(${col},${a})`; ctx.fillStyle = `rgba(${col},${a})`; ctx.lineWidth = w; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - ux * h * 0.8, y1 - uy * h * 0.8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * h - uy * hw, y1 - uy * h + ux * hw); ctx.lineTo(x1 - ux * h + uy * hw, y1 - uy * h - ux * hw); ctx.closePath(); ctx.fill();
   };
-  if (P.arrowsOut || P.arrowsIn) {
-    const L = P.radius * P.arrowSize, hb = S.box / 2, aw = lw * 0.8;
+  const arrowLife = clamp(1 - (S.t - P.arrowTime), 0, 1);   // gone a second after their time
+  if ((P.arrowsOut || P.arrowsIn) && arrowLife > 0) {
+    const L = P.radius * P.arrowSize, hb = S.box / 2, aw = Math.max(lw * 0.9, L * 0.06);
     if (P.arrowsOut) for (const b of S.blobs) {
       if (!b.nodes.length) continue;
       if (Math.abs(b.cx) > S.W / 2 + b.rm + L || Math.abs(b.cy) > S.H / 2 + b.rm + L) continue;   // off screen anyway
       // the neighbours that could take an arrow's room
       const near = []; for (const o of S.blobs) if (o !== b) { const d = Math.hypot(o.cx - b.cx, o.cy - b.cy); if (d < b.rm + (o.rm || 0) + L * 2) near.push([o, d]); }
-      for (let i = 0; i < 8; i++) {
-        const ang = i / 8 * TAU + b.u * 0.4, ux = Math.cos(ang), uy = Math.sin(ang);
+      for (let i = 0; i < 6; i++) {
+        const ang = i / 6 * TAU + b.u * 0.5, ux = Math.cos(ang), uy = Math.sin(ang);
         const x0 = b.cx + ux * (b.rm + L * 0.2), y0 = b.cy + uy * (b.rm + L * 0.2);
         let space = Infinity;
         for (const [o, d] of near) {   // room along this direction before the neighbour's ring
@@ -931,12 +935,12 @@ function draw() {
         // and before the box's wall
         const tx = ux > 1e-6 ? (hb - x0) / ux : ux < -1e-6 ? (-hb - x0) / ux : Infinity, ty = uy > 1e-6 ? (hb - y0) / uy : uy < -1e-6 ? (-hb - y0) / uy : Infinity;
         space = Math.min(space, tx, ty);
-        const a = clamp((space - L * 0.5) / (L * 0.7), 0, 1) * 0.9;
-        arrow(x0, y0, x0 + ux * L, y0 + uy * L, "140,200,255", a, aw);
+        const a = clamp((space - L * 0.5) / (L * 0.7), 0, 1) * arrowLife;
+        arrow(x0, y0, x0 + ux * L, y0 + uy * L, "150,205,255", a, aw);
       }
     }
     if (P.arrowsIn) {
-      const Lr = L * 2, inset = 18, step = P.radius * 1.35, pts = [];
+      const Lr = L * 1.6, inset = 24, step = P.radius * 1.6, pts = [];
       const nx = Math.max(2, Math.round(S.W / step)), ny = Math.max(2, Math.round(S.H / step));
       for (let i = 0; i < nx; i++) { const x = -S.W / 2 + (i + 0.5) * S.W / nx; pts.push([x, -S.H / 2 + inset, 0, 1]); pts.push([x, S.H / 2 - inset, 0, -1]); }
       for (let j = 0; j < ny; j++) { const y = -S.H / 2 + (j + 0.5) * S.H / ny; pts.push([-S.W / 2 + inset, y, 1, 0]); pts.push([S.W / 2 - inset, y, -1, 0]); }
@@ -944,8 +948,8 @@ function draw() {
         const mx = x + ux * Lr / 2, my = y + uy * Lr / 2;
         let room = Infinity;   // the nearest circle's edge to the arrow's middle
         for (const o of S.blobs) { const d = Math.hypot(o.cx - mx, o.cy - my) - (o.nodes.length ? o.rm : o.nuclei[0].r); if (d < room) room = d; }
-        const a = clamp((room - Lr * 0.1) / (Lr * 0.5), 0, 1) * 0.9;
-        arrow(x, y, x + ux * Lr, y + uy * Lr, "255,80,70", a, aw * 1.3);
+        const a = clamp((room - Lr * 0.1) / (Lr * 0.5), 0, 1) * arrowLife;
+        arrow(x, y, x + ux * Lr, y + uy * Lr, "255,80,70", a, aw * 1.2);
       }
     }
   }
