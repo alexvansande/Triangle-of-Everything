@@ -156,13 +156,14 @@ const BASE = {
   startBox: 2.2, endBox: 1.0, shrinkTime: 40, relief: 0, gravity: 0, initSpeed: 60, jitter: 0,
   repel: 1, falloff: 2, range: 1, stiffness: 1, tension: 1, pressure: 1, contact: 1, damping: 1, drift: 0.3,
   tremble: 1,
-  threshold: 0.3, spread: 0.2, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, electronSize: 0.03, electronBounce: true, bareSpacing: 1,
+  threshold: 0.3, spread: 0.2, centreFirst: 0, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, electronSize: 0.03, electronBounce: true, bareSpacing: 1,
   fuseAt: 0.6, fourAtOnce: false, neutrons: 2, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
   shatter: 1, greySize: 1, greyUniform: true, greyAttract: 0,
   onScreenOnly: true, pictures: false, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
 const MODE_DEFAULTS = {
-  1: { nucleus: 0.10, count: 150, sizeSpread: 0.12, repel: 0.6, range: 0.8, stiffness: 0.5, pressure: 0.5, damping: 0.8, threshold: 0.2, spread: 0.2 },
+  1: { nucleus: 0.10, count: 150, sizeSpread: 0.12, shrinkTime: 23, repel: 5.05, falloff: 4, range: 0.6, stiffness: 2.95, pressure: 0.5, damping: 0.8,
+       threshold: 0.04, spread: 0.2, centreFirst: 1, electronPush: 0.105, electronBounce: false, pictures: true, lineWidth: 2, glow: 1.2 },
   2: { nucleus: 0.50, count: 85, radius: 120, relief: 2, sizeSpread: 0.08, repel: 2, range: 1.2, stiffness: 4, pressure: 4, damping: 2, shrinkTime: 50 },
   3: { nucleus: 0.90, count: 140, radius: 100, sizeSpread: 0.1, repel: 0.4, range: 0.6, stiffness: 4, pressure: 4, damping: 2, threshold: 0.015, spread: 0.35, greySize: 0.9 },
 };
@@ -203,6 +204,7 @@ const SCHEMA = [
   { group: "Pop", modes: [1] },
   { key: "threshold", label: "Pop at squeeze", min: 0.02, max: 0.9, step: 0.01, fmt: v => Math.round(v * 100) + "% area lost", modes: [1] },
   { key: "spread", label: "Threshold spread", min: 0, max: 0.9, step: 0.05, fmt: v => "±" + Math.round(v * 100) + "%", modes: [1], note: "each circle's own threshold varies this much, so they don't all go at once" },
+  { key: "centreFirst", label: "Fragile at the centre", min: 0, max: 4, step: 0.1, modes: [1], note: "the threshold grows with distance from the screen's centre: at 1 a shell at the screen's corner needs twice the squeeze, so the middle goes first" },
   { key: "popTime", label: "Pop time", min: 0.08, max: 1.2, step: 0.01, unit: "s", modes: [1], note: "how long the torn film takes to race round and vanish" },
   { key: "electrons", label: "Electrons per atom", min: 1, max: 30, step: 1, modes: [1] },
   { key: "electronSpeed", label: "Electron speed", min: 50, max: 3000, step: 25, unit: "u/s", modes: [1] },
@@ -222,6 +224,7 @@ const SCHEMA = [
   { group: "Break", modes: [3] },
   { key: "threshold", label: "Break at squeeze", min: 0.01, max: 0.5, step: 0.005, fmt: v => (v * 100).toFixed(1) + "% area lost", modes: [3] },
   { key: "spread", label: "Threshold spread", min: 0, max: 0.9, step: 0.05, fmt: v => "±" + Math.round(v * 100) + "%", modes: [3] },
+  { key: "centreFirst", label: "Fragile at the centre", min: 0, max: 4, step: 0.1, modes: [3], note: "the threshold grows with distance from the screen's centre, so the middle breaks first" },
   { key: "shatter", label: "Shatter", min: 0, max: 3, step: 0.05, modes: [3], note: "how far the broken ring's pieces fly" },
   { key: "greySize", label: "Grey disc size", min: 0.5, max: 1.1, step: 0.01, fmt: v => Math.round(v * 100) + "% of the red one", modes: [3] },
   { key: "greyUniform", label: "Neutrons all one size", type: "bool", modes: [3], note: "hard, equal discs pack into a hexagonal lattice; the box stops shrinking once they jam" },
@@ -310,9 +313,14 @@ function measure(b) {
 // the radius the long-range force counts from: the ring for a whole circle, a spacing for a bare nucleus
 function reach(b) { return b.state === "popped" ? b.R * S.P.bareSpacing * 0.5 : b.rm || b.R; }
 function onScreen(b) { return !S.P.onScreenOnly || (Math.abs(b.cx) < S.W / 2 && Math.abs(b.cy) < S.H / 2); }
+// a shell's own threshold: the regime's, spread a little per shell, and growing with distance from the screen's centre
+function thresholdOf(b) {
+  const P = S.P, d = Math.hypot(b.cx, b.cy) / Math.hypot(S.W / 2, S.H / 2);
+  return P.threshold * (1 + P.spread * b.u) * (1 + P.centreFirst * d);
+}
 function strainOf(b) {   // how close a shell is to its threshold, 0..1
   if (b.state !== "intact" || S.mode === 2 || !onScreen(b)) return 0;
-  return clamp(b.sq / (S.P.threshold * (1 + S.P.spread * b.u)), 0, 1);
+  return clamp(b.sq / thresholdOf(b), 0, 1);
 }
 
 // ---------- physics ----------
@@ -509,7 +517,7 @@ function step(dt) {
   for (const b of blobs) {
     if (b.state !== "intact") continue;
     if (b.sq > S.maxSq) S.maxSq = b.sq;
-    const thr = P.threshold * (1 + P.spread * b.u);
+    const thr = thresholdOf(b);
     if (!onScreen(b)) continue;
     if (S.mode === 1 && b.sq > thr) pop(b);
     else if (S.mode === 3 && b.sq > thr) breakBlob(b);
