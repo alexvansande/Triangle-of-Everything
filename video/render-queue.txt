@@ -93,7 +93,6 @@
 # for their whole cue (picture only, the audio is the same: 0:08-0:45).
 # (3) The forces Short's overnight render (2026-11-09, 00:50) already has the latest animations (its frames match the code);
 # the afternoon render it replaced didn't.
-short-03-stars
 short-l2-dance-of-the-forces
 # short-l2-dance-of-the-forces changed: 0:08-0:45
 # 2026-11-09 (the author): The Black Hole Line, part 1 (short-04a-black-hole-line) back in, now ending at "but how small"
