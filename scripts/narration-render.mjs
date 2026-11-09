@@ -2,7 +2,7 @@
 //
 //   npm run dev                                   # in another terminal
 //   node scripts/narration-render.mjs short-01-hook [--from 0] [--to 60] [--fps 30] [--workers 3] [--out narration.mp4]
-//          [--subframes 4] [--shutter 0.5] [--no-fractal]
+//          [--subframes 4] [--shutter 0.5] [--no-fractal] [--dpr 2.5]
 //
 // The fractal background (src/bg-noise.js) needs WebGL2: the renderer checks for it first and
 // stops if this Chrome has none (--no-fractal renders without it). Its clouds evolve by the
@@ -49,7 +49,9 @@ const CHROME = opt("chrome", "/opt/pw-browsers/chromium-1194/chrome-linux/chrome
 // 432×768 CSS px × 2.5 = 1080×1920; a long cut asking for "landscape" (words.json "stage"): 768×432 × 2.5 = 1920×1080, the page exactly the stage (the 16:9 stage fills its width)
 const meta = JSON.parse(fs.readFileSync(`public/narration/${take}/words.json`, "utf8"));
 const WIDE = meta.stage === "landscape";
-const STAGE = WIDE ? { W: 768, H: 432, pad: 0, dpr: 2.5 } : { W: 432, H: 768, pad: meta.renderOnly ? 0 : 36, dpr: 2.5 };
+// --dpr: pixels per CSS pixel (2.5 = 1080p); a draft takes 5/3, the site's own 720×1280 (scripts/narration-draft.sh)
+const DPR = +opt("dpr", 2.5);
+const STAGE = WIDE ? { W: 768, H: 432, pad: 0, dpr: DPR } : { W: 432, H: 768, pad: meta.renderOnly ? 0 : 36, dpr: DPR };
 const TMP = fs.mkdtempSync(path.join(path.dirname(OUT), ".narr-render-"));
 
 // Installed before any page script: a clock that stands still until freeze() (scripts/narration-clock.mjs).
