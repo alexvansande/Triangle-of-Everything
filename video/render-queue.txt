@@ -83,3 +83,17 @@
 # star hidden over the black-hole dive; first tonight, then long video 2's opening (output/videos/l2-wait.sh)
 # 2026-11-08, night (the author): tonight's order: The Life and Death of Stars, the forces Short, the powers-of-ten zoom, long video 2
 # (its opening, by hand), then the other Shorts of long video 2 (queued by output/videos/narration-overnight.sh.chain once the long one is done)
+# 2026-11-09, the author's notes on the renders: (1) The Life and Death of Stars: from about 0:50 to 1:13 of the 2026-11-08
+# render the stars showed as their glows alone (worker 2 of 4, from its cold start at ~0:35). It doesn't reproduce here (the
+# same frames, cold or warm, draw them); everything points at the live stars' WebGL context being lost on the render
+# machine mid-range (the picture was hidden and nothing drawn in its place). src/star-forge.js and src/star-icons.js now let
+# the context restore and show the pictures while it is gone, and narration-render.mjs prints "WARNING live stars" at the end
+# of a worker's range when it happened: check output/videos/short-03-stars.log after tonight. Shared code, but it changes no
+# frame unless a context is lost, so the other takes needn't re-render for it (# only queued stays).
+# (2) The forces Short: the force labels, rings and texts placed ahead of the gliding camera, so they stay in the phone frame
+# for their whole cue (picture only, the audio is the same: 0:08-0:45).
+# (3) The forces Short's overnight render (2026-11-09, 00:50) already has the latest animations (its frames match the code);
+# the afternoon render it replaced didn't.
+short-03-stars
+short-l2-dance-of-the-forces
+# short-l2-dance-of-the-forces changed: 0:08-0:45

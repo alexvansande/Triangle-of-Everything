@@ -10,9 +10,17 @@
 
 const WATER = { line: "water" };
 const ON_LINE = (m) => (m - 0.62) / 3;
-const force = (m, dir, color) => ({ arrow: true, solid: true, width: 4, color, from: { r: ON_LINE(m) + dir * 2.0, m }, to: { r: ON_LINE(m) + dir * 0.2, m } });
-const GRAV_AT = (m) => [force(m + 0.9, 1, "#ffab40"), force(m - 0.9, 1, "#ffab40"), { text: "gravity\npushes in", at: [ON_LINE(m) + 1.5, m + 1.4], size: 26, color: "#ffab40" }];
-const EM_AT = (m) => [force(m + 0.9, -1, "#4fc3f7"), force(m - 0.9, -1, "#4fc3f7"), { text: "electromagnetism\npushes out", at: [ON_LINE(m) - 1.1, m + 3.6], size: 24, color: "#4fc3f7" }];
+// The frame (span 4.6, 9:16) shows 2.3 decades of size either side of its centre and 4.1 of mass above and
+// below it, and the camera up the diagonal is one glide that never holds (1.3 to 2 decades of mass a second), so
+// a mark placed where the camera is when its cue starts has left the frame a few seconds later (the author,
+// 2026-11-09: the labels were outside the frame, or in it only for a moment). Each mark goes a little ahead of
+// the camera instead, at the mass the camera passes a third of the way through its cue, and close to the line
+// (the texts beside their arrows, the arrows' tails at 1.5): a mark on the right stays in frame while the
+// camera's mass is within 2.3 below it and 3.7 above, one on the left within 3.7 below and 1.6 above;
+// the texts clear of the line by their half-width.
+const force = (m, dir, color) => ({ arrow: true, solid: true, width: 4, color, from: { r: ON_LINE(m) + dir * 1.5, m }, to: { r: ON_LINE(m) + dir * 0.2, m } });
+const GRAV_AT = (m) => [force(m + 0.9, 1, "#ffab40"), force(m - 0.9, 1, "#ffab40"), { text: "gravity\npushes in", at: [ON_LINE(m) + 0.85, m], size: 22, color: "#ffab40" }];
+const EM_AT = (m) => [force(m + 0.9, -1, "#4fc3f7"), force(m - 0.9, -1, "#4fc3f7"), { text: "electro-\nmagnetism\npushes out", at: [ON_LINE(m) - 1.05, m], size: 22, color: "#4fc3f7" }];
 const UP = (m, span = 4.6) => ({ r: ON_LINE(m), m, span, glide: true });
 const still = (h) => ({ ...h, instant: true, draw: 0.01, delay: 0 });
 const COLUMN = { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" };
@@ -41,17 +49,19 @@ export default {
     { t: 0, cam: { obj: "Bacterium", span: 7 }, dur: 0.05, drift: 0, units: true,
       hl: [{ axis: "right", label: "mass · ×10 a step" }, { axis: "bottom", label: "size · ×10 a step", delay: 0.3 }] },
     { at: "delicate dance", cam: { obj: "Bacterium", span: 4.6 }, dur: 2.4, ease: "gentle", clear: true, hl: [WATER, { obj: "Bacterium", label: "a bacterium" }] },
-    { at: "tug of war", hl: [WATER, ...GRAV_AT(-12.5), ...EM_AT(-9.5)] },
+    { at: "tug of war", hl: [WATER, ...GRAV_AT(-13), ...EM_AT(-10.5)] },   // the camera holds on the bacterium (m −12)
     // the diagonal, panned up in one move
     { at: "plot everything", cam: UP(-6), hl: [WATER] },
     { at: "diagonal line", cam: UP(-2), hl: [{ line: "water", label: "the diagonal" }] },
-    { at: "electromagnetism and gravity", cam: UP(2), hl: [WATER, ...GRAV_AT(1.5), ...EM_AT(4.5)] },
-    { at: "under its own weight", cam: UP(6), clear: true, hl: [WATER, { ellipse: [ON_LINE(6) + 1.7, 6, 0.8, 0.8], rot: 0, label: false, color: "#ffab40" },
-      { arrow: true, solid: true, width: 4, color: "#ffab40", from: { r: ON_LINE(6) + 1.7, m: 6 }, to: { r: ON_LINE(6) + 0.1, m: 6 }, delay: 0.4 },
-      { text: "crushes under\nits own weight", at: [ON_LINE(6) + 4.2, 6], size: 26, color: "#ffab40", delay: 0.5 }] },
-    { at: "squeeze it too hard", cam: UP(10), clear: true, hl: [WATER, { ellipse: [ON_LINE(10) - 1.7, 10, 0.8, 0.8], rot: 0, label: false, color: "#4fc3f7" },
-      { arrow: true, solid: true, width: 4, color: "#4fc3f7", from: { r: ON_LINE(10) - 1.7, m: 10 }, to: { r: ON_LINE(10) - 0.1, m: 10 }, delay: 0.4 },
-      { text: "its atoms\npush back", at: [ON_LINE(10) - 4.2, 10], size: 26, color: "#4fc3f7", delay: 0.5 }] },
+    { at: "electromagnetism and gravity", cam: UP(2), hl: [WATER, ...GRAV_AT(3.3), ...EM_AT(5)] },   // the camera passes m 2 to 6
+        // the camera passes m 6 to 10 in two seconds: the ring ahead at 7.5, its text above it
+    { at: "under its own weight", cam: UP(6), clear: true, hl: [WATER, { ellipse: [ON_LINE(7.5) + 1.2, 7.5, 0.6, 0.6], rot: 0, label: false, color: "#ffab40" },
+      { arrow: true, solid: true, width: 4, color: "#ffab40", from: { r: ON_LINE(7.5) + 1.2, m: 7.5 }, to: { r: ON_LINE(7.5) + 0.1, m: 7.5 }, delay: 0.4 },
+      { text: "crushes under\nits own weight", at: [ON_LINE(7.5) + 1.25, 8.6], size: 22, color: "#ffab40", delay: 0.5 }] },
+        // the camera passes m 10 to 16 in seven seconds: the ring ahead at 12.5 (in frame for the first five), its text below it
+    { at: "squeeze it too hard", cam: UP(10), clear: true, hl: [WATER, { ellipse: [ON_LINE(12.5) - 1.2, 12.5, 0.6, 0.6], rot: 0, label: false, color: "#4fc3f7" },
+      { arrow: true, solid: true, width: 4, color: "#4fc3f7", from: { r: ON_LINE(12.5) - 1.2, m: 12.5 }, to: { r: ON_LINE(12.5) - 0.1, m: 12.5 }, delay: 0.4 },
+      { text: "its atoms\npush back", at: [ON_LINE(12.5) - 1.2, 11.4], size: 22, color: "#4fc3f7", delay: 0.5 }] },
     { at: "density of atoms", cam: UP(16), clear: true, hl: [{ line: "water", label: "the density of atoms" }] },
     { at: "somewhere along here", cam: UP(23), hl: [{ line: "water", label: "the density of atoms" }] },
     // the giant planets' column

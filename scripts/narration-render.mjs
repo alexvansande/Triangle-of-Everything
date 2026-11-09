@@ -194,6 +194,9 @@ async function renderRange(t0, t1, file, label) {
   }
   const bg = await page.evaluate("window.__narr.bgNoise?.()");
   if (bg?.failed || bg?.lost) console.log(`[${label}] WARNING fractal background: ${bg.failed || ""}${bg.lost ? ` ${bg.lost} GL context(s) lost (frames fell back to the painting)` : ""}`);
+  // the live stars (src/star-icons.js): a lost GL context shows the pictures instead (2026-11-08: stars came out as glows)
+  const stars = await page.evaluate("window.__narr.liveStars?.()");
+  if (stars?.lost || stars?.blankFrames) console.log(`[${label}] WARNING live stars: GL context lost ${stars.lost} time(s), ${stars.blankFrames} frame(s) drew the pictures instead${stars.down ? ", still lost at the end" : ""}`);
   ff.stdin.end();
   await new Promise(r => ff.on("close", r));
   await browser.close();

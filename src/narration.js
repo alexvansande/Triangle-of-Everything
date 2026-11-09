@@ -2791,6 +2791,7 @@ export async function startNarration(app) {
       (COVER && !coverImg.complete ? 1 : 0) + (specReady() ? 0 : 1) + tracesPending() + app.bgNoisePending() + (window.__laniakeaLoading ? 1 : 0),
     // the fractal background: { wanted, shown, failed, lost } (failed: "no WebGL2"; lost: GL contexts lost), for the renderer's log
     bgNoise: () => app.bgNoiseStatus(),
+    liveStars: () => app.liveStarsStatus?.(),
     audio: base + take.audio,
   };
   if (RENDER) return;

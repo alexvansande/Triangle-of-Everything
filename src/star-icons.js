@@ -71,7 +71,7 @@ export async function startStarIcons(chartEl, { busy = () => false } = {}) {
     return { left: a.x, top: a.y, right: b.x, bottom: b.y, width: b.x - a.x, height: b.y - a.y };
   };
 
-  let wasVideo = false;
+  let wasVideo = false, blankFrames = 0, warned = false;
   function draw() {
     if (!inVideo()) {
       // the site's chart: the pictures (put back any hidden while a take played)
@@ -95,12 +95,17 @@ export async function startStarIcons(chartEl, { busy = () => false } = {}) {
     ctx.beginPath();
     ctx.rect((plot.left - box.left) * dpr, (plot.top - box.top) * dpr, plot.width * dpr, plot.height * dpr);
     ctx.clip();
+    // the GL context gone (see createStarForge): the pictures show until it is back, rather than
+    // a hidden picture with nothing in its place (the render of 2026-11-08: glows with no stars)
+    const down = forge.lost();
+    if (down) blankFrames++;
     for (const img of document.querySelectorAll(selector)) {
       const star = BY_SLUG.get(slugOf(img));
       if (!star) continue;
-      img.classList.add(HIDDEN);
+      if (down) { img.classList.remove(HIDDEN); continue; }
       const r = img.getBoundingClientRect();
-      if (r.width < 2) continue;
+      if (r.width < 2) { img.classList.remove(HIDDEN); continue; }
+      img.classList.add(HIDDEN);
       // the old picture's disc (centre and radius, as fractions of its box); the star's disc goes there,
       // its atmosphere and halo spilling round it (Vega's frame is its polar radius: it's flattened)
       const f = STAR_BODY_FRAMES[star.slug] ?? { cx: 0.5, cy: 0.5, r: 0.45 };
@@ -113,11 +118,17 @@ export async function startStarIcons(chartEl, { busy = () => false } = {}) {
       // a parallax: where it sits across the frame
       const nx = (cx - box.left) / box.width - 0.5, ny = (cy - box.top) / box.height - 0.5;
       const px = Math.max(128, Math.min(1024, Math.ceil(size * dpr / 64) * 64));
-      forge.render(star, t, px, { view: [TURN_X * nx, TURN_Y * ny], alpha: true, seed: seedOf(img) });
-      ctx.globalAlpha = alpha;
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(forge.canvas, 0, forge.canvas.height - px, px, px,
-        (cx - size / 2 - box.left) * dpr, (cy - size / 2 - box.top) * dpr, size * dpr, size * dpr);
+      try {
+        if (!forge.render(star, t, px, { view: [TURN_X * nx, TURN_Y * ny], alpha: true, seed: seedOf(img) })) { img.classList.remove(HIDDEN); continue; }
+        ctx.globalAlpha = alpha;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(forge.canvas, 0, forge.canvas.height - px, px, px,
+          (cx - size / 2 - box.left) * dpr, (cy - size / 2 - box.top) * dpr, size * dpr, size * dpr);
+      } catch (err) {
+        // one star's draw failing must not leave the ones after it hidden and undrawn
+        img.classList.remove(HIDDEN);
+        if (!warned) { warned = true; console.warn(`Live star ${star.slug} could not be drawn, its picture kept:`, err.message); }
+      }
     }
     ctx.restore();
   }
@@ -126,5 +137,7 @@ export async function startStarIcons(chartEl, { busy = () => false } = {}) {
     if (!busy()) draw();
   }
   requestAnimationFrame(loop);
-  return { draw };
+  // status for the renderer (scripts/narration-render.mjs prints it at the end of a worker's range):
+  // how often the context was lost and how many frames showed the pictures instead
+  return { draw, status: () => ({ lost: forge.losses(), blankFrames, down: forge.lost() }) };
 }

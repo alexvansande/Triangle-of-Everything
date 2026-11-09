@@ -34,6 +34,14 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   at their cue times (`cam: { …, glide: true }`), not flights that stop at each object.
   A pan up the line runs a bit over two decades wide on a phone frame (1.5 for the animals,
   so catalogue pictures like the lion find room), never with dives or close-up stops.
+- **Marks during a glide go a little ahead of the camera** (author, 2026-11-09: in the forces Short the force
+  labels were outside the phone frame, or in it only for a moment). A pan up the diagonal never holds, so a
+  text, ring or arrow placed where the camera is when its cue starts has slid out of the frame a few seconds
+  later. Place each mark at the mass the camera passes about a third of the way through its cue, close to the
+  line (a text beside its arrows, not above them; an arrow's tail within 1.5 decades of the line), and check
+  it with stills at the cue's start, middle and end. The phone frame at span 4.6 is 2.3 decades of size either
+  side of its centre and 4.1 of mass above and below it; a long cue (seven seconds at 0.8 decades a second)
+  can't keep one mark in frame throughout, so place it for the first two thirds.
 - **Named objects get a halo, not a hover**: a lavender glow behind the picture (two overlay
   passes; one fainter plain pass in Safari) for a few seconds; with only one object named,
   the dashed guides to its mass and diameter too. While a step is explained, a cue's

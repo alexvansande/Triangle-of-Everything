@@ -8789,6 +8789,8 @@ if (_ogShot) {
       /** The fractal background (bg-noise.js): its clock, a crossfade cut short, whether it's still loading. */
       bgNoiseTime, bgNoiseSettle, bgNoisePending, bgNoiseShadowsLag,
       bgNoiseStatus: () => ({ wanted: _bgNoiseWanted, shown: _bgNoiseShown, failed: _bgNoiseFailed, lost: _bgNoiseLost }),
+      /** The live stars (src/star-icons.js): GL context losses and the frames that showed the pictures instead. */
+      liveStarsStatus: () => _starIcons?.status?.() ?? null,
       /** Object labels on or off (videos: a quiet closing shot). */
       /** Text size on the chart (the settings' "Font size" multiplier): the 16:9 videos double it. */
       setFontScale(k = 1) {

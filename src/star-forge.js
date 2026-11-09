@@ -413,22 +413,38 @@ export function colours(s) {
 
 // One WebGL canvas that draws any star: render(star, t, size, { target, view, alpha }) leaves the frame
 // in the bottom-left size×size corner of .canvas (and copies it to target, a 2D canvas, if given).
+// The browser can take the GL context away (the GPU process restarts, too many contexts, memory: in a
+// render with four Chrome workers it happened mid-take, 2026-11-08, and every star after that frame
+// came out as its glow alone, the picture hidden and nothing drawn in its place). So the context's
+// loss is allowed to restore (preventDefault), the program is built again when it comes back, and
+// lost() says when the frame is blank, so the caller shows the pictures meanwhile.
 export function createStarForge() {
   const glc = document.createElement("canvas");
   const gl = glc.getContext("webgl2", { preserveDrawingBuffer: true, antialias: false, premultipliedAlpha: true, alpha: true });
   if (!gl) throw new Error("WebGL 2 unavailable");
-  const U = {};
-  const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o);
-    if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
-  const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
-  gl.linkProgram(prog); if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
-  gl.useProgram(prog);
-  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-  const loc = gl.getAttribLocation(prog, "a"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  const n = gl.getProgramParameter(prog, gl.ACTIVE_UNIFORMS);
-  for (let i = 0; i < n; i++) { const u = gl.getActiveUniform(prog, i); U[u.name] = gl.getUniformLocation(prog, u.name); }
+  let U = {}, down = false, losses = 0;
+  function init() {
+    U = {};
+    const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o);
+      if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+    const prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog); if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+    gl.useProgram(prog);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, "a"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    const n = gl.getProgramParameter(prog, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < n; i++) { const u = gl.getActiveUniform(prog, i); U[u.name] = gl.getUniformLocation(prog, u.name); }
+  }
+  init();
+  glc.addEventListener("webglcontextlost", e => { e.preventDefault(); down = true; losses++; console.warn("Star Forge: WebGL context lost"); });
+  glc.addEventListener("webglcontextrestored", () => {
+    try { init(); down = false; console.warn("Star Forge: WebGL context restored"); }
+    catch (err) { console.warn("Star Forge: could not rebuild after the context came back:", err.message); }
+  });
+  const lost = () => down || gl.isContextLost();
   function render(s, t, size, { target = null, view = [0, 0], alpha = false, seed = 0 } = {}) {
+    if (lost()) return false;
     if (glc.width < size || glc.height < size) { glc.width = Math.max(glc.width, size); glc.height = Math.max(glc.height, size); }
     gl.viewport(0, 0, size, size);
     const c = s._c || (s._c = colours(s));
@@ -446,8 +462,9 @@ export function createStarForge() {
       ctx.clearRect(0, 0, size, size);
       ctx.drawImage(glc, 0, glc.height - size, size, size, 0, 0, size, size);
     }
+    return true;
   }
-  return { canvas: glc, render };
+  return { canvas: glc, render, lost, losses: () => losses };
 }
 // the disc's radius as a fraction of half the frame: the rest is room for the atmosphere and halo
 export const discFraction = s => s.kind === 3 ? .66 : .64;
