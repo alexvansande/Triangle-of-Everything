@@ -401,7 +401,7 @@ function step(dt) {
   // each ring: hold its distance from the centre, its spacing, its smoothness, its area; stay outside its nuclei
   const kr0 = 300 * P.stiffness, kt0 = 400 * P.tension, kb0 = 150 * P.tension, kp0 = 30000 * P.pressure;
   for (const b of blobs) {
-    const n = b.nodes.length; if (!n) continue;
+    const n = b.nodes.length; if (!n || b.state === "grey") continue;   // a clenched ring is rigid: placed round its disc below
     const kr = kr0 * b.kfac, kt = kt0, kb = kb0 * b.kfac, kp = kp0 * b.kfac;
     const l0 = TAU * b.R / n, areaPush = kp * (1 - b.A / b.A0);
     for (let i = 0; i < n; i++) {
@@ -457,8 +457,9 @@ function step(dt) {
     {
       if (A.minx > B.maxx + dc0 || B.minx > A.maxx + dc0 || A.miny > B.maxy + dc0 || B.miny > A.maxy + dc0) continue;
       if (A.bridge && A.bridge === B.bridge) { bridgePull(A, B, dc0); bridgePull(B, A, dc0); continue; }   // reaching into each other
-      const touched = isHard(A) || isHard(B) ? false : ringContact(A, B, dc0, kc, touchD) | ringContact(B, A, dc0, kc, touchD);
-      ringVsNuclei(A, B, dc0, kc); ringVsNuclei(B, A, dc0, kc);
+      const hA = isHard(A), hB = isHard(B);
+      const touched = hA || hB ? false : ringContact(A, B, dc0, kc, touchD) | ringContact(B, A, dc0, kc, touchD);
+      if (!hA) ringVsNuclei(A, B, dc0, kc); if (!hB) ringVsNuclei(B, A, dc0, kc);
       // bare discs and clenched neutrons are hard: two of them are pushed apart half each; one against a live ring's
       // disc moves by the whole overlap
       const moveA = isHard(A), moveB = isHard(B);
@@ -525,6 +526,10 @@ function step(dt) {
       const k = b.nuclei[0], x = k.x, y = k.y; wallClamp(k, half - k.r);
       if (b.nodes.length && (k.x !== x || k.y !== y)) for (const p of b.nodes) { p.x += k.x - x; p.y += k.y - y; }
     }
+  }
+  for (const b of blobs) if (b.state === "grey" && b.nodes.length) {   // the clenched ring: a circle riding on its disc
+    const k = b.nuclei[0], n = b.nodes.length;
+    for (let i = 0; i < n; i++) { const p = b.nodes[i], a = (i / n) * TAU; p.x = k.x + Math.cos(a) * b.R; p.y = k.y + Math.sin(a) * b.R; p.vx = k.vx; p.vy = k.vy; }
   }
   const jam = residual > rcMax * 0.06;   // real overlap left after eight passes: the discs don't fit
   S.jam = jam ? 1 : 0;
