@@ -111,3 +111,8 @@ short-00-powers-of-ten
 # 2026-11-09 (the author): The Black Hole Slope (short-04a-black-hole-slope), the black-hole line Short recorded on its own
 # (rec59): a new take, renders whole. The earlier version (short-04a-black-hole-line, queued above) stays, to compare.
 short-04a-black-hole-slope
+# Video 4's part 2 and video 5's three parts at full quality tonight (the author, 2026-11-09, evening)
+short-04b-smallest-black-holes
+short-05a-emptier
+short-05b-hubble-sphere
+short-05c-observable-universe
