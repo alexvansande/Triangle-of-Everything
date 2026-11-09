@@ -1,0 +1,20 @@
+source,beat,out_start,out_end,src_start,src_end,text
+rec59,intro,0.00,11.29,45.16,56.45,"I've been exploring this surprisingly useful tool where you plot every single object that exists in a log chart of size and mass, and a lot of interesting things happen."
+rec59,bands,12.38,22.46,80.56,90.64,"Most objects will fall in ranges, like this diagonal line for the density of water, or this huge vertical column for super Jupiter planets,"
+rec59,bands,23.01,28.71,138.87,144.57,or this rather complex labyrinth that tells you the life and death of stars
+rec59,dead,29.81,34.89,184.84,189.93,This whole left side here is all just a big cemetery of dead stars.
+rec59,dead,35.44,39.17,209.35,213.08,Stars like ours we will leave a white dwarf behind.
+rec59,dead,39.72,43.21,216.73,220.23,larger ones will go supernova and make a neutron star.
+rec59,dead,43.76,49.21,240.84,246.29,but larger still and they will leave a black hole and every black hole lives on this line.
+rec59,line,50.31,58.07,250.19,257.95,"on this line is special because it actually represents the first limit we meet on or short of everything,"
+rec59,line,58.62,66.56,408.21,416.15,"Because for every object you can see, there is some size in which if you squeeze them hard enough, they will become a black hole."
+rec59,line,67.11,74.99,431.21,439.31,"So this line, called the Schwarzschild radius, represents the upper limit in which anything can be."
+rec59,slope,76.09,93.77,467.66,485.81,black holes don't actually have a size their singularity but they do have an event horizon the point in which light cannot escape and that event horizon is dependent on the mass so it creates this diagonal one -to -one 45 degrees lobe
+rec59,slope,94.32,101.78,532.92,540.38,"it means that according to relativity, there are no objects that could exist beyond this line."
+rec59,big,102.88,109.68,546.13,552.93,Squeeze the sun into a black hole and it would be about six kilometers wide. the Earth would be the size of a marble.
+rec59,big,110.23,118.72,553.39,561.88,The black holes we know of form in the collapsing core of dying stars or just grew by swelling gas and merging with other black holes.
+rec59,big,119.27,123.41,574.87,579.01,they can go anything from a few sun masses to billions of them.
+rec59,big,123.96,129.02,580.21,585.27,"The one in the center of the Milky Way, for example, has 4 million solar masses."
+rec59,big,129.57,152.70,585.64,608.77,"And here's a strange part. The bigger they get, the less dense they are. The really supermassive ones are less dense than water. They would float if you had a pool big enough. Like M87, the first black hole ever to be photographed. Or Plan 618, one of the largest we know of. Its event horizon is bigger than Pluto's orbits."
+rec59,small,153.80,158.86,630.70,635.75,"But the most interesting question isn't actually how big a black hole can be, but how small?"
+rec59,small,159.41,166.97,659.68,667.41,Because there are actually some people who believe that most of the things in the universe are just tiny black holes.

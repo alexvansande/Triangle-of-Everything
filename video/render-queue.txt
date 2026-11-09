@@ -109,3 +109,6 @@ short-00-powers-of-ten
 # Milky Way (Laniakea and Andromeda in frame when named): the picture changes from 0:00 to 1:04, in the zoom source's
 # working folder (/Users/avsa/Dev/Triangle at be7061af plus its uncommitted work, which also has the new CMB look and
 # Milky Way). "it's wa–" cut from the last line: new audio from 2:52, the voice ends at 2:54.6. Renders whole.
+# 2026-11-09 (the author): The Black Hole Slope (short-04a-black-hole-slope), the black-hole line Short recorded on its own
+# (rec59): a new take, renders whole. The earlier version (short-04a-black-hole-line, queued above) stays, to compare.
+short-04a-black-hole-slope

@@ -26,6 +26,7 @@ went silent after a minute when it ran out.
 | Long 2 · the opening to the black holes | `long-02-intro` | 8:09 (re-recorded 2026-11-06, rec57, natural speed, the second pass; the first piece of `long-02-space`, 19:14) |
 | The dance of the forces (Short) | `short-l2-dance-of-the-forces` | 3:19 (recorded on its own 2026-11-08, rec58, natural speed) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
+| The Black Hole Slope (Short: the black-hole line, recorded on its own) | `short-04a-black-hole-slope` | 2:51 with the credits (recorded 2026-11-09, rec59, natural speed); the earlier version, `short-04a-black-hole-line` (1:54, cut from rec48), stays beside it to compare |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
 | 0 · powers of ten (the CMB to the Planck length) | `short-00-powers-of-ten` | 3:00, narrated (recorded 2026-11-03, rec52: 2:55 of voice) |
@@ -1206,6 +1207,70 @@ other try breaks off at "microwave b–")
 - "formed of something very heavy and basically invisible" → "something invisible" (there's a lot of it; it isn't heavy stuff).
 - "doesn't require any new physics or any new particles" → "we wouldn't need any new particle" (making enough of them still needs something unusual in the early universe).
 - "the mass of the universe" → "the matter in the universe"; "maybe you'll figure out" → "we'll find out"; "the conditions… happens" → "happen"; "the cosmic background radiation" → "the cosmic microwave background".
+
+---
+
+## 4a · The Black Hole Slope (`short-04a-black-hole-slope`)
+
+The first black holes Short as a take of its own. The earlier version, The Black Hole Line, part 1
+(`short-04a-black-hole-line`, cut from video 4's take, rec48), is kept beside it on the videos page to compare; pick one
+and the other can be dropped (`video/render-dropped.txt`).
+
+### As cut now
+(rec59, 2026-11-09, at home, one take said freely with retakes; natural speed; 2:47 of voice. Cut, checks and fact check:
+`video/sources/2026-11-09/NOTES.md`.)
+
+> I've been exploring this surprisingly useful tool where you plot every single object that exists in a log chart of size and mass, and a lot of interesting things happen.
+>
+> Most objects will fall in ranges, like this diagonal line for the density of water, or this huge vertical column for super Jupiter planets, or this rather complex labyrinth that tells you the life and death of stars.
+>
+> This whole left side here is all just a big cemetery of dead stars. Stars like ours will leave a white dwarf behind. Larger ones will go supernova and make a neutron star. But larger still and they will leave a black hole, and every black hole lives on this line.
+>
+> And this line is special, because it actually represents the first limit we meet on our chart of everything, because for every object you can see, there's a size in which, if you squeeze them hard enough, they will become a black hole. So this line, called the Schwarzschild radius, represents the upper limit in which anything can be.
+>
+> And black holes don't actually have a size, they're a singularity, but they do have an event horizon, the point in which light cannot escape, and that event horizon is dependent on the mass, so it creates this diagonal, one-to-one, 45 degree slope. It means that according to relativity, there are no objects that could exist beyond this line.
+>
+> Squeeze the Sun into a black hole, and it would be about six kilometers wide. The Earth would be the size of a marble.
+>
+> The black holes we know of form in the collapsing core of dying stars, or just grew by swallowing gas and merging with other black holes. They can go anything from a few Sun masses to billions of them. The one in the center of the Milky Way, for example, has 4 million solar masses.
+>
+> And here's a strange part: the bigger they get, the less dense they are. The really supermassive ones are less dense than water: they would float if you had a pool big enough. Like M87, the first black hole ever to be photographed. Or TON 618, one of the largest we know of. Its event horizon is bigger than Pluto's orbit.
+>
+> But the most interesting question isn't actually how big a black hole can be, but how small? Because there are actually some people who believe that most of the things in the universe are just tiny black holes.
+
+### Script to record
+The same words with the fact check's three fixes and the grammar tidied; say it your own way.
+
+**The chart**
+> I've been exploring this surprisingly useful tool, where you plot every single object that exists on a log chart of size and mass. And a lot of interesting things happen.
+>
+> Most objects fall in ranges: like this diagonal line, for the density of water. Or this huge vertical column, for the super-Jupiter planets. Or this rather complex labyrinth, which tells you the life and death of stars.
+
+**The cemetery**
+> This whole left side here is just a big cemetery of dead stars. Stars like ours leave a white dwarf behind. Larger ones go supernova and make a neutron star. But larger still, and they leave a black hole. And every black hole lives on this line.
+
+**The first limit**
+> And this line is special, because it's the first limit we meet on our chart of everything. For every object you can see, there's a size at which, if you squeeze it hard enough, it becomes a black hole. So this line, called the Schwarzschild radius, is the upper limit of what anything can be.
+
+**The slope**
+> A black hole has no surface. What it has is an event horizon, the distance from which light cannot escape, and that is the size we plot. And that event horizon grows in step with the mass: twice the mass, twice the size. So it draws this one-to-one, 45-degree slope. It means that, according to relativity, no object could exist beyond this line.
+
+**The black holes we know**
+> Squeeze the Sun into a black hole, and it would be about six kilometers wide. The Earth would be the size of a marble.
+>
+> The black holes we know of formed in the collapsing cores of dying stars, or just grew, by swallowing gas and merging with other black holes. They go from a few Sun masses to billions of them. The one in the center of the Milky Way, for example, has 4 million solar masses.
+>
+> And here's a strange part: the bigger they get, the less dense they are. The really supermassive ones are less dense than water: they would float, if you had a pool big enough. Like M87, the first black hole ever to be photographed. Or TON 618, one of the largest we know of: its event horizon is bigger than Pluto's orbit.
+
+**How small?**
+> But the most interesting question isn't how big a black hole can be, but how small. Because there's a chance that most of the matter in the universe is just tiny black holes.
+
+### What changed
+- **Imprecise, fixed:** "black holes don't actually have a size, they're a singularity" → "A black hole has no surface. What it has is an event horizon… and that is the size we plot" (the size on the chart is the horizon's; the singularity is what's predicted inside).
+- **Imprecise, fixed:** "that event horizon is dependent on the mass" → "grows in step with the mass: twice the mass, twice the size" (proportional is what makes the slope one to one).
+- **Imprecise, fixed:** "some people who believe that most of the things in the universe are just tiny black holes" → "there's a chance that most of the matter in the universe is just tiny black holes" (matter, not things; a hypothesis with one mass window left).
+- "the point in which light cannot escape" → "the distance from which"; "the upper limit in which anything can be" → "the upper limit of what anything can be"; "in a log chart" → "on"; "squeeze them… they will become" → "squeeze it… it becomes"; "form in the collapsing core" → "formed in the collapsing cores".
+- Two lines recorded and left out of the cut, to keep it well under three minutes: "And every black hole lives precisely on this line, never crossing it." and "…that represents the upper limit of our chart". Say them if you want them back; the Short then needs something else to go.
 
 ---
 

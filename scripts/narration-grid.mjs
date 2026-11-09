@@ -84,6 +84,7 @@ const BELONGS = {
   "short-l2-dance-of-the-forces": 2,   // the forces Short, recorded on its own (rec58), from long video 2's story
   "short-03-stars": 2,                 // video 3's take, the stars: the story long video 2 tells
   "short-04-black-holes": 2, "short-05-hubble-sphere": 2,
+  "short-04a-black-hole-slope": 2,     // The Black Hole Slope, recorded on its own (rec59); beside the earlier cut, short-04a-black-hole-line
   "short-06-tiny-world": 3, "short-07-wavelengths": 3, "short-00-powers-of-ten": 3,
 };
 // which sections start collapsed (the author, 2026-11-08: long video 1, published, collapsed by default)
