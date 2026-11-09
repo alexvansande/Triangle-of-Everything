@@ -101,3 +101,30 @@ come later, as before); "Schwarzschild radius" along the line and the side beyon
 size", "1 : 1 · 45°"; then video 4's shots from "Squeeze the Sun" to TON 618 (the two dives too); the end goes down the
 line to where the tiny ones could be ("tiny black holes?"). The high-mass path isn't lit for the neutron star: its last
 leg runs past the Sun's picture and read as the Sun making it. Every cue resolves; stills checked at 42 times.
+
+## rec60, rec61: The Smallest Black Holes (part 2 of video 4), re-recorded (iCloud recordings, home)
+
+- **rec60** = "Tiny Black Holes.aifc" (2026-11-09 15:42, 9:04, PCM 48 kHz stereo): a new intro in several tries (the
+  black-hole line as relativity's limit, black holes of any size, the Sun and the Earth squeezed), then the whole body
+  of part 2 from "We can't actually do that in a lab" to "the lucky few survivors", and at the end the search line again
+  with "and it can close up even further in the future".
+- **rec61** = "tiny black holes take 2.aifc" (15:49, 6:15): the new intro only, cleaner, to "some of them might just be
+  around today".
+- Word timings: rec60.words.json, rec61.words.json (faster-whisper small.en, the filler-friendly prompt).
+
+### Fact check
+- **Wrong (rec60, 145 s):** "If you squeeze the Sun… that would be roughly 8 kilometers wide." The Sun's Schwarzschild
+  radius is 2.95 km: about **6 km** across (The Black Hole Slope says "six kilometers wide"). Re-word: *"Squeeze the Sun
+  and it becomes a black hole about six kilometers wide."* (Not in rec61's intro.)
+- **Right:** for any mass there is a minimum size before it collapses into a black hole, and a black hole then stays on
+  the line (Schwarzschild radius ∝ mass); nothing static can exist in the dark region above it; the Earth squeezed to a
+  marble (r 8.9 mm, ~1.8 cm across); almost all known black holes come from dying stars; "one is when a very large star
+  dies" (rec61) is the precise one; the first instants after the Big Bang as a hot dense soup of matter and energy, black
+  holes of many sizes possible (the mass each could have is set by when it formed); the search and the window as before
+  (docs/dark-matter-constraints.md); "it can close up even further in the future" (the contested neutron-star limit).
+- **Imprecise:** "a forbidden correlation between mass and size" (a limit, not a correlation: *"a line of mass and size
+  no object can cross"*); "most of the matter that ever existed just collapsed into black holes" (said as "just maybe":
+  fine as a wonder, the dark matter is ~85% of the matter, not of everything).
+- **Slips to cut round:** rec61 "the very first few instances after the black hole" (said again right after the Big
+  Bang); rec60 "every search has came up empty", "when we read galaxies" (weigh), "it just got gravity wrong" (we just
+  got); "instance" for "instants" in both.
