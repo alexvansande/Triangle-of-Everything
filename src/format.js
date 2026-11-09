@@ -28,7 +28,9 @@ export function friendlyRadius(logR) {
 
 export function friendlyMass(logM) {
   const solOff = Math.log10(1.989e33);
-  if (logM >= solOff + 1) return `${Math.pow(10, logM - solOff).toPrecision(3)} M☉`;
+  // spelled out up to a thousand, M☉ from there (the chart's axis: "1 Solar Mass (M☉)", "1000 M☉"; the author, 2026-11-09)
+  if (logM >= solOff + 3) return `${Math.pow(10, logM - solOff).toPrecision(3)} M☉`;
+  if (logM >= solOff + 1) return `${Math.pow(10, logM - solOff).toPrecision(3)} Solar Masses`;
   if (logM >= 6)   return `${Math.pow(10, logM - 6).toPrecision(3)} tonnes`;
   if (logM >= 3)   return `${Math.pow(10, logM - 3).toPrecision(3)} kg`;
   if (logM >= 0)   return `${Math.pow(10, logM).toPrecision(3)} g`;
