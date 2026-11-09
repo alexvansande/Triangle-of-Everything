@@ -152,7 +152,7 @@ async function cutCues(take, name) {
     SCENE = scene;
     const rc = resolveScene(src.words);
     missing.push(...(window.__narrMissing || []));
-    const move = (t) => +(t - s.from + s.at).toFixed(3);
+    const move = (t) => +((t - s.from) / (s.speed ?? 1) + s.at).toFixed(3);   // a piece played faster than its take (cut `speed`)
     const before = rc.filter(c => c.time < s.from - 0.01);
     const cam = before.filter(c => c.cam).at(-1), hl = before.filter(c => c.hl || c.clear).at(-1);
     if (s.from > 0 && cam) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: 0.05, drift: cam.drift, time: s.at });

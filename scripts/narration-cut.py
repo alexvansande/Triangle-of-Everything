@@ -98,11 +98,16 @@ def main(name):
             else (src["duration"] if end_of_take else min(ws[j][2] + 0.45, (ws[j][2] + ws[j + 1][1]) / 2))
         if n and s["take"] != cut["segments"][n - 1]["take"]:
             at += gap
-        words += [[w, round(t0 - a + at, 3), round(t1 - a + at, 3)] for w, t0, t1 in ws[i:j + 1]]
-        segments.append({"take": s["take"], "scene": src.get("scene", s["take"]), "from": round(a, 3), "to": round(b, 3),
-                         "at": round(at, 3), "tempo": src.get("tempo", 1)})
-        pieces.append((s["take"], src, a, b, at))
-        at += b - a
+        # a piece's own `speed` (atempo, voice and mix): a take recorded at a different pace from the others, played at
+        # theirs (the author, 2026-11-09: rec59's ending at video 4's 1.1×); its words and its scene's cues move with it
+        sp = s.get("speed", 1)
+        words += [[w, round((t0 - a) / sp + at, 3), round((t1 - a) / sp + at, 3)] for w, t0, t1 in ws[i:j + 1]]
+        seg = {"take": s["take"], "scene": src.get("scene", s["take"]), "from": round(a, 3), "to": round(b, 3),
+               "at": round(at, 3), "tempo": round(src.get("tempo", 1) * sp, 3)}
+        if sp != 1: seg["speed"] = sp
+        segments.append(seg)
+        pieces.append((s["take"], src, a, b, at, (b - a) / sp, sp))
+        at += (b - a) / sp
     last_src = pieces[-1][1]
     credits = last_src.get("credits") or 3
     speech_end = round(at - (credits if pieces[-1][3] > last_src["duration"] else 0), 3)
@@ -116,14 +121,14 @@ def main(name):
                 g = os.path.join(tmp, "lead.wav")
                 ffmpeg("-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", f"{lead:.3f}", g)
                 parts.append(g)
-            for k, (take, src, a, b, t) in enumerate(pieces):
+            for k, (take, src, a, b, t, ln, sp) in enumerate(pieces):
                 f = src.get(kind) or src["audio"]
                 fade = FADE if kind == "audio" else MIX_FADE
                 p = os.path.join(tmp, f"{k}.wav")
                 ffmpeg("-ss", f"{a:.3f}", "-to", f"{b:.3f}", "-i", os.path.join(NARR, take, f),
                        "-af", f"afade=t=in:d={fade if a > 0 else 0.001},afade=t=out:st={max(0, b - a - fade):.3f}:d={fade},"
-                              f"aresample=48000,aformat=channel_layouts=stereo", p)
-                if k and t > segments[k - 1]["at"] + (pieces[k - 1][3] - pieces[k - 1][2]) + 0.001:   # a gap before it
+                              + (f"atempo={sp}," if sp != 1 else "") + f"aresample=48000,aformat=channel_layouts=stereo", p)
+                if k and t > segments[k - 1]["at"] + pieces[k - 1][5] + 0.001:   # a gap before it
                     g = os.path.join(tmp, f"{k}-gap.wav")
                     ffmpeg("-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", f"{gap:.3f}", g)
                     parts.append(g)
@@ -135,8 +140,8 @@ def main(name):
             # the music carried over each gap (the mix only)
             extra = []
             for k in range(1, len(pieces)) if kind == "mix" and not cut.get("music") else []:
-                take, src, a, b, t = pieces[k - 1]
-                end = t + (b - a)
+                take, src, a, b, t, ln, sp = pieces[k - 1]
+                end = t + ln
                 if pieces[k][4] <= end + 0.001: continue                       # no gap: same take
                 track = backing(take, src.get("scene", take))
                 if not track: continue
@@ -171,7 +176,7 @@ def main(name):
     for k in ("title", "blurb", "stage"):
         if cut.get(k): meta[k] = cut[k]
     if cut.get("music"):
-        gaps = [p[4] - gap for k, p in enumerate(pieces) if k and p[4] > pieces[k - 1][4] + (pieces[k - 1][3] - pieces[k - 1][2]) + 0.001]
+        gaps = [p[4] - gap for k, p in enumerate(pieces) if k and p[4] > pieces[k - 1][4] + pieces[k - 1][5] + 0.001]
         music, prev = [], None
         for m in cut["music"]:
             path = os.path.join(MUSIC, TRACKS.get(m["track"], m["track"] + ".mp3"))
