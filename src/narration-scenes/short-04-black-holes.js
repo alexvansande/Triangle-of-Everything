@@ -54,6 +54,17 @@ const DM_CANDS = [
 ];
 // the source of the macro areas, quietly under the title
 const DM_SOURCE = { title: "after Sidhu, Scherrer & Starkman (2019),\n\u201cDeath and serious injury by dark matter\u201d", small: true, y: 0.7 };
+// each survey's source, small on top while it crosses out its range (the author, 2026-11-09: "a nice air of
+// credibility", the style of DM_SOURCE)
+const SRC = (title) => ({ title, small: true, y: 0.12 });
+const SRC_QSO = SRC("after Murgia, Scelfo, Viel & Raccanelli (2019),\nPhysical Review Letters");
+const SRC_CMB = SRC("after Ali-Ha\u00efmoud & Kamionkowski (2017),\nPhysical Review D");
+const SRC_GW = SRC("after Kavanagh, Gaggero & Bertone (2018),\nPhysical Review D");
+const SRC_ML = SRC("after Niikura et al. (2019), Subaru Hyper Suprime-Cam,\nNature Astronomy");
+const SRC_HAW = SRC("after Carr, Kohri, Sendouda & Yokoyama (2010),\nPhysical Review D");
+const SRC_NS = SRC("neutron stars: Capela, Pshirkov & Tinyakov (2013),\ndisputed by Montero-Camacho et al. (2019)");
+// the neutron-star limit, contested, so not crossed out: named where the window is shown (the author, 2026-11-09)
+const NS_OPEN = { ...NS, label: "might still be ruled out\nby neutron star studies" };
 const DM_PBH = { mark: [-8.3, 19.5], label: "primordial black holes?", place: "right", color: "#ff8fa8" };
 // all four candidates at once (WIMPs at the bottom left, MACHOs at the top right), with
 // "Here be dark matter?" in the empty middle of the frame, left of the everyday objects'
@@ -193,13 +204,13 @@ export default {
     // Schwarzschild line from the Planck mass to ~1e5 Suns, cut down to what's
     // still open (log10 g; docs/dark-matter-constraints.md)
     { at: ["might still be around", "might just be around"], cam: { r: -11, m: 16.8, span: 46 }, clear: true, hl: [{ window: W0, label: "could they\nbe here?", dist: 60 }] },
-    { at: "quasars", hl: [{ window: W1, from: W0, trace: W0, cuts: [{ ...QSO, label: "ruled out by\nquasar light" }] }] },
-    { at: "cosmic microwave background", hl: [{ window: W2, from: W1, trace: W0, cuts: [QSO, { ...CMB, label: "ruled out by the\nmicrowave background" }] }] },
-    { at: "gravitational waves", hl: [{ window: W3, from: W2, trace: W0, cuts: [QSO, CMB, { ...GW, label: "ruled out by\ngravitational waves" }] }] },
-    { at: "microlensing", hl: [{ window: W4, from: W3, trace: W0, cuts: [QSO, CMB, GW, { ...ML, label: "ruled out by\nmicrolensing" }] }] },
+    { at: "quasars", hl: [{ window: W1, from: W0, trace: W0, cuts: [{ ...QSO, label: "ruled out by\nquasar light" }] }, SRC_QSO] },
+    { at: "cosmic microwave background", hl: [{ window: W2, from: W1, trace: W0, cuts: [QSO, { ...CMB, label: "ruled out by the\nmicrowave background" }] }, SRC_CMB] },
+    { at: "gravitational waves", hl: [{ window: W3, from: W2, trace: W0, cuts: [QSO, CMB, { ...GW, label: "ruled out by\ngravitational waves" }] }, SRC_GW] },
+    { at: "microlensing", hl: [{ window: W4, from: W3, trace: W0, cuts: [QSO, CMB, GW, { ...ML, label: "ruled out by\nmicrolensing" }] }, SRC_ML] },
     { at: "can't be too small", cam: { r: -18, m: 10, span: 34 } },
-    { at: ["they'd have evaporated", "would have evaporated"], hl: [{ window: W5, from: W4, trace: W0, cuts: [QSO, CMB, GW, ML, { ...HAW, label: "evaporated by\nhawking radiation" }] }] },
-    { at: ["narrow window", "tiny window"], cam: { r: -8.6, m: 19.4, span: 12 }, hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
+    { at: ["they'd have evaporated", "would have evaporated"], hl: [{ window: W5, from: W4, trace: W0, cuts: [QSO, CMB, GW, ML, { ...HAW, label: "evaporated by\nhawking radiation" }] }, SRC_HAW] },
+    { at: ["narrow window", "tiny window"], cam: { r: -8.6, m: 19.4, span: 12 }, hl: [{ window: W5, cuts: [ML, HAW, NS_OPEN], label: "still open?", dist: 40 }, SRC_NS] },
     // straight across: the same mass squeezed onto the black-hole line
     // (Hyperion, a small moon of Saturn, 5.6e21 g → ~17 nm; Eros, an asteroid, 6.7e18 g → ~1/5 of an atom)
     // (no round moon is light enough for the window: Mimas, the smallest, is 3.7e22 g, above it;
@@ -221,7 +232,7 @@ export default {
     // the pictures fade out, leaving the catalogue dots and the named galaxies' dots and labels
     { at: ["much heavier than everything", "much heavier than they ought to be"], cam: { r: 22.3, m: 44.1, span: 3.6 }, hold: 6, icons: false,
       hl: [...GAL_NAMED, { ...DROP_ARROW, delay: 0.5, draw: 2 }, { ...GAL_DROP, label: "without dark matter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only", delay: 2 }] },
-    { at: ["ten times", "10 times"], hl: [...GAL_NAMED.map(still), { ...DROP_ARROW, draw: 0.01 }, { ...GAL_DROP, shiftAt: -10, label: "about 10× lighter", labelY: 0.12 }, { line: "darkmatter", label: "measured" }, { line: "luminous", label: "stars and gas only" }] },
+    { at: ["ten times", "10 times"], hl: [...GAL_NAMED.map(still), { ...DROP_ARROW, draw: 0.01 }, { ...GAL_DROP, shiftAt: -10, label: "without dark matter", labelY: 0.12 }, { line: "darkmatter", label: "measured: about 10× heavier" }, { line: "luminous", label: "stars and gas only" }] },
     // a slow pull back from the galaxies to the candidates
     { at: "something invisible", cam: DM_WIDE, dur: 4, drift: 0, quiet: true, labels: false, clear: true, icons: true,
       hl: [SCHW, ...DM_CANDS.map((c, i) => ({ ...c, delay: 1.2 + 0.5 * i }))] },
@@ -230,8 +241,8 @@ export default {
     { at: ["we don't know what it is", "plenty of candidates"], cam: { r: -8.6, m: 19.4, span: 12 }, dur: 5, drift: 0, quiet: true,
       hl: [SCHW, ...DM_CANDS.map(still), { ...DM_PBH, delay: 0.4 }, { window: W5, cuts: [ML, HAW], delay: 0.8 }] },
     { at: ["if they are just tiny black holes", "if it's tiny black holes", "so we keep looking"], labels: true, clear: true,
-      hl: [{ window: W5, cuts: [ML, HAW], label: "still open", dist: 40 }] },
-        { at: ["any new particles", "what we think of as empty space"], cam: { r: -7.4, m: 20.6, span: 10 }, dur: 9, drift: 0.01, hl: [{ window: W5, from: W6, trace: W0, cuts: [ML, HAW, NS], label: "still open", dist: 40 }] },
+      hl: [{ window: W5, cuts: [ML, HAW, NS_OPEN], label: "still open?", dist: 40 }, SRC_NS] },
+        { at: ["any new particles", "what we think of as empty space"], cam: { r: -7.4, m: 20.6, span: 10 }, dur: 9, drift: 0.01, hl: [{ window: W5, from: W6, trace: W0, cuts: [ML, HAW, NS_OPEN], label: "still open?", dist: 40 }, SRC_NS] },
 
     // ── Ending: maybe most matter is in tiny black holes ─────
     // (the window still open while the narration says why tiny black holes would need no new particle)
