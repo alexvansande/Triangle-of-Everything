@@ -81,6 +81,23 @@ def backing(take, scene):
     return path if os.path.exists(path) else None
 
 
+def room(path, rm):
+    """A piece's `room: { rt60, wet }`: a small room added to its voice (a decaying-noise reverb, mixed in at `wet`), so a
+    drier recording sits beside a more reverberant one (the author, 2026-11-09: rec48 beside rec59; rt60 0.35 s at 0.25
+    brought rec48's tail, 20 dB down in 90 ms after a word, to rec59's at 1.1x, about 110 ms)."""
+    import numpy as np
+    SR = 48000
+    x = np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-f", "f32le", "-ac", "2", "-ar", str(SR), "-"],
+                                     capture_output=True, check=True).stdout, np.float32).reshape(-1, 2).astype(np.float64)
+    n = int(rm["rt60"] * SR); t = np.arange(n) / SR
+    ir = np.random.default_rng(7).standard_normal(n) * np.exp(-6.9 * t / rm["rt60"]); ir[:int(0.008 * SR)] = 0
+    ir /= np.sqrt(np.sum(ir ** 2))
+    N = 1 << int(np.ceil(np.log2(len(x) + n)))
+    y = x + rm["wet"] * np.fft.irfft(np.fft.rfft(x, N, axis=0) * np.fft.rfft(ir, N)[:, None], N, axis=0)[:len(x)]
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "f32le", "-ar", str(SR), "-ac", "2", "-i", "-", path],
+                   input=y.astype(np.float32).tobytes(), check=True)
+
+
 def main(name):
     cut = json.load(open(os.path.join(ROOT, "video", "cuts", f"{name}.json")))
     gap = cut.get("gap", 0.6)
@@ -105,8 +122,11 @@ def main(name):
         seg = {"take": s["take"], "scene": src.get("scene", s["take"]), "from": round(a, 3), "to": round(b, 3),
                "at": round(at, 3), "tempo": round(src.get("tempo", 1) * sp, 3)}
         if sp != 1: seg["speed"] = sp
+        # `carry: false`: the piece keeps the camera and marks of the one before instead of starting from its own scene's
+        # (a jump at the join where the two scenes framed the moment differently: the author, 2026-11-09)
+        if s.get("carry") is False: seg["carry"] = False
         segments.append(seg)
-        pieces.append((s["take"], src, a, b, at, (b - a) / sp, sp))
+        pieces.append((s["take"], src, a, b, at, (b - a) / sp, sp, s.get("room")))
         at += (b - a) / sp
     last_src = pieces[-1][1]
     credits = last_src.get("credits") or 3
@@ -121,13 +141,14 @@ def main(name):
                 g = os.path.join(tmp, "lead.wav")
                 ffmpeg("-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", f"{lead:.3f}", g)
                 parts.append(g)
-            for k, (take, src, a, b, t, ln, sp) in enumerate(pieces):
+            for k, (take, src, a, b, t, ln, sp, rm) in enumerate(pieces):
                 f = src.get(kind) or src["audio"]
                 fade = FADE if kind == "audio" else MIX_FADE
                 p = os.path.join(tmp, f"{k}.wav")
                 ffmpeg("-ss", f"{a:.3f}", "-to", f"{b:.3f}", "-i", os.path.join(NARR, take, f),
                        "-af", f"afade=t=in:d={fade if a > 0 else 0.001},afade=t=out:st={max(0, b - a - fade):.3f}:d={fade},"
                               + (f"atempo={sp}," if sp != 1 else "") + f"aresample=48000,aformat=channel_layouts=stereo", p)
+                if rm and kind == "audio": room(p, rm)
                 if k and t > segments[k - 1]["at"] + pieces[k - 1][5] + 0.001:   # a gap before it
                     g = os.path.join(tmp, f"{k}-gap.wav")
                     ffmpeg("-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", f"{gap:.3f}", g)
@@ -140,7 +161,7 @@ def main(name):
             # the music carried over each gap (the mix only)
             extra = []
             for k in range(1, len(pieces)) if kind == "mix" and not cut.get("music") else []:
-                take, src, a, b, t, ln, sp = pieces[k - 1]
+                take, src, a, b, t, ln, sp, rm = pieces[k - 1]
                 end = t + ln
                 if pieces[k][4] <= end + 0.001: continue                       # no gap: same take
                 track = backing(take, src.get("scene", take))

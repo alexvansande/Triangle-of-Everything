@@ -5,14 +5,24 @@
     {
       "take": "short-04-black-holes",
       "from": "I've been doing a series of videos",
-      "to": "bigger than Pluto's orbit"
+      "to": "bigger than Pluto's orbit",
+      "room": {
+        "rt60": 0.35,
+        "wet": 0.25
+      }
     },
     {
       "take": "short-04a-black-hole-slope",
       "from": "But the most interesting question",
       "to": "tiny black holes",
-      "speed": 1.1
+      "speed": 1.1,
+      "carry": false
     }
   ],
-  "_note": "Ends on the Black Hole Slope's own ending (rec59, 2026-11-09), from \"But the most interesting question\" to \"tiny black holes\" (the author, 2026-11-09: the cut ending at 'but how small' felt cut in half; trying whether the two recordings sit together). Before: to 'but how small'; before that, to 'bigger than Pluto's orbit'. Its ending plays at 1.1x, the pace of the rest (the author, 2026-11-09)."
+  "_note": "Ends on the Black Hole Slope's own ending (rec59, 2026-11-09), from \"But the most interesting question\" to \"tiny black holes\" (the author, 2026-11-09: the cut ending at 'but how small' felt cut in half; trying whether the two recordings sit together). Before: to 'but how small'; before that, to 'bigger than Pluto's orbit'. Its ending plays at 1.1x, the pace of the rest (the author, 2026-11-09). At the join (the author, 2026-11-09: a silence, the music stopping, a stutter, more echo in the new voice): one Mesmerize under the whole video, the camera carried on from video 4's scene, and a small room added to rec48's voice to match rec59's (room).",
+  "music": [
+    {
+      "track": "Mesmerize"
+    }
+  ]
 }

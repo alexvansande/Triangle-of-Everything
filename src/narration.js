@@ -155,8 +155,9 @@ async function cutCues(take, name) {
     const move = (t) => +((t - s.from) / (s.speed ?? 1) + s.at).toFixed(3);   // a piece played faster than its take (cut `speed`)
     const before = rc.filter(c => c.time < s.from - 0.01);
     const cam = before.filter(c => c.cam).at(-1), hl = before.filter(c => c.hl || c.clear).at(-1);
-    if (s.from > 0 && cam) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: 0.05, drift: cam.drift, time: s.at });
-    if (s.from > 0 && hl?.hl) all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: s.at + 0.001 });
+    // (a piece with `carry: false` keeps what's on screen from the piece before: no jump to its own scene's framing)
+    if (s.from > 0 && cam && s.carry !== false) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: 0.05, drift: cam.drift, time: s.at });
+    if (s.from > 0 && hl?.hl && s.carry !== false) all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: s.at + 0.001 });
     for (const c of rc) if (c.time >= s.from - 0.01 && c.time < s.to) all.push({ ...c, time: move(c.time) });
     // its sound cues inside it too, for a cut whose mix is made whole (narration-sound.mjs: a cut
     // with its own music, words.json "music")
