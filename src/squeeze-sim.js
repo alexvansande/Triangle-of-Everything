@@ -21,7 +21,7 @@ export const BASE = {
   tremble: 1,
   threshold: 0.3, spread: 0.2, centreFirst: 0, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, electronSize: 0.03, electronBounce: true, bareSpacing: 1,
   fuseAt: 0.6, fourAtOnce: false, neutrons: 2, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
-  contract: false, shatter: 1, greySize: 1, greyUniform: true, greyAttract: 0,
+  contract: false, shatter: 1, greySize: 1, greyUniform: true, greyAttract: 0, captureElectrons: false,
   onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowsStrong: false, arrowSize: 0.45, arrowTime: 5, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
 export const MODE_DEFAULTS = {
@@ -30,7 +30,7 @@ export const MODE_DEFAULTS = {
   2: { nucleus: 0.50, count: 339, radius: 120, segments: 32, relief: 2, sizeSpread: 0.08, jitter: 25, repel: 6, falloff: 4, range: 1.2, stiffness: 4, pressure: 4, damping: 2, shrinkTime: 50,
        fuseAt: 0.3, fourAtOnce: true, bridgeTime: 0.05, hugRate: 4.15, nucleiPull: 2.15, pictures: true, arrowsOut: true, arrowsIn: true, arrowsStrong: true },
   3: { nucleus: 0.90, count: 700, radius: 100, sizeSpread: 0, startBox: 4, repel: 6, falloff: 4, range: 0.6, stiffness: 8, pressure: 4, damping: 2, threshold: 0.015, spread: 0.35, centreFirst: 2.9,
-       contract: true, shatter: 3, greySize: 0.9, pictures: true },
+       contract: true, shatter: 3, greySize: 0.9, pictures: true, captureElectrons: true },
 };
 export function defaults(mode) { return Object.assign({}, BASE, MODE_DEFAULTS[mode]); }
 const TAU = Math.PI * 2;
@@ -44,9 +44,9 @@ export function createSqueeze({ pics = {} } = {}) {
   const canvas = { width: 1, height: 1 };
   // ---------- state ----------
   const S = {
-    seed: 1, hudText: "",
+    seed: 1, hudText: "", arrowT0: 0,   // arrowT0: when the arrows' time starts (the run's start in the lab; a video clip's first frame)
     mode: 1, orient: "v", view: "screen", paused: false, speed: 1,
-    P: null, t: 0, blobs: [], electrons: [], flashes: [], pops: [], frags: [], bridges: [], events: { pop: 0, fuse: 0, break: 0 }, maxSq: 0,
+    P: null, t: 0, blobs: [], electrons: [], captures: [], flashes: [], pops: [], frags: [], bridges: [], events: { pop: 0, fuse: 0, break: 0 }, maxSq: 0,
     W: SHORT, H: LONG, box: 0, shrinkT: 0, floor: 0, jam: 0, nextId: 1, fps: 0,
   };
   // seeded, so a seed always gives the same run (the video's renders step it on the take's clock, each worker from the
@@ -76,7 +76,7 @@ export function createSqueeze({ pics = {} } = {}) {
   function build() {
     const P = S.P;
     seedState = S.seed >>> 0;
-    S.t = 0; S.blobs = []; S.electrons = []; S.flashes = []; S.pops = []; S.frags = []; S.bridges = []; S.events = { pop: 0, fuse: 0, break: 0 }; S.maxSq = 0;
+    S.t = 0; S.blobs = []; S.electrons = []; S.captures = []; S.flashes = []; S.pops = []; S.frags = []; S.bridges = []; S.events = { pop: 0, fuse: 0, break: 0 }; S.maxSq = 0;
     S.box = P.startBox * Math.max(S.W, S.H); S.shrinkT = 0; S.floor = 0; S.jam = 0;
     const half = S.box / 2 - P.radius * 1.05, R = P.radius;
     let pts = [];
@@ -100,6 +100,9 @@ export function createSqueeze({ pics = {} } = {}) {
       const a = rnd(0, TAU), s = P.initSpeed * rnd(0.4, 1), Ri = R * (1 + P.sizeSpread * rnd(-1, 1));
       S.blobs.push(makeBlob(x, y, Math.cos(a) * s, Math.sin(a) * s, Ri, Math.max(10, Math.round(P.segments * Ri / R) & ~1), S.mode));
     }
+    // mode 3: an electron beside each proton, drifting round just outside its ring (the author, 2026-11-09: "blue
+    // glowing circles representing electrons that merge with the protons")
+    if (S.mode === 3 && P.captureElectrons) for (const b of S.blobs) S.captures.push({ b, a: rnd(0, TAU), d: rnd(1.08, 1.22), w: rnd(-0.35, 0.35), x: b.cx, y: b.cy, fall: -1 });
   }
 
   // ---------- geometry ----------
@@ -473,6 +476,25 @@ export function createSqueeze({ pics = {} } = {}) {
       }
     }
     for (let i = S.flashes.length - 1; i >= 0; i--) { const f = S.flashes[i]; f.t += dt; if (f.t > f.dur) S.flashes.splice(i, 1); }
+    // the captured electrons: beside their ring until it clenches, then into the proton in a third of a second
+    for (let i = S.captures.length - 1; i >= 0; i--) {
+      const c = S.captures[i], b = c.b, k = b.nuclei[0];
+      if (c.fall < 0) {
+        c.a += c.w * dt; const r = (b.rm || b.R) * c.d;
+        c.x = b.cx + Math.cos(c.a) * r; c.y = b.cy + Math.sin(c.a) * r;
+        if (b.state === "grey") { c.fall = 0; c.x0 = c.x - k.x; c.y0 = c.y - k.y; }
+      } else {
+        c.fall += dt;
+        const u = Math.min(1, c.fall / 0.33), e = u * u;
+        c.x = k.x + c.x0 * (1 - e); c.y = k.y + c.y0 * (1 - e);
+        if (u >= 1) {
+          S.flashes.push({ x: k.x, y: k.y, r0: k.r * 0.4, r1: k.r * 1.6, t: 0, dur: 0.3, color: "150,210,255" });
+          const a = rnd(0, TAU), v = 2400;
+          S.electrons.push({ x: k.x, y: k.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, nu: true });
+          S.captures.splice(i, 1);
+        }
+      }
+    }
     S.t += dt;
   }
 
@@ -744,7 +766,7 @@ export function createSqueeze({ pics = {} } = {}) {
       ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - ux * h * 0.8, y1 - uy * h * 0.8); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * h - uy * hw, y1 - uy * h + ux * hw); ctx.lineTo(x1 - ux * h + uy * hw, y1 - uy * h - ux * hw); ctx.closePath(); ctx.fill();
     };
-    const arrowLife = clamp(1 - (S.t - P.arrowTime), 0, 1);   // gone a second after their time
+    const arrowLife = clamp(1 - (S.t - S.arrowT0 - P.arrowTime), 0, 1);   // gone a second after their time, counted from arrowT0
     if ((P.arrowsOut || P.arrowsIn) && arrowLife > 0) {
       const L = P.radius * P.arrowSize, hb = S.box / 2, aw = Math.max(lw * 0.9, L * 0.06);
       if (P.arrowsOut) for (const b of S.blobs) {
@@ -820,6 +842,16 @@ export function createSqueeze({ pics = {} } = {}) {
       ctx.strokeStyle = `rgba(${u < 0.15 ? "255,255,255" : f.color},${(1 - u) * 1.1})`; ctx.lineWidth = lw * (1 + 0.3 * (1 - u)); ctx.stroke();
     }
     // flashes
+    // the electrons waiting to be captured: blue glowing dots
+    if (S.captures.length) {
+      const re = P.radius * 0.2;
+      for (const c of S.captures) {
+        if (Math.abs(c.x) > S.W / 2 + re * 3 || Math.abs(c.y) > S.H / 2 + re * 3) continue;
+        const g = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, re * 2.6);
+        g.addColorStop(0, "rgba(220,240,255,1)"); g.addColorStop(0.3, "rgba(120,190,255,0.95)"); g.addColorStop(0.55, "rgba(79,163,255,0.35)"); g.addColorStop(1, "rgba(79,163,255,0)");
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c.x, c.y, re * 2.6, 0, TAU); ctx.fill();
+      }
+    }
     for (const f of S.flashes) {
       const u = f.t / f.dur, r = f.r0 + (f.r1 - f.r0) * u;
       ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, TAU);

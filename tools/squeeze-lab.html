@@ -205,6 +205,7 @@ const SCHEMA = [
   { key: "shatter", label: "Shatter", min: 0, max: 3, step: 0.05, modes: [3], note: "how far the broken ring's pieces fly (when it shatters)" },
   { key: "greySize", label: "Grey disc size", min: 0.5, max: 1.1, step: 0.01, fmt: v => Math.round(v * 100) + "% of the red one", modes: [3] },
   { key: "greyUniform", label: "Neutrons all one size", type: "bool", modes: [3], note: "hard, equal discs pack into a hexagonal lattice; the box stops shrinking once they jam" },
+  { key: "captureElectrons", label: "Electrons fall into the protons", type: "bool", modes: [3], restart: true, note: "a blue electron beside each proton; when its ring clenches it falls in, with a flash, and a neutrino flies out (p + e⁻ → n + ν)" },
   { key: "greyAttract", label: "Grey attraction", min: 0, max: 4, step: 0.05, modes: [3] },
   { group: "Look" },
   { key: "pictures", label: "The chart's proton and neutron pictures", type: "bool", note: "the Triangle's own particle images instead of flat discs" },

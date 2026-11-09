@@ -677,7 +677,7 @@ export function drawDeut(ctx, W, H, o, t) {
 // { squeeze: { mode, from?, speed?, seed?, P? } }: mode 1 the shells crushed, 2 fusion, 3 the neutrons, with the lab's
 // settings for that mode (P overrides some). The run is stepped on the take's clock: `from` seconds into it when the cue
 // starts, then `speed` × the time since. One run per cue, replayed from its start after a seek back; a render steps
-// it exactly (o.exact), the live page catches up at most 60 steps a frame.
+// it exactly (o.exact), the live page catches up at most 60 steps a frame. The lab's arrows open each clip.
 const SQUEEZE = new Map();
 export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
   const key = `${o.start}:${o.mode}:${o.seed ?? 1}`, want = (o.from ?? 0) + Math.max(0, t - o.start) * (o.speed ?? 1);
@@ -687,6 +687,9 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
     Object.assign(sim.S, { mode: o.mode, seed: o.seed ?? 1, W: W > H ? SQUEEZE_LONG : SQUEEZE_SHORT, H: W > H ? SQUEEZE_SHORT : SQUEEZE_LONG });
     sim.S.P = { ...squeezeDefaults(o.mode), hud: false, ...o.P };
     sim.build(); SQUEEZE.set(key, sim);
+    // the arrows the lab's settings switch on, for the clip's first seconds (the author, 2026-11-09): their time counts
+    // from the clip's first frame, in seconds of the video at whatever speed the run plays
+    sim.S.arrowT0 = o.from ?? 0; sim.S.P.arrowTime *= o.speed ?? 1;
   }
   for (let n = 0; sim.S.t + SQUEEZE_DT <= want + 1e-9 && (o.exact || n < 60); n++) sim.step(SQUEEZE_DT);
   sim.draw(ctx, W, H, pixelRatio);

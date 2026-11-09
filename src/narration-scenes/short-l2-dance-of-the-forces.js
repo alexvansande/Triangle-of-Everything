@@ -69,21 +69,23 @@ export default {
     { at: "up a column", hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, COLUMN] },
     { at: "degenerate matter", hl: [{ obj: "Jupiter", label: "degenerate matter inside", place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
     // the atoms crushed: the Squeeze Lab's mode 1 (src/squeeze-sim.js, the author's settings in tools/squeeze-lab.html),
-    // 12 s into its run, so the first shells pop on "win over" (its pops come at 18–22 s of the run)
-    { at: "this happens", hold: 12, hl: [{ squeeze: { mode: 1, from: 12 } }] },
+    // 11.7 s into its run, so its first shell pops on "win over" (18.38 s of the run; the rest by 22 s)
+    { at: "this happens", hold: 12, hl: [{ squeeze: { mode: 1, from: 11.7 } }] },
     // the strong force: back to the chart for a beat, then the fusion diagram (drawFuse)
     { at: "even more mass", cam: { r: 9.85, m: 32.6, span: 3 }, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "fusion starts", delay: 0.6 }] },
-    // the fusion, the lab's mode 2: 8 s in (past the crowded start's own merges) and at 1.8×, so its fusions (30–49 s
-    // of the run) fall from "push those cores together" to "so that's fusion"
-    { at: "the strong force", hold: 25, hl: [{ squeeze: { mode: 2, from: 8, speed: 1.8 } }] },
+    // the fusion, the lab's mode 2 with the box a little roomier at the start (2.6× the screen, the lab's 2.2): packed as
+    // tight as in the lab the crowd fused in its first moments, before the words get there (the author, 2026-11-09: the
+    // first fusion in sync with the text). Then nothing fuses until 18.83 s of the run and seven go within half a
+    // second: 1.8 s in, they fall on "capture them"
+    { at: "the strong force", hold: 25, hl: [{ squeeze: { mode: 2, from: 1.8, P: { startBox: 2.6 } } }] },
     { at: "that delicate dance", cam: { r: 10.9, m: 33.1, span: 3.6 }, clear: true, hl: [] },
     // the main sequence
     { at: "called the main sequence", hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
     { at: "most of their lives", hl: [MS, { obj: "Sun", label: "billions of years" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
     { at: "once that runs out", hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
     { at: "goes haywire", cam: { r: 11.85, m: 33.4, span: 3.6 }, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 1.2, core: true }, { obj: "Red Giant", label: "the fire goes out", delay: 1 }] },
-    // the weak force, the lab's mode 3: 7.2 s into its run, so its cascade of clenching rings (19.9–22 s of the run)
-    // lands on "protons and electrons squeezed together… a mass of neutrons", and the grey discs pack from there
+    // the weak force, the lab's mode 3: 7.2 s into its run, so its first ring clenches on "squeezed" (19.86 s of the
+    // run) and the cascade (to 22 s) runs through "a mass of neutrons"; the grey discs pack from there
     { at: "catastrophic core collapse", cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hold: 45, hl: [{ squeeze: { mode: 3, from: 7.2 } }] },
   ],
 };
