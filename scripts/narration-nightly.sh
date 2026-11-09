@@ -30,7 +30,7 @@ log "nightly check"
 # stalled the renders from 01:49 to 05:45). Hand jobs that must follow a round wait on narration-overnight.sh.running only.
 busy() {
   for f in $(pgrep -fl '^(/bin/)?sh [^ ]*narration-overnight\.sh' | awk '{print $3}' | sort -u); do
-    grep -q 'narration-nightly' "$f" 2>/dev/null && [ "${f##*/}" != narration-overnight.sh.running ] && continue
+    grep -q 'pgrep.*narration-nightly\.sh\.running' "$f" 2>/dev/null && [ "${f##*/}" != narration-overnight.sh.running ] && continue
     return 0
   done
   return 1
