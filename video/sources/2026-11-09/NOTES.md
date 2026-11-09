@@ -138,10 +138,10 @@ leg runs past the Sun's picture and read as the Sun making it. Every cue resolve
   Many retakes; word timings in rec62.words.json (whisper hears "a log of mass and size" as "math and science").
 
 ### Fact check
-- **Wrong (222 s, 235 s):** "Most stars are less dense than water." Most stars are red dwarfs, many times denser than
-  water, and the Sun averages 1.4 g/cm³; only the bigger stars are less dense (Sirius A ~0.5, Vega ~0.6 g/cm³).
-  Re-word: *"The bigger stars are already less dense than water, and some are even less dense than air."* ("less dense
-  than air" is right for giants.)
+- **Imprecise (222 s, 235 s):** "Most stars are less dense than water." Lots are (the author, 2026-11-09: the chart shows
+  many right of the water line: giants, supergiants, Sirius A ~0.5, Vega ~0.6 g/cm³; the Sun, 1.4, about on it), but most
+  stars in the galaxy are red dwarfs, many times denser, which a catalogue of known stars shows few of. *"Lots of stars
+  are less dense than water, and some are even less dense than air."* ("less dense than air" is right for giants.)
 - **Wrong (334 s, the first try):** nebulae "less dense than the vacuum of space": they're denser than the gas between
   the stars. The later try, "less dense than the atmosphere of the Moon" (342 s), is right (the Crab Nebula, ~4.6 M☉
   in ~5.5 ly: ~1e-23 g/cm³; the Moon's exosphere ~1e-18 g/cm³). Use 342 s.
