@@ -155,3 +155,35 @@ leg runs past the Sun's picture and read as the Sun making it. Every cue resolve
   the Milky Way, the Local Group; clusters less dense than their galaxies (the empty space between); superclusters as
   filaments, Laniakea ~100,000 galaxies; voids emptier, not empty, so they have mass and fit; "the problem is physics
   itself… our second edge".
+
+## rec63, rec64: video 5, parts 2 and 3 (iCloud recordings, home)
+
+- **rec63** = "The Cosmic Event Horizon.aifc" (2026-11-09 16:13, 12:11): part 2, "the edge, the horizon and the black
+  hole": the hook "What's the largest anything can be?", the rightmost edge, the speed of light and the stretching of
+  space (the photo's resolution), the Hubble line, the cosmic event horizon as the real limit, everything inside it on
+  the black-hole line, the two horizons, a black hole has a centre and our universe doesn't (an alien at our edge), "we
+  can see them", and "it's time we meet the only thing outside our triangle: the observable universe".
+- **rec64** = "the observable universe.aifc" (16:23, 9:22): part 3: everything falls in a triangle, almost, the three
+  sides, our universe out to the cosmic event horizon, 16 billion light-years, the 46 billion of the observable universe,
+  looking far is looking back, galaxies beyond reach, one side can't talk to the other, a time before stars, the light of
+  380,000 years after the Big Bang.
+
+### Fact check
+- **Right:** the speed of light as the speed limit for anything through space, space stretching faster; expansion not
+  into anything; Hubble's law; at the Hubble line things recede at the speed of light; the cosmic event horizon beyond it
+  as the limit of anything that can ever affect us (events now); the black hole's and the cosmic horizons; both set by
+  the mass inside (the Hubble rate by the density, Friedmann); a black hole has a centre, our universe doesn't; the
+  observable universe the only object outside; the three sides (relativity, quantum mechanics, the size of the
+  universe); the cosmic event horizon ~16.7 billion ly; the observable universe ~46 billion ly; far is the past; galaxies
+  beyond reach even at light speed; its far sides never in contact; before stars, galaxies, clusters; the CMB released
+  ~380,000 years after the Big Bang, when the universe became transparent.
+- **Imprecise:** rec63 "add up everything that exists inside this edge… right on the black hole line": exact for the
+  Hubble sphere (at the critical density its Schwarzschild radius is the Hubble radius); for the cosmic event horizon the
+  chart puts it there (the mass inside 16.7 billion ly would land ~0.1 decade off the line).
+- **Imprecise:** rec63 "as far as we've been able to measure, the universe is infinite": measured flat, so infinite or
+  at least far bigger than what we see. *"…the universe is, as far as we can tell, practically infinite."*
+- **Imprecise:** rec64 "16 billion light-years across in every direction": a radius. *"…16 billion light-years away, in
+  every direction."*
+- **Imprecise:** rec64 "Scientists call this our universe": the chart's name for it. *"We can call this our universe."*
+- **Slips to cut round:** rec63 "it lands on our short" (chart), "infinite Mars far", "empty spy", "or cosmic horizon"
+  (our); rec64 "R-short" (our chart), "on the right mode" (rightmost).
