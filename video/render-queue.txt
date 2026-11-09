@@ -99,7 +99,6 @@ short-l2-dance-of-the-forces
 # (the question part 2 answers), 1:54 in place of 1:48: new audio, whole. The four Shorts cut from long video 2's opening
 # (failed star, what makes a star, how stars die, what's left) are dropped: video/render-dropped.txt keeps them off the
 # renders and in a "Dropped cuts" section at the end of the page; "How do stars die?" is off Tuesday's slot (video/youtube.json)
-short-04a-black-hole-line
 # 2026-11-09, morning (the author): the forces Short before The Black Hole Line, part 1
 # next: short-l2-dance-of-the-forces
 # 2026-11-09, morning (the author): the powers-of-ten zoom too, after The Black Hole Line, part 1
