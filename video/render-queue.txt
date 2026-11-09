@@ -83,3 +83,9 @@
 # star hidden over the black-hole dive; first tonight, then long video 2's opening (output/videos/l2-wait.sh)
 short-03-stars
 # next: short-03-stars
+# 2026-11-08, night (the author): tonight's order: The Life and Death of Stars, the forces Short, the powers-of-ten zoom, long video 2
+# (its opening, by hand), then the other Shorts of long video 2 (queued by output/videos/narration-overnight.sh.chain once the long one is done)
+short-l2-dance-of-the-forces
+short-00-powers-of-ten
+# next: short-l2-dance-of-the-forces
+# next: short-00-powers-of-ten
