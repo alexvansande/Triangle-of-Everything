@@ -103,3 +103,5 @@ short-l2-dance-of-the-forces
 short-04a-black-hole-line
 # 2026-11-09, morning (the author): the forces Short before The Black Hole Line, part 1
 # next: short-l2-dance-of-the-forces
+# 2026-11-09, morning (the author): the powers-of-ten zoom too, after The Black Hole Line, part 1
+short-00-powers-of-ten
