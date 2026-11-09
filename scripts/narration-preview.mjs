@@ -35,8 +35,9 @@ const missing = takes.filter(t => !withAudio(t));
 if (missing.length) { console.error(`no audio for: ${missing.join(", ")}`); process.exit(1); }
 if (!takes.length) { console.error("no take has its audio.m4a in public/narration/"); process.exit(1); }
 
+// the site's copy drops the page's audio (below): its player loads the site's /narration/ instead
 execFileSync("npx", ["vite", "build", "--mode", "narration-preview", "--base", "./", "--outDir", OUT, "--emptyOutDir"],
-  { stdio: "inherit" });
+  { stdio: "inherit", env: MP3 ? process.env : { ...process.env, VITE_NARR_AUDIO_BASE: "/narration/" } });
 
 // ---------- trim what the player never loads ----------
 const rm = (p) => fs.rmSync(path.join(OUT, p), { recursive: true, force: true });

@@ -214,6 +214,8 @@ export async function startNarration(app) {
   RENDER = params.has("render");
   CAPTIONS = params.get("captions") !== "0";
   const base = `${import.meta.env.BASE_URL}narration/${app.take}/`;
+  // the site's videos page keeps no audio of its own: it plays the site's /narration/ copy (scripts/narration-preview.mjs)
+  const audioBase = import.meta.env.VITE_NARR_AUDIO_BASE ? `${import.meta.env.VITE_NARR_AUDIO_BASE}${app.take}/` : base;
   const take = await fetch(base + "words.json").then(r => r.json());
   SCENE = (await SCENES[`./narration-scenes/${take.scene || app.take}.js`]()).default;
   // &poster=1: the scene's thumbnail shot (scene `poster`: { at, cues }) in place of its cues, with
@@ -2811,7 +2813,7 @@ export async function startNarration(app) {
   audio.muted = false;
   // Sound design (scripts/narration-sound.mjs): the voice with its bed, if the
   // take has one; the chip switches back to the bare voice, in place.
-  const srcFor = () => base + (take.mix && soundOn() ? take.mix : take.audio);
+  const srcFor = () => audioBase + (take.mix && soundOn() ? take.mix : take.audio);
   audio.src = srcFor();
   audio.preload = "auto";
   // Then the whole file, played from memory: Safari streams long audio by byte
