@@ -43,6 +43,7 @@ export default {
   title: "Planets into stars",
   blurb: "Brown dwarfs, the main sequence, the life of a star, and what is left of it.",
   start: { r: 10.4, m: 31.6, span: 6 },
+  speed: 1,   // plays at 1× by default, as recorded (the author, 2026-11-08); the file itself is at 1.1×
   // the YouTube thumbnail (scripts/narration-poster.mjs): out on the whole stellar cycle, its
   // paths lit and its stages named (the author, 2026-10-30)
   poster: { at: 3, cues: [{ t: 0, cam: { r: 13.6, m: 33.6, span: 13 }, dur: 0.1, drift: 0, hl: [
@@ -166,10 +167,11 @@ export default {
     // to M87*), then a dive with the Event Horizon Telescope photo over its picture; it's
     // M87*'s photo, the only kind there is (the author's call: a black hole is a black hole)
     { at: "collapse into a black hole", offset: 0.6, cam: { obj: "Stellar BH", span: 1.6 }, dur: 1 },
-    { at: "collapse into a black hole", offset: 1.4, photo: "m87", obj: "Stellar BH", dive: { in: 1, out: 1 }, dur: 1.2, fadeIn: 0.6, fadeOut: 0.7,
+    // the neutron star sits just below-left of the black hole: its picture stayed on top of the photo (the author, 2026-11-08)
+    { at: "collapse into a black hole", offset: 1.4, hideIcons: ["PSR J0030+0451"], photo: "m87", obj: "Stellar BH", dive: { in: 1, out: 1 }, dur: 1.2, fadeIn: 0.6, fadeOut: 0.7,
       lens: { icon: [0.5, 0.5, 0.3], photo: [1800, 1800, 700], size: [3600, 3600], fill: "cover", hold: 0.2, fillDur: 1.2 },
       caption: "a black hole · M87* · Event Horizon Telescope · 2019" },
-    { at: "deserves a video", offset: 1.3, cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
+    { at: "deserves a video", offset: 1.3, hideIcons: [], cam: { r: 9, m: 36.5, span: 22 }, dur: 2.5,
       hl: [{ line: "schwarzschild" }, { obj: "Stellar BH", label: "next: black holes" }] },
   ],
 };
