@@ -631,7 +631,8 @@ export async function startNarration(app) {
   });
   const guided = highlights.filter(h => h.obj && h.label !== false);   // see drawGuides
   function unitsOpacity(t) {
-    let o = 0;
+    // a thumbnail keeps the rulers and their MASS and SIZE on (the author, 2026-11-09: "as with all thumbnails")
+    let o = POSTER ? 1 : 0;
     for (const k of keys) {
       if (k.end - k.t < 0.4 || k.quiet) continue;   // quiet: a move with no rulers
       o = Math.max(o, smooth((t - (k.t - 0.4)) / 0.4) * (1 - smooth((t - (k.end + 0.9)) / 0.9)));
