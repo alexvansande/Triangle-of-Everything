@@ -43,7 +43,6 @@ export default {
   title: "Planets into stars",
   blurb: "Brown dwarfs, the main sequence, the life of a star, and what is left of it.",
   start: { r: 10.4, m: 31.6, span: 6 },
-  speed: 1,   // plays at 1× by default, as recorded (the author, 2026-11-08); the file itself is at 1.1×
   // the YouTube thumbnail (scripts/narration-poster.mjs): out on the whole stellar cycle, its
   // paths lit and its stages named (the author, 2026-10-30)
   poster: { at: 3, cues: [{ t: 0, cam: { r: 13.6, m: 33.6, span: 13 }, dur: 0.1, drift: 0, hl: [

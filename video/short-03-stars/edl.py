@@ -4,14 +4,15 @@
 # rec36 = "Brown dwarfs to black holes.m4a" (Google Drive "Recordings", 2026-10-27, 4:45,
 # AAC mono): one take of the edited script (video/scripts/recording-scripts.md) with
 # retakes. It replaces the 2026-10-19 cut from rec16 + rec17 (in git history).
-# Treatment: enhance.py --plain, 1.1x. Build: see video/short-01-hook/README.md.
+# Treatment: enhance.py --plain, at the pace it was spoken (1.1x until 2026-11-08: the author asked for the
+# original sound, rebuilt from rec36, not the sped-up file slowed back down). Build: see video/short-01-hook/README.md.
 # (source, beat, first-word start, last-word start, {s, e, gap}) in source seconds;
 # the builder snaps each cut to the nearest real silence.
 
-# After the tempo: one second of silence added to the finished audio (public/narration/short-03-stars/
-# audio.m4a) at 1:57.0, between "…squeezed together into neutrons," and "and it becomes a neutron star",
-# for the neutron sequence (the author, 2026-10-29). A rebuild from this EDL has to add it again
-# (or give that clip a 1.1 s longer "gap" before the tempo step).
+# After the build: 1.1 s of silence added to the finished audio (public/narration/short-03-stars/audio.m4a)
+# at 2:08.7, between "…squeezed together into neutrons," and "and it becomes a neutron star", for the
+# neutron sequence (the author, 2026-10-29: one second at 1.1x). A rebuild from this EDL has to add it again.
+# The words.json timings are the 1.1x take's times 1.1 (the rebuild matched it at 1.1x to within 10 ms).
 
 PAUSES = {"word": 0.18, ",": 0.3, ".": 0.45}
 

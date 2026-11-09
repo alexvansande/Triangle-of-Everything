@@ -2848,7 +2848,7 @@ export async function startNarration(app) {
     if (keep) try { localStorage.setItem("narr-speed-v2", v); } catch {}
     speedEl.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", +b.dataset.speed === v));
   };
-  setSpeed(speed ?? SCENE.speed ?? (SPEEDS.includes(tempo) ? tempo : 1), false);   // a scene's `speed`: its default, in place of the tempo
+  setSpeed(speed ?? (SPEEDS.includes(tempo) ? tempo : 1), false);
   speedEl.addEventListener("click", (e) => {
     e.stopPropagation();
     const b = e.target.closest("button[data-speed]");
