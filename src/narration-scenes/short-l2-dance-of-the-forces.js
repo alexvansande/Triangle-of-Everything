@@ -3,7 +3,7 @@
 // the-forces/): everything is a dance between four forces; the diagonal as the tug of war between gravity and
 // electromagnetism, panned up from the microbes; the giant planets' column and degenerate matter (the atoms crushed,
 // animated); the strong force and fusion (animated); the main sequence; the fuel running out; the weak force at the
-// collapse (animated), to the neutron star held by gravity. The shots and the three diagrams are the opening's
+// collapse (animated), to the neutron star held by gravity (cut to 2:48 with the credits on 2026-11-09). The shots and the three diagrams are the opening's
 // (long-02-intro.js), keyed to this take's words. Until this take the Short was carved from the opening.
 // =============================================================
 // Field reference: docs/narration.md, "Scene fields". Rules: video/plans/visual-rules.md.
@@ -70,9 +70,9 @@ export default {
     { at: "degenerate matter", hl: [{ obj: "Jupiter", label: "degenerate matter inside", place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
     // the atoms crushed: the diagram (src/narr-diagrams.js, drawCrush)
     { at: "so massive", hl: [{ crush: {} }] },
-    { at: "break out of their clouds", hl: [{ crush: { phase: "pop" }, instant: true }] },
-    { at: "sea of electrons", hl: [{ crush: { phase: "sea" }, instant: true }] },
-    { at: "crushed any further", hl: [{ crush: { phase: "hold" }, instant: true }] },
+    // (cut to 2:48, the author, 2026-11-09: the shells break and the electrons go free within the one sentence left)
+    { at: "win over", hl: [{ crush: { phase: "pop" }, instant: true }] },
+    { at: "repulsion of the electrons", hl: [{ crush: { phase: "sea" }, instant: true }] },
     // the strong force: back to the chart for a beat, then the fusion diagram (drawFuse)
     { at: "even more mass", cam: { r: 9.85, m: 32.6, span: 3 }, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "fusion starts", delay: 0.6 }] },
     { at: "the strong force", hl: [{ fuse: {} }] },
@@ -80,8 +80,7 @@ export default {
     { at: "push those cores together", hl: [{ fuse: { phase: "squeeze" }, instant: true }] },
     { at: "capture them", hl: [{ fuse: { phase: "merge" }, instant: true }] },
     { at: "single nucleus", hl: [{ fuse: { phase: "helium" }, instant: true }] },
-    { at: "massive amount of energy", hl: [{ fuse: { phase: "burst" }, instant: true }] },
-    { at: "even further", hl: [{ fuse: { phase: "push" }, instant: true }] },
+    { at: "so that's fusion", hl: [{ fuse: { phase: "burst" }, instant: true }] },
     { at: "that delicate dance", cam: { r: 10.9, m: 33.1, span: 3.6 }, hl: [{ fuse: { phase: "stars" }, instant: true }] },
     // the main sequence
     { at: "called the main sequence", hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
@@ -92,7 +91,6 @@ export default {
     { at: "catastrophic core collapse", cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hl: [{ weak: {} }] },
     { at: "weak force", hl: [{ weak: { phase: "weak" }, instant: true }] },
     { at: "protons and electrons", hl: [{ weak: { phase: "capture" }, instant: true }] },
-    { at: "sea of neutrinos", hl: [{ weak: { phase: "neutrino" }, instant: true }] },
     { at: "do not repel each other", hl: [{ weak: { phase: "pack" }, instant: true }] },
     { at: "very big atomic", hl: [{ weak: { phase: "nucleus" }, instant: true }] },
     { at: "force of gravity", hl: [{ weak: { phase: "gravity" }, instant: true }] },

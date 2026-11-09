@@ -47,4 +47,10 @@ EDL = [
  ("rec58", "weak", 546.06, 557.38),        # So a neutron star is really just a very big atomic nucleus: mostly a bunch of neutrons, held together not by the strong force, but purely by the force of gravity.
 ]
 
-POST_CUTS = []
+# Cut to under three minutes (the author, 2026-11-09: 3:22 → 2:48), out of the finished audio.m4a (video/tools/postcut.py),
+# each span from the silence after the last word kept to the silence before the next, so the pause stays:
+POST_CUTS = [
+    (74.80, 88.03),     # So they break out of their clouds… a sea of electrons. That creates a new equilibrium… crushed any further.
+    (117.98, 132.94),   # (So that's fusion.) First on brown dwarfs… all of their hydrogen. That fusion creates… even further.
+    (173.80, 179.96),   # (…a neutron star.) And when that happens, a sea of neutrinos is sent out carrying a huge amount of energy.
+]

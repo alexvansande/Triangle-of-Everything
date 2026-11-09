@@ -50,29 +50,31 @@ session cuts it as that Short's own take (its scene stays the opening's).
 > And if the core is any bigger, then something even weirder will happen. It will collapse into a black hole. An object so weird that it deserves a video of its own.
 
 
-## The dance of the forces (`short-l2-dance-of-the-forces`, 3:19; recorded on its own, rec58, 2026-11-08)
+## The dance of the forces (`short-l2-dance-of-the-forces`, 2:45; recorded on its own, rec58, 2026-11-08; cut from 3:19 on 2026-11-09)
+
+Cut to under three minutes (the author, 2026-11-09): the electron sea and the new equilibrium, the brown dwarfs and the
+fusion energy, and the neutrinos are out (`POST_CUTS` in `video/short-l2-dance-of-the-forces/edl.py`). As cut now:
 
 > Everything in our universe is a delicate dance between four fundamental forces and, well, sometimes it can be a violent tug of war also.
 >
 > If you plot everything that exists in a chart of mass and size, you see that most things form this diagonal line. This is where the equilibrium of that particular tug of war between electromagnetism and gravity. Make something too big and it will crush under its own weight. Try to squeeze it too hard and the electrons themselves will push it outwards. The resulting line, this diagonal, is actually the density of atoms, and everything made of ordinary matter will fall somewhere along here.
 >
-> But you can see that giant planets like Jupiter and beyond do not fall on this diagonal line, rather they just go up a column. That's because their core is not made of ordinary matter, but degenerate matter. This happens because they are so massive and there's so much pressure in their core that it is able to win over the repulsion of the electrons. So they break out of their clouds and what we have is a bunch of nuclei and a sea of electrons. That creates a new equilibrium as quantum effects prevent them from being crushed any further.
+> But you can see that giant planets like Jupiter and beyond do not fall on this diagonal line, rather they just go up a column. That's because their core is not made of ordinary matter, but degenerate matter. This happens because they are so massive and there's so much pressure in their core that it is able to win over the repulsion of the electrons.
 >
 > But if you add even more mass then something magical happens because a new force comes into play. The strong force, as the name implies, is the strongest of all forces, but it also has a very limited range. For some very massive objects their gravity will be so strong they will push those cores together that the strong force can now capture them and make one single nucleus.
 >
-> So that's fusion. First on brown dwarfs with a very small percentage of their hydrogen, then on stars that can burn all of their hydrogen. That fusion creates a massive amount of energy and that now pushes the objects even further.
+> So that's fusion.
 >
 > And now that delicate dance between gravity and electromagnetism and the strong force will create this new stable equilibrium diagonal here, which is called the main sequence, where stars will live most of their lives. But that equilibrium is only kept by the fusion of hydrogen, and once that runs out, that goes haywire.
 >
 > And when that happens, a catastrophic core collapse will be so powerful that a new player force will enter into play. That's the weak force and that's what decides what the nucleus even is. Protons and electrons squeezed together will create a mass of neutrons, and that creates a neutron star.
 >
-> And when that happens, a sea of neutrinos is sent out carrying a huge amount of energy. And because neutrons, unlike protons and electrons, do not repel each other, they will just stay put.
+> And because neutrons, unlike protons and electrons, do not repel each other, they will just stay put.
 >
 > So a neutron star is really just a very big atomic nucleus, mostly a bunch of neutrons held together not by the strong force but purely by the force of gravity
 
 ### To re-record if wanted (from rec58's fact check)
 - *"This is where that particular tug of war, between electromagnetism and gravity, reaches its equilibrium."* (the line is a fragment as said)
-- *"then on stars, which can burn ordinary hydrogen."* (a star burns only its core's hydrogen)
 - *"and for the biggest stars, a catastrophic core collapse…"* (the Sun doesn't collapse)
 - *"And neutrons, packed shoulder to shoulder, refuse to be squeezed any further, so it just stays put."*
 - The deuterium line: *"deuterium comes with its neutron already, so it skips the hard step."*

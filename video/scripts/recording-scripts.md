@@ -24,7 +24,7 @@ went silent after a minute when it ran out.
 | 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | the source of long video 1 (6:01) and Shorts 2a (2:41) and 2b (2:02); re-recorded 2026-11-03, rec51 |
 | 3 · planets into stars | `short-03-stars` | 2:13 (re-recorded 2026-10-27, rec36) |
 | Long 2 · the opening to the black holes | `long-02-intro` | 8:09 (re-recorded 2026-11-06, rec57, natural speed, the second pass; the first piece of `long-02-space`, 19:14) |
-| The dance of the forces (Short) | `short-l2-dance-of-the-forces` | 3:19 (recorded on its own 2026-11-08, rec58, natural speed) |
+| The dance of the forces (Short) | `short-l2-dance-of-the-forces` | 2:45 (recorded on its own 2026-11-08, rec58, natural speed; cut from 3:19 on 2026-11-09) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | The Black Hole Slope (Short: the black-hole line, recorded on its own) | `short-04a-black-hole-slope` | 2:51 with the credits (recorded 2026-11-09, rec59, natural speed); the earlier version, `short-04a-black-hole-line` (1:54, cut from rec48), stays beside it to compare |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
