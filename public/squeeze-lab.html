@@ -159,11 +159,11 @@ const BASE = {
   threshold: 0.3, spread: 0.2, centreFirst: 0, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, electronSize: 0.03, electronBounce: true, bareSpacing: 1,
   fuseAt: 0.6, fourAtOnce: false, neutrons: 2, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
   shatter: 1, greySize: 1, greyUniform: true, greyAttract: 0,
-  onScreenOnly: true, pictures: false, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
+  onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowSize: 0.25, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
 const MODE_DEFAULTS = {
   1: { nucleus: 0.10, count: 150, sizeSpread: 0.12, shrinkTime: 23, repel: 5.05, falloff: 4, range: 0.6, stiffness: 2.95, pressure: 0.5, damping: 0.8,
-       threshold: 0.04, spread: 0.2, centreFirst: 1, electronPush: 0.105, electronBounce: false, pictures: true, lineWidth: 2, glow: 1.2 },
+       threshold: 0.04, spread: 0.2, centreFirst: 4, electrons: 30, electronPush: 0.105, electronBounce: false, pictures: true, arrowsOut: true, arrowsIn: true, lineWidth: 2, glow: 1.2 },
   2: { nucleus: 0.50, count: 85, radius: 120, relief: 2, sizeSpread: 0.08, repel: 2, range: 1.2, stiffness: 4, pressure: 4, damping: 2, shrinkTime: 50 },
   3: { nucleus: 0.90, count: 140, radius: 100, sizeSpread: 0.1, repel: 0.4, range: 0.6, stiffness: 4, pressure: 4, damping: 2, threshold: 0.015, spread: 0.35, greySize: 0.9 },
 };
@@ -231,6 +231,9 @@ const SCHEMA = [
   { key: "greyAttract", label: "Grey attraction", min: 0, max: 4, step: 0.05, modes: [3] },
   { group: "Look" },
   { key: "pictures", label: "The chart's proton and neutron pictures", type: "bool", note: "the Triangle's own particle images instead of flat discs" },
+  { key: "arrowsOut", label: "Blue arrows out of each shell", type: "bool", note: "the electric push; each arrow fades as soon as a neighbour or a wall takes its room" },
+  { key: "arrowsIn", label: "Red arrows in from the screen's edge", type: "bool", note: "the squeeze from outside; each fades when a circle covers it" },
+  { key: "arrowSize", label: "Arrow length", min: 0.1, max: 0.8, step: 0.05, fmt: v => Math.round(v * 100) + "% R" },
   { key: "lineWidth", label: "Line width", min: 0.5, max: 10, step: 0.5, unit: "px" },
   { key: "glow", label: "Glow", min: 0, max: 3, step: 0.1 },
   { key: "fill", label: "Fill", min: 0, max: 0.6, step: 0.01 },
@@ -899,6 +902,52 @@ function draw() {
     if (P.fill > 0) { ctx.fillStyle = `rgba(${col},${P.fill})`; ctx.fill(); }
     if (P.glow > 0) { ctx.strokeStyle = `rgba(${col},${0.18 * P.glow + 0.25 * st})`; ctx.lineWidth = w * (1 + 3 * P.glow); ctx.stroke(); }
     ctx.strokeStyle = `rgb(${col})`; ctx.lineWidth = w; ctx.stroke();
+  }
+  // arrows: blue ones out of every whole shell (the push), red ones in from the screen's edge (the squeeze); each one
+  // lives only while there's room for it, fading as a neighbour, a wall or a circle takes its place
+  const arrow = (x0, y0, x1, y1, col, a, w) => {
+    if (a <= 0.01) return;
+    const dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len, h = Math.min(len * 0.45, w * 2.6);
+    ctx.strokeStyle = `rgba(${col},${a})`; ctx.fillStyle = `rgba(${col},${a})`; ctx.lineWidth = w;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - ux * h * 0.6, y1 - uy * h * 0.6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * h - uy * h * 0.45, y1 - uy * h + ux * h * 0.45); ctx.lineTo(x1 - ux * h + uy * h * 0.45, y1 - uy * h - ux * h * 0.45); ctx.closePath(); ctx.fill();
+  };
+  if (P.arrowsOut || P.arrowsIn) {
+    const L = P.radius * P.arrowSize, hb = S.box / 2, aw = lw * 0.8;
+    if (P.arrowsOut) for (const b of S.blobs) {
+      if (!b.nodes.length) continue;
+      if (Math.abs(b.cx) > S.W / 2 + b.rm + L || Math.abs(b.cy) > S.H / 2 + b.rm + L) continue;   // off screen anyway
+      // the neighbours that could take an arrow's room
+      const near = []; for (const o of S.blobs) if (o !== b) { const d = Math.hypot(o.cx - b.cx, o.cy - b.cy); if (d < b.rm + (o.rm || 0) + L * 2) near.push([o, d]); }
+      for (let i = 0; i < 8; i++) {
+        const ang = i / 8 * TAU + b.u * 0.4, ux = Math.cos(ang), uy = Math.sin(ang);
+        const x0 = b.cx + ux * (b.rm + L * 0.2), y0 = b.cy + uy * (b.rm + L * 0.2);
+        let space = Infinity;
+        for (const [o, d] of near) {   // room along this direction before the neighbour's ring
+          const vx = (o.cx - b.cx) / d, vy = (o.cy - b.cy) / d, cos = vx * ux + vy * uy;
+          if (cos < 0.5) continue;
+          const gap = d - b.rm - o.rm; if (gap < space) space = gap;
+        }
+        // and before the box's wall
+        const tx = ux > 1e-6 ? (hb - x0) / ux : ux < -1e-6 ? (-hb - x0) / ux : Infinity, ty = uy > 1e-6 ? (hb - y0) / uy : uy < -1e-6 ? (-hb - y0) / uy : Infinity;
+        space = Math.min(space, tx, ty);
+        const a = clamp((space - L * 0.5) / (L * 0.7), 0, 1) * 0.9;
+        arrow(x0, y0, x0 + ux * L, y0 + uy * L, "140,200,255", a, aw);
+      }
+    }
+    if (P.arrowsIn) {
+      const Lr = L * 2, inset = 18, step = P.radius * 1.35, pts = [];
+      const nx = Math.max(2, Math.round(S.W / step)), ny = Math.max(2, Math.round(S.H / step));
+      for (let i = 0; i < nx; i++) { const x = -S.W / 2 + (i + 0.5) * S.W / nx; pts.push([x, -S.H / 2 + inset, 0, 1]); pts.push([x, S.H / 2 - inset, 0, -1]); }
+      for (let j = 0; j < ny; j++) { const y = -S.H / 2 + (j + 0.5) * S.H / ny; pts.push([-S.W / 2 + inset, y, 1, 0]); pts.push([S.W / 2 - inset, y, -1, 0]); }
+      for (const [x, y, ux, uy] of pts) {
+        const mx = x + ux * Lr / 2, my = y + uy * Lr / 2;
+        let room = Infinity;   // the nearest circle's edge to the arrow's middle
+        for (const o of S.blobs) { const d = Math.hypot(o.cx - mx, o.cy - my) - (o.nodes.length ? o.rm : o.nuclei[0].r); if (d < room) room = d; }
+        const a = clamp((room - Lr * 0.1) / (Lr * 0.5), 0, 1) * 0.9;
+        arrow(x, y, x + ux * Lr, y + uy * Lr, "255,80,70", a, aw * 1.3);
+      }
+    }
   }
   // torn films: the remaining arc, its ends bright
   for (const o of S.pops) {
