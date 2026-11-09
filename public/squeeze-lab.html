@@ -160,7 +160,7 @@ const BASE = {
   tremble: 1,
   threshold: 0.3, spread: 0.2, centreFirst: 0, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, electronSize: 0.03, electronBounce: true, bareSpacing: 1,
   fuseAt: 0.6, fourAtOnce: false, neutrons: 2, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
-  shatter: 1, greySize: 1, greyUniform: true, greyAttract: 0,
+  contract: false, shatter: 1, greySize: 1, greyUniform: true, greyAttract: 0,
   onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowsStrong: false, arrowSize: 0.45, arrowTime: 5, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
 const MODE_DEFAULTS = {
@@ -168,13 +168,13 @@ const MODE_DEFAULTS = {
        threshold: 0.04, spread: 0.2, centreFirst: 4, electrons: 30, electronPush: 0.105, electronBounce: false, pictures: true, arrowsOut: true, arrowsIn: true, lineWidth: 2, glow: 1.2 },
   2: { nucleus: 0.50, count: 339, radius: 120, segments: 32, relief: 2, sizeSpread: 0.08, jitter: 25, repel: 6, falloff: 4, range: 1.2, stiffness: 4, pressure: 4, damping: 2, shrinkTime: 50,
        fuseAt: 0.3, fourAtOnce: true, bridgeTime: 0.05, hugRate: 4.15, nucleiPull: 2.15, pictures: true, arrowsOut: true, arrowsIn: true, arrowsStrong: true },
-  3: { nucleus: 0.90, count: 700, radius: 100, sizeSpread: 0, repel: 6, falloff: 4, range: 0.6, stiffness: 8, pressure: 4, damping: 2, threshold: 0.015, spread: 0.35, centreFirst: 2.9,
-       shatter: 3, greySize: 0.9, pictures: true },
+  3: { nucleus: 0.90, count: 700, radius: 100, sizeSpread: 0, startBox: 4, repel: 6, falloff: 4, range: 0.6, stiffness: 8, pressure: 4, damping: 2, threshold: 0.015, spread: 0.35, centreFirst: 2.9,
+       contract: true, shatter: 3, greySize: 0.9, pictures: true },
 };
 const MODE_NOTE = {
   1: "<b>Degenerate matter.</b> Blue electron shells round a small red nucleus (10%). They repel; squeezed past the threshold a shell pops into free electrons that fly off and ricochet. The bare nuclei stay, closer than before.",
   2: "<b>Fusion.</b> Yellow is the strong force's reach round a red nucleus (50%). A hard shell and a strong push between them; when yellows touch they become one, the ring finds its new centre and the nuclei pull together. At four nuclei the weak force turns two of them grey: helium.",
-  3: "<b>Neutrons.</b> A green ring (the weak force's reach) filled by a proton (90%). Stiff and repelling; squeezed past the threshold it shatters: the disc turns grey, the push switches off, and it lets itself be packed with the others.",
+  3: "<b>Neutrons.</b> A green ring (the weak force's reach) filled by a proton (90%). Stiff and repelling; squeezed past the threshold it clenches: the ring snaps down tight, the disc turns grey, the push switches off, and the compact thing packs hard with the others (or it shatters, by the switch).",
 };
 
 // The rail: groups and sliders. `modes` limits a control to some regimes; `restart` rebuilds the crowd on change.
@@ -229,7 +229,8 @@ const SCHEMA = [
   { key: "threshold", label: "Break at squeeze", min: 0.01, max: 0.5, step: 0.005, fmt: v => (v * 100).toFixed(1) + "% area lost", modes: [3] },
   { key: "spread", label: "Threshold spread", min: 0, max: 0.9, step: 0.05, fmt: v => "±" + Math.round(v * 100) + "%", modes: [3] },
   { key: "centreFirst", label: "Fragile at the centre", min: 0, max: 4, step: 0.1, modes: [3], note: "the threshold grows with distance from the screen's centre, so the middle breaks first" },
-  { key: "shatter", label: "Shatter", min: 0, max: 3, step: 0.05, modes: [3], note: "how far the broken ring's pieces fly" },
+  { key: "contract", label: "Ring contracts instead of shattering", type: "bool", modes: [3], note: "the weak force stays: at the threshold the green ring snaps down tight round the disc, which turns grey, and the compact thing packs hard with the others" },
+  { key: "shatter", label: "Shatter", min: 0, max: 3, step: 0.05, modes: [3], note: "how far the broken ring's pieces fly (when it shatters)" },
   { key: "greySize", label: "Grey disc size", min: 0.5, max: 1.1, step: 0.01, fmt: v => Math.round(v * 100) + "% of the red one", modes: [3] },
   { key: "greyUniform", label: "Neutrons all one size", type: "bool", modes: [3], note: "hard, equal discs pack into a hexagonal lattice; the box stops shrinking once they jam" },
   { key: "greyAttract", label: "Grey attraction", min: 0, max: 4, step: 0.05, modes: [3] },
@@ -456,11 +457,12 @@ function step(dt) {
     {
       if (A.minx > B.maxx + dc0 || B.minx > A.maxx + dc0 || A.miny > B.maxy + dc0 || B.miny > A.maxy + dc0) continue;
       if (A.bridge && A.bridge === B.bridge) { bridgePull(A, B, dc0); bridgePull(B, A, dc0); continue; }   // reaching into each other
-      const touched = ringContact(A, B, dc0, kc, touchD) | ringContact(B, A, dc0, kc, touchD);
+      const touched = isHard(A) || isHard(B) ? false : ringContact(A, B, dc0, kc, touchD) | ringContact(B, A, dc0, kc, touchD);
       ringVsNuclei(A, B, dc0, kc); ringVsNuclei(B, A, dc0, kc);
-      // bare discs are hard: two of them are pushed apart half each; one against a ring's disc moves by the whole overlap
-      const moveA = !A.nodes.length, moveB = !B.nodes.length;
-      for (const ka of A.nuclei) for (const kb of B.nuclei) nucleusContact(ka, kb, P, moveA, moveB);
+      // bare discs and clenched neutrons are hard: two of them are pushed apart half each; one against a live ring's
+      // disc moves by the whole overlap
+      const moveA = isHard(A), moveB = isHard(B);
+      for (const ka of A.nuclei) for (const kb of B.nuclei) hardContact(A, ka, B, kb, P, moveA, moveB);
       if (touched) touching.push([A, B]);
     }
   }
@@ -514,16 +516,19 @@ function step(dt) {
     residual = 0;
     for (let i = 0; i < pairs.length; i += 2) {
       const A = pairs[i], B = pairs[i + 1];
-      if (A.nodes.length || B.nodes.length) continue;
-      const o = nucleusContact(A.nuclei[0], B.nuclei[0], P, true, true);
+      if (!isHard(A) || !isHard(B)) continue;
+      const o = hardContact(A, A.nuclei[0], B, B.nuclei[0], P, true, true);
       if (o > residual) residual = o;
       if (A.nuclei[0].r > rcMax) rcMax = A.nuclei[0].r;
     }
-    for (const b of blobs) if (!b.nodes.length) wallClamp(b.nuclei[0], half - b.nuclei[0].r);
+    for (const b of blobs) if (isHard(b)) {
+      const k = b.nuclei[0], x = k.x, y = k.y; wallClamp(k, half - k.r);
+      if (b.nodes.length && (k.x !== x || k.y !== y)) for (const p of b.nodes) { p.x += k.x - x; p.y += k.y - y; }
+    }
   }
   const jam = residual > rcMax * 0.06;   // real overlap left after eight passes: the discs don't fit
   S.jam = jam ? 1 : 0;
-  if (jam) S.floor = Math.max(S.floor, S.box * 1.002); else S.floor *= 1 - 0.1 * dt;
+  if (jam) S.floor = Math.max(S.floor, S.box); else S.floor *= 1 - 0.1 * dt;
   // a ring that folded over itself (a tangle, its area gone or negative) is laid round again
   for (const b of blobs) {
     if (!b.nodes.length || !(b.sq > 0.85)) continue;
@@ -717,6 +722,16 @@ function ringVsNuclei(A, B, dc, kc) {       // A's ring stays outside B's nuclei
     }
   }
 }
+// a blob that behaves as one hard disc: a bare nucleus, or a clenched neutron whose ring just rides along
+const isHard = (b) => !b.nodes.length || b.state === "grey";
+// a disc contact whose moves carry the blob's ring along
+function hardContact(A, ka, B, kb, P, moveA, moveB) {
+  const ax = ka.x, ay = ka.y, bx = kb.x, by = kb.y;
+  const o = nucleusContact(ka, kb, P, moveA, moveB);
+  if (moveA && A.nodes.length) for (const p of A.nodes) { p.x += ka.x - ax; p.y += ka.y - ay; }
+  if (moveB && B.nodes.length) for (const p of B.nodes) { p.x += kb.x - bx; p.y += kb.y - by; }
+  return o;
+}
 function nucleusContact(a, b, P, moveA, moveB) {
   let dx = b.x - a.x, dy = b.y - a.y; const lim = a.r + b.r, d2 = dx * dx + dy * dy;
   if (d2 >= lim * lim || lim <= 0) return 0;
@@ -749,9 +764,22 @@ function pop(b) {
   S.events.pop++; relieve();
 }
 
-// The stiff ring shatters into arcs that fly apart and fade; the disc flashes white and turns grey, its push gone.
+// The stiff ring shatters into arcs that fly apart and fade; the disc flashes and turns grey, its push gone. Or, by the
+// switch, the ring clenches: it snaps down to the grey disc's size and stays as a compact hard shell (the author,
+// 2026-11-09: the weak force isn't gone, so the ring shouldn't vanish).
 function breakBlob(b) {
   const P = S.P, n = b.nodes.length, pieces = 3 + Math.floor(rnd(0, 4));
+  if (P.contract) {
+    // the grey disc's size, and a ring hugging it a tenth larger: a compact outline, not a cell
+    const k = b.nuclei[0], R0 = b.R, rg = (P.greyUniform ? P.radius : b.R) * P.nucleus * P.greySize, Rg = rg * 1.1, f = Rg / R0;
+    for (const p of b.nodes) { p.x = b.cx + (p.x - b.cx) * f; p.y = b.cy + (p.y - b.cy) * f; p.rt = Rg; p.vx = b.vx; p.vy = b.vy; }
+    b.R = Rg; b.A0 = restArea(Rg, n); b.kfac = 2;
+    k.r = rg;
+    S.flashes.push({ x: b.cx, y: b.cy, r0: R0 * 1.1, r1: Rg * 0.95, t: 0, dur: 0.25, color: "140,255,170" });   // a ring closing in
+    b.state = "grey"; b.q = 0; b.charge = 0; b.broke = S.t;
+    S.events.break++; relieve();
+    return;
+  }
   const cuts = []; for (let i = 0; i < pieces; i++) cuts.push(Math.floor(rnd(0, n))); cuts.sort((a, c) => a - c);
   for (let i = 0; i < pieces; i++) {
     const from = cuts[i], to = cuts[(i + 1) % pieces], len = ((to - from) + n) % n || n;
