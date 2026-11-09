@@ -8,6 +8,9 @@
 
 SOURCES = {"rec62": "The Largest Structures in Space.aifc"}
 TREATMENT = "plain"
+# then, after video/tools/debreath.py (--min 0.03, for clicks too), the audio.m4a encode with
+# ffmpeg -af "adeclick=w=40:o=75,lowpass=f=12500": today's recordings carry a 12–16 kHz artifact that crackled on the
+# s sounds (the author, 2026-11-09: "crackling noises", "cluzzzeetrzz")
 PAUSES = {"word": 0.25, ",": 0.55, ".": 1.0}
 GAPS = {"same": 0.55, "beat": 1.1}
 ROOM = True
@@ -29,7 +32,8 @@ EDL = [
  ("rec62", "galaxies", 383.50, 387.52),   # Larger than that, and you'll find globular clusters and small galaxies.
  ("rec62", "galaxies", 485.58, 488.08),   # A galaxy is mostly empty space between its stars.   (the second)
  ("rec62", "galaxies", 410.84, 415.42),   # Here we find Andromeda, our sister galaxy, and the Milky Way, which we call home.   (the third try)
- ("rec62", "galaxies", 505.46, 509.30),   # They both live in our local neighborhood, it's called the Local Group.
+ ("rec62", "galaxies", 505.46, 509.30, {"cut": [(506.50, 507.12)]}),   # (the pause and a click after "live in" cut: the author heard "live in… our local")
+    # They both live in our local neighborhood, it's called the Local Group.
  # clusters and superclusters
  ("rec62", "clusters", 513.34, 535.08),   # And then we have galaxy clusters, which are even less dense, because now it's the galaxies plus all the empty space between them. And above that, we have the largest structures we know of, superclusters, which come in the shape of filaments. We live in one called Laniakea, made of about 100,000 galaxies.
  # voids

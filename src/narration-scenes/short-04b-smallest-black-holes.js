@@ -42,7 +42,12 @@ export default {
     { at: "minimum size", hl: [SCHW, { obj: "Moon" }, { arrow: true, from: { obj: "Moon" }, to: BH(25.87), label: "squeeze", delay: 0.2 }] },
     { at: "collapses into a black hole", hl: [SCHW, { obj: "Moon", label: false }, { arrow: true, from: { obj: "Moon" }, to: BH(25.87), draw: 0.01 }, { ...BH(25.87), label: "a black hole" }] },
     { at: "once it becomes a black hole", cam: { obj: "Sgr A*", span: 15 }, dur: 5, drift: 0.02, clear: true, hl: [{ ...SCHW, label: "every black hole lives here" }] },
-    { at: "physically impossible", hl: [{ ...SCHW, label: "schwarzschild radius" }, { side: "left", of: "schwarzschild" }] },
-    ...V4.cues.slice(from).map(reword),
+    { at: "physically impossible", hl: [{ ...SCHW, label: "schwarzschild radius" }, { side: "left", of: "schwarzschild", label: "nothing can exist" }] },
+    // the dark-matter maps (the candidates, the window, the crossed-out areas): the dots only, no pictures (the author,
+    // 2026-11-09), until the ending pulls back out
+    ...V4.cues.slice(from).map(reword).map((c, i, all) => {
+      const s = all.findIndex(q => [].concat(q.at).includes("something invisible")), e = all.findIndex(q => [].concat(q.at).includes("very first moments of our history"));
+      return i >= s && i < e ? { ...c, icons: false } : i === e ? { ...c, icons: true } : c;
+    }),
   ],
 };

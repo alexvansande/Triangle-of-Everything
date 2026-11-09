@@ -16,6 +16,8 @@ export default {
   blurb: "The bigger something is, the less dense it is: stars, nebulae, galaxies, clusters, superclusters and voids, up to the second edge of the triangle.",
   start: { r: 3, m: 9, span: 56 },
   sound: [],
+  // the galaxies and clusters 20% smaller (the author, 2026-11-09)
+  iconBoost: { from: 19.5, k: 0.8 },
   cues: [
     // the chart, and every diagonal a density (water's marked)
     { at: "exploring this chart", offset: -0.4, cam: { obj: "Human", span: 26 }, dur: 8, drift: 0.02 },

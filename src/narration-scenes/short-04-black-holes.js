@@ -57,8 +57,10 @@ const DM_SOURCE = { title: "after Sidhu, Scherrer & Starkman (2019),\n\u201cDeat
 // each survey's source, small on top while it crosses out its range (the author, 2026-11-09: "a nice air of
 // credibility", the style of DM_SOURCE)
 const SRC = (title) => ({ title, small: true, y: 0.12 });
-const SRC_QSO = SRC("after Murgia, Scelfo, Viel & Raccanelli (2019),\nPhysical Review Letters");
-const SRC_CMB = SRC("after Ali-Ha\u00efmoud & Kamionkowski (2017),\nPhysical Review D");
+// (checked 2026-11-09: each paper exists and sets the limit drawn; the quasar band is the ~1e4 Suns of Afshordi et al., the
+// microwave band the ~5 Suns of Aloni et al.: Murgia et al. 2019 and Ali-Haïmoud & Kamionkowski 2017 set other limits)
+const SRC_QSO = SRC("after Afshordi, McDonald & Spergel (2003),\nThe Astrophysical Journal Letters");
+const SRC_CMB = SRC("after Aloni, Blum & Flauger (2017),\nJournal of Cosmology and Astroparticle Physics");
 const SRC_GW = SRC("after Kavanagh, Gaggero & Bertone (2018),\nPhysical Review D");
 const SRC_ML = SRC("after Niikura et al. (2019), Subaru Hyper Suprime-Cam,\nNature Astronomy");
 const SRC_HAW = SRC("after Carr, Kohri, Sendouda & Yokoyama (2010),\nPhysical Review D");
@@ -269,8 +271,8 @@ export default {
     // (their reach on the rulers, "roughly this size": the author, 2026-11-09)
     { at: ["lumps about roughly this size", "lumps about this size"], units: true, unitsFor: 5, hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
       { ...DM_SOURCE, delay: 0.6 }, { ...DM_MICA, delay: 0.2 }, { extent: { r: [-7.75, -4], m: [0, 1.74] }, delay: 0.5 }] },
-    { at: ["can't be here either", "were around here"], hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
-      still(DM_SOURCE), still(DM_MICA), { ...DM_HURT, delay: 0.1 }] },
+    { at: ["can't be here either", "were around here"], units: true, unitsFor: 5, hl: [SCHW, ...DM_CANDS.map(still), still(DM_PBH), { window: W5, cuts: [ML, HAW] },
+      still(DM_SOURCE), still(DM_MICA), { ...DM_HURT, delay: 0.1 }, { extent: { r: [-3.83, -1.07], m: [0, 4.7] }, delay: 0.5 }] },
     // "the collective effort…": a slow zoom back out while the rest of what's been ruled out
     // comes in, one area at a time, across the whole sentence
     { at: "the search for dark matter", cam: DM_WIDE, dur: 8, drift: 0, quiet: true,

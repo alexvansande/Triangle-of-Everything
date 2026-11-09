@@ -9,6 +9,9 @@
 
 SOURCES = {"rec64": "the observable universe.aifc"}
 TREATMENT = "plain"
+# then, after video/tools/debreath.py (--min 0.03, for clicks too), the audio.m4a encode with
+# ffmpeg -af "adeclick=w=40:o=75,lowpass=f=12500": today's recordings carry a 12–16 kHz artifact that crackled on the
+# s sounds (the author, 2026-11-09: "crackling noises", "cluzzzeetrzz")
 PAUSES = {"word": 0.25, ",": 0.55, ".": 1.0}
 GAPS = {"same": 0.55, "beat": 1.1}
 ROOM = True
