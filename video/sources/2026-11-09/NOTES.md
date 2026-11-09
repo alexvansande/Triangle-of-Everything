@@ -128,3 +128,30 @@ leg runs past the Sun's picture and read as the Sun making it. Every cue resolve
 - **Slips to cut round:** rec61 "the very first few instances after the black hole" (said again right after the Big
   Bang); rec60 "every search has came up empty", "when we read galaxies" (weigh), "it just got gravity wrong" (we just
   got); "instance" for "instants" in both.
+
+## rec62: video 5, part 1, "The Largest Structures in Space" (iCloud recordings, home)
+
+- **rec62** = "The Largest Structures in Space.aifc" (2026-11-09 16:00, 10:44, PCM 48 kHz stereo): the new part 1 of
+  the Hubble sphere video, from "In this series I've been exploring this chart, which is a log of mass and size" through
+  the denser objects to the left, stars, red giants and nebulae, globular clusters, galaxies, the Local Group, clusters
+  (El Gordo), superclusters (Laniakea), voids, to "now we are going to meet our second edge in the triangle of everything".
+  Many retakes; word timings in rec62.words.json (whisper hears "a log of mass and size" as "math and science").
+
+### Fact check
+- **Wrong (222 s, 235 s):** "Most stars are less dense than water." Most stars are red dwarfs, many times denser than
+  water, and the Sun averages 1.4 g/cm³; only the bigger stars are less dense (Sirius A ~0.5, Vega ~0.6 g/cm³).
+  Re-word: *"The bigger stars are already less dense than water, and some are even less dense than air."* ("less dense
+  than air" is right for giants.)
+- **Wrong (334 s, the first try):** nebulae "less dense than the vacuum of space": they're denser than the gas between
+  the stars. The later try, "less dense than the atmosphere of the Moon" (342 s), is right (the Crab Nebula, ~4.6 M☉
+  in ~5.5 ly: ~1e-23 g/cm³; the Moon's exosphere ~1e-18 g/cm³). Use 342 s.
+- **Imprecise (316 s):** "if it goes supernova, its outer layers will expand into a nebula or a supernova remnant": a
+  planetary nebula comes from a star that doesn't explode. *"…its outer layers drift off into a nebula, or, if it
+  explodes as a supernova, into a supernova remnant."*
+- **Imprecise (422 s):** "The largest of it is called El Gordo": one of the most massive clusters known. *"one of the
+  biggest is El Gordo."*
+- **Right:** every diagonal a density line, water's marked; denser to the left (brown dwarfs, white dwarfs, neutron
+  stars); the bigger, the less dense; dying stars swell into red giants; globular clusters, small galaxies, Andromeda and
+  the Milky Way, the Local Group; clusters less dense than their galaxies (the empty space between); superclusters as
+  filaments, Laniakea ~100,000 galaxies; voids emptier, not empty, so they have mass and fit; "the problem is physics
+  itself… our second edge".
