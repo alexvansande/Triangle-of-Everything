@@ -55,7 +55,7 @@ const LOG_MPC = 24.489, LOG_GEV = -23.749;
 // Isodensity lines are m − 3r = const ("c3"); values read off the figure.
 const C3 = {
   planck: 92.9, gut: 74.75, ew: 26.75, nuclear: 14.0, atomic: 0.0, recomb: -20.5,
-  now: null,                       // through our Observable Universe (set below)
+  now: null,                       // through Our Universe (set below)
   matterStart: -21.5,              // pink → blue (matter-radiation equality)
   bbn: [-0.5, 5.3], qgp: [13.7, 22.6], inflation: [75.0, 82.4],
 };
@@ -71,7 +71,7 @@ const PAPER_ONLY = [
   { name: "3K BH", logR: -2.17, logM: 25.65, cat: "blackhole", subcat: "primordial_bh", z: 4 },
 ];
 const byName = (n) => objectsData.find(o => o.name === n) || PAPER_ONLY.find(o => o.name === n);
-const UNIVERSE = byName("Observable Universe");
+const UNIVERSE = byName("Our Universe");
 C3.now = UNIVERSE.logM - 3 * UNIVERSE.logR;
 
 const COL = {
@@ -162,7 +162,7 @@ const LABELS = [
   { t: "smallest", at: [564, 694], size: 33, anchor: "middle", obj: [627, 800], of: "Smallest Primordial BH" },
   { t: "observable", at: [566, 725], size: 33, anchor: "middle", obj: [627, 800], of: "Smallest Primordial BH" },
   { t: "PBH", at: [565, 756], size: 36, anchor: "middle", lead: [[627, 800], [600, 760]], of: "Smallest Primordial BH" },
-  { t: "Hubble radius", at: [1148, 300], size: 32.3, obj: [1124.6, 286.7], of: "Observable Universe" },
+  { t: "Hubble radius", at: [1148, 300], size: 32.3, obj: [1124.6, 286.7], of: "Our Universe" },
   // large scale and stars (right-hand list)
   { t: "voids", at: [1178, 345], size: 34, lead: [[1104, 356], [1172, 340]] },
   { t: "superclusters", at: [1173, 380], size: 35.7, lead: [[1100, 370], [1172, 371]] },
@@ -200,7 +200,7 @@ const LABELS = [
 // Objects the paper draws as bigger dots (fixed px radius), and the one it
 // draws as its own glyph (the Planck-scale singularity → the QG disc).
 const DOT_STYLE = {
-  "Observable Universe": { r: 14 }, "Blue Whale": { r: 7 }, "Human": { r: 7 }, "Flea": { r: 7 },
+  "Our Universe": { r: 14 }, "Blue Whale": { r: 7 }, "Human": { r: 7 }, "Flea": { r: 7 },
   "Bacterium": { r: 7 }, "COVID Virus": { r: 7 }, "3K BH": { r: 5 }, "Smallest Primordial BH": { r: 4 },
   "Sgr A*": { r: 5.5 }, "Ton 618": { r: 5.5 }, "Sun": { r: 4.8, fill: "#f2f24a" },
 };

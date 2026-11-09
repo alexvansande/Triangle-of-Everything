@@ -17,7 +17,7 @@ const HUB = { line: "hubble" };
 const RHO = -29.05;
 const AVG = { density: RHO };
 // the three horizons, as spheres of the universe at that density
-const HS = "Observable Universe";                    // the chart's dot sits at the Hubble radius
+const HS = "Our Universe";                           // the chart's dot: on the black-hole line at the edge (the cosmic event horizon since 2026-11-08, 0.06 of a decade right of the Hubble radius)
 const EH = { r: 28.20, m: 56.17, mark: true };       // cosmic event horizon, 16.7 billion ly
 const EHL_COL = "#ffab40";
 const EHL = { line: "eventhorizon" };                // …and as a line, like the Hubble line
@@ -60,6 +60,10 @@ export default {
   blurb: "Bigger means emptier, the second edge of the triangle, the edge of our own universe, why it sits on the black-hole line, and the observable universe.",
   start: FULL,
 
+  // the chart's own Observable Universe (outside the triangle since 2026-11-08) stays off until the
+  // narration gets to it ("46 billion": hideObjects: [] there); from then the arrow and the ring land on its picture
+  hideObjects: ["Observable Universe"],
+
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Fresh Air",
 
@@ -67,8 +71,9 @@ export default {
   // main.js iconSizeCurve: 1.6-2.3x; the scene's 1.4x iconBoost came off so it isn't doubled)
   // Laniakea's picture shows even where the Boötes Void's would hide it, in front of it
   forceIcons: ["Laniakea", "Ton 618"],   // TON 618 beside the (larger, 2026-10-29) M87*
-  // no "Observable Universe" name on the Hubble sphere's dot (author, 2026-10-28)
-  hideLabels: ["Observable Universe"],
+  // no name on the corner's dot (author, 2026-10-28: it was "Observable Universe" then, "Our Universe" since
+  // 2026-11-08; the scene names it itself), nor on the Observable Universe outside, under the scene's ring
+  hideLabels: [HS, "Observable Universe"],
 
   // the explorer's state at t = 0, hidden until "…seeing it right now" (no Compton line over it)
   explorer: { view: "cloud", radius: "log", unit: LOG_UNIT, rings: true, bright: "lin", labels: {},
@@ -180,7 +185,7 @@ export default {
     // from Earth out to the edge of the observable universe in one zoom as the 46 billion is named,
     // a few distances named, and what the colours stand for; the rings go and the dots brighten at
     // "the sum of all the light", and it hands back to the chart for "outside our triangle"
-    { at: "46 billion", clear: true, hold: 20, hl: [{ ...UNIVERSE_KEY, delay: 7 }], explorer: { show: true, fade: 1.6, spin: 0.03 } },
+    { at: "46 billion", clear: true, hold: 20, hideObjects: [], hl: [{ ...UNIVERSE_KEY, delay: 7 }], explorer: { show: true, fade: 1.6, spin: 0.03 } },
     ...universeCues("46 billion", 0.85),
     { at: "46 billion", offset: 5.8, explorer: { ...UNIVERSE_COLOURS, dur: 3 } },
     { at: "sum of all the light", offset: -0.4, clear: true, explorer: { guides: 0, names: 0, exposure: 2, dot: 2, dur: 3 } },

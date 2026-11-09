@@ -26,7 +26,7 @@ import * as d3 from "d3";
 import { iconUrls } from "./assets.js";
 import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, drawSqueeze, diagramsPending } from "./narr-diagrams.js";
 import {
-  HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
+  EVENT_HORIZON_LOG_R, HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
   RADIUS_UNITS, MASS_UNITS, REFERENCE_LINES, PHOTON_LAMBDA_OFFSET,
 } from "./data.js";
@@ -54,14 +54,18 @@ function densitySegment(logRho) {
   // above, Hubble on the right.
   const b = DENSITY_SPHERE_C + logRho;
   const r0 = (COMPTON_C - b) / 4;
-  const r1 = Math.min((-SCHWARZSCHILD_C - b) / 2, HUBBLE_LOG_R);
+  const r1 = Math.min((-SCHWARZSCHILD_C - b) / 2, EVENT_HORIZON_LOG_R);
   return r0 < r1 ? [[r0, densityLineM(r0, logRho)], [r1, densityLineM(r1, logRho)]] : [];
 }
-const H = HUBBLE_LOG_R;
+// the triangle's right edge: the cosmic event horizon since 2026-11-08 (line "horizon"; the two
+// limits run out to it). The scenes' "hubble" line stays the Hubble radius, where the takes that name
+// it put it (14 billion light-years): the chart's dashed line now, 0.06 of a decade inside the edge
+// (a pixel at the whole chart's width), with the "eventhorizon" line of videos 5 and long 2 beside it.
+const H = EVENT_HORIZON_LOG_R, HR = HUBBLE_LOG_R;
 const LINES = {
   schwarzschild: { pts: [[PLANCK_LOG_R, PLANCK_LOG_M], [H, schwarzschildM(H)]], color: "#ff6e6e" },
   compton:       { pts: [[PLANCK_LOG_R, PLANCK_LOG_M], [H, comptonM(H)]], color: "#4dd0e1" },
-  hubble:        { pts: [[H, comptonM(H)], [H, schwarzschildM(H)]], color: "#ffd54f" },
+  hubble:        { pts: [[HR, comptonM(HR)], [HR, schwarzschildM(HR)]], color: "#ffd54f" },
   water:         { pts: densitySegment(0), color: "#80deea" },
   // air at 1 atm, as the map draws it: from microbes (1 µm) to Earth's size
   air:           { pts: [-4, Math.log10(6.371e8)].map(r => [r, densityLineM(r, Math.log10(0.0012))]), color: "#b0bec5" },
@@ -77,6 +81,7 @@ const LINES = {
 // (drawn top down, so its name sits on its right, clear of the Hubble line)
 const EH_LOG_R = Math.log10(16.7e9 * 9.4607e17);
 LINES.eventhorizon = { pts: [[EH_LOG_R, densityLineM(EH_LOG_R, -29.05)], [EH_LOG_R, comptonM(EH_LOG_R)]], color: "#ffab40" };
+LINES.horizon = { pts: [[H, comptonM(H)], [H, schwarzschildM(H)]], color: "#ffd54f" };
 LINES.triangle = { pts: [...LINES.schwarzschild.pts, [H, comptonM(H)], LINES.schwarzschild.pts[0]], color: "#ffffff" };
 
 // ---------- scene resolution: phrases → times ----------
@@ -141,7 +146,7 @@ function resolveScene(words) {
 // so it opens on the picture the source had there. The scene-wide settings are the first
 // piece's (and a later one's where the first has none), with the pictures' lists (forced, hidden…) of all of them; the journal cover only if
 // the cut starts at the very beginning of its first take.
-const LISTS = ["forceIcons", "hideIcons", "alsoIcons", "hideLabels", "firstIcons"];
+const LISTS = ["forceIcons", "hideIcons", "alsoIcons", "hideLabels", "firstIcons", "hideObjects"];
 async function cutCues(take, name) {
   const parts = await Promise.all(take.segments.map(async (s) => ({
     s, src: await fetch(`${import.meta.env.BASE_URL}narration/${s.take}/words.json`).then(r => r.json()),
@@ -290,6 +295,7 @@ export async function startNarration(app) {
   app.setEventArrows?.(false);
   app.setIconBoost?.(SCENE.iconBoost ?? null);    // { from: log r, k }: pictures of the big things k× larger
   app.setLabelHide?.(SCENE.hideLabels ?? null);   // objects whose own chart label never shows
+  app.setObjectsHidden?.(SCENE.hideObjects ?? null);   // objects left off the chart (dot, name, picture) until a cue lets them in
   app.setIconMaxRes?.(true);   // grown pictures stay sharp
   // the map's ready-made primordial black hole window, its "ruled out by Hawking radiation", only
   // where a scene asks for it (`pbhWindow: true`): video 4 draws its own as it's told, and in the
@@ -495,9 +501,10 @@ export async function startNarration(app) {
     const fill = v === true;
     const key = (names ? names.join("|") : "*") + (fill ? "+" : "");
     if (key !== iconsNow) { iconsNow = key; app.setIcons?.(names, fill); app.setDustFill?.(fill); }
-    // a cue's `forceIcons` / `hideIcons` / `hideLabels` / `firstIcons` replace the scene's from that cue on (null: the scene's
-    // again): the 1 mL ball hidden until it's talked about, the animals put first (video 2)
-    for (const [k, set, now] of [["forceIcons", app.setIconForce, iconForceNow], ["hideIcons", app.setIconHide, iconHideNow], ["hideLabels", app.setLabelHide, labelHideNow], ["firstIcons", app.setIconFirst, iconFirstNow]]) {
+    // a cue's `forceIcons` / `hideIcons` / `hideLabels` / `firstIcons` / `hideObjects` replace the scene's from that cue on (null: the scene's
+    // again): the 1 mL ball hidden until it's talked about, the animals put first (video 2), the Observable
+    // Universe, outside the triangle's corner, kept off until the voice gets to it (hideObjects: [] at that cue)
+    for (const [k, set, now] of [["forceIcons", app.setIconForce, iconForceNow], ["hideIcons", app.setIconHide, iconHideNow], ["hideLabels", app.setLabelHide, labelHideNow], ["firstIcons", app.setIconFirst, iconFirstNow], ["hideObjects", app.setObjectsHidden, objHideNow]]) {
       let v = SCENE[k] ?? null;
       for (const c of cues) if (c[k] !== undefined && c.time <= t) v = c[k] ?? SCENE[k] ?? null;
       // 16:9: the objects the cue on screen highlights are forced on too (the author, 2026-10-31: "make
@@ -512,7 +519,8 @@ export async function startNarration(app) {
     }
   }
   const iconForceNow = { key: (SCENE.forceIcons ?? []).join("|") }, iconHideNow = { key: (SCENE.hideIcons ?? []).join("|") },
-    labelHideNow = { key: (SCENE.hideLabels ?? []).join("|") }, iconFirstNow = { key: (SCENE.firstIcons ?? []).join("|") };
+    labelHideNow = { key: (SCENE.hideLabels ?? []).join("|") }, iconFirstNow = { key: (SCENE.firstIcons ?? []).join("|") },
+    objHideNow = { key: (SCENE.hideObjects ?? []).join("|") };
 
   // ---------- object focus: a cue's `focus: [names]` fades every other object from then
   // on (to FOCUS_FADE, over 0.6 s), `focus: false` brings them back ----------

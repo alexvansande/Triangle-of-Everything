@@ -1,3 +1,28 @@
-<!doctype html><style>body{margin:0;background:#433193}canvas{width:600px;height:600px}</style><script type="module">
-import {cmbObject} from '../src/cmb-object.js';const object=cmbObject();document.body.append(object.canvas);window.cmbIcon=object;function draw(){object.draw(1024,0);requestAnimationFrame(draw)}draw();
+<!doctype html><meta charset="utf-8"><title>Universe objects</title>
+<style>body{margin:0;background:#433193;color:#fff;font:14px system-ui,sans-serif;display:flex;gap:20px;padding:20px;flex-wrap:wrap;align-items:flex-start}
+canvas{width:min(560px,90vw);height:auto;aspect-ratio:1}
+#look{display:grid;grid-template-columns:auto 240px 3em;gap:6px 12px;align-items:center;background:#0006;padding:14px 16px;border-radius:10px}
+#look b{grid-column:1/-1}#look code{grid-column:1/-1;font-size:12px;user-select:all;opacity:.85}</style>
+<script type="module">
+// The app's two turning universe objects, alone: ?object=observable-universe | our-universe
+// (default: both), ?turn=1 lets them turn, ?px= the size drawn. The sliders set the observable
+// universe's look (src/cmb-object.js CMB_LOOK: the shell's opacity by colour, near, far, inside, ring), also from
+// the URL (?blue=.05&ring=1). window.cmbIcons[slug] for scripts/export-cmb-icon.mjs.
+import {cmbObject,CMB_LOOK} from '../src/cmb-object.js';import {eventHorizonObject} from '../src/event-horizon-object.js';
+const q=new URLSearchParams(location.search),only=q.get('object'),px=+(q.get('px')||1024);let turn=q.get('turn')==='1';
+const look=Object.fromEntries(Object.keys(CMB_LOOK).map(k=>[k,q.has(k)?+q.get(k):CMB_LOOK[k]]));
+const all={'observable-universe':()=>cmbObject(look),'our-universe':eventHorizonObject};
+window.cmbIcons={};for(const [slug,make] of Object.entries(all)){if(only&&only!==slug)continue;const o=make();if(!o)continue;window.cmbIcons[slug]=o;document.body.append(o.canvas);}
+const universe=window.cmbIcon=window.cmbIcons['observable-universe'];
+if(universe&&!q.has('bare')){
+ const LABELS={red:'CMB opacity: red',yellow:'yellow',green:'green',cyan:'cyan',blue:'blue',near:'Near half keeps',far:'Far half keeps',limb:'Thicker at the edge',rind:'Rind behind the surface',inside:'What is inside',ring:'Event horizon ring'},MAX={inside:4};
+ const panel=document.createElement('div');panel.id='look';panel.innerHTML='<b>Observable universe</b>';
+ const line=document.createElement('code'),show=()=>{const s=Object.keys(CMB_LOOK).map(k=>`${k}=${+universe.look[k].toFixed(2)}`).join('&');line.textContent=s;
+  const u=new URL(location.href);for(const k of Object.keys(CMB_LOOK))u.searchParams.set(k,+universe.look[k].toFixed(2));history.replaceState(null,'',u);};
+ for(const k of Object.keys(CMB_LOOK)){const label=document.createElement('label'),input=document.createElement('input'),value=document.createElement('span');
+  label.textContent=LABELS[k];label.htmlFor=input.id='look-'+k;input.type='range';input.min=0;input.max=MAX[k]||1;input.step=.01;input.value=universe.look[k];value.textContent=(+universe.look[k]).toFixed(2);
+  input.oninput=()=>{universe.look[k]=+input.value;value.textContent=(+input.value).toFixed(2);show();};panel.append(label,input,value);}
+ const tl=document.createElement('label'),tb=document.createElement('input');tl.textContent='Turning';tl.htmlFor=tb.id='look-turn';tb.type='checkbox';tb.checked=turn;tb.onchange=()=>{turn=tb.checked};panel.append(tl,tb,document.createElement('span'),line);
+ document.body.append(panel);show();}
+function draw(){for(const o of Object.values(window.cmbIcons))o.draw(px,turn?performance.now()/1000:0);requestAnimationFrame(draw)}draw();
 </script>

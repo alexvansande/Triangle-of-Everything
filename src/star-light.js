@@ -7,9 +7,10 @@ frames['toi-700'] = frames['red-dwarf'];
 // Measured visible disc centers/radii, excluding flares and transparent halos.
 export const STAR_BODY_FRAMES = frames;
 // Screen-blended spheres can use an aligned opaque backing without emitting light.
-export const SHADOWED_SCREEN_SPHERES = new Set(['observable-universe']);
+export const SHADOWED_SCREEN_SPHERES = new Set(['observable-universe','our-universe']);
 const nonLuminousFrames = {
   'observable-universe': {cx:.5,cy:.5,r:.46},
+  'our-universe': {cx:.5,cy:.5,r:.46},
 };
 export const BROWN_DWARFS = new Set(['y-brown-dwarf','t-brown-dwarf','l-brown-dwarf','toi-2490-b']);
 const BROWN_LIGHTS = {

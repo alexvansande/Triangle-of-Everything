@@ -521,9 +521,11 @@ Cue fields
              object's own label on the chart while that label shows)
              { line: "schwarzschild"|"compton"|"hubble"|"water"|
                      "darkmatter"|"mainsequence"|"triangle"|
-                     "chandrasekhar"|"tov"|"eventhorizon", label? }
+                     "chandrasekhar"|"tov"|"eventhorizon"|"horizon", label? }
                (eventhorizon: the cosmic event horizon, a vertical line like the
-               Hubble line, at 16.7 billion ly)
+               Hubble line, at 16.7 billion ly; horizon: the triangle's right edge,
+               the event horizon since 2026-11-08, from the Compton line to the
+               black-hole line; hubble: the Hubble radius, 0.06 of a decade inside it)
              { side: "left"|"right", of?: "water", label? }
              { side: "above"|"below", mass: logM, label?, note? } — one side of a level
                of constant mass, the level drawn dashed (video 2's round-world line);
@@ -613,11 +615,15 @@ Cue fields
            until "ball" and puts the animals first at "most animals". firstIcons: ranked first,
            so other pictures give way where they overlap (and show where there's room).
            Both take catalogue pictures by their label too ("Lion")
+  hideObjects   the same for the scene's hideObjects: objects left off the chart altogether
+           (dot, name and picture) until a cue lets them in with hideObjects: []. Videos 5 and
+           long 2 keep the Observable Universe off (outside the triangle's corner since
+           2026-11-08) until the voice gets to it
 
 Scene-level: dots: { size, opacity } for the paths' moving dots (default 2.4, 1.7);
 iconBoost: { from: log r, k } pictures of things that big and up drawn k× larger, on top of
 the chart's own size curve (main.js iconSizeCurve, which already draws nebulae 1.6–1.8× and
-galaxies 2.1–2.3×; no scene uses it now: video 5's 1.4× came off with that curve); hideLabels: [names] objects whose own chart label never shows
+galaxies 2.1–2.3×; no scene uses it now: video 5's 1.4× came off with that curve); hideLabels: [names] objects whose own chart label never shows; hideObjects: [names] objects not drawn at all (a cue's hideObjects changes it)
 
 Sound cues (optional `sound: [...]`, read by scripts/narration-sound.mjs;
 keep them rare). Each names a phrase like a cue does:

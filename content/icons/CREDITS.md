@@ -49,7 +49,7 @@ lake-tahoe, lake-superior, lake-victoria, voyager-golden-record, sea-of-galilee,
 ## Hand-curated (by Alex Van de Sande)
 earth, jupiter, moon, enceladus, phobos, bacteria, covid, ladybug,
 human, red-blood-cell, grain-of-salt, penny,
-soccer-ball, observable-universe, void, itokawa,
+soccer-ball, void, itokawa,
 NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula
 
 ## Drawn from data
@@ -57,6 +57,11 @@ NGC7538S-Bubble-Nebula, NGC_7635_Bubble-Nebula
 | Icon | Data | How |
 |------|------|-----|
 | laniakea-galaxy-supercluster | 2MASS Redshift Survey, 42,986 galaxies (Huchra et al. 2012, ApJS 199, 26), via tools/sky-points | `scripts/laniakea-icon.mjs`: each galaxy linked to its nearest neighbours and coloured by the attractor it flows towards (a simple model, `scripts/laniakea-data.mjs`); the look picked by the author, 2026-10-30 |
+
+## Rendered by the app's own code
+observable-universe, our-universe: stills of the turning objects (`src/cmb-object.js`,
+`src/event-horizon-object.js`, `scripts/export-cmb-icon.mjs`). The CMB shell is the WMAP five-year ILC map
+(NASA / WMAP Science Team, public domain); the contents are an illustrative model, not a survey.
 
 ## Downloaded from Space Agencies / Wikimedia
 

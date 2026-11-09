@@ -73,7 +73,7 @@ const GAL_DROP = { ...GAL, sweep: 0.01, shift: { galaxy: -1, cluster: -0.85 }, s
 const HUB = { line: "hubble", dash: true };   // dotted: the real edge is the cosmic event horizon just outside it (the author, 2026-11-05)
 const RHO = -29.05;
 const AVG = { density: RHO };
-const HS = "Observable Universe";
+const HS = "Our Universe";   // the corner's dot (it was "Observable Universe" until 2026-11-08)
 const EH = { r: 28.20, m: 56.17, mark: true };
 const EHL_COL = "#ffab40";
 const EHL = { line: "eventhorizon" };
@@ -87,7 +87,8 @@ export default {
   icons: "all",
   forceIcons: ["Sun", "Ton 618", "Laniakea"],
   pbhWindow: false,
-  hideLabels: ["Observable Universe"],
+  hideLabels: [HS, "Observable Universe"],
+  hideObjects: ["Observable Universe"],   // outside the corner since 2026-11-08, and never named here
   captionFixes: { shard: "chart", protostaur: "protostar", lamps: "lumps", tough: "thought", weight: "weigh", deaf: "death", mother: "matter", nebulas: "nebulae" },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md): video 4's

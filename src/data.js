@@ -17,9 +17,10 @@
 //    λ_c = ħ/(Mc) → logR = -logM + log(ħ/c)
 //    Objects below this line enter quantum territory.
 //
-// 3. HUBBLE RADIUS (vertical line)
-//    R_H = c/H₀ ≈ 1.37 × 10²⁸ cm
-//    The edge of the observable universe.
+// 3. COSMIC EVENT HORIZON (vertical line)
+//    R ≈ 16.6 billion light-years ≈ 1.57 × 10²⁸ cm
+//    The edge of our universe: nothing that happens beyond it now can ever reach us.
+//    (The Hubble radius, c/H₀ ≈ 1.37 × 10²⁸ cm, is a dashed line a little inside it.)
 //
 // These three lines intersect at the PLANCK SCALE, forming the
 // apex of the triangle. All known objects live inside.
@@ -62,9 +63,16 @@ export const PLANCK_LOG_M = PLANCK_LOG_R - SCHWARZSCHILD_C;    // ≈ -4.81
 export const PLANCK_TRUE_LOG_R = 0.5 * Math.log10(hbar * G / (c * c * c)); // ≈ -32.79
 export const PLANCK_TRUE_LOG_M = 0.5 * Math.log10(hbar * c / G);           // ≈ -4.66
 
-// Hubble radius — the rightmost vertical boundary
+// Cosmic event horizon — the rightmost vertical boundary, the "size of the universe" (the author,
+// 2026-11-08; it was the Hubble radius). The object "Our Universe" sits where it meets the
+// Schwarzschild line.
+export const EVENT_HORIZON_LOG_R = 28.20; // log₁₀(1.57 × 10²⁸ cm), 16.6 billion light-years
+// Hubble radius — a dashed line a little inside the edge, seen at close range
 export const HUBBLE_LOG_R = 28.14;   // log₁₀(1.37 × 10²⁸ cm)
-export const DE_SITTER_LOG_R = 28.2; // log₁₀(c/H∞) — asymptotic Hubble radius in dark-energy-dominated future
+// De Sitter radius — where both end up: c/H∞, the Hubble radius and the event horizon of the
+// dark-energy-dominated future (R_H/√Ω_Λ; it was 28.2, the same as the new edge). A dotted line
+// just outside the edge, at very close range
+export const DE_SITTER_LOG_R = 28.22;
 
 // --- Isodensity line equation ---
 // For a uniform sphere: ρ = M / (4π/3 · R³)
@@ -81,7 +89,7 @@ export const densityLineR = (logM, logDensity) => (logM - DENSITY_SPHERE_C - log
 // Slightly wider than the triangle to show labels and context.
 
 export const BOUNDS = {
-  x: { min: -38, max: 32 },  // Planck length to beyond Hubble radius
+  x: { min: -38, max: 32 },  // Planck length to beyond the cosmic event horizon
   y: { min: -48, max: 65 },  // lightest neutrinos to above observable universe mass
 };
 

@@ -213,7 +213,8 @@
   { "name": "Boötes Void",      "logR": 26.19,  "logM": 48.97,  "cat": "largescale", "z": 4, "wiki": "Bo%C3%B6tes_void" },
   { "name": "Eridanus Supervoid","logR": 26.67, "logM": 50.99,  "cat": "largescale", "z": 5, "wiki": "CMB_cold_spot" },
   { "name": "KBC Void",         "logR": 26.98,  "logM": 51.86,  "cat": "largescale", "z": 5, "wiki": "KBC_Void" },
-  { "name": "Observable Universe", "logR": 28.14, "logM": 55.97, "cat": "largescale", "z": 0.5, "wiki": "Observable_universe" },
+  { "name": "Our Universe", "logR": 28.20, "logM": 56.03, "cat": "largescale", "z": 0.5, "wiki": "Cosmological_horizon" },
+  { "name": "Observable Universe", "logR": 28.64, "logM": 57.48, "cat": "largescale", "z": 2, "outside": true, "wiki": "Observable_universe" },
 
   { "name": "Protostar",        "logR": 14.50,  "logM": 34.50,  "cat": "star", "z": 3, "wiki": "Protostar" },
   { "name": "Planetary Nebula", "logR": 17.50,  "logM": 33.30,  "cat": "remnant", "z": 3, "wiki": "Planetary_nebula" },

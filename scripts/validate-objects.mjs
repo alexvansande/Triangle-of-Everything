@@ -7,7 +7,8 @@
 //
 //   1. TRIANGLE BOUNDS (hard errors, exit 1)
 //      Every object must sit inside the Schwarzschild / Compton /
-//      Hubble triangle. Black holes are allowed to sit ON the
+//      cosmic-event-horizon triangle (unless it says "outside": true: the
+//      Observable Universe, which is bigger than the horizon and not one object). Black holes are allowed to sit ON the
 //      Schwarzschild line; particles ON the Compton line.
 //
 //   2. DENSITY OUTLIERS (warnings — advisory only)
@@ -39,7 +40,7 @@ const objects = JSON.parse(
 const G = 6.674e-8, c = 2.998e10, hbar = 1.055e-27;
 const SCHWARZSCHILD_C = Math.log10(2 * G / (c * c)); // ≈ -27.83
 const COMPTON_C = Math.log10(hbar / c);              // ≈ -37.45
-const HUBBLE_LOG_R = 28.14;
+const EVENT_HORIZON_LOG_R = 28.20;   // the triangle's right edge (src/data.js)
 const DENSITY_SPHERE_C = Math.log10(4 * Math.PI / 3); // ≈ 0.622
 
 const schwarzschildR = (logM) => logM + SCHWARZSCHILD_C;
@@ -70,6 +71,7 @@ const warnings = [];
 // ---- 1. Triangle bounds ----
 for (const o of objects) {
   const { name, logR, logM, cat } = o;
+  if (o.outside) continue;
   if (typeof logR !== "number" || typeof logM !== "number") {
     errors.push(`${name}: missing/invalid logR or logM`);
     continue;
@@ -91,11 +93,11 @@ for (const o of objects) {
       `(quantum-forbidden). Off by ${(cR - logR).toFixed(2)} dex.`
     );
   }
-  // Beyond the Hubble radius.
-  if (logR > HUBBLE_LOG_R + BOUND_TOL) {
+  // Beyond the cosmic event horizon.
+  if (logR > EVENT_HORIZON_LOG_R + BOUND_TOL) {
     errors.push(
-      `${name}: logR ${logR} exceeds Hubble radius ${HUBBLE_LOG_R} ` +
-      `(beyond the observable universe).`
+      `${name}: logR ${logR} exceeds the cosmic event horizon ${EVENT_HORIZON_LOG_R} ` +
+      `(beyond our universe).`
     );
   }
 }

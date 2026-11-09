@@ -26,7 +26,8 @@ const CONTENT = parseTourMarkdown(rawContent);
 
 // ---- Big Bang era configuration ----
 // Each era defines which objects are visible (by category/slug) and the Hubble radius.
-// hubbleLogR: log₁₀(c × t) ≈ 10.48 + log₁₀(t_seconds)
+// hubbleLogR: the triangle's right edge in that era, log₁₀(c × t) ≈ 10.48 + log₁₀(t_seconds); now
+// and after, the cosmic event horizon (data.js EVENT_HORIZON_LOG_R)
 // Objects appear cumulatively — each era adds to what's already visible.
 
 export const BIG_BANG_ERAS = {
@@ -50,9 +51,9 @@ export const BIG_BANG_ERAS = {
   stellar:       { hubbleLogR: 26.5,  whiteOverlay: 0,
                    showAll: true,
                    hideCats: ["micro", "macro"] },
-  now:           { hubbleLogR: 28.14, whiteOverlay: 0,
+  now:           { hubbleLogR: 28.2, whiteOverlay: 0,
                    showAll: true },
-  future:        { hubbleLogR: 28.14, whiteOverlay: 0,
+  future:        { hubbleLogR: 28.2, whiteOverlay: 0,
                    showAll: true,
                    hideCats: ["macro", "micro"],
                    hideSlugs: ["earth", "mars", "venus", "mercury",

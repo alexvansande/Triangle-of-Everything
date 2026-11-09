@@ -44,7 +44,7 @@ import {
   schwarzschildR, schwarzschildM, comptonR, comptonM,
   DENSITY_LINES, RADIUS_UNITS, MASS_UNITS, ENERGY_UNITS,
   CATEGORIES, SUBCAT_COLORS, SUBCAT_LABEL_COLORS, SUBCAT_LABELS, DUST_SOURCE_SUBCAT, ELEMENT_GUIDES, ELEMENTS_BY_Z, periodicCell, ELEMENT_TYPES, elementType, PERIODIC_FAMILIES, COMPOSITION, CAT_DISPLAY, DENSITY_SPHERE_C, EPOCH_BANDS,
-  REFERENCE_LINES, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
+  REFERENCE_LINES, EVENT_HORIZON_LOG_R, HUBBLE_LOG_R, DE_SITTER_LOG_R, CONNECTION_PATHS,
   PBH_WINDOW, ENERGY_BANDS, TEMPERATURE_ARROWS, WATER_RANGE, DENSITY_ARROWS,
   WIDTH_LOG_OFFSET, PHOTON_LAMBDA_OFFSET,
 } from "./data.js";
@@ -87,6 +87,7 @@ let _iconFirst = null;    // narration: names whose picture comes first; the oth
 let _iconHide = null;     // narration: names whose picture never shows (they pile onto a neighbour)
 let _iconBoost = null;    // narration: { from: log r, k } pictures of things that big and up drawn k× larger
 let _labelHide = null;    // narration: names whose own chart label never shows in that scene
+let _objHide = null;      // narration: objects not drawn at all right now (dot, name, picture): a scene reveals them at a cue
 let _dustFill = false;    // narration: catalogue pictures without their names (the names stay off)
 let _labelFocus = null;   // narration: while a callout shows, only these objects keep their labels
 let _labelFocusKey = "";
@@ -236,7 +237,7 @@ let tileMeta = null;
 import { BIG_BANG_ERAS, TOUR_STEPS } from "./tour-data.js";
 
 let _bigBangMode = false;
-let _bigBangHubbleLogR = HUBBLE_LOG_R;
+let _bigBangHubbleLogR = EVENT_HORIZON_LOG_R;
 let _bigBangWhiteOverlay = 0;
 let _bigBangObjectOpacity = {};       // slug → target opacity (0–1)
 let _bigBangObjectOverrides = {};     // slug → {logR, logM} position overrides
@@ -245,9 +246,9 @@ let _bigBangTransition = null;        // phase-1 d3.timer: Hubble radius + white
 let _bigBangTransition2 = null;       // phase-2 d3.timer: object opacities + position overrides
 let _bigBangPhase2Timer = null;       // setTimeout ID for phase-2 delay
 
-/** Dynamic Hubble radius: normal or animated during Big Bang mode. */
-function getHubbleLogR() {
-  return _bigBangMode ? _bigBangHubbleLogR : HUBBLE_LOG_R;
+/** The triangle's right edge: the cosmic event horizon, or the era's horizon, animated, in Big Bang mode. */
+function getEdgeLogR() {
+  return _bigBangMode ? _bigBangHubbleLogR : EVENT_HORIZON_LOG_R;
 }
 
 /**
@@ -921,8 +922,8 @@ function drawRegions() {
 function drawTriangleOverlay() {
   lTriOverlay.selectAll("*").remove();
 
-  // The Triangle of Everything: Schwarzschild + Compton + Hubble radius
-  const hLogR = getHubbleLogR();
+  // The Triangle of Everything: Schwarzschild + Compton + the cosmic event horizon
+  const hLogR = getEdgeLogR();
   const planckX = px(PLANCK_LOG_R),  planckY = py(PLANCK_LOG_M);
   const schwX   = px(hLogR),  schwY  = py(schwarzschildM(hLogR));
   const compX   = px(hLogR),  compY  = py(comptonM(hLogR));
@@ -1120,7 +1121,7 @@ function drawGrid() {
 function drawBoundaries() {
   lBound.selectAll("*").remove();
 
-  const hLogR = getHubbleLogR();
+  const hLogR = getEdgeLogR();
   const planckX = px(PLANCK_LOG_R), planckY = py(PLANCK_LOG_M);
   const schwX = px(hLogR), schwY = py(schwarzschildM(hLogR));
   const compX = px(hLogR), compY = py(comptonM(hLogR));
@@ -1188,11 +1189,39 @@ function drawBoundaries() {
       .attr("stroke-dasharray", "4 4");
   }
 
-  // De Sitter radius — dotted vertical line showing the asymptotic future Hubble radius
-  // Only visible when zoomed in enough to distinguish it from the current Hubble radius
+  // Hubble radius — a dashed vertical line a little inside the edge, where space recedes at the
+  // speed of light. Only visible when zoomed in enough to tell it from the edge (the author,
+  // 2026-11-08: the cosmic event horizon is the edge, the Hubble radius a smaller dashed line
+  // seen at closer range). Not in Big Bang mode, where the edge is that era's horizon.
+  if (!_bigBangMode) {
+    const hubblePx = px(HUBBLE_LOG_R), gap = Math.abs(px(EVENT_HORIZON_LOG_R) - hubblePx);
+    const hSeg = gap > 5 ? clampLineToChart(hubblePx, py(schwarzschildM(HUBBLE_LOG_R)), hubblePx, py(comptonM(HUBBLE_LOG_R))) : null;
+    if (hSeg) {
+      const open = (e) => { e.stopPropagation(); openInfoPanel("hubble-radius", "Hubble Radius"); setSidebarOpen(true); };
+      lBound.append("line")
+        .attr("x1", hSeg.x1).attr("y1", hSeg.y1).attr("x2", hSeg.x2).attr("y2", hSeg.y2)
+        .attr("stroke", "rgba(255,255,255,0.3)").attr("stroke-width", 0.8).attr("stroke-dasharray", "6 4")
+        .style("cursor", "pointer").on("click", open);
+      // Label — on the inside, when the gap to the edge is wide enough to read which line is which
+      if (gap > 18) {
+        const labelY = Math.max(Math.min(hSeg.y1, hSeg.y2) + 30, 30);
+        for (const outline of [true, false]) {
+          const label = lBound.append("text")
+            .attr("x", hubblePx - 5).attr("y", labelY).attr("text-anchor", "end")
+            .attr("font-family", "var(--font-mono, monospace)")
+            .attr("font-size", fscale(9)).attr("letter-spacing", "0.5px").text("Hubble radius");
+          if (outline) label.attr("fill", "none").attr("stroke", "rgba(6,6,26,0.8)").attr("stroke-width", 2.5).attr("stroke-linejoin", "round");
+          else label.attr("fill", "rgba(255,255,255,0.4)").style("cursor", "pointer").on("click", open);
+        }
+      }
+    }
+  }
+
+  // De Sitter radius — dotted vertical line showing where the horizon ends up in the far future
+  // Only visible when zoomed in enough to distinguish it from the edge
   {
     const deSitterPx = px(DE_SITTER_LOG_R);
-    const hubblePx = px(HUBBLE_LOG_R);
+    const hubblePx = px(EVENT_HORIZON_LOG_R);
     const separation = Math.abs(deSitterPx - hubblePx);
     if (separation > 1) {
       const dsSchwY = py(schwarzschildM(DE_SITTER_LOG_R));
@@ -1948,8 +1977,8 @@ function drawBigBangEras() {
     let startR, startM;
     if (era.logRho <= -150) {
       // Heat death line: start from bottom of Hubble radius (Compton-Hubble corner)
-      startR = getHubbleLogR();
-      startM = comptonM(getHubbleLogR());
+      startR = getEdgeLogR();
+      startM = comptonM(getEdgeLogR());
     } else {
       startR = era.logR_int;
       startM = era.logM_int;
@@ -1988,7 +2017,7 @@ function drawDensityArrows() {
   const ppuY = ch / (d.y1 - d.y0);
   if (ppuY < 10) return;  // match energy band zoom threshold
 
-  const OBS_LOGM = 56;          // Observable Universe logM — the invisible timeline
+  const OBS_LOGM = 56;          // Our Universe's logM — the invisible timeline
   const ARROW_LEN = 50;         // arrow length in pixels (event arrows)
   const densAngle = screenAngle(3);
 
@@ -2229,7 +2258,7 @@ function drawRegionLabels() {
   const PAD = 60;
 
   // Triangle vertices in screen coords
-  const hLogR = getHubbleLogR();
+  const hLogR = getEdgeLogR();
   const plkX = px(PLANCK_LOG_R), plkY = py(PLANCK_LOG_M);
   const hubSchwX = px(hLogR), hubSchwY = py(schwarzschildM(hLogR));
   const hubCompX = px(hLogR), hubCompY = py(comptonM(hLogR));
@@ -2242,7 +2271,7 @@ function drawRegionLabels() {
       x1: plkX, y1: plkY, x2: hubSchwX, y2: hubSchwY },
     { text: "Compton Limit", angle: compAng,
       x1: plkX, y1: plkY, x2: hubCompX, y2: hubCompY },
-    { text: "Hubble Radius", angle: -90,
+    { text: "Cosmic Event Horizon", angle: -90,
       x1: hubSchwX, y1: hubSchwY, x2: hubCompX, y2: hubCompY },
   ];
 
@@ -2643,11 +2672,13 @@ function drawObjects() {
     _iconForce && [..._iconForce],
     _iconHide && [..._iconHide],
     _iconBoost && [_iconBoost.from, _iconBoost.k, JSON.stringify(_iconBoost.slugs || 0)],
+    _objHide && [..._objHide],
   ]));
 
   // Project all objects to screen, sorted by priority (low z = important)
   const projected = OBJECTS
     .map(o => {
+      if (_objHide?.has(o.name)) return null;
       // Big Bang mode: apply position overrides (e.g. Sun → red giant)
       let logR = o.logR, logM = o.logM;
       if (_bigBangMode && _bigBangObjectOverrides[o.slug]) {
@@ -3874,9 +3905,9 @@ function detectAxisRegion(clientX, clientY) {
 
 // Physical bounds for clamping (in CGS log units)
 const AX_MIN_LOGR = PLANCK_LOG_R;   // ≈ -32.64 cm (Planck length)
-const AX_MAX_LOGR = HUBBLE_LOG_R;   // 28.14 cm (Hubble radius)
+const AX_MAX_LOGR = EVENT_HORIZON_LOG_R;   // 28.20 cm (cosmic event horizon)
 const AX_MIN_LOGM = -67;            // lightest meaningful mass
-const AX_MAX_LOGM = 56;             // ~observable universe mass
+const AX_MAX_LOGM = 56;             // ~the mass of Our Universe
 
 function buildAxisContent(region) {
   const d = vd();
@@ -4524,7 +4555,7 @@ function openSidebar(obj) {
   const logNote = `(10<sup>${logR_m >= 0 ? logR_m.toFixed(1) : logR_m.toFixed(1)}</sup> m · 10<sup>${logM_kg >= 0 ? logM_kg.toFixed(1) : logM_kg.toFixed(1)}</sup> kg)`;
 
   let zone, zoneClass;
-  if (obj.logR > DE_SITTER_LOG_R) {
+  if (obj.logR > EVENT_HORIZON_LOG_R) {
     zone = "Beyond cosmic horizon"; zoneClass = "desitter";
   } else if (obj.logM > schwarzschildM(obj.logR)) {
     zone = "Gravity forbidden"; zoneClass = "gravity";
@@ -5951,10 +5982,10 @@ const miniY = d3.scaleLinear().domain([BOUNDS.y.min, BOUNDS.y.max]).range([MINIM
 // Draw the Triangle of Everything in minimap
 const triPlanckX = miniX(PLANCK_LOG_R);
 const triPlanckY = miniY(PLANCK_LOG_M);
-const triHubbleSchw = miniX(HUBBLE_LOG_R);
-const triHubbleSchwY = miniY(schwarzschildM(HUBBLE_LOG_R));
-const triHubbleComp = miniX(HUBBLE_LOG_R);
-const triHubbleCompY = miniY(comptonM(HUBBLE_LOG_R));
+const triHubbleSchw = miniX(EVENT_HORIZON_LOG_R);
+const triHubbleSchwY = miniY(schwarzschildM(EVENT_HORIZON_LOG_R));
+const triHubbleComp = miniX(EVENT_HORIZON_LOG_R);
+const triHubbleCompY = miniY(comptonM(EVENT_HORIZON_LOG_R));
 miniSvg.append("polygon")
   .attr("points", [
     [triPlanckX, triPlanckY],
@@ -7188,7 +7219,7 @@ function exitBigBangMode(duration) {
   const startOverrides = { ..._bigBangObjectOverrides };
 
   _bigBangTransition = _bigBangAnimate(duration || 2000, (t) => {
-    _bigBangHubbleLogR = startHubble + (HUBBLE_LOG_R - startHubble) * t;
+    _bigBangHubbleLogR = startHubble + (EVENT_HORIZON_LOG_R - startHubble) * t;
     _bigBangWhiteOverlay = startWhite * (1 - t);
     whiteOverlay.attr("opacity", _bigBangWhiteOverlay);
 
@@ -7209,7 +7240,7 @@ function exitBigBangMode(duration) {
   }, () => {
     // On end: fully reset Big Bang state
     _bigBangMode = false;
-    _bigBangHubbleLogR = HUBBLE_LOG_R;
+    _bigBangHubbleLogR = EVENT_HORIZON_LOG_R;
     _bigBangWhiteOverlay = 0;
     _bigBangObjectOpacity = {};
     _bigBangObjectOverrides = {};
@@ -7253,7 +7284,7 @@ window.__debugBigBang = {
   reset() {
     _cancelBigBangTransitions();
     _bigBangMode = false;
-    _bigBangHubbleLogR = HUBBLE_LOG_R;
+    _bigBangHubbleLogR = EVENT_HORIZON_LOG_R;
     _bigBangWhiteOverlay = 0;
     _bigBangObjectOpacity = {};
     _bigBangObjectOverrides = {};
@@ -7443,7 +7474,7 @@ function updateReadout(event) {
 
       // Zone indicator
       let zone = "";
-      if (logR > DE_SITTER_LOG_R) zone = `<span style="color:#ff9900">unreachable</span>`;
+      if (logR > EVENT_HORIZON_LOG_R) zone = `<span style="color:#ff9900">unreachable</span>`;
       else if (logM > schwarzschildM(logR)) zone = `<span style="color:#ff3355">gravity forbidden</span>`;
       else if (logM < comptonM(logR)) zone = `<span style="color:#9944ff">quantum forbidden</span>`;
       else zone = `<span style="color:#64ffda">accessible</span>`;
@@ -8967,6 +8998,8 @@ if (_ogShot) {
       setIconBoost(b) { _iconBoost = b?.k && b.k !== 1 ? { from: b.from ?? 18, k: b.k, slugs: b.slugs } : null; redraw(); },
       /** Objects whose own chart label never shows (videos): names, or null. */
       setLabelHide(names) { _labelHide = names?.length ? new Set(names) : null; redraw(); },
+      /** Objects left off the chart for now (videos: a scene's hideObjects, until their cue): names, or null. */
+      setObjectsHidden(names) { _objHide = names?.length ? new Set(names) : null; redraw(); },
       /** Settings → Icons for a video (0–100, 100 = many), without saving it. */
       setIconDensity(d = ICON_DENSITY_DEFAULT) { if (_iconDensity !== d) { _iconDensity = d; _iconsEnabled = d > 0; redraw(); } },
       /** Icon size in percent of the app's default (videos), without saving it. */

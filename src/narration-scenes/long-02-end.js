@@ -14,7 +14,7 @@ const SCHW = { line: "schwarzschild" };
 const HUB = { line: "hubble", dash: true };
 const RHO = -29.05;
 const AVG = { density: RHO };
-const HS = "Observable Universe";                    // the chart's dot sits at the Hubble radius
+const HS = "Our Universe";                           // the chart's dot at the corner: on the black-hole line at the edge (the cosmic event horizon since 2026-11-08, 0.06 of a decade right of the Hubble radius)
 const EH = { r: 28.20, m: 56.17, mark: true };       // cosmic event horizon, 16.7 billion ly
 const EHL_COL = "#ffab40";
 const PH = { r: 28.64, m: 57.49, mark: true };       // particle horizon = observable universe, 46.5 billion ly
@@ -30,7 +30,10 @@ export default {
   // galaxies and up 60% of their size, Laniakea a good deal less: it hid everything around it (the author, 2026-11-05)
   iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
   forceIcons: ["Laniakea", "Ton 618"],
-  hideLabels: ["Observable Universe"],
+  hideLabels: [HS, "Observable Universe"],
+  // the chart's own Observable Universe (outside the triangle since 2026-11-08) stays off until the
+  // voice gets to it ("outside our triangle": hideObjects: [] there), where the arrow and the ring land on it
+  hideObjects: ["Observable Universe"],
   captionFixes: { shard: "chart", short: "chart", hobo: "Hubble", radio: "radius", neighbors: "neighbours" },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md): video 5's
@@ -73,7 +76,7 @@ export default {
     { at: "14 billion", hl: [HUB, { obj: HS, label: "Hubble sphere · 14 billion ly" }] },
     // the observable universe, shell by shell, from us out to the CMB, colours by distance (the author, 2026-11-05, in place of the wavelength ball)
     { at: "46 billion", clear: true, hold: 60, hl: [{ cosmos: { zoom: [[0, 11], [1, 11], [10, 1.02]], rings: SHELLS } }] },
-    { at: ["way outside our triangle", "outside our triangle"], cam: { r: 28.2, m: 56.4, span: 5 }, dur: 0.01, clear: true,
+    { at: ["way outside our triangle", "outside our triangle"], cam: { r: 28.2, m: 56.4, span: 5 }, dur: 0.01, clear: true, hideObjects: [],
       hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH, delay: 0.6 }, { ...OU, label: "observable universe · 46 billion ly", delay: 1.0 }] },
     { at: ["outside our boundaries", "only object"], hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "outside the triangle" }] },
     { at: "single object", hl: [SCHW, HUB, { arrow: true, from: { obj: HS }, to: PH, draw: 0.01 }, { ...OU, label: "not one object" }] },

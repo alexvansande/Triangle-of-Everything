@@ -50,7 +50,7 @@ At larger scales, structures shift dramatically. Galaxies and clusters are shape
 
 Superclusters, like Laniakea, are among the largest structures we can detect. These are giant strands made of groups of galaxies. The gaps they enclose could be considered even larger structures — except they're mostly interesting for the fact that they have nothing in them.
 
-And of course the largest thing we can see is the universe itself. Our observable universe is a sphere of everything that can affect us in any way. There is most certainly more universe outside of it, but anything beyond this little bubble is just unknowable forever. Interestingly, the total mass of the universe puts it right on the Schwarzschild line — is it a black hole? It might be a coincidence (after all it wasn't always there) but it might tell us something interesting also.
+And of course the largest thing we can see is the universe itself. Our universe is a sphere of everything that can affect us in any way. There is most certainly more universe outside of it, but anything beyond this little bubble is just unknowable forever. Interestingly, the total mass of the universe puts it right on the Schwarzschild line — is it a black hole? It might be a coincidence (after all it wasn't always there) but it might tell us something interesting also.
 
 
 ## microscopic
