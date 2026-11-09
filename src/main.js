@@ -3442,6 +3442,19 @@ function shadowRevealOptions(d){
   const bias=d.glow&&!d.img?0:body*shadowPlacementBias(d);
   return {x:d.sx+3-bias,y:d.sy+4-bias,size:6*d.r,dot:2.8,color:'#000',shadow:true,reducedMotion:_reduceMotion,onDone:()=>lShadows.selectAll('circle.object-dot-shadow').filter(o=>o.slug===d.key).attr('opacity',.35)};
 }
+// Phones: the silhouettes (one small file per picture) wait until the page has loaded, out of the
+// first paint's way, then fade in (releaseShadowPics). Desktop and the videos have them from the start.
+let _shadowPicsHeld = _isMobile && !IN_VIDEO;
+function releaseShadowPics() {
+  _shadowPicsHeld = false;
+  lShadows.selectAll("g.icon-shadow").filter(d => d.img).each(function() {
+    const g = d3.select(this), img = g.select("image.sh-img");
+    img.attr("opacity", 0).on("load.fade", () => {
+      img.on("load.fade", null);
+      img.interrupt().transition().duration(_reduceMotion ? 0 : 300).attr("opacity", shadowImgGeom(g.datum()).opacity);
+    }).attr("href", g.datum().img);
+  });
+}
 function drawIconShadows(shapes,positions=new Map()) {
   if (!SHADOWS || _bigBangMode) shapes = [];
   lShadows.selectAll("g.icon-shadow")
@@ -3475,7 +3488,7 @@ function drawIconShadows(shapes,positions=new Map()) {
       g.selectAll("ellipse:not(.sh-glow)").attr("display", d.img ? "none" : null);
       const img = g.select("image.sh-img").attr("display", d.img ? null : "none");
       if (d.img) {
-        if (img.attr("href") !== d.img) img.attr("href", d.img);
+        if (!_shadowPicsHeld && img.attr("href") !== d.img) img.attr("href", d.img);
         applyShadowImg(img.interrupt(), shadowImgGeom(d));
         return;
       }
@@ -5776,6 +5789,7 @@ function bgNoiseShadows() {
     } else if (el.tagName === "circle") shape = ["c", a("cx"), a("cy"), a("r")];
     else if (el.tagName === "path") shape = ["p", el.getAttribute("d")];
     else {
+      if (!el.getAttribute("href")) continue;   // a held silhouette (_shadowPicsHeld)
       blur = (parseFloat((el.style.filter || "").replace(/^blur\(/, "")) || 0);
       shape = ["i", el.getAttribute("href"), a("x"), a("y"), a("width"), a("height"), !!shadowImage(el.getAttribute("href"))];
     }
@@ -6893,12 +6907,13 @@ const zoomBehavior = d3.zoom()
 svg.call(zoomBehavior);
 // Safari's trackpad pinch, also over the click-target overlay above the map
 enableTrackpadPinch(svg.node(), [svg.node(), clickTargetContainer]);
-// particles drawn live as Hopf fibrations over their still pictures
+// particles drawn live as Hopf fibrations over their still pictures, in the videos only: the plain
+// chart shows the stills and never fetches the renderer and its molecules (public/hopf/)
 // (the chart draws them itself right after a pan/zoom redraw, so they don't trail a frame behind)
 let _hopfIcons = null, _cmbIcons = null;
 // the observable universe turning live, in 3D: the CMB around the zoom's cosmic web (src/cmb-object.js)
 startCmbIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _cmbIcons = h; });
-startHopfIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _hopfIcons = h; });
+if (IN_VIDEO) startHopfIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _hopfIcons = h; });
 let _laniakeaIcons = null;
 startLaniakeaIcons(document.getElementById("chart"), { busy: () => rafPending }).then(h => { _laniakeaIcons = h; });
 let _starIcons = null;
@@ -8623,6 +8638,13 @@ setTimeout(() => {
 
 // Reveal page now that CSS and JS are loaded (prevents FOUC)
 document.body.classList.add("ready");
+
+// The phones' silhouettes, 1.5 s after the load event: past the startup window scripts/mobile-perf.mjs
+// measures (the load event + 1 s), as early in the boot zoom-out as that allows
+if (_shadowPicsHeld) {
+  const later = () => setTimeout(releaseShadowPics, 1500);
+  if (document.readyState === "complete") later(); else window.addEventListener("load", later, { once: true });
+}
 
 // Deferred loading, triggered by the user rather than by a timer: a visitor
 // who only looks at the overview never downloads the descriptions, the
