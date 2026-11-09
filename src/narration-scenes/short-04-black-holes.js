@@ -65,6 +65,13 @@ const SRC_HAW = SRC("after Carr, Kohri, Sendouda & Yokoyama (2010),\nPhysical Re
 const SRC_NS = SRC("neutron stars: Capela, Pshirkov & Tinyakov (2013),\ndisputed by Montero-Camacho et al. (2019)");
 // the neutron-star limit, contested, so not crossed out: named where the window is shown (the author, 2026-11-09)
 const NS_OPEN = { ...NS, label: "might still be ruled out\nby neutron star studies" };
+// the early universe's density line (1e40 g/cm³) carried on, dashed, from the black-hole line up past the top of the
+// frame, and read at the top like the time axis it leads to: the density on its left, the time on its right (the
+// author, 2026-11-09). 1e40 g/cm³ is 10^-18.35 s on the chart's time axis (format.js densityToLogTime), ~4e-19 s
+const RHO_R = (m) => (m - 0.622 - 40) / 3;
+const RHO_UP = [[RHO_R(21.43), 21.43], [RHO_R(54), 54]];
+const RHO_TOP_L = { trend: RHO_UP, color: "#ffab40", dash: true, label: "density of the universe", labelAt: [RHO_R(38), 38] };
+const RHO_TOP_R = { trend: RHO_UP, color: "#ffab40", dash: true, label: "less than a billionth of a\nbillionth of a second", labelAt: [RHO_R(38), 38], labelOffset: -50, labelOnly: true };
 const DM_PBH = { mark: [-8.3, 19.5], label: "primordial black holes?", place: "right", color: "#ff8fa8" };
 // all four candidates at once (WIMPs at the bottom left, MACHOs at the top right), with
 // "Here be dark matter?" in the empty middle of the frame, left of the everyday objects'
@@ -199,7 +206,7 @@ export default {
     { at: ["instants after the big bang", "moments after the big bang", "moments of the big bang"], cam: { r: -8, m: 18, span: 34 }, clear: true },
     // the early universe as a density line: ~1e40 g/cm³ about 1e-17 s in, which meets
     // the black-hole line at ~3e21 g (a lump of it the size of its own horizon collapses)
-    { at: ["super dense soup", "hot dense soup", "soup of very hot"], hl: [SCHW, { density: 40, label: "\u266B\uFE0E the whole universe\nwas in a hot dense state \u266A\uFE0E" }] },
+    { at: ["super dense soup", "hot dense soup", "soup of very hot"], hl: [SCHW, { density: 40, label: "\u266B\uFE0E the whole universe\nwas in a hot dense state \u266A\uFE0E" }, { ...RHO_TOP_L, delay: 1.2 }, { ...RHO_TOP_R, delay: 1.2 }] },
     // the window narrowing as each survey is named: a red band along the
     // Schwarzschild line from the Planck mass to ~1e5 Suns, cut down to what's
     // still open (log10 g; docs/dark-matter-constraints.md)

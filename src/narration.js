@@ -1610,7 +1610,8 @@ export async function startNarration(app) {
       if (glow < 1) strokes.forEach(([w, o]) => underLines.push({ d: dl, color: col, width: w, opacity: o * (1 - glow) * (h.op ?? 1), dash }));
     }
     const thick = h.line === "water" ? 1.6 : 1;
-    if (glow > 0.001) strokes.forEach(([w, o]) => {
+    // h.labelOnly: the label and no line (a second label on a line drawn by another highlight)
+    if (glow > 0.001 && !h.labelOnly) strokes.forEach(([w, o]) => {
       el.append("path").attr("d", d).attr("fill", "none").attr("stroke", col)
         .attr("stroke-width", w * thick).attr("opacity", o * glow).attr("stroke-linecap", "round")
         .attr("stroke-dasharray", dash);
