@@ -1,0 +1,48 @@
+// =============================================================
+// Scene: short-04b-smallest-black-holes — The Smallest Black Holes, part 2 of video 4, as a take of its own (the
+// author's re-recordings of 2026-11-09, rec61 and rec60: video/short-04b-smallest-black-holes/). The new opening is
+// the black-hole line as relativity's limit (The Black Hole Slope's shots: the Moon squeezed onto the line, the line,
+// the dark side beyond it); from "with enough pressure" on, video 4's scene, its phrases given this take's wording.
+// =============================================================
+// Field reference: docs/narration.md, "Scene fields". Rules: video/plans/visual-rules.md.
+
+import V4 from "./short-04-black-holes.js";
+
+const SCHW = { line: "schwarzschild" };
+const BH = (m) => ({ r: m - 27.83, m, mark: true });
+// this take's wording for video 4's phrases (a cue matches any of its `at`)
+const ALSO = {
+  "the core of a dying star": "very large star dies",
+  "instants after the big bang": "instants just after the big bang",
+  "super dense soup": "hot and dense soup",
+  "they'd have evaporated": "have evaporated",
+  "they'd be invisible": "would be invisible",
+  "we don't know what it is": "we don't know what dark matter is",
+  "if they are just tiny black holes": "if it's just tiny black holes",
+  "lumps about roughly this size": "lumps roughly this size",
+  "any new particles": "any new particle",
+  "very first moments of our history": "very first instants of our history",
+};
+const reword = (c) => {
+  const at = [].concat(c.at ?? []);
+  const extra = at.map(a => ALSO[a]).filter(Boolean);
+  return extra.length ? { ...c, at: [...at, ...extra] } : c;
+};
+const from = V4.cues.findIndex(c => [].concat(c.at).includes("with enough pressure"));
+
+export default {
+  ...V4,
+  title: "The Smallest Black Holes",
+  blurb: "What is the smallest black hole that could exist? Some might have formed in the first instants after the Big Bang, and if they're still around, they could be the dark matter we can't see.",
+  start: { r: 4.2, m: 26.6, span: 16 },
+  poster: undefined, posterWide: undefined,
+  cues: [
+    // the line: for any mass, a size it can't go under (the Moon squeezed down onto it)
+    { at: "for any given mass", cam: { r: 4.2, m: 26.6, span: 16 }, dur: 3, hl: [SCHW, { obj: "Moon" }] },
+    { at: "minimum size", hl: [SCHW, { obj: "Moon" }, { arrow: true, from: { obj: "Moon" }, to: BH(25.87), label: "squeeze", delay: 0.2 }] },
+    { at: "collapses into a black hole", hl: [SCHW, { obj: "Moon", label: false }, { arrow: true, from: { obj: "Moon" }, to: BH(25.87), draw: 0.01 }, { ...BH(25.87), label: "a black hole" }] },
+    { at: "once it becomes a black hole", cam: { obj: "Sgr A*", span: 15 }, dur: 5, drift: 0.02, clear: true, hl: [{ ...SCHW, label: "every black hole lives here" }] },
+    { at: "physically impossible", hl: [{ ...SCHW, label: "schwarzschild radius" }, { side: "left", of: "schwarzschild" }] },
+    ...V4.cues.slice(from).map(reword),
+  ],
+};
