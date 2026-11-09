@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700&display=swap">
 <style>
 /* Squeeze Lab: a bench for the three particle transformations of the "dance of the forces" videos.
+   The forces' colours (the author, 2026-11-09): gravity red, electromagnetism blue, strong yellow, weak green.
    The picture is lines on black, so the page commits to one dark look (same bench as the Atom Lab).
    Stage on the left, the instrument's controls in a rail on the right; the rail drops below the
    stage on a phone. */
@@ -23,6 +24,7 @@
   --shell: #4fa3ff;       /* mode 1: electron shells */
   --nucleus: #ff3b30;     /* every nucleus */
   --fuse: #ffd54a;        /* mode 2: the strong force's reach */
+  --weak: #50e678;        /* mode 3: the weak force's reach */
   --grey: #8a8f99;        /* mode 3: a neutron */
   --display: "Syne", "Avenir Next", "Segoe UI", sans-serif;
   --body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
@@ -54,7 +56,7 @@ h1 span { color: var(--accent); }
 .seg button[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
 .seg[data-k="mode"] button[aria-pressed="true"]:nth-child(1) { background: var(--shell); border-color: var(--shell); }
 .seg[data-k="mode"] button[aria-pressed="true"]:nth-child(2) { background: var(--fuse); border-color: var(--fuse); }
-.seg[data-k="mode"] button[aria-pressed="true"]:nth-child(3) { background: var(--nucleus); border-color: var(--nucleus); color: #fff; }
+.seg[data-k="mode"] button[aria-pressed="true"]:nth-child(3) { background: var(--weak); border-color: var(--weak); }
 button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .view { position: relative; flex: 1; min-height: 0; min-width: 0; display: grid; place-items: center; container-type: size; }
 /* the screen: the largest 9:16 or 16:9 that fits the space */
@@ -159,18 +161,20 @@ const BASE = {
   threshold: 0.3, spread: 0.2, centreFirst: 0, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, electronSize: 0.03, electronBounce: true, bareSpacing: 1,
   fuseAt: 0.6, fourAtOnce: false, neutrons: 2, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
   shatter: 1, greySize: 1, greyUniform: true, greyAttract: 0,
-  onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowSize: 0.45, arrowTime: 5, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
+  onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowsStrong: false, arrowSize: 0.45, arrowTime: 5, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
 const MODE_DEFAULTS = {
   1: { nucleus: 0.10, count: 150, sizeSpread: 0.12, shrinkTime: 23, repel: 5.05, falloff: 4, range: 0.6, stiffness: 2.95, pressure: 0.5, damping: 0.8,
        threshold: 0.04, spread: 0.2, centreFirst: 4, electrons: 30, electronPush: 0.105, electronBounce: false, pictures: true, arrowsOut: true, arrowsIn: true, lineWidth: 2, glow: 1.2 },
-  2: { nucleus: 0.50, count: 85, radius: 120, relief: 2, sizeSpread: 0.08, repel: 2, range: 1.2, stiffness: 4, pressure: 4, damping: 2, shrinkTime: 50 },
-  3: { nucleus: 0.90, count: 140, radius: 100, sizeSpread: 0.1, repel: 0.4, range: 0.6, stiffness: 4, pressure: 4, damping: 2, threshold: 0.015, spread: 0.35, greySize: 0.9 },
+  2: { nucleus: 0.50, count: 339, radius: 120, segments: 32, relief: 2, sizeSpread: 0.08, jitter: 25, repel: 6, falloff: 4, range: 1.2, stiffness: 4, pressure: 4, damping: 2, shrinkTime: 50,
+       fuseAt: 0.3, fourAtOnce: true, bridgeTime: 0.05, hugRate: 4.15, nucleiPull: 2.15, pictures: true, arrowsOut: true, arrowsIn: true, arrowsStrong: true },
+  3: { nucleus: 0.90, count: 700, radius: 100, sizeSpread: 0, repel: 6, falloff: 4, range: 0.6, stiffness: 8, pressure: 4, damping: 2, threshold: 0.015, spread: 0.35, centreFirst: 2.9,
+       shatter: 3, greySize: 0.9, pictures: true },
 };
 const MODE_NOTE = {
   1: "<b>Degenerate matter.</b> Blue electron shells round a small red nucleus (10%). They repel; squeezed past the threshold a shell pops into free electrons that fly off and ricochet. The bare nuclei stay, closer than before.",
   2: "<b>Fusion.</b> Yellow is the strong force's reach round a red nucleus (50%). A hard shell and a strong push between them; when yellows touch they become one, the ring finds its new centre and the nuclei pull together. At four nuclei the weak force turns two of them grey: helium.",
-  3: "<b>Neutrons.</b> A red ring filled by a proton (90%). Stiff and repelling; squeezed past the threshold it shatters: the disc turns grey, the push switches off, and it lets itself be packed with the others.",
+  3: "<b>Neutrons.</b> A green ring (the weak force's reach) filled by a proton (90%). Stiff and repelling; squeezed past the threshold it shatters: the disc turns grey, the push switches off, and it lets itself be packed with the others.",
 };
 
 // The rail: groups and sliders. `modes` limits a control to some regimes; `restart` rebuilds the crowd on change.
@@ -233,6 +237,7 @@ const SCHEMA = [
   { key: "pictures", label: "The chart's proton and neutron pictures", type: "bool", note: "the Triangle's own particle images instead of flat discs" },
   { key: "arrowsOut", label: "Blue arrows out of each shell", type: "bool", note: "the electric push; each arrow fades as soon as a neighbour or a wall takes its room" },
   { key: "arrowsIn", label: "Red arrows in from the screen's edge", type: "bool", note: "the squeeze from outside; each fades when a circle covers it" },
+  { key: "arrowsStrong", label: "Yellow arrows inward inside each ring", type: "bool", modes: [2], note: "the strong force's pull, between the ring and its nucleus; gone once a ring holds more than one" },
   { key: "arrowSize", label: "Arrow length", min: 0.2, max: 1.2, step: 0.05, fmt: v => Math.round(v * 100) + "% R", note: "the red ones are 1.6× this" },
   { key: "arrowTime", label: "Arrows fade out after", min: 0, max: 60, step: 0.5, unit: "s", note: "whatever room is left, they're gone a second after this" },
   { key: "lineWidth", label: "Line width", min: 0.5, max: 10, step: 0.5, unit: "px" },
@@ -273,13 +278,22 @@ function build() {
   S.t = 0; S.blobs = []; S.electrons = []; S.flashes = []; S.pops = []; S.frags = []; S.bridges = []; S.events = { pop: 0, fuse: 0, break: 0 }; S.maxSq = 0;
   S.box = P.startBox * Math.max(S.W, S.H); S.shrinkT = 0; S.floor = 0; S.jam = 0;
   const half = S.box / 2 - P.radius * 1.05, R = P.radius;
-  const pts = [];
+  let pts = [];
   for (let n = 0, tries = 0; n < P.count && tries < P.count * 400; tries++) {
     const x = rnd(-half, half), y = rnd(-half, half);
     let ok = true;
     for (const p of pts) if ((p[0] - x) ** 2 + (p[1] - y) ** 2 < (2.3 * R) ** 2) { ok = false; break; }
     if (!ok) continue;
     pts.push([x, y]); n++;
+  }
+  if (pts.length < P.count) {   // too crowded to scatter: a jittered hexagonal lattice, spaced to fit the count (or as many as fit)
+    const area = (2 * half) ** 2, sp = Math.max(2.04 * R, Math.sqrt(2 * area / (Math.sqrt(3) * P.count))), rowH = sp * 0.866;
+    pts = [];
+    const cols = Math.floor(2 * half / sp), rows = Math.floor(2 * half / rowH);
+    const x0 = -(cols - 1) * sp / 2, y0 = -(rows - 1) * rowH / 2, j = Math.min(0.12 * R, (sp - 2.02 * R) / 2);
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols - (r % 2); c++) pts.push([x0 + c * sp + (r % 2) * sp / 2 + rnd(-j, j), y0 + r * rowH + rnd(-j, j)]);
+    pts.sort((a, b) => Math.hypot(a[0], a[1]) - Math.hypot(b[0], b[1]));   // the middle first, so a short list stays centred
+    pts = pts.slice(0, P.count);
   }
   for (const [x, y] of pts) {
     const a = rnd(0, TAU), s = P.initSpeed * rnd(0.4, 1), Ri = R * (1 + P.sizeSpread * rnd(-1, 1));
@@ -570,7 +584,7 @@ function step(dt) {
     for (const b of blobs) for (const k of b.nuclei) {
       if (!k.turnAt || k.grey || S.t < k.turnAt) continue;
       k.grey = true; k.greyAt = S.t; b.charge--;
-      S.flashes.push({ x: k.x, y: k.y, r0: k.r * 0.5, r1: k.r * 2.2, t: 0, dur: 0.35, color: "255,255,255" });
+      S.flashes.push({ x: k.x, y: k.y, r0: k.r * 0.5, r1: k.r * 2.2, t: 0, dur: 0.35, color: "140,255,170" });   // the weak force: green
       const a = rnd(0, TAU), v = 2400;
       S.electrons.push({ x: k.x, y: k.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, nu: true });
     }
@@ -748,9 +762,9 @@ function breakBlob(b) {
     for (const q of pts) { q.x -= mx; q.y -= my; }
     let dx = mx - b.cx, dy = my - b.cy; const d = Math.hypot(dx, dy) || 1e-6; dx /= d; dy /= d;
     const s = P.shatter * rnd(120, 260);
-    S.frags.push({ pts, cx: mx, cy: my, vx: dx * s + b.vx, vy: dy * s + b.vy, w: P.shatter * rnd(-4, 4), t: 0, dur: 0.7, color: "255,59,48" });
+    S.frags.push({ pts, cx: mx, cy: my, vx: dx * s + b.vx, vy: dy * s + b.vy, w: P.shatter * rnd(-4, 4), t: 0, dur: 0.7, color: COL[3] });
   }
-  S.flashes.push({ x: b.cx, y: b.cy, r0: b.rm * 0.9, r1: b.rm * 1.3, t: 0, dur: 0.3, color: "255,255,255" });
+  S.flashes.push({ x: b.cx, y: b.cy, r0: b.rm * 0.9, r1: b.rm * 1.3, t: 0, dur: 0.3, color: "140,255,170" });
   b.nodes = []; b.state = "grey"; b.q = 0; b.charge = 0; b.broke = S.t;
   const k = b.nuclei[0]; k.x = b.cx; k.y = b.cy; k.vx = b.vx; k.vy = b.vy; k.r = (P.greyUniform ? P.radius : b.R) * P.nucleus * P.greySize;
   S.events.break++; relieve();
@@ -838,7 +852,7 @@ function ringPath(nodes) {
   ctx.closePath();
 }
 
-const COL = { 1: "79,163,255", 2: "255,213,74", 3: "255,59,48" };
+const COL = { 1: "79,163,255", 2: "255,213,74", 3: "80,230,120" };   // electromagnetism, strong, weak
 function draw() {
   resize();
   const P = S.P, cw = canvas.width, ch = canvas.height;
@@ -874,7 +888,7 @@ function draw() {
 
   // nuclei: a broken one flashes white, then greys
   for (const b of S.blobs) {
-    const fill = b.kind === 3 ? "#c8221c" : "#ff3b30";   // a deeper red for the proton, so its bright ring reads over it
+    const fill = "#ff3b30";
     for (const k of b.nuclei) {
       const grey = k.grey || b.state === "grey", since = k.grey ? k.greyAt : b.broke;
       const flash = grey ? 1 - clamp((S.t - since - 0.1) / 0.35, 0, 1) : 0;   // white just after the change, fading
@@ -937,6 +951,18 @@ function draw() {
         space = Math.min(space, tx, ty);
         const a = clamp((space - L * 0.5) / (L * 0.7), 0, 1) * arrowLife;
         arrow(x0, y0, x0 + ux * L, y0 + uy * L, "150,205,255", a, aw);
+      }
+    }
+    if (P.arrowsStrong) for (const b of S.blobs) {   // yellow, from just inside the ring in toward the nucleus
+      if (!b.nodes.length || b.nuclei.length !== 1 || b.kind !== 2) continue;
+      if (Math.abs(b.cx) > S.W / 2 + b.rm || Math.abs(b.cy) > S.H / 2 + b.rm) continue;
+      const k = b.nuclei[0], gap = b.rm - k.r, Ly = Math.min(L, gap - L * 0.35);
+      if (Ly < L * 0.4) continue;
+      const a = clamp((gap - L * 0.6) / (L * 0.5), 0, 1) * arrowLife;
+      for (let i = 0; i < 6; i++) {
+        const ang = i / 6 * TAU + b.u * 0.5 + Math.PI / 6, ux = Math.cos(ang), uy = Math.sin(ang);
+        const r0 = b.rm - L * 0.18;
+        arrow(b.cx + ux * r0, b.cy + uy * r0, b.cx + ux * (r0 - Ly), b.cy + uy * (r0 - Ly), "255,213,74", a, aw);
       }
     }
     if (P.arrowsIn) {
