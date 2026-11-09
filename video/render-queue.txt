@@ -78,7 +78,6 @@
 # off the round (it would render whole): its opening (0-8:20) re-rendered by hand after the Shorts and joined to the current
 # render (output/videos/l2-wait.sh, then narration-overnight.sh.long-02-head2)
 # 2026-11-08 (the author): "How do stars die?" goes out Tuesday, so it renders first tonight
-# next: short-l2-how-stars-die
 # 2026-11-08, night (the author): The Life and Death of Stars at the pace it was spoken (rec36 rebuilt, no 1.1x), the neutron
 # star hidden over the black-hole dive; first tonight, then long video 2's opening (output/videos/l2-wait.sh)
 # 2026-11-08, night (the author): tonight's order: The Life and Death of Stars, the forces Short, the powers-of-ten zoom, long video 2
@@ -97,3 +96,8 @@
 short-03-stars
 short-l2-dance-of-the-forces
 # short-l2-dance-of-the-forces changed: 0:08-0:45
+# 2026-11-09 (the author): The Black Hole Line, part 1 (short-04a-black-hole-line) back in, now ending at "but how small"
+# (the question part 2 answers), 1:54 in place of 1:48: new audio, whole. The four Shorts cut from long video 2's opening
+# (failed star, what makes a star, how stars die, what's left) are dropped: video/render-dropped.txt keeps them off the
+# renders and in a "Dropped cuts" section at the end of the page; "How do stars die?" is off Tuesday's slot (video/youtube.json)
+short-04a-black-hole-line

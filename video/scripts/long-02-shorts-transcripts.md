@@ -1,5 +1,9 @@
 # The Shorts from long video 2's opening: their narration as cut (2026-11-08)
 
+**Dropped (the author, 2026-11-09):** these four Shorts won't go out (`video/render-dropped.txt`: no renders, a "Dropped cuts"
+section at the end of the videos page). The forces Short (`short-l2-dance-of-the-forces`, recorded on its own) stays. The
+transcripts are kept for the words.
+
 For recording each one on its own (the author, 2026-11-08: "I might record them on their own tomorrow"). The words are the
 opening's take (rec57) as cut; each Short opens on the chart's axes (2.5 s) with no spoken intro. Paragraphs are the cut's
 pieces or its natural beats; say them your own way. If you record one, put the take in the Drive "Recordings" folder and a

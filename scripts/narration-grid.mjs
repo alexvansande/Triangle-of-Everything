@@ -113,7 +113,9 @@ export function gridHtml(info, { built, commit, base = "" }) {
   // each long video (16:9, scripts/narration-cut.py), then a row of its shorts that scrolls sideways: the shorts
   // cut from the same source takes (the author, 2026-11-03: "the long videos, then a horizontal carousel of their
   // shorts, then the next long"). Shorts of no long video (the powers-of-ten zoom) get a row of their own, first.
-  const shorts = info.filter(k => !k.long), longs = info.filter(k => k.long);
+  // dropped cuts (video/render-dropped.txt, `k.dropped`) stay off the long videos' rows: a collapsed section of their own at the end
+  const droppedList = info.filter(k => k.dropped);
+  const shorts = info.filter(k => !k.long && !k.dropped), longs = info.filter(k => k.long && !k.dropped);
   const numOf = (k) => +(k.id.match(/^long-(\d+)/) || [0, 0])[1];
   const groups = [...new Set(longs.map(numOf))].sort((a, b) => a - b).map(n => {
     const ls = longs.filter(l => numOf(l) === n), src = new Set(ls.flatMap(l => l.sources));
@@ -149,6 +151,9 @@ export function gridHtml(info, { built, commit, base = "" }) {
   </details>`).join("") + (loose.length ? `
   <details class="ng-group" data-group="unassigned" open>
     <summary><h2 class="ng-sub">Unassigned <span>shorts of no long video yet · ${loose.length}</span></h2></summary>${row(loose, "Unassigned shorts")}
+  </details>` : "") + (droppedList.length ? `
+  <details class="ng-group" data-group="dropped">
+    <summary><h2 class="ng-sub">Dropped cuts <span>cut from the long videos, not going out · ${droppedList.length}</span></h2></summary>${row(droppedList, "Dropped cuts")}
   </details>` : "");
   return `<section id="narr-grid" hidden aria-label="Narration previews">
   <header class="ng-head">
@@ -484,7 +489,8 @@ window.__narrYouTube = ${JSON.stringify(Object.fromEntries(info.filter(k => k.pu
 export function listenHtml(info, { built, commit, base = "", audioBase = base + "narration/" }) {
   const esc = (x) => String(x).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const mmss = (d) => `${Math.floor(d / 60)}:${String(Math.round(d % 60)).padStart(2, "0")}`;
-  const shorts = info.filter(k => !k.long && !k.renderOnly), longs = info.filter(k => k.long);
+  const droppedList = info.filter(k => k.dropped && !k.renderOnly);
+  const shorts = info.filter(k => !k.long && !k.renderOnly && !k.dropped), longs = info.filter(k => k.long && !k.dropped);
   const numOf = (k) => +(k.id.match(/^long-(\d+)/) || [0, 0])[1];
   const groups = [...new Set(longs.map(numOf))].sort((a, b) => a - b).map(n => {
     const ls = longs.filter(l => numOf(l) === n), src = new Set(ls.flatMap(l => l.sources));
@@ -517,7 +523,7 @@ export function listenHtml(info, { built, commit, base = "", audioBase = base + 
   <h1>Listen only</h1>
   <p>The voice with its sound and music, nothing drawn. <a href="${base}./">The live page</a> has the pictures.</p>
   <p class="stamp">Last updated ${esc(built.slice(0, 16).replace("T", " "))} UTC${commit ? ` · ${esc(commit)}` : ""}</p>${
-  groups.map(g => section(`Long video ${g.n}`, g.longs) + section(`Long video ${g.n}'s shorts`, g.shorts)).join("")}${section("Unassigned shorts", loose)}
+  groups.map(g => section(`Long video ${g.n}`, g.longs) + section(`Long video ${g.n}'s shorts`, g.shorts)).join("")}${section("Unassigned shorts", loose)}${section("Dropped cuts", droppedList)}
 </body></html>
 `;
 }

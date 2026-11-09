@@ -1,0 +1,8 @@
+# Dropped cuts, one take per line (the author, 2026-11-09): Shorts cut from the long videos that won't go out. The
+# nightly render leaves them alone (scripts/narration-render-stale.sh), and the videos page keeps them only in a
+# collapsed "Dropped cuts" section at the end. Their files stay. Delete a line to bring one back.
+# The four Shorts cut from long video 2's opening (2026-11-08): the author is cutting them out
+short-l2-failed-star
+short-l2-what-makes-a-star
+short-l2-how-stars-die
+short-l2-whats-left

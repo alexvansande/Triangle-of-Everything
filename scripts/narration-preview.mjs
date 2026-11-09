@@ -96,8 +96,12 @@ let html = fs.readFileSync(path.join(OUT, "index.html"), "utf8")
 // (retired: the whole videos replaced by their cuts, video/render-skip.txt; their files stay, as the
 // cuts are built from them, and a link to one still plays it, but the grid leaves them out:
 // the author, 2026-10-31)
-const retired = new Set(fs.readFileSync("video/render-skip.txt", "utf8").split("\n").map(l => l.trim()).filter(l => l && !l.startsWith("#")));
+const listOf = (f) => new Set(fs.existsSync(f) ? fs.readFileSync(f, "utf8").split("\n").map(l => l.trim()).filter(l => l && !l.startsWith("#")) : []);
+const retired = listOf("video/render-skip.txt");
+// dropped cuts (video/render-dropped.txt): kept on the page, in a collapsed section at the end (the author, 2026-11-09)
+const dropped = listOf("video/render-dropped.txt");
 const info = await takeInfo(takes.filter(t => !retired.has(t)), OUT);
+for (const k of info) if (dropped.has(k.id)) k.dropped = true;
 // the rendered videos go next to the page, in rendered/ (the grid's "Rendered video")
 for (const k of info) if (k.video) {
   fs.mkdirSync(path.join(OUT, "rendered"), { recursive: true });
