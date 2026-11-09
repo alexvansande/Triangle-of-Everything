@@ -23,9 +23,21 @@ log() { echo "[$(date '+%F %H:%M:%S')] $*"; }
 log "nightly check"
 # a round started earlier still running: wait for it, then check (the author's rule, 2026-10-29:
 # at 23:50, whatever changed since its render gets queued and rendered)
-if pgrep -f narration-overnight.sh > /dev/null; then
+# Busy = a round (output/videos/narration-overnight.sh.running) or a hand job named output/videos/narration-overnight.sh.*.
+# Only processes that run such a script count, not any command line that mentions the name (a watcher's `pgrep` loop
+# matched itself and would hold the nightly forever); and a hand job that itself waits on this nightly is skipped, or
+# the two wait on each other (2026-11-09: a chain waiting on "narration-nightly.sh.running" and this loop on the chain
+# stalled the renders from 01:49 to 05:45). Hand jobs that must follow a round wait on narration-overnight.sh.running only.
+busy() {
+  for f in $(pgrep -fl '^(/bin/)?sh [^ ]*narration-overnight\.sh' | awk '{print $3}' | sort -u); do
+    grep -q 'narration-nightly' "$f" 2>/dev/null && [ "${f##*/}" != narration-overnight.sh.running ] && continue
+    return 0
+  done
+  return 1
+}
+if busy; then
   log "a render round is still running: checking when it ends"
-  while pgrep -f narration-overnight.sh > /dev/null; do sleep 60; done
+  while busy; do sleep 60; done
 fi
 # (before the merge: a hand-started render may be reading this checkout)
 # a "# hold" line in the render queue: a session is still changing the videos; not tonight
