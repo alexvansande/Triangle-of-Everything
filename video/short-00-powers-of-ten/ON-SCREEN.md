@@ -4,7 +4,7 @@ For the zoom's timeline (`tools/powers-of-ten/zoom-timeline.js`, in the zoom sou
 times are the narration as cut (rec52, 2026-11-03, `video/short-00-powers-of-ten/edl.py`): at each **From**
 time the thing in **On screen** has to be framed, because that's the moment the voice names it. Between keys,
 one smooth zoom (no stops); the zoom stops on the Planck grid at 2:37.4 and holds the gliders to 3:00. The voice
-ends at 2:55.5. Machine-readable: `zoom-keys.json`. Frame widths are rough, for keys the
+ends at 2:54.6. Machine-readable: `zoom-keys.json`. Frame widths are rough, for keys the
 timeline doesn't have yet.
 
 | From–to | On screen | Frame width | The line over it |
@@ -42,6 +42,20 @@ timeline doesn't have yet.
 | 2:37.4–2:40.1 | the Planck grid (the zoom stops) | ~5e-34 m | Our journey ends at the Planck length. |
 | 2:40.1–2:44.0 | the Planck grid, held | ~5e-34 m | At this point, relativity clashes with quantum mechanics. |
 | 2:44.0–3:00.0 | the gliders (held to the end) | ~5e-34 m | Is that the limit? … it's all one big game of life. |
+
+## The author's notes on the narrated render (2026-11-09)
+Applied in the zoom source (`tools/powers-of-ten/zoom-timeline.js`, `full-journey.js`); the table above keeps the
+narration's times, and these are the frames that changed:
+- **Nothing written at the start.** The CMB's caption comes in at 0:11.8 ("The largest thing we can see"), the
+  cosmic event horizon's dashed circle and caption at 0:26.9 ("The smaller bubble inside"), the scale's squares
+  with the dive at 0:35.
+- **Slower from the dive to the Milky Way** (Laniakea and the neighbour galaxies had left the frame when they were
+  named). The horizon holds to 0:35 ("…information to us"); the superclusters with their names from 0:39.4 to
+  0:43.6 (frame 2e25 → 1.3e25 m); Laniakea, named, from 0:44.5 to 0:51.3 (1.1e25 → 6e24 m); the Local Group at
+  0:53.8 (3e23 m); Andromeda, named, at 0:56.2 (1e23 m); the Milky Way a spiral by "Way", 0:57.8 (6e21 m); the Sun
+  at 1:01.1 as before. The picture is the same from 1:04 on.
+- **The last line**: "it's wa–" cut from before "it's all one big game of life" (`edl.py`); the voice now ends at
+  2:54.6, and nothing before the last line moved.
 
 ## Gaps in the picture (the narration says these; the zoom must show them)
 - **The cosmic event horizon bubble** (0:27): a sphere about a third of the CMB's radius (16 billion

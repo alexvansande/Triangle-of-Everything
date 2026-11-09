@@ -28,7 +28,7 @@ went silent after a minute when it ran out.
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
-| 0 · powers of ten (the CMB to the Planck length) | `short-00-powers-of-ten` | 3:00, narrated (recorded 2026-11-03, rec52: 2:56 of voice) |
+| 0 · powers of ten (the CMB to the Planck length) | `short-00-powers-of-ten` | 3:00, narrated (recorded 2026-11-03, rec52: 2:55 of voice) |
 
 ---
 

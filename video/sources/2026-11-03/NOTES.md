@@ -156,6 +156,11 @@ famously–", "Quantum field theory describes the universe as simply–", "relat
 "clashes with con–". "It weighs," and "And it's one of them" left out too. "…and they're mostly empty space"
 comes from the first atom try (the second has no "empty space").
 
+A tenth restart, found by the author in the render (2026-11-09): "…where theories break down, **it's wa–** it's
+all one big game of life" (602.55–603.15 in the recording). Whisper had merged it into one 1.2 s "it's", and the
+second pass missed it; cut now, with 0.4 s of the pause kept. The voice ends at 2:54.6 (was 2:55.5); every clip
+before the last line is where it was.
+
 Left out to fit 3:00 (the lines that talk about what isn't on screen went first):
 - "Galaxies who are now way beyond our reach, even if you could travel at the speed of light, because space
   itself is expanding, pushing those galaxies further away from us than light can travel, meaning that we can't

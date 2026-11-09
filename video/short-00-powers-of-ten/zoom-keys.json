@@ -1,7 +1,7 @@
 {
  "_about": "Retiming of the powers-of-ten zoom (tools/powers-of-ten/zoom-timeline.js, in the author's zoom source) to its narration (rec52, 2026-11-03; video/short-00-powers-of-ten/). `at` is the video time, in seconds, at which the zoom should be framing `shows`: the moment the narration names it (the first word of its name). frameWidthM is a rough frame width, for keys the timeline doesn't have yet. Join the keys with the timeline's smooth curve (no stops between them), stop on the Planck grid at the 'planck' key and hold the gliders from there to the end, 180 s. The narration ends at speechEnd.",
  "video": 180,
- "speechEnd": 175.5,
+ "speechEnd": 174.6,
  "keys": [
   {
    "key": "cmb-opening",

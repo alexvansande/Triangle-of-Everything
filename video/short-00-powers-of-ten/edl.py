@@ -47,7 +47,7 @@ EDL = [
  # Left out: "And anything smaller than this will either collapse into a black hole, or create an antiparticle and
 # disappear" (video/sources/2026-11-03/NOTES.md), and, to fit 3:00, "We just don't have good theories on what
 # would happen." (575.34–584.44)
- ("rec52", "life", 593.96, 605.68),     # Is that the limit? Well, we don't know. But maybe, deep down, at the Planck scale, where theories break down, it's all one big game of life.
+ ("rec52", "life", 593.96, 605.68, {"cut": [(602.42, 603.62)]}),  # Is that the limit? Well, we don't know. But maybe, deep down, at the Planck scale, where theories break down, it's all one big game of life.   ("it's wa–" left out, 602.55–603.15: Whisper had merged it into a 1.2 s "it's"; the author heard it in the render, 2026-11-09)
 ]
 
 # 0.45 s between lines (build.py's default is 0.6), to fit 3:00 with the zoom's held ending
