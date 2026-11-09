@@ -6,6 +6,8 @@
 //   cosmos     the observable universe as nested shells, the CMB outside (colours by distance, not to scale)
 import { iconUrls } from "./assets.js";
 import { cmbSphere } from "../tools/powers-of-ten/cmb-sphere.js";
+import { cmbObject, HORIZON } from "./cmb-object.js";
+import { eventHorizonObject } from "./event-horizon-object.js";
 import { createSqueeze, defaults as squeezeDefaults, DT as SQUEEZE_DT, SHORT as SQUEEZE_SHORT, LONG as SQUEEZE_LONG } from "./squeeze-sim.js";
 
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -693,4 +695,58 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
   }
   for (let n = 0; sim.S.t + SQUEEZE_DT <= want + 1e-9 && (o.exact || n < 60); n++) sim.step(SQUEEZE_DT);
   sim.draw(ctx, W, H, pixelRatio);
+}
+
+// ---------- our universe and an alien's: the edge, two horizons, and the observable universe (the author's design,
+// 2026-11-09, The Cosmic Event Horizon), drawn with the powers-of-ten zoom's own objects (the author: not the
+// wavelength explorer's shells): Our Universe (src/event-horizon-object.js) and the observable universe
+// (src/cmb-object.js) ----------
+// { edge: { phase } }, phases by cue (absolute take times, like the crush's): start (our universe turning), alien (the
+// turn stops; a red circle on a galaxy at our edge), theirs (a second Our Universe, turned its own way, grows round
+// that galaxy: their universe), see (a circle grows from ours out to the observable universe as the view pulls back,
+// its galaxies showing inside it, part of their universe now among them), meet (the microwave background fades in on
+// it).
+let _edgeObjs = null;
+const edgeObjs = () => _edgeObjs || (_edgeObjs = { ours: eventHorizonObject(), theirs: eventHorizonObject(), web: cmbObject({ far: 0, near: 0 }), cmb: cmbObject() });
+export const edgePending = () => { const o = edgeObjs(); return Object.values(o).filter(x => x && !x.ready()).length; };
+export function drawEdge(ctx, W, H, o, t) {
+  const O = edgeObjs(), start = o.start ?? t, alien = o.alien ?? Infinity, theirs = o.theirs ?? Infinity, see = o.see ?? Infinity, meet = o.meet ?? Infinity;
+  const OBS = 1 / HORIZON;                                              // the observable universe in our universe's radii (45.3 / 16.6)
+  const grow = smooth((t - see) / 3.4), R = 1 + (OBS - 1) * grow;     // the circle growing out to it
+  const U0 = Math.min(W, H) * 0.3, U = U0 / (1 + (OBS * 0.98 * U0 / (Math.min(W, H) * 0.47) - 1) * grow);   // pulls back so it fits
+  // off centre, so their universe fits beside ours, back to the middle as the observable universe grows round us
+  const cx = W * (0.36 + 0.14 * grow), cy = H * 0.46, frozen = Math.min(t, alien) - start; // our universe turns until the alien
+  // a picture of one of the objects: its sphere is FILL of the picture
+  const put = (obj, sec, x, y, r, a = 1, clipR = null) => {
+    if (!obj || a <= 0.01) return;
+    const size = Math.min(1536, Math.max(256, Math.round(2 * r / FILL / 64) * 64)), c = obj.draw(size, sec), d = 2 * r / FILL;
+    ctx.save(); ctx.globalAlpha = a;
+    if (clipR != null) { ctx.beginPath(); ctx.arc(x, y, clipR, 0, 6.2832); ctx.clip(); }
+    ctx.drawImage(c, x - d / 2, y - d / 2, d, d); ctx.restore();
+  };
+  const ex = 0.82, ey = -0.4;                                           // the galaxy at our edge, up and to the right
+  const X = (u) => cx + u * U, Y = (v) => cy + v * U;
+  // the observable universe's galaxies, inside the growing circle; then its microwave background
+  const fm = smooth((t - meet) / 1.8);
+  if (grow > 0) put(O.web, frozen, X(0), Y(0), OBS * U, 1 - fm, R * U);
+  if (fm > 0) put(O.cmb, frozen, X(0), Y(0), OBS * U, fm);
+  // ours, and theirs round the edge galaxy, turned its own way
+  const ft = smooth((t - theirs) / 1.6);
+  put(O.ours, frozen, X(0), Y(0), U);
+  if (ft > 0) put(O.theirs, frozen + 9, X(ex), Y(ey), U * ft, ft * (grow > 0 ? 0.85 : 0.7));
+  const ring = (u, v, r, col, a, dash, w = 0.005) => { if (a <= 0.01) return; ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = H * w; ctx.setLineDash(dash ? [H * 0.018, H * 0.014] : []); ctx.beginPath(); ctx.arc(X(u), Y(v), r * U, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; };
+  ctx.fillStyle = "#80deea"; ctx.beginPath(); ctx.arc(X(0), Y(0), H * 0.007, 0, 6.2832); ctx.fill();
+  text(ctx, "us", X(0), Y(0) - H * 0.026, H * 0.022, "#80deea");
+  const fo = smooth((t - alien) / 0.8);
+  if (fo > 0) { ctx.globalAlpha = fo; text(ctx, "our universe", X(0), Y(1) + H * 0.04, H * 0.028, "#80deea"); ctx.globalAlpha = 1; }
+  if (fo > 0) {                                                         // the red circle on the alien's galaxy
+    ctx.globalAlpha = fo; ctx.strokeStyle = "#ff5252"; ctx.lineWidth = H * 0.005;
+    ctx.beginPath(); ctx.arc(X(ex), Y(ey), H * 0.02, 0, 6.2832); ctx.stroke(); ctx.globalAlpha = 1;
+    if (ft < 0.5) { ctx.globalAlpha = fo * (1 - 2 * ft); text(ctx, "an alien's galaxy", X(ex), Y(ey) - H * 0.04, H * 0.026, "#ff8a80"); ctx.globalAlpha = 1; }
+  }
+  if (ft > 0) { ring(ex, ey, ft, "#ffab40", ft, false); ctx.globalAlpha = ft; text(ctx, "their universe", X(ex), Y(ey - ft) - H * 0.02, H * 0.028, "#ffab40"); ctx.globalAlpha = 1; }
+  if (grow > 0) {
+    ring(0, 0, R, "#ffffff", Math.min(1, grow * 3) * 0.85 * (1 - fm), true, 0.004);
+    ctx.globalAlpha = smooth((grow - 0.5) / 0.4); text(ctx, "our observable universe", X(0), Y(-R) - H * 0.02, H * 0.028, "#ffffff"); ctx.globalAlpha = 1;
+  }
 }

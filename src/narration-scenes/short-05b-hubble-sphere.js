@@ -33,11 +33,25 @@ export default {
   title: "The Cosmic Event Horizon",
   blurb: "What's the largest anything can be? The Hubble line, the cosmic event horizon, why everything inside it sits on the black-hole line, and why it isn't a black hole.",
   start: FULL,
+  // the galaxies and clusters 20% smaller (the author, 2026-11-09: "they're all too large")
+  iconBoost: { from: 19.5, k: 0.8 },
   cues: [
     { at: "largest anything can be", cam: FULL, dur: 3, hl: [{ line: "triangle" }] },
     { at: "every single object", hl: [{ line: "triangle", label: "every object, by mass and size" }] },
-    ...V5.cues.slice(idx("the second edge"), idx("we also see them") + 1).map(reword),
-    // the hand-off to part 3: the one thing outside the triangle
-    { ...reword(V5.cues[idx("the only object")]), hideObjects: [] },
+    // video 5's shots, the photo's pixels quicker so each step lands on "four", "nine", "or more" (the author)
+    ...V5.cues.slice(idx("the second edge"), idx("object with a center") + 1).map(reword)
+      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { cell: 16, steps: [2.2, 3.0, 3.8] } }] } : c),
+    // the alien at our edge (the author's design, 2026-11-09; src/narr-diagrams.js drawEdge, the zoom's own objects):
+    // dive into our universe; the turn stops and a galaxy at our edge is circled; their universe round it; our observable
+    // universe grows round ours, reaching into theirs; its microwave background; and out to the chart
+    { at: "our universe is just that", cam: { obj: "Our Universe", span: 0.35 }, dur: 2.6, clear: true },
+    { at: "not the universe", hold: 60, hl: [{ edge: {} }] },
+    { at: "imagine for a moment", hold: 60, hl: [{ edge: { phase: "alien" }, instant: true }] },
+    { at: "centered around them", hold: 60, hl: [{ edge: { phase: "theirs" }, instant: true }] },
+    { at: "we can actually see them", hold: 60, hl: [{ edge: { phase: "see" }, instant: true }] },
+    { at: "it's time we meet", hold: 60, hl: [{ edge: { phase: "meet" }, instant: true }] },
+    // out of the observable universe: from close on it, back to the chart, outside the triangle
+    { at: "it's the observable universe", cam: { r: 28.64, m: 57.49, span: 0.3 }, dur: 0.01, clear: true, hideObjects: [], hl: [] },
+    { ...reword(V5.cues[idx("the only object")]), at: "it's the observable universe", offset: 0.15, cam: { r: 28.2, m: 56.4, span: 5 }, dur: 2.6, explorer: undefined, hideObjects: [] },
   ],
 };
