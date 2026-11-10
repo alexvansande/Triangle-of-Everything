@@ -119,3 +119,5 @@ short-05c-observable-universe
 # next: short-05a-emptier
 # next: short-05b-hubble-sphere
 # next: short-05c-observable-universe
+# short-04b-smallest-black-holes changed: 2:26-2:37
+short-04b-smallest-black-holes
