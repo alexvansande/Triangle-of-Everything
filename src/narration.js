@@ -2307,39 +2307,40 @@ export async function startNarration(app) {
     }
   }
   /** `pixels.fixed`: the same picture, its size kept, the pixels getting smaller (the author, 2026-11-10: "the pixel
-   *  resolution increase should show pixels decreasing, not the picture increasing, otherwise it looks like it's
-   *  expanding outwards from the center"). At each step every pixel splits into 2 × 2 in its own place: a lit one
-   *  shrinks into its corner, still lit, and the three new ones fade in dark beside it. `cell` is the pixels' size at
-   *  the end, so they start at cell · 2^steps. */
+   *  resolution increase should show pixels decreasing, not the picture increasing"). At each step every pixel
+   *  becomes a 3 × 3 grid in its own place: a lit one shrinks to the middle one, still lit and centred where it
+   *  was, the eight round it dark (the author, 2026-11-10: "one pixel becomes a 3x3 grid and only the center pixel
+   *  is now filled, and then that once again"). `cell` is the pixels' size at the end, so they start at
+   *  cell · 3^steps. The dark pixels are a grid of lines, each step's finer lines fading in. */
   function drawPixelsFixed(el, h, age) {
-    const o = h.pixels, steps = o.steps || [], seed = o.seed ?? 7, big = (o.cell ?? 10) * 2 ** steps.length;
+    const o = h.pixels, steps = o.steps || [], seed = o.seed ?? 7, big = (o.cell ?? 3) * 3 ** steps.length;
     const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH / 2;
     const prog = steps.map(st => d3.easeCubicInOut(clamp01((age - st) / 1.2)));
-    let L = 0; while (L < steps.length && prog[L] > 0) L++;            // steps begun
-    const s = big / 2 ** L, lit = prog.reduce((a, p) => a / (1 + p), big);   // the grid's pixels; a lit one's size now
+    const lit = prog.reduce((a, p) => a / (1 + 2 * p), big);          // a lit pixel's size now: ÷3 a step
     const col = (i, j) => {   // the original picture: a few lit pixels, colours from a hash
       const hsh = Math.abs(Math.sin(i * 127.1 + j * 311.7 + seed) * 43758.5453) % 1;
       return hsh < 0.13 ? ["#ffd54f", "#ffffff", "#80deea", "#ff8a80", "#b39ddb"][Math.floor(hsh / 0.026)] : null;
     };
-    const tz = (n) => { let z = 0; n = Math.abs(n); if (!n) return 99; while (n % 2 === 0) { n /= 2; z++; } return z; };
     const g = el.append("g").attr("opacity", smooth(age / 0.6));
-    g.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH).attr("fill", "#000");
-    // the grid stays where the first pixels' edges were: pixel (p, q) at this level has its corner at x0 + p · s
-    const x0 = cx - big / 2, y0 = cy - big / 2, n = 2 ** L;
-    const pa = Math.floor(-x0 / s) - 1, pb = Math.ceil((SW - x0) / s), qa = Math.floor(-y0 / s) - 1, qb = Math.ceil((SH - y0) / s);
-    const lits = [];
-    for (let p = pa; p <= pb; p++) for (let q = qa; q <= qb; q++) {
-      const born = L - Math.min(L, tz(p), tz(q));                       // 0: one of the first pixels' corners
-      const c = born === 0 ? col(p / n, q / n) : null;
-      if (c) { lits.push([x0 + p * s, y0 + q * s, c]); continue; }
-      const a = born === 0 ? 1 : smooth((age - steps[born - 1] - 0.3) / 1.0);
-      if (a <= 0) continue;
-      g.append("rect").attr("x", x0 + p * s + 0.5).attr("y", y0 + q * s + 0.5).attr("width", s - 1).attr("height", s - 1)
-        .attr("fill", "#0d0f16").attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1).attr("opacity", a);
+    g.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH).attr("fill", "#0d0f16");
+    // the grid of every level so far, kept where the first pixels' edges were (centred on the screen)
+    const x0 = cx - big / 2, y0 = cy - big / 2;
+    let path = "";
+    for (let l = 0; l <= steps.length; l++) {
+      const a = l === 0 ? 1 : smooth((age - steps[l - 1] - 0.3) / 1.0);
+      if (a <= 0) break;
+      const s = big / 3 ** l; path = "";
+      for (let x = x0 - Math.ceil(x0 / s) * s; x <= SW; x += s) path += `M${x.toFixed(1)},0V${SH}`;
+      for (let y = y0 - Math.ceil(y0 / s) * s; y <= SH; y += s) path += `M0,${y.toFixed(1)}H${SW}`;
+      g.append("path").attr("d", path).attr("stroke", "#000").attr("stroke-width", l === 0 ? 2 : 1).attr("opacity", a * (l === 0 ? 1 : 0.9));
     }
-    // the lit ones over the new dark ones, shrinking into their corners
-    for (const [x, y, c] of lits) g.append("rect").attr("x", x + 0.5).attr("y", y + 0.5).attr("width", lit - 1).attr("height", lit - 1)
-      .attr("fill", c).attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1);
+    // the lit ones, each centred in the first pixel it was
+    const ia = Math.floor(-x0 / big) - 1, ib = Math.ceil((SW - x0) / big), ja = Math.floor(-y0 / big) - 1, jb = Math.ceil((SH - y0) / big);
+    for (let i = ia; i <= ib; i++) for (let j = ja; j <= jb; j++) {
+      const c = col(i, j); if (!c) continue;
+      const mx = x0 + (i + 0.5) * big, my = y0 + (j + 0.5) * big;
+      g.append("rect").attr("x", mx - lit / 2 + 0.5).attr("y", my - lit / 2 + 0.5).attr("width", Math.max(1, lit - 1)).attr("height", Math.max(1, lit - 1)).attr("fill", c);
+    }
   }
   /** A big free-standing word on the chart: { text, at: [r, m], color?, size? (px, 30), rotate? (°) } (a hub that
    *  arrows point out from); "\n" stacks lines, centred on `at` */

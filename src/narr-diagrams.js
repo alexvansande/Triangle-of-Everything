@@ -707,7 +707,7 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
 // that galaxy: their universe), see (a circle grows from ours out to the observable universe as the view pulls back,
 // its galaxies showing inside it, part of their universe now among them), meet (the microwave background fades in on
 // it). From the dive it starts where the chart left it, centred, and grows in place; ours is marked "now" at its centre
-// and "light in our distant past" at its left edge (from the past phase, "but"); when theirs comes, the two slide to sit
+// and "light in our distant past" at its edge on the alien's side (from the past phase, "but"); when theirs comes, the two slide to sit
 // side by side, level, theirs marked below: their now, and an arrow to our now saying they only see our distant past
 // (the author, 2026-11-09, evening, and 2026-11-10).
 let _edgeObjs = null;
@@ -723,7 +723,8 @@ export function drawEdge(ctx, W, H, o, t) {
   // centred; when theirs comes, the pair centred instead (theirs to the right), back to ours in the middle as the
   // observable universe grows round us
   const ex = 0.9, ey = 0;                                               // the galaxy at our edge, level with us
-  const cx = W / 2 - ft * (1 - grow) * ex / 2 * U, cy = H * (0.5 - 0.04 * fin), frozen = Math.min(t, alien) - start; // our universe turns until the alien
+  // (back to the middle as the microwave background comes in, where the chart's picture of it takes over: 2:55)
+  const cx = W / 2 - ft * (1 - grow) * ex / 2 * U, cy = H * (0.5 - 0.04 * fin * (1 - smooth((t - meet) / 1.8))), frozen = Math.min(t, alien) - start; // our universe turns until the alien
   // a picture of one of the objects: its sphere is FILL of the picture
   const put = (obj, sec, x, y, r, a = 1, clipR = null) => {
     if (!obj || a <= 0.01) return;
@@ -764,13 +765,14 @@ export function drawEdge(ctx, W, H, o, t) {
     ctx.restore();
     ctx.globalAlpha = a; text(ctx, label, x0, y0 + (up ? -H * 0.012 : H * 0.03), H * 0.022, col); ctx.globalAlpha = 1;
   };
-  // (the distant past from its own cue, "but", to our universe's left edge; theirs points at us, our now: all they see
+  // (the distant past from its own cue, "but", to our universe's edge on the alien's side; theirs points at us, our now: all they see
   // of us is our distant past (the author, 2026-11-10))
   const off = 1 - smooth(grow * 3), fa = smooth((t - start - 0.8) / 0.9) * off, fb = smooth((t - theirs - 1.4) / 0.9) * off;
   const fp = smooth((t - (o.past ?? start + 0.8)) / 0.9) * off;
   const on = (u, v, ang, r = 1) => [X(u + r * Math.cos(ang)), Y(v + r * Math.sin(ang))];
-  { const [px, py] = on(0, 0, Math.PI, 0.97);
-    arrow(Math.max(X(-0.55), W * 0.27), Y(-1) - H * 0.115, px, py, "light in our distant past", "#80deea", fp, true);   // (inside the frame when the pair slides left)
+  // (to the right edge, where the alien's galaxy is: the author, 2026-11-10)
+  { const [px, py] = on(0, 0, -0.35, 0.97);
+    arrow(Math.min(X(0.55), W * 0.73), Y(-1) - H * 0.115, px, py, "light in our distant past", "#80deea", fp, true);   // (inside the frame)
     arrow(X(-0.62), Y(-1) - H * 0.035, X(0) - H * 0.01, Y(0) - H * 0.012, "now", "#80deea", fa, true); }
   if (ft > 0) {
     arrow(X(0.35), Y(1) + H * 0.115, X(0) + H * 0.006, Y(0) + H * 0.014, "they only see our distant past", "#ffab40", fb, false);

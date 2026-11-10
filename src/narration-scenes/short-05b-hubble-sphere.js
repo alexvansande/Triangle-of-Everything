@@ -44,7 +44,7 @@ export default {
     // video 5's shots, the photo's pixels quicker so each step lands on "four", "nine", "or more" (the author), and
     // getting smaller inside a picture that keeps its size (the author, 2026-11-10: spreading out, they read as expanding)
     ...V5.cues.slice(idx("the second edge"), idx("object with a center") + 1).map(reword)
-      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { cell: 10, steps: [2.2, 3.0, 3.8], fixed: true } }] } : c)
+      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { cell: 3, steps: [2.2, 3.0, 3.8], fixed: true } }] } : c)
       // the cosmic event horizon's name over its disc: to the right it ran off the frame (the author, 2026-11-09, 1:29)
       .map(c => c.hl ? { ...c, hl: c.hl.map(q => q.mark && q.label === "cosmic event horizon" ? { ...q, place: "above", gap: 58 } : q) } : c),
     // the alien at our edge (the author's design, 2026-11-09; src/narr-diagrams.js drawEdge, the zoom's own objects):
@@ -57,9 +57,15 @@ export default {
     { at: "imagine for a moment", hold: 60, hl: [{ edge: { phase: "alien" }, instant: true }] },
     { at: "centered around them", hold: 60, hl: [{ edge: { phase: "theirs" }, instant: true }] },
     { at: "we can actually see them", hold: 60, hl: [{ edge: { phase: "see" }, instant: true }] },
-    { at: "it's time we meet", hold: 60, hl: [{ edge: { phase: "meet" }, instant: true }] },
+    // (the chart's observable universe in view behind the diagram, so its picture has settled before it takes over)
+    { at: "it's time we meet", hold: 60, cam: { r: 28.64, m: 57.49, span: 0.3 }, dur: 0.01, hideObjects: [], hl: [{ edge: { phase: "meet" }, instant: true }] },
     // out of the observable universe: from close on it, back to the chart, outside the triangle
     { at: "it's the observable universe", cam: { r: 28.64, m: 57.49, span: 0.3 }, dur: 0.01, clear: true, hideObjects: [], hl: [] },
-    { ...reword(V5.cues[idx("the only object")]), at: "it's the observable universe", offset: 0.15, cam: { r: 28.2, m: 56.4, span: 5 }, dur: 2.6, explorer: undefined, hideObjects: [] },
+    // a dive out: the chart's picture of it starts grown to the diagram's sphere, which fades over it, and shrinks back
+    // as the camera pulls out (the author, 2026-11-10, 2:55: "make the transition from one observable object to the
+    // other smoother"; it was a cut to the small picture, lower down)
+    { at: "it's the observable universe", offset: 0, dolly: { obj: "Observable Universe", grow: 2.6, in: 0.01, out: 2.4 }, dur: 0 },
+    // (the camera pulls out a little after the picture starts shrinking: its first moments swell the picture a little)
+    { ...reword(V5.cues[idx("the only object")]), at: "it's the observable universe", offset: 0.75, cam: { r: 28.2, m: 56.4, span: 5 }, dur: 2.6, explorer: undefined, hideObjects: [] },
   ],
 };

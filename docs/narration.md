@@ -611,8 +611,8 @@ Cue fields
              { pixels: { steps: [s, …], n?, cell?, seed? } } — expansion as an image gaining
                pixels: a black n×n image (9) with a few lit pixels; at each step every pixel
                becomes 3×3, the old one in the centre, so the lit ones spread apart
-               fixed: true keeps the picture's size instead: every pixel splits 2×2 in place,
-               a lit one shrinking into its corner (cell = the pixels' size at the end)
+               fixed: true keeps the picture's size instead: every pixel splits 3×3 in place,
+               a lit one shrinking to the middle one (cell = the pixels' size at the end)
            any item can take delay (s) to stagger
   clear    end the current highlights
   density  from this cue on, the pictures' density (Settings → Icons; above 100 they

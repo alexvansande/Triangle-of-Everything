@@ -1446,6 +1446,12 @@ light-years (the cosmic event horizon, ~16.7) and 46 billion are both radii, dis
   the left edge of our universe bubble. Their distant past → it should point to our now and it should say 'they only
   see our distant past'"* (built: the pixels split 2 × 2 inside a picture that keeps its size; the de Sitter radius's
   line left off; both arrows as asked). Re-record: birds on the take.
+- 5b, later the same day: *"in the pixel animation, the pixel should stay centered as new pixels are created from it.
+  Like one pixel becomes a 3x3 grid and only the center pixel is now filled … Also the arrow light from our distant
+  past should point to the place where the aliens are. 2:55 make the transition from one observable object to the
+  other smoother"* (built: 3 × 3, the lit one centred; the arrow to our edge on the alien's side; the chart's picture
+  starts at the diagram's size and shrinks back as the camera pulls out).
+- 5a: no picture notes left; re-record. 5c: a new recording, and a few trims to the text.
 
 - 5c (the author, 2026-11-09 21:24; built 2026-11-10 over the powers-of-ten zoom, draft short-05c-observable-universe-draft-2026-11-10-1520; the site's render still has the earlier version): *"from
   minute 1 onwards, start the dive into the universe visualization. Use the powers of 10 tool. Make the CMB 100%
