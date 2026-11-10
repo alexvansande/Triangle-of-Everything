@@ -68,8 +68,13 @@ export default {
     { text: "where is\ndark matter?", at: [0, 21.3], size: 36, color: "#ffd54f", instant: true },
     { text: "heads would\nexplode here", at: [-8.3, 5.6], size: 26, color: "#ff8a80", instant: true },
     { text: "not in\nancient crystals", at: [-6, -3], size: 26, color: "#f2e14a", instant: true },
-    { text: "white dwarfs\nwould have exploded", at: [0, 14], size: 24, color: "#9ec1ff", instant: true },
+    { text: "white dwarfs\nwould have exploded", at: [0.2, 11.2], size: 24, color: "#9ec1ff", instant: true },
     { text: "the microwave\nbackground says no", at: [0.3, 6], size: 24, color: "#e0e3f0", instant: true },
+    // a hand's Xs over the two big areas, and arrows from the two texts to their small boxes (the author's sketch, 2026-11-10)
+    { x: [-0.9, 16.3], size: 90, color: "#ffe066", instant: true },
+    { x: [2.5, 2.6], size: 90, color: "#ffe066", instant: true },
+    { arrow: true, solid: true, width: 6, color: "#ffe066", from: { r: -7.4, m: 4.6 }, to: { r: -3.9, m: 2.4 }, draw: 0.01 },
+    { arrow: true, solid: true, width: 6, color: "#ffe066", from: { r: -8.6, m: -2.3 }, to: { r: -7.3, m: 0.6 }, draw: 0.01 },
   ] }] },
   posterWide: undefined,
   cues: [
