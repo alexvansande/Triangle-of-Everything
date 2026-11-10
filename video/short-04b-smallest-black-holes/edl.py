@@ -21,14 +21,17 @@ EDL = [
     # For any given mass, there is a minimum size an object can have before it collapses into a black hole.   (from its second "for any given mass"; a 3.9 s pause before "before" cut)
  ("rec61", "line", 176.48, 182.56, {"s": 178.62}),   # (from its second "and once": "And once it," before it)
       # And once it becomes a black hole, it will live constantly on this line.
- ("rec61", "line", 213.14, 222.92, {"s": 214.82}),   # That means that due to relativistic effect, it is physically impossible for any object to exist in the dark regions of this chart.   (the last of five, from its second "that means": the second pass found "That means that due to," before it)
+ # (out, the author, 2026-11-09, evening: "That means that due to relativistic effect, it is physically impossible for any
+ # object to exist in the dark regions of this chart", said in the last video already; it brings the Short under 3 minutes.
+ # It was rec61 213.14-222.92, from 214.82)
  # where they're made
  ("rec61", "made", 237.10, 240.66),     # And with enough pressure, any object can become a black hole.   (the first try: the later ones restart "it also means that" four times)
  ("rec61", "made", 271.26, 272.96, {"s": 268.80}),   # We can't do that in a lab yet, but we know of two moments where this happened.   (its second try, from 268.8 s: the transcript ran it into the first)
  ("rec61", "made", 279.00, 283.62, {"s": 280.45}),   # One is when a very large star dies.   (from its second "one": the second pass found "One, in the," before it)
  ("rec61", "made", 294.46, 299.62),     # But the second one happened the very first instants just after the Big Bang,   (its slip, "after the black hole", left out)
- ("rec61", "made", 348.20, 370.38, {"s": 351.95, "cut": [(355.10, 357.40), (362.30, 364.62)]}),   # (from its second "when everything": the author heard the first)
-    # when everything in the universe was a very hot and dense soup of matter and energy. It is possible that black holes of all sizes were created. And some of them might just be around today.   (two hesitations and "a lot of it is possible that" cut)
+ ("rec61", "made", 348.20, 370.38, {"s": 355.22, "cut": [(362.30, 364.62)]}),   # (from its third "when everything", 355.32 in medium.en:
+    # "When everything in the, when everything in the universe was," before it; the author heard the second, 2026-11-09)
+    # when everything in the universe was a very hot and dense soup of matter and energy. It is possible that black holes of all sizes were created. And some of them might just be around today.   ("a lot of it is possible that" cut)
  # the search
  ("rec60", "search", 288.00, 295.10),   # And we've been looking for them with quasars, with the cosmic microwave background, gravitational waves, and finally with microlensing.
  ("rec60", "search", 487.40, 491.28),   # And every search has come up empty, and the window where they could hide keeps closing.   (the retake at the end: the first said "has came up")

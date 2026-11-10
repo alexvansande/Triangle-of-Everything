@@ -42,12 +42,16 @@ export default {
     { at: "minimum size", hl: [SCHW, { obj: "Moon" }, { arrow: true, from: { obj: "Moon" }, to: BH(25.87), label: "squeeze", delay: 0.2 }] },
     { at: "collapses into a black hole", hl: [SCHW, { obj: "Moon", label: false }, { arrow: true, from: { obj: "Moon" }, to: BH(25.87), draw: 0.01 }, { ...BH(25.87), label: "a black hole" }] },
     { at: "once it becomes a black hole", cam: { obj: "Sgr A*", span: 15 }, dur: 5, drift: 0.02, clear: true, hl: [{ ...SCHW, label: "every black hole lives here" }] },
-    { at: "physically impossible", hl: [{ ...SCHW, label: "schwarzschild radius" }, { side: "left", of: "schwarzschild", label: "nothing can exist" }] },
+    // (the "physically impossible" sentence cut, the author, 2026-11-09: its label comes with the line's)
+    { at: "constantly on this line", hl: [{ ...SCHW, label: "every black hole lives here" }, { text: "nothing can\nexist here", at: [9, 46.5], size: 26, delay: 0.6 }] },   // (in the dark side, clear of the frame's edge)
     // the dark-matter maps (the candidates, the window, the crossed-out areas): the dots only, no pictures (the author,
     // 2026-11-09), until the ending pulls back out
     ...V4.cues.slice(from).map(reword).map((c, i, all) => {
       const s = all.findIndex(q => [].concat(q.at).includes("something invisible")), e = all.findIndex(q => [].concat(q.at).includes("very first moments of our history"));
       return i >= s && i < e ? { ...c, icons: false } : i === e ? { ...c, icons: true } : c;
-    }),
+    })
+    // the black-hole line is on screen from the start here: where video 4 lists it again after clearing (its "something
+    // else entirely"), it stays put instead of drawing itself again (the author, 2026-11-09: "the line animation restarts")
+      .map(c => c.hl ? { ...c, hl: c.hl.map(q => q.line === "schwarzschild" && q.draw === undefined ? { ...q, draw: 0.01 } : q) } : c),
   ],
 };
