@@ -611,6 +611,8 @@ Cue fields
              { pixels: { steps: [s, …], n?, cell?, seed? } } — expansion as an image gaining
                pixels: a black n×n image (9) with a few lit pixels; at each step every pixel
                becomes 3×3, the old one in the centre, so the lit ones spread apart
+               fixed: true keeps the picture's size instead: every pixel splits 2×2 in place,
+               a lit one shrinking into its corner (cell = the pixels' size at the end)
            any item can take delay (s) to stagger
   clear    end the current highlights
   density  from this cue on, the pictures' density (Settings → Icons; above 100 they
@@ -635,7 +637,7 @@ Cue fields
 Scene-level: dots: { size, opacity } for the paths' moving dots (default 2.4, 1.7);
 iconBoost: { from: log r, k } pictures of things that big and up drawn k× larger, on top of
 the chart's own size curve (main.js iconSizeCurve, which already draws nebulae 1.6–1.8× and
-galaxies 2.1–2.3×; no scene uses it now: video 5's 1.4× came off with that curve); hideLabels: [names] objects whose own chart label never shows; hideObjects: [names] objects not drawn at all (a cue's hideObjects changes it)
+galaxies 2.1–2.3×; no scene uses it now: video 5's 1.4× came off with that curve); deSitter: false leaves off the de Sitter radius's dotted line (the horizon's far-future size); hideLabels: [names] objects whose own chart label never shows; hideObjects: [names] objects not drawn at all (a cue's hideObjects changes it)
 
 Sound cues (optional `sound: [...]`, read by scripts/narration-sound.mjs;
 keep them rare). Each names a phrase like a cue does:

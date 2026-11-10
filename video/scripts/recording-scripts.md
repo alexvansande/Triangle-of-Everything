@@ -1440,6 +1440,12 @@ light-years (the cosmic event horizon, ~16.7) and 46 billion are both radii, dis
   fixed and make the pixels smaller (one pixel becomes four inside the same frame).
 - 5b: the alien's "distant past" arrow should point towards the side where the alien is: their distant past points to
   our present.
+- 5b (2026-11-10, watching the 13:09 render): *"The pixel resolution increase should show pixels decreasing not the
+  picture increasing … theres a secondary dashed line outside the event horizon … it should not be visible in this
+  particular video … 2:19 the light in our distant past arrow should only enter when I say 'but' and it should point to
+  the left edge of our universe bubble. Their distant past → it should point to our now and it should say 'they only
+  see our distant past'"* (built: the pixels split 2 × 2 inside a picture that keeps its size; the de Sitter radius's
+  line left off; both arrows as asked). Re-record: birds on the take.
 
 - 5c (the author, 2026-11-09 21:24; built 2026-11-10 over the powers-of-ten zoom, draft short-05c-observable-universe-draft-2026-11-10-1520; the site's render still has the earlier version): *"from
   minute 1 onwards, start the dive into the universe visualization. Use the powers of 10 tool. Make the CMB 100%

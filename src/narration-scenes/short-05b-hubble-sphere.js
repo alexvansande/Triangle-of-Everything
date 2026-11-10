@@ -35,12 +35,16 @@ export default {
   start: FULL,
   // the galaxies and clusters 20% smaller (the author, 2026-11-09: "they're all too large")
   iconBoost: { from: 19.5, k: 0.8 },
+  // the de Sitter radius's dotted line (where the horizon ends up, in hundreds of billions of years) left off: beside
+  // the cosmic event horizon it reads as a second one (the author, 2026-11-10)
+  deSitter: false,
   cues: [
     { at: "largest anything can be", cam: FULL, dur: 3, hl: [{ line: "triangle" }] },
     { at: "every single object", hl: [{ line: "triangle", label: "every object, by mass and size" }] },
-    // video 5's shots, the photo's pixels quicker so each step lands on "four", "nine", "or more" (the author)
+    // video 5's shots, the photo's pixels quicker so each step lands on "four", "nine", "or more" (the author), and
+    // getting smaller inside a picture that keeps its size (the author, 2026-11-10: spreading out, they read as expanding)
     ...V5.cues.slice(idx("the second edge"), idx("object with a center") + 1).map(reword)
-      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { cell: 16, steps: [2.2, 3.0, 3.8] } }] } : c)
+      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { cell: 10, steps: [2.2, 3.0, 3.8], fixed: true } }] } : c)
       // the cosmic event horizon's name over its disc: to the right it ran off the frame (the author, 2026-11-09, 1:29)
       .map(c => c.hl ? { ...c, hl: c.hl.map(q => q.mark && q.label === "cosmic event horizon" ? { ...q, place: "above", gap: 58 } : q) } : c),
     // the alien at our edge (the author's design, 2026-11-09; src/narr-diagrams.js drawEdge, the zoom's own objects):
@@ -48,6 +52,8 @@ export default {
     // universe grows round ours, reaching into theirs; its microwave background; and out to the chart
     { at: "our universe is just that", cam: { obj: "Our Universe", span: 0.35 }, dur: 2.6, clear: true },
     { at: "not the universe", hold: 60, hl: [{ edge: {} }] },
+    // the distant past's arrow on "but", to our universe's left edge (the author, 2026-11-10)
+    { at: "but let's imagine", offset: 0, hold: 60, hl: [{ edge: { phase: "past" }, instant: true }] },
     { at: "imagine for a moment", hold: 60, hl: [{ edge: { phase: "alien" }, instant: true }] },
     { at: "centered around them", hold: 60, hl: [{ edge: { phase: "theirs" }, instant: true }] },
     { at: "we can actually see them", hold: 60, hl: [{ edge: { phase: "see" }, instant: true }] },

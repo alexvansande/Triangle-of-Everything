@@ -701,13 +701,15 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
 // 2026-11-09, The Cosmic Event Horizon), drawn with the powers-of-ten zoom's own objects (the author: not the
 // wavelength explorer's shells): Our Universe (src/event-horizon-object.js) and the observable universe
 // (src/cmb-object.js) ----------
-// { edge: { phase } }, phases by cue (absolute take times, like the crush's): start (our universe turning), alien (the
+// { edge: { phase } }, phases by cue (absolute take times, like the crush's): start (our universe turning), past (its
+// distant past's arrow), alien (the
 // turn stops; a red circle on a galaxy at our edge), theirs (a second Our Universe, turned its own way, grows round
 // that galaxy: their universe), see (a circle grows from ours out to the observable universe as the view pulls back,
 // its galaxies showing inside it, part of their universe now among them), meet (the microwave background fades in on
 // it). From the dive it starts where the chart left it, centred, and grows in place; ours is marked "now" at its centre
-// and "light in our distant past" at its edge; when theirs comes, the two slide to sit side by side, level, theirs marked
-// the same way below (the author, 2026-11-09, evening).
+// and "light in our distant past" at its left edge (from the past phase, "but"); when theirs comes, the two slide to sit
+// side by side, level, theirs marked below: their now, and an arrow to our now saying they only see our distant past
+// (the author, 2026-11-09, evening, and 2026-11-10).
 let _edgeObjs = null;
 const edgeObjs = () => _edgeObjs || (_edgeObjs = { ours: eventHorizonObject(), theirs: eventHorizonObject(), web: cmbObject({ far: 0, near: 0 }), cmb: cmbObject() });
 export const edgePending = () => { const o = edgeObjs(); return Object.values(o).filter(x => x && !x.ready()).length; };
@@ -762,13 +764,16 @@ export function drawEdge(ctx, W, H, o, t) {
     ctx.restore();
     ctx.globalAlpha = a; text(ctx, label, x0, y0 + (up ? -H * 0.012 : H * 0.03), H * 0.022, col); ctx.globalAlpha = 1;
   };
-  const fa = smooth((t - start - 0.8) / 0.9) * (1 - smooth(grow * 3)), fb = smooth((t - theirs - 1.4) / 0.9) * (1 - smooth(grow * 3));
+  // (the distant past from its own cue, "but", to our universe's left edge; theirs points at us, our now: all they see
+  // of us is our distant past (the author, 2026-11-10))
+  const off = 1 - smooth(grow * 3), fa = smooth((t - start - 0.8) / 0.9) * off, fb = smooth((t - theirs - 1.4) / 0.9) * off;
+  const fp = smooth((t - (o.past ?? start + 0.8)) / 0.9) * off;
   const on = (u, v, ang, r = 1) => [X(u + r * Math.cos(ang)), Y(v + r * Math.sin(ang))];
-  { const [px, py] = on(0, 0, -1.9, 0.97);
-    arrow(X(-0.05), Y(-1) - H * 0.115, px, py, "light in our distant past", "#80deea", fa, true);
+  { const [px, py] = on(0, 0, Math.PI, 0.97);
+    arrow(Math.max(X(-0.55), W * 0.27), Y(-1) - H * 0.115, px, py, "light in our distant past", "#80deea", fp, true);   // (inside the frame when the pair slides left)
     arrow(X(-0.62), Y(-1) - H * 0.035, X(0) - H * 0.01, Y(0) - H * 0.012, "now", "#80deea", fa, true); }
-  if (ft > 0) { const [px, py] = on(ex, ey, 1.25, 0.97);
-    arrow(X(ex) + U * 0.05, Y(1) + H * 0.115, px, py, "their distant past", "#ffab40", fb, false);
+  if (ft > 0) {
+    arrow(X(0.35), Y(1) + H * 0.115, X(0) + H * 0.006, Y(0) + H * 0.014, "they only see our distant past", "#ffab40", fb, false);
     arrow(X(ex) + U * 0.7, Y(1) + H * 0.035, X(ex) + H * 0.01, Y(ey) + H * 0.012, "their now", "#ffab40", fb, false); }
   if (grow > 0) {
     ring(0, 0, R, "#ffffff", Math.min(1, grow * 3) * 0.85 * (1 - fm), true, 0.004);

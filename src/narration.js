@@ -294,6 +294,7 @@ export async function startNarration(app) {
   app.setIconHide?.(SCENE.hideIcons ?? null);     // pictures never shown in this scene
   app.setEventArrows?.(false);
   app.setIconBoost?.(SCENE.iconBoost ?? null);    // { from: log r, k }: pictures of the big things k× larger
+  app.setDeSitterHidden?.(SCENE.deSitter === false);   // the de Sitter radius's dotted line left off
   app.setLabelHide?.(SCENE.hideLabels ?? null);   // objects whose own chart label never shows
   app.setObjectsHidden?.(SCENE.hideObjects ?? null);   // objects left off the chart (dot, name, picture) until a cue lets them in
   app.setIconMaxRes?.(true);   // grown pictures stay sharp
@@ -2277,6 +2278,7 @@ export async function startNarration(app) {
    *  into four": the old one keeps its place in the corner, the lit ones spread apart while
    *  staying the same size, and the new pixels fade in, dark, in the gaps that open between them. */
   function drawPixels(el, h, age) {
+    if (h.pixels.fixed) return drawPixelsFixed(el, h, age);
     const o = h.pixels, cell = o.cell ?? 16, steps = o.steps || [], seed = o.seed ?? 7;
     const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH / 2;
     // how far each step has gone (0–1, eased over 1.2 s), and the spread so far
@@ -2303,6 +2305,41 @@ export async function startNarration(app) {
       g.append("rect").attr("x", x + 0.5).attr("y", y + 0.5).attr("width", cell - 1).attr("height", cell - 1)
         .attr("fill", col || "#0d0f16").attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1).attr("opacity", a);
     }
+  }
+  /** `pixels.fixed`: the same picture, its size kept, the pixels getting smaller (the author, 2026-11-10: "the pixel
+   *  resolution increase should show pixels decreasing, not the picture increasing, otherwise it looks like it's
+   *  expanding outwards from the center"). At each step every pixel splits into 2 × 2 in its own place: a lit one
+   *  shrinks into its corner, still lit, and the three new ones fade in dark beside it. `cell` is the pixels' size at
+   *  the end, so they start at cell · 2^steps. */
+  function drawPixelsFixed(el, h, age) {
+    const o = h.pixels, steps = o.steps || [], seed = o.seed ?? 7, big = (o.cell ?? 10) * 2 ** steps.length;
+    const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH / 2;
+    const prog = steps.map(st => d3.easeCubicInOut(clamp01((age - st) / 1.2)));
+    let L = 0; while (L < steps.length && prog[L] > 0) L++;            // steps begun
+    const s = big / 2 ** L, lit = prog.reduce((a, p) => a / (1 + p), big);   // the grid's pixels; a lit one's size now
+    const col = (i, j) => {   // the original picture: a few lit pixels, colours from a hash
+      const hsh = Math.abs(Math.sin(i * 127.1 + j * 311.7 + seed) * 43758.5453) % 1;
+      return hsh < 0.13 ? ["#ffd54f", "#ffffff", "#80deea", "#ff8a80", "#b39ddb"][Math.floor(hsh / 0.026)] : null;
+    };
+    const tz = (n) => { let z = 0; n = Math.abs(n); if (!n) return 99; while (n % 2 === 0) { n /= 2; z++; } return z; };
+    const g = el.append("g").attr("opacity", smooth(age / 0.6));
+    g.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH).attr("fill", "#000");
+    // the grid stays where the first pixels' edges were: pixel (p, q) at this level has its corner at x0 + p · s
+    const x0 = cx - big / 2, y0 = cy - big / 2, n = 2 ** L;
+    const pa = Math.floor(-x0 / s) - 1, pb = Math.ceil((SW - x0) / s), qa = Math.floor(-y0 / s) - 1, qb = Math.ceil((SH - y0) / s);
+    const lits = [];
+    for (let p = pa; p <= pb; p++) for (let q = qa; q <= qb; q++) {
+      const born = L - Math.min(L, tz(p), tz(q));                       // 0: one of the first pixels' corners
+      const c = born === 0 ? col(p / n, q / n) : null;
+      if (c) { lits.push([x0 + p * s, y0 + q * s, c]); continue; }
+      const a = born === 0 ? 1 : smooth((age - steps[born - 1] - 0.3) / 1.0);
+      if (a <= 0) continue;
+      g.append("rect").attr("x", x0 + p * s + 0.5).attr("y", y0 + q * s + 0.5).attr("width", s - 1).attr("height", s - 1)
+        .attr("fill", "#0d0f16").attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1).attr("opacity", a);
+    }
+    // the lit ones over the new dark ones, shrinking into their corners
+    for (const [x, y, c] of lits) g.append("rect").attr("x", x + 0.5).attr("y", y + 0.5).attr("width", lit - 1).attr("height", lit - 1)
+      .attr("fill", c).attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1);
   }
   /** A big free-standing word on the chart: { text, at: [r, m], color?, size? (px, 30), rotate? (°) } (a hub that
    *  arrows point out from); "\n" stacks lines, centred on `at` */

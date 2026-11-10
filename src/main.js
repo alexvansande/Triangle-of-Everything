@@ -86,6 +86,7 @@ let _iconForce = null;    // narration: names whose picture shows even where a n
 let _iconFirst = null;    // narration: names whose picture comes first; the others give way where they overlap
 let _iconHide = null;     // narration: names whose picture never shows (they pile onto a neighbour)
 let _iconBoost = null;    // narration: { from: log r, k } pictures of things that big and up drawn k× larger
+let _deSitterHidden = false;   // narration: a scene that leaves off the de Sitter radius's line (its future horizon)
 let _labelHide = null;    // narration: names whose own chart label never shows in that scene
 let _objHide = null;      // narration: objects not drawn at all right now (dot, name, picture): a scene reveals them at a cue
 let _dustFill = false;    // narration: catalogue pictures without their names (the names stay off)
@@ -1218,8 +1219,8 @@ function drawBoundaries() {
   }
 
   // De Sitter radius — dotted vertical line showing where the horizon ends up in the far future
-  // Only visible when zoomed in enough to distinguish it from the edge
-  {
+  // Only visible when zoomed in enough to distinguish it from the edge (and not in a video that leaves it off)
+  if (!_deSitterHidden) {
     const deSitterPx = px(DE_SITTER_LOG_R);
     const hubblePx = px(EVENT_HORIZON_LOG_R);
     const separation = Math.abs(deSitterPx - hubblePx);
@@ -8995,6 +8996,8 @@ if (_ogShot) {
       /** Pictures of things from log r `from` up drawn k× larger (videos): { from, k }, or null. */
       // the Big Bang event arrows: the videos hide their text, so the arrows too (the author, 2026-11-05)
       setEventArrows(on = true) { lDensityArrows.style("display", on ? null : "none"); },
+      /** Narration: leave off the de Sitter radius's line (true) or draw it (false). */
+      setDeSitterHidden(h) { if (_deSitterHidden !== !!h) { _deSitterHidden = !!h; redraw(); } },
       setIconBoost(b) { _iconBoost = b?.k && b.k !== 1 ? { from: b.from ?? 18, k: b.k, slugs: b.slugs } : null; redraw(); },
       /** Objects whose own chart label never shows (videos): names, or null. */
       setLabelHide(names) { _labelHide = names?.length ? new Set(names) : null; redraw(); },
