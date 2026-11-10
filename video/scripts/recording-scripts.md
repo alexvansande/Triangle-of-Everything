@@ -1435,7 +1435,7 @@ light-years (the cosmic event horizon, ~16.7) and 46 billion are both radii, dis
 - 5b: the alien's "distant past" arrow should point towards the side where the alien is: their distant past points to
   our present.
 
-- 5c (the author, 2026-11-09 21:24, not built yet; the render still has the earlier drawObservable version): *"from
+- 5c (the author, 2026-11-09 21:24; built 2026-11-10 over the powers-of-ten zoom, draft short-05c-observable-universe-draft-2026-11-10-1520; the site's render still has the earlier version): *"from
   minute 1 onwards, start the dive into the universe visualization. Use the powers of 10 tool. Make the CMB 100%
   transparent. When I say about things that never reach us, highlight the area outside our CEH circle. 1:22 "46 billion
   light years" zoom out and fade in the CMB so we see everything. At "when you point a telescope" do a fast zoom in to
