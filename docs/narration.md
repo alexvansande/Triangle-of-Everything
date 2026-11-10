@@ -512,6 +512,18 @@ Cue fields
            (short-07-wavelengths is the worked example; in the explorer page,
            spectrumVideo.mix() lists the bands under each channel, to check the
            words against the picture)
+  zoom     the powers-of-ten zoom (tools/powers-of-ten.html, in the zoom's own checkout:
+           not on main) full-frame under the captions; render only. The scene's
+           `zoom: { timeline }` picks the zoom's script for the take (?timeline=,
+           e.g. "05c": tools/powers-of-ten/timeline-05c.js), and the take is listed
+           in video/zoom-takes.json with the checkout it renders from
+           (scripts/render-zoom-queued.mjs freezes and serves it; the renderer
+           draws its frame at each t). A cue's zoom: { mark: "name" } hands the
+           phrase's time to the zoom's script (use offset: 0), so a new take
+           re-keys it; zoom: { show: true|false, fade } fades it in or out
+           (default 1.2 s). The chart's rulers hide while it shows. Previews:
+           ?zoom=<origin of a server on the zoom's checkout>&render=1
+           (short-05c-observable-universe is the worked example)
   header   false: the classic figure's title block fades out from the cue; true
            fades it in (hidden from the start if the first header cue is true)
   drift    slow zoom-in while holding, as a fraction (default 0.05)
