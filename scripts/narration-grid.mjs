@@ -85,6 +85,9 @@ const BELONGS = {
   "short-03-stars": 2,                 // video 3's take, the stars: the story long video 2 tells
   "short-04-black-holes": 2, "short-05-hubble-sphere": 2,
   "short-04a-black-hole-slope": 2,     // The Black Hole Slope, recorded on its own (rec59); beside the earlier cut, short-04a-black-hole-line
+  // re-recorded as takes of their own (2026-11-09), so they no longer share a source take with long video 2: placed by name
+  // (the author, 2026-11-10: the night's render of The Smallest Black Holes was on the page, but down in "Unassigned")
+  "short-04b-smallest-black-holes": 2, "short-05a-emptier": 2, "short-05b-hubble-sphere": 2, "short-05c-observable-universe": 2,
   "short-06-tiny-world": 3, "short-07-wavelengths": 3, "short-00-powers-of-ten": 3,
 };
 // which sections start collapsed (the author, 2026-11-08: long video 1, published, collapsed by default)
