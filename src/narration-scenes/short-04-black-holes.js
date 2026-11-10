@@ -33,7 +33,7 @@ const SPLIT = { split: { from: { obj: "Red Giant" }, core: { obj: "White Dwarf" 
 const DM_MICA = { poly: [[-7.75, 0], [-4, 0], [-4, 1.74], [-7.75, 1.74]], hatch: true, fill: "#f2e14a", opacity: 0.85,
   label: "ruled out by\nancient crystals", labelAt: [-9.5, -2.2], labelColor: "#f2e14a" };
 const DM_HURT = { poly: [[-3.83, 0], [-3.83, 4.7], [-1.07, 4.7], [-3.42, 0]], hatch: true, fill: "#ff6b5e", opacity: 0.9,
-  label: "ruled out by a lack of\nrandom human injuries", labelAt: [-10.5, 5.6], labelColor: "#ff8a80" };
+  label: "ruled out by a lack of\nrandom human injuries", labelAt: [-7.4, 3.4], labelColor: "#ff8a80" };   // beside its area, above the crystals (it sat at the frame's left edge: the author, 2026-11-10)
 const DM_WD = { poly: [[-4.75, 5.6], [-4.75, 15], [-4.25, 16.2], [-3.65, 20.5], [-2, 21.6], [4, 21.6]], hatch: true, fill: "#6f9bff", opacity: 0.75,
   label: "ruled out by white dwarfs\nthat never exploded", labelAt: [3.4, 14.2], labelColor: "#9ec1ff" };
 const DM_CMB = { poly: [[-3.42, 0], [30, 0], [30, 25], [9.08, 25]], hatch: true, fill: "#b8bccc", opacity: 0.45,
