@@ -73,6 +73,7 @@ async function renderRange(t0, t1, file, label) {
     executablePath: CHROME,
     // WebGL for the fractal background (bg-noise.js): on the GPU if Chrome will use it, else
     // Chrome's software GL (SwiftShader), which recent Chromes no longer fall back to by themselves
+    protocolTimeout: 900000,   // a page booting the powers-of-ten zoom can hold one call for minutes
     args: ["--no-sandbox", "--mute-audio", "--disable-background-timer-throttling", "--disable-renderer-backgrounding",
       "--ignore-gpu-blocklist", "--enable-unsafe-swiftshader",
       // every compositor stage done before a capture, and no placeholder for an image still decoding: the Smallest Black
@@ -100,7 +101,12 @@ async function renderRange(t0, t1, file, label) {
     if (!zoomFrame) await new Promise(r => setTimeout(r, 100));
   }
   if (wantsZoom && !zoomFrame) throw new Error(`[${label}] the zoom's frame never loaded (${ZOOM})`);
-  if (zoomFrame) await zoomFrame.waitForFunction("window.__narr", { timeout: 600000 });
+  // the zoom boots slowly beside other renders (a worker took over 3 min, past one call's limit): asked every 2 s, for up to 15 min
+  for (let i = 0; zoomFrame && i < 450; i++) {
+    if (await zoomFrame.evaluate("!!window.__narr").catch(() => false)) break;
+    if (i === 449) throw new Error(`[${label}] the zoom never started (${ZOOM})`);
+    await new Promise(r => setTimeout(r, 2000));
+  }
   drawAt = async (t, extra = "") => {
     const z = await page.evaluate(`window.__narr.renderAt(${t})${extra}; window.__narr.zoomAt?.(${t}) ?? null`);
     if (z != null && zoomFrame) await zoomFrame.evaluate(`window.__narr.renderAt(${z})`);
