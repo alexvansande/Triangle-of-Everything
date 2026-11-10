@@ -103,7 +103,7 @@ for t in $takes; do
           echo "  partial render didn't apply (output/videos/$t.log): rendering it whole" ;;
     esac
     runner=scripts/narration-render.mjs
-    [ "$t" != short-00-powers-of-ten ] || runner=scripts/render-zoom-queued.mjs
+    { [ "$t" = short-00-powers-of-ten ] || grep -q "\"$t\"" video/zoom-takes.json; } && runner=scripts/render-zoom-queued.mjs
     [ -n "$ok" ] || { node "$runner" "$t" --url "$URL" --workers "${WORKERS:-8}" --subframes 12 --chrome "$CHROME" \
         --out "output/videos/$t.new.mp4" > "output/videos/$t.log" 2>&1 && ok=1; }
     if [ -n "$ok" ]; then

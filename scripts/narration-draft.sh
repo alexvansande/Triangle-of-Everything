@@ -20,7 +20,7 @@ for t in "$@"; do
   git fetch -q origin && { git merge -q --no-edit origin/main || { git merge --abort; log "merging main conflicts: $t from the branch as it is"; }; }
   out=output/videos/drafts/$t.mp4
   runner=scripts/narration-render.mjs
-  [ "$t" != short-00-powers-of-ten ] || runner=scripts/render-zoom-queued.mjs
+  { [ "$t" = short-00-powers-of-ten ] || grep -q "\"$t\"" video/zoom-takes.json; } && runner=scripts/render-zoom-queued.mjs
   log "draft $t from $(git rev-parse --short HEAD)"
   NARR_AUDIO_KBPS=${NARR_AUDIO_KBPS:-320} caffeinate -i nice -n 10 node "$runner" "$t" --url "$URL" --workers "${WORKERS:-4}" --subframes 1 --dpr 1.6666667 \
     --chrome "$CHROME" --out "$out" > "output/videos/drafts/$t.log" 2>&1 || { log "! $t: draft failed (output/videos/drafts/$t.log)"; continue; }

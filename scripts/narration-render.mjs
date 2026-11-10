@@ -32,6 +32,8 @@ const args = process.argv.slice(2);
 const take = args[0] && !args[0].startsWith("--") ? args[0] : "short-01-hook";
 const opt = (k, d) => { const i = args.indexOf("--" + k); return i >= 0 ? args[i + 1] : d; };
 const BASE = opt("url", "http://localhost:5173");
+// a take over the powers-of-ten zoom (video/zoom-takes.json): where its zoom is served (scripts/render-zoom-queued.mjs)
+const ZOOM = opt("zoom", null);
 const FPS = +opt("fps", 30);
 const WORKERS = +opt("workers", 3);
 const SUB = Math.max(1, Math.round(+opt("subframes", 4)));
@@ -48,6 +50,8 @@ const OUT = path.resolve(opt("out", `narration-${take}.mp4`));
 const CHROME = opt("chrome", "/opt/pw-browsers/chromium-1194/chrome-linux/chrome");
 // 432×768 CSS px × 2.5 = 1080×1920; a long cut asking for "landscape" (words.json "stage"): 768×432 × 2.5 = 1920×1080, the page exactly the stage (the 16:9 stage fills its width)
 const meta = JSON.parse(fs.readFileSync(`public/narration/${take}/words.json`, "utf8"));
+if (!ZOOM && JSON.parse(fs.readFileSync("video/zoom-takes.json", "utf8"))[take])
+  throw new Error(`${take} lays the powers-of-ten zoom under the chart: render it with scripts/render-zoom-queued.mjs`);
 const WIDE = meta.stage === "landscape";
 // --dpr: pixels per CSS pixel (2.5 = 1080p); a draft takes 5/3, the site's own 720×1280 (scripts/narration-draft.sh)
 const DPR = +opt("dpr", 2.5);
@@ -80,12 +84,28 @@ async function renderRange(t0, t1, file, label) {
   });
   browsers.add(browser);
   const page = await browser.newPage();
+  let drawAt, pendingAll;   // window.__narr.renderAt and .pending, the zoom's frame with them (set once the page is up)
   await page.setViewport({ width: STAGE.W + 2 * STAGE.pad, height: STAGE.H + 2 * STAGE.pad, deviceScaleFactor: STAGE.dpr });
   page.on("pageerror", e => console.log(`[${label}] pageerror:`, e.message));
   await page.evaluateOnNewDocument(CLOCK_SHIM);
-  await page.goto(`${BASE}${meta.renderPage || `/?narrate=${take}&render=1`}`, { waitUntil: "load", timeout: 600000 });   // not networkidle: a close opening view never reports idle
+  await page.goto(`${BASE}${meta.renderPage || `/?narrate=${take}&render=1${ZOOM ? `&zoom=${encodeURIComponent(ZOOM)}` : ""}`}`, { waitUntil: "load", timeout: 600000 });   // not networkidle: a close opening view never reports idle
   // a slow start waits (video 5 takes ~80 s to be ready on a busy machine; 60 s failed the render)
   await page.waitForFunction("window.__narr", { timeout: 300000 });
+  // a scene over the powers-of-ten zoom (src/narration.js, `zoom`): its frame is another origin (a frozen copy of
+  // the zoom's checkout, scripts/render-zoom-queued.mjs), so it's drawn from here, at the same t, while it shows
+  let zoomFrame = null;
+  const wantsZoom = await page.evaluate("!!document.getElementById('narr-zoom')");
+  for (let i = 0; wantsZoom && !zoomFrame && i < 600; i++) {
+    zoomFrame = page.frames().find(f => f.url().includes("renderZoom")) || null;
+    if (!zoomFrame) await new Promise(r => setTimeout(r, 100));
+  }
+  if (wantsZoom && !zoomFrame) throw new Error(`[${label}] the zoom's frame never loaded (${ZOOM})`);
+  if (zoomFrame) await zoomFrame.waitForFunction("window.__narr", { timeout: 600000 });
+  drawAt = async (t, extra = "") => {
+    const z = await page.evaluate(`window.__narr.renderAt(${t})${extra}; window.__narr.zoomAt?.(${t}) ?? null`);
+    if (z != null && zoomFrame) await zoomFrame.evaluate(`window.__narr.renderAt(${z})`);
+  };
+  pendingAll = async () => await page.evaluate("window.__narr.pending()") + (zoomFrame ? await zoomFrame.evaluate("window.__narr.pending()") : 0);
   // the fractal background needs WebGL2: without it the page quietly shows the plain painting
   // instead (2026-10-28: the videos had no fractal), so say which GL this Chrome has, and stop
   const gl = await page.evaluate(() => {
@@ -109,13 +129,13 @@ async function renderRange(t0, t1, file, label) {
   // t0, every picture on screen popped in again at each worker's first frame (the author saw it
   // twice in video 2, 2026-10-29: at the workers' joins, 1:07.7 and 3:23.2)
   const PRE = 2, tw = Math.max(0, t0 - PRE);
-  await page.evaluate(`window.__narr.renderAt(${tw}); window.__narr.settle(${tw})`);
-  for (let i = 0; i < 60 && await page.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 250));
-  await page.evaluate(`window.__narr.renderAt(${tw}); window.__narr.settle(${tw})`);
+  await drawAt(tw, `; window.__narr.settle(${tw})`);
+  for (let i = 0; i < 60 && await pendingAll(); i++) await new Promise(r => setTimeout(r, 250));
+  await drawAt(tw, `; window.__narr.settle(${tw})`);
   await new Promise(r => setTimeout(r, 1500));   // the pop-ins started by the cold start finish in real time
   await page.evaluate("window.__vclock.freeze()");
-  for (let t = tw; t < t0 - 1e-6; t += 1 / FPS) await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
-  await page.evaluate(`window.__narr.renderAt(${t0})`);
+  for (let t = tw; t < t0 - 1e-6; t += 1 / FPS) await drawAt(t, `; window.__vclock.step(${1000 / FPS})`);
+  await drawAt(t0, ``);
   const clip = await page.evaluate((id, ownPage) => {
     const r = document.getElementById(id).getBoundingClientRect();
     return { x: r.x, y: r.y, width: r.width, height: r.height, scale: ownPage ? devicePixelRatio : 1 };
@@ -146,8 +166,8 @@ async function renderRange(t0, t1, file, label) {
   // otherwise — then draw the same t again so the frame has them
   const waitPending = async (t) => {
     let waited = false;
-    for (let i = 0; i < 8 && await page.evaluate("window.__narr.pending()"); i++) { waited = true; await new Promise(r => setTimeout(r, 120)); }
-    if (waited) await page.evaluate(`window.__narr.renderAt(${t})`);
+    for (let i = 0; i < 8 && await pendingAll(); i++) { waited = true; await new Promise(r => setTimeout(r, 120)); }
+    if (waited) await drawAt(t, ``);
   };
   let single = 0;
   const acc = SUB > 1 ? new Uint32Array(W * H * 3) : null;
@@ -157,7 +177,7 @@ async function renderRange(t0, t1, file, label) {
     const t = n / FPS;
     let frame;
     if (SUB === 1) {
-      await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
+      await drawAt(t, `; window.__vclock.step(${1000 / FPS})`);
       await waitPending(t);
       frame = Buffer.from(await shot(), "base64");
     } else {
@@ -165,13 +185,13 @@ async function renderRange(t0, t1, file, label) {
       let still = false;
       if (ADAPTIVE) {
         const half = 0.5 * (1 - 1 / SUB) * SHUTTER / FPS;
-        await page.evaluate(`window.__narr.renderAt(${t - half})`);
+        await drawAt(t - half, ``);
         const a = await tiny();
-        await page.evaluate(`window.__narr.renderAt(${t + half})`);
+        await drawAt(t + half, ``);
         still = !moves(a, await tiny());
       }
       if (still) {
-        await page.evaluate(`window.__narr.renderAt(${t}); window.__vclock.step(${1000 / FPS})`);
+        await drawAt(t, `; window.__vclock.step(${1000 / FPS})`);
         await waitPending(t);
         frame = await sharp(Buffer.from(await shot(), "base64")).removeAlpha().resize(W, H).raw().toBuffer();
         single++;
@@ -186,7 +206,7 @@ async function renderRange(t0, t1, file, label) {
       acc.fill(0);
       for (let k = 0; k < SUB; k++) {
         const ts = t + ((k + 0.5) / SUB - 0.5) * SHUTTER / FPS;
-        await page.evaluate(`window.__narr.renderAt(${ts}); window.__vclock.step(${1000 / FPS / SUB})`);
+        await drawAt(ts, `; window.__vclock.step(${1000 / FPS / SUB})`);
         await waitPending(ts);
         const px = await sharp(Buffer.from(await shot(), "base64")).removeAlpha().resize(W, H).raw().toBuffer();
         for (let j = 0; j < px.length; j++) acc[j] += px[j];

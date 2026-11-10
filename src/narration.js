@@ -651,8 +651,8 @@ export async function startNarration(app) {
     for (const p of pins) o = Math.max(o, smooth((t - p.t0) / 0.4) * (1 - smooth((t - p.t1) / 0.9)));
     // an object's guides point at the rulers, so the rulers come up with them
     for (const h of guided) o = Math.max(o, smooth((t - h.t0) / 0.4) * (1 - smooth((t - h.t1) / 0.9)));
-    // (and never over the spectrum explorer: it has no chart axes)
-    return o * (1 - clamp01(classicOpacity(t) * 2)) * (1 - (specFrame ? specFrame(t).show : 0));
+    // (and never over the spectrum explorer or the powers-of-ten zoom: they have no chart axes)
+    return o * (1 - clamp01(classicOpacity(t) * 2)) * (1 - (specFrame ? specFrame(t).show : 0)) * (1 - zoomShow(t));
   }
 
   // ---------- DOM ----------
@@ -2485,7 +2485,7 @@ export async function startNarration(app) {
       if (!c.energyAxis || (i > 0 && energyCues[i - 1].energyAxis)) continue;
       o = Math.max(o, smooth((t - c.time) / 0.6) * (nx ? 1 - smooth((t - nx.time) / 0.6) : 1));
     }
-    return o * (1 - clamp01(classicOpacity(t) * 2)) * (1 - (specFrame ? specFrame(t).show : 0));
+    return o * (1 - clamp01(classicOpacity(t) * 2)) * (1 - (specFrame ? specFrame(t).show : 0)) * (1 - zoomShow(t));
   }
   // (AXIS_TEXT: the 16:9 videos' bigger ruler numbers; the rulers space them as much)
   function drawEnergy(t) {
@@ -2783,6 +2783,38 @@ export async function startNarration(app) {
     if (api && (show > 0 || !(specLastT >= 0))) { api.set(st); specLastT = t; }
   }
 
+  // ---------- the powers-of-ten zoom (tools/powers-of-ten.html, ?timeline=…) ----------
+  // A scene can lay the zoom full-frame under the captions, as the spectrum explorer. The zoom isn't on main (its
+  // pictures stay off GitHub): its page comes from ?zoom=<origin>, which the renderer sets to a frozen copy of the
+  // zoom's checkout (scripts/render-zoom-queued.mjs); without it the scene plays on the chart alone. The scene's
+  // `zoom: { timeline }` picks the zoom's script (e.g. "05c": tools/powers-of-ten/timeline-05c.js); a cue's
+  // `zoom: { mark: "dive" }` hands that phrase's time to it (?at=dive:52.36,…), so a new take re-keys it, and
+  // `zoom: { show: true | false, fade }` fades it in or out (default 1.2 s). The zoom draws by the take's
+  // clock: the renderer drives its frame itself (another origin); the live player asks it by message.
+  const ZOOM_ORIGIN = SCENE.zoom ? params.get("zoom") : null;
+  const ZOOM_SHOW = cues.filter(c => c.zoom?.show != null).map(c => ({ t: c.time, on: c.zoom.show ? 1 : 0, fade: c.zoom.fade ?? 1.2 }));
+  const zoomShow = (t) => {
+    let v = 0;
+    for (const k of ZOOM_SHOW) { if (k.t > t) break; const p = smooth(clamp01((t - k.t) / k.fade)); v = v + (k.on - v) * p; }
+    return v;
+  };
+  let zoomEl = null, zoomLastT = NaN;
+  if (ZOOM_ORIGIN) {
+    const marks = cues.filter(c => c.zoom?.mark).map(c => `${c.zoom.mark}:${c.time.toFixed(2)}`).join(",");
+    zoomEl = document.createElement("iframe");
+    zoomEl.id = "narr-zoom";
+    zoomEl.title = "Powers of ten";
+    zoomEl.src = `${ZOOM_ORIGIN}/tools/powers-of-ten.html?canopytest=1&renderZoom=1&ui=0&roll=0&crossings=0&grid=1&labels=1&stage=9x16&timeline=${SCENE.zoom.timeline}&at=${marks}`;
+    layer.insertBefore(zoomEl, layer.firstChild);   // under the drawings and captions
+  }
+  function drawZoom(t) {
+    if (!zoomEl) return;
+    const show = zoomShow(t);
+    zoomEl.style.opacity = show;
+    zoomEl.style.visibility = show > 0 ? "visible" : "hidden";
+    if (show > 0 && t !== zoomLastT && !RENDER) { zoomEl.contentWindow?.postMessage({ zoomAt: t }, "*"); zoomLastT = t; }
+  }
+
   // ---------- frame ----------
   let lastKey = -2, lastPhase = null;
   const creditsEl = document.getElementById("narr-credits");
@@ -2814,6 +2846,7 @@ export async function startNarration(app) {
     drawPhoto(curT);
     drawCover(curT);
     drawSpectrum(curT);
+    drawZoom(curT);
     drawCaption(curT);
   }
   app.onRedraw(() => { gHl && overlay(); });
@@ -2849,6 +2882,8 @@ export async function startNarration(app) {
       }),
     }),
     renderAt,
+    // the zoom's frame, when it shows at t: the renderer draws it there too (scripts/narration-render.mjs)
+    zoomAt: (t) => zoomEl && zoomShow(t) > 0 ? t : null,
     now: () => curT,     // the take's time on screen (the live Hopf pictures animate by it)
     settle(t) { const { view } = camera(t); app.setCamera(view, false); app.bgNoiseSettle(); overlay(); },
     camera: (t) => camera(t).view,
@@ -3206,6 +3241,7 @@ body.narr-label-focus #chart text:not(.obj-label-related):not(.dust-name):not(.a
 #narr-layer .narr-spec-halo { opacity: 0.35; filter: blur(6px); mix-blend-mode: screen; }
 #narr-layer .narr-spec-ph { fill: #fff; }
 #narr-layer .narr-spec-name { fill: #fff; font: 600 15px "IBM Plex Sans", "Helvetica Neue", sans-serif; paint-order: stroke; stroke: #000; stroke-width: 3px; }
+#narr-zoom { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; pointer-events: none; visibility: hidden; opacity: 0; }
 #narr-spectrum { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; pointer-events: none; visibility: hidden; opacity: 0; }
 #narr-cover img { position: absolute; left: 0; top: 0; transform-origin: 0 0; max-width: none; }
 #narr-photo { position: absolute; inset: 0; background: #000; overflow: hidden; visibility: hidden; pointer-events: none; }
