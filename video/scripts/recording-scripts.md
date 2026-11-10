@@ -1343,6 +1343,90 @@ through "…a new generation of stars to form", in git history and in "As cut no
 - "a local group" → "the Local Group" if you like the proper name; "in the edge" → "at the edge"; "100,000 galaxies" → "about a hundred thousand".
 
 
+## 5a, 5b, 5c · Re-record each part whole (2026-11-10)
+
+rec65's patched lines (16% of 5a, 11% of 5b, 19% of 5c) don't match the rest: same room, different energy. So read
+each part through in one take, all three in one sitting. The words are the cut as it plays now, with every fact-check
+fix from rec62–65 in it; the few small edits are listed after each part. Headings are only to keep your place.
+
+### 5a · The Largest Structures in Space (`short-05a-emptier`)
+
+> In this series, I've been exploring this chart, which is a log of mass and size. When you do that, every diagonal becomes a density line, and here you can see the density of water. As we go to the left, we see denser and denser objects, like brown dwarfs, white dwarfs, neutron stars.
+>
+> Today, I want to explore the regions of the largest objects we know of. Now, the more we go to the right, the more we are in the density of emptier and emptier space. That's because the bigger something is, the less dense it is. Lots of stars are less dense than water, and some are even less dense than air.
+>
+> When a star is about to die, it grows into a red giant, and its outer layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant. Taken as a whole, those are less dense than the atmosphere of the Moon.
+>
+> Larger than that, you'll find globular clusters and small galaxies. A galaxy is mostly empty space between its stars. Here we find Andromeda, our sister galaxy, and the Milky Way, which we call home. Our local neighbourhood is called the Local Group.
+>
+> And then we have galaxy clusters, which are even less dense, because now it's the galaxies plus all the empty space between them.
+>
+> And above that we have the largest structures we know of: superclusters, which come in the shape of filaments. We live in one called Laniakea, made of about a hundred thousand galaxies.
+>
+> There's something larger still: voids. Voids are big holes in space, just empty regions of space. Not completely empty, though: they're just emptier than the space around them, so they do have mass, and they fit on this chart.
+>
+> But can you get any bigger than that? The problem is going to be physics itself, because now we are going to meet our second edge in the triangle of everything.
+
+Edits: "the bigger the something is" → "the bigger something is"; "it grows into a red giant, its outer layers" → "…red
+giant, and its outer layers"; "Larger than that, and you'll find" → "Larger than that, you'll find"; "the Laniakea" →
+"Laniakea".
+
+### 5b · The Cosmic Event Horizon (`short-05b-hubble-sphere`)
+
+> What's the largest anything can be? In this chart, we are plotting every single object that can exist by mass and size. This is the triangle of everything, and today we are going to meet its rightmost edge.
+>
+> And it's all about the speed of light. See, the speed of light isn't really about light: it's the speed limit for anything travelling through space.
+>
+> But space itself can stretch faster than that. The universe is expanding, but it's not expanding into anything. A better metaphor is increasing the resolution of a photo, where one pixel becomes four, or nine, or more. That means that the farther away something is, the faster it's moving away from us.
+>
+> And at this line, called the Hubble line, things are moving away from us at the speed of light. You'd think that their light could never reach us, but it's a little bit more complicated than that, because the Hubble sphere is also growing, so the real edge is a little bit further out.
+>
+> This is the cosmic event horizon, and it's the real limit, because anything that happens beyond it will never affect us. We will never know about it; its light can never reach us. It's the real limit of the unknowable.
+>
+> Now, if we add up everything that we know exists inside this bubble, here's where it lands on our chart: right on the black hole line. OK, does that mean that we are actually living in a black hole?
+>
+> It's an interesting coincidence, because both are a kind of horizon. A black hole's event horizon is where the light that falls in can never come out. Our cosmic horizon is where nothing outside can ever come in. Also, both depend on the mass of what's inside them. The radius of a black hole depends directly on how much stuff is in it, and the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is in it too. So it's no coincidence that they are both on the same line.
+>
+> But that's also where the similarities end, because a black hole is an object with a centre. Our universe is just that: it's *our* universe, it's not *the* universe. Let's imagine for a moment an alien living in a galaxy that, for us, seems to be at the edge. Well, for them, their universe is centred around them. They don't see a bunch of empty space on the other side; they see more and more galaxies, because as far as we can tell, the universe is practically infinite.
+>
+> And how do we know they can see more galaxies on the other side? Because, and that's the crazy bit, we can actually see them too. Or at least the past version of them. It's time we meet the only thing that sits outside our triangle: the observable universe.
+
+Edits: "A better metaphor is like increasing" → "…is increasing"; "where one pixel just becomes" → "where one pixel
+becomes"; "but well it's" → "but it's"; "everything that we know to exist inside this bubble, here, where it lands"
+→ "…that we know exists inside this bubble, here's where it lands"; "both are kind of a horizon" → "both are a kind of
+horizon"; "what's inside it" → "what's inside them"; "also in it" → "in it too"; "both the same line" → "both on the
+same line"; "a galaxy that seems on the edge for us. Well for them their universe will be also centered" → "a galaxy
+that, for us, seems to be at the edge. Well, for them, their universe is centred"; "to the other side" → "on the other
+side". If the photo picture changes (one pixel into four inside the same frame), the words still fit.
+
+### 5c · The Observable Universe (`short-05c-observable-universe`)
+
+> So I'm doing this thing where I'm plotting every object that can ever exist on this chart of mass and size. And the funny thing is, everything falls into a triangle. Oh, did I say everything? No, that's not true. Almost everything. Because actually there's one thing that falls outside of it. But I'm not even sure you can call that an object. Today we're exploring the observable universe.
+>
+> So our chart is limited by three sides: relativity on the top left, quantum mechanics on the bottom left, and the size of the universe on the right.
+>
+> But I should clarify that this is the size of *our* universe. That's the cosmic event horizon, about 16 billion light-years away in every direction. This is the limit of everything that can happen that can ever affect us. Nothing that happens outside this bubble will ever be known to us, will ever be seen by us, or will ever reach us.
+>
+> We can call this our universe, because it's the limit of what can affect us. But again, that's 16 billion light-years away.
+>
+> If you ask a scientist about the size of the universe, they would give you a number much closer to 46 billion light-years. What's happening is that there is yet another horizon, and that's the observable universe. That's the sum of all the light that has ever reached us.
+>
+> When we point a telescope that deep, we are not only looking at distant stars, we are looking at our own distant past. We see galaxies that are way beyond our reach.
+>
+> Even if you could travel at the speed of light and live forever, you would never be able to touch them. That also means that what happens on one side can never talk to what happens on the other side.
+>
+> So it's not really a single object at all. It represents not only our past, but also a future that never will be.
+>
+> We'll never be able to see where they go, or even where they are right now. Even their future is beyond our reach.
+>
+> And when we look at our distant past, we can see a time before superclusters, before clusters, before galaxies, even before stars existed. We can see the faint radiation that was emitted just 380,000 years after the Big Bang. That light has been travelling toward us since light could travel through the universe at all, since it became transparent enough for light to pass.
+
+Edits: "I'm just plotting… in this chart" → "I'm plotting… on this chart"; "that far deep" → "that deep"; "not looking
+only at" → "not only looking at"; "in one side… to the other side" → "on one side… on the other side"; "emitted 380,000
+years just after" → "emitted just 380,000 years after"; "Light has been traveling… in the universe… since it has
+become" → "That light has been travelling… through the universe… since it became". The numbers stand: 16 billion
+light-years (the cosmic event horizon, ~16.7) and 46 billion are both radii, distances from us in every direction.
+
 ## 6 · The tiny world: from us to the Compton line (`short-06-tiny-world`)
 
 *Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*
