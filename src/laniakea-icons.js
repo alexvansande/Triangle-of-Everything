@@ -12,8 +12,9 @@
 const HIDDEN = "laniakea-live";
 const SLUGS = ["laniakea"];
 // radians it turns across the whole frame, sideways and up; and a slow sway of its own about the
-// view the author picked (so it's never far from it, whenever in a take it shows), ± SWAY over PERIOD s
-const TURN_X = 0.9, TURN_Y = 0.45, SWAY = 0.35, PERIOD = 40;
+// view the author picked (so it's never far from it, whenever in a take it shows), ± SWAY over PERIOD s (the author,
+// 2026-11-10: "still too subtle, make it a bit faster": was ± 0.35 over 40 s)
+const TURN_X = 0.9, TURN_Y = 0.45, SWAY = 0.45, PERIOD = 20;
 // it draws at least this many px and is scaled down, so its threads and dots keep the still's weight
 const MIN_PX = 512;
 const inVideo = () => !!document.getElementById("narr-layer");

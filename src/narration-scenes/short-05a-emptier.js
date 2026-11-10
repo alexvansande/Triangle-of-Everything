@@ -26,16 +26,23 @@ export default {
     { at: "density of water", hl: [{ density: 0, label: "the density of water" }, { obj: "Human", label: false }] },
     // denser to the left
     { at: "denser and denser", cam: { r: 7.9, m: 32.4, span: 10.5 }, dur: 2.4, clear: true, hl: [{ density: 0 }] },
-    { at: "brown dwarfs", hl: [{ density: 0 }, NAMED("T Brown Dwarf", "brown dwarfs", { place: "right" })] },
-    { at: "white dwarfs", hl: [{ density: 0 }, NAMED("T Brown Dwarf", false), NAMED("White Dwarf", "white dwarfs", { place: "above" })] },
-    { at: "neutron stars", hl: [{ density: 0 }, NAMED("White Dwarf", false), NAMED("PSR J0030+0451", "neutron stars", { place: "left" })] },
+    // each with its own density line, further left (the author, 2026-11-10: "show other density lines … that match
+    // the denser brown dwarf, the denser white dwarf, the denser neutron star"), the camera panning left with them;
+    // log g/cm³ from each one's mass and size in objects.json
+    { at: "brown dwarfs", cam: { r: 8.4, m: 32.2, span: 10.5 }, dur: 1.2,
+      hl: [{ density: 0 }, { density: 1.46, label: "~30× water", delay: 0.1 }, NAMED("T Brown Dwarf", "brown dwarfs", { place: "left", delay: 0.3 })] },
+    { at: "white dwarfs", cam: { r: 7.6, m: 32.6, span: 10.5 }, dur: 1.2,
+      hl: [{ density: 0 }, { density: 1.46 }, { density: 5.98, label: "~1 tonne per cm³", delay: 0.1 }, NAMED("T Brown Dwarf", false), NAMED("White Dwarf", "white dwarfs", { place: "above", delay: 0.3 })] },
+    { at: "neutron stars", cam: { r: 6.8, m: 33, span: 10.5 }, dur: 1.2,
+      hl: [{ density: 0 }, { density: 1.46 }, { density: 5.98 }, { density: 14.53, label: "~300 million tonnes per cm³", delay: 0.1 }, NAMED("White Dwarf", false), NAMED("PSR J0030+0451", "neutron stars", { place: "left", delay: 0.3 })] },
     // today: the largest; emptier to the right
     { at: "largest objects", cam: { r: 18, m: 39, span: 22 }, dur: 3, clear: true },
     { at: "emptier and emptier", hl: [{ density: 0 }, { density: -24, label: "a galaxy · ~1 atom per cm³", delay: 0.3 }] },
     // stars: lots of them less dense than water, giants less dense than air
-    { at: "less dense than water", cam: { r: 11.6, m: 33.6, span: 6 }, dur: 2.4, clear: true,
-      hl: [{ density: 0, label: "water" }, NAMED("Sirius A", "Sirius", { place: "right" }), NAMED("Vega", false, { delay: 0.3 })] },
-    { at: "less dense than air", hl: [{ density: 0, label: "water" }, { density: -2.92, label: "air", delay: 0.2 }, NAMED("Betelgeuse", "giants", { place: "left", delay: 0.4 })] },
+    // (from "lots of stars", the water line named as the camera arrives, and then air's: the author, 2026-11-10)
+    { at: "lots of stars", cam: { r: 11.6, m: 33.6, span: 6 }, dur: 2.4, clear: true,
+      hl: [{ density: 0, label: "density of water", delay: 0.6 }, NAMED("Sirius A", "Sirius", { place: "right", delay: 1.2 }), NAMED("Vega", false, { delay: 1.4 })] },
+    { at: ["even less dense than air", "less dense than air"], hl: [{ density: 0, label: "density of water" }, { density: -2.92, label: "density of air", delay: 0.1 }, NAMED("Sirius A", false), NAMED("Betelgeuse", "giants", { place: "left", delay: 0.5 })] },
     { at: "red giant", cam: { r: 13.4, m: 33.8, span: 7 }, dur: 2, clear: true, hl: [NAMED("Sun", undefined, { place: "left" }), NAMED("Red Giant", "red giant", { delay: 0.5 })] },
     { at: ["nebula or a supernova remnant", "supernova remnant"], cam: { r: 16, m: 34, span: 9 }, dur: 2.4,
       hl: [NAMED("Red Giant", false), NAMED("Planetary Nebula", "a nebula"), NAMED("Crab Nebula", "supernova remnant", { delay: 0.6 })] },
