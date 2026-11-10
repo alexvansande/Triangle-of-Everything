@@ -45,9 +45,13 @@ function fixWindow(c) {
   const hl = c.hl.filter(q => q.window || !NS(q)).map(q => {
     if (!q.window || !q.cuts) return q;
     const cuts = q.cuts.filter(x => !NS(x));
-    // the window narrowing at "any new particle" (from W6) and the staged full set of cuts at "the search for dark
-    // matter" (quasars, microwave background, waves) still play; a plain re-listing comes in at once
-    return q.from || cuts.length > 2 ? { ...q, cuts } : { ...q, cuts, instant: true, delay: 0 };
+    // the staged full set of cuts at "the search for dark matter" (quasars, microwave background, waves) still plays;
+    // any other re-listing comes in at once. That includes video 4's narrowing at "any new particle" (from W6, traced
+    // along the line): with the window already on screen it shrank to a sliver and grew back, the restart the author
+    // still saw at 1:52 (2026-11-10)
+    if (cuts.length > 2) return { ...q, cuts };
+    const { from: _from, trace: _trace, ...still } = q;
+    return { ...still, cuts, instant: true, delay: 0 };
   });
   return { ...c, hl };
 }
