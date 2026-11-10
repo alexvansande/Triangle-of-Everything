@@ -117,3 +117,5 @@ short-05c-observable-universe
 # The four new Shorts first tonight (the author, 2026-11-09, 21:45: "render all the shorts in high quality tonight and push them to the site")
 # next: short-05b-hubble-sphere
 # next: short-05c-observable-universe
+# short-04b-smallest-black-holes changed: 2:26-2:37
+short-04b-smallest-black-holes
