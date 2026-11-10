@@ -112,7 +112,6 @@ short-00-powers-of-ten
 # (rec59): a new take, renders whole. The earlier version (short-04a-black-hole-line, queued above) stays, to compare.
 # Video 4's part 2 and video 5's three parts at full quality tonight (the author, 2026-11-09, evening)
 # The four new Shorts first tonight (the author, 2026-11-09, 21:45: "render all the shorts in high quality tonight and push them to the site")
-short-04b-smallest-black-holes
 # short-05a-emptier changed: 1:43-1:46
 short-05a-emptier
 # 2026-11-10 (the author): short-04a-black-hole-slope (rec59 whole) and the three cuts from long video 2's pieces (the densest,
