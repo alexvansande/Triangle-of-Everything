@@ -46,8 +46,12 @@ export default {
     // out to the 46 billion, the CMB fading in; at the telescope, fast in to Earth and slowly out, circles of when the
     // light was sent, the superclusters at "our distant past", the web gone, the Deep Field, then out of the CMB at
     // "faint radiation", and on out at that rate to the end
-    { at: "outside this bubble", cam: { obj: HS, span: 0.35 }, dur: 2.6, clear: true, hl: [{ line: "horizon" }, { obj: HS, label: false }], zoom: { mark: "dive" }, offset: 0 },
-    { at: "outside this bubble", offset: 0, zoom: { show: true, fade: 1.2 } },   // with the chart's dive, before it goes dark
+    // a dive into our universe's picture (the author, 2026-11-10: "make sure the zoom and fade the CEH in the chart
+    // matches the CEH we are zooming into"): it grows to the size of the zoom's horizon circle as it opens, and the
+    // zoom fades in over it as the dive comes to rest; the dive stays in under the zoom to the end
+    { at: "outside this bubble", offset: 0, cam: { obj: HS, span: 8 }, dur: 1.6, clear: true, hl: [{ line: "horizon" }, { obj: HS, label: false }], zoom: { mark: "dive" } },
+    { at: "outside this bubble", offset: 0, dolly: { obj: HS, size: 0.42, in: 1.6, out: 1 }, dur: 120 },
+    { at: "outside this bubble", offset: 1.1, zoom: { show: true, fade: 0.6 } },
     { at: "outside this bubble", offset: 1.6, clear: true, hl: [] },   // the chart's lines off the zoom
     { at: "call this our universe", offset: 0, zoom: { mark: "ours" } },
     { at: "46 billion", offset: 0, zoom: { mark: "obs" } },
