@@ -1447,6 +1447,11 @@ light-years (the cosmic event horizon, ~16.7) and 46 billion are both radii, dis
   filaments fade out while we see the hubble deep field, and then the hubble deep field fades and only then we cross
   outside the CMB as we say "see the faint radiation". Then just keep zooming out at the same rate until the end of the
   video."* (It replaces the 19:09 notes' wavelength-explorer telescope and three-colour circles.)
+  On the 15:36 draft (2026-11-10): *"0:52, can you do a dive? Or somehow make sure the zoom and fade the CEH in the
+  chart matches the CEH we are zooming into? A fast zoom will look like a Dive. 1:20 show a circle for 46 billion light
+  years. 2:25 thats when hubble deep field should fade, not sooner"* (built: the chart dives into our universe's
+  picture and the zoom fades in with its horizon circle on the picture's edge; a dashed circle at the CMB's 46 billion
+  light-years; the Deep Field fades at "emitted").
 
 ## 6 · The tiny world: from us to the Compton line (`short-06-tiny-world`)
 
