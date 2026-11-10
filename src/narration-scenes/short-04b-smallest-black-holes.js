@@ -6,7 +6,7 @@
 // =============================================================
 // Field reference: docs/narration.md, "Scene fields". Rules: video/plans/visual-rules.md.
 
-import V4 from "./short-04-black-holes.js";
+import V4, { DM_MICA, DM_HURT, DM_WD, DM_CMB, DM_CANDS, DM_PBH, W5, QSO, CMB, GW, ML, HAW } from "./short-04-black-holes.js";
 
 const SCHW = { line: "schwarzschild" };
 const BH = (m) => ({ r: m - 27.83, m, mark: true });
@@ -57,7 +57,26 @@ export default {
   title: "The Smallest Black Holes",
   blurb: "What is the smallest black hole that could exist? Some might have formed in the first instants after the Big Bang, and if they're still around, they could be the dark matter we can't see.",
   start: { r: 4.2, m: 26.6, span: 16 },
-  poster: undefined, posterWide: undefined,
+  // the YouTube thumbnail (scripts/narration-poster.mjs; the author, 2026-11-10): the dark-matter map, the candidates
+  // and the crossed-out areas, each saying in a few words what ruled it out
+  poster: { at: 3, cues: [{ t: 0, cam: { r: -3, m: 8, span: 18 }, dur: 0.1, drift: 0, icons: false, labels: false, hl: [
+    { line: "schwarzschild", draw: 0.01 },
+    { window: W5, cuts: [QSO, CMB, GW, ML, HAW], label: "still open?", dist: 40, instant: true },
+    ...[DM_MICA, DM_HURT, DM_WD, DM_CMB].map(a => ({ ...a, label: undefined, instant: true })),
+    ...DM_CANDS.filter(c => c.mark[1] > -10 && c.mark[1] < 29).map(c => ({ ...c, instant: true })),
+    { ...DM_PBH, instant: true },
+    { text: "where is\ndark matter?", at: [0, 21.3], size: 36, color: "#ffd54f", instant: true },
+    { text: "heads would\nexplode here", at: [-8.3, 5.6], size: 26, color: "#ff8a80", instant: true },
+    { text: "not in\nancient crystals", at: [-6, -3], size: 26, color: "#f2e14a", instant: true },
+    { text: "white dwarfs\nwould have exploded", at: [0.2, 11.2], size: 24, color: "#9ec1ff", instant: true },
+    { text: "the microwave\nbackground says no", at: [0.3, 6], size: 24, color: "#e0e3f0", instant: true },
+    // a hand's Xs over the two big areas, and arrows from the two texts to their small boxes (the author's sketch, 2026-11-10)
+    { x: [-0.9, 16.3], size: 90, color: "#ffe066", instant: true },
+    { x: [2.5, 2.6], size: 90, color: "#ffe066", instant: true },
+    { arrow: true, solid: true, width: 6, color: "#ffe066", from: { r: -7.4, m: 4.6 }, to: { r: -3.9, m: 2.4 }, draw: 0.01 },
+    { arrow: true, solid: true, width: 6, color: "#ffe066", from: { r: -8.6, m: -2.3 }, to: { r: -7.3, m: 0.6 }, draw: 0.01 },
+  ] }] },
+  posterWide: undefined,
   cues: [
     // the line: for any mass, a size it can't go under (the Moon squeezed down onto it)
     { at: "for any given mass", cam: { r: 4.2, m: 26.6, span: 16 }, dur: 3, hl: [SCHW, { obj: "Moon" }] },

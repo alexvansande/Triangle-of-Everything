@@ -287,3 +287,6 @@ export default {
       hl: [{ density: 44, label: "density of universe\nfirst instants after big bang" }] },
   ],
 };
+
+// the dark-matter map's pieces, for The Smallest Black Holes' thumbnail (short-04b-smallest-black-holes.js)
+export { DM_MICA, DM_HURT, DM_WD, DM_CMB, DM_CANDS, DM_PBH, W5, QSO, CMB, GW, ML, HAW, SCHW };

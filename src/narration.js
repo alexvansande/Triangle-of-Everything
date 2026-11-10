@@ -1090,6 +1090,7 @@ export async function startNarration(app) {
       else if (h.figText) drawFigText(el, h, age);
       else if (h.window) drawWindow(el, h, age);
       else if (h.cross) drawCross(el, h, t - (h.since ?? h.t0));
+      else if (h.x) drawX(el, h, age);
       else if (h.score) drawScore(el, h, age);
       else if (h.text) drawText(el, h, age);
       else if (h.pic) drawPic(el, h, age);
@@ -1870,6 +1871,17 @@ export async function startNarration(app) {
    *  color? } — a dot, with dashed guides out to the left edge (labelled with the
    *  mass) and down to the size ruler (labelled with the size), drawn out from the
    *  dot. */
+  /** A crossing-out: { x: [r, m], size?: px (56), color?, width? }: two bold strokes over a place, drawn in
+   *  (a hand's X over a crossed-off area: The Smallest Black Holes' thumbnail, the author, 2026-11-10). */
+  function drawX(el, h, age) {
+    const cx = sx(h.x[0]), cy = sy(h.x[1]), r = (h.size ?? 56) / 2, col = h.color || "#ffd54f", w = h.width ?? 7;
+    const k = h.instant ? 1 : d3.easeCubicOut(clamp01(age / 0.5));
+    const stroke = (x1, y1, x2, y2, kk) => el.append("line").attr("x1", x1).attr("y1", y1)
+      .attr("x2", x1 + (x2 - x1) * kk).attr("y2", y1 + (y2 - y1) * kk)
+      .attr("stroke", col).attr("stroke-width", w).attr("stroke-linecap", "round").attr("opacity", 0.95);
+    stroke(cx - r, cy - r * 1.15, cx + r, cy + r * 1.15, clamp01(k * 2));
+    if (k > 0.5) stroke(cx + r, cy - r * 1.15, cx - r, cy + r * 1.15, clamp01(k * 2 - 1));
+  }
   function drawCross(el, h, age) {
     const SH = layer.clientHeight;
     const x = sx(h.cross.r), y = sy(h.cross.m), col = h.color || "#ffd54f";
