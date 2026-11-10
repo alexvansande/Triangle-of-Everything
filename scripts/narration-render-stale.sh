@@ -85,6 +85,8 @@ for t in $takes; do
     grep -q '"insertInto"' "video/cuts/$t.json" 2>/dev/null && [ ! -f "$out" ] && kind=insert
     if [ -n "$DRY" ]; then [ "$kind" = none ] && echo "= $t: only notes changed" || echo "stale $t $kind $ranges"; continue; fi
     echo "=== $t $(date +%H:%M:%S): $kind${ranges:+ ($ranges)} — $(j why)"
+    # the last attempt's log kept beside the new one (2026-11-10: a failed night's log was gone by the next run)
+    [ -f "output/videos/$t.log" ] && mv "output/videos/$t.log" "output/videos/$t.log.prev"
     head=$(git rev-parse HEAD)
     ok=""
     case "$kind" in

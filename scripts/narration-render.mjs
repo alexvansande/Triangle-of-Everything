@@ -68,7 +68,22 @@ for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"]) process.on(sig, async () => {
   await Promise.allSettled([...browsers].map(b => b.close()));
   process.exit(130);
 });
+// A stall guard (2026-11-10: a render of the forces Short hung from 23:50 to 05:53 and held up every take behind it):
+// each worker notes when it last finished a frame; one that hasn't for NARR_STALL_MIN minutes (20: a cold start of the
+// powers-of-ten zoom can take ten) stops the whole render with where each worker was, so the round goes on to the next
+// take instead of waiting for hours.
+const STALL_MS = 60000 * +(process.env.NARR_STALL_MIN || 20);
+const progress = new Map();   // label → { at: last frame finished (ms), t: its time in the take, n: frames done }
+setInterval(async () => {
+  const now = Date.now(), stuck = [...progress].filter(([, p]) => !p.done && now - p.at > STALL_MS);
+  if (!stuck.length) return;
+  console.log(`STALLED: ${stuck.map(([l, p]) => `${l} no frame for ${Math.round((now - p.at) / 60000)} min (at t=${p.t.toFixed(2)}s, ${p.n} frames done)`).join("; ")}`);
+  console.log(`workers: ${[...progress].map(([l, p]) => `${l} t=${p.t.toFixed(2)}s ${p.done ? "done" : `${Math.round((now - p.at) / 1000)} s since its last frame`}`).join(", ")}`);
+  await Promise.allSettled([...browsers].map(b => b.close()));
+  process.exit(3);
+}, Math.min(30000, STALL_MS / 2)).unref();
 async function renderRange(t0, t1, file, label) {
+  progress.set(label, { at: Date.now(), t: t0, n: 0 });
   const browser = await puppeteer.launch({
     executablePath: CHROME,
     // WebGL for the fractal background (bg-noise.js): on the GPU if Chrome will use it, else
@@ -202,6 +217,7 @@ async function renderRange(t0, t1, file, label) {
         frame = await sharp(Buffer.from(await shot(), "base64")).removeAlpha().resize(W, H).raw().toBuffer();
         single++;
         if (!ff.stdin.write(frame)) await new Promise(r => ff.stdin.once("drain", r));
+        progress.set(label, { at: Date.now(), t, n: n - n0 + 1 });
         if ((n - n0) % (FPS * 10) === 0) {
           const done = n - n0 + 1, rate = done / ((Date.now() - started) / 1000);
           console.log(`[${label}] t=${t.toFixed(1)}s  ${done}/${n1 - n0} frames  ${rate.toFixed(1)} fps  eta ${((n1 - n) / rate / 60).toFixed(1)} min  (${Math.round(100 * single / done)}% still)`);
@@ -221,6 +237,7 @@ async function renderRange(t0, t1, file, label) {
       for (let j = 0; j < frame.length; j++) frame[j] = (acc[j] + (SUB >> 1)) / SUB;
     }
     if (!ff.stdin.write(frame)) await new Promise(r => ff.stdin.once("drain", r));
+    progress.set(label, { at: Date.now(), t, n: n - n0 + 1 });
     if ((n - n0) % (FPS * 10) === 0) {
       const done = n - n0 + 1, rate = done / ((Date.now() - started) / 1000);
       console.log(`[${label}] t=${t.toFixed(1)}s  ${done}/${n1 - n0} frames  ${rate.toFixed(1)} fps  eta ${((n1 - n) / rate / 60).toFixed(1)} min  (${Math.round(100 * single / done)}% still)`);
@@ -231,6 +248,7 @@ async function renderRange(t0, t1, file, label) {
   // the live stars (src/star-icons.js): a lost GL context shows the pictures instead (2026-11-08: stars came out as glows)
   const stars = await page.evaluate("window.__narr.liveStars?.()");
   if (stars?.lost || stars?.blankFrames) console.log(`[${label}] WARNING live stars: GL context lost ${stars.lost} time(s), ${stars.blankFrames} frame(s) drew the pictures instead${stars.down ? ", still lost at the end" : ""}`);
+  progress.set(label, { ...progress.get(label), done: true });
   ff.stdin.end();
   await new Promise(r => ff.on("close", r));
   await browser.close();
