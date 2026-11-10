@@ -112,10 +112,8 @@ short-00-powers-of-ten
 # (rec59): a new take, renders whole. The earlier version (short-04a-black-hole-line, queued above) stays, to compare.
 short-04a-black-hole-slope
 # Video 4's part 2 and video 5's three parts at full quality tonight (the author, 2026-11-09, evening)
-short-05b-hubble-sphere
 short-05c-observable-universe
 # The four new Shorts first tonight (the author, 2026-11-09, 21:45: "render all the shorts in high quality tonight and push them to the site")
-# next: short-05b-hubble-sphere
 # next: short-05c-observable-universe
 # short-04b-smallest-black-holes changed: 2:26-2:37
 short-04b-smallest-black-holes
