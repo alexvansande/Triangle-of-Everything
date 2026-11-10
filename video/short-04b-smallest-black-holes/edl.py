@@ -50,4 +50,21 @@ EDL = [
  ("rec60", "end", 436.06, 441.92, {"s": 435.80}),   # And everything else, we, the galaxies, the stars, are just the lucky few survivors.   (its third try whole: the first two broke off, "everything we know of" came out garbled)
 ]
 
-POST_CUTS = []
+# Cut from the finished audio (video/tools/postcut.py, edit = audio seconds: natural speed), 2026-11-10, to bring the Short
+# under YouTube's 3:00 with its 3 s credits (it was 3:04.5 + 3): "and it can close up even further in the future" out
+# (the author's pick), and every pause between sentences capped at 0.85 s, cut in the middle of the measured silence.
+POST_CUTS = [
+    (11.82, 12.61),
+    (16.42, 16.73),
+    (25.94, 26.25),
+    (32.45, 32.94),
+    (46.46, 46.95),
+    (55.56, 55.88),
+    (60.95, 64.33),
+    (83.00, 84.09),
+    (110.33, 110.48),
+    (133.67, 134.45),
+    (157.18, 157.29),
+    (164.45, 165.01),
+    (176.69, 176.80),
+]

@@ -142,8 +142,29 @@ for (const k of info) if (k.ytThumb) {
 // checks out with fetch-depth 0
 const built = gitDate() || new Date().toISOString();
 const commit = (() => { try { return execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim(); } catch { return ""; } })();
-html = html.replace("</body>", gridHtml(info, { built, commit }) + "\n</body>");
-fs.writeFileSync(path.join(OUT, "index.html"), html);
+// Two pages (the author, 2026-11-10: the page gave a load error on the iPhone, too heavy; it was the whole app, map and
+// all, with the grid laid over it). index.html is now the grid alone: its stills, the rendered videos' player and the
+// YouTube embeds, nothing of the app, so a phone watching the renders never loads the map. live.html is the page as it
+// was, the app with the grid: a take played live opens there (a #take on index.html goes straight to live.html#take,
+// so the old links keep working), and its "All videos" button comes back here.
+const grid = gridHtml(info, { built, commit });
+html = html.replace("</body>", grid + "\n</body>");
+fs.writeFileSync(path.join(OUT, "live.html"), html.replace('<a id="narr-back" href="#" hidden>', '<a id="narr-back" href="./" hidden>'));
+fs.writeFileSync(path.join(OUT, "index.html"), `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Triangle Narration Preview</title>
+<meta name="robots" content="noindex, nofollow">
+<script>if (location.hash.length > 1) location.replace("live.html" + location.hash);</script>
+<style>html, body { margin: 0; background: #07071c; }</style>
+</head><body>
+${grid}
+<script>
+// the grid alone: a take played live (a card or "Play all" in live mode, a card with no render in video mode, the
+// player's "Live map") sets a #take, and that goes to the app's page
+window.addEventListener("hashchange", function () { if (location.hash.length > 1) location.replace("live.html" + location.hash); });
+</script>
+</body></html>
+`);
 fs.writeFileSync(path.join(OUT, "listen.html"), listenHtml(info, { built, commit, audioBase: MP3 ? "" : "/narration/" }));
 // GitHub Pages refuses an artifact over 1 GB (2026-11-05: 1.31 GB, every deploy failed). The audio lives once, in the
 // site's own /narration/ (the player loads a take from there, import.meta.env.BASE_URL): the page's copies of the
@@ -156,7 +177,7 @@ if (!MP3) {
   if (fs.existsSync(root)) for (const t of fs.readdirSync(root)) if (t !== "photos")
     for (const f of (!takes.includes(t) || retired.has(t)) ? ["audio.m4a", "mix.m4a"] : ["audio.m4a"]) fs.rmSync(path.join(root, t, f), { force: true });
 }
-// Body-only variant: hosts that add their own <!doctype>/<head>/<body> skeleton
+// Body-only variant (of the app's page): hosts that add their own <!doctype>/<head>/<body> skeleton
 const page = html
   .replace(/<!DOCTYPE html>\s*/i, "")
   .replace(/<\/?html[^>]*>\s*/g, "")
