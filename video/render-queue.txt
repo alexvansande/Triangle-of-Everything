@@ -121,3 +121,7 @@ short-l2-dance-of-the-forces
 # 1:09-1:12: one 256-px compositor tile captured before it was rastered) and, most likely, the glows blinking under objects.
 # It changes no frame on purpose, so nothing else needs a re-render for it; if a rectangle still flashes in tonight's render,
 # say where and the capture goes to BeginFrame control next.
+# 2026-11-10, evening (the author): The Smallest Black Holes goes to YouTube (scheduled Tue 2026-11-17): the window kept
+# still at "any new particle" (1:52) and the injuries label beside its area; renders whole, early (the nightly started by hand).
+# 5a and 5b changed too but wait for their new recordings.
+short-04b-smallest-black-holes
