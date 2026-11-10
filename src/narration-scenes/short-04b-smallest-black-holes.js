@@ -66,7 +66,7 @@ export default {
     ...DM_CANDS.filter(c => c.mark[1] > -10 && c.mark[1] < 29).map(c => ({ ...c, instant: true })),
     { ...DM_PBH, instant: true },
     { text: "where is\ndark matter?", at: [0, 21.3], size: 36, color: "#ffd54f", instant: true },
-    { text: "heads would\nexplode here", at: [-8.3, 5.6], size: 26, color: "#ff8a80", instant: true },
+    { text: "heads would\nexplode!", at: [-8.3, 5.6], size: 26, color: "#ff8a80", instant: true },
     { text: "not in\nancient crystals", at: [-6, -3], size: 26, color: "#f2e14a", instant: true },
     { text: "white dwarfs\nwould have exploded", at: [0.2, 11.2], size: 24, color: "#9ec1ff", instant: true },
     { text: "the microwave\nbackground says no", at: [0.3, 6], size: 24, color: "#e0e3f0", instant: true },
