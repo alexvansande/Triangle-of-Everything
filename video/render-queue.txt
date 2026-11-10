@@ -122,7 +122,5 @@ short-00-powers-of-ten
 # 1:09-1:12: one 256-px compositor tile captured before it was rastered) and, most likely, the glows blinking under objects.
 # It changes no frame on purpose, so nothing else needs a re-render for it; if a rectangle still flashes in tonight's render,
 # say where and the capture goes to BeginFrame control next.
-# short-05b-hubble-sphere changed: 0:45-0:55, 1:39-1:43
-short-05b-hubble-sphere
 # short-05c-observable-universe changed: 1:38-1:41
 short-05c-observable-universe
