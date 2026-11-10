@@ -9,11 +9,10 @@
 
 SOURCES = {"rec64": "the observable universe.aifc"}
 TREATMENT = "plain"
-# then, after video/tools/debreath.py (--min 0.03, for clicks too), the audio.m4a encode with
-# ffmpeg -af "adeclick=w=40:o=75,lowpass=f=12500": today's recordings carry a 12–16 kHz artifact that crackled on the
-# s sounds (the author, 2026-11-09: "crackling noises", "cluzzzeetrzz")
-# and here ",equalizer=f=10000:t=h:w=3000:g=-18" after them: a bird in the room, 8.7–11 kHz, loudest at 0:44 (the
-# author, 2026-11-09: "high pitched noise"); the voice's sibilance sits lower. Encoded at 320k (AAC tops out near 190k mono)
+# then video/tools/debreath.py (--min 0.03) and the audio.m4a encode as it comes (the author, 2026-11-09, evening: a
+# test with and without the de-click and the 12.5 kHz low-pass added earlier that day: all clean, and without them it sounded better)
+# with ffmpeg -af "equalizer=f=10000:t=h:w=3000:g=-18": a bird in the room, 8.7–11 kHz, loudest at 0:44 (the author,
+# 2026-11-09: "high pitched noise"); the voice's sibilance sits lower
 PAUSES = {"word": 0.25, ",": 0.55, ".": 1.0}
 GAPS = {"same": 0.55, "beat": 1.1}
 ROOM = True

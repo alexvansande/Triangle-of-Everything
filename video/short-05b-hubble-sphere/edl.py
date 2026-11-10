@@ -8,9 +8,8 @@
 
 SOURCES = {"rec63": "The Cosmic Event Horizon.aifc"}
 TREATMENT = "plain"
-# then, after video/tools/debreath.py (--min 0.03, for clicks too), the audio.m4a encode with
-# ffmpeg -af "adeclick=w=40:o=75,lowpass=f=12500": today's recordings carry a 12–16 kHz artifact that crackled on the
-# s sounds (the author, 2026-11-09: "crackling noises", "cluzzzeetrzz")
+# then video/tools/debreath.py (--min 0.03) and the audio.m4a encode as it comes (the author, 2026-11-09, evening: a
+# test with and without the de-click and the 12.5 kHz low-pass added earlier that day: all clean, and without them it sounded better)
 PAUSES = {"word": 0.25, ",": 0.55, ".": 1.0}
 GAPS = {"same": 0.55, "beat": 1.1}
 ROOM = True
