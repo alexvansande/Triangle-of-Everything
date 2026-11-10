@@ -1435,6 +1435,19 @@ light-years (the cosmic event horizon, ~16.7) and 46 billion are both radii, dis
 - 5b: the alien's "distant past" arrow should point towards the side where the alien is: their distant past points to
   our present.
 
+- 5c (the author, 2026-11-09 21:24, not built yet; the render still has the earlier drawObservable version): *"from
+  minute 1 onwards, start the dive into the universe visualization. Use the powers of 10 tool. Make the CMB 100%
+  transparent. When I say about things that never reach us, highlight the area outside our CEH circle. 1:22 "46 billion
+  light years" zoom out and fade in the CMB so we see everything. At "when you point a telescope" do a fast zoom in to
+  earth floating in the cosmos in the powers of 10 tooling, but keep the CMB background visible. Then keep CMB visible
+  in the background of everything as you do a zoom out, but this time instead of the grid being squares of given sizes
+  its circles of age of light. Keep a label on top saying "When was the light sent" and the circles say 1 year, 10
+  years, 100 years, 1000 years, 1M years and so on. Time the zoom out so that by the time we say "when we look at our
+  distant past" we are just now going past superclusters. But now the central objects fade sooner so we see the
+  filaments fade out while we see the hubble deep field, and then the hubble deep field fades and only then we cross
+  outside the CMB as we say "see the faint radiation". Then just keep zooming out at the same rate until the end of the
+  video."* (It replaces the 19:09 notes' wavelength-explorer telescope and three-colour circles.)
+
 ## 6 · The tiny world: from us to the Compton line (`short-06-tiny-world`)
 
 *Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*
