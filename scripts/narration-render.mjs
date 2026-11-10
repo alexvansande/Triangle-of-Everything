@@ -70,7 +70,13 @@ async function renderRange(t0, t1, file, label) {
     // WebGL for the fractal background (bg-noise.js): on the GPU if Chrome will use it, else
     // Chrome's software GL (SwiftShader), which recent Chromes no longer fall back to by themselves
     args: ["--no-sandbox", "--mute-audio", "--disable-background-timer-throttling", "--disable-renderer-backgrounding",
-      "--ignore-gpu-blocklist", "--enable-unsafe-swiftshader"],
+      "--ignore-gpu-blocklist", "--enable-unsafe-swiftshader",
+      // every compositor stage done before a capture, and no placeholder for an image still decoding: the Smallest Black
+      // Holes' render of 2026-11-10 had a flat rectangle flash for one sub-frame, six times in three minutes, always the
+      // same 256-px compositor tile (device x 512-768 from the top), a tile captured before it was rastered (the author:
+      // "a rectangle blinking in the top", and glows under objects blinking)
+      "--run-all-compositor-stages-before-draw", "--disable-checker-imaging", "--disable-new-content-rendering-timeout",
+      "--disable-threaded-animation", "--disable-threaded-scrolling", "--disable-image-animation-resync"],
   });
   browsers.add(browser);
   const page = await browser.newPage();

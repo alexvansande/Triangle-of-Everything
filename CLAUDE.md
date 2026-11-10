@@ -17,7 +17,8 @@
   author's rule, 2026-10-27). Get it onto the unlisted page,
   https://triangleofeverything.com/videos-3v63rqq1/ (built from `main` by GitHub Pages: merge,
   push, wait for the deploy, then check the page serves the new take), and give the link with
-  the take's hash, e.g. `…/videos-3v63rqq1/#short-03-stars`. The private claude.ai preview page
+  the take's hash, e.g. `…/videos-3v63rqq1/#short-03-stars` (the page itself is the grid alone since 2026-11-10, light enough
+  for a phone; a #take sends the viewer on to `live.html`, the app, which the grid loads only then). The private claude.ai preview page
   no longer fits (one version holds at most 512 files; the build has more). Don't touch the
   rendered videos (`video/web/`, the preview's "Rendered video" switch): they're rendered in a
   local session.
