@@ -1427,6 +1427,14 @@ years just after" → "emitted just 380,000 years after"; "Light has been travel
 become" → "That light has been travelling… through the universe… since it became". The numbers stand: 16 billion
 light-years (the cosmic event horizon, ~16.7) and 46 billion are both radii, distances from us in every direction.
 
+### Picture notes for the re-cut (the author, 2026-11-10, watching the renders)
+
+- 5a: Laniakea's rotation is too subtle; speed it up a little.
+- 5b: the photo-resolution picture looks like the photo is growing, so it says the opposite. Keep the photo's size
+  fixed and make the pixels smaller (one pixel becomes four inside the same frame).
+- 5b: the alien's "distant past" arrow should point towards the side where the alien is: their distant past points to
+  our present.
+
 ## 6 · The tiny world: from us to the Compton line (`short-06-tiny-world`)
 
 *Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*
