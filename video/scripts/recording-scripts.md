@@ -1429,7 +1429,13 @@ light-years (the cosmic event horizon, ~16.7) and 46 billion are both radii, dis
 
 ### Picture notes for the re-cut (the author, 2026-11-10, watching the renders)
 
-- 5a: Laniakea's rotation is too subtle; speed it up a little.
+- 5a: Laniakea's rotation is too subtle; speed it up a little. Again later the same day: *"1:28 Laniakea rotation is
+  still too subtle, make it a bit faster still"* (built 2026-11-10: its sway ± 0.45 rad over 20 s, was ± 0.35 over 40 s).
+- 5a (2026-11-10): *"00:19 'Brown dwarfs, white dwarfs, neutron stars' - when I say these words you are just showing
+  the same density line again. Instead, show other density lines … that match the denser brown dwarf, the denser white
+  dwarf, the denser neutron star etc. 'lots of stars are less dense than water' show the density of water, and then the
+  density of air line"* (built: a line for each, about 30× water, a tonne per cm³ and 300 million tonnes per cm³; the
+  stars' shot from "lots of stars", water's line named, then air's).
 - 5b: the photo-resolution picture looks like the photo is growing, so it says the opposite. Keep the photo's size
   fixed and make the pixels smaller (one pixel becomes four inside the same frame).
 - 5b: the alien's "distant past" arrow should point towards the side where the alien is: their distant past points to
