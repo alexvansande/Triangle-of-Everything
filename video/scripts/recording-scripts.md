@@ -29,9 +29,9 @@ went silent after a minute when it ran out.
 | The Black Hole Slope (Short: the black-hole line, recorded on its own) | `short-04a-black-hole-slope` | 2:51 with the credits (recorded 2026-11-09, rec59, natural speed); the earlier version, `short-04a-black-hole-line` (cut from rec48), stays beside it to compare; the author prefers it (2026-11-09: more concise, says "black hole" in the first 30 s, more energy), now 2:07 with rec59's ending from "But the most interesting question" to "tiny black holes" in place of its own, which stopped at "but how small" (on trial: do the two recordings sit together?). Fact check of that ending: "most of the things in the universe are just tiny black holes" says more than the idea does; it's most of the *matter*, the dark matter, that could be tiny black holes. To re-record: *"…some people who believe that most of the matter in the universe, the dark matter, could be tiny black holes."* |
 | The Smallest Black Holes (Short: part 2 of video 4) | `short-04b-smallest-black-holes` | 3:23 + credits (recorded on its own 2026-11-09: rec61's opening, rec60's body, natural speed; over a Short's 3:00) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
-| 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:14 + credits (recorded on its own 2026-11-09, rec62, natural speed) |
-| 5, part 2 · The Cosmic Event Horizon | `short-05b-hubble-sphere` | 3:04 + credits (rec63, 2026-11-09; over a Short's 3:00) |
-| 5, part 3 · The Observable Universe | `short-05c-observable-universe` | 2:45 + credits (rec64, 2026-11-09) |
+| 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:10 + credits (recorded on its own 2026-11-09, rec62, natural speed; two lines re-recorded in rec65: "lots of stars", the nebula) |
+| 5, part 2 · The Cosmic Event Horizon | `short-05b-hubble-sphere` | 2:58 + credits (rec63, 2026-11-09; "practically infinite" and "we can actually see them too, or at least the past version of them" re-recorded in rec65) |
+| 5, part 3 · The Observable Universe | `short-05c-observable-universe` | 2:40 + credits (rec64, 2026-11-09; "16 billion light-years away", "We can call this our universe" and "If you ask a scientist" re-recorded in rec65) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
 | 0 · powers of ten (the CMB to the Planck length) | `short-00-powers-of-ten` | 3:00, narrated (recorded 2026-11-03, rec52: 2:55 of voice) |
 

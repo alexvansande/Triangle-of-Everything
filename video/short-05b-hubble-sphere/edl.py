@@ -6,7 +6,7 @@
 # video/sources/2026-11-09/. Treatment: enhance.py --plain, natural speed. The last try unless it slips.
 # (source, beat, first-word start, last-word start, {s, e, gap, cut}) in source seconds.
 
-SOURCES = {"rec63": "The Cosmic Event Horizon.aifc"}
+SOURCES = {"rec63": "The Cosmic Event Horizon.aifc", "rec65": "new recordings for shorts 5.aifc"}   # rec65: the re-recorded lines (2026-11-09, 21:33)
 TREATMENT = "plain"
 # then video/tools/debreath.py (--min 0.03) and the audio.m4a encode as it comes (the author, 2026-11-09, evening: a
 # test with and without the de-click and the 12.5 kHz low-pass added earlier that day: all clean, and without them it sounded better)
@@ -35,9 +35,11 @@ EDL = [
  # our universe, not the universe
  ("rec63", "centre", 445.84, 456.30),  # But that's also where the similarities end, because a black hole is an object with a center. Our universe is just that, it's our universe, it's not the universe.
  ("rec63", "centre", 518.14, 527.54, {"s": 518.50}),   # But let's imagine for a moment an alien living in a galaxy that seems on the edge for us. Well, for them, their universe will be also centered around them.   (from "but", 518.58: at 518.70 it began mid-word, the author heard a lost syllable)
- ("rec63", "centre", 571.50, 580.52),  # They don't see a bunch of empty space to the other side. They see more and more galaxies, because as far as we've been able to measure, the universe is infinite.   (the last try)
+ ("rec65", "centre", 97.2, 105.72),    # They don't see a bunch of empty space to the other side. They see more and more galaxies, because, as far as we can tell, the universe is practically infinite.   (re-recorded, its third try: "infinite" is more than we've measured)
  # and we see them
- ("rec63", "see", 691.04, 698.90),     # And how do we know they can see more galaxies on the other side? Because, and that's the crazy bit, we can actually see them.   (the last of eight)
+ ("rec65", "see", 107.46, 110.0, {"e": 110.6}),   # And how do we know they can see more galaxies on the other side?
+ ("rec65", "see", 114.48, 119.42, {"s": 116.05, "e": 119.7}),   # Because, and that's the crazy bit, we can actually see them too.   (after "we can actually send them", a slip)
+ ("rec65", "see", 154.58, 157.98, {"s": 155.58, "e": 158.42}),   # Or at least the past version of them.   (the last of five tries, the author's new line)
  ("rec63", "see", 716.34, 722.54),     # It's time we meet the only thing that fits outside our triangle: it's the observable universe.
 ]
 

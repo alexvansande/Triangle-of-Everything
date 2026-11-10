@@ -7,7 +7,7 @@
 # Treatment: enhance.py --plain, natural speed. The last try unless it slips.
 # (source, beat, first-word start, last-word start, {s, e, gap, cut}) in source seconds.
 
-SOURCES = {"rec64": "the observable universe.aifc"}
+SOURCES = {"rec64": "the observable universe.aifc", "rec65": "new recordings for shorts 5.aifc"}   # rec65: the re-recorded lines (2026-11-09, 21:33)
 TREATMENT = "plain"
 # then video/tools/debreath.py (--min 0.03) and the audio.m4a encode as it comes (the author, 2026-11-09, evening: a
 # test with and without the de-click and the 12.5 kHz low-pass added earlier that day: all clean, and without them it sounded better)
@@ -28,11 +28,11 @@ EDL = [
  ("rec64", "sides", 107.30, 108.74),   # Quantum mechanics on the bottom left.
  ("rec64", "sides", 113.84, 115.32),   # And the size of the universe on the right.   (the second: the first said "right mode")
  # our universe
- ("rec64", "ours", 131.92, 137.44),    # But I should clarify that this is the size of our universe. That's the cosmic event horizon.
- ("rec64", "ours", 149.42, 166.92),    # About 16 billion light-years across in every direction. This is the limit of everything that can happen that can ever affect us. Nothing that happens outside this bubble will ever be known to us, will ever be seen by us, or will ever reach us.
- ("rec64", "ours", 180.44, 184.28),    # Scientists call this our universe because it's the limit of what can affect us.
+ ("rec65", "ours", 164.82, 178.56, {"s": 164.7, "e": 179.05}),   # But I should clarify that this is the size of our universe. That's the cosmic event horizon, about 16 billion light-years away, in every direction. This is the limit of everything that can happen that can ever affect us.   (re-recorded: it said "across", a radius; see NOTES)
+ ("rec64", "ours", 159.42, 166.92),    # Nothing that happens outside this bubble will ever be known to us, will ever be seen by us, or will ever reach us.   (the first take's: rec65's restarts)
+ ("rec65", "ours", 196.2, 204.16, {"s": 196.02, "e": 204.8}),   # We can call this our universe, because it's the limit of what can affect us. But again, that's 16 billion light-years away.   (re-recorded, its second try: "Scientists call this", "across")
  # the observable universe
- ("rec64", "obs", 217.14, 227.30),     # But again, that's 16 billion light-years across. If you ask a scientist the size of the universe, they would give you a number much closer to 46 billion light-years.
+ ("rec65", "obs", 206.62, 213.18, {"s": 206.4, "e": 213.72}),   # If you ask a scientist about the size of the universe, they would give you a number much closer to 46 billion light-years.   (re-recorded: the first stumbled on "a scientist"; 46 billion is a radius too, as the author asked)
  ("rec64", "obs", 236.68, 244.94),     # What's happening is that there is yet another horizon, and that's the observable universe. That's the sum of all the light that has ever reached us.   (its second start)
  # looking far, looking back
  ("rec64", "past", 311.76, 318.68),    # When we point a telescope that far deep, we are not looking only at distant stars, we are looking at our own distant past.   (the last of four)

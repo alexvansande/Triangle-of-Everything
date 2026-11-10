@@ -6,7 +6,7 @@
 # try unless it slips. Build: video/short-01-hook/README.md.
 # (source, beat, first-word start, last-word start, {s, e, gap, cut}) in source seconds.
 
-SOURCES = {"rec62": "The Largest Structures in Space.aifc"}
+SOURCES = {"rec62": "The Largest Structures in Space.aifc", "rec65": "new recordings for shorts 5.aifc"}   # rec65: the re-recorded lines (2026-11-09, 21:33)
 TREATMENT = "plain"
 # then video/tools/debreath.py (--min 0.03) and the audio.m4a encode as it comes (the author, 2026-11-09, evening: a
 # test with and without the de-click and the 12.5 kHz low-pass added earlier that day: all clean, and without them it sounded better)
@@ -22,10 +22,9 @@ EDL = [
  # today: the largest, emptier and emptier
  ("rec62", "today", 146.08, 150.04),   # Today I want to explore the regions of the largest objects you know of.   (the last of four starts)
  ("rec62", "today", 191.52, 196.54),   # Now the more we go to the right, the more we are in the density of emptier and emptier space.
- ("rec62", "today", 235.08, 243.50),   # That's because the bigger something is, the less dense it is. Most stars are less dense than water. Some of them are even less dense than air.   (the second try; "most": lots, see NOTES)
+ ("rec65", "today", 13.58, 21.72),     # That's because the bigger something is, the less dense it is. Lots of stars are less dense than water, and some are even less dense than air.   (re-recorded: it said "most stars", see NOTES)
  # stars at the end of their lives
- ("rec62", "stars", 310.86, 314.28),   # When a star is about to die, it grows into a red giant.
- ("rec62", "stars", 319.12, 325.56),   # And if it goes supernova, its outer layers will expand into a nebula or a supernova remnant.   (from "and if")
+ ("rec65", "stars", 30.46, 40.28),     # When a star is about to die, it grows into a red giant. Its outer layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant.   (re-recorded, its second try: a planetary nebula comes from a star that doesn't explode)
  ("rec62", "stars", 342.40, 346.06),   # Taken as a whole, those are less dense than the atmosphere of the Moon.   (the second try: the first said "the vacuum of space")
  # galaxies
  ("rec62", "galaxies", 383.50, 387.52),   # Larger than that, and you'll find globular clusters and small galaxies.

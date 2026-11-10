@@ -187,3 +187,29 @@ leg runs past the Sun's picture and read as the Sun making it. Every cue resolve
 - **Imprecise:** rec64 "Scientists call this our universe": the chart's name for it. *"We can call this our universe."*
 - **Slips to cut round:** rec63 "it lands on our short" (chart), "infinite Mars far", "empty spy", "or cosmic horizon"
   (our); rec64 "R-short" (our chart), "on the right mode" (rightmost).
+
+## rec65: the re-recorded lines for video 5's three parts (iCloud recordings, home)
+
+- **rec65** = "new recordings for shorts 5.aifc" (2026-11-09 21:33, 4:31): the fixes from the list above, several tries
+  each, and a question at the end. Word timings in rec65.words.json (small.en).
+- Used: 5a "Lots of stars are less dense than water, and some are even less dense than air" (13.6 s) and "When a star is
+  about to die… into a supernova remnant" (30.5 s, its second try); 5b "They don't see… practically infinite" (97.2 s,
+  third try), "And how do we know…" (107.5 s), "Because, and that's the crazy bit, we can actually see them too" (116.0 s,
+  after "we can actually send them"), "Or at least the past version of them" (155.6 s, the last of five); 5c "But I should
+  clarify… 16 billion light-years away, in every direction… ever affect us" (164.7 s), "We can call this our universe…
+  that's 16 billion light-years away" (196.0 s, second try), "If you ask a scientist about the size of the universe…
+  46 billion light-years" (206.4 s). Not used: the new "Taken as a whole" ("less down than"), "Nothing that happens
+  outside this bubble" (a restart; rec64's kept), the last "32 billion light-years across" take.
+
+### Fact check
+- **Right:** every line now as the fact check above suggested: "lots of stars" less dense than water, some less dense
+  than air (giants); a dying star's outer layers drift off into a nebula, or a supernova remnant if it explodes; "as far
+  as we can tell, practically infinite"; the cosmic event horizon ~16 billion light-years away in every direction (a
+  radius); "we can call this our universe"; 46 billion light-years for the observable universe.
+- **The author's question (241 s):** "16 billion light-years away is the distance from us; is 46 billion the whole
+  diameter, so 16 away is 32 across and should I say 23 away?" No: **46 billion light-years is also a radius**, the
+  distance now to the farthest light we see (the CMB's matter), in every direction; the observable universe is ~93
+  billion light-years across. "16 billion away" and "46 billion" are the same kind of number, so the takes stand; "32
+  billion light-years across" would be right but isn't needed.
+- **New, right:** "we can actually see them too, or at least the past version of them": what we see of the far galaxies
+  is the light they sent long ago.
