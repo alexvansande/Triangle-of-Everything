@@ -705,7 +705,9 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
 // turn stops; a red circle on a galaxy at our edge), theirs (a second Our Universe, turned its own way, grows round
 // that galaxy: their universe), see (a circle grows from ours out to the observable universe as the view pulls back,
 // its galaxies showing inside it, part of their universe now among them), meet (the microwave background fades in on
-// it).
+// it). From the dive it starts where the chart left it, centred, and grows in place; ours is marked "now" at its centre
+// and "light in our distant past" at its edge; when theirs comes, the two slide to sit side by side, level, theirs marked
+// the same way below (the author, 2026-11-09, evening).
 let _edgeObjs = null;
 const edgeObjs = () => _edgeObjs || (_edgeObjs = { ours: eventHorizonObject(), theirs: eventHorizonObject(), web: cmbObject({ far: 0, near: 0 }), cmb: cmbObject() });
 export const edgePending = () => { const o = edgeObjs(); return Object.values(o).filter(x => x && !x.ready()).length; };
@@ -713,9 +715,13 @@ export function drawEdge(ctx, W, H, o, t) {
   const O = edgeObjs(), start = o.start ?? t, alien = o.alien ?? Infinity, theirs = o.theirs ?? Infinity, see = o.see ?? Infinity, meet = o.meet ?? Infinity;
   const OBS = 1 / HORIZON;                                              // the observable universe in our universe's radii (45.3 / 16.6)
   const grow = smooth((t - see) / 3.4), R = 1 + (OBS - 1) * grow;     // the circle growing out to it
-  const U0 = Math.min(W, H) * 0.3, U = U0 / (1 + (OBS * 0.98 * U0 / (Math.min(W, H) * 0.47) - 1) * grow);   // pulls back so it fits
-  // off centre, so their universe fits beside ours, back to the middle as the observable universe grows round us
-  const cx = W * (0.36 + 0.14 * grow), cy = H * 0.46, frozen = Math.min(t, alien) - start; // our universe turns until the alien
+  const ft = smooth((t - theirs) / 1.6), fin = smooth((t - start) / 1.4);
+  // from the size the dive left it at (0.19 of the frame's width, the chart's Our Universe at span 0.35) to the diagram's
+  const U0 = Math.min(W, H) * (0.19 + 0.11 * fin), U = U0 / (1 + (OBS * 0.98 * U0 / (Math.min(W, H) * 0.47) - 1) * grow);   // pulls back so it fits
+  // centred; when theirs comes, the pair centred instead (theirs to the right), back to ours in the middle as the
+  // observable universe grows round us
+  const ex = 0.9, ey = 0;                                               // the galaxy at our edge, level with us
+  const cx = W / 2 - ft * (1 - grow) * ex / 2 * U, cy = H * (0.5 - 0.04 * fin), frozen = Math.min(t, alien) - start; // our universe turns until the alien
   // a picture of one of the objects: its sphere is FILL of the picture
   const put = (obj, sec, x, y, r, a = 1, clipR = null) => {
     if (!obj || a <= 0.01) return;
@@ -724,27 +730,46 @@ export function drawEdge(ctx, W, H, o, t) {
     if (clipR != null) { ctx.beginPath(); ctx.arc(x, y, clipR, 0, 6.2832); ctx.clip(); }
     ctx.drawImage(c, x - d / 2, y - d / 2, d, d); ctx.restore();
   };
-  const ex = 0.82, ey = -0.4;                                           // the galaxy at our edge, up and to the right
   const X = (u) => cx + u * U, Y = (v) => cy + v * U;
   // the observable universe's galaxies, inside the growing circle; then its microwave background
   const fm = smooth((t - meet) / 1.8);
   if (grow > 0) put(O.web, frozen, X(0), Y(0), OBS * U, 1 - fm, R * U);
   if (fm > 0) put(O.cmb, frozen, X(0), Y(0), OBS * U, fm);
   // ours, and theirs round the edge galaxy, turned its own way
-  const ft = smooth((t - theirs) / 1.6);
   put(O.ours, frozen, X(0), Y(0), U);
   if (ft > 0) put(O.theirs, frozen + 9, X(ex), Y(ey), U * ft, ft * (grow > 0 ? 0.85 : 0.7));
   const ring = (u, v, r, col, a, dash, w = 0.005) => { if (a <= 0.01) return; ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = H * w; ctx.setLineDash(dash ? [H * 0.018, H * 0.014] : []); ctx.beginPath(); ctx.arc(X(u), Y(v), r * U, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; };
   ctx.fillStyle = "#80deea"; ctx.beginPath(); ctx.arc(X(0), Y(0), H * 0.007, 0, 6.2832); ctx.fill();
-  text(ctx, "us", X(0), Y(0) - H * 0.026, H * 0.022, "#80deea");
+  ctx.globalAlpha = 1 - smooth((t - start - 0.8) / 0.9) * (1 - smooth(grow * 3));   // ("now" says it while the arrows show)
+  text(ctx, "us", X(0), Y(0) - H * 0.026, H * 0.022, "#80deea"); ctx.globalAlpha = 1;
   const fo = smooth((t - alien) / 0.8);
-  if (fo > 0) { ctx.globalAlpha = fo; text(ctx, "our universe", X(0), Y(1) + H * 0.04, H * 0.028, "#80deea"); ctx.globalAlpha = 1; }
+  if (fo > 0) { ctx.globalAlpha = fo; text(ctx, "our universe", X(-0.45), Y(1) + H * 0.04, H * 0.028, "#80deea"); ctx.globalAlpha = 1; }
   if (fo > 0) {                                                         // the red circle on the alien's galaxy
     ctx.globalAlpha = fo; ctx.strokeStyle = "#ff5252"; ctx.lineWidth = H * 0.005;
     ctx.beginPath(); ctx.arc(X(ex), Y(ey), H * 0.02, 0, 6.2832); ctx.stroke(); ctx.globalAlpha = 1;
     if (ft < 0.5) { ctx.globalAlpha = fo * (1 - 2 * ft); text(ctx, "an alien's galaxy", X(ex), Y(ey) - H * 0.04, H * 0.026, "#ff8a80"); ctx.globalAlpha = 1; }
   }
   if (ft > 0) { ring(ex, ey, ft, "#ffab40", ft, false); ctx.globalAlpha = ft; text(ctx, "their universe", X(ex), Y(ey - ft) - H * 0.02, H * 0.028, "#ffab40"); ctx.globalAlpha = 1; }
+  // now and the distant past: at our centre and our edge (from the dive), at theirs below (when theirs comes); gone as
+  // the view pulls back
+  const arrow = (x0, y0, x1, y1, label, col, a, up) => {
+    if (a <= 0.01) return;
+    const d = Math.hypot(x1 - x0, y1 - y0), k = Math.min(1, smooth(a * 1.4)), ux = (x1 - x0) / d, uy = (y1 - y0) / d;
+    const xe = x0 + (x1 - x0) * k, ye = y0 + (y1 - y0) * k, hs = H * 0.012;
+    ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = ctx.fillStyle = col; ctx.lineWidth = H * 0.0028;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(xe - ux * hs * 0.6, ye - uy * hs * 0.6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xe, ye); ctx.lineTo(xe - ux * hs - uy * hs * 0.6, ye - uy * hs + ux * hs * 0.6); ctx.lineTo(xe - ux * hs + uy * hs * 0.6, ye - uy * hs - ux * hs * 0.6); ctx.fill();
+    ctx.restore();
+    ctx.globalAlpha = a; text(ctx, label, x0, y0 + (up ? -H * 0.012 : H * 0.03), H * 0.022, col); ctx.globalAlpha = 1;
+  };
+  const fa = smooth((t - start - 0.8) / 0.9) * (1 - smooth(grow * 3)), fb = smooth((t - theirs - 1.4) / 0.9) * (1 - smooth(grow * 3));
+  const on = (u, v, ang, r = 1) => [X(u + r * Math.cos(ang)), Y(v + r * Math.sin(ang))];
+  { const [px, py] = on(0, 0, -1.9, 0.97);
+    arrow(X(-0.05), Y(-1) - H * 0.115, px, py, "light in our distant past", "#80deea", fa, true);
+    arrow(X(-0.62), Y(-1) - H * 0.035, X(0) - H * 0.01, Y(0) - H * 0.012, "now", "#80deea", fa, true); }
+  if (ft > 0) { const [px, py] = on(ex, ey, 1.25, 0.97);
+    arrow(X(ex) + U * 0.05, Y(1) + H * 0.115, px, py, "their distant past", "#ffab40", fb, false);
+    arrow(X(ex) + U * 0.7, Y(1) + H * 0.035, X(ex) + H * 0.01, Y(ey) + H * 0.012, "their now", "#ffab40", fb, false); }
   if (grow > 0) {
     ring(0, 0, R, "#ffffff", Math.min(1, grow * 3) * 0.85 * (1 - fm), true, 0.004);
     ctx.globalAlpha = smooth((grow - 0.5) / 0.4); text(ctx, "our observable universe", X(0), Y(-R) - H * 0.02, H * 0.028, "#ffffff"); ctx.globalAlpha = 1;

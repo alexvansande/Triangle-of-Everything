@@ -25,7 +25,7 @@ EDL = [
  ("rec63", "light", 184.62, 188.46),   # That means that the further away something is, the faster it's moving away from us.   (its second try)
  # the Hubble line and the cosmic event horizon
  ("rec63", "edge", 191.24, 206.08),    # And at this line, called the Hubble line, things are moving away from us at the speed of light. You'd think that their light could never reach us, but, well, it's a little bit more complicated than that, because the Hubble sphere is also growing, so the real edge is a little bit further out.
- ("rec63", "edge", 298.86, 316.96, {"cut": [(310.75, 315.35)]}),   # ("That's the real limit of what we can know." cut: the author heard "the real limit" twice)
+ ("rec63", "edge", 298.86, 316.96, {"cut": [(311.42, 315.35)]}),   # ("That's the real limit of what we can know." cut: the author heard "the real limit" twice; from 311.42, after "us" ends: at 310.75 it clipped "reach us", the author, 2026-11-09)
      # This is the cosmic event horizon, and it's the real limit, because anything that happens beyond it will never affect us, we will never know about it, its light can never reach us. That's the real limit of what we can know. It's the real limit of the unknowable.   (the last of six)
  # on the black-hole line
  ("rec63", "bh", 386.70, 399.62, {"s": 387.30}),   # (from its second "now if we": the second pass found "Now, if you," before it)
@@ -34,7 +34,7 @@ EDL = [
     # It's an interesting coincidence, because both are kind of a horizon. A black hole's event horizon is where the light that falls in can never come out; our cosmic horizon is where nothing outside can ever come in. Also both depend on the mass of what's inside it. The radius of a black hole depends directly on how much stuff is in it, and the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is also in it. So it's no coincidence that they are both on the same line.   (its first "The radius of a black hole depends…" cut, for the second)
  # our universe, not the universe
  ("rec63", "centre", 445.84, 456.30),  # But that's also where the similarities end, because a black hole is an object with a center. Our universe is just that, it's our universe, it's not the universe.
- ("rec63", "centre", 518.14, 527.54, {"s": 518.70}),   # Let's imagine for a moment an alien living in a galaxy that seems on the edge for us. Well, for them, their universe will be also centered around them.   (from "let's")
+ ("rec63", "centre", 518.14, 527.54, {"s": 518.50}),   # But let's imagine for a moment an alien living in a galaxy that seems on the edge for us. Well, for them, their universe will be also centered around them.   (from "but", 518.58: at 518.70 it began mid-word, the author heard a lost syllable)
  ("rec63", "centre", 571.50, 580.52),  # They don't see a bunch of empty space to the other side. They see more and more galaxies, because as far as we've been able to measure, the universe is infinite.   (the last try)
  # and we see them
  ("rec63", "see", 691.04, 698.90),     # And how do we know they can see more galaxies on the other side? Because, and that's the crazy bit, we can actually see them.   (the last of eight)

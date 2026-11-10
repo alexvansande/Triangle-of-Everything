@@ -40,7 +40,9 @@ export default {
     { at: "every single object", hl: [{ line: "triangle", label: "every object, by mass and size" }] },
     // video 5's shots, the photo's pixels quicker so each step lands on "four", "nine", "or more" (the author)
     ...V5.cues.slice(idx("the second edge"), idx("object with a center") + 1).map(reword)
-      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { cell: 16, steps: [2.2, 3.0, 3.8] } }] } : c),
+      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { cell: 16, steps: [2.2, 3.0, 3.8] } }] } : c)
+      // the cosmic event horizon's name over its disc: to the right it ran off the frame (the author, 2026-11-09, 1:29)
+      .map(c => c.hl ? { ...c, hl: c.hl.map(q => q.mark && q.label === "cosmic event horizon" ? { ...q, place: "above", gap: 58 } : q) } : c),
     // the alien at our edge (the author's design, 2026-11-09; src/narr-diagrams.js drawEdge, the zoom's own objects):
     // dive into our universe; the turn stops and a galaxy at our edge is circled; their universe round it; our observable
     // universe grows round ours, reaching into theirs; its microwave background; and out to the chart

@@ -2210,9 +2210,10 @@ export async function startNarration(app) {
     const op = h.instant ? 1 : smooth(age / 0.6), x = sx(h.mark[0]), y = sy(h.mark[1]), col = h.color || "#ffd54f";
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", 5).attr("fill", col).attr("opacity", op);
     el.append("circle").attr("cx", x).attr("cy", y).attr("r", 11).attr("fill", "none").attr("stroke", col).attr("stroke-width", 1.4).attr("opacity", 0.7 * op);
-    const place = h.place || "right";
-    el.append("text").attr("class", "narr-tag narr-cand").attr("x", place === "left" ? x - 16 : x + 16).attr("y", y + 5)
-      .attr("text-anchor", place === "left" ? "end" : "start").attr("fill", col).attr("opacity", op).text((h.label || "").toUpperCase());
+    const place = h.place || "right", vert = place === "above" || place === "below", gap = h.gap ?? 18;   // (above/below: centred, `gap` px off the point)
+    el.append("text").attr("class", "narr-tag narr-cand").attr("x", vert ? x : place === "left" ? x - 16 : x + 16)
+      .attr("y", place === "above" ? y - gap : place === "below" ? y + gap + 10 : y + 5)
+      .attr("text-anchor", vert ? "middle" : place === "left" ? "end" : "start").attr("fill", col).attr("opacity", op).text((h.label || "").toUpperCase());
   }
   /** A colour key: { key: [["microwave", "#ff6b5e"], …], title?, y? (share of the height, 0.1) }, for a false-colour view */
   function drawKey(el, h, age) {
