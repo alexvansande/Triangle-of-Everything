@@ -102,7 +102,6 @@ short-l2-dance-of-the-forces
 # 2026-11-09, morning (the author): the forces Short before The Black Hole Line, part 1
 # next: short-l2-dance-of-the-forces
 # 2026-11-09, morning (the author): the powers-of-ten zoom too, after The Black Hole Line, part 1
-short-00-powers-of-ten
 # 2026-11-09 (the author's notes on the narrated zoom, queued above): nothing written at the start, the CMB's caption at
 # "The largest thing we can see", the event horizon's circle and caption when it is named, slower from the dive to the
 # Milky Way (Laniakea and Andromeda in frame when named): the picture changes from 0:00 to 1:04, in the zoom source's
