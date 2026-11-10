@@ -112,6 +112,13 @@ leg runs past the Sun's picture and read as the Sun making it. Every cue resolve
   around today".
 - Word timings: rec60.words.json, rec61.words.json (faster-whisper small.en, the filler-friendly prompt).
 
+### Under three minutes (2026-11-10)
+The Short ran 3:04.5 + 3 s credits, over YouTube's 3:00 for a Short. Cut from the finished audio (`video/tools/postcut.py`,
+the spans in the EDL's `POST_CUTS`): "and it can close up even further in the future" (the author's pick: the window's
+future closing is the contested neutron-star limit, named at the window already) and every pause between sentences capped
+at 0.85 s, in the middle of the measured silence (13 cuts, 9.1 s). Now 2:55.4 + credits = 2:58.4. The caption words shifted
+with the cuts, nothing re-transcribed; the sound remixed.
+
 ### Fact check
 - **Wrong (rec60, 145 s):** "If you squeeze the Sun… that would be roughly 8 kilometers wide." The Sun's Schwarzschild
   radius is 2.95 km: about **6 km** across (The Black Hole Slope says "six kilometers wide"). Re-word: *"Squeeze the Sun

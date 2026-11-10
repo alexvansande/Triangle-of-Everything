@@ -30,6 +30,28 @@ const reword = (c) => {
 };
 const from = V4.cues.findIndex(c => [].concat(c.at).includes("with enough pressure"));
 
+// The window on the line, from "we don't know what dark matter is" to the end: drawn once, then kept as it is.
+// Video 4 draws it again at "something else entirely" (2.5 s into the zoom out: the bracket runs along the line a
+// second time, what the author saw as "the line animation restarts" at 2:03, reported three times by 2026-11-10),
+// and names the contested neutron-star limit on it again from "if it's just tiny black holes" on ("might still be
+// ruled out by neutron star studies", with its source): that label was shown at "narrow window" (1:10) already, and
+// doesn't need to come back (the author, 2026-11-10). So here every later window keeps only the microlensing and
+// Hawking cuts, and one already on screen comes in at once, not redrawn.
+const NS = (q) => /neutron star/i.test((q && (q.label || q.title)) || "");
+const AGAIN = ["if they are just tiny black holes", "any new particles", "to explain them", "something else entirely", "somewhere on this chart",
+  "not only on the black hole line", "lumps about roughly this size", "can't be here either", "the search for dark matter"];
+function fixWindow(c) {
+  if (!c.hl || !AGAIN.some(a => [].concat(c.at).includes(a))) return c;
+  const hl = c.hl.filter(q => q.window || !NS(q)).map(q => {
+    if (!q.window || !q.cuts) return q;
+    const cuts = q.cuts.filter(x => !NS(x));
+    // the window narrowing at "any new particle" (from W6) and the staged full set of cuts at "the search for dark
+    // matter" (quasars, microwave background, waves) still play; a plain re-listing comes in at once
+    return q.from || cuts.length > 2 ? { ...q, cuts } : { ...q, cuts, instant: true, delay: 0 };
+  });
+  return { ...c, hl };
+}
+
 export default {
   ...V4,
   title: "The Smallest Black Holes",
@@ -52,6 +74,8 @@ export default {
     })
     // the black-hole line is on screen from the start here: where video 4 lists it again after clearing (its "something
     // else entirely"), it stays put instead of drawing itself again (the author, 2026-11-09: "the line animation restarts")
-      .map(c => c.hl ? { ...c, hl: c.hl.map(q => q.line === "schwarzschild" && q.draw === undefined ? { ...q, draw: 0.01 } : q) } : c),
+      .map(c => c.hl ? { ...c, hl: c.hl.map(q => q.line === "schwarzschild" && q.draw === undefined ? { ...q, draw: 0.01 } : q) } : c)
+      .map(fixWindow),
   ],
 };
+

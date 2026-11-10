@@ -6,3 +6,10 @@ short-l2-failed-star
 short-l2-what-makes-a-star
 short-l2-how-stars-die
 short-l2-whats-left
+# Superseded (the author, 2026-11-10): cuts from pieces of the long videos, replaced by takes recorded on their own
+# (The Smallest Black Holes, video 5's three parts), and the second Black Hole Slope (rec59 whole, kept beside the cut to
+# compare; the cut, short-04a-black-hole-line, is the one going out)
+short-04a-black-hole-slope
+short-l2-edge-of-the-chart
+short-l2-exploding-heads
+short-l2-inside-a-black-hole
