@@ -93,14 +93,11 @@
 # for their whole cue (picture only, the audio is the same: 0:08-0:45).
 # (3) The forces Short's overnight render (2026-11-09, 00:50) already has the latest animations (its frames match the code);
 # the afternoon render it replaced didn't.
-short-l2-dance-of-the-forces
-# short-l2-dance-of-the-forces changed: 0:08-0:45
 # 2026-11-09 (the author): The Black Hole Line, part 1 (short-04a-black-hole-line) back in, now ending at "but how small"
 # (the question part 2 answers), 1:54 in place of 1:48: new audio, whole. The four Shorts cut from long video 2's opening
 # (failed star, what makes a star, how stars die, what's left) are dropped: video/render-dropped.txt keeps them off the
 # renders and in a "Dropped cuts" section at the end of the page; "How do stars die?" is off Tuesday's slot (video/youtube.json)
 # 2026-11-09, morning (the author): the forces Short before The Black Hole Line, part 1
-# next: short-l2-dance-of-the-forces
 # 2026-11-09, morning (the author): the powers-of-ten zoom too, after The Black Hole Line, part 1
 # 2026-11-09 (the author's notes on the narrated zoom, queued above): nothing written at the start, the CMB's caption at
 # "The largest thing we can see", the event horizon's circle and caption when it is named, slower from the dive to the
