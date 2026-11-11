@@ -33,7 +33,7 @@ went silent after a minute when it ran out.
 | 5, part 2 · The Cosmic Event Horizon | `short-05b-hubble-sphere` | 2:55 + credits (re-recorded whole 2026-11-11, rec67, the morning take, natural speed; nothing to fix) |
 | 5, part 3 · The Observable Universe | `short-05c-observable-universe` | 2:17 + credits (re-recorded whole 2026-11-11, rec68, the morning take, natural speed; the "16 billion light-years" line is the take's first run: its retake said "wide", which is wrong) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
-| 0 · powers of ten (the CMB to the Planck length) | `short-00-powers-of-ten` | 3:00 zoom; re-recorded whole 2026-11-11 (rec69, the morning take): 3:07 of voice, about 10 s over, the author to choose the cuts; the zoom's keys to re-time |
+| 0 · powers of ten (the CMB to the Planck length) | `short-00-powers-of-ten` | 3:00 zoom; re-recorded whole 2026-11-11 (rec69, the morning take): 3:06 of voice, about 10 s over, the author to choose the cuts; the zoom's keys to re-time |
 
 ---
 
@@ -1664,7 +1664,7 @@ About 210 words in two minutes: speak slowly and leave the gaps; the picture car
 each line as its own phrase, so it can be placed on its time.
 
 ### As cut now
-(rec69, 2026-11-11, the morning take, natural speed with the zoom's tight pauses: **3:07 of voice, about 10 s over the
+(rec69, 2026-11-11, the morning take, natural speed with the zoom's tight pauses: **3:06 of voice, about 10 s over the
 3:00 zoom**; `video/sources/2026-11-11/NOTES.md`, with the lines that could go. rec52's cut, 2:56, is in git history.
 The zoom has to be re-timed to this voice: `video/short-00-powers-of-ten/zoom-keys.json`, for the zoom session.)
 

@@ -126,7 +126,7 @@ sentence) are re-timed from a transcription of the stretch alone (small.en), lis
 |---|---|---|---|---|---|
 | rec67 | "5B morning take.m4a" | 08:49 local | 5:57 | `video/short-05b-hubble-sphere/edl.py`, 27 clips | 2:55 of voice + 3 s credits (was 2:58 + credits) |
 | rec68 | "6c morning take.m4a" (the author's name for it; it is 5c) | 08:56 | 8:16 | `video/short-05c-observable-universe/edl.py`, 20 clips | 2:17 + credits (was 2:40 + credits) |
-| rec69 | "Powers of 10.m4a" | 09:11 | 12:00 | `video/short-00-powers-of-ten/edl.py`, 33 clips | 3:07 of voice: **over the zoom's 3:00**, see below |
+| rec69 | "Powers of 10.m4a" | 09:11 | 12:00 | `video/short-00-powers-of-ten/edl.py`, 33 clips | 3:06 of voice: **over the zoom's 3:00**, see below |
 
 The same treatment as rec66 (`enhance.py --plain`, natural speed, the breaths out of the pauses, the room in the gaps);
 5b and 5c with the usual pauses, the zoom with rec52's tighter ones (0.18 / 0.3 / 0.45 s, gaps 0.35 / 0.6), since it
@@ -230,7 +230,7 @@ clip changed.
   atom, quarks, "the smallest set of rules", quantum fields; "There is a limit to our own understanding. At the Planck
   scale is where relativity and quantum mechanics meet. Anything smaller, and our math simply breaks down. We don't
   know what's happening. But maybe, deep down at the Planck scale, it's all one big game of life."
-- **Length: 3:07 of voice with the tight pauses (3:17 with the usual ones). The zoom is 3:00 and a Short's limit is
+- **Length: 3:06 of voice with the tight pauses (3:17 with the usual ones). The zoom is 3:00 and a Short's limit is
   3:00.** rec52's cut left two lines out for the same reason. Not cut shorter here: the author's choice. About 10 s
   must go; candidates, shortest loss first: "And now we can see the orbits of planets" (2.4 s), "And in here we see our
   local neighborhood" (2.5 s), "There is a limit to our own understanding" (2.5 s), "Everything you're seeing is a
