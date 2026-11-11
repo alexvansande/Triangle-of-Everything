@@ -1,44 +1,46 @@
-# short-05a-emptier: video 5, part 1, The Largest Structures in Space, as a take of its own, from the author's
-# recording of 2026-11-09 (rec62, home): the chart's density lines, denser to the left, emptier to the right, stars,
-# red giants and nebulae, globular clusters, galaxies, the Local Group, clusters, superclusters (Laniakea), voids, and the
-# second edge ahead. Until this take the Short was carved from video 5 (video/retired/short-05a-emptier.cut.json).
-# Word timings and the fact check: video/sources/2026-11-09/. Treatment: enhance.py --plain, natural speed. The last
-# try unless it slips. Build: video/short-01-hook/README.md.
+# short-05a-emptier: video 5, part 1, The Largest Structures in Space, as a take of its own. Re-recorded whole in one
+# sitting on 2026-11-11 (rec66, "5A morning take", home: the author's morning voice), replacing the 2026-11-09 cut from
+# rec62 with rec65's patched lines, which didn't match the rest. The chart's density lines, denser to the left, emptier to
+# the right, stars, red giants and nebulae, globular clusters, galaxies ("here we find home"), the Local Group, clusters,
+# superclusters (Laniakea), voids, and a new ending: the rightmost limit, where the expansion of the universe meets the
+# speed of light (the author dropped "our second edge in the triangle of everything": the video never names the triangle).
+# Word timings and the fact check: video/sources/2026-11-11/. Treatment: enhance.py --plain, natural speed. The last
+# try unless it slips. Build: video/short-01-hook/README.md. The earlier cut lists are in git history.
 # (source, beat, first-word start, last-word start, {s, e, gap, cut}) in source seconds.
 
-SOURCES = {"rec62": "The Largest Structures in Space.aifc", "rec65": "new recordings for shorts 5.aifc"}   # rec65: the re-recorded lines (2026-11-09, 21:33)
+SOURCES = {"rec66": "5A morning take.m4a"}   # 2026-11-11 08:39 (11:39 UTC), ALAC 48 kHz stereo, 7:45
 TREATMENT = "plain"
-# then video/tools/debreath.py (--min 0.03) and the audio.m4a encode as it comes (the author, 2026-11-09, evening: a
-# test with and without the de-click and the 12.5 kHz low-pass added earlier that day: all clean, and without them it sounded better)
+# then video/tools/debreath.py (--min 0.03) and the audio.m4a encode as it comes (the author, 2026-11-09, evening)
 PAUSES = {"word": 0.25, ",": 0.55, ".": 1.0}
 GAPS = {"same": 0.55, "beat": 1.1}
 ROOM = True
 
 EDL = [
  # the chart and its density lines
- ("rec62", "chart", 70.76, 74.38),     # In this series, I've been exploring this chart, which is a log of mass and size.   (from its second "in this series")
- ("rec62", "chart", 86.70, 93.14),     # When you do that, every diagonal becomes a density line. In here, you can see the density of water.
- ("rec62", "chart", 110.86, 116.70),   # As we go to the left, we see denser and denser objects, like brown dwarfs, white dwarfs, and neutron stars.   (the third try)
+ ("rec66", "chart", 35.18, 39.34),     # In this series, I've been exploring this chart, which is a log of mass and size.
+ ("rec66", "chart", 40.06, 44.92),     # When you do that, every diagonal becomes a density line. And here you can see the density of water.
+ ("rec66", "chart", 45.74, 51.32),     # As we go to the left, we see denser and denser objects, like brown dwarfs, white dwarfs, and neutron stars.
  # today: the largest, emptier and emptier
- ("rec62", "today", 146.08, 150.04),   # Today I want to explore the regions of the largest objects you know of.   (the last of four starts)
- ("rec62", "today", 191.52, 196.54),   # Now the more we go to the right, the more we are in the density of emptier and emptier space.
- ("rec65", "today", 13.58, 21.72),     # That's because the bigger something is, the less dense it is. Lots of stars are less dense than water, and some are even less dense than air.   (re-recorded: it said "most stars", see NOTES)
+ ("rec66", "today", 65.72, 69.90),     # Today, I wanna explore the regions of the largest objects we know of.   (the second try: the first ran into "to the right? yeah, left, right")
+ ("rec66", "today", 70.62, 75.02),     # Now, the more we go to the right, the more we are in the density of emptier and emptier space.
+ ("rec66", "today", 75.76, 78.50),     # That's because the bigger something is, the less dense it is.
+ ("rec66", "today", 84.42, 89.02),     # A lot of stars are less dense than water, and some are even less dense than air.   (the second try; the first stopped at "water")
  # stars at the end of their lives
- ("rec65", "stars", 30.46, 40.28),     # When a star is about to die, it grows into a red giant. Its outer layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant.   (re-recorded, its second try: a planetary nebula comes from a star that doesn't explode)
- ("rec62", "stars", 342.40, 346.06),   # Taken as a whole, those are less dense than the atmosphere of the Moon.   (the second try: the first said "the vacuum of space")
+ ("rec66", "stars", 91.42, 101.34),    # When a star is about to die, it grows into a supergiant, and its outer layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant.   (said "supergiant" for "red giant": see NOTES)
+ ("rec66", "stars", 108.12, 112.98),   # Taken as a whole, those are less dense than the atmosphere of the Moon.   (the second try)
  # galaxies
- ("rec62", "galaxies", 383.50, 387.52),   # Larger than that, and you'll find globular clusters and small galaxies.
- ("rec62", "galaxies", 485.58, 488.08),   # A galaxy is mostly empty space between its stars.   (the second)
- ("rec62", "galaxies", 410.84, 415.42),   # Here we find Andromeda, our sister galaxy, and the Milky Way, which we call home.   (the third try)
- ("rec62", "galaxies", 505.46, 509.30, {"s": 507.18}),   # (from "our": "They both live in" out, the author, 2026-11-09, evening)
-    # Our local neighborhood, it's called the Local Group.
+ ("rec66", "galaxies", 131.40, 134.10),   # Larger than that, and you find globular clusters and small galaxies.   (the fourth start: twice it stopped at "clusters and"; Whisper had merged this one with the try before it, its words come from a transcription of the clip alone)
+ ("rec66", "galaxies", 169.96, 174.60),   # Those are even less dense, because a galaxy is really mostly the empty space between the stars.   (a new line, its last try; the first clean one was "Now, that's even less dense because a galaxy is mostly empty space between its stars", 137.9)
+ ("rec66", "galaxies", 205.92, 213.14),   # Here we find home: that's the Milky Way, and Andromeda, our sister galaxy. Our neighborhood of galaxies is called the Local Group.   (the author's rewrite of "Here we find Andromeda… Our local neighbourhood"; from its second "here we find home")
  # clusters and superclusters
- ("rec62", "clusters", 513.34, 535.08),   # And then we have galaxy clusters, which are even less dense, because now it's the galaxies plus all the empty space between them. And above that, we have the largest structures we know of, superclusters, which come in the shape of filaments. We live in one called Laniakea, made of about 100,000 galaxies.
+ ("rec66", "clusters", 221.80, 229.09),   # And above that we have galaxy clusters, which are even less dense, because now it's the galaxies plus all the empty space between them.   (the second try)
+ ("rec66", "clusters", 237.15, 249.77),   # And then above that, we have the largest structures we know of. Those are the superclusters, which come in the shape of filaments. We live in one called the Laniakea, made of about a hundred thousand galaxies.
  # voids
- ("rec62", "voids", 543.94, 562.70, {"cut": [(554.30, 557.70)]}),   # There's something larger still: voids. There are big holes in space, just empty regions of space. Although not completely empty, they're just emptier than the space around them. So they do have mass, and they fit on this chart.   ("…around us." cut, for its retake "…around them.")
+ ("rec66", "voids", 251.67, 253.79),      # And there's something larger still: voids.
+ ("rec66", "voids", 261.55, 272.49),      # Voids are big holes in space, just empty regions. Not completely empty, though: they're just emptier than the space around them, so they do have mass, and they fit in this chart.   (from its third "voids")
  # the edge ahead
- ("rec62", "edge", 597.80, 601.56, {"s": 598.25, "cut": [(598.38, 599.68)]}),   # But can you get any bigger than that?   (its first "can you get any," cut)
- ("rec62", "edge", 627.24, 635.02),    # The problem is going to be physics itself, because now we are going to meet our second edge in the triangle of everything.
+ ("rec66", "edge", 445.49, 446.23),       # Can you get any bigger?   (the last of twelve tries at the ending)
+ ("rec66", "edge", 452.15, 460.69),       # Well, no, because there is a rightmost limit in our chart, and it's where the expansion of the universe meets the speed of light.
 ]
 
 POST_CUTS = []

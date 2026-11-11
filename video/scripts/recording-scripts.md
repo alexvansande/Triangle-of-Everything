@@ -29,7 +29,7 @@ went silent after a minute when it ran out.
 | The Black Hole Slope (Short: the black-hole line, recorded on its own) | `short-04a-black-hole-slope` | 2:51 with the credits (recorded 2026-11-09, rec59, natural speed); the earlier version, `short-04a-black-hole-line` (cut from rec48), stays beside it to compare; the author prefers it (2026-11-09: more concise, says "black hole" in the first 30 s, more energy), now 2:07 with rec59's ending from "But the most interesting question" to "tiny black holes" in place of its own, which stopped at "but how small" (on trial: do the two recordings sit together?). Fact check of that ending: "most of the things in the universe are just tiny black holes" says more than the idea does; it's most of the *matter*, the dark matter, that could be tiny black holes. To re-record: *"…some people who believe that most of the matter in the universe, the dark matter, could be tiny black holes."* |
 | The Smallest Black Holes (Short: part 2 of video 4) | `short-04b-smallest-black-holes` | 2:55 + 3 s credits (recorded on its own 2026-11-09: rec61's opening, rec60's body, natural speed; under a Short's 3:00 since 2026-11-10: "and it can close up even further in the future" out and the pauses capped at 0.85 s) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
-| 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:10 + credits (recorded on its own 2026-11-09, rec62, natural speed; two lines re-recorded in rec65: "lots of stars", the nebula) |
+| 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:06 + credits (re-recorded whole 2026-11-11, rec66, the morning take, natural speed; one word still to fix: "supergiant" for "red giant") |
 | 5, part 2 · The Cosmic Event Horizon | `short-05b-hubble-sphere` | 2:58 + credits (rec63, 2026-11-09; "practically infinite" and "we can actually see them too, or at least the past version of them" re-recorded in rec65) |
 | 5, part 3 · The Observable Universe | `short-05c-observable-universe` | 2:40 + credits (rec64, 2026-11-09; "16 billion light-years away", "We can call this our universe" and "If you ask a scientist" re-recorded in rec65) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
@@ -1348,28 +1348,37 @@ through "…a new generation of stars to form", in git history and in "As cut no
 rec65's patched lines (16% of 5a, 11% of 5b, 19% of 5c) don't match the rest: same room, different energy. So read
 each part through in one take, all three in one sitting. The words are the cut as it plays now, with every fact-check
 fix from rec62–65 in it; the few small edits are listed after each part. Headings are only to keep your place.
+**5a is done** (rec66, 2026-11-11, the morning take: its section below now shows the words as cut, and the one sentence
+still to re-record). 5b and 5c are still to record.
 
-### 5a · The Largest Structures in Space (`short-05a-emptier`)
+### 5a · The Largest Structures in Space (`short-05a-emptier`) — recorded 2026-11-11 (rec66), cut
 
-> In this series, I've been exploring this chart, which is a log of mass and size. When you do that, every diagonal becomes a density line, and here you can see the density of water. As we go to the left, we see denser and denser objects, like brown dwarfs, white dwarfs, neutron stars.
->
-> Today, I want to explore the regions of the largest objects we know of. Now, the more we go to the right, the more we are in the density of emptier and emptier space. That's because the bigger something is, the less dense it is. Lots of stars are less dense than water, and some are even less dense than air.
->
-> When a star is about to die, it grows into a red giant, and its outer layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant. Taken as a whole, those are less dense than the atmosphere of the Moon.
->
-> Larger than that, you'll find globular clusters and small galaxies. A galaxy is mostly empty space between its stars. Here we find Andromeda, our sister galaxy, and the Milky Way, which we call home. Our local neighbourhood is called the Local Group.
->
-> And then we have galaxy clusters, which are even less dense, because now it's the galaxies plus all the empty space between them.
->
-> And above that we have the largest structures we know of: superclusters, which come in the shape of filaments. We live in one called Laniakea, made of about a hundred thousand galaxies.
->
-> There's something larger still: voids. Voids are big holes in space, just empty regions of space. Not completely empty, though: they're just emptier than the space around them, so they do have mass, and they fit on this chart.
->
-> But can you get any bigger than that? The problem is going to be physics itself, because now we are going to meet our second edge in the triangle of everything.
+The cut as it plays now (2:06), all from the morning take; the author's changes on the day are in bold:
 
-Edits: "the bigger the something is" → "the bigger something is"; "it grows into a red giant, its outer layers" → "…red
-giant, and its outer layers"; "Larger than that, and you'll find" → "Larger than that, you'll find"; "the Laniakea" →
-"Laniakea".
+> In this series, I've been exploring this chart, which is a log of mass and size. When you do that, every diagonal becomes a density line, and here you can see the density of water. As we go to the left, we see denser and denser objects, like brown dwarfs, white dwarfs, and neutron stars.
+>
+> Today, I wanna explore the regions of the largest objects we know of. Now, the more we go to the right, the more we are in the density of emptier and emptier space. That's because the bigger something is, the less dense it is. A lot of stars are less dense than water, and some are even less dense than air.
+>
+> When a star is about to die, it grows into a **supergiant**, and its outer layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant. Taken as a whole, those are less dense than the atmosphere of the Moon.
+>
+> Larger than that, and you'll find globular clusters and small galaxies, **and those are even less dense, because a galaxy is really mostly the empty space between the stars. Here we find home: that's the Milky Way, and Andromeda, our sister galaxy. Our neighborhood of galaxies is called the Local Group.**
+>
+> And above that we have galaxy clusters, which are even less dense, because now it's the galaxies plus all the empty space between them. And then above that, we have the largest structures we know of. Those are the superclusters, which come in the shape of filaments. We live in one called the Laniakea, made of about a hundred thousand galaxies.
+>
+> And there's something larger still: voids. Voids are big holes in space, just empty regions. Not completely empty, though: they're just emptier than the space around them, so they do have mass, and they fit in this chart.
+>
+> **Can you get any bigger? Well, no, because there is a rightmost limit in our chart, and it's where the expansion of the universe meets the speed of light.**
+
+**One sentence to re-record** (the fact check, `video/sources/2026-11-11/NOTES.md`): "supergiant" should be "red
+giant" (a star like the Sun swells into a red giant; only the heavy ones become supergiants, and those explode: the
+nebula comes from a red giant). The line to say: *"When a star is about to die, it grows into a red giant, and its outer
+layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant."* Same room, same morning
+energy if possible; it's one clip (0:39–0:50 of the cut).
+
+The new ending: the author dropped "our second edge in the triangle of everything" on the day (*"Did I ever mention the
+triangle of everything? Never mentioned, yeah"*) and tried twelve endings; the cut takes the last. It names the Hubble
+line's idea (recession at the speed of light) for the chart's edge, which 5b then refines ("the real edge is a little
+bit further out"), so it stands as the hand-over. The old wording and its edits are in git history.
 
 ### 5b · The Cosmic Event Horizon (`short-05b-hubble-sphere`)
 
@@ -1451,7 +1460,7 @@ light-years (the cosmic event horizon, ~16.7) and 46 billion are both radii, dis
   past should point to the place where the aliens are. 2:55 make the transition from one observable object to the
   other smoother"* (built: 3 × 3, the lit one centred; the arrow to our edge on the alien's side; the chart's picture
   starts at the diagram's size and shrinks back as the camera pulls out).
-- 5a: no picture notes left; re-record. 5c: a new recording, and a few trims to the text.
+- 5a: no picture notes left; re-recorded 2026-11-11 (rec66), cut and queued. 5c: a new recording, and a few trims to the text.
 
 - 5c (the author, 2026-11-09 21:24; built 2026-11-10 over the powers-of-ten zoom, draft short-05c-observable-universe-draft-2026-11-10-1520; the site's render still has the earlier version): *"from
   minute 1 onwards, start the dive into the universe visualization. Use the powers of 10 tool. Make the CMB 100%
