@@ -484,3 +484,6 @@ individually as if cutting a cake. Other than that it's ready to be scheduled to
   upload's voice is the committed cut.
 - 5d: the author's new Observable Universe script, written in the shared doc, is saved in
   video/scripts/recording-scripts.md as `short-05d-observable-universe`, to record; 5c stays as it is.
+- 15:50, the author: the title is "Is Our Universe a Black Hole?" (youtube.json), and the thumbnail is the black-hole
+  line with "all black holes are here", an arrow "our universe" to its dot, and two lines from the dot, down "the size
+  of the universe" and across "all the mass it contains".
