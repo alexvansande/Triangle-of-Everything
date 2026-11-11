@@ -73,11 +73,13 @@ for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"]) process.on(sig, async () => {
 // powers-of-ten zoom can take ten) stops the whole render with where each worker was, so the round goes on to the next
 // take instead of waiting for hours.
 const STALL_MS = 60000 * +(process.env.NARR_STALL_MIN || 20);
+let stalled = false;   // a Chrome that finishes starting after the guard has closed the others closes itself
 const progress = new Map();   // label → { at: last frame finished (ms), t: its time in the take, n: frames done }
 setInterval(async () => {
   const now = Date.now(), stuck = [...progress].filter(([, p]) => !p.done && now - p.at > STALL_MS);
   if (!stuck.length) return;
   console.log(`STALLED: ${stuck.map(([l, p]) => `${l} no frame for ${Math.round((now - p.at) / 60000)} min (at t=${p.t.toFixed(2)}s, ${p.n} frames done)`).join("; ")}`);
+  stalled = true;
   console.log(`workers: ${[...progress].map(([l, p]) => `${l} t=${p.t.toFixed(2)}s ${p.done ? "done" : `${Math.round((now - p.at) / 1000)} s since its last frame`}`).join(", ")}`);
   await Promise.allSettled([...browsers].map(b => b.close()));
   process.exit(3);
@@ -99,6 +101,7 @@ async function renderRange(t0, t1, file, label) {
       "--disable-threaded-animation", "--disable-threaded-scrolling", "--disable-image-animation-resync"],
   });
   browsers.add(browser);
+  if (stalled) { await browser.close(); return; }
   const page = await browser.newPage();
   let drawAt, pendingAll;   // window.__narr.renderAt and .pending, the zoom's frame with them (set once the page is up)
   await page.setViewport({ width: STAGE.W + 2 * STAGE.pad, height: STAGE.H + 2 * STAGE.pad, deviceScaleFactor: STAGE.dpr });
