@@ -29,7 +29,7 @@ const ALSO = {
   "the second edge": "rightmost edge",
   "more space being created": "not expanding into anything",
   "can ever affect us": "will never affect us",
-  "that's the hubble sphere": "all about the speed of light",   // rec67 (2026-11-11): the line after "rightmost edge" (cues resolve in order, so the alternative must come where the old phrase did, not at "the Hubble sphere is also growing")
+  "that's the hubble sphere": "speed of light meets",   // rec67 (2026-11-11): the line after "rightmost edge" (cues resolve in order, so the alternative must come where the old phrase did, not at "the Hubble sphere is also growing"); "all about the speed of light" before it was cut (the author, 14:30)
   "can ever come in": "can never come in",
   "inside a black hole": "living in a black hole",
   "one of those galaxies": "an alien living in a galaxy",
@@ -61,11 +61,11 @@ export default {
     { at: "every single object", hl: [{ line: "triangle" }, { line: "schwarzschild", labelOnly: true, label: "every object, by mass and size", labelAt: [0, 27.8] }] },
     // video 5's shots, the photo's pixels quicker so each step lands on "four", "nine", "or more" (the author), and
     // getting smaller inside a picture that keeps its size (the author, 2026-11-10: spreading out, they read as expanding)
-    // (the photo a real one of stars, a globular cluster's edge, through pixels 3 × 3 finer at each step, the grid white:
-    // the author, 2026-11-11, "stars are a point source, so the more you increase the resolution the more the centre pixel
-    // is the one where most of the light will stay")
+    // (the photo the author's own pixelated Hubble Deep Field, 2026-11-11, 14:35: 200, 100, 50, 25, 12 and 6 px blocks,
+    // then the original, each step one pixel into four, the grid's new lines sliding in to cut the pixels; the steps
+    // land on "four", "nine" and "more", the rest follow quickly)
     ...V5.cues.slice(idx("the second edge"), idx("can never come out")).map(reword)
-      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { cell: 3, steps: [2.2, 3.0, 3.8], photo: "globular", crop: [0.655, 0, 0.34, 0.604] } }] } : c)
+      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { photos: ["hdf-pixels-200.png", "hdf-pixels-100.png", "hdf-pixels-50.png", "hdf-pixels-25.png", "hdf-pixels-12.png", "hdf-pixels-6.png", "hdf-pixels-1.jpg"], blocks: [200, 100, 50, 25, 12, 6, 1], steps: [2.2, 3.0, 3.8, 4.4, 4.9, 5.3] } }] } : c)
       // the cosmic event horizon's name over its disc: to the right it ran off the frame (the author, 2026-11-09, 1:29)
       .map(c => c.hl ? { ...c, hl: c.hl.map(q => q.mark && q.label === "cosmic event horizon" ? { ...q, place: "above", gap: 58 } : q) } : c),
     // the two horizons side by side (the author, 2026-11-11, 2:00: "instead of moving back and forth between the two
@@ -79,7 +79,9 @@ export default {
     { at: ["can ever come in", "can never come in"],
       hl: [SCHW, { obj: "M87*", label: "a black hole", place: "below" }, { obj: HS, label: "our universe", place: "above" },
         ...LIGHT_IN, ...LIGHT_OUT] },
-    ...V5.cues.slice(idx("depend on the mass"), idx("no coincidence") + 1).map(reword),
+    // ("no coincidence" on our universe's left: above or to the right it ran off the frame, the author, 2026-11-11, 14:30)
+    ...V5.cues.slice(idx("depend on the mass"), idx("no coincidence") + 1).map(reword)
+      .map(c => c.hl ? { ...c, hl: c.hl.map(q => q.obj === HS && q.label === "no coincidence" ? { ...q, place: "left" } : q) } : c),
     { at: "object with a center", hl: [SCHW, { obj: HS, label: false },
       { x: [M87.r, M87.m], plus: true, size: 22, width: 4, color: "#ffd54f" },
       { arrow: true, solid: true, width: 3, color: "#ffd54f", from: { obj: "M87*", dx: 125, dy: -100 }, to: { obj: "M87*", dx: 12, dy: -10 }, label: "a singularity at the centre", labelPos: "start", draw: 0.8 }] },

@@ -20,6 +20,7 @@ video description of every video that shows them, like the music.
 | earth | EUMETSAT | Attribution | [Meteosat-12-after-eqnx_04-b.jpg](https://commons.wikimedia.org/wiki/File:Meteosat-12-after-eqnx_04-b.jpg) |
 | eiffel | Balon Greyjoy | CC0 | [Eiffel Tower Structure BW.jpg](https://commons.wikimedia.org/wiki/File:Eiffel_Tower_Structure_BW.jpg) |
 | gliese-229b |  | Public domain | [Brown Dwarf Gliese 229B.jpg](https://commons.wikimedia.org/wiki/File:Brown_Dwarf_Gliese_229B.jpg) |
+| hdf-pixels-200 … hdf-pixels-6, hdf-pixels-1 | NASA, R. Williams and the Hubble Deep Field Team (STScI); pixelated at 200, 100, 50, 25, 12 and 6 px by the author (HubbleDeepField.psd, 2026-11-11) | Public domain | the Hubble Deep Field (1995); the author's PSD, the layers exported as PNG (the original as JPEG) |
 | globular | NASA Hubble | CC BY 2.0 | [Globular_Cluster_M2.jpg](https://commons.wikimedia.org/wiki/File:Globular_Cluster_M2.jpg) |
 | hyperion | NASA / JPL / SSI / Gordan Ugarkovic | Public domain | [Hyperion_true.jpg](https://commons.wikimedia.org/wiki/File:Hyperion_true.jpg) |
 | jupiter | NASA/STSCI (S.T.A.R.S) | Public domain | [Jupiter_OPAL_2024.png](https://commons.wikimedia.org/wiki/File:Jupiter_OPAL_2024.png) |

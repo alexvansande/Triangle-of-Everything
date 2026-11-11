@@ -441,3 +441,21 @@ and the words carried over; to rebuild from the takes, the equivalent EDL change
   ease now, from rest 3.0 s before "telescope" (was 2.6) to rest at Earth 1.2 s after it (was 1.0): 0.5, 1.4, 2.4,
   3.1, 3.5, 3.3, 2.7, 1.8, 0.8, 0.1 decades per 0.4 s through it, where the cubic through the keys had a short ramp
   and a long flat-out run.
+
+### 5b, the author's notes of 14:30
+- **"It's about the speed of light… it's where the speed of light meets the expansion of the universe": cut the first
+  phrase.** "And it's all about the speed of light." (13.54-15.74) and the pause after it are out (13.42-16.62 of the
+  built audio, a 10 ms crossfade; the beat before it kept, so "rightmost edge." → 1.2 s → "It's where the speed of
+  light meets…"). Everything after is 3.2 s earlier; the voice is 2:51.5. The Hubble sphere's edge label, which was
+  keyed to "all about the speed of light", is keyed to "speed of light meets" now. (From rec67: the clip at
+  33.94-35.88 out; marked in the EDL.)
+- **"no coincidence" label is cut:** on our universe's left now (above or right of it, it ran off the frame's edge
+  where our universe sits in the two-horizons frame).
+- **"I want you to use these pixelated images of the Hubble Deep Field… add a grid of lines to show the pixel
+  division and then show more lines sliding in to cut them":** HubbleDeepField.psd (seven layers, 1474 × 1475: the
+  original and its pixelations at 200, 100, 50, 25, 12 and 6 px, each step one pixel into four) exported to
+  public/narration/photos/hdf-pixels-<px>.png (the original as .jpg). The diagram (`pixels.photos`, src/narration.js
+  drawPixelsStack) crops them to the stage's shape, centred (9:16 here; a 16:9 video would crop the other way), shows
+  the 200 px one with a white grid on its pixels, and at each step slides the new lines in from the line before them
+  to cut every pixel in two each way while the finer picture comes in: 100 px on "four", 50 on "nine", 25 on "more",
+  then 12, 6 and the original close behind (steps 2.2, 3.0, 3.8, 4.4, 4.9, 5.3 s after the cue).

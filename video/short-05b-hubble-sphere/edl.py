@@ -19,7 +19,7 @@ EDL = [
  ("rec67", "hook", 20.30, 27.04),      # What is the largest anything can be? In this chart, we are plotting every single object that can exist by mass and size.
  ("rec67", "hook", 27.40, 32.02),      # This is the triangle of everything, and today we are going to meet its rightmost edge.
  # the speed of light, and space stretching
- ("rec67", "light", 33.94, 35.88),     # And it's all about the speed of light.
+ # ("rec67", "light", 33.94, 35.88),   # And it's all about the speed of light.   (out: the author, 2026-11-11, 14:30, "cut the first phrase"; cut from the built audio, 13.42-16.62 of it, the beat before kept)
  ("rec67", "light", 37.50, 40.30),     # It's where the speed of light meets the expansion of the universe.   (a new line)
  ("rec67", "light", 43.20, 47.76),     # See, the speed of light isn't really about light: it's the speed limit for anything travelling through space.
  ("rec67", "light", 48.66, 51.02),     # But space itself can stretch faster than that.

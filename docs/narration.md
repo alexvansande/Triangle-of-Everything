@@ -571,6 +571,11 @@ Cue fields
                from/to with obj take dx, dy (px on screen: the arrow keeps its
                size through a zoom); labelPos: "start" puts the label over the start
              { x: [r, m], plus: true } — a + instead of the X (a centre marked)
+             { pixels: { photos: ["a.png", …], blocks: [200, …], steps } } — the
+               author's own pixelated versions of a photo, coarsest first (files in
+               public/narration/photos/ with their extension; blocks: each one's pixel
+               size, 1 for the original), cropped to the stage's shape; a white grid,
+               its new lines sliding in to cut the pixels as each finer one comes in
              { pixels: { photo: "name", crop: [x, y, w, h], cell, steps } } — the
                resolution picture as a real photograph (public/narration/photos/
                <name>.jpg, the crop as shares of it, 9:16) through pixels 3 × 3

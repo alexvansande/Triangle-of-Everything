@@ -781,6 +781,9 @@ export async function startNarration(app) {
   for (const c of cues) for (const h of c.hl || []) if (h.pixels?.photo && !photoImgs.has(h.pixels.photo)) {
     const im = new Image(); im.decoding = "sync"; im.src = photoUrl(h.pixels.photo); photoImgs.set(h.pixels.photo, im);
   }
+  for (const c of cues) for (const h of c.hl || []) for (const n of h.pixels?.photos || []) if (!photoImgs.has(n)) {
+    const im = new Image(); im.decoding = "sync"; im.src = `${import.meta.env.BASE_URL}narration/photos/${n}`; photoImgs.set(n, im);
+  }
   // ---------- the opening cover (scene `cover: { src, size: [w, h], frame: [x0, y0, x1, y1],
   // r: [r0, r1], m: [m0, m1], hole: [x0, y0, x1, y1], from, dur, fade, bg, surround }`): a picture of the
   // page the classic figure comes from (a journal cover) with the figure's box (`hole`, in
@@ -2293,6 +2296,7 @@ export async function startNarration(app) {
    *  into four": the old one keeps its place in the corner, the lit ones spread apart while
    *  staying the same size, and the new pixels fade in, dark, in the gaps that open between them. */
   function drawPixels(el, h, age) {
+    if (h.pixels.photos) return drawPixelsStack(el, h, age);
     if (h.pixels.photo) return drawPixelsPhoto(el, h, age);
     if (h.pixels.fixed) return drawPixelsFixed(el, h, age);
     const o = h.pixels, cell = o.cell ?? 16, steps = o.steps || [], seed = o.seed ?? 7;
@@ -2320,6 +2324,48 @@ export async function startNarration(app) {
       if (a <= 0) continue;
       g.append("rect").attr("x", x + 0.5).attr("y", y + 0.5).attr("width", cell - 1).attr("height", cell - 1)
         .attr("fill", col || "#0d0f16").attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1).attr("opacity", a);
+    }
+  }
+  /** `pixels.photos`: the author's own pixelated versions of a photograph, coarsest first (public/narration/photos/<name>,
+   *  with the extension; `blocks`: each one's pixel size in its own px, 1 for the original), cropped to the stage's shape
+   *  and shown one after another at `steps` (seconds after the cue). A white grid marks the pixels; at each step the new
+   *  lines slide in from the line before them to cut each pixel in two each way, and the finer picture comes in as they
+   *  arrive (the author, 2026-11-11: the Hubble Deep Field at 200, 100, 50, 25, 12 and 6 px, then the original). */
+  function drawPixelsStack(el, h, age) {
+    const o = h.pixels, names = o.photos, blocks = o.blocks || names.map((_, i) => 2 ** (names.length - 1 - i)), steps = o.steps || [];
+    const SW = layer.clientWidth, SH = layer.clientHeight;
+    const im0 = photoImgs.get(names[0]); if (!im0 || !im0.complete || !im0.naturalWidth) return;
+    // the crop: the stage's shape out of the picture, centred; `crop: [x, y, w, h]` (shares) to choose another
+    const IW = im0.naturalWidth, IH = im0.naturalHeight, A = SW / SH;
+    let cx0, cy0, cw, ch;
+    if (o.crop) [cx0, cy0, cw, ch] = [o.crop[0] * IW, o.crop[1] * IH, o.crop[2] * IW, o.crop[3] * IH];
+    else if (IW / IH > A) { ch = IH; cw = IH * A; cx0 = (IW - cw) / 2; cy0 = 0; } else { cw = IW; ch = IW / A; cx0 = 0; cy0 = (IH - ch) / 2; }
+    const k = SW / cw, X = (x) => (x - cx0) * k, Y = (y) => (y - cy0) * k;
+    const prog = steps.map(st => d3.easeCubicInOut(clamp01((age - st) / 0.8)));
+    const g = el.append("g").attr("opacity", smooth(age / 0.6));
+    g.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH).attr("fill", "#000");
+    const grid = (b, where) => {   // the lines of a b-px grid, each at where(its own place, its parent's place)
+      let d = "";
+      for (let x = Math.floor(cx0 / b) * b; x <= cx0 + cw + 0.5; x += b) { const p = where(x, b); if (p != null) d += `M${X(p).toFixed(1)},0V${SH}`; }
+      for (let y = Math.floor(cy0 / b) * b; y <= cy0 + ch + 0.5; y += b) { const p = where(y, b); if (p != null) d += `M0,${Y(p).toFixed(1)}H${SW}`; }
+      return d;
+    };
+    for (let l = 0; l < names.length; l++) {
+      const a = l === 0 ? 1 : prog[l - 1];
+      if (a <= 0) break;
+      const im = photoImgs.get(names[l]), b = blocks[l];
+      if (im && im.complete && im.naturalWidth) g.append("image").attr("href", im.src).attr("x", X(0)).attr("y", Y(0))
+        .attr("width", IW * k).attr("height", IH * k).attr("preserveAspectRatio", "none").style("image-rendering", "pixelated").attr("opacity", a);
+      if (b * k < 3) continue;   // (the original: no grid)
+      // the level's own lines: the ones it shares with the coarser level stay; the new ones slide from the line
+      // before them (the coarser grid's) to their place as the level comes in
+      const bp = l ? blocks[l - 1] : null;
+      const d = grid(b, (p) => {
+        if (bp == null || Math.abs(p / bp - Math.round(p / bp)) < 1e-6) return l ? null : p;   // a shared line: drawn with the coarser level
+        const from = Math.floor(p / bp) * bp; return from + (p - from) * a;
+      });
+      // (fainter as the grid gets dense: at 6 px it would veil the picture)
+      g.append("path").attr("d", d).attr("stroke", "#fff").attr("stroke-width", l === 0 ? 2 : 1.2).attr("opacity", (l === 0 ? 0.75 : 0.6) * Math.min(1, a * 2) * Math.min(1, (b * k - 2) / 14));
     }
   }
   /** `pixels.photo`: the picture is a photograph of stars (public/narration/photos/<photo>.jpg, `crop: [x, y, w, h]` as
