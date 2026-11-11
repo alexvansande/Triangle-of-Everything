@@ -421,3 +421,23 @@ and the words carried over; to rebuild from the takes, the equivalent EDL change
   our now", which keeps its size through the dive (arrows can now sit at px offsets from an object, `dx`/`dy`); the
   edge diagram's own "now" arrow comes in at the same place as it begins (0.2 s in, was 0.8), so one becomes the
   other. Stills at 103.5, 107.5, 131.6, 134.6, 137.
+
+### 5c with motion blur (the author, 13:30: "start also a draft render with motion blur")
+- The draft script pins `--subframes 1`; the blur draft is the same command with the nightly's 4 subframes (shutter 0.5),
+  720p, into output/videos/drafts/short-05c-observable-universe-blur.mp4 and iCloud's
+  `short-05c-observable-universe-draft-blur-<date>-<time>.mp4`. The first (13:50) showed the band passing under the
+  camera as four copies, not a smear: it moves tens of px a frame, more than the four sub-frames can join. The rings now
+  sample themselves across half a frame (up to 10 times, a share of the alpha each, as many as the fastest near edge in
+  the frame moves 2.4 px) in the flat regime, so the renderer's copies join into one; a second blur draft follows.
+
+### 5c, the author's notes of 14:15
+- **"Today we are exploring the observable universe": "do we have any other take? This feels like it ends with a …
+  instead of a !"** rec68 had two tries (the cut has the second); its raw file and its word timings aren't on this Mac,
+  so the first can't be cut here. What is here is the Nov 9 take of the line (rec64, in the previous cut): the two are
+  side by side in iCloud's output videos, `5c-hook-line-current-rec68.m4a` and `5c-hook-line-2026-11-09-rec64.m4a`.
+  If neither lands, the line to re-record is "Today we are exploring the observable universe!"
+- **1:00 (the dive to Earth at 1:13), "the big fast zoom should have an ease in and out so it accelerates and
+  decelerates when it arrives":** the dive's segment of the zoom (tools/powers-of-ten/timeline-05c.js) is on a quintic
+  ease now, from rest 3.0 s before "telescope" (was 2.6) to rest at Earth 1.2 s after it (was 1.0): 0.5, 1.4, 2.4,
+  3.1, 3.5, 3.3, 2.7, 1.8, 0.8, 0.1 decades per 0.4 s through it, where the cubic through the keys had a short ramp
+  and a long flat-out run.
