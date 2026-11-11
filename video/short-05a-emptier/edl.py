@@ -8,7 +8,8 @@
 # try unless it slips. Build: video/short-01-hook/README.md. The earlier cut lists are in git history.
 # (source, beat, first-word start, last-word start, {s, e, gap, cut}) in source seconds.
 
-SOURCES = {"rec66": "5A morning take.m4a"}   # 2026-11-11 08:39 (11:39 UTC), ALAC 48 kHz stereo, 7:45
+SOURCES = {"rec66": "5A morning take.m4a",   # 2026-11-11 08:39 (11:39 UTC), ALAC 48 kHz stereo, 7:45
+           "rec70": "Retakes for the short.m4a"}   # 2026-11-11 10:07 (13:07 UTC), the dying-star sentence said again with "red giant" (the fact check), 4:52
 TREATMENT = "plain"
 # then video/tools/debreath.py (--min 0.03) and the audio.m4a encode as it comes (the author, 2026-11-09, evening)
 PAUSES = {"word": 0.25, ",": 0.55, ".": 1.0}
@@ -26,7 +27,7 @@ EDL = [
  ("rec66", "today", 75.76, 78.50),     # That's because the bigger something is, the less dense it is.
  ("rec66", "today", 84.42, 89.02),     # A lot of stars are less dense than water, and some are even less dense than air.   (the second try; the first stopped at "water")
  # stars at the end of their lives
- ("rec66", "stars", 91.42, 101.34),    # When a star is about to die, it grows into a supergiant, and its outer layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant.   (said "supergiant" for "red giant": see NOTES)
+ ("rec70", "stars", 37.29, 46.82),     # When a star is about to die, it grows into a red giant, and its outer layers drift off into a nebula, or, if it explodes as a supernova, a supernova remnant.   (the retake, its last try: rec66 said "supergiant", which is wrong for the nebula branch; see NOTES)
  ("rec66", "stars", 103.24, 106.44),   # Taken as a whole, those are less dense than the atmosphere of the Moon.   (the first try: the second, 108.1, restarts, "Taken as a, taken as a whole", which the clip-by-clip pass found)
  # galaxies
  ("rec66", "galaxies", 131.40, 134.10),   # Larger than that, and you find globular clusters and small galaxies.   (the fourth start: twice it stopped at "clusters and"; Whisper had merged this one with the try before it, its words come from a transcription of the clip alone)

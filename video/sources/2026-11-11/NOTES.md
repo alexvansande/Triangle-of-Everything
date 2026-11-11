@@ -262,3 +262,33 @@ clip changed.
   the first of anything here): *"and a single-celled organism, an amoeba."* "billions of icy comets" (estimates run to
   trillions; "billions" is a floor). "every particle as just temporary ripples" (rec52's note: "temporary" adds
   nothing). Nothing wrong.
+
+## rec70: "Retakes for the short.m4a" (the two sentences from the morning's fact checks)
+
+Uploaded 2026-11-11 after the author's drive; recorded 10:07 local (13:07 UTC), ALAC 48 kHz stereo, 4:52, −25.9 LUFS,
+peak −0.8 dBFS. The author at the start: *"I'm going to do some very short retakes. I want to try to make sure they
+sound the same."* Word timings: `rec70.words.json`.
+
+- **5a, the dying star (0:14–0:47):** four tries; the last used (0:37): *"When a star is about to die, it grows into a
+  red giant, and its outer layers drift off into a nebula, or, if it explodes as a supernova, a supernova remnant."*
+  ("into" before "a supernova remnant" dropped; it reads fine.) Spliced into `short-05a-emptier` in place of rec66's
+  "supergiant" clip (0:39–0:49 of the cut); the captions carried over, the mix remade, the clip re-checked alone.
+- **5c, the 16 billion passage (0:58–4:51): recorded both ways, as the author said on the take** (*"Well, I'm gonna
+  record both"*), and the cut keeps neither: the current 5c already has these lines from rec68, in the same voice, and
+  the "away in every direction" version here (1:09–1:23: "…That's a cosmic event horizon about 16 billion light years
+  away in every direction. This is the limit of everything that can happen that can ever affect us") says the same.
+  **The "wide" version is wrong as recorded, and the reasoning on the take says why:** *"46 light[-years] is the
+  diameter and 16 is the radius, right?"* (2:01). No: **both are radii.** 16.7 billion light-years is the distance to
+  the cosmic event horizon; 46 billion light-years is the distance now to the matter that sent the CMB, the edge of the
+  observable universe. So "32 billion light-years wide" (3:42) is right for our universe, but it has to pair with
+  **"closer to 93 billion light-years wide"** for the observable universe, not "46 billion light years wide" (4:23),
+  which is a radius called a width: the two bubbles would then look only 1.4× apart instead of 2.8×. Also in the
+  "wide" tries: "16 million light years away" and "46 million light years" (2:17, 2:24: slips), "32 light billion"
+  (2:37, 3:00). **If the author wants the "wide" wording:** re-say *"That's the cosmic event horizon, about 32 billion
+  light-years wide"* and *"they would give you a much larger number, closer to 93 billion light-years wide"*; "But
+  again, that's 32 billion light-years wide" (2:45) can then stay. Otherwise the cut stands as it is.
+- Also said here, not used (the current lines say the same): "We call this our universe because it's the limit of what
+  can affect us", "Nothing that happens outside this bubble will ever be known to us, will ever be seen by us, or will
+  ever reach us", "What's happening there is that there is yet another horizon, and that's an observable universe",
+  "That's the sum of all the light that is reaching us right now" (4:44, the last of two: if the author prefers it to
+  the cut's "that's reaching us", it's one clip to swap).

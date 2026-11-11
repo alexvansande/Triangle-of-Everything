@@ -29,7 +29,7 @@ went silent after a minute when it ran out.
 | The Black Hole Slope (Short: the black-hole line, recorded on its own) | `short-04a-black-hole-slope` | 2:51 with the credits (recorded 2026-11-09, rec59, natural speed); the earlier version, `short-04a-black-hole-line` (cut from rec48), stays beside it to compare; the author prefers it (2026-11-09: more concise, says "black hole" in the first 30 s, more energy), now 2:07 with rec59's ending from "But the most interesting question" to "tiny black holes" in place of its own, which stopped at "but how small" (on trial: do the two recordings sit together?). Fact check of that ending: "most of the things in the universe are just tiny black holes" says more than the idea does; it's most of the *matter*, the dark matter, that could be tiny black holes. To re-record: *"…some people who believe that most of the matter in the universe, the dark matter, could be tiny black holes."* |
 | The Smallest Black Holes (Short: part 2 of video 4) | `short-04b-smallest-black-holes` | 2:55 + 3 s credits (recorded on its own 2026-11-09: rec61's opening, rec60's body, natural speed; under a Short's 3:00 since 2026-11-10: "and it can close up even further in the future" out and the pauses capped at 0.85 s) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
-| 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:04 + credits (re-recorded whole 2026-11-11, rec66, the morning take, natural speed; one word still to fix: "supergiant" for "red giant") |
+| 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:04 + credits (re-recorded whole 2026-11-11, rec66, the morning take, natural speed; the dying-star sentence from the retakes, rec70) |
 | 5, part 2 · The Cosmic Event Horizon | `short-05b-hubble-sphere` | 2:55 + credits (re-recorded whole 2026-11-11, rec67, the morning take, natural speed; nothing to fix) |
 | 5, part 3 · The Observable Universe | `short-05c-observable-universe` | 2:17 + credits (re-recorded whole 2026-11-11, rec68, the morning take, natural speed; the "16 billion light-years" line is the take's first run: its retake said "wide", which is wrong) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
@@ -1349,7 +1349,7 @@ rec65's patched lines (16% of 5a, 11% of 5b, 19% of 5c) don't match the rest: sa
 each part through in one take, all three in one sitting. The words are the cut as it plays now, with every fact-check
 fix from rec62–65 in it; the few small edits are listed after each part. Headings are only to keep your place.
 **All three are done** (rec66, rec67, rec68, 2026-11-11, the morning takes; the powers-of-ten zoom too, rec69): the
-sections below show the words as cut and the one sentence still to re-record in each of 5a and 5c (5b: nothing).
+sections below show the words as cut and the retakes of 2026-11-11 10:07 (rec70) fixed 5a's one sentence; 5c's 16 billion line stands as recorded, see its section (5b: nothing).
 
 ### 5a · The Largest Structures in Space (`short-05a-emptier`) — recorded 2026-11-11 (rec66), cut
 
@@ -1359,7 +1359,7 @@ The cut as it plays now (2:04), all from the morning take; the author's changes 
 >
 > Today, I wanna explore the regions of the largest objects we know of. Now, the more we go to the right, the more we are in the density of emptier and emptier space. That's because the bigger something is, the less dense it is. A lot of stars are less dense than water, and some are even less dense than air.
 >
-> When a star is about to die, it grows into a **supergiant**, and its outer layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant. Taken as a whole, those are less dense than the atmosphere of the Moon.
+> When a star is about to die, it grows into a red giant, and its outer layers drift off into a nebula, or, if it explodes as a supernova, a supernova remnant. Taken as a whole, those are less dense than the atmosphere of the Moon.
 >
 > Larger than that, and you'll find globular clusters and small galaxies, **and those are even less dense, because a galaxy is really mostly the empty space between the stars. Here we find home: that's the Milky Way, and Andromeda, our sister galaxy. Our neighborhood of galaxies is called the Local Group.**
 >
@@ -1369,11 +1369,8 @@ The cut as it plays now (2:04), all from the morning take; the author's changes 
 >
 > **Can you get any bigger? Well, no, because there is a rightmost limit in our chart, and it's where the expansion of the universe meets the speed of light.**
 
-**One sentence to re-record** (the fact check, `video/sources/2026-11-11/NOTES.md`): "supergiant" should be "red
-giant" (a star like the Sun swells into a red giant; only the heavy ones become supergiants, and those explode: the
-nebula comes from a red giant). The line to say: *"When a star is about to die, it grows into a red giant, and its outer
-layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant."* Same room, same morning
-energy if possible; it's one clip (0:39–0:49 of the cut).
+The dying-star sentence was re-recorded the same morning with "red giant" (rec70, 10:07) and is in the cut; nothing
+left to record for 5a.
 
 The new ending: the author dropped "our second edge in the triangle of everything" on the day (*"Did I ever mention the
 triangle of everything? Never mentioned, yeah"*) and tried twelve endings; the cut takes the last. It names the Hubble
@@ -1426,13 +1423,16 @@ on the day in bold.
 >
 > **And when we look at the distance, we are looking at our distant past.** You can see a time before superclusters existed, before galaxies, even before stars emerged. We can even see the faint radiation that was emitted just 380,000 years after the Big Bang. **A light that has been travelling towards us since the first moment that light could even travel through the universe at all.**
 
-**One sentence to re-record, if you want the phrase gone** (`video/sources/2026-11-11/NOTES.md`): on the take you
+**The 16 billion line** (`video/sources/2026-11-11/NOTES.md`, rec68 and rec70): on the take you
 questioned "16 billion light-years away in every direction" (*"then it's not away from us… it's weird"*) and re-said it
 as "16 billion light-years **wide**". Wide is wrong: 16 billion is the radius, our distance to the horizon whichever
 way we look (the bubble is about 32 billion across), and 46 billion is a radius too, so the two only compare if both
-stay "away". The cut keeps your first run, which is right. If you'd rather not say "away in every direction":
-*"That's the cosmic event horizon, about 16 billion light-years away from us, in every direction."* or *"…a bubble with
-a radius of about 16 billion light-years."*
+stay "away". The cut keeps your first run, which is right. The retakes (rec70) recorded it both ways; the "wide"
+version pairs "32 billion light-years wide" with "46 billion light years wide", and that second one is wrong (46 billion
+is a radius too: the observable universe is about 93 billion light-years wide). **If you want the "wide" wording,
+record these two:** *"That's the cosmic event horizon, about 32 billion light-years wide."* and *"If you ask a scientist
+about the size of the universe, they would give you a much larger number, closer to 93 billion light-years wide."*
+Otherwise nothing to record.
 
 ### Picture notes for the re-cut (the author, 2026-11-10, watching the renders)
 
