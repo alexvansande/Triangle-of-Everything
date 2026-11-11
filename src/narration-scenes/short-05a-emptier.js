@@ -20,17 +20,16 @@ export default {
   // the galaxies and clusters 20% smaller (the author, 2026-11-09)
   iconBoost: { from: 19.5, k: 0.8 },
   // the YouTube thumbnail (scripts/narration-poster.mjs, 2026-11-11): the whole climb from the stars to the voids along
-  // the water line, each step tagged, and the title in the dark above the black-hole line
+  // the water line, each step tagged, and the title in the dark above the black-hole line (the author, 2026-11-11, 13:15:
+  // no arrow along it, no tag on the clusters)
   poster: { at: 3, cues: [{ t: 0, cam: { r: 18.8, m: 41, span: 22 }, dur: 0.1, drift: 0, hl: [
     { density: 0, label: "the density of water", instant: true },
     { density: -24, label: "1 atom per cm³", instant: true },
     NAMED("Sun", "stars", { place: "below", labelSize: 26, instant: true }),
     NAMED("Crab Nebula", "nebulae", { place: "below", labelSize: 26, instant: true }),
     NAMED("Milky Way", "galaxies", { place: "left", labelSize: 26, instant: true }),
-    NAMED("Bullet Cluster", "clusters", { place: "below", labelSize: 26, instant: true }),
     NAMED("Boötes Void", "voids", { place: "above", labelSize: 26, instant: true }),
     { text: "bigger means\nemptier", at: [15.2, 54.5], size: 40, color: "#ffd54f", instant: true },
-    { arrow: true, solid: true, width: 6, color: "#ffe066", from: { r: 13, m: 36.5 }, to: { r: 25.3, m: 48.6 }, draw: 0.01 },
   ] }] },
 
   cues: [
