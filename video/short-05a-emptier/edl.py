@@ -21,13 +21,13 @@ EDL = [
  ("rec66", "chart", 40.06, 44.92),     # When you do that, every diagonal becomes a density line. And here you can see the density of water.
  ("rec66", "chart", 45.74, 51.32),     # As we go to the left, we see denser and denser objects, like brown dwarfs, white dwarfs, and neutron stars.
  # today: the largest, emptier and emptier
- ("rec66", "today", 65.72, 69.90),     # Today, I wanna explore the regions of the largest objects we know of.   (the second try: the first ran into "to the right? yeah, left, right")
+ ("rec66", "today", 53.16, 56.62),     # Today, I wanna explore the regions of the largest objects we know of.   (the first try: the second, 65.7, has a quiet "today" said again before "I", which the clip-by-clip pass found)
  ("rec66", "today", 70.62, 75.02),     # Now, the more we go to the right, the more we are in the density of emptier and emptier space.
  ("rec66", "today", 75.76, 78.50),     # That's because the bigger something is, the less dense it is.
  ("rec66", "today", 84.42, 89.02),     # A lot of stars are less dense than water, and some are even less dense than air.   (the second try; the first stopped at "water")
  # stars at the end of their lives
  ("rec66", "stars", 91.42, 101.34),    # When a star is about to die, it grows into a supergiant, and its outer layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant.   (said "supergiant" for "red giant": see NOTES)
- ("rec66", "stars", 108.12, 112.98),   # Taken as a whole, those are less dense than the atmosphere of the Moon.   (the second try)
+ ("rec66", "stars", 103.24, 106.44),   # Taken as a whole, those are less dense than the atmosphere of the Moon.   (the first try: the second, 108.1, restarts, "Taken as a, taken as a whole", which the clip-by-clip pass found)
  # galaxies
  ("rec66", "galaxies", 131.40, 134.10),   # Larger than that, and you find globular clusters and small galaxies.   (the fourth start: twice it stopped at "clusters and"; Whisper had merged this one with the try before it, its words come from a transcription of the clip alone)
  ("rec66", "galaxies", 169.96, 174.60),   # Those are even less dense, because a galaxy is really mostly the empty space between the stars.   (a new line, its last try; the first clean one was "Now, that's even less dense because a galaxy is mostly empty space between its stars", 137.9)

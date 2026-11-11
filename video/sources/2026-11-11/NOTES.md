@@ -16,7 +16,7 @@ twelve ways. The whole take is one voice, so nothing from rec62 or rec65 is left
 
 | Video | Take | Plays | Made from |
 |---|---|---|---|
-| The Largest Structures in Space | `short-05a-emptier` | 2:06 of voice, 2:09 with the credits (was 2:10 + credits from rec62/rec65) | `video/short-05a-emptier/edl.py`, 18 clips, all rec66; scene `src/narration-scenes/short-05a-emptier.js` |
+| The Largest Structures in Space | `short-05a-emptier` | 2:04 of voice, 2:07 with the credits (was 2:10 + credits from rec62/rec65) | `video/short-05a-emptier/edl.py`, 18 clips, all rec66; scene `src/narration-scenes/short-05a-emptier.js` |
 
 Natural speed, `enhance.py --plain` (−17.0 LUFS after the breaths are out, peak −1.4 dBFS), the speaker's own pauses
 (caps 0.25 s after a word, 0.55 after a comma, 1.0 after a sentence; 0.55 s between clips, 1.1 between beats, the
@@ -46,15 +46,25 @@ The last try everywhere, except: "And there's something larger still: voids" is 
 (4:15) stumbles ("void are big holes, there's still something larger, voids, voids are big holes…") and the cut joins
 it from its third "voids" (4:21). "Larger than that…": its fourth start (2:11), the complete one (twice before it
 stopped at "clusters and", and Whisper had merged the third and fourth: see the top). "Here we find home": from its
-second "here we find home" (3:26; the first is a restart). "Today, I wanna explore…": the second (1:06); after the
-first the author checked the direction (*"to the right? Yeah, to the right, left, right, yeah"*). "Taken as a whole":
-the second (1:48). "Can you get any bigger?": the last of its tries (7:25), then "Well, no, because there is a rightmost
+second "here we find home" (3:26; the first is a restart). "Today, I wanna explore…": the first (0:53): the second (1:06) has a quiet
+"today" said again before "I" (the second pass found it; after the first the author only checked the direction, *"to
+the right? Yeah, to the right, left, right, yeah"*, and the line itself is clean). "Taken as a whole": the first (1:43):
+the second (1:48) restarts, "Taken as a, taken as a whole". "Can you get any bigger?": the last of its tries (7:25), then "Well, no, because there is a rightmost
 limit…" (7:32), the restart between them ("because there is an edge, there is a limit") out.
+
+### The second pass
+Every clip of the edit transcribed on its own with a filler-friendly prompt (small.en), after each build (the author's
+reminder, 2026-11-11: "once you do the first edit check again for missing false starts and noises"). The first pass
+found two restarts the whole-file transcription had smoothed over: "Today, today I want to explore" (a quiet second
+"today" before "I" in the 1:06 try: the cut now takes the first try, 0:53, which reads clean) and "Taken as a, taken as
+a whole" (the 1:48 try: the cut now takes the first, 1:43). The second run reads clean, clip for clip. The voice is
+2:04 (was 2:06 before the two were swapped).
 
 ### Left out
 - The mic test and the notes to self (0:00–0:33, 1:01–1:05, 3:54 "Okay, I lost again, back", 4:50 "Did I ever
   mention…").
-- The first tries: "Lots of stars are less dense than water" (1:19, stopped before "air"); "Taken as a whole" (1:43);
+- "Lots of stars are less dense than water" (1:19, stopped before "air"); the second tries of "Today, I wanna explore"
+  (1:06) and "Taken as a whole" (1:48), both with a restart inside;
   "Now, larger than that…" (1:54–2:03); "Now, that's even less dense because a galaxy is mostly empty space between its
   stars" (2:17: the cleanest of the galaxy-density tries, but the author went on re-saying it as "and those are even
   less dense…", so the last is used); the Andromeda lines in the script's order (2:56–3:21); "And then above that we

@@ -29,7 +29,7 @@ went silent after a minute when it ran out.
 | The Black Hole Slope (Short: the black-hole line, recorded on its own) | `short-04a-black-hole-slope` | 2:51 with the credits (recorded 2026-11-09, rec59, natural speed); the earlier version, `short-04a-black-hole-line` (cut from rec48), stays beside it to compare; the author prefers it (2026-11-09: more concise, says "black hole" in the first 30 s, more energy), now 2:07 with rec59's ending from "But the most interesting question" to "tiny black holes" in place of its own, which stopped at "but how small" (on trial: do the two recordings sit together?). Fact check of that ending: "most of the things in the universe are just tiny black holes" says more than the idea does; it's most of the *matter*, the dark matter, that could be tiny black holes. To re-record: *"…some people who believe that most of the matter in the universe, the dark matter, could be tiny black holes."* |
 | The Smallest Black Holes (Short: part 2 of video 4) | `short-04b-smallest-black-holes` | 2:55 + 3 s credits (recorded on its own 2026-11-09: rec61's opening, rec60's body, natural speed; under a Short's 3:00 since 2026-11-10: "and it can close up even further in the future" out and the pauses capped at 0.85 s) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
-| 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:06 + credits (re-recorded whole 2026-11-11, rec66, the morning take, natural speed; one word still to fix: "supergiant" for "red giant") |
+| 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:04 + credits (re-recorded whole 2026-11-11, rec66, the morning take, natural speed; one word still to fix: "supergiant" for "red giant") |
 | 5, part 2 · The Cosmic Event Horizon | `short-05b-hubble-sphere` | 2:58 + credits (rec63, 2026-11-09; "practically infinite" and "we can actually see them too, or at least the past version of them" re-recorded in rec65) |
 | 5, part 3 · The Observable Universe | `short-05c-observable-universe` | 2:40 + credits (rec64, 2026-11-09; "16 billion light-years away", "We can call this our universe" and "If you ask a scientist" re-recorded in rec65) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
@@ -1353,7 +1353,7 @@ still to re-record). 5b and 5c are still to record.
 
 ### 5a · The Largest Structures in Space (`short-05a-emptier`) — recorded 2026-11-11 (rec66), cut
 
-The cut as it plays now (2:06), all from the morning take; the author's changes on the day are in bold:
+The cut as it plays now (2:04), all from the morning take; the author's changes on the day are in bold:
 
 > In this series, I've been exploring this chart, which is a log of mass and size. When you do that, every diagonal becomes a density line, and here you can see the density of water. As we go to the left, we see denser and denser objects, like brown dwarfs, white dwarfs, and neutron stars.
 >
@@ -1373,7 +1373,7 @@ The cut as it plays now (2:06), all from the morning take; the author's changes 
 giant" (a star like the Sun swells into a red giant; only the heavy ones become supergiants, and those explode: the
 nebula comes from a red giant). The line to say: *"When a star is about to die, it grows into a red giant, and its outer
 layers drift off into a nebula, or, if it explodes as a supernova, into a supernova remnant."* Same room, same morning
-energy if possible; it's one clip (0:39–0:50 of the cut).
+energy if possible; it's one clip (0:39–0:49 of the cut).
 
 The new ending: the author dropped "our second edge in the triangle of everything" on the day (*"Did I ever mention the
 triangle of everything? Never mentioned, yeah"*) and tried twelve endings; the cut takes the last. It names the Hubble
