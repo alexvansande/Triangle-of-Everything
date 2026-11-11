@@ -470,3 +470,17 @@ and the words carried over; to rebuild from the takes, the equivalent EDL change
     restart after "three". So the two words come from the same take now (81.04-81.80, through the 80 Hz high-pass and
     +10.3 dB, the gain that puts that try's "limited by" at the cut's), in place of the Nov 9 words at 20.86-21.48;
     everything after is 0.14 s later (the voice is 2:17.4). Whisper: "limited by three sides. Relativity".
+
+### 5b, the author's notes of 15:30: "the pixelation animation is moving the grid; instead bring the lines from the side
+individually as if cutting a cake. Other than that it's ready to be scheduled too. It needs metadata and a thumbnail"
+- The grid's new lines no longer slide from the coarser line: each sits at its place from the start and is drawn
+  across the frame like a knife, the verticals down from the top, the horizontals in from the left, one after another
+  over the step's first 0.6 s (0.35 s each), and the finer picture comes in 0.25 s behind the first cuts.
+- youtube.json: "The Cosmic Event Horizon", Tuesday 2026-11-24 06:00 (the slot after 5a's Friday). The thumbnail: the
+  triangle's apex with our universe on the black-hole line, the Hubble line named, "16 billion light-years in every
+  direction" and "the largest anything can be" (video/thumbnails/short-05b-hubble-sphere.jpg).
+- The upload: queued like 5a's, a detached job that waits for the nightly's render of 5b and uploads it private with
+  its schedule (output/videos/upload-5b-tonight.sh, log upload-5b.log). The raw rec67 isn't on this Mac, so the
+  upload's voice is the committed cut.
+- 5d: the author's new Observable Universe script, written in the shared doc, is saved in
+  video/scripts/recording-scripts.md as `short-05d-observable-universe`, to record; 5c stays as it is.

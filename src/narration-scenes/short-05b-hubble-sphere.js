@@ -55,6 +55,16 @@ export default {
   // the de Sitter radius's dotted line (where the horizon ends up, in hundreds of billions of years) left off: beside
   // the cosmic event horizon it reads as a second one (the author, 2026-11-10)
   deSitter: false,
+  // the YouTube thumbnail (scripts/narration-poster.mjs, 2026-11-11): the triangle's apex, our universe on the
+  // black-hole line at the horizon, the Hubble line, and the question the video opens with
+  poster: { at: 3, cues: [{ t: 0, cam: { r: 26.9, m: 53.4, span: 8.5 }, dur: 0.1, drift: 0, hideIcons: null, forceIcons: [HS], hl: [
+    { line: "triangle" },
+    { ...SCHW, label: "the black-hole line", instant: true },
+    { line: "hubble", label: "the Hubble line", instant: true },
+    { obj: HS, label: "our universe", place: "above", labelSize: 26, instant: true },
+    { text: "16 billion light-years\nin every direction", at: [26.3, 55.7], size: 22, color: "#e0e3f0", instant: true },
+    { text: "the largest\nanything can be", at: [25.9, 58.5], size: 40, color: "#ffd54f", instant: true },
+  ] }] },
   cues: [
     { at: "largest anything can be", cam: FULL, dur: 3, hl: [{ line: "triangle" }] },
     // (the label along the upper edge, mid-frame: on the outline it sat at the left corner, half off the frame, the author, 2026-11-11)

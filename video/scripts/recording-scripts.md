@@ -28,6 +28,7 @@ went silent after a minute when it ran out.
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | The Black Hole Slope (Short: the black-hole line, recorded on its own) | `short-04a-black-hole-slope` | 2:51 with the credits (recorded 2026-11-09, rec59, natural speed); the earlier version, `short-04a-black-hole-line` (cut from rec48), stays beside it to compare; the author prefers it (2026-11-09: more concise, says "black hole" in the first 30 s, more energy), now 2:07 with rec59's ending from "But the most interesting question" to "tiny black holes" in place of its own, which stopped at "but how small" (on trial: do the two recordings sit together?). Fact check of that ending: "most of the things in the universe are just tiny black holes" says more than the idea does; it's most of the *matter*, the dark matter, that could be tiny black holes. To re-record: *"…some people who believe that most of the matter in the universe, the dark matter, could be tiny black holes."* |
 | The Smallest Black Holes (Short: part 2 of video 4) | `short-04b-smallest-black-holes` | 2:55 + 3 s credits (recorded on its own 2026-11-09: rec61's opening, rec60's body, natural speed; under a Short's 3:00 since 2026-11-10: "and it can close up even further in the future" out and the pauses capped at 0.85 s) |
+| The Observable Universe, from Earth out (Short 5d, the author's new script) | `short-05d-observable-universe` | not recorded yet: the script is below, under 5c |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
 | 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:04 + credits (re-recorded whole 2026-11-11, rec66, the morning take, natural speed; the dying-star sentence from the retakes, rec70) |
 | 5, part 2 · The Cosmic Event Horizon | `short-05b-hubble-sphere` | 2:55 + credits (re-recorded whole 2026-11-11, rec67, the morning take, natural speed; nothing to fix) |
@@ -1654,6 +1655,73 @@ bands make the red, green and blue on screen. Say them in your own words; each i
   with feeding black holes."
 
 ---
+
+### 5d · The Observable Universe, from Earth out (`short-05d-observable-universe`) — the author's new script, to record (2026-11-11)
+
+A rewrite of 5c as a zoom from Earth outward, with no chart: the age of the light we see, step by step, out to the
+cosmic event horizon and the oldest light. Written in the shared doc "The Observable Universe (5c): script"
+(claude.ai/artifact/Fd6FvV9bkQdmx7Z9XMzc9b) and fact-checked there on 2026-11-11; 381 words, about 2:15 at the
+author's pace. The lines in parentheses are picture notes, not to be read. When it's recorded, the take goes in the
+iCloud recordings folder (Projects/triangle/recordings) and a session cuts it, keys the zoom's marks to the new
+phrases (tools/powers-of-ten/timeline-05c.js, in the zoom's checkout) and makes it `short-05d-observable-universe`,
+leaving 5c as it is.
+
+> *(Opens with a picture of Earth in the night sky, as in the powers-of-ten zoom, slowly zooming out. If possible
+> the night side first, with the city lights and just a bit of a crescent. The zoom's Earth is lit by the Sun with a
+> faint night side; city lights would be a texture change there.)*
+>
+> Most people know that when you look at the night sky, the light you see is how stars were in the past. But the sky
+> you see is actually much younger than most realize. The Moon you are looking at is how it was merely a second ago,
+> younger than this phrase.
+>
+> *(zoom out past the lunar orbit)*
+>
+> The light coming from the Sun is less than 10 minutes old. The light from Mars and the inner planets is less than
+> half an hour old. The light from Jupiter is less than an hour old. For how long have you been watching videos now?
+>
+> *(zoom past the planets)*
+>
+> The nearest stars you can see with your own eyes, Alpha Centauri and Sirius, live right here, a few light-years
+> away. You're seeing them as they were one or two Olympics ago.
+>
+> *(zooms past the nearby stars)*
+>
+> Most of the others sent their light before the internet was invented. Some are certainly older than your country.
+> The light from the other side of the galaxy started its journey when humans were first leaving Africa.
+>
+> *(zooms past our galaxy)*
+>
+> On a dark night you can see Andromeda with the naked eye, and when you do, you are looking at how it was before
+> humans had discovered fire. The far side of Laniakea, our own supercluster, sent its light when the dinosaurs were
+> still around – they never got the message.
+>
+> *(zooms out)*
+>
+> As we look further down, we are seeing the past of our very universe, before superclusters, before clusters,
+> before galaxies were even formed.
+>
+> *(zooms slowly out)*
+>
+> Space expands so fast that for the region outside this bubble, any light they send now will never reach us. The
+> present and future of these ancient galaxies will remain forever unknowable to us. This is the limit of the cosmic
+> event horizon.
+>
+> *(shows the cosmic event horizon)*
+>
+> But we can still see their past. Our past.
+>
+> This is the observable universe, the sum of all the light we can see. It's not a single thing, one side can't talk
+> to the other; it's not a map but rather the history of our shared universe. We can see the light they emitted
+> before stars were even formed. The furthest we can see is a faint microwave radiation, emitted 380 thousand years
+> after the Big Bang, just as the universe became transparent for the first time. Light that has been travelling
+> towards us since light could travel at all.
+
+The numbers behind the lines (the fact check of 2026-11-11): the Moon 1.3 light-seconds; the Sun 8.3 light-minutes,
+Mars at most 22, Jupiter 33 to 54; Alpha Centauri 4.4 and Sirius 8.6 light-years, most naked-eye stars hundreds; the
+far side of the galaxy 50,000 to 75,000 light-years, when modern humans were leaving Africa; Andromeda 2.5 million
+(controlled fire is about a million years old); the far side of Laniakea 150 to 250 million (the dinosaurs, 230 to
+66 million years ago); the cosmic event horizon 16 billion light-years; the microwave background 380,000 years after
+the Big Bang.
 
 ## 0 · Powers of ten (`short-00-powers-of-ten`)
 

@@ -2341,31 +2341,36 @@ export async function startNarration(app) {
     if (o.crop) [cx0, cy0, cw, ch] = [o.crop[0] * IW, o.crop[1] * IH, o.crop[2] * IW, o.crop[3] * IH];
     else if (IW / IH > A) { ch = IH; cw = IH * A; cx0 = (IW - cw) / 2; cy0 = 0; } else { cw = IW; ch = IW / A; cx0 = 0; cy0 = (IH - ch) / 2; }
     const k = SW / cw, X = (x) => (x - cx0) * k, Y = (y) => (y - cy0) * k;
-    const prog = steps.map(st => d3.easeCubicInOut(clamp01((age - st) / 0.8)));
+    const prog = steps.map(st => d3.easeCubicInOut(clamp01((age - st - 0.25) / 0.7)));   // (the picture follows the first cuts)
     const g = el.append("g").attr("opacity", smooth(age / 0.6));
     g.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH).attr("fill", "#000");
-    const grid = (b, where) => {   // the lines of a b-px grid, each at where(its own place, its parent's place)
-      let d = "";
-      for (let x = Math.floor(cx0 / b) * b; x <= cx0 + cw + 0.5; x += b) { const p = where(x, b); if (p != null) d += `M${X(p).toFixed(1)},0V${SH}`; }
-      for (let y = Math.floor(cy0 / b) * b; y <= cy0 + ch + 0.5; y += b) { const p = where(y, b); if (p != null) d += `M0,${Y(p).toFixed(1)}H${SW}`; }
-      return d;
+    // a level's lines: the ones it shares with the coarser level and its own new ones, each as [axis, place]
+    const lines = (b, bp) => {
+      const out = [];
+      for (let x = Math.floor(cx0 / b) * b; x <= cx0 + cw + 0.5; x += b) out.push(["v", x, bp != null && Math.abs(x / bp - Math.round(x / bp)) < 1e-6]);
+      for (let y = Math.floor(cy0 / b) * b; y <= cy0 + ch + 0.5; y += b) out.push(["h", y, bp != null && Math.abs(y / bp - Math.round(y / bp)) < 1e-6]);
+      return out;
     };
     for (let l = 0; l < names.length; l++) {
-      const a = l === 0 ? 1 : prog[l - 1];
-      if (a <= 0) break;
+      const since = l ? age - steps[l - 1] : 1e9, a = l === 0 ? 1 : prog[l - 1];
+      if (since < 0) break;
       const im = photoImgs.get(names[l]), b = blocks[l];
-      if (im && im.complete && im.naturalWidth) g.append("image").attr("href", im.src).attr("x", X(0)).attr("y", Y(0))
+      if (a > 0 && im && im.complete && im.naturalWidth) g.append("image").attr("href", im.src).attr("x", X(0)).attr("y", Y(0))
         .attr("width", IW * k).attr("height", IH * k).attr("preserveAspectRatio", "none").style("image-rendering", "pixelated").attr("opacity", a);
       if (b * k < 3) continue;   // (the original: no grid)
-      // the level's own lines: the ones it shares with the coarser level stay; the new ones slide from the line
-      // before them (the coarser grid's) to their place as the level comes in
-      const bp = l ? blocks[l - 1] : null;
-      const d = grid(b, (p) => {
-        if (bp == null || Math.abs(p / bp - Math.round(p / bp)) < 1e-6) return l ? null : p;   // a shared line: drawn with the coarser level
-        const from = Math.floor(p / bp) * bp; return from + (p - from) * a;
+      // the new lines cut in one by one, like a knife across a cake (the author, 2026-11-11): each at its place from
+      // the start, drawn from the top (a vertical) or the left (a horizontal) to the far edge over CUT s, one after
+      // another across the step's first SPREAD s; the ones shared with the coarser grid are already there
+      const CUT = 0.35, SPREAD = 0.6;
+      const fresh = lines(b, l ? blocks[l - 1] : null).filter(q => !q[2]);
+      let d = "";
+      fresh.forEach(([axis, p], i) => {
+        const t0 = fresh.length > 1 ? (i / (fresh.length - 1)) * SPREAD : 0, f = l ? d3.easeCubicOut(clamp01((since - t0) / CUT)) : 1;
+        if (f <= 0) return;
+        if (axis === "v") d += `M${X(p).toFixed(1)},0V${(SH * f).toFixed(1)}`; else d += `M0,${Y(p).toFixed(1)}H${(SW * f).toFixed(1)}`;
       });
       // (fainter as the grid gets dense: at 6 px it would veil the picture)
-      g.append("path").attr("d", d).attr("stroke", "#fff").attr("stroke-width", l === 0 ? 2 : 1.2).attr("opacity", (l === 0 ? 0.75 : 0.6) * Math.min(1, a * 2) * Math.min(1, (b * k - 2) / 14));
+      g.append("path").attr("d", d).attr("stroke", "#fff").attr("stroke-width", l === 0 ? 2 : 1.2).attr("opacity", (l === 0 ? 0.75 : 0.6) * Math.min(1, (b * k - 2) / 14));
     }
   }
   /** `pixels.photo`: the picture is a photograph of stars (public/narration/photos/<photo>.jpg, `crop: [x, y, w, h]` as
