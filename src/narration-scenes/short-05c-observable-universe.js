@@ -29,9 +29,9 @@ export default {
     // everything in a triangle, almost
     { at: "plotting every object", cam: FULL, dur: 3, hl: [{ line: "triangle" }] },
     { at: "falls into a triangle", hl: [{ line: "triangle", label: "a triangle" }] },
-    { at: "falls outside of it", cam: EDGE, dur: 2.5, clear: true, hideObjects: [],
+    { at: ["falls outside of it", "everything except one"], cam: EDGE, dur: 2.5, clear: true, hideObjects: [],
       hl: [{ obj: HS, label: false }, { arrow: true, from: { obj: HS }, to: PH, delay: 0.6 }, { ...OU, label: "outside the triangle", delay: 1 }] },
-    { at: "call that an object", hl: OUT("an object?") },
+    { at: ["call that an object", "call that a single object"], hl: OUT("an object?") },
     { at: "exploring the observable universe", hl: OUT("the observable universe") },
     // the three sides
     { at: "three sides", cam: FULL, dur: 3, clear: true, hl: [{ line: "triangle" }] },
@@ -56,7 +56,7 @@ export default {
     { at: "call this our universe", offset: 0, zoom: { mark: "ours" } },
     { at: "46 billion", offset: 0, zoom: { mark: "obs" } },
     { at: "point a telescope", offset: 0, zoom: { mark: "tele" } },
-    { at: "look at our distant past", offset: 0, zoom: { mark: "past" } },
+    { at: ["look at our distant past", "looking at our distant past"], offset: 0, zoom: { mark: "past" } },
     { at: "faint radiation", offset: 0, zoom: { mark: "cmb" } },
   ],
 };

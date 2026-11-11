@@ -1,28 +1,34 @@
 source,beat,out_start,out_end,src_start,src_end,text
-rec52,infinite,0.00,11.54,28.54,40.17,"As far as we've been able to measure for all practical purposes, the universe is infinite in every direction. But we are limited by how much we can see of it."
-rec52,cmb,11.98,23.32,59.43,70.77,"The largest thing we can see is the cosmic microwave background, a faint glow from 380 ,000 years after the Big Bang, the moment light could first escape."
-rec52,cmb,23.61,26.62,85.33,88.36,Everything here is a picture of the past.
-rec52,horizon,27.07,30.62,217.31,220.87,The smaller bubble inside is the cosmic event horizon.
-rec52,horizon,30.90,35.48,231.27,235.85,Those represent galaxies that can still send light or information to us.
-rec52,super,35.93,44.24,247.06,255.37,"Inside them are the largest structures of all. Superclusters, strong along threads of galaxies around huge empty voids."
-rec52,laniakea,44.69,51.90,285.35,292.56,"We live in one such small filament called the Laniakea supercluster made of 100 ,000 galaxies."
-rec52,local,52.35,59.18,311.73,318.56,"And in here, we see our local neighborhood of galaxies. Here's Andromeda and here's the Milky Way, that's us."
-rec52,local,59.46,63.79,321.44,325.77,"And in one of its arms, one star among hundreds of billions is the sun."
-rec52,stars,64.24,68.33,339.00,343.08,"here are the nearby stars, Ceres and Prisma Centauri."
-rec52,oort,68.78,74.59,350.97,356.79,The sun is surrounded by billions of icy comets that make up the Oort cloud.
-rec52,planets,75.04,79.74,369.06,373.75,"now we can see the orbits of planets and the third rock from the sun, that's home."
-rec52,moon,80.19,82.32,382.11,384.25,We see the moon zoom by.
-rec52,earth,82.77,89.00,389.09,395.48,"And in North America, California, in Sierra Nevada leaves the forest of giant sequoias."
-rec52,earth,89.28,93.13,406.63,410.48,"there leaves the General Sherman, the largest tree on earth."
-rec52,ladybug,93.58,98.28,434.15,438.85,"And one of its branches, a ladybug, is drinking a little bit of morning dew."
-rec52,amoeba,98.73,103.28,444.90,449.45,"and we find our first single -celled organism, an amoeba."
-rec52,dna,103.73,112.89,453.11,462.27,"Inside it, we find its nucleus and its DNA, one tied around proteins. The double helix is two millions of a millimeter wide."
-rec52,atom,113.34,123.01,497.40,513.39,"Atom is Greek for uncuttable, unsplittable. We named it when we thought we hit the bottom. But atoms do split famously and violently."
-rec52,atom,123.29,128.89,475.61,481.77,"They're made of electrons, protons, and neutrons, and they're mostly empty space."
-rec52,atom,129.17,134.63,518.07,523.53,And the proton and neutron in turn are made of smaller things like quarks and gluons.
-rec52,quarks,135.08,139.46,524.27,528.65,"And what are quarks made of? Well, truly we don't know."
-rec52,rules,139.91,146.79,529.92,536.80,"But now, instead of searching for the smallest building block, physics now looks for the smaller set of rules."
-rec52,rules,147.07,157.09,543.05,553.15,"Quantum field theory describes the universe as simply numbers at every point of space and time, and every particle as just a temporary repo in one of them."
-rec52,planck,157.54,159.98,555.04,557.47,Our journey ends in the Planck length.
-rec52,planck,160.26,163.72,569.95,575.05,"At this point, relativity clashes with quantum mechanics."
-rec52,life,164.17,174.91,594.36,606.30,"Is that the limit? Well, we don't know. But maybe, deep down, at the Planck scale, where theories break down, it's all one big game of life."
+rec69,cmb,0.00,5.75,177.33,183.07,"As far as we've been able to measure for all practical purposes, the universe is infinite in every direction."
+rec69,cmb,6.09,13.21,183.39,192.71,"But we are limited by how much we can see of it because the furthest away something is, the older the light get cut, the older is the light that is coming to us."
+rec69,cmb,13.56,17.80,197.84,202.08,and the furthest away we can see is also the oldest light that there is.
+rec69,cmb,18.15,24.85,208.20,214.95,"it's a faint microwave radiation from 380 ,000 years just after the Big Bang."
+rec69,cmb,25.15,28.58,219.38,222.81,the moments that light could even first escape from it.
+rec69,cmb,28.93,31.56,232.12,234.76,Everything you're seeing is a picture of the past.
+rec69,history,32.16,40.06,293.83,304.89,"And as we zoom in, we are actually playing a history of the universe, as we are seeing light from the galaxy as we are seeing light from the first galaxy formations."
+rec69,ceh,40.66,50.52,323.26,333.13,"The smaller bubble inside is the cosmic event horizon. Those represent in galaxies that can still send light or information to us, despite the expansion rate of the universe."
+rec69,ceh,50.87,54.93,381.16,385.22,The universe is still expanding. So a lot of those galaxies are now beyond the reach.
+rec69,home,55.53,70.02,407.27,422.17,"inside them are the largest structures of all super clusters strong along threads of galaxies around huge empty voids. We live in one such small filament called the Laniakea supercluster, made of a hundred thousand galaxies,"
+rec69,home,70.32,72.81,422.38,424.88,and in here we see our local neighborhood.
+rec69,home,73.16,76.75,432.88,436.47,"Here's Andromeda and here's the Milky Way, that's home."
+rec69,home,77.09,81.16,450.08,454.15,"and in one of its arms, one star among hundreds of billions is the sun."
+rec69,sun,81.76,84.33,478.73,481.30,"And as we zoom further, we see nearby stars."
+rec69,sun,84.68,89.07,481.63,486.02,The sun is surrounded by billions of icy comets that make up the Oort cloud.
+rec69,sun,89.42,91.83,486.09,488.50,And now we can see the orbits of planets.
+rec69,sun,92.18,94.84,488.49,491.15,"And the third rock from the sun, that's us."
+rec69,earth,95.44,101.47,493.96,499.99,"And in North America, California, in the Sierra Nevada, lives a forest of giant sequoias."
+rec69,earth,101.82,105.13,513.08,516.40,"And there lives the general Sherman, the largest tree on earth."
+rec69,earth,105.48,109.80,521.62,525.94,"And in one of these branches, a ladybug is drinking a little bit more in June."
+rec69,life,110.40,116.67,531.00,537.26,"Inside that, we'll find grains of pollen and the first single -celled organism, a small amoeba."
+rec69,life,117.02,122.34,537.78,543.21,"Inside it, we find its nucleus and its DNA, one tight around proteins."
+rec69,life,122.69,126.36,544.33,548.00,The double helix is two millions of a millimeter wide.
+rec69,atom,126.96,135.97,550.62,559.63,"Atom is Greek for uncuttable, unsplittable. We named it when we thought we'd hit bottom. But atoms do split, famously and violently."
+rec69,atom,136.32,141.27,562.41,567.36,"They're made of electrons, protons and neutrons, and they are mostly empty space."
+rec69,atom,141.62,146.84,567.53,572.75,And the protons and neutrons in turn are made of smaller things like quarks and gluons.
+rec69,atom,147.19,150.86,574.74,578.42,"and what are quirks made of? Well, we truly don't know."
+rec69,atom,151.21,157.43,578.45,584.71,"But now, instead of searching for the smallest building block, physics now looks for the smallest set of rules."
+rec69,atom,157.78,167.09,585.80,598.65,"Quantum field theory describes the universe as simply numbers at every point in space and time, and every particles as just temporary repos in one of them."
+rec69,planck,167.69,170.17,640.56,643.04,There is a limit to our own understanding.
+rec69,planck,170.52,174.57,645.60,649.75,At the Planck scale is where relativity and quantum mechanics meet.
+rec69,planck,174.92,180.04,689.40,694.51,Anything smaller on our math simply breaks down. We don't know what's happening.
+rec69,planck,180.39,185.86,708.41,713.88,"But maybe deep down at the playing scale, it's all one big game of life."

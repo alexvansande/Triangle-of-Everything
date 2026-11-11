@@ -1,49 +1,46 @@
-# short-05c-observable-universe: video 5, part 3, The Observable Universe, as a take of its own, from the author's
-# recording of 2026-11-09 (rec64, home): everything falls in the triangle, almost; the three sides; our universe out to
-# the cosmic event horizon, 16 billion light-years; the observable universe, 46 billion; looking far is looking back;
-# galaxies beyond reach; one side can't talk to the other; a future that never will be; before the stars, the light of
-# 380,000 years after the Big Bang. Until this take the Short was carved from video 5
-# (video/retired/short-05c-observable-universe.cut.json). Word timings and the fact check: video/sources/2026-11-09/.
-# Treatment: enhance.py --plain, natural speed. The last try unless it slips.
+# short-05c-observable-universe: video 5, part 3, The Observable Universe, as a take of its own. Re-recorded whole in
+# one sitting on 2026-11-11 (rec68, "6c morning take": the author's file name; it is 5c, home), replacing the 2026-11-09
+# cut from rec64 with rec65's patched lines. Everything falls in the triangle, except one thing; the three sides; our
+# universe out to the cosmic event horizon, 16 billion light-years; the observable universe, 46 billion; looking far is
+# looking back; galaxies beyond reach; one side can't talk to the other; a future that never will be; before the stars,
+# the light of 380,000 years after the Big Bang. Word timings and the fact check: video/sources/2026-11-11/.
+# Treatment: enhance.py --plain, natural speed. The last try unless it slips. The earlier cut lists are in git history.
 # (source, beat, first-word start, last-word start, {s, e, gap, cut}) in source seconds.
 
-SOURCES = {"rec64": "the observable universe.aifc", "rec65": "new recordings for shorts 5.aifc"}   # rec65: the re-recorded lines (2026-11-09, 21:33)
+SOURCES = {"rec68": "6c morning take.m4a"}   # 2026-11-11 08:56 (11:56 UTC), ALAC 48 kHz stereo, 8:16
 TREATMENT = "plain"
-# then video/tools/debreath.py (--min 0.03) and the audio.m4a encode as it comes (the author, 2026-11-09, evening: a
-# test with and without the de-click and the 12.5 kHz low-pass added earlier that day: all clean, and without them it sounded better)
-# with ffmpeg -af "equalizer=f=10000:t=h:w=3000:g=-18": a bird in the room, 8.7–11 kHz, loudest at 0:44 (the author,
-# 2026-11-09: "high pitched noise"); the voice's sibilance sits lower
+# then video/tools/debreath.py (--min 0.03) and the audio.m4a encode as it comes (the author, 2026-11-09, evening)
 PAUSES = {"word": 0.25, ",": 0.55, ".": 1.0}
 GAPS = {"same": 0.55, "beat": 1.1}
 ROOM = True
 
 EDL = [
- # everything in a triangle, almost
- ("rec64", "hook", 36.24, 45.60),      # So I'm doing this thing where I'm just plotting every object that can ever exist in this chart of mass and size. And the funny thing is everything falls into a triangle.   (from its third start)
- ("rec64", "hook", 63.16, 70.62),      # Oh, did I say everything? Oh, that's not true. Almost everything, because actually there's one thing that falls outside of it.
- ("rec64", "hook", 72.60, 75.24),      # But I'm not even sure you can call that an object.
- ("rec64", "hook", 78.86, 81.24),      # Today we're exploring the observable universe.
+ # the hook
+ ("rec68", "hook", 31.52, 40.36),      # So I'm doing this thing where I'm plotting every object that can ever exist on this chart of mass and size. And the funny thing is, everything falls into a triangle.
+ ("rec68", "hook", 61.84, 66.60),      # Everything except one, but I'm not even sure you can call that a single object.   (the last of five tries at the line, from "everything": its "I mean," out)
+ ("rec68", "hook", 72.76, 74.58),      # Today, we're exploring the observable universe.   (the second)
  # the three sides
- ("rec64", "sides", 96.38, 100.14),    # So our chart is limited by three sides. Relativity on the top left.   (from its third start)
- ("rec64", "sides", 107.30, 108.74),   # Quantum mechanics on the bottom left.
- ("rec64", "sides", 113.84, 115.32),   # And the size of the universe on the right.   (the second: the first said "right mode")
- # our universe
- ("rec65", "ours", 164.82, 178.56, {"s": 164.7, "e": 179.05}),   # But I should clarify that this is the size of our universe. That's the cosmic event horizon, about 16 billion light-years away, in every direction. This is the limit of everything that can happen that can ever affect us.   (re-recorded: it said "across", a radius; see NOTES)
- ("rec64", "ours", 159.42, 166.92),    # Nothing that happens outside this bubble will ever be known to us, will ever be seen by us, or will ever reach us.   (the first take's: rec65's restarts)
- ("rec65", "ours", 196.2, 204.16, {"s": 196.02, "e": 204.8}),   # We can call this our universe, because it's the limit of what can affect us. But again, that's 16 billion light-years away.   (re-recorded, its second try: "Scientists call this", "across")
+ ("rec68", "sides", 86.88, 88.40, {"e": 88.6}),   # So this chart is limited by three sides.   (the second start, from "so"; e: a murmured "this chart" follows, which the second pass heard)
+ ("rec68", "sides", 92.48, 97.24),     # Relativity on the top left, quantum mechanics on the bottom left, and the size of the universe on the right.
+ # our universe, out to the cosmic event horizon
+ ("rec68", "ours", 99.26, 107.56),     # But I should clarify that this is the size of our universe. That's the cosmic event horizon, about 16 billion light-years away in every direction.   (the FIRST run of the two sentences: the second run's "But I should clarify" starts on the tail of a false start, and its "16 billion light-years wide" is wrong: it's the radius. See NOTES; the author may re-record it)
+ ("rec68", "ours", 144.32, 147.66),    # This is the limit of everything that can happen and can ever affect us.
+ ("rec68", "ours", 148.36, 154.24),    # Nothing that happens outside this bubble will ever be known to us, will ever be seen by us, or will ever reach us.
+ ("rec68", "ours", 155.06, 158.56),    # We can call this our universe, because it's the limit of what can affect us.
+ ("rec68", "ours", 159.48, 161.90),    # But again, that's 16 billion light-years away.   (the first: the retake dropped "away", to go with "wide")
  # the observable universe
- ("rec65", "obs", 206.62, 213.18, {"s": 206.4, "e": 213.72}),   # If you ask a scientist about the size of the universe, they would give you a number much closer to 46 billion light-years.   (re-recorded: the first stumbled on "a scientist"; 46 billion is a radius too, as the author asked)
- ("rec64", "obs", 236.68, 244.94),     # What's happening is that there is yet another horizon, and that's the observable universe. That's the sum of all the light that has ever reached us.   (its second start)
- # looking far, looking back
- ("rec64", "past", 311.76, 318.68),    # When we point a telescope that far deep, we are not looking only at distant stars, we are looking at our own distant past.   (the last of four)
- ("rec64", "past", 330.62, 339.96),    # We see galaxies that are way beyond our reach. Even if you could travel at the speed of light and live forever, you would never be able to touch them.
- ("rec64", "past", 370.66, 380.80),    # It also means that what happens on one side can never talk to what happens on the other side. So it's not really a single object at all.
- ("rec64", "past", 388.54, 404.30, {"cut": [(394.10, 396.75)]}),   # It represents not only our past, but also a future that never will be. We will never be able to see where they go, or even where they are right now. Even their future is beyond our reach.   (a first "We will never be able to see where they are." cut)
- # before the stars: the oldest light
- ("rec64", "cmb", 456.64, 476.46, {"s": 459.20}),   # (from its second "and when we look": the second pass found "And when we look at the," before it)
-      # And when we look at our distant past, we can see a time before superclusters, before clusters, before galaxies, even before stars existed. We can see the faint radiation that was emitted 380,000 years just after the Big Bang,
- ("rec64", "cmb", 546.44, 557.16, {"s": 548.30}),   # (from its second "light that has been traveling": the second pass found the first, cut off)
-      # light that has been traveling towards us since light could travel in the universe at all, since it has become transparent enough for light to pass.
+ ("rec68", "obs", 165.80, 171.82),     # And if you ask a scientist about the size of the universe, they would give you a number much closer to 46 billion light-years.
+ ("rec68", "obs", 175.70, 179.58),     # What's happening is that there is yet another horizon, and that's the observable universe.   (the second start)
+ ("rec68", "obs", 243.90, 246.54),     # That's the sum of all the light that's reaching us.   (the last of nine tries at the line, 3:00-4:07)
+ ("rec68", "obs", 251.58, 261.08),     # When we point a telescope that deep, we are not only looking at distant stars, we are looking at our own distant past. We see galaxies that are way beyond the reach.   (from its second "when": the first stopped at "looking at it"; Whisper had merged the two, the words come from a transcription of the stretch alone)
+ # beyond reach
+ ("rec68", "reach", 293.66, 299.26),   # Even if you could travel the speed of light and live forever, you would never be able to touch them.   (from its second "even if you could"; the stretch re-timed alone)
+ ("rec68", "reach", 323.46, 331.80),   # That also means that what happens on one side of the observable universe can never talk to what happens on the other side. So it's not really a single object at all.   (the last of four)
+ ("rec68", "reach", 360.23, 368.30),   # And it's not only about our own past, but also about a future that never will be. We will never be able to see where they go, or even where they are right now.   (the third; "Their future is also beyond the reach" out: the author, on the take, "let's just stop at where they are right now")
+ # the distant past
+ ("rec68", "past", 445.92, 456.04),    # And when we look at the distance, we are looking at our distant past. You can see a time before superclusters existed, before galaxies, even before stars emerged.   (the last of seven starts)
+ ("rec68", "past", 457.42, 463.80),    # We can even see the faint radiation that was emitted just 380,000 years after the Big Bang.
+ ("rec68", "past", 486.02, 492.74),    # A light that has been travelling towards us since the first moment that light could even travel through the universe at all.   (the third)
 ]
 
 POST_CUTS = []

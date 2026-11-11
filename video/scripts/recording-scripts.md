@@ -30,10 +30,10 @@ went silent after a minute when it ran out.
 | The Smallest Black Holes (Short: part 2 of video 4) | `short-04b-smallest-black-holes` | 2:55 + 3 s credits (recorded on its own 2026-11-09: rec61's opening, rec60's body, natural speed; under a Short's 3:00 since 2026-11-10: "and it can close up even further in the future" out and the pauses capped at 0.85 s) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
 | 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:04 + credits (re-recorded whole 2026-11-11, rec66, the morning take, natural speed; one word still to fix: "supergiant" for "red giant") |
-| 5, part 2 · The Cosmic Event Horizon | `short-05b-hubble-sphere` | 2:58 + credits (rec63, 2026-11-09; "practically infinite" and "we can actually see them too, or at least the past version of them" re-recorded in rec65) |
-| 5, part 3 · The Observable Universe | `short-05c-observable-universe` | 2:40 + credits (rec64, 2026-11-09; "16 billion light-years away", "We can call this our universe" and "If you ask a scientist" re-recorded in rec65) |
+| 5, part 2 · The Cosmic Event Horizon | `short-05b-hubble-sphere` | 2:55 + credits (re-recorded whole 2026-11-11, rec67, the morning take, natural speed; nothing to fix) |
+| 5, part 3 · The Observable Universe | `short-05c-observable-universe` | 2:17 + credits (re-recorded whole 2026-11-11, rec68, the morning take, natural speed; the "16 billion light-years" line is the take's first run: its retake said "wide", which is wrong) |
 | 6 · the tiny world (humans to the Compton line) | `short-06-tiny-world` | 5:40 (recorded 2026-10-27, rec39) |
-| 0 · powers of ten (the CMB to the Planck length) | `short-00-powers-of-ten` | 3:00, narrated (recorded 2026-11-03, rec52: 2:55 of voice) |
+| 0 · powers of ten (the CMB to the Planck length) | `short-00-powers-of-ten` | 3:00 zoom; re-recorded whole 2026-11-11 (rec69, the morning take): 3:07 of voice, about 10 s over, the author to choose the cuts; the zoom's keys to re-time |
 
 ---
 
@@ -1348,8 +1348,8 @@ through "…a new generation of stars to form", in git history and in "As cut no
 rec65's patched lines (16% of 5a, 11% of 5b, 19% of 5c) don't match the rest: same room, different energy. So read
 each part through in one take, all three in one sitting. The words are the cut as it plays now, with every fact-check
 fix from rec62–65 in it; the few small edits are listed after each part. Headings are only to keep your place.
-**5a is done** (rec66, 2026-11-11, the morning take: its section below now shows the words as cut, and the one sentence
-still to re-record). 5b and 5c are still to record.
+**All three are done** (rec66, rec67, rec68, 2026-11-11, the morning takes; the powers-of-ten zoom too, rec69): the
+sections below show the words as cut and the one sentence still to re-record in each of 5a and 5c (5b: nothing).
 
 ### 5a · The Largest Structures in Space (`short-05a-emptier`) — recorded 2026-11-11 (rec66), cut
 
@@ -1380,61 +1380,59 @@ triangle of everything? Never mentioned, yeah"*) and tried twelve endings; the c
 line's idea (recession at the speed of light) for the chart's edge, which 5b then refines ("the real edge is a little
 bit further out"), so it stands as the hand-over. The old wording and its edits are in git history.
 
-### 5b · The Cosmic Event Horizon (`short-05b-hubble-sphere`)
+### 5b · The Cosmic Event Horizon (`short-05b-hubble-sphere`) — recorded 2026-11-11 (rec67), cut
 
-> What's the largest anything can be? In this chart, we are plotting every single object that can exist by mass and size. This is the triangle of everything, and today we are going to meet its rightmost edge.
+The cut as it plays now (2:55), all from the morning take; the author's changes on the day in bold. Nothing to
+re-record (`video/sources/2026-11-11/NOTES.md`).
+
+> What is the largest anything can be? In this chart, we are plotting every single object that can exist by mass and size. This is the triangle of everything, and today we are going to meet its rightmost edge.
 >
-> And it's all about the speed of light. See, the speed of light isn't really about light: it's the speed limit for anything travelling through space.
+> And it's all about the speed of light. **It's where the speed of light meets the expansion of the universe.** See, the speed of light isn't really about light: it's the speed limit for anything travelling through space.
 >
-> But space itself can stretch faster than that. The universe is expanding, but it's not expanding into anything. A better metaphor is increasing the resolution of a photo, where one pixel becomes four, or nine, or more. That means that the farther away something is, the faster it's moving away from us.
+> But space itself can stretch faster than that. The universe is expanding, but it's not expanding into anything. A better metaphor is increasing the resolution of a photo, where one pixel becomes four, or nine, or more. That means that the further away something is, the faster it's moving away from us.
 >
-> And at this line, called the Hubble line, things are moving away from us at the speed of light. You'd think that their light could never reach us, but it's a little bit more complicated than that, because the Hubble sphere is also growing, so the real edge is a little bit further out.
+> And at this line, called the Hubble line, things are moving away from us at the speed of light. You'd think that their light could never reach us, but, well, it's a little bit more complicated than that, because the Hubble sphere is also growing, so the real edge is a little bit further out.
 >
-> This is the cosmic event horizon, and it's the real limit, because anything that happens beyond it will never affect us. We will never know about it; its light can never reach us. It's the real limit of the unknowable.
+> So this is the cosmic event horizon. It's the actual limit, because anything that happens beyond it will never affect us. We will never know about it. Its light can never reach us. No information can get here. It's the real limit of the unknowable.
 >
 > Now, if we add up everything that we know exists inside this bubble, here's where it lands on our chart: right on the black hole line. OK, does that mean that we are actually living in a black hole?
 >
-> It's an interesting coincidence, because both are a kind of horizon. A black hole's event horizon is where the light that falls in can never come out. Our cosmic horizon is where nothing outside can ever come in. Also, both depend on the mass of what's inside them. The radius of a black hole depends directly on how much stuff is in it, and the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is in it too. So it's no coincidence that they are both on the same line.
+> It's an interesting coincidence, because both are kind of a horizon. A black hole's event horizon is where the light that falls in can never come out, and our cosmic horizon is where the light that is outside can never come in. Also, both depend on the mass of what's inside it. The radius of a black hole depends directly on how much stuff is in it, and the size of our Hubble sphere depends on how fast the universe expands, which depends on how much stuff is in it too. So it's no coincidence that they both are on the same line.
 >
-> But that's also where the similarities end, because a black hole is an object with a centre. Our universe is just that: it's *our* universe, it's not *the* universe. Let's imagine for a moment an alien living in a galaxy that, for us, seems to be at the edge. Well, for them, their universe is centred around them. They don't see a bunch of empty space on the other side; they see more and more galaxies, because as far as we can tell, the universe is practically infinite.
+> But that's also where the similarities end, because the black hole is an object with a centre. Our universe is just that: it's *our* universe, it's not *the* universe. Let's imagine, for a moment, an alien living in a galaxy that, for us, seems to be right at the edge. Well, for them, their universe is centred around them. They don't see a bunch of empty space on the other side. They see more and more galaxies, because, as far as we can tell, the universe is **in practice infinite**.
 >
-> And how do we know they can see more galaxies on the other side? Because, and that's the crazy bit, we can actually see them too. Or at least the past version of them. It's time we meet the only thing that sits outside our triangle: the observable universe.
+> And how do we know we can see more galaxies on the other side? Because, and that's the crazy bit, we can actually see them too. Or at least we just see the past version of them. It's time we meet the only thing that sits outside our triangle: the observable universe.
 
-Edits: "A better metaphor is like increasing" → "…is increasing"; "where one pixel just becomes" → "where one pixel
-becomes"; "but well it's" → "but it's"; "everything that we know to exist inside this bubble, here, where it lands"
-→ "…that we know exists inside this bubble, here's where it lands"; "both are kind of a horizon" → "both are a kind of
-horizon"; "what's inside it" → "what's inside them"; "also in it" → "in it too"; "both the same line" → "both on the
-same line"; "a galaxy that seems on the edge for us. Well for them their universe will be also centered" → "a galaxy
-that, for us, seems to be at the edge. Well, for them, their universe is centred"; "to the other side" → "on the other
-side". If the photo picture changes (one pixel into four inside the same frame), the words still fit.
+### 5c · The Observable Universe (`short-05c-observable-universe`) — recorded 2026-11-11 (rec68), cut
 
-### 5c · The Observable Universe (`short-05c-observable-universe`)
+The cut as it plays now (2:17), all from the morning take ("6c morning take" is its file name); the author's changes
+on the day in bold.
 
-> So I'm doing this thing where I'm plotting every object that can ever exist on this chart of mass and size. And the funny thing is, everything falls into a triangle. Oh, did I say everything? No, that's not true. Almost everything. Because actually there's one thing that falls outside of it. But I'm not even sure you can call that an object. Today we're exploring the observable universe.
+> So I'm doing this thing where I'm plotting every object that can ever exist on this chart of mass and size. And the funny thing is, everything falls into a triangle. **Everything except one. But I'm not even sure you can call that a single object.** Today, we're exploring the observable universe.
 >
-> So our chart is limited by three sides: relativity on the top left, quantum mechanics on the bottom left, and the size of the universe on the right.
+> So this chart is limited by three sides: relativity on the top left, quantum mechanics on the bottom left, and the size of the universe on the right.
 >
-> But I should clarify that this is the size of *our* universe. That's the cosmic event horizon, about 16 billion light-years away in every direction. This is the limit of everything that can happen that can ever affect us. Nothing that happens outside this bubble will ever be known to us, will ever be seen by us, or will ever reach us.
+> But I should clarify that this is the size of *our* universe. That's the cosmic event horizon, about 16 billion light-years away in every direction. This is the limit of everything that can happen and can ever affect us. Nothing that happens outside this bubble will ever be known to us, will ever be seen by us, or will ever reach us.
 >
 > We can call this our universe, because it's the limit of what can affect us. But again, that's 16 billion light-years away.
 >
-> If you ask a scientist about the size of the universe, they would give you a number much closer to 46 billion light-years. What's happening is that there is yet another horizon, and that's the observable universe. That's the sum of all the light that has ever reached us.
+> And if you ask a scientist about the size of the universe, they would give you a number much closer to 46 billion light-years. What's happening is that there is yet another horizon, and that's the observable universe. **That's the sum of all the light that's reaching us.**
 >
-> When we point a telescope that deep, we are not only looking at distant stars, we are looking at our own distant past. We see galaxies that are way beyond our reach.
+> When we point a telescope that deep, we are not only looking at distant stars, we are looking at our own distant past. We see galaxies that are way beyond the reach.
 >
-> Even if you could travel at the speed of light and live forever, you would never be able to touch them. That also means that what happens on one side can never talk to what happens on the other side.
+> Even if you could travel the speed of light and live forever, you would never be able to touch them. That also means that what happens on one side of the observable universe can never talk to what happens on the other side. So it's not really a single object at all.
 >
-> So it's not really a single object at all. It represents not only our past, but also a future that never will be.
+> **And it's not only about our own past, but also about a future that never will be.** We will never be able to see where they go, or even where they are right now.
 >
-> We'll never be able to see where they go, or even where they are right now. Even their future is beyond our reach.
->
-> And when we look at our distant past, we can see a time before superclusters, before clusters, before galaxies, even before stars existed. We can see the faint radiation that was emitted just 380,000 years after the Big Bang. That light has been travelling toward us since light could travel through the universe at all, since it became transparent enough for light to pass.
+> **And when we look at the distance, we are looking at our distant past.** You can see a time before superclusters existed, before galaxies, even before stars emerged. We can even see the faint radiation that was emitted just 380,000 years after the Big Bang. **A light that has been travelling towards us since the first moment that light could even travel through the universe at all.**
 
-Edits: "I'm just plotting… in this chart" → "I'm plotting… on this chart"; "that far deep" → "that deep"; "not looking
-only at" → "not only looking at"; "in one side… to the other side" → "on one side… on the other side"; "emitted 380,000
-years just after" → "emitted just 380,000 years after"; "Light has been traveling… in the universe… since it has
-become" → "That light has been travelling… through the universe… since it became". The numbers stand: 16 billion
-light-years (the cosmic event horizon, ~16.7) and 46 billion are both radii, distances from us in every direction.
+**One sentence to re-record, if you want the phrase gone** (`video/sources/2026-11-11/NOTES.md`): on the take you
+questioned "16 billion light-years away in every direction" (*"then it's not away from us… it's weird"*) and re-said it
+as "16 billion light-years **wide**". Wide is wrong: 16 billion is the radius, our distance to the horizon whichever
+way we look (the bubble is about 32 billion across), and 46 billion is a radius too, so the two only compare if both
+stay "away". The cut keeps your first run, which is right. If you'd rather not say "away in every direction":
+*"That's the cosmic event horizon, about 16 billion light-years away from us, in every direction."* or *"…a bubble with
+a radius of about 16 billion light-years."*
 
 ### Picture notes for the re-cut (the author, 2026-11-10, watching the renders)
 
@@ -1666,10 +1664,28 @@ About 210 words in two minutes: speak slowly and leave the gaps; the picture car
 each line as its own phrase, so it can be placed on its time.
 
 ### As cut now
-(rec52, 2026-11-03, natural speed, 2:56 under the 3:00 zoom; `video/sources/2026-11-03/NOTES.md`. The zoom is
-retimed to it: `video/short-00-powers-of-ten/zoom-keys.json`, for the zoom session to apply.)
+(rec69, 2026-11-11, the morning take, natural speed with the zoom's tight pauses: **3:07 of voice, about 10 s over the
+3:00 zoom**; `video/sources/2026-11-11/NOTES.md`, with the lines that could go. rec52's cut, 2:56, is in git history.
+The zoom has to be re-timed to this voice: `video/short-00-powers-of-ten/zoom-keys.json`, for the zoom session.)
 
-> As far as we've been able to measure for all practical purposes, the universe is infinite in every direction, but we are limited by how much we can see of it. The largest thing we can see is the cosmic microwave background, a faint glow from 380,000 years after the Big Bang, the moment light could first escape. Everything here is a picture of the past. The smaller bubble inside is the cosmic event horizon. Those represent galaxies that can still send light or information to us. Inside them are the largest structures of all: superclusters, strung along threads of galaxies around huge empty voids. We live in one such small filament called the Laniakea supercluster, made of a hundred thousand galaxies. And in here we see our local neighborhood of galaxies. Here's Andromeda and here's the Milky Way. That's us. And in one of its arms, one star among hundreds of billions, is the Sun. Here are the nearby stars, Sirius and Proxima Centauri. The Sun is surrounded by billions of icy comets that make up the Oort cloud. Now we can see the orbits of planets, and the third rock from the Sun, that's home. We see the moon zoom by. And in North America, California, in the Sierra Nevada, lives a forest of giant sequoias. And there lives the General Sherman, the largest tree on Earth. And one of its branches, a ladybug, is drinking a little bit of morning dew. And we find our first single-celled organism, an amoeba. Inside it, we find its nucleus and its DNA, wound tight around proteins. The double helix is two millionths of a millimeter wide. Atom is Greek for uncuttable, unsplittable. We named it when we thought we'd hit the bottom. But atoms do split, famously and violently. They are made of electrons, protons and neutrons, and they are mostly empty space. And the proton and neutron in turn are made of smaller things like quarks and gluons. And what are quarks made of? Well, truly we don't know. But now, instead of searching for the smallest building block, physics now looks for the smallest set of rules. Quantum field theory describes the universe as simply numbers at every point of space and time, and every particle as just a temporary ripple in one of them. Our journey ends at the Planck length. At this point, relativity clashes with quantum mechanics. Is that the limit? Well, we don't know. But maybe, deep down, at the Planck scale, where theories break down, it's all one big game of life.
+> As far as we've been able to measure, for all practical purposes, the universe is infinite in every direction. But we are limited by how much we can see of it, because the furthest away something is, the older is the light that is coming to us. And the furthest away we can see is also the oldest light that there is. It's a faint microwave radiation from 380,000 years just after the Big Bang, the moments that light could even first escape from it. Everything you're seeing is a picture of the past.
+>
+> And as we zoom in, we are actually playing a history of the universe, as we are seeing light from the first galaxy formations. The smaller bubble inside is the cosmic event horizon. Those represent galaxies that can still send light or information to us, despite the expansion rate of the universe. The universe is still expanding, so a lot of those galaxies are now beyond the reach.
+>
+> Inside them are the largest structures of all: superclusters, strung along threads of galaxies around huge empty voids. We live in one such small filament called the Laniakea supercluster, made of a hundred thousand galaxies, and in here we see our local neighborhood. Here's Andromeda, and here's the Milky Way: that's home. And in one of its arms, one star among hundreds of billions is the Sun.
+>
+> And as we zoom further, we see nearby stars. The Sun is surrounded by billions of icy comets that make up the Oort cloud. And now we can see the orbits of planets. And the third rock from the Sun: that's us. And in North America, California, in the Sierra Nevada, lives a forest of giant sequoias. And there lives the General Sherman, the largest tree on Earth. And in one of these branches, a ladybug is drinking a little bit of morning dew.
+>
+> Inside that, we'll find grains of pollen, and the first single-celled organism: a small amoeba. Inside it, we find its nucleus and its DNA, wound tight around proteins. The double helix is two millionths of a millimetre wide.
+>
+> Atom is Greek for uncuttable, unsplittable. We named it when we thought we'd hit bottom. But atoms do split, famously and violently. They're made of electrons, protons and neutrons, and they are mostly empty space. And the protons and neutrons in turn are made of smaller things, like quarks and gluons. And what are quarks made of? Well, we truly don't know. But now, instead of searching for the smallest building block, physics now looks for the smallest set of rules. Quantum field theory describes the universe as simply numbers at every point in space and time, and every particle as just temporary ripples in one of them.
+>
+> There is a limit to our own understanding. At the Planck scale is where relativity and quantum mechanics meet. Anything smaller, and our math simply breaks down. We don't know what's happening. But maybe, deep down at the Planck scale, it's all one big game of life.
+
+Two optional precision fixes (the fact check): "one such **small** filament called the Laniakea supercluster" (Laniakea
+is one of the largest; we live in a small branch of it): *"We live in one of them: the Laniakea supercluster, a hundred
+thousand galaxies."* And "the **first** single-celled organism, a small amoeba": *"and a single-celled organism, an
+amoeba."*
 
 ### To re-record (from rec52's fact check), if you want them back
 - *"It's just over one light-second away."* (after "We see the Moon zoom by"; "two light-seconds" was left out)
