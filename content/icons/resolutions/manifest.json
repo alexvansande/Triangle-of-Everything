@@ -5716,11 +5716,11 @@
     ]
   },
   "whirlpool": {
-    "fingerprint": "13839b17ebb6ef7d978c37d35989823af41a64c6963bb1ecbc0e2d3ce54ac65d",
+    "fingerprint": "17af22b235e64ae091ce4991726cdeb86332e6485cdc62af6401ed4502686b5e",
     "baseWidth": 128,
     "source": "content/icons/src/whirlpool.png",
     "reason": "matching master",
-    "sourceDifference": 1.4363199869791667,
+    "sourceDifference": 1.3961995442708333,
     "variants": [
       {
         "width": 256,

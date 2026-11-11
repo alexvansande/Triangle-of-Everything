@@ -777,6 +777,10 @@ export async function startNarration(app) {
   for (const p of photos) for (const n of p.names) if (!p.clip && !photoImgs.has(n)) {
     const im = new Image(); im.decoding = "sync"; im.src = photoUrl(n); photoImgs.set(n, im);
   }
+  // (a pixels diagram's photograph too: pending() waits for it like the others)
+  for (const c of cues) for (const h of c.hl || []) if (h.pixels?.photo && !photoImgs.has(h.pixels.photo)) {
+    const im = new Image(); im.decoding = "sync"; im.src = photoUrl(h.pixels.photo); photoImgs.set(h.pixels.photo, im);
+  }
   // ---------- the opening cover (scene `cover: { src, size: [w, h], frame: [x0, y0, x1, y1],
   // r: [r0, r1], m: [m0, m1], hole: [x0, y0, x1, y1], from, dur, fade, bg, surround }`): a picture of the
   // page the classic figure comes from (a journal cover) with the figure's box (`hole`, in
@@ -1886,6 +1890,11 @@ export async function startNarration(app) {
     const stroke = (x1, y1, x2, y2, kk) => el.append("line").attr("x1", x1).attr("y1", y1)
       .attr("x2", x1 + (x2 - x1) * kk).attr("y2", y1 + (y2 - y1) * kk)
       .attr("stroke", col).attr("stroke-width", w).attr("stroke-linecap", "round").attr("opacity", 0.95);
+    if (h.plus) {   // `plus: true`: a + instead (a centre marked: the singularity's, The Cosmic Event Horizon, 2026-11-11)
+      stroke(cx - r, cy, cx + r, cy, clamp01(k * 2));
+      if (k > 0.5) stroke(cx, cy - r, cx, cy + r, clamp01(k * 2 - 1));
+      return;
+    }
     stroke(cx - r, cy - r * 1.15, cx + r, cy + r * 1.15, clamp01(k * 2));
     if (k > 0.5) stroke(cx + r, cy - r * 1.15, cx - r, cy + r * 1.15, clamp01(k * 2 - 1));
   }
@@ -2284,6 +2293,7 @@ export async function startNarration(app) {
    *  into four": the old one keeps its place in the corner, the lit ones spread apart while
    *  staying the same size, and the new pixels fade in, dark, in the gaps that open between them. */
   function drawPixels(el, h, age) {
+    if (h.pixels.photo) return drawPixelsPhoto(el, h, age);
     if (h.pixels.fixed) return drawPixelsFixed(el, h, age);
     const o = h.pixels, cell = o.cell ?? 16, steps = o.steps || [], seed = o.seed ?? 7;
     const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH / 2;
@@ -2310,6 +2320,69 @@ export async function startNarration(app) {
       if (a <= 0) continue;
       g.append("rect").attr("x", x + 0.5).attr("y", y + 0.5).attr("width", cell - 1).attr("height", cell - 1)
         .attr("fill", col || "#0d0f16").attr("stroke", "rgba(255,255,255,0.13)").attr("stroke-width", 1).attr("opacity", a);
+    }
+  }
+  /** `pixels.photo`: the picture is a photograph of stars (public/narration/photos/<photo>.jpg, `crop: [x, y, w, h]` as
+   *  shares of it, 9:16), seen through pixels that start big (cell · 3^steps) and get 3 × 3 finer at each step, the grid
+   *  white. Each pixel shows the light that falls in it, the level exposed so its brightest pixel is white: a star is a
+   *  point, so as the pixels get finer its light stays in the one it is in and the ones round it go dark (the author,
+   *  2026-11-11: "the more you increase the resolution the more the centre pixel is the one where most of the light will
+   *  stay, unlike the Mona Lisa, where each new pixel carries new information"). */
+  const pixelLevels = new Map();
+  function drawPixelsPhoto(el, h, age) {
+    const o = h.pixels, steps = o.steps || [], big = (o.cell ?? 3) * 3 ** steps.length;
+    const SW = layer.clientWidth, SH = layer.clientHeight, cx = SW / 2, cy = SH / 2;
+    const im = photoImgs.get(o.photo); if (!im || !im.complete || !im.naturalWidth) return;
+    const prog = steps.map(st => d3.easeCubicInOut(clamp01((age - st) / 1.2)));
+    // the grid's cells counted from the centre: the first pixels' edges at cx ± big/2 (and the finer ones inside them)
+    const nx = 2 * Math.ceil(cx / big + 0.5), ny = 2 * Math.ceil(cy / big + 0.5), x0 = cx - nx / 2 * big, y0 = cy - ny / 2 * big;
+    const fine = o.cell ?? 3, FW = Math.round(nx * big / fine), FH = Math.round(ny * big / fine);   // the finest level's cells
+    const key = `${o.photo}|${(o.crop || []).join(",")}|${FW}x${FH}`;
+    let lv = pixelLevels.get(key);
+    if (!lv) {   // the photo's crop at the finest grid, then each coarser level's cells as sums of it, each exposed on its own
+      const c = document.createElement("canvas"); c.width = FW; c.height = FH;
+      const g2 = c.getContext("2d"), [u, v, w, z] = o.crop || [0, 0, 1, 1];
+      g2.drawImage(im, u * im.naturalWidth, v * im.naturalHeight, w * im.naturalWidth, z * im.naturalHeight, 0, 0, FW, FH);
+      const d = g2.getImageData(0, 0, FW, FH).data, lum = new Float32Array(FW * FH), col = [];
+      for (let i = 0; i < FW * FH; i++) lum[i] = 0.2126 * d[4 * i] + 0.7152 * d[4 * i + 1] + 0.0722 * d[4 * i + 2];
+      lv = { urls: new Map(), lum, d, FW, FH };
+      pixelLevels.set(key, lv);
+    }
+    const level = (s) => {   // a data URL of the picture at cells of s px (s = fine · 3^k)
+      if (lv.urls.has(s)) return lv.urls.get(s);
+      const k = Math.round(s / fine), cw = Math.floor(lv.FW / k), ch = Math.floor(lv.FH / k), sums = new Float32Array(cw * ch * 3);
+      for (let j = 0; j < ch; j++) for (let i = 0; i < cw; i++) {
+        let r = 0, g = 0, b = 0;
+        for (let y = j * k; y < (j + 1) * k; y++) for (let x = i * k; x < (i + 1) * k; x++) { const q = 4 * (y * lv.FW + x); r += lv.d[q]; g += lv.d[q + 1]; b += lv.d[q + 2]; }
+        const n = 3 * (j * cw + i); sums[n] = r; sums[n + 1] = g; sums[n + 2] = b;
+      }
+      // exposed on its own: the sky black (the level's median cell and below), its brightest cell white, so the coarse
+      // picture is a few lit pixels on black, as the drawn one was, and the stars come out of it
+      const L = new Float32Array(cw * ch);
+      for (let n = 0, i = 0; n < sums.length; n += 3, i++) L[i] = 0.2126 * sums[n] + 0.7152 * sums[n + 1] + 0.0722 * sums[n + 2];
+      const sorted = Float32Array.from(L).sort(), black = sorted[Math.floor(sorted.length * 0.55)], white = Math.max(black + 1, sorted[sorted.length - 1]);
+      const c = document.createElement("canvas"); c.width = cw; c.height = ch;
+      const g2 = c.getContext("2d"), out = g2.createImageData(cw, ch);
+      for (let n = 0, i = 0, q = 0; n < sums.length; n += 3, i++, q += 4) {
+        const f = L[i] > black ? Math.pow(Math.min(1, (L[i] - black) / (white - black)), 0.85) / L[i] : 0;
+        out.data[q] = Math.min(255, Math.round(255 * sums[n] * f)); out.data[q + 1] = Math.min(255, Math.round(255 * sums[n + 1] * f)); out.data[q + 2] = Math.min(255, Math.round(255 * sums[n + 2] * f)); out.data[q + 3] = 255;
+      }
+      g2.putImageData(out, 0, 0);
+      const url = c.toDataURL("image/png"); lv.urls.set(s, url); return url;
+    };
+    const g = el.append("g").attr("opacity", smooth(age / 0.6));
+    g.append("rect").attr("x", 0).attr("y", 0).attr("width", SW).attr("height", SH).attr("fill", "#000");
+    for (let l = 0; l <= steps.length; l++) {
+      const a = l === 0 ? 1 : prog[l - 1];
+      if (a <= 0) break;
+      const s = big / 3 ** l, cw = Math.floor(lv.FW / Math.round(s / fine)), ch = Math.floor(lv.FH / Math.round(s / fine));
+      g.append("image").attr("href", level(s)).attr("x", x0).attr("y", y0).attr("width", cw * s).attr("height", ch * s)
+        .attr("preserveAspectRatio", "none").style("image-rendering", "pixelated").attr("opacity", a);
+      // this level's grid, white, the first level's lines heavier
+      let path = "";
+      for (let x = x0; x <= x0 + cw * s + 0.5; x += s) path += `M${x.toFixed(1)},${y0}V${y0 + ch * s}`;
+      for (let y = y0; y <= y0 + ch * s + 0.5; y += s) path += `M${x0},${y.toFixed(1)}H${x0 + cw * s}`;
+      g.append("path").attr("d", path).attr("stroke", "#fff").attr("stroke-width", l === 0 ? 2 : 1).attr("opacity", a * (l === 0 ? 0.7 : 0.45));
     }
   }
   /** `pixels.fixed`: the same picture, its size kept, the pixels getting smaller (the author, 2026-11-10: "the pixel
@@ -2441,12 +2514,15 @@ export async function startNarration(app) {
       if (fs) t.style("font-size", fs).style("letter-spacing", "0.02em").style("font-weight", 600);
     });
   }
+  /** { arrow: true, from, to }: `from`/`to` are { obj } or { r, m }; with an object, `dx`/`dy` (px) offset the end from
+   *  it on screen, so an arrow pointing at a picture keeps its size through a zoom; `label` sits mid-way, or over the
+   *  start with `labelPos: "start"` (the "now" arrow the edge diagram takes over, The Cosmic Event Horizon, 2026-11-11). */
   function drawArrow(el, h, age) {
     const from = h.from.obj ? objByName.get(h.from.obj) : null;
     const to = h.to.obj ? objByName.get(h.to.obj) : null;
     const A = from ? [from.logR, from.logM] : [h.from.r, h.from.m];
     const B = to ? [to.logR, to.logM] : [h.to.r, h.to.m];
-    const [x1, y1, x2r, y2r] = [sx(A[0]), sy(A[1]), sx(B[0]), sy(B[1])];
+    const [x1, y1, x2r, y2r] = [sx(A[0]) + (h.from.dx || 0), sy(A[1]) + (h.from.dy || 0), sx(B[0]) + (h.to.dx || 0), sy(B[1]) + (h.to.dy || 0)];
     const prog = d3.easeCubicInOut(clamp01(age / (h.draw ?? 1.4)));
     // via: [[r, m] | { obj, dr?, dm? }, …]: a curved arrow through those points (a smooth spline), drawn on
     // from its start; the head follows the curve's last stretch
@@ -2483,7 +2559,8 @@ export async function startNarration(app) {
       .attr("fill", col);
     if (h.to.mark) el.append("circle").attr("cx", x2r).attr("cy", y2r).attr("r", 4 * prog).attr("fill", col);
     if (h.label) {
-      el.append("text").attr("class", "narr-tag").attr("x", (x1 + x2r) / 2).attr("y", (y1 + y2r) / 2 - 10)
+      const atStart = h.labelPos === "start";
+      el.append("text").attr("class", "narr-tag").attr("x", atStart ? sxp : (x1 + x2r) / 2).attr("y", (atStart ? syp : (y1 + y2r) / 2) - 10)
         .attr("text-anchor", "middle").attr("fill", col).attr("opacity", prog).text(h.label.toUpperCase());
     }
   }

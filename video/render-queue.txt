@@ -137,3 +137,7 @@ short-05c-observable-universe
 # the Nov 9 cut at 0:21, a cleaner "And" at 0:58, the 10B ly ruler label, the discs tilted 75° with a thick near edge,
 # kept to the end): both render whole (queued above). src/data.js's "10B ly" shows on any take whose ruler is zoomed
 # in past 1 Gpc: short-05b-hubble-sphere and short-05-hubble-sphere at the horizon, long-02-space's end.
+# 2026-11-11, 12:40 (the author's 5b notes): the Whirlpool's companion painted out of its picture (every take that shows
+# the Whirlpool: 5a's galaxies, 5b's and 5c's chart, long-02-space); the pixels diagram a photo of stars with a white grid;
+# M87* and our universe in one frame with light's arrows, the singularity's +, and the "now" arrow handed to the edge
+# diagram. short-05b-hubble-sphere renders whole (queued above).

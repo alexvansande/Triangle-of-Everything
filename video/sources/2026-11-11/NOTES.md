@@ -392,3 +392,32 @@ and the words carried over; to rebuild from the takes, the equivalent EDL change
   light's ring sits on the ball's equator, its far half hidden behind the ball (and the 10-billion-year ring inside
   it the same), cutting it as asked. Still at 2:11: the ring through the ball, "13.8 billion years · the oldest light"
   under its near edge. `?tilt=0` on the render page still draws them flat; `?tilt=…&persp=…` to try other values.
+
+### 5b, The Cosmic Event Horizon (the author's notes of 12:40)
+- **0:10, "can we remove the Whirlpool galaxy's companion? Is that part of the Milky Way image or another object that
+  is overlapping?"** Neither: it's in the Whirlpool's own picture (content/icons/whirlpool.webp, Hubble's M51 with its
+  companion NGC 5195 at the end of an arm; the blob beside the Milky Way in 5a's 1:10 was the same). NGC 5195 is
+  painted out of the master (content/icons/src/whirlpool.png: an ellipse round it filled with the halo around it, a
+  wide masked blur, feathered) and the icon's tiers rebuilt (generate-icon-resolutions, unscreen-icons --again). The
+  chart everywhere shows the Whirlpool alone now; the Milky Way's picture is its own.
+- **1:00, "increasing the resolution of a photo": "experiment that with an actual photo of stars… start with a very
+  low pixelated like it is, just use the photo instead of random pixels, and make the pixel grid white":** the pixels
+  diagram takes a photograph now (`pixels.photo`, src/narration.js drawPixelsPhoto): the globular cluster photo's
+  sparse upper-right corner (public/narration/photos/globular.jpg, the crop 9:16), seen through 81 px pixels that get
+  3 × 3 finer at "four", "nine" and "more" (81, 27, 9, 3 px), each pixel the light that falls in it, each level
+  exposed on its own with the sky black (the median cell and below) and its brightest cell white, so the first
+  picture is a few lit pixels on black like the drawn one, and the stars come out of it as the pixels shrink: a
+  star's light stays in the one pixel it is in, the ones round it go dark. The grid is white (the first level's
+  lines heavier). Stills at 38.6, 40.7, 41.6, 42.6.
+- **2:00, "a black hole is an object with a centre: instead of moving back and forth between the two points, keep
+  both the black hole (M87) and our universe in the screen and show arrows and labels…":** from "can never come
+  out" (1:42) the camera holds a frame with M87* at the bottom left and our universe at the top right, both on the
+  black-hole line (r 21.8, m 49.8, span 17; their pictures forced), labelled "a black hole" and "our universe". "The
+  light that falls in can never come out": three short yellow arrows into M87*, "light falls in · never out"; "the
+  light that is outside can never come in": three blue arrows towards our universe that stop outside it, "light
+  outside · never in". The mass and expansion-rate labels follow as before, over the same frame (no more Ton 618
+  shot). "An object with a centre": a + at M87*'s centre with the arrow "a singularity at the centre". "Our universe
+  is just that": the dive into our universe's picture starts with a blue arrow at its centre, "not the centre, just
+  our now", which keeps its size through the dive (arrows can now sit at px offsets from an object, `dx`/`dy`); the
+  edge diagram's own "now" arrow comes in at the same place as it begins (0.2 s in, was 0.8), so one becomes the
+  other. Stills at 103.5, 107.5, 131.6, 134.6, 137.

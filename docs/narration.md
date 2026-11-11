@@ -568,6 +568,13 @@ Cue fields
              { density: logRho, label? } — a line of constant density (log g/cm³);
                "\n" in a line label stacks it
              { arrow: true, from: {obj}|{r,m}, to: {obj}|{r,m,mark}, label? }
+               from/to with obj take dx, dy (px on screen: the arrow keeps its
+               size through a zoom); labelPos: "start" puts the label over the start
+             { x: [r, m], plus: true } — a + instead of the X (a centre marked)
+             { pixels: { photo: "name", crop: [x, y, w, h], cell, steps } } — the
+               resolution picture as a real photograph (public/narration/photos/
+               <name>.jpg, the crop as shares of it, 9:16) through pixels 3 × 3
+               finer at each step, each exposed on its own, the grid white
              { swing: [{obj}|{r,m}, {obj}|{r,m}], period?, label? } — a star
                swinging back and forth between two points, further each time
              { dust: "blackhole", label?, labelX?, labelY?, sweep?, ticks? } —

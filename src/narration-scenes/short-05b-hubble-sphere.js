@@ -9,6 +9,21 @@
 import V5 from "./short-05-hubble-sphere.js";
 
 const FULL = { r: -2.2, m: -4.8, span: 74 };
+const SCHW = { line: "schwarzschild" }, HS = "Our Universe";
+const M87 = { r: 15.28, m: 43.11 };                       // M87* (src/objects.json)
+const TWO = { r: 21.8, m: 49.8, span: 17 };               // M87* at the bottom left, our universe at the top right
+// light falling into the black hole (from its right: it sits near the left edge), and light outside our universe that
+// never gets in (from its left), as short solid arrows; a label over the first of each
+const LIGHT_IN = [
+  { arrow: true, solid: true, width: 3, color: "#ffe9a3", from: { obj: "M87*", dx: 105, dy: -85 }, to: { obj: "M87*", dx: 16, dy: -13 }, label: "light falls in · never out", labelPos: "start", draw: 0.8 },
+  { arrow: true, solid: true, width: 3, color: "#ffe9a3", from: { obj: "M87*", dx: 130, dy: 12 }, to: { obj: "M87*", dx: 22, dy: 2 }, draw: 0.8, delay: 0.3 },
+  { arrow: true, solid: true, width: 3, color: "#ffe9a3", from: { obj: "M87*", dx: 70, dy: 115 }, to: { obj: "M87*", dx: 12, dy: 20 }, draw: 0.8, delay: 0.6 },
+];
+const LIGHT_OUT = [
+  { arrow: true, solid: true, width: 3, color: "#80deea", from: { obj: HS, dx: -140, dy: 95 }, to: { obj: HS, dx: -58, dy: 40 }, label: "light outside · never in", labelPos: "start", draw: 0.8 },
+  { arrow: true, solid: true, width: 3, color: "#80deea", from: { obj: HS, dx: -165, dy: -15 }, to: { obj: HS, dx: -70, dy: -6 }, draw: 0.8, delay: 0.3 },
+  { arrow: true, solid: true, width: 3, color: "#80deea", from: { obj: HS, dx: -75, dy: -160 }, to: { obj: HS, dx: -32, dy: -68 }, draw: 0.8, delay: 0.6 },
+];
 // this take's wording for video 5's phrases (a cue matches any of its `at`)
 const ALSO = {
   "the second edge": "rightmost edge",
@@ -46,15 +61,35 @@ export default {
     { at: "every single object", hl: [{ line: "triangle" }, { line: "schwarzschild", labelOnly: true, label: "every object, by mass and size", labelAt: [0, 27.8] }] },
     // video 5's shots, the photo's pixels quicker so each step lands on "four", "nine", "or more" (the author), and
     // getting smaller inside a picture that keeps its size (the author, 2026-11-10: spreading out, they read as expanding)
-    ...V5.cues.slice(idx("the second edge"), idx("object with a center") + 1).map(reword)
-      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { cell: 3, steps: [2.2, 3.0, 3.8], fixed: true } }] } : c)
+    // (the photo a real one of stars, a globular cluster's edge, through pixels 3 × 3 finer at each step, the grid white:
+    // the author, 2026-11-11, "stars are a point source, so the more you increase the resolution the more the centre pixel
+    // is the one where most of the light will stay")
+    ...V5.cues.slice(idx("the second edge"), idx("can never come out")).map(reword)
+      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { cell: 3, steps: [2.2, 3.0, 3.8], photo: "globular", crop: [0.655, 0, 0.34, 0.604] } }] } : c)
       // the cosmic event horizon's name over its disc: to the right it ran off the frame (the author, 2026-11-09, 1:29)
       .map(c => c.hl ? { ...c, hl: c.hl.map(q => q.mark && q.label === "cosmic event horizon" ? { ...q, place: "above", gap: 58 } : q) } : c),
+    // the two horizons side by side (the author, 2026-11-11, 2:00: "instead of moving back and forth between the two
+    // points, keep both the black hole (M87) and our universe in the screen and show arrows and labels"): M87* at the
+    // bottom left, our universe at the top right, both on the black-hole line; light's arrows into the one and stopped
+    // outside the other; then the singularity's + at M87*'s centre, and at ours an arrow that is not a centre but our
+    // now, which the edge diagram's own "now" arrow takes over through the dive
+    { at: "can never come out", cam: TWO, dur: 2.4, forceIcons: ["M87*", HS],
+      hl: [SCHW, { obj: "M87*", label: "a black hole", place: "below" }, { obj: HS, label: "our universe", place: "above" },
+        ...LIGHT_IN] },
+    { at: ["can ever come in", "can never come in"],
+      hl: [SCHW, { obj: "M87*", label: "a black hole", place: "below" }, { obj: HS, label: "our universe", place: "above" },
+        ...LIGHT_IN, ...LIGHT_OUT] },
+    ...V5.cues.slice(idx("depend on the mass"), idx("no coincidence") + 1).map(reword),
+    { at: "object with a center", hl: [SCHW, { obj: HS, label: false },
+      { x: [M87.r, M87.m], plus: true, size: 22, width: 4, color: "#ffd54f" },
+      { arrow: true, solid: true, width: 3, color: "#ffd54f", from: { obj: "M87*", dx: 125, dy: -100 }, to: { obj: "M87*", dx: 12, dy: -10 }, label: "a singularity at the centre", labelPos: "start", draw: 0.8 }] },
     // the alien at our edge (the author's design, 2026-11-09; src/narr-diagrams.js drawEdge, the zoom's own objects):
     // dive into our universe; the turn stops and a galaxy at our edge is circled; their universe round it; our observable
     // universe grows round ours, reaching into theirs; its microwave background; and out to the chart
-    { at: "our universe is just that", cam: { obj: "Our Universe", span: 0.35 }, dur: 2.6, clear: true },
-    { at: "not the universe", hold: 60, hl: [{ edge: {} }] },
+    // (the "now" arrow where the diagram draws its own: 0.62 and 1.035 of its sphere's 0.19 of the short side, left and up)
+    { at: "our universe is just that", cam: { obj: "Our Universe", span: 0.35 }, dur: 2.6,
+      hl: [{ arrow: true, solid: true, width: 2.5, color: "#80deea", from: { obj: HS, dx: -64, dy: -137 }, to: { obj: HS, dx: -10, dy: -12 }, label: "not the centre, just our now", labelPos: "start", draw: 0.8 }] },
+    { at: "not the universe", hold: 60, forceIcons: null, hl: [{ edge: {} }] },
     // the distant past's arrow on "but", to our universe's left edge (the author, 2026-11-10)
     { at: ["but let's imagine", "let's imagine"], offset: 0, hold: 60, hl: [{ edge: { phase: "past" }, instant: true }] },
     { at: "imagine for a moment", hold: 60, hl: [{ edge: { phase: "alien" }, instant: true }] },

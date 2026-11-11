@@ -4,6 +4,6 @@
   "object": "whirlpool",
   "slug": "whirlpool",
   "source": "NASA and <a href=\"//commons.wikimedia.org/wiki/European_Space_Agency\" title=\"European Spa; Wikimedia Commons: Messier51_sRGB.jpg; public domain",
-  "shows": "Hubble visible light, with its companion NGC 5195",
-  "steps": "crop around the object, fade on the ellipse inscribed in the photo (no edges left), pad to a 1024 px square; then node scripts/generate-icon-resolutions.mjs <slug> and node scripts/unscreen-icons.mjs <slug>"
+  "shows": "Hubble visible light; its companion NGC 5195 painted out (the author, 2026-11-11: it read as a blob beside the Milky Way on the chart), the halo continued over it",
+  "steps": "crop around the object, fade on the ellipse inscribed in the photo (no edges left), pad to a 1024 px square; then node scripts/generate-icon-resolutions.mjs <slug> and node scripts/unscreen-icons.mjs <slug>; 2026-11-11: NGC 5195 filled with the surrounding halo (a wide masked blur over an ellipse round it), then the two scripts again"
 }

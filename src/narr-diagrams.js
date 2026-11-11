@@ -751,7 +751,7 @@ export function drawEdge(ctx, W, H, o, t) {
   if (ft > 0) put(O.theirs, frozen + 9, X(ex), Y(ey), U * ft, ft * (grow > 0 ? 0.85 : 0.7) * keep);
   const ring = (u, v, r, col, a, dash, w = 0.005) => { if (a <= 0.01) return; ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = H * w; ctx.setLineDash(dash ? [H * 0.018, H * 0.014] : []); ctx.beginPath(); ctx.arc(X(u), Y(v), r * U, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; };
   ctx.globalAlpha = keep; ctx.fillStyle = "#80deea"; ctx.beginPath(); ctx.arc(X(0), Y(0), H * 0.007, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1;
-  ctx.globalAlpha = 1 - smooth((t - start - 0.8) / 0.9) * (1 - smooth(grow * 3));   // ("now" says it while the arrows show)
+  ctx.globalAlpha = 1 - smooth((t - start - 0.2) / 0.7) * (1 - smooth(grow * 3));   // ("now" says it while the arrows show)
   text(ctx, "us", X(0), Y(0) - H * 0.026, H * 0.022, "#80deea"); ctx.globalAlpha = 1;
   const fo = smooth((t - alien) / 0.8);
   if (fo > 0) { ctx.globalAlpha = fo * keep; text(ctx, "our universe", X(-0.45), Y(1) + H * 0.04, H * 0.028, "#80deea"); ctx.globalAlpha = 1; }
@@ -780,7 +780,9 @@ export function drawEdge(ctx, W, H, o, t) {
   };
   // (the distant past from its own cue, "but", to our universe's edge on the alien's side; theirs points at us, our now: all they see
   // of us is our distant past (the author, 2026-11-10))
-  const off = 1 - smooth(grow * 3), fa = smooth((t - start - 0.8) / 0.9) * off, fb = smooth((t - theirs - 1.4) / 0.9) * off;
+  // (the "now" arrow at once: the chart's own, "not the centre, just our now", points there through the dive and this
+  // one takes over, the author, 2026-11-11)
+  const off = 1 - smooth(grow * 3), fa = smooth((t - start - 0.2) / 0.7) * off, fb = smooth((t - theirs - 1.4) / 0.9) * off;
   const fp = smooth((t - (o.past ?? start + 0.8)) / 0.9) * off;
   const on = (u, v, ang, r = 1) => [X(u + r * Math.cos(ang)), Y(v + r * Math.sin(ang))];
   // (to the right edge, where the alien's galaxy is: the author, 2026-11-10)
