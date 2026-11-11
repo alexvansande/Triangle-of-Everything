@@ -43,4 +43,11 @@ EDL = [
  ("rec68", "past", 486.02, 492.74),    # A light that has been travelling towards us since the first moment that light could even travel through the universe at all.   (the third)
 ]
 
+# Sound fixes after the second draft (the author, 2026-11-11, 12:30; the raw take isn't on this Mac, so they were made on
+# the cut audio, see video/sources/2026-11-11/NOTES.md):
+#  - "three sides" (0:21) was murmured and clipped at the clip's end (0.27 s for the two words): the words come from the
+#    2026-11-09 cut (git 3edc4f78, its audio at 28.36-28.98, rec64's "three sides" clip), at -2.5 dB, in place of
+#    20.86-21.14 of this cut; everything after moves 0.34 s later. From the takes: rec64 96.38-100.14 has the words.
+#  - the "And" of "And if you ask a scientist" (0:58) started silent (the clip's first 0.1 s is the vowel's quiet
+#    onset): the "And" of "And it's not only about our own past" (this cut's 100.40-100.70) is put over 58.40-58.70.
 POST_CUTS = []

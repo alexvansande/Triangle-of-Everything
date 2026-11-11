@@ -168,6 +168,7 @@ export const RADIUS_UNITS = [
   { logR: 23.976 - W, label: "1M ly",           row: 2, slug: "imperial-units" },
   { logR: 24.489 - W, label: "1 Mpc",           row: 2, slug: "imperial-units" },
   { logR: 26.976 - W, label: "1B ly",           row: 2, slug: "imperial-units" },
+  { logR: 27.976 - W, label: "10B ly",          row: 2, slug: "imperial-units" },
   { logR: 27.489 - W, label: "1 Gpc",           row: 2, slug: "imperial-units" },
   { logR: 28.14,  label: "Hubble R",        row: 2, slug: "imperial-units" },
 ];

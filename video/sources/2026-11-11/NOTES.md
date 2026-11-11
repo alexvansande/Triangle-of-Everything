@@ -356,3 +356,39 @@ and the words carried over; to rebuild from the takes, the equivalent EDL change
   its far arc near a horizon line above Earth and its near side comes up from under the camera as the zoom pulls out;
   the tilt eases off as the camera nears the microwave background, where the circles become the shell's own
   perspective. `?tilt=0` on the render page draws them flat as before; `?tilt=…&persp=…` to try other values.
+
+## The author's notes on the second drafts (2026-11-11, 12:30, on the 11:19/11:24/11:29 set)
+
+### 5a: "other than that it's good enough"
+- **0:50, "emptier than the Moon's..." label is cut off:** the Crab Nebula's tag ran off the right edge of the frame
+  (the picture sits near the mass axis at that camera); it's placed on the left now.
+
+### 5c, The Observable Universe
+- **0:22, "three [sides]", "the word is mangled":** in rec68 the end of the sentence is murmured ("three" 90 ms,
+  "sides" 130 ms, at -21 and -29 dB where "by" before them peaks at -12) and the clip ends on it (the murmured "this
+  chart" that follows had to go). The raw take isn't on this Mac, so the two words come from the 2026-11-09 cut (git
+  3edc4f78, its audio at 28.36-28.98, from rec64's "three sides" clip, rec64 96.38-100.14): the same room, two days
+  earlier, at -2.5 dB to sit with the words round them. In place of 20.86-21.14; everything after is 0.34 s later
+  (words.json and the mix follow; the voice is 2:17.2). Whisper now hears "limited by three sides. Relativity on the
+  top left". If the splice shows, the line to re-record is "So this chart is limited by three sides."
+- **0:40, "is there a 10B ly label in the axis? It should":** there wasn't one: the size ruler's unit list
+  (src/data.js, RADIUS_UNITS) went 1M ly, 1 Mpc, 1B ly, 1 Gpc, Hubble R. "10B ly" is in it now (at 10¹⁰ light-years,
+  between 1 Gpc and the Hubble radius), so it shows wherever the ruler is zoomed in enough: here at "the size of our
+  universe", and on the site's chart.
+- **1:00, "[and] if you ask a scientist", "and is not very audible":** the clip started on the word, and the vowel's
+  onset is at -40 dB for its first 0.1 s (the take's, not the cut's: a 12 ms fade only). The "And" of "And it's not
+  only about our own past" (this cut's 100.40-100.70, a sentence-initial "And" from the same take) is put over
+  58.40-58.70, same length, so nothing moves. Whisper hears "away. And if you ask a scientist".
+- **1:30, the discs "more tilted towards the viewer and with an actual edge thickness (so the closer one is wider than
+  the more distant edge) so it feels it's passing just under the camera… I want the camera to feel they're the light
+  itself":** tilt 75° from the screen now (was 62°), seen from 0.75 frame-widths (was 0.9), and each ring is a band
+  whose width grows with nearness (2.4 px at the screen's depth, up to 12× that as it passes under the camera), so the
+  near edge is the thick one. A ring comes in when its near edge enters the frame from below and goes as it passes
+  under the camera (before, it faded by its size, and the pass was faint). The labels sit under the near edge now
+  (the far sides crowd towards a horizon line at that tilt), bigger as the edge nears, stacked when two would meet,
+  and drawn after every band.
+- **2:00, "don't rotate the light age disc, keep it so that by the end it feels it's cutting the CMB equator":** the
+  tilt no longer eases off near the microwave background; the rings keep it through the crossing, so the oldest
+  light's ring sits on the ball's equator, its far half hidden behind the ball (and the 10-billion-year ring inside
+  it the same), cutting it as asked. Still at 2:11: the ring through the ball, "13.8 billion years · the oldest light"
+  under its near edge. `?tilt=0` on the render page still draws them flat; `?tilt=…&persp=…` to try other values.

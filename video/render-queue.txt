@@ -133,3 +133,7 @@ short-05c-observable-universe
 # circles tilted, an experiment in the zoom's own folder): new audio for all three, they render whole (queued above).
 # src/narration.js now keeps a density line named by consecutive cues (no redraw): long-02-space ("every diagonal on
 # this chart", about 2:35-3:00 of the cut) and short-05-hubble-sphere (its opening density lines) change there too.
+# 2026-11-11, 12:30 (the author's second notes): 5a (the Crab Nebula's tag on the left at 0:50) and 5c (two words from
+# the Nov 9 cut at 0:21, a cleaner "And" at 0:58, the 10B ly ruler label, the discs tilted 75° with a thick near edge,
+# kept to the end): both render whole (queued above). src/data.js's "10B ly" shows on any take whose ruler is zoomed
+# in past 1 Gpc: short-05b-hubble-sphere and short-05-hubble-sphere at the horizon, long-02-space's end.
