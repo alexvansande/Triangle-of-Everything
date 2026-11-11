@@ -25,6 +25,7 @@ export default {
   poster: { at: 3, cues: [{ t: 0, cam: { r: 18.8, m: 41, span: 22 }, dur: 0.1, drift: 0, hl: [
     { density: 0, label: "the density of water", instant: true },
     { density: -24, label: "1 atom per cm³", instant: true },
+    { density: -29.8, label: "1 atom per m³", instant: true },   // the voids' and our universe's line (the author, 13:20, asked for a label here)
     NAMED("Sun", "stars", { place: "below", labelSize: 26, instant: true }),
     NAMED("Crab Nebula", "nebulae", { place: "below", labelSize: 26, instant: true }),
     NAMED("Milky Way", "galaxies", { place: "left", labelSize: 26, instant: true }),
