@@ -459,3 +459,14 @@ and the words carried over; to rebuild from the takes, the equivalent EDL change
   the 200 px one with a white grid on its pixels, and at each step slides the new lines in from the line before them
   to cut every pixel in two each way while the finer picture comes in: 100 px on "four", 50 on "nine", 25 on "more",
   then 12, 6 and the original close behind (steps 2.2, 3.0, 3.8, 4.4, 4.9, 5.3 s after the cue).
+
+### 5c, with the morning take on this Mac (the author, 14:45: "I added the 5c morning take to the iCloud recordings folder")
+- rec68 is `recordings/5c morning take.m4a` now (ALAC 48 kHz, 8:16). Its tries of the two lines in question:
+  - "Today we're exploring the observable universe": the first at 67.54-70.18, the second (the cut's) at 72.78-75.0.
+    The first is beside the other two clips in iCloud's output videos, `5c-hook-line-first-try-rec68.m4a` (at the
+    cut's level; it peaks near full scale, so it may clip a touch there).
+  - "three sides": the take has it whole in the first full try, "so our chart is limited by three sides." at
+    79.72-81.70 ("sides." 81.28-81.70); the cut's try (86.68) and the one after it (90.34) both trail off into a
+    restart after "three". So the two words come from the same take now (81.04-81.80, through the 80 Hz high-pass and
+    +10.3 dB, the gain that puts that try's "limited by" at the cut's), in place of the Nov 9 words at 20.86-21.48;
+    everything after is 0.14 s later (the voice is 2:17.4). Whisper: "limited by three sides. Relativity".
