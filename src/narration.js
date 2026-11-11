@@ -448,8 +448,8 @@ export async function startNarration(app) {
   }
   // an object still named from the cue before keeps its first mention (`since`), so its
   // halo and guides don't start over at every cue
-  for (const h of highlights) if (h.obj || h.line) {
-    const prev = highlights.find(q => q !== h && (h.obj ? q.obj === h.obj : q.line === h.line) && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
+  for (const h of highlights) if (h.obj || h.line || h.density != null) {
+    const prev = highlights.find(q => q !== h && (h.obj ? q.obj === h.obj : h.line ? q.line === h.line : q.density === h.density) && q.tc < h.tc && Math.abs(q.t1 - h.tc) < 0.6);
     h.since = prev ? prev.since : h.t0;
   }
   // (and a cross read off the axes again doesn't draw its guides out again)
@@ -1072,12 +1072,18 @@ export async function startNarration(app) {
         if (h.since < h.t0 - 0.01) op = t >= h.t0 ? 1 - smooth((t - h.t1) / 0.5) : 0;
         if (t >= h.t1 && highlights.some(q => q !== h && q.path && q.since === h.since && q.t0 > h.t0)) op = 0;
       }
+      // a density line named again by the next cue stays as it is: no fade and no drawing out again (the author,
+      // 2026-11-11, 5a: "you don't need to reanimate the density lines you've already animated")
+      if (h.density != null) {
+        if (h.since < h.t0 - 0.01) op = t >= h.t0 ? 1 - smooth((t - h.t1) / 0.5) : 0;
+        if (t >= h.t1 && highlights.some(q => q !== h && q.density === h.density && q.since === h.since && q.t0 > h.t0)) op = 0;
+      }
       el.attr("opacity", op);
       h.op = op;
       if (h.obj) drawObj(el, h, age);
       else if (h.spot) drawSpot(el, h, age);
       else if (h.line) drawLine(el, LINES[h.line], h, age);
-      else if (h.density != null) drawLine(el, { pts: densitySegment(h.density), color: "#ffab40" }, h, age);
+      else if (h.density != null) drawLine(el, { pts: densitySegment(h.density), color: "#ffab40" }, h, t - (h.since ?? h.t0));
       else if (h.trend) drawLine(el, { pts: h.trend, color: h.color || "#ffd54f" }, h, age);   // a trend line: [[r, m], …]
       else if (h.side) drawSide(el, h);
       else if (h.arrow) drawArrow(el, h, age);

@@ -740,23 +740,32 @@ export function drawEdge(ctx, W, H, o, t) {
   const X = (u) => cx + u * U, Y = (v) => cy + v * U;
   // the observable universe's galaxies, inside the growing circle; then its microwave background
   const fm = smooth((t - meet) / 1.8);
+  // once the microwave background is in, everything drawn on it (our and their galaxies, the rings, the labels) fades,
+  // so the bare sphere is what the chart's own picture takes over from (the author, 2026-11-11, 2:53: the hand-over
+  // "is not seamless": the galaxies inside and the rings went in a cut)
+  const keep = 1 - smooth((t - meet - 1.2) / 1.6);
   if (grow > 0) put(O.web, frozen, X(0), Y(0), OBS * U, 1 - fm, R * U);
   if (fm > 0) put(O.cmb, frozen, X(0), Y(0), OBS * U, fm);
   // ours, and theirs round the edge galaxy, turned its own way
-  put(O.ours, frozen, X(0), Y(0), U);
-  if (ft > 0) put(O.theirs, frozen + 9, X(ex), Y(ey), U * ft, ft * (grow > 0 ? 0.85 : 0.7));
+  put(O.ours, frozen, X(0), Y(0), U, keep);
+  if (ft > 0) put(O.theirs, frozen + 9, X(ex), Y(ey), U * ft, ft * (grow > 0 ? 0.85 : 0.7) * keep);
   const ring = (u, v, r, col, a, dash, w = 0.005) => { if (a <= 0.01) return; ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = H * w; ctx.setLineDash(dash ? [H * 0.018, H * 0.014] : []); ctx.beginPath(); ctx.arc(X(u), Y(v), r * U, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; };
-  ctx.fillStyle = "#80deea"; ctx.beginPath(); ctx.arc(X(0), Y(0), H * 0.007, 0, 6.2832); ctx.fill();
+  ctx.globalAlpha = keep; ctx.fillStyle = "#80deea"; ctx.beginPath(); ctx.arc(X(0), Y(0), H * 0.007, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1;
   ctx.globalAlpha = 1 - smooth((t - start - 0.8) / 0.9) * (1 - smooth(grow * 3));   // ("now" says it while the arrows show)
   text(ctx, "us", X(0), Y(0) - H * 0.026, H * 0.022, "#80deea"); ctx.globalAlpha = 1;
   const fo = smooth((t - alien) / 0.8);
-  if (fo > 0) { ctx.globalAlpha = fo; text(ctx, "our universe", X(-0.45), Y(1) + H * 0.04, H * 0.028, "#80deea"); ctx.globalAlpha = 1; }
+  if (fo > 0) { ctx.globalAlpha = fo * keep; text(ctx, "our universe", X(-0.45), Y(1) + H * 0.04, H * 0.028, "#80deea"); ctx.globalAlpha = 1; }
   if (fo > 0) {                                                         // the red circle on the alien's galaxy
     ctx.globalAlpha = fo; ctx.strokeStyle = "#ff5252"; ctx.lineWidth = H * 0.005;
     ctx.beginPath(); ctx.arc(X(ex), Y(ey), H * 0.02, 0, 6.2832); ctx.stroke(); ctx.globalAlpha = 1;
-    if (ft < 0.5) { ctx.globalAlpha = fo * (1 - 2 * ft); text(ctx, "an alien's galaxy", X(ex), Y(ey) - H * 0.04, H * 0.026, "#ff8a80"); ctx.globalAlpha = 1; }
+    // (its name kept inside the frame: centred on the circle it ran off the right edge, the author, 2026-11-11, 2:20)
+    if (ft < 0.5) {
+      ctx.font = `700 ${H * 0.026}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+      const tw = ctx.measureText("AN ALIEN'S GALAXY").width * 1.1, lx = Math.min(X(ex), W * 0.95 - tw / 2);
+      ctx.globalAlpha = fo * (1 - 2 * ft); text(ctx, "an alien's galaxy", lx, Y(ey) - H * 0.045, H * 0.026, "#ff8a80"); ctx.globalAlpha = 1;
+    }
   }
-  if (ft > 0) { ring(ex, ey, ft, "#ffab40", ft, false); ctx.globalAlpha = ft; text(ctx, "their universe", X(ex), Y(ey - ft) - H * 0.02, H * 0.028, "#ffab40"); ctx.globalAlpha = 1; }
+  if (ft > 0) { ring(ex, ey, ft, "#ffab40", ft * keep, false); ctx.globalAlpha = ft * keep; text(ctx, "their universe", X(ex), Y(ey - ft) - H * 0.02, H * 0.028, "#ffab40"); ctx.globalAlpha = 1; }
   // now and the distant past: at our centre and our edge (from the dive), at theirs below (when theirs comes); gone as
   // the view pulls back
   const arrow = (x0, y0, x1, y1, label, col, a, up) => {
@@ -783,7 +792,7 @@ export function drawEdge(ctx, W, H, o, t) {
     arrow(X(ex) + U * 0.7, Y(1) + H * 0.035, X(ex) + H * 0.01, Y(ey) + H * 0.012, "their now", "#ffab40", fb, false); }
   if (grow > 0) {
     ring(0, 0, R, "#ffffff", Math.min(1, grow * 3) * 0.85 * (1 - fm), true, 0.004);
-    ctx.globalAlpha = smooth((grow - 0.5) / 0.4); text(ctx, "our observable universe", X(0), Y(-R) - H * 0.02, H * 0.028, "#ffffff"); ctx.globalAlpha = 1;
+    ctx.globalAlpha = smooth((grow - 0.5) / 0.4) * keep; text(ctx, "our observable universe", X(0), Y(-R) - H * 0.02, H * 0.028, "#ffffff"); ctx.globalAlpha = 1;
   }
 }
 

@@ -42,7 +42,8 @@ export default {
   deSitter: false,
   cues: [
     { at: "largest anything can be", cam: FULL, dur: 3, hl: [{ line: "triangle" }] },
-    { at: "every single object", hl: [{ line: "triangle", label: "every object, by mass and size" }] },
+    // (the label along the upper edge, mid-frame: on the outline it sat at the left corner, half off the frame, the author, 2026-11-11)
+    { at: "every single object", hl: [{ line: "triangle" }, { line: "schwarzschild", labelOnly: true, label: "every object, by mass and size", labelAt: [0, 27.8] }] },
     // video 5's shots, the photo's pixels quicker so each step lands on "four", "nine", "or more" (the author), and
     // getting smaller inside a picture that keeps its size (the author, 2026-11-10: spreading out, they read as expanding)
     ...V5.cues.slice(idx("the second edge"), idx("object with a center") + 1).map(reword)
@@ -66,7 +67,8 @@ export default {
     // a dive out: the chart's picture of it starts grown to the diagram's sphere, which fades over it, and shrinks back
     // as the camera pulls out (the author, 2026-11-10, 2:55: "make the transition from one observable object to the
     // other smoother"; it was a cut to the small picture, lower down)
-    { at: ["it's the observable universe", "the observable universe"], offset: 0, dolly: { obj: "Observable Universe", grow: 2.6, in: 0.01, out: 2.4 }, dur: 0 },
+    // (grow 2.57: the diagram's sphere measured 462 px wide against the picture's 467 at 2.6, in the 540-px stage)
+    { at: ["it's the observable universe", "the observable universe"], offset: 0, dolly: { obj: "Observable Universe", grow: 2.57, in: 0.01, out: 2.4 }, dur: 0 },
     // (the camera pulls out a little after the picture starts shrinking: its first moments swell the picture a little)
     { ...reword(V5.cues[idx("the only object")]), at: ["it's the observable universe", "the observable universe"], offset: 0.75, cam: { r: 28.2, m: 56.4, span: 5 }, dur: 2.6, explorer: undefined, hideObjects: [] },
   ],

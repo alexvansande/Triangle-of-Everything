@@ -127,3 +127,9 @@ short-05a-emptier
 # The zoom's voice is 3:07 and its keys are not re-timed yet: it renders when the zoom session has done that, not before
 short-05b-hubble-sphere
 short-05c-observable-universe
+# 2026-11-11, late morning (the author's notes on the drafts): 5a (the click at the start out, a 1 s lead with the music,
+# the nebula on its word, the Whirlpool off the galaxies shot, no redrawn density lines), 5b (the labels in frame, the
+# click and grunt at 1:05 out, the hand-over to the chart's picture seamless) and 5c (the noise at 0:10 out; the date
+# circles tilted, an experiment in the zoom's own folder): new audio for all three, they render whole (queued above).
+# src/narration.js now keeps a density line named by consecutive cues (no redraw): long-02-space ("every diagonal on
+# this chart", about 2:35-3:00 of the cut) and short-05-hubble-sphere (its opening density lines) change there too.

@@ -292,3 +292,67 @@ sound the same."* Word timings: `rec70.words.json`.
   ever reach us", "What's happening there is that there is yet another horizon, and that's an observable universe",
   "That's the sum of all the light that is reaching us right now" (4:44, the last of two: if the author prefers it to
   the cut's "that's reaching us", it's one clip to swap).
+
+## The author's notes on the morning drafts (2026-11-11, 10:43–10:57 drafts; fixed the same morning)
+
+The raw takes (rec66–rec70) aren't on this Mac (they were uploaded to the morning's session), so the sound fixes below
+were made on the finished `audio.m4a` of each take (decoded, fixed, encoded again at AAC 192 kbps: one more generation)
+and the words carried over; to rebuild from the takes, the equivalent EDL changes are given.
+
+### 5a, The Largest Structures in Space
+- **"Cut the tongue sound in the first second. Start with the music 1 second before the voice starts."** The head of the
+  edit (0–0.66 s: a click at 0.05 s and the take's pre-roll at about −55 dB; the voice began at 0.68) is replaced by
+  1.0 s of the take's room (the edit's own gap at 17.55–18.70, looped), so the voice starts at 1.0 s and Fresh Air (the
+  scene's backing, in from 0 with its 2 s fade) is a second ahead of it. Every word +0.34 s, "In" set to its onset
+  (1.00); duration 123.75. (From rec66: the first clip from `s: 35.84` with a 1 s lead.)
+- **0:20, "you don't need to reanimate the density lines you've already animated":** the player now keeps a density
+  line named by consecutive cues as it is (`since`, as objects and lines: no fade and no drawing out again,
+  src/narration.js), so water's line and the brown dwarfs' stay through the white dwarfs' and the neutron stars'
+  cues; the zoom out at "largest objects" keeps water's line instead of clearing it, and "lots of stars" no longer
+  clears and redraws it. (The same change reaches long video 2's "every diagonal on this chart" passage and video 5's
+  density lines, which also name a line over consecutive cues: they stop redrawing there too.)
+- **0:40, "when I say nebula it should show the nebulas":** the camera move and the planetary nebula on "nebula"
+  (43.6 s); the cue had waited for "supernova remnant" (47.3). The Crab Nebula still comes on "supernova remnant".
+- **1:10, "what's this blob to the right of the Milky Way?"** The Whirlpool's picture (M51 with its companion NGC 5195,
+  the blob), which sits right beside the Milky Way on the chart: at "Andromeda" the scene lifted the Milky Way's
+  forced picture, and the Whirlpool's took the room. Now the Milky Way's and Andromeda's pictures are both forced from
+  "Andromeda" to "galaxy clusters", and the Whirlpool's is hidden through the galaxies.
+
+### 5b, The Cosmic Event Horizon
+- **"label that ends in 'by mass and size' is out of the frame":** on the triangle's outline the label landed at its
+  left corner, half off the frame. It's now set along the upper edge mid-frame (`labelAt` [0, 27.8] on the
+  Schwarzschild line, label only; the outline is highlighted as before).
+- **1:05, "a strange click and a gag":** after "horizon" (65.72 s) a click at 65.93–66.00 and, just before "it's"
+  (66.61), a 55 ms voiced grunt at 66.54–66.60 (Whisper had written it as "and"). Both filled with the room between
+  them; the pause stays as it was. (A first try that also filled 65.75–65.93 took the "n" of "horizon": the clip
+  pass heard "cosmic event, right?"; that stretch is the word's quiet nasal tail, kept.) Clip pass after: "So this is
+  the cosmic event horizon. It's the actual limit, because anything that happens…". (From rec67: `cut` spans at the
+  same places in the source.)
+- **2:20, "alien's galaxy label is out of frame":** the diagram's "an alien's galaxy", centred on the circle at the
+  right edge, ran off it; now it slides left as far as it needs to end inside the frame (and a little higher, off
+  the arrowhead).
+- **2:53, "the transition between the observable universe we were seeing and the one zooming out is not seamless":**
+  the diagram still had our and their galaxies, the rings, the labels and the "us" dot drawn on the microwave
+  background when the chart's picture took over, so they went in a cut (fading 0.5 s over the new picture). Now they
+  fade out 1.2–2.8 s after the background comes in ("it's time we meet"), leaving the bare sphere; the chart's
+  picture starts at its size (grow 2.57: the sphere measured 462 px to the picture's 467 at 2.6 in the 540-px stage)
+  and pulls out as before. Stills at 170, 171.5, 172.7, 172.9, 173.6: the same sphere either side of the cut.
+
+### 5c, The Observable Universe
+- **0:10, "a hum or cough":** a noise at 9.66–9.80 s in the pause between "triangle." and "Everything except one",
+  filled with the room beside it. (From rec68: a `cut` span there.)
+- **"Why is it that inside the cosmic event horizon we see a yellow nuclei mess instead of the nice filaments network
+  we have?"** It is the web: at the horizon's frame (44 billion light-years across) the zoom draws the superclusters'
+  cosmic web as its coarse 500 Mly grain (cosmic-web.js, lod 2), whose cells are two or three pixels there, and the
+  finished web ends at z 0.5 (about 6 billion light-years, 0.4 of the horizon's radius) with a sharp edge, the sea of
+  farther, redder galaxies outside it: a bright ball with a rim. To read as a network at that scale the grain would
+  have to grow with the frame (a cell a fortieth of the horizon, say, where it is a four-hundredth now) and the ball's
+  edge soften into the galaxies. That's the zoom's own picture (also the app's universe and the zoom video's
+  opening), so it's left for the author's say.
+- **"in the zoom out, I would like to experiment rotating the date circles with a circle that is tilted so it's
+  closer to the camera and comes from underneath it":** built as an experiment in the zoom's timeline
+  (tools/powers-of-ten/timeline-05c.js, the overlay): each circle of when the light was sent is a ring on a plane
+  tilted 62° from the screen, its near side down, in perspective from 0.9 frame-heights away, so a wide ring is only
+  its far arc near a horizon line above Earth and its near side comes up from under the camera as the zoom pulls out;
+  the tilt eases off as the camera nears the microwave background, where the circles become the shell's own
+  perspective. `?tilt=0` on the render page draws them flat as before; `?tilt=…&persp=…` to try other values.
