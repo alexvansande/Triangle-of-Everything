@@ -876,5 +876,10 @@ export function createSqueeze({ pics = {} } = {}) {
 
   // the whole frame onto ctx, w × h device pixels, `pixelRatio` of them to a CSS pixel (line widths are in CSS pixels)
   function draw(c, w, h, pixelRatio = 1) { ctx = c; canvas.width = w; canvas.height = h; dpr = pixelRatio; drawScene(); }
-  return { S, build, step, draw };
+  // a copy of the run as it is now, and back to one: a video's motion blur draws each frame's moments out of order, and
+  // replaying the run from its start for every step back made the renders crawl (2026-11-10: the neutron-star clip at
+  // the end of the forces Short, a worker at a frame every 25 s by 2:35)
+  const save = () => ({ S: structuredClone({ ...S, P: null }), seed: seedState });
+  const restore = (snap) => { const P = S.P; Object.assign(S, structuredClone(snap.S)); S.P = P; seedState = snap.seed; };
+  return { S, build, step, draw, save, restore };
 }

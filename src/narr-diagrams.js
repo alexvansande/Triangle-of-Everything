@@ -684,6 +684,8 @@ const SQUEEZE = new Map();
 export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
   const key = `${o.start}:${o.mode}:${o.seed ?? 1}`, want = (o.from ?? 0) + Math.max(0, t - o.start) * (o.speed ?? 1);
   let sim = SQUEEZE.get(key);
+  // a step back to where the run was saved last (the frame's earlier moments): from there, not from its start
+  if (sim && sim.S.t > want + 1e-6 && sim.mark && sim.mark.t <= want + 1e-6) sim.restore(sim.mark.snap);
   if (!sim || sim.S.t > want + 1e-6) {
     sim = createSqueeze({ pics: { proton: pic("proton"), neutron: pic("neutron") } });
     Object.assign(sim.S, { mode: o.mode, seed: o.seed ?? 1, W: W > H ? SQUEEZE_LONG : SQUEEZE_SHORT, H: W > H ? SQUEEZE_SHORT : SQUEEZE_LONG });
@@ -693,6 +695,8 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
     // from the clip's first frame, in seconds of the video at whatever speed the run plays
     sim.S.arrowT0 = o.from ?? 0; sim.S.P.arrowTime *= o.speed ?? 1;
   }
+  // saved before going on, at most once a tenth of a second of the run: the moments a frame's blur goes back to
+  if (o.exact && sim.S.t + SQUEEZE_DT <= want + 1e-9 && !(sim.mark && sim.S.t - sim.mark.t < 0.1)) sim.mark = { t: sim.S.t, snap: sim.save() };
   for (let n = 0; sim.S.t + SQUEEZE_DT <= want + 1e-9 && (o.exact || n < 60); n++) sim.step(SQUEEZE_DT);
   sim.draw(ctx, W, H, pixelRatio);
 }
