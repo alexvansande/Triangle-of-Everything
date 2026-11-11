@@ -487,3 +487,8 @@ individually as if cutting a cake. Other than that it's ready to be scheduled to
 - 15:50, the author: the title is "Is Our Universe a Black Hole?" (youtube.json), and the thumbnail is the black-hole
   line with "all black holes are here", an arrow "our universe" to its dot, and two lines from the dot, down "the size
   of the universe" and across "all the mass it contains".
+- 16:00, the author: "the pixel animation can last at least 5 seconds longer, the animation after that is not that
+  interesting anyway": the pixels hold through "the further away something is, the faster it's moving away from us"
+  and give way to the chart at "and at this line, called the Hubble line" (the "further away" cue, with its "farther,
+  faster" arrow, is out): 10.6 s instead of 5.6; the steps at 2.2, 3.0, 3.8 ("four", "nine", "more") then 5.6, 7.4
+  and 9.2 s. The thumbnail's title centred.

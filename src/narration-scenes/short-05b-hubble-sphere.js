@@ -9,7 +9,7 @@
 import V5 from "./short-05-hubble-sphere.js";
 
 const FULL = { r: -2.2, m: -4.8, span: 74 };
-const SCHW = { line: "schwarzschild" }, HS = "Our Universe";
+const SCHW = { line: "schwarzschild" }, HUB = { line: "hubble" }, HS = "Our Universe";
 const M87 = { r: 15.28, m: 43.11 };                       // M87* (src/objects.json)
 const TWO = { r: 21.8, m: 49.8, span: 17 };               // M87* at the bottom left, our universe at the top right
 // light falling into the black hole (from its right: it sits near the left edge), and light outside our universe that
@@ -61,7 +61,7 @@ export default {
   poster: { at: 3, cues: [{ t: 0, cam: { r: 26.9, m: 53.4, span: 8.5 }, dur: 0.1, drift: 0, hideIcons: null, forceIcons: [HS], hl: [
     { line: "triangle" },
     { ...SCHW, instant: true },
-    { text: "is our universe\na black hole?", at: [26.15, 59.1], size: 40, color: "#ffd54f", instant: true },
+    { text: "is our universe\na black hole?", at: [26.9, 59.1], size: 40, color: "#ffd54f", instant: true },
     // the two readings of our universe's dot: across to the mass axis, down to the size axis
     { trend: [[22.65, 56.03], [28.2, 56.03]], color: "#80deea", instant: true },
     { trend: [[28.2, 56.03], [28.2, 45.8]], color: "#80deea", instant: true },
@@ -82,8 +82,14 @@ export default {
     // (the photo the author's own pixelated Hubble Deep Field, 2026-11-11, 14:35: 200, 100, 50, 25, 12 and 6 px blocks,
     // then the original, each step one pixel into four, the grid's new lines sliding in to cut the pixels; the steps
     // land on "four", "nine" and "more", the rest follow quickly)
+    // (the pixels hold through "the further away something is, the faster it's moving away" and give way to the chart
+    // at "at this line, called the Hubble line": 10.6 s instead of 5.6, the last three steps spread over the extra
+    // time; the author, 2026-11-11, 16:00: "the pixel animation can last at least 5 seconds longer, the animation after
+    // that is not that interesting anyway")
     ...V5.cues.slice(idx("the second edge"), idx("can never come out")).map(reword)
-      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { photos: ["hdf-pixels-200.png", "hdf-pixels-100.png", "hdf-pixels-50.png", "hdf-pixels-25.png", "hdf-pixels-12.png", "hdf-pixels-6.png", "hdf-pixels-1.jpg"], blocks: [200, 100, 50, 25, 12, 6, 1], steps: [2.2, 3.0, 3.8, 4.4, 4.9, 5.3] } }] } : c)
+      .filter(c => ![].concat(c.at).includes("further away"))
+      .map(c => [].concat(c.at).includes("resolution of a photo") ? { ...c, hl: [{ pixels: { photos: ["hdf-pixels-200.png", "hdf-pixels-100.png", "hdf-pixels-50.png", "hdf-pixels-25.png", "hdf-pixels-12.png", "hdf-pixels-6.png", "hdf-pixels-1.jpg"], blocks: [200, 100, 50, 25, 12, 6, 1], steps: [2.2, 3.0, 3.8, 5.6, 7.4, 9.2] } }] } : c)
+      .flatMap(c => [].concat(c.at).includes("resolution of a photo") ? [c, { at: ["at this line", "called the hubble line"], hl: [HUB] }] : [c])
       // the cosmic event horizon's name over its disc: to the right it ran off the frame (the author, 2026-11-09, 1:29)
       .map(c => c.hl ? { ...c, hl: c.hl.map(q => q.mark && q.label === "cosmic event horizon" ? { ...q, place: "above", gap: 58 } : q) } : c),
     // the two horizons side by side (the author, 2026-11-11, 2:00: "instead of moving back and forth between the two
