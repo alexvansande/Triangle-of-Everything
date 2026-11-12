@@ -18,13 +18,12 @@ rec72,deep,96.35,103.64,377.66,384.95,"Space expands so fast that for the region
 rec72,deep,104.19,109.52,390.11,395.44,The present and future of these ancient galaxies will remain forever unknowable to us.
 rec72,deep,110.07,112.83,425.90,428.66,This is the limit of the cosmic event horizon.
 rec72,obs,113.93,117.12,430.10,433.29,"But we can still see their past, our past."
-rec72,obs,117.67,121.19,518.25,521.76,"This is the observable universe, the sum of all the light you can see."
-rec72,obs,121.74,123.57,539.43,541.25,It's not the whole universe.
-rec72,obs,124.12,129.89,541.37,547.14,"As far as we've been able to measure, the universe is in practice infinite in every direction."
-rec72,obs,130.44,133.15,547.57,550.29,We are just limited on how much of it we can see.
-rec72,obs,133.70,138.19,553.81,558.29,"It's not a single object either, because one side can't talk to the other."
-rec72,obs,138.74,143.22,559.07,563.55,"It's not a map, but rather the history of our shared universe."
-rec72,obs,143.77,147.19,563.88,567.30,We can see the light emitted before the stars even formed.
-rec72,obs,147.74,154.88,567.46,574.61,"The first we can see is a faint microwave radiation emitted 380 ,000 years after the Big Bang."
-rec72,obs,155.18,158.57,472.63,476.01,just as the universe became transparent for the first time.
-rec72,obs,159.12,164.27,580.14,585.30,light that has been traveling toward us since light could travel at all.
+rec72,obs,117.67,122.33,433.71,438.38,"This is the observable universe, the sum of all the light we can see."
+rec72,obs,122.88,124.71,539.43,541.25,It's not the whole universe.
+rec72,obs,125.26,131.03,541.37,547.14,"As far as we've been able to measure, the universe is in practice infinite in every direction."
+rec72,obs,131.58,134.30,547.57,550.29,We are just limited on how much of it we can see.
+rec72,obs,134.85,139.33,553.81,558.29,"It's not a single object either, because one side can't talk to the other."
+rec72,obs,139.88,144.36,559.07,563.55,"It's not a map, but rather the history of our shared universe."
+rec72,obs,144.91,148.33,563.88,567.30,We can see the light emitted before the stars even formed.
+rec72,obs,148.88,160.33,464.50,476.01,"The furthest we can see is a faint microwave radiation emitted 380 ,000 years after the Big Bang, just as the universe became transparent for the first time."
+rec72,obs,160.88,166.03,580.14,585.30,light that has been traveling toward us since light could travel at all.

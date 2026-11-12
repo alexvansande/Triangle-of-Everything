@@ -36,15 +36,14 @@ EDL = [
  ("rec72", "deep", 389.90, 395.00),   # The present and future of these ancient galaxies will remain forever unknowable to us.   (the second of four; the last two have long holes inside)
  ("rec72", "deep", 425.96, 427.86),   # This is the limit of the cosmic event horizon.   (the last of three)
  ("rec72", "obs", 429.74, 432.52),   # But we can still see their past. Our past.
- ("rec72", "obs", 518.36, 521.26),   # This is the observable universe, the sum of all the light you can see.   (the second run, the one with the new passage after it: "I might keep that last part")
+ ("rec72", "obs", 433.66, 437.92),   # This is the observable universe, the sum of all the light we can see.   (the first run, 7:13, the one meant for the video: the second run's "…you can see", 8:38, was the author recapping to find the place for the new passage; the author, 2026-11-12)
  ("rec72", "obs", 539.34, 540.46),   # It's not the whole universe.   (the new passage)
  ("rec72", "obs", 541.42, 546.48),   # As far as we've been able to measure, the universe is in practice infinite in every direction.   (the second try)
  ("rec72", "obs", 546.96, 549.80),   # We are just limited on how much of it we can see.
  ("rec72", "obs", 553.64, 557.80),   # It's not a single object either, because one side can't talk to the other.
  ("rec72", "obs", 559.08, 562.78),   # It's not a map, but rather the history of our shared universe.
  ("rec72", "obs", 563.98, 566.60),   # We can see the light emitted before the stars even formed.
- ("rec72", "obs", 567.74, 574.24),   # The furthest we can see is a faint microwave radiation emitted 380,000 years after the Big Bang,
- ("rec72", "obs", 472.78, 475.50, {"gap": 0.3}),   # just as the universe became transparent for the first time.   (from the earlier run, 7:52: the last run's "Just as the…" hangs on "the" for half a second)
+ ("rec72", "obs", 464.18, 475.50),   # The furthest we can see is a faint microwave radiation emitted 380,000 years after the Big Bang, just as the universe became transparent for the first time.   (the first run, 7:44: the last run says "The first we can see" and hangs on "just as the…")
  ("rec72", "obs", 580.40, 584.92),   # Light that has been travelling toward us since light could travel at all.   (the last)
 ]
 

@@ -103,7 +103,7 @@ in git history. Word timings: `rec72.words.json`.
   dinosaurs were still roaming around. It's only arriving now. They never got the message."*
 - **A new passage at the end** (the author, on the take, 8:09–9:46: *"a phrase that I'm not saying… that the universe is
   infinite. Where would that fit? Maybe after 'this is the observable universe'"*; then the whole ending said again from
-  there: *"I might keep that last part"*): *"This is the observable universe, the sum of all the light you can see.
+  there: *"I might keep that last part"*): *"This is the observable universe, the sum of all the light we can see.
   It's not the whole universe. As far as we've been able to measure, the universe is in practice infinite in every
   direction. We are just limited on how much of it we can see. It's not a single object either, because one side can't
   talk to the other…"* and on to the end as before.
@@ -122,8 +122,14 @@ the Alpha Centauri line the last of three; "Most of the others…" the last of f
 the second; Laniakea's two sentences from the one run that says "was sent" (4:44–4:53; the later runs say "were sent" and
 restart); "As we look further down…" from its second start, the list "before superclusters, before clusters, before
 galaxies were even formed" from its fourth try; "The present and future…" the second of four (the last two have
-three-second holes inside); the ending from the second run (8:38 on) except "just as the universe became transparent for
-the first time", taken from the first run (7:52): the second hangs on "the" for half a second.
+three-second holes inside); "This is the observable universe, the sum of all the light we can see" from the first run (7:13: the author, after
+hearing the cut: the 8:38 "…you can see" was a recap to find where the new passage went, "the actual take that was
+meant to be on the video was taken before that"); the new passage and the ending from the second run (8:59 on) except
+its last sentences: "The furthest we can see is a faint microwave
+radiation… just as the universe became transparent for the first time" is the first run's (7:44), because the second
+says "The first we can see" (both models hear it) and hangs on "just as the…" for half a second; "Light that has been
+travelling…" is the second run's again. The second pass (every clip alone): clean, no restart; the galaxy line is heard
+as "living Africa" by small.en and "leaving" by medium.en, as in rec71 (one to listen to: 0:59).
 
 ### Fact check
 - **Right:** as rec71's, plus the new lines: Alpha Centauri's four-year delay against the Olympic cycle; the far side
