@@ -122,11 +122,8 @@
 # still at "any new particle" (1:52) and the injuries label beside its area; renders whole, early (the nightly started by hand).
 # 5a and 5b changed too but wait for their new recordings.
 # 2026-11-11 (the author): 5a re-recorded whole in the morning (rec66): new audio, new words, a new ending; renders whole
-short-05a-emptier
 # 2026-11-11 (the author): 5b, 5c and the powers-of-ten zoom re-recorded whole the same morning (rec67, rec68, rec69): new audio, whole.
 # The zoom's voice is 3:07 and its keys are not re-timed yet: it renders when the zoom session has done that, not before
-short-05b-hubble-sphere
-short-05c-observable-universe
 # 2026-11-11, late morning (the author's notes on the drafts): 5a (the click at the start out, a 1 s lead with the music,
 # the nebula on its word, the Whirlpool off the galaxies shot, no redrawn density lines), 5b (the labels in frame, the
 # click and grunt at 1:05 out, the hand-over to the chart's picture seamless) and 5c (the noise at 0:10 out; the date
@@ -141,4 +138,9 @@ short-05c-observable-universe
 # the Whirlpool: 5a's galaxies, 5b's and 5c's chart, long-02-space); the pixels diagram a photo of stars with a white grid;
 # M87* and our universe in one frame with light's arrows, the singularity's +, and the "now" arrow handed to the edge
 # diagram. short-05b-hubble-sphere renders whole (queued above).
+# 2026-11-12, morning (the author's 5a notes): the Moon's atmosphere as a density line at "less dense than the atmosphere of
+# the Moon", and only Andromeda at "Andromeda" (the Milky Way's picture hidden): picture only, rendered whole (the diff can't
+# load 5a's scene, which imports video 5's) by hand this morning, then re-uploaded to its Fri 11-20 slot.
+# narration-render-stale.sh: a scene-only change now makes its take stale (git applied SHARED's ":!src/narration-scenes" to
+# the scene file too). Other takes with scene changes since their render now show as out of date; "# only queued" holds them.
 # 2026-11-12: 5d (short-05d-observable-universe, rec71) is cut but not queued: it is all zoom, and its zoom script (timeline-05d.js) is still to be keyed in the zoom's checkout; queue it from there
