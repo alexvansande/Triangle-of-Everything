@@ -13,6 +13,13 @@
   wait for the rest of a re-recording. Splice what's new into the current cut (the old take for the
   parts not re-recorded yet), publish it, and queue the render, so that night's render has it; swap
   in the rest when it comes. Waiting cost a night's render once.
+- **A new take is not done when its audio is cut: make the video too** (the author, 2026-11-12, after a session spent
+  four hours on 5d's audio and mix and left the picture untouched). Cutting, captions and the mix are the first hour;
+  then, in the same session and without being asked, give the take its picture: write or re-key its scene (and, for a
+  take over the powers-of-ten zoom, its zoom timeline, in the zoom's checkout when this session has it, otherwise the
+  scene's marks and a note of what the timeline must do, shot by shot), check it with stills, queue it, and only then
+  report. "The audio is ready, the picture is still to do" is not a finished hand-over; if the picture truly can't be
+  made here, say so in the first report, not the last.
 - **Every new or re-cut video must be watchable by the author when you hand it over** (the
   author's rule, 2026-10-27). Get it onto the unlisted page,
   https://triangleofeverything.com/videos-3v63rqq1/ (built from `main` by GitHub Pages: merge,
