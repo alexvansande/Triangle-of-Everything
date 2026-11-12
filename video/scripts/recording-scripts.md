@@ -1669,7 +1669,20 @@ as "first **leaving** Africa"; the later tries sound like "living in Africa", wh
 in Africa for 300,000 years; they left it about 60,000 years ago, which is what the far side of the galaxy's light
 remembers). The zoom's script (timeline-05d.js) is still to be keyed to the take's marks in the zoom's checkout.
 
-The cut as it plays now (2:32 of voice + credits; the Sun's "quarter of the way" is then a third, still fair):
+**Three lines to record** (the author, 2026-11-12, after hearing the cut), each to replace the sentence(s) in the cut it
+sits in place of below:
+
+1. *"**Everyone** knows that when you look at the night sky, the light you see is how stars were in the past."* ("Most
+   people" repeats the "most" of the lines that follow.)
+2. *"Here are the nearby stars. If someone in Alpha Centauri has a TV, they're just now watching the Olympics, one whole
+   tournament late."* (in place of "The nearest stars you can see with your own eyes, Alpha Centauri and Sirius, live
+   right here, a few light-years away. You are seeing them as they were one or two Olympics ago"; Alpha Centauri is 4.4
+   light-years away, so our broadcasts arrive one four-year cycle late, whenever the viewer watches)
+3. *"The far side of Laniakea sent its light when the dinosaurs were still around. It's only arriving now. They never got
+   the message."* (in place of "The far side of Laniakea, the supercluster of galaxies in which we are part of, sent its
+   light when the dinosaurs were still around. They never got the message.")
+
+The cut as it plays now (2:31 of voice + credits; the Sun's "quarter of the way" is then a third, still fair):
 
 > Most people know that when you look at the night sky, the light you see is how stars were in the past. But the sky you see is actually much younger than most realize. The moon you're looking at is how it was merely a second ago, younger than this phrase.
 >
