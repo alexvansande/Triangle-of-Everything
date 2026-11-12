@@ -144,3 +144,8 @@
 # narration-render-stale.sh: a scene-only change now makes its take stale (git applied SHARED's ":!src/narration-scenes" to
 # the scene file too). Other takes with scene changes since their render now show as out of date; "# only queued" holds them.
 # 2026-11-12: 5d (short-05d-observable-universe, rec71) is cut but not queued: it is all zoom, and its zoom script (timeline-05d.js) is still to be keyed in the zoom's checkout; queue it from there
+# 2026-11-12, evening (the author: "I'll wait for the nightly render with motion blur"): 5d keyed in the zoom's checkout
+# (/Users/avsa/Dev/Triangle, tools/powers-of-ten/timeline-05d.js, uncommitted: the render freezes that working folder),
+# the author's notes of the day in: the heading at 12 s, Jupiter up from the bottom at 0:29, circles round Barnard's Star,
+# Alpha Centauri, Sirius and Andromeda (M31's name dropped), the galaxies fixed in 3D, the CMB's lid. Renders whole.
+short-05d-observable-universe
