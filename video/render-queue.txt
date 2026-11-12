@@ -143,4 +143,3 @@
 # load 5a's scene, which imports video 5's) by hand this morning, then re-uploaded to its Fri 11-20 slot.
 # narration-render-stale.sh: a scene-only change now makes its take stale (git applied SHARED's ":!src/narration-scenes" to
 # the scene file too). Other takes with scene changes since their render now show as out of date; "# only queued" holds them.
-short-05a-emptier
