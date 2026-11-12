@@ -1,6 +1,6 @@
 // =============================================================
 // Scene: short-05d-observable-universe — The Observable Universe, from Earth out: the author's rewrite of 5c (the
-// script of 2026-11-11, recorded 2026-11-12, rec71: video/short-05d-observable-universe/). No chart: the whole take is
+// script of 2026-11-11, recorded 2026-11-12 twice, rec71 and rec72, the cut from rec72: video/short-05d-observable-universe/). No chart: the whole take is
 // the powers-of-ten zoom laid under the captions (`zoom`, src/narration.js), from Earth in the night sky outward, the
 // age of the light we see at each step, to the cosmic event horizon and the oldest light. The zoom's own script is
 // tools/powers-of-ten/timeline-05d.js in the zoom's checkout (video/zoom-takes.json): it takes its times from the
@@ -22,17 +22,17 @@ export default {
   sound: [],
   cues: [
     // the zoom from the first word (Earth in the night sky, the zoom's script opens on it)
-    { at: "most people know", offset: 0, cam: { obj: HS, span: 8 }, dur: 0.01, clear: true, hl: [], zoom: { show: true, fade: 0.01, mark: "earth" } },
+    { at: ["everyone knows", "most people know"], offset: 0, cam: { obj: HS, span: 8 }, dur: 0.01, clear: true, hl: [], zoom: { show: true, fade: 0.01, mark: "earth" } },
     // the marks the zoom's script keys its moves to: each the first word of the thing named
     { at: "the moon", offset: 0, zoom: { mark: "moon" } },
     { at: "leaving the sun", offset: 0, zoom: { mark: "sun" } },
     { at: "light from mars", offset: 0, zoom: { mark: "planets" } },
     { at: "see jupiter", offset: 0, zoom: { mark: "jupiter" } },
-    { at: "nearest stars", offset: 0, zoom: { mark: "stars" } },
+    { at: ["nearby stars", "nearest stars"], offset: 0, zoom: { mark: "stars" } },
     { at: "most of the others", offset: 0, zoom: { mark: "farstars" } },
     { at: "other side of the galaxy", offset: 0, zoom: { mark: "galaxy" } },
     { at: "andromeda", offset: 0, zoom: { mark: "andromeda" } },
-    { at: "far side of laniakea", offset: 0, zoom: { mark: "laniakea" } },
+    { at: ["supercluster of galaxies", "far side of laniakea"], offset: 0, zoom: { mark: "laniakea" } },
     { at: "look further down", offset: 0, zoom: { mark: "past" } },
     { at: "space expands so fast", offset: 0, zoom: { mark: "horizon" } },
     { at: "still see their past", offset: 0, zoom: { mark: "obs" } },

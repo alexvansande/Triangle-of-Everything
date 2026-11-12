@@ -86,3 +86,50 @@ No chart: the take is the powers-of-ten zoom from the first word, so the scene i
 (`timeline-05d.js`, to be written in the zoom's checkout): earth, moon, sun, planets, jupiter, stars, farstars, galaxy,
 andromeda, laniakea, past, horizon, obs, cmb, each at the first word of the thing named. Until that script exists the
 live player holds the chart on our universe under the voice; the take is not queued for the render.
+
+## rec72: "5d take 2.m4a" (5d read again whole, with the three rewritten lines and a new ending)
+
+Uploaded 2026-11-12 after the author heard the first cut; recorded 10:55 local (13:55 UTC), ALAC 48 kHz stereo,
+9:51, −29.4 LUFS, peak 0 dBFS (one clipped sample at 0:09, in the mic test). The author at the start: *"I'm going to
+re-record 5d, not because it was bad, I think it can be better… it's easier to re-record everything, it's good practice
+also."* The cut is now from this take alone (`video/short-05d-observable-universe/edl.py`, 29 clips); rec71's cut is
+in git history. Word timings: `rec72.words.json`.
+
+### What changed against the first cut
+- The three rewritten lines: *"Everyone knows that when you look at the night sky…"*; *"Here are the nearby stars. If
+  someone in Alpha Centauri has a TV, they're just now watching the Olympics, one whole tournament late"* (Alpha
+  Centauri 4.4 light-years, a four-year cycle: true whenever the viewer watches); *"We live in a supercluster of
+  galaxies in the form of filaments called Laniakea. The light from the far side of that filament was sent when the
+  dinosaurs were still roaming around. It's only arriving now. They never got the message."*
+- **A new passage at the end** (the author, on the take, 8:09–9:46: *"a phrase that I'm not saying… that the universe is
+  infinite. Where would that fit? Maybe after 'this is the observable universe'"*; then the whole ending said again from
+  there: *"I might keep that last part"*): *"This is the observable universe, the sum of all the light you can see.
+  It's not the whole universe. As far as we've been able to measure, the universe is in practice infinite in every
+  direction. We are just limited on how much of it we can see. It's not a single object either, because one side can't
+  talk to the other…"* and on to the end as before.
+- Small: "the light you see **now**"; "**surprisingly** younger than most people realize"; "Most of the others **you see
+  on the night sky** sent their light before the internet, sometimes even electricity, was invented"; "On a **very** dark
+  night… and **if** you do"; "It's not a map, but rather the history…" (the earlier "more a history" try not used).
+- **Not in this take:** rec71's *"Depending where you are, most of them will be older than the country you are watching
+  them from."* Left out, as the author read past it; one clip from rec71 to put back if wanted.
+- Recorded for a longer video, not used (1:35–1:44): *"Light leaving the sun right now will have arrived by the time you
+  finish watching this video."*
+
+### Takes chosen
+The last try unless it slipped: "But the sky you see is surprisingly younger…" is the second try (the first restarted
+after "actually surprisingly younger"); "Here are the nearby stars" the fourth of five (the fifth hesitates mid-phrase);
+the Alpha Centauri line the last of three; "Most of the others…" the last of five; the galaxy line the second; Andromeda
+the second; Laniakea's two sentences from the one run that says "was sent" (4:44–4:53; the later runs say "were sent" and
+restart); "As we look further down…" from its second start, the list "before superclusters, before clusters, before
+galaxies were even formed" from its fourth try; "The present and future…" the second of four (the last two have
+three-second holes inside); the ending from the second run (8:38 on) except "just as the universe became transparent for
+the first time", taken from the first run (7:52): the second hangs on "the" for half a second.
+
+### Fact check
+- **Right:** as rec71's, plus the new lines: Alpha Centauri's four-year delay against the Olympic cycle; the far side
+  of Laniakea's light sent in the dinosaurs' time and arriving now; the universe flat as far as we can measure, so "in
+  practice infinite in every direction", and the observable universe only the part we can see of it; "before the stars
+  even formed" for the CMB.
+- **Imprecise, fine:** "one whole tournament late" (the Olympics are games; the point stands); "a quarter of its way
+  here" (a third, for a 2:40 video); "started this journey" if that is what was said.
+- Nothing wrong; nothing to re-record.

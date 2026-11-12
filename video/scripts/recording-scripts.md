@@ -1669,32 +1669,23 @@ as "first **leaving** Africa"; the later tries sound like "living in Africa", wh
 in Africa for 300,000 years; they left it about 60,000 years ago, which is what the far side of the galaxy's light
 remembers). The zoom's script (timeline-05d.js) is still to be keyed to the take's marks in the zoom's checkout.
 
-**Three lines to record** (the author, 2026-11-12, after hearing the cut), each to replace the sentence(s) in the cut it
-sits in place of below:
+**Re-recorded whole as rec72** (2026-11-12, 10:55: "not because it was bad, I think it can be better"), with the three
+rewritten lines and a new passage at the end. The cut as it plays now, all from rec72 (`video/sources/2026-11-12/NOTES.md`):
 
-1. *"**Everyone** knows that when you look at the night sky, the light you see is how stars were in the past."* ("Most
-   people" repeats the "most" of the lines that follow.)
-2. *"Here are the nearby stars. If someone in Alpha Centauri has a TV, they're just now watching the Olympics, one whole
-   tournament late."* (in place of "The nearest stars you can see with your own eyes, Alpha Centauri and Sirius, live
-   right here, a few light-years away. You are seeing them as they were one or two Olympics ago"; Alpha Centauri is 4.4
-   light-years away, so our broadcasts arrive one four-year cycle late, whenever the viewer watches)
-3. *"The far side of Laniakea sent its light when the dinosaurs were still around. It's only arriving now. They never got
-   the message."* (in place of "The far side of Laniakea, the supercluster of galaxies in which we are part of, sent its
-   light when the dinosaurs were still around. They never got the message.")
-
-The cut as it plays now (2:31 of voice + credits; the Sun's "quarter of the way" is then a third, still fair):
-
-> Most people know that when you look at the night sky, the light you see is how stars were in the past. But the sky you see is actually much younger than most realize. The moon you're looking at is how it was merely a second ago, younger than this phrase.
+> Everyone knows that when you look at the night sky, the light you see now is how stars were in the past. But the sky you see is surprisingly younger than most people realize. The moon you're looking at is how it was merely a second ago. It's younger than this phrase.
 >
-> Light leaving the sun right now will be a quarter of the way here by the time you finish watching this video. The light from Mars and the inner planets is less than half an hour old. If you can see Jupiter, you're looking at it how it was one hour ago.
+> Light leaving the sun right now will be a quarter of its way here by the time you finish watching this video. The light from Mars and the inner planets is less than half an hour old. If you can see Jupiter, you're looking at it how it was one hour ago.
 >
-> The nearest stars you can see with your own eyes, Alpha Centauri and Sirius, live right here, a few light-years away. You are seeing them as they were one or two Olympics ago. Most of the others sent their light before the internet was invented, or even electricity. Depending where you are, most of them will be older than the country you are watching them from. The light from the other side of the galaxy started its journey when humans were first leaving Africa.
+> Here are the nearby stars. If someone in Alpha Centauri has a TV, they're just now watching the Olympics, one whole tournament late. Most of the others you see on the night sky sent their light before the internet, sometimes even electricity, was invented. The light from the other side of the galaxy started its journey when humans were first leaving Africa.
 >
-> On a dark night, you can see Andromeda with the naked eye, and when you do, you are looking at how it was before humans discovered fire. The far side of Laniakea, the supercluster of galaxies in which we are part of, sent its light when the dinosaurs were still around. They never got the message.
+> On a very dark night, you can see Andromeda with the naked eye, and if you do, you are looking at it how it was before humans discovered fire. We live in a supercluster of galaxies in the form of filaments called Laniakea. The light from the far side of that filament was sent when the dinosaurs were still roaming around. It's only arriving now. They never got the message.
 >
 > As we look further down, we are seeing the past of our very universe: before superclusters, before clusters, before galaxies were even formed. Space expands so fast that, for the region outside this bubble, any light they send now will never reach us. The present and future of these ancient galaxies will remain forever unknowable to us. This is the limit of the cosmic event horizon.
 >
-> But we can still see their past. Our past. This is the observable universe: the sum of all the light we can see. It's not a single thing, because one side can't talk to the other. It's not a map, but rather the history of our shared universe. We can see the light emitted before stars were even formed. The furthest we can see is a faint microwave radiation, emitted 380,000 years after the Big Bang, just as the universe became transparent for the first time. Light that has been travelling toward us since light could travel at all.
+> But we can still see their past. Our past. This is the observable universe, the sum of all the light you can see. It's not the whole universe. As far as we've been able to measure, the universe is in practice infinite in every direction. We are just limited on how much of it we can see. It's not a single object either, because one side can't talk to the other. It's not a map, but rather the history of our shared universe. We can see the light emitted before the stars even formed. The furthest we can see is a faint microwave radiation, emitted 380,000 years after the Big Bang, just as the universe became transparent for the first time. Light that has been travelling toward us since light could travel at all.
+
+Not in this take (read past): rec71's *"Depending where you are, most of them will be older than the country you are
+watching them from."* One clip to put back if wanted. Nothing to record.
 
 The script as written (2026-11-11):
 
