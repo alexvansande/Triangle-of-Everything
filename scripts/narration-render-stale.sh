@@ -63,10 +63,14 @@ for t in $takes; do
   # 2026-10-30: "if something changes on the video and you can't tell exactly when you have to
   # re-render all of it").
   stamp=$(cat "output/videos/$t.commit" 2>/dev/null)
+  # (the take's own files and $SHARED asked apart: git applies SHARED's ":!src/narration-scenes" to every path in one
+  # call, so the scene file was dropped and a scene-only change never made its take stale; found 2026-11-12, 5a's notes)
   if [ -n "$stamp" ] && git cat-file -e "$stamp" 2>/dev/null; then
-    fresh=$([ -f "$out" ] && [ -z "$(git rev-list -1 "$stamp..HEAD" -- "public/narration/$t" "src/narration-scenes/$t.js" $SHARED)" ] && echo 1)
+    fresh=$([ -f "$out" ] && [ -z "$(git rev-list -1 "$stamp..HEAD" -- "public/narration/$t" "src/narration-scenes/$t.js")" ] &&
+      [ -z "$(git rev-list -1 "$stamp..HEAD" -- $SHARED)" ] && echo 1)
   else
-    changed=$(git log -1 --format=%ct -- "public/narration/$t" "src/narration-scenes/$t.js" $SHARED)
+    c1=$(git log -1 --format=%ct -- "public/narration/$t" "src/narration-scenes/$t.js"); c2=$(git log -1 --format=%ct -- $SHARED)
+    changed=$(( ${c1:-0} > ${c2:-0} ? ${c1:-0} : ${c2:-0} ))
     fresh=$([ -f "$out" ] && [ "$(stat -f %m "$out")" -gt "${changed:-0}" ] && echo 1)
   fi
   if [ -z "$queued" ] && [ -n "$fresh" ]; then

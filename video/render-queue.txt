@@ -138,3 +138,9 @@
 # the Whirlpool: 5a's galaxies, 5b's and 5c's chart, long-02-space); the pixels diagram a photo of stars with a white grid;
 # M87* and our universe in one frame with light's arrows, the singularity's +, and the "now" arrow handed to the edge
 # diagram. short-05b-hubble-sphere renders whole (queued above).
+# 2026-11-12, morning (the author's 5a notes): the Moon's atmosphere as a density line at "less dense than the atmosphere of
+# the Moon", and only Andromeda at "Andromeda" (the Milky Way's picture hidden): picture only, rendered whole (the diff can't
+# load 5a's scene, which imports video 5's) by hand this morning, then re-uploaded to its Fri 11-20 slot.
+# narration-render-stale.sh: a scene-only change now makes its take stale (git applied SHARED's ":!src/narration-scenes" to
+# the scene file too). Other takes with scene changes since their render now show as out of date; "# only queued" holds them.
+short-05a-emptier
