@@ -209,7 +209,22 @@ def fx_drop():            # a sub drop
     f = 90 * (30 / 90) ** (k / sec)
     return np.sin(2 * np.pi * np.cumsum(f) / SR) * env(n, 0.02, 0.8) * db(-17)
 
-FX = {"bubble": (fx_bubble, 0.25), "glug": (fx_glug, 0.3), "wind": (fx_wind, 0.2), "hiss": (fx_hiss, 0.3),
+def fx_whoosh():          # a soft womp and air sweeping past: the universe opening out (5d, "infinite")
+    sec = 3.6; n = I(sec); k = np.arange(n) / SR
+    f = 70 * (38 / 70) ** (k / sec)
+    womp = np.sin(2 * np.pi * np.cumsum(f) / SR) * env(n, 0.06, 1.6) * 0.9
+    air = rng.standard_normal(n)
+    # the air's band rises and falls as it passes, left to right
+    lo = fft_filter(air, lo=180, hi=700); hi = fft_filter(air, lo=700, hi=2600)
+    sweep = np.sin(np.pi * np.clip(k / 2.4, 0, 1)) ** 2
+    air = (lo * (1 - sweep * 0.6) + hi * sweep) * np.sin(np.pi * np.clip(k / 2.9, 0, 1)) ** 1.5
+    air /= np.abs(air).max() + 1e-9
+    x = womp + air * 0.55
+    p = (0.15 + 0.7 * np.clip(k / 2.9, 0, 1)) * np.pi / 2
+    st = np.stack([x * np.cos(p), x * np.sin(p)])
+    return st / np.abs(st).max() * db(-21)
+
+FX = {"whoosh": (fx_whoosh, 0.3), "bubble": (fx_bubble, 0.25), "glug": (fx_glug, 0.3), "wind": (fx_wind, 0.2), "hiss": (fx_hiss, 0.3),
       "drops": (fx_drops, 0.35), "ignite": (fx_ignite, 0.2), "boom": (fx_boom, 0.45), "drop": (fx_drop, 0.3),
       "static": (lambda: static(1.4), 0.1)}
 

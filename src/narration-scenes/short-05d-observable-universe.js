@@ -19,7 +19,9 @@ export default {
   start: { obj: HS, span: 8 },
   explorer: undefined,      // video 5's spectrum explorer: not in this part
   zoom: { timeline: "05d" },
-  sound: [],
+  // the whoosh as the universe opens out past the observable one ("infinite", the author, 2026-11-12: "add some sort
+  // of subtle whoosh or womp sound here")
+  sound: [{ at: "infinite", fx: "whoosh" }],
   cues: [
     // the zoom from the first word (Earth in the night sky, the zoom's script opens on it)
     { at: ["everyone knows", "most people know"], offset: 0, cam: { obj: HS, span: 8 }, dur: 0.01, clear: true, hl: [], zoom: { show: true, fade: 0.01, mark: "earth" } },
@@ -36,6 +38,9 @@ export default {
     { at: "look further down", offset: 0, zoom: { mark: "past" } },
     { at: "space expands so fast", offset: 0, zoom: { mark: "horizon" } },
     { at: "still see their past", offset: 0, zoom: { mark: "obs" } },
+    { at: "this is the observable universe", offset: 0, zoom: { mark: "observable" } },
+    { at: "infinite", offset: 0, zoom: { mark: "infinite" } },
+    { at: "history", offset: 0, zoom: { mark: "history" } },
     { at: "faint microwave radiation", offset: 0, zoom: { mark: "cmb" } },
   ],
 };
