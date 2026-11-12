@@ -11,7 +11,7 @@ Whisper had merged are re-timed from a transcription of the stretch alone (small
 
 | Video | Take | Plays | Made from |
 |---|---|---|---|
-| The Observable Universe, from Earth out | `short-05d-observable-universe` | see the build | `video/short-05d-observable-universe/edl.py`, 23 clips, all rec71; scene `src/narration-scenes/short-05d-observable-universe.js` |
+| The Observable Universe, from Earth out | `short-05d-observable-universe` | 2:31 of voice, 2:34 with the credits | `video/short-05d-observable-universe/edl.py`, 23 clips, all rec71; scene `src/narration-scenes/short-05d-observable-universe.js` |
 
 The same treatment as the 2026-11-11 takes (`enhance.py --plain`, natural speed, the breaths out of the pauses, the
 room in the gaps), then every clip of the edit transcribed on its own (the second pass). 5c stays as it is.
@@ -52,8 +52,16 @@ second "sent its light when the dinosaurs were still around, they never got the 
 four-second hole before "they never"). "As we look further down…": from its second "as" (9:41; "…the past of our –"
 restarted, merged by Whisper). "Space expands so fast…": the first (9:51; the second restarts "The present –").
 
+### The second pass
+Every clip of the edit transcribed on its own (small.en, the filler prompt): clean, no restart left (the first build's
+whole-file transcription had already shown "Most of them, most of the others", cut round before this run). Two places
+to listen to rather than trust a model: the galaxy line (0:59–1:04 of the voice) is heard as "leaving Africa" by
+medium.en in both its passes and as "living Africa" by small.en in this one; and the join at "sent its light" (1:19),
+where small.en heard "Fented slight" (its onset may be a touch close to the cut).
+
 ### Captions
-(filled in after the build)
+Corrected in `words.json`: "The foresight of Laniakea" → far side; "how he was" → how it was. The rest came out right
+(Alpha Centauri, Sirius, Laniakea, Andromeda, 380,000).
 
 ### Fact check
 - **Right:** the night sky as the past; the Moon 1.3 light-seconds ("a second ago, younger than this phrase"); light
