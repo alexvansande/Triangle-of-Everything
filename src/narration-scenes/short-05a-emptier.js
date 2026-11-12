@@ -65,7 +65,9 @@ export default {
     { at: ["into a nebula", "nebula"], cam: { r: 16, m: 34, span: 9 }, dur: 2.4,
       hl: [NAMED("Red Giant", false), NAMED("Planetary Nebula", "a nebula")] },
     { at: "supernova remnant", hl: [NAMED("Red Giant", false), NAMED("Planetary Nebula", "a nebula"), NAMED("Crab Nebula", "supernova remnant")] },
-    { at: "atmosphere of the moon", hl: [NAMED("Planetary Nebula", false), NAMED("Crab Nebula", "emptier than the Moon's air", { place: "left" })] },
+    // the Moon's atmosphere as a density line of its own (the author, 2026-11-12: "add that density label"): its exosphere,
+    // ~1e5 atoms per cm³ at night, ~1e-18 g/cm³ (video/sources/2026-11-11/NOTES.md), five decades above the Crab's ~1e-23
+    { at: "atmosphere of the moon", hl: [NAMED("Planetary Nebula", false), { density: -18, label: "density of the Moon's atmosphere", delay: 0.1 }, NAMED("Crab Nebula", false, { delay: 0.4 })] },   // its halo only: "emptier than the Moon's air" crossed the line's label on the left and ran off the frame below
     // up the line of emptiness: video 5's slow pan, from the globular clusters to the voids
     { at: "globular clusters", cam: { r: 19.6, m: 37.6, span: 4, glide: true }, dur: 2, clear: true, density: 118,
       hl: [{ obj: "Globular Cluster" }, { obj: "Dwarf Galaxy", label: "small galaxies", delay: 0.5 }] },
@@ -74,8 +76,10 @@ export default {
     { at: ["a galaxy is really", "a galaxy is", "between its stars"], cam: { r: 21.6, m: 41.4, span: 4, glide: true }, forceIcons: ["Milky Way"], hideIcons: ["Whirlpool", "NGC5194", "Whirlpool Galaxy"], hl: [{ obj: "Milky Way", label: "~1 atom per cm³" }] },   // the glide to the Milky Way starts as the galaxy's emptiness is described (rec66: "…because a galaxy is really mostly the empty space between the stars")
     // "here we find home: that's the Milky Way, and Andromeda, our sister galaxy" (the author's rewrite, rec66)
     { at: ["find home", "we find home"], hl: [{ obj: "Milky Way", label: "home" }] },
-    { at: "andromeda", cam: { r: 22.5, m: 44.0, span: 4, glide: true }, forceIcons: ["Milky Way", "Andromeda (M31)"], hl: [{ obj: "Milky Way", label: "home" }, { obj: "Andromeda (M31)", label: "our sister galaxy", delay: 0.2 }] },   // the Milky Way's picture is forced from the glide to "home" (the Whirlpool's would take its room), and Andromeda's with it from here (lifting the force gave the Whirlpool the room: the blob at 1:10)
-    { at: "local group", hl: [{ obj: "Milky Way", label: false }, { obj: "Andromeda (M31)", label: "local group" }] },
+    // on "Andromeda" only Andromeda: the Milky Way's picture goes (the author, 2026-11-12: "having both show up at the same
+    // time all the time is weird. When I mention Andromeda hide Milky Way and show Andromeda"); the Whirlpool stays hidden
+    { at: "andromeda", cam: { r: 22.5, m: 44.0, span: 4, glide: true }, forceIcons: ["Andromeda (M31)"], hideIcons: ["Whirlpool", "NGC5194", "Whirlpool Galaxy", "Milky Way"], hl: [{ obj: "Andromeda (M31)", label: "our sister galaxy", delay: 0.2 }] },
+    { at: "local group", hl: [{ obj: "Andromeda (M31)", label: "local group" }] },
     { at: "galaxy clusters", cam: { r: 23.8, m: 46.4, span: 4, glide: true }, forceIcons: null, hideIcons: null, hl: [{ obj: "Bullet Cluster", label: "emptier still" }] },
     { at: "between them", hl: [{ obj: "Bullet Cluster", label: "Bullet Cluster" }] },
     { at: ["super clusters", "superclusters"], cam: { r: 25.5, m: 48.3, span: 4, glide: true }, hl: [{ obj: "Laniakea", label: "superclusters" }] },
