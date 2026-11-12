@@ -141,3 +141,4 @@ short-05c-observable-universe
 # the Whirlpool: 5a's galaxies, 5b's and 5c's chart, long-02-space); the pixels diagram a photo of stars with a white grid;
 # M87* and our universe in one frame with light's arrows, the singularity's +, and the "now" arrow handed to the edge
 # diagram. short-05b-hubble-sphere renders whole (queued above).
+# 2026-11-12: 5d (short-05d-observable-universe, rec71) is cut but not queued: it is all zoom, and its zoom script (timeline-05d.js) is still to be keyed in the zoom's checkout; queue it from there

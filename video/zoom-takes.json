@@ -1,4 +1,5 @@
 {
   "_": "Takes that lay the powers-of-ten zoom under the chart (a scene's `zoom`, src/narration.js): the zoom's checkout each renders it from (scripts/render-zoom-queued.mjs freezes a copy and serves it; the zoom isn't on main).",
-  "short-05c-observable-universe": { "source": "/Users/avsa/Dev/Triangle" }
+  "short-05c-observable-universe": { "source": "/Users/avsa/Dev/Triangle" },
+  "short-05d-observable-universe": { "source": "/Users/avsa/Dev/Triangle" }
 }

@@ -28,7 +28,7 @@ went silent after a minute when it ran out.
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | The Black Hole Slope (Short: the black-hole line, recorded on its own) | `short-04a-black-hole-slope` | 2:51 with the credits (recorded 2026-11-09, rec59, natural speed); the earlier version, `short-04a-black-hole-line` (cut from rec48), stays beside it to compare; the author prefers it (2026-11-09: more concise, says "black hole" in the first 30 s, more energy), now 2:07 with rec59's ending from "But the most interesting question" to "tiny black holes" in place of its own, which stopped at "but how small" (on trial: do the two recordings sit together?). Fact check of that ending: "most of the things in the universe are just tiny black holes" says more than the idea does; it's most of the *matter*, the dark matter, that could be tiny black holes. To re-record: *"…some people who believe that most of the matter in the universe, the dark matter, could be tiny black holes."* |
 | The Smallest Black Holes (Short: part 2 of video 4) | `short-04b-smallest-black-holes` | 2:55 + 3 s credits (recorded on its own 2026-11-09: rec61's opening, rec60's body, natural speed; under a Short's 3:00 since 2026-11-10: "and it can close up even further in the future" out and the pauses capped at 0.85 s) |
-| The Observable Universe, from Earth out (Short 5d, the author's new script) | `short-05d-observable-universe` | not recorded yet: the script is below, under 5c |
+| The Observable Universe, from Earth out (Short 5d, the author's new script) | `short-05d-observable-universe` | recorded 2026-11-12 (rec71) and cut, 2:32 + credits; the zoom's script for it still to key in the zoom's checkout; two lines left open on the take, see its section |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
 | 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:04 + credits (re-recorded whole 2026-11-11, rec66, the morning take, natural speed; the dying-star sentence from the retakes, rec70) |
 | 5, part 2 · The Cosmic Event Horizon | `short-05b-hubble-sphere` | 2:55 + credits (re-recorded whole 2026-11-11, rec67, the morning take, natural speed; nothing to fix) |
@@ -1656,7 +1656,34 @@ bands make the red, green and blue on screen. Say them in your own words; each i
 
 ---
 
-### 5d · The Observable Universe, from Earth out (`short-05d-observable-universe`) — the author's new script, to record (2026-11-11)
+### 5d · The Observable Universe, from Earth out (`short-05d-observable-universe`) — recorded 2026-11-12 (rec71), cut
+
+**Recorded and cut** (`video/sources/2026-11-12/NOTES.md`): the script below as read, with the Sun's line as worked out
+("Light leaving the sun right now will be a quarter of the way here by the time you finish watching this video"),
+Jupiter as "If you can see Jupiter, you're looking at it how it was one hour ago", "or even electricity", "Depending
+where you are, most of them will be older than the country you are watching them from". **Left open on the take, to
+record if wanted:** a second Olympics image (*"If someone there is watching our broadcast of the Olympics right now,
+it's the Olympics before last"*), and Saturn after Jupiter (*"Saturn, well over an hour"*: its light is 67 to 89
+minutes old, so "one and a half hours" is only true at its farthest). The galaxy line is in the cut from the try heard
+as "first **leaving** Africa"; the later tries sound like "living in Africa", which would be wrong (people have lived
+in Africa for 300,000 years; they left it about 60,000 years ago, which is what the far side of the galaxy's light
+remembers). The zoom's script (timeline-05d.js) is still to be keyed to the take's marks in the zoom's checkout.
+
+The cut as it plays now (2:32 of voice + credits; the Sun's "quarter of the way" is then a third, still fair):
+
+> Most people know that when you look at the night sky, the light you see is how stars were in the past. But the sky you see is actually much younger than most realize. The moon you're looking at is how it was merely a second ago, younger than this phrase.
+>
+> Light leaving the sun right now will be a quarter of the way here by the time you finish watching this video. The light from Mars and the inner planets is less than half an hour old. If you can see Jupiter, you're looking at it how it was one hour ago.
+>
+> The nearest stars you can see with your own eyes, Alpha Centauri and Sirius, live right here, a few light-years away. You are seeing them as they were one or two Olympics ago. Most of the others sent their light before the internet was invented, or even electricity. Depending where you are, most of them will be older than the country you are watching them from. The light from the other side of the galaxy started its journey when humans were first leaving Africa.
+>
+> On a dark night, you can see Andromeda with the naked eye, and when you do, you are looking at how it was before humans discovered fire. The far side of Laniakea, the supercluster of galaxies in which we are part of, sent its light when the dinosaurs were still around. They never got the message.
+>
+> As we look further down, we are seeing the past of our very universe: before superclusters, before clusters, before galaxies were even formed. Space expands so fast that, for the region outside this bubble, any light they send now will never reach us. The present and future of these ancient galaxies will remain forever unknowable to us. This is the limit of the cosmic event horizon.
+>
+> But we can still see their past. Our past. This is the observable universe: the sum of all the light we can see. It's not a single thing, because one side can't talk to the other. It's not a map, but rather the history of our shared universe. We can see the light emitted before stars were even formed. The furthest we can see is a faint microwave radiation, emitted 380,000 years after the Big Bang, just as the universe became transparent for the first time. Light that has been travelling toward us since light could travel at all.
+
+The script as written (2026-11-11):
 
 A rewrite of 5c as a zoom from Earth outward, with no chart: the age of the light we see, step by step, out to the
 cosmic event horizon and the oldest light. Written in the shared doc "The Observable Universe (5c): script"
