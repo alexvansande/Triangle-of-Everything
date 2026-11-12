@@ -122,7 +122,6 @@
 # still at "any new particle" (1:52) and the injuries label beside its area; renders whole, early (the nightly started by hand).
 # 5a and 5b changed too but wait for their new recordings.
 # 2026-11-11 (the author): 5a re-recorded whole in the morning (rec66): new audio, new words, a new ending; renders whole
-short-05a-emptier
 # 2026-11-11 (the author): 5b, 5c and the powers-of-ten zoom re-recorded whole the same morning (rec67, rec68, rec69): new audio, whole.
 # The zoom's voice is 3:07 and its keys are not re-timed yet: it renders when the zoom session has done that, not before
 # 2026-11-11, late morning (the author's notes on the drafts): 5a (the click at the start out, a 1 s lead with the music,
