@@ -125,7 +125,6 @@
 short-05a-emptier
 # 2026-11-11 (the author): 5b, 5c and the powers-of-ten zoom re-recorded whole the same morning (rec67, rec68, rec69): new audio, whole.
 # The zoom's voice is 3:07 and its keys are not re-timed yet: it renders when the zoom session has done that, not before
-short-05b-hubble-sphere
 short-05c-observable-universe
 # 2026-11-11, late morning (the author's notes on the drafts): 5a (the click at the start out, a 1 s lead with the music,
 # the nebula on its word, the Whirlpool off the galaxies shot, no redrawn density lines), 5b (the labels in frame, the
