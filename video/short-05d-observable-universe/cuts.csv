@@ -1,29 +1,23 @@
 source,beat,out_start,out_end,src_start,src_end,text
-rec72,hook,0.00,5.95,43.69,49.63,everyone knows that when you look at the night sky the light you see now is how stars were in the past
-rec72,hook,6.50,11.34,55.30,60.36,but the sky you see is surprisingly younger than most people realize.
-rec72,moon,12.44,17.54,60.87,65.97,"The moon you're looking at is how it was merely a second ago, it's younger than this phrase."
-rec72,sun,18.64,24.64,67.10,73.09,Light leaving the sun right now will be a quarter of its way here by the time you finish watching this video.
-rec72,planets,25.74,29.88,75.11,79.26,The light from Mars on the inner planet is left on half an hour old.
-rec72,planets,30.43,34.18,79.59,83.33,If you can see Jupiter you're looking at it how it was one hour ago.
-rec72,stars,35.28,37.11,139.69,141.53,"Here are the nearby stars,"
-rec72,stars,37.66,44.97,155.95,163.26,"If someone in Alpha Centauri has a TV, they're just now watching the Olympics, one whole tournament late."
-rec72,stars,45.52,53.33,189.53,197.48,"Most of the others you see on the night sky send their light before the internet, sometimes even electricity was invented."
-rec72,galaxy,54.43,60.40,210.43,216.40,The light from the other side of the galaxy started this journey when humans were first leaving Africa
-rec72,galaxy,60.95,69.66,225.70,234.40,"On a very dark night, you can see Andromeda with the naked eye. And if you do, you are looking at it how it was before humans discovered fire."
-rec72,laniakea,70.76,76.11,248.81,254.16,We live in a super cluster of galaxies in the form of filaments called Laniakea.
-rec72,laniakea,76.66,85.40,284.91,294.14,"the light from the far side of that filament was sent when the dinosaurs were still roaming around. It's only arriving now, they never got the message."
-rec72,deep,86.50,90.96,357.26,361.72,"As we look further down, we are seeing the past of our very universe,"
-rec72,deep,91.26,95.80,372.31,376.85,"before super clusters, before clusters, before galaxies were even formed."
-rec72,deep,96.35,103.64,377.66,384.95,"Space expands so fast that for the region outside this bubble, any light they send now will never reach us."
-rec72,deep,104.19,109.52,390.11,395.44,The present and future of these ancient galaxies will remain forever unknowable to us.
-rec72,deep,110.07,112.83,425.90,428.66,This is the limit of the cosmic event horizon.
-rec72,obs,113.93,117.12,430.10,433.29,"But we can still see their past, our past."
-rec72,obs,117.67,122.33,433.71,438.38,"This is the observable universe, the sum of all the light we can see."
-rec72,obs,122.88,124.71,539.43,541.25,It's not the whole universe.
-rec72,obs,125.26,131.03,541.37,547.14,"As far as we've been able to measure, the universe is in practice infinite in every direction."
-rec72,obs,131.58,134.30,547.57,550.29,We are just limited on how much of it we can see.
-rec72,obs,134.85,139.33,553.81,558.29,"It's not a single object either, because one side can't talk to the other."
-rec72,obs,139.88,144.36,559.07,563.55,"It's not a map, but rather the history of our shared universe."
-rec72,obs,144.91,148.33,563.88,567.30,We can see the light emitted before the stars even formed.
-rec72,obs,148.88,160.33,464.50,476.01,"The furthest we can see is a faint microwave radiation emitted 380 ,000 years after the Big Bang, just as the universe became transparent for the first time."
-rec72,obs,160.88,166.03,580.14,585.30,light that has been traveling toward us since light could travel at all.
+rec73,hook,0.00,10.27,25.12,35.60,everyone knows that when you look at the night sky the light you see now is how stars were in the past. but the sky you see is surprisingly younger than most people realize.
+rec73,moon,11.37,18.33,38.46,46.41,the moon you're looking at is how it was merely a second ago. it's younger than this phrase.
+rec73,sun,19.43,25.45,46.42,52.44,light leaving the Sun right now will be a quarter of its way here by the time you finish watching this video.
+rec73,planets,26.55,33.37,86.21,93.03,the light from Mars on the inner planets is less than half an hour old. Jupiter is just slightly above that.
+rec73,stars,34.47,36.47,96.88,98.88,here we have the nearby stars.
+rec73,stars,37.02,44.25,118.55,125.78,"If someone in Alpha Centauri is tuning in to the World Cup or the Olympics, then they are watching it one whole tournament late."
+rec73,stars,44.80,50.31,200.03,205.55,Most of the stars in the night sky sent their lights way before computers were invented.
+rec73,stars,50.86,55.09,214.02,218.42,"In some cases, they're older than the country you're watching this from."
+rec73,galaxy,56.19,61.57,223.25,228.62,The light from the other side of the galaxy started this journey when humans were first leaving Africa.
+rec73,galaxy,62.12,66.09,229.55,233.52,"On a very dark night, you can see Andromeda with the naked eye."
+rec73,galaxy,66.64,71.31,241.89,246.56,"And if you do, you are looking at it how it was before humans invented fire."
+rec73,laniakea,72.41,77.62,247.76,252.98,We live in a separate cluster of galaxies in the form of filaments called the Laniakea.
+rec73,laniakea,78.17,86.05,324.21,332.12,any signal from the far side of that filament was sent to us when the dinosaurs were still roaming around. they never got the message.
+rec73,deep,87.15,96.31,335.31,344.65,"as we look further down we are seeing the past of our very universe, before super clusters, before clusters, even before galaxies were formed."
+rec73,deep,96.86,104.36,345.70,353.20,"Space here expands so fast that for the region outside this bubble, any light they send now will never reach us."
+rec73,deep,104.91,113.46,354.44,363.00,The present and the future of these ancient galaxies will remain forever unknowable to us. This is the limit of the cosmic event horizon.
+rec73,obs,114.56,130.46,364.09,380.39,"But we can still see their past. Our past. This is the observable universe, the sum of all the light we can see. It's not the whole universe. As far as we've been able to measure, the universe is in practice, infinite in every direction."
+rec73,obs,131.01,138.61,387.85,395.45,We are just limited on how much of it we can see. It's not a single object either because one side can't talk to the other.
+rec73,obs,139.16,143.09,414.79,418.71,it's not a map but rather the history of our shared universe.
+rec73,obs,143.64,152.05,436.38,444.82,"The furthest light we can see is a faint microwave radiation emitted 380 ,000 years after the Big Bang,"
+rec73,obs,152.60,156.18,478.63,482.22,just as the universe became transparent for the first time.
+rec73,obs,156.73,161.63,494.56,499.45,light that has been traveling toward us since light could travel at all.
