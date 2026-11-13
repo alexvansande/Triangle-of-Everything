@@ -56,3 +56,6 @@ then every clip of the edit transcribed on its own (the second pass): clean, no 
   zoom shows it at 36 light-minutes. "Any signal… was sent **to us**": sent everywhere, but fine. "Before humans
   invented fire": control of fire, not invention, but the point stands.
 - **Wrong:** nothing.
+
+The author, on the 10:06 draft (2026-11-13): keeps this take, "invented fire" and all ("other than 'invented'
+fire, the audio is nice").
