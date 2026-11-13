@@ -1690,7 +1690,7 @@ watching them from."* One clip to put back if wanted.
 the zoom shows it at about 36 light-minutes, just past the half-hour ring, where its orbit comes up under the camera
 at 0:29. The author's new wording, the whole passage for context:
 
-> Light leaving the sun right now will be a quarter of its way here by the time you finish watching this video. The light from Mars and the inner planets is less than half an hour old. If you can see Jupiter, you're looking at it how it was slightly over half an hour ago.
+> Light leaving the sun right now will be a quarter of its way here by the time you finish watching this video. The light from Mars and the inner planets is less than half an hour old. If you can see Jupiter, you're looking at it how it was slightly above half an hour ago.
 
 The script as written (2026-11-11):
 
