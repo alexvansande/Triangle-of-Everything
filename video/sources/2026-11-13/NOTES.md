@@ -59,3 +59,6 @@ then every clip of the edit transcribed on its own (the second pass): clean, no 
 
 The author, on the 10:06 draft (2026-11-13): keeps this take, "invented fire" and all ("other than 'invented'
 fire, the audio is nice").
+
+The author, on the 11:49 draft: "we can see" comes about three times near the end ("the furthest light we can see" and
+the lines before it); known, and kept for now, no re-record.
