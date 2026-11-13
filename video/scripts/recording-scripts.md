@@ -28,7 +28,7 @@ went silent after a minute when it ran out.
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | The Black Hole Slope (Short: the black-hole line, recorded on its own) | `short-04a-black-hole-slope` | 2:51 with the credits (recorded 2026-11-09, rec59, natural speed); the earlier version, `short-04a-black-hole-line` (cut from rec48), stays beside it to compare; the author prefers it (2026-11-09: more concise, says "black hole" in the first 30 s, more energy), now 2:07 with rec59's ending from "But the most interesting question" to "tiny black holes" in place of its own, which stopped at "but how small" (on trial: do the two recordings sit together?). Fact check of that ending: "most of the things in the universe are just tiny black holes" says more than the idea does; it's most of the *matter*, the dark matter, that could be tiny black holes. To re-record: *"…some people who believe that most of the matter in the universe, the dark matter, could be tiny black holes."* |
 | The Smallest Black Holes (Short: part 2 of video 4) | `short-04b-smallest-black-holes` | 2:55 + 3 s credits (recorded on its own 2026-11-09: rec61's opening, rec60's body, natural speed; under a Short's 3:00 since 2026-11-10: "and it can close up even further in the future" out and the pauses capped at 0.85 s) |
-| The Observable Universe, from Earth out (Short 5d, the author's new script) | `short-05d-observable-universe` | recorded 2026-11-12 (rec71) and cut, 2:32 + credits; the zoom's script for it still to key in the zoom's checkout; two lines left open on the take, see its section |
+| The Observable Universe, from Earth out (Short 5d, the author's new script) | `short-05d-observable-universe` | recorded 2026-11-12 (rec71) and cut, 2:32 + credits; the zoom's script for it still to key in the zoom's checkout; two lines left open on the take, see its section; Jupiter's line to re-record (2026-11-13) |
 | 5 · the Hubble sphere | `short-05-hubble-sphere` | 5:59 (re-recorded 2026-10-29, rec49 + rec50, natural speed) |
 | 5, part 1 · The Largest Structures in Space | `short-05a-emptier` | 2:04 + credits (re-recorded whole 2026-11-11, rec66, the morning take, natural speed; the dying-star sentence from the retakes, rec70) |
 | 5, part 2 · The Cosmic Event Horizon | `short-05b-hubble-sphere` | 2:55 + credits (re-recorded whole 2026-11-11, rec67, the morning take, natural speed; nothing to fix) |
@@ -1685,7 +1685,12 @@ rewritten lines and a new passage at the end. The cut as it plays now, all from 
 > But we can still see their past. Our past. This is the observable universe, the sum of all the light we can see. It's not the whole universe. As far as we've been able to measure, the universe is in practice infinite in every direction. We are just limited on how much of it we can see. It's not a single object either, because one side can't talk to the other. It's not a map, but rather the history of our shared universe. We can see the light emitted before the stars even formed. The furthest we can see is a faint microwave radiation, emitted 380,000 years after the Big Bang, just as the universe became transparent for the first time. Light that has been travelling toward us since light could travel at all.
 
 Not in this take (read past): rec71's *"Depending where you are, most of them will be older than the country you are
-watching them from."* One clip to put back if wanted. Nothing to record.
+watching them from."* One clip to put back if wanted. 
+**To re-record (2026-11-13):** Jupiter's line. Its light is 35 to 52 minutes old (43 on average), never an hour, and
+the zoom shows it at about 36 light-minutes, just past the half-hour ring, where its orbit comes up under the camera
+at 0:29. The author's new wording, the whole passage for context:
+
+> Light leaving the sun right now will be a quarter of its way here by the time you finish watching this video. The light from Mars and the inner planets is less than half an hour old. If you can see Jupiter, you're looking at it how it was slightly over half an hour ago.
 
 The script as written (2026-11-11):
 
