@@ -148,3 +148,9 @@
 # (/Users/avsa/Dev/Triangle, tools/powers-of-ten/timeline-05d.js, uncommitted: the render freezes that working folder),
 # the author's notes of the day in: the heading at 12 s, Jupiter up from the bottom at 0:29, circles round Barnard's Star,
 # Alpha Centauri, Sirius and Andromeda (M31's name dropped), the galaxies fixed in 3D, the CMB's lid. Renders whole.
+# 2026-11-14 (the author's notes on the overnight render; otherwise ready, scheduled Fri 2026-11-27): the city lights
+# filtered to the pixel's size (they sparkled, a different light every frame) and the Deep Field galaxy that passes the
+# camera at 1:40 fixed in the field, so the orbit carries it away instead of holding it in the middle: picture only, in
+# the zoom's working folder (/Users/avsa/Dev/Triangle, earth-scene.js and deep-field.js, uncommitted)
+# short-05d-observable-universe changed: 0:00-0:30, 1:34-1:55
+short-05d-observable-universe
