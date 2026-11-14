@@ -148,4 +148,3 @@
 # (/Users/avsa/Dev/Triangle, tools/powers-of-ten/timeline-05d.js, uncommitted: the render freezes that working folder),
 # the author's notes of the day in: the heading at 12 s, Jupiter up from the bottom at 0:29, circles round Barnard's Star,
 # Alpha Centauri, Sirius and Andromeda (M31's name dropped), the galaxies fixed in 3D, the CMB's lid. Renders whole.
-short-05d-observable-universe
