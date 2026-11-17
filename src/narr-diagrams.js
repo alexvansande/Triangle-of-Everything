@@ -901,3 +901,124 @@ export function drawObservable(ctx, W, H, o, t) {
     ctx.globalAlpha = ft; text(ctx, "the oldest light", cx, y, H * 0.026, "#ff8a65"); text(ctx, "380,000 years after the Big Bang", cx, y + H * 0.032, H * 0.02, "#ff8a65"); ctx.globalAlpha = 1;
   }
 }
+
+// ---------- fusion in diamonds (long-02b-opening, the author, 2026-11-17, 3:40: "pick a bunch of groups of 4 circles that
+// touch each other in a diamond shape and then merge these groups all at the same time ... when it says 'a large amount of
+// energy is released' we should center around a single one of these new helium atoms and have a big wave of arrows moving
+// away from it, pushing other atoms off the screen") ----------
+// The Squeeze Lab's look (yellow rings, the chart's proton pictures), scripted rather than simulated. Phases (the cues'
+// times): start (protons jostling, blue pushes between neighbours), squeeze (gravity's orange arrows from the edges; each
+// four closes into a diamond, its rings touching, yellow pulls between them: the strong force reaching), capture (every
+// diamond merges at once: the rings join, squeeze tall and ring into one, two protons turn into neutrons), energy (the view
+// closes in on one helium; waves of red arrows run out from it, shoving the rest off the screen), balance (gravity's arrows
+// back at the edges, the waves still pushing out), fusion (its name).
+export function drawDiamonds(ctx, W, H, o, t) {
+  const TAU = Math.PI * 2, U = Math.min(W, H), cx = W / 2, cy = H / 2, r = U * 0.055, A4 = Math.SQRT2 * r;
+  const start = o.start ?? t, sqz = o.squeeze ?? start + 6, cap = o.capture ?? sqz + 3, en = o.energy ?? cap + 5,
+    bal = o.balance ?? en + 4, fus = o.fusion ?? bal + 2.5;
+  const sq = smooth((t - sqz) / Math.max(1, cap - sqz - 0.2)), mf = smooth((t - cap) / 0.9), zf = smooth((t - en) / 1.6);
+  const TN = cap + 1.1;                                                   // two of each four become neutrons
+  // the groups on a loose hex grid round the middle; the one nearest the middle is the one the view closes in on
+  const G = U * 0.36, groups = [], JM = Math.ceil(H / G) + 1, IM = Math.ceil(W / G) + 1;
+  for (let j = -JM; j <= JM; j++) for (let i = -IM; i <= IM; i++) {
+    const k = (i + 40) * 97 + (j + 40), gx = (i + (j & 1 ? 0.5 : 0)) * G + (unit2(k, 4) - 0.5) * G * 0.18, gy = j * G * 0.87 + (unit2(k, 5) - 0.5) * G * 0.18;
+    groups.push({ k, gx, gy, rot: unit2(k, 6) * 0.6 - 0.3, d0: Math.hypot(gx, gy) });
+  }
+  const hero = groups.reduce((a, b) => (b.d0 < a.d0 ? b : a));
+  // the wave: fronts running out from the hero every 0.9 s once the energy comes out
+  const front = (n) => (t - en - 0.4 - n * 1.1) * U * 0.3;   // (slow enough to see the others shoved away)
+  // the view: centred on the hero and closer as the energy comes out
+  const zoom = 1 + 0.75 * zf, vx = hero.gx * zf, vy = hero.gy * zf;
+  const X = (x) => cx + (x - vx) * zoom, Y = (y) => cy + (y - vy) * zoom, Z = (d) => d * zoom;
+  // where each group is now: spread apart before the squeeze, shoved outwards by the first front after the energy
+  const spreadG = 1.22 - 0.22 * sq;
+  for (const g of groups) {
+    let x = g.gx * spreadG, y = g.gy * spreadG;
+    if (g !== hero && t > en) {
+      const dx = x - hero.gx, dy = y - hero.gy, d = Math.hypot(dx, dy) || 1, f0 = front(0), shove = Math.max(0, f0 - d + r * 2.4);
+      x += dx / d * shove; y += dy / d * shove;
+    }
+    g.x = x; g.y = y;
+  }
+  // the protons of each group: off their diamond points while loose, on them when squeezed, gathered in when merged
+  const spreadP = 1.85 - 0.85 * sq, gather = 1 - 0.5 * mf, jamp = r * (0.4 - 0.36 * sq) * (1 - mf);
+  const ps = [];
+  for (const g of groups) for (let n = 0; n < 4; n++) {
+    const a = g.rot + n * TAU / 4, k = g.k * 4 + n, ja = unit2(k, 1) * TAU + t * (0.6 + unit2(k, 2) * 0.8);
+    const x = g.x + Math.cos(a) * A4 * spreadP * gather + Math.cos(ja) * jamp, y = g.y + Math.sin(a) * A4 * spreadP * gather + Math.sin(ja) * jamp;
+    ps.push({ g, n, k, x, y });
+  }
+  const onScreen = (x, y, m) => X(x) > -m && X(x) < W + m && Y(y) > -m && Y(y) < H + m;
+  // a pointing arrow (the bonds' kind: one size of head)
+  const pa = (x0, y0, x1, y1, col, a, w) => {
+    const len = Math.hypot(x1 - x0, y1 - y0), hd = Z(r) * 0.42; if (len < hd * 1.2 || a <= 0.01) return;
+    const ux = (x1 - x0) / len, uy = (y1 - y0) / len, hw = hd * 0.45;
+    ctx.globalAlpha = a; ctx.strokeStyle = ctx.fillStyle = col; ctx.lineWidth = w; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - ux * hd * 0.8, y1 - uy * hd * 0.8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * hd - uy * hw, y1 - uy * hd + ux * hw); ctx.lineTo(x1 - ux * hd + uy * hw, y1 - uy * hd - ux * hw); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+  };
+  // the rings: each proton's own until the merge, then one bubble per group that squeezes tall and rings into a circle
+  ctx.lineJoin = "round";
+  for (const g of groups) {
+    if (!onScreen(g.x, g.y, Z(r) * 4)) continue;
+    const mine = ps.filter(p => p.g === g);
+    ctx.strokeStyle = "rgb(255,213,74)"; ctx.lineWidth = U * 0.004; ctx.shadowColor = "#ffd54f"; ctx.shadowBlur = U * 0.012;
+    ctx.fillStyle = "rgba(255,213,74,0.06)";
+    if (t < cap) for (const p of mine) { ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), Z(r), 0, TAU); ctx.fill(); ctx.stroke(); }
+    else if (mf < 1) { const b = blobPath(mine.map(p => ({ x: X(p.x), y: Y(p.y), r: Z(r) * (1 + 0.35 * mf) }))); if (b) { ctx.beginPath(); b.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); ctx.fill(); ctx.stroke(); } }
+    else { const q = squash(t - cap - 0.9), R = Z(r) * 1.95; ctx.fillStyle = "rgba(255,213,74,0.08)"; ctx.beginPath(); ctx.ellipse(X(g.x), Y(g.y), R * (1 - q), R * (1 + q), 0, 0, TAU); ctx.fill(); squashedCircle(ctx, X(g.x), Y(g.y), R, q, U, "#ffe9a3"); }
+    ctx.shadowBlur = 0;
+  }
+  // the nucleons: the chart's pictures; two of each four turn into neutrons a moment after the merge, with a flash
+  for (const p of ps) {
+    if (!onScreen(p.x, p.y, Z(r) * 2)) continue;
+    const x = X(p.x), y = Y(p.y), d = Z(r) * 1.15, neu = p.n % 2 === 1, f = neu ? smooth((t - TN) / 0.4) : 0;
+    if (f < 1) particle(ctx, "proton", x, y, d, 1 - f, "#ff8a80", spin(p.k), sizeOf(p.k));
+    if (f > 0) particle(ctx, "neutron", x, y, d * 0.92, f, "#e0e0e0", spin(p.k + 1), sizeOf(p.k));
+    const age = t - TN;
+    if (neu && age > 0 && age < 0.5) { ctx.globalAlpha = (1 - age / 0.5) * 0.9; ctx.strokeStyle = "#e1bee7"; ctx.lineWidth = U * 0.004; ctx.beginPath(); ctx.arc(x, y, d * 0.5 * (1 + 1.8 * age / 0.5), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+  }
+  // the arrows between them, pointing at each other (the author: "pointing to the other nucleus or electrons instead
+  // of being just a hard thing"): blue pushes between protons close to each other, before the merge; yellow pulls
+  // between the four of a diamond once they touch, until they're one
+  const blueA = smooth((t - start - 0.6) / 0.8) * (1 - smooth((t - cap) / 0.5)), yelA = smooth((t - sqz - 1) / 0.8) * (1 - smooth((t - cap - 0.5) / 0.5));
+  const w = U * 0.005;
+  if (blueA > 0.01) for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) {
+    const P = ps[i], Q = ps[j]; if (P.g === Q.g && sq > 0.6) continue;
+    const dx = Q.x - P.x, dy = Q.y - P.y, d = Math.hypot(dx, dy), gap = d - 2 * r; if (gap > r * 1.1 || gap < -r * 0.2) continue;
+    if (!onScreen((P.x + Q.x) / 2, (P.y + Q.y) / 2, 0)) continue;
+    if ((P.k * 7 + Q.k * 13) % 3) continue;   // a third of the pairs: enough to read, not a thicket
+    const ux = dx / d, uy = dy / d, mx = P.x + ux * (r + gap / 2), my = P.y + uy * (r + gap / 2), half = Math.max(r * 0.85, gap / 2 + r * 0.35);
+    const a = blueA * clamp01((r * 1.1 - gap) / (r * 0.5));
+    pa(X(mx + ux * r * 0.1), Y(my + uy * r * 0.1), X(mx + ux * half), Y(my + uy * half), "#96cdff", a, w);
+    pa(X(mx - ux * r * 0.1), Y(my - uy * r * 0.1), X(mx - ux * half), Y(my - uy * half), "#96cdff", a, w);
+  }
+  if (yelA > 0.01) for (const g of groups) {
+    if (!onScreen(g.x, g.y, Z(r) * 3)) continue;
+    const mine = ps.filter(p => p.g === g);
+    for (let n = 0; n < 4; n++) {
+      const P = mine[n], Q = mine[(n + 1) % 4], dx = Q.x - P.x, dy = Q.y - P.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d, nx = -uy * r * 0.2, ny = ux * r * 0.2;
+      pa(X(P.x + ux * r * 0.55 + nx), Y(P.y + uy * r * 0.55 + ny), X(Q.x - ux * r * 0.3 + nx), Y(Q.y - uy * r * 0.3 + ny), "#ffd54a", yelA, w);
+      pa(X(Q.x - ux * r * 0.55 - nx), Y(Q.y - uy * r * 0.55 - ny), X(P.x + ux * r * 0.3 - nx), Y(P.y + uy * r * 0.3 - ny), "#ffd54a", yelA, w);
+    }
+  }
+  // gravity: orange arrows in from the edges while it squeezes, and again as the push balances it
+  const gA = smooth((t - sqz) / 0.8) * (1 - smooth((t - cap - 0.4) / 0.6)) + smooth((t - bal) / 0.8);
+  if (gA > 0.01) { ctx.globalAlpha = Math.min(1, gA); for (let i = 0; i < 10; i++) edgeArrow(ctx, W, H, i * TAU / 10 + TAU / 20, U * 0.12, U * 0.03, "#ffab40", U * 0.009, U * 0.012 * Math.sin(t * 5)); ctx.globalAlpha = 1; }
+  // the energy: fronts of red arrows running out from the hero
+  if (t > en) for (let n = 0; n < 12; n++) {
+    const R0 = front(n); if (R0 <= 0) break;
+    const fa = smooth((t - en - 0.4 - n * 1.1) / 0.3) * (1 - smooth((R0 - U * 1.2) / (U * 0.3)));
+    if (fa <= 0.01) continue;
+    for (let i = 0; i < 14; i++) {
+      const a = i * TAU / 14 + n * 0.22, ux = Math.cos(a), uy = Math.sin(a), rr = Z(r) * 2.2 + R0;
+      pa(X(hero.gx) + ux * rr, Y(hero.gy) + uy * rr, X(hero.gx) + ux * (rr + U * 0.12), Y(hero.gy) + uy * (rr + U * 0.12), "#ff6e50", fa, U * 0.009);
+    }
+  }
+  // the words: the key one in yellow, under the hero
+  const hy = Y(hero.gy) + Z(r) * 2.6 + U * 0.04;
+  const heA = smooth((t - TN - 0.6) / 0.6) * (1 - smooth((t - fus) / 0.4)), fuA = smooth((t - fus) / 0.5);
+  if (heA > 0.01) { ctx.globalAlpha = heA; text(ctx, "helium", X(hero.gx), hy, U * 0.036, "#ffd54f"); ctx.globalAlpha = 1; }
+  if (fuA > 0.01) { ctx.globalAlpha = fuA; text(ctx, "fusion", X(hero.gx), hy, U * 0.05, "#ffd54f"); ctx.globalAlpha = 1; }
+}

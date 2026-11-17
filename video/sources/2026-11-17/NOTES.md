@@ -84,6 +84,28 @@ on the waveform (the start and end given in the cut list); "That's fusion" had l
   script keys on the Short's times, Earth at 0) and the 16:9 stage.
 - **The black hole in the forces' style** (the question in the script): see the answer at the end of the fact check.
 
+### The author's notes on the second long draft (2026-11-17, night), and what changed
+- **The catalogue**: no copies of the pictures in the cloud (two viruses side by side); soft coloured blobs in the kinds'
+  colours behind, fading as the sorting starts.
+- **1:19, the hand-off**: the pictures land, then the grid and the axes alone (the edges, regions, bands and names held back:
+  scene `edgesStart`, a cue's `edges`, `app.setChartExtrasOpacity`), the painting from 1.4 s after (`bg.after`), the rest
+  as the diagonal is named.
+- **1:37 / 1:50, the bonds**: each kind of arrow as it's named (blue on "repel", purple on "attracted to protons":
+  `bondPushFrom` / `bondPullFrom`); the animation runs to "…the electromagnetic force".
+- **1:57**: chart arrows' shafts stop inside their heads (the round end showed over the tip), every chart arrow.
+- **2:29**: the Burj Khalifa mark is gone (ten decades below the camera, it made the frame zoom out before the pan): one
+  move up to the round worlds. Where things turn round marked as in Short 2 (Vesta lumpy, Ceres round, the line between,
+  "electromagnetism dominates" below, "gravity dominates" above).
+- **3:30**: the degenerate-matter simulation's arrows point at each other as in the bonds (a quarter of the pairs:
+  `bondShare`), the red squeeze from the edges kept. The strong force is a new scripted diagram (`drawDiamonds`): protons
+  pushing apart (blue), squeezed by gravity (orange, from the edges) into diamonds of four, the strong force's yellow pulls
+  between them, all merging at once on "capture them", two of each four turning into neutrons ("helium"); on "a large
+  amount of energy" the view closes in on one helium and waves of red arrows run out from it, shoving the others off the
+  screen; gravity's arrows come back on "counterbalances"; "fusion" on "That's fusion".
+- **4:11**: one slow push in on the main sequence through its lines.
+- **5:21**: "So far our objects…" on the chart with no pictures, the dots only, the places looped as they're named
+  (ordinary matter, the super-Jupiters, the living stars); the pictures back for the cemetery of dead stars.
+
 ### Fact check
 - **Right:** a log chart of mass and size for every kind of thing; light placed by its energy (as mass, E = mc²) and its
   wavelength; most things in bands and the diagonal of ordinary matter; the electric push between electrons and the pull

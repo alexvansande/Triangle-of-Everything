@@ -144,14 +144,15 @@ function flight(o) {
     else { const a = r() * 6.283, rad = 0.5 + r() * 1.5; pos = place(1.5 + r() * 40, FOCUS + r() * 2.2, Math.cos(a) * rad, Math.sin(a) * rad * 0.6); }
     out.push({ ...q, i, key: q.slug, x: pos[0], y: pos[1], z: pos[2], s: namedAt.has(q.slug) ? 1 : 0.8 + r() * 0.5 });
   });
-  // the cloud is fuller than the catalogue (the author: "a lot of icons floating"): two more of each, round the path,
-  // which fade away when the sorting starts
-  for (let m = 1; m <= 2; m++) OBJ.forEach((q, i) => {
-    if (q.light) return;
-    const a = r() * 6.283, rad = 0.55 + r() * 2.0, pos = place(r() * 46, FOCUS + 0.5 + r() * 3, Math.cos(a) * rad, Math.sin(a) * rad * 0.65);
-    out.push({ ...q, i: i + m * 100, key: `${q.slug}#${m}`, extra: true, x: pos[0], y: pos[1], z: pos[2], s: 0.6 + r() * 0.5 });
-  });
-  return (_flight = { key, frame, pts: out });
+  // the cloud looks fuller than the catalogue (the author: "a lot of icons floating") with soft coloured blobs further out,
+  // in the kinds' colours, as if more things were out there: no copies of the pictures (the author, 2026-11-17: "avoid
+  // repeating objects, I saw two viruses one next to the other. Add some colored blobs in the background")
+  const cols = Object.values(COL), blobs = [];
+  for (let m = 0; m < 260; m++) {
+    const a = r() * 6.283, rad = 0.8 + r() * 3.2, pos = place(r() * 50, FOCUS + 1.2 + r() * 4.5, Math.cos(a) * rad, Math.sin(a) * rad * 0.7);
+    blobs.push({ x: pos[0], y: pos[1], z: pos[2], col: cols[Math.floor(r() * cols.length)], s: 0.25 + r() * 0.5, k: r() });
+  }
+  return (_flight = { key, frame, pts: out, blobs });
 }
 // the camera at t: on the path, looking along it
 function camAt(fl, t) {
@@ -256,6 +257,20 @@ export function drawCatalogue(ctx, W, H, o, t, chartAt) {
     return { p, X, Y, d, a, z };
   });
   const sorted = !!cur;
+  // the blobs, behind everything, fading as the sorting starts
+  const blobA = 1 - smooth((t - at(SORTS[0] ?? "none")) / 0.8);
+  if (blobA > 0.01) {
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    for (const b of fl.blobs) {
+      const q = project(cam, b, W, H); if (q.z <= 0.4) continue;
+      const rr = Math.min(S * 0.12, S * 0.05 * b.s / q.z); if (rr < 0.8 || q.X < -rr || q.X > W + rr || q.Y < -rr || q.Y > H + rr) continue;
+      const a = blobA * Math.min(1, 3 / q.z) * smooth((q.z - 0.4) / 0.6) * (0.25 + 0.25 * b.k);
+      const g = ctx.createRadialGradient(q.X, q.Y, 0, q.X, q.Y, rr);
+      g.addColorStop(0, b.col); g.addColorStop(0.35, b.col + "99"); g.addColorStop(1, b.col + "00");
+      ctx.globalAlpha = a; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(q.X, q.Y, rr, 0, 6.2832); ctx.fill();
+    }
+    ctx.restore();
+  }
   // the links: thin glowing lines between nearby things of a kind (in the cloud)
   const linkA = on("links", 1.5) * (sorted ? 1 - smooth((t - at(SORTS[0])) / 1) : 1);
   if (linkA > 0.01) {

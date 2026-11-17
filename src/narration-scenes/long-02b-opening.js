@@ -31,6 +31,16 @@ const FORK = [
   { obj: "White Dwarf", label: "dead stars' cores", place: "right", delay: 0.8 },
 ];
 const MS = { line: "mainsequence", label: "main sequence" };
+// where things turn round (Short 2's ROUND_M, between Vesta and Ceres): the shape held by bonds below, by gravity above
+const ROUND_M = 23.7;
+const ROUND_BONDS = { side: "below", mass: ROUND_M, label: "electromagnetism\ndominates", labelX: 0.22 };
+const ROUND_GRAV = { side: "above", mass: ROUND_M, label: "gravity\ndominates", labelX: 0.22 };
+// "so far our objects…": the chart with no pictures, its dots only, the places they gather looped (the author,
+// 2026-11-17, 5:21: "hide all icons, keep just the dots and then use circles and ovals to highlight these areas")
+const SO_FAR = { r: 4.6, m: 15, span: 22, frame: [-5, -9, 14, 41] };
+const OV_WATER = { ellipse: [2.4, 7.9, 1.3, 20], label: "ordinary matter", place: "left", color: "#80deea" };
+const OV_COLUMN = { ellipse: [9.85, 31.2, 0.5, 1.7], rot: 0, label: "super-Jupiters", place: "left", color: "#ffd54f" };
+const OV_STARS = { ellipse: [11.1, 33.9, 0.55, 2.1], rot: 34, label: "living stars", place: "right", color: "#ffab40" };
 // (each cue holds the catalogue until the next: with the default 14 s it ended at 0:26 and the chart showed through,
 // the author, 2026-11-17: "0:29 dont show the chart yet just keep floating among the objects"; out: its fade into the chart)
 const CAT = (phase) => ({ catalogue: { phase }, instant: true, out: 1.6 });
@@ -46,7 +56,9 @@ const WD = { obj: "White Dwarf", label: false }, NS = { obj: "PSR J0030+0451", l
 // its arrows on (the author's note in the script: "electrons repel electrons", "electrons and protons attract"); the
 // arrows on the line between each two neighbours' centres (the author, 2026-11-17, 1:41): blue pairs pushing them
 // apart at the electron rings, purple ones from each ring to the other's nucleus (squeeze-sim.js, arrowsBonds)
-const BONDS = { squeeze: { mode: 1, from: 0, P: { count: 34, startBox: 1.12, endBox: 1.12, shrinkTime: 999, threshold: 9, centreFirst: 0, initSpeed: 140, arrowTime: 13, arrowsIn: false, arrowsOut: false, arrowsBonds: true },
+const BONDS = { squeeze: { mode: 1, from: 0, P: { count: 34, startBox: 1.12, endBox: 1.12, shrinkTime: 999, threshold: 9, centreFirst: 0, initSpeed: 140, arrowTime: 30, arrowsIn: false, arrowsOut: false, arrowsBonds: true,
+  // each kind of arrow as it's named ("electrons repel other electrons", "and are attracted to protons"), s into the run
+  bondPushFrom: 0.7, bondPullFrom: 2.6 },
   labels: [["electrons repel electrons", "#4fc3f7"], ["electrons and protons attract", "#b39ddb"]] } };
 
 export default {
@@ -55,6 +67,10 @@ export default {
   // the chart's first frame, behind the catalogue until it hands over (bare: the painting comes back from 1:20)
   start: { r: 5.5, m: 14, span: 30 },
   bgStart: 0,
+  // and bare of its edges, regions and names until the diagonal is named (the author, 2026-11-17, 1:19: "first move the
+  // objects, then show the grid and the axis. Dont show the edges yet nor the quark gluon plasma label, then after a
+  // second or so, slowly fade in the background")
+  edgesStart: 0,
   iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
   icons: "all",
   forceIcons: ["Sun", "L Brown Dwarf", "T Brown Dwarf", "Y Brown Dwarf"],
@@ -93,16 +109,16 @@ export default {
     // the catalogue fades into the chart as it is, the painting off (bgStart); then one slow pan and zoom down to the human,
     // the painting fading back in from "this particular diagonal" (the author, 2026-11-17: "from now on its a slow pan and
     // zoom", "1:20 now slowly fade the background as we zoom towards the macro scale")
-    { at: "each square", cam: { r: 5.5, m: 14, span: 30, glide: true }, dur: 0.05, hl: [] },
+    { at: "each square", cam: { r: 5.5, m: 14, span: 30, glide: true }, dur: 0.05, bg: { to: 1, dur: 7, after: 1.4 }, hl: [] },
     { at: "fall in bands", cam: { r: 4.0, m: 11.0, span: 21, glide: true }, hl: [WATER, { ...COLUMN, delay: 1.2 }] },
-    { at: "particular diagonal", cam: { r: 3.0, m: 9.3, span: 13, glide: true }, bg: { to: 1, dur: 7 }, hl: [{ line: "water", label: "the diagonal" }] },
+    { at: "particular diagonal", cam: { r: 3.0, m: 9.3, span: 13, glide: true }, edges: { to: 1, dur: 3 }, hl: [{ line: "water", label: "the diagonal" }] },
     // the four forces: on the human, the tug of war marked on the line
     { at: "delicate dance", cam: { obj: "Human", span: 4.6, glide: true }, clear: true, hl: [WATER, { obj: "Human" }] },
     { at: "tug of war", hl: [WATER, ...GRAV_AT(3.6, false), ...EM_AT(6.2, false)] },
     // the chemical bonds: a few atoms on black, settling at their distance
-    { at: "electrons repel", hold: 12, hl: [BONDS] },
-    { at: "chemical bonds", cam: { obj: "Human", span: 6 }, clear: true, hl: [WATER, { obj: "Human", label: "held by chemical bonds" }, { obj: "Eiffel Tower", delay: 0.5 }] },
-    { at: "variations of the electromagnetic", hl: [WATER, ...EM_AT(6.2)] },
+    // (on until "…the electromagnetic force", the author, 2026-11-17: "the bond animation can last until 1:50")
+    { at: "electrons repel", hold: 999, hl: [BONDS] },
+    { at: "electromagnetic force", offset: 0.2, cam: { obj: "Human", span: 6 }, dur: 0.05, clear: true, hl: [WATER, { obj: "Human", label: "held by chemical bonds" }, ...EM_AT(6.2)] },
     { at: "gravity works", hl: [WATER, ...EM_AT(6.2, false), ...GRAV_AT(3.6)] },
     // one pan up the line (visual-rules.md: one pan, one direction), the rings ahead of the camera
     { at: "make something too big", cam: UP(6), clear: true, hl: [WATER, { ellipse: [ON_LINE(7.5) + 1.2, 7.5, 0.6, 0.6], rot: 0, label: false, color: "#ffab40" },
@@ -114,29 +130,41 @@ export default {
       { text: "its atoms\npush back", at: [ON_LINE(12.5) - 1.2, 11.4], size: 22, color: "#4fc3f7", delay: 0.5 }] },
     { at: "density of atoms", cam: UP(16), clear: true, hl: [{ line: "water", label: "the density of atoms" }] },
     { at: "gravity is very weak", cam: UP(19), hl: [WATER, ...GRAV_AT(20.5)] },
-    { at: "very tall buildings", cam: UP(22), hl: [WATER, { obj: "Burj Khalifa", label: "the tallest building" }] },
-    // "we are just panning up now, seeing the round moons" (the author's note)
-    { at: "becomes round", cam: { r: 8.1, m: 25.0, span: 4.6, glide: true }, hl: [{ obj: "Ceres", label: "round", place: "left" }, { obj: "Pluto", label: false, delay: 0.3 }, { obj: "Moon", label: false, delay: 0.6 }] },
-    { at: "gravity shapes everything", cam: { r: 8.6, m: 27.0, span: 4.6, glide: true }, hl: [{ obj: "Earth", label: "shaped by gravity" }, { obj: "Moon", label: false }] },
+    // (no Burj Khalifa: ten decades below the camera, the frame grew to take it in, a slow zoom out before the pan; the
+    // author, 2026-11-17, 2:29: "just keep the pan and zoom together so we end up in the same place with a single movement")
+    { at: "very tall buildings", cam: UP(22), hl: [WATER] },
+    // "we are just panning up now, seeing the round moons" (the author's note); where things turn round marked as in
+    // Short 2 (the author, 2026-11-17: "highlight the moment things start getting round, like we do in the other short"):
+    // the line between Vesta, lumpy, and Ceres, round, the bonds holding the shape below it and gravity above
+    { at: "becomes round", cam: { r: 7.75, m: 24.1, span: 4.6, glide: true }, hl: [ROUND_BONDS, { ...ROUND_GRAV, delay: 0.5 }, { obj: "Vesta", label: "Vesta · lumpy", place: "left" }, { obj: "Ceres", label: "Ceres · round", delay: 0.4 }, { obj: "Pluto", label: false, delay: 0.7 }] },
+    { at: "gravity shapes everything", cam: { r: 8.6, m: 27.0, span: 4.6, glide: true }, hl: [ROUND_GRAV, { obj: "Earth", label: "shaped by gravity" }, { obj: "Moon", label: false }] },
     // the giant planets' column
     { at: "atomic scale", cam: G(9.85, 30.9, 2.4), dur: 2.5, clear: true, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }] },
     { at: "go up on a column", hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, COLUMN] },
     { at: "not made of ordinary matter", hl: [{ obj: "Jupiter", label: "not ordinary matter inside", place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
     // the atoms crushed: the Squeeze Lab's mode 1 ("show that sim of the degenerate matter forming")
-    { at: "these planets are massive", hold: 14, hl: [{ squeeze: { mode: 1, from: 13.2 } }] },
+    // (its arrows pointing at each other, as in the bonds: blue between the shells, purple to the other nucleus; red from
+    // the edges, the squeeze; the author, 2026-11-17, 3:30)
+    { at: "these planets are massive", hold: 14, hl: [{ squeeze: { mode: 1, from: 13.2, P: { arrowsOut: false, arrowsBonds: true, arrowTime: 30, bondPushFrom: 13.4, bondPullFrom: 14.5, bondShare: 0.25 } } }] },
     { at: "don't get bigger", cam: G(9.85, 31.4, 2.6), clear: true, hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
     // "show the super jupiters and brown dwarf branching"
     { at: "bifurcation", cam: { r: 9.9, m: 33.0, span: 3.8 }, dur: 3, drift: 0.02, hl: [{ obj: "L Brown Dwarf", label: false }, ...FORK] },
     // the strong force: the brown dwarfs and Proxima, then the fusion diagram
     { at: "even more mass", cam: { r: 9.85, m: 32.6, span: 3 }, clear: true, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "fusion starts", delay: 0.6 }] },
-    // (held to the next shot, and the energy's push drawn as it's said: "creating an outwards pressure - show arrows
-    // representing these", the author, 2026-11-17; push: s into the clip, "a large amount of energy")
-    { at: "the strong force", hold: 40, hl: [{ squeeze: { mode: 2, from: 1.8, P: { startBox: 2.6 }, push: 21.4 } }] },
-    { at: "changes the delicate dance", cam: { r: 10.9, m: 33.1, span: 3.6 }, clear: true, hl: [] },
-    { at: "called the main sequence", hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
-    { at: "most of their lives", hl: [MS, { obj: "Sun", label: "billions of years" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
-    { at: "once it runs out", hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
-    { at: "goes haywire", cam: { r: 11.85, m: 33.4, span: 3.6 }, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 1.2, core: true }, { obj: "Red Giant", label: "the fire goes out", delay: 1 }] },
+    // fusion in diamonds (src/narr-diagrams.js, drawDiamonds; the author, 2026-11-17, 3:40): fours squeezed into diamonds,
+    // all merging at once on "capture them", then one helium pushing the rest away as the energy comes out
+    { at: "the strong force", hold: 999, hl: [{ diamonds: {}, out: 0.8 }] },
+    { at: "for some massive", hold: 999, hl: [{ diamonds: { phase: "squeeze" }, instant: true, out: 0.8 }] },
+    { at: "capture them", hold: 999, hl: [{ diamonds: { phase: "capture" }, instant: true, out: 0.8 }] },
+    { at: "large amount of energy", hold: 999, hl: [{ diamonds: { phase: "energy" }, instant: true, out: 0.8 }] },
+    { at: "counterbalances", hold: 999, hl: [{ diamonds: { phase: "balance" }, instant: true, out: 0.8 }] },
+    { at: "that's fusion", hold: 999, hl: [{ diamonds: { phase: "fusion" }, instant: true, out: 0.8 }] },
+    // the main sequence: one slow push in (the author, 2026-11-17, 4:11: "I don't like static cameras")
+    { at: "changes the delicate dance", cam: { r: 10.9, m: 33.1, span: 4.2, glide: true }, dur: 0.05, clear: true, hl: [] },
+    { at: "called the main sequence", cam: { r: 11.0, m: 33.15, span: 3.5, glide: true }, hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
+    { at: "most of their lives", cam: { r: 11.1, m: 33.2, span: 3.0, glide: true }, hl: [MS, { obj: "Sun", label: "billions of years" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
+    { at: "once it runs out", cam: { r: 11.3, m: 33.25, span: 2.8, glide: true }, hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
+    { at: "goes haywire", cam: { r: 11.85, m: 33.4, span: 3.6, glide: true }, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 1.2, core: true }, { obj: "Red Giant", label: "the fire goes out", delay: 1 }] },
     // how stars end: the small ones (the white dwarf and the nebula), the big ones (the supernova), then the weak force
     { at: "small stars", cam: { r: 12.6, m: 33.6, span: 9 }, dur: 3, clear: true, hl: [{ ...LOW, from: "Sun" }, { obj: "White Dwarf", label: "the core left", place: "left", delay: 0.8 }, { obj: "Planetary Nebula", label: "a nebula", delay: 1.6 }] },
     { at: "more massive stars", hl: [HIGH, { obj: "Crab Nebula", label: "supernova", delay: 0.8 }] },
@@ -148,11 +176,12 @@ export default {
 
     // ── The black-hole line (the Black Hole Slope's shots) ──
     { at: "a stranger thing", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, hl: [NS, { obj: "Stellar BH", label: "?", delay: 0.6 }] },
-    { at: "around bands", cam: { r: 2.2, m: 5.6, span: 9 }, dur: 2.4, clear: true, hl: [{ line: "water", label: "the density of water" }] },
-    { at: "column of super-Jupiter", cam: { r: 9.85, m: 30.9, span: 9, whip: true }, hl: [{ ...COLUMN, delay: 0.3 }] },
-    { at: "all living stars", cam: { r: 11.6, m: 33.7, span: 9, whip: true }, hl: [MS, ...CYCLE] },
-    { at: "where stars go to die", cam: { r: 12.6, m: 34, span: 15 }, dur: 4, hl: CYCLE },
-    { at: "cemetery of dead stars", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true,
+    { at: "so far our", cam: SO_FAR, dur: 2.6, ease: "gentle", icons: false, forceIcons: [], clear: true, hl: [] },
+    { at: "around bands", hl: [OV_WATER] },
+    { at: "column of super-Jupiter", hl: [OV_WATER, OV_COLUMN] },
+    { at: "all living stars", hl: [OV_WATER, OV_COLUMN, OV_STARS] },
+    { at: "where stars go to die", cam: { r: 12.6, m: 34, span: 15 }, dur: 4, hl: [OV_STARS, ...CYCLE] },
+    { at: "cemetery of dead stars", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, icons: true, forceIcons: null,
       hl: [WD, NS, SBH, { ellipse: [7.45, 33.75, 2.3, 1.15], rot: 0, label: "dead stars", place: "above", color: "#e0e0e0", delay: 1.4 }] },
     { at: "white dwarfs", hl: [{ obj: "White Dwarf", place: "left" }, NS, SBH] },
     { at: "neutron stars", hl: [WD, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }, SBH] },

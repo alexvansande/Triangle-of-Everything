@@ -777,8 +777,11 @@ export function createSqueeze({ pics = {} } = {}) {
         const A = list[i], B = list[j], dx = B.cx - A.cx, dy = B.cy - A.cy, d = Math.hypot(dx, dy) || 1, gap = d - A.rm - B.rm;
         if (gap > L * 2.6 || gap < -L) continue;
         if (Math.abs(A.cx + dx / 2) > S.W / 2 || Math.abs(A.cy + dy / 2) > S.H / 2) continue;
-        const ux = dx / d, uy = dy / d, a = clamp((L * 2.6 - gap) / L, 0, 1) * arrowLife;
+        const ux = dx / d, uy = dy / d, a0 = clamp((L * 2.6 - gap) / L, 0, 1) * arrowLife;
+        // each kind from its own moment (bondPushFrom / bondPullFrom, run seconds): as the narration names it
+        const kindIn = (from) => clamp((S.t - (from ?? -1e9)) / 0.6, 0, 1);
         // one size of head for every arrow (the lab's arrow scales its head with its length: long pulls were wedges)
+        let a = a0;
         const hd = L * 0.42, line = (x0, y0, x1, y1, col) => {
           const len = Math.hypot(x1 - x0, y1 - y0); if (len < hd * 1.2) return;
           const vx = (x1 - x0) / len, vy = (y1 - y0) / len, hw = hd * 0.45;
@@ -786,15 +789,19 @@ export function createSqueeze({ pics = {} } = {}) {
           ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - vx * hd * 0.8, y1 - vy * hd * 0.8); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - vx * hd - vy * hw, y1 - vy * hd + vx * hw); ctx.lineTo(x1 - vx * hd + vy * hw, y1 - vy * hd - vx * hw); ctx.closePath(); ctx.fill();
         };
+        // (bondShare: the share of pairs that show one, 1 for a few atoms, less in a crowd: a thicket otherwise)
+        if (P.bondShare != null && ((A.id * 31 + B.id * 17) % 100) >= P.bondShare * 100) continue;
+        const isPush = ((A.id * 7 + B.id * 13) % 5) < 2;
+        a = a0 * kindIn(isPush ? P.bondPushFrom : P.bondPullFrom);
         if (a <= 0.01) continue;
-        if (((A.id * 7 + B.id * 13) % 5) < 2) {   // the push: from the middle of the gap out across each ring
+        if (isPush) {   // the push: from the middle of the gap out across each ring
           const mx = A.cx + ux * (A.rm + gap / 2), my = A.cy + uy * (A.rm + gap / 2), half = Math.max(L * 0.9, gap / 2 + L * 0.35);
           line(mx + ux * L * 0.1, my + uy * L * 0.1, mx + ux * half, my + uy * half, "150,205,255");
           line(mx - ux * L * 0.1, my - uy * L * 0.1, mx - ux * half, my - uy * half, "150,205,255");
         } else {                                   // the pull: each ring towards the other's nucleus, side by side
           const nx = -uy * L * 0.24, ny = ux * L * 0.24, inA = A.nuclei[0]?.r ?? A.rm * 0.2, inB = B.nuclei[0]?.r ?? B.rm * 0.2;
-          line(A.cx + ux * A.rm + nx, A.cy + uy * A.rm + ny, B.cx - ux * (inB + L * 0.3) + nx, B.cy - uy * (inB + L * 0.3) + ny, "190,150,255");
-          line(B.cx - ux * B.rm - nx, B.cy - uy * B.rm - ny, A.cx + ux * (inA + L * 0.3) - nx, A.cy + uy * (inA + L * 0.3) - ny, "190,150,255");
+          line(A.cx + ux * A.rm + nx, A.cy + uy * A.rm + ny, B.cx - ux * (inB + L * 0.3) + nx, B.cy - uy * (inB + L * 0.3) + ny, P.bondPull || "190,150,255");
+          line(B.cx - ux * B.rm - nx, B.cy - uy * B.rm - ny, A.cx + ux * (inA + L * 0.3) - nx, A.cy + uy * (inA + L * 0.3) - ny, P.bondPull || "190,150,255");
         }
       }
     }

@@ -24,7 +24,7 @@
 import { blackHoleFilter } from "./black-hole-palette.js";
 import * as d3 from "d3";
 import { iconUrls } from "./assets.js";
-import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, drawSqueeze, drawEdge, drawObservable, edgePending, diagramsPending } from "./narr-diagrams.js";
+import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, drawSqueeze, drawDiamonds, drawEdge, drawObservable, edgePending, diagramsPending } from "./narr-diagrams.js";
 import { drawCatalogue, cataloguePending } from "./narr-catalogue.js";
 import {
   EVENT_HORIZON_LOG_R, HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
@@ -2272,11 +2272,11 @@ export async function startNarration(app) {
   // the phases of the crush and fusion diagrams: the time of each cue carrying { crush: { phase } } / { fuse: { phase } }
   // (the first one, without a phase, is "start"), so the drawing runs on the take's clock whatever cue is live
   const phaseTimes = (key) => Object.fromEntries(cues.filter(c => c.hl?.some(q => q[key])).map(c => [c.hl.find(q => q[key])[key].phase || "start", c.time]));
-  const CATALOGUE_T = phaseTimes("catalogue"), CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut"), EDGE_T = phaseTimes("edge"), OBS_T = phaseTimes("obs");
+  const CATALOGUE_T = phaseTimes("catalogue"), CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut"), EDGE_T = phaseTimes("edge"), OBS_T = phaseTimes("obs"), DIAMONDS_T = phaseTimes("diamonds");
   const DIAGRAM_KINDS = { own: cues.some(c => c.hl?.some(q => q.own)), center: cues.some(c => c.hl?.some(q => q.center)), cosmos: cues.some(c => c.hl?.some(q => q.cosmos)),
-    particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak || q.deut || q.squeeze)), edge: cues.some(c => c.hl?.some(q => q.edge || q.obs)), catalogue: cues.some(c => c.hl?.some(q => q.catalogue)) };
+    particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds)), edge: cues.some(c => c.hl?.some(q => q.edge || q.obs)), catalogue: cues.some(c => c.hl?.some(q => q.catalogue)) };
   function drawDiagram(live, t) {
-    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.edge || q.obs || q.catalogue).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
+    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.edge || q.obs || q.catalogue).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
     if (!h) { cv.hidden = true; return; }
     cv.hidden = false;
     const dpr = Math.min(2, devicePixelRatio || 1), W = Math.round(layer.clientWidth * dpr), H = Math.round(layer.clientHeight * dpr);
@@ -2295,6 +2295,7 @@ export async function startNarration(app) {
     else if (h.obs) drawObservable(ctx, W, H, { ...h.obs, ...OBS_T }, t);
     else if (h.edge) drawEdge(ctx, W, H, { ...h.edge, ...EDGE_T }, t);
     else if (h.squeeze) drawSqueeze(ctx, W, H, { ...h.squeeze, start: h.t0, exact: RENDER }, t, dpr);
+    else if (h.diamonds) drawDiamonds(ctx, W, H, { ...DIAMONDS_T }, t);
     else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t, (slug, r, m) => {
       // where the chart puts it now, so the pictures land on the chart's own (a catalogue dot: its numbers)
       const ob = objBySlug.get(slug); return { X: sx(ob ? ob.logR : r) * dpr, Y: sy(ob ? ob.logM : m) * dpr };
@@ -2612,10 +2613,12 @@ export async function startNarration(app) {
     const ex = sxp + (x2r - x1 - (pad + pe) * ux) * prog, ey = syp + (y2r - y1 - (pad + pe) * uy) * prog;
     const col = h.color || "#ffffff";
     // solid / width: a bold arrow (a movement to read at a glance), else a dashed path
-    el.append("line").attr("x1", sxp).attr("y1", syp).attr("x2", ex).attr("y2", ey)
+    // (the shaft stops inside the head: drawn to the tip, its round end showed over the head's point, the author,
+    // 2026-11-17, 1:57: "the end of the line is seen drawn over the tip of the arrow")
+    const ah = 9 + 2.5 * ((h.width ?? 2) - 2), ang = Math.atan2(uy, ux), back = Math.min(ah * 0.7, Math.hypot(ex - sxp, ey - syp));
+    el.append("line").attr("x1", sxp).attr("y1", syp).attr("x2", ex - ux * back).attr("y2", ey - uy * back)
       .attr("stroke", col).attr("stroke-width", h.width ?? 2).attr("stroke-dasharray", h.solid ? null : "6 5")
       .attr("stroke-dashoffset", -age * 18);
-    const ah = 9 + 2.5 * ((h.width ?? 2) - 2), ang = Math.atan2(uy, ux);
     el.append("path").attr("d", `M${ex},${ey} L${ex - ah * Math.cos(ang - 0.45)},${ey - ah * Math.sin(ang - 0.45)} L${ex - ah * Math.cos(ang + 0.45)},${ey - ah * Math.sin(ang + 0.45)} Z`)
       .attr("fill", col);
     // both: a head at the start too (an axis: it runs both ways)
@@ -2986,12 +2989,13 @@ export async function startNarration(app) {
   // the background painting's opacity: a cue's `bg: 0..1` or `bg: { to, dur }` eases it there over dur s (default 1.5),
   // from where it is; a scene's `bgStart` is where it begins (long-02b-opening: the catalogue hands over to the bare chart,
   // the painting coming back as the camera reaches everyday sizes, the author, 2026-11-17)
-  const BG_KEYS = cues.filter(c => c.bg != null).map(c => ({ t: c.time, to: typeof c.bg === "number" ? c.bg : c.bg.to, dur: (typeof c.bg === "object" && c.bg.dur) || 1.5 }));
-  const bgAt = (t) => {
-    let v = SCENE.bgStart ?? 1;
-    for (const k of BG_KEYS) { if (k.t > t) break; v = v + (k.to - v) * smooth(clamp01((t - k.t) / k.dur)); }
-    return v;
-  };
+  // (`edges` the same for the chart's edges, regions and names, scene `edgesStart`: app.setChartExtrasOpacity; both
+  // may wait `after` s past their cue)
+  const fadeKeys = (f) => cues.filter(c => c[f] != null).map(c => { const v = c[f], o = typeof v === "object";
+    return { t: c.time + ((o && v.after) || 0), to: o ? v.to : v, dur: (o && v.dur) || 1.5 }; }).sort((a, b) => a.t - b.t);
+  const fadeAt = (K, v0) => (t) => { let v = v0; for (const k of K) { if (k.t > t) break; v = v + (k.to - v) * smooth(clamp01((t - k.t) / k.dur)); } return v; };
+  const BG_KEYS = fadeKeys("bg"), bgAt = fadeAt(BG_KEYS, SCENE.bgStart ?? 1);
+  const EDGE_KEYS = fadeKeys("edges"), edgesAt = fadeAt(EDGE_KEYS, SCENE.edgesStart ?? 1);
   let zoomEl = null, zoomLastT = NaN;
   // (in a cut, the zoom's piece's own clock: ZT(t) is the time in its take, cutCues' zoomShift)
   const ZOOM_SHIFT = cues.zoomShift ?? 0, ZT = (t) => +(t - ZOOM_SHIFT).toFixed(4);
@@ -3033,6 +3037,7 @@ export async function startNarration(app) {
     lastKey = key; lastPhase = view.phase;
     app.bgNoiseTime(t);    // the fractal background, drawn for this t (its clouds evolve by t)
     if (BG_KEYS.length || SCENE.bgStart != null) app.setBgOpacity?.(bgAt(t));
+    if (EDGE_KEYS.length || SCENE.edgesStart != null) app.setChartExtrasOpacity?.(edgesAt(t));
     overlay();
   }
   function overlay() {
