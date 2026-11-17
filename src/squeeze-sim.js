@@ -22,7 +22,7 @@ export const BASE = {
   threshold: 0.3, spread: 0.2, centreFirst: 0, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, electronSize: 0.03, electronBounce: true, bareSpacing: 1,
   fuseAt: 0.6, fourAtOnce: false, neutrons: 2, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
   contract: false, shatter: 1, greySize: 1, greyUniform: true, greyAttract: 0, captureElectrons: false,
-  onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowsStrong: false, arrowSize: 0.45, arrowTime: 5, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
+  onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowsStrong: false, arrowsBonds: false, arrowSize: 0.45, arrowTime: 5, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
 export const MODE_DEFAULTS = {
   1: { nucleus: 0.10, count: 150, sizeSpread: 0.12, shrinkTime: 23, repel: 5.05, falloff: 4, range: 0.6, stiffness: 2.95, pressure: 0.5, damping: 0.8,
@@ -767,6 +767,37 @@ export function createSqueeze({ pics = {} } = {}) {
       ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * h - uy * hw, y1 - uy * h + ux * hw); ctx.lineTo(x1 - ux * h + uy * hw, y1 - uy * h - ux * hw); ctx.closePath(); ctx.fill();
     };
     const arrowLife = clamp(1 - (S.t - S.arrowT0 - P.arrowTime), 0, 1);   // gone a second after their time, counted from arrowT0
+    // the bonds (long-02b-opening, the author, 2026-11-17): between neighbouring atoms, arrows on the (unseen) line
+    // between their centres. A blue pair in the gap, pointing apart, their heads at the two electron rings (the electrons
+    // repel); or a purple pair from each ring towards the other atom's nucleus, side by side (electrons and protons
+    // attract). Which a pair shows is fixed per pair, so it doesn't flicker as they move; each fades as its room goes.
+    if (P.arrowsBonds && arrowLife > 0) {
+      const L = P.radius * P.arrowSize, aw = Math.max(lw * 0.9, L * 0.06), list = S.blobs.filter(b => b.nodes.length);
+      for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
+        const A = list[i], B = list[j], dx = B.cx - A.cx, dy = B.cy - A.cy, d = Math.hypot(dx, dy) || 1, gap = d - A.rm - B.rm;
+        if (gap > L * 2.6 || gap < -L) continue;
+        if (Math.abs(A.cx + dx / 2) > S.W / 2 || Math.abs(A.cy + dy / 2) > S.H / 2) continue;
+        const ux = dx / d, uy = dy / d, a = clamp((L * 2.6 - gap) / L, 0, 1) * arrowLife;
+        // one size of head for every arrow (the lab's arrow scales its head with its length: long pulls were wedges)
+        const hd = L * 0.42, line = (x0, y0, x1, y1, col) => {
+          const len = Math.hypot(x1 - x0, y1 - y0); if (len < hd * 1.2) return;
+          const vx = (x1 - x0) / len, vy = (y1 - y0) / len, hw = hd * 0.45;
+          ctx.strokeStyle = ctx.fillStyle = `rgba(${col},${a})`; ctx.lineWidth = aw * 2.2; ctx.lineCap = "round";
+          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - vx * hd * 0.8, y1 - vy * hd * 0.8); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - vx * hd - vy * hw, y1 - vy * hd + vx * hw); ctx.lineTo(x1 - vx * hd + vy * hw, y1 - vy * hd - vx * hw); ctx.closePath(); ctx.fill();
+        };
+        if (a <= 0.01) continue;
+        if (((A.id * 7 + B.id * 13) % 5) < 2) {   // the push: from the middle of the gap out across each ring
+          const mx = A.cx + ux * (A.rm + gap / 2), my = A.cy + uy * (A.rm + gap / 2), half = Math.max(L * 0.9, gap / 2 + L * 0.35);
+          line(mx + ux * L * 0.1, my + uy * L * 0.1, mx + ux * half, my + uy * half, "150,205,255");
+          line(mx - ux * L * 0.1, my - uy * L * 0.1, mx - ux * half, my - uy * half, "150,205,255");
+        } else {                                   // the pull: each ring towards the other's nucleus, side by side
+          const nx = -uy * L * 0.24, ny = ux * L * 0.24, inA = A.nuclei[0]?.r ?? A.rm * 0.2, inB = B.nuclei[0]?.r ?? B.rm * 0.2;
+          line(A.cx + ux * A.rm + nx, A.cy + uy * A.rm + ny, B.cx - ux * (inB + L * 0.3) + nx, B.cy - uy * (inB + L * 0.3) + ny, "190,150,255");
+          line(B.cx - ux * B.rm - nx, B.cy - uy * B.rm - ny, A.cx + ux * (inA + L * 0.3) - nx, A.cy + uy * (inA + L * 0.3) - ny, "190,150,255");
+        }
+      }
+    }
     if ((P.arrowsOut || P.arrowsIn) && arrowLife > 0) {
       const L = P.radius * P.arrowSize, hb = S.box / 2, aw = Math.max(lw * 0.9, L * 0.06);
       if (P.arrowsOut) for (const b of S.blobs) {

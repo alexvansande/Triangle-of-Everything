@@ -1,15 +1,48 @@
 {
   "title": "The dance of the forces",
-  "blurb": "Why most things on a chart of mass and size fall on one diagonal: electromagnetism against gravity, then the strong force and fusion, then the weak force, from a stick to a neutron star.",
-  "lead": 2.5,
+  "blurb": "Why most things on a chart of mass and size fall on one diagonal: electromagnetism against gravity, then the strong force and fusion, then the weak force, from a stick to a neutron star, and the strangest of all, black holes.",
+  "lead": 1.2,
   "segments": [
-    { "take": "long-02b-opening", "from": "you'll notice that most things", "to": "What is it?" },
-    { "take": "long-02b-opening", "from": "What is happening is that", "to": "tug of war, also." },
-    { "take": "long-02b-opening", "from": "Make something too big", "to": "somewhere along the hair." },
-    { "take": "long-02b-opening", "from": "Notice how giant planets", "to": "they just get denser." },
-    { "take": "long-02b-opening", "from": "That is, until this bifurcation", "to": "most of their lives." },
-    { "take": "long-02b-opening", "from": "But that equilibrium", "to": "goes haywire." },
-    { "take": "long-02b-opening", "from": "More massive stars", "to": "purely by the force of gravity." }
+    {
+      "take": "long-02b-opening",
+      "from": "everything in our universe",
+      "to": "tug of war, also."
+    },
+    {
+      "take": "long-02b-opening",
+      "from": "Make something too big",
+      "to": "somewhere along here."
+    },
+    {
+      "take": "long-02b-opening",
+      "from": "Notice how giant planets",
+      "to": "they just get denser."
+    },
+    {
+      "take": "long-02b-opening",
+      "from": "That is, until this bifurcation",
+      "to": "most of their lives."
+    },
+    {
+      "take": "long-02b-opening",
+      "from": "But that equilibrium",
+      "to": "goes haywire."
+    },
+    {
+      "take": "long-02b-opening",
+      "from": "More massive stars",
+      "to": "purely by the force of gravity."
+    },
+    {
+      "take": "long-02b-opening",
+      "from": "And if you add even more mass, a stranger",
+      "to": "a stranger thing will happen."
+    },
+    {
+      "take": "long-02b-opening",
+      "from": "This is the region where stars go to die",
+      "to": "strangest of all, black holes."
+    }
   ],
-  "_note": "The forces Short from the new take (rec74, 2026-11-17), the author: 'take out just the dance of the forces part and make a short video'. The section runs 4:00 in the long video, so the Short leaves out what a Short can lose to fit under 3:00: the chemical bonds and their animation, gravity's reach and the round worlds, 'Get massive enough…', the small stars' end. The old Short (short-l2-dance-of-the-forces, rec58) stays beside it to compare."
+  "_note": "The forces Short from the new take (rec74, 2026-11-17), the author: 'take out just the dance of the forces part and make a short video'. From 'everything in our universe is a delicate dance between four fundamental forces' to 'and the strangest of all, black holes' (the author, 2026-11-17), leaving out what a Short can lose to fit under 3:00: the chemical bonds and their animation, gravity's reach and the round worlds, 'Get massive enough…', the small stars' end, and the recap before the cemetery of dead stars ('So far our objects…'). The old Short (short-l2-dance-of-the-forces, rec58) stays beside it to compare."
 }

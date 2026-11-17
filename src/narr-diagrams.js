@@ -701,7 +701,25 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
   sim.draw(ctx, W, H, pixelRatio);
   // optional titles over the run ({ labels: [[text, colour], …] }), one after another from the top, each fading in a
   // second after the one before (long-02b-opening's bonds: "electrons repel electrons", "electrons and protons attract")
-  if (o.labels) ctx.setTransform(1, 0, 0, 1, 0, 0);   // the run draws under its own transform
+  if (o.labels || o.push != null) ctx.setTransform(1, 0, 0, 1, 0, 0);   // the run draws under its own transform
+  // the energy fusion releases pushing out ({ push: s into the clip }, long-02b-opening, the author, 2026-11-17: "a large
+  // amount of energy will be released creating an outwards pressure - show arrows representing these"): a ring of red
+  // arrows (red: pressure, as in the diagrams) out from the middle, each setting off a little after the one before and
+  // running out again and again, as a push that keeps going
+  if (o.push != null) {
+    const since = t - o.start - o.push, a0 = smooth(since / 0.8), S = Math.min(W, H), cx = W / 2, cy = H / 2;
+    // (one wave at a time, all together, every 1.6 s: a ring that keeps pushing out)
+    if (a0 > 0) for (let w = 0; w < 2; w++) for (let i = 0; i < 8; i++) {
+      const ang = i / 8 * Math.PI * 2 + Math.PI / 8, ph = ((since / 1.6 + w / 2) % 1 + 1) % 1;
+      const r0 = S * (0.1 + 0.22 * ph), len = S * 0.13, a = a0 * smooth(ph / 0.2) * (1 - smooth((ph - 0.6) / 0.4));
+      if (a <= 0.01) continue;
+      const ux = Math.cos(ang), uy = Math.sin(ang), x0 = cx + ux * r0, y0 = cy + uy * r0, x1 = x0 + ux * len, y1 = y0 + uy * len, h = len * 0.6, hw = h * 0.5;
+      ctx.globalAlpha = a; ctx.strokeStyle = ctx.fillStyle = "#ff6e50"; ctx.lineWidth = S * 0.009; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - ux * h * 0.8, y1 - uy * h * 0.8); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * h - uy * hw, y1 - uy * h + ux * hw); ctx.lineTo(x1 - ux * h + uy * hw, y1 - uy * h - ux * hw); ctx.closePath(); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
   (o.labels || []).forEach(([s, col], i) => {
     const f = smooth((t - o.start - 0.8 - i * 1.6) / 0.7); if (f <= 0) return;
     ctx.globalAlpha = f; text(ctx, s, W / 2, H * (0.1 + i * 0.065), Math.min(W, H) * 0.045, col); ctx.globalAlpha = 1;

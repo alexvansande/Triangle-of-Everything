@@ -102,48 +102,69 @@ const arrowHead = (ctx, x0, y0, x1, y1, color, w) => {
   ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - h * Math.cos(a - 0.45), y1 - h * Math.sin(a - 0.45)); ctx.lineTo(x1 - h * Math.cos(a + 0.45), y1 - h * Math.sin(a + 0.45)); ctx.fill();
 };
 
-// ---------- the cloud: each object's place in 3D (a seeded scatter, the kinds loosely together) ----------
-let _cloud = null;
-const cloud = () => _cloud || (_cloud = (() => {
-  const r = rng(17), out = OBJ.map((o, i) => {
-    // a loose shell round the camera's path, the kinds in neighbourhoods (so a kind's lines stay short)
-    const k = CAT_ORDER.indexOf(o.cat), a = (k / CAT_ORDER.length) * 6.283 + (r() - 0.5) * 0.9, rad = 1.2 + r() * 2.6;
-    return { ...o, i, key: o.slug, x: Math.cos(a) * rad, y: (r() - 0.5) * 2.6, z: Math.sin(a) * rad, s: 0.8 + r() * 0.5 };
-  });
-  // the cloud is fuller than the catalogue (the author: "a lot of icons floating"): two more of each, further out,
-  // which fade away when the sorting starts
-  for (let n = 1; n <= 2; n++) OBJ.forEach((o, i) => {
-    if (o.light) return;
-    const a = r() * 6.283, rad = 2.2 + r() * 3.2;
-    out.push({ ...o, i: i + n * 100, key: `${o.slug}#${n}`, extra: true, x: Math.cos(a) * rad, y: (r() - 0.5) * 3.4, z: Math.sin(a) * rad, s: 0.6 + r() * 0.5 });
-  });
-  return out;
-})());
-
-// the camera on the cloud: a slow orbit, or darting to the object a phase names (it stops in front of it)
-function camAt(o, t) {
-  const orbit = (tt) => { const a = tt * 0.05; return { x: Math.sin(a) * 2.4, y: Math.sin(tt * 0.07) * 0.4, z: -Math.cos(a) * 2.4, tx: Math.sin(a + 1.9) * 2.2, ty: 0, tz: -Math.cos(a + 1.9) * 2.2 }; };
-  const foci = o.foci || [];
-  let cam = orbit(t);
-  for (const [tf, slug, tEnd] of foci) {
-    if (t < tf) break;
-    const p = cloud().find(q => q.key === slug); if (!p) continue;
-    const base = orbit(tf), dx = base.x - p.x, dz = base.z - p.z, d = Math.hypot(dx, dz) || 1;
-    const near = { x: p.x + dx / d * 1.0, y: p.y + 0.05, z: p.z + dz / d * 1.0, tx: p.x, ty: p.y, tz: p.z };
-    const fin = smooth((t - tf) / 0.7), fout = tEnd != null ? smooth((t - tEnd) / 1.6) : 0;
-    const back = orbit(t);
-    const mix = fin * (1 - fout);
-    cam = { x: lerp(back.x, near.x, mix), y: lerp(back.y, near.y, mix), z: lerp(back.z, near.z, mix), tx: lerp(back.tx, near.tx, mix), ty: lerp(back.ty, near.ty, mix), tz: lerp(back.tz, near.tz, mix) };
+// ---------- the flight: one planned glide through the cloud (the author, 2026-11-17: "plan which objects I will be
+// talking about so I can drift along them and they will be visible and in focus by the time I mention them") ----------
+// The camera flies on a gently curving path, slow, faster through the list of things named, slow again. Each thing named
+// is placed on the path ahead of the camera, so it's FOCUS in front of it, a little to one side, as its word is said;
+// the next ones are already there behind it. The rest of the cloud is scattered round the path, clear of the middle.
+const FOCUS = 1.35, PATH_DT = 0.02, PATH_T = 95;
+const heading = (t) => ({ yaw: 0.32 * Math.sin(t * 0.085) + 0.12 * Math.sin(t * 0.21 + 1), pitch: 0.07 * Math.sin(t * 0.13) });
+let _flight = null;
+function flight(o) {
+  const named = CATALOGUE_SLUGS.filter(k => isFinite(o[k])).map(k => [o[k], k]).sort((a, b) => a[0] - b[0]);
+  const key = named.map(n => n.join(":")).join(",") + `|${o.light}|${o.float}`;
+  if (_flight?.key === key) return _flight;
+  const t0 = named.length ? named[0][0] : 5, t1 = named.length ? named.at(-1)[0] : 10;
+  // the speed: 0.3 a second drifting, 0.75 through the list (eased in over a second before it, out over two after)
+  const speed = (t) => 0.3 + 0.45 * smooth((t - (t0 - 1.2)) / 1) * (1 - smooth((t - (t1 + 0.6)) / 2));
+  const n = Math.ceil(PATH_T / PATH_DT), P = new Float64Array(n * 3 + 3);
+  for (let i = 1; i <= n; i++) {
+    const t = (i - 0.5) * PATH_DT, h = heading(t), v = speed(t) * PATH_DT;
+    P[i * 3] = P[i * 3 - 3] + Math.sin(h.yaw) * Math.cos(h.pitch) * v;
+    P[i * 3 + 1] = P[i * 3 - 2] + Math.sin(h.pitch) * v;
+    P[i * 3 + 2] = P[i * 3 - 1] + Math.cos(h.yaw) * Math.cos(h.pitch) * v;
   }
-  return cam;
+  const at = (t) => { const f = Math.max(0, Math.min(n - 1e-6, t / PATH_DT)), i = Math.floor(f), u = f - i;
+    return [0, 1, 2].map(k => lerp(P[i * 3 + k], P[i * 3 + 3 + k], u)); };
+  const frame = (t) => {   // where the camera is and which way it looks (forward, right, up)
+    const p = at(t), h = heading(t);
+    const f = [Math.sin(h.yaw) * Math.cos(h.pitch), Math.sin(h.pitch), Math.cos(h.yaw) * Math.cos(h.pitch)];
+    const r = [Math.cos(h.yaw), 0, -Math.sin(h.yaw)], u = [f[1] * r[2] - f[2] * r[1], f[2] * r[0] - f[0] * r[2], f[0] * r[1] - f[1] * r[0]];
+    return { p, f, r, u };
+  };
+  const place = (t, ahead, side, up) => { const F = frame(t); return [0, 1, 2].map(k => F.p[k] + F.f[k] * ahead + F.r[k] * side + F.u[k] * up); };
+  const r = rng(17), out = [];
+  const namedAt = new Map(named.map(([t, k], j) => [k, [t, j]]));
+  // the light (the rainbow, radio waves) comes in as it's named, so it's put just ahead of the camera then
+  const lights = OBJ.filter(q => q.light), tl = isFinite(o.light) ? o.light : 37;
+  OBJ.forEach((q, i) => {
+    let pos;
+    if (namedAt.has(q.slug)) { const [t, j] = namedAt.get(q.slug); pos = place(t, FOCUS, (j % 2 ? -1 : 1) * 0.3, (j % 3 - 1) * 0.12); }
+    else if (q.light) { const j = lights.indexOf(q); pos = place(tl + 0.8 + j * 0.9, FOCUS + 0.2, (j % 2 ? -1 : 1) * 0.42, (j % 2 ? 0.15 : -0.12)); }
+    else { const a = r() * 6.283, rad = 0.5 + r() * 1.5; pos = place(1.5 + r() * 40, FOCUS + r() * 2.2, Math.cos(a) * rad, Math.sin(a) * rad * 0.6); }
+    out.push({ ...q, i, key: q.slug, x: pos[0], y: pos[1], z: pos[2], s: namedAt.has(q.slug) ? 1 : 0.8 + r() * 0.5 });
+  });
+  // the cloud is fuller than the catalogue (the author: "a lot of icons floating"): two more of each, round the path,
+  // which fade away when the sorting starts
+  for (let m = 1; m <= 2; m++) OBJ.forEach((q, i) => {
+    if (q.light) return;
+    const a = r() * 6.283, rad = 0.55 + r() * 2.0, pos = place(r() * 46, FOCUS + 0.5 + r() * 3, Math.cos(a) * rad, Math.sin(a) * rad * 0.65);
+    out.push({ ...q, i: i + m * 100, key: `${q.slug}#${m}`, extra: true, x: pos[0], y: pos[1], z: pos[2], s: 0.6 + r() * 0.5 });
+  });
+  return (_flight = { key, frame, pts: out });
+}
+// the camera at t: on the path, looking along it
+function camAt(fl, t) {
+  const F = fl.frame(Math.max(0, t));
+  return { x: F.p[0], y: F.p[1], z: F.p[2], tx: F.p[0] + F.f[0], ty: F.p[1] + F.f[1], tz: F.p[2] + F.f[2] };
 }
 function project(cam, p, W, H) {
   // the camera looks from (x, y, z) to (tx, ty, tz), y up
   let fx = cam.tx - cam.x, fy = cam.ty - cam.y, fz = cam.tz - cam.z; const fl = Math.hypot(fx, fy, fz) || 1; fx /= fl; fy /= fl; fz /= fl;
-  let rx = -fz, rz = fx; const rl = Math.hypot(rx, rz) || 1; rx /= rl; rz /= rl;   // right = forward × world up
-  const ux = -rz * fy, uy = rz * fx - rx * fz, uz = rx * fy;                       // up = right × forward
+  let rx = fz, rz = -fx; const rl = Math.hypot(rx, rz) || 1; rx /= rl; rz /= rl;   // right, level (the path's own)
+  const ux = rz * fy, uy = fz * rx - fx * rz, uz = -rx * fy;                      // up = forward × right
   const dx = p.x - cam.x, dy = p.y - cam.y, dz = p.z - cam.z;
-  const zc = dx * fx + dy * fy + dz * fz, xc = -(dx * rx + dz * rz), yc = dx * ux + dy * uy + dz * uz;
+  const zc = dx * fx + dy * fy + dz * fz, xc = dx * rx + dz * rz, yc = dx * ux + dy * uy + dz * uz;
   const F = Math.min(W, H) * 1.05;
   return { X: W / 2 + (xc / zc) * F, Y: H * 0.46 - (yc / zc) * F, z: zc };
 }
@@ -190,16 +211,15 @@ const LABEL = (o) => {
   return lines;
 };
 
-/** o: the phase times ({ start, labels, float, …, and the slugs the camera darts to }); t: the take's clock */
-export function drawCatalogue(ctx, W, H, o, t) {
-  const S = Math.min(W, H), all = cloud(), pts = all.filter(p => !p.extra);
+/** o: the phase times ({ start, labels, float, …, and the slugs named }); t: the take's clock; chartAt(slug, logR, logM):
+ *  where the chart puts a thing on screen now (device px), so the pictures land where the chart's own will be */
+// the sorts' moves: fast, with a little elastic snap on landing (the author, 2026-11-17: "make them move fast towards their
+// placements, with a little bit of elastic snap ... keep everything flowing")
+const SNAP = 0.75, backOut = (u) => { u = clamp01(u); const c1 = 1.45, c3 = c1 + 1; return 1 + c3 * (u - 1) ** 3 + c1 * (u - 1) ** 2; };
+export function drawCatalogue(ctx, W, H, o, t, chartAt) {
+  const S = Math.min(W, H), fl = flight(o), all = fl.pts, pts = all.filter(p => !p.extra);
   const at = (k) => o[k] ?? Infinity, on = (k, d = 1.2) => smooth((t - at(k)) / d);
-  // the camera's darts: every phase named after an object, each until the next phase
-  const order = Object.entries(o).filter(([k, v]) => typeof v === "number" && isFinite(v)).sort((a, b) => a[1] - b[1]);
-  const foci = order.filter(([k]) => CATALOGUE_SLUGS.includes(k)).map(([k, v]) => {
-    const next = order.find(([, v2]) => v2 > v); return [v, k, next ? next[1] : null];
-  });
-  const cam = camAt({ foci }, t);
+  const cam = camAt(fl, t);
   // the sorted layouts, in order; each object eases from the one before (staggered a little, so they flow)
   const SORTS = ["float", "round", "alive", "heavy", "big", "chart"].filter(k => isFinite(at(k)));
   const layout = (k) => {
@@ -208,27 +228,29 @@ export function drawCatalogue(ctx, W, H, o, t) {
     if (k === "alive") return groups(W, H, pts.filter(p => !p.light), p => p.alive === 1 ? "a" : p.alive === 0.5 ? "b" : "n", [["a"], ["b"], ["n"]]);
     if (k === "heavy") return bars(W, H, pts.filter(p => !p.light), p => p.logM, -28, 46, 12).pos;
     if (k === "big") return bars(W, H, pts.filter(p => !p.light), p => p.logR, -14, 24, 12).pos;
-    if (k === "chart") return new Map(pts.map(p => { const c = chartXY(W, H, p); return [p.slug, { ...c, d: S * 0.06 }]; }));
+    if (k === "chart") return new Map(pts.map(p => { const c = chartAt?.(p.slug, p.logR, p.logM) || chartXY(W, H, p); return [p.slug, { X: c.X, Y: c.Y, d: S * (p.light ? 0.045 : 0.062) }]; }));
   };
   const lay = new Map(SORTS.map(k => [k, layout(k)]));
   const lightIn = on("light", 1.4);
   // the 3D projection, as it is now
   const proj = all.map(p => {
     const q = project(cam, p, W, H);
-    return { p, ...q, d: q.z > 0.15 ? Math.min(S * 0.9, S * 0.3 * p.s / q.z) : 0 };
+    return { p, ...q, d: q.z > 0.12 ? Math.min(S * 0.9, S * 0.3 * p.s / q.z) : 0 };
   });
   // which layout is current, and how far into it
-  let cur = null, prev = null, f = 0;
+  let cur = null, prev = null;
   for (const k of SORTS) if (t >= at(k)) { prev = cur; cur = k; }
   const items = proj.map(q => {
     const p = q.p; let X = q.X, Y = q.Y, d = q.d, a = 1, z = q.z;
     if (p.light) a *= lightIn;
+    // in the cloud: the ones the camera has passed fade as they slip by, so nothing fills the screen
+    if (!cur) a *= smooth((q.z - 0.3) / 0.35);
     if (cur) {
-      const stagger = (p.i % 9) * 0.06, g = smooth((t - at(cur) - stagger) / 1.5);
+      const stagger = (p.i % 9) * 0.035, u = (t - at(cur) - stagger) / SNAP, g = backOut(u), gl = smooth(u);
       const A = prev ? lay.get(prev).get(p.key) : { X: q.X, Y: q.Y, d: q.d }, B = lay.get(cur).get(p.key);
       const from = A || { X: q.X, Y: q.Y, d: 0 };
-      if (B) { X = lerp(from.X, B.X, g); Y = lerp(from.Y, B.Y, g); d = lerp(from.d, B.d, g); if (!A) a *= g; z = lerp(q.z, 3, g); }
-      else { X = from.X; Y = from.Y; d = from.d; a *= 1 - g; z = 3; }
+      if (B) { X = lerp(from.X, B.X, g); Y = lerp(from.Y, B.Y, g); d = Math.max(0, lerp(from.d, B.d, g)); if (!A) a *= gl; z = prev ? 3 : lerp(q.z, 3, gl); if (!prev) a *= lerp(smooth((q.z - 0.3) / 0.35), 1, gl); }
+      else { X = from.X; Y = from.Y; d = from.d; a *= 1 - gl; z = 3; }
       if (cur === "chart" && p.light) a = lightIn;   // light comes back: placed by its wavelength
     }
     return { p, X, Y, d, a, z };
@@ -238,64 +260,69 @@ export function drawCatalogue(ctx, W, H, o, t) {
   const linkA = on("links", 1.5) * (sorted ? 1 - smooth((t - at(SORTS[0])) / 1) : 1);
   if (linkA > 0.01) {
     ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.lineWidth = Math.max(1, S * 0.0022);
-    for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
-      const A = items[i], B = items[j]; if (A.p.cat !== B.p.cat || A.z <= 0.1 || B.z <= 0.1) continue;
-      const d3 = Math.hypot(A.p.x - B.p.x, A.p.y - B.p.y, A.p.z - B.p.z); if (d3 > 2.3) continue;
-      const fade = Math.min(1, 3 / Math.max(A.z, B.z)) * linkA * A.a * B.a * 0.55;
+    // (each to its two nearest of a kind, close by and not far ahead: a web of long lines across the screen otherwise)
+    const near = new Set();
+    for (let i = 0; i < items.length; i++) {
+      const A = items[i]; if (A.z <= 0.3 || A.z > 5) continue;
+      const ns = [];
+      for (let j = 0; j < items.length; j++) {
+        const B = items[j]; if (j === i || A.p.cat !== B.p.cat || B.z <= 0.3 || B.z > 5) continue;
+        const d3 = Math.hypot(A.p.x - B.p.x, A.p.y - B.p.y, A.p.z - B.p.z); if (d3 < 1.7) ns.push([d3, j]);
+      }
+      ns.sort((x, y) => x[0] - y[0]).slice(0, 2).forEach(([, j]) => near.add(i < j ? `${i},${j}` : `${j},${i}`));
+    }
+    for (const key of near) {
+      const [i, j] = key.split(",").map(Number), A = items[i], B = items[j];
+      const fade = Math.min(1, 2.5 / Math.max(A.z, B.z)) * linkA * A.a * B.a * 0.6;
       ctx.globalAlpha = fade; ctx.strokeStyle = COL[A.p.cat]; ctx.shadowColor = COL[A.p.cat]; ctx.shadowBlur = S * 0.012;
       ctx.beginPath(); ctx.moveTo(A.X, A.Y); ctx.lineTo(B.X, B.Y); ctx.stroke();
     }
     ctx.restore();
   }
-  // the vertical bands of the bar charts and the chart's grid
-  const bandA = (k) => isFinite(at(k)) ? smooth((t - at(k) - 0.6) / 1) * (cur === k ? 1 : 0) : 0;
-  for (const k of ["heavy", "big"]) {
-    const a = bandA(k); if (a <= 0) continue;
+  // the vertical bands of the bar charts: one set for both (heavy, then big), only their words change
+  const next = (k) => { const i = SORTS.indexOf(k); return i >= 0 && i + 1 < SORTS.length ? at(SORTS[i + 1]) : Infinity; };
+  const span = (k, din = 0.6, dout = 0.5) => isFinite(at(k)) ? smooth((t - at(k) - 0.2) / din) * (1 - smooth((t - next(k)) / dout)) : 0;
+  const bandsA = Math.max(span("heavy"), span("big"), Math.min(smooth((t - at("heavy")) / 0.6), 1 - smooth((t - next("big")) / 0.5)));
+  if (bandsA > 0 && isFinite(at("heavy"))) {
     const bins = 12, x0 = W * 0.08, x1 = W * 0.92, bw = (x1 - x0) / bins;
-    for (let b = 0; b < bins; b++) { ctx.globalAlpha = a * (b % 2 ? 0.07 : 0.035); ctx.fillStyle = "#9fb4ff"; ctx.fillRect(x0 + b * bw, H * 0.2, bw, H * 0.6); }
-    ctx.globalAlpha = a; const y = H * 0.87;
+    for (let b = 0; b < bins; b++) { ctx.globalAlpha = bandsA * (b % 2 ? 0.07 : 0.035); ctx.fillStyle = "#9fb4ff"; ctx.fillRect(x0 + b * bw, H * 0.2, bw, H * 0.6); }
+    ctx.globalAlpha = bandsA; const y = H * 0.87;
     arrowHead(ctx, W * 0.5 - S * 0.02, y, W * 0.12, y, "#ffe9a3", S * 0.004);
     arrowHead(ctx, W * 0.5 + S * 0.02, y, W * 0.88, y, "#ffe9a3", S * 0.004);
-    text(ctx, k === "heavy" ? "LIGHTER" : "SMALLER", W * 0.1, y - S * 0.045, S * 0.04, "#ffe9a3", "left");
-    text(ctx, k === "heavy" ? "HEAVIER" : "BIGGER", W * 0.9, y - S * 0.045, S * 0.04, "#ffe9a3", "right");
+    for (const k of ["heavy", "big"]) {
+      const a = span(k, 0.5, 0.4); if (a <= 0) continue;
+      ctx.globalAlpha = a;
+      text(ctx, k === "heavy" ? "LIGHTER" : "SMALLER", W * 0.1, y - S * 0.045, S * 0.04, "#ffe9a3", "left");
+      text(ctx, k === "heavy" ? "HEAVIER" : "BIGGER", W * 0.9, y - S * 0.045, S * 0.04, "#ffe9a3", "right");
+    }
     ctx.globalAlpha = 1;
   }
-  const gridA = cur === "chart" ? smooth((t - at("chart") - 0.5) / 1.2) : 0;
-  if (gridA > 0) {
-    ctx.save(); ctx.lineWidth = 1;
-    const x = (r) => W * (0.08 + 0.84 * (r - CHART.r0) / (CHART.r1 - CHART.r0)), y = (m) => H * (0.9 - 0.8 * (m - CHART.m0) / (CHART.m1 - CHART.m0));
-    const tens = smooth((t - at("grid")) / 1.5);   // each square ten times the last: every decade, once it's said
-    for (let r = CHART.r0; r <= CHART.r1; r++) { const major = r % 5 === 0; if (!major && tens <= 0) continue; ctx.globalAlpha = gridA * (major ? 0.22 : 0.09 * tens); ctx.strokeStyle = "#9fb4ff"; ctx.beginPath(); ctx.moveTo(x(r), y(CHART.m0)); ctx.lineTo(x(r), y(CHART.m1)); ctx.stroke(); }
-    for (let m = CHART.m0; m <= CHART.m1; m++) { const major = m % 5 === 0; if (!major && tens <= 0) continue; ctx.globalAlpha = gridA * (major ? 0.22 : 0.09 * tens); ctx.strokeStyle = "#9fb4ff"; ctx.beginPath(); ctx.moveTo(x(CHART.r0), y(m)); ctx.lineTo(x(CHART.r1), y(m)); ctx.stroke(); }
-    ctx.globalAlpha = gridA; ctx.strokeStyle = "#ffe9a3"; ctx.lineWidth = S * 0.003;
-    ctx.beginPath(); ctx.moveTo(x(CHART.r0), y(CHART.m0)); ctx.lineTo(x(CHART.r1), y(CHART.m0)); ctx.moveTo(x(CHART.r0), y(CHART.m0)); ctx.lineTo(x(CHART.r0), y(CHART.m1)); ctx.stroke();
-    text(ctx, "SIZE →", x(CHART.r1), y(CHART.m0) + S * 0.035, S * 0.035, "#ffe9a3", "right");
-    ctx.save(); ctx.translate(x(CHART.r0) - S * 0.03, y(CHART.m1)); ctx.rotate(-Math.PI / 2); text(ctx, "MASS →", 0, 0, S * 0.035, "#ffe9a3", "right"); ctx.restore();
-    if (tens > 0) { ctx.globalAlpha = gridA * tens; text(ctx, "×10 EACH STEP", W * 0.5, H * 0.955, S * 0.032, "#ffe9a3"); }
-    ctx.restore();
-  }
-  // the headings of the columns
+  // the headings of the columns, each set fading out as the next comes in
   const HEADS = { float: ["FLOATS IN WATER", "SINKS"], round: ["ROUND", "IN BETWEEN", "NOT ROUND"], alive: ["ALIVE", "IN BETWEEN", "NOT ALIVE"] };
-  if (HEADS[cur]) {
-    const hs = HEADS[cur], a = smooth((t - at(cur)) / 0.8), colW = W * 0.86 / hs.length;
+  for (const k of Object.keys(HEADS)) {
+    const a = span(k, 0.5, 0.35); if (a <= 0) continue;
+    const hs = HEADS[k], colW = W * 0.86 / hs.length;
     hs.forEach((h, i) => { ctx.globalAlpha = a; text(ctx, h, W * 0.07 + colW * (i + 0.5), H * 0.17, S * (hs.length > 2 ? 0.04 : 0.048), "#ffe9a3"); });
     ctx.globalAlpha = 1;
   }
-  // the pictures, far ones first; out of focus (blurred) when far away or too close, in the cloud
+  // the pictures, far ones first. In the cloud, sharp round the focus (where the things named arrive), softly out of
+  // focus well in front of it or behind it (the author, 2026-11-17, 0:25: "the objects are all blurry")
   const labels = on("labels", 1.0);
   items.sort((A, B) => B.z - A.z);
   for (const q of items) {
     if (q.a <= 0.01 || q.d < 1 || q.z <= 0.05) continue;
+    if (q.X < -q.d || q.X > W + q.d || q.Y < -q.d || q.Y > H + q.d) continue;
     const im = pic(q.p.slug); if (!(im.complete && im.naturalWidth)) continue;
-    const blurPx = sorted ? 0 : Math.min(S * 0.014, Math.abs(Math.log(q.z / 1.6)) * S * 0.007);
+    const blurPx = sorted ? 0 : Math.min(S * 0.008, Math.max(0, Math.abs(Math.log(q.z / FOCUS)) - 0.45) * S * 0.006);
     ctx.save();
     if (blurPx > 0.6) ctx.filter = `blur(${blurPx.toFixed(1)}px)`;
-    ctx.globalAlpha = q.a * (sorted ? 1 : Math.min(1, 3.5 / q.z));
+    ctx.globalAlpha = q.a * (sorted ? 1 : Math.min(1, 4 / q.z));
     ctx.drawImage(im, q.X - q.d / 2, q.Y - q.d / 2, q.d, q.d);
     ctx.restore();
-    // its label: the name in its chart colour, its kind and numbers under it (in the cloud, the near ones only)
-    if (labels > 0 && q.d > S * (sorted ? 0.03 : 0.07)) {
-      const near = sorted ? 1 : smooth((3.0 - q.z) / 1.0);
+    // its label: the name in its chart colour, its kind and numbers under it (in the cloud, the near ones only); none
+    // on the chart, which has its own
+    if (labels > 0 && cur !== "chart" && q.d > S * (sorted ? 0.03 : 0.07)) {
+      const near = sorted ? 1 : smooth((3.0 - q.z) / 1.0) * smooth((q.z - 0.5) / 0.3);
       const la = labels * q.a * near; if (la <= 0.02) continue;
       const fs = sorted ? Math.max(S * 0.014, Math.min(S * 0.024, q.d * 0.2)) : Math.max(S * 0.024, Math.min(S * 0.042, q.d * 0.14));
       ctx.globalAlpha = la;

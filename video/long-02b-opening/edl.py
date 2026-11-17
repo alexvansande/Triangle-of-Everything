@@ -22,8 +22,8 @@ ROOM = True
 EDL = [
  # a map of every single thing (the fourth try; the earlier three restart)
  ("rec74", "map", 153.78, 157.68),         # What will happen if you try to make a map of every single thing in the universe?
- ("rec74", "map", 158.66, 166.56, {"e": 166.85}),         # Every star, every planet, galaxy, animal, rock, car, microbe or atom, not where they are, but how they connect to each other,   (its end given: a retry of "but how they connect to each other" follows at once, 2:47)
- ("rec74", "map", 180.74, 182.76, {"gap": 0.3}),   # and how everything connects in this one universe.   (the end of the last try, 2:53)
+ ("rec74", "map", 158.66, 162.72, {"e": 163.42}),         # Every star, every planet, galaxy, animal, rock, car, microbe or atom.   (its end given, before "Not where they are": that try says "how they connect each other", with no "to" and "other" swallowed, the author, 2026-11-17: "how they connect to ea[ch other] - phrase cut")
+ ("rec74", "map", 177.8, 182.76, {"s": 177.25}),         # Not where they are, but how they relate to each other and how everything connects in this one universe.   (the last try, 2:57, whole)
  ("rec74", "map", 185.42, 189.14),         # Turns out it's a tool the scientists used a lot, and it's surprising how much it reveals.
  ("rec74", "map", 198.88, 200.94),         # From the Big Bang to the heat death of the universe,   (the second try)
  ("rec74", "map", 210.04, 211.86, {"gap": 0.35}),  # a unified history, all in a single chart.   (the last of three endings)
@@ -43,9 +43,9 @@ EDL = [
  ("rec74", "em", 312.72, 317.1),           # These are the chemical bonds keeping most things around you together, from a stick to a building.
  ("rec74", "em", 318.12, 320.48),          # These bonds are all variations of the electromagnetic force.   ("It keeps things at the right distance of each other" after it and "Electromagnetism prevents things…" at 5:28 left out: the author, 5:35, "I'm going to remove that last phrase. These bonds are all variations, etc.")
  ("rec74", "em", 348.94, 354.16),          # It prevents things from getting too close to each other. But gravity works trying to push matter together.   (the try after the aside; its "All of these are the electromagnetic force" before it left out for the line above)
- ("rec74", "diagonal", 355.86, 371.56),    # Make something too big, and it will crush under its own weight. Try to squeeze it too hard, and electrons themselves will push it outwards. The resulting line, this diagonal, is actually the density of atoms, and everything made of ordinary matter will fall somewhere along here.
+ ("rec74", "diagonal", 355.86, 371.56, {"cut": [(371.40, 371.57)]}),    # Make something too big, and it will crush under its own weight. Try to squeeze it too hard, and electrons themselves will push it outwards. The resulting line, this diagonal, is actually the density of atoms, and everything made of ordinary matter will fall somewhere along here.   (its "the" before "here" cut, 371.40-371.57: "along the here", the author, 2026-11-17)
  ("rec74", "gravity", 381.96, 386.68),     # Gravity is very weak compared to electromagnetism, but it works at much larger distances.
- ("rec74", "gravity", 402.45, 416.08),     # The more massive something is, the more gravity has an effect on it, and the less chemical bonds can keep it together. That's why it's hard to build very tall buildings, and why at some point everything in our list becomes round.   (the try after the aside, 6:40: "those two phrases should go all the way down", the two sentences joined)
+ ("rec74", "gravity", 402.45, 416.08, {"s": 404.8}),     # The more massive something is, the more gravity has an effect on it, and the less chemical bonds can keep it together. That's why it's hard to build very tall buildings, and why at some point everything in our list becomes round.   (the try after the aside, 6:40: "those two phrases should go all the way down", the two sentences joined; from its second "the more massive something is": the first, 402.3, restarts, the author, 2026-11-17)
  ("rec74", "gravity", 417.66, 419.4, {"s": 417.05}),      # Gravity shapes everything from this point onwards.   (its start given: the word timings run "Gravity" into "shapes")
  # the giant planets' column
  ("rec74", "column", 427.12, 430.62),      # Get massive enough, and gravity starts to matter even at atomic scale.   (the second try)
@@ -54,7 +54,7 @@ EDL = [
  ("rec74", "column", 482.8, 491.16),       # That's why super-Jupiter planets don't get bigger, they just get denser. That is, until this bifurcation here happens. What is that?   (the second try)
  # the strong force and fusion
  ("rec74", "strong", 493.78, 504.72, {"cut": [(494.75, 496.12)]}),      # Turns out, if you add even more mass, then something magical happens, because a new force comes into play. The strong force, as the name implies, is the strongest of all forces.   (a hesitation between "add" and "even" cut)
- ("rec74", "strong", 506.46, 508.52, {"e": 508.95}),      # But it also has an even more limited range.   (its end given: a restart, "but it also has even a more", follows)
+ ("rec74", "strong", 506.46, 508.52, {"e": 509.45}),      # But it also has an even more limited range.   (its end given, at the end of "range" on the waveform, 509.4 (508.95 clipped it, the author, 2026-11-17): a restart, "but it also has even a more", follows at 510.35)
  ("rec74", "strong", 513.66, 523.08),      # For some massive objects, their gravity will be so strong that it will push those cores together that the strong force can now capture them and make one single nucleus.
  ("rec74", "fusion", 565.94, 574.5),       # And when that happens, a large amount of energy will be released, creating an outwards pressure that counterbalances the force of gravity.   (the last of four tries)
  ("rec74", "fusion", 590.88, 591.14, {"s": 590.75}),      # That's fusion.   (the third of three)

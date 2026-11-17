@@ -55,6 +55,35 @@ and in…", "…a neutron. One"). Each clip now starts at the last restart's fir
 on the waveform (the start and end given in the cut list); "That's fusion" had lost its "That's" to the silence snap
 (its start given). The edit transcribes clean clip by clip; 6:14 now.
 
+### The author's notes on the drafts (2026-11-17, evening), and what changed
+- **Audio** (`edl.py`): "how they connect to ea[ch other] - phrase cut": the try used said "how they connect each other"
+  (no "to", "other" swallowed), so the clip now ends at "microbe or atom" and the last try follows whole, "Not where they
+  are, but how they relate to each other and how everything connects in this one universe" (2:57). "will fall somewhere
+  along *the* here": the "the" cut from inside the clip (371.40–371.57; every hearing of the edit now says "along here").
+  "the more massive.. the more massive something is": from the second (404.8). "but it also has a limited ran[ge]": the
+  clip's end moved to the end of "range" on the waveform (509.45; 508.95 clipped it). The edit is 6:12.
+- **The catalogue** (`src/narr-catalogue.js`): one planned glide through the cloud instead of darts to each thing named:
+  each is placed on the path, in front of the camera and in focus as its word is said, the next ones already behind it.
+  Sharp round the focus, softly blurred well off it (0:25 "all blurry"). Every catalogue cue holds to the next (the default
+  14 s ended it at 0:26 and the chart showed through: "0:29 dont show the chart yet"). The sorts move fast with an elastic
+  snap, the headings and the bar chart's words crossfade (0:58). The links only to the two nearest of a kind.
+- **To the chart** (1:10): the pictures fly to where the chart has them, then the catalogue fades into the chart with no
+  painting (`bgStart: 0`, a new cue field `bg`, `app.setBgOpacity`); from there one slow glide down to the human, the
+  painting fading back in from "this particular diagonal" (1:20).
+- **The forces** (1:35): the arrows without their words until the narration names each force. **The bonds** (1:41): arrows
+  on the line between each two neighbours' centres (`arrowsBonds`, src/squeeze-sim.js): blue pairs pushing apart at the
+  electron rings, purple ones from each ring to the other's nucleus. **2:07**: the two arrows' tips on the line (`padEnd`:
+  chart arrows stop 20 px short by default). **Fusion**: red arrows pushing out from the middle as "a large amount of
+  energy" is said (`push`, src/narr-diagrams.js), the clip held to the next shot.
+- **The Short** starts at "everything in our universe is a delicate dance…" (cut in the dip after "that", 87.62–87.69) and
+  ends at "and the strangest of all, black holes" (the recap before it left out): 2:56 + 3 s credits.
+- **The long video's music** runs on under it all (`music` in the cut: Immersed, Mesmerize, Fresh Air, Dreamer, each from
+  where the one before ends), no changes at the joins.
+- **The powers-of-ten part** stood still in the long draft: the long cut wasn't listed in `video/zoom-takes.json`, so it
+  rendered with no zoom. Listed now, and the zoom is handed its own piece's clock (`zoomShift` in `src/narration.js`; its
+  script keys on the Short's times, Earth at 0) and the 16:9 stage.
+- **The black hole in the forces' style** (the question in the script): see the answer at the end of the fact check.
+
 ### Fact check
 - **Right:** a log chart of mass and size for every kind of thing; light placed by its energy (as mass, E = mc²) and its
   wavelength; most things in bands and the diagonal of ordinary matter; the electric push between electrons and the pull

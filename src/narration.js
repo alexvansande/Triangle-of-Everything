@@ -167,6 +167,9 @@ async function cutCues(take, name) {
     if (s.from > 0 && cam && s.carry !== false) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: s.carry === "glide" ? 2.5 : 0.05, drift: cam.drift, time: s.at });
     if (s.from > 0 && hl?.hl && s.carry !== false && s.carry !== "glide") all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: s.at + 0.001 });
     for (const c of rc) if (c.time >= s.from - 0.01 && c.time < s.to) all.push({ ...c, time: move(c.time) });
+    // a piece over the powers-of-ten zoom (5d in long video 2): the zoom's script keys its moves on its own take's
+    // clock (Earth at 0, its stops a few seconds after each mark), so it's handed that clock, not the cut's
+    if (scene.zoom && all.zoomShift == null) all.zoomShift = s.at - s.from;
     // its sound cues inside it too, for a cut whose mix is made whole (narration-sound.mjs: a cut
     // with its own music, words.json "music")
     for (const c of rc.sound || []) if (c.s >= s.from - 0.01 && c.s < s.to) sound.push({ ...c, s: move(c.s), e: move(Math.min(c.e, s.to)) });
@@ -181,8 +184,10 @@ async function cutCues(take, name) {
     missing.push(...(window.__narrMissing || []));
   }
   window.__narrMissing = missing;
+  const zoomShift = all.zoomShift;
   all.sort((a, b) => a.time - b.time);
   all.sound = sound;
+  all.zoomShift = zoomShift;
   // the first piece's scene-wide settings win; settings only a later piece has (video 7's explorer) come along too
   const merged = { ...Object.assign({}, ...[...parts].reverse().map(p => p.scene)), cues: [], captionFixes: Object.assign({}, ...parts.map(p => p.scene.captionFixes)),
     cover: first.s.from === 0 ? first.scene.cover && { ...first.scene.cover, ...own?.cover } : undefined,
@@ -305,6 +310,7 @@ export async function startNarration(app) {
   app.setPbhWindow?.(SCENE.pbhWindow === true);
 
   const objects = new Map(app.objects.map(o => [o.name, o]));
+  const objBySlug = new Map(app.objects.filter(o => o.slug).map(o => [o.slug, o]));
   // { obj: name } also takes a catalogue dot's name (the Eiffel Tower, a statue, a ship)
   const objByName = { get(name) {
     const o = objects.get(name);
@@ -1027,7 +1033,7 @@ export async function startNarration(app) {
       hlClip.attr("x", (fr.x - lr.x) / sc).attr("y", (fr.y - lr.y) / sc).attr("width", fr.w / sc).attr("height", fr.h / sc);
       gHl.attr("clip-path", "url(#narr-hl-clip)");
     } else gHl.attr("clip-path", null);
-    const live = highlights.filter(h => t >= h.t0 - 0.01 && t < h.t1 + 0.5);
+    const live = highlights.filter(h => t >= h.t0 - 0.01 && t < h.t1 + Math.max(0.5, h.out ?? 0));
     const join = (grp, data) => {
       const g = grp.selectAll("g.hl").data(data, d => d.id);
       g.exit().remove();
@@ -2276,7 +2282,7 @@ export async function startNarration(app) {
     const dpr = Math.min(2, devicePixelRatio || 1), W = Math.round(layer.clientWidth * dpr), H = Math.round(layer.clientHeight * dpr);
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     const ctx = cv.getContext("2d"), age = t - h.t0;
-    cv.style.opacity = (h.instant ? 1 : smooth(age / 0.7)) * (1 - smooth((t - h.t1) / 0.6));
+    cv.style.opacity = (h.instant ? 1 : smooth(age / 0.7)) * (1 - smooth((t - h.t1) / (h.out ?? 0.6)));   // h.out: a slower fade out (s)
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
     if (h.horizons) drawHorizons(ctx, W, H, { ...h.horizons, age, instant: h.horizons.instant }, t);
     else if (h.center) drawCenter(ctx, W, H, { ...h.center, age });
@@ -2289,7 +2295,10 @@ export async function startNarration(app) {
     else if (h.obs) drawObservable(ctx, W, H, { ...h.obs, ...OBS_T }, t);
     else if (h.edge) drawEdge(ctx, W, H, { ...h.edge, ...EDGE_T }, t);
     else if (h.squeeze) drawSqueeze(ctx, W, H, { ...h.squeeze, start: h.t0, exact: RENDER }, t, dpr);
-    else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t);
+    else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t, (slug, r, m) => {
+      // where the chart puts it now, so the pictures land on the chart's own (a catalogue dot: its numbers)
+      const ob = objBySlug.get(slug); return { X: sx(ob ? ob.logR : r) * dpr, Y: sy(ob ? ob.logM : m) * dpr };
+    });
   }
   /** Expansion as a picture gaining pixels: { pixels: { steps: [s, …], cell?, seed? } }, on its
    *  own over a black screen (no chart behind) and full screen, so no border is seen growing (the
@@ -2594,11 +2603,13 @@ export async function startNarration(app) {
         .attr("fill", col);
       return;
     }
-    const pad = 20, L = Math.hypot(x2r - x1, y2r - y1);
-    if (L < 2 * pad) return;
+    // (padEnd: how far short of `to` the head stops, default 20 px like the start; 0 lands it on a line, the author's
+    // "the blue arrow seems to be placed before the line ends", 2026-11-17)
+    const pad = 20, pe = h.padEnd ?? pad, L = Math.hypot(x2r - x1, y2r - y1);
+    if (L < pad + pe + 2) return;
     const ux = (x2r - x1) / L, uy = (y2r - y1) / L;
     const sxp = x1 + ux * pad, syp = y1 + uy * pad;
-    const ex = sxp + (x2r - x1 - 2 * pad * ux) * prog, ey = syp + (y2r - y1 - 2 * pad * uy) * prog;
+    const ex = sxp + (x2r - x1 - (pad + pe) * ux) * prog, ey = syp + (y2r - y1 - (pad + pe) * uy) * prog;
     const col = h.color || "#ffffff";
     // solid / width: a bold arrow (a movement to read at a glance), else a dashed path
     el.append("line").attr("x1", sxp).attr("y1", syp).attr("x2", ex).attr("y2", ey)
@@ -2972,13 +2983,24 @@ export async function startNarration(app) {
     for (const k of ZOOM_SHOW) { if (k.t > t) break; const p = smooth(clamp01((t - k.t) / k.fade)); v = v + (k.on - v) * p; }
     return v;
   };
+  // the background painting's opacity: a cue's `bg: 0..1` or `bg: { to, dur }` eases it there over dur s (default 1.5),
+  // from where it is; a scene's `bgStart` is where it begins (long-02b-opening: the catalogue hands over to the bare chart,
+  // the painting coming back as the camera reaches everyday sizes, the author, 2026-11-17)
+  const BG_KEYS = cues.filter(c => c.bg != null).map(c => ({ t: c.time, to: typeof c.bg === "number" ? c.bg : c.bg.to, dur: (typeof c.bg === "object" && c.bg.dur) || 1.5 }));
+  const bgAt = (t) => {
+    let v = SCENE.bgStart ?? 1;
+    for (const k of BG_KEYS) { if (k.t > t) break; v = v + (k.to - v) * smooth(clamp01((t - k.t) / k.dur)); }
+    return v;
+  };
   let zoomEl = null, zoomLastT = NaN;
+  // (in a cut, the zoom's piece's own clock: ZT(t) is the time in its take, cutCues' zoomShift)
+  const ZOOM_SHIFT = cues.zoomShift ?? 0, ZT = (t) => +(t - ZOOM_SHIFT).toFixed(4);
   if (ZOOM_ORIGIN) {
-    const marks = cues.filter(c => c.zoom?.mark).map(c => `${c.zoom.mark}:${c.time.toFixed(2)}`).join(",");
+    const marks = cues.filter(c => c.zoom?.mark).map(c => `${c.zoom.mark}:${ZT(c.time).toFixed(2)}`).join(",");
     zoomEl = document.createElement("iframe");
     zoomEl.id = "narr-zoom";
     zoomEl.title = "Powers of ten";
-    zoomEl.src = `${ZOOM_ORIGIN}/tools/powers-of-ten.html?canopytest=1&renderZoom=1&ui=0&roll=0&crossings=0&grid=1&labels=1&stage=9x16&timeline=${SCENE.zoom.timeline}&at=${marks}`;
+    zoomEl.src = `${ZOOM_ORIGIN}/tools/powers-of-ten.html?canopytest=1&renderZoom=1&ui=0&roll=0&crossings=0&grid=1&labels=1&stage=${stage === "landscape" ? "16x9" : "9x16"}&timeline=${SCENE.zoom.timeline}&at=${marks}`;
     layer.insertBefore(zoomEl, layer.firstChild);   // under the drawings and captions
   }
   function drawZoom(t) {
@@ -2986,7 +3008,7 @@ export async function startNarration(app) {
     const show = zoomShow(t);
     zoomEl.style.opacity = show;
     zoomEl.style.visibility = show > 0 ? "visible" : "hidden";
-    if (show > 0 && t !== zoomLastT && !RENDER) { zoomEl.contentWindow?.postMessage({ zoomAt: t }, "*"); zoomLastT = t; }
+    if (show > 0 && t !== zoomLastT && !RENDER) { zoomEl.contentWindow?.postMessage({ zoomAt: ZT(t) }, "*"); zoomLastT = t; }
   }
 
   // ---------- frame ----------
@@ -3010,6 +3032,7 @@ export async function startNarration(app) {
     app.setCamera(view, !arriving);
     lastKey = key; lastPhase = view.phase;
     app.bgNoiseTime(t);    // the fractal background, drawn for this t (its clouds evolve by t)
+    if (BG_KEYS.length || SCENE.bgStart != null) app.setBgOpacity?.(bgAt(t));
     overlay();
   }
   function overlay() {
@@ -3057,7 +3080,7 @@ export async function startNarration(app) {
     }),
     renderAt,
     // the zoom's frame, when it shows at t: the renderer draws it there too (scripts/narration-render.mjs)
-    zoomAt: (t) => zoomEl && zoomShow(t) > 0 ? t : null,
+    zoomAt: (t) => zoomEl && zoomShow(t) > 0 ? ZT(t) : null,
     now: () => curT,     // the take's time on screen (the live Hopf pictures animate by it)
     settle(t) { const { view } = camera(t); app.setCamera(view, false); app.bgNoiseSettle(); overlay(); },
     camera: (t) => camera(t).view,

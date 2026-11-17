@@ -8824,6 +8824,8 @@ if (_ogShot) {
        *  multiplier, an opacity multiplier, or a fixed radius in px. */
       /** Fade the background painting at zooms deeper than its resolution (videos). */
       setBgFadeDeep(on = true) { _bgFadeDeep = on; drawTiles(); },
+      /** The background painting and its fractal layer at an opacity (videos: a cue's `bg`); 1 leaves them as they are. */
+      setBgOpacity(v = 1) { dBack.style("opacity", v < 0.999 ? Math.max(0, v).toFixed(3) : null); },
       /** The fractal background (bg-noise.js): its clock, a crossfade cut short, whether it's still loading. */
       bgNoiseTime, bgNoiseSettle, bgNoisePending, bgNoiseShadowsLag,
       bgNoiseStatus: () => ({ wanted: _bgNoiseWanted, shown: _bgNoiseShown, failed: _bgNoiseFailed, lost: _bgNoiseLost }),

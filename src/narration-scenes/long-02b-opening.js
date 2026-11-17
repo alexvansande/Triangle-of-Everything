@@ -18,8 +18,10 @@ const WATER = { line: "water" };
 const ON_LINE = (m) => (m - 0.62) / 3;
 // marks a little ahead of the camera on the pan up the diagonal (visual-rules.md, "Marks during a glide")
 const force = (m, dir, color) => ({ arrow: true, solid: true, width: 4, color, from: { r: ON_LINE(m) + dir * 1.5, m }, to: { r: ON_LINE(m) + dir * 0.2, m } });
-const GRAV_AT = (m) => [force(m + 0.9, 1, "#ffab40"), force(m - 0.9, 1, "#ffab40"), { text: "gravity\npushes in", at: [ON_LINE(m) + 0.85, m], size: 22, color: "#ffab40" }];
-const EM_AT = (m) => [force(m + 0.9, -1, "#4fc3f7"), force(m - 0.9, -1, "#4fc3f7"), { text: "electro-\nmagnetism\npushes out", at: [ON_LINE(m) - 1.05, m], size: 22, color: "#4fc3f7" }];
+// (named = false: the arrows alone; the words come once the narration names the force, the author, 2026-11-17, 1:35:
+// "don't show the pushes out and in labels yet")
+const GRAV_AT = (m, named = true) => [force(m + 0.9, 1, "#ffab40"), force(m - 0.9, 1, "#ffab40"), ...(named ? [{ text: "gravity\npushes in", at: [ON_LINE(m) + 0.85, m], size: 22, color: "#ffab40" }] : [])];
+const EM_AT = (m, named = true) => [force(m + 0.9, -1, "#4fc3f7"), force(m - 0.9, -1, "#4fc3f7"), ...(named ? [{ text: "electro-\nmagnetism\npushes out", at: [ON_LINE(m) - 1.05, m], size: 22, color: "#4fc3f7" }] : [])];
 const UP = (m, span = 4.6) => ({ r: ON_LINE(m), m, span, glide: true });
 const COLUMN = { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" };
 const G = (r, m, span = 1.7) => ({ r, m, span });
@@ -29,7 +31,10 @@ const FORK = [
   { obj: "White Dwarf", label: "dead stars' cores", place: "right", delay: 0.8 },
 ];
 const MS = { line: "mainsequence", label: "main sequence" };
-const CAT = (phase) => ({ catalogue: { phase }, instant: true });
+// (each cue holds the catalogue until the next: with the default 14 s it ended at 0:26 and the chart showed through,
+// the author, 2026-11-17: "0:29 dont show the chart yet just keep floating among the objects"; out: its fade into the chart)
+const CAT = (phase) => ({ catalogue: { phase }, instant: true, out: 1.6 });
+const CQ = (at, phase) => ({ at, hold: 999, hl: [CAT(phase)] });
 // the black-hole line (the Black Hole Slope's)
 const BH = (m) => ({ r: m - 27.83, m, mark: true });
 const SCHW = { line: "schwarzschild" };
@@ -38,14 +43,18 @@ const LOW = { path: "stellar-low-mass" }, HIGH = { path: "stellar-high-mass" };
 const CYCLE = [LOW, HIGH, { path: ["nebula-to-nursery", "remnant-to-nursery"] }];
 const WD = { obj: "White Dwarf", label: false }, NS = { obj: "PSR J0030+0451", label: false }, SBH = { obj: "Stellar BH", label: false };
 // a few atoms finding their distance: the Squeeze Lab's mode 1 with a roomy box that doesn't shrink and nothing popping,
-// its arrows on (the author's note in the script: "electrons repel electrons", "electrons and protons attract")
-const BONDS = { squeeze: { mode: 1, from: 0, P: { count: 34, startBox: 1.12, endBox: 1.12, shrinkTime: 999, threshold: 9, centreFirst: 0, initSpeed: 140, arrowTime: 9, arrowsIn: false },
+// its arrows on (the author's note in the script: "electrons repel electrons", "electrons and protons attract"); the
+// arrows on the line between each two neighbours' centres (the author, 2026-11-17, 1:41): blue pairs pushing them
+// apart at the electron rings, purple ones from each ring to the other's nucleus (squeeze-sim.js, arrowsBonds)
+const BONDS = { squeeze: { mode: 1, from: 0, P: { count: 34, startBox: 1.12, endBox: 1.12, shrinkTime: 999, threshold: 9, centreFirst: 0, initSpeed: 140, arrowTime: 13, arrowsIn: false, arrowsOut: false, arrowsBonds: true },
   labels: [["electrons repel electrons", "#4fc3f7"], ["electrons and protons attract", "#b39ddb"]] } };
 
 export default {
   title: "The Triangle of Everything: space (the new opening)",
   blurb: "A map of every single thing: the catalogue, sorted and laid out by mass and size; then the dance of the forces up the diagonal, from chemical bonds to the neutron star, and the black-hole line.",
-  start: { r: 6, m: 15, span: 30 },
+  // the chart's first frame, behind the catalogue until it hands over (bare: the painting comes back from 1:20)
+  start: { r: 5.5, m: 14, span: 30 },
+  bgStart: 0,
   iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
   icons: "all",
   forceIcons: ["Sun", "L Brown Dwarf", "T Brown Dwarf", "Y Brown Dwarf"],
@@ -60,44 +69,48 @@ export default {
 
   cues: [
     // ── A map of every single thing: the catalogue on black ──
-    { t: 0, hl: [{ catalogue: { phase: "start" } }] },
-    { at: "every star", hl: [CAT("sun")] },
-    { at: "every planet", hl: [CAT("earth")] },
-    { at: "galaxy", hl: [CAT("milky-way")] },
-    { at: "animal", hl: [CAT("elephant")] },
-    { at: "rock", hl: [CAT("big-rock-okotoks")] },
-    { at: "car", hl: [CAT("benz-patent-motorwagen")] },
-    { at: "microbe", hl: [CAT("bacteria")] },
-    { at: "atom", hl: [CAT("hydrogen")] },
-    { at: "how they connect", hl: [CAT("links")] },
-    { at: "add numbers", hl: [CAT("labels")] },
-    { at: "rainbow", hl: [CAT("light")] },
-    { at: "float in water", hl: [CAT("float")] },
-    { at: "some are round", hl: [CAT("round")] },
-    { at: "are alive", hl: [CAT("alive")] },
-    { at: "heavy or light", hl: [CAT("heavy")] },
-    { at: "big or small", hl: [CAT("big")] },
-    { at: "mass and size", hl: [CAT("chart")] },
-    { at: "each square", hl: [CAT("grid")] },
+    { t: 0, hold: 999, hl: [{ catalogue: { phase: "start" }, out: 1.6 }] },
+    CQ("every star", "sun"),
+    CQ("every planet", "earth"),
+    CQ("galaxy", "milky-way"),
+    CQ("animal", "elephant"),
+    CQ("rock", "big-rock-okotoks"),
+    CQ("car", "benz-patent-motorwagen"),
+    CQ("microbe", "bacteria"),
+    CQ("atom", "hydrogen"),
+    CQ("relate to each other", "links"),
+    CQ("add numbers", "labels"),
+    CQ("rainbow", "light"),
+    CQ("float in water", "float"),
+    CQ("some are round", "round"),
+    CQ("are alive", "alive"),
+    CQ("heavy or light", "heavy"),
+    CQ("big or small", "big"),
+    // to the chart: each picture flies to where the chart has it (the author, 2026-11-17, 1:10), then the chart takes over
+    CQ("organize them", "chart"),
 
     // ── The chart: everything from far away, then the bands and the diagonal ──
-    { at: "you'll notice", cam: { r: 5.5, m: 14, span: 30 }, dur: 0.05, clear: true, hl: [] },
-    { at: "fall in bands", cam: { r: 3.6, m: 10, span: 18 }, dur: 6, ease: "gentle", hl: [WATER, { ...COLUMN, delay: 1.2 }] },
-    { at: "particular diagonal", cam: { r: 2.6, m: 8.6, span: 9 }, dur: 4, ease: "gentle", hl: [{ line: "water", label: "the diagonal" }] },
+    // the catalogue fades into the chart as it is, the painting off (bgStart); then one slow pan and zoom down to the human,
+    // the painting fading back in from "this particular diagonal" (the author, 2026-11-17: "from now on its a slow pan and
+    // zoom", "1:20 now slowly fade the background as we zoom towards the macro scale")
+    { at: "each square", cam: { r: 5.5, m: 14, span: 30, glide: true }, dur: 0.05, hl: [] },
+    { at: "fall in bands", cam: { r: 4.0, m: 11.0, span: 21, glide: true }, hl: [WATER, { ...COLUMN, delay: 1.2 }] },
+    { at: "particular diagonal", cam: { r: 3.0, m: 9.3, span: 13, glide: true }, bg: { to: 1, dur: 7 }, hl: [{ line: "water", label: "the diagonal" }] },
     // the four forces: on the human, the tug of war marked on the line
-    { at: "delicate dance", cam: { obj: "Human", span: 4.6 }, dur: 3, ease: "gentle", clear: true, hl: [WATER, { obj: "Human" }] },
-    { at: "tug of war", hl: [WATER, ...GRAV_AT(3.6), ...EM_AT(6.2)] },
+    { at: "delicate dance", cam: { obj: "Human", span: 4.6, glide: true }, clear: true, hl: [WATER, { obj: "Human" }] },
+    { at: "tug of war", hl: [WATER, ...GRAV_AT(3.6, false), ...EM_AT(6.2, false)] },
     // the chemical bonds: a few atoms on black, settling at their distance
     { at: "electrons repel", hold: 12, hl: [BONDS] },
     { at: "chemical bonds", cam: { obj: "Human", span: 6 }, clear: true, hl: [WATER, { obj: "Human", label: "held by chemical bonds" }, { obj: "Eiffel Tower", delay: 0.5 }] },
     { at: "variations of the electromagnetic", hl: [WATER, ...EM_AT(6.2)] },
-    { at: "gravity works", hl: [WATER, ...EM_AT(6.2), ...GRAV_AT(3.6)] },
+    { at: "gravity works", hl: [WATER, ...EM_AT(6.2, false), ...GRAV_AT(3.6)] },
     // one pan up the line (visual-rules.md: one pan, one direction), the rings ahead of the camera
     { at: "make something too big", cam: UP(6), clear: true, hl: [WATER, { ellipse: [ON_LINE(7.5) + 1.2, 7.5, 0.6, 0.6], rot: 0, label: false, color: "#ffab40" },
-      { arrow: true, solid: true, width: 4, color: "#ffab40", from: { r: ON_LINE(7.5) + 1.2, m: 7.5 }, to: { r: ON_LINE(7.5) + 0.1, m: 7.5 }, delay: 0.4 },
+      { arrow: true, solid: true, width: 4, color: "#ffab40", from: { r: ON_LINE(7.5) + 1.2, m: 7.5 }, to: { r: ON_LINE(7.5), m: 7.5 }, padEnd: 0, delay: 0.4 },
       { text: "crushes under\nits own weight", at: [ON_LINE(7.5) + 1.25, 8.6], size: 22, color: "#ffab40", delay: 0.5 }] },
+    // (the arrows' tips on the line itself: "the blue arrow seems to be placed before the line ends", the author, 2026-11-17)
     { at: "squeeze it too hard", cam: UP(10), clear: true, hl: [WATER, { ellipse: [ON_LINE(12.5) - 1.2, 12.5, 0.6, 0.6], rot: 0, label: false, color: "#4fc3f7" },
-      { arrow: true, solid: true, width: 4, color: "#4fc3f7", from: { r: ON_LINE(12.5) - 1.2, m: 12.5 }, to: { r: ON_LINE(12.5) - 0.1, m: 12.5 }, delay: 0.4 },
+      { arrow: true, solid: true, width: 4, color: "#4fc3f7", from: { r: ON_LINE(12.5) - 1.2, m: 12.5 }, to: { r: ON_LINE(12.5), m: 12.5 }, padEnd: 0, delay: 0.4 },
       { text: "its atoms\npush back", at: [ON_LINE(12.5) - 1.2, 11.4], size: 22, color: "#4fc3f7", delay: 0.5 }] },
     { at: "density of atoms", cam: UP(16), clear: true, hl: [{ line: "water", label: "the density of atoms" }] },
     { at: "gravity is very weak", cam: UP(19), hl: [WATER, ...GRAV_AT(20.5)] },
@@ -116,7 +129,9 @@ export default {
     { at: "bifurcation", cam: { r: 9.9, m: 33.0, span: 3.8 }, dur: 3, drift: 0.02, hl: [{ obj: "L Brown Dwarf", label: false }, ...FORK] },
     // the strong force: the brown dwarfs and Proxima, then the fusion diagram
     { at: "even more mass", cam: { r: 9.85, m: 32.6, span: 3 }, clear: true, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "fusion starts", delay: 0.6 }] },
-    { at: "the strong force", hold: 25, hl: [{ squeeze: { mode: 2, from: 1.8, P: { startBox: 2.6 } } }] },
+    // (held to the next shot, and the energy's push drawn as it's said: "creating an outwards pressure - show arrows
+    // representing these", the author, 2026-11-17; push: s into the clip, "a large amount of energy")
+    { at: "the strong force", hold: 40, hl: [{ squeeze: { mode: 2, from: 1.8, P: { startBox: 2.6 }, push: 21.4 } }] },
     { at: "changes the delicate dance", cam: { r: 10.9, m: 33.1, span: 3.6 }, clear: true, hl: [] },
     { at: "called the main sequence", hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
     { at: "most of their lives", hl: [MS, { obj: "Sun", label: "billions of years" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
